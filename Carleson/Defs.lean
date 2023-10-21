@@ -1,50 +1,17 @@
-import Mathlib.Analysis.Convex.PartitionOfUnity
-import Mathlib.MeasureTheory.Integral.Bochner
-import Mathlib.Topology.MetricSpace.Holder
+import Carleson.HomogenousType
+
 open MeasureTheory Measure NNReal ENNReal Metric
 noncomputable section
 
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
-/- Mathlib is missing quasi metric spaces.
-At some point we should generalize metric spaces to quasi metric spaces, but that takes some
-refactoring in the mathematical library. -/
-
-/-- A distance is regular, or `A`-Lipschitz. -/
-class RegularDist (X : Type*) [MetricSpace X] (A : outParam ℝ≥0) : Prop where
+/-- A quasi metric space with regular/`A`-Lipschitz distance. -/
+class RegularQuasiMetricSpace (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
+    QuasiMetricSpace X A where
   abs_dist_sub_dist_le : ∀ x y y' : X, |dist x y - dist x y'| ≤ A * dist y y'
 
-/-- A space of homogenous type. -/
-class IsSpaceOfHomogenousType (X : Type*) (A : outParam ℝ≥0) where
-  metricSpace : MetricSpace X
-  measureSpace : MeasureSpace X
-  locallyCompactSpace : LocallyCompactSpace X
-  completeSpace : LocallyCompactSpace X
-  sigmaFinite : SigmaFinite (volume : Measure X) -- maybe?
-  borelSpace : BorelSpace X
-  volume_ball_le : ∀ (x : X) r, volume (ball x (2 * r)) ≤ A * volume (ball x r)
-
-attribute [instance]
-  IsSpaceOfHomogenousType.metricSpace
-  IsSpaceOfHomogenousType.measureSpace
-  IsSpaceOfHomogenousType.locallyCompactSpace
-  IsSpaceOfHomogenousType.completeSpace
-  IsSpaceOfHomogenousType.borelSpace
-  IsSpaceOfHomogenousType.sigmaFinite
-
-variable {X : Type*} {A : ℝ≥0} [IsSpaceOfHomogenousType X A]
+variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogenousType X A]
 export IsSpaceOfHomogenousType (volume_ball_le)
-
-
-lemma test (x : X) (r : ℝ) : volume (ball x (4 * r)) ≤ A ^ 2 * volume (ball x r) := by
-  calc volume (ball x (4 * r))
-      = volume (ball x (2 * (2 * r))) := by ring_nf
-    _ ≤ A * volume (ball x (2 * r)) := by apply volume_ball_le
-    _ ≤ A * (A * volume (ball x r)) := by gcongr; apply volume_ball_le
-    _ = A ^ 2 * volume (ball x r) := by ring_nf; norm_cast; ring_nf
-
-example (x : X) (r : ℝ) : ∃ S : Finset X, ball x (2 * r) ⊆ ⋃ y ∈ S, ball y r :=
-  sorry
 
 section localOscillation
 
@@ -102,7 +69,7 @@ class IsModerate (𝓠 : Set C(X, ℂ)) (N M : ℝ) (ν : ℝ≥0) (γ : ℝ) : 
 
 /-- The "volume function". Note that we will need to assume
 `IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
-def ENNReal.vol {X : Type*} [MetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
+def ENNReal.vol {X : Type*} [QuasiMetricSpace X A] [MeasureSpace X] (x y : X) : ℝ :=
   ENNReal.toReal (volume (ball x (dist x y)))
 
 /-- `K` is a `τ`-Calderon-Zygmund kernel -/
