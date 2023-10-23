@@ -12,8 +12,10 @@ class QuasiMetricSpace (α : Type u) (A : outParam ℝ≥0) [fact : Fact (1 ≤ 
 
 variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [QuasiMetricSpace X A]
 
-/-- We are allowed to use this axiom, but not `dist_triangle`. -/
-lemma dist_qtriangle (x y z : X) : dist x z ≤ A * (dist x y + dist y z) :=
+/-- We are allowed to use this for quasi metric spaces, but not `dist_triangle`. -/
+lemma dist_quasi_triangle (x y z : X) : dist x z ≤ A * (dist x y + dist y z) :=
   calc dist x z ≤ dist x y + dist y z := dist_triangle x y z
       _ ≤ 1 * (dist x y + dist y z) := by rw [one_mul]
       _ ≤ A * (dist x y + dist y z) := by have : 1 ≤ A := Fact.out; gcongr; norm_cast
+
+lemma qdist_comm (x y : X) : dist x y = dist y x := by rw [dist_comm]
