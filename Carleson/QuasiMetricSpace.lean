@@ -19,3 +19,6 @@ lemma dist_quasi_triangle (x y z : X) : dist x z ≤ A * (dist x y + dist y z) :
       _ ≤ A * (dist x y + dist y z) := by have : 1 ≤ A := Fact.out; gcongr; norm_cast
 
 lemma qdist_comm (x y : X) : dist x y = dist y x := by rw [dist_comm]
+
+-- instance {α : Type*} [Preorder α] {x y : α} [fact : Fact (x < y)] : Fact (x ≤ y) :=
+--   .mk (fact.out.le)
