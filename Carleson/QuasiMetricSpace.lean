@@ -2,15 +2,19 @@ import Mathlib.Topology.MetricSpace.Basic
 
 open NNReal
 
+/-- For now we are cheating: we are defining PseudoQuasiMetricSpaces to be pseudo metric spaces. -/
+class PseudoQuasiMetricSpace (α : Type u) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
+    PseudoMetricSpace α : Type u where
+
 /-- For now we are cheating: we are defining QuasiMetricSpaces to be metric spaces.
   We can manually make sure that we don't use the metric space axioms.
   At some point we'll properly define quasi metric spaces.
   For now, this is useful, so that we can already use definitions of metric spaces (like balls)
   from mathlib that should be generalized to quasi metric spaces. -/
 class QuasiMetricSpace (α : Type u) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
-    MetricSpace α : Type u where
+    MetricSpace α, PseudoQuasiMetricSpace α A  : Type u where
 
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [QuasiMetricSpace X A]
+variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [PseudoQuasiMetricSpace X A]
 
 /-- We are allowed to use this for quasi metric spaces, but not `dist_triangle`. -/
 lemma dist_quasi_triangle (x y z : X) : dist x z ≤ A * (dist x y + dist y z) :=
@@ -20,5 +24,5 @@ lemma dist_quasi_triangle (x y z : X) : dist x z ≤ A * (dist x y + dist y z) :
 
 lemma qdist_comm (x y : X) : dist x y = dist y x := by rw [dist_comm]
 
--- instance {α : Type*} [Preorder α] {x y : α} [fact : Fact (x < y)] : Fact (x ≤ y) :=
---   .mk (fact.out.le)
+example {Y} [QuasiMetricSpace Y A] (x y z : Y) : dist x z ≤ A * (dist x y + dist y z) :=
+  dist_quasi_triangle x y z

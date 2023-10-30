@@ -11,7 +11,8 @@ We should move them to separate files once we start proving things about them. -
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
 /-- A quasi metric space with regular/`A`-Lipschitz distance. -/
-class Metric.IsRegular (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] [QuasiMetricSpace X A]
+class Metric.IsRegular (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)]
+    [PseudoQuasiMetricSpace X A]
   where abs_dist_sub_dist_le : ∀ x y y' : X, |dist x y - dist x y'| ≤ A * dist y y'
 
 export Metric.IsRegular (abs_dist_sub_dist_le)
@@ -20,13 +21,21 @@ variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogenousT
 
 section localOscillation
 
+set_option linter.unusedVariables false in
+/-- A type synonym of `C(X, ℂ)` that uses the local oscillation w.r.t. `E` as the metric. -/
+def withLocalOscillation (E : Set X) : Type _ := C(X, ℂ)
+
+instance withLocalOscillation.toContinuousMapClass (E : Set X) :
+    ContinuousMapClass (withLocalOscillation E) X ℂ :=
+  ContinuousMap.toContinuousMapClass
+
 /-- The local oscillation of two functions. -/
-def localOscillation (E : Set X) (f g : C(X, ℂ)) : ℝ :=
+def localOscillation (E : Set X) (f g : withLocalOscillation E) : ℝ :=
   ⨆ z : E × E, ‖f z.1 - g z.1 - f z.2 + g z.2‖
 
 /-- The local oscillation on a set `E` gives rise to a pseudo-metric-space structure
   on the continuous functions `X → ℂ`. -/
-def homogenousPseudoMetric (E : Set X) : PseudoMetricSpace C(X, ℂ) where
+instance homogenousPseudoMetric (E : Set X) : PseudoQuasiMetricSpace (withLocalOscillation E) A where
   dist := localOscillation E
   dist_self := by simp [localOscillation]
   dist_comm := by sorry
@@ -56,7 +65,7 @@ class IsCompatible (𝓠 : Set C(X, ℂ)) : Prop where
     (h1 : ball x₁ r ⊆ ball x₂ (A * r)) (h2 : A * r ≤ Metric.diam (univ : Set X)) :
     2 * localOscillation (ball x₁ r) f g ≤ localOscillation (ball x₂ (A * r)) f g
   ballsCoverBalls {x : X} {r R : ℝ} :
-    BallsCoverBalls (localOscillation (ball x r)) (2 * R) R ⌊A⌋₊
+    BallsCoverBalls (withLocalOscillation (ball x r)) (2 * R) R ⌊A⌋₊
 
 export IsCompatible (localOscillation_two_mul_le localOscillation_le_of_subset ballsCoverBalls)
 
@@ -76,7 +85,7 @@ export IsCancellative (norm_integral_exp_le)
 
 /-- The "volume function". Note that we will need to assume
 `IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
-def Real.vol {X : Type*} [QuasiMetricSpace X A] [MeasureSpace X] (x y : X) : ℝ :=
+def Real.vol {X : Type*} [PseudoQuasiMetricSpace X A] [MeasureSpace X] (x y : X) : ℝ :=
   ENNReal.toReal (volume (ball x (dist x y)))
 
 open Real (vol)
@@ -140,7 +149,8 @@ structure GridStructure (ι : Type*) (D : ℝ) (C : ℝ≥0) where
 -- todo: tile structure
 
 instance homogenousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
-  let m : PseudoMetricSpace C(X, ℂ) := homogenousPseudoMetric (ball default 1) -- an arbitary ball
+  let m : PseudoQuasiMetricSpace C(X, ℂ) A :=
+    homogenousPseudoMetric (ball default 1) -- an arbitary ball
   let t : TopologicalSpace C(X, ℂ) := m.toUniformSpace.toTopologicalSpace
   @borel C(X, ℂ) t
 
