@@ -12,7 +12,7 @@ def C2_1 (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : ℝ≥0 := sorry
 
 def C2_1_pos (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : C2_1 A τ q C > 0 := sorry
 
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogenousType X A] [Inhabited X]
+variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A] [Inhabited X]
   {τ q q' : ℝ} (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
   [Metric.IsRegular X A]
   {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] [IsCancellative τ 𝓠]

@@ -1,4 +1,4 @@
-import Carleson.HomogenousType
+import Carleson.HomogeneousType
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -17,7 +17,7 @@ class Metric.IsRegular (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)
 
 export Metric.IsRegular (abs_dist_sub_dist_le)
 
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogenousType X A]
+variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A]
 
 section localOscillation
 
@@ -35,7 +35,7 @@ def localOscillation (E : Set X) (f g : withLocalOscillation E) : ℝ :=
 
 /-- The local oscillation on a set `E` gives rise to a pseudo-metric-space structure
   on the continuous functions `X → ℂ`. -/
-instance homogenousPseudoMetric (E : Set X) : PseudoQuasiMetricSpace (withLocalOscillation E) A where
+instance homogeneousPseudoMetric (E : Set X) : PseudoQuasiMetricSpace (withLocalOscillation E) A where
   dist := localOscillation E
   dist_self := by simp [localOscillation]
   dist_comm := by sorry
@@ -54,7 +54,7 @@ end localOscillation
 Todo:
 * Define Hölder spaces
 * Define the norm in Hölder spaces
-* Show that Hölder spaces are homogenous -/
+* Show that Hölder spaces are homogeneous -/
 
 /-- A set `𝓠` of (continuous) functions is compatible. -/
 class IsCompatible (𝓠 : Set C(X, ℂ)) : Prop where
@@ -148,9 +148,9 @@ structure GridStructure (ι : Type*) (D : ℝ) (C : ℝ≥0) where
 
 -- todo: tile structure
 
-instance homogenousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
+instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
   let m : PseudoQuasiMetricSpace C(X, ℂ) A :=
-    homogenousPseudoMetric (ball default 1) -- an arbitary ball
+    homogeneousPseudoMetric (ball default 1) -- an arbitary ball
   let t : TopologicalSpace C(X, ℂ) := m.toUniformSpace.toTopologicalSpace
   @borel C(X, ℂ) t
 
@@ -167,7 +167,7 @@ structure TileStructure [Inhabited X] (𝓠 : Set C(X, ℂ)) (ι : Type*) (𝔓 
   localOscillationBall_subset {p} : localOscillationBall (𝓓 (𝓘 p)) (Q p) 5⁻¹ ∩ 𝓠 ⊆ Ω p
   subset_localOscillationBall {p} : Ω p ⊆ localOscillationBall (𝓓 (𝓘 p)) (Q p) 1
 
--- #print homogenousMeasurableSpace
+-- #print homogeneousMeasurableSpace
 -- #print TileStructure
 
 set_option linter.unusedVariables false in

@@ -16,7 +16,7 @@ def Ce2_2 (A : ℝ≥0) (τ q : ℝ) : ℝ≥0 := sorry
 def Ce2_2_pos (A : ℝ≥0) (τ q : ℝ) : C1_1 A τ q > 0 := sorry
 
 section vars
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogenousType X A]
+variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A]
   {τ q q' : ℝ} (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
   [Metric.IsRegular X A]
   (𝓠 : Set C(X, ℂ)) [IsCompatible 𝓠] [IsCancellative τ 𝓠]
@@ -47,7 +47,7 @@ set_option linter.unusedVariables false in
 theorem theorem1_1 {A : ℝ≥0} [fact : Fact (1 ≤ A)] {τ q q' : ℝ}
     (hA : 1 < A) (h0τ : 0 < τ) (hτ1 : τ < 1)
     (h1q : 1 < q) (hq2 : q ≤ 2) (hqq' : q.IsConjugateExponent q') : ∃ (C : ℝ≥0), C > 0 ∧
-    ∀ {X : Type*} [IsSpaceOfHomogenousType X A] [Metric.IsRegular X A]
+    ∀ {X : Type*} [IsSpaceOfHomogeneousType X A] [Metric.IsRegular X A]
     (𝓠 : Set C(X, ℂ)) [IsCompatible 𝓠] [IsCancellative τ 𝓠]
     (K : X → X → ℂ) [IsCZKernel τ K]
     (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1)

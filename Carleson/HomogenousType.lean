@@ -6,21 +6,21 @@ noncomputable section
 
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
-/-! Question(F): should a space of homogenous type extend `PseudoQuasiMetricSpace` or
+/-! Question(F): should a space of homogeneous type extend `PseudoQuasiMetricSpace` or
 `QuasiMetricSpace`? -/
 
-/-- A space of homogenous type.
+/-- A space of homogeneous type.
 Note(F): I added `ProperSpace` to the definition (which I think doesn't follow from the rest?)
 and removed `SigmaFinite` (which follows from the rest).
 Should we assume `volume ≠ 0` / `IsOpenPosMeasure`? -/
-class IsSpaceOfHomogenousType (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
+class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
   PseudoQuasiMetricSpace X A, MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X) where
   volume_ball_le : ∀ (x : X) r, volume (ball x (2 * r)) ≤ A * volume (ball x r)
 
-export IsSpaceOfHomogenousType (volume_ball_le)
+export IsSpaceOfHomogeneousType (volume_ball_le)
 
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogenousType X A]
+variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A]
 
 example : ProperSpace X := by infer_instance
 example : LocallyCompactSpace X := by infer_instance
