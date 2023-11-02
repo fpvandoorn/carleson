@@ -11,7 +11,8 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue 
 
 /-- A space of homogenous type.
 Note(F): I added `ProperSpace` to the definition (which I think doesn't follow from the rest?)
-and removed `SigmaFinite` (which follows from the rest). -/
+and removed `SigmaFinite` (which follows from the rest).
+Should we assume `volume ≠ 0` / `IsOpenPosMeasure`? -/
 class IsSpaceOfHomogenousType (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
   PseudoQuasiMetricSpace X A, MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X) where
