@@ -40,7 +40,7 @@ lemma volume_ball_four_le_same (x : X) (r : ℝ) :
 example (x : X) (r : ℝ) : volume (ball x r) < ∞ := measure_ball_lt_top
 
 def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 :=
-  A * 2 ^ ⌊s⌋₊
+  A * 2 ^ ⌈s⌉₊
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
 lemma volume_ball_le_same (x : X) {r r' s : ℝ} (hs : r' ≤ s * r) :
