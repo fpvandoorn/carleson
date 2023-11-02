@@ -38,7 +38,8 @@ lemma test (x : X) (r : ℝ) : volume (ball x (4 * r)) ≤ A ^ 2 * volume (ball 
 
 example (x : X) (r : ℝ) : volume (ball x r) < ∞ := measure_ball_lt_top
 
-example : ∃ n : ℕ, BallsCoverBalls X (2 * r) r n :=
+/- Q(F): Can we choose `n` only depending on `A`, not on `X`? -/
+example : ∃ n : ℕ, ∀ r, BallsCoverBalls X (2 * r) r n :=
   sorry
 
 /- # Instances of spaces of homogeneous type -/
