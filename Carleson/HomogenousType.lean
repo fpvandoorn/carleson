@@ -40,3 +40,17 @@ example (x : X) (r : ℝ) : volume (ball x r) < ∞ := measure_ball_lt_top
 
 example : ∃ n : ℕ, BallsCoverBalls X (2 * r) r n :=
   sorry
+
+/- # Instances of spaces of homogeneous type -/
+
+/- ℝ^n is a space of homogenous type. -/
+instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) 1 := sorry
+
+/- Preferrably we prove that in this form. -/
+instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] : IsSpaceOfHomogeneousType E 1 := sorry
+
+/- Maybe we can even generalize the field? (at least for `𝕜 = ℂ` as well) -/
+def NormedSpace.isSpaceOfHomogeneousType {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
+    [NormedAddCommGroup E] [NormedSpace 𝕜 E] : IsSpaceOfHomogeneousType E 1 := sorry
+
+/- todo: ℝ^n with nonstandard metric: `dist x y = ∑ i, |x i - y i| ^ α i` for `α i > 0` -/

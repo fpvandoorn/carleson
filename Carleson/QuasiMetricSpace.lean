@@ -2,6 +2,8 @@ import Mathlib.Topology.MetricSpace.Basic
 
 open NNReal
 
+instance : Fact ((1 : ℝ≥0) ≤ 1) := .mk le_rfl
+
 /-- For now we are cheating: we are defining PseudoQuasiMetricSpaces to be pseudo metric spaces. -/
 class PseudoQuasiMetricSpace (α : Type u) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
     PseudoMetricSpace α : Type u where
