@@ -129,15 +129,16 @@ def CarlesonOperator (K : X → X → ℂ) (𝓠 : Set C(X, ℂ)) (f : X → ℂ
 variable (X) in
 /-- A grid structure on `X`.
 I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)` -/
-structure GridStructure (ι : Type*) (D : ℝ) (C : ℝ≥0) where
+class GridStructure (D : outParam ℝ) (C : outParam ℝ≥0) where
+  ι : Type*
   𝓓 : ι → Set X
   s : ι → ℤ
   x : ι → X
   volume_iUnion_preimage : ∀ σ ∈ range s, volume (⋃ i ∈ s ⁻¹' {σ}, 𝓓 i)ᶜ = 0
   volume_inter_eq_zero {i j} (h1 : i ≠ j) (h2 : s i = s j) : volume (𝓓 i ∩ 𝓓 j) = 0
   fundamental_dyadic {i j} : 𝓓 i ⊆ 𝓓 j ∨ 𝓓 j ⊆ 𝓓 i ∨ Disjoint (𝓓 i) (𝓓 j)
-  ball_subset {i} : ball (x i) ((2 * A) ^ (-2 : ℤ) * D ^ s i) ⊆ 𝓓 i
-  subset_ball {i} : 𝓓 i ⊆ ball (x i) ((2 * A) ^ 2 * D ^ s i)
+  ball_subset_𝓓 {i} : ball (x i) ((2 * A) ^ (-2 : ℤ) * D ^ s i) ⊆ 𝓓 i
+  𝓓_subset_ball {i} : 𝓓 i ⊆ ball (x i) ((2 * A) ^ 2 * D ^ s i)
   small_boundary {i} {t : ℝ≥0} (ht : 0 < t) : volume {x ∈ 𝓓 i | infDist x (𝓓 i)ᶜ ≤ t * D ^ s i } ≤
     C * t ^ k * volume (𝓓 i)
   -- should the following become axioms? I believe they don't follow from previous axioms.
@@ -145,6 +146,24 @@ structure GridStructure (ι : Type*) (D : ℝ) (C : ℝ≥0) where
   -- next : ι → ι
   -- subset_next {i} : 𝓓 i ⊆ 𝓓 (next i)
   -- s_next : s (next i) = s i + 1
+
+export GridStructure (volume_iUnion_preimage volume_inter_eq_zero fundamental_dyadic
+  ball_subset_𝓓 𝓓_subset_ball small_boundary)
+
+variable {D : ℝ} {C : ℝ≥0}
+
+section GridStructure
+
+variable [GridStructure X D C]
+
+variable (X) in
+def ι : Type* := GridStructure.ι X A
+def s : ι X → ℤ := GridStructure.s
+def 𝓓 : ι X → Set X := GridStructure.𝓓
+variable (X) in
+def x : ι X → X := GridStructure.x
+
+end GridStructure
 
 -- todo: tile structure
 
@@ -154,9 +173,11 @@ instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
   let t : TopologicalSpace C(X, ℂ) := m.toUniformSpace.toTopologicalSpace
   @borel C(X, ℂ) t
 
-structure TileStructure [Inhabited X] (𝓠 : Set C(X, ℂ)) (ι : Type*) (𝔓 : Type*)
-    (D : ℝ) (C : ℝ≥0) extends GridStructure X ι D C where
-  𝓘 : 𝔓 → ι -- compose with `𝓓` to get the `𝓘` of the paper.
+/-- A tile structure. Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
+class TileStructure [Inhabited X] (𝓠 : outParam (Set C(X, ℂ)))
+    (D : outParam ℝ) (C : outParam ℝ≥0) extends GridStructure X D C where
+  𝔓 : Type*
+  𝓘 : 𝔓 → ι
   Ω : 𝔓 → Set C(X, ℂ)
   measurableSet_Ω : ∀ p, MeasurableSet (Ω p)
   Q : 𝔓 → C(X, ℂ)
@@ -167,11 +188,23 @@ structure TileStructure [Inhabited X] (𝓠 : Set C(X, ℂ)) (ι : Type*) (𝔓 
   localOscillationBall_subset {p} : localOscillationBall (𝓓 (𝓘 p)) (Q p) 5⁻¹ ∩ 𝓠 ⊆ Ω p
   subset_localOscillationBall {p} : Ω p ⊆ localOscillationBall (𝓓 (𝓘 p)) (Q p) 1
 
+export TileStructure (Ω measurableSet_Ω Q Q_mem union_Ω disjoint_Ω
+  relative_fundamental_dyadic localOscillationBall_subset subset_localOscillationBall)
 -- #print homogeneousMeasurableSpace
 -- #print TileStructure
-variable [Inhabited X]
-{𝓠 : Set C(X, ℂ)} {ι : Type*} {𝔓 : Type*}
-    {D : ℝ} {C : ℝ≥0} (T : TileStructure 𝓠 ι 𝔓 D C) --rename T
+variable [Inhabited X] {𝓠 : Set C(X, ℂ)} [TileStructure 𝓠 D C]
+
+variable (X) in
+def 𝔓 := TileStructure.𝔓 X A
+def 𝓘 : 𝔓 X → ι X := TileStructure.𝓘
+
+def E (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (p : 𝔓 X) : Set X :=
+  { x ∈ 𝓓 (𝓘 p) | Q' x ∈ Ω p ∧ s (𝓘 p) ∈ Icc (σ x) (σ' x) }
+
+def T (K : X → X → ℂ) (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (ψ : ℝ → ℝ) (p : 𝔓 X) (f : X → ℂ) :
+    X → ℂ :=
+  indicator (E Q' σ σ' p)
+    fun x ↦ ∫ y, exp (Q' x x - Q' x y) * K x y * ψ (D ^ (- s (𝓘 p)) * dist x y) * f y
 
 variable (X) in
 def TileLike : Type _ := Set X × OrderDual (Set (C(X,ℂ)))
@@ -181,27 +214,28 @@ def TileLike.snd (x : TileLike X) : Set (C(X,ℂ)) := x.2
 instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
 example (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
-def toTileLike (p : 𝔓) : TileLike X := (T.𝓓 (T.𝓘 p), T.Ω p)
-def smul (a : ℝ) (p : 𝔓) : TileLike X :=
-  (T.𝓓 (T.𝓘 p), localOscillationBall (T.𝓓 (T.𝓘 p)) (T.Q p) a)
+def toTileLike (p : 𝔓 X) : TileLike X := (𝓓 (𝓘 p), Ω p)
+def smul (a : ℝ) (p : 𝔓 X) : TileLike X :=
+  (𝓓 (𝓘 p), localOscillationBall (𝓓 (𝓘 p)) (Q p) a)
 
 def TileLike.toTile (t : TileLike X) : Set (X × C(X,ℂ)) :=
   t.fst ×ˢ t.snd
 
-lemma isAntichain_iff (𝔄 : Set 𝔓) :
-    IsAntichain (·≤·) (toTileLike T '' 𝔄) ↔
-    ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' → Disjoint (toTileLike T p).toTile (toTileLike T p').toTile  := sorry
+lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
+    IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
+    ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
+    Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
 
-def convexShadow (𝔓' : Set 𝔓) : Set ι :=
-  { i | ∃ p p' : 𝔓, p ∈ 𝔓' ∧ p' ∈ 𝔓' ∧ T.𝓓 (T.𝓘 p) ⊆ T.𝓓 i ∧ T.𝓓 i ⊆ T.𝓓 (T.𝓘 p') }
+def convexShadow (𝔓' : Set (𝔓 X)) : Set (ι X) :=
+  { i | ∃ p p' : 𝔓 X, p ∈ 𝔓' ∧ p' ∈ 𝔓' ∧ (𝓓 (𝓘 p) : Set X) ⊆ 𝓓 i ∧ 𝓓 i ⊆ 𝓓 (𝓘 p') }
 
 def EBar (G : Set X) (Q' : X → C(X,ℂ)) (t : TileLike X) : Set X :=
   { x ∈ t.fst ∩ G | Q' x ∈ t.snd }
 
-def density (G : Set X) (Q' : X → C(X,ℂ)) (𝔓' : Set 𝔓) : ℝ≥0∞ :=
+def density (G : Set X) (Q' : X → C(X,ℂ)) (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-2 * Real.log A) *
-  ⨆ (p' : 𝔓) (_h : T.𝓘 p' ∈ convexShadow T 𝔓') (_h2 : smul T l p ≤ smul T l p'),
-  volume (EBar G Q' (smul T l p')) / volume (EBar G Q' (toTileLike T p))
+  ⨆ (p' : 𝔓 X) (_h : 𝓘 p' ∈ convexShadow 𝔓') (_h2 : smul l p ≤ smul l p'),
+  volume (EBar G Q' (smul l p')) / volume (EBar G Q' (toTileLike p))
 
 /-- Hardy-Littlewood maximal function -/
 def maximalFunction {E} [NormedAddCommGroup E] [NormedSpace ℝ E]
@@ -209,8 +243,8 @@ def maximalFunction {E} [NormedAddCommGroup E] [NormedSpace ℝ E]
   ⨆ (x' : X) (δ : ℝ) (_hx : x ∈ ball x' δ),
   ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball x' δ)
 
-def boundedTiles (F : Set X) (t : ℝ≥0) : Set 𝔓 :=
-  { p : 𝔓 | ∃ x ∈ T.𝓓 (T.𝓘 p), maximalFunction (Set.indicator F (1 : X → ℝ)) x ≤ t }
+def boundedTiles (F : Set X) (t : ℝ≥0) : Set (𝔓 X) :=
+  { p : 𝔓 X | ∃ x ∈ 𝓓 (𝓘 p), maximalFunction (Set.indicator F (1 : X → ℝ)) x ≤ t }
 
 set_option linter.unusedVariables false in
 variable (X) in
