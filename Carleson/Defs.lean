@@ -134,7 +134,7 @@ structure GridStructure (ι : Type*) (D : ℝ) (C : ℝ≥0) where
   s : ι → ℤ
   x : ι → X
   volume_iUnion_preimage : ∀ σ ∈ range s, volume (⋃ i ∈ s ⁻¹' {σ}, 𝓓 i)ᶜ = 0
-  volume_inter_eq_zero {i j} (h : s i = s j) : volume (𝓓 i ∩ 𝓓 j) = 0
+  volume_inter_eq_zero {i j} (h1 : i ≠ j) (h2 : s i = s j) : volume (𝓓 i ∩ 𝓓 j) = 0
   fundamental_dyadic {i j} : 𝓓 i ⊆ 𝓓 j ∨ 𝓓 j ⊆ 𝓓 i ∨ Disjoint (𝓓 i) (𝓓 j)
   ball_subset {i} : ball (x i) ((2 * A) ^ (-2 : ℤ) * D ^ s i) ⊆ 𝓓 i
   subset_ball {i} : 𝓓 i ⊆ ball (x i) ((2 * A) ^ 2 * D ^ s i)
@@ -162,13 +162,55 @@ structure TileStructure [Inhabited X] (𝓠 : Set C(X, ℂ)) (ι : Type*) (𝔓 
   Q : 𝔓 → C(X, ℂ)
   Q_mem : ∀ p, Q p ∈ 𝓠
   union_Ω {i} : ⋃ (p) (_h : 𝓓 (𝓘 p) = 𝓓 i), Ω p = 𝓠
-  disjoint_Ω {p p'} (hp : 𝓓 (𝓘 p) = 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p')
+  disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓓 (𝓘 p) = 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p')
   relative_fundamental_dyadic {p p'} (h : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
   localOscillationBall_subset {p} : localOscillationBall (𝓓 (𝓘 p)) (Q p) 5⁻¹ ∩ 𝓠 ⊆ Ω p
   subset_localOscillationBall {p} : Ω p ⊆ localOscillationBall (𝓓 (𝓘 p)) (Q p) 1
 
 -- #print homogeneousMeasurableSpace
 -- #print TileStructure
+variable [Inhabited X]
+{𝓠 : Set C(X, ℂ)} {ι : Type*} {𝔓 : Type*}
+    {D : ℝ} {C : ℝ≥0} (T : TileStructure 𝓠 ι 𝔓 D C) --rename T
+
+variable (X) in
+def TileLike : Type _ := Set X × OrderDual (Set (C(X,ℂ)))
+
+def TileLike.fst (x : TileLike X) : Set X := x.1
+def TileLike.snd (x : TileLike X) : Set (C(X,ℂ)) := x.2
+instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
+example (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
+
+def toTileLike (p : 𝔓) : TileLike X := (T.𝓓 (T.𝓘 p), T.Ω p)
+def smul (a : ℝ) (p : 𝔓) : TileLike X :=
+  (T.𝓓 (T.𝓘 p), localOscillationBall (T.𝓓 (T.𝓘 p)) (T.Q p) a)
+
+def TileLike.toTile (t : TileLike X) : Set (X × C(X,ℂ)) :=
+  t.fst ×ˢ t.snd
+
+lemma isAntichain_iff (𝔄 : Set 𝔓) :
+    IsAntichain (·≤·) (toTileLike T '' 𝔄) ↔
+    ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' → Disjoint (toTileLike T p).toTile (toTileLike T p').toTile  := sorry
+
+def convexShadow (𝔓' : Set 𝔓) : Set ι :=
+  { i | ∃ p p' : 𝔓, p ∈ 𝔓' ∧ p' ∈ 𝔓' ∧ T.𝓓 (T.𝓘 p) ⊆ T.𝓓 i ∧ T.𝓓 i ⊆ T.𝓓 (T.𝓘 p') }
+
+def EBar (G : Set X) (Q' : X → C(X,ℂ)) (t : TileLike X) : Set X :=
+  { x ∈ t.fst ∩ G | Q' x ∈ t.snd }
+
+def density (G : Set X) (Q' : X → C(X,ℂ)) (𝔓' : Set 𝔓) : ℝ≥0∞ :=
+  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-2 * Real.log A) *
+  ⨆ (p' : 𝔓) (_h : T.𝓘 p' ∈ convexShadow T 𝔓') (_h2 : smul T l p ≤ smul T l p'),
+  volume (EBar G Q' (smul T l p')) / volume (EBar G Q' (toTileLike T p))
+
+/-- Hardy-Littlewood maximal function -/
+def maximalFunction {E} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  (f : X → E) (x : X) : ℝ≥0∞ :=
+  ⨆ (x' : X) (δ : ℝ) (_hx : x ∈ ball x' δ),
+  ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball x' δ)
+
+def boundedTiles (F : Set X) (t : ℝ≥0) : Set 𝔓 :=
+  { p : 𝔓 | ∃ x ∈ T.𝓓 (T.𝓘 p), maximalFunction (Set.indicator F (1 : X → ℝ)) x ≤ t }
 
 set_option linter.unusedVariables false in
 variable (X) in
