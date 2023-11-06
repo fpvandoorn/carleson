@@ -27,15 +27,10 @@ lemma CoveredByBalls.mono_set (h : CoveredByBalls t n r) (h2 : s ⊆ t) : Covere
     exact ⟨b, hb, hn, fun x hx ↦ hs (h2 hx)⟩
 
 lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) :
-    /-
-    Michel's attempt at a solution. I had trouble proving hm directly, so I used the tactic linarith...
-    -/
     CoveredByBalls s m r := by
       induction h
       case mk b hb hn hs =>
-        have hm : Nat.card b ≤ m := by
-          linarith
-        exact ⟨b, hb, hm, hs⟩
+        exact ⟨b, hb, hn.trans h2, hs⟩
 
 lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
     CoveredByBalls s n r' := by
