@@ -1,7 +1,8 @@
 import Carleson.CoverByBalls
 import Mathlib.MeasureTheory.Measure.Haar.Basic
+import Mathlib.MeasureTheory.Integral.Average
 
-open MeasureTheory Measure NNReal ENNReal Metric
+open MeasureTheory Measure NNReal ENNReal Metric Filter Topology
 noncomputable section
 
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
@@ -15,7 +16,7 @@ and removed `SigmaFinite` (which follows from the rest).
 Should we assume `volume ≠ 0` / `IsOpenPosMeasure`? -/
 class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
   PseudoQuasiMetricSpace X A, MeasureSpace X, ProperSpace X, BorelSpace X,
-  Regular (volume : Measure X) where
+  Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X) where
   volume_ball_two_le_same : ∀ (x : X) r, volume (ball x (2 * r)) ≤ A * volume (ball x r)
 
 export IsSpaceOfHomogeneousType (volume_ball_two_le_same)
@@ -49,6 +50,9 @@ lemma volume_ball_le_same (x : X) {r r' s : ℝ} (hs : r' ≤ s * r) :
 def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 :=
   As A (A * (d + s))
 
+lemma ball_subset_ball_of_le {x x' : X} {r r' s d : ℝ}
+  (hr : A * (dist x x' + r') ≤ r) : ball x' r' ⊆ ball x r := by sorry
+
 lemma volume_ball_le_of_dist_le {x x' : X} {r r' s d : ℝ}
   (hs : r' ≤ s * r) (hd : dist x x' ≤ d * r) :
     volume (ball x' r') ≤ Ad A s d * volume (ball x r) := by sorry
@@ -78,13 +82,30 @@ By the previous lemma, you only need a bounded number of points.
 lemma ballsCoverBalls {r r' s : ℝ} (hs : r' ≤ s * r) : BallsCoverBalls X r' r (Np A s) := by
   sorry
 
+/- [Stein, 1.1.3(iv)] -/
+lemma continuous_measure_ball_inter {U : Set X} (hU : IsOpen U) {δ} (hδ : 0 < δ) :
+  Continuous fun x ↦ volume (ball x δ ∩ U) := sorry
+
+/- [Stein, 1.1.4] -/
+lemma continuous_average {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
+    (hf : LocallyIntegrable f) {δ : ℝ} (hδ : 0 < δ) :
+    Continuous (fun x ↦ ⨍ y, f y ∂volume.restrict (ball x δ)) :=
+  sorry
+
+/- [Stein, 1.3.1], cor -/
+lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
+    (hf : LocallyIntegrable f) :
+    Tendsto (fun δ ↦ ⨍ y, f y ∂volume.restrict (ball x δ)) (𝓝[>] 0) (𝓝 (f x)) :=
+  sorry
+
 /- # Instances of spaces of homogeneous type -/
 
 /- ℝ^n is a space of homogenous type. -/
 instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) 1 := sorry
 
-/- Preferrably we prove that in this form. -/
-instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] : IsSpaceOfHomogeneousType E 1 := by
+/- Preferably we prove that in this form. -/
+instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E] :
+    IsSpaceOfHomogeneousType E 1 := by
   sorry
 
 /- Maybe we can even generalize the field? (at least for `𝕜 = ℂ` as well) -/
