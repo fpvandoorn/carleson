@@ -34,11 +34,6 @@ lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) :
       induction h
       case mk b hb hn hs =>
         exact ⟨b, hb, hn.trans h2, hs⟩
-      induction h
-      case mk b hb hn hs =>
-        have hm : Nat.card b ≤ m := by
-          linarith
-        exact ⟨b, hb, hm, hs⟩
 
 lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
     CoveredByBalls s n r' := by
