@@ -27,9 +27,6 @@ lemma CoveredByBalls.mono_set (h : CoveredByBalls t n r) (h2 : s ⊆ t) : Covere
     exact ⟨b, hb, hn, fun x hx ↦ ht (h2 hx)⟩
 
 lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) :
-    /-
-    Michel: my attempt at a solution. I had trouble proving hm directly, so I used the tactic linarith...
-    -/
     CoveredByBalls s m r := by
       induction h
       case mk b hb hn hs =>
@@ -37,7 +34,20 @@ lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) :
 
 lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
     CoveredByBalls s n r' := by
-  sorry
+      induction h
+      case mk b hb hn hs =>
+        have hcontained : ∀ x ∈b, ball x r ⊆  ball x r' := by
+          intros x hx y hy
+          have hdistance : dist y x <r' := by
+            calc
+              dist y x < r := by apply hy
+              _ ≤ r' := by apply h2
+          apply mem_ball.mpr hdistance
+        have hs' : s ⊆  ⋃ x ∈ b, ball x r' := by
+          calc
+            s ⊆ ⋃ x ∈ b, ball x r := by apply hs
+            _ ⊆ ⋃ x ∈ b, ball x r' := by exact Set.iUnion₂_mono hcontained
+        exact ⟨b , hb, hn, hs'⟩
 
 @[simp]
 lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r := by
