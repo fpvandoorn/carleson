@@ -2,7 +2,7 @@ import Carleson.CoverByBalls
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Integral.Average
 
-open MeasureTheory Measure NNReal ENNReal Metric Filter Topology
+open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
 
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
@@ -28,6 +28,7 @@ example : LocallyCompactSpace X := by infer_instance
 example : CompleteSpace X := by infer_instance
 example : SigmaCompactSpace X := by infer_instance
 example : SigmaFinite (volume : Measure X) := by infer_instance
+example : SeparableSpace X := by infer_instance
 
 lemma volume_ball_four_le_same (x : X) (r : ℝ) :
     volume (ball x (4 * r)) ≤ A ^ 2 * volume (ball x r) := by

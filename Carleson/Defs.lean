@@ -89,12 +89,19 @@ def Real.vol {X : Type*} [PseudoQuasiMetricSpace X A] [MeasureSpace X] (x y : X)
   ENNReal.toReal (volume (ball x (dist x y)))
 
 open Real (vol)
+open Function
 
-/-- `K` is a one-sided `τ`-Calderon-Zygmund kernel -/
+/-- `K` is a one-sided `τ`-Calderon-Zygmund kernel
+In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
+that `K x x = 0`. -/
 class IsCZKernel (τ : ℝ) (K : X → X → ℂ) : Prop where
   norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ (vol x y)⁻¹
-  norm_sub_le {x x' y y' : X} (h : A * dist x x' ≤ dist x y) :
+  norm_sub_le {x y y' : X} (h : 2 * A * dist y y' ≤ dist x y) :
     ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ τ * (vol x y)⁻¹
+  measurable_right (y : X) : Measurable (K · y)
+  measurable : Measurable (uncurry K) -- either we should assume this or prove from the other conditions
+
+-- show: K is locally bounded and hence integrable outside the diagonal
 
 /-- In Mathlib we only have the operator norm for continuous linear maps,
 and (I think that) `T_*` is not linear.
@@ -165,8 +172,6 @@ def x : ι X → X := GridStructure.x
 
 end GridStructure
 
--- todo: tile structure
-
 instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
   let m : PseudoQuasiMetricSpace C(X, ℂ) A :=
     homogeneousPseudoMetric (ball default 1) -- an arbitary ball
@@ -176,8 +181,8 @@ instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
 /-- A tile structure. Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
 class TileStructure [Inhabited X] (𝓠 : outParam (Set C(X, ℂ)))
     (D : outParam ℝ) (C : outParam ℝ≥0) extends GridStructure X D C where
-  𝔓 : Type*
-  𝓘 : 𝔓 → ι
+  protected 𝔓 : Type*
+  protected 𝓘 : 𝔓 → ι
   Ω : 𝔓 → Set C(X, ℂ)
   measurableSet_Ω : ∀ p, MeasurableSet (Ω p)
   Q : 𝔓 → C(X, ℂ)
@@ -206,6 +211,13 @@ def T (K : X → X → ℂ) (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (ψ : �
   indicator (E Q' σ σ' p)
     fun x ↦ ∫ y, exp (Q' x x - Q' x y) * K x y * ψ (D ^ (- s (𝓘 p)) * dist x y) * f y
 
+def T_clm (K : X → X → ℂ) (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (ψ : ℝ → ℝ) (p : 𝔓 X) :
+  (X →₂[volume] ℂ) →L[ℂ] (X →₂[volume] ℂ) where
+    toFun f := sorry
+    map_add' := sorry
+    map_smul' := sorry
+    cont := sorry
+
 variable (X) in
 def TileLike : Type _ := Set X × OrderDual (Set (C(X,ℂ)))
 
@@ -215,6 +227,10 @@ instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
 example (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
 def toTileLike (p : 𝔓 X) : TileLike X := (𝓓 (𝓘 p), Ω p)
+
+lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorry
+
+instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 def smul (a : ℝ) (p : 𝔓 X) : TileLike X :=
   (𝓓 (𝓘 p), localOscillationBall (𝓓 (𝓘 p)) (Q p) a)
 
@@ -251,3 +267,22 @@ variable (X) in
 class SmallBoundaryProperty (η : ℝ) : Prop where
   volume_diff_le : ∃ (C : ℝ≥0) (hC : C > 0), ∀ (x : X) r (δ : ℝ≥0), 0 < r → 0 < δ → δ < 1 →
     volume (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume (ball x r)
+
+variable (X) in
+structure TileStructure.Tree where
+  𝔗 : Set (𝔓 X)
+  top : 𝔓 X
+  le_top {p : 𝔓 X} (hp : p ∈ 𝔗): smul 4 p ≤ toTileLike top
+  ordConnected : OrdConnected 𝔗 -- the convexity condition
+
+def Δ (p : 𝔓 X) (Q'' : C(X, ℂ)) : ℝ := localOscillation (𝓓 (𝓘 p)) (Q p) Q'' + 1
+
+open TileStructure
+structure TileStructure.Forest (G : Set X) (Q' : X → C(X,ℂ)) (n : ℕ) where
+  I : Set (Tree X)
+  disjoint_I : ∀ {i j}, i ∈ I → j ∈ I → Disjoint i.𝔗 j.𝔗
+  top_finite (x : X) : {i ∈ I | x ∈ 𝓓 (𝓘 i.top)}.Finite
+  card_top_le (x : X) : Nat.card {i ∈ I | x ∈ 𝓓 (𝓘 i.top) } ≤ 2 ^ n * Real.log (n + 1)
+  density_le {j} (hj : j ∈ I) : density G Q' (j.𝔗) ≤ (2 : ℝ≥0) ^ (-n : ℤ)
+  something {j j'} (hj : j ∈ I) (hj' : j' ∈ I) {p : 𝔓 X} (hp : p ∈ j.𝔗)
+    (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > 2 ^ (3 * n / δ)

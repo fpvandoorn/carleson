@@ -33,18 +33,7 @@ lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
     CoveredByBalls s n r' := by
       induction h
       case mk b hb hn hs =>
-        have hcontained : ∀ x ∈b, ball x r ⊆  ball x r' := by
-          intros x hx y hy
-          have hdistance : dist y x <r' := by
-            calc
-              dist y x < r := by apply hy
-              _ ≤ r' := by apply h2
-          apply mem_ball.mpr hdistance
-        have hs' : s ⊆  ⋃ x ∈ b, ball x r' := by
-          calc
-            s ⊆ ⋃ x ∈ b, ball x r := by apply hs
-            _ ⊆ ⋃ x ∈ b, ball x r' := by exact Set.iUnion₂_mono hcontained
-        exact ⟨b , hb, hn, hs'⟩
+        exact ⟨b, hb, hn, hs.trans (by gcongr)⟩
 
 @[simp]
 lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r := by

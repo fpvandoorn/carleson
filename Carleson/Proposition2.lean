@@ -22,5 +22,5 @@ theorem prop2_2
     {F : Set X} (hF : MeasurableSet F)
     {t : ℝ≥0} (ht : t ∈ Ioc 0 1)
     {𝔄 : Set (𝔓 X)} (hA : IsAntichain (·≤·) (toTileLike '' 𝔄))
-    (h2A : 𝔄 ⊆ boundedTiles F t) :
-    sorry ≤ C2_2 A τ q C * (density G Q' 𝔄) ^ ε2_2 A τ q C * t ^ (1 / q - 1 / 2) := sorry
+    (h2A : 𝔄 ⊆ boundedTiles F t) (h3A : 𝔄.Finite) :
+    sorry /-‖∑ᶠ i, _‖₊-/ ≤ C2_2 A τ q C * (density G Q' 𝔄) ^ ε2_2 A τ q C * t ^ (1 / q - 1 / 2) := sorry
