@@ -95,7 +95,7 @@ lemma continuous_average {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X �
 
 /- [Stein, 1.3.1], cor -/
 lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
-    (hf : LocallyIntegrable f) :
+    (hf : LocallyIntegrable f) {x : X} :
     Tendsto (fun δ ↦ ⨍ y, f y ∂volume.restrict (ball x δ)) (𝓝[>] 0) (𝓝 (f x)) :=
   sorry
 

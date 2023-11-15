@@ -78,8 +78,8 @@ def iLipNorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ :=
 class IsCancellative (τ : ℝ) (𝓠 : Set C(X, ℂ)) : Prop where
   norm_integral_exp_le {x : X} {r : ℝ} {ϕ : X → ℂ} {K : ℝ≥0} (h1 : LipschitzWith K ϕ)
     (h2 : tsupport ϕ ⊆ ball x r) {f g : C(X, ℂ)} (hf : f ∈ 𝓠) (hg : g ∈ 𝓠) :
-    ‖∫ x in B, exp (i * (f x - g x)) * ϕ x‖ ≤
-    A * (volume B).toReal * iLipNorm ϕ x r * (1 + localOscillation (ball x r) f g) ^ (- τ)
+    ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
+    A * (volume (ball x r)).toReal * iLipNorm ϕ x r * (1 + localOscillation (ball x r) f g) ^ (- τ)
 
 export IsCancellative (norm_integral_exp_le)
 
@@ -99,9 +99,10 @@ class IsCZKernel (τ : ℝ) (K : X → X → ℂ) : Prop where
   norm_sub_le {x y y' : X} (h : 2 * A * dist y y' ≤ dist x y) :
     ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ τ * (vol x y)⁻¹
   measurable_right (y : X) : Measurable (K · y)
-  measurable : Measurable (uncurry K) -- either we should assume this or prove from the other conditions
+  -- either we should assume this or prove from the other conditions
+  measurable : Measurable (uncurry K)
 
--- show: K is locally bounded and hence integrable outside the diagonal
+-- to show: K is locally bounded and hence integrable outside the diagonal
 
 /-- In Mathlib we only have the operator norm for continuous linear maps,
 and (I think that) `T_*` is not linear.
@@ -136,7 +137,7 @@ def CarlesonOperator (K : X → X → ℂ) (𝓠 : Set C(X, ℂ)) (f : X → ℂ
 variable (X) in
 /-- A grid structure on `X`.
 I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)` -/
-class GridStructure (D : outParam ℝ) (C : outParam ℝ≥0) where
+class GridStructure (D κ : outParam ℝ) (C : outParam ℝ≥0) where
   ι : Type*
   𝓓 : ι → Set X
   s : ι → ℤ
@@ -147,7 +148,7 @@ class GridStructure (D : outParam ℝ) (C : outParam ℝ≥0) where
   ball_subset_𝓓 {i} : ball (x i) ((2 * A) ^ (-2 : ℤ) * D ^ s i) ⊆ 𝓓 i
   𝓓_subset_ball {i} : 𝓓 i ⊆ ball (x i) ((2 * A) ^ 2 * D ^ s i)
   small_boundary {i} {t : ℝ≥0} (ht : 0 < t) : volume {x ∈ 𝓓 i | infDist x (𝓓 i)ᶜ ≤ t * D ^ s i } ≤
-    C * t ^ k * volume (𝓓 i)
+    C * t ^ κ * volume (𝓓 i)
   -- should the following become axioms? I believe they don't follow from previous axioms.
   -- or maybe Î is only defined when it exists?
   -- next : ι → ι
@@ -157,11 +158,11 @@ class GridStructure (D : outParam ℝ) (C : outParam ℝ≥0) where
 export GridStructure (volume_iUnion_preimage volume_inter_eq_zero fundamental_dyadic
   ball_subset_𝓓 𝓓_subset_ball small_boundary)
 
-variable {D : ℝ} {C : ℝ≥0}
+variable {D κ : ℝ} {C : ℝ≥0}
 
 section GridStructure
 
-variable [GridStructure X D C]
+variable [GridStructure X D κ C]
 
 variable (X) in
 def ι : Type* := GridStructure.ι X A
@@ -180,7 +181,7 @@ instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
 
 /-- A tile structure. Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
 class TileStructure [Inhabited X] (𝓠 : outParam (Set C(X, ℂ)))
-    (D : outParam ℝ) (C : outParam ℝ≥0) extends GridStructure X D C where
+    (D κ : outParam ℝ) (C : outParam ℝ≥0) extends GridStructure X κ D C where
   protected 𝔓 : Type*
   protected 𝓘 : 𝔓 → ι
   Ω : 𝔓 → Set C(X, ℂ)
@@ -197,26 +198,42 @@ export TileStructure (Ω measurableSet_Ω Q Q_mem union_Ω disjoint_Ω
   relative_fundamental_dyadic localOscillationBall_subset subset_localOscillationBall)
 -- #print homogeneousMeasurableSpace
 -- #print TileStructure
-variable [Inhabited X] {𝓠 : Set C(X, ℂ)} [TileStructure 𝓠 D C]
+variable [Inhabited X] {𝓠 : Set C(X, ℂ)} [TileStructure 𝓠 D κ C]
 
 variable (X) in
 def 𝔓 := TileStructure.𝔓 X A
 def 𝓘 : 𝔓 X → ι X := TileStructure.𝓘
 
+/- The set `E` defined in Proposition 2.1. -/
 def E (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (p : 𝔓 X) : Set X :=
   { x ∈ 𝓓 (𝓘 p) | Q' x ∈ Ω p ∧ s (𝓘 p) ∈ Icc (σ x) (σ' x) }
 
-def T (K : X → X → ℂ) (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (ψ : ℝ → ℝ) (p : 𝔓 X) (f : X → ℂ) :
-    X → ℂ :=
-  indicator (E Q' σ σ' p)
-    fun x ↦ ∫ y, exp (Q' x x - Q' x y) * K x y * ψ (D ^ (- s (𝓘 p)) * dist x y) * f y
+section T
 
-def T_clm (K : X → X → ℂ) (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (ψ : ℝ → ℝ) (p : 𝔓 X) :
-  (X →₂[volume] ℂ) →L[ℂ] (X →₂[volume] ℂ) where
-    toFun f := sorry
+variable (K : X → X → ℂ) (Q' : X → C(X, ℂ)) (σ σ' : X → ℤ) (ψ : ℝ → ℝ) (p : 𝔓 X) (F : Set X)
+
+/- The operator `T` defined in Proposition 2.1, considered on the set `F`.
+It is the map `T ∘ (1_F * ·) : f ↦ T (1_F * f)`, also denoted `T1_F`
+The operator `T` in Proposition 2.1 is therefore `applied to `(F := Set.univ)`. -/
+def T (f : X → ℂ) : X → ℂ :=
+  indicator (E Q' σ σ' p)
+    fun x ↦ ∫ y, exp (Q' x x - Q' x y) * K x y * ψ (D ^ (- s (𝓘 p)) * dist x y) * F.indicator f y
+
+lemma Memℒp_T {f : X → ℂ} {q : ℝ≥0∞} (hf : Memℒp f q) : Memℒp (T K Q' σ σ' ψ p F f) q :=
+  by sorry
+
+/- The operator `T`, defined on `L^2` maps. -/
+def T₂ (f : X →₂[volume] ℂ) : X →₂[volume] ℂ :=
+  Memℒp.toLp (T K Q' σ σ' ψ p F f) <| Memℒp_T K Q' σ σ' ψ p F <| Lp.memℒp f
+
+/- The operator `T`, defined on `L^2` maps as a continuous linear map. -/
+def TL : (X →₂[volume] ℂ) →L[ℂ] (X →₂[volume] ℂ) where
+    toFun := T₂ K Q' σ σ' ψ p F
     map_add' := sorry
     map_smul' := sorry
     cont := sorry
+
+end T
 
 variable (X) in
 def TileLike : Type _ := Set X × OrderDual (Set (C(X,ℂ)))
@@ -278,11 +295,11 @@ structure TileStructure.Tree where
 def Δ (p : 𝔓 X) (Q'' : C(X, ℂ)) : ℝ := localOscillation (𝓓 (𝓘 p)) (Q p) Q'' + 1
 
 open TileStructure
-structure TileStructure.Forest (G : Set X) (Q' : X → C(X,ℂ)) (n : ℕ) where
+structure TileStructure.Forest (G : Set X) (Q' : X → C(X,ℂ)) (δ : ℝ) (n : ℕ) where
   I : Set (Tree X)
   disjoint_I : ∀ {i j}, i ∈ I → j ∈ I → Disjoint i.𝔗 j.𝔗
   top_finite (x : X) : {i ∈ I | x ∈ 𝓓 (𝓘 i.top)}.Finite
   card_top_le (x : X) : Nat.card {i ∈ I | x ∈ 𝓓 (𝓘 i.top) } ≤ 2 ^ n * Real.log (n + 1)
   density_le {j} (hj : j ∈ I) : density G Q' (j.𝔗) ≤ (2 : ℝ≥0) ^ (-n : ℤ)
   something {j j'} (hj : j ∈ I) (hj' : j' ∈ I) {p : 𝔓 X} (hp : p ∈ j.𝔗)
-    (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > 2 ^ (3 * n / δ)
+    (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > (2 : ℝ) ^ (3 * n / δ)

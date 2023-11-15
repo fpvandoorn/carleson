@@ -5,16 +5,16 @@ open NNReal
 instance : Fact ((1 : ℝ≥0) ≤ 1) := .mk le_rfl
 
 /-- For now we are cheating: we are defining PseudoQuasiMetricSpaces to be pseudo metric spaces. -/
-class PseudoQuasiMetricSpace (α : Type u) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
-    PseudoMetricSpace α : Type u where
+class PseudoQuasiMetricSpace (α : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
+    PseudoMetricSpace α where
 
 /-- For now we are cheating: we are defining QuasiMetricSpaces to be metric spaces.
   We can manually make sure that we don't use the metric space axioms.
   At some point we'll properly define quasi metric spaces.
   For now, this is useful, so that we can already use definitions of metric spaces (like balls)
   from mathlib that should be generalized to quasi metric spaces. -/
-class QuasiMetricSpace (α : Type u) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
-    MetricSpace α, PseudoQuasiMetricSpace α A  : Type u where
+class QuasiMetricSpace (α : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)] extends
+    MetricSpace α, PseudoQuasiMetricSpace α A where
 
 variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [PseudoQuasiMetricSpace X A]
 
