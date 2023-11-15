@@ -12,7 +12,7 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue 
 
 /-- A quasi metric space with regular/`A`-Lipschitz distance. -/
 class Metric.IsRegular (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)]
-    [PseudoQuasiMetricSpace X A]
+    [PseudoQuasiMetricSpace X A] : Prop
   where abs_dist_sub_dist_le : ∀ x y y' : X, |dist x y - dist x y'| ≤ A * dist y y'
 
 export Metric.IsRegular (abs_dist_sub_dist_le)
@@ -168,7 +168,6 @@ variable (X) in
 def ι : Type* := GridStructure.ι X A
 def s : ι X → ℤ := GridStructure.s
 def 𝓓 : ι X → Set X := GridStructure.𝓓
-variable (X) in
 def x : ι X → X := GridStructure.x
 
 end GridStructure
@@ -180,9 +179,9 @@ instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
   @borel C(X, ℂ) t
 
 /-- A tile structure. Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
-class TileStructure [Inhabited X] (𝓠 : outParam (Set C(X, ℂ)))
+class TileStructure.{u} [Inhabited X] (𝓠 : outParam (Set C(X, ℂ)))
     (D κ : outParam ℝ) (C : outParam ℝ≥0) extends GridStructure X κ D C where
-  protected 𝔓 : Type*
+  protected 𝔓 : Type u
   protected 𝓘 : 𝔓 → ι
   Ω : 𝔓 → Set C(X, ℂ)
   measurableSet_Ω : ∀ p, MeasurableSet (Ω p)
@@ -248,6 +247,7 @@ def toTileLike (p : 𝔓 X) : TileLike X := (𝓓 (𝓘 p), Ω p)
 lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorry
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
+
 def smul (a : ℝ) (p : 𝔓 X) : TileLike X :=
   (𝓓 (𝓘 p), localOscillationBall (𝓓 (𝓘 p)) (Q p) a)
 
@@ -285,21 +285,63 @@ class SmallBoundaryProperty (η : ℝ) : Prop where
   volume_diff_le : ∃ (C : ℝ≥0) (hC : C > 0), ∀ (x : X) r (δ : ℝ≥0), 0 < r → 0 < δ → δ < 1 →
     volume (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume (ball x r)
 
+
+namespace TileStructure
 variable (X) in
-structure TileStructure.Tree where
-  𝔗 : Set (𝔓 X)
+structure Tree where
+  carrier : Set (𝔓 X)
   top : 𝔓 X
-  le_top {p : 𝔓 X} (hp : p ∈ 𝔗): smul 4 p ≤ toTileLike top
-  ordConnected : OrdConnected 𝔗 -- the convexity condition
+  le_top {p : 𝔓 X} (hp : p ∈ carrier): smul 4 p ≤ toTileLike top
+  ordConnected : OrdConnected carrier -- the convexity condition
+
+attribute [coe] Tree.carrier
+instance : CoeTC (Tree X) (Set (𝔓 X)) where coe := Tree.carrier
+instance : Membership (𝔓 X) (Tree X) := ⟨fun x p => x ∈ (p : Set _)⟩
+instance : Preorder (Tree X) := Preorder.lift Tree.carrier
+
+-- LaTeX note: $D ^ {s(p)}$ should be $D ^ {s(I(p))}$
+class Tree.IsThin (𝔗 : Tree X) : Prop where
+  thin {p : 𝔓 X} (hp : p ∈ 𝔗) : ball (x (𝓘 p)) (8 * A ^ 3 * D ^ s (𝓘 p)) ⊆ 𝓓 (𝓘 𝔗.top)
+
+alias Tree.thin := Tree.IsThin.thin
 
 def Δ (p : 𝔓 X) (Q'' : C(X, ℂ)) : ℝ := localOscillation (𝓓 (𝓘 p)) (Q p) Q'' + 1
 
-open TileStructure
-structure TileStructure.Forest (G : Set X) (Q' : X → C(X,ℂ)) (δ : ℝ) (n : ℕ) where
+
+/--
+A forest is a set of pairwise disjoint trees
+note(F): currently we allow that the tree with the empty carrier occurs (multiple times) in the
+forest, I believe.
+-/
+structure Forest (G : Set X) (Q' : X → C(X,ℂ)) (δ : ℝ) (n : ℕ) where
   I : Set (Tree X)
-  disjoint_I : ∀ {i j}, i ∈ I → j ∈ I → Disjoint i.𝔗 j.𝔗
-  top_finite (x : X) : {i ∈ I | x ∈ 𝓓 (𝓘 i.top)}.Finite
-  card_top_le (x : X) : Nat.card {i ∈ I | x ∈ 𝓓 (𝓘 i.top) } ≤ 2 ^ n * Real.log (n + 1)
-  density_le {j} (hj : j ∈ I) : density G Q' (j.𝔗) ≤ (2 : ℝ≥0) ^ (-n : ℤ)
-  something {j j'} (hj : j ∈ I) (hj' : j' ∈ I) {p : 𝔓 X} (hp : p ∈ j.𝔗)
+  disjoint_I : ∀ {𝔗 𝔗'}, 𝔗 ∈ I → 𝔗' ∈ I → Disjoint 𝔗.carrier 𝔗'.carrier
+  top_finite (x : X) : {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top)}.Finite
+  card_top_le (x : X) : Nat.card {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top) } ≤ 2 ^ n * Real.log (n + 1)
+  density_le {𝔗} (h𝔗 : 𝔗 ∈ I) : density G Q' 𝔗 ≤ (2 : ℝ≥0) ^ (-n : ℤ)
+  delta_gt {j j'} (hj : j ∈ I) (hj' : j' ∈ I) (hjj' : j ≠ j') {p : 𝔓 X} (hp : p ∈ j)
     (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > (2 : ℝ) ^ (3 * n / δ)
+
+variable {G : Set X} {Q' : X → C(X,ℂ)} {δ : ℝ} {n : ℕ}
+
+namespace Forest
+
+/- Do we want to treat a forest as a set of trees, or a set of elements from `𝔓 X`? -/
+
+-- instance : SetLike (Forest G Q' δ n) (Tree X) where
+--   coe s := s.I
+--   coe_injective' p q h := by cases p; cases q; congr
+
+-- instance : PartialOrder (Forest G Q' δ n) := PartialOrder.lift (↑) SetLike.coe_injective
+
+class IsThin (𝔉 : Forest G Q' δ n) : Prop where
+  thin {𝔗} (h𝔗 : 𝔗 ∈ 𝔉.I) : 𝔗.IsThin
+
+alias thin := Forest.IsThin.thin
+
+/-- The union of all the trees in the forest. -/
+def carrier (𝔉 : Forest G Q' δ n) : Set (𝔓 X) := ⋃ 𝔗 ∈ 𝔉.I, 𝔗
+
+end Forest
+
+end TileStructure
