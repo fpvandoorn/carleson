@@ -37,11 +37,35 @@ lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
 
 @[simp]
 lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r := by
-  sorry
+  have h1 : (∅ : Set X) ⊆ ⋃ x ∈ (∅ : Set X), ball x r := by
+    exact Set.empty_subset (⋃ x ∈ ∅, ball x r)
+  have hfinite :  Set.Finite (∅ : Set X) := by exact Set.finite_empty
+  have h_Card_0 :  Nat.card (∅ : Set X) ≤ 0 := by
+    refine Nat.le_of_eq ?p
+    exact Nat.card_of_isEmpty
+  have h2 : CoveredByBalls (∅ : Set X) 0 r := by
+    exact ⟨ (∅ : Set X), hfinite, h_Card_0,h1 ⟩
+  apply CoveredByBalls.mono_nat h2
+  exact Nat.zero_le n
 
 @[simp]
 lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
-  sorry
+  have h1 : CoveredByBalls s 0 r → s = ∅ := by
+    intro hs_covered
+    sorry
+  have h2 : s = ∅ → CoveredByBalls s 0 r:= by
+    intro hs_empty
+    have h21 : s ⊆ ⋃ x ∈ (∅ : Set X) , ball x r := by
+      rw [hs_empty]
+      exact Set.empty_subset (⋃ x ∈ ∅, ball x r)
+    have hfinite :  Set.Finite (∅ : Set X) := by exact Set.finite_empty
+    have h_Card_0 :  Nat.card (∅ : Set X) ≤ 0 := by
+      refine Nat.le_of_eq ?p
+      exact Nat.card_of_isEmpty
+    exact ⟨(∅ : Set X), hfinite, h_Card_0 , h21⟩
+  exact { mp := h1, mpr := h2 }
+
+
 
 @[simp]
 lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
