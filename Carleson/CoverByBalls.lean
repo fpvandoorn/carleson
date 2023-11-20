@@ -1,7 +1,7 @@
 import Carleson.QuasiMetricSpace
 import Carleson.ToMathlib
 
-open Metric
+open Metric Finset
 open scoped NNReal
 
 variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [PseudoQuasiMetricSpace X A]
@@ -9,10 +9,10 @@ variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [PseudoQuasiMetricSpa
 
 set_option linter.unusedVariables false in
 /-- `s` can be covered by at most `N` balls with radius `r`. -/
+@[mk_iff]
 class inductive CoveredByBalls (s : Set X) (n : ℕ) (r : ℝ) : Prop where
-  | mk (balls : Set X)
-    (balls_finite : Set.Finite balls)
-    (card_balls : Nat.card balls ≤ n)
+  | mk (balls : Finset X)
+    (card_balls : balls.card ≤ n)
     (union_balls : s ⊆ ⋃ x ∈ balls, ball x r) : CoveredByBalls s n r
 
 /- Good first project: prove the following basic properties about `CoveredByBalls`.
@@ -20,49 +20,36 @@ Feel free to state some more properties. -/
 
 lemma CoveredByBalls.mono_set (h : CoveredByBalls t n r) (h2 : s ⊆ t) : CoveredByBalls s n r := by
   induction h
-  case mk b hb hn ht =>
-    exact ⟨b, hb, hn, fun x hx ↦ ht (h2 hx)⟩
+  case mk b hn ht =>
+    exact ⟨b, hn, fun x hx ↦ ht (h2 hx)⟩
 
 lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) :
     CoveredByBalls s m r := by
       induction h
-      case mk b hb hn hs =>
-        exact ⟨b, hb, hn.trans h2, hs⟩
+      case mk b hn hs =>
+        exact ⟨b, hn.trans h2, hs⟩
 
 lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
     CoveredByBalls s n r' := by
       induction h
-      case mk b hb hn hs =>
-        exact ⟨b, hb, hn, hs.trans (by gcongr)⟩
+      case mk b hn hs =>
+        exact ⟨b, hn, hs.trans (by gcongr)⟩
 
 @[simp]
-lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r := by
-  have h1 : (∅ : Set X) ⊆ ⋃ x ∈ (∅ : Set X), ball x r := by
-    exact Set.empty_subset (⋃ x ∈ ∅, ball x r)
-  have hfinite :  Set.Finite (∅ : Set X) := by exact Set.finite_empty
-  have h_Card_0 :  Nat.card (∅ : Set X) ≤ 0 := by
-    refine Nat.le_of_eq ?p
-    exact Nat.card_of_isEmpty
-  have h2 : CoveredByBalls (∅ : Set X) 0 r := by
-    exact ⟨ (∅ : Set X), hfinite, h_Card_0,h1 ⟩
-  apply CoveredByBalls.mono_nat h2
-  exact Nat.zero_le n
+protected lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r :=
+  ⟨∅, by simp, by simp⟩
 
 @[simp]
 lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
   have h1 : CoveredByBalls s 0 r → s = ∅ := by
-    intro hs_covered
-    sorry
-  have h2 : s = ∅ → CoveredByBalls s 0 r:= by
-    intro hs_empty
-    have h21 : s ⊆ ⋃ x ∈ (∅ : Set X) , ball x r := by
-      rw [hs_empty]
-      exact Set.empty_subset (⋃ x ∈ ∅, ball x r)
-    have hfinite :  Set.Finite (∅ : Set X) := by exact Set.finite_empty
-    have h_Card_0 :  Nat.card (∅ : Set X) ≤ 0 := by
-      refine Nat.le_of_eq ?p
-      exact Nat.card_of_isEmpty
-    exact ⟨(∅ : Set X), hfinite, h_Card_0 , h21⟩
+    intro ⟨b, hn, hs⟩
+    simp at hn
+    subst hn
+    simp at hs
+    exact Set.subset_eq_empty hs rfl
+  have h2 : s = ∅ → CoveredByBalls s 0 r := by
+    rintro rfl
+    exact CoveredByBalls.empty
   exact { mp := h1, mpr := h2 }
 
 
