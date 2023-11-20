@@ -56,7 +56,22 @@ lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
 
 @[simp]
 lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
-  sorry
+  have h1 : CoveredByBalls s n 0 → s =∅ := by
+    intro hcovered
+    cases hcovered
+    case mk b hn hs
+    have h11 : ∀ x ∈b, ball x 0 = ∅ := by
+      exact fun x a ↦ ball_zero
+    simp at hs
+    exact Set.subset_eq_empty hs rfl
+  have h2 : s = ∅ → CoveredByBalls s n 0 := by
+    intro hs
+    have h21 : (∅ : Finset X).card ≤ n := by exact tsub_add_cancel_iff_le.mp rfl
+    have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
+      simp
+      exact Set.subset_empty_iff.mpr hs
+    exact ⟨(∅ : Finset X), h21, h22⟩
+  exact { mp := h1, mpr := h2 }
 
 variable (X) in
 /-- Balls of radius `r` in are covered by `n` balls of radius `r'` -/
