@@ -80,7 +80,11 @@ def BallsCoverBalls (r r' : ℝ) (n : ℕ) : Prop :=
 
 lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
     (h2 : BallsCoverBalls X r r' m) : CoveredByBalls s (n * m) r' := by
-  sorry
+    cases h
+    case mk b0 hb0 hs0
+    sorry
+
+
 
 lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCoverBalls X r₂ r₃ m) :
     BallsCoverBalls X r₁ r₃ (n * m) :=
