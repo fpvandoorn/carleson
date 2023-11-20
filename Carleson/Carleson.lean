@@ -24,7 +24,7 @@ section
 
 variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A] [Inhabited X]
 variable [Metric.IsRegular X A]
-variable {τ q q' C : ℝ} {C : ℝ≥0}
+variable {τ q q' : ℝ} {C : ℝ≥0}
 variable {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] [IsCancellative τ 𝓠]
 variable {F G : Set X}
 variable (K : X → X → ℂ) [IsCZKernel τ K]
@@ -66,21 +66,29 @@ lemma sum_Ks (h : 0 < dist x y) : ∑ s in nonzeroS D (dist x y), Ks K D ψ s x 
   norm_cast
   rw [mul_one]
 
-/- not sure how to make sense of the LHS of Equation 3.1,
-`T` depends on a tile structure that we don't have yet.
-No need to take the supremum over the assumption `σ < σ'`. -/
+/- (No need to take the supremum over the assumption `σ < σ'`.) -/
 lemma equation3_1 (f : X → ℂ) :
-    sorry < Ce3_1 A τ q * ((maximalFunction f x).toNNReal + ⨆ (Q ∈ 𝓠) (σ : ℤ) (σ' : ℤ),
-      ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (Q x - Q y)‖) := by
-  sorry /- Proof is in [Stein93]? -/
+    CarlesonOperator K 𝓠 f x < Ce3_1 A τ q * ((maximalFunction f x).toNNReal +
+    ⨆ (Q ∈ 𝓠) (σ : ℤ) (σ' : ℤ),
+    ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (Q x - Q y)‖) := by
+  /- Proof should be straightward from the definition of maximalFunction and conditions on `𝓠`.
+  We have to approximate `Q` by an indicator function. -/
+  sorry
 
-/- Define G₀tilde -/
+variable (C F G) in
+/- G₀-tilde in the paper -/
+def G₀' : Set X :=
+  { x : X | maximalFunction (F.indicator (1 : X → ℂ)) x > C * volume F / volume G }
 
-/- estimate volume G₀tilde -/
+/- estimation of the volume of G₀' -/
+lemma volume_G₀'_pos (hC : C1_1 A τ q < C) : volume (G₀' C F G) ≤ volume G / 4 := sorry
 
 /- estimate first term (what does this mean exactly?) -/
 
-/- for the second term, get Qtilde, σ, σ' as `MeasureTheory.SimpleFunc`. (how exactly?) -/
+/- for the second term, get Qtilde, σ, σ' as `MeasureTheory.SimpleFunc`.
+Lars' argument:
+* We can make the suprema countable, and then only consider a finite initial
+segment. -/
 
 /- define smin, smax -/
 
@@ -93,7 +101,7 @@ lemma equation3_1 (f : X → ℂ) :
 /- finish proof of equation (2.2) -/
 
 theorem equation2_2
-    (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
+    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
     (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) :
@@ -107,7 +115,7 @@ theorem equation2_2
 
 /- Theorem 1.1, written using constant C1_1 -/
 theorem theorem1_1C
-    (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
+    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     -- (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
     (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) :
@@ -122,10 +130,8 @@ by taking `X = ℝ`, `K x y := 1 / (x - y)` and `𝓠 = {linear functions}`.
 end
 
 set_option linter.unusedVariables false in
-/- Theorem 1.1.
-
-Small Remark: here we ask `A ≥ 1` instead of `A > 1` and require `X` non-empty. -/
-theorem theorem1_1 {A : ℝ≥0} [fact : Fact (1 ≤ A)] {τ q q' : ℝ}
+/- Theorem 1.1. -/
+theorem theorem1_1 {A : ℝ≥0} [fact : Fact (1 ≤ A)] (hA : 1 < A) {τ q q' : ℝ}
     (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q') : ∃ (C : ℝ≥0), C > 0 ∧
     ∀ {X : Type*} [IsSpaceOfHomogeneousType X A] [Metric.IsRegular X A] [Inhabited X]
     (𝓠 : Set C(X, ℂ)) [IsCompatible 𝓠] [IsCancellative τ 𝓠]
@@ -136,4 +142,4 @@ theorem theorem1_1 {A : ℝ≥0} [fact : Fact (1 ≤ A)] {τ q q' : ℝ}
     C * (volume G) ^ (1 / q') * (volume F) ^ (1 / q) := by
    use C1_1 A τ q, C1_1_pos A τ q
    intros X _ _ _ 𝓠 _ _ K _ hT F G hF hG
-   exact theorem1_1C K hτ hq hqq' hF hG hT
+   exact theorem1_1C K hA hτ hq hqq' hF hG hT

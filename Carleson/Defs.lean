@@ -49,13 +49,6 @@ def localOscillationBall (E : Set X) (f : C(X, ℂ)) (r : ℝ) : Set C(X, ℂ) :
 
 end localOscillation
 
-
-/- mathlib is missing Hölder spaces.
-Todo:
-* Define Hölder spaces
-* Define the norm in Hölder spaces
-* Show that Hölder spaces are homogeneous -/
-
 /-- A set `𝓠` of (continuous) functions is compatible. -/
 class IsCompatible (𝓠 : Set C(X, ℂ)) : Prop where
   localOscillation_two_mul_le {x₁ x₂ : X} {r : ℝ} {f g : C(X, ℂ)} (hf : f ∈ 𝓠) (hg : g ∈ 𝓠)
@@ -67,10 +60,12 @@ class IsCompatible (𝓠 : Set C(X, ℂ)) : Prop where
   ballsCoverBalls {x : X} {r R : ℝ} :
     BallsCoverBalls (withLocalOscillation (ball x r)) (2 * R) R ⌊A⌋₊
 
+-- todo: show that `𝓠` is separable
+
 export IsCompatible (localOscillation_two_mul_le localOscillation_le_of_subset ballsCoverBalls)
 
 set_option linter.unusedVariables false in
-/-- The inhomogeneous Lipschitz norm on a ball (I'm assuming `R` is the radius of the ball?). -/
+/-- The inhomogeneous Lipschitz norm on a ball. -/
 def iLipNorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖) + R * ⨆ (x : X) (y : X) (h : x ≠ y), ‖ϕ x - ϕ y‖ / nndist x y
 
@@ -136,7 +131,9 @@ def CarlesonOperator (K : X → X → ℂ) (𝓠 : Set C(X, ℂ)) (f : X → ℂ
 
 variable (X) in
 /-- A grid structure on `X`.
-I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)` -/
+I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)`
+Note: the `s` in this paper is `-s` of Christ's paper.
+-/
 class GridStructure (D κ : outParam ℝ) (C : outParam ℝ≥0) where
   ι : Type*
   𝓓 : ι → Set X
