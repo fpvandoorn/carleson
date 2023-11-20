@@ -48,7 +48,7 @@ theorem prop2_2
     (hψ : LipschitzWith (Cψ2_2 A τ q C₀) ψ)
     (h2ψ : support ψ ⊆ Icc (4 * D)⁻¹ 2⁻¹) (h3ψ : ∀ x > 0, ∑ᶠ s : ℤ, ψ (D ^ s * x) = 1)
     (ht : t ∈ Ioc 0 1)
-    (h𝔄 : IsAntichain (·≤·) (toTileLike '' 𝔄))
+    (h𝔄 : IsAntichain (·≤·) 𝔄)
     (h2𝔄 : 𝔄 ⊆ boundedTiles F t) (h3𝔄 : 𝔄.Finite)
     :
     ‖∑ᶠ p ∈ 𝔄, TL K Q' σ σ' ψ p F‖₊ ≤ C * (density G Q' 𝔄) ^ ε * t ^ (1 / q - 1 / 2) := by

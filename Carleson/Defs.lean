@@ -230,7 +230,7 @@ def TL : (X →₂[volume] ℂ) →L[ℂ] (X →₂[volume] ℂ) where
     toFun := T₂ K Q' σ σ' ψ p F
     map_add' := sorry
     map_smul' := sorry
-    cont := sorry
+    cont := by sorry
 
 end T
 
