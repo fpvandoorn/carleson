@@ -101,16 +101,19 @@ lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X
 
 /- # Instances of spaces of homogeneous type -/
 
-/- ℝ^n is a space of homogenous type. -/
-instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) 1 := sorry
+instance (n : ℕ) : Fact ((1 : ℝ≥0) ≤ 2 ^ n) := ⟨by norm_cast; exact Nat.one_le_two_pow n⟩
 
+/- ℝ^n is a space of homogenous type. -/
+instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) (2 ^ Fintype.card ι) := sorry
+
+open FiniteDimensional
 /- Preferably we prove that in this form. -/
 instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E] :
-    IsSpaceOfHomogeneousType E 1 := by
+    IsSpaceOfHomogeneousType E (2 ^ finrank ℝ E) := by
   sorry
 
 /- Maybe we can even generalize the field? (at least for `𝕜 = ℂ` as well) -/
 def NormedSpace.isSpaceOfHomogeneousType {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
-    [NormedAddCommGroup E] [NormedSpace 𝕜 E] : IsSpaceOfHomogeneousType E 1 := sorry
+    [NormedAddCommGroup E] [NormedSpace 𝕜 E] : IsSpaceOfHomogeneousType E (2 ^ finrank 𝕜 E) := sorry
 
 /- todo: ℝ^n with nonstandard metric: `dist x y = ∑ i, |x i - y i| ^ α i` for `α i > 0` -/
