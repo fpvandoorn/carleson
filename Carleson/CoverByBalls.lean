@@ -90,9 +90,32 @@ lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCove
     BallsCoverBalls X r₁ r₃ (n * m) :=
   fun x ↦ (h1 x).trans h2
 
+lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by {
+  let a : Finset X := singleton x
+  have h : a.card ≤ 1 := by rfl
+  have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by
+    simp
+    rfl
+  exact ⟨a, h, h2⟩
+}
+
 lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
     BallsCoverBalls X (a^k * r) r (n^k) := by
-  sorry
+  induction k
+  case zero =>
+    simp
+    rw[BallsCoverBalls]
+    intro x
+    exact BallCoversSelf x r
+  case succ m h2 =>
+    specialize h (r * a^m)
+    simp at h
+    rw[<- mul_assoc, mul_comm, <- mul_assoc] at h
+    norm_cast
+    rw[Nat.succ_eq_add_one, Nat.pow_add, pow_add, pow_one, pow_one, mul_comm (n^m) n]
+    rw[mul_comm] at h2
+    norm_cast at h2
+    exact BallsCoverBalls.trans h h2
 
 lemma BallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
     BallsCoverBalls X (a^k) 1 (n^k) := by
