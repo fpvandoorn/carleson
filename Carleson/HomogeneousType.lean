@@ -41,18 +41,55 @@ lemma volume_ball_four_le_same (x : X) (r : ℝ) :
 
 example (x : X) (r : ℝ) : volume (ball x r) < ∞ := measure_ball_lt_top
 
+
 def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 :=
-  A * 2 ^ ⌈s⌉₊
+  A ^ ⌈ Real.log s / Real.log 2⌉₊
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
-lemma volume_ball_le_same (x : X) {r r' s : ℝ} (hs : r' ≤ s * r) :
-    volume (ball x r') ≤ As A s * volume (ball x r) := by sorry
+lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0)  (hs : r' ≤ s * r) :
+    volume (ball x r') ≤ As A s * volume (ball x r) := by
+  /-First show statement for s a power of two-/
+  have hn (n : ℕ) : volume (ball x (2^n * r)) ≤ A^n * volume (ball x r) := by
+    induction n
+    case zero =>
+      simp
+    case succ m hm =>
+      calc volume (ball x (2 ^ (Nat.succ m) * r))
+          = volume (ball x (2 ^ (m+1) * r)) := by rfl
+        _ = volume (ball x ((2 ^ m*2^1) * r)) := by norm_cast
+        _ = volume (ball x (2 * 2 ^ m * r)) := by ring_nf
+        _ ≤ A * volume (ball x (2 ^ m * r)) := by rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
+        _ ≤ A * (↑(A ^ m) * volume (ball x r)) := by gcongr
+        _ = A^(Nat.succ m) * volume (ball x r) := by rw[<- mul_assoc]; norm_cast
+
+  /-Show inclusion in larger ball-/
+  have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by
+    sorry
+  have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by
+    calc ball x r' ⊆ ball x (s * r) := by apply ball_subset_ball hs
+        _ ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by apply ball_subset_ball haux
+
+  /-Apply result for power of two to slightly larger ball-/
+  calc volume (ball x r') ≤ volume (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by apply measure_mono h1
+        _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * volume (ball x r) := by apply hn
+
+
 
 def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 :=
   As A (A * (d + s))
 
-lemma ball_subset_ball_of_le {x x' : X} {r r' s d : ℝ}
-  (hr : A * (dist x x' + r') ≤ r) : ball x' r' ⊆ ball x r := by sorry
+lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
+  (hr : A * (dist x x' + r') ≤ r) : ball x' r' ⊆ ball x r := by
+    intro y h
+    have hA : 0 < A := by
+      calc 0 < 1 := by apply zero_lt_one
+        _ ≤ A := by exact fact.out
+    have h1 : dist x y < r := by
+      calc dist x y ≤ A * (dist x x' + dist x' y) := by apply dist_quasi_triangle
+          _ < A * (dist x x' + r') := by gcongr; apply mem_ball'.mp h
+          _ ≤ r := by apply hr
+    exact mem_ball'.mpr h1
+
 
 lemma volume_ball_le_of_dist_le {x x' : X} {r r' s d : ℝ}
   (hs : r' ≤ s * r) (hd : dist x x' ≤ d * r) :
