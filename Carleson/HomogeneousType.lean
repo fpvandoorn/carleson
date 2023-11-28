@@ -28,6 +28,7 @@ example : LocallyCompactSpace X := by infer_instance
 example : CompleteSpace X := by infer_instance
 example : SigmaCompactSpace X := by infer_instance
 example : SigmaFinite (volume : Measure X) := by infer_instance
+example : SecondCountableTopology X := by infer_instance
 example : SeparableSpace X := by infer_instance
 
 lemma volume_ball_four_le_same (x : X) (r : ℝ) :
