@@ -67,12 +67,46 @@ lemma sum_Ks (h : 0 < dist x y) : ∑ s in nonzeroS D (dist x y), Ks K D ψ s x 
 
 /- (No need to take the supremum over the assumption `σ < σ'`.) -/
 lemma equation3_1 (f : X → ℂ) :
-    CarlesonOperator K 𝓠 f x < Ce3_1 A τ q * ((maximalFunction f x).toNNReal +
+    CarlesonOperator K 𝓠 f x ≤ Ce3_1 A τ q * maximalFunction f x +
     ⨆ (Q ∈ 𝓠) (σ : ℤ) (σ' : ℤ),
-    ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (Q x - Q y)‖) := by
+    ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖₊ := by
+  rw [CarlesonOperator]
+  apply Real.iSup_le
+  intro (Q : C(X,ℂ))
+  apply Real.iSup_le
+  intro hQ
+  apply Real.iSup_le
+  intro r
+  apply Real.iSup_le
+  intro R
+  apply Real.iSup_le
+  intro hrR
+  let σ : ℤ := ⌊Real.log r / Real.log 2⌋
+  let σ' : ℤ := ⌊Real.log R / Real.log 2⌋
+  trans Ce3_1 A τ q * maximalFunction f x +
+    ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
+  rw [← sub_le_iff_le_add]
+  simp_rw [mul_sub, Complex.exp_sub, mul_div, integral_div, ← Finset.sum_div,
+    norm_div]
+  lift Q x to ℝ with qx
+  · sorry
+  simp only [mul_comm I qx, norm_exp_ofReal_mul_I, div_one]
+  /- use h3ψ here to rewrite the RHS -/
+  apply (norm_sub_norm_le _ _).trans
+  rw [← integral_finset_sum]
+  all_goals sorry
+  -- swap
+  -- · gcongr
+  --   refine (le_ciSup _ Q).trans ?_
+  --   sorry
+
   /- Proof should be straightward from the definition of maximalFunction and conditions on `𝓠`.
-  We have to approximate `Q` by an indicator function. -/
-  sorry
+  We have to approximate `Q` by an indicator function.
+  2^σ ≈ r, 2^σ' ≈ R
+  There is a small difference in integration domain, and for that we use the estimate IsCZKernel.norm_le_vol_inv
+
+
+  -/
 
 variable (C F G) in
 /- G₀-tilde in the paper -/
