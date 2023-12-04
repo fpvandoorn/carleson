@@ -11,13 +11,13 @@ We should move them to separate files once we start proving things about them. -
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
 /-- A quasi metric space with regular/`A`-Lipschitz distance. -/
-class Metric.IsRegular (X : Type*) (A : outParam ℝ≥0) [fact : Fact (1 ≤ A)]
+class Metric.IsRegular (X : Type*) (A : outParam ℝ) [fact : Fact (1 ≤ A)]
     [PseudoQuasiMetricSpace X A] : Prop
   where abs_dist_sub_dist_le : ∀ x y y' : X, |dist x y - dist x y'| ≤ A * dist y y'
 
 export Metric.IsRegular (abs_dist_sub_dist_le)
 
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A]
+variable {X : Type*} {A : ℝ} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A]
 
 section localOscillation
 
@@ -74,14 +74,14 @@ class IsCancellative (τ : ℝ) (𝓠 : Set C(X, ℂ)) : Prop where
   norm_integral_exp_le {x : X} {r : ℝ} {ϕ : X → ℂ} {K : ℝ≥0} (h1 : LipschitzWith K ϕ)
     (h2 : tsupport ϕ ⊆ ball x r) {f g : C(X, ℂ)} (hf : f ∈ 𝓠) (hg : g ∈ 𝓠) :
     ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-    A * (volume (ball x r)).toReal * iLipNorm ϕ x r * (1 + localOscillation (ball x r) f g) ^ (- τ)
+    A * volume.real (ball x r) * iLipNorm ϕ x r * (1 + localOscillation (ball x r) f g) ^ (- τ)
 
 export IsCancellative (norm_integral_exp_le)
 
 /-- The "volume function". Note that we will need to assume
 `IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
 def Real.vol {X : Type*} [PseudoQuasiMetricSpace X A] [MeasureSpace X] (x y : X) : ℝ :=
-  ENNReal.toReal (volume (ball x (dist x y)))
+  volume.real (ball x (dist x y))
 
 open Real (vol)
 open Function
@@ -134,18 +134,18 @@ variable (X) in
 I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)`
 Note: the `s` in this paper is `-s` of Christ's paper.
 -/
-class GridStructure (D κ : outParam ℝ) (C : outParam ℝ≥0) where
+class GridStructure (D κ : outParam ℝ) (C : outParam ℝ) where
   ι : Type*
   𝓓 : ι → Set X
   s : ι → ℤ
   x : ι → X
-  volume_iUnion_preimage : ∀ σ ∈ range s, volume (⋃ i ∈ s ⁻¹' {σ}, 𝓓 i)ᶜ = 0
-  volume_inter_eq_zero {i j} (h1 : i ≠ j) (h2 : s i = s j) : volume (𝓓 i ∩ 𝓓 j) = 0
+  volume_iUnion_preimage : ∀ σ ∈ range s, volume.real (⋃ i ∈ s ⁻¹' {σ}, 𝓓 i)ᶜ = 0
+  volume_inter_eq_zero {i j} (h1 : i ≠ j) (h2 : s i = s j) : volume.real (𝓓 i ∩ 𝓓 j) = 0
   fundamental_dyadic {i j} : 𝓓 i ⊆ 𝓓 j ∨ 𝓓 j ⊆ 𝓓 i ∨ Disjoint (𝓓 i) (𝓓 j)
   ball_subset_𝓓 {i} : ball (x i) ((2 * A) ^ (-2 : ℤ) * D ^ s i) ⊆ 𝓓 i
   𝓓_subset_ball {i} : 𝓓 i ⊆ ball (x i) ((2 * A) ^ 2 * D ^ s i)
-  small_boundary {i} {t : ℝ≥0} (ht : 0 < t) : volume {x ∈ 𝓓 i | infDist x (𝓓 i)ᶜ ≤ t * D ^ s i } ≤
-    C * t ^ κ * volume (𝓓 i)
+  small_boundary {i} {t : ℝ} (ht : 0 < t) : volume.real {x ∈ 𝓓 i | infDist x (𝓓 i)ᶜ ≤ t * D ^ s i } ≤
+    C * t ^ κ * volume.real (𝓓 i)
   -- should the following become axioms? I believe they don't follow from previous axioms.
   -- or maybe Î is only defined when it exists?
   -- next : ι → ι
@@ -155,7 +155,7 @@ class GridStructure (D κ : outParam ℝ) (C : outParam ℝ≥0) where
 export GridStructure (volume_iUnion_preimage volume_inter_eq_zero fundamental_dyadic
   ball_subset_𝓓 𝓓_subset_ball small_boundary)
 
-variable {D κ : ℝ} {C : ℝ≥0}
+variable {D κ : ℝ} {C : ℝ}
 
 section GridStructure
 
@@ -177,7 +177,7 @@ instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
 
 /-- A tile structure. Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
 class TileStructure.{u} [Inhabited X] (𝓠 : outParam (Set C(X, ℂ)))
-    (D κ : outParam ℝ) (C : outParam ℝ≥0) extends GridStructure X κ D C where
+    (D κ : outParam ℝ) (C : outParam ℝ) extends GridStructure X κ D C where
   protected 𝔓 : Type u
   protected 𝓘 : 𝔓 → ι
   Ω : 𝔓 → Set C(X, ℂ)
@@ -262,25 +262,25 @@ def convexShadow (𝔓' : Set (𝔓 X)) : Set (ι X) :=
 def EBar (G : Set X) (Q' : X → C(X,ℂ)) (t : TileLike X) : Set X :=
   { x ∈ t.fst ∩ G | Q' x ∈ t.snd }
 
-def density (G : Set X) (Q' : X → C(X,ℂ)) (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
-  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-2 * Real.log A) *
+def density (G : Set X) (Q' : X → C(X,ℂ)) (𝔓' : Set (𝔓 X)) : ℝ :=
+  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ)), l ^ (-2 * Real.log A) *
   ⨆ (p' : 𝔓 X) (_h : 𝓘 p' ∈ convexShadow 𝔓') (_h2 : smul l p ≤ smul l p'),
-  volume (EBar G Q' (smul l p')) / volume (EBar G Q' (toTileLike p))
+  volume.real (EBar G Q' (smul l p')) / volume.real (EBar G Q' (toTileLike p))
 
 /-- Hardy-Littlewood maximal function -/
 def maximalFunction {E} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  (f : X → E) (x : X) : ℝ≥0∞ :=
+  (f : X → E) (x : X) : ℝ :=
   ⨆ (x' : X) (δ : ℝ) (_hx : x ∈ ball x' δ),
-  ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball x' δ)
+  ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball x' δ) |>.toReal
 
-def boundedTiles (F : Set X) (t : ℝ≥0) : Set (𝔓 X) :=
+def boundedTiles (F : Set X) (t : ℝ) : Set (𝔓 X) :=
   { p : 𝔓 X | ∃ x ∈ 𝓓 (𝓘 p), maximalFunction (Set.indicator F (1 : X → ℝ)) x ≤ t }
 
 set_option linter.unusedVariables false in
 variable (X) in
 class SmallBoundaryProperty (η : ℝ) : Prop where
-  volume_diff_le : ∃ (C : ℝ≥0) (hC : C > 0), ∀ (x : X) r (δ : ℝ≥0), 0 < r → 0 < δ → δ < 1 →
-    volume (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume (ball x r)
+  volume_diff_le : ∃ (C : ℝ) (hC : C > 0), ∀ (x : X) r (δ : ℝ), 0 < r → 0 < δ → δ < 1 →
+    volume.real (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume.real (ball x r)
 
 
 namespace TileStructure
@@ -315,7 +315,7 @@ structure Forest (G : Set X) (Q' : X → C(X,ℂ)) (δ : ℝ) (n : ℕ) where
   disjoint_I : ∀ {𝔗 𝔗'}, 𝔗 ∈ I → 𝔗' ∈ I → Disjoint 𝔗.carrier 𝔗'.carrier
   top_finite (x : X) : {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top)}.Finite
   card_top_le (x : X) : Nat.card {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top) } ≤ 2 ^ n * Real.log (n + 1)
-  density_le {𝔗} (h𝔗 : 𝔗 ∈ I) : density G Q' 𝔗 ≤ (2 : ℝ≥0) ^ (-n : ℤ)
+  density_le {𝔗} (h𝔗 : 𝔗 ∈ I) : density G Q' 𝔗 ≤ (2 : ℝ) ^ (-n : ℤ)
   delta_gt {j j'} (hj : j ∈ I) (hj' : j' ∈ I) (hjj' : j ≠ j') {p : 𝔓 X} (hp : p ∈ j)
     (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > (2 : ℝ) ^ (3 * n / δ)
 

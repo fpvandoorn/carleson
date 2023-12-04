@@ -7,26 +7,26 @@ noncomputable section
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
 /- The constant used in proposition2_1 -/
-def C2_1 (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : ℝ≥0 := sorry
+def C2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ := sorry
 
-lemma C2_1_pos (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : C2_1 A τ q C > 0 := sorry
+lemma C2_1_pos (A : ℝ) (τ q : ℝ) (C : ℝ) : C2_1 A τ q C > 0 := sorry
 
-def D2_1 (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : ℝ≥0 := sorry
+def D2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ := sorry
 
-lemma D2_1_pos (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : D2_1 A τ q C > 0 := sorry
+lemma D2_1_pos (A : ℝ) (τ q : ℝ) (C : ℝ) : D2_1 A τ q C > 0 := sorry
 
-def κ2_1 (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : ℝ := sorry
+def κ2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ := sorry
 
-lemma κ2_1_pos (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : κ2_1 A τ q C > 0 := sorry
+lemma κ2_1_pos (A : ℝ) (τ q : ℝ) (C : ℝ) : κ2_1 A τ q C > 0 := sorry
 
 -- this should be `10 * D` or something
-def Cψ2_1 (A : ℝ≥0) (τ q : ℝ) (C : ℝ≥0) : ℝ≥0 := sorry
+def Cψ2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ≥0 := sorry
 
-lemma Cψ2_1_pos (A : ℝ≥0) (τ : ℝ) (C : ℝ≥0) : Cψ2_1 A τ C > 0 := sorry
+lemma Cψ2_1_pos (A : ℝ) (τ : ℝ) (C : ℝ) : Cψ2_1 A τ C > 0 := sorry
 
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A] [Inhabited X]
+variable {X : Type*} {A : ℝ} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A] [Inhabited X]
 variable [Metric.IsRegular X A]
-variable {τ q q' D κ : ℝ} {C₀ C : ℝ≥0}
+variable {τ q q' D κ : ℝ} {C₀ C : ℝ}
 variable {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] [IsCancellative τ 𝓠] [TileStructure 𝓠 D κ C₀]
 variable {F G : Set X} {σ σ' : X → ℤ} {Q' : X → C(X, ℂ)} /- Q-tilde in the pdf -/
 variable (K : X → X → ℂ) [IsCZKernel τ K]
@@ -46,4 +46,4 @@ theorem prop2_1
     (h2ψ : support ψ ⊆ Icc (4 * D)⁻¹ 2⁻¹) (h3ψ : ∀ x > 0, ∑ᶠ s : ℤ, ψ (D ^ s * x) = 1)
     :
     ∃ G', volume G' ≤ volume G / 4 ∧ ‖∫ x in G \ G', ∑' p, T K Q' σ σ' ψ p F 1 x‖₊ ≤
-    C * (volume G) ^ (1 / q') * (volume F) ^ (1 / q) := by sorry
+    C * (volume.real G) ^ (1 / q') * (volume.real F) ^ (1 / q) := by sorry

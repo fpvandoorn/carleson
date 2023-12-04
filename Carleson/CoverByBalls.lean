@@ -4,7 +4,7 @@ import Carleson.ToMathlib
 open Metric Finset
 open scoped NNReal
 
-variable {X : Type*} {A : ℝ≥0} [fact : Fact (1 ≤ A)] [PseudoQuasiMetricSpace X A]
+variable {X : Type*} {A : ℝ} [fact : Fact (1 ≤ A)] [PseudoQuasiMetricSpace X A]
   {s t : Set X} {n m : ℕ} {r r' r₁ r₂ r₃ : ℝ}
 
 set_option linter.unusedVariables false in
