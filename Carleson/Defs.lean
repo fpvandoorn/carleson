@@ -51,7 +51,7 @@ class IsCompatible [IsSpaceOfHomogeneousType X A] (𝓠 : Set C(X, ℂ)) : Prop 
     (h1 : ball x₁ r ⊆ ball x₂ (A * r)) (h2 : A * r ≤ Metric.diam (univ : Set X)) :
     2 * localOscillation (ball x₁ r) f g ≤ localOscillation (ball x₂ (A * r)) f g
   ballsCoverBalls {x : X} {r R : ℝ} :
-    BallsCoverBalls (withLocalOscillation (ball x r)) (2 * R) R ⌊A⌋₊
+    ∀ f : withLocalOscillation (ball x r), f ∈ 𝓠 → CoveredByBalls (ball f (2 * R) ∩ 𝓠) ⌊A⌋₊ R
 
 export IsCompatible (localOscillation_two_mul_le localOscillation_le_of_subset ballsCoverBalls)
 
