@@ -1,6 +1,6 @@
 import Carleson.HomogeneousType
 
-open MeasureTheory Measure NNReal Metric Complex Set
+open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace
 open scoped ENNReal
 noncomputable section
 
@@ -10,14 +10,7 @@ We should move them to separate files once we start proving things about them. -
 
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
--- /-- A quasi metric space with regular/`A`-Lipschitz distance. -/
--- class Metric.IsRegular (X : Type*) (A : outParam ℝ) (hA : 1 ≤ A)
---     [PseudoMetricSpace X] : Prop
---   where abs_dist_sub_dist_le : ∀ x y y' : X, |dist x y - dist x y'| ≤ A * dist y y'
-
--- export Metric.IsRegular (abs_dist_sub_dist_le)
-
-variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [IsSpaceOfHomogeneousType X A]
+variable {X : Type*} {A : ℝ} [PseudoMetricSpace X] [IsSpaceOfHomogeneousType X A]
 
 section localOscillation
 
@@ -50,7 +43,7 @@ def localOscillationBall (E : Set X) (f : C(X, ℂ)) (r : ℝ) : Set C(X, ℂ) :
 end localOscillation
 
 /-- A set `𝓠` of (continuous) functions is compatible. -/
-class IsCompatible (𝓠 : Set C(X, ℂ)) : Prop where
+class IsCompatible [IsSpaceOfHomogeneousType X A] (𝓠 : Set C(X, ℂ)) : Prop where
   localOscillation_two_mul_le {x₁ x₂ : X} {r : ℝ} {f g : C(X, ℂ)} (hf : f ∈ 𝓠) (hg : g ∈ 𝓠)
     (h : dist x₁ x₂ < 2 * r) :
     localOscillation (ball x₂ (2 * r)) f g ≤ A * localOscillation (ball x₁ r) f g
@@ -60,9 +53,11 @@ class IsCompatible (𝓠 : Set C(X, ℂ)) : Prop where
   ballsCoverBalls {x : X} {r R : ℝ} :
     BallsCoverBalls (withLocalOscillation (ball x r)) (2 * R) R ⌊A⌋₊
 
--- todo: show that `𝓠` is separable
-
 export IsCompatible (localOscillation_two_mul_le localOscillation_le_of_subset ballsCoverBalls)
+
+-- todo
+lemma IsCompatible.IsSeparable (hA : 1 ≤ A) {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] : IsSeparable 𝓠 :=
+  sorry
 
 set_option linter.unusedVariables false in
 /-- The inhomogeneous Lipschitz norm on a ball. -/

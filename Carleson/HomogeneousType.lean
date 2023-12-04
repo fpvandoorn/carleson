@@ -11,18 +11,18 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue 
 /-! Question(F): should a space of homogeneous type extend `PseudoMetricSpace` or
 `MetricSpace`? -/
 
-/-- A space of homogeneous type.
+/-- A space of homogeneous type, or doubling measure metric space
 Note(F): I added `ProperSpace` to the definition (which I think doesn't follow from the rest?)
 and removed `SigmaFinite` (which follows from the rest).
 Should we assume `volume ≠ 0` / `IsOpenPosMeasure`? -/
-class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ) extends
-  PseudoMetricSpace X, MeasureSpace X, ProperSpace X, BorelSpace X,
+class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ) [PseudoMetricSpace X] extends
+  MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X) where
   volume_ball_two_le_same : ∀ (x : X) r, volume.real (ball x (2 * r)) ≤ A * volume.real (ball x r)
 
 export IsSpaceOfHomogeneousType (volume_ball_two_le_same)
 
-variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [IsSpaceOfHomogeneousType X A]
+variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [PseudoMetricSpace X] [IsSpaceOfHomogeneousType X A]
 
 example : ProperSpace X := by infer_instance
 example : LocallyCompactSpace X := by infer_instance

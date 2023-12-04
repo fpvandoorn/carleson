@@ -3,7 +3,7 @@ import Carleson.ToMathlib
 open Metric Finset
 open scoped NNReal
 
-variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [PseudoMetricSpace X]
+variable {X : Type*} [PseudoMetricSpace X]
   {s t : Set X} {n m : ℕ} {r r' r₁ r₂ r₃ : ℝ}
 
 set_option linter.unusedVariables false in

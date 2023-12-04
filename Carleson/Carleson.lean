@@ -22,7 +22,7 @@ lemma Ce3_1_pos (A : ℝ) (τ q : ℝ) : Ce3_1 A τ q > 0 := sorry
 
 section
 
-variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [IsSpaceOfHomogeneousType X A] [Inhabited X]
+variable {X : Type*} {A : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X A] [Inhabited X]
 variable {τ q q' : ℝ} {C : ℝ}
 variable {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] [IsCancellative τ 𝓠]
 variable {F G : Set X}
@@ -130,9 +130,9 @@ end
 
 set_option linter.unusedVariables false in
 /- Theorem 1.1. -/
-theorem theorem1_1 {A : ℝ} (hA : 1 ≤ A) (hA : 1 < A) {τ q q' : ℝ}
+theorem theorem1_1 {A : ℝ} (hA : 1 < A) {τ q q' : ℝ}
     (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q') : ∃ (C : ℝ), C > 0 ∧
-    ∀ {X : Type*} [IsSpaceOfHomogeneousType X A]  [Inhabited X]
+    ∀ {X : Type*} [MetricSpace X] [IsSpaceOfHomogeneousType X A]  [Inhabited X]
     (𝓠 : Set C(X, ℂ)) [IsCompatible 𝓠] [IsCancellative τ 𝓠]
     (K : X → X → ℂ) [IsCZKernel τ K]
     (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1)
@@ -140,5 +140,5 @@ theorem theorem1_1 {A : ℝ} (hA : 1 ≤ A) (hA : 1 < A) {τ q q' : ℝ}
     ‖∫ x in G, CarlesonOperator K 𝓠 (indicator F 1) x‖₊ ≤
     C * (volume.real G) ^ (1 / q') * (volume.real F) ^ (1 / q) := by
    use C1_1 A τ q, C1_1_pos A τ q
-   intros X _ _ 𝓠 _ _ K _ hT F G hF hG
+   intros X _ _ 𝓠 _ _ _ K _ hT F G hF hG
    exact theorem1_1C K hA hτ hq hqq' hF hG hT
