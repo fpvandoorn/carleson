@@ -24,8 +24,7 @@ def Cψ2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ≥0 := sorry
 
 lemma Cψ2_1_pos (A : ℝ) (τ : ℝ) (C : ℝ) : Cψ2_1 A τ C > 0 := sorry
 
-variable {X : Type*} {A : ℝ} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A] [Inhabited X]
-variable [Metric.IsRegular X A]
+variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [IsSpaceOfHomogeneousType X A] [Inhabited X]
 variable {τ q q' D κ : ℝ} {C₀ C : ℝ}
 variable {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] [IsCancellative τ 𝓠] [TileStructure 𝓠 D κ C₀]
 variable {F G : Set X} {σ σ' : X → ℤ} {Q' : X → C(X, ℂ)} /- Q-tilde in the pdf -/

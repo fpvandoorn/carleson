@@ -10,14 +10,14 @@ We should move them to separate files once we start proving things about them. -
 
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
-/-- A quasi metric space with regular/`A`-Lipschitz distance. -/
-class Metric.IsRegular (X : Type*) (A : outParam ℝ) [fact : Fact (1 ≤ A)]
-    [PseudoQuasiMetricSpace X A] : Prop
-  where abs_dist_sub_dist_le : ∀ x y y' : X, |dist x y - dist x y'| ≤ A * dist y y'
+-- /-- A quasi metric space with regular/`A`-Lipschitz distance. -/
+-- class Metric.IsRegular (X : Type*) (A : outParam ℝ) (hA : 1 ≤ A)
+--     [PseudoMetricSpace X] : Prop
+--   where abs_dist_sub_dist_le : ∀ x y y' : X, |dist x y - dist x y'| ≤ A * dist y y'
 
-export Metric.IsRegular (abs_dist_sub_dist_le)
+-- export Metric.IsRegular (abs_dist_sub_dist_le)
 
-variable {X : Type*} {A : ℝ} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A]
+variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [IsSpaceOfHomogeneousType X A]
 
 section localOscillation
 
@@ -35,7 +35,7 @@ def localOscillation (E : Set X) (f g : withLocalOscillation E) : ℝ :=
 
 /-- The local oscillation on a set `E` gives rise to a pseudo-metric-space structure
   on the continuous functions `X → ℂ`. -/
-instance homogeneousPseudoMetric (E : Set X) : PseudoQuasiMetricSpace (withLocalOscillation E) A where
+instance homogeneousPseudoMetric (E : Set X) : PseudoMetricSpace (withLocalOscillation E) where
   dist := localOscillation E
   dist_self := by simp [localOscillation]
   dist_comm := by sorry
@@ -80,7 +80,7 @@ export IsCancellative (norm_integral_exp_le)
 
 /-- The "volume function". Note that we will need to assume
 `IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
-def Real.vol {X : Type*} [PseudoQuasiMetricSpace X A] [MeasureSpace X] (x y : X) : ℝ :=
+def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
 
 open Real (vol)
@@ -170,7 +170,7 @@ def x : ι X → X := GridStructure.x
 end GridStructure
 
 instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
-  let m : PseudoQuasiMetricSpace C(X, ℂ) A :=
+  let m : PseudoMetricSpace C(X, ℂ) :=
     homogeneousPseudoMetric (ball default 1) -- an arbitary ball
   let t : TopologicalSpace C(X, ℂ) := m.toUniformSpace.toTopologicalSpace
   @borel C(X, ℂ) t

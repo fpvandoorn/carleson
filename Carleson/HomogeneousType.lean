@@ -8,21 +8,21 @@ noncomputable section
 
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
-/-! Question(F): should a space of homogeneous type extend `PseudoQuasiMetricSpace` or
-`QuasiMetricSpace`? -/
+/-! Question(F): should a space of homogeneous type extend `PseudoMetricSpace` or
+`MetricSpace`? -/
 
 /-- A space of homogeneous type.
 Note(F): I added `ProperSpace` to the definition (which I think doesn't follow from the rest?)
 and removed `SigmaFinite` (which follows from the rest).
 Should we assume `volume ≠ 0` / `IsOpenPosMeasure`? -/
-class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ) [fact : Fact (1 ≤ A)] extends
-  PseudoQuasiMetricSpace X A, MeasureSpace X, ProperSpace X, BorelSpace X,
+class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ) extends
+  PseudoMetricSpace X, MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X) where
   volume_ball_two_le_same : ∀ (x : X) r, volume.real (ball x (2 * r)) ≤ A * volume.real (ball x r)
 
 export IsSpaceOfHomogeneousType (volume_ball_two_le_same)
 
-variable {X : Type*} {A : ℝ} [fact : Fact (1 ≤ A)] [IsSpaceOfHomogeneousType X A]
+variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [IsSpaceOfHomogeneousType X A]
 
 example : ProperSpace X := by infer_instance
 example : LocallyCompactSpace X := by infer_instance
@@ -37,7 +37,7 @@ lemma volume_ball_four_le_same (x : X) (r : ℝ) :
   calc volume.real (ball x (4 * r))
       = volume.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * volume.real (ball x (2 * r)) := by apply volume_ball_two_le_same
-    _ ≤ A * (A * volume.real (ball x r)) := by gcongr; linarith [fact.out]; apply volume_ball_two_le_same
+    _ ≤ A * (A * volume.real (ball x r)) := by gcongr; apply volume_ball_two_le_same
     _ = A ^ 2 * volume.real (ball x r) := by ring_nf
 
 
@@ -62,7 +62,7 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0)  (hs : r' ≤ s * 
         _ = volume.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
         _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
         _ ≤ A * volume.real (ball x (2 ^ m * r)) := by rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
-        _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr; linarith [fact.out]
+        _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr
         _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc]; norm_cast
 
   /-Show inclusion in larger ball-/
@@ -83,14 +83,14 @@ def Ad (A : ℝ) (s d : ℝ) : ℝ :=
   As A (A * (d + s))
 
 lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
-  (hr : A * (dist x x' + r') ≤ r) : ball x' r' ⊆ ball x r := by
+  (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
     intro y h
     have hA : 0 < A := by
       calc 0 < 1 := by apply zero_lt_one
-        _ ≤ A := by exact fact.out
+        _ ≤ A := by exact hA
     have h1 : dist x y < r := by
-      calc dist x y ≤ A * (dist x x' + dist x' y) := by apply dist_quasi_triangle
-          _ < A * (dist x x' + r') := by gcongr; apply mem_ball'.mp h
+      calc dist x y ≤ dist x x' + dist x' y := by apply dist_triangle
+          _ < dist x x' + r' := by gcongr; apply mem_ball'.mp h
           _ ≤ r := by apply hr
     exact mem_ball'.mpr h1
 
