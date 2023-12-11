@@ -94,12 +94,16 @@ lemma sum_Ks {s : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ s) (hD : 1 < D) (h
   intros
   rwa [psi_eq_zero_iff h2ψ h2 hD]
 
-lemma sum_Ks2 {r R : ℝ} (hrR : r < R) (x y : X) :
-    ∑ i in Finset.Icc ⌊Real.logb 2 r⌋ ⌊Real.logb 2 R⌋, Ks K D ψ i x y = 0 := by
-  sorry
+lemma sum_Ks' {s : Finset ℤ}
+    (hs : ∀ i : ℤ, (D ^ i * dist x y) ∈ Ioo (4 * D)⁻¹ 2⁻¹ → i ∈ s)
+    (hD : 1 < D) (h : x ≠ y) : ∑ i in s, Ks K D ψ i x y = K x y := sorry
+
+
+
 
 /- (No need to take the supremum over the assumption `σ < σ'`.) -/
-lemma equation3_1 (f : X → ℂ) (h𝓠 : ∀ Q ∈ 𝓠, ∀ x, (Q x).im = 0) :
+lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
+    (h𝓠 : ∀ Q ∈ 𝓠, ∀ x, (Q x).im = 0) :
     let rhs := Ce3_1 A τ q * maximalFunction f x + ⨆ (Q ∈ 𝓠) (σ : ℤ) (σ' : ℤ),
     ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
     CarlesonOperator K 𝓠 f x ≤ rhs := by
@@ -112,8 +116,8 @@ lemma equation3_1 (f : X → ℂ) (h𝓠 : ∀ Q ∈ 𝓠, ∀ x, (Q x).im = 0) 
   refine Real.iSup_le (fun r ↦ ?_) h_rhs
   refine Real.iSup_le (fun R ↦ ?_) h_rhs
   refine Real.iSup_le (fun hrR ↦ ?_) h_rhs
-  let σ : ℤ := ⌊Real.logb 2 r⌋
-  let σ' : ℤ := ⌊Real.logb 2 R⌋
+  let σ : ℤ := ⌊Real.logb D (2 * r)⌋ + 1
+  let σ' : ℤ := ⌈Real.logb D (4 * R)⌉
   trans Ce3_1 A τ q * maximalFunction f x +
     ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
   rw [← sub_le_iff_le_add]
@@ -127,11 +131,13 @@ lemma equation3_1 (f : X → ℂ) (h𝓠 : ∀ Q ∈ 𝓠, ∀ x, (Q x).im = 0) 
   apply (norm_sub_norm_le _ _).trans
   rw [← integral_finset_sum]
   simp_rw [← Finset.sum_mul]
+  have h3 :
+    ∫ (y : X) in {y | dist x y ∈ Set.Ioo r R}, K x y * f y * cexp (I * Q y) =
+      ∫ (y : X) in {y | dist x y ∈ Set.Ioo r R}, (∑ x_1 in Finset.Icc σ σ', Ks K D ψ x_1 x y) * f y * cexp (I * Q y)
+  · sorry
+  -- after we rewrite, we should have only 4 terms of our finset left, all others are 0. These can be estimated using |K x y| ≤ 1 / volume (ball x (dist x y)).
+  rw [h3, ← neg_sub, ← integral_univ, ← integral_diff]
   all_goals sorry
-  -- swap
-  -- · gcongr
-  --   refine (le_ciSup _ Q).trans ?_
-  --   sorry
 
   /- Proof should be straightward from the definition of maximalFunction and conditions on `𝓠`.
   We have to approximate `Q` by an indicator function.
