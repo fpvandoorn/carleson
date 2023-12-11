@@ -1,4 +1,4 @@
-import Carleson.ToMathlib
+import Carleson.ToMathlib.Misc
 
 open Metric Finset
 open scoped NNReal

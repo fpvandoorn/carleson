@@ -1,6 +1,6 @@
 import Carleson.HomogeneousType
 
-open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace
+open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology
 open scoped ENNReal
 noncomputable section
 
@@ -14,33 +14,53 @@ variable {X : Type*} {A : ℝ} [PseudoMetricSpace X] [IsSpaceOfHomogeneousType X
 
 section localOscillation
 
+/-- The local oscillation of two functions. -/
+def localOscillation (E : Set X) (f g : C(X, ℂ)) : ℝ :=
+  ⨆ z ∈ E ×ˢ E, ‖f z.1 - g z.1 - f z.2 + g z.2‖
+
+example (E : Set X) (hE : IsBounded E) (f : C(X, ℝ)) :
+    BddAbove (range fun z : E ↦ f z) := by
+  have : IsCompact (closure E) := IsBounded.isCompact_closure hE
+  sorry
+
+lemma bddAbove_localOscillation (E : Set X) [Fact (IsBounded E)] (f g : C(X, ℂ)) :
+    BddAbove ((fun z : X × X ↦ ‖f z.1 - g z.1 - f z.2 + g z.2‖) '' E ×ˢ E) := sorry
+
 set_option linter.unusedVariables false in
 /-- A type synonym of `C(X, ℂ)` that uses the local oscillation w.r.t. `E` as the metric. -/
-def withLocalOscillation (E : Set X) : Type _ := C(X, ℂ)
+def withLocalOscillation (E : Set X) [Fact (IsBounded E)] : Type _ := C(X, ℂ)
 
-instance withLocalOscillation.toContinuousMapClass (E : Set X) :
+instance withLocalOscillation.toContinuousMapClass (E : Set X) [Fact (IsBounded E)] :
     ContinuousMapClass (withLocalOscillation E) X ℂ :=
   ContinuousMap.toContinuousMapClass
 
-/-- The local oscillation of two functions. -/
-def localOscillation (E : Set X) (f g : withLocalOscillation E) : ℝ :=
-  ⨆ z : E × E, ‖f z.1 - g z.1 - f z.2 + g z.2‖
-
 /-- The local oscillation on a set `E` gives rise to a pseudo-metric-space structure
   on the continuous functions `X → ℂ`. -/
-instance homogeneousPseudoMetric (E : Set X) : PseudoMetricSpace (withLocalOscillation E) where
+instance homogeneousPseudoMetric (E : Set X) [Fact (IsBounded E)] :
+    PseudoMetricSpace (withLocalOscillation E) where
   dist := localOscillation E
   dist_self := by simp [localOscillation]
-  dist_comm := by sorry
-  dist_triangle := by sorry
+  dist_comm f g := by simp only [localOscillation]; congr with z; rw [← norm_neg]; ring_nf
+  dist_triangle f₁ f₂ f₃ := by
+    rcases isEmpty_or_nonempty X with hX|hX
+    · sorry
+    apply ciSup_le (fun z ↦ ?_)
+    trans ‖f₁ z.1 - f₂ z.1 - f₁ z.2 + f₂ z.2‖ + ‖f₂ z.1 - f₃ z.1 - f₂ z.2 + f₃ z.2‖
+    · sorry
+    · sorry --gcongr <;> apply le_ciSup (bddAbove_localOscillation _ _ _) z
   edist_dist := fun x y => by exact ENNReal.coe_nnreal_eq _
 
 variable {E : Set X} {f g : C(X, ℂ)}
 
-def localOscillationBall (E : Set X) (f : C(X, ℂ)) (r : ℝ) : Set C(X, ℂ) :=
+def localOscillationBall (E : Set X) (f : C(X, ℂ)) (r : ℝ) :
+    Set C(X, ℂ) :=
   { g : C(X, ℂ) | localOscillation E f g < r }
 
 end localOscillation
+
+lemma fact_isCompact_ball (x : X) (r : ℝ) : Fact (IsBounded (ball x r)) :=
+  ⟨isBounded_ball⟩
+attribute [local instance] fact_isCompact_ball
 
 /-- A set `𝓠` of (continuous) functions is compatible. -/
 class IsCompatible [IsSpaceOfHomogeneousType X A] (𝓠 : Set C(X, ℂ)) : Prop where
@@ -100,6 +120,13 @@ Here is the norm for an arbitary map `T` between normed spaces
 (the infimum is defined to be 0 if the operator is not bounded). -/
 def operatorNorm {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) : ℝ :=
   sInf { c | 0 ≤ c ∧ ∀ x, ‖T x‖ ≤ c * ‖x‖ }
+
+/- For sublinear maps: todo real interpolation.
+Sublinear, L^1-bounded and L^2-bounded maps are also L^p bounded for p between 1 and 2.
+This is a special case of the real interpolation spaces.
+Reference: https://arxiv.org/abs/math/9910039
+Lemma 3.6 - Lemma 3.9
+-/
 
 /-- Instead of the above `operatorNorm`, this might be more appropriate. -/
 def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
