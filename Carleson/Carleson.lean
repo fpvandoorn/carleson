@@ -1,6 +1,6 @@
 import Carleson.Proposition1
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
+open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Finset
 open scoped ENNReal
 noncomputable section
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
@@ -43,57 +43,90 @@ variable {D : ℝ} {ψ : ℝ → ℝ} {s : ℤ} {x y : X}
 
 /- the one or two numbers `s` where `ψ (D ^ s * x)` is possibly nonzero -/
 variable (D) in def nonzeroS (x : ℝ) : Finset ℤ :=
-  Finset.Icc ⌈- (Real.log (4 * x) / Real.log D + 1)⌉ ⌊- Real.log (2 * x) / Real.log D⌋
+  Finset.Icc ⌊- Real.logb D (4 * x)⌋ ⌈- (1 + Real.logb D (2 * x))⌉
 
 
 variable
     (hD : D > D1_1 A τ q)
     (hψ : LipschitzWith (Cψ1_1 A τ q) ψ)
-    (h2ψ : support ψ ⊆ Icc (4 * D)⁻¹ 2⁻¹)
+    (h2ψ : support ψ = Ioo (4 * D)⁻¹ 2⁻¹)
     (h3ψ : ∀ x > 0, ∑ s in nonzeroS D x, ψ (D ^ s * x) = 1)
 
-lemma mem_Icc_of_ψ_ne_zero {x : ℝ} (h : ψ (D ^ s * x) ≠ 0) :
-    s ∈ nonzeroS D x := by sorry
+-- move
+theorem Int.floor_le_iff (a : ℝ) (z : ℤ) : ⌊a⌋ ≤ z ↔ a < z + 1 := by
+  rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel]
+
+theorem Int.le_ceil_iff (a : ℝ) (z : ℤ) : z ≤ ⌈a⌉ ↔ z - 1 < a := by
+  rw_mod_cast [← Int.add_one_le_ceil_iff, sub_add_cancel]
+
+example (a b c : ℝ) (hc : 0 < c) : a < b / c ↔ a * c < b := by exact _root_.lt_div_iff hc
+
+lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
+    i ∈ nonzeroS D x ↔ (D ^ i * x) ∈ Ioo (4 * D)⁻¹ 2⁻¹ := by
+  rw [Set.mem_Ioo, nonzeroS, Finset.mem_Icc]
+  simp [Int.floor_le_iff, Int.le_ceil_iff]
+  rw [← lt_div_iff hx, mul_comm D⁻¹, ← div_lt_div_iff hx (by positivity)]
+  rw [← Real.logb_inv, ← Real.logb_inv]
+  rw [div_inv_eq_mul, ← zpow_add_one₀ (by positivity)]
+  simp_rw [← Real.rpow_int_cast]
+  rw [Real.lt_logb_iff_rpow_lt hD (by positivity), Real.logb_lt_iff_lt_rpow hD (by positivity)]
+  simp [div_eq_mul_inv, mul_comm]
+
+lemma psi_ne_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
+    ψ (D ^ s * x) ≠ 0 ↔ s ∈ nonzeroS D x := by
+  rw [← mem_support, h2ψ, mem_nonzeroS_iff hx hD]
+
+lemma psi_eq_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
+    ψ (D ^ s * x) = 0 ↔ s ∉ nonzeroS D x := by
+  rw [← iff_not_comm, ← psi_ne_zero_iff h2ψ hx hD]
 
 variable (D ψ s) in
 def Ks (x y : X) : ℂ := K x y * ψ (D ^ s * dist x y)
 
-lemma sum_Ks (h : 0 < dist x y) : ∑ s in nonzeroS D (dist x y), Ks K D ψ s x y = K x y := by
+lemma sum_Ks {s : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ s) (hD : 1 < D) (h : x ≠ y) :
+    ∑ i in s, Ks K D ψ i x y = K x y := by
+  have h2 : 0 < dist x y := dist_pos.mpr h
   simp_rw [Ks, ← Finset.mul_sum]
   norm_cast
-  rw [h3ψ _ h]
-  norm_cast
-  rw [mul_one]
+  suffices : ∑ i in s, ψ (D ^ i * dist x y) = 1
+  · simp [this]
+  rw [← sum_subset hs, h3ψ _ h2]
+  intros
+  rwa [psi_eq_zero_iff h2ψ h2 hD]
+
+lemma sum_Ks2 {r R : ℝ} (hrR : r < R) (x y : X) :
+    ∑ i in Finset.Icc ⌊Real.logb 2 r⌋ ⌊Real.logb 2 R⌋, Ks K D ψ i x y = 0 := by
+  sorry
 
 /- (No need to take the supremum over the assumption `σ < σ'`.) -/
-lemma equation3_1 (f : X → ℂ) :
-    CarlesonOperator K 𝓠 f x ≤ Ce3_1 A τ q * maximalFunction f x +
-    ⨆ (Q ∈ 𝓠) (σ : ℤ) (σ' : ℤ),
-    ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖₊ := by
+lemma equation3_1 (f : X → ℂ) (h𝓠 : ∀ Q ∈ 𝓠, ∀ x, (Q x).im = 0) :
+    let rhs := Ce3_1 A τ q * maximalFunction f x + ⨆ (Q ∈ 𝓠) (σ : ℤ) (σ' : ℤ),
+    ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
+    CarlesonOperator K 𝓠 f x ≤ rhs := by
+  intro rhs
+  have h_rhs : 0 ≤ rhs
+  · sorry
   rw [CarlesonOperator]
-  apply Real.iSup_le
-  intro (Q : C(X,ℂ))
-  apply Real.iSup_le
-  intro hQ
-  apply Real.iSup_le
-  intro r
-  apply Real.iSup_le
-  intro R
-  apply Real.iSup_le
-  intro hrR
-  let σ : ℤ := ⌊Real.log r / Real.log 2⌋
-  let σ' : ℤ := ⌊Real.log R / Real.log 2⌋
+  refine Real.iSup_le (fun Q ↦ ?_) h_rhs
+  refine Real.iSup_le (fun hQ ↦ ?_) h_rhs
+  refine Real.iSup_le (fun r ↦ ?_) h_rhs
+  refine Real.iSup_le (fun R ↦ ?_) h_rhs
+  refine Real.iSup_le (fun hrR ↦ ?_) h_rhs
+  let σ : ℤ := ⌊Real.logb 2 r⌋
+  let σ' : ℤ := ⌊Real.logb 2 R⌋
   trans Ce3_1 A τ q * maximalFunction f x +
     ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
   rw [← sub_le_iff_le_add]
   simp_rw [mul_sub, Complex.exp_sub, mul_div, integral_div, ← Finset.sum_div,
     norm_div]
-  lift Q x to ℝ with qx
-  · sorry
-  simp only [mul_comm I qx, norm_exp_ofReal_mul_I, div_one]
+  have h1 : ‖cexp (I * Q x)‖ = 1
+  · lift Q x to ℝ using h𝓠 Q hQ x with qx
+    simp only [mul_comm I qx, norm_exp_ofReal_mul_I]
+  rw [h1, div_one]
   /- use h3ψ here to rewrite the RHS -/
   apply (norm_sub_norm_le _ _).trans
   rw [← integral_finset_sum]
+  simp_rw [← Finset.sum_mul]
   all_goals sorry
   -- swap
   -- · gcongr

@@ -2,6 +2,7 @@ import Carleson.CoverByBalls
 import Carleson.ToMathlib.MeasureReal
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Integral.Average
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
