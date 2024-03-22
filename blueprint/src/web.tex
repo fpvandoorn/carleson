@@ -1,0 +1,28 @@
+% This file makes the web version of the blueprint.
+% This file can be built locally.
+
+\documentclass{report}
+
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.svg,.png,.jpg}
+\usepackage[capitalize]{cleveref}
+\usepackage[showmore, dep_graph, project=../../]{blueprint}
+
+\usepackage{tikz-cd}
+\usepackage{tikz}
+
+\input{preamble/common}
+\input{preamble/web}
+
+\github{https://github.com/fpvandoorn/carleson}
+\dochome{https://fpvandoorn.github.io/carleson/docs}
+
+\title{Carleson}
+\author{}
+
+\begin{document}
+\maketitle
+\input{chapter/main}
+\end{document}
