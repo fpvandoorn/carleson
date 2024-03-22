@@ -1,5 +1,5 @@
-# carleson
-A (WIP) formalized proof of Carleson's theorem in Lean
+# Formalization of a generalized Carleson's theorem
+A (WIP) formalized proof of a generalized Carleson's theorem in Lean
 
 ## Contribute
 

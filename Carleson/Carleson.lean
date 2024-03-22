@@ -1,6 +1,6 @@
 import Carleson.Proposition1
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Finset
+open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
 open scoped ENNReal
 noncomputable section
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
@@ -90,7 +90,7 @@ lemma sum_Ks {s : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ s) (hD : 1 < D) (h
   norm_cast
   suffices : ∑ i in s, ψ (D ^ i * dist x y) = 1
   · simp [this]
-  rw [← sum_subset hs, h3ψ _ h2]
+  rw [← Finset.sum_subset hs, h3ψ _ h2]
   intros
   rwa [psi_eq_zero_iff h2ψ h2 hD]
 
