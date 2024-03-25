@@ -1,34 +1,69 @@
+% !TeX root = print.tex
 % Put any macro and import needed for the project here.
 % This will be used by both the web and print versions of the blueprint.
 % This file is not meant to be built. Build src/web.tex or src/print.text instead.
 
-% Letters
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[hidelinks, colorlinks=false]{hyperref}
+\usepackage{showlabels}
+
+\newcommand{\rs}[1]{{\color{blue}  RS: #1.}}
+\newcommand{\lars}[1]{{\color{red}  LB: #1.}}
+\newcommand{\asgar}[1]{{\color{TealBlue}  AJ: #1}}
+\newcommand{\ct}[1]{{\color{purple}  CT: #1}}
+
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{prop}[theorem]{Proposition}
+\newtheorem{cor}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{examples}[theorem]{Examples}
+
+\numberwithin{theorem}{section}
+\numberwithin{equation}{section}
+
+\newcommand{\R}{\mathbb{R}}
 \newcommand{\C}{\mathbb{C}}
-\newcommand{\bbc}{\mathbb{C}}
-\newcommand{\E}{\mathbb{E}}
-\newcommand*{\bbe}{\mathbb{E}}
-\newcommand{\F}{\mathbb{F}}
-\newcommand{\bbf}{\mathbb{F}}
-\newcommand{\bbH}{\mathbb{H}}
-\newcommand{\bbP}{\mathbb{P}}
-\newcommand{\bbI}{\mathbb{I}}
-\newcommand{\bbn}{\mathbb{N}}
-\newcommand{\bbq}{\mathbb{Q}}
-\newcommand{\bbr}{\mathbb{R}}
-\newcommand{\bbt}{\mathbb{T}}
-\newcommand{\bbz}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\DeclareMathOperator{\ch}{\operatorname{ch}}
+\DeclareMathOperator{\dens}{\operatorname{dens}}
+\DeclareMathOperator{\supp}{\operatorname{supp}}
+\DeclareMathOperator{\tp}{\operatorname{top}}
+\DeclareMathOperator{\im}{\operatorname{im}}
+\DeclareMathOperator{\Lip}{\operatorname{Lip}}
+\DeclareMathOperator{\bd}{\operatorname{bd}}
+\DeclareMathOperator*{\esssup}{\operatorname{ess\,sup}}
 
-\newcommand{\lo}[1]{\mathcal{L}{#1}}
-
-% Paired delimiters
-\newcommand{\abs}[1]{\left\lvert #1\right\rvert}
-\newcommand{\Abs}[1]{\lvert #1 \rvert}
-\newcommand{\brac}[1]{\left( #1\right)}
-\newcommand{\norm}[1]{\lVert #1\rVert}
-\newcommand{\inn}[1]{\left\langle #1 \right\rangle}
-
-% Operators
-\DeclareMathOperator{\dist}{dist}
-
-\newcommand{\ind}[1]{1_{#1}}
-\providecommand{\tup}[1]{{\vec{#1}}}
+\def \fp {\mathfrak p}
+\def \fP {\mathfrak P}
+\def \fu {\mathfrak u}
+\def \fU {\mathfrak U}
+\def \fv {\mathfrak v}
+\def \fq {\mathfrak q}
+\def \fQ {\mathfrak Q}
+\def\fT{\mathfrak T}
+\def\fL{\mathfrak L}
+\def\fC{\mathfrak C}
+\def\pc{\mathrm{c}}
+\def\ps{\mathrm{s}}
+\def \AD{{\bf s}}
+\def \fc{\Omega}
+\def\borel{\mathcal{E}}
+\def\borelb{\mathcal{G}}
+\def\sc{\mathcal{I}}
+\def \tQ{{Q}}
+\def\mfa{\vartheta}
+\def\mfb{\theta}
+\def\Mf{\Theta}
+\def\fcc{\mathcal{Q}}

@@ -1,7 +1,11 @@
+% !TeX root = print.tex
 % This file makes a printable version of the blueprint
 
+% \documentclass[12pt,reqno,a4paper,dvipsnames]{amsart}
 \documentclass[a4paper]{report}
 
+% \usepackage[utf8]{inputenc}
+\usepackage[dvipsnames]{xcolor}
 \usepackage[textwidth=14cm]{geometry}
 \usepackage{xfrac}
 \usepackage{polyglossia}
@@ -9,7 +13,6 @@
 
 \usepackage{amsmath,amssymb}
 \usepackage{enumitem}
-\usepackage{hyperref}
 
 \usepackage{tikz-cd}
 
@@ -22,19 +25,18 @@
 \setmathfont[range=\intprod]{Asana-Math.otf}
 \setmathfont[range=\int]{Latin Modern Math}
 
-\usepackage[nameinlink, capitalize]{cleveref}
-
 \usepackage{amsthm}
 \usepackage{etexcmds}
 \usepackage{thmtools}
 
 \input{preamble/common}
 \input{preamble/print}
+\usepackage[nameinlink, capitalize]{cleveref}
 
-\title{Carleson's Theorem Blueprint}
-\author{Terence Tao}
+\usepackage[style=trad-alpha]{biblatex}
+\ExecuteBibliographyOptions{safeinputenc=true,backref=true,giveninits,useprefix=true,maxnames=5,doi=false,eprint=true,isbn=false,url=false}
+\bibliography{bibliography.bib}
 
 \begin{document}
-\maketitle
 \input{chapter/main}
 \end{document}

@@ -1,5 +1,4438 @@
 % This is the main point of entry to the blueprint.
 % Add chapters of the blueprint here.
 % This file is not meant to be built. Build src/web.tex or src/print.text instead.
+\title{Carleson operators on doubling metric measure spaces}
 
-\input{chapter/jensen}
+\author{Lars Becker \and Floris van Doorn \and Asgar Jamneshan \and Rajula Srivastava \and Christoph Thiele}
+
+\date{\today}
+
+\begin{abstract}
+We prove  bounds for a generalization of Carleson operators on doubling metric measure spaces.
+This paper is written as a blueprint for a computer verified proof. We also use our theorem to give a blueprint for a computer verification of Carleson's classical theorem on almost everywhere convergence of Fourier series.
+\end{abstract}
+
+\maketitle
+
+\tableofcontents
+
+\chapter{Introduction}
+
+In his \cite{carleson} paper, Lennart Carleson
+answered a classical question on convergence of
+Fourier series of continuous functions. Theorem
+\ref{classical} is a version of his result.
+
+Let $f$ be a complex valued, $2\pi $-periodic bounded Borel measurable function on the real line and given an integer $n$, define the Fourier coefficient
+\begin{equation}
+    \widehat{f}_n:=\frac {1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx .
+\end{equation}
+Define for $N\ge 0$ the partial Fourier sum
+\begin{equation}
+    S_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}\ .
+\end{equation}
+\begin{theorem}\label{classical}
+\uses{thm main 1, thm main 1}
+Let $f$ be a $2\pi $-periodic complex valued uniformly continuous function an $\R$ that satisfies the bound
+$|f(x)|\le 1$ for all $x\in \R$. For all $0<\epsilon\le 2\pi$,
+there exists a Borel set $E\subset [0,2\pi]$ with measure
+$|E|\le \epsilon$ and a positive integer $N_0$ such that for all
+$\theta\in [2\pi]\setminus E$ \rs{$[0, 2\pi]\setminus E$} and all integers $N>N_0$ we have
+\begin{equation}\label{aeconv}
+|f(x)-S_N f(x)|\le \epsilon.
+\end{equation}
+\end{theorem}
+\rs{Is $\theta$ supposed to be $x$?}
+
+Note that mere continuity implies uniform continuity
+in the setting of this theorem. Applying this theorem
+with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$
+and taking the union of corresponding exceptional sets $E_n$, we see that
+outside a set of measure $\delta$, the partial Fourier sums
+converges pointwise for $N\to \infty$. Applying this with a sequence
+of $\delta$ shrinking to zero and taking the intersection of the corresponding exceptional
+sets, which has measure zero, we see that the Fourier series converges outside
+a set of measure zero. This is another classical formulation  of the theorem of Carleson.
+
+This paper provides a blue-print for a computer verification of Theorem \ref{classical}, which we plan to code in Lean.
+We pass through a novel bound for a
+generalization of the so-called Carlson operator
+to doubling metric measure spaces \rs{Should also mention polynomials/general class of functions}. This generalization is of its own interest as new result and we state it as our main novel theorem in this paper.
+
+The maximally truncated generalized Carleson operator $T$, which we  simply refer to as Carleson operator, shall be defined by
+ \begin{equation}
+        \label{def main op}
+        Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 <  \rho(x,y) < R_2}  K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\end{equation}
+where $e(r)=e^{ir}$ for any real number $r$.
+For example, in
+\cite{zk-polynomial}, the underlying space for the variables $x,y$ is the Euclidean space $\R^{\bf d}$, $\rho$ is the Euclidean metric, $\mu$ is the Lebesgue measure,
+$K$ is a Calder\'on--Zygmund kernel with some H\"older regularity,
+and $\Mf$ is the
+class of  polynomials up to some degree $d$.
+
+%Estimates of interest for the Carleson operator include bounds from $L^q(\R^{\bf d})$  to itself for $1<q<\infty$.
+%We focus on the case $1<q<2$.
+
+We introduce suitable axioms for the class $\Mf$
+that allow to generalize \eqref{def main op} to doubling metric measure spaces.
+We carry a multi purpose and mainly geometric constant $a\ge 4$ in our notation that as it gets larger will allow more general applications but will worsen the constants in the estimates.
+Similarly, we carry a multi purpose regularity constant $0<\tau\le 1$ that as it gets smaller will allow more general applications but will worsen the constants in the estimates.
+
+A doubling metric measure space  $(X,\rho,\mu, a)$ is a complete
+and locally compact metric space $(X,\rho)$
+equipped with a $\sigma$-finite non-zero Radon--Borel measure $\mu$ that satisfies the doubling condition that for all $x\in X$ and all $R>0$ we have
+\begin{equation}\label{doublingx}
+    \mu(B(x,2R))\le 2^a\mu(B(x,R))\,,
+\end{equation}
+where we have denoted by $B(x,R)$ the open ball of radius $R$ centred at $x$:
+\begin{equation}\label{eq define ball}
+ B(x,R):=\{y\in X: \rho(x,y)<R\}. \end{equation}
+
+
+A  collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and the  local oscillation, defined for a Borel set $\borel\subset X$ by
+\begin{equation}\label{definedE}
+    d_{\borel}(\mfa,\mfb):=\sup_{x,y\in \borel}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}|
+\end{equation}
+satisfies the following three properties
+\eqref{firstdb}, \eqref{seconddb}, and \eqref{thirddb}.
+For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$  and any $\mfa,\mfb\in \Mf$,
+\begin{equation}\label{firstdb}
+    d_{B_2}(\mfa,\mfb)\le 2^a d_{B_1}(\mfa,\mfb) .
+\end{equation}
+For any two balls
+$B_1=B(x_1,R)$, $B_2= B(x_2,2^aR)$
+with $B_1\subset B_2$, and $\mfa,\mfb\in \Mf$,
+\begin{equation}\label{seconddb}
+    2d_{B_1}(\mfa,\mfb)
+\le d_{B_2}(\mfa,\mfb) .
+\end{equation}
+
+
+
+For every ball $B$ in $X$ and
+every $d_B$-ball of radius $2R$ in $\Mf$, there is a collection $\mathcal{B}$ of
+at most $2^a$ many  $d_B$-balls of radius $R$ covering $B$, that is,
+\begin{equation}\label{thirddb}
+    B\subset \bigcup \mathcal{B}.
+\end{equation}
+
+
+Further, a compatible collection $\Mf$ is called $\tau$-cancellative, if
+for any ball $B$ in $X$ of radius $R$, any Lipschitz function $\varphi: X\to \C$
+supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
+\begin{equation}
+    \label{eq vdc cond}
+    |\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)|\le 2^a  \mu(B)\|\varphi\|_{\Lip(B)}
+(1+d_B(\mfa,\mfb))^{-\tau},
+\end{equation}
+%where $\C^\nu$ denotes the homogeneous H\"older space.
+where $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$,
+$$
+    \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
+$$
+
+
+
+
+A one-sided $\tau$-Calder\'on--Zygmund kernel $K$ on  the doubling metric measure space $(X, \rho, \mu, A)$ is a measurable function
+ \begin{equation}\label{eqkernel0}
+K:X\times X\to \mathbb{C}
+ \end{equation}
+such that for all $x,y',y\in X$ with $x\neq y$, we have
+\begin{equation}\label{eqkernel size}
+    |K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
+  \end{equation}
+ and if $2\rho(y,y') \leq \rho(x,y)$, then
+  \begin{equation}
+  \label{eqkernel y smooth}
+       |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\tau}\frac{2^{a^3}}{V(x,y)},
+\end{equation}
+where  \[V(x,y):=\mu(B(x,\rho(x,y))).\]
+%Observe that $V$ is essentially symmetric in the sense that $V(x,y)$ and $V(y,x)$ are comparable, with the implied constant depending only on $A$.
+Define the  truncated non-tangential singular integral $T_{R_1,R_2}$ associated with $K$ by
+\begin{equation}
+    \label{def tang unm op}
+    T_{R_1,R_2}f(x):=\sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x,y) < R_2}  K(x,y) f(y)  \, \mathrm{d}\mu(y) \right|\,.
+\end{equation}
+
+\ct{I changed this definition removing the sup over radii.
+I think to remember lacking smoothness in x we cannot remove the other sup. The treatment of the sup should be
+done carefully in section 7, there was a widening
+of the angle that needs to be done carefully. one has to juggle Cotlar there anyways, so maybe one can do the sup
+in radii there. Avoids the sup in the last section}
+Our main result  is the following restricted weak type estimate in the range $1<q\le 2$, which by interpolation techniques recovers $L^q$ estimates for the open range
+$1<q<2$.
+\begin{theorem}
+\label{thm main 1}
+    For all  integers $a \ge  4$ and real numbers
+    $0 < \tau\leq 1$,  and  $1<q\le 2$,
+    there exists a positive $C_{a,\tau, q}$ such that the following holds.
+    Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
+    $\tau$-cancellative compatible  collection of functions and let $K$ be a one-sided $\tau$-Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every $0<R_1<R_2$
+    and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    \begin{equation}\label{nontanbound}
+        \|T_{R_1,R_2}g\|_{2} \leq 2^a \|g\|_2\,,
+    \end{equation}
+    where $T_{R_1,R_2}$ is defined in
+\eqref{def tang unm op}.
+    Then for all Borel sets $F$ and $G$ in $X$ and
+    all Borel functions $f:X\to \C$ with
+    $|f|\le \mathbf{1}_F$, we have, with $T$ defined in  \eqref{def main op},
+    \begin{equation}
+    \label{resweak}
+        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq C_{a,\tau, q} \mu(G)^{1/q'} \mu(F)^{1/q}\,,
+        \end{equation}
+where $q'$ is the dual exponent to $q$.
+\end{theorem}
+
+
+For the proof of Theorem \ref{thm main 1}, we largely follow \cite{zk-polynomial}, which in turn was inspired by \cite{lie-polynomial}.
+We do suitable modifications into our more general setting and have a few technical improvements of the proof.  In particular, we explicitly divide
+in Section \ref{overviewsection} the main work of the proof into mutually independent
+Sections \ref{thmfromproplinear}, \ref{christsection}
+\ref{proptopropprop},
+\ref{antichainboundary},
+and \ref{treesection}. Some of the sections follow a similar
+pattern, they start with a Subsection dividing the
+proof into further mutually independent subsections.
+This modularization of our proof was emphatically endorsed in personal communication by the author of \cite{zk-polynomial} and is very helpful for the
+computer verification process.
+We write out the proof in more detail than usual
+for papers in this area as this is a blueprint for a computer verification in LEAN.
+Our abstract setting on spaces of homogeneous type
+is well suited for this task.
+
+
+By changing to an equivalent metric, every space of homogeneous type can be viewed as a doubling metric measure space (cf. \cite{MaciasSegovia}). Spaces of homogeneous type were introduced
+by \cite{MR0499948} as a natural setting for Calder\'on-Zygmund theory. We largely follow the material in \cite{stein-book} on these spaces,
+which is  particularly motivated by
+homogeneous Lie groups as example of spaces of homogeneous type.
+Our concept of a compatible collection $\mathcal{Q}$ as a natural class
+of functions on doubling metric measure is implicitly anticipated in \cite{zk-polynomial} and subsequent
+work \cite{mnatsakanyan} and does not appear in classical texts such as \cite{stein-book}. In particular, a generalization of \eqref{def main op} from the previously mentioned Euclidean setting into the anisotropic setting included in our theory was suggested in \cite{zk-polynomial}.
+
+
+
+We conclude this introduction with a brief survey on some prior related work. In the Euclidean setting, the case  ${\bf d}=d=1$ and $K$ the Hilbert kernel
+$K(x,y)=(x-y)^{-1}$ in \eqref{def main op} is the classical
+Carleson operator that has a role in proving
+almost everywhere convergence of Fourier series
+\cite{carleson}, \cite{fefferman}, \cite{lacey-thiele}.
+The supremum in $R_1,R_2$ is classically absent but easily subsumed into the supremum over linear modulations.
+The case $d=2$, ${\bf{d}=1}$ is called quadratic Carleson operator and
+was estimated in \cite{lie-quadratic}, while the case $d>2$ and
+${\bf{d}=1}$ is the polynomial Carleson operator and estimated in  \cite{lie-polynomial}. The case of the class of polynomials with
+vanishing linear coefficient is simpler and was estimated in \cite{stein-wainger}.
+Adapting the proof in \cite{zk-polynomial} through
+a number of axiomatic properties of $\Mf$ was already done
+in  \cite{mnatsakanyan} to pass to classes of Blaschke factors on the disc rather than polynomials. An application of the quadratic Carleson
+operator of \cite{lie-quadratic} appears in \cite{ramos}. \rs{The variables $d$ and ${\bf d}$ are currently undefined}
+
+\noindent \textit{Acknowledgement.}
+L.B., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813 as well as SFB 1060.
+A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under the 1001-project 123F122.
+
+\chapter{Overview of the proof of Theorem \ref{thm main 1}}
+\label{overviewsection}
+
+
+This section organizes the proof of Theorem
+\ref{thm main 1} into the subsequent five
+mutually independent sections.
+It formulates four auxiliary propositions, each proved
+ in one sections. The fifth section proves Theorem \ref{thm main 1}.
+The present section  also introduces all definitions and statements used across boundaries of these five sections.
+
+
+Let $a, q, \tau$ be given as in Theorem \ref{thm main 1}
+and set $A:=2^a$.
+For two complex quantities $X,Y$, usually depending on
+$A, q, \tau$ and some further parameters,
+we write $X\lesssim Y$ if there exists
+ \[C(a,\tau,q)>0\]
+such that for all values of the further parameters
+\[|X|\le C(a,\tau,q)|Y|.\] Note that $\lesssim$ is transitive.
+
+
+
+Define
+\begin{equation}\label{defineD}
+D:= 2^{100 a^2}\,  .
+\end{equation}
+Define
+\begin{equation}\label{definekappa}
+\kappa:= \,  .
+\end{equation}
+\ct{fill in after completing  grid section}.
+
+Let
+ $\psi:\R \to \R$ be the unique compactly supported, piece-wise affine, linear, continuous function with corners precisely at $\frac 1{4D}$, $\frac 1{2D}$, $\frac 14$ and $\frac 12$ which satisfies
+ \begin{equation}
+    \label{eq psisum}
+    \sum_{s\in \mathbb{Z}} \psi(D^{-s}x)=1 .
+\end{equation}
+for all  $x>0$. This function vanishes outside $[\frac1{4D},\frac 12]$, is constant one on
+$[\frac1{2D},\frac 14]$, and is Lipschitz
+with constant $4D$.
+
+
+
+
+
+
+
+Let a doubling metric measure space $(X,\rho,\mu, A)$ be given.
+Let a $\tau$-cancellative compatible collection $\Mf$ of functions on $X$ be given. \rs{This is not consistent with the notation in Section 1, which would instead have us write $(X,\rho,\mu, \log _2 A)$}
+Let $o\in X$ be a point such that $\mfa(o)=1$
+for all $\mfa\in \Mf$.
+
+\begin{lemma}
+    For any ball $B$ in $X$, the local oscillation
+$d_{B}$ is a metric on $\Mf$.
+\end{lemma}
+
+\begin{proof}
+    Symmetry and triangle inequality are immediate, and we argue that
+for any ball $B(x,r)$, the identity
+\begin{equation}\label{dvanish}
+d_{B(x,r)}(\mfa,\mfb)=0
+\end{equation}
+implies $\mfa(y)=\mfb(y)$ for all $y\in X$. Assume $\eqref{dvanish}$.
+Let
+\begin{equation}
+    R=1+\rho(x,o)+\rho(x,y)\, .
+\end{equation}
+By an iterated application of
+the comparability of the norms \eqref{firstdb} or \eqref{seconddb} \rs{No relation between $r$ and $R$ right?}
+\begin{equation}
+    d_{B(x,R)}(\mfa,\mfb)=0.
+\end{equation}
+By the definition of
+the local oscillation, evaluated using $o$ as one of the points and $y$ as the other, we obtain
+$\mfa(y)=\mfb(y)$.
+\end{proof}
+%Let $\mathcal{B}(\Mf)$ denote the Borel $\sigma$-algebra in $\Mf$ with respect to the
+%unique topology generated by any of the metrics $d_{B}$ with respect to some non-empty ball $B$ in $X$.   \ct{Not sure we need that (?) move to section 3}
+
+Let a one-sided $\tau$-Calder\'on--Zygmund kernel $K$ on $X$ be given so that the operator $T_*$ defined in \eqref{def tang unm op}
+satisfies
+\eqref{nontanbound}. Let $T$ be the corresponding operator as defined in \eqref{def main op}.
+
+
+For $s\in\mathbb{Z}$, we define
+\begin{equation}\label{defks}
+    K_s(x,y):=K(x,y)\psi(D^{-s}\rho(x,y))\,,
+\end{equation}
+so that for each $x, y \in X$ with $x\neq y$  we have
+$$K(x,y)=\sum_{s\in\mathbb{Z}}K_s(x,y).$$
+ In Section \ref{thmfromproplinear}, we prove Theorem \ref{thm main 1}
+ from the more finitary version, Proposition \ref{prop-linear} below. We call a function from a measure space to a finite set measurable if the pre-image of each of the elements in the range is measurable.
+ \lars{Use consistent notation $\mathbf{1}$ or $1$ for indicator functions}
+
+\begin{prop}\label{prop-linear}
+Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq  \sigma_2$. Let $\tQ\colon X\to \Mf$ be a measurable function with finite range. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $\mu(G')\leq \frac 12 \mu(G)$ such that
+for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
+\begin{multline}\label{eq-linearized}
+\int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) \tQ(x)(y)  \, \mathrm{d}\mu(y) \right| \mathrm{d}\mu(x)  \lesssim \mu(G)^{\frac 1{q'}}
+ \mu(F)^{\frac 1 q}\,.
+\end{multline}
+\end{prop}
+Let measurable functions ${\sigma_1}\leq \sigma_2\colon X\to \mathbb{Z}$ with finite range be given. let a measurable function
+$\tQ\colon X\to \Mf$ with finite range
+be given.
+Let bounded Borel sets $F,G$ in $X$ be given.
+Let $S$ be the smallest integer such that the ranges of
+$\underline{\sigma}$ and $ \overline\sigma$ are contained in $[-S,S]$ and $F$ and $G$ are contained
+in the ball $B(o, D^S)$.
+
+
+In Section \ref{christsection},
+we prove Proposition \ref{prop-linear}
+ using  a
+bound for a dyadic model formulated in Proposition
+\ref{prop dyadic} below.
+
+
+A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$  of Borel sets in $X$ called dyadic cubes, a surjective function  $s\colon \mathcal{D}\to [-S, S]$
+called scale function,
+and a function $c:\mathcal{D}\to X$
+called center function such that the five properties
+\eqref{coverdyadic},
+\eqref{dyadicproperty}, \eqref{coverball},
+\eqref{eq vol sp cube}, and \eqref{eq small boundary}
+hold.
+
+For each dyadic cube $I$  and each $-S\le k<s(I)$ we have
+\begin{equation}\label{coverdyadic}
+I\subset \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
+\end{equation}
+Any two non-disjoint dyadic cubes  $I,J$ with $s(I)\le s(J)$ satisfy
+\begin{equation}\label{dyadicproperty}
+I\subset J.
+\end{equation}
+For any $x\in B(o,D^S)$, and every $k\in[-S,S]$, there
+is a dyadic cube $I$ with $s(I)=k$ and
+\begin{equation}\label{coverball}
+x\in I.
+\end{equation}
+For any dyadic cube $I$,
+ \begin{equation}
+        \label{eq vol sp cube}
+        c(I)\in B(c(I), \frac{1}{4} D^{s(I)}) \subset I \subset B(c(I), 4 D^{s(I)})\,.
+    \end{equation}
+For any dyadic cube  $I$ and any $t>0$,
+\begin{equation}
+        \label{eq small boundary}
+        \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2^{2a+2} t^\kappa \mu(I)\,.
+    \end{equation}
+\ct{probably there is a better way to formulate this, following
+Lemma 4.10 or so}
+
+
+
+
+
+
+
+
+A tile structure  $(\fP,\sc,\fc,\fcc,\pc,\ps)$
+for a given grid structure $(\mathcal{D}, c, s)$
+is a finite set $\fP$  of elements called tiles with five maps
+\begin{align*}
+\sc&\colon \fP\to {\mathcal{D}}\\
+\fc&\colon \fP\to \mathcal{P}(\Mf) \\
+\fcc &\colon \fP\to \Mf\\
+\pc &\colon \fP\to X\\
+\ps &\colon \fP\to \mathbb{Z}
+\end{align*}
+with $\sc$ surjective and $\mathcal{P}(\Mf)$ denoting the power set of $\Mf$ such that the five Properties \eqref{eq dis freq cover}, \eqref{eq dis freq cover},
+\eqref{eq freq comp ball}, \ref{tilecenter}, and
+\ref{tilescale} hold.
+
+For each dyadic cube $I$, the restriction of the  map $\Omega$ to the set
+\begin{equation}\label{injective}
+    \fP(I)=\{\fp: \sc(\fp) =I\}
+\end{equation}
+is injective
+and we have the disjoint covering property
+\begin{equation}\label{eq dis freq cover}
+\tQ(X)\subset \dot{\bigcup}_{\fp\in \fP(I)}\fc(\fp).
+\end{equation}
+For any tiles $\fp,\fq$ with $\sc(\fp)\subset \sc(\fq)$ and $\fc(\fp) \cap \fc(\fq) \neq  \emptyset$ we have
+\begin{equation} \label{eq freq dyadic}
+\fc(\fq)\subset \fc(\fp) .
+\end{equation}
+For each tile $\fp$,
+        \begin{equation}\label{eq freq comp ball}
+        \fcc(\fp)\in B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
+        \end{equation}
+        where
+\begin{equation}
+    B_{\fp} := \{\mfb \in \Mf \, : \, d_{\fp}(\mfa, \mfb) < R\,\} ,
+\end{equation}
+ and
+\begin{equation}\label{defdp}
+d_{\fp} := d_{B(\pc(\fp),\frac 14 D^\ps(\fp))}\, .
+\end{equation}
+
+
+
+
+We have for each tile $\fp$
+\begin{equation}\label{tilecenter}
+    \pc(\fp)=c(\sc(\fp)),
+\end{equation}
+\begin{equation}\label{tilescale}
+    \ps(\fp)=s(\sc(\fp)).
+\end{equation}
+
+
+\begin{prop}
+\label{prop dyadic}
+Let $(\mathcal{D}, c, s)$ be a grid structure and $(\fP,\sc,\fc,\fcc,\pc,\ps)$
+a tile structure  for this grid structure.
+
+Define for $\fp\in \fP$
+\begin{equation}\label{defineep}
+    E(\fp)=\{x\in \sc(\fp): \tQ(x)\in \fc(\fp) , {\sigma_1}(x)\le \ps(\fp)\le {\sigma_2}(x)\}
+\end{equation}
+and
+\begin{equation}\label{definetp}
+    T_{\fp} f(x)= 1_{E(\fp)}(x) \int   K_{\ps(\fp)}(x,y) f(y) \tQ(x)(y)\overline{\tQ(x)(x)}\, d\mu(y).
+\end{equation}
+Then there exists a Borel set $G'\subset G$ with $\mu(G') \leq 1/2\mu(G)$ such that for all $f:X\to \C$ with $|f|\le \mathbf{1}_F$and all
+$g:X\to \C$ with $|g|\le \mathbf{1}_{G\setminus G'}$
+we have
+\begin{equation}
+    \label{disclesssim}
+   \int g(x) \sum_{\fp \in \fP} T_{\fp} f (x) \, \mathrm{d}\mu(x)  \lesssim \mu(G)^{1/q'} \mu(F)^{1/q}\,.
+\end{equation}
+\end{prop}
+
+\lars{Why is there a dualizing function $g$ in the above Proposition? I don't think it is needed for the restricted weak type bounds, and it is not there for example in Proposition 2.2}
+
+
+
+
+
+
+
+The proof of Proposition \ref{prop dyadic} is done in Section \ref{proptopropprop}
+by a reduction to two further propositions that we state below.
+
+
+Fix a grid structure  $(\mathcal{D}, c, s)$  and a tile structure $(\fP,\sc,\fc,\fcc,\pc,\ps)$
+for this grid structure.
+
+We define the relation
+\begin{equation}\label{straightorder}
+    \fp\le \fp'
+\end{equation}
+ on $\fP\times \fP$ meaning
+$\sc(\fp)\subset \sc(\fp')$ and
+$\Omega(\fp')\subset \Omega(\fp)$.
+We further define for $\lambda,\kappa>0$
+the relation
+\begin{equation}\label{wiggleorder}
+    \lambda \fp \lesssim \kappa\fp'
+\end{equation}
+on $\fP\times \fP$ meaning
+$\sc(\fp)\subset \sc(\fp')$ and
+\begin{equation}
+    B_{\fp'}(Q(\fp'),\kappa )
+    \subset B_{\fp}(Q(\fp),\lambda )\, .
+\end{equation}
+
+
+
+Define for a tile $\fp$ and $\lambda>0$
+\begin{equation}\label{definee1}
+    E_1(\fp):=\{x\in \sc(\fp)\cap G: \tQ(x)\in \fc(\fp)\}\, ,
+\end{equation}
+\begin{equation}\label{definee2}
+    E_2(\lambda, \fp):=\{x\in \sc(\fp)\cap G: \tQ(x)\in B_{\fp}(\fcc(\fp), \lambda)\}\, .
+\end{equation}
+
+
+
+Given a subset $\fP'$ of $\fP$, we define
+$\fP(\fP')$ to be the set of
+all $\fp \in \fP$ such that there exist $\fp' \in \fP'$ with $\sc(\fp)\subset \sc(\fp')$. Define  the densities
+\begin{equation}\label{definedens1}
+    {\dens}_1(\fP') := \sup_{\fp'\in \fP'}\sup_{\lambda \geq 2} \lambda^{-a} \sup_{\fp \in \fP(\fP'), \lambda \fp' \lesssim \lambda \fp}
+    \frac{\mu({E}_2(\lambda, \fp))}{\mu(\sc(\fp))}\, ,
+\end{equation}
+\begin{equation}\label{definedens2}
+    {\dens}_2(\fP') := \sup_{\fp'\in \fP'}
+    \sup_{r>4D^{\ps(\fp)}}
+    \frac{\mu(F\cap B(\pc(\fp),r))}{\mu(B(\pc(\fp),r))}\, .
+\end{equation}
+
+
+
+
+
+An antichain is a subset $\mathfrak{A}$
+of $\fP$ such that for any distinct $\fp,\fq\in \mathfrak{A}$ we do not have have $\fp\le \fq$.
+
+The following proposition is proved in Section \ref{antichainboundary}.
+We choose a sufficiently small $\delta > 0$ depending on $A, \tau$, the precise choice will be made in Lemma \ref{SeparatedTrees}.
+Depending on $\kappa$, $A$, $\tau$, $q$, we choose a sufficiently small $\epsilon > 0$, the exact choice will be implicit in the proofs of Proposition \ref{antichainprop}  and Proposition \ref{forestprop}. \ct{This will be modified and psosibly moved around,
+along with the definition of $\kappa$, when these sections are done.}
+
+
+\begin{prop}\label{antichainprop}
+For any antichain $\mathfrak{A} $ and  for all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ and all
+$g:X\to \C$ with $|g|\le \mathbf{1}_{G}$
+\begin{equation} \label{eq antiprop}
+  |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|
+  \end{equation}
+  \begin{equation}
+      \le  2^{200a^3}({q}-1)^{-1} \tau^{-1}\dens_1(\mathfrak{A})^{\frac {(q-1)\tau^2}{8a^2}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12}  \|f\|_2\|g\|_2\, .
+  \end{equation}
+\end{prop}
+
+Let $n\ge 0$.
+An $n$-forest is a pair $(\fU, \mathfrak{T})$
+where  $\fU$ is a subset of $\fP$
+and $\mathfrak{T}$ is a map assigning to
+each $\fu\in \fU$ a set $\fT (\fu)\subset \fP$ called tree
+such that the following properties
+\eqref{forest1}, \eqref{forest2},
+\eqref{forest3},
+\eqref{forest4},
+\eqref{forest5}, and
+\eqref{forest6}
+hold.
+
+For each $\fu\in \fU$ and each $\fp\in \fT(\fu)$
+we have
+\begin{equation}\label{forest1}
+4\fp\lesssim 1\fu.
+\end{equation}
+
+For each $\fu, \in \fU$ and each $\fp,\fp''\in \fT(\fu)$ and $\fp'\in \fP$
+we have
+\begin{equation}\label{forest2}
+    \fp, \fp'' \in \mathfrak{T}(\fu), \fp \leq \fp' \leq \fp'' \implies \fp' \in \mathfrak{T}(\fu).
+\end{equation}
+We have
+\begin{equation}\label{forest3}
+   \|\sum_{\fu\in \fU} \mathbf{1}_{\sc(\fu))}\|_\infty \leq 2^n\,.
+\end{equation}
+We have for every $\fu\in \fU$
+\begin{equation}\label{forest4}
+\dens_1(\fT(\fu))\le 2^{4a + 1-n}\, .
+\end{equation}
+With $Z=3/\delta$ we have for $\fu, \fu'\in \fU$ and $\fp\in \fT(\fu')$ with $\sc(\fp)\subset \sc(\fu)$ that
+\begin{equation}\label{forest5}
+d_{\fp}(\fcc(\fp), \fcc(\fu))>2^{Z(n+1)}\, .
+\end{equation}
+We have for every $\fu\in \fU$ and $\fp\in \fT(\fu)$ that
+\begin{equation}\label{forest6}
+B(\pc(\fp)), 8D^{\ps(\fp)})\subset \sc(\fu)).
+\end{equation}
+
+%For $\fp\in \fP$ and $Q\in\mathcal{Q}$, we define their {separation} to be
+%\[\Delta(\fp, Q):=d_{\sc(\fp)}(Q(\fp), Q)+1.\]
+ %A pair of boundary parts $\mathfrak{B}_1, \mathfrak{B}_2$ is \emph{$\Delta$-separated}  if
+%    for $i \neq j$, $\fp \in \mathfrak{B}_i$ and $I(\fp) \subset I(\tp(\mathfrak{B}_j))$ implies $\Delta(\fp, Q({\tp(\mathfrak{B}_j)})) > \Delta$.
+
+
+%A boundary part is a tree $\mathfrak{B}$, such that
+%$$
+%    B(x_{\sc(\fp)}, 8A^3 D^{s(\sc(\fp))}) \not\subset \sc(\tp(\mathfrak{B}))
+%$$
+%for all tiles $\fp \in \mathfrak{B}$, and an $(n,k)$-boundary forest is a forest consisting only of boundary parts.
+
+%The following proposition is also proved in Section \ref{antichainboundary}.
+%\begin{prop}\label{boundaryprop}
+%    For any $n \geq 1$ and any $(n,k)$-boundary forest $\mathfrak{F} \subset \fP_t$
+%    we have
+%    $$\|\sum_{\fp\in \mathfrak{F}} T_{\fp} 1_F\|_{2\to 2}
+%    \lesssim 2^{-\epsilon n} \log(2 + k) t^{1/q - 1/2}.$$
+%\end{prop}
+
+
+
+
+The following proposition is proved in Section \ref{treesection}.
+\begin{prop}\label{forestprop}
+For any $n\ge 1$ and any $n$-forest $(\fU,\fT)$ we have
+$$\|\sum_{\fu\in \fU}
+\sum_{\fp\in \fT(\fu)} T_{\fp} 1_F\|_{2\to 2}
+\lesssim 2^{-\epsilon n}
+\dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/q-1/2} \, .$$
+\end{prop}
+
+Theorem \ref{thm main 1} is formulated at the level of genereality
+for general kernels satisfying the mere H\"older regularity condition \eqref{eqkernel y smooth}. On the other hand, the $\tau$-cancellative condition \eqref{ew vdc cond} is a testing against more regular,
+namely Lipschitz functions. To bridge the gap, we follow \cite{zk-polynomial} to observe a variant of \eqref{ew vdc cond} that we formulate
+in the following Proposition proved in Section \ref{liphoel}.
+
+
+Define for any open ball $B$ of radius $R$ in $X$ the $\tau$-H\"older norm by
+$$
+    \|\varphi\|_{C^\tau(B)} = \sup_{x \in B} |\varphi(x)| + R^\tau \sup_{x,y \in X, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)^\tau}\,.
+$$
+\begin{prop}
+    \label{lem vdc regularity}
+     Let $z\in X$ and $R>0$ and set $B=B(z,R)$.
+     Let $\varphi: X \to \mathbb{C}$ by
+     supported on $B$ and satisfy $\|{\varphi}\|_{C^\tau(B)}<\infty$.
+     Let $\mfa, \mfb \in \mathcal{Q}$. Then
+    \begin{equation}
+        \label{eq vdc cond tau 2}
+        |\int e(\mfa(x)-{\mfb(x)})\varphi(x) dx|\le
+         2^{4a} \mu(B) \|{\varphi}\|_{C^\tau(B)}
+       (1 + d_{B}(\mfa,\mfb))^{-\tau^2/(2+a)}
+    \,.
+    \end{equation}
+    \end{prop}
+
+\lars{Is this covering Lemma not usually called Vitali's covering Lemma? Besciovitch is a different one.}
+We further formulate a classical Besicovitch covering result
+and maximal function estimate that we need throughout several sections.
+This following proposition will typically be applied to the absolute value of a complex valued function and be proved in Section \ref{sec hlm}. By a ball $B'$ we mean a set $B(x,r)$ with $x\in X$
+and $r>0$ as defined in \eqref{eq define ball}.
+For a finite collection $\mathcal{B}$ of balls in $X$
+and $1\le q< \infty$ \rs{$q$ has already been fixed at the beginning of this section} define the measurable function $M_{\mathcal{B},q}h$ on $X$ by
+\begin{equation}\label{def hlm}
+M_{\mathcal{B},q}h(x):=\left(\sup_{B'\in \mathcal{B'}} \frac{1_{B'}(x)}{\mu(B')}\int _{B'} |h(y)|^q\, d\mu(y)\right)^\frac 1q\,  .
+\end{equation}
+Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
+
+\begin{prop}\label{prop hlm}
+   Let $\mathcal{B}$ be a finite collection of balls in $X$.
+If for some $\lambda>0$ and some measurable function $h:X\to [0,\infty)$ we have
+\begin{equation}\label{eq ball assumption}
+\int_{B'} h(x)\, d\mu(x)\ge \lambda \mu(B')
+\end{equation}
+   for each $B'\in \mathcal{B}$,
+   then
+   \begin{equation}\label{eq besico}
+\lambda \mu(\bigcup \mathcal{B}) \le 2^{2a}\int_X h(x)\, d\mu(x)\, .
+       \end{equation}
+\rs{For the union of balls, I would write $\bigcup_{B\in\mathcal{B}} B$, here and elsewhere}
+For every measurable function $h$ \rs{Choose a different name for the function as $h$ is already used above}
+and $1\le q'<q$ we have \rs{$q'$ is used for the dual exponent to $q$. Use $\Tilde{q}$, here and in the proof}
+\begin{equation}\label{eq hlm}
+    \|M_{\mathcal{B},q'} h\|_q\le 2^{2a}q(q-q')^{-1} \|h\|_q\, .
+\end{equation}
+
+
+\end{prop}
+
+
+This completes the overview of the proof of Theorem
+\ref{thm main 1}.
+
+
+\chapter{T. \ref{thm main 1} from finitary P.
+\ref{prop-linear}}
+\label{thmfromproplinear}
+
+\rs{Section checked, see comments}
+
+Let Borel sets $F$, $G$ in $X$ be given.
+Let $x_0\in X$, then we have that
+\begin{equation}
+    X=\bigcup_{R>0}B(x_0,R),
+\end{equation} because every point of $X$
+has finite distance from $x_0$.
+\rs{Can we not take $x_0$ to be the point $o$? Since we anyways intersect the set $G$ with $B(o, 2R)$ later}
+\begin{lemma}\label{lemmarcut}
+For all integers $R>0$
+    \begin{equation} \label{Rcut}
+    \int 1_{G\cap B(x_0,R)}
+\sup_{1/R<R_1<R_2<R}\sup_{\mfa\in\Mf}
+\left| T_{R_1,R_2,\mfa} 1_{F}(x) \right|\, d\mu(x)
+\lesssim \mu(G)^{1/q'} \mu(F)^{1/q},
+\end{equation}
+where
+\begin{equation}\label{TRR}
+    T_{R_1,R_2,\mfa} f(x)=
+\int_{R_1 <  \rho(x,y) < R_2}  K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) .
+\end{equation}
+\end{lemma}
+
+We first see how the Lemma \ref{lemmarcut} implies
+Theorem \ref{thm main 1}. When $R$ tends to $\infty$, the integrand of the left-hand-side of \eqref{Rcut}
+grows monotonically to the integrand of the
+left-hand side of \eqref{resweak} for almost all $x$.
+By Lebesgue's monotone convergence theorem, the left-hand side of \eqref{Rcut} converges to the
+left-hand side of \eqref{resweak}. This proves Theorem \ref{thm main 1}.
+
+It remains to prove Lemma \ref{lemmarcut}.
+Fix an integer $R>0$.  Replacing
+$G$ by $G\cap B(o,R)$ if necessary, it suffices to show
+\eqref{Rcut} under the assumption that $G$ is supported in $B(o,R)$. We make this assumption.
+For every $x\in G$, the domain of integration
+in \eqref{TRR} is contained in $B(o,2R)$.
+Replacing
+$F$ by $F\cap B(o,2R)$ if necessary, it suffices to show
+\eqref{Rcut} under the assumption that $F$ is supported in $B(o,2R)$. We make this assumption.
+
+With the definition \eqref{defks} of $K_s$
+and the partition of unity \eqref{eq psisum}, we write \eqref{TRR} as the sum of \rs{Operator name changed from $S_{\sigma_1,\sigma_2,\mfa}$ to $\Tilde{T}_{\sigma_1,\sigma_2,\mfa}$ to remove conflict with the scale $S$}
+\begin{equation}\label{middles}
+\Tilde{T}_{\sigma_1,\sigma_2,\mfa}f(x)=\sum_{\sigma_1 \le s\le \sigma_2}
+\int K_s(x,y)  f(y) e(\mfa(y)) \, \mathrm{d}\mu(y)
+\end{equation}
+and
+\begin{equation}\label{boundarys}
+\sum_{s=\sigma_1-2,\sigma_1-1, \sigma_2+1,\sigma_2+2}
+\int_{R_1 <  \rho(x,y) < R_2}  K_s(x,y) f(y) e(Q(y)) \,
+ \mathrm{d}\mu(y),
+\end{equation}
+where $\sigma_1$ is the smallest integer such that $D^{\sigma_1-2}R_2>\frac 1{4D}$ and $\sigma_2$
+is the largest integer so that $D^{\sigma_2+2}R_1<\frac 12$. Here we restricted the summation index $s$
+by omitting the summands with $s<\sigma_1-2$
+or $s>s_2+2$ because for these summands the function $K_s$ vanishes on the domain of integration, and we have ommitted the restriction in the integral
+in the  summands in \eqref{middles} because in theses summands the support of $K_s$ is contained in
+the set described by this restriction.
+
+
+
+By the triangle inequality, it suffices to estimate
+versions of \eqref{Rcut} separately with $T_{R_1,R_2,\mfa}$ replaced by
+\eqref{middles} and by each summand of \eqref{boundarys}.
+The case \eqref{middles} follows immediately from the following lemma, where we use that if
+$\frac 1R\le R_1\le R_2\le R$, then $\sigma_1,\sigma_2$
+as in \eqref{middles} are in an interval $[-S,S]$ for some
+sufficiently large $S$ depending on $R$.
+
+\begin{lemma}\label{lemmascut}
+For all integers $S>0$
+    \begin{equation} \label{Scut}
+    \int 1_{G}(x)
+\max_{-S<\sigma_1\le \sigma_2<S}\sup_{\mfa\in\Mf}
+\left| \Tilde{T}_{\sigma_1,\sigma_2,\mfa} 1_{F}(x) \right|\, d\mu(x)
+\lesssim \mu(G)^{1/q'} \mu(F)^{1/q},
+\end{equation}
+where $S_{\sigma_1,\sigma_2,\mfa}$ is defined in \eqref{middles}.
+\end{lemma}
+
+To reduce Lemma \ref{lemmarcut} to Lemma \ref{lemmascut},  we need estimates for the summands  \eqref{boundarys}. We have for arbitrary $s$ the inequality
+\begin{equation}\label{HLbound}
+|\int_{R_1 <  \rho(x,y) < R_2}  K_s(x,y) f(y) e(\mfa(y))| \,  \mathrm{d}\mu(y)
+\end{equation}
+\begin{equation}\label{HLbound2}
+\le \int   |K_s(x,y) 1_F(y)| \,  \mathrm{d}\mu(y)
+\lesssim M1_F(x),
+\end{equation}
+\rs{where $M$ is the Hardy Littlewood maximal function.}
+Now \eqref{Rcut} with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}
+follows from
+ \begin{equation}
+    \int 1_{G}(x) M1_F(x)\, d\mu(x)
+\lesssim \mu(G)^{1/q'} \mu(F)^{1/q},
+\end{equation}
+which is a consequence of
+the $L^q$ bound for the Hardy Littlewood maximal function. This completes the reduction of
+Lemma \ref{lemmarcut} to Lemma \ref{lemmascut}.
+
+
+It remains to prove Lemma \ref{lemmascut}. Fix $S>0$.
+
+\begin{lemma}\label{lemmasqcut}
+For all finite sets $\tilde{\Mf}\subset \Mf$
+    \begin{equation} \label{Sqcut}
+    \int 1_{G}(x)
+\max_{-S<\sigma_1\le \sigma_2<S}\sup_{\mfa\in\tilde{\Mf}}
+\left| \Tilde{T}_{\sigma_1,\sigma_2,\mfa} 1_{F}(x) \right|\, d\mu(x)
+\lesssim \mu(G)^{1/q'} \mu(F)^{1/q},
+\end{equation}
+\end{lemma}
+
+We reduce Lemma \ref{lemmascut} to Lemma \ref{lemmasqcut}.
+By the Lebesgue monotone convergence theorem,
+applied to an increasing sequence of finite sets $\tilde{\Mf}$, inequality \eqref{Sqcut}
+continues to hold for  countable $\tilde{\Mf}$.
+
+Let $\epsilon=\frac 1S$ and let $\tilde{\Mf}$ be a maximal $\epsilon$- separated set in $\Mf$ relative to $d_{B(o,2R)}$. This set is countable as  every ball $B$ relative to $d_{B(o,2R)}$, by the doubling property \eqref{thirddb},
+contains at most a finite number of $\epsilon$-separated points, and $\Mf$ is the union of a countable number of balls of radius $n\in \N$ about any given point.
+
+
+
+For every $\mfa\in \Mf$ we have
+\begin{equation}
+\left| \Tilde{T}_{\sigma_1,\sigma_2,\mfa} 1_{F}(x)\right|=
+\left|\sum_{\sigma_1 \le s\le \sigma_2}
+\int K_s(x,y)  f(y) e(\mfa(y)-{\mfa(x)}) \, \mathrm{d}\mu(y)\right|
+\end{equation}
+Moreover, there is a $\tilde{\mfa}
+\in \tilde{\Mf}$ with $d_{B(o,2R)}(\mfa,\tilde{\mfa})\le \epsilon$. Hence,
+\begin{equation}
+    \left| \Tilde{T}_{\sigma_1,\sigma_2,\mfa} 1_{F}(x)\right|-\left|\Tilde{T}_{\sigma_1,\sigma_2,\tilde{\mfa}} 1_{F}(x) \right|
+\end{equation}
+\begin{equation}
+  \lesssim
+  \sum_{\sigma_1 \le s\le \sigma_2}
+\int |K_s(x,y)|  1_F(y) |\mfa(y)-{\mfa(x)}
+-{\tilde{Q}(y)}+{\tilde{Q}(x)}| \, \mathrm{d}\mu(y)
+\end{equation}
+\begin{equation}
+  \lesssim  (2S+1) \epsilon M1_F(x)\lesssim  M1_F(x)
+\end{equation}
+We estimate the left-hand-side of \eqref{Scut} by
+the sum of \eqref{Sqcut} and
+  \begin{equation}
+    \int 1_{G}(x)
+\max_{-S<\sigma_1\le \sigma_2<S}\sup_{\mfa\in {\Mf}}
+\inf_{\mfa\in\tilde{\Mf}}
+(| \Tilde{T}_{\sigma_1,\sigma_2,\mfa}|-|\Tilde{T}_{\sigma_1,\sigma_2,\mfa}  |)1_{F}(x)\, d\mu(x)
+,
+\end{equation}
+\begin{equation}
+    \lesssim
+     \int 1_{G}(x)
+M1_{F}(x)\, d\mu(x)
+,
+\end{equation}
+Lemma \ref{Scut} then follows by an application of Lemma \ref{Sqcut} and
+the Hardy Littlewood maximal theorem.
+
+
+It remains to prove Lemma \ref{lemmasqcut}.
+Fix a finite set
+$\tilde{\Mf}$.
+\begin{lemma}\label{lemmasqlin}
+Let $\underline{\sigma},\overline\sigma\colon X\to \mathbb{Z}$ be measurable functions with finite range
+$[-S,S]$ and $\underline{\sigma}\leq \overline \sigma$. Let $\tQ\colon X\to {\tilde{\Mf}}$ be a measurable function.
+    \begin{equation}  \label{Sqlin}
+    \int 1_{G}(x)
+\left| \Tilde{T}_{\underline{\sigma},\overline{\sigma},\tQ}1_F(x)
+ \right|\, d\mu(x)
+\lesssim \mu(G)^{1/q'} \mu(F)^{1/q},
+\end{equation}
+with
+\begin{equation}\label{middles1}
+\Tilde{T}_{\underline{\sigma},\overline{\sigma},\tQ}f(x)=\sum_{\underline{\sigma}(x) \le s\le \overline{\sigma}(x)}
+\int K_s(x,y)  f(y)\tilde{Q}(x)(y)) \, \mathrm{d}\mu(y)
+\end{equation}
+\end{lemma}
+
+We reduce Lemma \ref{lemmasqcut}  to
+Lemma \ref{lemmasqlin}.
+For each $x$, let $\underline{\sigma}(x)$ be the
+minimal element $s_1\in [-S,S]$ such that
+\[\max_{\underline{\sigma}(x)\le \sigma_2<S}\max_{\mfa\in\tilde{\Mf}}
+| \Tilde{T}_{\underline{\sigma}(x),\sigma_2,\mfa} 1_{F}(x)|
+=
+\max_{-S<\sigma_1\le \sigma_2<S}\max_{\mfa\in\tilde{\Mf}}
+| \Tilde{T}_{\underline{\sigma}(x),\sigma_2,\mfa} 1_{F}(x)=\Tilde{T}_x|.
+\]
+\rs{Change to: \[\max_{s_1\le \sigma_2<S}\max_{\mfa\in\tilde{\Mf}}
+| \Tilde{T}_{s_1,\sigma_2,\mfa} 1_{F}(x)|
+=
+\max_{-S<\sigma_1\le \sigma_2<S}\max_{\mfa\in\tilde{\Mf}}
+| \Tilde{T}_{\sigma_1,\sigma_2,\mfa} 1_{F}(x)|=\Tilde{T}_x
+\]}
+Similarly, let $\overline{\sigma}(x)$ be the
+minimal element $s_2\in [-S,S]$ such that
+\[\max_{\mfa\in\tilde{\Mf}}
+| \Tilde{T}_{\underline{\sigma}(x),\overline{\sigma}(x),\mfa} 1_{F}(x)|
+=
+\Tilde{T}_x|
+\]
+\rs{Change to: \[\max_{\mfa\in\tilde{\Mf}}
+| \Tilde{T}_{\underline{\sigma}(x), s_2,\mfa} 1_{F}(x)|
+=
+\Tilde{T}_x
+\]}
+Finally, choose a total order of the finite set $\tilde{\Mf}$
+and let $\tQ(x)$ be the minimal element with respect to this order such that
+\[
+| \Tilde{T}_{\underline{\sigma}(x),\overline{\sigma}(x),\tQ(x)} 1_{F}(x)| = \Tilde{T}_x
+\]
+With these choices, the left-hand side of \eqref{Sqcut}
+and \eqref{Sqlin} are equal and Lemma \ref{lemmasqcut}
+follows from Lemma \ref{lemmasqcut}.
+
+It remains to prove Lemma \ref{lemmasqlin}.
+Fix $\underline{\sigma}$, $\overline{\sigma}$,
+and $\tilde{Q}$ as in  the lemma.
+\rs{There is notational mismatch in the proof below as Proposition \ref{prop-linear} uses $\sigma_1, \sigma_2$ and $Q$, but Lemma \ref{lemmasqlin} uses $\underline{\sigma},\overline{\sigma},\tilde{Q}$.}
+Applying Proposition \ref{prop-linear} recursively, we obtain
+a sequence of sets $G_n$ with $G_0=G$ and,
+for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$
+ and
+ \begin{equation}
+    \int 1_{G_{n}\setminus G_{n+1}}(x)
+\max_{-S<\sigma_1\le \sigma_2<S}\max_{\mfa\in\tilde{\Mf}}
+\left| \Tilde{T}_{\sigma_1,\sigma_2,\mfa} 1_{F}(x) \right|\, d\mu(x)
+\lesssim \mu(G_n)^{1/q'} \mu(F)^{1/q},
+\end{equation}
+\rs{The above should not have the maximums $\max_{-S<\sigma_1\le \sigma_2<S}\max_{\mfa\in\tilde{\Mf}}$}
+Adding these inequalities and using $q'<\infty$ and
+a geometric series on the right-hand-side, we obtain
+    \begin{equation} \label{Sqcut2}
+    \int 1_{G\setminus G_{n}}(x)
+\left| \Tilde{T}_{\underline{\sigma},\overline{\sigma},\tilde{Q}}1_F(x) \right|\, d\mu(x)
+\lesssim \mu(G)^{1/q'} \mu(F)^{1/q}.
+\end{equation}
+As the integrand is bounded by
+\begin{equation}1_{G_{n}\setminus G_{n+1}}(x)
+\sum_{-S<\sigma_1\le \sigma_2<S}\sum_{\mfa\in\tilde{\Mf}}
+\left| \Tilde{T}_{\sigma_1,\sigma_2,\mfa} 1_{F}(x) \right|,
+\end{equation}
+which by interchange of summation and integration is seen to be integrable, by Lebesgue's dominated convergence theorem we obtain
+ \begin{equation} \label{Sqcut3}
+    \int 1_{G}(x)
+\left| \Tilde{T}_{\underline{\sigma},\overline{\sigma},\tilde{Q}}1_F(x) \right|\, d\mu(x)
+\lesssim \mu(G)^{1/q'} \mu(F)^{1/q}.
+\end{equation}
+
+
+
+This completes the proof of Lemma \ref{lemmasqlin}
+and thus Theorem \ref{thm main 1}.
+
+\chapter{P. \ref{prop-linear}
+from dyadic P. \ref{prop dyadic}}
+\label{christsection}
+
+To prove Proposition
+\ref{prop-linear}, we already fixed in Section \ref{overviewsection}
+measurable functions ${\sigma_1},\sigma_2\,\tQ$ and Borel sets $F,G$
+and defined $S$ to be the smallest
+integer such that the ranges of
+$\underline{\sigma}$ and $ \overline\sigma$ are contained in $[-S,S]$ and $F$ and $G$ are contained
+in the ball $B(o, D^S)$.
+
+The following lemma, which we prove in Subsection \ref{subsecdyadic}
+should be compared with the construction of dyadic cubes in \cite[\S 3]{christ1990b}.
+
+\begin{lemma}\label{dyadiclemma}
+    There exists a grid structure $(\mathcal{D}, c,s)$.
+\end{lemma}
+
+
+
+
+The next lemma, which we prove in Subsection \ref{subsectiles}, should be compared
+with the construction in \cite[Lemma 2.12]{zk-polynomial}.
+
+\begin{lemma}\label{tilelemma}
+    For a given grid structure $(\mathcal{D}, c,s)$, there exists a tile structure
+    $(\fP,\sc,\fc,\fcc,\pc,\ps)$.
+\end{lemma}
+
+Choose a grid structure $(\mathcal{D}, c,s)$ with Lemma \ref{dyadiclemma} and a tile structure for this
+grid structure $(\fP,\sc,\fc,\fcc,\pc,\ps)$ with Lemma \ref{tilelemma}.
+Applying Proposition \ref{prop dyadic}, we obtain a Borel set $G'$ in $X$ with $\mu(G')\leq \frac 12 \mu(G)$ such that for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$
+we have \eqref{eq-linearized}.
+
+\begin{lemma} \label{lemmasump}
+We have for all $x\in G\setminus G'$
+\begin{equation}\label{eq sump}
+    \sum_{\fp\in \fP}T_{\fp} f(x)= \sum_{s=\sigma_1(x)}^{\sigma_2(x)}
+    \int   K_{s}(x,y) f(y) tQ(x)(y)\overline{\tQ(x)(x)}\, d\mu(y).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Fix $x\in G\setminus G'$.
+Sorting the tiles $\fp$ on the left-hand-side of \eqref{eq sump} by the value $\ps(\fp)\in [-S,S]$,
+it suffices to prove  for every $-S\le s\le S$ that
+\begin{equation}\label{outsump}
+    \sum_{\fp\in \fP: \ps(\fp)=s}T_{\fp} f(x)=0
+\end{equation}
+ if $s\not\in [\sigma_1(x), \sigma_2(x)]$ and
+\begin{equation}\label{insump}
+    \sum_{\fp\in \fP: \ps(\fp)=s}T_{\fp} f(x)=
+    \int   K_{s}(x,y) f(y) tQ(x)(y)\overline{\tQ(x)(x)}\, d\mu(y).
+\end{equation}
+if $s\in [\sigma_1(x),\sigma_2(x)]$.
+If $s\not\in [\sigma_1(x), \sigma_2(x)]$, then by definition of $E(\fp)$ we have
+$x\not\in E(\fp)$ for any $\fp$ with $\ps(\fp)=s$ and thus $T_{\fp} f(x)=0$. This proves
+\eqref{outsump}.
+
+Now assume $s\in [\sigma_1(x),\sigma_2(x)]$.
+By \eqref{coverball} and $G\subset B(o,D^S)$, there is at least
+one $I\in \mathcal{D}$ with $s(I)=s$ and $x\in I$.
+By \eqref{dyadicproperty}, this $I$ is unique. By \eqref{eq dis freq cover}, there is precisely one $\fp\in \fP(I)$ such that
+$\tQ(x)\in \fc(\fp)$. Hecne there is precisely one  $\fp\in \fP$ with  $\ps(\fp)=s$ such that
+$x\in E(\fp)$. For this $\fp$, the value $T_{\fp}(x)$ by its definition in \eqref{definetp}
+equals the right-hand side of \eqref{insump}. This proves the lemma.
+\end{proof}
+
+We now estimate with Lemma \ref{lemmasump} and Proposition \ref{prop dyadic}
+\begin{equation}
+ \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) \tQ(x)(y)  \, \mathrm{d}\mu(y)\right| \mathrm{d}\mu(x)
+\end{equation}
+\begin{equation}
+ =\int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) \tQ(x)(y)  \, \overline{\tQ(x)(x)}\mathrm{d}\mu(y)\right| \mathrm{d}\mu(x)
+\end{equation}
+\begin{equation}
+ =\int_{G \setminus G'} \left|\sum_{\fp\in \fP}T_{\fp} f(x)\right| \mathrm{d}\mu(x)
+ \lesssim \mu(G)^{1/q'} \mu(F)^{1/q} \,.
+\end{equation}
+This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and thus completes the proof of Proposition
+\ref{prop-linear}.
+
+
+
+\section{Proof of L.\ref{dyadiclemma}, dyadic structure}
+\label{subsecdyadic}
+
+We begin with the construction of the centers of the dyadic cubes. \lars{There are still $A$'s in this section}
+\begin{lemma}\label{countballlemma}
+Let $-S\le k\le S$.Let $Y\subset X$ such that for any $y\in Y$
+we have
+\begin{equation}\label{ybinb}
+  y\in B(o,4D^S-D^k)
+\end{equation}
+and for any further $y'\in Y$ with $y\neq y'$ we have
+\begin{equation} \label{eq disj yballs}
+    B(y,D^k)\cap B(y',D^k)=\emptyset.
+\end{equation}
+Then  the cardinality of $Y$ is estimated by
+\begin{equation}\label{boundY}
+    |Y|\le A^{1+\ln_2(8D^{2S})}\, .
+\end{equation}
+\end{lemma}
+
+
+\begin{proof}
+   Let $k$ and $Y$ be given.
+  By applying the doubling property \eqref{doublingx} inductively, we have for each integer $j\ge 0$
+  \begin{equation}\label{jballs}
+      \mu(B(y,2^{j}D^k))\le A^j \mu(B(y,D^k))\, .
+  \end{equation}
+ As $X$ is the union of the balls $B(y,2^{j}D^k)$ and $\mu$ is not zero, at least one ov
+ the balls $B(y,2^{j}D^k)$ has positive measure und thus $B(y,D^k)$ has positive measure.
+
+ Applying \eqref{jballs} for $j'$ the smallest integer larger than $\ln_2(8D^{2S})$, using $-S\le k\le S$
+ and $y\in B(o,4D^S)$ and the triangle inequality, we have
+   \begin{equation}
+     B(o, 4D^S) \subset B(y, 8D^S) \subset B(y,2^{j'}D^k) \, .
+  \end{equation}
+Using disjointness of the balls in \eqref{eq disj yballs}, we obtain
+\begin{equation}
+|Y|\mu(B(o,4D^S))\le A^{j'}\sum_{y\in Y}\mu(B(y,D^k))
+\end{equation}
+\begin{equation}
+\le
+A^{j'}\mu(\bigcup_{y\in Y}B(y,D^k))
+\le A^{j'}\mu(o,4D^S)\, .
+\end{equation}
+As $\mu(o,4D^S)$ is not zero, the lemma follows.
+\end{proof}
+
+For each $-S\le k\le S$, let $Y_k$ be a set of
+maximal cardinality in $X$ such that $Y=Y_k$ satisfies
+the properties \eqref{ybinb} and \eqref{eq disj yballs}.
+By the upper bound of Lemma \ref{countballlemma}, such set exists.
+
+Choose an enumeration of the points in the finite set $Y_k$ and thus a total
+order  $<$ on $Y_{k}$.
+
+\begin{lemma}\label{ballcover}
+  For each $-S\le k\le S$, the ball
+  $B(o, 4D^S-D^k)$ is contained
+  in the union of the balls $B(y,2D^k)$ with $y\in Y_k$.
+\end{lemma}
+
+\begin{proof}
+Let $x$ be any point of $B(o, 4D^S-D^k)$.   By maximality of $|Y_k|$, the ball
+$B(x,  D^k)$ intersects one of the balls
+$B(y,  D^k)$ with $y\in Y_k$. By the triangle
+inequality, $x\in B(y,2D^k)$.
+\end{proof}
+
+Define the set
+\begin{equation}
+    \mathcal{C}:= \{(y,k): -S\le k\le S, y\in Y_k\}\,
+\end{equation}
+We totally order the set $\mathcal{C}$ lexicographically by setting
+$(y,k)<(y',k')$ if $k< k'$ or both $k=k'$ and $y<y'$.
+Consider the set $\mathcal{C}$ of all pairs
+In what follows, We define recursively in the sense of this order a function
+\begin{equation}
+    (I_1,I_2,I_3): \mathcal{C}\to \mathcal{P}(X)\times \mathcal{P}(X)\times \mathcal{P}(X)\, .
+\end{equation}
+
+
+Assume the sets ${I}_j(y',k')$ already defined  for $j=1,2,3$ if $k'<k$ and if  $k=k$ and $y'<y$.
+
+
+
+
+If $k=-S$, define for  $j\in \{1,2\}$ the set
+${I}_j(y,k)$ to be $B(y,jD^{-S})$.
+If $-S<k$, define for $j\in \{1,2\}$
+and $y\in Y_k$ the set ${I}_j(y,k)$ to be
+\begin{equation}\label{defineij}
+\bigcup\{I_3(y',k-1):
+y'\in Y_{k-1}\cap  B(y,jD^k)\}.
+\end{equation}
+Define for $y\in Y_k$
+\begin{equation}\label{definei3}
+I_3(y,k):={I_1}(y,k)\cup \left[{I_2}(y,k)\setminus \left[X_k\cup \bigcup\{I_3(y',k):y'\in Y_{k}, y'<y\})\right]\right]
+\end{equation}
+with
+\begin{equation}
+      X_{k}:=\bigcup\{I_1(y', k):y'\in Y_{k} .\}
+\end{equation}
+
+
+\begin{lemma}\label{firstgridlemma}
+   For each $-S\le k\le S$ and $1\le j\le 3$
+   the following holds.
+
+   If $j\neq 2$ and for some $x\in X$ and $y_1,y_2\in Y_k$ we have
+   \begin{equation}\label{disji}
+       x\in I_j(y_1,k)\cap I_j(y_2,k),
+   \end{equation}
+then $y_1=y_2$.
+
+   If $j\neq 1$, then
+\begin{equation}\label{unioni}
+B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_j(y,k)\, .
+\end{equation}
+We have for each $y\in Y_k$,
+   \begin{equation}\label{squeezedyadic}
+    B(y,\frac 12 D^k) \subset I_3(y,k)\subset
+     B(y,4D^k).
+\end{equation}
+
+
+
+\end{lemma}
+\begin{proof}
+We prove the statement by induction on the ordered set of pairs $(y,k)$.
+Let $-S\le k\le S$.
+
+We first consider \eqref{disji} for $j=1$.
+If $k=-S$, disjointness of the sets $I_1(y,-S)$ follows by definition of $I_1$ and $Y_k$. If $k>-S$,
+assume $x$ is in $I_1(y_m,-S)$ for $m=1,2$.
+Then, for $m=1,2$, there is $z_m\in Y_{k-1}\cap B(y_m,D^k)$ with $x\in I_3(z_m,k-1)$.
+Using \eqref{disji} inductively for $j=3$, we
+conclude $z_1=z_2$. This implies that the balls
+$B(y_1, D^k)$ and $B(y_2, D^k)$ intersect. By construction of $Y_k$, this implies $y_1=y_2$.
+This proves \eqref{disji} for $j=1$,
+
+We next consider \eqref{disji} for $j=3$.
+Assume $x$ is in $I_3(y_m,k)$ for $m=1,2$ and $y_m\in Y_k$. If $x$ is in $X_k$, then by definition
+\eqref{definei3}, $x\in I_1(y_m,k)$ for $m=1,2$.
+As we have already shown \eqref{disji} for $j=1$,
+we conclude $y_1=y_2$. This completes the proof in
+case $x\in X_k$ and we may assume $x$ is not in $X_k$. By definition \eqref{definei3}, $x$ is not
+in $I_3(z,k)$  for any $z$ with $z<y_1$ or $z<y_2$.
+Hence neither $y_1<y_2$ nor $y_2<y_1$, and by totality
+of the order of $Y_k$ we have $y_1=y_2$. This completes the proof of \eqref{disji} for $j=3$.
+
+We  show \eqref{unioni}  for $j=2$.
+In case $k=-S$, this follows from Lemma \ref{ballcover}.
+Assume  $k>-S$. Let $x$ be a point of $B(o, 4D^S-2D^k$).
+By induction, there is $y'\in Y_{k-1}$ such that
+$x\in I_3(y',k-1)$. Using the inductive statement
+\eqref{squeezedyadic}, we obtain $x\in B(y',4D^{k-1})$.
+As $D>4$, we have applying the triangle inequality with
+the points, $o$, $x$, and $y'$ we obtain that  $y'\in B(o, 4D^S-D^k)$.
+By Lemma \ref{coverball}, $y'$ is in $B(y,2D^k)$
+for some $y\in Y_k$. It follows that  $x\in I_2(y,k)$.
+This proves \eqref{unioni}  for $j=2$.
+
+We  show \eqref{unioni} for $j=3$.
+Let $x\in  B(o, 4D^S-2D^k)$. In case $x\in X_k$,
+ then by definition of $X_k$ we have $x\in I_1(y,k)$ for some $y\in Y_k$ and thus $x\in I_3(y,k)$. We may thus assume $x\not\in X_k$. As we have already seen
+\eqref{unioni} for $j=2$,
+ there is $y\in Y_k$ such that $x\in I_2(y,k)$.
+We may assume this $y$ is minimal with respect ot the order in $Y_k$
+Then $x\in I_3(y,k)$.
+ This proves \eqref{unioni}  for $j=3$.
+
+Next we  show the first inclusion in \eqref{squeezedyadic}.
+Let $x\in B(y,\frac 1{2}D^k)$.
+As $I_1(y,k)\subset I_3(y,k)$,
+it suffices to show $x\in I_1(y,k)$.
+If $k=-S$, this follows immediately from
+the assumption on $x$ and definition of $I_1$.
+Assume $k>-S$. By inductive statement \eqref{unioni}
+and $D>4$, there is a
+$y'\in Y_{k-1}$ such that $x\in I_3(y',k-1)$.
+By inductive statement \eqref{squeezedyadic},
+we conclude $x\in B(y',4D^{k-1})$.
+By the triangle inequality with points $x$, $y$, $y'$ and $D>4$, we have
+$y'\in B(y,D^k)$. It follows by definition
+\eqref{defineij} that
+$I_3(y',k-1)\subset I_1(y,k)$ and thus
+$x\in I_3(1,k)$. This proves the first inclusion
+in \eqref{squeezedyadic}.
+
+
+We show the second inclusion in \eqref{squeezedyadic}.
+Let $x\in I_3(y,k)$. As $I_1(y,k)\subset I_2(y,k)$
+directly from the definition \eqref{defineij},
+it follows by definition \eqref{definei3} that
+$x\in I_2(y,k)$. By definition
+\eqref{defineij}, there is $y'\in Y_{k-1}\cap B(y,2D^k)$
+with $x\in I_3(y',k-1)$. By induction,
+$x\in B(y', 4D^1{k-1})$. By the triangle inequality
+applied to the points $x,y',y$ and $D>4$, we conclude
+$x\in B(y,4D^k)$.
+This shows the second inclusion in \eqref{squeezedyadic} and completes the proof of the lemma.
+\end{proof}
+
+\begin{lemma}\label{icoveri}
+Let  $-S\le l\le k\le S$ and
+$y\in Y_k$.
+We have
+\begin{equation}\label{3coverdyadic}
+   I_3(y,k)\subset \bigcup_{y'\in Y_l} I_3(y',l)\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+
+Let $-S\le l\le k\le S$ and $y\in Y_k$.
+If $l=k$, the inclusion \eqref{3coverdyadic}
+is true from the definition of set union.
+We may then assume inductively that $k>l$ and the statement of the lemma is true if $k$ is replaced by $k-1$.
+Let $x\in I_3(y,k)$.
+By definition \eqref{definei3},  $x\in I_j(y,k)$
+for some $j\in \{1,2\}$. By \eqref{defineij},
+$x\in I_3(w,k-1)$ for some $w\in Y_{k-1}$.
+We conclude \eqref{3coverdyadic} by induction.
+\end{proof}
+
+\begin{lemma}\label{3dyadiclemma}
+Let  $-S\le l\le k\le S$ and
+$y\in Y_k$ and  $y'\in Y_l$.
+with
+$I_3(Y',l)\cap I_3(y,k)\neq \emptyset$.  Then
+\begin{equation}
+    \label{3dyadicproperty}
+I_3(y',l)\subset I_3(y,k).
+\end{equation}
+
+
+\end{lemma}
+
+\begin{proof}
+Let $l,k,y,y'$ as in the Lemma.
+Pick $x\in I_3(y',l)\cap I_3(y,k)$.
+Assume first $l=k$. By \eqref{disji} of Lemma
+\ref{firstgridlemma}, we conclude $y'=y$
+and thus \eqref{3dyadicproperty}.
+Now assume $l<k$. By induction, we may assume
+ withe statement of the lemma is proven for $k-1$ in place of $k$.
+
+By Lemma \ref{icoveri}, there is
+a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$
+By induction, we have $I_s(y',l)\subset I_3(y'',k-1)$
+and if remains to prove
+\begin{equation}\label{wyclaim}
+I_3(y'',k-1)\subset I_3(y,k).
+\end{equation}
+
+We make a case distinction and assume first $x\in X_k$.
+By Definition \eqref{definei3}, we have
+ $x\in I_1(y,k)$. By Definition \eqref{defineij}, there is a $v\in Y_{k-1}\cap B(y,D^k)$ with $x\in I_3(v,k-1)$.
+By \eqref{disji} of Lemma \ref{firstgridlemma}, we have $v=w$.
+By Definition \eqref{defineij}, we then have
+$I_3(w,k-1)\subset I_1(y,k)$.
+Then \eqref{wyclaim} follows by Definition \eqref{definei3} in the given case.
+
+Assume now the case $x\notin X_k$.
+By \eqref{definei3}, we have
+ $x\in I_2(y,k)$. Morover, for any $u<y$ in
+ $Y_k$ we have $x\not\in I_3(u,k)$.
+ Let $u<y$. By transitivity of the order in $Y_k$, we conclude $x\not \in I_2(y,k)$.
+By \eqref{defineij} and the disjointness property of Lemma \ref{firstgridlemma}, we have
+$I_3(w,k-1)\cap  I_2(u,k)= \emptyset$.
+Similarly, $I_3(w,k-1)\cap  I_1(u,k)= \emptyset$.
+Hence $I_3(w,k-1)\cap  I_3(u,k)=\emptyset$.
+As $u<y$ was arbitrary, we conclude with
+\eqref{definei3} the claim in the given case.
+This completes the proof of the claim.
+
+If $l=k-1$ by the disjointness property
+of Lemma \ref{firstgridlemma} we see that
+that $w=z$ and hence we see \eqref{3dyadicproperty}.
+If $l<k-1$, we see by induction that
+$I_3(z,l)\subset I_3(w,k-1)$ and we conclude
+\eqref{3dyadicproperty} using the claim.
+This completes the proof of \eqref{3dyadicproperty}.
+\end{proof}
+
+
+
+
+For $-S\le k'\le k\le S$ and $y'\in Y_{k'}$, $y\in Y_k$
+write  $(y',k'|y,k)$ if $I_3(y',k')\subset I_3(y,k)$ and
+\begin{equation}\label{bdcond}
+    \inf_{x\in X\setminus I_3(y,k)}\rho(y',x)<6D^{k'}\, .
+\end{equation}
+
+
+\begin{lemma}\label{bdtrans}
+Assume $-S\le k''< k'< k\le S$ and
+$y''\in Y_{k''}$, $y'\in Y_{k'}$, $y\in Y_k$.
+Assume there is $x\in X$ such that
+\begin{equation}
+x\in I_3(y'',k'')\cap I_3(y',k')\cap I_3(y,k)\, .
+\end{equation}
+If $(y'',k''|y,k)$, the also
+$(y'',k''|y',k')$ and $(y',k'|y,k)$
+\end{lemma}
+
+\begin{proof}
+As $x\in I_3(y'',k'')\cap I_3(y',k')$ and $k''< k'$.
+we have by Lemma \ref{3dyadiclemma} that
+$I_3(y'',k'')\subset I_3(y',k')$. Similarly,
+$I_3(y',k')\subset I_3(y,k)$.
+Pick $x'\in X\setminus I_3(y,k)$ such that
+\begin{equation}\label{yppxp}
+    \rho(y'',x')< 6D^{k''}\, ,
+\end{equation}
+which exists as $(y'',k''|y,k)$. As $x'$ is also in
+$x'\in X\setminus I_3(y',k')$, we conclude
+$(y'',k''|y',k')$.
+By the triangle inequality, we have
+\begin{equation}
+\rho(y',x')\le  \rho(y',x)+\rho(x,y'')+\rho(y'',x')
+\end{equation}
+Using the choice of $x$ and \eqref{squeezedyadic}
+as well as \eqref{yppxp}, we estimate this by
+\begin{equation}
+<  4D^{k'}+4D^{k''}+6D^{k''}\le 6D^{k'}\, ,
+\end{equation}
+where we have used $D<4$ and $k''<k'$.
+We conclude $(y',k'|y,k)$.
+\end{proof}
+
+\begin{lemma}\label{david}
+ Let $K$ be the smallest integer larger than
+ $2A^6$. For each $-S+K\le k\le S$ and $y\in Y_k$ we have
+    \begin{equation}
+        \label{new small boundary}
+        \sum_{z\in Y_{k-K}: (z,k-K|y,k)}\mu(I_3(z,k-K)) \le \frac 12 \mu(I_3(y,k))\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $K$ be as in the lemma and let $-S+K\le k\le S$ and $y\in Y_k$.
+
+Pick $k'$ so that $k-K\le k'\le k$.
+For each $y''\in k-K$ with $(y'',k-K| y,k)$
+By Lemma \ref{3coverdyadic} and Lemma \ref{3dyadiclemma}, there is a unique $y'\in Y_{k'}$ such that
+\begin{equation}
+    I_3(y'',k-K)\subset I_3(y',k')\subset I_3(y,k)\, .
+\end{equation}
+Using Lemma \ref{bdtrans},
+
+
+
+We conclude with disjointness property of
+Lemma \ref{firstgridlemma} for
+\begin{equation}\label{scalecompare}
+    \sum_{y''\in Y_{k-K}: (y'',k-K|y,k)}\mu(I_3(y'',k-K))
+\end{equation}
+\begin{equation}
+    \le
+\sum_{y': (y',k'|y,k)}\left(
+ \sum_{y'': (y'',k-K|y',k')}\mu(I_3(z,k-K))\right)
+\end{equation}
+   \begin{equation}
+   \le
+\sum_{u: (y',k'|y,k)}
+\mu(I_3(y',k'))    \, .
+   \end{equation}
+Adding over $k-K<k'\le k$ and using
+\[\mu(I_3(y',k'))\le A^4 \mu(B(y', \frac 14 D^{k'}))\]
+from the doubling property \eqref{doublingx} and
+\eqref{squeezedyadic} gives
+\begin{equation}\label{sumcompare}
+    K\sum_{y'': (y'',k-K|y,k)}
+    \mu(I_3(y'',k-K))
+\end{equation}
+\begin{equation}\label{sumcompare1}
+    \le A^4 \sum_{k-K<k'\le k}
+   \left[ \sum_{y': (y',k'|y,k)}
+\mu(B(y', \frac 14 D^{k'}))\right]
+\end{equation}
+Each ball $B(y', \frac 12 D^{k'})$ occurring in
+\eqref{sumcompare1} is contained in $I_3(y',k')$
+by \eqref{squeezedyadic} and in turn contained in
+$I_3(y,k)$. Assume for the moment all these balls are pairwise disjoint. Then
+y additivity of the measure,
+\begin{equation}
+    K\sum_{y'': (y'',k-K|y,k)}
+    \mu(I_3(y'',k-K))
+    \le A^6
+\mu(I_3(y,k))\, .
+\end{equation}
+which by $K>2A^6$ implies \eqref{new small boundary}.
+
+It thus remains to prove that the balls
+occurring in
+\eqref{sumcompare1} are pairwise disjoint.
+Let $(u,l)$ and $(u',l')$ be two parameter pairs occurring
+in the sum of \eqref{sumcompare1} and let
+$ B(u, \frac 14 D^l)$ and $B({u'}, \frac 14 D^{l'})$
+be the corresponding balls. If
+$l=l'$, then the balls are equal or disjoint by
+\eqref{squeezedyadic} and \eqref{disji} of Lemma \ref{firstgridlemma}. Assume then without loss of generality that $l'<l$. Assume to get a contradiction there is $x''\in  B(u, \frac 14 D^l)\cap B({u'}, \frac 14 D^{l'})$.
+By the triangle inequality and $D>32$,
+\begin{equation}\label{bulbul}
+    B(u', \frac 13 D^{l'})\subset B(u, \frac 38 D^l).
+\end{equation}
+As $(u',l'|y,k)$, there is a point  $x$ in
+$X\setminus I_3(y,k)$ with $\rho(x,u')<4D^{k'}$.
+Using $D>32$, we conclude from \eqref{bulbul} that
+$x\in B(u,\frac 12D^l)$. However, $B(u,\frac 12 D^l)\subset I_3(u,l)$,
+and $I_3(u,l)\subset I_3(y,k)$, a contradiction to
+$x\not\in I_3(y,k)$.
+This proves the lemma.
+\end{proof}
+
+
+\begin{lemma}
+Let $K$ be the smallest integer larger than $2A^6$
+and let $n\ge 0$ be an integer. Then
+for each $-S+nK\le k\le S$ we have
+   \begin{equation}
+        \label{very new small}
+        \sum_{y'\in Y_{k-nK}: (y',k-nK|y,k)}\mu(I_3(y',k-nK)) \le 2^{-n} \mu(I_3(y,k))\,.
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    We prove this by induction on $n$. If $n=0$,
+    both sides of \eqref{very new small} are equal to
+    $\mu(I_3(y,k)$. If $n=1$, this follows from lemma \ref{new small boundary}.
+
+    Assume $n>1$ and \eqref{very new small} has been proven with  $n-1$ in place of $n$.
+We write  \eqref{very new small}
+     \begin{equation}
+             \sum_{y''\in Y_{k-nK}: (y'',k-nK|y,k)}\mu(I_3(y'',k-nK))
+    \end{equation}
+     \begin{equation}
+=  \sum_{y'\in Y_{k-K}:(y',k-K|y,k)}   \left[   \sum_{y''\in Y_{k-nK}: (y'',k-nK|y',k-K)}\mu(I_3(y'',k-nK)) \right]
+    \end{equation}
+Applying the induction hypothesis, this is bounded by
+         \begin{equation}
+=  \sum_{y'\in Y_{k-K}:(y',k-K|y,k)}   2^{1-n}\mu(I_3(y',k-K))
+    \end{equation}
+Applying Lemma \ref{new small boundary} gives
+\eqref{very new small} and proves the lemma.
+\end{proof}
+
+\begin{lemma}
+ For each $-S\le k\le S$ and $y\in Y_k$ and $0<t<1$
+ with $tD^k>D^{-S}$ we have
+    \begin{equation}
+        \label{old small boundary}
+        \mu(\{x \in I(y,k) \ : \ \rho(x, X \setminus I(y,k)) \leq t D^{k}\}) \le 4A^2 t^\kappa \mu(I)\,.
+    \end{equation}
+\end{lemma}
+\begin{proof}
+Let $x\in I(y,k)$ with  $\rho(x, X \setminus I(y,k)) \leq t D^{k}$. Let
+
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+Let $\mathcal{D}$ the set of all $I_3(x,k)$ with $k\in [-S,S]$ and
+$y\in Y_k$. Define
+\begin{equation}
+s(I_3(x,k)):=k
+\end{equation}
+\begin{equation}
+c(I_3(y,k)):=y
+\end{equation}
+We show that $(\mathcal{D},c,s)$ constitutes a grid structure. Property \eqref{eq vol sp cube}
+follows from \eqref{squeezedyadic}.
+To see \eqref{coverdyadic}, let $I\in \mathcal{D}$
+and $-S\le k< s(I)$. Let $x\in I$.
+
+
+We show properties
+\eqref{coverdyadic},
+\eqref{dyadicproperty},
+\eqref{eq vol sp cube}, and \eqref{eq small boundary}
+for this $\mathcal {D}$, $s$, and $x$.
+
+We first show \eqref{coverdyadic}.
+Assume to get a contradiction that \eqref{coverdyadic}
+is false. Then there is a $I$ violating the conclusion of
+\eqref{coverdyadic}. Pick such $I=I(x,l)$ such that $l$ is minimal.
+Let $-S\le k<l$, in particular $-S<l$.
+By definition, $I$ is contained in $\tilde{B}(x,k)$, which
+is contained in the union of $I(y,l-1)$ with $y\in X_{l-1}$.
+By minmiality if $l$, each such $I(y,l-1)$ is contained in the union of
+all $I(z,k)$ with $z\in X_k$. This proves \eqref{coverdyadic}.
+
+We now show \eqref{dyadicproperty}. Assume to get a contradiction that
+there are non-disjoint $I, J\in \mathcal{D}$ with $s(I)\le s(J)$
+and $I \not \subset J$. We may assume such a counterexample with minimal
+$s(J)-s(I)$ and set $k=s(I)$. Assume first $s(J)=k$. Let $I=I(x,k)$ and $J=I(y,k$
+with $x,y\in X_k$. If $x=y$, then $I=J$, a contradiction to $I\subset J$.
+If $x<y$, then $I\cap J=\emptyset$ by definition of $J$, a contradiction.
+If $y<x$, then $I\cap J=\emptyset$ by definition of $I$, a contradiction.
+Assume now $s(J)>k$. Choose $y\in I\cap J$. By property \eqref{coverdyadic},
+there is $K\in \mathcal{D}$ with $s(K)=s(J)-1$ with $y\in K$. By construction
+of $J$, and pairwise disjointness of all $I(w,s(J)-1)$ that we have already seen,
+we have $K\subset J$. By minimality if $s(J)$, we have $I\subset K$.
+This proves $I\subset J$ and thus \eqref{dyadicproperty}.
+
+
+\section{Proof of L.\ref{tilelemma}, tile structure}
+\label{subsectiles}
+
+\begin{lemma}
+    \label{lem d monotone}
+    Let $\mathcal{E} \subset \mathcal{E}' \subset X$. Then it holds for all $\theta, \vartheta \in \Theta$ that
+    $$
+        d_{\mathcal{E}}(\theta, \vartheta) \le d_{\mathcal{E}'}(\theta, \vartheta)\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    This follows immediatly from the definition \eqref{definedE} and monotonicity of suprema with respect to set inclusion.
+\end{proof}
+
+Choose a grid structure $(\mathcal{D}, c, s)$. For cubes $I \in \mathcal{D}$, we will denote
+$$
+    I^\circ = B(c(I), \frac{1}{4} D^{s(I)})\,.
+$$
+
+\lars{The definitions of the doubling roperties changed, the cubes do not have to have the same centers. Check if this is easier to prove now.}
+\begin{lemma}
+    \label{lem cube monotone}
+    Let $I, J \in \mathcal{D}$ with $I \subset J$.
+    Then for all $\theta, \vartheta \in\Theta$ we have
+    $$
+        d_{I^\circ}(\theta, \vartheta) \le d_{J^\circ}(\theta, \vartheta)\,,
+    $$
+    and if $I \ne J$ then we have
+    $$
+        d_{I^\circ}(\theta, \vartheta) \le 2^{-95a} d_{J^\circ}(\theta, \vartheta)\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    If $s(I) \ge s(J)$ then \eqref{dyadicproperty} and the assumption $I\subset J$ imply $I = J$. Then the Lemma holds by reflexivity.
+
+    If $s(J) \ge s(I)+1$, then using Lemma \ref{lem d monotone}, \eqref{defineD} and \eqref{seconddb}, we get
+    \begin{equation}
+    \label{eq dIJ est}
+        d_{I^\circ}(\theta, \vartheta) \le d_{B(c(I), 4 D^{s(I)})}(\theta, \vartheta) \le 2^{-100a} d_{B(c(I), 4D^{s(J)})}(\theta, \vartheta)\,.
+    \end{equation}
+    Using \eqref{eq vol sp cube}, together with the inclusion $I \subset J$, we obtain
+    $$
+        c(I) \in I \subset J \subset B(c(J), 4 D^{s(J)})
+    $$
+    and consequently by the triangle inequality
+    $$
+        B(c(I), 4 D^{s(J)}) \subset B(c(J), 8 D^{s(J)})\,.
+    $$
+    Using this together with Lemma \ref{lem d monotone} and \eqref{firstdb} in \eqref{eq dIJ est}, we obtain
+    \begin{align*}
+        d_{I^\circ}(\theta, \vartheta) &\le 2^{-100a} d_{B(c(J), 8D^{s(J)})}(\theta, \vartheta)\\
+        &\le 2^{-100a + 5a} d_{B(c(J), \frac{1}{4}D^{s(J)})}(\theta, \vartheta)\\
+        &= 2^{-95a}d_{J^\circ}(\theta, \vartheta)\,.
+    \end{align*}
+    This proves the second inequality claimed in the Lemma, from which the first follows since $a \ge 4$ and hence $2^{-95a} \le 1$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem tile center 1}
+    Let $I \in \mathcal{D}$. Let $Z \subset \Theta$ be such that
+    \begin{equation}
+        \label{eq tile Z}
+        Z \subset \bigcup_{q \in Q(X)} B_{I^\circ}(q, 1)
+    \end{equation}
+    and for any $z, z' \in Z$ we have
+    \begin{equation}
+        \label{eq tile disjoint Z}
+        B_{I^\circ}(z, 0.3) \cap B_{I^\circ}(z', 0.3) = \emptyset\,.
+    \end{equation}
+    Then the cardinality of $Z$ is estimated by
+    $$
+        2^{2a}|Q(X)|\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    By applying property \eqref{thirddb}  $2$ times, we obtain for each ball $B_{I^\circ}(q,1)$ a collection $J(q) \subset \Theta$ such that $|J(q)| \le 2^{2a}$ and
+    $$
+        B_{I^\circ}(q,1) \subset \bigcup_{j \in J(q)} B_{I^\circ{}}(j, \frac{1}{4})\,.
+    $$
+    Thus for each $z \in Z$, there exists a $j(z) \in \bigcup_{q \in Q(x)} J(q)$ such that $d_{I^\circ}(z,j(z)) < \frac{1}{4} <0.3$ and hence $j(z) \in B_{I^\circ}(z, 0.3)$. By the assumption \eqref{eq tile disjoint Z}, it follows that the map $z \mapsto j(z)$ is injective. This establishes the Lemma, since then
+    $$
+        |Z| \le |\bigcup_{q \in Q(x)} J(q)| \le \sum_{q \in Q(X)}|J(q)| \le \sum_{q \in Q(X)} 2^{2a} \le |Q(X)|2^{2a}\,.
+    $$
+\end{proof}
+
+By Lemma \ref{lem tile center 1}, for each $I \in \mathcal{D}$, there exists a set $Z(I)$ satisfying \eqref{eq tile Z} and \eqref{eq tile disjoint Z}, such that $Z(I)$ has maximal cardinality among all such sets. We pick for each $I \in \mathcal{D}$ such a set $Z(I)$.
+
+\begin{lemma}
+    For each $I \in \mathcal{D}$, we have
+    \begin{equation}
+        \label{eq tile cover}
+        Q(X) \subset  \bigcup_{q \in Q(X)} B_{I^\circ}(q, 1) \subset \bigcup_{z \in Z(I)} B_{I^\circ}(z, 0.7)\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    To show \eqref{eq tile cover} note that the first inclusion is obvious. For the second inclusion let $q' \in  \bigcup_{q \in Q(X)} B_{I^\circ}(q, 1)$. By maximality of $Z(I)$, there must be a point $z \in Z(I)$ such that $B_{I^\circ}(z, 0.3) \cap B_{I^\circ}(q', 0.3) \ne \emptyset$. Else, $Z(I) \cup \{q'\}$ would be a set of larger cardinality than $Z(I)$ satisfying \eqref{eq tile Z} and \eqref{eq tile disjoint Z}. Fix such $z$, and fix a point $z_1 \in B_{I^\circ}(z, 0.3) \cap B_{I^\circ}(q', 0.3)$. By the triangle inequality, we deduce that
+    $$
+        d_{I^\circ}(z,q') \le d_{I^\circ}(z,z_1) + d_{I^\circ}(q', z_1) < 0.3 + 0.3 = 0.6\,,
+    $$
+    and hence $q' \in B_{I^\circ}(z, 0.7)$.
+\end{proof}
+
+We define
+$$
+    \fP = \{(I, z) \ : \ I \in \mathcal{D}, z \in Z(I)\}\,.
+$$
+We define $\sc((I, z)) = I$ and $\fcc((I, z)) = z$. We further set $s(\fp) = s(\sc(\fp))$, $c(\fp) = c(\sc(\fp))$. Then \eqref{tilecenter}, \eqref{tilescale} hold.
+
+It remains to construct the map $\Omega$. We first construct an auxilliary map $\Omega_1$. For each $I \in \mathcal{D}$, we pick an enumeration of the finite set $Z(I)$
+$$
+    Z(I) = \{z_1, \dotsc, z_M\}\,.
+$$
+We define
+$$
+    \Omega_1((I, z_1)) = B_{I^\circ}(z_1, 0.7) \setminus \bigcup_{z \in Z(I)} B_{I^\circ}(z, 0.3)\,,
+$$
+and then we iteratively define
+\begin{equation}
+    \label{eq def omega1}
+    \Omega_1((I, z_k)) = B_{I^\circ}(z_k, 0.7) \setminus \bigcup_{z \in Z(I) \setminus \{z_k\}} B_{I^\circ}(z, 0.3) \setminus \bigcup_{i=1}^{k-1} \Omega_1((I, z_i))\,.
+\end{equation}
+
+\begin{lemma}
+    \label{lem omega1 disj}
+    For each $I \in \mathcal{D}$, the sets $\Omega_1(\fp), \fp \in \fP(I)$ are pairwise disjoint.
+\end{lemma}
+
+\begin{proof}
+    By the definition of the map $\sc$, we have
+    $$
+        \fP(I) = \{(I, z) \, : \, z \in Z(I)\}\,.
+    $$
+    By \eqref{eq def omega1}, the set $\Omega_1((I, z_k))$ is disjoint from each $\Omega_1((I, z_i))$ with $i < k$. Thus the sets $\Omega_1(\fp)$, $\fp \in \fP(I)$ are pairwise disjoint.
+\end{proof}
+
+\begin{lemma}
+    For each $I \in \mathcal{D}$, it holds that
+    \begin{equation}
+    \label{eq omega1 cover}
+         \bigcup_{z \in Z(I)} B_{I^\circ}(z, 0.7)\subset \bigcup_{\fp \in \fP(I)} \Omega_1(\fp)\,.
+    \end{equation}
+    For every $\fp \in \fP$, it holds that
+    \begin{equation}
+        \label{eq omega1 incl}
+        B_{\fp}(\fcc(\fp), 0.3) \subset \Omega_1(\fp) \subset B_{\fp}(\fcc(\fp), 0.7)\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    For \eqref{eq omega1 incl} let $\fp = (I, z)$.
+    The second inclusion in \eqref{eq omega1 incl} then follows from \eqref{eq def omega1} and the equality $B_{\fp}(\fcc(\fp), 0.7) = B_{I^\circ}(z, 0.7)$, which is true by definition.
+    For the first inclusion in \eqref{eq omega1 incl} let $q \in B_{\fp}(\fcc(\fp),0.3)$. Let $k$ be such that $z = z_k$ in the enumeration we chose above. It follows immediately from \eqref{eq def omega1} and \eqref{eq tile disjoint Z} that
+    $q \notin \Omega_1((I, z_i))$ for all $i < k$. Thus, again from \eqref{eq def omega1}, we have
+    $q \in \Omega_1((I,z_k))$.
+
+    To show \eqref{eq omega1 cover} let $q \in \bigcup_{z \in Z(I)} B_{I^\circ}(z,0.7)$.
+    If there exists $z \in Z_1(I)$ with $q \in B_{I^\circ}(z,0.3)$, then
+    $$
+        z \in \Omega_1((I, z)) \subset \bigcup_{\fp \in \fP(I)} \Omega_1(\fp)
+    $$
+    by the first inclusion in \eqref{eq omega1 incl}.
+
+    Now suppose that there exists no $z \in Z(I)$ with $q \in B_{I^\circ}(z, 0.3)$. Let $k$ be minimal such that $q \in B_{I^\circ}(z_k, 0.7)$. Since $\Omega_1((I, z_i)) \subset B_{I^\circ}(z_i, 0.7)$ for each $i$ by \eqref{eq def omega1}, we have that $q \notin \Omega_1((I, z_i))$ for all $i < k$. Hence $q \in \Omega_1((I, z_k))$, again by \eqref{eq def omega1}.
+\end{proof}
+
+Now we are ready to define the function $\Omega$. For all cubes $I \in \mathcal{D}$ such that there exists no $J \in \mathcal{D}$ with $I \subset J$ and $I \ne J$, we define for all $\fp \in \fP(I)$
+\begin{equation}
+    \label{eq max omega}
+    \fc(\fp) = \Omega_1(\fp)\,.
+\end{equation}
+For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I \subset J$ and $I \ne J$, we define $\Omega$ by recursion. We can pick an inclusion minimal $J \in \mathcal{D}$ among the finitely many cubes such that $I \subset J$ and $I \ne J$. This $J$ is unique: Suppose that $J'$ is another inclusion minimal cube with $I \subset J'$ and $I \ne J'$. Without loss of generality, we have that $s(J) \le s(J')$. By \eqref{dyadicproperty}, it follows that $J \subset J'$. Since $J'$ is minimal with respect to inclusion, it follows that $J = J'$.  Then we define
+\begin{equation}
+    \label{eq it omega}
+    \fc(\fp) = \bigcup_{z \in Z(J) \cap \Omega_1(\fp)} \Omega((J, z)) \cup B_{\fp}(\fcc(\fp),0.2)\,.
+\end{equation}
+%\lars{Also, the definition of dyadic cubes does not exclude that there are some small cubes and all their children of scale $\ge -S$, disjoint from $B(o,D^S)$, right?}
+%\ct{I have just done something like parent in Lemma \ref{lem antichain 0}. This is however in flux. As a rule of thump I am not trying to have too many definitions, so I did not
+%define parent. Such definitions just lead to crazy referencing around. Sometimes a few lines of code, even if repeated 2-3 times throughout text are better. Ofcourse
+%it all depends... And yes, the limit at
+%plusminus S causes some case distinctions}
+%\lars{this is not just about the limit at plusminus $S$, but also that a maximal cube does not necessarily have scale $S$. That causes no problems here, I just wanted to point it out}
+%\ct{OK, I see. Probably not an issue, as we later always have reference points in B(o,S) when we
+%use something like coverball.This is more o}
+
+
+\begin{lemma}
+    With this definition, \eqref{eq dis freq cover}, \eqref{eq freq dyadic} and \eqref{eq freq comp ball} hold.
+\end{lemma}
+
+\begin{proof}
+    First, we prove \eqref{eq freq comp ball}. If $I \in \mathcal{D}$ is maximal in $\mathcal{D}$ with respect to set inclusion, then \eqref{eq freq comp ball} holds for all $\fp \in \fP(I)$ by \eqref{eq max omega} and\eqref{eq omega1 incl}. Now suppose that $I$ is not maximal in $\mathcal{D}$ with respect to set inclusion. Then we may assume by induction that for all $J \in \mathcal{D}$ with $I \subset J$ and all $\fp' \in \fP(J)$, \eqref{eq freq comp ball} holds. Let $J$ be the unique minimal cube in $\mathcal{D}$ with $I \subsetneq J$.
+
+    Suppose that $q \in \Omega(\fp)$. By \eqref{eq it omega}, there exists $z \in Z(J) \cap \Omega_1(\fp)$ with $q \in \Omega(J,z)$. Using the triangle inequality and \eqref{eq omega1 incl}, we obtain
+    $$
+        d_{I^\circ}(\fcc(\fp),q) \le d_{I^\circ}(\fcc(\fp), z) + d_{I^\circ}(z, q) \le 0.7 + d_{I^\circ}(z, q)\,.
+    $$
+    By Lemma \ref{lem cube monotone} and the induction hypothesis, this is estimated by
+    $$
+        \le 0.7 + 2^{-95a} d_{J^\circ}(z,q) \le 0.7 + 2^{-95a}\cdot 1 < 1\,.
+    $$
+    This shows the second inclusion in \eqref{eq freq comp ball}. The first inclusion is immediate from \eqref{eq it omega}.
+
+    Next, we show \eqref{eq dis freq cover}. Let $I \in \mathcal{D}$.
+
+    If $I$ is maximal with respect to inclusion, then disjointness of the sets $\fc(\fp)$ for $\fp \in \fP(I)$ follows from the definition \eqref{eq max omega} and Lemma \ref{lem omega1 disj}. To obtain the inclusion in \eqref{eq dis freq cover} one combines the inclusions \eqref{eq tile cover} and \eqref{eq omega1 cover} with  \eqref{eq max omega}.
+
+    Now we turn to the case where there exists $J \in \mathcal{D}$ with $I \subset J$ and $I\ne J$. In this case we use induction: It suffices to show \eqref{eq dis freq cover} under the assumption that it holds for all cubes $J \in \mathcal{D}$ with $I \subset J$. As shown before definition \eqref{eq it omega}, we may choose the unique inclusion minimal such $J$. To show disjointness of the sets $\fc(\fp), \fp \in \fP(I)$ we pick two tiles $\fp, \fp' \in \fP(I)$ and $x \in \fc(\fp) \cap \fc(\fp')$.
+    Then we are by \eqref{eq it omega} in one of the following four cases.
+
+    1. There exist $z \in Z(J) \cap \Omega_1(\fp)$ such that $x \in \Omega(J, z)$, and there exists $z' \in Z(J) \cap \Omega_1(\fp')$ such that $x \in \Omega(J, z')$. By the induction hypothesis, that \eqref{eq dis freq cover} holds for $J$, we must have $z = z'$. By Lemma \ref{lem omega1 disj}, we must then have $\fp = \fp'$.
+
+    2. There exists $z \in Z(J) \cap \Omega_1(\fp)$ such that $x \in \Omega(J,z)$, and $x \in B_{\fp'}(\fcc(\fp'), 0.2)$.  Using the triangle inequality, Lemma \ref{lem cube monotone} and \eqref{eq freq comp ball}, we obtain
+    $$
+        d_{\fp'}(\fcc(\fp'),z) \le d_{\fp'}(\fcc(\fp'), x) + d_{\fp'}(z, x) \le 0.2 + 2^{-95a} \cdot 1 < 0.3\,.
+    $$
+    Thus $z \in \Omega_1(\fp')$ by \eqref{eq omega1 incl}. By Lemma \ref{lem omega1 disj}, it follows that $\fp = \fp'$.
+
+    3. There exists $z' \in Z(J) \cap \Omega_1(\fp')$ such that $x \in \Omega(J,z')$, and $x \in B_{\fp}(\fcc(\fp), 0.2)$. This case is the same as case 2., after swapping $\fp$ and $\fp'$.
+
+    4. We have $x \in B_{\fp}(\fcc(\fp), 0.2) \cap B_{\fp'}(\fcc(\fp'), 0.2)$. In this case it follows that $\fp = \fp'$ since the sets $B_{\fp}(\fcc(\fp), 0.2)$ are pairwise disjoint by the inclusion \eqref{eq omega1 incl} and Lemma \ref{lem omega1 disj}.
+
+    To show the inclusion in \eqref{eq dis freq cover}, let $q \in Q(X)$. By the induction hypothesis, there exists $\fp \in \fP(J)$ such that $q \in \Omega(\fp)$. By definition of the set $\fP$, we have $\fp = (J, z)$ for some $z \in Z(J)$. By \eqref{eq tile Z}, there exists $x \in X$ with $d_{J^\circ}(Q(x), z) \le 1$. By Lemma \ref{lem cube monotone}, it follows that $d_{I^\circ}(Q(x), z) \le 1$.
+    Thus, by \eqref{eq tile cover}, there exists $z' \in Z(I)$ with $z \in B_{I^\circ}(z', 0.7)$. Then by \eqref{eq omega1 cover} there exists $\fp' \in \fP(I)$ with $z \in Z(J) \cap \Omega_1(\fp')$. Consequently, by \eqref{eq it omega}, $q \in \fc(\fp')$. This completes the proof of \eqref{eq dis freq cover}.
+
+    Finally, we show \eqref{eq freq dyadic}. Let $\fp, \fq \in \fP$ with $\sc(\fp) \subset \sc(\fp)$ and $\fc(\fp) \cap \fc(\fq) \ne \emptyset$. If we have $s(\sc(\fp)) \ge s(\sc(\fq))$, then it follows from \eqref{dyadicproperty} that $I = J$, thus $\fp, \fq \in \fP(I)$. By \eqref{eq dis freq cover} we have then either $\fc(\fp) \cap \fc(\fq) = \emptyset$ or $\fc(\fp) = \fc(\fq)$. By the assumption in \eqref{eq freq dyadic} we have $\fc(\fp) \cap \fc(\fq) \ne \emptyset$, so we must have $\fc(\fp) = \fc(\fq)$ and in particular $\fc(\fq) \subset \fc(\fp)$.
+
+    So it remains to show \eqref{eq freq dyadic} under the additional assumption that $s(\sc(\fq)) > s(\sc(\fp))$. In this case, we argue by induction on $s(\sc(\fq))-s(\sc(\fp))$. By \eqref{coverdyadic}, there exists a cube $J \in \mathcal{D}$ with $s(J) = s(\sc(\fq)) - 1$ and $J \cap\sc(\fp) \ne \emptyset$. We pick one such $J$. By \eqref{dyadicproperty}, we have $\sc(\fp) \subset J \subset \sc(\fq)$.
+
+    By \eqref{eq tile Z}, there exists $x \in X$ with $d_{\fq}(Q(x), \fcc(\fq)) \le 1$. By Lemma \ref{lem cube monotone}, it follows that $d_{J^\circ}(Q(x), \fcc(\fq)) \le 1$.
+    Thus, by \eqref{eq tile cover}, there exists $z' \in Z(J)$ with $\fcc(\fq) \in B_{J^\circ}(z', 0.7)$. Then by \eqref{eq omega1 cover} there exists $\fq' \in \fP(J)$ with $\fcc(\fq) \in\Omega_1(\fq')$.
+    By \eqref{eq it omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\sc(\fp) \subset \sc(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $s(\fq') - s(\fp) = s(\fq) - s(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
+\end{proof}
+
+\chapter{P. \ref{prop dyadic} from forest P. \ref{antichainprop} and antichain P. \ref{forestprop}}
+\label{proptopropprop}
+
+%\section{Decomposition of grid cubes and first exceptional set}
+
+
+Let a grid structure $(\mathcal{D}, c, s)$  and a tile structure $(\fP,\sc,\fc,\fcc)$
+for this grid structure be given.
+In Subsection \ref{subsectilesorg}, we decompose the
+set $\fP$ of tiles into subsets.
+Each subset will be controlled by one of three methods.
+The guiding principle of the decomposition is
+to be able to apply the forest estimate
+of Proposition \ref{forestprop} to the final subsets
+defined in \eqref{defc5}. This application is done in Subsection \ref{subsecforest}.
+The miscellaneous subsets along the construction of the
+forests will be either thrown into exceptional sets,
+which are defined and controlled in Subsection
+\ref{subsetexcset}, or will be controlled by
+the antichain estimate of Proposition \ref{antichainprop},
+which is done in Subsection \ref{subsecantichain}.
+%The oganisation and summation of these various
+%estimates is done in Subsection \ref{subsecaddingup}.
+
+
+
+
+\section{Organisation of the tiles}\label{subsectilesorg}
+
+In the following chain of definitions, $k, n$, and
+$j$ will be nonnegative integers.
+
+Define
+$\mathcal{C}(G,k)$ to be the set of $I\in \mathcal{D}$
+such that there exists a $J\in \mathcal{D}$ with $I\subset J$
+and
+\begin{equation}\label{muhj1}
+   {\mu(G \cap J)} > 2^{-k-1}{\mu(G)}\, ,
+\end{equation}
+but there does not exists a $J\in \mathcal{D}$ with $I\subset J$ and
+\begin{equation}\label{muhj2}
+   {\mu(G \cap J)} > 2^{-k}{\mu(J)}\,.
+\end{equation}
+Let
+\begin{equation}
+    \label{eq defPk}
+    \fP(k)=\{\fp\in \fP \ : \ \sc(\fp)\in \mathcal{C}(G,k)\}
+\end{equation}
+Define $ {\mathfrak{M}}(n,k)$ to be the set of  $\fp \in \fP(k)$ such that
+ \begin{equation}\label{ebardense}
+    \mu({E_1}(\fp))  > 2^{-n}  \mu(\sc(\fp))
+ \end{equation}
+and there does not exists $\fp'\in \fP(k)$ with
+$\fp'\neq \fp$ and  $\fp\le \fp'$  such that
+ \begin{equation}\label{mnkmax}
+    \mu({E_1}(\fp'))  > 2^{-n}  \mu(\sc(\fp')).
+ \end{equation}
+Define for a collection $\fP'\subset \fP(k)$
+\begin{equation}
+    \label{eq densdef}
+   \dens_k' (\fP'):= \sup_{\fp'\in \fP'}\sup_{\lambda \geq 2} \lambda^{-a} \sup_{\fp \in \fP(k): \lambda \fp' \lesssim \lambda \fp}
+    \frac{\mu({E}_2(\lambda, \fp))}{\mu(\sc(\fp))}\,.
+\end{equation}
+Sorting by density, we define
+\begin{equation}
+    \label{def cnk}
+    \fC(n,k):=\{\fp\in \fP(k) \ : \
+    2^{4a}2^{-n}< \dens_k'(\{\fp\}) \le
+    2^{4a}2^{-n+1}\}\,.
+\end{equation}
+Following Fefferman \cite{fefferman}, we
+define for $\fp \in \fP(k)$
+    \begin{equation}\label{defbfp}
+         \mathfrak{B}(\fp) := \{ \mathfrak{m} \in \mathfrak{M}(n,k) \ : \ 2 \fp \lesssim 100 \mathfrak{m}\}
+    \end{equation}
+and
+\begin{equation}\label{defcnkj}
+       \fC_1(n,k,j) := \{\fp \in \fC(n,k) \ : \ 2^{j} \leq |\mathfrak{B}(\fp)| < 2^{j+1}\}\,.
+\end{equation}
+and
+\begin{equation}\label{defl0nk}
+       \fL_0(n,k) := \{\fp \in \fC(n,k) \ : \ |\mathfrak{B}(\fp)| <1\}\,.
+\end{equation}
+Together with the following removal of minimal layers, the splitting into $\fC_1(n,k,j)$ will lead to a separation of  trees.
+Define recursively for $0\le l\le Z(n+1)$
+\begin{equation}
+    \label{eq L1 def}
+    \fL_1(n,k,j,l)
+\end{equation}
+to be the set of minimal elements with respect to $\le$ in
+\begin{equation}
+    \fC_1(n,k,j)\setminus \bigcup_{0\le l'<l}
+\fL_1(n,k,j,l')\, .
+\end{equation}
+Define \ct{todo: whats Z}
+\begin{equation}
+    \label{eq C2 def}
+    \fC_2(n,k,j):= \fC_1(n,k,j)\setminus \bigcup_{0\le l'\le Z(n+1)}
+\fL_1(n,k,j,l')\, .
+\end{equation}
+
+The remaining tile organization will be relative to
+prospective tree tops, which we define now.
+Define
+\begin{equation}\label{defunkj}
+     \fU_1(n,k,j)
+\end{equation}
+to be the set of all
+$\fu \in \fC_1(n,k,j)$ such that
+for all $\fp \in \fC_1(n,k,j)$
+with  $\sc(\fu)$ strictly contained in
+$\sc(\fp)$ we have $B_{\fu}(Q(\fu), 100) \cap B_{\fp}(Q(\fp),100) = \emptyset$.
+
+We first remove the pairs that are outside the immediate reach of any of the prospective tree tops.
+Define
+\begin{equation}
+\label{eq L2 def}
+\fL_2(k,n,j)
+\end{equation}
+to be the set of all $\fp\in \fC_2(k,n,j)$ such that there
+does not exists
+$\fu\in \fU_1(n,k,j)$
+with $\sc(\fp)\neq \sc(\fu)$ and $2\fp\lesssim \fu$.
+Define
+\begin{equation}
+\label{eq C3 def}
+\fC_3(k,n,j):=\fC_2(k,n,j)
+  \setminus \fL_2(k,n,j)\, .
+\end{equation}
+
+
+We next remove the maximal layers.
+Define recursively for $0 \le l \le Z(n+1)$
+\begin{equation}
+    \label{eq L3 def}
+    \fL_3(k,n,j,l)
+\end{equation}
+to be the set of all maximal elements with respect to $\le$ in
+\begin{equation}
+    \fC_3(k,n,j) \setminus \bigcup_{0 \le l' < l} \fL_3(k,n,j,l')\,.
+\end{equation}
+%$\fp\in \fC_3(k,n,j)$ such that there exists
+%$\fu\in \fU_1(n,k,j)$
+%with $2\fp\lesssim \fu$ and
+%\begin{equation}
+%    s(\fu)-Z(n+1)<s(\fp)<s(\fu)\, .
+%\end{equation}
+Define
+\begin{equation}
+\label{eq C4 def}
+\fC_4(k,n,j):=\fC_3(k,n,j)
+  \setminus \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\,.
+\end{equation}
+
+Finally, we remove the boundary pairs relative to the prospective tree tops. Define
+\begin{equation}
+    \label{eq L def}
+    \mathcal{L}(\fu)
+\end{equation}
+to be the set of all $I \in \mathcal{D}$ with $I \subset \sc(\fu)$ and $s(I) = s(\fu) - Z(n+1) - 1$ and
+\begin{equation}
+    B(c(I), 8 D^{s(I)})\not \subset \sc(\fu)\, .
+\end{equation}
+Define
+\begin{equation}
+    \label{eq L4 def}
+    \fL_4(k,n,j)
+\end{equation}
+to be the set of all $\fp\in \fC_4(k,n,j)$ such that there exists
+$\fu\in \fU_1(n,k,j)$
+with $\sc(\fp) \subset \bigcup \mathcal{L}(\fu)$, and define
+\begin{equation}\label{defc5}
+\fC_5(k,n,j):=\fC_4(k,n,j)
+  \setminus \fL_4(k,n,j)\, .
+\end{equation}
+
+
+We define three exceptional sets.
+The first exceptional set $G_1$ takes into account the ratio of the measures of $F$ and $G$.
+Let $k_0$ be the smallest integer such that \lars{(There is no reason why $k_0$ has to be an integer, is there?)}
+\begin{equation}
+2^{k_0+5}2^{2a} \mu(F)> \mu(G)\,.
+\end{equation}
+Define $\fP_{F,G}$ to be the set of all $\fp\in \fP$
+with $\dens_2(\{\fp\})\ge 2^{-k_0}$. Define
+\begin{equation}\label{definegone}
+    G_1:=\bigcup_{\fp\in \fP_{F,G} }\sc(\fp)\, .
+\end{equation}
+For an integer $\lambda\ge 0$, define  $A(\lambda,n,k)$ to be the set  of all $x\in X$ such that
+\begin{equation}
+    \label{eq Aoverlap def}
+    \sum_{\fp \in \mathfrak{M}(n,k)}1_{\sc(\fp)}(x)>1+\lambda 2^{n+1}
+\end{equation}
+and define
+\begin{equation}\label{definegone2}
+    G_2:=
+\bigcup_{0\le  k}\bigcup_{k< n}
+A(2n+6,k,n)\, .
+\end{equation}
+Define
+    \begin{equation}\label{defineg3}
+        G_3 :=
+        \bigcup_{k\ge 0}\, \bigcup_{n \geq k}\,
+        \bigcup_{0\le j\le 2n+3}
+        \bigcup_{\fp \in \fL_4 (n,k,j)}
+        \sc(\fp)\, .
+     \end{equation}
+Define $G'=G_1\cup G_2 \cup G_3$
+The following bound of the measure of $G'$ will be proven in
+Subsection \ref{subsetexcset}.
+\begin{lemma}\label{allgbound}
+We have
+\begin{equation}
+    \mu(G')\le 2^{-2}\mu(G)\, .
+\end{equation}
+\end{lemma}
+
+In Subsection \ref{subsecforest}, we identify each set $\fC_5(k,n,j)$ as forest and use Proposition
+\ref{forestprop} to prove the following lemma.
+
+\lars{Add constants in the following two lemmas, after figuring out the exact constants in tree section}
+
+\begin{lemma}\label{subsecflemma}
+  Let
+  \begin{equation}
+      \fP'=\bigcup_{k\ge 0}\bigcup_{n\ge k}
+      \bigcup_{0\le j\le 2n+3}\fC_5(k,n,j)
+  \end{equation}
+  For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
+\begin{equation}
+    \label{disclesssim1}
+    \int_{G \setminus  G'} \left|\sum_{\fp \in \fP'} T_{\fp} f \right|\, \mathrm{d}\mu  \lesssim \mu(G)^{1/q'} \mu(F)^{1/q}\,.
+\end{equation}
+\end{lemma}
+
+In Subsection \ref{subsecforest}, we decompose
+the complement of the set of tiles in Lemma
+\ref{subsecflemma} and apply the antichain estimate of
+Proposition \ref{antichainprop} to prove the following lemma.
+
+\begin{lemma}\label{subsecalemma}
+  Let
+  \begin{equation}
+      \fP'=\fP\setminus \left(\bigcup_{k\ge 0}\bigcup_{n\ge k}
+      \bigcup_{0\le j\le 2n+3}\fC_5(k,n,j)\right)\,.
+  \end{equation}
+ For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
+\begin{equation}
+    \label{disclesssim2}
+    \int_{G \setminus  G'} \left|\sum_{\fp \in \fP'} T_{\fp} f\right| \, \mathrm{d}\mu  \lesssim \mu(G)^{1/q'} \mu(F)^{1/q}\,.
+\end{equation}
+\end{lemma}
+Proposition \ref{prop dyadic} follows by applying
+triangle inequality to \eqref{disclesssim}
+according to the splitting in Lemma \ref{subsecflemma}
+and \ref{subsecalemma} and using both Lemmas as well
+as the bound on the set $G'$ given by Lemma \ref{allgbound}.
+
+
+
+\section{Proof of Lemma \ref{allgbound}, the exceptional sets}
+\label{subsetexcset}
+
+
+We prove separate bounds for $G_1$, $G_2$, and $G_3$
+in Lemmas  \ref{g1bound},
+\ref{g2bound}, and \ref{g3bound}. Adding up these bounds proves Lemma \ref{allgbound}.
+
+The bound for $G_1$ is follows from the Besicovitch covering lemma, Proposition \ref{prop hlm}.
+
+\begin{lemma}\label{g1bound}
+We have
+\begin{equation}
+    \mu(G_1)\le 2^{-4}\mu(G)\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+For each $\fp\in \fP_{F,G}$ pick a
+$r(\fp)>4D^{\ps(\fp)}$  with
+$$
+  {\mu(F\cap B(\pc(\fp),r(\fp)))}\ge 2^{-k_0-1}{\mu(B(\pc(\fp),r(\fp)))}\, .
+$$
+This ball exists by definition of $\fP_{F,G}$
+and $\dens_2$. By applying Proposition \ref{prop hlm} to the collection of balls
+$$
+    \mathcal{B} = \{B(\pc(\fp),r(\fp)) \ : \ \fp \in \fP_{F,G}\}
+$$
+and the function $h = 1_F$, we obtain
+$$
+    \mu(\bigcup \mathcal{B}) \le 2^{2a} 2^{k_0 +1} \mu(F)\,.
+$$
+We conclude  with \eqref{eq vol sp cube} and $r(\fp)>4D^{\ps(\fp)}$
+$$
+    \mu(G_1)\le \mu(\bigcup_{\fp\in \fP_{F,G}} \sc(\fp))
+    \le \mu(\bigcup \mathcal{B})\le 2^{2a} 2^{k_0 + 1} \mu (F)\,.
+$$
+Using the definition of $k_0$, this proves the lemma.
+\end{proof}
+
+
+We turn to the bound of $G_2$, which relies on the dyadic covering Lemma \ref{ckmeasure} and the
+John-Nirenberg Lemma \ref{jn} below.
+
+\begin{lemma}\label{ckmeasure}
+For  each $k\ge 0$, the union of all intervals
+in $\mathcal{C}(G,k)$ has measure at most $2^{k+1} \mu(G)$ .
+\end{lemma}
+\begin{proof}
+    The union of intervals  in $\mathcal{C}(G,k)$
+is contained the union of the set $\mathcal{M}(k)$
+of all intervals $J$ with
+${\mu(G \cap I)} > 2^{-k-1}{\mu(I)}$.
+The set $\mathcal{M}(k)$ is contained in the union of
+the set $\mathcal{M}^*(k)$ of maximal elements in
+$\mathcal{M}(k)$ with respect to set inclusion. Hence
+\begin{equation}\label{cbymstar}
+\mu (\bigcup \mathcal{C}(G,k))\le \mu (\bigcup \mathcal{M}^*(k))\le
+\sum_{J\in \mathcal{M}^*(k)}\mu(J)
+\end{equation}
+Using the definition of $\mathcal{M}(k)$ and then
+the  pairwise disjointness of elements in
+$\mathcal{M}^*(k)$  \ct{this could be
+an alternative defining property of dyadic intervals},
+we estimate \eqref{cbymstar} by
+\begin{equation}
+\le
+2^{k+1}\sum_{J\in \mathcal{M}^*(k)}\mu(J\cap G)
+\le 2^{k+1}\mu(G).
+\end{equation}
+This proves the lemma.
+\end{proof}
+
+
+
+
+\begin{lemma}\label{pairwise disjoint}
+     If $\fp, \fp' \in {\mathfrak{M}}(n,k)$ and
+     \begin{equation}\label{eintersect}
+     {E_1}(\fp)\cap {E_1}(\fp')\neq \emptyset,
+     \end{equation}
+     then $\fp=\fp'$.
+\end{lemma}
+\begin{proof}
+Let $\fp,\fp'$ as in the lemma. As by definition of $E_1$
+we have
+$E_1(\fp)\subset \sc(\fp)$ and analoguously for $\fp'$, we conclude from \eqref{eintersect} that  $\sc(\fp)\cap \sc(\fp')\neq \emptyset$. Let without loss of generality $\sc(\fp)$ be maximal in
+$\{\sc(\fp),\sc(\fp')\}$, then $\sc(\fp')\subset \sc(\fp)$.
+By \eqref{eintersect}, we conclude by definition of $E_1$ that $\fc(\fp)\cap \fc(\fp')\neq \emptyset$. By
+\eqref{eq freq dyadic} we conclude $\fc(\fp)\subset \fc(\fp')$. It follows that $\fp'\le \fp$. By maximality
+\eqref{mnkmax}
+of $\fp'$, we have $\fp'=\fp$. This proves the lemma.
+\end{proof}
+
+
+\begin{lemma}\label{adyadic}
+For each  $x\in A(\lambda,n,k)$,
+there is a dyadic interval $I$
+that contains $x$ and is
+a subset of
+$I\subset A(\lambda,n,k)$.
+\end{lemma}
+
+\begin{proof}
+
+Fix $k,n,\lambda,x$ as in the lemma.
+Let  $x\in A(\lambda,n,k)$. Let
+$\mathcal{M}$ be the set of dyadic intervals
+ $\sc(\fp)$
+with $\fp$ in  $\mathfrak{M}(n,k)$
+and $x\in \sc(\fp)$. By definition of
+$A(\lambda,n,k)$, the cardinality of $\mathcal{M}$
+is at least $\lambda$. Let $I$ be an interval of
+shortest length in $\mathcal{M}$. Then
+$I$ is contained in all intervals of $\mathcal{M}$.
+It follows that $I\subset A(\lambda,n,k)$.
+\end{proof}
+
+\begin{lemma}\label{jn}
+    For all integers $k,n,\lambda\ge 0$, we have
+    \begin{equation}\label{alambdameasure}
+        \mu(A(\lambda,k,n))        \le 2^{k+1-\lambda}\mu(G)\, .
+    \end{equation}
+
+
+\end{lemma}
+\begin{proof}
+Fix $k,n$ as in the lemma
+and write short
+$A(\lambda)$ for $A(\lambda,k,n)$.
+We prove the lemma by induction on $\lambda$.
+For $\lambda=0$, we use that $A(\lambda)$ by definition of $\mathfrak{M}(n,k)$ is contained in the union of elements in $ \mathcal{C}(G,k)$. Lemma \ref{ckmeasure} then completes  the base of the induction.
+
+Now assume that the statement of Lemma \ref{jn}
+is proven for some integer $\lambda\ge 0$.
+The set $A(\lambda+1)$ is contained in the set $A(\lambda)$.
+Let  $\mathcal{M}$ be the set of dyadic intervals which are a subset of $A(\lambda)$. By Lemma \ref{adyadic}, the union of $\mathcal{M}$ is $A(\lambda)$.
+Let $\mathcal{M}^*$ be the set of maximal intervals in $\mathcal{M}$.
+
+Let $L\in \mathcal{M}^*$. For each $x\in L$, we have
+\begin{equation}\label{suminout}
+ \sum_{\fp \in {\mathfrak{M}}(n,k)} 1_{I(\fp)}(x)=
+   \sum_{\fp \in {\mathfrak{M}}(n,k):\sc(\fp) \subset L} 1_{I(\fp)}(x)+
+  \sum_{\fp \in {\mathfrak{M}}(n,k):\sc(\fp) \not \subset L} 1_{I(\fp)}(x)\, .
+\end{equation}
+If the second sum on the right-hand-side is not zero, there is
+an element of $\mathcal{D}$  containing $L$.
+Let $\hat{L}$ be such  interval with minimal $\sc(L)$. Then $\hat{L}$ is contained in $\sc(\fp)$ for all $\fp$
+contributing to the second sum in
+\eqref{suminout}.
+Hence the second sum in \eqref{suminout} is constant on
+$\hat{L}$.
+By maximality of $L$, the second sum is less than  $1+\lambda 2^{n+1}$ somewhere on $\hat{L}$, and thus also
+at $x$.
+If $x$ is in addition in $A(\lambda+1)$, then
+the left-hand-side of \eqref{suminout} is at least
+$1+(\lambda+1) 2^{n+1}$, so we have by the triangle inequality for the first sum on the right-hand side
+\begin{equation}\label{mnkonl}
+\sum_{\fp \in {\mathfrak{M}}(n,k):\sc(\fp) \subset L} 1_{I(\fp)}(x)\ge 2^{n+1}\, .\end{equation}
+By Lemma \ref{pairwise disjoint}, we have
+\begin{equation}
+\sum_{\fp \in {\mathfrak{M}}(n,k):\sc(\fp) \subset L} \mu({E_1}(\fp)) \leq \mu(L)\, .
+\end{equation}
+Multiplying by $2^n$ and applying  \eqref{ebardense}, we obtain
+\begin{equation}\label{mnkintl}
+    \sum_{\fp \in {\mathfrak{M}}(n,k):\sc(\fp) \subset L} \mu(\sc(\fp))  \leq 2^n \mu(L)\, .
+\end{equation}
+We then have with \eqref{mnkonl} and \eqref{mnkintl}
+\begin{equation}
+2^{n+1}\mu(A(\lambda+1)\cap L) =
+ \int_{A(\lambda+1)\cap L} 2^{n+1} d\mu
+\end{equation}
+\begin{equation}
+\le
+    \int \sum_{\fp \in {\mathfrak{M}}(n,k):\sc(\fp) \subset L} 1_{I(\fp)} d\mu
+\le 2^n \mu(L)\, .
+\end{equation}
+Hence
+\begin{equation}
+    2\mu(A(\lambda+1))=2\sum_{L\in \mathcal{M}^*}
+\mu(A(\lambda+1)\cap L)\le
+\sum_{L\in \mathcal{M}^*}\mu( L)= \mu(A(\lambda))\, .
+\end{equation}
+Using the induction hypothesis, this proves
+\eqref{alambdameasure} for $\lambda+1$ and completes the proof of the lemma.
+\end{proof}
+
+\begin{lemma}\label{g2bound}
+We have
+\begin{equation}
+    \mu(G_2)\le 2^{-4} \mu(G)\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+
+We use Lemma \ref{jn} and sum twice a geometric series
+to obtain
+\begin{equation}
+    \sum_{0\le  k}\sum_{k< n}
+\mu(A(2n+6,k,n))\le \sum_{0\le  k}\sum_{k< n} 2^{k-5-2n}\mu(G)
+\end{equation}
+\begin{equation}
+   \le \sum_{0\le  k} 2^{-k-5}\mu(G)\le 2^{-4}\mu(G)\, .
+\end{equation}
+This proves the lemma.
+\end{proof}
+
+
+We turn to the set $G_3$.
+
+\begin{lemma}\label{musumlemma}
+    We have
+    \begin{equation}\label{eq musum}
+        \sum_{\mathfrak{m} \in \mathfrak{M}(n,k)} \mu(\sc(\mathfrak{m}))\le 2^{n+1}2^{k+1}\mu(G).
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    We write the left-hand side of \ref{eq musum}
+\begin{equation}
+    \int \sum_{\mathfrak{m} \in \mathfrak{M}(n,k)} 1_{\sc(\mathfrak{m})}(x) \, d\mu(x) \le
+2^{n+1} \sum_{\lambda=1}^{|\mathfrak{M}|}\mu(A(\lambda, n,k))\,.
+\end{equation}
+Using Lemma \ref{alambdameasure} and then summing a geometric series, we estimate this by
+\begin{equation}
+    \le
+2^{n+1}\sum_{\lambda=1}^{|\mathfrak{M}|}
+2^{k+1-\lambda}\mu(G)
+\le
+2^{n+1}2^{k+1}\mu(G)\, .
+\end{equation}
+This proves the lemma.
+\end{proof}
+
+
+\begin{lemma}\label{countu}
+Let $n,k,j\ge 0$. We have for every $x\in X$
+\begin{equation}
+    \sum_{\fu\in \fU_1(n,k,j)} 1_{\sc(\fu)}(x)
+    \le 2^{1-j}
+    2^{4a} \sum_{\mathfrak{m}\in \mathfrak{M}(n,k)}
+     1_{\sc(\mathfrak{m})}(x)
+\end{equation}
+\end{lemma}
+
+\lars{Write consistently $Q$ or $\mathcal{Q}$ for the central frequency of a tile}
+
+\begin{proof}
+Let $x\in X$. For each
+$\fu\in \fU_1(n,k,j)$ with $x\in \sc(\fu)$, as $\fu \in \fC_1(n,k,j)$,
+there are at least $2^{j-1}$  elements $\mathfrak{m}\in \mathfrak{M}(n,k)$
+with $2\fu \lesssim 100\mathfrak{m}$ and in particular
+$x\in \sc(\mathfrak{m})$. Hence
+\begin{equation}\label{ubymsum}
+     1_{\sc(\fu)}(x)
+    \le 2^{1-j}\sum_{\mathfrak{m} \in \mathfrak{M}(n,k): 2\fu\lesssim 100 \mathfrak{m}} 1_{\sc(\mathfrak{m})}(x)\, .
+\end{equation}
+Conversely, for each $\mathfrak{m}\in \mathfrak{M}(n,k)$
+with $x\in \sc(\mathfrak{m})$,
+let $\fU(\mathfrak{m})$ be the set of
+$\fu\in \fU_1(n,k,j)$ with $x\in \sc(\fu)$
+and $2\fu \lesssim 100\mathfrak{m}$.
+Summing \eqref{ubymsum} over $\fu$ and counting the pairs
+$(\fu,\mathfrak{m})$ with $2\fu \lesssim 100\mathfrak{m}$
+differently gives
+\begin{equation}\label{usumbymsum}
+     \sum_{\fu\in \fU_1(n,k,j)} 1_{\sc(\fu)}(x)
+    \le 2^{1-j}\sum_{\mathfrak{m} \in \mathfrak{M}(n,k)}
+    \sum_{\fu \in \fU(\mathfrak{m})} 1_{\sc(\mathfrak{m})}(x)\, .
+\end{equation}
+
+
+
+We estimate the number of elements in $\fU(\mathfrak{m})$.
+Let $\fu  \in \fU(\mathfrak{m})$.
+Then by definition of
+$\fU(\mathfrak{m})$
+\begin{equation}\label{dby2}
+     d_{\fu}(\fcc(\fu),\fcc(\mathfrak{m}))\le 2\, .
+\end{equation}
+If $\fu'$ is a further element in $\fU(\mathfrak{m})$ with $\fu\neq \fu'$, then
+\begin{equation}
+    \fcc(\mathfrak{m})
+    \in B_{\fu}(\fcc(\fu),100)\cap B_{\fu'}(\fcc(\fu'),100)\ .
+\end{equation}
+By the last display and definition of $\fU_1(n,k,j)$, none of $\sc(\fu)$, $\sc(\fu')$ is strictly contained in the other. As both contain $x$, we have $\sc(\fu)=\sc(\fu')$.
+We then have $d_{\fu}=d_{\fu'}$.
+
+By \eqref{eq freq comp ball}, the balls
+$B_{\fu}(\fcc(\fu),0.2)$ and
+$B_{\fu}(\fcc(\fu'),0.2)$ are
+contained respectively in $\fc(\fu)$
+and $\fc(\fu')$ and thus are disjoint by \eqref{eq dis freq cover}.
+By \eqref{dby2} and the triangle inequality, both balls are contained in $B_{\fu}(\fcc(\mathfrak{m}), 2.2)$.
+
+By \eqref{thirddb} applied four times, there is a collection of at most
+$2^{4a}$ balls of radius $0.2$ with respect to the metric $d_{\fu}$ which cover the ball $B_{\fu}(\fcc(\mathfrak{m}),2.2)$.
+Let $B'$ be a ball in this cover.
+As the center of $B'$  can be in at most one of the disjoint balls
+$B_{\fu}(\fcc(\fu),0.2)$ and
+$B_{\fu}(\fcc(\fu'),0.2)$,
+the ball $B'$ can contain at most
+one of the points $\fu$, $\fu'$.
+
+Hence the set $\fU(\mathfrak{m})$ has at most
+$2^{4a}$ many elements.
+Inserting this into \eqref{usumbymsum} proves the lemma.
+\end{proof}
+
+%For each $\fu\in \fU_1(n,k,j)$, define $\fL(\fu)$
+%to be the set of of all $\fp\in \fC_4(k,n,j)$ such that  $2\fp\lesssim \fu$
+%and
+%\begin{equation}
+%    B(c(\sc(\fp)), 8 D^{s(\fp)})\not \subset \sc(\fu)\, .
+%\end{equation}
+
+\begin{lemma}\label{lulemma}
+We have for each $\fu\in \fU_1(n,k,l)$,
+\begin{equation}
+\mu(\bigcup_{I\in \mathcal{L}(\fu)} I)
+\le 2^{2a+2} D^{-\kappa Z(n+1)}
+        \mu(\sc(\mathfrak{u})).
+\end{equation}
+
+\end{lemma}
+
+\lars{Write consistently $\ps$ or $s$.}
+
+\begin{proof}
+  Let $\fu\in \fU_1(n,k,l)$.
+Let $I \in \mathcal{L}(\fu)$. Then we have $s(I) = s(\fu) - Z(n+1) - 1$ and $I \subset \sc(\fu)$ and $B(c(I), 8D^{s(I)}) \not \subset \sc(\fu)$.
+By \eqref{eq vol sp cube}, the set $I$
+is contained in $B(c(I), 4D^{s(I)})$.
+By the triangle inequality, the set $I$
+is contained in
+\begin{equation}
+    X(\fu):=\{x \in \sc(\fu) \, : \, \rho(x, X \setminus \sc(\fu)) \leq 12 D^{s(\fu) - Z(n+1)-1}\}\,.
+\end{equation}
+ By the small boundary property \eqref{eq small boundary}, we have
+   $$
+        \mu(X(\fu)) \le
+        2^{2a+2}(12 D^{-Z(n+1)-1})^\kappa
+        \mu(\sc(\mathfrak{u})).
+    $$
+Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    \begin{lemma}\label{g3bound}
+
+       We have
+\begin{equation}
+    \mu(G_3)\le 2^{-4} \mu(G)\, .
+\end{equation}
+    \end{lemma}
+
+
+
+    \begin{proof}
+As each $\fp\in \fL_4(n,k,j)$
+is contained in $\cup\mathcal{L}(\fu)$ for some
+$\fu\in \fU_1(n,k,l)$, we have
+\begin{equation}
+\mu(\bigcup_{\fp \in \fL_4 (n,k,j)}\sc(\fp))
+\le \sum_{\fu\in \fU_1(n,k,j)}
+\mu(\bigcup_{I \in \mathcal{L} (\fu)}I).
+\end{equation}
+Using Lemma \ref{lulemma} and the Lemma \ref{countu}, we estimate this further
+ by
+\begin{equation}
+    \le \sum_{\fu\in \fU_1(n,k,j)}
+    2^{2a+2} D^{-\kappa Z(n+1)}
+        \mu(\sc(\mathfrak{u}))
+\end{equation}
+\begin{equation}
+    \le 2^{6a+3-j} \sum_{\mathfrak{m}\in \mathfrak{M}(n,k)}
+     D^{-\kappa Z(n+1)}
+    \mu(\sc(\mathfrak{m}))\,.
+\end{equation}
+%\begin{equation}
+%    \le 2^{1-j}\sum_{\mathfrak{m}\in \mathfrak{M}(n,k)}
+%    A^{30\ln_2A}  D^{-\kappa Zn}
+%    \mu(\sc(\mathfrak{m}))\, ,
+%\end{equation}
+Using Lemma \ref{musumlemma}, we estimate this by
+  \begin{equation}
+     \le
+2^{6a + 3-j}  D^{-\kappa Z(n+1)}
+     2^{n+1}2^{k+1}\mu(G)\, .
+\end{equation}
+Now we estimate $G_3$ defined in \eqref{defineg3} by
+\begin{equation}
+    \mu(G_3)\le \sum_{k\ge 0}\, \sum_{n \geq k}\,
+    \sum_{0\le j\le 2n+3}
+    \mu(\bigcup_{\fp \in \fL_4 (n,k,j)}
+    \sc(\fp))
+\end{equation}
+\begin{equation}
+    \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
+    \sum_{0\le j\le 2n+3}
+    2^{6a + 5 + n + k -j}  D^{-\kappa Z(n+1)}\mu(G)
+\end{equation}
+Summing geometric series, using $D^{\kappa Z}\ge 8$ \lars{assumption on $Z$}, we estimate this by
+\begin{equation}
+    \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
+    2^{6a + 6 + n + k}  D^{-\kappa Z(n+1)}\mu(G)
+\end{equation}
+\begin{equation}
+    = \sum_{k\ge 0} 2^{6a + 6 + 2k} D^{-\kappa Z(k+1)} \sum_{n \geq k}\,
+    2^{n - k}  D^{-\kappa Z(n-k)}\mu(G)
+\end{equation}
+\begin{equation}
+    \le \sum_{k\ge 0} 2^{6a + 7 + 2k}  D^{-\kappa Z(k+1)}\mu(G)
+\end{equation}
+\begin{equation}
+   \le 2^{6a + 8}  D^{-\kappa Z}\mu(G)
+\end{equation}
+Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 1$ proves the lemma.
+\end{proof}
+
+\section{Auxilliary lemmas}
+
+Before proving Lemma \ref{subsecflemma} and Lemma \ref{subsecalemma}, we collect some useful properties of $\lesssim$.
+
+\begin{lemma}
+    \label{lem wiggle monotone}
+    If $n\fp \lesssim m\fp'$ and
+    $n' \ge  n$ and $m \ge m'$ then $n'\fp \lesssim m'\fp'$.
+\end{lemma}
+
+\begin{proof}
+    This follows immediately from the definition \eqref{wiggleorder} of $\lesssim$ and the two inclusions $B_{\fp}(Q(\fp), n) \subset B_{\fp}(Q(\fp), n')$ and $B_{\fp'}(Q(\fp'), m') \subset B_{\fp'}(Q(\fp'), m)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem aux wiggle}
+    Let $n, m \ge 1$.
+    If $\fp, \fp' \in \fP$ with $\sc(\fp) \ne \sc(\fp')$ and
+    \begin{equation}
+        \label{eq wiggle1}
+        n \fp \lesssim \fp'
+    \end{equation}
+    then
+    \begin{equation}
+        \label{eq wiggle2}
+        (n + 2^{-95 a} m) \fp \lesssim m\fp'\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    The assumption \eqref{eq wiggle1} together with the definition \eqref{wiggleorder} of $\lesssim$ implies that $\sc(\fp) \subsetneq \sc(\fp')$. Let $q \in B_{\fp'}(Q(\fp'), 100)$.  Then we have by the triangle inequality
+    $$
+        d_{\fp}(Q(\fp), q) \le  d_{\fp}(Q(\fp), Q(\fp')) +  d_{\fp}(Q(\fp'), q)
+    $$
+    Using \eqref{eq wiggle1} and \eqref{wiggleorder} for the first summand, and Lemma \ref{lem cube monotone} for the second summand, this is estimated by
+    $$
+        n + 2^{-95a} d_{\fp'}(Q(\fp'), q) < n + 2^{-95a} m\,.
+    $$
+    Thus $B_{\fp'}(Q(\fp'),n) \subset B_{\fp}(Q(\fp),n + 2^{-95a}m)$. Combined with $\sc(\fp) \subset \sc(\fp')$, this yields \eqref{eq wiggle2}.
+\end{proof}
+
+\begin{lemma}
+    The following implications hold for all $\fq, \fq' \in \fP$:
+    \begin{equation}
+        \label{eq sc1}
+        \fq \lesssim \fq' \ \text{and} \ \lambda \ge 1 \implies \lambda \fq \lesssim \lambda \fq'\,,
+    \end{equation}
+    \begin{equation}
+        \label{eq sc2}
+        10\fq \lesssim \fq' \ \text{and} \ \fq \ne \fq' \implies 100 \fq \lesssim 100 \fq'\,,
+    \end{equation}
+    \begin{equation}
+        \label{eq sc3}
+        2\fq \lesssim \fq' \ \text{and} \ \fq \ne \fq' \implies 4 \fq \lesssim 500 \fq'\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    All three implications are easy consequences of Lemma \ref{lem wiggle monotone}, Lemma \ref{lem aux wiggle} and the fact that $a \ge 4$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem rel claim}
+    If $\fu \sim \fu'$, then $\sc(u) = \sc(u')$ and $B_{\fu}(Q(\fu), 100) \cap B_{\fu'}(Q(\fu'), 100) \neq \emptyset$.
+\end{lemma}
+
+\begin{proof}
+    Let $\fu, \fu' \in \fU_1(n,k,j)$ with $\fu \sim \fu'$. If $u = u'$ then the conclusion of the Lemma clearly holds. Else, there exists $\fp \in \fC_1(n,k,j)$ such that $\sc(\fp) \ne \sc(\fu)$ and  $2 \fp \lesssim \fu$ and $10 \fp \lesssim \fu'$.
+    Using Lemma \ref{lem wiggle monotone} and \eqref{eq sc2}, we deduce that
+    \begin{equation}
+        \label{eq Fefferman trick0}
+        100 \fp\lesssim  100 \fu\,, \qquad 100 \fp \lesssim 100\fu'\,.
+    \end{equation}
+    Now suppose that $B_{\fu}(Q(\fu), 100) \cap B_{\fu'}(Q(\fu'), 100) = \emptyset$. Then we have $\mathfrak{B}(\fu) \cap \mathfrak{B}(\fu') = \emptyset$, by the definition \eqref{defbfp} of $\mathfrak{B}$ and the definition \eqref{wiggleorder} of $\lesssim$, but also $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$, by \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq Fefferman trick0}.
+    Hence,
+    $$
+        |\mathfrak{B}(\fp)| \geq |\mathfrak{B}(\fu)| + |\mathfrak{B}(\fu')| \geq 2^{j} + 2^j = 2^{j+1}\,,
+    $$
+    which contradicts $\fp \in \fC_1(n,k,j)$. Therefore we must have $B_{\fu}(Q(\fu), 100) \cap B_{\fu'}(Q(\fu'), 100) \ne \emptyset$.
+
+    It follows from $2\fp \lesssim \fu$ and $10\fp \lesssim \fu'$ that $\sc(\fp) \subset \sc(\fu)$ and $\sc(\fp) \subset \sc(\fu')$. By \eqref{dyadicproperty}, it follows that $\sc(\fu)$ and $\sc(\fu')$ are nested.
+    Combining this with the conclusion of the last paragraph and definition \eqref{defunkj} of $\fU_1(n,k,j)$, we obtain that $\sc(\fu) = \sc(\fu')$.
+\end{proof}
+
+We call a collection $\mathfrak{A}$ of tiles convex if
+\begin{equation}
+    \label{eq convexity}
+    \fp \le \fp' \le \fp'' \ \text{and} \ \fp, \fp'' \in \mathfrak{A} \implies \fp' \in \mathfrak{A}\,.
+\end{equation}
+
+\begin{lemma}
+    \label{lem convexity Pk}
+    For each $k$, the collection $\fP(k)$ is convex.
+\end{lemma}
+
+\begin{proof}
+    Suppose that $\fp \le \fp' \le \fp''$ and $\fp, \fp'' \in \fP_k$. By \eqref{eq defPk} we have $\sc(\fp), \sc(\fp'') \in \mathcal{C}(G,k)$, so there exists by \eqref{muhj1} some $J \in \mathcal{D}$ with
+    $$
+        \sc(\fp') \subset \sc(\fp'') \subset J
+    $$
+    and $\mu(G \cap J) > 2^{-k-1} \mu(G)$. Thus \eqref{muhj1} holds for $\sc(\fp')$. On the other hand, by \eqref{muhj2}, there exists no $J \in \mathcal{D}$ with $\sc(\fp) \subset J$ and $\mu(G \cap J) > 2^{-k} \mu(G)$. Since $\sc(\fp) \subset \sc(\fp')$, this implies that \eqref{muhj2} holds for $\sc(\fp')$. Hence $\sc(\fp') \in \mathcal{C}(G,k)$, and therefore by \eqref{eq defPk} $\fp' \in \fP(k)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem convexity Cnk}
+    For each $n,k$, the collection $\fC(n,k)$ is convex.
+\end{lemma}
+
+\begin{proof}
+    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC(n,k)$. Then, in particular, $\fp, \fp'' \in \fP(k)$, so, by Lemma \ref{lem convexity Pk}, $\fp' \in \fP(k)$. Next, we show that if $\fq \le \fq' \in \fP(k)$ then $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. If $\fp \in \fP(k)$ and $\lambda \ge 2$ with $\lambda \fq' \lesssim \lambda \fp$, then it follows from $\fq \le \fq'$, \eqref{eq sc1} and transitivity of $\lesssim$ that $\lambda \fq \lesssim \lambda \fp$. Thus the supremum in the definition \eqref{eq densdef} of $\dens_k'(\{\fq\})$ is over a superset of the set the  supremum in the definition of $\dens_k'(\{\fq'\})$ is taken over, which shows $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. From $\fp' \le \fp''$, $\fp'' \in \fC(n,k)$ and \eqref{def cnk} it then follows that
+    $$
+        2^{-n} < \dens_k'(\{\fp''\}) \le \dens_k'(\{\fp'\})\,.
+    $$
+    Similarly, it follows from $\fp \le \fp'$, $\fp'' \in \fC(n,k)$ and \eqref{def cnk} that
+    $$
+        \dens_k'(\{\fp'\}) \le \dens_k'(\{\fp\}) \le 2^{-n}\,.
+    $$
+    Thus $\fp' \in \fC(n,k)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem convexity C1}
+    For each $n,k,j$, the collection $\fC_1(n,k,j)$ is convex.
+\end{lemma}
+
+\begin{proof}
+    Let $\fp\le\fp'\le\fp''$ with $\fp, \fp'' \in \fC_1(n,k,j)$. By Lemma \ref{lem convexity Cnk} and the inclusion $\fC_1(n,k,j) \subset \fC(n,k)$, which holds by definition \eqref{defcnkj}, we have $\fp' \in \fC(n,k)$. By \eqref{eq sc1} and transitivity of $\lesssim$ we have that $\fq \le \fq'$ and $2 \fq' \lesssim 100\mathfrak{m}$ imply $2\fq \lesssim 100\mathfrak{m}$. So, by \eqref{defbfp}, $\mathfrak{B}(\fp'') \subset \mathfrak{B}(\fp') \subset \mathfrak{B}(\fp)$. Consequently, by \eqref{defcnkj}
+    $$
+        2^j \le |\mathfrak{B}(\fp'')|\le |\mathfrak{B}(\fp')| \le |\mathfrak{B}(\fp)| < 2^{j+1}\,,
+    $$
+    thus $\fp' \in \fC_1(n,k,j)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem convexity C2}
+    For each $n,k,j$, the collection $\fC_2(n,k,j)$ is convex.
+\end{lemma}
+
+\begin{proof}
+     Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_2(n,k,j)$. By \eqref{eq C2 def}, we have $\fC_2(n,k,j) \subset \fC_1(n,k,j)$. Combined with Lemma \ref{lem convexity C1}, it follows that $\fp' \in \fC_1(n,k,j)$. Suppose that $\fp' \notin \fC_2(n,k,j)$. By \eqref{eq C2 def}, this implies that there exists $0 \le l' \le Zn$ \lars{Z} with $\fp' \in \fL_1(n,k,j,l')$. By the definition \eqref{eq L1 def} of $\fL_1(n,k,j,l')$, this implies that $\fp$ is minimal with respect to $\le$  in $\fC_1(n,k,j) \setminus \bigcup_{l < l'} \fL_1(n,k,j,l)$. Since $\fp \in \fC_2(n,k,j)$ we must have $\fp \ne \fp'$. Thus $\fp \le \fp'$ and $\fp \ne \fp'$. By minimality of $\fp'$ it follows that $\fp \notin \fC_1(n,k,j) \setminus \bigcup_{l < l'} \fL_1(n,k,j,l)$. But by \eqref{eq C2 def} this implies $\fp \notin \fC_2(n,k,j)$, a contradiction.
+\end{proof}
+
+\begin{lemma}
+    \label{lem convexity C3}
+    For each $n,k,j$, the collection $\fC_3(n,k,j)$ is convex.
+\end{lemma}
+
+\begin{proof}
+    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(n,k,j)$. By \eqref{eq C3 def} and Lemma \ref{lem convexity C2} it follows that $\fp' \in \fC_2(n,k,j)$. Suppose that $\fp' \notin \fC_3(n,k,j)$. Then, by \eqref{eq C3 def} and \eqref{eq L2 def}, there exists $\fu \in \fU_1(n,k,j)$ with $2\fp' \lesssim \fu$ and $\sc(\fp') \ne \sc(\fu)$. Together this gives $\sc(\fp') \subsetneq \sc(\fu)$. From $\fp' \le \fp$, \eqref{eq sc1} and transitivity of $\lesssim$ we then have $2\fp \lesssim \fu$. Also, $\sc(\fp) \subset \sc(\fp') \subsetneq \sc(\fu)$, so $\sc(\fp) \ne \sc(\fu)$. But then $\fp \in \fL_2(n,k,j)$, contradicting by \eqref{eq C3 def} the assumption $\fp \in \fC_3(n,k,j)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem convexity C4}
+    For each $n,k,j$, the collection $\fC_4(n,k,j)$ is convex.
+\end{lemma}
+
+\begin{proof}
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_4(n,k,j)$. As before we obtain from the inclusion $\fC_4(n,k,j) \subset \fC_3(n,k,j)$ that $\fp' \in \fC_3(n,k,j)$. Thus, if $\fp' \notin \fC_4(n,k,j)$ then by \eqref{eq L3 def} there exists $l$ such that $\fp' \in \fL_3(n,k,j,l)$. Thus $\fp'$ is maximal with respect to $\le$ in $\fC_3(n,k,j) \setminus \bigcup_{0 \le l' < l} \fL_3(n,k,j,l')$.  Since $\fp'' \in \fC_4(n,k,j)$ we must have $\fp' \ne \fp''$. Thus $\fp' \le \fp''$ and $\fp'\ne \fp''$. By minimality of $\fp'$ it follows that $\fp'' \notin \fC_3(n,k,j) \setminus \bigcup_{l < l'} \fL_3(n,k,j,l)$. But by \eqref{eq C4 def} this implies $\fp'' \notin \fC_4(n,k,j)$, a contradiction.
+\end{proof}
+
+\begin{lemma}
+    \label{lem convexity C5}
+    For each $n,k,j$, the collection $\fC_5(n,k,j)$ is convex.
+\end{lemma}
+
+\begin{proof}
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(n,k,j)$. Then $\fp, \fp'' \in \fC_4(n,k,j)$ by \eqref{defc5}, and thus by Lemma \ref{lem convexity C4} also $\fp' \in \fC_4(n,k,j)$. Suppose that $\fp' \notin \fC_5(n,k,j)$. By \eqref{defc5}, it follows that $\fp' \in \fL_4(n,k,j)$.
+    By \eqref{eq L4 def}, there exists $\fu \in \fU_1(n,k,j)$ with $\sc(\fp') \subset \bigcup \mathcal{L}(\fu)$. Then also $\sc(\fp) \subset \bigcup \mathcal{L}(\fu)$, a contradiction.
+\end{proof}
+
+\begin{lemma}
+    \label{lem dens comp}
+    We have for every $k\ge 0$ and $\fP'\subset \fP(k)$
+\begin{equation}
+    \dens_1(\fP')\le \dens_k'(\fP')\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+It suffices to show that for all $\fp'\in \fP'$
+and  $\lambda>2$ and  $\fp\in \fP(\fP')$ with $\lambda \fp' \lesssim \lambda \fp$ we have
+\begin{equation}
+    \frac{\mu({E}_2(\lambda, \fp))}{\mu(\sc(\fp))}
+    \le \sup_{\fp'' \in \fP(k): \lambda \fp' \lesssim \lambda \fp''}
+    \frac{\mu({E}_2(\lambda, \fp''))}{\mu(\sc(\fp''))}.
+\end{equation}
+    Let such $\fp'$, $\lambda$, $\fp$ be given.
+    It suffices to show that $\fp\in \fP(k)$,
+    that is, it satisfies \eqref{muhj1}
+    and \eqref{muhj2}.
+
+We show \eqref{muhj1}.
+ As $\fp\in \fP(\fP')$, there exists
+$\fp''\in \fP'$ with $\sc(\fp')\subset \sc(\fp'')$. By assumption on $\fP'$, we have  $\fp''\in \fP(k)$ and there exists
+$J\in \mathcal{D}$ with
+   $\sc(\fp'')\subset J$ and
+   \begin{equation}
+       \mu(G\cap J)>2^{-k-1} \mu(J).
+   \end{equation}
+Then also $\sc(\fp')\subset J$, which proves
+\eqref{muhj1} for $\fp$.
+
+We show \eqref{muhj2}. Assume to get a contradiction that
+there exists $J\in \mathcal{D}$ with
+   $\sc(\fp)\subset J$ and
+   \begin{equation}\label{mugj}
+       \mu(G\cap J)>2^{-k} \mu(J).
+   \end{equation}
+   As $\lambda\fp'\lesssim \lambda\fp$, we have $\sc(\fp')\subset \sc(\fp)$, and therefore
+    $\sc(\fp')\subset J$. This contradicts
+   $\fp'\in \fP'\subset \fP(k)$. This proves
+\eqref{muhj2} for $\fp$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem 1density}
+    For each set $\mathfrak{A} \subset \mathfrak{C}(n,k)$, we have
+    $$
+        \dens_1(\mathfrak{A}) \le 2^{4a}2^{-n+1}\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    We have by Lemma \ref{lem dens comp} that
+    $\dens_1(\mathfrak{A}) \le \dens_k'(\mathfrak{A})$. Since $\mathfrak{A} \subset \fC(n,k)$, it follows from monotonicity of suprema and the definition \eqref{eq densdef} that
+    $
+        \dens_k'(\mathfrak{A}) \le \dens_k'(\fC(n,k))\,.
+    $
+    By \eqref{eq densdef} and \eqref{def cnk}, we have
+    $$
+        \dens_k'(\fC(n,k)) = \sup_{\fp \in \fC(n,k)} \dens_k'(\{\fp\}) \le 2^{4a}2^{-n+1}\,.
+    $$
+\end{proof}
+
+\section{Proof of Lemma \ref{subsecflemma}, the forests}
+\label{subsecforest}
+
+Fix $k,n,j\ge 0$.
+Define
+$$
+    \fC_6(n,k,j)
+$$
+to be the set of all tiles $\fp \in \fC_5(n,k,j)$ such that $\sc(\fp) \not\subset G'$. The following chain of lemmata
+establishes that the set $\fC_6(k,n,j)$ can be written as a union of a small number of $n$-forests.
+
+For $u\in \fU_1(n,k,j)$, define
+\begin{equation}
+    \label{eq T1 def}
+    \mathfrak{T}_1(\fu):= \{\fp \in \fC_1(n,k,j) \ : \sc(\fp)\neq \sc(\fu), \ 2\fp \lesssim  \fu\}\,.
+\end{equation}
+Define
+\begin{equation}
+    \label{eq U2 def}
+    \fU_2(n,k,j) := \{ \fu \in \fU_1(n,k,j) \, : \, \mathfrak{T}_1(\fu)  \cap \fC_6(n,k,j) \ne \emptyset\}\,.
+\end{equation}
+Define further a relation $\sim$ on $\fU_2(n,k,j)$
+by setting $\fu\sim \fu'$
+for $\fu,\fu'\in \fU_2(n,k,j)$
+if $\fu=\fu'$ or there exists $\fp$ in $\mathfrak{T}_1(\fu)$
+with $10 \fp\lesssim \fu'$.
+
+\begin{lemma}
+\label{lem equivalence relation}
+For each $n,k,j$, The relation $\sim$ on
+$\fU_2(n,k,j)$ is an equivalence relation.
+\end{lemma}
+
+\begin{proof}
+    Reflexivity holds by definition.
+    For transitivity, suppose that $\fu, \fu', \fu'' \in \fU_1(n,k,j)$ and $\fu \sim \fu'$, $\fu' \sim \fu''$.
+    By Lemma \eqref{lem rel claim}, it follows that $\sc(\fu) =\sc(\fu') = \sc(\fu'')$, that there exists $q_1 \in B_{\fu}(Q(\fu), 100) \cap B_{\fu'}(Q(\fu'), 100)$ and that there exists $q_2 \in B_{\fu'}(Q(\fu'), 100) \cap B_{\fu''}(Q(\fu''), 100)$. If $\fu = \fu'$, then $\fu \sim \fu''$ holds by assumption. Else, there exists by the definition of $\sim$ some $\fp \in \mathfrak{T}_1(\fu)$.
+    Then we have $2\fp \lesssim \fu$  and $\fp \ne \fu$ by definition of $\mathfrak{T}_1(\fu)$,  so $4 \fp \lesssim 500 \fu$ by \eqref{eq sc3}. For $q \in B_{\fu''}(Q(\fu''), 1)$ it follows by the triangle inequality that
+    \begin{align*}
+        d_{\fu}(Q(\fu), q) &\le d_{\fu}(Q(\fu), q_1) + d_{\fu}(z_1, Q(\fu'))\\
+        &\quad+ d_{\fu}(Q(\fu'), q_2) + d_{\fu}(z_2, Q(\fu'')) +
+        d_{\fu}(Q(\fu''), q)\,.
+    \end{align*}
+    Using \eqref{defdp} and the fact that $\sc(\fu) = \sc(\fu') = \sc(\fu'')$ this equals
+    \begin{align*}
+        &\quad d_{\fu}(Q(\fu), q_1) + d_{\fu'}(z_1, Q(\fu'))\\
+        &\quad+ d_{\fu'}(Q(\fu'), q_2) + d_{\fu''}(z_2, Q(\fu'')) +
+        d_{\fu''}(Q(\fu''), q)\\
+        &< 100 + 100 + 100 + 100 + 1 < 500\,.
+    \end{align*}
+    Since $4\fp \lesssim 500 \fu$, it follows that $d_{\fp}(Q(\fp), q) < 4 < 10$. We have shown that $B_{\fu''}(Q(\fu''), 1) \subset B_{\fp}(Q(\fp), 10)$, combining this with $\sc(\fu'') = \sc(\fu)$ gives $\fu \sim \fu''$.
+
+    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{lem rel claim}, it follows that $\sc(\fu) = \sc(\fu')$ and that there exists $q_1 \in B_{\fu}(Q(\fu), 100) \cap B_{\fu'}(Q(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious. If $\fu \ne \fu'$, then there exists $\fp \in \mathfrak{T}_1(\fu')$. By definition of $\mathfrak{T}_1(\fu')$, Lemma \ref{lem wiggle monotone} and \eqref{eq sc3}, it follows that
+    \begin{equation}
+        \label{eq rel1}
+        10 \fq \lesssim 4\fp \lesssim 500 \fu'\,.
+    \end{equation}
+    If $q \in B_{\fu}(Q(\fu),1)$ then we have from the triangle inequality and the fact that $\sc(\fu) = \sc(\fu')$:
+    \begin{align*}
+        d_{\fu'}(Q(\fu'), q) &\le d_{\fu'}(Q(\fu'), q_1) + d_{\fu'}(q_1, Q(\fu)) + d_{\fu'}(Q(\fu), q)\\
+        &= d_{\fu'}(Q(\fu'), q_1) + d_{\fu}(q_1, Q(\fu)) + d_{\fu}(Q(\fu), q)\\
+        &< 100 + 100 + 1 < 500\,.
+    \end{align*}
+    Combing this with \eqref{eq rel1} and \eqref{wiggleorder}, we get $B_{\fu}(Q(\fu), 1) \subset B_{\fp}(Q(\fp), 10)$. Since $2\fp \lesssim \fu'$, we have $\sc(\fp) \subset \sc(\fu') = \sc(\fu)$. Thus, $10\fp \lesssim \fu$ which completes the proof of $\fu' \sim \fu$.
+\end{proof}
+
+Choose a set  $\fU_3(n,k,j)$ of representatives for the equivalence
+classes of $\sim$ in $\fU_2(n,k,j)$.
+Define for each $\fu\in \fU_3(n,k,j)$
+\begin{equation}\label{definesv}
+\fT_2(\fu):=
+   \bigcup_{\fu\sim \fu'}\mathfrak{T}_1(\fu')\cap \fC_6(k,n,j)\, .
+\end{equation}
+
+\begin{lemma}
+\label{eq forest union}
+We have
+\begin{equation}
+    \fC_6(k,n,j)=\bigcup_{\fu\in \fU_3(n,k,j)}\mathfrak{T}_2(\fu)\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+    Let $\fp \in \fC_6(n,k,j)$.
+    By \eqref{eq C4 def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq L2 def} and \eqref{eq C3 def}, there exists $\fu \in \fU_1(n,k,j)$ with $2\fp \lesssim \fu$ and $\sc(\fp) \ne \sc(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(n,k,j)$. By the definition of $\fU_3(n,k,j)$, there exists $\fu' \in \fU_3(n,k,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem convex 6}
+    Let $\fu \in \fU_3(n,k,j)$. If $\fp \le \fp' \le \fp''$ and $\fp, \fp'' \in \mathfrak{T}_2(\fu)$, then $\fp' \in \mathfrak{T}_2(\fu)$.
+\end{lemma}
+
+\begin{proof}
+    Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. By Lemma \eqref{lem convexity C5}, we have $\fp' \in \fC_5(n,k,j)$. Since $\fp \in \fC_6(n,k,j)$ we have $\sc(\fp) \not\subset G$, hence $\sc(\fp') \not \subset G$. This implies $\fp' \in \fC_6(n,k,j)$. Since $\fp'' \in \mathfrak{T}_2(\fu)$, we have $2\fp'' \lesssim \fu'$ and $\sc(\fp'')\ne\sc(\fu')$ for some $\fu' \sim \fp''$. By \eqref{eq sc1}, we have $2\fp' \lesssim 2\fp''$, so by transitivity of $\lesssim$ we have $2\fp' \lesssim \fu'$. Finally, $\sc(\fp') \subset \sc(\fp'')$ implies $\sc(\fp') \ne \sc(\fu')$, thus $\fp' \in \mathfrak{T}_1(\fu') \subset \mathfrak{T}_2(\fu)$.
+\end{proof}
+
+
+\begin{lemma}
+    \label{lem tree1 proof}
+    For each $\fu\in \fU_3(n,k,j)$,
+    the set $\mathfrak{T}_2(\fu)$
+    satisfies \eqref{forest1}.
+\end{lemma}
+\begin{proof}
+    Let $\fp \in \mathfrak{T}_2(\fu')$. By \eqref{definesv}, there exists $\fu \sim \fu'$ with $\fp \in \mathfrak{T}_1(\fu)$. Then we have $2\fp \lesssim \fu$ and $\sc(\fp) \ne \sc(\fu)$, so by \eqref{eq sc3} $4\fp \lesssim 500\fu$.
+    Further, by Lemma \ref{lem rel claim}, we have that $\sc(\fu) = \sc(\fu')$ and there exists $q_1 \in B_{\fu}(Q(\fu),100) \cap B_{\fu'}(Q(\fu'),100)$.
+    Let $q \in B_{\fu'}(Q(\fu'), 1)$.
+    Using the triangle inequality and the fact that $\sc(\fu)  =\sc(\fu')$, we obtain
+    \begin{align*}
+        d_{\fu}(Q(\fu), q) &\le d_{\fu'}(Q(\fu), q_1) + d_{\fu'}(Q(\fu'), q_1) + d_{\fu'}(Q(\fu'), q)\\
+        &= d_{\fu}(Q(\fu), q_1) + d_{\fu'}(Q(\fu'), q_1) + d_{\fu'}(Q(\fu'), q)\\
+        &< 100 + 100 + 1 < 500\,.
+    \end{align*}
+    Combining this with $4\fp \lesssim 500\fu$, we obtain
+    $$
+        B_{\fu'}(Q(\fu'), 1) \subset B_{\fu}(Q(\fu), 500) \subset B_{\fp}(Q(\fp), 4)\,.
+    $$
+    Together with $\sc(\fp) \subset \sc(\fu) = \sc(\fu')$, this gives $4\fp \lesssim \fu'$, which is \eqref{forest1}.
+\end{proof}
+
+\begin{lemma}
+    \label{lem tree2 proof}
+    For each $\fu\in \fU_3(n,k,j)$,
+    the set $\mathfrak{T}_2(\fu)$
+    satisfies the convexity condition \eqref{forest2}.
+\end{lemma}
+
+\begin{proof}
+    Let $\fp, \fp'' \in \mathfrak{T}_2(\fu')$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(n,k,j) \subset \fC_5(n,k,j)$. By Lemma \ref{lem convexity C5}, we have $\fp' \in \fC_5(n,k,j)$. Since $\fp \in \fC_6(n,k,j)$ we have $\sc(\fp) \not \subset G'$, so $\sc(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(n,k,j)$.
+
+    By \eqref{definesv} there exists $\fu \in \fU_1(n,k,j)$ with $\fp'' \in \mathfrak{T}_1(\fu)$ and hence $2\fp'' \lesssim \fu$ and $\sc(\fp'') \ne \sc(\fu)$. Together this implies $\sc(\fp'') \subsetneq \sc(\fu)$. With the inclusion $\sc(\fp') \subset \sc(\fp'')$ from $\fp' \le \fp''$, it follows that $\sc(\fp') \subsetneq \sc(\fu)$ and hence $\sc(\fp') \ne \sc(\fu)$.
+    By \eqref{eq sc1} and transitivity of $\lesssim$ we further have $2\fp' \lesssim \fu$, so $\fp' \in \mathfrak{T}_1(\fu)$.
+    It follows that $\fp' \in \mathfrak{T}_2(\fu')$, which shows \eqref{forest2}.
+\end{proof}
+
+\begin{lemma}
+    \label{lem sep proof}
+    For each $\fu,\fu'\in \fU_3(n,k,j)$ with $\fu\neq \fu'$ and
+    and each $\fp \in \fT_2(\fu)$
+    with $\sc(\fp)\subset \sc(\fu')$ we have
+    \ct{todo whats Z}
+    \begin{equation}
+    d_{\sc(\fp)}(\fcc(\fp), \fcc(\fu')) > 2^{Z(n+1)}\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    By the definition \eqref{eq C2 def} of $\fC_2(n,k,j)$, there exists a tile $\fp' \in \fC_1(n,k,j)$ with $\fp' \le \fp$ and $s(\fp') = s(\fp)- Z(n+1)$.
+    By Lemma \ref{lem cube monotone} we have
+    $$
+        d_{\sc(\fp)}(Q(\fp), Q(\fu')) \ge 2^{95a Z(n+1)} d_{\sc(\fp')}(Q(\fp), Q(\fu'))\,.
+    $$
+    By \eqref{eq sc1} we have $2\fp' \lesssim 2\fp$, so by transitivity of $\lesssim$ there exists $\mathfrak{v} \sim \fu$ with $2\fp' \lesssim \mathfrak{v}$ and $\sc(\fp') \ne \sc(\mathfrak{v})$. Since $\fu, \fu'$ are not equivalent under $\sim$, we have $\mathfrak{v} \not \sim \fu'$, thus $10\fp' \not\lesssim \fu'$. This implies that there exists $q \in B_{\fu'}(Q(\fu'), 1) \setminus B_{\fp'}(Q(\fp'), 10)$.
+
+    From $\fp' \le \fp$, $\sc(\fp') \subset \sc(\fp) \subset \sc(\fu')$ and Lemma \ref{lem cube monotone} it then follows that
+    \begin{align*}
+        &\quad d_{\sc(\fp')}(Q(\fp), Q(\fu'))\\
+        &\ge -d_{\sc(\fp')}(Q(\fp), Q(\fp')) + d_{\sc(\fp')}(Q(\fp'), q) - d_{\sc(\fp')}(q, Q(\fu'))\\
+        &\ge -d_{\sc(\fp')}(Q(\fp), Q(\fp')) + d_{\sc(\fp')}(Q(\fp'), q) - d_{\sc(\fu')}(q, Q(\fu'))\\
+        &> -1 + 10 - 1 = 8\,.
+    \end{align*}
+    The Lemma follows by combining the two displays with the fact that $95 a \ge 1$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem normal proof}
+    For each $\fu\in \fU_3(n,k,j)$
+    and each $\fp \in \mathfrak{T}_2(\fu)$
+    we have
+    \begin{equation}
+        B(c(\sc(\fp)), 8 D^{s(\fp)}) \subset \sc(\fu).
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    Let $\fp \in \mathfrak{T}_2(\fu)$. Let $\fq$ be a maximal element with respect to $\le$ in
+    $$
+        \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(n,k,j)\,.
+    $$
+    We now show that there is no $\fq' \in \fC_3(n,k,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile. Then $2\fq' \not \lesssim \fu'$ for any $\fu' \sim \fu$, by maximality of $\fq$. But by \eqref{eq C3 def} there exists $\fu'' \in \fU_1(n,k,j)$ with $2\fq' \lesssim \fu''$. By Lemma \ref{lem wiggle monotone}, this implies $\fu \sim \fu''$, so $\fq' \in \mathfrak{T}_2(\fu)$, a contradiction.
+
+    By Lemma \ref{lem rel claim}, we have $s(\fq) < s(\fu)$. By definition of $\fC_4(n,k,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(n,k,j)$, and hence $s(\fp) \le s(\fq) - Z(n+1) \le s(\fu) - Z(n+1) - 1$.
+
+    Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = s(\fu) - Z(n+1) - 1$ and $I \subset \sc(\fu)$ and $\sc(\fp) \subset I$. Since $\fp \in \fC_5(n,k,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \sc(\fu)$. By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\sc(\fp) \subset I$.
+\end{proof}
+
+
+\begin{lemma}
+    \label{lem overlap}
+    It holds that
+    \begin{equation}
+        \sum_{\fu \in \fU_3(n,k,j)} \mathbf{1}_{\sc(\fu)} \le 1 + (4n+12)2^{n}\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    Suppose that a point $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\sc(\fu)$ with $\fu \in \fU_3(n,k,j)$. Since $\fU_3(n,k,j) \subset \fC_1(n,k,j)$ For each such $\fu$, there exist $\mathfrak{m}(\fu) \in \mathfrak{M}(n,k)$ with $\fu \le \mathfrak{m}(\fu)$. The map $\fu \mapsto\mathfrak{m}(\fu)$ is injective: If $\fu \le \mathfrak{m}$ and $\fu' \le \mathfrak{m}$, then $\sc(\fu) \subset \sc(\fu')$ or $\sc(\fu') \subset \sc(\fu)$ by \eqref{dyadicproperty}. Hence, by \eqref{defunkj}, $B_{\fu}(Q(\fu),100) \cap B_{\fu'}(Q(\fu'), 100) = \emptyset$. This contradicts $\Omega(\mathfrak{m})$ being contained in both sets. Thus $x$ is contained in at least $1 + (4n + 12)2^n$ cubes $\sc(\mathfrak{m})$, $\mathfrak{m} \in \mathfrak{M}(n,k)$. Consequently, we have by \eqref{eq Aoverlap def} that $x \in A(2n + 6, n,k) \subset G_2$. Let $\sc(\fu)$ be an inclusion minimal cube among the $\sc(\fu'), \fu' \in \fU_3(n,k,j)$ with $x \in \sc(\fu)$. By the dyadic property \eqref{dyadicproperty}, we have $\sc(\fu) \subset \sc(\fu')$ for all cubes $\sc(\fu')$ containing $x$. Thus
+    $$
+        \sc(\fu) \subset \{y \ : \ \sum_{\fu \in \fU_3(n,k,j)} \mathbf{1}_{\sc(\fu)}(y) > 1 + (4n+12)2^{n}\} \subset G_2\,.
+    $$
+    Thus $\mathfrak{T}_1(n,k,j) \cap \fC_6(n,k,j) = \emptyset$.
+    This contradicts $\fu \in \fU_2(n,k,j)$.
+\end{proof}
+
+\begin{proof}[Proof of Lemma \ref{subsecflemma}]
+    We first fix $n, k, j$.
+    By \eqref{definetp} and \eqref{definedE}, we have that
+    $\mathbf{1}_{\sc(\fp)} T_{\fp}f(x) = T_{\fp}f(x)$ and hence $\overline{g(x)} T_{\fp}f(x)= 0$ for all $\fp \in \fC_5(n,k,j) \setminus \fC_6(n,k,j)$.
+    Thus it suffices to estimate the contribution of the sets $\fC_6(n,k,j)$. By Lemma \ref{lem overlap}, we can decompose $\fU_3(n,k,j)$ as a disjoint union of at most $4n + 13$ collections $\fU_4(n,k,j,l)$, $1 \le l \le 4n+13$, each satisfying
+    $$
+        \sum_{\fu \in \fU_4(n,k,j,l} \mathbf{1}_{\sc(\fu)} \le 2^n\,.
+    $$
+    By Lemmas \ref{lem tree1 proof}, \ref{lem tree2 proof}, \ref{lem sep proof}, \ref{lem normal proof} and \ref{lem 1density}, the pairs
+    $$
+        (\fU_4(n,k,j,l), \mathfrak{T}_2|_{\fU_4(n,k,j,l)})
+    $$
+    are $n$-forests for each $n,k,l$, and by Lemma \ref{eq forest union}, we have
+    $$
+        \fC_6(n,k,j) = \bigcup_{l = 1}^{4n + 13} \bigcup_{\fu \in \fU_4(n,k,j,l)} \mathfrak{T}_2(\fu)\,.
+    $$
+    Since $\sc(\fp) \not\subset G_1$ for all $\fp \in \fC_6(n,k,j)$, we have $\fC_6(n,k,j) \cap \fP_{F,G} = \emptyset$ and hence
+    $$
+        \dens_2(\bigcup_{\fu \in \fU_4(n,k,j,l)} \mathfrak{T}_2(\fu)) \le 2^{2a + 5} \frac{\mu(F)}{\mu(G)}\,.
+    $$
+    Using the triangle inequality according to the splitting by $k,n,j$ and $l$ in \eqref{disclesssim1}, applying Proposition \ref{forestprop} to each term and summing the resulting geometric series, we obtain Lemma \ref{subsecflemma}.
+\end{proof}
+
+\section{Proof of Lemma \ref{subsecalemma}, the antichains}
+\label{subsecantichain}
+
+Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(\fp) \not \subset G'$.
+\begin{lemma}
+    We have that
+    \begin{align}
+        \label{eq fp' decomposition}
+        &\quad \fP' \cap \fP_{X \setminus G'}\\
+        &=  \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(n,k) \cap \fP_{X \setminus G'} \\
+        &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \fL_2(n,k,j) \cap \fP_{X \setminus G'}\\
+        &\quad\cup  \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_1(n,k,j,l) \cap \fP_{X \setminus G'}\\
+        &\quad\cup  \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)}  \fL_3(n,k,j,l)\cap \fP_{X \setminus G'}\,.
+    \end{align}
+\end{lemma}
+
+\begin{proof}
+    Let $\fp \in \fP' \cap \fP_{X \setminus G'}$. Clearly, for every cube $J \in \mathcal{D}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
+
+    Next, since $E_2(\lambda, \fp') \subset \sc(\fp')\cap G$ for every $\lambda \ge 2$ and every tile $\fp' \in \fP(k)$ with $\lambda\fp \lesssim \lambda \fp'$, it follows from \eqref{muhj2} that $\mu(E_2(\lambda, \fp')) \le 2^{-k} \mu(\sc(\fp'))$ for every such $\fp'$, so $\dens_k'(\{\fp\}) \le 2^{-k}$. Combining this with $a \ge 0$, it follows from \eqref{def cnk} that there exists $n\ge k$ with $\fp \in \fC(n,k)$.
+
+    Since $\fp \not \in \fP_{X \setminus G'}$, we have in particular $\fp \not \subset A(2n + 6, k, n)$, so there exist at most $1 + (4n + 12)2^n < 2^{2n+4}$ tiles $\mathfrak{m} \in \mathfrak{M}(n,k)$ with $\fp \le \mathfrak{m}$. It follows that $\fp \in \fL_0(n,k)$ or $\fp \in \fC_1(n,k,j)$ for some $1 \le j \le 2n + 3$. In the former case we are done, in the latter case the inclusion to be shown follows immediately from the definitions of the collections $\fC_i$ and $\fL_i$.
+\end{proof}
+
+\begin{lemma}
+    We have that
+    $$
+        \fL_0(n,k) = \dot{\bigcup_{1 \le l \le n}} \fL_0(n,k,l)\,,
+    $$
+    where each $\fL_0(n,k,l)$ is an antichain.
+\end{lemma}
+
+\begin{proof}
+    It suffices to show that $\fL_0(n,k)$ contains no chain of length $n + 1$. Suppose that we had such a chain $\fp_0 \le \fp_1 \le \dotsb \le \fp_{n}$ with $\fp_i \ne \fp_{i+1}$ for $i  =0, \dotsc, n-1$. By \eqref{def cnk}, we have that $\dens_k'(\{\fp_n\}) > 2^{-n}$. Thus, by \eqref{eq densdef}, there exists $\fp' \in \fP(k)$ and $\lambda \ge 2$ with $\lambda \fp_n \le \lambda \fp'$ and
+    \begin{equation}
+        \label{eq p'}
+        \frac{\mu(E_2(\lambda, \fp'))}{\mu(\sc(\fp'))} > \lambda^{a} 2^{4a} 2^{-n}\,.
+    \end{equation}
+    Let $\mathfrak{O}$ be the set of all $\fp'' \in \fP_k$ such that we have $ \sc(\fp'') = \sc(\fp')$ and $B_{\fp'}(Q(\fp'), \lambda) \cap \Omega(\fp'') \neq \emptyset$.
+    We now show that
+    \begin{equation}
+        \label{eq O bound}
+        |\mathfrak{O}| \le 2^{4a}\lambda^a\,.
+    \end{equation}
+    The balls $B_{\fp'}(Q(\fp''), 0.2)$, $\fp'' \in \mathfrak{O}$ are disjoint by \eqref{eq freq comp ball}, and by the triangle inequality contained in $B_{\fp'}(Q(\fp'), \lambda+1)$. By assumption the \eqref{thirddb} on $\Theta$, this ball can be covered with
+    $$
+        2^{a(\lceil \log_2(\lambda+1)\rceil + 2)} \le 2^{a(\log_2(\lambda) + 4)} = 2^{4a}\lambda^a
+    $$ many $d_{\fp'}$-balls of radius $1/4$. By the triangle inequality, each such ball contains at most one $Q(\fp'')$, and each $Q(\fp'')$ is contained in one of the balls. Thus we get \eqref{eq O bound}.
+
+    By \eqref{definee1} and \eqref{definee2} we have $E_2(\lambda, \fp') \subset \bigcup_{\fp'' \in \mathfrak{O}} E_1(\fp'')$, thus
+    $$
+        2^{4a}\lambda^a 2^{-n} < \sum_{\fp'' \in \mathfrak{O}} \frac{\mu(E_1(\fp''))}{\mu(\sc(\fp''))}\,.
+    $$
+    Hence there exists a tile $\fp'' \in \mathfrak{O}$ with
+    \begin{equation*}
+        \mu(E_1(\fp'')) \ge 2^{-n} \mu(\sc(\fp'))\,.
+    \end{equation*}
+    By the definition \eqref{mnkmax} of $\mathfrak{M}(n,k)$, there exists a tile $\mathfrak{m} \in \mathfrak{M}(n,k)$ with $\fp' \leq \mathfrak{m}$. From \eqref{eq p'}, the inclusion $E_2(\lambda, \fp') \subset \sc(\fp')$ and $a\ge 1$ we obtain
+    $$
+        2^n \geq 2^{4a} \lambda^{a} \geq \lambda\,.
+    $$
+    From the triangle inequality, Lemma \ref{lem cube monotone} and $a \ge 1$, we now obtain for all $q \in B_{\mathfrak{m}}(Q(\mathfrak{m}), 100)$ that
+    \begin{align*}
+        d_{\fp_0}(Q(\fp_0), q)
+        &\leq d_{\fp_0}(Q(\fp_0), Q(\fp_{n}))  + d_{\fp_0}(Q(\fp_{n}), Q(\fp'))  + d_{\fp_0}(Q(\fp'), Q(\fp''))\\
+        &\quad+ d_{\fp_0}(Q(\fp''), Q(\mathfrak{m})) +
+        d_{\fp_0}(Q(\mathfrak{m}), Q)\\
+        &\leq 1 + 2^{-95an} (d_{\fp_{n}}(Q(\fp_n), Q(\fp'))  + d_{\fp'}(Q(\fp'), Q(\fp''))\\
+        &\quad+ d_{\fp''}(Q(\fp''), Q(\mathfrak{m})) +
+        d_{\mathfrak{m}}(Q(\mathfrak{m}), q))\\
+        &\leq 1 + 2^{-95an}(\lambda + (\lambda + 1) + 1 + 100) \leq 2\,.
+    \end{align*}
+    Thus, by \eqref{straightorder}, $2\fp_0 \leq 100\mathfrak{m}$, a contradiction to $\fp_0 \notin \fC(n,k)$.
+\end{proof}
+
+\begin{lemma}
+    Each of the sets $\fL_2(n,k,j)$ is an antichain.
+\end{lemma}
+
+\begin{proof}
+    Suppose that there are $\fp_0, \fp_1 \in \fL_2(n,k,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By Lemma \ref{lem wiggle monotone} and Lemma \ref{lem aux wiggle}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(n,k,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
+    If we have $\fp_l \in \fU_1(n,k,j)$, then it follows from $2\fp \lesssim 200 \fp_l \lesssim \fp_l$ and \eqref{eq L2 def} that $\fp \not\in \fL_2(n,k,j)$, a contradiction. Thus, by the definition \eqref{defunkj}  of $\fU_1(n,k,j)$, there exists $\fp_{l+1} \in \fC_1(n,k,j)$ with $\sc(\fp_l) \subsetneq \sc(\fp_{l+1}) $ and $q \in B_{\fp_l}(Q(\fp_l), 100) \cap B_{\fp_{l+1}}(Q(\fp_{l+1}), 100)$. Using the triangle inequality and Lemma \ref{lem cube monotone}, one deduces that $200 \fp_l \lesssim 200\fp_{l+1}$. This contradicts maximality of $l$.
+\end{proof}
+
+\begin{lemma}
+    Each of the sets $\fL_1(n,k,j,l)$ and $\fL_3(n,k,j,l)$ is an antichain.
+\end{lemma}
+
+\begin{proof}
+    By its definition \eqref{eq L1 def}, each set $\fL_1(n,k,j,l)$ is a set of minimal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_1(n,k,j,l)$ with $\fp \le \fq$, then $\fq$ would not be minimal. Hence such $\fp, \fq$ do not exist. Similarly, be \eqref{eq L3 def}, each set $\fL_3(n,k,j,l)$ is a set of maximal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_3(n,k,j,l)$ with $\fp \le \fq$, then $\fp$ would not be maximal.
+\end{proof}
+
+\begin{proof}[Proof of Lemma \ref{subsecalemma}]
+    If $\fp \not\in \fP_{X \setminus G'}$, then $\sc(\fp) \subset G'$. By \eqref{definetp} and \eqref{definee1}, it follows that
+    $\mathbf{1}_{G \setminus G'} T_{\fp}f(x) = 0$. We thus have
+    $$
+        \overline{g(x)} \sum_{\fp \in \fP'} T_{\fp}f(x) = \overline{g(x)} \sum_{\fp \in \fP' \cap \fP_{X \setminus G'}} T_{\fp}f(x)\,.
+    $$
+    Let $\fL(n,k)$ denotes any of the terms $\fL_i(n,k,j,l) \cap \fP_{X \setminus \fP'}$ on the right hand side of \eqref{eq fp' decomposition}, where the indices $j, l$ may be void. Then $\fL(n,k)$ is an antichain, by the three preceeding Lemmas. Further, we have $\dens_1(\fL(n,k)) \le 2^{4a+1 - n}$ by Lemma \ref{lem 1density}, and $\dens_2(\fL(n,k)) \le 2^{2a+5} \frac{\mu(F)}{\mu(G)}$ since $\fL(n,k) \cap \fP_{F,G} \subset \fP_{X \setminus \fP'} \cap \fP_{F, G} = \emptyset$.
+    Applying now the triangle inequality according to the decomposition \eqref{eq fp' decomposition}, and then applying Proposition \ref{antichainprop} to each term, interchanging the $n$ and $k$ summation and then summing the resulting geometric series, we obtain the claimed estimate. \lars{Possibly write down the computation}
+\end{proof}
+
+\chapter{Proof of  Proposition \ref{antichainprop}}
+
+\label{antichainboundary}
+
+Let an antichain $\mathfrak{A}$
+and functions $f$, $g$ as in Proposition \ref{antichainprop} be given.
+We prove \eqref{eq antiprop}
+in Subsection \ref{sec TT* T*T}
+as the geometric mean of two inequalities,
+each involving one of the two densities.
+One of these two inequalities will need a careful estimate formulated in
+Lemma \ref{lem basic TT*} of
+the $TT^*$ correlation between two tile operators of two tiles.
+Lemma \ref{lem basic TT*} will be proven in
+Subsection \ref{sec tile operator}
+The summation of the contributions of these individual correlations will require a
+geometric Lemma \ref{lem antichain 1} counting the relevant tile pairs.
+Lemma \ref{lem antichain 1} will be proven in Subsection
+\ref{subsec geolem}.
+
+
+
+
+
+
+\section{The density  arguments}\label{sec TT* T*T}
+
+We begin with the following crucial disjointness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
+\begin{lemma}
+\label{lem antichain -1}
+Let $\fp,\fp'\in \mathfrak{A}$.
+If there exists an $x\in X$ with $x\in  E(\fp)\cap E(\fp')$,
+then $\fp= \fp'$.
+.
+\end{lemma}
+\begin{proof}
+Let $\fp,\fp'$ and $x$ be given.
+Assume without loss of generality that $\ps(\fp)\le \ps(\fp')$.
+As  we have $x\in E(\fp)\subset \sc(\fp)$  and $x\in E(\fp')\subset \sc(\fp')$ by Definition \eqref{defineep}, we conclude
+withfor $i=1,2$ that
+$\tQ(x)\in\fc(\fp)$ and $\tQ(x)\in\fc(\fp')$. By \eqref{eq freq dyadic} we have $\fc(\fp')\subset \fc(\fp)$. By Definition
+\eqref{straightorder}, we conclude $\fp\le \fp'$. As $\mathfrak{A}$ is an antichain, we conclude $\fp=\fp'$.
+This proves the lemma.
+\end{proof}
+
+
+
+Let $\mathcal{B}$ be the collection of balls
+\begin{equation}
+    B(\pc(\fp), 8D^{\ps(\fp)})\, .
+\end{equation}
+with $\fp\in \mathfrak{A}$ and recall the definition of
+$M_{\mathcal{B}}$ from Proposition \ref{prop hlm}.
+\begin{lemma}\label{lem hlmbound}
+Let $x\in X$.
+Then
+\begin{equation}\label{hlmbound}
+  | \sum_{\fp \in \mathfrak{A}}T_{\fp} f(x)|\le 2^{107 a^3} M_{\mathcal{B}} f (x) \, .
+\end{equation}
+\end{lemma}
+
+
+
+\begin{proof}
+Fix $x\in X$.  By Lemma \ref{lem antichain -1}, there is at most one $\fp \in \mathfrak{A}$
+such that
+ $T_{\fp} f(x)$ is not zero.
+ If there is no such $\fp$, the estimate \eqref{hlmbound} follows.
+
+ Assume there is such a $\fp$.
+ By definition of $T_{\fp}$ we have $x\in E(\fp)\subset \sc(\fp)$ and  by the squeezing property \eqref{eq vol sp cube}
+\begin{equation}\label{eqtttt0}
+    \rho(x, \pc(\fp))\le 4D^{\ps(\fp)}\, .
+\end{equation}
+
+Let $y\in X$ with  $K_{\ps(\fp)}(x,y)\neq 0$. By Definition \eqref{defks} of $K_{\ps(\fp)}$
+we have
+\begin{equation}\label{supp Ks1}
+   \frac{1}{4} D^{\ps(\fp)-1}
+   \leq \rho(x,y) \leq \frac{1}{2} D^{\ps(\fp)}\, .
+\end{equation}
+As by the squeezing property \eqref{eq vol sp cube}, we have
+\begin{equation}
+    \rho(\pc(\fp),x)\le 4D^{\ps(\fp)}
+\end{equation}
+The triangle inequality with \eqref{eqtttt0} an \eqref{supp Ks1} implies
+\begin{equation}
+    \rho(\pc(\fp),y)\le 8D^{\ps(\fp)}\, .
+\end{equation}
+Using the kernel bound \eqref{eqkernel size} and the lower bound in \eqref{supp Ks}
+we obtain
+\begin{equation}
+|K_{\ps(\fp)}(x,y)|\le \frac{2^{a^3}}{\mu(B(x,\frac 14 D^{{\ps(\fp)}-1}))}\, .
+\end{equation}
+Using $D=2^{100a^2}$
+and the doubling property \eqref{doublingx} $5 +100a^2$ times estimates
+the last display by
+\begin{equation}
+\le \frac{2^{5a+101a^3}}{\mu(B(x,  8D^{\ps(\fp)}))}\, .
+\end{equation}
+ Using that $|\mfa|$ is bounded by $1$
+ for every $\mfa\in \Mf$, we estimate with the triangle inequality and the above information
+ \begin{equation}
+  | T_{\fp} f(x)|
+    \le \frac{2^{5a+101 a^3}}{\mu(B(x, 8D^{\ps(\fp)}))} \int _{\mu(B(x, 8D^{\ps(\fp)}))} |f(y)|\, dy   \end{equation}
+This together with $a\ge 1$ proves the Lemma.
+\end{proof}
+
+Set
+\begin{equation}
+    \tilde{q}=\frac {2q}{1+q}
+\end{equation}
+and note that with $1< q\le 2$ we conclude $1<\tilde{q}<q\le 2$.
+\begin{lemma}%[Localization]
+\label{lem decay t}
+
+\begin{equation}\label{eqttt9}
+  |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|\le
+  2^{111a^2}({q}-1)^{-1} \dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12} \|f\|_2\|g\|_2\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+We have $f=1_Ff$. Using H\"older's inequality, we obtain for
+each $x\in B'$ and each $B'\in \mathcal{B}$ using $1<\tilde{q}\le 2$
+\begin{equation}
+    \frac 1{\mu(B')}\int_B |f(y)|\, d\mu(y)d\mu(y)
+\end{equation}
+\begin{equation}
+\le
+\left(\frac 1{\mu(B')}\int_B |f(y)|^{\frac {2{\tilde{q}}}{3\tilde{q}-2}}\, d\mu(y)\right)^{\frac 32-\frac 1{\tilde{q}}}
+\left(\frac 1{\mu(B')}\int_B 1_F(y)\, d\mu(y)\right)^{\frac 1{\tilde{q}}-\frac 12}
+\end{equation}
+\begin{equation}
+\le \left(M_{\mathcal{B}} (|f|^{\frac {2{\tilde{q}}}{3{\tilde{q}}-2}})(x)\right)^{\frac 32-\frac 1{\tilde{q}}}
+\dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}\, .
+\end{equation}
+Taking the maximum over all $B'$ containing $x$, we obtain
+\begin{equation} \label{eqttt1}
+    M_{\mathcal{B}}|f|\le
+     \left(M_{\mathcal{B},\frac {2{\tilde{q}}}{3{\tilde{q}}-2} } f\right)
+\dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}\, .
+\end{equation}
+
+We have with Proposition \ref{prop hlm}
+\begin{equation}
+\left\|M_{\mathcal{B}, \frac {2q}{3q-2}} f\right\|_2\le 2^{2a}(3\tilde{q}-2)(2\tilde{q}-2)^{-1}\|f\|_2\, .
+\end{equation}
+
+Using $1<\tilde{q}\le 2$ estimates the last display by
+\begin{equation}\label{eqttt2}
+ 2^{2a+2} (\tilde{q}-1)^{-1}  \|f\|_2\, .
+\end{equation}
+
+
+We obtain with Cauchy-Schwarz
+and then Lemma \ref{lem hlmbound}
+ \begin{equation}
+  |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|
+\end{equation}
+ \begin{equation}
+  \le \|g\|_2 \| \sum_{\fp \in \mathfrak{A}} T_{\fp} f \|_2
+\end{equation}
+ \begin{equation}
+  \le 2^{107a^2}\|g\|_2 \|  M_{\mathcal{B}}f \|_2
+\end{equation}
+With \eqref{eqttt1} and
+\eqref{eqttt2} we can estimate the last display by
+\begin{equation}
+  \le 2^{107a^2+2a+2}(\tilde{q}-1)^{-1} \|g\|_2 \|f\|_2\dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}
+\end{equation}
+Using $a\ge 4$ and
+$q-1=2(\tilde{q}-1)$
+proves the lemma.
+\end{proof}
+
+
+
+
+\begin{lemma}\label{lem decay n}
+ We have
+    \begin{equation}\label{eqttt3}
+  |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|\le
+   \tau^{-1}2^{200a^3}\dens_1(\mathfrak{A})^{\frac 1{2p}} \|f\|_2\|g\|_2
+\end{equation}
+\end{lemma}
+
+
+
+\begin{proof}
+
+ We write for the left-hand side of \eqref{eqttt3}
+\begin{equation}
+  \sum_{\fp \in \mathfrak{A}}\int \overline{g(x)} 1_{E(\fp)}(x)
+  {K_{\ps(\fp)}(x,y)}{\tQ(x)(y)}
+    \overline{\tQ(x)(x)}
+   f(y)\, d\mu (y)d\mu(x)
+\end{equation}
+\begin{equation}
+  =\int \sum_{\fp \in \mathfrak{A}} \overline{T_{\fp} ^*g(y)}   f(y)\, d\mu(y)
+\end{equation}
+with the adjoint operator
+\begin{equation}\label{eq tstarwritten}
+    T_{\fp}^*g(y)=\int_{E(\fp)} \overline{K_{\ps(\fp)}(x,y)}\overline{\tQ(x)(y)}
+    \tQ(x)(x)g(x)\, d\mu(x)\, .
+\end{equation}
+
+
+
+
+
+ We have by expanding the square
+      \begin{equation}
+ \int |\sum_{\fp\in \mathfrak{A}}T^*_{\fp}g(y)|^2\, d\mu(y)=
+ \int \left(\sum_{\fp\in \mathfrak{A}}\int T^*_{\fp}g(y)\right)
+ \left(\overline{\sum_{\fp'\in \mathfrak{A}}T^*_{\fp}g(y)}\right)\, d\mu(y)
+ \end{equation}\label{eqtts1}
+ \begin{equation}
+ \le \sum_{\fp\in \mathfrak{A}} \sum_{\fp'\in \mathfrak{A}}
+  \Big|\int T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\, d\mu(y)\Big|
+         \end{equation}
+We split the sum into the terms with $s(\fp')\le s(\fp)$
+and $s(\fp)< s(\fp')$. Using the symmetry of each summand,
+we may switch $\fp$ and $\fp'$ in the second sum. Using further positivity
+of each summand to replace the condition $s(\fp')< s(\fp)$
+by $s(\fp')\le  s(\fp)$ in the second sum, we estimate \eqref{eqtts1} by
+\begin{equation}\label{eqtts2}
+ \le2 \sum_{\fp\in \mathfrak{A}} \sum_{\fp'\in \mathfrak{A}: \ps(\fp')\le \ps(\fp)}
+  \Big|\int T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\, d\mu(y)\Big|
+         \end{equation}
+The following basic $TT^*$ estimate will be proved in Subsection \ref{sec tile operator}.
+\begin{lemma}
+\label{lem basic TT*}
+Let $\fp, \fp'\in \fP$ with
+$\ps({\fp'})\leq \ps({\fp})$.
+Then
+\begin{equation}
+    \label{eq basic TT* est}
+    \left|\int T^*_{\fp'}g\overline{T^*_{\fp}g}\right|
+    \end{equation}
+\begin{equation}
+    \le 2^{162a^3}\frac{(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-\tau^2/(2+a)}}{\mu(\sc(\fp))}\int_{E(\fp')}|g|\int_{E(\fp)}|g|\,.
+\end{equation}
+Moreover, the term   \eqref{eq basic TT* est} vanishes unless
+\begin{equation}
+    \sc(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
+\end{equation}
+\end{lemma}
+
+
+
+
+
+Define for $\fp\in \fP$
+\begin{equation}
+B(\fp):=B(\pc(\fp), 15D^{\ps(\fp)})
+\end{equation}
+and define
+
+    \begin{equation}
+        \label{eq Dp definition}
+        \mathfrak{A}(\fp):=\{\fp'\in\mathfrak{A}: s(\fp')\leq s(\fp) \land  \sc(\fp') \subset B_{\fp}\}.
+    \end{equation}
+Note that by the squeezing property \eqref{eq vol sp cube}
+and the doubling property \eqref{doublingx} applied
+$8$ times we have
+\begin{equation}\label{eqttt4}
+    \mu(B(\fp))\le 2^{16a} \mu(\sc(\fp))\, .
+\end{equation}
+
+ Using Lemma \ref{lem basic TT*}, and \eqref{eqttt4} we estimate \eqref{eqtts2} by
+  \begin{equation}\label{eqtts3}
+ \le  2^{162a^3+16a+1} \sum_{\fp\in \mathfrak{A}}
+ \int_{E(\fp)}|g|(y) h(\fp)\, dy
+         \end{equation}
+with $h(\fp)$ defined as
+\begin{equation}\label{def hp}
+    \frac 1{\mu(B(\fp))}\int \sum_{\fp'\in \mathfrak{A}(\fp)}
+{(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-\tau^2/(2+a)}}(1_{E(\fp')}|g|)(y')\, dy'\,.
+\end{equation}
+
+ The following lemma will be proved in Subsection \ref{subsec geolem}.
+\begin{lemma}
+\label{lem antichain 1}
+Set $p:=4a^2/\tau^2$ and let $p'$ be the dual exponent of $p$, that is $1/p+1/p'=1$.
+For  every $\mfa\in\Mf$ and every subset $\mathfrak{A}'$ of $\mathfrak{A}$ we have
+\begin{equation}
+    \label{eq antichain Lp}
+    \|\sum_{\fp\in\mathfrak{A}'}(1+d_{\fp}(\fcc(\fp), \mfa))^{-\tau^2/(2+a)}\mathbf{1}_{E(\fp)}1_G\|_{p}
+    \end{equation}
+    \begin{equation}
+    \le \tau^{-2}
+2^{102a}\dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}'}I_{\fp}\right)^{\frac 1p}\, .
+\end{equation}
+\end{lemma}
+
+Let $p$ be as stated in the lemma.
+   We estimate $h(\fp)$ as defined in \eqref{def hp} with H\"older using  $|g|\le 1_G$ and $E(\fp')\subset B(\fp)$ by
+
+   \begin{equation}
+\frac{\|g1_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
+ \|\sum_{\fp\in\mathfrak{A}(\fp)}(1+d_{\fp}(\fcc(\fp), \fc(\fp'))^{-\tau^2/(2+a)}\mathbf{1}_{E(\fp)}1_G\|_{p}\, .
+ \end{equation}
+Then we apply Lemma \ref{lem antichain 1} to estimate this by
+\begin{equation}\label{eqttt5}
+    \le  \tau^{-2}
+2^{102a}
+    \frac{\|g1_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
+   \dens_1(\mathfrak{A})^{\frac 1p}\mu(B(\fp))^{\frac 1p}\, .
+\end{equation}
+Let $\mathcal{B}$ be the collection of all balls
+$B(\fp)$ with $\fp\in \mathfrak{A}$. Then
+for each $\fp\in \mathfrak{A}$ and $x\in B(\fp)$ we have by
+definition of $M_{\mathcal{B},p'}$
+near Proposition \ref{prop hlm}
+\begin{equation}
+\|g1_{B(\fp)}\|_{p'}\le
+\mu(B(\fp))^{\frac 1{p'}} M_{\mathcal{B},p'}g \, .
+\end{equation}
+Hence we can estimate \eqref{eqttt5} by
+\begin{equation}\label{eqttt5}
+    \le  \tau^{-2}
+2^{102a}
+    (M_{\mathcal{B}, p'}g)
+   \dens_1(\mathfrak{A})^{\frac 1p}\, .
+\end{equation}
+With this estimate of $h(\fp)$,
+using $E(\fp)\subset B(\fp)$ by construction of $B(\fp)$, we estimate
+\eqref{eqtts3} by
+ \begin{equation}\label{eqtts4}
+ \le  \tau^{-2}2^{162a^3+118a + 1} \sum_{\fp\in \mathfrak{A}}
+ \int_{E(\fp)}|g|(y)M_{\mathcal{B}, p'}g(y) \, dy
+         \end{equation}
+Using Lemma \ref{lem antichain -1},
+the last display is observed to be
+\begin{equation}\label{eqtts4}
+=  \tau^{-2}2^{162a^3+118a + 1}
+ \int |g|(y)(M_{\mathcal{B}, p'}g)(y) \, dy
+         \end{equation}
+Applying Cauchy-Schwartz and using Proposition \eqref{prop hlm} estimates the last display by
+\begin{equation}
+  \tau^{-2}2^{162a^3+118a + 1}
+ \|g\|_2 \|M_{\mathcal{B}, p'} g\|_2
+         \end{equation}
+\begin{equation}
+ \le  \tau^{-2}2^{162a^3+118a + 3}\frac{2}{2-p'}
+ \|g\|_2 ^2
+          \end{equation}
+\begin{equation}\le  \tau^{-2}2^{162a^3+118a + 3}\frac{2}{2-p'}
+\|g\|_2^2
+         \end{equation}
+Using $p>4$ and thus $1<p'<\frac 43$, we estimate the last display by
+\begin{equation}\le  \tau^{-2}2^{162a^3+118a + 5}
+\|g\|_2^2
+         \end{equation}
+Now lemma \ref{lem decay n} follows by applying Cauchy-Schwartz on the left-hand side and using
+ $a>4$.
+
+
+
+
+\end{proof}
+
+
+We have
+\begin{equation}
+    \left (\frac 1{\tilde{q}} -\frac 12\right) (2-q)= \frac 1q -\frac 12
+\end{equation}
+Multiplying  the $(2-q)$-th power of  \eqref{eqttt9} and the $(q-1)$-th power of \eqref{eqttt3}
+and estimating gives after simplification of some factors gives
+\begin{equation}\label{eqttt8}
+  |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|
+  \end{equation}
+  \begin{equation}
+      \le  2^{200a^3}({q}-1)^{-1} \tau^{-1}\dens_1(\mathfrak{A})^{\frac {q-1}{2p}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12}  \|f\|_2\|g\|_2\, .
+  \end{equation}
+ With the definiiton of $p$, this  implies
+Proposition \ref{antichainprop}.
+
+
+\section{Proof of L. \ref{lem basic TT*}, the tile correlation bound }\label{sec tile operator}
+We begin with the following basic estimates for $K_s$.
+\begin{lemma}
+Let $-S\le s\le S$ and $x,y,y'\in X$.
+If $K_s(x,y)\neq 0$, then we have
+\begin{equation}\label{supp Ks}
+  \frac{1}{4} D^{s-1} \leq \rho(x,y) \leq \frac{1}{2} D^s\, .
+\end{equation}
+We have
+\begin{equation}
+   \label{eq Ks size}
+    |K_s(x,y)|\le \frac{2^{102 a^3}}{\mu(B(x, D^{s}))}\,
+\end{equation}
+and \begin{equation}
+    \label{eq Ks smooth}
+    |K_s(x,y)-K_s(x, y')|\le \frac{2^{150a^3}}{\mu(B(x, D^{s}))}
+    \left(\frac{ \rho(y,y')}{D^s}\right)^{\tau}\,.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By Definition \eqref{defks}, the function $K_s$ is the product of
+$K$ with a function which is supported in the set of all
+$x,y$ satisfying \eqref{supp Ks}. This proves \eqref{supp Ks}.
+
+Using \eqref{eqkernel size} and the lower bound in \eqref{supp Ks}
+we obtain
+\begin{equation}
+|K_s(x,y)|\le \frac{2^{a^3}}{\mu(B(x,\frac 14 D^{s-1}))}
+\end{equation}
+Using $D=2^{100a^2}$
+and the doubling property \eqref{doublingx} $2 +100a^2$ times estimates
+the last display by
+\begin{equation}
+\le \frac{2^{2a+101a^3}}{\mu(B(x,  D^{s}))}\, .
+\end{equation}
+Using $a\ge 4$ proves \eqref{eq Ks size}.
+
+
+Similarly, we obtain with  \eqref{eqkernel y smooth} and the lower bound in
+\eqref{supp Ks}
+\begin{equation}
+    |K_s(x,y)-K_s(x, y')|\le \frac{2^{a^3}}{\mu(B(x, \frac 14 D^{s-1}))}
+    \left(\frac{ \rho(y,y')}{\frac 14 D^{s-1}}\right)^{\tau}\,.
+\end{equation}
+Using $\tau\le 1$, this is estimated by
+\begin{equation}
+   \le \frac{4D 2^{2a+101a^3}}{\mu(B(x,  D^{s}))}
+    \left(\frac{ \rho(y,y')}{D^{s}}\right)^{\tau}
+     = \frac{2^{2+2a+100a^2+101a^3}}{\mu(B(x,  D^{s}))}
+    \left(\frac{ \rho(y,y')}{D^{s}}\right)^{\tau}\,.
+\end{equation}
+Using $a\ge 4$, this proves  \eqref{eq Ks smooth}.
+\end{proof}
+The next Lemma prepares an application of
+Proposition \ref{lem vdc regularity}.
+\begin{lemma}\label{lem ksquare}
+Let $-S\le s_1\le s_2\le S$ and let $x_1,x_2\in X$.
+Define \begin{equation}
+ \varphi(y) :=  \overline{K_{s_1}(x_1, y)}
+ K_{s_2}(x_2, y) \, .
+\end{equation}
+If $\varphi(y)\neq 0$, then
+\begin{equation}\label{eqt10}
+    y\in B(x_1, D^{s_1})\, .
+\end{equation}
+Moreover,
+\begin{equation}\label{eqt11}
+  \|\varphi\|_{C^\tau(B(x_1, 5D^{s_1})}\le
+\frac{2^{154 a^3}}{\mu(B(x_1, D^{s_1}))\mu(B(x_2, D^{s_2}))}
+      \, .
+\end{equation}
+
+\end{lemma}
+\begin{proof}
+
+If $\varphi(y)$ is not zero, then $K_{s_1}(x_1, y)$ is not zero and thus
+\eqref{supp Ks} gives \eqref{eqt10}.
+
+We next have for $y$ with \eqref{eq Ks size}
+\begin{equation}\label{suppart}
+    |\varphi(y)|\le
+    \frac{2^{204 a^3}}{\mu(B(x_1, D^{s_1}))\mu(B(x_2, D^{s_2}))}\, .
+\end{equation}
+and for $y'\neq y$
+\begin{equation}
+    |\varphi(y)-\varphi(y')|
+ \end{equation}
+ \begin{equation}
+ \le
+ |K_{s_1}(x_1,y)-K_{s_1}(x_1,y'))||
+ K_{s_2}(x_2, y)|
+\end{equation}
+ \begin{equation}+| \overline{K_{s_1}(x_1, y')}|
+ |K_{s_2}(x_2, y) - K_{s_2}(x_2, y'))|
+\end{equation}
+\begin{equation}
+      \le \frac{2^{152 a^3}}{\mu(B(x_1, D^{s_1}))\mu(B(x_2, D^{s_2}))}
+       \left(\left(\frac{ \rho(y,y')}{D^{s_1}}\right)^{\tau}+
+       \left(\frac{ \rho(y,y')}{D^{s_2}}\right)^{\tau}\right)
+\end{equation}
+\begin{equation}\label{holderpart}
+      \le \frac{2^{153 a^3}}{\mu(B(x_1, D^{s_1}))\mu(B(x_2, D^{s_2}))}
+       \left(\frac{ \rho(y,y')}{D^{s_1}}\right)^{\tau}
+\end{equation}
+Adding the estimates \eqref{suppart} and \eqref{holderpart} gives \eqref{eqt11}.
+This proves the lemma.
+\end{proof}
+The next lemma is a geometric estimate for two tiles.
+\begin{lemma}\label{lem tgeo}
+    Let $\fp_1, \fp_2\in \fP$ with
+$\ps({\fp_1})\leq \ps({\fp_2})$. For each $x_1\in E(\fp_1)$ and
+$x_2\in E(\fp_2)$  we have
+\begin{equation}\label{tgeo}
+  1+d_{\fp_1}(\fcc(\fp_1), \fcc(\fp_2))\le
+    2^{5a}(1 + d_{B(x_1, D^{\ps(\fp_1)})}(\tQ(x_1),\tQ(x_2)))\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+Let $i\in \{1,2\}$.
+By Definition \eqref{defineep} of $E$,
+we have $\tQ(x_i)\in \fc(\fp_i)$
+With \eqref{eq freq comp ball} we then conclude
+\begin{equation}\label{dponetwo}
+    d_{\fp_i}(\tQ(x_i),\fcc(\fp_i))\le 1\, .
+\end{equation}
+We have $\sc(\fp_1)\subset \sc(\fp_2)$ by \eqref{dyadicproperty}.
+Hence with the squeezing property \eqref{eq vol sp cube} applied twice
+\begin{equation}
+B(\pc(\fp_1),\frac 14 D^{\ps(\fp_1)})
+\subset B(\pc(\fp_2), 4 D^{\ps(\fp_2)})
+\end{equation}
+It follows
+by monotonicity of the Definition \eqref{definedE} that
+\begin{equation}
+    d_{\fp_1}(\tQ(x_2),\fcc(\fp_2))\le
+    d_{ B(\pc(\fp_2), 4 D^{\ps(\fp_2)})}(\tQ(x_2),\fcc(\fp_2))
+    \, .
+\end{equation}
+Applying the doubling property \eqref{firstdb} four times and then using \eqref{dponetwo} estimates the last display by
+\begin{equation}\label{tgeo0.5}
+    \le 2^{4a} d_{\fp_2}(\tQ(x_2),\fcc(\fp_2))\le 2^{4a}
+    \, .
+\end{equation}
+By the triangle ineqality, we obtain from \eqref{dponetwo} and
+\eqref{tgeo0.5}
+\begin{equation}\label{tgeo1}
+     1+d_{\fp_1}(\fcc(\fp_1), \fcc(\fp_2))\le  2+2^{4a} +d_{\fp_1}(\tQ(x_1), \tQ(x_2))\, .
+\end{equation}
+As $x_1\in \sc(\fp_1)$ by Definition \eqref{defineep} of $E$, we have by the squeezing property  \eqref{eq vol sp cube}
+\begin{equation}
+    d(x_1,\pc(\fp_1))\le 4D^{\ps(\fp_1)}
+\end{equation}
+and thus by \eqref{eq vol sp cube} again and the triangle inequality
+\begin{equation}
+    \sc(\fp_1)\subset B(x_1,8D^{\ps(\fp_1)})\, .
+\end{equation}
+We thus estimate the right-hand side of \eqref{tgeo1} with monotonicity of the  Definition \eqref{definedE} by
+\begin{equation}\label{tgeo1.5}
+    \le  2+2^{4a}+d_{B(x_1,8D^{\ps(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
+\end{equation}
+This is further estimated by aplying the doubling property  \eqref{firstdb} three times by
+\begin{equation}\label{tgeo2}
+    \le  2+2^{4a}+2^{3a}d_{B_1(x_1, D^{s(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
+\end{equation}
+Now \eqref{tgeo} follows with $a\ge 1$.
+\end{proof}
+
+
+
+
+\begin{lemma}\label{lem tstarsupport}
+    For each $\fp\in \fP$, and each $y\in X$, we have that
+\begin{equation}\label{tstargnot0}
+     T_{\fp} g^*(y)\neq 0
+\end{equation}
+   implies
+\begin{equation}\label{ynotfar}
+    y\in  B(\pc(\fp),5D^{\ps(\fp)})\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+Fix $\fp$ and $y$ with \eqref{tstargnot0}.
+Then there exists $x\in E(\fp)$ with
+\begin{equation}
+   \overline{K_{\ps(\fp)}(x,y)}\overline{\tQ(x)(y)}
+    \tQ(x)(x)g(x) \neq 0\, .
+\end{equation}
+As $E(\fp)\subset \sc(\fp)$ and by the squeezing property
+\eqref{eq vol sp cube}, we have
+\begin{equation}
+    \rho(x,\pc(\fp))\le 4D^{\ps(\fp)}\, .
+\end{equation}
+As $K_{\ps(\fp)}(x,y)\neq 0$, we have by  \eqref{supp Ks}
+that
+\begin{equation}
+\rho(x,y)\le \frac 12 D^{\ps(\fp)}\, .
+\end{equation}
+Now \eqref{ynotfar} follows by the tirangle inequality.
+\end{proof}
+
+
+We now prove Lemma \ref{lem basic TT*}. We begin with  \eqref{eq basic TT* est}
+
+We expand the left-hand side of \eqref{eq basic TT* est} as
+\begin{equation}\label{tstartstar}
+\left|\int \int_{E(\fp_1)} \overline{K_{\ps(\fp_1)}(x_1,y)}\overline{\tQ(x_1)(y)}
+    \tQ(x_1)(x_1)g(x_1)\, d\mu(x_1) \right.
+\end{equation}
+\begin{equation}
+ \times \left.\int_{E(\fp_2)} {K_{\ps(\fp_2)}(x_2,y)}{\tQ(x_2)(y)}
+    \overline{\tQ(x_2)(x_2)}\overline{g(x_2)}\, d\mu(x_2)\, d\mu(y)\right|\, .
+\end{equation}
+
+By Fubini and the triangle inequality and
+the fact $|\tQ(x_i)(x_i)|=1$ for $i=1,2$, we can estimate
+\eqref{tstartstar} from above by
+\begin{equation}\label{eqa1}
+\int_{E(\fp_1)} \int_{E(\fp_2)} |\int
+\overline{\tQ(x_1)(y)}{\tQ(x_2)(y)}\varphi_{x_1,x_2}(y)
+\,dy|\,|g(x_1)g(x_2)|\, dx_1dx_2\,.
+\end{equation}
+We estimate for fixed $x_1\in E(\fp_1)$ and
+$x_2\in E(\fp_2)$ the inner integral of \eqref{eqa1} with
+Proposition \ref{lem vdc regularity}. The function
+$\varphi:=\varphi_{x_1,x_2}$ satisfies the assumptions of
+Proposition \ref{lem vdc regularity} by Lemma \ref{lem ksquare}.
+We obtain with
+\begin{equation}
+    B':= B(x_1, D^{\ps(\fp_1)})\, ,
+\end{equation}
+\begin{equation}
+    |\int
+\overline{\tQ(x_1)(y)}{\tQ(x_2)(y)}\varphi_{x_1,x_2}(y)
+\,dy|
+\end{equation}
+\begin{equation}
+ \le     2^{4a} \mu(B') \|{\varphi}\|_{C^\tau(B')}
+       (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-\tau^2/(2+a)}
+\end{equation}
+\begin{equation}
+ \le     \frac{2^{154a^3}}
+ {\mu(B(x_2, D^{\ps(\fp_2)}))}
+       (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-\tau^2/(2+a)}
+\end{equation}
+Using Lemma \ref{lem tgeo} and $a\ge 1$ and $\tau \le 1$ estimates the last display by
+\begin{equation}\label{eqa2}
+ \le     \frac{2^{159a^3}}
+ {\mu(B(x_2, D^{\ps(\fp_2)}))}
+       (1+d_{\fp_1}(\fcc(\fp_1), \fcc(\fp_2)))^{-\tau^2/(2+a)}
+\end{equation}
+As $x_2\in \sc(\fp_2)$ by Definition \eqref{defineep} of $E$, we have by \eqref{eq vol sp cube}
+\begin{equation}
+    d(x_2,\pc(\fp_2))\le 4D^{\ps(\fp_2)}
+\end{equation}
+and thus by \eqref{eq vol sp cube} again and the triangle inequality
+\begin{equation}
+    \sc(\fp_2)\subset B(x_2,8D^{\ps(\fp_2)})\, .
+\end{equation}
+Using three iterations of the doubling property \eqref{doublingx} give
+\begin{equation}
+    \mu(\sc(\fp_2))\le 2^{3a}\mu(B(x_2,D^{\ps(\fp_2)}))\, .
+\end{equation}
+With $a\ge 1$ and \eqref{eqa2} we conclude \eqref{eq basic TT* est} and thus complete the proof of the lemma.
+
+
+Now assume the left-hand side of \eqref{eq basic TT* est} is not zero.
+There is a $y\in X$ with
+\begin{equation}
+    T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\neq 0
+\end{equation}
+By the triangle inequality and Lemma \ref{lem tstarsupport}, we conclude
+\begin{equation}
+   \rho(\pc(\fp),\pc(\fp'))\le  \rho(\pc(\fp),y) +\rho(\pc(\fp'),y)
+   \le 5D^{\ps(\fp)}+5D^{\ps(\fp')}\le 10 D^{\ps(\fp)}\, .
+\end{equation}
+By the squeezing property \eqref{eq vol sp cube} and the triangle inequality,
+we conclude
+\begin{equation}
+    \sc(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
+\end{equation}
+   This completes the proof of Lemma  \ref{lem basic TT*}.
+
+
+
+
+
+\section{Proof of Lemma \ref{lem antichain 1}, the geometric estimate}
+\label{subsec geolem}
+
+
+\begin{lemma}\label{lem a geo}
+Let $\mfa\in \Mf$ and $N\ge0$ be an integer.
+Let $\fp, \fp'\in \fP$ with
+\begin{equation}\label{eqassumedismfa}
+    d_{\fp}(\fcc(\fp), \mfa))\le 2^N\,
+\end{equation}
+\begin{equation}\label{eqassumedismfap}
+    d_{\fp'}(\fcc(\fp'), \mfa))\le 2^N\, .
+\end{equation}
+Assume $\sc(\fp)\subset \sc(\fp')$ and $\ps(\fp)<\ps(\fp')$.
+Then
+\begin{equation}\label{lp'lp''}2^{4a+N+2}\fp\lesssim 2^{4a+N+2} \fp'\, .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+    By the squeezing property \eqref{eq freq comp ball}
+    and by assumption, we have
+\begin{equation}\label{ageo0}
+   B(\pc(\fp), \frac 14 D^{\ps(\fp)})\subset \sc(\fp)\subset \sc(\fp')
+    \subset B(\pc(\fp'),  4D^{\ps(\fp')})\, .
+\end{equation}
+    Applying the doubling property \eqref{firstdb} four times, and the monotonicity in
+    the set in Definition \eqref{definedE} gives with
+    \eqref{eqassumedismfap}
+\begin{equation}
+     d_{\fp}(\fcc(\fp'),\mfa)
+     \le 2^{4a} d_{\fp'}(\fcc(\fp'),\mfa)'
+     \le  2^{4a+N} \, .
+\end{equation}
+Together with \eqref{eqassumedismfa} and the triangle inequality, we obtain
+\begin{equation}\label{eqdistqpqp}
+    d_{\fp'}(\fcc(\fp'),\fcc(\fp'')\le 2^{4a+N+1}  \, .
+\end{equation}
+Now assume
+\begin{equation}
+    \mfa'\in B_{\fp'}(\fcc(\fp'),2^{4a+N+2}).
+\end{equation}
+By the doubling property \eqref{firstdb}, applied five times, we have
+\begin{equation}\label{ageo1}    d_{B(\pc(\fp'),8D^{\ps(\fp')})}(\fcc(\fp'),\mfa') < 2^{9a+N+2}\, .
+\end{equation}
+We have by \eqref{ageo0}
+\begin{equation}
+ \pc(\fp)\in
+B(\pc(\fp'),4D^{\ps(\fp')})\, .
+\end{equation}
+Hence by the triangle inequality
+\begin{equation}
+ B(\pc(\fp), 4D^{\ps(\fp')})
+ \subset
+B(\pc(\fp'),8D^{\ps(\fp')})\, .
+\end{equation}
+Together with \eqref{ageo1} and   monotonicity of the Definition \eqref{definedE}
+of $d_E$,
+\begin{equation}
+    d_{B(\pc(\fp),4D^{\ps(\fp')})}(\fcc(\fp'),\mfa') < 2^{9a+N+2}\, .
+\end{equation}
+Using the doubling property \eqref{seconddb} $5a+2$ times  gives
+\begin{equation}
+    d_{B(\pc(\fp),2^{2-5a^2-a}D^{\ps(\fp')})}(\fcc(\fp'),\mfa') < 2^{4a+N}\, .
+\end{equation}
+Using $\ps(\fp')<\ps(\fp'')$ and $D=2^{100a^2}$ and $a\ge 4$ gives
+\begin{equation}
+    d_{\fp}(\fcc(\fp'),\mfa') < 2^{4a+N}\, .
+\end{equation}
+With the triangle inequality and \eqref{eqdistqpqp},
+\begin{equation}
+    d_{\fp}(\fcc(\fp),\mfa') < 2^{4a+N+2}\, .
+\end{equation}
+This shows
+\begin{equation}
+B_{\fp'}(\fcc(\fp'),2^{4a+N+2})\subset    B_{\fp}(\fcc(\fp),2^{4a+N+2})\, .
+\end{equation}
+This implies  \eqref{lp'lp''} and completes the proof of the lemma.
+
+\end{proof}
+
+For $\mfa \in \Mf$ and $N\ge 0$ define
+\begin{equation}\label{eqantidefap}
+    \mathfrak{A}_{\mfa,N}:=\{\fp\in\mathfrak{A}: 2^{N}\le 1+d_{\fp}(\fcc(\fp), \mfa))\le 2^{N+1}\} \, .
+\end{equation}
+
+
+\begin{lemma}\label{lem samel}
+Let $\mfa \in \Mf$ and $N\ge 0$ and
+$L\in \mathcal{D}$. Then
+\begin{equation}\label{eqanti-1}
+    \sum_{\fp\in\mathfrak{A}_{\mfa,N}:\sc(\fp)=L}\mu(E(\fp)\cap G)\le  2^{a(N+5)}\dens_1(\mathfrak{A})\mu(L)\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+Let $\mfa,N,L$ be given and set
+\begin{equation}
+\mathfrak{A}':=\{\fp\in\mathfrak{A}_{\mfa,N}:\sc(\fp)=L\}\, .
+\end{equation}
+
+
+
+Let
+$\fp\in\mathfrak{A}'$.
+We have
+by Definition \eqref{definedens1}
+using $\lambda=2$ and the squeezing property \eqref{eq freq comp ball}
+\begin{equation}\label{eqanti-3}
+\mu(E(\fp)\cap G)\le \mu(E_2(2, \fp))\le 2^{a}\dens_1(\mathfrak{A})\mu(L)\, .
+\end{equation}
+By the covering property \eqref{thirddb}, applied $N+4$ times, there is a collection $\Mf'$ of at most $2^{a(N+4)}$
+elements such that
+\begin{equation}\label{eqanti-4}
+    B_{\fp}(\mfa, 2^{N+1})\subset \bigcup_{\mfa'\in MF'}
+    B_{\fp}(\mfa', 0.2)\, .
+\end{equation}
+As each $\fcc(\fp)$ with $\fp\in \mathfrak{A}_{\mfa,N}$
+is contained in the left-hand-side
+of \eqref{eqanti-4}
+by definition, it is in  at least one $B_{\fp}(\mfa', 0.2)$
+with $\mfa'\in \Mf'$.
+
+
+For two different $\fp,\fp'\in \mathfrak{A}'$, we have by
+\eqref{eq dis freq cover} that
+$\fc(\fp)$ and $\fc(\fp')$ are disjoint and thus by the squeezing property \eqref{eq freq comp ball} we have for every $\mfa'\in \Mf'$
+\begin{equation}
+    \mfa'\not\in B_{\fp}(\fcc(\fp), 0.2)\cap
+B_{\fp}(\fcc(\fp'), 0.2)\, .
+\end{equation}
+Hence at most one of $\fcc(\fp)$
+and $\fcc(\fp)$ is in
+$B_{\fp}(\mfa', 0.2)$.
+It follows that there are at most $2^{a(N+4)}$ elements in
+$\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
+\eqref{eqanti-1}.
+
+
+\end{proof}
+
+
+\begin{lemma}\label{lem antichain-.5}
+Let $\mfa\in\Mf$ and  be
+an integer. Let $\fp_\mfa$ be a tile with $\mfa\in \fc(\fp_\mfa)$.
+Then we have
+\begin{equation}\label{eqanti-0.5}
+    \sum_{\fp\in\mathfrak{A}_{\mfa,N}: \ps(\fp_\mfa)<\ps(\fp)}\mu(E(\fp)\cap G \cap \sc(\fp_\mfa))
+    \le  \mu (E_2(2^{4a+N+3},\fp_\mfa))
+ \, .
+\end{equation}
+
+
+
+\end{lemma}
+
+\begin{proof}
+
+
+Let $\fp$ be any tile in $\mathfrak{A}_{\mfa,N}$ with $\ps(\fp_\mfa)<\ps(\fp)$. By definition of
+$E$, the tile contributes zero to the sum on the left-hand side of \eqref{eqanti-0.5} unless
+ $\sc(\fp)\cap \sc(\fp_{\mfa}) \neq \emptyset$, which we may assume. With $\ps(\fp_\mfa)<\ps(\fp)$
+and the dyadic property
+\eqref{dyadicproperty} we conclude $\sc(\fp_{\mfa})\subset  \sc(\fp)$.
+By the squeezing property
+\eqref{eq freq comp ball},
+we conclude from
+$\mfa\in \fc(\fp_\mfa)$
+that
+\begin{equation}
+    \mfa\in B(\fcc(\fp_\mfa), 1)\, .
+\end{equation}
+We conclude from $\fp \in \mathfrak{A}_{\mfa,N}$ that
+\begin{equation}
+    \mfa \in B(\fcc(\fp), 2^{N+1})\, .
+\end{equation}
+With Lemma \ref{lem a geo}, we conclude
+ \begin{equation}
+     2^{4a+N+3}\fp_\mfa  \lesssim  2^{4a+N+3}\fp \, .
+ \end{equation}
+By the squeezing property \eqref{eq freq comp ball}
+and $a\ge 1$ and $N\ge 0$, we conclude
+\begin{equation}
+    \fcc(\fp)\subset B(2^{4a+N+1}, \fcc(\fp_\mfa)\, .
+\end{equation}
+By Definition \eqref{definee2} of $E_2$,
+  we conclude
+\begin{equation}
+E(\fp)\cap G \subset E_2(2^{4a+N+3},\fp_\mfa)\, .
+\end{equation}
+Using disjointness of the various $E(\fp)$ with $\fp\in \mathfrak{A}$  by Lemma \ref{lem antichain -1}, we obtain \eqref{eqanti-0.5}.
+This proves the lemma.
+\end{proof}
+\begin{lemma}
+\label{lem antichain 0}
+Let $\mfa\in\Mf$ and let $N\ge 0$  be
+an integer. Then we have
+\begin{equation}\label{eqanti00}
+    \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G)
+    \le
+ 2^{101a^3+Na}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}I_{\fp}\right)\, .
+\end{equation}
+\end{lemma}
+
+
+
+\begin{proof}
+   Fix $\mfa$ and $N$ and let
+$\mathfrak{A}'$ for the set of $\fp\in=\mathfrak{A}_{\mfa,N}$ such that $\sc(\fp)\cap G$ is not empty.
+
+
+
+   Let $\mathcal{L}$ be the collection dyadic cubes $I\in\mathcal{D}$ such that $I\subset \sc(\fp)$ for some $\fp\in\mathfrak{A}'$ and if $\sc(\fp)\subset I$ for some $\fp\in\mathfrak{A}'$, then $\ps(\fp)=-S$. By \eqref{coverdyadic}, for each $\fp \in \mathfrak{A}'$
+   and each $x\in \sc(\fp)\cap G$, there is a $I\in \mathcal{D}$ with $s(I)=-S$ and $x\in I$. By \eqref{dyadicproperty},
+   we have $I\subset \sc(\fp)$. Hence
+   \begin{equation}
+       \sc(\fp)\subset \bigcup\{I\in \mathcal{D}: s(I)=-S, I\subset \sc(\fp)\}\subset \bigcup \mathcal{L}\, .
+   \end{equation}
+As each $I\in \mathcal{L}$ satisfies $I\subset \sc(\fp)$ for some $\fp$ in $\mathfrak{A'}$, we conclude
+     \begin{equation}
+\bigcup\mathcal{L}=\bigcup_{\fp \in \mathfrak{A}'}\sc(\fp)\, .
+   \end{equation}
+Let $\mathcal{L}^*$ be the set of maximal elements on $\mathcal{L}$ with respect to set inclusion.
+By \eqref{dyadicproperty}, the elements in $\mathcal{L}^*$ are pairwise disjoint and we have
+ \begin{equation}\label{eqdecAprime}
+\bigcup\mathcal{L}^*=\bigcup_{\fp \in \mathfrak{A}'}\sc(\fp)\, .
+   \end{equation}
+Using the partition \eqref{eqdecAprime} into elements of $\mathcal{L}$ in \eqref{eqanti0}, it suffices to show for each $L\in \mathcal{L}^*$
+\begin{equation}\label{eqanti0}
+    \sum_{\fp\in\mathfrak{A}'}\mu(E(\fp)\cap G \cap L)
+    \le
+2^{101a^3+aN}
+\dens_1(\mathfrak{A})\mu(L)\, ,
+\end{equation}
+Fix $L\in \mathcal{L}^*$.
+By definition of $L$, there exists an element $\fp'\in \mathfrak{A}'$ such that $L\subset \sc(\fp')$. Pick such an element $\fp
+'$
+in $\mathfrak{A}$ with minimal $\ps(\fp')$. As $\sc(\fp')\not \subset L$ by definition of $L$, we have
+with \eqref{dyadicproperty} that $s(L)< \ps(\fp')$. In particular $s(L)<S$.
+
+By \eqref{coverdyadic}, there is an
+$L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $c(L)\in L'$. By \eqref{dyadicproperty}, we have
+$L\subset L'$.
+
+We split the left-hand side of \eqref{eqanti0} as
+\begin{equation}\label{eqanti1}
+    \sum_{\fp\in\mathfrak{A}':\sc(\fp)=L'}\mu(E(\fp)\cap G\cap L)
+\end{equation}
+\begin{equation}\label{eqanti2}
+    +
+     \sum_{\fp\in\mathfrak{A}':\sc(\fp)\neq L'}\mu(E(\fp)\cap G\cap L)\, ,
+\end{equation}
+
+We first estimate \eqref{eqanti1}
+with Lemma \ref{lem samel} by
+\begin{equation}\label{equanti1.5}
+    \le \sum_{\fp\in\mathfrak{A}':\sc(\fp)=L'}\mu(E(\fp)\cap G\cap L')\le 2^{a(N+5)}\dens_1(\mathfrak{A})\mu(L')\, .
+\end{equation}
+
+
+
+We turn to \eqref{eqanti2}.
+Consider the element $\fp'\in \mathfrak{A}'$ as above
+with $L\subset \sc(\fp')$ and $s(L)<s(\fp')$.
+As $L\subset L'$, we conclude twith the dyadic property that $L'\subset \sc(\fp')$.
+By maximality of $L$, we have
+$L'\not\in \mathcal{L}$.
+This together with the existence of the given $\fp'\in \mathfrak{A}$
+with $L'\subset \sc(\fp')$
+shows by definition of $\mathcal{L}$ that there exists $\fp''\in \mathfrak{A}'$ with
+$\sc(\fp'')\subset L'$.
+
+
+
+
+By the covering property \eqref{eq dis freq cover}, there exists a unique $\fp_\mfa$ with $\sc(\fp_\mfa)=L'$
+such that $\mfa\in \fc(\fp_\mfa)$.
+Note that
+that
+\begin{equation}
+    \mfa\in B(\fcc(\fp_\mfa), 1)
+\end{equation}
+and as  $\fp'' \in \mathfrak{A}_{\mfa,N}$ that
+\begin{equation}
+    \mfa \in B(\fcc(\fp''), 2^{N+1})\, .
+\end{equation}
+
+
+By Lemma \ref{lem a geo}, we conclude
+\begin{equation}
+     2^{4a+N+3}\fp''  \lesssim  2^{4a+N+3}\fp_\mfa \, .
+ \end{equation}
+As $\fp''\in \mathfrak{A}'$, we have by Definition
+\eqref{definedens1} of $\dens_1$ that
+\begin{equation}\label{pmfadens}
+   {\mu(E_2(2^{4a+N+3}, \fp_\mfa)}\le 2^{4a^2+Na+3a}\dens_1(\mathfrak{A}) {\mu(L')}\, .
+\end{equation}
+Now let $\fp$ be any tile in the summation set in \eqref{eqanti2}, that is, $\fp\in \mathfrak{A}'$ and $\sc(\fp)\neq L'$.
+Then $\sc(\fp)\cap L\neq \emptyset$. It follows by the dyadic property \eqref{dyadicproperty}
+and the definition of $L$ that
+$L\subset \sc(\fp)$ and $L\neq \sc(\fp)$. By the dyadic property \eqref{dyadicproperty}, we have
+$s(L)<\ps(\fp)$ and thus $s(L')\le \ps(\fp)$. By the dyadic property
+   \eqref{dyadicproperty} again, we have $L'\subset \sc(\fp)$.
+As $L'\neq \sc(\fp)$, we conclude $s(L)<\ps(\fp)$.
+
+
+
+
+  By Lemma \ref{lem antichain-.5}, we estimate \eqref{eqanti2} by
+
+  \begin{equation}\label{eqanti0.5}
+    \le \sum_{\fp\in\mathfrak{A}':\sc(\fp)=\neq L'}\mu(E(\fp)\cap G\cap L')
+    \le  \mu (E_2(2^{4a+N+3},\fp_\mfa))
+ \, .
+\end{equation}
+Using the decomposition
+into \eqref{eqanti1} and
+\eqref{eqanti2} and the estimates
+\eqref{equanti1.5},
+\eqref{eqanti-0.5},
+\eqref{pmfadens} we obtain the estimate
+\begin{equation}\label{eqanti3.14}
+\sum_{\fp\in\mathfrak{A}'}\mu(E(\fp)\cap G \cap L)
+    \le (2^{a(N+5)}+2^{4a^2+Na+3a})\dens_1(\mathfrak{A})\mu(L')
+\end{equation}
+
+
+
+  Using $s(L')=s(L)+1$ and $D=2^{100a^2}$ and the
+squeezing property \eqref{eq vol sp cube}
+and the doubling property \eqref{doublingx} $100a^2+4$ times , we obtain
+\begin{equation}
+    \mu(L')\le 2^{100a^3+4a}\mu(L)\, .
+\end{equation}
+
+
+Inserting in \eqref{eqanti3.14} and using $a>4$ gives \eqref{eqanti0}.
+This completes the proof of the lemma.
+
+
+
+
+
+
+
+\end{proof}
+
+
+
+We turn to the proof of Lemma \ref{lem antichain 1}.
+
+
+
+
+\begin{proof}
+
+
+Using that $\mathfrak{A}$ is the union of the
+$\mathfrak{A_{\mfa,N}}$ with $N\ge 0$,
+we estimate the left-hand side of
+with the triangle inequality by
+\begin{equation}\label{eqanti23}
+\le \sum_{N\ge 0} \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N\tau^2/(2+a)}1_{E(\fp)} 1_G\right\|_{p}
+\end{equation}
+We consider each individual term in this sum and estimate it's $p$-th power.
+   Using that for each $x\in X$  by Lemma \ref{lem antichain 0} there is at most one $\fp\in \mathfrak{A}$ with $x\in E(\fp)$,
+ we have
+ \begin{equation}
+     \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N\tau^2/(2+a)}1_{E(\fp)} 1_G\right\|_{p}^p
+ \end{equation}
+\begin{equation}
+    =\int_G(\sum_{\fp\in\mathfrak{A}}2^{-N\tau^2/(2+a)}\mathbf{1}_{E(\fp)}(x))^p\, d\mu(x)
+\end{equation}
+\begin{equation}
+  =   \int _G\sum_{\fp\in\mathfrak{A}}2^{-(p-1)N\tau^2/(2+a)}\mathbf{1}_{E(\fp)}(x)\, d\mu(x)
+\end{equation}
+\begin{equation}
+  =   2^{-(p-1)N\tau^2/(2+a)} \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G)
+\end{equation}
+
+Using Lemma \ref{lem antichain 0}, we estimate the last display by
+\begin{equation}\label{eqanti21}
+\le  2^{-(p-1)N\tau^2/(2+a)+101a^3+Na}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\sc(\fp)\right)
+\end{equation}
+Using that with $a\ge 4$ and $0<\tau\le 1$ we have
+\begin{equation}
+(p-1)N\tau^2/(2+a)\ge
+(p-1)N\tau^2/(2a)\ge (2a -1)N\ge Na+N\, .
+\end{equation}
+Hence we have for \eqref{eqanti21} the upper bound
+\begin{equation}\label{eqanti22}
+\le  2^{101a^3-N}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\sc(\fp)\right)\, .
+\end{equation}
+Taking th $p$-th root and summing over $N\ge 0$ gives for \eqref{eqanti23} the upper bound
+
+\begin{equation}
+\le \left(\sum_{N\ge 0} 2^{-N/p}\right)2^{101a^3/p}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\sc(\fp)\right)
+\end{equation}
+\begin{equation}
+\le \left(1-2^{-1/p}\right)^{-1}
+2^{101a^3/p}
+\dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}}\sc(\fp)\right)^{\frac 1p}\, .
+\end{equation}
+This proves the lemma.
+\end{proof}
+
+
+
+
+
+
+
+\chapter{Proof of Proposition \ref{forestprop}}
+
+\label{treesection}
+
+\section{Tree Estimate}
+%%%%%% Previous discussion about non-tangential Cotlar maximal inequality
+% Given a measurable function $\sigma$ mapping $X$ to the set of finite convex subsets of $\mathbb{Z}^d$, we define an associated truncated singular maximal operator
+% \begin{equation}
+%     \label{def Tsigma}
+%     T_\sigma f(x):=\sum_{s\in\sigma(x)}\int K_s(x,y) f(y)\,dy.
+% \end{equation}
+% From the proof of Cotlar's inequality, it can be seen that the non-tangentially maximally truncated operator
+% \begin{equation}
+%     \label{def non-tang max op}
+%     T_{\mathcal{N}}f(x):=\sup_{\rho(x,x')<CD^{\min\, \sigma(x)}}|T_\sigma f(x')|
+% \end{equation}
+% is bounded on $L^p(X)$ for $p\in (1,\infty).$
+% In practice for us, $\sigma$ will be associated to the sets of scales given by trees $\mathfrak{T}$ (as in \cite{zk-polynomial}).
+
+\lars{The following things are already proven in the previous section. To make sections independent I would have to prove them again, but I don't like that because it might make some Lean guy waste an hour proving things again that are already there.}
+\lars{Put Lemma 6.7 in "auxilliary Lemmas" section}
+We have
+\begin{equation}
+    \label{eq Ks supp t}
+    K_s(x,y)=0
+\end{equation}
+unless $\frac{1}{4} D^{s-1} \leq \rho(x,y) \leq \frac{1}{2} D^s$; and by \eqref{eqkernel size} and \eqref{eqkernel y smooth}
+\begin{equation}
+   \label{eq Ks size t}
+    |K_s(x,y)|\lesssim \frac{1}{\mu(B(x, D^{s}))}\,;
+\end{equation}
+\begin{equation}
+    \label{eq Ks smooth t}
+    |K_s(x,y)-K_s(x, y')|\lesssim \left(\frac{\rho(y,y')}{D^s}\right)^{\tau}\frac{1}{\mu(B(x, D^{s}))}\,.
+\end{equation}
+Given $s_{\min}, s_{\max} \in \mathbb{Z}$, we define
+\begin{equation}
+    \label{eq TN def}
+    T_{\mathcal{N},s_{\min}, s_{\max}} f(x) := \sup_{s_{\min} \le s_1 < s_2 \le s_{\max}} \sup_{\rho(x,x') \leq 8 D D^{s_1}} \left| \sum_{s = s_1}^{s_2}  \int K_s(x',y) f(y)  \, \mathrm{d}\mu(y) \right|\,.
+\end{equation}
+\begin{lemma}
+    \label{lem nontangential}
+    For all $s_{\min}, s_{\max}$, it holds that
+    $$
+        \|T_{\mathcal{N},s_{\min}, s_{\max}} f\|_2 \le ...\|f\|_2\,.
+    $$
+\end{lemma}
+
+\lars{I dont know how to prove this from our current assumptions. I think it is easier to check the stronger assumption for the Hilbert transform. (At least I know how to do that in one page)}
+
+\begin{proof}
+    Fix $f$, a point $x$ and scales $s_1 < s_2$. We split
+    $$
+        f = f\mathbf{1}_{B(x, (8D + 1)D^{s_1})} + f\mathbf{1}_{X \setminus B(x, (8D + 1)D^{s_1})} =: f_1 + f_2\,.
+    $$
+    By \eqref{eq Ks supp t} and the triangle inequality, we have for all $x' \in B(x, 8D \cdot D^{s_1})$ and all $s \le s_1$ that
+    \begin{equation}
+        \label{eq outside}
+        \int K_s(x', y) f_2(y) \, \mathrm{d}\mu(y) = 0\,.
+    \end{equation}
+    Also by \eqref{eq Ks supp t}, the triangle inequality and the fact that $D \ge 100$, we have for all $x' \in B(x, 8D \cdot D^{s_1})$ and all $s \ge s_1 + 3$
+    \begin{equation}
+        \label{eq outside}
+        \int K_s(x', y) f_1(y) \, \mathrm{d}\mu(y) = 0\,.
+    \end{equation}
+    Thus, we have for all $x' \in B(x, 8D \cdot D^{s_1})$
+    \begin{equation}
+        \sum_{s = s_1}^{s_{\max}} \int K_s(x',y) f(y) \, \mathrm{d}\mu(y) = \sum_{s = s_{\min}}^{s_{\max}} \int K_s(x',y) f_2(y) \, \mathrm{d}\mu(y) + \sum_{s = s_1}^{s_1 + 2} \int K_s(x', y) f_1(y) \, \mathrm{d}\mu(y)
+    \end{equation}
+    ... first term is bounded by assumption, up to applications of Hardy Littlewood at the boundary (maybe write those as separate Lemma) and up to the fact that the aperture is wrong.
+    ... second term is bounded by the Hardy-Littlewood maximal function.
+\end{proof}
+
+Fix a forest $(\fU, \fT)$.
+For $\fu \in \fU$, we define
+$$
+    \sigma (\fu, x):=\{s(\fp):\fp\in \fT(\fu), x\in E(\fp)\}\,
+$$
+$$
+    \overline{\sigma} (\fu, x) := \max \sigma(\fT(\fu), x)
+$$
+$$
+    \underline{\sigma} (\fu, x) := \min\sigma(\fT(\fu), x)\,.
+$$
+\begin{lemma}
+\label{lem sigma convex}
+    For each $\fu \in \fU$, we have
+    $$
+        \sigma(\fu, x) = \mathbb{Z} \cap [\underline{\sigma} (\fu, x), \overline{\sigma} (\fu, x)]\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    Let $s \in \mathbb{Z}$ with $\underline{\sigma} (\fT(\fu), x) \le s \le \overline{\sigma} (\fT(\fu), x)$. There exists $\fp \in \fT(\fu)$ with $s(\fp) = \underline{\sigma} (\fT(\fu), x)$ and $x \in E(\fp)$, and there exists $\fp'' \in \fT(\fu)$ with $s(\fp'') = \overline{\sigma} (\fT(\fu), x)$ and $x \in E(\fp'') \subset \sc(\fp'')$. By \eqref{coverdyadic}, there exists a cube $I \in \mathcal{D}$ of scale $s$ with $x \in I$. By \eqref{eq dis freq cover}, there exists a tile $\fp' \in \fP(I)$ with $Q(x) \in \fc(\fp')$. By \eqref{dyadicproperty}  we have $\sc(\fp) \subset \sc(\fp') \subset \sc(\fp'')$, and by \eqref{eq freq dyadic}, we have $\fc(\fp'') \subset \fc(\fp') \subset \fc(\fp)$. Thus $\fp \le \fp' \le\fp''$, which gives with \eqref{forest2} that $\fp' \in \fT(\fu)$, so $s \in \sigma(\fT(\fu), x)$.
+\end{proof}
+
+For a nonempty collection of tiles $\mathfrak{S} \subset \fP$ we define
+$$
+    \mathcal{J}(\mathfrak{S})
+$$
+to be the collection of maximal dyadic cubes $J$ such that
+$$
+    \sc(\fp) \not\subset B(x(J), 100D^{s(J) + 1})
+$$
+for all $\fp \in \mathfrak{S}$.
+
+\lars{There is an annoying problem here: If some $\fp \in \mathfrak{S}$ has scale $-S$, then the cubes in $\mathcal{J}(\mathfrak{S})$ contained in $\sc(\fp)$ would have scale $-S - 2$, but there are no cubes of that scale in our construction. So we have to leave some more room.}
+We further define
+$$
+    \fL(\mathfrak{S})
+$$
+to be the collection of maximal dyadic cubes $L$ such that $L \subsetneq \sc(\fp)$ for some $\fp \in \mathfrak{S}$ and $\sc(\fp) \not\subset L$ for all $\fp \in \mathfrak{S}$. \lars{The same applies here. How was this solved in section 6?}
+
+
+%\begin{remark}
+%    The scales of adjacent cubes in $\mathcal{J}(\mathfrak{S})$ can differ at most by one. More precisely, if $J,J'\in \mathcal{J}$ with $\text{dist }(J,J'):=\inf_{x\in J,x'\in J'} \rho(x,x')\leq 10 \max(D^{s(J)}, D^{s(J')})$, then $|s(J)-s(J')|\leq 1$. This is because if $J,J'\in\mathcal{J}$ with $s(J)\leq s(J')-2$ and $\text{dist }(J,J')\leq 10 D^{s(J')}$, then $B(x_{\hat{J}}, 100D^{s(\hat{J}+1})\subseteq B(x_{J'}, 100D^{s(J')+1})$ and hence does not contain $I_{\fp}$ for any $\fp\in\fP$. This contradicts the maximality of $J$.
+%\end{remark}
+For a collection of pairwise disjoint cubes $\mathcal{C}$, we also define the projection operator
+$$
+    P_{\mathcal{C}}f(x) :=\sum_{J\in\mathcal{C}}\mathbf{1}_J(x) \frac{1}{\mu(J)}\int_J f(y) \, \mathrm{d}\mu(y)\,.
+$$
+Define for each $\fu \in \fU$ the auxilliary operator
+\begin{equation}
+    \label{eq def S op}
+    S_{\fu}f(x):=\sum_{I\in\mathcal{D}} \mathbf{1}_{I}(x) \sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\
+    J\subset B(c(I), D^{s(I)})}} \frac{D^{(s(J) - s(I))\tau}}{\mu(B(c(I), 8D^{s(I)}))}\int_J |f(y)| \, \mathrm{d}\mu(y)\,.
+\end{equation}
+Let
+$$
+    \mathcal{B} = \{B(c(I), 8D^{s(I)}) \ : \ I \in \mathcal{D}\}\,.
+$$
+
+\begin{lemma}[Tree estimate]
+    \label{TreeEstimate}
+    Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Let $x, x' \in L$.
+    Then we have
+    $$
+        |\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(-Q(\fu))f](x)|
+    $$
+    \begin{equation}
+        \label{eq LJ ptwise}
+        \leq 2^{157a^3}(M_{\mathcal{B},1}+S)P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')|,
+    \end{equation}
+\end{lemma}
+
+
+\begin{proof}
+    By \eqref{definetp}, if $T_{\fp} h(x) \ne 0$, then $x \in E(\fp)$. Combining this with $|e(Q(\fu)(x)-Q(x)(x))| = 1$, we obtain
+    $$
+        |\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(Q(\fu))f](x)|
+    $$
+    \begin{multline*}
+        = \Bigg| \sum_{s \in \sigma(\fu, x)} \int e(-Q(\fu)(y) + Q(x)(y) + Q(\fu)(x) -Q(x)(x))\times\\
+        K_s(x,y)f(y) \, \mathrm{d}\mu(y) \Bigg|\,.
+    \end{multline*}
+    Using the triangle inequality, we bound this by the sum of three terms:
+    \begin{multline}
+        \label{eq term A}
+        \le \Bigg| \sum_{s \in \sigma(\fu, x)} \int (e(-Q(\fu)(y) + Q(x)(y) + Q(\fu)(x) -Q(x)(x))-1)\times\\
+        K_s(x,y)f(y) \, \mathrm{d}\mu(y) \Bigg|
+    \end{multline}
+    \begin{equation}
+        \label{eq term B}
+        + \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) P_{\mathcal{J}(\fT(\fu))} f(y) \, \mathrm{d}\mu(y) \Bigg|
+    \end{equation}
+    \begin{equation}
+        \label{eq term C}
+        + \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) (f(y) - P_{\mathcal{J}(\fT(\fu))} f(y)) \, \mathrm{d}\mu(y) \Bigg|\,.
+    \end{equation}
+
+    We first control the term \eqref{eq term B}.
+    By the definition of $\mathcal{L}(\fT(\fu))$, we have that $s(\fp) > s(L)$ for all $\fp \in \fT(\fu)$ with $L \cap \sc(\fp) \ne \emptyset$. In particular, we have that $\underline{\sigma}(\fu, x) > s(L)$. By \eqref{eq vol sp cube}, we have $\rho(x,x') \le 8D^{s(L)} \le 8D^{\underline{\sigma}(\fu, x) - 1}$, and by Lemma \ref{lem sigma convex} the set $\sigma(\fu, x)$ is an interval. Hence, \lars{write correct name of nontangential operator}
+    $$
+        \eqref{eq term B} \le T_{\mathcal{N}, } P_{\mathcal{J}(\fT(\fu))} f(x')\,.
+    $$
+
+    Next, we control \eqref{eq term A}. If $K_s(x,y)\neq 0$, then by \eqref{eq Ks supp t} $\rho(x,y)\leq 1/2 D^s$. By $1$-Lipschitz continuity of the function $t \mapsto \exp(it) = e(t)$, it follows that
+    \begin{multline*}
+        |e(-Q(\fu)(y)+Q(x)(y)+Q(\fu)(x)-Q(x)(x))-1|\\
+        \leq d_{B(x, 1/2 D^{s})}(Q(\fu), Q(x))\,.
+    \end{multline*}
+    Let $\fp_s \in \fT(\fu)$ be a tile with $s(\fp_s) = s$ and $x \in E(\fp_s)$, and let $\fp'$ be a tile with $s(\fp') = \overline{\sigma}(\fu, x)$ and $x \in E(\fp')$.
+    Using \eqref{firstdb}, \eqref{eq vol sp cube} and Lemma \ref{lem cube monotone}, we obtain
+    $$
+        \le 2^a d_{\fp_s}(Q(\fu), Q(x)) \le 2^{a} 2^{s - \overline{\sigma}(\fu, x)} d_{\fp'}(Q(\fu), Q(x))\,.
+    $$
+    Since $Q(\fu) \in B_{\fp'}(Q(\fp'), 4)$ by \eqref{forest1} and $Q(x) \in \Omega(\fp') \subset B_{\fp'}(Q(\fp'), 1)$ by \eqref{eq freq comp ball}, we can estimate this by
+    $$
+        \le 5 \cdot 2^{a} 2^{s - \overline{\sigma}(\fu, x)} \,.
+    $$
+    Using \eqref{eq Ks size}, it follows that
+    $$
+        \eqref{eq term A} \le 5\cdot 2^{103a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(x,D^s))}\int_{B(x,0.5D^{s})}|f(y)|\,\mathrm{d}\mu(y)\,.
+    $$
+    Since the collection $\mathcal{J}$ is a partition of $X$, we can estimate this by
+    $$
+         5\cdot 2^{103a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(x,D^s))}\sum_{\substack{J \in \mathcal{J}(\fT(\fu))\\J \cap B(x, 0.5D^s) \ne \emptyset} }\int_{J}|f(y)|\,\mathrm{d}\mu(y)\,.
+    $$
+    This expression does not change if we replace $|f|$ by $P_{\mathcal{J}(\fT(\fu))}|f|$. Further, if $J \in \mathcal{J}(\fT(\fu))$ with $B(x, 0.5 D^s) \cap J \ne \emptyset$, then $B(c(\fp_s), 4.5D^s) \cap J \ne \emptyset$ by the triangle inequality. If $s(J) \ge s - 1$, then it follows from the triangle inequality, \eqref{eq vol sp cube} and \eqref{defineD} that $\sc(\fp) \subset B(c(J), 100 D^{s(J)+1})$, contradicting $J \in \mathcal{J}(\mathfrak{T}(\fu))$. Thus $s(J) < s - 1$. By the triangle inequality and \eqref{eq vol sp cube}, we conclude that $J \subset B(x, D^s)$. Thus we can continue our chain of estimates with
+    $$
+        5\cdot 2^{103a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(x,D^s))}\int_{B(x,D^s)}|P_{\mathcal{J}(\fT(\fu))}f(y)|\,\mathrm{d}\mu(y)\,.
+    $$
+    We have $B(x, D^s) \subset B(\sc(\fp_s), 8D^s)$ and $B(\sc(\fp_s), 8D^s)) \subset B(x, 16D^s)$, both by \eqref{eq vol sp cube} since $x \in \sc(\fp)$. Combining this with the doubling property \eqref{doublingx}, we obtain
+    $$
+        \mu(B(c(\fp_s), 8D^s)) \le 2^{4a} \mu(B(x, D^s))\,.
+    $$
+    Hence \eqref{eq term A} is bounded by
+    $$
+        5\cdot 2^{107a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(c(\fp_s),8D^s))}\int_{B(c(\fp_s),8D^s)}|P_{\mathcal{J}(\fT(\fu))}f(y)|\,\mathrm{d}\mu(y)\,.
+    $$
+    Since $\rho(x,x') \le 8 D^{s - 1}$, as shown above, we have $x' \in B(x, D^s) \subset B(\sc(\fp_s), 8D^s)$. Thus
+    $$
+        \le 5\cdot 2^{107a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} M_{\mathcal{B}, 1}|P_{\mathcal{J}(\fT(\fu))}f|(x')
+    $$
+    $$
+        \le 10 \cdot 2^{107a^3} M_{\mathcal{B}, 1}|P_{\mathcal{J}(\fT(\fu))}f|(x')\,.
+    $$
+    This completes the estimate for term \eqref{eq term A}.
+
+
+    Finally, we estimate \eqref{eq term C}. We have for $J \in \mathcal{J}(\fT(\fu))$:
+    $$
+        \int_J K_{s}(x,y)(1 - P_{\mathcal{J}(\fT(\fu))})f(y) \, \mathrm{d}\mu(y)
+    $$
+    \begin{equation}
+    \label{eq canc comp}
+        =  \int_J \frac{1}{\mu(J)} \int_J K_s(x,y) - K_s(x,z) \, \mathrm{d}\mu(z) \,f(y) \, \mathrm{d}\mu(y)\,.
+    \end{equation}
+    By \eqref{eq Ks smooth} and \eqref{eq vol sp cube}, we have for $y, z \in J$
+    $$
+        |K_s(x,y) - K_s(x,z)| \le \frac{2^{150a^3}}{\mu(B(x, D^s))} \left(\frac{8 D^{s(J)}}{D^s}\right)^\tau\,.
+    $$
+    Using this, \eqref{eq canc comp}, and the fact, shown in the estimate for term \eqref{eq term A}, that $J \subset B(x, D^s)$ if it intersects the support of $K_s(x,y)$, we estimate \eqref{eq term C} by
+    $$
+        2^{150a^3 + 3\tau}\sum_{\fp\in \mathfrak{T}}\frac{\mathbf{1}_{E(\fp)}}{\mu(B(x,D^{s(\fp)}))}(x)\sum_{\substack{J\in \mathcal{J}\\J\subset B(x,  D^{s(\fp)})}}  D^{\tau(s(J) - s(\fp))} \int_J |f|.
+    $$
+    $$
+        = 2^{150a^3 + 3\tau}\sum_{I \in \mathcal{D}} \sum_{\substack{\fp\in \mathfrak{T}\\ \sc(\fp) = I}}\frac{\mathbf{1}_{E(\fp)}(x)}{\mu(B(x, D^{s(I)}))}\sum_{\substack{J\in \mathcal{J}\\J\subset B(x,  D^{s(\fp)})}}  D^{\tau(s(J) - s(\fp))} \int_J |f|.
+    $$
+    By \eqref{eq dis freq cover} and \eqref{definedE}, the sets $E(\fp)$ for tiles $\fp$ with $\sc(\fp) = I$ are pairwise disjoint.
+    If $x \in E(\fp)$ then in particular $x \in \sc(\fp)$, so by \eqref{eq vol sp cube} $B(c(I),8D^{s(I)}) \subset B(x, 16D^{s(I)})$. By the doubling property \eqref{doublingx}
+    $$
+        \mu(B(c(I), D^{s(I)})) \le 2^{4a} \mu(B(x, D^{s(I)}))\,.
+    $$
+    Hence we can complete our estimate with
+    $$
+        \le 2^{157a^3}\sum_{I \in \mathcal{D}} \frac{\mathbf{1}_{I}(x)}{\mu(B(c(I),  8D^{s(I)}))}\sum_{\substack{J\in \mathcal{J}\\J\subset B(x,  D^{s(\fp)})}}  D^{\tau(s(J) - s(\fp))} \int_J |f|\,.
+    $$
+    Finally, it follows from the definition of $\mathcal{L}(\fT(\fu))$ that $x \in \sc(\fp)$ if and only if $x' \in \sc(\fp)$, thus this equals
+    $$
+         2^{157a^3} S P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
+    $$
+    This completes the proof.
+\end{proof}
+
+\begin{lemma}
+    \label{lem aux overlap}
+    For every cube $I \in \mathcal{D}$, there exist at most $2^{4a}$ cubes $J \in \mathcal{D}$ with $s(J) = s(I)$ and $B(c(I), D^{s(I)}) \cap B(c(J), D^{s(J)}) \ne \emptyset$.
+\end{lemma}
+
+\begin{proof}
+    Suppose that $B(c(I), D^{s(I)}) \cap B(c(J), D^{s(J)}) \ne \emptyset$ and $s(I) = s(J)$. Then $B(c(I), 2D^{s(I)}) \subset B(c(J), 4D^{s(J)})$. Hence by the doubling property \eqref{doublingx}
+    $$
+        2^{4a}\mu(B(c(J), \frac{1}{4}D^{s(J)})) \ge \mu(B(c(I), 2D^{s(I)}))\,,
+    $$
+    and by the triangle inequality, the ball $B(c(J), \frac{1}{4}D^{s(J)})$ is contained in $B(c(I), 2D^{s(I)})$. If $\mathcal{C}$ is any finite collection of cubes $J \in \mathcal{D}$ satisfying $s(J) = s(I)$ and $B(c(I), D^{s(I)}) = B(c(J), D^{s(J)})$, then it follows from \eqref{eq vol sp cube} and pairwise disjointness of cubes of the same scale \eqref{dyadicproperty} that the balls $B(c(J), \frac{1}{4} D^{s(J)})$ are pairwise disjoint. Hence
+    $$
+        \mu(B(c(I), 2D^{s(I)})) \ge \sum_{J \in \mathcal{C}} \mu(B(c(J), \frac{1}{4}D^{s(J)})) \ge |\mathcal{C}| 2^{-4a} \mu(B(c(I), 2D^{s(I)}))\,.
+    $$
+    \lars{Maybe prove this somewhere}
+    It follows from the fact that $\mu$ is doubling and nonzero that $\mu(B(c(I), 2D^{s(I)})) > 0$. The lemma follows.
+\end{proof}
+
+\begin{lemma}
+    For all $\fu \in \fU$ and all $f \in L^2(X)$, we have
+    \begin{equation}
+        \label{eq S bound}
+        \|S_{\fu}f\|_2 \le ... \|f\|_2\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    We have for every $g \in L^2(X)$
+    \begin{align*}
+        &\quad \big|\int g Sf\big|\\
+        &= \sum_{I\in\mathcal{D}} \frac{1}{\mu(B(c(I), 8D^{s(I)}))} \int_I g(y) \, \mathrm{d}\mu(y) \sum_{J\in \mathcal{J}:J\subseteq B(c(I), D^{s(I)})} D^{(s(J)-s(I))\tau}\int_J |f(y)| \,\mathrm{d}\mu(y)\\
+        &\le \sum_{I\in\mathcal{D}} \frac{1}{\mu(B(c(I), 8D^{s(I)}))} \int_{B(c(I), 8D^{s(I)})} |g(y)| \, \mathrm{d}\mu(y) \sum_{J\in \mathcal{J}:J\subseteq B(c(I), D^{s(I)})} D^{(s(J)-s(I))\tau}\int_J |f(y)| \,\mathrm{d}\mu(y)\,.
+    \end{align*}
+    Changing the order of summation and using $J \subset B(c(I), D^{s(I)})$ to bound the first average integral by $M_{\mathcal{B},1}|g|(y)$ for any $y \in J$, we obtain
+    \begin{align*}
+        \le \sum_{J\in\mathcal{J}}\int_J|f(y)|  M_{\mathcal{B},1}g(y) \, \mathrm{d}\mu(y) \sum_{I \in \mathcal{D} \ : \ J\subset B(c(I), D^{s(I)})} D^{(s(J)-s(I))\tau}.
+    \end{align*}
+    By \eqref{eq vol sp cube} and \eqref{defineD} the condition $J \subset B(c(I), D^{s(I)})$ implies $s(I) \ge s(J)$. By Lemma \ref{lem aux overlap}, there are at most $2^{4a}$ cubes $I$ at each scale with $J \subset B(c(I), D^{s(I)})$. Summing the geometric series using that $D \ge e$ and hence $(1 - D^\tau)^{-1} \le \tau^{-1}$, we obtain
+    $$
+        \le \frac{2^{4a}}{\tau} \sum_{J\in\mathcal{J}}\int_J|f(y)|  M_{\mathcal{B},1}g(y) \, \mathrm{d}\mu(y)\,.
+    $$
+    The collection $\mathcal{J}$ is a partition of $X$, so this equals
+    $$
+        \frac{2^{4a}}{\tau} \int_X|f(y)|  M_{\mathcal{B},1}g(y) \, \mathrm{d}\mu(y)\,.
+    $$
+    Using Cauchy-Schwarz and Proposition \ref{prop hlm} we conclude
+    $$
+        \left|\int g Sf \, \mathrm{d}\mu \right| \le  2\frac{2^{6a}}{\tau} \|g\|_2\|f\|_2\,.
+    $$
+    The lemma now follows from duality. \lars{Is this duality lemma in Lean? Also, this proof is not really finitary, because the integrals are not. Is it necessary in Lean to prove in each step that all integrals converge?}
+\end{proof}
+
+\begin{lemma}[Tree estimate]
+    \label{TreeEstimate}
+    Let $\fu \in \fU$.
+    Then we have for all $f, g$
+    \begin{equation}
+        \label{eq tree est}
+        \int |\sum_{\fp \in \fT(\fu)} gT_{\fp}f \, \mathrm{d}\mu |\le ... \|P_{\mathcal{J}(\fT(\fu))}|f|\|_{2}\|P_{\mathcal{L}(\fT(\fu))}|f|\|_{2}.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    Combine the last two lemmas.
+\end{proof}
+
+\printbibliography

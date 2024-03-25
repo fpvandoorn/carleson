@@ -12,14 +12,16 @@ BP_DIR = Path(__file__).parent
 def print_bp(ctx):
     cwd = os.getcwd()
     os.chdir(BP_DIR)
-    run('mkdir -p print && cd src && xelatex -output-directory=../print print.tex')
+    os.makedirs("print", exist_ok=True)
+    run('cd src && xelatex -output-directory=../print print.tex')
     os.chdir(cwd)
 
 @task
 def bp(ctx):
     cwd = os.getcwd()
     os.chdir(BP_DIR)
-    run('mkdir -p print && cd src && xelatex -output-directory=../print print.tex')
+    os.makedirs("print", exist_ok=True)
+    run('cd src && xelatex -output-directory=../print print.tex')
     run('cd src && xelatex -output-directory=../print print.tex')
     os.chdir(cwd)
 
