@@ -30,6 +30,10 @@ set_option linter.unusedVariables false in
 /-- A type synonym of `C(X, ℂ)` that uses the local oscillation w.r.t. `E` as the metric. -/
 def withLocalOscillation (E : Set X) [Fact (IsBounded E)] : Type _ := C(X, ℂ)
 
+instance withLocalOscillation.funLike (E : Set X) [Fact (IsBounded E)] :
+    FunLike (withLocalOscillation E) X ℂ :=
+  ContinuousMap.funLike
+
 instance withLocalOscillation.toContinuousMapClass (E : Set X) [Fact (IsBounded E)] :
     ContinuousMapClass (withLocalOscillation E) X ℂ :=
   ContinuousMap.toContinuousMapClass

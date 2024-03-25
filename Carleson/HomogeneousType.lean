@@ -44,13 +44,13 @@ lemma volume_ball_four_le_same (x : X) (r : ℝ) :
 
 lemma measure_ball_ne_top (x : X) (r : ℝ) : volume (ball x r) ≠ ∞ := measure_ball_lt_top.ne
 
-attribute [aesop (rule_sets [Finiteness]) safe apply] measure_ball_ne_top
+attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
 
 def As (A : ℝ) (s : ℝ) : ℝ :=
   A ^ ⌈ Real.log s / Real.log 2⌉₊
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
-lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0)  (hs : r' ≤ s * r) :
+lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r) :
     volume.real (ball x r') ≤ As A s * volume.real (ball x r) := by
   /-First show statement for s a power of two-/
   have hn (n : ℕ) : volume.real (ball x (2^n * r)) ≤ A^n * volume.real (ball x r) := by
@@ -143,7 +143,7 @@ lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X
 
 /- # Instances of spaces of homogeneous type -/
 
-instance (n : ℕ) : Fact ((1 : ℝ) ≤ 2 ^ n) := ⟨by norm_cast; exact Nat.one_le_two_pow n⟩
+instance (n : ℕ) : Fact ((1 : ℝ) ≤ 2 ^ n) := ⟨by norm_cast; exact Nat.one_le_two_pow⟩
 
 /- ℝ^n is a space of homogenous type. -/
 instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) (2 ^ Fintype.card ι) := sorry

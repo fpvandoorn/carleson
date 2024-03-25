@@ -1,7 +1,7 @@
 import Carleson.Proposition2
 import Carleson.Proposition3
 
-open MeasureTheory Measure NNReal Metric Complex Set Function
+open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
 open scoped ENNReal
 noncomputable section
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
@@ -33,7 +33,7 @@ variable {ψ : ℝ → ℝ}
 
 -- todo: add some conditions that σ and other functions have finite range?
 theorem prop2_1
-    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
+    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hC₀ : 0 < C₀) (hC : C2_1 A τ q C₀ < C) (hD : D2_1 A τ q C₀ < D)
     (hκ : κ ∈ Ioo 0 (κ2_1 A τ q C₀))
     (hF : MeasurableSet F) (hG : MeasurableSet G)

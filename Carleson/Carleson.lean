@@ -54,7 +54,7 @@ variable
 
 -- move
 theorem Int.floor_le_iff (a : ℝ) (z : ℤ) : ⌊a⌋ ≤ z ↔ a < z + 1 := by
-  rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel]
+  rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel_right]
 
 theorem Int.le_ceil_iff (a : ℝ) (z : ℤ) : z ≤ ⌈a⌉ ↔ z - 1 < a := by
   rw_mod_cast [← Int.add_one_le_ceil_iff, sub_add_cancel]
@@ -88,8 +88,8 @@ lemma sum_Ks {s : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ s) (hD : 1 < D) (h
   have h2 : 0 < dist x y := dist_pos.mpr h
   simp_rw [Ks, ← Finset.mul_sum]
   norm_cast
-  suffices : ∑ i in s, ψ (D ^ i * dist x y) = 1
-  · simp [this]
+  suffices ∑ i in s, ψ (D ^ i * dist x y) = 1 by
+    simp [this]
   rw [← Finset.sum_subset hs, h3ψ _ h2]
   intros
   rwa [psi_eq_zero_iff h2ψ h2 hD]
@@ -108,8 +108,8 @@ lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
     ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
     CarlesonOperator K 𝓠 f x ≤ rhs := by
   intro rhs
-  have h_rhs : 0 ≤ rhs
-  · sorry
+  have h_rhs : 0 ≤ rhs := by
+    sorry
   rw [CarlesonOperator]
   refine Real.iSup_le (fun Q ↦ ?_) h_rhs
   refine Real.iSup_le (fun hQ ↦ ?_) h_rhs
@@ -123,8 +123,8 @@ lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
   rw [← sub_le_iff_le_add]
   simp_rw [mul_sub, Complex.exp_sub, mul_div, integral_div, ← Finset.sum_div,
     norm_div]
-  have h1 : ‖cexp (I * Q x)‖ = 1
-  · lift Q x to ℝ using h𝓠 Q hQ x with qx
+  have h1 : ‖cexp (I * Q x)‖ = 1 := by
+    lift Q x to ℝ using h𝓠 Q hQ x with qx
     simp only [mul_comm I qx, norm_exp_ofReal_mul_I]
   rw [h1, div_one]
   /- use h3ψ here to rewrite the RHS -/
@@ -133,8 +133,8 @@ lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
   simp_rw [← Finset.sum_mul]
   have h3 :
     ∫ (y : X) in {y | dist x y ∈ Set.Ioo r R}, K x y * f y * cexp (I * Q y) =
-      ∫ (y : X) in {y | dist x y ∈ Set.Ioo r R}, (∑ x_1 in Finset.Icc σ σ', Ks K D ψ x_1 x y) * f y * cexp (I * Q y)
-  · sorry
+      ∫ (y : X) in {y | dist x y ∈ Set.Ioo r R}, (∑ x_1 in Finset.Icc σ σ', Ks K D ψ x_1 x y) * f y * cexp (I * Q y) := by
+    sorry
   -- after we rewrite, we should have only 4 terms of our finset left, all others are 0. These can be estimated using |K x y| ≤ 1 / volume (ball x (dist x y)).
   rw [h3, ← neg_sub, ← integral_univ, ← integral_diff]
   all_goals sorry
@@ -173,7 +173,7 @@ segment. -/
 /- finish proof of equation (2.2) -/
 
 theorem equation2_2
-    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
+    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
     (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) :
@@ -187,7 +187,7 @@ theorem equation2_2
 
 /- Theorem 1.1, written using constant C1_1 -/
 theorem theorem1_1C
-    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q')
+    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     -- (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
     (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) :
@@ -204,7 +204,7 @@ end
 set_option linter.unusedVariables false in
 /- Theorem 1.1. -/
 theorem theorem1_1 {A : ℝ} (hA : 1 < A) {τ q q' : ℝ}
-    (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjugateExponent q') : ∃ (C : ℝ), C > 0 ∧
+    (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q') : ∃ (C : ℝ), C > 0 ∧
     ∀ {X : Type*} [MetricSpace X] [IsSpaceOfHomogeneousType X A]  [Inhabited X]
     (𝓠 : Set C(X, ℂ)) [IsCompatible 𝓠] [IsCancellative τ 𝓠]
     (K : X → X → ℂ) [IsCZKernel τ K]

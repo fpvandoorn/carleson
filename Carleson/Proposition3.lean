@@ -1,6 +1,6 @@
 import Carleson.Defs
 
-open MeasureTheory Measure NNReal Metric Complex Set TileStructure Function
+open MeasureTheory Measure NNReal Metric Complex Set TileStructure Function BigOperators
 open scoped ENNReal
 noncomputable section
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220

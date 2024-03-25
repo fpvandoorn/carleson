@@ -1,4 +1,3 @@
-import Mathlib.MeasureTheory.Constructions.Prod.Basic
 import Carleson.ToMathlib.Finiteness
 
 /-!
@@ -22,7 +21,7 @@ more painful with reals than nonnegative extended reals. I don't expect we will 
 project, but we should probably add them back in the long run if they turn out to be useful.
 -/
 
-open MeasureTheory Measure Set
+open MeasureTheory Measure Set symmDiff
 open scoped ENNReal NNReal BigOperators
 
 variable {ι : Type*}

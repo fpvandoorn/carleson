@@ -93,7 +93,7 @@ lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by {
   let a : Finset X := singleton x
   have h : a.card ≤ 1 := by rfl
   have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by
-    simp
+    simp [a]
     rfl
   exact ⟨a, h, h2⟩
 }
@@ -103,12 +103,10 @@ lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X 
   induction k
   case zero =>
     simp
-    rw[BallsCoverBalls]
     intro x
     exact BallCoversSelf x r
   case succ m h2 =>
     specialize h (r * a^m)
-    simp at h
     rw[<- mul_assoc, mul_comm, <- mul_assoc] at h
     norm_cast
     ring_nf
