@@ -120,7 +120,7 @@ class IsCZKernel (τ : ℝ) (K : X → X → ℂ) : Prop where
 
 /-- In Mathlib we only have the operator norm for continuous linear maps,
 and (I think that) `T_*` is not linear.
-Here is the norm for an arbitary map `T` between normed spaces
+Here is the norm for an arbitrary map `T` between normed spaces
 (the infimum is defined to be 0 if the operator is not bounded). -/
 def operatorNorm {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) : ℝ :=
   sInf { c | 0 ≤ c ∧ ∀ x, ‖T x‖ ≤ c * ‖x‖ }
