@@ -139,7 +139,7 @@ lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
   rw [h3, ← neg_sub, ← integral_univ, ← integral_diff]
   all_goals sorry
 
-  /- Proof should be straightward from the definition of maximalFunction and conditions on `𝓠`.
+  /- Proof should be straightforward from the definition of maximalFunction and conditions on `𝓠`.
   We have to approximate `Q` by an indicator function.
   2^σ ≈ r, 2^σ' ≈ R
   There is a small difference in integration domain, and for that we use the estimate IsCZKernel.norm_le_vol_inv
