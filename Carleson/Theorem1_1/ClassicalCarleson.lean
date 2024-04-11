@@ -42,7 +42,7 @@ variable [IsSpaceOfHomogeneousType ℝ 2] (μ : MeasureTheory.Measure ℝ)
 
 --TODO : seems like theorem1_1 is actually Theorem 1.2 from the paper
 --TODO : check and compare to version in mathlib has_pointwise_sum_fourier_series_of_summable and similar
-theorem classical_carlson {f : ℝ → ℂ} (unicontf : UniformContinuous f)
+theorem classical_carleson {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : Function.Periodic f (2 * Real.pi)) (bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
   {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) :
   ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
