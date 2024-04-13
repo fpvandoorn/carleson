@@ -134,6 +134,7 @@ theorem classical_carleson {f : ℝ → ℂ}
               push_neg at this
               exact this.1
         . sorry --apply hE₂ x
+      _ ≤ ε := by field_simp; ring_nf; trivial
 
 
 
