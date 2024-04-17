@@ -3,12 +3,11 @@ import Carleson.Proposition1
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
 open scoped ENNReal
 noncomputable section
-local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
-/- The constant used in theorem1_1 -/
-def C1_1 (A : ℝ) (τ q : ℝ) : ℝ := sorry
+/- The constant used in theorem1_2 -/
+def C1_2 (a q : ℝ) : ℝ := 2 ^ (270 * a ^ 3) / (q - 1) ^ 5
 
-lemma C1_1_pos (A : ℝ) (τ q : ℝ) : C1_1 A τ q > 0 := sorry
+lemma C1_1_pos (a q : ℝ) (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) : C1_2 a q > 0 := sorry
 
 /- The constant used in equation (2.2) -/
 def Ce2_2 (A : ℝ) (τ q : ℝ) : ℝ := sorry
@@ -20,13 +19,13 @@ def Ce3_1 (A : ℝ) (τ q : ℝ) : ℝ := sorry
 
 lemma Ce3_1_pos (A : ℝ) (τ q : ℝ) : Ce3_1 A τ q > 0 := sorry
 
-section
+section -- todo: old code
 
-variable {X : Type*} {A : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X A] [Inhabited X]
+variable {X : Type*} {a : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X a] [Inhabited X]
 variable {τ q q' : ℝ} {C : ℝ}
-variable {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] [IsCancellative τ 𝓠]
+variable {Θ : Set C(X, ℂ)} [IsCompatible Θ] [IsCancellative a Θ]
 variable {F G : Set X}
-variable (K : X → X → ℂ) [IsCZKernel τ K]
+variable (K : X → X → ℂ) [IsCZKernel a K]
 
 def D1_1 (A : ℝ) (τ q : ℝ) : ℝ := sorry
 
@@ -38,7 +37,7 @@ def Cψ1_1 (A : ℝ) (τ q : ℝ) : ℝ≥0 := sorry
 
 lemma Cψ1_1_pos (A : ℝ) (τ : ℝ) : Cψ2_1 A τ C > 0 := sorry
 
-/- extra variables not in theorem 1.1. -/
+/- extra variables not in theorem 1.2. -/
 variable {D : ℝ} {ψ : ℝ → ℝ} {s : ℤ} {x y : X}
 
 /- the one or two numbers `s` where `ψ (D ^ s * x)` is possibly nonzero -/
@@ -47,19 +46,17 @@ variable (D) in def nonzeroS (x : ℝ) : Finset ℤ :=
 
 
 variable
-    (hD : D > D1_1 A τ q)
-    (hψ : LipschitzWith (Cψ1_1 A τ q) ψ)
+    (hD : D > D1_1 a τ q)
+    (hψ : LipschitzWith (Cψ1_1 a τ q) ψ)
     (h2ψ : support ψ = Ioo (4 * D)⁻¹ 2⁻¹)
     (h3ψ : ∀ x > 0, ∑ s in nonzeroS D x, ψ (D ^ s * x) = 1)
 
 -- move
-theorem Int.floor_le_iff (a : ℝ) (z : ℤ) : ⌊a⌋ ≤ z ↔ a < z + 1 := by
+theorem Int.floor_le_iff (c : ℝ) (z : ℤ) : ⌊c⌋ ≤ z ↔ c < z + 1 := by
   rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel_right]
 
-theorem Int.le_ceil_iff (a : ℝ) (z : ℤ) : z ≤ ⌈a⌉ ↔ z - 1 < a := by
+theorem Int.le_ceil_iff (c : ℝ) (z : ℤ) : z ≤ ⌈c⌉ ↔ z - 1 < c := by
   rw_mod_cast [← Int.add_one_le_ceil_iff, sub_add_cancel]
-
-example (a b c : ℝ) (hc : 0 < c) : a < b / c ↔ a * c < b := by exact _root_.lt_div_iff hc
 
 lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
     i ∈ nonzeroS D x ↔ (D ^ i * x) ∈ Ioo (4 * D)⁻¹ 2⁻¹ := by
@@ -100,13 +97,13 @@ lemma sum_Ks' {s : Finset ℤ}
 
 
 
-
+-- old
 /- (No need to take the supremum over the assumption `σ < σ'`.) -/
 lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
-    (h𝓠 : ∀ Q ∈ 𝓠, ∀ x, (Q x).im = 0) :
-    let rhs := Ce3_1 A τ q * maximalFunction f x + ⨆ (Q ∈ 𝓠) (σ : ℤ) (σ' : ℤ),
+    (hΘ : ∀ Q ∈ Θ, ∀ x, (Q x).im = 0) :
+    let rhs := Ce3_1 a τ q * maximalFunction f x + ⨆ (Q ∈ Θ) (σ : ℤ) (σ' : ℤ),
     ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
-    CarlesonOperator K 𝓠 f x ≤ rhs := by
+    CarlesonOperator K Θ f x ≤ rhs := by
   intro rhs
   have h_rhs : 0 ≤ rhs := by
     sorry
@@ -118,13 +115,13 @@ lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
   refine Real.iSup_le (fun hrR ↦ ?_) h_rhs
   let σ : ℤ := ⌊Real.logb D (2 * r)⌋ + 1
   let σ' : ℤ := ⌈Real.logb D (4 * R)⌉
-  trans Ce3_1 A τ q * maximalFunction f x +
+  trans Ce3_1 a τ q * maximalFunction f x +
     ‖∑ s in Finset.Icc σ σ', ∫ y, Ks K D ψ s x y * f y * exp (I * (Q y - Q x))‖
   rw [← sub_le_iff_le_add]
   simp_rw [mul_sub, Complex.exp_sub, mul_div, integral_div, ← Finset.sum_div,
     norm_div]
   have h1 : ‖cexp (I * Q x)‖ = 1 := by
-    lift Q x to ℝ using h𝓠 Q hQ x with qx
+    lift Q x to ℝ using hΘ Q hQ x with qx
     simp only [mul_comm I qx, norm_exp_ofReal_mul_I]
   rw [h1, div_one]
   /- use h3ψ here to rewrite the RHS -/
@@ -139,12 +136,10 @@ lemma equation3_1 {f : X → ℂ} (hf : LocallyIntegrable f)
   rw [h3, ← neg_sub, ← integral_univ, ← integral_diff]
   all_goals sorry
 
-  /- Proof should be straightforward from the definition of maximalFunction and conditions on `𝓠`.
+  /- Proof should be straightforward from the definition of maximalFunction and conditions on `Θ`.
   We have to approximate `Q` by an indicator function.
   2^σ ≈ r, 2^σ' ≈ R
   There is a small difference in integration domain, and for that we use the estimate IsCZKernel.norm_le_vol_inv
-
-
   -/
 
 variable (C F G) in
@@ -153,7 +148,7 @@ def G₀' : Set X :=
   { x : X | maximalFunction (F.indicator (1 : X → ℂ)) x > C * volume.real F / volume.real G }
 
 /- estimation of the volume of G₀' -/
-lemma volume_G₀'_pos (hC : C1_1 A τ q < C) : volume.real (G₀' C F G) ≤ volume.real G / 4 := sorry
+-- lemma volume_G₀'_pos (hC : C1_2 A τ q < C) : volume.real (G₀' C F G) ≤ volume.real G / 4 := sorry
 
 /- estimate first term (what does this mean exactly?) -/
 
@@ -171,47 +166,30 @@ segment. -/
 /- Lemma 3.3: obtain tile structure -/
 
 /- finish proof of equation (2.2) -/
-
+-- old
 theorem equation2_2
-    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
+    (hA : 1 < a) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
-    (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) :
+    (hT : NormBoundedBy (ANCZOperatorLp 2 K) (2 ^ a ^ 3)) :
     ∃ G', volume G' ≤ volume G / 2 ∧
-    ‖∫ x in G \ G', CarlesonOperator K 𝓠 (indicator F 1) x‖₊ ≤
-    Ce2_2 A τ q * (volume.real G) ^ (1 / q') * (volume.real F) ^ (1 / q) := by
+    ‖∫ x in G \ G', CarlesonOperator K Θ (indicator F 1) x‖₊ ≤
+    Ce2_2 a τ q * (volume.real G) ^ (1 / q') * (volume.real F) ^ (1 / q) := by
   sorry
 
 /- to prove theorem 1.1 from (2.2): bootstrapping argument, recursing over excised sets.
 (section 2). -/
 
-/- Theorem 1.1, written using constant C1_1 -/
-theorem theorem1_1C
-    (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
+/- Theorem 1.2, written using constant C1_2 -/
+theorem theorem1_2C
+    (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     -- (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
-    (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) :
-    ‖∫ x in G, CarlesonOperator K 𝓠 (indicator F 1) x‖₊ ≤
-    C1_1 A τ q * (volume.real G) ^ (1 / q') * (volume.real F) ^ (1 / q) := by
+    (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) (f : X → ℂ)
+    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ‖∫ x in G, CarlesonOperator K Θ f x‖ ≤
+    C1_2 a q * (volume.real G) ^ q'⁻¹ * (volume.real F) ^ q⁻¹ := by
   sorry
 
-/- Specialize this to get the usual version of Carleson's theorem,
-by taking `X = ℝ`, `K x y := 1 / (x - y)` and `𝓠 = {linear functions}`.
--/
 
 end
-
-set_option linter.unusedVariables false in
-/- Theorem 1.1. -/
-theorem theorem1_1 {A : ℝ} (hA : 1 < A) {τ q q' : ℝ}
-    (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q') : ∃ (C : ℝ), C > 0 ∧
-    ∀ {X : Type*} [MetricSpace X] [IsSpaceOfHomogeneousType X A]  [Inhabited X]
-    (𝓠 : Set C(X, ℂ)) [IsCompatible 𝓠] [IsCancellative τ 𝓠]
-    (K : X → X → ℂ) [IsCZKernel τ K]
-    (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1)
-    {F G : Set X} (hF : MeasurableSet F) (hG : MeasurableSet G),
-    ‖∫ x in G, CarlesonOperator K 𝓠 (indicator F 1) x‖₊ ≤
-    C * (volume.real G) ^ (1 / q') * (volume.real F) ^ (1 / q) := by
-   use C1_1 A τ q, C1_1_pos A τ q
-   intros X _ _ 𝓠 _ _ _ K _ hT F G hF hG
-   exact theorem1_1C K hA hτ hq hqq' hF hG hT

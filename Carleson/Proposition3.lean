@@ -3,7 +3,6 @@ import Carleson.Defs
 open MeasureTheory Measure NNReal Metric Complex Set TileStructure Function BigOperators
 open scoped ENNReal
 noncomputable section
-local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
 def C2_3 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ := sorry
 
@@ -27,7 +26,7 @@ lemma Cψ2_3_pos (A : ℝ) (τ : ℝ) (C : ℝ) : Cψ2_3 A τ C > 0 := sorry
 
 variable {X : Type*} {A : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X A] [Inhabited X]
 variable {τ q D κ ε δ : ℝ} {C₀ C t : ℝ}
-variable {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] [IsCancellative τ 𝓠] [TileStructure 𝓠 D κ C₀]
+variable {Θ : Set C(X, ℂ)} [IsCompatible Θ] [IsCancellative τ Θ] [TileStructure Θ D κ C₀]
 variable {F G : Set X} {σ σ' : X → ℤ} {Q' : X → C(X, ℂ)} /- Q-tilde in the pdf -/
 variable (K : X → X → ℂ) [IsCZKernel τ K]
 variable {ψ : ℝ → ℝ}
@@ -42,7 +41,7 @@ theorem prop2_3
     (hD : (2 * A) ^ 100 < D) -- or some other appropriate bound
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
-    (Q'_mem : ∀ x, Q' x ∈ 𝓠) (m_Q' : Measurable Q')
+    (Q'_mem : ∀ x, Q' x ∈ Θ) (m_Q' : Measurable Q')
     (m_σ : Measurable σ) (m_σ' : Measurable σ')
     (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1)
     (hψ : LipschitzWith (Cψ2_3 A τ q C₀) ψ)
