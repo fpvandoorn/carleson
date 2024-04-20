@@ -40,6 +40,31 @@ open Finset
 
 #check Finset.Icc
 
+section
+open Metric
+variable {α : Type} {β : Type}
+--might be generalized
+--TODO : choose better name
+lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} {b : ℝ} (bpos : b > 0):
+  UniformContinuous f ↔ ∀ ε > 0, ∃ δ > 0, δ < b ∧ ∀ {x y : α}, dist x y < δ → dist (f x) (f y) < ε := by
+  rw [Metric.uniformContinuous_iff]
+  constructor
+  . intro h ε εpos
+    obtain ⟨δ', δ'pos, hδ'⟩ := h ε εpos
+    use min δ' (b / 2)
+    constructor
+    . exact (lt_min δ'pos (by linarith)).gt
+    constructor
+    . apply min_lt_of_right_lt
+      linarith
+    . intro x y hxy
+      exact hδ' (lt_of_lt_of_le hxy (min_le_left δ' (b / 2)))
+  . intro h ε εpos
+    obtain ⟨δ, δpos, _, hδ⟩ := h ε εpos
+    use δ
+end section
+
+
 def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 #check partialFourierSum
 
@@ -57,12 +82,9 @@ theorem classical_carleson --{f : ℝ → ℂ}
   ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
   ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
   Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+    --Choose some δ.
     --TODO : use some scaled ε for the choose
-    have ε2pos : ε / 2 > 0 := by linarith
-    --TODO : ensure that we choose δ < Real.pi
-    choose δ δpos hδ using Metric.uniformContinuous_iff.mp unicontf (ε / 2) ε2pos
-    have δltpi : δ < Real.pi := sorry
-
+    obtain ⟨δ, δpos, δltpi, hδ⟩ := (uniformContinuous_iff_bounded Real.pi_pos).mp unicontf (ε / 2) (by linarith)
     --definitions from section 10.1 depending on the choice of δ
     set K := Nat.floor ((2 * Real.pi) / δ) + 1 with Kdef
     have Kgt2 : (2 : ℝ) < K := by
@@ -103,6 +125,7 @@ theorem classical_carleson --{f : ℝ → ℂ}
       _ ≤ ε / 2 := by
         rewrite (config := {occs := .pos [2]}) [← mul_one (ε / 2)]
         gcongr
+        linarith
         rw [div_le_iff (by linarith)]
         linarith
     --TODO : correct size of N₀
