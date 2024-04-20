@@ -4,6 +4,8 @@ import Carleson.HomogeneousType
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Algebra.BigOperators.Basic
 
+--TODO: add local notation for f₀
+
 
 noncomputable section
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
@@ -27,7 +29,7 @@ instance : IsSpaceOfHomogeneousType ℝ 2 := by
 
 #check AddCircle (2 * Real.pi)
 
-variable [IsSpaceOfHomogeneousType ℝ 2] (μ : MeasureTheory.Measure ℝ)
+--variable [IsSpaceOfHomogeneousType ℝ 2] (μ : MeasureTheory.Measure ℝ)
 
 open BigOperators
 open Finset
@@ -35,23 +37,28 @@ open Finset
 #check fourier
 --def stdCircle : AddCircle (2 * Real.pi)
 
+#check Finset.Icc
+
 def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in range (2 * N + 1), fourierCoeffOn Real.two_pi_pos f (n - N) * fourier (n - N) (x : AddCircle (2 * Real.pi))
 #check partialFourierSum
 
---let μ : MeasureTheory.Measure ℝ := MeasureTheory.volume
+variable {f : ℝ → ℂ} {N : ℕ}
+
+local notation "S_" => partialFourierSum f
 
 --TODO : seems like theorem1_1 is actually Theorem 1.2 from the paper
 --TODO : check and compare to version in mathlib has_pointwise_sum_fourier_series_of_summable and similar
-theorem classical_carleson {f : ℝ → ℂ}
+theorem classical_carleson --{f : ℝ → ℂ}
   (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) (bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
   {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) :
   --TODO: readd condition E ⊆ Set.Icc 0 (2 * Real.pi) ?
-  ∃ E : Set ℝ, MeasurableSet E ∧ MeasureTheory.volume E ≤ ε.toNNReal ∧
+  ∃ E : Set ℝ, MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε.toNNReal ∧
   ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
-  Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+  Complex.abs (f x - S_ N x) ≤ ε := by
     --TODO : use some scaled ε for the choose
+    have ε2pos : ε / 2 > 0 := by linarith
     --TODO : ensure that we choose δ < Real.pi
-    choose δ δpos hδ using Metric.uniformContinuous_iff.mp unicontf ε hε.1
+    choose δ δpos hδ using Metric.uniformContinuous_iff.mp unicontf (ε / 2) ε2pos
     have δltpi : δ < Real.pi := sorry
 
     --definitions from section 10.1 depending on the choice of δ
@@ -61,7 +68,7 @@ theorem classical_carleson {f : ℝ → ℂ}
       have : 2 < 2 * Real.pi / δ := (lt_div_iff δpos).mpr ((mul_lt_mul_left (by norm_num)).mpr δltpi)
       convert this.trans (Nat.lt_floor_add_one ((2 * Real.pi) / δ))
       simp
-    let f₀ : ℝ → ℂ := fun x ↦ f ((2 * Real.pi * Int.floor ((K * x) / (2 * δ))) / K)
+    let f₀ : ℝ → ℂ := fun x ↦ f ((2 * Real.pi * Int.floor ((K * x) / (2 * Real.pi))) / K)
     let E₁ : Set ℝ := ⋃ k ∈ range (K + 1), Set.Icc ((2 * Real.pi) / K * (k - ε / (16 * Real.pi))) ((2 * Real.pi) / K * (k + ε / (16 * Real.pi)))
     --added helper lemma
     have E₁measurable : MeasurableSet E₁ := by
@@ -85,6 +92,9 @@ theorem classical_carleson {f : ℝ → ℂ}
         rw [Finset.sum_const]
         simp
       _ = (ε / 2 * ((K + 1)/(2 * K))).toNNReal := by
+        norm_cast
+        ext
+        push_cast
         sorry
       _ ≤ (ε / 2).toNNReal := by sorry
 
@@ -106,10 +116,10 @@ theorem classical_carleson {f : ℝ → ℂ}
     use E₁measurable.union E₂measurable
     constructor
     . calc MeasureTheory.volume (E₁ ∪ E₂)
-      _ ≤ MeasureTheory.volume E₁ + MeasureTheory.volume E₂ := by apply MeasureTheory.measure_union_le
-      _ ≤ (ε / 2).toNNReal + (ε / 2).toNNReal := by
-        apply add_le_add E₁volume E₂volume
-      _ = ε.toNNReal := by sorry
+        _ ≤ MeasureTheory.volume E₁ + MeasureTheory.volume E₂ := by apply MeasureTheory.measure_union_le
+        _ ≤ (ε / 2).toNNReal + (ε / 2).toNNReal := by
+            apply add_le_add E₁volume E₂volume
+        _ = (ε.toNNReal:ENNReal) := by sorry
         --rw [←coe_add]
     . use N₀
       intro x hx N NgtN₀
@@ -122,17 +132,38 @@ theorem classical_carleson {f : ℝ → ℂ}
         apply add_le_add_right
         apply AbsoluteValue.add_le
       _ ≤ (ε / 2) + (ε / 4) + (ε/4) := by
-        apply add_le_add
-        . apply add_le_add
-          . sorry --obtain this from hδ somehow
-          . apply piecePartialFourierSumApprox NgtN₀ x
-            simp
-            constructor
-            . sorry
-            . have := hx.2
-              simp at this
-              push_neg at this
-              exact this.1
+        gcongr
+        --apply add_le_add
+        --. apply add_le_add
+        .  --obtain this from hδ somehow
+          apply le_of_lt
+          apply hδ
+          rw [Real.dist_eq]
+          calc |x - 2 * Real.pi * ⌊K * x / (2 * Real.pi)⌋ / K|
+          _ = |2 * Real.pi * (K * x / (2 * Real.pi)) / K - 2 * Real.pi * ⌊K * x / (2 * Real.pi)⌋ / K| := by congr; field_simp; ring
+          _ = |2 * Real.pi * (K * x / (2 * Real.pi) - ⌊K * x / (2 * Real.pi)⌋) / K| := by
+            ring_nf
+          _ = 2 * Real.pi * |K * x / (2 * Real.pi) - ⌊K * x / (2 * Real.pi)⌋| / K := by
+            rw [abs_div, abs_mul, abs_eq_self.mpr Real.two_pi_pos.le, abs_eq_self.mpr ((zero_lt_two).trans Kgt2).le]
+          _ ≤ 2 * Real.pi * 1 / K := by
+            apply (div_le_div_right ((zero_lt_two).trans Kgt2)).mpr
+            apply (mul_le_mul_left Real.two_pi_pos).mpr
+            rw [abs_eq_self.mpr]
+            apply le_of_lt
+            rw [sub_lt_iff_lt_add, add_comm]
+            apply Int.lt_floor_add_one
+            rw [le_sub_iff_add_le, zero_add]
+            apply Int.floor_le
+          _ < δ := by sorry
+            --rw [Kdef, div_lt_iff_lt_mul']
+        . apply piecePartialFourierSumApprox NgtN₀ x
+          simp
+          constructor
+          . sorry
+          . have := hx.2
+            simp at this
+            push_neg at this
+            exact this.1
         . sorry --apply hE₂ x
       _ ≤ ε := by field_simp; ring_nf; trivial
 
