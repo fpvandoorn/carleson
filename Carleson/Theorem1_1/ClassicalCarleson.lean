@@ -1,6 +1,7 @@
 import Carleson.Carleson
 import Carleson.HomogeneousType
 
+--import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Algebra.BigOperators.Basic
 
@@ -39,22 +40,23 @@ open Finset
 
 #check Finset.Icc
 
-def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in range (2 * N + 1), fourierCoeffOn Real.two_pi_pos f (n - N) * fourier (n - N) (x : AddCircle (2 * Real.pi))
+def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 #check partialFourierSum
 
 variable {f : ℝ → ℂ} {N : ℕ}
 
-local notation "S_" => partialFourierSum f
+--TODO : add reasonable notation
+--local notation "S_" => partialFourierSum f
 
 --TODO : seems like theorem1_1 is actually Theorem 1.2 from the paper
 --TODO : check and compare to version in mathlib has_pointwise_sum_fourier_series_of_summable and similar
 theorem classical_carleson --{f : ℝ → ℂ}
   (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) (bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
   {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) :
-  --TODO: readd condition E ⊆ Set.Icc 0 (2 * Real.pi) ?
-  ∃ E : Set ℝ, MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε.toNNReal ∧
+  --need condition E ⊆ Set.Icc 0 (2 * Real.pi) to ensure the E has finite volume
+  ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
   ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
-  Complex.abs (f x - S_ N x) ≤ ε := by
+  Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
     --TODO : use some scaled ε for the choose
     have ε2pos : ε / 2 > 0 := by linarith
     --TODO : ensure that we choose δ < Real.pi
@@ -76,51 +78,94 @@ theorem classical_carleson --{f : ℝ → ℂ}
       apply measurableSet_biUnion
       intro k hk
       exact measurableSet_Icc
-    have E₁volume : MeasureTheory.volume E₁ ≤ (ε / 2).toNNReal := by
-      calc MeasureTheory.volume E₁
-      _ ≤ ∑ k in range (K + 1), MeasureTheory.volume (Set.Icc ((2 * Real.pi) / K * (k - ε / (16 * Real.pi))) ((2 * Real.pi) / K * (k + ε / (16 * Real.pi)))) := by
-        apply MeasureTheory.measure_biUnion_finset_le
-      _ = ∑ k in range (K + 1), ↑(ε / (4 * K)).toNNReal := by
+    have E₁volume : MeasureTheory.volume.real E₁ ≤ (ε / 2) := by
+      calc MeasureTheory.volume.real E₁
+      _ ≤ ∑ k in range (K + 1), MeasureTheory.volume.real (Set.Icc ((2 * Real.pi) / K * (k - ε / (16 * Real.pi))) ((2 * Real.pi) / K * (k + ε / (16 * Real.pi)))) := by
+        apply MeasureTheory.measureReal_biUnion_finset_le
+      _ = ∑ k in range (K + 1), ε / (4 * K) := by
         apply sum_congr
         . trivial
         intro k hk
-        rw [Real.volume_Icc]
-        congr
-        field_simp
-        ring
-      _ ≤ (K + 1) * ↑(ε / (4 * K)).toNNReal := by
+        have : 2 * Real.pi / K * (k + ε / (16 * Real.pi)) - 2 * Real.pi / K * (k - ε / (16 * Real.pi)) = ε / (4 * K) := by
+          field_simp
+          ring
+        rw [MeasureTheory.measureReal_def, Real.volume_Icc, ENNReal.toReal_ofReal]
+        . exact this
+        . rw [this]
+          apply div_nonneg_iff.mpr
+          left
+          use hε.1.le
+          linarith
+      _ ≤ (K + 1) * (ε / (4 * K)) := by
         rw [Finset.sum_const]
         simp
-      _ = (ε / 2 * ((K + 1)/(2 * K))).toNNReal := by
-        norm_cast
-        ext
-        push_cast
-        sorry
-      _ ≤ (ε / 2).toNNReal := by sorry
-
+      _ = ε / 2 * ((K + 1)/(2 * K)) := by ring
+      _ ≤ ε / 2 := by
+        rewrite (config := {occs := .pos [2]}) [← mul_one (ε / 2)]
+        gcongr
+        rw [div_le_iff (by linarith)]
+        linarith
     --TODO : correct size of N₀
     let N₀ := Nat.ceil (K^2 / ε^3)
     --Lemma 10.2 from the paper
+    --changed interval to Icc to match the interval in the theorem
     have piecePartialFourierSumApprox {N : ℕ} (hN : N > N₀) :
-      ∀ x ∈ Set.Ico 0 (2 * Real.pi) \ E₁, Complex.abs (f₀ x - partialFourierSum f₀ N x) ≤ ε / 4:= by
+      ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₁, Complex.abs (f₀ x - partialFourierSum f₀ N x) ≤ ε / 4:= by
       sorry
     --Lemma 10.3 from the paper
     --TODO : review measurability assumption
-    have diffPartialFourierSums : ∃ E₂, MeasurableSet E₂ ∧ MeasureTheory.volume E₂ ≤ (ε / 2).toNNReal ∧ ∀ x ∈ (Set.Ico 0 1) \ E₂,
+    --added subset assumption
+    --changed interval to match the interval in the theorem
+    /-
+    have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε / 2 ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
       sSup {Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) | N : ℕ} ≤ ε / 4 := by
       sorry
-    obtain ⟨E₂, E₂measurable, E₂volume, hE₂⟩ := diffPartialFourierSums
+    -/
+    --simplified statement so that we do not have to worry about a sSup
+    have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε / 2 ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
+      ∀ N, Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) ≤ ε / 4 := by
+      sorry
+    obtain ⟨E₂, E₂subset, E₂measurable, E₂volume, hE₂⟩ := diffPartialFourierSums
+
+
+    --TODO : change definition of E₁ to be able to prove this
+    have E₁subset : E₁ ⊆ Set.Icc 0 (2 * Real.pi) := by
+      rw [Set.iUnion_subset_iff]
+      simp
+      intro k klt x
+      simp
+      intro lex xle
+      sorry
 
     --set E := E₁ ∪ E₂
+
+    -- Definition of E, slightly changed compared to the paper
+    /-
+    use (E₁ ∪ E₂) ∩ Set.Icc 0 (2 * Real.pi)
+    --use Set.union_subset E₁subset E₂subset
+    constructor
+    . apply Set.inter_subset_right
+    use (E₁measurable.union E₂measurable).inter measurableSet_Icc
+    constructor
+    . calc MeasureTheory.volume.real ((E₁ ∪ E₂) ∩ Set.Icc 0 (2 * Real.pi))
+      _ ≤ MeasureTheory.volume.real (E₁ ∪ E₂) := by
+        apply MeasureTheory.measureReal_mono (Set.inter_subset_left (E₁ ∪ E₂) (Set.Icc 0 (2 * Real.pi))) _
+        finiteness
+      _ ≤ MeasureTheory.volume.real E₁ + MeasureTheory.volume.real E₂ := by apply MeasureTheory.measureReal_union_le
+      _ ≤ ε / 2 + ε / 2 := by
+          apply add_le_add E₁volume E₂volume
+      _ = ε := by simp
+    -/
+    --Definition of E
     use E₁ ∪ E₂
+    use Set.union_subset E₁subset E₂subset
     use E₁measurable.union E₂measurable
     constructor
-    . calc MeasureTheory.volume (E₁ ∪ E₂)
-        _ ≤ MeasureTheory.volume E₁ + MeasureTheory.volume E₂ := by apply MeasureTheory.measure_union_le
-        _ ≤ (ε / 2).toNNReal + (ε / 2).toNNReal := by
-            apply add_le_add E₁volume E₂volume
-        _ = (ε.toNNReal:ENNReal) := by sorry
-        --rw [←coe_add]
+    . calc MeasureTheory.volume.real (E₁ ∪ E₂)
+      _ ≤ MeasureTheory.volume.real E₁ + MeasureTheory.volume.real E₂ := by apply MeasureTheory.measureReal_union_le
+      _ ≤ ε / 2 + ε / 2 := by
+          apply add_le_add E₁volume E₂volume
+      _ = ε := by simp
     . use N₀
       intro x hx N NgtN₀
       --use "telescope" sum
@@ -133,8 +178,6 @@ theorem classical_carleson --{f : ℝ → ℂ}
         apply AbsoluteValue.add_le
       _ ≤ (ε / 2) + (ε / 4) + (ε/4) := by
         gcongr
-        --apply add_le_add
-        --. apply add_le_add
         .  --obtain this from hδ somehow
           apply le_of_lt
           apply hδ
@@ -154,21 +197,16 @@ theorem classical_carleson --{f : ℝ → ℂ}
             apply Int.lt_floor_add_one
             rw [le_sub_iff_add_le, zero_add]
             apply Int.floor_le
-          _ < δ := by sorry
-            --rw [Kdef, div_lt_iff_lt_mul']
-        . apply piecePartialFourierSumApprox NgtN₀ x
-          simp
-          constructor
-          . sorry
-          . have := hx.2
-            simp at this
-            push_neg at this
-            exact this.1
-        . sorry --apply hE₂ x
-      _ ≤ ε := by field_simp; ring_nf; trivial
-
-
-
+          _ < δ := by
+            rw [div_lt_iff, mul_one, ← div_lt_iff' δpos]
+            . push_cast
+              apply Nat.lt_floor_add_one
+            exact (zero_lt_two).trans Kgt2
+        . have : x ∈ Set.Icc 0 (2 * Real.pi) \ E₁ := ⟨hx.1, fun xE₁ ↦ hx.2 (Set.mem_union_left E₂ xE₁)⟩
+          apply piecePartialFourierSumApprox NgtN₀ x this
+        . have : x ∈ Set.Icc 0 (2 * Real.pi) \ E₂ := ⟨hx.1, fun xE₂ ↦ hx.2 (Set.mem_union_right E₁ xE₂)⟩
+          apply hE₂ x this N
+      _ ≤ ε := by linarith
 
 
 #check classical_carleson
