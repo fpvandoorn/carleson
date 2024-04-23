@@ -2,7 +2,7 @@
 % Add chapters of the blueprint here.
 % This file is not meant to be built. Build src/web.tex or src/print.text instead.
 
-% Note: still have to upstream \section ~> \chapter and \subsection ~> \section to Overleaf
+% Note: still have to upstream section ~> chapter and subsection ~> section to Overleaf
 \title{Carleson operators on doubling metric measure spaces}
 
 \author{Lars Becker \and Floris van Doorn \and Asgar Jamneshan \and Rajula Srivastava \and Christoph Thiele}
@@ -253,7 +253,7 @@ L.B., F. v. D., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaf
 L.B. , R.S., and C.T. were also supported by SFB 1060.
 A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under the 1001-project 123F122.
 
-\section{Proof of metric space Carleson (Thm \ref{metric space Carleson}), overview}
+\chapter{Proof of metric space Carleson (Thm \ref{metric space Carleson}), overview}
 \label{overviewsection}
 
 
@@ -700,7 +700,7 @@ and for all $1 < p \le \infty$
 
 This completes the overview of the proof of Theorem \ref{metric space Carleson}.
 
-\subsection{Auxiliary lemmas}
+\section{Auxiliary lemmas}
 \label{global auxiliary lemmas}
 We close this section by recording some auxiliary lemmas about the objects defined in Section \ref{overviewsection}, which will be used in multiple sections to follow.
 
@@ -826,7 +826,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \end{proof}
 
 
-\section{Proof of metric space Carleson (Thm \ref{metric space Carleson})}
+\chapter{Proof of metric space Carleson (Thm \ref{metric space Carleson})}
 \label{thmfromproplinear}
 
 
@@ -1103,7 +1103,7 @@ which by interchange of summation and integration is seen to be integrable, we o
 This completes the proof of Lemma \ref{linearized truncation}
 and thus Theorem \ref{metric space Carleson}.
 
-\section{Proof of finitary Carleson (Prop \ref{finitary Carleson})}
+\chapter{Proof of finitary Carleson (Prop \ref{finitary Carleson})}
 \label{christsection}
 
 To prove Proposition
@@ -1191,7 +1191,7 @@ This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and 
 
 
 
-\subsection{Proof of L.\ref{grid existence}, dyadic structure}
+\section{Proof of L.\ref{grid existence}, dyadic structure}
 \label{subsecdyadic}
 
 We begin with the construction of the centers of the dyadic cubes.
@@ -1729,7 +1729,7 @@ x\in B(o, D^S)\subset B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_3(y,k)\, .
 \end{equation} Thus, there exists a dyadic cube $I=I_3(y', k)$ with $s(I)=k$ and $x\in I$. This proves \eqref{coverball}.
 
 
-\subsection{Proof of L.\ref{tile structure}, tile structure}
+\section{Proof of L.\ref{tile structure}, tile structure}
 \label{subsectiles}
 Choose a grid structure $(\mathcal{D}, c, s)$.
 Let $I \in \mathcal{D}$. Suppose that
@@ -1898,10 +1898,10 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
     By \eqref{eq it omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\sc(\fp) \subset \sc(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $\ps(\fq') - \ps(\fp) = \ps(\fq) - \ps(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
 \end{proof}
 
-\section{Proof of discrete Carleson (Prop.  \ref{discrete Carleson}) }
+\chapter{Proof of discrete Carleson (Prop.  \ref{discrete Carleson}) }
 \label{proptopropprop}
 
-%\subsection{Decomposition of grid cubes and first exceptional set}
+%\section{Decomposition of grid cubes and first exceptional set}
 
 
 Let a grid structure $(\mathcal{D}, c, s)$  and a tile structure $(\fP,\sc,\fc,\fcc)$
@@ -1925,7 +1925,7 @@ which is done in Subsection \ref{subsecantichain}. Subsection \ref{subsec lessim
 
 
 
-\subsection{Organisation of the tiles}\label{subsectilesorg}
+\section{Organisation of the tiles}\label{subsectilesorg}
 
 In the following chain of definitions, $k, n$, and
 $j$ will be nonnegative integers.
@@ -2152,7 +2152,7 @@ as the bound on the set $G'$ given by Lemma \ref{exceptional set}.
 
 
 
-\subsection{Proof of Lemma \ref{exceptional set}, the exceptional sets}
+\section{Proof of Lemma \ref{exceptional set}, the exceptional sets}
 \label{subsetexcset}
 
 
@@ -2580,7 +2580,7 @@ Summing geometric series, using that $D^{\kappa Z}\ge 8$ by \eqref{defineD}, \eq
 Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and \eqref{definekappa} proves the lemma.
 \end{proof}
 
-\subsection{Auxiliary lemmas}
+\section{Auxiliary lemmas}
 \label{subsec lessim aux}
 Before proving Lemma \ref{forest union} and Lemma \ref{forest complement}, we collect some useful properties of $\lesssim$.
 
@@ -2807,7 +2807,7 @@ there exists $J\in \mathcal{D}$ with
     $$
 \end{proof}
 
-\subsection{Proof of Lemma \ref{forest union}, the forests}
+\section{Proof of Lemma \ref{forest union}, the forests}
 \label{subsecforest}
 
 Fix $k,n,j\ge 0$.
@@ -3094,7 +3094,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     which completes the proof of the lemma.
 \end{proof}
 
-\subsection{Proof of Lemma \ref{forest complement}, the antichains}
+\section{Proof of Lemma \ref{forest complement}, the antichains}
 \label{subsecantichain}
 
 Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(\fp) \not \subset G'$.
@@ -3225,7 +3225,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     This completes the proof.
 \end{proof}
 
-\section{Proof of  Proposition \ref{antichain operator}}
+\chapter{Proof of  Proposition \ref{antichain operator}}
 
 \label{antichainboundary}
 
@@ -3250,7 +3250,7 @@ Lemma \ref{lem antichain 1} will be proven in Subsection
 
 
 
-\subsection{The density  arguments}\label{sec TT* T*T}
+\section{The density  arguments}\label{sec TT* T*T}
 
 We begin with the following crucial disjointness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
 \begin{lemma}
@@ -3576,7 +3576,7 @@ With the definition of $p$, this  implies
 Proposition \ref{antichain operator}.
 
 
-\subsection{Proof of L. \ref{lem basic TT*}, the tile correlation bound }\label{sec tile operator}
+\section{Proof of L. \ref{lem basic TT*}, the tile correlation bound }\label{sec tile operator}
 
 The next lemma prepares an application of
 Proposition \ref{Holder van der Corput}.
@@ -3793,7 +3793,7 @@ we conclude
 
 
 
-\subsection{Proof of Lemma \ref{lem antichain 1}, the geometric estimate}
+\section{Proof of Lemma \ref{lem antichain 1}, the geometric estimate}
 \label{subsec geolem}
 
 
@@ -4174,11 +4174,11 @@ Using that $p = 4a^4$ and $a \ge 4$, this proves the lemma.
 
 
 
-\section{Proof of Proposition \ref{forest operator}}
+\chapter{Proof of Proposition \ref{forest operator}}
 
 \label{treesection}
 
-\subsection{The pointwise tree estimate}
+\section{The pointwise tree estimate}
 Fix a forest $(\fU, \fT)$. The main result of this subsection is Lemma \ref{lem pointw tree estimate}, we begin this section with some definitions necessary to state the lemma.
 
 For $\fu \in \fU$ and $x\in X$, we define
@@ -4429,7 +4429,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     This completes the proof.
 \end{proof}
 
-\subsection{An auxiliary \texorpdfstring{$L^2$}{L2} tree estimate}
+\section{An auxiliary \texorpdfstring{$L^2$}{L2} tree estimate}
 
 In this subsection we prove the following estimate on $L^2$ for operators associated to trees.
 
@@ -4675,7 +4675,7 @@ Now we can bound the operators $S_{1, \fu}$.
     The lemma now follows by choosing $g = S_{1,\fu}f$ and dividing on both sides by the finite $\|S_{1,\fu}f\|_2$.
 \end{proof}
 
-\subsection{The quantitative \texorpdfstring{$L^2$}{L2} tree estimate}
+\section{The quantitative \texorpdfstring{$L^2$}{L2} tree estimate}
 
 The main result of this subsection is the following quantitative bound for operators associated to trees, with decay in the the densities $\dens_1$ and $\dens_2$.
 
@@ -4858,7 +4858,7 @@ Now we prove the two auxiliary estimates.
     From here one completes the proof as in the other cases.
 \end{proof}
 
-\subsection{Almost orthogonality of separated trees}
+\section{Almost orthogonality of separated trees}
 
 The main result of this subsection is the almost orthogonality estimate for operators associated to distinct trees in a forest in Lemma \ref{SeparatedTrees} below. We will deduce this Lemma from Lemmas \ref{lem big sep tree} and \ref{lem small sep tree}, which are proven in Subsections \ref{subsec big tiles} and \ref{subsec rest tiles}, respectively. Before stating the lemma, we introduce some relevant notation.
 
@@ -5016,7 +5016,7 @@ $$
     T_{\fC} f := \sum_{\fp \in \fC} T_{\fp} f\,, \quad\quad T_{\fC}^* g := \sum_{\fp\in\fC} T_{\fp}^* g\,.
 $$
 
-\subsection{Proof of Lemma \ref{lem big sep tree}: Tiles with large separation}
+\section{Proof of Lemma \ref{lem big sep tree}: Tiles with large separation}
     \label{subsec big tiles}
 
 Lemma \ref{lem big sep tree} follows from the van der Corput estimate in Proposition \ref{Holder van der Corput}. We apply this proposition in Subsubsection \ref{subsubsec van der corput}. To prepare this application, we first, in Subsubsection \ref{subsubsec pao}, construct a suitable partition of unity, and show then, in Subsubsection \ref{subsubsec holder estimates} the Hölder estimates needed to apply Proposition \ref{Holder van der Corput}.
@@ -5593,7 +5593,7 @@ Lemma \ref{lem big sep tree} follows from the van der Corput estimate in Proposi
     Applying the Cauchy-Schwarz inequality, Lemma \ref{lem big sep tree} follows.
     \end{proof}
 
-\subsection{Proof of Lemma \ref{lem small sep tree}: The remaining tiles}
+\section{Proof of Lemma \ref{lem small sep tree}: The remaining tiles}
     \label{subsec rest tiles}
     Recall that
     $$
@@ -5812,7 +5812,7 @@ Lemma \ref{lem big sep tree} follows from the van der Corput estimate in Proposi
 
 
 
-\subsection{Forests}
+\section{Forests}
 In this subsection, we complete the proof of Proposition \ref{forest operator} from the results of the previous subsections.
 
 Define an $n$-row to be an $n$-forest $(\fU, \fT)$, i.e. satisfying conditions \eqref{forest1} - \eqref{forest6}, such that in addition the sets $\sc(\fu), \fu \in \fU$ are pairwise disjoint.
@@ -6021,7 +6021,7 @@ Now we prove Proposition \ref{forest operator}.
     Proposition \ref{Holder van der Corput} follows by taking the product of the $(2 - \frac{2}{q})$-th power of \eqref{eq forest bound 1} and the $(\frac{2}{q} - 1)$-st power of \eqref{eq forest bound 2}.
 \end{proof}
 
-\section{Proof of P. \ref{Holder van der Corput}, the H\"older cancellative condition}
+\chapter{Proof of P. \ref{Holder van der Corput}, the H\"older cancellative condition}
 \label{liphoel}
 
 We need the following auxiliary lemma.
@@ -6263,7 +6263,7 @@ This completes the proof of Proposition \ref{Holder van der Corput}.
 
 
 
-\section{Proof of P. \ref{Hardy Littlewood}, Vitali covering and Hardy Littlewood}
+\chapter{Proof of P. \ref{Hardy Littlewood}, Vitali covering and Hardy Littlewood}
 \label{sec hlm}
 \rs{Checked}
 
@@ -6565,7 +6565,7 @@ It follows that for each $z \in B(x,r)$
 This completes the proof.
 
 
-\section{Proof of Theorem \ref{classical Carleson}}
+\chapter{Proof of Theorem \ref{classical Carleson}}
 
 \lars{TODO: Subsection 4 has to be rewritten to prove the bound for the correct maximal operator.
 
@@ -6587,10 +6587,10 @@ and \ref{10vandercorput}. Subsections \ref{10piecewise},
 are mutually independent.
 
 
-\subsection{The classical Carleson theorem}
+\section{The classical Carleson theorem}
 \label{10classical}
 
-Let a uniformly continuous $2\pi$ periodic function $f:\R\to \mathbb{C}$ bounded in absolute value by $1$ be given. Let $\epsilon>0$ be given.
+Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ bounded in absolute value by $1$ be given. Let $\epsilon>0$ be given.
 
 By uniform  continuity of $f$, there is a $0<\delta<\pi$
 such that for all $x,x' \in \R$ with $|x-x'|\le \delta$
@@ -6640,7 +6640,7 @@ $f_0^{-1}(F)\setminus Z$ is open and completes the proof of measurability of $f_
 
 
 
-To see that $f_0$ is $2\pi$ periodic, we observe by
+To see that $f_0$ is $2\pi$-periodic, we observe by
 adding $2\pi$ to \eqref{definekx} that
 \begin{equation}
  k(x+2\pi)=k(x)+K
@@ -6806,11 +6806,11 @@ We have
 \end{proof}
 
 \begin{lemma}\label{dirichlet}
-We have for every $2\pi$ periodic bounded measurable $f$ and every $N\ge 0$
+We have for every $2\pi$-periodic bounded measurable $f$ and every $N\ge 0$
 \begin{equation}
     S_Nf(x)=\frac 1{2\pi}\int_{0}^{2\pi}f(y) K_N(x-y)\, dy
 \end{equation}
-where $K_N$ is the $2\pi$ periodic continuous function of
+where $K_N$ is the $2\pi$-periodic continuous function of
 $\R$ given by
 \begin{equation}\label{eqksumexp}
 \sum_{n=-N}^N e^{in x'}\, .
@@ -6856,7 +6856,7 @@ This  proves the second part of the lemma.
 The following lemma will be proved in Subsection \ref{10projection}.
 
 \begin{lemma}\label{lem l2sn}
-    Let $f$ be a bounded $2\pi$ periodic measurable function. Then, for all $N\ge 0$
+    Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{snbound}
    \|S_Nf\|_2\le \|f\|_2.
    \end{equation}
@@ -6866,7 +6866,7 @@ The following lemma will be proved in Subsection \ref{10projection}.
 
 
 
-\subsection{Piecewise constant functions.}
+\section{Piecewise constant functions.}
 \label{10piecewise}
 
 
@@ -7088,7 +7088,7 @@ now follows by Lemma \ref{lem g with zero}.
 
 
 
-\subsection{The truncated Hilbert transform}
+\section{The truncated Hilbert transform}
 \label{10hilbert}
 
 \lars{I am skipping this subsection because it has to be rewritten anyway}
@@ -7102,7 +7102,7 @@ now follows by Lemma \ref{lem g with zero}.
 
 
 Let $M_n$ be the modulation operator
-acting on measurable $2\pi$ periodic functions
+acting on measurable $2\pi$-periodic functions
 defined by
 \begin{equation}
     M_ng(x)=g(x) e^{inx}\, .
@@ -7115,7 +7115,7 @@ Define the approximate Hilbert transform by
 
 
 \begin{lemma}
-We have for every bounded measurable $2\pi$ periodic function $g$
+We have for every bounded measurable $2\pi$-periodic function $g$
 \begin{equation}\label{lnbound}
     \|L_Ng\|_2\le \|g\|_2
 \end{equation}
@@ -7146,7 +7146,8 @@ This proves \eqref{mnbound} and completes the proof of the lemma.
 \end{proof}
 
 \begin{lemma}\label{lem shift}
-Let $f$ be a bounded $2\pi$ periodic function. We have for any
+\lean{Function.Periodic.intervalIntegral_add_eq, intervalIntegral.integral_comp_sub_right}
+Let $f$ be a bounded $2\pi$-periodic function. We have for any
 $0 \le x\le 2\pi$ that
 \begin{equation}
  \int_0^{2\pi} f(y)\, dy= \int_{-x}^{2\pi -x}   f(y)\, dy
@@ -7175,7 +7176,7 @@ This proves the first identity of the lemma. The second identity follows by subs
 
 
 \begin{lemma}\label{young}
-    Let $f$ and $g$ be two bounded non-negative measurable $2\pi$ periodic functions on $\R$. Then
+    Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
     \begin{equation}\label{eqyoung}
         \left(\int_0^{2\pi} \left(\int_0^{2\pi}
         f(y)g(x-y)\, dy\right)^2\, dx\right)^{\frac 12}\le \|f\|_2 \|g\|_1\, .
@@ -7195,7 +7196,7 @@ Using Fubini and Lemma \ref{lem shift}, we observe
 \end{equation}
 
    Let $h$ be the  nonnegative square root of $g$, then
-   $h$ is bounded and $2\pi$ periodic with $h^2=g$.
+   $h$ is bounded and $2\pi$-periodic with $h^2=g$.
    We estimate the square of the left-hand side of
    \eqref{eqyoung} with Cauchy-Schwarz and then with
    \eqref{eqhil4} by
@@ -7257,9 +7258,9 @@ is equal to
 \begin{lemma}\label{lem dirichlet2}
 Let $0<r<\pi$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
-There is a   $2\pi$ periodic continuous function
+There is a   $2\pi$-periodic continuous function
  ${L'}$ on $\R$ that satisfies for all $0\le x\le 2\pi$
-and all $2\pi$ periodic bounded measurable functions $f$ on $\R$
+and all $2\pi$-periodic bounded measurable functions $f$ on $\R$
 \begin{equation}\label{lthroughlprime}
     L_Nf(x)=\frac 1{2\pi}\int_{0}^{2\pi}f(y) {L'}(x-y)\, dy
 \end{equation}
@@ -7424,7 +7425,7 @@ By Lemma \ref{lnbound} and Lemma\ref{krbound}, we obtain
 \end{equation}
 
 
-\subsection{The proof of the van der Corput Lemma \ref{lem vdc}}
+\section{The proof of the van der Corput Lemma \ref{lem vdc}}
 \label{10vandercorput}
 
 Let $g$ be a Lipschitz continuous function as in the lemma. We have
@@ -7471,7 +7472,7 @@ $$
 
 
 
-\subsection{Partial sums as orthogonal projections}
+\section{Partial sums as orthogonal projections}
 \label{10projection}
 
 
@@ -7482,7 +7483,7 @@ $$
 
 
 \begin{lemma}\label{lem projection}
-  Let $f$ be a bounded $2\pi$ periodic measurable function. Then, for all $N\ge 0$
+  Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{projection}
    S_N(S_N f)=S_Nf\, .
    \end{equation}
@@ -7524,7 +7525,7 @@ S_N(S_Nf)(x)=
 This proves the lemma.
 \end{proof}
 \begin{lemma}\label{selfadjoint}
-    We have for any $2\pi$ periodic bounded measurable $g,f$ that
+    We have for any $2\pi$-periodic bounded measurable $g,f$ that
     \begin{equation}
        \int_0^{2\pi} \overline{S_Nf(x)} g(x)=\int_0^{2\pi} \overline{f(x)} S_Ng(x)\, dx\, .
     \end{equation}
@@ -7599,10 +7600,10 @@ This completes the proof of the lemma.
 
 
 
-\subsection{The error bound}
+\section{The error bound}
 \label{10difference}
 
-\subsection{Carleson on the real line}
+\section{Carleson on the real line}
 \label{10carleson}
 
 We prove Lemma \ref{lem rcarleson}.
@@ -7619,6 +7620,7 @@ The space $(\R,\rho)$ is a complete locally compact metric space.
     This is part of the Lean library.
 \end{proof}
 \begin{lemma}\label{lem ball int}
+    \lean{Real.ball_eq_Ioo}
     For $x\in R$ and $R>0$, the ball $B(x,R)$ is the interval $(x-R,x+R)$
 \end{lemma}
 \begin{proof}
@@ -7641,6 +7643,7 @@ We consider the Lebesgue measure $\mu$ on $\R$.
     This is part of the Lean library.
 \end{proof}
 \begin{lemma}\label{lem ball meas}
+    \lean{Real.volume_ball}
     We have for every $x\in \R$ and $R>0$
     \begin{equation}
         \mu(B(x,R))=2R\, .
