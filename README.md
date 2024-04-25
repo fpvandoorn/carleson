@@ -3,7 +3,7 @@ A (WIP) formalized proof of a generalized Carleson's theorem in Lean
 
 ## Contribute
 
-To get the repository, make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html). Then get the repository using `git clone https://github.com/fpvandoorn/carleson.git` and run `lake exe cache get` inside the repository. Run `lake build` to build all files in this repository. See the README of [my course repository](https://github.com/fpvandoorn/LeanCourse23) for more detailed instructions.
+To get the repository, make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html). Then get the repository using `git clone https://github.com/fpvandoorn/carleson.git` and run `lake exe cache get!` inside the repository. Run `lake build` to build all files in this repository. See the README of [my course repository](https://github.com/fpvandoorn/LeanCourse23) for more detailed instructions.
 
 To publish your changes on Github, you need to be added as a contributor to this repository. Make a Github account if you don't have one already and send your Github account per email to Floris. I will add you.
 
@@ -23,7 +23,7 @@ git clone git@github.com:plastex/plastex
 pip3 install ./plastex
 git clone git@github.com:PatrickMassot/leanblueprint
 pip3 install ./leanblueprint
-cd sphere-eversion
+cd carleson
 ```
 
 To actually build the blueprint, run

@@ -7,8 +7,6 @@ import Mathlib.Analysis.SpecialFunctions.Log.Base
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
 
-local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
-
 /-! Question(F): should a space of homogeneous type extend `PseudoMetricSpace` or
 `MetricSpace`? -/
 

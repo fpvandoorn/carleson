@@ -8,8 +8,6 @@ noncomputable section
 /-! Miscellaneous definitions.
 We should move them to separate files once we start proving things about them. -/
 
-local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
-
 variable {X : Type*} {A : ℝ} [PseudoMetricSpace X] [IsSpaceOfHomogeneousType X A]
 
 section localOscillation
@@ -66,21 +64,21 @@ lemma fact_isCompact_ball (x : X) (r : ℝ) : Fact (IsBounded (ball x r)) :=
   ⟨isBounded_ball⟩
 attribute [local instance] fact_isCompact_ball
 
-/-- A set `𝓠` of (continuous) functions is compatible. -/
-class IsCompatible [IsSpaceOfHomogeneousType X A] (𝓠 : Set C(X, ℂ)) : Prop where
-  localOscillation_two_mul_le {x₁ x₂ : X} {r : ℝ} {f g : C(X, ℂ)} (hf : f ∈ 𝓠) (hg : g ∈ 𝓠)
+/-- A set `Θ` of (continuous) functions is compatible. -/
+class IsCompatible [IsSpaceOfHomogeneousType X A] (Θ : Set C(X, ℂ)) : Prop where
+  localOscillation_two_mul_le {x₁ x₂ : X} {r : ℝ} {f g : C(X, ℂ)} (hf : f ∈ Θ) (hg : g ∈ Θ)
     (h : dist x₁ x₂ < 2 * r) :
     localOscillation (ball x₂ (2 * r)) f g ≤ A * localOscillation (ball x₁ r) f g
-  localOscillation_le_of_subset {x₁ x₂ : X} {r : ℝ} {f g : C(X, ℂ)} (hf : f ∈ 𝓠) (hg : g ∈ 𝓠)
+  localOscillation_le_of_subset {x₁ x₂ : X} {r : ℝ} {f g : C(X, ℂ)} (hf : f ∈ Θ) (hg : g ∈ Θ)
     (h1 : ball x₁ r ⊆ ball x₂ (A * r)) (h2 : A * r ≤ Metric.diam (univ : Set X)) :
     2 * localOscillation (ball x₁ r) f g ≤ localOscillation (ball x₂ (A * r)) f g
   ballsCoverBalls {x : X} {r R : ℝ} :
-    ∀ f : withLocalOscillation (ball x r), f ∈ 𝓠 → CoveredByBalls (ball f (2 * R) ∩ 𝓠) ⌊A⌋₊ R
+    ∀ f : withLocalOscillation (ball x r), f ∈ Θ → CoveredByBalls (ball f (2 * R) ∩ Θ) ⌊A⌋₊ R
 
 export IsCompatible (localOscillation_two_mul_le localOscillation_le_of_subset ballsCoverBalls)
 
 -- todo
-lemma IsCompatible.IsSeparable (hA : 1 ≤ A) {𝓠 : Set C(X, ℂ)} [IsCompatible 𝓠] : IsSeparable 𝓠 :=
+lemma IsCompatible.IsSeparable (hA : 1 ≤ A) {Θ : Set C(X, ℂ)} [IsCompatible Θ] : IsSeparable Θ :=
   sorry
 
 set_option linter.unusedVariables false in
@@ -88,16 +86,16 @@ set_option linter.unusedVariables false in
 def iLipNorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖) + R * ⨆ (x : X) (y : X) (h : x ≠ y), ‖ϕ x - ϕ y‖ / nndist x y
 
-/-- 𝓠 is τ-cancellative -/
-class IsCancellative (τ : ℝ) (𝓠 : Set C(X, ℂ)) : Prop where
+/-- Θ is τ-cancellative -/
+class IsCancellative (τ : ℝ) (Θ : Set C(X, ℂ)) : Prop where
   norm_integral_exp_le {x : X} {r : ℝ} {ϕ : X → ℂ} {K : ℝ≥0} (h1 : LipschitzWith K ϕ)
-    (h2 : tsupport ϕ ⊆ ball x r) {f g : C(X, ℂ)} (hf : f ∈ 𝓠) (hg : g ∈ 𝓠) :
+    (h2 : tsupport ϕ ⊆ ball x r) {f g : C(X, ℂ)} (hf : f ∈ Θ) (hg : g ∈ Θ) :
     ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
     A * volume.real (ball x r) * iLipNorm ϕ x r * (1 + localOscillation (ball x r) f g) ^ (- τ)
 
 export IsCancellative (norm_integral_exp_le)
 
-/-- The "volume function". Note that we will need to assume
+/-- The "volume function" `V`. Note that we will need to assume
 `IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
 def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
@@ -108,10 +106,10 @@ open Function
 /-- `K` is a one-sided `τ`-Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
-class IsCZKernel (τ : ℝ) (K : X → X → ℂ) : Prop where
-  norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ (vol x y)⁻¹
+class IsCZKernel (a : ℝ) (K : X → X → ℂ) : Prop where
+  norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ 2 ^ a ^ 3 / vol x y
   norm_sub_le {x y y' : X} (h : 2 * A * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ τ * (vol x y)⁻¹
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ a⁻¹ * (2 ^ a ^ 3 / vol x y)
   measurable_right (y : X) : Measurable (K · y)
   -- either we should assume this or prove from the other conditions
   measurable : Measurable (uncurry K)
@@ -151,8 +149,8 @@ def ANCZOperatorLp (p : ℝ≥0∞) [Fact (1 ≤ p)] (K : X → X → ℂ) (f : 
 
 set_option linter.unusedVariables false in
 /-- The (maximally truncated) polynomial Carleson operator `T`. -/
-def CarlesonOperator (K : X → X → ℂ) (𝓠 : Set C(X, ℂ)) (f : X → ℂ) (x : X) : ℝ :=
-  ⨆ (Q ∈ 𝓠) (R₁ : ℝ) (R₂ : ℝ) (h1 : R₁ < R₂),
+def CarlesonOperator (K : X → X → ℂ) (Θ : Set C(X, ℂ)) (f : X → ℂ) (x : X) : ℝ :=
+  ⨆ (Q ∈ Θ) (R₁ : ℝ) (R₂ : ℝ) (h1 : R₁ < R₂),
   ‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖
 
 variable (X) in
@@ -202,25 +200,25 @@ instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
   @borel C(X, ℂ) t
 
 /-- A tile structure. Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
-class TileStructure.{u} [Inhabited X] (𝓠 : outParam (Set C(X, ℂ)))
+class TileStructure.{u} [Inhabited X] (Θ : outParam (Set C(X, ℂ)))
     (D κ : outParam ℝ) (C : outParam ℝ) extends GridStructure X κ D C where
   protected 𝔓 : Type u
   protected 𝓘 : 𝔓 → ι
   Ω : 𝔓 → Set C(X, ℂ)
   measurableSet_Ω : ∀ p, MeasurableSet (Ω p)
   Q : 𝔓 → C(X, ℂ)
-  Q_mem : ∀ p, Q p ∈ 𝓠
-  union_Ω {i} : ⋃ (p) (_h : 𝓓 (𝓘 p) = 𝓓 i), Ω p = 𝓠
+  Q_mem : ∀ p, Q p ∈ Θ
+  union_Ω {i} : ⋃ (p) (_h : 𝓓 (𝓘 p) = 𝓓 i), Ω p = Θ
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓓 (𝓘 p) = 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p')
   relative_fundamental_dyadic {p p'} (h : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
-  localOscillationBall_subset {p} : localOscillationBall (𝓓 (𝓘 p)) (Q p) 5⁻¹ ∩ 𝓠 ⊆ Ω p
+  localOscillationBall_subset {p} : localOscillationBall (𝓓 (𝓘 p)) (Q p) 5⁻¹ ∩ Θ ⊆ Ω p
   subset_localOscillationBall {p} : Ω p ⊆ localOscillationBall (𝓓 (𝓘 p)) (Q p) 1
 
 export TileStructure (Ω measurableSet_Ω Q Q_mem union_Ω disjoint_Ω
   relative_fundamental_dyadic localOscillationBall_subset subset_localOscillationBall)
 -- #print homogeneousMeasurableSpace
 -- #print TileStructure
-variable [Inhabited X] {𝓠 : Set C(X, ℂ)} [TileStructure 𝓠 D κ C]
+variable [Inhabited X] {Θ : Set C(X, ℂ)} [TileStructure Θ D κ C]
 
 variable (X) in
 def 𝔓 := TileStructure.𝔓 X A
