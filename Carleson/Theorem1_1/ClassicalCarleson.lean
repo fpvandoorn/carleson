@@ -11,18 +11,14 @@ import Mathlib.Algebra.BigOperators.Basic
 noncomputable section
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
-#check theorem1_1C
 /- Specialize this to get the usual version of Carleson's theorem,
 by taking `X = ℝ`, `K x y := 1 / (x - y)` and `𝓠 = {linear functions}`.
 -/
 
-def K : ℝ → ℝ → ℂ := fun x y ↦ 1 / (x - y)
+--def K : ℝ → ℝ → ℂ := fun x y ↦ 1 / (x - y)
 
-instance : IsSpaceOfHomogeneousType ℝ 2 := by
-  have : IsSpaceOfHomogeneousType ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := inferInstance
-  simpa
 
-#check theorem1_1C K (by norm_num)
+
 
 #check Complex.abs
 
@@ -241,22 +237,85 @@ section
 open ENNReal
 
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
+def K (x y : ℝ) : ℂ := k (x-y)
 
 local notation "θ" => fun (n : ℤ) (x : ℝ) ↦ (n * x : ℂ)
 
 --lemma θcont {n : ℤ} : Continuous (θ n) := sorry
 
---def 𝓠 : Set C(ℝ, ℂ) := {(θ n) | n : ℤ}
+local notation "Θ" => {(θ n) | n : ℤ}
 
-local notation "T_" => (CarlesonOperator (fun x y ↦ k (x-y)) {(θ n) | n : ℤ})
+local notation "T_" => (CarlesonOperator K Θ)
+
+
+#check theorem1_2C
+
+/- to HomogeneousType -/
+lemma isSpaceOfHomogeneousType_with_increased_constant {X : Type} {a b : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X a] (aleb : a ≤ b) : IsSpaceOfHomogeneousType X b where
+  volume_ball_two_le_same := by
+    intro x r
+    calc MeasureTheory.volume.real (Metric.ball x (2 * r))
+    _ ≤ a * MeasureTheory.volume.real (Metric.ball x r) := by apply volume_ball_two_le_same
+    _ ≤ b * MeasureTheory.volume.real (Metric.ball x r) := by gcongr
+
+-- copied from HomogeneousType
+-- anyway, providing a proof would be good and is actually partly part of section 10.7
+instance helper {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E] :
+    IsSpaceOfHomogeneousType E (2 ^ FiniteDimensional.finrank ℝ E) := by sorry
+
+/- lemmas 10.22 to 10.26 are for this -/
+instance badR: IsSpaceOfHomogeneousType ℝ 4 := by
+  have : IsSpaceOfHomogeneousType ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := by apply helper
+  simp at this
+  exact isSpaceOfHomogeneousType_with_increased_constant (by linarith)
+
+lemma h1 : 2 ∈ Set.Ioc 1 (2 : ℝ) := by simp
+lemma h2 : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
+--mainly have to work for the following lemmas
+
+--TODO : possibly issues with a different "doubling constant" that in the paper (4 instead of 2)
+instance h4 : IsCompatible Θ where
+  /- Lemma 10.27 from the paper. -/
+  localOscillation_two_mul_le := by sorry
+  /- Lemma 10.28 from the paper. -/
+  localOscillation_le_of_subset := by sorry
+  /- Lemma 10.29 from the paper. -/
+  ballsCoverBalls := by sorry
+
+instance h5 : IsCancellative 4 Θ where
+  /- Lemma 10.30 from the paper. -/
+  norm_integral_exp_le := by sorry
+
+instance h6 : IsCZKernel 4 K where
+  /- Lemma 10.31 from the paper. -/
+  norm_le_vol_inv (x y : ℝ) := by sorry
+  /- Lemma ?-/
+  norm_sub_le {x y y' : ℝ} (h : 2 * 4 * dist y y' ≤ dist x y) := by sorry
+  /- Lemma ?-/
+  measurable_right (y : ℝ) := by sorry
+  /- Lemma ?-/
+  measurable := by sorry
+
+/- Lemma ?-/
+lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
+
+
+#check @theorem1_2C
+#check theorem1_2C K (by simp) h1 h2 _ _ h3
 
 /- Lemma 10.4 -/
+--TODO : directly write out constant (2^(2^40)) ?
 lemma rcarleson {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
+    (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     :
-    ‖∫ x in G, T_ (Set.indicator F 1) x‖₊ ≤
-    (2^(2^40)) * (MeasureTheory.volume.real G) ^ (1 / 2) * (MeasureTheory.volume.real F) ^ (1 / 2) := by
-  sorry
+    ‖∫ x in G, T_ f x‖ ≤
+    C1_2 4 2 * (MeasureTheory.volume.real G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real F) ^ (2 : ℝ)⁻¹ := by
+  have hF' :  @MeasurableSet ℝ (@MeasureTheory.MeasureSpace.toMeasurableSpace ℝ IsSpaceOfHomogeneousType.toMeasureSpace) F := by sorry
+  have hG' :  @MeasurableSet ℝ (@MeasureTheory.MeasureSpace.toMeasurableSpace ℝ IsSpaceOfHomogeneousType.toMeasureSpace) G := by sorry
+  --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
+  convert theorem1_2C K (by simp) h1 h2 hF' hG' h3 f hf <;> sorry
+
 
 end section
