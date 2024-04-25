@@ -74,7 +74,6 @@ variable {f : ℝ → ℂ} {N : ℕ}
 --local notation "S_" => partialFourierSum f
 
 --TODO : seems like theorem1_1 is actually Theorem 1.2 from the paper
---TODO : check and compare to version in mathlib has_pointwise_sum_fourier_series_of_summable and similar
 theorem classical_carleson --{f : ℝ → ℂ}
   (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) (bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
   {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) :
@@ -96,7 +95,6 @@ theorem classical_carleson --{f : ℝ → ℂ}
     let E₁ : Set ℝ := ⋃ k ∈ range (K + 1), Set.Icc ((2 * Real.pi) / K * (k - ε / (16 * Real.pi))) ((2 * Real.pi) / K * (k + ε / (16 * Real.pi)))
     --added helper lemma
     have E₁measurable : MeasurableSet E₁ := by
-      --rw [E₁def]
       apply measurableSet_biUnion
       intro k hk
       exact measurableSet_Icc
@@ -134,6 +132,8 @@ theorem classical_carleson --{f : ℝ → ℂ}
     --changed interval to Icc to match the interval in the theorem
     have piecePartialFourierSumApprox {N : ℕ} (hN : N > N₀) :
       ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₁, Complex.abs (f₀ x - partialFourierSum f₀ N x) ≤ ε / 4:= by
+      -- use has_pointwise_sum_fourier_series_of_summable or hasSum_fourier_series_L2 from mathlib?
+      -- search for more convergence theorems
       sorry
     --Lemma 10.3 from the paper
     --TODO : review measurability assumption
@@ -201,7 +201,7 @@ theorem classical_carleson --{f : ℝ → ℂ}
         apply AbsoluteValue.add_le
       _ ≤ (ε / 2) + (ε / 4) + (ε/4) := by
         gcongr
-        .  --obtain this from hδ somehow
+        . -- here, we use the definitions of δ, K and f₀
           apply le_of_lt
           apply hδ
           rw [Real.dist_eq]
@@ -233,3 +233,30 @@ theorem classical_carleson --{f : ℝ → ℂ}
 
 
 #check classical_carleson
+
+
+
+section
+
+open ENNReal
+
+def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
+
+local notation "θ" => fun (n : ℤ) (x : ℝ) ↦ (n * x : ℂ)
+
+--lemma θcont {n : ℤ} : Continuous (θ n) := sorry
+
+--def 𝓠 : Set C(ℝ, ℂ) := {(θ n) | n : ℤ}
+
+local notation "T_" => (CarlesonOperator (fun x y ↦ k (x-y)) {(θ n) | n : ℤ})
+
+/- Lemma 10.4 -/
+lemma rcarleson {F G : Set ℝ}
+    (hF : MeasurableSet F) (hG : MeasurableSet G)
+    (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
+    :
+    ‖∫ x in G, T_ (Set.indicator F 1) x‖₊ ≤
+    (2^(2^40)) * (MeasureTheory.volume.real G) ^ (1 / 2) * (MeasureTheory.volume.real F) ^ (1 / 2) := by
+  sorry
+
+end section
