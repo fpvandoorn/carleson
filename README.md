@@ -1,6 +1,10 @@
 # Formalization of a generalized Carleson's theorem
 A (WIP) formalized proof of a generalized Carleson's theorem in Lean
 
+* [Blueprint](http://florisvandoorn.com/carleson/blueprint/)
+* [Blueprint as pdf](http://florisvandoorn.com/carleson/blueprint.pdf)
+* [Doc pages for this repository](http://florisvandoorn.com/carleson/docs/)
+
 ## Contribute
 
 To get the repository, make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html). Then get the repository using `git clone https://github.com/fpvandoorn/carleson.git` and run `lake exe cache get!` inside the repository. Run `lake build` to build all files in this repository. See the README of [my course repository](https://github.com/fpvandoorn/LeanCourse23) for more detailed instructions.
@@ -13,25 +17,5 @@ you've worked have no errors (having `sorry`'s is of course fine).
 
 ## Build the blueprint
 
-To build the web version of the blueprint, you need a working LaTeX installation.
-Furthermore, you need some packages:
-```
-sudo apt install graphviz libgraphviz-dev
-pip3 install invoke pandoc
-cd .. # go to folder where you are happy clone git repos
-git clone git@github.com:plastex/plastex
-pip3 install ./plastex
-git clone git@github.com:PatrickMassot/leanblueprint
-pip3 install ./leanblueprint
-cd carleson
-```
-
-To actually build the blueprint, run
-```
-lake exe cache get
-lake build
-inv all
-```
-
-To view the web-version of the blueprint locally, run `inv serve` and navigate to
-`http://localhost:8000/` in your favorite browser.
+To test the Blueprint locally, you can compile `print.tex` using XeLaTeX (i.e. `xelatex print.tex` in the folder `blueprint/src`). If you have the Python package `invoke` you can also run `inv bp` which puts the output in `blueprint/print/print.pdf`.
+If you feel adventurous and want to build the web version of the blueprint locally, you need to install some packages by following the instructions [here](https://pypi.org/project/leanblueprint/). But if the pdf builds locally, you can just make a pull request and use the online blueprint.
