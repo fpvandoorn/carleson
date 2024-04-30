@@ -415,10 +415,87 @@ instance h5 : IsCancellative 2 Θ where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by sorry
 
+/- Lemma 10.9 (lower secant bound) from the paper. -/
+lemma lower_secant_bound {η : ℝ} (ηpos : η > 0) {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
+    η / 8 ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
+  sorry
+
+/- Lemma 10.38 (Hilbert kernel regularity) -/
+lemma Hilbert_kernel_regularity {x y y' : ℝ} :
+    2 * |y - y'| ≤ |x - y| → ‖K x y - K x y'‖ ≤ 2 ^ 10 * (1 / |x - y|) * (|y - y'| / |x - y|)  := by
+  sorry
+
+--TODO : add some Real.vol lemma
+
 instance h6 : IsCZKernel 4 K where
   /- Lemma 10.37 (Hilbert kernel bound) from the paper. -/
-  norm_le_vol_inv := by sorry
-  /- Lemma 10.38 (Hilbert kernel regularity) -/
+  norm_le_vol_inv := by
+    intro x y
+    by_cases h : 0 < |x - y| ∧ |x - y| < 1
+    . calc ‖K x y‖
+        _ ≤ 1 / ‖1 - Complex.exp (Complex.I * ↑(x - y))‖ := by
+          rw [K, k, norm_div]
+          gcongr
+          rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg]
+          . apply max_le
+            linarith [abs_nonneg (x-y)]
+            linarith
+          . apply le_max_right
+        _ ≤ 1 / (|x - y| / 8) := by
+          gcongr
+          . linarith
+          . apply lower_secant_bound
+            . exact h.1
+            . rw [Set.mem_Icc]
+              --TODO : improve calculations
+              constructor
+              . simp
+                calc |x - y|
+                  _ ≤ 1 := h.2.le
+                  _ ≤ 2 * Real.pi - 1 := by
+                    rw [le_sub_iff_add_le]
+                    linarith [Real.two_le_pi]
+                  _ ≤ 2 * Real.pi + (x - y) := by
+                    rw [sub_eq_add_neg]
+                    gcongr
+                    exact (abs_le.mp h.2.le).1
+              . calc x - y
+                  _ ≤ |x - y| := le_abs_self (x - y)
+                  _ ≤ 1 := h.2.le
+                  _ ≤ 2 * Real.pi - 1 := by
+                    rw [le_sub_iff_add_le]
+                    linarith [Real.two_le_pi]
+                  _ ≤ 2 * Real.pi - |x - y| := by
+                    gcongr
+                    exact h.2.le
+            . trivial
+        _ = 8 / |x - y| := by
+          field_simp
+        _ ≤ (2 : ℝ) ^ (4 : ℝ) ^ 3 / Real.vol x y := by
+          rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal]
+          . ring_nf
+            gcongr
+            norm_num
+          . linarith
+        _ = (2 : ℝ) ^ (4 : ℝ) ^ 3 / @Real.vol ℝ Real.pseudoMetricSpace IsSpaceOfHomogeneousType.toMeasureSpace x y := by
+          congr
+          --TODO : Identify Real.measureSpace = IsSpaceOfHomogeneousType.toMeasureSpace
+          --rw [IsSpaceOfHomogeneousType.toMeasureSpace, badR]
+          sorry
+    . push_neg at h
+      have : ‖K x y‖ = 0 := by
+        rw [norm_eq_zero, K, k, _root_.div_eq_zero_iff]
+        by_cases xeqy : x = y
+        . right
+          simp [xeqy]
+        . left
+          simp
+          apply h (abs_pos.mpr (sub_ne_zero.mpr xeqy))
+      rw [this]
+      apply div_nonneg
+      . norm_num
+      . exact MeasureTheory.measureReal_nonneg
+  /- uses Lemma 10.38 (Hilbert kernel regularity) -/
   norm_sub_le := by sorry
   /- Lemma ?-/
   measurable_right := by sorry
