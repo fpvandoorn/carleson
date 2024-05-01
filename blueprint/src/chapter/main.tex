@@ -285,7 +285,7 @@ $$K(x,y)=\sum_{s\in\mathbb{Z}}K_s(x,y).$$
  that a function from a measure space to a finite set is measurable if the pre-image of each of the elements in the range is measurable.
 
 
-\begin{prop}[finitary Carleson]
+\begin{proposition}[finitary Carleson]
 \label{finitary Carleson}
 \uses{discrete Carleson, grid existence, tile structure, tile sum operator}
 Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq  \sigma_2$. Let $\tQ\colon X\to \Mf$ be a measurable function with finite range. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq  \mu(G)$ such that
@@ -298,7 +298,7 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
     \le \frac{2^{440a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}}
      \mu(F)^{\frac 1 q}\,.
 \end{equation}
-\end{prop}
+\end{proposition}
 Let measurable functions ${\sigma_1}\leq \sigma_2\colon X\to \mathbb{Z}$ with finite range be given. Let a measurable function
 $\tQ\colon X\to \Mf$ with finite range
 be given.
@@ -400,7 +400,7 @@ We have for each tile $\fp$
 \end{equation}
 
 
-\begin{prop}[discrete Carleson]
+\begin{proposition}[discrete Carleson]
 \label{discrete Carleson}
 \uses{exceptional set, forest union, forest complement}
 Let $(\mathcal{D}, c, s)$ be a grid structure and \begin{equation*}
@@ -421,7 +421,7 @@ we have
     \label{disclesssim}
    \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x)  \le \frac{2^{440a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
 \end{equation}
-\end{prop}
+\end{proposition}
 
 
 
@@ -491,7 +491,7 @@ of $\fP$ such that for any distinct $\fp,\fq\in \mathfrak{A}$ we do not have hav
 
 The following proposition is proved in Section \ref{antichainboundary}.
 
-\begin{prop}[antichain operator]
+\begin{proposition}[antichain operator]
 \label{antichain operator}
 
 \uses{dens2 antichain,dens1 antichain}
@@ -502,7 +502,7 @@ For any antichain $\mathfrak{A} $ and  for all $f:X\to \C$ with $|f|\le \mathbf{
 \begin{equation}
     \le  \frac{2^{150a^3}}{q-1} \dens_1(\mathfrak{A})^{\frac {q-1}{8a^4}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12}  \|f\|_2 \|g\|_2\, .
 \end{equation}
-\end{prop}
+\end{proposition}
 
 Let $n\ge 0$.
 An $n$-forest is a pair $(\fU, \mathfrak{T})$
@@ -546,7 +546,7 @@ B(\pc(\fp), 8D^{\ps(\fp)})\subset \sc(\fu).
 
 
 The following proposition is proved in Section \ref{treesection}.
-\begin{prop}[forest operator]
+\begin{proposition}[forest operator]
 \label{forest operator}
 \uses{forest row decomposition,row bound,row correlation,disjoint row support}
 For any $n\ge 0$ and any $n$-forest $(\fU,\fT)$ we have for all $f: X \to \mathbb{C}$ with $|f| \le \mathbf{1}_F$ and all bounded $g$ with bounded support
@@ -558,7 +558,7 @@ $$
     2^{432a^3}2^{-\frac{q-1}{q} n} \dens_2\left(\bigcup_{\fu\in \fU}\fT(\fu)\right)^{\frac{1}{q}-\frac{1}{2}} \|f\|_2 \|g\|_2 \,.
 $$
 \lars{I dont understand why there was 650 here before} \rs{Track dependence on Prop 2.3, Prop 2.2, Thm 1.2. Don't delete comment till I read Section 7 completely} \lars{Changed all constants}
-\end{prop}
+\end{proposition}
 
 Theorem \ref{metric space Carleson} is formulated at the level of generality
 for general kernels satisfying the mere H\"older regularity condition \eqref{eqkernel y smooth}. On the other hand, the cancellative condition \eqref{eq vdc cond} is a testing condition against more regular,
@@ -577,7 +577,7 @@ Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\ta
 \end{equation}
 
 
-\begin{prop}[Holder van der Corput]
+\begin{proposition}[Holder van der Corput]
     \label{Holder van der Corput}
     \uses{Lipschitz Holder approximation}
      Let $z\in X$ and $R>0$ and set $B=B(z,R)$.
@@ -591,7 +591,7 @@ Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\ta
        (1 + d_{B}(\mfa,\mfb))^{-\frac{1}{2a^2+a^3}}
     \,.
     \end{equation}
-    \end{prop}
+    \end{proposition}
 
 We further formulate a classical Vitali covering result
 and maximal function estimate that we need throughout several sections.
@@ -604,7 +604,7 @@ M_{\mathcal{B},p}u(x):=\left(\sup_{B\in \mathcal{B}} \frac{\mathbf{1}_{B}(x)}{\m
 \end{equation}
 Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 
-\begin{prop}[Hardy Littlewood]
+\begin{proposition}[Hardy Littlewood]
 \label{Hardy Littlewood}
 \uses{layer cake representation,covering separable space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
@@ -633,7 +633,7 @@ and for all $1 < p_1 \le p_2 \le \infty$
     \|M(w^{p_1})^{\frac{1}{p_1}}\|_{p_2} \le 2^{4a} \frac{p_2}{p_2-p_1}\|w\|_{p_2}\,.
 \end{equation}
 
-\end{prop}
+\end{proposition}
 
 This completes the overview of the proof of Theorem \ref{metric space Carleson}.
 
