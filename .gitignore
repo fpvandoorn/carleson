@@ -9,8 +9,6 @@
 *.fls
 *.log
 *.synctex.gz
-# Python virtual environment 
-/.venv/
-# Lean blueprint 
+# Lean blueprint
 /blueprint/lean_decls
 /blueprint/src/web.bbl
