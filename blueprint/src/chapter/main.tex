@@ -30,7 +30,7 @@
 
 
 
-In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere. Theorem \ref{classical-Carleson} represents a version of this result.
+In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere. \Cref{classical-Carleson} represents a version of this result.
 
 Let $f$ be a complex-valued, $2\pi$-periodic bounded Borel measurable function on the real line, and for an integer $n$, define the Fourier coefficient as
 \begin{equation}
@@ -53,7 +53,7 @@ Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\m
 
 Note that mere continuity implies uniform continuity in the setting of this theorem. By applying this theorem with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and taking the intersection of the corresponding exceptional sets, which has measure zero, we see that the Fourier series converges outside a set of measure zero.
 
-The purpose of this paper is twofold. On the one hand, it prepares computer verification of Theorem \ref{classical-Carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
+The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-Carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
 
 
 We proceed to introduce the setup for our general theorem.
@@ -180,7 +180,7 @@ Doubling metric measure spaces are instances of spaces of homogeneous type. Inde
 
 Our concept of a compatible collection $\Mf$ as a natural class of phase functions on a doubling metric measure space does not appear in \cite{stein-book} but is implicitly anticipated in \cite{zk-polynomial} and subsequent work of \cite{mnatsakanyan}, who proves a Carleson-type theorem for the Malmquist-Takenaka series, which leads to classes of phases related to Blaschke products. A generalization of \eqref{def-main-op} from the previously mentioned Euclidean setting into the anisotropic setting that was suggested in \cite{zk-polynomial} is included in our theory. The polynomial Carleson operator also plays a role in the study of maximally modulated singular Radon transforms along the parabola, see \cite{ramos} and \cite{becker2024maximal}.
 
-For the proof of Theorem \ref{metric-space-Carleson}, we largely follow \cite{zk-polynomial}, which in turn was inspired by \cite{lie-polynomial}. We make suitable modifications to adapt to our more general setting and have made a few technical improvements in the proof. In particular, in Section \ref{overviewsection}, we explicitly divide the main work of the proof into mutually independent sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. Some of these sections follow a similar pattern, starting with a subsection dividing the proof into further mutually independent subsections. This modularization of our proof was strongly endorsed in personal communication by the author of \cite{zk-polynomial}.
+For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polynomial}, which in turn was inspired by \cite{lie-polynomial}. We make suitable modifications to adapt to our more general setting and have made a few technical improvements in the proof. In particular, in Section \ref{overviewsection}, we explicitly divide the main work of the proof into mutually independent sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. Some of these sections follow a similar pattern, starting with a subsection dividing the proof into further mutually independent subsections. This modularization of our proof was strongly endorsed in personal communication by the author of \cite{zk-polynomial}.
 
 
 
@@ -201,11 +201,11 @@ A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council o
 \label{overviewsection}
 
 
-This section organizes the proof of Theorem \ref{metric-space-Carleson} into sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. These sections are mutually independent except for referring to the statements formulated in the present section. Section \ref{thmfromproplinear} proves the main Theorem \ref{metric-space-Carleson}, while sections \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm} each prove one proposition that is stated in the present section. The present section also introduces all definitions used across these sections.
+This section organizes the proof of \Cref{metric-space-Carleson} into sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. These sections are mutually independent except for referring to the statements formulated in the present section. Section \ref{thmfromproplinear} proves the main \Cref{metric-space-Carleson}, while sections \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm} each prove one proposition that is stated in the present section. The present section also introduces all definitions used across these sections.
 
 Subsection \ref{global-auxiliary-lemmas} proves some auxiliary lemmas that are used in more than one of the sections 3-9.
 
-Let $a, q$ be given as in Theorem \ref{metric-space-Carleson}.
+Let $a, q$ be given as in \Cref{metric-space-Carleson}.
 
 
 
@@ -287,8 +287,8 @@ For $s\in\mathbb{Z}$, we define
 \end{equation}
 so that for each $x, y \in X$ with $x\neq y$  we have
 $$K(x,y)=\sum_{s\in\mathbb{Z}}K_s(x,y).$$
- In Section \ref{thmfromproplinear}, we prove Theorem \ref{metric-space-Carleson}
- from its finitary version, Proposition \ref{finitary-Carleson} below. Recall
+ In Section \ref{thmfromproplinear}, we prove \Cref{metric-space-Carleson}
+ from its finitary version, \Cref{finitary-Carleson} below. Recall
  that a function from a measure space to a finite set is measurable if the pre-image of each of the elements in the range is measurable.
 
 
@@ -316,7 +316,7 @@ in the ball $B(o, D^S)$.
 
 
 In Section \ref{christsection},
-we prove Proposition \ref{finitary-Carleson}
+we prove \Cref{finitary-Carleson}
  using  a
 bound for a dyadic model formulated in Proposition
 \ref{discrete-Carleson} below.
@@ -438,7 +438,7 @@ we have
 
 
 
-The proof of Proposition \ref{discrete-Carleson} is done in Section \ref{proptopropprop}
+The proof of \Cref{discrete-Carleson} is done in Section \ref{proptopropprop}
 by a reduction to two further propositions that we state below.
 
 
@@ -567,7 +567,7 @@ $$
 \lars{I dont understand why there was 650 here before} \rs{Track dependence on Prop 2.3, Prop 2.2, Thm 1.2. Don't delete comment till I read Section 7 completely} \lars{Changed all constants}
 \end{proposition}
 
-Theorem \ref{metric-space-Carleson} is formulated at the level of generality
+\Cref{metric-space-Carleson} is formulated at the level of generality
 for general kernels satisfying the mere H\"older regularity condition \eqref{eqkernel-y-smooth}. On the other hand, the cancellative condition \eqref{eq-vdc-cond} is a testing condition against more regular,
 namely Lipschitz functions. To bridge the gap, we follow \cite{zk-polynomial} to observe a variant of \eqref{eq-vdc-cond} that we formulate
 in the following proposition proved in Section \ref{liphoel}.
@@ -642,7 +642,7 @@ and for all $1 < p_1 \le p_2 \le \infty$
 
 \end{proposition}
 
-This completes the overview of the proof of Theorem \ref{metric-space-Carleson}.
+This completes the overview of the proof of \Cref{metric-space-Carleson}.
 
 \section{Auxiliary lemmas}
 \label{global-auxiliary-lemmas}
@@ -799,9 +799,9 @@ where
 \end{equation}
 \end{lemma}
 
-We first show how Lemma \ref{R-truncation} implies Theorem \ref{metric-space-Carleson}. As $R$ tends to $\infty$, the integrand of the left-hand side of \eqref{Rcut} grows monotonically toward the integrand of the left-hand side of \eqref{resweak} for all $x$. By Lebesgue's monotone convergence theorem, the left-hand side of \eqref{Rcut} converges to the left-hand side of \eqref{resweak}. This verifies Theorem \ref{metric-space-Carleson}.
+We first show how \Cref{R-truncation} implies \Cref{metric-space-Carleson}. As $R$ tends to $\infty$, the integrand of the left-hand side of \eqref{Rcut} grows monotonically toward the integrand of the left-hand side of \eqref{resweak} for all $x$. By Lebesgue's monotone convergence theorem, the left-hand side of \eqref{Rcut} converges to the left-hand side of \eqref{resweak}. This verifies \Cref{metric-space-Carleson}.
 
-It remains to prove Lemma \ref{R-truncation}. Fix an integer $R>0$. By replacing $G$ with $G\cap B(o,R)$ if necessary, it suffices to show \eqref{Rcut} under the assumption that $G$ is contained in $B(o,R)$. We make this assumption. For every $x\in G$, the domain of integration in \eqref{TRR} is contained in $B(o,2R)$. By replacing $F$ with $F\cap B(o,2R)$ if necessary, it suffices to show \eqref{Rcut} under the assumption that $F$ is contained in $B(o,2R)$. We make this assumption.
+It remains to prove \Cref{R-truncation}. Fix an integer $R>0$. By replacing $G$ with $G\cap B(o,R)$ if necessary, it suffices to show \eqref{Rcut} under the assumption that $G$ is contained in $B(o,R)$. We make this assumption. For every $x\in G$, the domain of integration in \eqref{TRR} is contained in $B(o,2R)$. By replacing $F$ with $F\cap B(o,2R)$ if necessary, it suffices to show \eqref{Rcut} under the assumption that $F$ is contained in $B(o,2R)$. We make this assumption.
 
 Using the definition \eqref{defks} of $K_s$ and the partition of unity \eqref{eq-psisum}, we express \eqref{TRR} as the sum of
 \begin{equation}\label{middles}
@@ -836,22 +836,22 @@ $$
 where $T_{1, s_1,s_2,\mfa}$ is defined in \eqref{middles}.
 \end{lemma}
 
-To reduce Lemma \ref{R-truncation} to Lemma \ref{S-truncation}, we need estimates for the summands in \eqref{boundarys}. Using Lemma \ref{kernel-summand}, we obtain for arbitrary $s$ the inequality
+To reduce \Cref{R-truncation} to \Cref{S-truncation}, we need estimates for the summands in \eqref{boundarys}. Using \Cref{kernel-summand}, we obtain for arbitrary $s$ the inequality
 \begin{multline}
 \left|\int_{R_1 <  \rho(x,y) < R_2}  K_s(x,y) f(y) e(\mfa(y)) \,  \mathrm{d}\mu(y)\right|\\
 \leq \frac{2^{102 a^3}}{\mu(B(x, D^{s}))}
  \int_{B(x, D^s)} \mathbf{1}_F(y)  \, \mathrm{d}\mu(y)
 \leq 2^{102 a^3} M\mathbf{1}_F(x),
 \end{multline}
-where $M\mathbf{1}_F$ is as defined in Proposition \ref{Hardy-Littlewood}.
-Now, the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}, can be estimated using Hölder's inequality and Proposition \ref{Hardy-Littlewood} by
+where $M\mathbf{1}_F$ is as defined in \Cref{Hardy-Littlewood}.
+Now, the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}, can be estimated using Hölder's inequality and \Cref{Hardy-Littlewood} by
 $$
     2^{102 a^3}\int \mathbf{1}_{G}(x) M\mathbf{1}_F(x)\, d\mu(x)
     \leq \frac{2^{102 a^3+4a}q}{q-1}\mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
 $$
-Applying the triangle inequality to estimate the left-hand side of \eqref{Rcut} by contributions from the summands in \eqref{middles} and \eqref{boundarys}, using Lemma \ref{S-truncation} to control the first term, and the above to estimate the contribution from the four summands in \eqref{boundarys}, combined with $a\geq 4$ and $q < 2$, completes the reduction of Lemma \ref{R-truncation} to Lemma \ref{S-truncation}.
+Applying the triangle inequality to estimate the left-hand side of \eqref{Rcut} by contributions from the summands in \eqref{middles} and \eqref{boundarys}, using \Cref{S-truncation} to control the first term, and the above to estimate the contribution from the four summands in \eqref{boundarys}, combined with $a\geq 4$ and $q < 2$, completes the reduction of \Cref{R-truncation} to \Cref{S-truncation}.
 
-It remains to prove Lemma \ref{S-truncation}. Fix $S>0$.
+It remains to prove \Cref{S-truncation}. Fix $S>0$.
 \begin{lemma}[finitary S truncation]
 \label{finitary-S-truncation}
 \uses{linearized-truncation}
@@ -866,13 +866,13 @@ $$
 \end{equation}
 \end{lemma}
 
-We reduce Lemma \ref{S-truncation} to Lemma \ref{finitary-S-truncation}.
+We reduce \Cref{S-truncation} to \Cref{finitary-S-truncation}.
 By the Lebesgue monotone convergence theorem,
 applied to an increasing sequence of finite sets $\tilde{\Mf}$, inequality \eqref{Sqcut}
 continues to hold for countable $\tilde{\Mf}$.
 
 Let $\epsilon=\frac{1}{2S+1}$. Pick some $\mfa_0 \in \Mf$.
-For $k \ge 0$, let the set $\tilde{\Mf}_k$ be a subset of $B_{B(o,2R)}(\mfa_0, k)$ of maximal size, such that for all $\mfa, \mfb \in \tilde{\Mf}_k$, it holds that $d_{B(o, 2R)}(\mfa, \mfb) \ge \epsilon$. Such a set exists, since by Lemma \ref{ball-metric-entropy} there exists an upper bound for the size of such subsets in $B_{B(o, 2R)}(\mfa_0, k)$. Define
+For $k \ge 0$, let the set $\tilde{\Mf}_k$ be a subset of $B_{B(o,2R)}(\mfa_0, k)$ of maximal size, such that for all $\mfa, \mfb \in \tilde{\Mf}_k$, it holds that $d_{B(o, 2R)}(\mfa, \mfb) \ge \epsilon$. Such a set exists, since by \Cref{ball-metric-entropy} there exists an upper bound for the size of such subsets in $B_{B(o, 2R)}(\mfa_0, k)$. Define
 $$
     \tilde{\Mf} := \bigcup_{k \in \mathbb{N}} \tilde{\Mf}_k\,.
 $$
@@ -894,7 +894,7 @@ Moreover, there is a $\tilde{\mfa}
   &\leq\sum_{s_1 \le s\le s_2} \int |K_s(x,y)|  \mathbf{1}_F(y) |e(\mfa(y)-{\mfa(x)})-e({\tilde{\mfa}(y)}-{\tilde{\mfa}(x)})| \, \mathrm{d}\mu(y)\\
     &\leq \sum_{s_1 \le s\le s_2} \epsilon \int |K_s(x,y)|  \mathbf{1}_F(y) \, \mathrm{d}\mu(y)
 \end{align*}
-Using Lemma \ref{kernel-summand}, we can estimate the above expression by
+Using \Cref{kernel-summand}, we can estimate the above expression by
 \begin{align*}
     &\sum_{s_1 \le s\le s_2} \frac{2^{102 a^3}}{\mu(B(x, D^{s}))}
 \epsilon \int_{B(x, D^s)} \mathbf{1}_F(y)  \, \mathrm{d}\mu(y)\\
@@ -913,18 +913,18 @@ which, as we have just shown, is estimated by
      &2^{102 a^3}\int \mathbf{1}_{G}(x)
 M\mathbf{1}_{F}(x)\, d\mu(x).
 \end{align*}
-By Hölder's inequality and Proposition \ref{Hardy-Littlewood}
+By Hölder's inequality and \Cref{Hardy-Littlewood}
  (more precisely, \eqref{eq-hlm-2} with $p=q$), the above is no greater than
 \begin{align*}
 &\frac{2^{102 a^3+4a}q}{q-1} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{align*}
-Combining this with Lemma \ref{finitary-S-truncation} and the fact that
+Combining this with \Cref{finitary-S-truncation} and the fact that
 \begin{align*}
     \frac{2^{102 a^3+4a}q}{q-1}\leq \frac{2^{445a^3}}{(q-1)^5}
 \end{align*}
-proves Lemma \ref{S-truncation}.
+proves \Cref{S-truncation}.
 
-It remains to prove Lemma \ref{finitary-S-truncation}.
+It remains to prove \Cref{finitary-S-truncation}.
 Fix a finite set
 $\tilde{\Mf}$.
 \begin{lemma}[linearized truncation]
@@ -945,8 +945,8 @@ with
 \end{equation}
 \end{lemma}
 
-We reduce Lemma \ref{finitary-S-truncation} to
-Lemma \ref{linearized-truncation}.
+We reduce \Cref{finitary-S-truncation} to
+\Cref{linearized-truncation}.
 For each $x$, let $\sigma_1(x)$ be the
 minimal element $s'\in [-S,S]$ such that
 \[\max_{s'\leq s_2<S}\max_{\mfa\in\tilde{\Mf}}
@@ -977,13 +977,13 @@ With these choices, and noting that
 {T}_{1, {\sigma}_1(x),{\sigma}_2(x),\tQ(x)} \mathbf{1}_{F}(x)={T}_{2, {\sigma}_1,{\sigma}_2,\tQ} \mathbf{1}_{F}(x),
 \end{equation*}
 we conclude that the left-hand side of \eqref{Sqcut}
-and \eqref{Sqlin} are equal. Thus, Lemma \ref{finitary-S-truncation}
-follows from Lemma \ref{linearized-truncation}.
+and \eqref{Sqlin} are equal. Thus, \Cref{finitary-S-truncation}
+follows from \Cref{linearized-truncation}.
 
-It remains to prove Lemma \ref{linearized-truncation}.
+It remains to prove \Cref{linearized-truncation}.
 Fix $\sigma_1$, $\sigma_2$,
 and $\tQ$ as in the lemma.
-Applying Proposition \ref{finitary-Carleson} recursively, we obtain
+Applying \Cref{finitary-Carleson} recursively, we obtain
 a sequence of sets $G_n$ with $G_0=G$ and,
 for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
 \begin{equation*}
@@ -1013,8 +1013,8 @@ which by interchange of summation and integration is seen to be integrable, we o
 
 
 
-This completes the proof of Lemma \ref{linearized-truncation}
-and thus Theorem \ref{metric-space-Carleson}.
+This completes the proof of \Cref{linearized-truncation}
+and thus \Cref{metric-space-Carleson}.
 
 \chapter{Proof of finitary Carleson (Prop \ref{finitary-Carleson})}
 \label{christsection}
@@ -1049,9 +1049,9 @@ with the construction in \cite[Lemma 2.12]{zk-polynomial}.
     $(\fP,\sc,\fc,\fcc,\pc,\ps)$.
 \end{lemma}
 
-Choose a grid structure $(\mathcal{D}, c,s)$ with Lemma \ref{grid-existence} and a tile structure for this
-grid structure $(\fP,\sc,\fc,\fcc,\pc,\ps)$ with Lemma \ref{tile-structure}.
-Applying Proposition \ref{discrete-Carleson}, we obtain a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$
+Choose a grid structure $(\mathcal{D}, c,s)$ with \Cref{grid-existence} and a tile structure for this
+grid structure $(\fP,\sc,\fc,\fcc,\pc,\ps)$ with \Cref{tile-structure}.
+Applying \Cref{discrete-Carleson}, we obtain a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$
 we have \eqref{disclesssim}.
 
 \begin{lemma}[tile sum operator]
@@ -1088,7 +1088,7 @@ $x\in E(\fp)$. For this $\fp$, the value $T_{\fp}(x)$ by its definition in \eqre
 equals the right-hand side of \eqref{insump}. This proves the lemma.
 \end{proof}
 
-We now estimate with Lemma \ref{tile-sum-operator} and Proposition \ref{discrete-Carleson}
+We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \begin{equation}
  \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y))  \, \mathrm{d}\mu(y)\right| \mathrm{d}\mu(x)
 \end{equation}
@@ -1104,7 +1104,7 @@ This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and 
 
 
 
-\section{Proof of Lemma \ref{grid-existence}, dyadic structure}
+\section{Proof of \ref{grid-existence}, dyadic structure}
 \label{subsecdyadic}
 
 We begin with the construction of the centers of the dyadic cubes.
@@ -1151,7 +1151,7 @@ As $\mu(o,4D^S)$ is not zero, the lemma follows.
 For each $-S\le k\le S$, let $Y_k$ be a set of
 maximal cardinality in $X$ such that $Y=Y_k$ satisfies
 the properties \eqref{ybinb} and \eqref{eq-disj-yballs}.
-By the upper bound of Lemma \ref{counting-balls}, such a set exists.
+By the upper bound of \Cref{counting-balls}, such a set exists.
 
 For each $-S\le k\le S$, choose an enumeration of the points in the finite set $Y_k$ and thus a total
 order  $<$ on $Y_{k}$.
@@ -1238,7 +1238,7 @@ We first consider \eqref{disji} for $j=1$. If $k=-S$, disjointedness of the sets
 
 We next consider \eqref{disji} for $j=3$. Assume $x$ is in $I_3(y_m,k)$ for $m=1,2$ and $y_m\in Y_k$. If $x$ is in $X_k$, then by definition \eqref{definei3}, $x\in I_1(y_m,k)$ for $m=1,2$. As we have already shown \eqref{disji} for $j=1$, we conclude $y_1=y_2$. This completes the proof in case $x\in X_k$, and we may assume $x$ is not in $X_k$. By definition \eqref{definei3}, $x$ is not in $I_3(z,k)$ for any $z$ with $z<y_1$ or $z<y_2$. Hence, neither $y_1<y_2$ nor $y_2<y_1$, and by totality of the order of $Y_k$, we have $y_1=y_2$. This completes the proof of \eqref{disji} for $j=3$.
 
-We show \eqref{unioni} for $j=2$. In case $k=-S$, this follows from Lemma \ref{cover-big-ball}. Assume $k>-S$. Let $x$ be a point of $B(o, 4D^S-2D^k)$. By induction, there is $y'\in Y_{k-1}$ such that $x\in I_3(y',k-1)$. Using the inductive statement \eqref{squeezedyadic}, we obtain $x\in B(y',4D^{k-1})$. As $D>4$, by applying the triangle inequality with the points, $o$, $x$, and $y'$, we obtain that $y'\in B(o, 4D^S-D^k)$. By Lemma \ref{cover-big-ball}, $y'$ is in $B(y,2D^k)$ for some $y\in Y_k$. It follows that $x\in I_2(y,k)$. This proves \eqref{unioni} for $j=2$.
+We show \eqref{unioni} for $j=2$. In case $k=-S$, this follows from \Cref{cover-big-ball}. Assume $k>-S$. Let $x$ be a point of $B(o, 4D^S-2D^k)$. By induction, there is $y'\in Y_{k-1}$ such that $x\in I_3(y',k-1)$. Using the inductive statement \eqref{squeezedyadic}, we obtain $x\in B(y',4D^{k-1})$. As $D>4$, by applying the triangle inequality with the points, $o$, $x$, and $y'$, we obtain that $y'\in B(o, 4D^S-D^k)$. By \Cref{cover-big-ball}, $y'$ is in $B(y,2D^k)$ for some $y\in Y_k$. It follows that $x\in I_2(y,k)$. This proves \eqref{unioni} for $j=2$.
 
 We show \eqref{unioni} for $j=3$. Let $x\in B(o, 4D^S-2D^k)$. In case $x\in X_k$, then by definition of $X_k$ we have $x\in I_1(y,k)$ for some $y\in Y_k$ and thus $x\in I_3(y,k)$. We may thus assume $x\not\in X_k$. As we have already seen \eqref{unioni} for $j=2$, there is $y\in Y_k$ such that $x\in I_2(y,k)$. We may assume this $y$ is minimal with respect to the order in $Y_k$. Then $x\in I_3(y,k)$. This proves \eqref{unioni} for $j=3$.
 
@@ -1283,15 +1283,15 @@ I_3(y',l)\subset I_3(y,k).
 \end{lemma}
 
 \begin{proof}
-Let $l,k,y,y'$ be as in the lemma. Pick $x\in I_3(y',l)\cap I_3(y,k)$. Assume first $l=k$. By \eqref{disji} of Lemma \ref{basic-grid-structure}, we conclude $y'=y$, and thus \eqref{3dyadicproperty}. Now assume $l<k$. By induction, we may assume that the statement of the lemma is proven for $k-1$ in place of $k$.
+Let $l,k,y,y'$ be as in the lemma. Pick $x\in I_3(y',l)\cap I_3(y,k)$. Assume first $l=k$. By \eqref{disji} of \Cref{basic-grid-structure}, we conclude $y'=y$, and thus \eqref{3dyadicproperty}. Now assume $l<k$. By induction, we may assume that the statement of the lemma is proven for $k-1$ in place of $k$.
 
-By Lemma \ref{cover-by-cubes}, there is a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$. By induction, we have $I_3(y',l)\subset I_3(y'',k-1)$. If $l=k-1$, then by the disjointedness property of Lemma \ref{basic-grid-structure}, we see that $y'=y''$, and hence \eqref{3dyadicproperty} follows. For $l<k-1$, it remains to prove
+By \Cref{cover-by-cubes}, there is a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$. By induction, we have $I_3(y',l)\subset I_3(y'',k-1)$. If $l=k-1$, then by the disjointedness property of \Cref{basic-grid-structure}, we see that $y'=y''$, and hence \eqref{3dyadicproperty} follows. For $l<k-1$, it remains to prove
 \begin{equation}\label{wyclaim}
 I_3(y'',k-1)\subset I_3(y,k).
 \end{equation}
-We make a case distinction and assume first $x\in X_k$. By Definition \eqref{definei3}, we have $x\in I_1(y,k)$. By Definition \eqref{defineij}, there is a $v\in Y_{k-1}\cap B(y,D^k)$ with $x\in I_3(v,k-1)$. By \eqref{disji} of Lemma \ref{basic-grid-structure}, we have $v=y''$. By Definition \eqref{defineij}, we then have $I_3(y'',k-1)\subset I_1(y,k)$. Then \eqref{wyclaim} follows by Definition \eqref{definei3} in the given case.
+We make a case distinction and assume first $x\in X_k$. By Definition \eqref{definei3}, we have $x\in I_1(y,k)$. By Definition \eqref{defineij}, there is a $v\in Y_{k-1}\cap B(y,D^k)$ with $x\in I_3(v,k-1)$. By \eqref{disji} of \Cref{basic-grid-structure}, we have $v=y''$. By Definition \eqref{defineij}, we then have $I_3(y'',k-1)\subset I_1(y,k)$. Then \eqref{wyclaim} follows by Definition \eqref{definei3} in the given case.
 
-Assume now the case $x\notin X_k$. By \eqref{definei3}, we have $x\in I_2(y,k)$. Moreover, for any $u<y$ in $Y_k$, we have $x\not\in I_3(u,k)$. Let $u<y$. By transitivity of the order in $Y_k$, we conclude $x\not \in I_2(u,k)$. By \eqref{defineij} and the disjointedness property of Lemma \ref{basic-grid-structure}, we have $I_3(y'',k-1)\cap  I_2(u,k)= \emptyset$. Similarly, $I_3(y'',k-1)\cap  I_1(u,k)= \emptyset$. Hence $I_3(y'',k-1)\cap  I_3(u,k)=\emptyset$. As $u<y$ was arbitrary, we conclude with \eqref{definei3} the claim in the given case. This completes the proof of \eqref{wyclaim}, and thus also \eqref{3dyadicproperty}.
+Assume now the case $x\notin X_k$. By \eqref{definei3}, we have $x\in I_2(y,k)$. Moreover, for any $u<y$ in $Y_k$, we have $x\not\in I_3(u,k)$. Let $u<y$. By transitivity of the order in $Y_k$, we conclude $x\not \in I_2(u,k)$. By \eqref{defineij} and the disjointedness property of \Cref{basic-grid-structure}, we have $I_3(y'',k-1)\cap  I_2(u,k)= \emptyset$. Similarly, $I_3(y'',k-1)\cap  I_1(u,k)= \emptyset$. Hence $I_3(y'',k-1)\cap  I_3(u,k)=\emptyset$. As $u<y$ was arbitrary, we conclude with \eqref{definei3} the claim in the given case. This completes the proof of \eqref{wyclaim}, and thus also \eqref{3dyadicproperty}.
 \end{proof}
 
 
@@ -1318,7 +1318,7 @@ $(y'',k''|y',k')$ and $(y',k'|y,k)$
 \end{lemma}
 
 \begin{proof}
-As $x\in I_3(y'',k'')\cap I_3(y',k')$ and $k''< k'$, we have by Lemma \ref{dyadic-property} that
+As $x\in I_3(y'',k'')\cap I_3(y',k')$ and $k''< k'$, we have by \Cref{dyadic-property} that
 $I_3(y'',k'')\subset I_3(y',k')$. Similarly,
 $I_3(y',k')\subset I_3(y,k)$.
 Pick $x'\in X\setminus I_3(y,k)$ such that
@@ -1357,14 +1357,14 @@ Let $K$ be as in the lemma. Let $-S+K\le k\le S$ and $y\in Y_k$.
 
 Pick $k'$ so that $k-K\le k'\le k$.
 For each $y''\in Y_{k-K}$ with $(y'',k-K| y,k)$,
-by Lemma \ref{cover-by-cubes} and Lemma \ref{dyadic-property}, there is a unique $y'\in Y_{k'}$ such that
+by \Cref{cover-by-cubes} and \Cref{dyadic-property}, there is a unique $y'\in Y_{k'}$ such that
 \begin{equation}\label{4.31}
     I_3(y'',k-K)\subset I_3(y',k')\subset I_3(y,k)\, .
 \end{equation}
-Using Lemma \ref{transitive-boundary}, $(y',k'|y,k)$.
+Using \Cref{transitive-boundary}, $(y',k'|y,k)$.
 
 We conclude using the disjointedness property of
-Lemma \ref{basic-grid-structure} that
+\Cref{basic-grid-structure} that
 \begin{equation}\label{scalecompare}
     \sum_{y'': (y'',k-K|y,k)}\mu(I_3(y'',k-K))
 %\end{equation}
@@ -1412,7 +1412,7 @@ in the sum of \eqref{sumcompare1} and let
 $ B(u, \frac 14 D^l)$ and $B({u'}, \frac 14 D^{l'})$
 be the corresponding balls. If
 $l=l'$, then the balls are equal or disjoint by
-\eqref{squeezedyadic} and \eqref{disji} of Lemma \ref{basic-grid-structure}. Assume then without loss of generality that $l'<l$. Towards a contradiction, assume that
+\eqref{squeezedyadic} and \eqref{disji} of \Cref{basic-grid-structure}. Assume then without loss of generality that $l'<l$. Towards a contradiction, assume that
 \begin{equation}\label{bulbul}
     B(u, \frac 14 D^l)\cap B({u'}, \frac 14 D^{l'})\neq \emptyset
 \end{equation}
@@ -1439,7 +1439,7 @@ for each $-S+nK\le k\le S$ we have
 \begin{proof}
     We prove this by induction on $n$. If $n=0$,
     both sides of \eqref{very-new-small} are equal to
-    $\mu(I_3(y,k))$ by \eqref{disji}. If $n=1$, this follows from Lemma \ref{small-boundary}.
+    $\mu(I_3(y,k))$ by \eqref{disji}. If $n=1$, this follows from \Cref{small-boundary}.
 
     Assume $n>1$ and \eqref{very-new-small} has been proven for  $n-1$.
 We write  \eqref{very-new-small}
@@ -1468,7 +1468,7 @@ Applying \eqref{new-small-boundary} gives
     \end{equation}
 \end{lemma}
 \begin{proof}
-Let $x\in I_3(y,k)$ with  $\rho(x, X \setminus I_3(y,k)) \leq t D^{k}$. Let $K = 2^{4a+1}$ as in Lemma \ref{smaller-boundary}.
+Let $x\in I_3(y,k)$ with  $\rho(x, X \setminus I_3(y,k)) \leq t D^{k}$. Let $K = 2^{4a+1}$ as in \Cref{smaller-boundary}.
 Let $n$ be the largest integer such that
 $D^{nK} \le \frac{1}{t}$, so that $tD^k \le D^{k-nK}$ and
 \begin{equation}
@@ -1490,7 +1490,7 @@ $$
 $$
     \subset \bigcup_{y'\in Y_{k-nK}: (y',k-nK|y,k)}I_3(y',k-nK)\,.
 $$
-Using monotonicity and additivity of the measure and Lemma \ref{smaller-boundary}, we obtain
+Using monotonicity and additivity of the measure and \Cref{smaller-boundary}, we obtain
 $$
     \mu(\{x \in I_3(y,k) \ : \ \rho(x, X \setminus I_3(y,k)) \leq t D^{k}\}) \le 2^{-n} \mu(I_3(y,k))\,.
 $$
@@ -1510,7 +1510,7 @@ s(I_3(y,k)):=k
 c(I_3(y,k)):=y\,.
 \end{equation}
 We show that $(\mathcal{D},c,s)$ constitutes a grid structure. Property \eqref{eq-vol-sp-cube}
-follows from \eqref{squeezedyadic}, while \eqref{eq-small-boundary} follows from Lemma \ref{boundary-measure}.
+follows from \eqref{squeezedyadic}, while \eqref{eq-small-boundary} follows from \Cref{boundary-measure}.
 % \rs{\sout{To see \eqref{coverdyadic}, let $I\in \mathcal{D}$
 % and $-S\le k< s(I)$. Let $x\in I$.}}
 
@@ -1533,8 +1533,8 @@ We now show \eqref{dyadicproperty}. Assume to get a contradiction that
 there are non-disjoint $I, J\in \mathcal{D}$ with $s(I)\le s(J)$
 and $I \not \subset J$. We may assume the existence of such $I$ and $J$ with minimal
 $s(J)-s(I)$. Let $k=s(I)$. Assume first $s(J)=k$. Let $I=I_3(y_1,k)$ and $J=I_3(y_2,k)$ with $y_1,y_2\in Y_k$.
-{If $y_1=y_2$, then $I=J$, a contradiction to $I\not \subset J$.
-If $y_1\neq y_2$, then $I\cap J=\emptyset$ by \eqref{disji}, a contradiction to the non-disjointedness of $I,J$.% of $J=I_3(y_2, k)$ and the disjointedness of $I_1(y_1, k)$ and $I_1(y_2, k)$ by Lemma \ref{basic-grid-structure}, a contradiction.
+If $y_1=y_2$, then $I=J$, a contradiction to $I\not \subset J$.
+If $y_1\neq y_2$, then $I\cap J=\emptyset$ by \eqref{disji}, a contradiction to the non-disjointedness of $I,J$.% of $J=I_3(y_2, k)$ and the disjointedness of $I_1(y_1, k)$ and $I_1(y_2, k)$ by \Cref{basic-grid-structure}, a contradiction.
 %Similarly, if $y_2<y_1$, then $I\cap J=\emptyset$, a contradiction again.
 Assume now $s(J)>k$. Choose $y\in I\cap J$. By property \eqref{coverdyadic},
 there is $K\in \mathcal{D}$ with $s(K)=s(J)-1$ and $y\in K$. By construction
@@ -1547,9 +1547,9 @@ x\in B(o, D^S)\subset B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_3(y,k)\, .
 \end{equation} Thus, there exists a dyadic cube $I=I_3(y, k)$ with $s(I)=k$ and $x\in I$. This proves \eqref{coverball}.
 
 
-\section{Proof of Lemma \ref{tile-structure}, tile structure}
+\section{Proof of \ref{tile-structure}, tile structure}
 \label{subsectiles}
-Choose a grid structure $(\mathcal{D}, c, s)$ with Lemma \ref{grid-existence}
+Choose a grid structure $(\mathcal{D}, c, s)$ with \Cref{grid-existence}
 Let $I \in \mathcal{D}$. Suppose that
 \begin{equation}
     \label{eq-tile-Z}
@@ -1560,7 +1560,7 @@ is such that for any $\mfa, \mfb \in \mathcal{Z}$ we have
     \label{eq-tile-disjoint-Z}
     B_{I^\circ}(\mfa, 0.3) \cap B_{I^\circ}(\mfb, 0.3) = \emptyset\,.
 \end{equation}
-By Lemma \ref{ball-metric-entropy} applied to each of the balls $B_{I^\circ}(\mfa, 1)$, $\mfa \in \tQ(X)$, we have
+By \Cref{ball-metric-entropy} applied to each of the balls $B_{I^\circ}(\mfa, 1)$, $\mfa \in \tQ(X)$, we have
 $$
     |\mathcal{Z}| \le 2^{2a} |\tQ(X)|\,.
 $$
@@ -1677,7 +1677,7 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
     $$
         d_{I^\circ}(\fcc(\fp),\mfa) \le d_{I^\circ}(\fcc(\fp), z) + d_{I^\circ}(z, \mfa) \le 0.7 + d_{I^\circ}(z, \mfa)\,.
     $$
-    By Lemma \ref{monotone-cube-metrics} and the induction hypothesis, this is estimated by
+    By \Cref{monotone-cube-metrics} and the induction hypothesis, this is estimated by
     $$
         \le 0.7 + 2^{-95a} d_{J^\circ}(z,\mfa) \le 0.7 + 2^{-95a}\cdot 1 < 1\,.
     $$
@@ -1685,33 +1685,33 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 
     Next, we show \eqref{eq-dis-freq-cover}. Let $I \in \mathcal{D}$.
 
-    If $I$ is maximal with respect to inclusion, then disjointedness of the sets $\fc(\fp)$ for $\fp \in \fP(I)$ follows from the definition \eqref{eq-max-omega} and Lemma \ref{disjoint-frequency-cubes}. To obtain the inclusion in \eqref{eq-dis-freq-cover} one combines the inclusions \eqref{eq-tile-cover} and \eqref{eq-omega1 cover}
-    of Lemma \ref{frequency-cube-cover} with  \eqref{eq-max-omega}.
+    If $I$ is maximal with respect to inclusion, then disjointedness of the sets $\fc(\fp)$ for $\fp \in \fP(I)$ follows from the definition \eqref{eq-max-omega} and \Cref{disjoint-frequency-cubes}. To obtain the inclusion in \eqref{eq-dis-freq-cover} one combines the inclusions \eqref{eq-tile-cover} and \eqref{eq-omega1 cover}
+    of \Cref{frequency-cube-cover} with  \eqref{eq-max-omega}.
 
     Now we turn to the case where there exists $J \in \mathcal{D}$ with $I \subset J$ and $I\ne J$. In this case we use induction: It suffices to show \eqref{eq-dis-freq-cover} under the assumption that it holds for all cubes $J \in \mathcal{D}$ with $I \subset J$. As shown before definition \eqref{eq-it-omega}, we may choose the unique inclusion minimal such $J$. To show disjointedness of the sets $\fc(\fp), \fp \in \fP(I)$ we pick two tiles $\fp, \fp' \in \fP(I)$ and $\mfa \in \fc(\fp) \cap \fc(\fp')$.
     Then we are by \eqref{eq-it-omega} in one of the following four cases.
 
-    1. There exist $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J, z)$, and there exists $z' \in \mathcal{Z}(J) \cap \Omega_1(\fp')$ such that $\mfa \in \Omega(J, z')$. By the induction hypothesis, that \eqref{eq-dis-freq-cover} holds for $J$, we must have $z = z'$. By Lemma \ref{disjoint-frequency-cubes}, we must then have $\fp = \fp'$.
+    1. There exist $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J, z)$, and there exists $z' \in \mathcal{Z}(J) \cap \Omega_1(\fp')$ such that $\mfa \in \Omega(J, z')$. By the induction hypothesis, that \eqref{eq-dis-freq-cover} holds for $J$, we must have $z = z'$. By \Cref{disjoint-frequency-cubes}, we must then have $\fp = \fp'$.
 
-    2. There exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J,z)$, and $\mfa \in B_{\fp'}(\fcc(\fp'), 0.2)$.  Using the triangle inequality, Lemma \ref{monotone-cube-metrics} and \eqref{eq-freq-comp-ball}, we obtain
+    2. There exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J,z)$, and $\mfa \in B_{\fp'}(\fcc(\fp'), 0.2)$.  Using the triangle inequality, \Cref{monotone-cube-metrics} and \eqref{eq-freq-comp-ball}, we obtain
     $$
         d_{\fp'}(\fcc(\fp'),z) \le d_{\fp'}(\fcc(\fp'), \mfa) + d_{\fp'}(z, \mfa) \le 0.2 + 2^{-95a} \cdot 1 < 0.3\,.
     $$
-    Thus $z \in \Omega_1(\fp')$ by \eqref{eq-omega1 incl}. By Lemma \ref{disjoint-frequency-cubes}, it follows that $\fp = \fp'$.
+    Thus $z \in \Omega_1(\fp')$ by \eqref{eq-omega1 incl}. By \Cref{disjoint-frequency-cubes}, it follows that $\fp = \fp'$.
 
     3. There exists $z' \in \mathcal{Z}(J) \cap \Omega_1(\fp')$ such that $\mfa \in \Omega(J,z')$, and $\mfa \in B_{\fp}(\fcc(\fp), 0.2)$. This case is the same as case 2., after swapping $\fp$ and $\fp'$.
 
-    4. We have $\mfa \in B_{\fp}(\fcc(\fp), 0.2) \cap B_{\fp'}(\fcc(\fp'), 0.2)$. In this case it follows that $\fp = \fp'$ since the sets $B_{\fp}(\fcc(\fp), 0.2)$ are pairwise disjoint by the inclusion \eqref{eq-omega1 incl} and Lemma \ref{disjoint-frequency-cubes}.
+    4. We have $\mfa \in B_{\fp}(\fcc(\fp), 0.2) \cap B_{\fp'}(\fcc(\fp'), 0.2)$. In this case it follows that $\fp = \fp'$ since the sets $B_{\fp}(\fcc(\fp), 0.2)$ are pairwise disjoint by the inclusion \eqref{eq-omega1 incl} and \Cref{disjoint-frequency-cubes}.
 
-    To show the inclusion in \eqref{eq-dis-freq-cover}, let $\mfa \in \tQ(X)$. By the induction hypothesis, there exists $\fp \in \fP(J)$ such that $\mfa \in \Omega(\fp)$. By definition of the set $\fP$, we have $\fp = (J, z)$ for some $z \in \mathcal{Z}(J)$. By \eqref{eq-tile-Z}, there exists $x \in X$ with $d_{J^\circ}(\tQ(x), z) \le 1$. By Lemma \ref{monotone-cube-metrics}, it follows that $d_{I^\circ}(\tQ(x), z) \le 1$.
+    To show the inclusion in \eqref{eq-dis-freq-cover}, let $\mfa \in \tQ(X)$. By the induction hypothesis, there exists $\fp \in \fP(J)$ such that $\mfa \in \Omega(\fp)$. By definition of the set $\fP$, we have $\fp = (J, z)$ for some $z \in \mathcal{Z}(J)$. By \eqref{eq-tile-Z}, there exists $x \in X$ with $d_{J^\circ}(\tQ(x), z) \le 1$. By \Cref{monotone-cube-metrics}, it follows that $d_{I^\circ}(\tQ(x), z) \le 1$.
     Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(I)$ with $z \in B_{I^\circ}(z', 0.7)$. Then by Lemma \eqref{frequency-cube-cover} there exists $\fp' \in \fP(I)$ with $z \in \mathcal{Z}(J) \cap \Omega_1(\fp')$. Consequently, by \eqref{eq-it-omega}, $\mfa \in \fc(\fp')$. This completes the proof of \eqref{eq-dis-freq-cover}.
 
     Finally, we show \eqref{eq-freq-dyadic}. Let $\fp, \fq \in \fP$ with $\sc(\fp) \subset \sc(\fp)$ and $\fc(\fp) \cap \fc(\fq) \ne \emptyset$. If we have $\ps(\fp) \ge \ps(\fq)$, then it follows from \eqref{dyadicproperty} that $I = J$, thus $\fp, \fq \in \fP(I)$. By \eqref{eq-dis-freq-cover} we have then either $\fc(\fp) \cap \fc(\fq) = \emptyset$ or $\fc(\fp) = \fc(\fq)$. By the assumption in \eqref{eq-freq-dyadic} we have $\fc(\fp) \cap \fc(\fq) \ne \emptyset$, so we must have $\fc(\fp) = \fc(\fq)$ and in particular $\fc(\fq) \subset \fc(\fp)$.
 
     So it remains to show \eqref{eq-freq-dyadic} under the additional assumption that $\ps(\fq) > \ps(\fp)$. In this case, we argue by induction on $\ps(\fq)-\ps(\fp)$. By \eqref{coverdyadic}, there exists a cube $J \in \mathcal{D}$ with $s(J) = \ps(\fq) - 1$ and $J \cap\sc(\fp) \ne \emptyset$. We pick one such $J$. By \eqref{dyadicproperty}, we have $\sc(\fp) \subset J \subset \sc(\fq)$.
 
-    By \eqref{eq-tile-Z}, there exists $x \in X$ with $d_{\fq}(\tQ(x), \fcc(\fq)) \le 1$. By Lemma \ref{monotone-cube-metrics}, it follows that $d_{J^\circ}(\tQ(x), \fcc(\fq)) \le 1$.
-    Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(J)$ with $\fcc(\fq) \in B_{J^\circ}(z', 0.7)$. Then by Lemma \ref{frequency-cube-cover} there exists $\fq' \in \fP(J)$ with $\fcc(\fq) \in\Omega_1(\fq')$.
+    By \eqref{eq-tile-Z}, there exists $x \in X$ with $d_{\fq}(\tQ(x), \fcc(\fq)) \le 1$. By \Cref{monotone-cube-metrics}, it follows that $d_{J^\circ}(\tQ(x), \fcc(\fq)) \le 1$.
+    Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(J)$ with $\fcc(\fq) \in B_{J^\circ}(z', 0.7)$. Then by \Cref{frequency-cube-cover} there exists $\fq' \in \fP(J)$ with $\fcc(\fq) \in\Omega_1(\fq')$.
     By \eqref{eq-it-omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\sc(\fp) \subset \sc(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $\ps(\fq') - \ps(\fp) = \ps(\fq) - \ps(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
 \end{proof}
 
@@ -1721,7 +1721,7 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 %\section{Decomposition of grid cubes and first exceptional set}
 
 
-Let a grid structure $(\mathcal{D}, c, s)$ and a tile structure $(\fP, \sc, \fc, \fcc)$ for this grid structure be given. In Subsection \ref{subsectilesorg}, we decompose the set $\fP$ of tiles into subsets. Each subset will be controlled by one of three methods. The guiding principle of the decomposition is to be able to apply the forest estimate of Proposition \ref{forest-operator} to the final subsets defined in \eqref{defc5}. This application is done in Subsection \ref{subsecforest}. The miscellaneous subsets along the construction of the forests will either be thrown into exceptional sets, which are defined and controlled in Subsection \ref{subsetexcset}, or will be controlled by the antichain estimate of Proposition \ref{antichain-operator}, which is done in Subsection \ref{subsecantichain}. Subsection \ref{subsec-lessim-aux} contains some auxiliary lemmas needed for the proofs in Subsections \ref{subsecforest}-\ref{subsecantichain}.
+Let a grid structure $(\mathcal{D}, c, s)$ and a tile structure $(\fP, \sc, \fc, \fcc)$ for this grid structure be given. In Subsection \ref{subsectilesorg}, we decompose the set $\fP$ of tiles into subsets. Each subset will be controlled by one of three methods. The guiding principle of the decomposition is to be able to apply the forest estimate of \Cref{forest-operator} to the final subsets defined in \eqref{defc5}. This application is done in Subsection \ref{subsecforest}. The miscellaneous subsets along the construction of the forests will either be thrown into exceptional sets, which are defined and controlled in Subsection \ref{subsetexcset}, or will be controlled by the antichain estimate of \Cref{antichain-operator}, which is done in Subsection \ref{subsecantichain}. Subsection \ref{subsec-lessim-aux} contains some auxiliary lemmas needed for the proofs in Subsections \ref{subsecforest}-\ref{subsecantichain}.
 
 %The oganisation and summation of these various
 %estimates is done in Subsection \ref{subsecaddingup}.
@@ -1744,8 +1744,8 @@ but there does not exist a $J\in \mathcal{D}$ with $I\subset J$ and
 \begin{equation}\label{muhj2}
    {\mu(G \cap J)} > 2^{-k}{\mu(J)}\,.
 \end{equation}
-\asgar{I am a bit confused with \eqref{muhj1},\eqref{muhj2}. When I started reading, the rhs of \eqref{muhj1} was with $\mu(G)$ and the rhs of \eqref{muhj2} was with $\mu(J)$. However in the proof of Lemma \ref{P-convex}, \eqref{muhj1},\eqref{muhj2} are used with their rhs both with $\mu(G)$ (which lead to the above correction), on the other hand in the proof of Lemma \ref{dens-compare} \eqref{muhj1},\eqref{muhj2} are used with their rhs both with $\mu(J)$ (though the proof equally is true with $\mu(G)$ instead). My guess is that $\mu(J)$ is the correct choice of the rhs of both  \eqref{muhj1},\eqref{muhj2}, but not sure.}
-\lars{Both should be $J$. The only place where this is really used is the proof of Lemma \ref{antichain-decomposition}}
+\asgar{I am a bit confused with \eqref{muhj1},\eqref{muhj2}. When I started reading, the rhs of \eqref{muhj1} was with $\mu(G)$ and the rhs of \eqref{muhj2} was with $\mu(J)$. However in the proof of \Cref{P-convex}, \eqref{muhj1},\eqref{muhj2} are used with their rhs both with $\mu(G)$ (which lead to the above correction), on the other hand in the proof of \Cref{dens-compare} \eqref{muhj1},\eqref{muhj2} are used with their rhs both with $\mu(J)$ (though the proof equally is true with $\mu(G)$ instead). My guess is that $\mu(J)$ is the correct choice of the rhs of both  \eqref{muhj1},\eqref{muhj2}, but not sure.}
+\lars{Both should be $J$. The only place where this is really used is the proof of \Cref{antichain-decomposition}}
 Let
 \begin{equation}
     \label{eq-defPk}
@@ -1938,7 +1938,7 @@ In Subsection \ref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G
 In Subsection \ref{subsecantichain}, we decompose
 the complement of the set of tiles in Lemma
 \ref{forest-union} and apply the antichain estimate of
-Proposition \ref{antichain-operator} to prove the following lemma.
+\Cref{antichain-operator} to prove the following lemma.
 
 \begin{lemma}[forest complement]
 \label{forest-complement}
@@ -1954,22 +1954,22 @@ Proposition \ref{antichain-operator} to prove the following lemma.
     \int_{G \setminus  G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu  \le \frac{2^{210a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
 \end{equation}
 \end{lemma}
-Proposition \ref{discrete-Carleson} follows by applying
+\Cref{discrete-Carleson} follows by applying
 triangle inequality to \eqref{disclesssim}
-according to the splitting in Lemma \ref{forest-union}
-and Lemma \ref{forest-complement} and using both Lemmas as well
-as the bound on the set $G'$ given by Lemma \ref{exceptional-set}.
+according to the splitting in \Cref{forest-union}
+and \Cref{forest-complement} and using both Lemmas as well
+as the bound on the set $G'$ given by \Cref{exceptional-set}.
 
 
-\section{Proof of Lemma \ref{exceptional-set}, the exceptional sets}
+\section{Proof of \ref{exceptional-set}, the exceptional sets}
 \label{subsetexcset}
 
 
 We prove separate bounds for $G_1$, $G_2$, and $G_3$
 in Lemmas  \ref{first-exception},
-\ref{second-exception}, and \ref{third-exception}. Adding up these bounds proves Lemma \ref{exceptional-set}.
+\ref{second-exception}, and \ref{third-exception}. Adding up these bounds proves \Cref{exceptional-set}.
 
-The bound for $G_1$ is follows from the Vitali covering lemma, Proposition \ref{Hardy-Littlewood}.
+The bound for $G_1$ is follows from the Vitali covering lemma, \Cref{Hardy-Littlewood}.
 
 \begin{lemma}
 [first exception]\label{first-exception}
@@ -1990,7 +1990,7 @@ $$
   {\mu(F\cap B(\pc(\fp),r(\fp)))}\ge K{\mu(B(\pc(\fp),r(\fp)))}\, .
 $$
 This ball exists by definition of $\fP_{F,G}$
-and $\dens_2$. By applying Proposition \ref{Hardy-Littlewood} to the collection of balls
+and $\dens_2$. By applying \Cref{Hardy-Littlewood} to the collection of balls
 $$
     \mathcal{B} = \{B(\pc(\fp),r(\fp)) \ : \ \fp \in \fP_{F,G}\}
 $$
@@ -2006,8 +2006,8 @@ $$
 \end{proof}
 
 
-We turn to the bound of $G_2$, which relies on the Dyadic Covering Lemma \ref{dense-cover} and the
-John-Nirenberg Lemma \ref{John-Nirenberg} below.
+We turn to the bound of $G_2$, which relies on the Dyadic Covering \Cref{dense-cover} and the
+John-Nirenberg \Cref{John-Nirenberg} below.
 
 \begin{lemma}[dense cover]
 \label{dense-cover}
@@ -2097,12 +2097,12 @@ Fix $k,n$ as in the lemma
 and suppress notation to write
 $A(\lambda)$ for $A(\lambda,k,n)$.
 We prove the lemma by induction on $\lambda$.
-For $\lambda=0$, we use that $A(\lambda)$ by definition of $\mathfrak{M}(k,n)$ is contained in the union of elements in $ \mathcal{C}(G,k)$. Lemma \ref{dense-cover} then completes  the base of the induction.
+For $\lambda=0$, we use that $A(\lambda)$ by definition of $\mathfrak{M}(k,n)$ is contained in the union of elements in $ \mathcal{C}(G,k)$. \Cref{dense-cover} then completes  the base of the induction.
 
-Now assume that the statement of Lemma \ref{John-Nirenberg}
+Now assume that the statement of \Cref{John-Nirenberg}
 is proven for some integer $\lambda\ge 0$.
 The set $A(\lambda+1)$ is contained in the set $A(\lambda)$.
-Let  $\mathcal{M}$ be the set of dyadic cubes which are a subset of $A(\lambda)$. By Lemma \ref{dyadic-union}, the union of $\mathcal{M}$ is $A(\lambda)$.
+Let  $\mathcal{M}$ be the set of dyadic cubes which are a subset of $A(\lambda)$. By \Cref{dyadic-union}, the union of $\mathcal{M}$ is $A(\lambda)$.
 Let $\mathcal{M}^*$ be the set of maximal dyadic cubes in $\mathcal{M}$.
 
 Let $L\in \mathcal{M}^*$. For each $x\in L$, we have
@@ -2125,7 +2125,7 @@ the left-hand-side of \eqref{suminout} is at least
 $1+(\lambda+1) 2^{n+1}$, so we have by the triangle inequality for the first sum on the right-hand side
 \begin{equation}\label{mnkonl}
 \sum_{\fp \in {\mathfrak{M}}(k,n):\sc(\fp) \subset L} \mathbf{1}_{\sc(\fp)}(x)\ge 2^{n+1}\, .\end{equation}
-By Lemma \ref{pairwise-disjoint}, we have
+By \Cref{pairwise-disjoint}, we have
 \begin{equation}
 \sum_{\fp \in {\mathfrak{M}}(k,n):\sc(\fp) \subset L} \mu({E_1}(\fp)) \leq \mu(L)\, .
 \end{equation}
@@ -2163,7 +2163,7 @@ We have
 \end{lemma}
 \begin{proof}
 
-We use Lemma \ref{John-Nirenberg} and sum twice a geometric series
+We use \Cref{John-Nirenberg} and sum twice a geometric series
 to obtain
 \begin{equation}
     \sum_{0\le  k}\sum_{k< n}
@@ -2192,7 +2192,7 @@ We turn to the set $G_3$.
     \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{1}_{\sc(\mathfrak{m})}(x) \, d\mu(x) \le
 2^{n+1} \sum_{\lambda=1}^{|\mathfrak{M}|}\mu(A(\lambda, k,n))\,.
 \end{equation}
-Using Lemma \ref{John-Nirenberg}
+Using \Cref{John-Nirenberg}
 %\ref{alambdameasure}
 and then summing a geometric series, we estimate this by
 \begin{equation}
@@ -2345,7 +2345,7 @@ $\fu\in \fU_1(k,n,l)$, we have
 \le \sum_{\fu\in \fU_1(k,n,j)}
 \mu(\bigcup_{I \in \mathcal{L} (\fu)}I).
 \end{equation}
-Using Lemma \ref{boundary-exception} and then Lemma \ref{tree-count}, we estimate this further
+Using \Cref{boundary-exception} and then \Cref{tree-count}, we estimate this further
  by
 \begin{equation}
     \le \sum_{\fu\in \fU_1(k,n,j)}
@@ -2357,7 +2357,7 @@ Using Lemma \ref{boundary-exception} and then Lemma \ref{tree-count}, we estimat
      D^{-\kappa Z(n+1)}
     \mu(\sc(\mathfrak{m}))\,.
 \end{equation}
-Using Lemma \ref{top-tiles}, we estimate this by
+Using \Cref{top-tiles}, we estimate this by
   \begin{equation}
      \le
 2^{100a^2 + 9a + 1-j}  D^{-\kappa Z(n+1)}
@@ -2395,7 +2395,7 @@ Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and
 
 \section{Auxiliary lemmas}
 \label{subsec-lessim-aux}
-Before proving Lemma \ref{forest-union} and Lemma \ref{forest-complement}, we collect some useful properties of $\lesssim$.
+Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some useful properties of $\lesssim$.
 
 \begin{lemma}[wiggle order 1]
     \label{wiggle-order-1}
@@ -2430,7 +2430,7 @@ Before proving Lemma \ref{forest-union} and Lemma \ref{forest-complement}, we co
     $$
         d_{\fp}(\fcc(\fp), \mfa) \le  d_{\fp}(\fcc(\fp), \fcc(\fp')) +  d_{\fp}(\fcc(\fp'), \mfa)
     $$
-    Using \eqref{eq-wiggle1} and \eqref{wiggleorder} for the first summand, and Lemma \ref{monotone-cube-metrics} for the second summand, this is estimated by
+    Using \eqref{eq-wiggle1} and \eqref{wiggleorder} for the first summand, and \Cref{monotone-cube-metrics} for the second summand, this is estimated by
     $$
         n + 2^{-95a} d_{\fp'}(\fcc(\fp'), \mfa) < n + 2^{-95a} m\,.
     $$
@@ -2456,7 +2456,7 @@ Before proving Lemma \ref{forest-union} and Lemma \ref{forest-complement}, we co
 \end{lemma}
 
 \begin{proof}
-    All three implications are easy consequences of Lemma \ref{wiggle-order-1}, Lemma \ref{wiggle-order-2} and the fact that $a \ge 4$.
+    All three implications are easy consequences of \Cref{wiggle-order-1}, \Cref{wiggle-order-2} and the fact that $a \ge 4$.
 \end{proof}
 
 
@@ -2488,7 +2488,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC(k,n)$. Then, in particular, $\fp, \fp'' \in \fP(k)$, so, by Lemma \ref{P-convex}, $\fp' \in \fP(k)$. Next, we show that if $\fq \le \fq' \in \fP(k)$ then $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. If $\fp \in \fP(k)$ and $\lambda \ge 2$ with $\lambda \fq' \lesssim \lambda \fp$, then it follows from $\fq \le \fq'$, \eqref{eq-sc1} of Lemma \ref{wiggle-order-3} and transitivity of $\lesssim$ that $\lambda \fq \lesssim \lambda \fp$. Thus the supremum in the definition \eqref{eq-densdef} of $\dens_k'(\{\fq\})$ is over a superset of the set the  supremum in the definition of $\dens_k'(\{\fq'\})$ is taken over, which shows $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. From $\fp' \le \fp''$, $\fp'' \in \fC(k,n)$ and \eqref{def-cnk} it then follows that
+    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC(k,n)$. Then, in particular, $\fp, \fp'' \in \fP(k)$, so, by \Cref{P-convex}, $\fp' \in \fP(k)$. Next, we show that if $\fq \le \fq' \in \fP(k)$ then $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. If $\fp \in \fP(k)$ and $\lambda \ge 2$ with $\lambda \fq' \lesssim \lambda \fp$, then it follows from $\fq \le \fq'$, \eqref{eq-sc1} of \Cref{wiggle-order-3} and transitivity of $\lesssim$ that $\lambda \fq \lesssim \lambda \fp$. Thus the supremum in the definition \eqref{eq-densdef} of $\dens_k'(\{\fq\})$ is over a superset of the set the  supremum in the definition of $\dens_k'(\{\fq'\})$ is taken over, which shows $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. From $\fp' \le \fp''$, $\fp'' \in \fC(k,n)$ and \eqref{def-cnk} it then follows that
     $$
         2^{4a}2^{-n} < \dens_k'(\{\fp''\}) \le \dens_k'(\{\fp'\})\,.
     $$
@@ -2506,7 +2506,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp\le\fp'\le\fp''$ with $\fp, \fp'' \in \fC_1(k,n,j)$. By Lemma \ref{C-convex} and the inclusion $\fC_1(k,n,j) \subset \fC(k,n)$, which holds by definition \eqref{defcnkj}, we have $\fp' \in \fC(k,n)$. By \eqref{eq-sc1} and transitivity of $\lesssim$ we have that $\fq \le \fq'$ and $100 \fq' \lesssim \mathfrak{m}$ imply $100 \fq \lesssim \mathfrak{m}$. So, by \eqref{defbfp}, $\mathfrak{B}(\fp'') \subset \mathfrak{B}(\fp') \subset \mathfrak{B}(\fp)$. Consequently, by \eqref{defcnkj}
+    Let $\fp\le\fp'\le\fp''$ with $\fp, \fp'' \in \fC_1(k,n,j)$. By \Cref{C-convex} and the inclusion $\fC_1(k,n,j) \subset \fC(k,n)$, which holds by definition \eqref{defcnkj}, we have $\fp' \in \fC(k,n)$. By \eqref{eq-sc1} and transitivity of $\lesssim$ we have that $\fq \le \fq'$ and $100 \fq' \lesssim \mathfrak{m}$ imply $100 \fq \lesssim \mathfrak{m}$. So, by \eqref{defbfp}, $\mathfrak{B}(\fp'') \subset \mathfrak{B}(\fp') \subset \mathfrak{B}(\fp)$. Consequently, by \eqref{defcnkj}
     $$
         2^j \le |\mathfrak{B}(\fp'')|\le |\mathfrak{B}(\fp')| \le |\mathfrak{B}(\fp)| < 2^{j+1}\,,
     $$
@@ -2523,7 +2523,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
      Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_2(k,n,j)$. By \eqref{eq-C2 def}, we have
      \begin{equation*}
          \fC_2(k,n,j) \subset \fC_1(k,n,j)\ .
-     \end{equation*} Combined with Lemma \ref{C1 convex}, it follows that $\fp' \in \fC_1(k,n,j)$. Suppose that $\fp' \notin \fC_2(k,n,j)$. By \eqref{eq-C2 def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$. By the definition \eqref{eq-L1 def} of $\fL_1(k,n,j,l')$, this implies that $\fp$ is minimal with respect to $\le$  in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. Since $\fp \in \fC_2(k,n,j)$ we must have $\fp \ne \fp'$. Thus $\fp \le \fp'$ and $\fp \ne \fp'$. By minimality of $\fp'$ it follows that $\fp \notin \fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. But by \eqref{eq-C2 def} this implies $\fp \notin \fC_2(k,n,j)$, a contradiction.
+     \end{equation*} Combined with \Cref{C1 convex}, it follows that $\fp' \in \fC_1(k,n,j)$. Suppose that $\fp' \notin \fC_2(k,n,j)$. By \eqref{eq-C2 def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$. By the definition \eqref{eq-L1 def} of $\fL_1(k,n,j,l')$, this implies that $\fp$ is minimal with respect to $\le$  in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. Since $\fp \in \fC_2(k,n,j)$ we must have $\fp \ne \fp'$. Thus $\fp \le \fp'$ and $\fp \ne \fp'$. By minimality of $\fp'$ it follows that $\fp \notin \fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. But by \eqref{eq-C2 def} this implies $\fp \notin \fC_2(k,n,j)$, a contradiction.
 \end{proof}
 
 \begin{lemma}[C3 convex]
@@ -2533,7 +2533,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$. By \eqref{eq-C3 def} and Lemma \ref{C2 convex} it follows that $\fp' \in \fC_2(k,n,j)$. Suppose that $\fp' \notin \fC_3(k,n,j)$. Then, by \eqref{eq-C3 def} and \eqref{eq-L2 def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp' \lesssim \fu$ and $\sc(\fp') \ne \sc(\fu)$. Together this gives $\sc(\fp') \subsetneq \sc(\fu)$. From $\fp' \le \fp$, \eqref{eq-sc1} and transitivity of $\lesssim$ we then have $2\fp \lesssim \fu$. Also, $\sc(\fp) \subset \sc(\fp') \subsetneq \sc(\fu)$, so $\sc(\fp) \ne \sc(\fu)$. But then $\fp \in \fL_2(k,n,j)$, contradicting by \eqref{eq-C3 def} the assumption $\fp \in \fC_3(k,n,j)$.
+    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$. By \eqref{eq-C3 def} and \Cref{C2 convex} it follows that $\fp' \in \fC_2(k,n,j)$. Suppose that $\fp' \notin \fC_3(k,n,j)$. Then, by \eqref{eq-C3 def} and \eqref{eq-L2 def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp' \lesssim \fu$ and $\sc(\fp') \ne \sc(\fu)$. Together this gives $\sc(\fp') \subsetneq \sc(\fu)$. From $\fp' \le \fp$, \eqref{eq-sc1} and transitivity of $\lesssim$ we then have $2\fp \lesssim \fu$. Also, $\sc(\fp) \subset \sc(\fp') \subsetneq \sc(\fu)$, so $\sc(\fp) \ne \sc(\fu)$. But then $\fp \in \fL_2(k,n,j)$, contradicting by \eqref{eq-C3 def} the assumption $\fp \in \fC_3(k,n,j)$.
 \end{proof}
 
 \begin{lemma}[C4 convex]
@@ -2543,7 +2543,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_4(k,n,j)$. As before we obtain from the inclusion $\fC_4(k,n,j) \subset \fC_3(k,n,j)$ and Lemma \ref{C3 convex} that $\fp' \in \fC_3(k,n,j)$. Thus, if $\fp' \notin \fC_4(k,n,j)$ then by \eqref{eq-L3 def} there exists $l$ such that $\fp' \in \fL_3(k,n,j,l)$. Thus $\fp'$ is maximal with respect to $\le$ in $\fC_3(k,n,j) \setminus \bigcup_{0 \le l' < l} \fL_3(k,n,j,l')$.  Since $\fp'' \in \fC_4(k,n,j)$ we must have $\fp' \ne \fp''$. Thus $\fp' \le \fp''$ and $\fp'\ne \fp''$. By minimality of $\fp'$ it follows that $\fp'' \notin \fC_3(k,n,j) \setminus \bigcup_{l < l'} \fL_3(k,n,j,l)$. But by \eqref{eq-C4 def} this implies $\fp'' \notin \fC_4(k,n,j)$, a contradiction.
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_4(k,n,j)$. As before we obtain from the inclusion $\fC_4(k,n,j) \subset \fC_3(k,n,j)$ and \Cref{C3 convex} that $\fp' \in \fC_3(k,n,j)$. Thus, if $\fp' \notin \fC_4(k,n,j)$ then by \eqref{eq-L3 def} there exists $l$ such that $\fp' \in \fL_3(k,n,j,l)$. Thus $\fp'$ is maximal with respect to $\le$ in $\fC_3(k,n,j) \setminus \bigcup_{0 \le l' < l} \fL_3(k,n,j,l')$.  Since $\fp'' \in \fC_4(k,n,j)$ we must have $\fp' \ne \fp''$. Thus $\fp' \le \fp''$ and $\fp'\ne \fp''$. By minimality of $\fp'$ it follows that $\fp'' \notin \fC_3(k,n,j) \setminus \bigcup_{l < l'} \fL_3(k,n,j,l)$. But by \eqref{eq-C4 def} this implies $\fp'' \notin \fC_4(k,n,j)$, a contradiction.
 \end{proof}
 
 \begin{lemma}[C5 convex]
@@ -2553,7 +2553,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$. Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by Lemma \ref{C4 convex} also $\fp' \in \fC_4(k,n,j)$. Suppose that $\fp' \notin \fC_5(k,n,j)$. By \eqref{defc5}, it follows that $\fp' \in \fL_4(k,n,j)$.
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$. Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by \Cref{C4 convex} also $\fp' \in \fC_4(k,n,j)$. Suppose that $\fp' \notin \fC_5(k,n,j)$. By \eqref{defc5}, it follows that $\fp' \in \fL_4(k,n,j)$.
     By \eqref{eq-L4 def}, there exists $\fu \in \fU_1(k,n,j)$ with $\sc(\fp') \subset \bigcup \mathcal{L}(\fu)$. Then also $\sc(\fp) \subset \bigcup \mathcal{L}(\fu)$, a contradiction.
 \end{proof}
 
@@ -2611,7 +2611,7 @@ there exists $J\in \mathcal{D}$ with
 \end{lemma}
 
 \begin{proof}
-    We have by Lemma \ref{dens-compare} that
+    We have by \Cref{dens-compare} that
     $\dens_1(\mathfrak{A}) \le \dens_k'(\mathfrak{A})$. Since $\mathfrak{A} \subset \fC(k,n)$, it follows from monotonicity of suprema and the definition \eqref{eq-densdef} that
     $
         \dens_k'(\mathfrak{A}) \le \dens_k'(\fC(k,n))\,.
@@ -2622,7 +2622,7 @@ there exists $J\in \mathcal{D}$ with
     $$
 \end{proof}
 
-\section{Proof of Lemma \ref{forest-union}, the forests}
+\section{Proof of \ref{forest-union}, the forests}
 \label{subsecforest}
 
 Fix $k,n,j\ge 0$.
@@ -2661,7 +2661,7 @@ with $10 \fp\lesssim \fu'$.
 
 \begin{proof}
     Let $\fu, \fu' \in \fU_2(k,n,j)$ with $\fu \sim \fu'$. If $\fu = \fu'$ then the conclusion of the Lemma clearly holds. Else, there exists $\fp \in \fC_1(k,n,j)$ such that $\sc(\fp) \ne \sc(\fu)$ and  $2 \fp \lesssim \fu$ and $10 \fp \lesssim \fu'$.
-    Using Lemma \ref{wiggle-order-1} and \eqref{eq-sc2} of Lemma \ref{wiggle-order-3}, we deduce that
+    Using \Cref{wiggle-order-1} and \eqref{eq-sc2} of \Cref{wiggle-order-3}, we deduce that
     \begin{equation}
         \label{eq-Fefferman-trick0}
         100 \fp\lesssim  100 \fu\,, \qquad 100 \fp \lesssim 100\fu'\,.
@@ -2695,7 +2695,7 @@ $\fU_2(k,n,j)$ is an equivalence relation.
         \fu, \fu', \fu'' \in \fU_1(k,n,j)
     \end{equation*}
     and $\fu \sim \fu'$, $\fu' \sim \fu''$.
-    By Lemma \ref{relation-geometry}, it follows that $\sc(\fu) =\sc(\fu') = \sc(\fu'')$, that there exists
+    By \Cref{relation-geometry}, it follows that $\sc(\fu) =\sc(\fu') = \sc(\fu'')$, that there exists
     \begin{equation*}
         \mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)
     \end{equation*}
@@ -2719,7 +2719,7 @@ $\fU_2(k,n,j)$ is an equivalence relation.
     \end{align*}
     Since $4\fp \lesssim 500 \fu$, it follows that $d_{\fp}(\fcc(\fp), q) < 4 < 10$. We have shown that $B_{\fu''}(\fcc(\fu''), 1) \subset B_{\fp}(\fcc(\fp), 10)$, combining this with $\sc(\fu'') = \sc(\fu)$ gives $\fu \sim \fu''$.
 
-    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\sc(\fu) = \sc(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious. If $\fu \ne \fu'$, then there exists $\fp \in \mathfrak{T}_1(\fu')$ with $10\fp\lesssim \fu$. By definition of $\mathfrak{T}_1(\fu')$, Lemma \ref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
+    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\sc(\fu) = \sc(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious. If $\fu \ne \fu'$, then there exists $\fp \in \mathfrak{T}_1(\fu')$ with $10\fp\lesssim \fu$. By definition of $\mathfrak{T}_1(\fu')$, \Cref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
     \begin{equation}
         \label{eq-rel1}
         10\fp \lesssim 4\fp \lesssim 500 \fu'\,.
@@ -2764,7 +2764,7 @@ We have
 \end{lemma}
 
 \begin{proof}
-    Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. Then by Lemma \ref{C5 convex}, we have
+    Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. Then by \Cref{C5 convex}, we have
 $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\subset G$, hence $\sc(\fp') \not \subset G$. This implies $\fp' \in \fC_6(k,n,j)$. Since $\fp'' \in \mathfrak{T}_2(\fu)$, we have $2\fp'' \lesssim \fu'$ and $\sc(\fp'')\ne\sc(\fu')$ for some $\fu' \sim \fp''$. By \eqref{eq-sc1}, we have $2\fp' \lesssim 2\fp''$, so by transitivity of $\lesssim$ we have $2\fp' \lesssim \fu'$. Finally, $\sc(\fp') \subset \sc(\fp'')$ implies $\sc(\fp') \ne \sc(\fu')$, thus $\fp' \in \mathfrak{T}_1(\fu') \subset \mathfrak{T}_2(\fu)$.
 \end{proof}
 
@@ -2778,7 +2778,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
 \end{lemma}
 \begin{proof}
     Let $\fp \in \mathfrak{T}_2(\fu')$. By \eqref{definesv}, there exists $\fu \sim \fu'$ with $\fp \in \mathfrak{T}_1(\fu)$. Then we have $2\fp \lesssim \fu$ and $\sc(\fp) \ne \sc(\fu)$, so by \eqref{eq-sc3} $4\fp \lesssim 500\fu$.
-    Further, by Lemma \ref{relation-geometry}, we have that $\sc(\fu) = \sc(\fu')$ and there exists $\mfa \in B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'),100)$.
+    Further, by \Cref{relation-geometry}, we have that $\sc(\fu) = \sc(\fu')$ and there exists $\mfa \in B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'),100)$.
     Let $\mfb \in B_{\fu'}(\fcc(\fu'), 1)$.
     Using the triangle inequality and the fact that $\sc(\fu)  =\sc(\fu')$, we obtain
     \begin{align*}
@@ -2802,7 +2802,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
 \end{lemma}
 
 \begin{proof}
-    Let $\fp, \fp'' \in \mathfrak{T}_2(\fu')$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By Lemma \ref{C5 convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not \subset G'$, so $\sc(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
+    Let $\fp, \fp'' \in \mathfrak{T}_2(\fu')$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By \Cref{C5 convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not \subset G'$, so $\sc(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
 
     By \eqref{definesv} there exists $\fu \in \fU_1(k,n,j)$ with $\fp'' \in \mathfrak{T}_1(\fu)$ and hence $2\fp'' \lesssim \fu$ and $\sc(\fp'') \ne \sc(\fu)$. Together this implies $\sc(\fp'') \subsetneq \sc(\fu)$. With the inclusion $\sc(\fp') \subset \sc(\fp'')$ from $\fp' \le \fp''$, it follows that $\sc(\fp') \subsetneq \sc(\fu)$ and hence $\sc(\fp') \ne \sc(\fu)$.
     By \eqref{eq-sc1} and transitivity of $\lesssim$ we further have $2\fp' \lesssim \fu$, so $\fp' \in \mathfrak{T}_1(\fu)$.
@@ -2822,13 +2822,13 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
 
 \begin{proof}
     By the definition \eqref{eq-C2 def} of $\fC_2(k,n,j)$, there exists a tile $\fp' \in \fC_1(k,n,j)$ with $\fp' \le \fp$ and $\ps(\fp') = \ps(\fp)- Z(n+1)$.
-    By Lemma \ref{monotone-cube-metrics} we have
+    By \Cref{monotone-cube-metrics} we have
     $$
         d_{\fp}(\fcc(\fp), \fcc(\fu')) \ge 2^{95a Z(n+1)} d_{\fp'}(\fcc(\fp), \fcc(\fu'))\,.
     $$
     By \eqref{eq-sc1} we have $2\fp' \lesssim 2\fp$, so by transitivity of $\lesssim$ there exists $\mathfrak{v} \sim \fu$ with $2\fp' \lesssim \mathfrak{v}$ and $\sc(\fp') \ne \sc(\mathfrak{v})$. Since $\fu, \fu'$ are not equivalent under $\sim$, we have $\mathfrak{v} \not \sim \fu'$, thus $10\fp' \not\lesssim \fu'$. This implies that there exists $q \in B_{\fu'}(\fcc(\fu'), 1) \setminus B_{\fp'}(\fcc(\fp'), 10)$.
 
-    From $\fp' \le \fp$, $\sc(\fp') \subset \sc(\fp) \subset \sc(\fu')$ and Lemma \ref{monotone-cube-metrics} it then follows that
+    From $\fp' \le \fp$, $\sc(\fp') \subset \sc(\fp) \subset \sc(\fu')$ and \Cref{monotone-cube-metrics} it then follows that
     \begin{align*}
         &\quad d_{\fp'}(\fcc(\fp), \fcc(\fu'))\\
         &\ge -d_{\fp'}(\fcc(\fp), \fcc(\fp')) + d_{\fp'}(\fcc(\fp'), q) - d_{\fp'}(q, \fcc(\fu'))\\
@@ -2854,9 +2854,9 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     $$
         \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(k,n,j)\,.
     $$
-    We now show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile. Then $2\fq' \not \lesssim \fu'$ for any $\fu' \sim \fu$, by maximality of $\fq$. But by \eqref{eq-C3 def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. By Lemma \ref{wiggle-order-1}, this implies $\fu \sim \fu''$, so $\fq' \in \mathfrak{T}_2(\fu)$, a contradiction.
+    We now show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile. Then $2\fq' \not \lesssim \fu'$ for any $\fu' \sim \fu$, by maximality of $\fq$. But by \eqref{eq-C3 def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. By \Cref{wiggle-order-1}, this implies $\fu \sim \fu''$, so $\fq' \in \mathfrak{T}_2(\fu)$, a contradiction.
 
-    By Lemma \ref{relation-geometry}, we have $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
+    By \Cref{relation-geometry}, we have $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
 
     Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \sc(\fu)$ and $\sc(\fp) \subset I$. Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \sc(\fu)$. By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\sc(\fp) \subset I$.
 \end{proof}
@@ -2879,11 +2879,11 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     This contradicts $\fu \in \fU_2(k,n,j)$.
 \end{proof}
 
-\begin{proof}[Proof of Lemma \ref{forest-union}]
+\begin{proof}[Proof of \ref{forest-union}]
     We first fix $k,n, j$.
     By \eqref{definetp} and \eqref{definedE}, we have that
     $\mathbf{1}_{\sc(\fp)} T_{\fp}f(x) = T_{\fp}f(x)$ and hence $\overline{g(x)} T_{\fp}f(x)= 0$ for all $\fp \in \fC_5(k,n,j) \setminus \fC_6(k,n,j)$.
-    Thus it suffices to estimate the contribution of the sets $\fC_6(k,n,j)$. By Lemma \ref{forest-stacking}, we can decompose $\fU_3(k,n,j)$ as a disjoint union of at most $4n + 13$ collections $\fU_4(k,n,j,l)$, $1 \le l \le 4n+13$, each satisfying
+    Thus it suffices to estimate the contribution of the sets $\fC_6(k,n,j)$. By \Cref{forest-stacking}, we can decompose $\fU_3(k,n,j)$ as a disjoint union of at most $4n + 13$ collections $\fU_4(k,n,j,l)$, $1 \le l \le 4n+13$, each satisfying
     $$
         \sum_{\fu \in \fU_4(k,n,j,l} \mathbf{1}_{\sc(\fu)} \le 2^n\,.
     $$
@@ -2891,7 +2891,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     $$
         (\fU_4(k,n,j,l), \mathfrak{T}_2|_{\fU_4(k,n,j,l)})
     $$
-    are $n$-forests for each $k,n,j,l$, and by Lemma \ref{C6 forest}, we have
+    are $n$-forests for each $k,n,j,l$, and by \Cref{C6 forest}, we have
     $$
         \fC_6(k,n,j) = \bigcup_{l = 1}^{4n + 13} \bigcup_{\fu \in \fU_4(k,n,j,l)} \mathfrak{T}_2(\fu)\,.
     $$
@@ -2899,7 +2899,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     $$
         \dens_2(\bigcup_{\fu \in \fU_4(k,n,j,l)} \mathfrak{T}_2(\fu)) \le 2^{2a + 5} \frac{\mu(F)}{\mu(G)}\,.
     $$
-    Using the triangle inequality according to the splitting by $k,n,j$ and $l$ in \eqref{disclesssim1} and applying Proposition \ref{forest-operator} to each term, we obtain the estimate
+    Using the triangle inequality according to the splitting by $k,n,j$ and $l$ in \eqref{disclesssim1} and applying \Cref{forest-operator} to each term, we obtain the estimate
     $$
         \sum_{k \ge 0}\sum_{n \ge k} (2n+3)(4n+13) 2^{432a^3}2^{-(1-\frac{1}{q})n}(2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2 \|\mathbf{1}_{G\setminus G'}\|_2
     $$
@@ -2915,7 +2915,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     which completes the proof of the lemma.
 \end{proof}
 
-\section{Proof of Lemma \ref{forest-complement}, the antichains}
+\section{Proof of \ref{forest-complement}, the antichains}
 \label{subsecantichain}
 
 Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(\fp) \not \subset G'$.
@@ -2979,7 +2979,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     $$
         2^n \geq 2^{4a} \lambda^{a} \geq \lambda\,.
     $$
-    From the triangle inequality, Lemma \ref{monotone-cube-metrics} and $a \ge 1$, we now obtain for all $\mfa \in B_{\mathfrak{m}}(\fcc(\mathfrak{m}), 100)$ that
+    From the triangle inequality, \Cref{monotone-cube-metrics} and $a \ge 1$, we now obtain for all $\mfa \in B_{\mathfrak{m}}(\fcc(\mathfrak{m}), 100)$ that
     \begin{align*}
         &\quad d_{\fp_0}(\fcc(\fp_0), \mfa)\\
         &\leq d_{\fp_0}(\fcc(\fp_0), \fcc(\fp_{n}))  + d_{\fp_0}(\fcc(\fp_{n}), \fcc(\fp'))  + d_{\fp_0}(\fcc(\fp'), \fcc(\fp''))\\
@@ -3000,8 +3000,8 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 \end{lemma}
 
 \begin{proof}
-    Suppose that there are $\fp_0, \fp_1 \in \fL_2(k,n,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By Lemma \ref{wiggle-order-1} and Lemma \ref{wiggle-order-2}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(k,n,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
-    If we have $\fp_l \in \fU_1(k,n,j)$, then it follows from $2\fp \lesssim 200 \fp_l \lesssim \fp_l$ and \eqref{eq-L2 def} that $\fp \not\in \fL_2(k,n,j)$, a contradiction. Thus, by the definition \eqref{defunkj}  of $\fU_1(k,n,j)$, there exists $\fp_{l+1} \in \fC_1(k,n,j)$ with $\sc(\fp_l) \subsetneq \sc(\fp_{l+1}) $ and $\mfa \in B_{\fp_l}(\fcc(\fp_l), 100) \cap B_{\fp_{l+1}}(\fcc(\fp_{l+1}), 100)$. Using the triangle inequality and Lemma \ref{monotone-cube-metrics}, one deduces that $200 \fp_l \lesssim 200\fp_{l+1}$. This contradicts maximality of $l$.
+    Suppose that there are $\fp_0, \fp_1 \in \fL_2(k,n,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By \Cref{wiggle-order-1} and \Cref{wiggle-order-2}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(k,n,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
+    If we have $\fp_l \in \fU_1(k,n,j)$, then it follows from $2\fp \lesssim 200 \fp_l \lesssim \fp_l$ and \eqref{eq-L2 def} that $\fp \not\in \fL_2(k,n,j)$, a contradiction. Thus, by the definition \eqref{defunkj}  of $\fU_1(k,n,j)$, there exists $\fp_{l+1} \in \fC_1(k,n,j)$ with $\sc(\fp_l) \subsetneq \sc(\fp_{l+1}) $ and $\mfa \in B_{\fp_l}(\fcc(\fp_l), 100) \cap B_{\fp_{l+1}}(\fcc(\fp_{l+1}), 100)$. Using the triangle inequality and \Cref{monotone-cube-metrics}, one deduces that $200 \fp_l \lesssim 200\fp_{l+1}$. This contradicts maximality of $l$.
 \end{proof}
 
 \begin{lemma}[L1 L3 antichain]
@@ -3013,7 +3013,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     By its definition \eqref{eq-L1 def}, each set $\fL_1(k,n,j,l)$ is a set of minimal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_1(k,n,j,l)$ with $\fp \le \fq$, then $\fq$ would not be minimal. Hence such $\fp, \fq$ do not exist. Similarly, be \eqref{eq-L3 def}, each set $\fL_3(k,n,j,l)$ is a set of maximal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_3(k,n,j,l)$ with $\fp \le \fq$, then $\fp$ would not be maximal.
 \end{proof}
 
-\begin{proof}[Proof of Lemma \ref{forest-complement}]
+\begin{proof}[Proof of \ref{forest-complement}]
     If $\fp \not\in \fP_{X \setminus G'}$, then $\sc(\fp) \subset G'$. By \eqref{definetp} and \eqref{definee1}, it follows that
     $\mathbf{1}_{G \setminus G'} T_{\fp}f(x) = 0$. We thus have
     $$
@@ -3023,7 +3023,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     \begin{equation*}
     \dens_1(\fL(k,n)) \le 2^{4a+1 - n}
     \end{equation*}
-    by Lemma \ref{C-dens1}, and we have
+    by \Cref{C-dens1}, and we have
     \begin{equation*}
      \dens_2(\fL(k,n)) \le 2^{2a+5} \frac{\mu(F)}{\mu(G)},
      \end{equation*}
@@ -3032,7 +3032,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
      \fL(k,n) \cap \fP_{F,G} \subset \fP_{X \setminus \fP_2} \cap \fP_{F, G} = \emptyset.
      \end{equation*}
 
-    Applying now the triangle inequality according to the decomposition in Lemma \ref{antichain-decomposition}, and then applying Proposition \ref{antichain-operator} to each term, we obtain the estimate
+    Applying now the triangle inequality according to the decomposition in \Cref{antichain-decomposition}, and then applying \Cref{antichain-operator} to each term, we obtain the estimate
     \begin{multline*}
         \le \sum_{k \ge 0} \sum_{n \ge k} (n + (2n+4) + 2(2n+4) Z(n+1)) \\
         \times 2^{201a^3}(q-1)^{-1} (2^{4a+1-n})^{\frac{q-1}{8a^4}} (2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2\|\mathbf{1}_{G\setminus G'}\|_2\,.
@@ -3048,24 +3048,24 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     This completes the proof.
 \end{proof}
 
-\chapter{Proof of  Proposition \ref{antichain-operator}}
+\chapter{Proof of \ref{antichain-operator}}
 
 \label{antichainboundary}
 
 Let an antichain $\mathfrak{A}$
-and functions $f$, $g$ as in Proposition \ref{antichain-operator} be given.
+and functions $f$, $g$ as in \Cref{antichain-operator} be given.
 We prove \eqref{eq-antiprop}
 in Subsection \ref{sec-TT* T*T}
 as the geometric mean of two inequalities,
 each involving one of the two densities.
 One of these two inequalities will need a careful estimate formulated in
-Lemma \ref{tile-correlation} of
+\Cref{tile-correlation} of
 the $TT^*$ correlation between two tile operators of two tiles.
-Lemma \ref{tile-correlation} will be proven in
+\Cref{tile-correlation} will be proven in
 Subsection \ref{sec-tile-operator}.
 The summation of the contributions of these individual correlations will require a
-geometric Lemma \ref{antichain-tile-count} counting the relevant tile pairs.
-Lemma \ref{antichain-tile-count} will be proven in Subsection
+geometric \Cref{antichain-tile-count} counting the relevant tile pairs.
+\Cref{antichain-tile-count} will be proven in Subsection
 \ref{subsec-geolem}.
 
 
@@ -3073,7 +3073,7 @@ Lemma \ref{antichain-tile-count} will be proven in Subsection
 
 
 
-\section{The density  arguments}\label{sec-TT* T*T}
+\section{The density arguments}\label{sec-TT* T*T}
 
 We begin with the following crucial disjointedness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
 \begin{lemma}[tile disjointness]
@@ -3099,7 +3099,7 @@ Let $\mathcal{B}$ be the collection of balls
     B(\pc(\fp), 8D^{\ps(\fp)})
 \end{equation}
 with $\fp\in \mathfrak{A}$ and recall the definition of
-$M_{\mathcal{B}}$ from Proposition \ref{Hardy-Littlewood}.
+$M_{\mathcal{B}}$ from \Cref{Hardy-Littlewood}.
 \begin{lemma}[maximal bound antichain]\label{maximal-bound-antichain}
 \uses{tile-disjointness}
 Let $x\in X$.
@@ -3112,7 +3112,7 @@ Then
 
 
 \begin{proof}
-Fix $x\in X$.  By Lemma \ref{tile-disjointness}, there is at most one $\fp \in \mathfrak{A}$
+Fix $x\in X$.  By \Cref{tile-disjointness}, there is at most one $\fp \in \mathfrak{A}$
 such that
  $T_{\fp} f(x)$ is not zero.
  If there is no such $\fp$, the estimate \eqref{hlmbound} follows.
@@ -3187,7 +3187,7 @@ Taking the maximum over all $B'$ containing $x$, we obtain
     M_{\mathcal{B},\frac {2{\tilde{q}}}{3{\tilde{q}}-2} } |f|
     \dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}\, .
 \end{equation}
-We have with Proposition \ref{Hardy-Littlewood}
+We have with \Cref{Hardy-Littlewood}
 \begin{equation}
 \left\|M_{\mathcal{B}, \frac {2q}{3q-2}} f\right\|_2\le 2^{2a}(3\tilde{q}-2)(2\tilde{q}-2)^{-1}\|f\|_2\, .
 \end{equation}
@@ -3196,7 +3196,7 @@ Using $1<\tilde{q}\le 2$ estimates the last display by
  2^{2a+2} (\tilde{q}-1)^{-1}  \|f\|_2\, .
 \end{equation}
 We obtain with Cauchy-Schwarz
-and then Lemma \ref{maximal-bound-antichain}
+and then \Cref{maximal-bound-antichain}
  \begin{equation}
      |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|
 \end{equation}
@@ -3303,7 +3303,7 @@ $6$ times we have
 \begin{equation}\label{eqttt4}
     \mu(B(\fp))\le 2^{6a} \mu(\sc(\fp))\, .
 \end{equation}
-Using Lemma \ref{tile-correlation} and \eqref{eqttt4}, we estimate \eqref{eqtts2} by
+Using \Cref{tile-correlation} and \eqref{eqttt4}, we estimate \eqref{eqtts2} by
 \begin{equation}\label{eqtts3}
      \le  2^{255a^3+6a+1} \sum_{\fp\in \mathfrak{A}}
     \int_{E(\fp)}|g|(y) h(\fp)\, d\mu(y)
@@ -3336,7 +3336,7 @@ We estimate $h(\fp)$ as defined in \eqref{def-hp} with H\"older using  $|g|\le \
     \frac{\|g\mathbf{1}_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
     \Big\|\sum_{\fp\in\mathfrak{A}(\fp)}(1+d_{\fp}(\fcc(\fp), \fc(\fp'))^{-1/(2a^2+a^3)}\mathbf{1}_{E(\fp)}\mathbf{1}_G\Big\|_{p}\, .
 \end{equation}
-Then we apply Lemma \ref{antichain-tile-count} to estimate this by
+Then we apply \Cref{antichain-tile-count} to estimate this by
 \begin{equation}\label{eqttt5}
     \le  2^{104a}
     \frac{\|g\mathbf{1}_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
@@ -3365,13 +3365,13 @@ using $E(\fp)\subset B(\fp)$ by construction of $B(\fp)$, we estimate
  \le  2^{255a^3+110a + 1} { \dens_1(\mathfrak{A})^{\frac 1p}}\sum_{\fp\in \mathfrak{A}}
  \int_{E(\fp)}|g|(y)M_{\mathcal{B}, p'}g(y) \, dy\,.
          \end{equation}
-Using Lemma \ref{tile-disjointness},
+Using \Cref{tile-disjointness},
 the last display is observed to be
 \begin{equation}\label{eqtts4a}
 =  2^{255a^3+110a + 1}
  {\dens_1(\mathfrak{A})^{\frac 1p}} \int |g|(y)(M_{\mathcal{B}, p'}g)(y) \, dy\,.
          \end{equation}
-Applying Cauchy-Schwarz and using Proposition \ref{Hardy-Littlewood} estimates the last display by
+Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood} estimates the last display by
 \begin{equation}
     2^{255a^3+110a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
     \|g\|_2 \|M_{\mathcal{B}, p'} g\|_2
@@ -3385,7 +3385,7 @@ Using $p>4$ and thus $1<p'<\frac 43$, we estimate the last display by
     \le  2^{255a^3+110a + 5} \dens_1(\mathfrak{A})^{\frac 1p}
     \|g\|_2^2\,.
 \end{equation}
-Now Lemma \ref{dens1 antichain} follows by applying Cauchy-Schwarz on the left-hand side and using
+Now \Cref{dens1 antichain} follows by applying Cauchy-Schwarz on the left-hand side and using
 $a\ge 4$.
 \end{proof}
 We have
@@ -3401,13 +3401,13 @@ and estimating gives after simplification of some factors
     \le  2^{150a^3}({q}-1)^{-1} \dens_1(\mathfrak{A})^{\frac {q-1}{2p}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12}  \|f\|_2\|g\|_2\, .
 \end{equation}
 With the definition of $p$, this  implies
-Proposition \ref{antichain-operator}.
+\Cref{antichain-operator}.
 
 
-\section{Proof of Lemma \ref{tile-correlation}, the tile correlation bound }\label{sec-tile-operator}
+\section{Proof of \ref{tile-correlation}, the tile correlation bound }\label{sec-tile-operator}
 
 The next lemma prepares an application of
-Proposition \ref{Holder-van-der-Corput}.
+\Cref{Holder-van-der-Corput}.
 \begin{lemma}[correlation kernel bound]\label{correlation-kernel-bound}
 Let $-S\le s_1\le s_2\le S$ and let $x_1,x_2\in X$.
 Define \begin{equation}
@@ -3479,7 +3479,7 @@ With \eqref{eq-freq-comp-ball} we then conclude
 \begin{equation}\label{dponetwo}
     d_{\fp_i}(\tQ(x_i),\fcc(\fp_i))\le 1\, .
 \end{equation}
-We have $\sc(\fp_1)\subset \sc(\fp_2)$ by \eqref{dyadicproperty}. Using Lemma \ref{monotone-cube-metrics} it follows that
+We have $\sc(\fp_1)\subset \sc(\fp_2)$ by \eqref{dyadicproperty}. Using \Cref{monotone-cube-metrics} it follows that
 \begin{equation}\label{tgeo0.5}
     d_{\fp_1}(\tQ(x_2), \fcc(\fp_2)) \le 1\,.
 \end{equation}
@@ -3541,7 +3541,7 @@ Now \eqref{ynotfar} follows by the triangle inequality.
 \end{proof}
 
 
-We now prove Lemma \ref{tile-correlation}. We begin with  \eqref{eq-basic-TT* est}.
+We now prove \Cref{tile-correlation}. We begin with  \eqref{eq-basic-TT* est}.
 
 We expand the left-hand side of \eqref{eq-basic-TT* est} as
 \begin{equation}\label{tstartstar}
@@ -3569,9 +3569,9 @@ with
 
 We estimate for fixed $x_1\in E(\fp_1)$ and
 $x_2\in E(\fp_2)$ the inner integral of \eqref{eqa1} with
-Proposition \ref{Holder-van-der-Corput}. The function
+\Cref{Holder-van-der-Corput}. The function
 $\varphi:=\varphi_{x_1,x_2}$ satisfies the assumptions of
-Proposition \ref{Holder-van-der-Corput} with $z = x_1$ and $R = D^{s_1}$ by Lemma \ref{correlation-kernel-bound}.
+\Cref{Holder-van-der-Corput} with $z = x_1$ and $R = D^{s_1}$ by \Cref{correlation-kernel-bound}.
 We obtain with $B':= B(x_1, D^{\ps(\fp_1)})$,
 \begin{equation*}
  {\bf I}\le     2^{8a} \mu(B') \|{\varphi}\|_{C^\tau(B')}
@@ -3583,7 +3583,7 @@ We obtain with $B':= B(x_1, D^{\ps(\fp_1)})$,
  {\mu(B(x_2, D^{\ps(\fp_2)}))}
        (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-1/(2a^2+a^3)}\,.
 \end{equation}
-Using Lemma \ref{tile-uncertainty} and $a\ge 1$ estimates \eqref{eqa1.5} by
+Using \Cref{tile-uncertainty} and $a\ge 1$ estimates \eqref{eqa1.5} by
 \begin{equation}\label{eqa2}
  \le     \frac{2^{254a^3 + 8a + 1}}
  {\mu(B(x_2, D^{\ps(\fp_2)}))}
@@ -3609,7 +3609,7 @@ There is a $y\in X$ with
 \begin{equation}
     T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\neq 0
 \end{equation}
-By the triangle inequality and Lemma \ref{tile-range-support}, we conclude
+By the triangle inequality and \Cref{tile-range-support}, we conclude
 \begin{equation}
    \rho(\pc(\fp),\pc(\fp'))\le  \rho(\pc(\fp),y) +\rho(\pc(\fp'),y)
    \le 5D^{\ps(\fp)}+5D^{\ps(\fp')}\le 10 D^{\ps(\fp)}\, .
@@ -3625,7 +3625,7 @@ we conclude
 
 
 
-\section{Proof of Lemma \ref{antichain-tile-count}, the geometric estimate}
+\section{Proof of \ref{antichain-tile-count}, the geometric estimate}
 \label{subsec-geolem}
 
 
@@ -3646,7 +3646,7 @@ Then
 \end{lemma}
 
 \begin{proof}
-By Lemma \ref{monotone-cube-metrics}, we have
+By \Cref{monotone-cube-metrics}, we have
 \begin{equation}
      d_{\fp}(\fcc(\fp'),\mfa)
      \le d_{\fp'}(\fcc(\fp'),\mfa)
@@ -3790,7 +3790,7 @@ We conclude from $\fp \in \mathfrak{A}_{\mfa,N}$ that
 \begin{equation}
     \mfa \in B(\fcc(\fp), 2^{N+1})\, .
 \end{equation}
-With Lemma \ref{tile-reach}, we conclude
+With \Cref{tile-reach}, we conclude
 \begin{equation}
     2^{N+3}\fp_{\mfa}  \lesssim  2^{N+3}\fp \, .
 \end{equation}
@@ -3798,7 +3798,7 @@ By Definition \eqref{definee2} of $E_2$, we conclude
 \begin{equation}
     E(\fp)\cap G \subset E_2(2^{N+3},\fp_{\mfa})\, .
 \end{equation}
-Using disjointedness of the various $E(\fp)$ with $\fp\in \mathfrak{A}$  by Lemma \ref{tile-disjointness}, we obtain \eqref{eqanti-0.5}.
+Using disjointedness of the various $E(\fp)$ with $\fp\in \mathfrak{A}$  by \Cref{tile-disjointness}, we obtain \eqref{eqanti-0.5}.
 This proves the lemma.
 \end{proof}
 \begin{lemma}[global antichain density]
@@ -3852,7 +3852,7 @@ If there exists no cube $J \in \mathcal{D}$ with $L \subsetneq J$, then by the d
 \begin{equation}
     \sum_{\fp\in\mathfrak{A}':\sc(\fp)=L}\mu(E(\fp)\cap G\cap L)\,.
 \end{equation}
-Thus in this case \eqref{eqanti0} is a direct consequence of Lemma \ref{stack-density} and $a \ge 4$.
+Thus in this case \eqref{eqanti0} is a direct consequence of \Cref{stack-density} and $a \ge 4$.
 
 We now assume that there exists a cube $J \in \mathcal{D}$ with $L \subsetneq J$.
 By \eqref{coverdyadic}, there is an
@@ -3869,7 +3869,7 @@ We split the left-hand side of \eqref{eqanti0} as
 \end{equation}
 
 We first estimate \eqref{eqanti1}
-with Lemma \ref{stack-density} by
+with \Cref{stack-density} by
 \begin{equation}\label{equanti1.5}
     \le \sum_{\fp\in\mathfrak{A}':\sc(\fp)=L'}\mu(E(\fp)\cap G\cap L')\le 2^{a(N+5)}\dens_1(\mathfrak{A})\mu(L')\, .
 \end{equation}
@@ -3903,7 +3903,7 @@ and as  $\fp'' \in \mathfrak{A}_{\mfa,N}$ that
 \begin{equation}
     \mfa \in B(\fcc(\fp''), 2^{N+1})\, .
 \end{equation}
-By Lemma \ref{tile-reach}, we conclude
+By \Cref{tile-reach}, we conclude
 \begin{equation}
     2^{N+3}\fp''  \lesssim  2^{N+3}\fp_{\mfa} \, .
 \end{equation}
@@ -3919,7 +3919,7 @@ $L\subset \sc(\fp)$ and $L\neq \sc(\fp)$. By the dyadic property \eqref{dyadicpr
 $s(L)<\ps(\fp)$ and thus $s(L')\le \ps(\fp)$. By the dyadic property
    \eqref{dyadicproperty} again, we have $L'\subset \sc(\fp)$.
 As $L'\neq \sc(\fp)$, we conclude $s(L)<\ps(\fp)$.
-By Lemma \ref{local-antichain-density}, we can thus estimate \eqref{eqanti2} by
+By \Cref{local-antichain-density}, we can thus estimate \eqref{eqanti2} by
 \begin{equation}\label{eqanti0.5}
     \sum_{\fp\in\mathfrak{A}':\sc(\fp)\neq L'}\mu(E(\fp)\cap G\cap L')
     \le  \mu (E_2(2^{N+3},\fp_{\mfa}))\, .
@@ -3947,7 +3947,7 @@ This completes the proof of the lemma.
 
 
 
-We turn to the proof of Lemma \ref{antichain-tile-count}.
+We turn to the proof of \Cref{antichain-tile-count}.
 
 
 
@@ -3963,7 +3963,7 @@ with the triangle inequality by
 \le \sum_{N\ge 0} \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}
 \end{equation}
 We consider each individual term in this sum and estimate it's $p$-th power.
-   Using that for each $x\in X$  by Lemma \ref{global-antichain-density} there is at most one $\fp\in \mathfrak{A}$ with $x\in E(\fp)$,
+   Using that for each $x\in X$  by \Cref{global-antichain-density} there is at most one $\fp\in \mathfrak{A}$ with $x\in E(\fp)$,
  we have
  \begin{equation}
      \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}^p
@@ -3978,7 +3978,7 @@ We consider each individual term in this sum and estimate it's $p$-th power.
   =   2^{-pN/(2a^2+a^3)} \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G)
 \end{equation}
 
-Using Lemma \ref{global-antichain-density}, we estimate the last display by
+Using \Cref{global-antichain-density}, we estimate the last display by
 \begin{equation}\label{eqanti21}
     \le  2^{-pN/(2a^2+a^3)+101a^3+Na}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\sc(\fp)\right)
 \end{equation}
@@ -4010,12 +4010,12 @@ Using that $p = 4a^4$ and $a \ge 4$, this proves the lemma.
 
 
 
-\chapter{Proof of Proposition \ref{forest-operator}}
+\chapter{Proof of \ref{forest-operator}}
 
 \label{treesection}
 
 \section{The pointwise tree estimate}
-Fix a forest $(\fU, \fT)$. The main result of this subsection is Lemma \ref{pointwise-tree-estimate}, we begin this section with some definitions necessary to state the lemma.
+Fix a forest $(\fU, \fT)$. The main result of this subsection is \Cref{pointwise-tree-estimate}, we begin this section with some definitions necessary to state the lemma.
 
 For $\fu \in \fU$ and $x\in X$, we define
 $$
@@ -4141,7 +4141,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
         \label{eq-term-C}
         + \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) (f(y) - P_{\mathcal{J}(\fT(\fu))} f(y)) \, \mathrm{d}\mu(y) \Bigg|\,.
     \end{equation}
-    The proof is completed using the bounds for these three terms proven in Lemma \ref{first-tree-pointwise}, Lemma \ref{second-tree-pointwise} and Lemma \ref{third-tree-pointwise}.
+    The proof is completed using the bounds for these three terms proven in \Cref{first-tree-pointwise}, \Cref{second-tree-pointwise} and \Cref{third-tree-pointwise}.
 \end{proof}
 
 \begin{lemma}[first tree pointwise]
@@ -4160,7 +4160,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
         \leq d_{B(x, 1/2 D^{s})}(\fcc(\fu), \tQ(x))\,.
     \end{multline*}
     Let $\fp_s \in \fT(\fu)$ be a tile with $\ps(\fp_s) = s$ and $x \in E(\fp_s)$, and let $\fp'$ be a tile with $\ps(\fp') = \overline{\sigma}(\fu, x)$ and $x \in E(\fp')$.
-    Using the doubling property \eqref{firstdb}, the definition of $d_{\fp}$ and Lemma \ref{monotone-cube-metrics}, we can bound the previous display by
+    Using the doubling property \eqref{firstdb}, the definition of $d_{\fp}$ and \Cref{monotone-cube-metrics}, we can bound the previous display by
     $$
         2^a d_{\fp_s}(\fcc(\fu), \tQ(x)) \le 2^{a} 2^{s - \overline{\sigma}(\fu, x)} d_{\fp'}(\fcc(\fu), \tQ(x))\,.
     $$
@@ -4284,7 +4284,7 @@ In this subsection we prove the following estimate on $L^2$ for operators associ
     \end{equation}
 \end{lemma}
 
-Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-tree-estimate} and the following estimates for the operators in Lemma \ref{pointwise-tree-estimate}.
+Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estimate} and the following estimates for the operators in \Cref{pointwise-tree-estimate}.
 
 \begin{lemma}[nontangential operator bound]
     \label{nontangential-operator-bound}
@@ -4305,7 +4305,7 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
     \end{equation}
 \end{lemma}
 
-\begin{proof}[Proof of Lemma \ref{tree-projection-estimate}]
+\begin{proof}[Proof of \ref{tree-projection-estimate}]
     For each $L \in \mathcal{L}(\fT(\fu))$, choose a point $x'(L) \in L$ such that for all $y \in L$
     $$
         (M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')|
@@ -4315,7 +4315,7 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
         \le 2 ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)|)\,.
     \end{equation}
     This point exists since \eqref{eq-x'L almost inf} is non-negative for each $y$.
-    Then we have by Lemma \ref{pointwise-tree-estimate} for each $L \in \mathcal{L}(\fT(\fu))$
+    Then we have by \Cref{pointwise-tree-estimate} for each $L \in \mathcal{L}(\fT(\fu))$
     $$
         \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
     $$
@@ -4333,7 +4333,7 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
     $$
         \Bigg| \int \bar g(y) \sum_{\fp \in \fT(\fu)} T_{\fp} f(y)  \, \mathrm{d}\mu(y) \Bigg| = \Bigg| \int_{\bigcup_{\fp \in \fT(\fu)} \sc(\fp)} \bar g(y) \sum_{\fp \in \fT(\fu)} T_{\fp} f(y)  \, \mathrm{d}\mu(y) \Bigg|\,.
     $$
-    Since $\mathcal{L}(\fT(\fu))$ partitions $\bigcup_{\fp \in \fT(\fu)} \sc(\fp)$ by Lemma \ref{dyadic-partitions},
+    Since $\mathcal{L}(\fT(\fu))$ partitions $\bigcup_{\fp \in \fT(\fu)} \sc(\fp)$ by \Cref{dyadic-partitions},
     we get from the triangle inequality
     $$
         \le \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
@@ -4349,7 +4349,7 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
     \begin{multline*}
         2^{151a^3 + 1} \|P_{\mathcal{L}(\fT(\fu))}|g|\|_2 \times \\(\|M_{\mathcal{B},1}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|S_{1,\fu}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)|\|_2)\,.
     \end{multline*}
-    By Proposition \ref{Hardy-Littlewood}, Lemma \ref{nontangential-operator-bound} and Lemma \ref{boundary-operator-bound}, the second factor is at most
+    By \Cref{Hardy-Littlewood}, \Cref{nontangential-operator-bound} and \Cref{boundary-operator-bound}, the second factor is at most
     $$
         (2^{2a+1} + 2^{12a})\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + 2^{103a^3} \|P_{\mathcal{J}(\fT(\fu))}f\|_2\,.
     $$
@@ -4362,7 +4362,7 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
 
 Now we prove the two auxiliary lemmas. We begin with the nontangential maximal operator $T_{\mathcal{N}}$.
 
-\begin{proof}[Proof of Lemma \ref{nontangential-operator-bound}]
+\begin{proof}[Proof of \ref{nontangential-operator-bound}]
     Fix $s_1, s_2$. By \eqref{eq-psisum} we have for all $x \in (0, \infty)$
     $$
         \sum_{s = s_1}^{s_2} \psi(D^{-s}x) = 1 - \sum_{s < s_1} \psi(D^{-s}x) - \sum_{s > s_1} \psi(D^{-s}x)\,.
@@ -4400,7 +4400,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     \end{equation}
     The first term \eqref{eq-sharp-trunc-term} is at most $T_* f(x)$.
 
-    The other two terms will be estimated by the finitary maximal function from Proposition \ref{Hardy-Littlewood}.
+    The other two terms will be estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
     For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
     $$
         |K(x', y)| \le \frac{2^{a^3}}{\mu(B(x', \frac{1}{4}D^{s_1 - 1}))}\,.
@@ -4444,7 +4444,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
         T_{\mathcal{N}} f(x) \le T_*f(x) + 2^{102a^3}  M_{\mathcal{B},1} f(x)\,.
     $$
-    The lemma now follows from assumption \eqref{nontanbound}, Proposition \ref{Hardy-Littlewood} and $a \ge 4$.
+    The lemma now follows from assumption \eqref{nontanbound}, \Cref{Hardy-Littlewood} and $a \ge 4$.
 \end{proof}
 
 We need the following lemma to prepare the $L^2$-estimate for the auxiliary operators $S_{1, \fu}$.
@@ -4474,7 +4474,7 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 
 Now we can bound the operators $S_{1, \fu}$.
 
-\begin{proof}[Proof of Lemma \ref{boundary-operator-bound}]
+\begin{proof}[Proof of \ref{boundary-operator-bound}]
     Note that by definition, $S_{1,\fu}f$ is a finite sum of indicator functions of cubes $I \in \mathcal{D}$ for each locally integrable $f$, and hence is bounded, has bounded support and is integrable. Let $g$ be another function with the same three properties. Then $\bar g S_{1,\fu}f$ is integrable, and we have
     $$
         \Bigg|\int \bar g(y) S_{1,\fu}f(y) \, \mathrm{d}\mu(y)\Bigg|
@@ -4491,7 +4491,7 @@ Now we can bound the operators $S_{1, \fu}$.
     \label{eq-boundary-operator-bound-1}
         \le \sum_{J\in\mathcal{J}}\int_J|f(y)|  M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y) \sum_{I \in \mathcal{D} \, : \, J\subset B(c(I),16 D^{s(I)})} D^{(s(J)-s(I))/a}.
     \end{align}
-    By \eqref{eq-vol-sp-cube} and \eqref{defineD} the condition $J \subset B(c(I), 16 D^{s(I)})$ implies $s(I) \ge s(J)$. By Lemma \ref{boundary-overlap}, there are at most $2^{8a}$ cubes $I$ at each scale with $J \subset B(c(I), D^{s(I)})$.
+    By \eqref{eq-vol-sp-cube} and \eqref{defineD} the condition $J \subset B(c(I), 16 D^{s(I)})$ implies $s(I) \ge s(J)$. By \Cref{boundary-overlap}, there are at most $2^{8a}$ cubes $I$ at each scale with $J \subset B(c(I), D^{s(I)})$.
     By convexity of $t \mapsto D^t$ and since $D \ge 2$, we have for all $-1 \le t \le 0$
     $$
         D^t \le 1 + t\left(1 - \frac{1}{D}\right) \le 1 + \frac{1}{2}t\,,
@@ -4506,7 +4506,7 @@ Now we can bound the operators $S_{1, \fu}$.
     $$
         2^{9a} \int_X|f(y)|  M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
-    Using Cauchy-Schwarz and Proposition \ref{Hardy-Littlewood} we conclude
+    Using Cauchy-Schwarz and \Cref{Hardy-Littlewood} we conclude
     $$
         \left|\int \bar g S_{1,\fu}f \, \mathrm{d}\mu \right| \le  2^{11a+1} \|g\|_2\|f\|_2\,.
     $$
@@ -4532,7 +4532,7 @@ The main result of this subsection is the following quantitative bound for opera
     \end{equation}
 \end{lemma}
 
-Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the following two estimates controlling the size of support of the operator and its adjoint.
+Below, we deduce this lemma from  \Cref{tree-projection-estimate} and the following two estimates controlling the size of support of the operator and its adjoint.
 
 \begin{lemma}[local dens1 tree bound]
     \label{local-dens1 tree bound}
@@ -4552,7 +4552,7 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
     $$
 \end{lemma}
 
-\begin{proof}[Proof of Lemma \ref{densities-tree-bound}]
+\begin{proof}[Proof of \ref{densities-tree-bound}]
     Denote
     $$
         \mathcal{E}(\fu) = \bigcup_{\fp \in \fT(\fu)} E(\fp)\,.
@@ -4561,7 +4561,7 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
     $$
         \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right|  = \left| \int_X \overline{ g\mathbf{1}_{\mathcal{E}(\fu)}}  \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right|\,.
     $$
-    By Lemma \ref{tree-projection-estimate}, this is bounded by
+    By \Cref{tree-projection-estimate}, this is bounded by
     \begin{equation}
         \label{eq-both-factors-tree}
         \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2\,.
@@ -4571,11 +4571,11 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
     $$
         \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2 = \left( \sum_{L \in \mathcal{L}(\fT(\fu))} \frac{1}{\mu(L)} \left(\int_{L \cap \mathcal{E}(\fu)} |g(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     $$
-    By Cauchy-Schwarz and Lemma \ref{local-dens1 tree bound} this is at most
+    By Cauchy-Schwarz and \Cref{local-dens1 tree bound} this is at most
     $$
         \le \left( \sum_{L \in \mathcal{L}(\fT(\fu))} 2^{101a^3} \dens_1(\fT(\fu)) \int_{L \cap \mathcal{E}(\fu)} |g(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
     $$
-    Since cubes $L \in \mathcal{L}(\fT(\fu))$ are pairwise disjoint by Lemma \ref{dyadic-partitions}, this is
+    Since cubes $L \in \mathcal{L}(\fT(\fu))$ are pairwise disjoint by \Cref{dyadic-partitions}, this is
     \begin{equation}
         \label{eq-factor-L-tree}
          \le 2^{51 a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
@@ -4589,7 +4589,7 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
     $$
         \le \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_J |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
     $$
-    Since cubes in $\mathcal{J}(\fT(\fu))$ are pairwise disjoint by Lemma \ref{dyadic-partitions}, this at most
+    Since cubes in $\mathcal{J}(\fT(\fu))$ are pairwise disjoint by \Cref{dyadic-partitions}, this at most
     \begin{equation}
         \label{eq-factor-J-tree}
         \|f\|_2\,.
@@ -4600,7 +4600,7 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
     $$
         \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_J |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2} = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_{J \cap F} |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
     $$
-    We estimate as before, using now Lemma \ref{local-dens2 tree bound} and Cauchy-Schwarz, and obtain that this is
+    We estimate as before, using now \Cref{local-dens2 tree bound} and Cauchy-Schwarz, and obtain that this is
     $$
         \le 2^{100a^3 + 10} \dens_2(\fT(\fu))^{1/2} \|f\|_2\,.
     $$
@@ -4609,15 +4609,15 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
 
 Now we prove the two auxiliary estimates.
 
-\begin{proof}[Proof of Lemma \ref{local-dens1 tree bound}]
+\begin{proof}[Proof of \ref{local-dens1 tree bound}]
     If the set on the right hand side is empty, then \eqref{eq-1density estimate tree} holds. If not, then there exists $\fp \in \fT(\fu)$ with $L \cap \sc(\fp) \ne \emptyset$.
 
-    Suppose first that there exists such $\fp$ with $\ps(\fp) \le s(L)$. Then by \eqref{dyadicproperty} $\sc(\fp) \subset L$, which gives by the definition of $\mathcal{L}(\fT(\fu))$ that $s(L) = -S$ and hence $L = \sc(\fp)$. Let $\fq \in \fT(\fu)$ with $E(\fq) \cap L \ne \emptyset$. Since $s(L) = -S \le \ps(\fq)$ it follows from \eqref{dyadicproperty} that $\sc(\fp) = L \subset \sc(\fq)$. We have then by Lemma \ref{monotone-cube-metrics}
+    Suppose first that there exists such $\fp$ with $\ps(\fp) \le s(L)$. Then by \eqref{dyadicproperty} $\sc(\fp) \subset L$, which gives by the definition of $\mathcal{L}(\fT(\fu))$ that $s(L) = -S$ and hence $L = \sc(\fp)$. Let $\fq \in \fT(\fu)$ with $E(\fq) \cap L \ne \emptyset$. Since $s(L) = -S \le \ps(\fq)$ it follows from \eqref{dyadicproperty} that $\sc(\fp) = L \subset \sc(\fq)$. We have then by \Cref{monotone-cube-metrics}
     \begin{align*}
         d_{\fp}(\fcc(\fp), \fcc(\fq)) &\le d_{\fp}(\fcc(\fp), \fcc(\fu)) + d_{\fp}(\fcc(\fq), \fcc(\fu))\\
         &\le d_{\fp}(\fcc(\fp), \fcc(\fu)) + d_{\fq}(\fcc(\fq), \fcc(\fu))\,.
     \end{align*}
-    Using that $\fp, \fq \in \fT(\fu)$ and \eqref{forest1}, this is at most $8$. Using again the triangle inequality and Lemma \ref{monotone-cube-metrics}, we obtain that for each $q \in B_{\fq}(\fcc(\fq), 1)$
+    Using that $\fp, \fq \in \fT(\fu)$ and \eqref{forest1}, this is at most $8$. Using again the triangle inequality and \Cref{monotone-cube-metrics}, we obtain that for each $q \in B_{\fq}(\fcc(\fq), 1)$
     $$
         d_{\fp}(\fcc(\fp), q) \le d_{\fp}(\fcc(\fp), \fcc(\fq)) + d_{\fq}(\fcc(\fq), q) \le 9\,.
     $$
@@ -4631,7 +4631,7 @@ Now we prove the two auxiliary estimates.
     $$
     Since $a \ge 4$, \eqref{eq-1density estimate tree} follows in this case.
 
-    Now suppose that for each $\fp \in \fT(\fu)$ with $L \cap E(\fp) \ne \emptyset$, we have $\ps(\fp) > s(L)$. Since there exists at least one such $\fp$, there exists in particular at least one cube $L'' \in \mathcal{D}$ with $L \subset L''$ and $s(L'') > s(L)$. By \eqref{coverdyadic}, there exists $L' \in \mathcal{D}$ with $L \subset L'$ and $s(L') = s(L) + 1$. By the definition of $\mathcal{L}(\fT(\fu))$ there exists a tile $\fp'' \in \fT(\fu)$ with $\sc(\fp'') \subset L'$. Let $\fp'$ be the unique tile such that $\sc(\fp') = L'$ and such that $\Omega(\fu) \cap \Omega(\fp') \ne \emptyset$. Since by \eqref{forest1} $\ps(\fp') = s(L') \le \ps(\fp) < \ps(\fu)$, we have by \eqref{dyadicproperty} and \eqref{eq-freq-dyadic} that $\Omega(\fu) \subset \Omega(\fp')$. Let $\fq \in \fT(\fu)$ with $L \cap E(\fq) \ne \emptyset$. As shown above, this implies $\ps(\fq) \ge s(L')$, so by \eqref{dyadicproperty} $L' \subset \sc(\fq)$. If $q \in B_{\fq}(\fcc(\fq), 1)$, then by a similar calculation as above, using the triangle inequality, Lemma \ref{monotone-cube-metrics} and \eqref{forest1}, we obtain
+    Now suppose that for each $\fp \in \fT(\fu)$ with $L \cap E(\fp) \ne \emptyset$, we have $\ps(\fp) > s(L)$. Since there exists at least one such $\fp$, there exists in particular at least one cube $L'' \in \mathcal{D}$ with $L \subset L''$ and $s(L'') > s(L)$. By \eqref{coverdyadic}, there exists $L' \in \mathcal{D}$ with $L \subset L'$ and $s(L') = s(L) + 1$. By the definition of $\mathcal{L}(\fT(\fu))$ there exists a tile $\fp'' \in \fT(\fu)$ with $\sc(\fp'') \subset L'$. Let $\fp'$ be the unique tile such that $\sc(\fp') = L'$ and such that $\Omega(\fu) \cap \Omega(\fp') \ne \emptyset$. Since by \eqref{forest1} $\ps(\fp') = s(L') \le \ps(\fp) < \ps(\fu)$, we have by \eqref{dyadicproperty} and \eqref{eq-freq-dyadic} that $\Omega(\fu) \subset \Omega(\fp')$. Let $\fq \in \fT(\fu)$ with $L \cap E(\fq) \ne \emptyset$. As shown above, this implies $\ps(\fq) \ge s(L')$, so by \eqref{dyadicproperty} $L' \subset \sc(\fq)$. If $q \in B_{\fq}(\fcc(\fq), 1)$, then by a similar calculation as above, using the triangle inequality, \Cref{monotone-cube-metrics} and \eqref{forest1}, we obtain
     $$
         d_{\fp'}(\fcc(\fp'), q) \le d_{\fp'}(\fcc(\fp'), \fcc(\fq)) + d_{\fq}(\fcc(\fq), q) \le 6\,.
     $$
@@ -4646,7 +4646,7 @@ Now we prove the two auxiliary estimates.
     This completes the proof.
 \end{proof}
 
-\begin{proof}[Proof of Lemma \ref{local-dens2 tree bound}]
+\begin{proof}[Proof of \ref{local-dens2 tree bound}]
     Suppose first that there exists a tile $\fp \in \fT(\fu)$ with $\sc(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. By the definition of $\mathcal{J}(\fT(\fu))$, this implies that $s(J) = -S$, and in particular $\ps(\fp) \ge s(J)$. Using the triangle inequality and \eqref{eq-vol-sp-cube} it follows that $J \subset B(\pc(\fp), 200 D^{\ps(\fp) + 1})$. From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
     $$
         \mu(\sc(\fp)) \le 2^{100a^3 + 9} \mu(J)
@@ -4699,7 +4699,7 @@ Now we prove the two auxiliary estimates.
 
 \section{Almost orthogonality of separated trees}
 
-The main result of this subsection is the almost orthogonality estimate for operators associated to distinct trees in a forest in Lemma \ref{correlation-separated-trees} below. We will deduce it from Lemmas \ref{correlation-distant-tree-parts} and \ref{correlation-near-tree-parts}, which are proven in Subsections \ref{subsec-big-tiles} and \ref{subsec-rest-tiles}, respectively. Before stating it, we introduce some relevant notation.
+The main result of this subsection is the almost orthogonality estimate for operators associated to distinct trees in a forest in \Cref{correlation-separated-trees} below. We will deduce it from Lemmas \ref{correlation-distant-tree-parts} and \ref{correlation-near-tree-parts}, which are proven in Subsections \ref{subsec-big-tiles} and \ref{subsec-rest-tiles}, respectively. Before stating it, we introduce some relevant notation.
 
 The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 \begin{equation}
@@ -4748,7 +4748,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 \end{lemma}
 
 \begin{proof}
-    By Cauchy-Schwarz and Lemma \ref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
+    By Cauchy-Schwarz and \Cref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
     $$
         \left| \int_X \overline{\sum_{\fp\in \fT(\fu)} T_{\fp}^* g} f \,\mathrm{d}\mu \right| = \left| \int_X g \sum_{\fp \in \fT(\fu)} T_{\fp} f \,\mathrm{d}\mu \right|
     $$
@@ -4773,7 +4773,7 @@ $$
 \end{lemma}
 
 \begin{proof}
-    This follows immediately from Minkowski's inequality, Proposition \ref{Hardy-Littlewood} and Lemma \ref{adjoint-tree-estimate}, using that $a \ge 4$.
+    This follows immediately from Minkowski's inequality, \Cref{Hardy-Littlewood} and \Cref{adjoint-tree-estimate}, using that $a \ge 4$.
 \end{proof}
 
 
@@ -4793,15 +4793,15 @@ Now we are ready to state the main result of this subsection.
     \end{equation}
 \end{lemma}
 
-\begin{proof}[Proof of Lemma \ref{correlation-separated-trees}]
-    By Lemma \ref{adjoint-tile-support} and \eqref{dyadicproperty}, the left hand side \eqref{eq-lhs-sep-tree} is $0$ unless $\sc(\fu_1) \subset \sc(\fu_2)$ or $\sc(\fu_2) \subset \sc(\fu_1)$. Without loss of generality we assume that $\sc(\fu_1) \subset \sc(\fu_2)$.
+\begin{proof}[Proof of \ref{correlation-separated-trees}]
+    By \Cref{adjoint-tile-support} and \eqref{dyadicproperty}, the left hand side \eqref{eq-lhs-sep-tree} is $0$ unless $\sc(\fu_1) \subset \sc(\fu_2)$ or $\sc(\fu_2) \subset \sc(\fu_1)$. Without loss of generality we assume that $\sc(\fu_1) \subset \sc(\fu_2)$.
 
     Define
     \begin{equation}
         \label{def-Tree-S-set}
          \mathfrak{S} := \{\fp \in \fT(\fu_1) \cup \fT(\fu_2) \ : \ d_{\fp}(\fcc(\fu_1), \fcc(\fu_2)) \ge 2^{Zn/2}\,\}.
     \end{equation}
-    Lemma \ref{correlation-separated-trees} follows by combining the definition \eqref{defineZ} of $Z$ with the following two lemmas.
+    \Cref{correlation-separated-trees} follows by combining the definition \eqref{defineZ} of $Z$ with the following two lemmas.
     \begin{lemma}[correlation distant tree parts]
         \label{correlation-distant-tree-parts}
         \uses{Holder-van-der-Corput,adjoint-tile-support,Lipschitz partition unity,Holder correlation tree,lower oscillation bound}
@@ -4846,7 +4846,7 @@ In the proofs of both lemmas, we will need the following observation.
     \end{align*}
     using that $Z= 2^{12a}\ge 4$. Hence $\fp \in \mathfrak{S}$.
 
-    Suppose now that $\fp \in \fT(\fu_2)$. If $\sc(\fp) \subset \sc(\fu_1)$, then the same argument as above with $\fu_1$ and $\fu_2$ swapped shows $\fp \in \mathfrak{S}$. If $\sc(\fp) \not \subset \sc(\fu_1)$ then, by \eqref{dyadicproperty}, $\sc(\fu_1) \subset \sc(\fp)$. Pick $\fp' \in \fT(\fu_1)$, we have $\sc(\fp') \subset \sc(\fu_1) \subset \sc(\fp)$. Hence, by Lemma \ref{monotone-cube-metrics} and the first paragraph
+    Suppose now that $\fp \in \fT(\fu_2)$. If $\sc(\fp) \subset \sc(\fu_1)$, then the same argument as above with $\fu_1$ and $\fu_2$ swapped shows $\fp \in \mathfrak{S}$. If $\sc(\fp) \not \subset \sc(\fu_1)$ then, by \eqref{dyadicproperty}, $\sc(\fu_1) \subset \sc(\fp)$. Pick $\fp' \in \fT(\fu_1)$, we have $\sc(\fp') \subset \sc(\fu_1) \subset \sc(\fp)$. Hence, by \Cref{monotone-cube-metrics} and the first paragraph
     $$
         d_{\fp}(\fcc(\fu_1), \fcc(\fu_2)) \ge d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) \ge 2^{Zn}\,,
     $$
@@ -4858,10 +4858,10 @@ $$
     T_{\fC} f := \sum_{\fp \in \fC} T_{\fp} f\,, \quad\quad T_{\fC}^* g := \sum_{\fp\in\fC} T_{\fp}^* g\,.
 $$
 
-\section{Proof of Lemma \ref{correlation-distant-tree-parts}: Tiles with large separation}
+\section{Proof of \ref{correlation-distant-tree-parts}: Tiles with large separation}
     \label{subsec-big-tiles}
 
-Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estimate in Proposition \ref{Holder-van-der-Corput}. We apply this proposition in Subsubsection \ref{subsubsec-van-der-corput}. To prepare this application, we first, in Subsubsection \ref{subsubsec-pao}, construct a suitable partition of unity, and show then, in Subsubsection \ref{subsubsec-holder-estimates} the Hölder estimates needed to apply Proposition \ref{Holder-van-der-Corput}.
+\Cref{correlation-distant-tree-parts} follows from the van der Corput estimate in \Cref{Holder-van-der-Corput}. We apply this proposition in Subsubsection \ref{subsubsec-van-der-corput}. To prepare this application, we first, in Subsubsection \ref{subsubsec-pao}, construct a suitable partition of unity, and show then, in Subsubsection \ref{subsubsec-holder-estimates} the Hölder estimates needed to apply \Cref{Holder-van-der-Corput}.
 
 \subsection{A partition of unity}
 \label{subsubsec-pao}
@@ -4880,7 +4880,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}
-        By Lemma \ref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\mathfrak{S})$ with $J \cap \sc(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\sc(\fu_1) \subsetneq J$. Pick $\fp \in \fT(\fu_1) \subset \mathfrak{S}$.  Then $\sc(\fp) \subsetneq J$. This contradicts the definition of $\mathcal{J}(\mathfrak{S})$.
+        By \Cref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\mathfrak{S})$ with $J \cap \sc(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\sc(\fu_1) \subsetneq J$. Pick $\fp \in \fT(\fu_1) \subset \mathfrak{S}$.  Then $\sc(\fp) \subsetneq J$. This contradicts the definition of $\mathcal{J}(\mathfrak{S})$.
     \end{proof}
 
     For cubes $J \in \mathcal{D}$, denote
@@ -4920,7 +4920,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         then $|s(J) - s(J')| \le 1$.
     \end{lemma}
 
-    \begin{proof}[Proof of Lemma \ref{Lipschitz-partition-unity}]
+    \begin{proof}[Proof of \ref{Lipschitz-partition-unity}]
         For each cube $J \in \mathcal{J}$ let
         $$
             \tilde\chi_J(y) = \max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
@@ -4937,7 +4937,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             |\chi_J(y) - \chi_J(y')| \le \frac{|\tilde \chi_J(y) - \tilde \chi_J(y')|}{a(y)} + \frac{\tilde \chi_J(y')|a(y) - a(y')|}{a(y)a(y')}
         $$
-        Since $\tilde \chi_J(z) \ge 4$ for all $z \in B(c(J), 4) \supset J$ and by Lemma \ref{dyadic-partition-1}, we have that $a(z) \ge 4$ for all $z \in \sc(\fu_1)$. So we can estimate the above further by
+        Since $\tilde \chi_J(z) \ge 4$ for all $z \in B(c(J), 4) \supset J$ and by \Cref{dyadic-partition-1}, we have that $a(z) \ge 4$ for all $z \in \sc(\fu_1)$. So we can estimate the above further by
         $$
             \le 2^{-2}(|\tilde \chi_J(y) - \tilde \chi_J(y')| + \tilde \chi_J(y')|a(y) - a(y')|)\,.
         $$
@@ -4953,11 +4953,11 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             |\chi_J(y) - \chi_J(y')| \le \rho(y,y') \Big( \frac{1}{4} D^{-s(J)} + 2 \sum_{\substack{J' \in \mathcal{J}'\\ B(J') \cap B(J) \ne \emptyset}} D^{-s(J')}\Big)\,.
         $$
-        By Lemma \ref{moderate-scale-change}, this is at most
+        By \Cref{moderate-scale-change}, this is at most
         $$
              \frac{\rho(y,y')}{D^{s(J)}} \left( \frac{1}{4} + 2D |\{J' \in \mathcal{J}' \ : \  B(J') \cap B(J) \ne \emptyset\}|\right)\,.
         $$
-        By \eqref{eq-vol-sp-cube} and Lemma \ref{dyadic-partition-1}, the balls $B(c(J'), \frac{1}{4} D^{s(J')})$ are pairwise disjoint, so by Lemma \ref{moderate-scale-change} the balls $B(c(J'), \frac{1}{4} D^{s(J) - 1})$ are also disjoint. By the triangle inequality and Lemma \ref{moderate-scale-change}, each such ball for $J'$ in the set of the last display is contained in
+        By \eqref{eq-vol-sp-cube} and \Cref{dyadic-partition-1}, the balls $B(c(J'), \frac{1}{4} D^{s(J')})$ are pairwise disjoint, so by \Cref{moderate-scale-change} the balls $B(c(J'), \frac{1}{4} D^{s(J) - 1})$ are also disjoint. By the triangle inequality and \Cref{moderate-scale-change}, each such ball for $J'$ in the set of the last display is contained in
         $$
             B(c(J), 9 D^{s(J) + 1})\,.
         $$
@@ -4975,7 +4975,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         Since $a\ge 4$, \eqref{eq-pao-3} follows.
     \end{proof}
 
-    \begin{proof}[Proof of Lemma \ref{moderate-scale-change}]
+    \begin{proof}[Proof of \ref{moderate-scale-change}]
         Suppose that $s(J') < s(J) - 1$. Then $s(J) > -S$. Thus, by the definition of $\mathcal{J}'$ there exists no $\fp \in \mathfrak{S}$ with
         \begin{equation}
             \label{eq-tile-incl-1}
@@ -5093,7 +5093,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
             \eqref{T*Hölder1b}+\eqref{T*Hölder1} \le \frac{2^{151a^3}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \left(\frac{\rho(y,y')}{D^{\ps(\fp)}}\right)^{1/a} \int_{E(\fp)}|g(x)| \, \mathrm{d}\mu(x)\,.
         $$
 
-        Next, if $y,y' \notin B(\pc(\fp), 5D^{\ps(\fp)})$, then $T_{\fp}^*g(y) = T_{\fp}^*g(y') = 0$, by Lemma \ref{adjoint-tile-support}. Then \eqref{T*Hölder2} holds.
+        Next, if $y,y' \notin B(\pc(\fp), 5D^{\ps(\fp)})$, then $T_{\fp}^*g(y) = T_{\fp}^*g(y') = 0$, by \Cref{adjoint-tile-support}. Then \eqref{T*Hölder2} holds.
 
         Finally, if $y \in B(\pc(\fp), 5D^{\ps(\fp)})$ and $y' \notin B(\pc(\fp), 5D^{\ps(\fp)})$, then
         $$
@@ -5169,7 +5169,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}
-        For the first estimate, assume that $\ps(\fp) < s(J)$, then in particular $\ps(\fp) \le \ps(\fu_1)$. Since $\fp \notin \mathfrak{S}$, we have by Lemma \ref{overlap-implies-distance} that $\sc(\fp) \cap \sc(\fu_1) = \emptyset$.
+        For the first estimate, assume that $\ps(\fp) < s(J)$, then in particular $\ps(\fp) \le \ps(\fu_1)$. Since $\fp \notin \mathfrak{S}$, we have by \Cref{overlap-implies-distance} that $\sc(\fp) \cap \sc(\fu_1) = \emptyset$.
         %by \eqref{dyadicproperty}.
         Since $B\Big(c(J), \frac{1}{4} D^{s(J)}\Big) \subset \sc(J) \subset \sc(\fu_1)$, this implies
         $$
@@ -5219,7 +5219,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
             \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus\mathfrak{S}}^* g|
             \leq \sup_{B^\circ{}(J)} \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ B(\sc(\fp)) \cap B^\circ(J)  \ne \emptyset}} |T_{\fp}^*g|\,.
         $$
-        By Lemma \ref{limited-scale-impact}, this is at most
+        By \Cref{limited-scale-impact}, this is at most
         \begin{equation}
             \label{eq-sep-tree-aux-3}
             \sum_{s = s(J)}^{s(J) + 10a^2 + 2} \sum_{\substack{\fp \in \fP, \ps(\fp) = s\\ B(\sc(\fp)) \cap B^\circ(J)  \ne \emptyset}} \sup_{B^\circ{}(J)} |T_{\fp}^* g|\,.
@@ -5253,7 +5253,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}
-        By Lemma \ref{overlap-implies-distance}, we have that in both cases, $\fC \subset \mathfrak{S}$. If $\fp \in \fC$ with $B(\sc(\fp)) \cap B(J) \neq \emptyset$ and $\ps(\fp) < s(J)$, then $\sc(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. Since $\fp \in \mathfrak{S}$, it follows from the definition of $\mathcal{J}'$ that $s(J) = -S$, which contradicts $\ps(\fp) < s(J)$.
+        By \Cref{overlap-implies-distance}, we have that in both cases, $\fC \subset \mathfrak{S}$. If $\fp \in \fC$ with $B(\sc(\fp)) \cap B(J) \neq \emptyset$ and $\ps(\fp) < s(J)$, then $\sc(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. Since $\fp \in \mathfrak{S}$, it follows from the definition of $\mathcal{J}'$ that $s(J) = -S$, which contradicts $\ps(\fp) < s(J)$.
     \end{proof}
 
     \begin{lemma}[global tree control 1]
@@ -5278,7 +5278,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         Note that \eqref{TreeUB} follows from \eqref{TreeHölder}, since for $y'\in B^\circ{}(J)$, by the triangle inequality,
         $$\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}\le \Big(8 + \frac{1}8\Big)^{1/a}\le 2^{a^3}.$$
 
-        By the triangle inequality, Lemma \ref{adjoint-tile-support} and Lemma \ref{Holder-correlation-tile}, we have for all $y, y' \in B(J)$
+        By the triangle inequality, \Cref{adjoint-tile-support} and \Cref{Holder-correlation-tile}, we have for all $y, y' \in B(J)$
         \begin{equation}
             \label{eq-C-Lip}
             |e(\fcc(\fu)(y)) T_{\fC}^* g(y) - e(\fcc(\fu)(y')) T_{\fC}^* g(y')|
@@ -5289,7 +5289,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             \le 2^{151a^3}\rho(y,y')^{1/a}  \sum_{\substack{\fp \in \fC\\ B(\sc(\fp)) \cap B(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
         $$
-        By Lemma \ref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{definedE} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
+        By \Cref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{definedE} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
         $$
             2^{151a^3}\rho(y,y')^{1/a} \sum_{S \ge s \ge s(J)}  D^{-s/a}  \frac{2^{3a}}{\mu(B(c(J), 32D^{s}))} \int_{B(c(J), 32D^{s})} |g| \, \mathrm{d}\mu
         $$
@@ -5317,14 +5317,14 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}
-        By Lemma \ref{global-tree-control-1}
+        By \Cref{global-tree-control-1}
         $$
             \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| +  2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
         $$
         $$
             \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| +  2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
         $$
-        and by Lemma \ref{local-tree-control}
+        and by \Cref{local-tree-control}
         $$
             \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + (2^{104a^3} + 2^{154a^3}) \inf_{J} M_{\mathcal{B}, 1} |g|\,.
         $$
@@ -5333,11 +5333,11 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
 
 
-    \begin{proof}[Proof of Lemma \ref{Holder-correlation-tree}]
+    \begin{proof}[Proof of \ref{Holder-correlation-tree}]
         Let $P$ be the product on the right hand side of \eqref{hHölder}, and $h_J$ as defined in \eqref{def-hj}.
 
-        By \eqref{eq-pao-2} and Lemma \ref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \sc(\fu_1)$.
-        By \eqref{eq-pao-2} and Lemma \ref{global-tree-control-1}, we have for all $y \in B(J)$:
+        By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \sc(\fu_1)$.
+        By \eqref{eq-pao-2} and \Cref{global-tree-control-1}, we have for all $y \in B(J)$:
         $$
             |h_J(y)| \le 2^{308a^3} P\,.
         $$
@@ -5353,19 +5353,19 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         \end{align}
 
         As $h_J$ is supported in $\sc(\fu_1)$, we can assume without loss of generality that $y' \in \sc(\fu_1)$.
-        If $y \notin \sc(\fu_1)$, then \eqref{eq-h-Lip-1} vanishes. If $y \in \sc(\fu_1)$ then we have by \eqref{eq-pao-3}, Lemma \ref{global-tree-control-1} and Lemma \ref{global-tree-control-2}
+        If $y \notin \sc(\fu_1)$, then \eqref{eq-h-Lip-1} vanishes. If $y \in \sc(\fu_1)$ then we have by \eqref{eq-pao-3}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}
         $$
             \eqref{eq-h-Lip-1} \le 2^{534a^3} \frac{\rho(y,y')}{D^{s(J)}} P\,,
         $$
         where $P$ denotes the product on the right hand side of \eqref{hHölder}.
 
-        By \eqref{eq-pao-2}, Lemma \ref{global-tree-control-1} and Lemma \ref{global-tree-control-2}, we have
+        By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have
         $$
             \eqref{eq-h-Lip-2} \le  2^{310a^3} P\,.
             %\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}
         $$
 
-        By \eqref{eq-pao-2}, and twice Lemma \ref{global-tree-control-1}, we have
+        By \eqref{eq-pao-2}, and twice \Cref{global-tree-control-1}, we have
         $$
             \eqref{eq-h-Lip-3} \le 2^{308a^3} P\,.
             %\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}
@@ -5385,7 +5385,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}
-    Since $\emptyset \ne \fT(\fu_1) \subset \mathfrak{S}$ by Lemma \ref{overlap-implies-distance}, there exists at least one tile $\fp \in \mathcal{S}$ with $\sc(\fp) \subsetneq \sc(\fu_1)$. Thus $\sc(\fu_1) \notin \mathcal{J}'$, so $J \subsetneq \sc(\fu_1)$. Thus there exists a cube $J' \in \mathcal{D}$ with $J \subset J'$ and $s(J') = s(J) + 1$, by \eqref{coverdyadic} and \eqref{dyadicproperty}. By definition of $\mathcal{J'}$ and the triangle inequality, there exists $\fp \in \mathfrak{S}$ such that
+    Since $\emptyset \ne \fT(\fu_1) \subset \mathfrak{S}$ by \Cref{overlap-implies-distance}, there exists at least one tile $\fp \in \mathcal{S}$ with $\sc(\fp) \subsetneq \sc(\fu_1)$. Thus $\sc(\fu_1) \notin \mathcal{J}'$, so $J \subsetneq \sc(\fu_1)$. Thus there exists a cube $J' \in \mathcal{D}$ with $J \subset J'$ and $s(J') = s(J) + 1$, by \eqref{coverdyadic} and \eqref{dyadicproperty}. By definition of $\mathcal{J'}$ and the triangle inequality, there exists $\fp \in \mathfrak{S}$ such that
     $$
         \sc(\fp) \subset B(c(J'), 100 D^{s(J') + 1}) \subset B(c(J), 128 D^{s(J)+2})\,.
     $$
@@ -5400,21 +5400,21 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     which gives the lemma using $a \ge 4$.
     \end{proof}
 
-    Now we are ready to prove Lemma \ref{correlation-distant-tree-parts}.
-    \begin{proof}[Proof of Lemma \ref{correlation-distant-tree-parts}]
+    Now we are ready to prove \Cref{correlation-distant-tree-parts}.
+    \begin{proof}[Proof of \ref{correlation-distant-tree-parts}]
     We have
     $$
         \eqref{eq-lhs-big-sep-tree} = \left| \int_{X} T_{\fT(\fu_1)}^* g_1 \overline{T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2 }\right|\,.
     $$
-    By Lemma \ref{adjoint-tile-support}, the right hand side is supported in $\sc(\fu_1)$. Using \eqref{eq-pao-1} of Lemma \ref{Lipschitz-partition-unity} and the definition \eqref{def-hj} of $h_J$, we thus have
+    By \Cref{adjoint-tile-support}, the right hand side is supported in $\sc(\fu_1)$. Using \eqref{eq-pao-1} of \Cref{Lipschitz-partition-unity} and the definition \eqref{def-hj} of $h_J$, we thus have
     $$
         \le  \sum_{J \in \mathcal{J}'} \left|\int_{B(J)} e(\fcc(\fu_2)(y) - \fcc(\fu_1)(y)) h_J(y) \, \mathrm{d}\mu(y) \right|\,.
     $$
-    Using Proposition \ref{Holder-van-der-Corput} with the ball $B(J)$, we bound this by
+    Using \Cref{Holder-van-der-Corput} with the ball $B(J)$, we bound this by
     $$
         \le 2^{8a} \sum_{J \in \mathcal{J}'} \mu(B(J)) \|h_J\|_{C^{\tau}(B(J))} (1 + d_{B(J)}(\fcc(\fu_1), \fcc(\fu_1)))^{-1/(2a^2+a^3)}\,.
     $$
-    Using Lemma \ref{Holder-correlation-tree}, Lemma \ref{lower-oscillation-bound} and $a \ge 4$, we have that the above is bounded from above by
+    Using \Cref{Holder-correlation-tree}, \Cref{lower-oscillation-bound} and $a \ge 4$, we have that the above is bounded from above by
     \begin{multline}
         \label{eq-big-sep-1}
         \le 2^{540a^3} 2^{-Zn/(4a^2 + 2a^3)} \sum_{J \in \mathcal{J}'} \mu(B(J)) \\
@@ -5438,10 +5438,10 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     $$
         \eqref{eq-big-sep-1} \le 2^{541a^3} 2^{-Zn/(4a^2 + 2a^3)} \int_X \prod_{j=1}^2 ( |T_{\fT(\fu_j)}^* g_j|(x) +  M_{\mathcal{B},1} g_j(x)) \, \mathrm{d}\mu(x)\,.
     $$
-    Applying the Cauchy-Schwarz inequality, Lemma \ref{correlation-distant-tree-parts} follows.
+    Applying the Cauchy-Schwarz inequality, \Cref{correlation-distant-tree-parts} follows.
     \end{proof}
 
-\section{Proof of Lemma \ref{correlation-near-tree-parts}: The remaining tiles}
+\section{Proof of \ref{correlation-near-tree-parts}: The remaining tiles}
     \label{subsec-rest-tiles}
     We define
     $$
@@ -5458,10 +5458,10 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}
-        By Lemma \ref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\fT(\fu_1))$ with $J \cap \sc(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\sc(\fu_1) \subsetneq J$. Pick $\fp \in \fT(\fu_1)$.  Then $\sc(\fp) \subsetneq J$. This contradicts the definition of $\mathcal{J}(\fT(\fu_1))$.
+        By \Cref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\fT(\fu_1))$ with $J \cap \sc(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\sc(\fu_1) \subsetneq J$. Pick $\fp \in \fT(\fu_1)$.  Then $\sc(\fp) \subsetneq J$. This contradicts the definition of $\mathcal{J}(\fT(\fu_1))$.
     \end{proof}
 
-    Lemma \ref{correlation-near-tree-parts} follows from the following key estimate.
+    \Cref{correlation-near-tree-parts} follows from the following key estimate.
 
     \begin{lemma}[bound for tree projection]
         \label{bound-for-tree-projection}
@@ -5473,10 +5473,10 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
     \end{lemma}
 
-    We prove this lemma below. First, we deduce Lemma \ref{correlation-near-tree-parts}.
+    We prove this lemma below. First, we deduce \Cref{correlation-near-tree-parts}.
 
-    \begin{proof}[Proof of Lemma \ref{correlation-near-tree-parts}]
-        By Lemma \ref{tree-projection-estimate} and Lemma \ref{adjoint-tile-support}, we have
+    \begin{proof}[Proof of \ref{correlation-near-tree-parts}]
+        By \Cref{tree-projection-estimate} and \Cref{adjoint-tile-support}, we have
         \begin{align*}
             \eqref{eq-lhs-small-sep-tree} \le 2^{104a^3} \|P_{\mathcal{L}(\fT(\fu_1))} |g_1\mathbf{1}_{\sc(\fu_1)}| \|_2 \|\mathbf{1}_{\sc(\fu_1)} P_{\mathcal{J}(\fT(\fu_1) )}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2\,.
         \end{align*}
@@ -5484,14 +5484,14 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             \|P_{\mathcal{L}(\fT(\fu_1))} |g_1\mathbf{1}_{\sc(\fu_1)}| \|_2 \le \|g_1 \mathbf{1}_{\sc(\fu_1)}\|_2\,.
         $$
-        Since cubes in $\mathcal{J}'$ are pairwise disjoint and by Lemma \ref{dyadic-partition-2}, a cube $J \in \mathcal{J}'$ intersect $\sc(\fu_1)$ if and only if $J \in \mathcal{J}'$. Thus
+        Since cubes in $\mathcal{J}'$ are pairwise disjoint and by \Cref{dyadic-partition-2}, a cube $J \in \mathcal{J}'$ intersect $\sc(\fu_1)$ if and only if $J \in \mathcal{J}'$. Thus
         $$
             \mathbf{1}_{\sc(\fu_1)} P_{\mathcal{J}(\fT(\fu_1) )}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2| =  P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\,.
         $$
-        Combining this with Lemma \ref{bound-for-tree-projection}, the definition \eqref{definekappa} and $a \ge 4$ proves the lemma.
+        Combining this with \Cref{bound-for-tree-projection}, the definition \eqref{definekappa} and $a \ge 4$ proves the lemma.
     \end{proof}
 
-    We need two more auxiliary lemmas before we prove Lemma \ref{bound-for-tree-projection}.
+    We need two more auxiliary lemmas before we prove \Cref{bound-for-tree-projection}.
 
     \begin{lemma}[thin scale impact]
         \label{thin-scale-impact}
@@ -5550,7 +5550,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
     \end{lemma}
 
-    \begin{proof}[Proof of Lemma \ref{square-function-count}]
+    \begin{proof}[Proof of \ref{square-function-count}]
         Since $J \in \mathcal{J}'$ we have $J \subset \sc(\fu_1)$. Thus, if $B(I) \cap J \ne \emptyset$ then
     \begin{equation}
         \label{eq-sep-small-incl}
@@ -5575,7 +5575,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 \end{proof}
 
 
-\begin{proof}[Proof of Lemma \ref{bound-for-tree-projection}]
+\begin{proof}[Proof of \ref{bound-for-tree-projection}]
     Expanding the definition of $P_{\mathcal{J}'}$, we have
     $$
         \|P_{\mathcal{J}'}|T_{\mathfrak{T}_2 \setminus \mathfrak{S}}^* g_2|\|_2
@@ -5587,13 +5587,13 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     $$
         \le \sum_{s = -S}^S \left( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left|\int_J \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \ps(\fp) = s}} T_{\fp}^* g_2 \, \mathrm{d}\mu(y) \right|^2\right)^{1/2}\,.
     $$
-    By Lemma \ref{adjoint-tile-support}, the integral in the last display is $0$ if $J \cap B(\sc(\fp)) = \emptyset$. By Lemma \ref{thin-scale-impact}, it follows with $s_1 := \frac{Zn}{202a^3} - 2$:
+    By \Cref{adjoint-tile-support}, the integral in the last display is $0$ if $J \cap B(\sc(\fp)) = \emptyset$. By \Cref{thin-scale-impact}, it follows with $s_1 := \frac{Zn}{202a^3} - 2$:
     \begin{equation}
     \label{eq-sep-tree-small-1}
         = \sum_{s = s_1}^{s_1 + 2S} \Bigg( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \Bigg|\int_J \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \ps(\fp) = s(J) - s\\
         J \cap B(\sc(\fp)) \ne \emptyset}} T_{\fp}^* g_2 \, \mathrm{d}\mu(y) \Bigg|^2\Bigg)^{1/2}\,.
     \end{equation}
-    We have by Lemma \ref{adjoint-tile-support} and \eqref{eq-Ks-size}
+    We have by \Cref{adjoint-tile-support} and \eqref{eq-Ks-size}
     $$
         \int |T_{\fp}^* g_2|(y) \, \mathrm{d}\mu(y)
     $$
@@ -5626,7 +5626,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     $$
         \le 2^{103a^3} \int_J M_{\mathcal{B},1} |g_2|(y) \mathbf{1}_{B(I)}(y) \, \mathrm{d}\mu(y)\,.
     $$
-    By Lemma \ref{overlap-implies-distance}, we have $\sc(\fp) \cap \sc(\fu_1) = \emptyset$ for all $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$.
+    By \Cref{overlap-implies-distance}, we have $\sc(\fp) \cap \sc(\fu_1) = \emptyset$ for all $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$.
     Thus we can estimate \eqref{eq-sep-tree-small-1} by
     $$
         2^{103a^3} \sum_{s = s_1}^{s_1 + 2S} \Bigg( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \Bigg|\int_J \sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \sc(\fu_1) = \emptyset\\
@@ -5638,11 +5638,11 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         2^{103a^3} \sum_{s = s_1}^{s_1 + 2S} \Bigg( \sum_{J \in \mathcal{J}'} \int_J  ( M_{\mathcal{B},1} |g_2|)^2 \frac{1}{\mu(J)} \int_J \Bigg(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \sc(\fu_1) = \emptyset\\
         J \cap B(I) \ne \emptyset}} \mathbf{1}_{B(I)}\bigg)^2 \, \mathrm{d}\mu \Bigg)^{\frac 12}\,.
     \end{equation}
-    Using Lemma \ref{square-function-count}, we bound \eqref{eq-sep-tree-small-2} by
+    Using \Cref{square-function-count}, we bound \eqref{eq-sep-tree-small-2} by
     $$
         2^{103a^3} \sum_{s = s_1}^{s_1 + 2S} \left(\sum_{J \in \mathcal{J}'} \int_J (M_{\mathcal{B},1} |g_2|)^2 2^{104a^2} (8 D^{-s})^\kappa\right)^{\frac 1 2}\,,
     $$
-    and, since dyadic cubes in $\mathcal{J}'$ form a partition of $\sc(\fu_1)$ by Lemma \ref{dyadic-partition-2}, $\kappa \le 1$ by \eqref{definekappa}, and $a \ge 4$
+    and, since dyadic cubes in $\mathcal{J}'$ form a partition of $\sc(\fu_1)$ by \Cref{dyadic-partition-2}, $\kappa \le 1$ by \eqref{definekappa}, and $a \ge 4$
     $$
         \le 2^{116a^3} \sum_{s = s_1}^{s_1 + 2S} D^{-s\kappa/2} \|\mathbf{1}_{\sc(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
     $$
@@ -5666,7 +5666,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
 
 \section{Forests}
-In this subsection, we complete the proof of Proposition \ref{forest-operator} from the results of the previous subsections.
+In this subsection, we complete the proof of \Cref{forest-operator} from the results of the previous subsections.
 
 Define an $n$-row to be an $n$-forest $(\fU, \fT)$, i.e. satisfying conditions \eqref{forest1} - \eqref{forest6}, such that in addition the sets $\sc(\fu), \fu \in \fU$ are pairwise disjoint.
 
@@ -5693,7 +5693,7 @@ We pick a decomposition of the forest $(\fU, \fT)$ into $2^n$ $n$-rows
 \begin{equation*}
 (\fU_j, \fT_j) := (\fU_j, \fT|_{\fU_j})
 \end{equation*}
-as in Lemma \ref{forest-row-decomposition}.
+as in \Cref{forest-row-decomposition}.
 
 \begin{lemma}[row bound]
     \label{row-bound}
@@ -5710,7 +5710,7 @@ as in Lemma \ref{forest-row-decomposition}.
 \end{lemma}
 
 \begin{proof}
-    By Corollary \ref{densities-tree-bound} and the density assumption \eqref{forest4}, we have for each $\fu \in \fU$ and all bounded $f$ of bounded support that
+    By \Cref{densities-tree-bound} and the density assumption \eqref{forest4}, we have for each $\fu \in \fU$ and all bounded $f$ of bounded support that
     \begin{equation}
         \label{eq-explicit-tree-bound-1}
         \left\|\sum_{\fp \in \fT(\fu)} T_{\fp} f \right\|_{2}  \le 2^{155a^3} 2^{(4a+1-n)/2}  \|f\|_2\,
@@ -5720,7 +5720,7 @@ as in Lemma \ref{forest-row-decomposition}.
         \label{eq-explicit-tree-bound-2}
         \left\|\sum_{\fp \in \fT(\fu)} T_{\fp} \mathbf{1}_F f \right\|_{2} \le 2^{256a^3} 2^{(4a + 1-n)/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\,.
     \end{equation}
-    Since for each $j$ the top cubes $\sc(\fu)$, $\fu \in \fU_j$ are disjoint, we further have for all bounded $g$ of bounded support by Lemma \ref{adjoint-tile-support}
+    Since for each $j$ the top cubes $\sc(\fu)$, $\fu \in \fU_j$ are disjoint, we further have for all bounded $g$ of bounded support by \Cref{adjoint-tile-support}
     $$
         \left\|\mathbf{1}_F \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2^2 = \left\|\mathbf{1}_F \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} \mathbf{1}_{\sc(\fu)} T_{\fp}^* \mathbf{1}_{\sc(\fu)} g\right\|_2^2
     $$
@@ -5755,14 +5755,14 @@ as in Lemma \ref{forest-row-decomposition}.
     $$
         T_{\fC}^* = \sum_{\fp \in \fC} T_{\fp}^*\,.
     $$
-    We have by Lemma \ref{adjoint-tile-support} and the triangle inequality that
+    We have by \Cref{adjoint-tile-support} and the triangle inequality that
     $$
         \left| \int \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \sum_{\fp \in \fT_j(\fu)} \sum_{\fp' \in \fT_{j'}(\fu')} T^*_{\fp} g_1 \overline{T^*_{\fp'} g_2} \, \mathrm{d}\mu \right|
     $$
     $$
         \le   \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \left| \int   T^*_{\fT_j(\fu)} (\mathbf{1}_{\sc(\fu)} g_1) \overline{T^*_{\fT_{j'}(\fu')} (\mathbf{1}_{\sc(\fu')} g_2)} \, \mathrm{d}\mu \right|\,.
     $$
-    By Lemma \ref{correlation-separated-trees}, this is bounded by
+    By \Cref{correlation-separated-trees}, this is bounded by
     \begin{equation}
         \label{eq-S2uu'}
          2^{550a^3-3n} \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} g_1\|_{L^2(\sc(\fu')\cap \sc(\fu)} \|S_{2, \fu'} g_2\|_{L^2(\sc(\fu')\cap\sc(\fu))}\,.
@@ -5789,7 +5789,7 @@ as in Lemma \ref{forest-row-decomposition}.
     $$
         \le 2^{550a^3-3n} \|S_{2,\fu}g_1\|_2 \|S_{2,\fu'} g_2\|_2\,.
     $$
-    The lemma now follows from Lemma \ref{adjoint-tree-control}.
+    The lemma now follows from \Cref{adjoint-tree-control}.
 \end{proof}
 
 Define for $1 \le j \le 2^n$
@@ -5807,7 +5807,7 @@ $$
     $$
         d_{\fp}(\fcc(\fp), \fcc(\fu')) > 2^{Z(n+1)}\,.
     $$
-    By the triangle inequality. Lemma \ref{monotone-cube-metrics} and \eqref{forest1} it follows that
+    By the triangle inequality. \Cref{monotone-cube-metrics} and \eqref{forest1} it follows that
     \begin{align*}
         d_{\fp}(\fcc(\fp), \fcc(\fp')) &\ge d_{\fp}(\fcc(\fp), \fcc(\fu')) - d_{\fp}(\fcc(\fp'), \fcc(\fu'))\\
         &> 2^{Z(n+1)} - d_{\fp'}(\fcc(\fp'), \fcc(\fu'))\\
@@ -5816,9 +5816,9 @@ $$
     Since $Z \ge 3$ by \eqref{defineZ}, it follows that $\fcc(\fp') \notin B_{\fp}(\fcc(\fp), 1)$, so $\Omega(\fp') \not\subset \Omega(\fp)$ by \eqref{eq-freq-comp-ball}. Hence, by \eqref{eq-freq-dyadic}, $\Omega(\fp) \cap \Omega(\fp') = \emptyset$. But if $x \in E(\fp) \cap E(\fp')$ then $Q(x) \in \Omega(\fp) \cap \Omega(\fp')$. This is a contradiction, and the lemma follows.
 \end{proof}
 
-Now we prove Proposition \ref{forest-operator}.
+Now we prove \Cref{forest-operator}.
 
-\begin{proof}[Proof of Proposition \ref{forest-operator}]
+\begin{proof}[Proof of \ref{forest-operator}]
     To save some space, we will write
     $$
         T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^*\,.
@@ -5827,7 +5827,7 @@ Now we prove Proposition \ref{forest-operator}.
     $$
         T_{\mathfrak{R}_j}^*g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* \mathbf{1}_{E_j} g = T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g\,.
     $$
-    Hence, by Lemma \ref{forest-row-decomposition},
+    Hence, by \Cref{forest-row-decomposition},
     $$
         \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T^*_{\fp} g\right\|_2^2 = \left\|\sum_{j = 1}^{2^n} T^*_{\mathfrak{R}_{j}} g\right\|_2^2  =  \left\|\sum_{j=1}^{2^n} T^*_{\mathfrak{R}_{j}} \mathbf{1}_{E_j} g\right\|_2^2
     $$
@@ -5837,7 +5837,7 @@ Now we prove Proposition \ref{forest-operator}.
     $$
         = \sum_{j=1}^{2^n} \int_X |T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g|^2 + \sum_{j =1}^{2^n} \sum_{\substack{j' = 1\\j' \ne j}}^{2^n} \int_X \overline{ T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g} T_{\mathfrak{R}_{j'}}^* \mathbf{1}_{E_{j'}} g \, \mathrm{d}\mu\,.
     $$
-    We use Lemma \ref{row-bound} to estimate each term in the first sum, and Lemma \ref{row-correlation} to bound each term in the second sum:
+    We use \Cref{row-bound} to estimate each term in the first sum, and \Cref{row-correlation} to bound each term in the second sum:
     $$
         \le 2^{312a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 +  2^{862a^3-3 n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
     $$
@@ -5855,11 +5855,11 @@ Now we prove Proposition \ref{forest-operator}.
         \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2 \le 2^{432a^3-\frac{n}{2}} \|f\|_2\,.
     \end{equation}
     On the other hand, we have by disjointedness of the sets $E_j$
-    from Lemma \ref{disjoint-row-support}
+    from \Cref{disjoint-row-support}
     $$
         \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2^2 =  \left\|\sum_{j=1}^{2^n} \mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\right\|_2^2 = \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\|_2^2\,.
     $$
-    If $|f| \le \mathbf{1}_F$ then we obtain from Lemma \ref{row-bound} and taking square roots that
+    If $|f| \le \mathbf{1}_F$ then we obtain from \Cref{row-bound} and taking square roots that
     $$
         \le 2^{257a^3} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{\frac{1}{2}} 2^{-\frac{n}{2}} (\sum_{j = 1}^{2^n} \|f\|_2^2)^{\frac{1}{2}}
     $$
@@ -5867,7 +5867,7 @@ Now we prove Proposition \ref{forest-operator}.
         \label{eq-forest-bound-2}
         = 2^{257a^3} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{\frac{1}{2}} \|f\|_2\,.
     \end{equation}
-    Proposition \ref{forest-operator} follows by taking the product of the $(2 - \frac{2}{q})$-th power of \eqref{eq-forest-bound-1} and the $(\frac{2}{q} - 1)$-st power of \eqref{eq-forest-bound-2}.
+    \Cref{forest-operator} follows by taking the product of the $(2 - \frac{2}{q})$-th power of \eqref{eq-forest-bound-1} and the $(\frac{2}{q} - 1)$-st power of \eqref{eq-forest-bound-2}.
 \end{proof}
 
 \chapter{Proof of Prop. \ref{Holder-van-der-Corput}, the H\"older cancellative condition}
@@ -6016,18 +6016,18 @@ Dividing by the integral over $L$ and using \eqref{eql32} and \eqref{2nt1}, we o
 \end{equation}
 Combining \eqref{eql52} and  \eqref{eql226} using $a\ge 4$ and $t\le 1$ and
 adding \eqref{eql42} proves \eqref{eq-secondt} and completes the proof
-of Lemma \ref{Lipschitz-Holder-approximation}.
+of \Cref{Lipschitz-Holder-approximation}.
 \end{proof}
 
 
-We turn to the proof of Proposition \ref{Holder-van-der-Corput}.
+We turn to the proof of \Cref{Holder-van-der-Corput}.
 Let $z\in X$ and $R>0$ and set $B=B(z,R)$. Let $\varphi$
-be given as in Proposition \ref{Holder-van-der-Corput}.
+be given as in \Cref{Holder-van-der-Corput}.
 Set
 \begin{equation}\label{eql69}
     t:=(1+d_B(\mfa,\mfb))^{-\frac{\tau}{2+a}}
 \end{equation}
-and define $\tilde{\varphi}$ as in Lemma \ref{Lipschitz-Holder-approximation}. Let $\mfa$ and $\mfb$ in $\Mf$.
+and define $\tilde{\varphi}$ as in \Cref{Lipschitz-Holder-approximation}. Let $\mfa$ and $\mfb$ in $\Mf$.
 Then
    \begin{equation}\label{eql60}
        \left|\int e(\mfa(x)-{\mfb(x)}) \varphi (x)\, \mathrm{d}\mu(x)\right|
@@ -6081,7 +6081,7 @@ Using the definition \eqref{eql69} of $t$ and adding
        (1 + d_{B}(\mfa,\mfb))^{-\frac{\tau^2}{2+a}}  \, ,
  \end{equation}
 where we used $\tau\le 1$.
-This completes the proof of Proposition \ref{Holder-van-der-Corput}.
+This completes the proof of \Cref{Holder-van-der-Corput}.
 
 %\begin{proof}
 %    Define
@@ -6141,7 +6141,7 @@ we have
 This proves the lemma.
 \end{proof}
 
-We turn to the proof of Proposition \ref{Hardy-Littlewood}.
+We turn to the proof of \Cref{Hardy-Littlewood}.
 Let the collection $\mathcal{B}$ be given.
 We first show \eqref{eq-besico}.
 
@@ -6211,7 +6211,7 @@ With \eqref{eqbes1} and \eqref{eqbes2} we conclude
 
 We turn to the proof of \eqref{eq-hlm}. We first consider the case $p_1=1$ and recall $M_{\mathcal{B}}=M_{\mathcal{B},1}$.
 We write for the $p_2$-th power of left-hand side of \eqref{eq-hlm}
-with Lemma \ref{layer-cake-representation}
+with \Cref{layer-cake-representation}
 and a change of variables
 \begin{equation}
     \|M_{\mathcal{B}}u(x)\|_{p_2}^{p_2}
@@ -6267,7 +6267,7 @@ gives
    2^{2a}
     \int u_\lambda (x)\, dx\, .
 \end{equation}
-With Lemma \ref{layer-cake-representation},
+With \Cref{layer-cake-representation},
 \begin{equation}\label{eqbesi12}
     \lambda \mu(\{x: M_{\mathcal{B}}u(x)\ge 2\lambda\})\le
    2^{2a}
@@ -6294,7 +6294,7 @@ We obtain with \eqref{eqbesi11},
 We split the integral  into $\lambda\ge \lambda'$ and $\lambda<\lambda'$ and resolve the
 maximum correspondingly.
 We have for $\lambda\ge \lambda'$
-with Lemma \ref{layer-cake-representation}
+with \Cref{layer-cake-representation}
 \begin{equation}
     \int_0^\infty \lambda^{p_2-2}
    \int_0^\lambda
@@ -6310,7 +6310,7 @@ d\lambda.
    =p_2^{-1} \|u\|_{p_2}^{p_2}\, .
 \end{equation}
 We have for $\lambda< \lambda'$
-with Fubini and Lemma \ref{layer-cake-representation}
+with Fubini and \Cref{layer-cake-representation}
 \begin{equation}
     \int_0^\infty \lambda^{p_2-2}
    \int_\lambda^\infty
@@ -6392,7 +6392,7 @@ Define
 $$
     \mathcal{B}_\infty = \{B(c, 2^k) \ : \ c \in C(2^k), k \in \mathbb{N}\}\,.
 $$
-By Lemma \ref{covering-separable-space}, this is a countable collection of balls. We choose an enumeration $\mathcal{B}_\infty = \{B_1, \dotsc\}$ and define
+By \Cref{covering-separable-space}, this is a countable collection of balls. We choose an enumeration $\mathcal{B}_\infty = \{B_1, \dotsc\}$ and define
 $$
     \mathcal{B}_n = \{B_1, \dotsc, B_n\}\,.
 $$
@@ -6420,11 +6420,11 @@ This completes the proof.
 
 The convergence of partial Fourier sums is proved in
 Subsection \ref{10classical} in two steps. In the first step,
-one establishes convergence on a suitable dense subclass of functions. We choose piece-wise constant functions as subclass, the convergence is stated in Lemma \ref{convergence-for-piecewise-constant} and proved in Subsection \ref{10piecewise}.
+one establishes convergence on a suitable dense subclass of functions. We choose piece-wise constant functions as subclass, the convergence is stated in \Cref{convergence-for-piecewise-constant} and proved in Subsection \ref{10piecewise}.
 In the second step, one controls the relevant error of approximating a general function by a function in
 the subclass by a bound of the Carleson maximal operator. This approximation result is stated
-in Lemma \ref{control-approximation-effect} and proved in Subsection \ref{10difference}.
-This latter proof refers to the main Theorem \ref{metric-space-Carleson}. Two assumptions in Theorem \ref{metric-space-Carleson} require more work, this is prepared in Lemmas \ref{lem-hilbert} and \ref{van-der-Corput} and proved in Subsections \ref{10hilbert}
+in \Cref{control-approximation-effect} and proved in Subsection \ref{10difference}.
+This latter proof refers to the main \Cref{metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work, this is prepared in Lemmas \ref{lem-hilbert} and \ref{van-der-Corput} and proved in Subsections \ref{10hilbert}
 and \ref{10vandercorput}. Subsections \ref{10piecewise},
 \ref{10hilbert}, \ref{10vandercorput}, and \ref{10difference}
 are mutually independent.
@@ -6592,11 +6592,11 @@ and \ref{control-approximation-effect}, we estimate \eqref{epsilonthird} by
     \le 2^{-2^{50}} \epsilon^2 +\frac \epsilon 4 +\frac \epsilon 4\le \epsilon\, .
 \end{equation}
 This shows  \eqref{aeconv} for the given $E$ and $N_0$
-and completes the proof of Theorem \ref{classical-Carleson}.
+and completes the proof of \Cref{classical-Carleson}.
 
-The proof of Lemma \ref{control-approximation-effect} will essentially be
+The proof of \Cref{control-approximation-effect} will essentially be
 an application of
-the following variant of Theorem \ref{metric-space-Carleson}.
+the following variant of \Cref{metric-space-Carleson}.
 Let  $\kappa:\R\to \R$ be the function defined by
 $\kappa(0)=0$ and for $0<|x|<1$
 \begin{equation}\label{eq-hilker}
@@ -6778,7 +6778,7 @@ We first compute the partial Fourier sums for constant functions.
 If $h$ satisfies $h(x)=h(0)$ for all $x\in \R$, then for all $N\ge 0$ we have $S_Nh=h$.
  \end{lemma}
 \begin{proof}
-    We compute with Lemma \ref{mean-zero-oscillation} for $n\in \mathbb{Z}$ with $n\neq 0$,
+    We compute with \Cref{mean-zero-oscillation} for $n\in \mathbb{Z}$ with $n\neq 0$,
     \begin{equation}
         \widehat{h}_n=\frac 1{2\pi}\int_0^{2\pi}h(y)e^{-iny}\, dy=\frac {h(0)}{2\pi}\int_0^{2\pi}e^{-iny}\, dy=0\, .
     \end{equation}
@@ -6810,7 +6810,7 @@ dx\right| \le \frac{64}N(\frac{|b-a|}{\eta^2}+\frac 1{\eta}).
 \end{lemma}
 \begin{proof}
  Note first that the integral in \eqref{dirichletint}
-    is well defined as the denominator of the integrand is bounded away from zero by Lemma \ref{lower-secant-bound}
+    is well defined as the denominator of the integrand is bounded away from zero by \Cref{lower-secant-bound}
     and thus the integrand is continuous.
     We have with partial integration
 \begin{equation*}
@@ -6827,7 +6827,7 @@ dx
 We estimate the two summands in
 \eqref{eq-part-int} separately. We have
 for the first summand in \eqref{eq-part-int}
-with Lemma \ref{lower-secant-bound},
+with \Cref{lower-secant-bound},
 \begin{equation*}
 \left|   \frac 1 {-iN}\int_a^b
 {e^{-iNx}}\frac{ie^{ix}}
@@ -6841,7 +6841,7 @@ dx \right|
     \le  \frac {64|b-a|}{\eta^2N}
 \end{equation}
 We have for the second summand in \eqref{eq-part-int}
-with Lemma \ref{lower-secant-bound} again
+with \Cref{lower-secant-bound} again
 \begin{equation*}
    \left|\left[ \frac 1{-iN}
     \frac {e^{-iNx}} {1-e^{ix}}\right]_a^b\right|
@@ -6884,7 +6884,7 @@ Then for all $N>\frac {2^{25} K^2}{\epsilon^3}$
 
 
 
-   With Lemma \ref{dirichlet-kernel}, breaking up the domain of integration into a
+   With \Cref{dirichlet-kernel}, breaking up the domain of integration into a
    partition of subintervals,
    \begin{equation*}
       |S_N(g)|=\left|\int_{-\pi}^{\pi} g(y)K_N(x-y)\, dy\right|
@@ -6932,7 +6932,7 @@ $0<a$. In both cases, we have seen
 
 
 
-With Lemma \ref{dirichlet-kernel} and the triangle inequality,
+With \Cref{dirichlet-kernel} and the triangle inequality,
 it follows that
 \begin{equation}
    \left|\int_{x-2\pi (k+1)/K}^{x-2\pi k/K} K_N(y)\, dy\right|
@@ -6941,7 +6941,7 @@ it follows that
    \left|\int_{a}^{b}
    \frac{e^{-iNy}}{1-e^{iy}}\, dy\right|
 \end{equation}
-Using that the two integrals on the right-hand side are complex conjugates of each other, and using Lemma \ref{dirichlet-kernel-bound} and $\epsilon <2\pi$, this is bounded by
+Using that the two integrals on the right-hand side are complex conjugates of each other, and using \Cref{dirichlet-kernel-bound} and $\epsilon <2\pi$, this is bounded by
 \begin{equation}
    \le 2\left|\int_{a}^{b}
    \frac{e^{iNy}}{1-e^{-iy}}\, dy\right|
@@ -6952,18 +6952,18 @@ Inserting this in \eqref{eqcf3} and adding up proves
 the lemma.
 \end{proof}
 
-We now prove  Lemma \ref{convergence-for-piecewise-constant}
+We now prove  \Cref{convergence-for-piecewise-constant}
 
 Let $x\in [0,2\pi)\setminus E_1 $ and $N>\frac {2^{25} K^2}{\epsilon ^3}$.
 Let $h$ be the function which is constant equal to $f_0(x)$ and let $g=f_0-h$.
 By the bound on $f$ and the triangle inequality,
 $|g|$ is bounded by $2$. Hence $g$ is in the class $\mathcal{G}$. We also have $g(x)=0$.
-Using Lemma \ref{constant-function}, we obtain
+Using \Cref{constant-function}, we obtain
 \begin{equation}
     S_Nf_0(x)- f_0(x)=S_N(g+h)(x)- S_Nh(x)=S_Ng(x)\, .
 \end{equation}
-Lemma \ref{convergence-for-piecewise-constant}
-now follows by Lemma \ref{flat-interval-partial-sum}.
+\Cref{convergence-for-piecewise-constant}
+now follows by \Cref{flat-interval-partial-sum}.
 
 \section{Calder\'on-Zygmund Decomposition}
 \begin{lemma}
@@ -7025,7 +7025,7 @@ We have for every bounded measurable $2\pi$-periodic function $g$
         \|M_ng\|_2^2=\int_{-\pi}^{\pi} |e^{inx}g(x)|^2\, dx
         =\int_{-\pi}^{\pi} |g(x)|^2\, dx=\|g\|_{L^2[-\pi, \pi]}^2\, .
     \end{equation}
-     We have by the triangle inequality, the square root of the identity in\eqref{mnbound}, and Lemma \ref{spectral-projection-bound}
+     We have by the triangle inequality, the square root of the identity in\eqref{mnbound}, and \Cref{spectral-projection-bound}
     \begin{equation*}
         \|L_ng\|_2=\|\frac 1N\sum_{n=0}^{N-1}
        M_{-n-N} S_{N+n}M_{N+n}g\|_2
@@ -7084,7 +7084,7 @@ This proves the first identity of the lemma. The second identity follows by subs
     \end{equation}
     \end{lemma}
 \begin{proof}
-Using Fubini and Lemma \ref{lem-shift}, we observe
+Using Fubini and \Cref{lem-shift}, we observe
 \begin{equation*}
   \int_{-\pi}^{\pi}\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy
     \, dx=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x-y)\, dx
@@ -7136,7 +7136,7 @@ Then
 \end{lemma}
 
 \begin{proof}
-We compute with Lemma \ref{lem-shift}
+We compute with \Cref{lem-shift}
 \begin{equation}
     \|g\|_1\le  \int_{-\pi}^{\pi}k_r(x)\, dx=\int_{-\pi}^\pi k_r(x)\, dx
 \end{equation}
@@ -7153,7 +7153,7 @@ is equal to
     \le 2+2\pi + 2\left(\frac {64r}r-\frac {64r}{\pi}\right)
     \le 2^{5}\, .
 \end{equation}
-    Together with Lemma \ref{young}, this proves the lemma.
+    Together with \Cref{young}, this proves the lemma.
 \end{proof}
 \rs{Change power of $2$}
 \begin{lemma}\label{lem-dirichlet2}
@@ -7173,7 +7173,7 @@ and
 
 
 \begin{proof}
-We have by definition and Lemma \ref{dirichlet-kernel}
+We have by definition and \Cref{dirichlet-kernel}
 \begin{equation}
     L_Ng(x)=
     \frac 1N\sum_{n=0}^{N-1}
@@ -7185,7 +7185,7 @@ the continuous function
     {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
       K_{N+n}(x) e^{-i(N+n)x}\, .
 \end{equation}
-With \eqref{eqksumexp} of Lemma \ref{dirichlet-kernel}
+With \eqref{eqksumexp} of \Cref{dirichlet-kernel}
 we have $|K_N(x)|\le N$ for every $x$ and thus
 \begin{equation}\label{eqhil13}
     |{L'}(x)|\le  \frac 1N\sum_{n=0}^{N-1}
@@ -7201,7 +7201,7 @@ This proves \eqref{eqdifflhil} for $|x|\in [0, r)$ since $k_r(x)=r^{-1}$ in this
 For $e^{ix'}\neq 1$
 and may use the expression
 \eqref{eqksumhil} for $K_N$
-in Lemma \ref{dirichlet-kernel} to obtain
+in \Cref{dirichlet-kernel} to obtain
 \begin{equation*}
     {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
      \left(\frac{e^{i(N+n)x}}{1-e^{-ix}}
@@ -7227,7 +7227,7 @@ where
 $$L''(x):=\frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
      \sum_{n=0}^{N-1}
     {e^{-i2nx}}.$$
-For $x\in [-\pi, r]\cup [r, \pi]$, we have using Lemma \ref{lower-secant-bound} that
+For $x\in [-\pi, r]\cup [r, \pi]$, we have using \Cref{lower-secant-bound} that
 \begin{equation*}
    \left|\frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}} \right|=\left|\frac{\min(|x|, 1)}{1-e^{-ix}} \right|\leq \frac{8\min(|x|, 1)}{|x|}
 \end{equation*}
@@ -7262,7 +7262,7 @@ As $e^{-2ix}\neq 1$, we may divide by $1-e^{-2ix}$ and insert this into
            \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
      \frac{1-e^{-i2Nx}}{1-e^{-2ix}}\, .
 \end{equation}
-Hence, with Lemma \ref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
+Hence, with \Cref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
 \begin{equation*}
     |L''(x)|
  \le \frac 2 N \frac {1}{|1-e^{ix}|}
@@ -7276,7 +7276,7 @@ Hence, with Lemma \ref{lower-secant-bound} and nonnegativity of the real part of
 Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-diffzero2}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{eqdifflhil}. This completes the proof of the lemma.
 \end{proof}
 % \begin{proof}
-% We have by definition and Lemma \ref{dirichlet-kernel}
+% We have by definition and \Cref{dirichlet-kernel}
 % \begin{equation}
 %     L_Ng(x)=
 %     \frac 1N\sum_{n=0}^{N-1}
@@ -7288,7 +7288,7 @@ Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-di
 %     {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
 %       K_{N+n}(x) e^{-i(N+n)x}\, .
 % \end{equation}
-% With \eqref{eqksumexp} of Lemma \ref{dirichlet-kernel}
+% With \eqref{eqksumexp} of \Cref{dirichlet-kernel}
 % we have $|K_N(x)|\le N$ for every $x$ and thus
 % \begin{equation}\label{eqhil13}
 %     |{L'}(x)|\le  \frac 1N\sum_{n=0}^{N-1}
@@ -7299,7 +7299,7 @@ Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-di
 % For $e^{ix'}\neq 1$
 % and may use the expression
 % \eqref{eqksumhil} for $K_N$
-% in Lemma \ref{dirichlet-kernel} to obtain
+% in \Cref{dirichlet-kernel} to obtain
 % \begin{equation*}
 %     {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
 %      \left(\frac{e^{i(N+n)x}}{1-e^{-ix}}
@@ -7355,7 +7355,7 @@ Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-di
 %            \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
 %      \frac{1-e^{-i2Nx}}{1-e^{-2ix}}\, .
 % \end{equation}
-% Hence, with Lemma \ref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
+% Hence, with \Cref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
 % \begin{equation*}
 %     |L''(x)|
 %  \le \frac 2 N \frac {1}{|1-e^{ix}|}
@@ -7366,7 +7366,7 @@ Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-di
 %      \frac{1}{|1+e^{ix}|}\le
 %  \frac {4r}{|1-e^{ix}|^2}\le 2^{8} \left (1+\frac {r}{|1-e^{ix}|^2}\right)
 % \end{equation}
-% Inequalities \eqref{eqhil13}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{est-L''}. Next, we estimate the second term on the right in \eqref{eq-L'L''}. For $x\in [r, 1]$, we have using Lemma \ref{lower-secant-bound} that
+% Inequalities \eqref{eqhil13}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{est-L''}. Next, we estimate the second term on the right in \eqref{eq-L'L''}. For $x\in [r, 1]$, we have using \Cref{lower-secant-bound} that
 % \begin{equation*}
 % \left|\frac{1-\mathbf{1}_{[r, 1]}(x)(1-x)}{1-e^{-ix}}\right|=
 % \frac{|x|}{|1-e^{-ix}|}\leq \min\left(\frac{8|x|}{|x|}, \frac{8}{r}\right)\leq 2^8 k_r(x).
@@ -7414,7 +7414,7 @@ so that
         \|H_r f\|_2 \le 2^{16} \|f\|_2\,.
     \end{equation}
     Let $\tilde{f}$ be the $2\pi$-periodic extension of $f$ to $\mathbb{R}$. Let $N$ be the smallest
-    integer larger than $\frac 1r$. Then, by Lemma \ref{lem-dirichlet2} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
+    integer larger than $\frac 1r$. Then, by \Cref{lem-dirichlet2} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
     \begin{equation*}
         |H_r \tilde{f}(x)|\leq |L_N \tilde{f}(x)|+2^{10}\left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
     \end{equation*}
@@ -7426,7 +7426,7 @@ so that
        \leq  \|L_N \tilde{f}\|_{L^2([-\pi, \pi])}\, + 2^{10}\left(\int_{-\pi}^{\pi} \left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|^2\, dx\right)^{\frac{1}{2}}.
     \end{equation*}
     Since $k_r$ is supported in $[-1,1]$, we have that $H_rf$ is supported in $[-5/2, 5/2]$ and agrees there with $H_r \tilde f(x)$.
-    Using Lemma \ref{lem-ln-bound} and Lemma \ref{krbound},  we conclude
+    Using \Cref{lem-ln-bound} and \Cref{krbound},  we conclude
     \begin{equation}
         \|H_r f\|_{L^2(\R)} \le \|H_r \tilde f\|_{L^2([-\pi, \pi])} \leq \|f\|_2 + 2^{15}\|f\|_2\,,
     \end{equation}
@@ -7467,7 +7467,7 @@ so that
 % \end{lemma}
 
 % \begin{proof}
-% We have by Lemma \ref{lower-secant-bound} for each $0<x\le \pi$
+% We have by \Cref{lower-secant-bound} for each $0<x\le \pi$
 % \begin{equation}
 %     \left|\frac{\mathbf{1}_{[r, 2\pi -r]}(x)\max(1-|x|, 0)}{1-e^{-ix}}\right|\le \frac 8x\le \frac 8r\, .
 % \end{equation}
@@ -7543,10 +7543,10 @@ We have using triangle inequality that
 \end{equation}
 For the first term, we estimate
 $$|H_{2r}g(x)-H_{r}g(x)|\leq \int_{r<|x-y|<2r}\frac{1-|x-y|}{|1-e^{-i(x-y)}|} |g(y)|\, dy.$$
-Using Lemma \ref{lower-secant-bound} with $\eta=|x-y|>r$, we get
+Using \Cref{lower-secant-bound} with $\eta=|x-y|>r$, we get
 $$|H_{2r}g(x)-H_{r}g(x)|\leq \int_{r<|x-y|<2r}\frac{1}{|x-y|} |g(y)|\, dy \leq \frac{8}{r} \int_{|x-y|<2r}|g(y)|\, dy.$$
 
-By Proposition \ref{Hardy-Littlewood}, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ such that
+By \Cref{Hardy-Littlewood}, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ such that
 for each $R>0$ in the above sum,
 $$\frac{1}{R}\int_{|x-y|<R}|g(y)|\, dy\leq  Mg(x),$$
 and
@@ -7579,7 +7579,7 @@ $\{y:\, |x-y|<r\}.$ Decomposing this set into dyadic ranges, we see that the int
     \label{eq-rKer-dyadic-sum}
     \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}\int_{2^{j}r\leq |x-y|<2^{j+1}r}|\kappa(x-y)-\kappa(x'-y)||g(y)|\, dy.
 \end{equation}
-% Since $|x-x'|<\frac{r}{2}<\frac{|x-y|}{2}$, we can argue as in Lemma \ref{Hilbert-kernel-regularity} to get the estimate
+% Since $|x-x'|<\frac{r}{2}<\frac{|x-y|}{2}$, we can argue as in \Cref{Hilbert-kernel-regularity} to get the estimate
 We claim that
 \begin{equation}
 \label{eq-kappa-reg-Tr}
@@ -7599,7 +7599,7 @@ To see the above, let $z=x-y$ and $z'=x-y'$. Since $|z-z'|<r<\frac{|z|}{2}$, we 
     $$
         = \left| \int_{z'}^{z} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
     $$
-    Using $z' \ge \frac{z}{2}$ and Lemma \ref{lower-secant-bound}, we bound this by
+    Using $z' \ge \frac{z}{2}$ and \Cref{lower-secant-bound}, we bound this by
     $$
         \le |z - z'| \sup_{\frac{z}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |z-z'| (8 \frac{2}{z})^2 \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
     $$
@@ -7619,7 +7619,7 @@ Plugging \eqref{eq-kappa-reg-Tr} into \eqref{eq-rKer-dyadic-sum}, we get
     |H_{2r}g(x)-H_{2r}g(x')|\leq 2^{10} \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}r(2^{j}r)^{-2}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy.
 \end{equation}
 
-Applying Proposition \ref{Hardy-Littlewood} again, we have
+Applying \Cref{Hardy-Littlewood} again, we have
 for each $j$ in the above sum,
 $$\frac{1}{2^jr}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy\leq  2 Mg(x).$$
 
@@ -7642,7 +7642,7 @@ Plugging the above into \eqref{eq-rker-HL} gives
 % \end{lemma}
 % \rs{Change to the correct kernel}
 % \begin{proof}
-% We have by Lemma \ref{lower-secant-bound} for each $0<x\le \pi$
+% We have by \Cref{lower-secant-bound} for each $0<x\le \pi$
 % \begin{equation}
 %     \left|\frac{\mathbf{1}_{[r, 2\pi -r]}(x)}{1-e^{-ix}}\right|\le \frac 8x\le \frac 8r\, .
 % \end{equation}
@@ -7690,13 +7690,13 @@ Let $0<r_0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function
 %\\+2^{10}|\int_0^{2\pi} g(y) k_r(x-y)\, dy|\, .
 \end{multline}
 \end{lemma}
-where $Mg$ is as in Lemma \ref{lem-non-tang-diff}.
+where $Mg$ is as in \Cref{lem-non-tang-diff}.
 \begin{proof}
 For every $x$ under consideration, we have
 \begin{equation*}
 |T_rg(x)|\le |H_rg(x)|+ |T_rg(x)-H_rg(x)|\, .
 \end{equation*}
-Using Lemma \ref{lem-non-tang-diff}, we obtain the estimate
+Using \Cref{lem-non-tang-diff}, we obtain the estimate
 \begin{equation*}
 \label{eq-TrHr}
 |T_rg(x)|\leq |H_rg(x)|+ 2^{12}\left|Mg(x)\right|\, .
@@ -7716,7 +7716,7 @@ Putting the above inequalities together, we obtain \eqref{Tr-est1}.
 % \begin{equation*}
 % |H_rg(x')|\leq  |L_N g(x')|+|H_rg(x')-L_N g(x')|.
 % \end{equation*}
-% Combining the above with Lemma \ref{lem-dirichlet2}, we have
+% Combining the above with \Cref{lem-dirichlet2}, we have
 % \begin{equation}
 % \label{eq-diff-x'g}
 % |H_rg(x')|\leq |L_N g(x')|+ 2^{10}\left|\int_0^{2\pi} g(y) k_r(x'-y)\, dy\right|.
@@ -7743,7 +7743,7 @@ For $\alpha>0$, we have
 \begin{equation}
     \mu\left(\{x'\in \mathbb{R}: |x'-x|<\frac{r}{2},\, |H_{r_0}g(x')|>\alpha\}\right)\leq \alpha^{-\frac{3}{2}}\int_{|x-y|<\frac{r}{2}} |H_{r_0}g(y)|^{\frac{3}{2}}\, dy.
 \end{equation}
-Using Proposition \ref{Hardy-Littlewood} (more precisely, \eqref{eq-hlm-2} with $w=|H_{r_0}g|^{\frac{3}{2}}$), we conclude that there exists a measurable function $M(|H_{r_0}g|^{\frac{3}{2}})$ such that the right hand side above can be estimated by
+Using \Cref{Hardy-Littlewood} (more precisely, \eqref{eq-hlm-2} with $w=|H_{r_0}g|^{\frac{3}{2}}$), we conclude that there exists a measurable function $M(|H_{r_0}g|^{\frac{3}{2}})$ such that the right hand side above can be estimated by
 \begin{equation}
     \label{eq-HL1}
     \alpha^{-{\frac{3}{2}}} M(|H_{r_0}g|^{\frac{3}{2}})(x)\mu(\{x'\in \mathbb{R}: |x-x'|<\frac{r}{2}\}).
@@ -7755,12 +7755,12 @@ Similarly, we have
 \begin{equation*}
     \mu\left(\{x'\in \mathbb{R}: |x'-x|<\frac{r}{2},\, |H_{r_0}g_{x,1}(x')|>\alpha\}\right)\leq \alpha^{-2}\int_{|x-y|<\frac{r}{2}} |H_{r_0}g_{x,1}(y)|^2\, dy.
 \end{equation*}
-This time, we use Lemma \ref{lem-H_r L2 bound}, with $r=r_0$, to estimate the above by
+This time, we use \Cref{lem-H_r L2 bound}, with $r=r_0$, to estimate the above by
 \begin{equation*}
     2\alpha^{-2}\int |H_{r_0}g_{x,1}(y)|^2\, dy \leq 2^{18} \alpha^{-2}\int |g_{x,1}(y)|^2\, dy
     = 2^{18} \alpha^{-2}\int_{|y-x'|<r} |g(y)|^2 \,dy.
 \end{equation*}
-Using Proposition \ref{Hardy-Littlewood} again (more precisely, \eqref{eq-hlm-2} with $w=|g|^2$), we obtain another measurable function $M(|g|^2)$ such that the above can be estimated by
+Using \Cref{Hardy-Littlewood} again (more precisely, \eqref{eq-hlm-2} with $w=|g|^2$), we obtain another measurable function $M(|g|^2)$ such that the above can be estimated by
 \begin{equation}
     \label{eq-HL2}
     2^{19}\alpha^{-2} M(|g|^2)(x)\mu(\{x'\in \mathbb{R}: |x-x'|<\frac{r}{2}\}).
@@ -7795,7 +7795,7 @@ Decomposing the range of the integral into dyadic ranges, we see the above is es
     \label{eq-hilbker-dyadic-sum}
     \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}\int_{2^jr\leq |x-y|<2^{j+1}r}|\kappa(x-y)-\kappa(x'-y)||g(y)|\, dy.
 \end{equation}
-% Since $|x-x'|<\frac{r}{2}<\frac{|x-y|}{2}$, we can argue as in Lemma \ref{Hilbert-kernel-regularity} to get the estimate
+% Since $|x-x'|<\frac{r}{2}<\frac{|x-y|}{2}$, we can argue as in \Cref{Hilbert-kernel-regularity} to get the estimate
 We claim that
 \begin{equation}
 \label{eq-kappa-reg}
@@ -7814,7 +7814,7 @@ To see the above, let $z=x-y$ and $z'=x-y'$. Since $|z-z'|<\frac{r}{2}<\frac{|z|
     $$
         = \left| \int_{z'}^{z} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
     $$
-    Using $z' \ge \frac{z}{2}$ and Lemma \ref{lower-secant-bound}, we bound this by
+    Using $z' \ge \frac{z}{2}$ and \Cref{lower-secant-bound}, we bound this by
     $$
         \le |z - z'| \sup_{\frac{z}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |z-z'| (8 \frac{2}{z})^2 \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
     $$
@@ -7834,7 +7834,7 @@ Plugging \eqref{eq-kappa-reg} into \eqref{eq-hilbker-dyadic-sum}, we get
     |H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|\leq 2^{10} \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}\frac{r}{2}(2^jr)^{-2}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy.
 \end{equation*}
 
-By Proposition \ref{Hardy-Littlewood}, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ such that
+By \Cref{Hardy-Littlewood}, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ such that
 for each $j$ in the above sum,
 $$\frac{1}{2^{j+1}r}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy\leq  Mg(x),$$
 and
@@ -7846,16 +7846,16 @@ In combination with \eqref{eq-hilbker-HL}, this yields
 \end{proof}
 
 
-\begin{proof}[Proof of Lemma \ref{lem-hilbert}]
-We now prove Lemma \ref{lem-hilbert}. \rs{Write}
+\begin{proof}[Proof of \ref{lem-hilbert}]
+We now prove \Cref{lem-hilbert}. \rs{Write}
 \end{proof}
 
-% We now prove Lemma \ref{lem-hilbert}.
+% We now prove \Cref{lem-hilbert}.
 % We have with $r$ and $N$ as above for every $x$
 % \begin{equation}
 % |T_rg(x)|\le |L_Ng(x)|+ |H_rg(x)-L_Ng(x)|+ |T_rg(x)-H_rg(x)|\, .
 % \end{equation}
-% With Lemma \ref{lem-dirichlet2} and Lemma \ref{dirichlet-kernel}, we estimate this by
+% With \Cref{lem-dirichlet2} and \Cref{dirichlet-kernel}, we estimate this by
 
 % \begin{equation}
 % \le |L_Ng(x)|+ 2^{11}|\int_0^{2\pi} g(y) k_r(x-y)\, dy|\, .
@@ -7866,14 +7866,14 @@ We now prove Lemma \ref{lem-hilbert}. \rs{Write}
 %     \|T_rg\|_2\le \|L_N\|_2+2^{11}\|g*k_r\|_2\ .
 % \end{equation}
 
-% By Lemma \ref{lnbound} and Lemma \ref{krbound}, we obtain
+% By \Cref{lnbound} and \Cref{krbound}, we obtain
 
 % \begin{equation}
 %     \|T_rg\|_2\le 2^{30}\|g\|_2\ .
 % \end{equation}
 
 
-\section{The proof of the van der Corput Lemma \ref{van-der-Corput}}
+\section{The proof of the van der Corput \ref{van-der-Corput}}
 \label{10vandercorput}
 
 Let $g$ be a Lipschitz continuous function as in the lemma. We have
@@ -7923,7 +7923,7 @@ $$
 \section{Partial sums as orthogonal projections}
 \label{10projection}
 
-This subsection proves Lemma \ref{spectral-projection-bound}
+This subsection proves \Cref{spectral-projection-bound}
 
 
 
@@ -7938,7 +7938,7 @@ This subsection proves Lemma \ref{spectral-projection-bound}
    \end{equation}
    \end{lemma}
 \begin{proof}
-Let $N>0$ be given. With $K_N$ as in Lemma \ref{dirichlet-kernel},
+Let $N>0$ be given. With $K_N$ as in \Cref{dirichlet-kernel},
 \begin{equation*}
 S_N (S_Nf) (x)=
 \int_0^{2\pi} S_Nf(y)K_N(x-y)\, dy
@@ -7947,7 +7947,7 @@ S_N (S_Nf) (x)=
 =
 \int_0^{2\pi} \int_0^{2\pi} f(y')K_N(y-y') K_N(x-y)\, \, dy' dy\, .
 \end{equation}
-We have by Lemma \ref{dirichlet-kernel}
+We have by \Cref{dirichlet-kernel}
 \begin{equation*}
 \int_0^{2\pi} K_N(y-y') K_N(x-y)\,  dy
 \end{equation*}
@@ -7959,7 +7959,7 @@ We have by Lemma \ref{dirichlet-kernel}
 =\sum_{n=-N}^N\sum_{n'=-N}^N
 e^{i(n'x-ny')}\int_0^{2\pi} e^{i(n-n')y}\,  dy\, .
 \end{equation}
-By Lemma \ref{mean-zero-oscillation}, the summands for $n\neq n'$ vanish.
+By \Cref{mean-zero-oscillation}, the summands for $n\neq n'$ vanish.
 We obtain for \eqref{eqhil6}
 \begin{equation}\label{eqhil2}
 =\sum_{n=-N}^N
@@ -7982,12 +7982,12 @@ This proves the lemma.
     \end{equation}
 \end{lemma}
 \begin{proof}
-  We have with $K_N$ as in Lemma \ref{dirichlet-kernel} for every $x$
+  We have with $K_N$ as in \Cref{dirichlet-kernel} for every $x$
   \begin{equation}
       \overline{K_N(x)}=\sum_{n=-N}^N\overline{ e^{in x}}=
       {\sum_{n=-N}^N e^{-in x}}=K_N(-x)\, .
   \end{equation}
- Further, with Lemma \ref{dirichlet-kernel} and Fubini
+ Further, with \Cref{dirichlet-kernel} and Fubini
 \begin{equation*}
 \int_0^{2\pi} \overline{S_Nf(x)} g(x)
 = \frac 1{2\pi} \int_0^{2\pi} \int_{-\pi}^{\pi}\overline{f(y) K_N(x-y)} g(x)\, dy dx
@@ -8006,7 +8006,7 @@ g(x)\, dx dy
 We turn to the proof of Lemma
 \ref{spectral-projection-bound}.
 
-We have with Lemma \ref{partial-sum-selfadjoint}, then Lemma \ref{partial-sum-projection} and the Lemma \ref{partial-sum-selfadjoint} again
+We have with \Cref{partial-sum-selfadjoint}, then \Cref{partial-sum-projection} and the \Cref{partial-sum-selfadjoint} again
 \begin{equation*}
  \int_0^{2\pi}  S_Nf(x)\overline{S_Nf(x)}\, dx
  \int_0^{2\pi}  f(x)\overline{S_N(S_Nf)(x)}\, dx
@@ -8055,17 +8055,17 @@ This completes the proof of the lemma.
 
 \section{The error bound}
 \label{10difference}
-We prove Lemma \ref{control-approximation-effect}. Define
+We prove \Cref{control-approximation-effect}. Define
 $$
     E_2 := \{x \in [0, 2\pi) \ : \ \sup_{N > 0} |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4} \}\,.
 $$
-Then \eqref{eq-max-partial-sum-diff} clearly holds, and it remains to show that $|E_2| \le \frac{\epsilon}{2}$. This will follow from Lemma \ref{real-Carleson}.
+Then \eqref{eq-max-partial-sum-diff} clearly holds, and it remains to show that $|E_2| \le \frac{\epsilon}{2}$. This will follow from \Cref{real-Carleson}.
 
 Let $x \in E_2$. Then there exists $N > 0$ with
 $$
     |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4}\,,
 $$
-pick such $N$. We have with Lemma \ref{dirichlet-kernel}
+pick such $N$. We have with \Cref{dirichlet-kernel}
 $$
     \frac{\epsilon}{4} < |S_N f(x) - S_N f_0(x)| = \frac{1}{2\pi} \left| \int_0^{2\pi} (f(y) - f_0(y)) K_N(x-y) \, dy\right|\,.
 $$
@@ -8090,11 +8090,11 @@ Using \eqref{eqksumhil} and the definition \eqref{eq-hilker} of $k$, we rewrite 
     \label{eq-diff-integrable}
     + \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) ( e^{iNy} \frac{\min\{|y|, 1\} }{1 - e^{-iy}} + e^{-iNy} \frac{\min\{|y|, 1\} }{1 - e^{iy}}) \, dy \right|\,.
 \end{equation}
-By Lemma \ref{lower-secant-bound} with $\eta = |y|$, we have for $-1 \le y \le 1$
+By \Cref{lower-secant-bound} with $\eta = |y|$, we have for $-1 \le y \le 1$
 $$
     |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{|y|}{|1 - e^{iy}|} \le 8\,.
 $$
-By Lemma \ref{lower-secant-bound} with $\eta = 1$, we have for $1 \le |y| \le \pi$
+By \Cref{lower-secant-bound} with $\eta = 1$, we have for $1 \le |y| \le \pi$
 $$
     |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{1}{|1 - e^{iy}|} \le 8\,.
 $$
@@ -8122,7 +8122,7 @@ $$
     \le \frac{1}{2\pi} (Th(x) + T\bar{h}(x))\,.
 $$
 Thus for each $x \in E_2$, at least one of $Th(x)$ and $T\bar h(x)$ is larger than $\frac{\epsilon}{16}$.
-Thus at least one of $Th$ and $T\bar h$ is $\ge \frac{\epsilon}{16}$ on a subset $E_2'$ of $E_2$ with $2|E_2'| \ge |E_2|$. Without loss of generality this is $Th$. By assumption \eqref{eq-ffzero}, we have $|2^{2^{50}}\epsilon^{-2} h| \le \mathbf{1}_{[-\pi, 3\pi]}$. Applying Lemma \ref{real-Carleson} with $F = [-\pi, 3\pi]$ and $G = E_2'$, it follows that
+Thus at least one of $Th$ and $T\bar h$ is $\ge \frac{\epsilon}{16}$ on a subset $E_2'$ of $E_2$ with $2|E_2'| \ge |E_2|$. Without loss of generality this is $Th$. By assumption \eqref{eq-ffzero}, we have $|2^{2^{50}}\epsilon^{-2} h| \le \mathbf{1}_{[-\pi, 3\pi]}$. Applying \Cref{real-Carleson} with $F = [-\pi, 3\pi]$ and $G = E_2'$, it follows that
 $$
     \frac{\epsilon}{16} |E_2'| \le \int_{E_2'} Th(x) \, dx = 2^{-2^{50}}\epsilon^2 \int_{E_2'} T(2^{2^{50}}\epsilon^{-2} h)(x) \, dx
 $$
@@ -8142,7 +8142,7 @@ This completes the proof using $|E_2| \le 2|E_2'|$.
 \section{Carleson on the real line}
 \label{10carleson}
 
-We prove Lemma \ref{real-Carleson}.
+We prove \Cref{real-Carleson}.
 
 Consider the standard distance function
 \begin{equation}
@@ -8195,7 +8195,7 @@ We consider the Lebesgue measure $\mu$ on $\R$.
 \end{lemma}
 \begin{proof}
 \leanok
-We have with Lemma \ref{real-line-ball}
+We have with \Cref{real-line-ball}
 \begin{equation}
     \mu(B(x,R))=\mu((x-R,x+R))=2R\, .
 \end{equation}
@@ -8209,7 +8209,7 @@ We have with Lemma \ref{real-line-ball}
     \end{equation}
 \end{lemma}
 \begin{proof}
-    We have with Lemma \ref{real-line-ball-measure}
+    We have with \Cref{real-line-ball-measure}
 \begin{equation}
     \mu(B(x,2R)=4R=2\mu(B(x,R)\, .
 \end{equation}
@@ -8218,7 +8218,7 @@ This proves the lemma.
 
 
 The preceding four lemmas show that $(\R, \rho, \mu, 4)$ is a doubling metric measure space. Indeed, we even show
-that $(\R, \rho, \mu, 1)$ is a doubling metric measure space, but we may relax the estimate in Lemma \ref{real-line-doubling} to conclude that $(\R, \rho, \mu, 4)$
+that $(\R, \rho, \mu, 1)$ is a doubling metric measure space, but we may relax the estimate in \Cref{real-line-doubling} to conclude that $(\R, \rho, \mu, 4)$
 is a doubling metric measure space.
 
 
@@ -8373,7 +8373,7 @@ Set $n'=n-m$. Then we have to prove
     \left|\int_{x-R}^{x+R} e^{in'y}\varphi(y) dy\right|\le 4\pi  R\|\varphi\|_{\Lip(B')}
 (1+2R|n'|)^{-1}\, .
 \end{equation}
-This follows from Lemma \ref{van-der-Corput} with $\alpha = x - R$ and $\beta = x + 2R$.
+This follows from \Cref{van-der-Corput} with $\alpha = x - R$ and $\beta = x + 2R$.
 %We do a case distinction whether $Rn'\le \pi$
 %or $Rn'> \pi$.
 %Assume first  $Rn'\le \pi$. We estimate the left-hand side  of \eqref{eq-vdc-cond2} by
@@ -8463,7 +8463,7 @@ $x=y$ and vanishes on the diagonal. Hence it is measurable.
 |K(x,y)|=|\kappa(x-y)|=\left|\frac {1-|x-y|}{1-e^{i(x-y)}}\right|\, .
 \end{equation}
 We estimate
-with Lemma \ref{lower-secant-bound}
+with \Cref{lower-secant-bound}
 \begin{equation}\label{eqcarl311}
 |K(x,y)|\le \frac {1}{|1-e^{i(x-y)}|}\le \frac 8{|x-y|}\, .
 \end{equation}
@@ -8497,7 +8497,7 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
     $$
         = \left| \int_{y'}^{y} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
     $$
-    Using $y' \ge \frac{y}{2}$ and Lemma \ref{lower-secant-bound}, we bound this by
+    Using $y' \ge \frac{y}{2}$ and \Cref{lower-secant-bound}, we bound this by
     $$
         \le |y - y'| \sup_{\frac{y}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |y-y'| (8 \frac{2}{y})^2 \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
     $$
@@ -8518,11 +8518,11 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 By the previous two lemmas, $K$ is a one-sided Calder\'on--Zygmund kernel on $(\R,\rho,\mu,4)$.
 
 
-The operator $T^*$ defined in \eqref{def-tang-unm-op} coincides in our setting with the operator $T^*$ defined in \eqref{concretetstar}. By  Lemma \ref{lem-hilbert}, this operator satisfies the bound \eqref{nontanbound}.
+The operator $T^*$ defined in \eqref{def-tang-unm-op} coincides in our setting with the operator $T^*$ defined in \eqref{concretetstar}. By  \Cref{lem-hilbert}, this operator satisfies the bound \eqref{nontanbound}.
 
 
 
 
-Thus the assumptions of Theorem \ref{metric-space-Carleson} are all satisfied. Applying the Theorem, Lemma \ref{real-Carleson} follows.
+Thus the assumptions of \Cref{metric-space-Carleson} are all satisfied. Applying the Theorem, \Cref{real-Carleson} follows.
 
 \printbibliography
