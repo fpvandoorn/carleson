@@ -4,7 +4,7 @@
 
 % Note: still have to upstream section ~> chapter and subsection ~> section to Overleaf
 % Replace spaces by dashes in labels using search&replace (leave out `, keep space)
-%   `((\\label|\\ref|\\eqref|\\uses)\{([a-zA-Z-]|,\n? *[a-z])*) `
+%   `((\\label|\\ref|\\eqref|\\uses|\\proves)\{([^ \n},]|,\n? *[a-zA-Z])*) `
 % to
 %   `$1-`
 %
@@ -501,7 +501,7 @@ The following proposition is proved in Section \ref{antichainboundary}.
 \begin{proposition}[antichain operator]
 \label{antichain-operator}
 
-\uses{dens2 antichain,dens1 antichain}
+\uses{dens2-antichain,dens1-antichain}
 For any antichain $\mathfrak{A} $ and  for all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ and all $g:X\to\C$ with $|g| \le \mathbf{1}_G$
 \begin{equation} \label{eq-antiprop}
     |\int  \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|
@@ -579,7 +579,7 @@ Define
 \end{equation}
 Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\tau$-H\"older norm by
 \begin{equation}
-    \label{eq-Hölder norm}
+    \label{eq-Hölder-norm}
     \|\varphi\|_{C^\tau(B)} = \sup_{x \in B} |\varphi(x)| + R^\tau \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)^\tau}\,.
 \end{equation}
 
@@ -1622,29 +1622,29 @@ and then define iteratively
 
     For each $I \in \mathcal{D}$, it holds that
     \begin{equation}
-    \label{eq-omega1 cover}
+    \label{eq-omega1-cover}
          \bigcup_{z \in \mathcal{Z}(I)} B_{I^\circ}(z, 0.7)\subset \bigcup_{\fp \in \fP(I)} \Omega_1(\fp)\,.
     \end{equation}
     For every $\fp \in \fP$, it holds that
     \begin{equation}
-        \label{eq-omega1 incl}
+        \label{eq-omega1-incl}
         B_{\fp}(\fcc(\fp), 0.3) \subset \Omega_1(\fp) \subset B_{\fp}(\fcc(\fp), 0.7)\,.
     \end{equation}
 \end{lemma}
 
 \begin{proof}
-    For \eqref{eq-omega1 incl} let $\fp = (I, z)$.
-    The second inclusion in \eqref{eq-omega1 incl} then follows from \eqref{eq-def-omega1} and the equality $B_{\fp}(\fcc(\fp), 0.7) = B_{I^\circ}(z, 0.7)$, which is true by definition.
-    For the first inclusion in \eqref{eq-omega1 incl} let $\mfa \in B_{\fp}(\fcc(\fp),0.3)$. Let $k$ be such that $z = z_k$ in the enumeration we chose above. It follows immediately from \eqref{eq-def-omega1} and \eqref{eq-tile-disjoint-Z} that
+    For \eqref{eq-omega1-incl} let $\fp = (I, z)$.
+    The second inclusion in \eqref{eq-omega1-incl} then follows from \eqref{eq-def-omega1} and the equality $B_{\fp}(\fcc(\fp), 0.7) = B_{I^\circ}(z, 0.7)$, which is true by definition.
+    For the first inclusion in \eqref{eq-omega1-incl} let $\mfa \in B_{\fp}(\fcc(\fp),0.3)$. Let $k$ be such that $z = z_k$ in the enumeration we chose above. It follows immediately from \eqref{eq-def-omega1} and \eqref{eq-tile-disjoint-Z} that
     $\mfa \notin \Omega_1((I, z_i))$ for all $i < k$. Thus, again from \eqref{eq-def-omega1}, we have
     $\mfa \in \Omega_1((I,z_k))$.
 
-    To show \eqref{eq-omega1 cover} let $\mfa \in \bigcup_{z \in \mathcal{Z}(I)} B_{I^\circ}(z,0.7)$.
+    To show \eqref{eq-omega1-cover} let $\mfa \in \bigcup_{z \in \mathcal{Z}(I)} B_{I^\circ}(z,0.7)$.
     If there exists $z \in \mathcal{Z}(I)$ with $\mfa \in B_{I^\circ}(z,0.3)$, then
     $$
         z \in \Omega_1((I, z)) \subset \bigcup_{\fp \in \fP(I)} \Omega_1(\fp)
     $$
-    by the first inclusion in \eqref{eq-omega1 incl}.
+    by the first inclusion in \eqref{eq-omega1-incl}.
 
     Now suppose that there exists no $z \in \mathcal{Z}(I)$ with $\mfa \in B_{I^\circ}(z, 0.3)$. Let $k$ be minimal such that $\mfa \in B_{I^\circ}(z_k, 0.7)$. Since $\Omega_1((I, z_i)) \subset B_{I^\circ}(z_i, 0.7)$ for each $i$ by \eqref{eq-def-omega1}, we have that $\mfa \notin \Omega_1((I, z_i))$ for all $i < k$. Hence $\mfa \in \Omega_1((I, z_k))$, again by \eqref{eq-def-omega1}.
 \end{proof}
@@ -1667,13 +1667,13 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 \end{lemma}
 
 \begin{proof}
-    First, we prove \eqref{eq-freq-comp-ball}. If $I \in \mathcal{D}$ is maximal in $\mathcal{D}$ with respect to set inclusion, then \eqref{eq-freq-comp-ball} holds for all $\fp \in \fP(I)$ by \eqref{eq-max-omega} and \eqref{eq-omega1 incl}. Now suppose that $I$ is not maximal in $\mathcal{D}$ with respect to set inclusion. Then we may assume by induction that for all $J \in \mathcal{D}$ with $I \subset J$ and all $\fp' \in \fP(J)$, \eqref{eq-freq-comp-ball} holds. Let $J$ be the unique minimal cube in $\mathcal{D}$ with $I \subsetneq J$.
+    First, we prove \eqref{eq-freq-comp-ball}. If $I \in \mathcal{D}$ is maximal in $\mathcal{D}$ with respect to set inclusion, then \eqref{eq-freq-comp-ball} holds for all $\fp \in \fP(I)$ by \eqref{eq-max-omega} and \eqref{eq-omega1-incl}. Now suppose that $I$ is not maximal in $\mathcal{D}$ with respect to set inclusion. Then we may assume by induction that for all $J \in \mathcal{D}$ with $I \subset J$ and all $\fp' \in \fP(J)$, \eqref{eq-freq-comp-ball} holds. Let $J$ be the unique minimal cube in $\mathcal{D}$ with $I \subsetneq J$.
 
     Suppose that $\mfa \in \Omega(\fp)$. If $\mfa\in B_{\fp}(\mathcal{Q}(\fp), 0.2)$, then since
     \begin{equation*}
         B_{\fp}(\mathcal{Q}(\fp), 0.2)\subset B_{\fp}(\mathcal{Q}(\fp), 1)\, ,
     \end{equation*}
-    we conclude that $\mfa\in B_{\fp}(\mathcal{Q}(\fp), 0.7)$. If not, by \eqref{eq-it-omega}, there exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ with $\mfa \in \Omega(J,z)$. Using the triangle inequality and \eqref{eq-omega1 incl}, we obtain
+    we conclude that $\mfa\in B_{\fp}(\mathcal{Q}(\fp), 0.7)$. If not, by \eqref{eq-it-omega}, there exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ with $\mfa \in \Omega(J,z)$. Using the triangle inequality and \eqref{eq-omega1-incl}, we obtain
     $$
         d_{I^\circ}(\fcc(\fp),\mfa) \le d_{I^\circ}(\fcc(\fp), z) + d_{I^\circ}(z, \mfa) \le 0.7 + d_{I^\circ}(z, \mfa)\,.
     $$
@@ -1685,7 +1685,7 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 
     Next, we show \eqref{eq-dis-freq-cover}. Let $I \in \mathcal{D}$.
 
-    If $I$ is maximal with respect to inclusion, then disjointedness of the sets $\fc(\fp)$ for $\fp \in \fP(I)$ follows from the definition \eqref{eq-max-omega} and \Cref{disjoint-frequency-cubes}. To obtain the inclusion in \eqref{eq-dis-freq-cover} one combines the inclusions \eqref{eq-tile-cover} and \eqref{eq-omega1 cover}
+    If $I$ is maximal with respect to inclusion, then disjointedness of the sets $\fc(\fp)$ for $\fp \in \fP(I)$ follows from the definition \eqref{eq-max-omega} and \Cref{disjoint-frequency-cubes}. To obtain the inclusion in \eqref{eq-dis-freq-cover} one combines the inclusions \eqref{eq-tile-cover} and \eqref{eq-omega1-cover}
     of \Cref{frequency-cube-cover} with  \eqref{eq-max-omega}.
 
     Now we turn to the case where there exists $J \in \mathcal{D}$ with $I \subset J$ and $I\ne J$. In this case we use induction: It suffices to show \eqref{eq-dis-freq-cover} under the assumption that it holds for all cubes $J \in \mathcal{D}$ with $I \subset J$. As shown before definition \eqref{eq-it-omega}, we may choose the unique inclusion minimal such $J$. To show disjointedness of the sets $\fc(\fp), \fp \in \fP(I)$ we pick two tiles $\fp, \fp' \in \fP(I)$ and $\mfa \in \fc(\fp) \cap \fc(\fp')$.
@@ -1697,11 +1697,13 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
     $$
         d_{\fp'}(\fcc(\fp'),z) \le d_{\fp'}(\fcc(\fp'), \mfa) + d_{\fp'}(z, \mfa) \le 0.2 + 2^{-95a} \cdot 1 < 0.3\,.
     $$
+
     Thus $z \in \Omega_1(\fp')$ by \eqref{eq-omega1 incl}. By \Cref{disjoint-frequency-cubes}, it follows that $\fp = \fp'$.
 
     3. There exists $z' \in \mathcal{Z}(J) \cap \Omega_1(\fp')$ such that $\mfa \in \Omega(J,z')$, and $\mfa \in B_{\fp}(\fcc(\fp), 0.2)$. This case is the same as case 2., after swapping $\fp$ and $\fp'$.
 
-    4. We have $\mfa \in B_{\fp}(\fcc(\fp), 0.2) \cap B_{\fp'}(\fcc(\fp'), 0.2)$. In this case it follows that $\fp = \fp'$ since the sets $B_{\fp}(\fcc(\fp), 0.2)$ are pairwise disjoint by the inclusion \eqref{eq-omega1 incl} and \Cref{disjoint-frequency-cubes}.
+    4. We have $\mfa \in B_{\fp}(\fcc(\fp), 0.2) \cap B_{\fp'}(\fcc(\fp'), 0.2)$. In this case it follows that $\fp = \fp'$ since the sets $B_{\fp}(\fcc(\fp), 0.2)$ are pairwise disjoint by the inclusion \eqref{eq-omega1-incl} and \Cref{disjoint-frequency-cubes}.
+
 
     To show the inclusion in \eqref{eq-dis-freq-cover}, let $\mfa \in \tQ(X)$. By the induction hypothesis, there exists $\fp \in \fP(J)$ such that $\mfa \in \Omega(\fp)$. By definition of the set $\fP$, we have $\fp = (J, z)$ for some $z \in \mathcal{Z}(J)$. By \eqref{eq-tile-Z}, there exists $x \in X$ with $d_{J^\circ}(\tQ(x), z) \le 1$. By \Cref{monotone-cube-metrics}, it follows that $d_{I^\circ}(\tQ(x), z) \le 1$.
     Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(I)$ with $z \in B_{I^\circ}(z', 0.7)$. Then by Lemma \eqref{frequency-cube-cover} there exists $\fp' \in \fP(I)$ with $z \in \mathcal{Z}(J) \cap \Omega_1(\fp')$. Consequently, by \eqref{eq-it-omega}, $\mfa \in \fc(\fp')$. This completes the proof of \eqref{eq-dis-freq-cover}.
@@ -1790,7 +1792,7 @@ and
 Together with the following removal of minimal layers, the splitting into $\fC_1(k,n,j)$ will lead to a separation of  trees.
 Define recursively for $0\le l\le Z(n+1)$
 \begin{equation}
-    \label{eq-L1 def}
+    \label{eq-L1-def}
     \fL_1(k,n,j,l)
 \end{equation}
 to be the set of minimal elements with respect to $\le$ in
@@ -1800,7 +1802,7 @@ to be the set of minimal elements with respect to $\le$ in
 \end{equation}
 Define
 \begin{equation}
-    \label{eq-C2 def}
+    \label{eq-C2-def}
     \fC_2(k,n,j):= \fC_1(k,n,j)\setminus \bigcup_{0\le l'\le Z(n+1)}
 \fL_1(k,n,j,l')\, .
 \end{equation}
@@ -1820,7 +1822,7 @@ $\sc(\fp)$ we have $B_{\fu}(\fcc(\fu), 100) \cap B_{\fp}(\fcc(\fp),100) = \empty
 We first remove the pairs that are outside the immediate reach of any of the prospective tree tops.
 Define
 \begin{equation}
-\label{eq-L2 def}
+\label{eq-L2-def}
 \fL_2(k,n,j)
 \end{equation}
 to be the set of all $\fp\in \fC_2(k,n,j)$ such that there
@@ -1829,7 +1831,7 @@ $\fu\in \fU_1(k,n,j)$
 with $\sc(\fp)\neq \sc(\fu)$ and $2\fp\lesssim \fu$.
 Define
 \begin{equation}
-\label{eq-C3 def}
+\label{eq-C3-def}
 \fC_3(k,n,j):=\fC_2(k,n,j)
   \setminus \fL_2(k,n,j)\, .
 \end{equation}
@@ -1838,7 +1840,7 @@ Define
 We next remove the maximal layers.
 Define recursively for $0 \le l \le Z(n+1)$
 \begin{equation}
-    \label{eq-L3 def}
+    \label{eq-L3-def}
     \fL_3(k,n,j,l)
 \end{equation}
 to be the set of all maximal elements with respect to $\le$ in
@@ -1847,7 +1849,7 @@ to be the set of all maximal elements with respect to $\le$ in
 \end{equation}
 Define
 \begin{equation}
-\label{eq-C4 def}
+\label{eq-C4-def}
 \fC_4(k,n,j):=\fC_3(k,n,j)
   \setminus \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\,.
 \end{equation}
@@ -1863,7 +1865,7 @@ to be the set of all $I \in \mathcal{D}$ with $I \subset \sc(\fu)$ and $s(I) = \
 \end{equation}
 Define
 \begin{equation}
-    \label{eq-L4 def}
+    \label{eq-L4-def}
     \fL_4(k,n,j)
 \end{equation}
 to be the set of all $\fp\in \fC_4(k,n,j)$ such that there exists
@@ -1922,7 +1924,7 @@ In Subsection \ref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G
 
 \begin{lemma}[forest union]
 \label{forest-union}
-\uses{forest-operator,C-dens1,C6 forest, forest geometry, forest convex,forest separation, forest inner}
+\uses{forest-operator,C-dens1,C6-forest, forest-geometry, forest-convex,forest-separation, forest-inner}
   Let
   \begin{equation}
       \fP_1 =\bigcup_{k\ge 0}\bigcup_{n\ge k}
@@ -1942,7 +1944,7 @@ the complement of the set of tiles in Lemma
 
 \begin{lemma}[forest complement]
 \label{forest-complement}
-\uses{antichain-operator,antichain-decomposition,L0 antichain,L2 antichain,L1 L3 antichain,C dens1}
+\uses{antichain-operator,antichain-decomposition,L0-antichain,L2-antichain,L1-L3-antichain,C-dens1}
   Let
   \begin{equation}
       \fP_2 =\fP\setminus \fP_1 %\left(\bigcup_{k\ge 0}\bigcup_{n\ge k}
@@ -2439,7 +2441,7 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 
 \begin{lemma}[wiggle order 3]
 \label{wiggle-order-3}
-\uses{wiggle-order-1, wiggle order 2}
+\uses{wiggle-order-1, wiggle-order-2}
     The following implications hold for all $\fq, \fq' \in \fP$:
     \begin{equation}
         \label{eq-sc1}
@@ -2500,7 +2502,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{proof}
 
 \begin{lemma}[C1 convex]
-    \label{C1 convex}
+    \label{C1-convex}
     \uses{C-convex}
     For each $k,n,j$, the collection $\fC_1(k,n,j)$ is convex.
 \end{lemma}
@@ -2514,47 +2516,47 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{proof}
 
 \begin{lemma}[C2 convex]
-    \label{C2 convex}
-    \uses{C1 convex}
+    \label{C2-convex}
+    \uses{C1-convex}
     For each $k,n,j$, the collection $\fC_2(k,n,j)$ is convex.
 \end{lemma}
 
 \begin{proof}
-     Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_2(k,n,j)$. By \eqref{eq-C2 def}, we have
+     Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_2(k,n,j)$. By \eqref{eq-C2-def}, we have
      \begin{equation*}
          \fC_2(k,n,j) \subset \fC_1(k,n,j)\ .
-     \end{equation*} Combined with \Cref{C1 convex}, it follows that $\fp' \in \fC_1(k,n,j)$. Suppose that $\fp' \notin \fC_2(k,n,j)$. By \eqref{eq-C2 def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$. By the definition \eqref{eq-L1 def} of $\fL_1(k,n,j,l')$, this implies that $\fp$ is minimal with respect to $\le$  in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. Since $\fp \in \fC_2(k,n,j)$ we must have $\fp \ne \fp'$. Thus $\fp \le \fp'$ and $\fp \ne \fp'$. By minimality of $\fp'$ it follows that $\fp \notin \fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. But by \eqref{eq-C2 def} this implies $\fp \notin \fC_2(k,n,j)$, a contradiction.
+     \end{equation*} Combined with \Cref{C1-convex}, it follows that $\fp' \in \fC_1(k,n,j)$. Suppose that $\fp' \notin \fC_2(k,n,j)$. By \eqref{eq-C2 def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$. By the definition \eqref{eq-L1-def} of $\fL_1(k,n,j,l')$, this implies that $\fp$ is minimal with respect to $\le$  in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. Since $\fp \in \fC_2(k,n,j)$ we must have $\fp \ne \fp'$. Thus $\fp \le \fp'$ and $\fp \ne \fp'$. By minimality of $\fp'$ it follows that $\fp \notin \fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. But by \eqref{eq-C2-def} this implies $\fp \notin \fC_2(k,n,j)$, a contradiction.
 \end{proof}
 
 \begin{lemma}[C3 convex]
-    \label{C3 convex}
-    \uses{C2 convex}
+    \label{C3-convex}
+    \uses{C2-convex}
     For each $k,n,j$, the collection $\fC_3(k,n,j)$ is convex.
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$. By \eqref{eq-C3 def} and \Cref{C2 convex} it follows that $\fp' \in \fC_2(k,n,j)$. Suppose that $\fp' \notin \fC_3(k,n,j)$. Then, by \eqref{eq-C3 def} and \eqref{eq-L2 def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp' \lesssim \fu$ and $\sc(\fp') \ne \sc(\fu)$. Together this gives $\sc(\fp') \subsetneq \sc(\fu)$. From $\fp' \le \fp$, \eqref{eq-sc1} and transitivity of $\lesssim$ we then have $2\fp \lesssim \fu$. Also, $\sc(\fp) \subset \sc(\fp') \subsetneq \sc(\fu)$, so $\sc(\fp) \ne \sc(\fu)$. But then $\fp \in \fL_2(k,n,j)$, contradicting by \eqref{eq-C3 def} the assumption $\fp \in \fC_3(k,n,j)$.
+    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$. By \eqref{eq-C3-def} and \Cref{C2-convex} it follows that $\fp' \in \fC_2(k,n,j)$. Suppose that $\fp' \notin \fC_3(k,n,j)$. Then, by \eqref{eq-C3-def} and \eqref{eq-L2-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp' \lesssim \fu$ and $\sc(\fp') \ne \sc(\fu)$. Together this gives $\sc(\fp') \subsetneq \sc(\fu)$. From $\fp' \le \fp$, \eqref{eq-sc1} and transitivity of $\lesssim$ we then have $2\fp \lesssim \fu$. Also, $\sc(\fp) \subset \sc(\fp') \subsetneq \sc(\fu)$, so $\sc(\fp) \ne \sc(\fu)$. But then $\fp \in \fL_2(k,n,j)$, contradicting by \eqref{eq-C3-def} the assumption $\fp \in \fC_3(k,n,j)$.
 \end{proof}
 
 \begin{lemma}[C4 convex]
-    \label{C4 convex}
-    \uses{C3 convex}
+    \label{C4-convex}
+    \uses{C3-convex}
     For each $k,n,j$, the collection $\fC_4(k,n,j)$ is convex.
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_4(k,n,j)$. As before we obtain from the inclusion $\fC_4(k,n,j) \subset \fC_3(k,n,j)$ and \Cref{C3 convex} that $\fp' \in \fC_3(k,n,j)$. Thus, if $\fp' \notin \fC_4(k,n,j)$ then by \eqref{eq-L3 def} there exists $l$ such that $\fp' \in \fL_3(k,n,j,l)$. Thus $\fp'$ is maximal with respect to $\le$ in $\fC_3(k,n,j) \setminus \bigcup_{0 \le l' < l} \fL_3(k,n,j,l')$.  Since $\fp'' \in \fC_4(k,n,j)$ we must have $\fp' \ne \fp''$. Thus $\fp' \le \fp''$ and $\fp'\ne \fp''$. By minimality of $\fp'$ it follows that $\fp'' \notin \fC_3(k,n,j) \setminus \bigcup_{l < l'} \fL_3(k,n,j,l)$. But by \eqref{eq-C4 def} this implies $\fp'' \notin \fC_4(k,n,j)$, a contradiction.
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_4(k,n,j)$. As before we obtain from the inclusion $\fC_4(k,n,j) \subset \fC_3(k,n,j)$ and \Cref{C3-convex} that $\fp' \in \fC_3(k,n,j)$. Thus, if $\fp' \notin \fC_4(k,n,j)$ then by \eqref{eq-L3-def} there exists $l$ such that $\fp' \in \fL_3(k,n,j,l)$. Thus $\fp'$ is maximal with respect to $\le$ in $\fC_3(k,n,j) \setminus \bigcup_{0 \le l' < l} \fL_3(k,n,j,l')$.  Since $\fp'' \in \fC_4(k,n,j)$ we must have $\fp' \ne \fp''$. Thus $\fp' \le \fp''$ and $\fp'\ne \fp''$. By minimality of $\fp'$ it follows that $\fp'' \notin \fC_3(k,n,j) \setminus \bigcup_{l < l'} \fL_3(k,n,j,l)$. But by \eqref{eq-C4-def} this implies $\fp'' \notin \fC_4(k,n,j)$, a contradiction.
 \end{proof}
 
 \begin{lemma}[C5 convex]
-    \label{C5 convex}
-    \uses{C4 convex}
+    \label{C5-convex}
+    \uses{C4-convex}
     For each $k,n,j$, the collection $\fC_5(k,n,j)$ is convex.
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$. Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by \Cref{C4 convex} also $\fp' \in \fC_4(k,n,j)$. Suppose that $\fp' \notin \fC_5(k,n,j)$. By \eqref{defc5}, it follows that $\fp' \in \fL_4(k,n,j)$.
-    By \eqref{eq-L4 def}, there exists $\fu \in \fU_1(k,n,j)$ with $\sc(\fp') \subset \bigcup \mathcal{L}(\fu)$. Then also $\sc(\fp) \subset \bigcup \mathcal{L}(\fu)$, a contradiction.
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$. Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by \Cref{C4-convex} also $\fp' \in \fC_4(k,n,j)$. Suppose that $\fp' \notin \fC_5(k,n,j)$. By \eqref{defc5}, it follows that $\fp' \in \fL_4(k,n,j)$.
+    By \eqref{eq-L4-def}, there exists $\fu \in \fU_1(k,n,j)$ with $\sc(\fp') \subset \bigcup \mathcal{L}(\fu)$. Then also $\sc(\fp) \subset \bigcup \mathcal{L}(\fu)$, a contradiction.
 \end{proof}
 
 \begin{lemma}[dens compare]
@@ -2635,12 +2637,12 @@ establishes that the set $\fC_6(k,n,j)$ can be written as a union of a small num
 
 For $\fu\in \fU_1(k,n,j)$, define
 \begin{equation}
-    \label{eq-T1 def}
+    \label{eq-T1-def}
     \mathfrak{T}_1(\fu):= \{\fp \in \fC_1(k,n,j) \ : \sc(\fp)\neq \sc(\fu), \ 2\fp \lesssim  \fu\}\,.
 \end{equation}
 Define
 \begin{equation}
-    \label{eq-U2 def}
+    \label{eq-U2-def}
     \fU_2(k,n,j) := \{ \fu \in \fU_1(k,n,j) \, : \, \mathfrak{T}_1(\fu)  \cap \fC_6(k,n,j) \ne \emptyset\}\,.
 \end{equation}
 
@@ -2746,7 +2748,7 @@ Define for each $\fu\in \fU_3(k,n,j)$
 \end{equation}
 
 \begin{lemma}[C6 forest]
-\label{C6 forest}
+\label{C6-forest}
 We have
 \begin{equation}
     \fC_6(k,n,j)=\bigcup_{\fu\in \fU_3(k,n,j)}\mathfrak{T}_2(\fu)\, .
@@ -2754,17 +2756,17 @@ We have
 \end{lemma}
 \begin{proof}
     Let $\fp \in \fC_6(k,n,j)$.
-    By \eqref{eq-C4 def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq-L2 def} and \eqref{eq-C3 def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp \lesssim \fu$ and $\sc(\fp) \ne \sc(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(k,n,j)$. By the definition of $\fU_3(k,n,j)$, there exists $\fu' \in \fU_3(k,n,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
+    By \eqref{eq-C4-def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq-L2-def} and \eqref{eq-C3-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp \lesssim \fu$ and $\sc(\fp) \ne \sc(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(k,n,j)$. By the definition of $\fU_3(k,n,j)$, there exists $\fu' \in \fU_3(k,n,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
 \end{proof}
 
 \begin{lemma}[C6 convex]
-    \label{C6 convex}
-    \uses{C5 convex}
+    \label{C6-convex}
+    \uses{C5-convex}
     Let $\fu \in \fU_3(k,n,j)$. If $\fp \le \fp' \le \fp''$ and $\fp, \fp'' \in \mathfrak{T}_2(\fu)$, then $\fp' \in \mathfrak{T}_2(\fu)$.
 \end{lemma}
 
 \begin{proof}
-    Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. Then by \Cref{C5 convex}, we have
+    Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. Then by \Cref{C5convex}, we have
 $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\subset G$, hence $\sc(\fp') \not \subset G$. This implies $\fp' \in \fC_6(k,n,j)$. Since $\fp'' \in \mathfrak{T}_2(\fu)$, we have $2\fp'' \lesssim \fu'$ and $\sc(\fp'')\ne\sc(\fu')$ for some $\fu' \sim \fp''$. By \eqref{eq-sc1}, we have $2\fp' \lesssim 2\fp''$, so by transitivity of $\lesssim$ we have $2\fp' \lesssim \fu'$. Finally, $\sc(\fp') \subset \sc(\fp'')$ implies $\sc(\fp') \ne \sc(\fu')$, thus $\fp' \in \mathfrak{T}_1(\fu') \subset \mathfrak{T}_2(\fu)$.
 \end{proof}
 
@@ -2795,15 +2797,14 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
 
 \begin{lemma}[forest convex]
     \label{forest-convex}
-    \uses{C6 convex}
+    \uses{C6-convex}
     For each $\fu\in \fU_3(k,n,j)$,
     the set $\mathfrak{T}_2(\fu)$
     satisfies the convexity condition \eqref{forest2}.
 \end{lemma}
 
 \begin{proof}
-    Let $\fp, \fp'' \in \mathfrak{T}_2(\fu')$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By \Cref{C5 convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not \subset G'$, so $\sc(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
-
+    Let $\fp, \fp'' \in \mathfrak{T}_2(\fu')$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By \Cref{C5-convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not \subset G'$, so $\sc(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
     By \eqref{definesv} there exists $\fu \in \fU_1(k,n,j)$ with $\fp'' \in \mathfrak{T}_1(\fu)$ and hence $2\fp'' \lesssim \fu$ and $\sc(\fp'') \ne \sc(\fu)$. Together this implies $\sc(\fp'') \subsetneq \sc(\fu)$. With the inclusion $\sc(\fp') \subset \sc(\fp'')$ from $\fp' \le \fp''$, it follows that $\sc(\fp') \subsetneq \sc(\fu)$ and hence $\sc(\fp') \ne \sc(\fu)$.
     By \eqref{eq-sc1} and transitivity of $\lesssim$ we further have $2\fp' \lesssim \fu$, so $\fp' \in \mathfrak{T}_1(\fu)$.
     It follows that $\fp' \in \mathfrak{T}_2(\fu')$, which shows \eqref{forest2}.
@@ -2821,7 +2822,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
 \end{lemma}
 
 \begin{proof}
-    By the definition \eqref{eq-C2 def} of $\fC_2(k,n,j)$, there exists a tile $\fp' \in \fC_1(k,n,j)$ with $\fp' \le \fp$ and $\ps(\fp') = \ps(\fp)- Z(n+1)$.
+    By the definition \eqref{eq-C2-def} of $\fC_2(k,n,j)$, there exists a tile $\fp' \in \fC_1(k,n,j)$ with $\fp' \le \fp$ and $\ps(\fp') = \ps(\fp)- Z(n+1)$.
     By \Cref{monotone-cube-metrics} we have
     $$
         d_{\fp}(\fcc(\fp), \fcc(\fu')) \ge 2^{95a Z(n+1)} d_{\fp'}(\fcc(\fp), \fcc(\fu'))\,.
@@ -2854,10 +2855,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     $$
         \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(k,n,j)\,.
     $$
-    We now show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile. Then $2\fq' \not \lesssim \fu'$ for any $\fu' \sim \fu$, by maximality of $\fq$. But by \eqref{eq-C3 def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. By \Cref{wiggle-order-1}, this implies $\fu \sim \fu''$, so $\fq' \in \mathfrak{T}_2(\fu)$, a contradiction.
-
+    We now show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile. Then $2\fq' \not \lesssim \fu'$ for any $\fu' \sim \fu$, by maximality of $\fq$. But by \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. By \Cref{wiggle-order-1}, this implies $\fu \sim \fu''$, so $\fq' \in \mathfrak{T}_2(\fu)$, a contradiction.
     By \Cref{relation-geometry}, we have $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
-
     Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \sc(\fu)$ and $\sc(\fp) \subset I$. Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \sc(\fu)$. By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\sc(\fp) \subset I$.
 \end{proof}
 
@@ -2891,7 +2890,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     $$
         (\fU_4(k,n,j,l), \mathfrak{T}_2|_{\fU_4(k,n,j,l)})
     $$
-    are $n$-forests for each $k,n,j,l$, and by \Cref{C6 forest}, we have
+    are $n$-forests for each $k,n,j,l$, and by \Cref{C6-forest}, we have
     $$
         \fC_6(k,n,j) = \bigcup_{l = 1}^{4n + 13} \bigcup_{\fu \in \fU_4(k,n,j,l)} \mathfrak{T}_2(\fu)\,.
     $$
@@ -2923,7 +2922,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 \label{antichain-decomposition}
     We have that
     \begin{align}
-        \label{eq-fp' decomposition}
+        \label{eq-fp'-decomposition}
         &\quad \fP_2 \cap \fP_{X \setminus G'}\\
         &=  \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{X \setminus G'} \\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \fL_2(k,n,j) \cap \fP_{X \setminus G'}\\
@@ -2941,7 +2940,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 \end{proof}
 
 \begin{lemma}[L0 antichain]
-\label{L0 antichain}
+\label{L0-antichain}
 \uses{monotone-cube-metrics}
     We have that
     $$
@@ -2994,23 +2993,23 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 \end{proof}
 
 \begin{lemma}[L2 antichain]
-\label{L2 antichain}
+\label{L2-antichain}
 \uses{monotone-cube-metrics}
     Each of the sets $\fL_2(k,n,j)$ is an antichain.
 \end{lemma}
 
 \begin{proof}
     Suppose that there are $\fp_0, \fp_1 \in \fL_2(k,n,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By \Cref{wiggle-order-1} and \Cref{wiggle-order-2}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(k,n,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
-    If we have $\fp_l \in \fU_1(k,n,j)$, then it follows from $2\fp \lesssim 200 \fp_l \lesssim \fp_l$ and \eqref{eq-L2 def} that $\fp \not\in \fL_2(k,n,j)$, a contradiction. Thus, by the definition \eqref{defunkj}  of $\fU_1(k,n,j)$, there exists $\fp_{l+1} \in \fC_1(k,n,j)$ with $\sc(\fp_l) \subsetneq \sc(\fp_{l+1}) $ and $\mfa \in B_{\fp_l}(\fcc(\fp_l), 100) \cap B_{\fp_{l+1}}(\fcc(\fp_{l+1}), 100)$. Using the triangle inequality and \Cref{monotone-cube-metrics}, one deduces that $200 \fp_l \lesssim 200\fp_{l+1}$. This contradicts maximality of $l$.
+    If we have $\fp_l \in \fU_1(k,n,j)$, then it follows from $2\fp \lesssim 200 \fp_l \lesssim \fp_l$ and \eqref{eq-L2-def} that $\fp \not\in \fL_2(k,n,j)$, a contradiction. Thus, by the definition \eqref{defunkj}  of $\fU_1(k,n,j)$, there exists $\fp_{l+1} \in \fC_1(k,n,j)$ with $\sc(\fp_l) \subsetneq \sc(\fp_{l+1}) $ and $\mfa \in B_{\fp_l}(\fcc(\fp_l), 100) \cap B_{\fp_{l+1}}(\fcc(\fp_{l+1}), 100)$. Using the triangle inequality and \Cref{monotone-cube-metrics}, one deduces that $200 \fp_l \lesssim 200\fp_{l+1}$. This contradicts maximality of $l$.
 \end{proof}
 
 \begin{lemma}[L1 L3 antichain]
-\label{L1 L3 antichain}
+\label{L1-L3-antichain}
     Each of the sets $\fL_1(k,n,j,l)$ and $\fL_3(k,n,j,l)$ is an antichain.
 \end{lemma}
 
 \begin{proof}
-    By its definition \eqref{eq-L1 def}, each set $\fL_1(k,n,j,l)$ is a set of minimal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_1(k,n,j,l)$ with $\fp \le \fq$, then $\fq$ would not be minimal. Hence such $\fp, \fq$ do not exist. Similarly, be \eqref{eq-L3 def}, each set $\fL_3(k,n,j,l)$ is a set of maximal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_3(k,n,j,l)$ with $\fp \le \fq$, then $\fp$ would not be maximal.
+    By its definition \eqref{eq-L1-def}, each set $\fL_1(k,n,j,l)$ is a set of minimal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_1(k,n,j,l)$ with $\fp \le \fq$, then $\fq$ would not be minimal. Hence such $\fp, \fq$ do not exist. Similarly, be \eqref{eq-L3-def}, each set $\fL_3(k,n,j,l)$ is a set of maximal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_3(k,n,j,l)$ with $\fp \le \fq$, then $\fp$ would not be maximal.
 \end{proof}
 
 \begin{proof}[Proof of \ref{forest-complement}]
@@ -3019,7 +3018,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     $$
         \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2} T_{\fp}f(x) = \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2 \cap \fP_{X \setminus G'}} T_{\fp}f(x)\,.
     $$
-    Let $\fL(k,n)$ denote any of the terms $\fL_i(k,n,j,l) \cap \fP_{X \setminus \fP_2}$ on the right hand side of \eqref{eq-fp' decomposition}, where the indices $j, l$ may be void. Then $\fL(k,n)$ is an antichain, by Lemmas \ref{L0 antichain},\ref{L2 antichain}, \ref{L1 L3 antichain}. Further, we have
+    Let $\fL(k,n)$ denote any of the terms $\fL_i(k,n,j,l) \cap \fP_{X \setminus \fP_2}$ on the right hand side of \eqref{eq-fp'-decomposition}, where the indices $j, l$ may be void. Then $\fL(k,n)$ is an antichain, by Lemmas \ref{L0-antichain},\ref{L2-antichain}, \ref{L1-L3-antichain}. Further, we have
     \begin{equation*}
     \dens_1(\fL(k,n)) \le 2^{4a+1 - n}
     \end{equation*}
@@ -3055,7 +3054,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 Let an antichain $\mathfrak{A}$
 and functions $f$, $g$ as in \Cref{antichain-operator} be given.
 We prove \eqref{eq-antiprop}
-in Subsection \ref{sec-TT* T*T}
+in Subsection \ref{sec-TT*-T*T}
 as the geometric mean of two inequalities,
 each involving one of the two densities.
 One of these two inequalities will need a careful estimate formulated in
@@ -3070,10 +3069,7 @@ geometric \Cref{antichain-tile-count} counting the relevant tile pairs.
 
 
 
-
-
-
-\section{The density arguments}\label{sec-TT* T*T}
+\section{The density arguments}\label{sec-TT*-T*T}
 
 We begin with the following crucial disjointedness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
 \begin{lemma}[tile disjointness]
@@ -3158,8 +3154,8 @@ Set
 \end{equation}
 Since $1< q\le 2$, we have $1<\tilde{q}<q\le 2$.
 \begin{lemma}[dens2 antichain]
-\label{dens2 antichain}
-\uses{,Hardy-Littlewood,maximal bound antichain}
+\label{dens2-antichain}
+\uses{,Hardy-Littlewood,maximal-bound-antichain}
 We have that
 \begin{equation}\label{eqttt9}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
@@ -3217,7 +3213,7 @@ proves the lemma.
 \end{proof}
 
 
-\begin{lemma}[dens1 antichain]\label{dens1 antichain}
+\begin{lemma}[dens1 antichain]\label{dens1-antichain}
 \uses{Hardy-Littlewood, tile-disjointness, tile-correlation,antichain-tile-count}
 Set $p:=4a^4$. We have
     \begin{equation}\label{eqttt3}
@@ -3277,13 +3273,13 @@ The following basic $TT^*$ estimate will be proved in Subsection \ref{sec-tile-o
     $\ps({\fp'})\leq \ps({\fp})$.
     Then
     \begin{equation}
-        \label{eq-basic-TT* est}
+        \label{eq-basic-TT*-est}
         \left|\int T^*_{\fp'}g\overline{T^*_{\fp}g}\right|
     \end{equation}
     \begin{equation}
         \le 2^{255a^3}\frac{(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-1/(2a^2+a^3)}}{\mu(\sc(\fp))}\int_{E(\fp')}|g|\int_{E(\fp)}|g|\,.
     \end{equation}
-    Moreover, the term   \eqref{eq-basic-TT* est} vanishes unless
+    Moreover, the term   \eqref{eq-basic-TT*-est} vanishes unless
     \begin{equation}
         \sc(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
     \end{equation}
@@ -3385,7 +3381,7 @@ Using $p>4$ and thus $1<p'<\frac 43$, we estimate the last display by
     \le  2^{255a^3+110a + 5} \dens_1(\mathfrak{A})^{\frac 1p}
     \|g\|_2^2\,.
 \end{equation}
-Now \Cref{dens1 antichain} follows by applying Cauchy-Schwarz on the left-hand side and using
+Now \Cref{dens1-antichain} follows by applying Cauchy-Schwarz on the left-hand side and using
 $a\ge 4$.
 \end{proof}
 We have
@@ -3540,10 +3536,9 @@ that
 Now \eqref{ynotfar} follows by the triangle inequality.
 \end{proof}
 
+We now prove \Cref{tile-correlation}. We begin with  \eqref{eq-basic-TT*-est}.
 
-We now prove \Cref{tile-correlation}. We begin with  \eqref{eq-basic-TT* est}.
-
-We expand the left-hand side of \eqref{eq-basic-TT* est} as
+We expand the left-hand side of \eqref{eq-basic-TT*-est} as
 \begin{equation}\label{tstartstar}
 \left|\int \int_{E(\fp_1)} \overline{K_{\ps(\fp_1)}(x_1,y)}e(-\tQ(x_1)(y)+
     \tQ(x_1)(x_1))g(x_1)\, d\mu(x_1) \right.
@@ -3601,10 +3596,10 @@ Using three iterations of the doubling property \eqref{doublingx} give
 \begin{equation}
     \mu(\sc(\fp_2))\le 2^{3a}\mu(B(x_2,D^{\ps(\fp_2)}))\, .
 \end{equation}
-With $a\ge 1$ and \eqref{eqa2} we conclude \eqref{eq-basic-TT* est}.
+With $a\ge 1$ and \eqref{eqa2} we conclude \eqref{eq-basic-TT*-est}.
 
 
-Now assume the left-hand side of \eqref{eq-basic-TT* est} is not zero.
+Now assume the left-hand side of \eqref{eq-basic-TT*-est} is not zero.
 There is a $y\in X$ with
 \begin{equation}
     T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\neq 0
@@ -4311,10 +4306,10 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
         (M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')|
     $$
     \begin{equation}
-        \label{eq-x'L almost inf}
+        \label{eq-x'L-almost-inf}
         \le 2 ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)|)\,.
     \end{equation}
-    This point exists since \eqref{eq-x'L almost inf} is non-negative for each $y$.
+    This point exists since \eqref{eq-x'L-almost-inf} is non-negative for each $y$.
     Then we have by \Cref{pointwise-tree-estimate} for each $L \in \mathcal{L}(\fT(\fu))$
     $$
         \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
@@ -4519,7 +4514,7 @@ The main result of this subsection is the following quantitative bound for opera
 
 \begin{lemma}[densities tree bound]
     \label{densities-tree-bound}
-    \uses{tree-projection-estimate,local-dens1 tree bound,local dens2 tree bound}
+    \uses{tree-projection-estimate,local-dens1-tree-bound,local-dens2-tree-bound}
     Let $\fu \in \fU$. Then for all $f,g$ bounded with bounded support
     \begin{equation}
         \label{eq-cor-tree-est}
@@ -4535,17 +4530,17 @@ The main result of this subsection is the following quantitative bound for opera
 Below, we deduce this lemma from  \Cref{tree-projection-estimate} and the following two estimates controlling the size of support of the operator and its adjoint.
 
 \begin{lemma}[local dens1 tree bound]
-    \label{local-dens1 tree bound}
+    \label{local-dens1-tree-bound}
     \uses{monotone-cube-metrics}
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Then
     \begin{equation}
-    \label{eq-1density estimate tree}
+    \label{eq-1density-estimate-tree}
         \mu(L \cap \bigcup_{\fp \in \fT(\fu)} E(\fp)) \le 2^{101a^3} \dens_1(\fT(\fu)) \mu(L)\,.
     \end{equation}
 \end{lemma}
 
 \begin{lemma}[local dens2 tree bound]
-    \label{local-dens2 tree bound}
+    \label{local-dens2-tree-bound}
     Let $J \in \mathcal{J}(\fT(\fu))$ be such that there exist $\fq \in \fT(\fu)$ with $J \cap \sc(\fq) \ne \emptyset$. Then
     $$
         \mu(F \cap J) \le 2^{200a^3 + 19} \dens_2(\fT(\fu))\,.
@@ -4571,7 +4566,7 @@ Below, we deduce this lemma from  \Cref{tree-projection-estimate} and the follow
     $$
         \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2 = \left( \sum_{L \in \mathcal{L}(\fT(\fu))} \frac{1}{\mu(L)} \left(\int_{L \cap \mathcal{E}(\fu)} |g(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     $$
-    By Cauchy-Schwarz and \Cref{local-dens1 tree bound} this is at most
+    By Cauchy-Schwarz and \Cref{local-dens1-tree-bound} this is at most
     $$
         \le \left( \sum_{L \in \mathcal{L}(\fT(\fu))} 2^{101a^3} \dens_1(\fT(\fu)) \int_{L \cap \mathcal{E}(\fu)} |g(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
     $$
@@ -4600,7 +4595,7 @@ Below, we deduce this lemma from  \Cref{tree-projection-estimate} and the follow
     $$
         \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_J |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2} = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_{J \cap F} |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
     $$
-    We estimate as before, using now \Cref{local-dens2 tree bound} and Cauchy-Schwarz, and obtain that this is
+    We estimate as before, using now \Cref{local-dens2-tree-bound} and Cauchy-Schwarz, and obtain that this is
     $$
         \le 2^{100a^3 + 10} \dens_2(\fT(\fu))^{1/2} \|f\|_2\,.
     $$
@@ -4609,9 +4604,8 @@ Below, we deduce this lemma from  \Cref{tree-projection-estimate} and the follow
 
 Now we prove the two auxiliary estimates.
 
-\begin{proof}[Proof of \ref{local-dens1 tree bound}]
-    If the set on the right hand side is empty, then \eqref{eq-1density estimate tree} holds. If not, then there exists $\fp \in \fT(\fu)$ with $L \cap \sc(\fp) \ne \emptyset$.
-
+\begin{proof}[Proof of \ref{local-dens1-tree-bound}]
+    If the set on the right hand side is empty, then \eqref{eq-1density-estimate-tree} holds. If not, then there exists $\fp \in \fT(\fu)$ with $L \cap \sc(\fp) \ne \emptyset$.
     Suppose first that there exists such $\fp$ with $\ps(\fp) \le s(L)$. Then by \eqref{dyadicproperty} $\sc(\fp) \subset L$, which gives by the definition of $\mathcal{L}(\fT(\fu))$ that $s(L) = -S$ and hence $L = \sc(\fp)$. Let $\fq \in \fT(\fu)$ with $E(\fq) \cap L \ne \emptyset$. Since $s(L) = -S \le \ps(\fq)$ it follows from \eqref{dyadicproperty} that $\sc(\fp) = L \subset \sc(\fq)$. We have then by \Cref{monotone-cube-metrics}
     \begin{align*}
         d_{\fp}(\fcc(\fp), \fcc(\fq)) &\le d_{\fp}(\fcc(\fp), \fcc(\fu)) + d_{\fp}(\fcc(\fq), \fcc(\fu))\\
@@ -4629,7 +4623,7 @@ Now we prove the two auxiliary estimates.
     $$
         9^a \dens_1(\fT(\fu)) \mu(\sc(\fp)) =9^a \dens_1(\fT(\fu)) \mu(L)\,.
     $$
-    Since $a \ge 4$, \eqref{eq-1density estimate tree} follows in this case.
+    Since $a \ge 4$, \eqref{eq-1density-estimate-tree} follows in this case.
 
     Now suppose that for each $\fp \in \fT(\fu)$ with $L \cap E(\fp) \ne \emptyset$, we have $\ps(\fp) > s(L)$. Since there exists at least one such $\fp$, there exists in particular at least one cube $L'' \in \mathcal{D}$ with $L \subset L''$ and $s(L'') > s(L)$. By \eqref{coverdyadic}, there exists $L' \in \mathcal{D}$ with $L \subset L'$ and $s(L') = s(L) + 1$. By the definition of $\mathcal{L}(\fT(\fu))$ there exists a tile $\fp'' \in \fT(\fu)$ with $\sc(\fp'') \subset L'$. Let $\fp'$ be the unique tile such that $\sc(\fp') = L'$ and such that $\Omega(\fu) \cap \Omega(\fp') \ne \emptyset$. Since by \eqref{forest1} $\ps(\fp') = s(L') \le \ps(\fp) < \ps(\fu)$, we have by \eqref{dyadicproperty} and \eqref{eq-freq-dyadic} that $\Omega(\fu) \subset \Omega(\fp')$. Let $\fq \in \fT(\fu)$ with $L \cap E(\fq) \ne \emptyset$. As shown above, this implies $\ps(\fq) \ge s(L')$, so by \eqref{dyadicproperty} $L' \subset \sc(\fq)$. If $q \in B_{\fq}(\fcc(\fq), 1)$, then by a similar calculation as above, using the triangle inequality, \Cref{monotone-cube-metrics} and \eqref{forest1}, we obtain
     $$
@@ -4646,7 +4640,7 @@ Now we prove the two auxiliary estimates.
     This completes the proof.
 \end{proof}
 
-\begin{proof}[Proof of \ref{local-dens2 tree bound}]
+\begin{proof}[Proof of \ref{local-dens2-tree-bound}]
     Suppose first that there exists a tile $\fp \in \fT(\fu)$ with $\sc(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. By the definition of $\mathcal{J}(\fT(\fu))$, this implies that $s(J) = -S$, and in particular $\ps(\fp) \ge s(J)$. Using the triangle inequality and \eqref{eq-vol-sp-cube} it follows that $J \subset B(\pc(\fp), 200 D^{\ps(\fp) + 1})$. From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
     $$
         \mu(\sc(\fp)) \le 2^{100a^3 + 9} \mu(J)
@@ -4804,7 +4798,7 @@ Now we are ready to state the main result of this subsection.
     \Cref{correlation-separated-trees} follows by combining the definition \eqref{defineZ} of $Z$ with the following two lemmas.
     \begin{lemma}[correlation distant tree parts]
         \label{correlation-distant-tree-parts}
-        \uses{Holder-van-der-Corput,adjoint-tile-support,Lipschitz partition unity,Holder correlation tree,lower oscillation bound}
+        \uses{Holder-van-der-Corput,adjoint-tile-support,Lipschitz-partition-unity,Holder-correlation-tree,lower-oscillation-bound}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\sc(\fu_1) \subset \sc(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
             \label{eq-lhs-big-sep-tree}
@@ -4817,7 +4811,7 @@ Now we are ready to state the main result of this subsection.
     \end{lemma}
     \begin{lemma}[correlation near tree parts]
         \label{correlation-near-tree-parts}
-        \uses{tree-projection-estimate,adjoint-tile-support,dyadic-partition-2,bound for tree projection}
+        \uses{tree-projection-estimate,adjoint-tile-support,dyadic-partition-2,bound-for-tree-projection}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\sc(\fu_1) \subset \sc(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
             \label{eq-lhs-small-sep-tree}
@@ -4892,7 +4886,7 @@ $$
 
     \begin{lemma}[Lipschitz partition unity]
         \label{Lipschitz-partition-unity}
-           \uses{dyadic-partition-1,moderate scale change}
+           \uses{dyadic-partition-1,moderate-scale-change}
         There exists a family of functions $\chi_J$, $J \in \mathcal{J}'$ such that \begin{equation}
             \label{eq-pao-1}
             \mathbf{1}_{\sc(\fu_1)} = \sum_{J \in \mathcal{J}'} \chi_J\,,
@@ -5007,7 +5001,7 @@ $$
 
     \begin{lemma}[Holder correlation tree]
         \label{Holder-correlation-tree}
-        \uses{adjoint-tile-support,global-tree-control-1,global tree control 2}
+        \uses{adjoint-tile-support,global-tree-control-1,global-tree-control-2}
         We have for all $J \in \mathcal{J}'$ that
         \begin{equation}
             \label{hHölder}
@@ -5258,7 +5252,7 @@ $$
 
     \begin{lemma}[global tree control 1]
         \label{global-tree-control-1}
-        \uses{adjoint-tile-support,Holder-correlation tile,scales impacting interval}
+        \uses{adjoint-tile-support,Holder-correlation-tile,scales-impacting-interval}
         Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
             \label{TreeUB}
@@ -5465,7 +5459,7 @@ $$
 
     \begin{lemma}[bound for tree projection]
         \label{bound-for-tree-projection}
-        \uses{adjoint-tile-support,overlap-implies-distance,dyadic-partition-2,thin scale impact,square function count}
+        \uses{adjoint-tile-support,overlap-implies-distance,dyadic-partition-2,thin-scale-impact,square-function-count}
         We have
         $$
             \|P_{\mathcal{J}'}|T_{\mathfrak{T}_2 \setminus \mathfrak{S}}^* g_2|\|_2
@@ -6610,7 +6604,7 @@ and for $|x|\ge 1$
 Note that this function is continuous at every point $x$ with $|x|>0$.
 The following lemma is proved in Subsection \ref{10carleson}.
 \begin{lemma}\label{real-Carleson}
-\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert kernel bound,Hilbert kernel regularity}
+\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-kernel-bound,Hilbert-kernel-regularity}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
     |\int _G Tf(x) \, dx| \le 2^{2^{40}}|F|^{\frac 12} |G|^{\frac 12} \, ,
@@ -7394,15 +7388,15 @@ T_*^{r_0}g(x)=\sup_{r_0<r_1<r_2<1}\sup_{|x-x'|<r_1}\left|H_{r_1} g(x')-H_{r_2} g
 \end{equation*}
 so that
 \begin{equation}
-    \label{eq-1 sup}
+    \label{eq-1-sup}
     T_*^{r_0}g(x)\leq 2\sup_{r_0<r<1} T_r g(x).
 \end{equation}
 
 \begin{lemma}
-    \label{lem-H_r L2 bound}
+    \label{lem-H_r-L2-bound}
     Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
     \begin{equation}
-        \label{eq-Hr-L2 bound}
+        \label{eq-Hr-L2-bound}
         \|H_rf\|_{2}\leq 2^{18} \|f\|_2.
     \end{equation}
 \end{lemma}
@@ -7755,7 +7749,7 @@ Similarly, we have
 \begin{equation*}
     \mu\left(\{x'\in \mathbb{R}: |x'-x|<\frac{r}{2},\, |H_{r_0}g_{x,1}(x')|>\alpha\}\right)\leq \alpha^{-2}\int_{|x-y|<\frac{r}{2}} |H_{r_0}g_{x,1}(y)|^2\, dy.
 \end{equation*}
-This time, we use \Cref{lem-H_r L2 bound}, with $r=r_0$, to estimate the above by
+This time, we use \Cref{lem-H_r-L2-bound}, with $r=r_0$, to estimate the above by
 \begin{equation*}
     2\alpha^{-2}\int |H_{r_0}g_{x,1}(y)|^2\, dy \leq 2^{18} \alpha^{-2}\int |g_{x,1}(y)|^2\, dy
     = 2^{18} \alpha^{-2}\int_{|y-x'|<r} |g(y)|^2 \,dy.
@@ -7779,11 +7773,11 @@ Making this choice of $\alpha$, we conclude that there exists an $x'$ with $|x-x
 \end{proof}
 
 \begin{lemma}
-\label{lem-xx' g2 diff}
+\label{lem-xx'-g2-diff}
 Let $0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Then, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ satisfying
 $$\|Mg\|_2\leq 2^{17}\|g\|_2\,,$$ such that for all $x'$ with $|x-x'|<\frac{r}{2}$.
 \begin{equation}
-\label{eq-xx' g2 diff}
+\label{eq-xx'-g2-diff}
 |H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|\leq 2^{11} Mg(x)\, .
 \end{equation}
 \end{lemma}
