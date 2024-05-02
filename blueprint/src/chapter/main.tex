@@ -4,7 +4,7 @@
 
 % Note: still have to upstream section ~> chapter and subsection ~> section to Overleaf
 % Replace spaces by dashes in labels using search&replace (leave out `, keep space)
-%   `((\\label|\\ref|\\eqref|\\uses|\\proves)\{([a-zA-Z-0-9]|,\n? *[a-zA-Z])*) `
+%   `((\\label|\\ref|\\eqref|\\uses|\\proves)\{([^ \n},]|,\n? *[a-zA-Z])*) `
 % to
 %   `$1-`
 %
@@ -579,7 +579,7 @@ Define
 \end{equation}
 Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\tau$-H\"older norm by
 \begin{equation}
-    \label{eq-Hölder norm}
+    \label{eq-Hölder-norm}
     \|\varphi\|_{C^\tau(B)} = \sup_{x \in B} |\varphi(x)| + R^\tau \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)^\tau}\,.
 \end{equation}
 
@@ -2923,7 +2923,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 \label{antichain-decomposition}
     We have that
     \begin{align}
-        \label{eq-fp' decomposition}
+        \label{eq-fp'-decomposition}
         &\quad \fP_2 \cap \fP_{X \setminus G'}\\
         &=  \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{X \setminus G'} \\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \fL_2(k,n,j) \cap \fP_{X \setminus G'}\\
@@ -3019,7 +3019,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     $$
         \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2} T_{\fp}f(x) = \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2 \cap \fP_{X \setminus G'}} T_{\fp}f(x)\,.
     $$
-    Let $\fL(k,n)$ denote any of the terms $\fL_i(k,n,j,l) \cap \fP_{X \setminus \fP_2}$ on the right hand side of \eqref{eq-fp' decomposition}, where the indices $j, l$ may be void. Then $\fL(k,n)$ is an antichain, by Lemmas \ref{L0-antichain},\ref{L2-antichain}, \ref{L1-L3-antichain}. Further, we have
+    Let $\fL(k,n)$ denote any of the terms $\fL_i(k,n,j,l) \cap \fP_{X \setminus \fP_2}$ on the right hand side of \eqref{eq-fp'-decomposition}, where the indices $j, l$ may be void. Then $\fL(k,n)$ is an antichain, by Lemmas \ref{L0-antichain},\ref{L2-antichain}, \ref{L1-L3-antichain}. Further, we have
     \begin{equation*}
     \dens_1(\fL(k,n)) \le 2^{4a+1 - n}
     \end{equation*}
@@ -3055,7 +3055,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 Let an antichain $\mathfrak{A}$
 and functions $f$, $g$ as in Proposition \ref{antichain-operator} be given.
 We prove \eqref{eq-antiprop}
-in Subsection \ref{sec-TT* T*T}
+in Subsection \ref{sec-TT*-T*T}
 as the geometric mean of two inequalities,
 each involving one of the two densities.
 One of these two inequalities will need a careful estimate formulated in
@@ -3073,7 +3073,7 @@ Lemma \ref{antichain-tile-count} will be proven in Subsection
 
 
 
-\section{The density  arguments}\label{sec-TT* T*T}
+\section{The density  arguments}\label{sec-TT*-T*T}
 
 We begin with the following crucial disjointedness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
 \begin{lemma}[tile disjointness]
@@ -3277,13 +3277,13 @@ The following basic $TT^*$ estimate will be proved in Subsection \ref{sec-tile-o
     $\ps({\fp'})\leq \ps({\fp})$.
     Then
     \begin{equation}
-        \label{eq-basic-TT* est}
+        \label{eq-basic-TT*-est}
         \left|\int T^*_{\fp'}g\overline{T^*_{\fp}g}\right|
     \end{equation}
     \begin{equation}
         \le 2^{255a^3}\frac{(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-1/(2a^2+a^3)}}{\mu(\sc(\fp))}\int_{E(\fp')}|g|\int_{E(\fp)}|g|\,.
     \end{equation}
-    Moreover, the term   \eqref{eq-basic-TT* est} vanishes unless
+    Moreover, the term   \eqref{eq-basic-TT*-est} vanishes unless
     \begin{equation}
         \sc(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
     \end{equation}
@@ -3541,9 +3541,9 @@ Now \eqref{ynotfar} follows by the triangle inequality.
 \end{proof}
 
 
-We now prove Lemma \ref{tile-correlation}. We begin with  \eqref{eq-basic-TT* est}.
+We now prove Lemma \ref{tile-correlation}. We begin with  \eqref{eq-basic-TT*-est}.
 
-We expand the left-hand side of \eqref{eq-basic-TT* est} as
+We expand the left-hand side of \eqref{eq-basic-TT*-est} as
 \begin{equation}\label{tstartstar}
 \left|\int \int_{E(\fp_1)} \overline{K_{\ps(\fp_1)}(x_1,y)}e(-\tQ(x_1)(y)+
     \tQ(x_1)(x_1))g(x_1)\, d\mu(x_1) \right.
@@ -3601,10 +3601,10 @@ Using three iterations of the doubling property \eqref{doublingx} give
 \begin{equation}
     \mu(\sc(\fp_2))\le 2^{3a}\mu(B(x_2,D^{\ps(\fp_2)}))\, .
 \end{equation}
-With $a\ge 1$ and \eqref{eqa2} we conclude \eqref{eq-basic-TT* est}.
+With $a\ge 1$ and \eqref{eqa2} we conclude \eqref{eq-basic-TT*-est}.
 
 
-Now assume the left-hand side of \eqref{eq-basic-TT* est} is not zero.
+Now assume the left-hand side of \eqref{eq-basic-TT*-est} is not zero.
 There is a $y\in X$ with
 \begin{equation}
     T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\neq 0
@@ -4311,10 +4311,10 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
         (M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')|
     $$
     \begin{equation}
-        \label{eq-x'L almost inf}
+        \label{eq-x'L-almost-inf}
         \le 2 ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)|)\,.
     \end{equation}
-    This point exists since \eqref{eq-x'L almost inf} is non-negative for each $y$.
+    This point exists since \eqref{eq-x'L-almost-inf} is non-negative for each $y$.
     Then we have by Lemma \ref{pointwise-tree-estimate} for each $L \in \mathcal{L}(\fT(\fu))$
     $$
         \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
@@ -7399,7 +7399,7 @@ so that
 \end{equation}
 
 \begin{lemma}
-    \label{lem-H_r L2 bound}
+    \label{lem-H_r-L2-bound}
     Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
     \begin{equation}
         \label{eq-Hr-L2-bound}
@@ -7755,7 +7755,7 @@ Similarly, we have
 \begin{equation*}
     \mu\left(\{x'\in \mathbb{R}: |x'-x|<\frac{r}{2},\, |H_{r_0}g_{x,1}(x')|>\alpha\}\right)\leq \alpha^{-2}\int_{|x-y|<\frac{r}{2}} |H_{r_0}g_{x,1}(y)|^2\, dy.
 \end{equation*}
-This time, we use Lemma \ref{lem-H_r L2 bound}, with $r=r_0$, to estimate the above by
+This time, we use Lemma \ref{lem-H_r-L2-bound}, with $r=r_0$, to estimate the above by
 \begin{equation*}
     2\alpha^{-2}\int |H_{r_0}g_{x,1}(y)|^2\, dy \leq 2^{18} \alpha^{-2}\int |g_{x,1}(y)|^2\, dy
     = 2^{18} \alpha^{-2}\int_{|y-x'|<r} |g(y)|^2 \,dy.
@@ -7779,11 +7779,11 @@ Making this choice of $\alpha$, we conclude that there exists an $x'$ with $|x-x
 \end{proof}
 
 \begin{lemma}
-\label{lem-xx' g2 diff}
+\label{lem-xx'-g2-diff}
 Let $0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Then, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ satisfying
 $$\|Mg\|_2\leq 2^{17}\|g\|_2\,,$$ such that for all $x'$ with $|x-x'|<\frac{r}{2}$.
 \begin{equation}
-\label{eq-xx' g2 diff}
+\label{eq-xx'-g2-diff}
 |H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|\leq 2^{11} Mg(x)\, .
 \end{equation}
 \end{lemma}
