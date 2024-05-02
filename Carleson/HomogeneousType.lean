@@ -17,7 +17,7 @@ Should we assume `volume ≠ 0` / `IsOpenPosMeasure`? -/
 class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ) [PseudoMetricSpace X] extends
   MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X) where
-    : ∀ (x : X) r, volume.real (ball x (2 * r)) ≤ A * volume.real (ball x r)
+  volume_ball_two_le_same : ∀ (x : X) r, volume.real (ball x (2 * r)) ≤ A * volume.real (ball x r)
 
 export IsSpaceOfHomogeneousType (volume_ball_two_le_same)
 
