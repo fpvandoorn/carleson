@@ -28,8 +28,6 @@
 
 \chapter{Introduction}
 
-
-
 In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere. Theorem \ref{classical-Carleson} represents a version of this result.
 
 Let $f$ be a complex-valued, $2\pi$-periodic bounded Borel measurable function on the real line, and for an integer $n$, define the Fourier coefficient as
@@ -44,8 +42,8 @@ Define the partial Fourier sum for $N\ge 0$ as
 \begin{theorem}[classical Carleson]
 \label{classical-Carleson}
 \uses{piecewise-constant-approximation, convergence-for-piecewise-constant,
-control-approximation-effect,metric-space-Carleson}
-Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\mathbb{R}$ satisfying the bound $|f(x)|\le 1$ for all $x\in \mathbb{R}$. For all $0<\epsilon\le 2\pi$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
+control-approximation-effect}
+Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\mathbb{R}$ satisfying the bound $|f(x)|\le 1$ for all $x\in \mathbb{R}$. For all $0<\epsilon<1$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
 \begin{equation}\label{aeconv}
 |f(x)-S_N f(x)|\le \epsilon.
 \end{equation}
@@ -74,18 +72,25 @@ where we have denoted by $B(x,R)$ the open ball of radius $R$ centred at $x$:
 \begin{equation}\label{eq-define-ball}
  B(x,R):=\{y\in X: \rho(x,y)<R\}. \end{equation}
 
-
-A  collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and the  local oscillation, defined for a Borel set $\borel\subset X$ by
-\begin{equation}\label{definedE}
-    d_{\borel}(\mfa,\mfb):=\sup_{x,y\in \borel}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}|
+A  collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and if there exists for each ball $B \subset X$ a metric $d_B$ on $\Mf$, such that the following five properties \eqref{osccontrol}, \eqref{firstdb}, \eqref{monotonedb}, \eqref{seconddb}, and \eqref{thirddb} are satisfied. For every ball $B \subset X$
+\begin{equation}\label{osccontrol}
+    \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
 \end{equation}
-satisfies the following three properties
-\eqref{firstdb}, \eqref{seconddb}, and \eqref{thirddb}.
+%A  collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and the  local oscillation, defined for a Borel set $\borel\subset X$ by
+%\begin{equation}\label{definedE}
+%    d_{\borel}(\mfa,\mfb):=\sup_{x,y\in \borel}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}|
+%\end{equation}
+%satisfies the following three properties
+%\eqref{firstdb}, \eqref{seconddb}, and \eqref{thirddb}.
 For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$  and any $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{firstdb}
     d_{B_2}(\mfa,\mfb)\le 2^a d_{B_1}(\mfa,\mfb) .
 \end{equation}
-For any two balls
+For any two balls $B_1, B_2$ in $X$ with $B_1 \subset B_2$ and any $\mfa, \mfb \in \Mf$
+\begin{equation}\label{monotonedb}
+    d_{B_1}(\mfa,\mfb) \le d_{B_2}(\mfa, \mfb)
+\end{equation}
+and for any two balls
 $B_1=B(x_1,R)$, $B_2= B(x_2,2^aR)$
 with $B_1\subset B_2$, and $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{seconddb}
@@ -134,7 +139,7 @@ where  \[V(x,y):=\mu(B(x,\rho(x,y))).\]
 Define the maximally truncated non-tangential singular integral $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
-    T_{*}f(x):=\sup_{R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x,y) < R_2}  K(x,y) f(y)  \, \mathrm{d}\mu(y) \right|\,.
+    T_{*}f(x):=\sup_{R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2}  K(x',y) f(y)  \, \mathrm{d}\mu(y) \right|\,.
 \end{equation}
 We define the generalized Carleson operator $T$ by
  \begin{equation}
@@ -243,38 +248,36 @@ Let a cancellative compatible collection $\Mf$ of functions on $X$ be given.
 Let $o\in X$ be a point such that $\mfa(o)=0$
 for all $\mfa\in \Mf$.
 
+%\lars{This next Lemma is not needed anymore, since $d_B$ is now assumed to be a metric}
+%The following lemma is used throughout the text, mostly
+%the triangle inequality part, without specific reference.
+%It allows us to call $d_B$ a metric.
 
-The following lemma is used throughout the text, mostly
-the triangle inequality part, without specific reference.
-It allows us to call $d_B$ a metric.
+%\begin{lemma}[ball metric]
+%\label{ball-metric}
+%    For any ball $B$ in $X$, the local oscillation
+%$d_{B}$ is a metric on $\Mf$.
+%\end{lemma}
 
-\begin{lemma}[ball metric]
-\label{ball-metric}
-    For any ball $B$ in $X$, the local oscillation
-$d_{B}$ is a metric on $\Mf$.
-\end{lemma}
-
-\begin{proof}
-    Symmetry and triangle inequality are immediate, and we argue that
-for any ball $B(x,r)$, the identity
-\begin{equation}\label{dvanish}
-d_{B(x,r)}(\mfa,\mfb)=0
-\end{equation}
-implies $\mfa(y)=\mfb(y)$ for all $y\in X$. Assume $\eqref{dvanish}$.
-Let $y\in X$ and let
-\begin{equation}
-    R=1+\rho(x,o)+\rho(x,y)\, .
-\end{equation}
-By an iterated application of \eqref{firstdb} or \eqref{seconddb},
-\begin{equation}
-    d_{B(x,R)}(\mfa,\mfb)=0.
-\end{equation}
-By the definition of
-the local oscillation, evaluated using $o$ as one of the points and $y$ as the other, we obtain
-$\mfa(y)=\mfb(y)$.
-\end{proof}
-%Let $\mathcal{B}(\Mf)$ denote the Borel $\sigma$-algebra in $\Mf$ with respect to the
-%unique topology generated by any of the metrics $d_{B}$ with respect to some non-empty ball $B$ in $X$.   \ct{Not sure we need that (?) move to section 3}
+%\begin{proof}
+%    Symmetry and triangle inequality are immediate, and we argue that
+%for any ball $B(x,r)$, the identity
+%\begin{equation}\label{dvanish}
+%d_{B(x,r)}(\mfa,\mfb)=0
+%\end{equation}
+%implies $\mfa(y)=\mfb(y)$ for all $y\in X$. Assume $\eqref{dvanish}$.
+%Let $y\in X$ and let
+%\begin{equation}
+%    R=1+\rho(x,o)+\rho(x,y)\, .
+%\end{equation}
+%By an iterated application of \eqref{firstdb} or \eqref{seconddb},
+%\begin{equation}
+%    d_{B(x,R)}(\mfa,\mfb)=0.
+%\end{equation}
+%By the definition of
+%the local oscillation, evaluated using $o$ as one of the points and $y$ as the other, we obtain
+%$\mfa(y)=\mfb(y)$.
+%\end{proof}
 
 Let a one-sided Calder\'on--Zygmund kernel $K$ on $X$ be given so that the operator $T_*$ defined in \eqref{def-tang-unm-op}
 satisfies
@@ -542,7 +545,7 @@ We have for every $\fu\in \fU$
 \begin{equation}\label{forest4}
 \dens_1(\fT(\fu))\le 2^{4a + 1-n}\, .
 \end{equation}
-We have for $\fu, \fu'\in \fU$ and $\fp\in \fT(\fu')$ with $\sc(\fp)\subset \sc(\fu)$ that
+We have for $\fu, \fu'\in \fU$ with $\fu\neq \fu'$ and $\fp\in \fT(\fu')$ with $\sc(\fp)\subset \sc(\fu)$ that
 \begin{equation}\label{forest5}
 d_{\fp}(\fcc(\fp), \fcc(\fu))>2^{Z(n+1)}\, .
 \end{equation}
@@ -564,7 +567,6 @@ $$
     \le
     2^{432a^3}2^{-\frac{q-1}{q} n} \dens_2\left(\bigcup_{\fu\in \fU}\fT(\fu)\right)^{\frac{1}{q}-\frac{1}{2}} \|f\|_2 \|g\|_2 \,.
 $$
-\lars{I dont understand why there was 650 here before} \rs{Track dependence on Prop 2.3, Prop 2.2, Thm 1.2. Don't delete comment till I read Section 7 completely} \lars{Changed all constants}
 \end{proposition}
 
 Theorem \ref{metric-space-Carleson} is formulated at the level of generality
@@ -688,8 +690,7 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
 \begin{proof}
     If $s(I) \ge s(J)$ then \eqref{dyadicproperty} and the assumption $I\subset J$ imply $I = J$. Then the lemma holds by reflexivity.
 
-    Note that by definition, the metrics $d_B$ have the following monotonicity property: If $B \subset B'$, then $d_B \le d_{B'}$.
-    If $s(J) \ge s(I)+1$, then using the monotonicity property, \eqref{defineD} and \eqref{seconddb}, we get
+    If $s(J) \ge s(I)+1$, then using the monotonicity property \eqref{monotonedb}, \eqref{defineD} and \eqref{seconddb}, we get
     \begin{equation}
     \label{eq-dIJ-est}
         d_{I^\circ}(\mfa, \mfb) \le d_{B(c(I), 4 D^{s(I)})}(\mfa, \mfb) \le 2^{-100a} d_{B(c(I), 4D^{s(J)})}(\mfa, \mfb)\,.
@@ -702,7 +703,7 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
     $$
         B(c(I), 4 D^{s(J)}) \subset B(c(J), 8 D^{s(J)})\,.
     $$
-    Using this together with the monotonicity property and \eqref{firstdb} in \eqref{eq-dIJ-est}, we obtain
+    Using this together with the monotonicity property \eqref{monotonedb} and \eqref{firstdb} in \eqref{eq-dIJ-est}, we obtain
     \begin{align*}
         d_{I^\circ}(\mfa, \mfb) &\le 2^{-100a} d_{B(c(J), 8D^{s(J)})}(\mfa, \mfb)\\
         &\le 2^{-100a + 5a} d_{B(c(J), \frac{1}{4}D^{s(J)})}(\mfa, \mfb)\\
@@ -823,7 +824,7 @@ We apply the triangle inequality and estimate the versions of \eqref{Rcut} separ
 
 \begin{lemma}[S truncation]
 \label{S-truncation}
-\uses{-Hardy-Littlewood,ball-metric-entropy,kernel-summand,finitary-S-truncation}
+\uses{-Hardy-Littlewood,kernel-summand,finitary-S-truncation}
 For all integers $S>0$
 $$
     \int \mathbf{1}_{G}(x)
@@ -1033,7 +1034,7 @@ following the construction of dyadic cubes in \cite[\S 3]{christ1990b}.
 
 \begin{lemma}[grid existence]
 \label{grid-existence}
-\uses{counting-balls,cover-big-ball,boundary-measure}     There exists a grid structure $(\mathcal{D}, c,s)$.
+\uses{counting-balls,boundary-measure}     There exists a grid structure $(\mathcal{D}, c,s)$.
 \end{lemma}
 
 
@@ -1511,8 +1512,6 @@ c(I_3(y,k)):=y\,.
 \end{equation}
 We show that $(\mathcal{D},c,s)$ constitutes a grid structure. Property \eqref{eq-vol-sp-cube}
 follows from \eqref{squeezedyadic}, while \eqref{eq-small-boundary} follows from Lemma \ref{boundary-measure}.
-% \rs{\sout{To see \eqref{coverdyadic}, let $I\in \mathcal{D}$
-% and $-S\le k< s(I)$. Let $x\in I$.}}
 
 Let $x\in B(o, D^S)$. We show properties
 \eqref{coverdyadic},
@@ -1693,7 +1692,8 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 
     1. There exist $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J, z)$, and there exists $z' \in \mathcal{Z}(J) \cap \Omega_1(\fp')$ such that $\mfa \in \Omega(J, z')$. By the induction hypothesis, that \eqref{eq-dis-freq-cover} holds for $J$, we must have $z = z'$. By Lemma \ref{disjoint-frequency-cubes}, we must then have $\fp = \fp'$.
 
-    2. There exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J,z)$, and $\mfa \in B_{\fp'}(\fcc(\fp'), 0.2)$.  Using the triangle inequality, Lemma \ref{monotone-cube-metrics} and \eqref{eq-freq-comp-ball}, we obtain
+    2. There exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J,z)$, and $\mfa \in B_{\fp'}(\fcc(\fp'), 0.2)$.  Using the triangle inequality, Lemma \ref{monotone
+    cube metrics} and \eqref{eq-freq-comp-ball}, we obtain
     $$
         d_{\fp'}(\fcc(\fp'),z) \le d_{\fp'}(\fcc(\fp'), \mfa) + d_{\fp'}(z, \mfa) \le 0.2 + 2^{-95a} \cdot 1 < 0.3\,.
     $$
@@ -1744,8 +1744,6 @@ but there does not exist a $J\in \mathcal{D}$ with $I\subset J$ and
 \begin{equation}\label{muhj2}
    {\mu(G \cap J)} > 2^{-k}{\mu(J)}\,.
 \end{equation}
-\asgar{I am a bit confused with \eqref{muhj1},\eqref{muhj2}. When I started reading, the rhs of \eqref{muhj1} was with $\mu(G)$ and the rhs of \eqref{muhj2} was with $\mu(J)$. However in the proof of Lemma \ref{P-convex}, \eqref{muhj1},\eqref{muhj2} are used with their rhs both with $\mu(G)$ (which lead to the above correction), on the other hand in the proof of Lemma \ref{dens-compare} \eqref{muhj1},\eqref{muhj2} are used with their rhs both with $\mu(J)$ (though the proof equally is true with $\mu(G)$ instead). My guess is that $\mu(J)$ is the correct choice of the rhs of both  \eqref{muhj1},\eqref{muhj2}, but not sure.}
-\lars{Both should be $J$. The only place where this is really used is the proof of Lemma \ref{antichain-decomposition}}
 Let
 \begin{equation}
     \label{eq-defPk}
@@ -1778,7 +1776,6 @@ define for $\fp \in \fC(k,n)$
 \begin{equation}\label{defbfp}
      \mathfrak{B}(\fp) := \{ \mathfrak{m} \in \mathfrak{M}(k,n) \ : \ 100 \fp \lesssim \mathfrak{m}\}
 \end{equation}
-\lars{This used to say $2\fp \lesssim 100\mathfrak{m}$, but I have no idea why}
 and
 \begin{equation}\label{defcnkj}
        \fC_1(k,n,j) := \{\fp \in \fC(k,n) \ : \ 2^{j} \leq |\mathfrak{B}(\fp)| < 2^{j+1}\}\,.
@@ -2226,7 +2223,7 @@ with $100\fu \lesssim \mathfrak{m}$ and in particular
 $x\in \sc(\mathfrak{m})$. Hence
 \begin{equation}\label{ubymsum}
      \mathbf{1}_{\sc(\fu)}(x)
-    \le 2^{-j}\sum_{\mathfrak{m} \in \mathfrak{M}(k,n): 2\fu\lesssim 100 \mathfrak{m}} \mathbf{1}_{\sc(\mathfrak{m})}(x)\, .
+    \le 2^{-j}\sum_{\mathfrak{m} \in \mathfrak{M}(k,n): 100\fu\lesssim \mathfrak{m}} \mathbf{1}_{\sc(\mathfrak{m})}(x)\, .
 \end{equation}
 Conversely, for each $\mathfrak{m}\in \mathfrak{M}(k,n)$
 with $x\in \sc(\mathfrak{m})$,
@@ -2666,7 +2663,7 @@ with $10 \fp\lesssim \fu'$.
         \label{eq-Fefferman-trick0}
         100 \fp\lesssim  100 \fu\,, \qquad 100 \fp \lesssim 100\fu'\,.
     \end{equation}
-    Now suppose that $B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. Then we have $\mathfrak{B}(\fu) \cap \mathfrak{B}(\fu') = \emptyset$, by the definition \eqref{defbfp} of $\mathfrak{B}$ and the definition \eqref{wiggleorder} of $\lesssim$, but also $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$, by \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq-Fefferman-trick0} \asgar{can't get neither of the inclusions $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$ just from \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq-Fefferman-trick0} or Lemmas \ref{wiggle-order-1}, \ref{wiggle-order-2}, \ref{wiggle-order-3}}. \lars{The definition of $\mathfrak{B}(\fp)$ should have been the one for which this is just transititvity of $\lesssim$, I changed it now. I don't know why it was different before. The exact definition is only used here, so this does not cause problems elsewhere}
+    Now suppose that $B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. Then we have $\mathfrak{B}(\fu) \cap \mathfrak{B}(\fu') = \emptyset$, by the definition \eqref{defbfp} of $\mathfrak{B}$ and the definition \eqref{wiggleorder} of $\lesssim$, but also $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$, by \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq-Fefferman-trick0}
     Hence,
     $$
         |\mathfrak{B}(\fp)| \geq |\mathfrak{B}(\fu)| + |\mathfrak{B}(\fu')| \geq 2^{j} + 2^j = 2^{j+1}\,,
@@ -2765,7 +2762,7 @@ We have
 
 \begin{proof}
     Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. Then by Lemma \ref{C5-convex}, we have
-$\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\subset G$, hence $\sc(\fp') \not \subset G$. This implies $\fp' \in \fC_6(k,n,j)$. Since $\fp'' \in \mathfrak{T}_2(\fu)$, we have $2\fp'' \lesssim \fu'$ and $\sc(\fp'')\ne\sc(\fu')$ for some $\fu' \sim \fp''$. By \eqref{eq-sc1}, we have $2\fp' \lesssim 2\fp''$, so by transitivity of $\lesssim$ we have $2\fp' \lesssim \fu'$. Finally, $\sc(\fp') \subset \sc(\fp'')$ implies $\sc(\fp') \ne \sc(\fu')$, thus $\fp' \in \mathfrak{T}_1(\fu') \subset \mathfrak{T}_2(\fu)$.
+$\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\subset G'$, hence $\sc(\fp') \not \subset G'$. This implies $\fp' \in \fC_6(k,n,j)$. Since $\fp'' \in \mathfrak{T}_2(\fu)$, we have $2\fp'' \lesssim \fu'$ and $\sc(\fp'')\ne\sc(\fu')$ for some $\fu' \sim \fp''$. By \eqref{eq-sc1}, we have $2\fp' \lesssim 2\fp''$, so by transitivity of $\lesssim$ we have $2\fp' \lesssim \fu'$. Finally, $\sc(\fp') \subset \sc(\fp'')$ implies $\sc(\fp') \ne \sc(\fu')$, thus $\fp' \in \mathfrak{T}_1(\fu') \subset \mathfrak{T}_2(\fu)$.
 \end{proof}
 
 
@@ -2777,20 +2774,20 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     satisfies \eqref{forest1}.
 \end{lemma}
 \begin{proof}
-    Let $\fp \in \mathfrak{T}_2(\fu')$. By \eqref{definesv}, there exists $\fu \sim \fu'$ with $\fp \in \mathfrak{T}_1(\fu)$. Then we have $2\fp \lesssim \fu$ and $\sc(\fp) \ne \sc(\fu)$, so by \eqref{eq-sc3} $4\fp \lesssim 500\fu$.
-    Further, by Lemma \ref{relation-geometry}, we have that $\sc(\fu) = \sc(\fu')$ and there exists $\mfa \in B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'),100)$.
-    Let $\mfb \in B_{\fu'}(\fcc(\fu'), 1)$.
-    Using the triangle inequality and the fact that $\sc(\fu)  =\sc(\fu')$, we obtain
+    Let $\fp \in \mathfrak{T}_2(\fu)$. By \eqref{definesv}, there exists $\fu' \sim \fu$ with $\fp \in \mathfrak{T}_1(\fu')$. Then we have $2\fp \lesssim \fu'$ and $\sc(\fp) \ne \sc(\fu')$, so by \eqref{eq-sc3} $4\fp \lesssim 500\fu'$.
+    Further, by Lemma \ref{relation-geometry}, we have that $\sc(\fu') = \sc(\fu)$ and there exists $\mfa \in B_{\fu'}(\fcc(\fu'),100) \cap B_{\fu}(\fcc(\fu),100)$.
+    Let $\mfb \in B_{\fu}(\fcc(\fu), 1)$.
+    Using the triangle inequality and the fact that $\sc(\fu')  =\sc(\fu)$, we obtain
     \begin{align*}
-        d_{\fu}(\fcc(\fu), \mfb) &\le d_{\fu'}(\fcc(\fu), \mfa) + d_{\fu'}(\fcc(\fu'), \mfa) + d_{\fu'}(\fcc(\fu'), \mfb)\\
-        &= d_{\fu}(\fcc(\fu), \mfa) + d_{\fu'}(\fcc(\fu'), \mfa) + d_{\fu'}(\fcc(\fu'), \mfb)\\
+        d_{\fu'}(\fcc(\fu'), \mfb) &\le d_{\fu'}(\fcc(\fu'), \mfa) + d_{\fu'}(\fcc(\fu), \mfa) + d_{\fu'}(\fcc(\fu), \mfb)\\
+        &= d_{\fu'}(\fcc(\fu'), \mfa) + d_{\fu}(\fcc(\fu), \mfa) + d_{\fu}(\fcc(\fu), \mfb)\\
         &< 100 + 100 + 1 < 500\,.
     \end{align*}
-    Combining this with $4\fp \lesssim 500\fu$, we obtain
+    Combining this with $4\fp \lesssim 500\fu'$, we obtain
     $$
-        B_{\fu'}(\fcc(\fu'), 1) \subset B_{\fu}(\fcc(\fu), 500) \subset B_{\fp}(\fcc(\fp), 4)\,.
+        B_{\fu}(\fcc(\fu), 1) \subset B_{\fu'}(\fcc(\fu'), 500) \subset B_{\fp}(\fcc(\fp), 4)\,.
     $$
-    Together with $\sc(\fp) \subset \sc(\fu) = \sc(\fu')$, this gives $4\fp \lesssim 1\fu'$, which is \eqref{forest1}.
+    Together with $\sc(\fp) \subset \sc(\fu') = \sc(\fu)$, this gives $4\fp \lesssim 1\fu$, which is \eqref{forest1}.
 \end{proof}
 
 \begin{lemma}[forest convex]
@@ -2802,18 +2799,17 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
 \end{lemma}
 
 \begin{proof}
-    Let $\fp, \fp'' \in \mathfrak{T}_2(\fu')$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By Lemma \ref{C5-convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not \subset G'$, so $\sc(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
+    Let $\fp, \fp'' \in \mathfrak{T}_2(\fu)$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By Lemma \ref{C5-convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not \subset G'$, so $\sc(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
 
-    By \eqref{definesv} there exists $\fu \in \fU_1(k,n,j)$ with $\fp'' \in \mathfrak{T}_1(\fu)$ and hence $2\fp'' \lesssim \fu$ and $\sc(\fp'') \ne \sc(\fu)$. Together this implies $\sc(\fp'') \subsetneq \sc(\fu)$. With the inclusion $\sc(\fp') \subset \sc(\fp'')$ from $\fp' \le \fp''$, it follows that $\sc(\fp') \subsetneq \sc(\fu)$ and hence $\sc(\fp') \ne \sc(\fu)$.
-    By \eqref{eq-sc1} and transitivity of $\lesssim$ we further have $2\fp' \lesssim \fu$, so $\fp' \in \mathfrak{T}_1(\fu)$.
-    It follows that $\fp' \in \mathfrak{T}_2(\fu')$, which shows \eqref{forest2}.
+    By \eqref{definesv} there exists $\fu' \in \fU_2(k,n,j)$ with $\fp'' \in \mathfrak{T}_1(\fu')$ and hence $2\fp'' \lesssim \fu'$ and $\sc(\fp'') \ne \sc(\fu')$. Together this implies $\sc(\fp'') \subsetneq \sc(\fu')$. With the inclusion $\sc(\fp') \subset \sc(\fp'')$ from $\fp' \le \fp''$, it follows that $\sc(\fp') \subsetneq \sc(\fu')$ and hence $\sc(\fp') \ne \sc(\fu')$.
+    By \eqref{eq-sc1} and transitivity of $\lesssim$ we further have $2\fp' \lesssim \fu'$, so $\fp' \in \mathfrak{T}_1(\fu')$.
+    It follows that $\fp' \in \mathfrak{T}_2(\fu)$, which shows \eqref{forest2}.
 \end{proof}
 
 \begin{lemma}[forest separation]
     \label{forest-separation}
     \uses{monotone-cube-metrics}
-    For each $\fu,\fu'\in \fU_3(k,n,j)$ with $\fu\neq \fu'$ and
-    and each $\fp \in \fT_2(\fu)$
+    For each $\fu,\fu'\in \fU_3(k,n,j)$ with $\fu\neq \fu'$ and each $\fp \in \fT_2(\fu)$
     with $\sc(\fp)\subset \sc(\fu')$ we have
     \begin{equation}
     d_{\fp}(\fcc(\fp), \fcc(\fu')) > 2^{Z(n+1)}\,.
@@ -2835,7 +2831,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
         &\ge -d_{\fp'}(\fcc(\fp), \fcc(\fp')) + d_{\fp'}(\fcc(\fp'), q) - d_{\fu'}(q, \fcc(\fu'))\\
         &> -1 + 10 - 1 = 8\,.
     \end{align*}
-    The Lemma follows by combining the two displays with the fact that $95 a \ge 1$.
+    The lemma follows by combining the two displays with the fact that $95 a \ge 1$.
 \end{proof}
 
 \begin{lemma}[forest inner]
@@ -2845,18 +2841,21 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     and each $\fp \in \mathfrak{T}_2(\fu)$
     we have
     \begin{equation}
-        B(\pc(\fp)), 8 D^{\ps(\fp)}) \subset \sc(\fu).
+        B(\pc(\fp), 8 D^{\ps(\fp)}) \subset \sc(\fu).
     \end{equation}
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \in \mathfrak{T}_2(\fu)$. Let $\fq$ be a maximal element with respect to $\le$ in
-    $$
-        \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(k,n,j)\,.
-    $$
-    We now show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile. Then $2\fq' \not \lesssim \fu'$ for any $\fu' \sim \fu$, by maximality of $\fq$. But by \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. By Lemma \ref{wiggle-order-1}, this implies $\fu \sim \fu''$, so $\fq' \in \mathfrak{T}_2(\fu)$, a contradiction.
+    Let $\fp \in \mathfrak{T}_2(\fu)$. Let
+    \begin{equation}
+        \label{eq-c3-tree}
+        \fq \in \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(k,n,j)
+    \end{equation}
+    be a maximal element of this set with respect to $\le$ such that $\fp \le \fq$.
+    We show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile.
+    By \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. Then we have in particular by Lemma \ref{wiggle-order-1} that $10 \fp \lesssim \fu''$. Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$.  By definition of $\sim$, we have $\fu' \sim \fu''$, hence $\fu \sim \fu''$. This implies that $\fq'$ is in the set in \eqref{eq-c3-tree}, contradicting maximality of $\fq$.
 
-    By Lemma \ref{relation-geometry}, we have $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
+    Let $\fu' \sim \fu$ with $\fq \in \mathfrak{T}_1(\fu')$. By the definition \eqref{eq-T1-def} of $\mathfrak{T}_1$, we have $\ps(\fp) < \ps(\fu')$. By Lemma \ref{relation-geometry}, we have $\ps(\fu) = \ps(\fu')$, hence $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
 
     Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \sc(\fu)$ and $\sc(\fp) \subset I$. Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \sc(\fu)$. By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\sc(\fp) \subset I$.
 \end{proof}
@@ -2871,21 +2870,23 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
 \end{lemma}
 
 \begin{proof}
-    Suppose that a point $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\sc(\fu)$ with $\fu \in \fU_3(k,n,j)$. Since $\fU_3(k,n,j) \subset \fC_1(k,n,j)$ for each such $\fu$, there exist $\mathfrak{m}(\fu) \in \mathfrak{M}(k,n)$ with $\fu \le \mathfrak{m}(\fu)$. The map $\fu \mapsto\mathfrak{m}(\fu)$ is injective: If $\fu \le \mathfrak{m}$ and $\fu' \le \mathfrak{m}$, then $\sc(\fu) \subset \sc(\fu')$ or $\sc(\fu') \subset \sc(\fu)$ by \eqref{dyadicproperty}. Hence, by \eqref{defunkj}, $B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. This contradicts $\Omega(\mathfrak{m})$ being contained in both sets. Thus $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\sc(\mathfrak{m})$, $\mathfrak{m} \in \mathfrak{M}(k,n)$. Consequently, we have by \eqref{eq-Aoverlap-def} that $x \in A(2n + 6, k,n) \subset G_2$. Let $\sc(\fu)$ be an inclusion minimal cube among the $\sc(\fu'), \fu' \in \fU_3(k,n,j)$ with $x \in \sc(\fu)$. By the dyadic property \eqref{dyadicproperty}, we have $\sc(\fu) \subset \sc(\fu')$ for all cubes $\sc(\fu')$ containing $x$. Thus
+    Suppose that a point $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\sc(\fu)$ with $\fu \in \fU_3(k,n,j)$. Since $\fU_3(k,n,j) \subset \fC_1(k,n,j)$ for each such $\fu$, there exists $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$. We fix such an $\mathfrak{m}(\fu) := \mathfrak{m}$ for each $\fu$, and claim that the map $\fu \mapsto\mathfrak{m}(\fu)$ is injective. Indeed, assume for $\fu\neq \fu'$ there is $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$ and $100\fu' \lesssim \mathfrak{m}$. By \eqref{dyadicproperty}, either $\sc(\fu) \subset \sc(\fu')$ or $\sc(\fu') \subset \sc(\fu)$. By \eqref{defunkj}, $B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. This contradicts $\Omega(\mathfrak{m})$ being contained in both sets by \eqref{eq-freq-comp-ball}. Thus $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\sc(\mathfrak{m})$, $\mathfrak{m} \in \mathfrak{M}(k,n)$. Consequently, we have by \eqref{eq-Aoverlap-def} that $x \in A(2n + 6, k,n) \subset G_2$. Let $\sc(\fu)$ be an inclusion minimal cube among the $\sc(\fu'), \fu' \in \fU_3(k,n,j)$ with $x \in \sc(\fu)$. By the dyadic property \eqref{dyadicproperty}, we have $\sc(\fu) \subset \sc(\fu')$ for all cubes $\sc(\fu')$ containing $x$. Thus
     $$
         \sc(\fu) \subset \{y \ : \ \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\sc(\fu)}(y) > 1 + (4n+12)2^{n}\} \subset G_2\,.
     $$
-    Thus $\mathfrak{T}_1(k,n,j) \cap \fC_6(k,n,j) = \emptyset$.
+    Thus $\mathfrak{T}_1(\fu) \cap \fC_6(k,n,j) = \emptyset$.
     This contradicts $\fu \in \fU_2(k,n,j)$.
 \end{proof}
 
 \begin{proof}[Proof of Lemma \ref{forest-union}]
+    \proves{forest-union}
+
     We first fix $k,n, j$.
-    By \eqref{definetp} and \eqref{definedE}, we have that
-    $\mathbf{1}_{\sc(\fp)} T_{\fp}f(x) = T_{\fp}f(x)$ and hence $\overline{g(x)} T_{\fp}f(x)= 0$ for all $\fp \in \fC_5(k,n,j) \setminus \fC_6(k,n,j)$.
+    By \eqref{definetp} and \eqref{defineep}, we have that
+    $\mathbf{1}_{\sc(\fp)} T_{\fp}f(x) = T_{\fp}f(x)$ and hence $\mathbf{1}_{G \setminus G'} T_{\fp}f(x)= 0$ for all $\fp \in \fC_5(k,n,j) \setminus \fC_6(k,n,j)$.
     Thus it suffices to estimate the contribution of the sets $\fC_6(k,n,j)$. By Lemma \ref{forest-stacking}, we can decompose $\fU_3(k,n,j)$ as a disjoint union of at most $4n + 13$ collections $\fU_4(k,n,j,l)$, $1 \le l \le 4n+13$, each satisfying
     $$
-        \sum_{\fu \in \fU_4(k,n,j,l} \mathbf{1}_{\sc(\fu)} \le 2^n\,.
+        \sum_{\fu \in \fU_4(k,n,j,l)} \mathbf{1}_{\sc(\fu)} \le 2^n\,.
     $$
     By Lemmas \ref{forest-geometry}, \ref{forest-convex}, \ref{forest-separation}, \ref{forest-inner} and \ref{C-dens1}, the pairs
     $$
@@ -2937,7 +2938,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 
     Next, since $E_2(\lambda, \fp') \subset \sc(\fp')\cap G$ for every $\lambda \ge 2$ and every tile $\fp' \in \fP(k)$ with $\lambda\fp \lesssim \lambda \fp'$, it follows from \eqref{muhj2} that $\mu(E_2(\lambda, \fp')) \le 2^{-k} \mu(\sc(\fp'))$ for every such $\fp'$, so $\dens_k'(\{\fp\}) \le 2^{-k}$. Combining this with $a \ge 0$, it follows from \eqref{def-cnk} that there exists $n\ge k$ with $\fp \in \fC(k,n)$.
 
-    Since $\fp \in \fP_{X \setminus G'}$, we have in particular $\fp \not \subset A(2n + 6, k, n)$, so there exist at most $1 + (4n + 12)2^n < 2^{2n+4}$ tiles $\mathfrak{m} \in \mathfrak{M}(k,n)$ with $\fp \le \mathfrak{m}$. It follows that $\fp \in \fL_0(k,n)$ or $\fp \in \fC_1(k,n,j)$ for some $1 \le j \le 2n + 3$. In the former case we are done, in the latter case the inclusion to be shown follows immediately from the definitions of the collections $\fC_i$ and $\fL_i$.
+    Since $\fp \in \fP_{X \setminus G'}$, we have in particular $\sc(\fp) \not \subset A(2n + 6, k, n)$, so there exist at most $1 + (4n + 12)2^n < 2^{2n+4}$ tiles $\mathfrak{m} \in \mathfrak{M}(k,n)$ with $\fp \le \mathfrak{m}$. It follows that $\fp \in \fL_0(k,n)$ or $\fp \in \fC_1(k,n,j)$ for some $1 \le j \le 2n + 3$. In the former case we are done, in the latter case the inclusion to be shown follows immediately from the definitions of the collections $\fC_i$ and $\fL_i$.
 \end{proof}
 
 \begin{lemma}[L0 antichain]
@@ -2962,7 +2963,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
         \label{eq-O-bound}
         |\mathfrak{O}| \le 2^{4a}\lambda^a\,.
     \end{equation}
-    The balls $B_{\fp'}(\fcc(\fp''), 0.2)$, $\fp'' \in \mathfrak{O}$ are disjoint by \eqref{eq-freq-comp-ball}, and by the triangle inequality contained in $B_{\fp'}(\fcc(\fp'), \lambda+1)$. By assumption the \eqref{thirddb} on $\Theta$, this ball can be covered with
+    The balls $B_{\fp'}(\fcc(\fp''), 0.2)$, $\fp'' \in \mathfrak{O}$ are disjoint by \eqref{eq-freq-comp-ball}, and by the triangle inequality contained in $B_{\fp'}(\fcc(\fp'), \lambda+1)$. By assumption \eqref{thirddb} on $\Theta$, this ball can be covered with
     $$
         2^{a(\lceil \log_2(\lambda+1)\rceil + 2)} \le 2^{a(\log_2(\lambda) + 4)} = 2^{4a}\lambda^a
     $$ many $d_{\fp'}$-balls of radius $1/4$. By the triangle inequality, each such ball contains at most one $\fcc(\fp'')$, and each $\fcc(\fp'')$ is contained in one of the balls. Thus we get \eqref{eq-O-bound}.
@@ -2979,7 +2980,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     $$
         2^n \geq 2^{4a} \lambda^{a} \geq \lambda\,.
     $$
-    From the triangle inequality, Lemma \ref{monotone-cube-metrics} and $a \ge 1$, we now obtain for all $\mfa \in B_{\mathfrak{m}}(\fcc(\mathfrak{m}), 100)$ that
+    From the triangle inequality, Lemma \ref{monotone-cube-metrics} and $a \ge 1$, we now obtain for all $\mfa \in B_{\mathfrak{m}}(\fcc(\mathfrak{m}), 1)$ that
     \begin{align*}
         &\quad d_{\fp_0}(\fcc(\fp_0), \mfa)\\
         &\leq d_{\fp_0}(\fcc(\fp_0), \fcc(\fp_{n}))  + d_{\fp_0}(\fcc(\fp_{n}), \fcc(\fp'))  + d_{\fp_0}(\fcc(\fp'), \fcc(\fp''))\\
@@ -2988,9 +2989,9 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
         &\leq 1 + 2^{-95an} (d_{\fp_{n}}(\fcc(\fp_n), \fcc(\fp'))  + d_{\fp'}(\fcc(\fp'), \fcc(\fp''))\\
         &\quad+ d_{\fp''}(\fcc(\fp''), \fcc(\mathfrak{m})) +
         d_{\mathfrak{m}}(\fcc(\mathfrak{m}), \mfa))\\
-        &\leq 1 + 2^{-95an}(\lambda + (\lambda + 1) + 1 + 100) \leq 2\,.
+        &\leq 1 + 2^{-95an}(\lambda + (\lambda + 1) + 1 + 1) \leq 100\,.
     \end{align*}
-    Thus, by \eqref{straightorder}, $2\fp_0 \leq 100\mathfrak{m}$, a contradiction to $\fp_0 \notin \fC(k,n)$.
+    Thus, by \eqref{straightorder}, $100\fp_0 \lesssim \mathfrak{m}$, a contradiction to $\fp_0 \notin \fC(k,n)$.
 \end{proof}
 
 \begin{lemma}[L2 antichain]
@@ -3014,6 +3015,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
 \end{proof}
 
 \begin{proof}[Proof of Lemma \ref{forest-complement}]
+    \proves{forest-complement}
     If $\fp \not\in \fP_{X \setminus G'}$, then $\sc(\fp) \subset G'$. By \eqref{definetp} and \eqref{definee1}, it follows that
     $\mathbf{1}_{G \setminus G'} T_{\fp}f(x) = 0$. We thus have
     $$
@@ -3496,7 +3498,7 @@ and thus by \eqref{eq-vol-sp-cube} again and the triangle inequality
 \begin{equation}
     \sc(\fp_1)\subset B(x_1,8D^{\ps(\fp_1)})\, .
 \end{equation}
-We thus estimate the right-hand side of \eqref{tgeo1} with monotonicity of the  Definition \eqref{definedE} by
+We thus estimate the right-hand side of \eqref{tgeo1} with monotonicity \eqref{monotonedb} of the metrics $d_B$ by
 \begin{equation}\label{tgeo1.5}
     \le  3+d_{B(x_1,8D^{\ps(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
 \end{equation}
@@ -3556,11 +3558,11 @@ By Fubini and the triangle inequality and
 the fact $|e(\tQ(x_i)(x_i))|=1$ for $i=1,2$, we can estimate
 \eqref{tstartstar} from above by
 \begin{equation}\label{eqa1}
-    \int_{E(\fp_1)} \int_{E(\fp_2)} {\bf I}\, d\mu(x_1)d\mu(x_2)\,.
+    \int_{E(\fp_1)} \int_{E(\fp_2)} {\bf I}(x_1, x_2)\, d\mu(x_1)d\mu(x_2)\,.
 \end{equation}
 with
 \begin{equation}
-    {\bf I}:=
+    {\bf I}(x_1, x_2):=
     \left|\int
     e(-\tQ(x_1)(y)+\tQ(x_2)(y))\varphi_{x_1,x_2}(y)
     d\mu(y) \, g(x_1)g(x_2)\right|
@@ -3574,7 +3576,7 @@ $\varphi:=\varphi_{x_1,x_2}$ satisfies the assumptions of
 Proposition \ref{Holder-van-der-Corput} with $z = x_1$ and $R = D^{s_1}$ by Lemma \ref{correlation-kernel-bound}.
 We obtain with $B':= B(x_1, D^{\ps(\fp_1)})$,
 \begin{equation*}
- {\bf I}\le     2^{8a} \mu(B') \|{\varphi}\|_{C^\tau(B')}
+ {\bf I}(x_1, x_2) \le     2^{8a} \mu(B') \|{\varphi}\|_{C^\tau(B')}
        (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-1/(2a^2+a^3)}
 \end{equation*}
 \begin{equation}
@@ -3591,7 +3593,7 @@ Using Lemma \ref{tile-uncertainty} and $a\ge 1$ estimates \eqref{eqa1.5} by
 \end{equation}
 As $x_2\in \sc(\fp_2)$ by Definition \eqref{defineep} of $E$, we have by \eqref{eq-vol-sp-cube}
 \begin{equation}
-    d(x_2,\pc(\fp_2))\le 4D^{\ps(\fp_2)}
+    \rho(x_2,\pc(\fp_2))\le 4D^{\ps(\fp_2)}
 \end{equation}
 and thus by \eqref{eq-vol-sp-cube} again and the triangle inequality
 \begin{equation}
@@ -3674,7 +3676,7 @@ Hence by the triangle inequality
  \subset
 B(\pc(\fp'),8D^{\ps(\fp')})\, .
 \end{equation}
-Together with \eqref{ageo1} and   monotonicity of $d$, see the Definition \eqref{definedE}
+Together with \eqref{ageo1} and  monotonicity \eqref{monotonedb} of $d$
 \begin{equation}
     d_{B(\pc(\fp),4D^{\ps(\fp')})}(\fcc(\fp'),\mfa') < 2^{5a+N+2}\, .
 \end{equation}
@@ -4154,7 +4156,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
 \begin{proof}
     Let $s \in \sigma(\fu,x)$.
-    If $x, y \in X$ are such that $K_s(x,y)\neq 0$, then, by \eqref{supp-Ks}, we have $\rho(x,y)\leq 1/2 D^s$. By $1$-Lipschitz continuity of the function $t \mapsto \exp(it) = e(t)$, it follows that
+    If $x, y \in X$ are such that $K_s(x,y)\neq 0$, then, by \eqref{supp-Ks}, we have $\rho(x,y)\leq 1/2 D^s$. By $1$-Lipschitz continuity of the function $t \mapsto \exp(it) = e(t)$ and the property \eqref{osccontrol} of the metrics $d_B$, it follows that
     \begin{multline*}
         |e(-\fcc(\fu)(y)+\tQ(x)(y)+\fcc(\fu)(x)-\tQ(x)(x))-1|\\
         \leq d_{B(x, 1/2 D^{s})}(\fcc(\fu), \tQ(x))\,.
@@ -4250,7 +4252,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     $$
         = 2^{150a^3 + 3/a}\sum_{I \in \mathcal{D}} \sum_{\substack{\fp\in \mathfrak{T}\\ \sc(\fp) = I}}\frac{\mathbf{1}_{E(\fp)}(x)}{\mu(B(x, D^{s(I)}))}\sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\J\subset B(x,  16 D^{\ps(\fp)})}}  D^{(s(J) - s(I))/a} \int_J |f|\,.
     $$
-    By \eqref{eq-dis-freq-cover} and \eqref{definedE}, the sets $E(\fp)$ for tiles $\fp$ with $\sc(\fp) = I$ are pairwise disjoint.
+    By \eqref{eq-dis-freq-cover} and \eqref{defineep}, the sets $E(\fp)$ for tiles $\fp$ with $\sc(\fp) = I$ are pairwise disjoint.
     If $x \in E(\fp)$ then in particular $x \in \sc(\fp)$, so by \eqref{eq-vol-sp-cube} $B(c(I),16D^{s(I)}) \subset B(x, 32D^{s(I)})$. By the doubling property \eqref{doublingx}
     $$
         \mu(B(c(I), 16D^{s(I)})) \le 2^{5a} \mu(B(x, D^{s(I)}))\,.
@@ -4306,6 +4308,7 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{tree-projection-estimate}]
+    \proves{tree-projection-estimate}
     For each $L \in \mathcal{L}(\fT(\fu))$, choose a point $x'(L) \in L$ such that for all $y \in L$
     $$
         (M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')|
@@ -4363,6 +4366,7 @@ Below, we deduce Lemma \ref{tree-projection-estimate} from Lemma \ref{pointwise-
 Now we prove the two auxiliary lemmas. We begin with the nontangential maximal operator $T_{\mathcal{N}}$.
 
 \begin{proof}[Proof of Lemma \ref{nontangential-operator-bound}]
+    \proves{nontangential-operator-bound}
     Fix $s_1, s_2$. By \eqref{eq-psisum} we have for all $x \in (0, \infty)$
     $$
         \sum_{s = s_1}^{s_2} \psi(D^{-s}x) = 1 - \sum_{s < s_1} \psi(D^{-s}x) - \sum_{s > s_1} \psi(D^{-s}x)\,.
@@ -4475,6 +4479,7 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 Now we can bound the operators $S_{1, \fu}$.
 
 \begin{proof}[Proof of Lemma \ref{boundary-operator-bound}]
+    \proves{boundary-operator-bound}
     Note that by definition, $S_{1,\fu}f$ is a finite sum of indicator functions of cubes $I \in \mathcal{D}$ for each locally integrable $f$, and hence is bounded, has bounded support and is integrable. Let $g$ be another function with the same three properties. Then $\bar g S_{1,\fu}f$ is integrable, and we have
     $$
         \Bigg|\int \bar g(y) S_{1,\fu}f(y) \, \mathrm{d}\mu(y)\Bigg|
@@ -4553,6 +4558,7 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{densities-tree-bound}]
+    \proves{densities-tree-bound}
     Denote
     $$
         \mathcal{E}(\fu) = \bigcup_{\fp \in \fT(\fu)} E(\fp)\,.
@@ -4610,6 +4616,7 @@ Below, we deduce this lemma from  Lemma \ref{tree-projection-estimate} and the f
 Now we prove the two auxiliary estimates.
 
 \begin{proof}[Proof of Lemma \ref{local-dens1-tree-bound}]
+    \proves{local-dens1-tree-bound}
     If the set on the right hand side is empty, then \eqref{eq-1density-estimate-tree} holds. If not, then there exists $\fp \in \fT(\fu)$ with $L \cap \sc(\fp) \ne \emptyset$.
 
     Suppose first that there exists such $\fp$ with $\ps(\fp) \le s(L)$. Then by \eqref{dyadicproperty} $\sc(\fp) \subset L$, which gives by the definition of $\mathcal{L}(\fT(\fu))$ that $s(L) = -S$ and hence $L = \sc(\fp)$. Let $\fq \in \fT(\fu)$ with $E(\fq) \cap L \ne \emptyset$. Since $s(L) = -S \le \ps(\fq)$ it follows from \eqref{dyadicproperty} that $\sc(\fp) = L \subset \sc(\fq)$. We have then by Lemma \ref{monotone-cube-metrics}
@@ -4647,6 +4654,7 @@ Now we prove the two auxiliary estimates.
 \end{proof}
 
 \begin{proof}[Proof of Lemma \ref{local-dens2-tree-bound}]
+    \proves{local-dens2-tree-bound}
     Suppose first that there exists a tile $\fp \in \fT(\fu)$ with $\sc(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. By the definition of $\mathcal{J}(\fT(\fu))$, this implies that $s(J) = -S$, and in particular $\ps(\fp) \ge s(J)$. Using the triangle inequality and \eqref{eq-vol-sp-cube} it follows that $J \subset B(\pc(\fp), 200 D^{\ps(\fp) + 1})$. From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
     $$
         \mu(\sc(\fp)) \le 2^{100a^3 + 9} \mu(J)
@@ -4781,7 +4789,7 @@ Now we are ready to state the main result of this subsection.
 
 \begin{lemma}[correlation separated trees]
     \label{correlation-separated-trees}
-    \uses{adjoint-tile-support,correlation-distant-tree-parts,correlation-near-tree-parts}
+    \uses{correlation-distant-tree-parts,correlation-near-tree-parts}
     For any $\fu_1 \ne \fu_2 \in \fU$ and all bounded $g_1, g_2$ with bounded support, we have
     \begin{equation}
         \label{eq-lhs-sep-tree}
@@ -4794,6 +4802,7 @@ Now we are ready to state the main result of this subsection.
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{correlation-separated-trees}]
+    \proves{correlation-separated-trees}
     By Lemma \ref{adjoint-tile-support} and \eqref{dyadicproperty}, the left hand side \eqref{eq-lhs-sep-tree} is $0$ unless $\sc(\fu_1) \subset \sc(\fu_2)$ or $\sc(\fu_2) \subset \sc(\fu_1)$. Without loss of generality we assume that $\sc(\fu_1) \subset \sc(\fu_2)$.
 
     Define
@@ -4817,7 +4826,7 @@ Now we are ready to state the main result of this subsection.
     \end{lemma}
     \begin{lemma}[correlation near tree parts]
         \label{correlation-near-tree-parts}
-        \uses{tree-projection-estimate,adjoint-tile-support,dyadic-partition-2,bound-for-tree-projection}
+        \uses{tree-projection-estimate,dyadic-partition-2,bound-for-tree-projection}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\sc(\fu_1) \subset \sc(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
             \label{eq-lhs-small-sep-tree}
@@ -4921,6 +4930,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}[Proof of Lemma \ref{Lipschitz-partition-unity}]
+        \proves{Lipschitz-partition-unity}
         For each cube $J \in \mathcal{J}$ let
         $$
             \tilde\chi_J(y) = \max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
@@ -4976,6 +4986,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{proof}
 
     \begin{proof}[Proof of Lemma \ref{moderate-scale-change}]
+        \proves{moderate-scale-change}
         Suppose that $s(J') < s(J) - 1$. Then $s(J) > -S$. Thus, by the definition of $\mathcal{J}'$ there exists no $\fp \in \mathfrak{S}$ with
         \begin{equation}
             \label{eq-tile-incl-1}
@@ -5007,7 +5018,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
     \begin{lemma}[Holder correlation tree]
         \label{Holder-correlation-tree}
-        \uses{adjoint-tile-support,global-tree-control-1,global-tree-control-2}
+        \uses{global-tree-control-2}
         We have for all $J \in \mathcal{J}'$ that
         \begin{equation}
             \label{hHölder}
@@ -5051,7 +5062,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         \begin{equation}
             + \int_{E(\fp)} |g(x)| |\overline{K_{\ps(\fp)}(x, y)} - \overline{K_{\ps(\fp)}(x, y')} |\, \mathrm{d}\mu(x)\,.\label{T*Hölder1}
         \end{equation}
-        By the definition of $d$, we have
+        By the oscillation estimate \eqref{osccontrol}, we have
         $$
             |-\tQ(x)(y) + \tQ(x)(y') + \fcc(\fu)(y) - \fcc(\fu)(y')|
         $$
@@ -5236,7 +5247,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             2^{103a^3}\sum_{s = s(J)}^{s(J) + 10a^2 + 2} \sum_{\substack{\fp \in \fP, \ps(\fp) = s\\B(\sc(\fp)) \cap B^\circ(J)  \ne \emptyset}} \frac{1}{\mu(B(c(J), 16 D^s)} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
         $$
-        For each $I \in \mathcal{D}$, the sets $E(\fp)$ for $\fp \in \fP$ with $\sc(\fp) = I$ are pairwise disjoint by \eqref{definedE} and \eqref{eq-dis-freq-cover}. Further, if $B(\sc(\fp)) \cap B^\circ(J)  \ne \emptyset$ and $\ps(\fp) \ge s(J)$, then $E(\fp) \subset B(c(J), 32 D^{\ps(\fp)})$. Thus the last display is bounded by
+        For each $I \in \mathcal{D}$, the sets $E(\fp)$ for $\fp \in \fP$ with $\sc(\fp) = I$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}. Further, if $B(\sc(\fp)) \cap B^\circ(J)  \ne \emptyset$ and $\ps(\fp) \ge s(J)$, then $E(\fp) \subset B(c(J), 32 D^{\ps(\fp)})$. Thus the last display is bounded by
         $$
             2^{103a^3}\sum_{s = s(J)}^{s(J) + 10a^2 + 2}  \frac{1}{\mu(B(c(J), 32 D^s))} \int_{B(c(J), 16 D^s)} |g| \, \mathrm{d}\mu\,.
         $$
@@ -5258,7 +5269,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
     \begin{lemma}[global tree control 1]
         \label{global-tree-control-1}
-        \uses{adjoint-tile-support,Holder-correlation-tile,scales-impacting-interval}
+        \uses{Holder-correlation-tile,scales-impacting-interval}
         Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
             \label{TreeUB}
@@ -5289,7 +5300,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             \le 2^{151a^3}\rho(y,y')^{1/a}  \sum_{\substack{\fp \in \fC\\ B(\sc(\fp)) \cap B(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
         $$
-        By Lemma \ref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{definedE} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
+        By Lemma \ref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
         $$
             2^{151a^3}\rho(y,y')^{1/a} \sum_{S \ge s \ge s(J)}  D^{-s/a}  \frac{2^{3a}}{\mu(B(c(J), 32D^{s}))} \int_{B(c(J), 32D^{s})} |g| \, \mathrm{d}\mu
         $$
@@ -5334,6 +5345,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
 
     \begin{proof}[Proof of Lemma \ref{Holder-correlation-tree}]
+        \proves{Holder-correlation-tree}
         Let $P$ be the product on the right hand side of \eqref{hHölder}, and $h_J$ as defined in \eqref{def-hj}.
 
         By \eqref{eq-pao-2} and Lemma \ref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \sc(\fu_1)$.
@@ -5402,6 +5414,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
     Now we are ready to prove Lemma \ref{correlation-distant-tree-parts}.
     \begin{proof}[Proof of Lemma \ref{correlation-distant-tree-parts}]
+    \proves{correlation-distant-tree-parts}
     We have
     $$
         \eqref{eq-lhs-big-sep-tree} = \left| \int_{X} T_{\fT(\fu_1)}^* g_1 \overline{T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2 }\right|\,.
@@ -5476,6 +5489,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     We prove this lemma below. First, we deduce Lemma \ref{correlation-near-tree-parts}.
 
     \begin{proof}[Proof of Lemma \ref{correlation-near-tree-parts}]
+        \proves{correlation-near-tree-parts}
         By Lemma \ref{tree-projection-estimate} and Lemma \ref{adjoint-tile-support}, we have
         \begin{align*}
             \eqref{eq-lhs-small-sep-tree} \le 2^{104a^3} \|P_{\mathcal{L}(\fT(\fu_1))} |g_1\mathbf{1}_{\sc(\fu_1)}| \|_2 \|\mathbf{1}_{\sc(\fu_1)} P_{\mathcal{J}(\fT(\fu_1) )}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2\,.
@@ -5551,6 +5565,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{lemma}
 
     \begin{proof}[Proof of Lemma \ref{square-function-count}]
+        \proves{square-function-count}
         Since $J \in \mathcal{J}'$ we have $J \subset \sc(\fu_1)$. Thus, if $B(I) \cap J \ne \emptyset$ then
     \begin{equation}
         \label{eq-sep-small-incl}
@@ -5576,6 +5591,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
 
 \begin{proof}[Proof of Lemma \ref{bound-for-tree-projection}]
+    \proves{bound-for-tree-projection}
     Expanding the definition of $P_{\mathcal{J}'}$, we have
     $$
         \|P_{\mathcal{J}'}|T_{\mathfrak{T}_2 \setminus \mathfrak{S}}^* g_2|\|_2
@@ -5697,6 +5713,7 @@ as in Lemma \ref{forest-row-decomposition}.
 
 \begin{lemma}[row bound]
     \label{row-bound}
+    \uses{densities-tree-bound,adjoint-tile-support}
     For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support, we have
     \begin{equation}
         \label{eq-row-bound-1}
@@ -5710,7 +5727,7 @@ as in Lemma \ref{forest-row-decomposition}.
 \end{lemma}
 
 \begin{proof}
-    By Corollary \ref{densities-tree-bound} and the density assumption \eqref{forest4}, we have for each $\fu \in \fU$ and all bounded $f$ of bounded support that
+    By Lemma \ref{densities-tree-bound} and the density assumption \eqref{forest4}, we have for each $\fu \in \fU$ and all bounded $f$ of bounded support that
     \begin{equation}
         \label{eq-explicit-tree-bound-1}
         \left\|\sum_{\fp \in \fT(\fu)} T_{\fp} f \right\|_{2}  \le 2^{155a^3} 2^{(4a+1-n)/2}  \|f\|_2\,
@@ -5742,7 +5759,7 @@ as in Lemma \ref{forest-row-decomposition}.
 
 \begin{lemma}[row correlation]
     \label{row-correlation}
-    \uses{adjoint-tile-support,adjoint-tree-control,correlation-separated-trees}
+    \uses{adjoint-tree-control,correlation-separated-trees}
     For all $1 \le j < j' \le 2^n$ and for all bounded $g_1, g_2$ with bounded support, it holds that
     $$
         \left| \int \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \sum_{\fp \in \fT_j(\fu)} \sum_{\fp' \in \fT_{j'}(\fu')} T^*_{\fp} g_1 \overline{T^*_{\fp'} g_2} \, \mathrm{d}\mu \right| \le
@@ -5819,6 +5836,7 @@ $$
 Now we prove Proposition \ref{forest-operator}.
 
 \begin{proof}[Proof of Proposition \ref{forest-operator}]
+    \proves{forest-operator}
     To save some space, we will write
     $$
         T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^*\,.
@@ -6420,20 +6438,33 @@ This completes the proof.
 
 The convergence of partial Fourier sums is proved in
 Subsection \ref{10classical} in two steps. In the first step,
-one establishes convergence on a suitable dense subclass of functions. We choose piece-wise constant functions as subclass, the convergence is stated in Lemma \ref{convergence-for-piecewise-constant} and proved in Subsection \ref{10piecewise}.
+we establish convergence on a suitable dense subclass of functions. We choose piece-wise constant functions as subclass, the convergence is stated in Lemma \ref{convergence-for-piecewise-constant} and proved in Subsection \ref{10piecewise}.
 In the second step, one controls the relevant error of approximating a general function by a function in
-the subclass by a bound of the Carleson maximal operator. This approximation result is stated
-in Lemma \ref{control-approximation-effect} and proved in Subsection \ref{10difference}.
-This latter proof refers to the main Theorem \ref{metric-space-Carleson}. Two assumptions in Theorem \ref{metric-space-Carleson} require more work, this is prepared in Lemmas \ref{lem-hilbert} and \ref{van-der-Corput} and proved in Subsections \ref{10hilbert}
-and \ref{10vandercorput}. Subsections \ref{10piecewise},
-\ref{10hilbert}, \ref{10vandercorput}, and \ref{10difference}
-are mutually independent.
+the subclass. This is stated in Lemma \ref{control-approximation-effect} and proved
+in Subsection \ref{10difference}.
+The proof relies on a bound on the real Carleson maximal operator stated in Lemma \ref{real-Carleson} and proved in Subsection \ref{10carleson}.
+This latter proof refers to the main Carleson Theorem \ref{metric-space-Carleson}. Two assumptions in Theorem \ref{metric-space-Carleson} require more work, this is prepared in Lemmas \ref{nontangential-Hilbert},
+\ref{lem-H_r-L2-bound}, \ref{lem-weak-1-1} and \ref{van-der-Corput} and proved in Subsections \ref{subsec-cotlar},
+\ref{10hilbert}, \ref{subsec-CZD}
+and \ref{10vandercorput}.
+Several further auxiliary lemmas are stated
+and proved in Subsection
+\ref{10classical}, the proof of one of these auxiliary lemmas, Lemma \ref{spectral-projection-bound}, is done in Subsection \ref{10projection}.
+\lars{The material here is standard, we should probably call the `two assumption' by their common names} \lars{It would anyway be a good idea to explicitly say that we are doing Calderón-Zygmund theory here}
+
+All subsections past Subsection \ref{10classical} are mutually independent.
+
+ Subsections \ref{subsec-cotlar} uses bounds for the Hardy Littlewood maximal function on the real line. There may be a better path through Lean than we choose here.
+ We refer to Proposition \ref{Hardy-Littlewood}, the assumptions of it,
+ namely that the real line fits into the setting of Section \ref{overviewsection},
+ is done in Subsection \ref{10carleson}.
+
 
 
 \section{The classical Carleson theorem}
 \label{10classical}
 
-Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ bounded in absolute value by $1$ be given. Let $\epsilon>0$ be given, without loss of generality we also assume $\epsilon \le 1$.
+Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$, bounded in absolute value by $1$, be given. Let $0<\epsilon<1$ be given.
 
 By uniform  continuity of $f$, there is a $0<\delta<\pi$
 such that for all $x,x' \in \R$ with $|x-x'|\le \delta$
@@ -6443,7 +6474,7 @@ we have
 \end{equation}
 Let $K$ be the Gaussian bracket of $\frac{2\pi}\delta+1$, that is the unique integer with
 \begin{equation}
-    K-1\le  \frac{2\pi}{\delta} < K\, .
+    K\le  \frac{2\pi}{\delta} +1< K+1\,,
 \end{equation}
 and note that $K>2$ by assumption on $\delta$.
 For each $x\in \R$, let $k(x)$ be the Gaussian bracket of $Kx/2\pi$, that is the unique integer such that
@@ -6456,11 +6487,11 @@ f_0(x):=f\left(\frac{2\pi k(x)}{K}\right)\, .
 \end{equation}
 \begin{lemma}[piecewise constant
 approximation]
-\label{piecewise-constant
+\label{piecewise-constant-
 approximation}
 The function $f_0$ is measurable.
-The function $f_0$ is $2\pi $- periodic.
-The function $f_0$ satisfies  for all $x\in \R$:
+The function $f_0$ is $2\pi$-periodic.
+The function $f_0$ satisfies for all $x\in \R$:
 \begin{equation}\label{eq-ffzero}
 |f(x)-f_0(x)|\le  2^{-2^{50}} \epsilon^2\, ,
 \end{equation}
@@ -6476,9 +6507,8 @@ $Z:=\{2\pi k/K, k\in \mathbb{Z}\}$ is countable, it suffices to show
 that $f_0^{-1}(F)\setminus Z$ is measurable. It then
 suffices to show that $f_0^{-1}(F)\setminus Z$ is open.
 Let $x\in f_0^{-1}(F)\setminus Z$. There is a $k$
-such that $x\in [2\pi k/K, 2\pi (k+1))$. As $x\not\in Z$,
-we have that $x\in (2\pi k/K, 2\pi (k+1))$
-but $f_0$ is constant on $(2\pi k/K, 2\pi (k+1))$,
+such that $x\in [2\pi k/K, 2\pi (k+1))$. As $x\not\in Z$, we have that $x\in (2\pi k/K, 2\pi (k+1))$.
+But $f_0$ is constant on $(2\pi k/K, 2\pi (k+1))$,
 hence $(2\pi k/K, 2\pi (k+1))$ is a subset of
 $f_0^{-1}(F)\setminus Z$. This proves that
 $f_0^{-1}(F)\setminus Z$ is open and completes the proof of measurability of $f_0$.
@@ -6549,7 +6579,7 @@ we have
 We prove in Subsection \ref{10difference}:
 \begin{lemma}[control approximation effect]
 \label{control-approximation-effect}
-\uses{real-Carleson, dirichlet-kernel,lower-secant-bound}
+\uses{real-Carleson, dirichlet-kernel}
     There is a set $E_2 \subset \R$ with Lebesgue measure
     $|E_2|\le \frac \epsilon 2$ such that for all
     \begin{equation}
@@ -6594,26 +6624,27 @@ and \ref{control-approximation-effect}, we estimate \eqref{epsilonthird} by
 This shows  \eqref{aeconv} for the given $E$ and $N_0$
 and completes the proof of Theorem \ref{classical-Carleson}.
 
-The proof of Lemma \ref{control-approximation-effect} will essentially be
-an application of
-the following variant of Theorem \ref{metric-space-Carleson}.
+
 Let  $\kappa:\R\to \R$ be the function defined by
 $\kappa(0)=0$ and for $0<|x|<1$
 \begin{equation}\label{eq-hilker}
 \kappa(x)=\frac { 1-|x|}{1-e^{ix}}\,
 \end{equation}
-\ct{make sure you never divide anything by zero... dangerous if $x=2\pi m$}
 and for $|x|\ge 1$
 \begin{equation}\label{eq-hilker1}
 \kappa(x)=0\, .
 \end{equation}
 Note that this function is continuous at every point $x$ with $|x|>0$.
-The following lemma is proved in Subsection \ref{10carleson}.
+
+The proof of Lemma \ref{control-approximation-effect} will
+use the following Lemma \ref{real-Carleson}, which itself is proven
+ in Subsection \ref{10carleson} as an application of
+ Theorem \ref{metric-space-Carleson}.
 \begin{lemma}\label{real-Carleson}
 \uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-kernel-bound,Hilbert-kernel-regularity}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
-    |\int _G Tf(x) \, dx| \le 2^{2^{40}}|F|^{\frac 12} |G|^{\frac 12} \, ,
+    \left|\int _G Tf(x) \, dx\right| \le 2^{2^{40}}|F|^{\frac 12} |G|^{\frac 12} \, ,
 \end{equation}
 where
 \begin{equation}
@@ -6624,21 +6655,55 @@ where
 \end{lemma}
 
 
-The following lemma is proved in Subsection \ref{10hilbert}.
-\ct{Lars was right. I changed the following so that it exactly fits what we need. This makes 10.3 mildly more laborous, but that's where one can get synergies....
-The $2^8$ can be a bit larger if needed}
-\begin{lemma}\label{lem-hilbert}
+One of the main assumption of Theorem \ref{metric-space-Carleson}, concerning the operator $T_*$ defined in \eqref{def-tang-unm-op}, is verified by the following lemma, which is proved in Subsection \ref{subsec-cotlar}.
+
+
+\begin{lemma}\label{nontangential-Hilbert}
     For every  bounded measurable function $g$ with bounded support we have
-\begin{equation}
-    \|T_*g\|_2\le 2^8\|g\|_2,
+\begin{equation}\label{concretetstarbound}
+    \|T_*g\|_2\le 2^{42}\|g\|_2,
 \end{equation}
 where
 \begin{equation}\label{concretetstar}
-    T_* g(x):=\sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x-y|<r_2}
-g(y) \kappa(x-y)\, dy\right|\, .
+    T_* g(x):=\sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<r_2}
+g(y) \kappa(x'-y)\, dy\right|\, .
 \end{equation}
 \end{lemma}
-The following lemma is proved in Subsection \ref{10vandercorput}. \lars{The change to $\alpha$ and $\beta$ is not implemented everywhere yet.}
+The proof of Lemma \ref{nontangential-Hilbert} relies on the next two auxiliary Lemmas.
+
+For $r\in (0,1)$, $x\in \mathbb{R}$ and a bounded, measurable function $g$ on $\mathbb{R}$ with bounded support, we define
+\begin{equation}
+\label{def-H_r}
+H_r g(x):= \int_{r<|x-y|<1}
+g(y) \kappa(x-y)\, dy.
+\end{equation}
+
+The following Lemma is proved in Section \ref{10hilbert}
+
+
+\begin{lemma}
+    \label{lem-H_r-L2-bound}
+    Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
+    \begin{equation}
+        \label{eq-Hr-L2-bound}
+        \|H_rf\|_{2}\leq 2^{13} \|f\|_2.
+    \end{equation}
+\end{lemma}
+
+The following Lemma is proved in Subsection \ref{subsec-CZD}
+
+\begin{lemma}
+    \label{lem-weak-1-1}
+    Let $f$ be a bounded measurable function on $\mathbb{R}$ with bounded support. Let $\alpha>0$. Then for all $r\in (0, 1)$, we have
+    \begin{equation}
+        \label{eq-weak-1-1}
+        \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{19}}{\alpha} \int |f(y)|\, dy.
+    \end{equation}
+\end{lemma}
+
+The next lemma will be used to verify that the collection $\Mf$ of modulation functions in out application of Theorem \ref{metric-space-Carleson} satisfies the condition \eqref{eq-vdc-cond}.
+It is proved in Subsection \ref{10vandercorput}.
+
 \begin{lemma}[van der Corput]
 \label{van-der-Corput}
     Let $\alpha<\beta$ be real numbers. Let $g:\R\to \C$ be a  measurable function and assume
@@ -6654,25 +6719,21 @@ The following lemma is proved in Subsection \ref{10vandercorput}. \lars{The chan
 \end{lemma}
 
 
-
-
-
-
-We close this section with four lemmas that are used
+We close this section with six lemmas that are used
 across the following subsections.
 
 \begin{lemma}[mean zero oscillation]
 \label{mean-zero-oscillation}
 Let $n\in \mathbb{Z}$ with   $n\neq 0$, then
 \begin{equation}
-\int_0^{2\pi} e^{inx}\, dx=0
+\int_0^{2\pi} e^{inx}\, dx=0\,.
 \end{equation}
 \end{lemma}
 \begin{proof}
 We have
-\begin{equation}
-\int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac  1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, .
-\end{equation}
+\begin{equation*}
+\int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac  1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
+\end{equation*}
 
 \end{proof}
 
@@ -6751,9 +6812,79 @@ The following lemma will be proved in Subsection \ref{10projection}.
 \label{spectral-projection-bound}
     Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{snbound}
-   \|S_Nf\|_2\le \|f\|_2.
+   \|S_Nf\|_{L^2[-\pi, \pi]} \le \|f\|_{L^2[-\pi, \pi]}.
    \end{equation}
 \end{lemma}
+
+\begin{lemma}[Hilbert kernel bound]
+\label{Hilbert-kernel-bound}
+    For $x,y\in \R$ with $x\neq y$ we have
+    \begin{equation}\label{eqcarl30}
+        |\kappa(x-y)|\le 2^4(2|x-y|)^{-1}\, .
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    Fix $x\neq y$. If $\kappa(x-y)$ is zero, then \eqref{eqcarl30} is evident. Assume $\kappa(x-y)$ is not zero, then $0<|x-y|<1$.
+    We have
+\begin{equation}\label{eqcarl31}
+|\kappa(x-y)|=\left|\frac {1-|x-y|}{1-e^{i(x-y)}}\right|\, .
+\end{equation}
+We estimate
+with Lemma \ref{lower-secant-bound}
+\begin{equation}\label{eqcarl311}
+|\kappa(x-y)|\le \frac {1}{|1-e^{i(x-y)}|}\le \frac 8{|x-y|}\, .
+\end{equation}
+This proves \eqref{eqcarl30} in the given case and completes the proof of the lemma.
+\end{proof}
+
+\begin{lemma}[Hilbert kernel regularity]
+\label{Hilbert-kernel-regularity}
+\uses{lower-secant-bound}
+    For $x,y,y'\in \R$ with $x\neq y,y'$ and
+    \begin{equation}
+        \label{eq-close-hoelder}
+        2|y-y'|\le |x-y|\, ,
+    \end{equation}
+    we have
+    \begin{equation}\label{eqcarl301}
+        |\kappa(x-y) - \kappa(x-y')|\le 2^{10}\frac{1}{|x-y|} \frac{|y-y'|}{|x-y|}\, .
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    We can assume that $x = 0$. Then the assumption \eqref{eq-close-hoelder} implies that $y$ and $y'$ have the same sign. Since $\kappa(y) = \bar \kappa(-y)$ we can assume that they are both positive. Then it follows from \eqref{eq-close-hoelder} that
+    $$
+        \frac{y}{2} \le y' \,.
+    $$
+    We distinguish four cases. If $y, y' \le 1$, then we have
+    $$
+        |\kappa(-y) - \kappa(-y')| = \left|  \frac{1 - y}{1- e^{-iy}} - \frac{1 - y'}{1- e^{-iy'}}\right|
+    $$
+    and by the fundamental theorem of calculus
+    $$
+        = \left| \int_{y'}^{y} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
+    $$
+    Using $y' \ge \frac{y}{2}$ and Lemma \ref{lower-secant-bound}, we bound this by
+    $$
+        \le |y - y'| \sup_{\frac{y}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |y-y'| (8 \frac{2}{y})^2 \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+    $$
+    If $y \le 1$ and $y' > 1$, then $\kappa(-y') = 0$ and we have from the first case
+    $$
+        |\kappa(-y) - \kappa(-y')| = |\kappa(-y) - \kappa(-1)| \le 2^{10} \frac{|y-1|}{|y|^2} \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+    $$
+    Similarly, if $y > 1$ and $y' \le 1$, then $\kappa(-y) = 0$ and we have by the same computation as for the first case
+    $$
+        |\kappa(-y) - \kappa(-y')| = |\kappa(-y') - \kappa(-1)| \le 2^{10} \frac{|y-1|}{|y|^2} \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+    $$
+    Finally, if $y, y' > 1$ then
+    $$
+        |\kappa(-y) - \kappa(-y')| = 0 \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+    $$
+\end{proof}
+
+
+
+
 
 
 
@@ -6795,17 +6926,17 @@ This proves the lemma.
 \uses{lower-secant-bound}
 Let $\eta>0$. Let
 \begin{equation}
-    -2\pi +\eta \le a<b \le 2\pi-\eta
+    -2\pi +\eta \le \alpha < \beta \le 2\pi-\eta
 \end{equation}
 and assume
 \begin{equation}\label{eq-abdelta}
-   [a,b]\cap [-\eta,\eta]=\emptyset \, .
+   [\alpha,\beta]\cap [-\eta,\eta]=\emptyset \, .
 \end{equation}
 Then
     \begin{equation}\label{dirichletint}
-    \left|\int_a^b
+    \left|\int_\alpha^\beta
 \frac {e^{iNx}} {1-e^{-ix}}
-dx\right| \le \frac{64}N(\frac{|b-a|}{\eta^2}+\frac 1{\eta}).
+dx\right| \le \frac{64}N(\frac{|\beta-\alpha|}{\eta^2}+\frac 1{\eta}).
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -6814,40 +6945,40 @@ dx\right| \le \frac{64}N(\frac{|b-a|}{\eta^2}+\frac 1{\eta}).
     and thus the integrand is continuous.
     We have with partial integration
 \begin{equation*}
-    \int_a^b
+    \int_\alpha^\beta
 \frac {e^{-iNx}} {1-e^{ix}}\,
 dx
 \end{equation*}
 \begin{equation}\label{eq-part-int}
-=\frac 1{-iN}\int_a^b
+=\frac 1{-iN}\int_\alpha^\beta
 {e^{-iNx}}\frac {ie^{ix}} {(1-e^{ix})^2}\, dx
 +\left[ \frac 1{-iN}
-\frac {e^{-iNx}} {1-e^{ix}}\right]_a^b\, .
+\frac {e^{-iNx}} {1-e^{ix}}\right]_\alpha^\beta\, .
 \end{equation}
 We estimate the two summands in
 \eqref{eq-part-int} separately. We have
 for the first summand in \eqref{eq-part-int}
 with Lemma \ref{lower-secant-bound},
 \begin{equation*}
-\left|   \frac 1 {-iN}\int_a^b
+\left|   \frac 1 {-iN}\int_\alpha^\beta
 {e^{-iNx}}\frac{ie^{ix}}
 {(1-e^{ix})^2}\,
 dx \right|
 \end{equation*}
 \begin{equation}\label{firstpi}
-    \le \frac 1N \int_a^b|1-e^{-ix}|^{-2} \, dx \le \frac {|b-a|}N\sup_{x\in [a,b]}|1-e^{-ix}|^{-2}
+    \le \frac 1N \int_\alpha^\beta|1-e^{-ix}|^{-2} \, dx \le \frac {|\beta-\alpha|}N\sup_{x\in [\alpha,\beta]}|1-e^{-ix}|^{-2}
 \end{equation}
 \begin{equation}
-    \le  \frac {64|b-a|}{\eta^2N}
+    \le  \frac {64|\beta-\alpha|}{\eta^2N}
 \end{equation}
 We have for the second summand in \eqref{eq-part-int}
 with Lemma \ref{lower-secant-bound} again
 \begin{equation*}
    \left|\left[ \frac 1{-iN}
-    \frac {e^{-iNx}} {1-e^{ix}}\right]_a^b\right|
+    \frac {e^{-iNx}} {1-e^{ix}}\right]_\alpha^\beta\right|
 \end{equation*}
 \begin{equation}\label{secondpi}
-   \le \frac 1N (|1-e^{ia}|^{-1}+|1-e^{ib}|^{-1})
+   \le \frac 1N (|1-e^{i\alpha}|^{-1}+|1-e^{i\beta}|^{-1})
     \le \frac {16}{\eta N}\, .
 \end{equation}
 Using the triangle inequality in \eqref{eq-part-int}
@@ -6887,10 +7018,10 @@ Then for all $N>\frac {2^{25} K^2}{\epsilon^3}$
    With Lemma \ref{dirichlet-kernel}, breaking up the domain of integration into a
    partition of subintervals,
    \begin{equation*}
-      |S_N(g)|=\left|\int_{-\pi}^{\pi} g(y)K_N(x-y)\, dy\right|
+      |S_N(g)|= \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} g(y)K_N(x-y)\, dy\right|
    \end{equation*}
    \begin{equation}\label{eqcf1}
-  =  \left|\sum_{k=0}^{K-1}\int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} g(y)K_N(x-y)\, dy\right|\, .
+  =  \frac{1}{2\pi} \left|\sum_{k=0}^{K-1}\int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} g(y)K_N(x-y)\, dy\right|\, .
    \end{equation}
 Using $g\in \mathcal{G}$ and that $ k(y)=k$ for each
 \begin{equation}
@@ -6898,36 +7029,36 @@ Using $g\in \mathcal{G}$ and that $ k(y)=k$ for each
 \end{equation}
 and then applying the triangle inequality with the upper bound on $|g|$ and the identity $g(x)=g(2\pi k(x)/K)=0$,  we estimate \eqref{eqcf1} by
       \begin{equation*}
-  =  \left|\sum_{k=0}^{K-1} g(\frac{2\pi k}K) \int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} K_N(x-y)\, dy\right|
+  =  \frac{1}{2\pi} \left|\sum_{k=0}^{K-1} g(\frac{2\pi k}K) \int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} K_N(x-y)\, dy\right|
    \end{equation*}
       \begin{equation}\label{eqcf3}
-  \le 2 \sum_{0\le k<K, k\neq k(x)} \left|\int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} K_N(x-y)\, dy\right|\, .
+  \le \frac{1}{\pi} \sum_{0\le k<K, k\neq k(x)} \left|\int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} K_N(x-y)\, dy\right|\, .
    \end{equation}
 Doing a variable substitution, we obtain for \eqref{eqcf3}
 \begin{equation}
-  2 \sum_{0\le k<K, k\neq k(x)}
+  \frac{1}{\pi} \sum_{0\le k<K, k\neq k(x)}
    \left|\int_{x-2\pi (k+1)/K}^{x-2\pi k/K} K_N(y)\, dy\right|\, .
 \end{equation}
 Fix $0\le k<K$ with $k\neq k(x)$ and set
 \begin{equation}
-    a=x-2\pi (k+1)/K\, ,
+    \alpha=x-2\pi (k+1)/K\, ,
 \end{equation}
 \begin{equation}
-    b=x-2\pi k/K\, .
+    \beta=x-2\pi k/K\, .
 \end{equation}
 As $x\in [0,2\pi)\setminus E_1$, we have
 with $\eta=\epsilon/(8K)$
 \begin{equation}
-    a\ge x-2\pi\ge -2\pi+\eta\, ,
+    \alpha\ge x-2\pi\ge -2\pi+\eta\, ,
 \end{equation}
 \begin{equation}
-    b\le x \le 2\pi -\eta\, .
+    \beta\le x \le 2\pi -\eta\, .
 \end{equation}
-If $b< 0$, then $2\pi k/K> x$ and as $x\not \in E_1$ also
-$2\pi k-\eta \ge x$. Hence $b \le -\eta $. If $b\ge 0$, then $2\pi k/K\le x$. As $k\neq k(x)$, we also have
+If $\beta< 0$, then $2\pi k/K> x$ and as $x\not \in E_1$ also
+$2\pi k-\eta \ge x$. Hence $\beta \le -\eta $. If $\beta \ge 0$, then $2\pi k/K\le x$. As $k\neq k(x)$, we also have
 $2\pi (k+1)/K\le x$. As $x\not \in E_1$, we have
 $2\pi (k+1)/K+\eta \le x$. It follows that
-$0<a$. In both cases, we have seen
+$0<\alpha$. In both cases, we have seen
 \eqref{eq-abdelta}.
 
 
@@ -6936,16 +7067,16 @@ With Lemma \ref{dirichlet-kernel} and the triangle inequality,
 it follows that
 \begin{equation}
    \left|\int_{x-2\pi (k+1)/K}^{x-2\pi k/K} K_N(y)\, dy\right|
-   \le \left|\int_{a}^{b}
+   \le \left|\int_{\alpha}^{\beta}
    \frac{e^{iNy}}{1-e^{-iy}}\, dy\right|+
-   \left|\int_{a}^{b}
+   \left|\int_{\alpha}^{\beta}
    \frac{e^{-iNy}}{1-e^{iy}}\, dy\right|
 \end{equation}
 Using that the two integrals on the right-hand side are complex conjugates of each other, and using Lemma \ref{dirichlet-kernel-bound} and $\epsilon <2\pi$, this is bounded by
 \begin{equation}
-   \le 2\left|\int_{a}^{b}
+   \le 2\left|\int_{\alpha}^{\beta}
    \frac{e^{iNy}}{1-e^{-iy}}\, dy\right|
-   \le \frac{128}N(\frac{|b-a|}{\eta^2}+\frac 1{\eta})
+   \le \frac{128}N(\frac{|\beta-\alpha|}{\eta^2}+\frac 1{\eta})
    \le \frac{2^{20}K}{N\epsilon^2 }\le 2^{-3}\epsilon K^{-1}\, .
 \end{equation}
 Inserting this in \eqref{eqcf3} and adding up proves
@@ -6965,27 +7096,387 @@ Using Lemma \ref{constant-function}, we obtain
 Lemma \ref{convergence-for-piecewise-constant}
 now follows by Lemma \ref{flat-interval-partial-sum}.
 
-\section{Calder\'on-Zygmund Decomposition}
-\begin{lemma}
-   \label{CZD}
-   Let $f$ be a piecewise continuous, bounded function with bounded support on $\mathbb{R}$. Let $\alpha>0$. Then there exists sets $A\subset \mathbb{R}$ such that the following properties \eqref{eq-CZ-good-set}, \eqref{eq-CZ-bad-sets-1} and \eqref{eq-CZ-bad-sets-2} are satisfied.
-    We have for all $x\in A$
-    \begin{equation}
-    \label{eq-CZ-good-set}
-        |f(x)|\leq \alpha.
-    \end{equation}
-    The set $\mathbb{R}\setminus A$ can be decomposed into the union of intervals
-    $$\mathbb{R}\setminus A= \cup_{j=1}^{\infty} [a_j, b_j],$$ so that
-   \begin{equation}
-   \label{eq-CZ-bad-sets-1}
-    (a_j, b_j)\cap (a_{j'}, b_{j'})=\emptyset \text{ for } j\neq j' \,
-   \end{equation}
-   and for each $j$
-   \begin{equation}
-       \label{eq-CZ-bad-sets-2}
-       \alpha\leq \frac{1}{b_j-a_j}\int_{a_j}^{b_j} |f(y)|\, dy\leq 2^{4} \alpha.
-   \end{equation}
+\section{Proof of Cotlar's Inequality}
+\label{subsec-cotlar}
+
+
+
+
+\begin{lemma}[control x shift]
+\label{control-x-shift}
+Let $0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy Littlewood function
+defined in Proposition
+\ref{Hardy-Littlewood}.
+Then for all $x'$ with $|x-x'|<r$.
+\begin{equation}\label{xx'difference}
+\left|\int_{r<|x-y|<1}
+g(y) \kappa(x-y)\, dy
+-\int_{r<|x'-y|<1}
+g(y) \kappa(x'-y)\, dy
+\right|\le 2^{13}Mg(x)\, .
+\end{equation}
 \end{lemma}
+\begin{proof}
+\proves{control-x-shift}
+
+First note that the
+conditions $|x-y|<1$
+and $|x'-y|<1$ may be removed as the factor containing $\kappa$
+vanishes without these conditions.
+
+We split the first integral in \eqref{xx'difference}
+into the domains $r<|x-y|\le 2r$
+and $2r<|x-y|$. The integral over the first domain we estimate
+by $\eqref{firstxx'}$ below.
+For the second domain, we
+observe with $|x-x'|<r$ and the triangle inequality that $r<|x'-y|$. We therefore combine on this domain with the
+corresponding part of the second integral in \eqref{xx'difference} and estimate that by $\eqref{secondxx'}$
+below. The remaining part of the second integral in
+\eqref{xx'difference} we estimate by $\eqref{thirdxx'}$.
+Overall, we have estimated \eqref{xx'difference}
+by
+
+Hence we can estimate the left-hand side of \eqref{xx'difference}
+by the triangle inequality by
+\begin{equation}
+\label{firstxx'}
+\int_{r<|x-y|\le 2r}
+|g(y)| |\kappa(x-y)|\, dy
+\end{equation}
+\begin{equation}\label{secondxx'}
+  +  \left|\int_{2r<|x-y|}
+g(y) (\kappa(x'-y)-\kappa(x-y))\, dy
+\right|
+\end{equation}
+\begin{equation}
+\label{thirdxx'}
+  +\left|\int_{r<|x'-y|, r<|x-y|<2r}
+|g(y) \kappa(x'-y)|\, dy
+\right|
+\end{equation}
+Using the bound on $\kappa$ in Lemma \ref{Hilbert-kernel-bound}, we estimate
+\eqref{firstxx'} by
+\begin{equation}
+\label{firstxx'b}
+ \frac 8 r\int_{|x-y|<2r}
+|g(y)|\, dy\, .
+\end{equation}
+Using the definition of $Mg$, we estimate
+\eqref{firstxx'b} by
+\begin{equation}
+\label{firstxx'c}
+ \le 32{Mg(x)}\, .
+\end{equation}
+Similarly, in the domain of \eqref{thirdxx'}
+we note by the triangle inequality
+and assumption on $x'$ that $|x'-y|\le 3r$ and thus we estimate
+\eqref{thirdxx'}
+by
+\begin{equation}
+\label{thirdxx'b}
+ \frac 8{r}\int_{|x'-y|<3r}
+|g(y)| \, dy\le 48 Mg(x)
+\end{equation}
+
+We turn to the term \eqref{secondxx'}.
+Let $\nu$ be the smallest integer
+such that $2^\nu> 2/r$.
+Using that the kernel vanishes unless $|x-y|<2$, we decompose and estimate
+\eqref{secondxx'}
+with the triangle inequality by
+\begin{equation}\label{secondxx'b}
+ \sum_{j=1}^\nu  \left|\int_{2^jr<|x-y|\le 2^{j+1}r}
+|g(y)| |\kappa(x'-y)-\kappa(x-y)|\, dy
+\right|
+\end{equation}
+Using Lemma \ref{Hilbert-kernel-regularity}, we estimate  \eqref{secondxx'b}
+by
+\begin{equation*}
+ 2^{10}\sum_{j=1}^\nu  \int_{2^jr<|x-y|\le 2^{j+1}r}
+|g(y)| \frac{|x-x'|}{|x-y|^2}\, dy
+\end{equation*}
+\begin{equation*}
+\le  2^{10}\sum_{j=1}^\nu  \frac 1{2^{2j}r}\int_{2^jr<|x-y|\le 2^{j+1}r}
+|g(y)| \, dy
+\end{equation*}
+\begin{equation}\label{secondxx'c}
+\le  2^{10}\sum_{j=1}^\nu {2^{1-j}} Mg(x)
+\end{equation}
+Using a geometric series, we estimate
+\eqref{secondxx'c} by
+\begin{equation}\label{secondxx'd}
+\le  2^{11} Mg(x)
+\end{equation}
+Summing the estimates
+for \eqref{firstxx'},
+\eqref{secondxx'}, and
+\eqref{thirdxx'}
+proves the lemma.
+\end{proof}
+
+Recall
+\begin{equation*}
+    H_rg(x)=\int_{r<|x-y|<1} g(y) \kappa(x-y)\, dy\, .
+\end{equation*}
+
+
+\begin{lemma}[Cotlar control]
+\label{Cotlar-control}
+Let $0<r<r_1<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy Littlewood function
+defined in Proposition
+\ref{Hardy-Littlewood}.
+Then for all $x\in \R$.
+and all $x'\in \R$ with $|x'-x|<\frac {r_1}4$
+\begin{equation}\label{eq-cotlar-control}
+\left|H_{r_1} g(x)
+\right|\le
+|H_{r}(g-g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')|+
+2^{15}Mg(x)\, .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+    \proves{Cotlar-control}
+Let $x$ and $x'$ be given with $|x'-x|<\frac {r_1}4$.
+By an application of Lemma \ref{control-x-shift}, we estimate
+the left-hand-side of
+\eqref{eq-cotlar-control} by
+\begin{equation}\label{eqcotlar0}
+|H_{r_1}(g)(x')|+
+2^{13}Mg(x)\,
+\end{equation}
+We  have
+\begin{equation*}
+H_{r_1}(g)(x')=
+\int_{r_1<|x'-y|<1} g(y) \kappa(x'-y)\, dy\, .
+\end{equation*}
+On the domain $r_1<|x'-y|$, we have $\frac {r_1}2<|x-y|$. Hence we may write
+for \eqref{eqcotlar1}
+\begin{equation*}
+H_{r_1}(g)(x')=\int_{r_1<|x'-y|<1} (g-g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y) \kappa(x'-y)\, dy
+\end{equation*}
+\begin{equation}\label{eqcotlar1}
+=H_{r_1}(g-g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')\, .
+\end{equation}
+Combining the estimate  \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
+\begin{equation}\label{eqcotlar5}
+\left|H_{r_1} g(x)
+\right|\le
+|H_{r_1}(g-g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')|+
+2^{13}Mg(x)\, .
+\end{equation}
+We  have
+
+\begin{equation*}
+(H_{r}-H_{r_1})(g-g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')
+\end{equation*}
+\begin{equation}\label{eqcotlar2}
+= \int_{ {r}<|x'-y|<r_1}
+(g-g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\,  .
+\end{equation}
+Assume first $r\ge \frac {r_1} 4$.
+Then we estimate \eqref{eqcotlar2} with
+Lemma \ref{Hilbert-kernel-bound} by
+\begin{equation*}
+\int_{\frac {r_1}4<|x'-y|<r_1}
+|g(y)k(x'-y)|\, dy
+\end{equation*}
+\begin{equation}\label{eqcotlar3}
+\le \frac {32}{r_1}\int_{|x'-y|<r_1}
+|g(y)|\, dy \le 64 Mg(x')\,  .
+\end{equation}
+
+Assume now $r\le \frac {r_1} 4$.
+As $|x'-y|\le \frac{r_1}4$ implies
+$|x-y|\le \frac {r_1} 2$, we see that
+\eqref{eqcotlar2} equals
+\begin{equation*}
+ \int_{ {\frac {r_1} 4}<|x'-y|<r_1}
+(g-g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\,  ,
+\end{equation*}
+which we again estimate as above by \eqref{eqcotlar3}.
+In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from \eqref{eqcotlar5}  and the estimate for
+\eqref{eqcotlar2}.
+\end{proof}
+
+\begin{lemma}[Cotlar sets]
+\label{Cotlar-sets}
+Let $0<r<r_1<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy Littlewood function
+defined in Proposition
+\ref{Hardy-Littlewood}.
+Let $x\in \R$.
+Then the measure $|F-1|$ of the set $F_1$ of all $x'\in
+[x-\frac{r_1}4,x+\frac{r_1}4]$ such that
+\begin{equation}
+\label{first-cotlar-exception}
+    |H_{r}(g)(x')|>4M(H_{r}g)(x)
+\end{equation}
+is less than or equal to $r_1/8$.
+Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
+[x-\frac{r_1}4,x+\frac{r_1}4]$ such that
+\begin{equation}
+\label{second-cotlar-exception}
+    |H_{r}(g1_{[x-\frac {r_1} 2,x+\frac {r_1}2]})|>2^{22}Mg(x)
+\end{equation}
+is less than $r_1/8$.
+\end{lemma}
+
+\begin{proof}
+\proves{Cotlar-sets}
+Let $r$, $r_1$, $x$ and $g$ be given.
+If $M(H_{r}g)(x)=0$, then $H_{r}g$ is constant zero
+and $F_1$ is empty and the estimate on $F_1$ trivial.
+Assume $M(H_{r}g)(x)>0$.
+We have with \eqref{first-cotlar-exception}
+\begin{equation}
+    M(H_{r}g)(x)\ge
+    \frac 2{r_1}\int_{|x'-x|<\frac {r_1}4}|H_{r}g(x')|\, dx
+\end{equation}
+\begin{equation}
+    \ge
+    \frac 2{r_1}\int_{F_1} 4 M(H_{r})g(x)\, dx
+\end{equation}
+Dividing by $M(H_{r})g(x)$ gives
+\begin{equation}
+    1\ge  \frac 8{r_1} |F_1|\, .
+\end{equation}
+This gives the desired bound for $F_1$
+
+We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
+The set $F_2$ is then estimated with Lemma \ref{lem-weak-1-1}
+by
+\begin{equation}
+   \frac {2^{19}}{2^{22}Mg(x)}\int |g1_{x-\frac {r_1}2, x+\frac {r_1}2}|(y)\, dy
+\end{equation}
+\begin{equation}
+   \le \frac {2^{19}}{2^{22}Mg(x)}r_1Mg(x)= \frac {r_1}8
+\end{equation}
+
+
+\end{proof}
+
+\begin{lemma}[Cotlar estimate]
+\label{Cotlar-estimate}
+Let $0<r<r_1<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ and $M(H_r g)$ be the respective Hardy Littlewood maximal functions
+defined in Proposition
+\ref{Hardy-Littlewood}.
+Then for all $x\in \R$.
+\begin{equation}\label{eq-cotlar-estimate}
+\left|
+\int_{r_1<|x-y|<1}
+g(y) \kappa(x-y)\, dy
+\right|
+\end{equation}
+\begin{equation}\le
+2^{4}M(H_rg)(x)+ 2^{23} Mg(x)
+\, .
+\end{equation}
+\end{lemma}
+
+
+\begin{proof}
+    \proves{Cotlar-estimate}
+By Lemma \ref{Cotlar-control}, the measure of the set
+of all $x'\in
+[x-\frac{r_1}4,x+\frac{r_1}4]$
+such that at least one of the conditions
+\eqref{first-cotlar-exception} and
+\eqref{second-cotlar-exception} is satisfies is at most $r_1/4$ and hence not all of
+ $x'\in
+[x-\frac{r_1}4,x+\frac{r_1}4]$. Pick an
+$x'\in
+[x-\frac{r_1}4,x+\frac{r_1}4]$ such that both conditions are not satisfied.
+Applying Lemma \ref{Cotlar-control}
+for this $x'$ and using the triangle inequality
+estimates the left-hand side of \eqref{eq-cotlar-estimate}
+by
+\begin{equation}
+    4M(H_rg)(x)+2^{22}Mg(x)+2^{15}Mg(x)\, .
+\end{equation}
+This proves the Lemma.
+\end{proof}
+
+\begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
+    For every  $0<r<1$ and every bounded measurable function $g$ with bounded support we have
+\begin{equation}\label{trzerobound}
+    \|T_{r}g\|_2\le 2^{42}\|g\|_2,
+\end{equation}
+where
+\begin{equation}\label{eq-simple--nontangential}
+    T_{r} g(x):=\sup_{r<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}
+g(y) \kappa(x'-y)\, dy\right|\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+\proves{simple-nontangential-Hilbert}
+With Lemma \ref{control-x-shift}
+and the triangle inequality, we estimate
+for every $x\in \R$
+\begin{equation}
+     T_{r} g(x)
+     \le 2^{15} Mg(x)+\sup_{r<r_1<1}
+     \frac 1{2\pi} \left|\int_{r_1<|x-y|<1}
+g(y) \kappa(x-y)\, dy\right|\, .
+\end{equation}
+Using further Lemma \ref{Cotlar-estimate},
+we estimate
+\begin{equation}
+      T_{r} g(x)
+     \le 2^7 Mg(x)+2^{23}
+     Mg(x)+2^{4}M(H_{r}g)(x)\, .
+\end{equation}
+Taking the $L^2$ norm and using Proposition \ref{Hardy-Littlewood} with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
+\begin{equation}
+      \|T_{r} g\|_2
+     \le 2^{24} \|Mg\|_2+2^{4}\|M(H_{r}g)\|_2\, .
+\end{equation}
+\begin{equation}
+     \le 2^{41} \|g\|_2+2^{21}\|H_{r}\|_2\, .
+\end{equation}
+Applying Lemma \ref{lem-H_r-L2-bound}, gives
+\begin{equation}
+      \|T_{r} g\|_2\le 2^{41} \|g\|_2+2^{34}\|g\|_2\, .
+\end{equation}
+\eqref{trzerobound}.
+This shows \eqref{trzerobound} and completes the proof of the lemma.
+\end{proof}
+
+\begin{proof}[Proof of Lemma \ref{nontangential-Hilbert}]
+    \proves{nontangential-Hilbert}
+
+Fix $g$ as in the Lemma.
+Applying Lemma \ref{simple-nontangential-Hilbert} with a
+sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
+\begin{equation}\label{tzerobound}
+    \|T_{0}g\|_2\le 2^{42}\|g\|_2,
+\end{equation}
+where
+\begin{equation}\label{eq-simpler--nontangential}
+    T_{0} g(x):=\sup_{0<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}
+g(y) \kappa(x'-y)\, dy\right|\, .
+\end{equation}
+We now write by the triangle inequaqlity
+\begin{equation}\label{concretetstartriangle}
+    T_* g(x)\le \sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}g(y) \kappa(x'-y)\, dy\right|
+\end{equation}
+    \begin{equation*}
++\sup_{0<r_1< r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_2<|x'-y|<1}        g(y) \kappa(x'-y)\, dy\right|\, .
+\end{equation*}
+Noting that the first integral does not depend on $r_2$ and
+estimating the second integral by the larger supremum over all
+$|x-x'|<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
+\begin{equation}\label{concretetstartriangle2}
+   \sup_{0<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}g(y) \kappa(x'-y)\, dy\right|
+\end{equation}
+    \begin{equation*}
++\sup_{0< r_2<1}\sup_{|x-x'|<r_2}\frac 1{2\pi} \left|\int_{r_2<|x'-y|<1}        g(y) \kappa(x'-y)\, dy\right|\, .
+\end{equation*}
+    Applying the triangle inequality on the left-hand side
+    of \eqref{concretetstarbound} and applying
+     \eqref{tzerobound} twice
+    proves \eqref{concretetstarbound}.
+    This completes the proof of Lemma \ref{nontangential-Hilbert}.
+\end{proof}
 
 
 
@@ -6993,10 +7484,9 @@ now follows by Lemma \ref{flat-interval-partial-sum}.
 
 \section{The truncated Hilbert transform}
 \label{10hilbert}
-\lars{I am skipping this subsection because it has to be rewritten anyway}
-\rs{To be discussed: 1. Using $L^2$ norms in Cotlar leads to a weak $(2,2)$ estimates for $T_*$}
 
-\rs{Change norms}
+
+
 
 
 Let $M_n$ be the modulation operator
@@ -7016,30 +7506,30 @@ Define the approximate Hilbert transform by
 \label{lem-ln-bound}
 We have for every bounded measurable $2\pi$-periodic function $g$
 \begin{equation}\label{lnbound}
-    \|L_Ng\|_{L^2[-\pi, \pi]}\le \|g\|_{L^2[-\pi, \pi]}
+    \|L_Ng\|_{L^2[-\pi, \pi]}\le \|g\|_{L^2[-\pi, \pi]}\,.
 \end{equation}
 \end{lemma}
 \begin{proof}
     We have
     \begin{equation}\label{mnbound}
-        \|M_ng\|_2^2=\int_{-\pi}^{\pi} |e^{inx}g(x)|^2\, dx
+        \|M_ng\|_{L^2[-\pi, \pi]}^2=\int_{-\pi}^{\pi} |e^{inx}g(x)|^2\, dx
         =\int_{-\pi}^{\pi} |g(x)|^2\, dx=\|g\|_{L^2[-\pi, \pi]}^2\, .
     \end{equation}
-     We have by the triangle inequality, the square root of the identity in\eqref{mnbound}, and Lemma \ref{spectral-projection-bound}
+     We have by the triangle inequality, the square root of the identity in \eqref{mnbound}, and Lemma \ref{spectral-projection-bound}
     \begin{equation*}
-        \|L_ng\|_2=\|\frac 1N\sum_{n=0}^{N-1}
-       M_{-n-N} S_{N+n}M_{N+n}g\|_2
+        \|L_ng\|_{L^2[-\pi, \pi]}=\|\frac 1N\sum_{n=0}^{N-1}
+       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
     \end{equation*}
     \begin{equation*}
         \le \frac 1N\sum_{n=0}^{N-1} \|
-       M_{-n-N} S_{N+n}M_{N+n}g\|_2
+       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
          = \frac 1N\sum_{n=0}^{N-1} \|
-    S_{N+n}M_{N+n}g\|_2
+    S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
     \end{equation*}
        \begin{equation}
      \le \frac 1N\sum_{n=0}^{N-1} \|
- M_{N+n}g\|_2  = \frac 1N\sum_{n=0}^{N-1} \|
-g\|_2 =\|g\|_2\, .
+ M_{N+n}g\|_{L^2[-\pi, \pi]}  = \frac 1N\sum_{n=0}^{N-1} \|
+g\|_{L^2[-\pi, \pi]} =\|g\|_{L^2[-\pi, \pi]}\, .
     \end{equation}
 This proves \eqref{mnbound} and completes the proof of the lemma.
 \end{proof}
@@ -7051,7 +7541,7 @@ Let $f$ be a bounded $2\pi$-periodic function. We have for any
 $0 \le x\le 2\pi$ that
 \begin{equation}
  \int_0^{2\pi} f(y)\, dy= \int_{-x}^{2\pi -x}   f(y)\, dy
- =\int_{-\pi}^{\pi}   f(y-x)\, dy
+ =\int_{-\pi}^{\pi}   f(y-x)\, dy\,.
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -7080,7 +7570,7 @@ This proves the first identity of the lemma. The second identity follows by subs
     Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
     \begin{equation}\label{eqyoung}
         \left(\int_{-\pi}^{\pi} \left(\int_{-\pi}^{\pi}
-        f(y)g(x-y)\, dy\right)^2\, dx\right)^{\frac 12}\le \|f\|_2 \|g\|_1\, .
+        f(y)g(x-y)\, dy\right)^2\, dx\right)^{\frac 12}\le \|f\|_{L^2[-\pi, \pi]} \|g\|_{L^1[-\pi, \pi]}\, .
     \end{equation}
     \end{lemma}
 \begin{proof}
@@ -7093,9 +7583,8 @@ Using Fubini and Lemma \ref{lem-shift}, we observe
 \begin{equation}\label{eqhil4}
 =\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x) \, dx
      dy
-=\|f\|_2^2\|g\|_1\, .
+=\|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}\, .
 \end{equation}
-
    Let $h$ be the  nonnegative square root of $g$, then
    $h$ is bounded and $2\pi$-periodic with $h^2=g$.
    We estimate the square of the left-hand side of
@@ -7104,11 +7593,13 @@ Using Fubini and Lemma \ref{lem-shift}, we observe
        \begin{equation*}
          \int_{-\pi}^{\pi} (\int_{-\pi}^{\pi}f(y)h(x-y)h(x-y)\, dy)^2\, dx
    \end{equation*}
-\begin{equation}
+\begin{equation*}
     \le \int_{-\pi}^{\pi}\left(\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy\right)
     \left(\int_{-\pi}^{\pi}g(x-y)\, dy\right)\, dx
-   = \|f\|_2^2\|g\|_1^2\, .
-\end{equation}
+\end{equation*}
+\begin{equation*}
+    = \|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}^2\, .
+\end{equation*}
 Taking square roots, this proves the lemma.
 \end{proof}
 
@@ -7130,7 +7621,7 @@ Let
 \end{equation}
 Then
 \begin{equation}
-   \|h\|_2\le 2^{5}\|f\|_2  \, .
+   \|h\|_{L^2[-\pi, \pi]}\le 2^{5}\|f\|_{L^2[-\pi, \pi]}  \, .
 \end{equation}
 
 \end{lemma}
@@ -7138,7 +7629,7 @@ Then
 \begin{proof}
 We compute with Lemma \ref{lem-shift}
 \begin{equation}
-    \|g\|_1\le  \int_{-\pi}^{\pi}k_r(x)\, dx=\int_{-\pi}^\pi k_r(x)\, dx
+    \|g\|_{L^1[-\pi, \pi]} \le  \int_{-\pi}^{\pi}k_r(x)\, dx\,.
 \end{equation}
 Using the symmetry
 $k_r(x)=k_r(-x)$ and the assumption,  the last display
@@ -7155,7 +7646,7 @@ is equal to
 \end{equation}
     Together with Lemma \ref{young}, this proves the lemma.
 \end{proof}
-\rs{Change power of $2$}
+
 \begin{lemma}\label{lem-dirichlet2}
 Let $0<r<1$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
@@ -7167,7 +7658,7 @@ and all $2\pi$-periodic bounded measurable functions $f$ on $\R$
 \end{equation}
 and
 \begin{equation}\label{eqdifflhil}
-    \left|L'(x)-\frac{\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\max(1-|x|, 0)}{1-e^{-ix}}\right|\le 2^{10}k_r(x)\, .
+    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}} \kappa(x)\right|\le 2^{5}k_r(x)\, .
 \end{equation}
 \end{lemma}
 
@@ -7189,12 +7680,12 @@ With \eqref{eqksumexp} of Lemma \ref{dirichlet-kernel}
 we have $|K_N(x)|\le N$ for every $x$ and thus
 \begin{equation}\label{eqhil13}
     |{L'}(x)|\le  \frac 1N\sum_{n=0}^{N-1}
-      (N+n) \le 2N\le 2^{10} r^{-1}\, .
+      (N+n) \le 2N\le 2^2 r^{-1}\, .
 \end{equation}
 Therefore, for $|x|\in [0, r)\cup (1, \pi]$, we have
 \begin{equation}
     \label{eqdiffzero}
-    \left|L'(x)-\frac{\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\max{(1-|x|, 0)}}{1-e^{-ix}}\right|=|L'(x)|\leq 2^{10} r^{-1}.
+    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\kappa(x)\right|=|L'(x)|\leq 2^{2} r^{-1}.
 \end{equation}
 This proves \eqref{eqdifflhil} for $|x|\in [0, r)$ since $k_r(x)=r^{-1}$ in this case.
 % The case $x\in [2\pi-r, 2\pi]$ also follows by the symmetry $k_r(-x)=k_r(x)$ and $2\pi$ periodicity of $k_r$.
@@ -7221,7 +7712,7 @@ in Lemma \ref{dirichlet-kernel} to obtain
 and thus
 \begin{equation}
 \label{eq-L'L''}
-  {L'}(x)  -\frac{\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)\max{(1-|x|, 0)}}{1-e^{-ix}}=L''(x)+ \frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}},
+  {L'}(x)  -\mathbf{1}_{\{y:\, r<|y|<1\}}\kappa(x)=L''(x)+ \frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}},
 \end{equation}
 where
 $$L''(x):=\frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
@@ -7233,10 +7724,8 @@ For $x\in [-\pi, r]\cup [r, \pi]$, we have using Lemma \ref{lower-secant-bound} 
 \end{equation*}
 \begin{equation}
  \label{eq-diffzero2}
-    \leq 2^3\cdot 1\leq  2^{8} k_r(x).
+    \leq 2^3\cdot 1\leq  2^{3} k_r(x).
 \end{equation}
-% Using the symmetry $k_r(-x)=k_r(x)$ and the $2\pi$ periodicity of $k_r$, we also conclude the same for $x\in [\pi, 2\pi-r)$.
-
 Next, we need to estimate $L''(x)$. If the real part of
 $e^{ix}$ is negative, we have
 \begin{equation}
@@ -7247,7 +7736,7 @@ and hence
     |L''(x)|\le
      \frac 1N
      \sum_{n=0}^{N-1}
-    1=1\le 2^{10}\left(1+\frac r{|1-e^{ix}|^2}\right)\, .
+    1=1\le 1+\frac r{|1-e^{ix}|^2}\, .
 \end{equation}
 If the real part of $e^{ix}$ is positive and in particular while still $e^{ix}\neq \pm 1$, then  we have by telescoping
 \begin{equation}
@@ -7271,7 +7760,7 @@ Hence, with Lemma \ref{lower-secant-bound} and nonnegativity of the real part of
 \begin{equation}\label{eqhil11}
     = \frac 2 N \frac {1}{|1-e^{ix}|^2}
      \frac{1}{|1+e^{ix}|}\le
- \frac {4r}{|1-e^{ix}|^2}\le 2^{10} \left (1+\frac {r}{|1-e^{ix}|^2}\right)
+ \frac {4r}{|1-e^{ix}|^2}\le 2^{2} \left (1+\frac {r}{|1-e^{ix}|^2}\right)
 \end{equation}
 Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-diffzero2}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{eqdifflhil}. This completes the proof of the lemma.
 \end{proof}
@@ -7375,67 +7864,37 @@ Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-di
 % Combining the above with \eqref{est-L''} and the triangle inequality completes the proof of the lemma.
 % \end{proof}
 
-For $r\in (0,1)$, $x\in \mathbb{R}$ and $g$ a bounded, measurable function on $\mathbb{R}$ with bounded support, we let
-\begin{equation}
-\label{def-H_r}
-H_r g(x):= \int_{r<|x-y|<1}
-g(y) \kappa(x-y)\, dy.
-\end{equation}
-We also define
-\begin{equation}
-\label{def-Tr}
-     T_r g(x):=\sup_{|x-x'|<r}|H_r g(x')|=\sup_{|x-x'|<r}  \left|\int_{r<|x'-y|<1}
-g(y) \kappa(x'-y)\, dy\right|\,,
-\end{equation}
-and for $r_0\in (0, 1)$,
-Observe that
-\begin{equation*}
-T_*^{r_0}g(x)=\sup_{r_0<r_1<r_2<1}\sup_{|x-x'|<r_1}\left|H_{r_1} g(x')-H_{r_2} g(x')\right|\,,
-\end{equation*}
-so that
-\begin{equation}
-    \label{eq-1-sup}
-    T_*^{r_0}g(x)\leq 2\sup_{r_0<r<1} T_r g(x).
-\end{equation}
+We now prove Lemma \ref{lem-H_r-L2-bound}.
 
-\begin{lemma}
-    \label{lem-H_r-L2-bound}
-    Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
-    \begin{equation}
-        \label{eq-Hr-L2-bound}
-        \|H_rf\|_{2}\leq 2^{18} \|f\|_2.
-    \end{equation}
-\end{lemma}
-
-\begin{proof}
+\begin{proof}[Proof of Lemma \ref{lem-H_r-L2-bound}]
     We first show that if $f$ is supported in $[-3/2, 3/2]$, then
     \begin{equation}
         \label{eq-Hr-short-support}
-        \|H_r f\|_2 \le 2^{16} \|f\|_2\,.
+        \|H_r f\|_{L^2(\R)} \le 2^{16} \|f\|_{L^2(\R)}\,.
     \end{equation}
     Let $\tilde{f}$ be the $2\pi$-periodic extension of $f$ to $\mathbb{R}$. Let $N$ be the smallest
     integer larger than $\frac 1r$. Then, by Lemma \ref{lem-dirichlet2} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
     \begin{equation*}
-        |H_r \tilde{f}(x)|\leq |L_N \tilde{f}(x)|+2^{10}\left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
+        |H_r \tilde{f}(x)|\leq 2\pi |L_N \tilde{f}(x)|+2^{5}\left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
     \end{equation*}
     Taking $L^2$ norm over the interval $[-\pi, \pi]$ and using its sub-additivity, we get
     $$
          \|H_r \tilde{f}\|_{L^2([-\pi, \pi])}
     $$
     \begin{equation*}
-       \leq  \|L_N \tilde{f}\|_{L^2([-\pi, \pi])}\, + 2^{10}\left(\int_{-\pi}^{\pi} \left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|^2\, dx\right)^{\frac{1}{2}}.
+       \leq 2\pi \|L_N \tilde{f}\|_{L^2([-\pi, \pi])}\, + 2^{5}\left(\int_{-\pi}^{\pi} \left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|^2\, dx\right)^{\frac{1}{2}}.
     \end{equation*}
     Since $k_r$ is supported in $[-1,1]$, we have that $H_rf$ is supported in $[-5/2, 5/2]$ and agrees there with $H_r \tilde f(x)$.
     Using Lemma \ref{lem-ln-bound} and Lemma \ref{krbound},  we conclude
     \begin{equation}
-        \|H_r f\|_{L^2(\R)} \le \|H_r \tilde f\|_{L^2([-\pi, \pi])} \leq \|f\|_2 + 2^{15}\|f\|_2\,,
+        \|H_r f\|_{L^2(\R)} \le \|H_r \tilde f\|_{L^2([-\pi, \pi])} \leq 2\pi \|f\|_{L^2(\R)} + 2^{10}\|f\|_{L^2(\R)}\,,
     \end{equation}
     which gives \eqref{eq-Hr-short-support}.
 
     Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H_r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
     \begin{equation}
         \label{eq-Hr-short-support-2}
-        \|H_rg\|_2 = \|H_r f\|_2 \le 2^{16} \|f\|_2 = \|g\|_2\,.
+        \|H_rg\|_2 = \|H_r f\|_2 \le 2^{11} \|f\|_2 = \|g\|_2\,.
     \end{equation}
 
     Let now $f$ be arbitrary.
@@ -7449,11 +7908,11 @@ so that
     $$
     Applying the bound \eqref{eq-Hr-short-support-2}, this is
     $$
-        \le 2^{16} \int_{c}^{c+3} |f(x)|^2 \, \mathrm{d}x\,.
+        \le 2^{11} \int_{c}^{c+3} |f(x)|^2 \, \mathrm{d}x\,.
     $$
     Summing over all $c \in \mathbb{Z}$, we obtain
     $$
-        \int_{\R} |H_rf(x)|^2 \, \mathrm{d}x \le 3 \cdot 2^{16} \int_{\R} |f(x)|^2 \, \mathrm{d}x\,.
+        \int_{\R} |H_rf(x)|^2 \, \mathrm{d}x \le 3 \cdot 2^{11} \int_{\R} |f(x)|^2 \, \mathrm{d}x\,.
     $$
     This completes the proof.
 \end{proof}
@@ -7522,335 +7981,9 @@ so that
 % % \end{equation}
 % \end{proof}
 
-\begin{lemma}
-    \label{lem-non-tang-diff}
-    Let $0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Then, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ satisfying
-$$\|Mg\|_2\leq 2^{17}\|g\|_2\,,$$ such that for all $x'$ with $|x-x'|<\frac{r}{2}$.
-\begin{equation}
-\label{eq-non-tang-diff}
-|H_rg(x)-H_rg(x')|\leq 2^{14} Mg(x)\, .
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-We have using triangle inequality that
-\begin{equation}
-    |H_rg(x)-H_rg(x')|
-    \end{equation}
-    \begin{equation}
-    \label{eq-HrtoH2r}
-    \leq |H_{2r}g(x)-H_{r}g(x)|+|H_{2r}g(x)-H_{2r}g(x')|+|H_{2r}g(x')-H_rg(x')|.
-\end{equation}
-For the first term, we estimate
-$$|H_{2r}g(x)-H_{r}g(x)|\leq \int_{r<|x-y|<2r}\frac{1-|x-y|}{|1-e^{-i(x-y)}|} |g(y)|\, dy.$$
-Using Lemma \ref{lower-secant-bound} with $\eta=|x-y|>r$, we get
-$$|H_{2r}g(x)-H_{r}g(x)|\leq \int_{r<|x-y|<2r}\frac{1}{|x-y|} |g(y)|\, dy \leq \frac{8}{r} \int_{|x-y|<2r}|g(y)|\, dy.$$
-
-By Proposition \ref{Hardy-Littlewood}, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ such that
-for each $R>0$ in the above sum,
-$$\frac{1}{R}\int_{|x-y|<R}|g(y)|\, dy\leq  Mg(x),$$
-and
-$$\|Mg\|_2\leq 2^{17}\|g\|_2.$$
-
-Thus, we obtain
-\begin{equation}
-    \label{eq-H2rx}
-    |H_{2r}g(x)-H_{r}g(x)|\leq 16 Mg(x).
-\end{equation}
-
-Arguing similarly, for the last term in \eqref{eq-HrtoH2r}, we have
-\begin{equation*}
-    |H_{2r}g(x')-H_rg(x')|\leq \frac{8}{r} \int_{|x'-y|<2r}|g(y)|\, dy.
-\end{equation*}
-Since $|x-x'|<r$, for any $y$ with $|x-y|<2r$, triangle inequality yields
-$$|x-y|<r+2r<3r.$$
-Therefore by increasing the domain of integration, we can estimate
-\begin{equation}
-    \label{eq-H2rx'}
-    |H_{2r}g(x')-H_rg(x')|\leq \frac{8}{r} \int_{|x-y|<3r}|g(y)|\, dy\leq 32 Mg(x).
-\end{equation}
-Finally, we estimate the middle term in \eqref{eq-HrtoH2r}. We have
-$$|H_{2r}g(x)-H_{2r}g(x')|$$ $$\leq  \int_{\{y:\, 2r<|x-y|<1\}\cup \{y:\, 2r<|x'-y|<1\}} |\kappa(x-y)-\kappa(x'-y)||g(y)|\, dy.$$
-For $y$ with $|x'-y|>2r$, we have
-$$|x-y|\geq |x'-y|-|x-x'|>2r-r=r.$$
-Therefore the domain of integration above is contained in the set
-$\{y:\, |x-y|<r\}.$ Decomposing this set into dyadic ranges, we see that the integral above is estimated by
-\begin{equation}
-    \label{eq-rKer-dyadic-sum}
-    \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}\int_{2^{j}r\leq |x-y|<2^{j+1}r}|\kappa(x-y)-\kappa(x'-y)||g(y)|\, dy.
-\end{equation}
-% Since $|x-x'|<\frac{r}{2}<\frac{|x-y|}{2}$, we can argue as in Lemma \ref{Hilbert-kernel-regularity} to get the estimate
-We claim that
-\begin{equation}
-\label{eq-kappa-reg-Tr}
-    |\kappa(x-y)-\kappa(x'-y)|\leq 2^{10}\frac{1}{|x-y|} \frac{|x-x'|}{|x-y|}\,,
-\end{equation}
-%Detailed proof
-\rs{This proof is repeated several times so can be a lemma at the beginning of the section}
-To see the above, let $z=x-y$ and $z'=x-y'$. Since $|z-z'|<r<\frac{|z|}{2}$, we conclude that $z, z'$ have the same sign. Since $\kappa(z)=\overline{\kappa(-z)}$, we may assume without loss of generality that they are both positive. Then our assumption implies that
-    $$
-        \frac{z}{2} \le z' \,.
-    $$
-    We now consider four cases. If $z, z' \le 1$, then we have
-    $$
-        |\kappa(z)-\kappa(z')| = \left|  \frac{1 - z}{1- e^{-iz}} - \frac{1 - z'}{1- e^{-iz'}}\right|
-    $$
-    and by the fundamental theorem of calculus
-    $$
-        = \left| \int_{z'}^{z} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
-    $$
-    Using $z' \ge \frac{z}{2}$ and Lemma \ref{lower-secant-bound}, we bound this by
-    $$
-        \le |z - z'| \sup_{\frac{z}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |z-z'| (8 \frac{2}{z})^2 \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
-    $$
-    If $z \le 1$ and $z' > 1$, then $\kappa(z')= 0$ and we have from the first case
-    $$
-        |\kappa(z)-\kappa(z')| = |\kappa(z)| \le 2^{10} \frac{|z-1|}{|z|^2} \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
-    $$
-    The case when $z > 1$ and $z' \le 1$ can be handled similarly.
-    Finally, if $z, z' > 1$ then
-    $$
-        |\kappa(z)-\kappa(z')| = 0 \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
-    $$
-
-Plugging \eqref{eq-kappa-reg-Tr} into \eqref{eq-rKer-dyadic-sum}, we get
-\begin{equation}
-    \label{eq-rker-HL}
-    |H_{2r}g(x)-H_{2r}g(x')|\leq 2^{10} \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}r(2^{j}r)^{-2}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy.
-\end{equation}
-
-Applying Proposition \ref{Hardy-Littlewood} again, we have
-for each $j$ in the above sum,
-$$\frac{1}{2^jr}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy\leq  2 Mg(x).$$
-
-Plugging the above into \eqref{eq-rker-HL} gives
-\begin{equation}
-    \label{eq-H2r}
-    |H_{2r}g(x)-H_{2r}g(x')|\leq 2^{11} Mg(x) \sum_{j=0}^{\infty} 2^{-j}\leq 2^{12} Mg(x).
-\end{equation}
-\eqref{eq-non-tang-diff} now follows by combining \eqref{eq-HrtoH2r}, \eqref{eq-H2rx}, \eqref{eq-H2rx'} and \eqref{eq-H2r}.
-\end{proof}
 
 
-
-
-% \begin{lemma}\label{lem-dirichlet3}
-% Let $0<r<\pi$.  Let $0\le x\le 2\pi$ and let $|x'-x|\le r$.
-% \begin{equation}\label{eqdifftrans}
-%     |\frac{\mathbf{1}_{[r, 2\pi -r]}(x)}{1-e^{-ix}}-\frac{\mathbf{1}_{[r, 2\pi -r]}(x')}{1-e^{-ix'}}|\le 2^{10}k_r(x)\, .
-% \end{equation}
-% \end{lemma}
-% \rs{Change to the correct kernel}
-% \begin{proof}
-% We have by Lemma \ref{lower-secant-bound} for each $0<x\le \pi$
-% \begin{equation}
-%     \left|\frac{\mathbf{1}_{[r, 2\pi -r]}(x)}{1-e^{-ix}}\right|\le \frac 8x\le \frac 8r\, .
-% \end{equation}
-% By symmetry $k_r(x)=k_r(-x)$, the analogous inequality holds for $-\pi \le x\le 0$
-% By periodicity, the analogous inequality holds for $-\pi\le x\le 3\pi$.
-% Hence
-% \begin{equation}\label{eqhil16}
-%     |\frac{\mathbf{1}_{[r, 2\pi -r]}(x)}{1-e^{-ix}}-\frac{\mathbf{1}_{[r, 2\pi -r]}(x')}{1-e^{-ix'}}|\le 2^{3}r^{-1}\, .
-% \end{equation}
-% It remains to show
-% \begin{equation}\label{eqhil17}
-%     |\frac{\mathbf{1}_{[r, 2\pi -r]}(x)}{1-e^{-ix}}-\frac{\mathbf{1}_{[r, 2\pi -r]}(x')}{1-e^{-ix'}}|\le 2^{10}\left(1+\frac{r}{|1-e^{ix}|^2}\right)\, .
-% \end{equation}
-% for those $x$ such that
-% \begin{equation}\label{eqhil15}
-%  2^{10}\left(1+\frac{r}{|1-e^{ix}|^2}\right)\le 2^{3}r^{-1}\, .
-% \end{equation}
-%  For those $x$, the left-hand side  of \eqref{eqhil17} becomes
-%  \begin{equation}
-%     |\frac{1}{1-e^{-ix}}-\frac{1}{1-e^{-ix'}}|\, .
-% \end{equation}
-% If $x\ge x'$, we can write this as
-% \begin{equation*}
-%     |\int_{x'}^x \frac{-ie^{-iy}}{(1-e^{-iy})^2}\, dy|
-% \end{equation*}
-% \begin{equation}
-%     \le \int_{x'}^x \frac{64}{r^2}\, dy=\frac{64(x-x')}{r^2}\le \frac{64}r\, .
-% \end{equation}
-
-
-% \end{proof}
-
-For $x\in \mathbb{R}$ and $r\in (0, 1)$, we shall make use of the following decomposition of $g$.
-\begin{equation}
-    \label{eq-g-dec}
-    g_{x, 1}:=g\cdot \mathbf{1}_{\{y: |x-y|<r \}},\qquad g_{x, 2}:=g-g_{x,1}\,.
-\end{equation}
-
-\begin{lemma}
-\label{lem-Tr-to-T}
-Let $0<r_0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function on $\mathbb{R}$ with bounded support. Then, for all $x'\in \mathbb{R}$, we have
-\begin{multline}
-\label{Tr-est1}
-|T_rg(x)|\leq  |H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|+|H_{r_0} g(x')|+|H_{r_0} g_{x,1}(x')|+2^{12} Mg(x)\,,
-%\\+2^{10}|\int_0^{2\pi} g(y) k_r(x-y)\, dy|\, .
-\end{multline}
-\end{lemma}
-where $Mg$ is as in Lemma \ref{lem-non-tang-diff}.
-\begin{proof}
-For every $x$ under consideration, we have
-\begin{equation*}
-|T_rg(x)|\le |H_rg(x)|+ |T_rg(x)-H_rg(x)|\, .
-\end{equation*}
-Using Lemma \ref{lem-non-tang-diff}, we obtain the estimate
-\begin{equation*}
-\label{eq-TrHr}
-|T_rg(x)|\leq |H_rg(x)|+ 2^{12}\left|Mg(x)\right|\, .
-\end{equation*}
-Observe that
-\begin{equation*}
-    \label{gg2}
-    H_r g(x)= H_{r_0}g_{x,2}(x).
-\end{equation*}
-Using the triangle inequality twice, we estimate
-\begin{equation*}
-\label{eq-diff-xx'}
-|H_{r_0}g_{x,2}(x)|\leq |H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|+|H_{r_0}g_{x,1}(x')| + |H_{r_0}g(x')|.
-\end{equation*}
-Putting the above inequalities together, we obtain \eqref{Tr-est1}.
-% For the last term on the right above, another application of triangle inequality yields
-% \begin{equation*}
-% |H_rg(x')|\leq  |L_N g(x')|+|H_rg(x')-L_N g(x')|.
-% \end{equation*}
-% Combining the above with Lemma \ref{lem-dirichlet2}, we have
-% \begin{equation}
-% \label{eq-diff-x'g}
-% |H_rg(x')|\leq |L_N g(x')|+ 2^{10}\left|\int_0^{2\pi} g(y) k_r(x'-y)\, dy\right|.
-% \end{equation}
-% Similarly, we can estimate
-% \begin{equation}
-% \label{eq-diff-x'g2}
-% |H_rg_{x,1}(x')|\leq  |L_N g_{x,1}(x')|+ 2^{10}\left|\int_0^{2\pi} g_{x,1}(y) k_r(x'-y)\, dy\right|.
-% \end{equation}
-\end{proof}
-
-\begin{lemma}
-    \label{lem-cotlar}
-    Let $0<r_0<r<1$ and $x\in \mathbb{R}$. Let $g$ be a bounded, measurable function with bounded support on $\mathbb{R}$. Then, there exists $x'$ with $|x-x'|<\frac{r}{2}$ such that
-such that
-\begin{equation}
-    \label{eq-cotlar}
-    |H_{r_0}g_{x,1}(x')|+|H_{r_0}g(x')|\leq  2^{12} [(M(|H_{r_0}g|^{\frac{3}{2}})(x))^{\frac{2}{3}}+(M(|g|^2)(x))^{\frac{1}{2}}],
-\end{equation}
-where $(M(|H_{r_0}g|^{\frac{3}{2}})$ and $M(|g|^2)$ are measurable functions satisfying \rs{The second one will only satisfy a weak (2, 2) type inequality. To be changed after writing CZ subsection}
-\end{lemma}
-\begin{proof}
-For $\alpha>0$, we have
-\begin{equation}
-    \mu\left(\{x'\in \mathbb{R}: |x'-x|<\frac{r}{2},\, |H_{r_0}g(x')|>\alpha\}\right)\leq \alpha^{-\frac{3}{2}}\int_{|x-y|<\frac{r}{2}} |H_{r_0}g(y)|^{\frac{3}{2}}\, dy.
-\end{equation}
-Using Proposition \ref{Hardy-Littlewood} (more precisely, \eqref{eq-hlm-2} with $w=|H_{r_0}g|^{\frac{3}{2}}$), we conclude that there exists a measurable function $M(|H_{r_0}g|^{\frac{3}{2}})$ such that the right hand side above can be estimated by
-\begin{equation}
-    \label{eq-HL1}
-    \alpha^{-{\frac{3}{2}}} M(|H_{r_0}g|^{\frac{3}{2}})(x)\mu(\{x'\in \mathbb{R}: |x-x'|<\frac{r}{2}\}).
-    %= 2\frac{r}{2} \alpha^{-2} M(|L_Ng|^2)(x).
-\end{equation}
-Moreover, this function satisfies the estimate
-$$\|M(|H_{r_0}g|^{\frac{3}{2}})^{\frac{2}{3}}\|_2\leq 2^{16}\left(\frac{2}{2-\frac{3}{2}}\right)\|H_{r_0}g\|_2\leq 2^{20} \|H_{r_0}g\|_2.$$
-Similarly, we have
-\begin{equation*}
-    \mu\left(\{x'\in \mathbb{R}: |x'-x|<\frac{r}{2},\, |H_{r_0}g_{x,1}(x')|>\alpha\}\right)\leq \alpha^{-2}\int_{|x-y|<\frac{r}{2}} |H_{r_0}g_{x,1}(y)|^2\, dy.
-\end{equation*}
-This time, we use Lemma \ref{lem-H_r-L2-bound}, with $r=r_0$, to estimate the above by
-\begin{equation*}
-    2\alpha^{-2}\int |H_{r_0}g_{x,1}(y)|^2\, dy \leq 2^{18} \alpha^{-2}\int |g_{x,1}(y)|^2\, dy
-    = 2^{18} \alpha^{-2}\int_{|y-x'|<r} |g(y)|^2 \,dy.
-\end{equation*}
-Using Proposition \ref{Hardy-Littlewood} again (more precisely, \eqref{eq-hlm-2} with $w=|g|^2$), we obtain another measurable function $M(|g|^2)$ such that the above can be estimated by
-\begin{equation}
-    \label{eq-HL2}
-    2^{19}\alpha^{-2} M(|g|^2)(x)\mu(\{x'\in \mathbb{R}: |x-x'|<\frac{r}{2}\}).
-    %= 2^3 \frac{r}{2} \alpha^{-2} M(|g|^2)(x).
-\end{equation}
-From \eqref{eq-HL1} and \eqref{eq-HL2}, we deduce that for
-\begin{equation*}
-    \label{eq-alph-choice}
-    \alpha=\max\left(4 (M(|H_{r_0}g|^{\frac{3}{2}})(x))^{\frac{2}{3}}, 2^{12} (M(|g|^2)(x))^{\frac{1}{2}} \right),
-\end{equation*}
-we have the estimate
-\begin{multline*}
-    \mu(\{x'\in \mathbb{R}: |x-x'|<\frac{r}{2}, |H_{r_0}g_{x,1}(x')|>\alpha \text{ or }|H_{r_0}g(x')|>\alpha\}\\\leq \frac{1}{2} \mu(\{x'\in \mathbb{R}: |x-x'|<\frac{r}{2}\}.
-\end{multline*}
-Making this choice of $\alpha$, we conclude that there exists an $x'$ with $|x-x'|<\frac{r}{2}$ such that \eqref{eq-cotlar} is true.
-\end{proof}
-
-\begin{lemma}
-\label{lem-xx'-g2-diff}
-Let $0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Then, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ satisfying
-$$\|Mg\|_2\leq 2^{17}\|g\|_2\,,$$ such that for all $x'$ with $|x-x'|<\frac{r}{2}$.
-\begin{equation}
-\label{eq-xx'-g2-diff}
-|H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|\leq 2^{11} Mg(x)\, .
-\end{equation}
-\end{lemma}
-\begin{proof}
-We have
-$$|H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|\leq \int_{r<|x-y|<1} |\kappa(x-y)-\kappa(x'-y)||g(y)|\, dy.$$
-Decomposing the range of the integral into dyadic ranges, we see the above is estimated by
-\begin{equation}
-    \label{eq-hilbker-dyadic-sum}
-    \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}\int_{2^jr\leq |x-y|<2^{j+1}r}|\kappa(x-y)-\kappa(x'-y)||g(y)|\, dy.
-\end{equation}
-% Since $|x-x'|<\frac{r}{2}<\frac{|x-y|}{2}$, we can argue as in Lemma \ref{Hilbert-kernel-regularity} to get the estimate
-We claim that
-\begin{equation}
-\label{eq-kappa-reg}
-    |\kappa(x-y)-\kappa(x'-y)|\leq 2^{10}\frac{1}{|x-y|} \frac{|x-x'|}{|x-y|}\,,
-\end{equation}
-%Detailed proof
-To see the above, let $z=x-y$ and $z'=x-y'$. Since $|z-z'|<\frac{r}{2}<\frac{|z|}{2}$, we conclude that $z, z'$ have the same sign. Since $\kappa(z)=\overline{\kappa(-z)}$, we may assume without loss of generality that they are both positive. Then our assumption implies that
-    $$
-        \frac{z}{2} \le z' \,.
-    $$
-    We now consider four cases. If $z, z' \le 1$, then we have
-    $$
-        |\kappa(z)-\kappa(z')| = \left|  \frac{1 - z}{1- e^{-iz}} - \frac{1 - z'}{1- e^{-iz'}}\right|
-    $$
-    and by the fundamental theorem of calculus
-    $$
-        = \left| \int_{z'}^{z} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
-    $$
-    Using $z' \ge \frac{z}{2}$ and Lemma \ref{lower-secant-bound}, we bound this by
-    $$
-        \le |z - z'| \sup_{\frac{z}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |z-z'| (8 \frac{2}{z})^2 \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
-    $$
-    If $z \le 1$ and $z' > 1$, then $\kappa(z')= 0$ and we have from the first case
-    $$
-        |\kappa(z)-\kappa(z')| = |\kappa(z)| \le 2^{10} \frac{|z-1|}{|z|^2} \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
-    $$
-    The case when $z > 1$ and $z' \le 1$ can be handled similarly.
-    Finally, if $z, z' > 1$ then
-    $$
-        |\kappa(z)-\kappa(z')| = 0 \le 2^{10} \frac{|z-z'|}{|z|^2}\,.
-    $$
-
-Plugging \eqref{eq-kappa-reg} into \eqref{eq-hilbker-dyadic-sum}, we get
-\begin{equation*}
-    \label{eq-hilbker-HL}
-    |H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|\leq 2^{10} \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}\frac{r}{2}(2^jr)^{-2}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy.
-\end{equation*}
-
-By Proposition \ref{Hardy-Littlewood}, there exists a measurable function $Mg: \mathbb{R}\to [0, \infty)$ such that
-for each $j$ in the above sum,
-$$\frac{1}{2^{j+1}r}\int_{|x-y|<2^{j+1}r}|g(y)|\, dy\leq  Mg(x),$$
-and
-$$\|Mg\|_2\leq 2^{17}\|g\|_2.$$
-In combination with \eqref{eq-hilbker-HL}, this yields
-\begin{equation*}
- |H_{r_0}g_{x,2}(x)-H_{r_0}g_{x,2}(x')|\leq 2^{10} \sum_{j=0}^{\lfloor \log_2(\frac{1}{r})\rfloor}2^{-j}Mg(x)\leq 2^{11} Mg(x).
-\end{equation*}
-\end{proof}
-
-
-\begin{proof}[Proof of Lemma \ref{lem-hilbert}]
-We now prove Lemma \ref{lem-hilbert}. \rs{Write}
-\end{proof}
-
-% We now prove Lemma \ref{lem-hilbert}.
+% We now prove Lemma \ref{nontangential-Hilbert}.
 % We have with $r$ and $N$ as above for every $x$
 % \begin{equation}
 % |T_rg(x)|\le |L_Ng(x)|+ |H_rg(x)-L_Ng(x)|+ |T_rg(x)-H_rg(x)|\, .
@@ -7873,6 +8006,507 @@ We now prove Lemma \ref{lem-hilbert}. \rs{Write}
 % \end{equation}
 
 
+
+
+
+\section{Calder\'on-Zygmund Decomposition}
+\label{subsec-CZD}
+
+
+
+\lars{Just do half open intervals everywhere, this avoids talking about interiors all the time}
+
+For $I=[s, t]\subset \mathbb{R}$, we define
+\begin{equation}
+    \label{eq-bisec}
+    \textrm{bi} (I):= \left\{\left[s, \frac{s+t}{2}\right], \left[\frac{s+t}{2}, t\right]\right\}.
+\end{equation}
+
+In what follows, we write $\mu$ for the Lebesgue measure on $\R$.
+
+\begin{lemma}
+\label{lem-bi}
+    Let $I\subset \mathbb{R}$ be a bounded interval. Let $I_1, I_2\in \textrm{bi} (I)$ with $I_1\neq I_2$. Then
+    \begin{equation}
+        \label{eq-bi-size}
+        \mu (I_1)=\mu(I_2)=\frac{\mu(I)}{2}.
+    \end{equation}
+    Further,
+    \begin{equation}
+        \label{eq-bi-union}
+        I=I_1\cup I_2,
+    \end{equation}
+    and the interiors of $I_1$ and $I_2$ are disjoint.
+\end{lemma}
+\begin{proof}
+    This follows immediately from the construction.
+\end{proof}
+For a bounded interval $I=[a, b]\subset \mathbb{R}$ and a non-negative integer $n$, we inductively define
+\begin{equation}
+    \label{eq-ch-I}
+    \textrm{ch}_0(I):=\{I\}, \qquad \textrm{ch}_n(I)=\cup_{J\in \textrm{ch}_{n-1}(J)} \textrm{bi} (J).
+\end{equation}
+
+\begin{lemma}
+    \label{lem-ch-cover}
+    Let $I=[s, t]$ and let $n$ be a non-negative integer. Then the intervals in $\textrm{ch}_n(I)$ have pairwise disjoint interiors. For any $J\in \textrm{ch}_n(I)$,
+    \begin{equation}
+        \label{eq-ch-size}
+        \mu(J)=\frac{\mu(I)}{2^{n}}=\frac{t-s}{2^n}.
+    \end{equation}
+    Further,
+    \begin{equation}
+        \label{eq-ch-cover}
+        I= \cup_{J\in \textrm{ch}_n(I)} J
+    \end{equation}
+    and
+    \begin{equation}
+        \label{eq-ch-card}
+        |\textrm{ch}_n(I)|= 2^{n+1}.
+    \end{equation}
+\end{lemma}
+\begin{proof}
+This follows by induction on $n$, using Lemma \ref{lem-bi}.
+\end{proof}
+
+
+\begin{lemma}
+    \label{lem-Leb-diff-thm}
+    Let $f$ be a bounded measurable function with bounded support. Then for $\mu$ almost every $x$, we have
+    $$\frac{1}{\mu(I_n)}\int_{I_n} f(y)\, dy= f(x),$$
+    where $\{I_n\}_{n\geq 1}$ is a sequence of intervals such that $x\in I_n$ for each $n\geq 1$ and $$\lim_{n\to \infty} \mu(I_n)=0.$$
+\end{lemma}
+\begin{proof}
+    This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
+\end{proof}
+
+\begin{lemma}
+   \label{CZD}
+   Let $f$ be a bounded, measurable function with bounded support on $\mathbb{R}$. Let $\alpha>0$. Then there exists $A\subset \mathbb{R}$ such that the following properties \eqref{eq-CZ-good-set}, \eqref{eq-CZ-good-set-comp}, \eqref{eq-CZ-bad-sets-1}, \eqref{eq-CZ-bad-sets-2}, and \eqref{eq-CZ-meas-b-set} are satisfied. For all $x\in A$
+    \begin{equation}
+    \label{eq-CZ-good-set}
+        |f(x)|\leq \alpha.
+    \end{equation}
+    The set $\mathbb{R}\setminus A$ can be decomposed into a countable union of intervals
+    \begin{equation}
+        \label{eq-CZ-good-set-comp}
+        \mathbb{R}\setminus A= \cup_{j} I_j= \cup_{j} [s_j, t_j],
+    \end{equation}
+    such that
+   \begin{equation}
+   \label{eq-CZ-bad-sets-1}
+    (s_j, t_j)\cap (s_{j'}, t_{j'})=\emptyset \text{ for } j\neq j' \,.
+   \end{equation}
+   For each $j$,
+   \begin{equation}
+       \label{eq-CZ-bad-sets-2}
+       \frac{\alpha}{2}\leq \frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy\leq \alpha.
+   \end{equation}
+   % and
+   % \begin{equation}
+   %     \label{eq-CZ-bad-set-lowerb}
+   %     (t_j-s_j)> r.
+   % \end{equation}
+   Further,
+   \begin{equation}
+       \label{eq-CZ-meas-b-set}
+        \sum_{j}(t_j-s_j)\leq \frac{2}{\alpha}\int |f(y)|\, dy\,.
+   \end{equation}
+\end{lemma}
+\begin{proof}
+    Since $f$ is bounded with bounded support, there exists a non-negative integer $\ell$ such that
+    \begin{equation}
+        \label{eq-f-supp}
+        f(x)=0 \textrm{ for } x\not\in [-2^{\ell-1}, 2^{\ell-1}]\,,
+    \end{equation}
+    and
+    $$2^{-\ell}\int_{-2^{\ell-1}}^{2^{\ell-1}} |f(y)|\, dy< \alpha\,.$$
+    Let $$I_0:=[-2^{\ell}, 2^{\ell}],\qquad \mathcal{Q}_0:=\{I_0\}\,,$$
+    and
+    $$\Tilde{\mathcal{Q}}_1:=\textrm{bi}(I_0).$$
+    For $n\geq 1$, we inductively define
+    \begin{equation*}
+        {\mathcal{Q}}_n:=\left\{I\in \Tilde{\mathcal{Q}}_n: \frac{1}{\mu(I)}\int_{I} |f(y)|\, dy> \frac{\alpha}{2}\right\}\,,
+    \end{equation*}
+    and
+    \begin{equation*}
+     \Tilde{\mathcal{Q}}_{n+1}:=\cup_{I\in {\Tilde{\mathcal{Q}}}_n\setminus \mathcal{Q}_n} \textrm{bi} (I)\,.
+    \end{equation*}
+Finally, let
+\begin{equation*}
+    \mathcal{Q}:=\cup_{n\geq 1} \mathcal{Q}_n\,.
+\end{equation*}
+
+For each $n$ we have
+$$\mathcal{Q}_n\subseteq \textrm{ch}_n(I_0).$$
+Therefore, by Lemma \ref{lem-ch-cover},
+$$|\mathcal{Q}_n|\leq \frac{\mu(I_0)}{2^n}= 2^{\ell+1-n}.$$
+It follows that $\mathcal{Q}$ is a countable union of finite sets and hence, is countable itself. Let $\{I_j\}_{j\geq 1}$ be an enumeration of this set, with
+$$I_j:=[s_j, t_j],$$
+for $s_j, t_j\in I_0$ and $s_j<t_j$.
+We set
+\begin{equation*}
+    A:=\mathbb{R}\setminus \cup_{j\geq 1} [s_j, t_j].
+\end{equation*}
+Then \eqref{eq-CZ-good-set-comp} holds by definition. We next show \eqref{eq-CZ-bad-sets-1}. Let $I_j, I_{j'}\in \mathcal{Q}$. Then, there exist $1\leq n, n'$ such that $I_j\in \mathcal{Q}_n$ and $I_{j'}\in \mathcal{Q}_{n'}$. If $n=n'$, \eqref{eq-CZ-bad-sets-1} follows from Lemma \ref{lem-ch-cover} since $\mathcal{Q}_n\subseteq \textrm{ch}_n(I_0).$ Otherwise, assume without loss of generality that $n<n'$. Then by construction, there exists $J\in \Tilde{\mathcal{Q}}_{n}\setminus {\mathcal{Q}_n}$ such that $I_{j'} \subset J$. Since $I_{j}\in \mathcal{Q}_n$, it follows that $I_j\neq J$. Since $I_j, J\in \Tilde{\mathcal{Q}}_{n}\subset \textrm{ch}_n(I_0)$, by Lemma \ref{lem-ch-cover}, we deduce that their interiors are disjoint. Since $I_{j'}\subset J$, we conclude that $I_j$ and
+$I_{j'}$ have disjoint interiors as well. This proves \eqref{eq-CZ-bad-sets-1}.
+
+To see \eqref{eq-CZ-bad-sets-2}, let $I_j=(s_j, t_j)\in \mathcal{Q}$. Then $I_j\in \mathcal{Q}_n$ for some $n\geq 1$. By definition of $\mathcal{Q}_n$, we have
+$$\frac{\alpha}{2}<\frac{1}{\mu(I)}\int_{I} |f(y)|\, dy=\frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy.$$
+As $I_j\in \mathcal{Q}_n\subseteq \Tilde{\mathcal{Q}_{n}}$, by definition of the latter set, there exists $J\in \Tilde{\mathcal{Q}}_{n-1}\setminus \mathcal{Q}_{n-1}$ with $I\in \textrm{bi} (J)$. Since $J\not\in \mathcal{Q}_{n-1}$, we conclude that
+$$\frac{1}{\mu(J)}\int_J |f(y)|\, dy\leq \frac{\alpha}{2}.$$
+Using Lemma \ref{lem-bi} and the above, we get
+$$\frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy=\frac{1}{\mu(I)}\int_I |f(y)|\, dy\leq \frac{2}{\mu(J)} \int_J |f(y)|\, dy\leq \alpha.$$
+This establishes \eqref{eq-CZ-bad-sets-2}. Using this, we see that for each $j$, we have
+$$t_j-s_j\leq \frac{2}{\alpha}\int_{s_j}^{t_j} |f(y)|\, dy.$$
+Summing up in $j$ and using the disjointedness property \eqref{eq-CZ-bad-sets-1}, we get
+$$\sum_{j} (t_j-s_j)\leq \frac{2}{\alpha}\int_{s_j}^{t_j} |f(y)|\, dy= \frac{2}{\alpha}\int  |f(y)|\, dy.$$
+
+Finally, we show $\eqref{eq-CZ-good-set}$. Let $x\in A$. If $x\not \in [-2^{\ell}, 2^{\ell}]$, then by \eqref{eq-f-supp} that $f(x)=0$. Thus \eqref{eq-CZ-good-set} is true in this case. Alternately, let $x\in I_0\cap A$. Then for each $n$, there exists $I(n)\in \Tilde{\mathcal{Q}}_n$ such that $x\in I(n)$ and
+\begin{equation}
+    \label{eq-avg-In}
+    \frac{1}{\mu(I(n))}\int_{I(n)} |f(y)| dy\leq {\alpha}.
+\end{equation}
+Since $\mu(I(n))=2^{\ell+1-n}$, we have
+$$\lim_{n\to \infty} \mu(I(n))=0.$$
+By Lemma \ref{lem-Leb-diff-thm}, we also have
+\begin{equation*}
+ \lim_{n\to \infty}\frac{1}{\mu(I(n))}\int_{I(n)} |f(y)| dy= |f(x)|
+\end{equation*}
+for almost every $x\in A$.
+Combining the above with \eqref{eq-avg-In}, we conclude that
+$$|f(x)|\leq \alpha.$$
+This finishes the proof of \eqref{eq-CZ-good-set}, and hence the lemma.
+\end{proof}
+
+Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or the so-called weak $(1, 1)$ type endpoint bound.
+It is classical and can be found in \cite{stein-book}.
+
+\begin{lemma}[Calderón-Zygmund decomposition]
+    \label{lem-czd-func}
+    Let $f$ be a bounded, measurable function with bounded support. Let $\alpha>0$ and $\gamma\in (0, 1)$. Then there exists a measurable functions $g$, a countable family of intervals $I_j = [s_j, t_j]$ with disjoint interiors, and a countable family of measurable functions $\{g_j\}_{j\geq 1}$ such that for almost every $x \in \R$
+    \begin{equation}
+       \label{eq-gb-dec}
+       f(x)= g(x)+ \sum_{j\geq 1} b_j(x)
+    \end{equation}
+    and such that the following holds. For almost every $x\in \mathbb{R}$,
+    \begin{equation}
+        \label{eq-g-max}
+       |g(x)|\leq \gamma\alpha\,.
+    \end{equation}
+    We have
+    \begin{equation}
+        \label{eq-g-L1-norm}
+        \int |g(y)|\, dy\leq \int |f(y)|\, dy.
+    \end{equation}
+    For every $j$
+    \begin{equation}
+        \label{eq-supp-bj}
+        \operatorname{supp} b_j \subset I_j\,.
+    \end{equation}
+    For every $j$
+    \begin{equation}
+        \label{eq-bad-mean-zero}
+        \int_{I_j} b_j(x)\, dx=0,
+    \end{equation}
+    and
+     \begin{equation}
+        \label{eq-bj-L1}
+        \int_{I_j} |b_j(x)|\, dx \leq 2\gamma\alpha.
+    \end{equation}
+    We have
+    \begin{equation}
+        \label{eq-bset-length-sum}
+        \sum_j (t_j-s_j)\leq \frac{2}{\gamma\alpha}\int |f(y)|\, dy
+    \end{equation}
+    and
+    \begin{equation}
+    \label{eq-b-L1}
+    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    Applying Lemma \ref{CZD} to $f$ and $\gamma\alpha$, we obtain a collection $I_j$ of intervals such that the conditions \eqref{eq-CZ-good-set}-\eqref{eq-CZ-meas-b-set} are satisfied. We set $A = \R \setminus \cup_j I_j$ and
+\begin{equation}
+    \label{eq-g-def}
+    g(x):=\begin{cases}
+     f(x), & x\in A,\\
+     \frac{1}{\mu(I_j)}\int_{I_j} f(y)\, dy, &x\in (s_j, t_j),\\
+     0, & x\in [s_j, t_j]\setminus (s_j, t_j),
+    \end{cases}
+\end{equation}
+and, for each $j$,
+\begin{equation}
+    b_j(x):=\begin{cases}
+        f(x)-\frac{1}{\mu(I_j)}\int_{I_j} f(y)\, dy, &x\in (s_j, t_j),\\
+        0, & x\not\in (s_j, t_j).
+    \end{cases}
+\end{equation}
+Then \eqref{eq-supp-bj} and \eqref{eq-bset-length-sum} are true by construction and Lemma \ref{CZD}.
+Further, let $b(x)=\sum_{j} b_j(x).$
+Then
+\begin{equation*}
+    f(x)=g(x)+b(x)=g(x)+\sum_{j} b_j(x) ,
+\end{equation*}
+for all $x$ not in the measure zero set $\cup_j \{s_j, t_j\}.$
+
+For almost every $x\in A$, we get using \eqref{eq-CZ-good-set}
+$$|g(x)|\leq \gamma\alpha\,.$$ In the case when neither of the above is true, we have $g(x)=0$ by definition.
+Thus, we obtain \eqref{eq-g-max}.
+
+To prove \eqref{eq-g-L1-norm}, we estimate
+$$\int |g(y)|\, dy\leq \int_A |f(y)|\, dy+ \sum_{j} \int_{I_j}\frac{1}{\mu(I_j)}\int_{I_j}|f(y)|\, dy.$$
+Since the intervals $I_j$ have disjoint interiors, and $A=\mathbb{R}\setminus \cup_j I_j$, we conclude
+$$\int |g(y)|\, dy\leq \int_A |f(y)|\, dy+\sum_{j} \int_{I_j}|f(y)|\, dy= \int |f(y)|\, dy.$$
+This establishes \eqref{eq-g-L1-norm}.
+If $x\in I_j$ for some $j$, \eqref{eq-CZ-bad-sets-2} yields
+$$|g(x)|\leq \frac{1}{\mu(I_j)}\int_{I_j}|f(y)|\, dy\leq \gamma\alpha.$$
+
+
+Further, for each $j$, it follows from the definition of $t_j$ that
+$$ \int_{I_j} b_j(x)\, dx= \int_{I_j} f(x)\, dx-\int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j}f(y)\, dy\, dx$$
+\begin{equation*}
+    =\int_{I_j} f(x)\, dx- \int_{I_j}f(y)\, dy=0.
+\end{equation*}
+This establishes \eqref{eq-bad-mean-zero}.
+
+Using the triangle inequality, we have that
+\begin{equation*}
+    \int_{I_j} |b_j(y)|\, dy\leq \int_{I_j} |f(y)|\, dy + \int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j} |f(x)|\, dx\, dy.
+\end{equation*}
+\begin{equation}
+    \label{eq-bj-int}
+    =2 \int_{I_j} |f(y)|\, dy.
+\end{equation}
+Dividing both sides by $\mu(I_j)$ and using \eqref{eq-CZ-bad-sets-2}, we obtain \eqref{eq-bj-L1}.
+
+Further, summing up \eqref{eq-bj-int} in $j$ yields
+\begin{equation*}
+    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq \sum_{j}\int_{I_j} |f(y)|\, dy + \sum_{j}\int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j} |f(x)|\, dx\, dy.
+\end{equation*}
+Using the disjointedness of $(s_j, t_j)$, we get
+\begin{equation*}
+    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy.
+\end{equation*}
+This proves \eqref{eq-b-L1}, and completes the proof.
+\end{proof}
+
+\begin{proof}[Proof of Lemma \ref{lem-weak-1-1}]
+Using Lemma \ref{lem-czd-func} for $f$ and $2^{-10}\alpha$, we obtain the deomposition
+$$f=g+\sum_j b_j$$
+such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied with $\gamma=2^{-10}$. For each $j$, let
+\begin{equation}
+    \label{eq-Ij-cj}
+    I_j=[s_j, t_j], \qquad c_j:=\frac{s_j+t_j}{2},
+\end{equation}
+and
+\begin{equation}
+    \label{eq-Ij*}
+    I_j{^*}=\left[s_j-{2(t_j-s_j)}, t_j+2(t_j-s_j)\right].
+\end{equation}
+Then $I_j^*$ is an interval with the same center as $I_j$ but with
+\begin{equation}
+    \label{eq-Ij*-dim}
+    \mu(I_j^*)=5(t_j-s_j)=5\mu(I_j).
+\end{equation}
+Let
+\begin{equation}
+    \label{eq-omega}
+    \Omega:=\cup_j I_{j}^*.
+\end{equation}
+By definition, for each $x\in \mathbb{R}\setminus\Omega$ and $y\in I_j$,
+\begin{equation}
+    \label{eq-Om-cj}
+    |x-c_j|>\frac{5(t_j-s_j)}{2}\geq 5|y-c_j|,
+\end{equation}
+and
+\begin{equation}
+    \label{eq-Om-y}
+    |x-y|>{2(t_j-s_j)}.
+\end{equation}
+It follows by the triangle inequality and subadditivity of $\mu$ that
+$$ \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right) $$
+\begin{equation}
+\label{eq-set-dec-1}
+ \le \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)+  \mu\left(\{x\in \mathbb{R}: |H_r b(x)|>{\alpha}/2\}\right).
+\end{equation}
+We estimate using monotonicity of the integral
+$$ \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)\leq
+\frac{4}{\alpha^2} \int |H_r g(y)|^2\, dy. $$
+Using Lemma \ref{lem-H_r-L2-bound} followed by \eqref{eq-g-max} and \eqref{eq-g-L1-norm}, we estimate the right hand side above by
+$$\leq 2^{26}\frac{4}{\alpha^2} \int |g(y)|^2\, dy\leq \frac{2^{18}}{\alpha} \int |g(y)|\, dy\leq \frac{2^{18}}{\alpha} \int |f(y)|\, dy.$$
+Thus, we conclude
+\begin{equation}
+    \label{eq-g-func-bd}
+    \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)\leq
+    % \frac{2^{18}}{\alpha} \left(\int_A |f(y)|\, dy+\int_{\mathbb{R}\setminus A} |f(y)|\, dy\right)
+    \frac{2^{18}}{\alpha} \int |f(y)|\, dy.
+\end{equation}
+Next, we estimate
+$$\mu\left(\{x\in \mathbb{R}: |H_r b(x)|>\alpha/2\}\right) $$
+$$
+    \le \mu (\Omega) +  \mu\left(\{x\in \mathbb{R}\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
+$$
+Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
+\begin{equation}
+    \label{eq-omega-bd}
+    \mu(\Omega) \le \sum_{j} \mu (I_j^*)
+    = 5 \sum_{j} (t_j-s_j)\leq \frac{2^{13}}{\alpha} \int |f(y)|\, dy\,.
+\end{equation}
+We now focus on estimating the remaining term
+$$\mu\left(\{x\in \mathbb{R}\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.$$
+For $x\in \mathbb{R}\setminus\Omega$, define
+\begin{align*}
+    \mathcal{J}_1(x)&:=\{j\,:[s_j, t_j]\cap [x-r, x+r]=\emptyset \},\\
+    \mathcal{J}_2(x)&:=\{j\,: |y-x|=r \text{ for some } y \in [s_j, t_j]\},\\
+    \mathcal{J}_3(x)&:=\{j\,: [s_j, t_j]\subset [x-r, x+r]\}.
+\end{align*}
+Since $H_rb_j(x)=0$ for all $j\in \mathcal{J}_3(x)$, using the triangle inequality and the decomposition above, we get
+\begin{equation}
+    \label{eq-b-dec}
+    |H_r b(x)|\leq \sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)|+\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)|.
+\end{equation}
+Further, for $j\in \mathcal{J}_1(x)$, we have
+$$H_rb_j(x)=\int_{I_j} \kappa (x-y)\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y) b_j(y)\,dy=\int_{I_j} \kappa (x-y) b_j(y)\,dy\,.$$
+Using \eqref{eq-bad-mean-zero}, the above is equal to
+$$\int_{I_j} (\kappa (x-y)-\kappa(x-c_j)) b_j(y).$$
+Thus, using the triangle inequality, \eqref{eq-Om-cj}, \eqref{eq-Om-y} and Lemma \ref{Hilbert-kernel-regularity}, we can estimate
+$$\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)|\leq \sum_{j\in \mathcal{J}_1(x)}2^{10}\int_{I_j}\frac{|y-c_j|}{|x-c_j|^2} |b_j(y)|\, dy$$
+\begin{equation}
+    \label{eq-J1-diff-est}
+    \leq 2^{10}\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2}\int_{I_j} |b_j(y)|\, dy:=F_1(x).
+\end{equation}
+Next, we estimate the second sum in \eqref{eq-b-dec}. For each $j\in \mathcal{J}_2(x)$, set
+$$d_j:=\frac{1}{t_j-s_j}\int_{I_j} \mathbf{1}_{\{z:\, r<|z|<1\}}(x-y) b_j(y)\, dy.$$
+Then by \eqref{eq-bj-L1}
+\begin{equation}
+    \label{eq-dj-est}
+    |d_j|\leq 2\cdot 2^{-10} \alpha=2^{-9}\alpha.
+\end{equation}
+For each $j\in \mathcal{J}_2(x)$, we have
+$$
+H_r b_j(x)=\int_{I_j} \kappa(x-y) (\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y)b_j(y)-d_j)\, dy$$
+$$+ \int_{I_j} d_j \kappa(x-y) \, dy.
+$$
+$$=\int_{I_j} (\kappa(x-y)-\kappa(x-c_j)) (\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y)b_j(y)-d_j)\, dy$$
+$$+ \int_{I_j} d_j \kappa(x-y) \, dy.$$
+Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, we obtain
+$$|H_r b_j(x)|\leq $$
+\begin{equation}
+    \label{eq-J2-diff-est}
+    \int_{I_j} |(\kappa(x-y)-\kappa(x-c_j)) \left(|b_j(y)|+2^{-9}\alpha\right)\, dy +2^{-9}\alpha \int_{I_j}  |\kappa(x-y)| \, dy.
+\end{equation}
+Using \eqref{eq-Om-cj}, \eqref{eq-Om-y} and Lemma \ref{Hilbert-kernel-regularity}, and arguing as in \eqref{eq-J1-diff-est}, we get the the first term above can be estimated by
+\begin{equation}
+    \label{eq-J2-diff-est-2}
+    2^{10}\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2}\left(\int_{I_j} |b_j(y)|+2^{-9} \alpha (t_j-s_j)\right)=F_1(x)+F_2(x),
+\end{equation}
+with $F_1$ as in \eqref{eq-J1-diff-est} and
+\begin{equation}
+    \label{eq-def-F2}
+    F_2(x):= 2\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2} \alpha (t_j-s_j).
+\end{equation}
+For each $j\in \mathcal{J}_2(x)$, let $y_j\in [s_j, t_j]$ be such that
+$$|x-y_j|=r.$$ Using \eqref{eq-Om-y}, we have
+$$r=|x-y_j|>2(t_j-s_j).$$
+Further, using the triangle inequality, for each $y\in I_j$, we obtain
+$$|x-y|\leq |x-y_j|+|y-y_j|\leq r+(t_j-s_j)<\frac{3r}{2},$$
+and
+$$|x-y|\geq |x-y_j|-|y-y_j|\geq r-(t_j-s_j)>\frac{r}{2}.$$
+We conclude that
+$$[s_j, t_j]\subset \left\{y\,: \frac{r}{2}<|x-y|<\frac{3r}{2}\right\}.$$
+Using this and Lemma \ref{Hilbert-kernel-bound}, we get
+\begin{equation}
+    \label{eq-J2-diff-est-4}
+    \int_{I_j}|\kappa(x-y)|\,dy \leq \int_{\{y\,: \frac{r}{2}<|x-y|<\frac{3r}{2}\}}\frac{8}{|x-y|}\, dy\leq 32\,.
+\end{equation}
+
+Combining \eqref{eq-b-dec}, \eqref{eq-J1-diff-est}, \eqref{eq-J2-diff-est}, \eqref{eq-J2-diff-est-2} and \eqref{eq-J2-diff-est-4}, we get
+\begin{equation*}
+    |H_rb(x)|\leq 2F_1(x)+F_2(x)+2^{-4}\alpha.
+\end{equation*}
+Using the triangle inequality, we deduce that
+$$\mu({\{x\in \Omega: |H_r b(x)|>\alpha/4\}})\leq $$
+\begin{equation}
+    \label{eq-set-dec-3}
+    \mu(\{x\in \Omega: |F_1(x)|> 2^{-4} \alpha\})+\mu(\{x\in \Omega: | F_2(x)|> 2^{-4}\alpha\}).
+\end{equation}
+
+We estimate
+\begin{equation}
+    \label{eq-F1-est-1}
+    \mu(\{x\in \Omega: |F_1(x)|> 2^{-4}\alpha\})\leq \frac{2^{14}}{\alpha}\sum_{j} \int_{I_j} |b_j(y)|\, dy\int_{\Omega}  \frac{(t_j-s_j)}{|x-c_j|^2}\, dx.
+\end{equation}
+Using \eqref{eq-Om-cj}, we can bound
+\begin{equation}
+    \label{eq-Om-int}
+    \int_{\Omega}  \frac{(t_j-s_j)}{|x-c_j|^2}\, dx \le 2(t_j - s_j) \int_{5|t_j - s_j|}^\infty  \frac{1}{t^2} \, \mathrm{d}t = \frac{2}{5}\,.
+\end{equation}
+Plugging \eqref{eq-Om-int} into \eqref{eq-F1-est-1} and using \eqref{eq-b-L1}, we conclude that
+\begin{equation}
+    \label{eq-F1-est-2}
+    \mu(\{x\in \Omega: |F_1(x)|>2^{-4}\alpha\})\leq \frac{2^{14}}{\alpha}\int |f(y)|\,dy\,.
+\end{equation}
+
+Similarly, we estimate
+$$\mu(\{x\in \Omega: |F_2(x)|>2^{-4} \alpha\})\leq \frac{2^{5}}{\alpha}\sum_{j} \alpha (t_j-s_j)\, \int_{\Omega}  \frac{(t_j-s_j)}{|x-c_j|^2}\, dx.$$
+Using \eqref{eq-Om-int} and \eqref{eq-bset-length-sum}, this is bounded by
+\begin{equation}
+\label{eq-F2-est}
+2^{4}\sum_{j} (t_j-s_j)\leq \frac{2^{15}}{\alpha}\int |f(y)|\, dy.
+\end{equation}
+
+Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-g-func-bd}, \eqref{eq-omega-bd}, \eqref{eq-set-dec-3}, \eqref{eq-F1-est-2} and \eqref{eq-F2-est} yields \eqref{eq-weak-1-1}.
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{The proof of the van der Corput Lemma \ref{van-der-Corput}}
 \label{10vandercorput}
 
@@ -7885,12 +8519,12 @@ $$
     \int_\alpha^\beta g(x) e^{-inx} \, \mathrm{d}x
     = \frac{1}{2} \int_\alpha^\beta g(x) e^{inx} \, \mathrm{d}x - \frac{1}{2} \int_\alpha^\beta g(x) e^{in(x + \pi/n)}) \, \mathrm{d}x\,.
 $$
-We split the the first integral at $\alpha + \frac{\pi}{n}$ and the second one at $\beta - \frac{\pi}{n}$, and make a change of variables in the first part of the second integral to obtain
+We split the the first integral at $\alpha + \frac{\pi}{n}$ and the second one at $\beta - \frac{\pi}{n}$, and make a change of variables in the second part of the first integral to obtain
 $$
     = \frac{1}{2} \int_{\alpha}^{\alpha + \frac{\pi}{n}} g(x) e^{inx} \, \mathrm{d}x - \frac{1}{2} \int_{\beta - \frac{\pi}{n}}^{\beta} g(x) e^{in(x + \pi/n)} \, \mathrm{d}x
 $$
 $$
-    + \frac{1}{2} \int_{\alpha + \frac{\pi}{n}}^{\beta} (g(x) - g(x - \frac{\pi}{n}) e^{inx} \, \mathrm{d}x\,.
+    + \frac{1}{2} \int_{\alpha + \frac{\pi}{n}}^{\beta} (g(x) - g(x - \frac{\pi}{n})) e^{inx} \, \mathrm{d}x\,.
 $$
 The sum of the first two terms is by the triangle inequality bounded by
 $$
@@ -7941,35 +8575,35 @@ This subsection proves Lemma \ref{spectral-projection-bound}
 Let $N>0$ be given. With $K_N$ as in Lemma \ref{dirichlet-kernel},
 \begin{equation*}
 S_N (S_Nf) (x)=
-\int_0^{2\pi} S_Nf(y)K_N(x-y)\, dy
+\frac{1}{2\pi} \int_0^{2\pi} S_Nf(y)K_N(x-y)\, dy
 \end{equation*}
 \begin{equation}\label{eqhil1}
 =
-\int_0^{2\pi} \int_0^{2\pi} f(y')K_N(y-y') K_N(x-y)\, \, dy' dy\, .
+\frac{1}{(2\pi)^2}\int_0^{2\pi} \int_0^{2\pi} f(y')K_N(y-y') K_N(x-y)\, \, dy' dy\, .
 \end{equation}
 We have by Lemma \ref{dirichlet-kernel}
 \begin{equation*}
-\int_0^{2\pi} K_N(y-y') K_N(x-y)\,  dy
+\frac{1}{2\pi}\int_0^{2\pi} K_N(y-y') K_N(x-y)\,  dy
 \end{equation*}
 \begin{equation*}
-=\sum_{n=-N}^N\sum_{n'=-N}^N
+=\frac{1}{2\pi}\sum_{n=-N}^N\sum_{n'=-N}^N
 \int_0^{2\pi} e^{in(y-y')}e^{in'(x-y)}\,  dy
 \end{equation*}
 \begin{equation}\label{eqhil6}
-=\sum_{n=-N}^N\sum_{n'=-N}^N
+=\frac{1}{2\pi}\sum_{n=-N}^N\sum_{n'=-N}^N
 e^{i(n'x-ny')}\int_0^{2\pi} e^{i(n-n')y}\,  dy\, .
 \end{equation}
 By Lemma \ref{mean-zero-oscillation}, the summands for $n\neq n'$ vanish.
 We obtain for \eqref{eqhil6}
 \begin{equation}\label{eqhil2}
-=\sum_{n=-N}^N
+=\frac{1}{2\pi}\sum_{n=-N}^N
 e^{in(x-y')}\int_0^{2\pi} \,  dy=K_N(x-y')\, .
 \end{equation}
 Applying Fubini in  \eqref{eqhil1} and using
 \eqref{eqhil2} gives
 \begin{equation}
 S_N(S_Nf)(x)=
-\int_0^{2\pi}  f(y')K(x-y')  \, dy'=S_N f(x)
+\frac{1}{2\pi} \int_0^{2\pi}  f(y')K(x-y')  \, dy'=S_N f(x)
 \end{equation}
 This proves the lemma.
 \end{proof}
@@ -8044,15 +8678,6 @@ This completes the proof of the lemma.
 
 
 
-
-
-
-
-
-
-
-
-
 \section{The error bound}
 \label{10difference}
 We prove Lemma \ref{control-approximation-effect}. Define
@@ -8081,10 +8706,10 @@ $$
     + \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) \min(|y|, 1) K_N(y) \, dy\right|\,.
 $$
 Note that all integrals are well defined, since $K_N$ is by \eqref{eqksumexp} bounded by $2N+1$.
-Using \eqref{eqksumhil} and the definition \eqref{eq-hilker} of $k$, we rewrite the two terms and obtain
+Using \eqref{eqksumhil} and the definition \eqref{eq-hilker} of $\kappa$, we rewrite the two terms and obtain
 \begin{equation}
     \label{eq-diff-singular}
-    \frac{\epsilon}{4} < \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{k}(y) + e^{-iNy}k(y)) \, dy\right|
+    \frac{\epsilon}{4} < \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|
 \end{equation}
 \begin{equation}
     \label{eq-diff-integrable}
@@ -8104,18 +8729,18 @@ $$
 $$
 Consequently, we have that
 $$
-    \frac{\epsilon}{8} \le \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{k}(y) + e^{-iNy}k(y)) \, dy\right|\,.
+    \frac{\epsilon}{8} \le \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|\,.
 $$
-By dominated convergence and since $k(y) = 0$ for $|y| > 1$, this equals
+By dominated convergence and since $\kappa(y) = 0$ for $|y| > 1$, this equals
 $$
-     = \frac{1}{2\pi} \lim_{r \to 0^+} \left| \int_{r < |y| < 1} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{k}(y) + e^{-iNy}k(y)) \, dy\right|\,.
+     = \frac{1}{2\pi} \lim_{r \to 0^+} \left| \int_{r < |y| < 1} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|\,.
 $$
 Let $h = (f - f_0) \mathbf{1}_{[-\pi, 3\pi]}$. Since $x \in [0, 2\pi]$, the above integral does not change if we replace $(f - f_0)$ by $h$. We do that, apply the triangle inequality and bound the limits by suprema
 $$
-    \le \frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |y| < 1} h(x-y) e^{-iNy} k(y) \, dy\right|
+    \le \frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |y| < 1} h(x-y) e^{-iNy} \kappa(y) \, dy\right|
 $$
 $$
-    + \frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |y| < 1} \overline{h}(x-y) e^{-iNy} k(y) \, dy\right|\,.
+    + \frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |y| < 1} \overline{h}(x-y) e^{-iNy} \kappa(y) \, dy\right|\,.
 $$
 By the definition \eqref{define-T-carleson} of $T$, this is
 $$
@@ -8231,34 +8856,47 @@ $\mfa_n:\R\to \R$ by
 
 Let $\Mf$ be the collection $\{\mfa_n, n\in \mathbb{Z}\}$.
 Note that for every $n\in \mathbb{Z}$ we have $\mfa_n(0)=0$.
-Define $d_E$ as in \eqref{definedE}. Note that
-for
-$n,m\in \mathbb{Z}$ and $x\in \R$ and $x>0$
-we have
-
+Define
 \begin{equation}
-    d_{B(x,R)}(\mfa_n,\mfa_m)=\sup_{y,y'\in B(x,R)}|ny-ny'-my+my'|
-\end{equation}
-\begin{equation}\label{eqcarl1}
-       =\sup_{y,y'\in B(x,R)}|(n-m)(y-x)-(n-m)(y'-x)|
- \end{equation}
-By the triangle inequality, we have for \eqref{eqcarl1} the upper bound
-\begin{equation}\label{eqcarl2}
-       \le 2|n-m|R\, .
- \end{equation}
-On the other hand, for any $0<R'<R$, we have
-by choosing suitable $y,y'\in \{x-R', x+R'\}$,
-we have for \eqref{eqcarl1} the lower bound
-\begin{equation}\label{eqcarl3}
-       \ge 2|n-m|R'\, .
- \end{equation}
-As $R'<R$ is arbitrary, we have with \eqref{eqcarl2}
-and \eqref{eqcarl3}
-\begin{equation}\label{eqcarl4}
-    d_{B(x,R)}(\mfa_n,\mfa_m)=2R|n-m|\, .
+    \label{eqcarl4}
+    d_{B(x,R)}(\mfa_n, \mfa_m) := 2R|n-m|\,.
 \end{equation}
 
+\begin{lemma}[frequency metric]
+    \label{frequency-metric}
+    For every $R > 0$ and $x \in X$, the function $d_{B(x,R)}$ is a metric on $\Mf$.
+\end{lemma}
 
+\begin{proof}
+    This follows immediately from the fact that the standard metric on $\mathbb{Z}$ is a metric.
+\end{proof}
+
+\begin{lemma}[oscillation control]
+    \label{oscillation-control}
+    For every $R > 0$ and $x \in X$, and for all $n, m \in \mathbb{Z}$, we have
+    \begin{equation}\label{eqcarl2}
+       \sup_{y,y'\in B(x,R)}|ny-ny'-my+my'|\le 2|n-m|R\, .
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    The right hand side of \eqref{eqcarl2} equals
+    $$
+        \sup_{y,y'\in B(x,R)}|(n-m)(y-x)-(n-m)(y'-x)|\,.
+    $$
+    The lemma then follows from the triangle inequality.
+\end{proof}
+
+\begin{lemma}{[frequency monotone]}
+    For any $x, x' \in X$ and $R, R' > 0$ with $B(x,R) \subset B(x, R')$, and for any $n, m \in \mathbb{Z}$
+    $$
+        d_{B(x,R)}(\mfa_n, \mfa_m) \le d_{B(x',R')}(\mfa_n, \mfa_m)\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    This follows immediately from the definition \eqref{eqcarl4} and $R \le R'$.
+\end{proof}
 
 \begin{lemma}[frequency ball doubling]
 \label{frequency-ball-doubling}
@@ -8373,7 +9011,7 @@ Set $n'=n-m$. Then we have to prove
     \left|\int_{x-R}^{x+R} e^{in'y}\varphi(y) dy\right|\le 4\pi  R\|\varphi\|_{\Lip(B')}
 (1+2R|n'|)^{-1}\, .
 \end{equation}
-This follows from Lemma \ref{van-der-Corput} with $\alpha = x - R$ and $\beta = x + 2R$.
+This follows from Lemma \ref{van-der-Corput} with $\alpha = x - R$ and $\beta = x + R$.
 %We do a case distinction whether $Rn'\le \pi$
 %or $Rn'> \pi$.
 %Assume first  $Rn'\le \pi$. We estimate the left-hand side  of \eqref{eq-vdc-cond2} by
@@ -8435,90 +9073,25 @@ This follows from Lemma \ref{van-der-Corput} with $\alpha = x - R$ and $\beta = 
 %with the triangle inequality proves \eqref{eq-vdc-cond2} in the given case and completes the proof of the lemma.
 \end{proof}
 
-The preceding three lemmas establish that $\Mf$ is a cancellative, compatible collection of functions on $(\R, \rho, \mu, 4)$. Again, some of the statements in these lemmas
-are stronger than what is needed for $a=4$, but can be relaxed to give the desired conclusion for $a=4$.
+The preceding chain of lemmas establish that $\Mf$ is a cancellative, compatible collection of functions on $(\R, \rho, \mu, 4)$. Again, some of the statements in these lemmas are stronger than what is needed for $a=4$, but can be relaxed to give the desired conclusion for $a=4$.
 
 
 
 
 With $\kappa$ as near \eqref{eq-hilker}, define
-the function $K:\R\times \R\to \mathbb{C}$ by
+the function $K:\R\times \R\to \mathbb{C}$ as in Theorem
+\ref{metric-space-Carleson} by
 \begin{equation}
     K(x,y):=\kappa(x-y)\, .
 \end{equation}
 The function $K$ is continuous outside the diagonal
 $x=y$ and vanishes on the diagonal. Hence it is measurable.
 
-\begin{lemma}[Hilbert kernel bound]
-\label{Hilbert-kernel-bound}
-    For $x,y\in \R$ with $x\neq y$ we have
-    \begin{equation}\label{eqcarl30}
-        |K(x,y)|\le 2^4(2|x-y|)^{-1}\, .
-    \end{equation}
-\end{lemma}
-\begin{proof}
-    Fix $x\neq y$. If $K(x,y)$ is zero, then \eqref{eqcarl30} is evident. Assume $K(x,y)$ is not zero, then $0<|x-y|<1$.
-    We have
-\begin{equation}\label{eqcarl31}
-|K(x,y)|=|\kappa(x-y)|=\left|\frac {1-|x-y|}{1-e^{i(x-y)}}\right|\, .
-\end{equation}
-We estimate
-with Lemma \ref{lower-secant-bound}
-\begin{equation}\label{eqcarl311}
-|K(x,y)|\le \frac {1}{|1-e^{i(x-y)}|}\le \frac 8{|x-y|}\, .
-\end{equation}
-This proves \eqref{eqcarl30} in the given case and completes the proof of the lemma.
-\end{proof}
 
-\begin{lemma}[Hilbert kernel regularity]
-\label{Hilbert-kernel-regularity}
-\uses{lower-secant-bound}
-    For $x,y,y'\in \R$ with $x\neq y,y'$ and
-    \begin{equation}
-        \label{eq-close-hoelder}
-        2|y-y'|\le |x-y|\, ,
-    \end{equation}
-    we have
-    \begin{equation}\label{eqcarl301}
-        |K(x,y) - K(x, y')|\le 2^{10}\frac{1}{|x-y|} \frac{|y-y'|}{|x-y|}\, .
-    \end{equation}
-\end{lemma}
-
-\begin{proof}
-    Since $K(x,y) = k(x-y) = K(0, y-x)$ we can assume that $x = 0$. Then the assumption \eqref{eq-close-hoelder} implies that $y$ and $y'$ have the same sign. Since $K(0,y) = k(y) = \bar k(-y) = \bar K(0, -y)$ we can assume that they are both positive. Then it follows from \eqref{eq-close-hoelder} that
-    $$
-        \frac{y}{2} \le y' \,.
-    $$
-    We distinguish four cases. If $y, y' \le 1$, then we have
-    $$
-        |K(0,y) - K(0,y')| = \left|  \frac{1 - y}{1- e^{-iy}} - \frac{1 - y'}{1- e^{-iy'}}\right|
-    $$
-    and by the fundamental theorem of calculus
-    $$
-        = \left| \int_{y'}^{y} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
-    $$
-    Using $y' \ge \frac{y}{2}$ and Lemma \ref{lower-secant-bound}, we bound this by
-    $$
-        \le |y - y'| \sup_{\frac{y}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |y-y'| (8 \frac{2}{y})^2 \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
-    $$
-    If $y \le 1$ and $y' > 1$, then $K(0, y') = 0$ and we have from the first case
-    $$
-        |K(0,y) - K(0,y')| = |K(0,y) - K(0,1)| \le 2^{10} \frac{|y-1|}{|y|^2} \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
-    $$
-    Similarly, if $y > 1$ and $y' \le 1$, then $K(0, y) = 0$ and we have by the same computation as for the first case
-    $$
-        |K(0,y) - K(0,y')| = |K(0,y') - K(0,1)| \le 2^{10} \frac{|y-1|}{|y|^2} \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
-    $$
-    Finally, if $y, y' > 1$ then
-    $$
-        |K(0,y) - K(0,y')| = 0 \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
-    $$
-\end{proof}
-
-By the previous two lemmas, $K$ is a one-sided Calder\'on--Zygmund kernel on $(\R,\rho,\mu,4)$.
+By the Lemmas \ref{Hilbert-kernel-bound} and \ref{Hilbert-kernel-regularity}, it follows that $K$ is a one-sided Calder\'on--Zygmund kernel on $(\R,\rho,\mu,4)$.
 
 
-The operator $T^*$ defined in \eqref{def-tang-unm-op} coincides in our setting with the operator $T^*$ defined in \eqref{concretetstar}. By  Lemma \ref{lem-hilbert}, this operator satisfies the bound \eqref{nontanbound}.
+The operator $T^*$ defined in \eqref{def-tang-unm-op} coincides in our setting with the operator $T^*$ defined in \eqref{concretetstar}. By  Lemma \ref{nontangential-Hilbert}, this operator satisfies the bound \eqref{nontanbound}.
 
 
 
