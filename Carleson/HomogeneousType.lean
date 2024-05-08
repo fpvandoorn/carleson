@@ -3,6 +3,7 @@ import Carleson.ToMathlib.MeasureReal
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Integral.Average
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.NormedSpace.FiniteDimension
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
@@ -144,13 +145,21 @@ lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X
 instance (n : ℕ) : Fact ((1 : ℝ) ≤ 2 ^ n) := ⟨by norm_cast; exact Nat.one_le_two_pow⟩
 
 /- ℝ^n is a space of homogenous type. -/
-instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) (2 ^ Fintype.card ι) := sorry
+--instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) (2 ^ Fintype.card ι) := sorry
 
 open FiniteDimensional
 /- Preferably we prove that in this form. -/
-instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E] :
-    IsSpaceOfHomogeneousType E (2 ^ finrank ℝ E) := by
-  sorry
+instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E] [MeasureSpace E] [BorelSpace E]:
+    IsSpaceOfHomogeneousType E (2 ^ finrank ℝ E) where
+      toMeasureSpace := inferInstance
+      toProperSpace := inferInstance
+      toBorelSpace := inferInstance
+      lt_top_of_isCompact := sorry
+      outerRegular := sorry
+      innerRegular := sorry
+      open_pos := sorry
+      volume_ball_two_le_same := sorry
+
 
 /- Maybe we can even generalize the field? (at least for `𝕜 = ℂ` as well) -/
 def NormedSpace.isSpaceOfHomogeneousType {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
