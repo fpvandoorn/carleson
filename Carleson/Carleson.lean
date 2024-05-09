@@ -65,7 +65,7 @@ lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
   rw [← lt_div_iff hx, mul_comm D⁻¹, ← div_lt_div_iff hx (by positivity)]
   rw [← Real.logb_inv, ← Real.logb_inv]
   rw [div_inv_eq_mul, ← zpow_add_one₀ (by positivity)]
-  simp_rw [← Real.rpow_int_cast]
+  simp_rw [← Real.rpow_intCast]
   rw [Real.lt_logb_iff_rpow_lt hD (by positivity), Real.logb_lt_iff_lt_rpow hD (by positivity)]
   simp [div_eq_mul_inv, mul_comm]
 

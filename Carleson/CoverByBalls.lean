@@ -58,9 +58,7 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
   have h1 : CoveredByBalls s n 0 → s =∅ := by
     intro hcovered
     cases hcovered
-    case mk b hn hs
-    have h11 : ∀ x ∈b, ball x 0 = ∅ := by
-      exact fun x a ↦ ball_zero
+    case mk b hn hs =>
     simp at hs
     exact Set.subset_eq_empty hs rfl
   have h2 : s = ∅ → CoveredByBalls s n 0 := by
@@ -108,9 +106,7 @@ lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X 
   case succ m h2 =>
     specialize h (r * a^m)
     rw[<- mul_assoc, mul_comm, <- mul_assoc] at h
-    norm_cast
-    ring_nf
-    rw[Nat.succ_eq_add_one, Nat.pow_add, pow_add, pow_one, pow_one, mul_comm (n^m) n]
+    rw[pow_succ, pow_succ, mul_comm (n^m) n]
     rw[mul_comm] at h2
     norm_cast at h2
     exact BallsCoverBalls.trans h h2

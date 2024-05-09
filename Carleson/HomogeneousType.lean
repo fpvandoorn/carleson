@@ -13,7 +13,8 @@ noncomputable section
 /-- A space of homogeneous type, or doubling measure metric space
 Note(F): I added `ProperSpace` to the definition (which I think doesn't follow from the rest?)
 and removed `SigmaFinite` (which follows from the rest).
-Should we assume `volume ≠ 0` / `IsOpenPosMeasure`? -/
+Should we assume `volume ≠ 0` / `IsOpenPosMeasure`?
+Remark: `IsUnifLocDoublingMeasure` which is a weaker notion in Mathlib. -/
 class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ) [PseudoMetricSpace X] extends
   MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X) where
@@ -62,7 +63,8 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r
         _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
         _ ≤ A * volume.real (ball x (2 ^ m * r)) := by rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
         _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr
-        _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc]; norm_cast
+        _ = A^(m+1) * volume.real (ball x r) := by
+          rw[← mul_assoc, pow_succ, mul_comm _ A]
 
   /-Show inclusion in larger ball-/
   have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by
@@ -84,9 +86,6 @@ def Ad (A : ℝ) (s d : ℝ) : ℝ :=
 lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
   (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
     intro y h
-    have hA : 0 < A := by
-      calc 0 < 1 := by apply zero_lt_one
-        _ ≤ A := by exact hA
     have h1 : dist x y < r := by
       calc dist x y ≤ dist x x' + dist x' y := by apply dist_triangle
           _ < dist x x' + r' := by gcongr; apply mem_ball'.mp h
