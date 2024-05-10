@@ -24,8 +24,6 @@
 	Germany}
 \email{vdoorn@math.uni-bonn.de}
 
-
-
 \author[Jamneshan]{Asgar Jamneshan}
 \address{College of Sciences,
 	Ko\c{c} University,
@@ -231,7 +229,7 @@ L.B., F.v.D., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaft 
 L.B. , R.S., and C.T. were also supported by SFB 1060.
 A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
 
-\chapter{Proof of metric space Carleson (Thm \ref{metric-space-Carleson}), overview}
+\chapter{Proof of Metric Space Carleson, overview}
 \label{overviewsection}
 
 
@@ -775,7 +773,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \end{proof}
 
 
-\chapter{Proof of metric space Carleson (Thm \ref{metric-space-Carleson})}
+\chapter{Proof of Metric Space Carleson}
 \label{thmfromproplinear}
 
 
@@ -1016,7 +1014,7 @@ which by interchange of summation and integration is seen to be integrable, we o
 This completes the proof of Lemma \ref{linearized-truncation}
 and thus Theorem \ref{metric-space-Carleson}.
 
-\chapter{Proof of finitary Carleson (Prop \ref{finitary-Carleson})}
+\chapter{Proof of Finitary Carleson}
 \label{christsection}
 
 To prove Proposition
@@ -1104,7 +1102,7 @@ This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and 
 
 
 
-\section{Proof of Lemma \ref{grid-existence}, dyadic structure}
+\section{Proof of Grid Existence Lemma}
 \label{subsecdyadic}
 
 We begin with the construction of the centers of the dyadic cubes.
@@ -1535,7 +1533,7 @@ x\in B(o, D^S)\subset B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_3(y,k)\, .
 \end{equation} Thus, there exists a dyadic cube $I=I_3(y, k)$ with $s(I)=k$ and $x\in I$. This proves \eqref{coverball}.
 
 
-\section{Proof of Lemma \ref{tile-structure}, tile structure}
+\section{Proof of Tile Structure Lemma}
 \label{subsectiles}
 Choose a grid structure $(\mathcal{D}, c, s)$ with Lemma \ref{grid-existence}
 Let $I \in \mathcal{D}$. Suppose that
@@ -1681,8 +1679,7 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 
     1. There exist $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J, z)$, and there exists $z' \in \mathcal{Z}(J) \cap \Omega_1(\fp')$ such that $\mfa \in \Omega(J, z')$. By the induction hypothesis, that \eqref{eq-dis-freq-cover} holds for $J$, we must have $z = z'$. By Lemma \ref{disjoint-frequency-cubes}, we must then have $\fp = \fp'$.
 
-    2. There exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J,z)$, and $\mfa \in B_{\fp'}(\fcc(\fp'), 0.2)$.  Using the triangle inequality, Lemma \ref{monotone
-    cube metrics} and \eqref{eq-freq-comp-ball}, we obtain
+    2. There exists $z \in \mathcal{Z}(J) \cap \Omega_1(\fp)$ such that $\mfa \in \Omega(J,z)$, and $\mfa \in B_{\fp'}(\fcc(\fp'), 0.2)$.  Using the triangle inequality, Lemma \ref{monotone-cube-metrics} and \eqref{eq-freq-comp-ball}, we obtain
     $$
         d_{\fp'}(\fcc(\fp'),z) \le d_{\fp'}(\fcc(\fp'), \mfa) + d_{\fp'}(z, \mfa) \le 0.2 + 2^{-95a} \cdot 1 < 0.3\,.
     $$
@@ -1704,7 +1701,7 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
     By \eqref{eq-it-omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\sc(\fp) \subset \sc(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $\ps(\fq') - \ps(\fp) = \ps(\fq) - \ps(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
 \end{proof}
 
-\chapter{Proof of discrete Carleson (Prop.  \ref{discrete-Carleson}) }
+\chapter{Proof of discrete Carleson}
 \label{proptopropprop}
 
 
@@ -1943,7 +1940,7 @@ and Lemma \ref{forest-complement} and using both Lemmas as well
 as the bound on the set $G'$ given by Lemma \ref{exceptional-set}.
 
 
-\section{Proof of Lemma \ref{exceptional-set}, the exceptional sets}
+\section{Proof of the Exceptional Sets Lemma}
 \label{subsetexcset}
 
 
@@ -2603,7 +2600,7 @@ there exists $J\in \mathcal{D}$ with
     $$
 \end{proof}
 
-\section{Proof of Lemma \ref{forest-union}, the forests}
+\section{Proof of the Forest Union Lemma}
 \label{subsecforest}
 
 Fix $k,n,j\ge 0$.
@@ -2900,7 +2897,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\sc(\fp) \not\sub
     which completes the proof of the lemma.
 \end{proof}
 
-\section{Proof of Lemma \ref{forest-complement}, the antichains}
+\section{Proof of the Forest Complement Lemma}
 \label{subsecantichain}
 
 Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(\fp) \not \subset G'$.
@@ -3034,7 +3031,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\sc(
     This completes the proof.
 \end{proof}
 
-\chapter{Proof of  Proposition \ref{antichain-operator}}
+\chapter{Proof of the Antichain Operator Proposition}
 
 \label{antichainboundary}
 
@@ -3390,7 +3387,7 @@ With the definition of $p$, this  implies
 Proposition \ref{antichain-operator}.
 
 
-\section{Proof of Lemma \ref{tile-correlation}, the tile correlation bound }\label{sec-tile-operator}
+\section{Proof of the Tile Correlation Lemma}\label{sec-tile-operator}
 
 The next lemma prepares an application of
 Proposition \ref{Holder-van-der-Corput}.
@@ -3611,7 +3608,7 @@ we conclude
 
 
 
-\section{Proof of Lemma \ref{antichain-tile-count}, the geometric estimate}
+\section{Proof of the Antichain Tile Count Lemma}
 \label{subsec-geolem}
 
 
@@ -3996,7 +3993,7 @@ Using that $p = 4a^4$ and $a \ge 4$, this proves the lemma.
 
 
 
-\chapter{Proof of Proposition \ref{forest-operator}}
+\chapter{Proof of the Forest Operator Proposition}
 
 \label{treesection}
 
@@ -4851,7 +4848,7 @@ $$
     T_{\fC} f := \sum_{\fp \in \fC} T_{\fp} f\,, \quad\quad T_{\fC}^* g := \sum_{\fp\in\fC} T_{\fp}^* g\,.
 $$
 
-\section{Proof of Lemma \ref{correlation-distant-tree-parts}: Tiles with large separation}
+\section{Proof of the Tiles with large separation Lemma}
     \label{subsec-big-tiles}
 
 Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estimate in Proposition \ref{Holder-van-der-Corput}. We apply this proposition in Subsubsection \ref{subsubsec-van-der-corput}. To prepare this application, we first, in Subsubsection \ref{subsubsec-pao}, construct a suitable partition of unity, and show then, in Subsubsection \ref{subsubsec-holder-estimates} the H\"older estimates needed to apply Proposition \ref{Holder-van-der-Corput}.
@@ -5419,7 +5416,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     Applying the Cauchy-Schwarz inequality, Lemma \ref{correlation-distant-tree-parts} follows.
     \end{proof}
 
-\section{Proof of Lemma \ref{correlation-near-tree-parts}: The remaining tiles}
+\section{Proof of The Remaining Tiles Lemma}
     \label{subsec-rest-tiles}
     We define
     $$
@@ -5853,7 +5850,7 @@ Now we prove Proposition \ref{forest-operator}.
     Proposition \ref{forest-operator} follows by taking the product of the $(2 - \frac{2}{q})$-th power of \eqref{eq-forest-bound-1} and the $(\frac{2}{q} - 1)$-st power of \eqref{eq-forest-bound-2}.
 \end{proof}
 
-\chapter{Proof of Prop. \ref{Holder-van-der-Corput}, the H\"older cancellative condition}
+\chapter{Proof of the H\"older cancellative condition}
 \label{liphoel}
 
 We need the following auxiliary lemma.
@@ -6066,7 +6063,7 @@ where we used $\tau\le 1$.
 This completes the proof of Proposition \ref{Holder-van-der-Corput}.
 
 
-\chapter{Proof of Prop. \ref{Hardy-Littlewood}, Vitali covering and Hardy--Littlewood}
+\chapter{Proof of Vitali covering and Hardy--Littlewood}
 \label{sec-hlm}
 
 
@@ -6368,7 +6365,7 @@ It follows that for each $z \in B(x,r)$
 This completes the proof.
 
 
-\chapter{Proof of Theorem \ref{classical-Carleson}}
+\chapter{Proof of The Classical Carleson Theorem}
 
 
 
@@ -8260,7 +8257,7 @@ Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-g-func-bd}, \eqref{eq-omega-
 
 
 
-\section{The proof of the van der Corput Lemma \ref{van-der-Corput}}
+\section{The proof of the van der Corput Lemma}
 \label{10vandercorput}
 
 Let $g$ be a Lipschitz continuous function as in the lemma. We have
