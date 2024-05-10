@@ -175,16 +175,6 @@ Our concept of a compatible collection $\Mf$ as a natural class of phase functio
 
 For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polynomial}, which in turn was inspired by \cite{lie-polynomial}. We make suitable modifications to adapt to our more general setting and have made a few technical improvements in the proof. In particular, in \Cref{overviewsection}, we explicitly divide the main work of the proof into mutually independent sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. Some of these sections follow a similar pattern, starting with a subsection dividing the proof into further mutually independent subsections. This modularization of our proof was strongly endorsed in personal communication by the author of \cite{zk-polynomial}.
 
-
-
-
-
-
-
-
-
-
-
 \noindent \textit{Acknowledgement.}
 L.B., F.v.D., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
 L.B. , R.S., and C.T. were also supported by SFB 1060.
@@ -192,7 +182,6 @@ A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council o
 
 \chapter{Proof of Metric Space Carleson, overview}
 \label{overviewsection}
-
 
 This section organizes the proof of \Cref{metric-space-Carleson} into sections \ref{thmfromproplinear}, \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm}. These sections are mutually independent except for referring to the statements formulated in the present section. \Cref{thmfromproplinear} proves the main \Cref{metric-space-Carleson}, while sections \ref{christsection}, \ref{proptopropprop}, \ref{antichainboundary}, \ref{treesection}, \ref{liphoel}, and \ref{sec-hlm} each prove one proposition that is stated in the present section. The present section also introduces all definitions used across these sections.
 
@@ -253,7 +242,9 @@ For $s\in\mathbb{Z}$, we define
 \end{equation}
 so that for each $x, y \in X$ with $x\neq y$  we have
 $$K(x,y)=\sum_{s\in\mathbb{Z}}K_s(x,y).$$
- In \Cref{thmfromproplinear}, we prove \Cref{metric-space-Carleson}
+
+In \Cref{thmfromproplinear}, we prove \Cref{metric-space-Carleson}
+
  from its finitary version, \Cref{finitary-Carleson} below. Recall
  that a function from a measure space to a finite set is measurable if the pre-image of each of the elements in the range is measurable.
 
@@ -1669,10 +1660,6 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 
 Let a grid structure $(\mathcal{D}, c, s)$ and a tile structure $(\fP, \scI, \fc, \fcc)$ for this grid structure be given. In \Cref{subsectilesorg}, we decompose the set $\fP$ of tiles into subsets. Each subset will be controlled by one of three methods. The guiding principle of the decomposition is to be able to apply the forest estimate of \Cref{forest-operator} to the final subsets defined in \eqref{defc5}. This application is done in \Cref{subsecforest}. The miscellaneous subsets along the construction of the forests will either be thrown into exceptional sets, which are defined and controlled in \Cref{subsetexcset}, or will be controlled by the antichain estimate of \Cref{antichain-operator}, which is done in \Cref{subsecantichain}. \Cref{subsec-lessim-aux} contains some auxiliary lemmas needed for the proofs in Subsections \ref{subsecforest}-\ref{subsecantichain}.
 
-
-
-
-
 \section{Organisation of the tiles}\label{subsectilesorg}
 
 In the following definitions, $k, n$, and
@@ -3008,6 +2995,7 @@ One of these two inequalities will need a careful estimate formulated in
 the $TT^*$ correlation between two tile operators.
 \Cref{tile-correlation} will be proven in
 \Cref{sec-tile-operator}.
+
 The summation of the contributions of these individual correlations will require a
 geometric \Cref{antichain-tile-count} counting the relevant tile pairs.
 \Cref{antichain-tile-count} will be proven in Subsection
