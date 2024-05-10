@@ -2725,6 +2725,7 @@ Define for each $\fu\in \fU_3(k,n,j)$
 
 \begin{lemma}[C6 forest]
 \label{C6-forest}
+\uses{equivalence-relation}
 We have
 \begin{equation}
     \fC_6(k,n,j)=\bigcup_{\fu\in \fU_3(k,n,j)}\mathfrak{T}_2(\fu)\, .
@@ -4794,7 +4795,7 @@ Now we are ready to state the main result of this subsection.
     Lemma \ref{correlation-separated-trees} follows by combining the definition \eqref{defineZ} of $Z$ with the following two lemmas.
     \begin{lemma}[correlation distant tree parts]
         \label{correlation-distant-tree-parts}
-        \uses{Holder-van-der-Corput,adjoint-tile-support,Lipschitz-partition-unity,Holder-correlation-tree,lower-oscillation-bound}
+        \uses{Holder-van-der-Corput,Lipschitz-partition-unity,Holder-correlation-tree,lower-oscillation-bound}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\sc(\fu_1) \subset \sc(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
             \label{eq-lhs-big-sep-tree}
@@ -6572,7 +6573,7 @@ use the following Lemma \ref{real-Carleson}, which itself is proven
  in Subsection \ref{10carleson} as an application of
  Theorem \ref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
-\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-kernel-bound,Hilbert-kernel-regularity}
+\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
     \left|\int _G Tf(x) \, dx\right| \le 2^{2^{40}}|F|^{\frac 12} |G|^{\frac 12} \, ,
@@ -7259,7 +7260,6 @@ is less than $r_1/8$.
 \end{lemma}
 
 \begin{proof}
-\proves{Cotlar-sets}
 Let $r$, $r_1$, $x$ and $g$ be given.
 If $M(H_{r}g)(x)=0$, then $H_{r}g$ is constant zero
 and $F_1$ is empty and the estimate on $F_1$ trivial.
@@ -7312,7 +7312,6 @@ g(y) \kappa(x-y)\, dy
 
 
 \begin{proof}
-    \proves{Cotlar-estimate}
 By Lemma \ref{Cotlar-control}, the measure of the set
 of all $x'\in
 [x-\frac{r_1}4,x+\frac{r_1}4]$
@@ -7346,7 +7345,6 @@ g(y) \kappa(x'-y)\, dy\right|\, .
 \end{equation}
 \end{lemma}
 \begin{proof}
-\proves{simple-nontangential-Hilbert}
 With Lemma \ref{estimate-x-shift}
 and the triangle inequality, we estimate
 for every $x\in \R$
@@ -7512,7 +7510,6 @@ This proves the first identity of the lemma. The second identity follows by subs
     \end{equation}
     \end{lemma}
 \begin{proof}
-\proves{Young-convolution}
 Using Fubini and Lemma \ref{periodic-domain-shift}, we observe
 \begin{equation*}
   \int_{-\pi}^{\pi}\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy
@@ -7710,6 +7707,7 @@ Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-di
 We now prove Lemma \ref{Hilbert-strong-2-2}.
 
 \begin{proof}[Proof of Lemma \ref{Hilbert-strong-2-2}]
+    \proves{Hilbert-strong-2-2}
     We first show that if $f$ is supported in $[-3/2, 3/2]$, then
     \begin{equation}
         \label{eq-Hr-short-support}
@@ -8044,6 +8042,7 @@ This proves \eqref{eq-b-L1}, and completes the proof.
 \end{proof}
 
 \begin{proof}[Proof of Lemma \ref{Hilbert-weak-1-1}]
+\proves{Hilbert-weak-1-1}
 Using Lemma \ref{Calderon-Zygmund-decomposition} for $f$ and $2^{-10}\alpha$, we obtain the decomposition
 $$f=g+b=g+\sum_j b_j$$
 such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied with $\gamma=2^{-10}$. For each $j$, let
@@ -8260,6 +8259,8 @@ Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-g-func-bd}, \eqref{eq-omega-
 \section{The proof of the van der Corput Lemma}
 \label{10vandercorput}
 
+\begin{proof}[Proof of Lemma \ref{van-der-Corput}]
+\proves{van-der-Corput}
 Let $g$ be a Lipschitz continuous function as in the lemma. We have
 $$
     e^{in(x + \pi/n)} = -e^{inx}\,.
@@ -8299,7 +8300,7 @@ This completes the proof of the lemma, using that
 $$
     \min\{|\beta-\alpha|, \frac{\pi}{n}\} \le 2 \pi |\beta-\alpha|(1 + n|\beta-\alpha|)^{-1}\,.
 $$
-
+\end{proof}
 
 
 
@@ -8756,8 +8757,6 @@ is finite and for any $n,m\in \mathbb{Z}$, we have
     \left|\int_{B'} e(\mfa_n(x)-{\mfa_m(x)}) \varphi(x) d\mu(x)\right|\le 2\pi \mu(B')\frac{\|\varphi\|_{\Lip(B')}}{1+d_{B'}(\mfa_n,\mfa_m)}
 \, .
 \end{equation}
-
-
 \end{lemma}
 \begin{proof}
 Set $n'=n-m$. Then we have to prove

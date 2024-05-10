@@ -45,10 +45,17 @@ jobs:
       - name: Cache mathlib docs
         uses: actions/cache@v3
         with:
-          path: .lake/build/doc/Mathlib
-          key: DocGen4-${{ hashFiles('lake-manifest.json') }}
+          path: |
+            .lake/build/doc/Init
+            .lake/build/doc/Lake
+            .lake/build/doc/Lean
+            .lake/build/doc/Std
+            .lake/build/doc/Mathlib
+            .lake/build/doc/declarations
+            !.lake/build/doc/declarations/declaration-data-Carleson*
+          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
-            DocGen4-
+            MathlibDoc-
 
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
@@ -74,7 +81,8 @@ jobs:
 
       - name: Copy documentation to `docs/docs`
         run: |
-          mv .lake/build/doc docs/docs
+          sudo chown -R runner docs
+          cp -r .lake/build/doc docs/docs
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
