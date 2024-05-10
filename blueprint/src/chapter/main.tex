@@ -8,21 +8,59 @@
 % to
 %   `$1-`
 %
-\title{Carleson operators on doubling metric measure spaces}
+\title{Carleson operators on  doubling metric measure spaces}
 
-\author{Lars Becker \and Floris van Doorn \and Asgar Jamneshan \and Rajula Srivastava \and Christoph Thiele}
+\author[Becker]{Lars Becker}
+\address{Mathematical Institute,
+	University of Bonn,
+	Endenicher Allee 60, 53115, Bonn,
+	Germany}
+\email{becker@math.uni-bonn.de}
+
+\author[van Doorn]{Floris van Doorn}
+\address{Mathematical Institute,
+	University of Bonn,
+	Endenicher Allee 60, 53115, Bonn,
+	Germany}
+\email{vdoorn@math.uni-bonn.de}
+
+
+
+\author[Jamneshan]{Asgar Jamneshan}
+\address{College of Sciences,
+	Ko\c{c} University,
+	Rumeli Feneri Yolu,
+	34450 Sariyer,
+	Istanbul, T\"urkiye}
+\email{ajamneshan@ku.edu.tr}
+
+\author[Srivastava]{Rajula Srivastava}
+\address{Mathematical Institute,
+	University of Bonn,
+	Endenicher Allee 60, 53115, Bonn,
+	Germany, and
+ \newline Max Planck Institute for Mathematics, Vivatsgasse 7,
+53111, Bonn,
+Germany.}
+\email{rajulas@math.uni-bonn.de}
+
+\author[Thiele]{Christoph Thiele}
+ \address{Mathematical Institute,
+	University of Bonn,
+	Endenicher Allee 60, 53115, Bonn,
+	Germany}
+\email{thiele@math.uni-bonn.de}
 
 \date{\today}
 
-\maketitle
-
 \begin{abstract}
-    We prove bounds for a generalized version of the Carleson operator on doubling metric measure spaces.
-    We also explicitly reduce Carleson's classical result on pointwise control of Fourier series.
-    Both proofs are very detailed, suitable as a blueprint for computer verification of our results with
-    the current capabilities of the software package Lean.
-    Even Carleson's classical result has not yet been computer verified.
+  We prove a new generalization of a theorem of Carleson, namely bounds for a generalized Carleson operator on doubling metric measure spaces.
+  Additionally, we explicitly reduce Carleson's classical result on pointwise convergence of Fourier series to this new theorem.
+  Both proofs are presented in great detail, suitable as a blueprint for computer verification using the current capabilities of the software package Lean.
+Note  that even Carleson's classical result has not yet been computer-verified.
 \end{abstract}
+
+\maketitle
 
 \tableofcontents
 
@@ -77,12 +115,6 @@ A  collection $\Mf$ of real valued continuous functions on the doubling metric m
 \begin{equation}\label{osccontrol}
     \sup_{x,y\in B}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}| \le d_{B}(\mfa,\mfb)\,.
 \end{equation}
-%A  collection $\Mf$ of real valued continuous functions on the doubling metric measure space $(X,\rho,\mu,a)$ is called compatible, if there is a point $o\in X$ where all the functions are equal to $0$, and the  local oscillation, defined for a Borel set $\borel\subset X$ by
-%\begin{equation}\label{definedE}
-%    d_{\borel}(\mfa,\mfb):=\sup_{x,y\in \borel}|\mfa(x)-{\mfa(y)}- \mfb(x)+{\mfb(y)}|
-%\end{equation}
-%satisfies the following three properties
-%\eqref{firstdb}, \eqref{seconddb}, and \eqref{thirddb}.
 For any two balls $B_1=B(x_1,R)$, $B_2= B(x_2,2R)$ in $X$ with $x_1\in B_2$  and any $\mfa,\mfb\in \Mf$,
 \begin{equation}\label{firstdb}
     d_{B_2}(\mfa,\mfb)\le 2^a d_{B_1}(\mfa,\mfb) .
@@ -113,7 +145,6 @@ supported on $B$, and any $\mfa,\mfb\in \Mf$ we have
     |\int_B e(\mfa(x)-{\mfb(x)}) \varphi(x) d\mu(x)|\le 2^a  \mu(B)\|\varphi\|_{\Lip(B)}
 (1+d_B(\mfa,\mfb))^{-\frac{1}{a}},
 \end{equation}
-%where $\C^\nu$ denotes the homogeneous H\"older space.
 where $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
 $$
     \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
@@ -136,7 +167,6 @@ such that for all $x,y',y\in X$ with $x\neq y$, we have
        |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
 \end{equation}
 where  \[V(x,y):=\mu(B(x,\rho(x,y))).\]
-%Observe that $V$ is essentially symmetric in the sense that $V(x,y)$ and $V(y,x)$ are comparable, with the implied constant depending only on $A$.
 Define the maximally truncated non-tangential singular integral $T_{*}$ associated with $K$ by
 \begin{equation}
     \label{def-tang-unm-op}
@@ -154,9 +184,7 @@ $1<q<2$.
 \begin{theorem}[metric space Carleson]
 \label{metric-space-Carleson}
 \uses{R-truncation}
-%\uses{ball-metric,finitary-Carleson, discrete-Carleson, antichain-operator, forest-operator, Holder-van-der-Corput, Hardy-Littlewood, kernel-summand, R-truncation}
     For all  integers $a \ge  4$ and  real numbers $1<q\le 2$
-    % there exists a positive  such that
     the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
     cancellative compatible  collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
@@ -180,9 +208,9 @@ K(x,y)=(x-y)^{-1}
 \end{equation*}
 and $\Mf$ denoting the class of linear functions, the operator \eqref{def-main-op} is the classical Carleson operator, which plays a crucial role in proving the almost everywhere convergence of Fourier series \cite{carleson}, \cite{fefferman}, \cite{lacey-thiele}. The supremum in $R_1$ and $R_2$ is often omitted in classical treatments, but considering the maximal truncations can easily be reduced to the case without these truncations.
 
-By replacing $\Mf$ with the class of polynomials vanishing at $0$ up to some fixed but arbitrary degree, we obtain the polynomial Carleson operator of Lie \cite{lie-quadratic} (quadratic case) and \cite{lie-polynomial}. The case of the class of polynomials with vanishing linear coefficient is simpler and was estimated in \cite{stein-wainger}. The polynomial Carleson operator was generalized to the high-dimensional Euclidean setting in \cite{zk-polynomial} for $K$ being a Calderón-Zygmund kernel with some Hölder regularity.
+By replacing $\Mf$ with the class of polynomials vanishing at $0$ up to some fixed but arbitrary degree, we obtain the polynomial Carleson operator of Lie \cite{lie-quadratic} (quadratic case) and \cite{lie-polynomial}. The case of the class of polynomials with vanishing linear coefficient is simpler and was estimated in \cite{stein-wainger}. The polynomial Carleson operator was generalized to the high-dimensional Euclidean setting in \cite{zk-polynomial} for $K$ being a Calder\'on-Zygmund kernel with some H\"older regularity.
 
-Doubling metric measure spaces are instances of spaces of homogeneous type. Indeed, by changing from a quasi-metric to an equivalent metric, every space of homogeneous type can be viewed as a doubling metric measure space (cf. \cite{MaciasSegovia}). Spaces of homogeneous type were introduced by \cite{MR0499948} as a natural setting for Calderón-Zygmund theory. We refer to the textbook \cite{stein-book} for an account of these spaces.
+Doubling metric measure spaces are instances of spaces of homogeneous type. Indeed, by changing from a quasi-metric to an equivalent metric, every space of homogeneous type can be viewed as a doubling metric measure space (cf. \cite{MaciasSegovia}). Spaces of homogeneous type were introduced by \cite{MR0499948} as a natural setting for Calder\'on-Zygmund theory. We refer to the textbook \cite{stein-book} for an account of these spaces.
 
 Our concept of a compatible collection $\Mf$ as a natural class of phase functions on a doubling metric measure space does not appear in \cite{stein-book} but is implicitly anticipated in \cite{zk-polynomial} and subsequent work of \cite{mnatsakanyan}, who proves a Carleson-type theorem for the Malmquist-Takenaka series, which leads to classes of phases related to Blaschke products. A generalization of \eqref{def-main-op} from the previously mentioned Euclidean setting into the anisotropic setting that was suggested in \cite{zk-polynomial} is included in our theory. The polynomial Carleson operator also plays a role in the study of maximally modulated singular Radon transforms along the parabola, see \cite{ramos} and \cite{becker2024maximal}.
 
@@ -249,36 +277,11 @@ Let a cancellative compatible collection $\Mf$ of functions on $X$ be given.
 Let $o\in X$ be a point such that $\mfa(o)=0$
 for all $\mfa\in \Mf$.
 
-%\lars{This next Lemma is not needed anymore, since $d_B$ is now assumed to be a metric}
-%The following lemma is used throughout the text, mostly
-%the triangle inequality part, without specific reference.
-%It allows us to call $d_B$ a metric.
 
-%\begin{lemma}[ball metric]
-%\label{ball-metric}
-%    For any ball $B$ in $X$, the local oscillation
-%$d_{B}$ is a metric on $\Mf$.
-%\end{lemma}
 
-%\begin{proof}
-%    Symmetry and triangle inequality are immediate, and we argue that
-%for any ball $B(x,r)$, the identity
-%\begin{equation}\label{dvanish}
-%d_{B(x,r)}(\mfa,\mfb)=0
-%\end{equation}
-%implies $\mfa(y)=\mfb(y)$ for all $y\in X$. Assume $\eqref{dvanish}$.
-%Let $y\in X$ and let
-%\begin{equation}
-%    R=1+\rho(x,o)+\rho(x,y)\, .
-%\end{equation}
-%By an iterated application of \eqref{firstdb} or \eqref{seconddb},
-%\begin{equation}
-%    d_{B(x,R)}(\mfa,\mfb)=0.
-%\end{equation}
-%By the definition of
-%the local oscillation, evaluated using $o$ as one of the points and $y$ as the other, we obtain
-%$\mfa(y)=\mfb(y)$.
-%\end{proof}
+
+
+
 
 Let a one-sided Calder\'on--Zygmund kernel $K$ on $X$ be given so that the operator $T_*$ defined in \eqref{def-tang-unm-op}
 satisfies
@@ -582,7 +585,7 @@ Define
 \end{equation}
 Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\tau$-H\"older norm by
 \begin{equation}
-    \label{eq-Hölder-norm}
+    \label{eq-Holder-norm}
     \|\varphi\|_{C^\tau(B)} = \sup_{x \in B} |\varphi(x)| + R^\tau \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)^\tau}\,.
 \end{equation}
 
@@ -727,7 +730,7 @@ We also record the following basic estimates for the kernels $K_s$.
        \label{eq-Ks-size}
         |K_s(x,y)|\le \frac{2^{102 a^3}}{\mu(B(x, D^{s}))}\,
     \end{equation}
-    and %if $2\rho(y,y')\leq \rho(x,y)$
+    and
     \begin{equation}
         \label{eq-Ks-smooth}
         |K_s(x,y)-K_s(x, y')|\le \frac{2^{150a^3}}{\mu(B(x, D^{s}))}
@@ -846,7 +849,7 @@ To reduce Lemma \ref{R-truncation} to Lemma \ref{S-truncation}, we need estimate
 \leq 2^{102 a^3} M\mathbf{1}_F(x),
 \end{multline}
 where $M\mathbf{1}_F$ is as defined in Proposition \ref{Hardy-Littlewood}.
-Now, the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}, can be estimated using Hölder's inequality and Proposition \ref{Hardy-Littlewood} by
+Now, the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}, can be estimated using H\"older's inequality and Proposition \ref{Hardy-Littlewood} by
 $$
     2^{102 a^3}\int \mathbf{1}_{G}(x) M\mathbf{1}_F(x)\, d\mu(x)
     \leq \frac{2^{102 a^3+4a}q}{q-1}\mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
@@ -915,7 +918,7 @@ which, as we have just shown, is estimated by
      &2^{102 a^3}\int \mathbf{1}_{G}(x)
 M\mathbf{1}_{F}(x)\, d\mu(x).
 \end{align*}
-By Hölder's inequality and Proposition \ref{Hardy-Littlewood}
+By H\"older's inequality and Proposition \ref{Hardy-Littlewood}
  (more precisely, \eqref{eq-hlm-2} with $p=q$), the above is no greater than
 \begin{align*}
 &\frac{2^{102 a^3+4a}q}{q-1} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
@@ -959,11 +962,6 @@ minimal element $s'\in [-S,S]$ such that
 \]
 Similarly, let ${\sigma}_2(x)$ be the
 minimal element $s''\in [-S,S]$ such that
-% \[\max_{\mfa\in\tilde{\Mf}}
-% | {T}_{\underline{\sigma}(x),\overline{\sigma}(x),\mfa} \mathbf{1}_{F}(x)|
-% =
-% \Tilde{T}_x|
-% \]
 \[\max_{\mfa\in\tilde{\Mf}}
 | {T}_{1, {\sigma}_1(x), s'',\mfa} \mathbf{1}_{F}(x)|
 =
@@ -1232,7 +1230,7 @@ We have for each $y\in Y_k$,
 
 
 \end{lemma}
-%\rs{Write}
+
 \begin{proof}
 We prove these statements simultaneously by induction on the ordered set of pairs $(y,k)$. Let $-S\le k\le S$.
 
@@ -1369,13 +1367,6 @@ We conclude using the disjointedness property of
 Lemma \ref{basic-grid-structure} that
 \begin{equation}\label{scalecompare}
     \sum_{y'': (y'',k-K|y,k)}\mu(I_3(y'',k-K))
-%\end{equation}
-%\begin{equation}
-%    \le
-%\sum_{y': (y',k'|y,k)}\left(
-% \sum_{y'': (y'',k-K|y',k')}\mu(I_3(z,k-K))\right)
-%\end{equation}
-%   \begin{equation}
    \le
 \sum_{y': (y',k'|y,k)}
 \mu(I_3(y',k'))    \, .
@@ -1523,8 +1514,6 @@ for $(\mathcal{D},c,s)$ and $x$.
 We first show \eqref{coverdyadic} by contradiction. Then there is an $I$ violating the conclusion of
 \eqref{coverdyadic}. Pick such $I=I_3(y,l)$ such that $l$ is minimal.
 {By assumption, we have $-S\le k<l$; in particular $-S<l$}.
-% By definition, $I$ is contained in $\tilde{B}(x,k)$, which
-% is contained in the union of $I(y,l-1)$ with $y\in X_{l-1}$.
 By definition, $I_3(y, l)$ is contained in $I_1(y, l)\cup I_2(y, l)$, which is contained in the union of $I_3(y',l-1)$ with $y'\in Y_{l-1}$.
 By minimality of $l$, each such $I_3(y',l-1)$ is contained in the union of
 all $I_3(z,k)$ with $z\in Y_k$. This proves \eqref{coverdyadic}.
@@ -1534,8 +1523,7 @@ there are non-disjoint $I, J\in \mathcal{D}$ with $s(I)\le s(J)$
 and $I \not \subset J$. We may assume the existence of such $I$ and $J$ with minimal
 $s(J)-s(I)$. Let $k=s(I)$. Assume first $s(J)=k$. Let $I=I_3(y_1,k)$ and $J=I_3(y_2,k)$ with $y_1,y_2\in Y_k$.
 {If $y_1=y_2$, then $I=J$, a contradiction to $I\not \subset J$.
-If $y_1\neq y_2$, then $I\cap J=\emptyset$ by \eqref{disji}, a contradiction to the non-disjointedness of $I,J$.% of $J=I_3(y_2, k)$ and the disjointedness of $I_1(y_1, k)$ and $I_1(y_2, k)$ by Lemma \ref{basic-grid-structure}, a contradiction.
-%Similarly, if $y_2<y_1$, then $I\cap J=\emptyset$, a contradiction again.
+If $y_1\neq y_2$, then $I\cap J=\emptyset$ by \eqref{disji}, a contradiction to the non-disjointedness of $I,J$.
 Assume now $s(J)>k$. Choose $y\in I\cap J$. By property \eqref{coverdyadic},
 there is $K\in \mathcal{D}$ with $s(K)=s(J)-1$ and $y\in K$. By construction
 of $J$, and pairwise disjointedness of all $I_3(w,s(J)-1)$ that we have already seen,
@@ -1719,13 +1707,10 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 \chapter{Proof of discrete Carleson (Prop.  \ref{discrete-Carleson}) }
 \label{proptopropprop}
 
-%\section{Decomposition of grid cubes and first exceptional set}
 
 
 Let a grid structure $(\mathcal{D}, c, s)$ and a tile structure $(\fP, \sc, \fc, \fcc)$ for this grid structure be given. In Subsection \ref{subsectilesorg}, we decompose the set $\fP$ of tiles into subsets. Each subset will be controlled by one of three methods. The guiding principle of the decomposition is to be able to apply the forest estimate of Proposition \ref{forest-operator} to the final subsets defined in \eqref{defc5}. This application is done in Subsection \ref{subsecforest}. The miscellaneous subsets along the construction of the forests will either be thrown into exceptional sets, which are defined and controlled in Subsection \ref{subsetexcset}, or will be controlled by the antichain estimate of Proposition \ref{antichain-operator}, which is done in Subsection \ref{subsecantichain}. Subsection \ref{subsec-lessim-aux} contains some auxiliary lemmas needed for the proofs in Subsections \ref{subsecforest}-\ref{subsecantichain}.
 
-%The oganisation and summation of these various
-%estimates is done in Subsection \ref{subsecaddingup}.
 
 
 
@@ -1943,8 +1928,7 @@ Proposition \ref{antichain-operator} to prove the following lemma.
 \uses{antichain-operator,antichain-decomposition,L0-antichain,L2-antichain,L1-L3-antichain,C-dens1}
   Let
   \begin{equation}
-      \fP_2 =\fP\setminus \fP_1 %\left(\bigcup_{k\ge 0}\bigcup_{n\ge k}
-     % \bigcup_{0\le j\le 2n+3}\fC_5(k,n,j)\right)\,.
+      \fP_2 =\fP\setminus \fP_1\,.
   \end{equation}
  For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
 \begin{equation}
@@ -2191,7 +2175,6 @@ We turn to the set $G_3$.
 2^{n+1} \sum_{\lambda=1}^{|\mathfrak{M}|}\mu(A(\lambda, k,n))\,.
 \end{equation}
 Using Lemma \ref{John-Nirenberg}
-%\ref{alambdameasure}
 and then summing a geometric series, we estimate this by
 \begin{equation}
     \le
@@ -4210,7 +4193,6 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     \label{second-tree-pointwise}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
-        %\eqref{eq-term-B}
          \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) P_{\mathcal{J}(\fT(\fu))} f(y) \, \mathrm{d}\mu(y) \Bigg| \le T_{\mathcal{N}} P_{\mathcal{J}(\fT(\fu))} f(x')\,.
     $$
 \end{lemma}
@@ -4872,7 +4854,7 @@ $$
 \section{Proof of Lemma \ref{correlation-distant-tree-parts}: Tiles with large separation}
     \label{subsec-big-tiles}
 
-Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estimate in Proposition \ref{Holder-van-der-Corput}. We apply this proposition in Subsubsection \ref{subsubsec-van-der-corput}. To prepare this application, we first, in Subsubsection \ref{subsubsec-pao}, construct a suitable partition of unity, and show then, in Subsubsection \ref{subsubsec-holder-estimates} the Hölder estimates needed to apply Proposition \ref{Holder-van-der-Corput}.
+Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estimate in Proposition \ref{Holder-van-der-Corput}. We apply this proposition in Subsubsection \ref{subsubsec-van-der-corput}. To prepare this application, we first, in Subsubsection \ref{subsubsec-pao}, construct a suitable partition of unity, and show then, in Subsubsection \ref{subsubsec-holder-estimates} the H\"older estimates needed to apply Proposition \ref{Holder-van-der-Corput}.
 
 \subsection{A partition of unity}
 \label{subsubsec-pao}
@@ -5008,7 +4990,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
     \end{proof}
 
 
-\subsection{Hölder estimates for adjoint tree operators}
+\subsection{H\"older estimates for adjoint tree operators}
 \label{subsubsec-holder-estimates}
     Let $g_1, g_2:X \to \mathbb{C}$  be bounded with bounded support.
     Define for $J \in \mathcal{J}'$
@@ -5016,21 +4998,21 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         \label{def-hj}
         h_J(y) := \chi_J(y)\cdot(e(\fcc(\fu_1)(y)) T_{\fT(\fu_1)}^* g_1(y)) \cdot \overline{(e(\fcc(\fu_2)(y)) T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y))}\,.
     \end{equation}
-    The main result of this subsubsection is the following $\tau$-Hölder estimate for $h_J$, where $\tau = 1/a$.
+    The main result of this subsubsection is the following $\tau$-H\"older estimate for $h_J$, where $\tau = 1/a$.
 
     \begin{lemma}[Holder correlation tree]
         \label{Holder-correlation-tree}
         \uses{global-tree-control-2}
         We have for all $J \in \mathcal{J}'$ that
         \begin{equation}
-            \label{hHölder}
+            \label{hHolder}
             \|h_J\|_{C^{\tau}(B(c(J), 8D^{s(J)}))} \le  2^{535a^3}   \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
         \end{equation}
     \end{lemma}
 
     We will prove this lemma at the end of this section, after establishing several auxiliary results.
 
-    We begin with the following Hölder continuity estimate for adjoints of operators associated to tiles.
+    We begin with the following H\"older continuity estimate for adjoints of operators associated to tiles.
     \begin{lemma}[Holder correlation tile]
         \label{Holder-correlation-tile}
         \uses{adjoint-tile-support}
@@ -5039,7 +5021,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
             |e(\fcc(\fu)(y)) T_{\fp}^* g(y) - e(\fcc(\fu)(y')) T_{\fp}^* g(y')|
         $$
         \begin{equation}
-            \label{T*Hölder2}
+            \label{T*Holder2}
             \le \frac{2^{151a^3}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \left(\frac{\rho(y, y')}{D^{\ps(\fp)}}\right)^{1/a}  \int_{E(\fp)} |g(x)| \, \mathrm{d}\mu(x)\,.
         \end{equation}
     \end{lemma}
@@ -5059,10 +5041,10 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         \end{multline*}
         \begin{multline}
             \leq\int_{E(\fp)} |g(x)| |e(-\tQ(x)(y) + \tQ(x)(y') + \fcc(\fu)(y) - \fcc(\fu)(y')) - 1| \\
-            \times |\overline{K_{\ps(\fp)}(x, y)}|\, \mathrm{d}\mu(x) \label{T*Hölder1b}
+            \times |\overline{K_{\ps(\fp)}(x, y)}|\, \mathrm{d}\mu(x) \label{T*Holder1b}
         \end{multline}
         \begin{equation}
-            + \int_{E(\fp)} |g(x)| |\overline{K_{\ps(\fp)}(x, y)} - \overline{K_{\ps(\fp)}(x, y')} |\, \mathrm{d}\mu(x)\,.\label{T*Hölder1}
+            + \int_{E(\fp)} |g(x)| |\overline{K_{\ps(\fp)}(x, y)} - \overline{K_{\ps(\fp)}(x, y')} |\, \mathrm{d}\mu(x)\,.\label{T*Holder1}
         \end{equation}
         By the oscillation estimate \eqref{osccontrol}, we have
         $$
@@ -5096,17 +5078,17 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         Combining the above with \eqref{eq-Ks-size}, \eqref{eq-Ks-smooth} and \eqref{eq-lem-Tile-holder-im1},
         we obtain
         $$
-            \eqref{T*Hölder1b}+\eqref{T*Hölder1} \le \frac{2^{3a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)}|g(x)| \, \mathrm{d}\mu(x) \times
+            \eqref{T*Holder1b}+\eqref{T*Holder1} \le \frac{2^{3a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)}|g(x)| \, \mathrm{d}\mu(x) \times
         $$
         $$
             (2^{102a^3} \cdot 5 \cdot 2^{6a} \left(\frac{\rho(y,y')}{ D^{\ps(\fp)}}\right)^{1/a} + 2^{150a^3} \left(\frac{\rho(y,y')}{D^{\ps(\fp)}}\right)^{1/a})
         $$
         Since $\rho(y,y') \le 10 D^{\ps(\fp)}$, we conclude
         $$
-            \eqref{T*Hölder1b}+\eqref{T*Hölder1} \le \frac{2^{151a^3}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \left(\frac{\rho(y,y')}{D^{\ps(\fp)}}\right)^{1/a} \int_{E(\fp)}|g(x)| \, \mathrm{d}\mu(x)\,.
+            \eqref{T*Holder1b}+\eqref{T*Holder1} \le \frac{2^{151a^3}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \left(\frac{\rho(y,y')}{D^{\ps(\fp)}}\right)^{1/a} \int_{E(\fp)}|g(x)| \, \mathrm{d}\mu(x)\,.
         $$
 
-        Next, if $y,y' \notin B(\pc(\fp), 5D^{\ps(\fp)})$, then $T_{\fp}^*g(y) = T_{\fp}^*g(y') = 0$, by Lemma \ref{adjoint-tile-support}. Then \eqref{T*Hölder2} holds.
+        Next, if $y,y' \notin B(\pc(\fp), 5D^{\ps(\fp)})$, then $T_{\fp}^*g(y) = T_{\fp}^*g(y') = 0$, by Lemma \ref{adjoint-tile-support}. Then \eqref{T*Holder2} holds.
 
         Finally, if $y \in B(\pc(\fp), 5D^{\ps(\fp)})$ and $y' \notin B(\pc(\fp), 5D^{\ps(\fp)})$, then
         $$
@@ -5132,22 +5114,6 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             \psi(D^{-\ps(\fp)}\rho(x,y))  \le 4 (D^{-\ps(\fp)}\rho(y,y'))^{1/a}.
         $$
-        % Thus, by the triangle inequality and \eqref{eq-vol-sp-cube} for all $x\in E(\fp)$
-        % $$
-        %     \psi(D^{-\ps(\fp)}\rho(x,y))
-        % $$
-        % $$
-        %     \le \max\{0, (2  - 4D^{-\ps(\fp)}\rho(y, \pc(\fp)) + 4 D^{-\ps(\fp)}\rho(x, \pc(\fp)))^{1/a}\}
-        % $$
-        % $$
-        %     \le \max\{0, (18 - 4 D^{-\ps(\fp)} \rho(y, \pc(\fp)))^{1/a}\}
-        % $$
-        % $$
-        %     \le \max\{0, 4 D^{-\ps(\fp)}\rho(y,y') - 2\}^{1/a}
-        % $$
-        % $$
-        %     \le 4 (D^{-\ps(\fp)}\rho(y,y'))^{1/a}\,.
-        % $$
         Further, we obtain from the doubling property \eqref{doublingx} and \eqref{eq-vol-sp-cube} that
         $$
             \mu(B(x, D^s)) \ge 2^{-2a} \mu(\pc(\fp), 4D^s)\,.
@@ -5183,7 +5149,6 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
     \begin{proof}
         For the first estimate, assume that $\ps(\fp) < s(J)$, then in particular $\ps(\fp) \le \ps(\fu_1)$. Since $\fp \notin \mathfrak{S}$, we have by Lemma \ref{overlap-implies-distance} that $\sc(\fp) \cap \sc(\fu_1) = \emptyset$.
-        %by \eqref{dyadicproperty}.
         Since $B\Big(c(J), \frac{1}{4} D^{s(J)}\Big) \subset \sc(J) \subset \sc(\fu_1)$, this implies
         $$
             \rho(c(J), \pc(\fp)) \ge \frac{1}{4}D^{s(J)}\,.
@@ -5282,13 +5247,13 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
             |e(\fcc(\fu)(y)) T_{\fC}^* g(y) - e(\fcc(\fu)(y')) T_{\fC}^* g(y')|
         $$
         \begin{equation}
-            \label{TreeHölder}
+            \label{TreeHolder}
              \le 2^{153a^3} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} \inf_J M_{\mathcal{B},1} |g|\,.
         \end{equation}
     \end{lemma}
 
     \begin{proof}
-        Note that \eqref{TreeUB} follows from \eqref{TreeHölder}, since for $y'\in B^\circ{}(J)$, by the triangle inequality,
+        Note that \eqref{TreeUB} follows from \eqref{TreeHolder}, since for $y'\in B^\circ{}(J)$, by the triangle inequality,
         $$\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}\le \Big(8 + \frac{1}8\Big)^{1/a}\le 2^{a^3}.$$
 
         By the triangle inequality, Lemma \ref{adjoint-tile-support} and Lemma \ref{Holder-correlation-tile}, we have for all $y, y' \in B(J)$
@@ -5317,7 +5282,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             \sum_{S \ge s \ge s(J)} D^{(s(J) - s)/a} \le \frac{1}{1 - D^{-1/a}} \le 2a \le 2^a\,.
         $$
-        Estimate \eqref{TreeHölder}, and therefore the lemma, follow.
+        Estimate \eqref{TreeHolder}, and therefore the lemma, follow.
     \end{proof}
 
     \begin{lemma}[global tree control 2]
@@ -5348,7 +5313,7 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
 
     \begin{proof}[Proof of Lemma \ref{Holder-correlation-tree}]
         \proves{Holder-correlation-tree}
-        Let $P$ be the product on the right hand side of \eqref{hHölder}, and $h_J$ as defined in \eqref{def-hj}.
+        Let $P$ be the product on the right hand side of \eqref{hHolder}, and $h_J$ as defined in \eqref{def-hj}.
 
         By \eqref{eq-pao-2} and Lemma \ref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \sc(\fu_1)$.
         By \eqref{eq-pao-2} and Lemma \ref{global-tree-control-1}, we have for all $y \in B(J)$:
@@ -5371,18 +5336,16 @@ Lemma \ref{correlation-distant-tree-parts} follows from the van der Corput estim
         $$
             \eqref{eq-h-Lip-1} \le 2^{534a^3} \frac{\rho(y,y')}{D^{s(J)}} P\,,
         $$
-        where $P$ denotes the product on the right hand side of \eqref{hHölder}.
+        where $P$ denotes the product on the right hand side of \eqref{hHolder}.
 
         By \eqref{eq-pao-2}, Lemma \ref{global-tree-control-1} and Lemma \ref{global-tree-control-2}, we have
         $$
             \eqref{eq-h-Lip-2} \le  2^{310a^3} P\,.
-            %\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}
-        $$
+         $$
 
         By \eqref{eq-pao-2}, and twice Lemma \ref{global-tree-control-1}, we have
         $$
             \eqref{eq-h-Lip-3} \le 2^{308a^3} P\,.
-            %\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}
         $$
         Using that $\rho(y,y') \le 16D^{s(J)}$ and $a \ge 4$, the lemma follows.
     \end{proof}
@@ -5910,8 +5873,7 @@ Recall that $\tau = 1/a$.
 
 
 \begin{proof}
-    %Let $s = R/t$.
-    Define for $x,y\in X$ the Lipschitz  and thus measurable function
+   Define for $x,y\in X$ the Lipschitz  and thus measurable function
      \begin{equation}
            L(x,y) := \max\{0, 1 - \frac{\rho(x,y)}{tR}\}\, .
     \end{equation}
@@ -6102,34 +6064,6 @@ Using the definition \eqref{eql69} of $t$ and adding
  \end{equation}
 where we used $\tau\le 1$.
 This completes the proof of Proposition \ref{Holder-van-der-Corput}.
-
-%\begin{proof}
-%    Define
-%    $$
-%        L(x,y) = \max\{0, 1 - \rho(x,y)/(Cs)\}\,.
-%    $$
-%    For $C \leq 1$ sufficiently small, this satisfies the third property. Note further that for each $x$,
-%    $$
-%        \int L(x,y) \, \mathrm{d}\mu(y) = \int_{0}^1 \mu(B(x,Cst)) \, \mathrm{d}t\,.
-%    $$
-%    This implies that
-%    $$
-%        \mu(B(x,s)) \geq \mu(B(x, Cs)) \geq \int L(x,y) \, \mathrm{d}\mu(y) \geq \frac{1}{2A} \mu(B(x,Cs)) \gtrsim \mu(B(x,s))\,.
-%    $$
-%    We define
-%    $$
-%        K(x,y) = \left(\int L(x,y) \, \mathrm{d}\mu(y)\right)^{-1} L(x,y)\,.
-%    $$
-%    This also satisfies the condition 1) and the upper bound of condition 2). To check the Hölder estimate in condition 2), we fix $y$ and first assume that $x, x' \in B(y, 2As)$. Then, by condition 3) and the doubling property, we have that $\mu(B(x,s)) \sim \mu(B(x',s)) \sim \mu(B(y,s))$. This implies:
-%    \begin{align*}
-%        |K(x,y) - K(x',y)| &\leq L(x,y)  \left|\bigg(\int L(x,y) \, \mathrm{d}\mu(y)\bigg)^{-1} - \bigg(\int L(x',y) \, \mathrm{d}\mu(y)\bigg)^{-1}\right|\\
-%        & + \bigg(\int L(x',y) \, \mathrm{d}\mu(y)\bigg)^{-1} |L(x,y) - L(x',y)|\\
-%        &\lesssim \frac{1}{\mu(B(y,s))^{-2}}  \int |L(x,y) - L(x',y)| \, \mathrm{d}\mu(y)  + \frac{\rho(x,x')}{\mu(B(x,s))s}\\
-%        &\lesssim \frac{\rho(x,x')}{\mu(B(y,s))s}\,.
-%    \end{align*}
-%    Now assume that $x \in B(y,s)$ and $x' \notin B(y, 2As)$. Then $K(x',y) = 0$ and $\rho(x,x') \geq s$, so the required estimate also holds. In the final case $x,x' \notin B(y, 2As)$ the left hand side vanishes, so the inequality also holds.
-%\end{proof}
-
 
 
 \chapter{Proof of Prop. \ref{Hardy-Littlewood}, Vitali covering and Hardy--Littlewood}
@@ -6641,7 +6575,7 @@ use the following Lemma \ref{real-Carleson}, which itself is proven
  in Subsection \ref{10carleson} as an application of
  Theorem \ref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
-\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer ball cover,real van der Corput,Hilbert kernel bound,Hilbert kernel regularity}
+\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-kernel-bound,Hilbert-kernel-regularity}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
     \left|\int _G Tf(x) \, dx\right| \le 2^{2^{40}}|F|^{\frac 12} |G|^{\frac 12} \, ,
@@ -7143,8 +7077,7 @@ below. The remaining part of the second integral in
 Overall, we have estimated \eqref{xx'difference}
 by
 
-%Hence we can estimate the left-hand side of \eqref{xx'difference}
-%by the triangle inequality by
+
 \begin{equation}
 \label{firstxx'}
 \int_{r<|x-y|\le 2r}
@@ -7622,7 +7555,7 @@ where the minimum is understood to be $r^{-1}$ in case $1=e^{ix}$.
 \uses{Young-convolution}
 Let $g,f$ be bounded measurable $2\pi$-periodic functions. Let $0<r<\pi$.
 Assume we have for all $0\le x\le 2\pi$
-\begin{equation}
+\begin{equation}\label{ebump1}
     |g(x)|\le k_r(x)\, .
 \end{equation}
 Let
@@ -7637,12 +7570,12 @@ Then
 \end{lemma}
 
 \begin{proof}
-We compute with Lemma \ref{periodic-domain-shift}
+From monotonicity of the integral and \eqref{ebump1},
 \begin{equation}
     \|g\|_{L^1[-\pi, \pi]} \le  \int_{-\pi}^{\pi}k_r(x)\, dx\,.
 \end{equation}
 Using the symmetry
-$k_r(x)=k_r(-x)$ and the assumption,  the last display
+$k_r(x)=k_r(-x)$, the assumption, and Lemma \ref{lower-secant-bound},  the last display
 is equal to
 \begin{equation*}
     =  2 \int_0^\pi \min\left(\frac 1r, 1+\frac r{|1-e^{ix}|^2}\right)\, dx
@@ -7699,7 +7632,7 @@ Therefore, for $|x|\in [0, r)\cup (1, \pi]$, we have
     \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\kappa(x)\right|=|L'(x)|\leq 2^{2} r^{-1}.
 \end{equation}
 This proves \eqref{eqdifflhil} for $|x|\in [0, r)$ since $k_r(x)=r^{-1}$ in this case.
-% The case $x\in [2\pi-r, 2\pi]$ also follows by the symmetry $k_r(-x)=k_r(x)$ and $2\pi$ periodicity of $k_r$.
+
 For $e^{ix'}\neq 1$
 and may use the expression
 \eqref{eqksumhil} for $K_N$
@@ -7775,105 +7708,7 @@ Hence, with Lemma \ref{lower-secant-bound} and nonnegativity of the real part of
 \end{equation}
 Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-diffzero2}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{eqdifflhil}. This completes the proof of the lemma.
 \end{proof}
-% \begin{proof}
-% We have by definition and Lemma \ref{dirichlet-kernel}
-% \begin{equation}
-%     L_Ng(x)=
-%     \frac 1N\sum_{n=0}^{N-1}
-%        \int_0^{2\pi} e^{-i(N+n)x} K_{N+n}(x-y) e^{i(N+n)y}g(y)
-% \, dy \, .\end{equation}
-% This is of the form \eqref{lthroughlprime} with
-% the continuous function
-% \begin{equation}
-%     {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
-%       K_{N+n}(x) e^{-i(N+n)x}\, .
-% \end{equation}
-% With \eqref{eqksumexp} of Lemma \ref{dirichlet-kernel}
-% we have $|K_N(x)|\le N$ for every $x$ and thus
-% \begin{equation}\label{eqhil13}
-%     |{L'}(x)|\le  \frac 1N\sum_{n=0}^{N-1}
-%       (N+n) \le 2N\le 2^{8} r^{-1}\, .
-% \end{equation}
 
-
-% For $e^{ix'}\neq 1$
-% and may use the expression
-% \eqref{eqksumhil} for $K_N$
-% in Lemma \ref{dirichlet-kernel} to obtain
-% \begin{equation*}
-%     {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
-%      \left(\frac{e^{i(N+n)x}}{1-e^{-ix}}
-%       +\frac {e^{-i(N+n)x}}{1-e^{ix}}\right) e^{-i(N+n)x}
-% \end{equation*}
-% \begin{equation*}
-%     =  \frac 1N\sum_{n=0}^{N-1}
-%     \left(\frac{1}{1-e^{-ix}}
-%       +\frac {e^{-i2(N+n)x}}{1-e^{ix}}\right)
-% \end{equation*}
-% \begin{equation}\label{eqhil3}
-%     =  \frac{1}{1-e^{-ix}} +
-%      \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
-%      \sum_{n=0}^{N-1}
-%     {e^{-i2nx}}
-% \end{equation}
-% and thus
-% \begin{equation}
-% \label{eq-L'L''}
-%   {L'}(x)  -\frac{\mathbf{1}_{[r, 2\pi -r]}(x)\max{(1-|x|, 0)}}{1-e^{-ix}}=L''(x)+ \frac{1-\mathbf{1}_{[r, 1]}(x)(1-x)}{1-e^{-ix}},
-% \end{equation}
-% where
-% $$L''(x):=\frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
-%      \sum_{n=0}^{N-1}
-%     {e^{-i2nx}}.$$
-% We first show
-% \begin{equation}
-%     \label{est-L''}
-%     |L''(x)|\leq 2^8|k_r(x)|.
-% \end{equation}
-% If the real part of
-% $e^{ix}$ is negative, we have
-% \begin{equation}
-%   1\le   |1-e^{ix}|\le 2\, .
-% \end{equation}
-% and hence
-% \begin{equation}\label{eqhil12}
-%     |L''(x)|\le
-%      \frac 1N
-%      \sum_{n=0}^{N-1}
-%     1=1\le 2^{8}\left(1+\frac r{|1-e^{ix}|^2}\right)\, .
-% \end{equation}
-% If the real part of $e^{ix}$ is positive and in particular while still $e^{ix}\neq \pm 1$, then  we have by telescoping
-% \begin{equation}
-%  (1-e^{-2ix})
-%      \sum_{n=0}^{N-1}
-%     {e^{-i2nx}}=1-e^{-i2Nx}\, .
-% \end{equation}
-% As $e^{-2ix}\neq 1$, we may divide by $1-e^{-2ix}$ and insert this into
-% \eqref{eqhil3} to obtain
-% \begin{equation}
-%  L''(x)=
-%            \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
-%      \frac{1-e^{-i2Nx}}{1-e^{-2ix}}\, .
-% \end{equation}
-% Hence, with Lemma \ref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
-% \begin{equation*}
-%     |L''(x)|
-%  \le \frac 2 N \frac {1}{|1-e^{ix}|}
-%      \frac{1}{|1-e^{-2ix}|}
-%  \end{equation*}
-% \begin{equation}\label{eqhil11}
-%     = \frac 2 N \frac {1}{|1-e^{ix}|^2}
-%      \frac{1}{|1+e^{ix}|}\le
-%  \frac {4r}{|1-e^{ix}|^2}\le 2^{8} \left (1+\frac {r}{|1-e^{ix}|^2}\right)
-% \end{equation}
-% Inequalities \eqref{eqhil13}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{est-L''}. Next, we estimate the second term on the right in \eqref{eq-L'L''}. For $x\in [r, 1]$, we have using Lemma \ref{lower-secant-bound} that
-% \begin{equation*}
-% \left|\frac{1-\mathbf{1}_{[r, 1]}(x)(1-x)}{1-e^{-ix}}\right|=
-% \frac{|x|}{|1-e^{-ix}|}\leq \min\left(\frac{8|x|}{|x|}, \frac{8}{r}\right)\leq 2^8 k_r(x).
-% \end{equation*}
-% \rs{Argue for other cases}
-% Combining the above with \eqref{est-L''} and the triangle inequality completes the proof of the lemma.
-% \end{proof}
 
 We now prove Lemma \ref{Hilbert-strong-2-2}.
 
@@ -7928,93 +7763,7 @@ We now prove Lemma \ref{Hilbert-strong-2-2}.
     This completes the proof.
 \end{proof}
 
-% \begin{lemma}\label{lem-dirichlet3}
-% \rs{Replaced by the next lemma}
-% Let $0<r<1$.  Let $x\in \mathbb{R}$ and let $|x'-x|\le r$. Then
-% \begin{equation}\label{eqdifftrans}
-%     \left|\frac{\mathbf{1}_{[r, 2\pi -r]}(x)\max{(1-|x|, 0)}}{1-e^{-ix}}-\frac{\mathbf{1}_{[r, 2\pi -r]}(x')\max{(1-|x'|, 0)}}{1-e^{-ix'}}\right|\le 2^{10}k_r(x)\, .
-% \end{equation}
-% \end{lemma}
 
-% \begin{proof}
-% We have by Lemma \ref{lower-secant-bound} for each $0<x\le \pi$
-% \begin{equation}
-%     \left|\frac{\mathbf{1}_{[r, 2\pi -r]}(x)\max(1-|x|, 0)}{1-e^{-ix}}\right|\le \frac 8x\le \frac 8r\, .
-% \end{equation}
-% By symmetry $k_r(x)=k_r(-x)$, the analogous inequality holds for $-\pi \le x\le 0$.
-% By periodicity, the analogous inequality holds for $-\pi\le x\le 3\pi$.
-% Hence
-% \begin{equation}\label{eqhil16}
-%     \left|\frac{\mathbf{1}_{[r, 2\pi -r]}(x)\max(1-|x|, 0)}{1-e^{-ix}}-\frac{\mathbf{1}_{[r, 2\pi -r]}(x')\max(1-|x'|, 0)}{1-e^{-ix'}}\right|\le 2^{3}r^{-1}\, .
-% \end{equation}
-% It remains to show the the left hand side above is no greater than $2^{10}\left(1+\frac{r}{|1-e^{ix}|^2}\right)$,
-% % \begin{equation}\label{eqhil17}
-% %     \left|\frac{\mathbf{1}_{[r, 2\pi -r]}(x)\max(1-|x|, 0)}{1-e^{-ix}}-\frac{\mathbf{1}_{[r, 2\pi -r]}(x')\max(1-|x'|, 0)}{1-e^{-ix'}}\right|\le 2^{10}\left(1+\frac{r}{|1-e^{ix}|^2}\right)\, .
-% % \end{equation}
-% for those $x$ such that
-% \begin{equation}\label{eqhil15}
-%  2^{10}\left(1+\frac{r}{|1-e^{ix}|^2}\right)\le 2^{3}r^{-1}\, .
-% \end{equation}
-% We consider four cases. If both $x, x'\not\in [r, 1]$, then the left hand side of \eqref{eqhil16} is zero and we are done. If $\{x, x'\}\cap [r, 1]=\{x\}$, then by the triangle inequality, either $|x|\leq 2r$ or $|x|\geq 1-r$. In the first instance, the left hand side of \eqref{eqhil16} is
-% \begin{equation*}
-%     \left|\frac{\max(1-|x|, 0)}{1-e^{-ix}}\right|\leq \frac{|1-e^{-ix}|}{|1-e^{-ix}|^2}.
-% \end{equation*}
-% This can be estimated by
-% \begin{equation*}
-%     \leq \frac{|x|}{|1-e^{-ix}|^2}\leq \frac{2r}{|1-e^{-ix}|^2}\leq 2^{10}\left(1+\frac{r}{|1-e^{ix}|^2}\right),
-% \end{equation*}
-% which is the desired inequality. Alternatively, when $|x|\geq 1-r$, we have
-% \begin{equation*}
-%     \left|\frac{\max(1-|x|, 0)}{1-e^{-ix}}\right|\leq \frac{r |1-e^{-ix}|}{|1-e^{-ix}|^2}.
-% \end{equation*}
-% This can again be estimated by
-% \begin{equation*}
-%     \leq \frac{2 r}{|1-e^{-ix}|^2}\leq 2^{10}\left(1+\frac{r}{|1-e^{ix}|^2}\right).
-% \end{equation*}
-% The case when $\{x, x'\}\cap [r, 1]=\{x'\}$ is dealt with similarly.
-
-% Finally, when both $|x|, |x'|\in [r, 1]$, the left-hand side  of \eqref{eqhil16} becomes
-%  \begin{equation}
-%     \left|\frac{1-x}{1-e^{-ix}}-\frac{1-x'}{1-e^{-ix'}}\right|\, .
-% \end{equation}
-% If $x'\ge x$, using the fundamental theorem of calculus, we can write this as
-% \begin{equation*}
-% \left|\int_{x}^{x'} \frac{-iye^{-iy}+(1-e^{-iy})}{(1-e^{-iy})^2}\, dy\right|\leq 4|x-x'| \sup_{x\leq y\leq x'<1} \frac{1}{|1-e^{-iy}|^2}.
-% \end{equation*}
-% Using the decreasing property of $\frac{1}{|1-e^{-iy}|^2}$ on $[0,1]$, we deduce that the right hand side above can be estimated by
-% $$\frac{4r}{|1-e^{-ix}|^2}\leq 2^{10}\left(1+\frac{r}{|1-e^{-ix}|^2}\right).$$
-% \rs{The case when $x'<x$}
-% % \begin{equation*}
-% %     \left|\int_{x'}^x \frac{-ie^{-iy}}{(1-e^{-iy})^2}\, dy\right|
-% % \end{equation*}
-% % \begin{equation}
-% %     \le \int_{x'}^x \frac{64}{r^2}\, dy=\frac{64(x-x')}{r^2}\le \frac{64}r\, .
-% % \end{equation}
-% \end{proof}
-
-
-
-% We now prove Lemma \ref{nontangential-Hilbert}.
-% We have with $r$ and $N$ as above for every $x$
-% \begin{equation}
-% |T_rg(x)|\le |L_Ng(x)|+ |H_rg(x)-L_Ng(x)|+ |T_rg(x)-H_rg(x)|\, .
-% \end{equation}
-% With Lemma \ref{dirichlet-approximation} and Lemma \ref{dirichlet-kernel}, we estimate this by
-
-% \begin{equation}
-% \le |L_Ng(x)|+ 2^{11}|\int_0^{2\pi} g(y) k_r(x-y)\, dy|\, .
-% \end{equation}
-
-% By monotonicity and sub-additivity of the $L^2$ norm, we obtain
-% \begin{equation}
-%     \|T_rg\|_2\le \|L_N\|_2+2^{11}\|g*k_r\|_2\ .
-% \end{equation}
-
-% By Lemma \ref{lnbound} and Lemma \ref{integrable-bump-convolution}, we obtain
-
-% \begin{equation}
-%     \|T_rg\|_2\le 2^{30}\|g\|_2\ .
-% \end{equation}
 
 
 
@@ -8111,11 +7860,6 @@ This follows by induction on $n$, using Lemma \ref{interval-bisection}.
        \label{eq-CZ-bad-sets-2}
        \frac{\alpha}{2}\leq \frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy\leq \alpha.
    \end{equation}
-   % and
-   % \begin{equation}
-   %     \label{eq-CZ-bad-set-lowerb}
-   %     (t_j-s_j)> r.
-   % \end{equation}
    Further,
    \begin{equation}
        \label{eq-CZ-meas-b-set}
@@ -8350,7 +8094,6 @@ Thus, we conclude
 \begin{equation}
     \label{eq-g-func-bd}
     \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)\leq
-    % \frac{2^{18}}{\alpha} \left(\int_A |f(y)|\, dy+\int_{\mathbb{R}\setminus A} |f(y)|\, dy\right)
     \frac{2^{18}}{\alpha} \int |f(y)|\, dy.
 \end{equation}
 Next, we estimate
@@ -9027,65 +8770,6 @@ Set $n'=n-m$. Then we have to prove
 (1+2R|n'|)^{-1}\, .
 \end{equation}
 This follows from Lemma \ref{van-der-Corput} with $\alpha = x - R$ and $\beta = x + R$.
-%We do a case distinction whether $Rn'\le \pi$
-%or $Rn'> \pi$.
-%Assume first  $Rn'\le \pi$. We estimate the left-hand side  of \eqref{eq-vdc-cond2} by
-%\begin{equation}
-%    2R\sup_{y\in B'}|\varphi(y)|\le 2^4R\|\varphi\|_{\Lip(B)}(1+2R|n'|)^{-1}\, .
-%\end{equation}
-%This proves \eqref{eq-vdc-cond2} in this case.
-%
-%Assume now $Rn'> \pi$.
-%We write
-%\begin{equation}\label{eqcarl10}
-%    2\int_{x-R}^{x+R} e^{in'y}\varphi(y) dy
-%\end{equation}
-%\begin{equation*}
-%=\int_{x-R}^{x-R+\pi/n'} e^{in'y}\varphi(y) dy
-%+\int_{x-R+\pi/n'}^{x+R} e^{in'y}\varphi(y) dy
-%\end{equation*}
-%\begin{equation*}
-%+\int_{x-R}^{x+R-\pi/n'} e^{in'y}\varphi(y) dy
-%+\int_{x+R-\pi/n'}^{x+R} e^{in'y}\varphi(y) dy\, .
-%\end{equation*}
-%We estimate the sum of the second and third term
-%on the right-hand side of  \eqref{eqcarl10} using variable substitution and $e^{i\pi}=-1$ by
-%\begin{equation*}
-%    \left|\int_{x-R+\pi/n'}^{x+R} e^{in'y}\varphi(y) dy
-%    +\int_{x-R}^{x+R-\pi/n'} e^{in'y}\varphi(y) dy\right|
-%\end{equation*}
-%\begin{equation*}
-%    =\left|\int_{x-R}^{x+R-\pi/n' }e^{in'(y+\pi/n')}\varphi(y+\pi/n')
-%    + e^{in'y}\varphi(y) dy\right|
-%\end{equation*}
-%\begin{equation*}
-%    =\left|\int_{x-R}^{x+R-\pi/n' }e^{in'y}(-\varphi(y+\pi/n')
-%    + \varphi(y)) dy\right|
-%\end{equation*}
-%\begin{equation*}
-%    \le 2R\sup_{y\in (x-R,x+R-\pi/n')}
-%    |\varphi(y+\pi/n')
-%    - \varphi(y)|
-%\end{equation*}
-%\begin{equation*}
-%    \le 2R \|\varphi\|_{Lip(B')}\frac{\pi}{Rn'}
-%\end{equation*}
-%\begin{equation}\label{eqcarl21}
-%    \le 2^5 R \|\varphi\|_{Lip(B')}\frac{1}{(1+2Rn')},
-%\end{equation}
-%where in the last line we have used $Rn'\ge \pi$.
-%We estimate the first and fourth term on the right %hand side of \eqref{eqcarl10} by
-%\begin{equation*}
-%    \left|\int_{x-R'}^{x-R+\pi/n'} e^{in'y}\varphi(y) %dy
-%    +\int_{x+R-\pi/n'}^{x+R} e^{in'y}\varphi(y) dy\right|
-%\end{equation*}
-%\begin{equation}\label{eqcarl22}
-%    \le \frac{2\pi}{n'}\sup_{y\in B'}|\varphi(y)|
-%     \le 2^4 R\|\varphi(y)\|_{Lip(B')}\frac 1 %{1+Rn'}\, ,
-%\end{equation}
-%where in the last line we have used $Rn'\ge \pi$.
-%Adding \eqref{eqcarl21} and \eqref{eqcarl22}
-%with the triangle inequality proves \eqref{eq-vdc-cond2} in the given case and completes the proof of the lemma.
 \end{proof}
 
 The preceding chain of lemmas establish that $\Mf$ is a cancellative, compatible collection of functions on $(\R, \rho, \mu, 4)$. Again, some of the statements in these lemmas are stronger than what is needed for $a=4$, but can be relaxed to give the desired conclusion for $a=4$.
