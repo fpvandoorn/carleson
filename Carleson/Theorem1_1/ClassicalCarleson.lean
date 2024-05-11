@@ -6,6 +6,7 @@ import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Analysis.Convolution
 import Mathlib.Analysis.Calculus.BumpFunction.Convolution
+import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
 import Mathlib.Analysis.PSeries
 
 --TODO: add local notation for f₀
@@ -65,15 +66,32 @@ end section
 
 
 def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
+--fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 #check partialFourierSum
+
+
+lemma fourier_periodic {n : ℤ} : Function.Periodic (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) (2 * Real.pi) := by
+  intro x
+  simp
+
+lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic (partialFourierSum f N) (2 * Real.pi) := by
+  rw [Function.Periodic]
+  intro x
+  rw [partialFourierSum, partialFourierSum]
+  congr
+  ext n
+  congr 1
+  exact fourier_periodic x
 
 variable {f : ℝ → ℂ} {N : ℕ}
 
 --TODO : add reasonable notation
 --local notation "S_" => partialFourierSum f
 
+
+
 /- TODO: might be generalized. -/
-lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0) [HasContDiffBump ℝ] :
+lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
@@ -86,6 +104,37 @@ lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε :
     . exact ContDiffBump.contDiff_normed φ
     . refine Continuous.locallyIntegrable ?h.left.hg.hf
       exact unicontf.continuous
+  . intro x
+    rw [← Complex.dist_eq, dist_comm]
+    apply ContDiffBump.dist_normed_convolution_le
+    . exact unicontf.continuous.aestronglyMeasurable
+    . intro y hy
+      simp at hy
+      exact (hδ hy).le
+
+/- Slightly different version-/
+lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) {ε : ℝ} (εpos : ε > 0):
+    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ Function.Periodic f₀ (2 * Real.pi) ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
+  obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
+  let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
+  set f₀ := convolution (φ.normed MeasureTheory.volume) f (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
+  use f₀
+  constructor
+  . /-TODO: improve this-/
+    apply HasCompactSupport.contDiff_convolution_left
+    . exact ContDiffBump.hasCompactSupport_normed φ
+    . exact ContDiffBump.contDiff_normed φ
+    . refine Continuous.locallyIntegrable ?h.left.hg.hf
+      exact unicontf.continuous
+  constructor
+  . /-TODO: improve this. -/
+    intro x
+    rw [f₀def, convolution, convolution]
+    congr
+    ext t
+    congr 1
+    convert periodicf (x - t) using 2
+    ring
   . intro x
     rw [← Complex.dist_eq, dist_comm]
     apply ContDiffBump.dist_normed_convolution_le
@@ -238,6 +287,7 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
       simp at this
       simp [this]
       have periodic_deriv_f : Function.Periodic (deriv f) (2 * Real.pi) := by
+        intro x
         sorry
       have := periodic_deriv_f 0
       simp at this
@@ -264,9 +314,22 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
   gcongr
   exact hC n
 
+open Topology Filter
+
+lemma int_sum_nat {β : Type} [AddCommMonoid β] [TopologicalSpace β] [ContinuousAdd β] [Neg β] {f : ℤ → β} {a : β} (hfa : HasSum f a) : Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
+  have := hfa.nat_add_neg.tendsto_sum_nat
+  have := (Filter.Tendsto.add_const (- (f 0))) this
+  simp at this
+  convert this using 1
+  ext N
+  sorry
+  sorry
+
+--theorem HasSum.nat_add_neg {f : ℤ → M} (hf : HasSum f m) :
+--    HasSum (fun n : ℕ ↦ f n + f (-n)) (m + f 0) := by
 
 /-TODO: Weaken statement to pointwise convergence to simplify proof?-/
-lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.Periodic f (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) : ∃ N₀, ∀ N > N₀, ∀ x, Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.Periodic f (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) : ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Ico 0 (2 * Real.pi), Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * Real.pi) := by
     rw [fact_iff]
     exact Real.two_pi_pos
@@ -274,7 +337,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.
   have two_pi_pos' : 0 < 0 + 2 * Real.pi := by linarith [Real.two_pi_pos]
   have fourierCoeff_correspondence {i : ℤ} : fourierCoeff g i = fourierCoeffOn two_pi_pos' f i := fourierCoeff_liftIco_eq f i
   simp at fourierCoeff_correspondence
-  have : HasSum (fun (i : ℤ) => fourierCoeff g i • fourier i) g := by
+  have function_sum : HasSum (fun (i : ℤ) => fourierCoeff g i • fourier i) g := by
     apply hasSum_fourier_series_of_summable
 
     obtain ⟨C, hC⟩ := fourierCoeffOn_ContDiff_two_bound periodicf fdiff
@@ -302,154 +365,93 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.
       norm_cast
       exact hC i ine0
 
-  /-TODO: remove next line.-/
-  have next_try := this.nat_add_neg.tendsto_sum_nat
+  have := int_sum_nat function_sum
+  rw [ContinuousMap.tendsto_iff_tendstoUniformly, Metric.tendstoUniformly_iff] at this
+  have := this ε εpos
+  rw [Filter.eventually_atTop] at this
+  obtain ⟨N₀, hN₀⟩ := this
+  use N₀
+  intro N hN x hx
+  have := hN₀ N hN.le x
+  rw [Complex.dist_eq] at this
+  simp only [ContinuousMap.coe_sum, sum_apply] at this
+  convert this.le using 2
+  congr 1
+  . rw [g_def]
+    simp
+    rw [AddCircle.liftIco_coe_apply]
+    rw [zero_add]
+    exact hx
+  . rw [partialFourierSum]
+    congr
+    ext n
+    rw [fourierCoeff_correspondence]
+    simp
 
-  rw [HasSum, tendsto_atTop_nhds] at this
-  obtain ⟨s, hs⟩ := this (Metric.ball g ε) (Metric.mem_ball_self εpos) (Metric.isOpen_ball)
-  --apply Int.isUnit_iff_abs_eq
-  by_cases h : s.Nonempty
-  . use max (Int.natAbs (s.max' h)) (Int.natAbs (s.min' h))
-    intro N hN
-    have : s ≤ Icc (-Int.ofNat ↑N) N := by sorry
-    have := hs (Icc (-Int.ofNat ↑N) N) this
-    simp at this
-    intro x
-    have := ContinuousMap.dist_le_iff_of_nonempty.mp this.le x
-    rw [←Complex.dist_eq, partialFourierSum]
-    calc dist (f x) (∑ n in Icc (-Int.ofNat N) ↑N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x)
-    _ = dist ((∑ b in Icc (-↑N) ↑N, fourierCoeff g b • fourier b) x) (g x) := by
-      rw [dist_comm]
-      congr 1
-      . simp
-        congr
-        ext n
-        rw [fourierCoeff_correspondence]
-      . --apply AddCircle.coe_equivIco_mk_apply
-        rw [g_def]
-        simp
-        apply (AddCircle.liftIco_coe_apply _).symm
-        --TODO: Add assumption or do something nice here.
-        sorry
-    _ ≤ ε := this
-  . use 0
-    sorry
-
-
-/-
-lemma fourierConv_ofTwiceDifferentiable' {f : (AddCircle (2 * Real.pi)) → ℂ} (fdiff : ContDiff (AddCircle (2 * Real.pi)) 2 f) {ε : ℝ} (εpos : ε > 0) : ∃ N₀, ∀ N > N₀, ∀ x, Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
-  sorry
--/
 
 #check fourierCoeff_liftIco_eq
 
 --TODO : seems like theorem1_1 is actually Theorem 1.2 from the paper
 theorem classical_carleson --{f : ℝ → ℂ}
-  (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) (bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
-  {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) :
-  --need condition E ⊆ Set.Icc 0 (2 * Real.pi) to ensure the E has finite volume
-  ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
-  ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
-  Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
-    --Choose some δ.
-    --TODO : use some scaled ε for the choose
-    obtain ⟨δ, δpos, δltpi, hδ⟩ := (uniformContinuous_iff_bounded Real.pi_pos).mp unicontf (ε / 2) (by linarith)
-    --definitions from section 10.1 depending on the choice of δ
-    set K := Nat.floor ((2 * Real.pi) / δ) + 1 with Kdef
-    have Kgt2 : (2 : ℝ) < K := by
-      rw [Kdef]
-      have : 2 < 2 * Real.pi / δ := (lt_div_iff δpos).mpr ((mul_lt_mul_left (by norm_num)).mpr δltpi)
-      convert this.trans (Nat.lt_floor_add_one ((2 * Real.pi) / δ))
-      simp
-    let f₀ : ℝ → ℂ := fun x ↦ f ((2 * Real.pi * Int.floor ((K * x) / (2 * Real.pi))) / K)
+    (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) (bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
+    {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) :
+    --need condition E ⊆ Set.Icc 0 (2 * Real.pi) to ensure the E has finite volume
+    ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
+    ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
+    Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+  --TODO : use some scaled ε for the choose
+  have ε2pos : (ε / 2) > 0 := by linarith [hε.1]
+  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := closeSmoothApproxPeriodic unicontf periodicf ε2pos
 
-    --TODO : correct size of N₀
-    let N₀ := Nat.ceil (K^2 / ε^3)
-    --Lemma 10.2 from the paper
-    --changed interval to Icc to match the interval in the theorem
-    have piecePartialFourierSumApprox {N : ℕ} (hN : N > N₀) :
-      ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f₀ x - partialFourierSum f₀ N x) ≤ ε / 4:= by
-      -- use has_pointwise_sum_fourier_series_of_summable or hasSum_fourier_series_L2 from mathlib?
-      -- search for more convergence theorems
-      sorry
-    --Lemma 10.3 from the paper
-    --TODO : review measurability assumption
-    --added subset assumption
-    --changed interval to match the interval in the theorem
-    /-
-    have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε / 2 ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
-      sSup {Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) | N : ℕ} ≤ ε / 4 := by
-      sorry
-    -/
-    --simplified statement so that we do not have to worry about a sSup
-    have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε / 2 ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
-      ∀ N, Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) ≤ ε / 4 := by
-      sorry
-    obtain ⟨E₂, E₂subset, E₂measurable, E₂volume, hE₂⟩ := diffPartialFourierSums
+  --Lemma 10.2 from the paper
+  --changed interval to Icc to match the interval in the theorem
+  have ε4pos : ε / 4 > 0 := by linarith
+  obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
 
 
-    --TODO : change definition of E₁ to be able to prove this
-    have E₁subset : E₁ ⊆ Set.Icc 0 (2 * Real.pi) := by
-      rw [Set.iUnion_subset_iff]
-      simp
-      intro k klt x
-      simp
-      intro lex xle
-      sorry
+  --Lemma 10.3 from the paper
+  --TODO : review measurability assumption
+  --added subset assumption
+  --changed interval to match the interval in the theorem
+  /-
+  have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε / 2 ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
+    sSup {Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) | N : ℕ} ≤ ε / 4 := by
+    sorry
+  -/
+  --simplified statement so that we do not have to worry about a sSup
+  have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
+    ∀ N, Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) ≤ ε / 4 := by
+    sorry
+  obtain ⟨E₂, E₂subset, E₂measurable, E₂volume, hE₂⟩ := diffPartialFourierSums
 
-    --set E := E₁ ∪ E₂
+  --apply Set.mem_Ico_of_Ioo
 
-    --Definition of E
-    use E₁ ∪ E₂
-    use Set.union_subset E₁subset E₂subset
-    use E₁measurable.union E₂measurable
-    constructor
-    . calc MeasureTheory.volume.real (E₁ ∪ E₂)
-      _ ≤ MeasureTheory.volume.real E₁ + MeasureTheory.volume.real E₂ := by apply MeasureTheory.measureReal_union_le
-      _ ≤ ε / 2 + ε / 2 := by
-          apply add_le_add E₁volume E₂volume
-      _ = ε := by simp
-    . use N₀
-      intro x hx N NgtN₀
-      --use "telescope" sum
-      calc Complex.abs (f x - partialFourierSum f N x)
-      _ = Complex.abs ((f x - f₀ x) + (f₀ x - partialFourierSum f₀ N x) + (partialFourierSum f₀ N x - partialFourierSum f N x)) := by congr; ring
-      _ ≤ Complex.abs ((f x - f₀ x) + (f₀ x - partialFourierSum f₀ N x)) + Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) := by
-        apply AbsoluteValue.add_le
-      _ ≤ Complex.abs (f x - f₀ x) + Complex.abs (f₀ x - partialFourierSum f₀ N x) + Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) := by
-        apply add_le_add_right
-        apply AbsoluteValue.add_le
-      _ ≤ (ε / 2) + (ε / 4) + (ε/4) := by
-        gcongr
-        . -- here, we use the definitions of δ, K and f₀
-          apply le_of_lt
-          apply hδ
-          rw [Real.dist_eq]
-          calc |x - 2 * Real.pi * ⌊K * x / (2 * Real.pi)⌋ / K|
-          _ = |2 * Real.pi * (K * x / (2 * Real.pi)) / K - 2 * Real.pi * ⌊K * x / (2 * Real.pi)⌋ / K| := by congr; field_simp; ring
-          _ = |2 * Real.pi * (K * x / (2 * Real.pi) - ⌊K * x / (2 * Real.pi)⌋) / K| := by
-            ring_nf
-          _ = 2 * Real.pi * |K * x / (2 * Real.pi) - ⌊K * x / (2 * Real.pi)⌋| / K := by
-            rw [abs_div, abs_mul, abs_eq_self.mpr Real.two_pi_pos.le, abs_eq_self.mpr ((zero_lt_two).trans Kgt2).le]
-          _ ≤ 2 * Real.pi * 1 / K := by
-            apply (div_le_div_right ((zero_lt_two).trans Kgt2)).mpr
-            apply (mul_le_mul_left Real.two_pi_pos).mpr
-            rw [abs_eq_self.mpr]
-            apply le_of_lt
-            rw [sub_lt_iff_lt_add, add_comm]
-            apply Int.lt_floor_add_one
-            rw [le_sub_iff_add_le, zero_add]
-            apply Int.floor_le
-          _ < δ := by
-            rw [div_lt_iff, mul_one, ← div_lt_iff' δpos]
-            . push_cast
-              apply Nat.lt_floor_add_one
-            exact (zero_lt_two).trans Kgt2
-        . have : x ∈ Set.Icc 0 (2 * Real.pi) \ E₁ := ⟨hx.1, fun xE₁ ↦ hx.2 (Set.mem_union_left E₂ xE₁)⟩
-          apply piecePartialFourierSumApprox NgtN₀ x this
-        . have : x ∈ Set.Icc 0 (2 * Real.pi) \ E₂ := ⟨hx.1, fun xE₂ ↦ hx.2 (Set.mem_union_right E₁ xE₂)⟩
-          apply hE₂ x this N
-      _ ≤ ε := by linarith
+  --Definition of E changed compared to the paper
+  use E₂, E₂subset, E₂measurable, E₂volume, N₀
+  intro x hx N NgtN₀
+  --use "telescope" sum
+  calc Complex.abs (f x - partialFourierSum f N x)
+  _ = Complex.abs ((f x - f₀ x) + (f₀ x - partialFourierSum f₀ N x) + (partialFourierSum f₀ N x - partialFourierSum f N x)) := by congr; ring
+  _ ≤ Complex.abs ((f x - f₀ x) + (f₀ x - partialFourierSum f₀ N x)) + Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) := by
+    apply AbsoluteValue.add_le
+  _ ≤ Complex.abs (f x - f₀ x) + Complex.abs (f₀ x - partialFourierSum f₀ N x) + Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) := by
+    apply add_le_add_right
+    apply AbsoluteValue.add_le
+  _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
+    gcongr
+    . exact hf₀ x
+    . by_cases h : x = 2 * Real.pi
+      . rw [h, ←zero_add (2 * Real.pi), periodic_f₀, partialFourierSum_periodic]
+        apply hN₀ N NgtN₀ 0
+        simp [Real.pi_pos]
+      . have : x ∈ Set.Ico 0 (2 * Real.pi) := by
+          simp
+          simp at hx
+          use hx.1.1
+          apply lt_of_le_of_ne hx.1.2 h
+        convert hN₀ N NgtN₀ x this
+    . exact hE₂ x hx N
+  _ ≤ ε := by linarith
 
 
 #check classical_carleson
