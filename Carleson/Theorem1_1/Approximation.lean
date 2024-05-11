@@ -1,3 +1,5 @@
+/- The arguments in this file replace section 10.2 (Piecewise constant functions) from the paper. -/
+
 import Carleson.Carleson
 import Carleson.HomogeneousType
 import Carleson.Theorem1_1.Basic

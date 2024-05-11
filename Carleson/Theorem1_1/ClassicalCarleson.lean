@@ -2,12 +2,12 @@ import Carleson.Carleson
 import Carleson.HomogeneousType
 import Carleson.Theorem1_1.Basic
 import Carleson.Theorem1_1.Approximation
+import Carleson.Theorem1_1.Control_Approximation_Effect
 
 import Mathlib.Analysis.Fourier.AddCircle
 
 
 noncomputable section
-local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y) -- Porting note: See issue lean4#2220
 
 /- Specialize this to get the usual version of Carleson's theorem,
 by taking `X = ℝ`, `K x y := 1 / (x - y)` and `𝓠 = {linear functions}`.
