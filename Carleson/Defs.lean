@@ -154,36 +154,63 @@ def CarlesonOperator (K : X → X → ℂ) (Θ : Set C(X, ℂ)) (f : X → ℂ) 
   ‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖
 
 variable (X) in
-/-- A grid structure on `X`.
+
+/- A grid structure on `X`.
 I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)`
-Note: the `s` in this paper is `-s` of Christ's paper.
--/
-class GridStructure (D κ : outParam ℝ) (C : outParam ℝ) where
-  ι : Type*
-  𝓓 : ι → Set X
-  s : ι → ℤ
-  x : ι → X
-  volume_iUnion_preimage : ∀ σ ∈ range s, volume.real (⋃ i ∈ s ⁻¹' {σ}, 𝓓 i)ᶜ = 0
-  volume_inter_eq_zero {i j} (h1 : i ≠ j) (h2 : s i = s j) : volume.real (𝓓 i ∩ 𝓓 j) = 0
-  fundamental_dyadic {i j} : 𝓓 i ⊆ 𝓓 j ∨ 𝓓 j ⊆ 𝓓 i ∨ Disjoint (𝓓 i) (𝓓 j)
-  ball_subset_𝓓 {i} : ball (x i) ((2 * A) ^ (-2 : ℤ) * D ^ s i) ⊆ 𝓓 i
-  𝓓_subset_ball {i} : 𝓓 i ⊆ ball (x i) ((2 * A) ^ 2 * D ^ s i)
-  small_boundary {i} {t : ℝ} (ht : 0 < t) : volume.real {x ∈ 𝓓 i | infDist x (𝓓 i)ᶜ ≤ t * D ^ s i } ≤
-    C * t ^ κ * volume.real (𝓓 i)
+Note: the `s` in this paper is `-s` of Christ's paper.-/
+-- class GridStructure (D κ : outParam ℝ) (C : outParam ℝ) where
+--   ι : Type* -- Shouldn't the index set be finite?
+--   𝓓 : ι → Set X -- Shouldn't be a finite collection?
+--   s : ι → ℤ
+--   x : ι → X
+--   volume_iUnion_preimage : ∀ σ ∈ range s, volume.real (⋃ i ∈ s ⁻¹' {σ}, 𝓓 i)ᶜ = 0
+--   volume_inter_eq_zero {i j} (h1 : i ≠ j) (h2 : s i = s j) : volume.real (𝓓 i ∩ 𝓓 j) = 0
+--   fundamental_dyadic {i j} : 𝓓 i ⊆ 𝓓 j ∨ 𝓓 j ⊆ 𝓓 i ∨ Disjoint (𝓓 i) (𝓓 j)
+--   ball_subset_𝓓 {i} : ball (x i) ((2 * A) ^ (-2 : ℤ) * D ^ s i) ⊆ 𝓓 i
+--   𝓓_subset_ball {i} : 𝓓 i ⊆ ball (x i) ((2 * A) ^ 2 * D ^ s i)
+--   small_boundary {i} {t : ℝ} (ht : 0 < t) : volume.real {x ∈ 𝓓 i | infDist x (𝓓 i)ᶜ ≤ t * D ^ s i } ≤
+--     C * t ^ κ * volume.real (𝓓 i)
   -- should the following become axioms? I believe they don't follow from previous axioms.
   -- or maybe Î is only defined when it exists?
   -- next : ι → ι
   -- subset_next {i} : 𝓓 i ⊆ 𝓓 (next i)
   -- s_next : s (next i) = s i + 1
 
-export GridStructure (volume_iUnion_preimage volume_inter_eq_zero fundamental_dyadic
-  ball_subset_𝓓 𝓓_subset_ball small_boundary)
 
-variable {D κ : ℝ} {C : ℝ}
+/-- A grid structure on `X`.
+I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)`
+Note: the `s` in this paper is `-s` of Christ's paper.
+-/
+-- Alternative definition of `GridStructure`, more faithful to the current version of the blueprint
+class GridStructure (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X) where
+  ι : Type*
+  𝓓 : ι → Set X
+  s : ι → ℤ
+  x : ι → X
+  finite_collection : Fintype ι
+  finite_scale {i} : s i ≥ - S
+  𝓓_subset_union {i} : ∀ k, k < s i → 𝓓 i ⊆ (⋃ j ∈ s ⁻¹' {k}, 𝓓 j)
+  fundamental_dyadic {i j} : s i ≤ s j → 𝓓 i ⊆ 𝓓 j ∨ Disjoint (𝓓 i) (𝓓 j)
+  ball_subset_union {k} : ball o (D ^ S) ⊆ (⋃ i ∈ s ⁻¹' {k}, 𝓓 i)
+  ball_subset_𝓓 {i} : ball (x i) (D ^ s i / 4) ⊆ 𝓓 i
+  𝓓_subset_ball {i} : 𝓓 i ⊆ ball (x i) (4 * D ^ s i)
+  small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
+    volume.real { y ∈ 𝓓 i | infDist y (𝓓 i)ᶜ ≤ t * D ^ s i } ≤ C * t ^ κ * volume.real (𝓓 i)
+  -- should the following become axioms? I believe they don't follow from previous axioms.
+  -- or maybe Î is only defined when it exists?
+  -- `next : ι → ι` -- maybe this could be called `parent`?
+  -- `subset_next {i} : 𝓓 i ⊆ 𝓓 (next i)`
+  -- `s_next : s (next i) = s i + 1`
+  -- If we add this axioms we have to abandon the finiteness of `ι`
+
+export GridStructure (finite_collection finite_scale 𝓓_subset_union
+  fundamental_dyadic ball_subset_union ball_subset_𝓓 𝓓_subset_ball small_boundary)
+
+variable {D κ C : ℝ} {S : ℤ} {o : X}
 
 section GridStructure
 
-variable [GridStructure X D κ C]
+variable [GridStructure X D κ C S o]
 
 variable (X) in
 def ι : Type* := GridStructure.ι X A
@@ -201,7 +228,7 @@ instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℂ) :=
 
 /-- A tile structure. Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
 class TileStructure.{u} [Inhabited X] (Θ : outParam (Set C(X, ℂ)))
-    (D κ : outParam ℝ) (C : outParam ℝ) extends GridStructure X κ D C where
+    (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ C S o where
   protected 𝔓 : Type u
   protected 𝓘 : 𝔓 → ι
   Ω : 𝔓 → Set C(X, ℂ)
