@@ -337,13 +337,31 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
   have := hfa.nat_add_neg.tendsto_sum_nat
   have := (Filter.Tendsto.add_const (- (f 0))) this
   simp at this
+  /-Need to start at 1 instead of zero for the base case to be true. -/
+  rw [←tendsto_add_atTop_iff_nat 1] at this
   convert this using 1
   ext N
-  /-TODO: need to start at 1 instead of zero-/
-  induction N
+  induction' N with N ih
   . simp
-    sorry
-  . sorry
+  . have : Icc (- Int.ofNat (Nat.succ N)) (Nat.succ N) = insert (↑(Nat.succ N)) (insert (-Int.ofNat (Nat.succ N)) (Icc (-Int.ofNat N) N)) := by
+      rw [←Ico_insert_right, ←Ioo_insert_left]
+      . congr
+        ext n
+        simp only [Int.ofNat_eq_coe, mem_Ioo, mem_Icc]
+        push_cast
+        rw [Int.lt_add_one_iff, neg_add, ←sub_eq_add_neg, Int.sub_one_lt_iff]
+      . norm_num
+        linarith
+      . norm_num
+        linarith
+    rw [this, sum_insert, sum_insert, ih, ←add_assoc]
+    symm
+    rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
+    simp
+    rw [add_comm]
+    . simp
+    . norm_num
+      linarith
 
 
 --theorem HasSum.nat_add_neg {f : ℤ → M} (hf : HasSum f m) :
