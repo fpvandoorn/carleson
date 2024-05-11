@@ -2,7 +2,6 @@ import Carleson.Carleson
 import Carleson.HomogeneousType
 import Carleson.Theorem1_1.Basic
 
---import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Analysis.Convolution
@@ -132,7 +131,6 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
   rw [f'def]
   simp [hb]
 
---open intervalIntegral
 
   lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * Real.pi))) : ∃ C, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x) ≤ C := by
     have interval_compact := (@isCompact_Icc ℝ _ _ _ 0 (2 * Real.pi))
@@ -154,7 +152,6 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
   simp only [sub_zero, one_div, mul_inv_rev, fourier_apply, neg_smul, fourier_neg',
     fourier_coe_apply', Complex.ofReal_mul, Complex.ofReal_ofNat, smul_eq_mul, Complex.real_smul,
     Complex.ofReal_inv, map_mul, map_inv₀, Complex.abs_ofReal, Complex.abs_ofNat]
-  --rw [mul_assoc (2 * Real.pi)]
   field_simp
   rw [abs_of_nonneg Real.pi_pos.le, mul_comm Real.pi, div_le_iff Real.two_pi_pos, ←Complex.norm_eq_abs]
   calc ‖∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), (starRingEnd ℂ) (Complex.exp (2 * Real.pi * Complex.I * n * x / (2 * Real.pi))) * f x‖
@@ -236,7 +233,6 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
       have := periodic_deriv_f 0
       simp at this
       simp [this]
-      --field_simp
       ring_nf
       simp
       left

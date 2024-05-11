@@ -1,13 +1,4 @@
-import Carleson.Carleson
-import Carleson.HomogeneousType
-
---import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Algebra.BigOperators.Basic
-import Mathlib.Analysis.Convolution
-import Mathlib.Analysis.Calculus.BumpFunction.Convolution
-import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
-import Mathlib.Analysis.PSeries
 
 open BigOperators
 open Finset
