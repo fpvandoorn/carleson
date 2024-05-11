@@ -251,7 +251,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
       norm_cast
       rw [Complex.abs_exp_ofReal_mul_I]
       ring
-    _ ≤ ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), C := by
+    _ ≤ ∫ (_ : ℝ) in (0 : ℝ)..(2 * Real.pi), C := by
       apply intervalIntegral.integral_mono_on
       . exact Real.two_pi_pos.le
       . rw [IntervalIntegrable.intervalIntegrable_norm_iff]
@@ -267,17 +267,35 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
       simp
       ring
 
+/-TODO: Assumptions might be weakened. -/
+lemma periodic_deriv {𝕜 : Type} [NontriviallyNormedField 𝕜] {F : Type} [NormedAddCommGroup F] [NormedSpace 𝕜 F]
+    {f : 𝕜 → F} {T : 𝕜} (diff_f : ContDiff 𝕜 1 f) (periodic_f : Function.Periodic f T) : Function.Periodic (deriv f) T := by
+  intro x
+  set g : 𝕜 → 𝕜 := fun x ↦ x + T with gdef
+  have diff_g : Differentiable 𝕜 g := by
+    apply differentiable_id.add_const
+  have : deriv (f ∘ g) x = ((deriv f) ∘ g) x := by
+    calc deriv (f ∘ g) x
+      _ = deriv g x • deriv f (g x) := deriv.scomp x (diff_f.differentiable (by norm_num)).differentiableAt diff_g.differentiableAt
+      _ = deriv f (g x) := by rw [gdef, deriv_add_const, deriv_id'']; simp
+  rw [gdef] at this
+  simp at this
+  convert this.symm
+  ext y
+  simp
+  exact (periodic_f y).symm
+
 /-TODO: might be generalized. -/
 /-TODO: Assumption periodicf is probably not needed actually. -/
 lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.Periodic f (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f): ∃ C, ∀ n ≠ 0, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C / n ^ 2 := by
 --#check IsCompact.exists_isMaxOn
   --TODO: improve this
   have h : ∀ x ∈ Set.uIcc 0 (2 * Real.pi), HasDerivAt f (deriv f x) x := by
-    intro x hx
+    intro x _
     rw [hasDerivAt_deriv_iff]
     apply fdiff.differentiable (by norm_num)
   have h' : ∀ x ∈ Set.uIcc 0 (2 * Real.pi), HasDerivAt (deriv f) (deriv (deriv f) x) x := by
-    intro x hx
+    intro x _
     rw [hasDerivAt_deriv_iff]
     apply (contDiff_succ_iff_deriv.mp fdiff).2.differentiable (by norm_num)
   /-Get better representation for the fourier coefficients of f. -/
@@ -286,9 +304,7 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
     . have := periodicf 0
       simp at this
       simp [this]
-      have periodic_deriv_f : Function.Periodic (deriv f) (2 * Real.pi) := by
-        intro x
-        sorry
+      have periodic_deriv_f : Function.Periodic (deriv f) (2 * Real.pi) := periodic_deriv (fdiff.of_le one_le_two) periodicf
       have := periodic_deriv_f 0
       simp at this
       simp [this]
@@ -316,14 +332,19 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
 
 open Topology Filter
 
-lemma int_sum_nat {β : Type} [AddCommMonoid β] [TopologicalSpace β] [ContinuousAdd β] [Neg β] {f : ℤ → β} {a : β} (hfa : HasSum f a) : Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
+/-TODO : Assumptions might be weakened-/
+lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) : Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
   have := hfa.nat_add_neg.tendsto_sum_nat
   have := (Filter.Tendsto.add_const (- (f 0))) this
   simp at this
   convert this using 1
   ext N
-  sorry
-  sorry
+  /-TODO: need to start at 1 instead of zero-/
+  induction N
+  . simp
+    sorry
+  . sorry
+
 
 --theorem HasSum.nat_add_neg {f : ℤ → M} (hf : HasSum f m) :
 --    HasSum (fun n : ℕ ↦ f n + f (-n)) (m + f 0) := by
