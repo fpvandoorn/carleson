@@ -8,7 +8,22 @@ noncomputable section
 def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 --fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 
-/-TODO: Add integrability assumptions. -/
+@[simp]
+lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} : fourierCoeffOn hab (fun x ↦ c * f x) n =
+    c * (fourierCoeffOn hab f n):= by
+  rw [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
+  simp
+  rw [←mul_assoc, mul_comm c, mul_assoc _ c, mul_comm c, ←intervalIntegral.integral_mul_const]
+  congr
+  ext x
+  ring
+
+@[simp]
+lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {n : ℤ} : fourierCoeffOn hab (-f) n =
+    - (fourierCoeffOn hab f n):= by
+  rw [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
+  simp
+
 @[simp]
 lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ} (hf : IntervalIntegrable f MeasureTheory.volume a b) (hg : IntervalIntegrable g MeasureTheory.volume a b) :
     fourierCoeffOn hab (f + g) n = fourierCoeffOn hab f n + fourierCoeffOn hab g n:= by
@@ -26,14 +41,10 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     continuity
 
 @[simp]
-lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {a : ℂ} {n : ℤ} : fourierCoeffOn hab (fun x ↦ a * f x) n =
-    a * (fourierCoeffOn hab f n):= by
-  rw [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
-  simp
-  rw [←mul_assoc, mul_comm a, mul_assoc _ a, mul_comm a, ←intervalIntegral.integral_mul_const]
-  congr
-  ext x
-  ring
+lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ} (hf : IntervalIntegrable f MeasureTheory.volume a b) (hg : IntervalIntegrable g MeasureTheory.volume a b) :
+    fourierCoeffOn hab (f - g) n = fourierCoeffOn hab f n - fourierCoeffOn hab g n:= by
+  rw [sub_eq_add_neg, fourierCoeffOn_add hf hg.neg, fourierCoeffOn_neg, ← sub_eq_add_neg]
+
 
 @[simp]
 lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)): partialFourierSum (f + g) N = partialFourierSum f N + partialFourierSum g N := by
@@ -43,6 +54,15 @@ lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrab
   congr
   ext n
   rw [fourierCoeffOn_add hf hg, add_mul]
+
+@[simp]
+lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)): partialFourierSum (f - g) N = partialFourierSum f N - partialFourierSum g N := by
+  ext x
+  simp
+  rw [partialFourierSum, partialFourierSum, partialFourierSum, ←sum_sub_distrib]
+  congr
+  ext n
+  rw [fourierCoeffOn_sub hf hg, sub_mul]
 
 
 @[simp]

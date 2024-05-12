@@ -23,8 +23,14 @@ theorem classical_carleson {f : ℝ → ℂ}
     ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
     Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
   --TODO : use some scaled ε for the choose
-  have ε2pos : (ε / 2) > 0 := by linarith [hε.1]
-  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := closeSmoothApproxPeriodic unicontf periodicf ε2pos
+  set ε' := (2 ^ (- (2 ^ 50 : ℝ))) * ε ^ 2 with ε'def
+  have ε'pos : ε' > 0 := by
+    rw [ε'def]
+    apply mul_pos
+    . apply Real.rpow_pos_of_pos zero_lt_two
+    . rw [pow_two]
+      apply mul_pos <;> exact hε.1
+  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := closeSmoothApproxPeriodic unicontf periodicf ε'pos
 
   --Lemma 10.2 from the paper
   --changed interval to Icc to match the interval in the theorem
@@ -32,22 +38,17 @@ theorem classical_carleson {f : ℝ → ℂ}
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
 
 
-  --Lemma 10.3 from the paper
-  --TODO : review measurability assumption
-  --added subset assumption
-  --changed interval to match the interval in the theorem
-  /-
-  have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε / 2 ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
-    sSup {Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) | N : ℕ} ≤ ε / 4 := by
-    sorry
-  -/
-  --simplified statement so that we do not have to worry about a sSup
-  have diffPartialFourierSums : ∃ E₂ ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E₂ ∧ MeasureTheory.volume.real E₂ ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E₂,
-    ∀ N, Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) ≤ ε / 4 := by
-    sorry
-  obtain ⟨E₂, E₂subset, E₂measurable, E₂volume, hE₂⟩ := diffPartialFourierSums
+  set h := f₀ - f with hdef
+  have hh : Measurable h ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (h x) ≤ ε' := by
+    constructor
+    . exact Continuous.measurable (Continuous.sub contDiff_f₀.continuous unicontf.continuous)
+    . intro x _
+      rw [hdef]
+      simp
+      rw [←Complex.dist_eq, dist_comm, Complex.dist_eq]
+      exact hf₀ x
 
-  --apply Set.mem_Ico_of_Ioo
+  obtain ⟨E₂, E₂subset, E₂measurable, E₂volume, hE₂⟩ := control_approximation_effect hε hh
 
   --Definition of E changed compared to the paper
   use E₂, E₂subset, E₂measurable, E₂volume, N₀
@@ -60,7 +61,7 @@ theorem classical_carleson {f : ℝ → ℂ}
   _ ≤ Complex.abs (f x - f₀ x) + Complex.abs (f₀ x - partialFourierSum f₀ N x) + Complex.abs (partialFourierSum f₀ N x - partialFourierSum f N x) := by
     apply add_le_add_right
     apply AbsoluteValue.add_le
-  _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
+  _ ≤ ε' + (ε / 4) + (ε / 4) := by
     gcongr
     . exact hf₀ x
     . by_cases h : x = 2 * Real.pi
@@ -73,5 +74,27 @@ theorem classical_carleson {f : ℝ → ℂ}
           use hx.1.1
           apply lt_of_le_of_ne hx.1.2 h
         convert hN₀ N NgtN₀ x this
-    . exact hE₂ x hx N
+    . have := hE₂ x hx N
+      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (unicontf.continuous.intervalIntegrable 0 (2 * Real.pi))] at this
+      exact this
+  _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
+    gcongr
+    rw [ε'def, pow_two, ←mul_assoc, le_div_iff (by norm_num), mul_comm, ←mul_assoc, ←(le_div_iff hε.1), div_self hε.1.ne.symm, ←mul_assoc]
+    calc 2 * 2 ^ (-2 ^ 50 : ℝ) * ε
+      _ ≤ 2 ^ (1 - 2 ^ 50 : ℝ) * (2 * Real.pi) := by
+        gcongr
+        . exact hε.1.le
+        . apply le_of_eq
+          rw [sub_eq_neg_add, Real.rpow_add (by norm_num), Real.rpow_one, mul_comm]
+        . exact hε.2
+      _ ≤ 2 ^ (1 - 2 ^ 50 : ℝ) * (2 * 4) := by
+        gcongr
+        exact Real.pi_le_four
+      _ = 2 ^ (1 - 2 ^ 50 : ℝ) * 2 ^ (3 : ℝ) := by
+        congr
+        norm_num
+      _ = 2 ^ (1 - (2 ^ 50 : ℝ) + 3) := by
+        rw [Real.rpow_add (by norm_num)]
+      _ ≤ 1 := by
+        apply Real.rpow_le_one_of_one_le_of_nonpos <;> norm_num
   _ ≤ ε := by linarith
