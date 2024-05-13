@@ -231,10 +231,12 @@ class TileStructure.{u} [Inhabited X] (Θ : outParam (Set C(X, ℂ)))
     (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ C S o where
   protected 𝔓 : Type u
   protected 𝓘 : 𝔓 → ι
+  finite_collection' : Fintype 𝔓
   Ω : 𝔓 → Set C(X, ℂ)
-  measurableSet_Ω : ∀ p, MeasurableSet (Ω p)
+  Ω_mem : ∀ p, Ω p ⊆ Θ
   Q : 𝔓 → C(X, ℂ)
   Q_mem : ∀ p, Q p ∈ Θ
+
   union_Ω {i} : ⋃ (p) (_h : 𝓓 (𝓘 p) = 𝓓 i), Ω p = Θ
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓓 (𝓘 p) = 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p')
   relative_fundamental_dyadic {p p'} (h : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
