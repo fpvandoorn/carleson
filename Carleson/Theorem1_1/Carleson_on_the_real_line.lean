@@ -206,23 +206,44 @@ instance h5 : IsCancellative 2 Θ where
 
 --TODO : add some Real.vol lemma
 
-/-rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal]
-        . ring_nf
-          trivial
-        . linarith-/
-
 instance h6 : IsCZKernel 4 K where
-  /- Lemma 10.37 (Hilbert kernel bound) from the paper. -/
+  /- uses Hilbert_kernel_bound -/
   norm_le_vol_inv := by
     intro x y
     rw [Complex.norm_eq_abs, Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
     calc Complex.abs (K x y)
     _ ≤ 2 ^ (4 : ℝ) / (2 * |x - y|) := by apply Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
-  /- uses Lemma 10.38 (Hilbert kernel regularity) -/
-  norm_sub_le := by sorry
+  /- uses Hilbert_kernel_regularity -/
+  norm_sub_le := by
+    intro x y y' h
+    rw [Real.dist_eq, Real.dist_eq] at *
+    calc ‖K x y - K x y'‖
+    _ ≤ 2 ^ 10 * (1 / |x - y|) * (|y - y'| / |x - y|) := by
+      apply Hilbert_kernel_regularity
+      linarith [abs_nonneg (x-y)]
+    _ ≤ (|y - y'| / |x - y|) ^ (4 : ℝ)⁻¹ * (2 ^ (4 : ℝ) ^ 3 / Real.vol x y) := by
+      rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+      ring_nf
+      rw [pow_two, mul_assoc |x - y|⁻¹]
+      gcongr
+      . conv =>
+          lhs
+          rw [← Real.rpow_one (|x - y|⁻¹ * |y - y'|)]
+        apply Real.rpow_le_rpow_of_exponent_ge'
+        . field_simp
+          apply div_nonneg (abs_nonneg (y - y')) (abs_nonneg (x - y))
+        . field_simp
+          apply div_le_one_of_le <;> linarith [abs_nonneg (x - y)]
+        . norm_num
+        . norm_num
+      . norm_num
   /- Lemma ?-/
-  measurable_right := by sorry
+  measurable_right := by
+    intro y
+    --apply measurable_div
+    --rw [K]
+    sorry
   /- Lemma ?-/
   measurable := by sorry
 

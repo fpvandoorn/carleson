@@ -1,6 +1,7 @@
 import Carleson.Carleson
 import Carleson.HomogeneousType
 import Mathlib.Analysis.Fourier.AddCircle
+import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 
 
 open BigOperators
@@ -110,11 +111,84 @@ lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformC
 /-Lemma 10.10 (Dirichlet kernel) from the paper.-/
 --lemma dirichlet_kernel :
 
+/-Slightly different and stronger version of Lemma 10.11 (lower secant bound). -/
+lemma lower_secant_bound' {η : ℝ} (ηpos : η > 0) {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * Real.pi - η) :
+    η / 4 ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
+  wlog x_nonneg : 0 ≤ x generalizing x
+  . convert (@this (-x) _ (by simpa) (by linarith)) using 1
+    . rw [Complex.norm_eq_abs, ←Complex.abs_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg, Complex.norm_eq_abs,
+          ←Complex.exp_conj, map_mul, Complex.conj_I, neg_mul, Complex.conj_ofReal]
+    . rwa [abs_neg]
+  rw [abs_of_nonneg x_nonneg] at *
+  wlog x_le_pi : x ≤ Real.pi generalizing x
+  . convert (@this (2 * Real.pi - x) _ _ _ _) using 1
+    . rw [Complex.norm_eq_abs, ←Complex.abs_conj]
+      simp
+      rw [←Complex.exp_conj]
+      simp
+      rw [mul_sub, Complex.conj_ofReal, Complex.exp_sub, mul_comm Complex.I (2 * Real.pi), Complex.exp_two_pi_mul_I, ←inv_eq_one_div, ←Complex.exp_neg]
+    all_goals linarith
+  by_cases h : x ≤ Real.pi / 2
+  . calc η / 4
+    _ ≤ (2 / Real.pi) * η := by
+      rw [div_le_iff (by norm_num)]
+      field_simp
+      rw [le_div_iff Real.pi_pos, mul_comm 2, mul_assoc]
+      gcongr
+      linarith [Real.pi_le_four]
+    _ ≤ (2 / Real.pi) * x := by gcongr
+    _ = (1 - (2 / Real.pi) * x) * Real.sin 0 + ((2 / Real.pi) * x) * Real.sin (Real.pi / 2) := by simp
+    _ ≤ Real.sin ((1 - (2 / Real.pi) * x) * 0 + ((2 / Real.pi) * x) * (Real.pi / 2)) := by
+      apply (strictConcaveOn_sin_Icc.concaveOn).2 (by simp [Real.pi_nonneg])
+      . simp
+        constructor <;> linarith [Real.pi_nonneg]
+      . rw [sub_nonneg, mul_comm]
+        apply mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) Real.pi_nonneg) (by simpa)
+      . exact mul_nonneg (div_nonneg (by norm_num) Real.pi_nonneg) x_nonneg
+      . simp
+    _ = Real.sin x := by
+      congr
+      field_simp
+      ring
+    _ ≤ Real.sqrt ((Real.sin x) ^ 2) := by
+      rw [Real.sqrt_sq_eq_abs]
+      apply le_abs_self
+    _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
+        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
+        simp
+        rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
+        apply (Real.sqrt_le_sqrt_iff _).mpr
+        . simp [pow_two_nonneg]
+        . linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
+  . push_neg at h
+    calc η / 4
+    _ ≤ 1 := by
+      rw [div_le_iff (by norm_num), one_mul]
+      exact (le_abs_x.trans x_le_pi).trans Real.pi_le_four
+    _ ≤ |(1 - Complex.exp (Complex.I * ↑x)).re| := by
+      rw [mul_comm, Complex.exp_mul_I]
+      simp
+      rw [Complex.cos_ofReal_re, le_abs]
+      left
+      simp
+      apply Real.cos_nonpos_of_pi_div_two_le_of_le h.le
+      linarith
+    _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
+      rw [Complex.norm_eq_abs]
+      apply Complex.abs_re_le_abs
+
 /- Lemma 10.11 (lower secant bound) from the paper. -/
 lemma lower_secant_bound {η : ℝ} (ηpos : η > 0) {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
     η / 8 ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
-  sorry
-
+  calc η / 8
+  _ ≤ η / 4 := by
+    ring_nf
+    gcongr
+    norm_num
+  _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
+    apply lower_secant_bound' ηpos xAbs
+    rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
+    exact xIcc
 
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
 
