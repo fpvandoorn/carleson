@@ -179,7 +179,7 @@ lemma lower_secant_bound' {η : ℝ} (ηpos : η > 0) {x : ℝ} (le_abs_x : η �
 
 /- Lemma 10.11 (lower secant bound) from the paper. -/
 lemma lower_secant_bound {η : ℝ} (ηpos : η > 0) {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
-    η / 8 ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
+    η / 8 ≤ Complex.abs (1 - Complex.exp (Complex.I * x)) := by
   calc η / 8
   _ ≤ η / 4 := by
     ring_nf
@@ -264,6 +264,11 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (4 : ℝ) / (2 * |x
     . linarith [abs_nonneg (x-y)]
 
 
+/-TODO: to mathlib-/
+theorem Real.volume_uIoc {a b : ℝ} : MeasureTheory.volume (Set.uIoc a b) = ENNReal.ofReal |b - a| := by
+  /- Cf. proof of Real.volume_interval-/
+  rw [Set.uIoc, volume_Ioc, max_sub_min_eq_abs]
+
 /- Lemma 10.14 (Hilbert kernel regularity) -/
 lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     2 * |y - y'| ≤ |x - y| → ‖K x y - K x y'‖ ≤ 2 ^ 10 * (1 / |x - y|) * (|y - y'| / |x - y|)  := by
@@ -326,11 +331,144 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
   . rw [k_of_abs_le_one, k_of_abs_le_one]
     . simp only [abs_neg, Complex.ofReal_neg, mul_neg, ge_iff_le]
       rw [abs_of_nonneg yy'nonneg.1, abs_of_nonneg yy'nonneg.2]
-      sorry
+      let f : ℝ → ℂ := fun t ↦ (1 - t) / (1 - Complex.exp (-(Complex.I * t)))
+      set f' : ℝ → ℂ := fun t ↦ (-1 + Complex.exp (-(Complex.I * t)) + Complex.I * (t - 1) * Complex.exp (-(Complex.I * t))) / (1 - Complex.exp (-(Complex.I * t))) ^ 2 with f'def
+      /-TODO: externalize as lemma?-/
+      have f_deriv : ∀ t, HasDerivAt f (f' t) t := by
+        intro t
+        set c : ℝ → ℂ := fun t ↦ (1 - t) with cdef
+        set c' : ℝ → ℂ := fun t ↦ -1 with c'def
+        set d : ℝ → ℂ := fun t ↦ (1 - Complex.exp (-(Complex.I * t))) with ddef
+        set d' : ℝ → ℂ := fun t ↦ Complex.I * Complex.exp (-(Complex.I * t)) with d'def
+        have : f = fun t ↦ c t / d t := by simp
+        rw [this]
+        have : f' = fun t ↦ ((c' t * d t - c t * d' t) / d t ^ 2) := by
+          ext t
+          rw [f'def, cdef, c'def, ddef, d'def]
+          simp
+          congr
+          ring
+        rw [this]
+        apply HasDerivAt.div
+        . rw [cdef, c'def]
+          simp
+          apply HasDerivAt.const_sub
+          apply HasDerivAt.ofReal_comp
+          apply hasDerivAt_id'
+        . rw [ddef, d'def]
+          simp
+          rw [←neg_neg (Complex.I * Complex.exp (-(Complex.I * ↑t)))]
+          apply HasDerivAt.const_sub
+          rw [←neg_mul, mul_comm]
+          apply HasDerivAt.cexp
+          apply HasDerivAt.neg
+          conv in fun (x : ℝ) ↦ Complex.I * (x : ℝ) =>
+            ext
+            rw [mul_comm]
+          set e : ℂ → ℂ := fun t ↦ t * Complex.I with edef
+          have : (fun (t : ℝ) ↦ t * Complex.I) = fun (t : ℝ) ↦ e t := by
+            rw [edef]
+          rw [this]
+          apply HasDerivAt.comp_ofReal
+          rw [edef]
+          apply hasDerivAt_mul_const
+        . /-TODO: change statement so that we only need to prove this for an interval where d t ≠ 0-/
+          sorry
+      have f'_cont : ContinuousOn (fun t ↦ f' t) (Set.uIcc y' y) := by
+        sorry
+      calc ‖(1 - ↑y) / (1 - Complex.exp (-(Complex.I * ↑y))) - (1 - ↑y') / (1 - Complex.exp (-(Complex.I * ↑y')))‖
+        _ = ‖f y - f y'‖ := by simp
+        _ = ‖∫ (t : ℝ) in y'..y, f' t‖ := by
+          congr 1
+          rw [intervalIntegral.integral_deriv_eq_sub']
+          . ext t
+            exact (f_deriv t).deriv
+          . intro t ht
+            exact (f_deriv t).differentiableAt
+          . exact f'_cont
+        _ = ‖∫ (t : ℝ) in Ι y' y, f' t‖ := by
+          apply intervalIntegral.norm_intervalIntegral_eq
+        _ ≤ ∫ (t : ℝ) in Ι y' y, ‖f' t‖ := by
+          apply MeasureTheory.norm_integral_le_integral_norm
+        _ ≤ ∫ (t : ℝ) in Ι y' y, 3 / ((y / 2) / 8) ^ 2 := by
+          apply MeasureTheory.set_integral_mono_on
+          . apply f'_cont.norm.integrableOn_uIcc.mono_set
+            apply Set.Ioc_subset_Icc_self
+          . apply MeasureTheory.integrableOn_const.mpr
+            right
+            rw [Real.volume_uIoc]
+            apply ENNReal.ofReal_lt_top
+          . apply measurableSet_uIoc
+          . intro t ht
+            rw [Set.mem_uIoc] at ht
+            have ht' : 0 < t ∧ t ≤ 1 := by
+              rcases ht with ht | ht <;> (constructor <;> linarith)
+            rw [f'def]
+            simp only [norm_div, Complex.norm_eq_abs, norm_pow]
+            gcongr
+            . /-TODO: Assume wlog that y > 0 to be able to prove this. -/
+              sorry
+            . calc Complex.abs (-1 + Complex.exp (-(Complex.I * ↑t)) + Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t)))
+                _ ≤ Complex.abs (-1 + Complex.exp (-(Complex.I * ↑t))) + Complex.abs (Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t))) := by
+                  apply Complex.abs.isAbsoluteValue.abv_add
+                _ ≤ Complex.abs (-1) + Complex.abs (Complex.exp (-(Complex.I * ↑t))) + Complex.abs (Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t))) := by
+                  gcongr
+                  apply Complex.abs.isAbsoluteValue.abv_add
+                _ ≤ 1 + 1 + 1 := by
+                  gcongr
+                  . simp
+                  . rw [mul_comm, ←neg_mul]
+                    norm_cast
+                    apply le_of_eq
+                    apply Complex.abs_exp_ofReal_mul_I
+                  . simp
+                    apply mul_le_one
+                    norm_cast
+                    rw [abs_of_nonpos] <;> linarith
+                    simp
+                    rw [mul_comm, ←neg_mul]
+                    norm_cast
+                    apply le_of_eq
+                    apply Complex.abs_exp_ofReal_mul_I
+                _ = 3 := by norm_num
+            . /-TODO: Assume wlog that y > 0 to be able to prove this. -/
+              sorry
+            . rw [mul_comm, ←neg_mul, mul_comm]
+              norm_cast
+              apply lower_secant_bound
+              . /-TODO: Assume wlog that y > 0 to be able to prove this. -/
+                sorry
+              . simp
+                constructor <;> linarith [Real.two_le_pi, Real.two_pi_pos]
+              . rw [abs_neg, le_abs]
+                left
+                rcases ht with ht | ht <;> linarith [ht.1]
+        _ = (MeasureTheory.volume (Ι y' y)).toReal * (3 / ((y / 2) / 8) ^ 2) := by
+          apply MeasureTheory.set_integral_const
+        _ = |y - y'| * (3 / ((y / 2) / 8) ^ 2) := by
+          congr
+          rw [Real.volume_uIoc, ENNReal.toReal_ofReal (abs_nonneg (y - y'))]
+        _ = (3 * (8 * 2) ^ 2) * (1 / y) * (|y - y'| / y) := by
+          ring
+        _ ≤ 2 ^ 10 * (1 / y) * (|y - y'| / y) := by
+          gcongr
+          . exact div_nonneg (abs_nonneg (y - y')) yy'nonneg.1
+          . exact one_div_nonneg.mpr yy'nonneg.1
+          . norm_num
     . rw [abs_neg, abs_of_nonneg yy'nonneg.2]
       assumption
     . rw [abs_neg, abs_of_nonneg yy'nonneg.1]
       assumption
+  . /-Proof uses first case. -/
+    sorry
   . sorry
-  . sorry
-  . sorry
+  . calc ‖k (-y) - k (-y')‖
+      _ = 0 := by
+        simp
+        rw [k_of_one_le_abs, k_of_one_le_abs] <;> (rw [abs_neg, abs_of_nonneg] <;> linarith)
+      _ ≤ 2 ^ 10 * (1 / |y|) * (|y - y'| / |y|) := by
+        apply mul_nonneg
+        apply mul_nonneg
+        . norm_num
+        . simp
+        . apply div_nonneg <;> simp
