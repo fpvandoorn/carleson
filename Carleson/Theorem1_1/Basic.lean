@@ -451,10 +451,9 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
   rw [x_eq_zero]
   intro h
   simp at h
-  simp only [zero_sub, abs_neg] --, one_div
+  simp only [zero_sub, abs_neg]
   wlog yy'nonneg : 0 ≤ y ∧ 0 ≤ y' generalizing y y'
   . --TODO : improve case distinction to avoid nesting
-    --rcases (not_and_or.mp yy'_nonneg) with
     by_cases yge0 : 0 ≤ y
     . push_neg at yy'nonneg
       exfalso
@@ -570,3 +569,20 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
         . norm_num
         . simp
         . apply div_nonneg <;> simp
+
+
+/-Further definitions-/
+/-TODO : relocate this-/
+
+--TODO : call constructor in a better way?
+def integer_linear (n : ℤ) : C(ℝ, ℂ) := ⟨fun (x : ℝ) ↦ (n * x : ℂ), by continuity⟩
+
+--local notation "θ" => integer_linear
+
+--lemma θcont {n : ℤ} : Continuous (θ n) := sorry
+
+--local notation "Θ" => {(θ n) | n : ℤ}
+
+def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ℝ :=
+  ⨆ (n : ℤ) (r : ℝ) (rpos : 0 < r),
+  ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, K x y * f y * Complex.exp (Complex.I * n * y)‖

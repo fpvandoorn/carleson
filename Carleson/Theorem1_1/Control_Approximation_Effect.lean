@@ -9,6 +9,8 @@ import Mathlib.Analysis.Fourier.AddCircle
 
 noncomputable section
 
+local notation "T" => CarlesonOperatorReal K
+
 
 /-Slightly more general version of Lemma 10.3 (control approximation effect).-/
 --TODO : review measurability assumption
@@ -27,4 +29,10 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
     exact hx.1
   constructor
   . sorry
-  sorry
+  constructor
+  . have : ∀ x ∈ E, ε / 4 < 1 / (2 * Real.pi) * (T h x + T ((starRingEnd ℂ) ∘ h) x) := by
+      sorry
+    sorry
+  rw [Edef]
+  simp
+  exact fun x x_nonneg x_le_two_pi h ↦ h x_nonneg x_le_two_pi

@@ -17,18 +17,11 @@ section
 
 open ENNReal
 
-
---TODO : call constructor in a better way?
-def integer_linear (n : ℤ) : C(ℝ, ℂ) := ⟨fun (x : ℝ) ↦ (n * x : ℂ), by continuity⟩
-
 local notation "θ" => integer_linear
 
 --lemma θcont {n : ℤ} : Continuous (θ n) := sorry
 
 local notation "Θ" => {(θ n) | n : ℤ}
-
-local notation "T_" => (CarlesonOperator K Θ)
-
 
 #check theorem1_2C
 
@@ -257,17 +250,22 @@ lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
 
 /- Lemma 10.4 -/
 --TODO : directly write out constant (2^(2^40)) ?
+
+local notation "T" => CarlesonOperatorReal K
+
+lemma CarlesonOperatorReal_eq_CarlesonOperator : T = CarlesonOperator K Θ := by
+  sorry
+
 lemma rcarleson {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
     (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     :
-    ‖∫ x in G, T_ f x‖ ≤
+    ‖∫ x in G, T f x‖ ≤
     C1_2 4 2 * (MeasureTheory.volume.real G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real F) ^ (2 : ℝ)⁻¹ := by
-  have hF' :  @MeasurableSet ℝ (@MeasureTheory.MeasureSpace.toMeasurableSpace ℝ IsSpaceOfHomogeneousType.toMeasureSpace) F := by sorry
-  have hG' :  @MeasurableSet ℝ (@MeasureTheory.MeasureSpace.toMeasurableSpace ℝ IsSpaceOfHomogeneousType.toMeasureSpace) G := by sorry
+  rw [CarlesonOperatorReal_eq_CarlesonOperator]
   --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-  convert theorem1_2C K (by simp) h1 h2 hF' hG' h3 f hf <;> sorry
+  convert theorem1_2C K (by simp) h1 h2 hF hG h3 f hf <;> sorry
 
 
 end section
