@@ -19,8 +19,6 @@ open ENNReal
 
 local notation "θ" => integer_linear
 
---lemma θcont {n : ℤ} : Continuous (θ n) := sorry
-
 local notation "Θ" => {(θ n) | n : ℤ}
 
 #check theorem1_2C
@@ -44,8 +42,8 @@ lemma h2 : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExpo
 
 --mainly have to work for the following lemmas
 
-/-Cf. section below lemma 10.26-/
-lemma localOscillation_of_integer_linear {x R: ℝ}  : ∀ n m : ℤ, localOscillation (Metric.ball x R) (θ n) (θ m) = 2 * R * |(n : ℝ) - m| := by
+/-Stronger version of oscillation_control from the paper-/
+lemma localOscillation_of_integer_linear {x R : ℝ}  : ∀ n m : ℤ, localOscillation (Metric.ball x R) (θ n) (θ m) = 2 * R * |(n : ℝ) - m| := by
   --TODO : readd (Rpos : R > 0) or (better) add a case distinction
   intro n m
   /- Rewrite to a more convenient form for the following steps. -/
@@ -139,8 +137,10 @@ instance badR: IsSpaceOfHomogeneousType ℝ 4 := by
   simp at this
   exact isSpaceOfHomogeneousType_with_increased_constant (by linarith)
 
+--lemma frequency_ball_doubling {x R : ℝ} (Rpos : 0 < R) :
+
 instance h4 : IsCompatible Θ where
-  /- Lemma 10.32 (real line doubling) from the paper. -/
+  /- Lemma frequency_ball_doubling from the paper. -/
   localOscillation_two_mul_le := by
     intro x₁ x₂ R f g hf hg _
     obtain ⟨n, hθnf⟩ := hf
@@ -149,9 +149,8 @@ instance h4 : IsCompatible Θ where
     rw [localOscillation_of_integer_linear, localOscillation_of_integer_linear]
     ring_nf
     sorry
-    --gcongr
 
-  /- Lemma 10.33 (frequency ball doubling) from the paper. -/
+  /- Lemma frequency_ball_growth from the paper. -/
   localOscillation_le_of_subset := by
     intro x₁ x₂ R f g hf hg _ _
     obtain ⟨n, hθnf⟩ := hf
@@ -161,7 +160,7 @@ instance h4 : IsCompatible Θ where
     ring_nf
     sorry
     --trivial
-  /- Lemma 10.35 (frequency ball cover) from the paper. -/
+  /- Lemma integer_ball_cover from the paper. -/
   ballsCoverBalls := by
     intro x R R' f hf
     obtain ⟨n, hθnf⟩ := hf
@@ -172,18 +171,27 @@ instance h4 : IsCompatible Θ where
     rw [coveredByBalls_iff]
     let (a : Finset ℕ) := {1, 2, 3}
     /- The following is necessary for withLocalOscillation to be defined. -/
-    have ball_bounded := fact_isCompact_ball x R
+    --have ball_bounded := fact_isCompact_ball x R
     classical
-    --TODO: fix problems with Finset
-
     set balls : Finset (C(ℝ, ℂ)) := {θ m₁, θ m₂, θ m₃} with balls_def
     use balls
     constructor
     . rw [balls_def]
-      --simp
-      sorry
-      --apply Finset.card_le_three
+      apply Nat.le_floor
+      norm_cast
+      apply le_trans Finset.card_le_three
+      norm_num
+    intro φ hφ
+    simp at hφ
+    obtain ⟨n', hn'⟩ := hφ.2
+    /- m₁, m₂, m₃ each correspond to one case. -/
+    by_cases h : n' ≤ n - R' / 2
     . sorry
+    push_neg at h
+    by_cases h' : n' < n + R' / 2
+    . sorry
+    push_neg at h'
+    sorry
 
 
 
@@ -248,14 +256,16 @@ lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
 #check @theorem1_2C
 --#check theorem1_2C K (by simp) h1 h2 _ _ h3
 
-/- Lemma 10.4 -/
---TODO : directly write out constant (2^(2^40)) ?
+
 
 local notation "T" => CarlesonOperatorReal K
 
+/-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
 lemma CarlesonOperatorReal_eq_CarlesonOperator : T = CarlesonOperator K Θ := by
   sorry
 
+/- Lemma 10.4 -/
+--TODO : directly write out constant (2^(2^40)) ?
 lemma rcarleson {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
