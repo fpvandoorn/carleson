@@ -2,10 +2,11 @@ import Carleson.Carleson
 import Carleson.HomogeneousType
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
-
+import Mathlib.Analysis.Convolution
 
 open BigOperators
 open Finset
+--open Complex
 
 noncomputable section
 
@@ -106,10 +107,9 @@ lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformC
   sorry
 
 
-/-Lemmas 9-14.-/
 
-/-Lemma 10.10 (Dirichlet kernel) from the paper.-/
---lemma dirichlet_kernel :
+/-Lemmas 9-14 (except lemma 10).-/
+
 
 /-Slightly different and stronger version of Lemma 10.11 (lower secant bound). -/
 lemma lower_secant_bound' {η : ℝ} (ηpos : η > 0) {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * Real.pi - η) :

@@ -160,6 +160,7 @@ instance h4 : IsCompatible Θ where
     ring_nf
     sorry
     --trivial
+
   /- Lemma integer_ball_cover from the paper. -/
   ballsCoverBalls := by
     intro x R R' f hf
