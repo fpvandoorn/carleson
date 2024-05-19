@@ -262,6 +262,7 @@ lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
 local notation "T" => CarlesonOperatorReal K
 
 /-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
+--TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
 lemma CarlesonOperatorReal_eq_CarlesonOperator : T = CarlesonOperator K Θ := by
   sorry
 
