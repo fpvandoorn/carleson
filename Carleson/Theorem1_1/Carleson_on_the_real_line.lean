@@ -273,7 +273,7 @@ lemma rcarleson {F G : Set ℝ}
     (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
     (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     :
-    ‖∫ x in G, T f x‖ ≤
+    ∫ x in G, T f x ≤
     C1_2 4 2 * (MeasureTheory.volume.real G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real F) ^ (2 : ℝ)⁻¹ := by
   rw [CarlesonOperatorReal_eq_CarlesonOperator]
   --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.

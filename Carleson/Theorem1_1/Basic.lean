@@ -112,8 +112,13 @@ lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformC
 
 
 /-Slightly different and stronger version of Lemma 10.11 (lower secant bound). -/
-lemma lower_secant_bound' {η : ℝ} (ηpos : η > 0) {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * Real.pi - η) :
+lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * Real.pi - η) :
     η / 4 ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
+  by_cases ηpos : η ≤ 0
+  . calc η / 4
+    _ ≤ 0 := by linarith
+    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by apply norm_nonneg
+  push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
   . convert (@this (-x) _ (by simpa) (by linarith)) using 1
     . rw [Complex.norm_eq_abs, ←Complex.abs_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg, Complex.norm_eq_abs,
@@ -186,7 +191,7 @@ lemma lower_secant_bound {η : ℝ} (ηpos : η > 0) {x : ℝ} (xIcc : x ∈ Set
     gcongr
     norm_num
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
-    apply lower_secant_bound' ηpos xAbs
+    apply lower_secant_bound' xAbs
     rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
     exact xIcc
 
