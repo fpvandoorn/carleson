@@ -6,7 +6,7 @@ import Carleson.Theorem1_1.Dirichlet_kernel
 import Carleson.Theorem1_1.Carleson_on_the_real_line
 
 import Mathlib.Analysis.Fourier.AddCircle
-
+--import Mathlib.Analysis.RCLike.Basic
 
 noncomputable section
 
@@ -169,7 +169,13 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
   exact fun x x_nonneg x_le_two_pi h ↦ h x_nonneg x_le_two_pi
 -/
 
-
+/-TODO: might go to mathlib-/
+lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : Type} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ}:
+    ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
+  rw [intervalIntegral_eq_integral_uIoc, integral_conj, intervalIntegral_eq_integral_uIoc,
+      RCLike.real_smul_eq_coe_mul, RCLike.real_smul_eq_coe_mul, map_mul]
+  congr
+  simp
 
 --changed statement
 lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
@@ -254,12 +260,54 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         _ ≤   Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
             + Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y) := by
           apply Complex.abs.isAbsoluteValue.abv_add
-        --Exchange f for h somewhere here
         _ ≤ 1 / (2 * Real.pi) * (T f x + T (⇑(starRingEnd ℂ) ∘ f) x) + 8 * δ:= by
           --Estimate the two parts
           gcongr
           . --first part
-            sorry
+            calc Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y)
+              _ = Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y) := by
+                --Exchange h for f
+                congr 2
+                apply intervalIntegral.integral_congr
+                intro y hy
+                simp
+                left
+                left
+                sorry
+              _ ≤ 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * Complex.exp (Complex.I * N * y) / (1 - Complex.exp (-Complex.I * y)))‖ +
+                                          ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * Complex.exp (-Complex.I * N * y) / (1 - Complex.exp (Complex.I * y)))‖) := by
+                rw [←Complex.norm_eq_abs, norm_mul]
+                gcongr
+                . simp
+                  rw [abs_of_nonneg Real.pi_pos.le]
+                --apply norm_add_le
+                --rw [dirichletKernel']
+                --rw [dirichletKernel', mul_add, add_comm, k]
+                sorry
+              _ = 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * Complex.exp (-Complex.I * N * y) * k y )‖
+                                        + ‖∫ (y : ℝ) in -Real.pi..Real.pi, ((starRingEnd ℂ) ∘ f) (x - y) * Complex.exp (-Complex.I * N * y) * k y‖) := by
+                rw [add_comm]
+                congr 2
+                . congr
+                  ext y
+                  rw [k]
+                  ring
+                . rw [Complex.norm_eq_abs, Complex.norm_eq_abs, ←Complex.abs_conj]
+                  congr
+                  rw [←intervalIntegral.integral_conj']
+                  congr
+                  ext y
+                  simp
+                  rw [mul_div_assoc, mul_assoc, mul_assoc, mul_assoc]
+                  congr 1
+                  rw [k, Complex.conj_ofReal, ←Complex.exp_conj, ←Complex.exp_conj]
+                  simp
+                  rw [Complex.conj_ofReal]
+                  ring
+              _ ≤ 1 / (2 * Real.pi) * (T f x + T (⇑(starRingEnd ℂ) ∘ f) x) := by
+                sorry
+
+            --rw [dirichletKernel', mul_add]
           . --second part
             calc Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)
               _ ≤ 1 / (2 * Real.pi) * ((δ * 8) * |Real.pi - -Real.pi|) := by

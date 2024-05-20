@@ -110,7 +110,7 @@ lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X 
     rw[<- mul_assoc, mul_comm, <- mul_assoc] at h
     norm_cast
     ring_nf
-    rw[Nat.succ_eq_add_one, Nat.pow_add, pow_add, pow_one, pow_one, mul_comm (n^m) n]
+    rw[mul_comm a]
     rw[mul_comm] at h2
     norm_cast at h2
     exact BallsCoverBalls.trans h h2

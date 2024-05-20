@@ -154,7 +154,6 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
     _ = Real.sin x := by
       congr
       field_simp
-      ring
     _ ≤ Real.sqrt ((Real.sin x) ^ 2) := by
       rw [Real.sqrt_sq_eq_abs]
       apply le_abs_self
@@ -479,7 +478,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
         have := this h_ y_y'_nonneg
         rw [y_def, y'_def] at this
         simp only [neg_neg, abs_neg, sub_neg_eq_add, neg_add_eq_sub] at this
-        rw [← IsROrC.norm_conj, map_sub, ← k_of_neg_eq_conj_k, ← k_of_neg_eq_conj_k, ←abs_neg (y' - y)] at this
+        rw [← RCLike.norm_conj, map_sub, ← k_of_neg_eq_conj_k, ← k_of_neg_eq_conj_k, ←abs_neg (y' - y)] at this
         simpa
   /-"Wlog" 0 < y-/
   by_cases ypos : y ≤ 0

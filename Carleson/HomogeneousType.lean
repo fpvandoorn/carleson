@@ -63,7 +63,7 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r
         _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
         _ ≤ A * volume.real (ball x (2 ^ m * r)) := by rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
         _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr
-        _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc]; norm_cast
+        _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc, pow_succ']
 
   /-Show inclusion in larger ball-/
   have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by

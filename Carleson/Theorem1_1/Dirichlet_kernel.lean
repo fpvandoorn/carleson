@@ -55,7 +55,8 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
           rw [add_assoc, sub_eq_add_neg]
           congr
           norm_num
-        . rw [neg_add_rev, add_comm, Int.ofNat_eq_coe, Int.cast_neg, Int.cast_ofNat, sub_eq_add_neg]
+        . rw [neg_add_rev, add_comm, Int.ofNat_eq_coe, Int.cast_neg, sub_eq_add_neg]
+          norm_cast
         all_goals simp
   have h' : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) ≠ 0 := by
     contrapose! h
