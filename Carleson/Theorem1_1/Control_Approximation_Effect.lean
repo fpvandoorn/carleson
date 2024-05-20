@@ -72,6 +72,8 @@ lemma le_on_subset {α : Type} [MeasurableSpace α] (μ : MeasureTheory.Measure 
     rw [Eg_def]
     simp
 
+open Complex
+
 /-Slightly more general version of Lemma 10.3 (control approximation effect).-/
 --TODO : review measurability assumption
 --TODO : add assumption that h is periodic?
@@ -80,11 +82,11 @@ lemma le_on_subset {α : Type} [MeasurableSpace α] (μ : MeasureTheory.Measure 
 --changed interval to match the interval in the theorem
 
 lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi)
-    {h : ℝ → ℂ} (hh: Measurable h ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (h x) ≤ (2 ^ (- (2 ^ 50 : ℝ))) * ε ^ 2 ):
+    {h : ℝ → ℂ} (hh: Measurable h ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi), abs (h x) ≤ (2 ^ (- (2 ^ 50 : ℝ))) * ε ^ 2 ):
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
-      ∀ N, Complex.abs (partialFourierSum h N x) ≤ ε / 4 := by sorry
+      ∀ N, abs (partialFourierSum h N x) ≤ ε / 4 := by sorry
 /-
-  set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε / 4 < Complex.abs (partialFourierSum h N x)} with Edef
+  set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε / 4 < abs (partialFourierSum h N x)} with Edef
   use E
   constructor
   . intro x hx
@@ -115,7 +117,7 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
         exact hh.1.aestronglyMeasurable
         rw [Filter.EventuallyLE, ae_restrict_iff_subtype]
         apply Filter.eventually_of_forall
-        simp only [Complex.norm_eq_abs, Subtype.forall]
+        simp only [norm_eq_abs, Subtype.forall]
         intro x hx
         apply hh.2 x
         apply Set.Ioc_subset_Icc_self
@@ -127,15 +129,15 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
       rw [←add_le_add_iff_right (ε / 8)]
       calc ε / 8 + ε / 8
         _ ≤ ε / 4 := by linarith
-        _ ≤ Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel N (x - y)) := hN.le
-        _ = Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h (x - y) * dirichletKernel N y) := by
+        _ ≤ abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel N (x - y)) := hN.le
+        _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h (x - y) * dirichletKernel N y) := by
           --Change of variables
           sorry
-        _ = Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel N y) := by
+        _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel N y) := by
           --Shift domain of integration using periodicity
           sorry
-        _ =   Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel N y)
-            + Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel N y) :=
+        _ =   abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel N y)
+            + abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel N y) :=
           --Split into two parts
           sorry
         --Exchange f for h somewhere here
@@ -179,12 +181,12 @@ lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : T
 
 --changed statement
 lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
-    {h : ℝ → ℂ} (hh: Measurable h ∧ ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), Complex.abs (h x) ≤ δ ):
+    {h : ℝ → ℂ} (hh: Measurable h ∧ ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), abs (h x) ≤ δ ):
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
-      ∀ N, Complex.abs (partialFourierSum h N x) ≤ ε / 4 := by
+      ∀ N, abs (partialFourierSum h N x) ≤ ε / 4 := by
   --TODO: change later
   set ε' := ε / 4 with ε'def
-  set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε' < Complex.abs (partialFourierSum h N x)} with Edef
+  set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε' < abs (partialFourierSum h N x)} with Edef
   have measurableSetE : MeasurableSet E := by
     have : E = Set.Icc 0 (2 * Real.pi) ∩ ⋃ N : ℕ, {x | ε' < ‖partialFourierSum h N x‖} := by
       rw [Edef]
@@ -216,7 +218,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         exact hh.1.aestronglyMeasurable
         rw [Filter.EventuallyLE, ae_restrict_iff_subtype]
         apply Filter.eventually_of_forall
-        simp only [Complex.norm_eq_abs, Subtype.forall]
+        simp only [norm_eq_abs, Subtype.forall]
         intro x hx
         apply hh.2 x
         apply Set.Ioc_subset_Icc_self
@@ -229,14 +231,14 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       rw [←add_le_add_iff_right (8 * δ)]
       calc ε' - 8 * δ + 8 * δ
         _ = ε' := by linarith
-        _ ≤ Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := hN.le
-        _ = Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h (x - y) * dirichletKernel' N y) := by
+        _ ≤ abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := hN.le
+        _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h (x - y) * dirichletKernel' N y) := by
           --Change of variables
           sorry
-        _ = Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel' N y) := by
+        _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel' N y) := by
           --Shift domain of integration using periodicity
           sorry
-        _ =   Complex.abs (1 / (2 * ↑Real.pi) * (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
+        _ =   abs (1 / (2 * ↑Real.pi) * (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
                          + 1 / (2 * ↑Real.pi) * (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)) := by
           --Split into two parts
           congr
@@ -257,15 +259,15 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
           --use lemma that dirichletKernel is bounded
           sorry
           sorry
-        _ ≤   Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
-            + Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y) := by
-          apply Complex.abs.isAbsoluteValue.abv_add
-        _ ≤ 1 / (2 * Real.pi) * (T f x + T (⇑(starRingEnd ℂ) ∘ f) x) + 8 * δ:= by
+        _ ≤   abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
+            + abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y) := by
+          apply abs.isAbsoluteValue.abv_add
+        _ ≤ 1 / (2 * Real.pi) * (T f x + T ((starRingEnd ℂ) ∘ f) x) + 8 * δ:= by
           --Estimate the two parts
           gcongr
           . --first part
-            calc Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y)
-              _ = Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y) := by
+            calc abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y)
+              _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y) := by
                 --Exchange h for f
                 congr 2
                 apply intervalIntegral.integral_congr
@@ -274,25 +276,25 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                 left
                 left
                 sorry
-              _ ≤ 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * Complex.exp (Complex.I * N * y) / (1 - Complex.exp (-Complex.I * y)))‖ +
-                                          ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * Complex.exp (-Complex.I * N * y) / (1 - Complex.exp (Complex.I * y)))‖) := by
-                rw [←Complex.norm_eq_abs, norm_mul]
+              _ ≤ 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * exp (I * N * y) / (1 - exp (-I * y)))‖ +
+                                          ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * exp (-I * N * y) / (1 - exp (I * y)))‖) := by
+                rw [←norm_eq_abs, norm_mul]
                 gcongr
                 . simp
-                  rw [abs_of_nonneg Real.pi_pos.le]
+                  rw [_root_.abs_of_nonneg Real.pi_pos.le]
                 --apply norm_add_le
                 --rw [dirichletKernel']
                 --rw [dirichletKernel', mul_add, add_comm, k]
                 sorry
-              _ = 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * Complex.exp (-Complex.I * N * y) * k y )‖
-                                        + ‖∫ (y : ℝ) in -Real.pi..Real.pi, ((starRingEnd ℂ) ∘ f) (x - y) * Complex.exp (-Complex.I * N * y) * k y‖) := by
+              _ = 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * exp (-I * N * y) * k y )‖
+                                        + ‖∫ (y : ℝ) in -Real.pi..Real.pi, ((starRingEnd ℂ) ∘ f) (x - y) * exp (-I * N * y) * k y‖) := by
                 rw [add_comm]
                 congr 2
                 . congr
                   ext y
                   rw [k]
                   ring
-                . rw [Complex.norm_eq_abs, Complex.norm_eq_abs, ←Complex.abs_conj]
+                . rw [norm_eq_abs, norm_eq_abs, ←abs_conj]
                   congr
                   rw [←intervalIntegral.integral_conj']
                   congr
@@ -300,60 +302,60 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                   simp
                   rw [mul_div_assoc, mul_assoc, mul_assoc, mul_assoc]
                   congr 1
-                  rw [k, Complex.conj_ofReal, ←Complex.exp_conj, ←Complex.exp_conj]
+                  rw [k, conj_ofReal, ←exp_conj, ←exp_conj]
                   simp
-                  rw [Complex.conj_ofReal]
+                  rw [conj_ofReal]
                   ring
-              _ ≤ 1 / (2 * Real.pi) * (T f x + T (⇑(starRingEnd ℂ) ∘ f) x) := by
+              _ ≤ 1 / (2 * Real.pi) * (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
                 sorry
 
             --rw [dirichletKernel', mul_add]
           . --second part
-            calc Complex.abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)
+            calc abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)
               _ ≤ 1 / (2 * Real.pi) * ((δ * 8) * |Real.pi - -Real.pi|) := by
-                simp only [one_div, mul_inv_rev, map_mul, map_inv₀, Complex.abs_ofReal,
-                  Complex.abs_ofNat]
-                rw [abs_of_nonneg Real.pi_pos.le]
+                simp only [one_div, mul_inv_rev, map_mul, map_inv₀, abs_ofReal,
+                  abs_ofNat]
+                rw [_root_.abs_of_nonneg Real.pi_pos.le]
                 gcongr
-                rw [←Complex.norm_eq_abs]
+                rw [←norm_eq_abs]
                 apply intervalIntegral.norm_integral_le_of_norm_le_const
                 intro y hy
                 rw [Set.uIoc_of_le (by linarith)] at hy
                 rw [mul_assoc, norm_mul]
                 gcongr
-                . rw [Complex.norm_eq_abs]
+                . rw [norm_eq_abs]
                   apply hh.2
                   rw [Fdef]
                   simp
                   constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
                 rw [dirichletKernel', mul_add]
-                calc ‖  (min |y| 1) * (Complex.exp (Complex.I * N * y) / (1 - Complex.exp (-Complex.I * y)))
-                      + (min |y| 1) * (Complex.exp (-Complex.I * N * y) / (1 - Complex.exp (Complex.I * y)))‖
-                  _ ≤   ‖(min |y| 1) * (Complex.exp (Complex.I * N * y) / (1 - Complex.exp (-Complex.I * y)))‖
-                      + ‖(min |y| 1) * (Complex.exp (-Complex.I * N * y) / (1 - Complex.exp (Complex.I * y)))‖ := by
+                calc ‖  (min |y| 1) * (exp (I * N * y) / (1 - exp (-I * y)))
+                      + (min |y| 1) * (exp (-I * N * y) / (1 - exp (I * y)))‖
+                  _ ≤   ‖(min |y| 1) * (exp (I * N * y) / (1 - exp (-I * y)))‖
+                      + ‖(min |y| 1) * (exp (-I * N * y) / (1 - exp (I * y)))‖ := by
                     apply norm_add_le
-                  _ = min |y| 1 * 1 / ‖1 - Complex.exp (Complex.I * y)‖ + min |y| 1 * 1 / ‖1 - Complex.exp (Complex.I * y)‖ := by
+                  _ = min |y| 1 * 1 / ‖1 - exp (I * y)‖ + min |y| 1 * 1 / ‖1 - exp (I * y)‖ := by
                     simp
                     congr
                     . simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
-                    . rw [mul_assoc Complex.I, mul_comm Complex.I]
+                    . rw [mul_assoc I, mul_comm I]
                       norm_cast
-                      rw [Complex.abs_exp_ofReal_mul_I, one_div, ←Complex.abs_conj, map_sub, map_one, ←Complex.exp_conj, ← neg_mul, map_mul,
-                            Complex.conj_neg_I, Complex.conj_ofReal]
+                      rw [abs_exp_ofReal_mul_I, one_div, ←abs_conj, map_sub, map_one, ←exp_conj, ← neg_mul, map_mul,
+                            conj_neg_I, conj_ofReal]
                     . /-Duplicate from above:
                       TODO: how to remove duplicate goals? -/
                       simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
-                    . rw [mul_assoc Complex.I, mul_comm Complex.I, ←neg_mul]
+                    . rw [mul_assoc I, mul_comm I, ←neg_mul]
                       norm_cast
-                      rw [Complex.abs_exp_ofReal_mul_I, one_div]
-                  _ = 2 * (min |y| 1 / ‖1 - Complex.exp (Complex.I * y)‖) := by ring
+                      rw [abs_exp_ofReal_mul_I, one_div]
+                  _ = 2 * (min |y| 1 / ‖1 - exp (I * y)‖) := by ring
                   _ ≤ 2 * 4 := by
                     gcongr
-                    . by_cases h : (1 - Complex.exp (Complex.I * y)) = 0
+                    . by_cases h : (1 - exp (I * y)) = 0
                       . rw [h]
                         simp
                       simp
-                      rw [div_le_iff', ←div_le_iff, ←Complex.norm_eq_abs]
+                      rw [div_le_iff', ←div_le_iff, ←norm_eq_abs]
                       apply lower_secant_bound'
                       . apply min_le_left
                       . have : |y| ≤ Real.pi := by
@@ -362,10 +364,10 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                         rw [min_def]
                         split_ifs <;> linarith
                       . norm_num
-                      . rwa [←Complex.norm_eq_abs, norm_pos_iff]
+                      . rwa [←norm_eq_abs, norm_pos_iff]
                   _ = 8 := by norm_num
               _ = 8 * δ := by
-                rw [sub_neg_eq_add, ←two_mul, abs_of_nonneg Real.two_pi_pos.le]
+                rw [sub_neg_eq_add, ←two_mul, _root_.abs_of_nonneg Real.two_pi_pos.le]
                 field_simp
                 ring
     conv at le_operator_add in ε' - 8 * δ ≤ _ =>
@@ -379,9 +381,9 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
           _ = MeasureTheory.volume.real E' * ((ε' - 8 * δ) * (2 * Real.pi) / 2) := by ring
           _ = ∫ x in E', (ε' - 8 * δ) * (2 * Real.pi) / 2 := by
             symm
-            apply MeasureTheory.set_integral_const
+            apply MeasureTheory.setIntegral_const
           _ ≤ ∫ x in E', T f x := by
-            apply MeasureTheory.set_integral_mono_on _ _ measurableSetE'
+            apply MeasureTheory.setIntegral_mono_on _ _ measurableSetE'
             . exact hE'
             . rw [MeasureTheory.integrableOn_const]
               right
@@ -408,7 +410,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
             . intro x
               rw [fdef]
               simp
-              rw [abs_of_nonneg hδ.le, inv_mul_le_iff hδ, Set.indicator_apply, Set.indicator_apply]
+              rw [_root_.abs_of_nonneg hδ.le, inv_mul_le_iff hδ, Set.indicator_apply, Set.indicator_apply]
               split_ifs with inF
               . simp
                 exact hh.2 x inF
