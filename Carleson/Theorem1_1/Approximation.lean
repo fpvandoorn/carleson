@@ -47,7 +47,7 @@ lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε :
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
-  let f_0 := convolution (φ.normed MeasureTheory.volume) f (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume
+  let f_0 := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume
   use f_0
   constructor
   . /-TODO: improve this-/
@@ -69,7 +69,7 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ Function.Periodic f₀ (2 * Real.pi) ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
-  set f₀ := convolution (φ.normed MeasureTheory.volume) f (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
+  set f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
   use f₀
   constructor
   . /-TODO: improve this-/
@@ -81,7 +81,7 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
   constructor
   . /-TODO: improve this. -/
     intro x
-    rw [f₀def, convolution, convolution]
+    rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
     congr
     ext t
     congr 1

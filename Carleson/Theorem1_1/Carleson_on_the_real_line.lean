@@ -3,6 +3,8 @@
 import Carleson.Carleson
 import Carleson.HomogeneousType
 import Carleson.Theorem1_1.Basic
+import Carleson.Theorem1_1.Hilbert_kernel
+
 
 --import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
@@ -457,13 +459,10 @@ instance h6 : IsCZKernel 4 K where
       . norm_num
   /- Lemma ?-/
   measurable_right := by
-    intro y
-    --apply measurable_div
-    --rw [K]
-    sorry
+    apply Measurable.of_uncurry_right
+    exact Hilbert_kernel_measurable
   /- Lemma ?-/
-  measurable := by
-    sorry
+  measurable := Hilbert_kernel_measurable
 
 /- Lemma ?-/
 lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
