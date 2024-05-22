@@ -205,5 +205,13 @@ def integer_linear (n : ℤ) : C(ℝ, ℂ) := ⟨fun (x : ℝ) ↦ (n * x : ℂ)
 --local notation "Θ" => {(θ n) | n : ℤ}
 
 def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ℝ :=
-  ⨆ (n : ℤ) (r : ℝ) (rpos : 0 < r),
+  ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r),
   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, K x y * f y * Complex.exp (Complex.I * n * y)‖
+/-
+def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ℝ :=
+  sSup {‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, K x y * f y * Complex.exp (Complex.I * n * y)‖ | (n : ℤ) (r : ℝ) (r > 0)}
+-/
+
+def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
+  ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r),
+  ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, K x y * f y * Complex.exp (Complex.I * n * y)‖₊

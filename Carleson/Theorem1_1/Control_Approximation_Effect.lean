@@ -12,6 +12,8 @@ import Mathlib.Analysis.Fourier.AddCircle
 noncomputable section
 
 local notation "T" => CarlesonOperatorReal K
+local notation "T'" => CarlesonOperatorReal' K
+
 
 /-TODO: version with general measure on X ?-/
 lemma le_on_subset {α : Type} [MeasurableSpace α] (μ : MeasureTheory.Measure α) {f g : α → ℝ} {E : Set α} (hE : MeasurableSet E)
@@ -181,12 +183,111 @@ lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : T
   simp
 
 /-TODO: move to Basic
-  maybe: need stronger assumptions. -/
+  maybe: need stronger assumptions.
+  Probably not true in this form because integrability might fail.
 lemma le_CarlesonOperatorReal {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℤ} :
     ∀ x ∈ Set.Icc 0 (2 * Real.pi), ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, K x y * f y * exp (I * N * y)‖ ≤ T f x := by
   --use MeasureTheory.tendsto_setIntegral_of_monotone
+  intro x hx
   sorry
+-/
+section
+open Filter Topology
 
+lemma le_ciSup_of_tendsto {α β} [TopologicalSpace α] [ConditionallyCompleteLinearOrder α] [OrderTopology α]
+    [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (h : BddAbove (Set.range f)) (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
+  apply le_of_forall_lt
+  intro c hc
+  have : ∀ᶠ (x : β) in atTop, c < f x := by
+    apply eventually_gt_of_tendsto_gt hc ha
+  rcases this.exists with ⟨x, hx⟩
+  apply lt_of_lt_of_le hx
+  apply le_ciSup h
+
+--TODO: maybe change to start with the exact interval needed later
+lemma le_CarlesonOperatorReal {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℕ} :
+    ∀ x ∈ Set.Icc 0 (2 * Real.pi),
+    ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
+  intro x hx
+  set s : ℕ → Set ℝ := fun n ↦ {y | dist x y ∈ Set.Ioo (1 / (n : ℝ)) 1} with sdef
+  have : Tendsto (fun i => ∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y) atTop (𝓝 (∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)) := by
+    apply MeasureTheory.tendsto_setIntegral_of_monotone
+    all_goals sorry
+  calc ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖
+    _ = ‖∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ := by
+      congr
+      sorry
+    _ ≤ ⨆ (i : ℕ), ‖∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ := by
+      apply le_ciSup_of_tendsto
+      . --should follow from integrability in some way
+        sorry
+      apply Tendsto.norm this
+    _ ≤ ⨆ (r : ℝ) (_ : 0 < r), ‖∫ y in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ := by
+      --apply ciSup_le_ciSup
+      --apply sSup_le_sSup_of_forall_exists_le
+      sorry
+    _ ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
+      sorry
+  --apply limsup_le_iSup
+  --apply iUnion_Ici_eq_Ioi_of_lt_of_tendsto
+
+/-Version of previous lemma where we try to circumvent some difficulties with sup on the Reals by going to ENNReal. -/
+lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℕ} :
+    ∀ x ∈ Set.Icc 0 (2 * Real.pi),
+    ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
+  intro x hx
+  set s : ℕ → Set ℝ := fun n ↦ {y | dist x y ∈ Set.Ioo (1 / (n + 1 : ℝ)) 1} with sdef
+  have : Tendsto (fun i => ∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y) atTop (𝓝 (∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)) := by
+    apply MeasureTheory.tendsto_setIntegral_of_monotone
+    all_goals sorry
+  calc ENNReal.ofNNReal ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊
+    _ = ‖∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
+      congr
+      sorry
+    _ ≤ ⨆ (i : ℕ), ↑‖∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
+      --TODO: apply something different
+      --apply
+      apply le_ciSup_of_tendsto
+      . --should follow from integrability in some way
+        sorry
+      --apply Tendsto.comp
+      --apply Tendsto.nnnorm this
+      sorry
+    _ ≤ ⨆ (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
+      --apply ciSup_le_ciSup
+      apply sSup_le_sSup_of_forall_exists_le
+      intro y hy
+      rw [Set.mem_range] at hy
+      rcases hy with ⟨n, hn⟩
+      use y
+      constructor
+      . rw [Set.mem_range]
+        use 1 / (n + 1 : ℝ)
+        rw [iSup]
+        have : (Set.range fun (_ : 0 < 1 / (n + 1: ℝ)) ↦ ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo (1 / (n + 1: ℝ)) 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊) = {y} := by
+          rw [Set.eq_singleton_iff_unique_mem]
+          constructor
+          . rw [Set.mem_range, exists_prop]
+            constructor
+            . rw [one_div, inv_pos]
+              linarith
+            exact hn
+          . intro y' hy
+            rw [Set.mem_range, exists_prop] at hy
+            rw [hn] at hy
+            exact hy.2.symm
+        rw [this]
+        apply sSup_singleton
+      trivial
+    _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
+      simp
+    _ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
+      sorry
+  --apply limsup_le_iSup
+  --apply iUnion_Ici_eq_Ioi_of_lt_of_tendsto
+end section
+
+/- Only keep this because of some useful rewrites in here.  -/
 lemma le_CarlesonOperatorReal_specific {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℤ} :
     ∀ x ∈ Set.Icc 0 (2 * Real.pi), ‖∫ (y : ℝ) in -Real.pi..Real.pi,  k y * f (x - y) * exp (I * N * y)‖ ≤ T f x := by
   intro x hx
@@ -280,7 +381,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
   constructor
   . set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
     set f := fun x ↦ h x * F.indicator 1 x with fdef
-    have le_operator_add: ∀ x ∈ E, ε' - 8 * δ ≤ 1 / (2 * Real.pi) * (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
+    have le_operator_add: ∀ x ∈ E, (ε' - 8 * δ) * (2 * Real.pi) ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
       have h_intervalIntegrable : IntervalIntegrable h MeasureTheory.volume 0 (2 * Real.pi) := by
         apply @IntervalIntegrable.mono_fun' _ _ _ _ _ _ (fun x ↦ δ)
         apply intervalIntegrable_const
@@ -291,31 +392,39 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         intro x hx
         apply hh.2 x
         apply Set.Ioc_subset_Icc_self
-        --rwa [Set.uIoc_of_le Real.two_pi_pos.le] at hx
-        sorry
+        rw [Set.uIoc_of_le Real.two_pi_pos.le] at hx
+        constructor <;> linarith [hx.1, hx.2]
         apply measurableSet_uIoc
       intro x hx
       obtain ⟨xIcc, N, hN⟩ := hx
       rw [partialFourierSum_eq_conv_dirichletKernel' h_intervalIntegrable] at hN
-      rw [←add_le_add_iff_right (8 * δ)]
-      calc ε' - 8 * δ + 8 * δ
-        _ = ε' := by linarith
-        _ ≤ abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := hN.le
-        _ = abs (1 / (2 * ↑Real.pi) * (1 : ℝ)⁻¹ • ∫ (y : ℝ) in (x - 1 * (2 * Real.pi))..x - 1 * 0, h (x - y) * dirichletKernel' N y) := by
+      rw [←add_le_add_iff_right (8 * δ * (2 * Real.pi))]
+      calc (ε' - 8 * δ) * (2 * Real.pi) + 8 * δ * (2 * Real.pi)
+        _ = (2 * Real.pi) * ε':= by linarith
+        _ ≤ (2 * Real.pi) * abs (1 / (2 * Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := by gcongr
+        _ = abs (∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := by
+          rw [map_mul, map_div₀, ←mul_assoc]
+          conv => rhs; rw [← one_mul (Complex.abs _)]
+          congr
+          simp
+          rw [_root_.abs_of_nonneg Real.pi_pos.le]
+          field_simp
+          ring
+        _ = abs ((1 : ℝ)⁻¹ • ∫ (y : ℝ) in (x - 1 * (2 * Real.pi))..x - 1 * 0, h (x - y) * dirichletKernel' N y) := by
           --Change of variables
           congr 1
           rw [←intervalIntegral.integral_comp_sub_mul]
           simp
           norm_num
-        _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel' N y) := by
+        _ = abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel' N y) := by
           --Shift domain of integration using periodicity
           --use Function.Periodic.intervalIntegral_add_eq
           sorry
-        _ =   abs (1 / (2 * ↑Real.pi) * (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
-                         + 1 / (2 * ↑Real.pi) * (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)) := by
+        _ =   abs (  (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
+                   + (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)) := by
           --Split into two parts
           congr
-          rw [←mul_add, ←intervalIntegral.integral_add]
+          rw [←intervalIntegral.integral_add]
           . congr
             ext y
             rw [←add_mul, ←mul_add]
@@ -332,34 +441,42 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
           --use lemma that dirichletKernel is bounded
           sorry
           sorry
-        _ ≤   abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
-            + abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y) := by
+        _ ≤   abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
+            + abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y) := by
           apply abs.isAbsoluteValue.abv_add
-        _ ≤ 1 / (2 * Real.pi) * (T f x + T ((starRingEnd ℂ) ∘ f) x) + 8 * δ:= by
+        _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) + 8 * δ * (2 * Real.pi):= by
           --Estimate the two parts
           gcongr
           . --first part
-            calc abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y)
-              _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y) := by
+            calc abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y)
+              _ = abs (∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y) := by
                 --Exchange h for f
-                congr 2
+                congr 1
                 apply intervalIntegral.integral_congr
                 intro y hy
+                rw [Set.uIcc_of_le (by linarith)] at hy
                 simp
                 left
                 left
-                sorry
-              _ ≤ 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * exp (I * N * y) / (1 - exp (-I * y)))‖ +
+                rw [fdef, ←mul_one (h (x - y))]
+                congr
+                rw [Set.indicator_apply]
+                have : x - y ∈ F := by
+                  rw [Fdef]
+                  simp
+                  constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
+                simp [this]
+              _ = ‖∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y‖ := by
+                rw [←norm_eq_abs]
+              /-
+              _ ≤ 1 / (2 * Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * exp (I * N * y) / (1 - exp (-I * y)))‖ +
                                           ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * exp (-I * N * y) / (1 - exp (I * y)))‖) := by
-                rw [←norm_eq_abs, norm_mul]
                 gcongr
-                . simp
-                  rw [_root_.abs_of_nonneg Real.pi_pos.le]
                 --apply norm_add_le
                 --rw [dirichletKernel']
                 --rw [dirichletKernel', mul_add, add_comm, k]
                 sorry
-              _ = 1 / (2 * ↑Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * exp (-I * N * y) * k y )‖
+              _ = 1 / (2 * Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * exp (-I * N * y) * k y )‖
                                         + ‖∫ (y : ℝ) in -Real.pi..Real.pi, ((starRingEnd ℂ) ∘ f) (x - y) * exp (-I * N * y) * k y‖) := by
                 rw [add_comm]
                 congr 2
@@ -379,20 +496,19 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                   simp
                   rw [conj_ofReal]
                   ring
-              _ ≤ 1 / (2 * Real.pi) * (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
-                gcongr
-                . --use le_CarlesonOperatorReal
-                  sorry
-                . sorry
+              -/
+              _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
+                --use le_CarlesonOperatorReal
+                sorry
+
 
             --rw [dirichletKernel', mul_add]
           . --second part
-            calc abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)
-              _ ≤ 1 / (2 * Real.pi) * ((δ * 8) * |Real.pi - -Real.pi|) := by
-                simp only [one_div, mul_inv_rev, map_mul, map_inv₀, abs_ofReal,
-                  abs_ofNat]
-                rw [_root_.abs_of_nonneg Real.pi_pos.le]
-                gcongr
+            calc abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)
+              _ ≤ (δ * 8) * |Real.pi - -Real.pi| := by
+                --simp only [one_div, mul_inv_rev, map_mul, map_inv₀, abs_ofReal, abs_ofNat]
+                --rw [_root_.abs_of_nonneg Real.pi_pos.le]
+                --gcongr
                 rw [←norm_eq_abs]
                 apply intervalIntegral.norm_integral_le_of_norm_le_const
                 intro y hy
@@ -442,13 +558,10 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                       . norm_num
                       . rwa [←norm_eq_abs, norm_pos_iff]
                   _ = 8 := by norm_num
-              _ = 8 * δ := by
+              _ = 8 * δ * (2 * Real.pi) := by
                 rw [sub_neg_eq_add, ←two_mul, _root_.abs_of_nonneg Real.two_pi_pos.le]
                 field_simp
                 ring
-    conv at le_operator_add in ε' - 8 * δ ≤ _ =>
-      rw [←(div_le_iff' (by norm_num; exact Real.pi_pos)), div_div_eq_mul_div]
-      simp
     /-TODO: avoid completely analogous cases by wlog tactic?
       maybe switch "rcases" and first "have"-/
     rcases le_on_subset MeasureTheory.volume measurableSetE sorry sorry le_operator_add with ⟨E', E'subset, measurableSetE', E'measure, hE'⟩ | ⟨E', E'subset, measurableSetE', E'measure, hE'⟩
