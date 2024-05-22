@@ -96,27 +96,35 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
 
 --mainly have to work for the following lemmas
 
+
+theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℂ)} : localOscillation E f f = 0 := by
+  rw [localOscillation]
+  simp only [Set.mem_prod, sub_self, zero_sub, add_left_neg, norm_zero, Real.ciSup_const_zero]
+
 /-Stronger version of oscillation_control from the paper-/
 /-Based on earlier version of the paper. -/
 lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ n m : ℤ, localOscillation (Metric.ball x R) (θ n) (θ m) = 2 * R * |(n : ℝ) - m| := by
   intro n m
   by_cases n_ne_m : n = m
-  . sorry
+  . rw [n_ne_m]
+    simp
+    apply localOscillation_of_same
   push_neg at n_ne_m
+  have norm_n_sub_m_pos : 0 < |(n : ℝ) - m| := by
+    simp
+    rwa [sub_eq_zero, Int.cast_inj]
   /- Rewrite to a more convenient form for the following steps. -/
-  calc localOscillation (Metric.ball x R) (θ n) (θ m)
-    _ = ⨆ z ∈ (Metric.ball x R) ×ˢ (Metric.ball x R), ‖(n - m) * (z.1 - x) - (n - m) * (z.2 - x)‖ := by
-      --TODO : shorten the following
+  have norm_integer_linear_eq {n m : ℤ} {z : ℝ × ℝ} : ‖(θ n) z.1 - (θ m) z.1 - (θ n) z.2 + (θ m) z.2‖ = ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
+    rw [←Complex.norm_real, integer_linear, integer_linear]
+    congr 1
+    simp
+    ring
+  have localOscillation_eq : localOscillation (Metric.ball x R) (θ n) (θ m) = ⨆ z ∈ (Metric.ball x R) ×ˢ (Metric.ball x R), ‖(n - m) * (z.1 - x) - (n - m) * (z.2 - x)‖ := by
       rw [localOscillation]
       congr
       ext z
-      rw [←Complex.norm_real]
-      congr
-      ext h
-      congr
-      rw [integer_linear, integer_linear]
-      simp
-      ring
+      rw [norm_integer_linear_eq]
+  rw [localOscillation_eq]
   /- Show inequalities in both directions. -/
   apply le_antisymm
   . calc ⨆ z ∈ (Metric.ball x R) ×ˢ (Metric.ball x R), ‖(n - m) * (z.1 - x) - (n - m) * (z.2 - x)‖
@@ -134,25 +142,47 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
           _ = |↑n - ↑m| * |z.1 - x| + |↑n - ↑m| * |z.2 - x| := by congr <;> apply abs_mul
           _ ≤ |↑n - ↑m| * R + |↑n - ↑m| * R := by gcongr; linarith [hz.1]; linarith [hz.2]
           _ = 2 * R * |↑n - ↑m| := by ring
-        --TODO: fix this
         repeat
           apply mul_nonneg
           linarith
           apply abs_nonneg
   . apply le_of_forall_lt
     intro c hc
-    set R' := (c + 2 * |(n : ℝ) - m|) / (4 * |(n : ℝ) - m|) with R'def
+    have := fact_isCompact_ball x R
+    by_cases c_nonneg : 0 > c
+    . calc c
+        _ < 0 := c_nonneg
+        _ ≤ @dist (withLocalOscillation (Metric.ball x R)) PseudoMetricSpace.toDist (θ n) (θ m) := dist_nonneg
+        _ = localOscillation (Metric.ball x R) (θ n) (θ m) := rfl
+        _ = ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
+          rw [localOscillation]
+          congr
+          ext z
+          congr
+          rw [norm_integer_linear_eq]
 
-    set y := (x - R', x + R') with ydef
-    --TODO: seems like we do not use the right theorem here...
-    --apply le_iSup
-    --apply le_iSup_iff.2
-    --rw [le_ciSup_iff']
-    --apply lt_ciSup
+    push_neg at c_nonneg
+    set R' := (c + 2 * R * |(n : ℝ) - m|) / (4 * |(n : ℝ) - m|) with R'def
+    have hR' : 0 ≤ R' ∧ R' < R := by
+      rw [R'def]
+      constructor
+      . positivity
+      calc (c + 2 * R * |↑n - ↑m|) / (4 * |↑n - ↑m|)
+        _ < (2 * R * |↑n - ↑m| + 2 * R * |↑n - ↑m|) / (4 * |↑n - ↑m|) := by
+          gcongr
+        _ = R := by
+          ring_nf
+          rw [mul_assoc, mul_inv_cancel norm_n_sub_m_pos.ne.symm, mul_one]
+    let y := (x - R', x + R')
     calc c
-      _ < 2 * R' * |↑n - ↑m| := by
+      _ = c / 2 + c / 2 := by ring
+      _ < c / 2 + (2 * R * |↑n - ↑m|) / 2 := by
+        gcongr
+      _ = 2 * R' * |↑n - ↑m| := by
         rw [R'def]
-        sorry
+        ring_nf
+        rw [pow_two, ←mul_assoc, mul_assoc c, mul_inv_cancel norm_n_sub_m_pos.ne.symm, mul_assoc (R * _), mul_inv_cancel norm_n_sub_m_pos.ne.symm]
+        ring
       _ ≤ ‖(↑n - ↑m) * (y.1 - x) - (↑n - ↑m) * (y.2 - x)‖ := by
         simp
         rw [sub_eq_add_neg (-((n - m) * R')), ←neg_add, abs_neg, ←two_mul, abs_mul, abs_mul, mul_comm |(n : ℝ) - m|, mul_assoc]
@@ -161,11 +191,13 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
         apply le_abs_self
       _ ≤ ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
         apply ConditionallyCompleteLattice.le_biSup
-        . --apply bddAbove_localOscillation
-          sorry
+        . convert bddAbove_localOscillation (Metric.ball x R) (θ n) (θ m)
+          apply norm_integer_linear_eq.symm
         . use y
           simp
-          sorry
+          rw [abs_of_nonneg]
+          exact hR'.2
+          exact hR'.1
 
 
 /- to HomogeneousType -/
@@ -277,7 +309,6 @@ instance h4 : IsCompatible Θ where
     set m₃ := Int.ceil (n + R' / (2 * R)) with m₃def
 
     /- The following is necessary for withLocalOscillation to be defined. -/
-    --have ball_bounded := fact_isCompact_ball x R
     classical
     set balls : Finset (C(ℝ, ℂ)) := {θ m₁, θ m₂, θ m₃} with balls_def
     use balls
@@ -292,7 +323,6 @@ instance h4 : IsCompatible Θ where
     rw [←hn'] at hφ
     simp at hφ
     rw [dist_comm] at hφ
-    --rw [localOscillation_of_integer_linear] at hφ
     /- m₁, m₂, m₃ each correspond to one case. -/
     rw [←hn']
     simp
@@ -432,7 +462,8 @@ instance h6 : IsCZKernel 4 K where
     --rw [K]
     sorry
   /- Lemma ?-/
-  measurable := by sorry
+  measurable := by
+    sorry
 
 /- Lemma ?-/
 lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
