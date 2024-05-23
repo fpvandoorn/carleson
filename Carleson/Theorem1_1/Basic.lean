@@ -212,6 +212,33 @@ def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) 
   sSup {‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, K x y * f y * Complex.exp (Complex.I * n * y)‖ | (n : ℤ) (r : ℝ) (r > 0)}
 -/
 
+--TODO: maybe just change back to usual norm s.th. the only difference is the coercion to ENNReal
 def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, K x y * f y * Complex.exp (Complex.I * n * y)‖₊
+
+
+lemma CarlesonOperaterReal'_toReal_eq_CarlesonOperatorReal {K : ℝ → ℝ → ℂ} {f : ℝ → ℂ} {x : ℝ} :
+    (CarlesonOperatorReal' K f x).toReal = CarlesonOperatorReal K f x := by
+  rw [CarlesonOperatorReal, CarlesonOperatorReal']
+  rw [ENNReal.toReal_iSup]
+  congr
+  ext n
+  rw [ENNReal.toReal_iSup]
+  congr
+  ext
+  rw [ENNReal.toReal_iSup]
+  congr
+  sorry
+  sorry
+  sorry
+  --ENNReal.ofReal_le_of_le_toReal
+  --apply iSup_ofReal
+
+/-TODO: Probably needs additional assumption-/
+lemma CarlesonOperaterReal'_eq_ofReal_CarlesonOperatorReal {K : ℝ → ℝ → ℂ} {f : ℝ → ℂ} {x : ℝ} :
+    CarlesonOperatorReal' K f x = ENNReal.ofReal (CarlesonOperatorReal K f x) := by
+  rw [CarlesonOperatorReal, CarlesonOperatorReal']
+  --ENNReal.ofReal_le_of_le_toReal
+  --apply iSup_ofReal
+  sorry
