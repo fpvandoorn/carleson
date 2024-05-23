@@ -15,7 +15,6 @@ local notation "T" => CarlesonOperatorReal K
 local notation "T'" => CarlesonOperatorReal' K
 
 
-/-TODO: version with general measure on X ?-/
 lemma le_on_subset {α : Type} [MeasurableSpace α] (μ : MeasureTheory.Measure α) {f g : α → ℝ} {E : Set α} (hE : MeasurableSet E)
     (hf : Measurable f) (hg : Measurable g) {a : ℝ} (h : ∀ x ∈ E, a ≤ f x + g x) :
     (∃ E' ⊆ E, MeasurableSet E' ∧ μ E ≤ 2 * μ E' ∧ ∀ x ∈ E', a / 2 ≤ f x) ∨ (∃ E' ⊆ E, MeasurableSet E' ∧ μ E ≤ 2 * μ E' ∧ ∀ x ∈ E', a / 2 ≤ g x) := by
@@ -586,9 +585,12 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
               --simp
               --apply E'measure
             . sorry
+          --_ = δ * ∫⁻ x in E', T' (fun x ↦ (1 / δ) * f x) x := by
           _ = δ * ∫ x in E', T (fun x ↦ (1 / δ) * f x) x := by
             --add lemma CarlesonOperatorReal_mul
             sorry
+-- use MeasureTheory.lintegral_coe_eq_integral somewhere here?
+-- or MeasureTheory.ofReal_integral_eq_lintegral_ofReal?
           _ ≤ δ * (C1_2 4 2 * (MeasureTheory.volume.real E') ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real F) ^ (2 : ℝ)⁻¹) := by
             gcongr
             apply rcarleson
