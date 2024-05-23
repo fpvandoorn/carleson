@@ -418,7 +418,8 @@ instance h4 : IsCompatible Θ where
 --TODO : possibly issues with a different "doubling constant" than in the paper (4 instead of 2)
 instance h5 : IsCancellative 2 Θ where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
-  norm_integral_exp_le := by sorry
+  norm_integral_exp_le := by
+    sorry
 
 
 
