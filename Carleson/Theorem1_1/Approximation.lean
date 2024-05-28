@@ -147,7 +147,7 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
 
 /-TODO: might be generalized assumptions might be weakened, and constant given explicitely -/
 lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃ C, ∀ n, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C := by
-  obtain ⟨C, f_bounded⟩  := continuous_bounded f_continuous.continuousOn
+  obtain ⟨C, f_bounded⟩ := continuous_bounded f_continuous.continuousOn
   use C
   intro n
   rw [fourierCoeffOn_eq_integral]

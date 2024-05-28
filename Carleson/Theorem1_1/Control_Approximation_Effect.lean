@@ -190,6 +190,20 @@ lemma le_CarlesonOperatorReal {f : ℝ → ℂ} (hf : IntervalIntegrable f Measu
   intro x hx
   sorry
 -/
+
+-- Corrected rewrite
+lemma dirichlet_Hilbert_eq {N : ℕ} {x y : ℝ} :
+    (max (1 - |x - y|) 0) * dirichletKernel' N (x - y) = exp (I * (-N * x)) * K x y * exp (I * N * y) + (starRingEnd ℂ) (exp (I * (-N * x)) * K x y * exp (I * N * y)) := by
+  rw [dirichletKernel', K, k]
+  rw [map_mul, map_mul, map_div₀, conj_ofReal, map_sub, ←exp_conj, ←exp_conj, ←exp_conj,
+    map_mul, map_mul, map_mul, map_mul, map_mul, conj_ofReal, conj_ofReal, conj_ofReal]
+  simp
+  field_simp
+  symm
+  rw [mul_comm, ←mul_assoc, ←exp_add, mul_comm, add_comm, mul_comm, ←mul_assoc, ←exp_add, mul_comm, mul_add, mul_div_assoc, mul_div_assoc]
+  congr <;> ring
+
+
 section
 open Filter Topology
 
