@@ -155,7 +155,7 @@ lemma le_iSup₃_of_le {α : Type} {ι : Type} {β : ι → Type} {γ : (i : ι)
 /-Version of previous lemma where we try to circumvent some difficulties with sup on the Reals by going to ENNReal. -/
 lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℕ} :
     ∀ x ∈ Set.Icc 0 (2 * Real.pi),
-    ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
+    ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
   intro x hx
   set s : ℕ → Set ℝ := fun n ↦ {y | dist x y ∈ Set.Ioo (1 / (n + 1 : ℝ)) 1} with sdef
   have hs : {y | dist x y ∈ Set.Ioo 0 1} = ⋃ n, s n := by
@@ -400,266 +400,239 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     simp at hx
     exact hx.1
   use measurableSetE
+  --Change order of proofs to start with the simple part
+  rw [and_comm]
   constructor
-  . set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
-    set f := fun x ↦ h x * F.indicator 1 x with fdef
-    have le_operator_add: ∀ x ∈ E, (ε' - 8 * δ) * (2 * Real.pi) ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
-      have h_intervalIntegrable : IntervalIntegrable h MeasureTheory.volume 0 (2 * Real.pi) := by
-        apply @IntervalIntegrable.mono_fun' _ _ _ _ _ _ (fun x ↦ δ)
-        apply intervalIntegrable_const
-        exact hh.1.aestronglyMeasurable
-        rw [Filter.EventuallyLE, ae_restrict_iff_subtype]
-        apply Filter.eventually_of_forall
-        simp only [norm_eq_abs, Subtype.forall]
-        intro x hx
-        apply hh.2 x
-        apply Set.Ioc_subset_Icc_self
-        rw [Set.uIoc_of_le Real.two_pi_pos.le] at hx
-        constructor <;> linarith [hx.1, hx.2]
-        apply measurableSet_uIoc
+  . rw [Edef]
+    simp
+    exact fun x x_nonneg x_le_two_pi h ↦ h x_nonneg x_le_two_pi
+  set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
+  set f := fun x ↦ h x * F.indicator 1 x with fdef
+  have le_operator_add: ∀ x ∈ E, (ε' - 8 * δ) * (2 * Real.pi) ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
+    have h_intervalIntegrable : IntervalIntegrable h MeasureTheory.volume 0 (2 * Real.pi) := by
+      apply @IntervalIntegrable.mono_fun' _ _ _ _ _ _ (fun x ↦ δ)
+      apply intervalIntegrable_const
+      exact hh.1.aestronglyMeasurable
+      rw [Filter.EventuallyLE, ae_restrict_iff_subtype]
+      apply Filter.eventually_of_forall
+      simp only [norm_eq_abs, Subtype.forall]
       intro x hx
-      obtain ⟨xIcc, N, hN⟩ := hx
-      rw [partialFourierSum_eq_conv_dirichletKernel' h_intervalIntegrable] at hN
-      rw [←add_le_add_iff_right (8 * δ * (2 * Real.pi))]
-      calc (ε' - 8 * δ) * (2 * Real.pi) + 8 * δ * (2 * Real.pi)
-        _ = (2 * Real.pi) * ε':= by linarith
-        _ ≤ (2 * Real.pi) * abs (1 / (2 * Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := by gcongr
-        _ = abs (∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := by
-          rw [map_mul, map_div₀, ←mul_assoc]
-          conv => rhs; rw [← one_mul (Complex.abs _)]
+      apply hh.2 x
+      apply Set.Ioc_subset_Icc_self
+      rw [Set.uIoc_of_le Real.two_pi_pos.le] at hx
+      constructor <;> linarith [hx.1, hx.2]
+      apply measurableSet_uIoc
+    intro x hx
+    --set S := {y | dist x y ∈ Set.Ioo 0 Real.pi} with Sdef
+    --set S := Set.Ioo (x - Real.pi) (x + Real.pi) with Sdef
+    obtain ⟨xIcc, N, hN⟩ := hx
+    rw [partialFourierSum_eq_conv_dirichletKernel' h_intervalIntegrable] at hN
+    rw [←add_le_add_iff_right (8 * δ * (2 * Real.pi))]
+    --have makeThisMainLater : ENNReal.ofReal ((ε' - 8 * δ) * (2 * Real.pi) + 8 * δ * (2 * Real.pi)) ≤
+    calc (ε' - 8 * δ) * (2 * Real.pi) + 8 * δ * (2 * Real.pi)
+      _ = (2 * Real.pi) * ε':= by linarith
+      _ ≤ (2 * Real.pi) * abs (1 / (2 * Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := by gcongr
+      _ = abs (∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)) := by
+        rw [map_mul, map_div₀, ←mul_assoc]
+        conv => rhs; rw [← one_mul (Complex.abs _)]
+        congr
+        simp
+        rw [_root_.abs_of_nonneg Real.pi_pos.le]
+        field_simp
+        ring
+      _ = abs (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * dirichletKernel' N (x - y)) := by
+        --Shift domain of integration using periodicity
+        --use Function.Periodic.intervalIntegral_add_eq
+        sorry
+      _ =   abs (  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
+                 + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y))      ) := by
+        --Split into two parts
+        congr
+        rw [← intervalIntegral.integral_add]
+        . congr
+          ext y
+          rw [←add_mul, ←mul_add]
           congr
-          simp
-          rw [_root_.abs_of_nonneg Real.pi_pos.le]
-          field_simp
-          ring
-        _ = abs ((1 : ℝ)⁻¹ • ∫ (y : ℝ) in (x - 1 * (2 * Real.pi))..x - 1 * 0, h (x - y) * dirichletKernel' N y) := by
-          --Change of variables
-          congr 1
-          rw [←intervalIntegral.integral_comp_sub_mul]
-          simp
-          norm_num
-        _ = abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel' N y) := by
-          --Shift domain of integration using periodicity
-          --use Function.Periodic.intervalIntegral_add_eq
-          sorry
-        _ =   abs (  (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
-                   + (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)) := by
-          --Split into two parts
+          conv => lhs; rw [←mul_one (h y)]
           congr
-          rw [←intervalIntegral.integral_add]
-          . congr
-            ext y
-            rw [←add_mul, ←mul_add]
-            congr
-            conv => lhs; rw [←mul_one (h (x - y))]
-            congr
-            norm_cast
-            rw [min_def]
-            split_ifs
-            . rw [max_eq_left (by linarith)]
+          norm_cast
+          rw [min_def]
+          split_ifs
+          . rw [max_eq_left (by linarith)]
+            simp
+          . rw [max_eq_right (by linarith)]
+            simp
+        --use lemma that dirichletKernel is bounded
+        sorry
+        sorry
+      _ ≤   abs (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
+          + abs (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y)) := by
+        apply abs.isAbsoluteValue.abv_add
+      _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) + 8 * δ * (2 * Real.pi):= by
+        --Estimate the two parts
+        gcongr
+        . --first part
+          calc ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖
+            _ = ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖ := by
+              --Exchange h for f
+              congr 1
+              apply intervalIntegral.integral_congr
+              intro y hy
               simp
-            . rw [max_eq_right (by linarith)]
-              simp
-          --use lemma that dirichletKernel is bounded
-          sorry
-          sorry
-        _ ≤   abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)
-            + abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y) := by
-          apply abs.isAbsoluteValue.abv_add
-        _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) + 8 * δ * (2 * Real.pi):= by
-          --Estimate the two parts
-          gcongr
-          . --first part
-            calc abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y)
-              _ = abs (∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y) := by
-                --Exchange h for f
-                congr 1
-                apply intervalIntegral.integral_congr
-                intro y hy
-                rw [Set.uIcc_of_le (by linarith)] at hy
+              rw [Set.uIcc_of_le (by linarith)] at hy
+              left
+              left
+              rw [fdef, ←mul_one (h y)]
+              congr
+              rw [Set.indicator_apply]
+              have : y ∈ F := by
+                rw [Fdef]
                 simp
-                left
-                left
-                rw [fdef, ←mul_one (h (x - y))]
-                congr
-                rw [Set.indicator_apply]
-                have : x - y ∈ F := by
-                  rw [Fdef]
-                  simp
-                  constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
-                simp [this]
-              _ = ‖∫ (y : ℝ) in -Real.pi..Real.pi, f (x - y) * ↑(max (1 - |y|) 0) * dirichletKernel' N y‖ := by
-                rw [←norm_eq_abs]
-              /-
-              _ ≤ 1 / (2 * Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * exp (I * N * y) / (1 - exp (-I * y)))‖ +
-                                          ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * ↑(max (1 - |y|) 0) * exp (-I * N * y) / (1 - exp (I * y)))‖) := by
-                gcongr
-                --apply norm_add_le
-                --rw [dirichletKernel']
-                --rw [dirichletKernel', mul_add, add_comm, k]
-                sorry
-              _ = 1 / (2 * Real.pi) * (  ‖∫ (y : ℝ) in -Real.pi..Real.pi, (f (x - y) * exp (-I * N * y) * k y )‖
-                                        + ‖∫ (y : ℝ) in -Real.pi..Real.pi, ((starRingEnd ℂ) ∘ f) (x - y) * exp (-I * N * y) * k y‖) := by
-                rw [add_comm]
-                congr 2
-                . congr
-                  ext y
-                  rw [k]
-                  ring
-                . rw [norm_eq_abs, norm_eq_abs, ←abs_conj]
-                  congr
-                  rw [←intervalIntegral.integral_conj']
-                  congr
-                  ext y
-                  simp
-                  rw [mul_div_assoc, mul_assoc, mul_assoc, mul_assoc]
-                  congr 1
-                  rw [k, conj_ofReal, ←exp_conj, ←exp_conj]
-                  simp
-                  rw [conj_ofReal]
-                  ring
-              -/
-              _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
-                --use le_CarlesonOperatorReal
-                sorry
-
-
-            --rw [dirichletKernel', mul_add]
-          . --second part
-            calc abs (∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel' N y)
-              _ ≤ (δ * 8) * |Real.pi - -Real.pi| := by
-                --simp only [one_div, mul_inv_rev, map_mul, map_inv₀, abs_ofReal, abs_ofNat]
-                --rw [_root_.abs_of_nonneg Real.pi_pos.le]
-                --gcongr
-                rw [←norm_eq_abs]
-                apply intervalIntegral.norm_integral_le_of_norm_le_const
-                intro y hy
-                rw [Set.uIoc_of_le (by linarith)] at hy
-                rw [mul_assoc, norm_mul]
-                gcongr
-                . rw [norm_eq_abs]
-                  apply hh.2
-                  rw [Fdef]
-                  simp
-                  constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
-                rw [dirichletKernel', mul_add]
-                calc ‖  (min |y| 1) * (exp (I * N * y) / (1 - exp (-I * y)))
-                      + (min |y| 1) * (exp (-I * N * y) / (1 - exp (I * y)))‖
-                  _ ≤   ‖(min |y| 1) * (exp (I * N * y) / (1 - exp (-I * y)))‖
-                      + ‖(min |y| 1) * (exp (-I * N * y) / (1 - exp (I * y)))‖ := by
-                    apply norm_add_le
-                  _ = min |y| 1 * 1 / ‖1 - exp (I * y)‖ + min |y| 1 * 1 / ‖1 - exp (I * y)‖ := by
-                    simp
-                    congr
-                    . simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
-                    . rw [mul_assoc I, mul_comm I]
-                      norm_cast
-                      rw [abs_exp_ofReal_mul_I, one_div, ←abs_conj, map_sub, map_one, ←exp_conj, ← neg_mul, map_mul,
-                            conj_neg_I, conj_ofReal]
-                    . /-Duplicate from above:
-                      TODO: how to remove duplicate goals? -/
-                      simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
-                    . rw [mul_assoc I, mul_comm I, ←neg_mul]
-                      norm_cast
-                      rw [abs_exp_ofReal_mul_I, one_div]
-                  _ = 2 * (min |y| 1 / ‖1 - exp (I * y)‖) := by ring
-                  _ ≤ 2 * 4 := by
-                    gcongr
-                    . by_cases h : (1 - exp (I * y)) = 0
-                      . rw [h]
-                        simp
-                      simp
-                      rw [div_le_iff', ←div_le_iff, ←norm_eq_abs]
-                      apply lower_secant_bound'
-                      . apply min_le_left
-                      . have : |y| ≤ Real.pi := by
-                          rw [abs_le]
-                          exact ⟨hy.1.le, hy.2⟩
-                        rw [min_def]
-                        split_ifs <;> linarith
-                      . norm_num
-                      . rwa [←norm_eq_abs, norm_pos_iff]
-                  _ = 8 := by norm_num
-              _ = 8 * δ * (2 * Real.pi) := by
-                rw [sub_neg_eq_add, ←two_mul, _root_.abs_of_nonneg Real.two_pi_pos.le]
-                field_simp
-                ring
-    /-TODO: avoid completely analogous cases by wlog tactic?
-      maybe switch "rcases" and first "have"-/
-    rcases le_on_subset MeasureTheory.volume measurableSetE sorry sorry le_operator_add with ⟨E', E'subset, measurableSetE', E'measure, hE'⟩ | ⟨E', E'subset, measurableSetE', E'measure, hE'⟩
-    . have : Real.pi * (ε' - 8 * δ) * MeasureTheory.volume.real E' ≤ δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real E') ^ (2 : ℝ)⁻¹ := by
-        calc Real.pi * (ε' - 8 * δ) * MeasureTheory.volume.real E'
-          _ = MeasureTheory.volume.real E' * ((ε' - 8 * δ) * (2 * Real.pi) / 2) := by ring
-          _ = ∫ x in E', (ε' - 8 * δ) * (2 * Real.pi) / 2 := by
-            symm
-            apply MeasureTheory.setIntegral_const
-          _ ≤ ∫ x in E', T f x := by
-            apply MeasureTheory.setIntegral_mono_on _ _ measurableSetE'
-            . exact hE'
-            . rw [MeasureTheory.integrableOn_const]
-              right
-              have : E' ⊆ Set.Icc 0 (2 * Real.pi) := by sorry
+                constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
+              simp [this]
+            _ = ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖ := by
+              --Adjust integration domain
               sorry
-              --rw [ENNReal.lt_top]
-              --linarith
-              --simp
-              --rw [lt_top]
-              --use ⟨2 * ε, by linarith⟩
-              --simp
-              --apply E'measure
-            . sorry
-          --_ = δ * ∫⁻ x in E', T' (fun x ↦ (1 / δ) * f x) x := by
-          _ = δ * ∫ x in E', T (fun x ↦ (1 / δ) * f x) x := by
-            --add lemma CarlesonOperatorReal_mul
+            _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
+              --use le_CarlesonOperatorReal'
+              sorry
+
+
+          --rw [dirichletKernel', mul_add]
+        . --second part
+          calc abs (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y))
+            _ ≤ (δ * 8) * |(x + Real.pi) - (x - Real.pi)| := by
+              --simp only [one_div, mul_inv_rev, map_mul, map_inv₀, abs_ofReal, abs_ofNat]
+              --rw [_root_.abs_of_nonneg Real.pi_pos.le]
+              --gcongr
+              rw [←norm_eq_abs]
+              apply intervalIntegral.norm_integral_le_of_norm_le_const
+              intro y hy
+              rw [Set.uIoc_of_le (by linarith)] at hy
+              rw [mul_assoc, norm_mul]
+              gcongr
+              . rw [norm_eq_abs]
+                apply hh.2
+                rw [Fdef]
+                simp
+                constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
+              rw [dirichletKernel', mul_add]
+              set z := x - y with zdef
+              calc ‖  (min |z| 1) * (exp (I * N * z) / (1 - exp (-I * z)))
+                    + (min |z| 1) * (exp (-I * N * z) / (1 - exp (I * z)))‖
+                _ ≤   ‖(min |z| 1) * (exp (I * N * z) / (1 - exp (-I * z)))‖
+                    + ‖(min |z| 1) * (exp (-I * N * z) / (1 - exp (I * z)))‖ := by
+                  apply norm_add_le
+                _ = min |z| 1 * 1 / ‖1 - exp (I * z)‖ + min |z| 1 * 1 / ‖1 - exp (I * z)‖ := by
+                  simp
+                  congr
+                  . simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
+                  . rw [mul_assoc I, mul_comm I]
+                    norm_cast
+                    rw [abs_exp_ofReal_mul_I, one_div, ←abs_conj, map_sub, map_one, ←exp_conj, ← neg_mul, map_mul,
+                          conj_neg_I, conj_ofReal]
+                  . /-Duplicate from above:
+                    TODO: how to remove duplicate goals? -/
+                    simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
+                  . rw [mul_assoc I, mul_comm I, ←neg_mul]
+                    norm_cast
+                    rw [abs_exp_ofReal_mul_I, one_div]
+                _ = 2 * (min |z| 1 / ‖1 - exp (I * z)‖) := by ring
+                _ ≤ 2 * 4 := by
+                  gcongr
+                  . by_cases h : (1 - exp (I * z)) = 0
+                    . rw [h]
+                      simp
+                    simp
+                    rw [div_le_iff', ←div_le_iff, ←norm_eq_abs]
+                    apply lower_secant_bound'
+                    . apply min_le_left
+                    . have : |z| ≤ Real.pi := by
+                        rw [abs_le]
+                        rw [zdef]
+                        constructor <;> linarith [hy.1, hy.2]
+                      rw [min_def]
+                      split_ifs <;> linarith
+                    . norm_num
+                    . rwa [←norm_eq_abs, norm_pos_iff]
+                _ = 8 := by norm_num
+            _ = 8 * δ * (2 * Real.pi) := by
+              simp
+              rw [←two_mul, _root_.abs_of_nonneg Real.two_pi_pos.le]
+              ring
+  /-TODO: avoid completely analogous cases by wlog tactic?
+    maybe switch "rcases" and first "have"-/
+  rcases le_on_subset MeasureTheory.volume measurableSetE sorry sorry le_operator_add with ⟨E', E'subset, measurableSetE', E'measure, hE'⟩ | ⟨E', E'subset, measurableSetE', E'measure, hE'⟩
+  . have : Real.pi * (ε' - 8 * δ) * MeasureTheory.volume.real E' ≤ δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real E') ^ (2 : ℝ)⁻¹ := by
+      calc Real.pi * (ε' - 8 * δ) * MeasureTheory.volume.real E'
+        _ = MeasureTheory.volume.real E' * ((ε' - 8 * δ) * (2 * Real.pi) / 2) := by ring
+        _ = ∫ x in E', (ε' - 8 * δ) * (2 * Real.pi) / 2 := by
+          symm
+          apply MeasureTheory.setIntegral_const
+        _ ≤ ∫ x in E', T f x := by
+          apply MeasureTheory.setIntegral_mono_on _ _ measurableSetE'
+          . exact hE'
+          . rw [MeasureTheory.integrableOn_const]
+            right
+            have : E' ⊆ Set.Icc 0 (2 * Real.pi) := by sorry
             sorry
+            --rw [ENNReal.lt_top]
+            --linarith
+            --simp
+            --rw [lt_top]
+            --use ⟨2 * ε, by linarith⟩
+            --simp
+            --apply E'measure
+          . sorry
+        --_ = δ * ∫⁻ x in E', T' (fun x ↦ (1 / δ) * f x) x := by
+        _ = δ * ∫ x in E', T (fun x ↦ (1 / δ) * f x) x := by
+          --add lemma CarlesonOperatorReal_mul
+          sorry
 -- use MeasureTheory.lintegral_coe_eq_integral somewhere here?
 -- or MeasureTheory.ofReal_integral_eq_lintegral_ofReal?
-          _ ≤ δ * (C1_2 4 2 * (MeasureTheory.volume.real E') ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real F) ^ (2 : ℝ)⁻¹) := by
-            gcongr
-            apply rcarleson
-            . apply measurableSet_Icc
-            . exact measurableSetE'
-            . sorry
-            . sorry
-            . intro x
-              rw [fdef]
-              simp
-              rw [_root_.abs_of_nonneg hδ.le, inv_mul_le_iff hδ, Set.indicator_apply, Set.indicator_apply]
-              split_ifs with inF
-              . simp
-                exact hh.2 x inF
-              . simp
-          _ = δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real E') ^ (2 : ℝ)⁻¹ := by
-            ring_nf
-            congr
-            rw [MeasureTheory.measureReal_def, Real.volume_Icc, ENNReal.toReal_ofReal]
-            . ring
-            . ring_nf
-              positivity
-      calc MeasureTheory.volume.real E
-        _ ≤ 2 * MeasureTheory.volume.real E' := by
-          -- use E'measure
-          rw [MeasureTheory.measureReal_def, MeasureTheory.measureReal_def, ←@ENNReal.toReal_ofReal 2 (by norm_num),
-            ←ENNReal.toReal_mul, ENNReal.toReal_le_toReal, ENNReal.ofReal_ofNat]
-          exact E'measure
-          sorry
-          sorry
-        _ = 2 * MeasureTheory.volume.real E' ^ ((1 + -(2 : ℝ)⁻¹) * 2) := by
-          conv => lhs; rw [←Real.rpow_one (MeasureTheory.volume.real E')]
-          congr
-          norm_num
-        _ ≤ 2 * (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - 8 * δ))) ^ (2 : ℝ) := by
+        _ ≤ δ * (C1_2 4 2 * (MeasureTheory.volume.real E') ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real F) ^ (2 : ℝ)⁻¹) := by
           gcongr
-          have two_pos : 0 < (2 : ℝ) := by linarith
-          rw [←mul_inv_le_iff', ←Real.rpow_neg, mul_assoc, ←Real.rpow_one_add', ←le_div_iff', ←(Real.rpow_le_rpow_iff _ _ two_pos), ←Real.rpow_mul] at this
-          exact this
-          -- multiple small goals remaining
-          all_goals sorry
-        _ = ε := by
-          --choose ε' such that this works
-          sorry
-    . -- Analogous to first case.
-      sorry
-  rw [Edef]
-  simp
-  exact fun x x_nonneg x_le_two_pi h ↦ h x_nonneg x_le_two_pi
+          apply rcarleson
+          . apply measurableSet_Icc
+          . exact measurableSetE'
+          . sorry
+          . sorry
+          . intro x
+            rw [fdef]
+            simp
+            rw [_root_.abs_of_nonneg hδ.le, inv_mul_le_iff hδ, Set.indicator_apply, Set.indicator_apply]
+            split_ifs with inF
+            . simp
+              exact hh.2 x inF
+            . simp
+        _ = δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real E') ^ (2 : ℝ)⁻¹ := by
+          ring_nf
+          congr
+          rw [MeasureTheory.measureReal_def, Real.volume_Icc, ENNReal.toReal_ofReal]
+          . ring
+          . ring_nf
+            positivity
+    calc MeasureTheory.volume.real E
+      _ ≤ 2 * MeasureTheory.volume.real E' := by
+        -- use E'measure
+        rw [MeasureTheory.measureReal_def, MeasureTheory.measureReal_def, ←@ENNReal.toReal_ofReal 2 (by norm_num),
+          ←ENNReal.toReal_mul, ENNReal.toReal_le_toReal, ENNReal.ofReal_ofNat]
+        exact E'measure
+        sorry
+        sorry
+      _ = 2 * MeasureTheory.volume.real E' ^ ((1 + -(2 : ℝ)⁻¹) * 2) := by
+        conv => lhs; rw [←Real.rpow_one (MeasureTheory.volume.real E')]
+        congr
+        norm_num
+      _ ≤ 2 * (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - 8 * δ))) ^ (2 : ℝ) := by
+        gcongr
+        have two_pos : 0 < (2 : ℝ) := by linarith
+        rw [←mul_inv_le_iff', ←Real.rpow_neg, mul_assoc, ←Real.rpow_one_add', ←le_div_iff', ←(Real.rpow_le_rpow_iff _ _ two_pos), ←Real.rpow_mul] at this
+        exact this
+        -- multiple small goals remaining
+        all_goals sorry
+      _ = ε := by
+        --choose ε' such that this works
+        sorry
+  . -- Analogous to first case.
+    sorry
