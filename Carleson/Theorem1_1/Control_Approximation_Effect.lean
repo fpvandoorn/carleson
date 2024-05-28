@@ -87,91 +87,7 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
     {h : ℝ → ℂ} (hh: Measurable h ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi), abs (h x) ≤ (2 ^ (- (2 ^ 50 : ℝ))) * ε ^ 2 ):
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
       ∀ N, abs (partialFourierSum h N x) ≤ ε / 4 := by sorry
-/-
-  set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε / 4 < abs (partialFourierSum h N x)} with Edef
-  use E
-  constructor
-  . intro x hx
-    rw [Edef] at hx
-    simp at hx
-    exact hx.1
-  constructor
-  . have : E = Set.Icc 0 (2 * Real.pi) ∩ ⋃ N : ℕ, {x | ε / 4 < ‖partialFourierSum h N x‖} := by
-      rw [Edef]
-      ext x
-      simp
-    rw [this]
-    apply MeasurableSet.inter
-    . apply measurableSet_Icc
-    apply MeasurableSet.iUnion
-    intro N
-    apply measurableSet_lt
-    . apply measurable_const
-    apply Measurable.norm
-    apply partialFourierSum_uniformContinuous.continuous.measurable
-  constructor
-  . set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
-    set f := fun x ↦ h x * F.indicator 1 x with fdef
-    have le_operator_add: ∀ x ∈ E, ε / 8 ≤ 1 / (2 * Real.pi) * (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
-      have h_intervalIntegrable : IntervalIntegrable h MeasureTheory.volume 0 (2 * Real.pi) := by
-        apply @IntervalIntegrable.mono_fun' _ _ _ _ _ _ (fun x ↦ (2 ^ (- (2 ^ 50 : ℝ))) * ε ^ 2)
-        apply intervalIntegrable_const
-        exact hh.1.aestronglyMeasurable
-        rw [Filter.EventuallyLE, ae_restrict_iff_subtype]
-        apply Filter.eventually_of_forall
-        simp only [norm_eq_abs, Subtype.forall]
-        intro x hx
-        apply hh.2 x
-        apply Set.Ioc_subset_Icc_self
-        rwa [Set.uIoc_of_le Real.two_pi_pos.le] at hx
-        apply measurableSet_uIoc
-      intro x hx
-      obtain ⟨xIcc, N, hN⟩ := hx
-      rw [partialFourierSum_eq_conv_dirichletKernel h_intervalIntegrable] at hN
-      rw [←add_le_add_iff_right (ε / 8)]
-      calc ε / 8 + ε / 8
-        _ ≤ ε / 4 := by linarith
-        _ ≤ abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel N (x - y)) := hN.le
-        _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h (x - y) * dirichletKernel N y) := by
-          --Change of variables
-          sorry
-        _ = abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * dirichletKernel N y) := by
-          --Shift domain of integration using periodicity
-          sorry
-        _ =   abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (max (1 - |y|) 0) * dirichletKernel N y)
-            + abs (1 / (2 * ↑Real.pi) * ∫ (y : ℝ) in -Real.pi..Real.pi, h (x - y) * (min |y| 1) * dirichletKernel N y) :=
-          --Split into two parts
-          sorry
-        --Exchange f for h somewhere here
-        _ ≤ 1 / (2 * Real.pi) * (T f x + T (⇑(starRingEnd ℂ) ∘ f) x) + ε / 8:= by
-          --Estimate the two parts
-          gcongr
-          . sorry
-          . sorry
-    conv at le_operator_add in ε / 8 ≤ _ =>
-      rw [←(div_le_iff' (by norm_num; exact Real.pi_pos)), div_div_div_eq]
-      simp
-    /-TODO: avoid completely analogous cases by wlog tactic?-/
-    rcases le_on_subset MeasureTheory.volume sorry sorry sorry le_operator_add with ⟨E', E'subset, measurableSetE', E'measure, hE'⟩ | ⟨E', E'subset, measurableSetE', E'measure, hE'⟩
-    . have : ε * (2 * Real.pi) / 8 * MeasureTheory.volume.real E' ≤ 2 ^ (-2 ^ 40 : ℝ) * ε ^ 2 / 8 * (MeasureTheory.volume.real E') ^ (1 / 2) := by
-        calc ε * (2 * Real.pi) / 8 * MeasureTheory.volume.real E'
-          _ = MeasureTheory.volume.real E' * (ε * (2 * Real.pi) / 8 / 2) := by ring
-          _ = ∫ x in E', ε * (2 * Real.pi) / 8 / 2 := by
-            symm
-            apply MeasureTheory.set_integral_const
-          _ ≤ ∫ x in E', T f x := by
-            apply MeasureTheory.set_integral_mono_on _ _ measurableSetE'
-            . exact hE'
-            . sorry
-            . sorry
-          _ ≤ 2 ^ (-2 ^ 40 : ℝ) * ε ^ 2 / 8 * (MeasureTheory.volume.real E') ^ (1 / 2) := by sorry
-      sorry
-    . -- Analogous to first case.
-      sorry
-  rw [Edef]
-  simp
-  exact fun x x_nonneg x_le_two_pi h ↦ h x_nonneg x_le_two_pi
--/
+
 
 /-TODO: might go to mathlib-/
 lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : Type} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ}:
@@ -180,16 +96,6 @@ lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : T
       RCLike.real_smul_eq_coe_mul, RCLike.real_smul_eq_coe_mul, map_mul]
   congr
   simp
-
-/-TODO: move to Basic
-  maybe: need stronger assumptions.
-  Probably not true in this form because integrability might fail.
-lemma le_CarlesonOperatorReal {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℤ} :
-    ∀ x ∈ Set.Icc 0 (2 * Real.pi), ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, K x y * f y * exp (I * N * y)‖ ≤ T f x := by
-  --use MeasureTheory.tendsto_setIntegral_of_monotone
-  intro x hx
-  sorry
--/
 
 -- Corrected rewrite
 lemma dirichlet_Hilbert_eq {N : ℕ} {x y : ℝ} :
@@ -207,6 +113,7 @@ lemma dirichlet_Hilbert_eq {N : ℕ} {x y : ℝ} :
 section
 open Filter Topology
 
+--TODO: probably not needed anymore
 lemma le_ciSup_of_tendsto {α β} [TopologicalSpace α] [ConditionallyCompleteLinearOrder α] [OrderTopology α]
     [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (h : BddAbove (Set.range f)) (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
   apply le_of_forall_lt
@@ -217,67 +124,108 @@ lemma le_ciSup_of_tendsto {α β} [TopologicalSpace α] [ConditionallyCompleteLi
   apply lt_of_lt_of_le hx
   apply le_ciSup h
 
---TODO: maybe change to start with the exact interval needed later
-lemma le_CarlesonOperatorReal {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℕ} :
-    ∀ x ∈ Set.Icc 0 (2 * Real.pi),
-    ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
-  intro x hx
-  set s : ℕ → Set ℝ := fun n ↦ {y | dist x y ∈ Set.Ioo (1 / (n : ℝ)) 1} with sdef
-  have : Tendsto (fun i => ∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y) atTop (𝓝 (∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)) := by
-    apply MeasureTheory.tendsto_setIntegral_of_monotone
-    all_goals sorry
-  calc ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖
-    _ = ‖∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ := by
-      congr
-      sorry
-    _ ≤ ⨆ (i : ℕ), ‖∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ := by
-      apply le_ciSup_of_tendsto
-      . --should follow from integrability in some way
-        sorry
-      apply Tendsto.norm this
-    _ ≤ ⨆ (r : ℝ) (_ : 0 < r), ‖∫ y in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖ := by
-      --apply ciSup_le_ciSup
-      --apply sSup_le_sSup_of_forall_exists_le
-      sorry
-    _ ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
-      sorry
-  --apply limsup_le_iSup
-  --apply iUnion_Ici_eq_Ioi_of_lt_of_tendsto
+--TODO: proof might be improved
+lemma le_iSup_of_tendsto {α β} [TopologicalSpace α] [CompleteLinearOrder α] [OrderTopology α]
+    [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
+  apply le_of_forall_lt
+  intro c hc
+  have : ∀ᶠ (x : β) in atTop, c < f x := by
+    apply eventually_gt_of_tendsto_gt hc ha
+  rcases this.exists with ⟨x, hx⟩
+  apply lt_of_lt_of_le hx
+  apply le_iSup
+
+/-TODO: The following three lemmas are probably not needed anymore. -/
+--adapted from mathlib le_iSup₂
+lemma le_iSup₃ {α : Type} {ι : Type} {β : ι → Type} {γ : (i : ι) → β i → Type} [CompleteLattice α] {a : α}
+    {f : (i : ι) → (j : β i) → γ i j → α} (i : ι) (j : β i) (k : γ i j) : f i j k ≤ ⨆ (i) (j) (k), f i j k :=
+  le_iSup₂_of_le i j <| le_iSup (f i j) k
+
+--adapted from mathlib iSup₂_le
+lemma iSup₃_le {α : Type} {ι : Type} {β : ι → Type} {γ : (i : ι) → β i → Type} [CompleteLattice α] {a : α}
+    {f : (i : ι) → (j : β i) → γ i j → α} (h : ∀ (i : ι) (j : β i) (k : γ i j), f i j k ≤ a) : ⨆ i, ⨆ j, ⨆ k, f i j k ≤ a :=
+  iSup₂_le fun i j => iSup_le <| h i j
+
+--adapted from mathlib le_iSup₂_of_le
+lemma le_iSup₃_of_le {α : Type} {ι : Type} {β : ι → Type} {γ : (i : ι) → β i → Type} [CompleteLattice α] {a : α}
+    {f : (i : ι) → (j : β i) → γ i j → α} (i : ι) (j : β i) (k : γ i j) (h : a ≤ f i j k) :
+    a ≤ ⨆ (i) (j) (k), f i j k :=
+  h.trans <| @le_iSup₃ _ _ _ _ _ a f i j k
 
 /-Version of previous lemma where we try to circumvent some difficulties with sup on the Reals by going to ENNReal. -/
 lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℕ} :
     ∀ x ∈ Set.Icc 0 (2 * Real.pi),
-    ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
+    ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
   intro x hx
   set s : ℕ → Set ℝ := fun n ↦ {y | dist x y ∈ Set.Ioo (1 / (n + 1 : ℝ)) 1} with sdef
-  have : Tendsto (fun i => ∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y) atTop (𝓝 (∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y)) := by
-    apply MeasureTheory.tendsto_setIntegral_of_monotone
-    all_goals sorry
-  calc ENNReal.ofNNReal ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊
-    _ = ‖∫ y in ⋃ n, s n, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
-      congr
-      sorry
-    _ ≤ ⨆ (i : ℕ), ↑‖∫ y in s i, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
-      --TODO: apply something different
-      --apply
-      apply le_ciSup_of_tendsto
-      . --should follow from integrability in some way
-        sorry
-      --apply Tendsto.comp
-      --apply Tendsto.nnnorm this
-      sorry
-    _ ≤ ⨆ (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
-      --apply ciSup_le_ciSup
-      apply sSup_le_sSup_of_forall_exists_le
-      intro y hy
-      rw [Set.mem_range] at hy
+  have hs : {y | dist x y ∈ Set.Ioo 0 1} = ⋃ n, s n := by
+    ext y
+    constructor
+    . intro hy
+      rw [Set.mem_setOf_eq, Set.mem_Ioo] at hy
+      obtain ⟨n, hn⟩ := exists_nat_gt (1 / dist x y)
+      simp
+      use n
+      rw [sdef]
+      simp
+      constructor
+      . rw [inv_lt, inv_eq_one_div]
+        apply lt_trans hn
+        linarith
+        linarith
+        exact hy.1
+      . exact hy.2
+    . intro hy
+      simp at hy
       rcases hy with ⟨n, hn⟩
-      use y
+      rw [sdef] at hn
+      simp at hn
+      constructor
+      . apply lt_trans' hn.1
+        norm_num
+        linarith
+      . exact hn.2
+  have : Tendsto (fun i => ∫ y in s i, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) atTop (𝓝 (∫ y in ⋃ n, s n, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))) := by
+    apply MeasureTheory.tendsto_setIntegral_of_monotone
+    . intro n
+      rw [sdef]
+      simp only [one_div, Set.mem_Ioo]
+      --apply measurableSet_Ioo
+      sorry
+    . intro n m nlem
+      simp
+      intro y hy
+      rw [sdef]
+      rw [sdef] at hy
+      simp
+      simp at hy
+      constructor
+      . apply lt_of_le_of_lt _ hy.1
+        rw [inv_le_inv]
+        norm_cast
+        all_goals linarith
+      . exact hy.2
+    . rw [← hs]
+      --use that dirichletKernel' is bounded
+      sorry
+  calc ENNReal.ofNNReal ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊
+    _ = ‖∫ y in ⋃ n, s n, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
+      congr
+    _ ≤ ⨆ (i : ℕ), ↑‖∫ y in s i, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
+      apply le_iSup_of_tendsto
+      rw [ENNReal.tendsto_coe]
+      apply Tendsto.nnnorm this
+    _ ≤ ⨆ (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
+      apply sSup_le_sSup_of_forall_exists_le
+      intro z hz
+      rw [Set.mem_range] at hz
+      rcases hz with ⟨n, hn⟩
+      use z
       constructor
       . rw [Set.mem_range]
         use 1 / (n + 1 : ℝ)
         rw [iSup]
-        have : (Set.range fun (_ : 0 < 1 / (n + 1: ℝ)) ↦ ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo (1 / (n + 1: ℝ)) 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊) = {y} := by
+        have : (Set.range fun (_ : 0 < 1 / (n + 1: ℝ)) ↦ ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo (1 / (n + 1: ℝ)) 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊) = {z} := by
           rw [Set.eq_singleton_iff_unique_mem]
           constructor
           . rw [Set.mem_range, exists_prop]
@@ -285,17 +233,78 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
             . rw [one_div, inv_pos]
               linarith
             exact hn
-          . intro y' hy
-            rw [Set.mem_range, exists_prop] at hy
-            rw [hn] at hy
-            exact hy.2.symm
+          . intro z' hz'
+            rw [Set.mem_range, exists_prop] at hz'
+            rw [hn] at hz'
+            exact hz'.2.symm
         rw [this]
         apply sSup_singleton
       trivial
-    _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f (x - y) * (max (1 - |y|) 0) * dirichletKernel' N y‖₊ := by
-      simp
+    _ = ⨆ (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * N * y) + (starRingEnd ℂ) (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * (Int.ofNat N) * y)))‖₊ := by
+      apply iSup_congr
+      intro r
+      apply iSup_congr
+      intro hr
+      congr
+      ext y
+      rw [mul_assoc, dirichlet_Hilbert_eq]
+      norm_cast
+    _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊ := by
+      let F : ℤ → ENNReal := fun (n : ℤ) ↦ ⨆ (r : ℝ) (_ : 0 < r), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊
+      apply le_iSup F ((Int.ofNat N))
+    _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r), (  ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * exp (I * n * y)‖₊
+                                        + ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, ((starRingEnd ℂ) ∘ f) y * K x y * exp (I * n * y)‖₊) := by
+      apply iSup₂_mono
+      intro n r
+      apply iSup_mono
+      intro hr
+      norm_cast
+      push_cast
+      calc ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊
+        _ = ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y)) + f y * (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
+          congr
+          ext y
+          rw [mul_add]
+        _ = ‖ (∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y)))
+             + ∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
+          congr
+          rw [MeasureTheory.integral_add]
+          --integrability is ok since r>0
+          . sorry
+          . sorry
+        _ ≤   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊
+            + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
+          apply nnnorm_add_le
+        _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * (f y * K x y * exp (I * n * y))‖₊
+            + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * (((starRingEnd ℂ) ∘ f) y *  K x y * exp (I * n * y))‖₊ := by
+            congr 1
+            . congr
+              ext y
+              ring
+            . rw [←nnnorm_star, ←starRingEnd_apply, ←integral_conj]
+              congr
+              ext y
+              simp
+              ring
+        _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * exp (I * n * y)‖₊
+            + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, ((starRingEnd ℂ) ∘ f) y * K x y * exp (I * n * y)‖₊ := by
+          rw [← NNReal.coe_inj]
+          push_cast
+          norm_cast
+          congr 1 <;>
+          . rw [MeasureTheory.integral_mul_left, norm_mul, norm_eq_abs, mul_comm I, abs_exp_ofReal_mul_I, one_mul]
     _ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
-      sorry
+      rw [CarlesonOperatorReal', CarlesonOperatorReal']
+      apply iSup₂_le
+      intro n r
+      apply iSup_le
+      intro hr
+      gcongr <;>
+      . apply le_iSup₂_of_le n r
+        apply le_iSup_of_le hr
+        trivial
+
+
   --apply limsup_le_iSup
   --apply iUnion_Ici_eq_Ioi_of_lt_of_tendsto
 end section
