@@ -690,10 +690,13 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         --have : 0 ≤ MeasureTheory.volume.real E' := sorry
         rw [Real.rpow_mul]
         gcongr
-        rw [Real.rpow_add, Real.rpow_one, le_div_iff', ← mul_assoc, ← le_div_iff, Real.rpow_neg, div_inv_eq_mul]
+        rw [Real.rpow_add', Real.rpow_one, le_div_iff', ← mul_assoc, ← le_div_iff, Real.rpow_neg, div_inv_eq_mul]
         --rw [←Real.rpow_neg, mul_assoc, ←Real.rpow_one_add', ←le_div_iff', ←(Real.rpow_le_rpow_iff _ _ two_pos), ←Real.rpow_mul] at this
-        --exact this
-        sorry --use this (in some way)
+        --use this
+        rw [← ENNReal.ofReal_le_ofReal_iff, ENNReal.ofReal_mul, MeasureTheory.measureReal_def, ENNReal.ofReal_toReal]
+        apply le_trans this
+        have : 0 ≤ (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) := sorry
+        rw [ENNReal.ofReal_mul this, ← ENNReal.ofReal_rpow_of_nonneg, ENNReal.ofReal_toReal]
         --multiple small goals remaining
         all_goals sorry
       _ = ε := by

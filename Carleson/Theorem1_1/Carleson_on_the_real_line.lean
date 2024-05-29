@@ -498,7 +498,7 @@ lemma rcarleson {F G : Set ℝ}
 --ENNReal version of rcarleson
 lemma rcarleson' {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
+    (h2F : MeasureTheory.volume F ≠ ∞) (h2G : MeasureTheory.volume G ≠ ∞)
     (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     :
     ∫⁻ x in G, T' f x ≤
