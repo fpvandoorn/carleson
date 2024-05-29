@@ -40,8 +40,6 @@ lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β
     use δ
 end section
 
-
-
 /- TODO: might be generalized. -/
 lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
@@ -95,10 +93,11 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
       simp at hy
       exact (hδ hy).le
 
-
 /- Inspired by mathlib : NNReal.summable_of_le-/
 lemma Real.summable_of_le {β : Type} {f g : β → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ (b : β), g b ≤ f b) (summablef : Summable f) :
     Summable g := by
+  exact Summable.of_nonneg_of_le hgpos hgf summablef
+  /-
   set g' : β → NNReal := fun b ↦ ⟨g b, hgpos b⟩ with g'def
   set f' : β → NNReal := fun b ↦ ⟨f b, (hgpos b).trans (hgf b)⟩ with f'def
   have hf'f: f = (fun b ↦ (f' b : ℝ)) := by norm_cast
@@ -111,6 +110,7 @@ lemma Real.summable_of_le {β : Type} {f g : β → ℝ} (hgpos : 0 ≤ g) (hgf 
     exact hgf b
   apply NNReal.summable_of_le this
   rwa [←NNReal.summable_coe, ←hf'f]
+  -/
 
 -- local lemma
 lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ i ≠ 0, g i ≤ f i) (summablef : Summable f) : Summable g := by
@@ -295,7 +295,8 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
 --    HasSum (fun n : ℕ ↦ f n + f (-n)) (m + f 0) := by
 
 /-TODO: Weaken statement to pointwise convergence to simplify proof?-/
-lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.Periodic f (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) : ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Ico 0 (2 * Real.pi), Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.Periodic f (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
+    ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Ico 0 (2 * Real.pi), Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * Real.pi) := by
     rw [fact_iff]
     exact Real.two_pi_pos
