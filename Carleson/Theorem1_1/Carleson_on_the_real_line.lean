@@ -475,6 +475,7 @@ lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
 
 
 local notation "T" => CarlesonOperatorReal K
+local notation "T'" => CarlesonOperatorReal' K
 
 /-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
@@ -494,5 +495,17 @@ lemma rcarleson {F G : Set ℝ}
   --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
   convert theorem1_2C K (by simp) h1 h2 hF hG h3 f hf <;> sorry
 
+--ENNReal version of rcarleson
+lemma rcarleson' {F G : Set ℝ}
+    (hF : MeasurableSet F) (hG : MeasurableSet G)
+    (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
+    (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    :
+    ∫⁻ x in G, T' f x ≤
+    ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
+  --rw [CarlesonOperatorReal_eq_CarlesonOperator]
+  --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
+  --convert theorem1_2C K (by simp) h1 h2 hF hG h3 f hf <;> sorry
+  sorry
 
 end section
