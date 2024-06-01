@@ -16,28 +16,39 @@ import Mathlib.Analysis.SpecialFunctions.Integrals
 
 noncomputable section
 
-section
+--#lint
 
-open ENNReal
+instance IsSpaceOfHomogeneousTypeR2 : IsSpaceOfHomogeneousType ℝ 2 where
+  --rwa [FiniteDimensional.finrank_self, pow_one] at this
+  volume_ball_two_le_same := by
+    have : IsSpaceOfHomogeneousType ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := by infer_instance
+    intro x r
+    have := this.volume_ball_two_le_same x r
+    simp only [FiniteDimensional.finrank_self, pow_one] at this
+    --rw [FiniteDimensional.finrank_self, pow_one] at this
 
-local notation "θ" => integer_linear
+    calc MeasureTheory.volume.real (Metric.ball x (2 * r))
+      _ ≤ 2 * MeasureTheory.volume.real (Metric.ball x r) := by
+        --convert this
+        sorry
+        --exact this.volume_ball_two_le_same x r
 
-local notation "Θ" => {(θ n) | n : ℤ}
 
-#check theorem1_2C
+/- to HomogeneousType -/
+@[reducible]
+def isSpaceOfHomogeneousType_with_increased_constant {X : Type} {a b : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X a] (aleb : a ≤ b) : IsSpaceOfHomogeneousType X b where
+  volume_ball_two_le_same := by
+    intro x r
+    calc MeasureTheory.volume.real (Metric.ball x (2 * r))
+    _ ≤ a * MeasureTheory.volume.real (Metric.ball x r) := by apply volume_ball_two_le_same
+    _ ≤ b * MeasureTheory.volume.real (Metric.ball x r) := by gcongr
 
 
--- copied from HomogeneousType
--- anyway, providing a proof would be good and is actually partly part of section 10.7
---instance helper {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E] :
---    IsSpaceOfHomogeneousType E (2 ^ FiniteDimensional.finrank ℝ E) := by sorry
 
-/- lemmas 10.22 to 10.26 are for this -/
+instance IsSpaceOfHomogeneousTypeR4 : IsSpaceOfHomogeneousType ℝ 4 := by
+  apply isSpaceOfHomogeneousType_with_increased_constant
+  norm_num
 
-instance IsSpaceOfHomogeneousTypeR2: IsSpaceOfHomogeneousType ℝ 2 := by
-  have : IsSpaceOfHomogeneousType ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := by infer_instance
-  --simpa
-  exact {volume_ball_two_le_same := sorry}
 
 lemma h1 : 2 ∈ Set.Ioc 1 (2 : ℝ) := by simp
 lemma h2 : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
@@ -98,6 +109,14 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
 
 
 --mainly have to work for the following lemmas
+
+section
+
+open ENNReal
+
+local notation "θ" => integer_linear
+
+local notation "Θ" => {(θ n) | n : ℤ}
 
 
 theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℂ)} : localOscillation E f f = 0 := by
@@ -202,22 +221,6 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
           exact hR'.2
           exact hR'.1
 
-
-/- to HomogeneousType -/
-@[reducible]
-def isSpaceOfHomogeneousType_with_increased_constant {X : Type} {a b : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X a] (aleb : a ≤ b) : IsSpaceOfHomogeneousType X b where
-  volume_ball_two_le_same := by
-    intro x r
-    calc MeasureTheory.volume.real (Metric.ball x (2 * r))
-    _ ≤ a * MeasureTheory.volume.real (Metric.ball x r) := by apply volume_ball_two_le_same
-    _ ≤ b * MeasureTheory.volume.real (Metric.ball x r) := by gcongr
-
---#lint
---TODO : decide whether to move this up so that all the above lemmas are directly proven with the right doubling constant
-instance badR: IsSpaceOfHomogeneousType ℝ 4 := by
-  have : IsSpaceOfHomogeneousType ℝ 2 := by infer_instance
-  simp at this
-  exact isSpaceOfHomogeneousType_with_increased_constant (by linarith)
 
 --TODO: probably not needed any more
 lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Type} [Nonempty ι] {f : ι → α} :
@@ -503,7 +506,7 @@ lemma CarlesonOperatorReal'_le_CarlesonOperator' : T' ≤ CarlesonOperator' K Θ
 /- Lemma 10.4 (ENNReal version) -/
 lemma rcarleson' {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (h2F : MeasureTheory.volume F ≠ ∞) (h2G : MeasureTheory.volume G ≠ ∞)
+    --(h2F : MeasureTheory.volume F ≠ ∞) (h2G : MeasureTheory.volume G ≠ ∞)
     (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     :
     ∫⁻ x in G, T' f x ≤

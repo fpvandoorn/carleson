@@ -15,66 +15,7 @@ noncomputable section
 local notation "T" => CarlesonOperatorReal K
 local notation "T'" => CarlesonOperatorReal' K
 
---TODO: probably not needed anymore
-lemma le_on_subset {X : Type} [MeasurableSpace X] (μ : MeasureTheory.Measure X) {α : Type}  [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α] [LinearOrderedField α] [OrderClosedTopology α] {f g : X → α} {E : Set X} (hE : MeasurableSet E)
-    (hf : Measurable f) (hg : Measurable g) {a : α} (h : ∀ x ∈ E, a ≤ f x + g x) :
-    (∃ E' ⊆ E, MeasurableSet E' ∧ μ E ≤ 2 * μ E' ∧ ∀ x ∈ E', a / 2 ≤ f x) ∨ (∃ E' ⊆ E, MeasurableSet E' ∧ μ E ≤ 2 * μ E' ∧ ∀ x ∈ E', a / 2 ≤ g x) := by
-  set Ef := E ∩ f⁻¹' (Set.Ici (a / 2)) with Ef_def
-  set Eg := E ∩ g⁻¹' (Set.Ici (a / 2)) with Eg_def
-  have : E ⊆ Ef ∪ Eg := by
-    intro x hx
-    rw [Ef_def, Eg_def]
-    simp
-    by_contra hx'
-    push_neg at hx'
-    absurd le_refl a
-    push_neg
-    calc a
-      _ ≤ f x + g x := h x hx
-      _ < a / 2 + a / 2 := by
-        gcongr
-        . exact hx'.1 hx
-        . exact hx'.2 hx
-      _ = a := by linarith
-  have : μ E ≤ 2 * μ Ef ∨ μ E ≤ 2 * μ Eg := by
-    by_contra hEfg
-    push_neg at hEfg
-    absurd le_refl (2 * μ E)
-    push_neg
-    calc 2 * μ E
-    _ ≤ 2 * μ (Ef ∪ Eg) := by
-      gcongr
-    _ ≤ 2 * (μ Ef + μ Eg) := by
-      gcongr
-      apply MeasureTheory.measure_union_le
-    _ = 2 * μ Ef + 2 * μ Eg := by ring
-    _ < μ E + μ E := by
-      gcongr
-      . exact hEfg.1
-      . exact hEfg.2
-    _ = 2 * μ E := by ring
-  rcases this with hEf | hEg
-  . left
-    use Ef
-    constructor
-    . apply Set.inter_subset_left
-    constructor
-    . apply MeasurableSet.inter hE
-      apply hf measurableSet_Ici
-    use hEf
-    rw [Ef_def]
-    simp
-  . right
-    use Eg
-    constructor
-    . apply Set.inter_subset_left
-    constructor
-    . apply MeasurableSet.inter hE
-      apply hg measurableSet_Ici
-    use hEg
-    rw [Eg_def]
-    simp
-
+/- TODO: might be generalized. -/
 lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : MeasureTheory.Measure X) {f g : X → ENNReal} {E : Set X} (hE : MeasurableSet E)
     (hf : Measurable f) (hg : Measurable g) {a : ENNReal} (h : ∀ x ∈ E, a ≤ f x + g x) :
     ∃ E' ⊆ E, MeasurableSet E' ∧ μ E ≤ 2 * μ E' ∧ ((∀ x ∈ E', a / 2 ≤ f x) ∨ (∀ x ∈ E', a / 2 ≤ g x)) := by
@@ -163,17 +104,6 @@ lemma dirichlet_Hilbert_eq {N : ℕ} {x y : ℝ} :
 section
 open Filter Topology
 
---TODO: probably not needed anymore
-lemma le_ciSup_of_tendsto {α β} [TopologicalSpace α] [ConditionallyCompleteLinearOrder α] [OrderTopology α]
-    [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (h : BddAbove (Set.range f)) (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
-  apply le_of_forall_lt
-  intro c hc
-  have : ∀ᶠ (x : β) in atTop, c < f x := by
-    apply eventually_gt_of_tendsto_gt hc ha
-  rcases this.exists with ⟨x, hx⟩
-  apply lt_of_lt_of_le hx
-  apply le_ciSup h
-
 --TODO: proof might be improved
 lemma le_iSup_of_tendsto {α β} [TopologicalSpace α] [CompleteLinearOrder α] [OrderTopology α]
     [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
@@ -185,22 +115,6 @@ lemma le_iSup_of_tendsto {α β} [TopologicalSpace α] [CompleteLinearOrder α] 
   apply lt_of_lt_of_le hx
   apply le_iSup
 
-/-TODO: The following three lemmas are probably not needed anymore. -/
---adapted from mathlib le_iSup₂
-lemma le_iSup₃ {α : Type} {ι : Type} {β : ι → Type} {γ : (i : ι) → β i → Type} [CompleteLattice α] {_ : α}
-    {f : (i : ι) → (j : β i) → γ i j → α} (i : ι) (j : β i) (k : γ i j) : f i j k ≤ ⨆ (i) (j) (k), f i j k :=
-  le_iSup₂_of_le i j <| le_iSup (f i j) k
-
---adapted from mathlib iSup₂_le
-lemma iSup₃_le {α : Type} {ι : Type} {β : ι → Type} {γ : (i : ι) → β i → Type} [CompleteLattice α] {a : α}
-    {f : (i : ι) → (j : β i) → γ i j → α} (h : ∀ (i : ι) (j : β i) (k : γ i j), f i j k ≤ a) : ⨆ i, ⨆ j, ⨆ k, f i j k ≤ a :=
-  iSup₂_le fun i j => iSup_le <| h i j
-
---adapted from mathlib le_iSup₂_of_le
-lemma le_iSup₃_of_le {α : Type} {ι : Type} {β : ι → Type} {γ : (i : ι) → β i → Type} [CompleteLattice α] {a : α}
-    {f : (i : ι) → (j : β i) → γ i j → α} (i : ι) (j : β i) (k : γ i j) (h : a ≤ f i j k) :
-    a ≤ ⨆ (i) (j) (k), f i j k :=
-  h.trans <| @le_iSup₃ _ _ _ _ _ a f i j k
 
 /-Version of previous lemma where we try to circumvent some difficulties with sup on the Reals by going to ENNReal. -/
 lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) {N : ℕ} :
@@ -334,10 +248,42 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
         apply le_iSup₂_of_le rpos rle1
         trivial
 
-
-  --apply limsup_le_iSup
-  --apply iUnion_Ici_eq_Ioi_of_lt_of_tendsto
 end section
+
+theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} {F : Set ℝ} (measurableSetF : MeasurableSet F) (hf : ∀ x, ‖f x‖ ≤ δ * F.indicator 1 x)
+    {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T' f x) :
+      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2) * MeasureTheory.volume F ^ (2 : ℝ)⁻¹ * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
+  calc ε * MeasureTheory.volume E
+    _ = ∫⁻ _ in E, ε := by
+      symm
+      apply MeasureTheory.set_lintegral_const
+    _ ≤ ∫⁻ x in E, T' f x := by
+      apply MeasureTheory.set_lintegral_mono' measurableSetE hE
+    _ = ENNReal.ofReal δ * ∫⁻ x in E, T' (fun x ↦ (1 / δ) * f x) x := by
+      rw [← MeasureTheory.lintegral_const_mul']
+      congr
+      ext x
+      rw [CarlesonOperatorReal'_mul δpos]
+      congr
+      exact ENNReal.ofReal_ne_top
+    _ ≤ ENNReal.ofReal δ * (ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹) := by
+      gcongr
+      apply rcarleson' measurableSetF measurableSetE
+      intro x
+      simp
+      rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff δpos]
+      exact hf x
+    _ = ENNReal.ofReal (δ * C1_2 4 2) * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ := by
+      rw [ENNReal.ofReal_mul δpos.le]
+      ring
+
+theorem rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hf : ∀ x, ‖f x‖ ≤ δ * Set.indicator (Set.Icc (-Real.pi) (3 * Real.pi)) 1 x)
+    {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T' f x) :
+      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
+  rw [ENNReal.ofReal_mul (by apply mul_nonneg δpos.le; rw [C1_2]; norm_num), ← ENNReal.ofReal_rpow_of_pos (by linarith [Real.pi_pos])]
+  convert rcarleson_exceptional_set_estimate δpos measurableSet_Icc hf measurableSetE hE
+  rw [Real.volume_Icc]
+  ring_nf
 
 
 def C_control_approximation_effect (ε : ℝ) := (((C1_2 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹)) + 8)
@@ -369,50 +315,8 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
   rw [neg_div, Real.rpow_neg]
   all_goals linarith [Real.pi_pos]
 
-
-theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} {F : Set ℝ} (measurableSetF : MeasurableSet F) (Fvolume : MeasureTheory.volume F ≠ ⊤) (hf : ∀ x, ‖f x‖ ≤ δ * F.indicator 1 x)
-    {E : Set ℝ} (measurableSetE : MeasurableSet E) (Evolume : MeasureTheory.volume E ≠ ⊤) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T' f x) :
-      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2) * MeasureTheory.volume F ^ (2 : ℝ)⁻¹ * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
-  calc ε * MeasureTheory.volume E
-    _ = ∫⁻ _ in E, ε := by
-      symm
-      apply MeasureTheory.set_lintegral_const
-    _ ≤ ∫⁻ x in E, T' f x := by
-      apply MeasureTheory.set_lintegral_mono' measurableSetE hE
-    _ = ENNReal.ofReal δ * ∫⁻ x in E, T' (fun x ↦ (1 / δ) * f x) x := by
-      rw [← MeasureTheory.lintegral_const_mul']
-      congr
-      ext x
-      rw [CarlesonOperatorReal'_mul δpos]
-      congr
-      exact ENNReal.ofReal_ne_top
-    _ ≤ ENNReal.ofReal δ * (ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹) := by
-      gcongr
-      apply rcarleson' measurableSetF measurableSetE Fvolume Evolume
-      intro x
-      simp
-      rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff δpos]
-      exact hf x
-    _ = ENNReal.ofReal (δ * C1_2 4 2) * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ := by
-      rw [ENNReal.ofReal_mul δpos.le]
-      ring
-
-
-theorem rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hf : ∀ x, ‖f x‖ ≤ δ * Set.indicator (Set.Icc (-Real.pi) (3 * Real.pi)) 1 x)
-    {E : Set ℝ} (measurableSetE : MeasurableSet E) (Evolume : MeasureTheory.volume E ≠ ⊤) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T' f x) :
-      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
-  rw [ENNReal.ofReal_mul (by apply mul_nonneg δpos.le; rw [C1_2]; norm_num), ← ENNReal.ofReal_rpow_of_pos (by linarith [Real.pi_pos])]
-  have : MeasureTheory.volume (Set.Icc (-Real.pi) (3 * Real.pi)) = ENNReal.ofReal (4 * Real.pi) := by
-    rw [Real.volume_Icc]
-    ring_nf
-  rw [← this]
-  exact rcarleson_exceptional_set_estimate δpos measurableSet_Icc (by rw [this]; exact ENNReal.ofReal_ne_top) hf measurableSetE Evolume hE
-
-
 /-ENNReal version of a generalized Lemma 10.3 (control approximation effect).-/
 --TODO : review measurability assumption
---TODO : add assumption that h is periodic?
---TODO : introduce δ instead of explicit dependency on term of ε
 --added subset assumption
 --changed interval to match the interval in the theorem
 lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
@@ -684,7 +588,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       ring_nf
     _ ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
       rcases h with hE' | hE' <;>
-      . apply rcarleson_exceptional_set_estimate_specific hδ  _ measurableSetE' E'volume.ne hE'
+      . apply rcarleson_exceptional_set_estimate_specific hδ  _ measurableSetE' hE'
         intro x
         simp (config := {failIfUnchanged := false}) only [Function.comp_apply, RingHomIsometric.is_iso]
         rw [fdef, ← Fdef, norm_mul, norm_indicator_eq_indicator_norm]
