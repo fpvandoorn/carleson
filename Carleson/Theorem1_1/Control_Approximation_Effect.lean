@@ -340,9 +340,19 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
 end section
 
 
-def C_control_approximation_effect (ε : ℝ) (δ : ℝ) := (((C1_2 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹)) + 8) * δ
+def C_control_approximation_effect (ε : ℝ) := (((C1_2 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹)) + 8)
 
-lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε δ = ((δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + 8 * δ := by
+lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : 8 < C_control_approximation_effect ε := by
+  rw [C_control_approximation_effect]
+  apply lt_add_of_pos_of_le _ (by rfl)
+  apply mul_pos (C1_2_pos (by norm_num))
+  apply Real.rpow_pos_of_pos
+  apply div_pos (by norm_num)
+  apply mul_pos Real.pi_pos εpos
+
+lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε := lt_trans' (lt_C_control_approximation_effect εpos) (by norm_num)
+
+lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + 8 * δ := by
   symm
   rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc, mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul]
   congr 2
@@ -408,9 +418,9 @@ theorem rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) 
 lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
     {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : Function.Periodic h (2 * Real.pi)) (h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), abs (h x) ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
-      ∀ N, abs (partialFourierSum h N x) ≤ C_control_approximation_effect ε δ := by
+      ∀ N, abs (partialFourierSum h N x) ≤ C_control_approximation_effect ε * δ := by
   --TODO: change later
-  set ε' := C_control_approximation_effect ε δ with ε'def
+  set ε' := C_control_approximation_effect ε * δ with ε'def
   set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε' < abs (partialFourierSum h N x)} with Edef
   have E_eq: E = Set.Icc 0 (2 * Real.pi) ∩ ⋃ N : ℕ, {x | ε' < ‖partialFourierSum h N x‖} := by
       rw [Edef]
