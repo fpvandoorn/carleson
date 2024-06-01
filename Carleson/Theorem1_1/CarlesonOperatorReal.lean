@@ -12,7 +12,7 @@ def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) 
 
 --TODO: maybe just change back to usual norm s.th. the only difference is the coercion to ENNReal
 def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
-  ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r),
+  ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
 
 def CarlesonOperatorRat' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
@@ -82,7 +82,10 @@ theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 
   ext r
   rw [ENNReal.mul_iSup]
   congr
-  ext hr
+  ext rpos
+  rw [ENNReal.mul_iSup]
+  congr
+  ext rle1
   norm_cast
   --rw [← norm_toNNReal, ← norm_toNNReal]
   apply NNReal.eq
@@ -97,7 +100,7 @@ theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 
   norm_cast
   exact ha.ne.symm
 
-
+/-Probably not needed. -/
 lemma CarlesonOperaterReal'_toReal_eq_CarlesonOperatorReal {K : ℝ → ℝ → ℂ} {f : ℝ → ℂ} {x : ℝ} :
     (CarlesonOperatorReal' K f x).toReal = CarlesonOperatorReal K f x := by
   rw [CarlesonOperatorReal, CarlesonOperatorReal']
@@ -109,6 +112,11 @@ lemma CarlesonOperaterReal'_toReal_eq_CarlesonOperatorReal {K : ℝ → ℝ → 
   ext
   rw [ENNReal.toReal_iSup]
   congr
+  ext
+  rw [ENNReal.toReal_iSup]
+  congr
+  sorry
+  sorry
   sorry
   sorry
   sorry

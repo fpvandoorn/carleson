@@ -39,16 +39,17 @@ theorem classical_carleson {f : ℝ → ℂ}
 
 
   set h := f₀ - f with hdef
-  have hh : Measurable h ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (h x) ≤ ε' := by
-    constructor
-    . exact Continuous.measurable (Continuous.sub contDiff_f₀.continuous unicontf.continuous)
-    . intro x _
-      rw [hdef]
-      simp
-      rw [←Complex.dist_eq, dist_comm, Complex.dist_eq]
-      exact hf₀ x
+  have h_measurable : Measurable h := Continuous.measurable (Continuous.sub contDiff_f₀.continuous unicontf.continuous)
+  have h_periodic : Function.Periodic h (2 * Real.pi) := Function.Periodic.sub periodic_f₀ periodicf
+  have h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), Complex.abs (h x) ≤ ε' := by
+    intro x _
+    rw [hdef]
+    simp
+    rw [←Complex.dist_eq, dist_comm, Complex.dist_eq]
+    exact hf₀ x
 
-  obtain ⟨E₂, E₂subset, E₂measurable, E₂volume, hE₂⟩ := control_approximation_effect hε hh
+  --TODO : replace E₂ by E
+  obtain ⟨E₂, E₂subset, E₂measurable, E₂volume, hE₂⟩ := control_approximation_effect' hε ε'pos h_measurable h_periodic h_bound
 
   --Definition of E changed compared to the paper
   use E₂, E₂subset, E₂measurable, E₂volume, N₀
@@ -76,7 +77,9 @@ theorem classical_carleson {f : ℝ → ℂ}
         convert hN₀ N NgtN₀ x this
     . have := hE₂ x hx N
       rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (unicontf.continuous.intervalIntegrable 0 (2 * Real.pi))] at this
-      exact this
+      apply le_trans this
+      rw [C_control_approximation_effect, ε'def]
+      sorry
   _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
     gcongr
     rw [ε'def, pow_two, ←mul_assoc, le_div_iff (by norm_num), mul_comm, ←mul_assoc, ←(le_div_iff hε.1), div_self hε.1.ne.symm, ←mul_assoc]

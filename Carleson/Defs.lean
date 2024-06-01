@@ -153,6 +153,13 @@ def CarlesonOperator (K : X → X → ℂ) (Θ : Set C(X, ℂ)) (f : X → ℂ) 
   ⨆ (Q ∈ Θ) (R₁ : ℝ) (R₂ : ℝ) (h1 : R₁ < R₂),
   ‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖
 
+/-- The (maximally truncated) polynomial Carleson operator `T`, ENNReal version -/
+--TODO: remove the last two suprema?
+--TODO: change definition of CarlesonOperater too
+def CarlesonOperator' (K : X → X → ℂ) (Θ : Set C(X, ℂ)) (f : X → ℂ) (x : X) : ENNReal :=
+  ⨆ (Q ∈ Θ) (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
+  ↑‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖₊
+
 variable (X) in
 /-- A grid structure on `X`.
 I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)`

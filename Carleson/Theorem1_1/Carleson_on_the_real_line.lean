@@ -480,23 +480,27 @@ local notation "T'" => CarlesonOperatorReal' K
 
 /-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
-lemma CarlesonOperatorReal_eq_CarlesonOperator : T = CarlesonOperator K Θ := by
-  sorry
+lemma CarlesonOperatorReal'_le_CarlesonOperator' : T' ≤ CarlesonOperator' K Θ := by
+  intro f x
+  rw [CarlesonOperator', CarlesonOperatorReal']
+  apply iSup_le
+  intro n
+  apply iSup_le
+  intro r
+  apply iSup_le
+  intro rpos
+  apply iSup_le
+  intro rle1
+  apply le_iSup₂_of_le (θ n) (by simp)
+  apply le_iSup₂_of_le r 1
+  apply le_iSup₂_of_le rpos rle1
+  apply le_of_eq
+  rw [integer_linear, ContinuousMap.coe_mk]
+  congr
+  ext y
+  ring_nf
 
-/- Lemma 10.4 -/
---TODO : directly write out constant (2^(2^40)) ?
-lemma rcarleson {F G : Set ℝ}
-    (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (h2F : MeasureTheory.volume F ∈ Set.Ioo 0 ∞) (h2G : MeasureTheory.volume G ∈ Set.Ioo 0 ∞)
-    (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    :
-    ∫ x in G, T f x ≤
-    C1_2 4 2 * (MeasureTheory.volume.real G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume.real F) ^ (2 : ℝ)⁻¹ := by
-  rw [CarlesonOperatorReal_eq_CarlesonOperator]
-  --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-  convert theorem1_2C K (by simp) h1 h2 hF hG h3 f hf <;> sorry
-
---ENNReal version of rcarleson
+/- Lemma 10.4 (ENNReal version) -/
 lemma rcarleson' {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (h2F : MeasureTheory.volume F ≠ ∞) (h2G : MeasureTheory.volume G ≠ ∞)
@@ -505,8 +509,12 @@ lemma rcarleson' {F G : Set ℝ}
     ∫⁻ x in G, T' f x ≤
     ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
   --rw [CarlesonOperatorReal_eq_CarlesonOperator]
-  --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-  --convert theorem1_2C K (by simp) h1 h2 hF hG h3 f hf <;> sorry
-  sorry
+  calc ∫⁻ x in G, T' f x
+    _ ≤ ∫⁻ x in G, CarlesonOperator' K Θ f x := by
+      apply MeasureTheory.lintegral_mono
+      apply CarlesonOperatorReal'_le_CarlesonOperator'
+    _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
+      --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
+      convert theorem1_2C' K (by simp) h1 h2 hF hG h3 f hf <;> sorry
 
 end section
