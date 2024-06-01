@@ -22,6 +22,12 @@ lemma dirichletKernel_periodic {N : ℕ} : Function.Periodic (dirichletKernel N)
 lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' N) (2 * Real.pi) := by
   sorry
 
+@[measurability]
+lemma dirichletKernel'_measurable {N : ℕ} : Measurable (dirichletKernel' N) := by
+  apply Measurable.add
+  . apply Measurable.div <;> measurability
+  . apply Measurable.div <;> measurability
+
 /-Second part of Lemma 10.10 (Dirichlet kernel) from the paper.-/
 lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichletKernel N x = dirichletKernel' N x := by
   have : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
@@ -98,6 +104,9 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
     rw [←exp_add, ←exp_add, ←exp_add, neg_add_eq_sub]
     congr 2 <;> ring
 
+lemma dirichletKernel'_eq_zero {N : ℕ} {x : ℝ} (h : cexp (I * x) = 1) : dirichletKernel' N x = 0 := by
+  rw [dirichletKernel', neg_mul, exp_neg, h]
+  simp
 
 /- "a.e." version of previous lemma. -/
 lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
@@ -114,6 +123,33 @@ lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = 
   rw [this]
   sorry
 
+lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 1 := by
+  rw [dirichletKernel]
+  calc ‖∑ n ∈ Icc (-Int.ofNat N) ↑N, (fourier n) ↑x‖
+    _ ≤ ∑ n ∈ Icc (-Int.ofNat N) ↑N, ‖(fourier n) ↑x‖ := by
+      apply norm_sum_le
+    _ ≤ ∑ n ∈ Icc (-Int.ofNat N) ↑N, 1 := by
+      apply sum_le_sum
+      intro n _
+      have : Fact (0 < 2 * Real.pi) := by
+        rw [fact_iff]
+        exact Real.two_pi_pos
+      apply le_trans (ContinuousMap.norm_coe_le_norm (fourier n) x) (fourier_norm n).le
+    _ = 2 * N + 1 := by
+      rw [sum_const]
+      simp only [Int.ofNat_eq_coe, Int.card_Icc, sub_neg_eq_add, nsmul_eq_mul, mul_one]
+      norm_cast
+      rw [Int.toNat_ofNat]
+      ring
+
+lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
+  by_cases h : cexp (I * x) ≠ 1
+  . rw [← dirichletKernel_eq]
+    apply norm_dirichletKernel_le
+    exact h
+  . push_neg at h
+    rw [dirichletKernel'_eq_zero h, norm_zero]
+    linarith
 
 /-First part of lemma 10.10 (Dirichlet kernel) from the paper.-/
 /-TODO (maybe): correct statement so that the integral is taken over the interval [-pi, pi] -/
