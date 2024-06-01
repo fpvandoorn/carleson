@@ -16,6 +16,12 @@ def dirichletKernel (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNa
 
 def dirichletKernel' (N : ℕ) : ℝ → ℂ := fun x ↦ (exp (I * N * x) / (1 - exp (-I * x)) + exp (-I * N * x) / (1 - exp (I * x)))
 
+lemma dirichletKernel_periodic {N : ℕ} : Function.Periodic (dirichletKernel N) (2 * Real.pi) := by
+  sorry
+
+lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' N) (2 * Real.pi) := by
+  sorry
+
 /-Second part of Lemma 10.10 (Dirichlet kernel) from the paper.-/
 lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichletKernel N x = dirichletKernel' N x := by
   have : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
