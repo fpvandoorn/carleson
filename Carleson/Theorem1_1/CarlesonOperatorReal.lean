@@ -99,34 +99,3 @@ theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 
   rw [mul_div_cancel_left₀]
   norm_cast
   exact ha.ne.symm
-
-/-Probably not needed. -/
-lemma CarlesonOperaterReal'_toReal_eq_CarlesonOperatorReal {K : ℝ → ℝ → ℂ} {f : ℝ → ℂ} {x : ℝ} :
-    (CarlesonOperatorReal' K f x).toReal = CarlesonOperatorReal K f x := by
-  rw [CarlesonOperatorReal, CarlesonOperatorReal']
-  rw [ENNReal.toReal_iSup]
-  congr
-  ext n
-  rw [ENNReal.toReal_iSup]
-  congr
-  ext
-  rw [ENNReal.toReal_iSup]
-  congr
-  ext
-  rw [ENNReal.toReal_iSup]
-  congr
-  sorry
-  sorry
-  sorry
-  sorry
-  sorry
-  --ENNReal.ofReal_le_of_le_toReal
-  --apply iSup_ofReal
-
-/-TODO: Probably needs additional assumption-/
-lemma CarlesonOperaterReal'_eq_ofReal_CarlesonOperatorReal {K : ℝ → ℝ → ℂ} {f : ℝ → ℂ} {x : ℝ} :
-    CarlesonOperatorReal' K f x = ENNReal.ofReal (CarlesonOperatorReal K f x) := by
-  rw [CarlesonOperatorReal, CarlesonOperatorReal']
-  --ENNReal.ofReal_le_of_le_toReal
-  --apply iSup_ofReal
-  sorry
