@@ -8359,10 +8359,10 @@ and for $j=1,2,3$
 \begin{proof}
 Let $m_1$ be the largest integer smaller than
 or equal to
-$n-R'/2$.
+$n- \frac {R'} {2R}$.
 Let $m_2=n$.
 Let $m_3$ be the smallest integer larger than
-or equal to $n+R'/2$.
+or equal to $n+ \frac {R'} {2R}$.
 
 Let $\mfa_{n'}\in B'$, then with \eqref{eqcarl4},
 we have
@@ -8370,8 +8370,7 @@ we have
     2R|n-n'|< 2R'\, .
 \end{equation}
 
-Assume first $n'\le n-R'/2$. By definition of $m_1$,
-we have $n'\le m_1$.  With \eqref{eqcarl6}
+Assume first $n'\le m_1$. With \eqref{eqcarl6}
 we have
 \begin{equation*}
     R|m_1-n'|=R(m_1-n')=R(m_1-n)+R(n-n')
@@ -8381,12 +8380,10 @@ we have
 \end{equation}
 We conclude $\mfa_{n'}\in B_1$.
 
-Assume next  $n-R'/2<n'<n+R'/2$. Then
+Assume next  $m_1<n'<m_3$. Then
 $\mfa_{n'}\in B_2$.
 
-Assume finally that $n+R'/2\le n'$
-By definition of $m_3$,
-we have $m_3\le n'$.  With \eqref{eqcarl6}
+Assume finally that $m_3\le n'$. With \eqref{eqcarl6}
 we have
 \begin{equation*}
     R|m_3-n'|=R(n'-m_3)=R(n'-n)+R(n-m_3)
