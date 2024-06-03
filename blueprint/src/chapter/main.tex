@@ -6617,9 +6617,10 @@ We have
 
 \begin{lemma}[Dirichlet kernel]
 \label{dirichlet-kernel}
+\leanok
 We have for every $2\pi$-periodic bounded measurable $f$ and every $N\ge 0$
 \begin{equation}
-    S_Nf(x)=\frac 1{2\pi}\int_{-\pi}^{\pi}f(y) K_N(x-y)\, dy
+    S_Nf(x)=\frac 1{2\pi}\int_{0}^{2\pi}f(y) K_N(x-y)\, dy
 \end{equation}
 where $K_N$ is the $2\pi$-periodic continuous function of
 $\R$ given by
@@ -6637,16 +6638,18 @@ We have for $e^{ix'}\neq 1$ that
 
 
 \begin{proof}
+\proves{dirichlet-kernel}
+\leanok
 We have by definitions and interchanging sum and integral
    \begin{equation*}
         S_Nf(x)=\sum_{n=-N}^N \widehat{f}_n e^{inx}
     \end{equation*}
        \begin{equation*}
-    =\sum_{n=-N}^N \frac 1{2\pi}\int_{-\pi}^{\pi}
+    =\sum_{n=-N}^N \frac 1{2\pi}\int_{0}^{2\pi}
     f(x) e^{in(x-y)}\, dy
     \end{equation*}
  \begin{equation}\label{eq-expsum}
-     =\frac 1{2\pi}\int_{-\pi}^\pi
+     =\frac 1{2\pi}\int_{0}^{2\pi}
     f(y) \sum_{n=-N}^N e^{in(x-y)}\, dy\, .
  \end{equation}
 This proves the first statement of the lemma.
@@ -6666,6 +6669,7 @@ This  proves the second part of the lemma.
 
 \begin{lemma}[lower secant bound]
 \label{lower-secant-bound}
+\leanok
 Let $\eta>0$ and $-2\pi +\eta \le  x\le 2\pi-\eta$ with $|x|\ge \eta$. Then
 \begin{equation}
     |1-e^{ix}|\ge \frac {\eta} 4
@@ -6674,7 +6678,6 @@ Let $\eta>0$ and $-2\pi +\eta \le  x\le 2\pi-\eta$ with $|x|\ge \eta$. Then
 \begin{proof}
 \proves{lower-secant-bound}
 \leanok
-
 We have
 $$
     |1 - e^{ix}| = \sqrt{(1 - \cos(x))^2 + \sin^2(x)} \ge |\sin(x)|\,.
