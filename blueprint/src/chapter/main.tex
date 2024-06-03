@@ -6699,6 +6699,7 @@ The following lemma will be proved in \Cref{10projection}.
 
 \begin{lemma}[Hilbert kernel bound]
 \label{Hilbert-kernel-bound}
+\leanok
 \uses{lower-secant-bound}
     For $x,y\in \R$ with $x\neq y$ we have
     \begin{equation}\label{eqcarl30}
@@ -6706,6 +6707,8 @@ The following lemma will be proved in \Cref{10projection}.
     \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
+\proves{Hilbert-kernel-bound}
     Fix $x\neq y$. If $\kappa(x-y)$ is zero, then \eqref{eqcarl30} is evident. Assume $\kappa(x-y)$ is not zero, then $0<|x-y|<1$.
     We have
 \begin{equation}\label{eqcarl31}
