@@ -1,13 +1,20 @@
 import Carleson.Proposition1
+import Mathlib.Tactic.Positivity.Basic
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
 open scoped ENNReal
 noncomputable section
 
 /- The constant used in theorem1_2 -/
-def C1_2 (a q : ℝ) : ℝ := 2 ^ (270 * a ^ 3) / (q - 1) ^ 5
+def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 5
 
-lemma C1_1_pos (a q : ℝ) (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) : C1_2 a q > 0 := sorry
+lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
+  rw [C1_2]
+  apply div_pos
+  . apply Real.rpow_pos_of_pos
+    norm_num
+  . apply pow_pos
+    linarith [hq]
 
 /- The constant used in equation (2.2) -/
 def Ce2_2 (A : ℝ) (τ q : ℝ) : ℝ := sorry
@@ -191,5 +198,16 @@ theorem theorem1_2C
     C1_2 a q * (volume.real G) ^ q'⁻¹ * (volume.real F) ^ q⁻¹ := by
   sorry
 
+/- ENNReal version of Theorem 1.2 -/
+--TODO: Change definition of ANCZOperator and ANCZOperatorLp as well?
+theorem theorem1_2C'
+    (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
+    (hF : MeasurableSet F) (hG : MeasurableSet G)
+    -- (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
+    (hT : NormBoundedBy (ANCZOperatorLp 2 K) 1) (f : X → ℂ)
+    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ∫⁻ x in G, CarlesonOperator' K Θ f x ≤
+    ENNReal.ofReal (C1_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
+  sorry
 
 end

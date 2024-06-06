@@ -106,7 +106,9 @@ lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X 
   case succ m h2 =>
     specialize h (r * a^m)
     rw[<- mul_assoc, mul_comm, <- mul_assoc] at h
-    rw[pow_succ, pow_succ, mul_comm (n^m) n]
+    norm_cast
+    ring_nf
+    rw[mul_comm a]
     rw[mul_comm] at h2
     norm_cast at h2
     exact BallsCoverBalls.trans h h2
