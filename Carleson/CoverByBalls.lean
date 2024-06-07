@@ -65,7 +65,7 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
     intro hs
     have h21 : (∅ : Finset X).card ≤ n := by exact tsub_add_cancel_iff_le.mp rfl
     have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
-      simp
+      simp only [not_mem_empty, ball_zero, Set.iUnion_of_empty, Set.iUnion_empty]
       exact Set.subset_empty_iff.mpr hs
     exact ⟨(∅ : Finset X), h21, h22⟩
   exact { mp := h1, mpr := h2 }
