@@ -6,12 +6,10 @@ import Carleson.Theorem1_1.Basic
 import Carleson.Theorem1_1.Hilbert_kernel
 import Carleson.Theorem1_1.CarlesonOperatorReal
 
-
 --import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.MeasureTheory.Integral.IntervalIntegral
 import Mathlib.Analysis.SpecialFunctions.Integrals
-
 
 noncomputable section
 
@@ -53,8 +51,7 @@ lemma h1 : 2 ∈ Set.Ioc 1 (2 : ℝ) := by simp
 lemma h2 : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
 
 lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℂ)} : localOscillation ∅ f g = 0 := by
-  rw [localOscillation]
-  simp
+  simp [localOscillation]
 
 lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℂ)} {R : ℝ} (R_nonpos : R ≤ 0):
     localOscillation (Metric.ball x R) f g = 0 := by
