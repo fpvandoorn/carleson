@@ -9,7 +9,6 @@ import Carleson.Theorem1_1.CarlesonOperatorReal
 
 --import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.MeasureTheory.Integral.IntervalIntegral
 import Mathlib.Analysis.SpecialFunctions.Integrals
 
@@ -227,10 +226,9 @@ lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Ty
     ⨆ i ∈ (∅ : Set ι), f i = sSup ∅ := by
   rw [iSup]
   convert csSup_singleton _
-  have : ∀ i : ι, IsEmpty (i ∈ ∅) := by
+  have : ∀ i : ι, IsEmpty (i ∈ (∅ : Set ι)) := by
     intro i
     simp
-    apply Set.not_mem_empty
   have : (fun (i : ι) ↦ ⨆ (_ : i ∈ (∅ : Set ι)), f i) = fun i ↦ sSup ∅ := by
     ext i
     --rw [csSup_empty]

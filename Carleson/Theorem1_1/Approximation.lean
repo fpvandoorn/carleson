@@ -5,7 +5,6 @@ import Carleson.HomogeneousType
 import Carleson.Theorem1_1.Basic
 
 import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Analysis.Convolution
 import Mathlib.Analysis.Calculus.BumpFunction.Convolution
 import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
