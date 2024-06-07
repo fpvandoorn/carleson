@@ -33,8 +33,7 @@ theorem classical_carleson {f : ℝ → ℂ}
   have h_periodic : Function.Periodic h (2 * Real.pi) := Function.Periodic.sub periodic_f₀ periodicf
   have h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), Complex.abs (h x) ≤ ε' := by
     intro x _
-    rw [hdef]
-    simp
+    simp [hdef]
     rw [←Complex.dist_eq, dist_comm, Complex.dist_eq]
     exact hf₀ x
 
