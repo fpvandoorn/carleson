@@ -435,14 +435,14 @@ instance h6 : IsCZKernel 4 K where
     intro x y
     rw [Complex.norm_eq_abs, Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
     calc Complex.abs (K x y)
-    _ ≤ 2 ^ (4 : ℝ) / (2 * |x - y|) := by apply Hilbert_kernel_bound
+    _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := by apply Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
   /- uses Hilbert_kernel_regularity -/
   norm_sub_le := by
     intro x y y' h
     rw [Real.dist_eq, Real.dist_eq] at *
     calc ‖K x y - K x y'‖
-    _ ≤ 2 ^ 10 * (1 / |x - y|) * (|y - y'| / |x - y|) := by
+    _ ≤ 2 ^ 8 * (1 / |x - y|) * (|y - y'| / |x - y|) := by
       apply Hilbert_kernel_regularity
       linarith [abs_nonneg (x-y)]
     _ ≤ (|y - y'| / |x - y|) ^ (4 : ℝ)⁻¹ * (2 ^ (4 : ℝ) ^ 3 / Real.vol x y) := by

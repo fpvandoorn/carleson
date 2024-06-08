@@ -296,7 +296,7 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
 
 /-TODO: Weaken statement to pointwise convergence to simplify proof?-/
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.Periodic f (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
-    ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Ico 0 (2 * Real.pi), Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+    ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * Real.pi) := by
     rw [fact_iff]
     exact Real.two_pi_pos
@@ -343,11 +343,19 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.
   simp only [ContinuousMap.coe_sum, sum_apply] at this
   convert this.le using 2
   congr 1
-  . rw [g_def]
-    simp
-    rw [AddCircle.liftIco_coe_apply]
-    rw [zero_add]
-    exact hx
+  . rw [g_def, ContinuousMap.coe_mk]
+    by_cases h : x = 2 * Real.pi
+    . conv => lhs; rw [h, ← zero_add  (2 * Real.pi), periodicf]
+      have := AddCircle.coe_add_period (2 * Real.pi) 0
+      rw [zero_add] at this
+      rw [h, this, AddCircle.liftIco_coe_apply]
+      simp [Real.pi_pos]
+    . have : x ∈ Set.Ico 0 (2 * Real.pi) := by
+        use hx.1
+        apply lt_of_le_of_ne hx.2 h
+      rw [AddCircle.liftIco_coe_apply]
+      rw [zero_add]
+      exact this
   . rw [partialFourierSum]
     congr
     ext n

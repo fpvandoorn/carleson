@@ -54,16 +54,7 @@ theorem classical_carleson {f : ℝ → ℂ}
   _ ≤ ε' + (ε / 4) + (ε / 4) := by
     gcongr
     . exact hf₀ x
-    . by_cases h : x = 2 * Real.pi
-      . rw [h, ←zero_add (2 * Real.pi), periodic_f₀, partialFourierSum_periodic]
-        apply hN₀ N NgtN₀ 0
-        simp [Real.pi_pos]
-      . have : x ∈ Set.Ico 0 (2 * Real.pi) := by
-          simp
-          simp at hx
-          use hx.1.1
-          apply lt_of_le_of_ne hx.1.2 h
-        convert hN₀ N NgtN₀ x this
+    . exact hN₀ N NgtN₀ x hx.1
     . have := hE x hx N
       rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (unicontf.continuous.intervalIntegrable 0 (2 * Real.pi))] at this
       apply le_trans this
@@ -73,5 +64,5 @@ theorem classical_carleson {f : ℝ → ℂ}
     rw [ε'def, div_div]
     apply div_le_div_of_nonneg_left εpos.le (by norm_num)
     rw [← div_le_iff' (by norm_num)]
-    apply le_trans' (lt_C_control_approximation_effect εpos).le (by norm_num)
+    apply le_trans' (lt_C_control_approximation_effect εpos).le (by linarith [Real.two_le_pi])
   _ ≤ ε := by linarith

@@ -44,49 +44,45 @@ lemma Hilbert_kernel_measurable : Measurable (Function.uncurry K) := by
   . apply measurable_sub
 
 /- Lemma 10.13 (Hilbert kernel bound) -/
-lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (4 : ℝ) / (2 * |x - y|) := by
-  --intro x y
+lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := by
   by_cases h : 0 < |x - y| ∧ |x - y| < 1
   . calc ‖K x y‖
       _ ≤ 1 / ‖1 - Complex.exp (Complex.I * ↑(x - y))‖ := by
         rw [K, k, norm_div]
         gcongr
         rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg]
-        . apply max_le
+        . apply max_le _ zero_le_one
           linarith [abs_nonneg (x-y)]
-          linarith
         . apply le_max_right
-      _ ≤ 1 / (|x - y| / 8) := by
+      _ ≤ 1 / (|x - y| / 2) := by
         gcongr
         . linarith
-        . apply lower_secant_bound
-          . exact h.1
-          . rw [Set.mem_Icc]
-            --TODO : improve calculations
-            constructor
-            . simp
-              calc |x - y|
-                _ ≤ 1 := h.2.le
-                _ ≤ 2 * Real.pi - 1 := by
-                  rw [le_sub_iff_add_le]
-                  linarith [Real.two_le_pi]
-                _ ≤ 2 * Real.pi + (x - y) := by
-                  rw [sub_eq_add_neg]
-                  gcongr
-                  exact (abs_le.mp h.2.le).1
-            . calc x - y
-                _ ≤ |x - y| := le_abs_self (x - y)
-                _ ≤ 1 := h.2.le
-                _ ≤ 2 * Real.pi - 1 := by
-                  rw [le_sub_iff_add_le]
-                  linarith [Real.two_le_pi]
-                _ ≤ 2 * Real.pi - |x - y| := by
-                  gcongr
-                  exact h.2.le
-          . trivial
-      _ = 8 / |x - y| := by
+        . apply lower_secant_bound _ (by rfl)
+          rw [Set.mem_Icc]
+          --TODO : improve calculations
+          constructor
+          . simp
+            calc |x - y|
+              _ ≤ 1 := h.2.le
+              _ ≤ 2 * Real.pi - 1 := by
+                rw [le_sub_iff_add_le]
+                linarith [Real.two_le_pi]
+              _ ≤ 2 * Real.pi + (x - y) := by
+                rw [sub_eq_add_neg]
+                gcongr
+                exact (abs_le.mp h.2.le).1
+          . calc x - y
+              _ ≤ |x - y| := le_abs_self (x - y)
+              _ ≤ 1 := h.2.le
+              _ ≤ 2 * Real.pi - 1 := by
+                rw [le_sub_iff_add_le]
+                linarith [Real.two_le_pi]
+              _ ≤ 2 * Real.pi - |x - y| := by
+                gcongr
+                exact h.2.le
+      _ = 2 / |x - y| := by
         field_simp
-      _ ≤ (2 : ℝ) ^ (4 : ℝ) / (2 * |x - y|) := by
+      _ ≤ (2 : ℝ) ^ (2 : ℝ) / (2 * |x - y|) := by
         ring_nf
         trivial
   . push_neg at h
@@ -113,7 +109,7 @@ theorem Real.volume_uIoc {a b : ℝ} : MeasureTheory.volume (Set.uIoc a b) = ENN
 /-TODO: This can be local, i.e. invisible to other files. -/
 /-TODO: might be improved using lower_secant_bound' -/
 lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 0 ≤ y') (ypos : 0 < y) (y2ley' : y / 2 ≤ y') (hy : y ≤ 1) (hy' : y' ≤ 1) :
-    ‖k (-y) - k (-y')‖ ≤ 2 ^ 10 * (1 / |y|) * (|y - y'| / |y|) := by
+    ‖k (-y) - k (-y')‖ ≤ 2 ^ 6 * (1 / |y|) * (|y - y'| / |y|) := by
   rw [k_of_abs_le_one, k_of_abs_le_one]
   . simp only [abs_neg, Complex.ofReal_neg, mul_neg, ge_iff_le]
     rw [abs_of_nonneg yy'nonneg.1, abs_of_nonneg yy'nonneg.2]
@@ -210,7 +206,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
         apply intervalIntegral.norm_intervalIntegral_eq
       _ ≤ ∫ (t : ℝ) in Ι y' y, ‖f' t‖ := by
         apply MeasureTheory.norm_integral_le_integral_norm
-      _ ≤ ∫ (t : ℝ) in Ι y' y, 3 / ((y / 2) / 8) ^ 2 := by
+      _ ≤ ∫ (t : ℝ) in Ι y' y, 3 / ((y / 2) / 2) ^ 2 := by
         apply MeasureTheory.setIntegral_mono_on
         . apply f'_cont.norm.integrableOn_uIcc.mono_set
           apply Set.Ioc_subset_Icc_self
@@ -252,20 +248,20 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
           . rw [mul_comm, ←neg_mul, mul_comm]
             norm_cast
             apply lower_secant_bound
-            . linarith
-            . simp
+            . simp only [neg_mul, Set.mem_Icc, neg_add_le_iff_le_add, le_add_neg_iff_add_le,
+              neg_le_sub_iff_le_add]
               constructor <;> linarith [Real.two_le_pi, Real.two_pi_pos]
             . rw [abs_neg, le_abs]
               left
               rcases ht with ht | ht <;> linarith [ht.1]
-      _ = (MeasureTheory.volume (Ι y' y)).toReal * (3 / ((y / 2) / 8) ^ 2) := by
+      _ = (MeasureTheory.volume (Ι y' y)).toReal * (3 / ((y / 2) / 2) ^ 2) := by
         apply MeasureTheory.setIntegral_const
-      _ = |y - y'| * (3 / ((y / 2) / 8) ^ 2) := by
+      _ = |y - y'| * (3 / ((y / 2) / 2) ^ 2) := by
         congr
         rw [Real.volume_uIoc, ENNReal.toReal_ofReal (abs_nonneg (y - y'))]
-      _ = (3 * (8 * 2) ^ 2) * (1 / y) * (|y - y'| / y) := by
+      _ = (3 * (2 * 2) ^ 2) * (1 / y) * (|y - y'| / y) := by
         ring
-      _ ≤ 2 ^ 10 * (1 / y) * (|y - y'| / y) := by
+      _ ≤ 2 ^ 6 * (1 / y) * (|y - y'| / y) := by
         gcongr
         norm_num
   . rw [abs_neg, abs_of_nonneg yy'nonneg.2]
@@ -275,7 +271,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
 
 /- Lemma 10.14 (Hilbert kernel regularity) -/
 lemma Hilbert_kernel_regularity {x y y' : ℝ} :
-    2 * |y - y'| ≤ |x - y| → ‖K x y - K x y'‖ ≤ 2 ^ 10 * (1 / |x - y|) * (|y - y'| / |x - y|)  := by
+    2 * |y - y'| ≤ |x - y| → ‖K x y - K x y'‖ ≤ 2 ^ 8 * (1 / |x - y|) * (|y - y'| / |x - y|)  := by
   rw [K, K]
   wlog x_eq_zero : x = 0 generalizing x y y'
   . intro h
@@ -344,23 +340,25 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
       _ = y' * 2 := by ring
   /- Distinguish four cases. -/
   rcases le_or_gt y 1, le_or_gt y' 1 with ⟨hy | hy, hy' | hy'⟩
-  . exact Hilbert_kernel_regularity_main_part yy'nonneg ypos y2ley' hy hy'
+  . apply le_trans (Hilbert_kernel_regularity_main_part yy'nonneg ypos y2ley' hy hy')
+    gcongr <;> norm_num
   . rw [@k_of_one_le_abs (-y')]
     . calc ‖k (-y) - 0‖
         _ = ‖k (-y) - k (-1)‖ := by
           congr
           apply (k_of_one_le_abs _).symm
           simp
-        _ ≤ 2 ^ 10 * (1 / |y|) * (|y - 1| / |y|) := by
+        _ ≤ 2 ^ 6 * (1 / |y|) * (|y - 1| / |y|) := by
           apply Hilbert_kernel_regularity_main_part
           constructor
           all_goals linarith
-        _ ≤ 2 ^ 10 * (1 / |y|) * (|y - y'| / |y|) := by
-          gcongr 2 ^ 10 * (1 / |y|) * (?_ / |y|)
+        _ ≤ 2 ^ 6 * (1 / |y|) * (|y - y'| / |y|) := by
+          gcongr 2 ^ 6 * (1 / |y|) * (?_ / |y|)
           rw [abs_sub_comm, abs_of_nonneg, abs_sub_comm, abs_of_nonneg] <;> linarith
+        _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by
+          gcongr <;> norm_num
     . rw [abs_neg, abs_of_nonneg] <;> linarith
   . rw [@k_of_one_le_abs (-y)]
-    /-TODO: This case does not seem to function as in the paper. Maybe the constant must be increased. -/
     . calc ‖0 - k (-y')‖
         _ = ‖k (-1) - k (-y')‖ := by
           congr
@@ -368,11 +366,11 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
           simp
         _ = ‖k (-y') - k (-1)‖ := by
           rw [norm_sub_rev]
-        _ ≤ 2 ^ 10 * (1 / |y'|) * (|y' - 1| / |y'|) := by
+        _ ≤ 2 ^ 6 * (1 / |y'|) * (|y' - 1| / |y'|) := by
           apply Hilbert_kernel_regularity_main_part
           constructor
           all_goals linarith
-        _ = 2 ^ 10 * (1 / y') * ((1 - y') / y') := by
+        _ = 2 ^ 6 * (1 / y') * ((1 - y') / y') := by
           congr
           . rw [abs_of_nonneg]
             exact yy'nonneg.2
@@ -381,29 +379,28 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
             linarith
           . rw [abs_of_nonneg]
             exact yy'nonneg.2
-        _ ≤ 2 ^ 10 * (1 / (y / 2)) * ((1 - y') / (y / 2)) := by
+        _ ≤ 2 ^ 6 * (1 / (y / 2)) * ((1 - y') / (y / 2)) := by
           gcongr
           . apply div_nonneg <;> linarith
           . linarith
-        _ = (2 ^ 10 * 2 * 2) * (1 / y) * ((1 - y') / y) := by
+        _ = (2 ^ 6 * 2 * 2) * (1 / y) * ((1 - y') / y) := by
           ring
-        _ ≤ (2 ^ 10 * 2 * 2) * (1 / |y|) * (|y - y'| / |y|) := by
+        _ ≤ (2 ^ 6 * 2 * 2) * (1 / |y|) * (|y - y'| / |y|) := by
           gcongr
           apply div_nonneg <;> linarith
           rw [abs_of_nonneg yy'nonneg.1]
           rw [abs_of_nonneg] <;> linarith
           rw [abs_of_nonneg yy'nonneg.1]
-        _ ≤ 2 ^ 10 * (1 / |y|) * (|y - y'| / |y|) := by
+        _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by
           gcongr
-          /-TODO: not possible because constant is too small-/
-          sorry
+          norm_num
     . rw [abs_neg, abs_of_nonneg] <;> linarith
 
   . calc ‖k (-y) - k (-y')‖
       _ = 0 := by
         simp
         rw [k_of_one_le_abs, k_of_one_le_abs] <;> (rw [abs_neg, abs_of_nonneg] <;> linarith)
-      _ ≤ 2 ^ 10 * (1 / |y|) * (|y - y'| / |y|) := by
+      _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by
         apply mul_nonneg
         apply mul_nonneg
         . norm_num
