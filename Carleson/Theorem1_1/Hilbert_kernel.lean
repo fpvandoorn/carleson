@@ -2,17 +2,13 @@ import Carleson.Theorem1_1.Basic
 
 noncomputable section
 
-
-
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
 --TODO: maybe change to
 --def k : ℝ → ℂ := fun x ↦ max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
 
 /- Little helper lemmas. -/
 lemma k_of_neg_eq_conj_k {x : ℝ} : k (-x) = (starRingEnd ℂ) (k x) := by
-  rw [k, k]
-  simp
-  rw [Complex.conj_ofReal, ←Complex.exp_conj, map_mul, Complex.conj_ofReal, Complex.conj_I, neg_mul]
+  simp [k, Complex.conj_ofReal, ←Complex.exp_conj, Complex.conj_I, neg_mul]
 
 lemma k_of_abs_le_one {x : ℝ} (abs_le_one : |x| ≤ 1) : k x = (1 - |x|) / (1 - Complex.exp (Complex.I * x)) := by
   rw [k, max_eq_left (by linarith)]
@@ -26,11 +22,8 @@ lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
 lemma k_measurable : Measurable k := by
   apply Measurable.div
   . apply Measurable.comp'
-    . exact Complex.measurable_ofReal
-    . apply Measurable.max
-      . apply Measurable.const_sub
-        apply measurable_norm
-      . apply measurable_const
+    · exact Complex.measurable_ofReal
+    · exact Measurable.max (measurable_const.sub measurable_norm) measurable_const
   . measurability
 
 def K (x y : ℝ) : ℂ := k (x - y)
@@ -38,10 +31,7 @@ def K (x y : ℝ) : ℂ := k (x - y)
 --def K : ℝ → ℝ → ℂ := fun x y ↦ k (x - y)
 
 @[measurability]
-lemma Hilbert_kernel_measurable : Measurable (Function.uncurry K) := by
-  apply Measurable.comp
-  . exact k_measurable
-  . apply measurable_sub
+lemma Hilbert_kernel_measurable : Measurable (Function.uncurry K) := k_measurable.comp measurable_sub
 
 /- Lemma 10.13 (Hilbert kernel bound) -/
 lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (4 : ℝ) / (2 * |x - y|) := by
@@ -64,7 +54,7 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (4 : ℝ) / (2 * |x
           . rw [Set.mem_Icc]
             --TODO : improve calculations
             constructor
-            . simp
+            . simp only [neg_mul, neg_add_le_iff_le_add]
               calc |x - y|
                 _ ≤ 1 := h.2.le
                 _ ≤ 2 * Real.pi - 1 := by
@@ -96,13 +86,12 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (4 : ℝ) / (2 * |x
       . right
         simp [xeqy]
       . left
-        simp
-        apply h (abs_pos.mpr (sub_ne_zero.mpr xeqy))
+        simp only [Complex.ofReal_eq_zero, max_eq_right_iff, tsub_le_iff_right, zero_add]
+        exact h (abs_pos.mpr (sub_ne_zero.mpr xeqy))
     rw [this]
     apply div_nonneg
     . norm_num
     . linarith [abs_nonneg (x-y)]
-
 
 /-TODO: to mathlib-/
 theorem Real.volume_uIoc {a b : ℝ} : MeasureTheory.volume (Set.uIoc a b) = ENNReal.ofReal |b - a| := by

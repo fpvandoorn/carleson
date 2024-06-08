@@ -5,7 +5,6 @@ import Carleson.HomogeneousType
 import Carleson.Theorem1_1.Basic
 
 import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Analysis.Convolution
 import Mathlib.Analysis.Calculus.BumpFunction.Convolution
 import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
@@ -59,7 +58,7 @@ lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε :
     apply ContDiffBump.dist_normed_convolution_le
     . exact unicontf.continuous.aestronglyMeasurable
     . intro y hy
-      simp at hy
+      simp only [Metric.mem_ball] at hy
       exact (hδ hy).le
 
 /- Slightly different version-/
@@ -90,7 +89,7 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
     apply ContDiffBump.dist_normed_convolution_le
     . exact unicontf.continuous.aestronglyMeasurable
     . intro y hy
-      simp at hy
+      simp only [Metric.mem_ball] at hy
       exact (hδ hy).le
 
 /- Inspired by mathlib : NNReal.summable_of_le-/
@@ -120,7 +119,7 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
     rw [f'def]
     by_cases h : i = 0
     . simp [h]
-    . simp [h]
+    . simp only [h, ↓reduceIte]
       exact hgf i h
   apply Real.summable_of_le hgpos this
 
@@ -132,7 +131,6 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
   rw [mem_singleton] at hb
   rw [f'def]
   simp [hb]
-
 
   lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * Real.pi))) : ∃ C, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x) ≤ C := by
     have interval_compact := (@isCompact_Icc ℝ _ _ _ 0 (2 * Real.pi))
@@ -173,7 +171,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
     _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), ‖f x‖ := by
       congr
       ext x
-      simp
+      simp only [norm_mul, Complex.norm_eq_abs]
       rw [mul_assoc, mul_comm Complex.I]
       norm_cast
       rw [Complex.abs_exp_ofReal_mul_I]
@@ -284,7 +282,8 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
     rw [this, sum_insert, sum_insert, ih, ←add_assoc]
     symm
     rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
-    simp
+    simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
+      Int.ofNat_eq_coe, add_right_inj]
     rw [add_comm]
     . simp
     . norm_num
@@ -312,13 +311,13 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.
     have summable_maj : Summable maj := by
       by_cases Ceq0 : C = 0
       . rw [maj_def, Ceq0]
-        simp
+        simp only [one_div, mul_zero]
         exact summable_zero
       . rw [← summable_div_const_iff Ceq0]
         convert Real.summable_one_div_int_pow.mpr one_lt_two using 1
         rw [maj_def]
         ext i
-        simp
+        simp only [one_div]
         rw [mul_div_cancel_right₀]
         exact Ceq0
     rw [summable_congr @fourierCoeff_correspondence, ←summable_norm_iff]
@@ -344,7 +343,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.
   convert this.le using 2
   congr 1
   . rw [g_def]
-    simp
+    simp only [ContinuousMap.coe_mk]
     rw [AddCircle.liftIco_coe_apply]
     rw [zero_add]
     exact hx

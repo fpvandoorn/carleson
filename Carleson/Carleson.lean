@@ -68,10 +68,10 @@ theorem Int.le_ceil_iff (c : ℝ) (z : ℤ) : z ≤ ⌈c⌉ ↔ z - 1 < c := by
 lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
     i ∈ nonzeroS D x ↔ (D ^ i * x) ∈ Ioo (4 * D)⁻¹ 2⁻¹ := by
   rw [Set.mem_Ioo, nonzeroS, Finset.mem_Icc]
-  simp [Int.floor_le_iff, Int.le_ceil_iff]
-  rw [← lt_div_iff hx, mul_comm D⁻¹, ← div_lt_div_iff hx (by positivity)]
-  rw [← Real.logb_inv, ← Real.logb_inv]
-  rw [div_inv_eq_mul, ← zpow_add_one₀ (by positivity)]
+  simp only [Int.floor_le_iff, neg_add_rev, Int.le_ceil_iff, lt_add_neg_iff_add_lt, sub_add_cancel,
+    mul_inv_rev]
+  rw [← lt_div_iff hx, mul_comm D⁻¹, ← div_lt_div_iff hx (by positivity), ← Real.logb_inv,
+    ← Real.logb_inv, div_inv_eq_mul, ← zpow_add_one₀ (by positivity)]
   simp_rw [← Real.rpow_intCast]
   rw [Real.lt_logb_iff_rpow_lt hD (by positivity), Real.logb_lt_iff_lt_rpow hD (by positivity)]
   simp [div_eq_mul_inv, mul_comm]

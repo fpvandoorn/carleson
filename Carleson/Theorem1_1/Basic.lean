@@ -20,32 +20,31 @@ def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} : fourierCoeffOn hab (fun x ↦ c * f x) n =
     c * (fourierCoeffOn hab f n):= by
-  rw [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
-  simp
-  rw [←mul_assoc, mul_comm c, mul_assoc _ c, mul_comm c, ←intervalIntegral.integral_mul_const]
+  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
+    fourier_coe_apply', Complex.ofReal_sub, smul_eq_mul, Complex.real_smul, Complex.ofReal_inv]
+  rw [← mul_assoc, mul_comm c, mul_assoc _ c, mul_comm c, ← intervalIntegral.integral_mul_const]
   congr
   ext x
   ring
 
 @[simp]
 lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {n : ℤ} : fourierCoeffOn hab (-f) n =
-    - (fourierCoeffOn hab f n):= by
-  rw [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
-  simp
+    - (fourierCoeffOn hab f n):= by simp [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
 
 @[simp]
 lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ} (hf : IntervalIntegrable f MeasureTheory.volume a b) (hg : IntervalIntegrable g MeasureTheory.volume a b) :
     fourierCoeffOn hab (f + g) n = fourierCoeffOn hab f n + fourierCoeffOn hab g n:= by
-  rw [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
-  simp
-  rw [←mul_add, ←intervalIntegral.integral_add]
+  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
+    fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, Complex.real_smul,
+    Complex.ofReal_inv]
+  rw [← mul_add, ← intervalIntegral.integral_add]
   congr
   ext x
   ring
-  . apply IntervalIntegrable.continuousOn_mul hf
+  . apply hf.continuousOn_mul
     apply Continuous.continuousOn
     continuity
-  . apply IntervalIntegrable.continuousOn_mul hg
+  . apply hg.continuousOn_mul
     apply Continuous.continuousOn
     continuity
 
@@ -58,8 +57,7 @@ lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
 @[simp]
 lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)): partialFourierSum (f + g) N = partialFourierSum f N + partialFourierSum g N := by
   ext x
-  simp
-  rw [partialFourierSum, partialFourierSum, partialFourierSum, ←sum_add_distrib]
+  simp [partialFourierSum, partialFourierSum, partialFourierSum, ← sum_add_distrib]
   congr
   ext n
   rw [fourierCoeffOn_add hf hg, add_mul]
@@ -67,7 +65,7 @@ lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrab
 @[simp]
 lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)): partialFourierSum (f - g) N = partialFourierSum f N - partialFourierSum g N := by
   ext x
-  simp
+  simp only [Pi.sub_apply]
   rw [partialFourierSum, partialFourierSum, partialFourierSum, ←sum_sub_distrib]
   congr
   ext n
@@ -82,9 +80,7 @@ lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}: partialFourier
   ext n
   rw [fourierCoeffOn_mul, mul_assoc]
 
-lemma fourier_periodic {n : ℤ} : Function.Periodic (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) (2 * Real.pi) := by
-  intro x
-  simp
+lemma fourier_periodic {n : ℤ} : Function.Periodic (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) (2 * Real.pi) := by simp
 
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic (partialFourierSum f N) (2 * Real.pi) := by
   rw [Function.Periodic]
@@ -97,8 +93,7 @@ lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic
 
 /-TODO: Add lemma Periodic.uniformContinuous_of_continuous. -/
 lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
-  rw [fourier]
-  simp
+  simp [fourier]
   --apply Complex.exp_mul_I_periodic.
   sorry
 
