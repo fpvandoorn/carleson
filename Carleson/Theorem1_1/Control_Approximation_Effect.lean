@@ -302,11 +302,11 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
             apply Measurable.of_uncurry_left
             exact Hilbert_kernel_measurable
             measurability
-          have boundedness₁ {y : ℝ} (h : r ≤ dist x y) : ‖(I * (-↑n * ↑x)).exp * K x y * (I * ↑n * ↑y).exp‖ ≤ (2 ^ (4 : ℝ) / (2 * r)) := by
+          have boundedness₁ {y : ℝ} (h : r ≤ dist x y) : ‖(I * (-↑n * ↑x)).exp * K x y * (I * ↑n * ↑y).exp‖ ≤ (2 ^ (2 : ℝ) / (2 * r)) := by
             calc ‖(I * (-↑n * ↑x)).exp * K x y * (I * ↑n * ↑y).exp‖
               _ = ‖(I * (-↑n * ↑x)).exp‖ * ‖K x y‖ * ‖(I * ↑n * ↑y).exp‖ := by
                 rw [norm_mul, norm_mul]
-              _ ≤ 1 * (2 ^ (4 : ℝ) / (2 * |x - y|)) * 1 := by
+              _ ≤ 1 * (2 ^ (2 : ℝ) / (2 * |x - y|)) * 1 := by
                 gcongr
                 . rw [norm_eq_abs, mul_comm]
                   norm_cast
@@ -315,7 +315,7 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
                 . rw [norm_eq_abs, mul_assoc, mul_comm]
                   norm_cast
                   rw [abs_exp_ofReal_mul_I]
-              _ ≤ (2 ^ (4 : ℝ) / (2 * r)) := by
+              _ ≤ (2 ^ (2 : ℝ) / (2 * r)) := by
                 rw [one_mul, mul_one, ← Real.dist_eq]
                 gcongr
           have integrable₁ := (integrable_annulus hx hf rpos.le rle1)
@@ -405,9 +405,9 @@ theorem rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) 
   ring_nf
 
 
-def C_control_approximation_effect (ε : ℝ) := (((C1_2 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹)) + 8)
+def C_control_approximation_effect (ε : ℝ) := (C1_2 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹) + Real.pi
 
-lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : 8 < C_control_approximation_effect ε := by
+lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : Real.pi < C_control_approximation_effect ε := by
   rw [C_control_approximation_effect]
   apply lt_add_of_pos_of_le _ (by rfl)
   apply mul_pos (C1_2_pos (by norm_num))
@@ -415,9 +415,9 @@ lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : 8 < C_cont
   apply div_pos (by norm_num)
   apply mul_pos Real.pi_pos εpos
 
-lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε := lt_trans' (lt_C_control_approximation_effect εpos) (by norm_num)
+lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε := lt_trans' (lt_C_control_approximation_effect εpos) Real.pi_pos
 
-lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + 8 * δ := by
+lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + Real.pi * δ := by
   symm
   rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc, mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul]
   congr 2
@@ -509,7 +509,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         rfl
         intro _
         norm_num
-  have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - 8 * δ) * (2 * Real.pi)) ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
+  have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
     have h_intervalIntegrable' : IntervalIntegrable h MeasureTheory.volume 0 (2 * Real.pi) := by
       apply h_intervalIntegrable.mono_set
       rw [Set.uIcc_of_le (by linarith [Real.pi_pos]), Set.uIcc_of_le (by linarith [Real.pi_pos])]
@@ -520,9 +520,9 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     --set S := Set.Ioo (x - Real.pi) (x + Real.pi) with Sdef
     obtain ⟨xIcc, N, hN⟩ := hx
     rw [partialFourierSum_eq_conv_dirichletKernel' h_intervalIntegrable'] at hN
-    have : ENNReal.ofReal (8 * δ * (2 * Real.pi)) ≠ ⊤ := ENNReal.ofReal_ne_top
+    have : ENNReal.ofReal (Real.pi * δ * (2 * Real.pi)) ≠ ⊤ := ENNReal.ofReal_ne_top
     rw [← (ENNReal.add_le_add_iff_right this)]
-    calc ENNReal.ofReal ((ε' - 8 * δ) * (2 * Real.pi)) + ENNReal.ofReal (8 * δ * (2 * Real.pi))
+    calc ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) + ENNReal.ofReal (Real.pi * δ * (2 * Real.pi))
       _ = ENNReal.ofReal ((2 * Real.pi) * ε') := by
         rw [← ENNReal.ofReal_add]
         . congr
@@ -538,8 +538,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
             apply Real.rpow_nonneg
             linarith [Real.pi_pos]
           . apply Real.rpow_nonneg (div_nonneg (by norm_num) hε.1.le)
-        . apply mul_nonneg _ Real.two_pi_pos.le
-          linarith
+        . apply mul_nonneg (mul_nonneg Real.pi_pos.le hδ.le) Real.two_pi_pos.le
       _ ≤ ENNReal.ofReal ((2 * Real.pi) * abs (1 / (2 * Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y))) := by gcongr
       _ = ‖∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)‖₊  := by
         rw [map_mul, map_div₀, ←mul_assoc]
@@ -587,7 +586,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         --apply abs.isAbsoluteValue.abv_add
         norm_cast
         apply nnnorm_add_le
-      _ ≤ (T' f x + T' ((starRingEnd ℂ) ∘ f) x) + ENNReal.ofReal (8 * δ * (2 * Real.pi)) := by
+      _ ≤ (T' f x + T' ((starRingEnd ℂ) ∘ f) x) + ENNReal.ofReal (Real.pi * δ * (2 * Real.pi)) := by
         --Estimate the two parts
         gcongr
         . --first part
@@ -669,7 +668,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
           apply NNReal.le_toNNReal_of_coe_le
           rw [coe_nnnorm]
           calc ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y)‖
-            _ ≤ (δ * 8) * |(x + Real.pi) - (x - Real.pi)| := by
+            _ ≤ (δ * Real.pi) * |(x + Real.pi) - (x - Real.pi)| := by
               apply intervalIntegral.norm_integral_le_of_norm_le_const
               intro y hy
               rw [Set.uIoc_of_le (by linarith)] at hy
@@ -702,13 +701,13 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                     norm_cast
                     rw [abs_exp_ofReal_mul_I, one_div]
                 _ = 2 * (min |z| 1 / ‖1 - exp (I * z)‖) := by ring
-                _ ≤ 2 * 4 := by
-                  gcongr
+                _ ≤ 2 * (Real.pi / 2) := by
+                  gcongr 2 * ?_
+                  --. apply min_le_right
                   . by_cases h : (1 - exp (I * z)) = 0
-                    . rw [h]
-                      simp
-                    simp
-                    rw [div_le_iff', ←div_le_iff, ←norm_eq_abs]
+                    . rw [h, norm_zero, div_zero]
+                      linarith [Real.pi_pos]
+                    rw [div_le_iff', ←div_le_iff, div_div_eq_mul_div, mul_div_assoc, mul_comm]
                     apply lower_secant_bound'
                     . apply min_le_left
                     . have : |z| ≤ Real.pi := by
@@ -717,10 +716,10 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                         constructor <;> linarith [hy.1, hy.2]
                       rw [min_def]
                       split_ifs <;> linarith
-                    . norm_num
-                    . rwa [←norm_eq_abs, norm_pos_iff]
-                _ = 8 := by norm_num
-            _ = 8 * δ * (2 * Real.pi) := by
+                    . linarith [Real.pi_pos]
+                    . rwa [norm_pos_iff]
+                _ = Real.pi := by ring
+            _ = Real.pi * δ * (2 * Real.pi) := by
               simp
               rw [←two_mul, _root_.abs_of_nonneg Real.two_pi_pos.le]
               ring
@@ -735,9 +734,9 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       _ < ⊤ := ENNReal.ofReal_lt_top
   obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (CarlesonOperatorReal'_measurable f_measurable) (CarlesonOperatorReal'_measurable (Measurable.comp continuous_star.measurable f_measurable)) le_operator_add
   have E'volume : MeasureTheory.volume E' < ⊤ := lt_of_le_of_lt (MeasureTheory.measure_mono E'subset) Evolume
-  have : ENNReal.ofReal (Real.pi * (ε' - 8 * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
-    calc ENNReal.ofReal (Real.pi * (ε' - 8 * δ)) * MeasureTheory.volume E'
-    _ = ENNReal.ofReal ((ε' - 8 * δ) * (2 * Real.pi)) / 2 * MeasureTheory.volume E' := by
+  have : ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
+    calc ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E'
+    _ = ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) / 2 * MeasureTheory.volume E' := by
       congr
       rw [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_div_of_pos (by norm_num)]
       ring_nf
@@ -760,7 +759,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     apply mul_pos hδ (by rw [C1_2]; norm_num)
     apply Real.rpow_pos_of_pos
     linarith [Real.two_pi_pos]
-  have ε'_δ_expression_pos : 0 < Real.pi * (ε' - 8 * δ) := by
+  have ε'_δ_expression_pos : 0 < Real.pi * (ε' - Real.pi * δ) := by
     rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm]
     apply mul_pos δ_mul_const_pos
     apply Real.rpow_pos_of_pos
@@ -775,7 +774,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       conv => lhs; rw [←Real.rpow_one (MeasureTheory.volume.real E')]
       congr
       norm_num
-    _ ≤ 2 * (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - 8 * δ))) ^ (2 : ℝ) := by
+    _ ≤ 2 * (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - Real.pi * δ))) ^ (2 : ℝ) := by
       gcongr
       rw [Real.rpow_mul MeasureTheory.measureReal_nonneg]
       gcongr
