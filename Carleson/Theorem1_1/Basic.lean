@@ -102,12 +102,17 @@ lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformC
   sorry
 
 
-/-Slightly different and stronger version of Lemma 10.11 (lower secant bound). -/
+theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real.pi + Real.pi / 2)) Real.cos := by
+  apply strictConvexOn_of_deriv2_pos (convex_Icc _ _) Real.continuousOn_cos fun x hx => ?_
+  rw [interior_Icc] at hx
+  simp [Real.cos_neg_of_pi_div_two_lt_of_lt hx.1 hx.2]
+
+/- Lemma 10.11 (lower secant bound) from the paper. -/
 lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * Real.pi - η) :
-    η / 4 ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
+    (2 / Real.pi) * η ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
   by_cases ηpos : η ≤ 0
-  . calc η / 4
-    _ ≤ 0 := by linarith
+  . calc (2 / Real.pi) * η
+    _ ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (div_nonneg zero_le_two Real.pi_pos.le) ηpos
     _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by apply norm_nonneg
   push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
@@ -125,13 +130,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       rw [mul_sub, Complex.conj_ofReal, Complex.exp_sub, mul_comm Complex.I (2 * Real.pi), Complex.exp_two_pi_mul_I, ←inv_eq_one_div, ←Complex.exp_neg]
     all_goals linarith
   by_cases h : x ≤ Real.pi / 2
-  . calc η / 4
-    _ ≤ (2 / Real.pi) * η := by
-      rw [div_le_iff (by norm_num)]
-      field_simp
-      rw [le_div_iff Real.pi_pos, mul_comm 2, mul_assoc]
-      gcongr
-      linarith [Real.pi_le_four]
+  . calc (2 / Real.pi) * η
     _ ≤ (2 / Real.pi) * x := by gcongr
     _ = (1 - (2 / Real.pi) * x) * Real.sin 0 + ((2 / Real.pi) * x) * Real.sin (Real.pi / 2) := by simp
     _ ≤ Real.sin ((1 - (2 / Real.pi) * x) * 0 + ((2 / Real.pi) * x) * (Real.pi / 2)) := by
@@ -156,30 +155,52 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
         . simp [pow_two_nonneg]
         . linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
   . push_neg at h
-    calc η / 4
-    _ ≤ 1 := by
-      rw [div_le_iff (by norm_num), one_mul]
-      exact (le_abs_x.trans x_le_pi).trans Real.pi_le_four
-    _ ≤ |(1 - Complex.exp (Complex.I * ↑x)).re| := by
-      rw [mul_comm, Complex.exp_mul_I]
-      simp
-      rw [Complex.cos_ofReal_re, le_abs]
-      left
-      simp
-      apply Real.cos_nonpos_of_pi_div_two_le_of_le h.le
-      linarith
+    calc (2 / Real.pi) * η
+    _ ≤ (2 / Real.pi) * x := by gcongr
+    _ = 1 - ((1 - (2 / Real.pi) * (x - Real.pi / 2)) * Real.cos (Real.pi / 2) + ((2 / Real.pi) * (x - Real.pi / 2)) * Real.cos (Real.pi)) := by
+      field_simp
+      ring
+    _ ≤ 1 - (Real.cos ((1 - (2 / Real.pi) * (x - Real.pi / 2)) * (Real.pi / 2) + (((2 / Real.pi) * (x - Real.pi / 2)) * (Real.pi)))) := by
+      gcongr
+      apply (strictConvexOn_cos_Icc.convexOn).2 (by simp [Real.pi_nonneg])
+      . simp
+        constructor <;> linarith [Real.pi_nonneg]
+      . rw [sub_nonneg, mul_comm]
+        apply mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) Real.pi_nonneg) (by simpa)
+      . exact mul_nonneg (div_nonneg (by norm_num) Real.pi_nonneg) (by linarith [h])
+      . simp
+    _ = 1 - Real.cos x := by
+      congr
+      field_simp
+      ring
+    _ ≤ Real.sqrt ((1 - Real.cos x) ^ 2) := by
+      rw [Real.sqrt_sq_eq_abs]
+      apply le_abs_self
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
-      rw [Complex.norm_eq_abs]
-      apply Complex.abs_re_le_abs
+        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
+        simp
+        rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
+        apply (Real.sqrt_le_sqrt_iff _).mpr
+        . simp [pow_two_nonneg]
+        . linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
 
-/- Lemma 10.11 (lower secant bound) from the paper. -/
-lemma lower_secant_bound {η : ℝ} (ηpos : η > 0) {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
-    η / 8 ≤ Complex.abs (1 - Complex.exp (Complex.I * x)) := by
-  calc η / 8
-  _ ≤ η / 4 := by
+
+/-Slightly weaker version of Lemma 10.11 (lower secant bound) with simplified constant. -/
+lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
+    η / 2 ≤ Complex.abs (1 - Complex.exp (Complex.I * x)) := by
+  by_cases ηpos : η < 0
+  . calc η / 2
+    _ ≤ 0 := by linarith
+    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by apply norm_nonneg
+  push_neg at ηpos
+  calc η / 2
+  _ ≤ (2 / Real.pi) * η := by
     ring_nf
+    rw [mul_assoc]
     gcongr
-    norm_num
+    field_simp
+    rw [div_le_div_iff (by norm_num) Real.pi_pos]
+    linarith [Real.pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs
     rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]

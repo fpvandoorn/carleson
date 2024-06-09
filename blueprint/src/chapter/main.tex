@@ -39,7 +39,7 @@ Define the partial Fourier sum for $N\ge 0$ as
 \begin{theorem}[classical Carleson]
 \label{classical-Carleson}
 \leanok
-\uses{piecewise-constant-approximation, convergence-for-piecewise-constant,
+\uses{smooth-approximation, convergence-for-smooth,
 control-approximation-effect}
 Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\mathbb{R}$ satisfying the bound $|f(x)|\le 1$ for all $x\in \mathbb{R}$. For all $0<\epsilon<1$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
 \begin{equation}\label{aeconv}
@@ -6315,7 +6315,7 @@ This completes the proof.
 
 The convergence of partial Fourier sums is proved in
 \Cref{10classical} in two steps. In the first step,
-we establish convergence on a suitable dense subclass of functions. We choose piece-wise constant functions as subclass, the convergence is stated in \Cref{convergence-for-piecewise-constant} and proved in \Cref{10piecewise}.
+we establish convergence on a suitable dense subclass of functions. We choose smooth functions as subclass, the convergence is stated in \Cref{convergence-for-smooth} and proved in \Cref{10smooth}.
 In the second step, one controls the relevant error of approximating a general function by a function in
 the subclass. This is stated in \Cref{control-approximation-effect} and proved
 in \Cref{10difference}.
@@ -6340,111 +6340,48 @@ All subsections past \Cref{10classical} are mutually independent.
 \section{The classical Carleson theorem}
 \label{10classical}
 
-Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$, bounded in absolute value by $1$, be given. Let $0<\epsilon<1$ be given.
-
+Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ and $0<\epsilon<1$ be given.
+Let
+\begin{equation}
+    C_{a,q} := \frac{2^{450a^3}}{(q-1)^5}
+\end{equation}
+denote the constant from \Cref{metric-space-Carleson}.
+Define
+\begin{equation}
+    \epsilon' := \frac \epsilon {4 (C_{4,2} \cdot (8 / (\pi\epsilon))^{\frac 1 2} + \pi)}.
+\end{equation}
 By uniform  continuity of $f$, there is a $0<\delta<\pi$
 such that for all $x,x' \in \R$ with $|x-x'|\le \delta$
 we have
 \begin{equation}\label{uniconbound}
-|f(x)-f(x')|\le 2^{-2^{50}}\epsilon^2\, .
-\end{equation}
-Let $K$ be the Gaussian bracket of $\frac{2\pi}\delta+1$, that is the unique integer with
-\begin{equation}
-    K\le  \frac{2\pi}{\delta} +1< K+1\,,
-\end{equation}
-and note that $K>2$ by assumption on $\delta$.
-For each $x\in \R$, let $k(x)$ be the Gaussian bracket of $Kx/2\pi$, that is the unique integer such that
-\begin{equation}\label{definekx}
-k(x)\le \frac{Kx}{2\pi}<k(x)+1\, .
+|f(x)-f(x')|\le \epsilon' \, .
 \end{equation}
 Define
 \begin{equation}\label{def-fzero}
-f_0(x):=f\left(\frac{2\pi k(x)}{K}\right)\, .
+f_0:=f \ast \phi_\delta,
 \end{equation}
-\begin{lemma}[piecewise constant
+where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\delta) \subset (-\delta, \delta)$ and $\int _\R \phi_\delta (x) \, dx = 1$.
+\begin{lemma}[smooth
 approximation]
-\label{piecewise-constant-approximation}
-The function $f_0$ is measurable.
+\label{smooth-approximation}
 The function $f_0$ is $2\pi$-periodic.
+The function $f_0$ is smooth (and therefore measurable).
 The function $f_0$ satisfies for all $x\in \R$:
 \begin{equation}\label{eq-ffzero}
-|f(x)-f_0(x)|\le  2^{-2^{50}} \epsilon^2\, ,
-\end{equation}
-\begin{equation}\label{eq-ffzero1}
-|f_0(x)|\le  1\, .
+|f(x)-f_0(x)|\le  \epsilon' \, ,
 \end{equation}
 \end{lemma}
 
 \begin{proof}
-Let $F$ be any set in $\mathbb{C}$. We show that
-$f_0^{-1}(F)$ is measurable. As
-$Z:=\{2\pi k/K, k\in \mathbb{Z}\}$ is countable, it suffices to show
-that $f_0^{-1}(F)\setminus Z$ is measurable. It then
-suffices to show that $f_0^{-1}(F)\setminus Z$ is open.
-Let $x\in f_0^{-1}(F)\setminus Z$. There is a $k$
-such that $x\in [2\pi k/K, 2\pi (k+1))$. As $x\not\in Z$, we have that $x\in (2\pi k/K, 2\pi (k+1))$.
-But $f_0$ is constant on $(2\pi k/K, 2\pi (k+1))$,
-hence $(2\pi k/K, 2\pi (k+1))$ is a subset of
-$f_0^{-1}(F)\setminus Z$. This proves that
-$f_0^{-1}(F)\setminus Z$ is open and completes the proof of measurability of $f_0$.
-
-
-
-
-To see that $f_0$ is $2\pi$-periodic, we observe by
-applying \eqref{definekx} to $x+2\pi$ and subtracting $K$
-that
-\begin{equation}\label{definekxshifted}
-k(x+2\pi)-K\le \frac{Kx}{2\pi}<k(x+2\pi)-K+1\,
-\end{equation}
-and hence
-\begin{equation}
- k(x+2\pi)-K=k(x)
-\end{equation}
-and hence by Definition \eqref{def-fzero}
-\begin{equation}
-    f_0(x+2\pi)=f(\frac {2\pi k(x+2\pi)}K)=f(\frac{2\pi (k(x)+K)}{K})
-     =f(\frac{2\pi k(x)}K+2\pi)\ ,
-\end{equation}
-which by $2\pi$-periodicity of $f$ is equal to
-\begin{equation}
-   =f(\frac{2\pi k(x)}K)=f_0(x)\, .
-\end{equation}
-  This proves that $f_0$ is $2\pi$- periodic
-
-
-
-
-To see \eqref{eq-ffzero}, observe that by \eqref{definekx} used
-twice and then by definition of $K$ we have
-\begin{equation}
-0\le x-\frac{2\pi k(x)}{K} \le \frac{2\pi }{K}\le \delta\, .
-\end{equation}
-Hence, by choice of $\delta$, for all $x\in \R$, we obtain \eqref{eq-ffzero}.
-
-Finally \eqref{eq-ffzero} follows because $|f|$ by assumption is bounded by $1$.
-This completes the proof of the lemma.
+Most of this is part of the Lean library.
 \end{proof}
 
-Define the set $E_1$ to be
-\begin{equation}
-E_1=\bigcup_{k=0}^{K}[\frac{2\pi}K (k-\frac {\epsilon}{16\pi }),
-\frac{2\pi}K (k+\frac {\epsilon}{16\pi})]\, .
-\end{equation}
-Then we have for the Lebesgue measure of $E_1$, using $K>1$,
-\begin{equation}
- |E_1|\le \sum_{k=0}^{K}\frac {\epsilon}{4K}= \frac{\epsilon}{4}\left(1+\frac 1K\right)\le \frac \epsilon 2\, \, .
-\end{equation}
-
-We prove in \Cref{10piecewise}:
-\begin{lemma}[convergence for piecewise constant]
-\label{convergence-for-piecewise-constant}
-\uses{constant-function,flat-interval-partial-sum}
-    For all $N>\frac {2^{25} K^2}{\epsilon ^3}$ and
-    \begin{equation}
-        x\in [0,2\pi)\setminus E_1
-    \end{equation}
-we have
+We prove in \Cref{10smooth}:
+\begin{lemma}[convergence for smooth]
+\leanok
+\label{convergence-for-smooth}
+\uses{convergence-for-twice-contdiff}
+    There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
     \begin{equation}
         |S_N f_0 (x)- f_0(x)|\le \frac \epsilon 4\, .
     \end{equation}
@@ -6453,12 +6390,13 @@ we have
 
 We prove in \Cref{10difference}:
 \begin{lemma}[control approximation effect]
+\leanok
 \label{control-approximation-effect}
-\uses{real-Carleson}
-    There is a set $E_2 \subset \R$ with Lebesgue measure
-    $|E_2|\le \frac \epsilon 2$ such that for all
+\uses{real-Carleson,dirichlet-kernel,lower-secant-bound}
+    There is a set $E \subset \R$ with Lebesgue measure
+    $|E|\le \epsilon$ such that for all
     \begin{equation}
-        x\in [0,2\pi)\setminus E_2
+        x\in [0,2\pi)\setminus E
     \end{equation}
    we have
     \begin{equation}
@@ -6467,22 +6405,14 @@ We prove in \Cref{10difference}:
         \le \frac \epsilon 4\,.
     \end{equation}
 \end{lemma}
-
-Define
-\begin{equation}
-    E:=E_1\cup E_2\, .
-\end{equation}
-Then
-\begin{equation}
-    |E|\le |E_1|+|E_2|\le \frac \epsilon 2 +\frac \epsilon 2 \le \epsilon\, .
-\end{equation}
-Let $N_0$ be the unique integer such that
-\begin{equation}
-    N_0- 1\le {2^{25} K^2}{\epsilon ^{-3}}<N_0\, .
-\end{equation}
+We are now ready to prove classical Carleson:
+\begin{proof} [Proof of \Cref{classical-Carleson}]
+\proves{classical-Carleson}
+\leanok
+Let $N_0$ be as in \Cref{convergence-for-smooth}.
 For every
 \begin{equation}
-x\in [0,1)\setminus E\, ,
+x\in [0, 2\pi) \setminus E\, ,
 \end{equation}
 and every $N>N_0$ we have by the triangle inequality
 \begin{equation*}
@@ -6491,14 +6421,12 @@ and every $N>N_0$ we have by the triangle inequality
     \begin{equation}\label{epsilonthird}
     \le |f(x)-f_0(x)|+ |f_0(x)-S_Nf_0(x)|+|S_Nf_0(x)-S_N f(x)|\, .
 \end{equation}
-Using \eqref{uniconbound} and Lemmas \ref{convergence-for-piecewise-constant}
-and \ref{control-approximation-effect}, we estimate \eqref{epsilonthird} by
+Using \Cref{smooth-approximation,convergence-for-smooth,control-approximation-effect}, we estimate \eqref{epsilonthird} by
 \begin{equation}
-    \le 2^{-2^{50}} \epsilon^2 +\frac \epsilon 4 +\frac \epsilon 4\le \epsilon\, .
+    \le \epsilon' +\frac \epsilon 4 +\frac \epsilon 4\le \epsilon\, .
 \end{equation}
-This shows  \eqref{aeconv} for the given $E$ and $N_0$
-and completes the proof of \Cref{classical-Carleson}.
-
+This shows  \eqref{aeconv} for the given $E$ and $N_0$.
+\end{proof}
 
 Let  $\kappa:\R\to \R$ be the function defined by
 $\kappa(0)=0$ and for $0<|x|<1$
@@ -6516,10 +6444,11 @@ use the following \Cref{real-Carleson}, which itself is proven
  in \Cref{10carleson} as an application of
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
+\leanok
 \uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
-    \left|\int _G Tf(x) \, dx\right| \le 2^{2^{40}}|F|^{\frac 12} |G|^{\frac 12} \, ,
+    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
 \end{equation}
 where
 \begin{equation}
@@ -6638,7 +6567,6 @@ We have for $e^{ix'}\neq 1$ that
 
 
 \begin{proof}
-\proves{dirichlet-kernel}
 \leanok
 We have by definitions and interchanging sum and integral
    \begin{equation*}
@@ -6672,11 +6600,10 @@ This  proves the second part of the lemma.
 \leanok
 Let $\eta>0$ and $-2\pi +\eta \le  x\le 2\pi-\eta$ with $|x|\ge \eta$. Then
 \begin{equation}
-    |1-e^{ix}|\ge \frac {\eta} 4
+    |1-e^{ix}|\ge \frac{2}{\pi} \eta
 \end{equation}
 \end{lemma}
 \begin{proof}
-\proves{lower-secant-bound}
 \leanok
 We have
 $$
@@ -6706,12 +6633,11 @@ The following lemma will be proved in \Cref{10projection}.
 \uses{lower-secant-bound}
     For $x,y\in \R$ with $x\neq y$ we have
     \begin{equation}\label{eqcarl30}
-        |\kappa(x-y)|\le 2^4(2|x-y|)^{-1}\, .
+        |\kappa(x-y)|\le 2^2(2|x-y|)^{-1}\, .
     \end{equation}
 \end{lemma}
 \begin{proof}
 \leanok
-\proves{Hilbert-kernel-bound}
     Fix $x\neq y$. If $\kappa(x-y)$ is zero, then \eqref{eqcarl30} is evident. Assume $\kappa(x-y)$ is not zero, then $0<|x-y|<1$.
     We have
 \begin{equation}\label{eqcarl31}
@@ -6720,13 +6646,14 @@ The following lemma will be proved in \Cref{10projection}.
 We estimate
 with \Cref{lower-secant-bound}
 \begin{equation}\label{eqcarl311}
-|\kappa(x-y)|\le \frac {1}{|1-e^{i(x-y)}|}\le \frac 8{|x-y|}\, .
+|\kappa(x-y)|\le \frac {1}{|1-e^{i(x-y)}|}\le \frac 2{|x-y|}\, .
 \end{equation}
 This proves \eqref{eqcarl30} in the given case and completes the proof of the lemma.
 \end{proof}
 
 \begin{lemma}[Hilbert kernel regularity]
 \label{Hilbert-kernel-regularity}
+\leanok
 \uses{lower-secant-bound}
     For $x,y,y'\in \R$ with $x\neq y,y'$ and
     \begin{equation}
@@ -6735,11 +6662,12 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
     \end{equation}
     we have
     \begin{equation}\label{eqcarl301}
-        |\kappa(x-y) - \kappa(x-y')|\le 2^{10}\frac{1}{|x-y|} \frac{|y-y'|}{|x-y|}\, .
+        |\kappa(x-y) - \kappa(x-y')|\le 2^{8}\frac{1}{|x-y|} \frac{|y-y'|}{|x-y|}\, .
     \end{equation}
 \end{lemma}
 
 \begin{proof}
+\leanok
     Upon replacing $y$ by $y-x$ and $y'$ by $y'-x$ on the left-hand side of \eqref{eq-close-hoelder}, we can assume that $x = 0$. Then the assumption \eqref{eq-close-hoelder} implies that $y$ and $y'$ have the same sign. Since $\kappa(y) = \bar \kappa(-y)$ we can assume that they are both positive. Then it follows from \eqref{eq-close-hoelder} that
     $$
         \frac{y}{2} \le y' \,.
@@ -6754,19 +6682,23 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
     $$
     Using $y' \ge \frac{y}{2}$ and \Cref{lower-secant-bound}, we bound this by
     $$
-        \le |y - y'| \sup_{\frac{y}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |y-y'| (8 \frac{2}{y})^2 \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+        \le |y - y'| \sup_{\frac{y}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |y-y'| (2 \frac{2}{y})^2 \le 2^{6} \frac{|y-y'|}{|y|^2}\,.
     $$
     If $y \le 1$ and $y' > 1$, then $\kappa(-y') = 0$ and we have from the first case
     $$
-        |\kappa(-y) - \kappa(-y')| = |\kappa(-y) - \kappa(-1)| \le 2^{10} \frac{|y-1|}{|y|^2} \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+        |\kappa(-y) - \kappa(-y')| = |\kappa(-y) - \kappa(-1)| \le 2^{6} \frac{|y-1|}{|y|^2} \le 2^{6} \frac{|y-y'|}{|y|^2}\,.
     $$
-    Similarly, if $y > 1$ and $y' \le 1$, then $\kappa(-y) = 0$ and we have by the same computation as for the first case
+    Similarly, if $y > 1$ and $y' \le 1$, then $\kappa(-y) = 0$ and we have from the first case
     $$
-        |\kappa(-y) - \kappa(-y')| = |\kappa(-y') - \kappa(-1)| \le 2^{10} \frac{|y-1|}{|y|^2} \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+        |\kappa(-y) - \kappa(-y')| = |\kappa(-y') - \kappa(-1)| \le 2^{6} \frac{|y'-1|}{|y'|^2} \le 2^{6} \frac{|y-y'|}{|y'|^2}\,.
+    $$
+    Using again $y' \ge \frac{y}{2}$, we bound this by
+    $$
+        \le 2^{6} \frac{|y-y'|}{|y / 2|^2} = 2^{8} \frac{|y-y'|}{|y|^2}
     $$
     Finally, if $y, y' > 1$ then
     $$
-        |\kappa(-y) - \kappa(-y')| = 0 \le 2^{10} \frac{|y-y'|}{|y|^2}\,.
+        |\kappa(-y) - \kappa(-y')| = 0 \le 2^{8} \frac{|y-y'|}{|y|^2}\,.
     $$
 \end{proof}
 
@@ -6775,215 +6707,66 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 
 
 
-
-
-
-\section{Piecewise constant functions.}
-\label{10piecewise}
-
-
-
-
-
-
-
-
-
-We first compute the partial Fourier sums for constant functions.
-
-
-\begin{lemma}[constant function]
-\label{constant-function}
-\uses{mean-zero-oscillation}
-If $h$ satisfies $h(x)=h(0)$ for all $x\in \R$, then for all $N\ge 0$ we have $S_Nh=h$.
- \end{lemma}
-\begin{proof}
-    We compute with \Cref{mean-zero-oscillation} for $n\in \mathbb{Z}$ with $n\neq 0$,
-    \begin{equation}
-        \widehat{h}_n=\frac 1{2\pi}\int_0^{2\pi}h(y)e^{-iny}\, dy=\frac {h(0)}{2\pi}\int_0^{2\pi}e^{-iny}\, dy=0\, .
-    \end{equation}
-hence for $N\ge 0$
+\section{Smooth functions.}
+\label{10smooth}
+\begin{lemma}
+\label{fourier-coeff-derivative}
+\leanok
+Let $f:\R \to \C$ be $2\pi$-periodic and differentiable, and let $n \in \Z \setminus \{0\}$. Then
 \begin{equation}
-    S_nh(x)=\sum_{n=-N}^N \widehat{h}_n e^{inx}=\widehat{h_0}=\frac{1}{2\pi}\int_0^{2\pi}h(y)\, dy
-    =\frac{h(0)}{2\pi}\int_0^{2\pi}\, dy=h(x)\, .
+    \widehat{f}_n = \frac{1}{i n} \widehat{f'}_n.
 \end{equation}
-This proves the lemma.
+\end{lemma}
+\begin{proof}
+\leanok
+This is part of the Lean library.
 \end{proof}
 
-\begin{lemma}[Dirichlet kernel bound]
-\label{dirichlet-kernel-bound}
-\uses{lower-secant-bound}
-Let $\eta>0$. Let
+\begin{lemma}
+\label{convergence-of-coeffs-summable}
+\leanok
+Let $f:\R \to \C$ such that
 \begin{equation}
-    -2\pi +\eta \le \alpha < \beta \le 2\pi-\eta
-\end{equation}
-and assume
-\begin{equation}\label{eq-abdelta}
-   [\alpha,\beta]\cap [-\eta,\eta]=\emptyset \, .
+    \sum_{n\in \Z} |\widehat{f}_n| < \infty.
 \end{equation}
 Then
-    \begin{equation}\label{dirichletint}
-    \left|\int_\alpha^\beta
-\frac {e^{iNx}} {1-e^{-ix}}
-dx\right| \le \frac{64}N(\frac{|\beta-\alpha|}{\eta^2}+\frac 1{\eta}).
-\end{equation}
-\end{lemma}
-\begin{proof}
- Note first that the integral in \eqref{dirichletint}
-    is well defined as the denominator of the integrand is bounded away from zero by \Cref{lower-secant-bound}
-    and thus the integrand is continuous.
-    We have with partial integration
-\begin{equation*}
-    \int_\alpha^\beta
-\frac {e^{-iNx}} {1-e^{ix}}\,
-dx
-\end{equation*}
-\begin{equation}\label{eq-part-int}
-=\frac 1{-iN}\int_\alpha^\beta
-{e^{-iNx}}\frac {ie^{ix}} {(1-e^{ix})^2}\, dx
-+\left[ \frac 1{-iN}
-\frac {e^{-iNx}} {1-e^{ix}}\right]_\alpha^\beta\, .
-\end{equation}
-We estimate the two summands in
-\eqref{eq-part-int} separately. We have
-for the first summand in \eqref{eq-part-int}
-with \Cref{lower-secant-bound},
-\begin{equation*}
-\left|   \frac 1 {-iN}\int_\alpha^\beta
-{e^{-iNx}}\frac{ie^{ix}}
-{(1-e^{ix})^2}\,
-dx \right|
-\end{equation*}
-\begin{equation}\label{firstpi}
-    \le \frac 1N \int_\alpha^\beta|1-e^{-ix}|^{-2} \, dx \le \frac {|\beta-\alpha|}N\sup_{x\in [\alpha,\beta]}|1-e^{-ix}|^{-2}
-\end{equation}
 \begin{equation}
-    \le  \frac {64|\beta-\alpha|}{\eta^2N}
+    \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
 \end{equation}
-We have for the second summand in \eqref{eq-part-int}
-with \Cref{lower-secant-bound} again
-\begin{equation*}
-   \left|\left[ \frac 1{-iN}
-    \frac {e^{-iNx}} {1-e^{ix}}\right]_\alpha^\beta\right|
-\end{equation*}
-\begin{equation}\label{secondpi}
-   \le \frac 1N (|1-e^{i\alpha}|^{-1}+|1-e^{i\beta}|^{-1})
-    \le \frac {16}{\eta N}\, .
-\end{equation}
-Using the triangle inequality in \eqref{eq-part-int}
-and applying the estimates \eqref{firstpi} and \eqref{secondpi}  proves the lemma.
+as $N \rightarrow \infty$.
+\end{lemma}
+
+\begin{proof}
+\leanok
+    This is part of the Lean library.
 \end{proof}
 
-
-
-Let $\mathcal{G}$ be the class of $2\pi$-periodic measurable functions $g$ which satisfy for all $x\in \R$
+\begin{lemma}
+\label{convergence-for-twice-contdiff}
+\uses{convergence-of-coeffs-summable}
+\leanok
+Let $f:\R \to \C$ be $2\pi$-periodic and twice continuously differentiable. Then
 \begin{equation}
-   g(\frac{2\pi k(x)}K)=g(x)
+    \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
 \end{equation}
-and
-\begin{equation}
-   |g(x)|\le 2\, .
-\end{equation}
-
-
-
-\begin{lemma}[flat interval partial sum]
-\label{flat-interval-partial-sum}
-\uses{dirichlet-kernel,dirichlet-kernel-bound}
-Let $g\in \mathcal{G}$. Assume
-$x\in [0,2\pi)\setminus E_1 $ and $g(x)=0$.
-Then for all $N>\frac {2^{25} K^2}{\epsilon^3}$
-\begin{equation}\label{single-char-f}
-|S_Ng(x)|\le \frac \epsilon 4\, ,
-\end{equation}
+as $N \rightarrow \infty$.
 \end{lemma}
 \begin{proof}
-
-
-
-
-
-
-   With \Cref{dirichlet-kernel}, breaking up the domain of integration into a
-   partition of subintervals,
-   \begin{equation*}
-      |S_N(g)|= \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} g(y)K_N(x-y)\, dy\right|
-   \end{equation*}
-   \begin{equation}\label{eqcf1}
-  =  \frac{1}{2\pi} \left|\sum_{k=0}^{K-1}\int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} g(y)K_N(x-y)\, dy\right|\, .
-   \end{equation}
-Using $g\in \mathcal{G}$ and that $ k(y)=k$ for each
-\begin{equation}
-    y\in [\frac {2\pi k}K, \frac{2\pi (k+1)}K)\, ,
-\end{equation}
-and then applying the triangle inequality with the upper bound on $|g|$ and the identity $g(x)=g(2\pi k(x)/K)=0$,  we estimate \eqref{eqcf1} by
-      \begin{equation*}
-  =  \frac{1}{2\pi} \left|\sum_{k=0}^{K-1} g(\frac{2\pi k}K) \int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} K_N(x-y)\, dy\right|
-   \end{equation*}
-      \begin{equation}\label{eqcf3}
-  \le \frac{1}{\pi} \sum_{0\le k<K, k\neq k(x)} \left|\int_{\frac{2\pi k}K}^{\frac{2\pi (k+1)}K} K_N(x-y)\, dy\right|\, .
-   \end{equation}
-Doing a variable substitution, we obtain for \eqref{eqcf3}
-\begin{equation}
-  \frac{1}{\pi} \sum_{0\le k<K, k\neq k(x)}
-   \left|\int_{x-2\pi (k+1)/K}^{x-2\pi k/K} K_N(y)\, dy\right|\, .
-\end{equation}
-Fix $0\le k<K$ with $k\neq k(x)$ and set
-\begin{equation}
-    \alpha=x-2\pi (k+1)/K\, ,
-\end{equation}
-\begin{equation}
-    \beta=x-2\pi k/K\, .
-\end{equation}
-As $x\in [0,2\pi)\setminus E_1$, we have
-with $\eta=\epsilon/(8K)$
-\begin{equation}
-    \alpha\ge x-2\pi\ge -2\pi+\eta\, ,
-\end{equation}
-\begin{equation}
-    \beta\le x \le 2\pi -\eta\, .
-\end{equation}
-If $\beta< 0$, then $2\pi k/K> x$ and as $x\not \in E_1$ also
-$2\pi k-\eta \ge x$. Hence $\beta \le -\eta $. If $\beta \ge 0$, then $2\pi k/K\le x$. As $k\neq k(x)$, we also have
-$2\pi (k+1)/K\le x$. As $x\not \in E_1$, we have
-$2\pi (k+1)/K+\eta \le x$. It follows that
-$0<\alpha$. In both cases, we have seen
-\eqref{eq-abdelta}.
-
-
-
-With \Cref{dirichlet-kernel} and the triangle inequality,
-it follows that
-\begin{equation}
-   \left|\int_{x-2\pi (k+1)/K}^{x-2\pi k/K} K_N(y)\, dy\right|
-   \le \left|\int_{\alpha}^{\beta}
-   \frac{e^{iNy}}{1-e^{-iy}}\, dy\right|+
-   \left|\int_{\alpha}^{\beta}
-   \frac{e^{-iNy}}{1-e^{iy}}\, dy\right|
-\end{equation}
-Using that the two integrals on the right-hand side are complex conjugates of each other, and using \Cref{dirichlet-kernel-bound} and $\epsilon <2\pi$, this is bounded by
-\begin{equation}
-   \le 2\left|\int_{\alpha}^{\beta}
-   \frac{e^{iNy}}{1-e^{-iy}}\, dy\right|
-   \le \frac{128}N(\frac{|\beta-\alpha|}{\eta^2}+\frac 1{\eta})
-   \le \frac{2^{20}K}{N\epsilon^2 }\le 2^{-3}\epsilon K^{-1}\, .
-\end{equation}
-Inserting this in \eqref{eqcf3} and adding up proves
-the lemma.
+\leanok
+By \Cref{convergence-of-coeffs-summable}, it suffices to show that the Fourier coefficients $\widehat{f}_n$ are summable.
+Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is continuous and thus bounded on $[0,2\pi]$ , we compute
+\begin{equation*}
+    \sum_{n\in \Z} |\widehat{f}_n| = |\widehat{f}_0| + \sum_{n\in \Z \setminus \{0\}} \frac {1}{n^2} |\widehat{f''}_n|
+    \le |\widehat{f}_0| + \left(\sup_{x\in [0,2\pi]} |f(x)| \right) \cdot \sum_{n\in \Z \setminus \{0\}} \frac {1}{n^2}
+    < \infty.
+\end{equation*}
 \end{proof}
 
-We now prove  \Cref{convergence-for-piecewise-constant}.
-
-Let $x\in [0,2\pi)\setminus E_1 $ and $N>\frac {2^{25} K^2}{\epsilon ^3}$.
-Let $h$ be the function which is constant equal to $f_0(x)$ and let $g=f_0-h$.
-By the bound on $f$ and the triangle inequality,
-$|g|$ is bounded by $2$. Hence $g$ is in the class $\mathcal{G}$. We also have $g(x)=0$.
-Using \Cref{constant-function}, we obtain
-\begin{equation}
-    S_Nf_0(x)- f_0(x)=S_N(g+h)(x)- S_Nh(x)=S_Ng(x)\, .
-\end{equation}
-\Cref{convergence-for-piecewise-constant}
-now follows by \Cref{flat-interval-partial-sum}.
+\begin{proof}
+\leanok
+\proves{convergence-for-smooth}
+    \Cref{convergence-for-smooth} now follows directly from the previous \Cref{convergence-for-twice-contdiff}.
+\end{proof}
 
 \section{Proof of Cotlar's Inequality}
 \label{subsec-cotlar}
@@ -8382,13 +8165,21 @@ This completes the proof of the lemma.
 
 \section{The error bound}
 \label{10difference}
-We prove \Cref{control-approximation-effect}. Define
-$$
-    E_2 := \{x \in [0, 2\pi) \ : \ \sup_{N > 0} |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4} \}\,.
-$$
-Then \eqref{eq-max-partial-sum-diff} clearly holds, and it remains to show that $|E_2| \le \frac{\epsilon}{2}$. This will follow from \Cref{real-Carleson}.
 
-Let $x \in E_2$. Then there exists $N > 0$ with
+%\begin{lemma}
+%\label{control-approximation-effect}
+%Let $h : \R \to \C$ be measurable, $2\pi$-periodic and
+%\end{lemma}
+
+\begin{proof}[Proof of \Cref{control-approximation-effect}]
+\leanok
+Define
+$$
+    E := \{x \in [0, 2\pi) \ : \ \sup_{N > 0} |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4} \}\,.
+$$
+Then \eqref{eq-max-partial-sum-diff} clearly holds, and it remains to show that $|E| \le \frac{\epsilon}{2}$. This will follow from \Cref{real-Carleson}.
+
+Let $x \in E$. Then there exists $N > 0$ with
 $$
     |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4}\,,
 $$
@@ -8419,19 +8210,19 @@ Using \eqref{eqksumhil} and the definition \eqref{eq-hilker} of $\kappa$, we rew
 \end{equation}
 By \Cref{lower-secant-bound} with $\eta = |y|$, we have for $-1 \le y \le 1$
 $$
-    |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{|y|}{|1 - e^{iy}|} \le 8\,.
+    |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{|y|}{|1 - e^{iy}|} \le \frac \pi 2 \,.
 $$
 By \Cref{lower-secant-bound} with $\eta = 1$, we have for $1 \le |y| \le \pi$
 $$
-    |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{1}{|1 - e^{iy}|} \le 8\,.
+    |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{1}{|1 - e^{iy}|} \le \frac \pi 2 \,.
 $$
 Thus we obtain using the triangle inequality and  \eqref{eq-ffzero}
 $$
-    \eqref{eq-diff-integrable} \le \frac{16}{2\pi} \int_{-\pi}^{\pi} |f(x-y) - f_0(x-y)| \, dy \le 2^{4-2^{50}} \epsilon^2\,.
+    \eqref{eq-diff-integrable} \le \frac{1}{2} \int_{-\pi}^{\pi} |f(x-y) - f_0(x-y)| \, dy \le \pi\epsilon'.
 $$
 Consequently, we have that
 $$
-    \frac{\epsilon}{8} \le \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|\,.
+    \frac{\epsilon}{4} - \pi\epsilon' \le \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|\,.
 $$
 By dominated convergence and since $\kappa(y) = 0$ for $|y| > 1$, this equals
 $$
@@ -8448,20 +8239,20 @@ By the definition \eqref{define-T-carleson} of $T$, this is
 $$
     \le \frac{1}{2\pi} (Th(x) + T\bar{h}(x))\,.
 $$
-Thus for each $x \in E_2$, at least one of $Th(x)$ and $T\bar h(x)$ is larger than $\frac{\epsilon}{16}$.
-Thus at least one of $Th$ and $T\bar h$ is $\ge \frac{\epsilon}{16}$ on a subset $E_2'$ of $E_2$ with $2|E_2'| \ge |E_2|$. Without loss of generality this is $Th$. By assumption \eqref{eq-ffzero}, we have $|2^{2^{50}}\epsilon^{-2} h| \le \mathbf{1}_{[-\pi, 3\pi]}$. Applying \Cref{real-Carleson} with $F = [-\pi, 3\pi]$ and $G = E_2'$, it follows that
+Thus for each $x \in E$, at least one of $Th(x)$ and $T\bar h(x)$ is larger than $\frac{\pi(\epsilon - 4 \pi\epsilon')}{4}$.
+Thus at least one of $Th$ and $T\bar h$ is $\ge \frac{\pi(\epsilon - 4 \pi\epsilon')}{4}$ on a subset $E'$ of $E$ with $2|E'| \ge |E|$. Without loss of generality this is $Th$. By assumption \eqref{eq-ffzero}, we have $|2^{2^{50}}\epsilon^{-2} h| \le \mathbf{1}_{[-\pi, 3\pi]}$. Applying \Cref{real-Carleson} with $F = [-\pi, 3\pi]$ and $G = E'$, it follows that
 $$
-    \frac{\epsilon}{16} |E_2'| \le \int_{E_2'} Th(x) \, dx = 2^{-2^{50}}\epsilon^2 \int_{E_2'} T(2^{2^{50}}\epsilon^{-2} h)(x) \, dx
+    \frac{\pi(\epsilon - 4 \pi\epsilon')}{4} |E'| \le \int_{E'} Th(x) \, dx = \epsilon' \int_{E'} T(\epsilon'^{-1} h)(x) \, dx
 $$
 $$
-    \le 2^{-2^{50}}  \epsilon^2 \cdot 2^{2^{40}}  |F|^{\frac{1}{2}} |E_2'|^{\frac{1}{2}} \le  2^{-2^{40}} \frac{\epsilon^2}{16} |E_2'|^{\frac{1}{2}}\,.
+    \le \epsilon' \cdot C_{4,2}  |F|^{\frac{1}{2}} |E'|^{\frac{1}{2}} \le (4\pi)^\frac{1}{2} C_{4,2} \epsilon' \cdot |E'|^{\frac{1}{2}}\,.
 $$
 Rearranging, we obtain
 $$
-    |E_2'| \le 2^{-2^{41}}\epsilon^2 \le \frac{\epsilon}{4}\,.
+    |E'| \le \left(\frac{4 (4\pi)^\frac{1}{2} C_{4,2} \epsilon'}{\pi(\epsilon - 4 \pi\epsilon')}\right)^2 = \frac{\epsilon}{2}\,.
 $$
-This completes the proof using $|E_2| \le 2|E_2'|$.
-
+This completes the proof using $|E| \le 2|E'|$.
+\end{proof}
 
 
 
@@ -8652,10 +8443,10 @@ and for $j=1,2,3$
 \begin{proof}
 Let $m_1$ be the largest integer smaller than
 or equal to
-$n-R'/2$.
+$n- \frac {R'} {2R}$.
 Let $m_2=n$.
 Let $m_3$ be the smallest integer larger than
-or equal to $n+R'/2$.
+or equal to $n+ \frac {R'} {2R}$.
 
 Let $\mfa_{n'}\in B'$, then with \eqref{eqcarl4},
 we have
@@ -8663,8 +8454,7 @@ we have
     2R|n-n'|< 2R'\, .
 \end{equation}
 
-Assume first $n'\le n-R'/2$. By definition of $m_1$,
-we have $n'\le m_1$.  With \eqref{eqcarl6}
+Assume first $n'\le m_1$. With \eqref{eqcarl6}
 we have
 \begin{equation*}
     R|m_1-n'|=R(m_1-n')=R(m_1-n)+R(n-n')
@@ -8674,12 +8464,10 @@ we have
 \end{equation}
 We conclude $\mfa_{n'}\in B_1$.
 
-Assume next  $n-R'/2<n'<n+R'/2$. Then
+Assume next  $m_1<n'<m_3$. Then
 $\mfa_{n'}\in B_2$.
 
-Assume finally that $n+R'/2\le n'$
-By definition of $m_3$,
-we have $m_3\le n'$.  With \eqref{eqcarl6}
+Assume finally that $m_3\le n'$. With \eqref{eqcarl6}
 we have
 \begin{equation*}
     R|m_3-n'|=R(n'-m_3)=R(n'-n)+R(n-m_3)
