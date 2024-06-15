@@ -130,8 +130,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
     ring_nf
   have localOscillation_eq : localOscillation (Metric.ball x R) (θ n) (θ m) = ⨆ z ∈ (Metric.ball x R) ×ˢ (Metric.ball x R), ‖(n - m) * (z.1 - x) - (n - m) * (z.2 - x)‖ := by
       rw [localOscillation]
-      congr
-      ext z
+      congr with z
       rw [norm_integer_linear_eq]
   rw [localOscillation_eq]
   /- Show inequalities in both directions. -/
@@ -165,8 +164,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
         _ = localOscillation (Metric.ball x R) (θ n) (θ m) := rfl
         _ = ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
           rw [localOscillation]
-          congr
-          ext z
+          congr with z
           rw [norm_integer_linear_eq]
     push_neg at c_nonneg
     set R' := (c + 2 * R * |(n : ℝ) - m|) / (4 * |(n : ℝ) - m|) with R'def
@@ -471,8 +469,7 @@ lemma CarlesonOperatorReal'_le_CarlesonOperator' : T' ≤ CarlesonOperator' K Θ
   apply le_iSup₂_of_le rpos rle1
   apply le_of_eq
   rw [integer_linear, ContinuousMap.coe_mk]
-  congr
-  ext y
+  congr with y
   ring_nf
 
 /- Lemma 10.4 (ENNReal version) -/
