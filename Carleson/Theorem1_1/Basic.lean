@@ -35,7 +35,6 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add, Complex.real_smul,
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
-  congr
   ring_nf
   . apply hf.continuousOn_mul
     apply Continuous.continuousOn
