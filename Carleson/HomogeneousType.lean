@@ -62,7 +62,7 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r
           = volume.real (ball x (2 ^ (m+1) * r)) := by rfl
         _ = volume.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
         _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
-        _ ≤ A * volume.real (ball x (2 ^ m * r)) := by rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
+        _ ≤ A * volume.real (ball x (2 ^ m * r)) := by rw[mul_assoc]; norm_cast; exact volume_ball_two_le_same _ _
         _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr
         _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc, pow_succ']
 
@@ -70,15 +70,13 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r
   have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by
     sorry
   have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by
-    calc ball x r' ⊆ ball x (s * r) := by apply ball_subset_ball hs
-        _ ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by apply ball_subset_ball haux
+    calc ball x r' ⊆ ball x (s * r) := ball_subset_ball hs
+        _ ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := ball_subset_ball haux
 
   /-Apply result for power of two to slightly larger ball-/
   calc volume.real (ball x r')
           ≤ volume.real (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr; finiteness
-        _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * volume.real (ball x r) := by apply hn
-
-
+        _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * volume.real (ball x r) := hn _
 
 def Ad (A : ℝ) (s d : ℝ) : ℝ :=
   As A (A * (d + s))
@@ -87,11 +85,10 @@ lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
   (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
     intro y h
     have h1 : dist x y < r := by
-      calc dist x y ≤ dist x x' + dist x' y := by apply dist_triangle
-          _ < dist x x' + r' := by gcongr; apply mem_ball'.mp h
-          _ ≤ r := by apply hr
+      calc dist x y ≤ dist x x' + dist x' y := dist_triangle _ _ _
+          _ < dist x x' + r' := by gcongr; exact mem_ball'.mp h
+          _ ≤ r := hr
     exact mem_ball'.mpr h1
-
 
 lemma volume_ball_le_of_dist_le {x x' : X} {r r' s d : ℝ}
   (hs : r' ≤ s * r) (hd : dist x x' ≤ d * r) :
