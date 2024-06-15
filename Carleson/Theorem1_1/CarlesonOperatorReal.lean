@@ -25,8 +25,8 @@ def CarlesonOperatorRat' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) :
 --TODO: is this needed?
 lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.Ioo r R} = Set.Ioo (x - R) (x - r) ∪ Set.Ioo (x + r) (x + R) := by
   ext y
-  simp
-  rw [Real.dist_eq, lt_abs, abs_lt]
+  simp only [Real.dist_eq, Set.mem_Ioo, lt_abs, neg_sub, abs_lt, neg_lt_sub_iff_lt_add,
+    Set.mem_setOf_eq, Set.mem_union]
   constructor
   . rintro ⟨(h₀ | h₀), h₁, h₂⟩
     . left
@@ -90,9 +90,8 @@ theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 
   --rw [← norm_toNNReal, ← norm_toNNReal]
   apply NNReal.eq
   simp only [coe_nnnorm, NNReal.coe_mul]
-  rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul]
-  congr
-  rw [← MeasureTheory.integral_mul_left, Real.coe_toNNReal a ha.le]
+  rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
+    ← MeasureTheory.integral_mul_left, Real.coe_toNNReal a ha.le]
   congr
   ext y
   field_simp
