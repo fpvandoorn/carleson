@@ -470,7 +470,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     apply Set.Ioc_subset_Icc_self
     rw [Set.uIoc_of_le (by linarith)] at hx
     constructor <;> linarith [hx.1, hx.2]
-    apply measurableSet_uIoc
+    exact measurableSet_uIoc
   set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
   set f := fun x ↦ h x * F.indicator 1 x with fdef
   have f_measurable : Measurable f := by
@@ -543,7 +543,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         congr 1
         ring
         apply Function.Periodic.mul h_periodic
-        apply Function.Periodic.const_sub dirichletKernel'_periodic
+        exact Function.Periodic.const_sub dirichletKernel'_periodic _
       _ = ‖  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
            + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y))      ‖₊ := by
         --Split into two parts
@@ -758,10 +758,8 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       apply ENNReal.mul_ne_top ENNReal.ofReal_ne_top E'volume.ne
     _ = 2 * MeasureTheory.volume.real E' ^ ((1 + -(2 : ℝ)⁻¹) * 2) := by
       conv => lhs; rw [←Real.rpow_one (MeasureTheory.volume.real E')]
-      congr
       norm_num
     _ ≤ 2 * (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - Real.pi * δ))) ^ (2 : ℝ) := by
-      gcongr
       rw [Real.rpow_mul MeasureTheory.measureReal_nonneg]
       gcongr
       rw [Real.rpow_add' MeasureTheory.measureReal_nonneg (by norm_num), Real.rpow_one, le_div_iff' ε'_δ_expression_pos, ← mul_assoc]
