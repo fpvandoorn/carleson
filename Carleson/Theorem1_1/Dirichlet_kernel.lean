@@ -101,8 +101,7 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
     congr 2 <;> ring
 
 lemma dirichletKernel'_eq_zero {N : ℕ} {x : ℝ} (h : cexp (I * x) = 1) : dirichletKernel' N x = 0 := by
-  rw [dirichletKernel', neg_mul, exp_neg, h]
-  simp
+  simp [dirichletKernel', exp_neg, h]
 
 /- "a.e." version of previous lemma. -/
 lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
@@ -140,9 +139,8 @@ lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ �
 
 lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
   by_cases h : cexp (I * x) ≠ 1
-  . rw [← dirichletKernel_eq]
-    apply norm_dirichletKernel_le
-    exact h
+  . simp [← dirichletKernel_eq, h]
+    exact norm_dirichletKernel_le
   . push_neg at h
     rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
