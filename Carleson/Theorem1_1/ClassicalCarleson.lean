@@ -21,7 +21,7 @@ theorem classical_carleson {f : ℝ → ℂ}
   have ε'pos : ε' > 0 := by
     rw [ε'def]
     apply div_pos _ (C_control_approximation_effect_pos εpos)
-    apply div_pos εpos (by norm_num)
+    exact div_pos εpos (by norm_num)
 
     -- Approximation
   obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := closeSmoothApproxPeriodic unicontf periodicf ε'pos
@@ -34,7 +34,7 @@ theorem classical_carleson {f : ℝ → ℂ}
   have h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), Complex.abs (h x) ≤ ε' := by
     intro x _
     simp [hdef]
-    rw [←Complex.dist_eq, dist_comm, Complex.dist_eq]
+    rw [← Complex.dist_eq, dist_comm, Complex.dist_eq]
     exact hf₀ x
 
   -- Control approximation effect
@@ -63,5 +63,5 @@ theorem classical_carleson {f : ℝ → ℂ}
     rw [ε'def, div_div]
     apply div_le_div_of_nonneg_left εpos.le (by norm_num)
     rw [← div_le_iff' (by norm_num)]
-    apply le_trans' (lt_C_control_approximation_effect εpos).le (by linarith [Real.two_le_pi])
+    exact le_trans' (lt_C_control_approximation_effect εpos).le (by linarith [Real.two_le_pi])
   _ ≤ ε := by linarith
