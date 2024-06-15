@@ -23,7 +23,7 @@ lemma k_measurable : Measurable k := by
   apply Measurable.div
   . apply Measurable.comp'
     · exact Complex.measurable_ofReal
-    · exact Measurable.max (measurable_const.sub measurable_norm) measurable_const
+    · exact (measurable_const.sub measurable_norm).max measurable_const
   . measurability
 
 def K (x y : ℝ) : ℂ := k (x - y)
