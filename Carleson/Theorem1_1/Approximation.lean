@@ -202,11 +202,11 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
   have h : ∀ x ∈ Set.uIcc 0 (2 * Real.pi), HasDerivAt f (deriv f x) x := by
     intro x _
     rw [hasDerivAt_deriv_iff]
-    apply fdiff.differentiable (by norm_num)
+    exact fdiff.differentiable (by norm_num) _
   have h' : ∀ x ∈ Set.uIcc 0 (2 * Real.pi), HasDerivAt (deriv f) (deriv (deriv f) x) x := by
     intro x _
     rw [hasDerivAt_deriv_iff]
-    apply (contDiff_succ_iff_deriv.mp fdiff).2.differentiable (by norm_num)
+    exact (contDiff_succ_iff_deriv.mp fdiff).2.differentiable (by norm_num) _
   /-Get better representation for the fourier coefficients of f. -/
   have fourierCoeffOn_eq {n : ℤ} (hn : n ≠ 0): (fourierCoeffOn Real.two_pi_pos f n) = - 1 / (n^2) * fourierCoeffOn Real.two_pi_pos (fun x ↦ deriv (deriv f) x) n := by
     rw [fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h, fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h']
