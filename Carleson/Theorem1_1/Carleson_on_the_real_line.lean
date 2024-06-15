@@ -341,7 +341,7 @@ instance h4 : IsCompatible Θ where
               _ = localOscillation (Metric.ball x R) (θ n) (θ n') := by
                 symm
                 apply localOscillation_of_integer_linear Rpos.le
-              _ < 2 * R' := by exact hφ
+              _ < 2 * R' := hφ
         _ = R' := by ring
     push_neg at h
     by_cases h' : n' < n + R' / (2 * R)
@@ -351,7 +351,7 @@ instance h4 : IsCompatible Θ where
         simp
       rw [m₂def, dist_comm]
       calc localOscillation (Metric.ball x R) (θ n) (θ n')
-        _ = 2 * R * |(n : ℝ) - n'| := by apply localOscillation_of_integer_linear Rpos.le
+        _ = 2 * R * |(n : ℝ) - n'| := localOscillation_of_integer_linear Rpos.le _ _
         _ < 2 * R * (R' / (2 * R)) := by
           gcongr
           rw [abs_sub_lt_iff]
@@ -360,8 +360,7 @@ instance h4 : IsCompatible Θ where
     push_neg at h'
     use θ m₃
     constructor
-    . rw [balls_def]
-      simp
+    . simp [balls_def]
     calc localOscillation (Metric.ball x R) (θ n') (θ m₃)
       _ = 2 * R * |(n' : ℝ) - m₃| := by
         apply localOscillation_of_integer_linear Rpos.le
@@ -375,19 +374,19 @@ instance h4 : IsCompatible Θ where
         . calc 2 * R * (↑n' - ↑n)
             _ ≤ 2 * R * |↑n' - ↑n| := by
               gcongr
-              apply le_abs_self
+              exact le_abs_self _
             _ = 2 * R * |↑n - ↑n'| := by
               congr 1
-              apply abs_sub_comm
+              exact abs_sub_comm _ _
             _ = localOscillation (Metric.ball x R) (θ n) (θ n') := by
               symm
-              apply localOscillation_of_integer_linear Rpos.le
+              exact localOscillation_of_integer_linear Rpos.le _ _
             _ < 2 * R' := by exact hφ
         . rw [m₃def]
           calc 2 * R * (n - ⌈n + R' / (2 * R)⌉)
             _ ≤ 2 * R * (n - (n + R' / (2 * R))) := by
               gcongr
-              apply Int.le_ceil
+              exact Int.le_ceil _
             _ = -R' := by
               ring_nf
               rw [mul_comm, ←mul_assoc, inv_mul_cancel Rpos.ne.symm, one_mul]
@@ -430,7 +429,7 @@ instance h6 : IsCZKernel 4 K where
           rw [← Real.rpow_one (|x - y|⁻¹ * |y - y'|)]
         apply Real.rpow_le_rpow_of_exponent_ge'
         . field_simp
-          apply div_nonneg (abs_nonneg (y - y')) (abs_nonneg (x - y))
+          exact div_nonneg (abs_nonneg (y - y')) (abs_nonneg (x - y))
         . field_simp
           apply div_le_one_of_le <;> linarith [abs_nonneg (x - y)]
         . norm_num
@@ -488,7 +487,7 @@ lemma rcarleson' {F G : Set ℝ}
   calc ∫⁻ x in G, T' f x
     _ ≤ ∫⁻ x in G, CarlesonOperator' K Θ f x := by
       apply MeasureTheory.lintegral_mono
-      apply CarlesonOperatorReal'_le_CarlesonOperator'
+      exact CarlesonOperatorReal'_le_CarlesonOperator' _
     _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
       --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
       convert theorem1_2C' K (by simp) h1 h2 hF hG h3 f hf <;> sorry
