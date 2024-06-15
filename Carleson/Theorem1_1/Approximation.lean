@@ -171,8 +171,8 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
       . exact Real.two_pi_pos.le
       . rw [IntervalIntegrable.intervalIntegrable_norm_iff]
         /-Could specify these two specific requirements intead of f_continuous. -/
-        . apply f_continuous.intervalIntegrable
-        . apply f_continuous.aestronglyMeasurable
+        . exact f_continuous.intervalIntegrable _ _
+        . exact f_continuous.aestronglyMeasurable
       . exact intervalIntegrable_const
       . exact fun x hx ↦ f_bounded x hx
     _ = C * (2 * Real.pi) := by simp; ring
@@ -221,7 +221,7 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
       simp [mul_inv_cancel, one_mul, Real.pi_pos.ne.symm]
     . apply Continuous.intervalIntegrable
       exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
-    . apply Continuous.intervalIntegrable
+    . apply Continuous.intervalIntegrable _ _
       exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous
 
   obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
