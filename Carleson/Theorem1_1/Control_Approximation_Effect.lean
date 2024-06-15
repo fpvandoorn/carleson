@@ -583,10 +583,8 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                 constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
               simp [this]
             _ = ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 Real.pi}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
-              congr
               rw [annulus_real_eq (le_refl 0), MeasureTheory.integral_union (by simp), ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.integral_union,
                 intervalIntegral.integral_of_le (by linarith), MeasureTheory.integral_Ioc_eq_integral_Ioo]
-              congr
               simp
               rw [Set.Ioc_union_Ioo_eq_Ioo (by linarith) (by linarith)]
               . simp
@@ -612,8 +610,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
               --Adjust integration domain
               congr 2
               rw [←MeasureTheory.integral_indicator annulus_measurableSet, ←MeasureTheory.integral_indicator annulus_measurableSet]
-              congr
-              ext y
+              congr with y
               rw [Set.indicator_apply, Set.indicator_apply, mul_assoc, dirichlet_Hilbert_eq, K]
               split_ifs with h₀ h₁ h₂
               . trivial
@@ -663,7 +660,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                 _ = min |z| 1 * 1 / ‖1 - exp (I * z)‖ + min |z| 1 * 1 / ‖1 - exp (I * z)‖ := by
                   simp
                   congr
-                  . simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
+                  . simp
                   . rw [mul_assoc I, mul_comm I]
                     norm_cast
                     rw [abs_exp_ofReal_mul_I, one_div, ←abs_conj, map_sub, map_one, ←exp_conj, ← neg_mul, map_mul,
@@ -683,10 +680,9 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                       linarith [Real.pi_pos]
                     rw [div_le_iff', ←div_le_iff, div_div_eq_mul_div, mul_div_assoc, mul_comm]
                     apply lower_secant_bound'
-                    . apply min_le_left
+                    . exact min_le_left _ _
                     . have : |z| ≤ Real.pi := by
-                        rw [abs_le]
-                        rw [zdef]
+                        rw [abs_le, zdef]
                         constructor <;> linarith [hy.1, hy.2]
                       rw [min_def]
                       split_ifs <;> linarith
@@ -711,7 +707,6 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
   have : ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
     calc ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E'
     _ = ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) / 2 * MeasureTheory.volume E' := by
-      congr
       rw [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_div_of_pos (by norm_num)]
       ring_nf
     _ ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
@@ -725,8 +720,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         simp only [norm_eq_abs, Pi.one_apply, norm_one]
         rw [Set.indicator_apply, Set.indicator_apply]
         split_ifs with inF
-        . simp
-          exact h_bound x inF
+        . simp [h_bound x inF]
         . simp
   have δ_mul_const_pos : 0 < δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ := by
     apply mul_pos
