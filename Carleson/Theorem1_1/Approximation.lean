@@ -78,8 +78,7 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
   . /-TODO: improve this. -/
     intro x
     rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
-    congr
-    ext t
+    congr with t
     congr 1
     convert periodicf (x - t) using 2
     ring
@@ -147,8 +146,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
   rw [abs_of_nonneg Real.pi_pos.le, mul_comm Real.pi, div_le_iff Real.two_pi_pos, ←Complex.norm_eq_abs]
   calc ‖∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), (starRingEnd ℂ) (Complex.exp (2 * Real.pi * Complex.I * n * x / (2 * Real.pi))) * f x‖
     _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), (starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
-      congr
-      ext x
+      congr with x
       congr
       ring_nf
       rw [mul_comm, ←mul_assoc, ←mul_assoc, ←mul_assoc, inv_mul_cancel]
@@ -159,8 +157,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
     _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), ‖(Complex.exp (Complex.I * n * x)) * f x‖ := by
       simp
     _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), ‖f x‖ := by
-      congr
-      ext x
+      congr with x
       simp only [norm_mul, Complex.norm_eq_abs]
       rw [mul_assoc, mul_comm Complex.I]
       norm_cast
@@ -250,8 +247,7 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
   . simp
   . have : Icc (- Int.ofNat (Nat.succ N)) (Nat.succ N) = insert (↑(Nat.succ N)) (insert (-Int.ofNat (Nat.succ N)) (Icc (-Int.ofNat N) N)) := by
       rw [←Ico_insert_right, ←Ioo_insert_left]
-      . congr
-        ext n
+      . congr with n
         simp only [Int.ofNat_eq_coe, mem_Ioo, mem_Icc]
         push_cast
         rw [Int.lt_add_one_iff, neg_add, ←sub_eq_add_neg, Int.sub_one_lt_iff]
