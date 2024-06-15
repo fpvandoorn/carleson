@@ -37,7 +37,7 @@ def isSpaceOfHomogeneousType_with_increased_constant {X : Type} {a b : ℝ} [Met
   volume_ball_two_le_same := by
     intro x r
     calc MeasureTheory.volume.real (Metric.ball x (2 * r))
-    _ ≤ a * MeasureTheory.volume.real (Metric.ball x r) := by apply volume_ball_two_le_same
+    _ ≤ a * MeasureTheory.volume.real (Metric.ball x r) := volume_ball_two_le_same _ _
     _ ≤ b * MeasureTheory.volume.real (Metric.ball x r) := by gcongr
 
 
