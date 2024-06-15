@@ -94,7 +94,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
   by_cases ηpos : η ≤ 0
   . calc (2 / Real.pi) * η
     _ ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (div_nonneg zero_le_two Real.pi_pos.le) ηpos
-    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by apply norm_nonneg
+    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
   push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
   . convert (@this (-x) _ (by simpa) (by linarith)) using 1
