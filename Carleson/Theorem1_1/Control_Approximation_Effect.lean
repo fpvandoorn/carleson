@@ -85,21 +85,13 @@ lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : T
     ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
   rw [intervalIntegral_eq_integral_uIoc, integral_conj, intervalIntegral_eq_integral_uIoc,
       RCLike.real_smul_eq_coe_mul, RCLike.real_smul_eq_coe_mul, map_mul]
-  congr
   simp
 
 -- Corrected rewrite
 lemma dirichlet_Hilbert_eq {N : ℕ} {x y : ℝ} :
     (max (1 - |x - y|) 0) * dirichletKernel' N (x - y) = exp (I * (-N * x)) * K x y * exp (I * N * y) + (starRingEnd ℂ) (exp (I * (-N * x)) * K x y * exp (I * N * y)) := by
-  rw [dirichletKernel', K, k]
-  rw [map_mul, map_mul, map_div₀, conj_ofReal, map_sub, ←exp_conj, ←exp_conj, ←exp_conj,
-    map_mul, map_mul, map_mul, map_mul, map_mul, conj_ofReal, conj_ofReal, conj_ofReal]
-  simp
-  field_simp
-  symm
-  rw [mul_comm, ←mul_assoc, ←exp_add, mul_comm, add_comm, mul_comm, ←mul_assoc, ←exp_add, mul_comm, mul_add, mul_div_assoc, mul_div_assoc]
-  congr <;> ring
-
+  simp [dirichletKernel', K, k, conj_ofReal, ←exp_conj, mul_comm, ←mul_assoc, ←exp_add]
+  ring_nf
 
 section
 open Filter Topology
@@ -419,10 +411,8 @@ lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_con
 
 lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + Real.pi * δ := by
   symm
-  rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc, mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul]
-  congr 2
-  --ring_nf
-  rw [mul_comm _ (C1_2 4 2), mul_assoc]
+  rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc,
+    mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C1_2 4 2), mul_assoc]
   congr
   rw [Real.div_rpow, Real.div_rpow _ (mul_nonneg _ _), Real.mul_rpow, Real.mul_rpow]
   ring_nf
