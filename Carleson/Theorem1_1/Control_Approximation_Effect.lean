@@ -261,8 +261,7 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
       intro _
       apply iSup_congr
       intro _
-      congr
-      ext y
+      congr with y
       rw [mul_assoc, dirichlet_Hilbert_eq]
       norm_cast
     _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊ := by
@@ -278,8 +277,7 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
       push_cast
       calc ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊
         _ = ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y)) + f y * (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
-          congr
-          ext y
+          congr with y
           rw [mul_add]
         _ = ‖ (∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y)))
              + ∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
@@ -330,12 +328,10 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
         _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * (f y * K x y * exp (I * n * y))‖₊
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * (((starRingEnd ℂ) ∘ f) y *  K x y * exp (I * n * y))‖₊ := by
             congr 1
-            . congr
-              ext y
+            . congr with y
               ring
             . rw [←nnnorm_star, ←starRingEnd_apply, ←integral_conj]
-              congr
-              ext y
+              congr with y
               simp
               ring
         _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * exp (I * n * y)‖₊
@@ -369,8 +365,7 @@ theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ 
       apply MeasureTheory.set_lintegral_mono' measurableSetE hE
     _ = ENNReal.ofReal δ * ∫⁻ x in E, T' (fun x ↦ (1 / δ) * f x) x := by
       rw [← MeasureTheory.lintegral_const_mul']
-      congr
-      ext x
+      congr with x
       rw [CarlesonOperatorReal'_mul δpos]
       congr
       exact ENNReal.ofReal_ne_top
@@ -511,8 +506,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     calc ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) + ENNReal.ofReal (Real.pi * δ * (2 * Real.pi))
       _ = ENNReal.ofReal ((2 * Real.pi) * ε') := by
         rw [← ENNReal.ofReal_add]
-        . congr
-          ring
+        . ring_nf
         . apply mul_nonneg _ Real.two_pi_pos.le
           rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right]
           apply div_nonneg _ Real.pi_pos.le
@@ -529,9 +523,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       _ = ‖∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)‖₊  := by
         rw [map_mul, map_div₀, ←mul_assoc]
         rw [ENNReal.ofReal, ← norm_toNNReal]
-        congr
         conv => rhs; rw [← one_mul ‖_‖]
-        congr
         simp
         rw [_root_.abs_of_nonneg Real.pi_pos.le]
         field_simp
