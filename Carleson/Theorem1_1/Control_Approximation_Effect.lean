@@ -539,14 +539,10 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       _ = ‖  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
            + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y))      ‖₊ := by
         --Split into two parts
-        congr
         rw [← intervalIntegral.integral_add]
-        . congr
-          ext y
+        . congr with y
           rw [←add_mul, ←mul_add]
-          congr
           conv => lhs; rw [←mul_one (h y)]
-          congr
           norm_cast
           rw [min_def]
           split_ifs
