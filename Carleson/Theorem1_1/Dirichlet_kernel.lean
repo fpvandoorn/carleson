@@ -34,8 +34,7 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
     calc (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
       _ = ∑ n in Icc (-Int.ofNat N) ↑N, (cexp ((n + 1 / 2) * I * ↑x) - cexp ((n - 1 / 2) * I * ↑x)) := by
         rw [dirichletKernel, mul_sum]
-        congr
-        ext n
+        congr with n
         simp [sub_mul, ← exp_add, ← exp_add]
         congr <;>
         . ring_nf
