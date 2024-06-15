@@ -75,11 +75,9 @@ lemma CarlesonOperatorReal'_measurable {f : ℝ → ℂ} (hf : Measurable f) : M
 
 theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T' f x = a.toNNReal * T' (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal', CarlesonOperatorReal', ENNReal.mul_iSup]
-  congr
-  ext n
+  congr with n
   rw [ENNReal.mul_iSup]
-  congr
-  ext r
+  congr with r
   rw [ENNReal.mul_iSup]
   congr
   ext rpos
@@ -92,8 +90,7 @@ theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 
   simp only [coe_nnnorm, NNReal.coe_mul]
   rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
     ← MeasureTheory.integral_mul_left, Real.coe_toNNReal a ha.le]
-  congr
-  ext y
+  congr with y
   field_simp
   rw [mul_div_cancel_left₀]
   norm_cast
