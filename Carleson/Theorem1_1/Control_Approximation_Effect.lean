@@ -126,14 +126,14 @@ lemma integrableOn_mul_dirichletKernel'_max {x : ℝ} (hx : x ∈ Set.Icc 0 (2 *
     constructor <;> linarith [hx.1, hx.2, hy.1, hy.2, Real.two_le_pi]
   . apply Measurable.aestronglyMeasurable
     apply Measurable.mul
-    . apply Measurable.comp Complex.measurable_ofReal
+    . apply Complex.measurable_ofReal.comp
       apply Measurable.max
       apply Measurable.const_sub
-      apply Measurable.comp _root_.continuous_abs.measurable
-      apply Measurable.const_sub measurable_id
+      apply _root_.continuous_abs.measurable.comp
+      apply measurable_id.const_sub
       exact measurable_const
-    . apply Measurable.comp dirichletKernel'_measurable
-      exact Measurable.const_sub measurable_id _
+    . apply dirichletKernel'_measurable.comp
+      exact measurable_id.const_sub _
   . rw [MeasureTheory.ae_restrict_iff' measurableSet_Icc]
     apply eventually_of_forall
     intro y _
@@ -160,13 +160,13 @@ lemma integrableOn_mul_dirichletKernel'_min {x : ℝ} (hx : x ∈ Set.Icc 0 (2 *
     constructor <;> linarith [hx.1, hx.2, hy.1, hy.2, Real.two_le_pi]
   . apply Measurable.aestronglyMeasurable
     apply Measurable.mul
-    . apply Measurable.comp Complex.measurable_ofReal
+    . apply Complex.measurable_ofReal.comp
       apply Measurable.min
-      apply Measurable.comp _root_.continuous_abs.measurable
-      apply Measurable.const_sub measurable_id
+      apply _root_.continuous_abs.measurable.comp
+      apply measurable_id.const_sub
       exact measurable_const
-    . apply Measurable.comp dirichletKernel'_measurable
-      exact Measurable.const_sub measurable_id _
+    . apply dirichletKernel'_measurable.comp
+      exact measurable_id.const_sub _
   . rw [MeasureTheory.ae_restrict_iff' measurableSet_Icc]
     apply eventually_of_forall
     intro y _
@@ -474,8 +474,8 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
   set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
   set f := fun x ↦ h x * F.indicator 1 x with fdef
   have f_measurable : Measurable f := by
-    apply Measurable.mul h_measurable
-    apply Measurable.indicator measurable_const measurableSet_Icc
+    apply h_measurable.mul
+    exact measurable_const.indicator measurableSet_Icc
   --TODO : improve this proof, should be much easier...
   have f_integrable : IntervalIntegrable f MeasureTheory.volume (-Real.pi) (3 * Real.pi) := by
     rw [fdef, intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith [Real.pi_pos])]
@@ -483,7 +483,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     apply MeasureTheory.Integrable.bdd_mul'
     rwa [← MeasureTheory.IntegrableOn, ← intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith [Real.pi_pos])]
     apply Measurable.aestronglyMeasurable
-    apply Measurable.indicator measurable_const measurableSet_Icc
+    apply measurable_const.indicator measurableSet_Icc
     apply Filter.eventually_of_forall
     intro x
     rw [norm_indicator_eq_indicator_norm]
