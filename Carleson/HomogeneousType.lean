@@ -37,8 +37,8 @@ lemma volume_ball_four_le_same (x : X) (r : ℝ) :
     volume.real (ball x (4 * r)) ≤ A ^ 2 * volume.real (ball x r) := by
   calc volume.real (ball x (4 * r))
       = volume.real (ball x (2 * (2 * r))) := by ring_nf
-    _ ≤ A * volume.real (ball x (2 * r)) := by apply volume_ball_two_le_same
-    _ ≤ A * (A * volume.real (ball x r)) := by gcongr; apply volume_ball_two_le_same
+    _ ≤ A * volume.real (ball x (2 * r)) := volume_ball_two_le_same _ _
+    _ ≤ A * (A * volume.real (ball x r)) := by gcongr; exact volume_ball_two_le_same _ _
     _ = A ^ 2 * volume.real (ball x r) := by ring_nf
 
 
