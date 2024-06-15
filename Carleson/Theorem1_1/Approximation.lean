@@ -125,7 +125,7 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
   rw [mem_singleton] at hb
   simp [f'def, hb]
 
-lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * Real.pi))) : ∃ C, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x).abs ≤ C := by
+lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * Real.pi))) : ∃ C, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x) ≤ C := by
   have interval_compact := (@isCompact_Icc ℝ _ _ _ 0 (2 * Real.pi))
   have abs_f_continuousOn := Complex.continuous_abs.comp_continuousOn hf
   obtain ⟨a, _, ha⟩ := interval_compact.exists_isMaxOn (Set.nonempty_Icc.mpr Real.two_pi_pos.le) abs_f_continuousOn
