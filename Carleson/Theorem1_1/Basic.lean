@@ -82,7 +82,6 @@ lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformC
   --apply continuous_finset_sum
   sorry
 
-
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real.pi + Real.pi / 2)) Real.cos := by
   apply strictConvexOn_of_deriv2_pos (convex_Icc _ _) Real.continuousOn_cos fun x hx => ?_
   rw [interior_Icc] at hx
@@ -172,7 +171,7 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.p
   by_cases ηpos : η < 0
   . calc η / 2
     _ ≤ 0 := by linarith
-    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by apply norm_nonneg
+    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
   push_neg at ηpos
   calc η / 2
   _ ≤ (2 / Real.pi) * η := by
