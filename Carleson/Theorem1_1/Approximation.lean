@@ -43,29 +43,24 @@ lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε :
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
-  let f_0 := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume
-  use f_0
-  constructor
-  . /-TODO: improve this-/
-    apply HasCompactSupport.contDiff_convolution_left
-    . exact ContDiffBump.hasCompactSupport_normed φ
-    . exact ContDiffBump.contDiff_normed φ
-    . refine Continuous.locallyIntegrable ?h.left.hg.hf
-      exact unicontf.continuous
-  . intro x
-    rw [← Complex.dist_eq, dist_comm]
-    apply ContDiffBump.dist_normed_convolution_le
-    . exact unicontf.continuous.aestronglyMeasurable
-    . intro y hy
-      simp only [Metric.mem_ball] at hy
-      exact (hδ hy).le
+  let f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
+    (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume
+  refine ⟨f₀, ?_, fun x ↦ ?_⟩
+  . exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
+      φ.contDiff_normed unicontf.continuous.locallyIntegrable
+  . rw [← Complex.dist_eq, dist_comm]
+    exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
+      fun y hy ↦ (hδ hy).le
 
 /- Slightly different version-/
-lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) {ε : ℝ} (εpos : ε > 0):
-    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ Function.Periodic f₀ (2 * Real.pi) ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
+lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
+  (periodicf : Function.Periodic f (2 * Real.pi)) {ε : ℝ} (εpos : ε > 0):
+    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ Function.Periodic f₀ (2 * Real.pi) ∧
+      ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
-  set f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
+  set f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
+    (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
   use f₀
   constructor
   . /-TODO: improve this-/
