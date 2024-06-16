@@ -61,27 +61,17 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
   set f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
     (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
-  use f₀
-  constructor
-  . /-TODO: improve this-/
-    apply HasCompactSupport.contDiff_convolution_left
-    . exact ContDiffBump.hasCompactSupport_normed φ
-    . exact ContDiffBump.contDiff_normed φ
-    . refine Continuous.locallyIntegrable ?h.left.hg.hf
-      exact unicontf.continuous
-  constructor
+  refine ⟨f₀, ?_, fun x ↦ ?_, fun x ↦ ?_⟩
+  . exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
+      φ.contDiff_normed unicontf.continuous.locallyIntegrable
   . /-TODO: improve this. -/
-    intro x
     rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
     congr with t
     congr 1
     convert periodicf (x - t) using 2
     ring
-  . intro x
-    rw [← Complex.dist_eq, dist_comm]
-    apply ContDiffBump.dist_normed_convolution_le
-    . exact unicontf.continuous.aestronglyMeasurable
-    . exact fun y hy ↦ (hδ hy).le
+  . rw [← Complex.dist_eq, dist_comm]
+    exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable fun y hy ↦ (hδ hy).le
 
 /- Inspired by mathlib : NNReal.summable_of_le-/
 lemma Real.summable_of_le {β : Type} {f g : β → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ (b : β), g b ≤ f b) (summablef : Summable f) :
@@ -120,12 +110,10 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
   simp [f'def, hb]
 
 lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * Real.pi))) : ∃ C, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x) ≤ C := by
-  have interval_compact := (@isCompact_Icc ℝ _ _ _ 0 (2 * Real.pi))
-  have abs_f_continuousOn := Complex.continuous_abs.comp_continuousOn hf
-  obtain ⟨a, _, ha⟩ := interval_compact.exists_isMaxOn (Set.nonempty_Icc.mpr Real.two_pi_pos.le) abs_f_continuousOn
-  set C := Complex.abs (f a) with C_def
-  use C
-  intro x hx
+  have interval_compact := (isCompact_Icc (a := 0) (b := 2 * Real.pi))
+  obtain ⟨a, _, ha⟩ := interval_compact.exists_isMaxOn (Set.nonempty_Icc.mpr Real.two_pi_pos.le)
+    (Complex.continuous_abs.comp_continuousOn hf)
+  refine ⟨Complex.abs (f a), fun x hx ↦ ?_⟩
   rw [isMaxOn_iff] at ha
   exact ha x hx
 
@@ -154,19 +142,14 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
     _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), ‖f x‖ := by
       congr with x
       simp only [norm_mul, Complex.norm_eq_abs]
-      rw [mul_assoc, mul_comm Complex.I]
-      norm_cast
-      rw [Complex.abs_exp_ofReal_mul_I]
+      rw_mod_cast [mul_assoc, mul_comm Complex.I, Complex.abs_exp_ofReal_mul_I]
       ring
     _ ≤ ∫ (_ : ℝ) in (0 : ℝ)..(2 * Real.pi), C := by
-      apply intervalIntegral.integral_mono_on
-      . exact Real.two_pi_pos.le
-      . rw [IntervalIntegrable.intervalIntegrable_norm_iff]
-        /-Could specify these two specific requirements intead of f_continuous. -/
-        . exact f_continuous.intervalIntegrable _ _
-        . exact f_continuous.aestronglyMeasurable
-      . exact intervalIntegrable_const
-      . exact fun x hx ↦ f_bounded x hx
+      refine intervalIntegral.integral_mono_on Real.two_pi_pos.le ?_ intervalIntegrable_const
+        fun x hx ↦ f_bounded x hx
+      /-Could specify `aestronglyMeasurable` and `intervalIntegrable` intead of `f_continuous`. -/
+      exact IntervalIntegrable.intervalIntegrable_norm_iff f_continuous.aestronglyMeasurable |>.mpr
+        (f_continuous.intervalIntegrable _ _)
     _ = C * (2 * Real.pi) := by simp; ring
 
 /-TODO: Assumptions might be weakened. -/
@@ -174,14 +157,13 @@ lemma periodic_deriv {𝕜 : Type} [NontriviallyNormedField 𝕜] {F : Type} [No
     {f : 𝕜 → F} {T : 𝕜} (diff_f : ContDiff 𝕜 1 f) (periodic_f : Function.Periodic f T) : Function.Periodic (deriv f) T := by
   intro x
   set g : 𝕜 → 𝕜 := fun x ↦ x + T with gdef
-  have diff_g : Differentiable 𝕜 g := by
-    apply differentiable_id.add_const
+  have diff_g : Differentiable 𝕜 g := differentiable_id.add_const _
   have : deriv (f ∘ g) x = ((deriv f) ∘ g) x := by
     calc deriv (f ∘ g) x
       _ = deriv g x • deriv f (g x) := deriv.scomp x (diff_f.differentiable (by norm_num)).differentiableAt diff_g.differentiableAt
       _ = deriv f (g x) := by rw [gdef, deriv_add_const, deriv_id'']; simp
   rw [gdef] at this
-  simp at this
+  simp only [Function.comp_apply] at this
   convert this.symm
   ext y
   simp [(periodic_f y).symm]
@@ -203,18 +185,16 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
   have fourierCoeffOn_eq {n : ℤ} (hn : n ≠ 0): (fourierCoeffOn Real.two_pi_pos f n) = - 1 / (n^2) * fourierCoeffOn Real.two_pi_pos (fun x ↦ deriv (deriv f) x) n := by
     rw [fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h, fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h']
     . have := periodicf 0
+      have periodic_deriv_f : Function.Periodic (deriv f) (2 * Real.pi) := periodic_deriv (fdiff.of_le one_le_two) periodicf
       simp at this
       simp [this]
-      have periodic_deriv_f : Function.Periodic (deriv f) (2 * Real.pi) := periodic_deriv (fdiff.of_le one_le_two) periodicf
       have := periodic_deriv_f 0
       simp at this
       simp [this]
       ring_nf
       simp [mul_inv_cancel, one_mul, Real.pi_pos.ne.symm]
-    . apply Continuous.intervalIntegrable
-      exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
-    . apply Continuous.intervalIntegrable _ _
-      exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous
+    . exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable _ _
+    . exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable _ _
 
   obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
   use C
