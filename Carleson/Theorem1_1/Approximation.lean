@@ -184,25 +184,19 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
   /-Get better representation for the fourier coefficients of f. -/
   have fourierCoeffOn_eq {n : ℤ} (hn : n ≠ 0): (fourierCoeffOn Real.two_pi_pos f n) = - 1 / (n^2) * fourierCoeffOn Real.two_pi_pos (fun x ↦ deriv (deriv f) x) n := by
     rw [fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h, fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h']
-    . have := periodicf 0
+    . have h1 := periodicf 0
       have periodic_deriv_f : Function.Periodic (deriv f) (2 * Real.pi) := periodic_deriv (fdiff.of_le one_le_two) periodicf
-      simp at this
-      simp [this]
-      have := periodic_deriv_f 0
-      simp at this
-      simp [this]
+      have h2 := periodic_deriv_f 0
+      simp at h1 h2
+      simp [h1, h2]
       ring_nf
       simp [mul_inv_cancel, one_mul, Real.pi_pos.ne.symm]
     . exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable _ _
     . exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable _ _
-
   obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
-  use C
-  intro n hn
-  rw [fourierCoeffOn_eq hn]
-  simp only [Nat.cast_one, Int.cast_pow, map_mul, map_div₀, map_neg_eq_map, map_one, map_pow,
-    Complex.abs_intCast, sq_abs, one_div]
-  rw [div_eq_mul_inv, mul_comm]
+  refine ⟨C, fun n hn ↦ ?_⟩
+  simp only [fourierCoeffOn_eq hn, Nat.cast_one, Int.cast_pow, map_mul, map_div₀, map_neg_eq_map,
+  map_one, map_pow, Complex.abs_intCast, sq_abs, one_div, div_eq_mul_inv C, mul_comm _ (Complex.abs _)]
   gcongr
   exact hC n
 
@@ -230,7 +224,7 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
         linarith
       . norm_num
         linarith
-    rw [this, sum_insert, sum_insert, ih, ←add_assoc]
+    rw [this, sum_insert, sum_insert, ih, ← add_assoc]
     symm
     rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
     simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
