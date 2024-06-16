@@ -1,7 +1,6 @@
 /- This file contains the proof of Lemma 10.4, from section 10.7-/
 
-import Carleson.Carleson
-import Carleson.HomogeneousType
+import Carleson.MetricCarleson
 import Carleson.Theorem1_1.Basic
 import Carleson.Theorem1_1.Hilbert_kernel
 import Carleson.Theorem1_1.CarlesonOperatorReal
@@ -15,10 +14,10 @@ noncomputable section
 
 --#lint
 
-instance IsSpaceOfHomogeneousTypeR2 : IsSpaceOfHomogeneousType ℝ 2 where
+instance DoublingMeasureR2 : DoublingMeasure ℝ 2 where
   --rwa [FiniteDimensional.finrank_self, pow_one] at this
   volume_ball_two_le_same := by
-    have : IsSpaceOfHomogeneousType ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := by infer_instance
+    have : DoublingMeasure ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := by infer_instance
     intro x r
     have := this.volume_ball_two_le_same x r
     simp only [FiniteDimensional.finrank_self, pow_one] at this
@@ -33,7 +32,7 @@ instance IsSpaceOfHomogeneousTypeR2 : IsSpaceOfHomogeneousType ℝ 2 where
 
 /- to HomogeneousType -/
 @[reducible]
-def isSpaceOfHomogeneousType_with_increased_constant {X : Type} {a b : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X a] (aleb : a ≤ b) : IsSpaceOfHomogeneousType X b where
+def DoublingMeasure_with_increased_constant {X : Type} {a b : ℝ} [MetricSpace X] [DoublingMeasure X a] (aleb : a ≤ b) : DoublingMeasure X b where
   volume_ball_two_le_same := by
     intro x r
     calc MeasureTheory.volume.real (Metric.ball x (2 * r))
@@ -42,8 +41,8 @@ def isSpaceOfHomogeneousType_with_increased_constant {X : Type} {a b : ℝ} [Met
 
 
 
-instance IsSpaceOfHomogeneousTypeR4 : IsSpaceOfHomogeneousType ℝ 4 := by
-  apply isSpaceOfHomogeneousType_with_increased_constant
+instance DoublingMeasureR4 : DoublingMeasure ℝ 4 := by
+  apply DoublingMeasure_with_increased_constant
   norm_num
 
 
@@ -170,7 +169,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
     by_cases c_nonneg : 0 > c
     . calc c
         _ < 0 := c_nonneg
-        _ ≤ @dist (withLocalOscillation (Metric.ball x R)) PseudoMetricSpace.toDist (θ n) (θ m) := dist_nonneg
+        _ ≤ @dist (withLocalOscillation ℂ (Metric.ball x R)) PseudoMetricSpace.toDist (θ n) (θ m) := dist_nonneg
         _ = localOscillation (Metric.ball x R) (θ n) (θ m) := rfl
         _ = ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
           rw [localOscillation]
@@ -238,7 +237,7 @@ lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Ty
 
 --lemma frequency_ball_doubling {x R : ℝ} (Rpos : 0 < R) :
 
-instance h4 : IsCompatible Θ where
+instance h4 : IsCompatible Θ := sorry /-where
   /- Lemma frequency_ball_doubling from the paper. -/
   localOscillation_two_mul_le := by
     intro x₁ x₂ R f g hf hg _
@@ -408,7 +407,7 @@ instance h4 : IsCompatible Θ where
             _ = -R' := by
               ring_nf
               rw [mul_comm, ←mul_assoc, inv_mul_cancel Rpos.ne.symm, one_mul]
-      _ = R' := by ring
+      _ = R' := by ring -/
 
 
 
@@ -478,9 +477,9 @@ local notation "T'" => CarlesonOperatorReal' K
 
 /-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
-lemma CarlesonOperatorReal'_le_CarlesonOperator' : T' ≤ CarlesonOperator' K Θ := by
+lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K Θ := by
   intro f x
-  rw [CarlesonOperator', CarlesonOperatorReal']
+  rw [CarlesonOperator, CarlesonOperatorReal']
   apply iSup_le
   intro n
   apply iSup_le
@@ -508,11 +507,11 @@ lemma rcarleson' {F G : Set ℝ}
     ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
   --rw [CarlesonOperatorReal_eq_CarlesonOperator]
   calc ∫⁻ x in G, T' f x
-    _ ≤ ∫⁻ x in G, CarlesonOperator' K Θ f x := by
+    _ ≤ ∫⁻ x in G, CarlesonOperator K Θ f x := by
       apply MeasureTheory.lintegral_mono
-      apply CarlesonOperatorReal'_le_CarlesonOperator'
+      apply CarlesonOperatorReal'_le_CarlesonOperator
     _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
       --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-      convert theorem1_2C' K (by simp) h1 h2 hF hG h3 f hf <;> sorry
+      convert theorem1_2C K (by simp) h1 h2 hF hG sorry f hf <;> sorry
 
 end section

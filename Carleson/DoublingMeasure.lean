@@ -1,29 +1,32 @@
 import Carleson.CoverByBalls
 import Carleson.ToMathlib.MeasureReal
-import Mathlib.MeasureTheory.Measure.Haar.Basic
-import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Analysis.NormedSpace.FiniteDimension
+import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.MeasureTheory.Integral.Average
+import Mathlib.MeasureTheory.Measure.Haar.Basic
+import Mathlib.MeasureTheory.Measure.Doubling
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
 
-/-! Question(F): should a space of homogeneous type extend `PseudoMetricSpace` or
-`MetricSpace`? -/
+/-- A metric space with a measure and a doubling condition.
+This is called a "doubling metric measure space" in the blueprint.
+`A` will usually be `2 ^ a`.
 
-/-- A space of homogeneous type, or doubling measure metric space
-Note(F): I added `ProperSpace` to the definition (which I think doesn't follow from the rest?)
-and removed `SigmaFinite` (which follows from the rest).
-Should we assume `volume ≠ 0` / `IsOpenPosMeasure`?
+This class is not Mathlib-ready code, and results moved to Mathlib should be reformulated using
+a (locally) doubling measure and more minimal other classes.
+
+Note (F): we currently assume that the space is proper, which we should probably add to the
+blueprint.
 Remark: `IsUnifLocDoublingMeasure` which is a weaker notion in Mathlib. -/
-class IsSpaceOfHomogeneousType (X : Type*) (A : outParam ℝ) [PseudoMetricSpace X] extends
+class DoublingMeasure (X : Type*) (A : outParam ℝ) [PseudoMetricSpace X] extends
   MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X) where
   volume_ball_two_le_same : ∀ (x : X) r, volume.real (ball x (2 * r)) ≤ A * volume.real (ball x r)
 
-export IsSpaceOfHomogeneousType (volume_ball_two_le_same)
+export DoublingMeasure (volume_ball_two_le_same)
 
-variable {X : Type*} {A : ℝ} (hA : 1 ≤ A) [PseudoMetricSpace X] [IsSpaceOfHomogeneousType X A]
+variable {X : Type*} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 example : ProperSpace X := by infer_instance
 example : LocallyCompactSpace X := by infer_instance
@@ -33,12 +36,27 @@ example : SigmaFinite (volume : Measure X) := by infer_instance
 example : SecondCountableTopology X := by infer_instance
 example : SeparableSpace X := by infer_instance
 
+variable (X) in
+lemma one_le_A : 1 ≤ A := by
+  let _ := ‹DoublingMeasure X A› -- remove after proof is finished
+  sorry
+
+variable (X) in lemma A_nonneg : 0 ≤ A := by linarith [one_le_A X]
+variable (X) in lemma A_pos : 0 < A := by linarith [one_le_A X]
+
+instance [MetricSpace X] [DoublingMeasure X A] : IsUnifLocDoublingMeasure (volume : Measure X) := by
+  sorry
+
+def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
+  volume_ball_two_le_same := sorry
+
 lemma volume_ball_four_le_same (x : X) (r : ℝ) :
     volume.real (ball x (4 * r)) ≤ A ^ 2 * volume.real (ball x r) := by
   calc volume.real (ball x (4 * r))
       = volume.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * volume.real (ball x (2 * r)) := by apply volume_ball_two_le_same
-    _ ≤ A * (A * volume.real (ball x r)) := by gcongr; apply volume_ball_two_le_same
+    _ ≤ A * (A * volume.real (ball x r)) := by
+      gcongr; exact A_nonneg X; apply volume_ball_two_le_same
     _ = A ^ 2 * volume.real (ball x r) := by ring_nf
 
 
@@ -62,8 +80,9 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r
           = volume.real (ball x (2 ^ (m+1) * r)) := by rfl
         _ = volume.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
         _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
-        _ ≤ A * volume.real (ball x (2 ^ m * r)) := by rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
-        _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr
+        _ ≤ A * volume.real (ball x (2 ^ m * r)) := by
+          rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
+        _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr; exact A_nonneg X
         _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc, pow_succ']
 
   /-Show inclusion in larger ball-/
@@ -140,27 +159,21 @@ lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X
 
 /- # Instances of spaces of homogeneous type -/
 
-instance (n : ℕ) : Fact ((1 : ℝ) ≤ 2 ^ n) := ⟨by norm_cast; exact Nat.one_le_two_pow⟩
-
 /- ℝ^n is a space of homogenous type. -/
---instance {ι : Type*} [Fintype ι] : IsSpaceOfHomogeneousType (ι → ℝ) (2 ^ Fintype.card ι) := sorry
+--instance {ι : Type*} [Fintype ι] : DoublingMeasure (ι → ℝ) (2 ^ Fintype.card ι) := sorry
 
 open FiniteDimensional
 /- Preferably we prove that in this form. -/
-instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E] [MeasureSpace E] [BorelSpace E]:
-    IsSpaceOfHomogeneousType E (2 ^ finrank ℝ E) where
-      toMeasureSpace := inferInstance
-      toProperSpace := inferInstance
-      toBorelSpace := inferInstance
+instance {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
+  [MeasureSpace E] [BorelSpace E] : DoublingMeasure E (2 ^ finrank ℝ E) where
       lt_top_of_isCompact := sorry
       outerRegular := sorry
       innerRegular := sorry
       open_pos := sorry
       volume_ball_two_le_same := sorry
 
-
 /- Maybe we can even generalize the field? (at least for `𝕜 = ℂ` as well) -/
-def NormedSpace.isSpaceOfHomogeneousType {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
-    [NormedAddCommGroup E] [NormedSpace 𝕜 E] : IsSpaceOfHomogeneousType E (2 ^ finrank 𝕜 E) := sorry
+def NormedSpace.DoublingMeasure {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
+    [NormedAddCommGroup E] [NormedSpace 𝕜 E] : DoublingMeasure E (2 ^ finrank 𝕜 E) := sorry
 
 /- todo: ℝ^n with nonstandard metric: `dist x y = ∑ i, |x i - y i| ^ α i` for `α i > 0` -/

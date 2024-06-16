@@ -1,14 +1,15 @@
-import Carleson.Proposition2
-import Carleson.Proposition3
+import Carleson.GridStructure
+-- import Carleson.Proposition2
+-- import Carleson.Proposition3
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
 open scoped ENNReal
 noncomputable section
 
 /- The constant used in proposition2_1 -/
-def C2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ := sorry
+def C2_1 (a : ℝ) (q : ℝ) : ℝ := 2 ^ (440 * a ^ 3) / (q - 1) ^ 4
 
-lemma C2_1_pos (A : ℝ) (τ q : ℝ) (C : ℝ) : C2_1 A τ q C > 0 := sorry
+lemma C2_1_pos (a q : ℝ) : C2_1 a q > 0 := sorry
 
 def D2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ := sorry
 
@@ -23,7 +24,8 @@ def Cψ2_1 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ≥0 := sorry
 
 lemma Cψ2_1_pos (A : ℝ) (τ : ℝ) (C : ℝ) : Cψ2_1 A τ C > 0 := sorry
 
-variable {X : Type*} {A : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X A] [Inhabited X]
+/-
+variable {X : Type*} {A : ℝ} [MetricSpace X] [DoublingMeasure X A] [Inhabited X]
 variable {τ q q' D κ : ℝ} {C₀ C : ℝ}
 variable {Θ : Set C(X, ℂ)} [IsCompatible Θ] [IsCancellative τ Θ] [TileStructure Θ D κ C₀]
 variable {F G : Set X} {σ σ' : X → ℤ} {Q' : X → C(X, ℂ)} /- Q-tilde in the pdf -/
@@ -31,7 +33,8 @@ variable (K : X → X → ℂ) [IsCZKernel τ K]
 variable {ψ : ℝ → ℝ}
 
 -- todo: add some conditions that σ and other functions have finite range?
-theorem prop2_1
+-- todo: fix statement
+theorem discrete_carleson
     (hA : 1 < A) (hτ : τ ∈ Ioo 0 1) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hC₀ : 0 < C₀) (hC : C2_1 A τ q C₀ < C) (hD : D2_1 A τ q C₀ < D)
     (hκ : κ ∈ Ioo 0 (κ2_1 A τ q C₀))
@@ -45,3 +48,4 @@ theorem prop2_1
     :
     ∃ G', volume G' ≤ volume G / 4 ∧ ‖∫ x in G \ G', ∑' p, T K Q' σ σ' ψ p F 1 x‖₊ ≤
     C * (volume.real G) ^ (1 / q') * (volume.real F) ^ (1 / q) := by sorry
+-/
