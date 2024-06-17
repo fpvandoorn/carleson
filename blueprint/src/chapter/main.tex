@@ -6462,31 +6462,7 @@ where
 
 One of the main assumption of \Cref{metric-space-Carleson}, concerning the operator $T_*$ defined in \eqref{def-tang-unm-op}, is verified by the following lemma, which is proved in \Cref{subsec-cotlar}.
 
-
-\begin{lemma}[nontangential Hilbert]\label{nontangential-Hilbert}
-\uses{simple-nontangential-Hilbert}
-    For every  bounded measurable function $g$ with bounded support we have
-\begin{equation}\label{concretetstarbound}
-    \|T_*g\|_2\le 2^{43}\|g\|_2,
-\end{equation}
-where
-\begin{equation}\label{concretetstar}
-    T_* g(x):=\sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<r_2}
-g(y) \kappa(x'-y)\, dy\right|\, .
-\end{equation}
-\end{lemma}
-The proof of \Cref{nontangential-Hilbert} relies on the next two auxiliary Lemmas.
-
-For $r\in (0,1)$, $x\in \mathbb{R}$ and a bounded, measurable function $g$ on $\mathbb{R}$ with bounded support, we define
-\begin{equation}
-\label{def-H_r}
-H_r g(x):= \int_{r<|x-y|<1}
-g(y) \kappa(x-y)\, dy.
-\end{equation}
-
 The following Lemma is proved in \Cref{10hilbert}
-
-
 \begin{lemma}[Hilbert strong 2 2]
     \label{Hilbert-strong-2-2}
     \uses{modulated-averaged-projection,integrable-bump-convolution,dirichlet-approximation}
@@ -6494,18 +6470,6 @@ The following Lemma is proved in \Cref{10hilbert}
     \begin{equation}
         \label{eq-Hr-L2-bound}
         \|H_rf\|_{2}\leq 2^{13} \|f\|_2.
-    \end{equation}
-\end{lemma}
-
-The following Lemma is proved in \Cref{subsec-CZD}
-
-\begin{lemma}[Hilbert weak 1 1]
-    \label{Hilbert-weak-1-1}
-    \uses{Hilbert-strong-2-2,Hilbert-kernel-bound,Hilbert-kernel-regularity,Calderon-Zygmund-decomposition}
-    Let $f$ be a bounded measurable function on $\mathbb{R}$ with bounded support. Let $\alpha>0$. Then for all $r\in (0, 1)$, we have
-    \begin{equation}
-        \label{eq-weak-1-1}
-        \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{19}}{\alpha} \int |f(y)|\, dy.
     \end{equation}
 \end{lemma}
 
@@ -6772,38 +6736,69 @@ Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is 
 \section{Proof of Cotlar's Inequality}
 \label{subsec-cotlar}
 
+Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$, i.e. a one-sided Calder\'on--Zygmund kernel
+which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+  \begin{equation}
+  \label{eqkernel-x-smooth}
+       |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
+\end{equation}
 
+For $r > 0$, $x\in X$ and a bounded, measurable function $g$ on $X$ with bounded support, we define
+\begin{equation}
+\label{def-H_r}
+H_r g(x):= \int_{r<|x-y|}
+g(y) K(x,y) \, dy.
+\end{equation}
+
+\begin{lemma}[nontangential Hilbert]\label{nontangential-Hilbert}
+\uses{simple-nontangential-Hilbert}
+    For every  bounded measurable function $g : X \to \C$ with bounded support we have
+\begin{equation}\label{concretetstarbound}
+    \|T_*g\|_2\le 2^{Ca^D}\|g\|_2,
+\end{equation}
+%where
+%\begin{equation}\label{concretetstar}
+%    T_* g(x):=\sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<r_2}
+%g(y) \kappa(x'-y)\, dy\right|\, .
+%\end{equation}
+\end{lemma}
+The proof of \Cref{nontangential-Hilbert} relies on the next two auxiliary Lemmas.
+
+The following Lemma is proved in \Cref{subsec-CZD}
+\begin{lemma}[Hilbert weak 1 1]
+    \label{Hilbert-weak-1-1}
+    \uses{Hilbert-strong-2-2,Hilbert-kernel-bound,Hilbert-kernel-regularity,Calderon-Zygmund-decomposition}
+    Let $f$ be a bounded measurable function on $\mathbb{R}$ with bounded support. Let $\alpha>0$. Then for all $r\in (0, 1)$, we have
+    \begin{equation}
+        \label{eq-weak-1-1}
+        \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{19}}{\alpha} \int |f(y)|\, dy.
+    \end{equation}
+\end{lemma}
 
 
 \begin{lemma}[estimate x shift]
 \label{estimate-x-shift}
 \uses{Hilbert-kernel-bound,Hilbert-kernel-regularity}
-Let $0<r<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy--Littlewood function
-defined in Proposition
-\ref{Hardy-Littlewood}.
-Then for all $x'$ with $|x-x'|<r$.
+Let $0<r$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood function
+defined in Proposition \ref{Hardy-Littlewood}.
+Then for all $x'$ with $\rho(x,x')<r$.
 \begin{equation}\label{xx'difference}
-\left|\int_{r<|x-y|<1}
-g(y) \kappa(x-y)\, dy
--\int_{r<|x'-y|<1}
-g(y) \kappa(x'-y)\, dy
-\right|\le 2^{13}Mg(x)\, .
+\left|\int_{r<\rho(x,y)}
+g(y) K(x,y)\, dy
+-\int_{r<\rho(x',y)}
+g(y) K(x',y)\, dy
+\right|\le 2^{a^3 + 2a + 2} Mg(x)\, .
 \end{equation}
 \end{lemma}
 \begin{proof}
 \proves{estimate-x-shift}
 
-First note that the
-conditions $|x-y|<1$
-and $|x'-y|<1$ may be removed as the factor containing $\kappa$
-vanishes without these conditions.
-
 We split the first integral in \eqref{xx'difference}
-into the domains $r<|x-y|\le 2r$
-and $2r<|x-y|$. The integral over the first domain we estimate
+into the domains $r<\rho(x,y)\le 2r$
+and $2r<\rho(x,y)$. The integral over the first domain we estimate
 by $\eqref{firstxx'}$ below.
 For the second domain, we
-observe with $|x-x'|<r$ and the triangle inequality that $r<|x'-y|$. We therefore combine on this domain with the
+observe with $\rho(x,x')<r$ and the triangle inequality that $r<\rho(x'-y)$. We therefore combine on this domain with the
 corresponding part of the second integral in \eqref{xx'difference} and estimate that by $\eqref{secondxx'}$
 below. The remaining part of the second integral in
 \eqref{xx'difference} we estimate by $\eqref{thirdxx'}$.
@@ -6813,71 +6808,75 @@ by
 
 \begin{equation}
 \label{firstxx'}
-\int_{r<|x-y|\le 2r}
-|g(y)| |\kappa(x-y)|\, dy
+\int_{r<\rho(x,y)\le 2r}
+|g(y)| |K(x,y)|\, dy
 \end{equation}
 \begin{equation}\label{secondxx'}
-  +  \left|\int_{2r<|x-y|}
-g(y) (\kappa(x'-y)-\kappa(x-y))\, dy
+  +  \left|\int_{2r<\rho(x,y)}
+g(y) (K(x',y)-K(x,y))\, dy
 \right|
 \end{equation}
 \begin{equation}
 \label{thirdxx'}
-  +\left|\int_{r<|x'-y|, r<|x-y|<2r}
-|g(y) \kappa(x'-y)|\, dy
+  +\left|\int_{r<\rho(x',y), r<\rho(x,y)<2r}
+|g(y) K(x',y)|\, dy
 \right|
 \end{equation}
-Using the bound on $\kappa$ in \Cref{Hilbert-kernel-bound}, we estimate
-\eqref{firstxx'} by
-\begin{equation}
+Using the bound on $K$ in \eqref{eqkernel-size} and the doublin condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
+\begin{align}
+ \int_{r<\rho(x,y)<2r}
+|g(y)| \frac{2^{a^3}}{V(x,y)}\, dy\,
+&\le
+\frac{2^{a^3}}{\mu(B(x,r))} \int_{r<\rho(x,y)<2r}
+|g(y)| \, dy\, \\
 \label{firstxx'b}
- \frac 8 r\int_{|x-y|<2r}
-|g(y)|\, dy\, .
-\end{equation}
+&\le
+\frac{2^{a^3} \cdot 2^a}{\mu(B(x,2r))} \int_{\rho(x,y)<2r}
+|g(y)| \, dy\,
+.
+\end{align}
 Using the definition of $Mg$, we estimate
 \eqref{firstxx'b} by
 \begin{equation}
 \label{firstxx'c}
- \le 32{Mg(x)}\, .
+ \le 2^{a^3 + a} {Mg(x)}\, .
 \end{equation}
 Similarly, in the domain of \eqref{thirdxx'}
 we note by the triangle inequality
-and assumption on $x'$ that $|x'-y|\le 3r$ and thus we estimate
+and assumption on $x'$ that $\rho(x',y)<3r$ and thus we estimate
 \eqref{thirdxx'}
 by
 \begin{equation}
 \label{thirdxx'b}
- \frac 8{r}\int_{|x'-y|<3r}
-|g(y)| \, dy\le 48 Mg(x)
+\frac{2^{a^3}}{\mu(B(x',r))} \int_{\rho(x',y)<4r}
+|g(y)| \, dy\le 2^{a^3 + 2a} Mg(x)
 \end{equation}
 
-We turn to the term \eqref{secondxx'}.
-Let $\nu$ be the smallest integer
-such that $2^\nu> 2/r$.
-Using that the kernel vanishes unless $|x-y|<2$, we decompose and estimate
+We turn to the remaining term. Using \eqref{eqkernel-x-smooth}, we estimate \eqref{secondxx'} by
+\begin{equation}\label{secondxx'b}
+ \int_{2r<\rho(x,y)}
+ |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} \, dy
+\end{equation}
+We decompose and estimate
 \eqref{secondxx'}
 with the triangle inequality by
-\begin{equation}\label{secondxx'b}
- \sum_{j=1}^\nu  \int_{2^jr<|x-y|\le 2^{j+1}r}
-|g(y)| |\kappa(x'-y)-\kappa(x-y)|\, dy\,.
-\end{equation}
-Using \Cref{Hilbert-kernel-regularity}, we estimate  \eqref{secondxx'b}
-by
-\begin{equation*}
- 2^{10}\sum_{j=1}^\nu  \int_{2^jr<|x-y|\le 2^{j+1}r}
-|g(y)| \frac{|x-x'|}{|x-y|^2}\, dy
-\end{equation*}
-\begin{equation*}
-\le  2^{10}\sum_{j=1}^\nu  \frac 1{2^{2j}r}\int_{2^jr<|x-y|\le 2^{j+1}r}
-|g(y)| \, dy
-\end{equation*}
-\begin{equation}\label{secondxx'c}
-\le  2^{10}\sum_{j=1}^\nu {2^{1-j}} Mg(x)\,.
-\end{equation}
+\begin{align}
+ &\sum_{j=1}^\infty  \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
+ |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}\, dy\, \\
+ &\le
+ \sum_{j=1}^\infty \left( 2^{-j} \right)^{\frac{1}{a}} \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
+ |g(y)| \frac{2^{a^3}}{\mu(B(x,2^j r))}\, dy \\
+ &\le
+\sum_{j=1}^\infty 2^{-\frac{j}{a}} \frac{2^{a^3 + a}}{\mu(B(x,2^{j+1} r))} \int_{\rho(x,y)\le 2^{j+1}r}
+|g(y)| \, dy \\
+\label{secondxx'c}
+&\le 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
+\end{align}
 Using a geometric series, we estimate
 \eqref{secondxx'c} by
+%TODO: Justify last step.
 \begin{equation}\label{secondxx'd}
-\le  2^{11} Mg(x)\,.
+\le  2^{a^3 + a} \cdot \frac{1}{1-2^{-\frac 1 a}} Mg(x) \le 2^{a^3 + 2a} Mg(x) \,.
 \end{equation}
 Summing the estimates
 for \eqref{firstxx'},
@@ -6888,7 +6887,7 @@ proves the lemma.
 
 Recall that
 \begin{equation*}
-    H_rg(x)=\int_{r<|x-y|<1} g(y) \kappa(x-y)\, dy\, .
+    H_rg(x)=\int_{r<\rho(x,y)<1} g(y) \kappa(x-y)\, dy\, .
 \end{equation*}
 
 
@@ -6920,12 +6919,12 @@ We  have
 \begin{equation}
 \label{eqcotlar-1}
 H_{r_1}(g)(x')=
-\int_{r_1<|x'-y|<1} g(y) \kappa(x'-y)\, dy\, .
+\int_{r_1<\rho(x',y)<1} g(y) \kappa(x'-y)\, dy\, .
 \end{equation}
-On the domain $r_1<|x'-y|$, we have $\frac {r_1}2<|x-y|$. Hence we may write
+On the domain $r_1<\rho(x',y)$, we have $\frac {r_1}2<\rho(x,y)$. Hence we may write
 for \eqref{eqcotlar-1}
 \begin{equation*}
-H_{r_1}(g)(x')=\int_{r_1<|x'-y|<1} (g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y) \kappa(x'-y)\, dy
+H_{r_1}(g)(x')=\int_{r_1<\rho(x',y)<1} (g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y) \kappa(x'-y)\, dy
 \end{equation*}
 \begin{equation}\label{eqcotlar1}
 =H_{r_1}(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')\, .
@@ -6943,26 +6942,26 @@ We  have
 (H_{r}-H_{r_1})(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')
 \end{equation*}
 \begin{equation}\label{eqcotlar2}
-= \int_{ {r}<|x'-y|<r_1}
+= \int_{ {r}<\rho(x',y)<r_1}
 (g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\,  .
 \end{equation}
 Assume first $r\ge \frac {r_1} 4$.
 Then we estimate \eqref{eqcotlar2} with
 \Cref{Hilbert-kernel-bound} by
 \begin{equation*}
-\int_{\frac {r_1}4<|x'-y|<r_1}
+\int_{\frac {r_1}4<\rho(x',y)<r_1}
 |g(y)k(x'-y)|\, dy
 \end{equation*}
 \begin{equation}\label{eqcotlar3}
-\le \frac {32}{r_1}\int_{|x'-y|<r_1}
+\le \frac {32}{r_1}\int_{\rho(x',y)<r_1}
 |g(y)|\, dy \le 64 Mg(x')\,  .
 \end{equation}
 Assume now $r\le \frac {r_1} 4$.
-As $|x'-y|\le \frac{r_1}4$ implies
-$|x-y|\le \frac {r_1} 2$, we see that
+As $\rho(x',y)\le \frac{r_1}4$ implies
+$\rho(x,y)\le \frac {r_1} 2$, we see that
 \eqref{eqcotlar2} equals
 \begin{equation*}
- \int_{ {\frac {r_1} 4}<|x'-y|<r_1}
+ \int_{ {\frac {r_1} 4}<\rho(x',y)<r_1}
 (g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\,  ,
 \end{equation*}
 which we again estimate as above by \eqref{eqcotlar3}.
@@ -7034,7 +7033,7 @@ defined in Proposition
 Then for all $x\in \R$
 \begin{equation}\label{eq-cotlar-estimate}
 \left|
-\int_{r_1<|x-y|<1}
+\int_{r_1<\rho(x,y)<1}
 g(y) \kappa(x-y)\, dy
 \right|
 \end{equation}
@@ -7074,7 +7073,7 @@ This proves the lemma.
 \end{equation}
 where
 \begin{equation}\label{eq-simple--nontangential}
-    T_{r} g(x):=\sup_{r<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}
+    T_{r} g(x):=\sup_{r<r_1<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}
 g(y) \kappa(x'-y)\, dy\right|\, .
 \end{equation}
 \end{lemma}
@@ -7085,7 +7084,7 @@ for every $x\in \R$
 \begin{equation}
      T_{r} g(x)
      \le 2^{13} Mg(x)+\sup_{r<r_1<1}
-     \frac 1{2\pi} \left|\int_{r_1<|x-y|<1}
+     \frac 1{2\pi} \left|\int_{r_1<\rho(x,y)<1}
 g(y) \kappa(x-y)\, dy\right|\, .
 \end{equation}
 Using further \Cref{Cotlar-estimate},
@@ -7120,24 +7119,24 @@ sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
 \end{equation}
 where
 \begin{equation}\label{eq-simpler--nontangential}
-    T_{0} g(x):=\sup_{0<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}
+    T_{0} g(x):=\sup_{0<r_1<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}
 g(y) \kappa(x'-y)\, dy\right|\, .
 \end{equation}
 We now write by the triangle inequality
 \begin{equation}\label{concretetstartriangle}
-    T_* g(x)\le \sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}g(y) \kappa(x'-y)\, dy\right|
+    T_* g(x)\le \sup_{0<r_1<r_2<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}g(y) \kappa(x'-y)\, dy\right|
 \end{equation}
     \begin{equation*}
-+\sup_{0<r_1< r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_2<|x'-y|<1}        g(y) \kappa(x'-y)\, dy\right|\, .
++\sup_{0<r_1< r_2<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)<1}        g(y) \kappa(x'-y)\, dy\right|\, .
 \end{equation*}
 Noting that the first integral does not depend on $r_2$ and
 estimating the second integral by the larger supremum over all
-$|x-x'|<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
+$\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
 \begin{equation}\label{concretetstartriangle2}
-   \sup_{0<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}g(y) \kappa(x'-y)\, dy\right|
+   \sup_{0<r_1<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}g(y) \kappa(x'-y)\, dy\right|
 \end{equation}
     \begin{equation*}
-+\sup_{0< r_2<1}\sup_{|x-x'|<r_2}\frac 1{2\pi} \left|\int_{r_2<|x'-y|<1}        g(y) \kappa(x'-y)\, dy\right|\, .
++\sup_{0< r_2<1}\sup_{\rho(x,x')<r_2}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)<1}        g(y) \kappa(x'-y)\, dy\right|\, .
 \end{equation*}
     Applying the triangle inequality on the left-hand side
     of \eqref{concretetstarbound} and applying
