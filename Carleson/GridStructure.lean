@@ -46,7 +46,15 @@ def s : ι X → ℤ := GridStructure.s
 def 𝓓 : ι X → Set X := GridStructure.𝓓
 def c : ι X → X := GridStructure.c
 
+
 end GridStructure
+
+-- def grid_existence {σ₁ σ₂ : X → ℤ} (hσ : σ₁ ≤ σ₂)
+--     (hσ₁ : Measurable σ₁) (hσ₂ : Measurable σ₂)
+--     (hσ₁S : range σ₁ ⊆ Icc (-S) S) (hσ₂S : range σ₂ ⊆ Icc (-S) S)
+--     {Q : X → C(X, ℂ)} (hQΘ : range Q ⊆ Θ) :
+--     GridStructure X D κ C S o :=
+--   sorry
 
 -- instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℝ) :=
 --   let m : PseudoMetricSpace C(X, ℝ) :=
