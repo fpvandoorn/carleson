@@ -4,6 +4,7 @@ open Set MeasureTheory Metric Function Complex
 open scoped ENNReal
 noncomputable section
 
+variable {𝕜 : Type*} {A : ℝ} [_root_.RCLike 𝕜]
 variable {X : Type*} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 variable (X) in
@@ -63,49 +64,49 @@ end GridStructure
 --   @borel C(X, ℝ) t
 
 /- Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
-class TileStructureData.{u} (Θ : outParam (Set C(X, ℂ))) (Q : outParam (X → C(X, ℂ)))
-    (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ C S o where
+class TileStructureData.{u} [FunctionDistances 𝕜 X]
+  (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ C S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
   protected 𝓘 : 𝔓 → ι
   surjective_𝓘 : Surjective 𝓘
-  Ω : 𝔓 → Set C(X, ℂ)
-  Ω_subset : ∀ p, Ω p ⊆ Θ
-  𝒬 : 𝔓 → C(X, ℂ)
-  𝒬_mem : ∀ p, 𝒬 p ∈ Θ
+  Ω : 𝔓 → Set (ι' X)
+  𝒬 : 𝔓 → ι' X
 
-export TileStructureData (Ω Ω_subset 𝒬 𝒬_mem)
+export TileStructureData (Ω 𝒬)
 
-variable {Θ : Set C(X, ℂ)} {Q : X → C(X, ℂ)} [TileStructureData Θ Q D κ C S o]
+section
+variable {Q : X → C(X, ℂ)} [FunctionDistances 𝕜 X] [TileStructureData D κ C S o]
 
 variable (X) in
-def 𝔓 := TileStructureData.𝔓 X A
+def 𝔓 := TileStructureData.𝔓 𝕜 X A
 instance : Fintype (𝔓 X) := TileStructureData.fintype_𝔓
 def 𝓘 : 𝔓 X → ι X := TileStructureData.𝓘
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → ι X) := TileStructureData.surjective_𝓘
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
+end
 
-notation3 "dist_{" Θ ";(" D ")" 𝔭 "}" => @dist (WithFunctionDistance Θ (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
-notation3 "ball_{" Θ ";(" D ")" 𝔭 "}" => @ball (WithFunctionDistance Θ (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+notation3 "dist_(" D "," 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+notation3 "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
 /-- A tile structure. -/
-class TileStructure (Θ : outParam (Set C(X, ℂ))) (Q : outParam (X → C(X, ℂ)))
-    (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X) [FunctionDistances Θ]
-    extends TileStructureData Θ Q D κ C S o where
-  biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
+class TileStructure [FunctionDistances ℂ X] (Q : outParam (X → C(X, ℂ)))
+    (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X)
+    extends TileStructureData D κ C S o where
+  biUnion_Ω {i} : range Q ⊆ Θ '' ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p')
   relative_fundamental_dyadic {p p'} (h : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
-  cdist_subset {p} : ball_{Θ;(D) p} (𝒬 p) 5⁻¹ ∩ Θ ⊆ Ω p
-  subset_cdist {p} : Ω p ⊆ ball_{Θ;(D) p} (𝒬 p) 1
+  cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p
+  subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1
 
 export TileStructure (biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
 
-variable [FunctionDistances Θ] [TileStructure Θ Q D κ C S o]
+variable {Q : X → C(X, ℂ)} [FunctionDistances ℂ X] [TileStructure Q D κ C S o]
 
 /- The set `E` defined in Proposition 2.1. -/
 def E (σ σ' : X → ℤ) (p : 𝔓 X) : Set X :=
-  { x ∈ 𝓓 (𝓘 p) | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ x) (σ' x) }
+  { x ∈ 𝓓 (𝓘 p) | Q x ∈ Θ '' Ω p ∧ 𝔰 p ∈ Icc (σ x) (σ' x) }
 
 section T
 
@@ -135,10 +136,10 @@ def TL : (X →₂[volume] ℂ) →L[ℂ] (X →₂[volume] ℂ) where
 end T
 
 variable (X) in
-def TileLike : Type _ := Set X × OrderDual (Set (C(X,ℂ)))
+def TileLike : Type _ := Set X × OrderDual (Set (ι' X))
 
 def TileLike.fst (x : TileLike X) : Set X := x.1
-def TileLike.snd (x : TileLike X) : Set (C(X,ℂ)) := x.2
+def TileLike.snd (x : TileLike X) : Set (ι' X) := x.2
 instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
 example (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
@@ -149,9 +150,9 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorr
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
 def smul (a : ℝ) (p : 𝔓 X) : TileLike X :=
-  (𝓓 (𝓘 p), localOscillationBall (𝓓 (𝓘 p)) (𝒬 p) a)
+  sorry --(𝓓 (𝓘 p), localOscillationBall (𝓓 (𝓘 p)) (Θ (𝒬 p)) a)
 
-def TileLike.toTile (t : TileLike X) : Set (X × C(X,ℂ)) :=
+def TileLike.toTile (t : TileLike X) : Set (X × ι' X) :=
   t.fst ×ˢ t.snd
 
 lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
@@ -162,10 +163,10 @@ lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
 def convexShadow (𝔓' : Set (𝔓 X)) : Set (ι X) :=
   { i | ∃ p p' : 𝔓 X, p ∈ 𝔓' ∧ p' ∈ 𝔓' ∧ (𝓓 (𝓘 p) : Set X) ⊆ 𝓓 i ∧ 𝓓 i ⊆ 𝓓 (𝓘 p') }
 
-def EBar (G : Set X) (Q : X → C(X,ℂ)) (t : TileLike X) : Set X :=
+def EBar (G : Set X) (Q : X → ι' X) (t : TileLike X) : Set X :=
   { x ∈ t.fst ∩ G | Q x ∈ t.snd }
 
-def density (G : Set X) (Q : X → C(X,ℂ)) (𝔓' : Set (𝔓 X)) : ℝ :=
+def density (G : Set X) (Q : X → ι' X) (𝔓' : Set (𝔓 X)) : ℝ :=
   ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ)), l ^ (-2 * Real.log A) *
   ⨆ (p' : 𝔓 X) (_h : 𝓘 p' ∈ convexShadow 𝔓') (_h2 : smul l p ≤ smul l p'),
   volume.real (EBar G Q (smul l p')) / volume.real (EBar G Q (toTileLike p))

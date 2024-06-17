@@ -29,7 +29,8 @@ lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
 
 section -- todo: old code
 
-variable {X : Type*} {a : ℝ} [MetricSpace X] [DoublingMeasure X a] [Inhabited X]
+variable {X : Type*} {a : ℝ} [MetricSpace X]
+  [DoublingMeasure X (2 ^ a)] [Inhabited X]
 variable {τ q q' : ℝ} {C : ℝ}
 variable {Θ : Set C(X, ℂ)}
 variable {F G : Set X}
@@ -129,16 +130,20 @@ segment. -/
 (section 2). -/
 
 /- Theorem 1.2, written using constant C1_2 -/
-theorem theorem1_2C [IsCompatible Θ] [IsCancellative a Θ] [IsCZKernel a K]
+theorem metric_carleson [CompatibleFunctions ℂ X (2 ^ a)]
+  [IsCancellative X (2 ^ a)] [IsCZKernel a K]
     (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     -- (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
     -- (hT : NormBoundedBy (ANCZOperatorLp 2 K) (2 ^ a ^ 3))
-    (hT : ∀ (g : X → ℂ) (hg : Memℒp g ∞) (h2g : volume (support g) < ∞) (h3g : Memℒp g 2),
-      snorm (ANCZOperatorLp 2 K h3g.toLp) 2 volume ≤ 2 ^ a ^ 3 * snorm g 2 volume)
+    (hT : ∀ (g : X → ℂ) (hg : Memℒp g ∞) (h2g : volume (support g) < ∞) (h3g : Memℒp g 2 volume),
+      snorm (ANCZOperatorLp 2 K h3g.toLp) 2 volume ≤ 2 ^ a ^ (3 : ℕ) * snorm g 2 volume)
     (f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, CarlesonOperator K Θ f x ≤
     ENNReal.ofReal (C1_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
   sorry
 
 end
+
+/- maybe investigate: making `volume` implicit in `h3g` of `metric_carleson` causes slow
+elaboration. -/

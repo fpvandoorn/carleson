@@ -10,6 +10,7 @@ noncomputable section
 These are mostly the definitions used to state the metric Carleson theorem.
 We should move them to separate files once we start proving things about them. -/
 
+universe u
 variable {𝕜 X : Type*} {A : ℝ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
 section localOscillation
@@ -73,64 +74,64 @@ lemma fact_isCompact_ball (x : X) (r : ℝ) : Fact (IsBounded (ball x r)) :=
 attribute [local instance] fact_isCompact_ball
 
 /-- A class stating that continuous functions have distances associated to every ball. -/
-class FunctionDistances [DoublingMeasure X A] (Θ : Set C(X, 𝕜)) where
-  /-- The distance of a compatible family. -/
-  cdist (x : X) (r : ℝ) (f g : C(X, 𝕜)) : ℝ
-  cdist_comm {x : X} {r : ℝ} {f g : C(X, 𝕜)} : cdist x r f g = cdist x r g f
-  cdist_self {x : X} {r : ℝ} {f : C(X, 𝕜)} : cdist x r f f = 0
-  cdist_triangle {x : X} {r : ℝ} {f g h : C(X, 𝕜)} : cdist x r f h ≤ cdist x r f g + cdist x r g h
+class FunctionDistances (𝕜 : outParam Type*) (X : Type u)
+    [NormedField 𝕜] [TopologicalSpace X] where
+  ι' : Type u
+  Θ : ι' → C(X, 𝕜)
+  out : ∀ (_x : X) (_r : ℝ), PseudoMetricSpace ι'
+
+export FunctionDistances (ι' Θ)
 
 set_option linter.unusedVariables false in
-def WithFunctionDistance (Θ : Set C(X, 𝕜)) (x : X) (r : ℝ) := C(X, 𝕜)
+def WithFunctionDistance (x : X) (r : ℝ) [FunctionDistances 𝕜 X] := ι' X
 
-variable [DoublingMeasure X A] {Θ : Set C(X, 𝕜)} {x : X} {r : ℝ}
+variable {x : X} {r : ℝ}
 
-def toWithFunctionDistance : C(X, 𝕜) ≃ WithFunctionDistance Θ x r :=
+def toWithFunctionDistance [FunctionDistances 𝕜 X] : ι' X ≃ WithFunctionDistance x r :=
   .refl _
 
-instance : FunLike (WithFunctionDistance Θ x r) X 𝕜 := ContinuousMap.funLike
-instance : ContinuousMapClass (WithFunctionDistance Θ x r) X 𝕜 :=
-  ContinuousMap.toContinuousMapClass
+-- instance : FunLike (WithFunctionDistance ι' x r) X 𝕜 := ContinuousMap.funLike
+-- instance : ContinuousMapClass (WithFunctionDistance ι' x r) X 𝕜 :=
+--   ContinuousMap.toContinuousMapClass
 
-instance [FunctionDistances Θ] : PseudoMetricSpace (WithFunctionDistance Θ x r) where
-  dist := FunctionDistances.cdist A Θ x r
-  dist_self f := FunctionDistances.cdist_self
-  dist_comm f g := FunctionDistances.cdist_comm
-  dist_triangle f g h := FunctionDistances.cdist_triangle
-  edist_dist f g := rfl
+instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistance x r) :=
+  d.out x r
 
-notation3 "dist_{" Θ "; " x " ," r "}" => @dist (WithFunctionDistance Θ x r) _
-notation3 "ball_{" Θ "; " x " ," r "}" => @ball (WithFunctionDistance Θ x r) _
+local notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+local notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
-class IsCompatible [DoublingMeasure X A] (Θ : Set C(X, 𝕜)) extends FunctionDistances Θ where
-  eq_zero : ∃ o : X, ∀ (f : C(X, 𝕜)) (_hf : f ∈ Θ), f o = 0
+class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ)
+  [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
+  eq_zero : ∃ o : X, ∀ f, Θ f o = 0
   /-- The distance is bounded below by the local oscillation. -/
-  localOscillation_le_cdist {x : X} {r : ℝ} {f g : C(X, 𝕜)} (hf : f ∈ Θ) (hg : g ∈ Θ) :
-    localOscillation (ball x r) f g ≤ cdist x r f g
+  localOscillation_le_cdist {x : X} {r : ℝ} {f g : ι'} :
+    localOscillation (ball x r) (Θ f) (Θ g) ≤ dist_{x, r} f g
   /-- The distance is monotone in the ball. -/
-  cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : C(X, 𝕜)} (hf : f ∈ Θ) (hg : g ∈ Θ)
-    (h : ball x₁ r₁ ⊆ ball x₂ r₂) : cdist x₁ r₁ f g ≤ cdist x₂ r₂ f g
+  cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : ι'}
+    (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₂} f g ≤ dist_{x₂, r₂} f g
   /-- The distance of a ball with large radius is bounded above. -/
-  cdist_le {x₁ x₂ : X} {r : ℝ} {f g : C(X, 𝕜)} (hf : f ∈ Θ) (hg : g ∈ Θ)
-    (h : dist x₁ x₂ < 2 * r) : cdist x₂ (2 * r) f g ≤ A * cdist x₁ r f g
+  cdist_le {x₁ x₂ : X} {r : ℝ} {f g : ι'} (h : dist x₁ x₂ < 2 * r) :
+    dist_{x₂, 2 * r} f g ≤ A * dist_{x₁, r} f g
   /-- The distance of a ball with large radius is bounded below. -/
-  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : C(X, 𝕜)} (hf : f ∈ Θ) (hg : g ∈ Θ)
-    (h1 : ball x₁ r ⊆ ball x₂ (A * r)) /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/ :
-    2 * cdist x₁ r f g ≤ cdist x₂ (A * r) f g
+  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : ι'} (h1 : ball x₁ r ⊆ ball x₂ (A * r))
+    /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/ :
+    2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
   /-- The distance of a ball with large radius is bounded below. -/
-  coveredByBalls {x : X} {r R : ℝ} {f : WithFunctionDistance Θ x r} (hf : f ∈ Θ) :
-    CoveredByBalls (ball f (2 * R) ∩ Θ) ⌊A⌋₊ R
+  ballsCoverBalls {x : X} {r R : ℝ} :
+    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R ⌊A⌋₊
 
-export IsCompatible (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
+export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
-variable (Θ) in
+variable (X) in
 /-- The point `o` in the blueprint -/
-def cancelPt [IsCompatible Θ] : X := IsCompatible.eq_zero A (Θ := Θ) |>.choose
-def cancelPt_eq_zero [IsCompatible Θ] {f : C(X, 𝕜)} (hf : f ∈ Θ) : f (cancelPt Θ) = 0 :=
-  IsCompatible.eq_zero A (Θ := Θ) |>.choose_spec f hf
+def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
+  CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose
+def cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : ι' X} : Θ f (cancelPt X) = 0 :=
+  CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
 
-lemma IsCompatible.IsSeparable [IsCompatible Θ] : IsSeparable Θ :=
+lemma CompatibleFunctions.IsSeparable [CompatibleFunctions 𝕜 X A] :
+  IsSeparable (range (Θ (X := X))) :=
   sorry
 
 set_option linter.unusedVariables false in
@@ -138,12 +139,13 @@ set_option linter.unusedVariables false in
 def iLipNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖) + R * ⨆ (x : X) (y : X) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y
 
+variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
-class IsCancellative (τ : ℝ) (Θ : Set C(X, ℂ)) [FunctionDistances Θ] : Prop where
+class IsCancellative (τ : ℝ) [CompatibleFunctions ℂ X A] : Prop where
   norm_integral_exp_le {x : X} {r : ℝ} {ϕ : X → ℂ} {K : ℝ≥0} (h1 : LipschitzWith K ϕ)
-    (h2 : tsupport ϕ ⊆ ball x r) {f g : C(X, ℂ)} (hf : f ∈ Θ) (hg : g ∈ Θ) :
-    ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-    A * volume.real (ball x r) * iLipNorm ϕ x r * (1 + dist_{Θ; x, r} f g) ^ (- τ)
+    (h2 : tsupport ϕ ⊆ ball x r) {f g : ι' X} :
+    ‖∫ x in ball x r, exp (I * (Θ f x - Θ g x)) * ϕ x‖ ≤
+    A * volume.real (ball x r) * iLipNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)
 
 export IsCancellative (norm_integral_exp_le)
 

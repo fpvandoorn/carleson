@@ -14,7 +14,9 @@ noncomputable section
 
 --#lint
 
-instance DoublingMeasureR2 : DoublingMeasure ℝ 2 where
+section
+@[reducible]
+def DoublingMeasureR2 : DoublingMeasure ℝ 2 where
   --rwa [FiniteDimensional.finrank_self, pow_one] at this
   volume_ball_two_le_same := by
     have : DoublingMeasure ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := by infer_instance
@@ -29,22 +31,9 @@ instance DoublingMeasureR2 : DoublingMeasure ℝ 2 where
         sorry
         --exact this.volume_ball_two_le_same x r
 
-
-/- to HomogeneousType -/
-@[reducible]
-def DoublingMeasure_with_increased_constant {X : Type} {a b : ℝ} [MetricSpace X] [DoublingMeasure X a] (aleb : a ≤ b) : DoublingMeasure X b where
-  volume_ball_two_le_same := by
-    intro x r
-    calc MeasureTheory.volume.real (Metric.ball x (2 * r))
-    _ ≤ a * MeasureTheory.volume.real (Metric.ball x r) := by apply volume_ball_two_le_same
-    _ ≤ b * MeasureTheory.volume.real (Metric.ball x r) := by gcongr
-
-
-
-instance DoublingMeasureR4 : DoublingMeasure ℝ 4 := by
-  apply DoublingMeasure_with_increased_constant
-  norm_num
-
+instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ 4) :=
+  DoublingMeasureR2.mono (by norm_num)
+end
 
 lemma h1 : 2 ∈ Set.Ioc 1 (2 : ℝ) := by simp
 lemma h2 : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
@@ -237,7 +226,7 @@ lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Ty
 
 --lemma frequency_ball_doubling {x R : ℝ} (Rpos : 0 < R) :
 
-instance h4 : IsCompatible Θ := sorry /-where
+instance h4 : CompatibleFunctions ℂ ℝ (2 ^ 4) := sorry /-where
   /- Lemma frequency_ball_doubling from the paper. -/
   localOscillation_two_mul_le := by
     intro x₁ x₂ R f g hf hg _
@@ -414,7 +403,7 @@ instance h4 : IsCompatible Θ := sorry /-where
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
 --TODO : possibly issues with a different "doubling constant" than in the paper (4 instead of 2)
-instance h5 : IsCancellative 2 Θ where
+instance h5 : IsCancellative ℝ (2 ^ 4) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by sorry
 
@@ -467,8 +456,8 @@ lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
 
 
 
-#check @theorem1_2C
---#check theorem1_2C K (by simp) h1 h2 _ _ h3
+-- #check @metric_carleson
+--#check metric_carleson K (by simp) h1 h2 _ _ h3
 
 
 
@@ -511,7 +500,7 @@ lemma rcarleson' {F G : Set ℝ}
       apply MeasureTheory.lintegral_mono
       apply CarlesonOperatorReal'_le_CarlesonOperator
     _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
-      --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-      convert theorem1_2C K (by simp) h1 h2 hF hG sorry f hf <;> sorry
+      --WARNING : metric_carleson does not yet require all necessary implicit parameters since no proof using them has been provided yet.
+      convert metric_carleson (a := 4) K (by norm_num) h1 h2 sorry /- hF-/ sorry sorry f hf <;> sorry
 
 end section

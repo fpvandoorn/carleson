@@ -47,6 +47,7 @@ variable (X) in lemma A_pos : 0 < A := by linarith [one_le_A X]
 instance [MetricSpace X] [DoublingMeasure X A] : IsUnifLocDoublingMeasure (volume : Measure X) := by
   sorry
 
+@[reducible]
 def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
   volume_ball_two_le_same := sorry
 
