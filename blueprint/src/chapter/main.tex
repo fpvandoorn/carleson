@@ -6783,16 +6783,21 @@ Let $0<r$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded s
 defined in Proposition \ref{Hardy-Littlewood}.
 Then for all $x'$ with $\rho(x,x')<r$.
 \begin{equation}\label{xx'difference}
-\left|\int_{r<\rho(x,y)}
-g(y) K(x,y)\, dy
--\int_{r<\rho(x',y)}
-g(y) K(x',y)\, dy
-\right|\le 2^{a^3 + 2a + 2} Mg(x)\, .
+\left| H_r g(x) - H_r g(x') \right|
+\le 2^{a^3 + 2a + 2} Mg(x)\, .
 \end{equation}
 \end{lemma}
 \begin{proof}
 \proves{estimate-x-shift}
-
+By definition,
+\begin{equation*}
+\left| H_r g(x) - H_r g(x') \right|
+=\left|\int_{r<\rho(x,y)}
+g(y) K(x,y)\, dy
+-\int_{r<\rho(x',y)}
+g(y) K(x',y)\, dy
+\right| \, .
+\end{equation*}
 We split the first integral in \eqref{xx'difference}
 into the domains $r<\rho(x,y)\le 2r$
 and $2r<\rho(x,y)$. The integral over the first domain we estimate
@@ -6822,7 +6827,7 @@ g(y) (K(x',y)-K(x,y))\, dy
 |g(y) K(x',y)|\, dy
 \right|
 \end{equation}
-Using the bound on $K$ in \eqref{eqkernel-size} and the doublin condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
+Using the bound on $K$ in \eqref{eqkernel-size} and the doubling condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
 \begin{align}
  \int_{r<\rho(x,y)<2r}
 |g(y)| \frac{2^{a^3}}{V(x,y)}\, dy\,
@@ -6885,76 +6890,69 @@ for \eqref{firstxx'},
 proves the lemma.
 \end{proof}
 
-Recall that
-\begin{equation*}
-    H_rg(x)=\int_{r<\rho(x,y)<1} g(y) \kappa(x-y)\, dy\, .
-\end{equation*}
-
-
 \begin{lemma}[Cotlar control]
 \label{Cotlar-control}
 \uses{estimate-x-shift}
-Let $0<r<r_1<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy--Littlewood function
+Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood function
 defined in Proposition
 \ref{Hardy-Littlewood}.
-Then for all $x'\in \R$ with $|x'-x|<\frac {r_1}4$ we have
+Then for all $x'\in X$ with $\rho(x,x')<\frac {r_1}4$ we have
 \begin{equation}\label{eq-cotlar-control}
 \left|H_{r_1} g(x)
 \right|\le
-|H_{r}(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')|+
-2^{15}Mg(x)\, .
+|H_{r}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')| +
+2^{a^3 + 2a + 3} Mg(x)\, .
 \end{equation}
 \end{lemma}
 
 \begin{proof}
-Let $x$ and $x'$ be given with $|x'-x|<\frac {r_1}4$.
+Let $x$ and $x'$ be given with $\rho(x,x')<\frac {r_1}4$.
 By an application of \Cref{estimate-x-shift}, we estimate
 the left-hand-side of
 \eqref{eq-cotlar-control} by
 \begin{equation}\label{eqcotlar0}
 |H_{r_1}(g)(x')|+
-2^{13}Mg(x)\,.
+2^{a^3 + 2a + 2} Mg(x)\,.
 \end{equation}
 We  have
 \begin{equation}
 \label{eqcotlar-1}
 H_{r_1}(g)(x')=
-\int_{r_1<\rho(x',y)<1} g(y) \kappa(x'-y)\, dy\, .
+\int_{r_1<\rho(x',y)} g(y) K(x',y) \, dy\, .
 \end{equation}
 On the domain $r_1<\rho(x',y)$, we have $\frac {r_1}2<\rho(x,y)$. Hence we may write
 for \eqref{eqcotlar-1}
 \begin{equation*}
-H_{r_1}(g)(x')=\int_{r_1<\rho(x',y)<1} (g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y) \kappa(x'-y)\, dy
+H_{r_1}(g)(x')=\int_{r_1<\rho(x',y)} (g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, dy
 \end{equation*}
 \begin{equation}\label{eqcotlar1}
-=H_{r_1}(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')\, .
+=H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')\, .
 \end{equation}
-Combining the estimate  \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
+Combining the estimate \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
 \begin{equation}\label{eqcotlar5}
 \left|H_{r_1} g(x)
 \right|\le
-|H_{r_1}(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')|+
-2^{13}Mg(x)\, .
+|H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')|+
+2^{a^3 + 2a + 2} Mg(x)\, .
 \end{equation}
 We  have
-
 \begin{equation*}
-(H_{r}-H_{r_1})(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')
+(H_{r}-H_{r_1})(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')
 \end{equation*}
 \begin{equation}\label{eqcotlar2}
 = \int_{ {r}<\rho(x',y)<r_1}
-(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\,  .
+(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y)K(x',y)\, dy\,  .
 \end{equation}
 Assume first $r\ge \frac {r_1} 4$.
 Then we estimate \eqref{eqcotlar2} with
-\Cref{Hilbert-kernel-bound} by
+\eqref{eqkernel-size} by
 \begin{equation*}
 \int_{\frac {r_1}4<\rho(x',y)<r_1}
-|g(y)k(x'-y)|\, dy
+|g(y)K(x',y)|\, dy
 \end{equation*}
 \begin{equation}\label{eqcotlar3}
-\le \frac {32}{r_1}\int_{\rho(x',y)<r_1}
-|g(y)|\, dy \le 64 Mg(x')\,  .
+\le \frac{2^{a^3}}{\mu(B(x',\frac{r_1}{4}))} \int_{\rho(x',y)<r_1}
+|g(y)|\, dy \le 2^{a^3 + 2a} Mg(x')\,  .
 \end{equation}
 Assume now $r\le \frac {r_1} 4$.
 As $\rho(x',y)\le \frac{r_1}4$ implies
@@ -6962,7 +6960,7 @@ $\rho(x,y)\le \frac {r_1} 2$, we see that
 \eqref{eqcotlar2} equals
 \begin{equation*}
  \int_{ {\frac {r_1} 4}<\rho(x',y)<r_1}
-(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\,  ,
+(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, dy\,  ,
 \end{equation*}
 which we again estimate as above by \eqref{eqcotlar3}.
 In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from \eqref{eqcotlar5}  and the estimate for
@@ -6972,22 +6970,22 @@ In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from
 \begin{lemma}[Cotlar sets]
 \label{Cotlar-sets}
 \uses{Hilbert-weak-1-1}
-Let $0<r<r_1<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy--Littlewood maximal function
+Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood maximal function
 defined in Proposition
 \ref{Hardy-Littlewood}.
-Let $x\in \R$.
+Let $x\in X$.
 Then the measure $|F_1|$ of the set $F_1$ of all $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$ such that
+B(x,\frac {r_1} 4)$ such that
 \begin{equation}
 \label{first-cotlar-exception}
-    |H_{r}(g)(x')|>4M(H_{r}g)(x)
+    |H_{r}(g)(x')|> C M(H_{r}g)(x)
 \end{equation}
-is less than or equal to $r_1/8$.
+is less than or equal to $\frac {\mu(B(x,\frac{r_1}{4}))}C$.
 Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$ such that
+B(x,\frac {r_1} 4)$ such that
 \begin{equation}
 \label{second-cotlar-exception}
-    |H_{r}(g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})|>2^{22}Mg(x)
+    |H_{r}(g\mathbf{1}_{B(x,\frac {r_1} 2)})| > D Mg(x)
 \end{equation}
 is less than $r_1/8$.
 \end{lemma}
@@ -7000,26 +6998,26 @@ Assume $M(H_{r}g)(x)>0$.
 We have with \eqref{first-cotlar-exception}
 \begin{equation}
     M(H_{r}g)(x)\ge
-    \frac 2{r_1}\int_{|x'-x|<\frac {r_1}4}|H_{r}g(x')|\, dx'
+    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{\rho(x,x')<\frac {r_1}4}|H_{r}g(x')|\, dx'
 \end{equation}
 \begin{equation}
     \ge
-    \frac 2{r_1}\int_{F_1} 4 M(H_{r}g)(x)\, dx'
+    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{F_1} C M(H_{r}g)(x)\, dx'
 \end{equation}
 Dividing by $M(H_{r}g)(x)$ gives
 \begin{equation}
-    1\ge  \frac 8{r_1} |F_1|\, .
+    1\ge \frac C{\mu(B(x,\frac{r_1}{4}))} |F_1|\, .
 \end{equation}
 This gives the desired bound for the measure of $F_1$.
-
+% TODO: Go on here when weak 1-1 is done.
 We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
 The set $F_2$ is then estimated with \Cref{Hilbert-weak-1-1}
 by
 \begin{equation}
-   \frac {2^{19}}{2^{22}Mg(x)}\int |g\mathbf{1}_{[x-\frac {r_1}2, x+\frac {r_1}2]}|(y)\, dy
+   \frac {2^{19}}{D Mg(x)}\int |g\mathbf{1}_{[x-\frac {r_1}2, x+\frac {r_1}2]}|(y)\, dy
 \end{equation}
 \begin{equation}
-   \le \frac {2^{19}}{2^{22}Mg(x)}r_1Mg(x)= \frac {r_1}8\,.
+   \le \frac {2^{19}}{D Mg(x)}r_1Mg(x)= \frac {r_1}8\,.
 \end{equation}
 This gives the desired bound for the measure of $F_2$.
 \end{proof}
@@ -7027,74 +7025,67 @@ This gives the desired bound for the measure of $F_2$.
 \begin{lemma}[Cotlar estimate]
 \label{Cotlar-estimate}
 \uses{Cotlar-control, Cotlar-sets}
-Let $0<r<r_1<1$ and  $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
+Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
 defined in Proposition
 \ref{Hardy-Littlewood}.
-Then for all $x\in \R$
+Then for all $x\in X$
 \begin{equation}\label{eq-cotlar-estimate}
-\left|
-\int_{r_1<\rho(x,y)<1}
-g(y) \kappa(x-y)\, dy
-\right|
-\end{equation}
-\begin{equation}\le
-2^{2}M(H_rg)(x)+ 2^{23} Mg(x)
+|H_{r_1}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{23} Mg(x)
 \, .
 \end{equation}
 \end{lemma}
 
 
 \begin{proof}
-By \Cref{Cotlar-control}, the measure of the set
+By \Cref{Cotlar-sets}, the measure of the set
 of all $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$
+B(x,\frac {r_1} 4)$
 such that at least one of the conditions
 \eqref{first-cotlar-exception} and
 \eqref{second-cotlar-exception} is satisfied is at most $r_1/4$ and hence not all of
  $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$. Pick an
+B(x,\frac {r_1} 4)$. Pick an
 $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$ such that both conditions are not satisfied.
+B(x,\frac {r_1} 4)$ such that both conditions are not satisfied.
 Applying \Cref{Cotlar-control}
 for this $x'$ and using the triangle inequality
 estimates the left-hand side of \eqref{eq-cotlar-estimate}
 by
 \begin{equation}
-    4M(H_rg)(x)+2^{22}Mg(x)+2^{15}Mg(x)\, .
+    C M(H_rg)(x) + D Mg(x) + 2^{a^3 + 2a + 3} Mg(x)\, .
 \end{equation}
 This proves the lemma.
 \end{proof}
 
 \begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
 \uses{Hardy-Littlewood,Hilbert-strong-2-2,Cotlar-estimate}
-    For every  $0<r<1$ and every bounded measurable function $g$ with bounded support we have
+    For every  $r>0$ and every bounded measurable function $g$ with bounded support we have
 \begin{equation}\label{trzerobound}
     \|T_{r}g\|_2\le 2^{42}\|g\|_2,
 \end{equation}
 where
 \begin{equation}\label{eq-simple--nontangential}
-    T_{r} g(x):=\sup_{r<r_1<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}
-g(y) \kappa(x'-y)\, dy\right|\, .
+    T_{r} g(x):=\sup_{r<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} |H_{r_1}(g)(x')| \, .
 \end{equation}
 \end{lemma}
 \begin{proof}
 With \Cref{estimate-x-shift}
 and the triangle inequality, we estimate
-for every $x\in \R$
+for every $x\in X$
 \begin{equation}
      T_{r} g(x)
-     \le 2^{13} Mg(x)+\sup_{r<r_1<1}
-     \frac 1{2\pi} \left|\int_{r_1<\rho(x,y)<1}
-g(y) \kappa(x-y)\, dy\right|\, .
+     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<r_1}
+     \frac 1{2\pi} |H_{r_1}(g)(x)|\, .
 \end{equation}
 Using further \Cref{Cotlar-estimate},
 we estimate
+%TODO: Go on here when constants have been worked out
 \begin{equation}
       T_{r} g(x)
-     \le 2^{13} Mg(x)+2^{23}
+     \le 2^{a^3 + 2a + 2} Mg(x)+2^{23}
      Mg(x)+2^{2}M(H_{r}g)(x)\, .
 \end{equation}
-Taking the $L^2$ norm and using \Cref{Hardy-Littlewood}with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
+Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
 \begin{equation}
       \|T_{r} g\|_2
      \le 2^{24} \|Mg\|_2+2^{2}\|M(H_{r}g)\|_2
@@ -7119,24 +7110,24 @@ sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
 \end{equation}
 where
 \begin{equation}\label{eq-simpler--nontangential}
-    T_{0} g(x):=\sup_{0<r_1<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}
-g(y) \kappa(x'-y)\, dy\right|\, .
+    T_{0} g(x):=\sup_{0<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}
+g(y) K(x',y)\, dy\right|\, .
 \end{equation}
 We now write by the triangle inequality
 \begin{equation}\label{concretetstartriangle}
-    T_* g(x)\le \sup_{0<r_1<r_2<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}g(y) \kappa(x'-y)\, dy\right|
+    T_* g(x)\le \sup_{0<r_1<r_2}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, dy\right|
 \end{equation}
     \begin{equation*}
-+\sup_{0<r_1< r_2<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)<1}        g(y) \kappa(x'-y)\, dy\right|\, .
++\sup_{0<r_1< r_2}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, dy\right|\, .
 \end{equation*}
 Noting that the first integral does not depend on $r_2$ and
 estimating the second integral by the larger supremum over all
 $\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
 \begin{equation}\label{concretetstartriangle2}
-   \sup_{0<r_1<1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)<1}g(y) \kappa(x'-y)\, dy\right|
+   \sup_{0<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, dy\right|
 \end{equation}
     \begin{equation*}
-+\sup_{0< r_2<1}\sup_{\rho(x,x')<r_2}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)<1}        g(y) \kappa(x'-y)\, dy\right|\, .
++\sup_{0<r_2}\sup_{\rho(x,x')<r_2}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, dy\right|\, .
 \end{equation*}
     Applying the triangle inequality on the left-hand side
     of \eqref{concretetstarbound} and applying
