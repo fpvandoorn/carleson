@@ -45,8 +45,7 @@ lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, 
 
 lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℝ)} {R : ℝ} (R_nonpos : R ≤ 0):
     localOscillation (Metric.ball x R) f g = 0 := by
-  convert localOscillation_on_emptyset
-  exact Metric.ball_eq_empty.mpr R_nonpos
+  rw [Metric.ball_eq_empty.mpr R_nonpos, localOscillation_on_emptyset]
 
 lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLinearOrder α] {ι : Type} [Nonempty ι]
     {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
@@ -65,11 +64,9 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
         rw [Set.eq_singleton_iff_unique_mem]
         constructor
         . simpa
-        . intro x hx
-          simp at hx
-          exact hx.2.symm
+        . exact fun x hx => hx.2.symm
       rw [this] at hz
-      have : sSup {f z} = f z := by apply csSup_singleton
+      have : sSup {f z} = f z := csSup_singleton _
       rw [this] at hz
       simp at hx
       have : f z ≤ x := hx z h
@@ -93,7 +90,6 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
     simp at hx
     rwa [hx.2] at fia
 
-
 --mainly have to work for the following lemmas
 
 section
@@ -106,32 +102,28 @@ local notation "θ" => integer_linear
 local notation "Θ" => {(θ n) | n : ℤ}
 
 
-theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℝ)} : localOscillation E f f = 0 := by
-  rw [localOscillation]
-  simp only [Set.mem_prod, sub_self, zero_sub, add_left_neg, norm_zero, Real.ciSup_const_zero]
+theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℝ)} :
+    localOscillation E f f = 0 := by
+  simp [localOscillation]
 
 /-Stronger version of oscillation_control from the paper-/
 /-Based on earlier version of the paper. -/
 lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ n m : ℤ, localOscillation (Metric.ball x R) (θ n) (θ m) = 2 * R * |(n : ℝ) - m| := by
   intro n m
   by_cases n_ne_m : n = m
-  . rw [n_ne_m]
-    simp
-    apply localOscillation_of_same
+  . simp [n_ne_m, sub_self, abs_zero, mul_zero, localOscillation_of_same]
   push_neg at n_ne_m
   have norm_n_sub_m_pos : 0 < |(n : ℝ) - m| := by
-    simp
+    simp only [abs_pos, ne_eq]
     rwa [sub_eq_zero, Int.cast_inj]
   /- Rewrite to a more convenient form for the following steps. -/
   have norm_integer_linear_eq {n m : ℤ} {z : ℝ × ℝ} : ‖(θ n) z.1 - (θ m) z.1 - (θ n) z.2 + (θ m) z.2‖ = ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
     rw [integer_linear, integer_linear]
-    congr 1
     simp
-    ring
+    ring_nf
   have localOscillation_eq : localOscillation (Metric.ball x R) (θ n) (θ m) = ⨆ z ∈ (Metric.ball x R) ×ˢ (Metric.ball x R), ‖(n - m) * (z.1 - x) - (n - m) * (z.2 - x)‖ := by
       rw [localOscillation]
-      congr
-      ext z
+      congr with z
       rw [norm_integer_linear_eq]
   rw [localOscillation_eq]
   /- Show inequalities in both directions. -/
@@ -165,11 +157,8 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
         _ = localOscillation (Metric.ball x R) (θ n) (θ m) := rfl
         _ = ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
           rw [localOscillation]
-          congr
-          ext z
-          congr
+          congr with z
           rw [norm_integer_linear_eq]
-
     push_neg at c_nonneg
     set R' := (c + 2 * R * |(n : ℝ) - m|) / (4 * |(n : ℝ) - m|) with R'def
     have hR' : 0 ≤ R' ∧ R' < R := by
@@ -185,29 +174,25 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
     let y := (x - R', x + R')
     calc c
       _ = c / 2 + c / 2 := by ring
-      _ < c / 2 + (2 * R * |↑n - ↑m|) / 2 := by
-        gcongr
+      _ < c / 2 + (2 * R * |↑n - ↑m|) / 2 := by gcongr
       _ = 2 * R' * |↑n - ↑m| := by
         rw [R'def]
         ring_nf
         rw [pow_two, ←mul_assoc, mul_assoc c, mul_inv_cancel norm_n_sub_m_pos.ne.symm, mul_assoc (R * _), mul_inv_cancel norm_n_sub_m_pos.ne.symm]
         ring
       _ ≤ ‖(↑n - ↑m) * (y.1 - x) - (↑n - ↑m) * (y.2 - x)‖ := by
-        simp
-        rw [sub_eq_add_neg (-((n - m) * R')), ←neg_add, abs_neg, ←two_mul, abs_mul, abs_mul, mul_comm |(n : ℝ) - m|, mul_assoc]
-        simp
+        simp only [mul_assoc, sub_sub_cancel_left, mul_neg, add_sub_cancel_left,
+          sub_eq_add_neg (-((n - m) * R')), ← two_mul, norm_neg, norm_mul, RCLike.norm_ofNat,
+          Real.norm_eq_abs, mul_comm |(n : ℝ) - m|, gt_iff_lt, Nat.ofNat_pos,
+          _root_.mul_le_mul_left]
         gcongr
-        apply le_abs_self
+        exact le_abs_self _
       _ ≤ ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
         apply ConditionallyCompleteLattice.le_biSup
         . convert bddAbove_localOscillation (Metric.ball x R) (θ n) (θ m) using 2
-          apply norm_integer_linear_eq.symm
+          exact norm_integer_linear_eq.symm
         . use y
-          simp
-          rw [abs_of_nonneg]
-          exact hR'.2
-          exact hR'.1
-
+          simp [abs_of_nonneg, hR'.1, hR'.2]
 
 --TODO: probably not needed any more
 lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Type} [Nonempty ι] {f : ι → α} :
@@ -225,7 +210,7 @@ lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Ty
     rw [Set.range_eq_empty_iff]
     simp
   rw [this]
-  apply Set.range_const
+  exact Set.range_const
 
 end
 --lemma frequency_ball_doubling {x R : ℝ} (Rpos : 0 < R) :
@@ -255,8 +240,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
     push_neg at Rpos
     obtain ⟨n, hθnf⟩ := hf
     obtain ⟨m, hθmg⟩ := hg
-    rw [←hθnf, ←hθmg]
-    rw [localOscillation_of_integer_linear, localOscillation_of_integer_linear]
+    rw [←hθnf, ←hθmg, localOscillation_of_integer_linear, localOscillation_of_integer_linear]
     ring_nf
     gcongr
     norm_num
@@ -339,12 +323,11 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
       . rw [balls_def]
         simp
       calc localOscillation (Metric.ball x R) (θ n') (θ m₁)
-        _ = 2 * R * |(n' : ℝ) - m₁| := by
-          apply localOscillation_of_integer_linear Rpos.le
+        _ = 2 * R * |(n' : ℝ) - m₁| := localOscillation_of_integer_linear Rpos.le _ _
         _ = 2 * R * (m₁ - n') := by
           rw [abs_of_nonpos]
-          simp
-          simp
+          simp only [neg_sub]
+          simp only [tsub_le_iff_right, zero_add, Int.cast_le]
           rwa [m₁def, Int.le_floor]
         _ = 2 * R * (m₁ - n) + 2 * R * (n - n') := by ring
         _ < - R' + 2 * R' := by
@@ -364,7 +347,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
               _ = localOscillation (Metric.ball x R) (θ n) (θ n') := by
                 symm
                 apply localOscillation_of_integer_linear Rpos.le
-              _ < 2 * R' := by exact hφ
+              _ < 2 * R' := hφ
         _ = R' := by ring
     push_neg at h
     by_cases h' : n' < n + R' / (2 * R)
@@ -374,7 +357,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
         simp
       rw [m₂def, dist_comm]
       calc localOscillation (Metric.ball x R) (θ n) (θ n')
-        _ = 2 * R * |(n : ℝ) - n'| := by apply localOscillation_of_integer_linear Rpos.le
+        _ = 2 * R * |(n : ℝ) - n'| := localOscillation_of_integer_linear Rpos.le _ _
         _ < 2 * R * (R' / (2 * R)) := by
           gcongr
           rw [abs_sub_lt_iff]
@@ -383,8 +366,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
     push_neg at h'
     use θ m₃
     constructor
-    . rw [balls_def]
-      simp
+    . simp [balls_def]
     calc localOscillation (Metric.ball x R) (θ n') (θ m₃)
       _ = 2 * R * |(n' : ℝ) - m₃| := by
         apply localOscillation_of_integer_linear Rpos.le
@@ -398,19 +380,19 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
         . calc 2 * R * (↑n' - ↑n)
             _ ≤ 2 * R * |↑n' - ↑n| := by
               gcongr
-              apply le_abs_self
+              exact le_abs_self _
             _ = 2 * R * |↑n - ↑n'| := by
               congr 1
-              apply abs_sub_comm
+              exact abs_sub_comm _ _
             _ = localOscillation (Metric.ball x R) (θ n) (θ n') := by
               symm
-              apply localOscillation_of_integer_linear Rpos.le
+              exact localOscillation_of_integer_linear Rpos.le _ _
             _ < 2 * R' := by exact hφ
         . rw [m₃def]
           calc 2 * R * (n - ⌈n + R' / (2 * R)⌉)
             _ ≤ 2 * R * (n - (n + R' / (2 * R))) := by
               gcongr
-              apply Int.le_ceil
+              exact Int.le_ceil _
             _ = -R' := by
               ring_nf
               rw [mul_comm, ←mul_assoc, inv_mul_cancel Rpos.ne.symm, one_mul]
@@ -425,9 +407,6 @@ instance h5 : IsCancellative ℝ (2 ^ (4 : ℝ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by sorry
 
-
-
-
 --TODO : add some Real.vol lemma
 
 instance h6 : IsCZKernel 4 K where
@@ -436,7 +415,7 @@ instance h6 : IsCZKernel 4 K where
     intro x y
     rw [Complex.norm_eq_abs, Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
     calc Complex.abs (K x y)
-    _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := by apply Hilbert_kernel_bound
+    _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
   /- uses Hilbert_kernel_regularity -/
   norm_sub_le := by
@@ -456,7 +435,7 @@ instance h6 : IsCZKernel 4 K where
           rw [← Real.rpow_one (|x - y|⁻¹ * |y - y'|)]
         apply Real.rpow_le_rpow_of_exponent_ge'
         . field_simp
-          apply div_nonneg (abs_nonneg (y - y')) (abs_nonneg (x - y))
+          exact div_nonneg (abs_nonneg (y - y')) (abs_nonneg (x - y))
         . field_simp
           apply div_le_one_of_le <;> linarith [abs_nonneg (x - y)]
         . norm_num
@@ -479,8 +458,6 @@ lemma h3 (g : ℝ → ℂ) (hg : Memℒp g ∞ volume) (h2g : volume (support g)
 -- #check @metric_carleson
 --#check metric_carleson K (by simp) h1 h2 _ _ h3
 
-
-
 local notation "T" => CarlesonOperatorReal K
 local notation "T'" => CarlesonOperatorReal' K
 
@@ -502,8 +479,7 @@ lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K := b
   apply le_iSup₂_of_le rpos rle1
   apply le_of_eq
   rw [coeΘ_R, integer_linear, ContinuousMap.coe_mk]
-  congr
-  ext y
+  congr with y
   push_cast
   ring_nf
 

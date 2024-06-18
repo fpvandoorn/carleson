@@ -23,7 +23,7 @@ lemma k_measurable : Measurable k := by
   apply Measurable.div
   . apply Measurable.comp'
     · exact Complex.measurable_ofReal
-    · exact Measurable.max (measurable_const.sub measurable_norm) measurable_const
+    · exact (measurable_const.sub measurable_norm).max measurable_const
   . measurability
 
 def K (x y : ℝ) : ℂ := k (x - y)
@@ -122,9 +122,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
           simp only [Complex.norm_eq_abs, ge_iff_le]
           apply Complex.abs_im_le_abs
         _ = Real.sin t := by
-          simp
-          rw [Complex.exp_im]
-          simp
+          simp [Complex.exp_im]
           apply Real.sin_nonneg_of_nonneg_of_le_pi
           . linarith
           . linarith [Real.two_le_pi]
@@ -140,7 +138,6 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
         ext t
         rw [f'def, cdef, c'def, ddef, d'def]
         simp
-        congr
         ring
       rw [this]
       apply HasDerivAt.div
