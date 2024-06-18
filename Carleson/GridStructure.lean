@@ -143,6 +143,7 @@ def TileLike.snd (x : TileLike X) : Set (Θ X) := x.2
 instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
 example (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
+@[simps]
 def toTileLike (p : 𝔓 X) : TileLike X := (𝓓 (𝓘 p), Ω p)
 
 lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorry
