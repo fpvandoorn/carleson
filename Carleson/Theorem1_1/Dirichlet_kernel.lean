@@ -125,13 +125,12 @@ lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ �
     _ = 2 * N + 1 := by
       rw [sum_const]
       simp only [Int.ofNat_eq_coe, Int.card_Icc, sub_neg_eq_add, nsmul_eq_mul, mul_one]
-      norm_cast
-      rw [Int.toNat_ofNat]
+      rw_mod_cast [Int.toNat_ofNat]
       ring
 
 lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
   by_cases h : cexp (I * x) ≠ 1
-  . simp [← dirichletKernel_eq, h]
+  . simp only [ne_eq, h, not_false_eq_true, ← dirichletKernel_eq, norm_eq_abs]
     exact norm_dirichletKernel_le
   . push_neg at h
     rw [dirichletKernel'_eq_zero h, norm_zero]
@@ -158,7 +157,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x :
       rw [← intervalIntegral.integral_finset_sum]
       intro n _
       apply IntervalIntegrable.mul_const
-      apply IntervalIntegrable.continuousOn_mul h fourier_uniformContinuous.continuous.continuousOn
+      exact h.continuousOn_mul fourier_uniformContinuous.continuous.continuousOn
     _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * ∑ n in Icc (-Int.ofNat N) ↑N, (fourier (-n)) y * (fourier n) x := by
       congr with y
       rw [mul_sum]
