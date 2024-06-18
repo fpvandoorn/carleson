@@ -1,4 +1,4 @@
-import Carleson.Defs
+import Carleson.GridStructure
 
 open MeasureTheory Measure NNReal Metric Complex Set TileStructure Function BigOperators
 open scoped ENNReal
@@ -23,8 +23,8 @@ lemma δ2_3_pos (A : ℝ) (τ : ℝ) (C : ℝ) : δ2_3 A τ C > 0 := sorry
 def Cψ2_3 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ≥0 := sorry
 
 lemma Cψ2_3_pos (A : ℝ) (τ : ℝ) (C : ℝ) : Cψ2_3 A τ C > 0 := sorry
-
-variable {X : Type*} {A : ℝ} [MetricSpace X] [IsSpaceOfHomogeneousType X A] [Inhabited X]
+/-
+variable {X : Type*} {A : ℝ} [MetricSpace X] [DoublingMeasure X A] [Inhabited X]
 variable {τ q D κ ε δ : ℝ} {C₀ C t : ℝ}
 variable {Θ : Set C(X, ℂ)} [IsCompatible Θ] [IsCancellative τ Θ] [TileStructure Θ D κ C₀]
 variable {F G : Set X} {σ σ' : X → ℤ} {Q' : X → C(X, ℂ)} /- Q-tilde in the pdf -/
@@ -51,3 +51,4 @@ theorem prop2_3
     :
     ‖∑ᶠ p ∈ 𝔉.carrier, TL K Q' σ σ' ψ p F‖₊ ≤ C * (2 : ℝ) ^ (- ε * n) * t ^ (1 / q - 1 / 2) := by
   sorry
+-/
