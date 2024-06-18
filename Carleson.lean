@@ -1,10 +1,12 @@
-import Carleson.MetricCarleson
 import Carleson.CoverByBalls
 import Carleson.Defs
-import Carleson.DoublingMeasure
 import Carleson.DiscreteCarleson
+import Carleson.DoublingMeasure
+import Carleson.GridStructure
+import Carleson.MetricCarleson
 import Carleson.Proposition2
 import Carleson.Proposition3
+import Carleson.Psi
 import Carleson.Theorem1_1.Approximation
 import Carleson.Theorem1_1.Basic
 import Carleson.Theorem1_1.CarlesonOperatorReal

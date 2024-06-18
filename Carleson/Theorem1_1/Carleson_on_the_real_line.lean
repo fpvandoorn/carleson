@@ -12,6 +12,8 @@ import Mathlib.Analysis.SpecialFunctions.Integrals
 
 noncomputable section
 
+open MeasureTheory Function Metric Bornology
+
 --#lint
 
 section
@@ -31,17 +33,17 @@ def DoublingMeasureR2 : DoublingMeasure ℝ 2 where
         sorry
         --exact this.volume_ball_two_le_same x r
 
-instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ 4) :=
+instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ (4 : ℝ)) :=
   DoublingMeasureR2.mono (by norm_num)
 end
 
 lemma h1 : 2 ∈ Set.Ioc 1 (2 : ℝ) := by simp
 lemma h2 : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
 
-lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℂ)} : localOscillation ∅ f g = 0 := by
+lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℝ)} : localOscillation ∅ f g = 0 := by
   simp [localOscillation]
 
-lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℂ)} {R : ℝ} (R_nonpos : R ≤ 0):
+lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℝ)} {R : ℝ} (R_nonpos : R ≤ 0):
     localOscillation (Metric.ball x R) f g = 0 := by
   convert localOscillation_on_emptyset
   exact Metric.ball_eq_empty.mpr R_nonpos
@@ -98,12 +100,13 @@ section
 
 open ENNReal
 
+section
 local notation "θ" => integer_linear
 
 local notation "Θ" => {(θ n) | n : ℤ}
 
 
-theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℂ)} : localOscillation E f f = 0 := by
+theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℝ)} : localOscillation E f f = 0 := by
   rw [localOscillation]
   simp only [Set.mem_prod, sub_self, zero_sub, add_left_neg, norm_zero, Real.ciSup_const_zero]
 
@@ -121,7 +124,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
     rwa [sub_eq_zero, Int.cast_inj]
   /- Rewrite to a more convenient form for the following steps. -/
   have norm_integer_linear_eq {n m : ℤ} {z : ℝ × ℝ} : ‖(θ n) z.1 - (θ m) z.1 - (θ n) z.2 + (θ m) z.2‖ = ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
-    rw [←Complex.norm_real, integer_linear, integer_linear]
+    rw [integer_linear, integer_linear]
     congr 1
     simp
     ring
@@ -158,7 +161,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
     by_cases c_nonneg : 0 > c
     . calc c
         _ < 0 := c_nonneg
-        _ ≤ @dist (withLocalOscillation ℂ (Metric.ball x R)) PseudoMetricSpace.toDist (θ n) (θ m) := dist_nonneg
+        _ ≤ @dist (withLocalOscillation ℝ (Metric.ball x R)) PseudoMetricSpace.toDist (θ n) (θ m) := dist_nonneg
         _ = localOscillation (Metric.ball x R) (θ n) (θ m) := rfl
         _ = ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
           rw [localOscillation]
@@ -197,7 +200,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
         apply le_abs_self
       _ ≤ ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
         apply ConditionallyCompleteLattice.le_biSup
-        . convert bddAbove_localOscillation (Metric.ball x R) (θ n) (θ m)
+        . convert bddAbove_localOscillation (Metric.ball x R) (θ n) (θ m) using 2
           apply norm_integer_linear_eq.symm
         . use y
           simp
@@ -224,9 +227,24 @@ lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Ty
   rw [this]
   apply Set.range_const
 
+end
 --lemma frequency_ball_doubling {x R : ℝ} (Rpos : 0 < R) :
 
-instance h4 : CompatibleFunctions ℂ ℝ (2 ^ 4) := sorry /-where
+instance : FunctionDistances ℝ ℝ where
+  Θ := ℤ
+  coeΘ := integer_linear
+  metric := fun x R ↦ sorry
+
+lemma coeΘ_R (n : Θ ℝ) : coeΘ n = integer_linear n := rfl
+
+instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
+  eq_zero := sorry
+  localOscillation_le_cdist := sorry
+  cdist_mono := sorry
+  cdist_le := sorry
+  le_cdist := sorry
+  ballsCoverBalls := sorry
+/-
   /- Lemma frequency_ball_doubling from the paper. -/
   localOscillation_two_mul_le := by
     intro x₁ x₂ R f g hf hg _
@@ -403,7 +421,7 @@ instance h4 : CompatibleFunctions ℂ ℝ (2 ^ 4) := sorry /-where
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
 --TODO : possibly issues with a different "doubling constant" than in the paper (4 instead of 2)
-instance h5 : IsCancellative ℝ (2 ^ 4) where
+instance h5 : IsCancellative ℝ (2 ^ (4 : ℝ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by sorry
 
@@ -452,7 +470,9 @@ instance h6 : IsCZKernel 4 K where
   measurable := Hilbert_kernel_measurable
 
 /- Lemma ?-/
-lemma h3 : NormBoundedBy (ANCZOperatorLp 2 K) 1 := sorry
+lemma h3 (g : ℝ → ℂ) (hg : Memℒp g ∞ volume) (h2g : volume (support g) < ∞)
+    (h3g : Memℒp g 2 volume) :
+    snorm (ANCZOperator K g) 2 volume ≤ 2 ^ (4 : ℝ) ^ 3 * snorm g 2 volume := sorry
 
 
 
@@ -466,7 +486,7 @@ local notation "T'" => CarlesonOperatorReal' K
 
 /-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
-lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K Θ := by
+lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K := by
   intro f x
   rw [CarlesonOperator, CarlesonOperatorReal']
   apply iSup_le
@@ -477,14 +497,17 @@ lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K Θ :
   intro rpos
   apply iSup_le
   intro rle1
-  apply le_iSup₂_of_le (θ n) (by simp)
+  apply le_iSup_of_le n
   apply le_iSup₂_of_le r 1
   apply le_iSup₂_of_le rpos rle1
   apply le_of_eq
-  rw [integer_linear, ContinuousMap.coe_mk]
+  rw [coeΘ_R, integer_linear, ContinuousMap.coe_mk]
   congr
   ext y
+  push_cast
   ring_nf
+
+
 
 /- Lemma 10.4 (ENNReal version) -/
 lemma rcarleson' {F G : Set ℝ}
@@ -496,11 +519,9 @@ lemma rcarleson' {F G : Set ℝ}
     ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
   --rw [CarlesonOperatorReal_eq_CarlesonOperator]
   calc ∫⁻ x in G, T' f x
-    _ ≤ ∫⁻ x in G, CarlesonOperator K Θ f x := by
+    _ ≤ ∫⁻ x in G, CarlesonOperator K f x := by
       apply MeasureTheory.lintegral_mono
       apply CarlesonOperatorReal'_le_CarlesonOperator
-    _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
-      --WARNING : metric_carleson does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-      convert metric_carleson (a := 4) K (by norm_num) h1 h2 sorry /- hF-/ sorry sorry f hf <;> sorry
+    _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := metric_carleson (a := 4) K (by norm_num) h1 h2 hF hG h3 f hf
 
 end section

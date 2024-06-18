@@ -73,48 +73,57 @@ lemma fact_isCompact_ball (x : X) (r : ℝ) : Fact (IsBounded (ball x r)) :=
   ⟨isBounded_ball⟩
 attribute [local instance] fact_isCompact_ball
 
-/-- A class stating that continuous functions have distances associated to every ball. -/
+/-- A class stating that continuous functions have distances associated to every ball.
+We use a separate type to conveniently index these functions. -/
 class FunctionDistances (𝕜 : outParam Type*) (X : Type u)
     [NormedField 𝕜] [TopologicalSpace X] where
-  ι' : Type u
-  Θ : ι' → C(X, 𝕜)
-  out : ∀ (_x : X) (_r : ℝ), PseudoMetricSpace ι'
+  Θ : Type u
+  coeΘ : Θ → C(X, 𝕜)
+  metric : ∀ (_x : X) (_r : ℝ), PseudoMetricSpace Θ
 
-export FunctionDistances (ι' Θ)
+export FunctionDistances (Θ coeΘ)
+
+section FunctionDistances
+variable [FunctionDistances 𝕜 X]
+
+instance : Coe (Θ X) C(X, 𝕜) := ⟨coeΘ⟩
+instance : CoeFun (Θ X) (fun _ ↦ X → 𝕜) := ⟨fun f ↦ coeΘ f⟩
 
 set_option linter.unusedVariables false in
-def WithFunctionDistance (x : X) (r : ℝ) [FunctionDistances 𝕜 X] := ι' X
+def WithFunctionDistance (x : X) (r : ℝ) := Θ X
 
 variable {x : X} {r : ℝ}
 
-def toWithFunctionDistance [FunctionDistances 𝕜 X] : ι' X ≃ WithFunctionDistance x r :=
+def toWithFunctionDistance [FunctionDistances 𝕜 X] : Θ X ≃ WithFunctionDistance x r :=
   .refl _
 
--- instance : FunLike (WithFunctionDistance ι' x r) X 𝕜 := ContinuousMap.funLike
--- instance : ContinuousMapClass (WithFunctionDistance ι' x r) X 𝕜 :=
+-- instance : FunLike (WithFunctionDistance Θ x r) X 𝕜 := ContinuousMap.funLike
+-- instance : ContinuousMapClass (WithFunctionDistance Θ x r) X 𝕜 :=
 --   ContinuousMap.toContinuousMapClass
 
 instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistance x r) :=
-  d.out x r
+  d.metric x r
 
-local notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
-local notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
+end FunctionDistances
+
+notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
-  eq_zero : ∃ o : X, ∀ f, Θ f o = 0
+  eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
   /-- The distance is bounded below by the local oscillation. -/
-  localOscillation_le_cdist {x : X} {r : ℝ} {f g : ι'} :
-    localOscillation (ball x r) (Θ f) (Θ g) ≤ dist_{x, r} f g
+  localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
+    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ dist_{x, r} f g
   /-- The distance is monotone in the ball. -/
-  cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : ι'}
+  cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
     (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₂} f g ≤ dist_{x₂, r₂} f g
   /-- The distance of a ball with large radius is bounded above. -/
-  cdist_le {x₁ x₂ : X} {r : ℝ} {f g : ι'} (h : dist x₁ x₂ < 2 * r) :
+  cdist_le {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h : dist x₁ x₂ < 2 * r) :
     dist_{x₂, 2 * r} f g ≤ A * dist_{x₁, r} f g
   /-- The distance of a ball with large radius is bounded below. -/
-  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : ι'} (h1 : ball x₁ r ⊆ ball x₂ (A * r))
+  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r))
     /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/ :
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
   /-- The distance of a ball with large radius is bounded below. -/
@@ -127,11 +136,11 @@ variable (X) in
 /-- The point `o` in the blueprint -/
 def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose
-def cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : ι' X} : Θ f (cancelPt X) = 0 :=
+def cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
 
 lemma CompatibleFunctions.IsSeparable [CompatibleFunctions 𝕜 X A] :
-  IsSeparable (range (Θ (X := X))) :=
+  IsSeparable (range (coeΘ (X := X))) :=
   sorry
 
 set_option linter.unusedVariables false in
@@ -141,10 +150,10 @@ def iLipNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : 
 
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
-class IsCancellative (τ : ℝ) [CompatibleFunctions ℂ X A] : Prop where
+class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
   norm_integral_exp_le {x : X} {r : ℝ} {ϕ : X → ℂ} {K : ℝ≥0} (h1 : LipschitzWith K ϕ)
-    (h2 : tsupport ϕ ⊆ ball x r) {f g : ι' X} :
-    ‖∫ x in ball x r, exp (I * (Θ f x - Θ g x)) * ϕ x‖ ≤
+    (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
+    ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
     A * volume.real (ball x r) * iLipNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)
 
 export IsCancellative (norm_integral_exp_le)
@@ -188,25 +197,26 @@ def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T
     Prop :=
   ∀ x, ‖T x‖ ≤ c * ‖x‖
 
+def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
+    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
+  ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
+
 set_option linter.unusedVariables false in
 /-- The associated nontangential Calderon Zygmund operator -/
-def ANCZOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+def ANCZOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ :=
   ⨆ (R₁ : ℝ) (R₂ : ℝ) (h1 : R₁ < R₂) (x' : X) (h2 : dist x x' ≤ R₁),
-  ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
+  ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊ |>.toReal
 
-/-- The associated nontangential Calderon Zygmund operator, viewed as a map `L^p → L^p`.
-Todo: is `T_*f` indeed in L^p if `f` is? Needed at least for `p = 2`. -/
-def ANCZOperatorLp (p : ℝ≥0∞) [Fact (1 ≤ p)] (K : X → X → ℂ) (f : Lp ℂ p (volume : Measure X)) :
-    Lp ℝ p (volume : Measure X) :=
-  Memℒp.toLp (ANCZOperator K (f : X → ℂ) · |>.toReal) sorry
+-- /-- The associated nontangential Calderon Zygmund operator, viewed as a map `L^p → L^p`.
+-- Todo: is `T_*f` indeed in L^p if `f` is? Needed at least for `p = 2`. -/
+-- def ANCZOperatorLp (p : ℝ≥0∞) [Fact (1 ≤ p)] (K : X → X → ℂ)
+--     (f : Lp ℂ p (volume : Measure X)) : Lp ℝ p (volume : Measure X) :=
+--   Memℒp.toLp (ANCZOperator K (f : X → ℂ) · |>.toReal) sorry
 
--- /-- The generalized Carleson operator `T`, using real suprema -/
--- def Real.CarlesonOperator (K : X → X → ℂ) (Θ : Set C(X, ℂ)) (f : X → ℂ) (x : X) : ℝ :=
---   ⨆ (Q ∈ Θ) (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
---   ‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * Complex.exp (I * Q y)‖
-
-/-- The generalized Carleson operator `T`, ℝ≥0∞ version -/
+/-- The generalized Carleson operator `T`, taking values in `ℝ≥0∞`.
+Use `ENNReal.toReal` to get the corresponding real number. -/
 --TODO: remove the last two suprema?
-def CarlesonOperator (K : X → X → ℂ) (Θ : Set C(X, ℂ)) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (Q ∈ Θ) (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
+def CarlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+  ⨆ (Q : Θ X) (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
   ↑‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖₊
