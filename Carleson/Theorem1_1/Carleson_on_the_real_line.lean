@@ -189,16 +189,8 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
         exact le_abs_self _
       _ ≤ ⨆ z ∈ Metric.ball x R ×ˢ Metric.ball x R, ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
         apply ConditionallyCompleteLattice.le_biSup
-<<<<<<< HEAD
-        . convert bddAbove_localOscillation (Metric.ball x R) (θ n) (θ m)
-          exact norm_integer_linear_eq.symm
-||||||| 6d448dd
-        . convert bddAbove_localOscillation (Metric.ball x R) (θ n) (θ m)
-          apply norm_integer_linear_eq.symm
-=======
         . convert bddAbove_localOscillation (Metric.ball x R) (θ n) (θ m) using 2
-          apply norm_integer_linear_eq.symm
->>>>>>> origin/master
+          exact norm_integer_linear_eq.symm
         . use y
           simp [abs_of_nonneg, hR'.1, hR'.2]
 
@@ -486,19 +478,9 @@ lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K := b
   apply le_iSup₂_of_le r 1
   apply le_iSup₂_of_le rpos rle1
   apply le_of_eq
-<<<<<<< HEAD
-  rw [integer_linear, ContinuousMap.coe_mk]
-  congr with y
-||||||| 6d448dd
-  rw [integer_linear, ContinuousMap.coe_mk]
-  congr
-  ext y
-=======
   rw [coeΘ_R, integer_linear, ContinuousMap.coe_mk]
-  congr
-  ext y
+  congr with y
   push_cast
->>>>>>> origin/master
   ring_nf
 
 
@@ -515,19 +497,7 @@ lemma rcarleson' {F G : Set ℝ}
   calc ∫⁻ x in G, T' f x
     _ ≤ ∫⁻ x in G, CarlesonOperator K f x := by
       apply MeasureTheory.lintegral_mono
-<<<<<<< HEAD
-      exact CarlesonOperatorReal'_le_CarlesonOperator' _
-    _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
-      --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-      convert theorem1_2C' K (by simp) h1 h2 hF hG h3 f hf <;> sorry
-||||||| 6d448dd
-      apply CarlesonOperatorReal'_le_CarlesonOperator'
-    _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
-      --WARNING : theorem1_2C does not yet require all necessary implicit parameters since no proof using them has been provided yet.
-      convert theorem1_2C' K (by simp) h1 h2 hF hG h3 f hf <;> sorry
-=======
       apply CarlesonOperatorReal'_le_CarlesonOperator
     _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := metric_carleson (a := 4) K (by norm_num) h1 h2 hF hG h3 f hf
->>>>>>> origin/master
 
 end section
