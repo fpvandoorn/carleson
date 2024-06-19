@@ -12,6 +12,9 @@ variable {D : ℝ} {s : ℤ} {K : X → X → ℂ}  {x y : X}
 def ψ (D x : ℝ) : ℝ :=
   max 0 <| min 1 <| min (4 * D * x - 1) (2 - 2 * x)
 
+set_option hygiene false
+scoped[ShortVariables] notation "ψ" => ψ (defaultD a)
+
 
 lemma support_ψ : support (ψ D) = Ioo (4 * D)⁻¹ 2⁻¹ := sorry
 lemma lipschitzWith_ψ (D : ℝ≥0) : LipschitzWith (4 * D) (ψ D) := sorry

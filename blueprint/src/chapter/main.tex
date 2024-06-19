@@ -301,6 +301,8 @@ For any dyadic cube $I$,
 For any dyadic cube  $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 \begin{equation}
         \label{eq-small-boundary}
+        % Note(Georges Gonthier): The D in the RHS can be replaced by 2.
+        % We can do the same in the statement and proof of {boundary-measure}.
         \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le D t^\kappa \mu(I)\,.
     \end{equation}
 
@@ -1823,10 +1825,12 @@ Define
 \begin{equation}\label{definegone}
     G_1:=\bigcup_{\fp\in \fP_{F,G} }\scI(\fp)\, .
 \end{equation}
-For an integer $\lambda\ge 0$, define  $A(\lambda,k,n)$ to be the set  of all $x\in X$ such that
+For an integer $\lambda\ge 0$, define  $A(\lambda,k,n)$ to be the set
+of all $x\in X$ such that
 \begin{equation}
     \label{eq-Aoverlap-def}
-    \sum_{\fp \in \mathfrak{M}(k,n)}\mathbf{1}_{\scI(\fp)}(x)>1+\lambda 2^{n+1}
+    % remark(F): replaced > by \ge
+    \sum_{\fp \in \mathfrak{M}(k,n)}\mathbf{1}_{\scI(\fp)}(x)\ge 1+\lambda 2^{n+1}
 \end{equation}
 and define
 \begin{equation}\label{definegone2}
@@ -2119,23 +2123,25 @@ We turn to the set $G_3$.
  \uses{John-Nirenberg}
     We have
     \begin{equation}\label{eq-musum}
-        \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mu(\scI(\mathfrak{m}))\le 2^{n+1}2^{k+1}\mu(G).
+        % Note(Georges Gonthier): new factor suggested by
+        \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mu(\scI(\mathfrak{m}))\le 2^{n+k+3}\mu(G).
     \end{equation}
 \end{lemma}
 \begin{proof}
-    We write the left-hand side of \eqref{eq-musum}
+% Note(Georges Gonthier): sum should start at 0, not 1
+        We write the left-hand side of \eqref{eq-musum}
 \begin{equation}
-    \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{1}_{\scI(\mathfrak{m})}(x) \, d\mu(x) \le
-2^{n+1} \sum_{\lambda=1}^{|\mathfrak{M}|}\mu(A(\lambda, k,n))\,.
+    \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{0}_{\scI(\mathfrak{m})}(x) \, d\mu(x) \le
+2^{n+1} \sum_{\lambda=0}^{|\mathfrak{M}|}\mu(A(\lambda, k,n))\,.
 \end{equation}
 Using \Cref{John-Nirenberg}
 and then summing a geometric series, we estimate this by
 \begin{equation}
     \le
-2^{n+1}\sum_{\lambda=1}^{|\mathfrak{M}|}
+2^{n+1}\sum_{\lambda=0}^{|\mathfrak{M}|}
 2^{k+1-\lambda}\mu(G)
 \le
-2^{n+1}2^{k+1}\mu(G)\, .
+2^{n+1}2^{k+2}\mu(G)\, .
 \end{equation}
 This proves the lemma.
 \end{proof}
@@ -2262,7 +2268,7 @@ Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
 
     \begin{lemma}[third exception]
     \label{third-exception}
-\uses{tree-count,boundary-exception}
+\uses{tree-count,boundary-exception, top-tiles}
        We have
 \begin{equation}
     \mu(G_3)\le 2^{-4} \mu(G)\, .
@@ -2376,17 +2382,18 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 \label{wiggle-order-3}
 \uses{wiggle-order-1, wiggle-order-2}
     The following implications hold for all $\fq, \fq' \in \fP$:
+    % Note: some fixes were suggested by Georges Gonthier
     \begin{equation}
         \label{eq-sc1}
-        \fq \lesssim \fq' \ \text{and} \ \lambda \ge 1 \implies \lambda \fq \lesssim \lambda \fq'\,,
+        \fq \le \fq' \ \text{and} \ \lambda \ge 2 \implies \lambda \fq \lesssim \lambda \fq'\,,
     \end{equation}
     \begin{equation}
         \label{eq-sc2}
-        10\fq \lesssim \fq' \ \text{and} \ \fq \ne \fq' \implies 100 \fq \lesssim 100 \fq'\,,
+        10\fq \lesssim \fq' \ \text{and} \ \scI(\fq) \ne \scI(\fq') \implies 100 \fq \lesssim 100 \fq'\,,
     \end{equation}
     \begin{equation}
         \label{eq-sc3}
-        2\fq \lesssim \fq' \ \text{and} \ \fq \ne \fq' \implies 4 \fq \lesssim 500 \fq'\,.
+        2\fq \lesssim \fq' \ \text{and} \ \scI(\fq) \ne \scI(\fq') \implies 4 \fq \lesssim 500 \fq'\,.
     \end{equation}
 \end{lemma}
 

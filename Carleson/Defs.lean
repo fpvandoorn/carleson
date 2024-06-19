@@ -10,6 +10,7 @@ noncomputable section
 These are mostly the definitions used to state the metric Carleson theorem.
 We should move them to separate files once we start proving things about them. -/
 
+section DoublingMeasure
 universe u
 variable {𝕜 X : Type*} {A : ℝ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
@@ -139,6 +140,7 @@ def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
 def cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
 
+-- not sure if needed
 lemma CompatibleFunctions.IsSeparable [CompatibleFunctions 𝕜 X A] :
   IsSeparable (range (coeΘ (X := X))) :=
   sorry
@@ -195,25 +197,30 @@ Reference: https://arxiv.org/abs/math/9910039
 Lemma 3.6 - Lemma 3.9
 -/
 
-/-- This is usually the value of the argument `A` in `DoublingMeasure`
-and `CompatibleFunctions` -/
-@[simp] abbrev defaultA (a : ℝ) : ℝ := 2 ^ a
-@[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
-@[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
-@[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
-
 /-- This can be useful to say that `‖T‖ ≤ c`. -/
 def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
     Prop :=
   ∀ x, ‖T x‖ ≤ c * ‖x‖
 
+/-- An operator has strong type (p, q) if it is bounded as an operator on L^p → L^q.
+We write `HasStrongType T μ ν p p' c` to say that `T` has strong type (p, q) w.r.t. measures `μ`, `ν` and constant `c`.  -/
 def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
     (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
   ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
 
+-- todo: define `HasWeakType`
+
+/-- A weaker version of `HasStrongType`, where we add additional assumptions on the function `f`.
+Note(F): I'm not sure if this is an equivalent characterization of having weak type (p, q) -/
+def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
+    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
+  ∀ f : α → E, Memℒp f p μ → snorm f ∞ μ < ∞ → μ (support f) < ∞ →
+  AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
+
 set_option linter.unusedVariables false in
-/-- The associated nontangential Calderon Zygmund operator -/
+/-- The associated nontangential Calderon Zygmund operator `T_*` -/
 def ANCZOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ :=
   ⨆ (R₁ : ℝ) (R₂ : ℝ) (h1 : R₁ < R₂) (x' : X) (h2 : dist x x' ≤ R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊ |>.toReal
@@ -230,3 +237,74 @@ Use `ENNReal.toReal` to get the corresponding real number. -/
 def CarlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (Q : Θ X) (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
   ↑‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖₊
+
+
+end DoublingMeasure
+
+
+/-- This is usually the value of the argument `A` in `DoublingMeasure`
+and `CompatibleFunctions` -/
+@[simp] abbrev defaultA (a : ℝ) : ℝ := 2 ^ a
+@[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
+@[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
+@[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
+
+/- A constant used on the boundedness of `T_*`. We generally assume
+`HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`
+throughout this formalization. -/
+def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
+
+/-- Data common through most of chapters 2-9. -/
+class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
+  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) where
+  m : PseudoMetricSpace X
+  d : DoublingMeasure X (2 ^ a)
+  ha : 4 ≤ a
+  cf : CompatibleFunctions ℝ X (2 ^ a)
+  c : IsCancellative X a⁻¹
+  hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)
+  hF : MeasurableSet F
+  hG : MeasurableSet G
+  m_σ₁ : Measurable σ₁
+  m_σ₂ : Measurable σ₂
+  f_σ₁ : Finite (range σ₁)
+  f_σ₂ : Finite (range σ₂)
+  hσ₁₂ : σ₁ ≤ σ₂
+  Q : SimpleFunc X (Θ X)
+  hq : q ∈ Ioc 1 2
+
+
+export PreProofData (ha hasBoundedStrongType_T hF hG m_σ₁ m_σ₂ f_σ₁ f_σ₂ Q)
+attribute [instance] PreProofData.m PreProofData.d PreProofData.cf PreProofData.c
+
+section ProofData
+
+variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+
+variable (X) in
+def S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
+
+variable (X) in
+open Classical in
+def S [PreProofData a q K σ₁ σ₂ F G] : ℤ := Nat.find (S_spec X)
+
+lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ Icc (- S X) (S X) := sorry
+
+lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
+
+end ProofData
+
+class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
+  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) extends PreProofData a q K σ₁ σ₂ F G where
+  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X)
+  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X)
+
+namespace ShortVariables
+
+set_option hygiene false
+scoped notation "D" => defaultD a
+scoped notation "κ" => defaultκ a
+scoped notation "o" => cancelPt X
+scoped notation "S" => S X
+
+end ShortVariables
