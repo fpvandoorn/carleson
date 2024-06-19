@@ -1,7 +1,7 @@
 import Carleson.Defs
 
 open Set MeasureTheory Metric Function Complex
-open scoped ENNReal
+open scoped NNReal ENNReal
 noncomputable section
 
 variable {𝕜 : Type*} [_root_.RCLike 𝕜]
@@ -50,12 +50,14 @@ def c : ι X → X := GridStructure.c
 
 end GridStructure
 
--- def grid_existence {σ₁ σ₂ : X → ℤ} (hσ : σ₁ ≤ σ₂)
---     (hσ₁ : Measurable σ₁) (hσ₂ : Measurable σ₂)
---     (hσ₁S : range σ₁ ⊆ Icc (-S) S) (hσ₂S : range σ₂ ⊆ Icc (-S) S)
---     {Q : X → C(X, ℂ)} (hQΘ : range Q ⊆ Θ) :
---     GridStructure X D κ C S o :=
---   sorry
+-- missing some conditions e.g.
+def grid_existence {σ₁ σ₂ : X → ℤ} (hσ : σ₁ ≤ σ₂)
+    (hσ₁ : Measurable σ₁) (hσ₂ : Measurable σ₂)
+    {F G : Set X} (hF : Measurable F) (hG : Measurable G)
+    (h2F : F ⊆ ball o (D ^ S)) (h2G : G ⊆ ball o (D ^ S))
+    (hσ₁S : range σ₁ ⊆ Icc (-S) S) (hσ₂S : range σ₂ ⊆ Icc (-S) S) :
+    GridStructure X D κ C S o :=
+  sorry
 
 -- instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℝ) :=
 --   let m : PseudoMetricSpace C(X, ℝ) :=
@@ -63,7 +65,9 @@ end GridStructure
 --   let t : TopologicalSpace C(X, ℝ) := m.toUniformSpace.toTopologicalSpace
 --   @borel C(X, ℝ) t
 
-/- Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
+/- The datain a tile structure, and some basic properties.
+This is mostly separated out so that we can nicely define the notation `d_𝔭`.
+Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
 class TileStructureData.{u} [FunctionDistances 𝕜 X]
   (D κ C : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ C S o where
   protected 𝔓 : Type u
@@ -101,6 +105,16 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
   subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1
 
 export TileStructure (biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
+
+def tile_existence {a : ℝ} [CompatibleFunctions ℝ X (2 ^ a)] [GridStructure X D κ C S o]
+    (ha : 4 ≤ a) {σ₁ σ₂ : X → ℤ} (hσ : σ₁ ≤ σ₂)
+    (hσ₁ : Measurable σ₁) (hσ₂ : Measurable σ₂)
+    {F G : Set X} (hF : Measurable F) (hG : Measurable G)
+    (h2F : F ⊆ ball o (D ^ S)) (h2G : G ⊆ ball o (D ^ S))
+    (hσ₁S : range σ₁ ⊆ Icc (-S) S) (hσ₂S : range σ₂ ⊆ Icc (-S) S)
+    (Q : SimpleFunc X (Θ X)) :
+    TileStructure Q D κ C S o :=
+  sorry
 
 variable [FunctionDistances ℝ X] {Q : X → Θ X} [TileStructure Q D κ C S o]
 
@@ -150,28 +164,47 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorr
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
-def smul (a : ℝ) (p : 𝔓 X) : TileLike X :=
-  (𝓓 (𝓘 p), ball_(D, p) (𝒬 p) a)
+/-- This is not defined as such in the blueprint, but `λp ≤ λ'p'` can be written using
+  `smul λ p ≤ smul λ' p'`. -/
+def smul (l : ℝ) (p : 𝔓 X) : TileLike X :=
+  (𝓓 (𝓘 p), ball_(D, p) (𝒬 p) l)
 
 def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
   t.fst ×ˢ t.snd
 
-lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
-    IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
-    ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
-    Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
+-- old
+-- lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
+--     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
+--     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
+--     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
 
-def convexShadow (𝔓' : Set (𝔓 X)) : Set (ι X) :=
-  { i | ∃ p p' : 𝔓 X, p ∈ 𝔓' ∧ p' ∈ 𝔓' ∧ (𝓓 (𝓘 p) : Set X) ⊆ 𝓓 i ∧ 𝓓 i ⊆ 𝓓 (𝓘 p') }
+def E₁ (G : Set X) (Q : X → Θ X) (t : TileLike X) : Set X :=
+  t.1 ∩ G ∩ Q ⁻¹' t.2
 
-def EBar (G : Set X) (Q : X → Θ X) (t : TileLike X) : Set X :=
-  { x ∈ t.fst ∩ G | Q x ∈ t.snd }
+def E₂ (G : Set X) (Q : X → Θ X) (l : ℝ) (p : 𝔓 X) : Set X :=
+  𝓓 (𝓘 p) ∩ G ∩ Q ⁻¹' ball_(D, p) (𝒬 p) l
 
-def density (G : Set X) (Q : X → Θ X) (𝔓' : Set (𝔓 X)) : ℝ :=
-  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ)), l ^ (-2 * Real.log A) *
-  ⨆ (p' : 𝔓 X) (_h : 𝓘 p' ∈ convexShadow 𝔓') (_h2 : smul l p ≤ smul l p'),
-  volume.real (EBar G Q (smul l p')) / volume.real (EBar G Q (toTileLike p))
+/-- `downClosure 𝔓'` is denoted `𝔓(𝔓') in the blueprint. It is the lower closure of `𝔓'` in `𝔓 X` w.r.t. to the relation `p ≤ p' := 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')`.
+Maybe we should make this ordering on `𝔓 X` explicit. -/
+def downClosure (𝔓' : Set (𝔓 X)) : Set (𝔓 X) :=
+  { p | ∃ p' ∈ 𝔓', 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p') }
 
+/-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
+def dens₁ (a : ℝ) (G : Set X) (Q : X → Θ X) (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
+  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a) *
+  ⨆ (p' ∈ downClosure 𝔓') (_h2 : smul l p ≤ smul l p'),
+  volume (E₂ G Q l p) / volume (𝓓 (𝓘 p))
+
+/-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
+def dens₂ (F : Set X) (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
+  ⨆ (p ∈ 𝔓') (r ≥ 4 * D ^ 𝔰 p),
+  volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
+
+/- Move to AntichainOperator file -/
+-- prop 3
+
+
+--below is old
 /-- Hardy-Littlewood maximal function -/
 def maximalFunction {E} [NormedAddCommGroup E] [NormedSpace ℂ E]
   (f : X → E) (x : X) : ℝ :=
@@ -186,7 +219,6 @@ variable (X) in
 class SmallBoundaryProperty (η : ℝ) : Prop where
   volume_diff_le : ∃ (C : ℝ) (hC : C > 0), ∀ (x : X) r (δ : ℝ), 0 < r → 0 < δ → δ < 1 →
     volume.real (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume.real (ball x r)
-
 
 namespace TileStructure
 variable (X) in

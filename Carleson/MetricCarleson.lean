@@ -137,7 +137,7 @@ theorem metric_carleson [CompatibleFunctions ℝ X (2 ^ a)]
     -- (hT : NormBoundedBy (ANCZOperatorLp 2 K) (2 ^ a ^ 3))
     (hT : ∀ (g : X → ℂ) (hg : Memℒp g ∞ volume) (h2g : volume (support g) < ∞)
       (h3g : Memℒp g 2 volume),
-      snorm (ANCZOperator K g) 2 volume ≤ 2 ^ a ^ (3 : ℕ) * snorm g 2 volume)
+      snorm (ANCZOperator K g) 2 volume ≤ 2 ^ a ^ 3 * snorm g 2 volume)
     (f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, CarlesonOperator K f x ≤
     ENNReal.ofReal (C1_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
@@ -145,5 +145,5 @@ theorem metric_carleson [CompatibleFunctions ℝ X (2 ^ a)]
 
 end
 
-/- maybe investigate: making `volume` implicit in `h3g` of `metric_carleson` causes slow
+/- maybe investigate: making `volume` implicit in both `hg` and `h3g` of `metric_carleson` causes slow
 elaboration. -/

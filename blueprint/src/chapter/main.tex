@@ -428,7 +428,7 @@ Define for a tile $\fp$ and $\lambda>0$
 
 Given a subset $\fP'$ of $\fP$, we define
 $\fP(\fP')$ to be the set of
-all $\fp \in \fP$ such that there exist $\fp' \in \fP'$ with $\scI(\fp)\subset \scI(\fp')$. Define  the densities
+all $\fp \in \fP$ such that there exist $\fp' \in \fP'$ with $\scI(\fp)\subset \scI(\fp')$. Define the densities
 \begin{equation}\label{definedens1}
     {\dens}_1(\fP') := \sup_{\fp'\in \fP'}\sup_{\lambda \geq 2} \lambda^{-a} \sup_{\fp \in \fP(\fP'), \lambda \fp' \lesssim \lambda \fp}
     \frac{\mu({E}_2(\lambda, \fp))}{\mu(\scI(\fp))}\, ,
@@ -976,6 +976,8 @@ following the construction of dyadic cubes in \cite[\S 3]{christ1990b}.
 
 \begin{lemma}[grid existence]
 \label{grid-existence}
+\lean{grid_existence}
+\leanok
 \uses{counting-balls,boundary-measure}     There exists a grid structure $(\mathcal{D}, c,s)$.
 \end{lemma}
 
@@ -987,6 +989,8 @@ with the construction in \cite[Lemma 2.12]{zk-polynomial}.
 
 \begin{lemma}[tile structure]
 \label{tile-structure}
+\lean{tile_existence}
+\leanok
  \uses{ball-metric-entropy,grid-existence,frequency-ball-cover, dyadic-frequency-cubes}
     For a given grid structure $(\mathcal{D}, c,s)$, there exists a tile structure
     $(\fP,\scI,\fc,\fcc,\pc,\ps)$.
@@ -1445,6 +1449,9 @@ s(I_3(y,k)):=k
 \begin{equation}
 c(I_3(y,k)):=y\,.
 \end{equation}
+
+\begin{proof}[Proof of \Cref{grid-existence}]
+\proves{grid-existence}
 We show that $(\mathcal{D},c,s)$ constitutes a grid structure. Property \eqref{eq-vol-sp-cube}
 follows from \eqref{squeezedyadic}, while \eqref{eq-small-boundary} follows from \Cref{boundary-measure}.
 
@@ -1476,7 +1483,7 @@ This proves $I\subset J$ and thus \eqref{dyadicproperty}.
 We next establish \eqref{coverball}. Let $-S\leq k\leq S$. Using \eqref{unioni} for $j=3$, we get \begin{equation}
 x\in B(o, D^S)\subset B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_3(y,k)\, .
 \end{equation} Thus, there exists a dyadic cube $I=I_3(y, k)$ with $s(I)=k$ and $x\in I$. This proves \eqref{coverball}.
-
+\end{proof}
 
 \section{Proof of Tile Structure Lemma}
 \label{subsectiles}
@@ -1645,6 +1652,12 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
     Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(J)$ with $\fcc(\fq) \in B_{J^\circ}(z', 0.7)$. Then by \Cref{frequency-cube-cover} there exists $\fq' \in \fP(J)$ with $\fcc(\fq) \in\Omega_1(\fq')$.
     By \eqref{eq-it-omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\scI(\fp) \subset \scI(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $\ps(\fq') - \ps(\fp) = \ps(\fq) - \ps(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
 \end{proof}
+
+\begin{proof}[Proof of \Cref{tile-structure}]
+    \proves{tile-structure}
+    The results in this section immediately prove \Cref{tile-structure}.
+\end{proof}
+
 
 \chapter{Proof of discrete Carleson}
 \label{proptopropprop}

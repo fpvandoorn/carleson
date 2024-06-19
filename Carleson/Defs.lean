@@ -166,14 +166,17 @@ def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ 
 open Real (vol)
 open Function
 
+/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
+@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
+
 /-- `K` is a one-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
 class IsCZKernel (a : ℝ) (K : X → X → ℂ) : Prop where
   measurable : Measurable (uncurry K)
-  norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ 2 ^ a ^ 3 / vol x y
+  norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
   norm_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ a⁻¹ * (2 ^ a ^ 3 / vol x y)
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ a⁻¹ * (C_K a / vol x y)
   measurable_right (y : X) : Measurable (K · y)
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
@@ -191,6 +194,13 @@ This is a special case of the real interpolation spaces.
 Reference: https://arxiv.org/abs/math/9910039
 Lemma 3.6 - Lemma 3.9
 -/
+
+/-- This is usually the value of the argument `A` in `DoublingMeasure`
+and `CompatibleFunctions` -/
+@[simp] abbrev defaultA (a : ℝ) : ℝ := 2 ^ a
+@[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
+@[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
+@[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
 
 /-- This can be useful to say that `‖T‖ ≤ c`. -/
 def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
