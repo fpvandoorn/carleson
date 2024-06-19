@@ -301,7 +301,7 @@ For any dyadic cube $I$,
 For any dyadic cube  $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 \begin{equation}
         \label{eq-small-boundary}
-        \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2^{100a^2} t^\kappa \mu(I)\,.
+        \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le D t^\kappa \mu(I)\,.
     \end{equation}
 
 
@@ -1404,7 +1404,7 @@ Applying \eqref{new-small-boundary} gives
  with $tD^k\ge D^{-S}$ we have
     \begin{equation}
         \label{old-small-boundary}
-        \mu(\{x \in I_3(y,k) \ : \ \rho(x, X \setminus I_3(y,k)) \leq t D^{k}\}) \le 2^{100a^2} t^\kappa \mu(I_3(y,k))\,.
+        \mu(\{x \in I_3(y,k) \ : \ \rho(x, X \setminus I_3(y,k)) \leq t D^{k}\}) \le D t^\kappa \mu(I_3(y,k))\,.
     \end{equation}
 \end{lemma}
 \begin{proof}
@@ -1436,7 +1436,7 @@ $$
 $$
 By \eqref{eq-n-size} and the definition \eqref{defineD} of $D$, this is bounded by
 $$
-    t^{1/(100a^2 K)} 2^{100a^2} \mu(I_3(y,k))\,,
+    t^{1/(100a^2 K)} D \mu(I_3(y,k))\,,
 $$
 which completes the proof by the definition \eqref{definekappa} of $\kappa$.
 \end{proof}
@@ -1472,7 +1472,7 @@ We now show \eqref{dyadicproperty}. Assume to get a contradiction that
 there are non-disjoint $I, J\in \mathcal{D}$ with $s(I)\le s(J)$
 and $I \not \subset J$. We may assume the existence of such $I$ and $J$ with minimal
 $s(J)-s(I)$. Let $k=s(I)$. Assume first $s(J)=k$. Let $I=I_3(y_1,k)$ and $J=I_3(y_2,k)$ with $y_1,y_2\in Y_k$.
-{If $y_1=y_2$, then $I=J$, a contradiction to $I\not \subset J$.
+If $y_1=y_2$, then $I=J$, a contradiction to $I\not \subset J$.
 If $y_1\neq y_2$, then $I\cap J=\emptyset$ by \eqref{disji}, a contradiction to the non-disjointedness of $I,J$.
 Assume now $s(J)>k$. Choose $y\in I\cap J$. By property \eqref{coverdyadic},
 there is $K\in \mathcal{D}$ with $s(K)=s(J)-1$ and $y\in K$. By construction
@@ -1480,9 +1480,12 @@ of $J$, and pairwise disjointedness of all $I_3(w,s(J)-1)$ that we have already 
 we have $K\subset J$. By minimality of $s(J)$, we have $I\subset K$.
 This proves $I\subset J$ and thus \eqref{dyadicproperty}.
 
-We next establish \eqref{coverball}. Let $-S\leq k\leq S$. Using \eqref{unioni} for $j=3$, we get \begin{equation}
+We next establish \eqref{coverball}. Let $-S\leq k\leq S$. Using \eqref{unioni} for $j=3$, we get
+\begin{equation}
 x\in B(o, D^S)\subset B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_3(y,k)\, .
-\end{equation} Thus, there exists a dyadic cube $I=I_3(y, k)$ with $s(I)=k$ and $x\in I$. This proves \eqref{coverball}.
+\end{equation}
+Thus, there exists a dyadic cube $I=I_3(y, k)$ with $s(I)=k$ and $x\in I$.
+This proves \eqref{coverball}.
 \end{proof}
 
 \section{Proof of Tile Structure Lemma}
@@ -2215,7 +2218,7 @@ Inserting this into \eqref{usumbymsum} proves the lemma.
 Let $\mathcal{L}(\fu)$ be as defined in \eqref{eq-L-def}. We have for each $\fu\in \fU_1(k,n,l)$,
 \begin{equation}
 \mu(\bigcup_{I\in \mathcal{L}(\fu)} I)
-\le 2^{100a^2} D^{-\kappa Z(n+1)}
+\le D^{1-\kappa Z(n+1)}
         \mu(\scI(\mathfrak{u})).
 \end{equation}
 
@@ -2238,7 +2241,7 @@ is contained in
  \end{equation*} we have
    $$
         \mu(X(\fu)) \le
-        2^{100a^2}(12 D^{-Z(n+1)-1})^\kappa
+        D\cdot(12 D^{-Z(n+1)-1})^\kappa
         \mu(\scI(\mathfrak{u})).
     $$
 Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
@@ -2281,7 +2284,7 @@ Using \Cref{boundary-exception} and then \Cref{tree-count}, we estimate this fur
  by
 \begin{equation}
     \le \sum_{\fu\in \fU_1(k,n,j)}
-    2^{100a^2} D^{-\kappa Z(n+1)}
+    D^{1-\kappa Z(n+1)}
         \mu(\scI(\mathfrak{u}))
 \end{equation}
 \begin{equation}
