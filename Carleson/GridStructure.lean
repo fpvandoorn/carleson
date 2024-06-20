@@ -12,28 +12,28 @@ variable {X : Type u} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 variable (X) in
 /-- A grid structure on `X`.
-I expect we prefer `𝓓 : ι → Set X` over `𝓓 : Set (Set X)`
+I expect we prefer `coe𝓓 : 𝓓 → Set X` over `𝓓 : Set (Set X)`
 Note: the `s` in this paper is `-s` of Christ's paper.
 -/
 class GridStructure
     (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) where
   /-- indexing set for a grid structure -/
-  ι : Type*
-  fintype_ι : Fintype ι
+  𝓓 : Type*
+  fintype_𝓓 : Fintype 𝓓
   /-- The collection of dyadic cubes -/
-  𝓓 : ι → Set X
+  coe𝓓 : 𝓓 → Set X
   /-- scale functions -/
-  s : ι → ℤ
+  s : 𝓓 → ℤ
   /-- Center functions -/
-  c : ι → X
+  c : 𝓓 → X
   range_s_subset : range s ⊆ Icc (-S) S
-  𝓓_subset_biUnion {i} : ∀ k ∈ Ico (-S) (s i), 𝓓 i ⊆ ⋃ j ∈ s ⁻¹' {k}, 𝓓 j
-  fundamental_dyadic {i j} : s i ≤ s j → 𝓓 i ⊆ 𝓓 j ∨ Disjoint (𝓓 i) (𝓓 j)
-  ball_subset_biUnion : ∀ k ∈ Icc (-S) S, ball o (D ^ S) ⊆ ⋃ i ∈ s ⁻¹' {k}, 𝓓 i
-  ball_subset_𝓓 {i} : ball (c i) (D ^ s i / 4) ⊆ 𝓓 i
-  𝓓_subset_ball {i} : 𝓓 i ⊆ ball (c i) (4 * D ^ s i)
+  𝓓_subset_biUnion {i} : ∀ k ∈ Ico (-S) (s i), coe𝓓 i ⊆ ⋃ j ∈ s ⁻¹' {k}, coe𝓓 j
+  fundamental_dyadic {i j} : s i ≤ s j → coe𝓓 i ⊆ coe𝓓 j ∨ Disjoint (coe𝓓 i) (coe𝓓 j)
+  ball_subset_biUnion : ∀ k ∈ Icc (-S) S, ball o (D ^ S) ⊆ ⋃ i ∈ s ⁻¹' {k}, coe𝓓 i
+  ball_subset_𝓓 {i} : ball (c i) (D ^ s i / 4) ⊆ coe𝓓 i
+  𝓓_subset_ball {i} : coe𝓓 i ⊆ ball (c i) (4 * D ^ s i)
   small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ 𝓓 i | infDist x (𝓓 i)ᶜ ≤ t * D ^ s i } ≤ D * t ^ κ * volume.real (𝓓 i)
+    volume.real { x ∈ coe𝓓 i | infDist x (coe𝓓 i)ᶜ ≤ t * D ^ s i } ≤ D * t ^ κ * volume.real (coe𝓓 i)
 
 export GridStructure (range_s_subset 𝓓_subset_biUnion
   fundamental_dyadic ball_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary)
@@ -45,20 +45,30 @@ section GridStructure
 variable [GridStructure X D κ S o]
 
 variable (X) in
-def ι : Type* := GridStructure.ι X A
-instance : Fintype (ι X) := GridStructure.fintype_ι
-def s : ι X → ℤ := GridStructure.s
-def 𝓓 : ι X → Set X := GridStructure.𝓓 -- todo: make coercion
-def c : ι X → X := GridStructure.c
+abbrev 𝓓 : Type* := GridStructure.𝓓 X A
+instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
+
+attribute [coe] GridStructure.coe𝓓
+instance : Coe (𝓓 X) (Set X) := ⟨GridStructure.coe𝓓⟩
+instance : Membership X (𝓓 X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩
+instance : HasSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
+
+/- not sure whether these should be simp lemmas, but that might be required if we want to
+  conveniently rewrite/simp with Set-lemmas -/
+@[simp] lemma 𝓓.mem_def {x : X} {i : 𝓓 X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
+@[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
+
+def s : 𝓓 X → ℤ := GridStructure.s
+def c : 𝓓 X → X := GridStructure.c
 
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
-def ι.int (i : ι X) : Set X := ball (c i) (D ^ s i / 4)
+def 𝓓.int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
 
-postfix:max "ᵒ" => ι.int
+postfix:max "ᵒ" => 𝓓.int
 
-variable {i : ι X}
+variable {i : 𝓓 X}
 
-lemma int_subset : i.int ⊆ 𝓓 i := ball_subset_𝓓
+lemma int_subset : i.int ⊆ i := by exact ball_subset_𝓓
 
 end GridStructure
 
@@ -75,7 +85,7 @@ class TileStructureData [FunctionDistances 𝕜 X]
   (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
-  protected 𝓘 : 𝔓 → ι
+  protected 𝓘 : 𝔓 → 𝓓
   surjective_𝓘 : Surjective 𝓘
   Ω : 𝔓 → Set (Θ X)
   𝒬 : 𝔓 → Θ X
@@ -88,8 +98,8 @@ variable {Q : X → C(X, ℂ)} [FunctionDistances 𝕜 X] [TileStructureData D �
 variable (X) in
 def 𝔓 := TileStructureData.𝔓 𝕜 X A
 instance : Fintype (𝔓 X) := TileStructureData.fintype_𝔓
-def 𝓘 : 𝔓 X → ι X := TileStructureData.𝓘
-lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → ι X) := TileStructureData.surjective_𝓘
+def 𝓘 : 𝔓 X → 𝓓 X := TileStructureData.𝓘
+lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → 𝓓 X) := TileStructureData.surjective_𝓘
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
 end
@@ -103,7 +113,8 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
     extends TileStructureData D κ S o where
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p')
-  relative_fundamental_dyadic {p p'} (h : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')) : Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
+  relative_fundamental_dyadic {p p'} (h : 𝓘 p ⊆ 𝓘 p') :
+    Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
   cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p
   subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1
 
@@ -121,7 +132,7 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 
 /- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
-  { x ∈ 𝓓 (𝓘 p) | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
+  { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
 
 section T
 
@@ -159,7 +170,7 @@ instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
 lemma TileLike.le_def (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
 @[simps]
-def toTileLike (p : 𝔓 X) : TileLike X := (𝓓 (𝓘 p), Ω p)
+def toTileLike (p : 𝔓 X) : TileLike X := (𝓘 p, Ω p)
 
 lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorry
 
@@ -169,7 +180,7 @@ instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_inje
   `smul λ p ≤ smul λ' p'`.
   Beware: `smul 1 p` is very different from `toTileLike p`! -/
 def smul (l : ℝ) (p : 𝔓 X) : TileLike X :=
-  (𝓓 (𝓘 p), ball_(p) (𝒬 p) l)
+  (𝓘 p, ball_(p) (𝒬 p) l)
 
 def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
   t.fst ×ˢ t.snd
@@ -178,18 +189,15 @@ def E₁ (t : TileLike X) : Set X :=
   t.1 ∩ G ∩ Q ⁻¹' t.2
 
 def E₂ (l : ℝ) (p : 𝔓 X) : Set X :=
-  𝓓 (𝓘 p) ∩ G ∩ Q ⁻¹' ball_(p) (𝒬 p) l
+  𝓘 p ∩ G ∩ Q ⁻¹' ball_(p) (𝒬 p) l
 
-/-- `downClosure 𝔓'` is denoted `𝔓(𝔓') in the blueprint. It is the lower closure of `𝔓'` in `𝔓 X` w.r.t. to the relation `p ≤ p' := 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')`.
-Maybe we should make this ordering on `𝔓 X` explicit. -/
-def downClosure (𝔓' : Set (𝔓 X)) : Set (𝔓 X) :=
-  { p | ∃ p' ∈ 𝔓', 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p') }
+/-! `𝔓(𝔓')` in the blueprint is `lowerClosure 𝔓'` in Lean. -/
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a) *
-  ⨆ (p' ∈ downClosure 𝔓') (_h2 : smul l p ≤ smul l p'),
-  volume (E₂ l p) / volume (𝓓 (𝓘 p))
+  ⨆ (p' ∈ lowerClosure 𝔓') (_h2 : smul l p ≤ smul l p'),
+  volume (E₂ l p) / volume (𝓘 p : Set X)
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
@@ -210,7 +218,7 @@ def maximalFunction {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCo
   ⨍⁻ y, ‖f y‖₊ ∂μ.restrict (ball x' δ) |>.toReal
 
 def boundedTiles (F : Set X) (t : ℝ) : Set (𝔓 X) :=
-  { p : 𝔓 X | ∃ x ∈ 𝓓 (𝓘 p), maximalFunction volume (Set.indicator F (1 : X → ℂ)) x ≤ t }
+  { p : 𝔓 X | ∃ x ∈ 𝓘 p, maximalFunction volume (Set.indicator F (1 : X → ℂ)) x ≤ t }
 
 set_option linter.unusedVariables false in
 variable (X) in
@@ -245,11 +253,11 @@ structure Forest (n : ℕ) where
   𝔘 : Finset (𝔓 X)
   𝔗 : 𝔓 X → Tree X -- Is it a problem that we totalized this function?
   smul_four_le {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : smul 4 p ≤ smul 1 u
-  essSup_tsum_le : snorm (∑ u ∈ 𝔘, (𝓓 (𝓘 u)).indicator (1 : X → ℝ)) ∞ volume ≤ 2 ^ n
+  essSup_tsum_le : snorm (∑ u ∈ 𝔘, (𝓘 u : Set X).indicator (1 : X → ℝ)) ∞ volume ≤ 2 ^ n
   dens₁_𝔗_le {u} (hu : u ∈ 𝔘) : dens₁ (𝔗 u : Set (𝔓 X)) ≤ 2 ^ (4 * a + 1 - n)
   lt_dist {u u'} (hu : u ∈ 𝔘) (hu' : u' ∈ 𝔘) (huu' : u ≠ u') {p} (hp : p ∈ 𝔗 u')
-    (h : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 u)) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u)
-  ball_subset {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓓 (𝓘 u)
+    (h : 𝓘 p ⊆ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u)
+  ball_subset {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u
   -- old conditions
   -- disjoint_I : ∀ {𝔗 𝔗'}, 𝔗 ∈ I → 𝔗' ∈ I → Disjoint 𝔗.carrier 𝔗'.carrier
   -- top_finite (x : X) : {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top)}.Finite
