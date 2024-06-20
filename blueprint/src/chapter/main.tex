@@ -559,7 +559,7 @@ Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\ta
        (1 + d_{B}(\mfa,\mfb))^{-\frac{1}{2a^2+a^3}}
     \,.
     \end{equation}
-    \end{proposition}
+\end{proposition}
 
 We further formulate a classical Vitali covering result
 and maximal function estimate that we need throughout several sections.
@@ -574,6 +574,9 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 
 \begin{proposition}[Hardy--Littlewood]
 \label{Hardy-Littlewood}
+\leanok
+\lean{measure_biUnion_le_lintegral, maximalFunction_lt_top, snorm_maximalFunction, M_lt_top,
+  laverage_le_M, snorm_M_le}
 \uses{layer-cake-representation,covering-separable-space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
 If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have
@@ -613,6 +616,8 @@ First, we record an estimate for the metrical entropy numbers of balls in the sp
 
 \begin{lemma}[ball metric entropy]
     \label{ball-metric-entropy}
+    \leanok
+    \lean{mk_le_of_le_dist}
     Let $B' \subset X$ be a ball. Let $r > 0$, $\mfa \in \Mf$ and $k \in \mathbb{N}$. Suppose that $\mathcal{Z} \subset B_{B'}(\mfa, r2^k)$ satisfies that for all $z, z' \in \mathcal{Z}$ with $z \ne z'$, we have $d_{B'}(z,z') \ge r$. Then
     $$
         |\mathcal{Z}| \le 2^{ka}\,.
@@ -631,6 +636,8 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
 
 \begin{lemma}[monotone cube metrics]
     \label{monotone-cube-metrics}
+    \leanok
+    \lean{𝓓.dist_mono, 𝓓.dist_strictMono}
     Let $(\mathcal{D}, c, s)$ be a grid structure. Denote for cubes $I \in \mathcal{D}$
     $$
         I^\circ := B(c(I), \frac{1}{4} D^{s(I)})\,.
@@ -675,6 +682,8 @@ We also record the following basic estimates for the kernels $K_s$.
 
 \begin{lemma}[kernel summand]
 \label{kernel-summand}
+\leanok
+\lean{dist_mem_Icc_of_Ks_ne_zero, norm_Ks_le, norm_Ks_sub_Ks_le}
     Let $-S\le s\le S$ and $x,y,y'\in X$.
     If $K_s(x,y)\neq 0$, then we have
     \begin{equation}\label{supp-Ks}

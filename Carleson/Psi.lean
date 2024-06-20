@@ -15,7 +15,6 @@ def ψ (D x : ℝ) : ℝ :=
 set_option hygiene false
 scoped[ShortVariables] notation "ψ" => ψ (defaultD a)
 
-
 lemma support_ψ : support (ψ D) = Ioo (4 * D)⁻¹ 2⁻¹ := sorry
 lemma lipschitzWith_ψ (D : ℝ≥0) : LipschitzWith (4 * D) (ψ D) := sorry
 lemma finsum_ψ : ∑ᶠ s : ℤ, ψ D (D ^ s * x) = 1 := sorry
@@ -25,13 +24,6 @@ variable (D) in def nonzeroS (x : ℝ) : Finset ℤ :=
   Finset.Icc ⌊- Real.logb D (4 * x)⌋ ⌈- (1 + Real.logb D (2 * x))⌉
 
 lemma sum_ψ : ∑ s in nonzeroS D x, ψ D (D ^ s * x) = 1 := sorry
-
--- move
-theorem Int.floor_le_iff (c : ℝ) (z : ℤ) : ⌊c⌋ ≤ z ↔ c < z + 1 := by
-  rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel_right]
-
-theorem Int.le_ceil_iff (c : ℝ) (z : ℤ) : z ≤ ⌈c⌉ ↔ z - 1 < c := by
-  rw_mod_cast [← Int.add_one_le_ceil_iff, sub_add_cancel]
 
 lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
     i ∈ nonzeroS D x ↔ (D ^ i * x) ∈ Ioo (4 * D)⁻¹ 2⁻¹ := by
@@ -74,6 +66,26 @@ lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < D) (h
   intros
   rwa [psi_eq_zero_iff h hD]
 
-lemma sum_Ks' {s : Finset ℤ}
-    (hs : ∀ i : ℤ, (D ^ i * dist x y) ∈ Ioo (4 * D)⁻¹ 2⁻¹ → i ∈ s)
-    (hD : 1 < D) (h : x ≠ y) : ∑ i in s, Ks i x y = K x y := sorry
+-- maybe this version is also useful?
+-- lemma sum_Ks' {t : Finset ℤ}
+--     (hs : ∀ i : ℤ, (D ^ i * dist x y) ∈ Ioo (4 * D)⁻¹ 2⁻¹ → i ∈ t)
+--     (hD : 1 < D) (h : x ≠ y) : ∑ i in t, Ks i x y = K x y := by
+--   sorry
+
+lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X}
+    (h : Ks s x y ≠ 0) : dist x y ∈ Icc (D ^ (s - 1) / 4) (D ^ s / 2) := by
+  sorry
+
+/-- The constant appearing in part 2 of Lemma 2.1.3. -/
+def C2_1_3 (a : ℝ) : ℝ := 2 ^ (102 * a ^ 3)
+/-- The constant appearing in part 3 of Lemma 2.1.3. -/
+def D2_1_3 (a : ℝ) : ℝ := 2 ^ (150 * a ^ 3)
+
+lemma norm_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} :
+    ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by
+  sorry
+
+lemma norm_Ks_sub_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y y' : X} :
+    ‖Ks s x y - Ks s x y'‖ ≤
+    D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ a⁻¹ := by
+  sorry
