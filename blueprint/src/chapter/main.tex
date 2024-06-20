@@ -2133,13 +2133,13 @@ We turn to the set $G_3$.
  \uses{John-Nirenberg}
     We have
     \begin{equation}\label{eq-musum}
-        % Note(Georges Gonthier): new factor suggested by
+        % Note(Georges Gonthier): suggested new factor
         \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mu(\scI(\mathfrak{m}))\le 2^{n+k+3}\mu(G).
     \end{equation}
 \end{lemma}
 \begin{proof}
 % Note(Georges Gonthier): sum should start at 0, not 1
-        We write the left-hand side of \eqref{eq-musum}
+We write the left-hand side of \eqref{eq-musum}
 \begin{equation}
     \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{0}_{\scI(\mathfrak{m})}(x) \, d\mu(x) \le
 2^{n+1} \sum_{\lambda=0}^{|\mathfrak{M}|}\mu(A(\lambda, k,n))\,.
@@ -2312,7 +2312,7 @@ Using \Cref{top-tiles}, we estimate this by
   \begin{equation}
      \le
 2^{100a^2 + 9a + 1-j} D^{-\kappa Z(n+1)}
-     2^{n+1}2^{k+1}\mu(G)\, .
+     2^{n+k+3}\mu(G)\, .
 \end{equation}
 Now we estimate $G_3$ defined in \eqref{defineg3} by
 \begin{equation}
@@ -2324,22 +2324,22 @@ Now we estimate $G_3$ defined in \eqref{defineg3} by
 \begin{equation}
     \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
     \sum_{0\le j\le 2n+3}
-    2^{100a^2 + 9a + 3 + n + k -j} D^{-\kappa Z(n+1)}\mu(G)
+    2^{100a^2 + 9a + 4 + n + k -j} D^{-\kappa Z(n+1)}\mu(G)
 \end{equation}
 Summing geometric series, using that $D^{\kappa Z}\ge 8$ by \eqref{defineD}, \eqref{definekappa} and \eqref{defineZ}, we estimate this by
 \begin{equation}
     \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
-    2^{100a^2 + 9a + 4 + n + k} D^{-\kappa Z(n+1)}\mu(G)
+    2^{100a^2 + 9a + 5 + n + k} D^{-\kappa Z(n+1)}\mu(G)
 \end{equation}
 \begin{equation}
-    = \sum_{k\ge 0} 2^{100a^2 + 9a + 4 + 2k} D^{-\kappa Z(k+1)} \sum_{n \geq k}\,
+    = \sum_{k\ge 0} 2^{100a^2 + 9a + 5 + 2k} D^{-\kappa Z(k+1)} \sum_{n \geq k}\,
     2^{n - k} D^{-\kappa Z(n-k)}\mu(G)
 \end{equation}
 \begin{equation}
-    \le \sum_{k\ge 0} 2^{100a^2 + 9a + 5 + 2k} D^{-\kappa Z(k+1)}\mu(G)
+    \le \sum_{k\ge 0} 2^{100a^2 + 9a + 6 + 2k} D^{-\kappa Z(k+1)}\mu(G)
 \end{equation}
 \begin{equation}
-   \le 2^{100a^2 + 9a + 6} D^{-\kappa Z}\mu(G)
+   \le 2^{100a^2 + 9a + 7} D^{-\kappa Z}\mu(G)
 \end{equation}
 Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and \eqref{definekappa} proves the lemma.
 \end{proof}
