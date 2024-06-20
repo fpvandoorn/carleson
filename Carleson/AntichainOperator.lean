@@ -10,8 +10,8 @@ open scoped GridStructure ComplexConjugate
 open Set Complex MeasureTheory
 
 -- Lemma 6.1.1
-lemma E_disjoint (σ σ' : X → ℤ) {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄) {p p' : 𝔓 X}
-    (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : (E p ∩ E p').Nonempty) : p = p' := by
+lemma E_disjoint (σ σ' : X → ℤ) {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
+     {p p' : 𝔓 X} (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : (E p ∩ E p').Nonempty) : p = p' := by
   set x := hE.some
   have hx := hE.some_mem
   simp only [E, mem_inter_iff, mem_setOf_eq] at hx
@@ -27,15 +27,15 @@ lemma E_disjoint (σ σ' : X → ℤ) {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain
   exact IsAntichain.eq h𝔄 hp hp' hle
 
 variable (K : X → X → ℂ) (σ₁ σ₂ : X → ℤ) (p : 𝔓 X)
---(f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
 
-noncomputable def C_6_1_2 (a : ℝ) := (2 : ℝ)^(107*a^3)
+open NNReal Real
+
+noncomputable def C_6_1_2 (a : ℝ) : ℝ≥0 := (2 : ℝ≥0)^(107*a^3)
 
 -- lemma 6.1.2
--- Q : `p : 𝔄` or `p ∈ 𝔄`?
-lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
+lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (x : X) :
-    ‖∑' (p : 𝔄), T p f x‖₊ ≤ (C_6_1_2 a) /-*M_B (f x)-/ := by
+    ‖∑ (p ∈ 𝔄), T p f x‖₊ ≤ (C_6_1_2 a) /-*M_B (f x)-/ := by
   by_cases hx : ∃ (p : 𝔄), T p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
     have hne_p : ∀ (p' : 𝔄) (hp' : p' ≠ p), T (↑p') f x = 0 := by
@@ -43,12 +43,9 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
       sorry
     sorry
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
-    have h0 : (∑' (p : 𝔄), T p f x) = (∑' (p : 𝔄), 0)  := by
-      congr
-      ext p
-      exact hx p p.2
+    have h0 : (∑ (p ∈ 𝔄), T p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     rw [h0]
-    sorry--simp only [tsum_zero, map_zero, ge_iff_le, Nat.ofNat_nonneg, pow_nonneg]
+    simp only [defaultA, defaultD, defaultκ, Finset.sum_const_zero, nnnorm_zero, zero_le]
 
 lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     f = (F.indicator 1) * f := by
@@ -62,30 +59,27 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
     exact le_antisymm hf (norm_nonneg _)
 
 open MeasureTheory
-open NNReal Real
 
-noncomputable def C_6_1_3 (a : ℝ) {q : ℝ} (hq : 1 ≤ q) : ℝ≥0 :=
-⟨2^(111*a^3)*(q-1)⁻¹, mul_nonneg (rpow_nonneg zero_le_two _) (inv_nonneg.mpr (sub_nonneg.mpr hq))⟩
+noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
 
 -- lemma 6.1.3
-lemma Dens2Antichain {a : ℝ} (ha : 4 ≤ a) {q : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2) {𝔄 : Set (𝔓 X)}
-    (h𝔄 : IsAntichain (·≤·) 𝔄) {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    {G : Set X} {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
-    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑' (p : 𝔄), T p f x‖₊ ≤
-      (C_6_1_3 a (le_of_lt hq1)) * (dens₂ 𝔄) * (snorm f 2 volume) * (snorm f 2 volume) := by
+lemma Dens2Antichain {a : ℝ} (ha : 4 ≤ a) {q : ℝ≥0} (hq1 : 1 < q) (hq2 : q ≤ 2) {𝔄 : Finset (𝔓 X)}
+    (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) {F : Set X} {f : X → ℂ}
+    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {G : Set X} {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+    (x : X) :
+    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), T p f x‖₊ ≤
+      (C_6_1_3 a q) * (dens₂ (𝔄 : Set (𝔓 X))) * (snorm f 2 volume) * (snorm f 2 volume) := by
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   set q' := 2*q/(1 + q) with hq'
   have hq0 : 0 < q := lt_trans zero_lt_one hq1
   have h1q' : 1 ≤ q' := by -- Better proof?
-    rw [hq', one_le_div]
-    linarith
-    exact add_pos (zero_lt_one) hq0
+    rw [hq', one_le_div (add_pos_iff.mpr (Or.inl zero_lt_one)), two_mul, add_le_add_iff_right]
+    exact le_of_lt hq1
   have hqq' : q' ≤ q := by -- Better proof?
-    rw [hq', div_le_iff (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0]
-    linarith
+    rw [hq', div_le_iff (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0,
+      ← one_add_one_eq_two, add_le_add_iff_left]
+    exact le_of_lt hq1
   sorry
-
--- ‖∫ x in G \ G', ∑' p, T K σ₁ σ₂ (ψ (D2_2 a)) p F 1 x‖₊ ≤
 
 /-- Constant appearing in Proposition 2.0.3. -/
 def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
