@@ -17,4 +17,4 @@ theorem finitary_carleson [ProofData a q K σ₁ σ₂ F G] :
     ∃ G', Measurable G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖∑ s in Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖₊ ≤
-    C2_0_1 a (nnq X) * (volume G) ^ (1 - 1 / q) * (volume F) ^ (1 / q) := by sorry
+    C2_0_1 a nnq * (volume G) ^ (1 - 1 / q) * (volume F) ^ (1 / q) := by sorry
