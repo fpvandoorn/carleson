@@ -204,27 +204,17 @@ def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (r ≥ 4 * D ^ 𝔰 p),
   volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
 
+/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
+@[nolint unusedArguments]
+def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
+  ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +
+  R ^ τ * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖₊ / (nndist x y) ^ τ : ℝ≥0∞)
+
 -- a small characterization that might be useful
 lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
-
---below is old
-/-- Hardy-Littlewood maximal function -/
-def maximalFunction {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
-  (μ : Measure X) (f : X → E) (x : X) : ℝ :=
-  ⨆ (x' : X) (δ : ℝ) (_hx : x ∈ ball x' δ),
-  ⨍⁻ y, ‖f y‖₊ ∂μ.restrict (ball x' δ) |>.toReal
-
-def boundedTiles (F : Set X) (t : ℝ) : Set (𝔓 X) :=
-  { p : 𝔓 X | ∃ x ∈ 𝓘 p, maximalFunction volume (Set.indicator F (1 : X → ℂ)) x ≤ t }
-
-set_option linter.unusedVariables false in
-variable (X) in
-class SmallBoundaryProperty (η : ℝ) : Prop where
-  volume_diff_le : ∃ (C : ℝ) (hC : C > 0), ∀ (x : X) r (δ : ℝ), 0 < r → 0 < δ → δ < 1 →
-    volume.real (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume.real (ball x r)
 
 namespace TileStructure
 variable (X) in
@@ -266,17 +256,9 @@ structure Forest (n : ℕ) where
   -- delta_gt {j j'} (hj : j ∈ I) (hj' : j' ∈ I) (hjj' : j ≠ j') {p : 𝔓 X} (hp : p ∈ j)
   --   (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > (2 : ℝ) ^ (3 * n / δ)
 
-def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := 2 ^ (432 * a ^ 3 - (q - 1) / q * n)
-
-theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)
-    (h2g : IsBounded (support g)) :
-    ‖∫ x, conj (g x) * ∑ u ∈ 𝔉.𝔘, ∑ p ∈ 𝔉.𝔗 u, T p f x‖₊ ≤
-    C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉.𝔘, 𝔉.𝔗 u)) ^ (q⁻¹ - 2⁻¹) *
-    snorm f 2 volume * snorm g 2 volume := by
-  sorry
-
 end TileStructure
+
+--below is old
 
 namespace Forest
 
@@ -298,16 +280,17 @@ namespace Forest
 
 end Forest
 
-/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
-@[nolint unusedArguments]
-def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
-  ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +
-  R ^ τ * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖₊ / (nndist x y) ^ τ : ℝ≥0∞)
+/-- Hardy-Littlewood maximal function -/
+def maximalFunction {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
+  (μ : Measure X) (f : X → E) (x : X) : ℝ :=
+  ⨆ (x' : X) (δ : ℝ) (_hx : x ∈ ball x' δ),
+  ⨍⁻ y, ‖f y‖₊ ∂μ.restrict (ball x' δ) |>.toReal
 
-def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (8 * a)
+def boundedTiles (F : Set X) (t : ℝ) : Set (𝔓 X) :=
+  { p : 𝔓 X | ∃ x ∈ 𝓘 p, maximalFunction volume (Set.indicator F (1 : X → ℂ)) x ≤ t }
 
-theorem holder_van_der_corput {z : X} {R : ℝ≥0} (hR : 0 < R) {ϕ : X → ℂ}
-    (hϕ : support ϕ ⊆ ball z R) (h2ϕ : hnorm ϕ z R < ∞) {f g : Θ X} :
-    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖₊ ≤
-    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * hnorm ϕ z R *
-    (1 + nndist_{z, R} f g) ^ (2 * a^2 + a^3)⁻¹  := sorry
+set_option linter.unusedVariables false in
+variable (X) in
+class SmallBoundaryProperty (η : ℝ) : Prop where
+  volume_diff_le : ∃ (C : ℝ) (hC : C > 0), ∀ (x : X) r (δ : ℝ), 0 < r → 0 < δ → δ < 1 →
+    volume.real (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume.real (ball x r)
