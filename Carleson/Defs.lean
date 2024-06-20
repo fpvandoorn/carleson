@@ -308,6 +308,10 @@ variable (X) in
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
+variable (X) in lemma nnq_pos : 0 < nnq X := q_pos X
+variable (X) in lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
+  ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
+
 end ProofData
 
 class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
@@ -327,6 +331,7 @@ scoped notation "Z" => defaultZ a
 scoped notation "τ" => defaultτ a
 scoped notation "o" => cancelPt X
 scoped notation "S" => S X
+scoped notation "nnq" => nnq X
 
 end ShortVariables
 

@@ -60,32 +60,32 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
 
 open MeasureTheory
 
-noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
+noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (111 * a ^ 3) * (q - 1)⁻¹
 
 -- lemma 6.1.3
-lemma Dens2Antichain {a : ℝ} (ha : 4 ≤ a) {q : ℝ≥0} (hq1 : 1 < q) (hq2 : q ≤ 2) {𝔄 : Finset (𝔓 X)}
-    (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) {F : Set X} {f : X → ℂ}
-    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {G : Set X} {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+lemma Dens2Antichain {𝔄 : Finset (𝔓 X)}
+    (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) {f : X → ℂ}
+    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (x : X) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), T p f x‖₊ ≤
-      (C_6_1_3 a q) * (dens₂ (𝔄 : Set (𝔓 X))) * (snorm f 2 volume) * (snorm f 2 volume) := by
+      (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) * (snorm f 2 volume) * (snorm f 2 volume) := by
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
-  set q' := 2*q/(1 + q) with hq'
-  have hq0 : 0 < q := lt_trans zero_lt_one hq1
+  set q' := 2*nnq/(1 + nnq) with hq'
+  have hq0 : 0 < nnq := nnq_pos X
   have h1q' : 1 ≤ q' := by -- Better proof?
     rw [hq', one_le_div (add_pos_iff.mpr (Or.inl zero_lt_one)), two_mul, add_le_add_iff_right]
-    exact le_of_lt hq1
-  have hqq' : q' ≤ q := by -- Better proof?
+    exact le_of_lt (q_mem_Ioc X).1
+  have hqq' : q' ≤ nnq := by -- Better proof?
     rw [hq', div_le_iff (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0,
       ← one_add_one_eq_two, add_le_add_iff_left]
-    exact le_of_lt hq1
+    exact (nnq_mem_Ioc X).1.le
   sorry
 
 /-- Constant appearing in Proposition 2.0.3. -/
 def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
 
 /-- Proposition 2.0.3 -/
-theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ} {q : ℝ}
+theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄)) :
