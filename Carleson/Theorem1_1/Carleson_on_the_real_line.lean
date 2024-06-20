@@ -449,9 +449,7 @@ instance h6 : IsCZKernel 4 K where
   measurable := Hilbert_kernel_measurable
 
 /- Lemma ?-/
-lemma h3 (g : ℝ → ℂ) (hg : Memℒp g ∞ volume) (h2g : volume (support g) < ∞)
-    (h3g : Memℒp g 2 volume) :
-    snorm (ANCZOperator K g) 2 volume ≤ 2 ^ (4 : ℝ) ^ 3 * snorm g 2 volume := sorry
+lemma h3 : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts 4) := sorry
 
 
 

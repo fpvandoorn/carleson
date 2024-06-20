@@ -6,7 +6,7 @@ open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
 open scoped ENNReal
 noncomputable section
 
-/- The constant used in theorem1_2 -/
+/- The constant used in `metric_carleson` -/
 def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 5
 
 lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
@@ -29,8 +29,7 @@ lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
 
 section -- todo: old code
 
-variable {X : Type*} {a : ℝ} [MetricSpace X]
-  [DoublingMeasure X (2 ^ a)] [Inhabited X]
+variable {X : Type*} {a : ℝ} [MetricSpace X] [DoublingMeasure X (2 ^ a)] [Inhabited X]
 variable {τ q q' : ℝ} {C : ℝ}
 variable {F G : Set X}
 variable (K : X → X → ℂ)
@@ -133,11 +132,7 @@ theorem metric_carleson [CompatibleFunctions ℝ X (2 ^ a)]
   [IsCancellative X (2 ^ a)] [IsCZKernel a K]
     (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    -- (h2F : volume F ∈ Ioo 0 ∞) (h2G : volume G ∈ Ioo 0 ∞)
-    -- (hT : NormBoundedBy (ANCZOperatorLp 2 K) (2 ^ a ^ 3))
-    (hT : ∀ (g : X → ℂ) (hg : Memℒp g ∞ volume) (h2g : volume (support g) < ∞)
-      (h3g : Memℒp g 2 volume),
-      snorm (ANCZOperator K g) 2 volume ≤ 2 ^ a ^ 3 * snorm g 2 volume)
+    (hT : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a))
     (f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, CarlesonOperator K f x ≤
     ENNReal.ofReal (C1_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
