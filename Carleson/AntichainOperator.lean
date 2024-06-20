@@ -24,22 +24,24 @@ lemma E_disjoint (σ σ' : X → ℤ) {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain
   have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
   exact IsAntichain.eq h𝔄 hp hp' hle
 
-variable (K : X → X → ℂ) (σ₁ σ₂ : X → ℤ) (ψ : ℝ → ℝ) (p : 𝔓 X)
+variable (K : X → X → ℂ) (σ₁ σ₂ : X → ℤ) (p : 𝔓 X)
 --(f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+
+noncomputable def C_6_1_2 (a : ℝ) := (2 : ℝ)^(107*a^3)
 
 -- lemma 6.1.2
 -- Q : `p : 𝔄` or `p ∈ 𝔄`?
 lemma MaximalBoundAntichain {a : ℝ} (ha : 4 ≤ a) {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
     {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (x : X) :
-    Complex.abs (∑' (p : 𝔄), T K σ₁ σ₂ ψ p F f x) ≤ 2^(107*a^3)/-*M_B (f x)-/ := by
-  by_cases hx : ∃ (p : 𝔄), T K σ₁ σ₂ ψ p F f x ≠ 0
+    ‖∑' (p : 𝔄), T p f x‖₊ ≤ (C_6_1_2 a) /-*M_B (f x)-/ := by
+  by_cases hx : ∃ (p : 𝔄), T p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
-    have hne_p : ∀ (p' : 𝔄) (hp' : p' ≠ p), T K σ₁ σ₂ ψ (↑p') F f x = 0 := by
+    have hne_p : ∀ (p' : 𝔄) (hp' : p' ≠ p), T (↑p') f x = 0 := by
       intro p' hpp'
       sorry
     sorry
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
-    have h0 : (∑' (p : 𝔄), T K σ₁ σ₂ ψ p F f x) = (∑' (p : 𝔄), 0)  := by
+    have h0 : (∑' (p : 𝔄), T p f x) = (∑' (p : 𝔄), 0)  := by
       congr
       ext p
       exact hx p p.2
@@ -57,13 +59,18 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
     rw [← norm_eq_zero]
     exact le_antisymm hf (norm_nonneg _)
 
---  MeasureTheory.snorm
+open MeasureTheory
+open NNReal Real
+
+noncomputable def C_6_1_3 (a : ℝ) {q : ℝ} (hq : 1 ≤ q) : ℝ≥0 :=
+⟨2^(111*a^3)*(q-1)⁻¹, mul_nonneg (rpow_nonneg zero_le_two _) (inv_nonneg.mpr (sub_nonneg.mpr hq))⟩
+
 -- lemma 6.1.3
-lemma Dens2Antichain  {a : ℝ} (ha : 4 ≤ a) {q : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2) {𝔄 : Set (𝔓 X)}
+lemma Dens2Antichain {a : ℝ} (ha : 4 ≤ a) {q : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2) {𝔄 : Set (𝔓 X)}
     (h𝔄 : IsAntichain (·≤·) 𝔄) {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     {G : Set X} {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
-    Complex.abs (∫ x, ((starRingEnd ℂ) (g x)) * ∑' (p : 𝔄), T K σ₁ σ₂ ψ p F f x) ≤
-      2^(111*a^3)*(q-1)⁻¹/-* dens2(𝔄)^{1/q - 1/2} *‖f‖_2*‖g‖_2}-/  := by
+    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑' (p : 𝔄), T p f x‖₊ ≤
+      (C_6_1_3 a (le_of_lt hq1)) * (dens₂ 𝔄) * (snorm f 2 volume) * (snorm f 2 volume) := by
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   set q' := 2*q/(1 + q) with hq'
   have hq0 : 0 < q := lt_trans zero_lt_one hq1
