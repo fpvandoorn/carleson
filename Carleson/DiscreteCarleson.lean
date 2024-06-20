@@ -8,12 +8,13 @@ open scoped ENNReal
 noncomputable section
 
 /- The constant used in Proposition 2.0.2 -/
-def C2_2 (a : ℝ) (q : ℝ) : ℝ := 2 ^ (440 * a ^ 3) / (q - 1) ^ 4
+def C2_0_2 (a : ℝ) (q : ℝ) : ℝ := 2 ^ (440 * a ^ 3) / (q - 1) ^ 4
 
-lemma C2_2_pos (a q : ℝ) : C2_2 a q > 0 := sorry
+lemma C2_0_2_pos {a q : ℝ} : C2_0_2 a q > 0 := sorry
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+  [PseudoMetricSpace X]
 
 -- variable {X : Type*} {a : ℝ} [MetricSpace X] [DoublingMeasure X (2 ^ a)] [Inhabited X]
 -- variable {τ q q' D κ : ℝ} {C₀ C : ℝ}
@@ -23,6 +24,7 @@ variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ}
 -- variable (K : X → X → ℂ) [IsCZKernel τ K]
 
 theorem discrete_carleson [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o] :
-    ∃ G', 2 * volume G' ≤ volume G ∧ ∀ f : X → ℂ, (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
+    ∃ G', Measurable G' ∧ 2 * volume G' ≤ volume G ∧
+    ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ‖∫ x in G \ G', ∑' p, T p f x‖₊ ≤
-    C2_2 a q * (volume.real G) ^ (1 - 1 / q) * (volume.real F) ^ (1 / q) := by sorry
+    C2_0_2 a q * (volume.real G) ^ (1 - 1 / q) * (volume.real F) ^ (1 / q) := by sorry

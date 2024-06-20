@@ -2,10 +2,12 @@ import Carleson.GridStructure
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
-open scoped GridStructure
-open Set
+noncomputable section
+
+open scoped GridStructure ComplexConjugate
+open Set Complex MeasureTheory
 
 -- Lemma 6.1.1
 lemma E_disjoint (σ σ' : X → ℤ) {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄) {p p' : 𝔓 X}
@@ -24,22 +26,19 @@ lemma E_disjoint (σ σ' : X → ℤ) {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain
   have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
   exact IsAntichain.eq h𝔄 hp hp' hle
 
-variable (K : X → X → ℂ) (σ₁ σ₂ : X → ℤ) (ψ : ℝ → ℝ) (p : 𝔓 X)
---(f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-
 -- lemma 6.1.2
 -- Q : `p : 𝔄` or `p ∈ 𝔄`?
-lemma MaximalBoundAntichain {a : ℝ} (ha : 4 ≤ a) {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
+lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
     {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (x : X) :
-    Complex.abs (∑' (p : 𝔄), T K σ₁ σ₂ ψ p F f x) ≤ 2^(107*a^3)/-*M_B (f x)-/ := by
-  by_cases hx : ∃ (p : 𝔄), T K σ₁ σ₂ ψ p F f x ≠ 0
+    Complex.abs (∑' (p : 𝔄), T p f x) ≤ 2^(107*a^3)/-*M_B (f x)-/ := by
+  by_cases hx : ∃ (p : 𝔄), T p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
-    have hne_p : ∀ (p' : 𝔄) (hp' : p' ≠ p), T K σ₁ σ₂ ψ (↑p') F f x = 0 := by
+    have hne_p : ∀ (p' : 𝔄) (hp' : p' ≠ p), T (↑p') f x = 0 := by
       intro p' hpp'
       sorry
     sorry
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
-    have h0 : (∑' (p : 𝔄), T K σ₁ σ₂ ψ p F f x) = (∑' (p : 𝔄), 0)  := by
+    have h0 : (∑' (p : 𝔄), T p f x) = (∑' (p : 𝔄), 0)  := by
       congr
       ext p
       exact hx p p.2
@@ -62,7 +61,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
 lemma Dens2Antichain  {a : ℝ} (ha : 4 ≤ a) {q : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2) {𝔄 : Set (𝔓 X)}
     (h𝔄 : IsAntichain (·≤·) 𝔄) {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     {G : Set X} {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
-    Complex.abs (∫ x, ((starRingEnd ℂ) (g x)) * ∑' (p : 𝔄), T K σ₁ σ₂ ψ p F f x) ≤
+    Complex.abs (∫ x, ((starRingEnd ℂ) (g x)) * ∑' (p : 𝔄), T p f x) ≤
       2^(111*a^3)*(q-1)⁻¹/-* dens2(𝔄)^{1/q - 1/2} *‖f‖_2*‖g‖_2}-/  := by
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   set q' := 2*q/(1 + q) with hq'
@@ -77,3 +76,15 @@ lemma Dens2Antichain  {a : ℝ} (ha : 4 ≤ a) {q : ℝ} (hq1 : 1 < q) (hq2 : q 
   sorry
 
 -- ‖∫ x in G \ G', ∑' p, T K σ₁ σ₂ (ψ (D2_2 a)) p F 1 x‖₊ ≤
+
+/-- Constant appearing in Proposition 2.0.3. -/
+def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
+
+/-- Proposition 2.0.3 -/
+theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ} {q : ℝ}
+    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+    (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄)) :
+    ‖∫ x, conj (g x) * ∑ᶠ p : 𝔄, T p f x‖ ≤
+    C_2_0_3 a q * (dens₁ 𝔄).toReal ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄).toReal ^ (q⁻¹ - 2⁻¹) *
+    (snorm f 2 volume).toReal * (snorm g 2 volume).toReal := sorry

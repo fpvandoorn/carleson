@@ -29,9 +29,9 @@ lemma bddAbove_localOscillation (E : Set X) [Fact (IsBounded E)] (f g : C(X, �
     BddAbove ((fun z : X × X ↦ ‖f z.1 - g z.1 - f z.2 + g z.2‖) '' E ×ˢ E) := sorry
 
 --old
-set_option linter.unusedVariables false in
 variable (𝕜) in
 /-- A type synonym of `C(X, 𝕜)` that uses the local oscillation w.r.t. `E` as the metric. -/
+@[nolint unusedArguments]
 def withLocalOscillation (E : Set X) [Fact (IsBounded E)] : Type _ := C(X, 𝕜)
 
 --old
@@ -64,6 +64,7 @@ instance homogeneousPseudoMetric (E : Set X) [Fact (IsBounded E)] :
 variable {E : Set X} {f g : C(X, 𝕜)}
 
 --old
+/-- A ball w.r.t. the distance `localOscillation` -/
 def localOscillationBall (E : Set X) (f : C(X, 𝕜)) (r : ℝ) :
     Set C(X, 𝕜) :=
   { g : C(X, 𝕜) | localOscillation E f g < r }
@@ -91,6 +92,7 @@ instance : Coe (Θ X) C(X, 𝕜) := ⟨coeΘ⟩
 instance : CoeFun (Θ X) (fun _ ↦ X → 𝕜) := ⟨fun f ↦ coeΘ f⟩
 
 set_option linter.unusedVariables false in
+@[nolint unusedArguments]
 def WithFunctionDistance (x : X) (r : ℝ) := Θ X
 
 variable {x : X} {r : ℝ}
@@ -108,6 +110,7 @@ instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistanc
 end FunctionDistances
 
 notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
 notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
@@ -137,7 +140,7 @@ variable (X) in
 /-- The point `o` in the blueprint -/
 def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose
-def cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
+lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X) = 0 :=
   CompatibleFunctions.eq_zero (𝕜 := 𝕜) |>.choose_spec f
 
 -- not sure if needed
@@ -248,6 +251,8 @@ and `CompatibleFunctions` -/
 @[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
 @[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
 @[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
+@[simp] def defaultτ (a : ℝ) : ℝ := a⁻¹
+
 
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`
@@ -256,33 +261,34 @@ def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
 /-- Data common through most of chapters 2-9. -/
 class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
-  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) where
-  m : PseudoMetricSpace X
-  d : DoublingMeasure X (2 ^ a)
-  ha : 4 ≤ a
-  cf : CompatibleFunctions ℝ X (2 ^ a)
-  c : IsCancellative X a⁻¹
+  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] where
+  d : DoublingMeasure X (defaultA a)
+  four_le_a : 4 ≤ a
+  cf : CompatibleFunctions ℝ X (defaultA a)
+  c : IsCancellative X (defaultτ a)
   hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)
-  hF : MeasurableSet F
-  hG : MeasurableSet G
-  m_σ₁ : Measurable σ₁
-  m_σ₂ : Measurable σ₂
-  f_σ₁ : Finite (range σ₁)
-  f_σ₂ : Finite (range σ₂)
-  hσ₁₂ : σ₁ ≤ σ₂
+  measurableSet_F : MeasurableSet F
+  measurableSet_G : MeasurableSet G
+  measurable_σ₁ : Measurable σ₁
+  measurable_σ₂ : Measurable σ₂
+  finite_range_σ₁ : Finite (range σ₁)
+  finite_range_σ₂ : Finite (range σ₂)
+  σ₁_le_σ₂ : σ₁ ≤ σ₂
   Q : SimpleFunc X (Θ X)
-  hq : q ∈ Ioc 1 2
+  q_mem_Ioc : q ∈ Ioc 1 2
 
 
-export PreProofData (ha hasBoundedStrongType_T hF hG m_σ₁ m_σ₂ f_σ₁ f_σ₂ Q)
-attribute [instance] PreProofData.m PreProofData.d PreProofData.cf PreProofData.c
+export PreProofData (four_le_a hasBoundedStrongType_T measurableSet_F measurableSet_G
+  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
+attribute [instance] PreProofData.d PreProofData.cf PreProofData.c
 
 section ProofData
 
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+  [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
 
 variable (X) in
-def S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
+lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
 
 variable (X) in
 open Classical in
@@ -292,18 +298,33 @@ lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ 
 
 lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
 
+lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
+    - S X ∈ range σ₁ ∨ S X ∈ range σ₂ := sorry
+
+variable (X) in lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
+variable (X) in lemma q_nonneg : 0 ≤ q := (q_pos X).le
+
+variable (X) in
+/-- `q` as an element of `ℝ≥0`. -/
+def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
+
 end ProofData
 
 class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
-  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) extends PreProofData a q K σ₁ σ₂ F G where
+    (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X]
+    extends PreProofData a q K σ₁ σ₂ F G where
   F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X)
   G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X)
 
+
 namespace ShortVariables
+-- open this section to get shorter 1-letter names for a bunch of variables
 
 set_option hygiene false
 scoped notation "D" => defaultD a
 scoped notation "κ" => defaultκ a
+scoped notation "Z" => defaultZ a
+scoped notation "τ" => defaultτ a
 scoped notation "o" => cancelPt X
 scoped notation "S" => S X
 

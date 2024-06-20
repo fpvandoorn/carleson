@@ -6,8 +6,9 @@ open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
 
 section DoublingMeasure
+universe u
 variable {𝕜 : Type*} [_root_.RCLike 𝕜]
-variable {X : Type*} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {X : Type u} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 variable (X) in
 /-- A grid structure on `X`.
@@ -47,20 +48,19 @@ variable (X) in
 def ι : Type* := GridStructure.ι X A
 instance : Fintype (ι X) := GridStructure.fintype_ι
 def s : ι X → ℤ := GridStructure.s
-def 𝓓 : ι X → Set X := GridStructure.𝓓
+def 𝓓 : ι X → Set X := GridStructure.𝓓 -- todo: make coercion
 def c : ι X → X := GridStructure.c
 
+/-- The set `I ↦ Iᵒ` in the blueprint. -/
+def ι.int (i : ι X) : Set X := ball (c i) (D ^ s i / 4)
+
+postfix:max "ᵒ" => ι.int
+
+variable {i : ι X}
+
+lemma int_subset : i.int ⊆ 𝓓 i := ball_subset_𝓓
 
 end GridStructure
-
--- missing some conditions e.g.
-def grid_existence {σ₁ σ₂ : X → ℤ} (hσ : σ₁ ≤ σ₂)
-    (hσ₁ : Measurable σ₁) (hσ₂ : Measurable σ₂)
-    {F G : Set X} (hF : Measurable F) (hG : Measurable G)
-    (h2F : F ⊆ ball o (D ^ S)) (h2G : G ⊆ ball o (D ^ S))
-    (hσ₁S : range σ₁ ⊆ Icc (-S) S) (hσ₂S : range σ₂ ⊆ Icc (-S) S) :
-    GridStructure X D κ S o :=
-  sorry
 
 -- instance homogeneousMeasurableSpace [Inhabited X] : MeasurableSpace C(X, ℝ) :=
 --   let m : PseudoMetricSpace C(X, ℝ) :=
@@ -71,7 +71,7 @@ def grid_existence {σ₁ σ₂ : X → ℤ} (hσ : σ₁ ≤ σ₂)
 /- The datain a tile structure, and some basic properties.
 This is mostly separated out so that we can nicely define the notation `d_𝔭`.
 Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
-class TileStructureData.{u} [FunctionDistances 𝕜 X]
+class TileStructureData [FunctionDistances 𝕜 X]
   (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
@@ -94,8 +94,8 @@ def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
 end
 
-notation3 "dist_(" D "," 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
-notation3 "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+local notation "dist_(" D "," 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
 /-- A tile structure. -/
 class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
@@ -109,21 +109,15 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
 
 export TileStructure (biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
 
-def tile_existence {a : ℝ} [CompatibleFunctions ℝ X (2 ^ a)] [GridStructure X D κ S o]
-    (ha : 4 ≤ a) {σ₁ σ₂ : X → ℤ} (hσ : σ₁ ≤ σ₂)
-    (hσ₁ : Measurable σ₁) (hσ₂ : Measurable σ₂)
-    {F G : Set X} (hF : Measurable F) (hG : Measurable G)
-    (h2F : F ⊆ ball o (D ^ S)) (h2G : G ⊆ ball o (D ^ S))
-    (hσ₁S : range σ₁ ⊆ Icc (-S) S) (hσ₂S : range σ₂ ⊆ Icc (-S) S)
-    (Q : SimpleFunc X (Θ X)) :
-    TileStructure Q D κ S o :=
-  sorry
-
 end DoublingMeasure
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+
+notation "dist_(" 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+
 
 /- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
@@ -162,7 +156,7 @@ def TileLike : Type _ := Set X × OrderDual (Set (Θ X))
 def TileLike.fst (x : TileLike X) : Set X := x.1
 def TileLike.snd (x : TileLike X) : Set (Θ X) := x.2
 instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
-example (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
+lemma TileLike.le_def (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
 @[simps]
 def toTileLike (p : 𝔓 X) : TileLike X := (𝓓 (𝓘 p), Ω p)
@@ -171,10 +165,11 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorr
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
-/-- This is not defined as such in the blueprint, but `λp ≤ λ'p'` can be written using
-  `smul λ p ≤ smul λ' p'`. -/
+/-- This is not defined as such in the blueprint, but `λp ≲ λ'p'` can be written using
+  `smul λ p ≤ smul λ' p'`.
+  Beware: `smul 1 p` is very different from `toTileLike p`! -/
 def smul (l : ℝ) (p : 𝔓 X) : TileLike X :=
-  (𝓓 (𝓘 p), ball_(D, p) (𝒬 p) l)
+  (𝓓 (𝓘 p), ball_(p) (𝒬 p) l)
 
 def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
   t.fst ×ˢ t.snd
@@ -183,7 +178,7 @@ def E₁ (t : TileLike X) : Set X :=
   t.1 ∩ G ∩ Q ⁻¹' t.2
 
 def E₂ (l : ℝ) (p : 𝔓 X) : Set X :=
-  𝓓 (𝓘 p) ∩ G ∩ Q ⁻¹' ball_(D, p) (𝒬 p) l
+  𝓓 (𝓘 p) ∩ G ∩ Q ⁻¹' ball_(p) (𝒬 p) l
 
 /-- `downClosure 𝔓'` is denoted `𝔓(𝔓') in the blueprint. It is the lower closure of `𝔓'` in `𝔓 X` w.r.t. to the relation `p ≤ p' := 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 p')`.
 Maybe we should make this ordering on `𝔓 X` explicit. -/
@@ -207,30 +202,15 @@ lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
 
-/-- Constant appearing in Proposition 2.0.3. -/
-def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
-
-/-- Proposition 2.0.3 -/
-theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ} {q : ℝ}
-    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄))
-    : -- add conditions on q
-    ‖∫ x, conj (g x) * ∑ᶠ p : 𝔄, T p f x‖ ≤
-    C_2_0_3 a q * (dens₁ 𝔄).toReal ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄).toReal ^ (q⁻¹ - 2⁻¹) *
-    (snorm f 2 volume).toReal * (snorm g 2 volume).toReal := sorry
-
-
-
 --below is old
 /-- Hardy-Littlewood maximal function -/
-def maximalFunction {E} [NormedAddCommGroup E] [NormedSpace ℂ E]
-  (f : X → E) (x : X) : ℝ :=
+def maximalFunction {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
+  (μ : Measure X) (f : X → E) (x : X) : ℝ :=
   ⨆ (x' : X) (δ : ℝ) (_hx : x ∈ ball x' δ),
-  ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball x' δ) |>.toReal
+  ⨍⁻ y, ‖f y‖₊ ∂μ.restrict (ball x' δ) |>.toReal
 
 def boundedTiles (F : Set X) (t : ℝ) : Set (𝔓 X) :=
-  { p : 𝔓 X | ∃ x ∈ 𝓓 (𝓘 p), maximalFunction (Set.indicator F (1 : X → ℂ)) x ≤ t }
+  { p : 𝔓 X | ∃ x ∈ 𝓓 (𝓘 p), maximalFunction volume (Set.indicator F (1 : X → ℂ)) x ≤ t }
 
 set_option linter.unusedVariables false in
 variable (X) in
@@ -241,40 +221,54 @@ class SmallBoundaryProperty (η : ℝ) : Prop where
 namespace TileStructure
 variable (X) in
 structure Tree where
-  carrier : Set (𝔓 X)
-  top : 𝔓 X
-  le_top {p : 𝔓 X} (hp : p ∈ carrier): smul 4 p ≤ toTileLike top
-  ordConnected : OrdConnected carrier -- the convexity condition
+  carrier : Finset (𝔓 X)
+  nonempty : Nonempty (𝔓 X)
+  ordConnected : OrdConnected (carrier : Set (𝔓 X))
 
 attribute [coe] Tree.carrier
-instance : CoeTC (Tree X) (Set (𝔓 X)) where coe := Tree.carrier
+instance : CoeTC (Tree X) (Finset (𝔓 X)) where coe := Tree.carrier
+instance : CoeTC (Tree X) (Set (𝔓 X)) where coe p := ((p : Finset (𝔓 X)) : Set (𝔓 X))
 instance : Membership (𝔓 X) (Tree X) := ⟨fun x p => x ∈ (p : Set _)⟩
 instance : Preorder (Tree X) := Preorder.lift Tree.carrier
 
 -- LaTeX note: $D ^ {s(p)}$ should be $D ^ {s(I(p))}$
-class Tree.IsThin (𝔗 : Tree X) : Prop where
-  thin {p : 𝔓 X} (hp : p ∈ 𝔗) : ball (𝔠 p) (8 * a/-fix-/ * D ^ 𝔰 p) ⊆ 𝓓 (𝓘 𝔗.top)
+-- class Tree.IsThin (𝔗 : Tree X) : Prop where
+--   thin {p : 𝔓 X} (hp : p ∈ 𝔗) : ball (𝔠 p) (8 * a/-fix-/ * D ^ 𝔰 p) ⊆ 𝓓 (𝓘 𝔗.top)
 
-alias Tree.thin := Tree.IsThin.thin
+-- alias Tree.thin := Tree.IsThin.thin
 
 -- def Δ (p : 𝔓 X) (Q' : C(X, ℝ)) : ℝ := localOscillation (𝓓 (𝓘 p)) (𝒬 p) Q' + 1
 
+variable (X) in
+/-- An `n`-forest -/
+structure Forest (n : ℕ) where
+  𝔘 : Finset (𝔓 X)
+  𝔗 : 𝔓 X → Tree X -- Is it a problem that we totalized this function?
+  smul_four_le {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : smul 4 p ≤ smul 1 u
+  essSup_tsum_le : snorm (∑ u ∈ 𝔘, (𝓓 (𝓘 u)).indicator (1 : X → ℝ)) ∞ volume ≤ 2 ^ n
+  dens₁_𝔗_le {u} (hu : u ∈ 𝔘) : dens₁ (𝔗 u : Set (𝔓 X)) ≤ 2 ^ (4 * a + 1 - n)
+  lt_dist {u u'} (hu : u ∈ 𝔘) (hu' : u' ∈ 𝔘) (huu' : u ≠ u') {p} (hp : p ∈ 𝔗 u')
+    (h : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 u)) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u)
+  ball_subset {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓓 (𝓘 u)
+  -- old conditions
+  -- disjoint_I : ∀ {𝔗 𝔗'}, 𝔗 ∈ I → 𝔗' ∈ I → Disjoint 𝔗.carrier 𝔗'.carrier
+  -- top_finite (x : X) : {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top)}.Finite
+  -- card_top_le (x : X) : Nat.card {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top) } ≤ 2 ^ n * Real.log (n + 1)
+  -- density_le {𝔗} (h𝔗 : 𝔗 ∈ I) : density G Q 𝔗 ≤ (2 : ℝ) ^ (-n : ℤ)
+  -- delta_gt {j j'} (hj : j ∈ I) (hj' : j' ∈ I) (hjj' : j ≠ j') {p : 𝔓 X} (hp : p ∈ j)
+  --   (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > (2 : ℝ) ^ (3 * n / δ)
 
--- /--
--- A forest is a set of pairwise disjoint trees
--- note(F): currently we allow that the tree with the empty carrier occurs (multiple times) in the
--- forest, I believe.
--- -/
--- structure Forest (G : Set X) (Q : X → C(X,ℝ)) (δ : ℝ) (n : ℕ) where
---   I : Set (Tree X)
---   disjoint_I : ∀ {𝔗 𝔗'}, 𝔗 ∈ I → 𝔗' ∈ I → Disjoint 𝔗.carrier 𝔗'.carrier
---   top_finite (x : X) : {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top)}.Finite
---   card_top_le (x : X) : Nat.card {𝔗 ∈ I | x ∈ 𝓓 (𝓘 𝔗.top) } ≤ 2 ^ n * Real.log (n + 1)
---   density_le {𝔗} (h𝔗 : 𝔗 ∈ I) : density G Q 𝔗 ≤ (2 : ℝ) ^ (-n : ℤ)
---   delta_gt {j j'} (hj : j ∈ I) (hj' : j' ∈ I) (hjj' : j ≠ j') {p : 𝔓 X} (hp : p ∈ j)
---     (h2p : 𝓓 (𝓘 p) ⊆ 𝓓 (𝓘 j'.top)) : Δ p (Q j.top) > (2 : ℝ) ^ (3 * n / δ)
+def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := 2 ^ (432 * a ^ 3 - (q - 1) / q * n)
 
-variable {G : Set X} {Q : X → C(X,ℝ)} {δ : ℝ} {n : ℕ}
+theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)
+    (h2g : IsBounded (support g)) :
+    ‖∫ x, conj (g x) * ∑ u ∈ 𝔉.𝔘, ∑ p ∈ 𝔉.𝔗 u, T p f x‖₊ ≤
+    C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉.𝔘, 𝔉.𝔗 u)) ^ (q⁻¹ - 2⁻¹) *
+    snorm f 2 volume * snorm g 2 volume := by
+  sorry
+
+end TileStructure
 
 namespace Forest
 
@@ -296,4 +290,16 @@ namespace Forest
 
 end Forest
 
-end TileStructure
+/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
+@[nolint unusedArguments]
+def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
+  ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +
+  R ^ τ * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖₊ / (nndist x y) ^ τ : ℝ≥0∞)
+
+def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (8 * a)
+
+theorem holder_van_der_corput {z : X} {R : ℝ≥0} (hR : 0 < R) {ϕ : X → ℂ}
+    (hϕ : support ϕ ⊆ ball z R) (h2ϕ : hnorm ϕ z R < ∞) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖₊ ≤
+    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * hnorm ϕ z R *
+    (1 + nndist_{z, R} f g) ^ (2 * a^2 + a^3)⁻¹  := sorry

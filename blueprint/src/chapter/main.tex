@@ -250,6 +250,8 @@ that a function from a measure space to a finite set is measurable if the pre-im
 
 \begin{proposition}[finitary Carleson]
 \label{finitary-Carleson}
+\leanok
+\lean{finitary_carleson}
 \uses{discrete-Carleson, grid-existence, tile-structure, tile-sum-operator}
 Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq  \sigma_2$. Let $\tQ\colon X\to \Mf$ be a measurable function with finite range. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq  \mu(G)$ such that
 for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
@@ -374,7 +376,7 @@ and
 \begin{equation}\label{definetp}
     T_{\fp} f(x)= \mathbf{1}_{E(\fp)}(x) \int   K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y).
 \end{equation}
-Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all $f:X\to \C$ with $|f|\le \mathbf{1}_F$
+Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$
 we have
 \begin{equation}
     \label{disclesssim}
