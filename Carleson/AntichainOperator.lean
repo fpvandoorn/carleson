@@ -28,14 +28,20 @@ lemma E_disjoint (σ σ' : X → ℤ) {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntich
 
 variable (K : X → X → ℂ) (σ₁ σ₂ : X → ℤ) (p : 𝔓 X)
 
+open MeasureTheory Metric
 open NNReal Real
 
 noncomputable def C_6_1_2 (a : ℝ) : ℝ≥0 := (2 : ℝ≥0)^(107*a^3)
 
+-- This doesn't work here?
+--local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+--B(c p, 8D^s p)
+
+
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (x : X) :
-    ‖∑ (p ∈ 𝔄), T p f x‖₊ ≤ (C_6_1_2 a) /-*M_B (f x)-/ := by
+    ‖∑ (p ∈ 𝔄), T p f x‖₊ ≤ (C_6_1_2 a) * MB (fun (𝔭 : 𝔄) ↦ (𝔠 𝔭.1, 8*D ^ 𝔰 𝔭.1)) f x := by
   by_cases hx : ∃ (p : 𝔄), T p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
     have hne_p : ∀ (p' : 𝔄) (hp' : p' ≠ p), T (↑p') f x = 0 := by
@@ -45,7 +51,8 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
     have h0 : (∑ (p ∈ 𝔄), T p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     rw [h0]
-    simp only [defaultA, defaultD, defaultκ, Finset.sum_const_zero, nnnorm_zero, zero_le]
+    simp only [defaultA, defaultD, defaultκ, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero,
+      zero_le]
 
 lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     f = (F.indicator 1) * f := by
@@ -57,8 +64,6 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
     simp only [indicator, hy, ↓reduceIte] at hf
     rw [← norm_eq_zero]
     exact le_antisymm hf (norm_nonneg _)
-
-open MeasureTheory
 
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
 
