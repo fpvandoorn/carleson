@@ -9,6 +9,8 @@ open MeasureTheory Metric Bornology Set
 open scoped NNReal ENNReal
 noncomputable section
 
+/-! This should roughly contain the contents of chapter 9. -/
+
 -- #check VitaliFamily
 
 variable {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E] [NormedSpace ℝ E]

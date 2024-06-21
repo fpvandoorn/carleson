@@ -23,6 +23,8 @@
 
 \tableofcontents
 
+\textbf{Acknowledgements}: We greatly appreciate the help by anyone proof reading this blueprint or helping with the formalization process.
+
 \chapter{Introduction}
 
 In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere. \Cref{classical-Carleson} represents a version of this result.
@@ -1024,6 +1026,8 @@ we have \eqref{disclesssim}.
 
 \begin{lemma}[tile sum operator]
 \label{tile-sum-operator}
+\leanok
+\lean{tile_sum_operator, integrable_tile_sum_operator}
 We have for all $x\in G\setminus G'$
 \begin{equation}\label{eq-sump}
     \sum_{\fp\in \fP}T_{\fp} f(x)= \sum_{s=\sigma_1(x)}^{\sigma_2(x)}
@@ -1056,6 +1060,9 @@ $x\in E(\fp)$. For this $\fp$, the value $T_{\fp}(x)$ by its definition in \eqre
 equals the right-hand side of \eqref{insump}. This proves the lemma.
 \end{proof}
 
+We use this to prove \Cref{finitary-Carleson}.
+\begin{proof}[Proof of \Cref{finitary-Carleson}]
+\proves{finitary-Carleson}
 We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \begin{equation}
  \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y)\right| \mathrm{d}\mu(x)
@@ -1069,7 +1076,7 @@ We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \end{equation}
 This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and thus completes the proof of Proposition
 \ref{finitary-Carleson}.
-
+\end{proof}
 
 
 \section{Proof of Grid Existence Lemma}
@@ -2844,7 +2851,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
     Thus $\mathfrak{T}_1(\fu) \cap \fC_6(k,n,j) = \emptyset$.
     This contradicts $\fu \in \fU_2(k,n,j)$.
 \end{proof}
-
+We now turn to the proof of \Cref{forest-union}.
 \begin{proof}[Proof of \Cref{forest-union}]
     \proves{forest-union}
 
@@ -2875,7 +2882,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
     $$
         2^{433a^3} \mu(F)^{\frac{1}{q}} \mu(G)^{1
         -\frac{1}{q}} \sum_{k \ge 0}\sum_{n \ge k}n^2 2^{-(1-\frac{1}{q})n}\,.
-    $$
+    $$ % n^2 -> (n+1)^2
     Interchanging the order of summation, the sum equals
     $$
         \sum_{n \ge 0} n^2(n+1) 2^{-\frac{q-1}{q}n} \le \frac{2^{2a^3}}{(q-1)^3}\,,
@@ -2899,6 +2906,9 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\cap \fP_{X \setminus G'}\,.
     \end{align}
 \end{lemma}
+% Note(Georges Gonthier): the second sentence of this proof is not technically true
+% Can we restrict ourselves to a grid with only 1 top cube?
+% Or alternatively, redefine \MfP_{X \ G'} to be the p s.t. I(p) \cap (G \ G') has nonzero measure.
 
 \begin{proof}
     Let $\fp \in \fP_2 \cap \fP_{X \setminus G'}$. Clearly, for every cube $J \in \mathcal{D}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
@@ -2987,6 +2997,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI
     By its definition \eqref{eq-L1-def}, each set $\fL_1(k,n,j,l)$ is a set of minimal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_1(k,n,j,l)$ with $\fp \le \fq$, then $\fq$ would not be minimal. Hence such $\fp, \fq$ do not exist. Similarly, by \eqref{eq-L3-def}, each set $\fL_3(k,n,j,l)$ is a set of maximal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_3(k,n,j,l)$ with $\fp \le \fq$, then $\fp$ would not be maximal.
 \end{proof}
 
+We now turn to the proof of \Cref{forest-complement}.
 \begin{proof}[Proof of \Cref{forest-complement}]
     \proves{forest-complement}
     If $\fp \not\in \fP_{X \setminus G'}$, then $\scI(\fp) \subset G'$. By \eqref{definetp} and \eqref{definee1}, it follows that
