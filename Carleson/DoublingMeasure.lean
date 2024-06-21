@@ -1,5 +1,5 @@
 import Carleson.CoverByBalls
-import Carleson.ToMathlib.MeasureReal
+import Carleson.ToMathlib.Misc
 import Mathlib.Analysis.NormedSpace.FiniteDimension
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.MeasureTheory.Integral.Average
@@ -49,7 +49,11 @@ instance [MetricSpace X] [DoublingMeasure X A] : IsUnifLocDoublingMeasure (volum
 
 @[reducible]
 def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
-  volume_ball_two_le_same := sorry
+  volume_ball_two_le_same := by
+    intro x r
+    calc MeasureTheory.volume.real (Metric.ball x (2 * r))
+    _ ≤ A * MeasureTheory.volume.real (Metric.ball x r) := by apply volume_ball_two_le_same
+    _ ≤ A' * MeasureTheory.volume.real (Metric.ball x r) := by gcongr
 
 lemma volume_ball_four_le_same (x : X) (r : ℝ) :
     volume.real (ball x (4 * r)) ≤ A ^ 2 * volume.real (ball x r) := by
@@ -65,26 +69,28 @@ lemma measure_ball_ne_top (x : X) (r : ℝ) : volume (ball x r) ≠ ∞ := measu
 
 attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
 
+lemma volume_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
+    volume.real (ball x (2 ^ n * r)) ≤ A ^ n * volume.real (ball x r) := by
+  induction n
+  case zero =>
+    simp
+  case succ m hm =>
+    calc volume.real (ball x (2 ^ (Nat.succ m) * r))
+        = volume.real (ball x (2 ^ (m+1) * r)) := by rfl
+      _ = volume.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
+      _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
+      _ ≤ A * volume.real (ball x (2 ^ m * r)) := by
+        rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
+      _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr; exact A_nonneg X
+      _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc, pow_succ']
+
+
 def As (A : ℝ) (s : ℝ) : ℝ :=
   A ^ ⌈ Real.log s / Real.log 2⌉₊
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
 lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r) :
     volume.real (ball x r') ≤ As A s * volume.real (ball x r) := by
-  /-First show statement for s a power of two-/
-  have hn (n : ℕ) : volume.real (ball x (2^n * r)) ≤ A^n * volume.real (ball x r) := by
-    induction n
-    case zero =>
-      simp
-    case succ m hm =>
-      calc volume.real (ball x (2 ^ (Nat.succ m) * r))
-          = volume.real (ball x (2 ^ (m+1) * r)) := by rfl
-        _ = volume.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
-        _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
-        _ ≤ A * volume.real (ball x (2 ^ m * r)) := by
-          rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
-        _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by gcongr; exact A_nonneg X
-        _ = A^(Nat.succ m) * volume.real (ball x r) := by rw[<- mul_assoc, pow_succ']
 
   /-Show inclusion in larger ball-/
   have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by
@@ -95,8 +101,9 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : s > 0) (hs : r' ≤ s * r
 
   /-Apply result for power of two to slightly larger ball-/
   calc volume.real (ball x r')
-          ≤ volume.real (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr; finiteness
-        _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * volume.real (ball x r) := hn _
+      ≤ volume.real (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr; finiteness
+    _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * volume.real (ball x r) := volume_ball_le_pow_two
+    _ = As A s * volume.real (ball x r) := rfl
 
 def Ad (A : ℝ) (s d : ℝ) : ℝ :=
   As A (A * (d + s))

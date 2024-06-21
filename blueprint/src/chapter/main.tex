@@ -559,7 +559,7 @@ Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\ta
        (1 + d_{B}(\mfa,\mfb))^{-\frac{1}{2a^2+a^3}}
     \,.
     \end{equation}
-    \end{proposition}
+\end{proposition}
 
 We further formulate a classical Vitali covering result
 and maximal function estimate that we need throughout several sections.
@@ -574,6 +574,9 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 
 \begin{proposition}[Hardy--Littlewood]
 \label{Hardy-Littlewood}
+\leanok
+\lean{measure_biUnion_le_lintegral, maximalFunction_lt_top, snorm_maximalFunction, M_lt_top,
+  laverage_le_M, snorm_M_le}
 \uses{layer-cake-representation,covering-separable-space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
 If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have
@@ -613,6 +616,8 @@ First, we record an estimate for the metrical entropy numbers of balls in the sp
 
 \begin{lemma}[ball metric entropy]
     \label{ball-metric-entropy}
+    \leanok
+    \lean{mk_le_of_le_dist}
     Let $B' \subset X$ be a ball. Let $r > 0$, $\mfa \in \Mf$ and $k \in \mathbb{N}$. Suppose that $\mathcal{Z} \subset B_{B'}(\mfa, r2^k)$ satisfies that for all $z, z' \in \mathcal{Z}$ with $z \ne z'$, we have $d_{B'}(z,z') \ge r$. Then
     $$
         |\mathcal{Z}| \le 2^{ka}\,.
@@ -631,6 +636,8 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
 
 \begin{lemma}[monotone cube metrics]
     \label{monotone-cube-metrics}
+    \leanok
+    \lean{𝓓.dist_mono, 𝓓.dist_strictMono}
     Let $(\mathcal{D}, c, s)$ be a grid structure. Denote for cubes $I \in \mathcal{D}$
     $$
         I^\circ := B(c(I), \frac{1}{4} D^{s(I)})\,.
@@ -675,6 +682,8 @@ We also record the following basic estimates for the kernels $K_s$.
 
 \begin{lemma}[kernel summand]
 \label{kernel-summand}
+\leanok
+\lean{dist_mem_Icc_of_Ks_ne_zero, norm_Ks_le, norm_Ks_sub_Ks_le}
     Let $-S\le s\le S$ and $x,y,y'\in X$.
     If $K_s(x,y)\neq 0$, then we have
     \begin{equation}\label{supp-Ks}
@@ -1839,8 +1848,8 @@ For an integer $\lambda\ge 0$, define $A(\lambda,k,n)$ to be the set
 of all $x\in X$ such that
 \begin{equation}
     \label{eq-Aoverlap-def}
-    % remark(F): replaced > by \ge
-    \sum_{\fp \in \mathfrak{M}(k,n)}\mathbf{1}_{\scI(\fp)}(x)\ge 1+\lambda 2^{n+1}
+    % remark(Georges Gonthier): removed 1+
+    \sum_{\fp \in \mathfrak{M}(k,n)}\mathbf{1}_{\scI(\fp)}(x)>\lambda 2^{n+1}
 \end{equation}
 and define
 \begin{equation}\label{definegone2}
@@ -1883,6 +1892,7 @@ In \Cref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G'$ as fore
 \begin{equation}
     \label{disclesssim1}
     \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{435a^3}}{(q-1)^3} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+    % Note(Georges Gonthier): denominator should be changed to (q-1)^4.
 \end{equation}
 \end{lemma}
 
@@ -2823,6 +2833,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
     \begin{equation}
         \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le 1 + (4n+12)2^{n}\,.
     \end{equation}
+    % Note(Georges Gonthier): Because we removed the `1 +` from \eqref{eq-Aoverlap-def} we can also remove the 1+ here.
 \end{lemma}
 
 \begin{proof}
@@ -2919,10 +2930,16 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI
         \label{eq-O-bound}
         |\mathfrak{O}| \le 2^{4a}\lambda^a\,.
     \end{equation}
-    The balls $B_{\fp'}(\fcc(\fp''), 0.2)$, $\fp'' \in \mathfrak{O}$ are disjoint by \eqref{eq-freq-comp-ball}, and by the triangle inequality contained in $B_{\fp'}(\fcc(\fp'), \lambda+1)$. By assumption \eqref{thirddb} on $\Theta$, this ball can be covered with
+    The balls $B_{\fp'}(\fcc(\fp''), 0.2)$, $\fp'' \in \mathfrak{O}$ are disjoint by \eqref{eq-freq-comp-ball},
+    and by the triangle inequality contained in $B_{\fp'}(\fcc(\fp'), \lambda+1)$.
+    % Note(Georges Gonthier): \lambda+1 should be \lambda+1.2
+    By assumption \eqref{thirddb} on $\Theta$, this ball can be covered with
     $$
         2^{a(\lceil \log_2(\lambda+1)\rceil + 2)} \le 2^{a(\log_2(\lambda) + 4)} = 2^{4a}\lambda^a
-    $$ many $d_{\fp'}$-balls of radius $1/4$. By the triangle inequality, each such ball contains at most one $\fcc(\fp'')$, and each $\fcc(\fp'')$ is contained in one of the balls. Thus we get \eqref{eq-O-bound}.
+    $$  % Note(Georges Gonthier): this approximation still barely holds
+    many $d_{\fp'}$-balls of radius $1/4$.
+    % Note(Georges Gonthier): 1/4 should be 1/5 (or something in between)
+    By the triangle inequality, each such ball contains at most one $\fcc(\fp'')$, and each $\fcc(\fp'')$ is contained in one of the balls. Thus we get \eqref{eq-O-bound}.
 
     By \eqref{definee1} and \eqref{definee2} we have $E_2(\lambda, \fp') \subset \bigcup_{\fp'' \in \mathfrak{O}} E_1(\fp'')$, thus
     $$

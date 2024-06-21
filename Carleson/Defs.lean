@@ -308,6 +308,10 @@ variable (X) in
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
+variable (X) in lemma nnq_pos : 0 < nnq X := q_pos X
+variable (X) in lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
+  ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
+
 end ProofData
 
 class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
@@ -327,5 +331,36 @@ scoped notation "Z" => defaultZ a
 scoped notation "τ" => defaultτ a
 scoped notation "o" => cancelPt X
 scoped notation "S" => S X
+scoped notation "nnq" => nnq X
 
 end ShortVariables
+
+open scoped ShortVariables
+variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
+@[nolint unusedArguments]
+def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
+  ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +
+  R ^ τ * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖₊ / (nndist x y) ^ τ : ℝ≥0∞)
+
+/-! Lemma 2.1.1 -/
+
+-- Note: See also/prove card_le_of_le_dist in DoublingMeasure.
+lemma mk_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
+    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
+    Cardinal.mk 𝓩 ≤ 2 ^ (k * ⌊a⌋₊) := sorry
+
+-- the following two lemma should follow easily from `mk_le_of_le_dist`.
+
+lemma card_le_of_le_dist' {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
+    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
+    Nat.card 𝓩 ≤ 2 ^ (k * ⌊a⌋₊) := sorry
+
+lemma finite_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
+    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
+    𝓩.Finite := sorry

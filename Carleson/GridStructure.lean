@@ -52,11 +52,13 @@ attribute [coe] GridStructure.coe𝓓
 instance : Coe (𝓓 X) (Set X) := ⟨GridStructure.coe𝓓⟩
 instance : Membership X (𝓓 X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩
 instance : HasSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
+instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
   conveniently rewrite/simp with Set-lemmas -/
 @[simp] lemma 𝓓.mem_def {x : X} {i : 𝓓 X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
 @[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
+@[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
 def s : 𝓓 X → ℤ := GridStructure.s
 def c : 𝓓 X → X := GridStructure.c
@@ -104,7 +106,6 @@ def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
 end
 
-local notation "dist_(" D "," 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
 /-- A tile structure. -/
@@ -126,11 +127,31 @@ open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
+notation "dist_{" I "}" => @dist (WithFunctionDistance (c I) (D ^ s I / 4)) _
+notation "nndist_{" I "}" => @nndist (WithFunctionDistance (c I) (D ^ s I / 4)) _
+notation "ball_{" I "}" => @ball (WithFunctionDistance (c I) (D ^ s I / 4)) _
+-- maybe we should delete the following three notations, and just use the previous three?
 notation "dist_(" 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
+notation "nndist_(" 𝔭 ")" => @nndist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
+@[simp] lemma dist_𝓘 (p : 𝔓 X) {f g : Θ X} : dist_{𝓘 p} f g = dist_(p) f g := rfl
+@[simp] lemma nndist_𝓘 (p : 𝔓 X) {f g : Θ X} : nndist_{𝓘 p} f g = nndist_(p) f g := rfl
+@[simp] lemma ball_𝓘 (p : 𝔓 X) {f : Θ X} {r : ℝ} : ball_{𝓘 p} f r = ball_(p) f r := rfl
 
-/- The set `E` defined in Proposition 2.0.2. -/
+/-- Lemma 2.1.2, part 1. -/
+lemma 𝓓.dist_mono {I J : 𝓓 X} (hpq : I ⊆ J) {f g : Θ X} :
+    dist_{I} f g ≤ dist_{J} f g := by
+  sorry
+
+def C2_1_2 (a : ℝ) : ℝ := 2 ^ (-95 * a)
+
+/-- Lemma 2.1.2, part 2. -/
+lemma 𝓓.dist_strictMono {I J : 𝓓 X} (hpq : I ⊂ J) {f g : Θ X} :
+    dist_{I} f g ≤ C2_1_2 a * dist_{J} f g := by
+  sorry
+
+/-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
 
@@ -138,26 +159,12 @@ section T
 
 variable {p : 𝔓 X} {f : X → ℂ} {q : ℝ≥0∞}
 
-/- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
+/-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
 It is the map `T ∘ (1_F * ·) : f ↦ T (1_F * f)`, also denoted `T1_F`
 The operator `T` in Proposition 2.0.2 is therefore `applied to `(F := Set.univ)`. -/
 def T (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (Q x x - Q x y) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * F.indicator f y
-
--- lemma Memℒp_T (hf : Memℒp f q) : Memℒp (T p f) q :=
---   by sorry
-
--- /- The operator `T`, defined on `L^2` maps. -/
--- def T₂ (f : X →₂[volume] ℂ) : X →₂[volume] ℂ :=
---   Memℒp.toLp (T K σ₁ σ₂ ψ p F f) <| Memℒp_T K σ₁ σ₂ ψ p F <| Lp.memℒp f
-
--- /- The operator `T`, defined on `L^2` maps as a continuous linear map. -/
--- def TL : (X →₂[volume] ℂ) →L[ℂ] (X →₂[volume] ℂ) where
---     toFun := T₂ K σ₁ σ₂ ψ p F
---     map_add' := sorry
---     map_smul' := sorry
---     cont := by sorry
 
 end T
 
@@ -177,8 +184,8 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := sorr
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
 /-- This is not defined as such in the blueprint, but `λp ≲ λ'p'` can be written using
-  `smul λ p ≤ smul λ' p'`.
-  Beware: `smul 1 p` is very different from `toTileLike p`! -/
+`smul l p ≤ smul l' p'`.
+Beware: `smul 1 p` is very different from `toTileLike p`. -/
 def smul (l : ℝ) (p : 𝔓 X) : TileLike X :=
   (𝓘 p, ball_(p) (𝒬 p) l)
 
@@ -204,12 +211,6 @@ def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (r ≥ 4 * D ^ 𝔰 p),
   volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
 
-/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
-@[nolint unusedArguments]
-def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
-  ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +
-  R ^ τ * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖₊ / (nndist x y) ^ τ : ℝ≥0∞)
-
 -- a small characterization that might be useful
 lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
@@ -228,14 +229,6 @@ instance : CoeTC (Tree X) (Finset (𝔓 X)) where coe := Tree.carrier
 instance : CoeTC (Tree X) (Set (𝔓 X)) where coe p := ((p : Finset (𝔓 X)) : Set (𝔓 X))
 instance : Membership (𝔓 X) (Tree X) := ⟨fun x p => x ∈ (p : Set _)⟩
 instance : Preorder (Tree X) := Preorder.lift Tree.carrier
-
--- LaTeX note: $D ^ {s(p)}$ should be $D ^ {s(I(p))}$
--- class Tree.IsThin (𝔗 : Tree X) : Prop where
---   thin {p : 𝔓 X} (hp : p ∈ 𝔗) : ball (𝔠 p) (8 * a/-fix-/ * D ^ 𝔰 p) ⊆ 𝓓 (𝓘 𝔗.top)
-
--- alias Tree.thin := Tree.IsThin.thin
-
--- def Δ (p : 𝔓 X) (Q' : C(X, ℝ)) : ℝ := localOscillation (𝓓 (𝓘 p)) (𝒬 p) Q' + 1
 
 variable (X) in
 /-- An `n`-forest -/
@@ -260,7 +253,14 @@ end TileStructure
 
 --below is old
 
-namespace Forest
+-- class Tree.IsThin (𝔗 : Tree X) : Prop where
+--   thin {p : 𝔓 X} (hp : p ∈ 𝔗) : ball (𝔠 p) (8 * a/-fix-/ * D ^ 𝔰 p) ⊆ 𝓓 (𝓘 𝔗.top)
+
+-- alias Tree.thin := Tree.IsThin.thin
+
+-- def Δ (p : 𝔓 X) (Q' : C(X, ℝ)) : ℝ := localOscillation (𝓓 (𝓘 p)) (𝒬 p) Q' + 1
+
+-- namespace Forest
 
 /- Do we want to treat a forest as a set of trees, or a set of elements from `𝔓 X`? -/
 
@@ -278,22 +278,22 @@ namespace Forest
 -- /-- The union of all the trees in the forest. -/
 -- def carrier (𝔉 : Forest G Q δ n) : Set (𝔓 X) := ⋃ 𝔗 ∈ 𝔉.I, 𝔗
 
-end Forest
+--end Forest
 
-/-- Hardy-Littlewood maximal function -/
-def maximalFunction {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E]
-  (μ : Measure X) (f : X → E) (x : X) : ℝ :=
-  ⨆ (x' : X) (δ : ℝ) (_hx : x ∈ ball x' δ),
-  ⨍⁻ y, ‖f y‖₊ ∂μ.restrict (ball x' δ) |>.toReal
+-- set_option linter.unusedVariables false in
+-- variable (X) in
+-- class SmallBoundaryProperty (η : ℝ) : Prop where
+--   volume_diff_le : ∃ (C : ℝ) (hC : C > 0), ∀ (x : X) r (δ : ℝ), 0 < r → 0 < δ → δ < 1 →
+--     volume.real (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume.real (ball x r)
 
-def boundedTiles (F : Set X) (t : ℝ) : Set (𝔓 X) :=
-  { p : 𝔓 X | ∃ x ∈ 𝓘 p, maximalFunction volume (Set.indicator F (1 : X → ℂ)) x ≤ t }
+--def boundedTiles (F : Set X) (t : ℝ) : Set (𝔓 X) :=
+--  { p : 𝔓 X | ∃ x ∈ 𝓘 p, maximalFunction volume (Set.indicator F (1 : X → ℂ)) x ≤ t }
 
-set_option linter.unusedVariables false in
-variable (X) in
-class SmallBoundaryProperty (η : ℝ) : Prop where
-  volume_diff_le : ∃ (C : ℝ) (hC : C > 0), ∀ (x : X) r (δ : ℝ), 0 < r → 0 < δ → δ < 1 →
-    volume.real (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume.real (ball x r)
+-- set_option linter.unusedVariables false in
+-- variable (X) in
+-- class SmallBoundaryProperty (η : ℝ) : Prop where
+--   volume_diff_le : ∃ (C : ℝ) (hC : C > 0), ∀ (x : X) r (δ : ℝ), 0 < r → 0 < δ → δ < 1 →
+--     volume.real (ball x ((1 + δ) * r) \ ball x ((1 - δ) * r)) ≤ C * δ ^ η * volume.real (ball x r)
 
 /-- This is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def MB_p {ι : Type*} [Fintype ι] (p : ℝ) (ℬ : ι → X × ℝ) (u : X → ℂ) (x : X) : ℝ≥0∞ :=
