@@ -9,7 +9,7 @@ open MeasureTheory Metric Bornology Set
 open scoped NNReal ENNReal
 noncomputable section
 
-#check VitaliFamily
+-- #check VitaliFamily
 
 variable {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E] [NormedSpace ℝ E]
   [MeasurableSpace E] [BorelSpace E]
