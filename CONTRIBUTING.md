@@ -31,4 +31,4 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `T_*f(x)`       | `ANCZOperator K f x`       | The associated nontangential Calderon Zygmund operator |
 | `Tf(x)`       | `CarlesonOperator K f x` | The generalized Carleson operator        |
 | `Tₚf(x)`       | `T p f x`       |         |
-|        |        |         |
+| `e(x)`       | `Complex.exp (Complex.I * x)` |         |

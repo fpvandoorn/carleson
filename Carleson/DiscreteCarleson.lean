@@ -7,21 +7,15 @@ open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Borno
 open scoped ENNReal
 noncomputable section
 
-/- The constant used in Proposition 2.0.2 -/
-def C2_0_2 (a : ℝ) (q : ℝ) : ℝ := 2 ^ (440 * a ^ 3) / (q - 1) ^ 4
-
-lemma C2_0_2_pos {a q : ℝ} : C2_0_2 a q > 0 := sorry
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X]
 
--- variable {X : Type*} {a : ℝ} [MetricSpace X] [DoublingMeasure X (2 ^ a)] [Inhabited X]
--- variable {τ q q' D κ : ℝ} {C₀ C : ℝ}
--- variable [CompatibleFunctions ℝ X (2 ^ a)] [IsCancellative X τ]
--- variable {Q : X → Θ X} {S : ℤ} {o : X} [TileStructure Q D κ S o]
--- variable {F G : Set X} {σ₁ σ₂ : X → ℤ} {Q : X → Θ X}
--- variable (K : X → X → ℂ) [IsCZKernel τ K]
+/- The constant used in Proposition 2.0.2 -/
+def C2_0_2 (a : ℝ) (q : ℝ) : ℝ := 2 ^ (440 * a ^ 3) / (q - 1) ^ 4
+
+lemma C2_0_2_pos {a q : ℝ} : C2_0_2 a q > 0 := sorry
 
 theorem discrete_carleson [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o] :
     ∃ G', Measurable G' ∧ 2 * volume G' ≤ volume G ∧
