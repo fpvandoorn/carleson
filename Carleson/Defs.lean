@@ -253,6 +253,8 @@ and `CompatibleFunctions` -/
 @[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
 @[simp] def defaultτ (a : ℝ) : ℝ := a⁻¹
 
+lemma defaultD_pos (a : ℝ) : 0 < defaultD a := Real.rpow_pos_of_pos zero_lt_two _
+
 
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`

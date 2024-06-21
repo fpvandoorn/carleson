@@ -81,10 +81,17 @@ def C2_1_3 (a : ℝ) : ℝ := 2 ^ (102 * a ^ 3)
 /-- The constant appearing in part 3 of Lemma 2.1.3. -/
 def D2_1_3 (a : ℝ) : ℝ := 2 ^ (150 * a ^ 3)
 
+--1.0.14. Might need condition on K
+lemma kernel_bound {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} (hxy : x ≠ y) :
+    ‖Ks s x y‖₊ ≤ 2^(a^3) / volume.nnreal (ball x (dist x y)) := by
+  sorry
+
+-- 2.1.3
 lemma norm_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} :
     ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by
   sorry
 
+-- 2.1.3
 lemma norm_Ks_sub_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y y' : X} :
     ‖Ks s x y - Ks s x y'‖ ≤
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ a⁻¹ := by

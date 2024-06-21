@@ -20,6 +20,8 @@ def maximalFunction (μ : Measure X) (𝓑 : Set (X × ℝ)) (p : ℝ) (u : X �
   (⨆ z ∈ 𝓑, (ball z.1 z.2).indicator (x := x)
   fun _ ↦ ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z.1 z.2)) ^ p⁻¹
 
+abbrev MB (μ : Measure X) (𝓑 : Set (X × ℝ)) (u : X → E) (x : X) := maximalFunction μ 𝓑 1 u x
+
 -- old
 -- /-- Hardy-Littlewood maximal function -/
 -- def maximalFunction (μ : Measure X) (f : X → E) (x : X) : ℝ :=
