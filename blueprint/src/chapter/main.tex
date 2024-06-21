@@ -7026,8 +7026,7 @@ This gives the desired bound for the measure of $F_2$.
 \label{Cotlar-estimate}
 \uses{Cotlar-control, Cotlar-sets}
 Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
-defined in Proposition
-\ref{Hardy-Littlewood}.
+defined in \Cref{Hardy-Littlewood}.
 Then for all $x\in X$
 \begin{equation}\label{eq-cotlar-estimate}
 |H_{r_1}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{23} Mg(x)
@@ -7491,181 +7490,115 @@ We now prove \Cref{Hilbert-strong-2-2}.
 \section{Calder\'on-Zygmund Decomposition}
 \label{subsec-CZD}
 
-For $I=[s, t)\subset \mathbb{R}$, we define
-\begin{equation}
-    \label{eq-bisec}
-    \textrm{bi} (I):= \left\{\left[s, \frac{s+t}{2}\right), \left[\frac{s+t}{2}, t\right)\right\}.
-\end{equation}
-
-In what follows, we write $\mu$ for the Lebesgue measure on $\R$.
-
-\begin{lemma}[interval bisection]
-\label{interval-bisection}
-    Let $I=[s, t)\subset \mathbb{R}$ be a bounded, right-open interval. Let $I_1, I_2\in \textrm{bi} (I)$ with $I_1\neq I_2$. Then
-    \begin{equation}
-        \label{eq-bi-size}
-        \mu (I_1)=\mu(I_2)=\frac{\mu(I)}{2}.
-    \end{equation}
-    Further,
-    \begin{equation}
-        \label{eq-bi-union}
-        I=I_1\cup I_2,
-    \end{equation}
-    and the intervals $I_1$ and $I_2$ are disjoint.
-\end{lemma}
-\begin{proof}
-    This in some form can be taken from the Lean library.
-\end{proof}
-For a bounded interval $I=[a, b)\subset \mathbb{R}$ and a non-negative integer $n$, we inductively define
-\begin{equation}
-    \label{eq-ch-I}
-    \textrm{ch}_0(I):=\{I\}, \qquad \textrm{ch}_n(I)=\cup_{J\in \textrm{ch}_{n-1}(J)} \textrm{bi} (J).
-\end{equation}
-
-\begin{lemma}[bisection children]
-    \label{bisection-children}
-    \uses{interval-bisection}
-    Let $I=[s, t)$ and let $n$ be a non-negative integer. Then the intervals in $\textrm{ch}_n(I)$ are pairwise disjoint. For any $J\in \textrm{ch}_n(I)$,
-    \begin{equation}
-        \label{eq-ch-size}
-        \mu(J)=\frac{\mu(I)}{2^{n}}=\frac{t-s}{2^n}.
-    \end{equation}
-    Further,
-    \begin{equation}
-        \label{eq-ch-cover}
-        I= \cup_{J\in \textrm{ch}_n(I)} J
-    \end{equation}
-    and
-    \begin{equation}
-        \label{eq-ch-card}
-        |\textrm{ch}_n(I)|= 2^{n+1}.
-    \end{equation}
-\end{lemma}
-\begin{proof}
-This follows by induction on $n$, using \Cref{interval-bisection}.
-\end{proof}
-
-
 \begin{lemma}[Lebesgue differentiation]
     \label{Lebesgue-differentiation}
     Let $f$ be a bounded measurable function with bounded support. Then for $\mu$ almost every $x$, we have
-    $$\frac{1}{\mu(I_n)}\int_{I_n} f(y)\, dy= f(x),$$
-    where $\{I_n\}_{n\geq 1}$ is a sequence of intervals such that $x\in I_n$ for each $n\geq 1$ and $$\lim_{n\to \infty} \mu(I_n)=0.$$
+    $$\frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
+    where $\{B_n\}_{n\geq 1}$ is a sequence of balls such that $x\in B_n$ for each $n\geq 1$ and $$\lim_{n\to \infty} \mu(B_n)=0.$$
 \end{lemma}
 \begin{proof}
     This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
 \end{proof}
 
-\begin{lemma}[stopping time]
-   \label{stopping-time}
-   \uses{bisection-children,Lebesgue-differentiation}
-   Let $f$ be a bounded, measurable function with bounded support on $\mathbb{R}$. Let $\alpha>0$. Then there exists $A\subset \mathbb{R}$ such that the following properties \eqref{eq-CZ-good-set}, \eqref{eq-CZ-good-set-comp}, \eqref{eq-CZ-bad-sets-1}, \eqref{eq-CZ-bad-sets-2}, and \eqref{eq-CZ-meas-b-set} are satisfied. For all $x\in A$
-    \begin{equation}
-    \label{eq-CZ-good-set}
-        |f(x)|\leq \alpha.
-    \end{equation}
-    The set $\mathbb{R}\setminus A$ can be decomposed into a countable union of intervals
-    \begin{equation}
-        \label{eq-CZ-good-set-comp}
-        \mathbb{R}\setminus A= \cup_{j} I_j= \cup_{j} [s_j, t_j),
-    \end{equation}
-    such that
-   \begin{equation}
-   \label{eq-CZ-bad-sets-1}
-    [s_j, t_j)\cap [s_{j'}, t_{j'})=\emptyset \text{ for } j\neq j' \,.
-   \end{equation}
-   For each $j$,
-   \begin{equation}
-       \label{eq-CZ-bad-sets-2}
-       \frac{\alpha}{2}\leq \frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy\leq \alpha.
-   \end{equation}
-   Further,
-   \begin{equation}
-       \label{eq-CZ-meas-b-set}
-        \sum_{j}(t_j-s_j)\leq \frac{2}{\alpha}\int |f(y)|\, dy\,.
-   \end{equation}
-\end{lemma}
-\begin{proof}
-    Since $f$ is bounded with bounded support, there exists a non-negative integer $\ell$ such that
-    \begin{equation}
-        \label{eq-f-supp}
-        f(x)=0 \textrm{ for } x\not\in [-2^{\ell-1}, 2^{\ell-1})\,,
-    \end{equation}
-    and
-    $$2^{-\ell}\int_{-2^{\ell-1}}^{2^{\ell-1}} |f(y)|\, dy< \alpha\,.$$
-    Let $$I_0:=[-2^{\ell}, 2^{\ell}),\qquad \mathcal{Q}_0:=\{I_0\}\,,$$
-    and
-    $$\Tilde{\mathcal{Q}}_1:=\textrm{bi}(I_0).$$
-    For $n\geq 1$, we inductively define
-    \begin{equation*}
-        {\mathcal{Q}}_n:=\left\{I\in \Tilde{\mathcal{Q}}_n: \frac{1}{\mu(I)}\int_{I} |f(y)|\, dy> \frac{\alpha}{2}\right\}\,,
-    \end{equation*}
-    and
-    \begin{equation*}
-     \Tilde{\mathcal{Q}}_{n+1}:=\cup_{I\in {\Tilde{\mathcal{Q}}}_n\setminus \mathcal{Q}_n} \textrm{bi} (I)\,.
-    \end{equation*}
-Finally, let
-\begin{equation*}
-    \mathcal{Q}:=\cup_{n\geq 1} \mathcal{Q}_n\,.
-\end{equation*}
-
-For each $n$ we have
-$$\mathcal{Q}_n\subseteq \textrm{ch}_n(I_0).$$
-Therefore, by \Cref{bisection-children},
-$$|\mathcal{Q}_n|\leq \frac{\mu(I_0)}{2^n}= 2^{\ell+1-n}.$$
-It follows that $\mathcal{Q}$ is a countable union of finite sets and hence, is countable itself. Let $\{I_j\}_{j\geq 1}$ be an enumeration of this set, with
-$$I_j:=[s_j, t_j),$$
-for $s_j, t_j\in I_0$ and $s_j<t_j$.
-We set
-\begin{equation*}
-    A:=\mathbb{R}\setminus \cup_{j\geq 1} [s_j, t_j).
-\end{equation*}
-Then \eqref{eq-CZ-good-set-comp} holds by definition. We next show \eqref{eq-CZ-bad-sets-1}. Let $I_j, I_{j'}\in \mathcal{Q}$. Then, there exist $1\leq n, n'$ such that $I_j\in \mathcal{Q}_n$ and $I_{j'}\in \mathcal{Q}_{n'}$. If $n=n'$, \eqref{eq-CZ-bad-sets-1} follows from \Cref{bisection-children} since $\mathcal{Q}_n\subseteq \textrm{ch}_n(I_0).$ Otherwise, assume without loss of generality that $n<n'$. Then by construction, there exists $J\in \Tilde{\mathcal{Q}}_{n}\setminus {\mathcal{Q}_n}$ such that $I_{j'} \subset J$. Since $I_{j}\in \mathcal{Q}_n$, it follows that $I_j\neq J$. Since $I_j, J\in \Tilde{\mathcal{Q}}_{n}\subset \textrm{ch}_n(I_0)$, by \Cref{bisection-children}, we deduce that they are disjoint. Since $I_{j'}\subset J$, we conclude that $I_j$ and
-$I_{j'}$ are disjoint as well. This proves \eqref{eq-CZ-bad-sets-1}.
-
-To see \eqref{eq-CZ-bad-sets-2}, let $I_j=(s_j, t_j)\in \mathcal{Q}$. Then $I_j\in \mathcal{Q}_n$ for some $n\geq 1$. By definition of $\mathcal{Q}_n$, we have
-$$\frac{\alpha}{2}<\frac{1}{\mu(I)}\int_{I} |f(y)|\, dy=\frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy.$$
-As $I_j\in \mathcal{Q}_n\subseteq \Tilde{\mathcal{Q}_{n}}$, by definition of the latter set, there exists $J\in \Tilde{\mathcal{Q}}_{n-1}\setminus \mathcal{Q}_{n-1}$ with $I\in \textrm{bi} (J)$. Since $J\not\in \mathcal{Q}_{n-1}$, we conclude that
-$$\frac{1}{\mu(J)}\int_J |f(y)|\, dy\leq \frac{\alpha}{2}.$$
-Using \Cref{interval-bisection} and the above, we get
-$$\frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy=\frac{1}{\mu(I)}\int_I |f(y)|\, dy\leq \frac{2}{\mu(J)} \int_J |f(y)|\, dy\leq \alpha.$$
-This establishes \eqref{eq-CZ-bad-sets-2}. Using this, we see that for each $j$, we have
-$$t_j-s_j\leq \frac{2}{\alpha}\int_{s_j}^{t_j} |f(y)|\, dy.$$
-Summing up in $j$ and using the disjointedness property \eqref{eq-CZ-bad-sets-1}, we get
-$$\sum_{j} (t_j-s_j)\leq \frac{2}{\alpha}\int_{s_j}^{t_j} |f(y)|\, dy= \frac{2}{\alpha}\int  |f(y)|\, dy.$$
-
-Finally, we show $\eqref{eq-CZ-good-set}$. Let $x\in A$. If $x\not \in [-2^{\ell}, 2^{\ell}]$, then by \eqref{eq-f-supp} that $f(x)=0$. Thus \eqref{eq-CZ-good-set} is true in this case. Alternately, let $x\in I_0\cap A$. Then for each $n$, there exists $I(n)\in \Tilde{\mathcal{Q}}_n$ such that $x\in I(n)$ and
-\begin{equation}
-    \label{eq-avg-In}
-    \frac{1}{\mu(I(n))}\int_{I(n)} |f(y)| dy\leq {\alpha}.
-\end{equation}
-Since $\mu(I(n))=2^{\ell+1-n}$, we have
-$$\lim_{n\to \infty} \mu(I(n))=0.$$
-By \Cref{Lebesgue-differentiation}, we also have
-\begin{equation*}
- \lim_{n\to \infty}\frac{1}{\mu(I(n))}\int_{I(n)} |f(y)| dy= |f(x)|
-\end{equation*}
-for almost every $x\in A$.
-Combining the above with \eqref{eq-avg-In}, we conclude that
-$$|f(x)|\leq \alpha.$$
-This finishes the proof of \eqref{eq-CZ-good-set}, and hence the lemma.
-\end{proof}
-
 Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
 It is classical and can be found in \cite{stein-book}.
+%Let $\bar B (x,r) := \{y\in X : \rho(x,y) \le r\}$ denote the closed ball with center $x$ and radius $r$.
+\begin{lemma}[Vitali covering]
+    \label{Vitali-covering}
+    \leanok
+    Let $B_i$, $i\in I$, be a family of balls with center $x_i$ and radius $r_i$ such that $\sup_{i\in I} r_i < \infty$. Then there exists $J\subset I$ such that
+    \begin{equation}
+        \label{vitali-balls-disjoint}
+        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j', \, j,j' \in J
+    \end{equation}
+    and
+    \begin{equation}
+        \label{vitali-enlarged-balls-covering}
+        \forall i\in I, \exists j \in J, B_i \subset B (x_j, 6r_j) .
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
+\end{proof}
 
+The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional explicit statement and proof of the bounded intersection property, as well as countability of the disjoint family. The assumption on the boundedness of $O$ is not necessary but it simplifies the proof here because then we can use \Cref{Vitali-covering}, which is already in mathlib.
+\begin{lemma}[Ball covering]
+    \label{ball-covering}
+    Given an open, bounded set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
+    \begin{equation}
+        \label{balls-disjoint}
+        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j'
+    \end{equation}
+    and for $B_j^* := B(x_j, 6r_j)$,
+    \begin{equation}
+        \label{balls-covering}
+        \bigcup_j B_j^* = O
+    \end{equation}
+    and for $B_j^{**} := B(x_j, 19r_j)$,
+    \begin{equation}
+        \label{enlarged-balls-intersect-complement}
+        B_j^{**} \cap (X \setminus O) \ne \emptyset \quad \text{ for all } j
+    \end{equation}
+    and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{7a}$ of the $B_j^*$.
+\end{lemma}
+\begin{proof}
+Define for $x\in O$,
+\begin{equation}
+    \delta(x):= \sup \{\delta\in\R : B(x,\delta)\subset O\}.
+\end{equation}
+Since $O$ is open, bounded, and $O\ne X$, we have
+\begin{equation}
+    0 < \delta(x) \le R
+\end{equation}
+for some constant $R\in\R$.
+Applying \Cref{Vitali-covering} to $\{B(x,\frac{\delta(x)}{18}) : x \in O\}$, we obtain a family of balls $B_j = B(x_j, \frac{\delta(x_j)}{18}), j \in J$ such that \eqref{balls-disjoint}, \eqref{balls-covering} and \eqref{enlarged-balls-intersect-complement} all hold.
+It remains to show that the family is countable and has the bounded intersection property.
+
+For countability, we show that we can lower bound the volume of $B_j$ only in terms of its radius $r_j:=\frac{\delta(x_j)}{18}$ (and thus for all $q\in\Q_+$, there are only finitely many $j\in J$ with $r_j \ge q$): Since $O$ is bounded, there exists $\tilde x\in O$, $\tilde R>0$ such that $O\subset B(\tilde x, \tilde R)$. Now, for all $j\in J$,
+\begin{equation*}
+    \mu(B(\tilde x, \tilde R)) \le \mu(B(x_j, 2 \tilde R)) = \mu(B(x_j, \frac{2 \tilde R}{r_j} r_j))
+    \le 2^{a\log_2{\lceil \frac{2 \tilde R}{r_j}\rceil}} \mu(B_j),
+\end{equation*}
+and thus
+\begin{equation}
+    \mu(B_j) \ge 2^{-a\log_2{\lceil \frac{2 \tilde R}{r_j}\rceil}} \mu(B(\tilde x, \tilde R)).
+\end{equation}
+%TODO: Provide more details for the previous step?
+We now turn to the bounded intersection property. First observe that for $j,j'\in J$,  if $B_j^* \cap B_{j'}^* \ne \emptyset$, then
+\begin{equation*}
+    \delta(x) \le \rho(x,y) + \delta(y) \le (\frac{6\delta(x)}{19} + \frac{6\delta(y)}{19}) + \delta(y) \le \frac{\delta(x)}{3} + \frac{4\delta(a)}{3},
+\end{equation*}
+so
+\begin{equation}
+    \label{control-distance-growth}
+    \delta(x) \le 2 \delta(y).
+\end{equation}
+Now assume that for some $j_1,\dots,j_N$,
+\begin{equation}
+    z\in \bigcap_{k=1}^N B_{j_k}^*.
+\end{equation}
+Then for all $1\le k \le N$, $B(z,\frac{\delta(z)}{18}) \subset B(x_{j_k}, 7r_j)$. Using \eqref{balls-disjoint} and \eqref{control-distance-growth}, we obtain
+\begin{align}
+    N \mu(B(z,\frac{\delta(z)}{18})) &\le \sum_{k=1}^N \mu(B(x_{j_k}, 7r_j)) \le 2^{3a} \sum_{k=1}^N \mu(B_{j_k}) \\
+    &= 2^{3a} \mu(\bigcup_{k=1}^N B_{j_k}) \le 2^{3a} \mu(B(z,\frac{14\delta(z)}{18})) \le 2^{7a} \mu(B(z,\frac{\delta(z)}{18}))
+\end{align}
+and conclude $N\le 2^{7a}$.
+% TODO: We used that $0<\mu(B(z,\frac{\delta(z)}{18}))<\infty$. Is that guaranteed in our setting?
+\end{proof}
+Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
     \uses{stopping-time}
-    Let $f$ be a bounded, measurable function with bounded support. Let $\alpha>0$ and $\gamma\in (0, 1)$. Then there exists a measurable functions $g$, a countable family of disjoint intervals $I_j = [s_j, t_j)$, and a countable family of measurable functions $\{g_j\}_{j\geq 1}$ such that for almost every $x \in \R$
+    Let $f$ be a bounded, measurable function with bounded support and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
+    Then there exists a measurable functions $g$, a countable family of closed balls $B_j$ such that each $x\in X$ is contained in at most $2^{7a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for almost every $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
-       f(x)= g(x)+ \sum_{j\geq 1} b_j(x)
+       f(x)= g(x)+ \sum_{j} b_j(x)
     \end{equation}
-    and such that the following holds. For almost every $x\in \mathbb{R}$,
+    and such that the following holds. For almost every $x\in X$,
     \begin{equation}
         \label{eq-g-max}
-       |g(x)|\leq \gamma\alpha\,.
+       |g(x)|\leq \alpha\,.
     \end{equation}
     We have
     \begin{equation}
@@ -7675,32 +7608,42 @@ It is classical and can be found in \cite{stein-book}.
     For every $j$
     \begin{equation}
         \label{eq-supp-bj}
-        \operatorname{supp} b_j \subset I_j\,.
+        \operatorname{supp} b_j \subset B_j\,.
     \end{equation}
     For every $j$
     \begin{equation}
         \label{eq-bad-mean-zero}
-        \int_{I_j} b_j(x)\, dx=0,
+        \int_{B_j} b_j(x)\, dx=0,
     \end{equation}
     and
      \begin{equation}
         \label{eq-bj-L1}
-        \int_{I_j} |b_j(x)|\, dx \leq 2\gamma\alpha.
+        \int_{B_j} |b_j(x)|\, dx \leq 2\alpha.
     \end{equation}
     We have
     \begin{equation}
         \label{eq-bset-length-sum}
-        \sum_j (t_j-s_j)\leq \frac{2}{\gamma\alpha}\int |f(y)|\, dy
+        \sum_j \mu(B_j)\leq \frac{2}{\alpha}\int |f(y)|\, dy
     \end{equation}
     and
     \begin{equation}
     \label{eq-b-L1}
-    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy\,.
+    \sum_{j}\int_{B_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy\,.
     \end{equation}
 \end{lemma}
-
+%TODO: Update proof and possibly statement
 \begin{proof}
-    Applying \Cref{stopping-time} to $f$ and $\gamma\alpha$, we obtain a collection $I_j$ of intervals such that the conditions \eqref{eq-CZ-good-set}-\eqref{eq-CZ-meas-b-set} are satisfied. We set $A = \R \setminus \cup_j I_j$ and
+    Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$, with $Mf$ as defined in \Cref{Hardy-Littlewood}.
+    Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$.
+
+    %Assume first that $\mu(X) = \infty$.
+    %TODO: Go on. Maybe the previous statement needs to be improved
+
+    Assume now that $E_\alpha = X$.
+    %Then $\mu(X)<\infty$.
+
+
+    Applying \Cref{stopping-time} to $f$ and $\gamma\alpha$, we obtain a collection $B_j$ of intervals such that the conditions \eqref{eq-CZ-good-set}-\eqref{eq-CZ-meas-b-set} are satisfied. We set $A = \R \setminus \cup_j I_j$ and
 \begin{equation}
     \label{eq-g-def}
     g(x):=\begin{cases}
@@ -7772,14 +7715,15 @@ $$f=g+b=g+\sum_j b_j$$
 such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied with $\gamma=2^{-10}$. For each $j$, let
 \begin{equation}
     \label{eq-Ij-cj}
-    I_j=[s_j, t_j), \qquad c_j:=\frac{s_j+t_j}{2},
+    B_j=B(x_j, r_j),
 \end{equation}
 and
 \begin{equation}
     \label{eq-Ij*}
-    I_j{^*}=\left[s_j-{2(t_j-s_j)}, t_j+2(t_j-s_j)\right].
+    B_j{^*}=B(x_j, 5r_j).
 \end{equation}
-Then $I_j^*$ is an interval with the same center as $I_j$ but with
+Then $B_j^*$ is an interval with the same center as $B_j$ but with
+%TODO: correct this
 \begin{equation}
     \label{eq-Ij*-dim}
     \mu(I_j^*)=5(t_j-s_j)=5\mu(I_j).
@@ -7787,39 +7731,39 @@ Then $I_j^*$ is an interval with the same center as $I_j$ but with
 Let
 \begin{equation}
     \label{eq-omega}
-    \Omega:=\cup_j I_{j}^*.
+    \Omega:=\cup_j B_{j}^*.
 \end{equation}
-By definition, for each $x\in \mathbb{R}\setminus\Omega$ and $y\in I_j$,
+By definition, for each $x\in X\setminus\Omega$ and $y\in B_j$,
 \begin{equation}
     \label{eq-Om-cj}
-    |x-c_j|>\frac{5(t_j-s_j)}{2}\geq 5|y-c_j|,
+    \rho(x,x_j)\ge 5r_j > 5\rho(y,x_j),
 \end{equation}
 and
 \begin{equation}
     \label{eq-Om-y}
-    |x-y|>{2(t_j-s_j)}.
+    \rho(x,y)>4r_j.
 \end{equation}
 It follows by the triangle inequality and subadditivity of $\mu$ that
-$$ \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right) $$
+$$ \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right) $$
 \begin{equation}
 \label{eq-set-dec-1}
- \le \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)+  \mu\left(\{x\in \mathbb{R}: |H_r b(x)|>{\alpha}/2\}\right).
+ \le \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)+  \mu\left(\{x\in X: |H_r b(x)|>{\alpha}/2\}\right).
 \end{equation}
 We estimate using monotonicity of the integral
-$$ \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)\leq
+$$ \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)\leq
 \frac{4}{\alpha^2} \int |H_r g(y)|^2\, dy. $$
 Using \Cref{Hilbert-strong-2-2} followed by \eqref{eq-g-max} and \eqref{eq-g-L1-norm}, we estimate the right hand side above by
 $$\leq 2^{26}\frac{4}{\alpha^2} \int |g(y)|^2\, dy\leq \frac{2^{18}}{\alpha} \int |g(y)|\, dy\leq \frac{2^{18}}{\alpha} \int |f(y)|\, dy.$$
 Thus, we conclude
 \begin{equation}
     \label{eq-g-func-bd}
-    \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)\leq
+    \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)\leq
     \frac{2^{18}}{\alpha} \int |f(y)|\, dy.
 \end{equation}
 Next, we estimate
-$$\mu\left(\{x\in \mathbb{R}: |H_r b(x)|>\alpha/2\}\right) $$
+$$\mu\left(\{x\in X: |H_r b(x)|>\alpha/2\}\right) $$
 $$
-    \le \mu (\Omega) +  \mu\left(\{x\in \mathbb{R}\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
+    \le \mu (\Omega) +  \mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
 $$
 Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
 \begin{equation}
@@ -7828,10 +7772,10 @@ Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
     = 5 \sum_{j} (t_j-s_j)\leq \frac{2^{13}}{\alpha} \int |f(y)|\, dy\,.
 \end{equation}
 We now focus on estimating the remaining term
-$$\mu\left(\{x\in \mathbb{R}\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.$$
-For $x\in \mathbb{R}\setminus\Omega$, define
+$$\mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.$$
+For $x\in X\setminus\Omega$, define
 \begin{align*}
-    \mathcal{J}_1(x)&:=\{j\,:[s_j, t_j)\cap [x-r, x+r]=\emptyset \},\\
+    \mathcal{J}_1(x)&:=\{j\,: B_j \cap [x-r, x+r]=\emptyset \},\\
     \mathcal{J}_2(x)&:=\{j\,: |y-x|=r \text{ for some } y \in [s_j, t_j)\},\\
     \mathcal{J}_3(x)&:=\{j\,: [s_j, t_j)\subset [x-r, x+r]\}.
 \end{align*}
