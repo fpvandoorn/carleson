@@ -348,19 +348,19 @@ def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ
 /-! Lemma 2.1.1 -/
 
 -- Note: See also/prove card_le_of_le_dist in DoublingMeasure.
-lemma mk_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+lemma Θ.mk_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
     (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
     Cardinal.mk 𝓩 ≤ 2 ^ (k * ⌊a⌋₊) := sorry
 
 -- the following two lemma should follow easily from `mk_le_of_le_dist`.
 
-lemma card_le_of_le_dist' {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
     (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
     Nat.card 𝓩 ≤ 2 ^ (k * ⌊a⌋₊) := sorry
 
-lemma finite_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+lemma Θ.finite_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
     (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
     𝓩.Finite := sorry

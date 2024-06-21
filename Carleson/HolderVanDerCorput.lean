@@ -1,5 +1,7 @@
 import Carleson.GridStructure
 
+/-! This should roughly contain the contents of chapter 8. -/
+
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
