@@ -18,7 +18,7 @@ Note: the `s` in this paper is `-s` of Christ's paper.
 class GridStructure
     (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) where
   /-- indexing set for a grid structure -/
-  𝓓 : Type*
+  𝓓 : Type u
   fintype_𝓓 : Fintype 𝓓
   /-- The collection of dyadic cubes -/
   coe𝓓 : 𝓓 → Set X
@@ -46,7 +46,7 @@ section GridStructure
 variable [GridStructure X D κ S o]
 
 variable (X) in
-abbrev 𝓓 : Type* := GridStructure.𝓓 X A
+abbrev 𝓓 : Type u := GridStructure.𝓓 X A
 instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
 
 attribute [coe] GridStructure.coe𝓓
@@ -59,16 +59,40 @@ instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 /- not sure whether these should be simp lemmas, but that might be required if we want to
   conveniently rewrite/simp with Set-lemmas -/
 @[simp] lemma 𝓓.mem_def {x : X} {i : 𝓓 X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
+@[simp] lemma 𝓓.le_def {i j : 𝓓 X} : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 @[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 @[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
 def s : 𝓓 X → ℤ := GridStructure.s
 def c : 𝓓 X → X := GridStructure.c
 
+namespace 𝓓
+
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
-def 𝓓.int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
+def int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
 
 postfix:max "ᵒ" => 𝓓.int
+
+/-- An auxiliary measure used in the well-foundedness of `Ω` in Lemma `tile_structure`. -/
+def opSize (i : 𝓓 X) : ℕ := (S - s i).toNat
+
+open Classical in
+/-- If `i` is not a maximal element, this is the (unique) minimal element greater than i.
+Note, this is not a `SuccOrder`, since an element can be the successor of multiple other elements.
+-/
+def succ (i : 𝓓 X) : 𝓓 X := if h : IsMax i then i else sorry
+
+variable {i j : 𝓓 X}
+
+lemma le_succ : i ≤ i.succ := sorry
+lemma max_of_le_succ : i.succ ≤ i → IsMax i := sorry
+/-- The proof of this is between equations 4.2.7 and 4.2.8. -/
+lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := sorry
+lemma opSize_succ_lt (h : ¬ IsMax i) : i.succ.opSize < i.opSize := sorry
+
+end 𝓓
+
+
 
 variable {i : 𝓓 X}
 
@@ -85,25 +109,24 @@ end GridStructure
 /- The datain a tile structure, and some basic properties.
 This is mostly separated out so that we can nicely define the notation `d_𝔭`.
 Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
-class TileStructureData [FunctionDistances 𝕜 X]
+class PreTileStructure [FunctionDistances 𝕜 X]
   (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
   protected 𝓘 : 𝔓 → 𝓓
   surjective_𝓘 : Surjective 𝓘
-  Ω : 𝔓 → Set (Θ X)
   𝒬 : 𝔓 → Θ X
 
-export TileStructureData (Ω 𝒬)
+export PreTileStructure (𝒬)
 
 section
-variable {Q : X → C(X, ℂ)} [FunctionDistances 𝕜 X] [TileStructureData D κ S o]
+variable {Q : X → C(X, ℂ)} [FunctionDistances 𝕜 X] [PreTileStructure D κ S o]
 
 variable (X) in
-def 𝔓 := TileStructureData.𝔓 𝕜 X A
-instance : Fintype (𝔓 X) := TileStructureData.fintype_𝔓
-def 𝓘 : 𝔓 X → 𝓓 X := TileStructureData.𝓘
-lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → 𝓓 X) := TileStructureData.surjective_𝓘
+def 𝔓 := PreTileStructure.𝔓 𝕜 X A
+instance : Fintype (𝔓 X) := PreTileStructure.fintype_𝔓
+def 𝓘 : 𝔓 X → 𝓓 X := PreTileStructure.𝓘
+lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → 𝓓 X) := PreTileStructure.surjective_𝓘
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
 end
@@ -113,7 +136,8 @@ local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭
 /-- A tile structure. -/
 class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
     (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X)
-    extends TileStructureData D κ S o where
+    extends PreTileStructure D κ S o where
+  Ω : 𝔓 → Set (Θ X)
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p')
   relative_fundamental_dyadic {p p'} (h : 𝓘 p ⊆ 𝓘 p') :
@@ -121,7 +145,7 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
   cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p
   subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1
 
-export TileStructure (biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
+export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
 
 end DoublingMeasure
 

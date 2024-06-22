@@ -32,3 +32,5 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `Tf(x)`       | `CarlesonOperator K f x` | The generalized Carleson operator        |
 | `Tₚf(x)`       | `T p f x`       |         |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
+| `𝔓(I)`       | `𝓘 ⁻¹' {I}` |         |
+|         |       |         |

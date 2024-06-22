@@ -1014,7 +1014,7 @@ with the construction in \cite[Lemma 2.12]{zk-polynomial}.
 \label{tile-structure}
 \lean{tile_existence}
 \leanok
- \uses{ball-metric-entropy,grid-existence,frequency-ball-cover, dyadic-frequency-cubes}
+ \uses{ball-metric-entropy,grid-existence,frequency-ball-cover}
     For a given grid structure $(\mathcal{D}, c,s)$, there exists a tile structure
     $(\fP,\scI,\fc,\fcc,\pc,\ps)$.
 \end{lemma}
@@ -1524,7 +1524,7 @@ Let $I \in \mathcal{D}$. Suppose that
     \label{eq-tile-Z}
     \mathcal{Z} \subset \bigcup_{\mfa \in \tQ(X)} B_{I^\circ}(\mfa, 1)
 \end{equation}
-is such that for any $\mfa, \mfb \in \mathcal{Z}$ we have
+is such that for any $\mfa, \mfb \in \mathcal{Z}$ with $\mfa\ne \mfb$ we have
 \begin{equation}
     \label{eq-tile-disjoint-Z}
     B_{I^\circ}(\mfa, 0.3) \cap B_{I^\circ}(\mfb, 0.3) = \emptyset\,.
@@ -1537,6 +1537,8 @@ In particular, there exists a set $\mathcal{Z}$ satisfying both \eqref{eq-tile-Z
 
 \begin{lemma}[frequency ball cover]
 \label{frequency-ball-cover}
+\leanok
+\lean{frequency_ball_cover}
     For each $I \in \mathcal{D}$, we have
     \begin{equation}
         \label{eq-tile-cover}
@@ -1588,7 +1590,8 @@ and then define iteratively
 
 \begin{lemma}[frequency cube cover]
 \label{frequency-cube-cover}
-
+\leanok
+\lean{iUnion_ball_subset_iUnion_Ω₁, ball_subset_Ω₁, Ω₁_subset_ball}
     For each $I \in \mathcal{D}$, it holds that
     \begin{equation}
     \label{eq-omega1-cover}
@@ -1629,13 +1632,9 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
     \fc(\fp) = \bigcup_{z \in \mathcal{Z}(J) \cap \Omega_1(\fp)} \Omega((J, z)) \cup B_{\fp}(\fcc(\fp),0.2)\,.
 \end{equation}
 
-\begin{lemma}[dyadic frequency cubes]
-\label{dyadic-frequency-cubes}
-\uses{disjoint-frequency-cubes,frequency-cube-cover}
-    With this definition, \eqref{eq-dis-freq-cover}, \eqref{eq-freq-dyadic} and \eqref{eq-freq-comp-ball} hold.
-\end{lemma}
-
-\begin{proof}
+We now verify that $(\fP,\scI,\fc,\fcc,\pc,\ps)$ forms a tile structure.
+\begin{proof}[Proof of \Cref{tile-structure}]
+    \proves{tile-structure}
     First, we prove \eqref{eq-freq-comp-ball}. If $I \in \mathcal{D}$ is maximal in $\mathcal{D}$ with respect to set inclusion, then \eqref{eq-freq-comp-ball} holds for all $\fp \in \fP(I)$ by \eqref{eq-max-omega} and \eqref{eq-omega1-incl}. Now suppose that $I$ is not maximal in $\mathcal{D}$ with respect to set inclusion. Then we may assume by induction that for all $J \in \mathcal{D}$ with $I \subset J$ and all $\fp' \in \fP(J)$, \eqref{eq-freq-comp-ball} holds. Let $J$ be the unique minimal cube in $\mathcal{D}$ with $I \subsetneq J$.
 
     Suppose that $\mfa \in \Omega(\fp)$. If $\mfa\in B_{\fp}(\mathcal{Q}(\fp), 0.2)$, then since
@@ -1683,12 +1682,6 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
     Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(J)$ with $\fcc(\fq) \in B_{J^\circ}(z', 0.7)$. Then by \Cref{frequency-cube-cover} there exists $\fq' \in \fP(J)$ with $\fcc(\fq) \in\Omega_1(\fq')$.
     By \eqref{eq-it-omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\scI(\fp) \subset \scI(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $\ps(\fq') - \ps(\fp) = \ps(\fq) - \ps(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
 \end{proof}
-
-\begin{proof}[Proof of \Cref{tile-structure}]
-    \proves{tile-structure}
-    The results in this section immediately prove \Cref{tile-structure}.
-\end{proof}
-
 
 \chapter{Proof of discrete Carleson}
 \label{proptopropprop}
