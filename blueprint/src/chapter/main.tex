@@ -7489,15 +7489,65 @@ We now prove \Cref{Hilbert-strong-2-2}.
 
 \section{Calder\'on-Zygmund Decomposition}
 \label{subsec-CZD}
+The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref{Hardy-Littlewood} (and maybe it should become part of that?).
+\begin{lemma} [Maximal theorem]
+    \label{maximal-theorem}
+    Let $f: X \to \C$ be bounded, measurable, with bounded support and let $\alpha > 0$. For $Mf$ as in \Cref{Hardy-Littlewood},
+    \begin{equation}
+        \label{maximal-theorem-equation}
+        \mu(\{x\in X : Mf(x) > \alpha\}) \le \frac{2^{2a}}{\alpha} \int |f(y)|\, d\mu(y).
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    By definition, for each $x\in \{x\in X : Mf(x) > \alpha\}$, there exists a ball $B_x$ so that $x\in B_x$ and
+    \begin{equation}
+        \label{maximal-theorem-a}
+        \alpha \mu(B_x) < \int_{B_x} |f(y)|\, d\mu(y).
+    \end{equation}
+    Since $\{x\in X : Mf(x) > \alpha\}$ is open and $\mu$ is inner regular on open sets, it suffices to show that
+    \begin{equation*}
+        \mu(E) \le \frac{2^{2a}}{\alpha} \int |f(y)|\, d\mu(y)
+    \end{equation*}
+    for every compact $E\subset \{x\in X : Mf(x) > \alpha\}$.
+    For such an $E$, by compactness, we can select a finite subcollection $\mathcal{B} \subset \{B_x: x\in E\}$ that covers $E$.
+    By \eqref{eq-besico} applied to \eqref{maximal-theorem-a},
+    \begin{equation}
+        \alpha \mu(\bigcup \mathcal{B}) \le 2^{2a} \int |f(y)|\,d\mu(y)
+    \end{equation}
+    and hence
+    \begin{equation*}
+        \mu(E) \le \mu(\bigcup \mathcal{B}) \le \frac{2^{2a}}{\alpha} \int |f(y)|\,d\mu(y).
+    \end{equation*}
+\end{proof}
 
 \begin{lemma}[Lebesgue differentiation]
     \label{Lebesgue-differentiation}
     Let $f$ be a bounded measurable function with bounded support. Then for $\mu$ almost every $x$, we have
-    $$\frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
+    $$\lim_{n\to \infty} \frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
     where $\{B_n\}_{n\geq 1}$ is a sequence of balls such that $x\in B_n$ for each $n\geq 1$ and $$\lim_{n\to \infty} \mu(B_n)=0.$$
 \end{lemma}
 \begin{proof}
     This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
+\end{proof}
+
+\begin{lemma}
+    \label{disjoint-family-countable}
+    In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
+\end{lemma}
+\begin{proof}
+    %TODO: Do we know that X is nonempty?
+    Choose an arbitrary $x\in X$ as reference point. For $q, Q\in\Q_+$, let $J_{q,Q}$ denote the set of all $j\in J$ such that $B_j\subset B(x, Q)$ and $r_j \ge q$. It suffices to show that all the $J_{q,Q}$ are finite.
+    Indeed, for all $j\in J_{q,Q}$,
+    \begin{equation*}
+        \mu(B(x, Q)) \le \mu(B(x_j, 2Q)) = \mu(B(x_j, \frac{2 Q}{r_j} r_j))
+        \le 2^{a\log_2{\lceil \frac{2 Q}{r_j}\rceil}} \mu(B_j).
+    \end{equation*}
+    Since the $B_j$ are disjoint,
+    \begin{equation}
+        |J_{q,Q}| \mu(B(x, Q)) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \sum_{j\in J_{q,Q}} \mu(B_j) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \mu(B(x,Q))
+    \end{equation}
+    and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
+    %TODO: We used that $0<\mu(B(x,Q)<\infty$. Is that guaranteed in our setting?
 \end{proof}
 
 Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
@@ -7521,191 +7571,198 @@ It is classical and can be found in \cite{stein-book}.
     This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
 \end{proof}
 
-The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional explicit statement and proof of the bounded intersection property, as well as countability of the disjoint family. The assumption on the boundedness of $O$ is not necessary but it simplifies the proof here because then we can use \Cref{Vitali-covering}, which is already in mathlib.
+The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional explicit statement and proof of the bounded intersection property, as well as countability of the disjoint family.
 \begin{lemma}[Ball covering]
     \label{ball-covering}
-    Given an open, bounded set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
+    Given an open set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
     \begin{equation}
         \label{balls-disjoint}
         B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j'
     \end{equation}
-    and for $B_j^* := B(x_j, 6r_j)$,
+    and for $B_j^* := B(x_j, 3r_j)$,
     \begin{equation}
         \label{balls-covering}
         \bigcup_j B_j^* = O
     \end{equation}
-    and for $B_j^{**} := B(x_j, 19r_j)$,
+    and for $B_j^{**} := B(x_j, 7r_j)$,
     \begin{equation}
         \label{enlarged-balls-intersect-complement}
         B_j^{**} \cap (X \setminus O) \ne \emptyset \quad \text{ for all } j
     \end{equation}
-    and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{7a}$ of the $B_j^*$.
+    and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{6a}$ of the $B_j^*$.
 \end{lemma}
 \begin{proof}
 Define for $x\in O$,
 \begin{equation}
     \delta(x):= \sup \{\delta\in\R : B(x,\delta)\subset O\}.
 \end{equation}
-Since $O$ is open, bounded, and $O\ne X$, we have
+Since $O$ is open, and $O\ne X$, we have
 \begin{equation}
-    0 < \delta(x) \le R
+    0 < \delta(x) < \infty
 \end{equation}
-for some constant $R\in\R$.
-Applying \Cref{Vitali-covering} to $\{B(x,\frac{\delta(x)}{18}) : x \in O\}$, we obtain a family of balls $B_j = B(x_j, \frac{\delta(x_j)}{18}), j \in J$ such that \eqref{balls-disjoint}, \eqref{balls-covering} and \eqref{enlarged-balls-intersect-complement} all hold.
-It remains to show that the family is countable and has the bounded intersection property.
-
-For countability, we show that we can lower bound the volume of $B_j$ only in terms of its radius $r_j:=\frac{\delta(x_j)}{18}$ (and thus for all $q\in\Q_+$, there are only finitely many $j\in J$ with $r_j \ge q$): Since $O$ is bounded, there exists $\tilde x\in O$, $\tilde R>0$ such that $O\subset B(\tilde x, \tilde R)$. Now, for all $j\in J$,
+By Zorn's Lemma, we select a maximal disjoint subfamily of $\{B(x,\frac{\delta(x)}{6}) : x \in O\}$.
+We obtain a (by \Cref{disjoint-family-countable} countable) family of balls $B_j = B(x_j, \frac{\delta(x_j)}{6}), j \in J$ such that \eqref{balls-disjoint}. \eqref{enlarged-balls-intersect-complement} and $\bigcup_j B_j^* \subset O$ are also immediate. For the other inclusion, observe that for $x,y\in X$,  if $B(x,\frac{\delta(x)}{6}) \cap B(y,\frac{\delta(y)}{6}) \ne \emptyset$, then
 \begin{equation*}
-    \mu(B(\tilde x, \tilde R)) \le \mu(B(x_j, 2 \tilde R)) = \mu(B(x_j, \frac{2 \tilde R}{r_j} r_j))
-    \le 2^{a\log_2{\lceil \frac{2 \tilde R}{r_j}\rceil}} \mu(B_j),
-\end{equation*}
-and thus
-\begin{equation}
-    \mu(B_j) \ge 2^{-a\log_2{\lceil \frac{2 \tilde R}{r_j}\rceil}} \mu(B(\tilde x, \tilde R)).
-\end{equation}
-%TODO: Provide more details for the previous step?
-We now turn to the bounded intersection property. First observe that for $j,j'\in J$,  if $B_j^* \cap B_{j'}^* \ne \emptyset$, then
-\begin{equation*}
-    \delta(x) \le \rho(x,y) + \delta(y) \le (\frac{6\delta(x)}{19} + \frac{6\delta(y)}{19}) + \delta(y) \le \frac{\delta(x)}{3} + \frac{4\delta(a)}{3},
+    \delta(x) \le \rho(x,y) + \delta(y) \le (\frac{\delta(x)}{6} + \frac{\delta(y)}{6}) + \delta(y) = \frac{\delta(x)}{6} + \frac{7\delta(a)}{6},
 \end{equation*}
 so
 \begin{equation}
     \label{control-distance-growth}
     \delta(x) \le 2 \delta(y).
 \end{equation}
-Now assume that for some $j_1,\dots,j_N$,
+Now let $z\in X$. By maximality, there exists some $j\in J$ with $B(z,\frac{\delta(z)}{6}) \cap B_j \ne \emptyset$. By \eqref{control-distance-growth},
+\begin{equation*}
+    \rho(z,x_j)\le \frac{\delta(z)}{6} + \frac{\delta(x_j)}{6} \le \frac{3\delta(x_j)}{6} = 3r_j
+\end{equation*}
+and thus $z\in B_j^*$.
+
+We now turn to the bounded intersection property. Assume that for some $j_1,\dots,j_N$,
 \begin{equation}
     z\in \bigcap_{k=1}^N B_{j_k}^*.
 \end{equation}
-Then for all $1\le k \le N$, $B(z,\frac{\delta(z)}{18}) \subset B(x_{j_k}, 7r_j)$. Using \eqref{balls-disjoint} and \eqref{control-distance-growth}, we obtain
+Similarly as above, observe for $1\le k \le N$,
+\begin{equation}
+    \label{control-distance-growth-b}
+    \delta(z) \le \rho(z,x_{j_k}) + \delta(x_{j_k}) \le \frac{\delta(x_{j_k})}{2} + \delta(x_{j_k}) = \frac{3\delta(x_{j_k})}{2}
+\end{equation}
+and
+\begin{equation*}
+    \delta(x_{j_k}) \le \rho(x_{j_k},z) + \delta(z) \le \frac{\delta(x_{j_k})}{2} + \delta(z),
+\end{equation*}
+so
+\begin{equation}
+    \label{control-distance-growth-c}
+    \delta(x_{j_k}) \le 2 \delta(z).
+\end{equation}
+
+By \eqref{control-distance-growth-b} and \eqref{control-distance-growth-c}, for all $1\le k \le N$, $B(z,\frac{\delta(z)}{6}) \subset B(x_{j_k}, 5r_{j_k})$ and $B_{j_k} \subset B(z,\frac{8\delta(z)}{6})$. Using this and \eqref{balls-disjoint}, we obtain
 \begin{align}
-    N \mu(B(z,\frac{\delta(z)}{18})) &\le \sum_{k=1}^N \mu(B(x_{j_k}, 7r_j)) \le 2^{3a} \sum_{k=1}^N \mu(B_{j_k}) \\
-    &= 2^{3a} \mu(\bigcup_{k=1}^N B_{j_k}) \le 2^{3a} \mu(B(z,\frac{14\delta(z)}{18})) \le 2^{7a} \mu(B(z,\frac{\delta(z)}{18}))
+    N \mu(B(z,\frac{\delta(z)}{6})) &\le \sum_{k=1}^N \mu(B(x_{j_k}, 5r_j)) \le 2^{3a} \sum_{k=1}^N \mu(B_{j_k}) \\
+    &= 2^{3a} \mu(\bigcup_{k=1}^N B_{j_k}) \le 2^{3a} \mu(B(z,\frac{8\delta(z)}{6})) \le 2^{6a} \mu(B(z,\frac{\delta(z)}{6}))
 \end{align}
-and conclude $N\le 2^{7a}$.
-% TODO: We used that $0<\mu(B(z,\frac{\delta(z)}{18}))<\infty$. Is that guaranteed in our setting?
+and conclude $N\le 2^{6a}$.
+% TODO: We used that $0<\mu(B(z,\frac{\delta(z)}{6}))<\infty$. Is that guaranteed in our setting?
 \end{proof}
+
 Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
     \uses{stopping-time}
     Let $f$ be a bounded, measurable function with bounded support and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
-    Then there exists a measurable functions $g$, a countable family of closed balls $B_j$ such that each $x\in X$ is contained in at most $2^{7a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for almost every $x \in X$
+    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
-       f(x)= g(x)+ \sum_{j} b_j(x)
+       f(x)= g(x) + \sum_{j} b_j(x)
     \end{equation}
     and such that the following holds. For almost every $x\in X$,
     \begin{equation}
         \label{eq-g-max}
-       |g(x)|\leq \alpha\,.
+       |g(x)|\leq 2^{3a} \alpha\,.
     \end{equation}
     We have
     \begin{equation}
         \label{eq-g-L1-norm}
-        \int |g(y)|\, dy\leq \int |f(y)|\, dy.
+        \int |g(y)|\, d\mu(y)\leq \int |f(y)|\, d\mu(y).
     \end{equation}
     For every $j$
     \begin{equation}
         \label{eq-supp-bj}
-        \operatorname{supp} b_j \subset B_j\,.
+        \operatorname{supp} b_j \subset B_j^*\,.
     \end{equation}
     For every $j$
     \begin{equation}
         \label{eq-bad-mean-zero}
-        \int_{B_j} b_j(x)\, dx=0,
+        \int_{B_j^*} b_j(x)\, d\mu(x)=0,
     \end{equation}
     and
      \begin{equation}
         \label{eq-bj-L1}
-        \int_{B_j} |b_j(x)|\, dx \leq 2\alpha.
+        \int_{B_j^*} |b_j(x)|\, d\mu(x) \leq 2^{2a+1} \alpha \mu(B_j^*).
     \end{equation}
     We have
     \begin{equation}
         \label{eq-bset-length-sum}
-        \sum_j \mu(B_j)\leq \frac{2}{\alpha}\int |f(y)|\, dy
+        \sum_j \mu(B_j^*)\leq \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y)
     \end{equation}
     and
     \begin{equation}
     \label{eq-b-L1}
-    \sum_{j}\int_{B_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy\,.
+    \sum_{j}\int_{B_j^*} |b_j(y)|\, d\mu(y)\leq 2 \int |f(y)|\, d\mu(y)\,.
     \end{equation}
 \end{lemma}
-%TODO: Update proof and possibly statement
+
 \begin{proof}
-    Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$, with $Mf$ as defined in \Cref{Hardy-Littlewood}.
-    Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$.
-
-    %Assume first that $\mu(X) = \infty$.
-    %TODO: Go on. Maybe the previous statement needs to be improved
-
-    Assume now that $E_\alpha = X$.
-    %Then $\mu(X)<\infty$.
-
-
-    Applying \Cref{stopping-time} to $f$ and $\gamma\alpha$, we obtain a collection $B_j$ of intervals such that the conditions \eqref{eq-CZ-good-set}-\eqref{eq-CZ-meas-b-set} are satisfied. We set $A = \R \setminus \cup_j I_j$ and
+Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$, with $Mf$ as defined in \Cref{Hardy-Littlewood}.
+Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$. We apply \Cref{ball-covering} with $O=E_\alpha$ to obtain the family $B_j, j\in J,$. Without loss of generality, we can assume $J=\N$. Define
+\begin{equation}
+    Q_j := B_j^* \setminus \left(\bigcup_{i<j} Q_i \cup \bigcup_{i>j} B_i \right).
+\end{equation}
+Then the $B_j\subset Q_j\subset B_j^*$, the $Q_j$ are pairwise disjoint and $\bigcup_j Q_j = E_\alpha$.
+Define
 \begin{equation}
     \label{eq-g-def}
     g(x):=\begin{cases}
-     f(x), & x\in A,\\
-     \frac{1}{\mu(I_j)}\int_{I_j} f(y)\, dy, &x\in (s_j, t_j),\\
-     0, & x\in [s_j, t_j]\setminus (s_j, t_j),
+     f(x), & x\in X\setminus E_\alpha,\\
+     \frac{1}{\mu(Q_j)}\int_{Q_j} f(y)\, d\mu(y), &x\in Q_j,
     \end{cases}
 \end{equation}
 and, for each $j$,
 \begin{equation}
-    b_j(x):=\begin{cases}
-        f(x)-\frac{1}{\mu(I_j)}\int_{I_j} f(y)\, dy, &x\in (s_j, t_j),\\
-        0, & x\not\in (s_j, t_j).
-    \end{cases}
+    b_j(x):= \mathbb{1}_{Q_j}(x) \left(f(x)-\frac{1}{\mu(Q_j)}\int_{Q_j} f(y)\, d\mu(y) \right).
 \end{equation}
-Then \eqref{eq-supp-bj} and \eqref{eq-bset-length-sum} are true by construction and \Cref{stopping-time}.
-Further, let $b(x)=\sum_{j} b_j(x).$
-Then
-\begin{equation*}
-    f(x)=g(x)+b(x)=g(x)+\sum_{j} b_j(x) ,
-\end{equation*}
-for all $x$ not in the measure zero set $\cup_j \{s_j, t_j\}.$
-
-For almost every $x\in A$, we get using \eqref{eq-CZ-good-set}
-$$|g(x)|\leq \gamma\alpha\,.$$ In the case when neither of the above is true, we have $g(x)=0$ by definition.
-Thus, we obtain \eqref{eq-g-max}.
+Then \eqref{eq-gb-dec}, \eqref{eq-supp-bj} and \eqref{eq-bad-mean-zero} are true by construction.
+For \eqref{eq-g-max}, we first do the case $x\in X\setminus E_\alpha$. By definition of $Mf$,
+\begin{equation}
+    \frac{1}{\mu(B)}\int_B |f(y)|\,d\mu(y) \le \alpha
+\end{equation}
+for every ball $B\subset X$ with $x\in B$. It follows by \Cref{Lebesgue-differentiation} that for almost every $x\in X\setminus E_\alpha$, $|f(x)|\le \alpha$.
+%TODO: How do we ensure that the sequences required in Lebesgue-differentiation exist for a.e. x?
+In the case $x\in E_\alpha$, there exists some $j\in J$ with $x\in Q_j$ and we have that
+\begin{equation}
+    \label{large-ball-estimate}
+    \frac{1}{\mu(B_j^{**})} \int_{B_j^{**}} |f(y)| \,d\mu(y) \le \alpha
+\end{equation}
+because $B_j^{**}\cap (X\setminus E_\alpha) \ne \emptyset$. We get
+\begin{equation}
+    |g(x)| \le \frac{1}{\mu(Q_j)}\int_{Q_j} |f(y)|\, d\mu(y) \le \frac{1}{\mu(B_j)}\int_{B_j^{**}} |f(y)| \, d\mu(y) \le 2^{3a}\alpha .
+\end{equation}
 
 To prove \eqref{eq-g-L1-norm}, we estimate
-$$\int |g(y)|\, dy\leq \int_A |f(y)|\, dy+ \sum_{j} \int_{I_j}\frac{1}{\mu(I_j)}\int_{I_j}|f(y)|\, dy.$$
-Since the intervals $I_j$ are disjoint, and $A=\mathbb{R}\setminus \cup_j I_j$, we conclude
-$$\int |g(y)|\, dy\leq \int_A |f(y)|\, dy+\sum_{j} \int_{I_j}|f(y)|\, dy= \int |f(y)|\, dy.$$
-This establishes \eqref{eq-g-L1-norm}.
-If $x\in I_j$ for some $j$, \eqref{eq-CZ-bad-sets-2} yields
-$$|g(x)|\leq \frac{1}{\mu(I_j)}\int_{I_j}|f(y)|\, dy\leq \gamma\alpha.$$
-
-
-Further, for each $j$, it follows from the definition of $t_j$ that
-$$ \int_{I_j} b_j(x)\, dx= \int_{I_j} f(x)\, dx-\int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j}f(y)\, dy\, dx$$
-\begin{equation*}
-    =\int_{I_j} f(x)\, dx- \int_{I_j}f(y)\, dy=0.
-\end{equation*}
-This establishes \eqref{eq-bad-mean-zero}.
-
+\begin{align*}
+    \int |g(z)|\, d\mu(z) &\le \int_{X\setminus E_\alpha} |f(z)|\, d\mu(z) + \sum_{j} \int_{Q_j}\frac{1}{\mu(Q_j)}\int_{Q_j}|f(y)|\, d\mu(y)\,d\mu(z) \\
+    &= \int |f(z)|\,d\mu(z).
+\end{align*}
+%This establishes \eqref{eq-g-L1-norm}.
 Using the triangle inequality, we have that
-\begin{equation*}
-    \int_{I_j} |b_j(y)|\, dy\leq \int_{I_j} |f(y)|\, dy + \int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j} |f(x)|\, dx\, dy.
-\end{equation*}
-\begin{equation}
+\begin{align}
     \label{eq-bj-int}
-    =2 \int_{I_j} |f(y)|\, dy.
+    \int_{B_j^*} |b_j(y)|\, dy &\le \int_{Q_j} |f(y)|\, d\mu(y) + \int_{Q_j} \frac{1}{\mu(Q_j)}\int_{Q_j^*} |f(x)|\, d\mu(x)\, d\mu(y) \\
+    &= 2 \int_{Q_j} |f(y)|\, dy.
+\end{align}
+With \eqref{large-ball-estimate}, we estimate further
+\begin{equation}
+    \le 2 \int_{B_j^{**}} |f(y)|\, dy \le 2\mu(B_j^{**})\alpha \le 2^{2a+1} \alpha \mu(B_j^*)
 \end{equation}
-Dividing both sides by $\mu(I_j)$ and using \eqref{eq-CZ-bad-sets-2}, we obtain \eqref{eq-bj-L1}.
+to obtain \eqref{eq-bj-L1}.
+Further, summing up \eqref{eq-bj-int} in $j$ yields \eqref{eq-b-L1}.
+At last, we estimate with \Cref{maximal-theorem}
+\begin{equation}
+    \sum_j \mu(B_j^*) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y),
+\end{equation}
+proving \eqref{eq-bset-length-sum}.
 
-Further, summing up \eqref{eq-bj-int} in $j$ yields
+Assume now that $E_\alpha = X$. Note that this can only happen if $\mu(X)<\infty$.
+Let $B_1^*$ be a ball with $\supp f \subset B_1^*$ and $\mu(X) \le 2^{3a} \mu(B_1^*)$.
+Define
 \begin{equation*}
-    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq \sum_{j}\int_{I_j} |f(y)|\, dy + \sum_{j}\int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j} |f(x)|\, dx\, dy.
+    g := \frac{\mathbb{1}_{\supp f}}{\mu(B_1^*)} \int |f(y)|\,d\mu(y)
 \end{equation*}
-Using the disjointedness of $(s_j, t_j)$, we get
+and
 \begin{equation*}
-    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy.
+    b_1 := f - g.
 \end{equation*}
-This proves \eqref{eq-b-L1}, and completes the proof.
+Then $f = g + b_1$.
+%TODO: finish this part!
 \end{proof}
 
 \begin{proof}[Proof of \Cref{Hilbert-weak-1-1}]
