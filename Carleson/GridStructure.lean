@@ -22,6 +22,7 @@ class GridStructure
   fintype_𝓓 : Fintype 𝓓
   /-- The collection of dyadic cubes -/
   coe𝓓 : 𝓓 → Set X
+  coe𝓓_injective : Injective coe𝓓
   /-- scale functions -/
   s : 𝓓 → ℤ
   /-- Center functions -/
@@ -49,8 +50,9 @@ abbrev 𝓓 : Type* := GridStructure.𝓓 X A
 instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
 
 attribute [coe] GridStructure.coe𝓓
-instance : Coe (𝓓 X) (Set X) := ⟨GridStructure.coe𝓓⟩
-instance : Membership X (𝓓 X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩
+instance : SetLike (𝓓 X) X where
+  coe := GridStructure.coe𝓓
+  coe_injective' := GridStructure.coe𝓓_injective
 instance : HasSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
 instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 

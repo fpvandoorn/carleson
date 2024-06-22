@@ -218,9 +218,11 @@ end
 instance : FunctionDistances ℝ ℝ where
   Θ := ℤ
   coeΘ := integer_linear
+  coeΘ_injective {n m} hnm := by simpa [integer_linear] using hnm 1
   metric := fun x R ↦ sorry
 
-lemma coeΘ_R (n : Θ ℝ) : coeΘ n = integer_linear n := rfl
+lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
+lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
 instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
   eq_zero := sorry
@@ -476,9 +478,8 @@ lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K := b
   apply le_iSup₂_of_le r 1
   apply le_iSup₂_of_le rpos rle1
   apply le_of_eq
-  rw [coeΘ_R, integer_linear, ContinuousMap.coe_mk]
   congr with y
-  push_cast
+  rw [coeΘ_R_C]
   ring_nf
 
 

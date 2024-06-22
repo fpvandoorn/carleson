@@ -1,6 +1,6 @@
 import Carleson.DoublingMeasure
 
-open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology
+open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
 open scoped ENNReal
 noncomputable section
 
@@ -81,6 +81,7 @@ class FunctionDistances (𝕜 : outParam Type*) (X : Type u)
     [NormedField 𝕜] [TopologicalSpace X] where
   Θ : Type u
   coeΘ : Θ → C(X, 𝕜)
+  coeΘ_injective {f g : Θ} (h : ∀ x, coeΘ f x = coeΘ g x) : f = g
   metric : ∀ (_x : X) (_r : ℝ), PseudoMetricSpace Θ
 
 export FunctionDistances (Θ coeΘ)
@@ -88,8 +89,14 @@ export FunctionDistances (Θ coeΘ)
 section FunctionDistances
 variable [FunctionDistances 𝕜 X]
 
-instance : Coe (Θ X) C(X, 𝕜) := ⟨coeΘ⟩
-instance : CoeFun (Θ X) (fun _ ↦ X → 𝕜) := ⟨fun f ↦ coeΘ f⟩
+instance : Coe (Θ X) C(X, 𝕜) := ⟨FunctionDistances.coeΘ⟩
+instance : FunLike (Θ X) X 𝕜 where
+  coe := fun f ↦ (f : C(X, 𝕜))
+  coe_injective' f g hfg := by
+    apply FunctionDistances.coeΘ_injective
+    rw [← funext_iff]
+    exact hfg
+instance : ContinuousMapClass (Θ X) X 𝕜 := ⟨fun f ↦ (f : C(X, 𝕜)).2⟩
 
 set_option linter.unusedVariables false in
 @[nolint unusedArguments]
