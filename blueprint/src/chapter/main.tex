@@ -1179,29 +1179,26 @@ with
 
 
 \begin{lemma}[basic grid structure]
-\label{basic-grid-structure}
-\uses{cover-big-ball}
-   For each $-S\le k\le S$ and $1\le j\le 3$
-   the following holds.
+    \label{basic-grid-structure}
+    \uses{cover-big-ball}
+    For each $-S\le k\le S$ and $1\le j\le 3$
+    the following holds.
 
-   If $j\neq 2$ and for some $x\in X$ and $y_1,y_2\in Y_k$ we have
-   \begin{equation}\label{disji}
-       x\in I_j(y_1,k)\cap I_j(y_2,k),
-   \end{equation}
-then $y_1=y_2$.
+    If $j\neq 2$ and for some $x\in X$ and $y_1,y_2\in Y_k$ we have
+    \begin{equation}\label{disji}
+        x\in I_j(y_1,k)\cap I_j(y_2,k),
+    \end{equation}
+    then $y_1=y_2$.
 
-   If $j\neq 1$, then
-\begin{equation}\label{unioni}
-B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_j(y,k)\, .
-\end{equation}
-We have for each $y\in Y_k$,
-   \begin{equation}\label{squeezedyadic}
-    B(y,\frac 12 D^k) \subset I_3(y,k)\subset
-     B(y,4D^k).
-\end{equation}
-
-
-
+    If $j\neq 1$, then
+    \begin{equation}\label{unioni}
+    B(o, 4D^S-2D^k)\subset \bigcup_{y\in Y_k} I_j(y,k)\, .
+    \end{equation}
+    We have for each $y\in Y_k$,
+    \begin{equation}\label{squeezedyadic}
+        B(y,\frac 12 D^k) \subset I_3(y,k)\subset
+        B(y,4D^k).
+    \end{equation}
 \end{lemma}
 
 \begin{proof}
@@ -1264,62 +1261,58 @@ We make a case distinction and assume first $x\in X_k$. By Definition \eqref{def
 Assume now the case $x\notin X_k$. By \eqref{definei3}, we have $x\in I_2(y,k)$. Moreover, for any $u<y$ in $Y_k$, we have $x\not\in I_3(u,k)$. Let $u<y$. By transitivity of the order in $Y_k$, we conclude $x\not \in I_2(u,k)$. By \eqref{defineij} and the disjointedness property of \Cref{basic-grid-structure}, we have $I_3(y'',k-1)\cap I_2(u,k)= \emptyset$. Similarly, $I_3(y'',k-1)\cap I_1(u,k)= \emptyset$. Hence $I_3(y'',k-1)\cap I_3(u,k)=\emptyset$. As $u<y$ was arbitrary, we conclude with \eqref{definei3} the claim in the given case. This completes the proof of \eqref{wyclaim}, and thus also \eqref{3dyadicproperty}.
 \end{proof}
 
-
-
-
 For $-S\le k'\le k\le S$ and $y'\in Y_{k'}$, $y\in Y_k$
 write $(y',k'|y,k)$ if $I_3(y',k')\subset I_3(y,k)$ and
 \begin{equation}\label{bdcond}
     \inf_{x\in X\setminus I_3(y,k)}\rho(y',x)<6D^{k'}\, .
 \end{equation}
 
-
 \begin{lemma}[transitive boundary]
-\label{transitive-boundary}
-\uses{dyadic-property}
-Assume $-S\le k''< k'< k\le S$ and
-$y''\in Y_{k''}$, $y'\in Y_{k'}$, $y\in Y_k$.
-Assume there is $x\in X$ such that
-\begin{equation}
-x\in I_3(y'',k'')\cap I_3(y',k')\cap I_3(y,k)\, .
-\end{equation}
-If $(y'',k''|y,k)$, the also
-$(y'',k''|y',k')$ and $(y',k'|y,k)$
+    \label{transitive-boundary}
+    \uses{dyadic-property}
+    Assume $-S\le k''< k'< k\le S$ and
+    $y''\in Y_{k''}$, $y'\in Y_{k'}$, $y\in Y_k$.
+    Assume there is $x\in X$ such that
+    \begin{equation}
+    x\in I_3(y'',k'')\cap I_3(y',k')\cap I_3(y,k)\, .
+    \end{equation}
+    If $(y'',k''|y,k)$, the also
+    $(y'',k''|y',k')$ and $(y',k'|y,k)$
 \end{lemma}
 
 \begin{proof}
-As $x\in I_3(y'',k'')\cap I_3(y',k')$ and $k''< k'$, we have by \Cref{dyadic-property} that
-$I_3(y'',k'')\subset I_3(y',k')$. Similarly,
-$I_3(y',k')\subset I_3(y,k)$.
-Pick $x'\in X\setminus I_3(y,k)$ such that
-\begin{equation}\label{yppxp}
-    \rho(y'',x')< 6D^{k''}\, ,
-\end{equation}
-which exists as $(y'',k''|y,k)$. As
-$x'\in X\setminus I_3(y',k')$ as well, we conclude
-$(y'',k''| y',k')$.
-By the triangle inequality, we have
-\begin{equation}
-\rho(y',x')\le \rho(y',x)+\rho(x,y'')+\rho(y'',x')
-\end{equation}
-Using the choice of $x$ and \eqref{squeezedyadic}
-as well as \eqref{yppxp}, we estimate this by
-\begin{equation}
-< 4D^{k'}+4D^{k''}+6D^{k''}\le 6D^{k'}\, ,
-\end{equation}
-where we have used $D>5$ and $k''<k'$.
-We conclude $(y',k'|y,k)$.
+    As $x\in I_3(y'',k'')\cap I_3(y',k')$ and $k''< k'$, we have by \Cref{dyadic-property} that
+    $I_3(y'',k'')\subset I_3(y',k')$. Similarly,
+    $I_3(y',k')\subset I_3(y,k)$.
+    Pick $x'\in X\setminus I_3(y,k)$ such that
+    \begin{equation}\label{yppxp}
+        \rho(y'',x')< 6D^{k''}\, ,
+    \end{equation}
+    which exists as $(y'',k''|y,k)$. As
+    $x'\in X\setminus I_3(y',k')$ as well, we conclude
+    $(y'',k''| y',k')$.
+    By the triangle inequality, we have
+    \begin{equation}
+    \rho(y',x')\le \rho(y',x)+\rho(x,y'')+\rho(y'',x')
+    \end{equation}
+    Using the choice of $x$ and \eqref{squeezedyadic}
+    as well as \eqref{yppxp}, we estimate this by
+    \begin{equation}
+    < 4D^{k'}+4D^{k''}+6D^{k''}\le 6D^{k'}\, ,
+    \end{equation}
+    where we have used $D>5$ and $k''<k'$.
+    We conclude $(y',k'|y,k)$.
 \end{proof}
 
 
 \begin{lemma}[small boundary]
-\label{small-boundary}
-\uses{transitive-boundary}
- Let $K = 2^{4a+1}$. For each $-S+K\le k\le S$ and $y\in Y_k$ we have
-    \begin{equation}
-        \label{new-small-boundary}
-        \sum_{z\in Y_{k-K}: (z,k-K|y,k)}\mu(I_3(z,k-K)) \le \frac 12 \mu(I_3(y,k))\,.
-    \end{equation}
+    \label{small-boundary}
+    \uses{transitive-boundary}
+    Let $K = 2^{4a+1}$. For each $-S+K\le k\le S$ and $y\in Y_k$ we have
+        \begin{equation}
+            \label{new-small-boundary}
+            \sum_{z\in Y_{k-K}: (z,k-K|y,k)}\mu(I_3(z,k-K)) \le \frac 12 \mu(I_3(y,k))\,.
+        \end{equation}
 \end{lemma}
 
 \begin{proof}
@@ -1389,15 +1382,15 @@ This proves the lemma.
 \end{proof}
 
 \begin{lemma}[smaller boundary]
-\label{smaller-boundary}
-\uses{small-boundary}
-Let $K = 2^{4a+1}$
-and let $n\ge 0$ be an integer. Then
-for each $-S+nK\le k\le S$ we have
-   \begin{equation}
-        \label{very-new-small}
-        \sum_{y'\in Y_{k-nK}: (y',k-nK|y,k)}\mu(I_3(y',k-nK)) \le 2^{-n} \mu(I_3(y,k))\,.
-    \end{equation}
+    \label{smaller-boundary}
+    \uses{small-boundary}
+    Let $K = 2^{4a+1}$
+    and let $n\ge 0$ be an integer. Then
+    for each $-S+nK\le k\le S$ we have
+    \begin{equation}
+            \label{very-new-small}
+            \sum_{y'\in Y_{k-nK}: (y',k-nK|y,k)}\mu(I_3(y',k-nK)) \le 2^{-n} \mu(I_3(y,k))\,.
+        \end{equation}
 \end{lemma}
 \begin{proof}
     We prove this by induction on $n$. If $n=0$,
@@ -1405,26 +1398,26 @@ for each $-S+nK\le k\le S$ we have
     $\mu(I_3(y,k))$ by \eqref{disji}. If $n=1$, this follows from \Cref{small-boundary}.
 
     Assume $n>1$ and \eqref{very-new-small} has been proven for $n-1$.
-We write \eqref{very-new-small}
-     \begin{equation}
-             \sum_{y''\in Y_{k-nK}: (y'',k-nK|y,k)}\mu(I_3(y'',k-nK))
+    We write \eqref{very-new-small}
+    \begin{equation}
+        \sum_{y''\in Y_{k-nK}: (y'',k-nK|y,k)}\mu(I_3(y'',k-nK))
     \end{equation}
-     \begin{equation}
-= \sum_{y'\in Y_{k-K}:(y',k-K|y,k)} \left[ \sum_{y''\in Y_{k-nK}: (y'',k-nK|y',k-K)}\mu(I_3(y'',k-nK)) \right]
+    \begin{equation}
+        = \sum_{y'\in Y_{k-K}:(y',k-K|y,k)} \left[ \sum_{y''\in Y_{k-nK}: (y'',k-nK|y',k-K)}\mu(I_3(y'',k-nK)) \right]
     \end{equation}
-Applying the induction hypothesis, this is bounded by
-         \begin{equation}
-= \sum_{y'\in Y_{k-K}:(y',k-K|y,k)} 2^{1-n}\mu(I_3(y',k-K))
+    Applying the induction hypothesis, this is bounded by
+    \begin{equation}
+        = \sum_{y'\in Y_{k-K}:(y',k-K|y,k)} 2^{1-n}\mu(I_3(y',k-K))
     \end{equation}
-Applying \eqref{new-small-boundary} gives
-\eqref{very-new-small}, and proves the lemma.
+    Applying \eqref{new-small-boundary} gives
+    \eqref{very-new-small}, and proves the lemma.
 \end{proof}
 
 \begin{lemma}[boundary measure]
-\label{boundary-measure}
-\uses{smaller-boundary}
- For each $-S\le k\le S$ and $y\in Y_k$ and $0<t<1$
- with $tD^k\ge D^{-S}$ we have
+    \label{boundary-measure}
+    \uses{smaller-boundary}
+    For each $-S\le k\le S$ and $y\in Y_k$ and $0<t<1$
+    with $tD^k\ge D^{-S}$ we have
     \begin{equation}
         \label{old-small-boundary}
         \mu(\{x \in I_3(y,k) \ : \ \rho(x, X \setminus I_3(y,k)) \leq t D^{k}\}) \le D t^\kappa \mu(I_3(y,k))\,.
