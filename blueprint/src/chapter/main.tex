@@ -6308,1200 +6308,71 @@ It follows that for each $z \in B(x,r)$
 This completes the proof.
 
 
-\chapter{Proof of The Classical Carleson Theorem}
 
 
 
-The convergence of partial Fourier sums is proved in
-\Cref{10classical} in two steps. In the first step,
-we establish convergence on a suitable dense subclass of functions. We choose smooth functions as subclass, the convergence is stated in \Cref{convergence-for-smooth} and proved in \Cref{10smooth}.
-In the second step, one controls the relevant error of approximating a general function by a function in
-the subclass. This is stated in \Cref{control-approximation-effect} and proved
-in \Cref{10difference}.
-The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}.
-This latter proof refers to the main Carleson \Cref{metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the nontangential maximal operator $T^*$ defined in \eqref{def-tang-unm-op} is established in \Cref{nontangential-Hilbert} using $L^2$ and weak $L^1$ bounds for the Hilbert transform, Lemmas
-\ref{Hilbert-strong-2-2} and \ref{Hilbert-weak-1-1}. These lemmas are proved in Subsections \ref{subsec-cotlar},
-\ref{10hilbert} and \ref{subsec-CZD}.
-The cancellative property is verified by \Cref{van-der-Corput}, which is proved in \Cref{10vandercorput}.
-Several further auxiliary lemmas are stated
-and proved in Subsection
-\ref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
-
-All subsections past \Cref{10classical} are mutually independent.
-
- Subsections \ref{subsec-cotlar} uses bounds for the Hardy--Littlewood maximal function on the real line. There may be a better path through Lean than we choose here.
- We refer to \Cref{Hardy-Littlewood}, the assumptions of it,
- namely that the real line fits into the setting of \Cref{overviewsection},
- is done in \Cref{10carleson}.
-
-
-
-\section{The classical Carleson theorem}
-\label{10classical}
-
-Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ and $0<\epsilon<1$ be given.
-Let
+\chapter{Two-sided Metric Space Carleson}
+We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Zygmund kernel on the doubling metric measure space $(X,\rho,\mu,a)$, i.e. a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
-    C_{a,q} := \frac{2^{450a^3}}{(q-1)^5}
-\end{equation}
-denote the constant from \Cref{metric-space-Carleson}.
-Define
-\begin{equation}
-    \epsilon' := \frac \epsilon {4 (C_{4,2} \cdot (8 / (\pi\epsilon))^{\frac 1 2} + \pi)}.
-\end{equation}
-By uniform  continuity of $f$, there is a $0<\delta<\pi$
-such that for all $x,x' \in \R$ with $|x-x'|\le \delta$
-we have
-\begin{equation}\label{uniconbound}
-|f(x)-f(x')|\le \epsilon' \, .
-\end{equation}
-Define
-\begin{equation}\label{def-fzero}
-f_0:=f \ast \phi_\delta,
-\end{equation}
-where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\delta) \subset (-\delta, \delta)$ and $\int _\R \phi_\delta (x) \, dx = 1$.
-\begin{lemma}[smooth
-approximation]
-\label{smooth-approximation}
-\leanok
-The function $f_0$ is $2\pi$-periodic.
-The function $f_0$ is smooth (and therefore measurable).
-The function $f_0$ satisfies for all $x\in \R$:
-\begin{equation}\label{eq-ffzero}
-|f(x)-f_0(x)|\le  \epsilon' \, ,
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-\leanok
-Most of this is part of the Lean library.
-\end{proof}
-
-We prove in \Cref{10smooth}:
-\begin{lemma}[convergence for smooth]
-\leanok
-\label{convergence-for-smooth}
-\uses{convergence-for-twice-contdiff}
-    There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
-    \begin{equation}
-        |S_N f_0 (x)- f_0(x)|\le \frac \epsilon 4\, .
-    \end{equation}
-\end{lemma}
-
-
-We prove in \Cref{10difference}:
-\begin{lemma}[control approximation effect]
-\leanok
-\label{control-approximation-effect}
-\uses{real-Carleson,dirichlet-kernel,lower-secant-bound}
-    There is a set $E \subset \R$ with Lebesgue measure
-    $|E|\le \epsilon$ such that for all
-    \begin{equation}
-        x\in [0,2\pi)\setminus E
-    \end{equation}
-   we have
-    \begin{equation}
-    \label{eq-max-partial-sum-diff}
-        \sup_{N\ge 0} |S_Nf(x)-S_Nf_0(x)|
-        \le \frac \epsilon 4\,.
-    \end{equation}
-\end{lemma}
-We are now ready to prove classical Carleson:
-\begin{proof} [Proof of \Cref{classical-Carleson}]
-\proves{classical-Carleson}
-\leanok
-Let $N_0$ be as in \Cref{convergence-for-smooth}.
-For every
-\begin{equation}
-x\in [0, 2\pi) \setminus E\, ,
-\end{equation}
-and every $N>N_0$ we have by the triangle inequality
-\begin{equation*}
-    |f(x)-S_Nf(x)|
-    \end{equation*}
-    \begin{equation}\label{epsilonthird}
-    \le |f(x)-f_0(x)|+ |f_0(x)-S_Nf_0(x)|+|S_Nf_0(x)-S_N f(x)|\, .
-\end{equation}
-Using \Cref{smooth-approximation,convergence-for-smooth,control-approximation-effect}, we estimate \eqref{epsilonthird} by
-\begin{equation}
-    \le \epsilon' +\frac \epsilon 4 +\frac \epsilon 4\le \epsilon\, .
-\end{equation}
-This shows  \eqref{aeconv} for the given $E$ and $N_0$.
-\end{proof}
-
-Let  $\kappa:\R\to \R$ be the function defined by
-$\kappa(0)=0$ and for $0<|x|<1$
-\begin{equation}\label{eq-hilker}
-\kappa(x)=\frac { 1-|x|}{1-e^{ix}}\,
-\end{equation}
-and for $|x|\ge 1$
-\begin{equation}\label{eq-hilker1}
-\kappa(x)=0\, .
-\end{equation}
-Note that this function is continuous at every point $x$ with $|x|>0$.
-
-The proof of \Cref{control-approximation-effect} will
-use the following \Cref{real-Carleson}, which itself is proven
- in \Cref{10carleson} as an application of
- \Cref{metric-space-Carleson}.
-\begin{lemma}[real Carleson]\label{real-Carleson}
-\leanok
-\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
-    Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
-\begin{equation}
-    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
-\end{equation}
-where
-\begin{equation}
-    \label{define-T-carleson}
-    T f(x)=\sup_{n\in \mathbb{Z}}
-    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|\, .
-\end{equation}
-\end{lemma}
-
-
-One of the main assumption of \Cref{metric-space-Carleson}, concerning the operator $T_*$ defined in \eqref{def-tang-unm-op}, is verified by the following lemma, which is proved in \Cref{subsec-cotlar}.
-
-The following Lemma is proved in \Cref{10hilbert}
-\begin{lemma}[Hilbert strong 2 2]
-    \label{Hilbert-strong-2-2}
-    \uses{modulated-averaged-projection,integrable-bump-convolution,dirichlet-approximation}
-    Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
-    \begin{equation}
-        \label{eq-Hr-L2-bound}
-        \|H_rf\|_{2}\leq 2^{13} \|f\|_2.
-    \end{equation}
-\end{lemma}
-
-The next lemma will be used to verify that the collection $\Mf$ of modulation functions in our application of \Cref{metric-space-Carleson} satisfies the condition \eqref{eq-vdc-cond}.
-It is proved in \Cref{10vandercorput}.
-
-\begin{lemma}[van der Corput]
-\label{van-der-Corput}
-    Let $\alpha<\beta$ be real numbers. Let $g:\R\to \C$ be a  measurable function and assume
-    \begin{equation}
-        \|g\|_{Lip(\alpha,\beta)}:=\sup_{\alpha\le x\le \beta}|g(x)|+|\beta-\alpha|
-        \sup_{\alpha\le x<y\le \beta} \frac {|g(y)-g(x)|}{|y-x|}<\infty\, .
-    \end{equation}
-    Then for any $0\le \alpha<\beta\le 2\pi$ we have
-    \begin{equation}
-        \int _{\alpha}^{\beta} g(x) e^{-inx}\, dx\le 2\pi |\beta-\alpha|\|g\|_{Lip(\alpha,\beta)}(1+|n||\beta-\alpha|)^{-1}\, .
-    \end{equation}
-
-\end{lemma}
-
-
-We close this section with six lemmas that are used
-across the following subsections.
-
-\begin{lemma}[mean zero oscillation]
-\label{mean-zero-oscillation}
-Let $n\in \mathbb{Z}$ with   $n\neq 0$, then
-\begin{equation}
-\int_0^{2\pi} e^{inx}\, dx=0\,.
-\end{equation}
-\end{lemma}
-\begin{proof}
-We have
-\begin{equation*}
-\int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac  1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
-\end{equation*}
-
-\end{proof}
-
-\begin{lemma}[Dirichlet kernel]
-\label{dirichlet-kernel}
-\leanok
-We have for every $2\pi$-periodic bounded measurable $f$ and every $N\ge 0$
-\begin{equation}
-    S_Nf(x)=\frac 1{2\pi}\int_{0}^{2\pi}f(y) K_N(x-y)\, dy
-\end{equation}
-where $K_N$ is the $2\pi$-periodic continuous function of
-$\R$ given by
-\begin{equation}\label{eqksumexp}
-\sum_{n=-N}^N e^{in x'}\, .
-\end{equation}
-We have for $e^{ix'}\neq 1$ that
-\begin{equation}\label{eqksumhil}
-    K_N(x')=\frac{e^{iNx'}}{1-e^{-ix'}}
-      +\frac {e^{-iNx'}}{1-e^{ix'}} \, .
-\end{equation}
-
-
-\end{lemma}
-
-
-\begin{proof}
-\leanok
-We have by definitions and interchanging sum and integral
-   \begin{equation*}
-        S_Nf(x)=\sum_{n=-N}^N \widehat{f}_n e^{inx}
-    \end{equation*}
-       \begin{equation*}
-    =\sum_{n=-N}^N \frac 1{2\pi}\int_{0}^{2\pi}
-    f(x) e^{in(x-y)}\, dy
-    \end{equation*}
- \begin{equation}\label{eq-expsum}
-     =\frac 1{2\pi}\int_{0}^{2\pi}
-    f(y) \sum_{n=-N}^N e^{in(x-y)}\, dy\, .
- \end{equation}
-This proves the first statement of the lemma.
-By a telescoping sum, we have for every $x'\in \R$
-\begin{equation}
-    \left( e^{\frac 12 ix'}-e^{-\frac 12 ix'}\right)  \sum_{n=-N}^N e^{inx'}= e^{(N+\frac 12) ix'}-e^{-(N+\frac 12) ix'}\, .
-\end{equation}
-If $e^{ix'}\neq 1$, the first factor on the left-hand side is not $0$ and we may divide by this factor to obtain
-\begin{equation}
-      \sum_{n=-N}^N e^{inx'}= \frac{e^{i(N+\frac 1 2)x'}}{e^{\frac 12 ix'}-e^{-\frac 12ix'}}
-      -\frac{e^{-i(N+\frac 1 2)x'}}{e^{\frac 12 ix'}-e^{-\frac 12ix'}}
-       =\frac{e^{iNx'}}{1-e^{-ix'}}
-      +\frac {e^{-iNx'}}{1-e^{ix'}}\, .
-\end{equation}
-This  proves the second part of the lemma.
-\end{proof}
-
-\begin{lemma}[lower secant bound]
-\label{lower-secant-bound}
-\leanok
-Let $\eta>0$ and $-2\pi +\eta \le  x\le 2\pi-\eta$ with $|x|\ge \eta$. Then
-\begin{equation}
-    |1-e^{ix}|\ge \frac{2}{\pi} \eta
-\end{equation}
-\end{lemma}
-\begin{proof}
-\leanok
-We have
-$$
-    |1 - e^{ix}| = \sqrt{(1 - \cos(x))^2 + \sin^2(x)} \ge |\sin(x)|\,.
-$$
-If $0 \le x \le \frac{\pi}{2}$, then we have from concavity of $\sin$ on $[0, \pi]$ and $\sin(0) = 0$ and $\sin(\frac{\pi}{2}) = 1$
-$$
-    |\sin(x)| \ge \frac{2}{\pi} x \ge \frac{2}{\pi} \eta\,.
-$$
-When $x\in \frac{m\pi}{2} + [0, \frac{\pi}{2}]$ for $m \in \{-4, -3, -2, -1, 1, 2, 3\}$ one can argue similarly.
- \end{proof}
-
-The following lemma will be proved in \Cref{10projection}.
-
-\begin{lemma}[spectral projection bound]
-\label{spectral-projection-bound}
-\uses{partial-sum-projection,partial-sum-selfadjoint}
-    Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
-   \begin{equation}\label{snbound}
-   \|S_Nf\|_{L^2[-\pi, \pi]} \le \|f\|_{L^2[-\pi, \pi]}.
-   \end{equation}
-\end{lemma}
-
-\begin{lemma}[Hilbert kernel bound]
-\label{Hilbert-kernel-bound}
-\leanok
-\uses{lower-secant-bound}
-    For $x,y\in \R$ with $x\neq y$ we have
-    \begin{equation}\label{eqcarl30}
-        |\kappa(x-y)|\le 2^2(2|x-y|)^{-1}\, .
-    \end{equation}
-\end{lemma}
-\begin{proof}
-\leanok
-    Fix $x\neq y$. If $\kappa(x-y)$ is zero, then \eqref{eqcarl30} is evident. Assume $\kappa(x-y)$ is not zero, then $0<|x-y|<1$.
-    We have
-\begin{equation}\label{eqcarl31}
-|\kappa(x-y)|=\left|\frac {1-|x-y|}{1-e^{i(x-y)}}\right|\, .
-\end{equation}
-We estimate
-with \Cref{lower-secant-bound}
-\begin{equation}\label{eqcarl311}
-|\kappa(x-y)|\le \frac {1}{|1-e^{i(x-y)}|}\le \frac 2{|x-y|}\, .
-\end{equation}
-This proves \eqref{eqcarl30} in the given case and completes the proof of the lemma.
-\end{proof}
-
-\begin{lemma}[Hilbert kernel regularity]
-\label{Hilbert-kernel-regularity}
-\leanok
-\uses{lower-secant-bound}
-    For $x,y,y'\in \R$ with $x\neq y,y'$ and
-    \begin{equation}
-        \label{eq-close-hoelder}
-        2|y-y'|\le |x-y|\, ,
-    \end{equation}
-    we have
-    \begin{equation}\label{eqcarl301}
-        |\kappa(x-y) - \kappa(x-y')|\le 2^{8}\frac{1}{|x-y|} \frac{|y-y'|}{|x-y|}\, .
-    \end{equation}
-\end{lemma}
-
-\begin{proof}
-\leanok
-    Upon replacing $y$ by $y-x$ and $y'$ by $y'-x$ on the left-hand side of \eqref{eq-close-hoelder}, we can assume that $x = 0$. Then the assumption \eqref{eq-close-hoelder} implies that $y$ and $y'$ have the same sign. Since $\kappa(y) = \bar \kappa(-y)$ we can assume that they are both positive. Then it follows from \eqref{eq-close-hoelder} that
-    $$
-        \frac{y}{2} \le y' \,.
-    $$
-    We distinguish four cases. If $y, y' \le 1$, then we have
-    $$
-        |\kappa(-y) - \kappa(-y')| = \left|  \frac{1 - y}{1- e^{-iy}} - \frac{1 - y'}{1- e^{-iy'}}\right|
-    $$
-    and by the fundamental theorem of calculus
-    $$
-        = \left| \int_{y'}^{y} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
-    $$
-    Using $y' \ge \frac{y}{2}$ and \Cref{lower-secant-bound}, we bound this by
-    $$
-        \le |y - y'| \sup_{\frac{y}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |y-y'| (2 \frac{2}{y})^2 \le 2^{6} \frac{|y-y'|}{|y|^2}\,.
-    $$
-    If $y \le 1$ and $y' > 1$, then $\kappa(-y') = 0$ and we have from the first case
-    $$
-        |\kappa(-y) - \kappa(-y')| = |\kappa(-y) - \kappa(-1)| \le 2^{6} \frac{|y-1|}{|y|^2} \le 2^{6} \frac{|y-y'|}{|y|^2}\,.
-    $$
-    Similarly, if $y > 1$ and $y' \le 1$, then $\kappa(-y) = 0$ and we have from the first case
-    $$
-        |\kappa(-y) - \kappa(-y')| = |\kappa(-y') - \kappa(-1)| \le 2^{6} \frac{|y'-1|}{|y'|^2} \le 2^{6} \frac{|y-y'|}{|y'|^2}\,.
-    $$
-    Using again $y' \ge \frac{y}{2}$, we bound this by
-    $$
-        \le 2^{6} \frac{|y-y'|}{|y / 2|^2} = 2^{8} \frac{|y-y'|}{|y|^2}
-    $$
-    Finally, if $y, y' > 1$ then
-    $$
-        |\kappa(-y) - \kappa(-y')| = 0 \le 2^{8} \frac{|y-y'|}{|y|^2}\,.
-    $$
-\end{proof}
-
-
-
-
-
-
-\section{Smooth functions.}
-\label{10smooth}
-\begin{lemma}
-\label{fourier-coeff-derivative}
-\leanok
-Let $f:\R \to \C$ be $2\pi$-periodic and differentiable, and let $n \in \Z \setminus \{0\}$. Then
-\begin{equation}
-    \widehat{f}_n = \frac{1}{i n} \widehat{f'}_n.
-\end{equation}
-\end{lemma}
-\begin{proof}
-\leanok
-This is part of the Lean library.
-\end{proof}
-
-\begin{lemma}
-\label{convergence-of-coeffs-summable}
-\leanok
-Let $f:\R \to \C$ such that
-\begin{equation}
-    \sum_{n\in \Z} |\widehat{f}_n| < \infty.
-\end{equation}
-Then
-\begin{equation}
-    \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
-\end{equation}
-as $N \rightarrow \infty$.
-\end{lemma}
-
-\begin{proof}
-\leanok
-    This is part of the Lean library.
-\end{proof}
-
-\begin{lemma}
-\label{convergence-for-twice-contdiff}
-\uses{fourier-coeff-derivative,convergence-of-coeffs-summable}
-\leanok
-Let $f:\R \to \C$ be $2\pi$-periodic and twice continuously differentiable. Then
-\begin{equation}
-    \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
-\end{equation}
-as $N \rightarrow \infty$.
-\end{lemma}
-\begin{proof}
-\leanok
-By \Cref{convergence-of-coeffs-summable}, it suffices to show that the Fourier coefficients $\widehat{f}_n$ are summable.
-Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is continuous and thus bounded on $[0,2\pi]$ , we compute
-\begin{equation*}
-    \sum_{n\in \Z} |\widehat{f}_n| = |\widehat{f}_0| + \sum_{n\in \Z \setminus \{0\}} \frac {1}{n^2} |\widehat{f''}_n|
-    \le |\widehat{f}_0| + \left(\sup_{x\in [0,2\pi]} |f(x)| \right) \cdot \sum_{n\in \Z \setminus \{0\}} \frac {1}{n^2}
-    < \infty.
-\end{equation*}
-\end{proof}
-
-\begin{proof}
-\leanok
-\proves{convergence-for-smooth}
-    \Cref{convergence-for-smooth} now follows directly from the previous \Cref{convergence-for-twice-contdiff}.
-\end{proof}
-
-\section{Proof of Cotlar's Inequality}
-\label{subsec-cotlar}
-
-Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$, i.e. a one-sided Calder\'on--Zygmund kernel
-which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
-  \begin{equation}
-  \label{eqkernel-x-smooth}
-       |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
+    \label{eqkernel-x-smooth}
+    |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation}
 %TODO: Should it be V(y,x) rather?
-For $r > 0$, $x\in X$ and a bounded, measurable function $g$ on $X$ with bounded support, we define
+By the additional regularity, we can weaken the assumption \eqref{nontanbound} to an operator that is easier to work with in applications.
+Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f$ on $X$ with bounded support, we define
 \begin{equation}
 \label{def-H_r}
-H_r g(x):= \int_{r<|x-y|}
-g(y) K(x,y) \, dy.
+H_r f(x):= \int_{r<\rho(x,y)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
-
-\begin{lemma}[nontangential Hilbert]\label{nontangential-Hilbert}
-\uses{simple-nontangential-Hilbert}
-    For every  bounded measurable function $g : X \to \C$ with bounded support we have
-\begin{equation}\label{concretetstarbound}
-    \|T_*g\|_2\le 2^{Ca^D}\|g\|_2,
-\end{equation}
-%where
-%\begin{equation}\label{concretetstar}
-%    T_* g(x):=\sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<r_2}
-%g(y) \kappa(x'-y)\, dy\right|\, .
-%\end{equation}
+\begin{theorem}[two-sided metric space Carleson]
+    \label{two-sided-metric-space-Carleson}
+    \uses{metric-space-Carleson}
+        For all  integers $a \ge  4$ and  real numbers $1<q\le 2$
+        the following holds.
+        Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
+        cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+        \begin{equation}\label{two-sided-Hr-bound}
+            \|H_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
+        \end{equation}
+        Then for all Borel sets $F$ and $G$ in $X$ and
+        all Borel functions $f:X\to \C$ with
+        $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
+        \begin{equation}
+        \label{two-sided-resweak}
+            \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{Na^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \end{equation}
+\end{theorem}
+To prove this, we verify \eqref{nontanbound} in the following lemma (for a larger $a$ which we will have to account for in the final constant). It is proved in \Cref{subsec-cotlar}.
+\begin{lemma}[nontangential-from-simple]\label{nontangential-from-simple}
+    \uses{simple-nontangential}
+    Assume that for every bounded measurable function $g : X \to \C$ supported on a set of finite measure and all $r>0$ we have
+    \begin{equation*}
+        \|H_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
+    \end{equation*}
+        Then, for every bounded measurable function $g : X \to \C$ supported on a set of finite measure we have
+    \begin{equation}\label{concretetstarbound}
+        \|T_*g\|_2\le 2^{Ca^D}\|g\|_2.
+    \end{equation}
 \end{lemma}
-The proof of \Cref{nontangential-Hilbert} relies on the next two auxiliary Lemmas.
-
-The following Lemma is proved in \Cref{subsec-CZD}
+\begin{proof}[Proof of \Cref{two-sided-metric-space-Carleson}]
+    \proves{two-sided-metric-space-Carleson}
+    \Cref{nontangential-from-simple} verifies \eqref{nontanbound} for $a':= ca$.
+\end{proof}
+The proof of \Cref{nontangential-from-simple} relies on the following auxiliary lemma which is proved in \Cref{subsec-CZD}.
 \begin{lemma}[Weak 1 1]
     \label{weak-1-1}
     \uses{Calderon-Zygmund-decomposition}
-    Let $f:X\to\C$ be a bounded measurable function on with bounded support and assume that
+    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that
     \begin{equation}
         \label{eq-strong-2-2-assumption}
         \|H_rf\|_{2}\leq 2^{a^3} \|f\|_2.
     \end{equation}
-    . Let $\alpha>0$. Then for all $r>0$, we have
+    Then for all $\alpha>0$, we have
     \begin{equation}
         \label{eq-weak-1-1}
         \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
-
-\begin{lemma}
-    \label{geometric-series-estimate}
-    For all $a\ge 4$,
-    \begin{equation*}
-        \sum_{n=0}^\infty 2^{-\frac{n}{a}} \le 2^a.
-    \end{equation*}
-\end{lemma}
-\begin{proof}
-    \begin{equation*}
-        \sum_{n=0}^\infty 2^{-\frac{n}{a}} = \frac{1}{1-2^{-\frac 1 a}}
-    \end{equation*}
-    %TODO: finish proof.
-\end{proof}
-
-\begin{lemma}[estimate x shift]
-\label{estimate-x-shift}
-\uses{Hilbert-kernel-bound,Hilbert-kernel-regularity}
-Let $0<r$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood function
-defined in Proposition \ref{Hardy-Littlewood}.
-Then for all $x'$ with $\rho(x,x')<r$.
-\begin{equation}\label{xx'difference}
-\left| H_r g(x) - H_r g(x') \right|
-\le 2^{a^3 + 2a + 2} Mg(x)\, .
-\end{equation}
-\end{lemma}
-\begin{proof}
-\proves{estimate-x-shift}
-By definition,
-\begin{equation*}
-\left| H_r g(x) - H_r g(x') \right|
-=\left|\int_{r<\rho(x,y)}
-g(y) K(x,y)\, dy
--\int_{r<\rho(x',y)}
-g(y) K(x',y)\, dy
-\right| \, .
-\end{equation*}
-We split the first integral in \eqref{xx'difference}
-into the domains $r<\rho(x,y)\le 2r$
-and $2r<\rho(x,y)$. The integral over the first domain we estimate
-by $\eqref{firstxx'}$ below.
-For the second domain, we
-observe with $\rho(x,x')<r$ and the triangle inequality that $r<\rho(x'-y)$. We therefore combine on this domain with the
-corresponding part of the second integral in \eqref{xx'difference} and estimate that by $\eqref{secondxx'}$
-below. The remaining part of the second integral in
-\eqref{xx'difference} we estimate by $\eqref{thirdxx'}$.
-Overall, we have estimated \eqref{xx'difference}
-by
-
-
-\begin{equation}
-\label{firstxx'}
-\int_{r<\rho(x,y)\le 2r}
-|g(y)| |K(x,y)|\, dy
-\end{equation}
-\begin{equation}\label{secondxx'}
-  +  \left|\int_{2r<\rho(x,y)}
-g(y) (K(x',y)-K(x,y))\, dy
-\right|
-\end{equation}
-\begin{equation}
-\label{thirdxx'}
-  +\left|\int_{r<\rho(x',y), r<\rho(x,y)<2r}
-|g(y) K(x',y)|\, dy
-\right|
-\end{equation}
-Using the bound on $K$ in \eqref{eqkernel-size} and the doubling condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
-\begin{align}
- \int_{r<\rho(x,y)<2r}
-|g(y)| \frac{2^{a^3}}{V(x,y)}\, dy\,
-&\le
-\frac{2^{a^3}}{\mu(B(x,r))} \int_{r<\rho(x,y)<2r}
-|g(y)| \, dy\, \\
-\label{firstxx'b}
-&\le
-\frac{2^{a^3} \cdot 2^a}{\mu(B(x,2r))} \int_{\rho(x,y)<2r}
-|g(y)| \, dy\,
-.
-\end{align}
-Using the definition of $Mg$, we estimate
-\eqref{firstxx'b} by
-\begin{equation}
-\label{firstxx'c}
- \le 2^{a^3 + a} {Mg(x)}\, .
-\end{equation}
-Similarly, in the domain of \eqref{thirdxx'}
-we note by the triangle inequality
-and assumption on $x'$ that $\rho(x',y)<3r$ and thus we estimate
-\eqref{thirdxx'}
-by
-\begin{equation}
-\label{thirdxx'b}
-\frac{2^{a^3}}{\mu(B(x',r))} \int_{\rho(x',y)<4r}
-|g(y)| \, dy\le 2^{a^3 + 2a} Mg(x)
-\end{equation}
-
-We turn to the remaining term. Using \eqref{eqkernel-x-smooth}, we estimate \eqref{secondxx'} by
-\begin{equation}\label{secondxx'b}
- \int_{2r<\rho(x,y)}
- |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} \, dy
-\end{equation}
-We decompose and estimate
-\eqref{secondxx'}
-with the triangle inequality by
-\begin{align}
- &\sum_{j=1}^\infty  \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
- |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}\, dy\, \\
- &\le
- \sum_{j=1}^\infty \left( 2^{-j} \right)^{\frac{1}{a}} \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
- |g(y)| \frac{2^{a^3}}{\mu(B(x,2^j r))}\, dy \\
- &\le
-\sum_{j=1}^\infty 2^{-\frac{j}{a}} \frac{2^{a^3 + a}}{\mu(B(x,2^{j+1} r))} \int_{\rho(x,y)\le 2^{j+1}r}
-|g(y)| \, dy \\
-\label{secondxx'c}
-&\le 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
-\end{align}
-Using a \Cref{geometric-series-estimate}, we estimate
-\eqref{secondxx'c} by
-\begin{equation}\label{secondxx'd}
-\le 2^{a^3 + 2a} Mg(x) \,.
-\end{equation}
-Summing the estimates
-for \eqref{firstxx'},
-\eqref{secondxx'}, and
-\eqref{thirdxx'}
-proves the lemma.
-\end{proof}
-
-\begin{lemma}[Cotlar control]
-\label{Cotlar-control}
-\uses{estimate-x-shift}
-Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood function
-defined in Proposition
-\ref{Hardy-Littlewood}.
-Then for all $x'\in X$ with $\rho(x,x')<\frac {r_1}4$ we have
-\begin{equation}\label{eq-cotlar-control}
-\left|H_{r_1} g(x)
-\right|\le
-|H_{r}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')| +
-2^{a^3 + 2a + 3} Mg(x)\, .
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-Let $x$ and $x'$ be given with $\rho(x,x')<\frac {r_1}4$.
-By an application of \Cref{estimate-x-shift}, we estimate
-the left-hand-side of
-\eqref{eq-cotlar-control} by
-\begin{equation}\label{eqcotlar0}
-|H_{r_1}(g)(x')|+
-2^{a^3 + 2a + 2} Mg(x)\,.
-\end{equation}
-We  have
-\begin{equation}
-\label{eqcotlar-1}
-H_{r_1}(g)(x')=
-\int_{r_1<\rho(x',y)} g(y) K(x',y) \, dy\, .
-\end{equation}
-On the domain $r_1<\rho(x',y)$, we have $\frac {r_1}2<\rho(x,y)$. Hence we may write
-for \eqref{eqcotlar-1}
-\begin{equation*}
-H_{r_1}(g)(x')=\int_{r_1<\rho(x',y)} (g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, dy
-\end{equation*}
-\begin{equation}\label{eqcotlar1}
-=H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')\, .
-\end{equation}
-Combining the estimate \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
-\begin{equation}\label{eqcotlar5}
-\left|H_{r_1} g(x)
-\right|\le
-|H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')|+
-2^{a^3 + 2a + 2} Mg(x)\, .
-\end{equation}
-We  have
-\begin{equation*}
-(H_{r}-H_{r_1})(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')
-\end{equation*}
-\begin{equation}\label{eqcotlar2}
-= \int_{ {r}<\rho(x',y)<r_1}
-(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y)K(x',y)\, dy\,  .
-\end{equation}
-Assume first $r\ge \frac {r_1} 4$.
-Then we estimate \eqref{eqcotlar2} with
-\eqref{eqkernel-size} by
-\begin{equation*}
-\int_{\frac {r_1}4<\rho(x',y)<r_1}
-|g(y)K(x',y)|\, dy
-\end{equation*}
-\begin{equation}\label{eqcotlar3}
-\le \frac{2^{a^3}}{\mu(B(x',\frac{r_1}{4}))} \int_{\rho(x',y)<r_1}
-|g(y)|\, dy \le 2^{a^3 + 2a} Mg(x')\,  .
-\end{equation}
-Assume now $r\le \frac {r_1} 4$.
-As $\rho(x',y)\le \frac{r_1}4$ implies
-$\rho(x,y)\le \frac {r_1} 2$, we see that
-\eqref{eqcotlar2} equals
-\begin{equation*}
- \int_{ {\frac {r_1} 4}<\rho(x',y)<r_1}
-(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, dy\,  ,
-\end{equation*}
-which we again estimate as above by \eqref{eqcotlar3}.
-In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from \eqref{eqcotlar5}  and the estimate for
-\eqref{eqcotlar2}.
-\end{proof}
-
-\begin{lemma}[Cotlar sets]
-\label{Cotlar-sets}
-\uses{Hilbert-weak-1-1}
-Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood maximal function
-defined in Proposition
-\ref{Hardy-Littlewood}.
-Let $x\in X$.
-Then the measure $|F_1|$ of the set $F_1$ of all $x'\in
-B(x,\frac {r_1} 4)$ such that
-\begin{equation}
-\label{first-cotlar-exception}
-    |H_{r}(g)(x')|> C M(H_{r}g)(x)
-\end{equation}
-is less than or equal to $\frac {\mu(B(x,\frac{r_1}{4}))}C$.
-Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
-B(x,\frac {r_1} 4)$ such that
-\begin{equation}
-\label{second-cotlar-exception}
-    |H_{r}(g\mathbf{1}_{B(x,\frac {r_1} 2)})| > D Mg(x)
-\end{equation}
-is less than $r_1/8$.
-\end{lemma}
-
-\begin{proof}
-Let $r$, $r_1$, $x$ and $g$ be given.
-If $M(H_{r}g)(x)=0$, then $H_{r}g$ is constant zero
-and $F_1$ is empty and the estimate on $F_1$ trivial.
-Assume $M(H_{r}g)(x)>0$.
-We have with \eqref{first-cotlar-exception}
-\begin{equation}
-    M(H_{r}g)(x)\ge
-    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{\rho(x,x')<\frac {r_1}4}|H_{r}g(x')|\, dx'
-\end{equation}
-\begin{equation}
-    \ge
-    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{F_1} C M(H_{r}g)(x)\, dx'
-\end{equation}
-Dividing by $M(H_{r}g)(x)$ gives
-\begin{equation}
-    1\ge \frac C{\mu(B(x,\frac{r_1}{4}))} |F_1|\, .
-\end{equation}
-This gives the desired bound for the measure of $F_1$.
-% TODO: Go on here when weak 1-1 is done.
-We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
-The set $F_2$ is then estimated with \Cref{Hilbert-weak-1-1}
-by
-\begin{equation}
-   \frac {2^{19}}{D Mg(x)}\int |g\mathbf{1}_{[x-\frac {r_1}2, x+\frac {r_1}2]}|(y)\, dy
-\end{equation}
-\begin{equation}
-   \le \frac {2^{19}}{D Mg(x)}r_1Mg(x)= \frac {r_1}8\,.
-\end{equation}
-This gives the desired bound for the measure of $F_2$.
-\end{proof}
-
-\begin{lemma}[Cotlar estimate]
-\label{Cotlar-estimate}
-\uses{Cotlar-control, Cotlar-sets}
-Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
-defined in \Cref{Hardy-Littlewood}.
-Then for all $x\in X$
-\begin{equation}\label{eq-cotlar-estimate}
-|H_{r_1}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{23} Mg(x)
-\, .
-\end{equation}
-\end{lemma}
-
-
-\begin{proof}
-By \Cref{Cotlar-sets}, the measure of the set
-of all $x'\in
-B(x,\frac {r_1} 4)$
-such that at least one of the conditions
-\eqref{first-cotlar-exception} and
-\eqref{second-cotlar-exception} is satisfied is at most $r_1/4$ and hence not all of
- $x'\in
-B(x,\frac {r_1} 4)$. Pick an
-$x'\in
-B(x,\frac {r_1} 4)$ such that both conditions are not satisfied.
-Applying \Cref{Cotlar-control}
-for this $x'$ and using the triangle inequality
-estimates the left-hand side of \eqref{eq-cotlar-estimate}
-by
-\begin{equation}
-    C M(H_rg)(x) + D Mg(x) + 2^{a^3 + 2a + 3} Mg(x)\, .
-\end{equation}
-This proves the lemma.
-\end{proof}
-
-\begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
-\uses{Hardy-Littlewood,Hilbert-strong-2-2,Cotlar-estimate}
-    For every  $r>0$ and every bounded measurable function $g$ with bounded support we have
-\begin{equation}\label{trzerobound}
-    \|T_{r}g\|_2\le 2^{42}\|g\|_2,
-\end{equation}
-where
-\begin{equation}\label{eq-simple--nontangential}
-    T_{r} g(x):=\sup_{r<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} |H_{r_1}(g)(x')| \, .
-\end{equation}
-\end{lemma}
-\begin{proof}
-With \Cref{estimate-x-shift}
-and the triangle inequality, we estimate
-for every $x\in X$
-\begin{equation}
-     T_{r} g(x)
-     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<r_1}
-     \frac 1{2\pi} |H_{r_1}(g)(x)|\, .
-\end{equation}
-Using further \Cref{Cotlar-estimate},
-we estimate
-%TODO: Go on here when constants have been worked out
-\begin{equation}
-      T_{r} g(x)
-     \le 2^{a^3 + 2a + 2} Mg(x)+2^{23}
-     Mg(x)+2^{2}M(H_{r}g)(x)\, .
-\end{equation}
-Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
-\begin{equation}
-      \|T_{r} g\|_2
-     \le 2^{24} \|Mg\|_2+2^{2}\|M(H_{r}g)\|_2
-\end{equation}
-\begin{equation}
-     \le 2^{41} \|g\|_2+2^{19}\|H_{r}(g)\|_2\, .
-\end{equation}
-Applying \Cref{Hilbert-strong-2-2}, gives
-\begin{equation}
-      \|T_{r} g\|_2\le 2^{41} \|g\|_2+2^{32}\|g\|_2\, .
-\end{equation}
-This shows \eqref{trzerobound} and completes the proof of the lemma.
-\end{proof}
-
-\begin{proof}[Proof of \Cref{nontangential-Hilbert}]
-    \proves{nontangential-Hilbert}
-Fix $g$ as in the Lemma.
-Applying \Cref{simple-nontangential-Hilbert} with a
-sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
-\begin{equation}\label{tzerobound}
-    \|T_{0}g\|_2\le 2^{42}\|g\|_2,
-\end{equation}
-where
-\begin{equation}\label{eq-simpler--nontangential}
-    T_{0} g(x):=\sup_{0<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}
-g(y) K(x',y)\, dy\right|\, .
-\end{equation}
-We now write by the triangle inequality
-\begin{equation}\label{concretetstartriangle}
-    T_* g(x)\le \sup_{0<r_1<r_2}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, dy\right|
-\end{equation}
-    \begin{equation*}
-+\sup_{0<r_1< r_2}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, dy\right|\, .
-\end{equation*}
-Noting that the first integral does not depend on $r_2$ and
-estimating the second integral by the larger supremum over all
-$\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
-\begin{equation}\label{concretetstartriangle2}
-   \sup_{0<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, dy\right|
-\end{equation}
-    \begin{equation*}
-+\sup_{0<r_2}\sup_{\rho(x,x')<r_2}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, dy\right|\, .
-\end{equation*}
-    Applying the triangle inequality on the left-hand side
-    of \eqref{concretetstarbound} and applying
-     \eqref{tzerobound} twice
-    proves \eqref{concretetstarbound}.
-    This completes the proof of \Cref{nontangential-Hilbert}.
-\end{proof}
-
-
-
-
-
-\section{The truncated Hilbert transform}
-\label{10hilbert}
-
-
-
-
-
-Let $M_n$ be the modulation operator
-acting on measurable $2\pi$-periodic functions
-defined by
-\begin{equation}
-    M_ng(x)=g(x) e^{inx}\, .
-\end{equation}
-Define the approximate Hilbert transform by
-\begin{equation}
-    L_N g=\frac 1N\sum_{n=0}^{N-1}
-       M_{-n-N} S_{N+n}M_{N+n}g\, .
-\end{equation}
-
-
-\begin{lemma}[modulated averaged projection]
-\label{modulated-averaged-projection}
-\uses{spectral-projection-bound}
-We have for every bounded measurable $2\pi$-periodic function $g$
-\begin{equation}\label{lnbound}
-    \|L_Ng\|_{L^2[-\pi, \pi]}\le \|g\|_{L^2[-\pi, \pi]}\,.
-\end{equation}
-\end{lemma}
-\begin{proof}
-    We have
-    \begin{equation}\label{mnbound}
-        \|M_ng\|_{L^2[-\pi, \pi]}^2=\int_{-\pi}^{\pi} |e^{inx}g(x)|^2\, dx
-        =\int_{-\pi}^{\pi} |g(x)|^2\, dx=\|g\|_{L^2[-\pi, \pi]}^2\, .
-    \end{equation}
-     We have by the triangle inequality, the square root of the identity in \eqref{mnbound}, and \Cref{spectral-projection-bound}
-    \begin{equation*}
-        \|L_ng\|_{L^2[-\pi, \pi]}=\|\frac 1N\sum_{n=0}^{N-1}
-       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
-    \end{equation*}
-    \begin{equation*}
-        \le \frac 1N\sum_{n=0}^{N-1} \|
-       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
-         = \frac 1N\sum_{n=0}^{N-1} \|
-    S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
-    \end{equation*}
-       \begin{equation}
-     \le \frac 1N\sum_{n=0}^{N-1} \|
- M_{N+n}g\|_{L^2[-\pi, \pi]}  = \frac 1N\sum_{n=0}^{N-1} \|
-g\|_{L^2[-\pi, \pi]} =\|g\|_{L^2[-\pi, \pi]}\, .
-    \end{equation}
-This proves \eqref{mnbound} and completes the proof of the lemma.
-\end{proof}
-
-\begin{lemma}[periodic domain shift]\label{periodic-domain-shift}
-\lean{Function.Periodic.intervalIntegral_add_eq, intervalIntegral.integral_comp_sub_right}
-\leanok
-Let $f$ be a bounded $2\pi$-periodic function. We have for any
-$0 \le x\le 2\pi$ that
-\begin{equation}
- \int_0^{2\pi} f(y)\, dy= \int_{-x}^{2\pi -x}   f(y)\, dy
- =\int_{-\pi}^{\pi}   f(y-x)\, dy\,.
-\end{equation}
-\end{lemma}
-\begin{proof}
-\leanok
-    We have  by periodicity and change of variables
-    \begin{equation}\label{eqhil9}
- \int_{-x}^{0} f(y)\, dy=\int_{-x}^{0} f(y+2\pi)\, dy= \int_{2\pi -x}^{2\pi}   f(y)\, dy\, .
-\end{equation}
-We then have by breaking up the domain of integration
-and using \eqref{eqhil9}
-\begin{equation*}
- \int_0^{2\pi} f(y)\, dy= \int_0^{2\pi -x}   f(y)\, dy+
- \int_{2\pi -x}^{2\pi}   f(y)\, dy
- \end{equation*}
-\begin{equation}
-= \int_0^{2\pi -x}   f(y)\, dy+
- \int_{ -x}^{0}   f(y)\, dy
- = \int_{-x}^{2\pi-x} f(y)\, dy\, .
- \end{equation}
-This proves the first identity of the lemma. The second identity follows by substitution of $y$ by $y-x$.
-\end{proof}
-
-
-
-\begin{lemma}[Young convolution]\label{Young-convolution}
-\uses{periodic-domain-shift}
-    Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
-    \begin{equation}\label{eqyoung}
-        \left(\int_{-\pi}^{\pi} \left(\int_{-\pi}^{\pi}
-        f(y)g(x-y)\, dy\right)^2\, dx\right)^{\frac 12}\le \|f\|_{L^2[-\pi, \pi]} \|g\|_{L^1[-\pi, \pi]}\, .
-    \end{equation}
-    \end{lemma}
-\begin{proof}
-Using Fubini and \Cref{periodic-domain-shift}, we observe
-\begin{equation*}
-  \int_{-\pi}^{\pi}\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy
-    \, dx=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x-y)\, dx
-    \, dy
-\end{equation*}
-\begin{equation}\label{eqhil4}
-=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x) \, dx
-     dy
-=\|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}\, .
-\end{equation}
-   Let $h$ be the  nonnegative square root of $g$, then
-   $h$ is bounded and $2\pi$-periodic with $h^2=g$.
-   We estimate the square of the left-hand side of
-   \eqref{eqyoung} with Cauchy-Schwarz and then with
-   \eqref{eqhil4} by
-       \begin{equation*}
-         \int_{-\pi}^{\pi} (\int_{-\pi}^{\pi}f(y)h(x-y)h(x-y)\, dy)^2\, dx
-   \end{equation*}
-\begin{equation*}
-    \le \int_{-\pi}^{\pi}\left(\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy\right)
-    \left(\int_{-\pi}^{\pi}g(x-y)\, dy\right)\, dx
-\end{equation*}
-\begin{equation*}
-    = \|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}^2\, .
-\end{equation*}
-Taking square roots, this proves the lemma.
-\end{proof}
-
-For $0<r<1$, Define the kernel $k_r$ to be the $2\pi$-periodic function
-\begin{equation}
-    |k_r(x)|:=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
-\end{equation}
-where the minimum is understood to be $r^{-1}$ in case $1=e^{ix}$.
-\begin{lemma}[integrable bump convolution]
-\label{integrable-bump-convolution}
-\uses{Young-convolution}
-Let $g,f$ be bounded measurable $2\pi$-periodic functions. Let $0<r<\pi$.
-Assume we have for all $0\le x\le 2\pi$
-\begin{equation}\label{ebump1}
-    |g(x)|\le k_r(x)\, .
-\end{equation}
-Let
-\begin{equation}
-   h(x)= \int_{-\pi}^{\pi} f(y)g(x-y)\, dy \, .
-\end{equation}
-Then
-\begin{equation}
-   \|h\|_{L^2[-\pi, \pi]}\le 2^{5}\|f\|_{L^2[-\pi, \pi]}  \, .
-\end{equation}
-
-\end{lemma}
-
-\begin{proof}
-From monotonicity of the integral and \eqref{ebump1},
-\begin{equation}
-    \|g\|_{L^1[-\pi, \pi]} \le  \int_{-\pi}^{\pi}k_r(x)\, dx\,.
-\end{equation}
-Using the symmetry
-$k_r(x)=k_r(-x)$, the assumption, and \Cref{lower-secant-bound},  the last display
-is equal to
-\begin{equation*}
-    =  2 \int_0^\pi \min\left(\frac 1r, 1+\frac r{|1-e^{ix}|^2}\right)\, dx
-\end{equation*}
-\begin{equation*}
-    \le 2\int_0^{r} \frac 1r \, dx+2\int_r^{\pi}1+\frac {64r}{x^2}\, dx
-\end{equation*}
-\begin{equation}
-    \le 2+2\pi + 2\left(\frac {64r}r-\frac {64r}{\pi}\right)
-    \le 2^{5}\, .
-\end{equation}
-    Together with \Cref{Young-convolution}, this proves the lemma.
-\end{proof}
-
-\begin{lemma}[dirichlet approximation]\label{dirichlet-approximation}
-\uses{dirichlet-kernel,lower-secant-bound}
-Let $0<r<1$. Let $N$ be the smallest
-integer larger than $\frac 1r$.
-There is a   $2\pi$-periodic continuous function
- ${L'}$ on $\R$ that satisfies for all $-\pi\le x\le \pi$
-and all $2\pi$-periodic bounded measurable functions $f$ on $\R$
-\begin{equation}\label{lthroughlprime}
-    L_Nf(x)=\frac 1{2\pi}\int_{-\pi}^{\pi}f(y) {L'}(x-y)\, dy
-\end{equation}
-and
-\begin{equation}\label{eqdifflhil}
-    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}} \kappa(x)\right|\le 2^{5}k_r(x)\, .
-\end{equation}
-\end{lemma}
-
-
-\begin{proof}
-We have by definition and \Cref{dirichlet-kernel}
-\begin{equation}
-    L_Ng(x)=
-    \frac 1N\sum_{n=0}^{N-1}
-       \int_{-\pi}^{\pi} e^{-i(N+n)x} K_{N+n}(x-y) e^{i(N+n)y}g(y)
-\, dy \, .\end{equation}
-This is of the form \eqref{lthroughlprime} with
-the continuous function
-\begin{equation}
-    {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
-      K_{N+n}(x) e^{-i(N+n)x}\, .
-\end{equation}
-With \eqref{eqksumexp} of \Cref{dirichlet-kernel}
-we have $|K_N(x)|\le N$ for every $x$ and thus
-\begin{equation}\label{eqhil13}
-    |{L'}(x)|\le  \frac 1N\sum_{n=0}^{N-1}
-      (N+n) \le 2N\le 2^2 r^{-1}\, .
-\end{equation}
-Therefore, for $|x|\in [0, r)\cup (1, \pi]$, we have
-\begin{equation}
-    \label{eqdiffzero}
-    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\kappa(x)\right|=|L'(x)|\leq 2^{2} r^{-1}.
-\end{equation}
-This proves \eqref{eqdifflhil} for $|x|\in [0, r)$ since $k_r(x)=r^{-1}$ in this case.
-
-For $e^{ix'}\neq 1$
-and may use the expression
-\eqref{eqksumhil} for $K_N$
-in \Cref{dirichlet-kernel} to obtain
-\begin{equation*}
-    {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
-     \left(\frac{e^{i(N+n)x}}{1-e^{-ix}}
-      +\frac {e^{-i(N+n)x}}{1-e^{ix}}\right) e^{-i(N+n)x}
-\end{equation*}
-\begin{equation*}
-    =  \frac 1N\sum_{n=0}^{N-1}
-    \left(\frac{1}{1-e^{-ix}}
-      +\frac {e^{-i2(N+n)x}}{1-e^{ix}}\right)
-\end{equation*}
-\begin{equation}\label{eqhil3}
-    =  \frac{1}{1-e^{-ix}} +
-     \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
-     \sum_{n=0}^{N-1}
-    {e^{-i2nx}}
-\end{equation}
-and thus
-\begin{equation}
-\label{eq-L'L''}
-  {L'}(x)  -\mathbf{1}_{\{y:\, r<|y|<1\}}\kappa(x)=L''(x)+ \frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}},
-\end{equation}
-where
-$$L''(x):=\frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
-     \sum_{n=0}^{N-1}
-    {e^{-i2nx}}.$$
-For $x\in [-\pi, r]\cup [r, \pi]$, we have using \Cref{lower-secant-bound} that
-\begin{equation*}
-   \left|\frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}} \right|=\left|\frac{\min(|x|, 1)}{1-e^{-ix}} \right|\leq \frac{8\min(|x|, 1)}{|x|}
-\end{equation*}
-\begin{equation}
- \label{eq-diffzero2}
-    \leq 2^3\cdot 1\leq  2^{3} k_r(x).
-\end{equation}
-Next, we need to estimate $L''(x)$. If the real part of
-$e^{ix}$ is negative, we have
-\begin{equation}
-  1\le   |1-e^{ix}|\le 2\, .
-\end{equation}
-and hence
-\begin{equation}\label{eqhil12}
-    |L''(x)|\le
-     \frac 1N
-     \sum_{n=0}^{N-1}
-    1=1\le 1+\frac r{|1-e^{ix}|^2}\, .
-\end{equation}
-If the real part of $e^{ix}$ is positive and in particular while still $e^{ix}\neq \pm 1$, then  we have by telescoping
-\begin{equation}
- (1-e^{-2ix})
-     \sum_{n=0}^{N-1}
-    {e^{-i2nx}}=1-e^{-i2Nx}\, .
-\end{equation}
-As $e^{-2ix}\neq 1$, we may divide by $1-e^{-2ix}$ and insert this into
-\eqref{eqhil3} to obtain
-\begin{equation}
- L''(x)=
-           \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
-     \frac{1-e^{-i2Nx}}{1-e^{-2ix}}\, .
-\end{equation}
-Hence, with \Cref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
-\begin{equation*}
-    |L''(x)|
- \le \frac 2 N \frac {1}{|1-e^{ix}|}
-     \frac{1}{|1-e^{-2ix}|}
- \end{equation*}
-\begin{equation}\label{eqhil11}
-    = \frac 2 N \frac {1}{|1-e^{ix}|^2}
-     \frac{1}{|1+e^{ix}|}\le
- \frac {4r}{|1-e^{ix}|^2}\le 2^{2} \left (1+\frac {r}{|1-e^{ix}|^2}\right)
-\end{equation}
-Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-diffzero2}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{eqdifflhil}. This completes the proof of the lemma.
-\end{proof}
-
-
-We now prove \Cref{Hilbert-strong-2-2}.
-
-\begin{proof}[Proof of \Cref{Hilbert-strong-2-2}]
-    \proves{Hilbert-strong-2-2}
-    We first show that if $f$ is supported in $[-3/2, 3/2]$, then
-    \begin{equation}
-        \label{eq-Hr-short-support}
-        \|H_r f\|_{L^2(\R)} \le 2^{16} \|f\|_{L^2(\R)}\,.
-    \end{equation}
-    Let $\tilde{f}$ be the $2\pi$-periodic extension of $f$ to $\mathbb{R}$. Let $N$ be the smallest
-    integer larger than $\frac 1r$. Then, by \Cref{dirichlet-approximation} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
-    \begin{equation*}
-        |H_r \tilde{f}(x)|\leq 2\pi |L_N \tilde{f}(x)|+2^{5}\left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
-    \end{equation*}
-    Taking $L^2$ norm over the interval $[-\pi, \pi]$ and using its sub-additivity, we get
-    $$
-         \|H_r \tilde{f}\|_{L^2([-\pi, \pi])}
-    $$
-    \begin{equation*}
-       \leq 2\pi \|L_N \tilde{f}\|_{L^2([-\pi, \pi])}\, + 2^{5}\left(\int_{-\pi}^{\pi} \left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|^2\, dx\right)^{\frac{1}{2}}.
-    \end{equation*}
-    Since $k_r$ is supported in $[-1,1]$, we have that $H_rf$ is supported in $[-5/2, 5/2]$ and agrees there with $H_r \tilde f(x)$.
-    Using \Cref{modulated-averaged-projection} and \Cref{integrable-bump-convolution},  we conclude
-    \begin{equation}
-        \|H_r f\|_{L^2(\R)} \le \|H_r \tilde f\|_{L^2([-\pi, \pi])} \leq 2\pi \|f\|_{L^2(\R)} + 2^{10}\|f\|_{L^2(\R)}\,,
-    \end{equation}
-    which gives \eqref{eq-Hr-short-support}.
-
-    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H_r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
-    \begin{equation}
-        \label{eq-Hr-short-support-2}
-        \|H_rg\|_2 = \|H_r f\|_2 \le 2^{11} \|f\|_2 = \|g\|_2\,.
-    \end{equation}
-
-    Let now $f$ be arbitrary.
-    Since $\kappa(x) = 0$ for $|x| > 1$, we have for all $x \in [c+1, c+2]$
-    $$
-        H_rf(x) = H_r(f \mathbf{1}_{[c, c+3]})(x)\,.
-    $$
-    Thus
-    $$
-        \int_{c+1}^{c+2} |H_r f(x)|^2 \, \mathrm{d}x \le \int_{\R} |H_r(f \mathbf{1}_{[c, c+3]})(x)|^2 \, \mathrm{d}x\,.
-    $$
-    Applying the bound \eqref{eq-Hr-short-support-2}, this is
-    $$
-        \le 2^{11} \int_{c}^{c+3} |f(x)|^2 \, \mathrm{d}x\,.
-    $$
-    Summing over all $c \in \mathbb{Z}$, we obtain
-    $$
-        \int_{\R} |H_rf(x)|^2 \, \mathrm{d}x \le 3 \cdot 2^{11} \int_{\R} |f(x)|^2 \, \mathrm{d}x\,.
-    $$
-    This completes the proof.
-\end{proof}
-
-
-
-
-
 
 
 \section{Calder\'on-Zygmund Decomposition}
@@ -8014,6 +6885,1153 @@ Using the definition of $c$, we bound this by
 %TODO: Check constants. Maybe leave out the last explicit calculations.
 This proves \eqref{eq-weak-1-1}.
 \end{proof}
+
+\section{Proof of Cotlar's Inequality}
+\label{subsec-cotlar}
+
+\begin{lemma}
+    \label{geometric-series-estimate}
+    For all $a\ge 4$,
+    \begin{equation*}
+        \sum_{n=0}^\infty 2^{-\frac{n}{a}} \le 2^a.
+    \end{equation*}
+\end{lemma}
+\begin{proof}
+    \begin{equation*}
+        \sum_{n=0}^\infty 2^{-\frac{n}{a}} = \frac{1}{1-2^{-\frac 1 a}}
+    \end{equation*}
+    %TODO: finish proof.
+\end{proof}
+
+\begin{lemma}[estimate x shift]
+\label{estimate-x-shift}
+\uses{Hilbert-kernel-bound,Hilbert-kernel-regularity}
+Let $0<r$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood function
+defined in Proposition \ref{Hardy-Littlewood}.
+Then for all $x'$ with $\rho(x,x')<r$.
+\begin{equation}\label{xx'difference}
+\left| H_r g(x) - H_r g(x') \right|
+\le 2^{a^3 + 2a + 2} Mg(x)\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+\proves{estimate-x-shift}
+By definition,
+\begin{equation*}
+\left| H_r g(x) - H_r g(x') \right|
+=\left|\int_{r<\rho(x,y)}
+g(y) K(x,y)\, dy
+-\int_{r<\rho(x',y)}
+g(y) K(x',y)\, dy
+\right| \, .
+\end{equation*}
+We split the first integral in \eqref{xx'difference}
+into the domains $r<\rho(x,y)\le 2r$
+and $2r<\rho(x,y)$. The integral over the first domain we estimate
+by $\eqref{firstxx'}$ below.
+For the second domain, we
+observe with $\rho(x,x')<r$ and the triangle inequality that $r<\rho(x'-y)$. We therefore combine on this domain with the
+corresponding part of the second integral in \eqref{xx'difference} and estimate that by $\eqref{secondxx'}$
+below. The remaining part of the second integral in
+\eqref{xx'difference} we estimate by $\eqref{thirdxx'}$.
+Overall, we have estimated \eqref{xx'difference}
+by
+
+
+\begin{equation}
+\label{firstxx'}
+\int_{r<\rho(x,y)\le 2r}
+|g(y)| |K(x,y)|\, dy
+\end{equation}
+\begin{equation}\label{secondxx'}
+  +  \left|\int_{2r<\rho(x,y)}
+g(y) (K(x',y)-K(x,y))\, dy
+\right|
+\end{equation}
+\begin{equation}
+\label{thirdxx'}
+  +\left|\int_{r<\rho(x',y), r<\rho(x,y)<2r}
+|g(y) K(x',y)|\, dy
+\right|
+\end{equation}
+Using the bound on $K$ in \eqref{eqkernel-size} and the doubling condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
+\begin{align}
+ \int_{r<\rho(x,y)<2r}
+|g(y)| \frac{2^{a^3}}{V(x,y)}\, dy\,
+&\le
+\frac{2^{a^3}}{\mu(B(x,r))} \int_{r<\rho(x,y)<2r}
+|g(y)| \, dy\, \\
+\label{firstxx'b}
+&\le
+\frac{2^{a^3} \cdot 2^a}{\mu(B(x,2r))} \int_{\rho(x,y)<2r}
+|g(y)| \, dy\,
+.
+\end{align}
+Using the definition of $Mg$, we estimate
+\eqref{firstxx'b} by
+\begin{equation}
+\label{firstxx'c}
+ \le 2^{a^3 + a} {Mg(x)}\, .
+\end{equation}
+Similarly, in the domain of \eqref{thirdxx'}
+we note by the triangle inequality
+and assumption on $x'$ that $\rho(x',y)<3r$ and thus we estimate
+\eqref{thirdxx'}
+by
+\begin{equation}
+\label{thirdxx'b}
+\frac{2^{a^3}}{\mu(B(x',r))} \int_{\rho(x',y)<4r}
+|g(y)| \, dy\le 2^{a^3 + 2a} Mg(x)
+\end{equation}
+
+We turn to the remaining term. Using \eqref{eqkernel-x-smooth}, we estimate \eqref{secondxx'} by
+\begin{equation}\label{secondxx'b}
+ \int_{2r<\rho(x,y)}
+ |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} \, dy
+\end{equation}
+We decompose and estimate
+\eqref{secondxx'}
+with the triangle inequality by
+\begin{align}
+ &\sum_{j=1}^\infty  \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
+ |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}\, dy\, \\
+ &\le
+ \sum_{j=1}^\infty \left( 2^{-j} \right)^{\frac{1}{a}} \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
+ |g(y)| \frac{2^{a^3}}{\mu(B(x,2^j r))}\, dy \\
+ &\le
+\sum_{j=1}^\infty 2^{-\frac{j}{a}} \frac{2^{a^3 + a}}{\mu(B(x,2^{j+1} r))} \int_{\rho(x,y)\le 2^{j+1}r}
+|g(y)| \, dy \\
+\label{secondxx'c}
+&\le 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
+\end{align}
+Using a \Cref{geometric-series-estimate}, we estimate
+\eqref{secondxx'c} by
+\begin{equation}\label{secondxx'd}
+\le 2^{a^3 + 2a} Mg(x) \,.
+\end{equation}
+Summing the estimates
+for \eqref{firstxx'},
+\eqref{secondxx'}, and
+\eqref{thirdxx'}
+proves the lemma.
+\end{proof}
+
+\begin{lemma}[Cotlar control]
+\label{Cotlar-control}
+\uses{estimate-x-shift}
+Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood function
+defined in Proposition
+\ref{Hardy-Littlewood}.
+Then for all $x'\in X$ with $\rho(x,x')<\frac {r_1}4$ we have
+\begin{equation}\label{eq-cotlar-control}
+\left|H_{r_1} g(x)
+\right|\le
+|H_{r}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')| +
+2^{a^3 + 2a + 3} Mg(x)\, .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $x$ and $x'$ be given with $\rho(x,x')<\frac {r_1}4$.
+By an application of \Cref{estimate-x-shift}, we estimate
+the left-hand-side of
+\eqref{eq-cotlar-control} by
+\begin{equation}\label{eqcotlar0}
+|H_{r_1}(g)(x')|+
+2^{a^3 + 2a + 2} Mg(x)\,.
+\end{equation}
+We  have
+\begin{equation}
+\label{eqcotlar-1}
+H_{r_1}(g)(x')=
+\int_{r_1<\rho(x',y)} g(y) K(x',y) \, dy\, .
+\end{equation}
+On the domain $r_1<\rho(x',y)$, we have $\frac {r_1}2<\rho(x,y)$. Hence we may write
+for \eqref{eqcotlar-1}
+\begin{equation*}
+H_{r_1}(g)(x')=\int_{r_1<\rho(x',y)} (g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, dy
+\end{equation*}
+\begin{equation}\label{eqcotlar1}
+=H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')\, .
+\end{equation}
+Combining the estimate \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
+\begin{equation}\label{eqcotlar5}
+\left|H_{r_1} g(x)
+\right|\le
+|H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')|+
+2^{a^3 + 2a + 2} Mg(x)\, .
+\end{equation}
+We  have
+\begin{equation*}
+(H_{r}-H_{r_1})(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')
+\end{equation*}
+\begin{equation}\label{eqcotlar2}
+= \int_{ {r}<\rho(x',y)<r_1}
+(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y)K(x',y)\, dy\,  .
+\end{equation}
+Assume first $r\ge \frac {r_1} 4$.
+Then we estimate \eqref{eqcotlar2} with
+\eqref{eqkernel-size} by
+\begin{equation*}
+\int_{\frac {r_1}4<\rho(x',y)<r_1}
+|g(y)K(x',y)|\, dy
+\end{equation*}
+\begin{equation}\label{eqcotlar3}
+\le \frac{2^{a^3}}{\mu(B(x',\frac{r_1}{4}))} \int_{\rho(x',y)<r_1}
+|g(y)|\, dy \le 2^{a^3 + 2a} Mg(x')\,  .
+\end{equation}
+Assume now $r\le \frac {r_1} 4$.
+As $\rho(x',y)\le \frac{r_1}4$ implies
+$\rho(x,y)\le \frac {r_1} 2$, we see that
+\eqref{eqcotlar2} equals
+\begin{equation*}
+ \int_{ {\frac {r_1} 4}<\rho(x',y)<r_1}
+(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, dy\,  ,
+\end{equation*}
+which we again estimate as above by \eqref{eqcotlar3}.
+In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from \eqref{eqcotlar5}  and the estimate for
+\eqref{eqcotlar2}.
+\end{proof}
+
+\begin{lemma}[Cotlar sets]
+\label{Cotlar-sets}
+\uses{Hilbert-weak-1-1}
+Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ be the Hardy--Littlewood maximal function
+defined in Proposition
+\ref{Hardy-Littlewood}.
+Let $x\in X$.
+Then the measure $|F_1|$ of the set $F_1$ of all $x'\in
+B(x,\frac {r_1} 4)$ such that
+\begin{equation}
+\label{first-cotlar-exception}
+    |H_{r}(g)(x')|> C M(H_{r}g)(x)
+\end{equation}
+is less than or equal to $\frac {\mu(B(x,\frac{r_1}{4}))}C$.
+Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
+B(x,\frac {r_1} 4)$ such that
+\begin{equation}
+\label{second-cotlar-exception}
+    |H_{r}(g\mathbf{1}_{B(x,\frac {r_1} 2)})| > D Mg(x)
+\end{equation}
+is less than $r_1/8$.
+\end{lemma}
+
+\begin{proof}
+Let $r$, $r_1$, $x$ and $g$ be given.
+If $M(H_{r}g)(x)=0$, then $H_{r}g$ is constant zero
+and $F_1$ is empty and the estimate on $F_1$ trivial.
+Assume $M(H_{r}g)(x)>0$.
+We have with \eqref{first-cotlar-exception}
+\begin{equation}
+    M(H_{r}g)(x)\ge
+    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{\rho(x,x')<\frac {r_1}4}|H_{r}g(x')|\, dx'
+\end{equation}
+\begin{equation}
+    \ge
+    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{F_1} C M(H_{r}g)(x)\, dx'
+\end{equation}
+Dividing by $M(H_{r}g)(x)$ gives
+\begin{equation}
+    1\ge \frac C{\mu(B(x,\frac{r_1}{4}))} |F_1|\, .
+\end{equation}
+This gives the desired bound for the measure of $F_1$.
+% TODO: Go on here when weak 1-1 is done.
+We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
+The set $F_2$ is then estimated with \Cref{Hilbert-weak-1-1}
+by
+\begin{equation}
+   \frac {2^{19}}{D Mg(x)}\int |g\mathbf{1}_{[x-\frac {r_1}2, x+\frac {r_1}2]}|(y)\, dy
+\end{equation}
+\begin{equation}
+   \le \frac {2^{19}}{D Mg(x)}r_1Mg(x)= \frac {r_1}8\,.
+\end{equation}
+This gives the desired bound for the measure of $F_2$.
+\end{proof}
+
+\begin{lemma}[Cotlar estimate]
+\label{Cotlar-estimate}
+\uses{Cotlar-control, Cotlar-sets}
+Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$. Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
+defined in \Cref{Hardy-Littlewood}.
+Then for all $x\in X$
+\begin{equation}\label{eq-cotlar-estimate}
+|H_{r_1}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{23} Mg(x)
+\, .
+\end{equation}
+\end{lemma}
+
+
+\begin{proof}
+By \Cref{Cotlar-sets}, the measure of the set
+of all $x'\in
+B(x,\frac {r_1} 4)$
+such that at least one of the conditions
+\eqref{first-cotlar-exception} and
+\eqref{second-cotlar-exception} is satisfied is at most $r_1/4$ and hence not all of
+ $x'\in
+B(x,\frac {r_1} 4)$. Pick an
+$x'\in
+B(x,\frac {r_1} 4)$ such that both conditions are not satisfied.
+Applying \Cref{Cotlar-control}
+for this $x'$ and using the triangle inequality
+estimates the left-hand side of \eqref{eq-cotlar-estimate}
+by
+\begin{equation}
+    C M(H_rg)(x) + D Mg(x) + 2^{a^3 + 2a + 3} Mg(x)\, .
+\end{equation}
+This proves the lemma.
+\end{proof}
+
+\begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
+\uses{Hardy-Littlewood,Hilbert-strong-2-2,Cotlar-estimate}
+    For every  $r>0$ and every bounded measurable function $g$ with bounded support we have
+\begin{equation}\label{trzerobound}
+    \|T_{r}g\|_2\le 2^{42}\|g\|_2,
+\end{equation}
+where
+\begin{equation}\label{eq-simple--nontangential}
+    T_{r} g(x):=\sup_{r<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} |H_{r_1}(g)(x')| \, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+With \Cref{estimate-x-shift}
+and the triangle inequality, we estimate
+for every $x\in X$
+\begin{equation}
+     T_{r} g(x)
+     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<r_1}
+     \frac 1{2\pi} |H_{r_1}(g)(x)|\, .
+\end{equation}
+Using further \Cref{Cotlar-estimate},
+we estimate
+%TODO: Go on here when constants have been worked out
+\begin{equation}
+      T_{r} g(x)
+     \le 2^{a^3 + 2a + 2} Mg(x)+2^{23}
+     Mg(x)+2^{2}M(H_{r}g)(x)\, .
+\end{equation}
+Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
+\begin{equation}
+      \|T_{r} g\|_2
+     \le 2^{24} \|Mg\|_2+2^{2}\|M(H_{r}g)\|_2
+\end{equation}
+\begin{equation}
+     \le 2^{41} \|g\|_2+2^{19}\|H_{r}(g)\|_2\, .
+\end{equation}
+Applying \Cref{Hilbert-strong-2-2}, gives
+\begin{equation}
+      \|T_{r} g\|_2\le 2^{41} \|g\|_2+2^{32}\|g\|_2\, .
+\end{equation}
+This shows \eqref{trzerobound} and completes the proof of the lemma.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{nontangential-Hilbert}]
+    \proves{nontangential-Hilbert}
+Fix $g$ as in the Lemma.
+Applying \Cref{simple-nontangential-Hilbert} with a
+sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
+\begin{equation}\label{tzerobound}
+    \|T_{0}g\|_2\le 2^{42}\|g\|_2,
+\end{equation}
+where
+\begin{equation}\label{eq-simpler--nontangential}
+    T_{0} g(x):=\sup_{0<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}
+g(y) K(x',y)\, dy\right|\, .
+\end{equation}
+We now write by the triangle inequality
+\begin{equation}\label{concretetstartriangle}
+    T_* g(x)\le \sup_{0<r_1<r_2}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, dy\right|
+\end{equation}
+    \begin{equation*}
++\sup_{0<r_1< r_2}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, dy\right|\, .
+\end{equation*}
+Noting that the first integral does not depend on $r_2$ and
+estimating the second integral by the larger supremum over all
+$\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
+\begin{equation}\label{concretetstartriangle2}
+   \sup_{0<r_1}\sup_{\rho(x,x')<r_1}\frac 1{2\pi} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, dy\right|
+\end{equation}
+    \begin{equation*}
++\sup_{0<r_2}\sup_{\rho(x,x')<r_2}\frac 1{2\pi} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, dy\right|\, .
+\end{equation*}
+    Applying the triangle inequality on the left-hand side
+    of \eqref{concretetstarbound} and applying
+     \eqref{tzerobound} twice
+    proves \eqref{concretetstarbound}.
+    This completes the proof of \Cref{nontangential-Hilbert}.
+\end{proof}
+
+
+
+
+\chapter{Proof of The Classical Carleson Theorem}
+
+
+
+The convergence of partial Fourier sums is proved in
+\Cref{10classical} in two steps. In the first step,
+we establish convergence on a suitable dense subclass of functions. We choose smooth functions as subclass, the convergence is stated in \Cref{convergence-for-smooth} and proved in \Cref{10smooth}.
+In the second step, one controls the relevant error of approximating a general function by a function in
+the subclass. This is stated in \Cref{control-approximation-effect} and proved
+in \Cref{10difference}.
+The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}.
+This latter proof refers to the main Carleson \Cref{metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the nontangential maximal operator $T^*$ defined in \eqref{def-tang-unm-op} is established in \Cref{nontangential-Hilbert} using $L^2$ and weak $L^1$ bounds for the Hilbert transform, Lemmas
+\ref{Hilbert-strong-2-2} and \ref{Hilbert-weak-1-1}. These lemmas are proved in Subsections \ref{subsec-cotlar},
+\ref{10hilbert} and \ref{subsec-CZD}.
+The cancellative property is verified by \Cref{van-der-Corput}, which is proved in \Cref{10vandercorput}.
+Several further auxiliary lemmas are stated
+and proved in Subsection
+\ref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
+
+All subsections past \Cref{10classical} are mutually independent.
+
+ Subsections \ref{subsec-cotlar} uses bounds for the Hardy--Littlewood maximal function on the real line. There may be a better path through Lean than we choose here.
+ We refer to \Cref{Hardy-Littlewood}, the assumptions of it,
+ namely that the real line fits into the setting of \Cref{overviewsection},
+ is done in \Cref{10carleson}.
+
+
+
+\section{The classical Carleson theorem}
+\label{10classical}
+
+Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ and $0<\epsilon<1$ be given.
+Let
+\begin{equation}
+    C_{a,q} := \frac{2^{450a^3}}{(q-1)^5}
+\end{equation}
+denote the constant from \Cref{metric-space-Carleson}.
+Define
+\begin{equation}
+    \epsilon' := \frac \epsilon {4 (C_{4,2} \cdot (8 / (\pi\epsilon))^{\frac 1 2} + \pi)}.
+\end{equation}
+By uniform  continuity of $f$, there is a $0<\delta<\pi$
+such that for all $x,x' \in \R$ with $|x-x'|\le \delta$
+we have
+\begin{equation}\label{uniconbound}
+|f(x)-f(x')|\le \epsilon' \, .
+\end{equation}
+Define
+\begin{equation}\label{def-fzero}
+f_0:=f \ast \phi_\delta,
+\end{equation}
+where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\delta) \subset (-\delta, \delta)$ and $\int _\R \phi_\delta (x) \, dx = 1$.
+\begin{lemma}[smooth
+approximation]
+\label{smooth-approximation}
+\leanok
+The function $f_0$ is $2\pi$-periodic.
+The function $f_0$ is smooth (and therefore measurable).
+The function $f_0$ satisfies for all $x\in \R$:
+\begin{equation}\label{eq-ffzero}
+|f(x)-f_0(x)|\le  \epsilon' \, ,
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+\leanok
+Most of this is part of the Lean library.
+\end{proof}
+
+We prove in \Cref{10smooth}:
+\begin{lemma}[convergence for smooth]
+\leanok
+\label{convergence-for-smooth}
+\uses{convergence-for-twice-contdiff}
+    There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
+    \begin{equation}
+        |S_N f_0 (x)- f_0(x)|\le \frac \epsilon 4\, .
+    \end{equation}
+\end{lemma}
+
+
+We prove in \Cref{10difference}:
+\begin{lemma}[control approximation effect]
+\leanok
+\label{control-approximation-effect}
+\uses{real-Carleson,dirichlet-kernel,lower-secant-bound}
+    There is a set $E \subset \R$ with Lebesgue measure
+    $|E|\le \epsilon$ such that for all
+    \begin{equation}
+        x\in [0,2\pi)\setminus E
+    \end{equation}
+   we have
+    \begin{equation}
+    \label{eq-max-partial-sum-diff}
+        \sup_{N\ge 0} |S_Nf(x)-S_Nf_0(x)|
+        \le \frac \epsilon 4\,.
+    \end{equation}
+\end{lemma}
+We are now ready to prove classical Carleson:
+\begin{proof} [Proof of \Cref{classical-Carleson}]
+\proves{classical-Carleson}
+\leanok
+Let $N_0$ be as in \Cref{convergence-for-smooth}.
+For every
+\begin{equation}
+x\in [0, 2\pi) \setminus E\, ,
+\end{equation}
+and every $N>N_0$ we have by the triangle inequality
+\begin{equation*}
+    |f(x)-S_Nf(x)|
+    \end{equation*}
+    \begin{equation}\label{epsilonthird}
+    \le |f(x)-f_0(x)|+ |f_0(x)-S_Nf_0(x)|+|S_Nf_0(x)-S_N f(x)|\, .
+\end{equation}
+Using \Cref{smooth-approximation,convergence-for-smooth,control-approximation-effect}, we estimate \eqref{epsilonthird} by
+\begin{equation}
+    \le \epsilon' +\frac \epsilon 4 +\frac \epsilon 4\le \epsilon\, .
+\end{equation}
+This shows  \eqref{aeconv} for the given $E$ and $N_0$.
+\end{proof}
+
+Let  $\kappa:\R\to \R$ be the function defined by
+$\kappa(0)=0$ and for $0<|x|<1$
+\begin{equation}\label{eq-hilker}
+\kappa(x)=\frac { 1-|x|}{1-e^{ix}}\,
+\end{equation}
+and for $|x|\ge 1$
+\begin{equation}\label{eq-hilker1}
+\kappa(x)=0\, .
+\end{equation}
+Note that this function is continuous at every point $x$ with $|x|>0$.
+
+The proof of \Cref{control-approximation-effect} will
+use the following \Cref{real-Carleson}, which itself is proven
+ in \Cref{10carleson} as an application of
+ \Cref{metric-space-Carleson}.
+\begin{lemma}[real Carleson]\label{real-Carleson}
+\leanok
+\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
+    Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
+\begin{equation}
+    \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
+\end{equation}
+where
+\begin{equation}
+    \label{define-T-carleson}
+    T f(x)=\sup_{n\in \mathbb{Z}}
+    \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|\, .
+\end{equation}
+\end{lemma}
+
+
+One of the main assumption of \Cref{metric-space-Carleson}, concerning the operator $T_*$ defined in \eqref{def-tang-unm-op}, is verified by the following lemma, which is proved in \Cref{subsec-cotlar}.
+
+The following Lemma is proved in \Cref{10hilbert}
+\begin{lemma}[Hilbert strong 2 2]
+    \label{Hilbert-strong-2-2}
+    \uses{modulated-averaged-projection,integrable-bump-convolution,dirichlet-approximation}
+    Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
+    \begin{equation}
+        \label{eq-Hr-L2-bound}
+        \|H_rf\|_{2}\leq 2^{13} \|f\|_2.
+    \end{equation}
+\end{lemma}
+
+The next lemma will be used to verify that the collection $\Mf$ of modulation functions in our application of \Cref{metric-space-Carleson} satisfies the condition \eqref{eq-vdc-cond}.
+It is proved in \Cref{10vandercorput}.
+
+\begin{lemma}[van der Corput]
+\label{van-der-Corput}
+    Let $\alpha<\beta$ be real numbers. Let $g:\R\to \C$ be a  measurable function and assume
+    \begin{equation}
+        \|g\|_{Lip(\alpha,\beta)}:=\sup_{\alpha\le x\le \beta}|g(x)|+|\beta-\alpha|
+        \sup_{\alpha\le x<y\le \beta} \frac {|g(y)-g(x)|}{|y-x|}<\infty\, .
+    \end{equation}
+    Then for any $0\le \alpha<\beta\le 2\pi$ we have
+    \begin{equation}
+        \int _{\alpha}^{\beta} g(x) e^{-inx}\, dx\le 2\pi |\beta-\alpha|\|g\|_{Lip(\alpha,\beta)}(1+|n||\beta-\alpha|)^{-1}\, .
+    \end{equation}
+
+\end{lemma}
+
+
+We close this section with six lemmas that are used
+across the following subsections.
+
+\begin{lemma}[mean zero oscillation]
+\label{mean-zero-oscillation}
+Let $n\in \mathbb{Z}$ with   $n\neq 0$, then
+\begin{equation}
+\int_0^{2\pi} e^{inx}\, dx=0\,.
+\end{equation}
+\end{lemma}
+\begin{proof}
+We have
+\begin{equation*}
+\int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac  1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
+\end{equation*}
+
+\end{proof}
+
+\begin{lemma}[Dirichlet kernel]
+\label{dirichlet-kernel}
+\leanok
+We have for every $2\pi$-periodic bounded measurable $f$ and every $N\ge 0$
+\begin{equation}
+    S_Nf(x)=\frac 1{2\pi}\int_{0}^{2\pi}f(y) K_N(x-y)\, dy
+\end{equation}
+where $K_N$ is the $2\pi$-periodic continuous function of
+$\R$ given by
+\begin{equation}\label{eqksumexp}
+\sum_{n=-N}^N e^{in x'}\, .
+\end{equation}
+We have for $e^{ix'}\neq 1$ that
+\begin{equation}\label{eqksumhil}
+    K_N(x')=\frac{e^{iNx'}}{1-e^{-ix'}}
+      +\frac {e^{-iNx'}}{1-e^{ix'}} \, .
+\end{equation}
+
+
+\end{lemma}
+
+
+\begin{proof}
+\leanok
+We have by definitions and interchanging sum and integral
+   \begin{equation*}
+        S_Nf(x)=\sum_{n=-N}^N \widehat{f}_n e^{inx}
+    \end{equation*}
+       \begin{equation*}
+    =\sum_{n=-N}^N \frac 1{2\pi}\int_{0}^{2\pi}
+    f(x) e^{in(x-y)}\, dy
+    \end{equation*}
+ \begin{equation}\label{eq-expsum}
+     =\frac 1{2\pi}\int_{0}^{2\pi}
+    f(y) \sum_{n=-N}^N e^{in(x-y)}\, dy\, .
+ \end{equation}
+This proves the first statement of the lemma.
+By a telescoping sum, we have for every $x'\in \R$
+\begin{equation}
+    \left( e^{\frac 12 ix'}-e^{-\frac 12 ix'}\right)  \sum_{n=-N}^N e^{inx'}= e^{(N+\frac 12) ix'}-e^{-(N+\frac 12) ix'}\, .
+\end{equation}
+If $e^{ix'}\neq 1$, the first factor on the left-hand side is not $0$ and we may divide by this factor to obtain
+\begin{equation}
+      \sum_{n=-N}^N e^{inx'}= \frac{e^{i(N+\frac 1 2)x'}}{e^{\frac 12 ix'}-e^{-\frac 12ix'}}
+      -\frac{e^{-i(N+\frac 1 2)x'}}{e^{\frac 12 ix'}-e^{-\frac 12ix'}}
+       =\frac{e^{iNx'}}{1-e^{-ix'}}
+      +\frac {e^{-iNx'}}{1-e^{ix'}}\, .
+\end{equation}
+This  proves the second part of the lemma.
+\end{proof}
+
+\begin{lemma}[lower secant bound]
+\label{lower-secant-bound}
+\leanok
+Let $\eta>0$ and $-2\pi +\eta \le  x\le 2\pi-\eta$ with $|x|\ge \eta$. Then
+\begin{equation}
+    |1-e^{ix}|\ge \frac{2}{\pi} \eta
+\end{equation}
+\end{lemma}
+\begin{proof}
+\leanok
+We have
+$$
+    |1 - e^{ix}| = \sqrt{(1 - \cos(x))^2 + \sin^2(x)} \ge |\sin(x)|\,.
+$$
+If $0 \le x \le \frac{\pi}{2}$, then we have from concavity of $\sin$ on $[0, \pi]$ and $\sin(0) = 0$ and $\sin(\frac{\pi}{2}) = 1$
+$$
+    |\sin(x)| \ge \frac{2}{\pi} x \ge \frac{2}{\pi} \eta\,.
+$$
+When $x\in \frac{m\pi}{2} + [0, \frac{\pi}{2}]$ for $m \in \{-4, -3, -2, -1, 1, 2, 3\}$ one can argue similarly.
+ \end{proof}
+
+The following lemma will be proved in \Cref{10projection}.
+
+\begin{lemma}[spectral projection bound]
+\label{spectral-projection-bound}
+\uses{partial-sum-projection,partial-sum-selfadjoint}
+    Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
+   \begin{equation}\label{snbound}
+   \|S_Nf\|_{L^2[-\pi, \pi]} \le \|f\|_{L^2[-\pi, \pi]}.
+   \end{equation}
+\end{lemma}
+
+\begin{lemma}[Hilbert kernel bound]
+\label{Hilbert-kernel-bound}
+\leanok
+\uses{lower-secant-bound}
+    For $x,y\in \R$ with $x\neq y$ we have
+    \begin{equation}\label{eqcarl30}
+        |\kappa(x-y)|\le 2^2(2|x-y|)^{-1}\, .
+    \end{equation}
+\end{lemma}
+\begin{proof}
+\leanok
+    Fix $x\neq y$. If $\kappa(x-y)$ is zero, then \eqref{eqcarl30} is evident. Assume $\kappa(x-y)$ is not zero, then $0<|x-y|<1$.
+    We have
+\begin{equation}\label{eqcarl31}
+|\kappa(x-y)|=\left|\frac {1-|x-y|}{1-e^{i(x-y)}}\right|\, .
+\end{equation}
+We estimate
+with \Cref{lower-secant-bound}
+\begin{equation}\label{eqcarl311}
+|\kappa(x-y)|\le \frac {1}{|1-e^{i(x-y)}|}\le \frac 2{|x-y|}\, .
+\end{equation}
+This proves \eqref{eqcarl30} in the given case and completes the proof of the lemma.
+\end{proof}
+
+\begin{lemma}[Hilbert kernel regularity]
+\label{Hilbert-kernel-regularity}
+\leanok
+\uses{lower-secant-bound}
+    For $x,y,y'\in \R$ with $x\neq y,y'$ and
+    \begin{equation}
+        \label{eq-close-hoelder}
+        2|y-y'|\le |x-y|\, ,
+    \end{equation}
+    we have
+    \begin{equation}\label{eqcarl301}
+        |\kappa(x-y) - \kappa(x-y')|\le 2^{8}\frac{1}{|x-y|} \frac{|y-y'|}{|x-y|}\, .
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+\leanok
+    Upon replacing $y$ by $y-x$ and $y'$ by $y'-x$ on the left-hand side of \eqref{eq-close-hoelder}, we can assume that $x = 0$. Then the assumption \eqref{eq-close-hoelder} implies that $y$ and $y'$ have the same sign. Since $\kappa(y) = \bar \kappa(-y)$ we can assume that they are both positive. Then it follows from \eqref{eq-close-hoelder} that
+    $$
+        \frac{y}{2} \le y' \,.
+    $$
+    We distinguish four cases. If $y, y' \le 1$, then we have
+    $$
+        |\kappa(-y) - \kappa(-y')| = \left|  \frac{1 - y}{1- e^{-iy}} - \frac{1 - y'}{1- e^{-iy'}}\right|
+    $$
+    and by the fundamental theorem of calculus
+    $$
+        = \left| \int_{y'}^{y} \frac{-1 + e^{-it} + i(1-t)e^{it}}{(1 - e^{-it})^2} \,dt \right|\,.
+    $$
+    Using $y' \ge \frac{y}{2}$ and \Cref{lower-secant-bound}, we bound this by
+    $$
+        \le |y - y'| \sup_{\frac{y}{2} \le t \le 1} \frac{3}{|1 - e^{-it}|^2}  \le 3 |y-y'| (2 \frac{2}{y})^2 \le 2^{6} \frac{|y-y'|}{|y|^2}\,.
+    $$
+    If $y \le 1$ and $y' > 1$, then $\kappa(-y') = 0$ and we have from the first case
+    $$
+        |\kappa(-y) - \kappa(-y')| = |\kappa(-y) - \kappa(-1)| \le 2^{6} \frac{|y-1|}{|y|^2} \le 2^{6} \frac{|y-y'|}{|y|^2}\,.
+    $$
+    Similarly, if $y > 1$ and $y' \le 1$, then $\kappa(-y) = 0$ and we have from the first case
+    $$
+        |\kappa(-y) - \kappa(-y')| = |\kappa(-y') - \kappa(-1)| \le 2^{6} \frac{|y'-1|}{|y'|^2} \le 2^{6} \frac{|y-y'|}{|y'|^2}\,.
+    $$
+    Using again $y' \ge \frac{y}{2}$, we bound this by
+    $$
+        \le 2^{6} \frac{|y-y'|}{|y / 2|^2} = 2^{8} \frac{|y-y'|}{|y|^2}
+    $$
+    Finally, if $y, y' > 1$ then
+    $$
+        |\kappa(-y) - \kappa(-y')| = 0 \le 2^{8} \frac{|y-y'|}{|y|^2}\,.
+    $$
+\end{proof}
+
+
+
+
+
+
+\section{Smooth functions.}
+\label{10smooth}
+\begin{lemma}
+\label{fourier-coeff-derivative}
+\leanok
+Let $f:\R \to \C$ be $2\pi$-periodic and differentiable, and let $n \in \Z \setminus \{0\}$. Then
+\begin{equation}
+    \widehat{f}_n = \frac{1}{i n} \widehat{f'}_n.
+\end{equation}
+\end{lemma}
+\begin{proof}
+\leanok
+This is part of the Lean library.
+\end{proof}
+
+\begin{lemma}
+\label{convergence-of-coeffs-summable}
+\leanok
+Let $f:\R \to \C$ such that
+\begin{equation}
+    \sum_{n\in \Z} |\widehat{f}_n| < \infty.
+\end{equation}
+Then
+\begin{equation}
+    \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
+\end{equation}
+as $N \rightarrow \infty$.
+\end{lemma}
+
+\begin{proof}
+\leanok
+    This is part of the Lean library.
+\end{proof}
+
+\begin{lemma}
+\label{convergence-for-twice-contdiff}
+\uses{fourier-coeff-derivative,convergence-of-coeffs-summable}
+\leanok
+Let $f:\R \to \C$ be $2\pi$-periodic and twice continuously differentiable. Then
+\begin{equation}
+    \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
+\end{equation}
+as $N \rightarrow \infty$.
+\end{lemma}
+\begin{proof}
+\leanok
+By \Cref{convergence-of-coeffs-summable}, it suffices to show that the Fourier coefficients $\widehat{f}_n$ are summable.
+Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is continuous and thus bounded on $[0,2\pi]$ , we compute
+\begin{equation*}
+    \sum_{n\in \Z} |\widehat{f}_n| = |\widehat{f}_0| + \sum_{n\in \Z \setminus \{0\}} \frac {1}{n^2} |\widehat{f''}_n|
+    \le |\widehat{f}_0| + \left(\sup_{x\in [0,2\pi]} |f(x)| \right) \cdot \sum_{n\in \Z \setminus \{0\}} \frac {1}{n^2}
+    < \infty.
+\end{equation*}
+\end{proof}
+
+\begin{proof}
+\leanok
+\proves{convergence-for-smooth}
+    \Cref{convergence-for-smooth} now follows directly from the previous \Cref{convergence-for-twice-contdiff}.
+\end{proof}
+
+
+\section{The truncated Hilbert transform}
+\label{10hilbert}
+
+
+
+
+
+Let $M_n$ be the modulation operator
+acting on measurable $2\pi$-periodic functions
+defined by
+\begin{equation}
+    M_ng(x)=g(x) e^{inx}\, .
+\end{equation}
+Define the approximate Hilbert transform by
+\begin{equation}
+    L_N g=\frac 1N\sum_{n=0}^{N-1}
+       M_{-n-N} S_{N+n}M_{N+n}g\, .
+\end{equation}
+
+
+\begin{lemma}[modulated averaged projection]
+\label{modulated-averaged-projection}
+\uses{spectral-projection-bound}
+We have for every bounded measurable $2\pi$-periodic function $g$
+\begin{equation}\label{lnbound}
+    \|L_Ng\|_{L^2[-\pi, \pi]}\le \|g\|_{L^2[-\pi, \pi]}\,.
+\end{equation}
+\end{lemma}
+\begin{proof}
+    We have
+    \begin{equation}\label{mnbound}
+        \|M_ng\|_{L^2[-\pi, \pi]}^2=\int_{-\pi}^{\pi} |e^{inx}g(x)|^2\, dx
+        =\int_{-\pi}^{\pi} |g(x)|^2\, dx=\|g\|_{L^2[-\pi, \pi]}^2\, .
+    \end{equation}
+     We have by the triangle inequality, the square root of the identity in \eqref{mnbound}, and \Cref{spectral-projection-bound}
+    \begin{equation*}
+        \|L_ng\|_{L^2[-\pi, \pi]}=\|\frac 1N\sum_{n=0}^{N-1}
+       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
+    \end{equation*}
+    \begin{equation*}
+        \le \frac 1N\sum_{n=0}^{N-1} \|
+       M_{-n-N} S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
+         = \frac 1N\sum_{n=0}^{N-1} \|
+    S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
+    \end{equation*}
+       \begin{equation}
+     \le \frac 1N\sum_{n=0}^{N-1} \|
+ M_{N+n}g\|_{L^2[-\pi, \pi]}  = \frac 1N\sum_{n=0}^{N-1} \|
+g\|_{L^2[-\pi, \pi]} =\|g\|_{L^2[-\pi, \pi]}\, .
+    \end{equation}
+This proves \eqref{mnbound} and completes the proof of the lemma.
+\end{proof}
+
+\begin{lemma}[periodic domain shift]\label{periodic-domain-shift}
+\lean{Function.Periodic.intervalIntegral_add_eq, intervalIntegral.integral_comp_sub_right}
+\leanok
+Let $f$ be a bounded $2\pi$-periodic function. We have for any
+$0 \le x\le 2\pi$ that
+\begin{equation}
+ \int_0^{2\pi} f(y)\, dy= \int_{-x}^{2\pi -x}   f(y)\, dy
+ =\int_{-\pi}^{\pi}   f(y-x)\, dy\,.
+\end{equation}
+\end{lemma}
+\begin{proof}
+\leanok
+    We have  by periodicity and change of variables
+    \begin{equation}\label{eqhil9}
+ \int_{-x}^{0} f(y)\, dy=\int_{-x}^{0} f(y+2\pi)\, dy= \int_{2\pi -x}^{2\pi}   f(y)\, dy\, .
+\end{equation}
+We then have by breaking up the domain of integration
+and using \eqref{eqhil9}
+\begin{equation*}
+ \int_0^{2\pi} f(y)\, dy= \int_0^{2\pi -x}   f(y)\, dy+
+ \int_{2\pi -x}^{2\pi}   f(y)\, dy
+ \end{equation*}
+\begin{equation}
+= \int_0^{2\pi -x}   f(y)\, dy+
+ \int_{ -x}^{0}   f(y)\, dy
+ = \int_{-x}^{2\pi-x} f(y)\, dy\, .
+ \end{equation}
+This proves the first identity of the lemma. The second identity follows by substitution of $y$ by $y-x$.
+\end{proof}
+
+
+
+\begin{lemma}[Young convolution]\label{Young-convolution}
+\uses{periodic-domain-shift}
+    Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
+    \begin{equation}\label{eqyoung}
+        \left(\int_{-\pi}^{\pi} \left(\int_{-\pi}^{\pi}
+        f(y)g(x-y)\, dy\right)^2\, dx\right)^{\frac 12}\le \|f\|_{L^2[-\pi, \pi]} \|g\|_{L^1[-\pi, \pi]}\, .
+    \end{equation}
+    \end{lemma}
+\begin{proof}
+Using Fubini and \Cref{periodic-domain-shift}, we observe
+\begin{equation*}
+  \int_{-\pi}^{\pi}\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy
+    \, dx=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x-y)\, dx
+    \, dy
+\end{equation*}
+\begin{equation}\label{eqhil4}
+=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x) \, dx
+     dy
+=\|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}\, .
+\end{equation}
+   Let $h$ be the  nonnegative square root of $g$, then
+   $h$ is bounded and $2\pi$-periodic with $h^2=g$.
+   We estimate the square of the left-hand side of
+   \eqref{eqyoung} with Cauchy-Schwarz and then with
+   \eqref{eqhil4} by
+       \begin{equation*}
+         \int_{-\pi}^{\pi} (\int_{-\pi}^{\pi}f(y)h(x-y)h(x-y)\, dy)^2\, dx
+   \end{equation*}
+\begin{equation*}
+    \le \int_{-\pi}^{\pi}\left(\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy\right)
+    \left(\int_{-\pi}^{\pi}g(x-y)\, dy\right)\, dx
+\end{equation*}
+\begin{equation*}
+    = \|f\|_{L^2[-\pi, \pi]}^2\|g\|_{L^1[-\pi, \pi]}^2\, .
+\end{equation*}
+Taking square roots, this proves the lemma.
+\end{proof}
+
+For $0<r<1$, Define the kernel $k_r$ to be the $2\pi$-periodic function
+\begin{equation}
+    |k_r(x)|:=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
+\end{equation}
+where the minimum is understood to be $r^{-1}$ in case $1=e^{ix}$.
+\begin{lemma}[integrable bump convolution]
+\label{integrable-bump-convolution}
+\uses{Young-convolution}
+Let $g,f$ be bounded measurable $2\pi$-periodic functions. Let $0<r<\pi$.
+Assume we have for all $0\le x\le 2\pi$
+\begin{equation}\label{ebump1}
+    |g(x)|\le k_r(x)\, .
+\end{equation}
+Let
+\begin{equation}
+   h(x)= \int_{-\pi}^{\pi} f(y)g(x-y)\, dy \, .
+\end{equation}
+Then
+\begin{equation}
+   \|h\|_{L^2[-\pi, \pi]}\le 2^{5}\|f\|_{L^2[-\pi, \pi]}  \, .
+\end{equation}
+
+\end{lemma}
+
+\begin{proof}
+From monotonicity of the integral and \eqref{ebump1},
+\begin{equation}
+    \|g\|_{L^1[-\pi, \pi]} \le  \int_{-\pi}^{\pi}k_r(x)\, dx\,.
+\end{equation}
+Using the symmetry
+$k_r(x)=k_r(-x)$, the assumption, and \Cref{lower-secant-bound},  the last display
+is equal to
+\begin{equation*}
+    =  2 \int_0^\pi \min\left(\frac 1r, 1+\frac r{|1-e^{ix}|^2}\right)\, dx
+\end{equation*}
+\begin{equation*}
+    \le 2\int_0^{r} \frac 1r \, dx+2\int_r^{\pi}1+\frac {64r}{x^2}\, dx
+\end{equation*}
+\begin{equation}
+    \le 2+2\pi + 2\left(\frac {64r}r-\frac {64r}{\pi}\right)
+    \le 2^{5}\, .
+\end{equation}
+    Together with \Cref{Young-convolution}, this proves the lemma.
+\end{proof}
+
+\begin{lemma}[dirichlet approximation]\label{dirichlet-approximation}
+\uses{dirichlet-kernel,lower-secant-bound}
+Let $0<r<1$. Let $N$ be the smallest
+integer larger than $\frac 1r$.
+There is a   $2\pi$-periodic continuous function
+ ${L'}$ on $\R$ that satisfies for all $-\pi\le x\le \pi$
+and all $2\pi$-periodic bounded measurable functions $f$ on $\R$
+\begin{equation}\label{lthroughlprime}
+    L_Nf(x)=\frac 1{2\pi}\int_{-\pi}^{\pi}f(y) {L'}(x-y)\, dy
+\end{equation}
+and
+\begin{equation}\label{eqdifflhil}
+    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}} \kappa(x)\right|\le 2^{5}k_r(x)\, .
+\end{equation}
+\end{lemma}
+
+
+\begin{proof}
+We have by definition and \Cref{dirichlet-kernel}
+\begin{equation}
+    L_Ng(x)=
+    \frac 1N\sum_{n=0}^{N-1}
+       \int_{-\pi}^{\pi} e^{-i(N+n)x} K_{N+n}(x-y) e^{i(N+n)y}g(y)
+\, dy \, .\end{equation}
+This is of the form \eqref{lthroughlprime} with
+the continuous function
+\begin{equation}
+    {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
+      K_{N+n}(x) e^{-i(N+n)x}\, .
+\end{equation}
+With \eqref{eqksumexp} of \Cref{dirichlet-kernel}
+we have $|K_N(x)|\le N$ for every $x$ and thus
+\begin{equation}\label{eqhil13}
+    |{L'}(x)|\le  \frac 1N\sum_{n=0}^{N-1}
+      (N+n) \le 2N\le 2^2 r^{-1}\, .
+\end{equation}
+Therefore, for $|x|\in [0, r)\cup (1, \pi]$, we have
+\begin{equation}
+    \label{eqdiffzero}
+    \left|L'(x)-\mathbf{1}_{\{y:\, r<|y|<1\}}(x)\kappa(x)\right|=|L'(x)|\leq 2^{2} r^{-1}.
+\end{equation}
+This proves \eqref{eqdifflhil} for $|x|\in [0, r)$ since $k_r(x)=r^{-1}$ in this case.
+
+For $e^{ix'}\neq 1$
+and may use the expression
+\eqref{eqksumhil} for $K_N$
+in \Cref{dirichlet-kernel} to obtain
+\begin{equation*}
+    {L'}(x)=  \frac 1N\sum_{n=0}^{N-1}
+     \left(\frac{e^{i(N+n)x}}{1-e^{-ix}}
+      +\frac {e^{-i(N+n)x}}{1-e^{ix}}\right) e^{-i(N+n)x}
+\end{equation*}
+\begin{equation*}
+    =  \frac 1N\sum_{n=0}^{N-1}
+    \left(\frac{1}{1-e^{-ix}}
+      +\frac {e^{-i2(N+n)x}}{1-e^{ix}}\right)
+\end{equation*}
+\begin{equation}\label{eqhil3}
+    =  \frac{1}{1-e^{-ix}} +
+     \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
+     \sum_{n=0}^{N-1}
+    {e^{-i2nx}}
+\end{equation}
+and thus
+\begin{equation}
+\label{eq-L'L''}
+  {L'}(x)  -\mathbf{1}_{\{y:\, r<|y|<1\}}\kappa(x)=L''(x)+ \frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}},
+\end{equation}
+where
+$$L''(x):=\frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
+     \sum_{n=0}^{N-1}
+    {e^{-i2nx}}.$$
+For $x\in [-\pi, r]\cup [r, \pi]$, we have using \Cref{lower-secant-bound} that
+\begin{equation*}
+   \left|\frac{1-\mathbf{1}_{{\{y:\, r<|y|<1\}}}(x)(1-|x|)}{1-e^{-ix}} \right|=\left|\frac{\min(|x|, 1)}{1-e^{-ix}} \right|\leq \frac{8\min(|x|, 1)}{|x|}
+\end{equation*}
+\begin{equation}
+ \label{eq-diffzero2}
+    \leq 2^3\cdot 1\leq  2^{3} k_r(x).
+\end{equation}
+Next, we need to estimate $L''(x)$. If the real part of
+$e^{ix}$ is negative, we have
+\begin{equation}
+  1\le   |1-e^{ix}|\le 2\, .
+\end{equation}
+and hence
+\begin{equation}\label{eqhil12}
+    |L''(x)|\le
+     \frac 1N
+     \sum_{n=0}^{N-1}
+    1=1\le 1+\frac r{|1-e^{ix}|^2}\, .
+\end{equation}
+If the real part of $e^{ix}$ is positive and in particular while still $e^{ix}\neq \pm 1$, then  we have by telescoping
+\begin{equation}
+ (1-e^{-2ix})
+     \sum_{n=0}^{N-1}
+    {e^{-i2nx}}=1-e^{-i2Nx}\, .
+\end{equation}
+As $e^{-2ix}\neq 1$, we may divide by $1-e^{-2ix}$ and insert this into
+\eqref{eqhil3} to obtain
+\begin{equation}
+ L''(x)=
+           \frac 1N \frac {e^{-i2Nx}}{1-e^{ix}}
+     \frac{1-e^{-i2Nx}}{1-e^{-2ix}}\, .
+\end{equation}
+Hence, with \Cref{lower-secant-bound} and nonnegativity of the real part of $e^{ix}$
+\begin{equation*}
+    |L''(x)|
+ \le \frac 2 N \frac {1}{|1-e^{ix}|}
+     \frac{1}{|1-e^{-2ix}|}
+ \end{equation*}
+\begin{equation}\label{eqhil11}
+    = \frac 2 N \frac {1}{|1-e^{ix}|^2}
+     \frac{1}{|1+e^{ix}|}\le
+ \frac {4r}{|1-e^{ix}|^2}\le 2^{2} \left (1+\frac {r}{|1-e^{ix}|^2}\right)
+\end{equation}
+Inequalities \eqref{eqhil13}, \eqref{eqdiffzero}, \eqref{eq-L'L''}, \eqref{eq-diffzero2}, \eqref{eqhil12}, and \eqref{eqhil11} prove \eqref{eqdifflhil}. This completes the proof of the lemma.
+\end{proof}
+
+
+We now prove \Cref{Hilbert-strong-2-2}.
+
+\begin{proof}[Proof of \Cref{Hilbert-strong-2-2}]
+    \proves{Hilbert-strong-2-2}
+    We first show that if $f$ is supported in $[-3/2, 3/2]$, then
+    \begin{equation}
+        \label{eq-Hr-short-support}
+        \|H_r f\|_{L^2(\R)} \le 2^{16} \|f\|_{L^2(\R)}\,.
+    \end{equation}
+    Let $\tilde{f}$ be the $2\pi$-periodic extension of $f$ to $\mathbb{R}$. Let $N$ be the smallest
+    integer larger than $\frac 1r$. Then, by \Cref{dirichlet-approximation} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
+    \begin{equation*}
+        |H_r \tilde{f}(x)|\leq 2\pi |L_N \tilde{f}(x)|+2^{5}\left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
+    \end{equation*}
+    Taking $L^2$ norm over the interval $[-\pi, \pi]$ and using its sub-additivity, we get
+    $$
+         \|H_r \tilde{f}\|_{L^2([-\pi, \pi])}
+    $$
+    \begin{equation*}
+       \leq 2\pi \|L_N \tilde{f}\|_{L^2([-\pi, \pi])}\, + 2^{5}\left(\int_{-\pi}^{\pi} \left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|^2\, dx\right)^{\frac{1}{2}}.
+    \end{equation*}
+    Since $k_r$ is supported in $[-1,1]$, we have that $H_rf$ is supported in $[-5/2, 5/2]$ and agrees there with $H_r \tilde f(x)$.
+    Using \Cref{modulated-averaged-projection} and \Cref{integrable-bump-convolution},  we conclude
+    \begin{equation}
+        \|H_r f\|_{L^2(\R)} \le \|H_r \tilde f\|_{L^2([-\pi, \pi])} \leq 2\pi \|f\|_{L^2(\R)} + 2^{10}\|f\|_{L^2(\R)}\,,
+    \end{equation}
+    which gives \eqref{eq-Hr-short-support}.
+
+    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H_r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
+    \begin{equation}
+        \label{eq-Hr-short-support-2}
+        \|H_rg\|_2 = \|H_r f\|_2 \le 2^{11} \|f\|_2 = \|g\|_2\,.
+    \end{equation}
+
+    Let now $f$ be arbitrary.
+    Since $\kappa(x) = 0$ for $|x| > 1$, we have for all $x \in [c+1, c+2]$
+    $$
+        H_rf(x) = H_r(f \mathbf{1}_{[c, c+3]})(x)\,.
+    $$
+    Thus
+    $$
+        \int_{c+1}^{c+2} |H_r f(x)|^2 \, \mathrm{d}x \le \int_{\R} |H_r(f \mathbf{1}_{[c, c+3]})(x)|^2 \, \mathrm{d}x\,.
+    $$
+    Applying the bound \eqref{eq-Hr-short-support-2}, this is
+    $$
+        \le 2^{11} \int_{c}^{c+3} |f(x)|^2 \, \mathrm{d}x\,.
+    $$
+    Summing over all $c \in \mathbb{Z}$, we obtain
+    $$
+        \int_{\R} |H_rf(x)|^2 \, \mathrm{d}x \le 3 \cdot 2^{11} \int_{\R} |f(x)|^2 \, \mathrm{d}x\,.
+    $$
+    This completes the proof.
+\end{proof}
+
 
 
 
