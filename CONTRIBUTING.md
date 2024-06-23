@@ -10,6 +10,9 @@ Some remarks:
 * With suprema, it's probably most convenient to take suprema over `ℝ≥0∞`, and potentially apply `ENNReal.toReal` afterwards.
 * Many inequalities are up to some constant factor (depending on `a` and `q`).
   We put these constants in a separate definition, so that the proofs hopefully break slighlty less easily.
+  *If you prove a theorem with a constant used other theorems with constants, it is **encouraged**
+  to define your constant in terms of the other constants, and to not unfold the constants of the other theorems*.
+
   Feel free to improve these constants:
   - either just write a comment in the Lean file that the constant can be improved to X
   - or improve the constant in Lean with a comment that this has to be incorporated in the blueprint
