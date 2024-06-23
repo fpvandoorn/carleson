@@ -41,6 +41,7 @@ Define the partial Fourier sum for $N\ge 0$ as
 \begin{theorem}[classical Carleson]
 \label{classical-Carleson}
 \leanok
+\lean{classical_carleson}
 \uses{smooth-approximation, convergence-for-smooth,
 control-approximation-effect}
 Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\mathbb{R}$ satisfying the bound $|f(x)|\le 1$ for all $x\in \mathbb{R}$. For all $0<\epsilon<1$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
@@ -999,8 +1000,8 @@ following the construction of dyadic cubes in \cite[\S 3]{christ1990b}.
 
 \begin{lemma}[grid existence]
 \label{grid-existence}
-\lean{grid_existence}
 \leanok
+\lean{grid_existence}
 \uses{counting-balls,boundary-measure} There exists a grid structure $(\mathcal{D}, c,s)$.
 \end{lemma}
 
@@ -1012,8 +1013,8 @@ with the construction in \cite[Lemma 2.12]{zk-polynomial}.
 
 \begin{lemma}[tile structure]
 \label{tile-structure}
-\lean{tile_existence}
 \leanok
+\lean{tile_existence}
  \uses{ball-metric-entropy,frequency-ball-cover,disjoint-frequency-cubes,frequency-cube-cover}
     For a given grid structure $(\mathcal{D}, c,s)$, there exists a tile structure
     $(\fP,\scI,\fc,\fcc,\pc,\ps)$.
@@ -3085,18 +3086,18 @@ Let $\mathcal{B}$ be the collection of balls
 \end{equation}
 with $\fp\in \mathfrak{A}$ and recall the definition of
 $M_{\mathcal{B}}$ from Definition \ref{def-hlm}.
-\begin{lemma}[maximal bound antichain]\label{maximal-bound-antichain}
-\uses{tile-disjointness}
-\lean{MaximalBoundAntichain}
-\leanok
-Let $x\in X$.
-Then
-\begin{equation}\label{hlmbound}
-  | \sum_{\fp \in \mathfrak{A}}T_{\fp} f(x)|\le 2^{107 a^3} M_{\mathcal{B}} f (x) \, .
-\end{equation}
+
+\begin{lemma}[maximal bound antichain]
+    \label{maximal-bound-antichain}
+    \uses{tile-disjointness}
+    \lean{MaximalBoundAntichain}
+    \leanok
+    Let $x\in X$.
+    Then
+    \begin{equation}\label{hlmbound}
+    | \sum_{\fp \in \mathfrak{A}}T_{\fp} f(x)|\le 2^{107 a^3} M_{\mathcal{B}} f (x) \, .
+    \end{equation}
 \end{lemma}
-
-
 
 \begin{proof}
 Fix $x\in X$. By \Cref{tile-disjointness}, there is at most one $\fp \in \mathfrak{A}$
@@ -6425,52 +6426,54 @@ Define
 f_0:=f \ast \phi_\delta,
 \end{equation}
 where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\delta) \subset (-\delta, \delta)$ and $\int _\R \phi_\delta (x) \, dx = 1$.
-\begin{lemma}[smooth
-approximation]
-\label{smooth-approximation}
-\leanok
-The function $f_0$ is $2\pi$-periodic.
-The function $f_0$ is smooth (and therefore measurable).
-The function $f_0$ satisfies for all $x\in \R$:
-\begin{equation}\label{eq-ffzero}
-|f(x)-f_0(x)|\le \epsilon' \, ,
-\end{equation}
+
+\begin{lemma}[smooth approximation]
+    \label{smooth-approximation}
+    \leanok
+    \lean{}
+    The function $f_0$ is $2\pi$-periodic.
+    The function $f_0$ is smooth (and therefore measurable).
+    The function $f_0$ satisfies for all $x\in \R$:
+    \begin{equation}\label{eq-ffzero}
+    |f(x)-f_0(x)|\le \epsilon' \, ,
+    \end{equation}
 \end{lemma}
 
 \begin{proof}
-\leanok
-Most of this is part of the Lean library.
+    \leanok
+    Most of this is part of the Lean library.
 \end{proof}
 
 We prove in \Cref{10smooth}:
 \begin{lemma}[convergence for smooth]
-\leanok
-\label{convergence-for-smooth}
-\uses{convergence-for-twice-contdiff}
+    \label{convergence-for-smooth}
+    \leanok
+    \lean{}
+    \uses{convergence-for-twice-contdiff}
     There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
     \begin{equation}
         |S_N f_0 (x)- f_0(x)|\le \frac \epsilon 4\, .
     \end{equation}
 \end{lemma}
 
-
 We prove in \Cref{10difference}:
 \begin{lemma}[control approximation effect]
-\leanok
-\label{control-approximation-effect}
-\uses{real-Carleson}
+    \label{control-approximation-effect}
+    \leanok
+    \lean{}
+    \uses{real-Carleson}
     There is a set $E \subset \R$ with Lebesgue measure
     $|E|\le \epsilon$ such that for all
     \begin{equation}
         x\in [0,2\pi)\setminus E
     \end{equation}
    we have
-    \begin{equation}
+   \begin{equation}
     \label{eq-max-partial-sum-diff}
-        \sup_{N\ge 0} |S_Nf(x)-S_Nf_0(x)|
-        \le \frac \epsilon 4\,.
+    \sup_{N\ge 0} |S_Nf(x)-S_Nf_0(x)| \le \frac \epsilon 4\,.
     \end{equation}
 \end{lemma}
+
 We are now ready to prove classical Carleson:
 \begin{proof} [Proof of \Cref{classical-Carleson}]
 \proves{classical-Carleson}
@@ -6511,6 +6514,7 @@ use the following \Cref{real-Carleson}, which itself is proven
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
 \leanok
+\lean{}
 \uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
@@ -6613,6 +6617,7 @@ We have
 \begin{lemma}[Dirichlet kernel]
 \label{dirichlet-kernel}
 \leanok
+\lean{}
 We have for every $2\pi$-periodic bounded measurable $f$ and every $N\ge 0$
 \begin{equation}
     S_Nf(x)=\frac 1{2\pi}\int_{0}^{2\pi}f(y) K_N(x-y)\, dy
@@ -6662,25 +6667,26 @@ This proves the second part of the lemma.
 \end{proof}
 
 \begin{lemma}[lower secant bound]
-\label{lower-secant-bound}
-\leanok
-Let $\eta>0$ and $-2\pi +\eta \le x\le 2\pi-\eta$ with $|x|\ge \eta$. Then
-\begin{equation}
-    |1-e^{ix}|\ge \frac{2}{\pi} \eta
-\end{equation}
+    \label{lower-secant-bound}
+    \leanok
+    \lean{lower_secant_bound'}
+    Let $\eta>0$ and $-2\pi +\eta \le x\le 2\pi-\eta$ with $|x|\ge \eta$. Then
+    \begin{equation}
+        |1-e^{ix}|\ge \frac{2}{\pi} \eta
+    \end{equation}
 \end{lemma}
 \begin{proof}
-\leanok
-We have
-$$
-    |1 - e^{ix}| = \sqrt{(1 - \cos(x))^2 + \sin^2(x)} \ge |\sin(x)|\,.
-$$
-If $0 \le x \le \frac{\pi}{2}$, then we have from concavity of $\sin$ on $[0, \pi]$ and $\sin(0) = 0$ and $\sin(\frac{\pi}{2}) = 1$
-$$
-    |\sin(x)| \ge \frac{2}{\pi} x \ge \frac{2}{\pi} \eta\,.
-$$
-When $x\in \frac{m\pi}{2} + [0, \frac{\pi}{2}]$ for $m \in \{-4, -3, -2, -1, 1, 2, 3\}$ one can argue similarly.
- \end{proof}
+    \leanok
+    We have
+    $$
+        |1 - e^{ix}| = \sqrt{(1 - \cos(x))^2 + \sin^2(x)} \ge |\sin(x)|\,.
+    $$
+    If $0 \le x \le \frac{\pi}{2}$, then we have from concavity of $\sin$ on $[0, \pi]$ and $\sin(0) = 0$ and $\sin(\frac{\pi}{2}) = 1$
+    $$
+        |\sin(x)| \ge \frac{2}{\pi} x \ge \frac{2}{\pi} \eta\,.
+    $$
+    When $x\in \frac{m\pi}{2} + [0, \frac{\pi}{2}]$ for $m \in \{-4, -3, -2, -1, 1, 2, 3\}$ one can argue similarly.
+\end{proof}
 
 The following lemma will be proved in \Cref{10projection}.
 
@@ -6696,6 +6702,7 @@ The following lemma will be proved in \Cref{10projection}.
 \begin{lemma}[Hilbert kernel bound]
 \label{Hilbert-kernel-bound}
 \leanok
+\lean{}
 \uses{lower-secant-bound}
     For $x,y\in \R$ with $x\neq y$ we have
     \begin{equation}\label{eqcarl30}
@@ -6720,6 +6727,7 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 \begin{lemma}[Hilbert kernel regularity]
 \label{Hilbert-kernel-regularity}
 \leanok
+\lean{}
 \uses{lower-secant-bound}
     For $x,y,y'\in \R$ with $x\neq y,y'$ and
     \begin{equation}
@@ -6778,6 +6786,7 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 \begin{lemma}
 \label{fourier-coeff-derivative}
 \leanok
+\lean{}
 Let $f:\R \to \C$ be $2\pi$-periodic and differentiable, and let $n \in \Z \setminus \{0\}$. Then
 \begin{equation}
     \widehat{f}_n = \frac{1}{i n} \widehat{f'}_n.
@@ -6791,6 +6800,7 @@ This is part of the Lean library.
 \begin{lemma}
 \label{convergence-of-coeffs-summable}
 \leanok
+\lean{}
 Let $f:\R \to \C$ such that
 \begin{equation}
     \sum_{n\in \Z} |\widehat{f}_n| < \infty.
@@ -6808,14 +6818,15 @@ as $N \rightarrow \infty$.
 \end{proof}
 
 \begin{lemma}
-\label{convergence-for-twice-contdiff}
-\uses{fourier-coeff-derivative,convergence-of-coeffs-summable}
-\leanok
-Let $f:\R \to \C$ be $2\pi$-periodic and twice continuously differentiable. Then
-\begin{equation}
-    \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
-\end{equation}
-as $N \rightarrow \infty$.
+    \label{convergence-for-twice-contdiff}
+    \uses{fourier-coeff-derivative,convergence-of-coeffs-summable}
+    \leanok
+    \lean{}
+    Let $f:\R \to \C$ be $2\pi$-periodic and twice continuously differentiable. Then
+    \begin{equation}
+        \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
+    \end{equation}
+    as $N \rightarrow \infty$.
 \end{lemma}
 \begin{proof}
 \leanok
