@@ -6373,6 +6373,968 @@ It follows that for each $z \in B(x,r)$
 This completes the proof.
 
 
+
+
+
+\chapter{Two-sided Metric Space Carleson}
+
+We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Zygmund kernel on the doubling metric measure space $(X,\rho,\mu,a)$, i.e. a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+\begin{equation}
+    \label{eqkernel-x-smooth}
+    |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
+\end{equation}
+%TODO: Should it be V(y,x) rather?
+By the additional regularity, we can weaken the assumption \eqref{nontanbound} to an operator that is easier to work with in applications.
+Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f$ on $X$ with bounded support, we define
+\begin{equation}
+\label{def-H_r}
+H_r f(x):= \int_{r<\rho(x,y)} K(x,y) f(y) \, d\mu(y).
+\end{equation}
+\begin{theorem}[two-sided metric space Carleson]
+    \label{two-sided-metric-space-Carleson}
+    \uses{metric-space-Carleson}
+        For all  integers $a \ge  4$ and  real numbers $1<q\le 2$
+        the following holds.
+        Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
+        cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+        \begin{equation}\label{two-sided-Hr-bound-assumption}
+            \|H_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
+        \end{equation}
+        Then for all Borel sets $F$ and $G$ in $X$ and
+        all Borel functions $f:X\to \C$ with
+        $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
+        \begin{equation}
+        \label{two-sided-resweak}
+            \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{1350a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \end{equation}
+\end{theorem}
+To prove this, we verify \eqref{nontanbound} in the following lemma (for a larger $a$ which we have to account for in the final constant). It is proved in \Cref{subsec-cotlar}.
+\begin{lemma}[nontangential-from-simple]\label{nontangential-from-simple}
+    \uses{simple-nontangential}
+    Assume \eqref{two-sided-Hr-bound-assumption} holds.
+    Then, for every bounded measurable function $g : X \to \C$ supported on a set of finite measure we have
+    \begin{equation}\label{concretetstarbound}
+        \|T_*g\|_2\le 2^{3a^3}\|g\|_2.
+    \end{equation}
+\end{lemma}
+\begin{proof}[Proof of \Cref{two-sided-metric-space-Carleson}]
+    \proves{two-sided-metric-space-Carleson}
+    \Cref{nontangential-from-simple} verifies \eqref{nontanbound} for $a':= 3^{\frac{1}{3}}a$ and all other assumptions still hold for this increased constant.
+\end{proof}
+The proof of \Cref{nontangential-from-simple} relies on the following auxiliary lemma which is proved in \Cref{subsec-CZD}.
+\begin{lemma}[Weak 1 1]
+    \label{weak-1-1}
+    \uses{Calderon-Zygmund-decomposition,geometric-series-estimate}
+    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that
+    \begin{equation}
+        \label{eq-strong-2-2-assumption}
+        \|H_rf\|_{2}\leq 2^{a^3} \|f\|_2.
+    \end{equation}
+    Then for all $\alpha>0$, we have
+    \begin{equation}
+        \label{eq-weak-1-1}
+        \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+    \end{equation}
+\end{lemma}
+Both \Cref{subsec-CZD,subsec-cotlar} use the Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood} but other than that have no dependencies in the previous chapters.
+
+
+
+
+\section{Proof of Cotlar's Inequality}
+\label{subsec-cotlar}
+
+\begin{lemma}
+    \label{geometric-series-estimate}
+    For all $a\ge 4$,
+    \begin{equation*}
+        \sum_{n=0}^\infty 2^{-\frac{n}{a}} \le 2^a.
+    \end{equation*}
+\end{lemma}
+\begin{proof}
+    By convexity, for all $0\le\lambda\le1$
+    \begin{equation*}
+        2^{\lambda(-\frac{1}{4})} \le \lambda 2^{-\frac{1}{4}} + (1-\lambda)2^0.
+    \end{equation*}
+    For $\lambda:=\frac{4}{a}$, we obtain
+    \begin{equation*}
+        2^{-\frac 1 a} \le 1 - (1-2^{-\frac 1 4}) \frac{4}{a}.
+    \end{equation*}
+    We conclude
+    \begin{equation*}
+        \sum_{n=0}^\infty 2^{-\frac{n}{a}} = \frac{1}{1-2^{-\frac 1 a}} \le \frac{1}{4(1-2^{-\frac 1 4})} a \le 2^a.
+    \end{equation*}
+\end{proof}
+
+\begin{lemma}[estimate x shift]
+\label{estimate-x-shift}
+\uses{geometric-series-estimate}
+Let $0<r$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood function
+defined in \Cref{Hardy-Littlewood}.
+Then for all $x'$ with $\rho(x,x')<r$.
+\begin{equation}\label{xx'difference}
+\left| H_r g(x) - H_r g(x') \right|
+\le 2^{a^3 + 2a + 2} Mg(x)\, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+\proves{estimate-x-shift}
+By definition,
+\begin{equation*}
+\left| H_r g(x) - H_r g(x') \right|
+=\left|\int_{r<\rho(x,y)}
+g(y) K(x,y)\, d\mu(y)
+-\int_{r<\rho(x',y)}
+g(y) K(x',y)\, d\mu(y)
+\right| \, .
+\end{equation*}
+We split the first integral in \eqref{xx'difference}
+into the domains $r<\rho(x,y)\le 2r$
+and $2r<\rho(x,y)$. The integral over the first domain we estimate
+by $\eqref{firstxx'}$ below.
+For the second domain, we
+observe with $\rho(x,x')<r$ and the triangle inequality that $r<\rho(x'-y)$. We therefore combine on this domain with the
+corresponding part of the second integral in \eqref{xx'difference} and estimate that by $\eqref{secondxx'}$
+below. The remaining part of the second integral in
+\eqref{xx'difference} we estimate by $\eqref{thirdxx'}$.
+Overall, we have estimated \eqref{xx'difference}
+by
+
+
+\begin{equation}
+\label{firstxx'}
+\int_{r<\rho(x,y)\le 2r}
+|g(y)| |K(x,y)|\, d\mu(y)
+\end{equation}
+\begin{equation}\label{secondxx'}
+  +  \left|\int_{2r<\rho(x,y)}
+g(y) (K(x',y)-K(x,y))\, d\mu(y)
+\right|
+\end{equation}
+\begin{equation}
+\label{thirdxx'}
+  +\left|\int_{r<\rho(x',y), r<\rho(x,y)<2r}
+|g(y) K(x',y)|\, d\mu(y)
+\right|
+\end{equation}
+Using the bound on $K$ in \eqref{eqkernel-size} and the doubling condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
+\begin{align}
+ \int_{r<\rho(x,y)<2r}
+|g(y)| \frac{2^{a^3}}{V(x,y)}\, d\mu(y)\,
+&\le
+\frac{2^{a^3}}{\mu(B(x,r))} \int_{r<\rho(x,y)<2r}
+|g(y)| \, d\mu(y)\, \\
+\label{firstxx'b}
+&\le
+\frac{2^{a^3} \cdot 2^a}{\mu(B(x,2r))} \int_{\rho(x,y)<2r}
+|g(y)| \, d\mu(y)\,
+.
+\end{align}
+Using the definition of $Mg$, we estimate
+\eqref{firstxx'b} by
+\begin{equation}
+\label{firstxx'c}
+ \le 2^{a^3 + a} {Mg(x)}\, .
+\end{equation}
+Similarly, in the domain of \eqref{thirdxx'}
+we note by the triangle inequality
+and assumption on $x'$ that $\rho(x',y)<3r$ and thus we estimate
+\eqref{thirdxx'}
+by
+\begin{equation}
+\label{thirdxx'b}
+\frac{2^{a^3}}{\mu(B(x',r))} \int_{\rho(x',y)<4r}
+|g(y)| \, d\mu(y)\le 2^{a^3 + 2a} Mg(x)
+\end{equation}
+
+We turn to the remaining term. Using \eqref{eqkernel-x-smooth}, we estimate \eqref{secondxx'} by
+\begin{equation}\label{secondxx'b}
+ \int_{2r<\rho(x,y)}
+ |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} \, d\mu(y)
+\end{equation}
+We decompose and estimate
+\eqref{secondxx'}
+with the triangle inequality by
+\begin{align}
+ &\sum_{j=1}^\infty  \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
+ |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}\, d\mu(y)\, \\
+ &\le
+ \sum_{j=1}^\infty \left( 2^{-j} \right)^{\frac{1}{a}} \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
+ |g(y)| \frac{2^{a^3}}{\mu(B(x,2^j r))}\, d\mu(y) \\
+ &\le
+\sum_{j=1}^\infty 2^{-\frac{j}{a}} \frac{2^{a^3 + a}}{\mu(B(x,2^{j+1} r))} \int_{\rho(x,y)\le 2^{j+1}r}
+|g(y)| \, d\mu(y) \\
+\label{secondxx'c}
+&\le 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
+\end{align}
+Using \Cref{geometric-series-estimate}, we estimate
+\eqref{secondxx'c} by
+\begin{equation}\label{secondxx'd}
+\le 2^{a^3 + 2a} Mg(x) \,.
+\end{equation}
+Summing the estimates
+for \eqref{firstxx'},
+\eqref{secondxx'}, and
+\eqref{thirdxx'}
+proves the lemma.
+\end{proof}
+
+\begin{lemma}[Cotlar control]
+\label{Cotlar-control}
+\uses{estimate-x-shift}
+Let $0<r<r_1$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood function defined in \Cref{Hardy-Littlewood}.
+Then for all $x'\in X$ with $\rho(x,x')<\frac {r_1}4$ we have
+\begin{equation}\label{eq-cotlar-control}
+\left|H_{r_1} g(x)
+\right|\le
+|H_{r}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')| +
+2^{a^3 + 2a + 3} Mg(x)\, .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $x$ and $x'$ be given with $\rho(x,x')<\frac {r_1}4$.
+By an application of \Cref{estimate-x-shift}, we estimate
+the left-hand-side of
+\eqref{eq-cotlar-control} by
+\begin{equation}\label{eqcotlar0}
+|H_{r_1}(g)(x')|+
+2^{a^3 + 2a + 2} Mg(x)\,.
+\end{equation}
+We  have
+\begin{equation}
+\label{eqcotlar-1}
+H_{r_1}(g)(x')=
+\int_{r_1<\rho(x',y)} g(y) K(x',y) \, d\mu(y)\, .
+\end{equation}
+On the domain $r_1<\rho(x',y)$, we have $\frac {r_1}2<\rho(x,y)$. Hence we may write
+for \eqref{eqcotlar-1}
+\begin{equation*}
+H_{r_1}(g)(x')=\int_{r_1<\rho(x',y)} (g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, d\mu(y)
+\end{equation*}
+\begin{equation}\label{eqcotlar1}
+=H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')\, .
+\end{equation}
+Combining the estimate \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
+\begin{equation}\label{eqcotlar5}
+\left|H_{r_1} g(x)
+\right|\le
+|H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')|+
+2^{a^3 + 2a + 2} Mg(x)\, .
+\end{equation}
+We  have
+\begin{equation*}
+(H_{r}-H_{r_1})(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')
+\end{equation*}
+\begin{equation}\label{eqcotlar2}
+= \int_{ {r}<\rho(x',y)<r_1}
+(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y)K(x',y)\, d\mu(y)\,  .
+\end{equation}
+Assume first $r\ge \frac {r_1} 4$.
+Then we estimate \eqref{eqcotlar2} with
+\eqref{eqkernel-size} by
+\begin{equation*}
+\int_{\frac {r_1}4<\rho(x',y)<r_1}
+|g(y)K(x',y)|\, d\mu(y)
+\end{equation*}
+\begin{equation}\label{eqcotlar3}
+\le \frac{2^{a^3}}{\mu(B(x',\frac{r_1}{4}))} \int_{\rho(x',y)<r_1}
+|g(y)|\, d\mu(y) \le 2^{a^3 + 2a} Mg(x')\,  .
+\end{equation}
+Assume now $r\le \frac {r_1} 4$.
+As $\rho(x',y)\le \frac{r_1}4$ implies
+$\rho(x,y)\le \frac {r_1} 2$, we see that
+\eqref{eqcotlar2} equals
+\begin{equation*}
+ \int_{ {\frac {r_1} 4}<\rho(x',y)<r_1}
+(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, d\mu(y)\,  ,
+\end{equation*}
+which we again estimate as above by \eqref{eqcotlar3}.
+In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from \eqref{eqcotlar5}  and the estimate for
+\eqref{eqcotlar2}.
+\end{proof}
+
+\begin{lemma}[Cotlar sets]
+\label{Cotlar-sets}
+\uses{weak-1-1}
+Assume that \eqref{two-sided-Hr-bound-assumption} holds. Let $0<r<r_1$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood maximal function
+defined in \Cref{Hardy-Littlewood}.
+Let $x\in X$.
+Then the measure $|F_1|$ of the set $F_1$ of all $x'\in
+B(x,\frac {r_1} 4)$ such that
+\begin{equation}
+\label{first-cotlar-exception}
+    |H_{r}(g)(x')|> 4 M(H_{r}g)(x)
+\end{equation}
+is less than or equal to $\mu(B(x,\frac{r_1}{4}))/4$.
+Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
+B(x,\frac {r_1} 4)$ such that
+\begin{equation}
+\label{second-cotlar-exception}
+    |H_{r}(g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')| > 2^{a^3 + 20a + 2} Mg(x)
+\end{equation}
+is less than or equal to  $\mu(B(x,\frac{r_1}{4}))/4$.
+\end{lemma}
+
+\begin{proof}
+Let $r$, $r_1$, $x$ and $g$ be given.
+If $M(H_{r}g)(x)=0$, then $H_{r}g$ is constant zero
+and $F_1$ is empty and the estimate on $F_1$ trivial.
+Assume $M(H_{r}g)(x)>0$.
+We have with \eqref{first-cotlar-exception}
+\begin{equation}
+    M(H_{r}g)(x)\ge
+    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{\rho(x,x')<\frac {r_1}4}|H_{r}g(x')|\, dx'
+\end{equation}
+\begin{equation}
+    \ge
+    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{F_1} 4 M(H_{r}g)(x)\, dx'
+\end{equation}
+Dividing by $M(H_{r}g)(x)$ gives
+\begin{equation}
+    1\ge \frac{4}{\mu(B(x,\frac{r_1}{4}))} |F_1|\, .
+\end{equation}
+This gives the desired bound for the measure of $F_1$.
+We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
+The set $F_2$ is then estimated with \Cref{weak-1-1} by
+\begin{equation}
+   \frac {2^{a^3+19a}}{2^{a^3 + 20a + 2}Mg(x)}\int |g\mathbf{1}_{B(x,\frac {r_1}2)}|(y)\, d\mu(y)
+\end{equation}
+\begin{equation}
+   \le \frac {1}{2^{a+2} Mg(x)}\mu(B(x,\frac {r_1}{2})) Mg(x) \le \frac{\mu(B(x,\frac {r_1}{4}))}{4} \,.
+\end{equation}
+This gives the desired bound for the measure of $F_2$.
+\end{proof}
+
+\begin{lemma}[Cotlar estimate]
+\label{Cotlar-estimate}
+\uses{Cotlar-control, Cotlar-sets}
+Assume that \eqref{two-sided-Hr-bound-assumption} holds.
+Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$ and assume . Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
+defined in \Cref{Hardy-Littlewood}.
+Then for all $x\in X$
+\begin{equation}\label{eq-cotlar-estimate}
+|H_{r_1}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{a^3+20a+3} Mg(x)
+\, .
+\end{equation}
+\end{lemma}
+
+
+\begin{proof}
+By \Cref{Cotlar-sets}, the measure of the set
+of all $x'\in
+B(x,\frac {r_1} 4)$
+such that at least one of the conditions
+\eqref{first-cotlar-exception} and
+\eqref{second-cotlar-exception} is satisfied is at most $\mu(B(x,\frac{r_1}{4}))/2$ and hence not all of
+ $x'\in
+B(x,\frac {r_1} 4)$. Pick an
+$x'\in
+B(x,\frac {r_1} 4)$ such that both conditions are not satisfied.
+Applying \Cref{Cotlar-control}
+for this $x'$ and using the triangle inequality
+estimates the left-hand side of \eqref{eq-cotlar-estimate}
+by
+\begin{equation}
+    4 M(H_rg)(x) + 2^{a^3 + 20a + 2} Mg(x) + 2^{a^3 + 2a + 3} Mg(x)\, .
+\end{equation}
+This proves the lemma.
+\end{proof}
+
+\begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
+\uses{Hardy-Littlewood,Cotlar-estimate}
+Assume that \eqref{two-sided-Hr-bound-assumption} holds.
+For every  $r>0$ and every bounded measurable function $g$ supported on a set of finite measure we have
+\begin{equation}\label{trzerobound}
+    \|T_{r}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
+\end{equation}
+where
+\begin{equation}\label{eq-simple--nontangential}
+    T_{r} g(x):=\sup_{r<r_1}\sup_{\rho(x,x')<r_1} |H_{r_1}(g)(x')| \, .
+\end{equation}
+\end{lemma}
+\begin{proof}
+With \Cref{estimate-x-shift} and the triangle inequality, we estimate for every $x\in X$
+\begin{equation}
+     T_{r} g(x)
+     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<r_1} |H_{r_1}(g)(x)|\, .
+\end{equation}
+Using further \Cref{Cotlar-estimate}, we estimate
+\begin{equation}
+      T_{r} g(x)
+     \le 2^{a^3+2a+2}Mg(x) + 2^{a^3+20a+3}Mg(x) + 2^{2}M(H_{r}g)(x)\, .
+\end{equation}
+Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
+\begin{equation}
+      \|T_{r} g\|_2
+     \le 2^{a^3+20a+4} \|Mg\|_2 + 2^{2}\|M(H_{r}g)\|_2
+\end{equation}
+\begin{equation}
+     \le 2^{a^3+24a+5} \|g\|_2 + 2^{4a+3}\|H_{r}(g)\|_2\, .
+\end{equation}
+Applying \eqref{two-sided-Hr-bound-assumption}, gives
+\begin{equation}
+      \|T_{r} g\|_2\le 2^{a^3+24a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
+\end{equation}
+This shows \eqref{trzerobound} and completes the proof of the lemma.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{nontangential-from-simple}]
+    \proves{nontangential-Hilbert}
+Fix $g$ as in the Lemma.
+Applying \Cref{simple-nontangential-Hilbert} with a
+sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
+\begin{equation}\label{tzerobound}
+    \|T_{0}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
+\end{equation}
+where
+\begin{equation}\label{eq-simpler--nontangential}
+    T_{0} g(x):=\sup_{0<r_1}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}
+g(y) K(x',y)\, d\mu(y)\right|\, .
+\end{equation}
+We now write by the triangle inequality
+%TODO: this currently ignores out the boundary of B(x',r_2). Are we sure that its measure is zero?
+\begin{equation}\label{concretetstartriangle}
+    T_* g(x)\le \sup_{0<r_1<r_2}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, d\mu(y)\right|
+\end{equation}
+    \begin{equation*}
++\sup_{0<r_1< r_2}\sup_{\rho(x,x')<r_1} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, d\mu(y)\right|\, .
+\end{equation*}
+Noting that the first integral does not depend on $r_2$ and
+estimating the second integral by the larger supremum over all
+$\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
+\begin{equation}\label{concretetstartriangle2}
+   \sup_{0<r_1}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, d\mu(y)\right|
+\end{equation}
+    \begin{equation*}
++\sup_{0<r_2}\sup_{\rho(x,x')<r_2} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, d\mu(y)\right|\, .
+\end{equation*}
+    Applying the triangle inequality on the left-hand side
+    of \eqref{concretetstarbound} and applying
+     \eqref{tzerobound} twice
+    proves \eqref{concretetstarbound}.
+    This completes the proof of \Cref{nontangential-from-simple}.
+\end{proof}
+
+
+
+
+
+\section{Calder\'on-Zygmund Decomposition}
+\label{subsec-CZD}
+The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref{Hardy-Littlewood} (and maybe it should become part of that?).
+\begin{lemma} [Maximal theorem]
+    \label{maximal-theorem}
+    \uses{Hardy-Littlewood}
+    Let $f: X \to \C$ be bounded, measurable, with bounded support and let $\alpha > 0$. For $Mf$ as in \Cref{Hardy-Littlewood},
+    \begin{equation}
+        \label{maximal-theorem-equation}
+        \mu(\{x\in X : Mf(x) > \alpha\}) \le \frac{2^{2a}}{\alpha} \int |f(y)|\, d\mu(y).
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    By definition, for each $x\in \{x\in X : Mf(x) > \alpha\}$, there exists a ball $B_x$ so that $x\in B_x$ and
+    \begin{equation}
+        \label{maximal-theorem-a}
+        \alpha \mu(B_x) < \int_{B_x} |f(y)|\, d\mu(y).
+    \end{equation}
+    Since $\{x\in X : Mf(x) > \alpha\}$ is open and $\mu$ is inner regular on open sets, it suffices to show that
+    \begin{equation*}
+        \mu(E) \le \frac{2^{2a}}{\alpha} \int |f(y)|\, d\mu(y)
+    \end{equation*}
+    for every compact $E\subset \{x\in X : Mf(x) > \alpha\}$.
+    For such an $E$, by compactness, we can select a finite subcollection $\mathcal{B} \subset \{B_x: x\in E\}$ that covers $E$.
+    By \eqref{eq-besico} applied to \eqref{maximal-theorem-a},
+    \begin{equation}
+        \alpha \mu(\bigcup \mathcal{B}) \le 2^{2a} \int |f(y)|\,d\mu(y)
+    \end{equation}
+    and hence
+    \begin{equation*}
+        \mu(E) \le \mu(\bigcup \mathcal{B}) \le \frac{2^{2a}}{\alpha} \int |f(y)|\,d\mu(y).
+    \end{equation*}
+\end{proof}
+
+\begin{lemma}[Lebesgue differentiation]
+    \label{Lebesgue-differentiation}
+    Let $f$ be a bounded measurable function with bounded support. Then for $\mu$ almost every $x$, we have
+    $$\lim_{n\to \infty} \frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
+    where $\{B_n\}_{n\geq 1}$ is a sequence of balls such that $x\in B_n$ for each $n\geq 1$ and $$\lim_{n\to \infty} \mu(B_n)=0.$$
+\end{lemma}
+\begin{proof}
+    This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
+\end{proof}
+
+\begin{lemma}
+    \label{disjoint-family-countable}
+    In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
+\end{lemma}
+\begin{proof}
+    %TODO: Do we know that X is nonempty?
+    Choose an arbitrary $x\in X$ as reference point. For $q, Q\in\Q_+$, let $J_{q,Q}$ denote the set of all $j\in J$ such that $B_j\subset B(x, Q)$ and $r_j \ge q$. It suffices to show that all the $J_{q,Q}$ are finite.
+    Indeed, for all $j\in J_{q,Q}$,
+    \begin{equation*}
+        \mu(B(x, Q)) \le \mu(B(x_j, 2Q)) = \mu(B(x_j, \frac{2 Q}{r_j} r_j))
+        \le 2^{a\log_2{\lceil \frac{2 Q}{r_j}\rceil}} \mu(B_j).
+    \end{equation*}
+    Since the $B_j$ are disjoint,
+    \begin{equation}
+        |J_{q,Q}| \mu(B(x, Q)) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \sum_{j\in J_{q,Q}} \mu(B_j) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \mu(B(x,Q))
+    \end{equation}
+    and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
+    %TODO: We used that $0<\mu(B(x,Q)<\infty$. Is that guaranteed in our setting?
+\end{proof}
+
+Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
+It is classical and can be found in \cite{stein-book}.
+\begin{lemma}[Vitali covering]
+    \label{Vitali-covering}
+    \leanok
+    Let $B_i$, $i\in I$, be a family of balls with center $x_i$ and radius $r_i$ such that $\sup_{i\in I} r_i < \infty$. Then there exists $J\subset I$ such that
+    \begin{equation}
+        \label{vitali-balls-disjoint}
+        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j', \, j,j' \in J
+    \end{equation}
+    and
+    \begin{equation}
+        \label{vitali-enlarged-balls-covering}
+        \forall i\in I, \exists j \in J, B_i \subset B (x_j, 6r_j) .
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
+\end{proof}
+
+The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional explicit statement and proof of the bounded intersection property, as well as countability of the disjoint family.
+\begin{lemma}[Ball covering]
+    \label{ball-covering}
+    \uses{disjoint-family-countable}
+    Given an open set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
+    \begin{equation}
+        \label{balls-disjoint}
+        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j'
+    \end{equation}
+    and for $B_j^* := B(x_j, 3r_j)$,
+    \begin{equation}
+        \label{balls-covering}
+        \bigcup_j B_j^* = O
+    \end{equation}
+    and for $B_j^{**} := B(x_j, 7r_j)$,
+    \begin{equation}
+        \label{enlarged-balls-intersect-complement}
+        B_j^{**} \cap (X \setminus O) \ne \emptyset \quad \text{ for all } j
+    \end{equation}
+    and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{6a}$ of the $B_j^*$.
+\end{lemma}
+\begin{proof}
+Define for $x\in O$,
+\begin{equation}
+    \delta(x):= \sup \{\delta\in\R : B(x,\delta)\subset O\}.
+\end{equation}
+Since $O$ is open, and $O\ne X$, we have
+\begin{equation}
+    0 < \delta(x) < \infty
+\end{equation}
+By Zorn's Lemma, we select a maximal disjoint subfamily of $\{B(x,\frac{\delta(x)}{6}) : x \in O\}$.
+We obtain a (by \Cref{disjoint-family-countable} countable) family of balls $B_j = B(x_j, \frac{\delta(x_j)}{6}), j \in J$ such that \eqref{balls-disjoint}. \eqref{enlarged-balls-intersect-complement} and $\bigcup_j B_j^* \subset O$ are also immediate. For the other inclusion, observe that for $x,y\in X$,  if $B(x,\frac{\delta(x)}{6}) \cap B(y,\frac{\delta(y)}{6}) \ne \emptyset$, then
+\begin{equation*}
+    \delta(x) \le \rho(x,y) + \delta(y) \le (\frac{\delta(x)}{6} + \frac{\delta(y)}{6}) + \delta(y) = \frac{\delta(x)}{6} + \frac{7\delta(a)}{6},
+\end{equation*}
+so
+\begin{equation}
+    \label{control-distance-growth}
+    \delta(x) \le 2 \delta(y).
+\end{equation}
+Now let $z\in X$. By maximality, there exists some $j\in J$ with $B(z,\frac{\delta(z)}{6}) \cap B_j \ne \emptyset$. By \eqref{control-distance-growth},
+\begin{equation*}
+    \rho(z,x_j)\le \frac{\delta(z)}{6} + \frac{\delta(x_j)}{6} \le \frac{3\delta(x_j)}{6} = 3r_j
+\end{equation*}
+and thus $z\in B_j^*$.
+
+We now turn to the bounded intersection property. Assume that for some $j_1,\dots,j_N$,
+\begin{equation}
+    z\in \bigcap_{k=1}^N B_{j_k}^*.
+\end{equation}
+Similarly as above, observe for $1\le k \le N$,
+\begin{equation}
+    \label{control-distance-growth-b}
+    \delta(z) \le \rho(z,x_{j_k}) + \delta(x_{j_k}) \le \frac{\delta(x_{j_k})}{2} + \delta(x_{j_k}) = \frac{3\delta(x_{j_k})}{2}
+\end{equation}
+and
+\begin{equation*}
+    \delta(x_{j_k}) \le \rho(x_{j_k},z) + \delta(z) \le \frac{\delta(x_{j_k})}{2} + \delta(z),
+\end{equation*}
+so
+\begin{equation}
+    \label{control-distance-growth-c}
+    \delta(x_{j_k}) \le 2 \delta(z).
+\end{equation}
+
+By \eqref{control-distance-growth-b} and \eqref{control-distance-growth-c}, for all $1\le k \le N$, $B(z,\frac{\delta(z)}{6}) \subset B(x_{j_k}, 5r_{j_k})$ and $B_{j_k} \subset B(z,\frac{8\delta(z)}{6})$. Using this and \eqref{balls-disjoint}, we obtain
+\begin{align}
+    N \mu(B(z,\frac{\delta(z)}{6})) &\le \sum_{k=1}^N \mu(B(x_{j_k}, 5r_j)) \le 2^{3a} \sum_{k=1}^N \mu(B_{j_k}) \\
+    &= 2^{3a} \mu(\bigcup_{k=1}^N B_{j_k}) \le 2^{3a} \mu(B(z,\frac{8\delta(z)}{6})) \le 2^{6a} \mu(B(z,\frac{\delta(z)}{6}))
+\end{align}
+and conclude $N\le 2^{6a}$.
+% TODO: We used that $0<\mu(B(z,\frac{\delta(z)}{6}))<\infty$. Is that guaranteed in our setting?
+\end{proof}
+
+Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
+\begin{lemma}[Calderon Zygmund decomposition]
+    \label{Calderon-Zygmund-decomposition}
+    \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
+    Let $f$ be a bounded, measurable function with bounded support and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
+    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$) such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
+    \begin{equation}
+       \label{eq-gb-dec}
+       f(x)= g(x) + \sum_{j} b_j(x)
+    \end{equation}
+    and such that the following holds. For almost every $x\in X$,
+    \begin{equation}
+        \label{eq-g-max}
+       |g(x)|\leq 2^{3a} \alpha\,.
+    \end{equation}
+    We have
+    \begin{equation}
+        \label{eq-g-L1-norm}
+        \int |g(y)|\, d\mu(y)\leq \int |f(y)|\, d\mu(y).
+    \end{equation}
+    For every $j$
+    \begin{equation}
+        \label{eq-supp-bj}
+        \operatorname{supp} b_j \subset B_j^*\,.
+    \end{equation}
+    For every $j$
+    \begin{equation}
+        \label{eq-bad-mean-zero}
+        \int_{B_j^*} b_j(x)\, d\mu(x)=0,
+    \end{equation}
+    and
+     \begin{equation}
+        \label{eq-bj-L1}
+        \int_{B_j^*} |b_j(x)|\, d\mu(x) \leq 2^{2a+1} \alpha \mu(B_j^*).
+    \end{equation}
+    We have
+    \begin{equation}
+        \label{eq-bset-length-sum}
+        \sum_j \mu(B_j^*)\leq \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y)
+    \end{equation}
+    and
+    \begin{equation}
+    \label{eq-b-L1}
+    \sum_{j}\int_{B_j^*} |b_j(y)|\, d\mu(y)\leq 2 \int |f(y)|\, d\mu(y)\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$, with $Mf$ as defined in \Cref{Hardy-Littlewood}.
+Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$. We apply \Cref{ball-covering} with $O=E_\alpha$ to obtain the family $B_j, j\in J,$. Without loss of generality, we can assume $J=\N$. Define
+\begin{equation}
+    Q_j := B_j^* \setminus \left(\bigcup_{i<j} Q_i \cup \bigcup_{i>j} B_i \right).
+\end{equation}
+Then the $B_j\subset Q_j\subset B_j^*$, the $Q_j$ are pairwise disjoint and $\bigcup_j Q_j = E_\alpha$.
+Define
+\begin{equation}
+    \label{eq-g-def}
+    g(x):=\begin{cases}
+     f(x), & x\in X\setminus E_\alpha,\\
+     \frac{1}{\mu(Q_j)}\int_{Q_j} f(y)\, d\mu(y), &x\in Q_j,
+    \end{cases}
+\end{equation}
+and, for each $j$,
+\begin{equation}
+    b_j(x):= \mathbb{1}_{Q_j}(x) \left(f(x)-\frac{1}{\mu(Q_j)}\int_{Q_j} f(y)\, d\mu(y) \right).
+\end{equation}
+Then \eqref{eq-gb-dec}, \eqref{eq-supp-bj} and \eqref{eq-bad-mean-zero} are true by construction.
+For \eqref{eq-g-max}, we first do the case $x\in X\setminus E_\alpha$. By definition of $Mf$,
+\begin{equation}
+    \frac{1}{\mu(B)}\int_B |f(y)|\,d\mu(y) \le \alpha
+\end{equation}
+for every ball $B\subset X$ with $x\in B$. It follows by \Cref{Lebesgue-differentiation} that for almost every $x\in X\setminus E_\alpha$, $|f(x)|\le \alpha$.
+%TODO: How do we ensure that the sequences required in Lebesgue-differentiation exist for a.e. x?
+In the case $x\in E_\alpha$, there exists some $j\in J$ with $x\in Q_j$ and we have that
+\begin{equation}
+    \label{large-ball-estimate}
+    \frac{1}{\mu(B_j^{**})} \int_{B_j^{**}} |f(y)| \,d\mu(y) \le \alpha
+\end{equation}
+because $B_j^{**}\cap (X\setminus E_\alpha) \ne \emptyset$. We get
+\begin{equation}
+    |g(x)| \le \frac{1}{\mu(Q_j)}\int_{Q_j} |f(y)|\, d\mu(y) \le \frac{1}{\mu(B_j)}\int_{B_j^{**}} |f(y)| \, d\mu(y) \le 2^{3a}\alpha .
+\end{equation}
+
+To prove \eqref{eq-g-L1-norm}, we estimate
+\begin{align*}
+    \int |g(z)|\, d\mu(z) &\le \int_{X\setminus E_\alpha} |f(z)|\, d\mu(z) + \sum_{j} \int_{Q_j}\frac{1}{\mu(Q_j)}\int_{Q_j}|f(y)|\, d\mu(y)\,d\mu(z) \\
+    &= \int |f(z)|\,d\mu(z).
+\end{align*}
+Using the triangle inequality, we have that
+\begin{align}
+    \label{eq-bj-int}
+    \int_{B_j^*} |b_j(y)|\, dy &\le \int_{Q_j} |f(y)|\, d\mu(y) + \int_{Q_j} \frac{1}{\mu(Q_j)}\int_{Q_j^*} |f(x)|\, d\mu(x)\, d\mu(y) \\
+    &= 2 \int_{Q_j} |f(y)|\, dy.
+\end{align}
+With \eqref{large-ball-estimate}, we estimate further
+\begin{equation}
+    \le 2 \int_{B_j^{**}} |f(y)|\, dy \le 2\mu(B_j^{**})\alpha \le 2^{2a+1} \alpha \mu(B_j^*)
+\end{equation}
+to obtain \eqref{eq-bj-L1}.
+Further, summing up \eqref{eq-bj-int} in $j$ yields \eqref{eq-b-L1}.
+At last, we estimate with \Cref{maximal-theorem}
+\begin{equation}
+    \sum_j \mu(B_j^*) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y),
+\end{equation}
+proving \eqref{eq-bset-length-sum}.
+
+Assume now that $E_\alpha = X$. Note that this can only happen if $\mu(X)<\infty$.
+%TODO: Could $\mu$ also be $\infty$ on every ball?
+Define
+\begin{equation*}
+    g := \frac{1}{\mu(X)} \int |f(y)|\,d\mu(y)
+\end{equation*}
+and
+\begin{equation*}
+    b_1 := f - g.
+\end{equation*}
+Then $f = g + b_1$ and $\supp b_1 \subset B_1^*:=X$ and \eqref{eq-gb-dec}, \eqref{eq-g-L1-norm}, \eqref{eq-supp-bj}, \eqref{eq-bad-mean-zero} all hold immediately. By assumption, $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu = g$, so \eqref{eq-g-max} holds.
+We also have, using the definitions and the same assumption,
+\begin{equation}
+    \int |b_1(y)|\, d\mu(y) \le 2 \int |f(y)|\,d\mu(y) \le 2\alpha\mu(X),
+\end{equation}
+which verifies both \eqref{eq-b-L1} and \eqref{eq-bj-L1}.
+Finally, by \Cref{maximal-theorem},
+\begin{equation*}
+    \mu(X) \le \frac{2^{2a}}{\alpha} \int |f(y)|\,d\mu(y),
+\end{equation*}
+which shows \eqref{eq-bset-length-sum}.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{weak-1-1}]
+\proves{weak-1-1}
+Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $\alpha':=c\alpha$, we obtain the decomposition
+%TODO: verify assumption for $\mu(X)<\infty$
+\begin{equation*}
+    f=g+b=g+\sum_j b_j
+\end{equation*}
+such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied (with $\alpha'$ replacing $\alpha$). We rename $B_j^*$ to $B_j$, and for each $j$, let
+\begin{equation}
+    \label{eq-Ij-cj}
+    B_j=B(x_j, r_j).
+\end{equation}
+Define
+\begin{equation}
+    \label{eq-Ij*}
+    B_j':=B(x_j, 2r_j).
+\end{equation}
+(In the special case $B_j=X$, we define $B_j':=X$.)
+Then $B_j'$ is a ball with the same center as $B_j$ but with
+\begin{equation}
+    \label{eq-Ij*-dim}
+    \mu(B_j')\le 2^{a} \mu(B_j).
+\end{equation}
+Let
+\begin{equation}
+    \label{eq-omega}
+    \Omega:=\bigcup_j B_j'.
+\end{equation}
+By definition, for each $x\in X\setminus\Omega$ and $y\in B_j$,
+\begin{equation}
+    \label{eq-Om-cj}
+    \rho(x,x_j)\ge 2r_j > 2\rho(x_j,y).
+\end{equation}
+It follows by the triangle inequality and subadditivity of $\mu$ that
+\begin{equation*}
+    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)
+\end{equation*}
+\begin{equation}
+\label{eq-set-dec-1}
+ \le \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)+  \mu\left(\{x\in X: |H_r b(x)|>{\alpha}/2\}\right).
+\end{equation}
+We estimate using monotonicity of the integral
+\begin{equation*}
+     \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)\leq \frac{4}{\alpha^2} \int |H_r g(y)|^2\, d\mu(y).
+\end{equation*}
+Using \eqref{eq-strong-2-2-assumption} followed by \eqref{eq-g-max} and \eqref{eq-g-L1-norm}, we estimate the right hand side above by
+\begin{equation}
+    \label{eq-Hr-g}
+    \leq \frac{4\cdot 2^{2a^3}}{\alpha^2} \int |g(y)|^2\, d\mu(y)\leq \frac{2^{2a^3+3a+2}c}{\alpha} \int |g(y)|\, dy \le \frac{2^{2a^3+3a+2}c}{\alpha} \int |f(y)|\, d\mu(y).
+\end{equation}
+
+Next, we estimate
+\begin{equation*}
+    \mu\left(\{x\in X: |H_r b(x)|>\alpha/2\}\right)
+\end{equation*}
+\begin{equation}
+    \label{eq-set-dec-2}
+    \le \mu (\Omega) +  \mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
+\end{equation}
+
+Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
+\begin{equation}
+    \label{eq-omega-bd}
+    \mu(\Omega) \le \sum_{j} \mu (B_j')
+    \le 2^{a} \sum_{j} \mu(B_j) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
+\end{equation}
+We now focus on estimating the remaining term
+\begin{equation*}
+    \mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
+\end{equation*}
+Let $x\in X\setminus\Omega$. We decompose the index set $J$ into the following disjoint sets:
+\begin{align*}
+    \mathcal{J}_1(x)&:=\{j\,: r+r_j \le \rho(x,x_j) \},\\
+    \mathcal{J}_2(x)&:=\{j\,: r-r_j \le \rho(x,x_j) < r+r_j\},\\
+    \mathcal{J}_3(x)&:=\{j\,: \rho(x,x_j) < r-r_j\}.
+\end{align*}
+Then
+\begin{align}
+    \label{eq-b-dec-1}
+    |H_r b(x)|\le&\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)| \\
+    \label{eq-b-dec-2}
+                +&\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)| \\
+    \label{eq-b-dec-3}
+                +&\sum_{j\in \mathcal{J}_3(x)} |H_rb_j(x)|.
+\end{align}
+For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $H_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
+
+Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_j\subset X \setminus B(x,r)$, and we have
+\begin{equation*}
+    H_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_j} K(x,y) b_j(y)\,d\mu(y)\,.
+\end{equation*}
+
+Using \eqref{eq-bad-mean-zero}, the above is equal to
+\begin{equation*}
+    \int_{B_j} (K(x,y)-K(x,x_j)) b_j(y)\,d\mu(y)\,.
+\end{equation*}
+By \eqref{eq-Om-cj}, we can apply \eqref{eqkernel-y-smooth} to estimate
+\begin{equation*}
+    \eqref{eq-b-dec-1} \le \sum_{j\in \mathcal{J}_1(x)}\int_{B_j}\left(\frac{\rho(x_j,y)}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,x_j)} |b_j(y)|\, d\mu(y)
+\end{equation*}
+\begin{equation}
+    \le 2^{a^3} \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\int_{B_j} |b_j(y)|\, dy
+\end{equation}
+and by \eqref{eq-bj-L1},
+\begin{equation}
+    \label{eq-J1-diff-est}
+    \le 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_j)}{V(x,x_j)} := F(x).
+\end{equation}
+Next, we estimate \eqref{eq-b-dec-2}. For each $j\in \mathcal{J}_2(x)$, set
+\begin{equation*}
+    d_j:=\frac{1}{\mu(B_j)}\int_{B_j} \mathbf{1}_{X\setminus B(x,r)}(y) b_j(y)\, dy.
+\end{equation*}
+Then by \eqref{eq-bj-L1}
+\begin{equation}
+    \label{eq-dj-est}
+    |d_j|\le 2^{2a+1} c\alpha.
+\end{equation}
+For each $j\in \mathcal{J}_2(x)$, we have
+\begin{align*}
+    H_r b_j(x)&=\int_{B_j} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy \\
+    &= \int_{B_j} (K(x,y)-K(x,c_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy.
+\end{align*}
+Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, we obtain
+\begin{equation*}
+    |H_r b_j(x)|\le
+\end{equation*}
+\begin{equation}
+    \label{eq-J2-diff-est}
+    \int_{B_j} |(K(x,y)-K(x,c_j)) \left(|b_j(y)|+2^{2a+1} c\alpha\right)\, dy +2^{2a+1} c\alpha \int_{B_j}  |K(x,y)| \, dy.
+\end{equation}
+By \eqref{eq-Om-cj}, we can apply \eqref{eqkernel-y-smooth} and arguing as in \eqref{eq-J1-diff-est}, we get that
+\begin{equation}
+    \label{eq-J2-diff-est-2}
+    \eqref{eq-b-dec-2} \le 2F(x) + 2^{2a+1}c\alpha \sum_{j\in\mathcal{J}_2(x)} \int_{B_j}  |K(x,y)|\,d\mu(y),
+\end{equation}
+with $F$ as in \eqref{eq-J1-diff-est}.
+Define
+\begin{equation*}
+    A := \bigcup_{j \in \mathcal{J}_2(x)} B_j.
+\end{equation*}
+We claim that
+\begin{equation}
+    \label{eq-J2-union-subset}
+    A\subset B(x,3r) \setminus B(x,\frac{r}{3}).
+\end{equation}
+Indeed, for each $j\in \mathcal{J}_2(x)$ and $y\in B_j$,
+\begin{equation*}
+    \rho(x,x_j) < r+r_j \le r + \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) < 2r
+\end{equation*}
+and hence
+\begin{equation*}
+    \rho(x,y) \le \rho(x,x_j) + \rho(x_j,y) < 2r + r_j \le 2r + \frac{1}{2}\rho(x,x_j) \le 3r.
+\end{equation*}
+For the lower bound, we observe
+\begin{equation*}
+    \rho(x,x_j) \ge r-r_j \ge r - \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) \ge \frac{2}{3}r,
+\end{equation*}
+and conclude
+\begin{equation*}
+    \rho(x,y) \ge \rho(x,x_j) - \rho(y,x_j) \ge \rho(x,x_j) - r_j \ge \rho(x,x_j) - \frac{1}{2}\rho(x,x_j) \ge \frac{1}{3} r.
+\end{equation*}
+
+Using the bounded intersection property of the $B_j$, \eqref{eq-J2-union-subset} and \eqref{eqkernel-size}, we get
+\begin{align}
+    \sum_{j\in\mathcal{J}_2(x)} \int_{B_j}  |K(x,y)|\,d\mu(y) &\le 2^{6a} \int_{A}  |K(x,y)|\,d\mu(y) \\
+    &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})}  |K(x,y)|\,d\mu(y) \\
+    &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{2^{a^3}}{V(x,y)} \,d\mu(y) \\
+    &\le 2^{a^3+3a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{1}{\mu(B(x,\frac{r}{3}))} \,d\mu(y) \\
+    &\le 2^{a^3+6a} \frac{\mu(B(x,3r))}{\mu(B(x,\frac{r}{3}))} \\
+    \label{eq-J2-diff-est-4}
+    &\le 2^{a^3+10a}.
+\end{align}
+
+Combining the estimates \eqref{eq-J1-diff-est} for \eqref{eq-b-dec-1}, \eqref{eq-J2-diff-est-2} for \eqref{eq-b-dec-2}, and \eqref{eq-J2-diff-est-4}, we get
+\begin{equation*}
+    |H_rb(x)|\leq 3F(x)+2^{a^3+12a+1}c\alpha.
+\end{equation*}
+With $c:=2^{-a^3-12a-4}$, the equals
+\begin{equation*}
+    3F(x)+\alpha/8.
+\end{equation*}
+Using the triangle inequality, we deduce that
+\begin{equation}
+    \label{eq-set-dec-3}
+    \mu({\{x\in X\setminus\Omega: |H_r b(x)|>\alpha/2\}}) \le \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}).
+\end{equation}
+
+We estimate
+\begin{align}
+    &\le \frac{8}{\alpha} \int_{X\setminus \Omega} F(x)\,d\mu(x) \\
+    &\le \frac{8}{\alpha} \int_{X\setminus \Omega} 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_j)}{V(x,x_j)}\,d\mu(x) \\
+    \label{eq-F-est-1}
+    &\le 2^{a^3+2a+4} c \sum_{j} \mu(B_j) \int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x)
+\end{align}
+Using
+\begin{equation*}
+    V(x,x_j) = \mu(B(x,\rho(x,x_j))) \ge 2^{-a}\mu(B(x,2\rho(x,x_j))) \ge 2^{-a} \mu(B(x_j,\rho(x_j,x))),
+\end{equation*}
+we have for all $j\in J$,
+\begin{align*}
+    &\int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x) \\
+    \le& 2^a \int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,\rho(x_j,x)))}\,d\mu(x) \\
+    \le&2^a \sum_{n=1}^\infty \int_{B(x_j,2^{n+1}r_j)\setminus B(x_j,2^n r_j)} \left(\frac{r_j}{2^n r_j}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,2^n r_j))}\,d\mu(x) \\
+    \le&2^a \sum_{n=1}^\infty 2^{-\frac{n}{a}} \frac{\mu(B(x_j,2^{n+1}r_j))}{\mu(B(x_j,2^n r_j))} \\
+    \le&2^{3a},
+\end{align*}
+where we used \Cref{geometric-series-estimate} in the last step.
+Plugging this into \eqref{eq-F-est-1} and using \eqref{eq-bset-length-sum}, we conclude that
+\begin{equation}
+    \label{eq-Hr-b-X-minus-Omega}
+    \mu({\{x\in X\setminus\Omega: |H_r b(x)|>\alpha/2\}}) \le  \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
+\end{equation}
+Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-Hr-g}, \eqref{eq-set-dec-2}, \eqref{eq-omega-bd}, \eqref{eq-Hr-b-X-minus-Omega} yields
+\begin{equation*}
+    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right) \le \frac{2^{2a^3+3a+2}c + \frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y).
+\end{equation*}
+Using the definition of $c$, we bound this by
+\begin{equation*}
+    \frac{2^{a^3-9a-2} + 2^{a^3+17a+4} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y) \le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+\end{equation*}
+%TODO: Check constants. Maybe leave out the last explicit calculations.
+This proves \eqref{eq-weak-1-1}.
+\end{proof}
+
+
+
+
+
 \chapter{Proof of The Classical Carleson Theorem}
 
 
@@ -6383,21 +7345,12 @@ we establish convergence on a suitable dense subclass of functions. We choose sm
 In the second step, one controls the relevant error of approximating a general function by a function in
 the subclass. This is stated in \Cref{control-approximation-effect} and proved
 in \Cref{10difference}.
-The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}.
-This latter proof refers to the main Carleson \Cref{metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the nontangential maximal operator $T^*$ defined in \eqref{def-tang-unm-op} is established in \Cref{nontangential-Hilbert} using $L^2$ and weak $L^1$ bounds for the Hilbert transform, Lemmas
-\ref{Hilbert-strong-2-2} and \ref{Hilbert-weak-1-1}. These lemmas are proved in Subsections \ref{subsec-cotlar},
-\ref{10hilbert} and \ref{subsec-CZD}.
+The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}, which involves showing that the real line fits into the setting of \Cref{overviewsection}.
+This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $H_r$ defined in \eqref{def-H_r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
 The cancellative property is verified by \Cref{van-der-Corput}, which is proved in \Cref{10vandercorput}.
-Several further auxiliary lemmas are stated
-and proved in Subsection
-\ref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
+Several further auxiliary lemmas are stated and proved in \Cref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
 
 All subsections past \Cref{10classical} are mutually independent.
-
- Subsections \ref{subsec-cotlar} uses bounds for the Hardy--Littlewood maximal function on the real line. There may be a better path through Lean than we choose here.
- We refer to \Cref{Hardy-Littlewood}, the assumptions of it,
- namely that the real line fits into the setting of \Cref{overviewsection},
- is done in \Cref{10carleson}.
 
 
 
@@ -6458,7 +7411,7 @@ We prove in \Cref{10difference}:
 \begin{lemma}[control approximation effect]
 \leanok
 \label{control-approximation-effect}
-\uses{real-Carleson}
+\uses{real-Carleson,dirichlet-kernel}
     There is a set $E \subset \R$ with Lebesgue measure
     $|E|\le \epsilon$ such that for all
     \begin{equation}
@@ -6511,7 +7464,7 @@ use the following \Cref{real-Carleson}, which itself is proven
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
 \leanok
-\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
+\uses{two-sided-metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
     \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
@@ -6527,31 +7480,7 @@ where
 
 One of the main assumption of \Cref{metric-space-Carleson}, concerning the operator $T_*$ defined in \eqref{def-tang-unm-op}, is verified by the following lemma, which is proved in \Cref{subsec-cotlar}.
 
-
-\begin{lemma}[nontangential Hilbert]\label{nontangential-Hilbert}
-\uses{simple-nontangential-Hilbert}
-    For every bounded measurable function $g$ with bounded support we have
-\begin{equation}\label{concretetstarbound}
-    \|T_*g\|_2\le 2^{43}\|g\|_2,
-\end{equation}
-where
-\begin{equation}\label{concretetstar}
-    T_* g(x):=\sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<r_2}
-g(y) \kappa(x'-y)\, dy\right|\, .
-\end{equation}
-\end{lemma}
-The proof of \Cref{nontangential-Hilbert} relies on the next two auxiliary Lemmas.
-
-For $r\in (0,1)$, $x\in \mathbb{R}$ and a bounded, measurable function $g$ on $\mathbb{R}$ with bounded support, we define
-\begin{equation}
-\label{def-H_r}
-H_r g(x):= \int_{r<|x-y|<1}
-g(y) \kappa(x-y)\, dy.
-\end{equation}
-
 The following Lemma is proved in \Cref{10hilbert}
-
-
 \begin{lemma}[Hilbert strong 2 2]
     \label{Hilbert-strong-2-2}
     \uses{modulated-averaged-projection,integrable-bump-convolution,dirichlet-approximation}
@@ -6559,18 +7488,6 @@ The following Lemma is proved in \Cref{10hilbert}
     \begin{equation}
         \label{eq-Hr-L2-bound}
         \|H_rf\|_{2}\leq 2^{13} \|f\|_2.
-    \end{equation}
-\end{lemma}
-
-The following Lemma is proved in \Cref{subsec-CZD}
-
-\begin{lemma}[Hilbert weak 1 1]
-    \label{Hilbert-weak-1-1}
-    \uses{Hilbert-strong-2-2,Hilbert-kernel-bound,Hilbert-kernel-regularity,Calderon-Zygmund-decomposition}
-    Let $f$ be a bounded measurable function on $\mathbb{R}$ with bounded support. Let $\alpha>0$. Then for all $r\in (0, 1)$, we have
-    \begin{equation}
-        \label{eq-weak-1-1}
-        \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{19}}{\alpha} \int |f(y)|\, dy.
     \end{equation}
 \end{lemma}
 
@@ -6833,386 +7750,6 @@ Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is 
 \proves{convergence-for-smooth}
     \Cref{convergence-for-smooth} now follows directly from the previous \Cref{convergence-for-twice-contdiff}.
 \end{proof}
-
-\section{Proof of Cotlar's Inequality}
-\label{subsec-cotlar}
-
-
-
-
-\begin{lemma}[estimate x shift]
-\label{estimate-x-shift}
-\uses{Hilbert-kernel-bound,Hilbert-kernel-regularity}
-Let $0<r<1$ and $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy--Littlewood function
-defined in Proposition
-\ref{Hardy-Littlewood}.
-Then for all $x'$ with $|x-x'|<r$.
-\begin{equation}\label{xx'difference}
-\left|\int_{r<|x-y|<1}
-g(y) \kappa(x-y)\, dy
--\int_{r<|x'-y|<1}
-g(y) \kappa(x'-y)\, dy
-\right|\le 2^{13}Mg(x)\, .
-\end{equation}
-\end{lemma}
-\begin{proof}
-\proves{estimate-x-shift}
-
-First note that the
-conditions $|x-y|<1$
-and $|x'-y|<1$ may be removed as the factor containing $\kappa$
-vanishes without these conditions.
-
-We split the first integral in \eqref{xx'difference}
-into the domains $r<|x-y|\le 2r$
-and $2r<|x-y|$. The integral over the first domain we estimate
-by $\eqref{firstxx'}$ below.
-For the second domain, we
-observe with $|x-x'|<r$ and the triangle inequality that $r<|x'-y|$. We therefore combine on this domain with the
-corresponding part of the second integral in \eqref{xx'difference} and estimate that by $\eqref{secondxx'}$
-below. The remaining part of the second integral in
-\eqref{xx'difference} we estimate by $\eqref{thirdxx'}$.
-Overall, we have estimated \eqref{xx'difference}
-by
-
-
-\begin{equation}
-\label{firstxx'}
-\int_{r<|x-y|\le 2r}
-|g(y)| |\kappa(x-y)|\, dy
-\end{equation}
-\begin{equation}\label{secondxx'}
-  + \left|\int_{2r<|x-y|}
-g(y) (\kappa(x'-y)-\kappa(x-y))\, dy
-\right|
-\end{equation}
-\begin{equation}
-\label{thirdxx'}
-  +\left|\int_{r<|x'-y|, r<|x-y|<2r}
-|g(y) \kappa(x'-y)|\, dy
-\right|
-\end{equation}
-Using the bound on $\kappa$ in \Cref{Hilbert-kernel-bound}, we estimate
-\eqref{firstxx'} by
-\begin{equation}
-\label{firstxx'b}
- \frac 8 r\int_{|x-y|<2r}
-|g(y)|\, dy\, .
-\end{equation}
-Using the definition of $Mg$, we estimate
-\eqref{firstxx'b} by
-\begin{equation}
-\label{firstxx'c}
- \le 32{Mg(x)}\, .
-\end{equation}
-Similarly, in the domain of \eqref{thirdxx'}
-we note by the triangle inequality
-and assumption on $x'$ that $|x'-y|\le 3r$ and thus we estimate
-\eqref{thirdxx'}
-by
-\begin{equation}
-\label{thirdxx'b}
- \frac 8{r}\int_{|x'-y|<3r}
-|g(y)| \, dy\le 48 Mg(x)
-\end{equation}
-
-We turn to the term \eqref{secondxx'}.
-Let $\nu$ be the smallest integer
-such that $2^\nu> 2/r$.
-Using that the kernel vanishes unless $|x-y|<2$, we decompose and estimate
-\eqref{secondxx'}
-with the triangle inequality by
-\begin{equation}\label{secondxx'b}
- \sum_{j=1}^\nu \int_{2^jr<|x-y|\le 2^{j+1}r}
-|g(y)| |\kappa(x'-y)-\kappa(x-y)|\, dy\,.
-\end{equation}
-Using \Cref{Hilbert-kernel-regularity}, we estimate \eqref{secondxx'b}
-by
-\begin{equation*}
- 2^{10}\sum_{j=1}^\nu \int_{2^jr<|x-y|\le 2^{j+1}r}
-|g(y)| \frac{|x-x'|}{|x-y|^2}\, dy
-\end{equation*}
-\begin{equation*}
-\le 2^{10}\sum_{j=1}^\nu \frac 1{2^{2j}r}\int_{2^jr<|x-y|\le 2^{j+1}r}
-|g(y)| \, dy
-\end{equation*}
-\begin{equation}\label{secondxx'c}
-\le 2^{10}\sum_{j=1}^\nu {2^{1-j}} Mg(x)\,.
-\end{equation}
-Using a geometric series, we estimate
-\eqref{secondxx'c} by
-\begin{equation}\label{secondxx'd}
-\le 2^{11} Mg(x)\,.
-\end{equation}
-Summing the estimates
-for \eqref{firstxx'},
-\eqref{secondxx'}, and
-\eqref{thirdxx'}
-proves the lemma.
-\end{proof}
-
-Recall that
-\begin{equation*}
-    H_rg(x)=\int_{r<|x-y|<1} g(y) \kappa(x-y)\, dy\, .
-\end{equation*}
-
-
-\begin{lemma}[Cotlar control]
-\label{Cotlar-control}
-\uses{estimate-x-shift}
-Let $0<r<r_1<1$ and $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy--Littlewood function
-defined in Proposition
-\ref{Hardy-Littlewood}.
-Then for all $x'\in \R$ with $|x'-x|<\frac {r_1}4$ we have
-\begin{equation}\label{eq-cotlar-control}
-\left|H_{r_1} g(x)
-\right|\le
-|H_{r}(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')|+
-2^{15}Mg(x)\, .
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-Let $x$ and $x'$ be given with $|x'-x|<\frac {r_1}4$.
-By an application of \Cref{estimate-x-shift}, we estimate
-the left-hand-side of
-\eqref{eq-cotlar-control} by
-\begin{equation}\label{eqcotlar0}
-|H_{r_1}(g)(x')|+
-2^{13}Mg(x)\,.
-\end{equation}
-We have
-\begin{equation}
-\label{eqcotlar-1}
-H_{r_1}(g)(x')=
-\int_{r_1<|x'-y|<1} g(y) \kappa(x'-y)\, dy\, .
-\end{equation}
-On the domain $r_1<|x'-y|$, we have $\frac {r_1}2<|x-y|$. Hence we may write
-for \eqref{eqcotlar-1}
-\begin{equation*}
-H_{r_1}(g)(x')=\int_{r_1<|x'-y|<1} (g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y) \kappa(x'-y)\, dy
-\end{equation*}
-\begin{equation}\label{eqcotlar1}
-=H_{r_1}(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')\, .
-\end{equation}
-Combining the estimate \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
-\begin{equation}\label{eqcotlar5}
-\left|H_{r_1} g(x)
-\right|\le
-|H_{r_1}(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')|+
-2^{13}Mg(x)\, .
-\end{equation}
-We have
-
-\begin{equation*}
-(H_{r}-H_{r_1})(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(x')
-\end{equation*}
-\begin{equation}\label{eqcotlar2}
-= \int_{ {r}<|x'-y|<r_1}
-(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\, .
-\end{equation}
-Assume first $r\ge \frac {r_1} 4$.
-Then we estimate \eqref{eqcotlar2} with
-\Cref{Hilbert-kernel-bound} by
-\begin{equation*}
-\int_{\frac {r_1}4<|x'-y|<r_1}
-|g(y)k(x'-y)|\, dy
-\end{equation*}
-\begin{equation}\label{eqcotlar3}
-\le \frac {32}{r_1}\int_{|x'-y|<r_1}
-|g(y)|\, dy \le 64 Mg(x')\, .
-\end{equation}
-Assume now $r\le \frac {r_1} 4$.
-As $|x'-y|\le \frac{r_1}4$ implies
-$|x-y|\le \frac {r_1} 2$, we see that
-\eqref{eqcotlar2} equals
-\begin{equation*}
- \int_{ {\frac {r_1} 4}<|x'-y|<r_1}
-(g-g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})(y)k(x'-y)\, dy\, ,
-\end{equation*}
-which we again estimate as above by \eqref{eqcotlar3}.
-In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from \eqref{eqcotlar5} and the estimate for
-\eqref{eqcotlar2}.
-\end{proof}
-
-\begin{lemma}[Cotlar sets]
-\label{Cotlar-sets}
-\uses{Hilbert-weak-1-1}
-Let $0<r<r_1<1$ and $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ be the Hardy--Littlewood maximal function
-defined in Proposition
-\ref{Hardy-Littlewood}.
-Let $x\in \R$.
-Then the measure $|F_1|$ of the set $F_1$ of all $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$ such that
-\begin{equation}
-\label{first-cotlar-exception}
-    |H_{r}(g)(x')|>4M(H_{r}g)(x)
-\end{equation}
-is less than or equal to $r_1/8$.
-Moreover, the measure $|F_2|$ of the set $F_2$ of all $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$ such that
-\begin{equation}
-\label{second-cotlar-exception}
-    |H_{r}(g\mathbf{1}_{[x-\frac {r_1} 2,x+\frac {r_1}2]})|>2^{22}Mg(x)
-\end{equation}
-is less than $r_1/8$.
-\end{lemma}
-
-\begin{proof}
-Let $r$, $r_1$, $x$ and $g$ be given.
-If $M(H_{r}g)(x)=0$, then $H_{r}g$ is constant zero
-and $F_1$ is empty and the estimate on $F_1$ trivial.
-Assume $M(H_{r}g)(x)>0$.
-We have with \eqref{first-cotlar-exception}
-\begin{equation}
-    M(H_{r}g)(x)\ge
-    \frac 2{r_1}\int_{|x'-x|<\frac {r_1}4}|H_{r}g(x')|\, dx'
-\end{equation}
-\begin{equation}
-    \ge
-    \frac 2{r_1}\int_{F_1} 4 M(H_{r}g)(x)\, dx'
-\end{equation}
-Dividing by $M(H_{r}g)(x)$ gives
-\begin{equation}
-    1\ge \frac 8{r_1} |F_1|\, .
-\end{equation}
-This gives the desired bound for the measure of $F_1$.
-
-We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
-The set $F_2$ is then estimated with \Cref{Hilbert-weak-1-1}
-by
-\begin{equation}
-   \frac {2^{19}}{2^{22}Mg(x)}\int |g\mathbf{1}_{[x-\frac {r_1}2, x+\frac {r_1}2]}|(y)\, dy
-\end{equation}
-\begin{equation}
-   \le \frac {2^{19}}{2^{22}Mg(x)}r_1Mg(x)= \frac {r_1}8\,.
-\end{equation}
-This gives the desired bound for the measure of $F_2$.
-\end{proof}
-
-\begin{lemma}[Cotlar estimate]
-\label{Cotlar-estimate}
-\uses{Cotlar-control, Cotlar-sets}
-Let $0<r<r_1<1$ and $x\in \mathbb{R}$. Let $g$ be a bounded measurable function with bounded support on $\mathbb{R}$. Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
-defined in Proposition
-\ref{Hardy-Littlewood}.
-Then for all $x\in \R$
-\begin{equation}\label{eq-cotlar-estimate}
-\left|
-\int_{r_1<|x-y|<1}
-g(y) \kappa(x-y)\, dy
-\right|
-\end{equation}
-\begin{equation}\le
-2^{2}M(H_rg)(x)+ 2^{23} Mg(x)
-\, .
-\end{equation}
-\end{lemma}
-
-
-\begin{proof}
-By \Cref{Cotlar-control}, the measure of the set
-of all $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$
-such that at least one of the conditions
-\eqref{first-cotlar-exception} and
-\eqref{second-cotlar-exception} is satisfied is at most $r_1/4$ and hence not all of
- $x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$. Pick an
-$x'\in
-[x-\frac{r_1}4,x+\frac{r_1}4]$ such that both conditions are not satisfied.
-Applying \Cref{Cotlar-control}
-for this $x'$ and using the triangle inequality
-estimates the left-hand side of \eqref{eq-cotlar-estimate}
-by
-\begin{equation}
-    4M(H_rg)(x)+2^{22}Mg(x)+2^{15}Mg(x)\, .
-\end{equation}
-This proves the lemma.
-\end{proof}
-
-\begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
-\uses{Hardy-Littlewood,Hilbert-strong-2-2,Cotlar-estimate}
-    For every $0<r<1$ and every bounded measurable function $g$ with bounded support we have
-\begin{equation}\label{trzerobound}
-    \|T_{r}g\|_2\le 2^{42}\|g\|_2,
-\end{equation}
-where
-\begin{equation}\label{eq-simple--nontangential}
-    T_{r} g(x):=\sup_{r<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}
-g(y) \kappa(x'-y)\, dy\right|\, .
-\end{equation}
-\end{lemma}
-\begin{proof}
-With \Cref{estimate-x-shift}
-and the triangle inequality, we estimate
-for every $x\in \R$
-\begin{equation}
-     T_{r} g(x)
-     \le 2^{13} Mg(x)+\sup_{r<r_1<1}
-     \frac 1{2\pi} \left|\int_{r_1<|x-y|<1}
-g(y) \kappa(x-y)\, dy\right|\, .
-\end{equation}
-Using further \Cref{Cotlar-estimate},
-we estimate
-\begin{equation}
-      T_{r} g(x)
-     \le 2^{13} Mg(x)+2^{23}
-     Mg(x)+2^{2}M(H_{r}g)(x)\, .
-\end{equation}
-Taking the $L^2$ norm and using \Cref{Hardy-Littlewood}with $a=4$ and $p_2=2$ and $p_1=1$ , we obtain
-\begin{equation}
-      \|T_{r} g\|_2
-     \le 2^{24} \|Mg\|_2+2^{2}\|M(H_{r}g)\|_2
-\end{equation}
-\begin{equation}
-     \le 2^{41} \|g\|_2+2^{19}\|H_{r}(g)\|_2\, .
-\end{equation}
-Applying \Cref{Hilbert-strong-2-2}, gives
-\begin{equation}
-      \|T_{r} g\|_2\le 2^{41} \|g\|_2+2^{32}\|g\|_2\, .
-\end{equation}
-This shows \eqref{trzerobound} and completes the proof of the lemma.
-\end{proof}
-
-\begin{proof}[Proof of \Cref{nontangential-Hilbert}]
-    \proves{nontangential-Hilbert}
-Fix $g$ as in the Lemma.
-Applying \Cref{simple-nontangential-Hilbert} with a
-sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
-\begin{equation}\label{tzerobound}
-    \|T_{0}g\|_2\le 2^{42}\|g\|_2,
-\end{equation}
-where
-\begin{equation}\label{eq-simpler--nontangential}
-    T_{0} g(x):=\sup_{0<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}
-g(y) \kappa(x'-y)\, dy\right|\, .
-\end{equation}
-We now write by the triangle inequality
-\begin{equation}\label{concretetstartriangle}
-    T_* g(x)\le \sup_{0<r_1<r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}g(y) \kappa(x'-y)\, dy\right|
-\end{equation}
-    \begin{equation*}
-+\sup_{0<r_1< r_2<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_2<|x'-y|<1} g(y) \kappa(x'-y)\, dy\right|\, .
-\end{equation*}
-Noting that the first integral does not depend on $r_2$ and
-estimating the second integral by the larger supremum over all
-$|x-x'|<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
-\begin{equation}\label{concretetstartriangle2}
-   \sup_{0<r_1<1}\sup_{|x-x'|<r_1}\frac 1{2\pi} \left|\int_{r_1<|x'-y|<1}g(y) \kappa(x'-y)\, dy\right|
-\end{equation}
-    \begin{equation*}
-+\sup_{0< r_2<1}\sup_{|x-x'|<r_2}\frac 1{2\pi} \left|\int_{r_2<|x'-y|<1} g(y) \kappa(x'-y)\, dy\right|\, .
-\end{equation*}
-    Applying the triangle inequality on the left-hand side
-    of \eqref{concretetstarbound} and applying
-     \eqref{tzerobound} twice
-    proves \eqref{concretetstarbound}.
-    This completes the proof of \Cref{nontangential-Hilbert}.
-\end{proof}
-
-
-
 
 
 \section{The truncated Hilbert transform}
@@ -7556,498 +8093,6 @@ We now prove \Cref{Hilbert-strong-2-2}.
     $$
     This completes the proof.
 \end{proof}
-
-
-
-
-
-
-
-\section{Calder\'on-Zygmund Decomposition}
-\label{subsec-CZD}
-
-For $I=[s, t)\subset \mathbb{R}$, we define
-\begin{equation}
-    \label{eq-bisec}
-    \textrm{bi} (I):= \left\{\left[s, \frac{s+t}{2}\right), \left[\frac{s+t}{2}, t\right)\right\}.
-\end{equation}
-
-In what follows, we write $\mu$ for the Lebesgue measure on $\R$.
-
-\begin{lemma}[interval bisection]
-\label{interval-bisection}
-    Let $I=[s, t)\subset \mathbb{R}$ be a bounded, right-open interval. Let $I_1, I_2\in \textrm{bi} (I)$ with $I_1\neq I_2$. Then
-    \begin{equation}
-        \label{eq-bi-size}
-        \mu (I_1)=\mu(I_2)=\frac{\mu(I)}{2}.
-    \end{equation}
-    Further,
-    \begin{equation}
-        \label{eq-bi-union}
-        I=I_1\cup I_2,
-    \end{equation}
-    and the intervals $I_1$ and $I_2$ are disjoint.
-\end{lemma}
-\begin{proof}
-    This in some form can be taken from the Lean library.
-\end{proof}
-For a bounded interval $I=[a, b)\subset \mathbb{R}$ and a non-negative integer $n$, we inductively define
-\begin{equation}
-    \label{eq-ch-I}
-    \textrm{ch}_0(I):=\{I\}, \qquad \textrm{ch}_n(I)=\cup_{J\in \textrm{ch}_{n-1}(J)} \textrm{bi} (J).
-\end{equation}
-
-\begin{lemma}[bisection children]
-    \label{bisection-children}
-    \uses{interval-bisection}
-    Let $I=[s, t)$ and let $n$ be a non-negative integer. Then the intervals in $\textrm{ch}_n(I)$ are pairwise disjoint. For any $J\in \textrm{ch}_n(I)$,
-    \begin{equation}
-        \label{eq-ch-size}
-        \mu(J)=\frac{\mu(I)}{2^{n}}=\frac{t-s}{2^n}.
-    \end{equation}
-    Further,
-    \begin{equation}
-        \label{eq-ch-cover}
-        I= \cup_{J\in \textrm{ch}_n(I)} J
-    \end{equation}
-    and
-    \begin{equation}
-        \label{eq-ch-card}
-        |\textrm{ch}_n(I)|= 2^{n+1}.
-    \end{equation}
-\end{lemma}
-\begin{proof}
-This follows by induction on $n$, using \Cref{interval-bisection}.
-\end{proof}
-
-
-\begin{lemma}[Lebesgue differentiation]
-    \label{Lebesgue-differentiation}
-    Let $f$ be a bounded measurable function with bounded support. Then for $\mu$ almost every $x$, we have
-    $$\frac{1}{\mu(I_n)}\int_{I_n} f(y)\, dy= f(x),$$
-    where $\{I_n\}_{n\geq 1}$ is a sequence of intervals such that $x\in I_n$ for each $n\geq 1$ and $$\lim_{n\to \infty} \mu(I_n)=0.$$
-\end{lemma}
-\begin{proof}
-    This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
-\end{proof}
-
-\begin{lemma}[stopping time]
-   \label{stopping-time}
-   \uses{bisection-children,Lebesgue-differentiation}
-   Let $f$ be a bounded, measurable function with bounded support on $\mathbb{R}$. Let $\alpha>0$. Then there exists $A\subset \mathbb{R}$ such that the following properties \eqref{eq-CZ-good-set}, \eqref{eq-CZ-good-set-comp}, \eqref{eq-CZ-bad-sets-1}, \eqref{eq-CZ-bad-sets-2}, and \eqref{eq-CZ-meas-b-set} are satisfied. For all $x\in A$
-    \begin{equation}
-    \label{eq-CZ-good-set}
-        |f(x)|\leq \alpha.
-    \end{equation}
-    The set $\mathbb{R}\setminus A$ can be decomposed into a countable union of intervals
-    \begin{equation}
-        \label{eq-CZ-good-set-comp}
-        \mathbb{R}\setminus A= \cup_{j} I_j= \cup_{j} [s_j, t_j),
-    \end{equation}
-    such that
-   \begin{equation}
-   \label{eq-CZ-bad-sets-1}
-    [s_j, t_j)\cap [s_{j'}, t_{j'})=\emptyset \text{ for } j\neq j' \,.
-   \end{equation}
-   For each $j$,
-   \begin{equation}
-       \label{eq-CZ-bad-sets-2}
-       \frac{\alpha}{2}\leq \frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy\leq \alpha.
-   \end{equation}
-   Further,
-   \begin{equation}
-       \label{eq-CZ-meas-b-set}
-        \sum_{j}(t_j-s_j)\leq \frac{2}{\alpha}\int |f(y)|\, dy\,.
-   \end{equation}
-\end{lemma}
-\begin{proof}
-    Since $f$ is bounded with bounded support, there exists a non-negative integer $\ell$ such that
-    \begin{equation}
-        \label{eq-f-supp}
-        f(x)=0 \textrm{ for } x\not\in [-2^{\ell-1}, 2^{\ell-1})\,,
-    \end{equation}
-    and
-    $$2^{-\ell}\int_{-2^{\ell-1}}^{2^{\ell-1}} |f(y)|\, dy< \alpha\,.$$
-    Let $$I_0:=[-2^{\ell}, 2^{\ell}),\qquad \mathcal{Q}_0:=\{I_0\}\,,$$
-    and
-    $$\Tilde{\mathcal{Q}}_1:=\textrm{bi}(I_0).$$
-    For $n\geq 1$, we inductively define
-    \begin{equation*}
-        {\mathcal{Q}}_n:=\left\{I\in \Tilde{\mathcal{Q}}_n: \frac{1}{\mu(I)}\int_{I} |f(y)|\, dy> \frac{\alpha}{2}\right\}\,,
-    \end{equation*}
-    and
-    \begin{equation*}
-     \Tilde{\mathcal{Q}}_{n+1}:=\cup_{I\in {\Tilde{\mathcal{Q}}}_n\setminus \mathcal{Q}_n} \textrm{bi} (I)\,.
-    \end{equation*}
-Finally, let
-\begin{equation*}
-    \mathcal{Q}:=\cup_{n\geq 1} \mathcal{Q}_n\,.
-\end{equation*}
-
-For each $n$ we have
-$$\mathcal{Q}_n\subseteq \textrm{ch}_n(I_0).$$
-Therefore, by \Cref{bisection-children},
-$$|\mathcal{Q}_n|\leq \frac{\mu(I_0)}{2^n}= 2^{\ell+1-n}.$$
-It follows that $\mathcal{Q}$ is a countable union of finite sets and hence, is countable itself. Let $\{I_j\}_{j\geq 1}$ be an enumeration of this set, with
-$$I_j:=[s_j, t_j),$$
-for $s_j, t_j\in I_0$ and $s_j<t_j$.
-We set
-\begin{equation*}
-    A:=\mathbb{R}\setminus \cup_{j\geq 1} [s_j, t_j).
-\end{equation*}
-Then \eqref{eq-CZ-good-set-comp} holds by definition. We next show \eqref{eq-CZ-bad-sets-1}. Let $I_j, I_{j'}\in \mathcal{Q}$. Then, there exist $1\leq n, n'$ such that $I_j\in \mathcal{Q}_n$ and $I_{j'}\in \mathcal{Q}_{n'}$. If $n=n'$, \eqref{eq-CZ-bad-sets-1} follows from \Cref{bisection-children} since $\mathcal{Q}_n\subseteq \textrm{ch}_n(I_0).$ Otherwise, assume without loss of generality that $n<n'$. Then by construction, there exists $J\in \Tilde{\mathcal{Q}}_{n}\setminus {\mathcal{Q}_n}$ such that $I_{j'} \subset J$. Since $I_{j}\in \mathcal{Q}_n$, it follows that $I_j\neq J$. Since $I_j, J\in \Tilde{\mathcal{Q}}_{n}\subset \textrm{ch}_n(I_0)$, by \Cref{bisection-children}, we deduce that they are disjoint. Since $I_{j'}\subset J$, we conclude that $I_j$ and
-$I_{j'}$ are disjoint as well. This proves \eqref{eq-CZ-bad-sets-1}.
-
-To see \eqref{eq-CZ-bad-sets-2}, let $I_j=(s_j, t_j)\in \mathcal{Q}$. Then $I_j\in \mathcal{Q}_n$ for some $n\geq 1$. By definition of $\mathcal{Q}_n$, we have
-$$\frac{\alpha}{2}<\frac{1}{\mu(I)}\int_{I} |f(y)|\, dy=\frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy.$$
-As $I_j\in \mathcal{Q}_n\subseteq \Tilde{\mathcal{Q}_{n}}$, by definition of the latter set, there exists $J\in \Tilde{\mathcal{Q}}_{n-1}\setminus \mathcal{Q}_{n-1}$ with $I\in \textrm{bi} (J)$. Since $J\not\in \mathcal{Q}_{n-1}$, we conclude that
-$$\frac{1}{\mu(J)}\int_J |f(y)|\, dy\leq \frac{\alpha}{2}.$$
-Using \Cref{interval-bisection} and the above, we get
-$$\frac{1}{t_j-s_j}\int_{s_j}^{t_j} |f(y)|\, dy=\frac{1}{\mu(I)}\int_I |f(y)|\, dy\leq \frac{2}{\mu(J)} \int_J |f(y)|\, dy\leq \alpha.$$
-This establishes \eqref{eq-CZ-bad-sets-2}. Using this, we see that for each $j$, we have
-$$t_j-s_j\leq \frac{2}{\alpha}\int_{s_j}^{t_j} |f(y)|\, dy.$$
-Summing up in $j$ and using the disjointedness property \eqref{eq-CZ-bad-sets-1}, we get
-$$\sum_{j} (t_j-s_j)\leq \frac{2}{\alpha}\int_{s_j}^{t_j} |f(y)|\, dy= \frac{2}{\alpha}\int |f(y)|\, dy.$$
-
-Finally, we show $\eqref{eq-CZ-good-set}$. Let $x\in A$. If $x\not \in [-2^{\ell}, 2^{\ell}]$, then by \eqref{eq-f-supp} that $f(x)=0$. Thus \eqref{eq-CZ-good-set} is true in this case. Alternately, let $x\in I_0\cap A$. Then for each $n$, there exists $I(n)\in \Tilde{\mathcal{Q}}_n$ such that $x\in I(n)$ and
-\begin{equation}
-    \label{eq-avg-In}
-    \frac{1}{\mu(I(n))}\int_{I(n)} |f(y)| dy\leq {\alpha}.
-\end{equation}
-Since $\mu(I(n))=2^{\ell+1-n}$, we have
-$$\lim_{n\to \infty} \mu(I(n))=0.$$
-By \Cref{Lebesgue-differentiation}, we also have
-\begin{equation*}
- \lim_{n\to \infty}\frac{1}{\mu(I(n))}\int_{I(n)} |f(y)| dy= |f(x)|
-\end{equation*}
-for almost every $x\in A$.
-Combining the above with \eqref{eq-avg-In}, we conclude that
-$$|f(x)|\leq \alpha.$$
-This finishes the proof of \eqref{eq-CZ-good-set}, and hence the lemma.
-\end{proof}
-
-Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
-It is classical and can be found in \cite{stein-book}.
-
-\begin{lemma}[Calderon Zygmund decomposition]
-    \label{Calderon-Zygmund-decomposition}
-    \uses{stopping-time}
-    Let $f$ be a bounded, measurable function with bounded support. Let $\alpha>0$ and $\gamma\in (0, 1)$. Then there exists a measurable functions $g$, a countable family of disjoint intervals $I_j = [s_j, t_j)$, and a countable family of measurable functions $\{g_j\}_{j\geq 1}$ such that for almost every $x \in \R$
-    \begin{equation}
-       \label{eq-gb-dec}
-       f(x)= g(x)+ \sum_{j\geq 1} b_j(x)
-    \end{equation}
-    and such that the following holds. For almost every $x\in \mathbb{R}$,
-    \begin{equation}
-        \label{eq-g-max}
-       |g(x)|\leq \gamma\alpha\,.
-    \end{equation}
-    We have
-    \begin{equation}
-        \label{eq-g-L1-norm}
-        \int |g(y)|\, dy\leq \int |f(y)|\, dy.
-    \end{equation}
-    For every $j$
-    \begin{equation}
-        \label{eq-supp-bj}
-        \operatorname{supp} b_j \subset I_j\,.
-    \end{equation}
-    For every $j$
-    \begin{equation}
-        \label{eq-bad-mean-zero}
-        \int_{I_j} b_j(x)\, dx=0,
-    \end{equation}
-    and
-     \begin{equation}
-        \label{eq-bj-L1}
-        \int_{I_j} |b_j(x)|\, dx \leq 2\gamma\alpha.
-    \end{equation}
-    We have
-    \begin{equation}
-        \label{eq-bset-length-sum}
-        \sum_j (t_j-s_j)\leq \frac{2}{\gamma\alpha}\int |f(y)|\, dy
-    \end{equation}
-    and
-    \begin{equation}
-    \label{eq-b-L1}
-    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy\,.
-    \end{equation}
-\end{lemma}
-
-\begin{proof}
-    Applying \Cref{stopping-time} to $f$ and $\gamma\alpha$, we obtain a collection $I_j$ of intervals such that the conditions \eqref{eq-CZ-good-set}-\eqref{eq-CZ-meas-b-set} are satisfied. We set $A = \R \setminus \cup_j I_j$ and
-\begin{equation}
-    \label{eq-g-def}
-    g(x):=\begin{cases}
-     f(x), & x\in A,\\
-     \frac{1}{\mu(I_j)}\int_{I_j} f(y)\, dy, &x\in (s_j, t_j),\\
-     0, & x\in [s_j, t_j]\setminus (s_j, t_j),
-    \end{cases}
-\end{equation}
-and, for each $j$,
-\begin{equation}
-    b_j(x):=\begin{cases}
-        f(x)-\frac{1}{\mu(I_j)}\int_{I_j} f(y)\, dy, &x\in (s_j, t_j),\\
-        0, & x\not\in (s_j, t_j).
-    \end{cases}
-\end{equation}
-Then \eqref{eq-supp-bj} and \eqref{eq-bset-length-sum} are true by construction and \Cref{stopping-time}.
-Further, let $b(x)=\sum_{j} b_j(x).$
-Then
-\begin{equation*}
-    f(x)=g(x)+b(x)=g(x)+\sum_{j} b_j(x) ,
-\end{equation*}
-for all $x$ not in the measure zero set $\cup_j \{s_j, t_j\}.$
-
-For almost every $x\in A$, we get using \eqref{eq-CZ-good-set}
-$$|g(x)|\leq \gamma\alpha\,.$$ In the case when neither of the above is true, we have $g(x)=0$ by definition.
-Thus, we obtain \eqref{eq-g-max}.
-
-To prove \eqref{eq-g-L1-norm}, we estimate
-$$\int |g(y)|\, dy\leq \int_A |f(y)|\, dy+ \sum_{j} \int_{I_j}\frac{1}{\mu(I_j)}\int_{I_j}|f(y)|\, dy.$$
-Since the intervals $I_j$ are disjoint, and $A=\mathbb{R}\setminus \cup_j I_j$, we conclude
-$$\int |g(y)|\, dy\leq \int_A |f(y)|\, dy+\sum_{j} \int_{I_j}|f(y)|\, dy= \int |f(y)|\, dy.$$
-This establishes \eqref{eq-g-L1-norm}.
-If $x\in I_j$ for some $j$, \eqref{eq-CZ-bad-sets-2} yields
-$$|g(x)|\leq \frac{1}{\mu(I_j)}\int_{I_j}|f(y)|\, dy\leq \gamma\alpha.$$
-
-
-Further, for each $j$, it follows from the definition of $t_j$ that
-$$ \int_{I_j} b_j(x)\, dx= \int_{I_j} f(x)\, dx-\int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j}f(y)\, dy\, dx$$
-\begin{equation*}
-    =\int_{I_j} f(x)\, dx- \int_{I_j}f(y)\, dy=0.
-\end{equation*}
-This establishes \eqref{eq-bad-mean-zero}.
-
-Using the triangle inequality, we have that
-\begin{equation*}
-    \int_{I_j} |b_j(y)|\, dy\leq \int_{I_j} |f(y)|\, dy + \int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j} |f(x)|\, dx\, dy.
-\end{equation*}
-\begin{equation}
-    \label{eq-bj-int}
-    =2 \int_{I_j} |f(y)|\, dy.
-\end{equation}
-Dividing both sides by $\mu(I_j)$ and using \eqref{eq-CZ-bad-sets-2}, we obtain \eqref{eq-bj-L1}.
-
-Further, summing up \eqref{eq-bj-int} in $j$ yields
-\begin{equation*}
-    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq \sum_{j}\int_{I_j} |f(y)|\, dy + \sum_{j}\int_{I_j} \frac{1}{\mu(I_j)}\int_{I_j} |f(x)|\, dx\, dy.
-\end{equation*}
-Using the disjointedness of $(s_j, t_j)$, we get
-\begin{equation*}
-    \sum_{j}\int_{I_j} |b_j(y)|\, dy\leq 2 \int |f(y)|\, dy.
-\end{equation*}
-This proves \eqref{eq-b-L1}, and completes the proof.
-\end{proof}
-
-\begin{proof}[Proof of \Cref{Hilbert-weak-1-1}]
-\proves{Hilbert-weak-1-1}
-Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $2^{-10}\alpha$, we obtain the decomposition
-$$f=g+b=g+\sum_j b_j$$
-such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied with $\gamma=2^{-10}$. For each $j$, let
-\begin{equation}
-    \label{eq-Ij-cj}
-    I_j=[s_j, t_j), \qquad c_j:=\frac{s_j+t_j}{2},
-\end{equation}
-and
-\begin{equation}
-    \label{eq-Ij*}
-    I_j{^*}=\left[s_j-{2(t_j-s_j)}, t_j+2(t_j-s_j)\right].
-\end{equation}
-Then $I_j^*$ is an interval with the same center as $I_j$ but with
-\begin{equation}
-    \label{eq-Ij*-dim}
-    \mu(I_j^*)=5(t_j-s_j)=5\mu(I_j).
-\end{equation}
-Let
-\begin{equation}
-    \label{eq-omega}
-    \Omega:=\cup_j I_{j}^*.
-\end{equation}
-By definition, for each $x\in \mathbb{R}\setminus\Omega$ and $y\in I_j$,
-\begin{equation}
-    \label{eq-Om-cj}
-    |x-c_j|>\frac{5(t_j-s_j)}{2}\geq 5|y-c_j|,
-\end{equation}
-and
-\begin{equation}
-    \label{eq-Om-y}
-    |x-y|>{2(t_j-s_j)}.
-\end{equation}
-It follows by the triangle inequality and subadditivity of $\mu$ that
-$$ \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right) $$
-\begin{equation}
-\label{eq-set-dec-1}
- \le \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)+ \mu\left(\{x\in \mathbb{R}: |H_r b(x)|>{\alpha}/2\}\right).
-\end{equation}
-We estimate using monotonicity of the integral
-$$ \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)\leq
-\frac{4}{\alpha^2} \int |H_r g(y)|^2\, dy. $$
-Using \Cref{Hilbert-strong-2-2} followed by \eqref{eq-g-max} and \eqref{eq-g-L1-norm}, we estimate the right hand side above by
-$$\leq 2^{26}\frac{4}{\alpha^2} \int |g(y)|^2\, dy\leq \frac{2^{18}}{\alpha} \int |g(y)|\, dy\leq \frac{2^{18}}{\alpha} \int |f(y)|\, dy.$$
-Thus, we conclude
-\begin{equation}
-    \label{eq-g-func-bd}
-    \mu\left(\{x\in \mathbb{R}: |H_r g(x)|>{\alpha}/2\}\right)\leq
-    \frac{2^{18}}{\alpha} \int |f(y)|\, dy.
-\end{equation}
-Next, we estimate
-$$\mu\left(\{x\in \mathbb{R}: |H_r b(x)|>\alpha/2\}\right) $$
-$$
-    \le \mu (\Omega) + \mu\left(\{x\in \mathbb{R}\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
-$$
-Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
-\begin{equation}
-    \label{eq-omega-bd}
-    \mu(\Omega) \le \sum_{j} \mu (I_j^*)
-    = 5 \sum_{j} (t_j-s_j)\leq \frac{2^{13}}{\alpha} \int |f(y)|\, dy\,.
-\end{equation}
-We now focus on estimating the remaining term
-$$\mu\left(\{x\in \mathbb{R}\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.$$
-For $x\in \mathbb{R}\setminus\Omega$, define
-\begin{align*}
-    \mathcal{J}_1(x)&:=\{j\,:[s_j, t_j)\cap [x-r, x+r]=\emptyset \},\\
-    \mathcal{J}_2(x)&:=\{j\,: |y-x|=r \text{ for some } y \in [s_j, t_j)\},\\
-    \mathcal{J}_3(x)&:=\{j\,: [s_j, t_j)\subset [x-r, x+r]\}.
-\end{align*}
-Since $H_rb_j(x)=0$ for all $j\in \mathcal{J}_3(x)$, using the triangle inequality and the decomposition above, we get
-\begin{equation}
-    \label{eq-b-dec}
-    |H_r b(x)|\leq \sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)|+\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)|.
-\end{equation}
-Further, for $j\in \mathcal{J}_1(x)$, we have
-$$H_rb_j(x)=\int_{I_j} \kappa (x-y)\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y) b_j(y)\,dy=\int_{I_j} \kappa (x-y) b_j(y)\,dy\,.$$
-Using \eqref{eq-bad-mean-zero}, the above is equal to
-$$\int_{I_j} (\kappa (x-y)-\kappa(x-c_j)) b_j(y).$$
-Thus, using the triangle inequality, \eqref{eq-Om-cj}, \eqref{eq-Om-y} and \Cref{Hilbert-kernel-regularity}, we can estimate
-$$\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)|\leq \sum_{j\in \mathcal{J}_1(x)}2^{10}\int_{I_j}\frac{|y-c_j|}{|x-c_j|^2} |b_j(y)|\, dy$$
-\begin{equation}
-    \label{eq-J1-diff-est}
-    \leq 2^{10}\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2}\int_{I_j} |b_j(y)|\, dy:=F_1(x).
-\end{equation}
-Next, we estimate the second sum in \eqref{eq-b-dec}. For each $j\in \mathcal{J}_2(x)$, set
-$$d_j:=\frac{1}{t_j-s_j}\int_{I_j} \mathbf{1}_{\{z:\, r<|z|<1\}}(x-y) b_j(y)\, dy.$$
-Then by \eqref{eq-bj-L1}
-\begin{equation}
-    \label{eq-dj-est}
-    |d_j|\leq 2\cdot 2^{-10} \alpha=2^{-9}\alpha.
-\end{equation}
-For each $j\in \mathcal{J}_2(x)$, we have
-$$
-H_r b_j(x)=\int_{I_j} \kappa(x-y) (\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y)b_j(y)-d_j)\, dy$$
-$$+ \int_{I_j} d_j \kappa(x-y) \, dy.
-$$
-$$=\int_{I_j} (\kappa(x-y)-\kappa(x-c_j)) (\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y)b_j(y)-d_j)\, dy$$
-$$+ \int_{I_j} d_j \kappa(x-y) \, dy.$$
-Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, we obtain
-$$|H_r b_j(x)|\leq $$
-\begin{equation}
-    \label{eq-J2-diff-est}
-    \int_{I_j} |(\kappa(x-y)-\kappa(x-c_j)) \left(|b_j(y)|+2^{-9}\alpha\right)\, dy +2^{-9}\alpha \int_{I_j} |\kappa(x-y)| \, dy.
-\end{equation}
-Using \eqref{eq-Om-cj}, \eqref{eq-Om-y} and \Cref{Hilbert-kernel-regularity}, and arguing as in \eqref{eq-J1-diff-est}, we get the the first term above can be estimated by
-\begin{equation}
-    \label{eq-J2-diff-est-2}
-    2^{10}\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2}\left(\int_{I_j} |b_j(y)|+2^{-9} \alpha (t_j-s_j)\right)=F_1(x)+F_2(x),
-\end{equation}
-with $F_1$ as in \eqref{eq-J1-diff-est} and
-\begin{equation}
-    \label{eq-def-F2}
-    F_2(x):= 2\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2} \alpha (t_j-s_j).
-\end{equation}
-For each $j\in \mathcal{J}_2(x)$, let $y_j\in [s_j, t_j)$ be such that
-$$|x-y_j|=r.$$ Using \eqref{eq-Om-y}, we have
-$$r=|x-y_j|>2(t_j-s_j).$$
-Further, using the triangle inequality, for each $y\in I_j$, we obtain
-$$|x-y|\leq |x-y_j|+|y-y_j|\leq r+(t_j-s_j)<\frac{3r}{2},$$
-and
-$$|x-y|\geq |x-y_j|-|y-y_j|\geq r-(t_j-s_j)>\frac{r}{2}.$$
-We conclude that
-$$[s_j, t_j)\subset \left\{y\,: \frac{r}{2}<|x-y|<\frac{3r}{2}\right\}.$$
-Using this and \Cref{Hilbert-kernel-bound}, we get
-\begin{equation}
-    \label{eq-J2-diff-est-4}
-    \int_{I_j}|\kappa(x-y)|\,dy \leq \int_{\{y\,: \frac{r}{2}<|x-y|<\frac{3r}{2}\}}\frac{8}{|x-y|}\, dy\leq 32\,.
-\end{equation}
-
-Combining \eqref{eq-b-dec}, \eqref{eq-J1-diff-est}, \eqref{eq-J2-diff-est}, \eqref{eq-J2-diff-est-2} and \eqref{eq-J2-diff-est-4}, we get
-\begin{equation*}
-    |H_rb(x)|\leq 2F_1(x)+F_2(x)+2^{-4}\alpha.
-\end{equation*}
-Using the triangle inequality, we deduce that
-$$\mu({\{x\in \Omega: |H_r b(x)|>\alpha/4\}})\leq $$
-\begin{equation}
-    \label{eq-set-dec-3}
-    \mu(\{x\in \Omega: |F_1(x)|> 2^{-4} \alpha\})+\mu(\{x\in \Omega: | F_2(x)|> 2^{-4}\alpha\}).
-\end{equation}
-
-We estimate
-\begin{equation}
-    \label{eq-F1-est-1}
-    \mu(\{x\in \Omega: |F_1(x)|> 2^{-4}\alpha\})\leq \frac{2^{14}}{\alpha}\sum_{j} \int_{I_j} |b_j(y)|\, dy\int_{\Omega} \frac{(t_j-s_j)}{|x-c_j|^2}\, dx.
-\end{equation}
-Using \eqref{eq-Om-cj}, we can bound
-\begin{equation}
-    \label{eq-Om-int}
-    \int_{\Omega} \frac{(t_j-s_j)}{|x-c_j|^2}\, dx \le 2(t_j - s_j) \int_{5|t_j - s_j|}^\infty \frac{1}{t^2} \, \mathrm{d}t = \frac{2}{5}\,.
-\end{equation}
-Plugging \eqref{eq-Om-int} into \eqref{eq-F1-est-1} and using \eqref{eq-b-L1}, we conclude that
-\begin{equation}
-    \label{eq-F1-est-2}
-    \mu(\{x\in \Omega: |F_1(x)|>2^{-4}\alpha\})\leq \frac{2^{14}}{\alpha}\int |f(y)|\,dy\,.
-\end{equation}
-
-Similarly, we estimate
-$$\mu(\{x\in \Omega: |F_2(x)|>2^{-4} \alpha\})\leq \frac{2^{5}}{\alpha}\sum_{j} \alpha (t_j-s_j)\, \int_{\Omega} \frac{(t_j-s_j)}{|x-c_j|^2}\, dx.$$
-Using \eqref{eq-Om-int} and \eqref{eq-bset-length-sum}, this is bounded by
-\begin{equation}
-\label{eq-F2-est}
-2^{4}\sum_{j} (t_j-s_j)\leq \frac{2^{15}}{\alpha}\int |f(y)|\, dy.
-\end{equation}
-
-Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-g-func-bd}, \eqref{eq-omega-bd}, \eqref{eq-set-dec-3}, \eqref{eq-F1-est-2} and \eqref{eq-F2-est} yields \eqref{eq-weak-1-1}.
-\end{proof}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -8587,14 +8632,10 @@ The function $K$ is continuous outside the diagonal
 $x=y$ and vanishes on the diagonal. Hence it is measurable.
 
 
-By the Lemmas \ref{Hilbert-kernel-bound} and \ref{Hilbert-kernel-regularity}, it follows that $K$ is a one-sided Calder\'on--Zygmund kernel on $(\R,\rho,\mu,4)$.
+By \Cref{Hilbert-kernel-bound,Hilbert-kernel-regularity}, it follows that $K$ is a two-sided Calder\'on--Zygmund kernel on $(\R,\rho,\mu,4)$.
+\Cref{Hilbert-strong-2-2} verifies \eqref{two-sided-Hr-bound-assumption}.
+Thus the assumptions of \Cref{two-sided-metric-space-Carleson} are all satisfied. Applying the Theorem, \Cref{real-Carleson} follows.
 
 
-The operator $T^*$ defined in \eqref{def-tang-unm-op} coincides in our setting with the operator $T^*$ defined in \eqref{concretetstar}. By \Cref{nontangential-Hilbert}, this operator satisfies the bound \eqref{nontanbound}.
-
-
-
-
-Thus the assumptions of \Cref{metric-space-Carleson} are all satisfied. Applying the Theorem, \Cref{real-Carleson} follows.
 
 \printbibliography
