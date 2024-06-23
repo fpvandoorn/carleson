@@ -1,4 +1,5 @@
 import Carleson.Theorem1_1.Basic
+import Mathlib.Tactic.FunProp.Measurable
 
 noncomputable section
 
@@ -18,13 +19,11 @@ lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
   rw [k, max_eq_right (by linarith)]
   simp
 
+
 @[measurability]
 lemma k_measurable : Measurable k := by
-  apply Measurable.div
-  . apply Measurable.comp'
-    · exact Complex.measurable_ofReal
-    · exact Measurable.max (measurable_const.sub measurable_norm) measurable_const
-  . measurability
+  unfold k
+  fun_prop
 
 def K (x y : ℝ) : ℂ := k (x - y)
 --TODO: maybe change to
