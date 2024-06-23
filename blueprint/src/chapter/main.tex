@@ -787,8 +787,6 @@ and
 \end{equation}
 where $s_1$ is the smallest integer such that $D^{s_1-2}R_2>\frac 1{4D}$ and $s_2$ is the largest integer such that $D^{s_2+2}R_1<\frac 12$. We restrict the summation index $s$ by excluding summands with $s<s_1-2$ or $s>s_2+2$ because for these summands, the function $K_s$ vanishes on the domain of integration. We also omit the restriction in the integral for the summands in \eqref{middles} because in these summands, the support of $K_s$ is contained in the set described by this restriction.
 
-
-
 We apply the triangle inequality and estimate the versions of \eqref{Rcut} separately with $T_{R_1,R_2,\mfa}$ replaced by \eqref{middles} and by each summand of \eqref{boundarys}. To handle the case \eqref{middles}, we employ the following lemma. Here, we utilize the fact that if $\frac 1R\le R_1\le R_2\le R$, then $s_1$ and $s_2$ as in \eqref{middles} are in an interval $[-S,S]$ for some sufficiently large $S$ depending on $R$.
 
 
@@ -824,17 +822,17 @@ Applying the triangle inequality to estimate the left-hand side of \eqref{Rcut} 
 
 It remains to prove \Cref{S-truncation}. Fix $S>0$.
 \begin{lemma}[finitary S truncation]
-\label{finitary-S-truncation}
-\uses{linearized-truncation}
-For all finite sets $\tilde{\Mf}\subset \Mf$
-$$
-    \int \mathbf{1}_{G}(x)
-    \max_{-S<s_1\le s_2<S}\sup_{\mfa\in\tilde{\Mf}}
-    \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
-$$
-\begin{equation} \label{Sqcut}
-\leq \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
-\end{equation}
+    \label{finitary-S-truncation}
+    \uses{linearized-truncation}
+    For all finite sets $\tilde{\Mf}\subset \Mf$
+    $$
+        \int \mathbf{1}_{G}(x)
+        \max_{-S<s_1\le s_2<S}\sup_{\mfa\in\tilde{\Mf}}
+        \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
+    $$
+    \begin{equation} \label{Sqcut}
+    \leq \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+    \end{equation}
 \end{lemma}
 
 We reduce \Cref{S-truncation} to \Cref{finitary-S-truncation}.
@@ -899,21 +897,21 @@ It remains to prove \Cref{finitary-S-truncation}.
 Fix a finite set
 $\tilde{\Mf}$.
 \begin{lemma}[linearized truncation]
-\label{linearized-truncation}
-\uses{finitary-Carleson}
-Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range
-$[-S,S]$ and $\sigma_1\leq \sigma_2$.
-Let $\tQ\colon X\to {\tilde{\Mf}}$ be a measurable function. Then we have
-\begin{equation} \label{Sqlin}
-    \int \mathbf{1}_{G}(x)
-    \left| {T}_{2,\sigma_1,\sigma_2,\tQ}\mathbf{1}_F(x)\right|\, d\mu(x)
-    \le \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
-\end{equation}
-with
-\begin{equation}\label{middles1}
-    {T}_{2,\sigma_1,\sigma_2,\tQ}f(x)=\sum_{\sigma_1(x) \le s\le \sigma_2(x)}
-    \int K_s(x,y) f(y) e(\tQ(x)(y) - \tQ(x)(x)) \, \mathrm{d}\mu(y)\,.
-\end{equation}
+    \label{linearized-truncation}
+    \uses{finitary-Carleson}
+    Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range
+    $[-S,S]$ and $\sigma_1\leq \sigma_2$.
+    Let $\tQ\colon X\to {\tilde{\Mf}}$ be a measurable function. Then we have
+    \begin{equation} \label{Sqlin}
+        \int \mathbf{1}_{G}(x)
+        \left| {T}_{2,\sigma_1,\sigma_2,\tQ}\mathbf{1}_F(x)\right|\, d\mu(x)
+        \le \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \end{equation}
+    with
+    \begin{equation}\label{middles1}
+        {T}_{2,\sigma_1,\sigma_2,\tQ}f(x)=\sum_{\sigma_1(x) \le s\le \sigma_2(x)}
+        \int K_s(x,y) f(y) e(\tQ(x)(y) - \tQ(x)(x)) \, \mathrm{d}\mu(y)\,.
+    \end{equation}
 \end{lemma}
 
 We reduce \Cref{finitary-S-truncation} to
@@ -998,10 +996,10 @@ The proof of the next lemma is done in \Cref{subsecdyadic},
 following the construction of dyadic cubes in \cite[\S 3]{christ1990b}.
 
 \begin{lemma}[grid existence]
-\label{grid-existence}
-\leanok
-\lean{grid_existence}
-\uses{counting-balls,boundary-measure} There exists a grid structure $(\mathcal{D}, c,s)$.
+    \label{grid-existence}
+    \leanok
+    \lean{grid_existence}
+    \uses{counting-balls,boundary-measure} There exists a grid structure $(\mathcal{D}, c,s)$.
 \end{lemma}
 
 
@@ -1011,12 +1009,12 @@ The next lemma, which we prove in \Cref{subsectiles}, should be compared
 with the construction in \cite[Lemma 2.12]{zk-polynomial}.
 
 \begin{lemma}[tile structure]
-\label{tile-structure}
-\leanok
-\lean{tile_existence}
- \uses{ball-metric-entropy,frequency-ball-cover,disjoint-frequency-cubes,frequency-cube-cover}
-    For a given grid structure $(\mathcal{D}, c,s)$, there exists a tile structure
-    $(\fP,\scI,\fc,\fcc,\pc,\ps)$.
+    \label{tile-structure}
+    \leanok
+    \lean{tile_existence}
+    \uses{ball-metric-entropy,frequency-ball-cover,disjoint-frequency-cubes,frequency-cube-cover}
+        For a given grid structure $(\mathcal{D}, c,s)$, there exists a tile structure
+        $(\fP,\scI,\fc,\fcc,\pc,\ps)$.
 \end{lemma}
 
 Choose a grid structure $(\mathcal{D}, c,s)$ with \Cref{grid-existence} and a tile structure for this
@@ -1025,39 +1023,39 @@ Applying \Cref{discrete-Carleson}, we obtain a Borel set $G'$ in $X$ with $2\mu(
 we have \eqref{disclesssim}.
 
 \begin{lemma}[tile sum operator]
-\label{tile-sum-operator}
-\leanok
-\lean{tile_sum_operator, integrable_tile_sum_operator}
-We have for all $x\in G\setminus G'$
-\begin{equation}\label{eq-sump}
-    \sum_{\fp\in \fP}T_{\fp} f(x)= \sum_{s=\sigma_1(x)}^{\sigma_2(x)}
-    \int K_{s}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y).
-\end{equation}
+    \label{tile-sum-operator}
+    \leanok
+    \lean{tile_sum_operator, integrable_tile_sum_operator}
+    We have for all $x\in G\setminus G'$
+    \begin{equation}\label{eq-sump}
+        \sum_{\fp\in \fP}T_{\fp} f(x)= \sum_{s=\sigma_1(x)}^{\sigma_2(x)}
+        \int K_{s}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y).
+    \end{equation}
 \end{lemma}
 \begin{proof}
-Fix $x\in G\setminus G'$.
-Sorting the tiles $\fp$ on the left-hand-side of \eqref{eq-sump} by the value $\ps(\fp)\in [-S,S]$,
-it suffices to prove for every $-S\le s\le S$ that
-\begin{equation}\label{outsump}
-    \sum_{\fp\in \fP: \ps(\fp)=s}T_{\fp} f(x)=0
-\end{equation}
- if $s\not\in [\sigma_1(x), \sigma_2(x)]$ and
-\begin{equation}\label{insump}
-    \sum_{\fp\in \fP: \ps(\fp)=s}T_{\fp} f(x)=
-    \int K_{s}(x,y) f(y) e(\tQ(x)(y) - \tQ(x)(x))\, d\mu(y).
-\end{equation}
-if $s\in [\sigma_1(x),\sigma_2(x)]$.
-If $s\not\in [\sigma_1(x), \sigma_2(x)]$, then by definition of $E(\fp)$ we have
-$x\not\in E(\fp)$ for any $\fp$ with $\ps(\fp)=s$ and thus $T_{\fp} f(x)=0$. This proves
-\eqref{outsump}.
+    Fix $x\in G\setminus G'$.
+    Sorting the tiles $\fp$ on the left-hand-side of \eqref{eq-sump} by the value $\ps(\fp)\in [-S,S]$,
+    it suffices to prove for every $-S\le s\le S$ that
+    \begin{equation}\label{outsump}
+        \sum_{\fp\in \fP: \ps(\fp)=s}T_{\fp} f(x)=0
+    \end{equation}
+    if $s\not\in [\sigma_1(x), \sigma_2(x)]$ and
+    \begin{equation}\label{insump}
+        \sum_{\fp\in \fP: \ps(\fp)=s}T_{\fp} f(x)=
+        \int K_{s}(x,y) f(y) e(\tQ(x)(y) - \tQ(x)(x))\, d\mu(y).
+    \end{equation}
+    if $s\in [\sigma_1(x),\sigma_2(x)]$.
+    If $s\not\in [\sigma_1(x), \sigma_2(x)]$, then by definition of $E(\fp)$ we have
+    $x\not\in E(\fp)$ for any $\fp$ with $\ps(\fp)=s$ and thus $T_{\fp} f(x)=0$. This proves
+    \eqref{outsump}.
 
-Now assume $s\in [\sigma_1(x),\sigma_2(x)]$.
-By \eqref{coverball} and $G\subset B(o,D^S)$, there is at least
-one $I\in \mathcal{D}$ with $s(I)=s$ and $x\in I$.
-By \eqref{dyadicproperty}, this $I$ is unique. By \eqref{eq-dis-freq-cover}, there is precisely one $\fp\in \fP(I)$ such that
-$\tQ(x)\in \fc(\fp)$. Hence there is precisely one $\fp\in \fP$ with $\ps(\fp)=s$ such that
-$x\in E(\fp)$. For this $\fp$, the value $T_{\fp}(x)$ by its definition in \eqref{definetp}
-equals the right-hand side of \eqref{insump}. This proves the lemma.
+    Now assume $s\in [\sigma_1(x),\sigma_2(x)]$.
+    By \eqref{coverball} and $G\subset B(o,D^S)$, there is at least
+    one $I\in \mathcal{D}$ with $s(I)=s$ and $x\in I$.
+    By \eqref{dyadicproperty}, this $I$ is unique. By \eqref{eq-dis-freq-cover}, there is precisely one $\fp\in \fP(I)$ such that
+    $\tQ(x)\in \fc(\fp)$. Hence there is precisely one $\fp\in \fP$ with $\ps(\fp)=s$ such that
+    $x\in E(\fp)$. For this $\fp$, the value $T_{\fp}(x)$ by its definition in \eqref{definetp}
+    equals the right-hand side of \eqref{insump}. This proves the lemma.
 \end{proof}
 
 We use this to prove \Cref{finitary-Carleson}.
@@ -1084,19 +1082,19 @@ This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and 
 
 We begin with the construction of the centers of the dyadic cubes.
 \begin{lemma}[counting balls]
-\label{counting-balls}
-Let $-S\le k\le S$. Consider $Y\subset X$ such that for any $y\in Y$, we have
-\begin{equation}\label{ybinb}
-  y\in B(o,4D^S-D^k),
-\end{equation}
-furthermore, for any $y'\in Y$ with $y\neq y'$, we have
-\begin{equation} \label{eq-disj-yballs}
-    B(y,D^k)\cap B(y',D^k)=\emptyset.
-\end{equation}
-Then the cardinality of $Y$ is bounded by
-\begin{equation}\label{boundY}
-    |Y|\le 2^{3a + 200Sa^3}\, .
-\end{equation}
+    \label{counting-balls}
+    Let $-S\le k\le S$. Consider $Y\subset X$ such that for any $y\in Y$, we have
+    \begin{equation}\label{ybinb}
+    y\in B(o,4D^S-D^k),
+    \end{equation}
+    furthermore, for any $y'\in Y$ with $y\neq y'$, we have
+    \begin{equation} \label{eq-disj-yballs}
+        B(y,D^k)\cap B(y',D^k)=\emptyset.
+    \end{equation}
+    Then the cardinality of $Y$ is bounded by
+    \begin{equation}\label{boundY}
+        |Y|\le 2^{3a + 200Sa^3}\, .
+    \end{equation}
 \end{lemma}
 
 
@@ -1132,10 +1130,10 @@ For each $-S\le k\le S$, choose an enumeration of the points in the finite set $
 order $<$ on $Y_{k}$.
 
 \begin{lemma}[cover big ball]
-\label{cover-big-ball}
-  For each $-S\le k\le S$, the ball
-  $B(o, 4D^S-D^k)$ is contained
-  in the union of the balls $B(y,2D^k)$ with $y\in Y_k$.
+    \label{cover-big-ball}
+    For each $-S\le k\le S$, the ball
+    $B(o, 4D^S-D^k)$ is contained
+    in the union of the balls $B(y,2D^k)$ with $y\in Y_k$.
 \end{lemma}
 
 \begin{proof}
@@ -1223,38 +1221,35 @@ We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $
 \end{proof}
 
 \begin{lemma}[cover by cubes]
-\label{cover-by-cubes}
-Let $-S\le l\le k\le S$ and
-$y\in Y_k$.
-We have
-\begin{equation}\label{3coverdyadic}
-   I_3(y,k)\subset \bigcup_{y'\in Y_l} I_3(y',l)\, .
-\end{equation}
+    \label{cover-by-cubes}
+    Let $-S\le l\le k\le S$ and
+    $y\in Y_k$.
+    We have
+    \begin{equation}\label{3coverdyadic}
+    I_3(y,k)\subset \bigcup_{y'\in Y_l} I_3(y',l)\, .
+    \end{equation}
 \end{lemma}
 \begin{proof}
-
-Let $-S\le l\le k\le S$ and $y\in Y_k$.
-If $l=k$, the inclusion \eqref{3coverdyadic}
-is true from the definition of set union.
-We may then assume inductively that $k>l$ and the statement of the lemma is true if $k$ is replaced by $k-1$.
-Let $x\in I_3(y,k)$.
-By definition \eqref{definei3}, $x\in I_j(y,k)$
-for some $j\in \{1,2\}$. By \eqref{defineij},
-$x\in I_3(w,k-1)$ for some $w\in Y_{k-1}$.
-We conclude \eqref{3coverdyadic} by induction.
+    Let $-S\le l\le k\le S$ and $y\in Y_k$.
+    If $l=k$, the inclusion \eqref{3coverdyadic}
+    is true from the definition of set union.
+    We may then assume inductively that $k>l$ and the statement of the lemma is true if $k$ is replaced by $k-1$.
+    Let $x\in I_3(y,k)$.
+    By definition \eqref{definei3}, $x\in I_j(y,k)$
+    for some $j\in \{1,2\}$. By \eqref{defineij},
+    $x\in I_3(w,k-1)$ for some $w\in Y_{k-1}$.
+    We conclude \eqref{3coverdyadic} by induction.
 \end{proof}
 
 \begin{lemma}[dyadic property]
-\label{dyadic-property}
-\uses{basic-grid-structure, cover-by-cubes}
-Let $-S\le l\le k\le S$ and $y\in Y_k$ and $y'\in Y_l$ with
-$I_3(y',l)\cap I_3(y,k)\neq \emptyset$. Then
-\begin{equation}
-    \label{3dyadicproperty}
-I_3(y',l)\subset I_3(y,k).
-\end{equation}
-
-
+    \label{dyadic-property}
+    \uses{basic-grid-structure, cover-by-cubes}
+    Let $-S\le l\le k\le S$ and $y\in Y_k$ and $y'\in Y_l$ with
+    $I_3(y',l)\cap I_3(y,k)\neq \emptyset$. Then
+    \begin{equation}
+        \label{3dyadicproperty}
+    I_3(y',l)\subset I_3(y,k).
+    \end{equation}
 \end{lemma}
 
 \begin{proof}
