@@ -6332,7 +6332,7 @@ H_r f(x):= \int_{r<\rho(x,y)} K(x,y) f(y) \, d\mu(y).
         the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
         cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
-        \begin{equation}\label{two-sided-Hr-bound}
+        \begin{equation}\label{two-sided-Hr-bound-assumption}
             \|H_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
         Then for all Borel sets $F$ and $G$ in $X$ and
@@ -6346,11 +6346,8 @@ H_r f(x):= \int_{r<\rho(x,y)} K(x,y) f(y) \, d\mu(y).
 To prove this, we verify \eqref{nontanbound} in the following lemma (for a larger $a$ which we have to account for in the final constant). It is proved in \Cref{subsec-cotlar}.
 \begin{lemma}[nontangential-from-simple]\label{nontangential-from-simple}
     \uses{simple-nontangential}
-    Assume that for every bounded measurable function $g : X \to \C$ supported on a set of finite measure and all $r>0$ we have
-    \begin{equation*}
-        \|H_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
-    \end{equation*}
-        Then, for every bounded measurable function $g : X \to \C$ supported on a set of finite measure we have
+    Assume \eqref{two-sided-Hr-bound-assumption} holds.
+    Then, for every bounded measurable function $g : X \to \C$ supported on a set of finite measure we have
     \begin{equation}\label{concretetstarbound}
         \|T_*g\|_2\le 2^{3a^3}\|g\|_2.
     \end{equation}
@@ -6382,12 +6379,6 @@ Both \Cref{subsec-CZD,subsec-cotlar} use the Hardy--Littlewood maximal function 
 \section{Proof of Cotlar's Inequality}
 \label{subsec-cotlar}
 
-Throughout this section we will often assume that the following holds:
-For every bounded measurable function $f:X\to\C$ supported on a set of finite measure and all $r>0$ we have
-\begin{equation}\label{two-sided-Hr-bound-assumption}
-    \|H_f g\|_{2} \leq 2^{a^3} \|f\|_2\,.
-\end{equation}
-
 \begin{lemma}
     \label{geometric-series-estimate}
     For all $a\ge 4$,
@@ -6396,10 +6387,18 @@ For every bounded measurable function $f:X\to\C$ supported on a set of finite me
     \end{equation*}
 \end{lemma}
 \begin{proof}
+    By convexity, for all $0\le\lambda\le1$
     \begin{equation*}
-        \sum_{n=0}^\infty 2^{-\frac{n}{a}} = \frac{1}{1-2^{-\frac 1 a}}
+        2^{\lambda(-\frac{1}{4})} \le \lambda 2^{-\frac{1}{4}} + (1-\lambda)2^0.
     \end{equation*}
-    %TODO: finish proof.
+    For $\lambda:=\frac{4}{a}$, we obtain
+    \begin{equation*}
+        2^{-\frac 1 a} \le 1 - (1-2^{-\frac 1 4}) \frac{4}{a}.
+    \end{equation*}
+    We conclude
+    \begin{equation*}
+        \sum_{n=0}^\infty 2^{-\frac{n}{a}} = \frac{1}{1-2^{-\frac 1 a}} \le \frac{1}{4(1-2^{-\frac 1 4})} a \le 2^a.
+    \end{equation*}
 \end{proof}
 
 \begin{lemma}[estimate x shift]
@@ -6593,7 +6592,7 @@ In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from
 \begin{lemma}[Cotlar sets]
 \label{Cotlar-sets}
 \uses{weak-1-1}
-Assume that \eqref{eq-strong-2-2-assumption} holds. Let $0<r<r_1$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood maximal function
+Assume that \eqref{two-sided-Hr-bound-assumption} holds. Let $0<r<r_1$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood maximal function
 defined in \Cref{Hardy-Littlewood}.
 Let $x\in X$.
 Then the measure $|F_1|$ of the set $F_1$ of all $x'\in
@@ -6645,7 +6644,7 @@ This gives the desired bound for the measure of $F_2$.
 \begin{lemma}[Cotlar estimate]
 \label{Cotlar-estimate}
 \uses{Cotlar-control, Cotlar-sets}
-Assume that \eqref{eq-strong-2-2-assumption} holds.
+Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$ and assume . Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
 defined in \Cref{Hardy-Littlewood}.
 Then for all $x\in X$
@@ -6679,7 +6678,7 @@ This proves the lemma.
 
 \begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
 \uses{Hardy-Littlewood,Cotlar-estimate}
-Assume that \eqref{eq-strong-2-2-assumption} holds.
+Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 For every  $r>0$ and every bounded measurable function $g$ supported on a set of finite measure we have
 \begin{equation}\label{trzerobound}
     \|T_{r}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
@@ -6708,7 +6707,7 @@ Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ 
 \begin{equation}
      \le 2^{a^3+24a+5} \|g\|_2 + 2^{4a+3}\|H_{r}(g)\|_2\, .
 \end{equation}
-Applying \eqref{eq-strong-2-2-assumption}, gives
+Applying \eqref{two-sided-Hr-bound-assumption}, gives
 \begin{equation}
       \|T_{r} g\|_2\le 2^{a^3+24a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
 \end{equation}
@@ -6821,7 +6820,6 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 
 Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
 It is classical and can be found in \cite{stein-book}.
-%Let $\bar B (x,r) := \{y\in X : \rho(x,y) \le r\}$ denote the closed ball with center $x$ and radius $r$.
 \begin{lemma}[Vitali covering]
     \label{Vitali-covering}
     \leanok
@@ -7001,7 +6999,6 @@ To prove \eqref{eq-g-L1-norm}, we estimate
     \int |g(z)|\, d\mu(z) &\le \int_{X\setminus E_\alpha} |f(z)|\, d\mu(z) + \sum_{j} \int_{Q_j}\frac{1}{\mu(Q_j)}\int_{Q_j}|f(y)|\, d\mu(y)\,d\mu(z) \\
     &= \int |f(z)|\,d\mu(z).
 \end{align*}
-%This establishes \eqref{eq-g-L1-norm}.
 Using the triangle inequality, we have that
 \begin{align}
     \label{eq-bj-int}
@@ -8569,7 +8566,7 @@ $x=y$ and vanishes on the diagonal. Hence it is measurable.
 
 
 By \Cref{Hilbert-kernel-bound,Hilbert-kernel-regularity}, it follows that $K$ is a two-sided Calder\'on--Zygmund kernel on $(\R,\rho,\mu,4)$.
-\Cref{Hilbert-strong-2-2} verifies \eqref{eq-strong-2-2-assumption}.
+\Cref{Hilbert-strong-2-2} verifies \eqref{two-sided-Hr-bound-assumption}.
 Thus the assumptions of \Cref{two-sided-metric-space-Carleson} are all satisfied. Applying the Theorem, \Cref{real-Carleson} follows.
 
 
