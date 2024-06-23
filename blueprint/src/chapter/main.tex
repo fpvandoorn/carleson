@@ -6359,7 +6359,7 @@ To prove this, we verify \eqref{nontanbound} in the following lemma (for a large
 The proof of \Cref{nontangential-from-simple} relies on the following auxiliary lemma which is proved in \Cref{subsec-CZD}.
 \begin{lemma}[Weak 1 1]
     \label{weak-1-1}
-    \uses{Calderon-Zygmund-decomposition}
+    \uses{Calderon-Zygmund-decomposition,geometric-series-estimate}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that
     \begin{equation}
         \label{eq-strong-2-2-assumption}
@@ -6760,6 +6760,7 @@ $\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estima
 The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref{Hardy-Littlewood} (and maybe it should become part of that?).
 \begin{lemma} [Maximal theorem]
     \label{maximal-theorem}
+    \uses{Hardy-Littlewood}
     Let $f: X \to \C$ be bounded, measurable, with bounded support and let $\alpha > 0$. For $Mf$ as in \Cref{Hardy-Littlewood},
     \begin{equation}
         \label{maximal-theorem-equation}
@@ -6841,6 +6842,7 @@ It is classical and can be found in \cite{stein-book}.
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional explicit statement and proof of the bounded intersection property, as well as countability of the disjoint family.
 \begin{lemma}[Ball covering]
     \label{ball-covering}
+    \uses{disjoint-family-countable}
     Given an open set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
     \begin{equation}
         \label{balls-disjoint}
@@ -6914,7 +6916,7 @@ and conclude $N\le 2^{6a}$.
 Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
-    \uses{stopping-time}
+    \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
     Let $f$ be a bounded, measurable function with bounded support and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
     Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$) such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
