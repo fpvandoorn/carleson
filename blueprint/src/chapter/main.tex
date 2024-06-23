@@ -6742,7 +6742,7 @@ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x
   \label{eqkernel-x-smooth}
        |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation}
-
+%TODO: Should it be V(y,x) rather?
 For $r > 0$, $x\in X$ and a bounded, measurable function $g$ on $X$ with bounded support, we define
 \begin{equation}
 \label{def-H_r}
@@ -6765,16 +6765,34 @@ g(y) K(x,y) \, dy.
 The proof of \Cref{nontangential-Hilbert} relies on the next two auxiliary Lemmas.
 
 The following Lemma is proved in \Cref{subsec-CZD}
-\begin{lemma}[Hilbert weak 1 1]
-    \label{Hilbert-weak-1-1}
-    \uses{Hilbert-strong-2-2,Hilbert-kernel-bound,Hilbert-kernel-regularity,Calderon-Zygmund-decomposition}
-    Let $f$ be a bounded measurable function on $\mathbb{R}$ with bounded support. Let $\alpha>0$. Then for all $r\in (0, 1)$, we have
+\begin{lemma}[Weak 1 1]
+    \label{weak-1-1}
+    \uses{Calderon-Zygmund-decomposition}
+    Let $f:X\to\C$ be a bounded measurable function on with bounded support and assume that
+    \begin{equation}
+        \label{eq-strong-2-2-assumption}
+        \|H_rf\|_{2}\leq 2^{a^3} \|f\|_2.
+    \end{equation}
+    . Let $\alpha>0$. Then for all $r>0$, we have
     \begin{equation}
         \label{eq-weak-1-1}
-        \mu\left(\{x\in \mathbb{R}: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{19}}{\alpha} \int |f(y)|\, dy.
+        \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
 
+\begin{lemma}
+    \label{geometric-series-estimate}
+    For all $a\ge 4$,
+    \begin{equation*}
+        \sum_{n=0}^\infty 2^{-\frac{n}{a}} \le 2^a.
+    \end{equation*}
+\end{lemma}
+\begin{proof}
+    \begin{equation*}
+        \sum_{n=0}^\infty 2^{-\frac{n}{a}} = \frac{1}{1-2^{-\frac 1 a}}
+    \end{equation*}
+    %TODO: finish proof.
+\end{proof}
 
 \begin{lemma}[estimate x shift]
 \label{estimate-x-shift}
@@ -6877,11 +6895,10 @@ with the triangle inequality by
 \label{secondxx'c}
 &\le 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
 \end{align}
-Using a geometric series, we estimate
+Using a \Cref{geometric-series-estimate}, we estimate
 \eqref{secondxx'c} by
-%TODO: Justify last step.
 \begin{equation}\label{secondxx'd}
-\le  2^{a^3 + a} \cdot \frac{1}{1-2^{-\frac 1 a}} Mg(x) \le 2^{a^3 + 2a} Mg(x) \,.
+\le 2^{a^3 + 2a} Mg(x) \,.
 \end{equation}
 Summing the estimates
 for \eqref{firstxx'},
@@ -7649,7 +7666,7 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
     \label{Calderon-Zygmund-decomposition}
     \uses{stopping-time}
     Let $f$ be a bounded, measurable function with bounded support and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
-    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
+    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$) such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
        f(x)= g(x) + \sum_{j} b_j(x)
@@ -7752,229 +7769,251 @@ At last, we estimate with \Cref{maximal-theorem}
 proving \eqref{eq-bset-length-sum}.
 
 Assume now that $E_\alpha = X$. Note that this can only happen if $\mu(X)<\infty$.
-Let $B_1^*$ be a ball with $\supp f \subset B_1^*$ and $\mu(X) \le 2^{3a} \mu(B_1^*)$.
+%TODO: Could $\mu$ also be $\infty$ on every ball?
 Define
 \begin{equation*}
-    g := \frac{\mathbb{1}_{\supp f}}{\mu(B_1^*)} \int |f(y)|\,d\mu(y)
+    g := \frac{1}{\mu(X)} \int |f(y)|\,d\mu(y)
 \end{equation*}
 and
 \begin{equation*}
     b_1 := f - g.
 \end{equation*}
-Then $f = g + b_1$.
-%TODO: finish this part!
+Then $f = g + b_1$ and $\supp b_1 \subset B_1^*:=X$ and \eqref{eq-gb-dec}, \eqref{eq-g-L1-norm}, \eqref{eq-supp-bj}, \eqref{eq-bad-mean-zero} all hold immediately. By assumption, $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu = g$, so \eqref{eq-g-max} holds.
+We also have, using the definitions and the same assumption,
+\begin{equation}
+    \int |b_1(y)|\, d\mu(y) \le 2 \int |f(y)|\,d\mu(y) \le 2\alpha\mu(X),
+\end{equation}
+which verifies both \eqref{eq-b-L1} and \eqref{eq-bj-L1}.
+Finally, by \Cref{maximal-theorem},
+\begin{equation*}
+    \mu(X) \le \frac{2^{2a}}{\alpha} \int |f(y)|\,d\mu(y),
+\end{equation*}
+which shows \eqref{eq-bset-length-sum}.
 \end{proof}
 
-\begin{proof}[Proof of \Cref{Hilbert-weak-1-1}]
-\proves{Hilbert-weak-1-1}
-Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $2^{-10}\alpha$, we obtain the decomposition
-$$f=g+b=g+\sum_j b_j$$
-such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied with $\gamma=2^{-10}$. For each $j$, let
+\begin{proof}[Proof of \Cref{weak-1-1}]
+\proves{weak-1-1}
+Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $\alpha':=c\alpha$, we obtain the decomposition
+%TODO: verify assumption for $\mu(X)<\infty$
+\begin{equation*}
+    f=g+b=g+\sum_j b_j
+\end{equation*}
+such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied (with $\alpha'$ replacing $\alpha$). We rename $B_j^*$ to $B_j$, and for each $j$, let
 \begin{equation}
     \label{eq-Ij-cj}
-    B_j=B(x_j, r_j),
+    B_j=B(x_j, r_j).
 \end{equation}
-and
+Define
 \begin{equation}
     \label{eq-Ij*}
-    B_j{^*}=B(x_j, 5r_j).
+    B_j':=B(x_j, 2r_j).
 \end{equation}
-Then $B_j^*$ is an interval with the same center as $B_j$ but with
-%TODO: correct this
+(In the special case $B_j=X$, we define $B_j':=X$.)
+Then $B_j'$ is a ball with the same center as $B_j$ but with
 \begin{equation}
     \label{eq-Ij*-dim}
-    \mu(I_j^*)=5(t_j-s_j)=5\mu(I_j).
+    \mu(B_j')\le 2^{a} \mu(B_j).
 \end{equation}
 Let
 \begin{equation}
     \label{eq-omega}
-    \Omega:=\cup_j B_{j}^*.
+    \Omega:=\bigcup_j B_j'.
 \end{equation}
 By definition, for each $x\in X\setminus\Omega$ and $y\in B_j$,
 \begin{equation}
     \label{eq-Om-cj}
-    \rho(x,x_j)\ge 5r_j > 5\rho(y,x_j),
-\end{equation}
-and
-\begin{equation}
-    \label{eq-Om-y}
-    \rho(x,y)>4r_j.
+    \rho(x,x_j)\ge 2r_j > 2\rho(x_j,y).
 \end{equation}
 It follows by the triangle inequality and subadditivity of $\mu$ that
-$$ \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right) $$
+\begin{equation*}
+    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)
+\end{equation*}
 \begin{equation}
 \label{eq-set-dec-1}
  \le \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)+  \mu\left(\{x\in X: |H_r b(x)|>{\alpha}/2\}\right).
 \end{equation}
 We estimate using monotonicity of the integral
-$$ \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)\leq
-\frac{4}{\alpha^2} \int |H_r g(y)|^2\, dy. $$
-Using \Cref{Hilbert-strong-2-2} followed by \eqref{eq-g-max} and \eqref{eq-g-L1-norm}, we estimate the right hand side above by
-$$\leq 2^{26}\frac{4}{\alpha^2} \int |g(y)|^2\, dy\leq \frac{2^{18}}{\alpha} \int |g(y)|\, dy\leq \frac{2^{18}}{\alpha} \int |f(y)|\, dy.$$
-Thus, we conclude
+\begin{equation*}
+     \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)\leq \frac{4}{\alpha^2} \int |H_r g(y)|^2\, d\mu(y).
+\end{equation*}
+Using \eqref{eq-strong-2-2-assumption} followed by \eqref{eq-g-max} and \eqref{eq-g-L1-norm}, we estimate the right hand side above by
 \begin{equation}
-    \label{eq-g-func-bd}
-    \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)\leq
-    \frac{2^{18}}{\alpha} \int |f(y)|\, dy.
+    \label{eq-Hr-g}
+    \leq \frac{4\cdot 2^{2a^3}}{\alpha^2} \int |g(y)|^2\, d\mu(y)\leq \frac{2^{2a^3+3a+2}c}{\alpha} \int |g(y)|\, dy \le \frac{2^{2a^3+3a+2}c}{\alpha} \int |f(y)|\, d\mu(y).
 \end{equation}
+
 Next, we estimate
-$$\mu\left(\{x\in X: |H_r b(x)|>\alpha/2\}\right) $$
-$$
+\begin{equation*}
+    \mu\left(\{x\in X: |H_r b(x)|>\alpha/2\}\right)
+\end{equation*}
+\begin{equation}
+    \label{eq-set-dec-2}
     \le \mu (\Omega) +  \mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
-$$
+\end{equation}
+
 Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
 \begin{equation}
     \label{eq-omega-bd}
-    \mu(\Omega) \le \sum_{j} \mu (I_j^*)
-    = 5 \sum_{j} (t_j-s_j)\leq \frac{2^{13}}{\alpha} \int |f(y)|\, dy\,.
+    \mu(\Omega) \le \sum_{j} \mu (B_j')
+    \le 2^{a} \sum_{j} \mu(B_j) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
 \end{equation}
 We now focus on estimating the remaining term
-$$\mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.$$
-For $x\in X\setminus\Omega$, define
+\begin{equation*}
+    \mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
+\end{equation*}
+Let $x\in X\setminus\Omega$. We decompose the index set $J$ into the following disjoint sets:
 \begin{align*}
-    \mathcal{J}_1(x)&:=\{j\,: B_j \cap [x-r, x+r]=\emptyset \},\\
-    \mathcal{J}_2(x)&:=\{j\,: |y-x|=r \text{ for some } y \in [s_j, t_j)\},\\
-    \mathcal{J}_3(x)&:=\{j\,: [s_j, t_j)\subset [x-r, x+r]\}.
+    \mathcal{J}_1(x)&:=\{j\,: r+r_j \le \rho(x,x_j) \},\\
+    \mathcal{J}_2(x)&:=\{j\,: r-r_j \le \rho(x,x_j) < r+r_j\},\\
+    \mathcal{J}_3(x)&:=\{j\,: \rho(x,x_j) < r-r_j\}.
 \end{align*}
-Since $H_rb_j(x)=0$ for all $j\in \mathcal{J}_3(x)$, using the triangle inequality and the decomposition above, we get
-\begin{equation}
-    \label{eq-b-dec}
-    |H_r b(x)|\leq \sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)|+\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)|.
-\end{equation}
-Further, for $j\in \mathcal{J}_1(x)$, we have
-$$H_rb_j(x)=\int_{I_j} \kappa (x-y)\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y) b_j(y)\,dy=\int_{I_j} \kappa (x-y) b_j(y)\,dy\,.$$
+Then
+\begin{align}
+    \label{eq-b-dec-1}
+    |H_r b(x)|\le&\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)| \\
+    \label{eq-b-dec-2}
+                +&\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)| \\
+    \label{eq-b-dec-3}
+                +&\sum_{j\in \mathcal{J}_3(x)} |H_rb_j(x)|.
+\end{align}
+For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $H_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
+
+Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_j\subset X \setminus B(x,r)$, and we have
+\begin{equation*}
+    H_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_j} K(x,y) b_j(y)\,d\mu(y)\,.
+\end{equation*}
+
 Using \eqref{eq-bad-mean-zero}, the above is equal to
-$$\int_{I_j} (\kappa (x-y)-\kappa(x-c_j)) b_j(y).$$
-Thus, using the triangle inequality, \eqref{eq-Om-cj}, \eqref{eq-Om-y} and \Cref{Hilbert-kernel-regularity}, we can estimate
-$$\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)|\leq \sum_{j\in \mathcal{J}_1(x)}2^{10}\int_{I_j}\frac{|y-c_j|}{|x-c_j|^2} |b_j(y)|\, dy$$
+\begin{equation*}
+    \int_{B_j} (K(x,y)-K(x,x_j)) b_j(y)\,d\mu(y)\,.
+\end{equation*}
+By \eqref{eq-Om-cj}, we can apply \eqref{eqkernel-y-smooth} to estimate
+\begin{equation*}
+    \eqref{eq-b-dec-1} \le \sum_{j\in \mathcal{J}_1(x)}\int_{B_j}\left(\frac{\rho(x_j,y)}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,x_j)} |b_j(y)|\, d\mu(y)
+\end{equation*}
+\begin{equation}
+    \le 2^{a^3} \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\int_{B_j} |b_j(y)|\, dy
+\end{equation}
+and by \eqref{eq-bj-L1},
 \begin{equation}
     \label{eq-J1-diff-est}
-    \leq 2^{10}\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2}\int_{I_j} |b_j(y)|\, dy:=F_1(x).
+    \le 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_j)}{V(x,x_j)} := F(x).
 \end{equation}
-Next, we estimate the second sum in \eqref{eq-b-dec}. For each $j\in \mathcal{J}_2(x)$, set
-$$d_j:=\frac{1}{t_j-s_j}\int_{I_j} \mathbf{1}_{\{z:\, r<|z|<1\}}(x-y) b_j(y)\, dy.$$
+Next, we estimate \eqref{eq-b-dec-2}. For each $j\in \mathcal{J}_2(x)$, set
+\begin{equation*}
+    d_j:=\frac{1}{\mu(B_j)}\int_{B_j} \mathbf{1}_{X\setminus B(x,r)}(y) b_j(y)\, dy.
+\end{equation*}
 Then by \eqref{eq-bj-L1}
 \begin{equation}
     \label{eq-dj-est}
-    |d_j|\leq 2\cdot 2^{-10} \alpha=2^{-9}\alpha.
+    |d_j|\le 2^{2a+1} c\alpha.
 \end{equation}
 For each $j\in \mathcal{J}_2(x)$, we have
-$$
-H_r b_j(x)=\int_{I_j} \kappa(x-y) (\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y)b_j(y)-d_j)\, dy$$
-$$+ \int_{I_j} d_j \kappa(x-y) \, dy.
-$$
-$$=\int_{I_j} (\kappa(x-y)-\kappa(x-c_j)) (\mathbf{1}_{\{z:\, r<|z|<1\}}(x-y)b_j(y)-d_j)\, dy$$
-$$+ \int_{I_j} d_j \kappa(x-y) \, dy.$$
+\begin{align*}
+    H_r b_j(x)&=\int_{B_j} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy \\
+    &= \int_{B_j} (K(x,y)-K(x,c_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy.
+\end{align*}
 Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, we obtain
-$$|H_r b_j(x)|\leq $$
+\begin{equation*}
+    |H_r b_j(x)|\le
+\end{equation*}
 \begin{equation}
     \label{eq-J2-diff-est}
-    \int_{I_j} |(\kappa(x-y)-\kappa(x-c_j)) \left(|b_j(y)|+2^{-9}\alpha\right)\, dy +2^{-9}\alpha \int_{I_j}  |\kappa(x-y)| \, dy.
+    \int_{B_j} |(K(x,y)-K(x,c_j)) \left(|b_j(y)|+2^{2a+1} c\alpha\right)\, dy +2^{2a+1} c\alpha \int_{B_j}  |K(x,y)| \, dy.
 \end{equation}
-Using \eqref{eq-Om-cj}, \eqref{eq-Om-y} and \Cref{Hilbert-kernel-regularity}, and arguing as in \eqref{eq-J1-diff-est}, we get the the first term above can be estimated by
+By \eqref{eq-Om-cj}, we can apply \eqref{eqkernel-y-smooth} and arguing as in \eqref{eq-J1-diff-est}, we get that
 \begin{equation}
     \label{eq-J2-diff-est-2}
-    2^{10}\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2}\left(\int_{I_j} |b_j(y)|+2^{-9} \alpha (t_j-s_j)\right)=F_1(x)+F_2(x),
+    \eqref{eq-b-dec-2} \le 2F(x) + 2^{2a+1}c\alpha \sum_{j\in\mathcal{J}_2(x)} \int_{B_j}  |K(x,y)|\,d\mu(y),
 \end{equation}
-with $F_1$ as in \eqref{eq-J1-diff-est} and
-\begin{equation}
-    \label{eq-def-F2}
-    F_2(x):= 2\sum_{j} \frac{(t_j-s_j)}{|x-c_j|^2} \alpha (t_j-s_j).
-\end{equation}
-For each $j\in \mathcal{J}_2(x)$, let $y_j\in [s_j, t_j)$ be such that
-$$|x-y_j|=r.$$ Using \eqref{eq-Om-y}, we have
-$$r=|x-y_j|>2(t_j-s_j).$$
-Further, using the triangle inequality, for each $y\in I_j$, we obtain
-$$|x-y|\leq |x-y_j|+|y-y_j|\leq r+(t_j-s_j)<\frac{3r}{2},$$
-and
-$$|x-y|\geq |x-y_j|-|y-y_j|\geq r-(t_j-s_j)>\frac{r}{2}.$$
-We conclude that
-$$[s_j, t_j)\subset \left\{y\,: \frac{r}{2}<|x-y|<\frac{3r}{2}\right\}.$$
-Using this and \Cref{Hilbert-kernel-bound}, we get
-\begin{equation}
-    \label{eq-J2-diff-est-4}
-    \int_{I_j}|\kappa(x-y)|\,dy \leq \int_{\{y\,: \frac{r}{2}<|x-y|<\frac{3r}{2}\}}\frac{8}{|x-y|}\, dy\leq 32\,.
-\end{equation}
-
-Combining \eqref{eq-b-dec}, \eqref{eq-J1-diff-est}, \eqref{eq-J2-diff-est}, \eqref{eq-J2-diff-est-2} and \eqref{eq-J2-diff-est-4}, we get
+with $F$ as in \eqref{eq-J1-diff-est}.
+Define
 \begin{equation*}
-    |H_rb(x)|\leq 2F_1(x)+F_2(x)+2^{-4}\alpha.
+    A := \bigcup_{j \in \mathcal{J}_2(x)} B_j.
+\end{equation*}
+We claim that
+\begin{equation}
+    \label{eq-J2-union-subset}
+    A\subset B(x,3r) \setminus B(x,\frac{r}{3}).
+\end{equation}
+Indeed, for each $j\in \mathcal{J}_2(x)$ and $y\in B_j$,
+\begin{equation*}
+    \rho(x,x_j) < r+r_j \le r + \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) < 2r
+\end{equation*}
+and hence
+\begin{equation*}
+    \rho(x,y) \le \rho(x,x_j) + \rho(x_j,y) < 2r + r_j \le 2r + \frac{1}{2}\rho(x,x_j) \le 3r.
+\end{equation*}
+For the lower bound, we observe
+\begin{equation*}
+    \rho(x,x_j) \ge r-r_j \ge r - \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) \ge \frac{2}{3}r,
+\end{equation*}
+and conclude
+\begin{equation*}
+    \rho(x,y) \ge \rho(x,x_j) - \rho(y,x_j) \ge \rho(x,x_j) - r_j \ge \rho(x,x_j) - \frac{1}{2}\rho(x,x_j) \ge \frac{1}{3} r.
+\end{equation*}
+
+Using the bounded intersection property of the $B_j$, \eqref{eq-J2-union-subset} and \eqref{eqkernel-size}, we get
+\begin{align}
+    \sum_{j\in\mathcal{J}_2(x)} \int_{B_j}  |K(x,y)|\,d\mu(y) &\le 2^{6a} \int_{A}  |K(x,y)|\,d\mu(y) \\
+    &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})}  |K(x,y)|\,d\mu(y) \\
+    &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{2^{a^3}}{V(x,y)} \,d\mu(y) \\
+    &\le 2^{a^3+3a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{1}{\mu(B(x,\frac{r}{3}))} \,d\mu(y) \\
+    &\le 2^{a^3+6a} \frac{\mu(B(x,3r))}{\mu(B(x,\frac{r}{3}))} \\
+    \label{eq-J2-diff-est-4}
+    &\le 2^{a^3+10a}.
+\end{align}
+
+Combining the estimates \eqref{eq-J1-diff-est} for \eqref{eq-b-dec-1}, \eqref{eq-J2-diff-est-2} for \eqref{eq-b-dec-2}, and \eqref{eq-J2-diff-est-4}, we get
+\begin{equation*}
+    |H_rb(x)|\leq 3F(x)+2^{a^3+12a+1}c\alpha.
+\end{equation*}
+With $c:=2^{-a^3-12a-4}$, the equals
+\begin{equation*}
+    3F(x)+\alpha/8.
 \end{equation*}
 Using the triangle inequality, we deduce that
-$$\mu({\{x\in \Omega: |H_r b(x)|>\alpha/4\}})\leq $$
 \begin{equation}
     \label{eq-set-dec-3}
-    \mu(\{x\in \Omega: |F_1(x)|> 2^{-4} \alpha\})+\mu(\{x\in \Omega: | F_2(x)|> 2^{-4}\alpha\}).
+    \mu({\{x\in X\setminus\Omega: |H_r b(x)|>\alpha/2\}}) \le \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}).
 \end{equation}
 
 We estimate
+\begin{align}
+    &\le \frac{8}{\alpha} \int_{X\setminus \Omega} F(x)\,d\mu(x) \\
+    &\le \frac{8}{\alpha} \int_{X\setminus \Omega} 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_j)}{V(x,x_j)}\,d\mu(x) \\
+    \label{eq-F-est-1}
+    &\le 2^{a^3+2a+4} c \sum_{j} \mu(B_j) \int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x)
+\end{align}
+Using
+\begin{equation*}
+    V(x,x_j) = \mu(B(x,\rho(x,x_j))) \ge 2^{-a}\mu(B(x,2\rho(x,x_j))) \ge 2^{-a} \mu(B(x_j,\rho(x_j,x))),
+\end{equation*}
+we have for all $j\in J$,
+\begin{align*}
+    &\int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x) \\
+    \le& 2^a \int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,\rho(x_j,x)))}\,d\mu(x) \\
+    \le&2^a \sum_{n=1}^\infty \int_{B(x_j,2^{n+1}r_j)\setminus B(x_j,2^n r_j)} \left(\frac{r_j}{2^n r_j}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,2^n r_j))}\,d\mu(x) \\
+    \le&2^a \sum_{n=1}^\infty 2^{-\frac{n}{a}} \frac{\mu(B(x_j,2^{n+1}r_j))}{\mu(B(x_j,2^n r_j))} \\
+    \le&2^{3a},
+\end{align*}
+where we used \Cref{geometric-series-estimate} in the last step.
+Plugging this into \eqref{eq-F-est-1} and using \eqref{eq-bset-length-sum}, we conclude that
 \begin{equation}
-    \label{eq-F1-est-1}
-    \mu(\{x\in \Omega: |F_1(x)|> 2^{-4}\alpha\})\leq \frac{2^{14}}{\alpha}\sum_{j} \int_{I_j} |b_j(y)|\, dy\int_{\Omega}  \frac{(t_j-s_j)}{|x-c_j|^2}\, dx.
+    \label{eq-Hr-b-X-minus-Omega}
+    \mu({\{x\in X\setminus\Omega: |H_r b(x)|>\alpha/2\}}) \le  \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
 \end{equation}
-Using \eqref{eq-Om-cj}, we can bound
-\begin{equation}
-    \label{eq-Om-int}
-    \int_{\Omega}  \frac{(t_j-s_j)}{|x-c_j|^2}\, dx \le 2(t_j - s_j) \int_{5|t_j - s_j|}^\infty  \frac{1}{t^2} \, \mathrm{d}t = \frac{2}{5}\,.
-\end{equation}
-Plugging \eqref{eq-Om-int} into \eqref{eq-F1-est-1} and using \eqref{eq-b-L1}, we conclude that
-\begin{equation}
-    \label{eq-F1-est-2}
-    \mu(\{x\in \Omega: |F_1(x)|>2^{-4}\alpha\})\leq \frac{2^{14}}{\alpha}\int |f(y)|\,dy\,.
-\end{equation}
-
-Similarly, we estimate
-$$\mu(\{x\in \Omega: |F_2(x)|>2^{-4} \alpha\})\leq \frac{2^{5}}{\alpha}\sum_{j} \alpha (t_j-s_j)\, \int_{\Omega}  \frac{(t_j-s_j)}{|x-c_j|^2}\, dx.$$
-Using \eqref{eq-Om-int} and \eqref{eq-bset-length-sum}, this is bounded by
-\begin{equation}
-\label{eq-F2-est}
-2^{4}\sum_{j} (t_j-s_j)\leq \frac{2^{15}}{\alpha}\int |f(y)|\, dy.
-\end{equation}
-
-Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-g-func-bd}, \eqref{eq-omega-bd}, \eqref{eq-set-dec-3}, \eqref{eq-F1-est-2} and \eqref{eq-F2-est} yields \eqref{eq-weak-1-1}.
+Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-Hr-g}, \eqref{eq-set-dec-2}, \eqref{eq-omega-bd}, \eqref{eq-Hr-b-X-minus-Omega} yields
+\begin{equation*}
+    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right) \le \frac{2^{2a^3+3a+2}c + \frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y).
+\end{equation*}
+Using the definition of $c$, we bound this by
+\begin{equation*}
+    \frac{2^{a^3-9a-2} + 2^{a^3+17a+4} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y) \le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+\end{equation*}
+%TODO: Check constants. Maybe leave out the last explicit calculations.
+This proves \eqref{eq-weak-1-1}.
 \end{proof}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
