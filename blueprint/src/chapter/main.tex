@@ -6312,6 +6312,7 @@ This completes the proof.
 
 
 \chapter{Two-sided Metric Space Carleson}
+
 We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Zygmund kernel on the doubling metric measure space $(X,\rho,\mu,a)$, i.e. a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
     \label{eqkernel-x-smooth}
@@ -6373,6 +6374,8 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
         \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
+Both \Cref{subsec-CZD,subsec-cotlar} use the Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood} but other than that have no dependencies in the previous chapters.
+
 
 
 \section{Calder\'on-Zygmund Decomposition}
@@ -7137,7 +7140,7 @@ Dividing by $M(H_{r}g)(x)$ gives
 This gives the desired bound for the measure of $F_1$.
 % TODO: Go on here when weak 1-1 is done.
 We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
-The set $F_2$ is then estimated with \Cref{Hilbert-weak-1-1}
+The set $F_2$ is then estimated with \Cref{weak-1-1}
 by
 \begin{equation}
    \frac {2^{19}}{D Mg(x)}\int |g\mathbf{1}_{[x-\frac {r_1}2, x+\frac {r_1}2]}|(y)\, dy
@@ -7225,7 +7228,7 @@ Applying \Cref{Hilbert-strong-2-2}, gives
 This shows \eqref{trzerobound} and completes the proof of the lemma.
 \end{proof}
 
-\begin{proof}[Proof of \Cref{nontangential-Hilbert}]
+\begin{proof}[Proof of \Cref{nontangential-from-simple}]
     \proves{nontangential-Hilbert}
 Fix $g$ as in the Lemma.
 Applying \Cref{simple-nontangential-Hilbert} with a
@@ -7258,7 +7261,7 @@ $\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estima
     of \eqref{concretetstarbound} and applying
      \eqref{tzerobound} twice
     proves \eqref{concretetstarbound}.
-    This completes the proof of \Cref{nontangential-Hilbert}.
+    This completes the proof of \Cref{nontangential-from-simple}.
 \end{proof}
 
 
@@ -7274,21 +7277,12 @@ we establish convergence on a suitable dense subclass of functions. We choose sm
 In the second step, one controls the relevant error of approximating a general function by a function in
 the subclass. This is stated in \Cref{control-approximation-effect} and proved
 in \Cref{10difference}.
-The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}.
-This latter proof refers to the main Carleson \Cref{metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the nontangential maximal operator $T^*$ defined in \eqref{def-tang-unm-op} is established in \Cref{nontangential-Hilbert} using $L^2$ and weak $L^1$ bounds for the Hilbert transform, Lemmas
-\ref{Hilbert-strong-2-2} and \ref{Hilbert-weak-1-1}. These lemmas are proved in Subsections \ref{subsec-cotlar},
-\ref{10hilbert} and \ref{subsec-CZD}.
+The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}, which involves showing that the real line fits into the setting of \Cref{overviewsection}.
+This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $H_r$ defined in \eqref{def-H_r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
 The cancellative property is verified by \Cref{van-der-Corput}, which is proved in \Cref{10vandercorput}.
-Several further auxiliary lemmas are stated
-and proved in Subsection
-\ref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
+Several further auxiliary lemmas are stated and proved in \Cref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
 
 All subsections past \Cref{10classical} are mutually independent.
-
- Subsections \ref{subsec-cotlar} uses bounds for the Hardy--Littlewood maximal function on the real line. There may be a better path through Lean than we choose here.
- We refer to \Cref{Hardy-Littlewood}, the assumptions of it,
- namely that the real line fits into the setting of \Cref{overviewsection},
- is done in \Cref{10carleson}.
 
 
 
@@ -7402,7 +7396,7 @@ use the following \Cref{real-Carleson}, which itself is proven
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
 \leanok
-\uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
+\uses{two-sided-metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
     \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
