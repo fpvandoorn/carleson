@@ -33,8 +33,7 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
     calc (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
       _ = ∑ n in Icc (-Int.ofNat N) ↑N, (cexp ((n + 1 / 2) * I * ↑x) - cexp ((n - 1 / 2) * I * ↑x)) := by
         rw [dirichletKernel, mul_sum]
-        congr
-        ext n
+        congr with n
         simp [sub_mul, ← exp_add, ← exp_add]
         congr <;>
         . ring_nf
@@ -54,13 +53,9 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
         symm
         rw [sub_eq_zero]
         conv => lhs; rw [← Int.add_sub_cancel (-Int.ofNat N) 1, sub_eq_add_neg, ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
-        congr
-        . ext n
-          rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right, ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
-        . ext n
-          congr
-          simp [add_assoc, sub_eq_add_neg]
-          congr
+        congr with n
+        . rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right, ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
+        . simp [add_assoc, sub_eq_add_neg]
           norm_num
         . rw [neg_add_rev, add_comm, Int.ofNat_eq_coe, Int.cast_neg, sub_eq_add_neg]
           norm_cast
@@ -70,10 +65,8 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
     rw [sub_eq_zero] at h
     calc cexp (I * ↑x)
       _ = cexp (1 / 2 * I * ↑x) * cexp (1 / 2 * I * ↑x) := by
-        rw [← exp_add]
-        congr
-        rw [mul_assoc, ← mul_add]
-        ring
+        rw [← exp_add, mul_assoc, ← mul_add]
+        ring_nf
       _ = cexp (1 / 2 * I * ↑x) * cexp (-1 / 2 * I * ↑x) := by
         congr
       _ = 1 := by
@@ -100,8 +93,7 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichle
     congr 2 <;> ring
 
 lemma dirichletKernel'_eq_zero {N : ℕ} {x : ℝ} (h : cexp (I * x) = 1) : dirichletKernel' N x = 0 := by
-  rw [dirichletKernel', neg_mul, exp_neg, h]
-  simp
+  simp [dirichletKernel', exp_neg, h]
 
 /- "a.e." version of previous lemma. -/
 lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
@@ -133,15 +125,13 @@ lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ �
     _ = 2 * N + 1 := by
       rw [sum_const]
       simp only [Int.ofNat_eq_coe, Int.card_Icc, sub_neg_eq_add, nsmul_eq_mul, mul_one]
-      norm_cast
-      rw [Int.toNat_ofNat]
+      rw_mod_cast [Int.toNat_ofNat]
       ring
 
 lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
   by_cases h : cexp (I * x) ≠ 1
-  . rw [← dirichletKernel_eq]
-    apply norm_dirichletKernel_le
-    exact h
+  . simp only [ne_eq, h, not_false_eq_true, ← dirichletKernel_eq, norm_eq_abs]
+    exact norm_dirichletKernel_le
   . push_neg at h
     rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
@@ -154,36 +144,30 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x :
     _ = ∑ n in Icc (-Int.ofNat N) ↑N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x := by
       rw [partialFourierSum]
     _ = ∑ n in Icc (-Int.ofNat N) ↑N, (1 / (2 * Real.pi - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
-      congr 1
-      ext n
+      congr 1 with n
       rw [fourierCoeffOn_eq_integral, smul_mul_assoc]
     _ = (1 / (2 * Real.pi)) * ∑ n in Icc (-Int.ofNat N) ↑N, ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       rw [← smul_sum, real_smul, sub_zero]
       norm_cast
     _ = (1 / (2 * Real.pi)) * ∑ n in Icc (-Int.ofNat N) ↑N, ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y) * (fourier n) ↑x)) := by
-      congr
-      ext n
+      congr with n
       symm
       apply intervalIntegral.integral_mul_const
     _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), ∑ n in Icc (-Int.ofNat N) ↑N, (fourier (-n)) y • f y * (fourier n) x := by
       rw [← intervalIntegral.integral_finset_sum]
       intro n _
       apply IntervalIntegrable.mul_const
-      apply IntervalIntegrable.continuousOn_mul h fourier_uniformContinuous.continuous.continuousOn
+      exact h.continuousOn_mul fourier_uniformContinuous.continuous.continuousOn
     _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * ∑ n in Icc (-Int.ofNat N) ↑N, (fourier (-n)) y * (fourier n) x := by
-      congr
-      ext y
+      congr with y
       rw [mul_sum]
-      congr
-      ext n
+      congr with n
       rw [smul_eq_mul]
       ring
     _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel N (x - y) := by
-      congr
-      ext y
+      congr with y
       rw [dirichletKernel]
-      congr
-      ext n
+      congr with n
       rw [fourier_coe_apply, fourier_coe_apply, fourier_coe_apply, ←exp_add]
       congr
       field_simp

@@ -17,29 +17,24 @@ def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑
 --fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 
 @[simp]
-lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} : fourierCoeffOn hab (fun x ↦ c * f x) n =
-    c * (fourierCoeffOn hab f n):= by
-  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', Complex.ofReal_sub, smul_eq_mul, Complex.real_smul, Complex.ofReal_inv]
-  rw [← mul_assoc, mul_comm c, mul_assoc _ c, mul_comm c, ← intervalIntegral.integral_mul_const]
-  congr
-  ext x
+lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} :
+  fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):= by
+  simp [fourierCoeffOn_eq_integral, intervalIntegral.integral_mul_const, mul_assoc, mul_comm]
   ring
 
 @[simp]
-lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {n : ℤ} : fourierCoeffOn hab (-f) n =
-    - (fourierCoeffOn hab f n):= by simp [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
+lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {n : ℤ} :
+  fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
+  simp [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
 
 @[simp]
 lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ} (hf : IntervalIntegrable f MeasureTheory.volume a b) (hg : IntervalIntegrable g MeasureTheory.volume a b) :
     fourierCoeffOn hab (f + g) n = fourierCoeffOn hab f n + fourierCoeffOn hab g n:= by
   simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
-    fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, Complex.real_smul,
+    fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add, Complex.real_smul,
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
-  congr
-  ext x
-  ring
+  ring_nf
   . apply hf.continuousOn_mul
     apply Continuous.continuousOn
     continuity
@@ -52,43 +47,28 @@ lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     fourierCoeffOn hab (f - g) n = fourierCoeffOn hab f n - fourierCoeffOn hab g n:= by
   rw [sub_eq_add_neg, fourierCoeffOn_add hf hg.neg, fourierCoeffOn_neg, ← sub_eq_add_neg]
 
+@[simp]
+lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)) :
+  partialFourierSum (f + g) N = partialFourierSum f N + partialFourierSum g N := by
+  ext x
+  simp [partialFourierSum, sum_add_distrib, fourierCoeffOn_add hf hg, add_mul]
 
 @[simp]
-lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)): partialFourierSum (f + g) N = partialFourierSum f N + partialFourierSum g N := by
+lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)) :
+  partialFourierSum (f - g) N = partialFourierSum f N - partialFourierSum g N := by
   ext x
-  simp [partialFourierSum, partialFourierSum, partialFourierSum, ← sum_add_distrib]
-  congr
-  ext n
-  rw [fourierCoeffOn_add hf hg, add_mul]
+  simp [partialFourierSum, sum_sub_distrib, fourierCoeffOn_sub hf hg, sub_mul]
 
 @[simp]
-lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)): partialFourierSum (f - g) N = partialFourierSum f N - partialFourierSum g N := by
+lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
+  partialFourierSum (fun x ↦ a * f x) N = fun x ↦ a * partialFourierSum f N x := by
   ext x
-  simp only [Pi.sub_apply]
-  rw [partialFourierSum, partialFourierSum, partialFourierSum, ←sum_sub_distrib]
-  congr
-  ext n
-  rw [fourierCoeffOn_sub hf hg, sub_mul]
-
-
-@[simp]
-lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}: partialFourierSum (fun x ↦ a * f x) N = fun x ↦ a * partialFourierSum f N x := by
-  ext x
-  rw [partialFourierSum, partialFourierSum, mul_sum]
-  congr
-  ext n
-  rw [fourierCoeffOn_mul, mul_assoc]
+  simp [partialFourierSum, mul_sum, fourierCoeffOn_mul, mul_assoc]
 
 lemma fourier_periodic {n : ℤ} : Function.Periodic (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) (2 * Real.pi) := by simp
 
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic (partialFourierSum f N) (2 * Real.pi) := by
-  rw [Function.Periodic]
-  intro x
-  rw [partialFourierSum, partialFourierSum]
-  congr
-  ext n
-  congr 1
-  exact fourier_periodic x
+    simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
 /-TODO: Add lemma Periodic.uniformContinuous_of_continuous. -/
 lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
@@ -99,7 +79,6 @@ lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (partialFourierSum f N) := by
   --apply continuous_finset_sum
   sorry
-
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real.pi + Real.pi / 2)) Real.cos := by
   apply strictConvexOn_of_deriv2_pos (convex_Icc _ _) Real.continuousOn_cos fun x hx => ?_
@@ -112,7 +91,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
   by_cases ηpos : η ≤ 0
   . calc (2 / Real.pi) * η
     _ ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (div_nonneg zero_le_two Real.pi_pos.le) ηpos
-    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by apply norm_nonneg
+    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
   push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
   . convert (@this (-x) _ (by simpa) (by linarith)) using 1
@@ -122,11 +101,9 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
   rw [abs_of_nonneg x_nonneg] at *
   wlog x_le_pi : x ≤ Real.pi generalizing x
   . convert (@this (2 * Real.pi - x) _ _ _ _) using 1
-    . rw [Complex.norm_eq_abs, ←Complex.abs_conj]
-      simp
-      rw [←Complex.exp_conj]
-      simp
-      rw [mul_sub, Complex.conj_ofReal, Complex.exp_sub, mul_comm Complex.I (2 * Real.pi), Complex.exp_two_pi_mul_I, ←inv_eq_one_div, ←Complex.exp_neg]
+    . rw [Complex.norm_eq_abs, ← Complex.abs_conj]
+      simp [← Complex.exp_conj, mul_sub, Complex.conj_ofReal, Complex.exp_sub,
+        mul_comm Complex.I (2 * Real.pi), Complex.exp_two_pi_mul_I, ←inv_eq_one_div, ←Complex.exp_neg]
     all_goals linarith
   by_cases h : x ≤ Real.pi / 2
   . calc (2 / Real.pi) * η
@@ -137,19 +114,19 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       . simp
         constructor <;> linarith [Real.pi_nonneg]
       . rw [sub_nonneg, mul_comm]
-        apply mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) Real.pi_nonneg) (by simpa)
+        exact mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) Real.pi_nonneg) (by simpa)
       . exact mul_nonneg (div_nonneg (by norm_num) Real.pi_nonneg) x_nonneg
       . simp
-    _ = Real.sin x := by
-      congr
-      field_simp
+    _ = Real.sin x := by field_simp
     _ ≤ Real.sqrt ((Real.sin x) ^ 2) := by
       rw [Real.sqrt_sq_eq_abs]
       apply le_abs_self
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
         rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
-        simp
-        rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
+        simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.cos_ofReal_re,
+          Complex.mul_re, Complex.sin_ofReal_re, Complex.I_re, mul_zero, Complex.sin_ofReal_im,
+          Complex.I_im, mul_one, sub_self, add_zero, Complex.sub_im, Complex.one_im, Complex.add_im,
+          Complex.cos_ofReal_im, Complex.mul_im, zero_add, zero_sub, even_two, Even.neg_pow]
         apply (Real.sqrt_le_sqrt_iff _).mpr
         . simp [pow_two_nonneg]
         . linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
@@ -177,12 +154,14 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       apply le_abs_self
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
         rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
-        simp
+        simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.mul_re, Complex.I_re,
+          mul_zero, Complex.sin_ofReal_im, Complex.I_im, mul_one, sub_self, add_zero,
+          Complex.sub_im, Complex.one_im, Complex.add_im, Complex.cos_ofReal_im, Complex.mul_im,
+          zero_add, zero_sub, even_two, Even.neg_pow]
         rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
         apply (Real.sqrt_le_sqrt_iff _).mpr
         . simp [pow_two_nonneg]
         . linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
-
 
 /-Slightly weaker version of Lemma 10.11 (lower secant bound) with simplified constant. -/
 lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
@@ -190,7 +169,7 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.p
   by_cases ηpos : η < 0
   . calc η / 2
     _ ≤ 0 := by linarith
-    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by apply norm_nonneg
+    _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := norm_nonneg _
   push_neg at ηpos
   calc η / 2
   _ ≤ (2 / Real.pi) * η := by
@@ -205,13 +184,11 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.p
     rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
     exact xIcc
 
-
-
 /-Further definitions-/
 /-TODO : relocate this-/
 
 --TODO : call constructor in a better way?
-def integer_linear (n : ℤ) : C(ℝ, ℂ) := ⟨fun (x : ℝ) ↦ (n * x : ℂ), by continuity⟩
+def integer_linear (n : ℤ) : C(ℝ, ℝ) := ⟨fun (x : ℝ) ↦ n * x, by fun_prop⟩
 
 --local notation "θ" => integer_linear
 

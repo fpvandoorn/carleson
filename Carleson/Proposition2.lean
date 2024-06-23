@@ -3,7 +3,7 @@ import Carleson.GridStructure
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
 open scoped ENNReal
 noncomputable section
-
+/-
 def C2_2 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ := sorry
 
 lemma C2_2_pos (A : ℝ) (τ q : ℝ) (C : ℝ) : C2_2 A τ q C > 0 := sorry
@@ -24,7 +24,7 @@ lemma κ2_2_pos (A : ℝ) (τ q : ℝ) (C : ℝ) : κ2_2 A τ q C > 0 := sorry
 def Cψ2_2 (A : ℝ) (τ q : ℝ) (C : ℝ) : ℝ≥0 := sorry
 
 lemma Cψ2_2_pos (A : ℝ) (τ : ℝ) (C : ℝ) : Cψ2_2 A τ C > 0 := sorry
-/-
+
 variable {X : Type*} {A : ℝ} [MetricSpace X] [DoublingMeasure X A] [Inhabited X]
 variable {τ q D κ ε : ℝ} {C₀ C t : ℝ}
 variable {Θ : Set C(X, ℂ)} [IsCompatible Θ] [IsCancellative τ Θ] [TileStructure Θ D κ C₀]
