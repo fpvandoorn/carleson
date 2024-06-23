@@ -29,7 +29,7 @@ class GridStructure
   c : 𝓓 → X
   range_s_subset : range s ⊆ Icc (-S) S
   𝓓_subset_biUnion {i} : ∀ k ∈ Ico (-S) (s i), coe𝓓 i ⊆ ⋃ j ∈ s ⁻¹' {k}, coe𝓓 j
-  fundamental_dyadic {i j} : s i ≤ s j → coe𝓓 i ⊆ coe𝓓 j ∨ Disjoint (coe𝓓 i) (coe𝓓 j)
+  fundamental_dyadic' {i j} : s i ≤ s j → coe𝓓 i ⊆ coe𝓓 j ∨ Disjoint (coe𝓓 i) (coe𝓓 j)
   ball_subset_biUnion : ∀ k ∈ Icc (-S) S, ball o (D ^ S) ⊆ ⋃ i ∈ s ⁻¹' {k}, coe𝓓 i
   ball_subset_𝓓 {i} : ball (c i) (D ^ s i / 4) ⊆ coe𝓓 i --2.0.10
   𝓓_subset_ball {i} : coe𝓓 i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
@@ -37,7 +37,7 @@ class GridStructure
     volume.real { x ∈ coe𝓓 i | infDist x (coe𝓓 i)ᶜ ≤ t * D ^ s i } ≤ D * t ^ κ * volume.real (coe𝓓 i)
 
 export GridStructure (range_s_subset 𝓓_subset_biUnion
-  fundamental_dyadic ball_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary)
+  ball_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary)
 
 variable {D κ C : ℝ} {S : ℤ} {o : X}
 
@@ -49,7 +49,6 @@ variable (X) in
 abbrev 𝓓 : Type u := GridStructure.𝓓 X A
 instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
 
-attribute [coe] GridStructure.coe𝓓
 instance : SetLike (𝓓 X) X where
   coe := GridStructure.coe𝓓
   coe_injective' := GridStructure.coe𝓓_injective
@@ -67,6 +66,10 @@ def s : 𝓓 X → ℤ := GridStructure.s
 def c : 𝓓 X → X := GridStructure.c
 
 namespace 𝓓
+
+lemma fundamental_dyadic {i j : 𝓓 X} :
+    s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
+  GridStructure.fundamental_dyadic'
 
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
@@ -165,9 +168,25 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 @[simp] lemma nndist_𝓘 (p : 𝔓 X) {f g : Θ X} : nndist_{𝓘 p} f g = nndist_(p) f g := rfl
 @[simp] lemma ball_𝓘 (p : 𝔓 X) {f : Θ X} {r : ℝ} : ball_{𝓘 p} f r = ball_(p) f r := rfl
 
+lemma 𝓓.nonempty (I : 𝓓 X) : (I : Set X).Nonempty := by
+  apply Set.Nonempty.mono ball_subset_𝓓
+  simp only [defaultA, defaultD, defaultκ, nonempty_ball, gt_iff_lt, Nat.ofNat_pos,
+    div_pos_iff_of_pos_right]
+  positivity
+
 /-- Lemma 2.1.2, part 1. -/
 lemma 𝓓.dist_mono {I J : 𝓓 X} (hpq : I ⊆ J) {f g : Θ X} :
     dist_{I} f g ≤ dist_{J} f g := by
+  by_cases h : GridStructure.s J ≤ GridStructure.s I
+  · suffices I = J by
+      subst this; rfl
+    rw [𝓓.subset_def] at hpq
+    rw [← SetLike.coe_set_eq]
+    apply subset_antisymm hpq
+    apply (fundamental_dyadic h).resolve_right
+    rw [Set.not_disjoint_iff_nonempty_inter, inter_eq_self_of_subset_right hpq]
+    exact 𝓓.nonempty _
+  simp only [not_le, ← Int.add_one_le_iff] at h
   sorry
 
 def C2_1_2 (a : ℝ) : ℝ := 2 ^ (-95 * a)
