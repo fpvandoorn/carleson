@@ -50,10 +50,14 @@ Define the partial Fourier sum for $N\ge 0$ as
     \end{equation}
 \end{theorem}
 
-Note that mere continuity implies uniform continuity in the setting of this theorem. By applying this theorem with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and taking the intersection of the corresponding exceptional sets, which has measure zero, we see that the Fourier series converges outside a set of measure zero.
+Note that mere continuity implies uniform continuity in the setting of this theorem.
+By applying this theorem with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union
+of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier
+sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and
+taking the intersection of the corresponding exceptional sets, which has measure zero, we see that the Fourier
+series converges outside a set of measure zero.
 
 The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-Carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
-
 
 We proceed to introduce the setup for our general theorem.
 We carry a multi purpose parameter, a natural number
@@ -111,9 +115,6 @@ where $\|\cdot\|_{\Lip(B)}$ denotes the inhomogeneous Lipschitz norm on $B$:
 $$
     \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
 $$
-
-
-
 
 A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$ is a measurable function
  \begin{equation}\label{eqkernel0}
@@ -622,9 +623,7 @@ First, we record an estimate for the metrical entropy numbers of balls in the sp
     \leanok
     \lean{Θ.mk_le_of_le_dist}
     Let $B' \subset X$ be a ball. Let $r > 0$, $\mfa \in \Mf$ and $k \in \mathbb{N}$. Suppose that $\mathcal{Z} \subset B_{B'}(\mfa, r2^k)$ satisfies that for all $z, z' \in \mathcal{Z}$ with $z \ne z'$, we have $d_{B'}(z,z') \ge r$. Then
-    $$
-        |\mathcal{Z}| \le 2^{ka}\,.
-    $$
+    $$ |\mathcal{Z}| \le 2^{ka}\,. $$
 \end{lemma}
 
 \begin{proof}
@@ -753,22 +752,22 @@ We have that
 \end{equation} because every point of $X$
 has finite distance from $o$.
 \begin{lemma}[R truncation]
-\label{R-truncation}
- \uses{S-truncation}
-For all integers $R>0$
-$$
-    \int \mathbf{1}_{G\cap B(o,R)}
-    \sup_{1/R<R_1<R_2<R}\sup_{\mfa\in\Mf}
-    \left| T_{R_1,R_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
-$$
-\begin{equation} \label{Rcut}
-    \leq \frac{2^{450a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
-\end{equation}
-where
-\begin{equation}\label{TRR}
-    T_{R_1,R_2,\mfa} f(x)=
-    \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) .
-\end{equation}
+    \label{R-truncation}
+    \uses{S-truncation}
+    For all integers $R>0$
+    $$
+        \int \mathbf{1}_{G\cap B(o,R)}
+        \sup_{1/R<R_1<R_2<R}\sup_{\mfa\in\Mf}
+        \left| T_{R_1,R_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
+    $$
+    \begin{equation} \label{Rcut}
+        \leq \frac{2^{450a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \end{equation}
+    where
+    \begin{equation}\label{TRR}
+        T_{R_1,R_2,\mfa} f(x)=
+        \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) .
+    \end{equation}
 \end{lemma}
 
 We first show how \Cref{R-truncation} implies \Cref{metric-space-Carleson}. As $R$ tends to $\infty$, the integrand of the left-hand side of \eqref{Rcut} grows monotonically toward the integrand of the left-hand side of \eqref{resweak} for all $x$. By Lebesgue's monotone convergence theorem, the left-hand side of \eqref{Rcut} converges to the left-hand side of \eqref{resweak}. This verifies \Cref{metric-space-Carleson}.
@@ -794,18 +793,18 @@ We apply the triangle inequality and estimate the versions of \eqref{Rcut} separ
 
 
 \begin{lemma}[S truncation]
-\label{S-truncation}
-\uses{Hardy-Littlewood,kernel-summand,finitary-S-truncation}
-For all integers $S>0$
-$$
-    \int \mathbf{1}_{G}(x)
-    \max_{-S<s_1\le s_2<S}\sup_{\mfa\in\Mf}
-    \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
-$$
-\begin{equation} \label{Scut}
-    \leq \frac{2^{446a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
-\end{equation}
-where $T_{1, s_1,s_2,\mfa}$ is defined in \eqref{middles}.
+    \label{S-truncation}
+    \uses{Hardy-Littlewood,kernel-summand,finitary-S-truncation}
+    For all integers $S>0$
+    $$
+        \int \mathbf{1}_{G}(x)
+        \max_{-S<s_1\le s_2<S}\sup_{\mfa\in\Mf}
+        \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
+    $$
+    \begin{equation} \label{Scut}
+        \leq \frac{2^{446a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \end{equation}
+    where $T_{1, s_1,s_2,\mfa}$ is defined in \eqref{middles}.
 \end{lemma}
 
 To reduce \Cref{R-truncation} to \Cref{S-truncation}, we need estimates for the summands in \eqref{boundarys}. Using \Cref{kernel-summand}, we obtain for arbitrary $s$ the inequality
