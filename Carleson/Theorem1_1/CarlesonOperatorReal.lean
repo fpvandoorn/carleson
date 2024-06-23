@@ -25,8 +25,8 @@ def CarlesonOperatorRat' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) :
 --TODO: is this needed?
 lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.Ioo r R} = Set.Ioo (x - R) (x - r) ∪ Set.Ioo (x + r) (x + R) := by
   ext y
-  simp
-  rw [Real.dist_eq, lt_abs, abs_lt]
+  simp only [Real.dist_eq, Set.mem_Ioo, lt_abs, neg_sub, abs_lt, neg_lt_sub_iff_lt_add,
+    Set.mem_setOf_eq, Set.mem_union]
   constructor
   . rintro ⟨(h₀ | h₀), h₁, h₂⟩
     . left
@@ -75,11 +75,9 @@ lemma CarlesonOperatorReal'_measurable {f : ℝ → ℂ} (hf : Measurable f) : M
 
 theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T' f x = a.toNNReal * T' (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal', CarlesonOperatorReal', ENNReal.mul_iSup]
-  congr
-  ext n
+  congr with n
   rw [ENNReal.mul_iSup]
-  congr
-  ext r
+  congr with r
   rw [ENNReal.mul_iSup]
   congr
   ext rpos
@@ -90,11 +88,9 @@ theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 
   --rw [← norm_toNNReal, ← norm_toNNReal]
   apply NNReal.eq
   simp only [coe_nnnorm, NNReal.coe_mul]
-  rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul]
-  congr
-  rw [← MeasureTheory.integral_mul_left, Real.coe_toNNReal a ha.le]
-  congr
-  ext y
+  rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
+    ← MeasureTheory.integral_mul_left, Real.coe_toNNReal a ha.le]
+  congr with y
   field_simp
   rw [mul_div_cancel_left₀]
   norm_cast

@@ -11,8 +11,7 @@ lemma k_of_neg_eq_conj_k {x : ℝ} : k (-x) = (starRingEnd ℂ) (k x) := by
   simp [k, Complex.conj_ofReal, ←Complex.exp_conj, Complex.conj_I, neg_mul]
 
 lemma k_of_abs_le_one {x : ℝ} (abs_le_one : |x| ≤ 1) : k x = (1 - |x|) / (1 - Complex.exp (Complex.I * x)) := by
-  rw [k, max_eq_left (by linarith)]
-  norm_cast
+  rw_mod_cast [k, max_eq_left (by linarith)]
 
 lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
   rw [k, max_eq_right (by linarith)]
@@ -21,9 +20,8 @@ lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
 @[measurability]
 lemma k_measurable : Measurable k := by
   apply Measurable.div
-  . apply Measurable.comp'
-    · exact Complex.measurable_ofReal
-    · exact Measurable.max (measurable_const.sub measurable_norm) measurable_const
+  . exact Complex.measurable_ofReal.comp'
+      ((measurable_const.sub measurable_norm).max measurable_const)
   . measurability
 
 def K (x y : ℝ) : ℂ := k (x - y)
@@ -122,9 +120,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
           simp only [Complex.norm_eq_abs, ge_iff_le]
           apply Complex.abs_im_le_abs
         _ = Real.sin t := by
-          simp
-          rw [Complex.exp_im]
-          simp
+          simp [Complex.exp_im]
           apply Real.sin_nonneg_of_nonneg_of_le_pi
           . linarith
           . linarith [Real.two_le_pi]
@@ -140,7 +136,6 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
         ext t
         rw [f'def, cdef, c'def, ddef, d'def]
         simp
-        congr
         ring
       rw [this]
       apply HasDerivAt.div
@@ -267,9 +262,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     set x_ := (0 : ℝ) with x_def
     set y_ := y - x with y_def
     set y'_ := y' - x with y'_def
-    have h_ : 2 * |y_ - y'_| ≤ |x_ - y_| := by
-      rw [x_def, y_def, y'_def]
-      simpa
+    have h_ : 2 * |y_ - y'_| ≤ |x_ - y_| := by simpa [x_def, y_def, y'_def]
     have := this x_def h_
     rw [x_def, y_def, y'_def] at this
     simpa
@@ -303,15 +296,11 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
         simpa
   /-"Wlog" 0 < y-/
   by_cases ypos : y ≤ 0
-  . have y_eq_zero : y = 0 := by
-      exact le_antisymm ypos yy'nonneg.1
+  . have y_eq_zero : y = 0 := le_antisymm ypos yy'nonneg.1
     have y'_eq_zero : y' = 0 := by
-      rw [y_eq_zero] at h
-      simp at h
-      rw [abs_of_nonneg yy'nonneg.2] at h
+      simp [y_eq_zero, abs_of_nonneg yy'nonneg.2] at h
       linarith
-    rw [y_eq_zero, y'_eq_zero]
-    simp
+    simp [y_eq_zero, y'_eq_zero]
   push_neg at ypos
 
   -- Beginning of the main proof.
@@ -321,7 +310,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
       _ = 2 * (y - y') - y + 2 * y' := by ring
       _ ≤ 2 * |y - y'| - y + 2 * y' := by
         gcongr
-        apply le_abs_self
+        exact le_abs_self _
       _ ≤ y - y + 2 * y' := by
         gcongr
         rw [abs_eq_self.mpr yy'nonneg.1] at h
@@ -361,13 +350,11 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
           all_goals linarith
         _ = 2 ^ 6 * (1 / y') * ((1 - y') / y') := by
           congr
-          . rw [abs_of_nonneg]
-            exact yy'nonneg.2
+          . simp [abs_of_nonneg, yy'nonneg.2]
           . rw [abs_of_nonpos]
-            simp
+            simp only [neg_sub]
             linarith
-          . rw [abs_of_nonneg]
-            exact yy'nonneg.2
+          . simp [abs_of_nonneg, yy'nonneg.2]
         _ ≤ 2 ^ 6 * (1 / (y / 2)) * ((1 - y') / (y / 2)) := by
           gcongr
           . apply div_nonneg <;> linarith

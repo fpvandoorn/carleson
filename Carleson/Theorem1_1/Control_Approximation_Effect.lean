@@ -47,7 +47,7 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : MeasureTheory.Me
       gcongr
     _ ≤ 2 * (μ Ef + μ Eg) := by
       gcongr
-      apply MeasureTheory.measure_union_le
+      exact MeasureTheory.measure_union_le _ _
     _ = 2 * μ Ef + 2 * μ Eg := by ring
     _ < μ E + μ E := by
       gcongr
@@ -57,25 +57,24 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : MeasureTheory.Me
   rcases this with hEf | hEg
   . use Ef
     constructor
-    . apply Set.inter_subset_left
+    . exact Set.inter_subset_left
     constructor
     . apply MeasurableSet.inter hE
-      apply hf measurableSet_Ici
+      exact hf measurableSet_Ici
     use hEf
     left
     rw [Ef_def]
     simp
   . use Eg
     constructor
-    . apply Set.inter_subset_left
+    . exact Set.inter_subset_left
     constructor
     . apply MeasurableSet.inter hE
-      apply hg measurableSet_Ici
+      exact hg measurableSet_Ici
     use hEg
     right
     rw [Eg_def]
     simp
-
 
 open Complex
 
@@ -84,21 +83,13 @@ lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : T
     ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
   rw [intervalIntegral_eq_integral_uIoc, integral_conj, intervalIntegral_eq_integral_uIoc,
       RCLike.real_smul_eq_coe_mul, RCLike.real_smul_eq_coe_mul, map_mul]
-  congr
   simp
 
 -- Corrected rewrite
 lemma dirichlet_Hilbert_eq {N : ℕ} {x y : ℝ} :
     (max (1 - |x - y|) 0) * dirichletKernel' N (x - y) = exp (I * (-N * x)) * K x y * exp (I * N * y) + (starRingEnd ℂ) (exp (I * (-N * x)) * K x y * exp (I * N * y)) := by
-  rw [dirichletKernel', K, k]
-  rw [map_mul, map_mul, map_div₀, conj_ofReal, map_sub, ←exp_conj, ←exp_conj, ←exp_conj,
-    map_mul, map_mul, map_mul, map_mul, map_mul, conj_ofReal, conj_ofReal, conj_ofReal]
-  simp
-  field_simp
-  symm
-  rw [mul_comm, ←mul_assoc, ←exp_add, mul_comm, add_comm, mul_comm, ←mul_assoc, ←exp_add, mul_comm, mul_add, mul_div_assoc, mul_div_assoc]
-  congr <;> ring
-
+  simp [dirichletKernel', K, k, conj_ofReal, ←exp_conj, mul_comm, ←mul_assoc, ←exp_add]
+  ring_nf
 
 section
 open Filter Topology
@@ -112,7 +103,7 @@ lemma le_iSup_of_tendsto {α β} [TopologicalSpace α] [CompleteLinearOrder α] 
     apply eventually_gt_of_tendsto_gt hc ha
   rcases this.exists with ⟨x, hx⟩
   apply lt_of_lt_of_le hx
-  apply le_iSup
+  exact le_iSup _ _
 
 lemma integrable_annulus {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume (-Real.pi) (3 * Real.pi)) {r : ℝ} (r_nonneg : 0 ≤ r) (rle1 : r < 1) :
     MeasureTheory.Integrable (fun x ↦ f x) (MeasureTheory.volume.restrict {y | dist x y ∈ Set.Ioo r 1}) := by
@@ -134,14 +125,14 @@ lemma integrableOn_mul_dirichletKernel'_max {x : ℝ} (hx : x ∈ Set.Icc 0 (2 *
     constructor <;> linarith [hx.1, hx.2, hy.1, hy.2, Real.two_le_pi]
   . apply Measurable.aestronglyMeasurable
     apply Measurable.mul
-    . apply Measurable.comp Complex.measurable_ofReal
+    . apply Complex.measurable_ofReal.comp
       apply Measurable.max
       apply Measurable.const_sub
-      apply Measurable.comp _root_.continuous_abs.measurable
-      apply Measurable.const_sub measurable_id
+      apply _root_.continuous_abs.measurable.comp
+      apply measurable_id.const_sub
       exact measurable_const
-    . apply Measurable.comp dirichletKernel'_measurable
-      apply Measurable.const_sub measurable_id
+    . apply dirichletKernel'_measurable.comp
+      exact measurable_id.const_sub _
   . rw [MeasureTheory.ae_restrict_iff' measurableSet_Icc]
     apply eventually_of_forall
     intro y _
@@ -154,8 +145,8 @@ lemma integrableOn_mul_dirichletKernel'_max {x : ℝ} (hx : x ∈ Set.Icc 0 (2 *
           apply max_le
           linarith [abs_nonneg (x - y)]
           norm_num
-          apply le_max_right
-        apply norm_dirichletKernel'_le
+          exact le_max_right _ _
+        exact norm_dirichletKernel'_le
 
 /-TODO : only slightly different from previous lemma; unify the proofs of the two-/
 lemma integrableOn_mul_dirichletKernel'_min {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume (-Real.pi) (3 * Real.pi)) {N : ℕ} :
@@ -168,13 +159,13 @@ lemma integrableOn_mul_dirichletKernel'_min {x : ℝ} (hx : x ∈ Set.Icc 0 (2 *
     constructor <;> linarith [hx.1, hx.2, hy.1, hy.2, Real.two_le_pi]
   . apply Measurable.aestronglyMeasurable
     apply Measurable.mul
-    . apply Measurable.comp Complex.measurable_ofReal
+    . apply Complex.measurable_ofReal.comp
       apply Measurable.min
-      apply Measurable.comp _root_.continuous_abs.measurable
-      apply Measurable.const_sub measurable_id
+      apply _root_.continuous_abs.measurable.comp
+      apply measurable_id.const_sub
       exact measurable_const
-    . apply Measurable.comp dirichletKernel'_measurable
-      apply Measurable.const_sub measurable_id
+    . apply dirichletKernel'_measurable.comp
+      exact measurable_id.const_sub _
   . rw [MeasureTheory.ae_restrict_iff' measurableSet_Icc]
     apply eventually_of_forall
     intro y _
@@ -188,7 +179,7 @@ lemma integrableOn_mul_dirichletKernel'_min {x : ℝ} (hx : x ∈ Set.Icc 0 (2 *
           apply le_min
           linarith [abs_nonneg (x - y)]
           norm_num
-        apply norm_dirichletKernel'_le
+        exact norm_dirichletKernel'_le
 
 
 lemma integrableOn_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume (-Real.pi) (3 * Real.pi)) {N : ℕ} :
@@ -251,12 +242,11 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
       --uses that dirichletKernel' is bounded
       exact integrableOn_mul_dirichletKernel'_specific hx hf
   calc ENNReal.ofNNReal ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊
-    _ = ‖∫ y in ⋃ n, s n, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
-      congr
+    _ = ‖∫ y in ⋃ n, s n, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by congr
     _ ≤ ⨆ (i : ℕ), ↑‖∫ y in s i, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
       apply le_iSup_of_tendsto
       rw [ENNReal.tendsto_coe]
-      apply Tendsto.nnnorm this
+      exact Tendsto.nnnorm this
     _ ≤ ⨆ (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
       apply iSup_le
       intro n
@@ -270,13 +260,12 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
       intro _
       apply iSup_congr
       intro _
-      congr
-      ext y
+      congr with y
       rw [mul_assoc, dirichlet_Hilbert_eq]
       norm_cast
     _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊ := by
       let F : ℤ → ENNReal := fun (n : ℤ) ↦ ⨆ (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊
-      apply le_iSup F ((Int.ofNat N))
+      exact le_iSup F ((Int.ofNat N))
     _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1), (  ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * exp (I * n * y)‖₊
                                                     + ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, ((starRingEnd ℂ) ∘ f) y * K x y * exp (I * n * y)‖₊) := by
       apply iSup₂_mono
@@ -287,8 +276,7 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
       push_cast
       calc ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊
         _ = ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y)) + f y * (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
-          congr
-          ext y
+          congr with y
           rw [mul_add]
         _ = ‖ (∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (exp (I * (-n * x)) * K x y * exp (I * n * y)))
              + ∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * (starRingEnd ℂ) (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
@@ -310,7 +298,7 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
                 . rw [norm_eq_abs, mul_comm]
                   norm_cast
                   rw [abs_exp_ofReal_mul_I]
-                . apply Hilbert_kernel_bound
+                . exact Hilbert_kernel_bound
                 . rw [norm_eq_abs, mul_assoc, mul_comm]
                   norm_cast
                   rw [abs_exp_ofReal_mul_I]
@@ -323,12 +311,11 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
             apply MeasureTheory.Integrable.bdd_mul' integrable₁ measurable₁.aestronglyMeasurable
             . rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
               apply eventually_of_forall
-              intro y hy
-              exact boundedness₁ hy.1.le
+              exact fun _ hy ↦ boundedness₁ hy.1.le
           . conv => pattern ((f _) * _); rw [mul_comm]
             apply MeasureTheory.Integrable.bdd_mul' integrable₁
             . apply Measurable.aestronglyMeasurable
-              apply Measurable.comp continuous_star.measurable measurable₁
+              exact continuous_star.measurable.comp measurable₁
             . rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
               apply eventually_of_forall
               intro y hy
@@ -340,12 +327,10 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
         _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * (f y * K x y * exp (I * n * y))‖₊
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, exp (I * (-n * x)) * (((starRingEnd ℂ) ∘ f) y *  K x y * exp (I * n * y))‖₊ := by
             congr 1
-            . congr
-              ext y
+            . congr with y
               ring
             . rw [←nnnorm_star, ←starRingEnd_apply, ←integral_conj]
-              congr
-              ext y
+              congr with y
               simp
               ring
         _ =   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * exp (I * n * y)‖₊
@@ -379,8 +364,7 @@ theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ 
       apply MeasureTheory.set_lintegral_mono' measurableSetE hE
     _ = ENNReal.ofReal δ * ∫⁻ x in E, T' (fun x ↦ (1 / δ) * f x) x := by
       rw [← MeasureTheory.lintegral_const_mul']
-      congr
-      ext x
+      congr with x
       rw [CarlesonOperatorReal'_mul δpos]
       congr
       exact ENNReal.ofReal_ne_top
@@ -403,7 +387,6 @@ theorem rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) 
   rw [Real.volume_Icc]
   ring_nf
 
-
 def C_control_approximation_effect (ε : ℝ) := (C1_2 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹) + Real.pi
 
 lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : Real.pi < C_control_approximation_effect ε := by
@@ -418,10 +401,8 @@ lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_con
 
 lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + Real.pi * δ := by
   symm
-  rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc, mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul]
-  congr 2
-  --ring_nf
-  rw [mul_comm _ (C1_2 4 2), mul_assoc]
+  rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc,
+    mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C1_2 4 2), mul_assoc]
   congr
   rw [Real.div_rpow, Real.div_rpow _ (mul_nonneg _ _), Real.mul_rpow, Real.mul_rpow]
   ring_nf
@@ -451,13 +432,13 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
   have measurableSetE : MeasurableSet E := by
     rw [E_eq]
     apply MeasurableSet.inter
-    . apply measurableSet_Icc
+    . exact measurableSet_Icc
     apply MeasurableSet.iUnion
     intro N
     apply measurableSet_lt
-    . apply measurable_const
+    . exact measurable_const
     apply Measurable.norm
-    apply partialFourierSum_uniformContinuous.continuous.measurable
+    exact partialFourierSum_uniformContinuous.continuous.measurable
   use E
   constructor
   . intro x hx
@@ -483,12 +464,12 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     apply Set.Ioc_subset_Icc_self
     rw [Set.uIoc_of_le (by linarith)] at hx
     constructor <;> linarith [hx.1, hx.2]
-    apply measurableSet_uIoc
+    exact measurableSet_uIoc
   set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
   set f := fun x ↦ h x * F.indicator 1 x with fdef
   have f_measurable : Measurable f := by
-    apply Measurable.mul h_measurable
-    apply Measurable.indicator measurable_const measurableSet_Icc
+    apply h_measurable.mul
+    exact measurable_const.indicator measurableSet_Icc
   --TODO : improve this proof, should be much easier...
   have f_integrable : IntervalIntegrable f MeasureTheory.volume (-Real.pi) (3 * Real.pi) := by
     rw [fdef, intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith [Real.pi_pos])]
@@ -496,7 +477,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     apply MeasureTheory.Integrable.bdd_mul'
     rwa [← MeasureTheory.IntegrableOn, ← intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith [Real.pi_pos])]
     apply Measurable.aestronglyMeasurable
-    apply Measurable.indicator measurable_const measurableSet_Icc
+    apply measurable_const.indicator measurableSet_Icc
     apply Filter.eventually_of_forall
     intro x
     rw [norm_indicator_eq_indicator_norm]
@@ -524,8 +505,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     calc ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) + ENNReal.ofReal (Real.pi * δ * (2 * Real.pi))
       _ = ENNReal.ofReal ((2 * Real.pi) * ε') := by
         rw [← ENNReal.ofReal_add]
-        . congr
-          ring
+        . ring_nf
         . apply mul_nonneg _ Real.two_pi_pos.le
           rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right]
           apply div_nonneg _ Real.pi_pos.le
@@ -542,9 +522,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       _ = ‖∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)‖₊  := by
         rw [map_mul, map_div₀, ←mul_assoc]
         rw [ENNReal.ofReal, ← norm_toNNReal]
-        congr
         conv => rhs; rw [← one_mul ‖_‖]
-        congr
         simp
         rw [_root_.abs_of_nonneg Real.pi_pos.le]
         field_simp
@@ -556,18 +534,14 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         congr 1
         ring
         apply Function.Periodic.mul h_periodic
-        apply Function.Periodic.const_sub dirichletKernel'_periodic
+        exact Function.Periodic.const_sub dirichletKernel'_periodic _
       _ = ‖  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
            + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y))      ‖₊ := by
         --Split into two parts
-        congr
         rw [← intervalIntegral.integral_add]
-        . congr
-          ext y
+        . congr with y
           rw [←add_mul, ←mul_add]
-          congr
           conv => lhs; rw [←mul_one (h y)]
-          congr
           norm_cast
           rw [min_def]
           split_ifs
@@ -608,10 +582,8 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                 constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
               simp [this]
             _ = ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 Real.pi}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ := by
-              congr
               rw [annulus_real_eq (le_refl 0), MeasureTheory.integral_union (by simp), ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.integral_union,
                 intervalIntegral.integral_of_le (by linarith), MeasureTheory.integral_Ioc_eq_integral_Ioo]
-              congr
               simp
               rw [Set.Ioc_union_Ioo_eq_Ioo (by linarith) (by linarith)]
               . simp
@@ -637,8 +609,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
               --Adjust integration domain
               congr 2
               rw [←MeasureTheory.integral_indicator annulus_measurableSet, ←MeasureTheory.integral_indicator annulus_measurableSet]
-              congr
-              ext y
+              congr with y
               rw [Set.indicator_apply, Set.indicator_apply, mul_assoc, dirichlet_Hilbert_eq, K]
               split_ifs with h₀ h₁ h₂
               . trivial
@@ -688,7 +659,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                 _ = min |z| 1 * 1 / ‖1 - exp (I * z)‖ + min |z| 1 * 1 / ‖1 - exp (I * z)‖ := by
                   simp
                   congr
-                  . simp only [abs_eq_self, le_min_iff, abs_nonneg, zero_le_one, and_self]
+                  . simp
                   . rw [mul_assoc I, mul_comm I]
                     norm_cast
                     rw [abs_exp_ofReal_mul_I, one_div, ←abs_conj, map_sub, map_one, ←exp_conj, ← neg_mul, map_mul,
@@ -708,10 +679,9 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                       linarith [Real.pi_pos]
                     rw [div_le_iff', ←div_le_iff, div_div_eq_mul_div, mul_div_assoc, mul_comm]
                     apply lower_secant_bound'
-                    . apply min_le_left
+                    . exact min_le_left _ _
                     . have : |z| ≤ Real.pi := by
-                        rw [abs_le]
-                        rw [zdef]
+                        rw [abs_le, zdef]
                         constructor <;> linarith [hy.1, hy.2]
                       rw [min_def]
                       split_ifs <;> linarith
@@ -731,12 +701,11 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       _ = ENNReal.ofReal (2 * Real.pi) := by
         rw [Real.volume_Icc, sub_zero]
       _ < ⊤ := ENNReal.ofReal_lt_top
-  obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (CarlesonOperatorReal'_measurable f_measurable) (CarlesonOperatorReal'_measurable (Measurable.comp continuous_star.measurable f_measurable)) le_operator_add
+  obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (CarlesonOperatorReal'_measurable f_measurable) (CarlesonOperatorReal'_measurable (continuous_star.measurable.comp f_measurable)) le_operator_add
   have E'volume : MeasureTheory.volume E' < ⊤ := lt_of_le_of_lt (MeasureTheory.measure_mono E'subset) Evolume
   have : ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
     calc ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E'
     _ = ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) / 2 * MeasureTheory.volume E' := by
-      congr
       rw [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_div_of_pos (by norm_num)]
       ring_nf
     _ ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
@@ -750,8 +719,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         simp only [norm_eq_abs, Pi.one_apply, norm_one]
         rw [Set.indicator_apply, Set.indicator_apply]
         split_ifs with inF
-        . simp
-          exact h_bound x inF
+        . simp [h_bound x inF]
         . simp
   have δ_mul_const_pos : 0 < δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ := by
     apply mul_pos
@@ -771,10 +739,8 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       apply ENNReal.mul_ne_top ENNReal.ofReal_ne_top E'volume.ne
     _ = 2 * MeasureTheory.volume.real E' ^ ((1 + -(2 : ℝ)⁻¹) * 2) := by
       conv => lhs; rw [←Real.rpow_one (MeasureTheory.volume.real E')]
-      congr
       norm_num
     _ ≤ 2 * (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - Real.pi * δ))) ^ (2 : ℝ) := by
-      gcongr
       rw [Real.rpow_mul MeasureTheory.measureReal_nonneg]
       gcongr
       rw [Real.rpow_add' MeasureTheory.measureReal_nonneg (by norm_num), Real.rpow_one, le_div_iff' ε'_δ_expression_pos, ← mul_assoc]
