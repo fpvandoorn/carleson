@@ -346,7 +346,7 @@ end ShortVariables
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]

@@ -5,6 +5,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.MeasureTheory.Integral.Average
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Doubling
+import Mathlib.MeasureTheory.Constructions.Polish
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
@@ -26,15 +27,25 @@ class DoublingMeasure (X : Type*) (A : outParam ℝ) [PseudoMetricSpace X] exten
 
 export DoublingMeasure (volume_ball_two_le_same)
 
-variable {X : Type*} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
+variable  {X : Type*} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
 
-example : ProperSpace X := by infer_instance
-example : LocallyCompactSpace X := by infer_instance
-example : CompleteSpace X := by infer_instance
-example : SigmaCompactSpace X := by infer_instance
-example : SigmaFinite (volume : Measure X) := by infer_instance
-example : SecondCountableTopology X := by infer_instance
-example : SeparableSpace X := by infer_instance
+-- the following classes hold
+#synth ProperSpace X
+#synth LocallyCompactSpace X
+#synth CompleteSpace X
+#synth SigmaCompactSpace X
+#synth SigmaFinite (volume : Measure X)
+#synth SecondCountableTopology X
+#synth SeparableSpace X
+
+
+section MetricSpace
+variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
+-- Moreover, the following classes hold if we assume that `Y` is a metric space
+#synth T4Space Y
+#synth PolishSpace Y
+#synth MeasurableSingletonClass Y
+end MetricSpace
 
 variable (X) in
 lemma one_le_A : 1 ≤ A := by

@@ -13,7 +13,7 @@ noncomputable section
 
 -- #check VitaliFamily
 
-variable {X E} [PseudoMetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E] [NormedSpace ℝ E]
+variable {X E} [MetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E] [NormedSpace ℝ E]
   [MeasurableSpace E] [BorelSpace E]
   {μ : Measure X} {f : X → E} {x : X} {𝓑 : Finset (X × ℝ)}
 
