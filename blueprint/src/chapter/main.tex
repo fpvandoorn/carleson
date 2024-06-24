@@ -6383,7 +6383,7 @@ We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Z
     \label{eqkernel-x-smooth}
     |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation}
-%TODO: Should it be V(y,x) rather?
+%fixme: Should it be V(y,x) rather?
 By the additional regularity, we can weaken the assumption \eqref{nontanbound} to an operator that is easier to work with in applications.
 Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f$ on $X$ with bounded support, we define
 \begin{equation}
@@ -6793,7 +6793,7 @@ where
 g(y) K(x',y)\, d\mu(y)\right|\, .
 \end{equation}
 We now write by the triangle inequality
-%TODO: this currently ignores out the boundary of B(x',r_2). Are we sure that its measure is zero?
+%fixme: this currently ignores out the boundary of B(x',r_2). Are we sure that its measure is zero?
 \begin{equation}\label{concretetstartriangle}
     T_* g(x)\le \sup_{0<r_1<r_2}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, d\mu(y)\right|
 \end{equation}
@@ -6869,7 +6869,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
 \end{lemma}
 \begin{proof}
-    %TODO: Do we know that X is nonempty?
+    %fixme: Do we know that X is nonempty?
     Choose an arbitrary $x\in X$ as reference point. For $q, Q\in\Q_+$, let $J_{q,Q}$ denote the set of all $j\in J$ such that $B_j\subset B(x, Q)$ and $r_j \ge q$. It suffices to show that all the $J_{q,Q}$ are finite.
     Indeed, for all $j\in J_{q,Q}$,
     \begin{equation*}
@@ -6881,7 +6881,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
         |J_{q,Q}| \mu(B(x, Q)) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \sum_{j\in J_{q,Q}} \mu(B_j) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \mu(B(x,Q))
     \end{equation}
     and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
-    %TODO: We used that $0<\mu(B(x,Q)<\infty$. Is that guaranteed in our setting?
+    %fixme: We used that $0<\mu(B(x,Q)<\infty$. Is that guaranteed in our setting?
 \end{proof}
 
 Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
@@ -6975,7 +6975,7 @@ By \eqref{control-distance-growth-b} and \eqref{control-distance-growth-c}, for 
     &= 2^{3a} \mu(\bigcup_{k=1}^N B_{j_k}) \le 2^{3a} \mu(B(z,\frac{8\delta(z)}{6})) \le 2^{6a} \mu(B(z,\frac{\delta(z)}{6}))
 \end{align}
 and conclude $N\le 2^{6a}$.
-% TODO: We used that $0<\mu(B(z,\frac{\delta(z)}{6}))<\infty$. Is that guaranteed in our setting?
+% fixme: We used that $0<\mu(B(z,\frac{\delta(z)}{6}))<\infty$. Is that guaranteed in our setting?
 \end{proof}
 
 Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
@@ -7050,7 +7050,7 @@ For \eqref{eq-g-max}, we first do the case $x\in X\setminus E_\alpha$. By defini
     \frac{1}{\mu(B)}\int_B |f(y)|\,d\mu(y) \le \alpha
 \end{equation}
 for every ball $B\subset X$ with $x\in B$. It follows by \Cref{Lebesgue-differentiation} that for almost every $x\in X\setminus E_\alpha$, $|f(x)|\le \alpha$.
-%TODO: How do we ensure that the sequences required in Lebesgue-differentiation exist for a.e. x?
+%fixme: How do we ensure that the sequences required in Lebesgue-differentiation exist for a.e. x?
 In the case $x\in E_\alpha$, there exists some $j\in J$ with $x\in Q_j$ and we have that
 \begin{equation}
     \label{large-ball-estimate}
@@ -7085,7 +7085,7 @@ At last, we estimate with \Cref{maximal-theorem}
 proving \eqref{eq-bset-length-sum}.
 
 Assume now that $E_\alpha = X$. Note that this can only happen if $\mu(X)<\infty$.
-%TODO: Could $\mu$ also be $\infty$ on every ball?
+%fixme: Could $\mu$ also be $\infty$ on every ball?
 Define
 \begin{equation*}
     g := \frac{1}{\mu(X)} \int |f(y)|\,d\mu(y)
@@ -7110,7 +7110,7 @@ which shows \eqref{eq-bset-length-sum}.
 \begin{proof}[Proof of \Cref{weak-1-1}]
 \proves{weak-1-1}
 Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $\alpha':=c\alpha$, we obtain the decomposition
-%TODO: verify assumption for $\mu(X)<\infty$
+%fixme: verify assumption for $\mu(X)<\infty$
 \begin{equation*}
     f=g+b=g+\sum_j b_j
 \end{equation*}
@@ -7327,7 +7327,7 @@ Using the definition of $c$, we bound this by
 \begin{equation*}
     \frac{2^{a^3-9a-2} + 2^{a^3+17a+4} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y) \le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
 \end{equation*}
-%TODO: Check constants. Maybe leave out the last explicit calculations.
+%fixme: Check constants. Maybe leave out the last explicit calculations.
 This proves \eqref{eq-weak-1-1}.
 \end{proof}
 
