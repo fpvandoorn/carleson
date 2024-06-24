@@ -490,7 +490,8 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
 --TODO : possibly issues with a different "doubling constant" than in the paper (4 instead of 2)
 instance h5 : IsCancellative ℝ (2 ^ (4 : ℝ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
-  norm_integral_exp_le := by sorry
+  norm_integral_exp_le := by
+    sorry
 
 --TODO : add some Real.vol lemma
 
