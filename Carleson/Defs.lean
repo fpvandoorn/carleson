@@ -12,7 +12,7 @@ We should move them to separate files once we start proving things about them. -
 
 section DoublingMeasure
 universe u
-variable {𝕜 X : Type*} {A : ℝ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {𝕜 X : Type*} {A : ℝ≥0} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
 section localOscillation
 
@@ -254,7 +254,7 @@ end DoublingMeasure
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
-@[simp] abbrev defaultA (a : ℝ) : ℝ := 2 ^ a
+@[simp] abbrev defaultA (a : ℝ) : ℝ≥0 := 2 ^ a
 @[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
 @[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
 @[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
