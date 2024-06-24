@@ -279,6 +279,14 @@ in the ball $B(o, D^S)$.
 In \Cref{christsection}, we prove \Cref{finitary-Carleson} using a
 bound for a dyadic model formulated in \Cref{discrete-Carleson} below.
 
+% fixme (simplification):
+% Georges Gonthier mentioned that it would simplify things if we have only 1 top cube.
+% We should be able to do this by picking the center for level S at $o$
+% Note that we don't actually have to cover all of $B(o,D^S)$, only the integration domain $G$
+% Actually making this work requires modifying $G$ a little bit (it must lie within $B(o,D^S/2)$ or
+% something).
+% This would simplify some arguments in antichain bounds/estimates, where we currently have to deal with top cubes at multiple levels
+
 A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of Borel
 sets in $X$ called dyadic cubes, a surjective function $s\colon \mathcal{D}\to [-S, S]$
 called scale function, and a function $c:\mathcal{D}\to X$
@@ -316,7 +324,11 @@ For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 
 
 
-
+% fixme (simplification):
+% We can make \mathcal(Q) take values Q(X), and still cover all of Q(X).
+% We can do this by making \mathcal{Z} a subset of Q(X) satisfying 4.2.2.
+% This would remove the need for Lemma 2.1.1 for the definition of \mathcal{Z} in Section 4.2, since it will be automatically finite, since Q(X) is finite.
+% This condition is already implicitly used in the proof of Lemma 6.1.6 when using (2.0.13)
 
 A tile structure $(\fP,\scI,\fc,\fcc,\pc,\ps)$
 for a given grid structure $(\mathcal{D}, c, s)$
@@ -622,9 +634,11 @@ First, we record an estimate for the metrical entropy numbers of balls in the sp
     \label{ball-metric-entropy}
     \leanok
     \lean{Θ.mk_le_of_le_dist}
-    Let $B' \subset X$ be a ball. Let $r > 0$, $\mfa \in \Mf$ and $k \in \mathbb{N}$. Suppose that $\mathcal{Z} \subset B_{B'}(\mfa, r2^k)$ satisfies that for all $z, z' \in \mathcal{Z}$ with $z \ne z'$, we have $d_{B'}(z,z') \ge r$. Then
+    Let $B' \subset X$ be a ball. Let $r > 0$, $\mfa \in \Mf$ and $k \in \mathbb{N}$. Suppose that $\mathcal{Z} \subset B_{B'}(\mfa, r2^k)$ satisfies that for all $z, z' \in \mathcal{Z}$ with $z \ne z'$, we have $$B_{B'}(z, r) \cap B_{B'}(z', r) = \emptyset$$. Then
     $$ |\mathcal{Z}| \le 2^{ka}\,. $$
-\end{lemma} % fixme: k should be `k+1`
+\end{lemma}
+% remark(Floris): weakened the condition $d_{B'}(z,z') \ge r$ to $B_{B'}(z, r) \cap B_{B'}(z', r) = \emptyset$
+% This also fixed an off-by-one error of $k$
 
 \begin{proof}
     \leanok
@@ -3246,7 +3260,7 @@ by $\ps(\fp')\le \ps(\fp)$ in the second sum, we estimate \eqref{eqtts1} by
     \Big|\int T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\, d\mu(y)\Big|\,.
 \end{equation}
 The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
-\begin{lemma}[tile correlation] % fixme: no lemma inside proof environment
+\begin{lemma}[tile correlation] % fixme: ideally we don't have a lemma inside a proof environment
     \label{tile-correlation}
     \uses{Holder-van-der-Corput,correlation-kernel-bound,tile-uncertainty,tile-range-support}
     Let $\fp, \fp'\in \fP$ with
@@ -3290,7 +3304,7 @@ with $h(\fp)$ defined as
     {(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-1/(2a^2+a^3)}}(\mathbf{1}_{E(\fp')}|g|)(y')\, d\mu(y')\,.
 \end{equation}
 The following lemma will be proved in \Cref{subsec-geolem}.
-\begin{lemma}[antichain tile count] % fixme: no lemma inside proof environment
+\begin{lemma}[antichain tile count] % fixme: ideally we don't have a lemma inside a proof environment
     \label{antichain-tile-count}
     \uses{global-antichain-density}
     Set $p:=4a^4$ and let $p'$ be the dual exponent of $p$, that is $1/p+1/p'=1$.
@@ -3925,11 +3939,8 @@ This completes the proof of the lemma.
 
 We turn to the proof of \Cref{antichain-tile-count}.
 
-
-
-
-\begin{proof}
-
+\begin{proof}[Proof of \Cref{antichain-tile-count}]
+\proves{antichain-tile-count}
 
 Using that $\mathfrak{A}$ is the union of the
 $\mathfrak{A}_{\mfa,N}$ with $N\ge 0$,
