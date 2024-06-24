@@ -48,12 +48,12 @@ variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
 end MetricSpace
 
 variable (X) in
-lemma one_le_A : 1 ≤ A := by
+lemma one_le_A [Nonempty X] : 1 ≤ A := by
   let _ := ‹DoublingMeasure X A› -- remove after proof is finished
   sorry
 
-variable (X) in lemma A_nonneg : 0 ≤ A := by linarith [one_le_A X]
-variable (X) in lemma A_pos : 0 < A := by linarith [one_le_A X]
+variable (X) in lemma A_nonneg [Nonempty X] : 0 ≤ A := by linarith [one_le_A X]
+variable (X) in lemma A_pos [Nonempty X] : 0 < A := by linarith [one_le_A X]
 
 instance [MetricSpace X] [DoublingMeasure X A] : IsUnifLocDoublingMeasure (volume : Measure X) := by
   sorry
@@ -68,6 +68,7 @@ def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
 
 lemma volume_ball_four_le_same (x : X) (r : ℝ) :
     volume.real (ball x (4 * r)) ≤ A ^ 2 * volume.real (ball x r) := by
+  have : Nonempty X := ⟨x⟩
   calc volume.real (ball x (4 * r))
       = volume.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * volume.real (ball x (2 * r)) := by apply volume_ball_two_le_same
@@ -82,6 +83,7 @@ attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
 
 lemma volume_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
     volume.real (ball x (2 ^ n * r)) ≤ A ^ n * volume.real (ball x r) := by
+  have : Nonempty X := ⟨x⟩
   induction n
   case zero =>
     simp
