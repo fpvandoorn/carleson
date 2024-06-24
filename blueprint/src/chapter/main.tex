@@ -307,7 +307,7 @@ For any dyadic cube $I$,
 For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 \begin{equation}
         \label{eq-small-boundary}
-        % Note(Georges Gonthier): The D in the RHS can be replaced by 2.
+        % fixme(Georges Gonthier): (maybe) The D in the RHS can be replaced by 2.
         % We can do the same in the statement and proof of {boundary-measure}.
         \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le D t^\kappa \mu(I)\,.
     \end{equation}
@@ -624,7 +624,7 @@ First, we record an estimate for the metrical entropy numbers of balls in the sp
     \lean{Θ.mk_le_of_le_dist}
     Let $B' \subset X$ be a ball. Let $r > 0$, $\mfa \in \Mf$ and $k \in \mathbb{N}$. Suppose that $\mathcal{Z} \subset B_{B'}(\mfa, r2^k)$ satisfies that for all $z, z' \in \mathcal{Z}$ with $z \ne z'$, we have $d_{B'}(z,z') \ge r$. Then
     $$ |\mathcal{Z}| \le 2^{ka}\,. $$
-\end{lemma} % tofix: k should be `k+1`
+\end{lemma} % fixme: k should be `k+1`
 
 \begin{proof}
     \leanok
@@ -1884,7 +1884,7 @@ In \Cref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G'$ as fore
     \begin{equation}
         \label{disclesssim1}
         \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{435a^3}}{(q-1)^3} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
-        % Note(Georges Gonthier): denominator should be changed to (q-1)^4.
+        % fixme(Georges Gonthier): denominator should be changed to (q-1)^4.
     \end{equation}
 \end{lemma}
 
@@ -1905,6 +1905,7 @@ the complement of the set of tiles in Lemma
         \label{disclesssim2}
         \int_{G \setminus G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu \le \frac{2^{210a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
+    % fixme: (q-1)^4 -> (q-1)^5
 \end{lemma}
 \Cref{discrete-Carleson} follows by applying
 triangle inequality to \eqref{disclesssim}
@@ -2390,9 +2391,10 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 \uses{wiggle-order-1, wiggle-order-2}
     The following implications hold for all $\fq, \fq' \in \fP$:
     % Note: some fixes were suggested by Georges Gonthier
+    % Note: we basically use {eq-sc1} in chapter 6. Mention this.
     \begin{equation}
         \label{eq-sc1}
-        \fq \le \fq' \ \text{and} \ \lambda \ge 2 \implies \lambda \fq \lesssim \lambda \fq'\,,
+        \fq \le \fq' \ \text{and} \ \lambda \ge 1.1 \implies \lambda \fq \lesssim \lambda \fq'\,,
     \end{equation}
     \begin{equation}
         \label{eq-sc2}
@@ -2886,7 +2888,7 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\cap \fP_{X \setminus G'}\,.
     \end{align}
 \end{lemma}
-% Note(Georges Gonthier): the second sentence of this proof is not technically true
+% fixme(Georges Gonthier): the second sentence of this proof is not technically true
 % Can we restrict ourselves to a grid with only 1 top cube?
 % Or alternatively, redefine \MfP_{X \ G'} to be the p s.t. I(p) \cap (G \ G') has nonzero measure.
 
@@ -2922,13 +2924,13 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI
     \end{equation}
     The balls $B_{\fp'}(\fcc(\fp''), 0.2)$, $\fp'' \in \mathfrak{O}$ are disjoint by \eqref{eq-freq-comp-ball},
     and by the triangle inequality contained in $B_{\fp'}(\fcc(\fp'), \lambda+1)$.
-    % Note(Georges Gonthier): \lambda+1 should be \lambda+1.2
+    % fixme(Georges Gonthier): \lambda+1 should be \lambda+1.2
     By assumption \eqref{thirddb} on $\Theta$, this ball can be covered with
     $$
         2^{a(\lceil \log_2(\lambda+1)\rceil + 2)} \le 2^{a(\log_2(\lambda) + 4)} = 2^{4a}\lambda^a
     $$  % Note(Georges Gonthier): this approximation still barely holds
     many $d_{\fp'}$-balls of radius $1/4$.
-    % Note(Georges Gonthier): 1/4 should be 1/5 (or something in between)
+    % fixme(Georges Gonthier): 1/4 should be 1/5 (or something in between)
     By the triangle inequality, each such ball contains at most one $\fcc(\fp'')$, and each $\fcc(\fp'')$ is contained in one of the balls. Thus we get \eqref{eq-O-bound}.
 
     By \eqref{definee1} and \eqref{definee2} we have $E_2(\lambda, \fp') \subset \bigcup_{\fp'' \in \mathfrak{O}} E_1(\fp'')$, thus
@@ -3244,7 +3246,7 @@ by $\ps(\fp')\le \ps(\fp)$ in the second sum, we estimate \eqref{eqtts1} by
     \Big|\int T^*_{\fp}g(y)\overline{T^*_{\fp'}g(y)}\, d\mu(y)\Big|\,.
 \end{equation}
 The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
-\begin{lemma}[tile correlation]
+\begin{lemma}[tile correlation] % fixme: no lemma inside proof environment
     \label{tile-correlation}
     \uses{Holder-van-der-Corput,correlation-kernel-bound,tile-uncertainty,tile-range-support}
     Let $\fp, \fp'\in \fP$ with
@@ -3288,7 +3290,7 @@ with $h(\fp)$ defined as
     {(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-1/(2a^2+a^3)}}(\mathbf{1}_{E(\fp')}|g|)(y')\, d\mu(y')\,.
 \end{equation}
 The following lemma will be proved in \Cref{subsec-geolem}.
-\begin{lemma}[antichain tile count]
+\begin{lemma}[antichain tile count] % fixme: no lemma inside proof environment
     \label{antichain-tile-count}
     \uses{global-antichain-density}
     Set $p:=4a^4$ and let $p'$ be the dual exponent of $p$, that is $1/p+1/p'=1$.
@@ -3308,7 +3310,7 @@ We estimate $h(\fp)$ as defined in \eqref{def-hp} with H\"older using $|g|\le \m
 
 \begin{equation}
     \frac{\|g\mathbf{1}_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
-    \Big\|\sum_{\fp\in\mathfrak{A}(\fp)}(1+d_{\fp}(\fcc(\fp), \fc(\fp'))^{-1/(2a^2+a^3)}\mathbf{1}_{E(\fp)}\mathbf{1}_G\Big\|_{p}\, .
+    \Big\|\sum_{\fp\in\mathfrak{A}(\fp)}(1+d_{\fp}(\fcc(\fp), \fcc(\fp'))^{-1/(2a^2+a^3)}\mathbf{1}_{E(\fp)}\mathbf{1}_G\Big\|_{p}\, .
 \end{equation}
 Then we apply \Cref{antichain-tile-count} to estimate this by
 \begin{equation}\label{eqttt5}
