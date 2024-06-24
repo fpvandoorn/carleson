@@ -12,7 +12,6 @@ import Mathlib.Analysis.Fourier.AddCircle
 noncomputable section
 
 local notation "T" => CarlesonOperatorReal K
-local notation "T'" => CarlesonOperatorReal' K
 
 /- TODO: might be generalized. -/
 lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : MeasureTheory.Measure X) {f g : X → ENNReal} {E : Set X} (hE : MeasurableSet E)
@@ -191,7 +190,7 @@ lemma integrableOn_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set.Icc 0
 
 lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f MeasureTheory.volume (-Real.pi) (3 * Real.pi)) {N : ℕ} :
     ∀ x ∈ Set.Icc 0 (2 * Real.pi),
-    ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
+    ‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
   intro x hx
   set s : ℕ → Set ℝ := fun n ↦ {y | dist x y ∈ Set.Ioo (1 / (n + 2 : ℝ)) 1} with sdef
   have hs : {y | dist x y ∈ Set.Ioo 0 1} = ⋃ n, s n := by
@@ -340,8 +339,8 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
           norm_cast
           congr 1 <;>
           . rw [MeasureTheory.integral_mul_left, norm_mul, norm_eq_abs, mul_comm I, abs_exp_ofReal_mul_I, one_mul]
-    _ ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
-      rw [CarlesonOperatorReal', CarlesonOperatorReal']
+    _ ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
+      rw [CarlesonOperatorReal, CarlesonOperatorReal]
       apply iSup₂_le
       intro n r
       apply iSup₂_le
@@ -354,23 +353,23 @@ lemma le_CarlesonOperatorReal' {f : ℝ → ℂ} (hf : IntervalIntegrable f Meas
 end section
 
 theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} {F : Set ℝ} (measurableSetF : MeasurableSet F) (hf : ∀ x, ‖f x‖ ≤ δ * F.indicator 1 x)
-    {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T' f x) :
+    {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
       ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2) * MeasureTheory.volume F ^ (2 : ℝ)⁻¹ * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
   calc ε * MeasureTheory.volume E
     _ = ∫⁻ _ in E, ε := by
       symm
       apply MeasureTheory.set_lintegral_const
-    _ ≤ ∫⁻ x in E, T' f x := by
+    _ ≤ ∫⁻ x in E, T f x := by
       apply MeasureTheory.set_lintegral_mono' measurableSetE hE
-    _ = ENNReal.ofReal δ * ∫⁻ x in E, T' (fun x ↦ (1 / δ) * f x) x := by
+    _ = ENNReal.ofReal δ * ∫⁻ x in E, T (fun x ↦ (1 / δ) * f x) x := by
       rw [← MeasureTheory.lintegral_const_mul']
       congr with x
-      rw [CarlesonOperatorReal'_mul δpos]
+      rw [CarlesonOperatorReal_mul δpos]
       congr
       exact ENNReal.ofReal_ne_top
     _ ≤ ENNReal.ofReal δ * (ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹) := by
       gcongr
-      apply rcarleson' measurableSetF measurableSetE
+      apply rcarleson measurableSetF measurableSetE
       intro x
       simp
       rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff δpos]
@@ -380,7 +379,7 @@ theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ 
       ring
 
 theorem rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hf : ∀ x, ‖f x‖ ≤ δ * Set.indicator (Set.Icc (-Real.pi) (3 * Real.pi)) 1 x)
-    {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T' f x) :
+    {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
       ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
   rw [ENNReal.ofReal_mul (by apply mul_nonneg δpos.le; rw [C1_2]; norm_num), ← ENNReal.ofReal_rpow_of_pos (by linarith [Real.pi_pos])]
   convert rcarleson_exceptional_set_estimate δpos measurableSet_Icc hf measurableSetE hE
@@ -489,7 +488,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         rfl
         intro _
         norm_num
-  have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) ≤ T' f x + T' ((starRingEnd ℂ) ∘ f) x := by
+  have le_operator_add : ∀ x ∈ E, ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) ≤ T f x + T ((starRingEnd ℂ) ∘ f) x := by
     have h_intervalIntegrable' : IntervalIntegrable h MeasureTheory.volume 0 (2 * Real.pi) := by
       apply h_intervalIntegrable.mono_set
       rw [Set.uIcc_of_le (by linarith [Real.pi_pos]), Set.uIcc_of_le (by linarith [Real.pi_pos])]
@@ -559,7 +558,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         --apply abs.isAbsoluteValue.abv_add
         norm_cast
         apply nnnorm_add_le
-      _ ≤ (T' f x + T' ((starRingEnd ℂ) ∘ f) x) + ENNReal.ofReal (Real.pi * δ * (2 * Real.pi)) := by
+      _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) + ENNReal.ofReal (Real.pi * δ * (2 * Real.pi)) := by
         --Estimate the two parts
         gcongr
         . --first part
@@ -630,7 +629,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
                 apply le_trans' (h₀ h₂.1)
                 linarith [Real.two_le_pi]
               . trivial
-            _ ≤ (T' f x + T' ((starRingEnd ℂ) ∘ f) x) := by
+            _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) := by
               apply le_CarlesonOperatorReal' f_integrable x xIcc
         . --second part
           rw [ENNReal.ofReal]
@@ -701,7 +700,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
       _ = ENNReal.ofReal (2 * Real.pi) := by
         rw [Real.volume_Icc, sub_zero]
       _ < ⊤ := ENNReal.ofReal_lt_top
-  obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (CarlesonOperatorReal'_measurable f_measurable) (CarlesonOperatorReal'_measurable (continuous_star.measurable.comp f_measurable)) le_operator_add
+  obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (CarlesonOperatorReal_measurable f_measurable) (CarlesonOperatorReal_measurable (continuous_star.measurable.comp f_measurable)) le_operator_add
   have E'volume : MeasureTheory.volume E' < ⊤ := lt_of_le_of_lt (MeasureTheory.measure_mono E'subset) Evolume
   have : ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
     calc ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E'

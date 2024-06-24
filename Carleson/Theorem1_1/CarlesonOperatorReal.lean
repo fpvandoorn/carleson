@@ -2,24 +2,25 @@ import Carleson.Theorem1_1.Hilbert_kernel
 
 noncomputable section
 
+/-
 def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ℝ :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r),
   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖
+-/
 /-
 def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ℝ :=
   sSup {‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, K x y * f y * Complex.exp (Complex.I * n * y)‖ | (n : ℤ) (r : ℝ) (r > 0)}
 -/
 
---TODO: maybe just change back to usual norm s.th. the only difference is the coercion to ENNReal
-def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
+def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
 
-def CarlesonOperatorRat' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
+def CarlesonOperatorRat (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℚ) (_ : 0 < r),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo (r : ℝ) 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
 
-#check (fun x ↦ CarlesonOperatorReal' K _ x)
+#check (fun x ↦ CarlesonOperatorReal K _ x)
 
 
 --TODO: is this needed?
@@ -45,7 +46,7 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
 
 lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (Measurable.dist measurable_const measurable_id) measurableSet_Ioo
 
-lemma CarlesonOperatorRat'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (CarlesonOperatorRat' K f):= by
+lemma CarlesonOperatorRat'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (CarlesonOperatorRat K f):= by
   --apply Measurable.iSup
   apply measurable_iSup
   intro n
@@ -67,14 +68,14 @@ lemma CarlesonOperatorRat'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Me
   -/
   sorry
 
-local notation "T'" => CarlesonOperatorReal' K
+local notation "T" => CarlesonOperatorReal K
 
-lemma CarlesonOperatorReal'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (T' f):= by
+lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (T f):= by
   --use (prove) that CarlesonOperatorRat' = CarlesonOperatorReal' ?
   sorry
 
-theorem CarlesonOperatorReal'_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T' f x = a.toNNReal * T' (fun x ↦ 1 / a * f x) x := by
-  rw [CarlesonOperatorReal', CarlesonOperatorReal', ENNReal.mul_iSup]
+theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
+  rw [CarlesonOperatorReal, CarlesonOperatorReal, ENNReal.mul_iSup]
   congr with n
   rw [ENNReal.mul_iSup]
   congr with r

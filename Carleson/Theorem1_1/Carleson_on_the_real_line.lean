@@ -29,9 +29,12 @@ def DoublingMeasureR2 : DoublingMeasure ℝ 2 where
 
     calc MeasureTheory.volume.real (Metric.ball x (2 * r))
       _ ≤ 2 * MeasureTheory.volume.real (Metric.ball x r) := by
-        --convert this
-        sorry
-        --exact this.volume_ball_two_le_same x r
+        by_cases r_nonneg : r < 0
+        . rw [ball_eq_empty.mpr, ball_eq_empty.mpr]
+          simp
+          all_goals linarith
+        rw [measureReal_def, measureReal_def, Real.volume_ball, Real.volume_ball, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal]
+        <;> linarith
 
 instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ (4 : ℝ)) :=
   DoublingMeasureR2.mono (by norm_num)
@@ -219,91 +222,146 @@ instance : FunctionDistances ℝ ℝ where
   Θ := ℤ
   coeΘ := integer_linear
   coeΘ_injective {n m} hnm := by simpa [integer_linear] using hnm 1
-  metric := fun x R ↦ sorry
+  metric := fun x R ↦ {
+      dist := fun n m ↦ 2 * max R 0 * |n - m|
+      dist_self := by simp
+      dist_comm := by
+        simp only [Int.cast_abs, Int.cast_sub, mul_eq_mul_left_iff, mul_eq_zero,
+          OfNat.ofNat_ne_zero, false_or]
+        intro x y
+        left
+        norm_cast
+        apply abs_sub_comm
+      dist_triangle := by
+        simp only [Int.cast_abs, Int.cast_sub]
+        intro x y z
+        rw [← mul_add]
+        gcongr
+        norm_cast
+        apply abs_sub_le
+      --next field will get default in mathlib and is left out here
+      --TODO: remove when that is the case
+      edist_dist := sorry
+  }
 
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
 instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
-  eq_zero := sorry
-  localOscillation_le_cdist := sorry
-  cdist_mono := sorry
-  cdist_le := sorry
-  le_cdist := sorry
-  ballsCoverBalls := sorry
-/-
-  /- Lemma frequency_ball_doubling from the paper. -/
-  localOscillation_two_mul_le := by
-    intro x₁ x₂ R f g hf hg _
-    /-TODO: move case split to standard definition? -/
-    by_cases Rpos : 0 ≥ R
-    . rw [localOscillation_on_empty_ball (by linarith), localOscillation_on_empty_ball Rpos]
+  eq_zero := by
+    use 0
+    intro f
+    rw [coeΘ_R, mul_zero]
+  localOscillation_le_cdist := by
+    intro x r f g
+    by_cases r_pos : r ≤ 0
+    . rw [ball_eq_empty.mpr r_pos]
+      unfold localOscillation
+      simp [dist_nonneg]
+    push_neg at r_pos
+    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+      localOscillation integer_linear
+    dsimp
+    calc ⨆ z ∈ ball x r ×ˢ ball x r, |↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2|
+      _ = ⨆ z ∈ ball x r ×ˢ ball x r, ‖(f - g) * (z.1 - x) - (f - g) * (z.2 - x)‖ := by
+        congr
+        ext z
+        congr
+        ext h
+        rw [Real.norm_eq_abs]
+        congr 1
+        ring
+      _ ≤ 2 * r * |↑f - ↑g| := by
+        apply Real.iSup_le
+        --TODO: investigate strange (delaborator) behavior - why is there still a sup?
+        intro z
+        apply Real.iSup_le
+        . intro hz
+          simp at hz
+          rw [Real.dist_eq, Real.dist_eq] at hz
+          rw [Real.norm_eq_abs]
+          calc |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)|
+          _ ≤ |(f - g) * (z.1 - x)| + |(f - g) * (z.2 - x)| := by apply abs_sub
+          _ = |↑f - ↑g| * |z.1 - x| + |↑f - ↑g| * |z.2 - x| := by congr <;> apply abs_mul
+          _ ≤ |↑f - ↑g| * r + |↑f - ↑g| * r := by gcongr; linarith [hz.1]; linarith [hz.2]
+          _ = 2 * r * |↑f - ↑g| := by ring
+        all_goals
+        repeat
+          apply mul_nonneg
+          linarith
+          apply abs_nonneg
+      _ ≤ 2 * max r 0 * |↑f - ↑g| := by
+        gcongr
+        apply le_max_left
+    norm_cast
+  cdist_mono := by
+    intro x₁ x₂ r R f g _
+    rfl
+  cdist_le := by
+    intro x₁ x₂ r f g
+    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal Real.pseudoMetricSpace
+    dsimp
+    intro _
+    by_cases r_nonneg : r ≥ 0
+    . rw [max_eq_left, max_eq_left]
+      ring_nf
+      gcongr
+      norm_num
+      all_goals linarith [r_nonneg]
+    . rw [max_eq_right, max_eq_right]
       simp
-    push_neg at Rpos
-    obtain ⟨n, hθnf⟩ := hf
-    obtain ⟨m, hθmg⟩ := hg
-    rw [←hθnf, ←hθmg, localOscillation_of_integer_linear, localOscillation_of_integer_linear]
-    ring_nf
-    gcongr
-    norm_num
-    exact Rpos.le
-    linarith
-  /- Lemma frequency_ball_growth from the paper. -/
-  localOscillation_le_of_subset := by
-    intro x₁ x₂ R f g hf hg _ _
-    by_cases Rpos : 0 ≥ R
-    . rw [localOscillation_on_empty_ball Rpos, localOscillation_on_empty_ball (by linarith)]
+      all_goals linarith [r_nonneg]
+  le_cdist := by
+    intro x₁ x₂ r f g _
+    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+    dsimp
+    by_cases r_nonneg : r ≥ 0
+    . rw [max_eq_left, max_eq_left]
+      ring_nf
+      gcongr
+      norm_num
+      all_goals linarith [r_nonneg]
+    . rw [max_eq_right, max_eq_right]
       simp
-    push_neg at Rpos
-    obtain ⟨n, hθnf⟩ := hf
-    obtain ⟨m, hθmg⟩ := hg
-    rw [←hθnf, ←hθmg]
-    rw [localOscillation_of_integer_linear, localOscillation_of_integer_linear]
-    ring_nf
-    gcongr
-    norm_num
-    linarith
-    exact Rpos.le
-  /- Lemma integer_ball_cover from the paper. -/
+      all_goals linarith [r_nonneg]
   ballsCoverBalls := by
-    intro x R R' f hf
+    intro x R R' f
+    unfold WithFunctionDistance at f
     rw [coveredByBalls_iff]
     by_cases R'pos : 0 ≥ R'
     . --trivial case
       use {f}
       constructor
-      . simp
-      simp
-      rw [Metric.ball_eq_empty.mpr R'pos, Set.subset_empty_iff]
-      convert Set.empty_inter _
-      rw [Metric.ball_eq_empty]
+      . norm_num
+      simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
+      rw [Metric.ball_eq_empty.mpr R'pos, Set.subset_empty_iff, Metric.ball_eq_empty]
       linarith
     push_neg at R'pos
     by_cases Rpos : 0 ≥ R
     . --trivial case
       use {f}
       constructor
-      . simp
-      simp
+      . norm_num
+      simp only [Finset.mem_singleton, Set.iUnion_iUnion_eq_left]
       convert Set.subset_univ _
       ext g
       constructor
       . simp
+      simp only [Set.mem_univ, mem_ball, true_implies]
+      unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+      dsimp
+      convert R'pos
       simp
-      calc localOscillation (Metric.ball x R) g f
-        _ = 0 := by
-          apply localOscillation_on_empty_ball Rpos.le
-        _ < R' := R'pos
+      left
+      exact Rpos
     push_neg at Rpos
-    obtain ⟨n, hθnf⟩ := hf
-    rw [←hθnf]
-    set m₁ := Int.floor (n - R' / (2 * R)) with m₁def
-    set! m₂ := n with m₂def
-    set m₃ := Int.ceil (n + R' / (2 * R)) with m₃def
+    set m₁ := Int.floor (f - R' / (2 * R)) with m₁def
+    set! m₂ := f with m₂def
+    set m₃ := Int.ceil (f + R' / (2 * R)) with m₃def
 
     /- The following is necessary for withLocalOscillation to be defined. -/
     classical
-    set balls : Finset (C(ℝ, ℂ)) := {θ m₁, θ m₂, θ m₃} with balls_def
+    set balls : Finset ((WithFunctionDistance x R)) := {m₁, m₂, m₃} with balls_def
     use balls
     constructor
     . rw [balls_def]
@@ -311,95 +369,120 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
       norm_cast
       apply le_trans Finset.card_le_three
       norm_num
-    intro φ ⟨hφ, φ_memΘ⟩
-    obtain ⟨n', hn'⟩ := φ_memΘ
-    rw [←hn'] at hφ
-    simp at hφ
+    intro φ hφ
+    unfold WithFunctionDistance at φ
+    --rw [←hn'] at hφ
+    rw [mem_ball] at hφ
     rw [dist_comm] at hφ
     /- m₁, m₂, m₃ each correspond to one case. -/
-    rw [←hn']
-    simp
-    by_cases h : n' ≤ n - R' / (2 * R)
-    . use θ m₁
+    --rw [←hn']
+    simp only [Set.mem_iUnion, mem_ball, exists_prop]
+    by_cases h : φ ≤ f - R' / (2 * R)
+    . use m₁
       constructor
       . rw [balls_def]
         simp
-      calc localOscillation (Metric.ball x R) (θ n') (θ m₁)
-        _ = 2 * R * |(n' : ℝ) - m₁| := localOscillation_of_integer_linear Rpos.le _ _
-        _ = 2 * R * (m₁ - n') := by
+      unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+      dsimp
+      calc 2 * max R 0 * |↑φ - m₁|
+        _ = 2 * R * |↑φ - m₁| := by
+          congr
+          rw [max_eq_left_iff]
+          exact Rpos.le
+        _ = 2 * R * (m₁ - ↑φ) := by
           rw [abs_of_nonpos]
           simp only [neg_sub]
+          norm_cast
           simp only [tsub_le_iff_right, zero_add, Int.cast_le]
           rwa [m₁def, Int.le_floor]
-        _ = 2 * R * (m₁ - n) + 2 * R * (n - n') := by ring
+        _ = 2 * R * (m₁ - f) + 2 * R * (f - φ) := by ring
         _ < - R' + 2 * R' := by
           apply add_lt_add_of_le_of_lt
           . rw [m₁def]
-            calc 2 * R * (⌊n - R' / (2 * R)⌋ - n)
-              _ ≤ 2 * R * (n - R' / (2 * R) - n) := by
+            calc 2 * R * (⌊f - R' / (2 * R)⌋ - f)
+              _ ≤ 2 * R * (f - R' / (2 * R) - f) := by
                 gcongr
                 apply Int.floor_le
               _ = -R' := by
                 ring_nf
                 rw [mul_comm, ←mul_assoc, inv_mul_cancel Rpos.ne.symm, one_mul]
-          . calc 2 * R * (↑n - ↑n')
-              _ ≤ 2 * R * |↑n - ↑n'| := by
+          . calc 2 * R * (↑f - ↑φ)
+              _ ≤ 2 * R * |↑f - ↑φ| := by
                 gcongr
                 apply le_abs_self
-              _ = localOscillation (Metric.ball x R) (θ n) (θ n') := by
+              _ < 2 * R' := by
+                convert hφ
+                unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+                dsimp
+                norm_cast
+                congr
                 symm
-                apply localOscillation_of_integer_linear Rpos.le
-              _ < 2 * R' := hφ
+                rw [max_eq_left_iff]
+                exact Rpos.le
         _ = R' := by ring
     push_neg at h
-    by_cases h' : n' < n + R' / (2 * R)
-    . use θ m₂
+    by_cases h' : φ < f + R' / (2 * R)
+    . use m₂
       constructor
       . rw [balls_def]
         simp
       rw [m₂def, dist_comm]
-      calc localOscillation (Metric.ball x R) (θ n) (θ n')
-        _ = 2 * R * |(n : ℝ) - n'| := localOscillation_of_integer_linear Rpos.le _ _
+      unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+      dsimp
+      push_cast
+      calc 2 * max R 0 * |↑f - ↑φ|
+        _ = 2 * R * |↑f - ↑φ| := by
+          congr
+          rw [max_eq_left_iff]
+          exact Rpos.le
         _ < 2 * R * (R' / (2 * R)) := by
           gcongr
           rw [abs_sub_lt_iff]
           constructor <;> linarith
         _ = R' := by field_simp
     push_neg at h'
-    use θ m₃
+    use m₃
     constructor
     . simp [balls_def]
-    calc localOscillation (Metric.ball x R) (θ n') (θ m₃)
-      _ = 2 * R * |(n' : ℝ) - m₃| := by
-        apply localOscillation_of_integer_linear Rpos.le
-      _ = 2 * R * (n' - m₃) := by
+    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+    dsimp
+    push_cast
+    calc 2 * max R 0 * |↑φ - ↑m₃|
+      _ = 2 * R * (↑φ - ↑m₃) := by
         rw [abs_of_nonneg]
-        simp
+        congr
+        rw [max_eq_left_iff]
+        exact Rpos.le
+        simp only [sub_nonneg, Int.cast_le]
         rwa [m₃def, Int.ceil_le]
-      _ = 2 * R * (n' - n) + 2 * R * (n - m₃) := by ring
+      _ = 2 * R * (φ - f) + 2 * R * (f - m₃) := by ring
       _ < 2 * R' - R' := by
         apply add_lt_add_of_lt_of_le
-        . calc 2 * R * (↑n' - ↑n)
-            _ ≤ 2 * R * |↑n' - ↑n| := by
+        . calc 2 * R * (↑φ - ↑f)
+            _ ≤ 2 * R * |↑φ - ↑f| := by
               gcongr
               exact le_abs_self _
-            _ = 2 * R * |↑n - ↑n'| := by
+            _ = 2 * R * |↑f - ↑φ| := by
               congr 1
               exact abs_sub_comm _ _
-            _ = localOscillation (Metric.ball x R) (θ n) (θ n') := by
+            _ < 2 * R' := by
+              convert hφ
+              unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+              dsimp
+              norm_cast
+              congr
               symm
-              exact localOscillation_of_integer_linear Rpos.le _ _
-            _ < 2 * R' := by exact hφ
+              rw [max_eq_left_iff]
+              exact Rpos.le
         . rw [m₃def]
-          calc 2 * R * (n - ⌈n + R' / (2 * R)⌉)
-            _ ≤ 2 * R * (n - (n + R' / (2 * R))) := by
+          calc 2 * R * (f - ⌈f + R' / (2 * R)⌉)
+            _ ≤ 2 * R * (f - (f + R' / (2 * R))) := by
               gcongr
               exact Int.le_ceil _
             _ = -R' := by
               ring_nf
               rw [mul_comm, ←mul_assoc, inv_mul_cancel Rpos.ne.symm, one_mul]
-      _ = R' := by ring -/
-
+      _ = R' := by ring
 
 
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
@@ -459,13 +542,12 @@ lemma h3 : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts 4) := s
 --#check metric_carleson K (by simp) h1 h2 _ _ h3
 
 local notation "T" => CarlesonOperatorReal K
-local notation "T'" => CarlesonOperatorReal' K
 
 /-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
-lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K := by
+lemma CarlesonOperatorReal_le_CarlesonOperator : T ≤ CarlesonOperator K := by
   intro f x
-  rw [CarlesonOperator, CarlesonOperatorReal']
+  rw [CarlesonOperator, CarlesonOperatorReal]
   apply iSup_le
   intro n
   apply iSup_le
@@ -485,18 +567,17 @@ lemma CarlesonOperatorReal'_le_CarlesonOperator : T' ≤ CarlesonOperator K := b
 
 
 /- Lemma 10.4 (ENNReal version) -/
-lemma rcarleson' {F G : Set ℝ}
+lemma rcarleson {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     --(h2F : MeasureTheory.volume F ≠ ∞) (h2G : MeasureTheory.volume G ≠ ∞)
     (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     :
-    ∫⁻ x in G, T' f x ≤
+    ∫⁻ x in G, T f x ≤
     ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
-  --rw [CarlesonOperatorReal_eq_CarlesonOperator]
-  calc ∫⁻ x in G, T' f x
+  calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, CarlesonOperator K f x := by
       apply MeasureTheory.lintegral_mono
-      apply CarlesonOperatorReal'_le_CarlesonOperator
+      apply CarlesonOperatorReal_le_CarlesonOperator
     _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := metric_carleson (a := 4) K (by norm_num) h1 h2 hF hG h3 f hf
 
 end section

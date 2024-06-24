@@ -70,15 +70,19 @@ lemma fourier_periodic {n : ℤ} : Function.Periodic (fun (x : ℝ) ↦ fourier 
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic (partialFourierSum f N) (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
-/-TODO: Add lemma Periodic.uniformContinuous_of_continuous. -/
-lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
-  simp [fourier]
-  --apply Complex.exp_mul_I_periodic.
+--TODO: generalize
+lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hp : Function.Periodic f T) (hc : Continuous f) : UniformContinuous f := by
+  --rw [Metric.uniformContinuous_iff]
   sorry
 
+lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
+  apply fourier_periodic.uniformContinuous_of_continuous
+  continuity
+
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (partialFourierSum f N) := by
-  --apply continuous_finset_sum
-  sorry
+  apply partialFourierSum_periodic.uniformContinuous_of_continuous
+  apply continuous_finset_sum
+  continuity
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real.pi + Real.pi / 2)) Real.cos := by
   apply strictConvexOn_of_deriv2_pos (convex_Icc _ _) Real.continuousOn_cos fun x hx => ?_
