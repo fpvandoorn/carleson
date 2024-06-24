@@ -65,11 +65,12 @@ instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 def s : 𝓓 X → ℤ := GridStructure.s
 def c : 𝓓 X → X := GridStructure.c
 
-namespace 𝓓
-
-lemma fundamental_dyadic {i j : 𝓓 X} :
+lemma GridStructure.fundamental_dyadic {i j : 𝓓 X A} :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
+export GridStructure (fundamental_dyadic)
+
+namespace 𝓓
 
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
