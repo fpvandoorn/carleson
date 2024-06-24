@@ -417,8 +417,3 @@ lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
   obtain ⟨f𝓩, c𝓩⟩ := finite_and_mk_le_of_le_dist h𝓩 h2𝓩
   lift 𝓩 to Finset (Θ X) using f𝓩
   simpa using c𝓩
-
-lemma Θ.finite_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
-    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
-    𝓩.Finite := (finite_and_mk_le_of_le_dist h𝓩 h2𝓩).1
