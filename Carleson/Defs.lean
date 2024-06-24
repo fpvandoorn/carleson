@@ -356,26 +356,22 @@ def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ
 
 /-! Lemma 2.1.1 -/
 
-def C2_1_1 (k : ℕ) (a : ℝ) : ℕ := 2 ^ ((k + 1) * ⌈a⌉₊) -- todo: fix in blueprint
+def C2_1_1 (k : ℕ) (a : ℝ) : ℕ := 2 ^ (k * ⌈a⌉₊) -- todo: fix in blueprint
 
--- Note: See also/prove card_le_of_le_dist in DoublingMeasure.
 lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
+    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
     𝓩.Finite ∧ Cardinal.mk 𝓩 ≤ C2_1_1 k a := by
-  have pmul := (BallsCoverBalls.pow_mul (k := k + 1) (r := r / 2) fun r ↦
+  have pmul := (BallsCoverBalls.pow_mul (k := k) (r := r) fun r ↦
     CompatibleFunctions.ballsCoverBalls (x := x₀) (r := R) (R := r)) f
-  rw [show 2 ^ (k + 1) * (r / 2) = r * 2 ^ k by ring, coveredByBalls_iff] at pmul
+  rw [mul_comm, coveredByBalls_iff] at pmul
   obtain ⟨𝓩', c𝓩', u𝓩'⟩ := pmul
   classical
-    let g : Θ X → Finset (Θ X) := fun z ↦ 𝓩'.filter (z ∈ ball_{x₀, R} · (r / 2))
+    let g : Θ X → Finset (Θ X) := fun z ↦ 𝓩'.filter (z ∈ ball_{x₀, R} · r)
     have g_pd : 𝓩.PairwiseDisjoint g := fun z hz z' hz' hne ↦ by
       refine Finset.disjoint_filter.mpr fun c _ mz mz' ↦ ?_
-      simp_rw [mem_ball] at mz mz'
-      have := (dist_triangle_right (α := WithFunctionDistance x₀ R) ..).trans_lt
-        (add_lt_add_of_lt_of_lt mz mz')
-      rw [add_halves, lt_iff_not_le] at this
-      exact absurd (h2𝓩 z z' hz hz' hne) this
+      rw [mem_ball_comm (α := WithFunctionDistance x₀ R)] at mz mz'
+      exact Set.disjoint_left.mp (h2𝓩 hz hz' hne) mz mz'
   have g_ne : ∀ z, z ∈ 𝓩 → (g z).Nonempty := fun z hz ↦ by
     obtain ⟨c, hc⟩ := mem_iUnion.mp <| mem_of_mem_of_subset hz (h𝓩.trans u𝓩')
     simp only [mem_iUnion, exists_prop] at hc
@@ -403,7 +399,7 @@ lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
       refine Finset.card_le_card fun _ h ↦ ?_
       rw [Finset.mem_biUnion] at h
       exact Finset.mem_of_subset (by simp [g]) h.choose_spec.2
-    _ ≤ ⌊2 ^ a⌋₊ ^ (k + 1) := c𝓩'
+    _ ≤ ⌊2 ^ a⌋₊ ^ k := c𝓩'
     _ ≤ _ := by
       rw [C2_1_1, mul_comm, pow_mul]
       apply pow_le_pow_left'
@@ -412,7 +408,7 @@ lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
 
 lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
+    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
     Nat.card 𝓩 ≤ C2_1_1 k a := by
   obtain ⟨f𝓩, c𝓩⟩ := finite_and_mk_le_of_le_dist h𝓩 h2𝓩
   lift 𝓩 to Finset (Θ X) using f𝓩

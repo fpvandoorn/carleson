@@ -10,6 +10,8 @@ variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ}
 
 
 /-! Proof that there exists a grid structure. -/
+-- Note: we might want to slightly adapt the construction so that there is only 1 tile at level S
+-- with center `o` (then we might not cover all of `ball o (D ^ S)`, but most of it)
 def grid_existence : GridStructure X D κ S o :=
   sorry
 
@@ -18,6 +20,9 @@ def grid_existence : GridStructure X D κ S o :=
 variable [GridStructure X D κ S o] {I : 𝓓 X}
 
 /-- Use Zorn's lemma to define this. -/
+-- Note: we might want to adapt the construction so that 𝓩 is a subset of `range Q`.
+-- We only need to cover `range Q`, not all the balls of radius 1 around it. If that works, that
+-- should simplify it, and might mean that we don't need Lemma 2.1.1 here.
 def 𝓩 (I : 𝓓 X) : Set (Θ X) := sorry
 
 /-- The constant appearing in 4.2.2. -/
