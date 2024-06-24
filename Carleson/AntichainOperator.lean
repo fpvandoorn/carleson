@@ -28,11 +28,12 @@ lemma E_disjoint {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 :
   have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
   exact IsAntichain.eq h𝔄 hp hp' hle
 
-variable (K : X → X → ℂ) (σ₁ σ₂ : X → ℤ) (p : 𝔓 X)
+variable (K) (σ₁ σ₂) (p : 𝔓 X)
 
 open MeasureTheory Metric
 open ENNReal NNReal Real
 
+/-- Constant appearing in Lemma 6.1.2. -/
 noncomputable def C_6_1_2 (a : ℝ) : ℝ≥0 := (2 : ℝ≥0)^(107*a^3)
 
 lemma C_6_1_2_ne_zero (a : ℝ) : C_6_1_2 a ≠ 0 := ne_of_gt (NNReal.rpow_pos (zero_lt_two))
@@ -75,7 +76,10 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       lemma norm_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} :
     ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by-/
       have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume (ball (𝔠 p.1) (D/4 ^ (𝔰 p.1 - 1))) := by
-        have hxy : x ≠ y := sorry
+        have hxy : x ≠ y := by
+          intro h_eq
+          rw [h_eq, Ks_def, ne_eq, mul_eq_zero, not_or, dist_self, mul_zero, psi_zero] at hy
+          simp only [Complex.ofReal_zero, not_true_eq_false, and_false] at hy
         apply le_trans (ENNReal.coe_le_coe.mpr (kernel_bound (range_s_subset (X := X)
           (mem_range_self (𝓘 p.1))) hxy))
         rw [coe_ofNat, coe_div]
@@ -134,6 +138,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
     rw [← norm_eq_zero]
     exact le_antisymm hf (norm_nonneg _)
 
+/-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
 
 -- lemma 6.1.3
