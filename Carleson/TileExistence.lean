@@ -101,12 +101,27 @@ def Ω₁_aux (I : 𝓓 X) (k : ℕ) : Set (Θ X) :=
   if hk : k < Nat.card (𝓩 I) then
     let z : Θ X := (Finite.equivFin (𝓩 I) |>.symm ⟨k, hk⟩).1
     ball_{I} z C4_2_1 \ (⋃ i ∈ 𝓩 I \ {z}, ball_{I} z C𝓩) \ ⋃ i < k, Ω₁_aux I i
-  else
-    ∅
+  else ∅
+
+lemma Ω₁_aux_disjoint (I : 𝓓 X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
+  wlog h : k < l generalizing k l
+  · replace h : l < k := hn.symm.lt_of_le (Nat.le_of_not_lt h)
+    exact (this hn.symm h).symm
+  have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_biUnion_of_mem h
+  apply disjoint_of_subset_left this
+  rw [Ω₁_aux]
+  split_ifs
+  · exact disjoint_sdiff_right
+  · exact disjoint_empty _
 
 def Ω₁ (p : 𝔓 X) : Set (Θ X) := Ω₁_aux p.1 (Finite.equivFin (𝓩 p.1) p.2)
 
-lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ ⟨I, g⟩).Nonempty) : f = g := sorry
+lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ ⟨I, g⟩).Nonempty) : f = g := by
+  simp_rw [← not_disjoint_iff_nonempty_inter, Ω₁] at h
+  contrapose! h
+  apply Ω₁_aux_disjoint
+  contrapose! h
+  rwa [Fin.val_eq_val, Equiv.apply_eq_iff_eq] at h
 
 lemma iUnion_ball_subset_iUnion_Ω₁ :
   ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := sorry
