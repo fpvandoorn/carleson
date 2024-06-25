@@ -139,20 +139,17 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
         congr 1
         rw [intervalIntegral.integral_eq_sub_of_hasDerivAt]
         . exact f_deriv
-        . apply f'_cont.intervalIntegrable
-      _ = ‖∫ (t : ℝ) in Ι y' y, f' t‖ := by
-        apply intervalIntegral.norm_intervalIntegral_eq
-      _ ≤ ∫ (t : ℝ) in Ι y' y, ‖f' t‖ := by
-        apply MeasureTheory.norm_integral_le_integral_norm
+        . exact f'_cont.intervalIntegrable
+      _ = ‖∫ (t : ℝ) in Ι y' y, f' t‖ := intervalIntegral.norm_intervalIntegral_eq _ _ _ _
+      _ ≤ ∫ (t : ℝ) in Ι y' y, ‖f' t‖ := MeasureTheory.norm_integral_le_integral_norm _
       _ ≤ ∫ (t : ℝ) in Ι y' y, 3 / ((y / 2) / 2) ^ 2 := by
         apply MeasureTheory.setIntegral_mono_on
-        . apply f'_cont.norm.integrableOn_uIcc.mono_set
-          apply Set.Ioc_subset_Icc_self
+        . exact f'_cont.norm.integrableOn_uIcc.mono_set Set.Ioc_subset_Icc_self
         . apply MeasureTheory.integrableOn_const.mpr
-          right
           rw [Real.volume_uIoc]
-          apply ENNReal.ofReal_lt_top
-        . apply measurableSet_uIoc
+          right
+          exact ENNReal.ofReal_lt_top
+        . exact measurableSet_uIoc
         . intro t ht
           rw [Set.mem_uIoc] at ht
           have ht' : 0 < t ∧ t ≤ 1 := by
@@ -160,31 +157,31 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
           rw [f'def]
           simp only [norm_div, Complex.norm_eq_abs, norm_pow]
           gcongr
-          . calc Complex.abs (-1 + Complex.exp (-(Complex.I * ↑t)) + Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t)))
-              _ ≤ Complex.abs (-1 + Complex.exp (-(Complex.I * ↑t))) + Complex.abs (Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t))) := by
-                apply Complex.abs.isAbsoluteValue.abv_add
-              _ ≤ Complex.abs (-1) + Complex.abs (Complex.exp (-(Complex.I * ↑t))) + Complex.abs (Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t))) := by
+          . calc Complex.abs (-1 + Complex.exp (-(Complex.I * ↑t)) +
+              Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t)))
+              _ ≤ Complex.abs (-1 + Complex.exp (-(Complex.I * ↑t))) +
+                Complex.abs (Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t))) :=
+                  Complex.abs.isAbsoluteValue.abv_add _ _
+              _ ≤ Complex.abs (-1) + Complex.abs (Complex.exp (-(Complex.I * ↑t))) +
+                Complex.abs (Complex.I * (↑t - 1) * Complex.exp (-(Complex.I * ↑t))) := by
                 gcongr
-                apply Complex.abs.isAbsoluteValue.abv_add
+                exact Complex.abs.isAbsoluteValue.abv_add _ _
               _ ≤ 1 + 1 + 1 := by
                 gcongr
                 . simp
                 . rw [mul_comm, ←neg_mul]
                   norm_cast
-                  apply le_of_eq
-                  apply Complex.abs_exp_ofReal_mul_I
-                . simp
+                  apply le_of_eq (Complex.abs_exp_ofReal_mul_I _)
+                . simp only [map_mul, Complex.abs_I, one_mul]
                   apply mul_le_one
                   norm_cast
                   rw [abs_of_nonpos] <;> linarith
-                  simp
+                  simp only [apply_nonneg]
                   rw [mul_comm, ←neg_mul]
                   norm_cast
-                  apply le_of_eq
-                  apply Complex.abs_exp_ofReal_mul_I
+                  apply le_of_eq (Complex.abs_exp_ofReal_mul_I _)
               _ = 3 := by norm_num
-          . rw [mul_comm, ←neg_mul, mul_comm]
-            norm_cast
+          . rw_mod_cast [mul_comm, ←neg_mul, mul_comm]
             apply lower_secant_bound
             . simp only [neg_mul, Set.mem_Icc, neg_add_le_iff_le_add, le_add_neg_iff_add_le,
               neg_le_sub_iff_le_add]
@@ -192,20 +189,14 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
             . rw [abs_neg, le_abs]
               left
               rcases ht with ht | ht <;> linarith [ht.1]
-      _ = (MeasureTheory.volume (Ι y' y)).toReal * (3 / ((y / 2) / 2) ^ 2) := by
-        apply MeasureTheory.setIntegral_const
+      _ = (MeasureTheory.volume (Ι y' y)).toReal * (3 / ((y / 2) / 2) ^ 2) :=
+        MeasureTheory.setIntegral_const _
       _ = |y - y'| * (3 / ((y / 2) / 2) ^ 2) := by
-        congr
         rw [Real.volume_uIoc, ENNReal.toReal_ofReal (abs_nonneg (y - y'))]
-      _ = (3 * (2 * 2) ^ 2) * (1 / y) * (|y - y'| / y) := by
-        ring
-      _ ≤ 2 ^ 6 * (1 / y) * (|y - y'| / y) := by
-        gcongr
-        norm_num
-  . rw [abs_neg, abs_of_nonneg yy'nonneg.2]
-    assumption
-  . rw [abs_neg, abs_of_nonneg yy'nonneg.1]
-    assumption
+      _ = (3 * (2 * 2) ^ 2) * (1 / y) * (|y - y'| / y) := by ring
+      _ ≤ 2 ^ 6 * (1 / y) * (|y - y'| / y) := by gcongr; norm_num
+  . rwa [abs_neg, abs_of_nonneg yy'nonneg.2]
+  . rwa [abs_neg, abs_of_nonneg yy'nonneg.1]
 
 /- Lemma 10.14 (Hilbert kernel regularity) -/
 lemma Hilbert_kernel_regularity {x y y' : ℝ} :
