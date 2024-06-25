@@ -78,9 +78,7 @@ namespace 𝓓
 lemma le_topCube {i : 𝓓 X} : i ≤ topCube := subset_topCube
 lemma isTop_topCube : IsTop (topCube : 𝓓 X) := fun _ ↦ le_topCube
 
-lemma isMax_iff {i : 𝓓 X} : IsMax i ↔ i = topCube :=
-  isTop_topCube.isMax_iff
-
+lemma isMax_iff {i : 𝓓 X} : IsMax i ↔ i = topCube := isTop_topCube.isMax_iff
 
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
