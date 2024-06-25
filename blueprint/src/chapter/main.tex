@@ -1616,12 +1616,12 @@ and then define iteratively
     Now suppose that there exists no $z \in \mathcal{Z}(I)$ with $\mfa \in B_{I^\circ}(z, 0.3)$. Let $k$ be minimal such that $\mfa \in B_{I^\circ}(z_k, 0.7)$. Since $\Omega_1((I, z_i)) \subset B_{I^\circ}(z_i, 0.7)$ for each $i$ by \eqref{eq-def-omega1}, we have that $\mfa \notin \Omega_1((I, z_i))$ for all $i < k$. Hence $\mfa \in \Omega_1((I, z_k))$, again by \eqref{eq-def-omega1}.
 \end{proof}
 
-Now we are ready to define the function $\Omega$. For all cubes $I \in \mathcal{D}$ such that there exists no $J \in \mathcal{D}$ with $I \subset J$ and $I \ne J$, we define for all $\fp \in \fP(I)$
+Now we are ready to define the function $\Omega$. We define for all $\fp \in \fP(I_0)$
 \begin{equation}
     \label{eq-max-omega}
     \fc(\fp) = \Omega_1(\fp)\,.
 \end{equation}
-For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I \subset J$ and $I \ne J$, we define $\Omega$ by recursion. We can pick an inclusion minimal $J \in \mathcal{D}$ among the finitely many cubes such that $I \subset J$ and $I \ne J$. This $J$ is unique: Suppose that $J'$ is another inclusion minimal cube with $I \subset J'$ and $I \ne J'$. Without loss of generality, we have that $s(J) \le s(J')$. By \eqref{dyadicproperty}, it follows that $J \subset J'$. Since $J'$ is minimal with respect to inclusion, it follows that $J = J'$. Then we define
+For all other cubes $I \in \mathcal{D}$, $I \ne I_0$, there exists, by \eqref{dyadicproperty} and \eqref{subsetmaxcube}, $J \in \mathcal{D}$ with $I \subset J$ and $I \ne J$. On such $I$ we define $\Omega$ by recursion. We can pick an inclusion minimal $J \in \mathcal{D}$ among the finitely many cubes such that $I \subset J$ and $I \ne J$. This $J$ is unique: Suppose that $J'$ is another inclusion minimal cube with $I \subset J'$ and $I \ne J'$. Without loss of generality, we have that $s(J) \le s(J')$. By \eqref{dyadicproperty}, it follows that $J \subset J'$. Since $J'$ is minimal with respect to inclusion, it follows that $J = J'$. Then we define
 \begin{equation}
     \label{eq-it-omega}
     \fc(\fp) = \bigcup_{z \in \mathcal{Z}(J) \cap \Omega_1(\fp)} \Omega((J, z)) \cup B_{\fp}(\fcc(\fp),0.2)\,.
@@ -1630,7 +1630,7 @@ For cubes $I \in \mathcal{D}$ for which there exists $J \in \mathcal{D}$ with $I
 We now verify that $(\fP,\scI,\fc,\fcc,\pc,\ps)$ forms a tile structure.
 \begin{proof}[Proof of \Cref{tile-structure}]
     \proves{tile-structure}
-    First, we prove \eqref{eq-freq-comp-ball}. If $I \in \mathcal{D}$ is maximal in $\mathcal{D}$ with respect to set inclusion, then \eqref{eq-freq-comp-ball} holds for all $\fp \in \fP(I)$ by \eqref{eq-max-omega} and \eqref{eq-omega1-incl}. Now suppose that $I$ is not maximal in $\mathcal{D}$ with respect to set inclusion. Then we may assume by induction that for all $J \in \mathcal{D}$ with $I \subset J$ and all $\fp' \in \fP(J)$, \eqref{eq-freq-comp-ball} holds. Let $J$ be the unique minimal cube in $\mathcal{D}$ with $I \subsetneq J$.
+    First, we prove \eqref{eq-freq-comp-ball}. If $I =I_0$, then \eqref{eq-freq-comp-ball} holds for all $\fp \in \fP(I)$ by \eqref{eq-max-omega} and \eqref{eq-omega1-incl}. Now suppose that $I$ is not maximal in $\mathcal{D}$ with respect to set inclusion. Then we may assume by induction that for all $J \in \mathcal{D}$ with $I \subset J$ and all $\fp' \in \fP(J)$, \eqref{eq-freq-comp-ball} holds. Let $J$ be the unique minimal cube in $\mathcal{D}$ with $I \subsetneq J$.
 
     Suppose that $\mfa \in \Omega(\fp)$. If $\mfa\in B_{\fp}(\mathcal{Q}(\fp), 0.2)$, then since
     \begin{equation*}
@@ -1648,7 +1648,7 @@ We now verify that $(\fP,\scI,\fc,\fcc,\pc,\ps)$ forms a tile structure.
 
     Next, we show \eqref{eq-dis-freq-cover}. Let $I \in \mathcal{D}$.
 
-    If $I$ is maximal with respect to inclusion, then disjointedness of the sets $\fc(\fp)$ for $\fp \in \fP(I)$ follows from the definition \eqref{eq-max-omega} and \Cref{disjoint-frequency-cubes}. To obtain the inclusion in \eqref{eq-dis-freq-cover} one combines the inclusions \eqref{eq-tile-cover} and \eqref{eq-omega1-cover}
+    If $I = I_0$, then disjointedness of the sets $\fc(\fp)$ for $\fp \in \fP(I)$ follows from the definition \eqref{eq-max-omega} and \Cref{disjoint-frequency-cubes}. To obtain the inclusion in \eqref{eq-dis-freq-cover} one combines the inclusions \eqref{eq-tile-cover} and \eqref{eq-omega1-cover}
     of \Cref{frequency-cube-cover} with \eqref{eq-max-omega}.
 
     Now we turn to the case where there exists $J \in \mathcal{D}$ with $I \subset J$ and $I\ne J$. In this case we use induction: It suffices to show \eqref{eq-dis-freq-cover} under the assumption that it holds for all cubes $J \in \mathcal{D}$ with $I \subset J$. As shown before definition \eqref{eq-it-omega}, we may choose the unique inclusion minimal such $J$. To show disjointedness of the sets $\fc(\fp), \fp \in \fP(I)$ we pick two tiles $\fp, \fp' \in \fP(I)$ and $\mfa \in \fc(\fp) \cap \fc(\fp')$.
@@ -1923,7 +1923,7 @@ We prove separate bounds for $G_1$, $G_2$, and $G_3$
 in Lemmas \ref{first-exception},
 \ref{second-exception}, and \ref{third-exception}. Adding up these bounds proves \Cref{exceptional-set}.
 
-The bound for $G_1$ is follows from the Vitali covering lemma, \Cref{Hardy-Littlewood}.
+The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewood}.
 
 \begin{lemma}[first exception]
     \label{first-exception}
@@ -2891,7 +2891,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \in \fP_2 \cap \fP_{G \setminus G'}$. Clearly, for every cube $J = \sc(\fp)$ with $\fp \in \fP_{G \setminus G'}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
+    Let $\fp \in \fP_2 \cap \fP_{G \setminus G'}$. Clearly, for every cube $J = \scI(\fp)$ with $\fp \in \fP_{G \setminus G'}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
 
     Next, since $E_2(\lambda, \fp') \subset \scI(\fp')\cap G$ for every $\lambda \ge 2$ and every tile $\fp' \in \fP(k)$ with $\lambda\fp \lesssim \lambda \fp'$, it follows from \eqref{muhj2} that $\mu(E_2(\lambda, \fp')) \le 2^{-k} \mu(\scI(\fp'))$ for every such $\fp'$, so $\dens_k'(\{\fp\}) \le 2^{-k}$. Combining this with $a \ge 0$, it follows from \eqref{def-cnk} that there exists $n\ge k$ with $\fp \in \fC(k,n)$.
 
@@ -3729,8 +3729,6 @@ $B_{\fp}(\mfa', 0.2)$.
 It follows that there are at most $2^{a(N+4)}$ elements in
 $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
 \eqref{eqanti-1}.
-
-
 \end{proof}
 
 
@@ -3825,15 +3823,8 @@ Fix $L\in \mathcal{L}^*$.
 By definition of $L$, there exists an element $\fp'\in \mathfrak{A}'$ such that $L\subset \scI(\fp')$. Pick such an element $\fp
 '$
 in $\mathfrak{A}$ with minimal $\ps(\fp')$. As $\scI(\fp')\not \subset L$ or $s(L) = -S$ by definition of $L$, we have
-with \eqref{dyadicproperty} that $s(L)< \ps(\fp')$ or $s(L) = -S$. In particular $s(L)<S$.
-
-If there exists no cube $J \in \mathcal{D}$ with $L \subsetneq J$, then by the definition of $\mathcal{L}$ we must have $s(L) = -S$. By \eqref{dyadicproperty}, this implies that each tile $\fp$ with $E(\fp) \cap L \ne \emptyset$ must satisfy $\scI(\fp) = L$. Thus the left hand side of \eqref{eqanti0} equals
-\begin{equation}
-    \sum_{\fp\in\mathfrak{A}':\scI(\fp)=L}\mu(E(\fp)\cap G\cap L)\,.
-\end{equation}
-Thus in this case \eqref{eqanti0} is a direct consequence of \Cref{stack-density} and $a \ge 4$.
-
-We now assume that there exists a cube $J \in \mathcal{D}$ with $L \subsetneq J$.
+with \eqref{dyadicproperty} that $s(L)< \ps(\fp')$ or $s(L) = -S$. In particular $s(L)<S$, thus $L \ne I_0$ and hence by \eqref{subsetmaxcube}
+there exists a cube $J \in \mathcal{D}$ with $L \subsetneq J$.
 By \eqref{coverdyadic}, there is an
 $L'\in \mathcal{D}$ with $s(L')=s(L)+1$ and $c(L)\in L'$. By \eqref{dyadicproperty}, we have
 $L\subset L'$.
@@ -4064,12 +4055,14 @@ $$
 \begin{equation}
     \label{eq-def-S-op}
     :=\sum_{I\in\mathcal{D}} \mathbf{1}_{I}(x) \sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\
-    J\subset B(c(I), 16 D^{s(I)})}} \frac{D^{(s(J) - s(I))/a}}{\mu(B(c(I), 16D^{s(I)}))}\int_J |f(y)| \, \mathrm{d}\mu(y)\,.
+    J\subset B(c(I), 16 D^{s(I)})\\ s(J) \le s(I)}} \frac{D^{(s(J) - s(I))/a}}{\mu(B(c(I), 16D^{s(I)}))}\int_J |f(y)| \, \mathrm{d}\mu(y)\,.
 \end{equation}
+%changed definition
 Define also the collection of balls
 $$
-    \mathcal{B} = \{B(c(I), D^{s + s(I)}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\}\,.
+    \mathcal{B} = \{B(c(I), 2^s D^{s(I)}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\}\,.
 $$
+%changed definition.
 
 The following pointwise estimate for operators associated to sets $\fT(\fu)$ is the main result of this subsection.
 
@@ -4079,7 +4072,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Let $x, x' \in L$.
     Then for all bounded functions $f$ with bounded support
     $$
-        \left|\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(\fcc(\fu))f](x)\right|
+        \left|\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(-\fcc(\fu))f](x)\right|
     $$
     \begin{equation}
         \label{eq-LJ-ptwise}
@@ -4091,7 +4084,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \begin{proof}
     By \eqref{definetp}, if $T_{\fp}[ e(-\fcc(\fu))f](x) \ne 0$, then $x \in E(\fp)$. Combining this with $|e(\fcc(\fu)(x)-\tQ(x)(x))| = 1$, we obtain
     $$
-        |\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(\fcc(\fu))f](x)|
+        |\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(-\fcc(\fu))f](x)|
     $$
     \begin{multline*}
         = \Bigg| \sum_{s \in \sigma(\fu, x)} \int e(-\fcc(\fu)(y) + \tQ(x)(y) + \fcc(\fu)(x) -\tQ(x)(x))\times\\
@@ -4215,23 +4208,22 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
     Thus, we can estimate \eqref{eq-term-C} by
     $$
-        2^{150a^3 + 3/a}\sum_{\fp\in \mathfrak{T}}\frac{\mathbf{1}_{E(\fp)}(x)}{\mu(B(x,D^{\ps(\fp)}))}\sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\J\subset B(x, 16D^{\ps(\fp)})}} D^{(s(J) - \ps(\fp))/a} \int_J |f|\,.
+        2^{150a^3 + 3/a}\sum_{\fp\in \mathfrak{T}}\frac{\mathbf{1}_{E(\fp)}(x)}{\mu(B(x,D^{\ps(\fp)}))}\sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\J\subset B(x, 16D^{\ps(\fp)})\\ s(J) \le \ps(\fp)}} D^{(s(J) - \ps(\fp))/a} \int_J |f|\,.
     $$
     $$
-        = 2^{150a^3 + 3/a}\sum_{I \in \mathcal{D}} \sum_{\substack{\fp\in \mathfrak{T}\\ \scI(\fp) = I}}\frac{\mathbf{1}_{E(\fp)}(x)}{\mu(B(x, D^{s(I)}))}\sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\J\subset B(x, 16 D^{\ps(\fp)})}} D^{(s(J) - s(I))/a} \int_J |f|\,.
+        = 2^{150a^3 + 3/a}\sum_{I \in \mathcal{D}} \sum_{\substack{\fp\in \mathfrak{T}\\ \scI(\fp) = I}}\frac{\mathbf{1}_{E(\fp)}(x)}{\mu(B(x, D^{s(I)}))}\sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\J\subset B(x, 16 D^{s(I)})\\ s(J) \le s(I)}} D^{(s(J) - s(I))/a} \int_J |f|\,.
     $$
-    By \eqref{eq-dis-freq-cover} and \eqref{defineep}, the sets $E(\fp)$ for tiles $\fp$ with $\scI(\fp) = I$ are pairwise disjoint.
+    By \eqref{eq-dis-freq-cover} and \eqref{defineep}, the sets $E(\fp)$ for tiles $\fp$ with $\scI(\fp) = I$ are pairwise disjoint. It follows from the definition of $\mathcal{L}(\fT(\fu))$ that $x \in \scI(\fp)$ if and only if $x' \in \scI(\fp)$, thus we can estimate the sum over $\mathbf{1}_{E(\fp)}(x)$ by $\mathbf{1}_{I}(x')$.
     If $x \in E(\fp)$ then in particular $x \in \scI(\fp)$, so by \eqref{eq-vol-sp-cube} $B(c(I),16D^{s(I)}) \subset B(x, 32D^{s(I)})$. By the doubling property \eqref{doublingx}
     $$
         \mu(B(c(I), 16D^{s(I)})) \le 2^{5a} \mu(B(x, D^{s(I)}))\,.
     $$
     Since $a \ge 4$ we can continue our estimate with
     $$
-        \le 2^{151a^3}\sum_{I \in \mathcal{D}} \frac{\mathbf{1}_{I}(x)}{\mu(B(c(I), 16D^{s(I)}))}\sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\J\subset B(x, 16 D^{\ps(\fp)})}} D^{(s(J) - \ps(\fp))/a} \int_J |f|\,.
+        \le 2^{151a^3}\sum_{I \in \mathcal{D}} \frac{\mathbf{1}_{I}(x')}{\mu(B(c(I), 16D^{s(I)}))}\sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\J\subset B(x, 16 D^{s(I)})\\ s(J) \le s(I)}} D^{(s(J) - s(I))/a} \int_J |f|
     $$
-    Finally, it follows from the definition of $\mathcal{L}(\fT(\fu))$ that $x \in \scI(\fp)$ if and only if $x' \in \scI(\fp)$, thus this equals
     $$
-         2^{151a^3} S_{1,\fu} P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
+         = 2^{151a^3} S_{1,\fu} P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
     $$
     This completes the proof.
 \end{proof}
@@ -4253,6 +4245,7 @@ In this subsection we prove the following estimate on $L^2$ for operators associ
          \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|f|\|_{2}\|P_{\mathcal{L}(\fT(\fu))}|g|\|_{2}.
     \end{equation}
 \end{lemma}
+%fixme: It seems like the constant is off, it should be 2^{255a^3} I think.
 
 Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estimate} and the following estimates for the operators in \Cref{pointwise-tree-estimate}.
 
@@ -4277,28 +4270,34 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 
 \begin{proof}[Proof of \Cref{tree-projection-estimate}]
     \proves{tree-projection-estimate}
-    For each $L \in \mathcal{L}(\fT(\fu))$, choose a point $x'(L) \in L$ such that for all $y \in L$
+    Let $L \in \mathcal{L}(\fT(\fu))$.
+    We apply \Cref{pointwise-tree-estimate} to $e(\fcc(\fu)) f$ to obtain for all $y, x' \in L$
     $$
-        (M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')|
+        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| 
     $$
-    \begin{equation}
-        \label{eq-x'L-almost-inf}
-        \le 2 ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)|)\,.
-    \end{equation}
-    This point exists since \eqref{eq-x'L-almost-inf} is non-negative for each $y$.
-    Then we have by \Cref{pointwise-tree-estimate} for each $L \in \mathcal{L}(\fT(\fu))$
+    $$
+        \le 2^{151a^3} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
+    $$
+    Hence, by taking an infimum, we have for $y \in L$
+    $$
+        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| 
+    $$
+    $$
+        \le 2^{151a^3} \inf_{x' \in L} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
+    $$
+    Integrating this estimate yields
     $$
         \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
     $$
     $$
-        \le 2^{151a^3} \int_L |g(y)| ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')| ) \, \mathrm{d}\mu(y)
+        \le 2^{151a^3} \int_L |g(y)| \inf_{x' \in L}((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| ) \, \mathrm{d}\mu(y)
     $$
     \begin{multline*}
         \le 2^{151a^3} \int_L |g(y)| \, \mathrm{d}\mu(y)\times\\
-         \int_L 2((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)| ) \, \mathrm{d}\mu(y)
+         \int_L 2((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
     \end{multline*}
     \begin{multline*}
-        = 2^{151a^3 + 1} \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)| ) \, \mathrm{d}\mu(y)\,.
+        = 2^{151a^3 } \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
     \end{multline*}
     By \eqref{definetp}, we have $T_{\fp} f = \mathbf{1}_{\scI(\fp)} T_{\fp} f$ for all $\fp \in \fP$, so
     $$
@@ -4311,20 +4310,20 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
     $$
     which by the above computation is bounded by
     \begin{multline*}
-        2^{151a^3 + 1} \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)| ) \, \mathrm{d}\mu(y)
+        2^{151a^3} \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
     \end{multline*}
     \begin{multline*}
-        = 2^{151a^3 + 1} \int_X P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)| ) \, \mathrm{d}\mu(y)\,.
+        = 2^{151a^3} \int_X P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
     \end{multline*}
     Applying Cauchy-Schwarz and Minkowski's inequality, this is bounded by
     \begin{multline*}
-        2^{151a^3 + 1} \|P_{\mathcal{L}(\fT(\fu))}|g|\|_2 \times \\(\|M_{\mathcal{B},1}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|S_{1,\fu}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(y)|\|_2)\,.
+        2^{151a^3} \|P_{\mathcal{L}(\fT(\fu))}|g|\|_2 \times \\(\|M_{\mathcal{B},1}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|S_{1,\fu}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)|\|_2)\,.
     \end{multline*}
     By \Cref{Hardy-Littlewood}, \Cref{nontangential-operator-bound} and \Cref{boundary-operator-bound}, the second factor is at most
     $$
-        (2^{2a+1} + 2^{12a})\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + 2^{103a^3} \|P_{\mathcal{J}(\fT(\fu))}f\|_2\,.
+        (2^{2a+1} + 2^{12a})\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + 2^{103a^3} \|P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f]\|_2\,.
     $$
-    By the triangle inequality we have for all $x \in X$ that $|P_{\mathcal{J}(\fT(\fu))}f|(x) \le P_{\mathcal{J}(\fT(\fu))}|f|(x)$, thus we can further estimate the above by
+    By the triangle inequality we have for all $x \in X$ that $|P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f]|(x) \le P_{\mathcal{J}(\fT(\fu))}|f|(x)$, thus we can further estimate the above by
     $$
         (2^{2a+1} + 2^{12a} + 2^{103a^3}) \|P_{\mathcal{J}(\fT(\fu))}|f|\|_2\,.
     $$
@@ -4423,25 +4422,25 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 
 \begin{lemma}[boundary overlap]
     \label{boundary-overlap}
-    For every cube $I \in \mathcal{D}$, there exist at most $2^{8a}$ cubes $J \in \mathcal{D}$ with $s(J) = s(I)$ and $B(c(I), 16D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne \emptyset$.
+    For every cube $I \in \mathcal{D}$, there exist at most $2^{9a}$ cubes $J \in \mathcal{D}$ with $s(J) = s(I)$ and $B(c(I), 16D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne \emptyset$.
 \end{lemma}
 
 \begin{proof}
-    Suppose that $B(c(I), 16 D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne \emptyset$ and $s(I) = s(J)$. Then $B(c(I), 32 D^{s(I)}) \subset B(c(J), 64 D^{s(J)})$. Hence by the doubling property \eqref{doublingx}
+    Suppose that $B(c(I), 16 D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne \emptyset$ and $s(I) = s(J)$. Then $B(c(I), 33 D^{s(I)}) \subset B(c(J), 128 D^{s(J)})$. Hence by the doubling property \eqref{doublingx}
     $$
-        2^{8a}\mu(B(c(J), \frac{1}{4}D^{s(J)})) \ge \mu(B(c(I), 32 D^{s(I)}))\,,
+        2^{9a}\mu(B(c(J), \frac{1}{4}D^{s(J)})) \ge \mu(B(c(I), 33 D^{s(I)}))\,,
     $$
-    and by the triangle inequality, the ball $B(c(J), \frac{1}{4}D^{s(J)})$ is contained in $B(c(I), 32 D^{s(I)})$.
+    and by the triangle inequality, the ball $B(c(J), \frac{1}{4}D^{s(J)})$ is contained in $B(c(I), 33 D^{s(I)})$.
 
     If $\mathcal{C}$ is any finite collection of cubes $J \in \mathcal{D}$ satisfying $s(J) = s(I)$ and
     \begin{equation*}
         B(c(I), 16 D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne\emptyset\ ,
     \end{equation*} then it follows from \eqref{eq-vol-sp-cube} and pairwise disjointedness of cubes of the same scale \eqref{dyadicproperty} that the balls $B(c(J), \frac{1}{4} D^{s(J)})$ are pairwise disjoint. Hence
     \begin{align*}
-        \mu(B(c(I), 32 D^{s(I)})) &\ge \sum_{J \in \mathcal{C}} \mu(B(c(J), \frac{1}{4}D^{s(J)}))\\
-        &\ge |\mathcal{C}| 2^{-8a} \mu(B(c(I), 32 D^{s(I)}))\,.
+        \mu(B(c(I), 33 D^{s(I)})) &\ge \sum_{J \in \mathcal{C}} \mu(B(c(J), \frac{1}{4}D^{s(J)}))\\
+        &\ge |\mathcal{C}| 2^{-9a} \mu(B(c(I), 33 D^{s(I)}))\,.
     \end{align*}
-    Since $\mu$ is doubling and $\mu \ne 0$, we have $\mu(B(c(I), 32D^{s(I)})) > 0$. The lemma follows after dividing by $2^{-8a}\mu(B(c(I), 32D^{s(I)}))$.
+    Since $\mu$ is doubling and $\mu \ne 0$, we have $\mu(B(c(I), 33D^{s(I)})) > 0$. The lemma follows after dividing by $2^{-9a}\mu(B(c(I), 33D^{s(I)}))$.
 \end{proof}
 
 Now we can bound the operators $S_{1, \fu}$.
@@ -4454,34 +4453,34 @@ Now we can bound the operators $S_{1, \fu}$.
     $$
     \begin{multline*}
         = \Bigg|\sum_{I\in\mathcal{D}} \frac{1}{\mu(B(c(I), 16 D^{s(I)}))} \int_I \bar g(y) \, \mathrm{d}\mu(y)\\
-        \times \sum_{J\in \mathcal{J}\,:\,J\subseteq B(c(I), 16 D^{s(I)})} D^{(s(J)-s(I))/a}\int_J |f(y)| \,\mathrm{d}\mu(y)\Bigg|
+        \times \sum_{\substack{J\in \mathcal{J}(\fT(\fu))\,:\,J\subseteq B(c(I), 16 D^{s(I)})\\s(J)\le s(I)}} D^{(s(J)-s(I))/a}\int_J |f(y)| \,\mathrm{d}\mu(y)\Bigg|
     \end{multline*}
     \begin{multline*}
-        \le \sum_{I\in\mathcal{D}} \frac{1}{\mu(B(c(I), 16D^{s(I)}))} \int_{B(c(I), 16D^{s(I)})} | g(y)| \, \mathrm{d}\mu(y)\\ \times \sum_{J\in \mathcal{J}\,:\,J\subseteq B(c(I), 16 D^{s(I)})} D^{(s(J)-s(I))/a}\int_J |f(y)| \,\mathrm{d}\mu(y)\,.
+        \le \sum_{I\in\mathcal{D}} \frac{1}{\mu(B(c(I), 16D^{s(I)}))} \int_{B(c(I), 16D^{s(I)})} | g(y)| \, \mathrm{d}\mu(y)\\ \times \sum_{\substack{J\in \mathcal{J}(\fT(\fu))\,:\,J\subseteq B(c(I), 16 D^{s(I)})\\ s(J) \le s(I)}} D^{(s(J)-s(I))/a}\int_J |f(y)| \,\mathrm{d}\mu(y)\,.
     \end{multline*}
     Changing the order of summation and using $J \subset B(c(I), 16 D^{s(I)})$ to bound the first average integral by $M_{\mathcal{B},1}|g|(y)$ for any $y \in J$, we obtain
     \begin{align}
     \label{eq-boundary-operator-bound-1}
-        \le \sum_{J\in\mathcal{J}}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y) \sum_{I \in \mathcal{D} \, : \, J\subset B(c(I),16 D^{s(I)})} D^{(s(J)-s(I))/a}.
+        \le \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y) \sum_{\substack{I \in \mathcal{D} \, : \, J\subset B(c(I),16 D^{s(I)})\\ s(I) \ge s(J)}} D^{(s(J)-s(I))/a}.
     \end{align}
-    By \eqref{eq-vol-sp-cube} and \eqref{defineD} the condition $J \subset B(c(I), 16 D^{s(I)})$ implies $s(I) \ge s(J)$. By \Cref{boundary-overlap}, there are at most $2^{8a}$ cubes $I$ at each scale with $J \subset B(c(I), D^{s(I)})$.
+    By \Cref{boundary-overlap}, there are at most $2^{9a}$ cubes $I$ at each scale with $J \subset B(c(I), D^{s(I)})$.
     By convexity of $t \mapsto D^t$ and since $D \ge 2$, we have for all $-1 \le t \le 0$
     $$
         D^t \le 1 + t\left(1 - \frac{1}{D}\right) \le 1 + \frac{1}{2}t\,,
     $$
-    so $(1 - D^{-1/a})^{-1} \le 2a \le 2^a$.
+    so $(1 - D^{-1/a})^{-1} \le 2a \le 2^{a-1}$.
     Using this estimate for the sum of the geometric series,
     we conclude that \eqref{eq-boundary-operator-bound-1} is at most
     $$
-        2^{9a} \sum_{J\in\mathcal{J}}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
+        2^{10a-1} \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
     The collection $\mathcal{J}$ is a partition of $X$, so this equals
     $$
-        2^{9a} \int_X|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
+        2^{11a-1} \int_X|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
     Using Cauchy-Schwarz and \Cref{Hardy-Littlewood}, we conclude
     $$
-        \left|\int \bar g S_{1,\fu}f \, \mathrm{d}\mu \right| \le 2^{11a+1} \|g\|_2\|f\|_2\,.
+        \left|\int \bar g S_{1,\fu}f \, \mathrm{d}\mu \right| \le 2^{12a} \|g\|_2\|f\|_2\,.
     $$
     The lemma now follows by choosing $g = S_{1,\fu}f$ and dividing on both sides by the finite $\|S_{1,\fu}f\|_2$.
 \end{proof}
