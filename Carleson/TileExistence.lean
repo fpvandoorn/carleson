@@ -89,8 +89,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
 lemma tsum_const_eq' {α : Type*} (s : Set α) (c : ℝ≥0∞) :
     ∑' (_:s), (c : ℝ≥0∞) = s.encard * c := by
   nth_rw 1 [← one_mul c]
-  rw [ENNReal.tsum_mul_right]
-  rw [tsum_one_eq']
+  rw [ENNReal.tsum_mul_right,tsum_one_eq']
 
 end
 
@@ -139,13 +138,11 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
       refine zpow_pos_of_pos ?ha S
       apply Real.rpow_pos_of_pos
       linarith
-    have volume_finite : volume (ball o (4 * D^S)) < ⊤ :=
-      measure_ball_lt_top
+    have volume_finite : volume (ball o (4 * D^S)) < ⊤ := measure_ball_lt_top
     rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne]
     rw [mul_comm,mul_comm (volume _)]
     exact this
-  have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := by
-    exact (As_pos' X (2 ^J' X)).ne.symm
+  have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := (As_pos' X (2 ^J' X)).ne.symm
   calc
     (Y.encard).toENNReal * volume (ball o (4 * D ^ S))
       = ∑' (y : Y), volume (ball o (4 * D^S)) := by
@@ -221,7 +218,7 @@ lemma chain_property_set_has_bound (k : ℝ):
       . specialize hxy hsx'
         specialize hc hsy
         simp only [mem_setOf_eq] at hc
-        apply hc.right hxy hsy'
+        exact hc.right hxy hsy'
       . specialize hyx hsy'
         specialize hc hsx
         simp only [mem_setOf_eq] at hc
@@ -236,17 +233,17 @@ def zorn_apply_maximal_set (k : ℝ):
 variable (X) in
 def Yk (k : ℝ): Set X := (zorn_apply_maximal_set X k).choose
 
-lemma Yk_pairwise (k:ℝ) : (Yk X k).PairwiseDisjoint (fun (y:X) ↦ ball y (D^k)) := by
-  exact (zorn_apply_maximal_set X k).choose_spec.left.right
+lemma Yk_pairwise (k:ℝ) : (Yk X k).PairwiseDisjoint (fun (y:X) ↦ ball y (D^k)) :=
+  (zorn_apply_maximal_set X k).choose_spec.left.right
 
-lemma Yk_subset (k:ℝ) : Yk X k ⊆ ball o (4 * D^S - D^k) := by
-  exact (zorn_apply_maximal_set X k).choose_spec.left.left
+lemma Yk_subset (k:ℝ) : Yk X k ⊆ ball o (4 * D^S - D^k) :=
+  (zorn_apply_maximal_set X k).choose_spec.left.left
 
 lemma Yk_maximal (k : ℝ) {s :Set X} (hs_sub : s ⊆ ball o (4 * D^S - D^k))
-  (hs_pairwise : s.PairwiseDisjoint (fun y ↦ ball y (D^k))) (hmax_sub : Yk X k ⊆ s): s = Yk X k := by
-  apply (zorn_apply_maximal_set X k).choose_spec.right
-  . exact And.intro hs_sub hs_pairwise
-  . exact hmax_sub
+    (hs_pairwise : s.PairwiseDisjoint (fun y ↦ ball y (D^k))) (hmax_sub : Yk X k ⊆ s):
+    s = Yk X k :=
+  (zorn_apply_maximal_set X k).choose_spec.right _ (And.intro hs_sub hs_pairwise) hmax_sub
+
 
 lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ball y (2 * D^k) := by
   intro y hy

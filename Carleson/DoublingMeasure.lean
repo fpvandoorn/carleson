@@ -56,8 +56,7 @@ lemma coe_volume_ball_pos_of_pos_radius (x :X) {r : ℝ} (hr : 0 < r) : 0 < volu
 variable (X) in
 lemma one_le_A [Nonempty X]: 1 ≤ A := by
   obtain ⟨x⟩ := ‹Nonempty X›
-  have : 0 < volume.real (ball x 1) :=
-    coe_volume_ball_pos_of_pos_radius x (by linarith)
+  have : 0 < volume.real (ball x 1) := coe_volume_ball_pos_of_pos_radius x (by linarith)
   apply le_of_mul_le_mul_right _ this
   simp only [val_eq_coe, NNReal.coe_one, one_mul]
   calc
@@ -104,8 +103,8 @@ lemma volume_ball_four_le_same (x : X) (r : ℝ) :
   calc volume.real (ball x (4 * r))
       = volume.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * volume.real (ball x (2 * r)) := volume_ball_two_le_same _ _
-    _ ≤ A * (A * volume.real (ball x r)) :=
-      mul_le_mul_of_nonneg_left (volume_ball_two_le_same _ _) (zero_le_coe)
+    _ ≤ A * (A * volume.real (ball x r)) := mul_le_mul_of_nonneg_left
+      (volume_ball_two_le_same _ _) (zero_le_coe)
     _ = A ^ 2 * volume.real (ball x r) := by ring_nf
 
 
@@ -142,8 +141,7 @@ lemma volume_ball_le_pow_two' {x:X} {r:ℝ} {n : ℕ} :
   . exact ENNReal.ofReal_le_ofReal volume_ball_le_pow_two
   simp only [toReal_pow, coe_toReal, ge_iff_le, zero_le_coe, pow_nonneg]
 
-def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 :=
-  A ^ ⌈Real.logb 2 s⌉₊
+def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
 
 variable (X) in
 lemma As_pos [Nonempty X] (s:ℝ) : 0 < As A s := pow_pos (A_pos X) ⌈Real.logb 2 s⌉₊
@@ -172,8 +170,8 @@ lemma volume_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
     apply mul_le_mul_of_nonneg_right _ hr
     calc s
       = 2 ^ (Real.logb 2 s) := (Real.rpow_logb (by linarith) (by linarith) hsp ).symm
-    _ ≤ 2 ^ (⌈Real.logb 2 s⌉₊ : ℝ) :=
-      Real.rpow_le_rpow_of_exponent_le (by linarith) (Nat.le_ceil (Real.logb 2 s))
+    _ ≤ 2 ^ (⌈Real.logb 2 s⌉₊ : ℝ) := Real.rpow_le_rpow_of_exponent_le
+      (by linarith) (Nat.le_ceil (Real.logb 2 s))
     _ = 2 ^ ⌈Real.logb 2 s⌉₊ := Real.rpow_natCast 2 ⌈Real.logb 2 s⌉₊
 
   have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by
@@ -201,8 +199,7 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * r
   simp only [coe_toReal, zero_le_coe]
 
 
-def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 :=
-  As A s * A * As A d
+def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 := As A s * A * As A d
 
 lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
     (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
@@ -229,8 +226,7 @@ lemma volume_ball_le_of_dist_le' {x x' : X} {r r' s d : ℝ} (hs : 0 < s) (hd : 
       rw [two_mul]
       exact ball_subset_ball_of_le (le_refl _)
     _ ≤ As A s * A * volume (ball x (dist x x')) := by
-      rw [mul_assoc]
-      rw [ENNReal.mul_le_mul_left (As_pos' X s).ne.symm coe_ne_top]
+      rw [mul_assoc, ENNReal.mul_le_mul_left (As_pos' X s).ne.symm coe_ne_top]
       exact volume_ball_two_le_same' x (dist x x')
     _ ≤ As A s * A * As A d * volume (ball x r) := by
       rw [mul_assoc (As A s * A : ℝ≥0∞)]
@@ -344,14 +340,13 @@ instance {X:Type*} [MetricSpace X] {A:ℝ≥0}
       else
       calc
         volume (closedBall x (2 * r))
-          ≤ volume (ball x (2 * (2 * r))) :=
-              volume.mono (closedBall_subset_ball (by linarith))
+          ≤ volume (ball x (2 * (2 * r))) := volume.mono (closedBall_subset_ball (by linarith))
         _ ≤ A * volume (ball x (2 * r)) := volume_ball_two_le_same' x (2 * r)
-        _ ≤ A * (A * volume (ball x r)) :=
-          mul_le_mul_of_nonneg_left (volume_ball_two_le_same' x r) (A_nonneg X)
+        _ ≤ A * (A * volume (ball x r)) := mul_le_mul_of_nonneg_left
+          (volume_ball_two_le_same' x r) (A_nonneg X)
         _ = ↑(A ^ 2) * volume (ball x r) := by
           simp only [pow_two, coe_mul,mul_assoc]
-        _ ≤ ↑(A ^ 2) * volume (closedBall x r) :=
-          mul_le_mul_of_nonneg_left (volume.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
+        _ ≤ ↑(A ^ 2) * volume (closedBall x r) := mul_le_mul_of_nonneg_left
+          (volume.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
 
 end
