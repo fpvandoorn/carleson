@@ -4,6 +4,7 @@ import Carleson.MetricCarleson
 import Carleson.Theorem1_1.Basic
 import Carleson.Theorem1_1.Hilbert_kernel
 import Carleson.Theorem1_1.CarlesonOperatorReal
+import Carleson.Theorem1_1.Van_der_Corput
 
 --import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
@@ -487,11 +488,84 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
 
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
+#check van_der_Corput
 --TODO : possibly issues with a different "doubling constant" than in the paper (4 instead of 2)
-instance h5 : IsCancellative ℝ (2 ^ (4 : ℝ)) where
+set_option profiler true in
+instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by
-    sorry
+    intro x r ϕ K hK h f g
+    by_cases r_pos : 0 ≥ r
+    . rw [ball_eq_empty.mpr r_pos]
+      simp
+    push_neg at r_pos
+    rw [measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos])]
+    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric CompatibleFunctions.toFunctionDistances h4
+    dsimp only
+    unfold instFunctionDistancesReal
+    dsimp only
+    rw [max_eq_left r_pos.le]
+    set L := ⨆ (x : ℝ) (y : ℝ) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y with Ldef
+    set B : NNReal := ⟨⨆ y ∈ ball x r, ‖ϕ y‖, by
+            apply Real.iSup_nonneg
+            intro i
+            apply Real.iSup_nonneg
+            intro hi
+            apply norm_nonneg⟩  with Bdef
+    calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * ϕ x‖
+      _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * ϕ x‖ := by
+        congr
+        ext x
+        rw [mul_assoc]
+        congr
+        push_cast
+        rw [_root_.sub_mul]
+        norm_cast
+      _ ≤ 2 * Real.pi * ((x + r) - (x - r)) * (B + L.toNNReal * ((x + r) - (x - r)) / 2) * (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
+        apply van_der_Corput (by linarith)
+        . rw [lipschitzWith_iff_dist_le_mul]
+          intro x y
+          --TODO: make this a lemma
+          sorry
+        . --prove main property of B
+          intro y hy
+          apply ConditionallyCompleteLattice.le_biSup
+          . --TODO: add lemma LipschitzWithOn.BddAbove or something like that
+            sorry
+            --rw [bddAbove_def]
+            --apply LipschitzWith_
+          use y
+          rw [Real.ball_eq_Ioo]
+          use hy
+      _ = 2 * Real.pi * (2 * r) * (B + r * L.toNNReal) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
+        ring
+      _ ≤ (2 : ℝ) ^ (4 : ℝ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / ((2 : ℝ) ^ (4 : ℝ)))) := by
+        gcongr
+        . apply mul_nonneg
+          apply mul_nonneg (by norm_num) (by linarith)
+          --TODO: make this a lemma
+          sorry
+        . norm_num
+          linarith [Real.pi_le_four]
+        . unfold iLipNorm
+          gcongr
+          . apply le_of_eq Bdef
+          simp only [Real.coe_toNNReal', max_le_iff]
+          constructor
+          . apply le_of_eq Ldef
+          apply Real.iSup_nonneg
+          intro x
+          apply Real.iSup_nonneg
+          intro y
+          apply Real.iSup_nonneg
+          intro hxy
+          apply div_nonneg (norm_nonneg _) dist_nonneg
+        . rw [← Real.rpow_neg_one]
+          apply Real.rpow_le_rpow_of_exponent_le _ (by norm_num)
+          simp only [Int.cast_abs, Int.cast_sub, le_add_iff_nonneg_right]
+          apply mul_nonneg (by linarith)
+          apply abs_nonneg
+
 
 --TODO : add some Real.vol lemma
 
@@ -544,7 +618,6 @@ lemma h3 : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts 4) := s
 
 local notation "T" => CarlesonOperatorReal K
 
-/-Not sure whether this is actually true. Probably we only have "le" (which should suffice). -/
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
 lemma CarlesonOperatorReal_le_CarlesonOperator : T ≤ CarlesonOperator K := by
   intro f x

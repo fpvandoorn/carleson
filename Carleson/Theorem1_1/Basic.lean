@@ -73,6 +73,7 @@ lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic
 --TODO: generalize
 lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hp : Function.Periodic f T) (hc : Continuous f) : UniformContinuous f := by
   --rw [Metric.uniformContinuous_iff]
+  --IsCompact.uniformContinuous_on
   sorry
 
 lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by

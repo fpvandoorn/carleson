@@ -72,6 +72,7 @@ local notation "T" => CarlesonOperatorReal K
 
 lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (T f):= by
   --use (prove) that CarlesonOperatorRat' = CarlesonOperatorReal' ?
+  --MeasureTheory.continuousAt_of_dominated
   sorry
 
 theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
