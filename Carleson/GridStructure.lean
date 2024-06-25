@@ -22,11 +22,11 @@ class GridStructure
   fintype_𝓓 : Fintype 𝓓
   /-- The collection of dyadic cubes -/
   coe𝓓 : 𝓓 → Set X
-  coe𝓓_injective : Injective coe𝓓
   /-- scale functions -/
   s : 𝓓 → ℤ
   /-- Center functions -/
   c : 𝓓 → X
+  inj : Injective (fun i ↦ (coe𝓓 i, s i))
   range_s_subset : range s ⊆ Icc (-S) S
   topCube : 𝓓
   s_topCube : s topCube = S
@@ -49,25 +49,28 @@ section GridStructure
 variable [GridStructure X D κ S o]
 
 variable (X) in
+/-- The indexing type of the grid structure. Elements are called (dyadic) cubes.
+Note that this type has instances for both `≤` and `⊆`, but they do *not* coincide. -/
 abbrev 𝓓 : Type u := GridStructure.𝓓 X A
 
-instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
+def s : 𝓓 X → ℤ := GridStructure.s
+def c : 𝓓 X → X := GridStructure.c
 
-instance : SetLike (𝓓 X) X where
-  coe := GridStructure.coe𝓓
-  coe_injective' := GridStructure.coe𝓓_injective
+instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
+instance : Coe (𝓓 X) (Set X) := ⟨GridStructure.coe𝓓⟩
+instance : Membership X (𝓓 X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩
+instance : PartialOrder (𝓓 X) := PartialOrder.lift _ GridStructure.inj
 instance : HasSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
 instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
   conveniently rewrite/simp with Set-lemmas -/
 @[simp] lemma 𝓓.mem_def {x : X} {i : 𝓓 X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
-@[simp] lemma 𝓓.le_def {i j : 𝓓 X} : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
+@[simp] lemma 𝓓.le_def {i j : 𝓓 X} : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 @[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 @[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
-def s : 𝓓 X → ℤ := GridStructure.s
-def c : 𝓓 X → X := GridStructure.c
+protected lemma 𝓓.inj : Injective (fun i : 𝓓 X ↦ ((i : Set X), s i)) := GridStructure.inj
 
 lemma fundamental_dyadic {i j : 𝓓 X} :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
@@ -75,7 +78,9 @@ lemma fundamental_dyadic {i j : 𝓓 X} :
 
 namespace 𝓓
 
-lemma le_topCube {i : 𝓓 X} : i ≤ topCube := subset_topCube
+lemma le_topCube {i : 𝓓 X} : i ≤ topCube :=
+  ⟨subset_topCube, (range_s_subset ⟨i, rfl⟩).2.trans_eq s_topCube.symm⟩
+
 lemma isTop_topCube : IsTop (topCube : 𝓓 X) := fun _ ↦ le_topCube
 
 lemma isMax_iff {i : 𝓓 X} : IsMax i ↔ i = topCube := isTop_topCube.isMax_iff
@@ -185,15 +190,16 @@ lemma 𝓓.nonempty (I : 𝓓 X) : (I : Set X).Nonempty := by
   positivity
 
 /-- Lemma 2.1.2, part 1. -/
-lemma 𝓓.dist_mono {I J : 𝓓 X} (hpq : I ⊆ J) {f g : Θ X} :
+lemma 𝓓.dist_mono {I J : 𝓓 X} (hpq : I ≤ J) {f g : Θ X} :
     dist_{I} f g ≤ dist_{J} f g := by
-  by_cases h : GridStructure.s J ≤ GridStructure.s I
+  rw [𝓓.le_def] at hpq
+  obtain ⟨hpq, h'⟩ := hpq
+  obtain h|h := h'.eq_or_lt
   · suffices I = J by
-      subst this; rfl
-    rw [𝓓.subset_def] at hpq
-    rw [← SetLike.coe_set_eq]
+      rw [this]
+    simp_rw [← 𝓓.inj.eq_iff, Prod.ext_iff, h, and_true]
     apply subset_antisymm hpq
-    apply (fundamental_dyadic h).resolve_right
+    apply (fundamental_dyadic h.symm.le).resolve_right
     rw [Set.not_disjoint_iff_nonempty_inter, inter_eq_self_of_subset_right hpq]
     exact 𝓓.nonempty _
   simp only [not_le, ← Int.add_one_le_iff] at h
