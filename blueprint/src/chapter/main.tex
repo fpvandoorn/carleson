@@ -1098,6 +1098,8 @@ This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and 
 We begin with the construction of the centers of the dyadic cubes.
 \begin{lemma}[counting balls]
     \label{counting-balls}
+    \leanok
+    \lean{counting_balls}
     Let $-S\le k\le S$. Consider $Y\subset X$ such that for any $y\in Y$, we have
     \begin{equation}\label{ybinb}
     y\in B(o,4D^S-D^k),
@@ -1114,6 +1116,7 @@ We begin with the construction of the centers of the dyadic cubes.
 
 
 \begin{proof}
+    \leanok
 Let $k$ and $Y$ be given. By applying the doubling property \eqref{doublingx} inductively, we have for each integer $j\ge 0$
 \begin{equation}\label{jballs}
     \mu(B(y,2^{j}D^k))\le 2^{aj} \mu(B(y,D^k))\, .
@@ -1146,12 +1149,15 @@ order $<$ on $Y_{k}$.
 
 \begin{lemma}[cover big ball]
     \label{cover-big-ball}
+    \leanok
+    \lean{cover_big_ball}
     For each $-S\le k\le S$, the ball
     $B(o, 4D^S-D^k)$ is contained
     in the union of the balls $B(y,2D^k)$ with $y\in Y_k$.
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $x$ be any point of $B(o, 4D^S-D^k)$. By maximality of $|Y_k|$, the ball
 $B(x, D^k)$ intersects one of the balls
 $B(y, D^k)$ with $y\in Y_k$. By the triangle
