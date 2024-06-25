@@ -317,6 +317,7 @@ lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
 variable (X) in lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
 variable (X) in lemma q_nonneg : 0 ≤ q := (q_pos X).le
 
+
 variable (X) in
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
@@ -352,12 +353,26 @@ open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma D_ge_one : 1 ≤ D := by
+lemma one_le_D : 1 ≤ D := by
   rw [← Real.rpow_zero 2]
   dsimp
   apply Real.rpow_le_rpow_of_exponent_le (by linarith)
   simp only [gt_iff_lt, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
   exact sq_nonneg a
+
+lemma D_nonneg : 0 ≤ D := zero_le_one.trans one_le_D
+
+variable (a) in
+/-- `D` as an element of `ℝ≥0`. -/
+def nnD : ℝ≥0 := ⟨D, D_nonneg⟩
+
+namespace ShortVariables
+
+set_option hygiene false
+scoped notation "nnD" => nnD a
+
+end ShortVariables
+
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]

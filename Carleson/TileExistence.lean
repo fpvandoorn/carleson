@@ -1,7 +1,5 @@
 import Carleson.GridStructure
 import Carleson.DoublingMeasure
-import Mathlib.Data.Set.Card
-import Mathlib.Data.Real.ENatENNReal
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
@@ -41,60 +39,14 @@ lemma ball_bound (k : ℝ) (hk_lower : -S ≤ k) {Y : Set X} (hY : Y ⊆ ball o 
       apply mul_le_mul_of_nonneg_left _ (by norm_num)
       simp_rw [← Real.rpow_intCast]
       rw [← Real.rpow_add (defaultD_pos a)]
-      apply Real.rpow_le_rpow_of_exponent_le (D_ge_one)
+      apply Real.rpow_le_rpow_of_exponent_le (one_le_D)
       simp only [Int.cast_mul, Int.cast_ofNat]
       rw [two_mul,add_assoc]
       simp only [le_add_iff_nonneg_right]
       rw [← sub_self (↑S),sub_eq_add_neg]
       exact add_le_add_left hk_lower _
 
-section
-
-
-lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
-  if hfin : s.Finite then
-    have hfin' : Finite s := by exact hfin
-    rw [tsum_def]
-    simp only [ENNReal.summable, ↓reduceDite]
-    have hsup: support (fun (_ : s) ↦ (1 : ℝ≥0∞)) = Set.univ := by
-      ext i
-      simp only [mem_support, ne_eq, one_ne_zero, not_false_eq_true, mem_univ]
-    have hsupfin: (Set.univ : Set s).Finite := by exact finite_univ
-    rw [← hsup] at hsupfin
-    rw [if_pos hsupfin]
-    rw [hfin.encard_eq_coe_toFinset_card]
-    simp only [ENat.toENNReal_coe]
-    rw [Finset.card_eq_sum_ones]
-    rw [finsum_eq_sum (fun (_ : s) ↦ (1 :ℝ≥0∞)) hsupfin]
-    simp only [Finset.sum_const, nsmul_eq_mul, mul_one, smul_eq_mul, Nat.cast_inj]
-    apply Finset.card_bij (fun a _ => a.val)
-    . intro a
-      simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
-        Subtype.coe_prop, imp_self]
-    . intro a _ a' _ heq
-      ext
-      exact heq
-    . intro a ha
-      use ⟨a,by
-        simp only [Finite.mem_toFinset] at ha
-        exact ha⟩
-      simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
-        exists_const]
-  else
-  have : Infinite s := by exact infinite_coe_iff.mpr hfin
-  rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num)]
-  rw [Set.encard_eq_top_iff.mpr hfin]
-  simp only [ENat.toENNReal_top]
-
-lemma tsum_const_eq' {α : Type*} (s : Set α) (c : ℝ≥0∞) :
-    ∑' (_:s), (c : ℝ≥0∞) = s.encard * c := by
-  nth_rw 1 [← one_mul c]
-  rw [ENNReal.tsum_mul_right,tsum_one_eq']
-
-end
-
 -- lemma tsum_top_eq
-
 
 variable (X) in def J' : ℝ := 3 + 2 * S * 100 * a ^2
 
@@ -108,22 +60,11 @@ lemma twopow_J : 2 ^ J' X = 8 * D ^ (2 * S) := by
   . norm_num
   norm_num
 
-
-lemma twopow_J' : ((2 : ℝ≥0) ^ J' X : ℝ≥0) = 8 * D' ^ (2 * S) := by
-  dsimp only [J', defaultD]
-  rw [Real.toNNReal_rpow_of_nonneg]
-  simp only [Real.toNNReal_ofNat]
-  norm_num
-  rw [NNReal.rpow_add,mul_assoc (2 * (S : ℝ )), mul_comm (2 * (S : ℝ))]
-  congr 1
-  . norm_num
-  . rw [NNReal.rpow_mul]
-    refine NNReal.eq ?_
-    simp only [NNReal.coe_rpow, NNReal.coe_ofNat, NNReal.coe_zpow]
-    rw [← Real.rpow_intCast]
-    simp only [Int.cast_mul, Int.cast_ofNat]
-  . norm_num
-  norm_num
+lemma twopow_J' : ((2 : ℝ≥0) ^ J' X : ℝ≥0) = 8 * nnD ^ (2 * S) := by
+  dsimp only [_root_.nnD]
+  ext
+  push_cast
+  rw [twopow_J]
 
 variable (X) in
 def C4_1_1 := As (2 ^ a) (2 ^ J' X)
@@ -146,7 +87,7 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
   calc
     (Y.encard).toENNReal * volume (ball o (4 * D ^ S))
       = ∑' (y : Y), volume (ball o (4 * D^S)) := by
-      rw [tsum_const_eq']
+      rw [ENNReal.tsum_const_eq']
     _ ≤ ∑' (y : Y), volume (ball (y : X) (8 * D ^ (2 * S) * D^k)) := by
       apply tsum_le_tsum _ ENNReal.summable ENNReal.summable
       intro ⟨y,hy⟩
