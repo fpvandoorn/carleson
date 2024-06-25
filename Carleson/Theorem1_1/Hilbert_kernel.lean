@@ -171,7 +171,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
                 . simp
                 . rw [mul_comm, ←neg_mul]
                   norm_cast
-                  apply le_of_eq (Complex.abs_exp_ofReal_mul_I _)
+                  exact le_of_eq (Complex.abs_exp_ofReal_mul_I _)
                 . simp only [map_mul, Complex.abs_I, one_mul]
                   apply mul_le_one
                   norm_cast
@@ -179,7 +179,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
                   simp only [apply_nonneg]
                   rw [mul_comm, ←neg_mul]
                   norm_cast
-                  apply le_of_eq (Complex.abs_exp_ofReal_mul_I _)
+                  exact le_of_eq (Complex.abs_exp_ofReal_mul_I _)
               _ = 3 := by norm_num
           . rw_mod_cast [mul_comm, ←neg_mul, mul_comm]
             apply lower_secant_bound
