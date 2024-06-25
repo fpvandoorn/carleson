@@ -70,8 +70,8 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
     have volume_pos : 0 < volume (ball o (4 * D^S)) := by
       apply measure_ball_pos volume o
       simp only [defaultD, gt_iff_lt, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
-      refine zpow_pos_of_pos ?_ S
-      apply Real.rpow_pos_of_pos _ _
+      refine zpow_pos_of_pos ?ha S
+      apply Real.rpow_pos_of_pos
       linarith
     have volume_finite : volume (ball o (4 * D^S)) < ⊤ := measure_ball_lt_top
     rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne, mul_comm,mul_comm (volume _)]
