@@ -313,11 +313,12 @@ For any dyadic cube $I$,
     \end{equation}
 For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 \begin{equation}
-        \label{eq-small-boundary}
-        % fixme(Georges Gonthier): (not necessary) The D in the RHS can be replaced by 2.
-        % We can do the same in the statement and proof of {boundary-measure}.
-        \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le D t^\kappa \mu(I)\,.
-    \end{equation}
+    \label{eq-small-boundary}
+    % fixme(Georges Gonthier): (not necessary) The D in the RHS can be replaced by 2.
+    % We can do the same in the statement and proof of {boundary-measure}.
+    % Done in Tex, ToDo: Change in Lean.
+    \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
+\end{equation}
 
 
 
@@ -328,6 +329,9 @@ For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 % We can do this by making \mathcal{Z} a subset of Q(X) satisfying 4.2.2.
 % This would remove the need for Lemma 2.1.1 for the definition of \mathcal{Z} in Section 4.2, since it will be automatically finite, since Q(X) is finite.
 % This condition is already implicitly used in the proof of Lemma 6.1.6 when using (2.0.13)
+
+%Done in tex
+
 
 A tile structure $(\fP,\scI,\fc,\fcc,\pc,\ps)$
 for a given grid structure $(\mathcal{D}, c, s)$
@@ -1440,7 +1444,7 @@ This proves the lemma.
     with $tD^k\ge D^{-S}$ we have
     \begin{equation}
         \label{old-small-boundary}
-        \mu(\{x \in I_3(y,k) \ : \ \rho(x, X \setminus I_3(y,k)) \leq t D^{k}\}) \le D t^\kappa \mu(I_3(y,k))\,.
+        \mu(\{x \in I_3(y,k) \ : \ \rho(x, X \setminus I_3(y,k)) \leq t D^{k}\}) \le 2 t^\kappa \mu(I_3(y,k))\,.
     \end{equation}
 \end{lemma}
 \begin{proof}
@@ -1472,7 +1476,7 @@ $$
 $$
 By \eqref{eq-n-size} and the definition \eqref{defineD} of $D$, this is bounded by
 $$
-    t^{1/(100a^2 K)} D \mu(I_3(y,k))\,,
+    2 t^{1/(100a^2 K)}  \mu(I_3(y,k))\,,
 $$
 which completes the proof by the definition \eqref{definekappa} of $\kappa$.
 \end{proof}
@@ -2264,7 +2268,7 @@ is contained in
  \end{equation*} we have
    $$
         \mu(X(\fu)) \le
-        D\cdot(12 D^{-Z(n+1)-1})^\kappa
+        2\cdot(12 D^{-Z(n+1)-1})^\kappa
         \mu(\scI(\mathfrak{u})).
     $$
 Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
@@ -2884,29 +2888,30 @@ We now turn to the proof of \Cref{forest-union}.
 \section{Proof of the Forest Complement Lemma}
 \label{subsecantichain}
 
-Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI(\fp) \not \subset G'$.
+Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(\scI(\fp) \cap (G \setminus  G')) > 0$.
 \begin{lemma}[antichain decomposition]
 \label{antichain-decomposition}
     We have that
     \begin{align}
         \label{eq-fp'-decomposition}
-        &\quad \fP_2 \cap \fP_{X \setminus G'}\\
-        &= \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{X \setminus G'} \\
-        &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \fL_2(k,n,j) \cap \fP_{X \setminus G'}\\
-        &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_1(k,n,j,l) \cap \fP_{X \setminus G'}\\
-        &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\cap \fP_{X \setminus G'}\,.
+        &\quad \fP_2 \cap \fP_{G \setminus G'}\\
+        &= \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{G \setminus G'} \\
+        &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \fL_2(k,n,j) \cap \fP_{G \setminus G'}\\
+        &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_1(k,n,j,l) \cap \fP_{G \setminus G'}\\
+        &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\cap \fP_{G \setminus G'}\,.
     \end{align}
 \end{lemma}
 % fixme(Georges Gonthier): the second sentence of this proof is not technically true
-% Can we restrict ourselves to a grid with only 1 top cube?
+
 % Or alternatively, redefine \MfP_{X \ G'} to be the p s.t. I(p) \cap (G \ G') has nonzero measure.
 
+% done as suggested in tex, changed \fP_{X \setminus G'} to \fP_{G \setminus G'}.
 \begin{proof}
-    Let $\fp \in \fP_2 \cap \fP_{X \setminus G'}$. Clearly, for every cube $J \in \mathcal{D}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
+    Let $\fp \in \fP_2 \cap \fP_{G \setminus G'}$. Clearly, for every cube $J = \sc(\fp)$ with $\fp \in \fP_{G \setminus G'}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
 
     Next, since $E_2(\lambda, \fp') \subset \scI(\fp')\cap G$ for every $\lambda \ge 2$ and every tile $\fp' \in \fP(k)$ with $\lambda\fp \lesssim \lambda \fp'$, it follows from \eqref{muhj2} that $\mu(E_2(\lambda, \fp')) \le 2^{-k} \mu(\scI(\fp'))$ for every such $\fp'$, so $\dens_k'(\{\fp\}) \le 2^{-k}$. Combining this with $a \ge 0$, it follows from \eqref{def-cnk} that there exists $n\ge k$ with $\fp \in \fC(k,n)$.
 
-    Since $\fp \in \fP_{X \setminus G'}$, we have in particular $\scI(\fp) \not \subset A(2n + 6, k, n)$, so there exist at most $1 + (4n + 12)2^n < 2^{2n+4}$ tiles $\mathfrak{m} \in \mathfrak{M}(k,n)$ with $\fp \le \mathfrak{m}$. It follows that $\fp \in \fL_0(k,n)$ or $\fp \in \fC_1(k,n,j)$ for some $1 \le j \le 2n + 3$. In the former case we are done, in the latter case the inclusion to be shown follows immediately from the definitions of the collections $\fC_i$ and $\fL_i$.
+    Since $\fp \in \fP_{G \setminus G'}$, we have in particular $\scI(\fp) \not \subset A(2n + 6, k, n)$, so there exist at most $1 + (4n + 12)2^n < 2^{2n+4}$ tiles $\mathfrak{m} \in \mathfrak{M}(k,n)$ with $\fp \le \mathfrak{m}$. It follows that $\fp \in \fL_0(k,n)$ or $\fp \in \fC_1(k,n,j)$ for some $1 \le j \le 2n + 3$. In the former case we are done, in the latter case the inclusion to be shown follows immediately from the definitions of the collections $\fC_i$ and $\fL_i$.
 \end{proof}
 
 \begin{lemma}[L0 antichain]
@@ -2932,14 +2937,15 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI
         |\mathfrak{O}| \le 2^{4a}\lambda^a\,.
     \end{equation}
     The balls $B_{\fp'}(\fcc(\fp''), 0.2)$, $\fp'' \in \mathfrak{O}$ are disjoint by \eqref{eq-freq-comp-ball},
-    and by the triangle inequality contained in $B_{\fp'}(\fcc(\fp'), \lambda+1)$.
-    % fixme(Georges Gonthier): \lambda+1 should be \lambda+1.2
+    and by the triangle inequality contained in $B_{\fp'}(\fcc(\fp'), \lambda+1.2)$.
     By assumption \eqref{thirddb} on $\Theta$, this ball can be covered with
     $$
-        2^{a(\lceil \log_2(\lambda+1)\rceil + 2)} \le 2^{a(\log_2(\lambda) + 4)} = 2^{4a}\lambda^a
-    $$  % Note(Georges Gonthier): this approximation still barely holds
-    many $d_{\fp'}$-balls of radius $1/4$.
-    % fixme(Georges Gonthier): 1/4 should be 1/5 (or something in between)
+        2^{a\lceil \log_2(\lambda+1.2) + \log_2(5)\rceil} \le 2^{a(\log_2(\lambda) + 4)} = 2^{4a}\lambda^a
+    $$  
+    many $d_{\fp'}$-balls of radius $0.2$. Here we have used that for $\lambda \ge 2$
+    $$
+        \lceil \log_2(\lambda + 1.2)  + \log_2(5) \rceil \le 1+ \log_2(1.6  \lambda) + \log_2(5) = 4 + \log_2(\lambda)\,.
+    $$
     By the triangle inequality, each such ball contains at most one $\fcc(\fp'')$, and each $\fcc(\fp'')$ is contained in one of the balls. Thus we get \eqref{eq-O-bound}.
 
     By \eqref{definee1} and \eqref{definee2} we have $E_2(\lambda, \fp') \subset \bigcup_{\fp'' \in \mathfrak{O}} E_1(\fp'')$, thus
@@ -2991,12 +2997,12 @@ Define $\fP_{X \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\scI
 We now turn to the proof of \Cref{forest-complement}.
 \begin{proof}[Proof of \Cref{forest-complement}]
     \proves{forest-complement}
-    If $\fp \not\in \fP_{X \setminus G'}$, then $\scI(\fp) \subset G'$. By \eqref{definetp} and \eqref{definee1}, it follows that
+    If $\fp \not\in \fP_{G \setminus G'}$, then $\mu(\scI(\fp) \cap (G \setminus G')) = 0$. By \eqref{definetp} and \eqref{definee1}, it follows that
     $\mathbf{1}_{G \setminus G'} T_{\fp}f(x) = 0$. We thus have
     $$
-        \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2} T_{\fp}f(x) = \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2 \cap \fP_{X \setminus G'}} T_{\fp}f(x)\,.
+        \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2} T_{\fp}f(x) = \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2 \cap \fP_{G \setminus G'}} T_{\fp}f(x)\,.
     $$
-    Let $\fL(k,n)$ denote any of the terms $\fL_i(k,n,j,l) \cap \fP_{X \setminus \fP_2}$ on the right hand side of \eqref{eq-fp'-decomposition}, where the indices $j, l$ may be void. Then $\fL(k,n)$ is an antichain, by Lemmas \ref{L0-antichain},\ref{L2-antichain}, \ref{L1-L3-antichain}. Further, we have
+    Let $\fL(k,n)$ denote any of the terms $\fL_i(k,n,j,l) \cap \fP_{G \setminus G'}$ on the right hand side of \eqref{eq-fp'-decomposition}, where the indices $j, l$ may be void. Then $\fL(k,n)$ is an antichain, by Lemmas \ref{L0-antichain},\ref{L2-antichain}, \ref{L1-L3-antichain}. Further, we have
     \begin{equation*}
     \dens_1(\fL(k,n)) \le 2^{4a+1 - n}
     \end{equation*}
@@ -3006,7 +3012,7 @@ We now turn to the proof of \Cref{forest-complement}.
      \end{equation*}
      since
      \begin{equation*}
-     \fL(k,n) \cap \fP_{F,G} \subset \fP_{X \setminus \fP_2} \cap \fP_{F, G} = \emptyset.
+     \fL(k,n) \cap \fP_{F,G} \subset \fP_{G \setminus G'} \cap \fP_{F, G} = \emptyset.
      \end{equation*}
 
     Applying now the triangle inequality according to the decomposition in \Cref{antichain-decomposition}, and then applying \Cref{antichain-operator} to each term, we obtain the estimate
@@ -4489,7 +4495,7 @@ Now we can bound the operators $S_{1, \fu}$.
     $$
         2^{9a} \int_X|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
-    Using Cauchy-Schwarz and \Cref{Hardy-Littlewood}we conclude
+    Using Cauchy-Schwarz and \Cref{Hardy-Littlewood}, we conclude
     $$
         \left|\int \bar g S_{1,\fu}f \, \mathrm{d}\mu \right| \le 2^{11a+1} \|g\|_2\|f\|_2\,.
     $$
