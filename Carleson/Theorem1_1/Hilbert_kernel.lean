@@ -18,11 +18,8 @@ lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
   simp
 
 @[measurability]
-lemma k_measurable : Measurable k := by
-  apply Measurable.div
-  . exact Complex.measurable_ofReal.comp'
-      ((measurable_const.sub measurable_norm).max measurable_const)
-  . measurability
+lemma k_measurable : Measurable k := Measurable.div (Complex.measurable_ofReal.comp'
+  ((measurable_const.sub measurable_norm).max measurable_const)) (by measurability)
 
 def K (x y : ℝ) : ℂ := k (x - y)
 --TODO: maybe change to
@@ -39,9 +36,8 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
         rw [K, k, norm_div]
         gcongr
         rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg]
-        . apply max_le _ zero_le_one
-          linarith [abs_nonneg (x-y)]
-        . apply le_max_right
+        . apply max_le _ zero_le_one; linarith [abs_nonneg (x-y)]
+        . exact le_max_right _ _
       _ ≤ 1 / (|x - y| / 2) := by
         gcongr
         . linarith
@@ -52,9 +48,7 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
           . simp
             calc |x - y|
               _ ≤ 1 := h.2.le
-              _ ≤ 2 * Real.pi - 1 := by
-                rw [le_sub_iff_add_le]
-                linarith [Real.two_le_pi]
+              _ ≤ 2 * Real.pi - 1 := by rw [le_sub_iff_add_le]; linarith [Real.two_le_pi]
               _ ≤ 2 * Real.pi + (x - y) := by
                 rw [sub_eq_add_neg]
                 gcongr
@@ -62,30 +56,20 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
           . calc x - y
               _ ≤ |x - y| := le_abs_self (x - y)
               _ ≤ 1 := h.2.le
-              _ ≤ 2 * Real.pi - 1 := by
-                rw [le_sub_iff_add_le]
-                linarith [Real.two_le_pi]
-              _ ≤ 2 * Real.pi - |x - y| := by
-                gcongr
-                exact h.2.le
-      _ = 2 / |x - y| := by
-        field_simp
-      _ ≤ (2 : ℝ) ^ (2 : ℝ) / (2 * |x - y|) := by
-        ring_nf
-        trivial
+              _ ≤ 2 * Real.pi - 1 := by rw [le_sub_iff_add_le]; linarith [Real.two_le_pi]
+              _ ≤ 2 * Real.pi - |x - y| := by gcongr; exact h.2.le
+      _ = 2 / |x - y| := by rw [one_div, inv_div]
+      _ ≤ (2 : ℝ) ^ (2 : ℝ) / (2 * |x - y|) := by ring_nf; trivial
   . push_neg at h
     have : ‖K x y‖ = 0 := by
       rw [norm_eq_zero, K, k, _root_.div_eq_zero_iff]
       by_cases xeqy : x = y
-      . right
-        simp [xeqy]
+      . simp [xeqy]
       . left
-        simp only [Complex.ofReal_eq_zero, max_eq_right_iff, tsub_le_iff_right, zero_add]
+        rw [Complex.ofReal_eq_zero, max_eq_right_iff, tsub_le_iff_right, zero_add]
         exact h (abs_pos.mpr (sub_ne_zero.mpr xeqy))
     rw [this]
-    apply div_nonneg
-    . norm_num
-    . linarith [abs_nonneg (x-y)]
+    exact div_nonneg (by norm_num) (by linarith [abs_nonneg (x-y)])
 
 /-TODO: to mathlib-/
 theorem Real.volume_uIoc {a b : ℝ} : MeasureTheory.volume (Set.uIoc a b) = ENNReal.ofReal |b - a| := by
@@ -120,14 +104,12 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
           simp only [Complex.norm_eq_abs, ge_iff_le]
           apply Complex.abs_im_le_abs
         _ = Real.sin t := by
-          simp [Complex.exp_im]
-          apply Real.sin_nonneg_of_nonneg_of_le_pi
-          . linarith
-          . linarith [Real.two_le_pi]
-        _ > 0 := by
-          apply Real.sin_pos_of_pos_of_lt_pi
-          . linarith
-          . linarith [Real.two_le_pi]
+          simp only [Complex.sub_im, Complex.one_im, Complex.exp_im, Complex.neg_re, Complex.mul_re,
+            Complex.I_re, Complex.ofReal_re, zero_mul, Complex.I_im, Complex.ofReal_im, mul_zero,
+            sub_self, neg_zero, Real.exp_zero, Complex.neg_im, Complex.mul_im, one_mul, zero_add,
+            Real.sin_neg, mul_neg, sub_neg_eq_add, abs_eq_self]
+          exact Real.sin_nonneg_of_nonneg_of_le_pi (by linarith) (by linarith [Real.two_le_pi])
+        _ > 0 := Real.sin_pos_of_pos_of_lt_pi (by linarith) (by linarith [Real.two_le_pi])
     have f_deriv : ∀ t ∈ Set.uIcc y' y, HasDerivAt f (f' t) t := by
       intro t ht
       have : f = fun t ↦ c t / d t := by simp
@@ -164,21 +146,10 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
       . exact d_nonzero ht
     have f'_cont : ContinuousOn (fun t ↦ f' t) (Set.uIcc y' y) := by
       apply ContinuousOn.div
-      . apply Continuous.continuousOn
-        continuity
-      . /-TODO: investigate why continuity tactic fails-/
-        apply Continuous.continuousOn
-        apply Continuous.pow
-        apply Continuous.sub
-        . apply continuous_const
-        . apply Continuous.cexp
-          apply Continuous.neg
-          apply Continuous.mul
-          . apply continuous_const
-          . apply Complex.continuous_ofReal
-      . intro t ht
-        simp
-        apply d_nonzero ht
+      . apply Continuous.continuousOn; fun_prop
+      . apply Continuous.continuousOn; fun_prop /-TODO: investigate why continuity tactic fails-/
+      . simp
+        exact fun _ ht ↦ d_nonzero ht
     calc ‖(1 - ↑y) / (1 - Complex.exp (-(Complex.I * ↑y))) - (1 - ↑y') / (1 - Complex.exp (-(Complex.I * ↑y')))‖
       _ = ‖f y - f y'‖ := by simp
       _ = ‖∫ (t : ℝ) in y'..y, f' t‖ := by
