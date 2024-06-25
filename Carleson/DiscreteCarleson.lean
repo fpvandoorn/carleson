@@ -15,7 +15,7 @@ variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ}
 /- The constant used in Proposition 2.0.2 -/
 def C2_0_2 (a : ℝ) (q : ℝ) : ℝ := 2 ^ (440 * a ^ 3) / (q - 1) ^ 5
 
-lemma C2_0_2_pos {a q : ℝ} : C2_0_2 a q > 0 := sorry
+lemma C2_0_2_pos [ProofData a q K σ₁ σ₂ F G] : C2_0_2 a q > 0 := sorry
 
 theorem discrete_carleson [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o] :
     ∃ G', Measurable G' ∧ 2 * volume G' ≤ volume G ∧
