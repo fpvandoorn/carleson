@@ -1,4 +1,5 @@
 import Carleson.DoublingMeasure
+import Carleson.WeakType
 
 open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
 open scoped ENNReal
@@ -211,27 +212,10 @@ Reference: https://arxiv.org/abs/math/9910039
 Lemma 3.6 - Lemma 3.9
 -/
 
-/-- This can be useful to say that `‖T‖ ≤ c`. -/
-def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
-    Prop :=
-  ∀ x, ‖T x‖ ≤ c * ‖x‖
-
-/-- An operator has strong type (p, q) if it is bounded as an operator on L^p → L^q.
-We write `HasStrongType T μ ν p p' c` to say that `T` has strong type (p, q) w.r.t. measures `μ`, `ν` and constant `c`.  -/
-def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
-    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
-
--- todo: define `HasWeakType`
-
-/-- A weaker version of `HasStrongType`, where we add additional assumptions on the function `f`.
-Note(F): I'm not sure if this is an equivalent characterization of having weak type (p, q) -/
-def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
-    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → snorm f ∞ μ < ∞ → μ (support f) < ∞ →
-  AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
+-- /-- This can be useful to say that `‖T‖ ≤ c`. -/
+-- def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
+--     Prop :=
+--   ∀ x, ‖T x‖ ≤ c * ‖x‖
 
 set_option linter.unusedVariables false in
 /-- The associated nontangential Calderon Zygmund operator `T_*` -/
@@ -279,7 +263,7 @@ class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → �
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   c : IsCancellative X (defaultτ a)
-  hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)
+  hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
   measurable_σ₁ : Measurable σ₁

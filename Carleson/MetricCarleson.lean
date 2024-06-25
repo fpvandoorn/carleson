@@ -1,5 +1,6 @@
 -- import Carleson.FinitaryCarleson
 import Carleson.Defs
+import Carleson.WeakType
 import Mathlib.Tactic.Positivity.Basic
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
@@ -132,7 +133,7 @@ theorem metric_carleson [CompatibleFunctions ℝ X (2 ^ a)]
   [IsCancellative X (2 ^ a)] [IsCZKernel a K]
     (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (hT : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a))
+    (hT : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a))
     (f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, CarlesonOperator K f x ≤
     ENNReal.ofReal (C1_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
