@@ -146,6 +146,8 @@ Our main result is the following restricted weak type estimate for $T$ in the ra
 $1<q<2$.
 \begin{theorem}[metric space Carleson]
 \label{metric-space-Carleson}
+\leanok
+\lean{metric_carleson}
 \uses{R-truncation}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$
     the following holds.
@@ -161,7 +163,7 @@ $1<q<2$.
     $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
     \begin{equation}
     \label{resweak}
-        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
         \end{equation}
 \end{theorem}
 
@@ -264,7 +266,7 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
 \end{equation*}
 \begin{equation}
     \label{eq-linearized}
-    \le \frac{2^{440a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}}
+    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}}
      \mu(F)^{\frac 1 q}\,.
 \end{equation}
 \end{proposition}
@@ -301,7 +303,7 @@ There exists a $I_0 \in \mathcal{D}$ with $s(I_0) = S$ and $c(I_0) = o$
 %\begin{equation}\label{coverball}
 %    B(o, \frac{1}{4} D^{S}) \subset I\,,
 %\end{equation}
-and for all cubes $J \in \mathcal{D}$, we have 
+and for all cubes $J \in \mathcal{D}$, we have
 \begin{equation}\label{subsetmaxcube}
     J \subset I_0\,.
 \end{equation}
@@ -314,23 +316,9 @@ For any dyadic cube $I$,
 For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 \begin{equation}
     \label{eq-small-boundary}
-    % fixme(Georges Gonthier): (not necessary) The D in the RHS can be replaced by 2.
-    % We can do the same in the statement and proof of {boundary-measure}.
-    % Done in Tex, ToDo: Change in Lean.
     \mu(\{x \in I \ : \ \rho(x, X \setminus I) \leq t D^{s(I)}\}) \le 2 t^\kappa \mu(I)\,.
 \end{equation}
 
-
-
-
-
-% fixme (simplification):
-% We can make \mathcal(Q) take values Q(X), and still cover all of Q(X).
-% We can do this by making \mathcal{Z} a subset of Q(X) satisfying 4.2.2.
-% This would remove the need for Lemma 2.1.1 for the definition of \mathcal{Z} in Section 4.2, since it will be automatically finite, since Q(X) is finite.
-% This condition is already implicitly used in the proof of Lemma 6.1.6 when using (2.0.13)
-
-%Done in tex
 
 
 A tile structure $(\fP,\scI,\fc,\fcc,\pc,\ps)$
@@ -657,7 +645,7 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
 \begin{lemma}[monotone cube metrics]
     \label{monotone-cube-metrics}
     \leanok
-    \lean{��.dist_mono, ��.dist_strictMono}
+    \lean{𝓓.dist_mono, 𝓓.dist_strictMono} % Overleaf might scramble these characters (`\MCD`)
     Let $(\mathcal{D}, c, s)$ be a grid structure. Denote for cubes $I \in \mathcal{D}$
     $$
         I^\circ := B(c(I), \frac{1}{4} D^{s(I)})\,.
@@ -779,7 +767,7 @@ has finite distance from $o$.
         \left| T_{R_1,R_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
     $$
     \begin{equation} \label{Rcut}
-        \leq \frac{2^{450a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+        \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     where
     \begin{equation}\label{TRR}
@@ -818,7 +806,7 @@ We apply the triangle inequality and estimate the versions of \eqref{Rcut} separ
         \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
     $$
     \begin{equation} \label{Scut}
-        \leq \frac{2^{446a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
+        \leq \frac{2^{446a^3}}{(q-1)^6} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     where $T_{1, s_1,s_2,\mfa}$ is defined in \eqref{middles}.
 \end{lemma}
@@ -849,7 +837,7 @@ It remains to prove \Cref{S-truncation}. Fix $S>0$.
         \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
     $$
     \begin{equation} \label{Sqcut}
-    \leq \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+    \leq \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
 
@@ -907,7 +895,7 @@ By H\"older's inequality and \Cref{Hardy-Littlewood}
 \end{align*}
 Combining this with \Cref{finitary-S-truncation} and the fact that
 \begin{align*}
-    \frac{2^{102 a^3+4a}q}{q-1}\leq \frac{2^{445a^3}}{(q-1)^5}
+    \frac{2^{102 a^3+4a}q}{q-1}\leq \frac{2^{445a^3}}{(q-1)^6}
 \end{align*}
 proves \Cref{S-truncation}.
 
@@ -923,7 +911,7 @@ $\tilde{\Mf}$.
     \begin{equation} \label{Sqlin}
         \int \mathbf{1}_{G}(x)
         \left| {T}_{2,\sigma_1,\sigma_2,\tQ}\mathbf{1}_F(x)\right|\, d\mu(x)
-        \le \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+        \le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     with
     \begin{equation}\label{middles1}
@@ -973,13 +961,13 @@ for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
     \left| {T}_{2,\sigma_1,\sigma_2, \tQ} \mathbf{1}_{F}(x) \right|\, d\mu(x)
 \end{equation*}
 \begin{equation}
-    \le \frac{2^{440a^3}}{(q-1)^4} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
 \end{equation}
 Adding the first $n$ of these inequalities, we obtain by bounding a geometric series
     \begin{equation} \label{Sqcut2}
     \int \mathbf{1}_{G\setminus G_{n}}(x)
 \left| {T}_{2,\sigma_1,\sigma_2, \tQ}\mathbf{1}_F(x) \right|\, d\mu(x)
-\le \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
+\le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 As the integrand is bounded by
 \begin{equation}\mathbf{1}_{G\setminus G_{n}}(x)
@@ -990,7 +978,7 @@ which by interchange of summation and integration is seen to be integrable, we o
  \begin{equation} \label{Sqcut3}
     \int \mathbf{1}_{G}(x)
 \left| {T}_{2,\sigma_1,\sigma_2, \tQ}\mathbf{1}_F(x) \right|\, d\mu(x)
-\le \frac{2^{445a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
+\le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 
 
@@ -1088,7 +1076,7 @@ We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \end{equation}
 \begin{equation}
  =\int_{G \setminus G'} \left|\sum_{\fp\in \fP}T_{\fp} f(x)\right| \mathrm{d}\mu(x)
- \le \frac{2^{440a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
+ \le \frac{2^{440a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
 \end{equation}
 This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and thus completes the proof of Proposition
 \ref{finitary-Carleson}.
@@ -1496,10 +1484,10 @@ We define $\mathcal{D}$ to be the set of all $I \in \tilde{\mathcal{D}}$ such th
 We first show that $(\tilde{\mathcal{D}},c,s)$ satisfies properties \eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{eq-vol-sp-cube} and \eqref{eq-small-boundary}. Property \eqref{eq-vol-sp-cube}
 follows from \eqref{squeezedyadic}, while \eqref{eq-small-boundary} follows from \Cref{boundary-measure}.
 
-Let $x\in B(o, D^S)$. 
+Let $x\in B(o, D^S)$.
 We show properties
 \eqref{coverdyadic} and
-\eqref{dyadicproperty} 
+\eqref{dyadicproperty}
 for $(\tilde{\mathcal{D}},c,s)$ and $x$.
 
 We first show \eqref{coverdyadic} for $(\tilde{\mathcal{D}},c,s)$ by contradiction. Then there is an $I$ violating the conclusion of
@@ -1521,7 +1509,7 @@ of $J$, and pairwise disjointedness of all $I_3(w,s(J)-1)$ that we have already 
 we have $K\subset J$. By minimality of $s(J)$, we have $I\subset K$.
 This proves $I\subset J$ and thus \eqref{dyadicproperty}.
 
-Now note that properties \eqref{dyadicproperty}, \eqref{eq-vol-sp-cube} and \eqref{eq-small-boundary} immediately carry over to $(\mathcal{D},c, s)$ by restriction. \eqref{subsetmaxcube} is true for $(\mathcal{D}, c, s)$ by definition, and \eqref{coverdyadic} follows from \eqref{coverdyadic} and \eqref{dyadicproperty} for $(\tilde{\mathcal{D}}, c, s)$. 
+Now note that properties \eqref{dyadicproperty}, \eqref{eq-vol-sp-cube} and \eqref{eq-small-boundary} immediately carry over to $(\mathcal{D},c, s)$ by restriction. \eqref{subsetmaxcube} is true for $(\mathcal{D}, c, s)$ by definition, and \eqref{coverdyadic} follows from \eqref{coverdyadic} and \eqref{dyadicproperty} for $(\tilde{\mathcal{D}}, c, s)$.
 \end{proof}
 
 \section{Proof of Tile Structure Lemma}
@@ -2901,11 +2889,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\cap \fP_{G \setminus G'}\,.
     \end{align}
 \end{lemma}
-% fixme(Georges Gonthier): the second sentence of this proof is not technically true
 
-% Or alternatively, redefine \MfP_{X \ G'} to be the p s.t. I(p) \cap (G \ G') has nonzero measure.
-
-% done as suggested in tex, changed \fP_{X \setminus G'} to \fP_{G \setminus G'}.
 \begin{proof}
     Let $\fp \in \fP_2 \cap \fP_{G \setminus G'}$. Clearly, for every cube $J = \sc(\fp)$ with $\fp \in \fP_{G \setminus G'}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
 
@@ -2941,7 +2925,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
     By assumption \eqref{thirddb} on $\Theta$, this ball can be covered with
     $$
         2^{a\lceil \log_2(\lambda+1.2) + \log_2(5)\rceil} \le 2^{a(\log_2(\lambda) + 4)} = 2^{4a}\lambda^a
-    $$  
+    $$
     many $d_{\fp'}$-balls of radius $0.2$. Here we have used that for $\lambda \ge 2$
     $$
         \lceil \log_2(\lambda + 1.2)  + \log_2(5) \rceil \le 1+ \log_2(1.6  \lambda) + \log_2(5) = 4 + \log_2(\lambda)\,.
@@ -3368,7 +3352,7 @@ The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
 \end{lemma}
 
 The following lemma will be proved in \Cref{subsec-geolem}.
-\begin{lemma}[antichain tile count] 
+\begin{lemma}[antichain tile count]
     \label{antichain-tile-count}
     \uses{global-antichain-density}
     Set $p:=4a^4$ and let $p'$ be the dual exponent of $p$, that is $1/p+1/p'=1$.

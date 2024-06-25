@@ -315,8 +315,8 @@ end ProofData
 class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
     (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X]
     extends PreProofData a q K σ₁ σ₂ F G where
-  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X)
-  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X)
+  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
+  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
 
 
 namespace ShortVariables

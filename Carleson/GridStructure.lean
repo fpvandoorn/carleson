@@ -37,7 +37,7 @@ class GridStructure
   ball_subset_𝓓 {i} : ball (c i) (D ^ s i / 4) ⊆ coe𝓓 i --2.0.10
   𝓓_subset_ball {i} : coe𝓓 i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ coe𝓓 i | infDist x (coe𝓓 i)ᶜ ≤ t * D ^ s i } ≤ D * t ^ κ * volume.real (coe𝓓 i)
+    volume.real { x ∈ coe𝓓 i | infDist x (coe𝓓 i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coe𝓓 i)
 
 export GridStructure (range_s_subset 𝓓_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary
   topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
