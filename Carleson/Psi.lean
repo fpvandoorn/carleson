@@ -36,6 +36,10 @@ lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
   rw [Real.lt_logb_iff_rpow_lt hD (by positivity), Real.logb_lt_iff_lt_rpow hD (by positivity)]
   simp [div_eq_mul_inv, mul_comm]
 
+lemma psi_zero : ψ D 0 = 0 := by
+  simp only [ψ, mul_zero, zero_sub, sub_zero, ge_iff_le, min_le_iff, neg_le_self_iff, zero_le_one,
+    Nat.not_ofNat_le_one, or_false, min_eq_right, Left.neg_nonpos_iff, true_or, max_eq_left]
+
 lemma psi_ne_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
     ψ D (D ^ s * x) ≠ 0 ↔ s ∈ nonzeroS D x := by
   rw [← mem_support, support_ψ, mem_nonzeroS_iff hx hD]
@@ -55,6 +59,9 @@ variable {s : ℤ} {x y : X}
 @[nolint unusedArguments]
 def Ks [ProofData a q K σ₁ σ₂ F G] (s : ℤ) (x y : X) : ℂ :=
   K x y * ψ (D ^ s * dist x y)
+
+lemma Ks_def [ProofData a q K σ₁ σ₂ F G] (s : ℤ) (x y : X) :
+  Ks s x y = K x y * ψ (D ^ s * dist x y) := rfl
 
 lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < D) (h : 0 < dist x y) :
     ∑ i in t, Ks i x y = K x y := by

@@ -5,6 +5,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.MeasureTheory.Integral.Average
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Doubling
+import Mathlib.MeasureTheory.Constructions.Polish
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
@@ -30,13 +31,23 @@ export DoublingMeasure (volume_ball_two_le_same)
 variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 
-example : ProperSpace X := by infer_instance
-example : LocallyCompactSpace X := by infer_instance
-example : CompleteSpace X := by infer_instance
-example : SigmaCompactSpace X := by infer_instance
-example : SigmaFinite (volume : Measure X) := by infer_instance
-example : SecondCountableTopology X := by infer_instance
-example : SeparableSpace X := by infer_instance
+-- the following classes hold
+#synth ProperSpace X
+#synth LocallyCompactSpace X
+#synth CompleteSpace X
+#synth SigmaCompactSpace X
+#synth SigmaFinite (volume : Measure X)
+#synth SecondCountableTopology X
+#synth SeparableSpace X
+
+
+section MetricSpace
+variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
+-- Moreover, the following classes hold if we assume that `Y` is a metric space
+#synth T4Space Y
+#synth PolishSpace Y
+#synth MeasurableSingletonClass Y
+end MetricSpace
 
 lemma coe_volume_ball_pos_of_pos_radius (x :X) {r : ℝ} (hr : 0 < r) : 0 < volume.real (ball x r) := by
   have volume_pos : 0 < volume (ball x r) := by exact measure_ball_pos volume x hr
@@ -96,7 +107,7 @@ def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
 
 lemma volume_ball_four_le_same (x : X) (r : ℝ) :
     volume.real (ball x (4 * r)) ≤ A ^ 2 * volume.real (ball x r) := by
-  letI : Nonempty X := ⟨x⟩
+  have : Nonempty X := ⟨x⟩
   calc volume.real (ball x (4 * r))
       = volume.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * volume.real (ball x (2 * r)) := by apply volume_ball_two_le_same
@@ -112,6 +123,7 @@ attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
 
 lemma volume_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
     volume.real (ball x (2 ^ n * r)) ≤ A ^ n * volume.real (ball x r) := by
+  have : Nonempty X := ⟨x⟩
   induction n
   case zero =>
     simp

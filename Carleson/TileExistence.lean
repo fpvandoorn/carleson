@@ -430,6 +430,8 @@ lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ba
 
 
 /-! Proof that there exists a grid structure. -/
+-- Note: we might want to slightly adapt the construction so that there is only 1 tile at level S
+-- with center `o` (then we might not cover all of `ball o (D ^ S)`, but most of it)
 def grid_existence : GridStructure X D κ S o :=
   sorry
 
@@ -439,6 +441,9 @@ variable [GridStructure X D κ S o] {I : 𝓓 X}
 
 
 /-- Use Zorn's lemma to define this. -/
+-- Note: we might want to adapt the construction so that 𝓩 is a subset of `range Q`.
+-- We only need to cover `range Q`, not all the balls of radius 1 around it. If that works, that
+-- should simplify it, and might mean that we don't need Lemma 2.1.1 here.
 def 𝓩 (I : 𝓓 X) : Set (Θ X) := sorry
 
 /-- The constant appearing in 4.2.2. -/
@@ -448,6 +453,9 @@ lemma 𝓩_subset : 𝓩 I ⊆ ⋃ f ∈ range Q, ball_{I} f 1 := sorry
 lemma 𝓩_disj {f g : Θ X} (hf : f ∈ 𝓩 I) (hg : g ∈ 𝓩 I) (hfg : f ≠ g) :
     Disjoint (ball_{I} f C𝓩) (ball_{I} g C𝓩) :=
   sorry
+
+lemma 𝓩_disj' : (𝓩 I).PairwiseDisjoint (ball_{I} · C𝓩) := fun _ hf _ hg => 𝓩_disj hf hg
+
 lemma 𝓩_finite : (𝓩 I).Finite := sorry
 lemma card_𝓩_le :
     Nat.card (𝓩 I) ≤ (2 : ℝ) ^ (2 * a) * Nat.card (range (Q : X → Θ X)) := sorry
@@ -472,7 +480,33 @@ instance : Inhabited (𝓩 I) := sorry
 def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
 lemma frequency_ball_cover :
-  ⋃ x : X, ball_{I} (Q x) 1 ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := sorry
+    ⋃ x : X, ball_{I} (Q x) 1 ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
+  intro θ hθ
+  have : ∃ z, z ∈ 𝓩 I ∧ ¬ Disjoint (ball_{I} z C𝓩) (ball_{I} θ C𝓩) := by
+    by_contra! h
+    have hθ' : θ ∉ 𝓩 I := by
+      intro hθ'
+      have := h _ hθ'
+      simp only [C𝓩, disjoint_self, bot_eq_empty, ball_eq_empty] at this
+      norm_num at this
+    let 𝓩' := insert θ (𝓩 I)
+    have h𝓩' : 𝓩' ⊆ ⋃ f ∈ range Q, ball_{I} f 1 := by
+      rw [insert_subset_iff]
+      exact ⟨by simpa using hθ, 𝓩_subset⟩
+    have h2𝓩' : 𝓩'.PairwiseDisjoint (ball_{I} · C𝓩) := by
+      rw [pairwiseDisjoint_insert_of_not_mem hθ']
+      refine ⟨𝓩_disj', ?_⟩
+      intro j hj
+      exact (h j hj).symm
+    have := maximal_𝓩 h𝓩' (fun hf hg => h2𝓩' hf hg)
+    simp only [subset_insert, true_implies, 𝓩'] at this
+    rw [eq_comm, insert_eq_self] at this
+    exact hθ' this
+  obtain ⟨z, hz, hz'⟩ := this
+  rw [Set.not_disjoint_iff] at hz'
+  obtain ⟨z', h₁z', h₂z'⟩ := hz'
+  simp only [mem_iUnion, mem_ball, exists_prop, C𝓩, C4_2_1] at h₁z' h₂z' ⊢
+  exact ⟨z, hz, by linarith [dist_triangle_left θ z z']⟩
 
 local instance tileData_existence [GridStructure X D κ S o] :
     PreTileStructure D κ S o where

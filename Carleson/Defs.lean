@@ -346,7 +346,7 @@ end ShortVariables
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]
@@ -356,20 +356,60 @@ def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ
 
 /-! Lemma 2.1.1 -/
 
--- Note: See also/prove card_le_of_le_dist in DoublingMeasure.
-lemma Θ.mk_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
-    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
-    Cardinal.mk 𝓩 ≤ 2 ^ (k * ⌊a⌋₊) := sorry
+def C2_1_1 (k : ℕ) (a : ℝ) : ℕ := 2 ^ (k * ⌈a⌉₊) -- todo: fix in blueprint
 
--- the following two lemma should follow easily from `mk_le_of_le_dist`.
-
-lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
-    Nat.card 𝓩 ≤ 2 ^ (k * ⌊a⌋₊) := sorry
+    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
+    𝓩.Finite ∧ Cardinal.mk 𝓩 ≤ C2_1_1 k a := by
+  have pmul := (BallsCoverBalls.pow_mul (k := k) (r := r) fun r ↦
+    CompatibleFunctions.ballsCoverBalls (x := x₀) (r := R) (R := r)) f
+  rw [mul_comm, coveredByBalls_iff] at pmul
+  obtain ⟨𝓩', c𝓩', u𝓩'⟩ := pmul
+  classical
+    let g : Θ X → Finset (Θ X) := fun z ↦ 𝓩'.filter (z ∈ ball_{x₀, R} · r)
+    have g_pd : 𝓩.PairwiseDisjoint g := fun z hz z' hz' hne ↦ by
+      refine Finset.disjoint_filter.mpr fun c _ mz mz' ↦ ?_
+      rw [mem_ball_comm (α := WithFunctionDistance x₀ R)] at mz mz'
+      exact Set.disjoint_left.mp (h2𝓩 hz hz' hne) mz mz'
+  have g_ne : ∀ z, z ∈ 𝓩 → (g z).Nonempty := fun z hz ↦ by
+    obtain ⟨c, hc⟩ := mem_iUnion.mp <| mem_of_mem_of_subset hz (h𝓩.trans u𝓩')
+    simp only [mem_iUnion, exists_prop] at hc
+    use c; simpa only [g, Finset.mem_filter]
+  have g_injOn : 𝓩.InjOn g := fun z hz z' hz' e ↦ by
+    have : z ≠ z' → Disjoint (g z) (g z') := g_pd hz hz'
+    rw [← e, Finset.disjoint_self_iff_empty] at this
+    exact not_ne_iff.mp <| this.mt <| Finset.nonempty_iff_ne_empty.mp (g_ne z hz)
+  have g_subset : g '' 𝓩 ⊆ 𝓩'.powerset.toSet := fun gz hgz ↦ by
+    rw [mem_image] at hgz
+    obtain ⟨z, hz⟩ := hgz
+    simp_rw [Finset.coe_powerset, mem_preimage, mem_powerset_iff, Finset.coe_subset, ← hz.2, g,
+      Finset.filter_subset]
+  have f𝓩 : (g '' 𝓩).Finite := Finite.subset 𝓩'.powerset.finite_toSet g_subset
+  rw [Set.finite_image_iff g_injOn] at f𝓩
+  refine ⟨f𝓩, ?_⟩
+  lift 𝓩 to Finset (Θ X) using f𝓩
+  simp_rw [Cardinal.mk_fintype, Finset.coe_sort_coe, Fintype.card_coe]
+  norm_cast
+  classical calc
+    _ = ∑ _ ∈ 𝓩, 1 := by simp
+    _ ≤ ∑ u ∈ 𝓩, (g u).card := Finset.sum_le_sum fun z hz ↦ Finset.card_pos.mpr (g_ne z hz)
+    _ = (𝓩.biUnion g).card := (Finset.card_biUnion (fun z hz z' hz' ↦ g_pd hz hz')).symm
+    _ ≤ 𝓩'.card := by
+      refine Finset.card_le_card fun _ h ↦ ?_
+      rw [Finset.mem_biUnion] at h
+      exact Finset.mem_of_subset (by simp [g]) h.choose_spec.2
+    _ ≤ ⌊2 ^ a⌋₊ ^ k := c𝓩'
+    _ ≤ _ := by
+      rw [C2_1_1, mul_comm, pow_mul]
+      apply pow_le_pow_left'
+      exact_mod_cast (Nat.floor_le (by positivity)).trans
+        (Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil a))
 
-lemma Θ.finite_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
-    𝓩.Finite := sorry
+    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
+    Nat.card 𝓩 ≤ C2_1_1 k a := by
+  obtain ⟨f𝓩, c𝓩⟩ := finite_and_mk_le_of_le_dist h𝓩 h2𝓩
+  lift 𝓩 to Finset (Θ X) using f𝓩
+  simpa using c𝓩

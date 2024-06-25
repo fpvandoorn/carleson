@@ -10,7 +10,7 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X]
+  [MetricSpace X]
 
 /- The constant used in Proposition 2.0.2 -/
 def C2_0_2 (a : ℝ) (q : ℝ) : ℝ := 2 ^ (440 * a ^ 3) / (q - 1) ^ 4
