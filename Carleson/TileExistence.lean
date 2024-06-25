@@ -8,7 +8,7 @@ open scoped NNReal ENNReal ComplexConjugate
 
 namespace ShortVariables
 set_option hygiene false
-notation "D'" => (Real.toNNReal D)
+scoped notation "D'" => (Real.toNNReal D)
 
 end ShortVariables
 
@@ -17,92 +17,6 @@ noncomputable section
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-
-lemma ball_size_induction (r:ℝ) (x:X) (j : ℕ) :
-    volume.real (ball x (2^j*r)) ≤ 2^(j*a) * volume.real (ball x r) := by
-  induction j with
-    | zero => rw [CharP.cast_eq_zero,zero_mul,pow_zero,Real.rpow_zero,one_mul,one_mul]
-    | succ j' hj' =>
-      calc
-        volume.real (ball x (2 ^ (j' + 1) * r))
-          = volume.real (ball x (2 * (2^j' * r))) := by
-            rw [pow_add,pow_one,mul_comm _ 2,mul_assoc]
-        _ ≤ 2 ^ a * volume.real (ball x (2^j' * r)) := by
-          exact volume_ball_two_le_same x (2 ^ j' * r)
-        _ ≤ 2 ^ a * (2 ^ (j' * a) * volume.real (ball x r)) := by
-          apply OrderedSemiring.mul_le_mul_of_nonneg_left
-          . exact hj'
-          . apply Real.rpow_nonneg
-            linarith
-        _ = 2 ^ (↑(j' + 1) * a) * volume.real (ball x r) := by
-          rw [Nat.cast_add, Nat.cast_one,right_distrib,one_mul,add_comm,
-            Real.rpow_add (by linarith),mul_assoc]
-
-section
-
--- #synth CompatibleFunctions ℝ X _
--- #synth Nonempty X -- should probably exist
-variable (X) in
-local instance nonempty_Space : Nonempty X := by
-  obtain ⟨x,_⟩ := ‹ProofData a q K σ₁ σ₂ F G›.cf.eq_zero
-  use x
-end
-
-
-lemma volume_closedBall_finite (r : ℝ) (x : X) : volume (closedBall x r) < ⊤ := by
-  exact measure_closedBall_lt_top
-
-lemma volume_ball_finite (r : ℝ) (x : X) : volume (ball x r) < ⊤ := by
-  exact measure_ball_lt_top
-
-lemma volume_ntrivial_closedball_pos (r : ℝ) (hr: 0 < r) (x : X) : 0 < volume (closedBall x r) := by
-  exact measure_closedBall_pos volume x hr
-
--- lemma finite_disjoint_balls (r r2 : ℝ) (hr2 : 0 < r2) (x : X) (Y : Set X) (hY : Y ⊆ ball x r)
---     (hdisjoint : Y.PairwiseDisjoint (fun y ↦ ball y r2)): Y.Finite := by
---   sorry
-
--- lemma D_eq_two_pow : D = 2 ^ (100 * a ^ 2) := by
---   simp only [defaultD]
-
-
-example (a b c : NNReal) (hapos : 0 < a) (hle : a * b ≤ a * c) : b ≤ c := by
-  exact le_of_mul_le_mul_of_pos_left hle hapos
-
-lemma le_of_mul_le_mul_of_finpos_left {a b c : ENNReal} (hapos : 0 < a) (hafin : a < ⊤) (hle : a * b ≤ a * c): b ≤ c := by
-  refine ENNReal.le_of_top_imp_top_of_toNNReal_le ?h ?h_nnreal
-  . intro hb
-    rw [hb] at hle
-    rw [ENNReal.mul_top hapos.ne.symm] at hle
-    simp only [top_le_iff] at hle
-    rw [ENNReal.mul_eq_top] at hle
-    obtain l|r := hle
-    . exact l.right
-    . obtain r := r.left
-      rw [r] at hafin
-      contradiction
-  intro hb hc
-  have hapos' : (0 < a.toNNReal) := by
-    exact ENNReal.toNNReal_pos_iff.mpr (And.intro hapos hafin)
-  apply le_of_mul_le_mul_of_pos_left _ hapos'
-  rw [← ENNReal.toNNReal_mul,← ENNReal.toNNReal_mul]
-  rw [ENNReal.toNNReal_le_toNNReal]
-  . exact hle
-  . obtain hanetop := hafin.ne
-    exact ENNReal.mul_ne_top hanetop hb
-  . obtain hanetop := hafin.ne
-    exact ENNReal.mul_ne_top hanetop hc
-
--- example (g : ℝ ) (z : ℤ) : g ^ z = g ^(z : ℝ) := by exact?
-
-lemma D_ge_one : 1 ≤ D := by
-  rw [← Real.rpow_zero 2]
-  dsimp
-  apply Real.rpow_le_rpow_of_exponent_le (by linarith)
-  simp only [gt_iff_lt, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
-  exact sq_nonneg a
-
--- lemma D_pos : 0 < D := by exact defaultD_pos a
 
 -- this still holds for more general parameters
 lemma ball_bound (k : ℝ) (hk_lower : -S ≤ k) {Y : Set X} (hY : Y ⊆ ball o (4*D^S-D^k))
@@ -132,63 +46,10 @@ lemma ball_bound (k : ℝ) (hk_lower : -S ≤ k) {Y : Set X} (hY : Y ⊆ ball o 
       rw [two_mul,add_assoc]
       simp only [le_add_iff_nonneg_right]
       rw [← sub_self (↑S),sub_eq_add_neg]
-      apply add_le_add_left hk_lower
+      exact add_le_add_left hk_lower _
 
 section
 
-lemma tsum_le_tsum_of_nonneg {ι : Type*} (f : ι → ℝ) (g : ι → ℝ)
-    (hf : ∀ i, 0 ≤ f i) (hfg : ∀ i, f i ≤ g i)
-    (hg : Summable g) :
-    ∑' (n : ι), f n ≤ ∑' (n : ι), g n := by
-  have : Summable f := by
-    apply hg.of_nonneg_of_le hf hfg
-  apply tsum_mono this hg
-  exact hfg
-
--- #synth MeasurableSingletonClass X
-
-def dist_closure (Y :Set X) : Set X := ⋃ y ∈ Y, closedBall y 0
-
-@[simp]
-lemma mem_dist_closure_iff (Y : Set X) (x : X) : x ∈ dist_closure Y ↔ ∃ y ∈ Y, dist x y = 0 := by
-  dsimp only [dist_closure]
-  simp only [mem_iUnion, mem_closedBall, exists_prop]
-  apply exists_congr
-  intro y
-  simp only [and_congr_right_iff]
-  intro _
-  constructor
-  . intro hxy
-    apply le_antisymm hxy dist_nonneg
-  . intro hxy
-    exact hxy.le
-
-lemma subset_dist_closure (Y : Set X) : Y ⊆ dist_closure Y := by
-  intro y hy
-  rw [mem_dist_closure_iff]
-  use y, hy
-  exact dist_self y
-
-
-lemma dist_closure_le_ball_of_le_ball {x: X} {r : ℝ} {Y : Set X} (hY : Y ⊆ ball x r) :
-  dist_closure Y ⊆ ball x r := by
-  intro z hz
-  simp only [mem_dist_closure_iff] at hz
-  obtain ⟨y,hy,hyz⟩ := hz
-  specialize hY hy
-  simp only [mem_ball] at hY ⊢
-  calc
-    dist z x  ≤ dist z y + dist y x := dist_triangle z y x
-    _ = dist y x := by rw [hyz,zero_add]
-    _ < r := hY
-
-
-lemma dist_closure_isClosed_of_fin {Y : Set X} (hY: Y.Finite) : IsClosed (dist_closure Y) := by
-  exact Finite.isClosed_biUnion hY (fun y _ => isClosed_ball)
-
--- lemma dist_closure_le_closedBall_of_le_closedBall (x:X) (r : ℝ) (y : Set Y) (hy : )
-lemma dist_closure_measurable_of_fin {Y : Set X} (hY : Y.Finite) : MeasurableSet (dist_closure Y) := by
-  exact (dist_closure_isClosed_of_fin hY).measurableSet
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
@@ -265,13 +126,12 @@ lemma twopow_J' : ((2 : ℝ≥0) ^ J' X : ℝ≥0) = 8 * D' ^ (2 * S) := by
   . norm_num
   norm_num
 
-
--- example (k : ℝ) (y : X) : volume (ball y (8 * D ^(2 * S) * D^k)) ≤ (8 * D'^(2 * S)) ^ a
+variable (X) in
+def C4_1_1 := As (2 ^ a) (2 ^ J' X)
 
 lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ ball o (4*D^S-D^k))
     (hYdisjoint: Y.PairwiseDisjoint (fun y ↦ ball y (D^k))) :
-    (Set.encard Y).toENNReal ≤ (As (2 ^ a) (2 ^ J' X)) := by
-  letI := nonempty_Space X
+    (Set.encard Y).toENNReal ≤ C4_1_1 X := by
   suffices (Set.encard Y).toENNReal * volume (ball o (4 * D^S)) ≤ (As (2 ^ a) (2 ^ J' X)) * volume (ball o (4 * D^S)) by
     have volume_pos : 0 < volume (ball o (4 * D^S)) := by
       apply measure_ball_pos volume o
@@ -280,8 +140,8 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
       apply Real.rpow_pos_of_pos
       linarith
     have volume_finite : volume (ball o (4 * D^S)) < ⊤ :=
-      volume_ball_finite (4 * D ^ S) o
-    apply le_of_mul_le_mul_of_finpos_left volume_pos volume_finite
+      measure_ball_lt_top
+    rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne]
     rw [mul_comm,mul_comm (volume _)]
     exact this
   have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := by

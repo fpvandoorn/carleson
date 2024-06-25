@@ -141,6 +141,10 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ
   ballsCoverBalls {x : X} {r R : ℝ} :
     BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R ⌊A⌋₊
 
+instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
+  obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
+  use x
+
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
 variable (X) in
@@ -347,6 +351,13 @@ end ShortVariables
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+lemma D_ge_one : 1 ≤ D := by
+  rw [← Real.rpow_zero 2]
+  dsimp
+  apply Real.rpow_le_rpow_of_exponent_le (by linarith)
+  simp only [gt_iff_lt, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
+  exact sq_nonneg a
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]
