@@ -1,6 +1,5 @@
 -- import Carleson.FinitaryCarleson
 import Carleson.Defs
-import Carleson.WeakType
 import Mathlib.Tactic.Positivity.Basic
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
