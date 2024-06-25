@@ -70,18 +70,52 @@ lemma fourier_periodic {n : ℤ} : Function.Periodic (fun (x : ℝ) ↦ fourier 
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic (partialFourierSum f N) (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
---TODO: generalize
-lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hp : Function.Periodic f T) (hc : Continuous f) : UniformContinuous f := by
+/-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
+theorem Function.Periodic.exists_mem_Ico₀' {α : Type} {β : Type} {f : α → β} {c : α}
+  [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x : α) : ∃ (n : ℤ), (x - n • c) ∈ Set.Ico 0 c ∧ f x = f (x - n • c) :=
+  let ⟨n, H, _⟩ := existsUnique_zsmul_near_of_pos' hc x
+  ⟨n, H, (h.sub_zsmul_eq n).symm⟩
+
+
+--TODO: maybe generalize to (hc : ContinuousOn f (Set.Icc 0 T)) and leave out condition (hT : 0 < T)
+lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hT : 0 < T) (hp : Function.Periodic f T) (hc : ContinuousOn f (Set.Icc (-T) (2 * T))) : UniformContinuous f := by
   --rw [Metric.uniformContinuous_iff]
   --IsCompact.uniformContinuous_on
-  sorry
+  have : IsCompact (Set.Icc (-T) (2 * T)) := isCompact_Icc
+  have unicont_on_Icc := this.uniformContinuousOn_of_continuous hc
+  rw [Metric.uniformContinuousOn_iff] at unicont_on_Icc
+  rw [Metric.uniformContinuous_iff]
+  intro ε εpos
+  rcases (unicont_on_Icc ε εpos) with ⟨δ, δpos, h⟩
+  use δ, δpos
+  intro x y hxy
+  by_cases hδ : δ ≤ T
+  . rcases (hp.exists_mem_Ico₀' hT x) with ⟨n, ha, hxa⟩
+    have hyb: f y = f (y - n • T) := (hp.sub_zsmul_eq n).symm
+    rw [hxa, hyb]
+    apply h (x - n • T) _ (y - n • T)
+    rw [Real.dist_eq, abs_lt] at hxy
+    constructor <;> linarith [ha.1, ha.2]
+    rwa [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
+    constructor <;> linarith [ha.1, ha.2]
+  . rcases (hp.exists_mem_Ico₀ hT x) with ⟨a, ha, hxa⟩
+    rcases (hp.exists_mem_Ico₀ hT y) with ⟨b, hb, hyb⟩
+    rw [hxa, hyb]
+    apply h a _ b
+    constructor <;> linarith [hb.1, hb.2]
+    rw [Real.dist_eq, abs_lt]
+    constructor <;> linarith [ha.1, ha.2, hb.1, hb.2]
+    constructor <;> linarith [ha.1, ha.2]
+
 
 lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
-  apply fourier_periodic.uniformContinuous_of_continuous
+  apply fourier_periodic.uniformContinuous_of_continuous Real.two_pi_pos
+  apply Continuous.continuousOn
   continuity
 
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (partialFourierSum f N) := by
-  apply partialFourierSum_periodic.uniformContinuous_of_continuous
+  apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
+  apply Continuous.continuousOn
   apply continuous_finset_sum
   continuity
 
