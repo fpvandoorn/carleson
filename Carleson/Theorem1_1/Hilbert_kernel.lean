@@ -253,9 +253,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     rw [div_le_iff two_pos]
     calc y
       _ = 2 * (y - y') - y + 2 * y' := by ring
-      _ ≤ 2 * |y - y'| - y + 2 * y' := by
-        gcongr
-        exact le_abs_self _
+      _ ≤ 2 * |y - y'| - y + 2 * y' := by gcongr; exact le_abs_self _
       _ ≤ y - y + 2 * y' := by
         gcongr
         rw [abs_eq_self.mpr yy'nonneg.1] at h
@@ -286,7 +284,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
         _ = ‖k (-1) - k (-y')‖ := by
           congr
           apply (k_of_one_le_abs _).symm
-          simp
+          simp only [abs_neg, abs_one, le_refl]
         _ = ‖k (-y') - k (-1)‖ := by
           rw [norm_sub_rev]
         _ ≤ 2 ^ 6 * (1 / |y'|) * (|y' - 1| / |y'|) := by
@@ -309,7 +307,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
         _ ≤ (2 ^ 6 * 2 * 2) * (1 / |y|) * (|y - y'| / |y|) := by
           gcongr
           apply div_nonneg <;> linarith
-          rw [abs_of_nonneg yy'nonneg.1]
+          rw [abs_of_nonneg yy'nonneg.1, ]
           rw [abs_of_nonneg] <;> linarith
           rw [abs_of_nonneg yy'nonneg.1]
         _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by
@@ -319,11 +317,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
 
   . calc ‖k (-y) - k (-y')‖
       _ = 0 := by
-        simp
+        simp only [Complex.norm_eq_abs, AbsoluteValue.map_sub_eq_zero_iff]
         rw [k_of_one_le_abs, k_of_one_le_abs] <;> (rw [abs_neg, abs_of_nonneg] <;> linarith)
-      _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by
-        apply mul_nonneg
-        apply mul_nonneg
-        . norm_num
-        . simp
-        . apply div_nonneg <;> simp
+      _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := mul_nonneg (mul_nonneg (by norm_num) (by simp))
+        (mul_nonneg (by norm_num) (by simp))
