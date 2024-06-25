@@ -67,6 +67,8 @@ instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
   conveniently rewrite/simp with Set-lemmas -/
 @[simp] lemma 𝓓.mem_def {x : X} {i : 𝓓 X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
 @[simp] lemma 𝓓.le_def {i j : 𝓓 X} : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
+
+/-- Beware: you *probably* want to use `i ≤ j`, and not `i ⊆ j`. -/
 @[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 @[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
