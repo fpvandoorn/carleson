@@ -28,16 +28,19 @@ class GridStructure
   /-- Center functions -/
   c : 𝓓 → X
   range_s_subset : range s ⊆ Icc (-S) S
+  topCube : 𝓓
+  s_topCube : s topCube = S
+  c_topCube : c topCube = o
+  subset_topCube {i} : coe𝓓 i ⊆ coe𝓓 topCube
   𝓓_subset_biUnion {i} : ∀ k ∈ Ico (-S) (s i), coe𝓓 i ⊆ ⋃ j ∈ s ⁻¹' {k}, coe𝓓 j
   fundamental_dyadic' {i j} : s i ≤ s j → coe𝓓 i ⊆ coe𝓓 j ∨ Disjoint (coe𝓓 i) (coe𝓓 j)
-  ball_subset_biUnion : ∀ k ∈ Icc (-S) S, ball o (D ^ S) ⊆ ⋃ i ∈ s ⁻¹' {k}, coe𝓓 i
   ball_subset_𝓓 {i} : ball (c i) (D ^ s i / 4) ⊆ coe𝓓 i --2.0.10
   𝓓_subset_ball {i} : coe𝓓 i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
     volume.real { x ∈ coe𝓓 i | infDist x (coe𝓓 i)ᶜ ≤ t * D ^ s i } ≤ D * t ^ κ * volume.real (coe𝓓 i)
 
-export GridStructure (range_s_subset 𝓓_subset_biUnion
-  ball_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary)
+export GridStructure (range_s_subset 𝓓_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary
+  topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
 
 variable {D κ C : ℝ} {S : ℤ} {o : X}
 
@@ -47,6 +50,7 @@ variable [GridStructure X D κ S o]
 
 variable (X) in
 abbrev 𝓓 : Type u := GridStructure.𝓓 X A
+
 instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
 
 instance : SetLike (𝓓 X) X where
@@ -65,12 +69,18 @@ instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 def s : 𝓓 X → ℤ := GridStructure.s
 def c : 𝓓 X → X := GridStructure.c
 
-lemma GridStructure.fundamental_dyadic {i j : 𝓓 X A} :
+lemma fundamental_dyadic {i j : 𝓓 X} :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
-export GridStructure (fundamental_dyadic)
 
 namespace 𝓓
+
+lemma le_topCube {i : 𝓓 X} : i ≤ topCube := subset_topCube
+lemma isTop_topCube : IsTop (topCube : 𝓓 X) := fun _ ↦ le_topCube
+
+lemma isMax_iff {i : 𝓓 X} : IsMax i ↔ i = topCube :=
+  isTop_topCube.isMax_iff
+
 
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
@@ -113,18 +123,19 @@ end GridStructure
 /- The datain a tile structure, and some basic properties.
 This is mostly separated out so that we can nicely define the notation `d_𝔭`.
 Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
-class PreTileStructure [FunctionDistances 𝕜 X]
+class PreTileStructure [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (Θ X)))
   (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
   protected 𝓘 : 𝔓 → 𝓓
   surjective_𝓘 : Surjective 𝓘
   𝒬 : 𝔓 → Θ X
+  range_𝒬 : range 𝒬 ⊆ range Q
 
-export PreTileStructure (𝒬)
+export PreTileStructure (𝒬 range_𝒬)
 
 section
-variable {Q : X → C(X, ℂ)} [FunctionDistances 𝕜 X] [PreTileStructure D κ S o]
+variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
 
 variable (X) in
 def 𝔓 := PreTileStructure.𝔓 𝕜 X A
@@ -138,9 +149,9 @@ end
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
 /-- A tile structure. -/
-class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
+class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
     (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X)
-    extends PreTileStructure D κ S o where
+    extends PreTileStructure Q D κ S o where
   Ω : 𝔓 → Set (Θ X)
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p')

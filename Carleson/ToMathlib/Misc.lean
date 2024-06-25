@@ -15,8 +15,11 @@ open Function Set
 open scoped ENNReal
 attribute [gcongr] Metric.ball_subset_ball
 
+lemma IsTop.isMax_iff {α} [PartialOrder α] {i j : α} (h : IsTop i) : IsMax j ↔ j = i := by
+  simp_rw [le_antisymm_iff, h j, true_and]
+  refine ⟨(· (h j)), swap (fun _ ↦ h · |>.trans ·)⟩
 
--- move
+
 theorem Int.floor_le_iff (c : ℝ) (z : ℤ) : ⌊c⌋ ≤ z ↔ c < z + 1 := by
   rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel_right]
 

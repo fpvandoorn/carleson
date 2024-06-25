@@ -28,9 +28,9 @@ def trunc (f : α → E) (t : ℝ) (x : α) : E := if ‖f x‖ ≤ t then f x e
 lemma aestronglyMeasurable_trunc (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (trunc f t) μ := sorry
 
-/-- The `t`-truncation of `f : α →ₘ[μ] E`. -/
-def AEEqFun.trunc (f : α →ₘ[μ] E) (t : ℝ) : α →ₘ[μ] E :=
-  AEEqFun.mk (MeasureTheory.trunc f t) (aestronglyMeasurable_trunc f.aestronglyMeasurable)
+-- /-- The `t`-truncation of `f : α →ₘ[μ] E`. -/
+-- def AEEqFun.trunc (f : α →ₘ[μ] E) (t : ℝ) : α →ₘ[μ] E :=
+--   AEEqFun.mk (MeasureTheory.trunc f t) (aestronglyMeasurable_trunc f.aestronglyMeasurable)
 
 -- /-- A set of measurable functions is closed under truncation. -/
 -- class IsClosedUnderTruncation (U : Set (α →ₘ[μ] E)) : Prop where
@@ -43,8 +43,12 @@ def Sublinear (T : (α → E₁) → α' → E₂) : Prop :=
   Subadditive T ∧ ∀ (f : α → E₁) (c : ℝ), T (c • f) = c • T f
 
 /-- Marcinkiewicz real interpolation theorem. -/
--- feel free to assume that T also respect a.e.-equality.
-theorem exists_lnorm_le_of_subadditive_of_lbounded {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
+-- feel free to assume that T also respect a.e.-equality if needed.
+/- For the proof, see
+Folland, Real Analysis. Modern Techniques and Their Applications, section 6.4, theorem 6.28.
+You want to use `trunc f A` when the book uses `h_A`.
+Minkowski's inequality is `ENNReal.lintegral_Lp_add_le` -/
+theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
     {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)

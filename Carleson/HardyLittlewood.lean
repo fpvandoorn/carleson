@@ -28,10 +28,7 @@ def maximalFunction (μ : Measure X) (𝓑 : Set (X × ℝ)) (p : ℝ) (u : X �
 
 abbrev MB (μ : Measure X) (𝓑 : Set (X × ℝ)) (u : X → E) (x : X) := maximalFunction μ 𝓑 1 u x
 
-/-! The following results probably require a doubling measure,
-and maybe some properties from `ProofData`.
-They are the statements from the blueprint.
-We probably want a more general version first. -/
+/-! Maybe we can generalize some of the hypotheses? (e.g. remove `DoublingMeasure`)? -/
 
 theorem measure_biUnion_le_lintegral {l : ℝ≥0} (hl : 0 < l)
     {u : X → ℝ≥0} (hu : AEStronglyMeasurable u μ)
@@ -41,7 +38,7 @@ theorem measure_biUnion_le_lintegral {l : ℝ≥0} (hl : 0 < l)
   sorry
 
 theorem maximalFunction_le_snorm {p : ℝ≥0}
-    (hp₁ : 1 ≤ p) {u : X → E} (hu : Memℒp u p μ) {x : X} :
+    (hp₁ : 1 ≤ p) {u : X → E} (hu : AEStronglyMeasurable u μ) {x : X} :
     maximalFunction μ 𝓑 p u x ≤ snorm u p μ := by
   sorry
 

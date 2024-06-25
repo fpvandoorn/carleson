@@ -7,7 +7,7 @@ open scoped ENNReal
 noncomputable section
 
 /- The constant used in `metric_carleson` -/
-def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 5
+def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
   rw [C1_2]

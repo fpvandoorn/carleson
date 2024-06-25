@@ -239,15 +239,13 @@ variable [GridStructure X D κ S o] {I : 𝓓 X}
 
 
 /-- Use Zorn's lemma to define this. -/
--- Note: we might want to adapt the construction so that 𝓩 is a subset of `range Q`.
--- We only need to cover `range Q`, not all the balls of radius 1 around it. If that works, that
--- should simplify it, and might mean that we don't need Lemma 2.1.1 here.
+-- Note: 𝓩 I is a subset of finite set range Q.
 def 𝓩 (I : 𝓓 X) : Set (Θ X) := sorry
 
 /-- The constant appearing in 4.2.2. -/
 @[simp] def C𝓩 : ℝ := 3 / 10
 
-lemma 𝓩_subset : 𝓩 I ⊆ ⋃ f ∈ range Q, ball_{I} f 1 := sorry
+lemma 𝓩_subset : 𝓩 I ⊆ range Q := sorry
 lemma 𝓩_disj {f g : Θ X} (hf : f ∈ 𝓩 I) (hg : g ∈ 𝓩 I) (hfg : f ≠ g) :
     Disjoint (ball_{I} f C𝓩) (ball_{I} g C𝓩) :=
   sorry
@@ -261,13 +259,12 @@ lemma card_𝓩_le :
 /-- Note: we might only need that `𝓩` is maximal, not that it has maximal cardinality.
 So maybe we don't need this. -/
 lemma maximal_𝓩_card {𝓩' : Set (Θ X)}
-    (h𝓩' : 𝓩' ⊆ ⋃ f ∈ range Q, ball_{I} f 1)
+    (h𝓩' : 𝓩' ⊆ range Q)
     (h2𝓩' : ∀ {f g : Θ X} (hf : f ∈ 𝓩') (hg : g ∈ 𝓩') (hfg : f ≠ g),
       Disjoint (ball_{I} f C𝓩) (ball_{I} g C𝓩)) : Nat.card 𝓩' ≤ Nat.card (𝓩 I) := by
   sorry
 
-lemma maximal_𝓩 {𝓩' : Set (Θ X)}
-    (h𝓩' : 𝓩' ⊆ ⋃ f ∈ range Q, ball_{I} f 1)
+lemma maximal_𝓩 {𝓩' : Set (Θ X)} (h𝓩' : 𝓩' ⊆ range Q)
     (h2𝓩' : ∀ {f g : Θ X} (hf : f ∈ 𝓩') (hg : g ∈ 𝓩') (hfg : f ≠ g),
       Disjoint (ball_{I} f C𝓩) (ball_{I} g C𝓩)) (h𝓩 : 𝓩 I ⊆ 𝓩') : 𝓩 I = 𝓩' := by
   sorry
@@ -278,7 +275,7 @@ instance : Inhabited (𝓩 I) := sorry
 def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
 lemma frequency_ball_cover :
-    ⋃ x : X, ball_{I} (Q x) 1 ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
+    range Q ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
   intro θ hθ
   have : ∃ z, z ∈ 𝓩 I ∧ ¬ Disjoint (ball_{I} z C𝓩) (ball_{I} θ C𝓩) := by
     by_contra! h
@@ -288,7 +285,7 @@ lemma frequency_ball_cover :
       simp only [C𝓩, disjoint_self, bot_eq_empty, ball_eq_empty] at this
       norm_num at this
     let 𝓩' := insert θ (𝓩 I)
-    have h𝓩' : 𝓩' ⊆ ⋃ f ∈ range Q, ball_{I} f 1 := by
+    have h𝓩' : 𝓩' ⊆ range Q := by
       rw [insert_subset_iff]
       exact ⟨by simpa using hθ, 𝓩_subset⟩
     have h2𝓩' : 𝓩'.PairwiseDisjoint (ball_{I} · C𝓩) := by
@@ -304,15 +301,19 @@ lemma frequency_ball_cover :
   rw [Set.not_disjoint_iff] at hz'
   obtain ⟨z', h₁z', h₂z'⟩ := hz'
   simp only [mem_iUnion, mem_ball, exists_prop, C𝓩, C4_2_1] at h₁z' h₂z' ⊢
-  exact ⟨z, hz, by linarith [dist_triangle_left θ z z']⟩
+  exact ⟨z, hz, by linarith
+    [dist_triangle_left (α := (WithFunctionDistance (c I) (D ^ s I / 4))) θ z z']⟩
 
 local instance tileData_existence [GridStructure X D κ S o] :
-    PreTileStructure D κ S o where
+    PreTileStructure Q D κ S o where
   𝔓 := Σ I : 𝓓 X, 𝓩 I
   fintype_𝔓 := Sigma.instFintype
   𝓘 p := p.1
   surjective_𝓘 I := ⟨⟨I, default⟩, rfl⟩
   𝒬 p := p.2
+  range_𝒬 := by
+    rintro _ ⟨p, rfl⟩
+    exact 𝓩_subset p.2.2
 
 namespace Construction
 

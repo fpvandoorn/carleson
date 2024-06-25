@@ -8,6 +8,7 @@ noncomputable section
 
 open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 
+
 variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField 𝕜]
@@ -23,11 +24,14 @@ variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : Me
   {f g : α → E} (hf : AEMeasurable f) {t s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
-#check meas_ge_le_mul_pow_snorm -- Chebyshev's inequality
+-- #check meas_ge_le_mul_pow_snorm -- Chebyshev's inequality
 
 namespace MeasureTheory
 /- If we need more properties of `E`, we can add `[RCLike E]` *instead of* the above type-classes-/
-#check _root_.RCLike
+-- #check _root_.RCLike
+
+/- Proofs for this file can be found in
+Folland, Real Analysis. Modern Techniques and Their Applications, section 6.3. -/
 
 /-! # The distribution function `d_f` -/
 
@@ -53,13 +57,16 @@ lemma distribution_smul_left {c : 𝕜} (hc : c ≠ 0) :
 lemma distribution_add_le :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ := sorry
 
+lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
+    ContinuousWithinAt (distribution f · μ) (Ioi t₀) t₀ := sorry
+
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
     distribution (fun x ↦ L (f x) (g x)) (‖L‖₊ * t * s) μ ≤
     distribution f t μ + distribution g s μ := sorry
 
 
 /- A version of the layer-cake theorem already exists, but the need the versions below. -/
-#check MeasureTheory.lintegral_comp_eq_lintegral_meas_lt_mul
+-- #check MeasureTheory.lintegral_comp_eq_lintegral_meas_lt_mul
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into `ℝ≥0∞` -/
 lemma lintegral_norm_pow_eq_measure_lt {f : α → ℝ≥0∞} (hf : AEMeasurable f μ)
