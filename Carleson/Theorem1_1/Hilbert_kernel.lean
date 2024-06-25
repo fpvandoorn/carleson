@@ -114,42 +114,25 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
       intro t ht
       have : f = fun t ↦ c t / d t := by simp
       rw [this]
-      have : f' = fun t ↦ ((c' t * d t - c t * d' t) / d t ^ 2) := by
-        ext t
-        rw [f'def, cdef, c'def, ddef, d'def]
-        simp
-        ring
+      have : f' = fun t ↦ ((c' t * d t - c t * d' t) / d t ^ 2) := by ext t; ring_nf
       rw [this]
-      apply HasDerivAt.div
-      . rw [cdef, c'def]
-        simp
-        apply HasDerivAt.const_sub
-        apply HasDerivAt.ofReal_comp
-        apply hasDerivAt_id'
+      apply HasDerivAt.div _ _ _
+      . exact cdef ▸ c'def ▸ HasDerivAt.const_sub _ (HasDerivAt.ofReal_comp (hasDerivAt_id' _))
       . rw [ddef, d'def]
         simp
         rw [←neg_neg (Complex.I * Complex.exp (-(Complex.I * ↑t)))]
-        apply HasDerivAt.const_sub
         rw [←neg_mul, mul_comm]
-        apply HasDerivAt.cexp
-        apply HasDerivAt.neg
-        conv in fun (x : ℝ) ↦ Complex.I * (x : ℝ) =>
-          ext
-          rw [mul_comm]
+        apply HasDerivAt.const_sub _ (HasDerivAt.cexp (HasDerivAt.neg _))
+        conv in fun (x : ℝ) ↦ Complex.I * (x : ℝ) => ext; rw [mul_comm]
         set e : ℂ → ℂ := fun t ↦ t * Complex.I with edef
-        have : (fun (t : ℝ) ↦ t * Complex.I) = fun (t : ℝ) ↦ e t := by
-          rw [edef]
+        have : (fun (t : ℝ) ↦ t * Complex.I) = fun (t : ℝ) ↦ e t := by rw [edef]
         rw [this]
         apply HasDerivAt.comp_ofReal
         rw [edef]
         apply hasDerivAt_mul_const
       . exact d_nonzero ht
-    have f'_cont : ContinuousOn (fun t ↦ f' t) (Set.uIcc y' y) := by
-      apply ContinuousOn.div
-      . apply Continuous.continuousOn; fun_prop
-      . apply Continuous.continuousOn; fun_prop /-TODO: investigate why continuity tactic fails-/
-      . simp
-        exact fun _ ht ↦ d_nonzero ht
+    have f'_cont : ContinuousOn (fun t ↦ f' t) (Set.uIcc y' y) :=
+      ContinuousOn.div (by fun_prop) (by fun_prop) (by simp; exact fun _ ht ↦ d_nonzero ht)
     calc ‖(1 - ↑y) / (1 - Complex.exp (-(Complex.I * ↑y))) - (1 - ↑y') / (1 - Complex.exp (-(Complex.I * ↑y')))‖
       _ = ‖f y - f y'‖ := by simp
       _ = ‖∫ (t : ℝ) in y'..y, f' t‖ := by
