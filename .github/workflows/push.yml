@@ -41,7 +41,7 @@ jobs:
           fi
 
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -108,7 +108,7 @@ jobs:
         run: JEKYLL_ENV=production bundle exec jekyll build
 
       - name: Upload docs & blueprint artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v1
         with:
           path: docs/_site
 
