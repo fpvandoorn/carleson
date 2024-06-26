@@ -232,12 +232,12 @@ def T (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
 end T
 
 variable (X) in
-def TileLike : Type _ := Set X × OrderDual (Set (Θ X))
+def TileLike : Type _ := 𝓓 X × OrderDual (Set (Θ X))
 
-def TileLike.fst (x : TileLike X) : Set X := x.1
+def TileLike.fst (x : TileLike X) : 𝓓 X := x.1
 def TileLike.snd (x : TileLike X) : Set (Θ X) := x.2
 instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
-lemma TileLike.le_def (x y : TileLike X) : x ≤ y ↔ x.fst ⊆ y.fst ∧ y.snd ⊆ x.snd := by rfl
+lemma TileLike.le_def (x y : TileLike X) : x ≤ y ↔ x.fst ≤ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
 @[simps]
 def toTileLike (p : 𝔓 X) : TileLike X := (𝓘 p, Ω p)
@@ -253,7 +253,7 @@ def smul (l : ℝ) (p : 𝔓 X) : TileLike X :=
   (𝓘 p, ball_(p) (𝒬 p) l)
 
 def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
-  t.fst ×ˢ t.snd
+  (t.fst : Set X) ×ˢ t.snd
 
 def E₁ (t : TileLike X) : Set X :=
   t.1 ∩ G ∩ Q ⁻¹' t.2

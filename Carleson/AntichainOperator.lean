@@ -25,7 +25,7 @@ lemma E_disjoint {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 :
     (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (fundamental_dyadic h𝔰)
   have hΩ : Ω p' ≤ Ω p :=
     (or_iff_right (not_disjoint_iff.mpr ⟨Q x, hxΩp, hxΩp'⟩)).mp (relative_fundamental_dyadic h𝓓)
-  have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
+  have hle : p ≤ p' := ⟨⟨h𝓓, h𝔰⟩, hΩ⟩
   exact IsAntichain.eq h𝔄 hp hp' hle
 
 variable (K) (σ₁ σ₂) (p : 𝔓 X)
