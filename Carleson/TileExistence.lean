@@ -25,7 +25,7 @@ variable [GridStructure X D κ S o] {I : 𝓓 X}
 -- should simplify it, and might mean that we don't need Lemma 2.1.1 here.
 def 𝓩 (I : 𝓓 X) : Set (Θ X) := sorry
 
-/-- The constant appearing in 4.2.2. -/
+/-- The constant appearing in 4.2.2 (3 / 10). -/
 @[simp] def C𝓩 : ℝ := 3 / 10
 
 lemma 𝓩_subset : 𝓩 I ⊆ ⋃ f ∈ range Q, ball_{I} f 1 := sorry
@@ -56,7 +56,8 @@ lemma maximal_𝓩 {𝓩' : Set (Θ X)}
 instance : Fintype (𝓩 I) := sorry
 instance : Inhabited (𝓩 I) := sorry
 
-def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
+/-- 7 / 10 -/
+@[simp] def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
 lemma frequency_ball_cover :
     ⋃ x : X, ball_{I} (Q x) 1 ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
@@ -100,7 +101,7 @@ namespace Construction
 def Ω₁_aux (I : 𝓓 X) (k : ℕ) : Set (Θ X) :=
   if hk : k < Nat.card (𝓩 I) then
     let z : Θ X := (Finite.equivFin (𝓩 I) |>.symm ⟨k, hk⟩).1
-    ball_{I} z C4_2_1 \ (⋃ i ∈ 𝓩 I \ {z}, ball_{I} z C𝓩) \ ⋃ i < k, Ω₁_aux I i
+    ball_{I} z C4_2_1 \ (⋃ i ∈ 𝓩 I \ {z}, ball_{I} i C𝓩) \ ⋃ i < k, Ω₁_aux I i
   else ∅
 
 lemma Ω₁_aux_disjoint (I : 𝓓 X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
@@ -126,9 +127,24 @@ lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ �
 lemma iUnion_ball_subset_iUnion_Ω₁ :
   ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := sorry
 
-lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := sorry
+lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
+  rw [Ω₁, Ω₁_aux]; set I := p.1; set z := p.2
+  let k := (Finite.equivFin ↑(𝓩 I)) z
+  simp_rw [Fin.eta, Equiv.symm_apply_apply, k.2, dite_true]
+  change ball_{I} z.1 C𝓩 ⊆ _ \ ⋃ i < k.1, Ω₁_aux I i
+  refine subset_diff.mpr ⟨subset_diff.mpr ⟨ball_subset_ball (by norm_num), ?_⟩, ?_⟩
+  · rw [disjoint_iUnion₂_right]; intro i hi; rw [mem_diff_singleton] at hi
+    exact 𝓩_disj z.coe_prop hi.1 hi.2.symm
+  · sorry
 
-lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C𝓩 := sorry
+lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := by
+  rw [Ω₁, Ω₁_aux]
+  split_ifs
+  · let z : Θ X := p.2
+    have qz : 𝒬 p = z := rfl
+    have zeq : z = p.snd := rfl
+    simp only [qz, zeq, Fin.eta, Equiv.symm_apply_apply, sdiff_sdiff, diff_subset]
+  · exact empty_subset _
 
 def CΩ : ℝ := 1 / 5
 
