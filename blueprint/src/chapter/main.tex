@@ -1576,6 +1576,7 @@ and then define iteratively
 \end{lemma}
 
 \begin{proof}
+    \leanok
     By the definition of the map $\scI$, we have
     $$
         \fP(I) = \{(I, z) \, : \, z \in \mathcal{Z}(I)\}\,.
@@ -1600,6 +1601,7 @@ and then define iteratively
 \end{lemma}
 
 \begin{proof}
+    \leanok
     For \eqref{eq-omega1-incl} let $\fp = (I, z)$.
     The second inclusion in \eqref{eq-omega1-incl} then follows from \eqref{eq-def-omega1} and the equality $B_{\fp}(\fcc(\fp), 0.7) = B_{I^\circ}(z, 0.7)$, which is true by definition.
     For the first inclusion in \eqref{eq-omega1-incl} let $\mfa \in B_{\fp}(\fcc(\fp),0.3)$. Let $k$ be such that $z = z_k$ in the enumeration we chose above. It follows immediately from \eqref{eq-def-omega1} and \eqref{eq-tile-disjoint-Z} that
@@ -4273,14 +4275,14 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
     Let $L \in \mathcal{L}(\fT(\fu))$.
     We apply \Cref{pointwise-tree-estimate} to $e(\fcc(\fu)) f$ to obtain for all $y, x' \in L$
     $$
-        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| 
+        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg|
     $$
     $$
         \le 2^{151a^3} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
     $$
     Hence, by taking an infimum, we have for $y \in L$
     $$
-        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| 
+        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg|
     $$
     $$
         \le 2^{151a^3} \inf_{x' \in L} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
