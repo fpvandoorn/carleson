@@ -352,14 +352,14 @@ lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := b
   · exact empty_subset _
 
 lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := by
-  rw [iUnion₂_subset_iff]; intro z₀ mz₀ (ϑ : Θ X) mϑ
+  rw [iUnion₂_subset_iff]; intro z mz (ϑ : Θ X) mϑ
   let f := Finite.equivFin (𝓩 I)
   by_cases h : ∃ y ∈ 𝓩 I, ϑ ∈ ball_{I} y C𝓩
   · obtain ⟨z', mz', hz'⟩ := h
     exact mem_of_mem_of_subset (mem_of_mem_of_subset hz' (ball_subset_Ω₁ ⟨I, ⟨z', mz'⟩⟩))
       (subset_iUnion_of_subset _ subset_rfl)
   · let L := {k : Fin (Nat.card (𝓩 I)) | ϑ ∈ ball_{I} (f.symm k).1 C4_2_1}
-    have Ln : L.Nonempty := by use f ⟨z₀, mz₀⟩; rwa [mem_setOf, Equiv.symm_apply_apply]
+    have Ln : L.Nonempty := by use f ⟨z, mz⟩; rwa [mem_setOf, Equiv.symm_apply_apply]
     obtain ⟨k, mem_k, hk⟩ := L.exists_min_image id L.toFinite Ln
     simp_rw [L, mem_setOf_eq] at mem_k
     simp only [id_eq] at hk
@@ -374,8 +374,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
     rw [Equiv.apply_symm_apply]; simp_rw [k.2]; rw [dite_true, mem_diff, mem_diff]
     refine ⟨⟨mem_k, ?_⟩, ?_⟩
     · rw [mem_iUnion₂]; push_neg at h ⊢; exact fun i mi ↦ h i (mem_of_mem_diff mi)
-    · rw [mem_iUnion₂]; push_neg; intro i mi
-      exact q ⟨i, mi.trans k.2⟩ mi
+    · rw [mem_iUnion₂]; push_neg; exact fun i mi ↦ q ⟨i, mi.trans k.2⟩ mi
 
 def CΩ : ℝ := 1 / 5
 
