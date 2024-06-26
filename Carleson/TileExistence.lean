@@ -392,5 +392,9 @@ def tile_existence [GridStructure X D κ S o] : TileStructure Q D κ S o where
   biUnion_Ω := sorry
   disjoint_Ω := sorry
   relative_fundamental_dyadic := sorry
-  cdist_subset := sorry
+  cdist_subset {p} h mh := by
+    rw [Construction.Ω]; split_ifs with hh
+    · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
+      exact mem_of_mem_of_subset mh (this.trans (Construction.ball_subset_Ω₁ p))
+    · exact mem_of_mem_of_subset mh (by simp [Construction.CΩ])
   subset_cdist := sorry
