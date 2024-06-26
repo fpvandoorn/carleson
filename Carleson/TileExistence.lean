@@ -222,7 +222,7 @@ variable [GridStructure X D κ S o] {I : 𝓓 X}
 -- Note: 𝓩 I is a subset of finite set range Q.
 def 𝓩 (I : 𝓓 X) : Set (Θ X) := sorry
 
-/-- The constant appearing in 4.2.2. -/
+/-- The constant appearing in 4.2.2 (3 / 10). -/
 @[simp] def C𝓩 : ℝ := 3 / 10
 
 lemma 𝓩_subset : 𝓩 I ⊆ range Q := sorry
@@ -252,7 +252,8 @@ lemma maximal_𝓩 {𝓩' : Set (Θ X)} (h𝓩' : 𝓩' ⊆ range Q)
 instance : Fintype (𝓩 I) := sorry
 instance : Inhabited (𝓩 I) := sorry
 
-def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
+/-- 7 / 10 -/
+@[simp] def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
 lemma frequency_ball_cover :
     range Q ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
@@ -298,20 +299,82 @@ namespace Construction
 def Ω₁_aux (I : 𝓓 X) (k : ℕ) : Set (Θ X) :=
   if hk : k < Nat.card (𝓩 I) then
     let z : Θ X := (Finite.equivFin (𝓩 I) |>.symm ⟨k, hk⟩).1
-    ball_{I} z C4_2_1 \ (⋃ i ∈ 𝓩 I \ {z}, ball_{I} z C𝓩) \ ⋃ i < k, Ω₁_aux I i
-  else
-    ∅
+    ball_{I} z C4_2_1 \ (⋃ i ∈ 𝓩 I \ {z}, ball_{I} i C𝓩) \ ⋃ i < k, Ω₁_aux I i
+  else ∅
+
+lemma Ω₁_aux_disjoint (I : 𝓓 X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
+  wlog h : k < l generalizing k l
+  · exact (this hn.symm (hn.symm.lt_of_le (Nat.le_of_not_lt h))).symm
+  have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_biUnion_of_mem h
+  apply disjoint_of_subset_left this
+  rw [Ω₁_aux]
+  split_ifs
+  · exact disjoint_sdiff_right
+  · exact disjoint_empty _
+
+lemma disjoint_ball_Ω₁_aux (I : 𝓓 X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz' : z' ∈ 𝓩 I) (hn : z ≠ z') :
+    Disjoint (ball_{I} z' C𝓩) (Ω₁_aux I (Finite.equivFin (𝓩 I) ⟨z, hz⟩)) := by
+  rw [Ω₁_aux]
+  simp only [(Finite.equivFin (𝓩 I) ⟨z, hz⟩).2, dite_true, Fin.eta, Equiv.symm_apply_apply]
+  rw [sdiff_sdiff_comm, ← disjoint_sdiff_comm, diff_eq_empty.mpr]
+  · exact empty_disjoint _
+  · apply subset_biUnion_of_mem (show z' ∈ 𝓩 I \ {z} by tauto)
 
 def Ω₁ (p : 𝔓 X) : Set (Θ X) := Ω₁_aux p.1 (Finite.equivFin (𝓩 p.1) p.2)
 
-lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ ⟨I, g⟩).Nonempty) : f = g := sorry
+lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ ⟨I, g⟩).Nonempty) : f = g := by
+  simp_rw [← not_disjoint_iff_nonempty_inter, Ω₁] at h
+  contrapose! h
+  apply Ω₁_aux_disjoint
+  contrapose! h
+  rwa [Fin.val_eq_val, Equiv.apply_eq_iff_eq] at h
 
-lemma iUnion_ball_subset_iUnion_Ω₁ :
-  ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := sorry
+lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
+  rw [Ω₁, Ω₁_aux]; set I := p.1; set z := p.2
+  let k := (Finite.equivFin ↑(𝓩 I)) z
+  simp_rw [Fin.eta, Equiv.symm_apply_apply, k.2, dite_true]
+  change ball_{I} z.1 C𝓩 ⊆ _ \ ⋃ i < k.1, Ω₁_aux I i
+  refine subset_diff.mpr ⟨subset_diff.mpr ⟨ball_subset_ball (by norm_num), ?_⟩, ?_⟩
+  · rw [disjoint_iUnion₂_right]; intro i hi; rw [mem_diff_singleton] at hi
+    exact 𝓩_disj z.coe_prop hi.1 hi.2.symm
+  · rw [disjoint_iUnion₂_right]; intro i hi
+    let z' := (Finite.equivFin ↑(𝓩 I)).symm ⟨i, by omega⟩
+    have zn : z ≠ z' := by simp only [ne_eq, Equiv.eq_symm_apply, z']; exact Fin.ne_of_gt hi
+    simpa [z'] using disjoint_ball_Ω₁_aux I z'.2 z.2 (Subtype.coe_ne_coe.mpr zn.symm)
 
-lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := sorry
+lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := by
+  rw [Ω₁, Ω₁_aux]
+  split_ifs
+  · let z : Θ X := p.2
+    have qz : 𝒬 p = z := rfl
+    have zeq : z = p.snd := rfl
+    simp only [qz, zeq, Fin.eta, Equiv.symm_apply_apply, sdiff_sdiff, diff_subset]
+  · exact empty_subset _
 
-lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C𝓩 := sorry
+lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := by
+  rw [iUnion₂_subset_iff]; intro z mz (ϑ : Θ X) mϑ
+  let f := Finite.equivFin (𝓩 I)
+  by_cases h : ∃ y ∈ 𝓩 I, ϑ ∈ ball_{I} y C𝓩
+  · obtain ⟨z', mz', hz'⟩ := h
+    exact mem_of_mem_of_subset (mem_of_mem_of_subset hz' (ball_subset_Ω₁ ⟨I, ⟨z', mz'⟩⟩))
+      (subset_iUnion_of_subset _ subset_rfl)
+  · let L := {k : Fin (Nat.card (𝓩 I)) | ϑ ∈ ball_{I} (f.symm k).1 C4_2_1}
+    have Ln : L.Nonempty := by use f ⟨z, mz⟩; rwa [mem_setOf, Equiv.symm_apply_apply]
+    obtain ⟨k, mem_k, hk⟩ := L.exists_min_image id L.toFinite Ln
+    simp_rw [L, mem_setOf_eq] at mem_k
+    simp only [id_eq] at hk
+    have q : ∀ i < k, ϑ ∉ Ω₁_aux I i := by
+      by_contra! h; obtain ⟨i, li, hi⟩ := h
+      have := Ω₁_subset_ball ⟨I, f.symm i⟩
+      simp_rw [Ω₁, Equiv.apply_symm_apply] at this
+      replace this : ϑ ∈ ball_{I} (f.symm i).1 C4_2_1 := mem_of_mem_of_subset hi this
+      replace this : i ∈ L := by simp only [L, mem_setOf_eq, this]
+      exact absurd (hk i this) (not_le.mpr li)
+    rw [mem_iUnion]; use f.symm k; rw [Ω₁, Ω₁_aux]; dsimp only
+    rw [Equiv.apply_symm_apply]; simp_rw [k.2]; rw [dite_true, mem_diff, mem_diff]
+    refine ⟨⟨mem_k, ?_⟩, ?_⟩
+    · rw [mem_iUnion₂]; push_neg at h ⊢; exact fun i mi ↦ h i (mem_of_mem_diff mi)
+    · rw [mem_iUnion₂]; push_neg; exact fun i mi ↦ q ⟨i, mi.trans k.2⟩ mi
 
 def CΩ : ℝ := 1 / 5
 
@@ -324,11 +387,14 @@ termination_by p.1.opSize
 
 end Construction
 
-def tile_existence [GridStructure X D κ S o] :
-    TileStructure Q D κ S o where
-      Ω := Construction.Ω
-      biUnion_Ω := sorry
-      disjoint_Ω := sorry
-      relative_fundamental_dyadic := sorry
-      cdist_subset := sorry
-      subset_cdist := sorry
+def tile_existence [GridStructure X D κ S o] : TileStructure Q D κ S o where
+  Ω := Construction.Ω
+  biUnion_Ω := sorry
+  disjoint_Ω := sorry
+  relative_fundamental_dyadic := sorry
+  cdist_subset {p} h mh := by
+    rw [Construction.Ω]; split_ifs with hh
+    · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
+      exact mem_of_mem_of_subset mh (this.trans (Construction.ball_subset_Ω₁ p))
+    · exact mem_of_mem_of_subset mh (by simp [Construction.CΩ])
+  subset_cdist := sorry
