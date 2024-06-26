@@ -9,7 +9,6 @@ open Finset
 
 noncomputable section
 
-
 --TODO : add reasonable notation
 --local notation "S_" => partialFourierSum f
 
@@ -35,12 +34,8 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
   ring_nf
-  . apply hf.continuousOn_mul
-    apply Continuous.continuousOn
-    continuity
-  . apply hg.continuousOn_mul
-    apply Continuous.continuousOn
-    continuity
+  . apply hf.continuousOn_mul (Continuous.continuousOn _) ; continuity
+  . apply hg.continuousOn_mul (Continuous.continuousOn _); continuity
 
 @[simp]
 lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ} (hf : IntervalIntegrable f MeasureTheory.volume a b) (hg : IntervalIntegrable g MeasureTheory.volume a b) :
@@ -65,13 +60,16 @@ lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
   ext x
   simp [partialFourierSum, mul_sum, fourierCoeffOn_mul, mul_assoc]
 
-lemma fourier_periodic {n : ℤ} : Function.Periodic (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) (2 * Real.pi) := by simp
+lemma fourier_periodic {n : ℤ} :
+    Function.Periodic (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) (2 * Real.pi) := by
+    simp
 
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic (partialFourierSum f N) (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
 /-TODO: Add lemma Periodic.uniformContinuous_of_continuous. -/
-lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
+lemma fourier_uniformContinuous {n : ℤ} :
+    UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
   simp [fourier]
   --apply Complex.exp_mul_I_periodic.
   sorry

@@ -30,7 +30,7 @@ theorem tile_sum_operator [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D �
   sorry
 
 /- The constant used in Proposition 2.0.1 -/
-def C2_0_1 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (440 * a ^ 3) / (q - 1) ^ 4
+def C2_0_1 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (440 * a ^ 3) / (q - 1) ^ 5
 
 lemma C2_0_1_pos {a : ℝ} {q : ℝ≥0} : C2_0_1 a q > 0 := sorry
 

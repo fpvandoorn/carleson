@@ -7,7 +7,7 @@ open scoped ENNReal
 noncomputable section
 
 /- The constant used in `metric_carleson` -/
-def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 5
+def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
 
 lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
   rw [C1_2]
@@ -132,7 +132,7 @@ theorem metric_carleson [CompatibleFunctions ℝ X (2 ^ a)]
   [IsCancellative X (2 ^ a)] [IsCZKernel a K]
     (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (hT : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a))
+    (hT : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a))
     (f : X → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, CarlesonOperator K f x ≤
     ENNReal.ofReal (C1_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by

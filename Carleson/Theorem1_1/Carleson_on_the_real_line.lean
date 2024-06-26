@@ -451,7 +451,7 @@ instance h6 : IsCZKernel 4 K where
   measurable := Hilbert_kernel_measurable
 
 /- Lemma ?-/
-lemma h3 : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts 4) := sorry
+lemma h3 : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts 4) := sorry
 
 
 

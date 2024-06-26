@@ -8,7 +8,7 @@ noncomputable section
 section DoublingMeasure
 universe u
 variable {𝕜 : Type*} [_root_.RCLike 𝕜]
-variable {X : Type u} {A : ℝ} [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {X : Type u} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 variable (X) in
 /-- A grid structure on `X`.
@@ -22,22 +22,25 @@ class GridStructure
   fintype_𝓓 : Fintype 𝓓
   /-- The collection of dyadic cubes -/
   coe𝓓 : 𝓓 → Set X
-  coe𝓓_injective : Injective coe𝓓
   /-- scale functions -/
   s : 𝓓 → ℤ
   /-- Center functions -/
   c : 𝓓 → X
+  inj : Injective (fun i ↦ (coe𝓓 i, s i))
   range_s_subset : range s ⊆ Icc (-S) S
+  topCube : 𝓓
+  s_topCube : s topCube = S
+  c_topCube : c topCube = o
+  subset_topCube {i} : coe𝓓 i ⊆ coe𝓓 topCube
   𝓓_subset_biUnion {i} : ∀ k ∈ Ico (-S) (s i), coe𝓓 i ⊆ ⋃ j ∈ s ⁻¹' {k}, coe𝓓 j
   fundamental_dyadic' {i j} : s i ≤ s j → coe𝓓 i ⊆ coe𝓓 j ∨ Disjoint (coe𝓓 i) (coe𝓓 j)
-  ball_subset_biUnion : ∀ k ∈ Icc (-S) S, ball o (D ^ S) ⊆ ⋃ i ∈ s ⁻¹' {k}, coe𝓓 i
   ball_subset_𝓓 {i} : ball (c i) (D ^ s i / 4) ⊆ coe𝓓 i --2.0.10
   𝓓_subset_ball {i} : coe𝓓 i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ coe𝓓 i | infDist x (coe𝓓 i)ᶜ ≤ t * D ^ s i } ≤ D * t ^ κ * volume.real (coe𝓓 i)
+    volume.real { x ∈ coe𝓓 i | infDist x (coe𝓓 i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coe𝓓 i)
 
-export GridStructure (range_s_subset 𝓓_subset_biUnion
-  ball_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary)
+export GridStructure (range_s_subset 𝓓_subset_biUnion ball_subset_𝓓 𝓓_subset_ball small_boundary
+  topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
 
 variable {D κ C : ℝ} {S : ℤ} {o : X}
 
@@ -46,31 +49,43 @@ section GridStructure
 variable [GridStructure X D κ S o]
 
 variable (X) in
+/-- The indexing type of the grid structure. Elements are called (dyadic) cubes.
+Note that this type has instances for both `≤` and `⊆`, but they do *not* coincide. -/
 abbrev 𝓓 : Type u := GridStructure.𝓓 X A
-instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
 
-instance : SetLike (𝓓 X) X where
-  coe := GridStructure.coe𝓓
-  coe_injective' := GridStructure.coe𝓓_injective
+def s : 𝓓 X → ℤ := GridStructure.s
+def c : 𝓓 X → X := GridStructure.c
+
+instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
+instance : Coe (𝓓 X) (Set X) := ⟨GridStructure.coe𝓓⟩
+instance : Membership X (𝓓 X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩
+instance : PartialOrder (𝓓 X) := PartialOrder.lift _ GridStructure.inj
 instance : HasSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
 instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
   conveniently rewrite/simp with Set-lemmas -/
 @[simp] lemma 𝓓.mem_def {x : X} {i : 𝓓 X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
-@[simp] lemma 𝓓.le_def {i j : 𝓓 X} : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
+@[simp] lemma 𝓓.le_def {i j : 𝓓 X} : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
+
+/-- Beware: you *probably* want to use `i ≤ j`, and not `i ⊆ j`. -/
 @[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 @[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
-def s : 𝓓 X → ℤ := GridStructure.s
-def c : 𝓓 X → X := GridStructure.c
+protected lemma 𝓓.inj : Injective (fun i : 𝓓 X ↦ ((i : Set X), s i)) := GridStructure.inj
 
-lemma GridStructure.fundamental_dyadic {i j : 𝓓 X A} :
+lemma fundamental_dyadic {i j : 𝓓 X} :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
-export GridStructure (fundamental_dyadic)
 
 namespace 𝓓
+
+lemma le_topCube {i : 𝓓 X} : i ≤ topCube :=
+  ⟨subset_topCube, (range_s_subset ⟨i, rfl⟩).2.trans_eq s_topCube.symm⟩
+
+lemma isTop_topCube : IsTop (topCube : 𝓓 X) := fun _ ↦ le_topCube
+
+lemma isMax_iff {i : 𝓓 X} : IsMax i ↔ i = topCube := isTop_topCube.isMax_iff
 
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : 𝓓 X) : Set X := ball (c i) (D ^ s i / 4)
@@ -113,18 +128,19 @@ end GridStructure
 /- The datain a tile structure, and some basic properties.
 This is mostly separated out so that we can nicely define the notation `d_𝔭`.
 Note: compose `𝓘` with `𝓓` to get the `𝓘` of the paper. -/
-class PreTileStructure [FunctionDistances 𝕜 X]
+class PreTileStructure [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (Θ X)))
   (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
   protected 𝓘 : 𝔓 → 𝓓
   surjective_𝓘 : Surjective 𝓘
   𝒬 : 𝔓 → Θ X
+  range_𝒬 : range 𝒬 ⊆ range Q
 
-export PreTileStructure (𝒬)
+export PreTileStructure (𝒬 range_𝒬)
 
 section
-variable {Q : X → C(X, ℂ)} [FunctionDistances 𝕜 X] [PreTileStructure D κ S o]
+variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
 
 variable (X) in
 def 𝔓 := PreTileStructure.𝔓 𝕜 X A
@@ -138,9 +154,9 @@ end
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
 /-- A tile structure. -/
-class TileStructure [FunctionDistances ℝ X] (Q : outParam (X → Θ X))
+class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
     (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X)
-    extends PreTileStructure D κ S o where
+    extends PreTileStructure Q D κ S o where
   Ω : 𝔓 → Set (Θ X)
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p')
@@ -176,15 +192,16 @@ lemma 𝓓.nonempty (I : 𝓓 X) : (I : Set X).Nonempty := by
   positivity
 
 /-- Lemma 2.1.2, part 1. -/
-lemma 𝓓.dist_mono {I J : 𝓓 X} (hpq : I ⊆ J) {f g : Θ X} :
+lemma 𝓓.dist_mono {I J : 𝓓 X} (hpq : I ≤ J) {f g : Θ X} :
     dist_{I} f g ≤ dist_{J} f g := by
-  by_cases h : GridStructure.s J ≤ GridStructure.s I
+  rw [𝓓.le_def] at hpq
+  obtain ⟨hpq, h'⟩ := hpq
+  obtain h|h := h'.eq_or_lt
   · suffices I = J by
-      subst this; rfl
-    rw [𝓓.subset_def] at hpq
-    rw [← SetLike.coe_set_eq]
+      rw [this]
+    simp_rw [← 𝓓.inj.eq_iff, Prod.ext_iff, h, and_true]
     apply subset_antisymm hpq
-    apply (fundamental_dyadic h).resolve_right
+    apply (fundamental_dyadic h.symm.le).resolve_right
     rw [Set.not_disjoint_iff_nonempty_inter, inter_eq_self_of_subset_right hpq]
     exact 𝓓.nonempty _
   simp only [not_le, ← Int.add_one_le_iff] at h

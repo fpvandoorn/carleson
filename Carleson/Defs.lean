@@ -1,4 +1,5 @@
 import Carleson.DoublingMeasure
+import Carleson.WeakType
 
 open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
 open scoped ENNReal
@@ -12,7 +13,7 @@ We should move them to separate files once we start proving things about them. -
 
 section DoublingMeasure
 universe u
-variable {𝕜 X : Type*} {A : ℝ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {𝕜 X : Type*} {A : ℝ≥0} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
 section localOscillation
 
@@ -141,6 +142,10 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ
   ballsCoverBalls {x : X} {r R : ℝ} :
     BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R ⌊A⌋₊
 
+instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
+  obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
+  use x
+
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
 variable (X) in
@@ -207,27 +212,10 @@ Reference: https://arxiv.org/abs/math/9910039
 Lemma 3.6 - Lemma 3.9
 -/
 
-/-- This can be useful to say that `‖T‖ ≤ c`. -/
-def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
-    Prop :=
-  ∀ x, ‖T x‖ ≤ c * ‖x‖
-
-/-- An operator has strong type (p, q) if it is bounded as an operator on L^p → L^q.
-We write `HasStrongType T μ ν p p' c` to say that `T` has strong type (p, q) w.r.t. measures `μ`, `ν` and constant `c`.  -/
-def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
-    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
-
--- todo: define `HasWeakType`
-
-/-- A weaker version of `HasStrongType`, where we add additional assumptions on the function `f`.
-Note(F): I'm not sure if this is an equivalent characterization of having weak type (p, q) -/
-def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
-    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → snorm f ∞ μ < ∞ → μ (support f) < ∞ →
-  AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
+-- /-- This can be useful to say that `‖T‖ ≤ c`. -/
+-- def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
+--     Prop :=
+--   ∀ x, ‖T x‖ ≤ c * ‖x‖
 
 set_option linter.unusedVariables false in
 /-- The associated nontangential Calderon Zygmund operator `T_*` -/
@@ -254,7 +242,7 @@ end DoublingMeasure
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
-@[simp] abbrev defaultA (a : ℝ) : ℝ := 2 ^ a
+@[simp] abbrev defaultA (a : ℝ) : ℝ≥0 := 2 ^ a
 @[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
 @[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
 @[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
@@ -275,7 +263,7 @@ class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → �
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   c : IsCancellative X (defaultτ a)
-  hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)
+  hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
   measurable_σ₁ : Measurable σ₁
@@ -313,6 +301,7 @@ lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
 variable (X) in lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
 variable (X) in lemma q_nonneg : 0 ≤ q := (q_pos X).le
 
+
 variable (X) in
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
@@ -326,8 +315,8 @@ end ProofData
 class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
     (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X]
     extends PreProofData a q K σ₁ σ₂ F G where
-  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X)
-  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X)
+  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
+  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
 
 
 namespace ShortVariables
@@ -347,6 +336,27 @@ end ShortVariables
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+lemma one_le_D : 1 ≤ D := by
+  rw [← Real.rpow_zero 2]
+  dsimp
+  apply Real.rpow_le_rpow_of_exponent_le (by linarith)
+  simp only [gt_iff_lt, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
+  exact sq_nonneg a
+
+lemma D_nonneg : 0 ≤ D := zero_le_one.trans one_le_D
+
+variable (a) in
+/-- `D` as an element of `ℝ≥0`. -/
+def nnD : ℝ≥0 := ⟨D, D_nonneg⟩
+
+namespace ShortVariables
+
+set_option hygiene false
+scoped notation "nnD" => nnD a
+
+end ShortVariables
+
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]
