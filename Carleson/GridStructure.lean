@@ -156,12 +156,13 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)
     (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X)
     extends PreTileStructure Q D κ S o where
   Ω : 𝔓 → Set (Θ X)
-  biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
-  disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p')
-  relative_fundamental_dyadic {p p'} (h : 𝓘 p ⊆ 𝓘 p') :
+  biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
+  disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : -- 2.0.13, union is disjoint
+    Disjoint (Ω p) (Ω p')
+  relative_fundamental_dyadic {p p'} (h : 𝓘 p ⊆ 𝓘 p') : -- 2.0.14
     Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
-  cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p
-  subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1
+  cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
+  subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
 
 export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
 
