@@ -433,11 +433,9 @@ def tile_existence : TileStructure Q D κ S o where
   biUnion_Ω := sorry
   disjoint_Ω := sorry
   relative_fundamental_dyadic := sorry
-  cdist_subset {p} h mh := by
+  cdist_subset {p} := by
     rw [Construction.Ω]; split_ifs with hh
     · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
-      exact mem_of_mem_of_subset mh (this.trans (Construction.ball_subset_Ω₁ p))
-    · exact mem_of_mem_of_subset mh (by simp [Construction.CΩ])
-  subset_cdist {p} h mh := by
-    revert h; rw [← subset_def]
-    exact Ω_subset_cdist
+      exact this.trans (Construction.ball_subset_Ω₁ p)
+    · simp
+  subset_cdist {p} := Ω_subset_cdist
