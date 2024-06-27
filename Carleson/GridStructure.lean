@@ -111,8 +111,6 @@ lemma opSize_succ_lt (h : ¬ IsMax i) : i.succ.opSize < i.opSize := sorry
 
 end 𝓓
 
-
-
 variable {i : 𝓓 X}
 
 lemma int_subset : i.int ⊆ i := by exact ball_subset_𝓓
@@ -158,12 +156,13 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)
     (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X)
     extends PreTileStructure Q D κ S o where
   Ω : 𝔓 → Set (Θ X)
-  biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p
-  disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p')
-  relative_fundamental_dyadic {p p'} (h : 𝓘 p ⊆ 𝓘 p') :
+  biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
+  disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : -- 2.0.13, union is disjoint
+    Disjoint (Ω p) (Ω p')
+  relative_fundamental_dyadic {p p'} (h : 𝓘 p ⊆ 𝓘 p') : -- 2.0.14
     Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
-  cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p
-  subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1
+  cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
+  subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
 
 export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
 
@@ -171,7 +170,11 @@ end DoublingMeasure
 
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+section GridStructure
+
+variable [GridStructure X D κ S o]
 
 notation "dist_{" I "}" => @dist (WithFunctionDistance (c I) (D ^ s I / 4)) _
 notation "nndist_{" I "}" => @nndist (WithFunctionDistance (c I) (D ^ s I / 4)) _
@@ -180,10 +183,6 @@ notation "ball_{" I "}" => @ball (WithFunctionDistance (c I) (D ^ s I / 4)) _
 notation "dist_(" 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "nndist_(" 𝔭 ")" => @nndist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
-
-@[simp] lemma dist_𝓘 (p : 𝔓 X) {f g : Θ X} : dist_{𝓘 p} f g = dist_(p) f g := rfl
-@[simp] lemma nndist_𝓘 (p : 𝔓 X) {f g : Θ X} : nndist_{𝓘 p} f g = nndist_(p) f g := rfl
-@[simp] lemma ball_𝓘 (p : 𝔓 X) {f : Θ X} {r : ℝ} : ball_{𝓘 p} f r = ball_(p) f r := rfl
 
 lemma 𝓓.nonempty (I : 𝓓 X) : (I : Set X).Nonempty := by
   apply Set.Nonempty.mono ball_subset_𝓓
@@ -210,9 +209,17 @@ lemma 𝓓.dist_mono {I J : 𝓓 X} (hpq : I ≤ J) {f g : Θ X} :
 def C2_1_2 (a : ℝ) : ℝ := 2 ^ (-95 * a)
 
 /-- Lemma 2.1.2, part 2. -/
-lemma 𝓓.dist_strictMono {I J : 𝓓 X} (hpq : I ⊂ J) {f g : Θ X} :
+lemma 𝓓.dist_strictMono {I J : 𝓓 X} (hpq : I < J) {f g : Θ X} :
     dist_{I} f g ≤ C2_1_2 a * dist_{J} f g := by
   sorry
+
+end GridStructure
+
+variable [TileStructure Q D κ S o]
+
+@[simp] lemma dist_𝓘 (p : 𝔓 X) {f g : Θ X} : dist_{𝓘 p} f g = dist_(p) f g := rfl
+@[simp] lemma nndist_𝓘 (p : 𝔓 X) {f g : Θ X} : nndist_{𝓘 p} f g = nndist_(p) f g := rfl
+@[simp] lemma ball_𝓘 (p : 𝔓 X) {f : Θ X} {r : ℝ} : ball_{𝓘 p} f r = ball_(p) f r := rfl
 
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
