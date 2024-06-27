@@ -347,7 +347,7 @@ lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := b
   split_ifs
   · let z : Θ X := p.2
     have qz : 𝒬 p = z := rfl
-    have zeq : z = p.snd := rfl
+    have zeq : z = p.2 := rfl
     simp only [qz, zeq, Fin.eta, Equiv.symm_apply_apply, sdiff_sdiff, diff_subset]
   · exact empty_subset _
 
@@ -376,7 +376,8 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
     · rw [mem_iUnion₂]; push_neg at h ⊢; exact fun i mi ↦ h i (mem_of_mem_diff mi)
     · rw [mem_iUnion₂]; push_neg; exact fun i mi ↦ q ⟨i, mi.trans k.2⟩ mi
 
-def CΩ : ℝ := 1 / 5
+/-- 1 / 5 -/
+@[simp] def CΩ : ℝ := 1 / 5
 
 open Classical in
 def Ω (p : 𝔓 X) : Set (Θ X) :=
@@ -387,7 +388,47 @@ termination_by p.1.opSize
 
 end Construction
 
-def tile_existence [GridStructure X D κ S o] : TileStructure Q D κ S o where
+lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
+    (ind : ∀ p, ¬IsMax p.1 → (∀ z : 𝓩 p.1.succ, P ⟨p.1.succ, z⟩) → P p) :
+    ∀ p, P p := fun p ↦ by
+  by_cases h : IsMax p.1
+  · exact base p h
+  · have := 𝓓.opSize_succ_lt h
+    exact ind p h fun z ↦ (𝔓_induction P base ind ⟨p.1.succ, z⟩)
+termination_by p => p.1.opSize
+
+lemma Ω_subset_cdist {p : 𝔓 X} : Construction.Ω p ⊆ ball_(p) (𝒬 p) 1 := by
+  apply 𝔓_induction fun p ↦ Construction.Ω p ⊆ ball_(p) (𝒬 p) 1
+  · intro p maxI ϑ mϑ
+    rw [Construction.Ω] at mϑ; simp only [maxI, dite_true] at mϑ
+    have : ball_(p) (𝒬 p) C4_2_1 ⊆ ball_(p) (𝒬 p) 1 := ball_subset_ball (by norm_num)
+    exact mem_of_mem_of_subset mϑ ((Construction.Ω₁_subset_ball p).trans this)
+  · intro p nmaxI ih ϑ mϑ
+    rw [Construction.Ω] at mϑ; simp only [nmaxI, dite_false, mem_union] at mϑ
+    rcases mϑ with c | c; · exact mem_of_mem_of_subset c (ball_subset_ball (by norm_num))
+    obtain ⟨I, ⟨y, my⟩⟩ := p
+    dsimp only at nmaxI ih c
+    set J := I.succ
+    rw [mem_iUnion₂] at c
+    obtain ⟨z, ⟨mz₁, mz₂⟩, hz⟩ := c
+    simp only [mem_ball]
+    calc
+      _ ≤ dist_{I} ϑ z + dist_{I} z y := dist_triangle ..
+      _ < dist_{I} ϑ z + C4_2_1 := by
+        gcongr; simpa using mem_of_mem_of_subset mz₂ (Construction.Ω₁_subset_ball ⟨I, ⟨y, my⟩⟩)
+      _ ≤ C2_1_2 a * dist_{J} ϑ z + C4_2_1 := by
+        gcongr; refine 𝓓.dist_strictMono (lt_of_le_of_ne 𝓓.le_succ ?_)
+        contrapose! nmaxI; exact 𝓓.max_of_le_succ nmaxI.symm.le
+      _ < C2_1_2 a * 1 + C4_2_1 := by
+        gcongr
+        · rw [C2_1_2]; positivity
+        · simpa only [mem_ball] using mem_of_mem_of_subset hz (ih ⟨z, mz₁⟩)
+      _ < 2 ^ (-2 : ℝ) + C4_2_1 := by
+        gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two]
+        linarith [four_le_a X]
+      _ < _ := by norm_num
+
+def tile_existence : TileStructure Q D κ S o where
   Ω := Construction.Ω
   biUnion_Ω := sorry
   disjoint_Ω := sorry
@@ -397,4 +438,6 @@ def tile_existence [GridStructure X D κ S o] : TileStructure Q D κ S o where
     · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
       exact mem_of_mem_of_subset mh (this.trans (Construction.ball_subset_Ω₁ p))
     · exact mem_of_mem_of_subset mh (by simp [Construction.CΩ])
-  subset_cdist := sorry
+  subset_cdist {p} h mh := by
+    revert h; rw [← subset_def]
+    exact Ω_subset_cdist
