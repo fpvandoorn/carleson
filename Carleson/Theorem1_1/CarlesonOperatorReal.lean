@@ -15,11 +15,11 @@ def CarlesonOperatorReal' (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) 
 def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
-
+/-
 def CarlesonOperatorRat (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℚ) (_ : 0 < r),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo (r : ℝ) 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
-
+-/
 #check (fun x ↦ CarlesonOperatorReal K _ x)
 
 
@@ -45,7 +45,7 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
       . constructor <;> linarith
 
 lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (Measurable.dist measurable_const measurable_id) measurableSet_Ioo
-
+/-
 lemma CarlesonOperatorRat'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (CarlesonOperatorRat K f):= by
   --apply Measurable.iSup
   apply measurable_iSup
@@ -67,12 +67,48 @@ lemma CarlesonOperatorRat'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Me
     rw [annulus_real_eq sorry, MeasureTheory.integral_union sorry sorry sorry sorry]
   -/
   sorry
-
+-/
 local notation "T" => CarlesonOperatorReal K
+
+lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :
+    ⨆ r ∈ S, f r = ⨆ r ∈ (S ∩ D), f r := by
+  sorry
 
 lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (T f):= by
   --use (prove) that CarlesonOperatorRat' = CarlesonOperatorReal' ?
-  --MeasureTheory.continuousAt_of_dominated
+  let F (n : ℤ) (x : ℝ) (r : ℝ) : ENNReal := ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
+  have : T f = fun x ↦ ⨆ (n : ℤ) (r : ℝ) (_ : r ∈ Set.Ioo 0 1), F n x r := by
+    ext x
+    unfold CarlesonOperatorReal
+    congr
+    ext n
+    congr
+    ext r
+    rw [iSup_and]
+  rw [this]
+  let Q : Set ℝ := sorry
+  have hQ : Dense Q ∧ Countable Q := sorry
+  have : (fun x ↦ ⨆ (n : ℤ) (r : ℝ) (_ : r ∈ Set.Ioo 0 1), (fun t ↦ F n x t) r) = (fun x ↦ ⨆ (n : ℤ) (r : ℝ) (_ : r ∈ (Set.Ioo 0 1) ∩ Q), F n x r) := by
+    ext x
+    congr
+    ext n
+    rw [sup_eq_sup_dense_of_continuous Q isOpen_Ioo hQ.1]
+    intro r hr
+    simp
+    apply ContinuousAt.continuousWithinAt
+    apply ContinuousAt.comp
+    . sorry
+    apply ContinuousAt.nnnorm
+    --MeasureTheory.continuousAt_of_dominated
+    sorry
+  rw [this]
+  apply measurable_iSup
+  intro n
+  --rw [sup_eq_sup_dense_of_continuous Q isOpen_Ioo hQ.1]
+  apply measurable_biSup
+  apply Set.Countable.mono Set.inter_subset_right hQ.2
+  intro r hr
+  --measurability
   sorry
 
 theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by

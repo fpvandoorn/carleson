@@ -87,25 +87,19 @@ lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : �
   rw [Metric.uniformContinuous_iff]
   intro ε εpos
   rcases (unicont_on_Icc ε εpos) with ⟨δ, δpos, h⟩
-  use δ, δpos
+  use min δ T, lt_min δpos hT
+  have h1: min δ T ≤ δ := min_le_left _ _
+  have h2 : min δ T ≤ T := min_le_right _ _
   intro x y hxy
-  by_cases hδ : δ ≤ T
-  . rcases (hp.exists_mem_Ico₀' hT x) with ⟨n, ha, hxa⟩
-    have hyb: f y = f (y - n • T) := (hp.sub_zsmul_eq n).symm
-    rw [hxa, hyb]
-    apply h (x - n • T) _ (y - n • T)
-    rw [Real.dist_eq, abs_lt] at hxy
-    constructor <;> linarith [ha.1, ha.2]
-    rwa [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
-    constructor <;> linarith [ha.1, ha.2]
-  . rcases (hp.exists_mem_Ico₀ hT x) with ⟨a, ha, hxa⟩
-    rcases (hp.exists_mem_Ico₀ hT y) with ⟨b, hb, hyb⟩
-    rw [hxa, hyb]
-    apply h a _ b
-    constructor <;> linarith [hb.1, hb.2]
-    rw [Real.dist_eq, abs_lt]
-    constructor <;> linarith [ha.1, ha.2, hb.1, hb.2]
-    constructor <;> linarith [ha.1, ha.2]
+  rcases (hp.exists_mem_Ico₀' hT x) with ⟨n, ha, hxa⟩
+  have hyb: f y = f (y - n • T) := (hp.sub_zsmul_eq n).symm
+  rw [hxa, hyb]
+  apply h (x - n • T) _ (y - n • T)
+  rw [Real.dist_eq, abs_lt] at hxy
+  constructor <;> linarith [ha.1, ha.2]
+  rw [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
+  exact hxy.trans_le h1
+  constructor <;> linarith [ha.1, ha.2]
 
 
 lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by

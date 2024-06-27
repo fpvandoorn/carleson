@@ -488,9 +488,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
 
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
-#check van_der_Corput
---TODO : possibly issues with a different "doubling constant" than in the paper (4 instead of 2)
-set_option profiler true in
+--set_option profiler true in
 instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by
@@ -505,7 +503,14 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
     unfold instFunctionDistancesReal
     dsimp only
     rw [max_eq_left r_pos.le]
-    set L := ⨆ (x : ℝ) (y : ℝ) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y with Ldef
+    set L : NNReal := ⟨⨆ (x : ℝ) (y : ℝ) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y, by
+            apply Real.iSup_nonneg
+            intro x
+            apply Real.iSup_nonneg
+            intro y
+            apply Real.iSup_nonneg
+            intro hxy
+            apply div_nonneg (norm_nonneg _) dist_nonneg⟩  with Ldef
     set B : NNReal := ⟨⨆ y ∈ ball x r, ‖ϕ y‖, by
             apply Real.iSup_nonneg
             intro i
@@ -521,11 +526,13 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
         push_cast
         rw [_root_.sub_mul]
         norm_cast
-      _ ≤ 2 * Real.pi * ((x + r) - (x - r)) * (B + L.toNNReal * ((x + r) - (x - r)) / 2) * (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
+      _ ≤ 2 * Real.pi * ((x + r) - (x - r)) * (B + L * ((x + r) - (x - r)) / 2) * (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
         apply van_der_Corput (by linarith)
         . rw [lipschitzWith_iff_dist_le_mul]
           intro x y
-          --TODO: make this a lemma
+          --TODO: could be externalised as a lemma
+          --rw [dist_eq_norm, ← (div_le_iff₀ _), Ldef, NNReal.coe_mk]
+          --apply le_ciSup_of_le
           sorry
         . --prove main property of B
           intro y hy
@@ -537,7 +544,7 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
           use y
           rw [Real.ball_eq_Ioo]
           use hy
-      _ = 2 * Real.pi * (2 * r) * (B + r * L.toNNReal) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
+      _ = 2 * Real.pi * (2 * r) * (B + r * L) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
         ring
       _ ≤ (2 : ℝ) ^ (4 : ℝ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / ((2 : ℝ) ^ (4 : ℝ)))) := by
         gcongr
@@ -549,17 +556,8 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
           linarith [Real.pi_le_four]
         . unfold iLipNorm
           gcongr
-          . apply le_of_eq Bdef
-          simp only [Real.coe_toNNReal', max_le_iff]
-          constructor
-          . apply le_of_eq Ldef
-          apply Real.iSup_nonneg
-          intro x
-          apply Real.iSup_nonneg
-          intro y
-          apply Real.iSup_nonneg
-          intro hxy
-          apply div_nonneg (norm_nonneg _) dist_nonneg
+          apply le_of_eq Bdef
+          apply le_of_eq Ldef
         . rw [← Real.rpow_neg_one]
           apply Real.rpow_le_rpow_of_exponent_le _ (by norm_num)
           simp only [Int.cast_abs, Int.cast_sub, le_add_iff_nonneg_right]
