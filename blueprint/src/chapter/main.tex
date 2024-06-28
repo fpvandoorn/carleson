@@ -12,14 +12,14 @@
 
 \date{\today}
 
-\maketitle
-
 \begin{abstract}
     We prove a new generalization of a theorem of Carleson, namely bounds for a generalized Carleson operator on doubling metric measure spaces.
     Additionally, we explicitly reduce Carleson's classical result on pointwise convergence of Fourier series to this new theorem.
     Both proofs are presented in great detail, suitable as a blueprint for computer verification using the current capabilities of the software package Lean.
     Note that even Carleson's classical result has not yet been computer-verified.
 \end{abstract}
+
+\maketitle
 
 \tableofcontents
 
@@ -285,11 +285,11 @@ bound for a dyadic model formulated in \Cref{discrete-Carleson} below.
 % Simplify some arguments in antichain bounds/estimates, because we only have 1 top cube
 
 A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of pairs $(I, k)$ of Borel
-sets in $X$ and $k \in [-S, S]$ called dyadic cubes, the surjective projection $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$ to the second component
+sets in $X$ and integers $k \in [-S, S]$, the projection $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$ to the second component which is assumed to be surjective and
 called scale function, and a function $c:\mathcal{D}\to X$
 called center function such that the five properties
 \eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{subsetmaxcube},
-\eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold. By abuse of notation, we will usually write just $I$ for the cube $(I,k)$, and we will write $I \subset J$ to mean that for two cubes $(I,k), (J, l) \in \mathcal{D}$ we have $I \subset J$ and $k \le l$. 
+\eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold. We call the elements of $\mathcal{D}$ dyadic cubes. By abuse of notation, we will usually write just $I$ for the cube $(I,k)$, and we will write $I \subset J$ to mean that for two cubes $(I,k), (J, l) \in \mathcal{D}$ we have $I \subset J$ and $k \le l$. 
 
 For each dyadic cube $I$ and each $-S\le k<s(I)$ we have
 \begin{equation}\label{coverdyadic}
@@ -778,7 +778,7 @@ has finite distance from $o$.
 
 We first show how \Cref{R-truncation} implies \Cref{metric-space-Carleson}. As $R$ tends to $\infty$, the integrand of the left-hand side of \eqref{Rcut} grows monotonically toward the integrand of the left-hand side of \eqref{resweak} for all $x$. By Lebesgue's monotone convergence theorem, the left-hand side of \eqref{Rcut} converges to the left-hand side of \eqref{resweak}. This verifies \Cref{metric-space-Carleson}.
 
-It remains to prove \Cref{R-truncation}. Fix an integer $R>0$. By replacing $G$ with $G\cap B(o,R)$ if necessary, it suffices to show \eqref{Rcut} under the assumption that $G$ is contained in $B(o,R)$. We make this assumption. For every $x\in G$, the domain of integration in \eqref{TRR} is contained in $B(o,2R)$. By replacing $F$ with $F\cap B(o,2R)$ if necessary, it suffices to show \eqref{Rcut} under the assumption that $F$ is contained in $B(o,2R)$. We make this assumption.
+It remains to prove \Cref{R-truncation}. Fix an integer $R>0$. By replacing $G$ with $G\cap B(o,R)$ if necessary, it suffices to show \eqref{Rcut} under the assumption that $G$ is contained in $B(o,R)$. We make this assumption. For every $x\in G$, the domain of integration in \eqref{TRR} is contained in $B(o,2R)$. By replacing $F$ with $F\cap B(o,2R)$ if necessary, and correspondingly restricting $f$ to $B(o, 2R)$, it suffices to show \eqref{Rcut} under the assumption that $F$ is contained in $B(o,2R)$. We make this assumption.
 
 Using the definition \eqref{defks} of $K_s$ and the partition of unity \eqref{eq-psisum}, we express \eqref{TRR} as the sum of
 \begin{equation}\label{middles}
@@ -803,7 +803,7 @@ We apply the triangle inequality and estimate the versions of \eqref{Rcut} separ
     $$
         \int \mathbf{1}_{G}(x)
         \max_{-S<s_1\le s_2<S}\sup_{\mfa\in\Mf}
-        \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
+        \left| T_{1, s_1,s_2,\mfa} f(x) \right|\, d\mu(x)
     $$
     \begin{equation} \label{Scut}
         \leq \frac{2^{446a^3}}{(q-1)^6} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
