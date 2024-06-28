@@ -284,12 +284,12 @@ bound for a dyadic model formulated in \Cref{discrete-Carleson} below.
 % fixme:
 % Simplify some arguments in antichain bounds/estimates, because we only have 1 top cube
 
-A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of Borel
-sets in $X$ called dyadic cubes, a surjective function $s\colon \mathcal{D}\to [-S, S]$
+A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of pairs $(I, k)$ of Borel
+sets in $X$ and $k \in [-S, S]$ called dyadic cubes, the surjective projection $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$ to the second component
 called scale function, and a function $c:\mathcal{D}\to X$
 called center function such that the five properties
 \eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{subsetmaxcube},
-\eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold.
+\eqref{eq-vol-sp-cube}, and \eqref{eq-small-boundary} hold. By abuse of notation, we will usually write just $I$ for the cube $(I,k)$, and we will write $I \subset J$ to mean that for two cubes $(I,k), (J, l) \in \mathcal{D}$ we have $I \subset J$ and $k \le l$. 
 
 For each dyadic cube $I$ and each $-S\le k<s(I)$ we have
 \begin{equation}\label{coverdyadic}
@@ -751,7 +751,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \label{thmfromproplinear}
 
 
-Let Borel sets $F$, $G$ in $X$ be given.
+Let Borel sets $F$, $G$ in $X$ be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 We have that
 \begin{equation}
     X=\bigcup_{R>0}B(o,R),
@@ -764,7 +764,7 @@ has finite distance from $o$.
     $$
         \int \mathbf{1}_{G\cap B(o,R)}
         \sup_{1/R<R_1<R_2<R}\sup_{\mfa\in\Mf}
-        \left| T_{R_1,R_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
+        \left| T_{R_1,R_2,\mfa} f(x) \right|\, d\mu(x)
     $$
     \begin{equation} \label{Rcut}
         \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
@@ -834,7 +834,7 @@ It remains to prove \Cref{S-truncation}. Fix $S>0$.
     $$
         \int \mathbf{1}_{G}(x)
         \max_{-S<s_1\le s_2<S}\sup_{\mfa\in\tilde{\Mf}}
-        \left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x) \right|\, d\mu(x)
+        \left| T_{1, s_1,s_2,\mfa} f(x) \right|\, d\mu(x)
     $$
     \begin{equation} \label{Sqcut}
     \leq \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
@@ -858,14 +858,14 @@ $$
 
 For every $\mfa\in \Mf$, we have
 \begin{equation}
-\left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x)\right|=
+\left| T_{1, s_1,s_2,\mfa} f(x)\right|=
 \left|\sum_{s_1 \le s\le s_2}
 \int K_s(x,y) f(y) e(\mfa(y)-{\mfa(x)}) \, \mathrm{d}\mu(y)\right|
 \end{equation}
 Moreover, there is a $\tilde{\mfa}
 \in \tilde{\Mf}$ with $d_{B(o,2R)}(\mfa,\tilde{\mfa})\le \epsilon$. Hence,
 \begin{align*}
-    &\left| T_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x)\right|-\left|T_{1, s_1,s_2,\tilde{\mfa}} \mathbf{1}_{F}(x) \right|\\
+    &\left| T_{1, s_1,s_2,\mfa} f(x)\right|-\left|T_{1, s_1,s_2,\tilde{\mfa}} f(x) \right|\\
   &\leq\sum_{s_1 \le s\le s_2} \int |K_s(x,y)| \mathbf{1}_F(y) |e(\mfa(y)-{\mfa(x)})-e({\tilde{\mfa}(y)}-{\tilde{\mfa}(x)})| \, \mathrm{d}\mu(y)\\
     &\leq \sum_{s_1 \le s\le s_2} \epsilon \int |K_s(x,y)| \mathbf{1}_F(y) \, \mathrm{d}\mu(y)
 \end{align*}
@@ -881,7 +881,7 @@ the sum of left-hand-side of \eqref{Sqcut} and
     &\int \mathbf{1}_{G}(x)
 \max_{-S<s_1\le s_2<S}\sup_{\mfa\in {\Mf}}
 \inf_{\tilde{\mfa}\in\tilde{\Mf}}
-(| T_{1, s_1,s_2,\mfa}|-|T_{1, s_1,s_2,\tilde{\mfa}} |)\mathbf{1}_{F}(x)\, d\mu(x)\,,\\
+(| T_{1, s_1,s_2,\mfa}f(x)|-|T_{1, s_1,s_2,\tilde{\mfa}}f(x) |)\, d\mu(x)\,,\\
 \end{align*}
 which, as we have just shown, is estimated by
 \begin{align*}
@@ -910,7 +910,7 @@ $\tilde{\Mf}$.
     Let $\tQ\colon X\to {\tilde{\Mf}}$ be a measurable function. Then we have
     \begin{equation} \label{Sqlin}
         \int \mathbf{1}_{G}(x)
-        \left| {T}_{2,\sigma_1,\sigma_2,\tQ}\mathbf{1}_F(x)\right|\, d\mu(x)
+        \left| {T}_{2,\sigma_1,\sigma_2,\tQ}f(x)\right|\, d\mu(x)
         \le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     with
@@ -925,26 +925,26 @@ We reduce \Cref{finitary-S-truncation} to
 For each $x$, let $\sigma_1(x)$ be the
 minimal element $s'\in [-S,S]$ such that
 \[\max_{s'\leq s_2<S}\max_{\mfa\in\tilde{\Mf}}
-| T_{1, s',s_2,\mfa} \mathbf{1}_{F}(x)|
+| T_{1, s',s_2,\mfa} f(x)|
 =
 \max_{-S<s_1\le s_2<S}\max_{\mfa\in\tilde{\Mf}}
-| {T}_{1, s_1,s_2,\mfa} \mathbf{1}_{F}(x)|:={T}_{1, x}.
+| {T}_{1, s_1,s_2,\mfa} f(x)|:={T}_{1, x}.
 \]
 Similarly, let ${\sigma}_2(x)$ be the
 minimal element $s''\in [-S,S]$ such that
 \[\max_{\mfa\in\tilde{\Mf}}
-| {T}_{1, {\sigma}_1(x), s'',\mfa} \mathbf{1}_{F}(x)|
+| {T}_{1, {\sigma}_1(x), s'',\mfa} f(x)|
 =
 {T}_{1,x}\,.
 \]
 Finally, choose a total order of the finite set $\tilde{\Mf}$
 and let $\tQ(x)$ be the minimal element $\mfa$ with respect to this order such that
 \[
-| {T}_{1, {\sigma}_1(x),{\sigma}_2(x),\mfa} \mathbf{1}_{F}(x)| = {T}_{1,x}\,.
+| {T}_{1, {\sigma}_1(x),{\sigma}_2(x),\mfa} f(x)| = {T}_{1,x}\,.
 \]
 With these choices, and noting that
 \begin{equation*}
-{T}_{1, {\sigma}_1(x),{\sigma}_2(x),\tQ(x)} \mathbf{1}_{F}(x)={T}_{2, {\sigma}_1,{\sigma}_2,\tQ} \mathbf{1}_{F}(x),
+{T}_{1, {\sigma}_1(x),{\sigma}_2(x),\tQ(x)} f(x)={T}_{2, {\sigma}_1,{\sigma}_2,\tQ} f(x),
 \end{equation*}
 we conclude that the left-hand side of \eqref{Sqcut}
 and \eqref{Sqlin} are equal. Thus, \Cref{finitary-S-truncation}
@@ -958,7 +958,7 @@ a sequence of sets $G_n$ with $G_0=G$ and,
 for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
 \begin{equation*}
     \int \mathbf{1}_{G_{n}\setminus G_{n+1}}(x)
-    \left| {T}_{2,\sigma_1,\sigma_2, \tQ} \mathbf{1}_{F}(x) \right|\, d\mu(x)
+    \left| {T}_{2,\sigma_1,\sigma_2, \tQ} f(x) \right|\, d\mu(x)
 \end{equation*}
 \begin{equation}
     \le \frac{2^{440a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
@@ -966,18 +966,18 @@ for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
 Adding the first $n$ of these inequalities, we obtain by bounding a geometric series
     \begin{equation} \label{Sqcut2}
     \int \mathbf{1}_{G\setminus G_{n}}(x)
-\left| {T}_{2,\sigma_1,\sigma_2, \tQ}\mathbf{1}_F(x) \right|\, d\mu(x)
+\left| {T}_{2,\sigma_1,\sigma_2, \tQ}f(x) \right|\, d\mu(x)
 \le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 As the integrand is bounded by
 \begin{equation}\mathbf{1}_{G\setminus G_{n}}(x)
 \sum_{-S<s_1\le s_2<S}\sum_{\mfa\in\tilde{\Mf}}
-\left| {T}_{1,s_1, s_2, \mfa} \mathbf{1}_{F}(x) \right|,
+\left| {T}_{1,s_1, s_2, \mfa} f(x) \right|,
 \end{equation}
 which by interchange of summation and integration is seen to be integrable, we obtain by Lebesgue's dominated convergence theorem
  \begin{equation} \label{Sqcut3}
     \int \mathbf{1}_{G}(x)
-\left| {T}_{2,\sigma_1,\sigma_2, \tQ}\mathbf{1}_F(x) \right|\, d\mu(x)
+\left| {T}_{2,\sigma_1,\sigma_2, \tQ}f(x) \right|\, d\mu(x)
 \le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 
