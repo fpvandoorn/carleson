@@ -255,8 +255,8 @@ instance : Inhabited (𝓩 I) := sorry
 /-- 7 / 10 -/
 @[simp] def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
-lemma frequency_ball_cover :
-    range Q ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
+/-- Equation (4.2.3), Lemma 4.2.1 -/
+lemma frequency_ball_cover : range Q ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
   intro θ hθ
   have : ∃ z, z ∈ 𝓩 I ∧ ¬ Disjoint (ball_{I} z C𝓩) (ball_{I} θ C𝓩) := by
     by_contra! h
@@ -351,6 +351,7 @@ lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := b
     simp only [qz, zeq, Fin.eta, Equiv.symm_apply_apply, sdiff_sdiff, diff_subset]
   · exact empty_subset _
 
+/-- Equation (4.2.5) -/
 lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := by
   rw [iUnion₂_subset_iff]; intro z mz (ϑ : Θ X) mϑ
   let f := Finite.equivFin (𝓩 I)
@@ -398,13 +399,13 @@ lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
 termination_by p => p.1.opSize
 
 lemma Ω_subset_cdist {p : 𝔓 X} : Construction.Ω p ⊆ ball_(p) (𝒬 p) 1 := by
-  apply 𝔓_induction fun p ↦ Construction.Ω p ⊆ ball_(p) (𝒬 p) 1
-  · intro p maxI ϑ mϑ
-    rw [Construction.Ω] at mϑ; simp only [maxI, dite_true] at mϑ
-    have : ball_(p) (𝒬 p) C4_2_1 ⊆ ball_(p) (𝒬 p) 1 := ball_subset_ball (by norm_num)
-    exact mem_of_mem_of_subset mϑ ((Construction.Ω₁_subset_ball p).trans this)
-  · intro p nmaxI ih ϑ mϑ
-    rw [Construction.Ω] at mϑ; simp only [nmaxI, dite_false, mem_union] at mϑ
+  induction p using 𝔓_induction with
+  | base p maxI =>
+    rw [Construction.Ω]; simp only [maxI, dite_true]
+    exact (Construction.Ω₁_subset_ball p).trans (ball_subset_ball (by norm_num))
+  | ind p nmaxI ih =>
+    rw [Construction.Ω]; simp only [nmaxI, dite_false, mem_union]
+    intro ϑ mϑ
     rcases mϑ with c | c; · exact mem_of_mem_of_subset c (ball_subset_ball (by norm_num))
     obtain ⟨I, ⟨y, my⟩⟩ := p
     dsimp only at nmaxI ih c
@@ -428,10 +429,88 @@ lemma Ω_subset_cdist {p : 𝔓 X} : Construction.Ω p ⊆ ball_(p) (𝒬 p) 1 :
         linarith [four_le_a X]
       _ < _ := by norm_num
 
+lemma cube_induction (P : 𝓓 X → Prop) (base : ∀ i, IsMax i → P i)
+    (ind : ∀ i, ¬IsMax i → P i.succ → P i) : ∀ i, P i := fun i ↦ by
+  by_cases h : IsMax i
+  · exact base i h
+  · have := 𝓓.opSize_succ_lt h
+    exact ind i h (cube_induction P base ind i.succ)
+termination_by i => i.opSize
+
+lemma Ω_disjoint_aux {I : 𝓓 X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
+    Disjoint (ball_{I} y.1 Construction.CΩ) (⋃ z', ⋃ (x : z' ∈ 𝓩 I.succ ∩ Construction.Ω₁ ⟨I, z⟩),
+      Construction.Ω ⟨I.succ, ⟨z', x.1⟩⟩) := by
+  have dj := (Construction.disjoint_frequency_cubes (f := y) (g := z)).mt hn
+  rw [← not_disjoint_iff_nonempty_inter, not_not] at dj
+  contrapose! hn; rw [not_disjoint_iff] at hn
+  obtain ⟨(ϑ : Θ X), mϑ, mϑ'⟩ := hn
+  rw [mem_iUnion₂] at mϑ'; obtain ⟨x, ⟨mx₁, mx₂⟩, mϑ₂⟩ := mϑ'
+  have u : x ∈ ball_{I} y.1 C𝓩 := by
+    rw [@mem_ball, @dist_comm]
+    calc
+    _ ≤ dist_{I} ϑ y.1 + dist_{I} ϑ x := dist_triangle_left ..
+    _ < Construction.CΩ + dist_{I} ϑ x := by gcongr; simpa [mem_ball] using mϑ
+    _ ≤ Construction.CΩ + C2_1_2 a * dist_{I.succ} ϑ x := by
+      gcongr; refine 𝓓.dist_strictMono (lt_of_le_of_ne 𝓓.le_succ ?_)
+      contrapose! nmaxI; exact 𝓓.max_of_le_succ nmaxI.symm.le
+    _ < Construction.CΩ + C2_1_2 a * 1 := by
+      gcongr
+      · rw [C2_1_2]; positivity
+      · simpa only using mem_of_mem_of_subset mϑ₂ (Ω_subset_cdist (p := ⟨I.succ, ⟨x, mx₁⟩⟩))
+    _ < Construction.CΩ + 2 ^ (-4 : ℝ) := by
+      gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two]
+      linarith [four_le_a X]
+    _ ≤ _ := by norm_num
+  replace u := mem_of_mem_of_subset u (Construction.ball_subset_Ω₁ ⟨I, y⟩)
+  have := dj.ne_of_mem u mx₂; contradiction
+
 def tile_existence : TileStructure Q D κ S o where
   Ω := Construction.Ω
-  biUnion_Ω := sorry
-  disjoint_Ω := sorry
+  biUnion_Ω {I} := by
+    induction I using cube_induction with
+    | base I maxI =>
+      intro ϑ mϑ; simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop]
+      have l := mem_of_mem_of_subset mϑ <|
+        (frequency_ball_cover (I := I)).trans Construction.iUnion_ball_subset_iUnion_Ω₁
+      rw [mem_iUnion] at l; obtain ⟨z, mz⟩ := l; use ⟨I, z⟩
+      exact ⟨rfl, by rw [Construction.Ω]; simp only [maxI, dite_true, mz]⟩
+    | ind I nmaxI ih =>
+      intro ϑ mϑ
+      replace ih := mem_of_mem_of_subset mϑ ih
+      simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at ih ⊢
+      obtain ⟨⟨J, z⟩, (e : J = I.succ), h⟩ := ih
+      have dq : ϑ ∈ ball_{J} z.1 1 := mem_of_mem_of_subset h Ω_subset_cdist
+      rw [@mem_ball] at dq
+      replace dq : dist_{I} ϑ z.1 < 1 := (𝓓.dist_mono (by convert 𝓓.le_succ)).trans_lt dq
+      have := mem_of_mem_of_subset mϑ (frequency_ball_cover (I := I))
+      rw [mem_iUnion₂] at this; obtain ⟨z', mz', hz'⟩ := this
+      use ⟨I, ⟨z', mz'⟩⟩
+      refine ⟨rfl, ?_⟩
+      rw [Construction.Ω]; simp only [nmaxI, dite_false, mem_union]; right
+      rw [mem_iUnion₂]; refine ⟨z, ⟨z.2, ?_⟩, e ▸ h⟩
+      sorry
+  disjoint_Ω {p q} hn h𝓘 := by
+    change p.1 = q.1 at h𝓘; obtain ⟨I, y⟩ := p; obtain ⟨_, z⟩ := q
+    subst h𝓘; dsimp only at hn z ⊢
+    replace hn : y ≠ z := fun e ↦ hn (congrArg (Sigma.mk I) e)
+    induction I using cube_induction with
+    | base I maxI =>
+      unfold Construction.Ω; simp only [maxI, dite_true]
+      contrapose! hn; rw [not_disjoint_iff_nonempty_inter] at hn
+      exact Construction.disjoint_frequency_cubes hn
+    | ind I nmaxI ih =>
+      unfold Construction.Ω; simp only [nmaxI, dite_false]
+      have dj := (Construction.disjoint_frequency_cubes (f := y) (g := z)).mt hn
+      rw [← not_disjoint_iff_nonempty_inter, not_not] at dj
+      rw [disjoint_union_left]; constructor <;> (rw [disjoint_union_right]; constructor)
+      · have binc : ∀ x, ball_{I} x.1 Construction.CΩ ⊆ Construction.Ω₁ ⟨I, x⟩ := fun x ↦
+          (ball_subset_ball (by norm_num)).trans (Construction.ball_subset_Ω₁ ⟨I, x⟩)
+        exact (dj.mono_left (binc y)).mono_right (binc z)
+      · exact Ω_disjoint_aux nmaxI hn
+      · exact (Ω_disjoint_aux nmaxI hn.symm).symm
+      · rw [disjoint_iUnion₂_left]; intro a ⟨ma₁, ma₂⟩
+        rw [disjoint_iUnion₂_right]; intro b ⟨mb₁, mb₂⟩
+        exact ih ⟨a, ma₁⟩ ⟨b, mb₁⟩ (by simp [dj.ne_of_mem ma₂ mb₂])
   relative_fundamental_dyadic {p q} hs := by
     rw [or_iff_not_imp_left]; intro hi
     sorry
