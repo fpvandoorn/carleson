@@ -21,11 +21,11 @@ lemma E_disjoint {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 :
   · have hE' : (E p' ∩ E p).Nonempty := by simp only [inter_comm, hE]
     exact eq_comm.mp (this h𝔄 hp' hp hE' hE'.some_mem (le_of_lt (not_le.mp h𝔰)))
   obtain ⟨⟨hx𝓓p, hxΩp, _⟩ , hx𝓓p', hxΩp', _⟩ := hx
-  have h𝓓 : 𝓘 p ⊆ 𝓘 p' :=
-    (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (fundamental_dyadic h𝔰)
+  have h𝓓 : 𝓘 p ≤ 𝓘 p' :=
+    (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (le_or_disjoint h𝔰)
   have hΩ : Ω p' ≤ Ω p :=
     (or_iff_right (not_disjoint_iff.mpr ⟨Q x, hxΩp, hxΩp'⟩)).mp (relative_fundamental_dyadic h𝓓)
-  have hle : p ≤ p' := ⟨⟨h𝓓, h𝔰⟩, hΩ⟩
+  have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
   exact IsAntichain.eq h𝔄 hp hp' hle
 
 variable (K) (σ₁ σ₂) (p : 𝔓 X)
