@@ -526,11 +526,21 @@ def tile_existence : TileStructure Q D κ S o where
         rw [disjoint_comm, not_disjoint_iff]
         use w, mw, mem_of_mem_of_subset mw hinc
       have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
-      replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ ∨ 𝓘 (X := X) ⟨I, y⟩ ≠ 𝓘 ⟨J, z⟩ := by tauto
-      rcases k with c | c; · rw [c]
-      contradiction
-    · have : 0 ≤ 𝔰 q - 𝔰 p - 1 := by omega
-      sorry
+      replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
+      rw [k]
+    · obtain ⟨J, y⟩ := p
+      obtain ⟨I, z⟩ := q
+      change ¬s I ≤ s J at h
+      have bI : -S ≤ s I ∧ s I ≤ S := mem_Icc.mp (range_s_subset ⟨I, rfl⟩)
+      have bJ : -S ≤ s J ∧ s J ≤ S := mem_Icc.mp (range_s_subset ⟨J, rfl⟩)
+      refine @Int.le_induction (fun d ↦ s I - s J = d →
+        Construction.Ω ⟨I, z⟩ ⊆ Construction.Ω ⟨J, y⟩) 1 (fun h ↦ ?_) ?_
+        (s I - s J) (by omega) rfl
+      · have := 𝓓_subset_biUnion (i := I) (k := s I - 1) (by
+          rw [mem_Ico]; change -S ≤ s I - 1 ∧ s I - 1 < s I; omega)
+        sorry
+      · intro k l ih
+        sorry
   cdist_subset {p} := by
     rw [Construction.Ω]; split_ifs with hh
     · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
