@@ -60,8 +60,10 @@ instance : Fintype (𝓓 X) := GridStructure.fintype_𝓓
 instance : Coe (𝓓 X) (Set X) := ⟨GridStructure.coe𝓓⟩
 instance : Membership X (𝓓 X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩
 instance : PartialOrder (𝓓 X) := PartialOrder.lift _ GridStructure.inj
-instance : HasSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
-instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
+/- These should probably not/only rarely be used. I comment them out for now,
+so that we don't accidentally use it. We can put it back if useful after all. -/
+-- instance : HasSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊆ (j : Set X)⟩
+-- instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
   conveniently rewrite/simp with Set-lemmas -/
@@ -69,14 +71,18 @@ instance : HasSSubset (𝓓 X) := ⟨fun i j ↦ (i : Set X) ⊂ (j : Set X)⟩
 @[simp] lemma 𝓓.le_def {i j : 𝓓 X} : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 
 /-- Beware: you *probably* want to use `i ≤ j`, and not `i ⊆ j`. -/
-@[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
-@[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
+-- @[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
+-- @[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
 protected lemma 𝓓.inj : Injective (fun i : 𝓓 X ↦ ((i : Set X), s i)) := GridStructure.inj
 
 lemma fundamental_dyadic {i j : 𝓓 X} :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
+
+lemma le_or_disjoint {i j : 𝓓 X} (h : s i ≤ s j) :
+    i ≤ j ∨ Disjoint (i : Set X) (j : Set X) :=
+  fundamental_dyadic h |>.imp (⟨·, h⟩) id
 
 namespace 𝓓
 
@@ -159,7 +165,7 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : -- 2.0.13, union is disjoint
     Disjoint (Ω p) (Ω p')
-  relative_fundamental_dyadic {p p'} (h : 𝓘 p ⊆ 𝓘 p') : -- 2.0.14
+  relative_fundamental_dyadic {p p'} (h : 𝓘 p ≤ 𝓘 p') : -- 2.0.14
     Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
   cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
   subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
@@ -309,7 +315,7 @@ structure Forest (n : ℕ) where
   essSup_tsum_le : snorm (∑ u ∈ 𝔘, (𝓘 u : Set X).indicator (1 : X → ℝ)) ∞ volume ≤ 2 ^ n
   dens₁_𝔗_le {u} (hu : u ∈ 𝔘) : dens₁ (𝔗 u : Set (𝔓 X)) ≤ 2 ^ (4 * a + 1 - n)
   lt_dist {u u'} (hu : u ∈ 𝔘) (hu' : u' ∈ 𝔘) (huu' : u ≠ u') {p} (hp : p ∈ 𝔗 u')
-    (h : 𝓘 p ⊆ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u)
+    (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u)
   ball_subset {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u
   -- old conditions
   -- disjoint_I : ∀ {𝔗 𝔗'}, 𝔗 ∈ I → 𝔗' ∈ I → Disjoint 𝔗.carrier 𝔗'.carrier
