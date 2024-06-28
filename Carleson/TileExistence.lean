@@ -520,11 +520,10 @@ def tile_existence : TileStructure Q D κ S o where
     · obtain ⟨I, y⟩ := p
       obtain ⟨J, z⟩ := q
       have hij : I = J := by
-        refine (𝓓.coe_inj (subset_antisymm ((fundamental_dyadic h).resolve_right ?_) hinc)).symm
-        rw [𝓓.subset_def] at hinc
+        refine le_antisymm hinc <| 𝓓.le_def.mpr ⟨(fundamental_dyadic h).resolve_right ?_, h⟩
         obtain ⟨w, mw⟩ := I.nonempty
         rw [disjoint_comm, not_disjoint_iff]
-        use w, mw, mem_of_mem_of_subset mw hinc
+        use w, mw, mem_of_mem_of_subset mw (𝓓.le_def.mp hinc).1
       have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
       replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
       rw [k]

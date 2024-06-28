@@ -22,7 +22,6 @@ class GridStructure
   fintype_𝓓 : Fintype 𝓓
   /-- The collection of dyadic cubes -/
   coe𝓓 : 𝓓 → Set X
-  coe𝓓_injective : Injective coe𝓓
   /-- scale functions -/
   s : 𝓓 → ℤ
   /-- Center functions -/
@@ -75,7 +74,6 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 -- @[simp] lemma 𝓓.subset_def {i j : 𝓓 X} : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 -- @[simp] lemma 𝓓.ssubset_def {i j : 𝓓 X} : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
-protected lemma 𝓓.coe_inj : Injective fun i : 𝓓 X ↦ (i : Set X) := GridStructure.coe𝓓_injective
 protected lemma 𝓓.inj : Injective (fun i : 𝓓 X ↦ ((i : Set X), s i)) := GridStructure.inj
 
 lemma fundamental_dyadic {i j : 𝓓 X} :
