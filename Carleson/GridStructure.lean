@@ -103,8 +103,7 @@ def opSize (i : 𝓓 X) : ℕ := (S - s i).toNat
 
 open Classical in
 /-- If `i` is not a maximal element, this is the (unique) minimal element greater than i.
-Note, this is not a `SuccOrder`, since an element can be the successor of multiple other elements.
--/
+This is not a `SuccOrder` since an element can be the successor of multiple other elements. -/
 def succ (i : 𝓓 X) : 𝓓 X := if h : IsMax i then i else sorry
 
 variable {i j : 𝓓 X}
@@ -114,6 +113,14 @@ lemma max_of_le_succ : i.succ ≤ i → IsMax i := sorry
 /-- The proof of this is between equations 4.2.7 and 4.2.8. -/
 lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := sorry
 lemma opSize_succ_lt (h : ¬ IsMax i) : i.succ.opSize < i.opSize := sorry
+
+lemma induction (P : 𝓓 X → Prop) (base : ∀ i, IsMax i → P i)
+    (ind : ∀ i, ¬IsMax i → P i.succ → P i) : ∀ i, P i := fun i ↦ by
+  by_cases h : IsMax i
+  · exact base i h
+  · have := 𝓓.opSize_succ_lt h
+    exact ind i h (induction P base ind i.succ)
+termination_by i => i.opSize
 
 end 𝓓
 
@@ -144,6 +151,7 @@ class PreTileStructure [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (�
 export PreTileStructure (𝒬 range_𝒬)
 
 section
+
 variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
 
 variable (X) in
@@ -153,6 +161,7 @@ def 𝓘 : 𝔓 X → 𝓓 X := PreTileStructure.𝓘
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → 𝓓 X) := PreTileStructure.surjective_𝓘
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
+
 end
 
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _

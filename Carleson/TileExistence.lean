@@ -430,14 +430,6 @@ lemma Ω_subset_cdist {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
         linarith [four_le_a X]
       _ < _ := by norm_num
 
-lemma cube_induction (P : 𝓓 X → Prop) (base : ∀ i, IsMax i → P i)
-    (ind : ∀ i, ¬IsMax i → P i.succ → P i) : ∀ i, P i := fun i ↦ by
-  by_cases h : IsMax i
-  · exact base i h
-  · have := 𝓓.opSize_succ_lt h
-    exact ind i h (cube_induction P base ind i.succ)
-termination_by i => i.opSize
-
 lemma Ω_disjoint_aux {I : 𝓓 X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
     Disjoint (ball_{I} y.1 CΩ) (⋃ z', ⋃ (x : z' ∈ 𝓩 I.succ ∩ Ω₁ ⟨I, z⟩),
       Ω ⟨I.succ, ⟨z', x.1⟩⟩) := by
@@ -469,7 +461,7 @@ lemma Ω_disjoint {p q : 𝔓 X} (hn : p ≠ q) (h𝓘 : 𝓘 p = 𝓘 q) : Disj
   change p.1 = q.1 at h𝓘; obtain ⟨I, y⟩ := p; obtain ⟨_, z⟩ := q
   subst h𝓘; dsimp only at hn z ⊢
   replace hn : y ≠ z := fun e ↦ hn (congrArg (Sigma.mk I) e)
-  induction I using cube_induction with
+  induction I using 𝓓.induction with
   | base I maxI =>
     unfold Ω; simp only [maxI, dite_true]
     contrapose! hn; rw [not_disjoint_iff_nonempty_inter] at hn
@@ -489,7 +481,7 @@ lemma Ω_disjoint {p q : 𝔓 X} (hn : p ≠ q) (h𝓘 : 𝓘 p = 𝓘 q) : Disj
       exact ih ⟨a, ma₁⟩ ⟨b, mb₁⟩ (by simp [dj.ne_of_mem ma₂ mb₂])
 
 lemma Ω_biUnion {I : 𝓓 X} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (𝓓 X)), Ω p := by
-  induction I using cube_induction with
+  induction I using 𝓓.induction with
   | base I maxI =>
     intro ϑ mϑ; simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop]
     have l := mem_of_mem_of_subset mϑ <|
