@@ -322,6 +322,7 @@ lemma disjoint_ball_Ω₁_aux (I : 𝓓 X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz
 
 def Ω₁ (p : 𝔓 X) : Set (Θ X) := Ω₁_aux p.1 (Finite.equivFin (𝓩 p.1) p.2)
 
+/-- Lemma 4.2.2 -/
 lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ ⟨I, g⟩).Nonempty) : f = g := by
   simp_rw [← not_disjoint_iff_nonempty_inter, Ω₁] at h
   contrapose! h
@@ -329,6 +330,7 @@ lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ �
   contrapose! h
   rwa [Fin.val_eq_val, Equiv.apply_eq_iff_eq] at h
 
+/-- Equation (4.2.6), first inclusion -/
 lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
   rw [Ω₁, Ω₁_aux]; set I := p.1; set z := p.2
   let k := (Finite.equivFin ↑(𝓩 I)) z
@@ -342,6 +344,7 @@ lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
     have zn : z ≠ z' := by simp only [ne_eq, Equiv.eq_symm_apply, z']; exact Fin.ne_of_gt hi
     simpa [z'] using disjoint_ball_Ω₁_aux I z'.2 z.2 (Subtype.coe_ne_coe.mpr zn.symm)
 
+/-- Equation (4.2.6), second inclusion -/
 lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := by
   rw [Ω₁, Ω₁_aux]
   split_ifs
@@ -485,29 +488,21 @@ lemma Ω_disjoint {p q : 𝔓 X} (hn : p ≠ q) (h𝓘 : 𝓘 p = 𝓘 q) : Disj
       rw [disjoint_iUnion₂_right]; intro b ⟨mb₁, mb₂⟩
       exact ih ⟨a, ma₁⟩ ⟨b, mb₁⟩ (by simp [dj.ne_of_mem ma₂ mb₂])
 
-lemma Ω_RFD {p q : 𝔓 X} (hinc : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q) ∨ Ω q ⊆ Ω p := by
+lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q) ∨ Ω q ⊆ Ω p := by
   by_cases h : 𝔰 q ≤ 𝔰 p
   · rw [or_iff_not_imp_left]; intro hi
     obtain ⟨I, y⟩ := p
     obtain ⟨J, z⟩ := q
     have hij : I = J := by
-      refine le_antisymm hinc <| 𝓓.le_def.mpr ⟨(fundamental_dyadic h).resolve_right ?_, h⟩
+      refine le_antisymm h𝓘 <| 𝓓.le_def.mpr ⟨(fundamental_dyadic h).resolve_right ?_, h⟩
       obtain ⟨w, mw⟩ := I.nonempty
       rw [disjoint_comm, not_disjoint_iff]
-      use w, mw, mem_of_mem_of_subset mw (𝓓.le_def.mp hinc).1
+      use w, mw, mem_of_mem_of_subset mw (𝓓.le_def.mp h𝓘).1
     have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k]
-  · have bound_p : -S ≤ 𝔰 p ∧ 𝔰 p ≤ S := mem_Icc.mp (range_s_subset ⟨p.1, rfl⟩)
-    have bound_q : -S ≤ 𝔰 q ∧ 𝔰 q ≤ S := mem_Icc.mp (range_s_subset ⟨q.1, rfl⟩)
-    have := 𝓓_subset_biUnion (i := q.1) (𝔰 q - 1) (by change _ ∧ 𝔰 q - 1 < 𝔰 q; omega)
-    obtain ⟨x, (hx : x ∈ q.1)⟩ := q.1.nonempty
-    replace this := mem_of_mem_of_subset hx this
-    simp_rw [mem_iUnion₂, exists_prop, mem_preimage, mem_singleton_iff] at this
-    obtain ⟨(J : 𝓓 X), (sJ : s J = s q.1 - 1), (mx : x ∈ J)⟩ := this
-    have k : J ≤ 𝓘 q := 𝓓.le_def.mpr
-      ⟨(fundamental_dyadic (show s J ≤ s q.1 by omega)).resolve_right
-        (not_disjoint_iff.mpr ⟨x, mx, hx⟩), by change _ ≤ s q.1; omega⟩
+  · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
+      exists_sandwiched_cube h𝓘 (l := 𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
     sorry
 
 end Construction

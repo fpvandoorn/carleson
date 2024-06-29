@@ -219,6 +219,28 @@ lemma 𝓓.dist_strictMono {I J : 𝓓 X} (hpq : I < J) {f g : Θ X} :
     dist_{I} f g ≤ C2_1_2 a * dist_{J} f g := by
   sorry
 
+lemma exists_including_cube (i : 𝓓 X) {l : ℤ} (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
+  obtain ⟨lb, ub⟩ := h
+  rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, 𝓓.le_topCube⟩
+  obtain ⟨x, hx⟩ := i.nonempty
+  have bound_i : -S ≤ s i ∧ s i ≤ S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
+  have ts := 𝓓_subset_biUnion (X := X) (i := topCube) l (by rw [s_topCube, mem_Ico]; omega)
+  have := mem_of_mem_of_subset hx ((𝓓.le_topCube (i := i)).1.trans ts)
+  simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
+  obtain ⟨j, (sj : s j = l), mj⟩ := this; use j, sj
+  exact (le_or_disjoint (by omega)).resolve_right (not_disjoint_iff.mpr ⟨x, hx, mj⟩)
+
+lemma exists_sandwiched_cube {i j : 𝓓 X} (hij : i ≤ j) {l : ℤ} (hl : l ∈ Icc (s i) (s j)) :
+    ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
+  have bound_q : -S ≤ s j ∧ s j ≤ S := mem_Icc.mp (range_s_subset ⟨j, rfl⟩)
+  rw [mem_Icc] at hl
+  obtain ⟨K, sK, lbK⟩ := exists_including_cube i (l := l) (by change s i ≤ _ ∧ _; omega)
+  use K, sK, lbK
+  apply (le_or_disjoint (by omega)).resolve_right
+  rw [not_disjoint_iff]
+  obtain ⟨x, hx⟩ := i.nonempty
+  use x, mem_of_mem_of_subset hx lbK.1, mem_of_mem_of_subset hx hij.1
+
 end GridStructure
 
 variable [TileStructure Q D κ S o]
