@@ -527,7 +527,36 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     rw [k]
   · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
       exists_sandwiched_cube h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
-    sorry
+    have := mem_of_mem_of_subset q.2.2 (𝓩_subset.trans (frequency_ball_cover (I := J)))
+    rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
+    have zi : ball_{J} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 I, ball_{J} z C4_2_1 :=
+      subset_iUnion₂_of_subset z' mz' (subset_refl _)
+    replace zi : ↑q.2 ∈ ⋃ f, Ω₁ ⟨J, f⟩ :=
+      mem_of_mem_of_subset dz <| zi.trans iUnion_ball_subset_iUnion_Ω₁
+    clear! z'
+    rw [mem_iUnion] at zi; obtain ⟨a, ma⟩ := zi -- Paper's `q'` is `⟨J, a⟩`
+    have nmaxJ : ¬IsMax J := by
+      by_contra maxJ; rw [𝓓.isMax_iff] at maxJ
+      rw [maxJ, show s topCube = S by exact s_topCube (X := X)] at sJ
+      have : 𝔰 q ≤ S := (range_s_subset ⟨q.1, rfl⟩).2
+      omega
+    have succJ : J.succ = q.1 := (𝓓.succ_iff nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; omega⟩
+    have key : Ω q ⊆ Ω ⟨J, a⟩ := by
+      nth_rw 2 [Ω]; simp only [nmaxJ, dite_false]; intro ϑ mϑ; right; rw [mem_iUnion₂]
+      use q.2, ?_, ?_
+      · rw [succJ]; exact ⟨q.2.2, ma⟩
+      · change ϑ ∈ Ω ⟨q.1, q.2⟩ at mϑ; convert mϑ
+    let q' : 𝔓 X := ⟨J, a⟩
+    change 𝓘 p ≤ 𝓘 q' at lbJ
+    rcases Ω_RFD lbJ with c | c
+    · exact Or.inl (disjoint_of_subset_right key c)
+    · exact Or.inr (key.trans c)
+termination_by (𝔰 q - 𝔰 p).toNat
+decreasing_by
+  simp_wf
+  change (s J - 𝔰 p).toNat < 𝔰 q - 𝔰 p
+  rw [sJ, Int.toNat_of_nonneg (by omega), sub_right_comm]
+  exact sub_one_lt _
 
 end Construction
 
@@ -535,7 +564,7 @@ def tile_existence : TileStructure Q D κ S o where
   Ω := Construction.Ω
   biUnion_Ω {I} := Construction.Ω_biUnion
   disjoint_Ω := Construction.Ω_disjoint
-  relative_fundamental_dyadic {p q} := Construction.Ω_RFD
+  relative_fundamental_dyadic {p q} := Construction.Ω_RFD (I := p.1)
   cdist_subset {p} := by
     rw [Construction.Ω]; split_ifs with hh
     · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)

@@ -241,6 +241,9 @@ lemma exists_sandwiched_cube {i j : 𝓓 X} (hij : i ≤ j) (l : ℤ) (hl : l �
   obtain ⟨x, hx⟩ := i.nonempty
   use x, mem_of_mem_of_subset hx lbK.1, mem_of_mem_of_subset hx hij.1
 
+lemma 𝓓.succ_iff {i j : 𝓓 X} (hn : ¬IsMax i) : i.succ = j ↔ i ≤ j ∧ s j = s i + 1 := by
+  sorry
+
 end GridStructure
 
 variable [TileStructure Q D κ S o]
