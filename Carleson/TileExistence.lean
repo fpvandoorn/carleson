@@ -488,6 +488,30 @@ lemma Ω_disjoint {p q : 𝔓 X} (hn : p ≠ q) (h𝓘 : 𝓘 p = 𝓘 q) : Disj
       rw [disjoint_iUnion₂_right]; intro b ⟨mb₁, mb₂⟩
       exact ih ⟨a, ma₁⟩ ⟨b, mb₁⟩ (by simp [dj.ne_of_mem ma₂ mb₂])
 
+lemma Ω_biUnion {I : 𝓓 X} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (𝓓 X)), Ω p := by
+  induction I using cube_induction with
+  | base I maxI =>
+    intro ϑ mϑ; simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop]
+    have l := mem_of_mem_of_subset mϑ <|
+      (frequency_ball_cover (I := I)).trans iUnion_ball_subset_iUnion_Ω₁
+    rw [mem_iUnion] at l; obtain ⟨z, mz⟩ := l; use ⟨I, z⟩
+    exact ⟨rfl, by rw [Ω]; simp only [maxI, dite_true, mz]⟩
+  | ind I nmaxI ih =>
+    intro ϑ mϑ
+    replace ih := mem_of_mem_of_subset mϑ ih
+    simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at ih ⊢
+    obtain ⟨⟨J, z⟩, (e : J = I.succ), h⟩ := ih
+    have := mem_of_mem_of_subset z.2 (𝓩_subset.trans (frequency_ball_cover (I := I)))
+    rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
+    have zi : ball_{I} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 :=
+      subset_iUnion₂_of_subset z' mz' (subset_refl _)
+    replace zi : ↑z ∈ ⋃ f, Ω₁ ⟨I, f⟩ :=
+      mem_of_mem_of_subset dz <| zi.trans iUnion_ball_subset_iUnion_Ω₁
+    rw [mem_iUnion] at zi; obtain ⟨z'', mz''⟩ := zi
+    use ⟨I, z''⟩, rfl
+    rw [Ω]; simp only [nmaxI, dite_false, mem_union]; right
+    rw [mem_iUnion₂]; use z.1, ⟨z.2, mz''⟩, e ▸ h
+
 lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q) ∨ Ω q ⊆ Ω p := by
   by_cases h : 𝔰 q ≤ 𝔰 p
   · rw [or_iff_not_imp_left]; intro hi
@@ -502,36 +526,14 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k]
   · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
-      exists_sandwiched_cube h𝓘 (l := 𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
+      exists_sandwiched_cube h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
     sorry
 
 end Construction
 
 def tile_existence : TileStructure Q D κ S o where
   Ω := Construction.Ω
-  biUnion_Ω {I} := by
-    induction I using Construction.cube_induction with
-    | base I maxI =>
-      intro ϑ mϑ; simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop]
-      have l := mem_of_mem_of_subset mϑ <|
-        (frequency_ball_cover (I := I)).trans Construction.iUnion_ball_subset_iUnion_Ω₁
-      rw [mem_iUnion] at l; obtain ⟨z, mz⟩ := l; use ⟨I, z⟩
-      exact ⟨rfl, by rw [Construction.Ω]; simp only [maxI, dite_true, mz]⟩
-    | ind I nmaxI ih =>
-      intro ϑ mϑ
-      replace ih := mem_of_mem_of_subset mϑ ih
-      simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at ih ⊢
-      obtain ⟨⟨J, z⟩, (e : J = I.succ), h⟩ := ih
-      have dq : ϑ ∈ ball_{J} z.1 1 := mem_of_mem_of_subset h Construction.Ω_subset_cdist
-      rw [@mem_ball] at dq
-      replace dq : dist_{I} ϑ z.1 < 1 := (𝓓.dist_mono (by convert 𝓓.le_succ)).trans_lt dq
-      have := mem_of_mem_of_subset mϑ (frequency_ball_cover (I := I))
-      rw [mem_iUnion₂] at this; obtain ⟨z', mz', hz'⟩ := this
-      use ⟨I, ⟨z', mz'⟩⟩
-      refine ⟨rfl, ?_⟩
-      rw [Construction.Ω]; simp only [nmaxI, dite_false, mem_union]; right
-      rw [mem_iUnion₂]; refine ⟨z, ⟨z.2, ?_⟩, e ▸ h⟩
-      sorry
+  biUnion_Ω {I} := Construction.Ω_biUnion
   disjoint_Ω := Construction.Ω_disjoint
   relative_fundamental_dyadic {p q} := Construction.Ω_RFD
   cdist_subset {p} := by
