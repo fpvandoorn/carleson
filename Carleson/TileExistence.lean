@@ -730,6 +730,103 @@ lemma cover_by_cubes {l : ℤ} (hl :-S ≤ l):
   specialize hind (I_induction_proof hk1 h.ne.symm) z hz'
   exact hind
 
+lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
+    (hk : -S ≤ k) → ∀ (y:Yk X k), ∀ (y':Yk X l),
+    ¬ Disjoint (I3 hl y') (I3 hk y) → I3 hl y' ⊆ I3 hk y := by
+  simp_rw [not_disjoint_iff]
+  simp only [forall_exists_index, and_imp]
+  intro hk y y' x hxl hxk
+  if hk_l : k = l then
+    subst hk_l
+    apply Eq.le
+    apply congr_heq
+    . congr
+    simp only [heq_eq_eq]
+    exact I3_prop_1 hk (And.intro hxl hxk)
+  else
+    have : l < k := by exact lt_of_le_of_ne hl_k fun a ↦ hk_l (id (Eq.symm a))
+    have hl_k_m1 : l ≤ k-1 := by linarith
+    have hk_not_neg_s : ¬ k = -S := by linarith
+    -- intro x' hx'
+    have : x ∈ ⋃ (y'': Yk X (k-1)), I3 (I_induction_proof hk hk_not_neg_s) y'' := by
+      apply cover_by_cubes (I_induction_proof hk hk_not_neg_s) (by linarith) hk y hxk
+
+    simp only [mem_iUnion] at this
+    obtain ⟨y'',hy''⟩ := this
+    have : l + (-l + (k-1)).toNat < k := by
+      rw [Int.toNat_of_nonneg (by linarith)]
+      linarith
+    have : I3 hl y' ⊆ I3 (I_induction_proof hk hk_not_neg_s) y'' := by
+      apply dyadic_property hl hl_k_m1 (I_induction_proof hk hk_not_neg_s)
+      rw [not_disjoint_iff]
+      use x
+    apply this.trans
+    if hx_mem_Xk : x ∈ Xk hk then
+      have hx_i1: x ∈ I1 hk y := by
+        rw [I3] at hxk
+        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
+          not_and] at hxk
+        rw [not_iff_false_intro hx_mem_Xk,false_and,and_false,or_false] at hxk
+        exact hxk
+
+      rw [I1] at hx_i1
+      rw [dif_neg hk_not_neg_s] at hx_i1
+      simp only [mem_preimage, mem_iUnion, exists_prop, exists_and_left] at hx_i1
+      obtain ⟨u,hu,hu'⟩ := hx_i1
+      have hxy'' : x ∈ I3 _ y'' := this hxl
+      have : y'' = u := by
+        apply I3_prop_1
+        use hxy''
+      subst this
+      apply Subset.trans _ (I1_subset_I3 _ _)
+      rw [I1,dif_neg hk_not_neg_s]
+      intro x' hx'
+      simp only [mem_preimage, mem_iUnion, exists_prop, exists_and_left]
+      use y''
+    else
+      have hx_not_mem_i1 (y_1 : Yk X k) : x ∉ I1 hk y_1 := by
+        rw [Xk] at hx_mem_Xk
+        simp only [mem_iUnion, not_exists] at hx_mem_Xk
+        exact hx_mem_Xk y_1
+      have hx_mem_i2_and : x ∈ I2 hk y ∧ ∀ u < y, x ∉ I3 hk u:= by
+        rw [I3] at hxk
+        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
+          not_and] at hxk
+        rw [iff_false_intro (hx_not_mem_i1 y),iff_true_intro hx_mem_Xk] at hxk
+        rw [false_or,true_and] at hxk
+        exact hxk
+      have hx_mem_i2 := hx_mem_i2_and.left
+      have hx_not_mem_i3_u := hx_mem_i2_and.right
+      rw [I2, dif_neg hk_not_neg_s] at hx_mem_i2
+      simp only [mem_preimage, mem_iUnion, exists_prop,
+        exists_and_left] at hx_mem_i2
+      obtain ⟨u,hu,hxu⟩ := hx_mem_i2
+      obtain rfl : y'' = u := by
+        apply I3_prop_1 (I_induction_proof hk hk_not_neg_s)
+        use hy''
+      intro x' hx'
+      rw [I3]
+      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
+        not_and]
+      right
+      constructor
+      . rw [I2, dif_neg hk_not_neg_s]
+        simp only [mem_preimage, mem_iUnion, exists_prop,
+          exists_and_left]
+        use y''
+      constructor
+      . sorry
+      intro u hu
+      rw [I3]
+      simp only [iUnion_coe_set, mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
+        not_and, not_forall, Classical.not_imp, Decidable.not_not]
+      constructor
+      . rw [I1, dif_neg hk_not_neg_s]
+        sorry
+
+      sorry
+  termination_by ((-l + k).toNat)
+
 
 /-! Proof that there exists a grid structure. -/
 -- Note: we might want to slightly adapt the construction so that there is only 1 tile at level S
