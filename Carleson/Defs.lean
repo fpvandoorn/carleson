@@ -304,6 +304,38 @@ variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
 
 variable (X) in
+lemma eight_le_D : 8 ≤ defaultD a := by
+  simp only [defaultD]
+  have : 4 ≤ a := by exact four_le_a X
+  calc
+    (8:ℝ)
+      = 2 ^ 3 := by norm_num
+    _ = 2 ^ ((3:ℕ) : ℝ) := by
+      rw [← Real.rpow_natCast]
+    _ ≤ 2 ^ (100 * (4:ℝ) ^ 2) := by
+      apply Real.rpow_le_rpow_of_exponent_le (by linarith)
+      norm_num
+    _ ≤ 2 ^ (100 * a ^ 2) := by
+      rw [← Real.rpow_natCast]
+      apply Real.rpow_le_rpow_of_exponent_le (by linarith)
+      simp only [Nat.cast_ofNat, gt_iff_lt, Nat.ofNat_pos, mul_le_mul_left]
+      rw [← Real.rpow_natCast]
+      simp only [Nat.cast_ofNat]
+      rw [Real.rpow_le_rpow_iff (by linarith : 0 ≤ (4:ℝ)) (by linarith : 0 ≤ a) (by linarith)]
+      exact this
+
+variable (X) in
+lemma four_le_D : 4 ≤ defaultD a := by
+  have : 8 ≤ defaultD a := by exact eight_le_D X
+  linarith
+
+variable (X) in
+lemma one_le_D : 1 ≤ defaultD a := by
+  have : 8 ≤ defaultD a := by exact eight_le_D X
+  linarith
+
+
+variable (X) in
 open Classical in
 def S [PreProofData a q K σ₁ σ₂ F G] : ℤ := Nat.find (S_spec X)
 
@@ -351,13 +383,6 @@ end ShortVariables
 open scoped ShortVariables
 variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-
-lemma D_ge_one : 1 ≤ D := by
-  rw [← Real.rpow_zero 2]
-  dsimp
-  apply Real.rpow_le_rpow_of_exponent_le (by linarith)
-  simp only [gt_iff_lt, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
-  exact sq_nonneg a
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]
