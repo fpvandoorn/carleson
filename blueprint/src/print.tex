@@ -12,16 +12,16 @@
 % add cleveref and tikz-cd).
 
 % \documentclass[11pt,reqno,a4paper,dvipsnames]{amsbook}
+\documentclass[11pt,reqno,a4paper,dvipsnames]{amsbook}
 
 \usepackage{geometry}
 
 \usepackage{expl3}
 
+\usepackage{amssymb, amsthm, mathtools}
 \usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=magenta, citecolor=blue]{hyperref}
 
 \usepackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
-
-\documentclass[11pt,reqno,a4paper,dvipsnames]{amsbook}
 
 % \usepackage[utf8]{inputenc}
 \usepackage[dvipsnames]{xcolor}
@@ -29,13 +29,6 @@
 \usepackage{polyglossia}
 \setdefaultlanguage{english}
 
-\usepackage{amsmath,amssymb}
-\usepackage{enumitem}
-
-\usepackage{tikz-cd}
-
-\usepackage{mathtools}
-\usepackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
 \usepackage{fontspec}
 \setmathfont{latinmodern-math.otf}
 \setmathfont[range=\varnothing, Scale=MatchUppercase]{Asana-Math.otf}
@@ -44,21 +37,17 @@
 \setmathfont[range=\int, Scale=MatchUppercase]{latinmodern-math.otf}
 \setmathfont[range=\setminus, Scale=MatchUppercase]{Asana-Math.otf}
 
-\usepackage{amsthm}
 \usepackage{etexcmds}
 \usepackage{thmtools}
 % \usepackage{showlabels}
+\input{macros/common}
+\input{macros/print}
 
-\input{preamble/common}
-\input{preamble/print}
 \usepackage[nameinlink, capitalize]{cleveref}
 
 \usepackage[style=trad-alpha]{biblatex}
 \ExecuteBibliographyOptions{safeinputenc=true,backref=true,giveninits,useprefix=true,maxnames=5,doi=false,eprint=true,isbn=false,url=false}
 \bibliography{bibliography.bib}
-
-\input{macros/common}
-\input{macros/print}
 
 \author[Becker]{Lars Becker}
 \address{Mathematical Institute,
