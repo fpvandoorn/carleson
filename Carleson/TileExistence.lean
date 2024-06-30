@@ -761,6 +761,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
       rw [not_disjoint_iff]
       use x
     apply this.trans
+
     if hx_mem_Xk : x ∈ Xk hk then
       have hx_i1: x ∈ I1 hk y := by
         rw [I3] at hxk
@@ -797,6 +798,18 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
         exact hxk
       have hx_mem_i2 := hx_mem_i2_and.left
       have hx_not_mem_i3_u := hx_mem_i2_and.right
+      have hx_not_mem_i2_u: ∀ u < y, x ∉ I2 hk u := by
+        intro u hu
+        specialize hx_not_mem_i3_u u hu
+        rw [I3] at hx_not_mem_i3_u
+        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
+          not_and, not_forall, Classical.not_imp, Decidable.not_not] at hx_not_mem_i3_u
+        rw [iff_true_intro (hx_not_mem_i1 u),iff_true_intro hx_mem_Xk] at hx_not_mem_i3_u
+        rw [true_and,true_implies] at hx_not_mem_i3_u
+        intro h
+        obtain ⟨v,hv,hv'⟩ := hx_not_mem_i3_u h
+        exact hx_mem_i2_and.right v (hv.trans hu) hv'
+
       rw [I2, dif_neg hk_not_neg_s] at hx_mem_i2
       simp only [mem_preimage, mem_iUnion, exists_prop,
         exists_and_left] at hx_mem_i2
@@ -804,28 +817,154 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
       obtain rfl : y'' = u := by
         apply I3_prop_1 (I_induction_proof hk hk_not_neg_s)
         use hy''
+      have : I3 (I_induction_proof hk hk_not_neg_s) y'' ∩ Xk hk = ∅ := by
+        ext x'
+        simp only [mem_inter_iff, mem_empty_iff_false, iff_false, not_and]
+        intro hx_i3' hx_xk'
+        apply hx_mem_Xk
+        rw [Xk] at hx_xk' ⊢
+        simp only [mem_iUnion] at hx_xk' ⊢
+        obtain ⟨u,hu⟩ := hx_xk'
+        use u
+        rw [I1,dif_neg hk_not_neg_s] at hu ⊢
+        simp only [mem_preimage, mem_iUnion, exists_prop,
+          exists_and_left] at hu ⊢
+        obtain ⟨u',hu',hu''⟩ := hu
+        use u',hu'
+        obtain rfl : u' = y'' := I3_prop_1 (I_induction_proof hk hk_not_neg_s) (And.intro hu'' hx_i3')
+        exact hxu
       intro x' hx'
       rw [I3]
+      have hx_not_xk : x' ∉ Xk hk := by
+        intro hcontra
+        have : x' ∈ (∅ : Set X) := by
+          rw [← this]
+          exact mem_inter hx' hcontra
+        exact this
       simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-        not_and]
+        not_and,iff_true_intro hx_not_xk,true_and]
       right
       constructor
       . rw [I2, dif_neg hk_not_neg_s]
         simp only [mem_preimage, mem_iUnion, exists_prop,
           exists_and_left]
         use y''
-      constructor
-      . sorry
       intro u hu
+      have hx_not_i1' : x' ∉ I1 hk u := by
+        intro hx_i1'
+        apply hx_not_xk
+        rw [Xk]
+        simp only [mem_iUnion]
+        use u
       rw [I3]
-      simp only [iUnion_coe_set, mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
+      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
         not_and, not_forall, Classical.not_imp, Decidable.not_not]
-      constructor
-      . rw [I1, dif_neg hk_not_neg_s]
-        sorry
-
-      sorry
+      rw [iff_true_intro hx_not_xk,iff_true_intro hx_not_i1',true_and,true_implies]
+      intro hx_i2'
+      by_contra
+      apply hx_not_mem_i2_u u hu
+      rw [I2, dif_neg hk_not_neg_s] at hx_i2' ⊢
+      simp only [mem_preimage, mem_iUnion] at hx_i2' ⊢
+      obtain ⟨z,hz,hz'⟩ := hx_i2'
+      use z,hz
+      suffices z = y'' by
+        subst this
+        exact hy''
+      apply I3_prop_1 (I_induction_proof hk hk_not_neg_s)
+      exact mem_inter hz' hx'
   termination_by ((-l + k).toNat)
+
+abbrev ClosenessProperty {k1 k2 : ℤ} (_ : -S ≤ k1) (hk2 : -S ≤ k2)
+  (y1 : Yk X k1) (y2 : Yk X k2) : Prop := ((I3 hk2 y2)ᶜ ∩ ball (y1:X) (6 * D^k1)).Nonempty
+
+
+local macro "clProp(" hkl:term ", " y1:term " | " hkr:term ", " y2:term ")" : term =>
+ `(ClosenessProperty $hkl $hkr $y1 $y2)
+
+-- lemma closenessProperty_iff_inf_lt {k1 k2 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) (hk1_2 : k1 ≤ k2)
+--     (y1 : Yk X k1) (y2 : Yk X k2) :
+--     clProp{hk1_2}(hk1, y1 | hk2, y2) ↔ ⨅ (x ∈ (I3 hk1 y1)ᶜ), dist x (y2:X) < 6 * D^k2 := by
+--   rw [ClosenessProperty]
+--   constructor
+--   . intro h
+--     rw [ne_eq,Set.ext_iff] at h
+--     simp only [mem_inter_iff, mem_ball, mem_compl_iff, mem_empty_iff_false, iff_false,
+--       not_and, not_not, not_forall, Classical.not_imp] at h
+--     obtain ⟨x,hx1,hx2⟩ := h
+--     calc
+--       ⨅ x ∈ (I3 hk1 y1)ᶜ, dist x (↑y2)
+--         ≤ dist x y2 := by
+--           refine ciInf_le_of_le ?H x ?h
+--           . simp only [mem_compl_iff]
+--             use 0
+--             dsimp [lowerBounds]
+--             simp only [mem_range, forall_exists_index, forall_apply_eq_imp_iff]
+--             intro z
+--             refine Real.iInf_nonneg ?h.hf
+--             intro _
+--             exact dist_nonneg
+--           simp only [mem_compl_iff]
+--           refine ciInf_le ?h.H hx2
+--           use 0
+--           dsimp [lowerBounds]
+--           simp only [mem_range, exists_prop, and_imp, forall_apply_eq_imp_iff]
+--           intro _
+--           exact dist_nonneg
+--       _ < 6 * D ^ k2 := hx1
+--   . intro h
+--     sorry
+
+lemma transitive_boundary {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) (hk3 : -S ≤ k3)
+  (hk1_2 : k1 < k2) (hk2_3 : k2 < k3) (y1 : Yk X k1) (y2 : Yk X k2) (y3 : Yk X k3)
+    (x:X) (hx : x ∈ I3 hk1 y1 ∩ I3 hk2 y2 ∩ I3 hk3 y3) :
+    clProp(hk1,y1|hk3,y3) → (clProp(hk1,y1|hk2,y2) ∧ clProp(hk2,y2|hk3,y3)) := by
+  dsimp only [ClosenessProperty,Set.Nonempty]
+  rintro ⟨x',hx'⟩
+  have hi3_2_3 : I3 hk2 y2 ⊆ I3 hk3 y3 := by
+    apply dyadic_property hk2 hk2_3.le hk3 y3 y2
+    rw [not_disjoint_iff]
+    use x
+    use hx.left.right
+    exact hx.right
+  simp only [mem_inter_iff, mem_compl_iff] at hx' ⊢
+  have hx_4k2 : x ∈ ball (y2:X) (4 * D^k2) := I3_prop_3_2 hk2 y2 hx.left.right
+  have hx_4k2' : x ∈ ball (y1:X) (4 * D^k1) := I3_prop_3_2 hk1 y1 hx.left.left
+  rw [mem_ball,dist_comm] at hx_4k2'
+  constructor
+  . use x', fun h => hx'.left (hi3_2_3 h)
+    exact hx'.right
+  . use x', hx'.left
+    obtain hx_dist := hx'.right
+    rw [mem_ball] at hx_dist ⊢
+    calc
+      dist x' ↑y2
+        ≤ dist x' y1 + dist (y1:X) x + dist x y2 := dist_triangle4 x' y1 x y2
+      _ < dist x' y1 + dist (y1:X) x + 4 * D^k2 := by
+        rw [Real.add_lt_add_iff_left]
+        exact hx_4k2
+      _ < 6 * D^k1 + 4 * D^k1 + 4 * D^k2 := by
+        rw [add_lt_add_iff_right]
+        exact add_lt_add hx_dist hx_4k2'
+      _ ≤ 2 * D^k2 + 4 * D^k2 := by
+        rw [← right_distrib 6 4 (D^k1)]
+        have hz : (6 + 4 : ℝ) = 2 * 5 := by norm_num
+        rw [hz]
+        simp only [add_le_add_iff_right]
+        rw [mul_assoc]
+        apply mul_le_mul_of_nonneg_left _ (by linarith)
+        calc
+          5 * D ^ k1
+            ≤ D * D^k1 := by
+              exact mul_le_mul_of_nonneg_right (five_le_D X) (zpow_nonneg (defaultD_pos a).le _)
+          _ ≤ D ^ k2 := by
+            nth_rw 1 [← zpow_one D]
+            rw [← zpow_add₀ (defaultD_pos a).ne.symm]
+            refine zpow_le_of_le (one_le_D X) (by linarith)
+      _ = 6 * D ^ k2 := by
+        rw [← right_distrib]
+        norm_num
+
+-- local def defaultK : ℤ := 2 ^ (4 * a - 1)
 
 
 /-! Proof that there exists a grid structure. -/

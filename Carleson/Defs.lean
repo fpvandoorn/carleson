@@ -325,6 +325,11 @@ lemma eight_le_D : 8 ≤ defaultD a := by
       exact this
 
 variable (X) in
+lemma five_le_D : 5 ≤ defaultD a := by
+  have : 8 ≤ defaultD a := by exact eight_le_D X
+  linarith
+
+variable (X) in
 lemma four_le_D : 4 ≤ defaultD a := by
   have : 8 ≤ defaultD a := by exact eight_le_D X
   linarith
