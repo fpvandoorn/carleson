@@ -165,7 +165,7 @@ lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
   · simp only [k, succ, dite_true]; exact h.le
   · exact (succ_spec k).2 j h
 
-lemma exists_supercube (i : 𝓓 X) (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
+lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
   obtain ⟨lb, ub⟩ := h
   rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, 𝓓.le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
@@ -176,16 +176,16 @@ lemma exists_supercube (i : 𝓓 X) (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s
   obtain ⟨j, (sj : s j = l), mj⟩ := this; use j, sj
   exact (le_or_disjoint (by omega)).resolve_right (not_disjoint_iff.mpr ⟨x, hx, mj⟩)
 
-lemma exists_sandwiched {i j : 𝓓 X} (hij : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
+lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
     ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
   have bound_q : -S ≤ s j ∧ s j ≤ S := mem_Icc.mp (range_s_subset ⟨j, rfl⟩)
   rw [mem_Icc] at hl
-  obtain ⟨K, sK, lbK⟩ := exists_supercube i l (by change s i ≤ _ ∧ _; omega)
+  obtain ⟨K, sK, lbK⟩ := exists_supercube l (by change s i ≤ _ ∧ _; omega)
   use K, sK, lbK
   apply (le_or_disjoint (by omega)).resolve_right
   rw [not_disjoint_iff]
   obtain ⟨x, hx⟩ := i.nonempty
-  use x, mem_of_mem_of_subset hx lbK.1, mem_of_mem_of_subset hx hij.1
+  use x, mem_of_mem_of_subset hx lbK.1, mem_of_mem_of_subset hx h.1
 
 lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
   obtain ⟨h₁, h₂⟩ := succ_spec h
