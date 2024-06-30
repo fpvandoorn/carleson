@@ -1,3 +1,72 @@
 % In this file you should put all LaTeX macros to be used
 % both by the pdf version and the web version.
 % This should be most of your macros.
+
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumerate}
+% \usepackage[hidelinks, colorlinks=false]{hyperref}
+% \usepackage{showlabels} % not compatible with Plastex
+\usepackage[normalem]{ulem}
+
+\newcommand{\rs}[1]{{\color{blue}  RS: #1.}}
+\newcommand{\lars}[1]{{\color{red}  LB: #1.}}
+\newcommand{\asgar}[1]{{\color{green} AJ: #1}} %\color{TealBlue}
+\newcommand{\ct}[1]{{\color{purple}  CT: #1}}
+
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{cor}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{examples}[theorem]{Examples}
+\numberwithin{section}{chapter}
+\numberwithin{subsection}{section}
+\numberwithin{subsubsection}{subsection}
+\numberwithin{equation}{section}
+
+\newcommand{\R}{{\mathbb{R}}}
+\newcommand{\C}{{\mathbb{C}}}
+\newcommand{\N}{{\mathbb{N}}}
+\newcommand{\Z}{{\mathbb{Z}}}
+\DeclareMathOperator{\ch}{\operatorname{ch}}
+\DeclareMathOperator{\dens}{\operatorname{dens}}
+\DeclareMathOperator{\supp}{\operatorname{supp}}
+\DeclareMathOperator{\tp}{\operatorname{top}}
+\DeclareMathOperator{\im}{\operatorname{im}}
+\DeclareMathOperator{\Lip}{\operatorname{Lip}}
+\DeclareMathOperator{\bd}{\operatorname{bd}}
+\DeclareMathOperator*{\esssup}{\operatorname{ess\,sup}}
+
+\newcommand{\fp}{{\mathfrak p}}
+\newcommand{\fP}{{\mathfrak P}}
+\newcommand{\fu}{{\mathfrak u}}
+\newcommand{\fU}{{\mathfrak U}}
+\newcommand{\fv}{{\mathfrak v}}
+\newcommand{\fq}{{\mathfrak q}}
+\newcommand{\fQ}{{\mathfrak Q}}
+\newcommand{\fT}{{\mathfrak T}}
+\newcommand{\fL}{{\mathfrak L}}
+\newcommand{\fC}{{\mathfrak C}}
+\newcommand{\pc}{{\mathrm{c}}}
+\newcommand{\ps}{{\mathrm{s}}}
+\newcommand{\AD}{{\bf s}}
+\newcommand{\fc}{{\Omega}}
+\newcommand{\borel}{{\mathcal{E}}}
+\newcommand{\borelb}{{\mathcal{G}}}
+\newcommand{\scI}{{\mathcal{I}}} % note: renamed because it conflicted with another command
+\newcommand{\tQ}{{Q}}
+\newcommand{\mfa}{{\vartheta}}
+\newcommand{\mfb}{{\theta}}
+\newcommand{\Mf}{{\Theta}}
+\newcommand{\fcc}{{\mathcal{Q}}}

@@ -6,13 +6,14 @@
 
 \documentclass{amsbook}
 
-\usepackage{amssymb, amsthm, amsmath}
 \usepackage{hyperref}
 \usepackage[showmore, dep_graph]{blueprint}
+\DeclareGraphicsExtensions{.svg,.png,.jpg}
 
 
 \input{macros/common}
 \input{macros/web}
+\usepackage[capitalize]{cleveref}
 
 \home{https://florisvandoorn.com/carleson/}
 \github{https://github.com/fpvandoorn/carleson}
@@ -23,5 +24,5 @@
 
 \begin{document}
 \maketitle
-\input{content}
+\input{chapter/main}
 \end{document}
