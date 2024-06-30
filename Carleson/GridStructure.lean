@@ -175,7 +175,7 @@ export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdis
 end DoublingMeasure
 
 open scoped ShortVariables
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 section GridStructure
@@ -278,7 +278,7 @@ def E₂ (l : ℝ) (p : 𝔓 X) : Set X :=
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
-  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a) *
+  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
   ⨆ (p' ∈ lowerClosure 𝔓') (_h2 : smul l p ≤ smul l p'),
   volume (E₂ l p) / volume (𝓘 p : Set X)
 

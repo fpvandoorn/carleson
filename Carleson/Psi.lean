@@ -51,7 +51,7 @@ lemma psi_eq_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
 end D
 
 open scoped ShortVariables
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 variable {s : ℤ} {x y : X}
 
@@ -101,5 +101,5 @@ lemma norm_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} :
 -- 2.1.3
 lemma norm_Ks_sub_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y y' : X} :
     ‖Ks s x y - Ks s x y'‖ ≤
-    D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ a⁻¹ := by
+    D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   sorry

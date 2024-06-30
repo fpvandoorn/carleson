@@ -5,9 +5,8 @@ open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Borno
 open scoped ENNReal
 noncomputable section
 
-
 open scoped ShortVariables
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X]
 
 theorem integrable_tile_sum_operator [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]

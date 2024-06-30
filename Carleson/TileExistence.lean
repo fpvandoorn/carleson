@@ -13,7 +13,7 @@ end ShortVariables
 noncomputable section
 
 open scoped ShortVariables
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 -- this still holds for more general parameters
@@ -50,8 +50,8 @@ variable (X) in def J' : ℝ := 3 + 2 * S * 100 * a ^2
 lemma twopow_J : 2 ^ J' X = 8 * D ^ (2 * S) := by
   dsimp [J']
   rw [Real.rpow_add, mul_assoc (2 * (S:ℝ)), mul_comm (2 * (S:ℝ)),Real.rpow_mul]
-  . rw [← Real.rpow_intCast, Int.cast_mul, Int.cast_ofNat, mul_eq_mul_right_iff]; norm_num
-  . norm_num
+  · norm_cast
+  · norm_num
   norm_num
 
 lemma twopow_J' : ((2 : ℝ≥0) ^ J' X : ℝ≥0) = 8 * nnD ^ (2 * S) := by
@@ -71,8 +71,7 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
       apply measure_ball_pos volume o
       simp only [defaultD, gt_iff_lt, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
       refine zpow_pos_of_pos ?ha S
-      apply Real.rpow_pos_of_pos
-      linarith
+      positivity
     have volume_finite : volume (ball o (4 * D^S)) < ⊤ := measure_ball_lt_top
     rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne, mul_comm,mul_comm (volume _)]
     exact this
@@ -424,8 +423,8 @@ lemma Ω_subset_cdist {p : 𝔓 X} : Construction.Ω p ⊆ ball_(p) (𝒬 p) 1 :
         · rw [C2_1_2]; positivity
         · simpa only [mem_ball] using mem_of_mem_of_subset hz (ih ⟨z, mz₁⟩)
       _ < 2 ^ (-2 : ℝ) + C4_2_1 := by
-        gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two]
-        linarith [four_le_a X]
+        gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, neg_mul, neg_lt_neg_iff]
+        norm_cast; linarith [four_le_a X]
       _ < _ := by norm_num
 
 def tile_existence : TileStructure Q D κ S o where
