@@ -67,25 +67,24 @@ jobs:
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
 
-      - name: Build blueprint and copy to `docs/blueprint`
-        uses: xu-cheng/texlive-action@v2
+      - name: Install Python
+        uses: actions/setup-python@v4
         with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
-          run: |
-            apk update
-            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
-            git config --global --add safe.directory $GITHUB_WORKSPACE
-            git config --global --add safe.directory `pwd`
-            python3 -m venv env
-            source env/bin/activate
-            pip install --upgrade pip requests wheel
-            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install leanblueprint
-            leanblueprint pdf
-            mkdir docs
-            cp blueprint/print/print.pdf docs/blueprint.pdf
-            leanblueprint web
-            cp -r blueprint/web docs/blueprint
+          python-version: '3.9'
+          cache: 'pip' # caching pip dependencies
+
+      - name: Install blueprint apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full
+
+      - name: Install blueprint dependencies
+        run: |
+          pip install -r blueprint/requirements.txt
+
+      - name: Build blueprint and copy to `docs/blueprint`
+        run: |
+          inv all
 
       - name: Copy documentation to `docs/docs`
         run: |
