@@ -16,5 +16,6 @@ __pycache__
 build
 *.bcf
 *.bbl
+*.blg
 *.toc
 *.run.xml
