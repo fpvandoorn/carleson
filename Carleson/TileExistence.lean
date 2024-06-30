@@ -518,7 +518,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k]
   · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
-      exists_sandwiched_cube h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
+      𝓓.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
     have := mem_of_mem_of_subset q.2.2 (𝓩_subset.trans (frequency_ball_cover (I := J)))
     rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
     have zi : ball_{J} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 I, ball_{J} z C4_2_1 :=
@@ -532,7 +532,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
       rw [maxJ, show s topCube = S by exact s_topCube (X := X)] at sJ
       have : 𝔰 q ≤ S := (range_s_subset ⟨q.1, rfl⟩).2
       omega
-    have succJ : J.succ = q.1 := (𝓓.succ_iff nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; omega⟩
+    have succJ : J.succ = q.1 := (𝓓.succ_def nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; omega⟩
     have key : Ω q ⊆ Ω ⟨J, a⟩ := by
       nth_rw 2 [Ω]; simp only [nmaxJ, dite_false]; intro ϑ mϑ; right; rw [mem_iUnion₂]
       use q.2, ?_, ?_
