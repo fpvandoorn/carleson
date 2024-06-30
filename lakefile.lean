@@ -29,12 +29,13 @@ package «carleson» where
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @ "master"
 
--- This is run only if we're in `dev` mode. This is so not everyone has to build doc-gen
-meta if get_config? env = some "dev" then
-require «doc-gen4» from git
-  "https://github.com/leanprover/doc-gen4" @ "main"
-
 @[default_target]
 lean_lib «Carleson» where
   moreLeanArgs := moreLeanArgs
   weakLeanArgs := weakLeanArgs
+
+require checkdecls from git "https://github.com/PatrickMassot/checkdecls.git"
+
+meta if get_config? env = some "dev" then
+require «doc-gen4» from git
+  "https://github.com/leanprover/doc-gen4" @ "main"

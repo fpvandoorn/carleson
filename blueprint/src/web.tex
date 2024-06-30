@@ -1,25 +1,27 @@
-% This file makes the web version of the blueprint.
-% This file can be built locally.
+% This file makes a web version of the blueprint
+% It should include all the \usepackage needed for this version.
+% The template includes standard AMS packages.
+% It is otherwise a very minimal preamble (you should probably at least
+% add cleveref and tikz-cd).
 
 \documentclass{amsbook}
 
-\usepackage{amsmath,amsfonts,amsthm,amssymb}
-\usepackage{graphicx}
-\DeclareGraphicsExtensions{.svg,.png,.jpg}
-\usepackage[showmore, dep_graph, project=../../]{blueprint}
+\usepackage{amssymb, amsthm, amsmath}
+\usepackage{hyperref}
+\usepackage[showmore, dep_graph]{blueprint}
 
-\usepackage{tikz-cd}
-\usepackage{tikz}
 
-\input{preamble/common}
-\input{preamble/web}
-\usepackage[capitalize]{cleveref}
+\input{macros/common}
+\input{macros/web}
 
+\home{https://florisvandoorn.com/carleson/}
 \github{https://github.com/fpvandoorn/carleson}
-\dochome{https://fpvandoorn.github.io/carleson/docs}
+\dochome{https://florisvandoorn.com/carleson/docs}
 
+\title{Carleson}
 \author{Lars Becker \and Floris van Doorn \and Asgar Jamneshan \and Rajula Srivastava \and Christoph Thiele}
 
 \begin{document}
-\input{chapter/main}
+\maketitle
+\input{content}
 \end{document}

@@ -11,4 +11,5 @@
 *.synctex.gz
 # Lean blueprint
 /blueprint/lean_decls
+/blueprint/print
 /blueprint/src/web.bbl

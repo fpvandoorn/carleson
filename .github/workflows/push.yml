@@ -19,11 +19,6 @@ jobs:
         run: |
           ! (find Carleson -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
 
-      - name: Don't 'import Mathlib', use precise imports
-        if: always()
-        run: |
-          ! (find Carleson -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
-
   build_project:
     runs-on: ubuntu-latest
     name: Build project
