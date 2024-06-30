@@ -33,7 +33,7 @@ def DoublingMeasureR2 : DoublingMeasure ℝ 2 where
         sorry
         --exact this.volume_ball_two_le_same x r
 
-instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ (4 : ℕ)) :=
+instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ 4 : ℕ) :=
   DoublingMeasureR2.mono (by norm_num)
 end
 
@@ -224,7 +224,7 @@ instance : FunctionDistances ℝ ℝ where
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
-instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℕ)) where
+instance h4 : CompatibleFunctions ℝ ℝ (2 ^ 4 : ℕ) where
   eq_zero := sorry
   localOscillation_le_cdist := sorry
   cdist_mono := sorry

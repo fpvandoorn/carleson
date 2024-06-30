@@ -28,7 +28,7 @@ lemma C1_2_pos {a : ℕ} {q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
 
 section -- todo: old code
 
-variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (2 ^ a)] [Inhabited X]
+variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (2 ^ a : ℕ)] [Inhabited X]
 variable {τ q q' : ℝ} {C : ℝ}
 variable {F G : Set X}
 variable (K : X → X → ℂ)

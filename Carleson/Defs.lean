@@ -13,7 +13,7 @@ We should move them to separate files once we start proving things about them. -
 
 section DoublingMeasure
 universe u
-variable {𝕜 X : Type*} {A : ℝ≥0} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
 section localOscillation
 
@@ -122,7 +122,7 @@ notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
 notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
-class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ)
+class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
   eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
   /-- The distance is bounded below by the local oscillation. -/
@@ -140,7 +140,7 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
   /-- The distance of a ball with large radius is bounded below. -/
   ballsCoverBalls {x : X} {r R : ℝ} :
-    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R ⌊A⌋₊
+    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R A
 
 instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
@@ -240,7 +240,7 @@ end DoublingMeasure
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
-@[simp] abbrev defaultA (a : ℕ) : ℝ≥0 := 2 ^ a
+@[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
 @[simp] def defaultD (a : ℕ) : ℝ := 2 ^ (100 * a ^ 2)
 @[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
 @[simp] def defaultZ (a : ℕ) : ℝ := 2 ^ (12 * a)
@@ -335,9 +335,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 lemma one_le_D : 1 ≤ D := by
   have : 2 ^ (100 * a ^ 2 : ℕ) = (2 : ℝ) ^ (100 * a ^ 2 : ℝ) := by norm_cast
   rw [← Real.rpow_zero 2, defaultD, this]
-  apply Real.rpow_le_rpow_of_exponent_le (by linarith)
-  simp only [Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
-  exact_mod_cast sq_nonneg a
+  exact Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_cast; positivity)
 
 lemma D_nonneg : 0 ≤ D := zero_le_one.trans one_le_D
 
@@ -403,8 +401,8 @@ lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
       refine Finset.card_le_card fun _ h ↦ ?_
       rw [Finset.mem_biUnion] at h
       exact Finset.mem_of_subset (by simp [g]) h.choose_spec.2
-    _ ≤ ⌊2 ^ a⌋₊ ^ k := c𝓩'
-    _ ≤ _ := by norm_cast; rw [Nat.floor_natCast, C2_1_1, mul_comm, pow_mul]
+    _ ≤ (2 ^ a) ^ k := c𝓩'
+    _ ≤ _ := by rw [C2_1_1, mul_comm, pow_mul]
 
 lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))

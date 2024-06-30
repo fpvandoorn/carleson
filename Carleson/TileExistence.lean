@@ -75,7 +75,7 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
     have volume_finite : volume (ball o (4 * D^S)) < ⊤ := measure_ball_lt_top
     rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne, mul_comm,mul_comm (volume _)]
     exact this
-  have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := (As_pos' X (2 ^J' X)).ne.symm
+  have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := by exact_mod_cast (As_pos' X (2 ^J' X)).ne.symm
   calc
     (Y.encard).toENNReal * volume (ball o (4 * D ^ S))
       = ∑' (y : Y), volume (ball o (4 * D^S)) := by rw [ENNReal.tsum_const_eq']
@@ -89,6 +89,7 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
       apply tsum_le_tsum _ ENNReal.summable ENNReal.summable
       intro y hy
       rw [← twopow_J]
+      norm_cast
       apply volume_ball_le_same'
       . exact Real.rpow_pos_of_pos (by linarith) _
       . exact le_refl _
