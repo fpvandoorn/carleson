@@ -80,7 +80,7 @@ jobs:
 
       - name: Install blueprint dependencies
         run: |
-          pip install -r blueprint/requirements.txt
+          cd blueprint && pip install -r requirements.txt
 
       - name: Build blueprint and copy to `docs/blueprint`
         run: |
