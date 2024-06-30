@@ -19,7 +19,6 @@ jobs:
         run: |
           ! (find Carleson -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
 
-jobs:
   build_project:
     runs-on: ubuntu-latest
     name: Build project
