@@ -36,4 +36,5 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `Tₚf(x)`       | `T p f x`       |         |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
 | `𝔓(I)`       | `𝓘 ⁻¹' {I}` |         |
-| `I ⊆ J`         | `I ≤ J`      | We noticed recently that we cannot (easily) assume that the coercion `𝓓 X → Set X` is injective. Therefore, Lean introduces two orders on `𝓓 X`: `I ⊆ J` means that the underlying sets satisfy this relation, and `I ≤ J` means *additionally* that `s I ≤ s J`. The order is what you should use in (almost?) all cases. |
+| `I ⊆ J`         | `I ≤ J`      | We noticed recently that we cannot (easily) assume that the coercion `Grid X → Set X` is injective. Therefore, Lean introduces two orders on `Grid X`: `I ⊆ J` means that the underlying sets satisfy this relation, and `I ≤ J` means *additionally* that `s I ≤ s J`. The order is what you should use in (almost?) all cases. |
+| `𝓓`         | `Grid`      | The unicode characters were causing issues with Overleaf and leanblueprint (on Windows) |

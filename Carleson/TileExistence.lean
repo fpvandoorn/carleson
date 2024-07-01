@@ -216,11 +216,11 @@ def grid_existence : GridStructure X D κ S o :=
 
 /-! Proof that there exists a tile structure on a grid structure. -/
 
-variable [GridStructure X D κ S o] {I : 𝓓 X}
+variable [GridStructure X D κ S o] {I : Grid X}
 
 /-- Use Zorn's lemma to define this. -/
 -- Note: 𝓩 I is a subset of finite set range Q.
-def 𝓩 (I : 𝓓 X) : Set (Θ X) := sorry
+def 𝓩 (I : Grid X) : Set (Θ X) := sorry
 
 /-- The constant appearing in 4.2.2 (3 / 10). -/
 @[simp] def C𝓩 : ℝ := 3 / 10
@@ -285,7 +285,7 @@ lemma frequency_ball_cover :
 
 local instance tileData_existence [GridStructure X D κ S o] :
     PreTileStructure Q D κ S o where
-  𝔓 := Σ I : 𝓓 X, 𝓩 I
+  𝔓 := Σ I : Grid X, 𝓩 I
   fintype_𝔓 := Sigma.instFintype
   𝓘 p := p.1
   surjective_𝓘 I := ⟨⟨I, default⟩, rfl⟩
@@ -296,13 +296,13 @@ local instance tileData_existence [GridStructure X D κ S o] :
 
 namespace Construction
 
-def Ω₁_aux (I : 𝓓 X) (k : ℕ) : Set (Θ X) :=
+def Ω₁_aux (I : Grid X) (k : ℕ) : Set (Θ X) :=
   if hk : k < Nat.card (𝓩 I) then
     let z : Θ X := (Finite.equivFin (𝓩 I) |>.symm ⟨k, hk⟩).1
     ball_{I} z C4_2_1 \ (⋃ i ∈ 𝓩 I \ {z}, ball_{I} i C𝓩) \ ⋃ i < k, Ω₁_aux I i
   else ∅
 
-lemma Ω₁_aux_disjoint (I : 𝓓 X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
+lemma Ω₁_aux_disjoint (I : Grid X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
   wlog h : k < l generalizing k l
   · exact (this hn.symm (hn.symm.lt_of_le (Nat.le_of_not_lt h))).symm
   have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_biUnion_of_mem h
@@ -312,7 +312,7 @@ lemma Ω₁_aux_disjoint (I : 𝓓 X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω�
   · exact disjoint_sdiff_right
   · exact disjoint_empty _
 
-lemma disjoint_ball_Ω₁_aux (I : 𝓓 X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz' : z' ∈ 𝓩 I) (hn : z ≠ z') :
+lemma disjoint_ball_Ω₁_aux (I : Grid X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz' : z' ∈ 𝓩 I) (hn : z ≠ z') :
     Disjoint (ball_{I} z' C𝓩) (Ω₁_aux I (Finite.equivFin (𝓩 I) ⟨z, hz⟩)) := by
   rw [Ω₁_aux]
   simp only [(Finite.equivFin (𝓩 I) ⟨z, hz⟩).2, dite_true, Fin.eta, Equiv.symm_apply_apply]
@@ -382,7 +382,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
 open Classical in
 def Ω (p : 𝔓 X) : Set (Θ X) :=
   if h : IsMax p.1 then Ω₁ p else
-  have := 𝓓.opSize_succ_lt h
+  have := Grid.opSize_succ_lt h
   ball_(p) (𝒬 p) CΩ ∪ ⋃ (z : Θ X) (hz : z ∈ 𝓩 p.1.succ ∩ Ω₁ p), Ω ⟨p.1.succ, ⟨z, hz.1⟩⟩
 termination_by p.1.opSize
 
@@ -393,7 +393,7 @@ lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
     ∀ p, P p := fun p ↦ by
   by_cases h : IsMax p.1
   · exact base p h
-  · have := 𝓓.opSize_succ_lt h
+  · have := Grid.opSize_succ_lt h
     exact ind p h fun z ↦ (𝔓_induction P base ind ⟨p.1.succ, z⟩)
 termination_by p => p.1.opSize
 
@@ -417,8 +417,8 @@ lemma Ω_subset_cdist {p : 𝔓 X} : Construction.Ω p ⊆ ball_(p) (𝒬 p) 1 :
       _ < dist_{I} ϑ z + C4_2_1 := by
         gcongr; simpa using mem_of_mem_of_subset mz₂ (Construction.Ω₁_subset_ball ⟨I, ⟨y, my⟩⟩)
       _ ≤ C2_1_2 a * dist_{J} ϑ z + C4_2_1 := by
-        gcongr; refine 𝓓.dist_strictMono (lt_of_le_of_ne 𝓓.le_succ ?_)
-        contrapose! nmaxI; exact 𝓓.max_of_le_succ nmaxI.symm.le
+        gcongr; refine Grid.dist_strictMono (lt_of_le_of_ne Grid.le_succ ?_)
+        contrapose! nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
       _ < C2_1_2 a * 1 + C4_2_1 := by
         gcongr
         · rw [C2_1_2]; positivity
