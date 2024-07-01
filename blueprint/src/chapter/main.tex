@@ -6793,7 +6793,7 @@ where
 g(y) K(x',y)\, d\mu(y)\right|\, .
 \end{equation}
 We now write by the triangle inequality
-%fixme: this currently ignores out the boundary of B(x',r_2). Are we sure that its measure is zero?
+%fixme: this currently ignores the boundary of B(x',r_2). Are we sure that its measure is zero?
 \begin{equation}\label{concretetstartriangle}
     T_* g(x)\le \sup_{0<r_1<r_2}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, d\mu(y)\right|
 \end{equation}
@@ -6864,6 +6864,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
 \end{proof}
 
+%fixme: The following is probably part of mathlib (for a second countable topology?)
 \begin{lemma}
     \label{disjoint-family-countable}
     In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
@@ -7195,6 +7196,7 @@ Then
 For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $H_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
 
 Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_j\subset X \setminus B(x,r)$, and we have
+%fixme: This is currently not the exact definition of H_r
 \begin{equation*}
     H_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_j} K(x,y) b_j(y)\,d\mu(y)\,.
 \end{equation*}
