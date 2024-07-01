@@ -8,7 +8,7 @@ noncomputable section
 section DoublingMeasure
 universe u
 variable {𝕜 : Type*} [_root_.RCLike 𝕜]
-variable {X : Type u} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {X : Type u} {A : ℕ} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 variable (X) in
 /-- A grid structure on `X`.

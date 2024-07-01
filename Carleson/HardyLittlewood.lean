@@ -16,7 +16,7 @@ section General
 
 end General
 
-variable {X E} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E] [NormedSpace ℝ E]
+variable {X E} {A : ℕ} [MetricSpace X] [MeasurableSpace X] [NormedAddCommGroup E] [NormedSpace ℝ E]
   [MeasurableSpace E] [BorelSpace E] [DoublingMeasure X A]
   {μ : Measure X} {f : X → E} {x : X} {𝓑 : Finset (X × ℝ)}
   -- feel free to assume `A ≥ 16` or similar

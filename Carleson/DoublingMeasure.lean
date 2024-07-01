@@ -21,14 +21,14 @@ Note (F): we currently assume that the space is proper, which we should probably
 blueprint.
 Remark: `IsUnifLocDoublingMeasure` which is a weaker notion in Mathlib. -/
 
-class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] extends
+class DoublingMeasure (X : Type*) (A : outParam ℕ) [PseudoMetricSpace X] extends
   MeasureSpace X, ProperSpace X, BorelSpace X,
   Regular (volume : Measure X), IsOpenPosMeasure (volume : Measure X) where
   volume_ball_two_le_same : ∀ (x : X) r, volume.real (ball x (2 * r)) ≤ A * volume.real (ball x r)
 
 export DoublingMeasure (volume_ball_two_le_same)
 
-variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {X : Type*} {A : ℕ} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 
 -- the following classes hold
@@ -54,7 +54,7 @@ lemma coe_volume_ball_pos_of_pos_radius (x :X) {r : ℝ} (hr : 0 < r) : 0 < volu
 
 
 variable (X) in
-lemma one_le_A [Nonempty X]: 1 ≤ A := by
+lemma one_le_A [Nonempty X]: 1 ≤ (A : ℝ) := by
   obtain ⟨x⟩ := ‹Nonempty X›
   have : 0 < volume.real (ball x 1) := coe_volume_ball_pos_of_pos_radius x (by linarith)
   apply le_of_mul_le_mul_right _ this
@@ -71,19 +71,18 @@ variable (X) in lemma A_nonneg [DoublingMeasure X A]: 0 ≤ (A : ℝ≥0∞) := 
 variable (X) in lemma A_pos [Nonempty X] : 0 < A := by
   calc
     0 < 1 := by norm_num
-    _ ≤ A := one_le_A X
+    _ ≤ A := by exact_mod_cast one_le_A X
 
 variable (X) in lemma A_pos' [Nonempty X] : 0 < (A : ℝ≥0∞) := by
-  simp only [ENNReal.coe_pos]
-  exact A_pos X
+  exact_mod_cast A_pos X
 
 
-lemma volume_ball_two_le_same' (x:X) (r:ℝ): volume (ball x (2 * r)) ≤ A * volume (ball x r) := by
+lemma volume_ball_two_le_same' (x : X) (r : ℝ) : volume (ball x (2 * r)) ≤ A * volume (ball x r) := by
   have hv1 : volume (ball x (2 * r)) < ⊤ := measure_ball_lt_top
   have hv2 : volume (ball x r) < ⊤ := measure_ball_lt_top
   rw [← ENNReal.ofReal_toReal hv1.ne, ← ENNReal.ofReal_toReal hv2.ne]
-  rw [← ENNReal.ofReal_toReal (coe_ne_top : (A : ℝ≥0∞) ≠ ⊤)]
-  rw [← ENNReal.ofReal_mul (by exact toReal_nonneg)]
+  have : (A : ℝ≥0∞) = ENNReal.ofReal (A : ℝ≥0∞).toReal := by norm_cast
+  rw [this, ← ENNReal.ofReal_mul (by exact toReal_nonneg)]
   exact ENNReal.ofReal_le_ofReal (volume_ball_two_le_same x r)
 
 
@@ -104,7 +103,7 @@ lemma volume_ball_four_le_same (x : X) (r : ℝ) :
       = volume.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * volume.real (ball x (2 * r)) := volume_ball_two_le_same _ _
     _ ≤ A * (A * volume.real (ball x r)) := mul_le_mul_of_nonneg_left
-      (volume_ball_two_le_same _ _) (zero_le_coe)
+      (volume_ball_two_le_same _ _) (by exact_mod_cast A_nonneg X)
     _ = A ^ 2 * volume.real (ball x r) := by ring_nf
 
 
@@ -119,16 +118,14 @@ lemma volume_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
   case zero =>
     simp
   case succ m hm =>
-    calc volume.real (ball x (2 ^ (Nat.succ m) * r))
-        = volume.real (ball x (2 ^ (m+1) * r)) := by rfl
-      _ = volume.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
-      _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
+    calc
+      _ = volume.real (ball x (2 * 2 ^ m * r)) := by congr!; ring
       _ ≤ A * volume.real (ball x (2 ^ m * r)) := by
-        rw[mul_assoc]; norm_cast; apply volume_ball_two_le_same
+        rw [mul_assoc]; norm_cast; apply volume_ball_two_le_same
       _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by
-        apply mul_le_mul_of_nonneg_left hm (by exact zero_le_coe)
-      _ = A^(Nat.succ m) * volume.real (ball x r) := by
-        rw [NNReal.coe_pow,← mul_assoc, pow_succ']
+        norm_cast; exact_mod_cast mul_le_mul_of_nonneg_left hm (zero_le_coe (q := A))
+      _ = _ := by
+        push_cast; rw [← mul_assoc, pow_succ']
 
 lemma volume_ball_le_pow_two' {x:X} {r:ℝ} {n : ℕ} :
     volume (ball x (2 ^ n * r)) ≤ A ^ n * volume (ball x r) := by
@@ -138,18 +135,17 @@ lemma volume_ball_le_pow_two' {x:X} {r:ℝ} {n : ℕ} :
   have hfactor : (A ^n : ℝ≥0∞) ≠ ⊤ := Ne.symm (ne_of_beq_false rfl)
   rw [← ENNReal.ofReal_toReal hleft,← ENNReal.ofReal_toReal hright,← ENNReal.ofReal_toReal hfactor,
     ← ENNReal.ofReal_mul]
-  . exact ENNReal.ofReal_le_ofReal volume_ball_le_pow_two
-  simp only [toReal_pow, coe_toReal, ge_iff_le, zero_le_coe, pow_nonneg]
+  · exact ENNReal.ofReal_le_ofReal volume_ball_le_pow_two
+  norm_cast; positivity
 
-def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
-
-variable (X) in
-lemma As_pos [Nonempty X] (s:ℝ) : 0 < As A s := pow_pos (A_pos X) ⌈Real.logb 2 s⌉₊
+def As (A : ℕ) (s : ℝ) : ℕ := A ^ ⌈Real.logb 2 s⌉₊
 
 variable (X) in
-lemma As_pos' [Nonempty X] (s:ℝ) : 0 < (As A s : ℝ≥0∞) := by
-  simp only [ENNReal.coe_pos]
-  exact As_pos X s
+lemma As_pos [Nonempty X] (s : ℝ) : 0 < As A s := pow_pos (A_pos X) ⌈Real.logb 2 s⌉₊
+
+variable (X) in
+lemma As_pos' [Nonempty X] (s : ℝ) : 0 < (As A s : ℝ≥0∞) := by
+  exact_mod_cast As_pos X s
 
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
@@ -182,7 +178,7 @@ lemma volume_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
   calc volume (ball x r')
       ≤ volume (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr
     _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * volume (ball x r) := volume_ball_le_pow_two'
-    _ = As A s * volume (ball x r) := rfl
+    _ = As A s * volume (ball x r) := by norm_cast
 
 lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     volume.real (ball x r') ≤ As A s * volume.real (ball x r) := by
@@ -190,16 +186,13 @@ lemma volume_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * r
   have hbr': volume (ball x r') ≠ ⊤ := measure_ball_ne_top x r'
   have hbr: volume (ball x r) ≠ ⊤ := measure_ball_ne_top x r
   have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := coe_ne_top
-  rw [← ENNReal.ofReal_toReal hbr,← ENNReal.ofReal_toReal hbr',
-    ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul] at hz
-  simp only [coe_toReal] at hz
   rw [← ENNReal.ofReal_le_ofReal_iff]
-  . exact hz
-  positivity
-  simp only [coe_toReal, zero_le_coe]
+  · rwa [← ENNReal.ofReal_toReal hbr,← ENNReal.ofReal_toReal hbr',
+    ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul (by positivity)] at hz
+  · exact mul_nonneg (Nat.cast_nonneg (As A s)) measureReal_nonneg
 
 
-def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 := As A s * A * As A d
+def Ad (A : ℕ) (s d : ℝ) : ℕ := As A s * A * As A d
 
 lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
     (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
@@ -234,8 +227,7 @@ lemma volume_ball_le_of_dist_le' {x x' : X} {r r' s d : ℝ} (hs : 0 < s) (hd : 
       . exact zero_le ((As A s : ℝ≥0∞) * A)
       exact volume_ball_le_same' x hd hdr
     _ = Ad A s d * volume (ball x r) := by
-      dsimp only [Ad]
-      simp only [coe_mul]
+      simp only [Ad, Nat.cast_mul]
 
 section
 variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
@@ -243,19 +235,19 @@ variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 -- #check (@volume_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
 
 end
-def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := Ad A s s
+def Ai (A : ℕ) (s : ℝ) : ℕ := Ad A s s
 
 lemma volume_ball_le_of_subset {x' x : X} {r r' s : ℝ}
     (hs : r' ≤ s * r) (hr : ball x' r ⊆ ball x r') :
     volume.real (ball x (2 * r)) ≤ Ai A s * volume.real (ball x' r) := by sorry
 
-def Ai2 (A : ℝ≥0) : ℝ≥0 := Ai A 2
+def Ai2 (A : ℕ) : ℕ := Ai A 2
 
 lemma volume_ball_two_le_of_subset {x' x : X} {r : ℝ} (hr : ball x' r ⊆ ball x (2 * r)) :
     volume.real (ball x (2 * r)) ≤ Ai2 A * volume.real (ball x' r) :=
   volume_ball_le_of_subset le_rfl hr
 
-def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊Ad A (s * A + 2⁻¹) s⌋₊
+def Np (A : ℕ) (s : ℝ) : ℕ := ⌊Ad A (s * A + 2⁻¹) s⌋₊
 
 /- Proof sketch: take a ball of radius `r / (2 * A)` around each point in `s`.
 These are disjoint, and are subsets of `ball x (r * (2 * A + 2⁻¹))`. -/
@@ -307,22 +299,21 @@ def NormedSpace.DoublingMeasure {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
 end
 section
 
-instance {X:Type*} [MetricSpace X] {A:ℝ≥0}
+instance {X:Type*} [MetricSpace X] {A : ℕ}
     [DoublingMeasure X A] : IsUnifLocDoublingMeasure (volume : Measure X) where
   exists_measure_closedBall_le_mul'' := by
-    use A^2
-    use Set.univ
+    use A ^ 2, Set.univ
     constructor
-    . simp only [univ_mem]
-    . simp only [mem_principal]
+    · simp only [univ_mem]
+    · simp only [mem_principal]
       use Set.univ
       simp only [Set.subset_univ, Set.inter_self, true_and]
       ext r
       simp only [ENNReal.coe_pow, Set.mem_setOf_eq, Set.mem_univ, iff_true]
       intro x
       letI : Nonempty X := ⟨x⟩
-      if hr : r ≤ 0 then
-        have cball_eq : closedBall x (2 * r) = closedBall x r:= by
+      by_cases hr : r ≤ 0
+      · have cball_eq : closedBall x (2 * r) = closedBall x r:= by
           if hr' : r < 0 then
             have : 2 * r < 0 := by linarith
             rw [closedBall_eq_empty.mpr hr',closedBall_eq_empty.mpr this]
@@ -334,19 +325,18 @@ instance {X:Type*} [MetricSpace X] {A:ℝ≥0}
         rw [cball_eq]
         nth_rw 1 [← one_mul (volume (closedBall x r))]
         apply mul_le_mul_of_nonneg_right _ (zero_le _)
-        have : 1 ≤ (A:ℝ≥0∞) := by rw [one_le_coe_iff]; exact one_le_A X
+        have : 1 ≤ (A:ℝ≥0∞) := by exact_mod_cast one_le_A X
         rw [← one_mul 1,pow_two]
         exact mul_le_mul this this (by norm_num) (A_nonneg X)
-      else
-      calc
-        volume (closedBall x (2 * r))
-          ≤ volume (ball x (2 * (2 * r))) := volume.mono (closedBall_subset_ball (by linarith))
-        _ ≤ A * volume (ball x (2 * r)) := volume_ball_two_le_same' x (2 * r)
-        _ ≤ A * (A * volume (ball x r)) := mul_le_mul_of_nonneg_left
-          (volume_ball_two_le_same' x r) (A_nonneg X)
-        _ = ↑(A ^ 2) * volume (ball x r) := by
-          simp only [pow_two, coe_mul,mul_assoc]
-        _ ≤ ↑(A ^ 2) * volume (closedBall x r) := mul_le_mul_of_nonneg_left
-          (volume.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
+      · calc
+          _ ≤ volume (ball x (2 * (2 * r))) := volume.mono (closedBall_subset_ball (by linarith))
+          _ ≤ A * volume (ball x (2 * r)) := volume_ball_two_le_same' x (2 * r)
+          _ ≤ A * (A * volume (ball x r)) := mul_le_mul_of_nonneg_left
+            (volume_ball_two_le_same' x r) (A_nonneg X)
+          _ = ↑(A ^ 2) * volume (ball x r) := by
+            simp only [pow_two, Nat.cast_mul, mul_assoc]
+          _ ≤ _ := by
+            norm_cast
+            exact mul_le_mul_of_nonneg_left (volume.mono ball_subset_closedBall) (by positivity)
 
 end
