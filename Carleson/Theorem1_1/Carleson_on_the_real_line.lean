@@ -33,7 +33,7 @@ def DoublingMeasureR2 : DoublingMeasure ℝ 2 where
         sorry
         --exact this.volume_ball_two_le_same x r
 
-instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ (4 : ℝ)) :=
+instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ 4 : ℕ) :=
   DoublingMeasureR2.mono (by norm_num)
 end
 
@@ -224,7 +224,7 @@ instance : FunctionDistances ℝ ℝ where
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
-instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
+instance h4 : CompatibleFunctions ℝ ℝ (2 ^ 4 : ℕ) where
   eq_zero := sorry
   localOscillation_le_cdist := sorry
   cdist_mono := sorry
@@ -405,7 +405,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
 --TODO : possibly issues with a different "doubling constant" than in the paper (4 instead of 2)
-instance h5 : IsCancellative ℝ (2 ^ (4 : ℝ)) where
+instance h5 : IsCancellative ℝ (2 ^ (4 : ℕ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by sorry
 
@@ -451,7 +451,7 @@ instance h6 : IsCZKernel 4 K where
   measurable := Hilbert_kernel_measurable
 
 /- Lemma ?-/
-lemma h3 : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts 4) := sorry
+lemma h3 : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts 4) := sorry
 
 
 

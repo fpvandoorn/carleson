@@ -28,6 +28,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Build project
     steps:
+      - name: cleanup
+        run: |
+          find . -name . -o -prune -exec rm -rf -- {} +
+          # Delete all but the 5 most recent toolchains.
+          # Make sure to delete both the `~/.elan/toolchains/X` directory and the `~/.elan/update-hashes/X` file.
+          # Skip symbolic links (`-type d`), the current directory (`! -name .`), and `nightly` and `stable`.
+          if cd ~/.elan/toolchains && find . -maxdepth 1 -type d ! -name . -print0 | xargs -0 ls -1td | grep -v 'nightly$' | grep -v 'stable$' | tail -n +6 | xargs -I {} sh -c 'echo {} && rm -rf "{}" && rm "../update-hashes/{}"'; then
+              : # Do nothing on success
+          else
+              : # Do nothing on failure, but suppress errors
+          fi
+
       - name: Checkout project
         uses: actions/checkout@v2
         with:
@@ -84,22 +96,28 @@ jobs:
           sudo chown -R runner docs
           cp -r .lake/build/doc docs/docs
 
-      - name: Bundle dependencies
-        uses: ruby/setup-ruby@v1
-        with:
-          working-directory: docs
-          ruby-version: "3.0" # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      # - name: Bundle dependencies
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     working-directory: docs
+      #     ruby-version: "3.0" # Not needed with a .ruby-version file
+      #     bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
-      - name: Bundle website
-        working-directory: docs
-        run: JEKYLL_ENV=production bundle exec jekyll build
+      # - name: Bundle website
+      #   working-directory: docs
+      #   run: |
+      #     bundle exec jekyll clean
+      #     JEKYLL_ENV=production bundle exec jekyll build
 
       - name: Upload docs & blueprint artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: docs/_site
+          path: docs/
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+      - name: Make sure the cache works
+        run: |
+          mv docs/docs .lake/build/doc
