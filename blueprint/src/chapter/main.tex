@@ -582,7 +582,7 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 \begin{proposition}[Hardy--Littlewood]
 \label{Hardy-Littlewood}
 \leanok
-\lean{measure_biUnion_le_lintegral, maximalFunction_lt_top, snorm_maximalFunction, M_lt_top,
+\lean{measure_biUnion_le_lintegral, maximalFunction_le_snorm, hasStrongType_maximalFunction, M_lt_top,
   laverage_le_M, snorm_M_le}
 \uses{layer-cake-representation,covering-separable-space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
@@ -645,7 +645,7 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
 \begin{lemma}[monotone cube metrics]
     \label{monotone-cube-metrics}
     \leanok
-    \lean{𝓓.dist_mono, 𝓓.dist_strictMono} % Overleaf might scramble these characters (`\MCD`)
+    \lean{Grid.dist_mono, Grid.dist_strictMono} % Overleaf might scramble these characters (`\MCD`)
     Let $(\mathcal{D}, c, s)$ be a grid structure. Denote for cubes $I \in \mathcal{D}$
     $$
         I^\circ := B(c(I), \frac{1}{4} D^{s(I)})\,.
@@ -6055,7 +6055,7 @@ This completes the proof of \Cref{Holder-van-der-Corput}.
 We begin with a classical representation of the Lebesgue norm.
 \begin{lemma}[layer cake representation]\label{layer-cake-representation}
 \leanok
-\lean{snorm_pow_eq_distribution}
+\lean{MeasureTheory.snorm_pow_eq_distribution}
 Let $1\le p< \infty$. Then for any measurable function $u:X\to [0,\infty)$ on the measure space $X$
 relative to the measure $\mu$
 we have
@@ -6408,7 +6408,7 @@ where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\del
 \begin{lemma}[smooth approximation]
     \label{smooth-approximation}
     \leanok
-    \lean{}
+    % \lean{}
     The function $f_0$ is $2\pi$-periodic.
     The function $f_0$ is smooth (and therefore measurable).
     The function $f_0$ satisfies for all $x\in \R$:
@@ -6426,7 +6426,7 @@ We prove in \Cref{10smooth}:
 \begin{lemma}[convergence for smooth]
     \label{convergence-for-smooth}
     \leanok
-    \lean{}
+    % \lean{}
     \uses{convergence-for-twice-contdiff}
     There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
     \begin{equation}
@@ -6438,7 +6438,7 @@ We prove in \Cref{10difference}:
 \begin{lemma}[control approximation effect]
     \label{control-approximation-effect}
     \leanok
-    \lean{}
+    % \lean{}
     \uses{real-Carleson}
     There is a set $E \subset \R$ with Lebesgue measure
     $|E|\le \epsilon$ such that for all
@@ -6492,7 +6492,7 @@ use the following \Cref{real-Carleson}, which itself is proven
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
 \leanok
-\lean{}
+% \lean{}
 \uses{metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,nontangential-Hilbert}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
@@ -6680,7 +6680,7 @@ The following lemma will be proved in \Cref{10projection}.
 \begin{lemma}[Hilbert kernel bound]
 \label{Hilbert-kernel-bound}
 \leanok
-\lean{}
+% \lean{}
 \uses{lower-secant-bound}
     For $x,y\in \R$ with $x\neq y$ we have
     \begin{equation}\label{eqcarl30}
@@ -6705,7 +6705,7 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 \begin{lemma}[Hilbert kernel regularity]
 \label{Hilbert-kernel-regularity}
 \leanok
-\lean{}
+% \lean{}
 \uses{lower-secant-bound}
     For $x,y,y'\in \R$ with $x\neq y,y'$ and
     \begin{equation}
@@ -6764,7 +6764,7 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 \begin{lemma}
 \label{fourier-coeff-derivative}
 \leanok
-\lean{}
+% \lean{}
 Let $f:\R \to \C$ be $2\pi$-periodic and differentiable, and let $n \in \Z \setminus \{0\}$. Then
 \begin{equation}
     \widehat{f}_n = \frac{1}{i n} \widehat{f'}_n.
@@ -6778,7 +6778,7 @@ This is part of the Lean library.
 \begin{lemma}
 \label{convergence-of-coeffs-summable}
 \leanok
-\lean{}
+% \lean{}
 Let $f:\R \to \C$ such that
 \begin{equation}
     \sum_{n\in \Z} |\widehat{f}_n| < \infty.
@@ -6799,7 +6799,7 @@ as $N \rightarrow \infty$.
     \label{convergence-for-twice-contdiff}
     \uses{fourier-coeff-derivative,convergence-of-coeffs-summable}
     \leanok
-    \lean{}
+    % \lean{}
     Let $f:\R \to \C$ be $2\pi$-periodic and twice continuously differentiable. Then
     \begin{equation}
         \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0

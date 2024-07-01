@@ -216,11 +216,11 @@ def grid_existence : GridStructure X D κ S o :=
 
 /-! Proof that there exists a tile structure on a grid structure. -/
 
-variable [GridStructure X D κ S o] {I : 𝓓 X}
+variable [GridStructure X D κ S o] {I : Grid X}
 
 /-- Use Zorn's lemma to define this. -/
 -- Note: 𝓩 I is a subset of finite set range Q.
-def 𝓩 (I : 𝓓 X) : Set (Θ X) := sorry
+def 𝓩 (I : Grid X) : Set (Θ X) := sorry
 
 /-- The constant appearing in 4.2.2 (3 / 10). -/
 @[simp] def C𝓩 : ℝ := 3 / 10
@@ -285,7 +285,7 @@ lemma frequency_ball_cover : range Q ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := 
 
 local instance tileData_existence [GridStructure X D κ S o] :
     PreTileStructure Q D κ S o where
-  𝔓 := Σ I : 𝓓 X, 𝓩 I
+  𝔓 := Σ I : Grid X, 𝓩 I
   fintype_𝔓 := Sigma.instFintype
   𝓘 p := p.1
   surjective_𝓘 I := ⟨⟨I, default⟩, rfl⟩
@@ -296,13 +296,13 @@ local instance tileData_existence [GridStructure X D κ S o] :
 
 namespace Construction
 
-def Ω₁_aux (I : 𝓓 X) (k : ℕ) : Set (Θ X) :=
+def Ω₁_aux (I : Grid X) (k : ℕ) : Set (Θ X) :=
   if hk : k < Nat.card (𝓩 I) then
     let z : Θ X := (Finite.equivFin (𝓩 I) |>.symm ⟨k, hk⟩).1
     ball_{I} z C4_2_1 \ (⋃ i ∈ 𝓩 I \ {z}, ball_{I} i C𝓩) \ ⋃ i < k, Ω₁_aux I i
   else ∅
 
-lemma Ω₁_aux_disjoint (I : 𝓓 X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
+lemma Ω₁_aux_disjoint (I : Grid X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω₁_aux I k) (Ω₁_aux I l) := by
   wlog h : k < l generalizing k l
   · exact (this hn.symm (hn.symm.lt_of_le (Nat.le_of_not_lt h))).symm
   have : Ω₁_aux I k ⊆ ⋃ i < l, Ω₁_aux I i := subset_biUnion_of_mem h
@@ -312,7 +312,7 @@ lemma Ω₁_aux_disjoint (I : 𝓓 X) {k l : ℕ} (hn : k ≠ l) : Disjoint (Ω�
   · exact disjoint_sdiff_right
   · exact disjoint_empty _
 
-lemma disjoint_ball_Ω₁_aux (I : 𝓓 X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz' : z' ∈ 𝓩 I) (hn : z ≠ z') :
+lemma disjoint_ball_Ω₁_aux (I : Grid X) {z z' : Θ X} (hz : z ∈ 𝓩 I) (hz' : z' ∈ 𝓩 I) (hn : z ≠ z') :
     Disjoint (ball_{I} z' C𝓩) (Ω₁_aux I (Finite.equivFin (𝓩 I) ⟨z, hz⟩)) := by
   rw [Ω₁_aux]
   simp only [(Finite.equivFin (𝓩 I) ⟨z, hz⟩).2, dite_true, Fin.eta, Equiv.symm_apply_apply]
@@ -386,7 +386,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
 open Classical in
 def Ω (p : 𝔓 X) : Set (Θ X) :=
   if h : IsMax p.1 then Ω₁ p else
-  have := 𝓓.opSize_succ_lt h
+  have := Grid.opSize_succ_lt h
   ball_(p) (𝒬 p) CΩ ∪ ⋃ (z : Θ X) (hz : z ∈ 𝓩 p.1.succ ∩ Ω₁ p), Ω ⟨p.1.succ, ⟨z, hz.1⟩⟩
 termination_by p.1.opSize
 
@@ -395,7 +395,7 @@ lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
     ∀ p, P p := fun p ↦ by
   by_cases h : IsMax p.1
   · exact base p h
-  · have := 𝓓.opSize_succ_lt h
+  · have := Grid.opSize_succ_lt h
     exact ind p h fun z ↦ (𝔓_induction P base ind ⟨p.1.succ, z⟩)
 termination_by p => p.1.opSize
 
@@ -419,8 +419,8 @@ lemma Ω_subset_cdist {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
       _ < dist_{I} ϑ z + C4_2_1 := by
         gcongr; simpa using mem_of_mem_of_subset mz₂ (Ω₁_subset_ball ⟨I, ⟨y, my⟩⟩)
       _ ≤ C2_1_2 a * dist_{J} ϑ z + C4_2_1 := by
-        gcongr; refine 𝓓.dist_strictMono (lt_of_le_of_ne 𝓓.le_succ ?_)
-        contrapose! nmaxI; exact 𝓓.max_of_le_succ nmaxI.symm.le
+        gcongr; refine Grid.dist_strictMono (lt_of_le_of_ne Grid.le_succ ?_)
+        contrapose! nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
       _ < C2_1_2 a * 1 + C4_2_1 := by
         gcongr
         · rw [C2_1_2]; positivity
@@ -430,7 +430,7 @@ lemma Ω_subset_cdist {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
         linarith [four_le_a X]
       _ < _ := by norm_num
 
-lemma Ω_disjoint_aux {I : 𝓓 X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
+lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y ≠ z) :
     Disjoint (ball_{I} y.1 CΩ) (⋃ z', ⋃ (x : z' ∈ 𝓩 I.succ ∩ Ω₁ ⟨I, z⟩),
       Ω ⟨I.succ, ⟨z', x.1⟩⟩) := by
   have dj := (disjoint_frequency_cubes (f := y) (g := z)).mt hn
@@ -444,8 +444,8 @@ lemma Ω_disjoint_aux {I : 𝓓 X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
     _ ≤ dist_{I} ϑ y.1 + dist_{I} ϑ x := dist_triangle_left ..
     _ < CΩ + dist_{I} ϑ x := by gcongr; simpa [mem_ball] using mϑ
     _ ≤ CΩ + C2_1_2 a * dist_{I.succ} ϑ x := by
-      gcongr; refine 𝓓.dist_strictMono (lt_of_le_of_ne 𝓓.le_succ ?_)
-      contrapose! nmaxI; exact 𝓓.max_of_le_succ nmaxI.symm.le
+      gcongr; refine Grid.dist_strictMono (lt_of_le_of_ne Grid.le_succ ?_)
+      contrapose! nmaxI; exact Grid.max_of_le_succ nmaxI.symm.le
     _ < CΩ + C2_1_2 a * 1 := by
       gcongr
       · rw [C2_1_2]; positivity
@@ -461,7 +461,7 @@ lemma Ω_disjoint {p q : 𝔓 X} (hn : p ≠ q) (h𝓘 : 𝓘 p = 𝓘 q) : Disj
   change p.1 = q.1 at h𝓘; obtain ⟨I, y⟩ := p; obtain ⟨_, z⟩ := q
   subst h𝓘; dsimp only at hn z ⊢
   replace hn : y ≠ z := fun e ↦ hn (congrArg (Sigma.mk I) e)
-  induction I using 𝓓.induction with
+  induction I using Grid.induction with
   | base I maxI =>
     unfold Ω; simp only [maxI, dite_true]
     contrapose! hn; rw [not_disjoint_iff_nonempty_inter] at hn
@@ -480,8 +480,8 @@ lemma Ω_disjoint {p q : 𝔓 X} (hn : p ≠ q) (h𝓘 : 𝓘 p = 𝓘 q) : Disj
       rw [disjoint_iUnion₂_right]; intro b ⟨mb₁, mb₂⟩
       exact ih ⟨a, ma₁⟩ ⟨b, mb₁⟩ (by simp [dj.ne_of_mem ma₂ mb₂])
 
-lemma Ω_biUnion {I : 𝓓 X} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (𝓓 X)), Ω p := by
-  induction I using 𝓓.induction with
+lemma Ω_biUnion {I : Grid X} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (Grid X)), Ω p := by
+  induction I using Grid.induction with
   | base I maxI =>
     intro ϑ mϑ; simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop]
     have l := mem_of_mem_of_subset mϑ <|
@@ -510,15 +510,15 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     obtain ⟨I, y⟩ := p
     obtain ⟨J, z⟩ := q
     have hij : I = J := by
-      refine le_antisymm h𝓘 <| 𝓓.le_def.mpr ⟨(fundamental_dyadic h).resolve_right ?_, h⟩
+      refine le_antisymm h𝓘 <| Grid.le_def.mpr ⟨(fundamental_dyadic h).resolve_right ?_, h⟩
       obtain ⟨w, mw⟩ := I.nonempty
       rw [disjoint_comm, not_disjoint_iff]
-      use w, mw, mem_of_mem_of_subset mw (𝓓.le_def.mp h𝓘).1
+      use w, mw, mem_of_mem_of_subset mw (Grid.le_def.mp h𝓘).1
     have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k]
   · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
-      𝓓.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
+      Grid.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
     have := mem_of_mem_of_subset q.2.2 (𝓩_subset.trans (frequency_ball_cover (I := J)))
     rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
     have zi : ball_{J} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 I, ball_{J} z C4_2_1 :=
@@ -528,11 +528,11 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     clear! z'
     rw [mem_iUnion] at zi; obtain ⟨a, ma⟩ := zi -- Paper's `q'` is `⟨J, a⟩`
     have nmaxJ : ¬IsMax J := by
-      by_contra maxJ; rw [𝓓.isMax_iff] at maxJ
+      by_contra maxJ; rw [Grid.isMax_iff] at maxJ
       rw [maxJ, show s topCube = S by exact s_topCube (X := X)] at sJ
       have : 𝔰 q ≤ S := (range_s_subset ⟨q.1, rfl⟩).2
       omega
-    have succJ : J.succ = q.1 := (𝓓.succ_def nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; omega⟩
+    have succJ : J.succ = q.1 := (Grid.succ_def nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; omega⟩
     have key : Ω q ⊆ Ω ⟨J, a⟩ := by
       nth_rw 2 [Ω]; simp only [nmaxJ, dite_false]; intro ϑ mϑ; right; rw [mem_iUnion₂]
       use q.2, ?_, ?_
