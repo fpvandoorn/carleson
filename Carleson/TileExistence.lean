@@ -446,8 +446,8 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
       · rw [C2_1_2]; positivity
       · simpa only using mem_of_mem_of_subset mϑ₂ (Ω_subset_cdist (p := ⟨I.succ, ⟨x, mx₁⟩⟩))
     _ < CΩ + 2 ^ (-4 : ℝ) := by
-      gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two]
-      linarith [four_le_a X]
+      gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, neg_mul, neg_lt_neg_iff]
+      norm_cast; linarith [four_le_a X]
     _ ≤ _ := by norm_num
   replace u := mem_of_mem_of_subset u (ball_subset_Ω₁ ⟨I, y⟩)
   have := dj.ne_of_mem u mx₂; contradiction

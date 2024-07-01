@@ -204,6 +204,7 @@ lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   rw [Int.toNat_of_nonneg this, scale_succ h]
   omega
 
+@[elab_as_elim]
 lemma induction (P : Grid X → Prop) (base : ∀ i, IsMax i → P i)
     (ind : ∀ i, ¬IsMax i → P i.succ → P i) : ∀ i, P i := fun i ↦ by
   by_cases h : IsMax i
