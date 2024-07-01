@@ -13,7 +13,7 @@ We should move them to separate files once we start proving things about them. -
 
 section DoublingMeasure
 universe u
-variable {𝕜 X : Type*} {A : ℝ≥0} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
 section localOscillation
 
@@ -122,7 +122,7 @@ notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
 notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
-class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ)
+class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
   eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
   /-- The distance is bounded below by the local oscillation. -/
@@ -140,7 +140,7 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
   /-- The distance of a ball with large radius is bounded below. -/
   ballsCoverBalls {x : X} {r R : ℝ} :
-    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R ⌊A⌋₊
+    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R A
 
 instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
@@ -189,11 +189,11 @@ open Function
 /-- `K` is a one-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
-class IsCZKernel (a : ℝ) (K : X → X → ℂ) : Prop where
+class IsCZKernel (a : ℕ) (K : X → X → ℂ) : Prop where
   measurable : Measurable (uncurry K)
   norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
   norm_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ a⁻¹ * (C_K a / vol x y)
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
   measurable_right (y : X) : Measurable (K · y)
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
@@ -236,20 +236,17 @@ def CarlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → 
   ⨆ (Q : Θ X) (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
   ↑‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖₊
 
-
 end DoublingMeasure
-
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
-@[simp] abbrev defaultA (a : ℝ) : ℝ≥0 := 2 ^ a
-@[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
-@[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
-@[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
-@[simp] def defaultτ (a : ℝ) : ℝ := a⁻¹
+@[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
+@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (100 * a ^ 2)
+@[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
+@[simp] def defaultZ (a : ℕ) : ℝ := 2 ^ (12 * a)
+@[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
 
-lemma defaultD_pos (a : ℝ) : 0 < defaultD a := Real.rpow_pos_of_pos zero_lt_two _
-
+lemma defaultD_pos (a : ℕ) : 0 < defaultD a := by rw [defaultD]; positivity
 
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`
@@ -257,7 +254,7 @@ throughout this formalization. -/
 def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
 /-- Data common through most of chapters 2-9. -/
-class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
+class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] where
   d : DoublingMeasure X (defaultA a)
   four_le_a : 4 ≤ a
@@ -274,14 +271,13 @@ class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → �
   Q : SimpleFunc X (Θ X)
   q_mem_Ioc : q ∈ Ioc 1 2
 
-
 export PreProofData (four_le_a hasBoundedStrongType_T measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
 attribute [instance] PreProofData.d PreProofData.cf PreProofData.c
 
 section ProofData
 
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
 
 variable (X) in
@@ -289,35 +285,34 @@ lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ �
 
 variable (X) in
 open Classical in
-def S [PreProofData a q K σ₁ σ₂ F G] : ℤ := Nat.find (S_spec X)
+def S [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
 
 lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ Icc (- S X) (S X) := sorry
 
 lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
 
 lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
-    - S X ∈ range σ₁ ∨ S X ∈ range σ₂ := sorry
+    (-S X : ℤ) ∈ range σ₁ ∨ (S X : ℤ) ∈ range σ₂ := sorry
 
-variable (X) in lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
-variable (X) in lemma q_nonneg : 0 ≤ q := (q_pos X).le
+variable (X)
 
+lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
+lemma q_nonneg : 0 ≤ q := (q_pos X).le
 
-variable (X) in
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
-variable (X) in lemma nnq_pos : 0 < nnq X := q_pos X
-variable (X) in lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
+lemma nnq_pos : 0 < nnq X := q_pos X
+lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
   ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
 
 end ProofData
 
-class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
+class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
     (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X]
     extends PreProofData a q K σ₁ σ₂ F G where
   F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
   G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
-
 
 namespace ShortVariables
 -- open this section to get shorter 1-letter names for a bunch of variables
@@ -334,21 +329,18 @@ scoped notation "nnq" => nnq X
 end ShortVariables
 
 open scoped ShortVariables
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 lemma one_le_D : 1 ≤ D := by
-  rw [← Real.rpow_zero 2]
-  dsimp
-  apply Real.rpow_le_rpow_of_exponent_le (by linarith)
-  simp only [gt_iff_lt, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
-  exact sq_nonneg a
+  rw [defaultD, ← pow_zero 2]
+  exact pow_le_pow_right' one_le_two (by positivity)
 
 lemma D_nonneg : 0 ≤ D := zero_le_one.trans one_le_D
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
-def nnD : ℝ≥0 := ⟨D, D_nonneg⟩
+def nnD : ℝ≥0 := ⟨D, by exact_mod_cast D_nonneg⟩
 
 namespace ShortVariables
 
@@ -356,7 +348,6 @@ set_option hygiene false
 scoped notation "nnD" => nnD a
 
 end ShortVariables
-
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]
@@ -366,7 +357,7 @@ def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ
 
 /-! Lemma 2.1.1 -/
 
-def C2_1_1 (k : ℕ) (a : ℝ) : ℕ := 2 ^ (k * ⌈a⌉₊) -- todo: fix in blueprint
+def C2_1_1 (k : ℕ) (a : ℕ) : ℕ := 2 ^ (k * a)
 
 lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
@@ -409,12 +400,8 @@ lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
       refine Finset.card_le_card fun _ h ↦ ?_
       rw [Finset.mem_biUnion] at h
       exact Finset.mem_of_subset (by simp [g]) h.choose_spec.2
-    _ ≤ ⌊2 ^ a⌋₊ ^ k := c𝓩'
-    _ ≤ _ := by
-      rw [C2_1_1, mul_comm, pow_mul]
-      apply pow_le_pow_left'
-      exact_mod_cast (Nat.floor_le (by positivity)).trans
-        (Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil a))
+    _ ≤ (2 ^ a) ^ k := c𝓩'
+    _ ≤ _ := by rw [C2_1_1, mul_comm, pow_mul]
 
 lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
