@@ -303,40 +303,47 @@ variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ}
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
 
+-- used in 4.1.7 (`small_boundary`)
 variable (X) in
-lemma eight_le_D : 8 ≤ defaultD a := by
+lemma twentyfive_le_D : 25 ≤ defaultD a := by
   simp only [defaultD]
-  have : 4 ≤ a := by exact four_le_a X
+  have : 4 ≤ a := four_le_a X
   calc
-    (8:ℝ)
-      = 2 ^ 3 := by norm_num
-    _ = 2 ^ ((3:ℕ) : ℝ) := by
-      rw [← Real.rpow_natCast]
+    (25:ℝ)
+      ≤ (32:ℝ) := by linarith
+    _ = 2 ^ (5:ℝ) := by norm_num
     _ ≤ 2 ^ (100 * (4:ℝ) ^ 2) := by
-      apply Real.rpow_le_rpow_of_exponent_le (by linarith)
+      apply Real.rpow_le_rpow_of_exponent_le (by norm_num)
       norm_num
-    _ ≤ 2 ^ (100 * a ^ 2) := by
-      rw [← Real.rpow_natCast]
-      apply Real.rpow_le_rpow_of_exponent_le (by linarith)
-      simp only [Nat.cast_ofNat, gt_iff_lt, Nat.ofNat_pos, mul_le_mul_left]
-      rw [← Real.rpow_natCast]
-      simp only [Nat.cast_ofNat]
-      rw [Real.rpow_le_rpow_iff (by linarith : 0 ≤ (4:ℝ)) (by linarith : 0 ≤ a) (by linarith)]
+    _ ≤ 2 ^ (100 * a^2) := by
+      apply Real.rpow_le_rpow_of_exponent_le (by norm_num)
+      apply mul_le_mul_of_nonneg_left _ (by norm_num)
+      rw [sq_le_sq]
+      norm_num
+      rw [abs_of_pos (by linarith)]
       exact this
 
+-- used in 4.1.3 (`I3_prop_3_1`)
 variable (X) in
-lemma five_le_D : 5 ≤ defaultD a := by
-  have : 8 ≤ defaultD a := by exact eight_le_D X
+lemma eight_le_D : 8 ≤ defaultD a := by
+  have : 25 ≤ defaultD a := twentyfive_le_D X
   linarith
 
+-- used in 4.1.6 (`transitive_boundary`)
+variable (X) in
+lemma five_le_D : 5 ≤ defaultD a := by
+  have : 25 ≤ defaultD a := twentyfive_le_D X
+  linarith
+
+-- used in various places in `Carleson.TileExistence`
 variable (X) in
 lemma four_le_D : 4 ≤ defaultD a := by
-  have : 8 ≤ defaultD a := by exact eight_le_D X
+  have : 25 ≤ defaultD a := twentyfive_le_D X
   linarith
 
 variable (X) in
 lemma one_le_D : 1 ≤ defaultD a := by
-  have : 8 ≤ defaultD a := by exact eight_le_D X
+  have : 25 ≤ defaultD a := twentyfive_le_D X
   linarith
 
 
