@@ -241,7 +241,7 @@ end DoublingMeasure
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
 @[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
-@[simp] def defaultD (a : ℕ) : ℝ := 2 ^ (100 * a ^ 2)
+@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (100 * a ^ 2)
 @[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
 @[simp] def defaultZ (a : ℕ) : ℝ := 2 ^ (12 * a)
 @[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
@@ -285,14 +285,14 @@ lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ �
 
 variable (X) in
 open Classical in
-def S [PreProofData a q K σ₁ σ₂ F G] : ℤ := Nat.find (S_spec X)
+def S [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
 
 lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ Icc (- S X) (S X) := sorry
 
 lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
 
 lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
-    - S X ∈ range σ₁ ∨ S X ∈ range σ₂ := sorry
+    (-S X : ℤ) ∈ range σ₁ ∨ (S X : ℤ) ∈ range σ₂ := sorry
 
 variable (X)
 
@@ -333,15 +333,14 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 lemma one_le_D : 1 ≤ D := by
-  have : 2 ^ (100 * a ^ 2 : ℕ) = (2 : ℝ) ^ (100 * a ^ 2 : ℝ) := by norm_cast
-  rw [← Real.rpow_zero 2, defaultD, this]
-  exact Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_cast; positivity)
+  rw [defaultD, ← pow_zero 2]
+  exact pow_le_pow_right' one_le_two (by positivity)
 
 lemma D_nonneg : 0 ≤ D := zero_le_one.trans one_le_D
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
-def nnD : ℝ≥0 := ⟨D, D_nonneg⟩
+def nnD : ℝ≥0 := ⟨D, by exact_mod_cast D_nonneg⟩
 
 namespace ShortVariables
 

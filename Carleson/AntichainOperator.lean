@@ -54,7 +54,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       exact hpp' (E_disjoint h𝔄 hp' p.2 ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
     have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
-        dist x y ∈ Icc (D ^ ((𝔰 p.1) - 1) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
+        dist x y ∈ Icc ((D ^ ((𝔰 p.1) - 1) : ℝ) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
       dist_mem_Icc_of_Ks_ne_zero (range_s_subset (X := X) (mem_range_self (𝓘 p.1))) hy
     have hdist_cpy : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), dist (𝔠 p) y ≤ 8*D ^ 𝔰 p.1 := by
       intro y hy
@@ -115,7 +115,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         _ ≤ 107 * a ^ 3 := by gcongr; norm_num
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith)
-          (zpow_pos_of_pos (defaultD_pos a) _))
+          (zpow_pos_of_pos (by exact_mod_cast defaultD_pos a) _))
     _ ≤ (C_6_1_2 a) * MB volume ((fun (𝔭 : 𝔓 X) ↦ (𝔠 𝔭, 8*D ^ 𝔰 𝔭)) '' (𝔄 : Set (𝔓 X))) f x := by
       rw [mul_le_mul_left _ _, MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iSup_iff]
       simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff,

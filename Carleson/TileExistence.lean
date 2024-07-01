@@ -30,35 +30,31 @@ lemma ball_bound {Y : Set X} (k : ℝ) (hk_lower : -S ≤ k)
         rw [mem_ball,dist_comm] at hy'
         apply hy'.le.trans
         rw [tsub_le_iff_right, le_add_iff_nonneg_right]
-        exact Real.rpow_nonneg (defaultD_pos a).le _
-    _ = ball y (8 * D^S) := by ring_nf -- this tactic is out of place C:
+        positivity
+    _ = ball y (8 * D ^ S) := by congr! 1; ring
     _ ⊆ ball y (8 * D ^ (2 * S) * D ^ k) := by
         apply ball_subset_ball
         rw [mul_assoc]
         apply mul_le_mul_of_nonneg_left _ (by norm_num)
-        simp_rw [← Real.rpow_intCast]
-        rw [← Real.rpow_add (defaultD_pos a)]
-        apply Real.rpow_le_rpow_of_exponent_le (one_le_D)
-        rw [Int.cast_mul, Int.cast_ofNat, two_mul,add_assoc, le_add_iff_nonneg_right,
-          ← sub_self (↑S), sub_eq_add_neg]
-        exact add_le_add_left hk_lower _
+        rw [← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_add (by exact_mod_cast defaultD_pos a)]
+        apply Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast one_le_D)
+        rw [Nat.cast_mul, Nat.cast_two]
+        linarith
 
 -- lemma tsum_top_eq
 
-variable (X) in def J' : ℝ := 3 + 2 * S * 100 * a ^2
+variable (X) in def J' : ℕ := 3 + 2 * S * 100 * a ^ 2
 
 lemma twopow_J : 2 ^ J' X = 8 * D ^ (2 * S) := by
   dsimp [J']
-  rw [Real.rpow_add, mul_assoc (2 * (S:ℝ)), mul_comm (2 * (S:ℝ)),Real.rpow_mul]
-  · norm_cast
-  · norm_num
+  rw [pow_add, mul_assoc (2 * S), mul_comm (2 * S), pow_mul]
   norm_num
 
-lemma twopow_J' : ((2 : ℝ≥0) ^ J' X : ℝ≥0) = 8 * nnD ^ (2 * S) := by
+lemma twopow_J' : 2 ^ J' X = 8 * nnD ^ (2 * S) := by
   dsimp only [_root_.nnD]
   ext
   push_cast
-  rw [twopow_J]
+  rw_mod_cast [twopow_J]
 
 variable (X) in
 def C4_1_1 := As (2 ^ a) (2 ^ J' X)
@@ -88,11 +84,10 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
     _ ≤ ∑' (y : Y), (As (2 ^ a) (2 ^ J' X)) * volume (ball (y : X) (D^k)) := by
       apply tsum_le_tsum _ ENNReal.summable ENNReal.summable
       intro y hy
-      rw [← twopow_J]
-      norm_cast
+      rw_mod_cast [← twopow_J]
       apply volume_ball_le_same'
-      . exact Real.rpow_pos_of_pos (by linarith) _
-      . exact le_refl _
+      · positivity
+      · exact le_refl _
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * ∑' (y : Y), volume (ball (y : X) (D^k)):= by
       rw [ENNReal.tsum_mul_left]
     _ = (As (2 ^ a) (2 ^ J' X)) * volume (⋃ y ∈ Y, ball y (D^k)) := by
@@ -102,7 +97,7 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
         intro y _
         use y
         rw [mem_ball, dist_self]
-        exact Real.rpow_pos_of_pos (defaultD_pos a) _
+        exact Real.rpow_pos_of_pos (by exact_mod_cast defaultD_pos a) _
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * volume (ball o (4 * D ^ S)) := by
         rw [ENNReal.mul_le_mul_left val_ne_zero ENNReal.coe_ne_top]
         apply volume.mono _
@@ -182,7 +177,7 @@ lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ba
     suffices hmem : y ∈ Yk X k by
       use y, hmem
       rw [disjoint_self, bot_eq_empty, ball_eq_empty, not_le]
-      apply Real.rpow_pos_of_pos (defaultD_pos a) k
+      apply Real.rpow_pos_of_pos (by exact_mod_cast defaultD_pos a) k
     suffices (Yk X k) ∪ {y} = Yk X k by
       rw [union_singleton, insert_eq_self] at this
       exact this

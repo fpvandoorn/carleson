@@ -16,7 +16,7 @@ I expect we prefer `coeGrid : Grid → Set X` over `Grid : Set (Set X)`
 Note: the `s` in this paper is `-s` of Christ's paper.
 -/
 class GridStructure
-    (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) where
+    (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X) where
   /-- indexing set for a grid structure -/
   Grid : Type u
   fintype_Grid : Fintype Grid
@@ -32,7 +32,7 @@ class GridStructure
   s_topCube : s topCube = S
   c_topCube : c topCube = o
   subset_topCube {i} : coeGrid i ⊆ coeGrid topCube
-  Grid_subset_biUnion {i} : ∀ k ∈ Ico (-S) (s i), coeGrid i ⊆ ⋃ j ∈ s ⁻¹' {k}, coeGrid j
+  Grid_subset_biUnion {i} : ∀ k ∈ Ico (-S : ℤ) (s i), coeGrid i ⊆ ⋃ j ∈ s ⁻¹' {k}, coeGrid j
   fundamental_dyadic' {i j} : s i ≤ s j → coeGrid i ⊆ coeGrid j ∨ Disjoint (coeGrid i) (coeGrid j)
   ball_subset_Grid {i} : ball (c i) (D ^ s i / 4) ⊆ coeGrid i --2.0.10
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
@@ -42,7 +42,7 @@ class GridStructure
 export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
   topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
 
-variable {D κ C : ℝ} {S : ℤ} {o : X}
+variable {D : ℕ} {κ C : ℝ} {S : ℕ} {o : X}
 
 section GridStructure
 
@@ -133,7 +133,7 @@ end GridStructure
 This is mostly separated out so that we can nicely define the notation `d_𝔭`.
 Note: compose `𝓘` with `Grid` to get the `𝓘` of the paper. -/
 class PreTileStructure [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (Θ X)))
-  (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X) extends GridStructure X D κ S o where
+  (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X) extends GridStructure X D κ S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
   protected 𝓘 : 𝔓 → Grid
@@ -159,7 +159,7 @@ local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭
 
 /-- A tile structure. -/
 class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
-    (D κ : outParam ℝ) (S : outParam ℤ) (o : outParam X)
+    (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
     extends PreTileStructure Q D κ S o where
   Ω : 𝔓 → Set (Θ X)
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
@@ -284,7 +284,7 @@ def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
-  ⨆ (p ∈ 𝔓') (r ≥ 4 * D ^ 𝔰 p),
+  ⨆ (p ∈ 𝔓') (r ≥ 4 * (D ^ 𝔰 p : ℝ)),
   volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
 
 -- a small characterization that might be useful
