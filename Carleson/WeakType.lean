@@ -276,6 +276,9 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
             · exact Preorder.le_refl (ofNNReal ↑‖L‖₊)
             · assumption
           · assumption
+    have _ : (¬ ↑‖(L (f z)) (g z)‖₊ ≤ ↑‖L‖₊ * t * s) := by
+      simp; exact hz
+    contradiction
   calc
     μ {x | ↑‖L‖₊ * t * s < ↑‖(fun x ↦ (L (f x)) (g x)) x‖₊}
       ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := by apply measure_mono h₀
