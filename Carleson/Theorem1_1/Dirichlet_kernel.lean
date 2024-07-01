@@ -128,12 +128,11 @@ lemma dirichletKernel'_eq_zero {N : ℕ} {x : ℝ} (h : cexp (I * x) = 1) : diri
 
 /- "a.e." version of previous lemma. -/
 lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
-  have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ {x | ∃ n : ℤ, x = n * (2 * Real.pi)} := by
+  have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ {x | ∃ n : ℤ, n * (2 * Real.pi) = x} := by
     intro x hx
     simp at *
     by_contra h
     apply hx (dirichletKernel_eq _)
-    --rw [Set.uIoc_of_le Real.two_pi_pos.le]
     rw [ne_eq, Complex.exp_eq_one_iff]
     push_neg at *
     ring_nf at *
@@ -141,11 +140,12 @@ lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = 
     rw [ne_eq, mul_assoc, mul_assoc, mul_eq_mul_left_iff]
     simp only [I_ne_zero, or_false]
     norm_cast
-    exact h n
-  --rw [MeasureTheory.countable]
+    exact (h n).symm
   rw [MeasureTheory.ae_iff]
-  --apply measure_zero
-  sorry
+  apply MeasureTheory.measure_mono_null this
+  apply Set.Countable.measure_zero
+  let f : ℤ → ℝ := fun n ↦ n * (2 * Real.pi)
+  apply Set.countable_range f
 
 lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 1 := by
   rw [dirichletKernel]
@@ -212,24 +212,26 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x :
 
 lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) :
     partialFourierSum f N x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel' N (x - y)  := by
-  have : (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel' N (x - y) = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel N (x - y) := by
-    congr 1
-    apply intervalIntegral.integral_congr_ae
-    apply MeasureTheory.ae_imp_of_ae_restrict
-    apply MeasureTheory.ae_restrict_of_ae
-    --show ∀ᵐ (y : ℝ), f y * dirichletKernel' N (x - y) = f y * dirichletKernel N (x - y)
-    --rw [MeasureTheory.ae_iff]
-    have : {a | ¬f a * dirichletKernel' N (x - a) = f a * dirichletKernel N (x - a)} ⊆ {a | ¬((dirichletKernel' N) ∘ (fun y ↦ x - y)) a = ((dirichletKernel N) ∘ (fun y ↦ x - y)) a} := by
-      intro a ha
-      contrapose! ha
-      simp at *
-      intro h
-      exfalso
-      exact h ha
-    apply MeasureTheory.measure_mono_null this
-    --simp
-    --apply dirichletKernel_eq_ae
-    apply MeasureTheory.ae_eq_comp (measurable_const_sub x).aemeasurable
-    sorry
-  rw [this]
-  exact partialFourierSum_eq_conv_dirichletKernel h
+  rw [partialFourierSum_eq_conv_dirichletKernel h]
+  calc _
+    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (x - 2 * Real.pi)..(x - 0), f (x - y) * dirichletKernel N y := by
+      congr 1
+      rw [← intervalIntegral.integral_comp_sub_left]
+      simp
+    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (x - 2 * Real.pi)..(x - 0), f (x - y) * dirichletKernel' N y := by
+      congr 1
+      apply intervalIntegral.integral_congr_ae
+      apply MeasureTheory.ae_imp_of_ae_restrict
+      apply MeasureTheory.ae_restrict_of_ae
+      have : {a | ¬f (x - a) * dirichletKernel N a = f (x - a) * dirichletKernel' N a} ⊆ {a | ¬dirichletKernel N a = dirichletKernel' N a} := by
+        intro a ha
+        contrapose! ha
+        simp at *
+        intro h
+        exfalso
+        exact h ha
+      apply MeasureTheory.measure_mono_null this dirichletKernel_eq_ae
+    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel' N (x - y) := by
+      congr 1
+      rw [← intervalIntegral.integral_comp_sub_left]
+      simp
