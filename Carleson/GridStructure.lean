@@ -16,7 +16,7 @@ I expect we prefer `coeGrid : Grid → Set X` over `Grid : Set (Set X)`
 Note: the `s` in this paper is `-s` of Christ's paper.
 -/
 class GridStructure
-    (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X) where
+    (D : outParam ℕ) [NeZero D] (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X) where
   /-- indexing set for a grid structure -/
   Grid : Type u
   fintype_Grid : Fintype Grid
@@ -34,20 +34,19 @@ class GridStructure
   subset_topCube {i} : coeGrid i ⊆ coeGrid topCube
   Grid_subset_biUnion {i} : ∀ k ∈ Ico (-S : ℤ) (s i), coeGrid i ⊆ ⋃ j ∈ s ⁻¹' {k}, coeGrid j
   fundamental_dyadic' {i j} : s i ≤ s j → coeGrid i ⊆ coeGrid j ∨ Disjoint (coeGrid i) (coeGrid j)
-  c_mem_Grid {i} : c i ∈ coeGrid i --2.0.10
   ball_subset_Grid {i} : ball (c i) (D ^ s i / 4) ⊆ coeGrid i --2.0.10
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
     volume.real { x ∈ coeGrid i | infDist x (coeGrid i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coeGrid i)
 
-export GridStructure (range_s_subset Grid_subset_biUnion c_mem_Grid ball_subset_Grid Grid_subset_ball small_boundary
+export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
   topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
 
 variable {D : ℕ} {κ C : ℝ} {S : ℕ} {o : X}
 
 section GridStructure
 
-variable [GridStructure X D κ S o]
+variable [NeZero D] [GridStructure X D κ S o]
 
 variable (X) in
 /-- The indexing type of the grid structure. Elements are called (dyadic) cubes.
@@ -84,7 +83,11 @@ namespace Grid
 
 protected lemma inj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
 
-lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
+lemma nonempty (i : Grid X) : (i : Set X).Nonempty := by
+  apply Set.Nonempty.mono ball_subset_Grid
+  rw [nonempty_ball]
+  obtain ⟨z⟩ := ‹NeZero D›
+  positivity
 
 @[simp] lemma lt_def {i j : Grid X} : i < j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i < s j := by
   constructor <;> intro h
@@ -242,7 +245,8 @@ end GridStructure
 This is mostly separated out so that we can nicely define the notation `d_𝔭`.
 Note: compose `𝓘` with `Grid` to get the `𝓘` of the paper. -/
 class PreTileStructure [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (Θ X)))
-  (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X) extends GridStructure X D κ S o where
+  (D : outParam ℕ) [NeZero D] (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
+  extends GridStructure X D κ S o where
   protected 𝔓 : Type u
   fintype_𝔓 : Fintype 𝔓
   protected 𝓘 : 𝔓 → Grid
@@ -253,7 +257,7 @@ class PreTileStructure [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (�
 export PreTileStructure (𝒬 range_𝒬)
 
 section
-variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
+variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [NeZero D] [PreTileStructure Q D κ S o]
 
 variable (X) in
 def 𝔓 := PreTileStructure.𝔓 𝕜 X A
@@ -268,7 +272,7 @@ local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭
 
 /-- A tile structure. -/
 class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
-    (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
+    (D : outParam ℕ) [NeZero D] (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
     extends PreTileStructure Q D κ S o where
   Ω : 𝔓 → Set (Θ X)
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
@@ -288,6 +292,8 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 section GridStructure
+
+instance : NeZero D := by apply NeZero.of_pos; rw [defaultD]; positivity
 
 variable [GridStructure X D κ S o]
 
