@@ -54,20 +54,20 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake -Kenv=dev build Carleson
 
-      # - name: Cache mathlib docs
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       .lake/build/doc/Init
-      #       .lake/build/doc/Lake
-      #       .lake/build/doc/Lean
-      #       .lake/build/doc/Std
-      #       .lake/build/doc/Mathlib
-      #       .lake/build/doc/declarations
-      #       !.lake/build/doc/declarations/declaration-data-Carleson*
-      #     key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-      #     restore-keys: |
-      #       MathlibDoc-
+      - name: Cache mathlib docs
+        uses: actions/cache@v3
+        with:
+          path: |
+            .lake/build/doc/Init
+            .lake/build/doc/Lake
+            .lake/build/doc/Lean
+            .lake/build/doc/Std
+            .lake/build/doc/Mathlib
+            .lake/build/doc/declarations
+            !.lake/build/doc/declarations/declaration-data-Carleson*
+          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: |
+            MathlibDoc-
 
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
@@ -117,7 +117,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-
-      - name: Make sure the cache works
-        run: |
-          mv docs/docs .lake/build/doc
