@@ -1626,6 +1626,7 @@ For all other cubes $I \in \mathcal{D}$, $I \ne I_0$, there exists, by \eqref{dy
 
 We now verify that $(\fP,\scI,\fc,\fcc,\pc,\ps)$ forms a tile structure.
 \begin{proof}[Proof of \Cref{tile-structure}]
+    \leanok
     \proves{tile-structure}
     First, we prove \eqref{eq-freq-comp-ball}. If $I =I_0$, then \eqref{eq-freq-comp-ball} holds for all $\fp \in \fP(I)$ by \eqref{eq-max-omega} and \eqref{eq-omega1-incl}. Now suppose that $I$ is not maximal in $\mathcal{D}$ with respect to set inclusion. Then we may assume by induction that for all $J \in \mathcal{D}$ with $I \subset J$ and all $\fp' \in \fP(J)$, \eqref{eq-freq-comp-ball} holds. Let $J$ be the unique minimal cube in $\mathcal{D}$ with $I \subsetneq J$.
 
@@ -1663,14 +1664,13 @@ We now verify that $(\fP,\scI,\fc,\fcc,\pc,\ps)$ forms a tile structure.
 
     4. We have $\mfa \in B_{\fp}(\fcc(\fp), 0.2) \cap B_{\fp'}(\fcc(\fp'), 0.2)$. In this case it follows that $\fp = \fp'$ since the sets $B_{\fp}(\fcc(\fp), 0.2)$ are pairwise disjoint by the inclusion \eqref{eq-omega1-incl} and \Cref{disjoint-frequency-cubes}.
 
-    To show the inclusion in \eqref{eq-dis-freq-cover}, let $\mfa \in \tQ(X)$. By the induction hypothesis, there exists $\fp \in \fP(J)$ such that $\mfa \in \Omega(\fp)$. By definition of the set $\fP$, we have $\fp = (J, z)$ for some $z \in \mathcal{Z}(J)$. By \eqref{eq-tile-Z}, there exists $x \in X$ with $d_{J^\circ}(\tQ(x), z) \le 1$. By \Cref{monotone-cube-metrics}, it follows that $d_{I^\circ}(\tQ(x), z) \le 1$.
+    To show the inclusion in \eqref{eq-dis-freq-cover}, let $\mfa \in \tQ(X)$. By the induction hypothesis, there exists $\fp \in \fP(J)$ such that $\mfa \in \Omega(\fp)$. By definition of the set $\fP$, we have $\fp = (J, z)$ for some $z \in \mathcal{Z}(J)$.
     Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(I)$ with $z \in B_{I^\circ}(z', 0.7)$. Then by Lemma \eqref{frequency-cube-cover} there exists $\fp' \in \fP(I)$ with $z \in \mathcal{Z}(J) \cap \Omega_1(\fp')$. Consequently, by \eqref{eq-it-omega}, $\mfa \in \fc(\fp')$. This completes the proof of \eqref{eq-dis-freq-cover}.
 
     Finally, we show \eqref{eq-freq-dyadic}. Let $\fp, \fq \in \fP$ with $\scI(\fp) \subset \scI(\fq)$ and $\fc(\fp) \cap \fc(\fq) \ne \emptyset$. If we have $\ps(\fp) \ge \ps(\fq)$, then it follows from \eqref{dyadicproperty} that $I = J$, thus $\fp, \fq \in \fP(I)$. By \eqref{eq-dis-freq-cover} we have then either $\fc(\fp) \cap \fc(\fq) = \emptyset$ or $\fc(\fp) = \fc(\fq)$. By the assumption in \eqref{eq-freq-dyadic} we have $\fc(\fp) \cap \fc(\fq) \ne \emptyset$, so we must have $\fc(\fp) = \fc(\fq)$ and in particular $\fc(\fq) \subset \fc(\fp)$.
 
     So it remains to show \eqref{eq-freq-dyadic} under the additional assumption that $\ps(\fq) > \ps(\fp)$. In this case, we argue by induction on $\ps(\fq)-\ps(\fp)$. By \eqref{coverdyadic}, there exists a cube $J \in \mathcal{D}$ with $s(J) = \ps(\fq) - 1$ and $J \cap\scI(\fp) \ne \emptyset$. We pick one such $J$. By \eqref{dyadicproperty}, we have $\scI(\fp) \subset J \subset \scI(\fq)$.
 
-    By \eqref{eq-tile-Z}, there exists $x \in X$ with $d_{\fq}(\tQ(x), \fcc(\fq)) \le 1$. By \Cref{monotone-cube-metrics}, it follows that $d_{J^\circ}(\tQ(x), \fcc(\fq)) \le 1$.
     Thus, by \eqref{eq-tile-cover}, there exists $z' \in \mathcal{Z}(J)$ with $\fcc(\fq) \in B_{J^\circ}(z', 0.7)$. Then by \Cref{frequency-cube-cover} there exists $\fq' \in \fP(J)$ with $\fcc(\fq) \in\Omega_1(\fq')$.
     By \eqref{eq-it-omega}, it follows that $\Omega(\fq) \subset \Omega(\fq')$. Note that then $\scI(\fp) \subset \scI(\fq')$ and $\fc(\fp) \cap \fc(\fq') \ne \emptyset$ and $\ps(\fq') - \ps(\fp) = \ps(\fq) - \ps(\fp) - 1$. Thus, we have by the induction hypothesis that $\Omega(\fq') \subset \Omega(\fp)$. This completes the proof.
 \end{proof}
