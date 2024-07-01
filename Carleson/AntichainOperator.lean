@@ -52,7 +52,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       intro p' hp' hpp'
       by_contra hp'x
       exact hpp' (E_disjoint h𝔄 hp' p.2 ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
-    have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (𝓓_subset_ball hxE.1))
+    have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
         dist x y ∈ Icc (D ^ ((𝔰 p.1) - 1) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
       dist_mem_Icc_of_Ks_ne_zero (range_s_subset (X := X) (mem_range_self (𝓘 p.1))) hy

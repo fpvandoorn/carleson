@@ -26,21 +26,6 @@ def bp(ctx):
     os.chdir(cwd)
 
 @task
-def bptt(ctx):
-    """
-    Build the blueprint PDF file with tectonic and prepare src/web.bbl for task `web`
-
-    NOTE: install tectonic by running `curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net |sh` in
-    `~/.local/bin/`
-    """
-
-    cwd = os.getcwd()
-    os.chdir(BP_DIR)
-    run('mkdir -p print && cd src && tectonic -Z shell-escape-cwd=. --keep-intermediates --outdir ../print print.tex')
-    # run('cp print/print.bbl src/web.bbl')
-    os.chdir(cwd)
-
-@task
 def web(ctx):
     cwd = os.getcwd()
     os.chdir(BP_DIR/'src')
