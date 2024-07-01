@@ -97,10 +97,31 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (hf : Measurable f) : Me
     simp
     apply ContinuousAt.continuousWithinAt
     apply ContinuousAt.comp
-    . sorry
+    . apply Continuous.continuousAt
+      apply EReal.continuous_coe_ennreal_iff.mp
+      apply EReal.continuous_coe_iff.mpr (continuous_iff_le_induced.mpr fun U a ↦ a)
     apply ContinuousAt.nnnorm
-    --MeasureTheory.continuousAt_of_dominated
-    sorry
+    conv => pattern (∫ (y : ℝ) in _, _); rw [← MeasureTheory.integral_indicator annulus_measurableSet]
+    --TODO: choose upper bound
+    apply MeasureTheory.continuousAt_of_dominated
+    . apply Filter.eventually_of_forall
+      intro r
+      apply Measurable.aestronglyMeasurable
+      apply Measurable.indicator _ annulus_measurableSet
+      apply Measurable.mul (Measurable.mul hf (Measurable.of_uncurry_left Hilbert_kernel_measurable))
+      measurability
+    . sorry
+    . sorry
+    . -- ContinuousAt_indicator
+      --apply ae_of
+      set G := fun t ↦ {y | dist x y ∈ Set.Ioo t 1}.indicator (fun y ↦ f y * K x y * (Complex.I * ↑n * ↑y).exp)
+      apply Set.Subsingleton.measure_zero
+      simp
+      intro s hs t ht
+      simp at *
+      --rw [continuousAt_of_const]
+      sorry
+    . sorry
   rw [this]
   apply measurable_iSup
   intro n

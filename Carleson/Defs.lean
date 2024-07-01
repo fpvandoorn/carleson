@@ -160,6 +160,24 @@ set_option linter.unusedVariables false in
 def iLipNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖) + R * ⨆ (x : X) (y : X) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y
 
+lemma iLipNorm_nonneg {𝕜} [NormedField 𝕜] {ϕ : X → 𝕜} {x₀ : X} {R : ℝ} (hR : 0 ≤ R) :
+    0 ≤ iLipNorm ϕ x₀ R := by
+  unfold iLipNorm
+  apply add_nonneg
+  . apply Real.iSup_nonneg
+    intro x
+    apply Real.iSup_nonneg
+    intro _
+    apply norm_nonneg
+  . apply mul_nonneg hR
+    apply Real.iSup_nonneg
+    intro x
+    apply Real.iSup_nonneg
+    intro y
+    apply Real.iSup_nonneg
+    intro _
+    apply div_nonneg (norm_nonneg _) dist_nonneg
+
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
 class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where

@@ -492,7 +492,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
 instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by
-    intro x r ϕ K hK h f g
+    intro x r ϕ K hK _ f g
     by_cases r_pos : 0 ≥ r
     . rw [ball_eq_empty.mpr r_pos]
       simp
@@ -503,19 +503,19 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
     unfold instFunctionDistancesReal
     dsimp only
     rw [max_eq_left r_pos.le]
-    set L : NNReal := ⟨⨆ (x : ℝ) (y : ℝ) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y, by
+    set L : NNReal := ⟨⨆ (x : ℝ) (y : ℝ) (_ : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y, by
             apply Real.iSup_nonneg
             intro x
             apply Real.iSup_nonneg
             intro y
             apply Real.iSup_nonneg
-            intro hxy
+            intro _
             apply div_nonneg (norm_nonneg _) dist_nonneg⟩  with Ldef
     set B : NNReal := ⟨⨆ y ∈ ball x r, ‖ϕ y‖, by
             apply Real.iSup_nonneg
             intro i
             apply Real.iSup_nonneg
-            intro hi
+            intro _
             apply norm_nonneg⟩  with Bdef
     calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * ϕ x‖
       _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * ϕ x‖ := by
@@ -530,17 +530,50 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
         apply van_der_Corput (by linarith)
         . rw [lipschitzWith_iff_dist_le_mul]
           intro x y
-          --TODO: could be externalised as a lemma
-          --rw [dist_eq_norm, ← (div_le_iff₀ _), Ldef, NNReal.coe_mk]
-          --apply le_ciSup_of_le
-          sorry
+          --TODO: The following could be externalised as a lemma.
+          by_cases hxy : x = y
+          . rw [hxy]
+            simp
+          rw [dist_eq_norm, ← div_le_iff (dist_pos.mpr hxy), Ldef, NNReal.coe_mk]
+          --apply ConditionallyCompleteLattice.le_csSup
+          apply le_ciSup_of_le _ x
+          apply le_ciSup_of_le _ y
+          apply le_ciSup_of_le _ hxy
+          rfl
+          . use K
+            rw [upperBounds]
+            simp only [ne_eq, Set.mem_range, exists_prop, and_imp,
+              forall_apply_eq_imp_iff, Set.mem_setOf_eq]
+            intro h
+            rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
+            apply LipschitzWith.norm_sub_le hK
+          . use K
+            rw [upperBounds]
+            simp only [ne_eq, Set.mem_range, forall_exists_index,
+              forall_apply_eq_imp_iff, Set.mem_setOf_eq]
+            intro y
+            apply Real.iSup_le _ NNReal.zero_le_coe
+            intro h
+            rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
+            apply LipschitzWith.norm_sub_le hK
+          . use K
+            rw [upperBounds]
+            simp only [ne_eq, Set.mem_range, forall_exists_index,
+              forall_apply_eq_imp_iff, Set.mem_setOf_eq]
+            intro x
+            apply Real.iSup_le _ NNReal.zero_le_coe
+            intro y
+            apply Real.iSup_le _ NNReal.zero_le_coe
+            intro h
+            rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
+            apply LipschitzWith.norm_sub_le hK
         . --prove main property of B
           intro y hy
           apply ConditionallyCompleteLattice.le_biSup
-          . --TODO: add lemma LipschitzWithOn.BddAbove or something like that
-            sorry
-            --rw [bddAbove_def]
-            --apply LipschitzWith_
+          . --TODO: externalize as lemma LipschitzWithOn.BddAbove or something like that?
+            rw [Real.ball_eq_Ioo]
+            apply BddAbove.mono (Set.image_mono Set.Ioo_subset_Icc_self)
+            exact isCompact_Icc.bddAbove_image (continuous_norm.comp hK.continuous).continuousOn
           use y
           rw [Real.ball_eq_Ioo]
           use hy
@@ -550,8 +583,7 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
         gcongr
         . apply mul_nonneg
           apply mul_nonneg (by norm_num) (by linarith)
-          --TODO: make this a lemma
-          sorry
+          apply iLipNorm_nonneg r_pos.le
         . norm_num
           linarith [Real.pi_le_four]
         . unfold iLipNorm
@@ -600,9 +632,7 @@ instance h6 : IsCZKernel 4 K where
         . norm_num
       . norm_num
   /- Lemma ?-/
-  measurable_right := by
-    apply Measurable.of_uncurry_right
-    exact Hilbert_kernel_measurable
+  measurable_right := fun y ↦ Measurable.of_uncurry_right Hilbert_kernel_measurable
   /- Lemma ?-/
   measurable := Hilbert_kernel_measurable
 
