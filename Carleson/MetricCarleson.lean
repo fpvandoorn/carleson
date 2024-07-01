@@ -7,14 +7,13 @@ open scoped ENNReal
 noncomputable section
 
 /- The constant used in `metric_carleson` -/
-def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
+def C1_2 (a : ℕ) (q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
 
-lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
+lemma C1_2_pos {a : ℕ} {q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
   rw [C1_2]
   apply div_pos
-  . apply Real.rpow_pos_of_pos
-    norm_num
-  . apply pow_pos
+  · positivity
+  · apply pow_pos
     linarith [hq]
 
 -- /- The constant used in equation (2.2) -/
@@ -29,7 +28,7 @@ lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
 
 section -- todo: old code
 
-variable {X : Type*} {a : ℝ} [MetricSpace X] [DoublingMeasure X (2 ^ a)] [Inhabited X]
+variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (2 ^ a : ℕ)] [Inhabited X]
 variable {τ q q' : ℝ} {C : ℝ}
 variable {F G : Set X}
 variable (K : X → X → ℂ)
