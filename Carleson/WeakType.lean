@@ -42,98 +42,67 @@ Note: we also want to use this for functions with codomain `ℝ≥0∞`, but for
 def distribution [NNNorm E] (f : α → E) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   μ { x | t < ‖f x‖₊ }
 
-@[gcongr] lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) :
+@[gcongr]
+lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) :
     distribution f t μ ≤ distribution g t μ := by
-  have h₀ : {x | t < ‖f x‖₊} \ {x | t < ‖g x‖₊} ⊆ {x | ¬ ‖f x‖ ≤ ‖g x‖} := calc
-    {x | t < ‖f x‖₊} \ {x | t < ‖g x‖₊}
-      = {x | t < ‖f x‖₊ ∧ ¬ t < ‖g x‖₊}         := by rfl
-    _ = {x | t < ‖f x‖₊ ∧ ‖g x‖₊ ≤ t}           := by simp
-    _ ⊆ {x | ofNNReal ‖g x‖₊ < ofNNReal ‖f x‖₊} := fun x h₁ ↦ lt_of_le_of_lt h₁.right h₁.left
-    _ ⊆ {x | ‖g x‖ < ‖f x‖}                     := by intro x; simp; exact fun a ↦ a
-    _ = {x | ¬ ‖f x‖ ≤ ‖g x‖}                   := by simp
-  have h₁ : μ ({x | t < ‖f x‖₊} \ {x | t < ‖g x‖₊}) = 0 := measure_mono_null h₀ h
+  have h₀ : {x | t < ‖f x‖₊} \ {x | t < ‖g x‖₊} ⊆ {x | ¬‖f x‖ ≤ ‖g x‖} := fun x ↦ by
+    simp only [mem_diff, mem_setOf_eq, not_lt, not_le, and_imp]
+    intro i₁ i₂; simpa using i₂.trans_lt i₁
   calc
-    μ {x | t < ↑‖f x‖₊}
-      ≤ μ ({x | t < ↑‖f x‖₊} ∩ {x | t < ‖g x‖₊})
-      + μ ({x | t < ↑‖f x‖₊} \ {x | t < ‖g x‖₊}) := by apply measure_le_inter_add_diff
-    _ = μ ({x | t < ↑‖f x‖₊} ∩ {x | t < ‖g x‖₊}) := by rw [h₁]; simp
-    _ ≤ μ ({x | t < ‖g x‖₊}) := by apply measure_mono; simp
+    _ ≤ μ ({x | t < ‖f x‖₊} ∩ {x | t < ‖g x‖₊})
+      + μ ({x | t < ‖f x‖₊} \ {x | t < ‖g x‖₊}) := measure_le_inter_add_diff μ _ _
+    _ = μ ({x | t < ‖f x‖₊} ∩ {x | t < ‖g x‖₊}) := by rw [measure_mono_null h₀ h, add_zero]
+    _ ≤ _ := by apply measure_mono; simp
 
-@[gcongr] lemma distribution_mono_right (h : t ≤ s) :
-    distribution f s μ ≤ distribution f t μ := by
-  apply measure_mono
-  exact fun x a ↦ lt_of_le_of_lt h a
+@[gcongr]
+lemma distribution_mono_right (h : t ≤ s) : distribution f s μ ≤ distribution f t μ :=
+  measure_mono fun _ a ↦ lt_of_le_of_lt h a
 
-@[gcongr] lemma distribution_mono (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) (h : t ≤ s) :
-    distribution f s μ ≤ distribution g t μ := calc
-  distribution f s μ ≤ distribution g s μ := by apply distribution_mono_left; assumption
-  _                  ≤ distribution g t μ := by apply distribution_mono_right; assumption
+@[gcongr]
+lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) (h₂ : t ≤ s) :
+    distribution f s μ ≤ distribution g t μ :=
+  (distribution_mono_left h₁).trans (distribution_mono_right h₂)
 
-lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) (hc : c ≠ 0) :
-    ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ := by
-    refine (toReal_eq_toReal_iff' ?_ ?_).mp ?_
-    · exact coe_ne_top
-    · exact Ne.symm top_ne_coe
-    . exact norm_smul c z
+lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
+  (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
-lemma ENNNorm_add_le (y z: E):
-    ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ := by
-    refine (toReal_le_toReal ?_ ?_).mp ?_
-    · exact coe_ne_top
-    · exact coe_ne_top
-    · apply nnnorm_add_le
+lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
+  (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
 
 lemma distribution_smul_left {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖₊) μ := by
   unfold distribution
   have h₀ : ofNNReal ‖c‖₊ ≠ 0 := ENNReal.coe_ne_zero.mpr (nnnorm_ne_zero_iff.mpr hc)
-  have h₁ : ofNNReal ‖c‖₊ ≠ ⊤ := coe_ne_top
-  have h₂ : {x | t < ‖(c • f) x‖₊} = {x | t / ‖c‖₊ < ‖f x‖₊} := by
-    ext x
-    simp
-    rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ h₁]
-    rw [ENNNorm_absolute_homogeneous _ hc]
-    rw [mul_comm]
-    rw [ENNReal.div_mul_cancel h₀ h₁]
-  rw [h₂]
+  congr; ext x
+  simp only [Pi.smul_apply, mem_setOf_eq]
+  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ coe_ne_top,
+    ENNNorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
 lemma distribution_add_le :
-    distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ := by
-  unfold distribution
-  have h₀ : {x | t + s < ↑‖(f + g) x‖₊} ⊆ {x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊} := by
-    intro x
-    intro h₁
-    by_contra h₂
-    simp at h₂
-    have h₃ : (↑‖f x + g x‖₊ ≤ t + s) := calc
-      ↑‖f x + g x‖₊ ≤ ↑‖f x‖₊ + ↑‖g x‖₊ := by apply ENNNorm_add_le
-      _             ≤ t + s := add_le_add h₂.left h₂.right
-    have h₄ : (¬ ↑‖f x + g x‖₊ ≤ t + s) := by
-      simp; exact h₁
-    contradiction
+    distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
-    μ {x | t + s < ↑‖(f + g) x‖₊}
-      ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := by exact measure_mono h₀
-    _ ≤ μ {x | t < ↑‖f x‖₊} + μ {x | s < ↑‖g x‖₊} := by apply measure_union_le
+    _ ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := by
+      refine measure_mono fun x h ↦ ?_
+      simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
+      contrapose! h
+      exact (ENNNorm_add_le _ _).trans (add_le_add h.1 h.2)
+    _ ≤ _ := by apply measure_union_le
 
 lemma approx_above_superset (t₀ : ℝ≥0∞) :
     ⋃ n, (fun n : ℕ ↦ {x | t₀ + (↑n)⁻¹ < ↑‖f x‖₊}) n = {x | t₀ < ‖f x‖₊} := by
   ext y
-  constructor
-  · intro h
-    have h₀ : ∃ n : ℕ, y ∈ {x | t₀ + (↑n)⁻¹ < ↑‖f x‖₊} := exists_exists_eq_and.mp h
-    rcases h₀ with ⟨n, wn⟩
+  constructor <;> intro h
+  · obtain ⟨n, wn⟩ := exists_exists_eq_and.mp h
     calc
       t₀ ≤ t₀ + (↑n)⁻¹ := le_self_add
       _  < ↑‖f y‖₊     := wn
-  · intro h
-    have h₁ : Iio (↑‖f y‖₊ - t₀) ∈ 𝓝 0 := Iio_mem_nhds (tsub_pos_of_lt h)
+  · have h₁ : Iio (↑‖f y‖₊ - t₀) ∈ 𝓝 0 := Iio_mem_nhds (tsub_pos_of_lt h)
     have h₂ := ENNReal.tendsto_inv_nat_nhds_zero h₁
     simp at h₂
     rcases h₂ with ⟨n, wn⟩
     have h₃ : (↑n)⁻¹ < ↑‖f y‖₊ - t₀ := wn n (Nat.le_refl n)
     simp
-    exists n
+    use n
     exact lt_tsub_iff_left.mp h₃
 
 lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
@@ -142,11 +111,10 @@ lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
   unfold Filter.Tendsto
   rw [← approx_above_superset]
   apply MeasureTheory.tendsto_measure_iUnion
-  intros a b h x h₁
+  intro a b h x h₁
   calc
-    t₀ + (↑b)⁻¹
-      ≤ t₀ + (↑a)⁻¹ := add_le_add (Preorder.le_refl t₀) (ENNReal.inv_le_inv.mpr (Nat.cast_le.mpr h))
-    _ < ↑‖f x‖₊     := h₁
+    _ ≤ t₀ + (↑a)⁻¹ := by gcongr
+    _ < _ := h₁
 
 lemma select_neighborhood_distribution (t₀ : ℝ≥0∞) (l : ℝ≥0∞) (hu : l < distribution f t₀ μ) :
     ∃ n : ℕ, l < distribution f (t₀ + (↑n)⁻¹) μ := by
@@ -154,7 +122,7 @@ lemma select_neighborhood_distribution (t₀ : ℝ≥0∞) (l : ℝ≥0∞) (hu 
   have h₂ := (tendsto_measure_iUnion_distribution t₀) h₁
   simp at h₂
   rcases h₂ with ⟨n, wn⟩
-  exists n; exact wn n (Nat.le_refl n)
+  use n; exact wn n (Nat.le_refl n)
 
 lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
     ContinuousWithinAt (distribution f · μ) (Ioi t₀) t₀ := by
@@ -166,123 +134,76 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
     rcases (eq_top_or_lt_top (distribution f t₀ μ)) with db_top | db_not_top
     -- Case: distribution f t₀ μ = ⊤
     · simp
-      rw [db_top]
-      rw [ENNReal.tendsto_nhds_top_iff_nnreal]
+      rw [db_top, ENNReal.tendsto_nhds_top_iff_nnreal]
       intro b
       have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ := by
         apply select_neighborhood_distribution
         rw [db_top]
         exact coe_lt_top
       rcases h₀ with ⟨n, wn⟩
-      apply eventually_mem_set.mpr
-      apply mem_inf_iff_superset.mpr
-      exists Iio (t₀ + (↑n)⁻¹)
+      refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
+      use Iio (t₀ + (↑n)⁻¹)
       constructor
-      · exact Iio_mem_nhds (lt_add_right (LT.lt.ne_top t₀nottop)
-            (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
-      · exists Ioi t₀
-        constructor
-        · simp
-        · intros z h₁
-          simp at h₁
-          have h₂ : z < t₀ + (↑n)⁻¹ := by tauto
-          calc
-            ↑b < distribution f (t₀ + (↑n)⁻¹) μ := wn
-            _  ≤ distribution f z μ := distribution_mono_right (le_of_lt h₂)
+      · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top
+          (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
+      · use Ioi t₀
+        exact ⟨by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
     -- Case: distribution f t₀ μ < ⊤
-    · apply (ENNReal.tendsto_nhds (LT.lt.ne_top db_not_top)).mpr
-      intros ε ε_gt_0
-      apply eventually_mem_set.mpr
-      apply mem_inf_iff_superset.mpr
+    · refine (ENNReal.tendsto_nhds db_not_top.ne_top).mpr fun ε ε_gt_0 ↦
+        eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
       rcases eq_zero_or_pos (distribution f t₀ μ) with db_zero | db_not_zero
       -- Case: distribution f t₀ μ = 0
-      · exists Ico 0 (t₀ + 1)
+      · use Ico 0 (t₀ + 1)
         constructor
-        · apply IsOpen.mem_nhds
-          · exact isOpen_Ico_zero
-          · simp; exact lt_add_right (LT.lt.ne_top t₀nottop) one_ne_zero
-        · exists Ioi t₀
-          constructor
-          · simp
-          · intros z hz
-            have h₁ : t₀ < z := hz.right
-            rw [db_zero]
-            simp
-            have h₂ : distribution f z μ ≤ distribution f t₀ μ :=
-                distribution_mono_right (le_of_lt h₁)
-            rw [db_zero] at h₂
-            have h₃ : distribution f z μ = 0 := nonpos_iff_eq_zero.mp h₂
-            change (Icc 0 ε (distribution f z μ))
-            rw [h₃]
-            constructor
-            · exact zero_le 0
-            · exact zero_le ε
+        · refine IsOpen.mem_nhds isOpen_Ico_zero ?_
+          simp; exact lt_add_right t₀nottop.ne_top one_ne_zero
+        · use Ioi t₀
+          refine ⟨by simp, fun z hz ↦ ?_⟩
+          rw [db_zero]
+          simp
+          have h₂ : distribution f z μ ≤ distribution f t₀ μ :=
+            distribution_mono_right (le_of_lt hz.2)
+          rw [db_zero] at h₂
+          change Icc 0 ε (distribution f z μ)
+          rw [nonpos_iff_eq_zero.mp h₂]
+          exact ⟨zero_le 0, zero_le ε⟩
       -- Case: 0 < distribution f t₀ μ
-      · have h₀ : ∃ n : ℕ, distribution f t₀ μ - ε < μ {x | t₀ + (↑n)⁻¹ < ‖f x‖₊} := by
-          apply select_neighborhood_distribution
-          apply ENNReal.sub_lt_self
-          · exact LT.lt.ne_top db_not_top
-          · exact Ne.symm (ne_of_lt db_not_zero)
-          · exact Ne.symm (ne_of_lt ε_gt_0)
-        rcases h₀ with ⟨n, wn⟩
-        exists Iio (t₀ + (↑n)⁻¹)
+      · obtain ⟨n, wn⟩ :=
+          select_neighborhood_distribution t₀ _ (ENNReal.sub_lt_self db_not_top.ne_top
+              (ne_of_lt db_not_zero).symm (ne_of_lt ε_gt_0).symm)
+        use Iio (t₀ + (↑n)⁻¹)
         constructor
-        · exact Iio_mem_nhds (lt_add_right (LT.lt.ne_top t₀nottop)
-              (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
-        · exists Ioi t₀
-          constructor
-          · simp
-          · intros z h₁
-            simp at h₁
-            have h₂ : z < t₀ + (↑n)⁻¹ := by tauto
-            constructor
-            · calc
-                distribution f t₀ μ - ε
-                  ≤ distribution f (t₀ + (↑n)⁻¹) μ := le_of_lt wn
-                _ ≤ distribution f z μ             := distribution_mono_right (le_of_lt h₂)
-            · calc
-                distribution f z μ
-                  ≤ distribution f t₀ μ := distribution_mono_right (le_of_lt h₁.right)
-                _ ≤ distribution f t₀ μ + ε := le_self_add
+        · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top
+            (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
+        · use Ioi t₀
+          refine ⟨by simp, fun z h ↦ ⟨?_, ?_⟩⟩
+          · calc
+              distribution f t₀ μ - ε
+                ≤ distribution f (t₀ + (↑n)⁻¹) μ := le_of_lt wn
+              _ ≤ distribution f z μ             := distribution_mono_right (le_of_lt h.1)
+          · calc
+              distribution f z μ
+                ≤ distribution f t₀ μ := distribution_mono_right (le_of_lt h.2)
+              _ ≤ distribution f t₀ μ + ε := le_self_add
 
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
     distribution (fun x ↦ L (f x) (g x)) (‖L‖₊ * t * s) μ ≤
     distribution f t μ + distribution g s μ := by
   unfold distribution
   have h₀ : {x | ↑‖L‖₊ * t * s < ↑‖(fun x ↦ (L (f x)) (g x)) x‖₊} ⊆
-      {x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊} := by
-    intros z hz
-    simp at hz
-    simp
-    by_contra h₁
-    simp at h₁
-    cases h₁
-    have h₂ : ↑‖(L (f z)) (g z)‖₊ ≤ ↑‖L‖₊ * t * s := calc
-      ofNNReal ↑‖(L (f z)) (g z)‖₊
-        ≤ ‖L‖₊ * ‖f z‖₊ * ‖g z‖₊ := by
-          refine (toNNReal_le_toNNReal ?_ ?_).mp ?_
-          · exact coe_ne_top
-          · exact coe_ne_top
-          · calc
-              ‖(L (f z)) (g z)‖₊
-                ≤ ↑‖L (f z)‖₊ * ↑‖g z‖₊ := ContinuousLinearMap.le_opNNNorm (L (f z)) (g z)
-              _ ≤  ↑‖L‖₊ * ‖f z‖₊ * ↑‖g z‖₊ := by
-                  apply mul_le_mul'
-                  · exact ContinuousLinearMap.le_opNNNorm L (f z)
-                  . exact Preorder.le_refl ‖g z‖₊
-      _ ≤ ‖L‖₊ * t * s := by
-          apply mul_le_mul'
-          · apply mul_le_mul'
-            · exact Preorder.le_refl (ofNNReal ↑‖L‖₊)
-            · assumption
-          · assumption
-    have _ : (¬ ↑‖(L (f z)) (g z)‖₊ ≤ ↑‖L‖₊ * t * s) := by
-      simp; exact hz
-    contradiction
+      {x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊} := fun z hz ↦ by
+    simp only [mem_union, mem_setOf_eq, Pi.add_apply] at hz ⊢
+    contrapose! hz
+    calc
+      (‖(L (f z)) (g z)‖₊ : ℝ≥0∞) ≤ ‖L‖₊ * ‖f z‖₊ * ‖g z‖₊ := by
+        refine (toNNReal_le_toNNReal coe_ne_top coe_ne_top).mp ?_
+        calc
+          _ ≤ ↑‖L (f z)‖₊ * ↑‖g z‖₊ := ContinuousLinearMap.le_opNNNorm (L (f z)) (g z)
+          _ ≤ _ := mul_le_mul' (ContinuousLinearMap.le_opNNNorm L (f z)) (by rfl)
+      _ ≤ _ := mul_le_mul' (mul_le_mul_left' hz.1 ↑‖L‖₊) hz.2
   calc
-    μ {x | ↑‖L‖₊ * t * s < ↑‖(fun x ↦ (L (f x)) (g x)) x‖₊}
-      ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := by apply measure_mono h₀
-    _ ≤ distribution f t μ + distribution g s μ := by apply measure_union_le
+    _ ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := measure_mono h₀
+    _ ≤ _ := measure_union_le _ _
 
 /- A version of the layer-cake theorem already exists, but the need the versions below. -/
 -- #check MeasureTheory.lintegral_comp_eq_lintegral_meas_lt_mul
