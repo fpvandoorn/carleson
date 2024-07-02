@@ -2347,7 +2347,8 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 
 \begin{lemma}[wiggle order 1]
     \label{wiggle-order-1}
-
+    \leanok
+    \lean{smul_mono}
     If $n\fp \lesssim m\fp'$ and
     $n' \ge n$ and $m \ge m'$ then $n'\fp \lesssim m'\fp'$.
 \end{lemma}
@@ -2358,6 +2359,8 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 
 \begin{lemma}[wiggle order 2]
     \label{wiggle-order-2}
+    \leanok
+    \lean{smul_C2_1_2}
     \uses{monotone-cube-metrics}
 
     Let $n, m \ge 1$.
