@@ -335,6 +335,11 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
 
 def C2_1_2 (a : ℕ) : ℝ := 2 ^ (-95 * (a : ℝ))
 
+lemma C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 512 := by
+  rw [C2_1_2, show (1 / 512 : ℝ) = 2 ^ (-9 : ℝ) by norm_num,
+    Real.rpow_le_rpow_left_iff one_lt_two, neg_mul, neg_le_neg_iff]
+  norm_cast; linarith [four_le_a X]
+
 /-- Stronger version of Lemma 2.1.2. -/
 lemma Grid.dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
     dist_{I} f g ≤ C2_1_2 a * dist_{J} f g := by

@@ -14,18 +14,17 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 section WiggleOrder
 
-variable {p p' : 𝔓 X} {m m' n n' : ℝ}
+variable {p p' : 𝔓 X}
 
 /-- Lemma 5.3.1 -/
-lemma smul_mono (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
+lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
     smul n' p ≤ smul m' p' := by
   change 𝓘 p ≤ 𝓘 p' ∧ ball_(p') (𝒬 p') m ⊆ ball_(p) (𝒬 p) n at hp
   change 𝓘 p ≤ 𝓘 p' ∧ ball_(p') (𝒬 p') m' ⊆ ball_(p) (𝒬 p) n'
   exact ⟨hp.1, (ball_subset_ball hm).trans (hp.2.trans (ball_subset_ball hn))⟩
 
-variable (m) in
 /-- Lemma 5.3.2 -/
-lemma smul_C2_1_2 (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul 1 p') :
+lemma smul_C2_1_2 (m : ℝ) {n : ℝ} (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul 1 p') :
     smul (n + C2_1_2 a * m) p ≤ smul m p' := by
   replace hp : 𝓘 p < 𝓘 p' := lt_of_le_of_ne hl.1 hp
   have : ball_(p') (𝒬 p') m ⊆ ball_(p) (𝒬 p) (n + C2_1_2 a * m) := fun x hx ↦ by
@@ -41,33 +40,23 @@ lemma smul_C2_1_2 (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul 1 p') :
   exact ⟨hl.1, this⟩
 
 /-- Lemma 5.3.3, Equation (5.3.3) -/
-lemma wiggle_order_11_10 (hp : p ≤ p') (hn : 11 / 10 ≤ n) : smul n p ≤ smul n p' := by
+lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : 11 / 10 ≤ n) : smul n p ≤ smul n p' := by
   sorry
 
 /-- Lemma 5.3.3, Equation (5.3.4) -/
 lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
     smul 100 p ≤ smul 100 p' := by
   calc
-    _ ≤ smul (10 + C2_1_2 a * 100) p := by
-      refine smul_mono le_rfl le_rfl ?_
-      have : C2_1_2 a ≤ 1 / 2 := by
-        rw [C2_1_2, show (1 / 2 : ℝ) = 2 ^ (-1 : ℝ) by norm_num,
-          Real.rpow_le_rpow_left_iff one_lt_two, neg_mul, neg_le_neg_iff]
-        norm_cast; linarith [four_le_a X]
-      linarith
+    _ ≤ smul (10 + C2_1_2 a * 100) p :=
+      smul_mono le_rfl le_rfl (by linarith [C2_1_2_le_inv_512 (X := X)])
     _ ≤ _ := smul_C2_1_2 100 hn hp
 
 /-- Lemma 5.3.3, Equation (5.3.5) -/
 lemma wiggle_order_500 (hp : smul 2 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
     smul 4 p ≤ smul 500 p' := by
   calc
-    _ ≤ smul (2 + C2_1_2 a * 500) p := by
-      refine smul_mono le_rfl le_rfl ?_
-      have : C2_1_2 a ≤ 1 / 512 := by
-        rw [C2_1_2, show (1 / 512 : ℝ) = 2 ^ (-9 : ℝ) by norm_num,
-          Real.rpow_le_rpow_left_iff one_lt_two, neg_mul, neg_le_neg_iff]
-        norm_cast; linarith [four_le_a X]
-      linarith
+    _ ≤ smul (2 + C2_1_2 a * 500) p :=
+      smul_mono le_rfl le_rfl (by linarith [C2_1_2_le_inv_512 (X := X)])
     _ ≤ _ := smul_C2_1_2 500 hn hp
 
 end WiggleOrder
