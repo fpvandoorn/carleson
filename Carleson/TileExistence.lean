@@ -36,8 +36,8 @@ lemma ball_bound {Y : Set X} (k : ℝ) (hk_lower : -S ≤ k)
         apply ball_subset_ball
         rw [mul_assoc]
         apply mul_le_mul_of_nonneg_left _ (by norm_num)
-        rw [← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_add (by exact_mod_cast defaultD_pos a)]
-        apply Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast one_le_D)
+        rw [← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_add (defaultD_pos a)]
+        apply Real.rpow_le_rpow_of_exponent_le one_le_D
         rw [Nat.cast_mul, Nat.cast_two]
         linarith
 
@@ -97,7 +97,7 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
         intro y _
         use y
         rw [mem_ball, dist_self]
-        exact Real.rpow_pos_of_pos (by exact_mod_cast defaultD_pos a) _
+        exact Real.rpow_pos_of_pos (defaultD_pos a) _
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * volume (ball o (4 * D ^ S)) := by
         rw [ENNReal.mul_le_mul_left val_ne_zero ENNReal.coe_ne_top]
         apply volume.mono _
@@ -177,7 +177,7 @@ lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ba
     suffices hmem : y ∈ Yk X k by
       use y, hmem
       rw [disjoint_self, bot_eq_empty, ball_eq_empty, not_le]
-      apply Real.rpow_pos_of_pos (by exact_mod_cast defaultD_pos a) k
+      apply Real.rpow_pos_of_pos (defaultD_pos a) k
     suffices (Yk X k) ∪ {y} = Yk X k by
       rw [union_singleton, insert_eq_self] at this
       exact this

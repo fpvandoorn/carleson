@@ -83,11 +83,11 @@ namespace Grid
 
 protected lemma inj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
 
-lemma nonempty (i : Grid X) : (i : Set X).Nonempty := by
-  apply Set.Nonempty.mono ball_subset_Grid
-  rw [nonempty_ball]
-  obtain ⟨z⟩ := ‹NeZero D›
-  positivity
+lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
+  obtain ⟨_⟩ := ‹NeZero D›
+  exact mem_of_mem_of_subset (Metric.mem_ball_self (by positivity)) ball_subset_Grid
+
+lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
 
 @[simp] lemma lt_def {i j : Grid X} : i < j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i < s j := by
   constructor <;> intro h
@@ -305,28 +305,82 @@ notation "dist_(" 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 notation "nndist_(" 𝔭 ")" => @nndist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
-/-- Lemma 2.1.2, part 1. -/
-lemma Grid.dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} :
-    dist_{I} f g ≤ dist_{J} f g := by
-  rw [Grid.le_def] at hpq
-  obtain ⟨hpq, h'⟩ := hpq
-  obtain h|h := h'.eq_or_lt
-  · suffices I = J by
-      rw [this]
-    simp_rw [← Grid.inj.eq_iff, Prod.ext_iff, h, and_true]
-    apply subset_antisymm hpq
-    apply (fundamental_dyadic h.symm.le).resolve_right
-    rw [Set.not_disjoint_iff_nonempty_inter, inter_eq_self_of_subset_right hpq]
-    exact Grid.nonempty _
-  simp only [not_le, ← Int.add_one_le_iff] at h
-  sorry
+lemma dist_congr {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ X} (e₁ : x₁ = x₂) (e₂ : r₁ = r₂) :
+    dist_{x₁, r₁} f g = dist_{x₂, r₂} f g := by congr
 
-def C2_1_2 (a : ℝ) : ℝ := 2 ^ (-95 * a)
+lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
+    2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
+  induction k with
+  | zero => rw [pow_zero, one_mul]; congr! <;> simp
+  | succ k ih =>
+    trans 2 * dist_{x, (defaultA a) ^ k * r} f g
+    · rw [pow_succ', mul_assoc]
+      exact (mul_le_mul_left zero_lt_two).mpr ih
+    · convert le_cdist (ball_subset_ball _) using 1
+      · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
+      · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
+        rw [← Nat.cast_one, Nat.cast_le]; exact Nat.one_le_two_pow
 
-/-- Lemma 2.1.2, part 2. -/
+lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
+    dist_{x, 2 ^ k * r} f g ≤ (defaultA a) ^ k * dist_{x, r} f g := by
+  induction k with
+  | zero => simp_rw [pow_zero, one_mul]; congr! <;> simp
+  | succ k ih =>
+    trans defaultA a * dist_{x, 2 ^ k * r} f g
+    · convert cdist_le _ using 1
+      · exact dist_congr rfl (by ring)
+      · rw [dist_self]; positivity
+    · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
+      rwa [← mul_assoc, ← pow_succ'] at ih
+
+def C2_1_2 (a : ℕ) : ℝ := 2 ^ (-95 * (a : ℝ))
+
+lemma C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 512 := by
+  rw [C2_1_2, show (1 / 512 : ℝ) = 2 ^ (-9 : ℝ) by norm_num,
+    Real.rpow_le_rpow_left_iff one_lt_two, neg_mul, neg_le_neg_iff]
+  norm_cast; linarith [four_le_a X]
+
+/-- Stronger version of Lemma 2.1.2. -/
 lemma Grid.dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
     dist_{I} f g ≤ C2_1_2 a * dist_{J} f g := by
-  sorry
+  calc
+    _ ≤ dist_{c I, 4 * D ^ s I} f g :=
+      cdist_mono (ball_subset_ball (by simp_rw [div_eq_inv_mul, defaultD]; gcongr; norm_num))
+    _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c I, 4 * D ^ (s I + 1)} f g := by
+      rw [← div_le_iff' (by positivity), neg_mul, Real.rpow_neg zero_le_two, div_inv_eq_mul, mul_comm]
+      convert le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (100 * a) using 1
+      · norm_cast
+      · apply dist_congr rfl
+        have : (defaultA a : ℝ) ^ (100 * a) = D := by
+          simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat]
+          rw [← pow_mul]; congr 1; ring
+        rw [this, zpow_add_one₀ (defaultD_pos a).ne']; ring
+    _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c I, 4 * D ^ s J} f g := by
+      gcongr
+      have : s I < s J := (Grid.lt_def.mp hpq).2
+      exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
+        (zpow_le_of_le one_le_D (by omega)) zero_le_four))
+    _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
+      gcongr
+      have : c I ∈ ball (c J) (4 * D ^ s J) :=
+        mem_of_mem_of_subset c_mem_Grid ((Grid.lt_def.mp hpq).1.trans Grid_subset_ball)
+      rw [mem_ball] at this
+      exact cdist_mono (ball_subset_ball' (by linarith))
+    _ ≤ 2 ^ (-100 * (a : ℝ) + 5 * a) * dist_{J} f g := by
+      rw [Real.rpow_add zero_lt_two, mul_assoc]
+      refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+      rw [show (2 : ℝ) ^ (5 * (a : ℝ)) = (defaultA a) ^ 5 by norm_cast; ring]
+      convert cdist_le_iterate _ f g 5 using 1
+      · exact dist_congr rfl (by ring)
+      · have := @one_le_D a; positivity
+    _ = _ := by congr 1; rw [C2_1_2, ← add_mul]; norm_num
+
+/-- Weaker version of Lemma 2.1.2. -/
+lemma Grid.dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ dist_{J} f g := by
+  rcases hpq.eq_or_lt with h | h
+  · subst h; rfl
+  · exact (Grid.dist_strictMono h).trans
+      (mul_le_of_le_one_left dist_nonneg (by linarith [C2_1_2_le_inv_512 (X := X)]))
 
 end GridStructure
 

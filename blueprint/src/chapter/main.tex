@@ -645,7 +645,7 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
 \begin{lemma}[monotone cube metrics]
     \label{monotone-cube-metrics}
     \leanok
-    \lean{Grid.dist_mono, Grid.dist_strictMono} % Overleaf might scramble these characters (`\MCD`)
+    \lean{Grid.dist_mono, Grid.dist_strictMono}
     Let $(\mathcal{D}, c, s)$ be a grid structure. Denote for cubes $I \in \mathcal{D}$
     $$
         I^\circ := B(c(I), \frac{1}{4} D^{s(I)})\,.
@@ -662,6 +662,7 @@ The next lemma concerns monotonicity of the metrics $d_{B(c(I), \frac 14 D^{s(I)
 \end{lemma}
 
 \begin{proof}
+    \leanok
     If $s(I) \ge s(J)$ then \eqref{dyadicproperty} and the assumption $I\subset J$ imply $I = J$. Then the lemma holds by reflexivity.
 
     If $s(J) \ge s(I)+1$, then using the monotonicity property \eqref{monotonedb}, \eqref{defineD} and \eqref{seconddb}, we get
@@ -2346,17 +2347,21 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 
 \begin{lemma}[wiggle order 1]
     \label{wiggle-order-1}
-
+    \leanok
+    \lean{smul_mono}
     If $n\fp \lesssim m\fp'$ and
     $n' \ge n$ and $m \ge m'$ then $n'\fp \lesssim m'\fp'$.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     This follows immediately from the definition \eqref{wiggleorder} of $\lesssim$ and the two inclusions $B_{\fp}(\fcc(\fp), n) \subset B_{\fp}(\fcc(\fp), n')$ and $B_{\fp'}(\fcc(\fp'), m') \subset B_{\fp'}(\fcc(\fp'), m)$.
 \end{proof}
 
 \begin{lemma}[wiggle order 2]
     \label{wiggle-order-2}
+    \leanok
+    \lean{smul_C2_1_2}
     \uses{monotone-cube-metrics}
 
     Let $n, m \ge 1$.
@@ -2373,6 +2378,7 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 \end{lemma}
 
 \begin{proof}
+    \leanok
     The assumption \eqref{eq-wiggle1} together with the definition \eqref{wiggleorder} of $\lesssim$ implies that $\scI(\fp) \subsetneq \scI(\fp')$. Let $\mfa \in B_{\fp'}(\fcc(\fp'), m)$. Then we have by the triangle inequality
     $$
         d_{\fp}(\fcc(\fp), \mfa) \le d_{\fp}(\fcc(\fp), \fcc(\fp')) + d_{\fp}(\fcc(\fp'), \mfa)

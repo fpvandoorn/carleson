@@ -25,7 +25,7 @@ variable (D) in def nonzeroS (x : ℝ) : Finset ℤ :=
 
 lemma sum_ψ : ∑ s in nonzeroS D x, ψ D (D ^ s * x) = 1 := sorry
 
-lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
+lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < (D : ℝ)) :
     i ∈ nonzeroS D x ↔ (D ^ i * x) ∈ Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   rw [Set.mem_Ioo, nonzeroS, Finset.mem_Icc]
   simp only [Int.floor_le_iff, neg_add_rev, Int.le_ceil_iff, lt_add_neg_iff_add_lt, sub_add_cancel,
@@ -33,19 +33,18 @@ lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
   rw [← lt_div_iff hx, mul_comm (D : ℝ)⁻¹, ← div_lt_div_iff hx (by positivity), ← Real.logb_inv,
     ← Real.logb_inv, div_inv_eq_mul, ← zpow_add_one₀ (by positivity)]
   simp_rw [← Real.rpow_intCast]
-  rw [Real.lt_logb_iff_rpow_lt (by exact_mod_cast hD) (by positivity),
-    Real.logb_lt_iff_lt_rpow (by exact_mod_cast hD) (by positivity)]
+  rw [Real.lt_logb_iff_rpow_lt hD (by positivity), Real.logb_lt_iff_lt_rpow hD (by positivity)]
   simp [div_eq_mul_inv, mul_comm]
 
 lemma psi_zero : ψ D 0 = 0 := by
   simp only [ψ, mul_zero, zero_sub, sub_zero, ge_iff_le, min_le_iff, neg_le_self_iff, zero_le_one,
     Nat.not_ofNat_le_one, or_false, min_eq_right, Left.neg_nonpos_iff, true_or, max_eq_left]
 
-lemma psi_ne_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
+lemma psi_ne_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < (D : ℝ)) :
     ψ D (D ^ s * x) ≠ 0 ↔ s ∈ nonzeroS D x := by
   rw [← mem_support, support_ψ, mem_nonzeroS_iff hx hD]
 
-lemma psi_eq_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < D) :
+lemma psi_eq_zero_iff {x : ℝ} (hx : 0 < x) (hD : 1 < (D : ℝ)) :
     ψ D (D ^ s * x) = 0 ↔ s ∉ nonzeroS D x := by
   rw [← iff_not_comm, ← psi_ne_zero_iff hx hD]
 
@@ -64,7 +63,7 @@ def Ks [ProofData a q K σ₁ σ₂ F G] (s : ℤ) (x y : X) : ℂ :=
 lemma Ks_def [ProofData a q K σ₁ σ₂ F G] (s : ℤ) (x y : X) :
   Ks s x y = K x y * ψ (D ^ s * dist x y) := rfl
 
-lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < D) (h : 0 < dist x y) :
+lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < (D : ℝ)) (h : 0 < dist x y) :
     ∑ i in t, Ks i x y = K x y := by
   simp_rw [Ks, ← Finset.mul_sum]
   norm_cast
