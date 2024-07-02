@@ -3,6 +3,7 @@ import Mathlib.Tactic.FunProp.Measurable
 
 noncomputable section
 
+--TODO: rename this and introduce local notation
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
 --TODO: maybe change to
 --def k : ℝ → ℂ := fun x ↦ max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))

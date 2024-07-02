@@ -60,15 +60,19 @@ lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Se
   apply le_biSup
   exact ⟨hy.1.1, hy.2⟩
 
-lemma helper {x : ℝ} {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f): Measurable fun a ↦ f a * K x a * (Complex.I * ↑n * ↑a).exp := by
-  apply (hf.mul (Measurable.of_uncurry_left Hilbert_kernel_measurable)).mul
+lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) : Measurable (Function.uncurry fun x y ↦ f y * K x y * (Complex.I * n * y).exp) := by
+  apply Measurable.mul
+  apply Measurable.mul
+  apply hf.comp measurable_snd
+  exact Hilbert_kernel_measurable
   apply Measurable.cexp
-  measurability
+  apply Measurable.mul measurable_const
+  apply Complex.measurable_ofReal.comp measurable_snd
 
 local notation "T" => CarlesonOperatorReal K
 
 
-lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) (B : ℝ) (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
+lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
   --TODO: clean up proof
   apply measurable_iSup
   intro n
@@ -134,8 +138,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         gcongr
         . linarith [f_bounded 0, norm_nonneg (f 0)]
         . exact f_bounded a
-        . --rw [K]
-          rw [Set.mem_setOf_eq] at ha
+        . rw [Set.mem_setOf_eq] at ha
           rw [Real.norm_eq_abs, abs_of_nonneg (by apply div_nonneg (by norm_num); linarith [hr.1])]
           calc _
             _ ≤ 2 ^ (2 : ℝ) / (2 * |x - a|) := Hilbert_kernel_bound
@@ -153,7 +156,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         exact ENNReal.ofReal_ne_top
       . --measurability
         apply Measurable.aestronglyMeasurable
-        apply Measurable.norm (helper f_measurable)
+        apply Measurable.norm (Measurable.of_uncurry_left (helper f_measurable))
       . --interesting part
         rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
         simp_rw [norm_norm]
@@ -225,34 +228,18 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       apply Finset.measure_zero
     . apply Filter.eventually_of_forall
       intro r
-      apply ((helper f_measurable).indicator annulus_measurableSet).aestronglyMeasurable
+      apply ((Measurable.of_uncurry_left (helper f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
-  --rw [sup_eq_sup_dense_of_continuous Q isOpen_Ioo hQ.1]
   apply measurable_biSup
   apply Set.Countable.mono Set.inter_subset_right hQ.2
   intro r _
   --measurability
   apply measurable_coe_nnreal_ennreal.comp
   apply measurable_nnnorm.comp
-  --apply?
   rw [← stronglyMeasurable_iff_measurable]
   apply MeasureTheory.StronglyMeasurable.integral_prod_right
   rw [stronglyMeasurable_iff_measurable, Fdef]
-  --measurability
-  --apply MeasureTheory.measurable_uncurry_of_continuous_of_measurable
-  --measurability
-  --apply measurable_uncurry
-  simp only
-
-  apply Measurable.indicator _ (measurable_dist measurableSet_Ioo)
-  . simp only
-    apply Measurable.mul
-    apply Measurable.mul
-    apply f_measurable.comp measurable_snd
-    exact Hilbert_kernel_measurable
-    apply Measurable.cexp
-    apply Measurable.mul measurable_const
-    apply Complex.measurable_ofReal.comp measurable_snd
+  apply Measurable.indicator (helper f_measurable) (measurable_dist measurableSet_Ioo)
 
 
 
