@@ -379,8 +379,8 @@ lemma Grid.dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
 lemma Grid.dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ dist_{J} f g := by
   rcases hpq.eq_or_lt with h | h
   · subst h; rfl
-  · exact (Grid.dist_strictMono h).trans (mul_le_of_le_one_left dist_nonneg <|
-      Real.rpow_le_one_of_one_le_of_nonpos one_le_two (by linarith))
+  · exact (Grid.dist_strictMono h).trans
+      (mul_le_of_le_one_left dist_nonneg (by linarith [C2_1_2_le_inv_512 (X := X)]))
 
 end GridStructure
 

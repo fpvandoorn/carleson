@@ -45,7 +45,7 @@ lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : 11 / 10 ≤ n) : smul n
 
 /-- Lemma 5.3.3, Equation (5.3.4) -/
 lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
-    smul 100 p ≤ smul 100 p' := by
+    smul 100 p ≤ smul 100 p' :=
   calc
     _ ≤ smul (10 + C2_1_2 a * 100) p :=
       smul_mono le_rfl le_rfl (by linarith [C2_1_2_le_inv_512 (X := X)])
@@ -53,7 +53,7 @@ lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') 
 
 /-- Lemma 5.3.3, Equation (5.3.5) -/
 lemma wiggle_order_500 (hp : smul 2 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
-    smul 4 p ≤ smul 500 p' := by
+    smul 4 p ≤ smul 500 p' :=
   calc
     _ ≤ smul (2 + C2_1_2 a * 500) p :=
       smul_mono le_rfl le_rfl (by linarith [C2_1_2_le_inv_512 (X := X)])
