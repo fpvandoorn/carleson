@@ -4,7 +4,7 @@ noncomputable section
 
 open NNReal ENNReal NormedSpace MeasureTheory Set
 
-variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
+variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField ℝ]
   [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
@@ -42,6 +42,33 @@ def Subadditive (T : (α → E₁) → α' → E₂) : Prop :=
 def Sublinear (T : (α → E₁) → α' → E₂) : Prop :=
   Subadditive T ∧ ∀ (f : α → E₁) (c : ℝ), T (c • f) = c • T f
 
+/-- Proposition that expresses that the map `T` map between function spaces preserves
+    AE strong measurability on the direct sum of two L^p spaces. -/
+def PreservesAEStrongMeasurability (T : (α → E₁) → α' → E₂) (p₀ p₁ : ℝ≥0∞) : Prop :=
+    ∀ (f g : α → E₁), Memℒp f p₀ μ → Memℒp g p₁ μ →
+    AEStronglyMeasurable (T (f + g)) ν
+
+/-- Marcinkiewicz real interpolation theorem, for the case of equal domain: p₀ = p₁. -/
+lemma exists_hasStrongType_real_interpolation' {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
+    (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
+    {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
+    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
+    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
+    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p₀ p₁) (hp₀₁ : p₀ = p₁) :
+    ∃ C > 0, HasStrongType T p p μ ν C := sorry
+
+/-- Marcinkiewicz real interpolation theorem, for the case p₀ ≠ p₁ and all exponents
+    are less than ∞
+    TODO: So far the assymption that p₀ ≠ p₁ is not added -/
+lemma exists_hasStrongType_real_interpolation'' {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
+    (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
+    {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
+    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
+    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
+    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p₀ p₁)
+    (hq₀ : q₀ < ∞) (hq₁ : q₁ < ∞) :
+    ∃ C > 0, HasStrongType T p p μ ν C := sorry
+
 /-- Marcinkiewicz real interpolation theorem. -/
 -- feel free to assume that T also respect a.e.-equality if needed.
 /- For the proof, see
@@ -52,7 +79,8 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
     (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
     {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁) :
+    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
+    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p₀ p₁) :
     ∃ C > 0, HasStrongType T p p μ ν C := sorry
 
 /- State and prove Remark 1.2.7 -/
