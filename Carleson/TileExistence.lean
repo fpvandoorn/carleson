@@ -188,11 +188,8 @@ lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ba
       exact hy
     . rw [pairwiseDisjoint_union]
       use Yk_pairwise k
-      simp only [pairwiseDisjoint_singleton, true_and]
-      simp only [mem_singleton_iff,forall_eq]
-      intro z hz _
-      specialize hcon z hz
-      exact hcon.symm
+      simp only [pairwiseDisjoint_singleton, true_and, mem_singleton_iff,forall_eq]
+      exact fun z hz _ ↦ (hcon z hz).symm
     . exact subset_union_left
   obtain ⟨z,hz,hz'⟩ := this
   simp only [mem_iUnion, mem_ball, exists_prop]
