@@ -96,18 +96,18 @@ jobs:
           sudo chown -R runner docs
           cp -r .lake/build/doc docs/docs
 
-      - name: Bundle dependencies
-        uses: ruby/setup-ruby@v1
-        with:
-          working-directory: docs
-          ruby-version: "3.0" # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      # - name: Bundle dependencies
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     working-directory: docs
+      #     ruby-version: "3.0" # Not needed with a .ruby-version file
+      #     bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
-      - name: Bundle website
-        working-directory: docs
-        run: |
-          bundle exec jekyll clean
-          JEKYLL_ENV=production bundle exec jekyll build
+      # - name: Bundle website
+      #   working-directory: docs
+      #   run: |
+      #     bundle exec jekyll clean
+      #     JEKYLL_ENV=production bundle exec jekyll build
 
       - name: Upload docs & blueprint artifact
         uses: actions/upload-pages-artifact@v1

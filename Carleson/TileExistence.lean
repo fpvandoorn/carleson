@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 import Carleson.DoublingMeasure
 
 open Set MeasureTheory Metric Function Complex Bornology

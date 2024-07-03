@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
 

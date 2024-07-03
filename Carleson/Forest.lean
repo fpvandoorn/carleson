@@ -1,9 +1,13 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
 
+open scoped ShortVariables
+variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
+  {σ₁ σ₂ : X → ℤ} {F G : Set X} [ProofData a q K σ₁ σ₂ F G]
+variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 namespace TileStructure
 variable (X) in
