@@ -23,16 +23,16 @@ lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β
   UniformContinuous f ↔ ∀ ε > 0, ∃ δ > 0, δ < b ∧ ∀ {x y : α}, dist x y < δ → dist (f x) (f y) < ε := by
   rw [Metric.uniformContinuous_iff]
   constructor
-  . intro h ε εpos
+  · intro h ε εpos
     obtain ⟨δ', δ'pos, hδ'⟩ := h ε εpos
     use min δ' (b / 2)
     constructor
-    . exact (lt_min δ'pos (by linarith)).gt
+    · exact (lt_min δ'pos (by linarith)).gt
     constructor
-    . apply min_lt_of_right_lt
+    · apply min_lt_of_right_lt
       linarith
-    . exact fun hxy ↦ hδ' (lt_of_lt_of_le hxy (min_le_left δ' (b / 2)))
-  . intro h ε εpos
+    · exact fun hxy ↦ hδ' (lt_of_lt_of_le hxy (min_le_left δ' (b / 2)))
+  · intro h ε εpos
     obtain ⟨δ, δpos, _, hδ⟩ := h ε εpos
     use δ
 end section
@@ -45,9 +45,9 @@ lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε :
   let f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
     (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume
   refine ⟨f₀, ?_, fun x ↦ ?_⟩
-  . exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
+  · exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
       φ.contDiff_normed unicontf.continuous.locallyIntegrable
-  . rw [← Complex.dist_eq, dist_comm]
+  · rw [← Complex.dist_eq, dist_comm]
     exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
       fun y hy ↦ (hδ hy).le
 
@@ -61,15 +61,15 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
   set f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
     (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume with f₀def
   refine ⟨f₀, ?_, fun x ↦ ?_, fun x ↦ ?_⟩
-  . exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
+  · exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
       φ.contDiff_normed unicontf.continuous.locallyIntegrable
-  . /-TODO: improve this. -/
+  · /-TODO: improve this. -/
     rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
     congr with t
     congr 1
     convert periodicf (x - t) using 2
     ring
-  . rw [← Complex.dist_eq, dist_comm]
+  · rw [← Complex.dist_eq, dist_comm]
     exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable fun y hy ↦ (hδ hy).le
 
 /- Inspired by mathlib : NNReal.summable_of_le-/
@@ -97,8 +97,8 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
     intro i
     rw [f'def]
     by_cases h : i = 0
-    . simp [h]
-    . simp only [h, ↓reduceIte]
+    · simp [h]
+    · simp only [h, ↓reduceIte]
       exact hgf i h
   apply Real.summable_of_le hgpos this
   let s : Finset ℤ := {0}
@@ -132,8 +132,8 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
       congr
       ring_nf
       rw [mul_comm, ←mul_assoc, ←mul_assoc, ←mul_assoc, inv_mul_cancel]
-      . ring
-      . simp [ne_eq, Complex.ofReal_eq_zero, Real.pi_pos.ne.symm]
+      · ring
+      · simp [ne_eq, Complex.ofReal_eq_zero, Real.pi_pos.ne.symm]
     _ ≤ ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), ‖(starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
       exact intervalIntegral.norm_integral_le_integral_norm Real.two_pi_pos.le
     _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), ‖(Complex.exp (Complex.I * n * x)) * f x‖ := by
@@ -183,15 +183,15 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : Function.
   /-Get better representation for the fourier coefficients of f. -/
   have fourierCoeffOn_eq {n : ℤ} (hn : n ≠ 0): (fourierCoeffOn Real.two_pi_pos f n) = - 1 / (n^2) * fourierCoeffOn Real.two_pi_pos (fun x ↦ deriv (deriv f) x) n := by
     rw [fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h, fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h']
-    . have h1 := periodicf 0
+    · have h1 := periodicf 0
       have periodic_deriv_f : Function.Periodic (deriv f) (2 * Real.pi) := periodic_deriv (fdiff.of_le one_le_two) periodicf
       have h2 := periodic_deriv_f 0
       simp at h1 h2
       simp [h1, h2]
       ring_nf
       simp [mul_inv_cancel, one_mul, Real.pi_pos.ne.symm]
-    . exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable _ _
-    . exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable _ _
+    · exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable _ _
+    · exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable _ _
   obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
   refine ⟨C, fun n hn ↦ ?_⟩
   simp only [fourierCoeffOn_eq hn, Nat.cast_one, Int.cast_pow, map_mul, map_div₀, map_neg_eq_map,
@@ -207,29 +207,29 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
   have := hfa.nat_add_neg.tendsto_sum_nat
   have := (Filter.Tendsto.add_const (- (f 0))) this
   simp at this
-  /-Need to start at 1 instead of zero for the base case to be true. -/
+  /-Need to start at 1 instead of zero for the base case to be true· -/
   rw [←tendsto_add_atTop_iff_nat 1] at this
   convert this using 1
   ext N
   induction' N with N ih
-  . simp
-  . have : Icc (- Int.ofNat (Nat.succ N)) (Nat.succ N) = insert (↑(Nat.succ N)) (insert (-Int.ofNat (Nat.succ N)) (Icc (-Int.ofNat N) N)) := by
+  · simp
+  · have : Icc (- Int.ofNat (Nat.succ N)) (Nat.succ N) = insert (↑(Nat.succ N)) (insert (-Int.ofNat (Nat.succ N)) (Icc (-Int.ofNat N) N)) := by
       rw [←Ico_insert_right, ←Ioo_insert_left]
-      . congr with n
+      · congr with n
         simp only [Int.ofNat_eq_coe, mem_Ioo, mem_Icc]
         push_cast
         rw [Int.lt_add_one_iff, neg_add, ←sub_eq_add_neg, Int.sub_one_lt_iff]
-      . norm_num
+      · norm_num
         linarith
-      . norm_num
+      · norm_num
         linarith
     rw [this, sum_insert, sum_insert, ih, ← add_assoc]
     symm
     rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
     simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
       Int.ofNat_eq_coe, add_right_inj, add_comm]
-    . simp
-    . norm_num
+    · simp
+    · norm_num
       linarith
 
 --theorem HasSum.nat_add_neg {f : ℤ → M} (hf : HasSum f m) :
@@ -251,15 +251,15 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.
     set maj : ℤ → ℝ := fun i ↦ 1 / (i ^ 2) * C with maj_def
     have summable_maj : Summable maj := by
       by_cases Ceq0 : C = 0
-      . simp [maj_def, Ceq0, one_div, mul_zero, summable_zero]
-      . rw [← summable_div_const_iff Ceq0]
+      · simp [maj_def, Ceq0, one_div, mul_zero, summable_zero]
+      · rw [← summable_div_const_iff Ceq0]
         convert Real.summable_one_div_int_pow.mpr one_lt_two using 1
         simp [maj_def, mul_div_cancel_right₀, Ceq0]
     rw [summable_congr @fourierCoeff_correspondence, ←summable_norm_iff]
     apply summable_of_le_on_nonzero _ _ summable_maj
-    . intro i
+    · intro i
       simp
-    . intro i ine0
+    · intro i ine0
       field_simp [maj_def, Complex.norm_eq_abs, hC i ine0]
   have := int_sum_nat function_sum
   rw [ContinuousMap.tendsto_iff_tendstoUniformly, Metric.tendstoUniformly_iff] at this
@@ -272,15 +272,15 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : Function.
   simp only [Complex.dist_eq, ContinuousMap.coe_sum, sum_apply] at this
   convert this.le using 2
   congr 1
-  . rw [g_def, ContinuousMap.coe_mk]
+  · rw [g_def, ContinuousMap.coe_mk]
     by_cases h : x = 2 * Real.pi
-    . conv => lhs; rw [h, ← zero_add  (2 * Real.pi), periodicf]
+    · conv => lhs; rw [h, ← zero_add  (2 * Real.pi), periodicf]
       have := AddCircle.coe_add_period (2 * Real.pi) 0
       rw [zero_add] at this
       rw [h, this, AddCircle.liftIco_coe_apply]
       simp [Real.pi_pos]
-    . have : x ∈ Set.Ico 0 (2 * Real.pi) := by
+    · have : x ∈ Set.Ico 0 (2 * Real.pi) := by
         use hx.1
         exact lt_of_le_of_ne hx.2 h
       simp [AddCircle.liftIco_coe_apply, zero_add, this]
-  . simp [partialFourierSum, fourierCoeff_correspondence]
+  · simp [partialFourierSum, fourierCoeff_correspondence]

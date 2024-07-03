@@ -44,13 +44,13 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
     rw [finsum_eq_sum (fun (_ : s) ↦ (1 :ℝ≥0∞)) hsupfin]
     simp only [Finset.sum_const, nsmul_eq_mul, mul_one, smul_eq_mul, Nat.cast_inj]
     apply Finset.card_bij (fun a _ => a.val)
-    . intro a
+    · intro a
       simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
         Subtype.coe_prop, imp_self]
-    . intro a _ a' _ heq
+    · intro a _ a' _ heq
       ext
       exact heq
-    . intro a ha
+    · intro a ha
       use ⟨a,by
         simp only [Finite.mem_toFinset] at ha
         exact ha⟩

@@ -92,7 +92,7 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
       rw [ENNReal.tsum_mul_left]
     _ = (As (2 ^ a) (2 ^ J' X)) * volume (⋃ y ∈ Y, ball y (D^k)) := by
       rw [ENNReal.mul_eq_mul_left val_ne_zero ENNReal.coe_ne_top]
-      . rw [measure_biUnion _ hYdisjoint (fun y _ => measurableSet_ball)]
+      · rw [measure_biUnion _ hYdisjoint (fun y _ => measurableSet_ball)]
         apply hYdisjoint.countable_of_isOpen (fun y _ => isOpen_ball)
         intro y _
         use y
@@ -129,25 +129,25 @@ lemma chain_property_set_has_bound (k : ℝ):
   dsimp only [property_set] at hc ⊢
   simp only [mem_setOf_eq, iUnion_subset_iff]
   constructor
-  . constructor
-    . intro i hi
+  · constructor
+    · intro i hi
       specialize hc hi
       rw [mem_setOf_eq] at hc
       exact hc.left
-    . intro x hx y hy
+    · intro x hx y hy
       simp only [mem_iUnion, exists_prop] at hx hy
       obtain ⟨sx,hsx, hsx'⟩ := hx
       obtain ⟨sy,hsy, hsy'⟩ := hy
       obtain hxy|hyx := hchain.total hsx hsy
-      . specialize hxy hsx'
+      · specialize hxy hsx'
         specialize hc hsy
         rw [mem_setOf_eq] at hc
         exact hc.right hxy hsy'
-      . specialize hyx hsy'
+      · specialize hyx hsy'
         specialize hc hsx
         rw [mem_setOf_eq] at hc
         exact hc.right hsx' hyx
-  . exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
+  · exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
 
 variable (X) in
 def zorn_apply_maximal_set (k : ℝ):
@@ -182,18 +182,15 @@ lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ba
       rw [union_singleton, insert_eq_self] at this
       exact this
     apply Yk_maximal
-    . rw [union_subset_iff]
+    · rw [union_subset_iff]
       use Yk_subset k
       rw [singleton_subset_iff]
       exact hy
-    . rw [pairwiseDisjoint_union]
+    · rw [pairwiseDisjoint_union]
       use Yk_pairwise k
-      simp only [pairwiseDisjoint_singleton, true_and]
-      simp only [mem_singleton_iff,forall_eq]
-      intro z hz _
-      specialize hcon z hz
-      exact hcon.symm
-    . exact subset_union_left
+      simp only [pairwiseDisjoint_singleton, true_and, mem_singleton_iff,forall_eq]
+      exact fun z hz _ ↦ (hcon z hz).symm
+    · exact subset_union_left
   obtain ⟨z,hz,hz'⟩ := this
   simp only [mem_iUnion, mem_ball, exists_prop]
   use z,hz
