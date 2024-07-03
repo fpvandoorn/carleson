@@ -141,14 +141,12 @@ lemma As_pos [Nonempty X] (s:ℝ) : 0 < As A s := pow_pos (A_pos X) ⌈Real.logb
 
 variable (X) in
 lemma As_pos' [Nonempty X] (s:ℝ) : 0 < (As A s : ℝ≥0∞) := by
-  simp only [ENNReal.coe_pos]
+  rw [ENNReal.coe_pos]
   exact As_pos X s
-
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
 lemma volume_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     volume (ball x r') ≤ As A s * volume (ball x r) := by
-
   /-If the large ball is empty, then they all are-/
   if hr: r < 0 then
     have hr' : r' < 0 := by
@@ -341,5 +339,4 @@ instance {X:Type*} [MetricSpace X] {A:ℝ≥0}
           simp only [pow_two, coe_mul,mul_assoc]
         _ ≤ ↑(A ^ 2) * volume (closedBall x r) := mul_le_mul_of_nonneg_left
           (volume.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
-
 end
