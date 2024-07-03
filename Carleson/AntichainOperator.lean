@@ -49,7 +49,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
   · obtain ⟨p, hpx⟩ := hx
     have hxE : x ∈ E ↑p := mem_of_indicator_ne_zero hpx
     have hne_p : ∀ b ∈ 𝔄, b ≠ ↑p → T b f x = 0 := by
-      intro p' hp' hpp'
+      refine fun  p' hp' hpp' ↦ ?_
       by_contra hp'x
       exact hpp' (E_disjoint h𝔄 hp' p.2 ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
     have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
