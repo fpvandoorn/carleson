@@ -205,8 +205,8 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     _ ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := measure_mono h₀
     _ ≤ _ := measure_union_le _ _
 
-/- A version of the layer-cake theorem already exists, but the need the versions below. -/
--- #check MeasureTheory.lintegral_comp_eq_lintegral_meas_lt_mul
+/- The lemmas below are almost already in Mathlib, see
+`MeasureTheory.lintegral_rpow_eq_lintegral_meas_le_mul`. -/
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into `ℝ≥0∞` -/
 lemma lintegral_norm_pow_eq_measure_lt {f : α → ℝ≥0∞} (hf : AEMeasurable f μ)
