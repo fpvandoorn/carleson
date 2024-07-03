@@ -34,7 +34,7 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
   ring_nf
-  · apply hf.continuousOn_mul (Continuous.continuousOn _) ; continuity
+  · apply hf.continuousOn_mul (Continuous.continuousOn _); continuity
   · apply hg.continuousOn_mul (Continuous.continuousOn _); continuity
 
 @[simp]
@@ -140,16 +140,12 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       · simp
         constructor <;> linarith [Real.pi_nonneg]
       · rw [sub_nonneg, mul_comm]
-        apply mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) Real.pi_nonneg) (by simpa)
+        exact mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) Real.pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) Real.pi_nonneg) (by linarith [h])
       · simp
-    _ = 1 - Real.cos x := by
-      congr
-      field_simp
-      ring
+    _ = 1 - Real.cos x := by congr; field_simp; ring
     _ ≤ Real.sqrt ((1 - Real.cos x) ^ 2) := by
-      rw [Real.sqrt_sq_eq_abs]
-      apply le_abs_self
+      exact Real.sqrt_sq_eq_abs _ ▸ le_abs_self _
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
         rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
         simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.mul_re, Complex.I_re,
