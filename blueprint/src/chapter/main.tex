@@ -7498,14 +7498,16 @@ It is proved in \Cref{10vandercorput}.
 
 \begin{lemma}[van der Corput]
 \label{van-der-Corput}
-    Let $\alpha<\beta$ be real numbers. Let $g:\R\to \C$ be a measurable function and assume
+\leanok
+\lean{van-der-Corput}
+    Let $\alpha\le\beta$ be real numbers. Let $g:\R\to \C$ be a measurable function and assume
     \begin{equation}
-        \|g\|_{Lip(\alpha,\beta)}:=\sup_{\alpha\le x\le \beta}|g(x)|+|\beta-\alpha|
+        \|g\|_{Lip(\alpha,\beta)}:=\sup_{\alpha\le x\le \beta}|g(x)|+\frac{|\beta-\alpha|}{2}
         \sup_{\alpha\le x<y\le \beta} \frac {|g(y)-g(x)|}{|y-x|}<\infty\, .
     \end{equation}
-    Then for any $0\le \alpha<\beta\le 2\pi$ we have
+    Then for any $\alpha \le \beta$ and $n\in\Z$ we have
     \begin{equation}
-        \int _{\alpha}^{\beta} g(x) e^{-inx}\, dx\le 2\pi |\beta-\alpha|\|g\|_{Lip(\alpha,\beta)}(1+|n||\beta-\alpha|)^{-1}\, .
+        \int _{\alpha}^{\beta} g(x) e^{inx}\, dx\le 2\pi |\beta-\alpha|\|g\|_{Lip(\alpha,\beta)}(1+|n||\beta-\alpha|)^{-1}\, .
     \end{equation}
 
 \end{lemma}
@@ -8107,13 +8109,28 @@ We now prove \Cref{Hilbert-strong-2-2}.
 
 \begin{proof}[Proof of \Cref{van-der-Corput}]
 \proves{van-der-Corput}
-Let $g$ be a Lipschitz continuous function as in the lemma. We have
+\leanok
+Let $g$ be a Lipschitz continuous function as in the lemma.
+Assume first that $n=0$. Then
+\begin{equation*}
+    \int_\alpha^\beta g(x) \, \mathrm{d}x \le |\beta - \alpha| \sup_{\alpha\le x\le \beta}|g(x)|
+    \le |\beta-\alpha|\|g\|_{Lip(\alpha,\beta)}(1+|n||\beta-\alpha|)^{-1}
+\end{equation*}
+Assume now $n\ne 0$. Without loss of generality, we may assume $n>0$.
+We distinguish two cases. If $\beta-\alpha < \frac{\pi}{n}$, we have by the triangle inequality
+\begin{equation*}
+    \left|\int_\alpha^\beta g(x) e^{inx} \, \mathrm{d}x\right|
+    \le |\beta -\alpha| \sup_{x \in [\alpha,\beta]} |g(x)|
+    \le 2\pi |\beta-\alpha|\|g\|_{Lip(\alpha,\beta)}(1+|n||\beta-\alpha|)^{-1} \,.
+\end{equation*}
+We turn to the case $\frac{\pi}{n} \le \beta-\alpha$.
+We have
 $$
     e^{in(x + \pi/n)} = -e^{inx}\,.
 $$
 Using this, we write
 $$
-    \int_\alpha^\beta g(x) e^{-inx} \, \mathrm{d}x
+    \int_\alpha^\beta g(x) e^{inx} \, \mathrm{d}x
     = \frac{1}{2} \int_\alpha^\beta g(x) e^{inx} \, \mathrm{d}x - \frac{1}{2} \int_\alpha^\beta g(x) e^{in(x + \pi/n)}) \, \mathrm{d}x\,.
 $$
 We split the the first integral at $\alpha + \frac{\pi}{n}$ and the second one at $\beta - \frac{\pi}{n}$, and make a change of variables in the second part of the first integral to obtain
@@ -8132,19 +8149,15 @@ $$
     \frac{1}{2} \int_{\alpha + \frac{\pi}{n}}^\beta |g(x) - g(x - \frac{\pi}{n})| \, \mathrm{d}x
 $$
 $$
-    \le \frac{\pi}{2n} \sup_{\alpha \le x < y \le \beta} \frac{|g(x) - g(y)|}{|x-y|} |\beta-\alpha|\,.
+    \le \frac{|\beta-\alpha|}{2} \frac{\pi}{n} \sup_{\alpha \le x < y \le \beta} \frac{|g(x) - g(y)|}{|x-y|}\,.
 $$
 Adding the two terms, we obtain
 $$
     \left|\int_\alpha^\beta g(x) e^{-inx} \, \mathrm{d}x\right| \le \frac{\pi}{n} \|g\|_{\mathrm{Lip}(\alpha,\beta)}\,.
 $$
-By the triangle inequality, we also have
+This completes the proof of the lemma, using that with $\frac{\pi}{n} \le \beta-\alpha$,
 $$
-    \left|\int_\alpha^\beta g(x) e^{-inx} \, \mathrm{d}x\right| \le |\beta -\alpha| \sup_{x \in [\alpha,\beta]} |g(x)| \le |\beta-\alpha| \|g\|_{\mathrm{Lip}(\alpha,\beta)}\,.
-$$
-This completes the proof of the lemma, using that
-$$
-    \min\{|\beta-\alpha|, \frac{\pi}{n}\} \le 2 \pi |\beta-\alpha|(1 + n|\beta-\alpha|)^{-1}\,.
+    \frac{\pi}{n} = \frac{2 \pi |\beta-\alpha|}{2n|\beta-\alpha|} \le 2 \pi |\beta-\alpha|(1 + n|\beta-\alpha|)^{-1}\,.
 $$
 \end{proof}
 

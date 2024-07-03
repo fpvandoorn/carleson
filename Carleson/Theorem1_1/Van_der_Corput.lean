@@ -6,15 +6,10 @@ noncomputable section
 
 open Complex
 
---TODO: correct paper: it is (b - a) there instead of (b - a) / 2 which does not work out
+
 lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B K: NNReal} (h1 : LipschitzWith K ϕ) (h2 : ∀ x ∈ (Set.Ioo a b), ‖ϕ x‖ ≤ B) :
   ‖∫ (x : ℝ) in a..b, (I * n * x).exp * ϕ x‖ ≤
     2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
-  by_cases altb : a ≥ b
-  . have : a = b := le_antisymm hab altb
-    rw [this]
-    simp
-  push_neg at altb
   have hK : 0 ≤ K * (b - a) / 2 := by
     apply mul_nonneg _ (by norm_num)
     apply mul_nonneg (by simp) (by linarith)
