@@ -64,7 +64,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         . simp
           apply lt_of_le_of_ne n_pos n_nonzero
     rw [abs_neg]
-  --TODO: choose good case distinction so that it works
+  --Case distinction such that splitting integrals in the second case works.
   by_cases h : b - a < Real.pi / n
   . have : 0 < 1 + ↑|n| * (b - a) := by
       apply add_pos_of_pos_of_nonneg zero_lt_one
