@@ -27,7 +27,8 @@ lemma dirichletKernel'_measurable {N : ℕ} : Measurable (dirichletKernel' N) :=
   by apply Measurable.add <;> apply Measurable.div <;> measurability
 
 /-Second part of Lemma 10.10 (Dirichlet kernel) from the paper.-/
-lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) : dirichletKernel N x = dirichletKernel' N x := by
+lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
+    dirichletKernel N x = dirichletKernel' N x := by
   have : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
       = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
     calc (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
@@ -114,11 +115,8 @@ lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ �
     _ ≤ ∑ n ∈ Icc (-Int.ofNat N) ↑N, ‖(fourier n) ↑x‖ := norm_sum_le _ _
     _ ≤ ∑ n ∈ Icc (-Int.ofNat N) ↑N, 1 := by
       apply sum_le_sum
-      intro n _
-      have : Fact (0 < 2 * Real.pi) := by
-        rw [fact_iff]
-        exact Real.two_pi_pos
-      apply le_trans (ContinuousMap.norm_coe_le_norm (fourier n) x) (fourier_norm n).le
+      have : Fact (0 < 2 * Real.pi) := by rw [fact_iff]; exact Real.two_pi_pos
+      exact fun n _ ↦ le_trans (ContinuousMap.norm_coe_le_norm (fourier n) x) (fourier_norm n).le
     _ = 2 * N + 1 := by
       rw_mod_cast [sum_const, Int.ofNat_eq_coe, Int.card_Icc, sub_neg_eq_add, nsmul_eq_mul, mul_one,
         Int.toNat_ofNat]
@@ -146,8 +144,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x :
       rw_mod_cast [← smul_sum, real_smul, sub_zero]
     _ = (1 / (2 * Real.pi)) * ∑ n in Icc (-Int.ofNat N) ↑N, ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y) * (fourier n) ↑x)) := by
       congr with n
-      symm
-      exact intervalIntegral.integral_mul_const _ _
+      exact (intervalIntegral.integral_mul_const _ _).symm
     _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), ∑ n in Icc (-Int.ofNat N) ↑N, (fourier (-n)) y • f y * (fourier n) x := by
       rw [← intervalIntegral.integral_finset_sum]
       exact fun _ _ ↦ IntervalIntegrable.mul_const
