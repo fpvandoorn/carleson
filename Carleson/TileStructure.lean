@@ -184,11 +184,15 @@ def C5_3_2 (a : ℕ) : ℝ := 2 ^ (-95 * (a : ℝ))
 def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
   (t.fst : Set X) ×ˢ t.snd
 
-def E₁ (t : TileLike X) : Set X :=
+/-- From a TileLike, we can construct a set. This is used in the definitions `E₁` and `E₂`. -/
+def TileLike.toSet (t : TileLike X) : Set X :=
   t.1 ∩ G ∩ Q ⁻¹' t.2
 
+def E₁ (p : 𝔓 X) : Set X :=
+  (toTileLike p).toSet
+
 def E₂ (l : ℝ) (p : 𝔓 X) : Set X :=
-  𝓘 p ∩ G ∩ Q ⁻¹' ball_(p) (𝒬 p) l
+  (smul l p).toSet
 
 /-! `𝔓(𝔓')` in the blueprint is `lowerClosure 𝔓'` in Lean. -/
 

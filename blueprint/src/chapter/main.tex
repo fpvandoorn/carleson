@@ -1863,6 +1863,8 @@ The following bound of the measure of $G'$ will be proven in
 \Cref{subsetexcset}.
 \begin{lemma}[exceptional set]
     \label{exceptional-set}
+    \leanok
+    \lean{exceptional_set}
     \uses{first-exception,second-exception, third-exception}
     We have
     \begin{equation}
@@ -1875,6 +1877,8 @@ In \Cref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G'$ as fore
 
 \begin{lemma}[forest union]
     \label{forest-union}
+    \leanok
+    \lean{forest_union}
     \uses{forest-operator,C-dens1,C6-forest, forest-geometry, forest-convex,forest-separation, forest-inner,forest-stacking}
     Let
     \begin{equation}
@@ -1895,6 +1899,8 @@ the complement of the set of tiles in Lemma
 
 \begin{lemma}[forest complement]
     \label{forest-complement}
+    \leanok
+    \lean{forest_complement}
     \uses{antichain-operator,antichain-decomposition,L0-antichain,L2-antichain,L1-L3-antichain,C-dens1}
     Let
     \begin{equation}
@@ -1925,6 +1931,8 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
 
 \begin{lemma}[first exception]
     \label{first-exception}
+    \leanok
+    \lean{first_exception}
     \uses{Hardy-Littlewood}
     We have
     \begin{equation}
@@ -1963,6 +1971,8 @@ John-Nirenberg \Cref{John-Nirenberg} below.
 
 \begin{lemma}[dense cover]
 \label{dense-cover}
+\leanok
+\lean{dense_cover}
 
 For each $k\ge 0$, the union of all dyadic cubes
 in $\mathcal{C}(G,k)$ has measure at most $2^{k+1} \mu(G)$ .
@@ -1993,6 +2003,8 @@ This proves the lemma.
 
 \begin{lemma}[pairwise disjoint]
     \label{pairwise-disjoint}
+    \leanok
+    \lean{pairwiseDisjoint_E1}
     If $\fp, \fp' \in {\mathfrak{M}}(k,n)$ and
     \begin{equation}\label{eintersect}
         {E_1}(\fp)\cap {E_1}(\fp')\neq \emptyset,
@@ -2013,7 +2025,8 @@ of $\fp'$, we have $\fp'=\fp$. This proves the lemma.
 
 \begin{lemma}[dyadic union]
 \label{dyadic-union}
-
+\leanok
+\lean{dyadic_union}
 For each $x\in A(\lambda,k,n)$,
 there is a dyadic cube $I$
 that contains $x$ and is
@@ -2032,6 +2045,8 @@ It follows that $I\subset A(\lambda,k,n)$.
 
 \begin{lemma}[John Nirenberg]
 \label{John-Nirenberg}
+\leanok
+\lean{john_nirenberg}
 \uses{dense-cover, pairwise-disjoint,dyadic-union}
     For all integers $k,n,\lambda\ge 0$, we have
     \begin{equation}\label{alambdameasure}
@@ -2102,6 +2117,8 @@ Using the induction hypothesis, this proves
 
 \begin{lemma}[second exception]
 \label{second-exception}
+\leanok
+\lean{second_exception}
 \uses{John-Nirenberg}
 We have
 \begin{equation}
@@ -2127,6 +2144,8 @@ We turn to the set $G_3$.
 
 \begin{lemma}[top tiles]
 \label{top-tiles}
+\leanok
+\lean{top_tiles}
  \uses{John-Nirenberg}
     We have
     \begin{equation}\label{eq-musum}
@@ -2156,7 +2175,8 @@ This proves the lemma.
 
 \begin{lemma}[tree count]
 \label{tree-count}
-
+\leanok
+\lean{tree_count}
 Let $k,n,j\ge 0$. We have for every $x\in X$
 \begin{equation}
     \sum_{\fu\in \fU_1(k,n,j)} \mathbf{1}_{\scI(\fu)}(x)
@@ -2227,6 +2247,8 @@ Inserting this into \eqref{usumbymsum} proves the lemma.
 
 \begin{lemma}[boundary exception]
 \label{boundary-exception}
+\leanok
+\lean{boundary_exception}
 
 Let $\mathcal{L}(\fu)$ be as defined in \eqref{eq-L-def}. We have for each $\fu\in \fU_1(k,n,l)$,
 \begin{equation}
@@ -2341,6 +2363,12 @@ Summing geometric series, using that $D^{\kappa Z}\ge 8$ by \eqref{defineD}, \eq
 Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and \eqref{definekappa} proves the lemma.
 \end{proof}
 
+\begin{proof}[Proof of \Cref{exceptional-set}]
+    \proves{exceptional-set}
+Adding up the bounds in Lemmas \ref{first-exception}, \ref{second-exception}, and \ref{third-exception} proves \Cref{exceptional-set}.
+\end{proof}
+
+
 \section{Auxiliary lemmas}
 \label{subsec-lessim-aux}
 Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some useful properties of $\lesssim$.
@@ -2424,6 +2452,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[P convex]
     \label{P-convex}
+    \leanok
+    \lean{ordConnected_tilesAt}
 
     For each $k$, the collection $\fP(k)$ is convex.
 \end{lemma}
@@ -2438,6 +2468,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[C convex]
     \label{C-convex}
+    \leanok
+    \lean{ordConnected_C}
     \uses{P-convex}
     For each $k,n$, the collection $\fC(k,n)$ is convex.
 \end{lemma}
@@ -2456,6 +2488,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[C1 convex]
     \label{C1-convex}
+    \leanok
+    \lean{ordConnected_C1}
     \uses{C-convex}
     For each $k,n,j$, the collection $\fC_1(k,n,j)$ is convex.
 \end{lemma}
@@ -2470,6 +2504,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[C2 convex]
     \label{C2-convex}
+    \leanok
+    \lean{ordConnected_C2}
     \uses{C1-convex}
     For each $k,n,j$, the collection $\fC_2(k,n,j)$ is convex.
 \end{lemma}
@@ -2483,6 +2519,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[C3 convex]
     \label{C3-convex}
+    \leanok
+    \lean{ordConnected_C3}
     \uses{C2-convex}
     For each $k,n,j$, the collection $\fC_3(k,n,j)$ is convex.
 \end{lemma}
@@ -2493,6 +2531,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[C4 convex]
     \label{C4-convex}
+    \leanok
+    \lean{ordConnected_C4}
     \uses{C3-convex}
     For each $k,n,j$, the collection $\fC_4(k,n,j)$ is convex.
 \end{lemma}
@@ -2503,6 +2543,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[C5 convex]
     \label{C5-convex}
+    \leanok
+    \lean{ordConnected_C5}
     \uses{C4-convex}
     For each $k,n,j$, the collection $\fC_5(k,n,j)$ is convex.
 \end{lemma}
@@ -2514,7 +2556,8 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 
 \begin{lemma}[dens compare]
     \label{dens-compare}
-
+    \leanok
+    \lean{dens1_le_dens'}
     We have for every $k\ge 0$ and $\fP'\subset \fP(k)$
 \begin{equation}
     \dens_1(\fP')\le \dens_k'(\fP')\, .
@@ -2558,6 +2601,8 @@ there exists $J\in \mathcal{D}$ with
 
 \begin{lemma}[C dens1]
     \label{C-dens1}
+    \leanok
+    \lean{dens1_le}
     \uses{dens-compare}
     For each set $\mathfrak{A} \subset \mathfrak{C}(k,n)$, we have
     $$

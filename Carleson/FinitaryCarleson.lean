@@ -7,22 +7,23 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
 theorem integrable_tile_sum_operator [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
     {G' : Set X} (hG' : Measurable G') (h2G' : 2 * volume G' ≤ volume G)
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hfg' : ‖∫ x in G \ G', ∑' p, T p f x‖₊ ≤
-      C2_0_2 a q * (volume.real G) ^ (1 - 1 / q) * (volume.real F) ^ (1 / q)) {x : X}
+    (hfg' : ∫⁻ x in G \ G', ‖∑' p, T p f x‖₊ ≤
+      C2_0_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) {x : X}
     (hx : x ∈ G \ G') {s : ℤ} (hs : Icc (σ₁ x) (σ₂ x)) :
     Integrable fun y ↦ Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   sorry
 
+/-- Lemma 4.0.3 -/
 theorem tile_sum_operator [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
     {G' : Set X} (hG' : Measurable G') (h2G' : 2 * volume G' ≤ volume G)
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hfg' : ‖∫ x in G \ G', ∑' p, T p f x‖₊ ≤
-      C2_0_2 a q * (volume.real G) ^ (1 - 1 / q) * (volume.real F) ^ (1 / q)) {x : X}
+    (hfg' : ∫⁻ x in G \ G', ‖∑' p, T p f x‖₊ ≤
+      C2_0_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) {x : X}
     (hx : x ∈ G \ G') :
     ∑ p : 𝔓 X, T p f x =
     ∑ s in Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * (Q x y - Q x x)) := by

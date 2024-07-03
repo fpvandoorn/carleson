@@ -243,7 +243,7 @@ and `CompatibleFunctions` -/
 @[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
 @[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (100 * a ^ 2)
 @[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
-@[simp] def defaultZ (a : ℕ) : ℝ := 2 ^ (12 * a)
+@[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
 @[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
 
 lemma defaultD_pos (a : ℕ) : 0 < (defaultD a : ℝ) := by rw [defaultD]; positivity
