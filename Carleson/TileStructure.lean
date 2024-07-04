@@ -156,12 +156,27 @@ lemma smul_C2_1_2 (m : ℝ) {n : ℝ} (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p �
 def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
-  have := ‹ProofData a q K σ₁ σ₂ F G› -- remove once the proof is finished
-  sorry
+  rw [C5_3_3]
+  apply inv_le_of_inv_le (by positivity)
+  rw [inv_div]
+  linarith [C2_1_2_le_inv_512 (X := X)]
 
 /-- Lemma 5.3.3, Equation (5.3.3) -/
 lemma wiggle_order_11_10 {n : ℝ} (hp : smul 1 p ≤ smul 1 p') (hn : C5_3_3 a ≤ n) :
-    smul n p ≤ smul n p' := by sorry
+    smul n p ≤ smul n p' := by
+  rcases eq_or_ne (𝓘 p) (𝓘 p') with h | h
+  · refine ⟨hp.1, ?_⟩
+    change ball_{𝓘 p'} (𝒬 p') n ⊆ ball_{𝓘 p} (𝒬 p) n
+    have y : ball_{𝓘 p'} (𝒬 p') 1 ⊆ ball_{𝓘 p} (𝒬 p) 1 := hp.2
+    rw [← h, subset_def] at y ⊢
+    simp only [mem_ball] at y ⊢
+    sorry
+  · calc
+      _ ≤ smul (1 + C2_1_2 a * n) p := by
+        apply smul_mono_left
+        rwa [← le_sub_iff_add_le, ← one_sub_mul, ← inv_pos_le_iff_one_le_mul']
+        linarith [C2_1_2_le_inv_512 (X := X)]
+      _ ≤ _ := smul_C2_1_2 n h hp
 
 /-- Lemma 5.3.3, Equation (5.3.4) -/
 lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
