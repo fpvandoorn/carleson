@@ -67,6 +67,12 @@ lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) (h₂ :
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
+lemma distribution_mono_right' : (Antitone (fun t ↦ distribution f t μ)) :=
+  fun a b h ↦ distribution_mono_right h
+
+lemma distribution_measurable : Measurable (fun t ↦ distribution f t μ) :=
+  Antitone.measurable (distribution_mono_right' (f := f) (μ := μ))
+
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
   (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
 
@@ -78,6 +84,34 @@ lemma distribution_smul_left {c : 𝕜} (hc : c ≠ 0) :
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ coe_ne_top,
     ENNNorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+
+lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) :
+    μ B ≤ μ A := by
+  apply measure_mono_ae
+  change μ {x | ¬ B x ≤ A x} = 0
+  simp only [le_Prop_eq, Classical.not_imp]
+  exact h
+
+lemma distribution_add_le' (g₁ g₂ : α → E) (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g₁ x‖ + ‖g₂ x‖) :
+    distribution f (t + s) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
+  unfold distribution
+  have h₁ : μ ({x | t + s < ↑‖f x‖₊} \ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊})) = 0 := by
+    apply measure_mono_null ?_ h
+    intro x
+    simp
+    intro h₁
+    intro h₂
+    intro h₃
+    apply (ofReal_lt_ofReal_iff_of_nonneg (add_nonneg (norm_nonneg (g₁ x))
+       (norm_nonneg (g₂ x)))).mp
+    rw [ofReal_add (norm_nonneg (g₁ x)) (norm_nonneg (g₂ x))]
+    rw [ofReal_norm_eq_coe_nnnorm, ofReal_norm_eq_coe_nnnorm, ofReal_norm_eq_coe_nnnorm]
+    exact lt_of_le_of_lt (add_le_add h₂ h₃) h₁
+  calc
+    μ {x | t + s < ‖f x‖₊}
+      ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := by
+        apply measure_mono_ae' h₁
+    _ ≤ μ {x | t < ↑‖g₁ x‖₊} + μ {x | s < ↑‖g₂ x‖₊} := by apply measure_union_le
 
 lemma distribution_add_le :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
