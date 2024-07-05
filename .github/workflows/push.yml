@@ -64,7 +64,7 @@ jobs:
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
 
       - name: Clear cached documentation files
-        run: rm -rf .lake/build/doc/declarations/* # Clean up documentation cache to save space
+        run: rm -rf .lake/build/doc/declarations/header-data.bmp # Clean up documentation cache to save space
 
       - name: Install Python
         uses: actions/setup-python@v4
