@@ -138,8 +138,8 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
-lemma 𝔓.le_def (p q : 𝔓 X) : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
-lemma 𝔓.le_def' (p q : 𝔓 X) : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
+lemma 𝔓.le_def {p q : 𝔓 X} : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
+lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
 
 lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' := by
   by_contra h3
@@ -153,8 +153,8 @@ lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) 
     smul n' p ≤ smul m' p' :=
   smul_mono_left hn |>.trans hp |>.trans <| smul_mono_left hm
 
-/-- Lemma 5.3.2 -/
-lemma smul_C2_1_2 (m : ℝ) {n : ℝ} (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul 1 p') :
+/-- Lemma 5.3.2 (generalizing `1` to `k > 0`) -/
+lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul k p') :
     smul (n + C2_1_2 a * m) p ≤ smul m p' := by
   replace hp : 𝓘 p < 𝓘 p' := lt_of_le_of_ne hl.1 hp
   have : ball_(p') (𝒬 p') m ⊆ ball_(p) (𝒬 p) (n + C2_1_2 a * m) := fun x hx ↦ by
@@ -166,7 +166,7 @@ lemma smul_C2_1_2 (m : ℝ) {n : ℝ} (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p �
       _ < C2_1_2 a * m + dist_(p) (𝒬 p') (𝒬 p) := by gcongr; rw [C2_1_2]; positivity
       _ < _ := by
         rw [add_comm]; gcongr
-        exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self zero_lt_one) hl.2
+        exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
 
 /-- The constraint on `λ` in the first part of Lemma 5.3.3. -/
@@ -184,26 +184,16 @@ lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) :
     · rfl
     · exfalso
       exact h2 <| eq_of_𝓘_eq_𝓘_of_le h hp
-  · simp [TileLike.le_def]
-    refine ⟨hp.1, ?_⟩
-    intro x hx
-    rw [@mem_ball] at hx ⊢
-    calc
-      _ ≤ dist_(p) x (𝒬 p') + dist_(p) (𝒬 p') (𝒬 p) := dist_triangle ..
-      _ ≤ C2_1_2 a * dist_(p') x (𝒬 p') + dist_(p) (𝒬 p') (𝒬 p) := by
-        gcongr
-        exact Grid.dist_strictMono (hp.1.lt_of_ne h)
-      _ < C2_1_2 a * n + dist_(p) (𝒬 p') (𝒬 p) := by gcongr; rw [C2_1_2]; positivity
-      _ < 1 + C2_1_2 a * n := by
-        rw [add_comm]
-        gcongr
-        apply mem_ball.mp
-        exact subset_cball <| hp.2 𝒬_mem_Ω
-      _ ≤ n := by
+  · calc
+      _ ≤ smul (1 + C2_1_2 a * n) p := by
+        apply smul_mono_left
         rw [← le_sub_iff_add_le]
         conv_rhs => left; rw [← one_mul n]
         rw [C5_3_3] at hn
         simp_rw [← sub_mul, ← inv_pos_le_iff_one_le_mul' <| sub_pos.mpr <| C2_1_2_lt_one X, hn]
+      _ ≤ smul n p' := by
+        apply smul_C2_1_2 _ (by norm_num : 0 < (5 : ℝ)⁻¹) h
+        exact smul_le_toTileLike.trans <| 𝔓.le_def.mp hp |>.trans toTileLike_le_smul
 
 /-- Lemma 5.3.3, Equation (5.3.4) -/
 lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
@@ -211,7 +201,7 @@ lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') 
   calc
     _ ≤ smul (10 + C2_1_2 a * 100) p :=
       smul_mono_left (by linarith [C2_1_2_le_inv_512 (X := X)])
-    _ ≤ _ := smul_C2_1_2 100 hn hp
+    _ ≤ _ := smul_C2_1_2 100 zero_lt_one hn hp
 
 /-- Lemma 5.3.3, Equation (5.3.5) -/
 lemma wiggle_order_500 (hp : smul 2 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
@@ -219,7 +209,7 @@ lemma wiggle_order_500 (hp : smul 2 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
   calc
     _ ≤ smul (2 + C2_1_2 a * 500) p :=
       smul_mono_left (by linarith [C2_1_2_le_inv_512 (X := X)])
-    _ ≤ _ := smul_C2_1_2 500 hn hp
+    _ ≤ _ := smul_C2_1_2 500 zero_lt_one hn hp
 
 def C5_3_2 (a : ℕ) : ℝ := 2 ^ (-95 * (a : ℝ))
 
