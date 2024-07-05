@@ -391,7 +391,7 @@ lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
     exact ind p h fun z ↦ (𝔓_induction P base ind ⟨p.1.succ, z⟩)
 termination_by p => p.1.opSize
 
-lemma Ω_subset_cdist {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
+lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
   induction p using 𝔓_induction with
   | base p maxI =>
     rw [Ω]; simp only [maxI, dite_true]
@@ -441,7 +441,7 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
     _ < CΩ + C2_1_2 a * 1 := by
       gcongr
       · rw [C2_1_2]; positivity
-      · simpa only using mem_of_mem_of_subset mϑ₂ (Ω_subset_cdist (p := ⟨I.succ, ⟨x, mx₁⟩⟩))
+      · simpa only using mem_of_mem_of_subset mϑ₂ (Ω_subset_cball (p := ⟨I.succ, ⟨x, mx₁⟩⟩))
     _ < CΩ + 2 ^ (-4 : ℝ) := by
       gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, neg_mul, neg_lt_neg_iff]
       norm_cast; linarith [four_le_a X]
@@ -549,9 +549,9 @@ def tile_existence : TileStructure Q D κ S o where
   biUnion_Ω {I} := Construction.Ω_biUnion
   disjoint_Ω := Construction.Ω_disjoint
   relative_fundamental_dyadic {p q} := Construction.Ω_RFD (I := I)
-  cdist_subset {p} := by
+  cball_subset {p} := by
     rw [Construction.Ω]; split_ifs with h
     · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
       exact this.trans (Construction.ball_subset_Ω₁ p)
     · simp
-  subset_cdist {p} := Construction.Ω_subset_cdist
+  subset_cball {p} := Construction.Ω_subset_cball

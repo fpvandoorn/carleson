@@ -49,10 +49,10 @@ class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)
     Disjoint (Ω p) (Ω p')
   relative_fundamental_dyadic {p p'} (h : 𝓘 p ≤ 𝓘 p') : -- 2.0.14
     Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
-  cdist_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
-  subset_cdist {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
+  cball_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
+  subset_cball {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
 
-export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic cdist_subset subset_cdist)
+export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic)
 
 end Generic
 
@@ -71,6 +71,9 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 @[simp] lemma dist_𝓘 (p : 𝔓 X) : dist_{𝓘 p} f g = dist_(p) f g := rfl
 @[simp] lemma nndist_𝓘 (p : 𝔓 X) : nndist_{𝓘 p} f g = nndist_(p) f g := rfl
 @[simp] lemma ball_𝓘 (p : 𝔓 X) {r : ℝ} : ball_{𝓘 p} f r = ball_(p) f r := rfl
+
+@[simp] lemma cball_subset {p : 𝔓 X} : ball_(p) (𝒬 p) 5⁻¹ ⊆ Ω p := TileStructure.cball_subset
+@[simp] lemma subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := TileStructure.subset_cball
 
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
@@ -97,6 +100,7 @@ def TileLike.snd (x : TileLike X) : Set (Θ X) := x.2
 @[simp] lemma TileLike.snd_mk (x : Grid X) (y : Set (Θ X)) : TileLike.snd (x, y) = y := by rfl
 
 instance : PartialOrder (TileLike X) := by dsimp [TileLike]; infer_instance
+
 lemma TileLike.le_def (x y : TileLike X) : x ≤ y ↔ x.fst ≤ y.fst ∧ y.snd ⊆ x.snd := by rfl
 
 def toTileLike (p : 𝔓 X) : TileLike X := (𝓘 p, Ω p)
@@ -117,9 +121,12 @@ lemma smul_mono_left {l l' : ℝ} {p : 𝔓 X} (h : l ≤ l') : smul l' p ≤ sm
   simp [TileLike.le_def, h, ball_subset_ball]
 
 lemma smul_le_toTileLike : smul 1 p ≤ toTileLike p := by
-  simp [TileLike.le_def, subset_cdist]
+  simp [TileLike.le_def, subset_cball (p := p)]
 
-lemma 𝒬_mem_Ω : 𝒬 p ∈ Ω p := cdist_subset <| mem_ball_self <| by norm_num
+lemma toTileLike_le_smul : toTileLike p ≤ smul 5⁻¹ p := by
+  simp [TileLike.le_def, cball_subset (p := p)]
+
+lemma 𝒬_mem_Ω : 𝒬 p ∈ Ω p := cball_subset <| mem_ball_self <| by norm_num
 
 lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   intros p p' h
@@ -130,6 +137,16 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   exact not_mem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
+
+lemma 𝔓.le_def (p q : 𝔓 X) : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
+lemma 𝔓.le_def' (p q : 𝔓 X) : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
+
+lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' := by
+  by_contra h3
+  refine Set.disjoint_left.mp (disjoint_Ω h3 h1) (h2.2 𝒬_mem_Ω) 𝒬_mem_Ω
+
+lemma not_lt_of_𝓘_eq_𝓘 (h1 : 𝓘 p = 𝓘 p') : ¬ p < p' :=
+  fun h2 ↦ h2.ne <| eq_of_𝓘_eq_𝓘_of_le h1 h2.le
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
@@ -156,12 +173,37 @@ lemma smul_C2_1_2 (m : ℝ) {n : ℝ} (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p �
 def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
-  have := ‹ProofData a q K σ₁ σ₂ F G› -- remove once the proof is finished
-  sorry
+  rw [C5_3_3, inv_le (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
+  exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
 
 /-- Lemma 5.3.3, Equation (5.3.3) -/
-lemma wiggle_order_11_10 {n : ℝ} (hp : smul 1 p ≤ smul 1 p') (hn : C5_3_3 a ≤ n) :
-    smul n p ≤ smul n p' := by sorry
+lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) :
+    smul n p ≤ smul n p' := by
+  rcases eq_or_ne (𝓘 p) (𝓘 p') with h | h
+  · rcases eq_or_ne p p' with rfl | h2
+    · rfl
+    · exfalso
+      exact h2 <| eq_of_𝓘_eq_𝓘_of_le h hp
+  · simp [TileLike.le_def]
+    refine ⟨hp.1, ?_⟩
+    intro x hx
+    rw [@mem_ball] at hx ⊢
+    calc
+      _ ≤ dist_(p) x (𝒬 p') + dist_(p) (𝒬 p') (𝒬 p) := dist_triangle ..
+      _ ≤ C2_1_2 a * dist_(p') x (𝒬 p') + dist_(p) (𝒬 p') (𝒬 p) := by
+        gcongr
+        exact Grid.dist_strictMono (hp.1.lt_of_ne h)
+      _ < C2_1_2 a * n + dist_(p) (𝒬 p') (𝒬 p) := by gcongr; rw [C2_1_2]; positivity
+      _ < 1 + C2_1_2 a * n := by
+        rw [add_comm]
+        gcongr
+        apply mem_ball.mp
+        exact subset_cball <| hp.2 𝒬_mem_Ω
+      _ ≤ n := by
+        rw [← le_sub_iff_add_le]
+        conv_rhs => left; rw [← one_mul n]
+        rw [C5_3_3] at hn
+        simp_rw [← sub_mul, ← inv_pos_le_iff_one_le_mul' <| sub_pos.mpr <| C2_1_2_lt_one X, hn]
 
 /-- Lemma 5.3.3, Equation (5.3.4) -/
 lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
