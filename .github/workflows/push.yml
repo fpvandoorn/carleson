@@ -33,14 +33,14 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0 # Install Lean 4
 
+      - name: Update docgen4
+        run: ~/.elan/bin/lake -R -Kenv=dev update «doc-gen4»
+
       - name: Get cache
         run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
 
       - name: Build project
         run: ~/.elan/bin/lake -Kenv=dev build Carleson
-
-      # - name: Clear build artifacts
-      #   run: rm -rf .lake/build/Carleson/* # Clean up build artifacts to save space
 
       - name: Cache mathlib docs
         uses: actions/cache@v3
@@ -57,14 +57,14 @@ jobs:
           restore-keys: |
             MathlibDoc- # Cache Mathlib documentation to save rebuild time
 
-      - name: List available documentation parts
-        run: ls -R .lake/build/doc # List all available documentation parts for monitoring
+      # - name: List available documentation parts
+      #   run: ls -R .lake/build/doc # List all available documentation parts for monitoring
 
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
 
-      - name: Clear cached documentation files
-        run: rm -rf .lake/build/doc/declarations/header-data.bmp # Clean up documentation cache to save space
+      # - name: Clear cached documentation files
+      #   run: rm -rf .lake/build/doc/declarations/header-data.bmp # Clean up documentation cache to save space
 
       - name: Install Python
         uses: actions/setup-python@v4
