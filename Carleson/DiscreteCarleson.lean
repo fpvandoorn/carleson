@@ -114,7 +114,7 @@ def highDensityTiles : Set (𝔓 X) :=
 /-- The exceptional set `G₁`, defined in (5.1.25). -/
 def G₁ : Set X := ⋃ (p : 𝔓 X) (_ : p ∈ highDensityTiles), 𝓘 p
 
-/-- The set `A(λ, k n)`, defined in (5.1.26). -/
+/-- The set `A(λ, k, n)`, defined in (5.1.26). -/
 def setA (l k n : ℕ) : Set X :=
   {x : X | l * 2 ^ (n + 1) < ∑ p ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n),
     (𝓘 p : Set X).indicator 1 x }
@@ -139,20 +139,37 @@ variable {k n j l : ℕ} {p p' : 𝔓 X} {x : X}
 lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := by
   sorry
 
-
 /-- Lemma 5.2.2 -/
 lemma dense_cover (k : ℕ) :
     2 ^ (k + 1) * volume G ≤ volume (⋃ p ∈ 𝓒 (X := X) k, (p : Set X)) := by
   sorry
 
-
 /-- Lemma 5.2.3 -/
-lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := by
-  sorry
+lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p mp p' mp' h ↦ by
+  change Disjoint _ _
+  contrapose! h
+  have h𝓘 := (Disjoint.mono (E₁_subset p) (E₁_subset p')).mt h
+  wlog hs : s (𝓘 p') ≤ s (𝓘 p) generalizing p p'
+  · rw [disjoint_comm] at h h𝓘; rw [not_le] at hs; rw [this p' mp' p mp h h𝓘 hs.le]
+  obtain ⟨x, ⟨-, mxp⟩, ⟨-, mxp'⟩⟩ := not_disjoint_iff.mp h
+  rw [mem_preimage] at mxp mxp'
+  have l𝓘 := Grid.le_def.mpr ⟨(fundamental_dyadic hs).resolve_right (disjoint_comm.not.mpr h𝓘), hs⟩
+  have sΩ := (relative_fundamental_dyadic l𝓘).resolve_left <| not_disjoint_iff.mpr ⟨_, mxp', mxp⟩
+  exact (eq_of_mem_maximals mp' (mem_of_mem_of_subset mp (maximals_subset ..)) ⟨l𝓘, sΩ⟩).symm
 
 /-- Lemma 5.2.4 -/
 lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Set X) ⊆ setA l k n := by
-  sorry
+  let M : Finset (𝔓 X) := Finset.univ.filter (fun p ↦ p ∈ 𝔐 k n ∧ x ∈ 𝓘 p)
+  simp_rw [setA, mem_setOf, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
+    Finset.filter_filter] at hx ⊢
+  obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le'.trans_lt hx))
+  simp_rw [M, Finset.mem_filter, Finset.mem_univ, true_and] at memb minb
+  use 𝓘 b, memb.2; intro c mc; rw [mem_setOf]
+  refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hy ⊢
+  have : (𝓘 b : Set X) ⊆ 𝓘 y := (fundamental_dyadic (minb y hy)).resolve_right
+    (disjoint_comm.not.mpr (not_disjoint_iff.mpr ⟨x, hy.2, memb.2⟩))
+  exact ⟨hy.1, mem_of_mem_of_subset mc this⟩
 
 /-- Lemma 5.2.5 -/
 lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * volume G := by

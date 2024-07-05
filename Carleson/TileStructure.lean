@@ -221,6 +221,11 @@ def E₁ (p : 𝔓 X) : Set X :=
 def E₂ (l : ℝ) (p : 𝔓 X) : Set X :=
   (smul l p).toSet
 
+lemma E₁_subset (p : 𝔓 X) : E₁ p ⊆ 𝓘 p := by
+  change ↑(𝓘 p) ∩ G ∩ (Q ⁻¹' Ω p) ⊆ ↑(𝓘 p)
+  rw [inter_assoc]
+  exact inter_subset_left
+
 /-! `𝔓(𝔓')` in the blueprint is `lowerClosure 𝔓'` in Lean. -/
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
