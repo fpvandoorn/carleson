@@ -141,7 +141,7 @@ lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := 
 
 /-- Lemma 5.2.2 -/
 lemma dense_cover (k : ℕ) :
-    2 ^ (k + 1) * volume G ≤ volume (⋃ p ∈ 𝓒 (X := X) k, (p : Set X)) := by
+    volume (⋃ p ∈ 𝓒 (X := X) k, (p : Set X)) ≤ 2 ^ (k + 1) * volume G := by
   sorry
 
 /-- Lemma 5.2.3 -/
@@ -211,7 +211,13 @@ lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G := by
 
 /-- Lemma 5.3.4 -/
 lemma ordConnected_tilesAt : OrdConnected (TilesAt k : Set (𝔓 X)) := by
-  sorry
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at mp mp'' ⊢
+  constructor
+  · obtain ⟨J, hJ, _⟩ := mp''.1
+    use J, mp'.2.1.trans hJ
+  · push_neg at mp ⊢
+    exact fun J hJ ↦ mp.2 J (mp'.1.1.trans hJ)
 
 /-- Lemma 5.3.5 -/
 lemma ordConnected_C : OrdConnected (ℭ k n : Set (𝔓 X)) := by
