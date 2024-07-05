@@ -143,7 +143,7 @@ lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ �
 
 lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' := by
   by_contra h3
-  refine Set.disjoint_left.mp (disjoint_Ω h3 h1) (h2.2 𝒬_mem_Ω) 𝒬_mem_Ω
+  exact Set.disjoint_left.mp (disjoint_Ω h3 h1) (h2.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 lemma not_lt_of_𝓘_eq_𝓘 (h1 : 𝓘 p = 𝓘 p') : ¬ p < p' :=
   fun h2 ↦ h2.ne <| eq_of_𝓘_eq_𝓘_of_le h1 h2.le
@@ -177,23 +177,18 @@ lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
   exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
 
 /-- Lemma 5.3.3, Equation (5.3.3) -/
-lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) :
-    smul n p ≤ smul n p' := by
+lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul n p ≤ smul n p' := by
   rcases eq_or_ne (𝓘 p) (𝓘 p') with h | h
   · rcases eq_or_ne p p' with rfl | h2
     · rfl
-    · exfalso
-      exact h2 <| eq_of_𝓘_eq_𝓘_of_le h hp
+    · exact absurd (eq_of_𝓘_eq_𝓘_of_le h hp) h2
   · calc
       _ ≤ smul (1 + C2_1_2 a * n) p := by
         apply smul_mono_left
-        rw [← le_sub_iff_add_le]
-        conv_rhs => left; rw [← one_mul n]
-        rw [C5_3_3] at hn
-        simp_rw [← sub_mul, ← inv_pos_le_iff_one_le_mul' <| sub_pos.mpr <| C2_1_2_lt_one X, hn]
-      _ ≤ smul n p' := by
-        apply smul_C2_1_2 _ (by norm_num : 0 < (5 : ℝ)⁻¹) h
-        exact smul_le_toTileLike.trans <| 𝔓.le_def.mp hp |>.trans toTileLike_le_smul
+        rwa [← le_sub_iff_add_le, ← one_sub_mul, ← inv_pos_le_iff_one_le_mul']
+        linarith [C2_1_2_le_inv_512 (X := X)]
+      _ ≤ smul n p' := smul_C2_1_2 (k := 5⁻¹) n (by norm_num) h
+        (smul_le_toTileLike.trans <| 𝔓.le_def.mp hp |>.trans toTileLike_le_smul)
 
 /-- Lemma 5.3.3, Equation (5.3.4) -/
 lemma wiggle_order_100 (hp : smul 10 p ≤ smul 1 p') (hn : 𝓘 p ≠ 𝓘 p') :
@@ -225,6 +220,11 @@ def E₁ (p : 𝔓 X) : Set X :=
 
 def E₂ (l : ℝ) (p : 𝔓 X) : Set X :=
   (smul l p).toSet
+
+lemma E₁_subset (p : 𝔓 X) : E₁ p ⊆ 𝓘 p := by
+  change ↑(𝓘 p) ∩ G ∩ (Q ⁻¹' Ω p) ⊆ ↑(𝓘 p)
+  rw [inter_assoc]
+  exact inter_subset_left
 
 /-! `𝔓(𝔓')` in the blueprint is `lowerClosure 𝔓'` in Lean. -/
 
