@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-      - gh-pages-test
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -57,14 +56,8 @@ jobs:
           restore-keys: |
             MathlibDoc- # Cache Mathlib documentation to save rebuild time
 
-      # - name: List available documentation parts
-      #   run: ls -R .lake/build/doc # List all available documentation parts for monitoring
-
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
-
-      # - name: Clear cached documentation files
-      #   run: rm -rf .lake/build/doc/declarations/header-data.bmp # Clean up documentation cache to save space
 
       - name: Install Python
         uses: actions/setup-python@v4
