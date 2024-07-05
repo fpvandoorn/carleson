@@ -167,9 +167,7 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
   use 𝓘 b, memb.2; intro c mc; rw [mem_setOf]
   refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hy ⊢
-  have : (𝓘 b : Set X) ⊆ 𝓘 y := (fundamental_dyadic (minb y hy)).resolve_right
-    (disjoint_comm.not.mpr (not_disjoint_iff.mpr ⟨x, hy.2, memb.2⟩))
-  exact ⟨hy.1, mem_of_mem_of_subset mc this⟩
+  exact ⟨hy.1, mem_of_mem_of_subset mc (Grid.le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
 
 /-- Lemma 5.2.5 -/
 lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * volume G := by

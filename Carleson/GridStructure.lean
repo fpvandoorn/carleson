@@ -121,16 +121,19 @@ lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
 
 lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
 
+lemma le_of_mem_of_mem {i j : Grid X} (h : s i ≤ s j) {c : X} (mi : c ∈ i) (mj : c ∈ j) : i ≤ j :=
+  ⟨(fundamental_dyadic h).resolve_right (not_disjoint_iff.mpr ⟨c, mi, mj⟩), h⟩
+
+lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j) : i ≤ j := by
+  obtain ⟨c, mc⟩ := k.nonempty
+  exact le_of_mem_of_mem h (mem_of_mem_of_subset mc li.1) (mem_of_mem_of_subset mc lj.1)
+
 @[simp] lemma lt_def {i j : Grid X} : i < j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i < s j := by
   constructor <;> intro h
-  · obtain ⟨a₁, a₂⟩ := le_def.mp h.le
+  · obtain ⟨a₁, a₂⟩ := h.le
     refine ⟨a₁, lt_of_le_of_ne a₂ ?_⟩
     by_contra a₃
-    have k : (j : Set X) ⊆ i := by
-      apply (fundamental_dyadic a₃.ge).resolve_right
-      obtain ⟨c, mc⟩ := i.nonempty
-      rw [not_disjoint_iff]; use c, mem_of_mem_of_subset mc a₁, mc
-    have l := h.trans_le (le_def.mpr ⟨k, a₃.ge⟩)
+    have l : i < i := h.trans_le (le_dyadic a₃.ge h.le le_rfl)
     rwa [lt_self_iff_false] at l
   · apply lt_of_le_of_ne (le_def.mpr ⟨h.1, h.2.le⟩)
     by_contra a; rw [a, lt_self_iff_false] at h; exact h.2
@@ -146,15 +149,10 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
   obtain ⟨j, mj, hj⟩ := incs.exists_minimal ine
   simp only [gt_iff_lt, Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
-    have nlt := hj x mx
-    have nd : ¬Disjoint (j : Set X) x := by
-      obtain ⟨c, mc⟩ := i.nonempty
-      exact not_disjoint_iff.mpr ⟨c, mem_of_mem_of_subset mc (le_def.mp mj.le).1,
-        mem_of_mem_of_subset mc (le_def.mp mx.le).1⟩
     rcases lt_or_le (s x) (s j) with c | c
-    · have := (le_or_disjoint c.le).resolve_right (by rwa [disjoint_comm])
-      exact (eq_of_le_of_not_lt this nlt).symm.le
-    · exact (le_or_disjoint c).resolve_right nd
+    · have := le_dyadic c.le mx.le mj.le
+      exact (eq_of_le_of_not_lt this (hj x mx)).symm.le
+    · exact le_dyadic c mj.le mx.le
   use j, ⟨mj, hj⟩, fun k ⟨hk₁, hk₂⟩ ↦ le_antisymm (hk₂ j mj) (hj k hk₁)
 
 open Classical in
@@ -194,7 +192,7 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
   obtain ⟨j, (sj : s j = l), mj⟩ := this; use j, sj
-  exact (le_or_disjoint (by omega)).resolve_right (not_disjoint_iff.mpr ⟨x, hx, mj⟩)
+  exact le_of_mem_of_mem (by omega) hx mj
 
 lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
     ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
@@ -202,10 +200,7 @@ lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
   rw [mem_Icc] at hl
   obtain ⟨K, sK, lbK⟩ := exists_supercube l (by change s i ≤ _ ∧ _; omega)
   use K, sK, lbK
-  apply (le_or_disjoint (by omega)).resolve_right
-  rw [not_disjoint_iff]
-  obtain ⟨x, hx⟩ := i.nonempty
-  use x, mem_of_mem_of_subset hx lbK.1, mem_of_mem_of_subset hx h.1
+  exact le_dyadic (by omega) lbK h
 
 lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
   obtain ⟨h₁, h₂⟩ := succ_spec h
@@ -213,8 +208,7 @@ lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
   by_contra! h₀
   obtain ⟨z, hz₁, hz₂, hz₃⟩ :=
     exists_sandwiched (le_succ (i := i)) (s i + 1) (by rw [mem_Icc]; omega)
-  have l := (lt_def.mpr ⟨(le_def.mp hz₃).1, hz₁.symm ▸ h₀⟩).trans_le
-    (h₂ z (lt_def.mpr ⟨(le_def.mp hz₂).1, by omega⟩))
+  have l := (lt_def.mpr ⟨hz₃.1, hz₁.symm ▸ h₀⟩).trans_le (h₂ z (lt_def.mpr ⟨hz₂.1, by omega⟩))
   rwa [lt_self_iff_false] at l
 
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
@@ -235,14 +229,10 @@ termination_by i => i.opSize
 
 lemma succ_def (h : ¬IsMax i) : i.succ = j ↔ i ≤ j ∧ s j = s i + 1 := by
   refine ⟨fun k ↦ by subst k; exact ⟨le_succ, scale_succ h⟩, fun ⟨h₁, _⟩ ↦ ?_⟩
-  replace h₁ : i < j := lt_def.mpr ⟨(le_def.mp h₁).1, by omega⟩
+  replace h₁ : i < j := lt_def.mpr ⟨h₁.1, by omega⟩
   refine succ_unique h h₁ fun j' hj' ↦ ?_
-  have b₁ : s i < s j' := (lt_def.mp hj').2
-  have b₂ : s j ≤ s j' := by omega
-  apply (le_or_disjoint b₂).resolve_right
-  obtain ⟨c, mc⟩ := i.nonempty
-  exact not_disjoint_iff.mpr ⟨c, mem_of_mem_of_subset mc (le_def.mp h₁.le).1,
-    mem_of_mem_of_subset mc (le_def.mp hj'.le).1⟩
+  have : s i < s j' := (lt_def.mp hj').2
+  exact le_dyadic (by omega) h₁.le hj'.le
 
 
 lemma dist_congr {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ X} (e₁ : x₁ = x₂) (e₂ : r₁ = r₂) :

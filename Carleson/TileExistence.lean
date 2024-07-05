@@ -501,11 +501,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
   · rw [or_iff_not_imp_left]; intro hi
     obtain ⟨I, y⟩ := p
     obtain ⟨J, z⟩ := q
-    have hij : I = J := by
-      refine le_antisymm h𝓘 <| Grid.le_def.mpr ⟨(fundamental_dyadic h).resolve_right ?_, h⟩
-      obtain ⟨w, mw⟩ := I.nonempty
-      rw [disjoint_comm, not_disjoint_iff]
-      use w, mw, mem_of_mem_of_subset mw (Grid.le_def.mp h𝓘).1
+    have hij : I = J := le_antisymm h𝓘 (Grid.le_dyadic h h𝓘 le_rfl)
     have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k]
