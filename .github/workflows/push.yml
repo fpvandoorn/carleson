@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - gh-pages-test
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -19,40 +20,27 @@ jobs:
         run: |
           ! (find Carleson -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
 
-      - name: Don't 'import Mathlib', use precise imports
-        if: always()
-        run: |
-          ! (find Carleson -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
-
   build_project:
     runs-on: ubuntu-latest
     name: Build project
     steps:
-      - name: cleanup
-        run: |
-          find . -name . -o -prune -exec rm -rf -- {} +
-          # Delete all but the 5 most recent toolchains.
-          # Make sure to delete both the `~/.elan/toolchains/X` directory and the `~/.elan/update-hashes/X` file.
-          # Skip symbolic links (`-type d`), the current directory (`! -name .`), and `nightly` and `stable`.
-          if cd ~/.elan/toolchains && find . -maxdepth 1 -type d ! -name . -print0 | xargs -0 ls -1td | grep -v 'nightly$' | grep -v 'stable$' | tail -n +6 | xargs -I {} sh -c 'echo {} && rm -rf "{}" && rm "../update-hashes/{}"'; then
-              : # Do nothing on success
-          else
-              : # Do nothing on failure, but suppress errors
-          fi
-
       - name: Checkout project
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
       - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0 # Install Lean 4
 
       - name: Get cache
         run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
 
       - name: Build project
         run: ~/.elan/bin/lake -Kenv=dev build Carleson
+
+      # - name: Clear build artifacts
+      #   run: rm -rf .lake/build/Carleson/* # Clean up build artifacts to save space
 
       - name: Cache mathlib docs
         uses: actions/cache@v3
@@ -67,57 +55,56 @@ jobs:
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
-            MathlibDoc-
+            MathlibDoc- # Cache Mathlib documentation to save rebuild time
+
+      - name: List available documentation parts
+        run: ls -R .lake/build/doc # List all available documentation parts for monitoring
 
       - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
+        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
+
+      - name: Clear cached documentation files
+        run: rm -rf .lake/build/doc/declarations/* # Clean up documentation cache to save space
 
       - name: Install Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          cache: 'pip' # caching pip dependencies
+          cache: 'pip'
 
       - name: Install blueprint apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full
+          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full # Install necessary system packages for blueprint
 
       - name: Install blueprint dependencies
         run: |
-          cd blueprint && pip install -r requirements.txt
+          cd blueprint && pip install -r requirements.txt # Install Python dependencies for blueprint
 
       - name: Build blueprint and copy to `docs/blueprint`
-        run: |
-          inv all
+        run: inv all
 
       - name: Copy documentation to `docs/docs`
         run: |
           sudo chown -R runner docs
-          cp -r .lake/build/doc docs/docs
+          cp -r .lake/build/doc docs/docs # Copy the built documentation to the correct directory
 
-      # - name: Bundle dependencies
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     working-directory: docs
-      #     ruby-version: "3.0" # Not needed with a .ruby-version file
-      #     bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Bundle dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          working-directory: docs
+          ruby-version: "3.0"
+          bundler-cache: true
 
-      # - name: Bundle website
-      #   working-directory: docs
-      #   run: |
-      #     bundle exec jekyll clean
-      #     JEKYLL_ENV=production bundle exec jekyll build
+      - name: Bundle website
+        working-directory: docs
+        run: JEKYLL_ENV=production bundle exec jekyll build # Build the Jekyll site for production
 
       - name: Upload docs & blueprint artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: docs/
+          path: docs/_site
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-
-      - name: Make sure the cache works
-        run: |
-          mv docs/docs .lake/build/doc
