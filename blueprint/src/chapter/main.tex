@@ -2392,11 +2392,11 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
     \lean{smul_C2_1_2}
     \uses{monotone-cube-metrics}
 
-    Let $n, m \ge 1$.
+    Let $n, m \ge 1$ and $k > 0$.
     If $\fp, \fp' \in \fP$ with $\scI(\fp) \ne \scI(\fp')$ and
     \begin{equation}
         \label{eq-wiggle1}
-        n \fp \lesssim \fp'
+        n \fp \lesssim k \fp'
     \end{equation}
     then
     \begin{equation}
@@ -2411,7 +2411,12 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
     $$
         d_{\fp}(\fcc(\fp), \mfa) \le d_{\fp}(\fcc(\fp), \fcc(\fp')) + d_{\fp}(\fcc(\fp'), \mfa)
     $$
-    Using \eqref{eq-wiggle1} and \eqref{wiggleorder} for the first summand, and \Cref{monotone-cube-metrics} for the second summand, this is estimated by
+    The first summand is bounded by $n$ since
+    $$
+        \fcc(\fp') \in B_{\fp'}(\fcc(\fp'), k) \subset B_{\fp}(\fcc(\fp), n),
+    $$
+    using \eqref{wiggleorder}. For the second summand we use \Cref{monotone-cube-metrics}
+    to show that the sum is estimated by
     $$
         n + 2^{-95a} d_{\fp'}(\fcc(\fp'), \mfa) < n + 2^{-95a} m\,.
     $$
@@ -2426,7 +2431,7 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
     % Note: we basically use {eq-sc1} in chapter 6. Mention this.
     \begin{equation}
         \label{eq-sc1}
-        \fq \lesssim \fq' \ \text{and} \ \lambda \ge 1.1 \implies \lambda \fq \lesssim \lambda \fq'\,,
+        \fq \le \fq' \ \text{and} \ \lambda \ge 1.1 \implies \lambda \fq \lesssim \lambda \fq'\,,
     \end{equation}
     \begin{equation}
         \label{eq-sc2}
@@ -2439,7 +2444,14 @@ Before proving \Cref{forest-union} and \Cref{forest-complement}, we collect some
 \end{lemma}
 
 \begin{proof}
-    All three implications are easy consequences of \Cref{wiggle-order-1}, \Cref{wiggle-order-2} and the fact that $a \ge 4$.
+    \leanok
+    \eqref{eq-sc2} and \eqref{eq-sc3} are easy consequences of \Cref{wiggle-order-1}, \Cref{wiggle-order-2} and the fact that $a \ge 4$.
+    For \eqref{eq-sc1}, if $\scI(\fq) = \scI(\fq')$ then
+    we get $\fq = \fq'$ by \eqref{eq-dis-freq-cover} and \eqref{straightorder}.
+    If $\scI(\fq) \ne \scI(\fq')$, then from \eqref{straightorder},
+    \eqref{wiggleorder} and \eqref{eq-freq-comp-ball} it follows that
+    $\fq \lesssim 0.2\fq'$, and \eqref{eq-sc1} follows from an easy calculation using
+    \Cref{wiggle-order-2}.
 \end{proof}
 
 
