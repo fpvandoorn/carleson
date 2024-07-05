@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - gh-pages-test
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -76,6 +77,11 @@ jobs:
 
       - name: Build blueprint and copy to `docs/blueprint`
         run: inv all
+
+      - name: Remove lake files from documentation
+        run: |
+          find .lake/build/doc -name "*.trace" -delete
+          find .lake/build/doc -name "*.hash" -delete
 
       - name: Copy documentation to `docs/docs`
         run: |
