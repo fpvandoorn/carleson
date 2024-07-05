@@ -6388,7 +6388,7 @@ By the additional regularity, we can weaken the assumption \eqref{nontanbound} t
 Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f$ on $X$ with bounded support, we define
 \begin{equation}
 \label{def-H_r}
-H_r f(x):= \int_{r<\rho(x,y)} K(x,y) f(y) \, d\mu(y).
+H_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
 \begin{theorem}[two-sided metric space Carleson]
     \label{two-sided-metric-space-Carleson}
@@ -6428,12 +6428,12 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that
     \begin{equation}
         \label{eq-strong-2-2-assumption}
-        \|H_rf\|_{2}\leq 2^{a^3} \|f\|_2.
+        \|H_rf\|_{2}\le 2^{a^3} \|f\|_2.
     \end{equation}
     Then for all $\alpha>0$, we have
     \begin{equation}
         \label{eq-weak-1-1}
-        \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\leq \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+        \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
 Both \Cref{subsec-CZD,subsec-cotlar} use the Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood} but other than that have no dependencies in the previous chapters.
@@ -6471,29 +6471,29 @@ Both \Cref{subsec-CZD,subsec-cotlar} use the Hardy--Littlewood maximal function 
 \uses{geometric-series-estimate}
 Let $0<r$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood function
 defined in \Cref{Hardy-Littlewood}.
-Then for all $x'$ with $\rho(x,x')<r$.
-\begin{equation}\label{xx'difference}
+Then for all $x'$ with $\rho(x,x')\le r$.
+\begin{equation*}
 \left| H_r g(x) - H_r g(x') \right|
 \le 2^{a^3 + 2a + 2} Mg(x)\, .
-\end{equation}
+\end{equation*}
 \end{lemma}
 \begin{proof}
 \proves{estimate-x-shift}
 By definition,
-\begin{equation*}
+\begin{equation}
+\label{xx'difference}
 \left| H_r g(x) - H_r g(x') \right|
-=\left|\int_{r<\rho(x,y)}
-g(y) K(x,y)\, d\mu(y)
--\int_{r<\rho(x',y)}
-g(y) K(x',y)\, d\mu(y)
+=\left|\int_{r\le\rho(x,y)} K(x,y) g(y) \,d\mu(y)
+-\int_{r\le\rho(x',y)}
+K(x',y) g(y)\, d\mu(y)
 \right| \, .
-\end{equation*}
+\end{equation}
 We split the first integral in \eqref{xx'difference}
-into the domains $r<\rho(x,y)\le 2r$
-and $2r<\rho(x,y)$. The integral over the first domain we estimate
+into the domains $r\le\rho(x,y)<2r$
+and $2r\le\rho(x,y)$. The integral over the first domain we estimate
 by $\eqref{firstxx'}$ below.
 For the second domain, we
-observe with $\rho(x,x')<r$ and the triangle inequality that $r<\rho(x'-y)$. We therefore combine on this domain with the
+observe with $\rho(x,x')\le r$ and the triangle inequality that $r\le\rho(x',y)$. We therefore combine on this domain with the
 corresponding part of the second integral in \eqref{xx'difference} and estimate that by $\eqref{secondxx'}$
 below. The remaining part of the second integral in
 \eqref{xx'difference} we estimate by $\eqref{thirdxx'}$.
@@ -6503,26 +6503,24 @@ by
 
 \begin{equation}
 \label{firstxx'}
-\int_{r<\rho(x,y)\le 2r}
-|g(y)| |K(x,y)|\, d\mu(y)
+\int_{r\le\rho(x,y)< 2r} |K(x,y)| |g(y)| \,d\mu(y)
 \end{equation}
-\begin{equation}\label{secondxx'}
-  +  \left|\int_{2r<\rho(x,y)}
-g(y) (K(x',y)-K(x,y))\, d\mu(y)
+\begin{equation}
+\label{secondxx'}
+  +  \left|\int_{2r\le\rho(x,y)} (K(x',y)-K(x,y)) g(y) \,d\mu(y)
 \right|
 \end{equation}
 \begin{equation}
 \label{thirdxx'}
-  +\left|\int_{r<\rho(x',y), r<\rho(x,y)<2r}
-|g(y) K(x',y)|\, d\mu(y)
+  +\left|\int_{r\le\rho(x',y), r\le\rho(x,y)<2r}
+|K(x',y) g(y)|\, d\mu(y)
 \right|
 \end{equation}
 Using the bound on $K$ in \eqref{eqkernel-size} and the doubling condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
 \begin{align}
- \int_{r<\rho(x,y)<2r}
-|g(y)| \frac{2^{a^3}}{V(x,y)}\, d\mu(y)\,
+ \int_{r\le\rho(x,y)<2r} \frac{2^{a^3}}{V(x,y)} |g(y)| \,d\mu(y)\,
 &\le
-\frac{2^{a^3}}{\mu(B(x,r))} \int_{r<\rho(x,y)<2r}
+\frac{2^{a^3}}{\mu(B(x,r))} \int_{r\le\rho(x,y)<2r}
 |g(y)| \, d\mu(y)\, \\
 \label{firstxx'b}
 &\le
@@ -6549,20 +6547,18 @@ by
 
 We turn to the remaining term. Using \eqref{eqkernel-x-smooth}, we estimate \eqref{secondxx'} by
 \begin{equation}\label{secondxx'b}
- \int_{2r<\rho(x,y)}
- |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} \, d\mu(y)
+ \int_{2r\le\rho(x,y)} \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} |g(y)| \,d\mu(y)
 \end{equation}
 We decompose and estimate
 \eqref{secondxx'}
 with the triangle inequality by
 \begin{align}
- &\sum_{j=1}^\infty  \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
- |g(y)| \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}\, d\mu(y)\, \\
+ &\sum_{j=1}^\infty  \int_{2^jr\le\rho(x,y)< 2^{j+1}r}
+ \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} |g(y)| \,d\mu(y)\, \\
  &\le
- \sum_{j=1}^\infty \left( 2^{-j} \right)^{\frac{1}{a}} \int_{2^jr<\rho(x,y)\le 2^{j+1}r}
- |g(y)| \frac{2^{a^3}}{\mu(B(x,2^j r))}\, d\mu(y) \\
+ \sum_{j=1}^\infty \left( 2^{-j} \right)^{\frac{1}{a}} \int_{2^jr\le\rho(x,y)< 2^{j+1}r} \frac{2^{a^3}}{\mu(B(x,2^j r))} |g(y)| \,d\mu(y) \\
  &\le
-\sum_{j=1}^\infty 2^{-\frac{j}{a}} \frac{2^{a^3 + a}}{\mu(B(x,2^{j+1} r))} \int_{\rho(x,y)\le 2^{j+1}r}
+\sum_{j=1}^\infty 2^{-\frac{j}{a}} \frac{2^{a^3 + a}}{\mu(B(x,2^{j+1} r))} \int_{\rho(x,y)<2^{j+1}r}
 |g(y)| \, d\mu(y) \\
 \label{secondxx'c}
 &\le 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
@@ -6582,126 +6578,113 @@ proves the lemma.
 \begin{lemma}[Cotlar control]
 \label{Cotlar-control}
 \uses{estimate-x-shift}
-Let $0<r<r_1$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood function defined in \Cref{Hardy-Littlewood}.
-Then for all $x'\in X$ with $\rho(x,x')<\frac {r_1}4$ we have
+Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood function defined in \Cref{Hardy-Littlewood}.
+Then for all $x'\in X$ with $\rho(x,x')\le\frac {R}{4}$ we have
 \begin{equation}\label{eq-cotlar-control}
-\left|H_{r_1} g(x)
+\left|H_{R} g(x)
 \right|\le
-|H_{r}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')| +
-2^{a^3 + 2a + 3} Mg(x)\, .
+|H_{r}(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')| +
+2^{a^3 + 4a + 1} Mg(x)\, .
 \end{equation}
 \end{lemma}
 
 \begin{proof}
-Let $x$ and $x'$ be given with $\rho(x,x')<\frac {r_1}4$.
+Let $x$ and $x'$ be given with $\rho(x,x')\le\frac {R}{4}$.
 By an application of \Cref{estimate-x-shift}, we estimate
 the left-hand-side of
 \eqref{eq-cotlar-control} by
 \begin{equation}\label{eqcotlar0}
-|H_{r_1}(g)(x')|+
+|H_{R}(g)(x')|+
 2^{a^3 + 2a + 2} Mg(x)\,.
 \end{equation}
 We  have
 \begin{equation}
 \label{eqcotlar-1}
-H_{r_1}(g)(x')=
-\int_{r_1<\rho(x',y)} g(y) K(x',y) \, d\mu(y)\, .
+H_{R}(g)(x')=
+\int_{R\le\rho(x',y)} K(x',y) g(y) \, d\mu(y)\, .
 \end{equation}
-On the domain $r_1<\rho(x',y)$, we have $\frac {r_1}2<\rho(x,y)$. Hence we may write
+On the domain $R\le\rho(x',y)$, we have $\frac {R}2\le\rho(x,y)$. Hence we may write
 for \eqref{eqcotlar-1}
 \begin{equation*}
-H_{r_1}(g)(x')=\int_{r_1<\rho(x',y)} (g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, d\mu(y)
+H_{R}(g)(x')=\int_{R\le\rho(x',y)} K(x',y) (g-g\mathbf{1}_{B(x,\frac {R} 2)})(y) \,d\mu(y)
 \end{equation*}
 \begin{equation}\label{eqcotlar1}
-=H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')\, .
+=H_{R}(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')\, .
 \end{equation}
 Combining the estimate \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
 \begin{equation}\label{eqcotlar5}
-\left|H_{r_1} g(x)
+\left|H_{R} g(x)
 \right|\le
-|H_{r_1}(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')|+
+|H_{R}(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')|+
 2^{a^3 + 2a + 2} Mg(x)\, .
 \end{equation}
 We  have
 \begin{equation*}
-(H_{r}-H_{r_1})(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')
+(H_{r}-H_{R})(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')
+\end{equation*}
+\begin{equation*}
+= \int_{B(x',R)\setminus B(x',r)} K(x',y) (g-g\mathbf{1}_{B(x,\frac {R} 2)})(y) \,d\mu(y)
 \end{equation*}
 \begin{equation}\label{eqcotlar2}
-= \int_{ {r}<\rho(x',y)<r_1}
-(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y)K(x',y)\, d\mu(y)\,  .
+= \int_{B(x',R)\setminus (B(x',r) \cup B(x,\frac{R}{2}))} K(x',y) g(y) \,d\mu(y)
 \end{equation}
-Assume first $r\ge \frac {r_1} 4$.
-Then we estimate \eqref{eqcotlar2} with
-\eqref{eqkernel-size} by
-\begin{equation*}
-\int_{\frac {r_1}4<\rho(x',y)<r_1}
-|g(y)K(x',y)|\, d\mu(y)
-\end{equation*}
-\begin{equation}\label{eqcotlar3}
-\le \frac{2^{a^3}}{\mu(B(x',\frac{r_1}{4}))} \int_{\rho(x',y)<r_1}
-|g(y)|\, d\mu(y) \le 2^{a^3 + 2a} Mg(x')\,  .
-\end{equation}
-Assume now $r\le \frac {r_1} 4$.
-As $\rho(x',y)\le \frac{r_1}4$ implies
-$\rho(x,y)\le \frac {r_1} 2$, we see that
-\eqref{eqcotlar2} equals
-\begin{equation*}
- \int_{ {\frac {r_1} 4}<\rho(x',y)<r_1}
-(g-g\mathbf{1}_{B(x,\frac {r_1} 2)})(y) K(x',y)\, d\mu(y)\,  ,
-\end{equation*}
-which we again estimate as above by \eqref{eqcotlar3}.
-In both cases, \eqref{eq-cotlar-control} follows by the triangle inequality from \eqref{eqcotlar5}  and the estimate for
-\eqref{eqcotlar2}.
+As $\frac{R}{2}\le\rho(x,y)$ together with $\rho(x,x')\le\frac {R}{4}$ implies
+$\frac {R}{4}\le\rho(x',y)$, we can estimate \eqref{eqcotlar2} with \eqref{eqkernel-size} by
+\begin{align*}
+\le &\frac{2^{a^3}}{\mu(B(x',\frac{R}{4}))} \int_{B(x,2R)\setminus B(x',\frac{R}{4})}
+|g(y)|\, d\mu(y) \\
+\le &\frac{2^{a^3+a}}{\mu(B(x',\frac{R}{2}))} \int_{B(x,2R)}
+|g(y)|\, d\mu(y) \\
+\le &2^{a^3+a} \frac{\mu(B(x,2R))}{\mu(B(x,\frac{R}{4}))} Mg(x) \le 2^{a^3 + 4a} Mg(x)\, .
+\end{align*}
+
+By the triangle inequality, \eqref{eq-cotlar-control} follows now from \eqref{eqcotlar5} and the estimate for \eqref{eqcotlar2}.
 \end{proof}
 
 \begin{lemma}[Cotlar sets]
 \label{Cotlar-sets}
 \uses{weak-1-1}
-Assume that \eqref{two-sided-Hr-bound-assumption} holds. Let $0<r<r_1$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood maximal function
-defined in \Cref{Hardy-Littlewood}.
-Let $x\in X$.
-Then the measure $|F_1|$ of the set $F_1$ of all $x'\in
-B(x,\frac {r_1} 4)$ such that
+Assume that \eqref{two-sided-Hr-bound-assumption} holds. Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure.
+Then the measure $|F_1|$ of the set $F_1$ of all $x'\in B(x,\frac {R} 4)$ such that
 \begin{equation}
 \label{first-cotlar-exception}
-    |H_{r}(g)(x')|> 4 M(H_{r}g)(x)
+    |H_{r}g(x')|> 4 M(H_{r}g)(x)
 \end{equation}
-is less than or equal to $\mu(B(x,\frac{r_1}{4}))/4$.
+is less than or equal to $\mu(B(x,\frac{R}{4}))/4$.
 Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
-B(x,\frac {r_1} 4)$ such that
+B(x,\frac {R} 4)$ such that
 \begin{equation}
 \label{second-cotlar-exception}
-    |H_{r}(g\mathbf{1}_{B(x,\frac {r_1} 2)})(x')| > 2^{a^3 + 20a + 2} Mg(x)
+    |H_{r}(g\mathbf{1}_{B(x,\frac {R} 2)})(x')| > 2^{a^3 + 20a + 2} Mg(x)
 \end{equation}
-is less than or equal to  $\mu(B(x,\frac{r_1}{4}))/4$.
+is less than or equal to  $\mu(B(x,\frac{R}{4}))/4$.
 \end{lemma}
 
 \begin{proof}
-Let $r$, $r_1$, $x$ and $g$ be given.
-If $M(H_{r}g)(x)=0$, then $H_{r}g$ is constant zero
-and $F_1$ is empty and the estimate on $F_1$ trivial.
+Let $r$, $R$, $x$ and $g$ be given.
+If $M(H_{r}g)(x)=0$, then $H_{r}g$ is zero almost everywhere and the estimate on $|F_1|$ is trivial.
 Assume $M(H_{r}g)(x)>0$.
 We have with \eqref{first-cotlar-exception}
 \begin{equation}
     M(H_{r}g)(x)\ge
-    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{\rho(x,x')<\frac {r_1}4}|H_{r}g(x')|\, dx'
+    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{B(x,\frac{R}{4})}|H_{r}g(x')|\, dx'
 \end{equation}
 \begin{equation}
     \ge
-    \frac 1{\mu(B(x,\frac{r_1}{4}))}\int_{F_1} 4 M(H_{r}g)(x)\, dx'
+    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{F_1} 4 M(H_{r}g)(x)\, dx'
 \end{equation}
 Dividing by $M(H_{r}g)(x)$ gives
 \begin{equation}
-    1\ge \frac{4}{\mu(B(x,\frac{r_1}{4}))} |F_1|\, .
+    1\ge \frac{4}{\mu(B(x,\frac{R}{4}))} |F_1|\, .
 \end{equation}
 This gives the desired bound for the measure of $F_1$.
 We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
 The set $F_2$ is then estimated with \Cref{weak-1-1} by
 \begin{equation}
-   \frac {2^{a^3+19a}}{2^{a^3 + 20a + 2}Mg(x)}\int |g\mathbf{1}_{B(x,\frac {r_1}2)}|(y)\, d\mu(y)
+   \frac {2^{a^3+19a}}{2^{a^3 + 20a + 2}Mg(x)}\int |g\mathbf{1}_{B(x,\frac {R}2)}|(y)\, d\mu(y)
 \end{equation}
 \begin{equation}
-   \le \frac {1}{2^{a+2} Mg(x)}\mu(B(x,\frac {r_1}{2})) Mg(x) \le \frac{\mu(B(x,\frac {r_1}{4}))}{4} \,.
+   \le \frac {1}{2^{a+2} Mg(x)}\mu(B(x,\frac {R}{2})) Mg(x) \le \frac{\mu(B(x,\frac {R}{4}))}{4} \,.
 \end{equation}
 This gives the desired bound for the measure of $F_2$.
 \end{proof}
@@ -6710,33 +6693,25 @@ This gives the desired bound for the measure of $F_2$.
 \label{Cotlar-estimate}
 \uses{Cotlar-control, Cotlar-sets}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
-Let $0<r<r_1$ and  $x\in X$. Let $g$ be a bounded measurable function with bounded support on $X$ and assume . Let $Mg$ and $M(H_r g)$ be the respective Hardy--Littlewood maximal functions
-defined in \Cref{Hardy-Littlewood}.
-Then for all $x\in X$
+Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Then
 \begin{equation}\label{eq-cotlar-estimate}
-|H_{r_1}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{a^3+20a+3} Mg(x)
+|H_{R}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{a^3+20a+3} Mg(x)
 \, .
 \end{equation}
 \end{lemma}
 
 
 \begin{proof}
-By \Cref{Cotlar-sets}, the measure of the set
-of all $x'\in
-B(x,\frac {r_1} 4)$
+By \Cref{Cotlar-sets}, the set of all $x'\in B(x,\frac {R} 4)$
 such that at least one of the conditions
 \eqref{first-cotlar-exception} and
-\eqref{second-cotlar-exception} is satisfied is at most $\mu(B(x,\frac{r_1}{4}))/2$ and hence not all of
- $x'\in
-B(x,\frac {r_1} 4)$. Pick an
-$x'\in
-B(x,\frac {r_1} 4)$ such that both conditions are not satisfied.
-Applying \Cref{Cotlar-control}
-for this $x'$ and using the triangle inequality
+\eqref{second-cotlar-exception} is satisfied has measure less than or equal to $\mu(B(x,\frac{R}{4}))/2$ and hence is not all of $B(x,\frac {R} 4)$.
+Pick an $x'\in B(x,\frac {R} 4)$ such that both conditions are not satisfied.
+Applying \Cref{Cotlar-control} for this $x'$ and using the triangle inequality
 estimates the left-hand side of \eqref{eq-cotlar-estimate}
 by
 \begin{equation}
-    4 M(H_rg)(x) + 2^{a^3 + 20a + 2} Mg(x) + 2^{a^3 + 2a + 3} Mg(x)\, .
+    4 M(H_rg)(x) + 2^{a^3 + 20a + 2} Mg(x) + 2^{a^3 + 4a + 1} Mg(x)\, .
 \end{equation}
 This proves the lemma.
 \end{proof}
@@ -6750,14 +6725,14 @@ For every  $r>0$ and every bounded measurable function $g$ supported on a set of
 \end{equation}
 where
 \begin{equation}\label{eq-simple--nontangential}
-    T_{r} g(x):=\sup_{r<r_1}\sup_{\rho(x,x')<r_1} |H_{r_1}(g)(x')| \, .
+    T_{r} g(x):=\sup_{r<R}\sup_{x'\in B(x,R)} |H_{R}(g)(x')| \, .
 \end{equation}
 \end{lemma}
 \begin{proof}
 With \Cref{estimate-x-shift} and the triangle inequality, we estimate for every $x\in X$
 \begin{equation}
      T_{r} g(x)
-     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<r_1} |H_{r_1}(g)(x)|\, .
+     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<R} |H_{R}(g)(x)|\, .
 \end{equation}
 Using further \Cref{Cotlar-estimate}, we estimate
 \begin{equation}
@@ -6778,6 +6753,72 @@ Applying \eqref{two-sided-Hr-bound-assumption}, gives
 \end{equation}
 This shows \eqref{trzerobound} and completes the proof of the lemma.
 \end{proof}
+%fixme: Change location of next argument?
+In order to pass from the one-sided truncation in $H_r$ and $T_r$ to the two-sided truncation in $T_*$, we show in the following two lemmas that the integral in \eqref{def-tang-unm-op} can be exchanged for an integral over the difference of two balls.
+\begin{lemma} \label{small-annulus}
+    Let $f$ be a bounded measurable function with bounded support on $X$.
+    Let $x\in X$ and $R>0$.
+    Then, for all $\epsilon>0$, there exists some $\delta>0$ such that
+    \begin{equation}
+        \left| \int_{R<\rho(x,y)<R+\delta} K(x,y) f(y) \, d\mu(y) \right| \le \epsilon
+    \end{equation}
+    and
+    \begin{equation}
+        \left| \int_{R-\delta<\rho(x,y)<R} K(x,y) f(y) \, d\mu(y) \right| \le \epsilon \,.
+    \end{equation}
+\end{lemma}
+\begin{proof}
+We only prove the second inquality, the first one is analogous.
+Note that the integrand is bounded in $X\setminus B(x,\frac{R}{2})$. So for $0<\delta\le\frac{R}{2}$,
+\begin{align*}
+    &\left| \int_{R-\delta<\rho(x,y)<R} K(x,y) f(y) \, d\mu(y) \right| \\
+    \le &\frac{2^{a^3}}{\mu(B(x,\frac{R}{2}))} \, \sup_{y\in X}|f(x)| \cdot \mu(\{y\in X: R-\delta<\rho(x,y)<R\}).
+\end{align*}
+By continuity from above of $\mu$, the right factor becomes arbitrarily small as $\delta\rightarrow 0$. Thus, for small enough $\delta$, the whole expression is $\le\epsilon$.
+\end{proof}
+
+\begin{lemma}\label{tang-unm-op-ball-diff}
+    Let $f$ be a bounded measurable function with bounded support on $X$.
+    For all $x\in X$,
+    \begin{equation}
+    \label{tang-unm-op-eq}
+        T_*f(x) = \sup_{R_1 < R_2} \sup_{x'\in B(x,R_1)} \left|\int_{B(x',R_2)\setminus B(x',R_1)} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+\end{lemma}
+\begin{proof}
+We show two inequalities. Let $\epsilon>0$.
+Let $R_1<R_2$ and $x'\in B(x,R_1)$. Then for $\delta>0$,
+\begin{align}
+    \label{eq-without-suprema-1}
+    &\left|\int_{R_1<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    \label{eq-diff-small-1}
+    \le &\left|\int_{R_1<\rho(x',y)<R_1+\delta} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    \label{eq-other-1}
+    + &\left|\int_{R_1+\delta\le\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
+\end{align}
+By \Cref{small-annulus}, we can choose $\delta$ such that \eqref{eq-diff-small-1} is bounded by $\epsilon$. Without loss of generality, we can assume $R_1+\delta<R_2$. Then \eqref{eq-other-1} is bounded by the right hand side of \eqref{tang-unm-op-eq} and we obtain
+\begin{equation*}
+    \le \epsilon + \sup_{R_1 < R_2} \sup_{x'\in B(x,R_1)} \left|\int_{B(x',R_2)\setminus B(x',R_1)} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
+\end{equation*}
+The inequality still holds when taking the suprema over $R_1<R_2$ and $\rho(x,x')<R_1$ in \eqref{eq-without-suprema-1}. Since $\epsilon>0$ was arbitrary, this proves the first inequality.
+
+The other direction is similar. Let $\epsilon>0$.
+Let $R_1<R_2$ and $x'\in B(x,R_1)$. Then for $\delta>0$,
+\begin{align}
+    \label{eq-without-suprema-2}
+    &\left|\int_{B(x',R_2)\setminus B(x',R_1)} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    \label{eq-diff-small-2}
+    \le &\left|\int_{R_1-\delta<\rho(x',y)< R_1} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    \label{eq-other-2}
+    + &\left|\int_{R_1-\delta<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
+\end{align}
+
+By \Cref{small-annulus}, we can choose $\delta$ such that \eqref{eq-diff-small-2} is bounded by $\epsilon$. Without loss of generality, we can assume $\rho(x,x')<R_1-\delta$. Then \eqref{eq-other-2} is bounded by the left hand side of \eqref{tang-unm-op-eq} and we obtain
+\begin{equation*}
+    \le \epsilon + \sup_{R_1 < R_2} \sup_{x'\in B(x,R_1)} \left|\int_{R_1<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
+\end{equation*}
+The inequality still holds when taking the suprema over $R_1<R_2$ and $\rho(x,x')<R_1$ in \eqref{eq-without-suprema-1}. Since $\epsilon>0$ was arbitrary, this proves the second inequality.
+\end{proof}
 
 \begin{proof}[Proof of \Cref{nontangential-from-simple}]
     \proves{nontangential-Hilbert}
@@ -6789,26 +6830,21 @@ sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
 \end{equation}
 where
 \begin{equation}\label{eq-simpler--nontangential}
-    T_{0} g(x):=\sup_{0<r_1}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}
-g(y) K(x',y)\, d\mu(y)\right|\, .
+    T_{0} g(x):=\sup_{0<R}\sup_{x'\in B(x,R)} \left|\int_{X\setminus B(x',R)}
+K(x',y) g(y)\, d\mu(y)\right|\, .
 \end{equation}
-We now write by the triangle inequality
-%fixme: this currently ignores the boundary of B(x',r_2). Are we sure that its measure is zero?
-\begin{equation}\label{concretetstartriangle}
-    T_* g(x)\le \sup_{0<r_1<r_2}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, d\mu(y)\right|
-\end{equation}
-    \begin{equation*}
-+\sup_{0<r_1< r_2}\sup_{\rho(x,x')<r_1} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, d\mu(y)\right|\, .
-\end{equation*}
-Noting that the first integral does not depend on $r_2$ and
-estimating the second integral by the larger supremum over all
-$\rho(x,x')<r_2$, at which time the integral does not depend on $r_1$, we estimate \eqref{concretetstartriangle} by
-\begin{equation}\label{concretetstartriangle2}
-   \sup_{0<r_1}\sup_{\rho(x,x')<r_1} \left|\int_{r_1<\rho(x',y)}g(y) K(x',y)\, d\mu(y)\right|
-\end{equation}
-    \begin{equation*}
-+\sup_{0<r_2}\sup_{\rho(x,x')<r_2} \left|\int_{r_2<\rho(x',y)} g(y) K(x',y)\, d\mu(y)\right|\, .
-\end{equation*}
+We now write using \Cref{tang-unm-op-ball-diff} and the triangle inequality,
+\begin{alignat*}{3}\label{concretetstartriangle}
+    T_* g(x)\le&&&\sup_{0<R_1<R_2}\sup_{x'\in B(x,R_1)} \left|\int_{X\setminus B(x',R_1)}K(x',y) g(y)\, d\mu(y)\right| \\
+&+&&\sup_{0<R_1<R_2}\sup_{x'\in B(x,R_1)} \left|\int_{X\setminus B(x',R_2)} K(x',y) g(y)\, d\mu(y)\right|\, .
+\end{alignat*}
+Noting that the first integral does not depend on $R_2$ and
+estimating the second summand by the larger supremum over all
+$x'\in B(x,R_2)$, at which time the integral does not depend on $R_1$, we estimate further
+\begin{alignat*}{3}
+    \le&&&\sup_{0<R_1}\sup_{x'\in B(x,R_1)} \left|\int_{X\setminus B(x',R_1)}K(x',y) g(y)\, d\mu(y)\right| \\
+    &+  &&\sup_{0<R_2}\sup_{x'\in B(x,R_2)} \left|\int_{X\setminus B(x',R_2)} K(x',y) g(y)\, d\mu(y)\right|\, .
+\end{alignat*}
     Applying the triangle inequality on the left-hand side
     of \eqref{concretetstarbound} and applying
      \eqref{tzerobound} twice
@@ -6870,7 +6906,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
 \end{lemma}
 \begin{proof}
-    %fixme: Do we know that X is nonempty?
+    %fixme: Do we know that X is nonempty? - yes, since \mu is non-zero :)
     Choose an arbitrary $x\in X$ as reference point. For $q, Q\in\Q_+$, let $J_{q,Q}$ denote the set of all $j\in J$ such that $B_j\subset B(x, Q)$ and $r_j \ge q$. It suffices to show that all the $J_{q,Q}$ are finite.
     Indeed, for all $j\in J_{q,Q}$,
     \begin{equation*}
