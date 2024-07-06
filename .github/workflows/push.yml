@@ -82,9 +82,9 @@ jobs:
         run: |
           cd blueprint && pip install -r requirements.txt # Install Python dependencies for blueprint
 
-      # - name: Generate xelatex format
-      #   run: |
-      #     sudo fmtutil-sys --all
+      - name: Generate xelatex format
+        run: |
+          sudo fmtutil-sys --all
 
       - name: Build blueprint and copy to `docs/blueprint`
         run: inv all
