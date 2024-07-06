@@ -71,6 +71,8 @@ jobs:
           path: |
             ~/.texlive
             ~/texlive-env
+            /usr/lib/graphviz
+            /usr/include/graphviz
           key: texlive-env-${{ hashFiles('blueprint/*') }}
           restore-keys: |
             texlive-env-
