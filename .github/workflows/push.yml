@@ -79,15 +79,13 @@ jobs:
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
-            apk update
-            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            apk update && apk add --no-cache make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
             python3 -m venv ~/texlive-env || true
             source ~/texlive-env/bin/activate
             pip install --upgrade pip requests wheel
-            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install leanblueprint
+            pip install pygraphviz leanblueprint
             leanblueprint pdf
             cp blueprint/print/print.pdf docs/blueprint.pdf
             leanblueprint web
@@ -102,7 +100,7 @@ jobs:
           find .lake/build/doc -name "*.trace" -delete
           find .lake/build/doc -name "*.hash" -delete
 
-      - name: Move documentation to `docs/docs`
+      - name: Copy documentation to `docs/docs`
         run: |
           sudo chown -R runner docs
           cp -r .lake/build/doc docs/docs
