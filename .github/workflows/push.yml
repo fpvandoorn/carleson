@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - gh-actions
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
