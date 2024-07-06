@@ -38,9 +38,6 @@ jobs:
       - name: Install elan
         run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
 
-      # - name: Update docgen4
-      #   run: ~/.elan/bin/lake -R -Kenv=dev update doc-gen4
-
       - name: Get cache
         run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
 
@@ -83,10 +80,6 @@ jobs:
             leanblueprint web
             cp -r blueprint/web docs/blueprint
 
-      # - name: Check declarations
-      #   run: |
-      #       ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
-
       - name: Remove lake files from documentation
         run: |
           find .lake/build/doc -name "*.trace" -delete
@@ -116,6 +109,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-
-      # - name: Make sure the cache works
-      #   run: mv docs/docs .lake/build/doc
