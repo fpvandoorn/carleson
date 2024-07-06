@@ -117,5 +117,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
 
-      - name: Make sure the cache works
-        run: mv docs/docs .lake/build/doc
+      # - name: Make sure the cache works
+      #   run: mv docs/docs .lake/build/doc
