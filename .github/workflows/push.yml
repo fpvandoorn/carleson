@@ -65,29 +65,29 @@ jobs:
       - name: Build project documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
 
-      # - name: Cache blueprint environment
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/texlive-env
-      #     key: texlive-env-${{ hashFiles('blueprint/*') }}
-      #     restore-keys: |
-      #       texlive-env-
+      - name: Cache blueprint environment
+        uses: actions/cache@v3
+        with:
+          path: ~/texlive-env
+          key: texlive-env-${{ hashFiles('blueprint/*') }}
+          restore-keys: |
+            texlive-env-
 
-      # - name: Cache apk packages
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       /etc/apk/cache
-      #       /var/cache/apk
-      #       /usr/lib/apk/db
-      #     key: apk-packages-${{ runner.os }}-${{ hashFiles('blueprint/*') }}
-      #     restore-keys: |
-      #       apk-packages-${{ runner.os }}-
+      - name: Cache apk packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            /etc/apk/cache
+            /var/cache/apk
+            /usr/lib/apk/db
+          key: apk-packages-${{ runner.os }}-${{ hashFiles('blueprint/*') }}
+          restore-keys: |
+            apk-packages-${{ runner.os }}-
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
-          scheme: small
+          scheme: full
           run: |
             apk add make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
