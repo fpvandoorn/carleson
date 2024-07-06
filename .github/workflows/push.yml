@@ -35,15 +35,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Clear Mathlib documentation cache
-        run: |
-          rm -rf .lake/build/doc/Init
-          rm -rf .lake/build/doc/Lake
-          rm -rf .lake/build/doc/Lean
-          rm -rf .lake/build/doc/Std
-          rm -rf .lake/build/doc/Mathlib
-          rm -rf .lake/build/doc/declarations
-
       - name: Install elan
         run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
 
@@ -57,37 +48,37 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            .lake/build/doc/Init
-            .lake/build/doc/Lake
-            .lake/build/doc/Lean
-            .lake/build/doc/Std
-            .lake/build/doc/Mathlib
-            .lake/build/doc/declarations
+            !.lake/build/doc/Init
+            !.lake/build/doc/Lake
+            !.lake/build/doc/Lean
+            !.lake/build/doc/Std
+            !.lake/build/doc/Mathlib
+            !.lake/build/doc/declarations
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: MathlibDoc-
+          #restore-keys: MathlibDoc-
 
-      # - name: Build project documentation
-      #   run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
+      - name: Build project documentation
+        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
 
-      # - name: Build blueprint and copy to `docs/blueprint`
-      #   uses: xu-cheng/texlive-action@v2
-      #   with:
-      #     docker_image: ghcr.io/xu-cheng/texlive-full:20231201
-      #     run: |
-      #       apk update
-      #       apk add --update --no-cache make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
-      #       git config --global --add safe.directory $GITHUB_WORKSPACE
-      #       git config --global --add safe.directory `pwd`
-      #       python3 -m venv env
-      #       source env/bin/activate
-      #       pip install --upgrade pip requests wheel
-      #       pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-      #       pip install leanblueprint
-      #       leanblueprint pdf
-      #       cp blueprint/print/print.pdf docs/blueprint.pdf
-      #       leanblueprint web
-      #       cp -r blueprint/web docs/blueprint
+      - name: Build blueprint and copy to `docs/blueprint`
+        uses: xu-cheng/texlive-action@v2
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+          run: |
+            apk update
+            apk add --update --no-cache make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            cp blueprint/print/print.pdf docs/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web docs/blueprint
 
       # - name: Remove lake files from documentation
       #   run: |
