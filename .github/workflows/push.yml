@@ -18,13 +18,11 @@ jobs:
       # Check for long lines in .lean files and report if any lines exceed 100 characters
       - name: Check for long lines
         if: always()
-        run: |
-          ! (find Carleson -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
+        run: ! (find Carleson -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
 
       - name: Don't 'import Mathlib', use precise imports
         if: always()
-        run: |
-          ! (find Carleson -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
+        run: ! (find Carleson -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
 
   build_project:
     runs-on: ubuntu-latest
@@ -59,8 +57,7 @@ jobs:
             .lake/build/doc/declarations
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: |
-            MathlibDoc-
+          restore-keys: MathlibDoc-
 
       - name: Build project documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
@@ -122,3 +119,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+      - name: Make sure the cache works
+        run: mv docs/docs .lake/build/doc
