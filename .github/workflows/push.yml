@@ -116,7 +116,7 @@ jobs:
 
       - name: Bundle website
         working-directory: docs
-        run: JEKYLL_ENV=production bundle exec jekyll build # Build the Jekyll site for production
+        run: JEKYLL_ENV=production bundle exec jekyll build
 
       - name: Upload docs & blueprint artifact
         uses: actions/upload-pages-artifact@v1
