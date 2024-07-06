@@ -65,10 +65,11 @@ jobs:
       - name: Build project documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
 
-      - name: Cache blueprint environment
+      - name: Cache texlive and Python environment
         uses: actions/cache@v3
         with:
           path: |
+            ~/.texlive
             ~/texlive-env
           key: texlive-env-${{ hashFiles('blueprint/*') }}
           restore-keys: |
@@ -82,7 +83,9 @@ jobs:
             apk update && apk add --no-cache make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
-            python3 -m venv ~/texlive-env || true
+            if [ ! -d "~/texlive-env" ]; then
+              python3 -m venv ~/texlive-env
+            fi
             source ~/texlive-env/bin/activate
             pip install --upgrade pip requests wheel
             pip install pygraphviz leanblueprint
