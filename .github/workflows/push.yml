@@ -108,6 +108,20 @@ jobs:
         with:
           path: docs/_site
 
+      - name: Upload docs & blueprint artifact to `docs`
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+      - name: Upload docs & blueprint artifact to `docs/_site`
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/_site
+
+      - name: Make sure the cache works
+        run: |
+          mv docs/docs .lake/build/doc
