@@ -62,18 +62,13 @@ jobs:
       - name: Build project documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
 
-      - name: Cache apt dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
-          version: 1.0
-
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
-          #docker_image: ghcr.io/xu-cheng/texlive-full:20231201
-          scheme: full
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
+            apk update
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
             python3 -m venv env
