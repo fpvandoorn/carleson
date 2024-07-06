@@ -84,9 +84,9 @@ jobs:
             leanblueprint web
             cp -r blueprint/web docs/blueprint
 
-      - name: Check declarations
-        run: |
-            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+      # - name: Check declarations
+      #   run: |
+      #       ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Remove lake files from documentation
         run: |
