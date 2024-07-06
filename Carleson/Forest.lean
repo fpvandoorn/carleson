@@ -27,6 +27,7 @@ variable (X) in
 structure Forest (n : ℕ) where
   𝔘 : Finset (𝔓 X)
   𝔗 : 𝔓 X → Tree X -- Is it a problem that we totalized this function?
+  𝓘_ne_𝓘 {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : 𝓘 p ≠ 𝓘 u
   smul_four_le {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : smul 4 p ≤ smul 1 u
   essSup_tsum_le : snorm (∑ u ∈ 𝔘, (𝓘 u : Set X).indicator (1 : X → ℝ)) ∞ volume ≤ 2 ^ n
   dens₁_𝔗_le {u} (hu : u ∈ 𝔘) : dens₁ (𝔗 u : Set (𝔓 X)) ≤ 2 ^ (4 * a + 1 - n)
