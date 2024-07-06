@@ -74,24 +74,22 @@ jobs:
             texlive-env-
 
       - name: Cache apk packages
-        id: apk-cache
         uses: actions/cache@v3
         with:
-          path: /var/cache/apk
+          path: |
+            /etc/apk/cache
+            /var/cache/apk
+            /usr/lib/apk/db
           key: apk-packages-${{ runner.os }}-${{ hashFiles('blueprint/*') }}
           restore-keys: |
             apk-packages-${{ runner.os }}-
-
-      - name: Install apk packages if not cached
-        if: steps.apk-cache.outputs.cache-hit != 'true'
-        run: |
-          apk add make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
           scheme: small
           run: |
+            apk add make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
             python3 -m venv ~/texlive-env || true
@@ -113,7 +111,7 @@ jobs:
           find .lake/build/doc -name "*.trace" -delete
           find .lake/build/doc -name "*.hash" -delete
 
-      - name: Move documentation to `docs/docs`
+      - name: Copy documentation to `docs/docs`
         run: |
           sudo chown -R runner docs
           cp -r .lake/build/doc docs/docs
