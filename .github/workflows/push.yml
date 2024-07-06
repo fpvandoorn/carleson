@@ -80,11 +80,12 @@ jobs:
 
       - name: Install blueprint dependencies
         run: |
-          sudo fmtutil-sys --all # Generate XeLaTeX format
           cd blueprint && pip install -r requirements.txt # Install Python dependencies for blueprint
 
       - name: Build blueprint and copy to `docs/blueprint`
-        run: inv all
+        run: |
+          sudo fmtutil-sys --all # Generate XeLaTeX format
+          inv all
 
       - name: Remove lake files from documentation
         run: |
