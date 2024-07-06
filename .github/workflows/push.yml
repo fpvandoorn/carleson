@@ -47,7 +47,7 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake -Kenv=dev build Carleson
 
-      - name: Cache mathlib docs
+      - name: Cache mathlib documentation
         uses: actions/cache@v3
         with:
           path: |
@@ -60,10 +60,19 @@ jobs:
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
-            MathlibDoc- # Cache Mathlib documentation to save rebuild time
+            MathlibDoc-
 
-      - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
+      - name: Build project documentation
+        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
+
+      - name: Cache blueprint environment
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/texlive-env
+          key: texlive-env-${{ hashFiles('blueprint/*') }}
+          restore-keys: |
+            texlive-env-
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
@@ -74,8 +83,8 @@ jobs:
             apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
-            python3 -m venv env
-            source env/bin/activate
+            python3 -m venv ~/texlive-env || true
+            source ~/texlive-env/bin/activate
             pip install --upgrade pip requests wheel
             pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
             pip install leanblueprint
