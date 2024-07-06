@@ -70,7 +70,7 @@ jobs:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
             apk update
-            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            apk add --update --no-cache make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
             python3 -m venv env
