@@ -36,8 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install elan
-        run: |
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0 # Install Lean 4
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
 
       - name: Update docgen4
         run: ~/.elan/bin/lake -R -Kenv=dev update doc-gen4
@@ -66,36 +65,33 @@ jobs:
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
 
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          cache: 'pip'
-
-      - name: Cache and install blueprint apt dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: graphviz libgraphviz-dev pdf2svg dvisvgm texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-xetex texlive-bibtex-extra latexmk biblatex
-          version: 1.0
-
-      - name: Install blueprint dependencies
-        run: |
-          cd blueprint && pip install -r requirements.txt # Install Python dependencies for blueprint
-
       - name: Build blueprint and copy to `docs/blueprint`
-        run: |
-          sudo fmtutil-sys --all # Generate XeLaTeX format
-          inv all
+        uses: xu-cheng/texlive-action@v2
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+          run: |
+            apk update
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            mkdir docs
+            cp blueprint/print/print.pdf docs/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web docs/blueprint
 
-      - name: Remove lake files from documentation
-        run: |
-          find .lake/build/doc -name "*.trace" -delete
-          find .lake/build/doc -name "*.hash" -delete
+      - name: Check declarations
+        run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
-      - name: Copy documentation to `docs/docs`
+      - name: Move documentation to `docs/docs`
         run: |
           sudo chown -R runner docs
-          cp -r .lake/build/doc docs/docs # Copy the built documentation to the correct directory
+          cp -r .lake/build/doc docs/docs
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
