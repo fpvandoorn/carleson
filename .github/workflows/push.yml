@@ -86,7 +86,13 @@ jobs:
             cp -r blueprint/web docs/blueprint
 
       - name: Check declarations
-        run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+        run: |
+            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+
+      - name: Remove lake files from documentation
+        run: |
+          find .lake/build/doc -name "*.trace" -delete
+          find .lake/build/doc -name "*.hash" -delete
 
       - name: Move documentation to `docs/docs`
         run: |
