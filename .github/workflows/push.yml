@@ -75,16 +75,16 @@ jobs:
       - name: Cache and install blueprint apt dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: graphviz libgraphviz-dev pdf2svg dvisvgm texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-xetex latexmk biblatex
+          packages: graphviz libgraphviz-dev pdf2svg dvisvgm texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-xetex texlive-bibtex-extra latexmk biblatex
           version: 1.0
 
       - name: Install blueprint dependencies
         run: |
           cd blueprint && pip install -r requirements.txt # Install Python dependencies for blueprint
 
-      - name: Generate xelatex format
-        run: |
-          sudo fmtutil-sys --all
+      # - name: Generate xelatex format
+      #   run: |
+      #     sudo fmtutil-sys --all
 
       - name: Build blueprint and copy to `docs/blueprint`
         run: inv all
