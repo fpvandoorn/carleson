@@ -101,10 +101,10 @@ jobs:
         working-directory: docs
         run: JEKYLL_ENV=production bundle exec jekyll build
 
-      - name: Upload docs & blueprint artifact to `docs/`
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: docs/
+      # - name: Upload docs & blueprint artifact to `docs/`
+      #   uses: actions/upload-pages-artifact@v1
+      #   with:
+      #     path: docs/
 
       - name: Upload docs & blueprint artifact to `docs/_site`
         uses: actions/upload-pages-artifact@v1
