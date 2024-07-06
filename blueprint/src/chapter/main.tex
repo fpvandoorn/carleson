@@ -6892,21 +6892,25 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 
 \begin{lemma}[Lebesgue differentiation]
     \label{Lebesgue-differentiation}
+    \lean{VitaliFamily.ae_tendsto_average}
     Let $f$ be a bounded measurable function with bounded support. Then for $\mu$ almost every $x$, we have
     $$\lim_{n\to \infty} \frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
-    where $\{B_n\}_{n\geq 1}$ is a sequence of balls such that $x\in B_n$ for each $n\geq 1$ and $$\lim_{n\to \infty} \mu(B_n)=0.$$
+    where $\{B_n\}_{n\geq 1}$ is a sequence of balls with radii $r_n>0$ such that $x\in B_n$ for each $n\geq 1$ and
+    \begin{equation*}
+        \lim_{n\to \infty} r_n=0 \,.
+    \end{equation*}
 \end{lemma}
 \begin{proof}
     This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
+    %fixme: Check that the Lean version really implies this version of Lebesgue differentiation.
 \end{proof}
 
 %fixme: The following is probably part of mathlib (for a second countable topology?)
-\begin{lemma}
+\begin{lemma}[Disjoint family countable]
     \label{disjoint-family-countable}
     In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
 \end{lemma}
 \begin{proof}
-    %fixme: Do we know that X is nonempty? - yes, since \mu is non-zero :)
     Choose an arbitrary $x\in X$ as reference point. For $q, Q\in\Q_+$, let $J_{q,Q}$ denote the set of all $j\in J$ such that $B_j\subset B(x, Q)$ and $r_j \ge q$. It suffices to show that all the $J_{q,Q}$ are finite.
     Indeed, for all $j\in J_{q,Q}$,
     \begin{equation*}
@@ -6918,28 +6922,27 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
         |J_{q,Q}| \mu(B(x, Q)) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \sum_{j\in J_{q,Q}} \mu(B_j) \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}} \mu(B(x,Q))
     \end{equation}
     and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
-    %fixme: We used that $0<\mu(B(x,Q)<\infty$. Is that guaranteed in our setting?
 \end{proof}
 
 Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
 It is classical and can be found in \cite{stein-book}.
-\begin{lemma}[Vitali covering]
-    \label{Vitali-covering}
-    \leanok
-    Let $B_i$, $i\in I$, be a family of balls with center $x_i$ and radius $r_i$ such that $\sup_{i\in I} r_i < \infty$. Then there exists $J\subset I$ such that
-    \begin{equation}
-        \label{vitali-balls-disjoint}
-        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j', \, j,j' \in J
-    \end{equation}
-    and
-    \begin{equation}
-        \label{vitali-enlarged-balls-covering}
-        \forall i\in I, \exists j \in J, B_i \subset B (x_j, 6r_j) .
-    \end{equation}
-\end{lemma}
-\begin{proof}
-    This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
-\end{proof}
+%\begin{lemma}[Vitali covering]
+%    \label{Vitali-covering}
+%    \leanok
+%    Let $B_i$, $i\in I$, be a family of balls with center $x_i$ and radius $r_i$ such that $\sup_{i\in I} r_i < \infty$. Then there exists $J\subset I$ such that
+%    \begin{equation}
+%        \label{vitali-balls-disjoint}
+%        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j', \, j,j' \in J
+%    \end{equation}
+%    and
+%    \begin{equation}
+%        \label{vitali-enlarged-balls-covering}
+%        \forall i\in I, \exists j \in J, B_i \subset B (x_j, 6r_j) .
+%    \end{equation}
+%\end{lemma}
+%\begin{proof}
+%    This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
+%\end{proof}
 
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional explicit statement and proof of the bounded intersection property, as well as countability of the disjoint family.
 \begin{lemma}[Ball covering]
@@ -6969,12 +6972,12 @@ Define for $x\in O$,
 \end{equation}
 Since $O$ is open, and $O\ne X$, we have
 \begin{equation}
-    0 < \delta(x) < \infty
+    0 < \delta(x) < \infty \,.
 \end{equation}
-By Zorn's Lemma, we select a maximal disjoint subfamily of $\{B(x,\frac{\delta(x)}{6}) : x \in O\}$.
-We obtain a (by \Cref{disjoint-family-countable} countable) family of balls $B_j = B(x_j, \frac{\delta(x_j)}{6}), j \in J$ such that \eqref{balls-disjoint}. \eqref{enlarged-balls-intersect-complement} and $\bigcup_j B_j^* \subset O$ are also immediate. For the other inclusion, observe that for $x,y\in X$,  if $B(x,\frac{\delta(x)}{6}) \cap B(y,\frac{\delta(y)}{6}) \ne \emptyset$, then
+Using Zorn's Lemma, we select a maximal disjoint subfamily of $\{B(x,\frac{\delta(x)}{6}) : x \in O\}$.
+We obtain a (by \Cref{disjoint-family-countable} countable) family of balls $B_j = B(x_j, \frac{\delta(x_j)}{6}), j \in J$ such that \eqref{balls-disjoint}. \eqref{enlarged-balls-intersect-complement} and $\bigcup_j B_j^* \subset O$ are also immediate. For the other inclusion, first observe that for $x,y\in X$,  if $B(x,\frac{\delta(x)}{6}) \cap B(y,\frac{\delta(y)}{6}) \ne \emptyset$, then
 \begin{equation*}
-    \delta(x) \le \rho(x,y) + \delta(y) \le (\frac{\delta(x)}{6} + \frac{\delta(y)}{6}) + \delta(y) = \frac{\delta(x)}{6} + \frac{7\delta(a)}{6},
+    \delta(x) \le \rho(x,y) + \delta(y) \le (\frac{\delta(x)}{6} + \frac{\delta(y)}{6}) + \delta(y) = \frac{\delta(x)}{6} + \frac{7\delta(y)}{6},
 \end{equation*}
 so
 \begin{equation}
@@ -7012,14 +7015,13 @@ By \eqref{control-distance-growth-b} and \eqref{control-distance-growth-c}, for 
     &= 2^{3a} \mu(\bigcup_{k=1}^N B_{j_k}) \le 2^{3a} \mu(B(z,\frac{8\delta(z)}{6})) \le 2^{6a} \mu(B(z,\frac{\delta(z)}{6}))
 \end{align}
 and conclude $N\le 2^{6a}$.
-% fixme: We used that $0<\mu(B(z,\frac{\delta(z)}{6}))<\infty$. Is that guaranteed in our setting?
 \end{proof}
 
 Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
-    Let $f$ be a bounded, measurable function with bounded support and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
+    Let $f$ be a bounded, measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
     Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$) such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
@@ -7087,7 +7089,6 @@ For \eqref{eq-g-max}, we first do the case $x\in X\setminus E_\alpha$. By defini
     \frac{1}{\mu(B)}\int_B |f(y)|\,d\mu(y) \le \alpha
 \end{equation}
 for every ball $B\subset X$ with $x\in B$. It follows by \Cref{Lebesgue-differentiation} that for almost every $x\in X\setminus E_\alpha$, $|f(x)|\le \alpha$.
-%fixme: How do we ensure that the sequences required in Lebesgue-differentiation exist for a.e. x?
 In the case $x\in E_\alpha$, there exists some $j\in J$ with $x\in Q_j$ and we have that
 \begin{equation}
     \label{large-ball-estimate}
@@ -7106,7 +7107,7 @@ To prove \eqref{eq-g-L1-norm}, we estimate
 Using the triangle inequality, we have that
 \begin{align}
     \label{eq-bj-int}
-    \int_{B_j^*} |b_j(y)|\, dy &\le \int_{Q_j} |f(y)|\, d\mu(y) + \int_{Q_j} \frac{1}{\mu(Q_j)}\int_{Q_j^*} |f(x)|\, d\mu(x)\, d\mu(y) \\
+    \int_{B_j^*} |b_j(y)|\, dy &\le \int_{Q_j} |f(y)|\, d\mu(y) + \int_{Q_j} \frac{1}{\mu(Q_j)}\int_{Q_j} |f(x)|\, d\mu(x)\, d\mu(y) \\
     &= 2 \int_{Q_j} |f(y)|\, dy.
 \end{align}
 With \eqref{large-ball-estimate}, we estimate further
@@ -7121,8 +7122,7 @@ At last, we estimate with \Cref{maximal-theorem}
 \end{equation}
 proving \eqref{eq-bset-length-sum}.
 
-Assume now that $E_\alpha = X$. Note that this can only happen if $\mu(X)<\infty$.
-%fixme: Could $\mu$ also be $\infty$ on every ball?
+Assume now that $E_\alpha = X$. It follows from \Cref{maximal-theorem} that then $\mu(X)<\infty$.
 Define
 \begin{equation*}
     g := \frac{1}{\mu(X)} \int |f(y)|\,d\mu(y)
@@ -7146,8 +7146,14 @@ which shows \eqref{eq-bset-length-sum}.
 
 \begin{proof}[Proof of \Cref{weak-1-1}]
 \proves{weak-1-1}
-Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $\alpha':=c\alpha$, we obtain the decomposition
-%fixme: verify assumption for $\mu(X)<\infty$
+We set $\alpha':=c\alpha$ for a constant $c\ge 2^{-a^3-19a}$ which we will later choose explicitly.
+If $\alpha'\le\frac{1}{\mu(X)}\int |f|\,d\mu$, then we directly have
+\begin{equation*}
+    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\le \mu(X) \le \frac{1}{\alpha'} \int |f(y)|\, d\mu(y)
+    \le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+\end{equation*}
+So assume now that $\alpha'>\frac{1}{\mu(X)}\int |f|\,d\mu$.
+Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $\alpha'$, we obtain the decomposition
 \begin{equation*}
     f=g+b=g+\sum_j b_j
 \end{equation*}
@@ -7232,7 +7238,6 @@ Then
 For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $H_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
 
 Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_j\subset X \setminus B(x,r)$, and we have
-%fixme: This is currently not the exact definition of H_r
 \begin{equation*}
     H_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_j} K(x,y) b_j(y)\,d\mu(y)\,.
 \end{equation*}
