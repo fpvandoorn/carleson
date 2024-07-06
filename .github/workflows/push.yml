@@ -101,7 +101,12 @@ jobs:
         working-directory: docs
         run: JEKYLL_ENV=production bundle exec jekyll build
 
-      - name: Upload docs & blueprint artifact
+      - name: Upload docs & blueprint artifact to `docs/`
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/
+
+      - name: Upload docs & blueprint artifact to `docs/_site`
         uses: actions/upload-pages-artifact@v1
         with:
           path: docs/_site
@@ -109,3 +114,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+      - name: Make sure the cache works
+        run: mv docs/docs .lake/build/doc
