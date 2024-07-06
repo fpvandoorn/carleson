@@ -68,18 +68,29 @@ jobs:
       - name: Cache blueprint environment
         uses: actions/cache@v3
         with:
-          path: |
-            ~/texlive-env
+          path: ~/texlive-env
           key: texlive-env-${{ hashFiles('blueprint/*') }}
           restore-keys: |
             texlive-env-
 
+      - name: Cache apk packages
+        id: apk-cache
+        uses: actions/cache@v3
+        with:
+          path: /var/cache/apk
+          key: apk-packages-${{ runner.os }}-${{ hashFiles('blueprint/*') }}
+          restore-keys: |
+            apk-packages-${{ runner.os }}-
+
+      - name: Install apk packages if not cached
+        if: steps.apk-cache.outputs.cache-hit != 'true'
+        run: |
+          apk add make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
-          # apk update
-          # apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+          scheme: small
           run: |
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
