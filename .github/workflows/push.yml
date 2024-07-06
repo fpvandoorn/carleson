@@ -75,7 +75,7 @@ jobs:
       - name: Cache and install blueprint apt dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full
+          packages: graphviz libgraphviz-dev pdf2svg dvisvgm texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-xetex
           version: 1.0
 
       - name: Install blueprint dependencies
