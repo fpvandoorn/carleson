@@ -91,7 +91,6 @@ jobs:
             source ~/texlive-env/bin/activate
             pip install --upgrade pip requests wheel
             pip install pygraphviz leanblueprint
-            tlmgr install enumitem
             leanblueprint pdf
             cp blueprint/print/print.pdf docs/blueprint.pdf
             leanblueprint web
