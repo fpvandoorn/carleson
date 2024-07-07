@@ -37,9 +37,10 @@ class GridStructure
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
     volume.real { x ∈ coeGrid i | infDist x (coeGrid i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coeGrid i)
+  coeGrid_measurable {i} : MeasurableSet (coeGrid i)
 
 export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
-  topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
+  topCube s_topCube c_topCube subset_topCube coeGrid_measurable) -- should `X` be explicit in topCube?
 
 attribute [coe] GridStructure.coeGrid
 
