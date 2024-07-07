@@ -359,9 +359,9 @@ theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ 
   calc ε * MeasureTheory.volume E
     _ = ∫⁻ _ in E, ε := by
       symm
-      apply MeasureTheory.set_lintegral_const
+      apply MeasureTheory.setLIntegral_const
     _ ≤ ∫⁻ x in E, T' f x := by
-      apply MeasureTheory.set_lintegral_mono' measurableSetE hE
+      apply MeasureTheory.setLIntegral_mono' measurableSetE hE
     _ = ENNReal.ofReal δ * ∫⁻ x in E, T' (fun x ↦ (1 / δ) * f x) x := by
       rw [← MeasureTheory.lintegral_const_mul']
       congr with x
