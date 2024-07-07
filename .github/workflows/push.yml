@@ -69,8 +69,9 @@ jobs:
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
+            export PIP_BREAK_SYSTEM_PACKAGES=1
             apk update
-            apk add --update --no-cache make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
             python3 -m venv env
@@ -104,10 +105,10 @@ jobs:
         working-directory: docs
         run: JEKYLL_ENV=production bundle exec jekyll build
 
-      - name: Upload docs & blueprint artifact to `docs/`
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: docs/
+      # - name: Upload docs & blueprint artifact to `docs/`
+      #   uses: actions/upload-pages-artifact@v1
+      #   with:
+      #     path: docs/
 
       - name: Upload docs & blueprint artifact to `docs/_site`
         uses: actions/upload-pages-artifact@v1
