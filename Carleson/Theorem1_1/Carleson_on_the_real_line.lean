@@ -248,7 +248,7 @@ instance : FunctionDistances ℝ ℝ where
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
-instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
+instance h4 : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   eq_zero := by
     use 0
     intro f
@@ -296,8 +296,15 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
         apply le_max_left
     norm_cast
   cdist_mono := by
-    intro x₁ x₂ r R f g _
-    rfl
+    intro x₁ x₂ r R f g h
+    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
+    dsimp
+    by_cases r_pos : r ≤ 0
+    . rw [ball_eq_empty.mpr r_pos] at h
+      sorry
+    push_neg at r_pos
+    gcongr
+    sorry
   cdist_le := by
     intro x₁ x₂ r f g
     unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal Real.pseudoMetricSpace
@@ -366,8 +373,6 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
     use balls
     constructor
     · rw [balls_def]
-      apply Nat.le_floor
-      norm_cast
       apply le_trans Finset.card_le_three
       norm_num
     intro φ hφ
@@ -489,7 +494,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ (4 : ℝ)) where
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
 --set_option profiler true in
-instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
+instance h5 : IsCancellative ℝ (1 / 2 ^ 4 : ℝ) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by
     intro x r ϕ K hK _ f g
@@ -579,7 +584,7 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ (4 : ℝ)) where
           use hy
       _ = 2 * Real.pi * (2 * r) * (B + r * L) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
         ring
-      _ ≤ (2 : ℝ) ^ (4 : ℝ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / ((2 : ℝ) ^ (4 : ℝ)))) := by
+      _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (2 ^ 4 : ℝ))) := by
         gcongr
         . apply mul_nonneg
           apply mul_nonneg (by norm_num) (by linarith)

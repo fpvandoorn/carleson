@@ -1,5 +1,5 @@
 import Carleson.Theorem1_1.Basic
-import Mathlib.Tactic.FunProp.Measurable
+import Mathlib.Tactic.FunProp
 
 noncomputable section
 
