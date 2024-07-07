@@ -51,9 +51,9 @@ theorem classical_carleson {f : ℝ → ℂ}
     apply AbsoluteValue.add_le
   _ ≤ ε' + (ε / 4) + (ε / 4) := by
     gcongr
-    . exact hf₀ x
-    . exact hN₀ N NgtN₀ x hx.1
-    . have := hE x hx N
+    · exact hf₀ x
+    · exact hN₀ N NgtN₀ x hx.1
+    · have := hE x hx N
       rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (unicontf.continuous.intervalIntegrable 0 (2 * Real.pi))] at this
       apply le_trans this
       rw [ε'def, mul_div_cancel₀ _ (C_control_approximation_effect_pos εpos).ne.symm]

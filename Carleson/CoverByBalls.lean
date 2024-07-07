@@ -18,21 +18,17 @@ class inductive CoveredByBalls (s : Set X) (n : ℕ) (r : ℝ) : Prop where
 Feel free to state some more properties. -/
 
 lemma CoveredByBalls.mono_set (h : CoveredByBalls t n r) (h2 : s ⊆ t) : CoveredByBalls s n r := by
-  induction h
-  case mk b hn ht =>
-    exact ⟨b, hn, fun x hx ↦ ht (h2 hx)⟩
+  obtain ⟨b, hn, ht⟩ := h
+  exact ⟨b, hn, fun x hx ↦ ht (h2 hx)⟩
 
-lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) :
-    CoveredByBalls s m r := by
-      induction h
-      case mk b hn hs =>
-        exact ⟨b, hn.trans h2, hs⟩
+lemma CoveredByBalls.mono_nat (h : CoveredByBalls s n r) (h2 : n ≤ m) : CoveredByBalls s m r := by
+  obtain ⟨b, hn, hs⟩ := h
+  exact ⟨b, hn.trans h2, hs⟩
 
 lemma CoveredByBalls.mono_real (h : CoveredByBalls s n r) (h2 : r ≤ r') :
     CoveredByBalls s n r' := by
-      induction h
-      case mk b hn hs =>
-        exact ⟨b, hn, hs.trans (by gcongr)⟩
+  obtain ⟨b, hn, hs⟩ := h
+  exact ⟨b, hn, hs.trans (by gcongr)⟩
 
 @[simp]
 protected lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r :=
@@ -40,78 +36,63 @@ protected lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r :=
 
 @[simp]
 lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
-  have h1 : CoveredByBalls s 0 r → s = ∅ := by
-    intro ⟨b, hn, hs⟩
-    simp at hn
-    subst hn
-    simp at hs
-    exact Set.subset_eq_empty hs rfl
-  have h2 : s = ∅ → CoveredByBalls s 0 r := by
-    rintro rfl
-    exact CoveredByBalls.empty
-  exact { mp := h1, mpr := h2 }
-
-
+  refine ⟨fun ⟨b, hn, hs⟩ ↦ ?_, by rintro rfl; exact CoveredByBalls.empty⟩
+  simp at hn; subst hn; simp at hs
+  exact Set.subset_eq_empty hs rfl
 
 @[simp]
 lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
-  have h1 : CoveredByBalls s n 0 → s =∅ := by
-    intro hcovered
-    cases hcovered
-    case mk b hn hs =>
-    simp at hs
+  refine ⟨fun ⟨_, _, hs⟩ ↦ ?_, fun hs ↦ ?_⟩
+  · simp at hs
     exact Set.subset_eq_empty hs rfl
-  have h2 : s = ∅ → CoveredByBalls s n 0 := by
-    intro hs
-    have h21 : (∅ : Finset X).card ≤ n := by exact tsub_add_cancel_iff_le.mp rfl
-    have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
+  · have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
       simp only [not_mem_empty, ball_zero, Set.iUnion_of_empty, Set.iUnion_empty]
       exact Set.subset_empty_iff.mpr hs
-    exact ⟨(∅ : Finset X), h21, h22⟩
-  exact { mp := h1, mpr := h2 }
+    use ∅, tsub_add_cancel_iff_le.mp rfl, h22
 
 variable (X) in
 /-- Balls of radius `r` in are covered by `n` balls of radius `r'` -/
-def BallsCoverBalls (r r' : ℝ) (n : ℕ) : Prop :=
-  ∀ x : X, CoveredByBalls (ball x r) n r'
+def BallsCoverBalls (r r' : ℝ) (n : ℕ) : Prop := ∀ x : X, CoveredByBalls (ball x r) n r'
 
 lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
     (h2 : BallsCoverBalls X r r' m) : CoveredByBalls s (n * m) r' := by
-    cases h
-    case mk b0 hb0 hs0
-    sorry
-
-
+  obtain ⟨b0, hb0, hs0⟩ := h
+  rw [coveredByBalls_iff]
+  have := fun x ↦ ((coveredByBalls_iff ..).mp (h2 x))
+  classical
+    use b0.biUnion fun x ↦ (this x).choose
+    refine ⟨?_, fun p hp ↦ ?_⟩
+    · calc
+        _ ≤ ∑ x ∈ b0, (this x).choose.card := card_biUnion_le ..
+        _ ≤ ∑ _ ∈ b0, m := sum_le_sum fun x _ ↦ (this x).choose_spec.1
+        _ ≤ _ := by
+          rw [sum_const_nat fun x ↦ congrFun rfl]
+          exact Nat.mul_le_mul_right m hb0
+    · obtain ⟨b, _, hb⟩ := Set.mem_iUnion₂.mp (hs0 hp)
+      have tmp := ((this b).choose_spec.2) hb
+      rw [Set.mem_iUnion₂] at tmp ⊢
+      obtain ⟨c, _, hc⟩ := tmp
+      use c, (by rw [mem_biUnion]; use b), hc
 
 lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCoverBalls X r₂ r₃ m) :
-    BallsCoverBalls X r₁ r₃ (n * m) :=
-  fun x ↦ (h1 x).trans h2
+    BallsCoverBalls X r₁ r₃ (n * m) := fun x ↦ (h1 x).trans h2
 
-lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by {
+lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
   let a : Finset X := singleton x
   have h : a.card ≤ 1 := by rfl
-  have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by
-    simp [a]
-    rfl
+  have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by simp [a]; rfl
   exact ⟨a, h, h2⟩
-}
 
 lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
     BallsCoverBalls X (a^k * r) r (n^k) := by
-  induction k
-  case zero =>
-    simp
-    intro x
-    exact BallCoversSelf x r
-  case succ m h2 =>
+  induction k with
+  | zero => simpa using fun x ↦ BallCoversSelf x r
+  | succ m h2 =>
     specialize h (r * a^m)
-    rw[<- mul_assoc, mul_comm, <- mul_assoc] at h
-    norm_cast
-    ring_nf
-    rw[mul_comm a]
-    rw[mul_comm] at h2
-    norm_cast at h2
-    exact BallsCoverBalls.trans h h2
+    rw [← mul_assoc, mul_comm, ← mul_assoc] at h
+    rw [pow_succ, pow_succ']
+    rw [mul_comm] at h2
+    exact h.trans h2
 
 lemma BallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
     BallsCoverBalls X (a^k) 1 (n^k) := by

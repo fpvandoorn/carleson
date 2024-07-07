@@ -1,4 +1,5 @@
 import Carleson.DoublingMeasure
+import Carleson.WeakType
 
 open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
 open scoped ENNReal
@@ -12,7 +13,7 @@ We should move them to separate files once we start proving things about them. -
 
 section DoublingMeasure
 universe u
-variable {𝕜 X : Type*} {A : ℝ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
 section localOscillation
 
@@ -121,25 +122,29 @@ notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
 notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
-class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℝ)
+class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
   eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
-  /-- The distance is bounded below by the local oscillation. -/
+  /-- The distance is bounded below by the local oscillation. (1.0.7) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ dist_{x, r} f g
-  /-- The distance is monotone in the ball. -/
+  /-- The distance is monotone in the ball. (1.0.9) -/
   cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
-    (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₂} f g ≤ dist_{x₂, r₂} f g
-  /-- The distance of a ball with large radius is bounded above. -/
+    (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
+  /-- The distance of a ball with large radius is bounded above. (1.0.8) -/
   cdist_le {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h : dist x₁ x₂ < 2 * r) :
     dist_{x₂, 2 * r} f g ≤ A * dist_{x₁, r} f g
-  /-- The distance of a ball with large radius is bounded below. -/
-  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r))
-    /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/ :
+  /-- The distance of a ball with large radius is bounded below. (1.0.10) -/
+  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r)) :
+    /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
-  /-- The distance of a ball with large radius is bounded below. -/
+  /-- The distance of a ball with large radius is bounded below. (1.0.11) -/
   ballsCoverBalls {x : X} {r R : ℝ} :
-    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R ⌊A⌋₊
+    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R A
+
+instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
+  obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
+  use x
 
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
@@ -202,11 +207,11 @@ open Function
 /-- `K` is a one-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
-class IsCZKernel (a : ℝ) (K : X → X → ℂ) : Prop where
+class IsCZKernel (a : ℕ) (K : X → X → ℂ) : Prop where
   measurable : Measurable (uncurry K)
   norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
   norm_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ a⁻¹ * (C_K a / vol x y)
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
   measurable_right (y : X) : Measurable (K · y)
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
@@ -225,27 +230,10 @@ Reference: https://arxiv.org/abs/math/9910039
 Lemma 3.6 - Lemma 3.9
 -/
 
-/-- This can be useful to say that `‖T‖ ≤ c`. -/
-def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
-    Prop :=
-  ∀ x, ‖T x‖ ≤ c * ‖x‖
-
-/-- An operator has strong type (p, q) if it is bounded as an operator on L^p → L^q.
-We write `HasStrongType T μ ν p p' c` to say that `T` has strong type (p, q) w.r.t. measures `μ`, `ν` and constant `c`.  -/
-def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
-    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
-
--- todo: define `HasWeakType`
-
-/-- A weaker version of `HasStrongType`, where we add additional assumptions on the function `f`.
-Note(F): I'm not sure if this is an equivalent characterization of having weak type (p, q) -/
-def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
-    (μ : Measure α) (ν : Measure α') (p p' : ℝ≥0∞) (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → snorm f ∞ μ < ∞ → μ (support f) < ∞ →
-  AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
+-- /-- This can be useful to say that `‖T‖ ≤ c`. -/
+-- def NormBoundedBy {E F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup F] (T : E → F) (c : ℝ) :
+--     Prop :=
+--   ∀ x, ‖T x‖ ≤ c * ‖x‖
 
 set_option linter.unusedVariables false in
 /-- The associated nontangential Calderon Zygmund operator `T_*` -/
@@ -266,20 +254,17 @@ def CarlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → 
   ⨆ (Q : Θ X) (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
   ↑‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q y)‖₊
 
-
 end DoublingMeasure
-
 
 /-- This is usually the value of the argument `A` in `DoublingMeasure`
 and `CompatibleFunctions` -/
-@[simp] abbrev defaultA (a : ℝ) : ℝ := 2 ^ a
-@[simp] def defaultD (a : ℝ) : ℝ := 2 ^ (100 * a ^ 2)
-@[simp] def defaultκ (a : ℝ) : ℝ := 2 ^ (- 10 * a)
-@[simp] def defaultZ (a : ℝ) : ℝ := 2 ^ (12 * a)
-@[simp] def defaultτ (a : ℝ) : ℝ := a⁻¹
+@[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
+@[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (100 * a ^ 2)
+@[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
+@[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
+@[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
 
-lemma defaultD_pos (a : ℝ) : 0 < defaultD a := Real.rpow_pos_of_pos zero_lt_two _
-
+lemma defaultD_pos (a : ℕ) : 0 < (defaultD a : ℝ) := by rw [defaultD]; positivity
 
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`
@@ -287,13 +272,13 @@ throughout this formalization. -/
 def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
 /-- Data common through most of chapters 2-9. -/
-class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
+class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] where
   d : DoublingMeasure X (defaultA a)
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   c : IsCancellative X (defaultτ a)
-  hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)
+  hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
   measurable_σ₁ : Measurable σ₁
@@ -304,14 +289,13 @@ class PreProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → �
   Q : SimpleFunc X (Θ X)
   q_mem_Ioc : q ∈ Ioc 1 2
 
-
 export PreProofData (four_le_a hasBoundedStrongType_T measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
 attribute [instance] PreProofData.d PreProofData.cf PreProofData.c
 
 section ProofData
 
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
 
 variable (X) in
@@ -319,34 +303,34 @@ lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ �
 
 variable (X) in
 open Classical in
-def S [PreProofData a q K σ₁ σ₂ F G] : ℤ := Nat.find (S_spec X)
+def S [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
 
 lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ Icc (- S X) (S X) := sorry
 
 lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
 
 lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
-    - S X ∈ range σ₁ ∨ S X ∈ range σ₂ := sorry
+    (-S X : ℤ) ∈ range σ₁ ∨ (S X : ℤ) ∈ range σ₂ := sorry
 
-variable (X) in lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
-variable (X) in lemma q_nonneg : 0 ≤ q := (q_pos X).le
+variable (X)
 
-variable (X) in
+lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
+lemma q_nonneg : 0 ≤ q := (q_pos X).le
+
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
-variable (X) in lemma nnq_pos : 0 < nnq X := q_pos X
-variable (X) in lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
+lemma nnq_pos : 0 < nnq X := q_pos X
+lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
   ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
 
 end ProofData
 
-class ProofData {X : Type*} (a q : outParam ℝ) (K : outParam (X → X → ℂ))
+class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
     (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X]
     extends PreProofData a q K σ₁ σ₂ F G where
-  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X)
-  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X)
-
+  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
+  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ S X / 4)
 
 namespace ShortVariables
 -- open this section to get shorter 1-letter names for a bunch of variables
@@ -363,8 +347,25 @@ scoped notation "nnq" => nnq X
 end ShortVariables
 
 open scoped ShortVariables
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+lemma one_le_D : 1 ≤ (D : ℝ) := by
+  rw [← Nat.cast_one, Nat.cast_le, defaultD, ← pow_zero 2]
+  exact pow_le_pow_right' one_le_two (by positivity)
+
+lemma D_nonneg : 0 ≤ (D : ℝ) := zero_le_one.trans one_le_D
+
+variable (a) in
+/-- `D` as an element of `ℝ≥0`. -/
+def nnD : ℝ≥0 := ⟨D, by simp [D_nonneg]⟩
+
+namespace ShortVariables
+
+set_option hygiene false
+scoped notation "nnD" => nnD a
+
+end ShortVariables
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 @[nolint unusedArguments]
@@ -374,22 +375,56 @@ def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ
 
 /-! Lemma 2.1.1 -/
 
-def C2_1_1 (k : ℕ) (a : ℝ) : ℕ := 2 ^ ((k + 1) * ⌊a⌋₊) -- todo: fix in blueprint
+def C2_1_1 (k : ℕ) (a : ℕ) : ℕ := 2 ^ (k * a)
 
--- Note: See also/prove card_le_of_le_dist in DoublingMeasure.
-lemma Θ.mk_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
-    Cardinal.mk 𝓩 ≤ C2_1_1 k a := sorry
+    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
+    𝓩.Finite ∧ Cardinal.mk 𝓩 ≤ C2_1_1 k a := by
+  have pmul := (BallsCoverBalls.pow_mul (k := k) (r := r) fun r ↦
+    CompatibleFunctions.ballsCoverBalls (x := x₀) (r := R) (R := r)) f
+  rw [mul_comm, coveredByBalls_iff] at pmul
+  obtain ⟨𝓩', c𝓩', u𝓩'⟩ := pmul
+  classical
+    let g : Θ X → Finset (Θ X) := fun z ↦ 𝓩'.filter (z ∈ ball_{x₀, R} · r)
+    have g_pd : 𝓩.PairwiseDisjoint g := fun z hz z' hz' hne ↦ by
+      refine Finset.disjoint_filter.mpr fun c _ mz mz' ↦ ?_
+      rw [mem_ball_comm (α := WithFunctionDistance x₀ R)] at mz mz'
+      exact Set.disjoint_left.mp (h2𝓩 hz hz' hne) mz mz'
+  have g_ne : ∀ z, z ∈ 𝓩 → (g z).Nonempty := fun z hz ↦ by
+    obtain ⟨c, hc⟩ := mem_iUnion.mp <| mem_of_mem_of_subset hz (h𝓩.trans u𝓩')
+    simp only [mem_iUnion, exists_prop] at hc
+    use c; simpa only [g, Finset.mem_filter]
+  have g_injOn : 𝓩.InjOn g := fun z hz z' hz' e ↦ by
+    have : z ≠ z' → Disjoint (g z) (g z') := g_pd hz hz'
+    rw [← e, Finset.disjoint_self_iff_empty] at this
+    exact not_ne_iff.mp <| this.mt <| Finset.nonempty_iff_ne_empty.mp (g_ne z hz)
+  have g_subset : g '' 𝓩 ⊆ 𝓩'.powerset.toSet := fun gz hgz ↦ by
+    rw [mem_image] at hgz
+    obtain ⟨z, hz⟩ := hgz
+    simp_rw [Finset.coe_powerset, mem_preimage, mem_powerset_iff, Finset.coe_subset, ← hz.2, g,
+      Finset.filter_subset]
+  have f𝓩 : (g '' 𝓩).Finite := Finite.subset 𝓩'.powerset.finite_toSet g_subset
+  rw [Set.finite_image_iff g_injOn] at f𝓩
+  refine ⟨f𝓩, ?_⟩
+  lift 𝓩 to Finset (Θ X) using f𝓩
+  simp_rw [Cardinal.mk_fintype, Finset.coe_sort_coe, Fintype.card_coe]
+  norm_cast
+  classical calc
+    _ = ∑ _ ∈ 𝓩, 1 := by simp
+    _ ≤ ∑ u ∈ 𝓩, (g u).card := Finset.sum_le_sum fun z hz ↦ Finset.card_pos.mpr (g_ne z hz)
+    _ = (𝓩.biUnion g).card := (Finset.card_biUnion (fun z hz z' hz' ↦ g_pd hz hz')).symm
+    _ ≤ 𝓩'.card := by
+      refine Finset.card_le_card fun _ h ↦ ?_
+      rw [Finset.mem_biUnion] at h
+      exact Finset.mem_of_subset (by simp [g]) h.choose_spec.2
+    _ ≤ (2 ^ a) ^ k := c𝓩'
+    _ ≤ _ := by rw [C2_1_1, mul_comm, pow_mul]
 
--- the following two lemma should follow easily from `mk_le_of_le_dist`.
-
-lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
+lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
-    Nat.card 𝓩 ≤ C2_1_1 k a := sorry
-
-lemma Θ.finite_of_le_dist {x₀ : X} {r R : ℝ} (hr : 0 < r) {f : Θ X} {k : ℕ}
-    {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
-    (h2𝓩 : ∀ z z', z ∈ 𝓩 → z' ∈ 𝓩 → z ≠ z' → r ≤ dist_{x₀, R} z z') :
-    𝓩.Finite := sorry
+    (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
+    Nat.card 𝓩 ≤ C2_1_1 k a := by
+  obtain ⟨f𝓩, c𝓩⟩ := finite_and_mk_le_of_le_dist h𝓩 h2𝓩
+  lift 𝓩 to Finset (Θ X) using f𝓩
+  simpa using c𝓩

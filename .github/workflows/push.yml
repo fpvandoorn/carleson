@@ -34,7 +34,11 @@ jobs:
           fetch-depth: 0
 
       - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0 # Install Lean 4
+
+      - name: Update docgen4
+        run: ~/.elan/bin/lake -R -Kenv=dev update «doc-gen4»
 
       - name: Get cache
         run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
@@ -55,45 +59,49 @@ jobs:
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
-            MathlibDoc-
+            MathlibDoc- # Cache Mathlib documentation to save rebuild time
 
       - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
+        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
 
       - name: Install Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          cache: 'pip' # caching pip dependencies
+          cache: 'pip'
 
       - name: Install blueprint apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full
+          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full # Install necessary system packages for blueprint
 
       - name: Install blueprint dependencies
         run: |
-          cd blueprint && pip install -r requirements.txt
+          cd blueprint && pip install -r requirements.txt # Install Python dependencies for blueprint
 
       - name: Build blueprint and copy to `docs/blueprint`
+        run: inv all
+
+      - name: Remove lake files from documentation
         run: |
-          inv all
+          find .lake/build/doc -name "*.trace" -delete
+          find .lake/build/doc -name "*.hash" -delete
 
       - name: Copy documentation to `docs/docs`
         run: |
           sudo chown -R runner docs
-          cp -r .lake/build/doc docs/docs
+          cp -r .lake/build/doc docs/docs # Copy the built documentation to the correct directory
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
         with:
           working-directory: docs
-          ruby-version: "3.0" # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          ruby-version: "3.0"
+          bundler-cache: true
 
       - name: Bundle website
         working-directory: docs
-        run: JEKYLL_ENV=production bundle exec jekyll build
+        run: JEKYLL_ENV=production bundle exec jekyll build # Build the Jekyll site for production
 
       - name: Upload docs & blueprint artifact
         uses: actions/upload-pages-artifact@v1

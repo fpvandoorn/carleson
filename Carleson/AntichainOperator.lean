@@ -1,10 +1,10 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
 
 open scoped ShortVariables
-variable {X : Type*} {a q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
 noncomputable section
 
@@ -21,21 +21,22 @@ lemma E_disjoint {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 :
   · have hE' : (E p' ∩ E p).Nonempty := by simp only [inter_comm, hE]
     exact eq_comm.mp (this h𝔄 hp' hp hE' hE'.some_mem (le_of_lt (not_le.mp h𝔰)))
   obtain ⟨⟨hx𝓓p, hxΩp, _⟩ , hx𝓓p', hxΩp', _⟩ := hx
-  have h𝓓 : 𝓘 p ⊆ 𝓘 p' :=
-    (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (fundamental_dyadic h𝔰)
+  have h𝓓 : 𝓘 p ≤ 𝓘 p' :=
+    (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (le_or_disjoint h𝔰)
   have hΩ : Ω p' ≤ Ω p :=
     (or_iff_right (not_disjoint_iff.mpr ⟨Q x, hxΩp, hxΩp'⟩)).mp (relative_fundamental_dyadic h𝓓)
   have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
   exact IsAntichain.eq h𝔄 hp hp' hle
 
-variable (K : X → X → ℂ) (σ₁ σ₂ : X → ℤ) (p : 𝔓 X)
+variable (K) (σ₁ σ₂) (p : 𝔓 X)
 
 open MeasureTheory Metric
 open ENNReal NNReal Real
 
-noncomputable def C_6_1_2 (a : ℝ) : ℝ≥0 := (2 : ℝ≥0)^(107*a^3)
+/-- Constant appearing in Lemma 6.1.2. -/
+noncomputable def C_6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3)
 
-lemma C_6_1_2_ne_zero (a : ℝ) : C_6_1_2 a ≠ 0 := ne_of_gt (NNReal.rpow_pos (zero_lt_two))
+lemma C_6_1_2_ne_zero (a : ℕ) : (C_6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C_6_1_2]; positivity
 
 open MeasureTheory Metric Bornology Set
 
@@ -51,23 +52,24 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       intro p' hp' hpp'
       by_contra hp'x
       exact hpp' (E_disjoint h𝔄 hp' p.2 ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
-    have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (𝓓_subset_ball hxE.1))
+    have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
-        dist x y ∈ Icc (D ^ ((𝔰 p.1) - 1) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
+        dist x y ∈ Icc ((D ^ ((𝔰 p.1) - 1) : ℝ) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
       dist_mem_Icc_of_Ks_ne_zero (range_s_subset (X := X) (mem_range_self (𝓘 p.1))) hy
     have hdist_cpy : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), dist (𝔠 p) y ≤ 8*D ^ 𝔰 p.1 := by
       intro y hy
       calc dist (𝔠 p) y
-        ≤ dist (𝔠 p) x  + dist x y := dist_triangle (𝔠 p.1) x y
-      _ ≤ 4*D ^ 𝔰 p.1  + dist x y := by simp only [add_le_add_iff_right, dist_comm, hdist_cp]
-      _ ≤ 4*D ^ 𝔰 p.1  + D ^ 𝔰 p.1 /2 := by
+        ≤ dist (𝔠 p) x + dist x y := dist_triangle (𝔠 p.1) x y
+      _ ≤ 4*D ^ 𝔰 p.1 + dist x y := by simp only [add_le_add_iff_right, dist_comm, hdist_cp]
+      _ ≤ 4*D ^ 𝔰 p.1 + D ^ 𝔰 p.1 /2 := by
         simp only [add_le_add_iff_left, (mem_Icc.mpr (hdist_y hy)).2]
       _ ≤ 8*D ^ 𝔰 p.1 := by
         rw [div_eq_inv_mul, ← add_mul]
-        exact mul_le_mul_of_nonneg_right (by norm_num)
-          (zpow_nonneg (Real.rpow_nonneg zero_le_two _) _)
+        apply mul_le_mul_of_nonneg_right (by norm_num)
+        have := defaultD_pos a
+        positivity
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
-        (2 : ℝ≥0)^(5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
+        (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       intro y hy
       /- dist_mem_Icc_of_Ks_ne_zero {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X}
     (h : Ks s x y ≠ 0) : dist x y ∈ Icc (D ^ (s - 1) / 4) (D ^ s / 2)
@@ -75,7 +77,10 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       lemma norm_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} :
     ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by-/
       have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume (ball (𝔠 p.1) (D/4 ^ (𝔰 p.1 - 1))) := by
-        have hxy : x ≠ y := sorry
+        have hxy : x ≠ y := by
+          intro h_eq
+          rw [h_eq, Ks_def, ne_eq, mul_eq_zero, not_or, dist_self, mul_zero, psi_zero] at hy
+          simp only [Complex.ofReal_zero, not_true_eq_false, and_false] at hy
         apply le_trans (ENNReal.coe_le_coe.mpr (kernel_bound (range_s_subset (X := X)
           (mem_range_self (𝓘 p.1))) hxy))
         rw [coe_ofNat, coe_div]
@@ -101,24 +106,23 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       simp only [coe_ofNat, indicator, mem_ball, mul_ite, mul_zero]
       rw [if_pos]
       apply mul_le_mul_of_nonneg_right _ (zero_le _)
-      · rw [C_6_1_2, ← coe_rpow_of_nonneg, coe_ofNat]
-        apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
-        apply add_le_of_le_sub_right
-        conv_lhs => rw [← pow_one a]
-        have h : 5 * a ^ 1 ≤ 5 * a ^ 3 :=
-          mul_le_mul_of_nonneg_left (pow_le_pow_right ha (by linarith)) (by linarith)
-        exact le_trans h (by linarith)
-        · simp only [Nat.ofNat_pos, mul_nonneg_iff_of_pos_left,
-            pow_nonneg (le_trans zero_le_one ha)]
+      · rw [C_6_1_2]; norm_cast
+        apply pow_le_pow_right one_le_two
+        calc
+        _ ≤ 5 * a ^ 3 + 101 * a ^ 3 := by
+          gcongr; exact le_self_pow (by linarith [four_le_a X]) (by omega)
+        _ = 106 * a ^ 3 := by ring
+        _ ≤ 107 * a ^ 3 := by gcongr; norm_num
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith)
           (zpow_pos_of_pos (defaultD_pos a) _))
     _ ≤ (C_6_1_2 a) * MB volume ((fun (𝔭 : 𝔓 X) ↦ (𝔠 𝔭, 8*D ^ 𝔰 𝔭)) '' (𝔄 : Set (𝔓 X))) f x := by
-      rw [mul_le_mul_left (coe_ne_zero.mpr (C_6_1_2_ne_zero a))
-        coe_ne_top, MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iSup_iff]
-      simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff ,
-        and_imp, forall_apply_eq_imp_iff₂ ]
+      rw [mul_le_mul_left _ _, MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iSup_iff]
+      simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff,
+        and_imp, forall_apply_eq_imp_iff₂, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
+      · exact C_6_1_2_ne_zero a
+      · exact coe_ne_top
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
     have h0 : (∑ (p ∈ 𝔄), T p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
@@ -134,6 +138,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
     rw [← norm_eq_zero]
     exact le_antisymm hf (norm_nonneg _)
 
+/-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
 
 -- lemma 6.1.3

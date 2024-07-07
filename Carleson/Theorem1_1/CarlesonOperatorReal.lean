@@ -13,20 +13,20 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
   simp only [Real.dist_eq, Set.mem_Ioo, lt_abs, neg_sub, abs_lt, neg_lt_sub_iff_lt_add,
     Set.mem_setOf_eq, Set.mem_union]
   constructor
-  . rintro ⟨(h₀ | h₀), h₁, h₂⟩
-    . left
+  · rintro ⟨(h₀ | h₀), h₁, h₂⟩
+    · left
       constructor <;> linarith
-    . right
+    · right
       constructor <;> linarith
-  . rintro (⟨h₀, h₁⟩ | ⟨h₀, h₁⟩)
-    . constructor
-      . left
+  · rintro (⟨h₀, h₁⟩ | ⟨h₀, h₁⟩)
+    · constructor
+      · left
         linarith
-      . constructor <;> linarith
-    . constructor
-      . right
+      · constructor <;> linarith
+    · constructor
+      · right
         linarith
-      . constructor <;> linarith
+      · constructor <;> linarith
 
 lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) : MeasureTheory.volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
   rw [annulus_real_eq hr.1, MeasureTheory.measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
