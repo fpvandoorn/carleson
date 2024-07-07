@@ -58,7 +58,7 @@ jobs:
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
             !.lake/build/doc/declarations/declaration-data-Carleson*
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
+          key: ${{ hashFiles('lake-manifest.json') }}
           #restore-keys: MathlibDoc-
 
       - name: Build project documentation
@@ -83,10 +83,10 @@ jobs:
             leanblueprint web
             cp -r blueprint/web docs/blueprint
 
-      - name: Remove lake files from documentation
-        run: |
-          find .lake/build/doc -name "*.trace" -delete
-          find .lake/build/doc -name "*.hash" -delete
+      # - name: Remove lake files from documentation
+      #   run: |
+      #     find .lake/build/doc -name "*.trace" -delete
+      #     find .lake/build/doc -name "*.hash" -delete
 
       - name: Copy documentation to `docs/docs`
         run: |
@@ -118,5 +118,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
 
-      - name: Make sure the cache works
-        run: mv docs/docs .lake/build/doc
+      # - name: Make sure the cache works
+      #   run: mv docs/docs .lake/build/doc
