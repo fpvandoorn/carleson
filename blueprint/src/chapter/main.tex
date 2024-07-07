@@ -6425,10 +6425,10 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
 \begin{lemma}[Weak 1 1]
     \label{weak-1-1}
     \uses{Calderon-Zygmund-decomposition,geometric-series-estimate}
-    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that
+    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that for every bounded measurable function $g$ on $X$ supported on a set of finite measure,
     \begin{equation}
         \label{eq-strong-2-2-assumption}
-        \|H_rf\|_{2}\le 2^{a^3} \|f\|_2.
+        \|H_rg\|_{2}\le 2^{a^3} \|g\|_2.
     \end{equation}
     Then for all $\alpha>0$, we have
     \begin{equation}
@@ -6788,14 +6788,14 @@ By continuity from above of $\mu$, the right factor becomes arbitrarily small as
 \begin{proof}
 We show two inequalities. Let $\epsilon>0$.
 Let $R_1<R_2$ and $x'\in B(x,R_1)$. Then for $\delta>0$,
-\begin{align}
+\begin{alignat}{3}
     \label{eq-without-suprema-1}
-    &\left|\int_{R_1<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    &&&\left|\int_{R_1<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
     \label{eq-diff-small-1}
-    \le &\left|\int_{R_1<\rho(x',y)<R_1+\delta} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    \le &&&\left|\int_{R_1<\rho(x',y)<R_1+\delta} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
     \label{eq-other-1}
-    + &\left|\int_{R_1+\delta\le\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
-\end{align}
+    &+&&\left|\int_{R_1+\delta\le\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
+\end{alignat}
 By \Cref{small-annulus}, we can choose $\delta$ such that \eqref{eq-diff-small-1} is bounded by $\epsilon$. Without loss of generality, we can assume $R_1+\delta<R_2$. Then \eqref{eq-other-1} is bounded by the right hand side of \eqref{tang-unm-op-eq} and we obtain
 \begin{equation*}
     \le \epsilon + \sup_{R_1 < R_2} \sup_{x'\in B(x,R_1)} \left|\int_{B(x',R_2)\setminus B(x',R_1)} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
@@ -6804,14 +6804,14 @@ The inequality still holds when taking the suprema over $R_1<R_2$ and $\rho(x,x'
 
 The other direction is similar. Let $\epsilon>0$.
 Let $R_1<R_2$ and $x'\in B(x,R_1)$. Then for $\delta>0$,
-\begin{align}
+\begin{alignat}{3}
     \label{eq-without-suprema-2}
-    &\left|\int_{B(x',R_2)\setminus B(x',R_1)} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    &&&\left|\int_{B(x',R_2)\setminus B(x',R_1)} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
     \label{eq-diff-small-2}
-    \le &\left|\int_{R_1-\delta<\rho(x',y)< R_1} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
+    \le &&&\left|\int_{R_1-\delta<\rho(x',y)< R_1} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
     \label{eq-other-2}
-    + &\left|\int_{R_1-\delta<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
-\end{align}
+    &+&&\left|\int_{R_1-\delta<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| .
+\end{alignat}
 
 By \Cref{small-annulus}, we can choose $\delta$ such that \eqref{eq-diff-small-2} is bounded by $\epsilon$. Without loss of generality, we can assume $\rho(x,x')<R_1-\delta$. Then \eqref{eq-other-2} is bounded by the left hand side of \eqref{tang-unm-op-eq} and we obtain
 \begin{equation*}
@@ -6862,14 +6862,14 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 \begin{lemma} [Maximal theorem]
     \label{maximal-theorem}
     \uses{Hardy-Littlewood}
-    Let $f: X \to \C$ be bounded, measurable, with bounded support and let $\alpha > 0$. For $Mf$ as in \Cref{Hardy-Littlewood},
+    Let $f: X \to \C$ be bounded, measurable, supported on a set of finite measure, and let $\alpha > 0$. For $Mf$ as in \Cref{Hardy-Littlewood},
     \begin{equation}
         \label{maximal-theorem-equation}
         \mu(\{x\in X : Mf(x) > \alpha\}) \le \frac{2^{2a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
 \begin{proof}
-    By definition, for each $x\in \{x\in X : Mf(x) > \alpha\}$, there exists a ball $B_x$ so that $x\in B_x$ and
+    By definition, for each $x\in X$ with $Mf(x) > \alpha$, there exists a ball $B_x$ such that $x\in B_x$ and
     \begin{equation}
         \label{maximal-theorem-a}
         \alpha \mu(B_x) < \int_{B_x} |f(y)|\, d\mu(y).
@@ -6893,7 +6893,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 \begin{lemma}[Lebesgue differentiation]
     \label{Lebesgue-differentiation}
     \lean{VitaliFamily.ae_tendsto_average}
-    Let $f$ be a bounded measurable function with bounded support. Then for $\mu$ almost every $x$, we have
+    Let $f$ be a bounded measurable function supported on a set of finite measure. Then for $\mu$ almost every $x$, we have
     $$\lim_{n\to \infty} \frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
     where $\{B_n\}_{n\geq 1}$ is a sequence of balls with radii $r_n>0$ such that $x\in B_n$ for each $n\geq 1$ and
     \begin{equation*}
@@ -6944,7 +6944,7 @@ It is classical and can be found in \cite{stein-book}.
 %    This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
 %\end{proof}
 
-The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional explicit statement and proof of the bounded intersection property, as well as countability of the disjoint family.
+The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
 \begin{lemma}[Ball covering]
     \label{ball-covering}
     \uses{disjoint-family-countable}
@@ -7227,14 +7227,14 @@ Let $x\in X\setminus\Omega$. We decompose the index set $J$ into the following d
     \mathcal{J}_3(x)&:=\{j\,: \rho(x,x_j) < r-r_j\}.
 \end{align*}
 Then
-\begin{align}
+\begin{alignat}{3}
     \label{eq-b-dec-1}
-    |H_r b(x)|\le&\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)| \\
+    |H_r b(x)|\le&&&\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)| \\
     \label{eq-b-dec-2}
-                +&\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)| \\
+                &+&&\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)| \\
     \label{eq-b-dec-3}
-                +&\sum_{j\in \mathcal{J}_3(x)} |H_rb_j(x)|.
-\end{align}
+                &+&&\sum_{j\in \mathcal{J}_3(x)} |H_rb_j(x)|.
+\end{alignat}
 For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $H_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
 
 Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_j\subset X \setminus B(x,r)$, and we have
@@ -7270,7 +7270,7 @@ Then by \eqref{eq-bj-L1}
 For each $j\in \mathcal{J}_2(x)$, we have
 \begin{align*}
     H_r b_j(x)&=\int_{B_j} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy \\
-    &= \int_{B_j} (K(x,y)-K(x,c_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy.
+    &= \int_{B_j} (K(x,y)-K(x,x_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy.
 \end{align*}
 Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, we obtain
 \begin{equation*}
@@ -7278,7 +7278,7 @@ Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, w
 \end{equation*}
 \begin{equation}
     \label{eq-J2-diff-est}
-    \int_{B_j} |(K(x,y)-K(x,c_j)) \left(|b_j(y)|+2^{2a+1} c\alpha\right)\, dy +2^{2a+1} c\alpha \int_{B_j}  |K(x,y)| \, dy.
+    \int_{B_j} |K(x,y)-K(x,x_j)| \left(|b_j(y)|+2^{2a+1} c\alpha\right)\, dy +2^{2a+1} c\alpha \int_{B_j}  |K(x,y)| \, dy.
 \end{equation}
 By \eqref{eq-Om-cj}, we can apply \eqref{eqkernel-y-smooth} and arguing as in \eqref{eq-J1-diff-est}, we get that
 \begin{equation}
@@ -7301,7 +7301,7 @@ Indeed, for each $j\in \mathcal{J}_2(x)$ and $y\in B_j$,
 \end{equation*}
 and hence
 \begin{equation*}
-    \rho(x,y) \le \rho(x,x_j) + \rho(x_j,y) < 2r + r_j \le 2r + \frac{1}{2}\rho(x,x_j) \le 3r.
+    \rho(x,y) \le \rho(x,x_j) + \rho(x_j,y) < 2r + r_j \le 2r + \frac{1}{2}\rho(x,x_j) < 3r.
 \end{equation*}
 For the lower bound, we observe
 \begin{equation*}
@@ -7317,7 +7317,7 @@ Using the bounded intersection property of the $B_j$, \eqref{eq-J2-union-subset}
     \sum_{j\in\mathcal{J}_2(x)} \int_{B_j}  |K(x,y)|\,d\mu(y) &\le 2^{6a} \int_{A}  |K(x,y)|\,d\mu(y) \\
     &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})}  |K(x,y)|\,d\mu(y) \\
     &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{2^{a^3}}{V(x,y)} \,d\mu(y) \\
-    &\le 2^{a^3+3a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{1}{\mu(B(x,\frac{r}{3}))} \,d\mu(y) \\
+    &\le 2^{a^3+6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{1}{\mu(B(x,\frac{r}{3}))} \,d\mu(y) \\
     &\le 2^{a^3+6a} \frac{\mu(B(x,3r))}{\mu(B(x,\frac{r}{3}))} \\
     \label{eq-J2-diff-est-4}
     &\le 2^{a^3+10a}.
@@ -7327,7 +7327,7 @@ Combining the estimates \eqref{eq-J1-diff-est} for \eqref{eq-b-dec-1}, \eqref{eq
 \begin{equation*}
     |H_rb(x)|\leq 3F(x)+2^{a^3+12a+1}c\alpha.
 \end{equation*}
-With $c:=2^{-a^3-12a-4}$, the equals
+With $c:=2^{-a^3-12a-4}$, this equals
 \begin{equation*}
     3F(x)+\alpha/8.
 \end{equation*}
