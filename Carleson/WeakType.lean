@@ -8,6 +8,7 @@ noncomputable section
 
 open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 
+#check AEMeasurable
 
 variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
@@ -21,7 +22,7 @@ variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : Me
   [MeasurableSpace E₂] [BorelSpace E₂]
   [MeasurableSpace E₃] [BorelSpace E₃]
   (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
-  {f g : α → E} (hf : AEMeasurable f) {t s x y : ℝ≥0∞}
+  {f g : α → E} (hf : AEMeasurable f μ) {t s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
 -- #check meas_ge_le_mul_pow_snorm -- Chebyshev's inequality
