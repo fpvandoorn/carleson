@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 
 open MeasureTheory Measure NNReal Metric Complex Set TileStructure Function BigOperators
 open scoped ENNReal

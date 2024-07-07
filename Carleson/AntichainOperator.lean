@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
 
@@ -36,7 +36,7 @@ open ENNReal NNReal Real
 /-- Constant appearing in Lemma 6.1.2. -/
 noncomputable def C_6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3)
 
-lemma C_6_1_2_ne_zero (a : ℕ) : C_6_1_2 a ≠ 0 := by rw [C_6_1_2]; positivity
+lemma C_6_1_2_ne_zero (a : ℕ) : (C_6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C_6_1_2]; positivity
 
 open MeasureTheory Metric Bornology Set
 
@@ -115,13 +115,13 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         _ ≤ 107 * a ^ 3 := by gcongr; norm_num
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith)
-          (zpow_pos_of_pos (by exact_mod_cast defaultD_pos a) _))
+          (zpow_pos_of_pos (defaultD_pos a) _))
     _ ≤ (C_6_1_2 a) * MB volume ((fun (𝔭 : 𝔓 X) ↦ (𝔠 𝔭, 8*D ^ 𝔰 𝔭)) '' (𝔄 : Set (𝔓 X))) f x := by
       rw [mul_le_mul_left _ _, MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iSup_iff]
       simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff,
         and_imp, forall_apply_eq_imp_iff₂, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
-      · exact_mod_cast C_6_1_2_ne_zero a
+      · exact C_6_1_2_ne_zero a
       · exact coe_ne_top
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
     have h0 : (∑ (p ∈ 𝔄), T p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)

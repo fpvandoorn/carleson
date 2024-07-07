@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 import Carleson.DoublingMeasure
 
 open Set MeasureTheory Metric Function Complex Bornology
@@ -36,8 +36,8 @@ lemma ball_bound {Y : Set X} (k : ℝ) (hk_lower : -S ≤ k)
         apply ball_subset_ball
         rw [mul_assoc]
         apply mul_le_mul_of_nonneg_left _ (by norm_num)
-        rw [← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_add (by exact_mod_cast defaultD_pos a)]
-        apply Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast one_le_D)
+        rw [← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_add (defaultD_pos a)]
+        apply Real.rpow_le_rpow_of_exponent_le one_le_D
         rw [Nat.cast_mul, Nat.cast_two]
         linarith
 
@@ -92,12 +92,12 @@ lemma counting_balls (k : ℝ) (hk_lower : -S ≤ k) (Y : Set X) (hY : Y ⊆ bal
       rw [ENNReal.tsum_mul_left]
     _ = (As (2 ^ a) (2 ^ J' X)) * volume (⋃ y ∈ Y, ball y (D^k)) := by
       rw [ENNReal.mul_eq_mul_left val_ne_zero ENNReal.coe_ne_top]
-      . rw [measure_biUnion _ hYdisjoint (fun y _ => measurableSet_ball)]
+      · rw [measure_biUnion _ hYdisjoint (fun y _ => measurableSet_ball)]
         apply hYdisjoint.countable_of_isOpen (fun y _ => isOpen_ball)
         intro y _
         use y
         rw [mem_ball, dist_self]
-        exact Real.rpow_pos_of_pos (by exact_mod_cast defaultD_pos a) _
+        exact Real.rpow_pos_of_pos (defaultD_pos a) _
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * volume (ball o (4 * D ^ S)) := by
         rw [ENNReal.mul_le_mul_left val_ne_zero ENNReal.coe_ne_top]
         apply volume.mono _
@@ -129,25 +129,25 @@ lemma chain_property_set_has_bound (k : ℝ):
   dsimp only [property_set] at hc ⊢
   simp only [mem_setOf_eq, iUnion_subset_iff]
   constructor
-  . constructor
-    . intro i hi
+  · constructor
+    · intro i hi
       specialize hc hi
       rw [mem_setOf_eq] at hc
       exact hc.left
-    . intro x hx y hy
+    · intro x hx y hy
       simp only [mem_iUnion, exists_prop] at hx hy
       obtain ⟨sx,hsx, hsx'⟩ := hx
       obtain ⟨sy,hsy, hsy'⟩ := hy
       obtain hxy|hyx := hchain.total hsx hsy
-      . specialize hxy hsx'
+      · specialize hxy hsx'
         specialize hc hsy
         rw [mem_setOf_eq] at hc
         exact hc.right hxy hsy'
-      . specialize hyx hsy'
+      · specialize hyx hsy'
         specialize hc hsx
         rw [mem_setOf_eq] at hc
         exact hc.right hsx' hyx
-  . exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
+  · exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
 
 variable (X) in
 def zorn_apply_maximal_set (k : ℝ):
@@ -177,23 +177,20 @@ lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ba
     suffices hmem : y ∈ Yk X k by
       use y, hmem
       rw [disjoint_self, bot_eq_empty, ball_eq_empty, not_le]
-      apply Real.rpow_pos_of_pos (by exact_mod_cast defaultD_pos a) k
+      apply Real.rpow_pos_of_pos (defaultD_pos a) k
     suffices (Yk X k) ∪ {y} = Yk X k by
       rw [union_singleton, insert_eq_self] at this
       exact this
     apply Yk_maximal
-    . rw [union_subset_iff]
+    · rw [union_subset_iff]
       use Yk_subset k
       rw [singleton_subset_iff]
       exact hy
-    . rw [pairwiseDisjoint_union]
+    · rw [pairwiseDisjoint_union]
       use Yk_pairwise k
-      simp only [pairwiseDisjoint_singleton, true_and]
-      simp only [mem_singleton_iff,forall_eq]
-      intro z hz _
-      specialize hcon z hz
-      exact hcon.symm
-    . exact subset_union_left
+      simp only [pairwiseDisjoint_singleton, true_and, mem_singleton_iff,forall_eq]
+      exact fun z hz _ ↦ (hcon z hz).symm
+    · exact subset_union_left
   obtain ⟨z,hz,hz'⟩ := this
   simp only [mem_iUnion, mem_ball, exists_prop]
   use z,hz
@@ -394,7 +391,7 @@ lemma 𝔓_induction (P : 𝔓 X → Prop) (base : ∀ p, IsMax p.1 → P p)
     exact ind p h fun z ↦ (𝔓_induction P base ind ⟨p.1.succ, z⟩)
 termination_by p => p.1.opSize
 
-lemma Ω_subset_cdist {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
+lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
   induction p using 𝔓_induction with
   | base p maxI =>
     rw [Ω]; simp only [maxI, dite_true]
@@ -444,7 +441,7 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
     _ < CΩ + C2_1_2 a * 1 := by
       gcongr
       · rw [C2_1_2]; positivity
-      · simpa only using mem_of_mem_of_subset mϑ₂ (Ω_subset_cdist (p := ⟨I.succ, ⟨x, mx₁⟩⟩))
+      · simpa only using mem_of_mem_of_subset mϑ₂ (Ω_subset_cball (p := ⟨I.succ, ⟨x, mx₁⟩⟩))
     _ < CΩ + 2 ^ (-4 : ℝ) := by
       gcongr; rw [mul_one, C2_1_2, Real.rpow_lt_rpow_left_iff one_lt_two, neg_mul, neg_lt_neg_iff]
       norm_cast; linarith [four_le_a X]
@@ -504,11 +501,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
   · rw [or_iff_not_imp_left]; intro hi
     obtain ⟨I, y⟩ := p
     obtain ⟨J, z⟩ := q
-    have hij : I = J := by
-      refine le_antisymm h𝓘 <| Grid.le_def.mpr ⟨(fundamental_dyadic h).resolve_right ?_, h⟩
-      obtain ⟨w, mw⟩ := I.nonempty
-      rw [disjoint_comm, not_disjoint_iff]
-      use w, mw, mem_of_mem_of_subset mw (Grid.le_def.mp h𝓘).1
+    have hij : I = J := le_antisymm h𝓘 (Grid.le_dyadic h h𝓘 le_rfl)
     have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k]
@@ -552,9 +545,9 @@ def tile_existence : TileStructure Q D κ S o where
   biUnion_Ω {I} := Construction.Ω_biUnion
   disjoint_Ω := Construction.Ω_disjoint
   relative_fundamental_dyadic {p q} := Construction.Ω_RFD (I := I)
-  cdist_subset {p} := by
+  cball_subset {p} := by
     rw [Construction.Ω]; split_ifs with h
     · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
       exact this.trans (Construction.ball_subset_Ω₁ p)
     · simp
-  subset_cdist {p} := Construction.Ω_subset_cdist
+  subset_cball {p} := Construction.Ω_subset_cball

@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.Forest
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
