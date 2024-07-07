@@ -148,7 +148,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     rw [aux𝓒, mem_diff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
     use j, ?_, mem_of_mem_of_subset mi hj.1
     simpa [M] using mj
-  let M' : Finset (Grid X) := Grid.maxCubes M
+  let M' := Grid.maxCubes M
   have s₂ : ⋃ i ∈ M, (i : Set X) ⊆ ⋃ i ∈ M', ↑i := iUnion₂_mono' fun i mi ↦ by
     obtain ⟨j, mj, hj⟩ := (Grid.exists_maximal_supercube M) i mi; use j, mj, hj.1
   calc
