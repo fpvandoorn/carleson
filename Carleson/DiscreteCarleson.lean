@@ -148,20 +148,9 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     rw [aux𝓒, mem_diff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
     use j, ?_, mem_of_mem_of_subset mi hj.1
     simpa [M] using mj
-  let M' : Finset (Grid X) := M.filter fun i ↦ ∀ j ∈ M, i ≤ j → i = j
-  have t₁ : ∀ i ∈ M, ∃ j ∈ M', i ≤ j := fun i hi ↦ by
-    let C : Finset (Grid X) := M.filter (i ≤ ·)
-    have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
-    obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
-    simp_rw [C, M', Finset.mem_filter] at hj maxj ⊢; refine ⟨j, ?_, hj.2⟩
-    exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
+  let M' : Finset (Grid X) := Grid.maxCubes M
   have s₂ : ⋃ i ∈ M, (i : Set X) ⊆ ⋃ i ∈ M', ↑i := iUnion₂_mono' fun i mi ↦ by
-    obtain ⟨j, mj, hj⟩ := t₁ i mi; use j, mj, hj.1
-  have t₂ : M'.toSet.PairwiseDisjoint fun j ↦ G ∩ ↑j := fun i mi j mj hn ↦ by
-    refine ((?_ : Disjoint (i : Set X) j).inter_right' G).inter_left' G
-    simp only [M', and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
-    exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
-      |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
+    obtain ⟨j, mj, hj⟩ := (Grid.exists_maximal_supercube M) i mi; use j, mj, hj.1
   calc
     _ ≤ volume (⋃ i ∈ M', (i : Set X)) := measure_mono (s₁.trans s₂)
     _ ≤ ∑ i ∈ M', volume (i : Set X) := measure_biUnion_finset_le M' _
@@ -174,8 +163,9 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
         ← ENNReal.rpow_neg, neg_neg] at hi
       exact_mod_cast hi.le
     _ = 2 ^ (k + 1) * volume (⋃ j ∈ M', G ∩ j) := by
-      congr; refine (measure_biUnion_finset t₂ (fun _ _ ↦ ?_)).symm
-      exact measurableSet_G.inter coeGrid_measurable
+      congr; refine (measure_biUnion_finset (fun _ mi _ mj hn ↦ ?_) (fun _ _ ↦ ?_)).symm
+      · exact ((Grid.maxCubes_pairwiseDisjoint M mi mj hn).inter_right' G).inter_left' G
+      · exact measurableSet_G.inter coeGrid_measurable
     _ ≤ _ := mul_le_mul_left' (measure_mono (iUnion₂_subset fun _ _ ↦ inter_subset_left)) _
 
 /-- Lemma 5.2.3 -/
@@ -205,7 +195,7 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
 
 /-- Lemma 5.2.5 -/
 lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * volume G := by
-  sorry
+    sorry
 
 /-- Lemma 5.2.6 -/
 lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G := by
