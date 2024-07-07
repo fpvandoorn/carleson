@@ -58,7 +58,7 @@ jobs:
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
             !.lake/build/doc/declarations/declaration-data-Carleson*
-          key: ${{ hashFiles('lake-manifest.json') }}
+          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           #restore-keys: MathlibDoc-
 
       - name: Build project documentation
@@ -104,10 +104,10 @@ jobs:
         working-directory: docs
         run: JEKYLL_ENV=production bundle exec jekyll build
 
-      # - name: Upload docs & blueprint artifact to `docs/`
-      #   uses: actions/upload-pages-artifact@v1
-      #   with:
-      #     path: docs/
+      - name: Upload docs & blueprint artifact to `docs/`
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/
 
       - name: Upload docs & blueprint artifact to `docs/_site`
         uses: actions/upload-pages-artifact@v1
@@ -118,5 +118,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
 
-      # - name: Make sure the cache works
-      #   run: mv docs/docs .lake/build/doc
+      - name: Make sure the cache works
+        run: mv docs/docs .lake/build/doc
