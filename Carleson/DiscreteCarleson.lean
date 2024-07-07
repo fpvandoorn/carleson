@@ -151,19 +151,17 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
   let M' : Finset (Grid X) := M.filter fun i ↦ ∀ j ∈ M, i ≤ j → i = j
   have t₁ : ∀ i ∈ M, ∃ j ∈ M', i ≤ j := fun i hi ↦ by
     let C : Finset (Grid X) := M.filter (i ≤ ·)
-    have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter]; exact ⟨hi, by rfl⟩⟩
+    have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
     obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
     simp_rw [C, M', Finset.mem_filter] at hj maxj ⊢; refine ⟨j, ?_, hj.2⟩
     exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
   have s₂ : ⋃ i ∈ M, (i : Set X) ⊆ ⋃ i ∈ M', ↑i := iUnion₂_mono' fun i mi ↦ by
     obtain ⟨j, mj, hj⟩ := t₁ i mi; use j, mj, hj.1
   have t₂ : M'.toSet.PairwiseDisjoint fun j ↦ G ∩ ↑j := fun i mi j mj hn ↦ by
-    refine Disjoint.inter_left' G (Disjoint.inter_right' G ?_)
+    refine ((?_ : Disjoint (i : Set X) j).inter_right' G).inter_left' G
     simp only [M', and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
-    rcases le_or_lt (s i) (s j) with c | c
-    · exact (le_or_disjoint c).resolve_left ((mi.2 j mj.1).mt hn)
-    · rw [disjoint_comm]
-      exact (le_or_disjoint c.le).resolve_left ((mj.2 i mi.1).mt hn.symm)
+    exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
+      |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
   calc
     _ ≤ volume (⋃ i ∈ M', (i : Set X)) := measure_mono (s₁.trans s₂)
     _ ≤ ∑ i ∈ M', volume (i : Set X) := measure_biUnion_finset_le M' _
@@ -177,7 +175,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
       exact_mod_cast hi.le
     _ = 2 ^ (k + 1) * volume (⋃ j ∈ M', G ∩ j) := by
       congr; refine (measure_biUnion_finset t₂ (fun _ _ ↦ ?_)).symm
-      exact measurableSet_G.inter GridStructure.coeGrid_measurable
+      exact measurableSet_G.inter coeGrid_measurable
     _ ≤ _ := mul_le_mul_left' (measure_mono (iUnion₂_subset fun _ _ ↦ inter_subset_left)) _
 
 /-- Lemma 5.2.3 -/

@@ -75,6 +75,11 @@ lemma fundamental_dyadic :
 lemma le_or_disjoint (h : s i ≤ s j) : i ≤ j ∨ Disjoint (i : Set X) (j : Set X) :=
   fundamental_dyadic h |>.imp (⟨·, h⟩) id
 
+lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : Set X) := by
+  rcases le_or_lt (s i) (s j) with h | h
+  · have := le_or_disjoint h; tauto
+  · have := le_or_disjoint h.le; tauto
+
 namespace Grid
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
