@@ -84,10 +84,10 @@ jobs:
             leanblueprint web
             cp -r blueprint/web docs/blueprint
 
-      - name: Remove lake files from documentation
-        run: |
-          find .lake/build/doc -name "*.trace" -delete
-          find .lake/build/doc -name "*.hash" -delete
+      # - name: Remove lake files from documentation
+      #   run: |
+      #     find .lake/build/doc -name "*.trace" -delete
+      #     find .lake/build/doc -name "*.hash" -delete
 
       - name: Copy documentation to `docs/docs`
         run: |
