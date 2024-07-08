@@ -31,7 +31,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
   if hfin : s.Finite then
     have hfin' : Finite s := by exact hfin
     rw [tsum_def]
-    simp only [ENNReal.summable, ↓reduceDite]
+    simp only [ENNReal.summable, ↓reduceDIte]
     have hsup: support (fun (_ : s) ↦ (1 : ℝ≥0∞)) = Set.univ := by
       ext i
       simp only [mem_support, ne_eq, one_ne_zero, not_false_eq_true, mem_univ]
