@@ -28,7 +28,7 @@ variable {X : Type*} {A : ℝ} [MetricSpace X] [DoublingMeasure X A] [Inhabited 
 variable {τ q D κ ε δ : ℝ} {C₀ C t : ℝ}
 variable {Θ : Set C(X, ℂ)} [IsCompatible Θ] [IsCancellative τ Θ] [TileStructure Θ D κ C₀]
 variable {F G : Set X} {σ σ' : X → ℤ} {Q' : X → C(X, ℂ)} /- Q-tilde in the pdf -/
-variable (K : X → X → ℂ) [IsCZKernel τ K]
+variable (K : X → X → ℂ) [IsOneSidedKernel τ K]
 variable {ψ : ℝ → ℝ}
 variable {n : ℕ} {𝔉 : Forest G Q' δ n}
 

@@ -404,16 +404,16 @@ instance h5 : IsCancellative ℝ (2 ^ (4 : ℕ)) where
 
 --TODO : add some Real.vol lemma
 
-instance h6 : IsCZKernel 4 K where
+instance h6 : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
-  norm_le_vol_inv := by
+  norm_K_le_vol_inv := by
     intro x y
     rw [Complex.norm_eq_abs, Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
     calc Complex.abs (K x y)
     _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
   /- uses Hilbert_kernel_regularity -/
-  norm_sub_le := by
+  norm_K_sub_le := by
     intro x y y' h
     rw [Real.dist_eq, Real.dist_eq] at *
     calc ‖K x y - K x y'‖
@@ -437,11 +437,11 @@ instance h6 : IsCZKernel 4 K where
         · norm_num
       · norm_num
   /- Lemma ?-/
-  measurable_right := by
+  measurable_K_left := by
     apply Measurable.of_uncurry_right
     exact Hilbert_kernel_measurable
   /- Lemma ?-/
-  measurable := Hilbert_kernel_measurable
+  measurable_K_right := Hilbert_kernel_measurable
 
 /- Lemma ?-/
 lemma h3 : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts 4) := sorry

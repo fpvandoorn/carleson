@@ -1,5 +1,4 @@
 import Carleson.Defs
-import Carleson.ToMathlib.Misc
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure
 open scoped ENNReal
@@ -325,15 +324,15 @@ def C2_1_3 (a : ℝ) : ℝ := 2 ^ (102 * a ^ 3)
 def D2_1_3 (a : ℝ) : ℝ := 2 ^ (150 * a ^ 3)
 
 --1.0.14.
-lemma kernel_bound [hcz : IsCZKernel a K] {s : ℤ} {x y : X} :
-    ‖Ks s x y‖₊ ≤ 2^(a^3) / volume.nnreal (ball x (dist x y)) := by
+lemma kernel_bound {s : ℤ} {x y : X} :
+    ‖Ks s x y‖₊ ≤ 2 ^ a ^ 3 / volume.nnreal (ball x (dist x y)) := by
   change ‖K x y * ψ (D ^ (-s) * dist x y)‖ ≤ 2 ^ a ^ 3 / volume.real (ball x (dist x y))
   apply le_trans <| calc
     ‖K x y * ψ (D ^ (-s) * dist x y)‖
       = ‖K x y‖ * ‖(ψ (D ^ (-s) * dist x y) : ℂ)‖ := by exact_mod_cast norm_mul _ _
     _ ≤ ‖K x y‖ * 1               := by gcongr; rw [norm_eq_abs, abs_ofReal]; exact abs_ψ_le_one D _
     _ ≤ ‖K x y‖                   := by rw [mul_one]
-  convert hcz.norm_le_vol_inv x y
+  convert norm_K_le_vol_inv (K := K) x y
   unfold C_K
   norm_cast
 
@@ -363,25 +362,25 @@ lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) : volume.nnr
 lemma Metric.measure_ball_pos_real (x : X) (r : ℝ) (hr : r > 0) : volume.real (ball x r) > 0 :=
   measure_ball_pos_nnreal x r hr
 
-lemma IsCZKernel.eq_of_dist_eq_zero [IsCZKernel a K] {x y y' : X} (hyy' : dist y y' = 0) :
+lemma K_eq_K_of_dist_eq_zero {x y y' : X} (hyy' : dist y y' = 0) :
     K x y = K x y' := by
   suffices ‖K x y - K x y'‖ = 0 by rwa [norm_eq_abs, AbsoluteValue.map_sub_eq_zero_iff] at this
   suffices ‖K x y - K x y'‖ ≤ 0 from le_antisymm this (norm_nonneg (K x y - K x y'))
-  convert IsCZKernel.norm_sub_le (a := a) (K := K) (x := x) (y := y) (y' := y')
+  convert norm_K_sub_le (K := K) (x := x) (y := y) (y' := y')
     (by simp only [hyy', mul_zero, dist_nonneg])
   suffices (0 : ℝ) ^ (a : ℝ)⁻¹ = 0 by simp [hyy', this]
   simp [inv_ne_zero (show (a : ℝ) ≠ 0 by norm_cast; linarith [four_le_a X])]
 
-lemma IsCZKernel.eq_zero_of_dist_eq_zero [hcz : IsCZKernel a K] {x y : X} (hxy : dist x y = 0) :
+lemma K_eq_zero_of_dist_eq_zero {x y : X} (hxy : dist x y = 0) :
     K x y = 0 :=
-  norm_le_zero_iff.1 (by simpa [hxy, Real.vol] using hcz.norm_le_vol_inv x y)
+  norm_le_zero_iff.1 (by simpa [hxy, Real.vol] using norm_K_le_vol_inv x y)
 
 variable {s}
 
-private lemma div_vol_le [hcz : IsCZKernel a K] {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) :
+private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) :
     c / volume.real (ball x (dist x y)) ≤
     (2 ^ (2 * a + 100 * a ^ 3)) * c / volume.real (ball x (D ^ s)) := by
-  have h : 0 ≠ dist x y := fun h0 ↦ by simp [Ks, hcz.eq_zero_of_dist_eq_zero h0.symm] at hK
+  have h : 0 ≠ dist x y := fun h0 ↦ by simp [Ks, K_eq_zero_of_dist_eq_zero h0.symm] at hK
   have v0₁ := measure_ball_pos_nnreal x (dist x y) <| lt_of_le_of_ne dist_nonneg h
   have v0₂ := measure_ball_pos_nnreal x (D ^ (s - 1) / 4) (by have := D0' X; positivity)
   have v0₃ := measure_ball_pos_real x (D ^ s) (Nat.zpow_pos_of_pos (D0'' X) s)
@@ -398,13 +397,13 @@ private lemma div_vol_le [hcz : IsCZKernel a K] {x y : X} {c : ℝ} (hc : c > 0)
   congr
   ring
 
-private lemma norm_K_le [hcz : IsCZKernel a K] {s : ℤ} {x y : X} (hK : Ks s x y ≠ 0):
+private lemma norm_K_le {s : ℤ} {x y : X} (hK : Ks s x y ≠ 0):
     ‖K x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by
   by_cases h : dist x y = 0
-  · rw [hcz.eq_zero_of_dist_eq_zero h, norm_zero, C2_1_3]
+  · rw [K_eq_zero_of_dist_eq_zero h, norm_zero, C2_1_3]
     positivity
   have v0₃ := measure_ball_pos_real x (D ^ s) (Nat.zpow_pos_of_pos (D0'' X) s)
-  apply (hcz.norm_le_vol_inv x y).trans
+  apply (norm_K_le_vol_inv x y).trans
   unfold Real.vol C_K C2_1_3
   apply le_trans (div_vol_le (by positivity) hK)
   norm_cast
@@ -416,7 +415,7 @@ private lemma norm_K_le [hcz : IsCZKernel a K] {s : ℤ} {x y : X} (hK : Ks s x 
     nlinarith [four_le_a X]
 
 -- 2.1.3
-lemma norm_Ks_le [IsCZKernel a K] {s : ℤ} {x y : X} :
+lemma norm_Ks_le {s : ℤ} {x y : X} :
     ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by
   have : 0 ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by unfold C2_1_3; positivity
   by_cases hK : Ks s x y = 0
@@ -431,12 +430,12 @@ private lemma norm_ψ_sub_ψ_le_two {r s : ℝ} : ‖ψ r - ψ s‖ ≤ 2 :=
   (norm_sub_le _ _).trans <| le_of_le_of_eq (add_le_add (abs_ψ_le_one D r) (abs_ψ_le_one D s))
     one_add_one_eq_two
 
-private lemma Ks_eq_Ks [IsCZKernel a K] (x : X) {y y' : X} (hyy' : dist y y' = 0) :
+private lemma Ks_eq_Ks (x : X) {y y' : X} (hyy' : dist y y' = 0) :
     Ks s x y = Ks s x y' := by
-  simp_rw [Ks, PseudoMetricSpace.dist_eq_of_dist_zero x hyy', IsCZKernel.eq_of_dist_eq_zero hyy']
+  simp_rw [Ks, PseudoMetricSpace.dist_eq_of_dist_zero x hyy', K_eq_K_of_dist_eq_zero hyy']
 
 -- Needed to prove `norm_Ks_sub_Ks_le`
-private lemma ψ_ineq [IsCZKernel a K] {x y y' : X} :
+private lemma ψ_ineq {x y y' : X} :
     |ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')| ≤
     4 * D * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   by_cases hyy' : dist y y' = 0
@@ -487,7 +486,7 @@ To prepare for the proof of `norm_Ks_sub_Ks_le₀`, we separate the main inequal
 -/
 
 -- Part of the inequality needed for `norm_Ks_sub_Ks_le₀`.
-private lemma norm_Ks_sub_Ks_le₀₀ [hcz : IsCZKernel a K] {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
      (hyy' : 2 * dist y y' ≤ dist x y) : ‖K x y - K x y'‖ * |ψ (D ^ (-s) * dist x y')| ≤
     (2 : ℝ) ^ (1 + 102 * a + 101 * a ^ 3) / volume.real (ball x (D ^ s)) *
     (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -498,7 +497,7 @@ private lemma norm_Ks_sub_Ks_le₀₀ [hcz : IsCZKernel a K] {s : ℤ} {x y y' :
     lt_of_lt_of_le (by positivity) (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
   apply le_trans <| mul_le_mul_of_nonneg_left (abs_ψ_le_one D _) (norm_nonneg (K x y - K x y'))
   rw [mul_one]
-  apply le_trans <| hcz.norm_sub_le hyy'
+  apply le_trans <| norm_K_sub_le hyy'
   rw [Ks] at hK
   have ψ_ne_0 : ψ (D ^ (-s) * dist x y) ≠ 0 := fun h ↦ hK (by rw [h, ofReal_zero, mul_zero])
   have mem_supp := (psi_ne_zero_iff D1 d0).1 ψ_ne_0
@@ -528,7 +527,7 @@ private lemma norm_Ks_sub_Ks_le₀₀ [hcz : IsCZKernel a K] {s : ℤ} {x y y' :
   ring
 
 -- Part of the inequality needed for `norm_Ks_sub_Ks_le₀`.
-private lemma norm_Ks_sub_Ks_le₀₁ [hcz : IsCZKernel a K] {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
+private lemma norm_Ks_sub_Ks_le₀₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
     ‖K x y‖ * |(ψ (D ^ (-s) * dist x y)) - (ψ (D ^ (-s) * dist x y'))| ≤
     (2 : ℝ) ^ (2 + 2 * a + 100 * a ^ 2 + 101 * a ^ 3) / volume.real (ball x (D ^ s)) *
     (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -538,14 +537,14 @@ private lemma norm_Ks_sub_Ks_le₀₁ [hcz : IsCZKernel a K] {s : ℤ} {x y y' :
     field_simp; ring
   rw [this]
   refine mul_le_mul ?_ ψ_ineq (abs_nonneg _) (by positivity)
-  apply le_trans <| hcz.norm_le_vol_inv x y
+  apply le_trans <| norm_K_le_vol_inv x y
   unfold C_K
   apply le_of_le_of_eq <| div_vol_le (by positivity) hK
   norm_cast
   rw [← pow_add, (show 2 * a + 100 * a ^ 3 + a ^ 3 = 2 * a + 101 * a ^ 3 by ring)]
 
 -- Special case of `norm_Ks_sub_Ks_le`
-private lemma norm_Ks_sub_Ks_le₀ [hcz : IsCZKernel a K] {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+private lemma norm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     (h : 2 * dist y y' ≤ dist x y) : ‖Ks s x y - Ks s x y'‖ ≤
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   unfold Ks
@@ -571,7 +570,7 @@ private lemma norm_Ks_sub_Ks_le₀ [hcz : IsCZKernel a K] {s : ℤ} {x y y' : X}
   · nlinarith [four_le_a X]
 
 -- Special case of `norm_Ks_sub_Ks_le`
-private lemma norm_Ks_sub_Ks_le₁ [hcz : IsCZKernel a K] {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
+private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     (h : ¬ 2 * dist y y' ≤ dist x y) : ‖Ks s x y - Ks s x y'‖ ≤
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   have a4 : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
@@ -620,7 +619,7 @@ private lemma norm_Ks_sub_Ks_le₁ [hcz : IsCZKernel a K] {s : ℤ} {x y y' : X}
   linarith [add_nonneg (mul_nonneg a_ineq a.cast_nonneg) a_ineq']
 
 -- 2.1.3
-lemma norm_Ks_sub_Ks_le [hcz : IsCZKernel a K] {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
+lemma norm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
     ‖Ks s x y - Ks s x y'‖ ≤
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   by_cases h : 2 * dist y y' ≤ dist x y

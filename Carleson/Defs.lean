@@ -180,24 +180,6 @@ export IsCancellative (norm_integral_exp_le)
 def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
 
-open Real (vol)
-open Function
-
-/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
-@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
-
-/-- `K` is a one-sided Calderon-Zygmund kernel
-In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
-class IsCZKernel (a : ℕ) (K : X → X → ℂ) : Prop where
-  measurable : Measurable (uncurry K)
-  norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
-  norm_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
-  measurable_right (y : X) : Measurable (K · y)
-
--- to show: K is locally bounded and hence integrable outside the diagonal
-
 /-- In Mathlib we only have the operator norm for continuous linear maps,
 and `T_*` is not linear.
 Here is the norm for an arbitrary map `T` between normed spaces
@@ -248,6 +230,32 @@ and `CompatibleFunctions` -/
 
 lemma defaultD_pos (a : ℕ) : 0 < (defaultD a : ℝ) := by rw [defaultD]; positivity
 
+section Kernel
+
+variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X] [MeasureSpace X]
+open Real (vol)
+open Function
+
+/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
+@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
+
+/-- `K` is a one-sided Calderon-Zygmund kernel
+In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
+that `K x x = 0`. -/
+class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
+  measurable_K_right : Measurable (uncurry K)
+  measurable_K_left (y : X) : Measurable (K · y)
+  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
+  norm_K_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+
+export IsOneSidedKernel (measurable_K_right measurable_K_left norm_K_le_vol_inv norm_K_sub_le)
+
+end Kernel
+
+-- to show: K is locally bounded and hence integrable outside the diagonal
+
+
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`
 throughout this formalization. -/
@@ -260,6 +268,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   c : IsCancellative X (defaultτ a)
+  hcz : IsOneSidedKernel a K
   hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
@@ -273,7 +282,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
 
 export PreProofData (four_le_a hasBoundedStrongType_T measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] PreProofData.d PreProofData.cf PreProofData.c
+attribute [instance] PreProofData.d PreProofData.cf PreProofData.c PreProofData.hcz
 
 section ProofData
 
