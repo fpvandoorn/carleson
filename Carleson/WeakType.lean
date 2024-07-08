@@ -87,7 +87,7 @@ lemma distribution_add_le :
       simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
       contrapose! h
       exact (ENNNorm_add_le _ _).trans (add_le_add h.1 h.2)
-    _ ≤ _ := by apply measure_union_le
+    _ ≤ _ := measure_union_le _ _
 
 lemma approx_above_superset (t₀ : ℝ≥0∞) :
     ⋃ n, (fun n : ℕ ↦ {x | t₀ + (↑n)⁻¹ < ↑‖f x‖₊}) n = {x | t₀ < ‖f x‖₊} := by
@@ -109,7 +109,6 @@ lemma approx_above_superset (t₀ : ℝ≥0∞) :
 lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
     Filter.Tendsto (⇑μ ∘ (fun n : ℕ ↦ {x | t₀ + (↑n)⁻¹ < ‖f x‖₊}))
       Filter.atTop (nhds (μ ({x | t₀ < ‖f x‖₊}))) := by
-  unfold Filter.Tendsto
   rw [← approx_above_superset]
   apply MeasureTheory.tendsto_measure_iUnion
   intro a b h x h₁
@@ -137,10 +136,8 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
     · simp
       rw [db_top, ENNReal.tendsto_nhds_top_iff_nnreal]
       intro b
-      have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ := by
-        apply select_neighborhood_distribution
-        rw [db_top]
-        exact coe_lt_top
+      have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ :=
+        select_neighborhood_distribution _ _ (db_top ▸ coe_lt_top)
       rcases h₀ with ⟨n, wn⟩
       refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
       use Iio (t₀ + (↑n)⁻¹)
@@ -157,11 +154,11 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
       · use Ico 0 (t₀ + 1)
         constructor
         · refine IsOpen.mem_nhds isOpen_Ico_zero ?_
-          simp; exact lt_add_right t₀nottop.ne_top one_ne_zero
+          simp only [mem_Ico, zero_le, lt_add_right t₀nottop.ne_top one_ne_zero, and_self]
         · use Ioi t₀
           refine ⟨by simp, fun z hz ↦ ?_⟩
           rw [db_zero]
-          simp
+          simp only [ge_iff_le, zero_le, tsub_eq_zero_of_le, zero_add]
           have h₂ : distribution f z μ ≤ distribution f t₀ μ :=
             distribution_mono_right (le_of_lt hz.2)
           rw [db_zero] at h₂
