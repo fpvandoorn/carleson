@@ -140,9 +140,33 @@ lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := 
   sorry
 
 /-- Lemma 5.2.2 -/
-lemma dense_cover (k : ℕ) :
-    volume (⋃ p ∈ 𝓒 (X := X) k, (p : Set X)) ≤ 2 ^ (k + 1) * volume G := by
-  sorry
+lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) ≤ 2 ^ (k + 1) * volume G := by
+  let M : Finset (Grid X) :=
+    Finset.univ.filter fun j ↦ (2 ^ (-(k + 1 : ℕ) : ℤ) * volume (j : Set X) < volume (G ∩ j))
+  have s₁ : ⋃ i ∈ 𝓒 (X := X) k, (i : Set X) ⊆ ⋃ i ∈ M, ↑i := by
+    simp_rw [𝓒]; intro q mq; rw [mem_iUnion₂] at mq ⊢; obtain ⟨i, hi, mi⟩ := mq
+    rw [aux𝓒, mem_diff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
+    use j, ?_, mem_of_mem_of_subset mi hj.1
+    simpa [M] using mj
+  let M' := Grid.maxCubes M
+  have s₂ : ⋃ i ∈ M, (i : Set X) ⊆ ⋃ i ∈ M', ↑i := iUnion₂_mono' fun i mi ↦ by
+    obtain ⟨j, mj, hj⟩ := (Grid.exists_maximal_supercube M) i mi; use j, mj, hj.1
+  calc
+    _ ≤ volume (⋃ i ∈ M', (i : Set X)) := measure_mono (s₁.trans s₂)
+    _ ≤ ∑ i ∈ M', volume (i : Set X) := measure_biUnion_finset_le M' _
+    _ ≤ 2 ^ (k + 1) * ∑ j ∈ M', volume (G ∩ j) := by
+      rw [Finset.mul_sum]; refine Finset.sum_le_sum fun i hi ↦ ?_
+      replace hi : i ∈ M := Finset.mem_of_subset (Finset.filter_subset _ M) hi
+      simp_rw [M, Finset.mem_filter, Finset.mem_univ, true_and] at hi
+      rw [← ENNReal.rpow_intCast, show (-(k + 1 : ℕ) : ℤ) = (-(k + 1) : ℝ) by simp,
+        mul_comm, ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
+        ← ENNReal.rpow_neg, neg_neg] at hi
+      exact_mod_cast hi.le
+    _ = 2 ^ (k + 1) * volume (⋃ j ∈ M', G ∩ j) := by
+      congr; refine (measure_biUnion_finset (fun _ mi _ mj hn ↦ ?_) (fun _ _ ↦ ?_)).symm
+      · exact ((Grid.maxCubes_pairwiseDisjoint M mi mj hn).inter_right' G).inter_left' G
+      · exact measurableSet_G.inter coeGrid_measurable
+    _ ≤ _ := mul_le_mul_left' (measure_mono (iUnion₂_subset fun _ _ ↦ inter_subset_left)) _
 
 /-- Lemma 5.2.3 -/
 lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p mp p' mp' h ↦ by
@@ -171,7 +195,7 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
 
 /-- Lemma 5.2.5 -/
 lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * volume G := by
-  sorry
+    sorry
 
 /-- Lemma 5.2.6 -/
 lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G := by

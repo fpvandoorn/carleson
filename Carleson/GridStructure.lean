@@ -37,9 +37,10 @@ class GridStructure
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
     volume.real { x ∈ coeGrid i | infDist x (coeGrid i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coeGrid i)
+  coeGrid_measurable {i} : MeasurableSet (coeGrid i)
 
 export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
-  topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
+  topCube s_topCube c_topCube subset_topCube coeGrid_measurable) -- should `X` be explicit in topCube?
 
 attribute [coe] GridStructure.coeGrid
 
@@ -73,6 +74,11 @@ lemma fundamental_dyadic :
 
 lemma le_or_disjoint (h : s i ≤ s j) : i ≤ j ∨ Disjoint (i : Set X) (j : Set X) :=
   fundamental_dyadic h |>.imp (⟨·, h⟩) id
+
+lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : Set X) := by
+  rcases le_or_lt (s i) (s j) with h | h
+  · have := le_or_disjoint h; tauto
+  · have := le_or_disjoint h.le; tauto
 
 namespace Grid
 
@@ -320,5 +326,26 @@ lemma dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ d
   rcases hpq.eq_or_lt with h | h
   · subst h; rfl
   · exact (Grid.dist_strictMono h).trans (mul_le_of_le_one_left dist_nonneg (C2_1_2_le_one X))
+
+/-! Maximal elements of finsets of dyadic cubes -/
+
+variable (s : Finset (Grid X))
+
+open Classical in
+def maxCubes : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
+
+lemma exists_maximal_supercube : ∀ i ∈ s, ∃ j ∈ maxCubes s, i ≤ j := fun i hi ↦ by
+  classical let C : Finset (Grid X) := s.filter (i ≤ ·)
+  have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
+  obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
+  simp_rw [C, maxCubes, Finset.mem_filter] at hj maxj ⊢
+  refine ⟨j, ?_, hj.2⟩
+  exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
+
+lemma maxCubes_pairwiseDisjoint :
+    (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
+  simp only [maxCubes, and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
+  exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
+    |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
 
 end Grid
