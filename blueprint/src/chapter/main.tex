@@ -6434,10 +6434,10 @@ We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Z
 \end{equation}
 %fixme: Should it be V(y,x) rather?
 By the additional regularity, we can weaken the assumption \eqref{nontanbound} to an operator that is easier to work with in applications.
-Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f$ on $X$ with bounded support, we define
+Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f:X\to\C$ supported on a set of finite measure, we define
 \begin{equation}
-\label{def-H_r}
-H_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
+\label{def-T_r}
+T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
 \begin{theorem}[two-sided metric space Carleson]
     \label{two-sided-metric-space-Carleson}
@@ -6447,7 +6447,7 @@ H_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
         cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
         \begin{equation}\label{two-sided-Hr-bound-assumption}
-            \|H_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
+            \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
         Then for all Borel sets $F$ and $G$ in $X$ and
         all Borel functions $f:X\to \C$ with
@@ -6477,12 +6477,12 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that for every bounded measurable function $g$ on $X$ supported on a set of finite measure,
     \begin{equation}
         \label{eq-strong-2-2-assumption}
-        \|H_rg\|_{2}\le 2^{a^3} \|g\|_2.
+        \|T_rg\|_{2}\le 2^{a^3} \|g\|_2.
     \end{equation}
     Then for all $\alpha>0$, we have
     \begin{equation}
         \label{eq-weak-1-1}
-        \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
+        \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)\le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
 Both \Cref{subsec-CZD,subsec-cotlar} use the Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood} but other than that have no dependencies in the previous chapters.
@@ -6522,7 +6522,7 @@ Let $0<r$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function support
 defined in \Cref{Hardy-Littlewood}.
 Then for all $x'$ with $\rho(x,x')\le r$.
 \begin{equation*}
-\left| H_r g(x) - H_r g(x') \right|
+\left| T_r g(x) - T_r g(x') \right|
 \le 2^{a^3 + 2a + 2} Mg(x)\, .
 \end{equation*}
 \end{lemma}
@@ -6531,7 +6531,7 @@ Then for all $x'$ with $\rho(x,x')\le r$.
 By definition,
 \begin{equation}
 \label{xx'difference}
-\left| H_r g(x) - H_r g(x') \right|
+\left| T_r g(x) - T_r g(x') \right|
 =\left|\int_{r\le\rho(x,y)} K(x,y) g(y) \,d\mu(y)
 -\int_{r\le\rho(x',y)}
 K(x',y) g(y)\, d\mu(y)
@@ -6630,9 +6630,9 @@ proves the lemma.
 Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Let $Mg$ be the Hardy--Littlewood function defined in \Cref{Hardy-Littlewood}.
 Then for all $x'\in X$ with $\rho(x,x')\le\frac {R}{4}$ we have
 \begin{equation}\label{eq-cotlar-control}
-\left|H_{R} g(x)
+\left|T_R g(x)
 \right|\le
-|H_{r}(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')| +
+|T_r(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')| +
 2^{a^3 + 4a + 1} Mg(x)\, .
 \end{equation}
 \end{lemma}
@@ -6643,33 +6643,33 @@ By an application of \Cref{estimate-x-shift}, we estimate
 the left-hand-side of
 \eqref{eq-cotlar-control} by
 \begin{equation}\label{eqcotlar0}
-|H_{R}(g)(x')|+
+|T_R(g)(x')|+
 2^{a^3 + 2a + 2} Mg(x)\,.
 \end{equation}
 We  have
 \begin{equation}
 \label{eqcotlar-1}
-H_{R}(g)(x')=
+T_R(g)(x')=
 \int_{R\le\rho(x',y)} K(x',y) g(y) \, d\mu(y)\, .
 \end{equation}
 On the domain $R\le\rho(x',y)$, we have $\frac {R}2\le\rho(x,y)$. Hence we may write
 for \eqref{eqcotlar-1}
 \begin{equation*}
-H_{R}(g)(x')=\int_{R\le\rho(x',y)} K(x',y) (g-g\mathbf{1}_{B(x,\frac {R} 2)})(y) \,d\mu(y)
+T_R(g)(x')=\int_{R\le\rho(x',y)} K(x',y) (g-g\mathbf{1}_{B(x,\frac {R} 2)})(y) \,d\mu(y)
 \end{equation*}
 \begin{equation}\label{eqcotlar1}
-=H_{R}(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')\, .
+=T_R(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')\, .
 \end{equation}
 Combining the estimate \eqref{eqcotlar0} with the identification \eqref{eqcotlar1}, we obtain
 \begin{equation}\label{eqcotlar5}
-\left|H_{R} g(x)
+\left|T_R g(x)
 \right|\le
-|H_{R}(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')|+
+|T_R(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')|+
 2^{a^3 + 2a + 2} Mg(x)\, .
 \end{equation}
 We  have
 \begin{equation*}
-(H_{r}-H_{R})(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')
+(T_r-T_R)(g-g\mathbf{1}_{B(x,\frac {R} 2)})(x')
 \end{equation*}
 \begin{equation*}
 = \int_{B(x',R)\setminus B(x',r)} K(x',y) (g-g\mathbf{1}_{B(x,\frac {R} 2)})(y) \,d\mu(y)
@@ -6697,32 +6697,32 @@ Assume that \eqref{two-sided-Hr-bound-assumption} holds. Let $0<r\le R$ and  $x\
 Then the measure $|F_1|$ of the set $F_1$ of all $x'\in B(x,\frac {R} 4)$ such that
 \begin{equation}
 \label{first-cotlar-exception}
-    |H_{r}g(x')|> 4 M(H_{r}g)(x)
+    |T_rg(x')|> 4 M(T_rg)(x)
 \end{equation}
 is less than or equal to $\mu(B(x,\frac{R}{4}))/4$.
 Moreover,  the measure $|F_2|$ of the set $F_2$ of all $x'\in
 B(x,\frac {R} 4)$ such that
 \begin{equation}
 \label{second-cotlar-exception}
-    |H_{r}(g\mathbf{1}_{B(x,\frac {R} 2)})(x')| > 2^{a^3 + 20a + 2} Mg(x)
+    |T_r(g\mathbf{1}_{B(x,\frac {R} 2)})(x')| > 2^{a^3 + 20a + 2} Mg(x)
 \end{equation}
 is less than or equal to  $\mu(B(x,\frac{R}{4}))/4$.
 \end{lemma}
 
 \begin{proof}
 Let $r$, $R$, $x$ and $g$ be given.
-If $M(H_{r}g)(x)=0$, then $H_{r}g$ is zero almost everywhere and the estimate on $|F_1|$ is trivial.
-Assume $M(H_{r}g)(x)>0$.
+If $M(T_rg)(x)=0$, then $T_rg$ is zero almost everywhere and the estimate on $|F_1|$ is trivial.
+Assume $M(T_rg)(x)>0$.
 We have with \eqref{first-cotlar-exception}
 \begin{equation}
-    M(H_{r}g)(x)\ge
-    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{B(x,\frac{R}{4})}|H_{r}g(x')|\, dx'
+    M(T_rg)(x)\ge
+    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{B(x,\frac{R}{4})}|T_rg(x')|\, dx'
 \end{equation}
 \begin{equation}
     \ge
-    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{F_1} 4 M(H_{r}g)(x)\, dx'
+    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{F_1} 4 M(T_rg)(x)\, dx'
 \end{equation}
-Dividing by $M(H_{r}g)(x)$ gives
+Dividing by $M(T_rg)(x)$ gives
 \begin{equation}
     1\ge \frac{4}{\mu(B(x,\frac{R}{4}))} |F_1|\, .
 \end{equation}
@@ -6744,7 +6744,7 @@ This gives the desired bound for the measure of $F_2$.
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Then
 \begin{equation}\label{eq-cotlar-estimate}
-|H_{R}g(x)| \le 2^{2}M(H_rg)(x)+ 2^{a^3+20a+3} Mg(x)
+|T_Rg(x)| \le 2^{2}M(T_rg)(x)+ 2^{a^3+20a+3} Mg(x)
 \, .
 \end{equation}
 \end{lemma}
@@ -6760,50 +6760,50 @@ Applying \Cref{Cotlar-control} for this $x'$ and using the triangle inequality
 estimates the left-hand side of \eqref{eq-cotlar-estimate}
 by
 \begin{equation}
-    4 M(H_rg)(x) + 2^{a^3 + 20a + 2} Mg(x) + 2^{a^3 + 4a + 1} Mg(x)\, .
+    4 M(T_rg)(x) + 2^{a^3 + 20a + 2} Mg(x) + 2^{a^3 + 4a + 1} Mg(x)\, .
 \end{equation}
 This proves the lemma.
 \end{proof}
 
-\begin{lemma}[simple nontangential Hilbert]\label{simple-nontangential-Hilbert}
+\begin{lemma}[simple nontangential operator]\label{simple-nontangential-operator}
 \uses{Hardy-Littlewood,Cotlar-estimate}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 For every  $r>0$ and every bounded measurable function $g$ supported on a set of finite measure we have
 \begin{equation}\label{trzerobound}
-    \|T_{r}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
+    \|T_{*}^rg\|_2\le 2^{a^3+24a+6}\|g\|_2,
 \end{equation}
 where
 \begin{equation}\label{eq-simple--nontangential}
-    T_{r} g(x):=\sup_{r<R}\sup_{x'\in B(x,R)} |H_{R}(g)(x')| \, .
+    T_{*}^r g(x):=\sup_{r<R}\sup_{x'\in B(x,R)} |T_R(g)(x')| \, .
 \end{equation}
 \end{lemma}
 \begin{proof}
 With \Cref{estimate-x-shift} and the triangle inequality, we estimate for every $x\in X$
 \begin{equation}
-     T_{r} g(x)
-     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<R} |H_{R}(g)(x)|\, .
+     T_{*}^r g(x)
+     \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<R} |T_R(g)(x)|\, .
 \end{equation}
 Using further \Cref{Cotlar-estimate}, we estimate
 \begin{equation}
-      T_{r} g(x)
-     \le 2^{a^3+2a+2}Mg(x) + 2^{a^3+20a+3}Mg(x) + 2^{2}M(H_{r}g)(x)\, .
+      T_{*}^r g(x)
+     \le 2^{a^3+2a+2}Mg(x) + 2^{a^3+20a+3}Mg(x) + 2^{2}M(T_rg)(x)\, .
 \end{equation}
 Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ and $p_1=1$ , we obtain
 \begin{equation}
-      \|T_{r} g\|_2
-     \le 2^{a^3+20a+4} \|Mg\|_2 + 2^{2}\|M(H_{r}g)\|_2
+      \|T_{*}^r g\|_2
+     \le 2^{a^3+20a+4} \|Mg\|_2 + 2^{2}\|M(T_rg)\|_2
 \end{equation}
 \begin{equation}
-     \le 2^{a^3+24a+5} \|g\|_2 + 2^{4a+3}\|H_{r}(g)\|_2\, .
+     \le 2^{a^3+24a+5} \|g\|_2 + 2^{4a+3}\|T_r(g)\|_2\, .
 \end{equation}
 Applying \eqref{two-sided-Hr-bound-assumption}, gives
 \begin{equation}
-      \|T_{r} g\|_2\le 2^{a^3+24a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
+      \|T_{*}^r g\|_2\le 2^{a^3+24a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
 \end{equation}
 This shows \eqref{trzerobound} and completes the proof of the lemma.
 \end{proof}
 %fixme: Change location of next argument?
-In order to pass from the one-sided truncation in $H_r$ and $T_r$ to the two-sided truncation in $T_*$, we show in the following two lemmas that the integral in \eqref{def-tang-unm-op} can be exchanged for an integral over the difference of two balls.
+In order to pass from the one-sided truncation in $T_r$ and $T_{*}^r$ to the two-sided truncation in $T_*$, we show in the following two lemmas that the integral in \eqref{def-tang-unm-op} can be exchanged for an integral over the difference of two balls.
 \begin{lemma} \label{small-annulus}
     Let $f$ be a bounded measurable function with bounded support on $X$.
     Let $x\in X$ and $R>0$.
@@ -6872,7 +6872,7 @@ The inequality still holds when taking the suprema over $R_1<R_2$ and $\rho(x,x'
 \begin{proof}[Proof of \Cref{nontangential-from-simple}]
     \proves{nontangential-Hilbert}
 Fix $g$ as in the Lemma.
-Applying \Cref{simple-nontangential-Hilbert} with a
+Applying \Cref{simple-nontangential-operator} with a
 sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
 \begin{equation}\label{tzerobound}
     \|T_{0}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
@@ -7198,7 +7198,7 @@ which shows \eqref{eq-bset-length-sum}.
 We set $\alpha':=c\alpha$ for a constant $c\ge 2^{-a^3-19a}$ which we will later choose explicitly.
 If $\alpha'\le\frac{1}{\mu(X)}\int |f|\,d\mu$, then we directly have
 \begin{equation*}
-    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)\le \mu(X) \le \frac{1}{\alpha'} \int |f(y)|\, d\mu(y)
+    \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)\le \mu(X) \le \frac{1}{\alpha'} \int |f(y)|\, d\mu(y)
     \le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
 \end{equation*}
 So assume now that $\alpha'>\frac{1}{\mu(X)}\int |f|\,d\mu$.
@@ -7234,15 +7234,15 @@ By definition, for each $x\in X\setminus\Omega$ and $y\in B_j$,
 \end{equation}
 It follows by the triangle inequality and subadditivity of $\mu$ that
 \begin{equation*}
-    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right)
+    \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)
 \end{equation*}
 \begin{equation}
 \label{eq-set-dec-1}
- \le \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)+  \mu\left(\{x\in X: |H_r b(x)|>{\alpha}/2\}\right).
+ \le \mu\left(\{x\in X: |T_r g(x)|>{\alpha}/2\}\right)+  \mu\left(\{x\in X: |T_r b(x)|>{\alpha}/2\}\right).
 \end{equation}
 We estimate using monotonicity of the integral
 \begin{equation*}
-     \mu\left(\{x\in X: |H_r g(x)|>{\alpha}/2\}\right)\leq \frac{4}{\alpha^2} \int |H_r g(y)|^2\, d\mu(y).
+     \mu\left(\{x\in X: |T_r g(x)|>{\alpha}/2\}\right)\leq \frac{4}{\alpha^2} \int |T_r g(y)|^2\, d\mu(y).
 \end{equation*}
 Using \eqref{eq-strong-2-2-assumption} followed by \eqref{eq-g-max} and \eqref{eq-g-L1-norm}, we estimate the right hand side above by
 \begin{equation}
@@ -7252,11 +7252,11 @@ Using \eqref{eq-strong-2-2-assumption} followed by \eqref{eq-g-max} and \eqref{e
 
 Next, we estimate
 \begin{equation*}
-    \mu\left(\{x\in X: |H_r b(x)|>\alpha/2\}\right)
+    \mu\left(\{x\in X: |T_r b(x)|>\alpha/2\}\right)
 \end{equation*}
 \begin{equation}
     \label{eq-set-dec-2}
-    \le \mu (\Omega) +  \mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
+    \le \mu (\Omega) +  \mu\left(\{x\in X\setminus\Omega: |T_r b(x)|>{\alpha}/2\}\right)\,.
 \end{equation}
 
 Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
@@ -7267,7 +7267,7 @@ Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
 \end{equation}
 We now focus on estimating the remaining term
 \begin{equation*}
-    \mu\left(\{x\in X\setminus\Omega: |H_r b(x)|>{\alpha}/2\}\right)\,.
+    \mu\left(\{x\in X\setminus\Omega: |T_r b(x)|>{\alpha}/2\}\right)\,.
 \end{equation*}
 Let $x\in X\setminus\Omega$. We decompose the index set $J$ into the following disjoint sets:
 \begin{align*}
@@ -7278,17 +7278,17 @@ Let $x\in X\setminus\Omega$. We decompose the index set $J$ into the following d
 Then
 \begin{alignat}{3}
     \label{eq-b-dec-1}
-    |H_r b(x)|\le&&&\sum_{j\in \mathcal{J}_1(x)} |H_rb_j(x)| \\
+    |T_r b(x)|\le&&&\sum_{j\in \mathcal{J}_1(x)} |T_rb_j(x)| \\
     \label{eq-b-dec-2}
-                &+&&\sum_{j\in \mathcal{J}_2(x)} |H_rb_j(x)| \\
+                &+&&\sum_{j\in \mathcal{J}_2(x)} |T_rb_j(x)| \\
     \label{eq-b-dec-3}
-                &+&&\sum_{j\in \mathcal{J}_3(x)} |H_rb_j(x)|.
+                &+&&\sum_{j\in \mathcal{J}_3(x)} |T_rb_j(x)|.
 \end{alignat}
-For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $H_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
+For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $T_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
 
 Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_j\subset X \setminus B(x,r)$, and we have
 \begin{equation*}
-    H_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_j} K(x,y) b_j(y)\,d\mu(y)\,.
+    T_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_j} K(x,y) b_j(y)\,d\mu(y)\,.
 \end{equation*}
 
 Using \eqref{eq-bad-mean-zero}, the above is equal to
@@ -7318,12 +7318,12 @@ Then by \eqref{eq-bj-L1}
 \end{equation}
 For each $j\in \mathcal{J}_2(x)$, we have
 \begin{align*}
-    H_r b_j(x)&=\int_{B_j} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy \\
+    T_r b_j(x)&=\int_{B_j} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy \\
     &= \int_{B_j} (K(x,y)-K(x,x_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy.
 \end{align*}
 Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, we obtain
 \begin{equation*}
-    |H_r b_j(x)|\le
+    |T_r b_j(x)|\le
 \end{equation*}
 \begin{equation}
     \label{eq-J2-diff-est}
@@ -7374,7 +7374,7 @@ Using the bounded intersection property of the $B_j$, \eqref{eq-J2-union-subset}
 
 Combining the estimates \eqref{eq-J1-diff-est} for \eqref{eq-b-dec-1}, \eqref{eq-J2-diff-est-2} for \eqref{eq-b-dec-2}, and \eqref{eq-J2-diff-est-4}, we get
 \begin{equation*}
-    |H_rb(x)|\leq 3F(x)+2^{a^3+12a+1}c\alpha.
+    |T_rb(x)|\leq 3F(x)+2^{a^3+12a+1}c\alpha.
 \end{equation*}
 With $c:=2^{-a^3-12a-4}$, this equals
 \begin{equation*}
@@ -7383,7 +7383,7 @@ With $c:=2^{-a^3-12a-4}$, this equals
 Using the triangle inequality, we deduce that
 \begin{equation}
     \label{eq-set-dec-3}
-    \mu({\{x\in X\setminus\Omega: |H_r b(x)|>\alpha/2\}}) \le \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}).
+    \mu({\{x\in X\setminus\Omega: |T_r b(x)|>\alpha/2\}}) \le \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}).
 \end{equation}
 
 We estimate
@@ -7409,11 +7409,11 @@ where we used \Cref{geometric-series-estimate} in the last step.
 Plugging this into \eqref{eq-F-est-1} and using \eqref{eq-bset-length-sum}, we conclude that
 \begin{equation}
     \label{eq-Hr-b-X-minus-Omega}
-    \mu({\{x\in X\setminus\Omega: |H_r b(x)|>\alpha/2\}}) \le  \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
+    \mu({\{x\in X\setminus\Omega: |T_r b(x)|>\alpha/2\}}) \le  \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
 \end{equation}
 Combining estimates \eqref{eq-set-dec-1}, \eqref{eq-Hr-g}, \eqref{eq-set-dec-2}, \eqref{eq-omega-bd}, \eqref{eq-Hr-b-X-minus-Omega} yields
 \begin{equation*}
-    \mu\left(\{x\in X: |H_r f(x)|>\alpha\}\right) \le \frac{2^{2a^3+3a+2}c + \frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y).
+    \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right) \le \frac{2^{2a^3+3a+2}c + \frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y).
 \end{equation*}
 Using the definition of $c$, we bound this by
 \begin{equation*}
@@ -7438,7 +7438,7 @@ In the second step, one controls the relevant error of approximating a general f
 the subclass. This is stated in \Cref{control-approximation-effect} and proved
 in \Cref{10difference}.
 The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}, which involves showing that the real line fits into the setting of \Cref{overviewsection}.
-This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $H_r$ defined in \eqref{def-H_r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
+This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $T_r$ defined in \eqref{def-T_r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
 The cancellative property is verified by \Cref{van-der-Corput}, which is proved in \Cref{10vandercorput}.
 Several further auxiliary lemmas are stated and proved in \Cref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
 
@@ -7505,7 +7505,7 @@ We prove in \Cref{10difference}:
     \label{control-approximation-effect}
     \leanok
     % \lean{}
-    \uses{real-Carleson,dirichlet-kernel}
+    \uses{real-Carleson,Dirichlet-kernel}
     There is a set $E \subset \R$ with Lebesgue measure
     $|E|\le \epsilon$ such that for all
     \begin{equation}
@@ -7573,16 +7573,19 @@ where
 \end{lemma}
 
 
-One of the main assumption of \Cref{metric-space-Carleson}, concerning the operator $T_*$ defined in \eqref{def-tang-unm-op}, is verified by the following lemma, which is proved in \Cref{subsec-cotlar}.
-
-The following Lemma is proved in \Cref{10hilbert}
+One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concerning the operator $T_r$ defined in \eqref{def-T_r}, is verified by the following lemma, which is proved in \Cref{10hilbert}.
 \begin{lemma}[Hilbert strong 2 2]
     \label{Hilbert-strong-2-2}
-    \uses{modulated-averaged-projection,integrable-bump-convolution,dirichlet-approximation}
+    \uses{modulated-averaged-projection,integrable-bump-convolution,Dirichlet-approximation}
     Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
     \begin{equation}
         \label{eq-Hr-L2-bound}
-        \|H_rf\|_{2}\leq 2^{13} \|f\|_2.
+        \|H_rf\|_{2}\leq 2^{13} \|f\|_2,
+    \end{equation}
+    where
+    \begin{equation}
+        \label{def-H_r}
+        H_r f(x) := T_r f(x) = \int_{r\le\rho(x,y)} \kappa(x-y) f(y) \, dy
     \end{equation}
 \end{lemma}
 
@@ -7625,7 +7628,7 @@ We have
 \end{proof}
 
 \begin{lemma}[Dirichlet kernel]
-\label{dirichlet-kernel}
+\label{Dirichlet-kernel}
 \leanok
 \lean{dirichletKernel_eq, partialFourierSum_eq_conv_dirichletKernel}
 We have for every $2\pi$-periodic bounded measurable $f$ and every $N\ge 0$
@@ -8024,8 +8027,8 @@ is equal to
     Together with \Cref{Young-convolution}, this proves the lemma.
 \end{proof}
 
-\begin{lemma}[dirichlet approximation]\label{dirichlet-approximation}
-\uses{dirichlet-kernel,lower-secant-bound}
+\begin{lemma}[Dirichlet approximation]\label{Dirichlet-approximation}
+\uses{Dirichlet-kernel,lower-secant-bound}
 Let $0<r<1$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
 There is a $2\pi$-periodic continuous function
@@ -8042,7 +8045,7 @@ and
 
 
 \begin{proof}
-We have by definition and \Cref{dirichlet-kernel}
+We have by definition and \Cref{Dirichlet-kernel}
 \begin{equation}
     L_Ng(x)=
     \frac 1N\sum_{n=0}^{N-1}
@@ -8054,7 +8057,7 @@ the continuous function
     {L'}(x)= \frac 1N\sum_{n=0}^{N-1}
       K_{N+n}(x) e^{-i(N+n)x}\, .
 \end{equation}
-With \eqref{eqksumexp} of \Cref{dirichlet-kernel}
+With \eqref{eqksumexp} of \Cref{Dirichlet-kernel}
 we have $|K_N(x)|\le N$ for every $x$ and thus
 \begin{equation}\label{eqhil13}
     |{L'}(x)|\le \frac 1N\sum_{n=0}^{N-1}
@@ -8070,7 +8073,7 @@ This proves \eqref{eqdifflhil} for $|x|\in [0, r)$ since $k_r(x)=r^{-1}$ in this
 For $e^{ix'}\neq 1$
 and may use the expression
 \eqref{eqksumhil} for $K_N$
-in \Cref{dirichlet-kernel} to obtain
+in \Cref{Dirichlet-kernel} to obtain
 \begin{equation*}
     {L'}(x)= \frac 1N\sum_{n=0}^{N-1}
      \left(\frac{e^{i(N+n)x}}{1-e^{-ix}}
@@ -8154,7 +8157,7 @@ We now prove \Cref{Hilbert-strong-2-2}.
         \|H_r f\|_{L^2(\R)} \le 2^{16} \|f\|_{L^2(\R)}\,.
     \end{equation}
     Let $\tilde{f}$ be the $2\pi$-periodic extension of $f$ to $\mathbb{R}$. Let $N$ be the smallest
-    integer larger than $\frac 1r$. Then, by \Cref{dirichlet-approximation} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
+    integer larger than $\frac 1r$. Then, by \Cref{Dirichlet-approximation} and the triangle inequality, for $x\in [-\pi, \pi]$ we have
     \begin{equation*}
         |H_r \tilde{f}(x)|\leq 2\pi |L_N \tilde{f}(x)|+2^{5}\left|\int_{-\pi}^{\pi}k_r(x-y)\tilde{f}(y)\, dy\right|.
     \end{equation*}
@@ -8283,7 +8286,7 @@ This subsection proves \Cref{spectral-projection-bound}
    \end{equation}
    \end{lemma}
 \begin{proof}
-Let $N>0$ be given. With $K_N$ as in \Cref{dirichlet-kernel},
+Let $N>0$ be given. With $K_N$ as in \Cref{Dirichlet-kernel},
 \begin{equation*}
 S_N (S_Nf) (x)=
 \frac{1}{2\pi} \int_0^{2\pi} S_Nf(y)K_N(x-y)\, dy
@@ -8292,7 +8295,7 @@ S_N (S_Nf) (x)=
 =
 \frac{1}{(2\pi)^2}\int_0^{2\pi} \int_0^{2\pi} f(y')K_N(y-y') K_N(x-y)\, \, dy' dy\, .
 \end{equation}
-We have by \Cref{dirichlet-kernel}
+We have by \Cref{Dirichlet-kernel}
 \begin{equation*}
 \frac{1}{2\pi}\int_0^{2\pi} K_N(y-y') K_N(x-y)\, dy
 \end{equation*}
@@ -8320,19 +8323,19 @@ This proves the lemma.
 \end{proof}
 \begin{lemma}[partial sum selfadjoint]
 \label{partial-sum-selfadjoint}
-\uses{dirichlet-kernel}
+\uses{Dirichlet-kernel}
     We have for any $2\pi$-periodic bounded measurable $g,f$ that
     \begin{equation}
        \int_0^{2\pi} \overline{S_Nf(x)} g(x)=\int_0^{2\pi} \overline{f(x)} S_Ng(x)\, dx\, .
     \end{equation}
 \end{lemma}
 \begin{proof}
-  We have with $K_N$ as in \Cref{dirichlet-kernel} for every $x$
+  We have with $K_N$ as in \Cref{Dirichlet-kernel} for every $x$
   \begin{equation}
       \overline{K_N(x)}=\sum_{n=-N}^N\overline{ e^{in x}}=
       {\sum_{n=-N}^N e^{-in x}}=K_N(-x)\, .
   \end{equation}
- Further, with \Cref{dirichlet-kernel} and Fubini
+ Further, with \Cref{Dirichlet-kernel} and Fubini
 \begin{equation*}
 \int_0^{2\pi} \overline{S_Nf(x)} g(x)
 = \frac 1{2\pi} \int_0^{2\pi} \int_{-\pi}^{\pi}\overline{f(y) K_N(x-y)} g(x)\, dy dx
@@ -8409,7 +8412,7 @@ Let $x \in E$. Then there exists $N > 0$ with
 $$
     |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4}\,,
 $$
-pick such $N$. We have with \Cref{dirichlet-kernel}
+pick such $N$. We have with \Cref{Dirichlet-kernel}
 $$
     \frac{\epsilon}{4} < |S_N f(x) - S_N f_0(x)| = \frac{1}{2\pi} \left| \int_0^{2\pi} (f(y) - f_0(y)) K_N(x-y) \, dy\right|\,.
 $$
