@@ -7,14 +7,13 @@ open scoped ENNReal
 noncomputable section
 
 /- The constant used in `metric_carleson` -/
-def C1_2 (a q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
+def C1_2 (a : ℕ) (q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
 
-lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
+lemma C1_2_pos {a : ℕ} {q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
   rw [C1_2]
   apply div_pos
-  . apply Real.rpow_pos_of_pos
-    norm_num
-  . apply pow_pos
+  · positivity
+  · apply pow_pos
     linarith [hq]
 
 -- /- The constant used in equation (2.2) -/
@@ -29,7 +28,7 @@ lemma C1_2_pos {a q : ℝ} (hq : 1 < q) : 0 < C1_2 a q := by
 
 section -- todo: old code
 
-variable {X : Type*} {a : ℝ} [MetricSpace X] [DoublingMeasure X (2 ^ a)] [Inhabited X]
+variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (2 ^ a : ℕ)] [Inhabited X]
 variable {τ q q' : ℝ} {C : ℝ}
 variable {F G : Set X}
 variable (K : X → X → ℂ)
@@ -86,7 +85,7 @@ variable (K : X → X → ℂ)
   /- Proof should be straightforward from the definition of maximalFunction and conditions on `Θ`.
   We have to approximate `Q` by an indicator function.
   2^σ ≈ r, 2^σ' ≈ R
-  There is a small difference in integration domain, and for that we use the estimate IsCZKernel.norm_le_vol_inv
+  There is a small difference in integration domain, and for that we use the estimate IsOneSidedKernel.norm_K_le_vol_inv
   -/
 
 -- variable (C F G) in
@@ -129,7 +128,7 @@ segment. -/
 
 /- Theorem 1.2, written using constant C1_2 -/
 theorem metric_carleson [CompatibleFunctions ℝ X (2 ^ a)]
-  [IsCancellative X (2 ^ a)] [IsCZKernel a K]
+  [IsCancellative X (2 ^ a)] [IsOneSidedKernel a K]
     (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (hT : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a))
