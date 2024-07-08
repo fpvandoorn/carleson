@@ -4,7 +4,7 @@ import Carleson.Psi
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o] [IsCZKernel a K]
 
 noncomputable section
 
@@ -55,7 +55,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
         dist x y ∈ Icc ((D ^ ((𝔰 p.1) - 1) : ℝ) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
-      dist_mem_Icc_of_Ks_ne_zero (range_s_subset (X := X) (mem_range_self (𝓘 p.1))) hy
+      dist_mem_Icc_of_Ks_ne_zero hy
     have hdist_cpy : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), dist (𝔠 p) y ≤ 8*D ^ 𝔰 p.1 := by
       intro y hy
       calc dist (𝔠 p) y
@@ -71,18 +71,17 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
         (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       intro y hy
-      /- dist_mem_Icc_of_Ks_ne_zero {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X}
-    (h : Ks s x y ≠ 0) : dist x y ∈ Icc (D ^ (s - 1) / 4) (D ^ s / 2)
+      /- dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
+          dist x y ∈ Icc (D ^ (s - 1) / 4) (D ^ s / 2)
 
-      lemma norm_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} :
+      lemmanorm_Ks_le [IsCZKernel a K] {s : ℤ} {x y : X} :
     ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by-/
       have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume (ball (𝔠 p.1) (D/4 ^ (𝔰 p.1 - 1))) := by
         have hxy : x ≠ y := by
           intro h_eq
           rw [h_eq, Ks_def, ne_eq, mul_eq_zero, not_or, dist_self, mul_zero, psi_zero] at hy
           simp only [Complex.ofReal_zero, not_true_eq_false, and_false] at hy
-        apply le_trans (ENNReal.coe_le_coe.mpr (kernel_bound (range_s_subset (X := X)
-          (mem_range_self (𝓘 p.1))) hxy))
+        apply le_trans (ENNReal.coe_le_coe.mpr kernel_bound)
         rw [coe_ofNat, coe_div]
         sorry
         sorry
