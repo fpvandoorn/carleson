@@ -43,9 +43,12 @@ lemma abs_ψ_le_one (D : ℕ) (x : ℝ) : |ψ D x| ≤ 1 :=
 ---------------------------------------------
 /- `ψ_formula₀` through `ψ_formula₄` establish the piecewise formula for `ψ`. -/
 
-lemma ψ_formula₀ {x : ℝ} (hx : x ≤ 1 / (4 * D : ℝ)) : ψ D x = 0 :=
-  max_eq_left <| (min_le_right 1 _).trans <| (min_le_left _ _).trans <|
-    tsub_nonpos.2 <| (le_div_iff' (fourD0 hD)).1 hx
+lemma ψ_formula₀ {x : ℝ} (hx : x ≤ 1 / (4 * D : ℝ)) : ψ D x = 0 := by
+  by_cases hD : D = 0
+  · simp [ψ, hD]
+  refine max_eq_left <| (min_le_right 1 _).trans <| (min_le_left _ _).trans <|
+    tsub_nonpos.2 <| (_root_.le_div_iff' ?_).1 hx
+  exact mul_pos four_pos (by exact_mod_cast Nat.zero_lt_of_ne_zero hD)
 
 lemma ψ_formula₁ {x : ℝ} (hx : 1 / (4 * D) ≤ x ∧ x ≤ 1 / (2 * D)) :
     ψ D x = 4 * D * x - 1 := by
@@ -78,12 +81,12 @@ lemma ψ_formula₄ {x : ℝ} (hx : x ≥ 1 / 2) : ψ D x = 0 :=
 ---------------------------------------------
 
 lemma psi_zero : ψ D 0 = 0 :=
-  ψ_formula₀ hD (div_nonneg one_pos.le (fourD0 hD).le)
+  ψ_formula₀ (div_nonneg one_pos.le <| mul_nonneg four_pos.le (Nat.cast_nonneg D))
 
 lemma support_ψ : support (ψ D) = Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   ext x
   by_cases hx₀ : x ≤ 1 / (4 * D)
-  · suffices x ≤ (D : ℝ)⁻¹ * 4⁻¹ by simp [ψ_formula₀ hD hx₀, this]
+  · suffices x ≤ (D : ℝ)⁻¹ * 4⁻¹ by simp [ψ_formula₀ hx₀, this]
     rwa [one_div, mul_inv_rev] at hx₀
   push_neg at hx₀
   have hx₀_inv : (D : ℝ)⁻¹ * 4⁻¹ < x := by convert hx₀ using 1; simp
@@ -448,13 +451,13 @@ private lemma ψ_ineq [IsCZKernel a K] {x y y' : X} :
   push_neg at h
   -- If `dist y y'` is small, then `(dist y y') ^ (a : ℝ)⁻¹` is comparable with `dist y y'`,
   -- so the Lipschitz bound for `ψ` is enough to finish the proof.
-  apply (lipschitzWith_ψ' one_le_D (D ^ (-s) * dist x y) (D ^ (-s) * dist x y')).trans
+  have D1 := one_le_D (a := a)
+  apply (lipschitzWith_ψ' (by exact_mod_cast D1) (D ^ (-s) * dist x y) (D ^ (-s) * dist x y')).trans
   gcongr
   rw [zpow_neg, ← smul_eq_mul, ← smul_eq_mul, dist_smul₀]
   apply (mul_le_mul_of_nonneg_left (dist_dist_dist_le_right x y y') (norm_nonneg _)).trans
   rw [Real.norm_of_nonneg (by positivity : 0 ≤ ((D : ℝ) ^ s)⁻¹), inv_mul_eq_div]
   apply le_of_eq_of_le (Real.rpow_one (dist y y' / D ^ s)).symm
-  have := one_le_D (a := a)
   exact Real.rpow_le_rpow_of_exponent_ge (by positivity) (le_of_lt h) (Nat.cast_inv_le_one a)
 
 private lemma D_pow_a_inv : (D : ℝ) ^ (a : ℝ)⁻¹ = 2 ^ (100 * a) := calc
@@ -470,7 +473,7 @@ private lemma four_D_rpow_a_inv : (4 * D : ℝ) ^ (a : ℝ)⁻¹ ≤ 2 ^ (1 + 10
       apply le_of_le_of_eq this
       rw [(by norm_num : (4 : ℝ) = 2 ^ (2 : ℝ)), ← Real.rpow_mul, mul_inv_cancel] <;> norm_num
     have := four_le_a X
-    rw [Real.rpow_le_rpow_left_iff Nat.one_lt_ofNat, inv_le_inv (by norm_cast; linarith) (by linarith)]
+    rw [Real.rpow_le_rpow_left_iff Nat.one_lt_ofNat, inv_le_inv (a0 X) (by linarith)]
     norm_cast
     linarith
   · exact le_of_eq D_pow_a_inv
