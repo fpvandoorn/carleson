@@ -52,9 +52,7 @@ jobs:
             pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
             pip install leanblueprint
             leanblueprint pdf
-            cp blueprint/print/print.pdf docs/blueprint.pdf
             leanblueprint web
-            cp -r blueprint/web docs/blueprint
 
       - name: Check declarations
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
