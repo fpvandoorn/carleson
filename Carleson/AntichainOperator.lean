@@ -71,20 +71,22 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
         (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       intro y hy
-      /- dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
-          dist x y ∈ Icc (D ^ (s - 1) / 4) (D ^ s / 2)
-
-      lemma norm_Ks_le {s : ℤ} {x y : X} :
-    ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by-/
-      have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^((a : ℝ)^3) / volume (ball (𝔠 p.1) (D/4 ^ (𝔰 p.1 - 1))) := by
+      have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^((a : ℝ)^3) / volume (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
         have hxy : x ≠ y := by
           intro h_eq
           rw [h_eq, Ks_def, ne_eq, mul_eq_zero, not_or, dist_self, mul_zero, psi_zero] at hy
           simp only [Complex.ofReal_zero, not_true_eq_false, and_false] at hy
         apply le_trans (ENNReal.coe_le_coe.mpr kernel_bound)
-        rw [coe_ofNat, coe_div]
-        sorry
-        sorry
+        rw [coe_ofNat, coe_div, measureNNReal_def, ENNReal.coe_toNNReal
+          (measure_ball_ne_top x (dist x y)), ← coe_ofNat,
+          ENNReal.coe_rpow_of_nonneg _ (pow_nonneg (by linarith) 3)]
+        norm_cast
+        gcongr
+        exact (hdist_y hy).1
+        · apply ne_of_gt
+          rw [measureNNReal_def, ← ENNReal.coe_lt_coe, ENNReal.coe_toNNReal
+            (measure_ball_ne_top x (dist x y)), ENNReal.coe_zero]
+          exact Metric.measure_ball_pos _ _ (dist_pos.mpr hxy)
       apply le_trans h
       sorry
       /- calc ‖Ks (𝔰 p.1) x y‖₊
@@ -92,11 +94,19 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
           done
       _ ≤ (2 : ℝ≥0)^(5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) :=
         sorry -/
-    calc ↑‖∑ (p ∈ 𝔄), T p f x‖₊
+    calc (‖∑ (p ∈ 𝔄), T p f x‖₊ : ℝ≥0∞)
       = ↑‖T p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
-    _ ≤ ↑‖∫ (y : X), cexp (↑((coeΘ (Q x)) x) - ↑((coeΘ (Q x)) y)) * Ks (𝔰 p.1) x y * f y‖₊ := by
-        simp only [T, indicator, if_pos hxE, mul_ite, mul_zero, ENNReal.coe_le_coe]
-        simp only [← NNReal.coe_le_coe, coe_nnnorm]
+    /- _ ≤ ↑‖∫ (y : X), cexp (↑((coeΘ (Q x)) x) - ↑((coeΘ (Q x)) y)) * Ks (𝔰 p.1) x y * f y‖₊ := by
+        simp only [T, indicator, if_pos hxE, mul_ite, mul_zero, ENNReal.coe_le_coe,
+          ← NNReal.coe_le_coe, coe_nnnorm]
+        sorry -/
+    _ ≤ ∫⁻ (y : X), ‖cexp (↑((coeΘ (Q x)) x) - ↑((coeΘ (Q x)) y)) * Ks (𝔰 p.1) x y * f y‖₊ := by
+        /- simp only [T, indicator, if_pos hxE, mul_ite, mul_zero, ENNReal.coe_le_coe,
+          ← NNReal.coe_le_coe, coe_nnnorm] -/
+        simp only [T, indicator, if_pos hxE]
+        apply le_trans (MeasureTheory.ennnorm_integral_le_lintegral_ennnorm _)
+        apply MeasureTheory.lintegral_mono
+        intro z w
         sorry
     _ ≤ (2 : ℝ≥0)^(5*a + 101*a^3) * ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       sorry
