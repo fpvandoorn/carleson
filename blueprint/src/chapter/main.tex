@@ -721,7 +721,8 @@ We also record the following basic estimates for the kernels $K_s$.
     Using \eqref{eqkernel-size} and the lower bound in \eqref{supp-Ks}
     we obtain
     \begin{equation}
-        |K_s(x,y)|\le \frac{2^{a^3}}{\mu(B(x,\frac 14 D^{s-1}))}
+        \label{eqkernel-size-Ks}
+        |K_s(x,y)|\le |K(x,y)|\le \frac{2^{a^3}}{\mu(B(x,\frac 14 D^{s-1}))}
     \end{equation}
     Using $D=2^{100a^2}$
     and the doubling property \eqref{doublingx} $2 +100a^2$ times estimates
@@ -732,10 +733,19 @@ We also record the following basic estimates for the kernels $K_s$.
     \end{equation}
     Using $a\ge 4$ proves \eqref{eq-Ks-size}.
 
-    If $2\rho(y,y') \le \rho(x,y)$, we obtain similarly with \eqref{eqkernel-y-smooth} and the lower bound in
-    \eqref{supp-Ks}
+    To prove \eqref{eq-Ks-smooth} when $2\rho(y,y') > \rho(x,y)$, use the lower bound in
+    \eqref{supp-Ks}, $2\rho(y,y') > \frac{1}{4}D^{s-1}$. Then \eqref{eq-Ks-smooth} follows from
+    the triangle inequality, \eqref{eq-Ks-size} and $a \ge 4$.
+
+    If $2\rho(y,y') \le \rho(x,y)$, we rewrite $|K_s(x,y)-K_s(x, y')|$ as
     \begin{equation}
-        |K_s(x,y)-K_s(x, y')|\le \frac{2^{a^3}}{\mu(B(x, \frac 14 D^{s-1}))}
+        |(K(x,y)-K(x,y')) \psi(D^{-s}\rho(x,y)) +
+        K(x,y)(\psi(D^{-s}\rho(x,y))-\psi(D^{-s}\rho(x,y')))|\,.
+    \end{equation}
+    An upper bound for $|K(x,y)-K(x, y')|$ is obtained similarly to the proof of
+    \eqref{eq-Ks-size}, using \eqref{eqkernel-y-smooth} and the lower bound in \eqref{supp-Ks}
+    \begin{equation}
+        |K(x,y)-K(x, y')|\le \frac{2^{a^3}}{\mu(B(x, \frac 14 D^{s-1}))}
         \left(\frac{ \rho(y,y')}{\frac 14 D^{s-1}}\right)^{\frac 1a}\,.
     \end{equation}
     As above, this is estimated by
@@ -745,7 +755,18 @@ We also record the following basic estimates for the kernels $K_s$.
          = \frac{2^{2+2a+100a^2+101a^3}}{\mu(B(x, D^{s}))}
         \left(\frac{ \rho(y,y')}{D^{s}}\right)^{\frac 1a}\,.
     \end{equation}
-    Using $a\ge 4$, this proves \eqref{eq-Ks-smooth} in the case $2\rho(y,y') \le \rho(x,y)$. If $2\rho(y,y') > \rho(x,y)$, then by the lower bound in \eqref{supp-Ks} $2\rho(y,y') > \frac{1}{8}D^s$. Then \eqref{eq-Ks-smooth} follows from the triangle inequality, \eqref{eq-Ks-size} and $a \ge 4$.
+    We have the trivial bound $|\psi(D^{-s}\rho(x,y))| \leq 1$, and \eqref{eq-Ks-aux}
+    provides a bound for $|K(x,y)|$. Finally, we show that
+    \begin{equation}
+        |\psi(D^{-s}\rho(x,y))-\psi(D^{-s}\rho(x,y'))|\le
+        4D \left(\frac{\rho(y, y')}{D ^ s}\right)^{\frac 1a}
+    \end{equation}
+    by considering separately the cases $\rho(y,y')/D^s \ge 1$ and $\rho(y,y')/D^s < 1$. In the
+    former case, the inequality is trivial; in the latter case, it follows from the
+    fact that $\psi$ is Lipschitz with constant $4D$.
+
+    Combining the above bounds and using $a\ge 4$ proves \eqref{eq-Ks-smooth} in the case
+    $2\rho(y,y') \le \rho(x,y)$.
 \end{proof}
 
 
