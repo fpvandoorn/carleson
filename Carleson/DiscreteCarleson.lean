@@ -367,7 +367,7 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
             obtain ⟨L, mL, lL⟩ := Grid.exists_maximal_supercube mM
             rw [mem_iUnion₂]; use L, mL
             exact ⟨mem_of_mem_of_subset mL'.1 mL'.2, mem_of_mem_of_subset lM lL.1⟩
-          · rw [mem_iUnion₂] at h; obtain ⟨i, mi₁, mi₂⟩ := h; exact mem_of_mem_inter_left mi₂
+          · rw [mem_iUnion₂] at h; obtain ⟨i, _, mi₂⟩ := h; exact mem_of_mem_inter_left mi₂
         · exact fun i mi j mj hn ↦
             ((Grid.maxCubes_pairwiseDisjoint mi mj hn).inter_left' _).inter_right' _
         · exact fun _ _ ↦ measurable_setA.inter coeGrid_measurable
@@ -376,7 +376,9 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
       _ = _ := by
         rw [← measure_biUnion_finset Grid.maxCubes_pairwiseDisjoint (fun _ _ ↦ coeGrid_measurable)]
         congr; ext x; constructor <;> intro h
-        · rw [mem_iUnion₂] at h; obtain ⟨i, mi₁, mi₂⟩ := h; exact mem_of_mem_inter_left mi₂
+        · rw [mem_iUnion₂] at h; obtain ⟨i, mi₁, mi₂⟩ := h
+          simp only [Grid.maxCubes, Finset.mem_filter, MsetA, Finset.mem_univ, true_and] at mi₁
+          exact mem_of_mem_of_subset mi₂ mi₁.1
         · obtain ⟨L', mL'⟩ := dyadic_union h
           have := mem_of_mem_of_subset mL'.1 mL'.2
           rw [← iUnion_MsetA_eq_setA, mem_iUnion₂] at this
