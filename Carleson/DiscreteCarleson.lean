@@ -138,6 +138,10 @@ lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n 
     _ ≤ _ := by gcongr; omega
     _ < _ := hx
 
+lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=
+  measurableSet_lt measurable_const (Finset.measurable_sum _ fun _ _ ↦
+    Measurable.indicator measurable_one coeGrid_measurable)
+
 /-- Finset of cubes in `setA`. Appears in the proof of Lemma 5.2.5. -/
 def MsetA (l k n : ℕ) : Finset (Grid X) := Finset.univ.filter fun j ↦ (j : Set X) ⊆ setA l k n
 
@@ -186,7 +190,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
       exact_mod_cast hi.le
     _ = 2 ^ (k + 1) * volume (⋃ j ∈ M', G ∩ j) := by
       congr; refine (measure_biUnion_finset (fun _ mi _ mj hn ↦ ?_) (fun _ _ ↦ ?_)).symm
-      · exact ((Grid.maxCubes_pairwiseDisjoint M mi mj hn).inter_right' G).inter_left' G
+      · exact ((Grid.maxCubes_pairwiseDisjoint mi mj hn).inter_right' G).inter_left' G
       · exact measurableSet_G.inter coeGrid_measurable
     _ ≤ _ := mul_le_mul_left' (measure_mono (iUnion₂_subset fun _ _ ↦ inter_subset_left)) _
 
@@ -351,12 +355,34 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
       rw [← ENNReal.mul_le_mul_left (a := 2) (by simp) (by simp), ← mul_assoc]; apply this.trans
       convert ih using 2; nth_rw 1 [← zpow_one 2, ← ENNReal.zpow_add (by simp) (by simp)]
       congr 1; omega
-    /-rcases (setA (X := X) (l + 1) k n).eq_empty_or_nonempty with c | ⟨x, mx⟩; · simp [c]
-    have mx' := mem_of_mem_of_subset mx setA_subset_setA
-    rw [← iUnion_MsetA_eq_setA, mem_iUnion₂] at mx'
-    obtain ⟨L, mL, -⟩ := Grid.exists_maximal_supercube mx'.choose_spec.choose
-    have := john_nirenberg_aux2 mL-/
-    sorry
+    calc
+      _ = 2 * ∑ L ∈ Grid.maxCubes (MsetA (X := X) l k n),
+          volume (setA (X := X) (l + 1) k n ∩ L) := by
+        congr; rw [← measure_biUnion_finset]
+        · congr; ext x; constructor <;> intro h
+          · obtain ⟨L', mL'⟩ := dyadic_union h
+            have := mem_of_mem_of_subset mL'.1 (mL'.2.trans setA_subset_setA)
+            rw [← iUnion_MsetA_eq_setA, mem_iUnion₂] at this
+            obtain ⟨M, mM, lM⟩ := this
+            obtain ⟨L, mL, lL⟩ := Grid.exists_maximal_supercube mM
+            rw [mem_iUnion₂]; use L, mL
+            exact ⟨mem_of_mem_of_subset mL'.1 mL'.2, mem_of_mem_of_subset lM lL.1⟩
+          · rw [mem_iUnion₂] at h; obtain ⟨i, mi₁, mi₂⟩ := h; exact mem_of_mem_inter_left mi₂
+        · exact fun i mi j mj hn ↦
+            ((Grid.maxCubes_pairwiseDisjoint mi mj hn).inter_left' _).inter_right' _
+        · exact fun _ _ ↦ measurable_setA.inter coeGrid_measurable
+      _ ≤ ∑ L ∈ Grid.maxCubes (MsetA (X := X) l k n), volume (L : Set X) := by
+        rw [Finset.mul_sum]; exact Finset.sum_le_sum fun L mL ↦ john_nirenberg_aux2 mL
+      _ = _ := by
+        rw [← measure_biUnion_finset Grid.maxCubes_pairwiseDisjoint (fun _ _ ↦ coeGrid_measurable)]
+        congr; ext x; constructor <;> intro h
+        · rw [mem_iUnion₂] at h; obtain ⟨i, mi₁, mi₂⟩ := h; exact mem_of_mem_inter_left mi₂
+        · obtain ⟨L', mL'⟩ := dyadic_union h
+          have := mem_of_mem_of_subset mL'.1 mL'.2
+          rw [← iUnion_MsetA_eq_setA, mem_iUnion₂] at this
+          obtain ⟨M, mM, lM⟩ := this
+          obtain ⟨L, mL, lL⟩ := Grid.exists_maximal_supercube mM
+          rw [mem_iUnion₂]; use L, mL, mem_of_mem_of_subset lM lL.1
 
 /-- Lemma 5.2.6 -/
 lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G := by
@@ -387,19 +413,8 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
   sorry
 
 /-- Lemma 5.1.1 -/
-lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G :=
-  calc
-    _ ≤ volume (G₁ ∪ G₂) + volume G₃ := measure_union_le _ _
-    _ ≤ volume G₁ + volume G₂ + volume G₃ := add_le_add_right (measure_union_le _ _) _
-    _ ≤ 2 ^ (-4 : ℤ) * volume G + 2 ^ (-4 : ℤ) * volume G + 2 ^ (-4 : ℤ) * volume G := by
-      gcongr; exacts [first_exception, second_exception, third_exception]
-    _ ≤ _ := by
-      rw [← add_mul, ← add_mul]; refine mul_le_mul_right' ?_ _
-      simp_rw [show (2 : ℝ≥0∞) = (2 : ℝ).toNNReal by simp, ← ENNReal.rpow_intCast]
-      rw [ENNReal.coe_rpow_of_ne_zero (by simp), ENNReal.coe_rpow_of_ne_zero (by simp)]
-      simp_rw [← Real.toNNReal_rpow_of_nonneg zero_le_two, ← ENNReal.coe_add, ENNReal.coe_le_coe]
-      rw [← Real.toNNReal_add, ← Real.toNNReal_add]
-      exact Real.toNNReal_le_toNNReal (by norm_num); all_goals positivity
+lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G := by
+  sorry
 
 /-! ## Section 5.3 -/
 
