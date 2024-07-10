@@ -71,18 +71,18 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
         (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       intro y hy
-      have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
+      have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^((a : ℝ)^3) / volume (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
         have hxy : x ≠ y := by
           intro h_eq
           rw [h_eq, Ks_def, ne_eq, mul_eq_zero, not_or, dist_self, mul_zero, psi_zero] at hy
           simp only [Complex.ofReal_zero, not_true_eq_false, and_false] at hy
-        apply le_trans (ENNReal.coe_le_coe.mpr (kernel_bound (range_s_subset (X := X)
-          (mem_range_self (𝓘 p.1))) hxy))
+        apply le_trans (ENNReal.coe_le_coe.mpr kernel_bound)
         rw [coe_ofNat, coe_div, measureNNReal_def, ENNReal.coe_toNNReal
           (measure_ball_ne_top x (dist x y)), ← coe_ofNat,
           ENNReal.coe_rpow_of_nonneg _ (pow_nonneg (by linarith) 3)]
-        exact ENNReal.div_le_div (le_refl _)
-          (measure_mono (ball_subset_ball (hdist_y hy).1))
+        norm_cast
+        gcongr
+        exact (hdist_y hy).1
         · apply ne_of_gt
           rw [measureNNReal_def, ← ENNReal.coe_lt_coe, ENNReal.coe_toNNReal
             (measure_ball_ne_top x (dist x y)), ENNReal.coe_zero]
