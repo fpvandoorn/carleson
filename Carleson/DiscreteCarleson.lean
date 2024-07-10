@@ -386,9 +386,63 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
           obtain ⟨L, mL, lL⟩ := Grid.exists_maximal_supercube mM
           rw [mem_iUnion₂]; use L, mL, mem_of_mem_of_subset lM lL.1
 
+/-- An equivalence used in the proof of `second_exception`. -/
+def secondExceptionSupportEquiv :
+    (support fun n : ℕ ↦ if k < n then (2 : ℝ≥0∞) ^ (-2 * (n - k - 1) : ℤ) else 0) ≃
+    support fun n' : ℕ ↦ (2 : ℝ≥0∞) ^ (-2 * n' : ℤ) where
+  toFun n := by
+    obtain ⟨n, _⟩ := n; use n - k - 1
+    rw [mem_support, neg_mul, ← ENNReal.rpow_intCast]; simp
+  invFun n' := by
+    obtain ⟨n', _⟩ := n'; use n' + k + 1
+    simp_rw [mem_support, show k < n' + k + 1 by omega, ite_true, neg_mul, ← ENNReal.rpow_intCast]
+    simp
+  left_inv n := by
+    obtain ⟨n, mn⟩ := n
+    rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
+    simp only [Subtype.mk.injEq]; omega
+  right_inv n' := by
+    obtain ⟨n', mn'⟩ := n'
+    simp only [Subtype.mk.injEq]; omega
+
 /-- Lemma 5.2.6 -/
-lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G := by
-  sorry
+lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := by
+  calc
+    _ ≤ ∑' (n : ℕ), volume (⋃ (k < n), setA (X := X) (2 * n + 6) k n) := measure_iUnion_le _
+    _ = ∑' (n : ℕ), volume (⋃ (k : ℕ), if k < n then setA (X := X) (2 * n + 6) k n else ∅) := by
+      congr!; exact iUnion_eq_if _
+    _ ≤ ∑' (n : ℕ) (k : ℕ), volume (if k < n then setA (X := X) (2 * n + 6) k n else ∅) := by
+      gcongr; exact measure_iUnion_le _
+    _ = ∑' (k : ℕ) (n : ℕ), if k < n then volume (setA (X := X) (2 * n + 6) k n) else 0 := by
+      rw [ENNReal.tsum_comm]; congr!; split_ifs <;> simp
+    _ ≤ ∑' (k : ℕ) (n : ℕ), if k < n then 2 ^ (k - 5 - 2 * n : ℤ) * volume G else 0 := by
+      gcongr; split_ifs
+      · convert john_nirenberg using 3; omega
+      · rfl
+    _ = ∑' (k : ℕ), 2 ^ (-k - 7 : ℤ) * volume G * ∑' (n' : ℕ), 2 ^ (-2 * n' : ℤ) := by
+      congr with k -- n' = n - k - 1; n = n' + k + 1
+      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 7 + (-2 * (n - k - 1)) : ℤ) := by omega
+      conv_lhs =>
+        enter [1, n]
+        rw [rearr, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate,
+          ← mul_zero (volume G * 2 ^ (-k - 7 : ℤ)), ← mul_ite]
+      rw [ENNReal.tsum_mul_left, mul_comm (volume G)]; congr 1
+      refine Equiv.tsum_eq_tsum_of_support secondExceptionSupportEquiv fun ⟨n, mn⟩ ↦ ?_
+      simp_rw [secondExceptionSupportEquiv, Equiv.coe_fn_mk, neg_mul]
+      rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
+      simp_rw [mn.1, ite_true]
+      congr; omega
+    _ ≤ ∑' (k : ℕ), 2 ^ (-k - 7 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
+      gcongr
+      rw [ENNReal.sum_geometric_two_pow_neg_two, zpow_two]; norm_num
+      rw [← ENNReal.coe_ofNat, ← Real.toNNReal_ofNat, ENNReal.coe_le_coe]; norm_num
+    _ = 2 ^ (-6 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
+      simp_rw [mul_assoc, ENNReal.tsum_mul_right]; congr
+      conv_lhs => enter [1, k]; rw [sub_eq_add_neg, ENNReal.zpow_add (by simp) (by simp)]
+      nth_rw 1 [ENNReal.tsum_mul_right, ENNReal.sum_geometric_two_pow_neg_one,
+        ← zpow_one 2, ← ENNReal.zpow_add (by simp) (by simp)]
+      simp
+    _ = _ := by rw [← mul_rotate, ← ENNReal.zpow_add] <;> simp
 
 /-- Lemma 5.2.7 -/
 lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) ≤
@@ -415,8 +469,19 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
   sorry
 
 /-- Lemma 5.1.1 -/
-lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G := by
-  sorry
+lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G :=
+  calc
+    _ ≤ volume (G₁ ∪ G₂) + volume G₃ := measure_union_le _ _
+    _ ≤ volume G₁ + volume G₂ + volume G₃ := add_le_add_right (measure_union_le _ _) _
+    _ ≤ 2 ^ (-4 : ℤ) * volume G + 2 ^ (-4 : ℤ) * volume G + 2 ^ (-4 : ℤ) * volume G := by
+      gcongr; exacts [first_exception, second_exception, third_exception]
+    _ ≤ _ := by
+      rw [← add_mul, ← add_mul]; refine mul_le_mul_right' ?_ _
+      simp_rw [show (2 : ℝ≥0∞) = (2 : ℝ).toNNReal by simp, ← ENNReal.rpow_intCast]
+      rw [ENNReal.coe_rpow_of_ne_zero (by simp), ENNReal.coe_rpow_of_ne_zero (by simp)]
+      simp_rw [← Real.toNNReal_rpow_of_nonneg zero_le_two, ← ENNReal.coe_add, ENNReal.coe_le_coe]
+      rw [← Real.toNNReal_add, ← Real.toNNReal_add]
+      exact Real.toNNReal_le_toNNReal (by norm_num); all_goals positivity
 
 /-! ## Section 5.3 -/
 
