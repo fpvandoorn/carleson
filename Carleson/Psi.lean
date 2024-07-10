@@ -283,6 +283,7 @@ private lemma a0 : (a : ℝ) > 0 := by exact_mod_cast (a0' X)
 private lemma D1 : (D : ℝ) > 1 := by norm_cast; norm_num; exact (a0' X).ne.symm
 private lemma D0' : (D : ℝ) > 0 := one_pos.trans (D1 X)
 private lemma D0'' : D > 0 := by exact_mod_cast (D0' X)
+private lemma Ds0 (s : ℤ) : (D : ℝ) ^ s > 0 := have := D0' X; by positivity
 ---------------------------------------------
 
 variable {X}
@@ -455,8 +456,7 @@ private lemma ψ_ineq {x y y' : X} :
   gcongr
   rw [zpow_neg, ← smul_eq_mul, ← smul_eq_mul, dist_smul₀]
   apply (mul_le_mul_of_nonneg_left (dist_dist_dist_le_right x y y') (norm_nonneg _)).trans
-  rw [Real.norm_of_nonneg (by positivity : 0 ≤ ((D : ℝ) ^ s)⁻¹), inv_mul_eq_div]
-  apply le_of_eq_of_le (Real.rpow_one (dist y y' / D ^ s)).symm
+  rw [← Real.rpow_one (_ * _), Real.norm_of_nonneg (inv_pos.2 (Ds0 X s)).le, inv_mul_eq_div]
   exact Real.rpow_le_rpow_of_exponent_ge (by positivity) (le_of_lt h) (Nat.cast_inv_le_one a)
 
 private lemma D_pow_a_inv : (D : ℝ) ^ (a : ℝ)⁻¹ = 2 ^ (100 * a) := calc
@@ -503,13 +503,13 @@ private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   have mem_supp := (psi_ne_zero_iff D1 d0).1 ψ_ne_0
   rw [mem_nonzeroS_iff D1 d0, mem_Ioo] at mem_supp
   replace mem_supp := mem_supp.1
-  rw [← _root_.div_lt_iff' (by positivity), zpow_neg, inv_div_inv, div_eq_inv_mul] at mem_supp
+  rw [← _root_.div_lt_iff' (Ds0 X (-s)), zpow_neg, inv_div_inv, div_eq_inv_mul] at mem_supp
   have : dist y y' / dist x y ≤ (dist y y' / ((4 * D : ℝ)⁻¹ * D ^ s)) :=
     div_le_div_of_nonneg_left dist_nonneg (by positivity) (le_of_lt mem_supp)
   rw [← div_eq_inv_mul, ← div_mul] at this
   have : (dist y y' / dist x y) ^ (a : ℝ)⁻¹ ≤ (dist y y' / D ^ s * (4 * D)) ^ (a : ℝ)⁻¹ := by
     apply Real.rpow_le_rpow (div_nonneg dist_nonneg dist_nonneg) this (by positivity)
-  rw [Real.mul_rpow (by positivity) (by positivity)] at this
+  rw [Real.mul_rpow (div_nonneg dist_nonneg (Ds0 X s).le) (fourD0 D1).le] at this
   apply le_trans <| mul_le_mul this (div_vol_le CKa0 hK) (by positivity) (by positivity)
   rw [(by ring : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ * (4 * D) ^ (a : ℝ)⁻¹ *
       (2 ^ (2 * a + 100 * a ^ 3) * C_K a / volume.real (ball x (D ^ s))) =
@@ -574,26 +574,26 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     (h : ¬ 2 * dist y y' ≤ dist x y) : ‖Ks s x y - Ks s x y'‖ ≤
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   have a4 : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
-  have a_ineq : 0 ≤ 47 * (a : ℝ) ^ 2 - 100 := by nlinarith [a4]
-  have a_ineq' : 0 ≤ (a : ℝ) ^ 3 - 2 := by nlinarith [a4]
+  have a_ineq : 0 ≤ 47 * (a : ℝ) ^ 2 - 100 := by nlinarith
+  have a_ineq' : 0 ≤ (a : ℝ) ^ 3 - 2 := by nlinarith
   have := D0' X
   apply le_trans <| norm_sub_le (Ks s x y) (Ks s x y')
   apply le_trans <| add_le_add norm_Ks_le norm_Ks_le
   rw [div_mul_eq_mul_div, div_add_div_same, ← two_mul,
     div_le_div_right (measure_ball_pos_real x (D ^ s) (D_pow0' (D1 X) s)), ← pow_one 2]
   rw [not_le, ← div_lt_iff' two_pos] at h
-  have dist_pos : dist y y' > 0 := lt_of_le_of_lt (by positivity) h
+  have dist_pos : dist y y' > 0 := lt_of_le_of_lt (div_nonneg dist_nonneg two_pos.le) h
   have := lt_of_le_of_lt
     ((div_le_div_right two_pos).2 ((mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1)) h
   rw [div_div, (show (4 : ℝ) * 2 = 8 by norm_num), zpow_sub₀ (D0' X).ne.symm, div_div, zpow_one,
     div_lt_comm₀ (by positivity) dist_pos] at this
-  have dist_over_Ds_gt := inv_lt_inv_of_lt (by positivity) this
-  rw [inv_div] at dist_over_Ds_gt
+  have dist_div_Ds_gt := inv_lt_inv_of_lt (div_pos (Ds0 X s) dist_pos) this
+  rw [inv_div] at dist_div_Ds_gt
   have : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ > (2 : ℝ) ^ (- 100 * a + (-1 : ℤ)) := by
     have := a0' X
     have a_inv_pos : (a : ℝ)⁻¹ > 0 := inv_pos.2 (by exact_mod_cast this)
-    refine lt_of_le_of_lt ?_ <| Real.rpow_lt_rpow (by positivity) dist_over_Ds_gt a_inv_pos
-    rw [mul_inv, Real.mul_rpow (by positivity) (by norm_num), defaultD, zpow_add₀ (two_ne_zero)]
+    refine lt_of_le_of_lt ?_ <| Real.rpow_lt_rpow (by positivity) dist_div_Ds_gt a_inv_pos
+    rw [mul_inv, Real.mul_rpow (inv_nonneg.2 (D0' X).le) (by norm_num), zpow_add₀ two_ne_zero]
     gcongr
     · have : -100 * (a : ℤ) ^ 2 * (a : ℝ)⁻¹ = -100 * a := by field_simp; rw [sq, mul_assoc]
       exact le_of_eq <| calc
