@@ -7,7 +7,7 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [ts : TileStructure Q D κ S o]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
 theorem integrable_tile_sum_operator [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
     {G' : Set X} (hG' : MeasurableSet G') (h2G' : 2 * volume G' ≤ volume G)
@@ -34,11 +34,12 @@ def C2_0_1 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 
 lemma C2_0_1_pos : C2_0_1 a nnq > 0 := C2_0_2_pos
 
+variable (X) in
 theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖∑ s in Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖₊ ≤
     C2_0_1 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ q⁻¹ := by
-  rcases discrete_carleson (ts := ts) with ⟨G', hG', h2G', hfG'⟩
+  rcases discrete_carleson X with ⟨G', hG', h2G', hfG'⟩
   refine ⟨G', hG', h2G', fun f meas_f h2f ↦ le_of_eq_of_le ?_ (hfG' f meas_f h2f)⟩
   refine setLIntegral_congr_fun (measurableSet_G.diff hG') (ae_of_all volume fun x hx ↦ ?_)
   have : ∫⁻ (x : X) in G \ G', ‖∑' p : 𝔓 X, T p f x‖₊ ≤

@@ -10,7 +10,7 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [ts : TileStructure Q D κ S o]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
 def aux𝓒 (k : ℕ) : Set (Grid X) :=
   {i : Grid X | ∃ j : Grid X, i ≤ j ∧ 2 ^ (- (k : ℤ)) * volume (j : Set X) < volume (G ∩ j) }
@@ -557,6 +557,7 @@ def C2_0_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C5_1_2 a q + C5_1_3 a q
 
 lemma C2_0_2_pos : C2_0_2 a nnq > 0 := sorry
 
+variable (X) in
 theorem discrete_carleson :
     ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
