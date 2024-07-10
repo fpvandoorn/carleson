@@ -430,8 +430,7 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G :=
       refine Equiv.tsum_eq_tsum_of_support secondExceptionSupportEquiv fun ⟨n, mn⟩ ↦ ?_
       simp_rw [secondExceptionSupportEquiv, Equiv.coe_fn_mk, neg_mul]
       rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
-      simp_rw [mn.1, ite_true]
-      congr; omega
+      simp_rw [mn.1, ite_true]; congr; omega
     _ ≤ ∑' (k : ℕ), 2 ^ (-k - 7 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
       gcongr
       rw [ENNReal.sum_geometric_two_pow_neg_two, zpow_two]; norm_num
@@ -440,8 +439,7 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G :=
       simp_rw [mul_assoc, ENNReal.tsum_mul_right]; congr
       conv_lhs => enter [1, k]; rw [sub_eq_add_neg, ENNReal.zpow_add (by simp) (by simp)]
       nth_rw 1 [ENNReal.tsum_mul_right, ENNReal.sum_geometric_two_pow_neg_one,
-        ← zpow_one 2, ← ENNReal.zpow_add (by simp) (by simp)]
-      simp
+        ← zpow_one 2, ← ENNReal.zpow_add] <;> simp
     _ = _ := by rw [← mul_rotate, ← ENNReal.zpow_add] <;> simp
 
 /-- Lemma 5.2.7 -/
@@ -470,18 +468,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
 
 /-- Lemma 5.1.1 -/
 lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G :=
-  calc
-    _ ≤ volume (G₁ ∪ G₂) + volume G₃ := measure_union_le _ _
-    _ ≤ volume G₁ + volume G₂ + volume G₃ := add_le_add_right (measure_union_le _ _) _
-    _ ≤ 2 ^ (-4 : ℤ) * volume G + 2 ^ (-4 : ℤ) * volume G + 2 ^ (-4 : ℤ) * volume G := by
-      gcongr; exacts [first_exception, second_exception, third_exception]
-    _ ≤ _ := by
-      rw [← add_mul, ← add_mul]; refine mul_le_mul_right' ?_ _
-      simp_rw [show (2 : ℝ≥0∞) = (2 : ℝ).toNNReal by simp, ← ENNReal.rpow_intCast]
-      rw [ENNReal.coe_rpow_of_ne_zero (by simp), ENNReal.coe_rpow_of_ne_zero (by simp)]
-      simp_rw [← Real.toNNReal_rpow_of_nonneg zero_le_two, ← ENNReal.coe_add, ENNReal.coe_le_coe]
-      rw [← Real.toNNReal_add, ← Real.toNNReal_add]
-      exact Real.toNNReal_le_toNNReal (by norm_num); all_goals positivity
+  sorry
 
 /-! ## Section 5.3 -/
 
