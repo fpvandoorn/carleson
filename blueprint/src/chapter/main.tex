@@ -2051,14 +2051,15 @@ It follows that $I\subset A(\lambda,k,n)$.
 \label{John-Nirenberg}
 \leanok
 \lean{john_nirenberg}
-\uses{dense-cover, pairwise-disjoint,dyadic-union}
+\uses{dense-cover, pairwise-disjoint, dyadic-union}
     For all integers $k,n,\lambda\ge 0$, we have
     \begin{equation}\label{alambdameasure}
-        \mu(A(\lambda,k,n)) \le 2^{k+1-\lambda}\mu(G)\, .
+        \mu(A(\lambda,k,n)) \le 2^{k+1-\lambda}\mu(G)\,.
     \end{equation}
 
 \end{lemma}
 \begin{proof}
+\leanok
 Fix $k,n$ as in the lemma
 and suppress notation to write
 $A(\lambda)$ for $A(\lambda,k,n)$.
@@ -2071,26 +2072,23 @@ The set $A(\lambda+1)$ is contained in the set $A(\lambda)$.
 Let $\mathcal{M}$ be the set of dyadic cubes which are a subset of $A(\lambda)$. By \Cref{dyadic-union}, the union of $\mathcal{M}$ is $A(\lambda)$.
 Let $\mathcal{M}^*$ be the set of maximal dyadic cubes in $\mathcal{M}$.
 
-Let $L\in \mathcal{M}^*$. For each $x\in L$, we have
+Let $x\in A(\lambda+1)$ and $L\in \mathcal{M}^*$ such that $x\in L$. Then by the dyadic property \eqref{dyadicproperty}
 \begin{equation}\label{suminout}
- \sum_{\fp \in {\mathfrak{M}}(k,n)} \mathbf{1}_{\scI(\fp)}(x)=
-   \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x)+
-  \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \not \subset L} \mathbf{1}_{\scI(\fp)}(x)\, .
+    \sum_{\fp \in {\mathfrak{M}}(k,n)} \mathbf{1}_{\scI(\fp)}(x) =
+    \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x) +
+    \sum_{\fp \in {\mathfrak{M}}(k,n):L \subsetneq \scI(\fp)} \mathbf{1}_{\scI(\fp)}(x)\,.
 \end{equation}
-If the second sum on the right-hand-side is not zero, there is
-an element of $\mathcal{D}$ strictly containing $L$.
-Let $\hat{L}$ be such a dyadic cube with minimal $s(L)$. Then $\hat{L}$ is contained in $\scI(\fp)$ for all $\fp$
-contributing to the second sum in
-\eqref{suminout}.
-Hence the second sum in \eqref{suminout} is constant on
-$\hat{L}$.
-By maximality of $L$, the second sum is less than $1+\lambda 2^{n+1}$ somewhere on $\hat{L}$, thus on all of $\hat{L}$ and consequently also
-at $x$.
-If $x$ is in addition in $A(\lambda+1)$, then
-the left-hand-side of \eqref{suminout} is at least
-$1+(\lambda+1) 2^{n+1}$, so we have by the triangle inequality for the first sum on the right-hand side
+We now show
 \begin{equation}\label{mnkonl}
-\sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x)\ge 2^{n+1}\, .\end{equation}
+    \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x)\ge 2^{n+1}\,.
+\end{equation}
+The left-hand side of \eqref{suminout} is strictly greater than $(\lambda+1)2^{n+1}$.
+If $L$ is the top cube the second sum $Q_2$ on the right-hand side of \eqref{suminout} is zero and
+\eqref{mnkonl} follows immediately. Otherwise consider the inclusion-minimal cube $\hat{L}$ with $L\subsetneq\hat{L}$;
+all tiles $\fp$ over which $Q_2$ is summed over satisfy $\hat{L}\subset\fp$, so $Q_2$ is constant for all $x\in\hat{L}$.
+By maximality of $L$, $Q_2$ is at most $\lambda 2^{n+1}$ somewhere on $\hat{L}$,
+thus on all of $\hat{L}$ and consequently also at $x$. Rearranging the inequality yields \eqref{mnkonl}.
+
 By \Cref{pairwise-disjoint}, we have
 \begin{equation}
 \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mu({E_1}(\fp)) \leq \mu(L)\, .
@@ -2130,7 +2128,7 @@ We have
 \end{equation}
 \end{lemma}
 \begin{proof}
-
+\leanok
 We use \Cref{John-Nirenberg} and sum twice a geometric series
 to obtain
 \begin{equation}
@@ -2161,7 +2159,7 @@ We turn to the set $G_3$.
 % Note(Georges Gonthier): sum should start at 0, not 1
 We write the left-hand side of \eqref{eq-musum}
 \begin{equation}
-    \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{0}_{\scI(\mathfrak{m})}(x) \, d\mu(x) \le
+    \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{1}_{\scI(\mathfrak{m})}(x) \, d\mu(x) \le
 2^{n+1} \sum_{\lambda=0}^{|\mathfrak{M}|}\mu(A(\lambda, k,n))\,.
 \end{equation}
 Using \Cref{John-Nirenberg}

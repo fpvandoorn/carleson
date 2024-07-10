@@ -119,6 +119,32 @@ def setA (l k n : ℕ) : Set X :=
   {x : X | l * 2 ^ (n + 1) < ∑ p ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n),
     (𝓘 p : Set X).indicator 1 x }
 
+lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
+    setA (X := X) l k n ⊆ ⋃ i ∈ 𝓒 (X := X) k, ↑i := fun x mx ↦ by
+  simp_rw [setA, mem_setOf, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
+    Finset.filter_filter] at mx
+  replace mx := (zero_le _).trans_lt mx
+  rw [Finset.card_pos] at mx
+  obtain ⟨p, hp⟩ := mx
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔐] at hp
+  rw [mem_iUnion₂]; use 𝓘 p, ?_, hp.2
+  have hp' : p ∈ aux𝔐 k n := mem_of_mem_of_subset hp.1 (maximals_subset ..)
+  rw [aux𝔐, mem_setOf, TilesAt, mem_preimage] at hp'
+  exact hp'.1
+
+lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n := by
+  refine setOf_subset_setOf.mpr fun x hx ↦ ?_
+  calc
+    _ ≤ _ := by gcongr; omega
+    _ < _ := hx
+
+lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=
+  measurableSet_lt measurable_const (Finset.measurable_sum _ fun _ _ ↦
+    Measurable.indicator measurable_one coeGrid_measurable)
+
+/-- Finset of cubes in `setA`. Appears in the proof of Lemma 5.2.5. -/
+def MsetA (l k n : ℕ) : Finset (Grid X) := Finset.univ.filter fun j ↦ (j : Set X) ⊆ setA l k n
+
 /-- The set `G₂`, defined in (5.1.27). -/
 def G₂ : Set X := ⋃ (n : ℕ) (k < n), setA (2 * n + 6) k n
 
@@ -150,7 +176,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
     simpa [M] using mj
   let M' := Grid.maxCubes M
   have s₂ : ⋃ i ∈ M, (i : Set X) ⊆ ⋃ i ∈ M', ↑i := iUnion₂_mono' fun i mi ↦ by
-    obtain ⟨j, mj, hj⟩ := (Grid.exists_maximal_supercube M) i mi; use j, mj, hj.1
+    obtain ⟨j, mj, hj⟩ := Grid.exists_maximal_supercube mi; use j, mj, hj.1
   calc
     _ ≤ volume (⋃ i ∈ M', (i : Set X)) := measure_mono (s₁.trans s₂)
     _ ≤ ∑ i ∈ M', volume (i : Set X) := measure_biUnion_finset_le M' _
@@ -164,7 +190,7 @@ lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) �
       exact_mod_cast hi.le
     _ = 2 ^ (k + 1) * volume (⋃ j ∈ M', G ∩ j) := by
       congr; refine (measure_biUnion_finset (fun _ mi _ mj hn ↦ ?_) (fun _ _ ↦ ?_)).symm
-      · exact ((Grid.maxCubes_pairwiseDisjoint M mi mj hn).inter_right' G).inter_left' G
+      · exact ((Grid.maxCubes_pairwiseDisjoint mi mj hn).inter_right' G).inter_left' G
       · exact measurableSet_G.inter coeGrid_measurable
     _ ≤ _ := mul_le_mul_left' (measure_mono (iUnion₂_subset fun _ _ ↦ inter_subset_left)) _
 
@@ -193,13 +219,228 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hy ⊢
   exact ⟨hy.1, mem_of_mem_of_subset mc (Grid.le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
 
+lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X) l k n := by
+  ext x
+  simp_rw [mem_iUnion₂, MsetA, Finset.mem_filter, Finset.mem_univ, true_and]
+  constructor <;> intro mx
+  · obtain ⟨j, mj, lj⟩ := mx; exact mem_of_mem_of_subset lj mj
+  · obtain ⟨j, mj, lj⟩ := dyadic_union mx; use j, lj, mj
+
+/-- Equation (5.2.7) in the proof of Lemma 5.2.5. -/
+lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
+    (mx : x ∈ setA (l + 1) k n) (mx₂ : x ∈ L) : 2 ^ (n + 1) ≤
+    ∑ q ∈ Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L),
+      (𝓘 q : Set X).indicator 1 x := by
+  -- LHS of equation (5.2.6) is strictly greater than `(l + 1) * 2 ^ (n + 1)`
+  rw [setA, mem_setOf, ← Finset.sum_filter_add_sum_filter_not (p := fun p' ↦ 𝓘 p' ≤ L),
+    Finset.filter_filter, Finset.filter_filter] at mx
+  -- Rewrite second sum of RHS of (5.2.6) so that it sums over tiles `q` satisfying `L < 𝓘 q`
+  nth_rw 2 [← Finset.sum_filter_add_sum_filter_not (p := fun p' ↦ Disjoint (𝓘 p' : Set X) L)] at mx
+  rw [Finset.filter_filter, Finset.filter_filter] at mx
+  have mid0 : ∑ q ∈ Finset.univ.filter
+      (fun p' ↦ (p' ∈ 𝔐 k n ∧ ¬𝓘 p' ≤ L) ∧ Disjoint (𝓘 p' : Set X) L),
+      (𝓘 q : Set X).indicator 1 x = 0 := by
+    simp_rw [Finset.sum_eq_zero_iff, indicator_apply_eq_zero, imp_false, Finset.mem_filter,
+      Finset.mem_univ, true_and]
+    rintro y ⟨-, dj⟩
+    exact disjoint_right.mp dj mx₂
+  rw [mid0, zero_add] at mx
+  have req :
+      Finset.univ.filter (fun p' ↦ (p' ∈ 𝔐 k n ∧ ¬𝓘 p' ≤ L) ∧ ¬Disjoint (𝓘 p' : Set X) L) =
+      Finset.univ.filter (fun p' ↦ p' ∈ 𝔐 k n ∧ L < 𝓘 p') := by
+    ext q
+    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, and_assoc, and_congr_right_iff]
+    refine fun _ ↦ ⟨fun h ↦ ?_, ?_⟩
+    · apply lt_of_le_of_ne <| (le_or_ge_or_disjoint.resolve_left h.1).resolve_right h.2
+      by_contra k; subst k; simp at h
+    · rw [Grid.lt_def, Grid.le_def, not_and_or, not_le]
+      exact fun h ↦ ⟨Or.inr h.2, not_disjoint_iff.mpr ⟨x, mem_of_mem_of_subset mx₂ h.1, mx₂⟩⟩
+  rw [req] at mx
+  -- The new second sum of RHS is at most `l * 2 ^ (n + 1)`
+  set Q₁ := Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L)
+  set Q₂ := Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ L < 𝓘 q)
+  have Ql : ∑ q ∈ Q₂, (𝓘 q : Set X).indicator 1 x ≤ l * 2 ^ (n + 1) := by
+    by_cases h : IsMax L
+    · rw [Grid.isMax_iff] at h
+      have : Q₂ = ∅ := by
+        ext y; simp_rw [Q₂, Finset.mem_filter, Finset.mem_univ, true_and, Finset.not_mem_empty,
+          iff_false, not_and, h, Grid.lt_def, not_and_or, not_lt]
+        exact fun _ ↦ Or.inr (Grid.le_topCube).2
+      simp [this]
+    have Lslq : ∀ q ∈ Q₂, L.succ ≤ 𝓘 q := fun q mq ↦ by
+      simp_rw [Q₂, Finset.mem_filter, Finset.mem_univ, true_and] at mq
+      exact Grid.succ_le_of_lt mq.2
+    have Lout : ¬(L.succ : Set X) ⊆ setA (X := X) l k n := by
+      by_contra! hs
+      rw [Grid.maxCubes, Finset.mem_filter] at mL
+      apply absurd _ h
+      exact Grid.max_of_le_succ
+        (mL.2 L.succ (Finset.mem_filter.mpr ⟨Finset.mem_univ _, hs⟩) Grid.le_succ).symm.le
+    rw [not_subset_iff_exists_mem_not_mem] at Lout
+    obtain ⟨x', mx', nx'⟩ := Lout
+    calc
+      _ = ∑ q ∈ Q₂, (𝓘 q : Set X).indicator 1 x' := by
+        refine Finset.sum_congr rfl fun q mq ↦ ?_
+        simp only [indicator, Pi.one_apply,
+          mem_of_mem_of_subset mx₂ (Grid.le_succ.trans (Lslq q mq)).1,
+          mem_of_mem_of_subset mx' (Lslq q mq).1]
+      _ ≤ ∑ q ∈ Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n),
+          (𝓘 q : Set X).indicator 1 x' := by
+        refine Finset.sum_le_sum_of_subset ?_
+        simp_rw [Q₂, ← Finset.filter_filter]
+        apply Finset.filter_subset
+      _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_setOf_eq, not_lt] at nx'
+  -- so the (unchanged) first sum of RHS is at least `2 ^ (n + 1)`
+  rw [add_one_mul] at mx; omega
+
+/-- Equation (5.2.11) in the proof of Lemma 5.2.5. -/
+lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) :
+    2 * volume (setA (X := X) (l + 1) k n ∩ L) ≤ volume (L : Set X) := by
+  let Q₁ := Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L)
+  have Q₁m : ∀ i ∈ Q₁, Measurable ((𝓘 i : Set X).indicator (1 : X → ℝ≥0∞)) := fun _ _ ↦
+    Measurable.indicator measurable_one coeGrid_measurable
+  have e528 : ∑ q ∈ Q₁, volume (E₁ q) ≤ volume (L : Set X) :=
+    calc
+      _ = volume (⋃ q ∈ Q₁, E₁ q) := by
+        refine (measure_biUnion_finset (fun p mp q mq hn ↦ ?_) (fun _ _ ↦ ?_)).symm
+        · simp_rw [Finset.mem_coe, Q₁, Finset.mem_filter] at mp mq
+          exact pairwiseDisjoint_E1 mp.2.1 mq.2.1 hn
+        · exact (coeGrid_measurable.inter measurableSet_G).inter
+            (SimpleFunc.measurableSet_preimage ..)
+      _ ≤ volume (⋃ q ∈ Q₁, (𝓘 q : Set X)) := measure_mono (iUnion₂_mono fun q _ ↦ E₁_subset q)
+      _ ≤ _ := by
+        apply measure_mono (iUnion₂_subset fun q mq ↦ ?_)
+        simp_rw [Q₁, Finset.mem_filter] at mq; exact mq.2.2.1
+  have e529 : ∑ q ∈ Q₁, volume (𝓘 q : Set X) ≤ 2 ^ n * volume (L : Set X) :=
+    calc
+      _ ≤ ∑ q ∈ Q₁, 2 ^ n * volume (E₁ q) := by
+        refine Finset.sum_le_sum fun q mq ↦ ?_
+        simp_rw [Q₁, Finset.mem_filter, 𝔐, maximals, aux𝔐, mem_setOf] at mq
+        replace mq := mq.2.1.1.2
+        rw [← ENNReal.rpow_intCast, show (-(n : ℕ) : ℤ) = (-n : ℝ) by simp, mul_comm,
+          ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
+          ← ENNReal.rpow_neg, neg_neg] at mq
+        exact_mod_cast mq.le
+      _ ≤ _ := by rw [← Finset.mul_sum]; exact mul_le_mul_left' e528 _
+  rw [← ENNReal.mul_le_mul_left (a := 2 ^ n) (by simp) (by simp), ← mul_assoc, ← pow_succ]
+  calc
+    _ = ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, 2 ^ (n + 1) := (setLIntegral_const _ _).symm
+    _ ≤ ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
+      refine setLIntegral_mono (by simp) (Finset.measurable_sum Q₁ Q₁m) fun x ⟨mx, mx₂⟩ ↦ ?_
+      have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := john_nirenberg_aux1 mL mx mx₂
+      have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
+        rw [toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
+      have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =
+          (((∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℕ) x) : ℕ) : ℝ).toNNReal := by
+        rw [toNNReal_coe_nat, ENNReal.coe_natCast, Nat.cast_sum]; congr!; simp [indicator]
+      rw [lcast, rcast, ENNReal.coe_le_coe]
+      exact Real.toNNReal_le_toNNReal (Nat.cast_le.mpr this)
+    _ ≤ ∫⁻ x, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := setLIntegral_le_lintegral _ _
+    _ = ∑ q ∈ Q₁, ∫⁻ x, (𝓘 q : Set X).indicator 1 x := lintegral_finset_sum _ Q₁m
+    _ = ∑ q ∈ Q₁, volume (𝓘 q : Set X) := by
+      congr!; exact lintegral_indicator_one coeGrid_measurable
+    _ ≤ _ := e529
+
 /-- Lemma 5.2.5 -/
 lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * volume G := by
-    sorry
+  induction l with
+  | zero =>
+    calc
+      _ ≤ volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) := measure_mono setA_subset_iUnion_𝓒
+      _ ≤ _ := by
+        rw [← ENNReal.rpow_intCast, show (k + 1 - (0 : ℕ) : ℤ) = (k + 1 : ℝ) by simp]
+        exact_mod_cast dense_cover k
+  | succ l ih =>
+    suffices 2 * volume (setA (X := X) (l + 1) k n) ≤ volume (setA (X := X) l k n) by
+      rw [← ENNReal.mul_le_mul_left (a := 2) (by simp) (by simp), ← mul_assoc]; apply this.trans
+      convert ih using 2; nth_rw 1 [← zpow_one 2, ← ENNReal.zpow_add (by simp) (by simp)]
+      congr 1; omega
+    calc
+      _ = 2 * ∑ L ∈ Grid.maxCubes (MsetA (X := X) l k n),
+          volume (setA (X := X) (l + 1) k n ∩ L) := by
+        congr; rw [← measure_biUnion_finset]
+        · congr; ext x; constructor <;> intro h
+          · obtain ⟨L', mL'⟩ := dyadic_union h
+            have := mem_of_mem_of_subset mL'.1 (mL'.2.trans setA_subset_setA)
+            rw [← iUnion_MsetA_eq_setA, mem_iUnion₂] at this
+            obtain ⟨M, mM, lM⟩ := this
+            obtain ⟨L, mL, lL⟩ := Grid.exists_maximal_supercube mM
+            rw [mem_iUnion₂]; use L, mL
+            exact ⟨mem_of_mem_of_subset mL'.1 mL'.2, mem_of_mem_of_subset lM lL.1⟩
+          · rw [mem_iUnion₂] at h; obtain ⟨i, _, mi₂⟩ := h; exact mem_of_mem_inter_left mi₂
+        · exact fun i mi j mj hn ↦
+            ((Grid.maxCubes_pairwiseDisjoint mi mj hn).inter_left' _).inter_right' _
+        · exact fun _ _ ↦ measurable_setA.inter coeGrid_measurable
+      _ ≤ ∑ L ∈ Grid.maxCubes (MsetA (X := X) l k n), volume (L : Set X) := by
+        rw [Finset.mul_sum]; exact Finset.sum_le_sum fun L mL ↦ john_nirenberg_aux2 mL
+      _ = _ := by
+        rw [← measure_biUnion_finset Grid.maxCubes_pairwiseDisjoint (fun _ _ ↦ coeGrid_measurable)]
+        congr; ext x; constructor <;> intro h
+        · rw [mem_iUnion₂] at h; obtain ⟨i, mi₁, mi₂⟩ := h
+          simp only [Grid.maxCubes, Finset.mem_filter, MsetA, Finset.mem_univ, true_and] at mi₁
+          exact mem_of_mem_of_subset mi₂ mi₁.1
+        · obtain ⟨L', mL'⟩ := dyadic_union h
+          have := mem_of_mem_of_subset mL'.1 mL'.2
+          rw [← iUnion_MsetA_eq_setA, mem_iUnion₂] at this
+          obtain ⟨M, mM, lM⟩ := this
+          obtain ⟨L, mL, lL⟩ := Grid.exists_maximal_supercube mM
+          rw [mem_iUnion₂]; use L, mL, mem_of_mem_of_subset lM lL.1
+
+/-- An equivalence used in the proof of `second_exception`. -/
+def secondExceptionSupportEquiv :
+    (support fun n : ℕ ↦ if k < n then (2 : ℝ≥0∞) ^ (-2 * (n - k - 1) : ℤ) else 0) ≃
+    support fun n' : ℕ ↦ (2 : ℝ≥0∞) ^ (-2 * n' : ℤ) where
+  toFun n := by
+    obtain ⟨n, _⟩ := n; use n - k - 1
+    rw [mem_support, neg_mul, ← ENNReal.rpow_intCast]; simp
+  invFun n' := by
+    obtain ⟨n', _⟩ := n'; use n' + k + 1
+    simp_rw [mem_support, show k < n' + k + 1 by omega, ite_true, neg_mul, ← ENNReal.rpow_intCast]
+    simp
+  left_inv n := by
+    obtain ⟨n, mn⟩ := n
+    rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
+    simp only [Subtype.mk.injEq]; omega
+  right_inv n' := by
+    obtain ⟨n', mn'⟩ := n'
+    simp only [Subtype.mk.injEq]; omega
 
 /-- Lemma 5.2.6 -/
-lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G := by
-  sorry
+lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := by
+  calc
+    _ ≤ ∑' (n : ℕ), volume (⋃ (k < n), setA (X := X) (2 * n + 6) k n) := measure_iUnion_le _
+    _ = ∑' (n : ℕ), volume (⋃ (k : ℕ), if k < n then setA (X := X) (2 * n + 6) k n else ∅) := by
+      congr!; exact iUnion_eq_if _
+    _ ≤ ∑' (n : ℕ) (k : ℕ), volume (if k < n then setA (X := X) (2 * n + 6) k n else ∅) := by
+      gcongr; exact measure_iUnion_le _
+    _ = ∑' (k : ℕ) (n : ℕ), if k < n then volume (setA (X := X) (2 * n + 6) k n) else 0 := by
+      rw [ENNReal.tsum_comm]; congr!; split_ifs <;> simp
+    _ ≤ ∑' (k : ℕ) (n : ℕ), if k < n then 2 ^ (k - 5 - 2 * n : ℤ) * volume G else 0 := by
+      gcongr; split_ifs
+      · convert john_nirenberg using 3; omega
+      · rfl
+    _ = ∑' (k : ℕ), 2 ^ (-k - 7 : ℤ) * volume G * ∑' (n' : ℕ), 2 ^ (-2 * n' : ℤ) := by
+      congr with k -- n' = n - k - 1; n = n' + k + 1
+      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 7 + (-2 * (n - k - 1)) : ℤ) := by omega
+      conv_lhs =>
+        enter [1, n]
+        rw [rearr, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate,
+          ← mul_zero (volume G * 2 ^ (-k - 7 : ℤ)), ← mul_ite]
+      rw [ENNReal.tsum_mul_left, mul_comm (volume G)]; congr 1
+      refine Equiv.tsum_eq_tsum_of_support secondExceptionSupportEquiv fun ⟨n, mn⟩ ↦ ?_
+      simp_rw [secondExceptionSupportEquiv, Equiv.coe_fn_mk, neg_mul]
+      rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
+      simp_rw [mn.1, ite_true]; congr; omega
+    _ ≤ ∑' (k : ℕ), 2 ^ (-k - 7 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
+      gcongr
+      rw [ENNReal.sum_geometric_two_pow_neg_two, zpow_two]; norm_num
+      rw [← ENNReal.coe_ofNat, ← Real.toNNReal_ofNat, ENNReal.coe_le_coe]; norm_num
+    _ = 2 ^ (-6 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
+      simp_rw [mul_assoc, ENNReal.tsum_mul_right]; congr
+      conv_lhs => enter [1, k]; rw [sub_eq_add_neg, ENNReal.zpow_add (by simp) (by simp)]
+      nth_rw 1 [ENNReal.tsum_mul_right, ENNReal.sum_geometric_two_pow_neg_one,
+        ← zpow_one 2, ← ENNReal.zpow_add] <;> simp
+    _ = _ := by rw [← mul_rotate, ← ENNReal.zpow_add] <;> simp
 
 /-- Lemma 5.2.7 -/
 lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) ≤
@@ -226,7 +467,7 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
   sorry
 
 /-- Lemma 5.1.1 -/
-lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G := by
+lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G :=
   sorry
 
 /-! ## Section 5.3 -/

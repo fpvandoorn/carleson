@@ -329,12 +329,10 @@ lemma dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ d
 
 /-! Maximal elements of finsets of dyadic cubes -/
 
-variable (s : Finset (Grid X))
-
 open Classical in
-def maxCubes : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
+def maxCubes (s : Finset (Grid X)) : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
 
-lemma exists_maximal_supercube : ∀ i ∈ s, ∃ j ∈ maxCubes s, i ≤ j := fun i hi ↦ by
+lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) : ∃ j ∈ maxCubes s, i ≤ j := by
   classical let C : Finset (Grid X) := s.filter (i ≤ ·)
   have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
   obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
@@ -342,7 +340,7 @@ lemma exists_maximal_supercube : ∀ i ∈ s, ∃ j ∈ maxCubes s, i ≤ j := f
   refine ⟨j, ?_, hj.2⟩
   exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
 
-lemma maxCubes_pairwiseDisjoint :
+lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
     (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
   simp only [maxCubes, and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
   exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
