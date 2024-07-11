@@ -93,10 +93,7 @@ variable [FunctionDistances 𝕜 X]
 instance : Coe (Θ X) C(X, 𝕜) := ⟨FunctionDistances.coeΘ⟩
 instance : FunLike (Θ X) X 𝕜 where
   coe := fun f ↦ (f : C(X, 𝕜))
-  coe_injective' f g hfg := by
-    apply FunctionDistances.coeΘ_injective
-    rw [← funext_iff]
-    exact hfg
+  coe_injective' _ _ hfg := FunctionDistances.coeΘ_injective fun x ↦ congrFun hfg x
 instance : ContinuousMapClass (Θ X) X 𝕜 := ⟨fun f ↦ (f : C(X, 𝕜)).2⟩
 
 set_option linter.unusedVariables false in
