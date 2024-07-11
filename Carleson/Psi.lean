@@ -82,6 +82,10 @@ lemma ψ_formula₄ {x : ℝ} (hx : x ≥ 1 / 2) : ψ D x = 0 :=
 lemma psi_zero : ψ D 0 = 0 :=
   ψ_formula₀ (div_nonneg one_pos.le <| mul_nonneg four_pos.le (Nat.cast_nonneg D))
 
+lemma continuous_ψ : Continuous (ψ D) :=
+  continuous_const.max <| continuous_const.min <| ((continuous_mul_left _).sub continuous_const).min
+    (continuous_const.sub (continuous_mul_left 4))
+
 lemma support_ψ : support (ψ D) = Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   ext x
   by_cases hx₀ : x ≤ 1 / (4 * D)
@@ -625,3 +629,41 @@ lemma norm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
   by_cases h : 2 * dist y y' ≤ dist x y
   · exact norm_Ks_sub_Ks_le₀ hK h
   · exact norm_Ks_sub_Ks_le₁ hK h
+
+/-- The function `y ↦ Ks s x y` is integrable. -/
+lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by
+  /- Define a measurable, bounded function `K₀` that is equal to `K x` on the support of
+  `y ↦ ψ (D ^ (-s) * dist x y)`, so that `Ks s x y = K₀ y * ψ (D ^ (-s) * dist x y)`. -/
+  let K₀ (y : X) : ℂ := ite (dist x y ≤ D ^ s / (4 * D)) 0 (K x y)
+  have : Ks s x = fun y ↦ K₀ y * (ψ (D ^ (-s) * dist x y) : ℂ) := by
+    ext y
+    by_cases hy : dist x y ≤ D ^ s / (4 * D)
+    · suffices D ^ (-s) * dist x y ≤ 1 / (4 * D) by simp [-defaultD, -zpow_neg, Ks, ψ_formula₀ this]
+      apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos_of_pos (one_pos.trans (D1 X)) (-s))).2 hy
+      field_simp
+    · simp [-defaultD, Ks, K₀, hy]
+  rw [this]
+  refine Integrable.bdd_mul ?_ (Measurable.aestronglyMeasurable ?_) ?_
+  · apply Continuous.integrable_of_hasCompactSupport
+    · exact continuous_ofReal.comp <| continuous_ψ.comp <| continuous_const.mul <|
+        continuous_const.dist continuous_id
+    · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
+      intro y hy
+      rw [mem_support, ne_eq, ofReal_eq_zero, ← ne_eq, ← mem_support, support_ψ (D1 X)] at hy
+      replace hy := le_of_lt hy.2
+      rw [zpow_neg, mul_comm, ← div_eq_mul_inv, _root_.div_le_iff (Ds0 X s)] at hy
+      rwa [mem_closedBall, dist_comm, div_eq_mul_inv, mul_comm]
+  · refine Measurable.ite ?_ measurable_const measurable_K_right.of_uncurry_left
+    convert measurableSet_closedBall (x := x) (ε := D ^ s / (4 * D))
+    simp_rw [dist_comm x _, closedBall]
+  · refine ⟨C_K a / volume.real (ball x (D ^ s / (4 * D))), fun y ↦ ?_⟩
+    by_cases hy : dist x y ≤ D ^ s / (4 * D)
+    · simp only [hy, reduceIte, norm_zero, C_K, K₀]
+      positivity
+    · simp only [hy, reduceIte, K₀]
+      apply (norm_K_le_vol_inv x y).trans
+      gcongr
+      · exact (C_K_pos a).le
+      · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
+      · exact ENNReal.toReal_mono (measure_ball_ne_top x (dist x y)) <|
+          measure_mono <| ball_subset_ball (lt_of_not_ge hy).le
