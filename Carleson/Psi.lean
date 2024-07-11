@@ -632,7 +632,7 @@ lemma norm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
 
 /-- The function `y ↦ Ks s x y` is integrable. -/
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by
-  /- Define a function `K₀` that is bounded and equal to `K s x` on the support of
+  /- Define a measurable, bounded function `K₀` that is equal to `K x` on the support of
   `y ↦ ψ (D ^ (-s) * dist x y)`, so that `Ks s x y = K₀ y * ψ (D ^ (-s) * dist x y)`. -/
   let K₀ (y : X) : ℂ := ite (dist x y ≤ D ^ s / (4 * D)) 0 (K x y)
   have : Ks s x = fun y ↦ K₀ y * (ψ (D ^ (-s) * dist x y) : ℂ) := by
@@ -645,7 +645,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
   rw [this]
   refine Integrable.bdd_mul ?_ (Measurable.aestronglyMeasurable ?_) ?_
   · apply Continuous.integrable_of_hasCompactSupport
-    · exact Complex.continuous_ofReal.comp <| continuous_ψ.comp <| continuous_const.mul <|
+    · exact continuous_ofReal.comp <| continuous_ψ.comp <| continuous_const.mul <|
         continuous_const.dist continuous_id
     · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
       intro y hy
@@ -658,12 +658,12 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
     simp_rw [dist_comm x _, closedBall]
   · refine ⟨C_K a / volume.real (ball x ( D ^ s / (4 * D))), fun y ↦ ?_⟩
     by_cases hy : dist x y ≤ D ^ s / (4 * D)
-    · simp only [hy, ↓reduceIte, norm_zero, C_K, K₀]
+    · simp only [hy, reduceIte, norm_zero, C_K, K₀]
       positivity
     · simp only [hy, reduceIte, K₀]
       apply (norm_K_le_vol_inv x y).trans
       gcongr
       · exact (C_K_pos a).le
-      · exact Metric.measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
+      · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
       · exact ENNReal.toReal_mono (measure_ball_ne_top x (dist x y)) <|
           measure_mono <| ball_subset_ball (lt_of_not_ge hy).le
