@@ -239,6 +239,8 @@ open Function
 /-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
 @[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
 
+lemma C_K_pos (a : ℝ) : 0 < C_K a := by unfold C_K; positivity
+
 /-- `K` is a one-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
@@ -340,6 +342,10 @@ end ShortVariables
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+lemma one_lt_D : 1 < (D : ℝ) := by
+  unfold defaultD
+  exact_mod_cast one_lt_pow Nat.one_lt_two (by nlinarith [four_le_a X])
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
   rw [← Nat.cast_one, Nat.cast_le, defaultD, ← pow_zero 2]

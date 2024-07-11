@@ -9,14 +9,17 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
-theorem integrable_tile_sum_operator [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
-    {G' : Set X} (hG' : MeasurableSet G') (h2G' : 2 * volume G' ≤ volume G)
-    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hfg' : ∫⁻ x in G \ G', ‖∑' p, T p f x‖₊ ≤
-      C2_0_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) {x : X}
-    (hx : x ∈ G \ G') {s : ℤ} (hs : Icc (σ₁ x) (σ₂ x)) :
+theorem integrable_tile_sum_operator
+    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {x : X} {s : ℤ} :
     Integrable fun y ↦ Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
-  sorry
+  simp_rw [mul_assoc, mul_comm (Ks s x _)]
+  refine integrable_Ks_x (one_lt_D (X := X)) |>.bdd_mul ?_ ⟨1, fun y ↦ ?_⟩
+  · exact hf.mul ((measurable_ofReal.comp (map_continuous (Q x)).measurable |>.sub
+      measurable_const).const_mul I).cexp |>.aestronglyMeasurable
+  · rw [norm_mul, ← one_mul 1]
+    gcongr
+    · exact le_trans (h2f y) (F.indicator_le_self' (by simp) y)
+    · rw_mod_cast [mul_comm, norm_eq_abs, abs_exp_ofReal_mul_I]
 
 /-- Lemma 4.0.3 -/
 theorem tile_sum_operator [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
