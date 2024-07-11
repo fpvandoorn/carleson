@@ -22,18 +22,12 @@ variable {α : Type} {β : Type}
 lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} {b : ℝ} (bpos : b > 0):
   UniformContinuous f ↔ ∀ ε > 0, ∃ δ > 0, δ < b ∧ ∀ {x y : α}, dist x y < δ → dist (f x) (f y) < ε := by
   rw [Metric.uniformContinuous_iff]
-  constructor
-  · intro h ε εpos
-    obtain ⟨δ', δ'pos, hδ'⟩ := h ε εpos
+  refine ⟨fun h ε εpos ↦ ?_, fun h ε εpos ↦ ?_⟩
+  · obtain ⟨δ', δ'pos, hδ'⟩ := h ε εpos
     use min δ' (b / 2)
-    constructor
-    · exact (lt_min δ'pos (by linarith)).gt
-    constructor
-    · apply min_lt_of_right_lt
-      linarith
-    · exact fun hxy ↦ hδ' (lt_of_lt_of_le hxy (min_le_left δ' (b / 2)))
-  · intro h ε εpos
-    obtain ⟨δ, δpos, _, hδ⟩ := h ε εpos
+    refine ⟨(lt_min δ'pos (by linarith)).gt, ⟨min_lt_of_right_lt (div_two_lt_of_pos bpos),
+        fun hxy ↦ hδ' (lt_of_lt_of_le hxy (min_le_left δ' (b / 2)))⟩⟩
+  · obtain ⟨δ, δpos, _, hδ⟩ := h ε εpos
     use δ
 end section
 
@@ -70,11 +64,13 @@ lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous 
     convert periodicf (x - t) using 2
     ring
   · rw [← Complex.dist_eq, dist_comm]
-    exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable fun y hy ↦ (hδ hy).le
+    exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
+      fun y hy ↦ (hδ hy).le
 
 /- Inspired by mathlib : NNReal.summable_of_le-/
-lemma Real.summable_of_le {β : Type} {f g : β → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ (b : β), g b ≤ f b) (summablef : Summable f) :
-    Summable g := Summable.of_nonneg_of_le hgpos hgf summablef
+lemma Real.summable_of_le {β : Type} {f g : β → ℝ}
+    (hgpos : 0 ≤ g) (hgf : ∀ (b : β), g b ≤ f b) (summablef : Summable f) :
+  Summable g := Summable.of_nonneg_of_le hgpos hgf summablef
   /-
   set g' : β → NNReal := fun b ↦ ⟨g b, hgpos b⟩ with g'def
   set f' : β → NNReal := fun b ↦ ⟨f b, (hgpos b).trans (hgf b)⟩ with f'def
@@ -106,7 +102,7 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
   apply (summable_congr _).mpr (s.summable_compl_iff.mpr summablef)
   intro ⟨b, hb⟩
   rw [mem_singleton] at hb
-  simp [f'def, hb]
+  exact if_neg hb
 
 lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * Real.pi))) : ∃ C, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x) ≤ C := by
   have interval_compact := (isCompact_Icc (a := 0) (b := 2 * Real.pi))
