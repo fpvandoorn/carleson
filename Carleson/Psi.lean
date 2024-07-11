@@ -656,7 +656,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
   · refine Measurable.ite ?_ measurable_const measurable_K_right.of_uncurry_left
     convert measurableSet_closedBall (x := x) (ε := D ^ s / (4 * D))
     simp_rw [dist_comm x _, closedBall]
-  · refine ⟨C_K a / volume.real (ball x ( D ^ s / (4 * D))), fun y ↦ ?_⟩
+  · refine ⟨C_K a / volume.real (ball x (D ^ s / (4 * D))), fun y ↦ ?_⟩
     by_cases hy : dist x y ≤ D ^ s / (4 * D)
     · simp only [hy, reduceIte, norm_zero, C_K, K₀]
       positivity
