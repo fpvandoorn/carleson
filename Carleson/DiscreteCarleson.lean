@@ -33,7 +33,10 @@ def 𝔐 (k n : ℕ) : Set (𝔓 X) := maximals (·≤·) (aux𝔐 k n)
 def dens' (k : ℕ) (P' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ p' ∈ P', ⨆ (l : ℝ≥0), ⨆ (_hl : 2 ≤ l),
   ⨆ (p : 𝔓 X) (_h1p : p ∈ TilesAt k) (_h2p : smul l p' ≤ smul l p),
-  l ^ (- (a : ℤ)) * volume (E₂ l p) / volume (𝓘 p : Set X)
+  l ^ (-a : ℤ) * volume (E₂ l p) / volume (𝓘 p : Set X)
+
+lemma dens'_iSup {k : ℕ} {P : Set (𝔓 X)} : dens' k P = ⨆ p ∈ P, dens' k {p} := by
+  simp_rw [dens', mem_singleton_iff, iSup_iSup_eq_left]
 
 def auxℭ (k n : ℕ) : Set (𝔓 X) :=
   { p ∈ TilesAt k | 2 ^ (4 * a - n) < dens' k {p} }
@@ -41,6 +44,9 @@ def auxℭ (k n : ℕ) : Set (𝔓 X) :=
 /-- The partition `ℭ(k, n)` of `𝔓(k)` by density, given in (5.1.7). -/
 def ℭ (k n : ℕ) : Set (𝔓 X) :=
   { p ∈ TilesAt k | dens' k {p} ∈ Ioc (2 ^ (4 * a - n)) (2 ^ (4 * a - n + 1)) }
+
+lemma ℭ_subset_TilesAt {k n : ℕ} : ℭ k n ⊆ TilesAt (X := X) k := fun t mt ↦ by
+  rw [ℭ, mem_setOf] at mt; exact mt.1
 
 /-- The subset `𝔅(p)` of `𝔐(k, n)`, given in (5.1.8). -/
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
@@ -586,11 +592,19 @@ lemma ordConnected_C5 : OrdConnected (ℭ₅ k n j : Set (𝔓 X)) := by
 
 /-- Lemma 5.3.11 -/
 lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ dens' k P := by
-  sorry
+  rw [dens₁, dens']; gcongr with p' mp'
+  simp_rw [ENNReal.mul_iSup, iSup_le_iff, mul_div_assoc]
+  exact fun _ _ _ ↦ le_iSup_of_le p'
+    (le_iSup₂_of_le (mem_of_mem_of_subset mp' hP) le_rfl (mul_le_mul' (by norm_cast) le_rfl))
 
 /-- Lemma 5.3.12 -/
-lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * a - n + 1) := by
-  sorry
+lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * a - n + 1) :=
+  calc
+    _ ≤ dens' k A := dens1_le_dens' (hA.trans ℭ_subset_TilesAt)
+    _ ≤ dens' k (ℭ (X := X) k n) := iSup_le_iSup_of_subset hA
+    _ ≤ _ := by
+      rw [dens'_iSup, iSup₂_le_iff]; intro p mp
+      rw [ℭ, mem_setOf] at mp; exact mp.2.2
 
 /-! ## Section 5.4 and Lemma 5.1.2 -/
 
