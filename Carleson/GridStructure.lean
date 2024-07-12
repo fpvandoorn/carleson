@@ -80,6 +80,10 @@ lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : S
   · have := le_or_disjoint h; tauto
   · have := le_or_disjoint h.le; tauto
 
+lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set X) :=
+  Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
+     (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
+
 namespace Grid
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
