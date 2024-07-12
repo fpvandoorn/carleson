@@ -203,6 +203,7 @@ lemma cover_big_ball (k : ℝ) : ball o (4 * D^S - D^k) ⊆ ⋃ y ∈ Yk X k, ba
 /-! Proof that there exists a grid structure. -/
 -- Note: we might want to slightly adapt the construction so that there is only 1 tile at level S
 -- with center `o` (then we might not cover all of `ball o (D ^ S)`, but most of it)
+variable (X) in
 def grid_existence : GridStructure X D κ S o :=
   sorry
 
@@ -212,7 +213,9 @@ variable [GridStructure X D κ S o] {I : Grid X}
 
 /-- Use Zorn's lemma to define this. -/
 -- Note: 𝓩 I is a subset of finite set range Q.
-def 𝓩 (I : Grid X) : Set (Θ X) := sorry
+def 𝓩 (I : Grid X) : Set (Θ X) := by
+  revert I
+  sorry
 
 /-- The constant appearing in 4.2.2 (3 / 10). -/
 @[simp] def C𝓩 : ℝ := 3 / 10
@@ -484,7 +487,7 @@ lemma Ω_biUnion {I : Grid X} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (Gr
     intro ϑ mϑ
     replace ih := mem_of_mem_of_subset mϑ ih
     simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at ih ⊢
-    obtain ⟨⟨J, z⟩, (e : J = I.succ), h⟩ := ih
+    obtain ⟨⟨J, z⟩, (rfl : J = I.succ), h⟩ := ih
     have := mem_of_mem_of_subset z.2 (𝓩_subset.trans (frequency_ball_cover (I := I)))
     rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
     have zi : ball_{I} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 :=
@@ -494,7 +497,7 @@ lemma Ω_biUnion {I : Grid X} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : Set (Gr
     rw [mem_iUnion] at zi; obtain ⟨z'', mz''⟩ := zi
     use ⟨I, z''⟩, rfl
     rw [Ω]; simp only [nmaxI, dite_false, mem_union]; right
-    rw [mem_iUnion₂]; use z.1, ⟨z.2, mz''⟩, e ▸ h
+    rw [mem_iUnion₂]; use z.1, ⟨z.2, mz''⟩, h
 
 lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q) ∨ Ω q ⊆ Ω p := by
   by_cases h : 𝔰 q ≤ 𝔰 p
@@ -509,10 +512,10 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
       Grid.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
     have := mem_of_mem_of_subset q.2.2 (𝓩_subset.trans (frequency_ball_cover (I := J)))
     rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
-    have zi : ball_{J} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 I, ball_{J} z C4_2_1 :=
+    have zi' : ball_{J} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 J, ball_{J} z C4_2_1 :=
       subset_iUnion₂_of_subset z' mz' (subset_refl _)
     replace zi : ↑q.2 ∈ ⋃ f, Ω₁ ⟨J, f⟩ :=
-      mem_of_mem_of_subset dz <| zi.trans iUnion_ball_subset_iUnion_Ω₁
+      mem_of_mem_of_subset dz <| zi'.trans iUnion_ball_subset_iUnion_Ω₁
     clear! z'
     rw [mem_iUnion] at zi; obtain ⟨a, ma⟩ := zi -- Paper's `q'` is `⟨J, a⟩`
     have nmaxJ : ¬IsMax J := by
@@ -540,11 +543,12 @@ decreasing_by
 
 end Construction
 
+variable (X) in
 def tile_existence : TileStructure Q D κ S o where
   Ω := Construction.Ω
   biUnion_Ω {I} := Construction.Ω_biUnion
   disjoint_Ω := Construction.Ω_disjoint
-  relative_fundamental_dyadic {p q} := Construction.Ω_RFD (I := I)
+  relative_fundamental_dyadic {p q} := Construction.Ω_RFD
   cball_subset {p} := by
     rw [Construction.Ω]; split_ifs with h
     · have : ball_(p) (𝒬 p) 5⁻¹ ⊆ ball_(p) (𝒬 p) C𝓩 := ball_subset_ball (by norm_num)
