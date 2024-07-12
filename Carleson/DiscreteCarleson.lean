@@ -592,7 +592,20 @@ lemma ordConnected_C5 : OrdConnected (ℭ₅ k n j : Set (𝔓 X)) := by
 
 /-- Lemma 5.3.11 -/
 lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ dens' k P := by
-  sorry
+  rw [dens₁, dens']; gcongr with p' mp' l hl
+  simp_rw [ENNReal.mul_iSup, iSup_le_iff, mul_div_assoc]; intro p mp sl
+  suffices p ∈ TilesAt k by
+    exact le_iSup_of_le p (le_iSup₂_of_le this sl (mul_le_mul' (by norm_cast) le_rfl))
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf]
+  constructor
+  · rw [mem_lowerClosure] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
+    have := mem_of_mem_of_subset mp'' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at this
+    obtain ⟨J, lJ, vJ⟩ := this.1; use J, lp''.1.trans lJ
+  · by_contra h; obtain ⟨J, lJ, vJ⟩ := h
+    have := mem_of_mem_of_subset mp' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at this
+    apply absurd _ this.2; use J, sl.1.trans lJ
 
 /-- Lemma 5.3.12 -/
 lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * a - n + 1) :=
