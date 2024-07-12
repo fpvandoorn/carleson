@@ -40,7 +40,7 @@ def auxℭ (k n : ℕ) : Set (𝔓 X) :=
 
 /-- The partition `ℭ(k, n)` of `𝔓(k)` by density, given in (5.1.7). -/
 def ℭ (k n : ℕ) : Set (𝔓 X) :=
-  { p ∈ TilesAt k | dens' k {p} ∈ Ioc (2 ^ (4 * a - n)) (2 ^ (4 * a - (n + 1))) }
+  { p ∈ TilesAt k | dens' k {p} ∈ Ioc (2 ^ (4 * a - n)) (2 ^ (4 * a - n + 1)) }
 
 /-- The subset `𝔅(p)` of `𝔐(k, n)`, given in (5.1.8). -/
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
@@ -53,6 +53,9 @@ def preℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
 Together with `𝔏₀(k, n)` this forms a partition. -/
 def ℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
   preℭ₁ k n j \ preℭ₁ k n (j + 1)
+
+lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun t mt ↦ by
+  rw [ℭ₁, preℭ₁, mem_diff, mem_setOf] at mt; exact mt.1.1
 
 /-- The subset `𝔏₀(k, n, j)` of `ℭ(k, n)`, given in (5.1.10). -/
 def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
@@ -69,6 +72,9 @@ otherwise we need to add an upper bound. -/
 def ℭ₂ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₁ k n j \ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l
 
+lemma ℭ₂_subset_ℭ₁ {k n j : ℕ} : ℭ₂ k n j ⊆ ℭ₁ (X := X) k n j := fun t mt ↦ by
+  rw [ℭ₂, mem_diff] at mt; exact mt.1
+
 /-- The subset `𝔘₁(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.14). -/
 def 𝔘₁ (k n j : ℕ) : Set (𝔓 X) :=
   { u ∈ ℭ₁ k n j | ∀ p ∈ ℭ₁ k n j, 𝓘 u < 𝓘 p → Disjoint (ball_(u) (𝒬 u) 100) (ball_(p) (𝒬 p) 100) }
@@ -81,6 +87,9 @@ def 𝔏₂ (k n j : ℕ) : Set (𝔓 X) :=
 def ℭ₃ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₂ k n j \ 𝔏₂ k n j
 
+lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n j := fun t mt ↦ by
+  rw [ℭ₃, mem_diff] at mt; exact mt.1
+
 /-- `𝔏₃(k, n, j, l)` consists of the maximal elements in `ℭ₃(k, n, j)` not in
   `𝔏₃(k, n, j, l')` for some `l' < l`. Defined near (5.1.17). -/
 def 𝔏₃ (k n j l : ℕ) : Set (𝔓 X) :=
@@ -91,6 +100,9 @@ To check: the current definition assumes that `𝔏₃ k n j (Z * (n + 1)) = ∅
 otherwise we need to add an upper bound. -/
 def ℭ₄ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₃ k n j \ ⋃ (l : ℕ), 𝔏₃ k n j l
+
+lemma ℭ₄_subset_ℭ₃ {k n j : ℕ} : ℭ₄ k n j ⊆ ℭ₃ (X := X) k n j := fun t mt ↦ by
+  rw [ℭ₄, mem_diff] at mt; exact mt.1
 
 /-- The subset `𝓛(u)` of `Grid X`, given near (5.1.20).
 Note: It seems to also depend on `n`. -/
@@ -106,6 +118,9 @@ def 𝔏₄ (k n j : ℕ) : Set (𝔓 X) :=
 /-- The subset `ℭ₅(k, n, j)` of `ℭ₄(k, n, j)`, given in (5.1.23). -/
 def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₄ k n j \ 𝔏₄ k n j
+
+lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
+  rw [ℭ₅, mem_diff] at mt; exact mt.1
 
 /-- The set $\mathcal{P}_{F,G}$, defined in (5.1.24). -/
 def highDensityTiles : Set (𝔓 X) :=
@@ -406,7 +421,7 @@ def secondExceptionSupportEquiv :
     simp only [Subtype.mk.injEq]; omega
 
 /-- Lemma 5.2.6 -/
-lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := by
+lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G :=
   calc
     _ ≤ ∑' (n : ℕ), volume (⋃ (k < n), setA (X := X) (2 * n + 6) k n) := measure_iUnion_le _
     _ = ∑' (n : ℕ), volume (⋃ (k : ℕ), if k < n then setA (X := X) (2 * n + 6) k n else ∅) := by
@@ -459,7 +474,7 @@ def C5_2_9 [ProofData a q K σ₁ σ₂ F G] (n : ℕ) : ℝ≥0 := D ^ (1 - κ 
 
 /-- Lemma 5.2.9 -/
 lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
-  volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by
+    volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by
   sorry
 
 /-- Lemma 5.2.10 -/
@@ -486,31 +501,91 @@ lemma ordConnected_tilesAt : OrdConnected (TilesAt k : Set (𝔓 X)) := by
 
 /-- Lemma 5.3.5 -/
 lemma ordConnected_C : OrdConnected (ℭ k n : Set (𝔓 X)) := by
-  sorry
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  rw [ℭ, mem_setOf] at mp mp'' ⊢
+  have z := mem_of_mem_of_subset mp' (ordConnected_tilesAt.out mp.1 mp''.1)
+  refine ⟨z, ?_⟩
+  have : ∀ q' ∈ TilesAt (X := X) k, ∀ q ≤ q', dens' k {q'} ≤ dens' k {q} := fun q' _ q hq ↦ by
+    simp_rw [dens', mem_singleton_iff, iSup_iSup_eq_left]; gcongr with l hl a _
+    exact iSup_const_mono fun h ↦
+      wiggle_order_11_10 hq (C5_3_3_le (X := X).trans (by norm_num) |>.trans hl) |>.trans h
+  exact ⟨mp''.2.1.trans_le (this _ mp''.1 _ mp'.2), (this _ z _ mp'.1).trans mp.2.2⟩
 
 /-- Lemma 5.3.6 -/
 lemma ordConnected_C1 : OrdConnected (ℭ₁ k n j : Set (𝔓 X)) := by
-  sorry
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  have mp'₁ : p' ∈ ℭ (X := X) k n := mem_of_mem_of_subset mp'
+    (ordConnected_C.out (mem_of_mem_of_subset mp ℭ₁_subset_ℭ)
+      (mem_of_mem_of_subset mp'' ℭ₁_subset_ℭ))
+  simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, not_and, not_le] at mp mp'' ⊢
+  simp_rw [mp.1.1, true_and, true_implies] at mp
+  simp_rw [mp'₁, true_and, true_implies]
+  simp_rw [mp''.1.1, true_and, true_implies] at mp''
+  constructor
+  · refine mp''.1.trans (Finset.card_le_card fun b mb ↦ ?_)
+    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
+    have := wiggle_order_11_10 (n := 100) mp'.2 (C5_3_3_le (X := X).trans (by norm_num))
+    exact ⟨mb.1, this.trans mb.2⟩
+  · refine (Finset.card_le_card fun b mb ↦ ?_).trans_lt mp.2
+    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
+    have := wiggle_order_11_10 (n := 100) mp'.1 (C5_3_3_le (X := X).trans (by norm_num))
+    exact ⟨mb.1, this.trans mb.2⟩
 
 /-- Lemma 5.3.7 -/
 lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
-  sorry
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  have mp₁ := mem_of_mem_of_subset mp ℭ₂_subset_ℭ₁
+  have mp'₁ : p' ∈ ℭ₁ (X := X) k n j := mem_of_mem_of_subset mp'
+    (ordConnected_C1.out mp₁ (mem_of_mem_of_subset mp'' ℭ₂_subset_ℭ₁))
+  by_cases e : p = p'; · rwa [e] at mp
+  simp_rw [ℭ₂, mem_diff, mp'₁, true_and]
+  by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
+  rw [𝔏₁, mem_minimals_iff] at p'm
+  have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
+    replace mp := mp.2; contrapose! mp
+    exact mem_of_mem_of_subset mp
+      (iUnion_mono'' fun i ↦ iUnion_subset_iUnion_const fun hi ↦ (hi.trans_le bl').le)
+  exact absurd (p'm.2 ⟨mp.1, pnm⟩ mp'.1).symm e
 
 /-- Lemma 5.3.8 -/
 lemma ordConnected_C3 : OrdConnected (ℭ₃ k n j : Set (𝔓 X)) := by
-  sorry
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  have mp₁ := mem_of_mem_of_subset mp ℭ₃_subset_ℭ₂
+  have mp''₁ := mem_of_mem_of_subset mp'' ℭ₃_subset_ℭ₂
+  have mp'₁ : p' ∈ ℭ₂ (X := X) k n j := mem_of_mem_of_subset mp' (ordConnected_C2.out mp₁ mp''₁)
+  simp_rw [ℭ₃, mem_diff, mp''₁, mp'₁, true_and, 𝔏₂, mem_setOf,
+    mp''₁, mp'₁, true_and, not_not] at mp'' ⊢
+  obtain ⟨u, mu, 𝓘nu, su⟩ := mp''; use u, mu
+  exact ⟨(mp'.2.1.trans_lt (lt_of_le_of_ne su.1 𝓘nu)).ne,
+    (wiggle_order_11_10 mp'.2 (C5_3_3_le (X := X).trans (by norm_num))).trans su⟩
 
 /-- Lemma 5.3.9 -/
 lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
-  sorry
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  have mp''₁ := mem_of_mem_of_subset mp'' ℭ₄_subset_ℭ₃
+  have mp'₁ : p' ∈ ℭ₃ (X := X) k n j := mem_of_mem_of_subset mp'
+    (ordConnected_C3.out (mem_of_mem_of_subset mp ℭ₄_subset_ℭ₃) mp''₁)
+  by_cases e : p' = p''; · rwa [← e] at mp''
+  simp_rw [ℭ₄, mem_diff, mp'₁, true_and]
+  by_contra h; rw [mem_iUnion] at h; obtain ⟨l', p'm⟩ := h
+  rw [𝔏₃, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
+  have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
+    replace mp'' := mp''.2; contrapose! mp''
+    exact mem_of_mem_of_subset mp'' (iUnion₂_subset_iUnion ..)
+  exact absurd (p'm.2 ⟨mp''₁, p''nm⟩ mp'.2) e
 
 /-- Lemma 5.3.10 -/
 lemma ordConnected_C5 : OrdConnected (ℭ₅ k n j : Set (𝔓 X)) := by
-  sorry
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  have mp₁ := mem_of_mem_of_subset mp ℭ₅_subset_ℭ₄
+  have mp'₁ : p' ∈ ℭ₄ (X := X) k n j := mem_of_mem_of_subset mp'
+    (ordConnected_C4.out mp₁ (mem_of_mem_of_subset mp'' ℭ₅_subset_ℭ₄))
+  simp_rw [ℭ₅, mem_diff, mp₁, mp'₁, true_and, 𝔏₄, mem_setOf,
+    mp₁, mp'₁, true_and] at mp ⊢
+  contrapose! mp; obtain ⟨u, mu, s𝓘u⟩ := mp; use u, mu, mp'.1.1.1.trans s𝓘u
 
 /-- Lemma 5.3.11 -/
-lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) :
-    dens₁ P ≤ dens' k P := by
+lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ dens' k P := by
   sorry
 
 /-- Lemma 5.3.12 -/
