@@ -1935,12 +1935,15 @@ the complement of the set of tiles in Lemma
         \int_{G \setminus G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu \le \frac{2^{210a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
-\Cref{discrete-Carleson} follows by applying
+
+\begin{proof}[Proof of \Cref{discrete-Carleson}]
+    \proves{exceptional-set}
+\Cref{discrete-Carleson} follows by applying the
 triangle inequality to \eqref{disclesssim}
 according to the splitting in \Cref{forest-union}
 and \Cref{forest-complement} and using both Lemmas as well
 as the bound on the set $G'$ given by \Cref{exceptional-set}.
-
+\end{proof}
 
 \section{Proof of the Exceptional Sets Lemma}
 \label{subsetexcset}
