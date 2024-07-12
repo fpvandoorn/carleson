@@ -771,7 +771,6 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
 
 /-- The constant used in Proposition 2.0.2,
 which has value `2 ^ (440 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
--- todo: redefine in terms of other constants
 def C2_0_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C5_1_2 a q + C5_1_3 a q
 
 lemma C2_0_2_pos : C2_0_2 a nnq > 0 := sorry
