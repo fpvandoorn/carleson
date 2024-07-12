@@ -223,7 +223,7 @@ instance : FunctionDistances ℝ ℝ where
   Θ := ℤ
   coeΘ := integer_linear
   coeΘ_injective {n m} hnm := by simpa [integer_linear] using hnm 1
-  metric := fun x R ↦ {
+  metric := fun _ R ↦ {
       dist := fun n m ↦ 2 * max R 0 * |n - m|
       dist_self := by simp
       dist_comm := by
@@ -242,8 +242,11 @@ instance : FunctionDistances ℝ ℝ where
         apply abs_sub_le
       --next field will get default in mathlib and is left out here
       --TODO: remove when that is the case
-      edist_dist := sorry
+      edist_dist := fun x y ↦ rfl
   }
+
+--TODO: add lemma to avoid unfolds.
+--lemma dist_eq_ww
 
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
@@ -301,10 +304,13 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ 4) where
     dsimp
     by_cases r_pos : r ≤ 0
     . rw [ball_eq_empty.mpr r_pos] at h
-      sorry
+      rw [max_eq_right r_pos]
+      gcongr
+      apply le_max_right
     push_neg at r_pos
     gcongr
-    sorry
+    rw [Real.ball_eq_Ioo, Real.ball_eq_Ioo, Set.Ioo_subset_Ioo_iff (by linarith)] at h
+    linarith [h.1, h.2]
   cdist_le := by
     intro x₁ x₂ r f g
     unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal Real.pseudoMetricSpace
