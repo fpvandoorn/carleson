@@ -1057,6 +1057,7 @@ we have \eqref{disclesssim}.
     \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     Fix $x\in G\setminus G'$.
     Sorting the tiles $\fp$ on the left-hand-side of \eqref{eq-sump} by the value $\ps(\fp)\in [-S,S]$,
     it suffices to prove for every $-S\le s\le S$ that
@@ -2519,6 +2520,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC(k,n)$. Then, in particular, $\fp, \fp'' \in \fP(k)$, so, by \Cref{P-convex}, $\fp' \in \fP(k)$. Next, we show that if $\fq \le \fq' \in \fP(k)$ then $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. If $\fp \in \fP(k)$ and $\lambda \ge 2$ with $\lambda \fq' \lesssim \lambda \fp$, then it follows from $\fq \le \fq'$, \eqref{eq-sc1} of \Cref{wiggle-order-3} and transitivity of $\lesssim$ that $\lambda \fq \lesssim \lambda \fp$. Thus the supremum in the definition \eqref{eq-densdef} of $\dens_k'(\{\fq\})$ is over a superset of the set the supremum in the definition of $\dens_k'(\{\fq'\})$ is taken over, which shows $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. From $\fp' \le \fp''$, $\fp'' \in \fC(k,n)$ and \eqref{def-cnk} it then follows that
     $$
         2^{4a}2^{-n} < \dens_k'(\{\fp''\}) \le \dens_k'(\{\fp'\})\,.
@@ -2539,6 +2541,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp\le\fp'\le\fp''$ with $\fp, \fp'' \in \fC_1(k,n,j)$. By \Cref{C-convex} and the inclusion $\fC_1(k,n,j) \subset \fC(k,n)$, which holds by definition \eqref{defcnkj}, we have $\fp' \in \fC(k,n)$. By \eqref{eq-sc1} and transitivity of $\lesssim$ we have that $\fq \le \fq'$ and $100 \fq' \lesssim \mathfrak{m}$ imply $100 \fq \lesssim \mathfrak{m}$. So, by \eqref{defbfp}, $\mathfrak{B}(\fp'') \subset \mathfrak{B}(\fp') \subset \mathfrak{B}(\fp)$. Consequently, by \eqref{defcnkj}
     $$
         2^j \le |\mathfrak{B}(\fp'')|\le |\mathfrak{B}(\fp')| \le |\mathfrak{B}(\fp)| < 2^{j+1}\,,
@@ -2555,10 +2558,16 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
+    \leanok
      Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_2(k,n,j)$. By \eqref{eq-C2-def}, we have
      \begin{equation*}
          \fC_2(k,n,j) \subset \fC_1(k,n,j)\ .
-     \end{equation*} Combined with \Cref{C1-convex}, it follows that $\fp' \in \fC_1(k,n,j)$. Suppose that $\fp' \notin \fC_2(k,n,j)$. By \eqref{eq-C2-def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$. By the definition \eqref{eq-L1-def} of $\fL_1(k,n,j,l')$, this implies that $\fp$ is minimal with respect to $\le$ in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. Since $\fp \in \fC_2(k,n,j)$ we must have $\fp \ne \fp'$. Thus $\fp \le \fp'$ and $\fp \ne \fp'$. By minimality of $\fp'$ it follows that $\fp \notin \fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. But by \eqref{eq-C2-def} this implies $\fp \notin \fC_2(k,n,j)$, a contradiction.
+     \end{equation*} Combined with \Cref{C1-convex}, it follows that $\fp' \in \fC_1(k,n,j)$.
+     If $\fp=\fp'$ the statement is trivially true, otherwise suppose that $\fp' \notin \fC_2(k,n,j)$.
+     By \eqref{eq-C2-def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$.
+     By the definition \eqref{eq-L1-def} of $\fL_1(k,n,j,l')$, this implies that $\fp'$ is minimal
+     with respect to $\le$ in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$.
+     Since $\fp\le\fp'$ and $\fp\in\fC_2(k,n,j)$, $\fp=\fp'$, a contradiction.
 \end{proof}
 
 \begin{lemma}[C3 convex]
@@ -2570,7 +2579,13 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$. By \eqref{eq-C3-def} and \Cref{C2-convex} it follows that $\fp' \in \fC_2(k,n,j)$. Suppose that $\fp' \notin \fC_3(k,n,j)$. Then, by \eqref{eq-C3-def} and \eqref{eq-L2-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp' \lesssim \fu$ and $\scI(\fp') \ne \scI(\fu)$. Together this gives $\scI(\fp') \subsetneq \scI(\fu)$. From $\fp' \le \fp$, \eqref{eq-sc1} and transitivity of $\lesssim$ we then have $2\fp \lesssim \fu$. Also, $\scI(\fp) \subset \scI(\fp') \subsetneq \scI(\fu)$, so $\scI(\fp) \ne \scI(\fu)$. But then $\fp \in \fL_2(k,n,j)$, contradicting by \eqref{eq-C3-def} the assumption $\fp \in \fC_3(k,n,j)$.
+    \leanok
+    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$.
+    By \eqref{eq-C3-def} and \Cref{C2-convex} it follows that $\fp' \in \fC_2(k,n,j)$.
+    By \eqref{eq-C3-def} and \eqref{eq-L2-def}, there exists $\fu \in \fU_1(k,n,j)$ with
+    $2\fp'' \lesssim \fu$ and $\scI(\fp'') \subsetneq \scI(\fu)$. From $\fp' \le \fp''$,
+    \eqref{eq-sc1} and transitivity of $\lesssim$ we then have
+    $2\fp' \lesssim \fu$ and $\scI(\fp') \subsetneq \scI(\fu)$, so $\fp' \in \fC_3(k,n,j)$.
 \end{proof}
 
 \begin{lemma}[C4 convex]
@@ -2582,7 +2597,9 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_4(k,n,j)$. As before we obtain from the inclusion $\fC_4(k,n,j) \subset \fC_3(k,n,j)$ and \Cref{C3-convex} that $\fp' \in \fC_3(k,n,j)$. Thus, if $\fp' \notin \fC_4(k,n,j)$ then by \eqref{eq-L3-def} there exists $l$ such that $\fp' \in \fL_3(k,n,j,l)$. Thus $\fp'$ is maximal with respect to $\le$ in $\fC_3(k,n,j) \setminus \bigcup_{0 \le l' < l} \fL_3(k,n,j,l')$. Since $\fp'' \in \fC_4(k,n,j)$ we must have $\fp' \ne \fp''$. Thus $\fp' \le \fp''$ and $\fp'\ne \fp''$. By minimality of $\fp'$ it follows that $\fp'' \notin \fC_3(k,n,j) \setminus \bigcup_{l < l'} \fL_3(k,n,j,l)$. But by \eqref{eq-C4-def} this implies $\fp'' \notin \fC_4(k,n,j)$, a contradiction.
+    \leanok
+    The proof is entirely analogous to \Cref{C2-convex}, substituting $\fC_4$ for $\fC_2$,
+    $\fC_3$ for $\fC_1$ and $\fp'\le\fp''$ for $\fp\le\fp'$.
 \end{proof}
 
 \begin{lemma}[C5 convex]
@@ -2594,8 +2611,11 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$. Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by \Cref{C4-convex} also $\fp' \in \fC_4(k,n,j)$. Suppose that $\fp' \notin \fC_5(k,n,j)$. By \eqref{defc5}, it follows that $\fp' \in \fL_4(k,n,j)$.
-    By \eqref{eq-L4-def}, there exists $\fu \in \fU_1(k,n,j)$ with $\scI(\fp') \subset \bigcup \mathcal{L}(\fu)$. Then also $\scI(\fp) \subset \bigcup \mathcal{L}(\fu)$, a contradiction.
+    \leanok
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$.
+    Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by \Cref{C4-convex} $\fp' \in \fC_4(k,n,j)$.
+    It suffices to show that if $\fp' \in \fL_4(k,n,j)$ then $\fp \in \fL_4(k,n,j)$ by contraposition;
+    this is true by \eqref{eq-L4-def} and $\fp\le\fp'$.
 \end{proof}
 
 \begin{lemma}[dens compare]
@@ -2608,6 +2628,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 It suffices to show that for all $\fp'\in \fP'$
 and $\lambda\ge 2$ and $\fp\in \fP(\fP')$ with $\lambda \fp' \lesssim \lambda \fp$ we have
 \begin{equation}
@@ -2655,6 +2676,7 @@ there exists $J\in \mathcal{D}$ with
 \end{lemma}
 
 \begin{proof}
+    \leanok
     We have by \Cref{dens-compare} that
     $\dens_1(\mathfrak{A}) \le \dens_k'(\mathfrak{A})$. Since $\mathfrak{A} \subset \fC(k,n)$, it follows from monotonicity of suprema and the definition \eqref{eq-densdef} that
     $
