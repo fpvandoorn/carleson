@@ -230,8 +230,8 @@ lemma E₁_subset (p : 𝔓 X) : E₁ p ⊆ 𝓘 p := by
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
-  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
-  ⨆ (p' ∈ lowerClosure 𝔓') (_h2 : smul l p ≤ smul l p'),
+  ⨆ (p' ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
+  ⨆ (p ∈ lowerClosure 𝔓') (_h2 : smul l p' ≤ smul l p),
   volume (E₂ l p) / volume (𝓘 p : Set X)
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
