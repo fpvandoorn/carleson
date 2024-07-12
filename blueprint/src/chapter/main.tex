@@ -2627,15 +2627,39 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{equation}
 \end{lemma}
 \begin{proof}
-\leanok
 It suffices to show that for all $\fp'\in \fP'$
 and $\lambda\ge 2$ and $\fp\in \fP(\fP')$ with $\lambda \fp' \lesssim \lambda \fp$ we have
 \begin{equation}
-    \frac{\mu({E}_2(\lambda, \fp'))}{\mu(\scI(\fp'))}
-    \le \sup_{\fp \in \fP(k): \lambda \fp' \lesssim \lambda \fp}
-    \frac{\mu({E}_2(\lambda, \fp))}{\mu(\scI(\fp))}.
+    \frac{\mu({E}_2(\lambda, \fp))}{\mu(\scI(\fp))}
+    \le \sup_{\fp'' \in \fP(k): \lambda \fp' \lesssim \lambda \fp''}
+    \frac{\mu({E}_2(\lambda, \fp''))}{\mu(\scI(\fp''))}.
 \end{equation}
-This is trivially true.
+    Let such $\fp'$, $\lambda$, $\fp$ be given.
+    It suffices to show that $\fp\in \fP(k)$,
+    that is, it satisfies \eqref{muhj1}
+    and \eqref{muhj2}.
+
+We show \eqref{muhj1}.
+ As $\fp\in \fP(\fP')$, there exists
+$\fp''\in \fP'$ with $\scI(\fp')\subset \scI(\fp'')$. By assumption on $\fP'$, we have $\fp''\in \fP(k)$ and there exists
+$J\in \mathcal{D}$ with
+   $\scI(\fp'')\subset J$ and
+   \begin{equation}
+       \mu(G\cap J)>2^{-k-1} \mu(J).
+   \end{equation}
+Then also $\scI(\fp')\subset J$, which proves
+\eqref{muhj1} for $\fp$.
+
+We show \eqref{muhj2}. Assume to get a contradiction that
+there exists $J\in \mathcal{D}$ with
+   $\scI(\fp)\subset J$ and
+   \begin{equation}\label{mugj}
+       \mu(G\cap J)>2^{-k} \mu(J).
+   \end{equation}
+   As $\lambda\fp'\lesssim \lambda\fp$, we have $\scI(\fp')\subset \scI(\fp)$, and therefore
+    $\scI(\fp')\subset J$. This contradicts
+   $\fp'\in \fP'\subset \fP(k)$. This proves
+\eqref{muhj2} for $\fp$.
 \end{proof}
 
 \begin{lemma}[C dens1]
