@@ -72,9 +72,7 @@ def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
 def 𝔏₁ (k n j l : ℕ) : Set (𝔓 X) :=
   minimals (·≤·) (ℭ₁ k n j \ ⋃ (l' < l), 𝔏₁ k n j l')
 
-/-- The subset `ℭ₂(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.13).
-To check: the current definition assumes that `𝔏₁ k n j (Z * (n + 1)) = ∅`,
-otherwise we need to add an upper bound. -/
+/-- The subset `ℭ₂(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.13). -/
 def ℭ₂ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₁ k n j \ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l
 
@@ -101,11 +99,9 @@ lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n 
 def 𝔏₃ (k n j l : ℕ) : Set (𝔓 X) :=
   maximals (·≤·) (ℭ₃ k n j \ ⋃ (l' < l), 𝔏₃ k n j l')
 
-/-- The subset `ℭ₄(k, n, j)` of `ℭ₃(k, n, j)`, given in (5.1.19).
-To check: the current definition assumes that `𝔏₃ k n j (Z * (n + 1)) = ∅`,
-otherwise we need to add an upper bound. -/
+/-- The subset `ℭ₄(k, n, j)` of `ℭ₃(k, n, j)`, given in (5.1.19). -/
 def ℭ₄ (k n j : ℕ) : Set (𝔓 X) :=
-  ℭ₃ k n j \ ⋃ (l : ℕ), 𝔏₃ k n j l
+  ℭ₃ k n j \ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l
 
 lemma ℭ₄_subset_ℭ₃ {k n j : ℕ} : ℭ₄ k n j ⊆ ℭ₃ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₄, mem_diff] at mt; exact mt.1
@@ -137,12 +133,11 @@ def G₁ : Set X := ⋃ (p : 𝔓 X) (_ : p ∈ highDensityTiles), 𝓘 p
 
 /-- The set `A(λ, k, n)`, defined in (5.1.26). -/
 def setA (l k n : ℕ) : Set X :=
-  {x : X | l * 2 ^ (n + 1) < ∑ p ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n),
-    (𝓘 p : Set X).indicator 1 x }
+  {x : X | l * 2 ^ (n + 1) < stackSize (𝔐 (X := X) k n) x }
 
 lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
     setA (X := X) l k n ⊆ ⋃ i ∈ 𝓒 (X := X) k, ↑i := fun x mx ↦ by
-  simp_rw [setA, mem_setOf, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
+  simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at mx
   replace mx := (zero_le _).trans_lt mx
   rw [Finset.card_pos] at mx
@@ -178,7 +173,7 @@ def G' : Set X := G₁ ∪ G₂ ∪ G₃
 /-- The set `𝔓₁`, defined in (5.1.30). -/
 def 𝔓₁ : Set (𝔓 X) := ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3), ℭ₅ k n j
 
-variable {k n j l : ℕ} {p p' : 𝔓 X} {x : X}
+variable {k n j l : ℕ} {p p' u u' : 𝔓 X} {x : X}
 
 /-! ## Section 5.2 and Lemma 5.1.1 -/
 
@@ -231,7 +226,7 @@ lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p m
 /-- Lemma 5.2.4 -/
 lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Set X) ⊆ setA l k n := by
   let M : Finset (𝔓 X) := Finset.univ.filter (fun p ↦ p ∈ 𝔐 k n ∧ x ∈ 𝓘 p)
-  simp_rw [setA, mem_setOf, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
+  simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at hx ⊢
   obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le'.trans_lt hx))
   simp_rw [M, Finset.mem_filter, Finset.mem_univ, true_and] at memb minb
@@ -250,27 +245,24 @@ lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X
 /-- Equation (5.2.7) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     (mx : x ∈ setA (l + 1) k n) (mx₂ : x ∈ L) : 2 ^ (n + 1) ≤
-    ∑ q ∈ Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L),
-      (𝓘 q : Set X).indicator 1 x := by
+    stackSize { q ∈ 𝔐 (X := X) k n | 𝓘 q ≤ L} x := by
   -- LHS of equation (5.2.6) is strictly greater than `(l + 1) * 2 ^ (n + 1)`
-  rw [setA, mem_setOf, ← Finset.sum_filter_add_sum_filter_not (p := fun p' ↦ 𝓘 p' ≤ L),
-    Finset.filter_filter, Finset.filter_filter] at mx
+  rw [setA, mem_setOf, ← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ 𝓘 p' ≤ L)] at mx
   -- Rewrite second sum of RHS of (5.2.6) so that it sums over tiles `q` satisfying `L < 𝓘 q`
-  nth_rw 2 [← Finset.sum_filter_add_sum_filter_not (p := fun p' ↦ Disjoint (𝓘 p' : Set X) L)] at mx
-  rw [Finset.filter_filter, Finset.filter_filter] at mx
-  have mid0 : ∑ q ∈ Finset.univ.filter
-      (fun p' ↦ (p' ∈ 𝔐 k n ∧ ¬𝓘 p' ≤ L) ∧ Disjoint (𝓘 p' : Set X) L),
-      (𝓘 q : Set X).indicator 1 x = 0 := by
-    simp_rw [Finset.sum_eq_zero_iff, indicator_apply_eq_zero, imp_false, Finset.mem_filter,
-      Finset.mem_univ, true_and]
-    rintro y ⟨-, dj⟩
-    exact disjoint_right.mp dj mx₂
+  nth_rw 2 [← stackSize_setOf_add_stackSize_setOf_not (P := fun p' ↦ Disjoint (𝓘 p' : Set X) L)]
+    at mx
+  simp_rw [mem_setOf_eq, and_assoc] at mx
+  have mid0 : stackSize { p' ∈ 𝔐 k n | ¬𝓘 p' ≤ L ∧ Disjoint (𝓘 p' : Set X) L} x = 0 := by
+    simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero, imp_false,
+      Finset.mem_filter, Finset.mem_univ, true_and]
+    rintro y ⟨-, -, dj2⟩
+    exact disjoint_right.mp dj2 mx₂
   rw [mid0, zero_add] at mx
   have req :
-      Finset.univ.filter (fun p' ↦ (p' ∈ 𝔐 k n ∧ ¬𝓘 p' ≤ L) ∧ ¬Disjoint (𝓘 p' : Set X) L) =
-      Finset.univ.filter (fun p' ↦ p' ∈ 𝔐 k n ∧ L < 𝓘 p') := by
+      { p' | p' ∈ 𝔐 k n ∧ ¬𝓘 p' ≤ L ∧ ¬Disjoint (𝓘 p' : Set X) L } =
+      { p' | p' ∈ 𝔐 k n ∧ L < 𝓘 p' } := by
     ext q
-    simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, and_assoc, and_congr_right_iff]
+    simp_rw [mem_setOf_eq, and_congr_right_iff]
     refine fun _ ↦ ⟨fun h ↦ ?_, ?_⟩
     · apply lt_of_le_of_ne <| (le_or_ge_or_disjoint.resolve_left h.1).resolve_right h.2
       by_contra k; subst k; simp at h
@@ -278,19 +270,17 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
       exact fun h ↦ ⟨Or.inr h.2, not_disjoint_iff.mpr ⟨x, mem_of_mem_of_subset mx₂ h.1, mx₂⟩⟩
   rw [req] at mx
   -- The new second sum of RHS is at most `l * 2 ^ (n + 1)`
-  set Q₁ := Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L)
-  set Q₂ := Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ L < 𝓘 q)
-  have Ql : ∑ q ∈ Q₂, (𝓘 q : Set X).indicator 1 x ≤ l * 2 ^ (n + 1) := by
+  set Q₁ := { q ∈ 𝔐 (X := X) k n | 𝓘 q ≤ L }
+  set Q₂ := { q ∈ 𝔐 (X := X) k n | L < 𝓘 q }
+  have Ql : stackSize Q₂ x ≤ l * 2 ^ (n + 1) := by
     by_cases h : IsMax L
     · rw [Grid.isMax_iff] at h
       have : Q₂ = ∅ := by
-        ext y; simp_rw [Q₂, Finset.mem_filter, Finset.mem_univ, true_and, Finset.not_mem_empty,
-          iff_false, not_and, h, Grid.lt_def, not_and_or, not_lt]
+        ext y; simp_rw [Q₂, mem_setOf_eq, Set.not_mem_empty, iff_false, not_and, h, Grid.lt_def,
+          not_and_or, not_lt]
         exact fun _ ↦ Or.inr (Grid.le_topCube).2
-      simp [this]
-    have Lslq : ∀ q ∈ Q₂, L.succ ≤ 𝓘 q := fun q mq ↦ by
-      simp_rw [Q₂, Finset.mem_filter, Finset.mem_univ, true_and] at mq
-      exact Grid.succ_le_of_lt mq.2
+      simp [stackSize, this]
+    have Lslq : ∀ q ∈ Q₂, L.succ ≤ 𝓘 q := fun q mq ↦ Grid.succ_le_of_lt mq.2
     have Lout : ¬(L.succ : Set X) ⊆ setA (X := X) l k n := by
       by_contra! hs
       rw [Grid.maxCubes, Finset.mem_filter] at mL
@@ -300,16 +290,12 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     rw [not_subset_iff_exists_mem_not_mem] at Lout
     obtain ⟨x', mx', nx'⟩ := Lout
     calc
-      _ = ∑ q ∈ Q₂, (𝓘 q : Set X).indicator 1 x' := by
-        refine Finset.sum_congr rfl fun q mq ↦ ?_
-        simp only [indicator, Pi.one_apply,
-          mem_of_mem_of_subset mx₂ (Grid.le_succ.trans (Lslq q mq)).1,
+      _ = stackSize Q₂ x' := by
+        refine stackSize_congr rfl fun q mq ↦ ?_
+        simp_rw [mem_of_mem_of_subset mx₂ (Grid.le_succ.trans (Lslq q mq)).1,
           mem_of_mem_of_subset mx' (Lslq q mq).1]
-      _ ≤ ∑ q ∈ Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n),
-          (𝓘 q : Set X).indicator 1 x' := by
-        refine Finset.sum_le_sum_of_subset ?_
-        simp_rw [Q₂, ← Finset.filter_filter]
-        apply Finset.filter_subset
+      _ ≤ stackSize (𝔐 (X := X) k n) x' := by
+        refine stackSize_mono <| sep_subset ..
       _ ≤ l * 2 ^ (n + 1) := by rwa [setA, mem_setOf_eq, not_lt] at nx'
   -- so the (unchanged) first sum of RHS is at least `2 ^ (n + 1)`
   rw [add_one_mul] at mx; omega
@@ -348,7 +334,10 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
     _ = ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, 2 ^ (n + 1) := (setLIntegral_const _ _).symm
     _ ≤ ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
       refine setLIntegral_mono (by simp) (Finset.measurable_sum Q₁ Q₁m) fun x ⟨mx, mx₂⟩ ↦ ?_
-      have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := john_nirenberg_aux1 mL mx mx₂
+      have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
+        convert john_nirenberg_aux1 mL mx mx₂
+        simp_rw [stackSize, Q₁, mem_setOf_eq]
+        congr
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
         rw [toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =
@@ -469,9 +458,8 @@ lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volum
   sorry
 
 /-- Lemma 5.2.8 -/
-lemma tree_count : ∑ u ∈ Finset.univ.filter (· ∈ 𝔘₁ (X := X) k n j), (𝓘 u : Set X).indicator 1 x ≤
-    2 ^ (9 * a - j) * ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), (𝓘 m : Set X).indicator 1 x
-    := by
+lemma tree_count :
+    stackSize (𝔘₁ (X := X) k n j) x ≤ 2 ^ (9 * a - j) * stackSize (𝔐 (X := X) k n) x := by
   sorry
 
 variable (X) in
@@ -573,11 +561,11 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
     (ordConnected_C3.out (mem_of_mem_of_subset mp ℭ₄_subset_ℭ₃) mp''₁)
   by_cases e : p' = p''; · rwa [← e] at mp''
   simp_rw [ℭ₄, mem_diff, mp'₁, true_and]
-  by_contra h; rw [mem_iUnion] at h; obtain ⟨l', p'm⟩ := h
+  by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
   rw [𝔏₃, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
-    exact mem_of_mem_of_subset mp'' (iUnion₂_subset_iUnion ..)
+    refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
   exact absurd (p'm.2 ⟨mp''₁, p''nm⟩ mp'.2) e
 
 /-- Lemma 5.3.10 -/
@@ -618,7 +606,127 @@ lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * 
 
 /-! ## Section 5.4 and Lemma 5.1.2 -/
 
+/-- The subset `ℭ₆(k, n, j)` of `ℭ₅(k, n, j)`, given above (5.4.1). -/
+def ℭ₆ (k n j : ℕ) : Set (𝔓 X) :=
+  { p ∈ ℭ₅ k n j | ¬ (𝓘 p : Set X) ⊆ G' }
+
+lemma ℭ₆_subset_ℭ₅ : ℭ₆ (X := X) k n j ⊆ ℭ₅ k n j := sep_subset ..
+lemma ℭ₆_subset_ℭ : ℭ₆ (X := X) k n j ⊆ ℭ k n :=
+  ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans
+    ℭ₂_subset_ℭ₁ |>.trans ℭ₁_subset_ℭ
+
+/-- The subset `𝔗₁(u)` of `ℭ₁(k, n, j)`, given in (5.4.1).
+In lemmas, we will assume `u ∈ 𝔘₁ k n l` -/
+def 𝔗₁ (k n j : ℕ) (u : 𝔓 X) : Set (𝔓 X) :=
+  { p ∈ ℭ₁ k n j | 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u }
+
+/-- The subset `𝔘₂(k, n, j)` of `𝔘₁(k, n, j)`, given in (5.4.2). -/
+def 𝔘₂ (k n j : ℕ) : Set (𝔓 X) :=
+  { u ∈ 𝔘₁ k n j | ¬ Disjoint (𝔗₁ k n j u) (ℭ₆ k n j) }
+
+/-- The relation `∼` defined below (5.4.2). It is an equivalence relation on `𝔘₂ k n j`. -/
+def URel (k n j : ℕ) (u u' : 𝔓 X) : Prop :=
+  u = u' ∨ ∃ p ∈ 𝔗₁ k n j u, smul 10 p ≤ smul 1 u'
+
+nonrec lemma URel.rfl : URel k n j u u := Or.inl rfl
+
+/-- Lemma 5.4.1, part 1. -/
+lemma URel.eq (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') :
+    𝓘 u = 𝓘 u' := sorry
+
+/-- Lemma 5.4.1, part 2. -/
+lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') :
+    ¬ Disjoint (ball_(u) (𝒬 u) 100) (ball_(u') (𝒬 u') 100) := sorry
+
+/-- Lemma 5.4.2. -/
+lemma equivalenceOn_urel : EquivalenceOn (URel (X := X) k n j) (𝔘₂ k n j) where
+  refl := fun x _ ↦ .rfl
+  symm := sorry
+  trans := sorry
+
+/-- `𝔘₃(k, n, j) ⊆ 𝔘₂ k n j` is an arbitary set of representatives of `URel` on `𝔘₂ k n j`,
+given above (5.4.5). -/
+def 𝔘₃ (k n j : ℕ) : Set (𝔓 X) :=
+  (equivalenceOn_urel (k := k) (n := n) (j := j)).reprs
+
+/-- The subset `𝔗₂(u)` of `ℭ₆(k, n, j)`, given in (5.4.5).
+In lemmas, we will assume `u ∈ 𝔘₃ k n l` -/
+def 𝔗₂ (k n j : ℕ) (u : 𝔓 X) : Set (𝔓 X) :=
+  ℭ₆ k n j ∩ ⋃ (u' ∈ 𝔘₂ k n j) (_ : URel k n j u u'), 𝔗₁ k n j u'
+
+lemma 𝔗₂_subset_ℭ₆ : 𝔗₂ k n j u ⊆ ℭ₆ k n j := inter_subset_left ..
+
+/-- Lemma 5.4.3 -/
+lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j u := by
+  sorry
+
+/- Lemma 5.4.4 seems to be a duplicate of Lemma 5.4.6.
+The numberings below might change once we remove Lemma 5.4.4 -/
+
+/-- Lemma 5.4.5, verifying (2.0.32) -/
+lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
+  sorry
+
+/-- Lemma 5.4.6, verifying (2.0.33) -/
+lemma forest_convex (hu : u ∈ 𝔘₃ k n j) : OrdConnected (𝔗₂ k n j u) := by
+  sorry
+
+/-- Lemma 5.4.7, verifying (2.0.36)
+Note: swapped `u` and `u'` to match (2.0.36) -/
+lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) (huu' : u ≠ u')
+    (hp : p ∈ 𝔗₂ k n j u') (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u) := by
+  sorry
+
+/-- Lemma 5.4.8, verifying (2.0.37) -/
+lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u') :
+    ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u := by
+  sorry
+
+def C5_4_8 (n : ℕ) : ℕ := 1 + (4 * n + 12) * 2 ^ n
+
+/-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
+lemma forest_stacking (x : X) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
+  sorry
+
+/-- Pick a maximal subset of `s` satisfying `∀ x, stackSize s x ≤ 2 ^ n` -/
+def aux𝔘₄ (s : Set (𝔓 X)) : Set (𝔓 X) := by
+  revert s; sorry
+
+/-- The sets `(𝔘₄(k, n, j, l))_l` form a partition of `𝔘₃ k n j`. -/
+def 𝔘₄ (k n j l : ℕ) : Set (𝔓 X) :=
+  aux𝔘₄ <| 𝔘₃ k n j \ ⋃ (l' < l), 𝔘₄ k n j l'
+
+lemma iUnion_𝔘₄ : ⋃ l, 𝔘₄ (X := X) k n j l = 𝔘₃ k n j := by
+  sorry
+
+lemma 𝔘₄_subset_𝔘₃ : 𝔘₄ (X := X) k n j l ⊆ 𝔘₃ k n j := by
+  sorry
+
+lemma le_of_nonempty_𝔘₄ (h : (𝔘₄ (X := X) k n j l).Nonempty) : l < 4 * n + 13 := by
+  sorry
+
+lemma pairwiseDisjoint_𝔘₄ : univ.PairwiseDisjoint (𝔘₄ (X := X) k n j) := by
+  sorry
+
+lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 2 ^ n := by
+  sorry
+
+open TileStructure
+variable (k n j l) in
+def forest : Forest X n where
+  𝔘 := 𝔘₄ k n j l
+  𝔗 := 𝔗₂ k n j
+  nonempty {u} hu := sorry
+  ordConnected {u} hu := forest_convex <| 𝔘₄_subset_𝔘₃ hu
+  𝓘_ne_𝓘 hu hp := sorry
+  smul_four_le {u} hu := forest_geometry <| 𝔘₄_subset_𝔘₃ hu
+  stackSize_le {x} := stackSize_𝔘₄_le x
+  dens₁_𝔗_le {u} hu := dens1_le <| 𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ
+  lt_dist hu hu' huu' p hp := forest_separation (𝔘₄_subset_𝔘₃ hu) (𝔘₄_subset_𝔘₃ hu') huu' hp
+  ball_subset hu p hp := forest_inner (𝔘₄_subset_𝔘₃ hu) hp
+
 /-- The constant used in Lemma 5.1.2, with value `2 ^ (235 * a ^ 3) / (q - 1) ^ 4` -/
+-- todo: redefine in terms of other constants
 def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (235 * a ^ 3) / (q - 1) ^ 4
 
 lemma C5_1_2_pos : C5_1_2 a nnq > 0 := sorry
@@ -628,8 +736,8 @@ lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
   sorry
 
-
 /-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
+-- todo: redefine in terms of other constants
 def C5_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (210 * a ^ 3) / (q - 1) ^ 5
 
 lemma C5_1_3_pos : C5_1_3 a nnq > 0 := sorry
@@ -639,19 +747,31 @@ lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1
     C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
   sorry
 
+/-! ## Section 5.5 and Lemma 5.1.3 -/
 
-/-! We might want to develop some API about partitioning a set.
-But maybe `Set.PairwiseDisjoint` and `Set.Union` are enough.
-Related, but not quite useful: `Setoid.IsPartition`. -/
+/-- The set 𝔓_{G\G'} in the blueprint -/
+def 𝔓pos : Set (𝔓 X) := { p : 𝔓 X | 0 < volume (𝓘 p ∩ G ∩ G'ᶜ) }
 
--- /-- `u` is partitioned into subsets in `C`. -/
--- class Set.IsPartition {α ι : Type*} (u : Set α) (s : Set ι) (C : ι → Set α) : Prop :=
---   pairwiseDisjoint : s.PairwiseDisjoint C
---   iUnion_eq : ⋃ (i ∈ s), C i = u
+/-- The union occurring in the statement of Lemma 5.5.1 containing 𝔏₀ -/
+def ℜ₀ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n), 𝔏₀ k n
+
+/-- The union occurring in the statement of Lemma 5.5.1 containing 𝔏₁ -/
+def ℜ₁ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3) (l ≤ Z * (n + 1)), 𝔏₁ k n j l
+
+/-- The union occurring in the statement of Lemma 5.5.1 containing 𝔏₂ -/
+def ℜ₂ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3), 𝔏₂ k n j
+
+/-- The union occurring in the statement of Lemma 5.5.1 containing 𝔏₃ -/
+def ℜ₃ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3) (l ≤ Z * (n + 1)), 𝔏₃ k n j l
+
+/-- Lemma 5.5.1 -/
+lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ₁ ∪ ℜ₂ ∪ ℜ₃ := by
+  sorry
 
 
 /-- The constant used in Proposition 2.0.2,
 which has value `2 ^ (440 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
+-- todo: redefine in terms of other constants
 def C2_0_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C5_1_2 a q + C5_1_3 a q
 
 lemma C2_0_2_pos : C2_0_2 a nnq > 0 := sorry

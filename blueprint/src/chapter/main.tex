@@ -2718,6 +2718,8 @@ with $10 \fp\lesssim \fu'$.
 
 \begin{lemma}[relation geometry]
     \label{relation-geometry}
+    \leanok
+    \lean{URel.eq, URel.not_disjoint}
     \uses{wiggle-order-3}
     If $\fu \sim \fu'$, then $\scI(u) = \scI(u')$ and
     \begin{equation*}
@@ -2750,6 +2752,8 @@ with $10 \fp\lesssim \fu'$.
 \begin{lemma}[equivalence relation]
 \label{equivalence-relation}
 \uses{relation-geometry}
+\leanok
+\lean{equivalenceOn_urel}
 For each $k,n,j$, the relation $\sim$ on
 $\fU_2(k,n,j)$ is an equivalence relation.
 \end{lemma}
@@ -2813,6 +2817,8 @@ Define for each $\fu\in \fU_3(k,n,j)$
 
 \begin{lemma}[C6 forest]
 \label{C6-forest}
+\leanok
+\lean{C6_forest}
 \uses{equivalence-relation}
 We have
 \begin{equation}
@@ -2824,7 +2830,7 @@ We have
     By \eqref{eq-C4-def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq-L2-def} and \eqref{eq-C3-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp \lesssim \fu$ and $\scI(\fp) \ne \scI(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(k,n,j)$. By the definition of $\fU_3(k,n,j)$, there exists $\fu' \in \fU_3(k,n,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
 \end{proof}
 
-\begin{lemma}[C6 convex]
+\begin{lemma}[C6 convex] %% TODO: delete, duplicate of forest-convex
     \label{C6-convex}
     \uses{C5-convex}
     Let $\fu \in \fU_3(k,n,j)$. If $\fp \le \fp' \le \fp''$ and $\fp, \fp'' \in \mathfrak{T}_2(\fu)$, then $\fp' \in \mathfrak{T}_2(\fu)$.
@@ -2839,6 +2845,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest geometry]
     \label{forest-geometry}
     \uses{relation-geometry}
+    \leanok
+    \lean{forest_geometry}
     For each $\fu\in \fU_3(k,n,j)$,
     the set $\mathfrak{T}_2(\fu)$
     satisfies \eqref{forest1}.
@@ -2863,6 +2871,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest convex]
     \label{forest-convex}
     \uses{C6-convex}
+    \leanok
+    \lean{forest_convex}
     For each $\fu\in \fU_3(k,n,j)$,
     the set $\mathfrak{T}_2(\fu)$
     satisfies the convexity condition \eqref{forest2}.
@@ -2879,6 +2889,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest separation]
     \label{forest-separation}
     \uses{monotone-cube-metrics}
+    \leanok
+    \lean{forest_separation}
     For each $\fu,\fu'\in \fU_3(k,n,j)$ with $\fu\neq \fu'$ and each $\fp \in \fT_2(\fu)$
     with $\scI(\fp)\subset \scI(\fu')$ we have
     \begin{equation}
@@ -2907,6 +2919,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest inner]
     \label{forest-inner}
     \uses{relation-geometry}
+    \leanok
+    \lean{forest_inner}
     For each $\fu\in \fU_3(k,n,j)$
     and each $\fp \in \mathfrak{T}_2(\fu)$
     we have
@@ -2933,6 +2947,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 
 \begin{lemma}[forest stacking]
     \label{forest-stacking}
+    \leanok
+    \lean{forest_stacking}
     It holds that
     \begin{equation}
         \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le 1 + (4n+12)2^{n}\,.
@@ -2992,7 +3008,9 @@ We now turn to the proof of \Cref{forest-union}.
 
 Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(\scI(\fp) \cap (G \setminus  G')) > 0$.
 \begin{lemma}[antichain decomposition]
-\label{antichain-decomposition}
+    \label{antichain-decomposition}
+    \leanok
+    \lean{antichain_decomposition}
     We have that
     \begin{align}
         \label{eq-fp'-decomposition}

@@ -1,6 +1,6 @@
 import Carleson.TileStructure
 
-open Set MeasureTheory Metric Function Complex Bornology
+open Set MeasureTheory Metric Function Complex Bornology Classical
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
 
@@ -8,32 +8,69 @@ open scoped ShortVariables
 variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
   {σ₁ σ₂ : X → ℤ} {F G : Set X} [ProofData a q K σ₁ σ₂ F G]
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
+  {C C' : Set (𝔓 X)} {x x' : X}
+
+/-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
+def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
+  ∑ p ∈ Finset.univ.filter (· ∈ C), (𝓘 p : Set X).indicator 1 x
+
+lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
+    stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
+  classical
+  simp_rw [stackSize]
+  conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
+  simp_rw [Finset.filter_filter]
+  congr
+
+lemma stackSize_congr (h : C = C') (h2 : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X))  :
+    stackSize C x = stackSize C' x' := by
+  subst h
+  refine Finset.sum_congr rfl fun p hp ↦ ?_
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+  simp_rw [indicator, h2 p hp, Pi.one_apply]
+
+lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
+  apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)
+  simp [iff_true_intro (@h x)]
+
+/-! We might want to develop some API about partitioning a set.
+But maybe `Set.PairwiseDisjoint` and `Set.Union` are enough.
+Related, but not quite useful: `Setoid.IsPartition`. -/
+
+-- /-- `u` is partitioned into subsets in `C`. -/
+-- class Set.IsPartition {α ι : Type*} (u : Set α) (s : Set ι) (C : ι → Set α) : Prop :=
+--   pairwiseDisjoint : s.PairwiseDisjoint C
+--   iUnion_eq : ⋃ (i ∈ s), C i = u
+
 
 namespace TileStructure
-variable (X) in
-structure Tree where
-  carrier : Finset (𝔓 X)
-  nonempty : Nonempty (𝔓 X)
-  ordConnected : OrdConnected (carrier : Set (𝔓 X))
+-- variable (X) in
+-- structure Tree where
+--   carrier : Set (𝔓 X)
+--   nonempty : Nonempty carrier
+--   ordConnected : OrdConnected carrier -- (2.0.33)
 
-attribute [coe] Tree.carrier
-instance : CoeTC (Tree X) (Finset (𝔓 X)) where coe := Tree.carrier
-instance : CoeTC (Tree X) (Set (𝔓 X)) where coe p := ((p : Finset (𝔓 X)) : Set (𝔓 X))
-instance : Membership (𝔓 X) (Tree X) := ⟨fun x p => x ∈ (p : Set _)⟩
-instance : Preorder (Tree X) := Preorder.lift Tree.carrier
+-- attribute [coe] Tree.carrier
+-- instance : CoeTC (Tree X) (Set (𝔓 X)) where coe := Tree.carrier
+-- -- instance : CoeTC (Tree X) (Finset (𝔓 X)) where coe := Tree.carrier
+-- -- instance : CoeTC (Tree X) (Set (𝔓 X)) where coe p := ((p : Finset (𝔓 X)) : Set (𝔓 X))
+-- instance : Membership (𝔓 X) (Tree X) := ⟨fun x p => x ∈ (p : Set _)⟩
+-- instance : Preorder (Tree X) := Preorder.lift Tree.carrier
 
 variable (X) in
 /-- An `n`-forest -/
 structure Forest (n : ℕ) where
-  𝔘 : Finset (𝔓 X)
-  𝔗 : 𝔓 X → Tree X -- Is it a problem that we totalized this function?
+  𝔘 : Set (𝔓 X)
+  𝔗 : 𝔓 X → Set (𝔓 X) -- Is it a problem that we totalized this function?
+  nonempty {u} (hu : u ∈ 𝔘) : (𝔗 u).Nonempty
+  ordConnected {u} (hu : u ∈ 𝔘) : OrdConnected (𝔗 u) -- (2.0.33)
   𝓘_ne_𝓘 {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : 𝓘 p ≠ 𝓘 u
-  smul_four_le {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : smul 4 p ≤ smul 1 u
-  essSup_tsum_le : snorm (∑ u ∈ 𝔘, (𝓘 u : Set X).indicator (1 : X → ℝ)) ∞ volume ≤ 2 ^ n
-  dens₁_𝔗_le {u} (hu : u ∈ 𝔘) : dens₁ (𝔗 u : Set (𝔓 X)) ≤ 2 ^ (4 * a + 1 - n)
+  smul_four_le {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : smul 4 p ≤ smul 1 u -- (2.0.32)
+  stackSize_le {x} : stackSize 𝔘 x ≤ 2 ^ n -- (2.0.34), we formulate this a bit differently.
+  dens₁_𝔗_le {u} (hu : u ∈ 𝔘) : dens₁ (𝔗 u : Set (𝔓 X)) ≤ 2 ^ (4 * a - n + 1) -- (2.0.35)
   lt_dist {u u'} (hu : u ∈ 𝔘) (hu' : u' ∈ 𝔘) (huu' : u ≠ u') {p} (hp : p ∈ 𝔗 u')
-    (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u)
-  ball_subset {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u
+    (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u) -- (2.0.36)
+  ball_subset {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u -- (2.0.37)
   -- old conditions
   -- disjoint_I : ∀ {𝔗 𝔗'}, 𝔗 ∈ I → 𝔗' ∈ I → Disjoint 𝔗.carrier 𝔗'.carrier
   -- top_finite (x : X) : {𝔗 ∈ I | x ∈ Grid (𝓘 𝔗.top)}.Finite

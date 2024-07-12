@@ -108,3 +108,82 @@ lemma ENNReal.sum_geometric_two_pow_neg_two :
     ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-2 * n : ℤ) = ((4 : ℝ) / 3).toNNReal := by
   conv_lhs => enter [1, n, 2]; rw [← Nat.cast_two]
   rw [ENNReal.sum_geometric_two_pow_toNNReal zero_lt_two]; norm_num
+
+/-! ## `EquivalenceOn` -/
+
+/-- An equivalence relation on the set `s`. -/
+structure EquivalenceOn {α : Type*} (r : α → α → Prop) (s : Set α) : Prop where
+  /-- An equivalence relation is reflexive: `x ~ x` -/
+  refl  : ∀ x ∈ s, r x x
+  /-- An equivalence relation is symmetric: `x ~ y` implies `y ~ x` -/
+  symm  : ∀ {x y}, x ∈ s → y ∈ s → r x y → r y x
+  /-- An equivalence relation is transitive: `x ~ y` and `y ~ z` implies `x ~ z` -/
+  trans : ∀ {x y z}, x ∈ s → y ∈ s → z ∈ s → r x y → r y z → r x z
+
+
+namespace EquivalenceOn
+
+variable {α : Type*} {r : α → α → Prop} {s : Set α} {hr : EquivalenceOn r s} {x y : α}
+
+variable (hr) in
+protected def setoid : Setoid s where
+  r x y := r x y
+  iseqv := {
+    refl := fun x ↦ hr.refl x x.2
+    symm := fun {x y} ↦ hr.symm x.2 y.2
+    trans := fun {x y z} ↦ hr.trans x.2 y.2 z.2
+  }
+
+lemma exists_rep (x : α) : ∃ y, x ∈ s → y ∈ s ∧ r x y :=
+  ⟨x, fun hx ↦ ⟨hx, hr.refl x hx⟩⟩
+
+open Classical in
+variable (hr) in
+/-- An arbitrary representative of `x` w.r.t. the equivalence relation `r`. -/
+protected noncomputable def out (x : α) : α :=
+  if hx : x ∈ s then (Quotient.out (s := hr.setoid) ⟦⟨x, hx⟩⟧ : s) else x
+
+lemma out_mem (hx : x ∈ s) : hr.out x ∈ s := by
+  rw [EquivalenceOn.out, dif_pos hx]
+  apply Subtype.prop
+
+@[simp]
+lemma out_mem_iff : hr.out x ∈ s ↔ x ∈ s := by
+  refine ⟨fun h ↦ ?_, out_mem⟩
+  by_contra hx
+  rw [EquivalenceOn.out, dif_neg hx] at h
+  exact hx h
+
+lemma out_rel (hx : x ∈ s) : r (hr.out x) x := by
+  rw [EquivalenceOn.out, dif_pos hx]
+  exact @Quotient.mk_out _ (hr.setoid) ⟨x, hx⟩
+
+lemma rel_out (hx : x ∈ s) : r x (hr.out x) := hr.symm (out_mem hx) hx (out_rel hx)
+
+lemma out_inj (hx : x ∈ s) (hy : y ∈ s) (h : r x y) : hr.out x = hr.out y := by
+  simp_rw [EquivalenceOn.out, dif_pos hx, dif_pos hy]
+  congr 1
+  simp_rw [Quotient.out_inj, Quotient.eq]
+  exact h
+
+lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.out x = hr.out y := by
+  apply out_inj hx hy
+  refine' hr.trans hx _ hy (rel_out hx) <| hr.trans _ _ hy h <| out_rel hy
+  all_goals simpa
+
+variable (hr) in
+/-- The set of representatives. -/
+def reprs : Set α := hr.out '' s
+
+lemma out_mem_reprs (hx : x ∈ s) : hr.out x ∈ hr.reprs := ⟨x, hx, rfl⟩
+
+lemma reprs_subset : hr.reprs ⊆ s := by
+  rintro _ ⟨x, hx, rfl⟩
+  exact out_mem hx
+
+lemma reprs_inj (hx : x ∈ hr.reprs) (hy : y ∈ hr.reprs) (h : r x y) : x = y := by
+  obtain ⟨x, hx, rfl⟩ := hx
+  obtain ⟨y, hy, rfl⟩ := hy
+  exact out_inj' hx hy h
+
+end EquivalenceOn
