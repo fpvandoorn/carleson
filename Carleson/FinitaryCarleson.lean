@@ -44,11 +44,6 @@ private lemma sum_eq_zero_of_nmem_Icc {f : X → ℂ} {x : X} (s : ℤ)
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
-/- `Icc_subset` should follow easily from the fact that the ranges of `σ₁` and `σ₂` are
-    contained in [-S, S], but I don't think that fact is currently encoded in Lean. -/
-lemma Icc_subset {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (-S : ℤ) S := by
-  sorry
-
 lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset) :
     ∃ I : GridStructure.Grid X (defaultA a), GridStructure.s I = s ∧ x ∈ I := by
   have DS : (D : ℝ) ^ S = (D : ℝ) ^ (S : ℤ) := rfl
@@ -58,7 +53,7 @@ lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (�
   by_cases hS : s = S -- Handle separately b/c `Grid_subset_biUnion`, as stated, doesn't cover `s=S`
   · exact ⟨topCube, by rw [s_topCube, hS], x_mem_topCube⟩
   have s_mem : s ∈ Ico (-S : ℤ) (GridStructure.s (X := X) topCube) :=
-    have : s ∈ Icc (-S : ℤ) S := Icc_subset (mem_toFinset.1 hs)
+    have : s ∈ Icc (-S : ℤ) S := Icc_σ_subset_Icc_S (mem_toFinset.1 hs)
     ⟨this.1, s_topCube (X := X) ▸ lt_of_le_of_ne this.2 hS⟩
   simpa only [mem_iUnion, exists_prop] using Grid_subset_biUnion s s_mem x_mem_topCube
 
@@ -75,7 +70,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ �
     exact hs.2
   · rw [mem_toFinset] at hs
     rw [toFinset_Icc, Finset.mem_filter]
-    exact ⟨Finset.mem_Icc.2 (Icc_subset hs), hs⟩
+    exact ⟨Finset.mem_Icc.2 (Icc_σ_subset_Icc_S hs), hs⟩
   · rcases exists_Grid hx.1 hs with ⟨I, Is, xI⟩
     obtain ⟨p, 𝓘pI, Qp⟩ : ∃ (p : 𝔓 X), 𝓘 p = I ∧ Q x ∈ Ω p := by simpa using biUnion_Ω ⟨x, rfl⟩
     have p𝔓Xs : p ∈ 𝔓X_s s := by simpa [𝔰, 𝓘pI]

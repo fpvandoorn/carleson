@@ -299,6 +299,9 @@ lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ 
 
 lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
 
+lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (- S X) (S X) :=
+  fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
+
 lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
     (-S X : ℤ) ∈ range σ₁ ∨ (S X : ℤ) ∈ range σ₂ := sorry
 
