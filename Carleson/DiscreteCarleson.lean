@@ -63,6 +63,13 @@ def ℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
 lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun t mt ↦ by
   rw [ℭ₁, preℭ₁, mem_diff, mem_setOf] at mt; exact mt.1.1
 
+lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n j) :
+    (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
+  simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, hp.1.1, true_and, not_le] at hp
+  constructor
+  · convert hp.1; ext; simp
+  · convert hp.2; ext; simp
+
 /-- The subset `𝔏₀(k, n, j)` of `ℭ(k, n)`, given in (5.1.10). -/
 def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ k n | 𝔅 k n p = ∅ }
@@ -630,19 +637,112 @@ def URel (k n j : ℕ) (u u' : 𝔓 X) : Prop :=
 
 nonrec lemma URel.rfl : URel k n j u u := Or.inl rfl
 
-/-- Lemma 5.4.1, part 1. -/
-lemma URel.eq (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') :
-    𝓘 u = 𝓘 u' := sorry
-
 /-- Lemma 5.4.1, part 2. -/
 lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') :
-    ¬ Disjoint (ball_(u) (𝒬 u) 100) (ball_(u') (𝒬 u') 100) := sorry
+    ¬Disjoint (ball_(u) (𝒬 u) 100) (ball_(u') (𝒬 u') 100) := by
+  by_cases e : u = u'; · rw [e]; simp
+  simp_rw [URel, e, false_or, 𝔗₁, mem_setOf] at huu'; obtain ⟨p, ⟨mp, np, sl₁⟩, sl₂⟩ := huu'
+  by_cases e' : 𝓘 p = 𝓘 u'
+  · refine not_disjoint_iff.mpr ⟨𝒬 u, mem_ball_self (by positivity), ?_⟩
+    rw [@mem_ball]
+    have i1 : ball_{𝓘 u} (𝒬 u) 1 ⊆ ball_{𝓘 p} (𝒬 p) 2 := sl₁.2
+    have i2 : ball_{𝓘 u'} (𝒬 u') 1 ⊆ ball_{𝓘 p} (𝒬 p) 10 := sl₂.2
+    replace i1 : 𝒬 u ∈ ball_{𝓘 p} (𝒬 p) 2 := i1 (mem_ball_self zero_lt_one)
+    replace i2 : 𝒬 u' ∈ ball_{𝓘 p} (𝒬 p) 10 := i2 (mem_ball_self zero_lt_one)
+    rw [e', @mem_ball] at i1 i2
+    calc
+      _ ≤ dist_{𝓘 u'} (𝒬 u) (𝒬 p) + dist_{𝓘 u'} (𝒬 u') (𝒬 p) := dist_triangle_right ..
+      _ < 2 + 10 := add_lt_add i1 i2
+      _ < 100 := by norm_num
+  have plu : smul 100 p ≤ smul 100 u := wiggle_order_100 (smul_mono sl₁ le_rfl (by norm_num)) np
+  have plu' : smul 100 p ≤ smul 100 u' := wiggle_order_100 sl₂ e'
+  by_contra h
+  have 𝔅dj : Disjoint (𝔅 k n u) (𝔅 k n u') := by
+    simp_rw [𝔅, disjoint_left, mem_setOf, not_and]; intro q ⟨_, sl⟩ _
+    simp_rw [TileLike.le_def, smul_fst, smul_snd, not_and_or] at sl ⊢; right
+    have := disjoint_left.mp (h.mono_left sl.2) (mem_ball_self zero_lt_one)
+    rw [not_subset]; use 𝒬 q, mem_ball_self zero_lt_one
+  have usp : 𝔅 k n u ⊆ 𝔅 k n p := fun q mq ↦ by
+    rw [𝔅, mem_setOf] at mq ⊢; exact ⟨mq.1, plu.trans mq.2⟩
+  have u'sp : 𝔅 k n u' ⊆ 𝔅 k n p := fun q mq ↦ by
+    rw [𝔅, mem_setOf] at mq ⊢; exact ⟨mq.1, plu'.trans mq.2⟩
+  rw [𝔘₂, mem_setOf, 𝔘₁, mem_setOf] at hu hu'
+  apply absurd (card_𝔅_of_mem_ℭ₁ mp).2; rw [not_lt]
+  calc
+    _ = 2 ^ j + 2 ^ j := Nat.two_pow_succ j
+    _ ≤ (𝔅 k n u).toFinset.card + (𝔅 k n u').toFinset.card :=
+      add_le_add (card_𝔅_of_mem_ℭ₁ hu.1.1).1 (card_𝔅_of_mem_ℭ₁ hu'.1.1).1
+    _ = (𝔅 k n u ∪ 𝔅 k n u').toFinset.card := by
+      rw [toFinset_union]; refine (Finset.card_union_of_disjoint ?_).symm
+      simpa using 𝔅dj
+    _ ≤ _ := by
+      apply Finset.card_le_card
+      simp_rw [toFinset_union, subset_toFinset, Finset.coe_union, coe_toFinset, union_subset_iff]
+      exact ⟨usp, u'sp⟩
+
+/-- Lemma 5.4.1, part 1. -/
+lemma URel.eq (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') : 𝓘 u = 𝓘 u' := by
+  by_cases e : u = u'; · rw [e]
+  have ndj := not_disjoint hu hu' huu'
+  have n₁ := (hu.1.2 _ hu'.1.1).mt ndj
+  rw [disjoint_comm] at ndj
+  have n₂ := (hu'.1.2 _ hu.1.1).mt ndj
+  simp_rw [URel, e, false_or, 𝔗₁, mem_setOf] at huu'; obtain ⟨p, ⟨_, _, sl₁⟩, sl₂⟩ := huu'
+  rcases le_or_lt (𝔰 u) (𝔰 u') with h | h
+  · exact eq_of_le_of_not_lt (Grid.le_dyadic h sl₁.1 sl₂.1) n₁
+  · exact (eq_of_le_of_not_lt (Grid.le_dyadic h.le sl₂.1 sl₁.1) n₂).symm
 
 /-- Lemma 5.4.2. -/
 lemma equivalenceOn_urel : EquivalenceOn (URel (X := X) k n j) (𝔘₂ k n j) where
-  refl := fun x _ ↦ .rfl
-  symm := sorry
-  trans := sorry
+  refl _ _ := .rfl
+  trans {x y z} mx my mz xy yz := by
+    by_cases xny : x = y; · rwa [xny]
+    have xye := URel.eq mx my xy
+    have := URel.not_disjoint mx my xy
+    rw [not_disjoint_iff] at this
+    obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 x} (𝒬 x) 100), (ϑy : ϑ ∈ ball_{𝓘 y} (𝒬 y) 100)⟩ := this
+    have yze := URel.eq my mz yz
+    have := URel.not_disjoint my mz yz
+    rw [not_disjoint_iff] at this
+    obtain ⟨(θ : Θ X), (θy : θ ∈ ball_{𝓘 y} (𝒬 y) 100), (θz : θ ∈ ball_{𝓘 z} (𝒬 z) 100)⟩ := this
+    simp_rw [URel, xny, false_or] at xy; obtain ⟨p, mp, sp⟩ := xy
+    suffices ball_(z) (𝒬 z) 1 ⊆ ball_(x) (𝒬 x) 500 by
+      right; use p, mp; obtain ⟨_, np, sl⟩ := mp
+      have w : ball_(x) (𝒬 x) 500 ⊆ ball_(p) (𝒬 p) 4 := (wiggle_order_500 sl np).2
+      exact ⟨(yze ▸ xye ▸ sl.1 : 𝓘 p ≤ 𝓘 z), (this.trans w).trans (ball_subset_ball (by norm_num))⟩
+    intro (q : Θ X) (mq : q ∈ ball_{𝓘 z} (𝒬 z) 1)
+    rw [@mem_ball] at mq ⊢
+    calc
+      _ ≤ dist_(x) q ϑ + dist_(x) ϑ (𝒬 x) := dist_triangle ..
+      _ < dist_(x) q ϑ + 100 := by gcongr; rwa [@mem_ball] at ϑx
+      _ ≤ dist_(x) q (𝒬 y) + dist_(x) ϑ (𝒬 y) + 100 := by gcongr; exact dist_triangle_right ..
+      _ < dist_(x) q (𝒬 y) + 100 + 100 := by gcongr; rwa [@mem_ball, ← xye] at ϑy
+      _ ≤ dist_(x) q θ + dist_(x) θ (𝒬 y) + 100 + 100 := by gcongr; exact dist_triangle ..
+      _ < dist_(x) q θ + 100 + 100 + 100 := by gcongr; rwa [@mem_ball, ← xye] at θy
+      _ ≤ dist_(x) q (𝒬 z) + dist_(x) θ (𝒬 z) + 100 + 100 + 100 := by
+        gcongr; exact dist_triangle_right ..
+      _ < 1 + 100 + 100 + 100 + 100 := by
+        gcongr
+        · rwa [← yze, ← xye] at mq
+        · rwa [@mem_ball, ← yze, ← xye] at θz
+      _ < _ := by norm_num
+  symm {x y} mx my xy := by
+    by_cases xny : x = y; · rw [xny]; exact .rfl
+    have xye := URel.eq mx my xy
+    have := URel.not_disjoint mx my xy
+    rw [not_disjoint_iff] at this
+    obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 x} (𝒬 x) 100), (ϑy : ϑ ∈ ball_{𝓘 y} (𝒬 y) 100)⟩ := this
+    simp_rw [URel, xny, false_or, 𝔗₁, mem_setOf] at xy; obtain ⟨p, mp, sp⟩ := xy
+    right; use p; constructor
+    · rw [𝔗₁, mem_setOf]
+      use mp.1, xye ▸ mp.2.1
+      refine ⟨sp.1, ?_⟩
+      change ball_(y) (𝒬 y) 1 ⊆ ball_(p) (𝒬 p) 2
+      -- mp : p ∈ ℭ₁ k n j ∧ 𝓘 p ≠ 𝓘 x ∧ smul 2 p ≤ smul 1 x
+      -- sp : smul 10 p ≤ smul 1 y
+      -- ⊢ smul 2 p ≤ smul 1 y
+      sorry
+    sorry
 
 /-- `𝔘₃(k, n, j) ⊆ 𝔘₂ k n j` is an arbitary set of representatives of `URel` on `𝔘₂ k n j`,
 given above (5.4.5). -/
