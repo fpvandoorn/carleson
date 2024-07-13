@@ -112,7 +112,7 @@ lemma volume_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
   induction n
   case zero => simp
   case succ m hm =>
-    calc volume.real (ball x (2 ^ (Nat.succ m) * r))
+    calc volume.real (ball x (2 ^ (m.succ) * r))
         = volume.real (ball x (2 ^ (m+1) * r)) := rfl
       _ = volume.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
       _ = volume.real (ball x (2 * 2 ^ m * r)) := by ring_nf
@@ -120,7 +120,7 @@ lemma volume_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
         rw[mul_assoc]; norm_cast; exact volume_ball_two_le_same _ _
       _ ≤ A * (↑(A ^ m) * volume.real (ball x r)) := by
         exact mul_le_mul_of_nonneg_left hm (by exact zero_le_coe)
-      _ = A^(Nat.succ m) * volume.real (ball x r) := by rw [NNReal.coe_pow,← mul_assoc, pow_succ']
+      _ = A^(m.succ) * volume.real (ball x r) := by rw [NNReal.coe_pow,← mul_assoc, pow_succ']
 
 lemma volume_ball_le_pow_two' {x:X} {r:ℝ} {n : ℕ} :
     volume (ball x (2 ^ n * r)) ≤ A ^ n * volume (ball x r) := by
