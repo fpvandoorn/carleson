@@ -179,6 +179,34 @@ variable {k n j l : ℕ} {p p' u u' : 𝔓 X} {x : X}
 
 /-- Lemma 5.2.1 -/
 lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := by
+  let K := 2 ^ (2 * a + 5) * volume F / volume G
+  have K_eq : K = 2 ^ (2 * a + 1) * volume F / (2 ^ (-4 : ℤ) * volume G) := by
+    have : (2 : ℝ≥0∞) ^ (2 * a + 1) = 2 ^ (-4 : ℤ) * 2 ^ (2 * a + 5) := by
+      rw [(by norm_cast : (2 : ℝ≥0∞) ^ (2 * a + 5) = 2 ^ (2 * a + 5 : ℤ)),
+        ← ENNReal.zpow_add (NeZero.ne 2) ENNReal.two_ne_top,
+        (by ring : (-4 : ℤ) + (2 * a + 5) = 2 * a + 1)]
+      norm_cast
+    simp_rw [K, this, mul_assoc]
+    rw [ENNReal.mul_div_mul_left]
+    · exact ne_of_gt <| ENNReal.zpow_pos (NeZero.ne 2) ENNReal.two_ne_top (-4)
+    · exact ne_of_lt <| ENNReal.zpow_lt_top (NeZero.ne 2) ENNReal.two_ne_top (-4)
+  refine le_of_forall_lt' (fun m hm ↦ ?_)
+  let k := 2 ^ (2 * a + 1) * volume F / m
+  have kK : k < K := by
+    simp_rw [k, K_eq]
+    --apply ENNReal.div_le_div_left
+
+
+
+    sorry
+  have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
+      volume (F ∩ (ball (𝔠 p) r)) ≥ k * volume (ball (𝔠 p) r) := by
+    intro p hp
+    rw [highDensityTiles, mem_setOf_eq, dens₂, le_iSup_iff] at hp
+    simp only [mem_singleton_iff, Nat.cast_pow, Nat.cast_ofNat, iSup_le_iff, forall_eq] at hp
+
+    sorry
+
   sorry
 
 /-- Lemma 5.2.2 -/
