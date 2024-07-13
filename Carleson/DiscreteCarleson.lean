@@ -155,8 +155,7 @@ lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n 
     _ < _ := hx
 
 lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=
-  measurableSet_lt measurable_const (Finset.measurable_sum _ fun _ _ ↦
-    Measurable.indicator measurable_one coeGrid_measurable)
+  measurableSet_lt measurable_const (Finset.measurable_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable)
 
 /-- Finset of cubes in `setA`. Appears in the proof of Lemma 5.2.5. -/
 def MsetA (l k n : ℕ) : Finset (Grid X) := Finset.univ.filter fun j ↦ (j : Set X) ⊆ setA l k n
@@ -305,7 +304,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
     2 * volume (setA (X := X) (l + 1) k n ∩ L) ≤ volume (L : Set X) := by
   let Q₁ := Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L)
   have Q₁m : ∀ i ∈ Q₁, Measurable ((𝓘 i : Set X).indicator (1 : X → ℝ≥0∞)) := fun _ _ ↦
-    Measurable.indicator measurable_one coeGrid_measurable
+    measurable_one.indicator coeGrid_measurable
   have e528 : ∑ q ∈ Q₁, volume (E₁ q) ≤ volume (L : Set X) :=
     calc
       _ = volume (⋃ q ∈ Q₁, E₁ q) := by
