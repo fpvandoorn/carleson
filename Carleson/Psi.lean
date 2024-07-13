@@ -263,7 +263,7 @@ lemma support_ψS (hx : 0 < x) : support (fun (s : ℤ) ↦ ψ D (D ^ (-s) * x))
 
 
 lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
-  refine Eq.trans ?_.trans (sum_ψ hD hx)
+  refine Eq.trans ?_ (sum_ψ hD hx)
   apply Eq.trans <| finsum_eq_sum _ <| support_ψS hD hx ▸ Finset.finite_toSet (nonzeroS D x)
   congr
   ext
