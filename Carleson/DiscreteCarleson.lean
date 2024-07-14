@@ -139,9 +139,6 @@ lemma highDensityTiles_empty' (hF : volume F ≠ 0) (hG : volume G = 0) :
   suffices 2 ^ (2 * a + 5) * volume F / volume G = ⊤ by simp [highDensityTiles, this]
   exact hG ▸ ENNReal.div_zero (mul_ne_zero (by simp) hF)
 
-lemma highDensityTiles_finite : (highDensityTiles : Set (𝔓 X)).Finite :=
-  toFinite highDensityTiles
-
 /-- The exceptional set `G₁`, defined in (5.1.25). -/
 def G₁ : Set X := ⋃ (p : 𝔓 X) (_ : p ∈ highDensityTiles), 𝓘 p
 
