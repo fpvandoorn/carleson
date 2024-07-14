@@ -477,33 +477,18 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
 
 /-- Lemma 5.1.1 -/
 lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G := by
-  have h1 : volume (G' : Set X) ≤ volume (G₁ : Set X) + volume (G₂ : Set X) + volume (G₃ : Set X) :=
-    le_add_of_le_add_right (measure_union_le _ G₃) (measure_union_le _ _)
-  have h2 : volume (G₁ : Set X) + volume (G₂ : Set X) + volume (G₃ : Set X) ≤
-    2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G :=
+  calc volume (G' : Set X)
+    _ ≤ volume (G₁ : Set X) + volume (G₂ : Set X) + volume (G₃ : Set X) :=
+      le_add_of_le_add_right (measure_union_le _ G₃) (measure_union_le _ _)
+    _ ≤ 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G :=
       add_le_add_three first_exception second_exception third_exception
-  have h3: volume (G' : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G := Preorder.le_trans
-    (volume G') (volume G₁ + volume G₂ + volume G₃)
-    (2 ^ (-4) * volume G + 2 ^ (-4) * volume G + 2 ^ (-4) * volume G) h1 h2
-  have h4: 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G ≤
-    2 ^ (- 2 : ℤ) * volume G := by
-    have h5 : (3 : ℝ≥0∞) * 2 ^ (-4 : ℤ) ≤ (2 : ℝ≥0∞) ^ (-2 : ℤ) := by
-      rw [← ENNReal.mul_le_mul_left (a := 2) (by simp) (by simp), ← mul_assoc]
-      have : (2 : ℝ≥0∞) ^ (-4 : ℤ) = 2 ^ (-2 : ℤ) * 2 ^ (-2 : ℤ) := by
-        rw [←ENNReal.zpow_add (by norm_num) (by norm_num)]
-        simp
-      rw [this, ← mul_assoc]
-      change ((2 : ℝ≥0) : ℝ≥0∞) * 3 * (2 : ℝ≥0) ^ (-2 : ℤ) * (2 : ℝ≥0) ^ (-2 : ℤ) ≤ (2 : ℝ≥0) * (2 : ℝ≥0) ^ (-2 : ℤ)
-      rw [← ENNReal.coe_zpow (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-      norm_cast
-      rw [← NNReal.coe_le_coe]
-      norm_num
-    ring_nf
-    rw [mul_comm, ←mul_assoc, mul_comm  _ (2 ^ (-2: ℤ))]
-    exact mul_le_mul_right' h5 _
-  exact
-    Preorder.le_trans (volume G') (2 ^ (-4) * volume G + 2 ^ (-4) * volume G + 2 ^ (-4) * volume G)
-      (2 ^ (-2) * volume G) h3 h4
+    _ = (3 : ℝ≥0∞) * 2 ^ (-4 : ℤ) * volume G := by ring
+    _ ≤ 2 ^ (- 2 : ℤ) * volume G := by
+      have coefficient_inequality : (3 : ℝ≥0∞) * 2 ^ (-4 : ℤ) ≤ (2 : ℝ≥0∞) ^ (-2 : ℤ) := by
+        change ((3 : ℝ≥0) : ℝ≥0∞) * (2 : ℝ≥0) ^ (-4 : ℤ) ≤ (2 : ℝ≥0) ^ (-2 : ℤ)
+        repeat rw [← ENNReal.coe_zpow (show (2 : ℝ≥0) ≠ 0 by norm_num)]
+        norm_cast; rw [← NNReal.coe_le_coe]; norm_num
+      exact mul_le_mul_right' coefficient_inequality _
 
 /-! ## Section 5.3 -/
 
