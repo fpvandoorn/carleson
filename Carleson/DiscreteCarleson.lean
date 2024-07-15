@@ -455,7 +455,44 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G :=
 /-- Lemma 5.2.7 -/
 lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) ≤
     2 ^ (n + k + 3) * volume G := by
-  sorry
+  set M := 𝔐 (X := X) k n
+  let Mc := M.toFinset.card
+  calc
+    _ = ∑ m ∈ Finset.univ.filter (· ∈ M), ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
+      congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
+    _ = ∫⁻ x, ∑ m ∈ Finset.univ.filter (· ∈ M), (𝓘 m : Set X).indicator 1 x :=
+      (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
+    _ = ∫⁻ x, ENNReal.ofReal (∑ m ∈ Finset.univ.filter (· ∈ M), (𝓘 m : Set X).indicator 1 x) := by
+      congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
+      · congr! with m hm; simp_rw [indicator]; split_ifs <;> simp
+      · exact fun _ _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
+    _ = ∫⁻ t in Ioi 0, volume {x | t ≤ ∑ m ∈ Finset.univ.filter (· ∈ M),
+        (𝓘 m : Set X).indicator (1 : X → ℝ) x} := by
+      apply lintegral_eq_lintegral_meas_le
+      · exact ae_of_all volume fun _ ↦
+          Finset.sum_nonneg' fun _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
+      · exact Measurable.aemeasurable <|
+          Finset.measurable_sum _ (fun _ _ ↦ measurable_one.indicator coeGrid_measurable)
+    _ = ∫⁻ t in Ioi 0, volume {x | t * 2 ^ (n + 1) / 2 ^ (n + 1) ≤ ∑ m ∈ Finset.univ.filter (· ∈ M),
+        (𝓘 m : Set X).indicator (1 : X → ℝ) x} := by
+      sorry
+    _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.Icc 0 Mc, volume (setA (X := X) l k n) := by
+      sorry
+    _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.Icc 0 Mc, 2 ^ (k + 1 - l : ℤ) * volume G :=
+      mul_le_mul_left' (Finset.sum_le_sum fun _ _ ↦ john_nirenberg) _
+    _ ≤ 2 ^ (n + 1) * ∑' (l : ℕ), 2 ^ (k + 1 - l : ℤ) * volume G :=
+      mul_le_mul_left' (ENNReal.sum_le_tsum _) _
+    _ = 2 ^ (n + 1) * (volume G * 2 ^ (k + 1) * 2) := by
+      conv_lhs =>
+        enter [2, 1, l]
+        rw [sub_eq_add_neg, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate]
+      rw [ENNReal.tsum_mul_left]; congr 3
+      · norm_cast
+      · exact ENNReal.sum_geometric_two_pow_neg_one
+    _ = _ := by
+      nth_rw 3 [← pow_one 2]
+      rw [mul_rotate, ← pow_add, ← mul_assoc, ← pow_add,
+        show n + 1 + (k + 1 + 1) = n + k + 3 by omega]
 
 /-- Lemma 5.2.8 -/
 lemma tree_count :

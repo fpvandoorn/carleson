@@ -33,6 +33,11 @@ lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
   apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)
   simp [iff_true_intro (@h x)]
 
+lemma stackSize_le_card : stackSize C x ≤ C.toFinset.card := by
+  simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id, toFinset_card,
+    Fintype.card_ofFinset]
+  exact Finset.card_le_card (Finset.filter_subset _ _)
+
 /-! We might want to develop some API about partitioning a set.
 But maybe `Set.PairwiseDisjoint` and `Set.Union` are enough.
 Related, but not quite useful: `Setoid.IsPartition`. -/
