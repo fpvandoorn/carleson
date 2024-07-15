@@ -836,17 +836,23 @@ lemma equivalenceOn_urel : EquivalenceOn (URel (X := X) k n j) (𝔘₂ k n j) w
     have := URel.not_disjoint mx my xy
     rw [not_disjoint_iff] at this
     obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 x} (𝒬 x) 100), (ϑy : ϑ ∈ ball_{𝓘 y} (𝒬 y) 100)⟩ := this
-    simp_rw [URel, xny, false_or, 𝔗₁, mem_setOf] at xy; obtain ⟨p, mp, sp⟩ := xy
-    right; use p; constructor
-    · rw [𝔗₁, mem_setOf]
-      use mp.1, xye ▸ mp.2.1
-      refine ⟨sp.1, ?_⟩
-      change ball_(y) (𝒬 y) 1 ⊆ ball_(p) (𝒬 p) 2
-      -- mp : p ∈ ℭ₁ k n j ∧ 𝓘 p ≠ 𝓘 x ∧ smul 2 p ≤ smul 1 x
-      -- sp : smul 10 p ≤ smul 1 y
-      -- ⊢ smul 2 p ≤ smul 1 y
-      sorry
-    sorry
+    rw [𝔘₂, mem_setOf, not_disjoint_iff] at my; obtain ⟨p, hp, _⟩ := my.2
+    suffices w : ball_(x) (𝒬 x) 1 ⊆ ball_(y) (𝒬 y) 500 by
+      right; use p, hp; obtain ⟨_, np, sl⟩ := hp
+      have : smul 10 p ≤ smul 500 y := (smul_mono_left (by norm_num)).trans (wiggle_order_500 sl np)
+      exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 x), this.2.trans w⟩
+    intro (q : Θ X) (mq : q ∈ ball_{𝓘 x} (𝒬 x) 1)
+    rw [@mem_ball] at mq ⊢
+    calc
+      _ ≤ dist_(y) q ϑ + dist_(y) ϑ (𝒬 y) := dist_triangle ..
+      _ ≤ dist_(y) q (𝒬 x) + dist_(y) ϑ (𝒬 x) + dist_(y) ϑ (𝒬 y) := by
+        gcongr; apply dist_triangle_right
+      _ < 1 + 100 + 100 := by
+        gcongr
+        · rwa [xye] at mq
+        · rwa [@mem_ball, xye] at ϑx
+        · rwa [@mem_ball] at ϑy
+      _ < _ := by norm_num
 
 /-- `𝔘₃(k, n, j) ⊆ 𝔘₂ k n j` is an arbitary set of representatives of `URel` on `𝔘₂ k n j`,
 given above (5.4.5). -/
