@@ -868,7 +868,20 @@ lemma 𝔗₂_subset_ℭ₆ : 𝔗₂ k n j u ⊆ ℭ₆ k n j := inter_subset_l
 
 /-- Lemma 5.4.3 -/
 lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j u := by
-  sorry
+  ext p; constructor <;> intro h
+  · have : p ∈ ℭ₃ k n j := (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃) h
+    rw [ℭ₃, mem_diff, 𝔏₂, mem_setOf] at this
+    have mp := this.1
+    simp_rw [this.1, true_and, not_not] at this
+    obtain ⟨u, mu, np, sl⟩ := this
+    have mp' : p ∈ 𝔗₁ k n j u := by
+      rw [𝔗₁, mem_setOf]; exact ⟨ℭ₂_subset_ℭ₁ mp, np, sl⟩
+    have mu' : u ∈ 𝔘₂ k n j := by
+      rw [𝔘₂, mem_setOf]; exact ⟨mu, not_disjoint_iff.mpr ⟨_, mp', h⟩⟩
+    let rr := equivalenceOn_urel (X := X) (k := k) (n := n) (j := j)
+    rw [mem_iUnion₂]; use rr.out u, (rr.out_mem_reprs mu')
+    refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
+  · rw [mem_iUnion₂] at h; obtain ⟨_, _, mp, _⟩ := h; exact mp
 
 /- Lemma 5.4.4 seems to be a duplicate of Lemma 5.4.6.
 The numberings below might change once we remove Lemma 5.4.4 -/
