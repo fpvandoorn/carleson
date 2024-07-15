@@ -134,8 +134,10 @@ lemma highDensityTiles_empty (hF : volume F = 0) : highDensityTiles = (∅ : Set
   simp_rw [dens₂, ENNReal.iSup_eq_zero, ENNReal.div_eq_zero_iff]
   exact fun _ _ _ r _ ↦ Or.inl <| measure_inter_null_of_null_left (ball (𝔠 _) r) hF
 
-lemma highDensityTiles_empty' (hF : volume F ≠ 0) (hG : volume G = 0) :
+lemma highDensityTiles_empty' (hG : volume G = 0) :
     highDensityTiles = (∅ : Set (𝔓 X)) := by
+  by_cases hF : volume F = 0
+  · exact highDensityTiles_empty hF
   suffices 2 ^ (2 * a + 5) * volume F / volume G = ⊤ by simp [highDensityTiles, this]
   exact hG ▸ ENNReal.div_zero (mul_ne_zero (by simp) hF)
 
@@ -145,8 +147,8 @@ def G₁ : Set X := ⋃ (p : 𝔓 X) (_ : p ∈ highDensityTiles), 𝓘 p
 lemma G₁_empty (hF : volume F = 0) : G₁ = (∅ : Set X) := by
   simp [G₁, highDensityTiles_empty hF]
 
-lemma G₁_empty' (hF : volume F ≠ 0) (hG : volume G = 0) : G₁ = (∅ : Set X) := by
-  simp [G₁, highDensityTiles_empty' hF hG]
+lemma G₁_empty' (hG : volume G = 0) : G₁ = (∅ : Set X) := by
+  simp [G₁, highDensityTiles_empty' hG]
 
 /-- The set `A(λ, k, n)`, defined in (5.1.26). -/
 def setA (l k n : ℕ) : Set X :=
@@ -198,12 +200,12 @@ section first_exception
 open ENNReal
 
 /-- Lemma 5.2.1 -/
-lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G := by
+lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G := by
   -- Handle trivial cases
   by_cases hF : volume F = 0
   · simp [G₁_empty hF]
   by_cases hG : volume G = 0
-  · exact (G₁_empty' hF hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
+  · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
   -- Define constant `K` and prove 0 < K < ⊤
   let K := 2 ^ (2 * a + 5) * volume F / volume G
   have vol_G_ne_top : volume G ≠ ⊤ :=
@@ -265,6 +267,10 @@ lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G := 
     rw [h, ← ENNReal.zpow_add (NeZero.ne 2) two_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
     norm_cast
   · exact ENNReal.inv_mul_cancel hG vol_G_ne_top |>.symm
+
+lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := by
+  calc volume G₁ ≤ 2 ^ (-5 : ℤ) * volume G := first_exception'
+    _ ≤ 2 ^ (-4 : ℤ) * volume G := by gcongr <;> norm_num
 
   end first_exception
 
