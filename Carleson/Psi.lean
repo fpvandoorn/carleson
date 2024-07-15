@@ -45,9 +45,9 @@ lemma abs_ψ_le_one (D : ℕ) (x : ℝ) : |ψ D x| ≤ 1 :=
 lemma ψ_formula₀ {x : ℝ} (hx : x ≤ 1 / (4 * D : ℝ)) : ψ D x = 0 := by
   by_cases hD : D = 0
   · simp [ψ, hD]
-  refine max_eq_left <| (min_le_right 1 _).trans <| (min_le_left _ _).trans <|
-    tsub_nonpos.2 <| (_root_.le_div_iff' ?_).1 hx
-  exact mul_pos four_pos (by exact_mod_cast Nat.zero_lt_of_ne_zero hD)
+  · exact max_eq_left <| (min_le_right 1 _).trans <| (min_le_left _ _).trans <|
+      tsub_nonpos.2 <| (_root_.le_div_iff' (mul_pos four_pos
+      (by exact_mod_cast Nat.zero_lt_of_ne_zero hD))).1 hx
 
 lemma ψ_formula₁ {x : ℝ} (hx : 1 / (4 * D) ≤ x ∧ x ≤ 1 / (2 * D)) :
     ψ D x = 4 * D * x - 1 := by
@@ -59,8 +59,7 @@ lemma ψ_formula₁ {x : ℝ} (hx : 1 / (4 * D) ≤ x ∧ x ≤ 1 / (2 * D)) :
     exact le_trans (by gcongr; linarith [D2 hD]) (by linarith: (2 * D + 2 * D + 2 * D) * x ≤ 3)
   have ineq₁ : 4 * D * x - 1 ≤ 1 := by linarith
   have ineq₂ : 0 ≤ 4 * D * x - 1 := by linarith
-  unfold ψ
-  rw [min_eq_left ineq₀, min_eq_right ineq₁, max_eq_right ineq₂]
+  rw [ψ, min_eq_left ineq₀, min_eq_right ineq₁, max_eq_right ineq₂]
 
 lemma ψ_formula₂ {x : ℝ} (hx : 1 / (2 * D) ≤ x ∧ x ≤ 1 / 4) : ψ D x = 1 := by
   unfold ψ
@@ -72,8 +71,7 @@ lemma ψ_formula₃ {x : ℝ} (hx : 1 / 4 ≤ x ∧ x ≤ 1 / 2) : ψ D x = 2 - 
   have ineq₀ : 2 - 4 * x ≤ 4 * D * x - 1 := by nlinarith [D2 hD]
   have ineq₁ : 2 - 4 * x ≤ 1 := by linarith
   have ineq₂ : 2 - 4 * x ≥ 0 := by linarith
-  unfold ψ
-  rw [min_eq_right ineq₀, min_eq_right ineq₁, max_eq_right ineq₂]
+  rw [ψ, min_eq_right ineq₀, min_eq_right ineq₁, max_eq_right ineq₂]
 
 lemma ψ_formula₄ {x : ℝ} (hx : x ≥ 1 / 2) : ψ D x = 0 :=
   max_eq_left <| (min_le_right _ _).trans <| (min_le_right _ _).trans (by linarith)
@@ -263,6 +261,7 @@ lemma psi_eq_zero_iff {x : ℝ} (hx : 0 < x) : ψ D (D ^ (-s) * x) = 0 ↔ s ∉
 lemma support_ψS (hx : 0 < x) : support (fun (s : ℤ) ↦ ψ D (D ^ (-s) * x)) = nonzeroS D x := by
   ext; rw [mem_support]; exact psi_ne_zero_iff hD hx
 
+
 lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
   refine Eq.trans ?_ (sum_ψ hD hx)
   apply Eq.trans <| finsum_eq_sum _ <| support_ψS hD hx ▸ Finset.finite_toSet (nonzeroS D x)
@@ -393,12 +392,10 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) 
   apply le_trans <| (div_le_div_left hc v0₁ v0₂).2 <|
     ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
-  norm_cast
-  rw [measureNNReal_val, div_le_div_iff (by exact_mod_cast v0₂) v0₃]
+  rw_mod_cast [measureNNReal_val, div_le_div_iff (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <| volume_ball_two_le_same_repeat' s x
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
-  norm_cast
-  rw [← pow_mul]
+  rw_mod_cast [← pow_mul]
   congr
   ring
 
@@ -427,7 +424,7 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
   · rwa [hK, norm_zero]
   rw [Ks, norm_mul, norm_eq_abs (ofReal' _), abs_ofReal, ← mul_one (_ / _)]
   gcongr
-  · apply norm_K_le hK
+  · exact norm_K_le hK
   · exact abs_ψ_le_one D (D ^ (-s) * dist x y)
 
 -- Needed to prove `ψ_ineq`
@@ -478,7 +475,7 @@ private lemma four_D_rpow_a_inv : (4 * D : ℝ) ^ (a : ℝ)⁻¹ ≤ 2 ^ (1 + 10
     have := four_le_a X
     rw [Real.rpow_le_rpow_left_iff Nat.one_lt_ofNat, inv_le_inv (a0 X) (by linarith)]
     norm_cast
-    linarith
+    exact le_of_add_le_right this
   · exact le_of_eq D_pow_a_inv
 
 /-
@@ -544,8 +541,7 @@ private lemma norm_Ks_sub_Ks_le₀₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   apply le_trans <| norm_K_le_vol_inv x y
   unfold C_K
   apply le_of_le_of_eq <| div_vol_le (by positivity) hK
-  norm_cast
-  rw [← pow_add, (show 2 * a + 100 * a ^ 3 + a ^ 3 = 2 * a + 101 * a ^ 3 by ring)]
+  rw_mod_cast [← pow_add, (show 2 * a + 100 * a ^ 3 + a ^ 3 = 2 * a + 101 * a ^ 3 by ring)]
 
 -- Special case of `norm_Ks_sub_Ks_le`
 private lemma norm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
@@ -570,7 +566,7 @@ private lemma norm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   nth_rewrite 1 [← pow_one 2]
   rw [← pow_add]
   gcongr
-  · norm_num
+  · exact NeZero.one_le
   · nlinarith [four_le_a X]
 
 -- Special case of `norm_Ks_sub_Ks_le`
