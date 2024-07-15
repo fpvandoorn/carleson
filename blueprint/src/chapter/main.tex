@@ -1855,7 +1855,7 @@ The first exceptional set $G_1$ takes into account the ratio of the measures of 
 Define $\fP_{F,G}$ to be the set of all $\fp\in \fP$
 with
 \begin{equation}
-    \dens_2(\{\fp\})\ge 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
+    \dens_2(\{\fp\})> 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
 \end{equation}
 Define
 \begin{equation}\label{definegone}
@@ -1963,7 +1963,7 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
     \uses{Hardy-Littlewood}
     We have
     \begin{equation}
-        \mu(G_1)\le 2^{-4}\mu(G)\, .
+        \mu(G_1)\le 2^{-5}\mu(G)\, .
     \end{equation}
 \end{lemma}
 \begin{proof}
@@ -1983,12 +1983,12 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
     $$
     and the function $u = \mathbf{1}_F$, we obtain
     $$
-        \mu(\bigcup \mathcal{B}) \le 2^{2a+1} K^{-1} \mu(F)\,.
+        \mu(\bigcup \mathcal{B}) \le 2^{2a} K^{-1} \mu(F)\,.
     $$
     We conclude with \eqref{eq-vol-sp-cube} and $r(\fp)>4D^{\ps(\fp)}$
     $$
         \mu(G_1)= \mu(\bigcup_{\fp\in \fP_{F,G}} \scI(\fp))
-        \le \mu(\bigcup \mathcal{B})\le 2^{2a+1} K^{-1} \mu (F) = 2^{-4}\mu(G)\,.
+        \le \mu(\bigcup \mathcal{B})\le 2^{2a} K^{-1} \mu (F) = 2^{-5}\mu(G)\,.
     $$
 \end{proof}
 
@@ -2790,7 +2790,7 @@ $\fU_2(k,n,j)$ is an equivalence relation.
     \end{align*}
     Since $4\fp \lesssim 500 \fu$, it follows that $d_{\fp}(\fcc(\fp), q) < 4 < 10$. We have shown that $B_{\fu''}(\fcc(\fu''), 1) \subset B_{\fp}(\fcc(\fp), 10)$, combining this with $\scI(\fu'') = \scI(\fu)$ gives $\fu \sim \fu''$.
 
-    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\scI(\fu) = \scI(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious. If $\fu \ne \fu'$, then there exists $\fp \in \mathfrak{T}_1(\fu')$ with $10\fp\lesssim \fu$. By definition of $\mathfrak{T}_1(\fu')$, \Cref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
+    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\scI(\fu) = \scI(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious, so suppose that $\fu \ne \fu'$. There exists $\fp \in \mathfrak{T}_1(\fu')$, which then satisfies $2\fp\lesssim \fu'$ and $\scI(\fp) \neq \scI(\fu')$. By \Cref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
     \begin{equation}
         \label{eq-rel1}
         10\fp \lesssim 4\fp \lesssim 500 \fu'\,.

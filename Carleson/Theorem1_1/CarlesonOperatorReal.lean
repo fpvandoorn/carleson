@@ -43,7 +43,7 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
         linarith
       · constructor <;> linarith
 
-lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (Measurable.dist measurable_const measurable_id) measurableSet_Ioo
+lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (measurable_const.dist measurable_id) measurableSet_Ioo
 
 lemma CarlesonOperatorRat'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (CarlesonOperatorRat' K f):= by
   --apply Measurable.iSup
