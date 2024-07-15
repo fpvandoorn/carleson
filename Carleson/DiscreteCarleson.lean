@@ -1,4 +1,5 @@
 import Carleson.Forest
+import Carleson.HardyLittlewood
 -- import Carleson.Proposition2
 -- import Carleson.Proposition3
 
@@ -126,10 +127,26 @@ lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n 
 
 /-- The set $\mathcal{P}_{F,G}$, defined in (5.1.24). -/
 def highDensityTiles : Set (𝔓 X) :=
-  { p : 𝔓 X | 2 ^ (2 * a + 5) * volume F / volume G ≤ dens₂ {p} }
+  { p : 𝔓 X | 2 ^ (2 * a + 5) * volume F / volume G < dens₂ {p} }
+
+lemma highDensityTiles_empty (hF : volume F = 0) : highDensityTiles = (∅ : Set (𝔓 X)) := by
+  suffices ∀ (p : 𝔓 X), dens₂ {p} = 0 by simp [highDensityTiles, this]
+  simp_rw [dens₂, ENNReal.iSup_eq_zero, ENNReal.div_eq_zero_iff]
+  exact fun _ _ _ r _ ↦ Or.inl <| measure_inter_null_of_null_left (ball (𝔠 _) r) hF
+
+lemma highDensityTiles_empty' (hF : volume F ≠ 0) (hG : volume G = 0) :
+    highDensityTiles = (∅ : Set (𝔓 X)) := by
+  suffices 2 ^ (2 * a + 5) * volume F / volume G = ⊤ by simp [highDensityTiles, this]
+  exact hG ▸ ENNReal.div_zero (mul_ne_zero (by simp) hF)
 
 /-- The exceptional set `G₁`, defined in (5.1.25). -/
 def G₁ : Set X := ⋃ (p : 𝔓 X) (_ : p ∈ highDensityTiles), 𝓘 p
+
+lemma G₁_empty (hF : volume F = 0) : G₁ = (∅ : Set X) := by
+  simp [G₁, highDensityTiles_empty hF]
+
+lemma G₁_empty' (hF : volume F ≠ 0) (hG : volume G = 0) : G₁ = (∅ : Set X) := by
+  simp [G₁, highDensityTiles_empty' hF hG]
 
 /-- The set `A(λ, k, n)`, defined in (5.1.26). -/
 def setA (l k n : ℕ) : Set X :=
@@ -176,9 +193,80 @@ variable {k n j l : ℕ} {p p' u u' : 𝔓 X} {x : X}
 
 /-! ## Section 5.2 and Lemma 5.1.1 -/
 
+section first_exception
+
+open ENNReal
+
 /-- Lemma 5.2.1 -/
-lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := by
-  sorry
+lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G := by
+  -- Handle trivial cases
+  by_cases hF : volume F = 0
+  · simp [G₁_empty hF]
+  by_cases hG : volume G = 0
+  · exact (G₁_empty' hF hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
+  -- Define constant `K` and prove 0 < K < ⊤
+  let K := 2 ^ (2 * a + 5) * volume F / volume G
+  have vol_G_ne_top : volume G ≠ ⊤ :=
+    lt_of_le_of_lt (measure_mono (ProofData.G_subset)) measure_ball_lt_top |>.ne
+  have K0 : K > 0 := by
+    refine ENNReal.div_pos (ne_of_gt ?_) vol_G_ne_top
+    exact mul_pos_iff.2 ⟨ENNReal.pow_pos two_pos _, measure_pos_of_superset subset_rfl hF⟩
+  have K_ne_top : K ≠ ⊤ := by
+    simp only [K]
+    refine ne_of_lt (div_lt_top (ne_of_lt (mul_lt_top (pow_ne_top two_ne_top) ?_)) hG)
+    exact lt_of_le_of_lt (measure_mono (ProofData.F_subset)) measure_ball_lt_top |>.ne
+  -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
+  have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
+      volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by
+    intro p hp
+    simp_rw [highDensityTiles, mem_setOf_eq, dens₂, lt_iSup_iff, mem_singleton_iff] at hp
+    rcases hp with ⟨p, rfl, r, hr, h⟩
+    use r, hr
+    refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl (measure_ball_ne_top (𝔠 p) r)) |>.mp h |>.le
+    have r0 : r > 0 := lt_of_lt_of_le (by have := defaultD_pos a; positivity) hr
+    exact Or.inl <| (measure_ball_pos volume (𝔠 p) r0).ne.symm
+  let r (p : 𝔓 X) := dite (p ∈ highDensityTiles) (fun hp ↦ choose (this p hp)) (fun _ ↦ 0)
+  have hr {p : 𝔓 X} (hp : p ∈ highDensityTiles) := choose_spec (this p hp)
+  -- Define a collection of balls `𝓑` that covers `G₁`. Then we need only bound the volume of ⋃ 𝓑
+  let 𝓑 : Finset (X × ℝ) := Finset.image (fun p ↦ (𝔠 p, r p)) highDensityTiles.toFinset
+  have : (G₁ : Set X) ⊆ ⋃ z ∈ 𝓑, (ball z.1 z.2) := by
+    refine fun x hx ↦ mem_iUnion.2 ?_
+    simp only [G₁, mem_iUnion, exists_prop] at hx
+    rcases hx with ⟨p, hp, xp⟩
+    use (𝔠 p, r p)
+    simp only [mem_iUnion, mem_ball, exists_prop, Finset.mem_image, mem_toFinset, 𝓑]
+    refine ⟨by {use p}, ?_⟩
+    suffices GridStructure.coeGrid (𝓘 p) ⊆ ball (𝔠 p) (r p) from this xp
+    apply Grid_subset_ball.trans ∘ ball_subset_ball
+    convert (hr hp).1.le
+    simp [r, hp]
+  apply (OuterMeasureClass.measure_mono volume this).trans
+  -- Apply `measure_biUnion_le_lintegral` to `u := F.indicator 1` to bound the volume of ⋃ 𝓑.
+  let u := F.indicator (1 : X → ℝ≥0∞)
+  have hu : AEStronglyMeasurable u volume :=
+    AEStronglyMeasurable.indicator aestronglyMeasurable_one measurableSet_F
+  have h2u : ∀ z ∈ 𝓑, K * volume (Metric.ball z.1 z.2) ≤ ∫⁻ (x : X) in ball z.1 z.2, u x := by
+    intro z hz
+    simp only [Finset.mem_image, mem_toFinset, 𝓑] at hz
+    rcases hz with ⟨p, h, rfl⟩
+    simpa [u, lintegral_indicator, Measure.restrict_apply, measurableSet_F, r, h] using (hr h).2.le
+  have ineq := measure_biUnion_le_lintegral (A := defaultA a) K0 hu h2u
+  simp only [u, lintegral_indicator, measurableSet_F, Pi.one_apply, lintegral_const,
+    MeasurableSet.univ, Measure.restrict_apply, univ_inter, one_mul] at ineq
+  rw [← mul_le_mul_left K0.ne.symm K_ne_top]
+  apply le_of_le_of_eq ineq
+  -- Prove that the desired bound for the volume of ⋃ 𝓑 is equal to the bound proven above.
+  simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, coe_ofNat, K]
+  have : (volume G)⁻¹ * (2 ^ (2 * a + 5) * volume F) * (2 ^ (-5 : ℤ) * volume G) =
+      (2 ^ (2 * a + 5) * 2 ^ (-5 : ℤ)) * volume F * ((volume G)⁻¹ * volume G) := by ring
+  rw [ENNReal.div_eq_inv_mul, ← mul_one (_ * _), this]
+  congr
+  · have h : (2 : ℝ≥0∞) ^ (2 * a + 5) = (2 : ℝ≥0∞) ^ (2 * a + 5 : ℤ) := by norm_cast
+    rw [h, ← ENNReal.zpow_add (NeZero.ne 2) two_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
+    norm_cast
+  · exact ENNReal.inv_mul_cancel hG vol_G_ne_top |>.symm
+
+  end first_exception
 
 /-- Lemma 5.2.2 -/
 lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) ≤ 2 ^ (k + 1) * volume G := by
