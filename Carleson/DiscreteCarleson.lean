@@ -487,7 +487,7 @@ lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G := by
       have coefficient_inequality : (3 : ℝ≥0∞) * 2 ^ (-4 : ℤ) ≤ (2 : ℝ≥0∞) ^ (-2 : ℤ) := by
         change ((3 : ℝ≥0) : ℝ≥0∞) * (2 : ℝ≥0) ^ (-4 : ℤ) ≤ (2 : ℝ≥0) ^ (-2 : ℤ)
         repeat rw [← ENNReal.coe_zpow (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-        norm_cast; rw [← NNReal.coe_le_coe]; norm_num
+        rw_mod_cast [← NNReal.coe_le_coe]; norm_num
       exact mul_le_mul_right' coefficient_inequality _
 
 /-! ## Section 5.3 -/
