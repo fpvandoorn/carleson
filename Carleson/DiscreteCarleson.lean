@@ -477,8 +477,8 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
 
 /-- Lemma 5.1.1 -/
 lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G := by
-  calc volume (G' : Set X)
-    _ ≤ volume (G₁ : Set X) + volume (G₂ : Set X) + volume (G₃ : Set X) :=
+  calc volume G'
+    _ ≤ volume G₁ + volume G₂ + volume G₃ :=
       le_add_of_le_add_right (measure_union_le _ G₃) (measure_union_le _ _)
     _ ≤ 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G :=
       add_le_add_three first_exception second_exception third_exception
