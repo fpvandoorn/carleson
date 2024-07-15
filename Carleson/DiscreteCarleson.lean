@@ -888,11 +888,45 @@ The numberings below might change once we remove Lemma 5.4.4 -/
 
 /-- Lemma 5.4.5, verifying (2.0.32) -/
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
-  sorry
+  rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
+  obtain ⟨mp, u', mu', w⟩ := hp; rw [mem_iUnion] at w; obtain ⟨ru, mp'⟩ := w
+  rw [𝔗₁, mem_setOf] at mp'; obtain ⟨mp', np, sl⟩ := mp'
+  have xye := URel.eq (EquivalenceOn.reprs_subset hu) mu' ru
+  have := URel.not_disjoint (EquivalenceOn.reprs_subset hu) mu' ru
+  rw [not_disjoint_iff] at this
+  obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 u} (𝒬 u) 100), (ϑy : ϑ ∈ ball_{𝓘 u'} (𝒬 u') 100)⟩ := this
+  suffices ball_(u) (𝒬 u) 1 ⊆ ball_(u') (𝒬 u') 500 by
+    have w : smul 4 p ≤ smul 500 y := (wiggle_order_500 sl np)
+    exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 u), w.2.trans this⟩
+  intro (q : Θ X) (mq : q ∈ ball_{𝓘 u} (𝒬 u) 1)
+  rw [@mem_ball] at mq ⊢
+  calc
+    _ ≤ dist_(u') q ϑ + dist_(u') ϑ (𝒬 u') := dist_triangle ..
+    _ ≤ dist_(u') q (𝒬 u) + dist_(u') ϑ (𝒬 u) + dist_(u') ϑ (𝒬 u') := by
+      gcongr; apply dist_triangle_right
+    _ < 1 + 100 + 100 := by
+      gcongr
+      · rwa [xye] at mq
+      · rwa [@mem_ball, xye] at ϑx
+      · rwa [@mem_ball] at ϑy
+    _ < _ := by norm_num
 
 /-- Lemma 5.4.6, verifying (2.0.33) -/
-lemma forest_convex (hu : u ∈ 𝔘₃ k n j) : OrdConnected (𝔗₂ k n j u) := by
-  sorry
+lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
+  rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
+  have mp'₅ : p' ∈ ℭ₅ (X := X) k n j :=
+    (ordConnected_C5.out ((𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) mp)
+      ((𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) mp'')) mp'
+  have mp'₆ : p' ∈ ℭ₆ k n j := by
+    have := 𝔗₂_subset_ℭ₆ mp; rw [ℭ₆, mem_setOf] at this ⊢
+    refine ⟨mp'₅, ?_⟩; replace this := this.2; contrapose! this
+    exact mp'.1.1.1.trans this
+  simp_rw [𝔗₂, mem_inter_iff, mp'₆, true_and, mem_iUnion₂, mem_iUnion] at mp'' ⊢
+  obtain ⟨u', mu', ru, _, np'', sl⟩ := mp''.2
+  have pnu : 𝓘 p' < 𝓘 u' := (mp'.2.1).trans_lt (lt_of_le_of_ne sl.1 np'')
+  use u', mu', ru; rw [𝔗₁, mem_setOf]
+  use (ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁) mp'₅, pnu.ne
+  exact (wiggle_order_11_10 mp'.2 (C5_3_3_le (X := X).trans (by norm_num))).trans sl
 
 /-- Lemma 5.4.7, verifying (2.0.36)
 Note: swapped `u` and `u'` to match (2.0.36) -/
@@ -940,7 +974,7 @@ def forest : Forest X n where
   𝔘 := 𝔘₄ k n j l
   𝔗 := 𝔗₂ k n j
   nonempty {u} hu := sorry
-  ordConnected {u} hu := forest_convex <| 𝔘₄_subset_𝔘₃ hu
+  ordConnected {u} hu := forest_convex
   𝓘_ne_𝓘 hu hp := sorry
   smul_four_le {u} hu := forest_geometry <| 𝔘₄_subset_𝔘₃ hu
   stackSize_le {x} := stackSize_𝔘₄_le x
