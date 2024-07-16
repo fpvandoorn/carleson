@@ -80,12 +80,75 @@ def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
 def 𝔏₁ (k n j l : ℕ) : Set (𝔓 X) :=
   minimals (·≤·) (ℭ₁ k n j \ ⋃ (l' < l), 𝔏₁ k n j l')
 
+lemma 𝔏₁_disjoint {k n j l l' : ℕ} (h : l ≠ l') : Disjoint (𝔏₁ (X := X) k n j l) (𝔏₁ k n j l') := by
+  wlog hl : l < l'; · exact (this h.symm (by omega)).symm
+  rw [disjoint_right]; intro p hp
+  rw [𝔏₁, mem_minimals_iff, mem_diff] at hp; replace hp := hp.1.2; contrapose! hp
+  refine mem_iUnion₂_of_mem hl hp
+
+lemma exists_le_of_mem_𝔏₁ {k n j l : ℕ} {p : 𝔓 X} (hp : p ∈ 𝔏₁ k n j l) :
+    ∃ p' ∈ ℭ₁ k n j, p' ≤ p ∧ 𝔰 p' + l ≤ 𝔰 p := by
+  induction l generalizing p with
+  | zero =>
+    rw [𝔏₁] at hp; simp_rw [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty] at hp
+    use p, hp.1; simp
+  | succ l ih =>
+    have np : p ∉ 𝔏₁ k n j l := disjoint_right.mp (𝔏₁_disjoint (by omega)) hp
+    rw [𝔏₁, mem_minimals_iff] at hp np
+    have rl : p ∈ ℭ₁ k n j \ ⋃ (l' < l), 𝔏₁ k n j l' := by
+      refine mem_of_mem_of_subset hp.1 (diff_subset_diff_right ?_)
+      refine biUnion_subset_biUnion_left fun k hk ↦ ?_
+      rw [mem_def, Nat.le_eq] at hk ⊢; omega
+    simp_rw [rl, true_and] at np; push_neg at np; obtain ⟨p', hp', lp⟩ := np
+    have mp' : p' ∈ 𝔏₁ k n j l := by
+      by_contra h
+      have cp : p' ∈ ℭ₁ k n j \ ⋃ (l' < l + 1), 𝔏₁ k n j l' := by
+        have : ∀ l', l' < l + 1 ↔ l' < l ∨ l' = l := by omega
+        simp_rw [this, iUnion_or, iUnion_union_distrib]
+        simp only [iUnion_iUnion_eq_left, mem_diff, mem_union, mem_iUnion, exists_prop, not_or,
+          not_exists, not_and] at hp' ⊢
+        tauto
+      exact absurd (hp.2 cp lp.1) (ne_eq _ _ ▸ lp.2)
+    obtain ⟨d, md, ld, sd⟩ := ih mp'; use d, md, (ld.trans lp.1)
+    rw [Nat.cast_add, Nat.cast_one, ← add_assoc]
+    have 𝓘lt : 𝓘 p' < 𝓘 p := by
+      refine lt_of_le_of_ne lp.1.1 (not_lt_of_𝓘_eq_𝓘.mt ?_)
+      rw [not_not]; exact lt_of_le_of_ne lp.1 lp.2.symm
+    have 𝔰lt : 𝔰 p' < 𝔰 p := by rw [Grid.lt_def] at 𝓘lt; exact 𝓘lt.2
+    omega
+
 /-- The subset `ℭ₂(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.13). -/
 def ℭ₂ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₁ k n j \ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l
 
 lemma ℭ₂_subset_ℭ₁ {k n j : ℕ} : ℭ₂ k n j ⊆ ℭ₁ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₂, mem_diff] at mt; exact mt.1
+
+lemma exists_le_of_mem_ℭ₂ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₂ k n j) :
+    ∃ p' ∈ ℭ₁ k n j, p' ≤ p ∧ 𝔰 p' + (Z * (n + 1) : ℕ) ≤ 𝔰 p := by
+  have mp : p ∈ ℭ₁ k n j \ ⋃ (l' < Z * (n + 1)), 𝔏₁ k n j l' := by
+    refine mem_of_mem_of_subset hp (diff_subset_diff_right ?_)
+    refine biUnion_subset_biUnion_left fun k hk ↦ ?_
+    rw [mem_def, Nat.le_eq] at hk ⊢; omega
+  let C : Finset (𝔓 X) :=
+    ((ℭ₁ k n j).toFinset \ (Finset.range (Z * (n + 1))).biUnion fun l' ↦
+      (𝔏₁ k n j l').toFinset).filter (· ≤ p)
+  have Cn : C.Nonempty := by
+    use p
+    simp_rw [C, Finset.mem_filter, le_rfl, and_true, Finset.mem_sdiff,
+      Finset.mem_biUnion, Finset.mem_range, not_exists, not_and, mem_toFinset]
+    simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at mp
+    exact mp
+  obtain ⟨p', mp', maxp'⟩ := C.exists_minimal Cn
+  simp_rw [C, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_biUnion, Finset.mem_range, not_exists,
+    not_and, mem_toFinset] at mp' maxp'
+  conv at maxp' => enter [x]; rw [and_imp]
+  have mp'₁ : p' ∈ 𝔏₁ k n j (Z * (n + 1)) := by
+    rw [𝔏₁, mem_minimals_iff]
+    simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
+    exact ⟨mp'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (maxp' y hy (ly.trans mp'.2))).symm⟩
+  obtain ⟨po, mpo, lpo, spo⟩ := exists_le_of_mem_𝔏₁ mp'₁
+  use po, mpo, lpo.trans mp'.2, spo.trans mp'.2.1.2
 
 /-- The subset `𝔘₁(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.14). -/
 def 𝔘₁ (k n j : ℕ) : Set (𝔓 X) :=
@@ -859,6 +922,8 @@ given above (5.4.5). -/
 def 𝔘₃ (k n j : ℕ) : Set (𝔓 X) :=
   (equivalenceOn_urel (k := k) (n := n) (j := j)).reprs
 
+lemma 𝔘₃_subset_𝔘₂ : 𝔘₃ k n j ⊆ 𝔘₂ (X := X) k n j := EquivalenceOn.reprs_subset
+
 /-- The subset `𝔗₂(u)` of `ℭ₆(k, n, j)`, given in (5.4.5).
 In lemmas, we will assume `u ∈ 𝔘₃ k n l` -/
 def 𝔗₂ (k n j : ℕ) (u : 𝔓 X) : Set (𝔓 X) :=
@@ -889,14 +954,14 @@ The numberings below might change once we remove Lemma 5.4.4 -/
 /-- Lemma 5.4.5, verifying (2.0.32) -/
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
   rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
-  obtain ⟨mp, u', mu', w⟩ := hp; rw [mem_iUnion] at w; obtain ⟨ru, mp'⟩ := w
-  rw [𝔗₁, mem_setOf] at mp'; obtain ⟨mp', np, sl⟩ := mp'
+  obtain ⟨_, u', mu', w⟩ := hp; rw [mem_iUnion] at w; obtain ⟨ru, mp'⟩ := w
+  rw [𝔗₁, mem_setOf] at mp'; obtain ⟨_, np, sl⟩ := mp'
   have xye := URel.eq (EquivalenceOn.reprs_subset hu) mu' ru
   have := URel.not_disjoint (EquivalenceOn.reprs_subset hu) mu' ru
   rw [not_disjoint_iff] at this
   obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 u} (𝒬 u) 100), (ϑy : ϑ ∈ ball_{𝓘 u'} (𝒬 u') 100)⟩ := this
   suffices ball_(u) (𝒬 u) 1 ⊆ ball_(u') (𝒬 u') 500 by
-    have w : smul 4 p ≤ smul 500 y := (wiggle_order_500 sl np)
+    have w : smul 4 p ≤ smul 500 u' := (wiggle_order_500 sl np)
     exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 u), w.2.trans this⟩
   intro (q : Θ X) (mq : q ∈ ball_{𝓘 u} (𝒬 u) 1)
   rw [@mem_ball] at mq ⊢
@@ -932,7 +997,59 @@ lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
 Note: swapped `u` and `u'` to match (2.0.36) -/
 lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) (huu' : u ≠ u')
     (hp : p ∈ 𝔗₂ k n j u') (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u) := by
-  sorry
+  simp_rw [𝔗₂, mem_inter_iff, mem_iUnion₂, mem_iUnion] at hp
+  obtain ⟨mp₆, v, mv, rv, ⟨-, np, sl⟩⟩ := hp
+  obtain ⟨p', mp', lp', sp'⟩ := exists_le_of_mem_ℭ₂ <|
+    (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂) mp₆
+  have np'u : ¬URel k n j v u := by
+    by_contra h; apply absurd (Eq.symm _) huu'
+    replace h := equivalenceOn_urel.trans (𝔘₃_subset_𝔘₂ hu') mv (𝔘₃_subset_𝔘₂ hu) rv h
+    exact EquivalenceOn.reprs_inj hu' hu h
+  have vnu : v ≠ u := by by_contra h; subst h; exact absurd URel.rfl np'u
+  simp_rw [URel, vnu, false_or, not_exists, not_and] at np'u
+  have mpt : p' ∈ 𝔗₁ k n j v := by
+    refine ⟨mp', ?_, ?_⟩
+    · exact (lp'.1.trans_lt (lt_of_le_of_ne sl.1 np)).ne
+    · exact (wiggle_order_11_10 lp' (C5_3_3_le (X := X).trans (by norm_num))).trans sl
+  specialize np'u p' mpt
+  have 𝓘p'u : 𝓘 p' ≤ 𝓘 u := lp'.1.trans h
+  simp_rw [TileLike.le_def, smul_fst, smul_snd, 𝓘p'u, true_and,
+    not_subset_iff_exists_mem_not_mem] at np'u
+  obtain ⟨(q : Θ X), mq, nq⟩ := np'u
+  simp_rw [mem_ball, not_lt] at mq nq
+  have d8 : 8 < dist_(p') (𝒬 p) (𝒬 u) :=
+    calc
+      _ = 10 - 1 - 1 := by norm_num
+      _ < 10 - 1 - dist_(u) q (𝒬 u) := by gcongr
+      _ ≤ 10 - 1 - dist_(p') q (𝒬 u) := tsub_le_tsub_left (Grid.dist_mono 𝓘p'u) _
+      _ ≤ dist_(p') q (𝒬 p') - 1 - dist_(p') q (𝒬 u) := by gcongr
+      _ < dist_(p') q (𝒬 p') - dist_(p') (𝒬 p) (𝒬 p') - dist_(p') q (𝒬 u) := by
+        gcongr; rw [← @mem_ball]; exact subset_cball (lp'.2 𝒬_mem_Ω)
+      _ ≤ _ := by
+        rw [sub_le_iff_le_add', sub_le_iff_le_add]
+        nth_rw 3 [dist_comm]; apply dist_triangle4
+  have Znpos : 0 < Z * (n + 1) := by rw [defaultZ]; positivity
+  let d : ℕ := (𝔰 p - 𝔰 p').toNat
+  have sd : 𝔰 p' + d = 𝔰 p := by simp_rw [d]; rw [Int.toNat_sub_of_le] <;> omega
+  have d1 : dist_(p') (𝒬 p) (𝒬 u) ≤ C2_1_2 a ^ d * dist_(p) (𝒬 p) (𝒬 u) :=
+    Grid.dist_strictMono_iterate lp'.1 sd
+  have Cdpos : 0 < C2_1_2 a ^ d := by rw [C2_1_2]; positivity
+  have Cidpos : 0 < (C2_1_2 a)⁻¹ ^ d := by rw [C2_1_2]; positivity
+  calc
+    _ ≤ (C2_1_2 a)⁻¹ ^ (Z * (n + 1)) := by
+      refine pow_le_pow_left zero_le_two ?_ _
+      nth_rw 1 [C2_1_2, ← Real.inv_rpow zero_le_two, ← Real.rpow_neg_one,
+        ← Real.rpow_mul zero_le_two, neg_one_mul, neg_mul, neg_neg, ← Real.rpow_one 2]
+      apply Real.rpow_le_rpow_of_exponent_le one_le_two
+      norm_cast; linarith [four_le_a X]
+    _ ≤ (C2_1_2 a)⁻¹ ^ d := by
+      refine pow_le_pow_right ?_ (by omega)
+      simp_rw [one_le_inv_iff, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
+    _ ≤ (C2_1_2 a)⁻¹ ^ d * 8 := by nth_rw 1 [← mul_one (_ ^ d)]; gcongr; norm_num
+    _ < (C2_1_2 a)⁻¹ ^ d * dist_(p') (𝒬 p) (𝒬 u) := by gcongr
+    _ ≤ _ := by
+      rwa [← mul_le_mul_iff_of_pos_left Cdpos, inv_pow, ← mul_assoc, mul_inv_cancel Cdpos.ne',
+        one_mul]
 
 /-- Lemma 5.4.8, verifying (2.0.37) -/
 lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u') :
@@ -941,7 +1058,7 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u') :
 
 def C5_4_8 (n : ℕ) : ℕ := 1 + (4 * n + 12) * 2 ^ n
 
-/-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
+/-- Lemma 5.4.9, used to verify that 𝔘₄ satisfies 2.0.34. -/
 lemma forest_stacking (x : X) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
   sorry
 
