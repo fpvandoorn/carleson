@@ -331,6 +331,21 @@ lemma dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ d
   · subst h; rfl
   · exact (Grid.dist_strictMono h).trans (mul_le_of_le_one_left dist_nonneg (C2_1_2_le_one X))
 
+lemma dist_strictMono_iterate {I J : Grid X} {d : ℕ} (hij : I ≤ J) (hs : s I + d = s J)
+    {f g : Θ X} : dist_{I} f g ≤ C2_1_2 a ^ d * dist_{J} f g := by
+  induction d generalizing I J with
+  | zero => simpa using dist_mono hij
+  | succ d ih =>
+    obtain ⟨K, sK, IK, KJ⟩ := exists_sandwiched hij (s I + d) (by rw [mem_Icc]; omega)
+    replace KJ : K < J := by rw [Grid.lt_def]; exact ⟨KJ.1, by omega⟩
+    calc
+      _ ≤ C2_1_2 a ^ d * dist_{K} f g := ih IK sK.symm
+      _ ≤ C2_1_2 a ^ d * (C2_1_2 a * dist_{J} f g) := by
+        gcongr
+        · rw [C2_1_2]; positivity
+        · exact dist_strictMono KJ
+      _ = _ := by ring
+
 /-! Maximal elements of finsets of dyadic cubes -/
 
 open Classical in
