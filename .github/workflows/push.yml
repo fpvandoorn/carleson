@@ -58,7 +58,8 @@ jobs:
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
             !.lake/build/doc/declarations/declaration-data-Carleson*
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
+          key: MathlibDoc-1
+          #${{ hashFiles('lake-manifest.json') }}
           #restore-keys: MathlibDoc-
 
       - name: Build project documentation
@@ -122,5 +123,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
 
-      - name: Make sure the cache works
-        run: mv docs/docs .lake/build/doc
+      # - name: Make sure the cache works
+      #   run: mv docs/docs .lake/build/doc
