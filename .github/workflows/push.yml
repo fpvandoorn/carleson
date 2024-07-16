@@ -57,6 +57,7 @@ jobs:
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
+            .lake/build/doc/find
             .lake/build/doc/*.*
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-3
