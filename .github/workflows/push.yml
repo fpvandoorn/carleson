@@ -60,7 +60,7 @@ jobs:
             .lake/build/doc/find
             .lake/build/doc/*.*
             !.lake/build/doc/declarations/declaration-data-Carleson*
-          key: MathlibDoc-4
+          key: MathlibDoc-5
           #${{ hashFiles('lake-manifest.json') }}
           #restore-keys: MathlibDoc-
 
@@ -95,10 +95,10 @@ jobs:
           sudo chown -R runner docs
           cp -r .lake/build/doc docs/docs
 
-      # - name: Remove lake files from documentation in `docs/docs`
-      #   run: |
-      #     find docs/docs -name "*.trace" -delete
-      #     find docs/docs -name "*.hash" -delete
+      - name: Remove lake files from documentation in `docs/docs`
+        run: |
+          find docs/docs -name "*.trace" -delete
+          find docs/docs -name "*.hash" -delete
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
