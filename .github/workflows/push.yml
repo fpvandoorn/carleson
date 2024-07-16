@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-      - workflow
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -60,9 +59,8 @@ jobs:
             .lake/build/doc/find
             .lake/build/doc/*.*
             !.lake/build/doc/declarations/declaration-data-Carleson*
-          key: MathlibDoc-5
-          #${{ hashFiles('lake-manifest.json') }}
-          #restore-keys: MathlibDoc-
+          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: MathlibDoc-
 
       - name: Build project documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
@@ -125,5 +123,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
 
-      - name: Make sure the cache works
-        run: mv docs/docs .lake/build/doc
+      # - name: Make sure the cache works
+      #   run: mv docs/docs .lake/build/doc
