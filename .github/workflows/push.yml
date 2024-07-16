@@ -57,8 +57,9 @@ jobs:
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
+            .lake/build/doc/*.*
             !.lake/build/doc/declarations/declaration-data-Carleson*
-          key: MathlibDoc-2
+          key: MathlibDoc-3
           #${{ hashFiles('lake-manifest.json') }}
           #restore-keys: MathlibDoc-
 
