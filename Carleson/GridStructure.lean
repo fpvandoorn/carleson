@@ -84,6 +84,9 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
+lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
+  measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
+
 namespace Grid
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to

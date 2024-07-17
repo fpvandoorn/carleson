@@ -2183,6 +2183,7 @@ We turn to the set $G_3$.
     \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 % Note(Georges Gonthier): sum should start at 0, not 1
 We write the left-hand side of \eqref{eq-musum}
 \begin{equation}
@@ -2290,7 +2291,8 @@ Let $\mathcal{L}(\fu)$ be as defined in \eqref{eq-L-def}. We have for each $\fu\
 
 
 \begin{proof}
-  Let $\fu\in \fU_1(k,n,l)$.
+\leanok
+Let $\fu\in \fU_1(k,n,l)$.
 Let $I \in \mathcal{L}(\fu)$. Then we have $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $B(c(I), 8D^{s(I)}) \not \subset \scI(\fu)$.
 By \eqref{eq-vol-sp-cube}, the set $I$
 is contained in $B(c(I), 4D^{s(I)})$.
@@ -2311,20 +2313,7 @@ is contained in
 Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
 \end{proof}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    \begin{lemma}[third exception]
+\begin{lemma}[third exception]
     \label{third-exception}
     \leanok
     \lean{third_exception}
@@ -2333,11 +2322,8 @@ Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
 \begin{equation}
     \mu(G_3)\le 2^{-4} \mu(G)\, .
 \end{equation}
-    \end{lemma}
-
-
-
-    \begin{proof}
+\end{lemma}
+\begin{proof}
 As each $\fp\in \fL_4(k,n,j)$
 is contained in $\cup\mathcal{L}(\fu)$ for some
 $\fu\in \fU_1(k,n,l)$, we have
