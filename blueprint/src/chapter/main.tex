@@ -8426,10 +8426,30 @@ This completes the proof of the lemma.
 \section{The error bound}
 \label{10difference}
 
-%\begin{lemma}
-%\label{control-approximation-effect}
-%Let $h : \R \to \C$ be measurable, $2\pi$-periodic and
-%\end{lemma}
+
+\begin{lemma}[Dirichlet kernel - Hilbert kernel relation]
+    \label{Dirichlet-Hilbert}
+    \uses{Dirichlet-kernel,lower-secant-bound}
+    For all $N\in\Z$ and $z\in [-\pi,\pi] \setminus \{0\}$,
+    \begin{equation*}
+        \left|K_N(z) - (e^{-iNz}\kappa(z) + \overline{e^{-iNz}\kappa(z)})\right| \le \pi \,.
+    \end{equation*}
+\end{lemma}
+
+\begin{proof}
+    %fixme: replace z by x or y?
+    Let $N\in\Z$ and $z\in [-\pi,\pi] \setminus \{0\}$. With \Cref{Dirichlet-kernel}, we obtain
+    \begin{equation*}
+        K_N(z) - (e^{-iNz}\kappa(z) + \overline{e^{-iNz}\kappa(z)})
+        = e^{-iNz} \frac{\min(|z|, 1) }{1 - e^{iz}} + e^{iNz} \frac{\min(|z|, 1) }{1 - e^{-iz}} \,.
+    \end{equation*}
+    Using \Cref{lower-secant-bound} with $\eta = \min(|z|, 1)$, we bound
+    \begin{equation*}
+        \left|K_N(z) - (e^{-iNz}\kappa(z) + \overline{e^{-iNz}\kappa(z)})\right|
+        \le \frac{\min(|z|, 1) }{|1 - e^{iz}|} + \frac{\min(|z|, 1)}{|1 - e^{-iz}|}
+        \le \frac{\pi}{2} + \frac{\pi}{2} = \pi \,.
+    \end{equation*}
+\end{proof}
 
 \begin{proof}[Proof of \Cref{control-approximation-effect}]
 \leanok
