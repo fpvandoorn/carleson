@@ -452,11 +452,30 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G :=
         ← zpow_one 2, ← ENNReal.zpow_add] <;> simp
     _ = _ := by rw [← mul_rotate, ← ENNReal.zpow_add] <;> simp
 
+/-
+_ = 2 ^ (n + 1) *
+        ((2 ^ (n + 1))⁻¹ * ∫⁻ t in Ioi 0, volume {x | t ≤ ∑ m ∈ Finset.univ.filter (· ∈ M),
+          (𝓘 m : Set X).indicator (1 : X → ℝ) x}) := by
+      rw [← mul_assoc, ENNReal.mul_inv_cancel (by simp) (by simp), one_mul]
+    _ = 2 ^ (n + 1) *
+        (∫⁻ t in Ioi 0, volume {x | t ≤ ∑ m ∈ Finset.univ.filter (· ∈ M),
+          (𝓘 m : Set X).indicator (1 : X → ℝ) x} ∂((2 : ℝ≥0∞) ^ (n + 1))⁻¹ • volume) := by
+      congr; exact (setLIntegral_smul_measure ..).symm
+    _ = 2 ^ (n + 1) *
+        ∫⁻ t in Ioi 0, volume {x | t * 2 ^ (n + 1) ≤ ∑ m ∈ Finset.univ.filter (· ∈ M),
+          (𝓘 m : Set X).indicator (1 : X → ℝ) x} := by
+      congr 1
+      sorry
+-/
+
+set_option maxHeartbeats 0 in
 /-- Lemma 5.2.7 -/
 lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) ≤
     2 ^ (n + k + 3) * volume G := by
   set M := 𝔐 (X := X) k n
   let Mc := M.toFinset.card
+  let layervol : ℝ → ℝ≥0∞ := fun t ↦
+    volume {x | t ≤ ∑ m ∈ Finset.univ.filter (· ∈ M), (𝓘 m : Set X).indicator (1 : X → ℝ) x}
   calc
     _ = ∑ m ∈ Finset.univ.filter (· ∈ M), ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
       congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
@@ -466,16 +485,34 @@ lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volum
       congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
       · congr! with m hm; simp_rw [indicator]; split_ifs <;> simp
       · exact fun _ _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
-    _ = ∫⁻ t in Ioi 0, volume {x | t ≤ ∑ m ∈ Finset.univ.filter (· ∈ M),
-        (𝓘 m : Set X).indicator (1 : X → ℝ) x} := by
+    _ = ∫⁻ t in Ioi 0, layervol t := by
       apply lintegral_eq_lintegral_meas_le
       · exact ae_of_all volume fun _ ↦
           Finset.sum_nonneg' fun _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
       · exact Measurable.aemeasurable <|
           Finset.measurable_sum _ (fun _ _ ↦ measurable_one.indicator coeGrid_measurable)
-    _ = ∫⁻ t in Ioi 0, volume {x | t * 2 ^ (n + 1) / 2 ^ (n + 1) ≤ ∑ m ∈ Finset.univ.filter (· ∈ M),
-        (𝓘 m : Set X).indicator (1 : X → ℝ) x} := by
-      sorry
+    _ = ∫⁻ t in Ioc 0 (Mc * 2 ^ (n + 1) : ℝ), layervol t := by
+      have nn : 0 ≤ (Mc * 2 ^ (n + 1) : ℝ) := by positivity
+      rw [← Ioc_union_Ioi_eq_Ioi nn, lintegral_union measurableSet_Ioi Ioc_disjoint_Ioi_same]
+      nth_rw 3 [← add_zero (lintegral ..)]; congr 1
+      have cgr : ∫⁻ (t : ℝ) in Ioi (Mc * 2 ^ (n + 1) : ℝ), layervol t =
+          ∫⁻ (t : ℝ) in Ioi (Mc * 2 ^ (n + 1) : ℝ), 0 := by
+        refine setLIntegral_congr_fun measurableSet_Ioi (ae_of_all volume fun t mt ↦ ?_)
+        simp_rw [layervol, measure_zero_iff_ae_nmem]
+        refine ae_of_all volume fun x ↦ ?_
+        rw [mem_setOf, not_le]
+        calc
+          _ = Nat.cast (∑ m ∈ Finset.univ.filter (· ∈ M),
+              (𝓘 m : Set X).indicator (1 : X → ℕ) x) := by push_cast; congr!; simp [indicator]
+          _ ≤ (Mc : ℝ) := by
+            norm_cast
+            simp_rw [indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
+              filter_mem_univ_eq_toFinset, Mc]
+            exact Finset.card_le_card (Finset.filter_subset ..)
+          _ ≤ Mc * (2 ^ (n + 1)) := by
+            norm_cast; exact Nat.le_mul_of_pos_right Mc (by positivity)
+          _ < _ := mt
+      simp [cgr]
     _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.Icc 0 Mc, volume (setA (X := X) l k n) := by
       sorry
     _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.Icc 0 Mc, 2 ^ (k + 1 - l : ℤ) * volume G :=
@@ -493,6 +530,8 @@ lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volum
       nth_rw 3 [← pow_one 2]
       rw [mul_rotate, ← pow_add, ← mul_assoc, ← pow_add,
         show n + 1 + (k + 1 + 1) = n + k + 3 by omega]
+
+#exit
 
 /-- Lemma 5.2.8 -/
 lemma tree_count :
