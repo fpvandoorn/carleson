@@ -12,6 +12,11 @@ noncomputable section
 --TODO : add reasonable notation
 --local notation "S_" => partialFourierSum f
 
+--TODO: use this as base to build on?
+def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (f : AddCircle T → ℂ) (N : ℕ) (x : AddCircle T) : ℂ :=
+    ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeff f n * fourier n (x)
+
+--TODO: switch N and f
 def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 --fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 
