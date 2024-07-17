@@ -418,7 +418,7 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
 --added subset assumption
 --changed interval to match the interval in the theorem
 lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
-    {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : Function.Periodic h (2 * Real.pi)) (h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), abs (h x) ≤ δ ) :
+    {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : Function.Periodic h (2 * Real.pi)) (h_bound : ∀ x, abs (h x) ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
       ∀ N, abs (partialFourierSum h N x) ≤ C_control_approximation_effect ε * δ := by
   set ε' := C_control_approximation_effect ε * δ with ε'def
@@ -457,11 +457,11 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     rw [Filter.EventuallyLE, ae_restrict_iff_subtype]
     apply Filter.eventually_of_forall
     simp only [norm_eq_abs, Subtype.forall]
-    intro x hx
+    intro x _
     apply h_bound x
-    apply Set.Ioc_subset_Icc_self
-    rw [Set.uIoc_of_le (by linarith)] at hx
-    constructor <;> linarith [hx.1, hx.2]
+    --apply Set.Ioc_subset_Icc_self
+    --rw [Set.uIoc_of_le (by linarith)] at hx
+    --constructor <;> linarith [hx.1, hx.2]
     exact measurableSet_uIoc
   set F := Set.Icc (-Real.pi) (3 * Real.pi) with Fdef
   set f := fun x ↦ F.indicator h x with fdef
@@ -472,7 +472,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
     rw [norm_indicator_eq_indicator_norm]
     rw [Set.indicator_apply]
     split_ifs with xF
-    . exact h_bound x xF
+    . exact h_bound x
     . exact hδ.le
   -- This is needed later but better fits in here.
   have star_f_bound : ∀ (x : ℝ), ‖(star ∘ f) x‖ ≤ δ := by
@@ -640,9 +640,9 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
               gcongr
               · rw [norm_eq_abs]
                 apply h_bound
-                rw [Fdef]
-                simp
-                constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
+                --rw [Fdef]
+                --simp
+                --constructor <;> linarith [xIcc.1, xIcc.2, hy.1, hy.2]
               rw [dirichletKernel', mul_add]
               set z := x - y with zdef
               calc ‖  (min |z| 1) * (exp (I * N * z) / (1 - exp (-I * z)))
@@ -713,7 +713,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         simp only [norm_eq_abs, Pi.one_apply, norm_one]
         rw [Set.indicator_apply, Set.indicator_apply]
         split_ifs with inF
-        · simp [h_bound x inF]
+        · simp [h_bound x]
         · simp
   have δ_mul_const_pos : 0 < δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ := by
     apply mul_pos

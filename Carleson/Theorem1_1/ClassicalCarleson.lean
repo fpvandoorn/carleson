@@ -30,8 +30,8 @@ theorem classical_carleson {f : ℝ → ℂ}
   set h := f₀ - f with hdef
   have h_measurable : Measurable h := Continuous.measurable (Continuous.sub contDiff_f₀.continuous unicontf.continuous)
   have h_periodic : Function.Periodic h (2 * Real.pi) := Function.Periodic.sub periodic_f₀ periodicf
-  have h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), Complex.abs (h x) ≤ ε' := by
-    intro x _
+  have h_bound : ∀ x, Complex.abs (h x) ≤ ε' := by
+    intro x
     simp [hdef]
     rw [← Complex.dist_eq, dist_comm, Complex.dist_eq]
     exact hf₀ x

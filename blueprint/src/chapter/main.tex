@@ -7488,8 +7488,13 @@ Let
 denote the constant from \Cref{metric-space-Carleson}.
 Define
 \begin{equation}
-    \epsilon' := \frac \epsilon {4 (C_{4,2} \cdot (8 / (\pi\epsilon))^{\frac 1 2} + \pi)}.
+    \epsilon' := \frac {\epsilon} {4 C_\epsilon} \,,
 \end{equation}
+where
+%fixme: replace by C(\epsilon) ?
+\begin{equation*}
+    C_\epsilon = \left(\frac{8}{\pi\epsilon}\right)^\frac{1}{2} C_{4,2} + \pi \,.
+\end{equation*}
 By uniform continuity of $f$, there is a $0<\delta<\pi$
 such that for all $x,x' \in \R$ with $|x-x'|\le \delta$
 we have
@@ -8426,7 +8431,6 @@ This completes the proof of the lemma.
 \section{The error bound}
 \label{10difference}
 
-
 \begin{lemma}[Dirichlet kernel - Hilbert kernel relation]
     \label{Dirichlet-Hilbert}
     \uses{Dirichlet-kernel,lower-secant-bound}
@@ -8434,7 +8438,7 @@ This completes the proof of the lemma.
     \begin{equation*}
         \left|K_N(z) - (e^{-iNz}\kappa(z) + \overline{e^{-iNz}\kappa(z)})\right| \le \pi \,.
     \end{equation*}
-    %fixme: Add something like "for a bounded function \tilde{K}_N(z)
+    %fixme: Add something like "for a bounded function \tilde{K}_N(z) ?
 \end{lemma}
 
 \begin{proof}
@@ -8452,87 +8456,131 @@ This completes the proof of the lemma.
     \end{equation*}
 \end{proof}
 
-\begin{proof}[Proof of \Cref{control-approximation-effect}]
+\begin{lemma}[partial Fourier sum bound]
+    \label{partial-Fourier-sum-bound}
+    %fixme: avoid explicit \delta here?
+    Let $g:\R\to\C$ be a measurable $2\pi$-periodic function such that for some $\delta>0$ and every $x\in\R$,
+    \begin{equation}
+        |g(x)|\le \delta \,.
+    \end{equation}
+    Then for every $x\in [0,2\pi]$ and $N>0$,
+    \begin{equation*}
+        |S_N g(x)| \le \frac{1}{2\pi} (Tg(x) + T\bar{g}(x)) + \pi\delta.
+    \end{equation*}
+    %where $h=g\mathbf{1}_{[-\pi,3\pi]}$.
+\end{lemma}
+
+\begin{proof}
+    Let $x\in [0,2\pi]$ and $N>0$. We have with \Cref{Dirichlet-kernel}
+    \begin{equation*}
+        |S_N g(x)| = \frac{1}{2\pi} \left| \int_0^{2\pi} g(y) K_N(x-y) \, dy\right|\,.
+    \end{equation*}
+    We use $2\pi$-periodicity of $g$ and $K_N$ to shift the domain of integration to obtain
+    \begin{equation*}
+        = \frac{1}{2\pi} \left|\int_{x-\pi}^{x+\pi} g(y) K_N(x-y) \, dy\right|\,.
+    \end{equation*}
+    Using the triangle inequality, we split this as
+    \begin{equation}
+        \label{eq-diff-integrable}
+        \le \frac{1}{2\pi} \left|\int_{x-\pi}^{x+\pi} g(y) \left(K_N(x-y) - \max(|x-y|,0) K_N(x-y)\right) \, dy \right|
+    \end{equation}
+    \begin{equation}
+        \label{eq-diff-singular}
+        + \frac{1}{2\pi} \left|\int_{x-\pi}^{x+\pi} g(y) \max(|x-y|,0) K_N(x-y) \, dy\right|\,.
+    \end{equation}
+    Note that all integrals are well defined, since $K_N$ is by \eqref{eqksumexp} bounded by $2N+1$.
+    %fixme: make this a lemma?
+    Using that
+    \begin{equation}
+        \label{eq-Dirichlet-Hilbert}
+        \max(|x-y|,0) K_N(x-y) = e^{-iN(x-y)}\kappa(x-y) + \overline{e^{-iN(x-y)}\kappa(x-y)} \,,
+    \end{equation}
+    \Cref{Dirichlet-Hilbert} and \eqref{g-small}, we bound \eqref{eq-diff-integrable} by
+    \begin{equation*}
+        \frac{1}{2\pi} \int_{x-\pi}^{x+\pi} |g(y)| \left|K_N(z) - e^{-iN(x-y)}\kappa(x-y) + \overline{e^{-iN(x-y)}\kappa(x-y)}\right|\, dy
+        \le \pi\delta \,.
+    \end{equation*}
+    By dominated convergence and since $\kappa(x-y) = 0$ for $|x-y| > 1$, \eqref{eq-diff-singular} equals
+    \begin{equation*}
+        \frac{1}{2\pi} \lim_{r \to 0^+} \left| \int_{r < |x-y| < 1} g(y) \max(|x-y|,0) K_N(x-y) \, dy\right|\,.
+    \end{equation*}
+    We bound the limit by a supremum and rewrite using \eqref{eq-Dirichlet-Hilbert},
+    \begin{equation*}
+        \le \frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |x-y| < 1} g(y) \left(e^{-iN(x-y)}\kappa(x-y) + \overline{e^{-iN(x-y)}\kappa(x-y)}\right) \, dy\right|
+    \end{equation*}
+    Using the triangle inequality, we further bound this by
+    \begin{alignat*}{3}
+        \le&&&\frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |x-y| < 1} g(y) e^{-iNy} \kappa(x-y) \, dy\right| \\
+        &+ &&\frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |x-y| < 1} \overline{g}(y) e^{-iNy} \kappa(x-y) \, dy\right|\,.
+    \end{alignat*}
+    By the definition \eqref{define-T-carleson} of $T$, this is
+    \begin{equation*}
+        \le \frac{1}{2\pi} (Tg(x) + T\bar{g}(x))\,.
+    \end{equation*}
+\end{proof}
+
+%fixme: Put this somewhere else and complete statement and proof
+\begin{lemma}[real Carleson operator measurable]
+    \label{real-Carleson-operator-measurable}
+    $Tf$ as defined in ... is measurable.
+\end{lemma}
+\begin{proof}
+    \leanok
+\end{proof}
+
+\begin{lemma}[partial Fourier sums of small]
+    \label{partial-Fourier-sums-of-small}
+    %fixme: rename \delta to \epsilon' ?
+    Let $g:\R\to\C$ be a measurable $2\pi$-periodic function such that for some $\delta>0$ and every $x\in\R$,
+    \begin{equation} \label{g-small}
+        |g(x)|\le \delta \,.
+    \end{equation}
+    Then for every $\epsilon>0$, there exists a measurable set $E\subset [0,2\pi]$ such that for every $x\in [0,2\pi]\setminus E$ and $N>0$,
+    \begin{equation}  \label{S_Ng-small}
+        |S_N g(x)|\le C_\epsilon \delta,
+    \end{equation}
+    where
+    %fixme: replace by C(\epsilon) ?
+    \begin{equation} \label{C-epsilon-def}
+        C_\epsilon = \left(\frac{8}{\pi\epsilon}\right)^\frac{1}{2} C_{4,2} + \pi \,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
 \leanok
 Define
-$$
-    E := \{x \in [0, 2\pi) \ : \ \sup_{N > 0} |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4} \}\,.
-$$
-Then \eqref{eq-max-partial-sum-diff} clearly holds, and it remains to show that $|E| \le \frac{\epsilon}{2}$. This will follow from \Cref{real-Carleson}.
-
-Let $x \in E$. Then there exists $N > 0$ with
-$$
-    |S_N f(x) - S_N f_0(x)| > \frac{\epsilon}{4}\,,
-$$
-pick such $N$. We have with \Cref{Dirichlet-kernel}
-$$
-    \frac{\epsilon}{4} < |S_N f(x) - S_N f_0(x)| = \frac{1}{2\pi} \left| \int_0^{2\pi} (f(y) - f_0(y)) K_N(x-y) \, dy\right|\,.
-$$
-We make a change of variables, replacing $y$ by $x -y$. Then we use $2\pi$-periodicity of $f$, $f_0$ and $K_N$ to shift the domain of integration to obtain
-$$
-    = \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) K_N(y) \, dy\right|\,.
-$$
-Using the triangle inequality, we split this as
-$$
-    \le \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) \max(1 - |y|, 0) K_N(y) \, dy\right|
-$$
-$$
-    + \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) \min(|y|, 1) K_N(y) \, dy\right|\,.
-$$
-Note that all integrals are well defined, since $K_N$ is by \eqref{eqksumexp} bounded by $2N+1$.
-Using \eqref{eqksumhil} and the definition \eqref{eq-hilker} of $\kappa$, we rewrite the two terms and obtain
-\begin{equation}
-    \label{eq-diff-singular}
-    \frac{\epsilon}{4} < \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|
-\end{equation}
-\begin{equation}
-    \label{eq-diff-integrable}
-    + \frac{1}{2\pi} \left|\int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) ( e^{iNy} \frac{\min\{|y|, 1\} }{1 - e^{-iy}} + e^{-iNy} \frac{\min\{|y|, 1\} }{1 - e^{iy}}) \, dy \right|\,.
-\end{equation}
-By \Cref{lower-secant-bound} with $\eta = |y|$, we have for $-1 \le y \le 1$
-$$
-    |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{|y|}{|1 - e^{iy}|} \le \frac \pi 2 \,.
-$$
-By \Cref{lower-secant-bound} with $\eta = 1$, we have for $1 \le |y| \le \pi$
-$$
-    |e^{iNy}\frac{\min\{|y|, 1\} }{1 - e^{-iy}}| = \frac{1}{|1 - e^{iy}|} \le \frac \pi 2 \,.
-$$
-Thus we obtain using the triangle inequality and \eqref{eq-ffzero}
-$$
-    \eqref{eq-diff-integrable} \le \frac{1}{2} \int_{-\pi}^{\pi} |f(x-y) - f_0(x-y)| \, dy \le \pi\epsilon'.
-$$
-Consequently, we have that
-$$
-    \frac{\epsilon}{4} - \pi\epsilon' \le \frac{1}{2\pi} \left| \int_{-\pi}^{\pi} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|\,.
-$$
-By dominated convergence and since $\kappa(y) = 0$ for $|y| > 1$, this equals
-$$
-     = \frac{1}{2\pi} \lim_{r \to 0^+} \left| \int_{r < |y| < 1} (f(x-y) - f_0(x-y)) (e^{iNy} \overline{\kappa}(y) + e^{-iNy}\kappa(y)) \, dy\right|\,.
-$$
-Let $h = (f - f_0) \mathbf{1}_{[-\pi, 3\pi]}$. Since $x \in [0, 2\pi]$, the above integral does not change if we replace $(f - f_0)$ by $h$. We do that, apply the triangle inequality and bound the limits by suprema
-$$
-    \le \frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |y| < 1} h(x-y) e^{-iNy} \kappa(y) \, dy\right|
-$$
-$$
-    + \frac{1}{2\pi} \sup_{r > 0} \left| \int_{r < |y| < 1} \overline{h}(x-y) e^{-iNy} \kappa(y) \, dy\right|\,.
-$$
-By the definition \eqref{define-T-carleson} of $T$, this is
-$$
-    \le \frac{1}{2\pi} (Th(x) + T\bar{h}(x))\,.
-$$
-Thus for each $x \in E$, at least one of $Th(x)$ and $T\bar h(x)$ is larger than $\frac{\pi(\epsilon - 4 \pi\epsilon')}{4}$.
-Thus at least one of $Th$ and $T\bar h$ is $\ge \frac{\pi(\epsilon - 4 \pi\epsilon')}{4}$ on a subset $E'$ of $E$ with $2|E'| \ge |E|$. Without loss of generality this is $Th$. By assumption \eqref{eq-ffzero}, we have $|2^{2^{50}}\epsilon^{-2} h| \le \mathbf{1}_{[-\pi, 3\pi]}$. Applying \Cref{real-Carleson} with $F = [-\pi, 3\pi]$ and $G = E'$, it follows that
-$$
-    \frac{\pi(\epsilon - 4 \pi\epsilon')}{4} |E'| \le \int_{E'} Th(x) \, dx = \epsilon' \int_{E'} T(\epsilon'^{-1} h)(x) \, dx
-$$
-$$
-    \le \epsilon' \cdot C_{4,2} |F|^{\frac{1}{2}} |E'|^{\frac{1}{2}} \le (4\pi)^\frac{1}{2} C_{4,2} \epsilon' \cdot |E'|^{\frac{1}{2}}\,.
-$$
+\begin{equation*}
+    E := \{x \in [0, 2\pi] \ : \ \sup_{N > 0} |S_N g (x)| > C_\epsilon \delta \} \,.
+\end{equation*}
+Then \eqref{S_Ng-small} clearly holds, and it remains to show that $|E| \le \epsilon$.
+Using \Cref{partial-Fourier-sum-bound}, we obtain
+\begin{equation*}
+    E \subset \{x\in [0,2\pi] \ : \ C_\epsilon \delta < \frac{1}{2\pi} (Tg(x) + T\bar{g}(x)) + \pi\delta\} \subset E_1 \cup E_2,
+\end{equation*}
+where
+\begin{align*}
+    E_1 :=& \{x\in [0,2\pi] \ : \ \pi(C_\epsilon - \pi) \delta < Tg(x)\} \\
+    E_2 :=& \{x\in [0,2\pi] \ : \ \pi(C_\epsilon - \pi) \delta < T\bar{g}(x)\}.
+\end{align*}
+By \Cref{real-Carleson-operator-measurable}, $E_1$ and $E_2$ are measurable. Thus,
+\begin{equation*}
+    \pi(C_\epsilon - \pi) \delta |E_1| \le \int_{E_1} Tg(x) \, dx = \delta \int_{E_1} T(\delta^{-1} g\mathbf{1}_{[-\pi,3\pi]})(x) \, dx \,.
+\end{equation*}
+Applying \Cref{real-Carleson} with $F = [-\pi, 3\pi]$ and $G = E'$, it follows that this is
+\begin{equation*}
+    \le \delta \cdot C_{4,2} |F|^{\frac{1}{2}} |E_1|^{\frac{1}{2}} \le (4\pi)^\frac{1}{2} C_{4,2} \delta \cdot |E'|^{\frac{1}{2}}\,.
+\end{equation*}
 Rearranging, we obtain
-$$
-    |E'| \le \left(\frac{4 (4\pi)^\frac{1}{2} C_{4,2} \epsilon'}{\pi(\epsilon - 4 \pi\epsilon')}\right)^2 = \frac{\epsilon}{2}\,.
-$$
-This completes the proof using $|E| \le 2|E'|$.
+\begin{equation*}
+    |E_1| \le \left(\frac{(4\pi)^\frac{1}{2} C_{4,2}}{\pi(C_\epsilon - \pi)}\right)^2 = \frac{\epsilon}{2}\,.
+\end{equation*}
+Analogously, we get the same estimate for $|E_2|$. This completes the proof using $|E| \le |E_1| + |E_2|$.
+\end{proof}
+
+%fixme: It seems unnecessary to have the extra lemma with this proof that is really only application.
+\begin{proof}[Proof of \Cref{control-approximation-effect}]
+\leanok
+    \Cref{control-approximation-effect} now follows directly from \Cref{partial-Fourier-sums-of-small} with $\delta:=\epsilon'$.
 \end{proof}
 
 
