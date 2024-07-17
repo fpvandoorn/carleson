@@ -1855,7 +1855,7 @@ The first exceptional set $G_1$ takes into account the ratio of the measures of 
 Define $\fP_{F,G}$ to be the set of all $\fp\in \fP$
 with
 \begin{equation}
-    \dens_2(\{\fp\})\ge 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
+    \dens_2(\{\fp\})> 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
 \end{equation}
 Define
 \begin{equation}\label{definegone}
@@ -1963,10 +1963,11 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
     \uses{Hardy-Littlewood}
     We have
     \begin{equation}
-        \mu(G_1)\le 2^{-4}\mu(G)\, .
+        \mu(G_1)\le 2^{-5}\mu(G)\, .
     \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     Let
     $$
         K = 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
@@ -1983,12 +1984,12 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
     $$
     and the function $u = \mathbf{1}_F$, we obtain
     $$
-        \mu(\bigcup \mathcal{B}) \le 2^{2a+1} K^{-1} \mu(F)\,.
+        \mu(\bigcup \mathcal{B}) \le 2^{2a} K^{-1} \mu(F)\,.
     $$
     We conclude with \eqref{eq-vol-sp-cube} and $r(\fp)>4D^{\ps(\fp)}$
     $$
         \mu(G_1)= \mu(\bigcup_{\fp\in \fP_{F,G}} \scI(\fp))
-        \le \mu(\bigcup \mathcal{B})\le 2^{2a+1} K^{-1} \mu (F) = 2^{-4}\mu(G)\,.
+        \le \mu(\bigcup \mathcal{B})\le 2^{2a} K^{-1} \mu (F) = 2^{-5}\mu(G)\,.
     $$
 \end{proof}
 
@@ -2394,6 +2395,7 @@ Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and
 \end{proof}
 
 \begin{proof}[Proof of \Cref{exceptional-set}]
+    \leanok
     \proves{exceptional-set}
 Adding up the bounds in Lemmas \ref{first-exception}, \ref{second-exception}, and \ref{third-exception} proves \Cref{exceptional-set}.
 \end{proof}
@@ -2728,13 +2730,14 @@ with $10 \fp\lesssim \fu'$.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fu, \fu' \in \fU_2(k,n,j)$ with $\fu \sim \fu'$. If $\fu = \fu'$ then the conclusion of the Lemma clearly holds. Else, there exists $\fp \in \fC_1(k,n,j)$ such that $\scI(\fp) \ne \scI(\fu)$ and $2 \fp \lesssim \fu$ and $10 \fp \lesssim \fu'$.
     Using \Cref{wiggle-order-1} and \eqref{eq-sc2} of \Cref{wiggle-order-3}, we deduce that
     \begin{equation}
         \label{eq-Fefferman-trick0}
         100 \fp\lesssim 100 \fu\,, \qquad 100 \fp \lesssim 100\fu'\,.
     \end{equation}
-    Now suppose that $B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. Then we have $\mathfrak{B}(\fu) \cap \mathfrak{B}(\fu') = \emptyset$, by the definition \eqref{defbfp} of $\mathfrak{B}$ and the definition \eqref{wiggleorder} of $\lesssim$, but also $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$, by \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq-Fefferman-trick0}
+    Now suppose that $B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. Then we have $\mathfrak{B}(\fu) \cap \mathfrak{B}(\fu') = \emptyset$, by the definition \eqref{defbfp} of $\mathfrak{B}$ and the definition \eqref{wiggleorder} of $\lesssim$, but also $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$, by \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq-Fefferman-trick0}.
     Hence,
     $$
         |\mathfrak{B}(\fp)| \geq |\mathfrak{B}(\fu)| + |\mathfrak{B}(\fu')| \geq 2^{j} + 2^j = 2^{j+1}\,,
@@ -2759,6 +2762,7 @@ $\fU_2(k,n,j)$ is an equivalence relation.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Reflexivity holds by definition.
     For transitivity, suppose that
     \begin{equation*}
@@ -2789,7 +2793,7 @@ $\fU_2(k,n,j)$ is an equivalence relation.
     \end{align*}
     Since $4\fp \lesssim 500 \fu$, it follows that $d_{\fp}(\fcc(\fp), q) < 4 < 10$. We have shown that $B_{\fu''}(\fcc(\fu''), 1) \subset B_{\fp}(\fcc(\fp), 10)$, combining this with $\scI(\fu'') = \scI(\fu)$ gives $\fu \sim \fu''$.
 
-    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\scI(\fu) = \scI(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious. If $\fu \ne \fu'$, then there exists $\fp \in \mathfrak{T}_1(\fu')$ with $10\fp\lesssim \fu$. By definition of $\mathfrak{T}_1(\fu')$, \Cref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
+    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\scI(\fu) = \scI(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious, so suppose that $\fu \ne \fu'$. There exists $\fp \in \mathfrak{T}_1(\fu')$, which then satisfies $2\fp\lesssim \fu'$ and $\scI(\fp) \neq \scI(\fu')$. By \Cref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
     \begin{equation}
         \label{eq-rel1}
         10\fp \lesssim 4\fp \lesssim 500 \fu'\,.
@@ -2826,6 +2830,7 @@ We have
 \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     Let $\fp \in \fC_6(k,n,j)$.
     By \eqref{eq-C4-def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq-L2-def} and \eqref{eq-C3-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp \lesssim \fu$ and $\scI(\fp) \ne \scI(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(k,n,j)$. By the definition of $\fU_3(k,n,j)$, there exists $\fu' \in \fU_3(k,n,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
 \end{proof}
@@ -2852,6 +2857,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
     satisfies \eqref{forest1}.
 \end{lemma}
 \begin{proof}
+    \leanok
     Let $\fp \in \mathfrak{T}_2(\fu)$. By \eqref{definesv}, there exists $\fu' \sim \fu$ with $\fp \in \mathfrak{T}_1(\fu')$. Then we have $2\fp \lesssim \fu'$ and $\scI(\fp) \ne \scI(\fu')$, so by \eqref{eq-sc3} $4\fp \lesssim 500\fu'$.
     Further, by \Cref{relation-geometry}, we have that $\scI(\fu') = \scI(\fu)$ and there exists $\mfa \in B_{\fu'}(\fcc(\fu'),100) \cap B_{\fu}(\fcc(\fu),100)$.
     Let $\mfb \in B_{\fu}(\fcc(\fu), 1)$.
@@ -2879,6 +2885,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp, \fp'' \in \mathfrak{T}_2(\fu)$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By \Cref{C5-convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not \subset G'$, so $\scI(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
 
     By \eqref{definesv} there exists $\fu' \in \fU_2(k,n,j)$ with $\fp'' \in \mathfrak{T}_1(\fu')$ and hence $2\fp'' \lesssim \fu'$ and $\scI(\fp'') \ne \scI(\fu')$. Together this implies $\scI(\fp'') \subsetneq \scI(\fu')$. With the inclusion $\scI(\fp') \subset \scI(\fp'')$ from $\fp' \le \fp''$, it follows that $\scI(\fp') \subsetneq \scI(\fu')$ and hence $\scI(\fp') \ne \scI(\fu')$.
@@ -2899,7 +2906,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \end{lemma}
 
 \begin{proof}
-    By the definition \eqref{eq-C2-def} of $\fC_2(k,n,j)$, there exists a tile $\fp' \in \fC_1(k,n,j)$ with $\fp' \le \fp$ and $\ps(\fp') = \ps(\fp)- Z(n+1)$.
+    \leanok
+    By the definition \eqref{eq-C2-def} of $\fC_2(k,n,j)$, there exists a tile $\fp' \in \fC_1(k,n,j)$ with $\fp' \le \fp$ and $\ps(\fp') \le \ps(\fp)- Z(n+1)$.
     By \Cref{monotone-cube-metrics} we have
     $$
         d_{\fp}(\fcc(\fp), \fcc(\fu')) \ge 2^{95a Z(n+1)} d_{\fp'}(\fcc(\fp), \fcc(\fu'))\,.

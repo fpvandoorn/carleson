@@ -56,6 +56,8 @@ jobs:
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
+            .lake/build/doc/find
+            .lake/build/doc/*.*
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: MathlibDoc-
@@ -86,15 +88,15 @@ jobs:
       - name: Check declarations
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
-      - name: Remove lake files from documentation
-        run: |
-          find .lake/build/doc -name "*.trace" -delete
-          find .lake/build/doc -name "*.hash" -delete
-
       - name: Copy documentation to `docs/docs`
         run: |
           sudo chown -R runner docs
           cp -r .lake/build/doc docs/docs
+
+      - name: Remove lake files from documentation in `docs/docs`
+        run: |
+          find docs/docs -name "*.trace" -delete
+          find docs/docs -name "*.hash" -delete
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
@@ -121,5 +123,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
 
-      - name: Make sure the cache works
-        run: mv docs/docs .lake/build/doc
+      # - name: Make sure the cache works
+      #   run: mv docs/docs .lake/build/doc

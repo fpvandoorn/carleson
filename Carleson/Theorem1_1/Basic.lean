@@ -61,10 +61,10 @@ lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
   simp [partialFourierSum, mul_sum, fourierCoeffOn_mul, mul_assoc]
 
 lemma fourier_periodic {n : ℤ} :
-    Function.Periodic (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) (2 * Real.pi) := by
+    (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))).Periodic (2 * Real.pi) := by
     simp
 
-lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : Function.Periodic (partialFourierSum f N) (2 * Real.pi) := by
+lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (partialFourierSum f N).Periodic (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
 /-TODO: Add lemma Periodic.uniformContinuous_of_continuous. -/

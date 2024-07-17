@@ -134,7 +134,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
           rw [Real.dist_eq, Real.dist_eq] at hz
           rw [Real.norm_eq_abs]
           calc |(n - m) * (z.1 - x) - (n - m) * (z.2 - x)|
-          _ ≤ |(n - m) * (z.1 - x)| + |(n - m) * (z.2 - x)| := by apply abs_sub
+          _ ≤ |(n - m) * (z.1 - x)| + |(n - m) * (z.2 - x)| := abs_sub _ _
           _ = |↑n - ↑m| * |z.1 - x| + |↑n - ↑m| * |z.2 - x| := by congr <;> apply abs_mul
           _ ≤ |↑n - ↑m| * R + |↑n - ↑m| * R := by gcongr; linarith [hz.1]; linarith [hz.2]
           _ = 2 * R * |↑n - ↑m| := by ring
