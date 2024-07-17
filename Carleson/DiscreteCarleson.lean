@@ -748,64 +748,9 @@ variable (X) in
 def C5_2_9 [ProofData a q K σ₁ σ₂ F G] (n : ℕ) : ℝ≥0 := D ^ (1 - κ * Z * (n + 1))
 
 /-- Lemma 5.2.9 -/
-lemma boundary_exception {u : 𝔓 X} :
+lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
     volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by
-  rcases (𝓛 n u).eq_empty_or_nonempty with h𝓛 | ⟨i, mi⟩; · simp [h𝓛]
-  let 𝔛 : Set X := {x ∈ (𝓘 u : Set X) |
-    infDist x (𝓘 u)ᶜ ≤ 12 * D ^ (-Z * (n + 1) - 1 : ℤ) * D ^ 𝔰 u}
-  have s𝔛 : ∀ i ∈ 𝓛 n u, (i : Set X) ⊆ 𝔛 := fun i mi x mx ↦ by
-    rw [𝓛, mem_setOf] at mi; obtain ⟨li, si, nbsi⟩ := mi
-    have mx' : x ∈ ball (c i) (4 * D ^ s i) := Grid_subset_ball mx; refine ⟨li.1 mx, ?_⟩
-    rw [not_subset_iff_exists_mem_not_mem] at nbsi; obtain ⟨y, my, ny⟩ := nbsi
-    rw [mem_ball] at mx' my
-    calc
-      _ ≤ dist x y := by apply infDist_le_dist_of_mem; rwa [← mem_compl_iff] at ny
-      _ ≤ dist x (c i) + dist y (c i) := dist_triangle_right ..
-      _ ≤ 4 * D ^ s i + 8 * D ^ s i := by gcongr
-      _ = 12 * D ^ s i := by ring
-      _ = _ := by
-        rw [← si, mul_assoc, ← zpow_add₀ (defaultD_pos a).ne']; congr; ring
-  have Dineq : (D : ℝ) ^ (-S - s (𝓘 u)) ≤ 12 * D ^ (-Z * (n + 1) - 1 : ℤ) := by
-    rw [𝓛, mem_setOf] at mi; obtain ⟨-, si, -⟩ := mi
-    have Dppos : 0 < (D : ℝ) ^ 𝔰 u := by simp only [defaultD]; positivity
-    rw [← mul_le_mul_right Dppos, ← zpow_add₀ (defaultD_pos a).ne',
-      mul_assoc, ← zpow_add₀ (defaultD_pos a).ne']
-    change _ ^ (_ - 𝔰 u + 𝔰 u) ≤ _
-    rw [sub_add_cancel, ← si, show -Z * (n + 1) - 1 + (s i + ↑Z * (n + 1) + 1) = s i by ring]
-    calc
-      _ ≤ (D : ℝ) ^ s i := zpow_le_of_le one_le_D (mem_Icc.mp (range_s_subset ⟨i, rfl⟩)).1
-      _ ≤ _ := by nth_rw 1 [← one_mul (_ ^ _)]; gcongr; norm_num
-  have Cineq : 2 * (12 * D ^ (-Z * (n + 1) - 1 : ℤ)) ^ κ ≤ (C5_2_9 X n : ℝ) := by
-    have twelve_le_D : 12 ≤ (D : ℝ) := by
-      refine (show 12 ≤ (2 : ℝ) ^ 4 by norm_num).trans ?_
-      norm_cast; refine Nat.pow_le_pow_right zero_lt_two ?_
-      nlinarith [four_le_a X]
-    calc
-      _ ≤ 2 * (D * (D : ℝ) ^ (-Z * (n + 1) - 1 : ℤ)) ^ κ := by
-        gcongr; rw [defaultκ]; positivity
-      _ = 2 * (D : ℝ) ^ (-κ * Z * (n + 1)) := by
-        nth_rw 1 [← zpow_one (D : ℝ), ← zpow_add₀ (defaultD_pos a).ne',
-          show 1 + (-Z * (n + 1) - 1 : ℤ) = -Z * (n + 1) by ring,
-          ← Real.rpow_intCast_mul D_nonneg]
-        congr 2; push_cast; ring
-      _ ≤ D * (D : ℝ) ^ (-κ * Z * (n + 1)) := by
-        gcongr; exact (show (2 : ℝ) ≤ 12 by norm_num).trans twelve_le_D
-      _ = _ := by
-        nth_rw 1 [← Real.rpow_one (D : ℝ), ← Real.rpow_add (defaultD_pos a),
-          neg_mul, neg_mul, ← sub_eq_add_neg, C5_2_9]
-        norm_cast
-  calc
-    _ ≤ volume 𝔛 := measure_mono (iUnion₂_subset_iff.mpr s𝔛)
-    _ = ENNReal.ofReal (volume.real 𝔛) :=
-      (ENNReal.ofReal_toReal (measure_ne_top_of_subset (sep_subset _ fun x ↦ _)
-        volume_coeGrid_lt_top.ne)).symm
-    _ ≤ ENNReal.ofReal (2 * (12 * D ^ (-Z * (n + 1) - 1 : ℤ)) ^ κ * volume.real (𝓘 u : Set X)) :=
-      ENNReal.ofReal_le_ofReal (small_boundary Dineq)
-    _ ≤ ENNReal.ofReal (C5_2_9 X n * volume.real (𝓘 u : Set X)) :=
-      ENNReal.ofReal_le_ofReal (mul_le_mul_of_nonneg_right Cineq measureReal_nonneg)
-    _ = _ := by
-      rw [ENNReal.ofReal_mul' measureReal_nonneg, ENNReal.ofReal_coe_nnreal,
-        ← ENNReal.ofReal_toReal volume_coeGrid_lt_top.ne]; rfl
+  sorry
 
 /-- Lemma 5.2.10 -/
 lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G := by
