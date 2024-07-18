@@ -298,37 +298,30 @@ lemma twentyfive_le_realD : (25:ℝ) ≤ defaultD a := by
   have : 4 ≤ a := four_le_a X
   calc
     (25:ℕ)
-      ≤ 32 := by linarith
-    _ = 2 ^ (5) := by norm_num
-    _ ≤ 2 ^ (100 * 4 ^ 2) := by
-      exact Nat.le_of_ble_eq_true rfl
-    _ ≤ 2 ^ (100 * a^2) := by
-      apply Nat.pow_le_pow_right (by norm_num)
-      apply mul_le_mul_of_nonneg_left _ (by norm_num)
-      exact Nat.pow_le_pow_of_le_left this 2
+      ≤ 32 := Nat.le_of_ble_eq_true rfl
+    _ = 2 ^ (5) := by rfl
+    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by rfl)
+    _ ≤ 2 ^ (100 * a^2) := Nat.pow_le_pow_right (by norm_num)
+      (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
 
 -- used in 4.1.3 (`I3_prop_3_1`)
 variable (X) in
 lemma eight_le_realD : (8:ℝ) ≤ defaultD a := by
-  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
-  linarith
+  linarith [twentyfive_le_realD X]
 
 -- used in 4.1.6 (`transitive_boundary`)
 variable (X) in
 lemma five_le_realD : (5:ℝ) ≤ defaultD a := by
-  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
-  linarith
+  linarith [twentyfive_le_realD X]
 
 -- used in various places in `Carleson.TileExistence`
 variable (X) in
 lemma four_le_realD : (4:ℝ) ≤ defaultD a := by
-  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
-  linarith
+  linarith [twentyfive_le_realD X]
 
 variable (X) in
 lemma one_le_realD : (1:ℝ) ≤ defaultD a := by
-  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
-  linarith
+  linarith [twentyfive_le_realD X]
 
 variable (X) in
 open Classical in
@@ -383,7 +376,6 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 lemma one_lt_D : 1 < (D : ℝ) := by
-  unfold defaultD
   exact_mod_cast one_lt_pow Nat.one_lt_two (by nlinarith [four_le_a X])
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
@@ -393,7 +385,7 @@ lemma one_le_D : 1 ≤ (D : ℝ) := by
 lemma D_nonneg : 0 ≤ (D : ℝ) := zero_le_one.trans one_le_D
 
 lemma κ_nonneg : 0 ≤ κ := by
-  dsimp only [defaultκ]
+  rw [defaultκ]
   exact Real.rpow_nonneg (by norm_num) _
 
 variable (a) in
