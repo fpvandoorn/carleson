@@ -71,7 +71,8 @@ lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n 
   · convert hp.1; ext; simp
   · convert hp.2; ext; simp
 
-/-- The subset `𝔏₀(k, n, j)` of `ℭ(k, n)`, given in (5.1.10). -/
+/-- The subset `𝔏₀(k, n)` of `ℭ(k, n)`, given in (5.1.10).
+Not to be confused with `𝔏₀(k, n, j)` which is called `𝔏₀'` in Lean. -/
 def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ k n | 𝔅 k n p = ∅ }
 
@@ -1228,17 +1229,6 @@ lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
   sorry
 
-/-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
--- todo: redefine in terms of other constants
-def C5_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (210 * a ^ 3) / (q - 1) ^ 5
-
-lemma C5_1_3_pos : C5_1_3 a nnq > 0 := sorry
-
-lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖∑ p ∈ Finset.univ.filter (· ∉ 𝔓₁), T p f x‖₊ ≤
-    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
-  sorry
-
 /-! ## Section 5.5 and Lemma 5.1.3 -/
 
 /-- The set 𝔓_{G\G'} in the blueprint -/
@@ -1260,6 +1250,52 @@ def ℜ₃ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 
 lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ₁ ∪ ℜ₂ ∪ ℜ₃ := by
   sorry
 
+/-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
+  We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
+-- Note: this is basically the same construction as `𝔏₁`.
+-- Please generalize this construction and prove properties
+-- (antichainness, union, the fact that it stops after `n`
+-- steps if there are no antichains of length `n + 1`)
+-- in proper generality.
+def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) :=
+  minimals (·≤·) (𝔏₀ k n \ ⋃ (l' < l), 𝔏₀' k n l')
+
+/-- Part of Lemma 5.5.2 -/
+lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
+  sorry
+
+/-- Part of Lemma 5.5.2 -/
+lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
+  sorry
+
+/-- Part of Lemma 5.5.2 -/
+lemma antichain_L0' : IsAntichain (·≤·) (𝔏₀' (X := X) k n l) :=
+  sorry
+
+/-- Lemma 5.5.3 -/
+lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
+  sorry
+
+/-- Part of Lemma 5.5.4 -/
+lemma antichain_L1 : IsAntichain (·≤·) (𝔏₁ (X := X) k n j l) :=
+  sorry
+
+/-- Part of Lemma 5.5.4 -/
+lemma antichain_L3 : IsAntichain (·≤·) (𝔏₃ (X := X) k n j l) :=
+  sorry
+
+/-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
+-- todo: redefine in terms of other constants
+def C5_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (210 * a ^ 3) / (q - 1) ^ 5
+
+lemma C5_1_3_pos : C5_1_3 a nnq > 0 := sorry
+
+lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+  ∫⁻ x in G \ G', ‖∑ p ∈ Finset.univ.filter (· ∉ 𝔓₁), T p f x‖₊ ≤
+    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
+  sorry
+
+/-! ## Proposition 2.0.2 -/
 
 /-- The constant used in Proposition 2.0.2,
 which has value `2 ^ (440 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/

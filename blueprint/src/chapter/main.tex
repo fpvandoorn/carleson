@@ -3024,6 +3024,8 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \begin{lemma}[L0 antichain]
 \label{L0-antichain}
 \uses{monotone-cube-metrics}
+\leanok
+\lean{iUnion_L0', pairwiseDisjoint_L0', antichain_L0'}
     We have that
     $$
         \fL_0(k,n) = \dot{\bigcup_{1 \le l \le n}} \fL_0(k,n,l)\,,
@@ -3084,6 +3086,8 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \begin{lemma}[L2 antichain]
 \label{L2-antichain}
 \uses{monotone-cube-metrics}
+\leanok
+\lean{antichain_L2}
     Each of the sets $\fL_2(k,n,j)$ is an antichain.
 \end{lemma}
 
@@ -3094,6 +3098,8 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 
 \begin{lemma}[L1 L3 antichain]
 \label{L1-L3-antichain}
+\leanok
+\lean{antichain_L1, antichain_L3}
     Each of the sets $\fL_1(k,n,j,l)$ and $\fL_3(k,n,j,l)$ is an antichain.
 \end{lemma}
 
