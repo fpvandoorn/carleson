@@ -36,8 +36,8 @@ class GridStructure
   fundamental_dyadic' {i j} : s i ≤ s j → coeGrid i ⊆ coeGrid j ∨ Disjoint (coeGrid i) (coeGrid j)
   ball_subset_Grid {i} : ball (c i) (D ^ s i / 4) ⊆ coeGrid i --2.0.10
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
-  small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ coeGrid i | infDist x (coeGrid i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coeGrid i)
+  small_boundary {i} {t : ℝ≥0} (ht : D ^ (- S - s i) ≤ t) :
+    volume.real { x ∈ coeGrid i | EMetric.infEdist x (coeGrid i)ᶜ ≤ t * (D ^ (s i):ℝ≥0∞)} ≤ 2 * t ^ κ * volume.real (coeGrid i)
 
 export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
   topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?

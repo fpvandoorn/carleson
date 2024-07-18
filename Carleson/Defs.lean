@@ -377,6 +377,10 @@ lemma one_le_D : 1 ≤ D := by
 
 lemma D_nonneg : 0 ≤ D := zero_le_one.trans one_le_D
 
+lemma κ_nonneg : 0 ≤ κ := by
+  dsimp only [defaultκ]
+  exact Real.rpow_nonneg (by norm_num) _
+
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
 def nnD : ℝ≥0 := ⟨D, by exact_mod_cast D_nonneg⟩
