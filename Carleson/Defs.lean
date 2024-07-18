@@ -93,10 +93,7 @@ variable [FunctionDistances 𝕜 X]
 instance : Coe (Θ X) C(X, 𝕜) := ⟨FunctionDistances.coeΘ⟩
 instance : FunLike (Θ X) X 𝕜 where
   coe := fun f ↦ (f : C(X, 𝕜))
-  coe_injective' f g hfg := by
-    apply FunctionDistances.coeΘ_injective
-    rw [← funext_iff]
-    exact hfg
+  coe_injective' _ _ hfg := FunctionDistances.coeΘ_injective fun x ↦ congrFun hfg x
 instance : ContinuousMapClass (Θ X) X 𝕜 := ⟨fun f ↦ (f : C(X, 𝕜)).2⟩
 
 set_option linter.unusedVariables false in
@@ -198,24 +195,6 @@ export IsCancellative (norm_integral_exp_le)
 def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
 
-open Real (vol)
-open Function
-
-/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
-@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
-
-/-- `K` is a one-sided Calderon-Zygmund kernel
-In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
-class IsCZKernel (a : ℕ) (K : X → X → ℂ) : Prop where
-  measurable : Measurable (uncurry K)
-  norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
-  norm_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
-  measurable_right (y : X) : Measurable (K · y)
-
--- to show: K is locally bounded and hence integrable outside the diagonal
-
 /-- In Mathlib we only have the operator norm for continuous linear maps,
 and `T_*` is not linear.
 Here is the norm for an arbitrary map `T` between normed spaces
@@ -266,6 +245,34 @@ and `CompatibleFunctions` -/
 
 lemma defaultD_pos (a : ℕ) : 0 < (defaultD a : ℝ) := by rw [defaultD]; positivity
 
+section Kernel
+
+variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X] [MeasureSpace X]
+open Real (vol)
+open Function
+
+/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
+@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
+
+lemma C_K_pos (a : ℝ) : 0 < C_K a := by unfold C_K; positivity
+
+/-- `K` is a one-sided Calderon-Zygmund kernel
+In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
+that `K x x = 0`. -/
+class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
+  measurable_K_right : Measurable (uncurry K)
+  measurable_K_left (y : X) : Measurable (K · y)
+  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
+  norm_K_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+
+export IsOneSidedKernel (measurable_K_right measurable_K_left norm_K_le_vol_inv norm_K_sub_le)
+
+end Kernel
+
+-- to show: K is locally bounded and hence integrable outside the diagonal
+
+
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`
 throughout this formalization. -/
@@ -278,6 +285,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   c : IsCancellative X (defaultτ a)
+  hcz : IsOneSidedKernel a K
   hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
@@ -291,7 +299,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
 
 export PreProofData (four_le_a hasBoundedStrongType_T measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] PreProofData.d PreProofData.cf PreProofData.c
+attribute [instance] PreProofData.d PreProofData.cf PreProofData.c PreProofData.hcz
 
 section ProofData
 
@@ -301,6 +309,45 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
 
+-- used in 4.1.7 (`small_boundary`)
+variable (X) in
+lemma twentyfive_le_realD : (25:ℝ) ≤ defaultD a := by
+  simp only [defaultD, Nat.ofNat_le_cast]
+  have : 4 ≤ a := four_le_a X
+  calc
+    (25:ℕ)
+      ≤ 32 := by linarith
+    _ = 2 ^ (5) := by norm_num
+    _ ≤ 2 ^ (100 * 4 ^ 2) := by
+      exact Nat.le_of_ble_eq_true rfl
+    _ ≤ 2 ^ (100 * a^2) := by
+      apply Nat.pow_le_pow_right (by norm_num)
+      apply mul_le_mul_of_nonneg_left _ (by norm_num)
+      exact Nat.pow_le_pow_of_le_left this 2
+
+-- used in 4.1.3 (`I3_prop_3_1`)
+variable (X) in
+lemma eight_le_realD : (8:ℝ) ≤ defaultD a := by
+  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
+  linarith
+
+-- used in 4.1.6 (`transitive_boundary`)
+variable (X) in
+lemma five_le_realD : (5:ℝ) ≤ defaultD a := by
+  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
+  linarith
+
+-- used in various places in `Carleson.TileExistence`
+variable (X) in
+lemma four_le_realD : (4:ℝ) ≤ defaultD a := by
+  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
+  linarith
+
+variable (X) in
+lemma one_le_realD : (1:ℝ) ≤ defaultD a := by
+  have : (25:ℝ) ≤ defaultD a := twentyfive_le_realD X
+  linarith
+
 variable (X) in
 open Classical in
 def S [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
@@ -308,6 +355,9 @@ def S [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
 lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ Icc (- S X) (S X) := sorry
 
 lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
+
+lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (- S X) (S X) :=
+  fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
 
 lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
     (-S X : ℤ) ∈ range σ₁ ∨ (S X : ℤ) ∈ range σ₂ := sorry
@@ -350,11 +400,19 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
+lemma one_lt_D : 1 < (D : ℝ) := by
+  unfold defaultD
+  exact_mod_cast one_lt_pow Nat.one_lt_two (by nlinarith [four_le_a X])
+
 lemma one_le_D : 1 ≤ (D : ℝ) := by
   rw [← Nat.cast_one, Nat.cast_le, defaultD, ← pow_zero 2]
   exact pow_le_pow_right' one_le_two (by positivity)
 
 lemma D_nonneg : 0 ≤ (D : ℝ) := zero_le_one.trans one_le_D
+
+lemma κ_nonneg : 0 ≤ κ := by
+  dsimp only [defaultκ]
+  exact Real.rpow_nonneg (by norm_num) _
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/

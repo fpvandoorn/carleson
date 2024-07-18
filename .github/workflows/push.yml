@@ -14,6 +14,7 @@ jobs:
     name: Lint style
     runs-on: ubuntu-latest
     steps:
+      # Check for long lines in .lean files and report if any lines exceed 100 characters
       - name: Check for long lines
         if: always()
         run: |
@@ -34,11 +35,10 @@ jobs:
           fetch-depth: 0
 
       - name: Install elan
-        run: |
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.0.0 # Install Lean 4
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
 
-      - name: Update docgen4
-        run: ~/.elan/bin/lake -R -Kenv=dev update «doc-gen4»
+      # - name: Update doc-gen4
+      #   run: ~/.elan/bin/lake -R -Kenv=dev update «doc-gen4»
 
       - name: Get cache
         run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
@@ -46,7 +46,7 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake -Kenv=dev build Carleson
 
-      - name: Cache mathlib docs
+      - name: Cache mathlib documentation
         uses: actions/cache@v3
         with:
           path: |
@@ -56,41 +56,47 @@ jobs:
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
+            .lake/build/doc/find
+            .lake/build/doc/*.*
             !.lake/build/doc/declarations/declaration-data-Carleson*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: |
-            MathlibDoc- # Cache Mathlib documentation to save rebuild time
+          restore-keys: MathlibDoc-
 
-      - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs # Build project documentation
-
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          cache: 'pip'
-
-      - name: Install blueprint apt dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full # Install necessary system packages for blueprint
-
-      - name: Install blueprint dependencies
-        run: |
-          cd blueprint && pip install -r requirements.txt # Install Python dependencies for blueprint
+      - name: Build project documentation
+        run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
 
       - name: Build blueprint and copy to `docs/blueprint`
-        run: inv all
+        uses: xu-cheng/texlive-action@v2
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+          run: |
+            export PIP_BREAK_SYSTEM_PACKAGES=1
+            apk update
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            cp blueprint/print/print.pdf docs/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web docs/blueprint
 
-      - name: Remove lake files from documentation
-        run: |
-          find .lake/build/doc -name "*.trace" -delete
-          find .lake/build/doc -name "*.hash" -delete
+      - name: Check declarations
+        run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Copy documentation to `docs/docs`
         run: |
           sudo chown -R runner docs
-          cp -r .lake/build/doc docs/docs # Copy the built documentation to the correct directory
+          cp -r .lake/build/doc docs/docs
+
+      - name: Remove lake files from documentation in `docs/docs`
+        run: |
+          find docs/docs -name "*.trace" -delete
+          find docs/docs -name "*.hash" -delete
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
@@ -101,9 +107,14 @@ jobs:
 
       - name: Bundle website
         working-directory: docs
-        run: JEKYLL_ENV=production bundle exec jekyll build # Build the Jekyll site for production
+        run: JEKYLL_ENV=production bundle exec jekyll build
 
-      - name: Upload docs & blueprint artifact
+      # - name: Upload docs & blueprint artifact to `docs/`
+      #   uses: actions/upload-pages-artifact@v1
+      #   with:
+      #     path: docs/
+
+      - name: Upload docs & blueprint artifact to `docs/_site`
         uses: actions/upload-pages-artifact@v1
         with:
           path: docs/_site
@@ -111,3 +122,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+      # - name: Make sure the cache works
+      #   run: mv docs/docs .lake/build/doc

@@ -36,7 +36,7 @@ lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) : MeasureTheory
   linarith [hy.1.2, hy.2.1, hr.1]
 
 
-lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (Measurable.dist measurable_const measurable_id) measurableSet_Ioo
+lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (measurable_const.dist measurable_id) measurableSet_Ioo
 
 lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :
     ⨆ r ∈ S, f r = ⨆ r ∈ (S ∩ D), f r := by

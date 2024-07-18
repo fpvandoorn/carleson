@@ -358,9 +358,9 @@ theorem rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ 
   calc ε * MeasureTheory.volume E
     _ = ∫⁻ _ in E, ε := by
       symm
-      apply MeasureTheory.set_lintegral_const
+      apply MeasureTheory.setLIntegral_const
     _ ≤ ∫⁻ x in E, T f x := by
-      apply MeasureTheory.set_lintegral_mono' measurableSetE hE
+      apply MeasureTheory.setLIntegral_mono' measurableSetE hE
     _ = ENNReal.ofReal δ * ∫⁻ x in E, T (fun x ↦ (1 / δ) * f x) x := by
       rw [← MeasureTheory.lintegral_const_mul']
       congr with x
@@ -418,7 +418,7 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
 --added subset assumption
 --changed interval to match the interval in the theorem
 lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
-    {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : Function.Periodic h (2 * Real.pi)) (h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), abs (h x) ≤ δ ) :
+    {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : h.Periodic (2 * Real.pi)) (h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), abs (h x) ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
       ∀ N, abs (partialFourierSum h N x) ≤ C_control_approximation_effect ε * δ := by
   set ε' := C_control_approximation_effect ε * δ with ε'def
@@ -506,10 +506,9 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
           · rw [mul_assoc]
             apply mul_nonneg hδ.le
             rw [C1_2]
-            apply mul_nonneg (by norm_num)
-            apply Real.rpow_nonneg
+            apply mul_nonneg (by norm_num) (Real.rpow_nonneg _ _)
             linarith [Real.pi_pos]
-          · apply Real.rpow_nonneg (div_nonneg (by norm_num) hε.1.le)
+          · exact Real.rpow_nonneg (div_nonneg (by norm_num) hε.1.le) _
         · apply mul_nonneg (mul_nonneg Real.pi_pos.le hδ.le) Real.two_pi_pos.le
       _ ≤ ENNReal.ofReal ((2 * Real.pi) * abs (1 / (2 * Real.pi) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y))) := by gcongr
       _ = ‖∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), h y * dirichletKernel' N (x - y)‖₊  := by
@@ -526,8 +525,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         rw [← zero_add (2 * Real.pi), Function.Periodic.intervalIntegral_add_eq _ 0 (x - Real.pi)]
         congr 1
         ring
-        apply Function.Periodic.mul h_periodic
-        exact Function.Periodic.const_sub dirichletKernel'_periodic _
+        exact Function.Periodic.mul h_periodic (Function.Periodic.const_sub dirichletKernel'_periodic _)
       _ = ‖  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
            + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y))      ‖₊ := by
         --Split into two parts
@@ -535,8 +533,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
         · congr with y
           rw [←add_mul, ←mul_add]
           conv => lhs; rw [←mul_one (h y)]
-          norm_cast
-          rw [min_def]
+          rw_mod_cast [min_def]
           split_ifs
           · rw [max_eq_left (by linarith)]
             simp
@@ -551,7 +548,7 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
           + ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), h y * (min |x - y| 1) * dirichletKernel' N (x - y)‖₊ := by
         --apply abs.isAbsoluteValue.abv_add
         norm_cast
-        apply nnnorm_add_le
+        exact nnnorm_add_le _ _
       _ ≤ (T f x + T ((starRingEnd ℂ) ∘ f) x) + ENNReal.ofReal (Real.pi * δ * (2 * Real.pi)) := by
         --Estimate the two parts
         gcongr

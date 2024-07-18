@@ -30,8 +30,12 @@ abbrev MB (μ : Measure X) (𝓑 : Set (X × ℝ)) (u : X → E) (x : X) := maxi
 
 /-! Maybe we can generalize some of the hypotheses? (e.g. remove `DoublingMeasure`)? -/
 
-theorem measure_biUnion_le_lintegral {l : ℝ≥0} (hl : 0 < l)
-    {u : X → ℝ≥0} (hu : AEStronglyMeasurable u μ)
+/- NOTE: This was changed to use `ℝ≥0∞` rather than `ℝ≥0` because that was more convenient for the
+proof of `first_exception` in DiscreteCarleson.lean. But everything involved there is finite, so
+you can prove this with `ℝ≥0` and deal with casting between `ℝ≥0` and `ℝ≥0∞` there, if that turns
+out to be easier. -/
+theorem measure_biUnion_le_lintegral {l : ℝ≥0∞} (hl : 0 < l)
+    {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
     (h2u : ∀ z ∈ 𝓑, l * μ (ball z.1 z.2) ≤ ∫⁻ x in ball z.1 z.2, u x ∂μ)
     :
     l * μ (⋃ z ∈ 𝓑, ball z.1 z.2) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  := by

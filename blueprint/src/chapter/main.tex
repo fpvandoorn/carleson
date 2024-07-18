@@ -712,6 +712,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     By Definition \eqref{defks}, the function $K_s$ is the product of
     $K$ with a function which is supported in the set of all
     $x,y$ satisfying \eqref{supp-Ks}. This proves
@@ -720,7 +721,8 @@ We also record the following basic estimates for the kernels $K_s$.
     Using \eqref{eqkernel-size} and the lower bound in \eqref{supp-Ks}
     we obtain
     \begin{equation}
-        |K_s(x,y)|\le \frac{2^{a^3}}{\mu(B(x,\frac 14 D^{s-1}))}
+        \label{eqkernel-size-Ks}
+        |K_s(x,y)|\le |K(x,y)|\le \frac{2^{a^3}}{\mu(B(x,\frac 14 D^{s-1}))}
     \end{equation}
     Using $D=2^{100a^2}$
     and the doubling property \eqref{doublingx} $2 +100a^2$ times estimates
@@ -731,10 +733,19 @@ We also record the following basic estimates for the kernels $K_s$.
     \end{equation}
     Using $a\ge 4$ proves \eqref{eq-Ks-size}.
 
-    If $2\rho(y,y') \le \rho(x,y)$, we obtain similarly with \eqref{eqkernel-y-smooth} and the lower bound in
-    \eqref{supp-Ks}
+    To prove \eqref{eq-Ks-smooth} when $2\rho(y,y') > \rho(x,y)$, use the lower bound in
+    \eqref{supp-Ks}, $2\rho(y,y') > \frac{1}{4}D^{s-1}$. Then \eqref{eq-Ks-smooth} follows from
+    the triangle inequality, \eqref{eq-Ks-size} and $a \ge 4$.
+
+    If $2\rho(y,y') \le \rho(x,y)$, we rewrite $|K_s(x,y)-K_s(x, y')|$ as
     \begin{equation}
-        |K_s(x,y)-K_s(x, y')|\le \frac{2^{a^3}}{\mu(B(x, \frac 14 D^{s-1}))}
+        |(K(x,y)-K(x,y')) \psi(D^{-s}\rho(x,y)) +
+        K(x,y)(\psi(D^{-s}\rho(x,y))-\psi(D^{-s}\rho(x,y')))|\,.
+    \end{equation}
+    An upper bound for $|K(x,y)-K(x, y')|$ is obtained similarly to the proof of
+    \eqref{eq-Ks-size}, using \eqref{eqkernel-y-smooth} and the lower bound in \eqref{supp-Ks}
+    \begin{equation}
+        |K(x,y)-K(x, y')|\le \frac{2^{a^3}}{\mu(B(x, \frac 14 D^{s-1}))}
         \left(\frac{ \rho(y,y')}{\frac 14 D^{s-1}}\right)^{\frac 1a}\,.
     \end{equation}
     As above, this is estimated by
@@ -744,7 +755,18 @@ We also record the following basic estimates for the kernels $K_s$.
          = \frac{2^{2+2a+100a^2+101a^3}}{\mu(B(x, D^{s}))}
         \left(\frac{ \rho(y,y')}{D^{s}}\right)^{\frac 1a}\,.
     \end{equation}
-    Using $a\ge 4$, this proves \eqref{eq-Ks-smooth} in the case $2\rho(y,y') \le \rho(x,y)$. If $2\rho(y,y') > \rho(x,y)$, then by the lower bound in \eqref{supp-Ks} $2\rho(y,y') > \frac{1}{8}D^s$. Then \eqref{eq-Ks-smooth} follows from the triangle inequality, \eqref{eq-Ks-size} and $a \ge 4$.
+    We have the trivial bound $|\psi(D^{-s}\rho(x,y))| \leq 1$, and \eqref{eq-Ks-aux}
+    provides a bound for $|K(x,y)|$. Finally, we show that
+    \begin{equation}
+        |\psi(D^{-s}\rho(x,y))-\psi(D^{-s}\rho(x,y'))|\le
+        4D \left(\frac{\rho(y, y')}{D ^ s}\right)^{\frac 1a}
+    \end{equation}
+    by considering separately the cases $\rho(y,y')/D^s \ge 1$ and $\rho(y,y')/D^s < 1$. In the
+    former case, the inequality is trivial; in the latter case, it follows from the
+    fact that $\psi$ is Lipschitz with constant $4D$.
+
+    Combining the above bounds and using $a\ge 4$ proves \eqref{eq-Ks-smooth} in the case
+    $2\rho(y,y') \le \rho(x,y)$.
 \end{proof}
 
 
@@ -1035,6 +1057,7 @@ we have \eqref{disclesssim}.
     \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     Fix $x\in G\setminus G'$.
     Sorting the tiles $\fp$ on the left-hand-side of \eqref{eq-sump} by the value $\ps(\fp)\in [-S,S]$,
     it suffices to prove for every $-S\le s\le S$ that
@@ -1063,6 +1086,7 @@ we have \eqref{disclesssim}.
 We use this to prove \Cref{finitary-Carleson}.
 \begin{proof}[Proof of \Cref{finitary-Carleson}]
 \proves{finitary-Carleson}
+\leanok
 We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \begin{equation}
  \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y)\right| \mathrm{d}\mu(x)
@@ -1220,7 +1244,7 @@ We show \eqref{unioni} for $j=2$. In case $k=-S$, this follows from \Cref{cover-
 
 We show \eqref{unioni} for $j=3$. Let $x\in B(o, 4D^S-2D^k)$. In case $x\in X_k$, then by definition of $X_k$ we have $x\in I_1(y,k)$ for some $y\in Y_k$ and thus $x\in I_3(y,k)$. We may thus assume $x\not\in X_k$. As we have already seen \eqref{unioni} for $j=2$, there is $y\in Y_k$ such that $x\in I_2(y,k)$. We may assume this $y$ is minimal with respect to the order in $Y_k$. Then $x\in I_3(y,k)$. This proves \eqref{unioni} for $j=3$.
 
-Next, we show the first inclusion in \eqref{squeezedyadic}. Let $x\in B(y,\frac 12 D^k)$. As $I_1(y,k)\subset I_3(y,k)$, it suffices to show $x\in I_1(y,k)$. If $k=-S$, this follows immediately from the assumption on $x$ and the definition of $I_1$. Assume $k>-S$. By the inductive statement \eqref{unioni} and $D>4$, there is a $y'\in Y_{k-1}$ such that $x\in I_3(y',k-1)$. By the inductive statement \eqref{squeezedyadic}, we conclude $x\in B(y',4D^{k-1})$. By the triangle inequality with points $x$, $y$, $y'$, and $D>4$, we have $y'\in B(y,D^k)$. It follows by definition \eqref{defineij} that $I_3(y',k-1)\subset I_1(y,k)$, and thus $x\in I_3(y,k)$. This proves the first inclusion in \eqref{squeezedyadic}.
+Next, we show the first inclusion in \eqref{squeezedyadic}. Let $x\in B(y,\frac 12 D^k)$. As $I_1(y,k)\subset I_3(y,k)$, it suffices to show $x\in I_1(y,k)$. If $k=-S$, this follows immediately from the assumption on $x$ and the definition of $I_1$. Assume $k>-S$. By the inductive statement \eqref{unioni} and $D>4$, there is a $y'\in Y_{k-1}$ such that $x\in I_3(y',k-1)$. By the inductive statement \eqref{squeezedyadic}, we conclude $x\in B(y',4D^{k-1})$. By the triangle inequality with points $x$, $y$, $y'$, and $D\geq8$, we have $y'\in B(y,D^k)$. It follows by definition \eqref{defineij} that $I_3(y',k-1)\subset I_1(y,k)$, and thus $x\in I_3(y,k)$. This proves the first inclusion in \eqref{squeezedyadic}.
 
 We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $I_1(y,k)\subset I_2(y,k)$ directly from the definition \eqref{defineij}, it follows by definition \eqref{definei3} that $x\in I_2(y,k)$. By definition \eqref{defineij}, there is $y'\in Y_{k-1}\cap B(y,2D^k)$ with $x\in I_3(y',k-1)$. By induction, $x\in B(y', 4D^{k-1})$. By the triangle inequality applied to the points $x,y',y$ and $D>4$, we conclude $x\in B(y,4D^k)$. This shows the second inclusion in \eqref{squeezedyadic} and completes the proof of the lemma.
 \end{proof}
@@ -1260,7 +1284,7 @@ We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $
 \begin{proof}
 Let $l,k,y,y'$ be as in the lemma. Pick $x\in I_3(y',l)\cap I_3(y,k)$. Assume first $l=k$. By \eqref{disji} of \Cref{basic-grid-structure}, we conclude $y'=y$, and thus \eqref{3dyadicproperty}. Now assume $l<k$. By induction, we may assume that the statement of the lemma is proven for $k-1$ in place of $k$.
 
-By \Cref{cover-by-cubes}, there is a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$. By induction, we have $I_3(y',l)\subset I_3(y'',k-1)$. If $l=k-1$, then by the disjointedness property of \Cref{basic-grid-structure}, we see that $y'=y''$, and hence \eqref{3dyadicproperty} follows. For $l<k-1$, it remains to prove
+By \Cref{cover-by-cubes}, there is a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$. By induction, we have $I_3(y',l)\subset I_3(y'',k-1)$. It remains to prove
 \begin{equation}\label{wyclaim}
 I_3(y'',k-1)\subset I_3(y,k).
 \end{equation}
@@ -1477,6 +1501,7 @@ We define $\mathcal{D}$ to be the set of all $I \in \tilde{\mathcal{D}}$ such th
 
 \begin{proof}[Proof of \Cref{grid-existence}]
 \proves{grid-existence}
+\leanok
 We first show that $(\tilde{\mathcal{D}},c,s)$ satisfies properties \eqref{coverdyadic}, \eqref{dyadicproperty}, \eqref{eq-vol-sp-cube} and \eqref{eq-small-boundary}. Property \eqref{eq-vol-sp-cube}
 follows from \eqref{squeezedyadic}, while \eqref{eq-small-boundary} follows from \Cref{boundary-measure}.
 
@@ -1831,7 +1856,7 @@ The first exceptional set $G_1$ takes into account the ratio of the measures of 
 Define $\fP_{F,G}$ to be the set of all $\fp\in \fP$
 with
 \begin{equation}
-    \dens_2(\{\fp\})\ge 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
+    \dens_2(\{\fp\})> 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
 \end{equation}
 Define
 \begin{equation}\label{definegone}
@@ -1912,12 +1937,15 @@ the complement of the set of tiles in Lemma
         \int_{G \setminus G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu \le \frac{2^{210a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
-\Cref{discrete-Carleson} follows by applying
+
+\begin{proof}[Proof of \Cref{discrete-Carleson}]
+    \proves{exceptional-set}
+\Cref{discrete-Carleson} follows by applying the
 triangle inequality to \eqref{disclesssim}
 according to the splitting in \Cref{forest-union}
 and \Cref{forest-complement} and using both Lemmas as well
 as the bound on the set $G'$ given by \Cref{exceptional-set}.
-
+\end{proof}
 
 \section{Proof of the Exceptional Sets Lemma}
 \label{subsetexcset}
@@ -1936,10 +1964,11 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
     \uses{Hardy-Littlewood}
     We have
     \begin{equation}
-        \mu(G_1)\le 2^{-4}\mu(G)\, .
+        \mu(G_1)\le 2^{-5}\mu(G)\, .
     \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     Let
     $$
         K = 2^{2a+5}\frac{\mu(F)}{\mu(G)}\,.
@@ -1956,12 +1985,12 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
     $$
     and the function $u = \mathbf{1}_F$, we obtain
     $$
-        \mu(\bigcup \mathcal{B}) \le 2^{2a+1} K^{-1} \mu(F)\,.
+        \mu(\bigcup \mathcal{B}) \le 2^{2a} K^{-1} \mu(F)\,.
     $$
     We conclude with \eqref{eq-vol-sp-cube} and $r(\fp)>4D^{\ps(\fp)}$
     $$
         \mu(G_1)= \mu(\bigcup_{\fp\in \fP_{F,G}} \scI(\fp))
-        \le \mu(\bigcup \mathcal{B})\le 2^{2a+1} K^{-1} \mu (F) = 2^{-4}\mu(G)\,.
+        \le \mu(\bigcup \mathcal{B})\le 2^{2a} K^{-1} \mu (F) = 2^{-5}\mu(G)\,.
     $$
 \end{proof}
 
@@ -1978,6 +2007,7 @@ For each $k\ge 0$, the union of all dyadic cubes
 in $\mathcal{C}(G,k)$ has measure at most $2^{k+1} \mu(G)$ .
 \end{lemma}
 \begin{proof}
+\leanok
 The union of dyadic cubes in $\mathcal{C}(G,k)$
 is contained the union of elements of the set $\mathcal{M}(k)$
 of all dyadic cubes $J$ with
@@ -2049,14 +2079,15 @@ It follows that $I\subset A(\lambda,k,n)$.
 \label{John-Nirenberg}
 \leanok
 \lean{john_nirenberg}
-\uses{dense-cover, pairwise-disjoint,dyadic-union}
+\uses{dense-cover, pairwise-disjoint, dyadic-union}
     For all integers $k,n,\lambda\ge 0$, we have
     \begin{equation}\label{alambdameasure}
-        \mu(A(\lambda,k,n)) \le 2^{k+1-\lambda}\mu(G)\, .
+        \mu(A(\lambda,k,n)) \le 2^{k+1-\lambda}\mu(G)\,.
     \end{equation}
 
 \end{lemma}
 \begin{proof}
+\leanok
 Fix $k,n$ as in the lemma
 and suppress notation to write
 $A(\lambda)$ for $A(\lambda,k,n)$.
@@ -2069,26 +2100,23 @@ The set $A(\lambda+1)$ is contained in the set $A(\lambda)$.
 Let $\mathcal{M}$ be the set of dyadic cubes which are a subset of $A(\lambda)$. By \Cref{dyadic-union}, the union of $\mathcal{M}$ is $A(\lambda)$.
 Let $\mathcal{M}^*$ be the set of maximal dyadic cubes in $\mathcal{M}$.
 
-Let $L\in \mathcal{M}^*$. For each $x\in L$, we have
+Let $x\in A(\lambda+1)$ and $L\in \mathcal{M}^*$ such that $x\in L$. Then by the dyadic property \eqref{dyadicproperty}
 \begin{equation}\label{suminout}
- \sum_{\fp \in {\mathfrak{M}}(k,n)} \mathbf{1}_{\scI(\fp)}(x)=
-   \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x)+
-  \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \not \subset L} \mathbf{1}_{\scI(\fp)}(x)\, .
+    \sum_{\fp \in {\mathfrak{M}}(k,n)} \mathbf{1}_{\scI(\fp)}(x) =
+    \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x) +
+    \sum_{\fp \in {\mathfrak{M}}(k,n):L \subsetneq \scI(\fp)} \mathbf{1}_{\scI(\fp)}(x)\,.
 \end{equation}
-If the second sum on the right-hand-side is not zero, there is
-an element of $\mathcal{D}$ strictly containing $L$.
-Let $\hat{L}$ be such a dyadic cube with minimal $s(L)$. Then $\hat{L}$ is contained in $\scI(\fp)$ for all $\fp$
-contributing to the second sum in
-\eqref{suminout}.
-Hence the second sum in \eqref{suminout} is constant on
-$\hat{L}$.
-By maximality of $L$, the second sum is less than $1+\lambda 2^{n+1}$ somewhere on $\hat{L}$, thus on all of $\hat{L}$ and consequently also
-at $x$.
-If $x$ is in addition in $A(\lambda+1)$, then
-the left-hand-side of \eqref{suminout} is at least
-$1+(\lambda+1) 2^{n+1}$, so we have by the triangle inequality for the first sum on the right-hand side
+We now show
 \begin{equation}\label{mnkonl}
-\sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x)\ge 2^{n+1}\, .\end{equation}
+    \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mathbf{1}_{\scI(\fp)}(x)\ge 2^{n+1}\,.
+\end{equation}
+The left-hand side of \eqref{suminout} is strictly greater than $(\lambda+1)2^{n+1}$.
+If $L$ is the top cube the second sum $Q_2$ on the right-hand side of \eqref{suminout} is zero and
+\eqref{mnkonl} follows immediately. Otherwise consider the inclusion-minimal cube $\hat{L}$ with $L\subsetneq\hat{L}$;
+all tiles $\fp$ over which $Q_2$ is summed over satisfy $\hat{L}\subset\fp$, so $Q_2$ is constant for all $x\in\hat{L}$.
+By maximality of $L$, $Q_2$ is at most $\lambda 2^{n+1}$ somewhere on $\hat{L}$,
+thus on all of $\hat{L}$ and consequently also at $x$. Rearranging the inequality yields \eqref{mnkonl}.
+
 By \Cref{pairwise-disjoint}, we have
 \begin{equation}
 \sum_{\fp \in {\mathfrak{M}}(k,n):\scI(\fp) \subset L} \mu({E_1}(\fp)) \leq \mu(L)\, .
@@ -2128,7 +2156,7 @@ We have
 \end{equation}
 \end{lemma}
 \begin{proof}
-
+\leanok
 We use \Cref{John-Nirenberg} and sum twice a geometric series
 to obtain
 \begin{equation}
@@ -2156,10 +2184,11 @@ We turn to the set $G_3$.
     \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 % Note(Georges Gonthier): sum should start at 0, not 1
 We write the left-hand side of \eqref{eq-musum}
 \begin{equation}
-    \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{0}_{\scI(\mathfrak{m})}(x) \, d\mu(x) \le
+    \int \sum_{\mathfrak{m} \in \mathfrak{M}(k,n)} \mathbf{1}_{\scI(\mathfrak{m})}(x) \, d\mu(x) \le
 2^{n+1} \sum_{\lambda=0}^{|\mathfrak{M}|}\mu(A(\lambda, k,n))\,.
 \end{equation}
 Using \Cref{John-Nirenberg}
@@ -2258,12 +2287,9 @@ Let $\mathcal{L}(\fu)$ be as defined in \eqref{eq-L-def}. We have for each $\fu\
 \le D^{1-\kappa Z(n+1)}
         \mu(\scI(\mathfrak{u})).
 \end{equation}
-
 \end{lemma}
-
-
 \begin{proof}
-  Let $\fu\in \fU_1(k,n,l)$.
+Let $\fu\in \fU_1(k,n,l)$.
 Let $I \in \mathcal{L}(\fu)$. Then we have $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $B(c(I), 8D^{s(I)}) \not \subset \scI(\fu)$.
 By \eqref{eq-vol-sp-cube}, the set $I$
 is contained in $B(c(I), 4D^{s(I)})$.
@@ -2284,20 +2310,7 @@ is contained in
 Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
 \end{proof}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    \begin{lemma}[third exception]
+\begin{lemma}[third exception]
     \label{third-exception}
     \leanok
     \lean{third_exception}
@@ -2306,11 +2319,8 @@ Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
 \begin{equation}
     \mu(G_3)\le 2^{-4} \mu(G)\, .
 \end{equation}
-    \end{lemma}
-
-
-
-    \begin{proof}
+\end{lemma}
+\begin{proof}
 As each $\fp\in \fL_4(k,n,j)$
 is contained in $\cup\mathcal{L}(\fu)$ for some
 $\fu\in \fU_1(k,n,l)$, we have
@@ -2368,6 +2378,7 @@ Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and
 \end{proof}
 
 \begin{proof}[Proof of \Cref{exceptional-set}]
+    \leanok
     \proves{exceptional-set}
 Adding up the bounds in Lemmas \ref{first-exception}, \ref{second-exception}, and \ref{third-exception} proves \Cref{exceptional-set}.
 \end{proof}
@@ -2494,6 +2505,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC(k,n)$. Then, in particular, $\fp, \fp'' \in \fP(k)$, so, by \Cref{P-convex}, $\fp' \in \fP(k)$. Next, we show that if $\fq \le \fq' \in \fP(k)$ then $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. If $\fp \in \fP(k)$ and $\lambda \ge 2$ with $\lambda \fq' \lesssim \lambda \fp$, then it follows from $\fq \le \fq'$, \eqref{eq-sc1} of \Cref{wiggle-order-3} and transitivity of $\lesssim$ that $\lambda \fq \lesssim \lambda \fp$. Thus the supremum in the definition \eqref{eq-densdef} of $\dens_k'(\{\fq\})$ is over a superset of the set the supremum in the definition of $\dens_k'(\{\fq'\})$ is taken over, which shows $\dens'_k(\{\fq\}) \ge \dens_k'(\{\fq'\})$. From $\fp' \le \fp''$, $\fp'' \in \fC(k,n)$ and \eqref{def-cnk} it then follows that
     $$
         2^{4a}2^{-n} < \dens_k'(\{\fp''\}) \le \dens_k'(\{\fp'\})\,.
@@ -2514,6 +2526,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp\le\fp'\le\fp''$ with $\fp, \fp'' \in \fC_1(k,n,j)$. By \Cref{C-convex} and the inclusion $\fC_1(k,n,j) \subset \fC(k,n)$, which holds by definition \eqref{defcnkj}, we have $\fp' \in \fC(k,n)$. By \eqref{eq-sc1} and transitivity of $\lesssim$ we have that $\fq \le \fq'$ and $100 \fq' \lesssim \mathfrak{m}$ imply $100 \fq \lesssim \mathfrak{m}$. So, by \eqref{defbfp}, $\mathfrak{B}(\fp'') \subset \mathfrak{B}(\fp') \subset \mathfrak{B}(\fp)$. Consequently, by \eqref{defcnkj}
     $$
         2^j \le |\mathfrak{B}(\fp'')|\le |\mathfrak{B}(\fp')| \le |\mathfrak{B}(\fp)| < 2^{j+1}\,,
@@ -2530,10 +2543,16 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
+    \leanok
      Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_2(k,n,j)$. By \eqref{eq-C2-def}, we have
      \begin{equation*}
          \fC_2(k,n,j) \subset \fC_1(k,n,j)\ .
-     \end{equation*} Combined with \Cref{C1-convex}, it follows that $\fp' \in \fC_1(k,n,j)$. Suppose that $\fp' \notin \fC_2(k,n,j)$. By \eqref{eq-C2-def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$. By the definition \eqref{eq-L1-def} of $\fL_1(k,n,j,l')$, this implies that $\fp$ is minimal with respect to $\le$ in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. Since $\fp \in \fC_2(k,n,j)$ we must have $\fp \ne \fp'$. Thus $\fp \le \fp'$ and $\fp \ne \fp'$. By minimality of $\fp'$ it follows that $\fp \notin \fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$. But by \eqref{eq-C2-def} this implies $\fp \notin \fC_2(k,n,j)$, a contradiction.
+     \end{equation*} Combined with \Cref{C1-convex}, it follows that $\fp' \in \fC_1(k,n,j)$.
+     If $\fp=\fp'$ the statement is trivially true, otherwise suppose that $\fp' \notin \fC_2(k,n,j)$.
+     By \eqref{eq-C2-def}, this implies that there exists $0 \le l' \le Z(n+1)$ with $\fp' \in \fL_1(k,n,j,l')$.
+     By the definition \eqref{eq-L1-def} of $\fL_1(k,n,j,l')$, this implies that $\fp'$ is minimal
+     with respect to $\le$ in $\fC_1(k,n,j) \setminus \bigcup_{l < l'} \fL_1(k,n,j,l)$.
+     Since $\fp\le\fp'$ and $\fp\in\fC_2(k,n,j)$, $\fp=\fp'$, a contradiction.
 \end{proof}
 
 \begin{lemma}[C3 convex]
@@ -2545,7 +2564,13 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$. By \eqref{eq-C3-def} and \Cref{C2-convex} it follows that $\fp' \in \fC_2(k,n,j)$. Suppose that $\fp' \notin \fC_3(k,n,j)$. Then, by \eqref{eq-C3-def} and \eqref{eq-L2-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp' \lesssim \fu$ and $\scI(\fp') \ne \scI(\fu)$. Together this gives $\scI(\fp') \subsetneq \scI(\fu)$. From $\fp' \le \fp$, \eqref{eq-sc1} and transitivity of $\lesssim$ we then have $2\fp \lesssim \fu$. Also, $\scI(\fp) \subset \scI(\fp') \subsetneq \scI(\fu)$, so $\scI(\fp) \ne \scI(\fu)$. But then $\fp \in \fL_2(k,n,j)$, contradicting by \eqref{eq-C3-def} the assumption $\fp \in \fC_3(k,n,j)$.
+    \leanok
+    Let $\fp \le \fp' \le \fp''$ with $\fp, \fp'' \in \fC_3(k,n,j)$.
+    By \eqref{eq-C3-def} and \Cref{C2-convex} it follows that $\fp' \in \fC_2(k,n,j)$.
+    By \eqref{eq-C3-def} and \eqref{eq-L2-def}, there exists $\fu \in \fU_1(k,n,j)$ with
+    $2\fp'' \lesssim \fu$ and $\scI(\fp'') \subsetneq \scI(\fu)$. From $\fp' \le \fp''$,
+    \eqref{eq-sc1} and transitivity of $\lesssim$ we then have
+    $2\fp' \lesssim \fu$ and $\scI(\fp') \subsetneq \scI(\fu)$, so $\fp' \in \fC_3(k,n,j)$.
 \end{proof}
 
 \begin{lemma}[C4 convex]
@@ -2557,7 +2582,9 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_4(k,n,j)$. As before we obtain from the inclusion $\fC_4(k,n,j) \subset \fC_3(k,n,j)$ and \Cref{C3-convex} that $\fp' \in \fC_3(k,n,j)$. Thus, if $\fp' \notin \fC_4(k,n,j)$ then by \eqref{eq-L3-def} there exists $l$ such that $\fp' \in \fL_3(k,n,j,l)$. Thus $\fp'$ is maximal with respect to $\le$ in $\fC_3(k,n,j) \setminus \bigcup_{0 \le l' < l} \fL_3(k,n,j,l')$. Since $\fp'' \in \fC_4(k,n,j)$ we must have $\fp' \ne \fp''$. Thus $\fp' \le \fp''$ and $\fp'\ne \fp''$. By minimality of $\fp'$ it follows that $\fp'' \notin \fC_3(k,n,j) \setminus \bigcup_{l < l'} \fL_3(k,n,j,l)$. But by \eqref{eq-C4-def} this implies $\fp'' \notin \fC_4(k,n,j)$, a contradiction.
+    \leanok
+    The proof is entirely analogous to \Cref{C2-convex}, substituting $\fC_4$ for $\fC_2$,
+    $\fC_3$ for $\fC_1$ and $\fp'\le\fp''$ for $\fp\le\fp'$.
 \end{proof}
 
 \begin{lemma}[C5 convex]
@@ -2569,8 +2596,11 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$. Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by \Cref{C4-convex} also $\fp' \in \fC_4(k,n,j)$. Suppose that $\fp' \notin \fC_5(k,n,j)$. By \eqref{defc5}, it follows that $\fp' \in \fL_4(k,n,j)$.
-    By \eqref{eq-L4-def}, there exists $\fu \in \fU_1(k,n,j)$ with $\scI(\fp') \subset \bigcup \mathcal{L}(\fu)$. Then also $\scI(\fp) \subset \bigcup \mathcal{L}(\fu)$, a contradiction.
+    \leanok
+    Let $\fp \le \fp' \le\fp''$ with $\fp, \fp'' \in \fC_5(k,n,j)$.
+    Then $\fp, \fp'' \in \fC_4(k,n,j)$ by \eqref{defc5}, and thus by \Cref{C4-convex} $\fp' \in \fC_4(k,n,j)$.
+    It suffices to show that if $\fp' \in \fL_4(k,n,j)$ then $\fp \in \fL_4(k,n,j)$ by contraposition;
+    this is true by \eqref{eq-L4-def} and $\fp\le\fp'$.
 \end{proof}
 
 \begin{lemma}[dens compare]
@@ -2583,6 +2613,7 @@ We call a collection $\mathfrak{A}$ of tiles convex if
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 It suffices to show that for all $\fp'\in \fP'$
 and $\lambda\ge 2$ and $\fp\in \fP(\fP')$ with $\lambda \fp' \lesssim \lambda \fp$ we have
 \begin{equation}
@@ -2630,6 +2661,7 @@ there exists $J\in \mathcal{D}$ with
 \end{lemma}
 
 \begin{proof}
+    \leanok
     We have by \Cref{dens-compare} that
     $\dens_1(\mathfrak{A}) \le \dens_k'(\mathfrak{A})$. Since $\mathfrak{A} \subset \fC(k,n)$, it follows from monotonicity of suprema and the definition \eqref{eq-densdef} that
     $
@@ -2671,6 +2703,8 @@ with $10 \fp\lesssim \fu'$.
 
 \begin{lemma}[relation geometry]
     \label{relation-geometry}
+    \leanok
+    \lean{URel.eq, URel.not_disjoint}
     \uses{wiggle-order-3}
     If $\fu \sim \fu'$, then $\scI(u) = \scI(u')$ and
     \begin{equation*}
@@ -2679,13 +2713,14 @@ with $10 \fp\lesssim \fu'$.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fu, \fu' \in \fU_2(k,n,j)$ with $\fu \sim \fu'$. If $\fu = \fu'$ then the conclusion of the Lemma clearly holds. Else, there exists $\fp \in \fC_1(k,n,j)$ such that $\scI(\fp) \ne \scI(\fu)$ and $2 \fp \lesssim \fu$ and $10 \fp \lesssim \fu'$.
     Using \Cref{wiggle-order-1} and \eqref{eq-sc2} of \Cref{wiggle-order-3}, we deduce that
     \begin{equation}
         \label{eq-Fefferman-trick0}
         100 \fp\lesssim 100 \fu\,, \qquad 100 \fp \lesssim 100\fu'\,.
     \end{equation}
-    Now suppose that $B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. Then we have $\mathfrak{B}(\fu) \cap \mathfrak{B}(\fu') = \emptyset$, by the definition \eqref{defbfp} of $\mathfrak{B}$ and the definition \eqref{wiggleorder} of $\lesssim$, but also $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$, by \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq-Fefferman-trick0}
+    Now suppose that $B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. Then we have $\mathfrak{B}(\fu) \cap \mathfrak{B}(\fu') = \emptyset$, by the definition \eqref{defbfp} of $\mathfrak{B}$ and the definition \eqref{wiggleorder} of $\lesssim$, but also $\mathfrak{B}(\fu) \subset \mathfrak{B}(\fp)$ and $\mathfrak{B}(\fu') \subset \mathfrak{B}(\fp)$, by \eqref{defbfp}, \eqref{wiggleorder} and \eqref{eq-Fefferman-trick0}.
     Hence,
     $$
         |\mathfrak{B}(\fp)| \geq |\mathfrak{B}(\fu)| + |\mathfrak{B}(\fu')| \geq 2^{j} + 2^j = 2^{j+1}\,,
@@ -2703,11 +2738,14 @@ with $10 \fp\lesssim \fu'$.
 \begin{lemma}[equivalence relation]
 \label{equivalence-relation}
 \uses{relation-geometry}
+\leanok
+\lean{equivalenceOn_urel}
 For each $k,n,j$, the relation $\sim$ on
 $\fU_2(k,n,j)$ is an equivalence relation.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Reflexivity holds by definition.
     For transitivity, suppose that
     \begin{equation*}
@@ -2738,7 +2776,7 @@ $\fU_2(k,n,j)$ is an equivalence relation.
     \end{align*}
     Since $4\fp \lesssim 500 \fu$, it follows that $d_{\fp}(\fcc(\fp), q) < 4 < 10$. We have shown that $B_{\fu''}(\fcc(\fu''), 1) \subset B_{\fp}(\fcc(\fp), 10)$, combining this with $\scI(\fu'') = \scI(\fu)$ gives $\fu \sim \fu''$.
 
-    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\scI(\fu) = \scI(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious. If $\fu \ne \fu'$, then there exists $\fp \in \mathfrak{T}_1(\fu')$ with $10\fp\lesssim \fu$. By definition of $\mathfrak{T}_1(\fu')$, \Cref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
+    For symmetry suppose that $\fu \sim \fu'$. By Lemma \eqref{relation-geometry}, it follows that $\scI(\fu) = \scI(\fu')$ and that there exists $\mfa \in B_{\fu}(\fcc(\fu), 100) \cap B_{\fu'}(\fcc(\fu'), 100)$. Again, for $\fu = \fu'$ symmetry is obvious, so suppose that $\fu \ne \fu'$. There exists $\fp \in \mathfrak{T}_1(\fu')$, which then satisfies $2\fp\lesssim \fu'$ and $\scI(\fp) \neq \scI(\fu')$. By \Cref{wiggle-order-1} and \eqref{eq-sc3}, it follows that
     \begin{equation}
         \label{eq-rel1}
         10\fp \lesssim 4\fp \lesssim 500 \fu'\,.
@@ -2766,6 +2804,8 @@ Define for each $\fu\in \fU_3(k,n,j)$
 
 \begin{lemma}[C6 forest]
 \label{C6-forest}
+\leanok
+\lean{C6_forest}
 \uses{equivalence-relation}
 We have
 \begin{equation}
@@ -2773,11 +2813,12 @@ We have
 \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     Let $\fp \in \fC_6(k,n,j)$.
     By \eqref{eq-C4-def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq-L2-def} and \eqref{eq-C3-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp \lesssim \fu$ and $\scI(\fp) \ne \scI(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(k,n,j)$. By the definition of $\fU_3(k,n,j)$, there exists $\fu' \in \fU_3(k,n,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
 \end{proof}
 
-\begin{lemma}[C6 convex]
+\begin{lemma}[C6 convex] %% TODO: delete, duplicate of forest-convex
     \label{C6-convex}
     \uses{C5-convex}
     Let $\fu \in \fU_3(k,n,j)$. If $\fp \le \fp' \le \fp''$ and $\fp, \fp'' \in \mathfrak{T}_2(\fu)$, then $\fp' \in \mathfrak{T}_2(\fu)$.
@@ -2792,11 +2833,14 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest geometry]
     \label{forest-geometry}
     \uses{relation-geometry}
+    \leanok
+    \lean{forest_geometry}
     For each $\fu\in \fU_3(k,n,j)$,
     the set $\mathfrak{T}_2(\fu)$
     satisfies \eqref{forest1}.
 \end{lemma}
 \begin{proof}
+    \leanok
     Let $\fp \in \mathfrak{T}_2(\fu)$. By \eqref{definesv}, there exists $\fu' \sim \fu$ with $\fp \in \mathfrak{T}_1(\fu')$. Then we have $2\fp \lesssim \fu'$ and $\scI(\fp) \ne \scI(\fu')$, so by \eqref{eq-sc3} $4\fp \lesssim 500\fu'$.
     Further, by \Cref{relation-geometry}, we have that $\scI(\fu') = \scI(\fu)$ and there exists $\mfa \in B_{\fu'}(\fcc(\fu'),100) \cap B_{\fu}(\fcc(\fu),100)$.
     Let $\mfb \in B_{\fu}(\fcc(\fu), 1)$.
@@ -2816,12 +2860,15 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest convex]
     \label{forest-convex}
     \uses{C6-convex}
+    \leanok
+    \lean{forest_convex}
     For each $\fu\in \fU_3(k,n,j)$,
     the set $\mathfrak{T}_2(\fu)$
     satisfies the convexity condition \eqref{forest2}.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp, \fp'' \in \mathfrak{T}_2(\fu)$ and $\fp' \in \fP$ with $\fp \le \fp' \le \fp''$. By \eqref{definesv} we have $\fp, \fp'' \in \fC_6(k,n,j) \subset \fC_5(k,n,j)$. By \Cref{C5-convex}, we have $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not \subset G'$, so $\scI(\fp') \not \subset G'$ and therefore also $\fp' \in \fC_6(k,n,j)$.
 
     By \eqref{definesv} there exists $\fu' \in \fU_2(k,n,j)$ with $\fp'' \in \mathfrak{T}_1(\fu')$ and hence $2\fp'' \lesssim \fu'$ and $\scI(\fp'') \ne \scI(\fu')$. Together this implies $\scI(\fp'') \subsetneq \scI(\fu')$. With the inclusion $\scI(\fp') \subset \scI(\fp'')$ from $\fp' \le \fp''$, it follows that $\scI(\fp') \subsetneq \scI(\fu')$ and hence $\scI(\fp') \ne \scI(\fu')$.
@@ -2832,6 +2879,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest separation]
     \label{forest-separation}
     \uses{monotone-cube-metrics}
+    \leanok
+    \lean{forest_separation}
     For each $\fu,\fu'\in \fU_3(k,n,j)$ with $\fu\neq \fu'$ and each $\fp \in \fT_2(\fu)$
     with $\scI(\fp)\subset \scI(\fu')$ we have
     \begin{equation}
@@ -2840,7 +2889,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \end{lemma}
 
 \begin{proof}
-    By the definition \eqref{eq-C2-def} of $\fC_2(k,n,j)$, there exists a tile $\fp' \in \fC_1(k,n,j)$ with $\fp' \le \fp$ and $\ps(\fp') = \ps(\fp)- Z(n+1)$.
+    \leanok
+    By the definition \eqref{eq-C2-def} of $\fC_2(k,n,j)$, there exists a tile $\fp' \in \fC_1(k,n,j)$ with $\fp' \le \fp$ and $\ps(\fp') \le \ps(\fp)- Z(n+1)$.
     By \Cref{monotone-cube-metrics} we have
     $$
         d_{\fp}(\fcc(\fp), \fcc(\fu')) \ge 2^{95a Z(n+1)} d_{\fp'}(\fcc(\fp), \fcc(\fu'))\,.
@@ -2860,6 +2910,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 \begin{lemma}[forest inner]
     \label{forest-inner}
     \uses{relation-geometry}
+    \leanok
+    \lean{forest_inner}
     For each $\fu\in \fU_3(k,n,j)$
     and each $\fp \in \mathfrak{T}_2(\fu)$
     we have
@@ -2886,6 +2938,8 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 
 \begin{lemma}[forest stacking]
     \label{forest-stacking}
+    \leanok
+    \lean{forest_stacking}
     It holds that
     \begin{equation}
         \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le 1 + (4n+12)2^{n}\,.
@@ -2945,7 +2999,9 @@ We now turn to the proof of \Cref{forest-union}.
 
 Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(\scI(\fp) \cap (G \setminus  G')) > 0$.
 \begin{lemma}[antichain decomposition]
-\label{antichain-decomposition}
+    \label{antichain-decomposition}
+    \leanok
+    \lean{antichain_decomposition}
     We have that
     \begin{align}
         \label{eq-fp'-decomposition}

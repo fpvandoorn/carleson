@@ -75,6 +75,10 @@ protected def Measure.nnreal (s : Set α) : ℝ≥0 :=
 
 theorem measureNNReal_def (s : Set α) : μ.nnreal s = (μ s).toNNReal := rfl
 
+theorem measureNNReal_toReal (s : Set α) : (μ.nnreal s).toReal = μ.real s := rfl
+
+theorem measureNNReal_val (s : Set α) : (μ.nnreal s).val = μ.real s := rfl
+
 variable {μ}
 variable {s s₁ s₂ t : Set α}
 

@@ -35,11 +35,12 @@ class GridStructure
   fundamental_dyadic' {i j} : s i ≤ s j → coeGrid i ⊆ coeGrid j ∨ Disjoint (coeGrid i) (coeGrid j)
   ball_subset_Grid {i} : ball (c i) (D ^ s i / 4) ⊆ coeGrid i --2.0.10
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
-  small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ coeGrid i | infDist x (coeGrid i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coeGrid i)
+  small_boundary {i} {t : ℝ≥0} (ht : D ^ (- S - s i) ≤ t) :
+    volume.real { x ∈ coeGrid i | EMetric.infEdist x (coeGrid i)ᶜ ≤ t * (D ^ (s i):ℝ≥0∞)} ≤ 2 * t ^ κ * volume.real (coeGrid i)
+  coeGrid_measurable {i} : MeasurableSet (coeGrid i)
 
 export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
-  topCube s_topCube c_topCube subset_topCube) -- should `X` be explicit in topCube?
+  topCube s_topCube c_topCube subset_topCube coeGrid_measurable) -- should `X` be explicit in topCube?
 
 attribute [coe] GridStructure.coeGrid
 
@@ -73,6 +74,15 @@ lemma fundamental_dyadic :
 
 lemma le_or_disjoint (h : s i ≤ s j) : i ≤ j ∨ Disjoint (i : Set X) (j : Set X) :=
   fundamental_dyadic h |>.imp (⟨·, h⟩) id
+
+lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : Set X) := by
+  rcases le_or_lt (s i) (s j) with h | h
+  · have := le_or_disjoint h; tauto
+  · have := le_or_disjoint h.le; tauto
+
+lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set X) :=
+  Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
+     (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
 namespace Grid
 
@@ -320,5 +330,39 @@ lemma dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ d
   rcases hpq.eq_or_lt with h | h
   · subst h; rfl
   · exact (Grid.dist_strictMono h).trans (mul_le_of_le_one_left dist_nonneg (C2_1_2_le_one X))
+
+lemma dist_strictMono_iterate {I J : Grid X} {d : ℕ} (hij : I ≤ J) (hs : s I + d = s J)
+    {f g : Θ X} : dist_{I} f g ≤ C2_1_2 a ^ d * dist_{J} f g := by
+  induction d generalizing I J with
+  | zero => simpa using dist_mono hij
+  | succ d ih =>
+    obtain ⟨K, sK, IK, KJ⟩ := exists_sandwiched hij (s I + d) (by rw [mem_Icc]; omega)
+    replace KJ : K < J := by rw [Grid.lt_def]; exact ⟨KJ.1, by omega⟩
+    calc
+      _ ≤ C2_1_2 a ^ d * dist_{K} f g := ih IK sK.symm
+      _ ≤ C2_1_2 a ^ d * (C2_1_2 a * dist_{J} f g) := by
+        gcongr
+        · rw [C2_1_2]; positivity
+        · exact dist_strictMono KJ
+      _ = _ := by ring
+
+/-! Maximal elements of finsets of dyadic cubes -/
+
+open Classical in
+def maxCubes (s : Finset (Grid X)) : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
+
+lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) : ∃ j ∈ maxCubes s, i ≤ j := by
+  classical let C : Finset (Grid X) := s.filter (i ≤ ·)
+  have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
+  obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
+  simp_rw [C, maxCubes, Finset.mem_filter] at hj maxj ⊢
+  refine ⟨j, ?_, hj.2⟩
+  exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
+
+lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
+    (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
+  simp only [maxCubes, and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
+  exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
+    |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
 
 end Grid

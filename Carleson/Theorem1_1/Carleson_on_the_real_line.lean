@@ -44,8 +44,8 @@ end
 lemma h1 : 2 ∈ Set.Ioc 1 (2 : ℝ) := by simp
 lemma h2 : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
 
-lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℝ)} : localOscillation ∅ f g = 0 := by
-  simp [localOscillation]
+lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℝ)} :
+    localOscillation ∅ f g = 0 := by simp [localOscillation]
 
 lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℝ)} {R : ℝ} (R_nonpos : R ≤ 0):
     localOscillation (Metric.ball x R) f g = 0 := by
@@ -75,12 +75,10 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
       simp at hx
       have : f z ≤ x := hx z h
       rw [hz] at this
-      apply le_max_of_le_left this
-    have : (@Set.range α (z ∈ s) fun _ ↦ f z) = ∅ := by
-      simpa
+      exact le_max_of_le_left this
+    have : (@Set.range α (z ∈ s) fun _ ↦ f z) = ∅ := by simpa
     rw [this] at hz
-    rw [hz]
-    exact le_max_right x y
+    exact hz ▸ le_max_right x y
   rw [Set.mem_range]
   rcases ha with ⟨i, hi, fia⟩
   use i
@@ -105,10 +103,8 @@ local notation "θ" => integer_linear
 
 local notation "Θ" => {(θ n) | n : ℤ}
 
-
 theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℝ)} :
-    localOscillation E f f = 0 := by
-  simp [localOscillation]
+    localOscillation E f f = 0 := by simp [localOscillation]
 
 /-Stronger version of oscillation_control from the paper-/
 /-Based on earlier version of the paper. -/
@@ -122,8 +118,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
     rwa [sub_eq_zero, Int.cast_inj]
   /- Rewrite to a more convenient form for the following steps. -/
   have norm_integer_linear_eq {n m : ℤ} {z : ℝ × ℝ} : ‖(θ n) z.1 - (θ m) z.1 - (θ n) z.2 + (θ m) z.2‖ = ‖(↑n - ↑m) * (z.1 - x) - (↑n - ↑m) * (z.2 - x)‖ := by
-    rw [integer_linear, integer_linear]
-    simp
+    simp only [integer_linear, ContinuousMap.coe_mk, Real.norm_eq_abs]
     ring_nf
   have localOscillation_eq : localOscillation (Metric.ball x R) (θ n) (θ m) = ⨆ z ∈ (Metric.ball x R) ×ˢ (Metric.ball x R), ‖(n - m) * (z.1 - x) - (n - m) * (z.2 - x)‖ := by
       rw [localOscillation]
@@ -143,7 +138,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
           rw [Real.dist_eq, Real.dist_eq] at hz
           rw [Real.norm_eq_abs]
           calc |(n - m) * (z.1 - x) - (n - m) * (z.2 - x)|
-          _ ≤ |(n - m) * (z.1 - x)| + |(n - m) * (z.2 - x)| := by apply abs_sub
+          _ ≤ |(n - m) * (z.1 - x)| + |(n - m) * (z.2 - x)| := abs_sub _ _
           _ = |↑n - ↑m| * |z.1 - x| + |↑n - ↑m| * |z.2 - x| := by congr <;> apply abs_mul
           _ ≤ |↑n - ↑m| * R + |↑n - ↑m| * R := by gcongr; linarith [hz.1]; linarith [hz.2]
           _ = 2 * R * |↑n - ↑m| := by ring
@@ -170,8 +165,7 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
       constructor
       · positivity
       calc (c + 2 * R * |↑n - ↑m|) / (4 * |↑n - ↑m|)
-        _ < (2 * R * |↑n - ↑m| + 2 * R * |↑n - ↑m|) / (4 * |↑n - ↑m|) := by
-          gcongr
+        _ < (2 * R * |↑n - ↑m| + 2 * R * |↑n - ↑m|) / (4 * |↑n - ↑m|) := by gcongr
         _ = R := by
           ring_nf
           rw [mul_assoc, mul_inv_cancel norm_n_sub_m_pos.ne.symm, mul_one]
@@ -182,7 +176,8 @@ lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ 
       _ = 2 * R' * |↑n - ↑m| := by
         rw [R'def]
         ring_nf
-        rw [pow_two, ←mul_assoc, mul_assoc c, mul_inv_cancel norm_n_sub_m_pos.ne.symm, mul_assoc (R * _), mul_inv_cancel norm_n_sub_m_pos.ne.symm]
+        rw [pow_two, ←mul_assoc, mul_assoc c, mul_inv_cancel norm_n_sub_m_pos.ne.symm,
+          mul_assoc (R * _), mul_inv_cancel norm_n_sub_m_pos.ne.symm]
         ring
       _ ≤ ‖(↑n - ↑m) * (y.1 - x) - (↑n - ↑m) * (y.2 - x)‖ := by
         simp only [mul_assoc, sub_sub_cancel_left, mul_neg, add_sub_cancel_left,
@@ -203,16 +198,14 @@ lemma bciSup_of_emptyset  {α : Type} [ConditionallyCompleteLattice α] {ι : Ty
     ⨆ i ∈ (∅ : Set ι), f i = sSup ∅ := by
   rw [iSup]
   convert csSup_singleton _
-  have : ∀ i : ι, IsEmpty (i ∈ (∅ : Set ι)) := by
-    intro i
-    simp
+  have : ∀ i : ι, IsEmpty (i ∈ (∅ : Set ι)) := by tauto
   have : (fun (i : ι) ↦ ⨆ (_ : i ∈ (∅ : Set ι)), f i) = fun i ↦ sSup ∅ := by
     ext i
     --rw [csSup_empty]
     rw [iSup]
     congr
     rw [Set.range_eq_empty_iff]
-    simp
+    exact this i
   rw [this]
   exact Set.range_const
 
@@ -610,16 +603,16 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ 4 : ℝ) where
 
 --TODO : add some Real.vol lemma
 
-instance h6 : IsCZKernel 4 K where
+instance h6 : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
-  norm_le_vol_inv := by
+  norm_K_le_vol_inv := by
     intro x y
     rw [Complex.norm_eq_abs, Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
     calc Complex.abs (K x y)
     _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
   /- uses Hilbert_kernel_regularity -/
-  norm_sub_le := by
+  norm_K_sub_le := by
     intro x y y' h
     rw [Real.dist_eq, Real.dist_eq] at *
     calc ‖K x y - K x y'‖
@@ -643,9 +636,9 @@ instance h6 : IsCZKernel 4 K where
         · norm_num
       · norm_num
   /- Lemma ?-/
-  measurable_right := fun y ↦ Measurable.of_uncurry_right Hilbert_kernel_measurable
+  measurable_K_left := fun y ↦ Measurable.of_uncurry_right Hilbert_kernel_measurable
   /- Lemma ?-/
-  measurable := Hilbert_kernel_measurable
+  measurable_K_right := Hilbert_kernel_measurable
 
 /- Lemma ?-/
 lemma h3 : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts 4) := sorry
@@ -669,15 +662,12 @@ lemma CarlesonOperatorReal_le_CarlesonOperator : T ≤ CarlesonOperator K := by
   intro rpos
   apply iSup_le
   intro rle1
-  apply le_iSup_of_le n
-  apply le_iSup₂_of_le r 1
-  apply le_iSup₂_of_le rpos rle1
-  apply le_of_eq
+  apply le_iSup_of_le n _
+  apply le_iSup₂_of_le r 1 _
+  apply (le_iSup₂_of_le rpos rle1 (le_of_eq _))
   congr with y
   rw [coeΘ_R_C]
   ring_nf
-
-
 
 /- Lemma 10.4 (ENNReal version) -/
 lemma rcarleson {F G : Set ℝ}
@@ -688,9 +678,8 @@ lemma rcarleson {F G : Set ℝ}
     ∫⁻ x in G, T f x ≤
     ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
   calc ∫⁻ x in G, T f x
-    _ ≤ ∫⁻ x in G, CarlesonOperator K f x := by
-      apply MeasureTheory.lintegral_mono
-      apply CarlesonOperatorReal_le_CarlesonOperator
+    _ ≤ ∫⁻ x in G, CarlesonOperator K f x :=
+      MeasureTheory.lintegral_mono (CarlesonOperatorReal_le_CarlesonOperator _)
     _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := metric_carleson (a := 4) K (by norm_num) h1 h2 hF hG h3 f hf
 
 end section
