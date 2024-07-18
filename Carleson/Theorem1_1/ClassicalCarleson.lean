@@ -17,12 +17,9 @@ theorem classical_carleson {f : ℝ → ℂ}
     Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
   rcases hε with ⟨εpos, εle⟩
   set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
-  have ε'pos : ε' > 0 := by
-    rw [ε'def]
-    apply div_pos _ (C_control_approximation_effect_pos εpos)
-    exact div_pos εpos (by norm_num)
+  have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
 
-    -- Approximation
+  -- Approximation
   obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := closeSmoothApproxPeriodic unicontf periodicf ε'pos
   have ε4pos : ε / 4 > 0 := by linarith
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
@@ -37,7 +34,7 @@ theorem classical_carleson {f : ℝ → ℂ}
     exact hf₀ x
 
   -- Control approximation effect
-  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect' ⟨εpos, εle⟩ ε'pos h_measurable h_periodic h_bound
+  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect ⟨εpos, εle⟩ ε'pos h_measurable h_periodic h_bound
 
   -- "epsilon third" argument
   use E, Esubset, Emeasurable, Evolume, N₀

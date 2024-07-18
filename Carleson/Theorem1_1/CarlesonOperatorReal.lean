@@ -2,7 +2,7 @@ import Carleson.Theorem1_1.Hilbert_kernel
 
 noncomputable section
 
-
+--TODO: avoid this extra definition?
 def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
@@ -81,13 +81,10 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   have : (fun x ↦ ⨆ r, ⨆ (_ : 0 < r), ⨆ (_ : r < 1), ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * (Complex.I * ↑n * ↑y).exp‖₊)
         = fun x ↦ ⨆ (r : ℝ) (_ : r ∈ Set.Ioo 0 1), G x r := by
     ext x
-    congr
-    ext r
+    congr with r
     rw [iSup_and, Gdef, Fdef]
-    congr
-    ext
-    congr
-    ext
+    congr with _
+    congr with _
     congr 2
     rw [← MeasureTheory.integral_indicator annulus_measurableSet]
   rw [this]
@@ -243,7 +240,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
 
 
 
-theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
+lemma CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal, CarlesonOperatorReal, ENNReal.mul_iSup]
   congr with n
   rw [ENNReal.mul_iSup]
@@ -252,10 +249,8 @@ theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 <
   congr
   ext rpos
   rw [ENNReal.mul_iSup]
-  congr
-  ext rle1
+  congr with rle1
   norm_cast
-  --rw [← norm_toNNReal, ← norm_toNNReal]
   apply NNReal.eq
   simp only [coe_nnnorm, NNReal.coe_mul]
   rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
@@ -265,3 +260,24 @@ theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 <
   rw [mul_div_cancel_left₀]
   norm_cast
   exact ha.ne.symm
+
+
+lemma CarlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
+  rw [CarlesonOperatorReal, CarlesonOperatorReal]
+  congr with n
+  congr with _
+  congr with _
+  congr with _
+  congr with y
+  rw [mul_eq_mul_right_iff, mul_eq_mul_right_iff]
+  left
+  rw [Set.indicator]
+  split_ifs with hy
+  . left; rfl
+  . right
+    apply k_of_one_le_abs
+    simp only [Set.mem_Ioo, not_and_or, not_lt] at hy
+    rw [le_abs]
+    rcases hy with hy | hy
+    . left; linarith [hx.1]
+    . right; linarith [hx.2]
