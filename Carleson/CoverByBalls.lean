@@ -36,14 +36,9 @@ protected lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r :=
 
 @[simp]
 lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
-  constructor
-  · intro ⟨b, hn, hs⟩
-    simp at hn
-    subst hn
-    simp at hs
-    exact Set.subset_eq_empty hs rfl
-  · rintro rfl
-    exact CoveredByBalls.empty
+  refine ⟨fun ⟨b, hn, hs⟩ ↦ ?_, by rintro rfl; exact CoveredByBalls.empty⟩
+  simp at hn; subst hn; simp at hs
+  exact Set.subset_eq_empty hs rfl
 
 @[simp]
 lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
@@ -57,8 +52,7 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
 
 variable (X) in
 /-- Balls of radius `r` in are covered by `n` balls of radius `r'` -/
-def BallsCoverBalls (r r' : ℝ) (n : ℕ) : Prop :=
-  ∀ x : X, CoveredByBalls (ball x r) n r'
+def BallsCoverBalls (r r' : ℝ) (n : ℕ) : Prop := ∀ x : X, CoveredByBalls (ball x r) n r'
 
 lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
     (h2 : BallsCoverBalls X r r' m) : CoveredByBalls s (n * m) r' := by
@@ -81,8 +75,7 @@ lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
       use c, (by rw [mem_biUnion]; use b), hc
 
 lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCoverBalls X r₂ r₃ m) :
-    BallsCoverBalls X r₁ r₃ (n * m) :=
-  fun x ↦ (h1 x).trans h2
+    BallsCoverBalls X r₁ r₃ (n * m) := fun x ↦ (h1 x).trans h2
 
 lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
   let a : Finset X := singleton x
@@ -104,4 +97,4 @@ lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X 
 lemma BallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
     BallsCoverBalls X (a^k) 1 (n^k) := by
   convert BallsCoverBalls.pow_mul h using 1
-  simp
+  exact Eq.symm (MulOneClass.mul_one (a ^ k))

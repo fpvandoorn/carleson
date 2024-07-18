@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
 
@@ -36,7 +36,7 @@ open ENNReal NNReal Real
 /-- Constant appearing in Lemma 6.1.2. -/
 noncomputable def C_6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3)
 
-lemma C_6_1_2_ne_zero (a : ℕ) : C_6_1_2 a ≠ 0 := by rw [C_6_1_2]; positivity
+lemma C_6_1_2_ne_zero (a : ℕ) : (C_6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C_6_1_2]; positivity
 
 open MeasureTheory Metric Bornology Set
 
@@ -55,7 +55,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
         dist x y ∈ Icc ((D ^ ((𝔰 p.1) - 1) : ℝ) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
-      dist_mem_Icc_of_Ks_ne_zero (range_s_subset (X := X) (mem_range_self (𝓘 p.1))) hy
+      dist_mem_Icc_of_Ks_ne_zero hy
     have hdist_cpy : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), dist (𝔠 p) y ≤ 8*D ^ 𝔰 p.1 := by
       intro y hy
       calc dist (𝔠 p) y
@@ -71,21 +71,22 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
         (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       intro y hy
-      /- dist_mem_Icc_of_Ks_ne_zero {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X}
-    (h : Ks s x y ≠ 0) : dist x y ∈ Icc (D ^ (s - 1) / 4) (D ^ s / 2)
-
-      lemma norm_Ks_le {s : ℤ} (hs : s ∈ Icc (-S) S) {x y : X} :
-    ‖Ks s x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by-/
-      have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume (ball (𝔠 p.1) (D/4 ^ (𝔰 p.1 - 1))) := by
+      have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^((a : ℝ)^3) / volume (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
         have hxy : x ≠ y := by
           intro h_eq
           rw [h_eq, Ks_def, ne_eq, mul_eq_zero, not_or, dist_self, mul_zero, psi_zero] at hy
           simp only [Complex.ofReal_zero, not_true_eq_false, and_false] at hy
-        apply le_trans (ENNReal.coe_le_coe.mpr (kernel_bound (range_s_subset (X := X)
-          (mem_range_self (𝓘 p.1))) hxy))
-        rw [coe_ofNat, coe_div]
-        sorry
-        sorry
+        apply le_trans (ENNReal.coe_le_coe.mpr kernel_bound)
+        rw [coe_ofNat, coe_div, measureNNReal_def, ENNReal.coe_toNNReal
+          (measure_ball_ne_top x (dist x y)), ← coe_ofNat,
+          ENNReal.coe_rpow_of_nonneg _ (pow_nonneg (by linarith) 3)]
+        norm_cast
+        gcongr
+        exact (hdist_y hy).1
+        · apply ne_of_gt
+          rw [measureNNReal_def, ← ENNReal.coe_lt_coe, ENNReal.coe_toNNReal
+            (measure_ball_ne_top x (dist x y)), ENNReal.coe_zero]
+          exact Metric.measure_ball_pos _ _ (dist_pos.mpr hxy)
       apply le_trans h
       sorry
       /- calc ‖Ks (𝔰 p.1) x y‖₊
@@ -93,11 +94,19 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
           done
       _ ≤ (2 : ℝ≥0)^(5*a + 101*a^3) / volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) :=
         sorry -/
-    calc ↑‖∑ (p ∈ 𝔄), T p f x‖₊
+    calc (‖∑ (p ∈ 𝔄), T p f x‖₊ : ℝ≥0∞)
       = ↑‖T p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
-    _ ≤ ↑‖∫ (y : X), cexp (↑((coeΘ (Q x)) x) - ↑((coeΘ (Q x)) y)) * Ks (𝔰 p.1) x y * f y‖₊ := by
-        simp only [T, indicator, if_pos hxE, mul_ite, mul_zero, ENNReal.coe_le_coe]
-        simp only [← NNReal.coe_le_coe, coe_nnnorm]
+    /- _ ≤ ↑‖∫ (y : X), cexp (↑((coeΘ (Q x)) x) - ↑((coeΘ (Q x)) y)) * Ks (𝔰 p.1) x y * f y‖₊ := by
+        simp only [T, indicator, if_pos hxE, mul_ite, mul_zero, ENNReal.coe_le_coe,
+          ← NNReal.coe_le_coe, coe_nnnorm]
+        sorry -/
+    _ ≤ ∫⁻ (y : X), ‖cexp (↑((coeΘ (Q x)) x) - ↑((coeΘ (Q x)) y)) * Ks (𝔰 p.1) x y * f y‖₊ := by
+        /- simp only [T, indicator, if_pos hxE, mul_ite, mul_zero, ENNReal.coe_le_coe,
+          ← NNReal.coe_le_coe, coe_nnnorm] -/
+        simp only [T, indicator, if_pos hxE]
+        apply le_trans (MeasureTheory.ennnorm_integral_le_lintegral_ennnorm _)
+        apply MeasureTheory.lintegral_mono
+        intro z w
         sorry
     _ ≤ (2 : ℝ≥0)^(5*a + 101*a^3) * ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       sorry
@@ -115,13 +124,13 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         _ ≤ 107 * a ^ 3 := by gcongr; norm_num
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith)
-          (zpow_pos_of_pos (by exact_mod_cast defaultD_pos a) _))
+          (zpow_pos_of_pos (defaultD_pos a) _))
     _ ≤ (C_6_1_2 a) * MB volume ((fun (𝔭 : 𝔓 X) ↦ (𝔠 𝔭, 8*D ^ 𝔰 𝔭)) '' (𝔄 : Set (𝔓 X))) f x := by
       rw [mul_le_mul_left _ _, MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iSup_iff]
       simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff,
         and_imp, forall_apply_eq_imp_iff₂, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
-      · exact_mod_cast C_6_1_2_ne_zero a
+      · exact C_6_1_2_ne_zero a
       · exact coe_ne_top
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
     have h0 : (∑ (p ∈ 𝔄), T p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)

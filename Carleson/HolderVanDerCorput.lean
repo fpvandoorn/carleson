@@ -1,4 +1,4 @@
-import Carleson.GridStructure
+import Carleson.TileStructure
 
 /-! This should roughly contain the contents of chapter 8. -/
 

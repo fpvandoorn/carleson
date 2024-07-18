@@ -93,10 +93,7 @@ variable [FunctionDistances 𝕜 X]
 instance : Coe (Θ X) C(X, 𝕜) := ⟨FunctionDistances.coeΘ⟩
 instance : FunLike (Θ X) X 𝕜 where
   coe := fun f ↦ (f : C(X, 𝕜))
-  coe_injective' f g hfg := by
-    apply FunctionDistances.coeΘ_injective
-    rw [← funext_iff]
-    exact hfg
+  coe_injective' _ _ hfg := FunctionDistances.coeΘ_injective fun x ↦ congrFun hfg x
 instance : ContinuousMapClass (Θ X) X 𝕜 := ⟨fun f ↦ (f : C(X, 𝕜)).2⟩
 
 set_option linter.unusedVariables false in
@@ -125,20 +122,20 @@ notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
   eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
-  /-- The distance is bounded below by the local oscillation. -/
+  /-- The distance is bounded below by the local oscillation. (1.0.7) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ dist_{x, r} f g
-  /-- The distance is monotone in the ball. -/
+  /-- The distance is monotone in the ball. (1.0.9) -/
   cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
-    (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₂} f g ≤ dist_{x₂, r₂} f g
-  /-- The distance of a ball with large radius is bounded above. -/
+    (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
+  /-- The distance of a ball with large radius is bounded above. (1.0.8) -/
   cdist_le {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h : dist x₁ x₂ < 2 * r) :
     dist_{x₂, 2 * r} f g ≤ A * dist_{x₁, r} f g
-  /-- The distance of a ball with large radius is bounded below. -/
-  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r))
-    /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/ :
+  /-- The distance of a ball with large radius is bounded below. (1.0.10) -/
+  le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r)) :
+    /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
-  /-- The distance of a ball with large radius is bounded below. -/
+  /-- The distance of a ball with large radius is bounded below. (1.0.11) -/
   ballsCoverBalls {x : X} {r R : ℝ} :
     BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R A
 
@@ -179,24 +176,6 @@ export IsCancellative (norm_integral_exp_le)
 `IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
 def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
-
-open Real (vol)
-open Function
-
-/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
-@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
-
-/-- `K` is a one-sided Calderon-Zygmund kernel
-In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
-class IsCZKernel (a : ℕ) (K : X → X → ℂ) : Prop where
-  measurable : Measurable (uncurry K)
-  norm_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
-  norm_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
-  measurable_right (y : X) : Measurable (K · y)
-
--- to show: K is locally bounded and hence integrable outside the diagonal
 
 /-- In Mathlib we only have the operator norm for continuous linear maps,
 and `T_*` is not linear.
@@ -243,10 +222,38 @@ and `CompatibleFunctions` -/
 @[simp] abbrev defaultA (a : ℕ) : ℕ := 2 ^ a
 @[simp] def defaultD (a : ℕ) : ℕ := 2 ^ (100 * a ^ 2)
 @[simp] def defaultκ (a : ℕ) : ℝ := 2 ^ (-10 * (a : ℝ))
-@[simp] def defaultZ (a : ℕ) : ℝ := 2 ^ (12 * a)
+@[simp] def defaultZ (a : ℕ) : ℕ := 2 ^ (12 * a)
 @[simp] def defaultτ (a : ℕ) : ℝ := a⁻¹
 
-lemma defaultD_pos (a : ℕ) : 0 < defaultD a := by rw [defaultD]; positivity
+lemma defaultD_pos (a : ℕ) : 0 < (defaultD a : ℝ) := by rw [defaultD]; positivity
+
+section Kernel
+
+variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X] [MeasureSpace X]
+open Real (vol)
+open Function
+
+/-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
+@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
+
+lemma C_K_pos (a : ℝ) : 0 < C_K a := by unfold C_K; positivity
+
+/-- `K` is a one-sided Calderon-Zygmund kernel
+In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
+that `K x x = 0`. -/
+class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
+  measurable_K_right : Measurable (uncurry K)
+  measurable_K_left (y : X) : Measurable (K · y)
+  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
+  norm_K_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+
+export IsOneSidedKernel (measurable_K_right measurable_K_left norm_K_le_vol_inv norm_K_sub_le)
+
+end Kernel
+
+-- to show: K is locally bounded and hence integrable outside the diagonal
+
 
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (ANCZOperator K) volume volume 2 2 (C_Ts a)`
@@ -260,6 +267,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   c : IsCancellative X (defaultτ a)
+  hcz : IsOneSidedKernel a K
   hasBoundedStrongType_T : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
@@ -273,7 +281,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
 
 export PreProofData (four_le_a hasBoundedStrongType_T measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] PreProofData.d PreProofData.cf PreProofData.c
+attribute [instance] PreProofData.d PreProofData.cf PreProofData.c PreProofData.hcz
 
 section ProofData
 
@@ -330,6 +338,9 @@ lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₁ ⊆ 
 
 lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] : range σ₂ ⊆ Icc (- S X) (S X) := sorry
 
+lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (- S X) (S X) :=
+  fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
+
 lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
     (-S X : ℤ) ∈ range σ₁ ∨ (S X : ℤ) ∈ range σ₂ := sorry
 
@@ -371,11 +382,15 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma one_le_D : 1 ≤ D := by
-  rw [defaultD, ← pow_zero 2]
+lemma one_lt_D : 1 < (D : ℝ) := by
+  unfold defaultD
+  exact_mod_cast one_lt_pow Nat.one_lt_two (by nlinarith [four_le_a X])
+
+lemma one_le_D : 1 ≤ (D : ℝ) := by
+  rw [← Nat.cast_one, Nat.cast_le, defaultD, ← pow_zero 2]
   exact pow_le_pow_right' one_le_two (by positivity)
 
-lemma D_nonneg : 0 ≤ D := zero_le_one.trans one_le_D
+lemma D_nonneg : 0 ≤ (D : ℝ) := zero_le_one.trans one_le_D
 
 lemma κ_nonneg : 0 ≤ κ := by
   dsimp only [defaultκ]
@@ -383,7 +398,7 @@ lemma κ_nonneg : 0 ≤ κ := by
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
-def nnD : ℝ≥0 := ⟨D, by exact_mod_cast D_nonneg⟩
+def nnD : ℝ≥0 := ⟨D, by simp [D_nonneg]⟩
 
 namespace ShortVariables
 

@@ -28,22 +28,22 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
   simp only [Real.dist_eq, Set.mem_Ioo, lt_abs, neg_sub, abs_lt, neg_lt_sub_iff_lt_add,
     Set.mem_setOf_eq, Set.mem_union]
   constructor
-  . rintro ⟨(h₀ | h₀), h₁, h₂⟩
-    . left
+  · rintro ⟨(h₀ | h₀), h₁, h₂⟩
+    · left
       constructor <;> linarith
-    . right
+    · right
       constructor <;> linarith
-  . rintro (⟨h₀, h₁⟩ | ⟨h₀, h₁⟩)
-    . constructor
-      . left
+  · rintro (⟨h₀, h₁⟩ | ⟨h₀, h₁⟩)
+    · constructor
+      · left
         linarith
-      . constructor <;> linarith
-    . constructor
-      . right
+      · constructor <;> linarith
+    · constructor
+      · right
         linarith
-      . constructor <;> linarith
+      · constructor <;> linarith
 
-lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (Measurable.dist measurable_const measurable_id) measurableSet_Ioo
+lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (measurable_const.dist measurable_id) measurableSet_Ioo
 
 lemma CarlesonOperatorRat'_measurable {f : ℝ → ℂ} (hf : Measurable f) : Measurable (CarlesonOperatorRat' K f):= by
   --apply Measurable.iSup

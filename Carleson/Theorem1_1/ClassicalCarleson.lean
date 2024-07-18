@@ -10,7 +10,7 @@ noncomputable section
 
 /- Theorem 1.1 (Classical Carleson) -/
 theorem classical_carleson {f : ℝ → ℂ}
-    (unicontf : UniformContinuous f) (periodicf : Function.Periodic f (2 * Real.pi)) --(bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
+    (unicontf : UniformContinuous f) (periodicf : f.Periodic (2 * Real.pi)) --(bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
     {ε : ℝ} (hε : ε ∈ Set.Ioc 0 (2 * Real.pi)) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
     ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
@@ -29,7 +29,7 @@ theorem classical_carleson {f : ℝ → ℂ}
 
   set h := f₀ - f with hdef
   have h_measurable : Measurable h := Continuous.measurable (Continuous.sub contDiff_f₀.continuous unicontf.continuous)
-  have h_periodic : Function.Periodic h (2 * Real.pi) := Function.Periodic.sub periodic_f₀ periodicf
+  have h_periodic : h.Periodic (2 * Real.pi) := Function.Periodic.sub periodic_f₀ periodicf
   have h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), Complex.abs (h x) ≤ ε' := by
     intro x _
     simp [hdef]
@@ -51,9 +51,9 @@ theorem classical_carleson {f : ℝ → ℂ}
     apply AbsoluteValue.add_le
   _ ≤ ε' + (ε / 4) + (ε / 4) := by
     gcongr
-    . exact hf₀ x
-    . exact hN₀ N NgtN₀ x hx.1
-    . have := hE x hx N
+    · exact hf₀ x
+    · exact hN₀ N NgtN₀ x hx.1
+    · have := hE x hx N
       rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (unicontf.continuous.intervalIntegrable 0 (2 * Real.pi))] at this
       apply le_trans this
       rw [ε'def, mul_div_cancel₀ _ (C_control_approximation_effect_pos εpos).ne.symm]
