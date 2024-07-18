@@ -493,7 +493,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ 4) where
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
 --set_option profiler true in
-instance h5 : IsCancellative ℝ (1 / 2 ^ 4 : ℝ) where
+instance h5 : IsCancellative ℝ (1 / (4 : ℕ)) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by
     intro x r ϕ K hK _ f g
@@ -583,7 +583,7 @@ instance h5 : IsCancellative ℝ (1 / 2 ^ 4 : ℝ) where
           use hy
       _ = 2 * Real.pi * (2 * r) * (B + r * L) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
         ring
-      _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (2 ^ 4 : ℝ))) := by
+      _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (4 : ℝ))) := by
         gcongr
         . apply mul_nonneg
           apply mul_nonneg (by norm_num) (by linarith)
