@@ -86,7 +86,12 @@ It is the map `T ∘ (1_F * ·) : f ↦ T (1_F * f)`, also denoted `T1_F`
 The operator `T` in Proposition 2.0.2 is therefore `applied to `(F := Set.univ)`. -/
 def T (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
-    fun x ↦ ∫ y, exp (Q x x - Q x y) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * F.indicator f y
+    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * F.indicator f y
+
+lemma T_def' (p : 𝔓 X) (f : X → ℂ) : T p f =
+    indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * F.indicator f y * exp (I * (Q x y - Q x x)) := by
+  unfold T Ks
+  exact congr_arg _ (funext fun x ↦ (congr_arg _ (funext fun y ↦ by ring)))
 
 end T
 
@@ -230,8 +235,8 @@ lemma E₁_subset (p : 𝔓 X) : E₁ p ⊆ 𝓘 p := by
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
-  ⨆ (p ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
-  ⨆ (p' ∈ lowerClosure 𝔓') (_h2 : smul l p ≤ smul l p'),
+  ⨆ (p' ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
+  ⨆ (p ∈ lowerClosure 𝔓') (_h2 : smul l p' ≤ smul l p),
   volume (E₂ l p) / volume (𝓘 p : Set X)
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/

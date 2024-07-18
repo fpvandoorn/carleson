@@ -492,9 +492,9 @@ lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ �
   calc ε * MeasureTheory.volume E
     _ = ∫⁻ _ in E, ε := by
       symm
-      apply MeasureTheory.set_lintegral_const
+      apply MeasureTheory.setLIntegral_const
     _ ≤ ∫⁻ x in E, T f x := by
-      apply MeasureTheory.set_lintegral_mono' measurableSetE hE
+      apply MeasureTheory.setLIntegral_mono' measurableSetE hE
     _ = ENNReal.ofReal δ * ∫⁻ x in E, T (fun x ↦ (1 / δ) * f x) x := by
       rw [← MeasureTheory.lintegral_const_mul']
       congr with x
@@ -567,7 +567,7 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
 --added subset assumption
 --changed interval to match the interval in the theorem
 lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
-    {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : Function.Periodic h (2 * Real.pi)) (h_bound : ∀ x, ‖h x‖ ≤ δ ) :
+    {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : h.Periodic (2 * Real.pi)) (h_bound : ∀ x, ‖h x‖ ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
       ∀ N, abs (partialFourierSum h N x) ≤ C_control_approximation_effect ε * δ := by
   set ε' := C_control_approximation_effect ε * δ with ε'def
@@ -620,10 +620,9 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
           · rw [mul_assoc]
             apply mul_nonneg hδ.le
             rw [C1_2]
-            apply mul_nonneg (by norm_num)
-            apply Real.rpow_nonneg
+            apply mul_nonneg (by norm_num) (Real.rpow_nonneg _ _)
             linarith [Real.pi_pos]
-          · apply Real.rpow_nonneg (div_nonneg (by norm_num) hε.1.le)
+          · exact Real.rpow_nonneg (div_nonneg (by norm_num) hε.1.le) _
         · apply mul_nonneg (mul_nonneg Real.pi_pos.le hδ.le) Real.two_pi_pos.le
       _ ≤ ENNReal.ofReal (2 * Real.pi) * ‖partialFourierSum h N x‖₊ := by
         rw [← ofReal_norm_eq_coe_nnnorm]
