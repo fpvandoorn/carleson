@@ -1244,7 +1244,7 @@ We show \eqref{unioni} for $j=2$. In case $k=-S$, this follows from \Cref{cover-
 
 We show \eqref{unioni} for $j=3$. Let $x\in B(o, 4D^S-2D^k)$. In case $x\in X_k$, then by definition of $X_k$ we have $x\in I_1(y,k)$ for some $y\in Y_k$ and thus $x\in I_3(y,k)$. We may thus assume $x\not\in X_k$. As we have already seen \eqref{unioni} for $j=2$, there is $y\in Y_k$ such that $x\in I_2(y,k)$. We may assume this $y$ is minimal with respect to the order in $Y_k$. Then $x\in I_3(y,k)$. This proves \eqref{unioni} for $j=3$.
 
-Next, we show the first inclusion in \eqref{squeezedyadic}. Let $x\in B(y,\frac 12 D^k)$. As $I_1(y,k)\subset I_3(y,k)$, it suffices to show $x\in I_1(y,k)$. If $k=-S$, this follows immediately from the assumption on $x$ and the definition of $I_1$. Assume $k>-S$. By the inductive statement \eqref{unioni} and $D>4$, there is a $y'\in Y_{k-1}$ such that $x\in I_3(y',k-1)$. By the inductive statement \eqref{squeezedyadic}, we conclude $x\in B(y',4D^{k-1})$. By the triangle inequality with points $x$, $y$, $y'$, and $D>4$, we have $y'\in B(y,D^k)$. It follows by definition \eqref{defineij} that $I_3(y',k-1)\subset I_1(y,k)$, and thus $x\in I_3(y,k)$. This proves the first inclusion in \eqref{squeezedyadic}.
+Next, we show the first inclusion in \eqref{squeezedyadic}. Let $x\in B(y,\frac 12 D^k)$. As $I_1(y,k)\subset I_3(y,k)$, it suffices to show $x\in I_1(y,k)$. If $k=-S$, this follows immediately from the assumption on $x$ and the definition of $I_1$. Assume $k>-S$. By the inductive statement \eqref{unioni} and $D>4$, there is a $y'\in Y_{k-1}$ such that $x\in I_3(y',k-1)$. By the inductive statement \eqref{squeezedyadic}, we conclude $x\in B(y',4D^{k-1})$. By the triangle inequality with points $x$, $y$, $y'$, and $D\geq8$, we have $y'\in B(y,D^k)$. It follows by definition \eqref{defineij} that $I_3(y',k-1)\subset I_1(y,k)$, and thus $x\in I_3(y,k)$. This proves the first inclusion in \eqref{squeezedyadic}.
 
 We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $I_1(y,k)\subset I_2(y,k)$ directly from the definition \eqref{defineij}, it follows by definition \eqref{definei3} that $x\in I_2(y,k)$. By definition \eqref{defineij}, there is $y'\in Y_{k-1}\cap B(y,2D^k)$ with $x\in I_3(y',k-1)$. By induction, $x\in B(y', 4D^{k-1})$. By the triangle inequality applied to the points $x,y',y$ and $D>4$, we conclude $x\in B(y,4D^k)$. This shows the second inclusion in \eqref{squeezedyadic} and completes the proof of the lemma.
 \end{proof}
@@ -1284,7 +1284,7 @@ We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $
 \begin{proof}
 Let $l,k,y,y'$ be as in the lemma. Pick $x\in I_3(y',l)\cap I_3(y,k)$. Assume first $l=k$. By \eqref{disji} of \Cref{basic-grid-structure}, we conclude $y'=y$, and thus \eqref{3dyadicproperty}. Now assume $l<k$. By induction, we may assume that the statement of the lemma is proven for $k-1$ in place of $k$.
 
-By \Cref{cover-by-cubes}, there is a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$. By induction, we have $I_3(y',l)\subset I_3(y'',k-1)$. If $l=k-1$, then by the disjointedness property of \Cref{basic-grid-structure}, we see that $y'=y''$, and hence \eqref{3dyadicproperty} follows. For $l<k-1$, it remains to prove
+By \Cref{cover-by-cubes}, there is a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$. By induction, we have $I_3(y',l)\subset I_3(y'',k-1)$. It remains to prove
 \begin{equation}\label{wyclaim}
 I_3(y'',k-1)\subset I_3(y,k).
 \end{equation}
