@@ -1,5 +1,6 @@
 /- This file formalizes section 10.8 (The error bound) from the paper. -/
 import Carleson.MetricCarleson
+import Carleson.Classical.Helper
 import Carleson.Classical.Basic
 import Carleson.Classical.HilbertKernel
 import Carleson.Classical.DirichletKernel
@@ -75,33 +76,6 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : MeasureTheory.Me
     right
     rw [Eg_def]
     simp
-
-
-/-TODO: might go to mathlib-/
-lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : Type} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ}:
-    ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
-  rw [intervalIntegral_eq_integral_uIoc, integral_conj, intervalIntegral_eq_integral_uIoc,
-      RCLike.real_smul_eq_coe_mul, RCLike.real_smul_eq_coe_mul, map_mul]
-  simp
-
---TODO: check whether something like this really does not exist
-lemma IntervalIntegrable.bdd_mul {F : Type} [NormedDivisionRing F] {f g : ℝ → F} {a b : ℝ} {μ : MeasureTheory.Measure ℝ}
-    (hg : IntervalIntegrable g μ a b) (hm : MeasureTheory.AEStronglyMeasurable f μ) (hfbdd : ∃ C, ∀ x, ‖f x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
-  rw [intervalIntegrable_iff, MeasureTheory.IntegrableOn]
-  apply MeasureTheory.Integrable.bdd_mul _ hm.restrict hfbdd
-  rwa [← MeasureTheory.IntegrableOn, ← intervalIntegrable_iff]
-
---TODO: [NormedField F] could be replace by [NormedDivisionRing F]
-lemma IntervalIntegrable.mul_bdd {F : Type} [NormedField F] {f g : ℝ → F} {a b : ℝ} {μ : MeasureTheory.Measure ℝ}
-    (hf : IntervalIntegrable f μ a b) (hm : MeasureTheory.AEStronglyMeasurable g μ) (hgbdd : ∃ C, ∀ x, ‖g x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
-  conv => pattern (fun x ↦ f x * g x); ext x; rw [mul_comm]
-  apply hf.bdd_mul hm hgbdd
-
---TODO: move lemma
-lemma MeasureTheory.IntegrableOn.sub {α : Type} {β : Type} {m : MeasurableSpace α}
-    {μ : MeasureTheory.Measure α} [NormedAddCommGroup β] {s : Set α} {f g : α → β} (hf : IntegrableOn f s μ) (hg : IntegrableOn g s μ) : IntegrableOn (f - g) s μ := by
-  apply MeasureTheory.Integrable.sub <;> rwa [← IntegrableOn]
-
 
 
 open Complex
@@ -445,17 +419,6 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g Measu
         apply le_iSup₂_of_le rpos rle1
         trivial
 
---TODO: move somewhere else, check whether there really is nothing like this, generalize
-lemma intervalIntegrable_of_bdd {a b : ℝ} {δ : ℝ} {g : ℝ → ℂ} (measurable_g : Measurable g) (bddg : ∀ x, ‖g x‖ ≤ δ) : IntervalIntegrable g MeasureTheory.volume a b := by
-  apply @IntervalIntegrable.mono_fun' _ _ _ _ _ _ (fun _ ↦ δ)
-  apply intervalIntegrable_const
-  exact measurable_g.aestronglyMeasurable
-  rw [Filter.EventuallyLE, ae_restrict_iff_subtype measurableSet_uIoc]
-  apply Filter.eventually_of_forall
-  simp only [norm_eq_abs, Subtype.forall]
-  intro x _
-  exact bddg x
-
 lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measurable_g : Measurable g) (periodic_g : Function.Periodic g (2 * Real.pi)) (bound_g : ∀ x, ‖g x‖ ≤ δ) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) :
     ‖partialFourierSum g N x‖₊ ≤ (T g x + T ((starRingEnd ℂ) ∘ g) x) / (ENNReal.ofReal (2 * Real.pi)) + ENNReal.ofReal (Real.pi * δ) := by
   have intervalIntegrable_g : IntervalIntegrable g MeasureTheory.volume (-Real.pi) (3 * Real.pi) := intervalIntegrable_of_bdd measurable_g bound_g
@@ -691,13 +654,7 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
     calc ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E'
     _ = ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) / 2 * MeasureTheory.volume E' := by
       rw [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_div_of_pos (by norm_num)]
-      ring_nf  /-
-  have f_integrable : IntervalIntegrable f MeasureTheory.volume (-Real.pi) (3 * Real.pi) := by
-    rw [intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith [Real.pi_pos])]
-    apply MeasureTheory.Measure.integrableOn_of_bounded _ f_measurable.aestronglyMeasurable (Filter.eventually_of_forall f_bound)
-    rw [Real.volume_Ioo]
-    exact ENNReal.ofReal_ne_top
-  -/
+      ring_nf
     _ ≤ ENNReal.ofReal (δ * C1_2 4 2 * (2 * Real.pi + 2) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
       rcases h with hE' | hE'
       · exact rcarleson_exceptional_set_estimate_specific hδ h_bound measurableSetE' (E'subset.trans Esubset) hE'
