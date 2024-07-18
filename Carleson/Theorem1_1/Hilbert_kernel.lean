@@ -1,7 +1,9 @@
 import Carleson.Theorem1_1.Basic
+import Mathlib.Tactic.FunProp
 
 noncomputable section
 
+--TODO: rename this and introduce local notation
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
 --TODO: maybe change to
 --def k : ℝ → ℂ := fun x ↦ max (1 - |x|) 0 / (1 - Complex.exp (Complex.I * x))
@@ -17,9 +19,11 @@ lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
   rw [k, max_eq_right (by linarith)]
   simp
 
+
 @[measurability]
-lemma k_measurable : Measurable k := Measurable.div (Complex.measurable_ofReal.comp'
-  ((measurable_const.sub measurable_norm).max measurable_const)) (by measurability)
+lemma k_measurable : Measurable k := by
+  unfold k
+  fun_prop
 
 def K (x y : ℝ) : ℂ := k (x - y)
 --TODO: maybe change to

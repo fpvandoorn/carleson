@@ -67,16 +67,48 @@ lemma fourier_periodic {n : ℤ} :
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (partialFourierSum f N).Periodic (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
-/-TODO: Add lemma Periodic.uniformContinuous_of_continuous. -/
-lemma fourier_uniformContinuous {n : ℤ} :
-    UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
-  simp [fourier]
-  --apply Complex.exp_mul_I_periodic.
-  sorry
+/-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
+theorem Function.Periodic.exists_mem_Ico₀' {α : Type} {β : Type} {f : α → β} {c : α}
+  [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x : α) : ∃ (n : ℤ), (x - n • c) ∈ Set.Ico 0 c ∧ f x = f (x - n • c) :=
+  let ⟨n, H, _⟩ := existsUnique_zsmul_near_of_pos' hc x
+  ⟨n, H, (h.sub_zsmul_eq n).symm⟩
+
+
+--TODO: maybe generalize to (hc : ContinuousOn f (Set.Icc 0 T)) and leave out condition (hT : 0 < T)
+lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hT : 0 < T) (hp : Function.Periodic f T) (hc : ContinuousOn f (Set.Icc (-T) (2 * T))) : UniformContinuous f := by
+  --rw [Metric.uniformContinuous_iff]
+  --IsCompact.uniformContinuous_on
+  have : IsCompact (Set.Icc (-T) (2 * T)) := isCompact_Icc
+  have unicont_on_Icc := this.uniformContinuousOn_of_continuous hc
+  rw [Metric.uniformContinuousOn_iff] at unicont_on_Icc
+  rw [Metric.uniformContinuous_iff]
+  intro ε εpos
+  rcases (unicont_on_Icc ε εpos) with ⟨δ, δpos, h⟩
+  use min δ T, lt_min δpos hT
+  have h1: min δ T ≤ δ := min_le_left _ _
+  have h2 : min δ T ≤ T := min_le_right _ _
+  intro x y hxy
+  rcases (hp.exists_mem_Ico₀' hT x) with ⟨n, ha, hxa⟩
+  have hyb: f y = f (y - n • T) := (hp.sub_zsmul_eq n).symm
+  rw [hxa, hyb]
+  apply h (x - n • T) _ (y - n • T)
+  rw [Real.dist_eq, abs_lt] at hxy
+  constructor <;> linarith [ha.1, ha.2]
+  rw [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
+  exact hxy.trans_le h1
+  constructor <;> linarith [ha.1, ha.2]
+
+
+lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
+  apply fourier_periodic.uniformContinuous_of_continuous Real.two_pi_pos
+  apply Continuous.continuousOn
+  continuity
 
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (partialFourierSum f N) := by
-  --apply continuous_finset_sum
-  sorry
+  apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
+  apply Continuous.continuousOn
+  apply continuous_finset_sum
+  continuity
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real.pi + Real.pi / 2)) Real.cos := by
   apply strictConvexOn_of_deriv2_pos (convex_Icc _ _) Real.continuousOn_cos fun x hx => ?_
