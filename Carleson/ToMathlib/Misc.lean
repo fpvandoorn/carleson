@@ -1,6 +1,7 @@
 import Mathlib.Analysis.Convex.PartitionOfUnity
 import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.MeasureTheory.Integral.Bochner
+import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 import Mathlib.Topology.MetricSpace.Holder
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
@@ -108,6 +109,28 @@ lemma ENNReal.sum_geometric_two_pow_neg_two :
     ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-2 * n : ℤ) = ((4 : ℝ) / 3).toNNReal := by
   conv_lhs => enter [1, n, 2]; rw [← Nat.cast_two]
   rw [ENNReal.sum_geometric_two_pow_toNNReal zero_lt_two]; norm_num
+
+/-! ## Partitioning an interval -/
+
+namespace MeasureTheory
+
+lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc : 0 ≤ c) :
+    ∫⁻ t in Ioc (a * c) (b * c), f t =
+    ∑ l ∈ Finset.Ico a b, ∫⁻ t in Ioc (l * c) ((l + 1 : ℕ) * c), f t := by
+  rcases lt_or_le b a with h | h
+  · rw [Finset.Ico_eq_empty (by omega), Ioc_eq_empty (by rw [not_lt]; gcongr),
+      setLIntegral_empty, Finset.sum_empty]
+  induction b, h using Nat.le_induction with
+  | base =>
+    rw [Finset.Ico_self, Ioc_self, setLIntegral_empty, Finset.sum_empty]
+  | succ b h ih =>
+    have li : a * c ≤ b * c := by gcongr
+    rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
+      lintegral_union measurableSet_Ioc Ioc_disjoint_Ioc_same,
+      Nat.Ico_succ_right_eq_insert_Ico h, Finset.sum_insert Finset.right_not_mem_Ico,
+      add_comm (lintegral ..), ih]
+
+end MeasureTheory
 
 /-! ## `EquivalenceOn` -/
 

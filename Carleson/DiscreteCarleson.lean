@@ -615,10 +615,128 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G :=
         ← zpow_one 2, ← ENNReal.zpow_add] <;> simp
     _ = _ := by rw [← mul_rotate, ← ENNReal.zpow_add] <;> simp
 
+section TopTiles
+
+/-- The volume of a "layer" in the key function of Lemma 5.2.7. -/
+def layervol (k n : ℕ) (t : ℝ) : ℝ≥0∞ :=
+  volume {x | t ≤ ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n),
+    (𝓘 m : Set X).indicator (1 : X → ℝ) x}
+
+lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
+    ∑ m ∈ s, (𝓘 m : Set X).indicator (1 : X → ℝ) x =
+    Nat.cast (∑ m ∈ s, (𝓘 m : Set X).indicator (1 : X → ℕ) x) := by
+  push_cast; congr!; simp [indicator]
+
+lemma layervol_eq_zero_of_lt {t : ℝ} (ht : (𝔐 (X := X) k n).toFinset.card < t) :
+    layervol (X := X) k n t = 0 := by
+  rw [layervol, measure_zero_iff_ae_nmem]
+  refine ae_of_all volume fun x ↦ ?_; rw [mem_setOf, not_le]
+  calc
+    _ ≤ ((𝔐 (X := X) k n).toFinset.card : ℝ) := by
+      simp_rw [indicator_sum_eq_natCast, Nat.cast_le, indicator_apply, Pi.one_apply,
+        Finset.sum_boole, Nat.cast_id, filter_mem_univ_eq_toFinset]
+      exact Finset.card_le_card (Finset.filter_subset ..)
+    _ < _ := ht
+
+lemma lintegral_Ioc_layervol_one {l : ℕ} :
+    ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n t = layervol (X := X) k n (l + 1) :=
+  calc
+    _ = ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n (l + 1) := by
+      refine setLIntegral_congr_fun measurableSet_Ioc (ae_of_all volume fun t mt ↦ ?_)
+      unfold layervol; congr; ext x; simp_rw [mem_setOf]; constructor <;> intro h
+      · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
+        rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
+        rwa [Nat.ceil_eq_iff (by omega), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
+      · exact mt.2.trans h
+    _ = layervol k n (l + 1) * volume (Ioc (l : ℝ) (l + 1)) := setLIntegral_const ..
+    _ = _ := by rw [Real.volume_Ioc, add_sub_cancel_left, ENNReal.ofReal_one, mul_one]
+
+lemma antitone_layervol : Antitone fun t ↦ layervol (X := X) k n t := fun i j h ↦ by
+  unfold layervol; exact measure_mono fun x hx ↦ h.trans hx
+
+lemma lintegral_Ioc_layervol_le {a b : ℕ} : ∫⁻ t in Ioc (a : ℝ) b, layervol (X := X) k n t ≤
+    (b - a : ℕ) * layervol (X := X) k n (a + 1) := by
+  calc
+    _ = ∑ l ∈ Finset.Ico a b, ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n t := by
+      nth_rw 1 [← mul_one (a : ℝ), ← mul_one (b : ℝ)]
+      convert lintegral_Ioc_partition zero_le_one using 4; simp
+    _ = ∑ l ∈ Finset.Ico a b, layervol (X := X) k n (l + 1) := by
+      congr! 2; exact lintegral_Ioc_layervol_one
+    _ ≤ ∑ l ∈ Finset.Ico a b, layervol (X := X) k n (a + 1) :=
+      Finset.sum_le_sum fun l ml ↦ antitone_layervol (by simp_all)
+    _ = _ := by rw [Finset.sum_const, Nat.card_Ico, nsmul_eq_mul]
+
+lemma top_tiles_aux : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) =
+    ∫⁻ t in Ioc 0 ((𝔐 (X := X) k n).toFinset.card * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t := by
+  set M := 𝔐 (X := X) k n
+  set Mc := M.toFinset.card
+  calc
+    _ = ∑ m ∈ Finset.univ.filter (· ∈ M), ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
+      congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
+    _ = ∫⁻ x, ∑ m ∈ Finset.univ.filter (· ∈ M), (𝓘 m : Set X).indicator 1 x :=
+      (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
+    _ = ∫⁻ x, ENNReal.ofReal (∑ m ∈ Finset.univ.filter (· ∈ M), (𝓘 m : Set X).indicator 1 x) := by
+      congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
+      · congr!; unfold indicator; split_ifs <;> simp
+      · exact fun _ _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
+    _ = ∫⁻ t in Ioi 0, layervol k n t := by
+      apply lintegral_eq_lintegral_meas_le
+      · exact ae_of_all volume fun _ ↦
+          Finset.sum_nonneg' fun _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
+      · exact Measurable.aemeasurable <|
+          Finset.measurable_sum _ (fun _ _ ↦ measurable_one.indicator coeGrid_measurable)
+    _ = _ := by
+      have nn : 0 ≤ (Mc * 2 ^ (n + 1) : ℝ) := by positivity
+      rw [← Ioc_union_Ioi_eq_Ioi nn, lintegral_union measurableSet_Ioi Ioc_disjoint_Ioi_same]
+      nth_rw 3 [← add_zero (lintegral ..)]; congr 1
+      have cgr : ∫⁻ (t : ℝ) in Ioi (Mc * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t =
+          ∫⁻ _ in Ioi (Mc * 2 ^ (n + 1) : ℝ), 0 := by
+        refine setLIntegral_congr_fun measurableSet_Ioi (ae_of_all volume fun t mt ↦
+          layervol_eq_zero_of_lt (lt_of_le_of_lt ?_ mt))
+        exact_mod_cast Nat.le_mul_of_pos_right Mc (by positivity)
+      rw [cgr, lintegral_zero]
+
 /-- Lemma 5.2.7 -/
 lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) ≤
     2 ^ (n + k + 3) * volume G := by
-  sorry
+  set M := 𝔐 (X := X) k n
+  let Mc := M.toFinset.card
+  calc
+    _ = ∫⁻ t in Ioc 0 (Mc * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t := top_tiles_aux
+    _ = ∑ l ∈ Finset.range Mc,
+        ∫⁻ t in Ioc ((l : ℝ) * 2 ^ (n + 1)) ((l + 1 : ℕ) * 2 ^ (n + 1)),
+          layervol (X := X) k n t := by
+      rw [Finset.range_eq_Ico, show (0 : ℝ) = (0 : ℕ) * 2 ^ (n + 1) by simp]
+      exact lintegral_Ioc_partition (by positivity)
+    _ ≤ ∑ l ∈ Finset.range Mc,
+        (((l + 1) * 2 ^ (n + 1) - l * 2 ^ (n + 1) : ℕ)) *
+          layervol (X := X) k n ((l * 2 ^ (n + 1) : ℕ) + 1) := by
+      convert Finset.sum_le_sum fun _ _ ↦ lintegral_Ioc_layervol_le <;> simp
+    _ = 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, layervol (X := X) k n (l * 2 ^ (n + 1) + 1 : ℕ) := by
+      rw [Finset.mul_sum]; congr! 2
+      · rw [← Nat.mul_sub_right_distrib]; simp
+      · congr; simp
+    _ = 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, volume (setA (X := X) l k n) := by
+      unfold layervol setA stackSize; congr! 3; ext x
+      rw [mem_setOf, mem_setOf, indicator_sum_eq_natCast, Nat.cast_le]
+      exact Nat.add_one_le_iff
+    _ ≤ 2 ^ (n + 1) * ∑ l ∈ Finset.range Mc, 2 ^ (k + 1 - l : ℤ) * volume G :=
+      mul_le_mul_left' (Finset.sum_le_sum fun _ _ ↦ john_nirenberg) _
+    _ ≤ 2 ^ (n + 1) * ∑' (l : ℕ), 2 ^ (k + 1 - l : ℤ) * volume G :=
+      mul_le_mul_left' (ENNReal.sum_le_tsum _) _
+    _ = 2 ^ (n + 1) * (volume G * 2 ^ (k + 1) * 2) := by
+      conv_lhs =>
+        enter [2, 1, l]
+        rw [sub_eq_add_neg, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate]
+      rw [ENNReal.tsum_mul_left]; congr 3
+      · norm_cast
+      · exact ENNReal.sum_geometric_two_pow_neg_one
+    _ = _ := by
+      nth_rw 3 [← pow_one 2]
+      rw [mul_rotate, ← pow_add, ← mul_assoc, ← pow_add,
+        show n + 1 + (k + 1 + 1) = n + k + 3 by omega]
+
+end TopTiles
 
 /-- Lemma 5.2.8 -/
 lemma tree_count :
