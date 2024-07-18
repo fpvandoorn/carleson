@@ -1,12 +1,11 @@
 /- This file contains the proof of Lemma 10.4, from section 10.7-/
 
 import Carleson.MetricCarleson
-import Carleson.Theorem1_1.Basic
-import Carleson.Theorem1_1.Hilbert_kernel
-import Carleson.Theorem1_1.CarlesonOperatorReal
-import Carleson.Theorem1_1.Van_der_Corput
+import Carleson.Classical.Basic
+import Carleson.Classical.HilbertKernel
+import Carleson.Classical.CarlesonOperatorReal
+import Carleson.Classical.VanDerCorput
 
---import Mathlib.Tactic
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.MeasureTheory.Integral.IntervalIntegral
 import Mathlib.Analysis.SpecialFunctions.Integrals

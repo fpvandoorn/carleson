@@ -1,7 +1,7 @@
 import Carleson.MetricCarleson
-import Carleson.Theorem1_1.Basic
-import Carleson.Theorem1_1.Approximation
-import Carleson.Theorem1_1.Control_Approximation_Effect
+import Carleson.Classical.Basic
+import Carleson.Classical.Approximation
+import Carleson.Classical.ControlApproximationEffect
 
 import Mathlib.Analysis.Fourier.AddCircle
 

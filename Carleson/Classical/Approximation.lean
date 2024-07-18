@@ -1,7 +1,7 @@
 /- The arguments in this file replace section 10.2 (Piecewise constant functions) from the paper. -/
 
 import Carleson.MetricCarleson
-import Carleson.Theorem1_1.Basic
+import Carleson.Classical.Basic
 
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convolution

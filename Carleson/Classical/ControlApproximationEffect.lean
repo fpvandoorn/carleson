@@ -1,10 +1,10 @@
 /- This file formalizes section 10.8 (The error bound) from the paper. -/
 import Carleson.MetricCarleson
-import Carleson.Theorem1_1.Basic
-import Carleson.Theorem1_1.Hilbert_kernel
-import Carleson.Theorem1_1.Dirichlet_kernel
-import Carleson.Theorem1_1.CarlesonOperatorReal
-import Carleson.Theorem1_1.Carleson_on_the_real_line
+import Carleson.Classical.Basic
+import Carleson.Classical.HilbertKernel
+import Carleson.Classical.DirichletKernel
+import Carleson.Classical.CarlesonOperatorReal
+import Carleson.Classical.CarlesonOnTheRealLine
 
 import Mathlib.Analysis.Fourier.AddCircle
 
