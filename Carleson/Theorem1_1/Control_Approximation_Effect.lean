@@ -564,7 +564,6 @@ lemma control_approximation_effect' {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real
               left
               left
               rw [fdef, ←mul_one (h y)]
-              congr
               simp only
               rw [Set.indicator_apply]
               have : y ∈ F := by

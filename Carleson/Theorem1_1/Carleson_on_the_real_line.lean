@@ -493,7 +493,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ 4) where
 --TODO : What is Lemma 10.34 (frequency ball growth) needed for?
 
 --set_option profiler true in
-instance h5 : IsCancellative ℝ (1 / (4 : ℕ)) where
+instance h5 : IsCancellative ℝ (defaultτ 4) where
   /- Lemma 10.36 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by
     intro x r ϕ K hK _ f g
@@ -501,7 +501,7 @@ instance h5 : IsCancellative ℝ (1 / (4 : ℕ)) where
     . rw [ball_eq_empty.mpr r_pos]
       simp
     push_neg at r_pos
-    rw [measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos])]
+    rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos])]
     unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric CompatibleFunctions.toFunctionDistances h4
     dsimp only
     unfold instFunctionDistancesReal
