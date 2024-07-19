@@ -345,6 +345,14 @@ lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
 
 variable (X)
 
+lemma a_pos : 0 < a := by linarith [four_le_a X]
+lemma cast_a_pos : 0 < (a : ℝ) := by norm_cast; exact a_pos X
+lemma τ_pos : 0 < defaultτ a := inv_pos.mpr (cast_a_pos X)
+lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
+
+/-- `τ` as an element of `ℝ≥0`. -/
+def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
+
 lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
 lemma q_nonneg : 0 ≤ q := (q_pos X).le
 
@@ -373,6 +381,7 @@ scoped notation "Z" => defaultZ a
 scoped notation "τ" => defaultτ a
 scoped notation "o" => cancelPt X
 scoped notation "S" => S X
+scoped notation "nnτ" => nnτ X
 scoped notation "nnq" => nnq X
 
 end ShortVariables
