@@ -28,14 +28,6 @@ lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) :
   intro y hy
   linarith [hy.1.2, hy.2.1, hr.1]
 
-lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) : MeasureTheory.volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
-  rw [annulus_real_eq hr.1, MeasureTheory.measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
-  ring_nf
-  rw [Set.disjoint_iff]
-  intro y hy
-  linarith [hy.1.2, hy.2.1, hr.1]
-
-
 lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (measurable_const.dist measurable_id) measurableSet_Ioo
 
 lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :

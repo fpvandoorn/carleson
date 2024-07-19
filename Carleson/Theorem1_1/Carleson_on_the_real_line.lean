@@ -217,30 +217,6 @@ instance instFunctionDistancesReal : FunctionDistances ℝ ℝ where
   }
 
 --TODO: add lemma to avoid unfolds.
---lemma dist_eq_ww
-  metric := fun _ R ↦ {
-      dist := fun n m ↦ 2 * max R 0 * |n - m|
-      dist_self := by simp
-      dist_comm := by
-        simp only [Int.cast_abs, Int.cast_sub, mul_eq_mul_left_iff, mul_eq_zero,
-          OfNat.ofNat_ne_zero, false_or]
-        intro x y
-        left
-        norm_cast
-        apply abs_sub_comm
-      dist_triangle := by
-        simp only [Int.cast_abs, Int.cast_sub]
-        intro x y z
-        rw [← mul_add]
-        gcongr
-        norm_cast
-        apply abs_sub_le
-      --next field will get default in mathlib
-      --TODO: remove when that is the case
-      edist_dist := fun x y ↦ rfl
-  }
-
---TODO: add lemma to avoid unfolds.
 --lemma dist_eq_
 
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
@@ -516,7 +492,7 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
       simp
     push_neg at r_pos
     rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos])]
-    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric CompatibleFunctions.toFunctionDistances h4
+    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric CompatibleFunctions.toFunctionDistances compatibleFunctions_R
     dsimp only
     unfold instFunctionDistancesReal
     dsimp only
@@ -677,6 +653,7 @@ lemma rcarleson {F G : Set ℝ}
     :
     ∫⁻ x in G, T f x ≤
     ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
+  have conj_exponents : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, CarlesonOperator K f x :=
       MeasureTheory.lintegral_mono (CarlesonOperatorReal_le_CarlesonOperator _)
