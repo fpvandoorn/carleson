@@ -1212,6 +1212,8 @@ with
 
 \begin{lemma}[basic grid structure]
     \label{basic-grid-structure}
+    \leanok
+    \lean{I1_prop_1,I3_prop_1,I3_prop_3_2,I2_prop_2,I3_prop_2,I3_prop_3_1,I3_nonempty}
     \uses{cover-big-ball}
     For each $-S\le k\le S$ and $1\le j\le 3$
     the following holds.
@@ -1234,6 +1236,7 @@ with
 \end{lemma}
 
 \begin{proof}
+\leanok
 We prove these statements simultaneously by induction on the ordered set of pairs $(y,k)$. Let $-S\le k\le S$.
 
 We first consider \eqref{disji} for $j=1$. If $k=-S$, disjointedness of the sets $I_1(y,-S)$ follows by definition of $I_1$ and $Y_k$. If $k>-S$, assume $x$ is in $I_1(y_m,k)$ for $m=1,2$. Then, for $m=1,2$, there is $z_m\in Y_{k-1}\cap B(y_m,D^k)$ with $x\in I_3(z_m,k-1)$. Using \eqref{disji} inductively for $j=3$, we conclude $z_1=z_2$. This implies that the balls $B(y_1, D^k)$ and $B(y_2, D^k)$ intersect. By construction of $Y_k$, this implies $y_1=y_2$. This proves \eqref{disji} for $j=1$.
@@ -1251,6 +1254,8 @@ We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $
 
 \begin{lemma}[cover by cubes]
     \label{cover-by-cubes}
+    \leanok
+    \lean{cover_by_cubes}
     Let $-S\le l\le k\le S$ and
     $y\in Y_k$.
     We have
@@ -1259,6 +1264,7 @@ We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $
     \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     Let $-S\le l\le k\le S$ and $y\in Y_k$.
     If $l=k$, the inclusion \eqref{3coverdyadic}
     is true from the definition of set union.
@@ -1272,6 +1278,8 @@ We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $
 
 \begin{lemma}[dyadic property]
     \label{dyadic-property}
+    \leanok
+    \lean{dyadic_property}
     \uses{basic-grid-structure, cover-by-cubes}
     Let $-S\le l\le k\le S$ and $y\in Y_k$ and $y'\in Y_l$ with
     $I_3(y',l)\cap I_3(y,k)\neq \emptyset$. Then
@@ -1282,6 +1290,7 @@ We show the second inclusion in \eqref{squeezedyadic}. Let $x\in I_3(y,k)$. As $
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $l,k,y,y'$ be as in the lemma. Pick $x\in I_3(y',l)\cap I_3(y,k)$. Assume first $l=k$. By \eqref{disji} of \Cref{basic-grid-structure}, we conclude $y'=y$, and thus \eqref{3dyadicproperty}. Now assume $l<k$. By induction, we may assume that the statement of the lemma is proven for $k-1$ in place of $k$.
 
 By \Cref{cover-by-cubes}, there is a $y''\in Y_{k-1}$ such that $x\in I_3(y'',k-1)$. By induction, we have $I_3(y',l)\subset I_3(y'',k-1)$. It remains to prove
@@ -1300,6 +1309,8 @@ write $(y',k'|y,k)$ if $I_3(y',k')\subset I_3(y,k)$ and
 \end{equation}
 
 \begin{lemma}[transitive boundary]
+    \leanok
+    \lean{transitive_boundary}
     \label{transitive-boundary}
     \uses{dyadic-property}
     Assume $-S\le k''< k'< k\le S$ and
@@ -1313,6 +1324,7 @@ write $(y',k'|y,k)$ if $I_3(y',k')\subset I_3(y,k)$ and
 \end{lemma}
 
 \begin{proof}
+    \leanok
     As $x\in I_3(y'',k'')\cap I_3(y',k')$ and $k''< k'$, we have by \Cref{dyadic-property} that
     $I_3(y'',k'')\subset I_3(y',k')$. Similarly,
     $I_3(y',k')\subset I_3(y,k)$.
@@ -1338,6 +1350,8 @@ write $(y',k'|y,k)$ if $I_3(y',k')\subset I_3(y,k)$ and
 
 
 \begin{lemma}[small boundary]
+    \leanok
+    \lean{small_boundary}
     \label{small-boundary}
     \uses{transitive-boundary}
     Let $K = 2^{4a+1}$. For each $-S+K\le k\le S$ and $y\in Y_k$ we have
@@ -1348,6 +1362,7 @@ write $(y',k'|y,k)$ if $I_3(y',k')\subset I_3(y,k)$ and
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $K$ be as in the lemma. Let $-S+K\le k\le S$ and $y\in Y_k$.
 
 Pick $k'$ so that $k-K\le k'\le k$.
@@ -1414,6 +1429,8 @@ This proves the lemma.
 \end{proof}
 
 \begin{lemma}[smaller boundary]
+    \leanok
+    \lean{smaller_boundary}
     \label{smaller-boundary}
     \uses{small-boundary}
     Let $K = 2^{4a+1}$
@@ -1425,6 +1442,7 @@ This proves the lemma.
         \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     We prove this by induction on $n$. If $n=0$,
     both sides of \eqref{very-new-small} are equal to
     $\mu(I_3(y,k))$ by \eqref{disji}. If $n=1$, this follows from \Cref{small-boundary}.
@@ -1446,6 +1464,8 @@ This proves the lemma.
 \end{proof}
 
 \begin{lemma}[boundary measure]
+    \leanok
+    \lean{boundary_measure}
     \label{boundary-measure}
     \uses{smaller-boundary}
     For each $-S\le k\le S$ and $y\in Y_k$ and $0<t<1$
@@ -1456,6 +1476,7 @@ This proves the lemma.
     \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 Let $x\in I_3(y,k)$ with $\rho(x, X \setminus I_3(y,k)) \leq t D^{k}$. Let $K = 2^{4a+1}$ as in \Cref{smaller-boundary}.
 Let $n$ be the largest integer such that
 $D^{nK} \le \frac{1}{t}$, so that $tD^k \le D^{k-nK}$ and
