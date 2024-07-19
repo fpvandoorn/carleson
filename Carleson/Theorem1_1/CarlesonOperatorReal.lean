@@ -14,19 +14,19 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
     Set.mem_setOf_eq, Set.mem_union]
   constructor
   · rintro ⟨(h₀ | h₀), h₁, h₂⟩
-    · left
-      constructor <;> linarith
-    · right
-      constructor <;> linarith
+    · left; constructor <;> linarith
+    · right; constructor <;> linarith
   · rintro (⟨h₀, h₁⟩ | ⟨h₀, h₁⟩)
-    · constructor
-      · left
-        linarith
-      · constructor <;> linarith
-    · constructor
-      · right
-        linarith
-      · constructor <;> linarith
+    · exact ⟨by left; linarith, by constructor <;> linarith⟩
+    · exact ⟨by right; linarith, by constructor <;> linarith⟩
+
+lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) :
+    MeasureTheory.volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
+  rw [annulus_real_eq hr.1, MeasureTheory.measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
+  ring_nf
+  rw [Set.disjoint_iff]
+  intro y hy
+  linarith [hy.1.2, hy.2.1, hr.1]
 
 lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) : MeasureTheory.volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
   rw [annulus_real_eq hr.1, MeasureTheory.measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
@@ -41,36 +41,26 @@ lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.
 lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :
     ⨆ r ∈ S, f r = ⨆ r ∈ (S ∩ D), f r := by
   --Show two inequalities, one is trivial
-  apply le_antisymm _ (biSup_mono Set.inter_subset_left)
-  apply le_of_forall_ge_of_dense
-  intro c hc
+  refine le_antisymm (le_of_forall_ge_of_dense fun c hc ↦ ?_) (biSup_mono Set.inter_subset_left)
   rw [lt_iSup_iff] at hc
   rcases hc with ⟨x, hx⟩
   rw [lt_iSup_iff] at hx
   rcases hx with ⟨xS, hx⟩
   have : IsOpen (S ∩ f ⁻¹' (Set.Ioi c)) := hf.isOpen_inter_preimage hS isOpen_Ioi
   have : Set.Nonempty ((S ∩ f ⁻¹' (Set.Ioi c)) ∩ D) := by
-    apply hD.inter_open_nonempty
-    exact this
+    apply hD.inter_open_nonempty _ this _
     use x, xS
     simpa
   rcases this with ⟨y, hy⟩
   rw [Set.mem_inter_iff, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ioi] at hy
-  apply hy.1.2.le.trans
-  apply le_biSup
-  exact ⟨hy.1.1, hy.2⟩
+  exact hy.1.2.le.trans (le_biSup _ ⟨hy.1.1, hy.2⟩)
 
-lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) : Measurable (Function.uncurry fun x y ↦ f y * K x y * (Complex.I * n * y).exp) := by
-  apply Measurable.mul
-  apply Measurable.mul
-  apply hf.comp measurable_snd
-  exact Hilbert_kernel_measurable
-  apply Measurable.cexp
-  apply Measurable.mul measurable_const
-  apply Complex.measurable_ofReal.comp measurable_snd
+lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
+    Measurable (Function.uncurry fun x y ↦ f y * K x y * (Complex.I * n * y).exp) :=
+  Measurable.mul (Measurable.mul (hf.comp measurable_snd) Hilbert_kernel_measurable)
+  (measurable_const.mul (Complex.measurable_ofReal.comp measurable_snd)).cexp
 
 local notation "T" => CarlesonOperatorReal K
-
 
 lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
   --TODO: clean up proof
@@ -97,17 +87,13 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
     . rw [Rat.denseEmbedding_coe_real.dense_image]
       exact dense_univ
     . rw [Set.countable_coe_iff, Qdef, Set.image_univ]
-      apply Set.countable_range
+      exact Set.countable_range _
   have : (fun x ↦ ⨆ (r ∈ Set.Ioo 0 1), G x r) = (fun x ↦ ⨆ (r ∈ (Set.Ioo 0 1) ∩ Q), G x r) := by
     ext x
     rw [sup_eq_sup_dense_of_continuous Q isOpen_Ioo hQ.1]
-    intro r hr
-    apply ContinuousAt.continuousWithinAt
-    apply ContinuousAt.comp
-    . apply Continuous.continuousAt
-      apply EReal.continuous_coe_ennreal_iff.mp
-      apply EReal.continuous_coe_iff.mpr (continuous_iff_le_induced.mpr fun U a ↦ a)
-    apply ContinuousAt.nnnorm
+    refine fun r hr ↦ ContinuousAt.continuousWithinAt (ContinuousAt.comp (Continuous.continuousAt
+      (EReal.continuous_coe_ennreal_iff.mp (EReal.continuous_coe_iff.mpr
+      (continuous_iff_le_induced.mpr fun U a ↦ a)))) (ContinuousAt.nnnorm ?_))
     set S := Set.Ioo (r / 2) (2 * r) with Sdef
     set bound := fun y ↦ ‖F x (r / 2) y‖ with bound_def
     have h_bound : ∀ᶠ (s : ℝ) in nhds r, ∀ᵐ (a : ℝ), ‖F x s a‖ ≤ bound a := by
@@ -155,8 +141,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       . rw [annulus_real_volume (by constructor <;> linarith [hr.1, hr.2])]
         exact ENNReal.ofReal_ne_top
       . --measurability
-        apply Measurable.aestronglyMeasurable
-        apply Measurable.norm (Measurable.of_uncurry_left (helper f_measurable))
+        apply ((Measurable.of_uncurry_left (helper f_measurable)).norm).aestronglyMeasurable
       . --interesting part
         rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
         simp_rw [norm_norm]
@@ -179,9 +164,8 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         . push_neg at h
           rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
           all_goals
-            simp
-            intro _
-            exact h
+            simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
+            exact fun _ ↦ h
       have contOn2 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Ioi (min (dist x y) 1)) := by
         intro y
         rw [continuousOn_iff_continuous_restrict]
@@ -208,10 +192,10 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       have contOn : ∀ y, ∀ t ≠ dist x y, ContinuousAt (fun s ↦ F x s y) t := by
         intro y t ht
         by_cases h : t < dist x y
-        . apply (contOn1 y).continuousAt (Iio_mem_nhds h)
+        . exact_mod_cast (contOn1 y).continuousAt (Iio_mem_nhds h)
         . push_neg at h
-          apply ContinuousOn.continuousAt (contOn2 y)
-          exact Ioi_mem_nhds ((min_le_left _ _).trans_lt (lt_of_le_of_ne h ht.symm))
+          exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
+            ((min_le_left _ _).trans_lt (lt_of_le_of_ne h ht.symm)))
       have subset_finite : {y | ¬ContinuousAt (fun s ↦ F x s y) r} ⊆ ({x - r, x + r} : Finset ℝ) := by
         intro y hy
         have : dist x y = r := by
@@ -224,24 +208,18 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         . left; linarith
         . right; linarith
       rw [MeasureTheory.ae_iff]
-      apply MeasureTheory.measure_mono_null subset_finite
-      apply Finset.measure_zero
-    . apply Filter.eventually_of_forall
-      intro r
-      apply ((Measurable.of_uncurry_left (helper f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
+      exact MeasureTheory.measure_mono_null subset_finite (Finset.measure_zero _ _)
+    . exact Filter.eventually_of_forall fun r ↦ ((Measurable.of_uncurry_left
+        (helper f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
-  apply measurable_biSup
+  apply measurable_biSup _
   apply Set.Countable.mono Set.inter_subset_right hQ.2
   intro r _
-  --measurability
-  apply measurable_coe_nnreal_ennreal.comp
-  apply measurable_nnnorm.comp
+  apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)
   rw [← stronglyMeasurable_iff_measurable]
   apply MeasureTheory.StronglyMeasurable.integral_prod_right
   rw [stronglyMeasurable_iff_measurable, Fdef]
-  apply Measurable.indicator (helper f_measurable) (measurable_dist measurableSet_Ioo)
-
-
+  exact Measurable.indicator (helper f_measurable) (measurable_dist measurableSet_Ioo)
 
 theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal, CarlesonOperatorReal, ENNReal.mul_iSup]
