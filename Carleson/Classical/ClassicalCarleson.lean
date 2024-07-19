@@ -20,7 +20,7 @@ theorem classical_carleson {f : ℝ → ℂ}
   have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
 
   -- Approximation
-  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := closeSmoothApproxPeriodic unicontf periodicf ε'pos
+  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic unicontf periodicf ε'pos
   have ε4pos : ε / 4 > 0 := by linarith
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
 

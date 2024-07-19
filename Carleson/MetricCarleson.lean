@@ -128,7 +128,7 @@ segment. -/
 
 /- Theorem 1.2, written using constant C1_2 -/
 theorem metric_carleson [CompatibleFunctions ℝ X (2 ^ a)]
-  [IsCancellative X (1 / a)] [IsOneSidedKernel a K]
+  [IsCancellative X (defaultτ a)] [IsOneSidedKernel a K]
     (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (hT : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts a))

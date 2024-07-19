@@ -211,9 +211,8 @@ lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {N : ℕ} {x 
       simp
     _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (x - 2 * Real.pi)..(x - 0), f (x - y) * dirichletKernel' N y := by
       congr 1
-      apply intervalIntegral.integral_congr_ae
-      apply MeasureTheory.ae_imp_of_ae_restrict
-      apply MeasureTheory.ae_restrict_of_ae
+      apply intervalIntegral.integral_congr_ae (MeasureTheory.ae_imp_of_ae_restrict
+        (MeasureTheory.ae_restrict_of_ae _))
       have : {a | ¬f (x - a) * dirichletKernel N a = f (x - a) * dirichletKernel' N a} ⊆ {a | ¬dirichletKernel N a = dirichletKernel' N a} := by
         intro a ha
         contrapose! ha

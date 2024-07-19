@@ -61,8 +61,8 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           rw [Function.comp_apply, RCLike.norm_conj]
           apply (h2 x hx)
         . simp [n_nonzero]
-        . simp
-          apply lt_of_le_of_ne n_pos n_nonzero
+        . simp only [Left.neg_pos_iff]
+          exact lt_of_le_of_ne n_pos n_nonzero
     rw [abs_neg]
   --Case distinction such that splitting integrals in the second case works.
   by_cases h : b - a < Real.pi / n
@@ -81,13 +81,13 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           rw [Complex.norm_exp_ofReal_mul_I, one_mul]
           exact (h2 x hx)
         . rw [Real.volume_Ioo]
-          apply ENNReal.ofReal_lt_top
+          exact ENNReal.ofReal_lt_top
       _ = B * (b - a) := by
         rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
       _ = (1 + |n| * (b - a)) * (1 + |n| * (b - a))⁻¹ * (b - a) * B := by
         rw [mul_inv_cancel]
         ring
-        apply ne_of_gt this
+        exact ne_of_gt this
       _ ≤ (Real.pi + Real.pi) * (1 + |n| * (b - a))⁻¹ * (b - a) * (B + K * (b - a) / 2) := by
         gcongr
         . apply mul_nonneg
@@ -103,15 +103,13 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         . simpa
       _ = 2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by ring
   push_neg at h
-  have pi_div_n_pos : 0 < Real.pi / n := by
-    apply div_pos Real.pi_pos (by simpa)
-  have integrand_continuous : Continuous (fun x ↦ cexp (I * ↑n * ↑x) * ϕ x)  := by
-    apply Continuous.mul (by continuity) h1.continuous
-  have integrand_continuous2 : Continuous (fun x ↦ cexp (I * ↑n * (↑x + ↑Real.pi / ↑n)) * ϕ x) := by
-    apply Continuous.mul (by continuity) h1.continuous
-  have integrand_continuous3 : Continuous (fun (x : ℝ) ↦ cexp (I * n * x) * ϕ (x - Real.pi / n)) := by
-    apply Continuous.mul (by continuity)
-    apply h1.continuous.comp (by continuity)
+  have pi_div_n_pos : 0 < Real.pi / n := div_pos Real.pi_pos (by simpa)
+  have integrand_continuous : Continuous (fun x ↦ cexp (I * ↑n * ↑x) * ϕ x)  :=
+    Continuous.mul (by continuity) h1.continuous
+  have integrand_continuous2 : Continuous (fun x ↦ cexp (I * ↑n * (↑x + ↑Real.pi / ↑n)) * ϕ x) :=
+    Continuous.mul (by continuity) h1.continuous
+  have integrand_continuous3 : Continuous (fun (x : ℝ) ↦ cexp (I * n * x) * ϕ (x - Real.pi / n)) :=
+    Continuous.mul (by continuity) (h1.continuous.comp (by continuity))
   calc _
     _ = ‖∫ (x : ℝ) in a..b, (1 / 2 * (I * n * x).exp - 1 / 2 * (I * ↑n * (↑x + ↑Real.pi / ↑n)).exp) * ϕ x‖ := by
       congr
@@ -130,19 +128,19 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       congr
       simp
       rw [← intervalIntegral.integral_sub]
-      apply integrand_continuous.intervalIntegrable
-      apply integrand_continuous2.intervalIntegrable
+      · exact integrand_continuous.intervalIntegrable _ _
+      · exact integrand_continuous2.intervalIntegrable _ _
     _ = 1 / 2 * ‖  (∫ (x : ℝ) in a..(a + Real.pi / n), (I * n * x).exp * ϕ x)
                  + (∫ (x : ℝ) in (a + Real.pi / n)..b, (I * n * x).exp * ϕ x)
                  -((∫ (x : ℝ) in a..(b - Real.pi / n), (I * n * (x + Real.pi / n)).exp * ϕ x)
                  + (∫ (x : ℝ) in (b - Real.pi / n)..b, (I * n * (x + Real.pi / n)).exp * ϕ x))‖ := by
       congr 3
       rw [intervalIntegral.integral_add_adjacent_intervals]
-      apply integrand_continuous.intervalIntegrable
-      apply integrand_continuous.intervalIntegrable
+      · exact integrand_continuous.intervalIntegrable _ _
+      · exact integrand_continuous.intervalIntegrable _ _
       rw [intervalIntegral.integral_add_adjacent_intervals]
-      apply integrand_continuous2.intervalIntegrable
-      apply integrand_continuous2.intervalIntegrable
+      · exact integrand_continuous2.intervalIntegrable _ _
+      · exact integrand_continuous2.intervalIntegrable _ _
     _ = 1 / 2 * ‖  (∫ (x : ℝ) in a..(a + Real.pi / n), (I * n * x).exp * ϕ x)
                  + (∫ (x : ℝ) in (a + Real.pi / n)..b, (I * n * x).exp * ϕ x)
                  -((∫ (x : ℝ) in (a + Real.pi / n)..(b - Real.pi / n + Real.pi / n), (I * n * x).exp * ϕ (x - Real.pi / n))
@@ -165,8 +163,8 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       congr
       ext x
       ring
-      apply integrand_continuous.intervalIntegrable
-      apply integrand_continuous3.intervalIntegrable
+      · exact integrand_continuous.intervalIntegrable _ _
+      · exact integrand_continuous3.intervalIntegrable _ _
     _ ≤ 1 / 2 * (  ‖(∫ (x : ℝ) in a..(a + Real.pi / n), (I * n * x).exp * ϕ x)
                  +  (∫ (x : ℝ) in (a + Real.pi / n)..b, (I * n * x).exp * (ϕ x - ϕ (x - Real.pi / n)))‖
                  + ‖∫ (x : ℝ) in (b - Real.pi / n)..b, (I * n * (x + Real.pi / n)).exp * ϕ x‖) := by
@@ -208,7 +206,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
             apply le_of_eq
             ring
         . rw [Real.volume_Ioo]
-          apply ENNReal.ofReal_lt_top
+          exact ENNReal.ofReal_lt_top
       . apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
         . intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
@@ -217,7 +215,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           apply h2
           constructor <;> linarith [hx.1, hx.2]
         . rw [Real.volume_Ioo]
-          apply ENNReal.ofReal_lt_top
+          exact ENNReal.ofReal_lt_top
     _ = Real.pi / n * (B + K * (b - (a + Real.pi / n)) / 2) := by
       rw [Real.volume_Ioo, Real.volume_Ioo, Real.volume_Ioo, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal]
       ring
@@ -236,8 +234,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           gcongr
           rwa [← div_le_iff' (by simpa)]
         _ = (b - a) * (2 * Real.pi) * n := by ring
-      apply add_pos zero_lt_one
-      apply mul_pos (by simpa) (by linarith)
+      exact add_pos zero_lt_one (mul_pos (by simpa) (by linarith))
     _ = 2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
       rw [_root_.abs_of_nonneg n_pos.le]
       ring
