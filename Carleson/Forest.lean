@@ -22,12 +22,11 @@ lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
   simp_rw [Finset.filter_filter]
   congr
 
-lemma stackSize_congr (h : C = C') (h2 : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X))  :
-    stackSize C x = stackSize C' x' := by
-  subst h
+lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
+    stackSize C x = stackSize C x' := by
   refine Finset.sum_congr rfl fun p hp ↦ ?_
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
-  simp_rw [indicator, h2 p hp, Pi.one_apply]
+  simp_rw [indicator, h p hp, Pi.one_apply]
 
 lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
   apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)

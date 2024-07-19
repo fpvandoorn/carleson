@@ -2940,15 +2940,27 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
     \label{forest-stacking}
     \leanok
     \lean{forest_stacking}
-    It holds that
+    It holds for $k<n$ that
     \begin{equation}
-        \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le 1 + (4n+12)2^{n}\,.
+        \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le (4n+12)2^{n}\,.
     \end{equation}
-    % Note(Georges Gonthier): Because we removed the `1 +` from \eqref{eq-Aoverlap-def} we can also remove the 1+ here.
 \end{lemma}
 
 \begin{proof}
-    Suppose that a point $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\scI(\fu)$ with $\fu \in \fU_3(k,n,j)$. Since $\fU_3(k,n,j) \subset \fC_1(k,n,j)$ for each such $\fu$, there exists $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$. We fix such an $\mathfrak{m}(\fu) := \mathfrak{m}$ for each $\fu$, and claim that the map $\fu \mapsto\mathfrak{m}(\fu)$ is injective. Indeed, assume for $\fu\neq \fu'$ there is $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$ and $100\fu' \lesssim \mathfrak{m}$. By \eqref{dyadicproperty}, either $\scI(\fu) \subset \scI(\fu')$ or $\scI(\fu') \subset \scI(\fu)$. By \eqref{defunkj}, $B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. This contradicts $\Omega(\mathfrak{m})$ being contained in both sets by \eqref{eq-freq-comp-ball}. Thus $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\scI(\mathfrak{m})$, $\mathfrak{m} \in \mathfrak{M}(k,n)$. Consequently, we have by \eqref{eq-Aoverlap-def} that $x \in A(2n + 6, k,n) \subset G_2$. Let $\scI(\fu)$ be an inclusion minimal cube among the $\scI(\fu'), \fu' \in \fU_3(k,n,j)$ with $x \in \scI(\fu)$. By the dyadic property \eqref{dyadicproperty}, we have $\scI(\fu) \subset \scI(\fu')$ for all cubes $\scI(\fu')$ containing $x$. Thus
+    \leanok
+    Suppose that a point $x$ is contained in more than $(4n + 12)2^n$ cubes $\scI(\fu)$ with $\fu \in \fU_3(k,n,j)$.
+    Since $\fU_3(k,n,j) \subset \fC_1(k,n,j)$ for each such $\fu$,
+    there exists $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$.
+    We fix such an $\mathfrak{m}(\fu) := \mathfrak{m}$ for each $\fu$, and claim that the map $\fu \mapsto\mathfrak{m}(\fu)$ is injective.
+    Indeed, assume for $\fu\neq \fu'$ there is $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that
+    $100\fu \lesssim \mathfrak{m}$ and $100\fu' \lesssim \mathfrak{m}$. By \eqref{dyadicproperty},
+    either $\scI(\fu) \subset \scI(\fu')$ or $\scI(\fu') \subset \scI(\fu)$.
+    By \eqref{defunkj}, $B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$.
+    This contradicts $\Omega(\mathfrak{m})$ being contained in both sets by \eqref{eq-freq-comp-ball}.
+    Thus $x$ is contained in more than $(4n + 12)2^n$ cubes $\scI(\mathfrak{m})$, $\mathfrak{m} \in \mathfrak{M}(k,n)$.
+    Consequently, we have by \eqref{eq-Aoverlap-def} that $x \in A(2n + 6, k,n) \subset G_2$.
+    Let $\scI(\fu)$ be an inclusion minimal cube among the $\scI(\fu'), \fu' \in \fU_3(k,n,j)$ with $x \in \scI(\fu)$.
+    By the dyadic property \eqref{dyadicproperty}, we have $\scI(\fu) \subset \scI(\fu')$ for all cubes $\scI(\fu')$ containing $x$. Thus
     $$
         \scI(\fu) \subset \{y \ : \ \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)}(y) > 1 + (4n+12)2^{n}\} \subset G_2\,.
     $$
