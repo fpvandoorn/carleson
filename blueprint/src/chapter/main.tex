@@ -6497,7 +6497,7 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
 \end{equation}
 \begin{theorem}[two-sided metric space Carleson]
     \label{two-sided-metric-space-Carleson}
-    \uses{metric-space-Carleson}
+    \uses{metric-space-Carleson,non-tangential-from-simple}
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$
         the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
@@ -7645,8 +7645,8 @@ use the following \Cref{real-Carleson}, which itself is proven
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
 \leanok
-% \lean{}
-\uses{two-sided-metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2}
+\lean{rcarleson}
+\uses{two-sided-metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2,Hilbert-kernel-regularity,Hilbert-kernel-bound}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
 \begin{equation}
     \left|\int _G Tf(x) \, dx\right| \le C_{4,2} |F|^{\frac 12} |G|^{\frac 12} \, ,
@@ -7664,6 +7664,8 @@ One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concernin
 \begin{lemma}[Hilbert strong 2 2]
     \label{Hilbert-strong-2-2}
     \uses{modulated-averaged-projection,integrable-bump-convolution,Dirichlet-approximation}
+    %\lean{Hilbert_strong_2_2}
+    %\leanok
     Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
     \begin{equation}
         \label{eq-Hr-L2-bound}
@@ -8682,7 +8684,9 @@ Define
 \end{proof}
 
 \begin{lemma}[oscillation control]
-    \label{oscillation-control}
+\label{oscillation-control}
+\leanok
+\lean{oscillation_control}
     For every $R > 0$ and $x \in X$, and for all $n, m \in \mathbb{Z}$, we have
     \begin{equation}\label{eqcarl2}
        \sup_{y,y'\in B(x,R)}|ny-ny'-my+my'|\le 2|n-m|R\, .
@@ -8690,6 +8694,7 @@ Define
 \end{lemma}
 
 \begin{proof}
+\leanok
     The right hand side of \eqref{eqcarl2} equals
     $$
         \sup_{y,y'\in B(x,R)}|(n-m)(y-x)-(n-m)(y'-x)|\,.
@@ -8699,6 +8704,8 @@ Define
 
 \begin{lemma}[frequency monotone]
 \label{frequency-monotone}
+\lean{frequency_monotone}
+\leanok
 
     For any $x, x' \in X$ and $R, R' > 0$ with $B(x,R) \subset B(x, R')$, and for any $n, m \in \mathbb{Z}$
     $$
@@ -8707,11 +8714,14 @@ Define
 \end{lemma}
 
 \begin{proof}
+\leanok
     This follows immediately from the definition \eqref{eqcarl4} and $R \le R'$.
 \end{proof}
 
 \begin{lemma}[frequency ball doubling]
 \label{frequency-ball-doubling}
+\lean{frequency_ball_doubling}
+\leanok
 \uses{frequency-metric}
   For any $x,x'\in \R$ and $R>0$ with
    $x\in B(x',2R)$ and any $n,m\in \mathbb{Z}$, we have
@@ -8719,24 +8729,32 @@ Define
     d_{B(x',2R)}(\mfa_n,\mfa_m)\le 2 d_{B(x,R)}(\mfa_n,\mfa_m) \, .
 \end{equation}
 \end{lemma}
+
 \begin{proof}
+\leanok
 With \eqref{eqcarl4}, both sides of \eqref{firstdb1} are equal to $4R|n-m|$. This proves the lemma.
 \end{proof}
 
 \begin{lemma}[frequency ball growth]
 \label{frequency-ball-growth}
+\lean{frequency_ball_growth}
+\leanok
     For any $x,x'\in \R$ and $R>0$ with
    $B(x,R)\subset B(x',2R)$ and any $n,m\in \mathbb{Z}$, we have
 \begin{equation}\label{seconddb1}
     2d_{B(x,R)}(\mfa_n,\mfa_m)\le d_{B(x',2R)}(\mfa_n,\mfa_m) \, .
 \end{equation}
 \end{lemma}
+
 \begin{proof}
-With \eqref{eqcarl4}, both sides of \eqref{firstdb1} are equal to $4R|n-m|$. This proves the lemma.
+\leanok
+    With \eqref{eqcarl4}, both sides of \eqref{firstdb1} are equal to $4R|n-m|$. This proves the lemma.
 \end{proof}
 
 \begin{lemma}[integer ball cover]
-\label{integer-ball-cover}
+    \label{integer-ball-cover}
+    \lean{integer_ball_cover}
+    \leanok
     For every $x\in \R$ and $R>0$ and every
     $n\in \mathbb{Z}$ and $R'>0$,
     there exist $m_1, m_2, m_3\in \mathbb{Z}$
@@ -8754,9 +8772,10 @@ and for $j=1,2,3$
      \{ \mfa \in \Mf: d_{B(x,R)}(\mfa, \mfa_{m_j})<R'\}
      \, .
 \end{equation}
-
 \end{lemma}
+
 \begin{proof}
+\leanok
 Let $m_1$ be the largest integer smaller than
 or equal to
 $n- \frac {R'} {2R}$.
@@ -8798,6 +8817,7 @@ This completes the proof of the lemma.
 
 \begin{lemma}[real van der Corput]
 \label{real-van-der-Corput}
+\lean{real_van_der_Corput}
 \uses{van-der-Corput}
     For any $x\in \R$ and $R>0$ and any
     function $\varphi: X\to \C$ supported on $B'=B(x,R)$
@@ -8822,10 +8842,11 @@ Set $n'=n-m$. Then we have to prove
 This follows from \Cref{van-der-Corput} with $\alpha = x - R$ and $\beta = x + R$.
 \end{proof}
 
+\begin{proof}[Proof of \Cref{real-Carleson}]
+\proves{real-Carleson}
+\leanok
+
 The preceding chain of lemmas establish that $\Mf$ is a cancellative, compatible collection of functions on $(\R, \rho, \mu, 4)$. Again, some of the statements in these lemmas are stronger than what is needed for $a=4$, but can be relaxed to give the desired conclusion for $a=4$.
-
-
-
 
 With $\kappa$ as near \eqref{eq-hilker}, define
 the function $K:\R\times \R\to \mathbb{C}$ as in Theorem
@@ -8841,6 +8862,7 @@ By \Cref{Hilbert-kernel-bound,Hilbert-kernel-regularity}, it follows that $K$ is
 \Cref{Hilbert-strong-2-2} verifies \eqref{two-sided-Hr-bound-assumption}.
 Thus the assumptions of \Cref{two-sided-metric-space-Carleson} are all satisfied. Applying the Theorem, \Cref{real-Carleson} follows.
 
+\end{proof}
 
 
 \printbibliography
