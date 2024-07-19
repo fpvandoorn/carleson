@@ -32,7 +32,8 @@ lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β
 end section
 
 /- TODO: might be generalized. -/
-lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
+--TODO: probably not needed here in this form
+lemma close_smooth_approx {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
@@ -46,7 +47,7 @@ lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε :
       fun y hy ↦ (hδ hy).le
 
 /- Slightly different version-/
-lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
+lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * Real.pi)) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ f₀.Periodic (2 * Real.pi) ∧
       ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by

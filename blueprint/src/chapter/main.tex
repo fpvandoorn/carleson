@@ -7559,9 +7559,9 @@ f_0:=f \ast \phi_\delta,
 where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\delta) \subset (-\delta, \delta)$ and $\int _\R \phi_\delta (x) \, dx = 1$.
 
 \begin{lemma}[smooth approximation]
-    \label{smooth-approximation}
-    \leanok
-    % \lean{}
+\label{smooth-approximation}
+\leanok
+\lean{close_smooth_approx_periodic}
     The function $f_0$ is $2\pi$-periodic.
     The function $f_0$ is smooth (and therefore measurable).
     The function $f_0$ satisfies for all $x\in \R$:
@@ -7577,10 +7577,10 @@ where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\del
 
 We prove in \Cref{10smooth}:
 \begin{lemma}[convergence for smooth]
-    \label{convergence-for-smooth}
-    \leanok
-    % \lean{}
-    \uses{convergence-for-twice-contdiff}
+\label{convergence-for-smooth}
+\uses{convergence-for-twice-contdiff}
+\leanok
+%\lean{fourierConv_ofTwiceDifferentiable}
     There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
     \begin{equation}
         |S_N f_0 (x)- f_0(x)|\le \frac \epsilon 4\, .
@@ -7804,7 +7804,7 @@ The following lemma will be proved in \Cref{10projection}.
 \begin{lemma}[Hilbert kernel bound]
 \label{Hilbert-kernel-bound}
 \leanok
-% \lean{}
+\lean{Hilbert_kernel_bound}
 \uses{lower-secant-bound}
     For $x,y\in \R$ with $x\neq y$ we have
     \begin{equation}\label{eqcarl30}
@@ -7829,7 +7829,7 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 \begin{lemma}[Hilbert kernel regularity]
 \label{Hilbert-kernel-regularity}
 \leanok
-% \lean{}
+\lean{Hilbert_kernel_regularity}
 \uses{lower-secant-bound}
     For $x,y,y'\in \R$ with $x\neq y,y'$ and
     \begin{equation}
@@ -7902,7 +7902,7 @@ This is part of the Lean library.
 \begin{lemma}
 \label{convergence-of-coeffs-summable}
 \leanok
-% \lean{}
+\lean{hasSum_fourier_series_of_summable}
 Let $f:\R \to \C$ such that
 \begin{equation}
     \sum_{n\in \Z} |\widehat{f}_n| < \infty.
@@ -7920,10 +7920,10 @@ as $N \rightarrow \infty$.
 \end{proof}
 
 \begin{lemma}
-    \label{convergence-for-twice-contdiff}
-    \uses{fourier-coeff-derivative,convergence-of-coeffs-summable}
-    \leanok
-    % \lean{}
+\label{convergence-for-twice-contdiff}
+\uses{fourier-coeff-derivative,convergence-of-coeffs-summable}
+\leanok
+\lean{fourierConv_ofTwiceDifferentiable}
     Let $f:\R \to \C$ be $2\pi$-periodic and twice continuously differentiable. Then
     \begin{equation}
         \sup_{x\in [0,2\pi]} |f(x) - S_Nf(x)| \rightarrow 0
