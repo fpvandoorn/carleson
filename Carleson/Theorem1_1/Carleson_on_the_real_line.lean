@@ -66,9 +66,7 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
     by_cases h : z ∈ s
     · have : (@Set.range α (z ∈ s) fun _ ↦ f z) = {f z} := by
         rw [Set.eq_singleton_iff_unique_mem]
-        constructor
-        · simpa
-        · exact fun x hx => hx.2.symm
+        exact ⟨Set.mem_range_self h, fun x hx => hx.2.symm⟩
       rw [this] at hz
       have : sSup {f z} = f z := csSup_singleton _
       rw [this] at hz
@@ -85,11 +83,10 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
   rw [iSup]
   convert csSup_singleton _
   rw [Set.eq_singleton_iff_unique_mem]
-  constructor
+  refine ⟨?_, fun x hx ↦ ?_⟩
   · simp
     use hi, fia
-  · intro x hx
-    simp at hx
+  · simp at hx
     rwa [hx.2] at fia
 
 --mainly have to work for the following lemmas
@@ -289,7 +286,7 @@ instance h4 : CompatibleFunctions ℝ ℝ (2 ^ 4) where
           apply abs_nonneg
       _ ≤ 2 * max r 0 * |↑f - ↑g| := by
         gcongr
-        apply le_max_left
+        exact le_max_left _ _
     norm_cast
   cdist_mono := by
     intro x₁ x₂ r R f g h
@@ -507,20 +504,13 @@ instance h5 : IsCancellative ℝ (defaultτ 4) where
     unfold instFunctionDistancesReal
     dsimp only
     rw [max_eq_left r_pos.le]
-    set L : NNReal := ⟨⨆ (x : ℝ) (y : ℝ) (_ : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y, by
-            apply Real.iSup_nonneg
-            intro x
-            apply Real.iSup_nonneg
-            intro y
-            apply Real.iSup_nonneg
-            intro _
-            apply div_nonneg (norm_nonneg _) dist_nonneg⟩  with Ldef
-    set B : NNReal := ⟨⨆ y ∈ ball x r, ‖ϕ y‖, by
-            apply Real.iSup_nonneg
-            intro i
-            apply Real.iSup_nonneg
-            intro _
-            apply norm_nonneg⟩  with Bdef
+    set L : NNReal :=
+      ⟨⨆ (x : ℝ) (y : ℝ) (_ : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y,
+        Real.iSup_nonneg fun x ↦ Real.iSup_nonneg fun y ↦ Real.iSup_nonneg
+        fun _ ↦ div_nonneg (norm_nonneg _) dist_nonneg⟩ with Ldef
+    set B : NNReal :=
+      ⟨⨆ y ∈ ball x r, ‖ϕ y‖, Real.iSup_nonneg fun i ↦ Real.iSup_nonneg
+        fun _ ↦ norm_nonneg _⟩  with Bdef
     calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * ϕ x‖
       _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * ϕ x‖ := by
         congr
@@ -550,7 +540,7 @@ instance h5 : IsCancellative ℝ (defaultτ 4) where
               forall_apply_eq_imp_iff, Set.mem_setOf_eq]
             intro h
             rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
-            apply LipschitzWith.norm_sub_le hK
+            exact LipschitzWith.norm_sub_le hK _ _
           . use K
             rw [upperBounds]
             simp only [ne_eq, Set.mem_range, forall_exists_index,
@@ -559,7 +549,7 @@ instance h5 : IsCancellative ℝ (defaultτ 4) where
             apply Real.iSup_le _ NNReal.zero_le_coe
             intro h
             rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
-            apply LipschitzWith.norm_sub_le hK
+            exact LipschitzWith.norm_sub_le hK _ _
           . use K
             rw [upperBounds]
             simp only [ne_eq, Set.mem_range, forall_exists_index,
@@ -576,8 +566,8 @@ instance h5 : IsCancellative ℝ (defaultτ 4) where
           apply ConditionallyCompleteLattice.le_biSup
           . --TODO: externalize as lemma LipschitzWithOn.BddAbove or something like that?
             rw [Real.ball_eq_Ioo]
-            apply BddAbove.mono (Set.image_mono Set.Ioo_subset_Icc_self)
-            exact isCompact_Icc.bddAbove_image (continuous_norm.comp hK.continuous).continuousOn
+            exact BddAbove.mono (Set.image_mono Set.Ioo_subset_Icc_self)
+              (isCompact_Icc.bddAbove_image (continuous_norm.comp hK.continuous).continuousOn)
           use y
           rw [Real.ball_eq_Ioo]
           use hy
@@ -585,9 +575,7 @@ instance h5 : IsCancellative ℝ (defaultτ 4) where
         ring
       _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (4 : ℝ))) := by
         gcongr
-        . apply mul_nonneg
-          apply mul_nonneg (by norm_num) (by linarith)
-          apply iLipNorm_nonneg r_pos.le
+        . exact mul_nonneg (mul_nonneg (by norm_num) (by linarith)) (iLipNorm_nonneg r_pos.le)
         . norm_num
           linarith [Real.pi_le_four]
         . unfold iLipNorm
@@ -597,8 +585,7 @@ instance h5 : IsCancellative ℝ (defaultτ 4) where
         . rw [← Real.rpow_neg_one]
           apply Real.rpow_le_rpow_of_exponent_le _ (by norm_num)
           simp only [Int.cast_abs, Int.cast_sub, le_add_iff_nonneg_right]
-          apply mul_nonneg (by linarith)
-          apply abs_nonneg
+          exact mul_nonneg (by linarith) (abs_nonneg _)
 
 
 --TODO : add some Real.vol lemma
@@ -643,8 +630,6 @@ instance h6 : IsOneSidedKernel 4 K where
 /- Lemma ?-/
 lemma h3 : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts 4) := sorry
 
-
-
 -- #check @metric_carleson
 --#check metric_carleson K (by simp) h1 h2 _ _ h3
 
@@ -654,13 +639,13 @@ local notation "T" => CarlesonOperatorReal K
 lemma CarlesonOperatorReal_le_CarlesonOperator : T ≤ CarlesonOperator K := by
   intro f x
   rw [CarlesonOperator, CarlesonOperatorReal]
-  apply iSup_le
+  refine iSup_le ?_
   intro n
   apply iSup_le
   intro r
   apply iSup_le
   intro rpos
-  apply iSup_le
+  apply iSup_le _
   intro rle1
   apply le_iSup_of_le n _
   apply le_iSup₂_of_le r 1 _
