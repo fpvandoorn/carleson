@@ -854,7 +854,7 @@ private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ �
   simp only [𝔘₁, Finset.mem_filter, toFinset_setOf] at hu
   apply le_of_le_of_eq hu.1.2.1.1.2
   simp only [Finset.coe_filter, mem_toFinset, 𝔐', Finset.card_eq_sum_ones]
-  refine Finset.sum_congr (by congr) (fun m hm ↦ ?_)
+  refine Finset.sum_congr rfl (fun m hm ↦ ?_)
   simp only [TileLike.le_def, smul_fst, Finset.mem_filter] at hm
   simp [hm.2.2.1.1 hx]
 
