@@ -798,7 +798,7 @@ variable (m) (u : 𝔓 X) in
 private lemma balls_cover_big_ball : CoveredByBalls (big_ball m u) (defaultA a ^ 9) 0.2 :=
   BallsCoverBalls.pow_mul (fun _ ↦ CompatibleFunctions.ballsCoverBalls) (𝒬 m)
 
-private lemma 𝒬_injOn_𝔘m : InjOn (𝒬 (X := X)) (𝔘 k n j x m).toSet :=
+private lemma 𝒬_injOn_𝔘m : InjOn 𝒬 (𝔘 k n j x m).toSet :=
   fun _ hu _ hu' h ↦ 𝒬_inj h (𝓘_eq_𝓘 hu hu')
 
 private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
