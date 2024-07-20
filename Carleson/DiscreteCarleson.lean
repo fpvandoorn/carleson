@@ -780,8 +780,7 @@ private lemma ball_eq_ball : ball_(u) = ball_(u') := by
 
 private lemma disjoint_balls (h : u' ≠ u'') :
     Disjoint (ball_(u) (𝒬 u') 0.2) (ball_(u) (𝒬 u'') 0.2) := by
-  nth_rewrite 1 [ball_eq_ball hu hu']
-  rw [ball_eq_ball hu hu'']
+  nth_rewrite 1 [ball_eq_ball hu hu', ball_eq_ball hu hu'']
   convert cball_disjoint h (𝓘_eq_𝓘 hu' hu'') using 2 <;> norm_num
 
 private lemma mem_big_ball : 𝒬 u' ∈ big_ball m u := by
