@@ -99,15 +99,14 @@ lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : �
   constructor <;> linarith [ha.1, ha.2]
 
 
-lemma fourier_uniformContinuous {n : ℤ} : UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
-  apply fourier_periodic.uniformContinuous_of_continuous Real.two_pi_pos
-  apply Continuous.continuousOn
+lemma fourier_uniformContinuous {n : ℤ} :
+    UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))) := by
+  apply fourier_periodic.uniformContinuous_of_continuous Real.two_pi_pos (Continuous.continuousOn _)
   continuity
 
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (partialFourierSum f N) := by
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
-  apply Continuous.continuousOn
-  apply continuous_finset_sum
+    (Continuous.continuousOn (continuous_finset_sum _ _))
   continuity
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real.pi + Real.pi / 2)) Real.cos := by
