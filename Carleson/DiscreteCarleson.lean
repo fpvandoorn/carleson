@@ -11,7 +11,7 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [ts : TileStructure Q D κ S o]
 
 def aux𝓒 (k : ℕ) : Set (Grid X) :=
   {i : Grid X | ∃ j : Grid X, i ≤ j ∧ 2 ^ (- (k : ℤ)) * volume (j : Set X) < volume (G ∩ j) }
@@ -557,10 +557,146 @@ lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volum
     2 ^ (n + k + 3) * volume G := by
   sorry
 
+section 𝔘
+-- Definition of function `𝔘(m)` used in the proof of Lemma 5.2.8, and some properties of `𝔘(m)`
+
+open Finset
+
+variable (k) (n) (j) (x)
+private def 𝔘 (m : 𝔓 X) := (𝔘₁ k n j).toFinset.filter (fun u ↦ x ∈ 𝓘 u ∧ smul 100 u ≤ smul 1 m)
+
+-- Ball that covers the image of `𝒬`. Radius chosen for convenience with `BallsCoverBalls.pow_mul`
+private def big_ball (m : 𝔓 X) (u : 𝔓 X) := ball_(u) (𝒬 m) (2 ^ 9 * 0.2)
+
+variable {k} {n} {j} {x}
+variable {x : X} {m u u' u'' : 𝔓 X}
+variable (hu : u ∈ 𝔘 k n j x m) (hu' : u' ∈ 𝔘 k n j x m) (hu'' : u'' ∈ 𝔘 k n j x m)
+
+private lemma x_mem_𝓘u : x ∈ (𝓘 u) := by
+  simp only [𝔘, mem_filter] at hu
+  exact hu.2.1
+
+private lemma 𝒬m_mem_ball : 𝒬 m ∈ ball_(u) (𝒬 u) 100 := by
+  simp only [𝔘, mem_filter, smul] at hu
+  exact hu.2.2.2 (by simp)
+
+private lemma 𝓘_not_lt_𝓘 : ¬ 𝓘 u < 𝓘 u' := by
+  intro h
+  rw [Grid.lt_def] at h
+  have 𝒬m_mem_inter := mem_inter (𝒬m_mem_ball hu) (𝒬m_mem_ball hu')
+  simp only [𝔘, 𝔘₁, Grid.lt_def, and_imp, toFinset_setOf, mem_filter] at hu
+  exact not_disjoint_iff_nonempty_inter.2 (nonempty_of_mem 𝒬m_mem_inter) <| hu.1.2.2
+    u' (mem_toFinset.mp (mem_filter.mp hu').1).1 h.1 h.2
+
+private lemma 𝓘_eq_𝓘 : 𝓘 u = 𝓘 u' :=
+  have not_disj := Set.not_disjoint_iff.mpr ⟨x, ⟨x_mem_𝓘u hu, x_mem_𝓘u hu'⟩⟩
+  le_or_ge_or_disjoint.elim (fun h ↦ (h.lt_or_eq).resolve_left (𝓘_not_lt_𝓘 hu hu'))
+    (fun h ↦ ((h.resolve_right not_disj).lt_or_eq.resolve_left (𝓘_not_lt_𝓘 hu' hu)).symm)
+
+private lemma ball_eq_ball : ball_(u) = ball_(u') := by
+  rw [𝔠, 𝔰, 𝓘_eq_𝓘 hu hu']
+
+private lemma disjoint_balls (h : u' ≠ u'') :
+    Disjoint (ball_(u) (𝒬 u') 0.2) (ball_(u) (𝒬 u'') 0.2) := by
+  nth_rewrite 1 [ball_eq_ball hu hu']
+  rw [ball_eq_ball hu hu'']
+  convert cball_disjoint h (𝓘_eq_𝓘 hu' hu'') using 2 <;> norm_num
+
+private lemma mem_big_ball : 𝒬 u' ∈ big_ball m u := by
+  have : 𝒬 m ∈ ball_(u) (𝒬 u') 100 := ball_eq_ball hu hu' ▸ 𝒬m_mem_ball hu'
+  rw [@mem_ball_comm] at this
+  simp only [big_ball, mem_ball] at this ⊢
+  exact this.trans (by norm_num)
+
+private lemma subset_big_ball (f : Θ X) (hf : f ∈ (𝔘 k n j x m).image 𝒬) : f ∈ big_ball m u := by
+  simp_rw [Finset.mem_image] at hf
+  rcases hf with ⟨u', hu', rfl⟩
+  exact mem_big_ball hu hu'
+
+variable (m) (u : 𝔓 X) in
+private lemma balls_cover_big_ball : CoveredByBalls (big_ball m u) (defaultA a ^ 9) 0.2 :=
+  BallsCoverBalls.pow_mul (fun _ ↦ CompatibleFunctions.ballsCoverBalls) (𝒬 m)
+
+private lemma 𝒬_injOn_𝔘m : InjOn (𝒬 (X := X)) (𝔘 k n j x m).toSet :=
+  fun _ hu _ hu' h ↦ 𝒬_inj h (𝓘_eq_𝓘 hu hu')
+
+private lemma card_𝔘m_le : (𝔘 k n j x m).card ≤ (defaultA a) ^ 9 := by
+  by_cases h : 𝔘 k n j x m = ∅
+  · simp [h]
+  have ⟨u, hu⟩ := Finset.nonempty_of_ne_empty h
+  let pm := instPseudoMetricSpaceWithFunctionDistance (x := 𝔠 u) (r := (D ^ 𝔰 u / 4))
+  have ⟨𝓑, 𝓑_card_le, 𝓑_cover⟩ := balls_cover_big_ball m u
+  let 𝓕 (f : Θ X) := ((𝔘 k n j x m).image 𝒬).filter (· ∈ @ball _ pm f 0.2)
+  -- `𝒬` is 1-1, `𝓑.biUnion 𝓕` covers `(𝔘 k n j x m).image 𝒬`, and each `𝓕 f` has cardinality
+  -- ≤ 1, so `(𝔘 k n j x m).card = ((𝔘 k n j x m).image 𝒬).card ≤ (𝓑.biUnion 𝓕).card ≤ 𝓑.card`
+  have 𝒬𝔘_eq_union: (𝔘 k n j x m).image 𝒬 = 𝓑.biUnion 𝓕 := by
+    ext f
+    simp only [𝓕, Finset.mem_biUnion, mem_filter]
+    refine ⟨fun hf ↦ ?_, fun ⟨_, _, h, _⟩ ↦ h⟩
+    obtain ⟨g, hg⟩ : ∃ g ∈ 𝓑, f ∈ @ball _ pm g 0.2 := by
+      simpa only [mem_iUnion, exists_prop] using 𝓑_cover (subset_big_ball hu f hf)
+    exact ⟨g, hg.1, hf, hg.2⟩
+  have card_le_one : ∀ f ∈ 𝓑, (𝓕 f).card ≤ 1 := by
+    refine fun f _ ↦ card_le_one.mpr (fun g₁ hg₁ g₂ hg₂ ↦ ?_)
+    by_contra! h
+    simp only [mem_filter, 𝓕, Finset.mem_image] at hg₁ hg₂
+    rcases hg₁.1 with ⟨u₁, hu₁, rfl⟩
+    rcases hg₂.1 with ⟨u₂, hu₂, rfl⟩
+    apply Set.not_disjoint_iff.mpr ⟨f, mem_ball_comm.mp hg₁.2, mem_ball_comm.mp hg₂.2⟩
+    exact disjoint_balls hu hu₁ hu₂ (ne_of_apply_ne 𝒬 h)
+  rw [← card_image_iff.mpr 𝒬_injOn_𝔘m, 𝒬𝔘_eq_union]
+  exact (mul_one 𝓑.card ▸ card_biUnion_le_card_mul 𝓑 𝓕 1 card_le_one).trans 𝓑_card_le
+
+variable (k n j) (x) in
+private def 𝔐' (u : 𝔓 X) := (𝔐 k n).toFinset.filter (fun m ↦ smul 100 u ≤ smul 1 m)
+
+-- Interchange the summations in the proof of Lemma 5.2.8
+private lemma interchange :
+    ((𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·)).sum (fun u ↦ (𝔐' k n u).sum
+    (fun m ↦ (𝓘 m : Set X).indicator (1 : X → ℝ) x)) =
+    (𝔐 k n).toFinset.sum (fun m ↦ (𝔘 k n j x m).sum
+    (fun _ ↦ (𝓘 m : Set X).indicator (1 : X → ℝ) x)) :=
+  Finset.sum_comm' fun u m ↦ by simp only [𝔐', 𝔘, Finset.mem_filter]; tauto
+
+end 𝔘
+
+-- Inequality (5.2.20) in the proof of Lemma 5.2.8
+private lemma indicator_le : ∀ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·),
+    (𝓘 u : Set X).indicator 1 x ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by
+  intro u hu
+  by_cases hx : x ∈ (𝓘 u : Set X); swap
+  · simp [hx]
+  suffices (2 : ℝ) ^ (j : ℤ) ≤ stackSize (𝔐' k n u) x by calc
+    _ ≤ (2 : ℝ) ^ (-j : ℤ) * (2 : ℝ) ^ (j : ℤ)       := by simp [hx]
+    _ ≤ (2 : ℝ) ^ (-j : ℤ) * stackSize (𝔐' k n u) x := by gcongr
+  norm_cast
+  simp only [𝔘₁, Finset.mem_filter, toFinset_setOf] at hu
+  apply le_of_le_of_eq hu.1.2.1.1.2
+  simp only [Finset.coe_filter, mem_toFinset, 𝔐', Finset.card_eq_sum_ones]
+  refine Finset.sum_congr (by congr) (fun m hm ↦ ?_)
+  simp only [TileLike.le_def, smul_fst, Finset.mem_filter] at hm
+  simp [hm.2.2.1.1 hx]
+
+open Finset in
 /-- Lemma 5.2.8 -/
 lemma tree_count :
-    stackSize (𝔘₁ (X := X) k n j) x ≤ 2 ^ (9 * a - j) * stackSize (𝔐 (X := X) k n) x := by
-  sorry
+    stackSize (𝔘₁ k n j) x ≤ (2 : ℝ) ^ (9 * a - j : ℤ) * stackSize (𝔐 k n) x := by
+  -- When calculating the LHS, we need only sum over those `u` for which `x ∈ 𝓘 u`.
+  have : ∑ u ∈ univ.filter (· ∈ 𝔘₁ (X := X) k n j), (𝓘 u : Set X).indicator (1 : X → ℝ) x =
+      ∑ u ∈ (𝔘₁ k n j).toFinset.filter (x ∈ 𝓘 ·), (𝓘 u : Set X).indicator (1 : X → ℝ) x := by
+    rw [filter_mem_univ_eq_toFinset (𝔘₁ k n j), sum_filter]
+    exact sum_congr rfl <|
+      fun u _ ↦ _root_.by_cases (p := x ∈ 𝓘 u) (fun hx ↦ by simp [hx]) (fun hx ↦ by simpa [hx])
+  rw [stackSize_real, this]
+  -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
+  apply le_trans (sum_le_sum indicator_le)
+  simp_rw [← mul_sum, stackSize_real, mem_coe, filter_univ_mem, interchange, sum_const]
+  -- Replace the cardinality of `𝔘` with the upper bound proven in `card_𝔘m_le`, and simplify.
+  apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos_of_pos two_pos _)).mpr <| sum_le_sum <|
+    fun _ _ ↦ smul_le_smul_of_nonneg_right card_𝔘m_le <| Set.indicator_apply_nonneg (by simp)
+  simp_rw [← smul_sum, nsmul_eq_mul, ← mul_assoc, filter_mem_univ_eq_toFinset (𝔐 k n), defaultA]
+  rw [sub_eq_add_neg, zpow_add₀ two_ne_zero, ← pow_mul, mul_comm 9, mul_comm (2 ^ _)]
+  norm_cast
 
 variable (X) in
 /-- The constant in Lemma 5.2.9, with value `D ^ (1 - κ * Z * (n + 1))` -/
