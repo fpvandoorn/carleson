@@ -162,6 +162,12 @@ set_option linter.unusedVariables false in
 def iLipNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ :=
   (⨆ x ∈ ball x₀ R, ‖ϕ x‖) + R * ⨆ (x : X) (y : X) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y
 
+lemma iLipNorm_nonneg {𝕜} [NormedField 𝕜] {ϕ : X → 𝕜} {x₀ : X} {R : ℝ} (hR : 0 ≤ R) :
+    0 ≤ iLipNorm ϕ x₀ R :=
+  add_nonneg (Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg fun _ ↦ norm_nonneg _)
+    (mul_nonneg hR (Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg
+    fun _ ↦ div_nonneg (norm_nonneg _) dist_nonneg))
+
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
 class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
@@ -291,6 +297,38 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
 
+-- used in 4.1.7 (`small_boundary`)
+variable (X) in
+lemma twentyfive_le_realD : (25:ℝ) ≤ defaultD a := by
+  simp only [defaultD, Nat.ofNat_le_cast]
+  have : 4 ≤ a := four_le_a X
+  calc
+    (25:ℕ)
+      ≤ 32 := Nat.le_of_ble_eq_true rfl
+    _ = 2 ^ (5) := by rfl
+    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by rfl)
+    _ ≤ 2 ^ (100 * a^2) := Nat.pow_le_pow_right (by norm_num)
+      (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
+
+-- used in 4.1.3 (`I3_prop_3_1`)
+variable (X) in
+lemma eight_le_realD : (8:ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+-- used in 4.1.6 (`transitive_boundary`)
+variable (X) in
+lemma five_le_realD : (5:ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+-- used in various places in `Carleson.TileExistence`
+variable (X) in
+lemma four_le_realD : (4:ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+variable (X) in
+lemma one_le_realD : (1:ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
 variable (X) in
 open Classical in
 def S [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
@@ -344,7 +382,6 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 lemma one_lt_D : 1 < (D : ℝ) := by
-  unfold defaultD
   exact_mod_cast one_lt_pow Nat.one_lt_two (by nlinarith [four_le_a X])
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
@@ -352,6 +389,10 @@ lemma one_le_D : 1 ≤ (D : ℝ) := by
   exact pow_le_pow_right' one_le_two (by positivity)
 
 lemma D_nonneg : 0 ≤ (D : ℝ) := zero_le_one.trans one_le_D
+
+lemma κ_nonneg : 0 ≤ κ := by
+  rw [defaultκ]
+  exact Real.rpow_nonneg (by norm_num) _
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/

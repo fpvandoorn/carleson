@@ -35,8 +35,8 @@ class GridStructure
   fundamental_dyadic' {i j} : s i ≤ s j → coeGrid i ⊆ coeGrid j ∨ Disjoint (coeGrid i) (coeGrid j)
   ball_subset_Grid {i} : ball (c i) (D ^ s i / 4) ⊆ coeGrid i --2.0.10
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
-  small_boundary {i} {t : ℝ} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ coeGrid i | infDist x (coeGrid i)ᶜ ≤ t * D ^ s i } ≤ 2 * t ^ κ * volume.real (coeGrid i)
+  small_boundary {i} {t : ℝ≥0} (ht : D ^ (- S - s i) ≤ t) :
+    volume.real { x ∈ coeGrid i | EMetric.infEdist x (coeGrid i)ᶜ ≤ t * (D ^ (s i):ℝ≥0∞)} ≤ 2 * t ^ κ * volume.real (coeGrid i)
   coeGrid_measurable {i} : MeasurableSet (coeGrid i)
 
 export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
@@ -330,6 +330,21 @@ lemma dist_mono {I J : Grid X} (hpq : I ≤ J) {f g : Θ X} : dist_{I} f g ≤ d
   rcases hpq.eq_or_lt with h | h
   · subst h; rfl
   · exact (Grid.dist_strictMono h).trans (mul_le_of_le_one_left dist_nonneg (C2_1_2_le_one X))
+
+lemma dist_strictMono_iterate {I J : Grid X} {d : ℕ} (hij : I ≤ J) (hs : s I + d = s J)
+    {f g : Θ X} : dist_{I} f g ≤ C2_1_2 a ^ d * dist_{J} f g := by
+  induction d generalizing I J with
+  | zero => simpa using dist_mono hij
+  | succ d ih =>
+    obtain ⟨K, sK, IK, KJ⟩ := exists_sandwiched hij (s I + d) (by rw [mem_Icc]; omega)
+    replace KJ : K < J := by rw [Grid.lt_def]; exact ⟨KJ.1, by omega⟩
+    calc
+      _ ≤ C2_1_2 a ^ d * dist_{K} f g := ih IK sK.symm
+      _ ≤ C2_1_2 a ^ d * (C2_1_2 a * dist_{J} f g) := by
+        gcongr
+        · rw [C2_1_2]; positivity
+        · exact dist_strictMono KJ
+      _ = _ := by ring
 
 /-! Maximal elements of finsets of dyadic cubes -/
 
