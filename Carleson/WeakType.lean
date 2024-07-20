@@ -3,6 +3,7 @@ import Mathlib.MeasureTheory.Integral.Layercake
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.Analysis.NormedSpace.Dual
 import Mathlib.Analysis.NormedSpace.LinearIsometry
+import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 noncomputable section
 
@@ -257,6 +258,19 @@ lemma snorm_pow_eq_distribution {p : ℝ≥0} (hp : 1 ≤ p) :
     snorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
   sorry
+
+/-- The layer-cake theorem, or Cavalieri's principle, written using `snorm`. -/
+lemma snorm_pow_eq_distribution' {p : ℝ} (hp : p > 0) :
+    snorm f p.toNNReal μ ^ (p : ℝ) =
+    ENNReal.ofReal p * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
+        ENNReal.ofReal (t ^ ((p : ℝ) - 1)) := by
+  unfold snorm
+  split <;> rename_i sgn_p
+  · cases (not_le_of_lt hp (ofReal_eq_zero.mp sgn_p))
+  · split <;> rename_i sz_p
+    · cases (coe_ne_top sz_p)
+    · unfold snorm'
+      rw [lintegral_rpow_eq_lintegral_meas_lt_mul]
 
 lemma lintegral_pow_mul_distribution {p : ℝ} (hp : 1 ≤ p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
