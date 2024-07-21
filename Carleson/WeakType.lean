@@ -295,10 +295,8 @@ def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAdd
 
 
 lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
-    (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c := by
-  intro f hf
-  specialize h f hf
-  exact ⟨h.1, (wnorm_le_snorm h.1 hp').trans h.2⟩
+    (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
+  fun f hf ↦ ⟨(h f hf).1, (wnorm_le_snorm (h f hf).1 hp').trans (h f hf).2⟩
 
 lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
