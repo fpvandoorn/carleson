@@ -251,3 +251,24 @@ lemma CarlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ}
     rcases hy with hy | hy
     . left; linarith [hx.1]
     . right; linarith [hx.2]
+
+/-
+import Mathlib.MeasureTheory.Measure.MeasureSpace
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+
+open TopologicalSpace MeasureTheory Set
+
+variable {α β : Type*} [MeasurableSpace α]
+  [MeasurableSpace β]
+  {ι : Type*} [LinearOrder ι] [TopologicalSpace ι] [OrderTopology ι] [DenselyOrdered ι] [SecondCountableTopology ι]
+  {f : ι → α → β} [ConditionallyCompleteLattice β]
+  [TopologicalSpace β] [OrderTopology β] [SecondCountableTopology β]
+  [BorelSpace β]
+
+lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
+    (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
+    (h2f : ∀ i, Measurable (f i)) :
+    Measurable (⨆ i ∈ s, f i ·) := sorry
+  -- use SecondCountableTopology to rewrite the sup as a sup over the countable dense set (or similar)
+  -- then use measurable_iSup
+-/

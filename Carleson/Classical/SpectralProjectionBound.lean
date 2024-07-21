@@ -21,7 +21,8 @@ noncomputable section
 def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (f : ↥(Lp ℂ 2 (@haarAddCircle T hT))) (N : ℕ) : Lp ℂ p (@haarAddCircle T hT) :=
     ∑ n in Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
 
---TODO: add some lemma relation partialFourierSum and partialFourierSumLp
+--TODO: add some lemma relating partialFourierSum and partialFourierSumLp
+
 /-
 lemma partialFourierSumLp_apply {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {f : ↥(Lp ℂ 2 (@haarAddCircle T hT))} {N : ℕ} {x : AddCircle T} :
     partialFourierSumLp p f N x = partialFourierSum f N x := by
