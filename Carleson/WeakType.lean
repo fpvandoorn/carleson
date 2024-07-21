@@ -261,16 +261,44 @@ lemma snorm_pow_eq_distribution {p : ℝ≥0} (hp : 1 ≤ p) :
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `snorm`. -/
 lemma snorm_pow_eq_distribution' {p : ℝ} (hp : p > 0) :
-    snorm f p.toNNReal μ ^ (p : ℝ) =
-    ENNReal.ofReal p * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
-        ENNReal.ofReal (t ^ ((p : ℝ) - 1)) := by
+    snorm f (.ofReal p) μ =
+    (ENNReal.ofReal p  * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
+        ENNReal.ofReal (t ^ (p - 1)) )^ p⁻¹ := by
+  -- rw [← mul_rpow_of_nonneg _ _ (le_of_lt (inv_pos_of_pos hp))]
+  -- rw [← ENNReal.rpow_rpow_inv (ne_of_gt hp) (snorm f (.ofReal p) μ)]
+  -- refine congrFun (congrArg HPow.hPow ?_) p⁻¹
   unfold snorm
-  split <;> rename_i sgn_p
-  · cases (not_le_of_lt hp (ofReal_eq_zero.mp sgn_p))
-  · split <;> rename_i sz_p
-    · cases (coe_ne_top sz_p)
-    · unfold snorm'
-      rw [lintegral_rpow_eq_lintegral_meas_lt_mul]
+  split_ifs with sgn_p sz_p
+  · exact False.elim (not_le_of_lt hp (ofReal_eq_zero.mp sgn_p))
+  · exact False.elim (coe_ne_top sz_p)
+  · unfold snorm'
+    have : (∫⁻ (a : α), ↑‖f a‖₊ ^ (ENNReal.ofReal p).toReal ∂μ) =
+        (∫⁻ (a : α), ENNReal.ofReal (‖f a‖ ^ p) ∂μ) := by
+      apply congrArg
+      ext a
+      rw [toReal_ofReal (le_of_lt hp), ← norm_toNNReal]
+      refine ofReal_rpow_of_nonneg (norm_nonneg (f a)) (le_of_lt hp)
+    rw [this]
+    rw [lintegral_rpow_eq_lintegral_meas_lt_mul]
+    · rw [toReal_ofReal (le_of_lt hp)]
+      simp
+      refine congrFun (congrArg ?_ ?_) p⁻¹
+      -- rw [ENNReal.rpow_inv_rpow (ne_of_gt hp)]
+      apply congr_arg
+      apply lintegral_congr_ae
+      filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
+      intro t ht
+      unfold distribution
+      congr
+      ext x
+      simp
+      rw [← norm_toNNReal]
+      have : (ofNNReal ‖f x‖.toNNReal) = ENNReal.ofReal ‖f x‖ := rfl
+      rw [this]
+      exact Iff.symm (ofReal_lt_ofReal_iff_of_nonneg (le_of_lt ht))
+    · apply ae_of_all; simp
+    · exact AEMeasurable.norm hf
+    · exact hp
 
 lemma lintegral_pow_mul_distribution {p : ℝ} (hp : 1 ≤ p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
