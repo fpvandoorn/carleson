@@ -1960,7 +1960,7 @@ the complement of the set of tiles in Lemma
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{discrete-Carleson}]
-    \proves{exceptional-set}
+\proves{discrete-Carleson}
 \Cref{discrete-Carleson} follows by applying the
 triangle inequality to \eqref{disclesssim}
 according to the splitting in \Cref{forest-union}
@@ -3518,6 +3518,9 @@ The following lemma will be proved in \Cref{subsec-geolem}.
     \end{equation}
 \end{lemma}
 
+From these lemmas it is easy to prove \Cref{antichain-operator}.
+\begin{proof}[Proof of \Cref{antichain-operator}]
+\proves{antichain-operator}
 We have
 \begin{equation}
     \left (\frac 1{\tilde{q}} -\frac 12\right) (2-q)= \frac 1q -\frac 12\,.
@@ -3532,6 +3535,7 @@ and estimating gives after simplification of some factors
 \end{equation}
 With the definition of $p$, this implies
 \Cref{antichain-operator}.
+\end{proof}
 
 
 \section{Proof of the Tile Correlation Lemma}\label{sec-tile-operator}
@@ -6237,11 +6241,40 @@ we have
 This proves the lemma.
 \end{proof}
 
+The following lemma will be used to define $M$ in the proof of \Cref{Hardy-Littlewood}.
+\begin{lemma}[covering separable space]
+    \label{covering-separable-space}
+    For each $r > 0$, there exists a countable collection $C(r) \subset X$ of points such that
+    $$
+        X \subset \bigcup_{c \in C(r)} B(c, r)\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    It clearly suffices to construct finite collections $C(r,k)$ such that
+    $$
+        B(o, r2^k) \subset \bigcup_{c \in C(r,k)} B(c,r)\,,
+    $$
+    since then the collection $C(r) = \bigcup_{k \in \mathbb{N}} C(r,k)$ has the desired property.
+
+    Suppose that $Y \subset B(o, r2^k)$ is a collection of points such that for all $y, y' \in Y$ with $y \ne y'$, we have $\rho(y,y') \ge r$. Then the balls $B(y, r/2)$ are pairwise disjoint and contained in $B(o, r2^{k+1})$. If $y \in B(o, r)$, then $B(o, r2^{k+1}) \subset B(y, r2^{k+2})$. Thus, by the doubling property \eqref{doublingx},
+    $$
+        \mu(B(y, \frac{r}{2})) \ge 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
+    $$
+    Thus, we have
+    $$
+        \mu(B(o, r2^{k+1})) \ge \sum_{y \in Y} \mu(B(y, \frac{r}{2})) \ge |Y| 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
+    $$
+    We conclude that $|Y| \le 2^{(k+2)a}$. In particular, there exists a set $Y$ of maximal cardinality. Define $C(r,k)$ to be such a set.
+
+    If $x \in B(o, r2^k)$ and $x \notin C(r,k)$, then there must exist $y \in C(r,k)$ with $\rho(x,y) < r$. Thus $C(r,k)$ has the desired property.
+\end{proof}
+
 We turn to the proof of \Cref{Hardy-Littlewood}.
+\begin{proof}[Proof of \Cref{Hardy-Littlewood}]
+\proves{Hardy-Littlewood}
 Let the collection $\mathcal{B}$ be given.
 We first show \eqref{eq-besico}.
-
-
 
 We recursively choose a finite sequence $B_i\in \mathcal{B}$
 for $i\ge 0$ as follows. Assume $B_{i'}$
@@ -6454,36 +6487,7 @@ Applying the special case of \eqref{eq-hlm} for $M_{\mathcal{B}}$ gives
 This proves \eqref{eq-hlm} in general.
 
 Now we construct the operator $M$ satisfying \eqref{eq-ball-av} and \eqref{eq-hlm-2}.
-
-\begin{lemma}[covering separable space]
-    \label{covering-separable-space}
-    For each $r > 0$, there exists a countable collection $C(r) \subset X$ of points such that
-    $$
-        X \subset \bigcup_{c \in C(r)} B(c, r)\,.
-    $$
-\end{lemma}
-
-\begin{proof}
-    It clearly suffices to construct finite collections $C(r,k)$ such that
-    $$
-        B(o, r2^k) \subset \bigcup_{c \in C(r,k)} B(c,r)\,,
-    $$
-    since then the collection $C(r) = \bigcup_{k \in \mathbb{N}} C(r,k)$ has the desired property.
-
-    Suppose that $Y \subset B(o, r2^k)$ is a collection of points such that for all $y, y' \in Y$ with $y \ne y'$, we have $\rho(y,y') \ge r$. Then the balls $B(y, r/2)$ are pairwise disjoint and contained in $B(o, r2^{k+1})$. If $y \in B(o, r)$, then $B(o, r2^{k+1}) \subset B(y, r2^{k+2})$. Thus, by the doubling property \eqref{doublingx},
-    $$
-        \mu(B(y, \frac{r}{2})) \ge 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
-    $$
-    Thus, we have
-    $$
-        \mu(B(o, r2^{k+1})) \ge \sum_{y \in Y} \mu(B(y, \frac{r}{2})) \ge |Y| 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
-    $$
-    We conclude that $|Y| \le 2^{(k+2)a}$. In particular, there exists a set $Y$ of maximal cardinality. Define $C(r,k)$ to be such a set.
-
-    If $x \in B(o, r2^k)$ and $x \notin C(r,k)$, then there must exist $y \in C(r,k)$ with $\rho(x,y) < r$. Thus $C(r,k)$ has the desired property.
-\end{proof}
-
-For each $k \in \mathbb{N}$ we choose a countable set $C(2^k)$ as in the lemma.
+For each $k \in \mathbb{N}$ we choose a countable set $C(2^k)$ as in \Cref{covering-separable-space}.
 Define
 $$
     \mathcal{B}_\infty = \{B(c, 2^k) \ : \ c \in C(2^k), k \in \mathbb{N}\}\,.
@@ -6508,10 +6512,7 @@ It follows that for each $z \in B(x,r)$
     &\le Mw(z)\,.
 \end{align*}
 This completes the proof.
-
-
-
-
+\end{proof}
 
 \chapter{Two-sided Metric Space Carleson}
 
