@@ -2,6 +2,7 @@
 
 import Carleson.MetricCarleson
 import Carleson.Classical.Basic
+import Carleson.Classical.Helper
 import Carleson.Classical.HilbertKernel
 import Carleson.Classical.CarlesonOperatorReal
 import Carleson.Classical.VanDerCorput
@@ -47,60 +48,28 @@ lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f
     localOscillation (Metric.ball x R) f g = 0 := by
   rw [Metric.ball_eq_empty.mpr R_nonpos, localOscillation_on_emptyset]
 
---TODO: move to helper file
-lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLinearOrder α] {ι : Type} [Nonempty ι]
-    {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
-    a ≤ ⨆ i ∈ s, f i := by
-  apply ConditionallyCompleteLattice.le_csSup
-  · --TODO: improve this
-    rw [bddAbove_def] at *
-    rcases hfs with ⟨x, hx⟩
-    use (max x (sSup ∅))
-    intro y hy
-    simp at hy
-    rcases hy with ⟨z, hz⟩
-    rw [iSup] at hz
-    by_cases h : z ∈ s
-    · have : (@Set.range α (z ∈ s) fun _ ↦ f z) = {f z} := by
-        rw [Set.eq_singleton_iff_unique_mem]
-        exact ⟨Set.mem_range_self h, fun x hx => hx.2.symm⟩
-      rw [this] at hz
-      have : sSup {f z} = f z := csSup_singleton _
-      rw [this] at hz
-      simp at hx
-      have : f z ≤ x := hx z h
-      rw [hz] at this
-      exact le_max_of_le_left this
-    have : (@Set.range α (z ∈ s) fun _ ↦ f z) = ∅ := by simpa
-    rw [this] at hz
-    exact hz ▸ le_max_right x y
-  rw [Set.mem_range]
-  rcases ha with ⟨i, hi, fia⟩
-  use i
-  rw [iSup]
-  convert csSup_singleton _
-  rw [Set.eq_singleton_iff_unique_mem]
-  refine ⟨?_, fun x hx ↦ ?_⟩
-  · simp
-    use hi, fia
-  · simp at hx
-    rwa [hx.2] at fia
 
 section
 
 open ENNReal
 
 section
+
+def integer_linear (n : ℤ) : C(ℝ, ℝ) := ⟨fun (x : ℝ) ↦ n * x, by fun_prop⟩
+
+
 local notation "θ" => integer_linear
 
 local notation "Θ" => {(θ n) | n : ℤ}
 
-theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℝ)} :
-    localOscillation E f f = 0 := by simp [localOscillation]
 
 /-Stronger version of oscillation_control from the paper-/
 /-Based on earlier version of the paper. -/
 /-
+
+theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℝ)} :
+    localOscillation E f f = 0 := by simp [localOscillation]
+
 lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ n m : ℤ, localOscillation (Metric.ball x R) (θ n) (θ m) = 2 * R * |(n : ℝ) - m| := by
   intro n m
   by_cases n_ne_m : n = m

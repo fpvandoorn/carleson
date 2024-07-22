@@ -81,8 +81,6 @@ theorem Function.Periodic.exists_mem_Ico₀' {α : Type} {β : Type} {f : α →
 
 --TODO: maybe generalize to (hc : ContinuousOn f (Set.Icc 0 T)) and leave out condition (hT : 0 < T)
 lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hT : 0 < T) (hp : Function.Periodic f T) (hc : ContinuousOn f (Set.Icc (-T) (2 * T))) : UniformContinuous f := by
-  --rw [Metric.uniformContinuous_iff]
-  --IsCompact.uniformContinuous_on
   have : IsCompact (Set.Icc (-T) (2 * T)) := isCompact_Icc
   have unicont_on_Icc := this.uniformContinuousOn_of_continuous hc
   rw [Metric.uniformContinuousOn_iff] at unicont_on_Icc
@@ -119,7 +117,6 @@ theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real
   rw [interior_Icc] at hx
   simp [Real.cos_neg_of_pi_div_two_lt_of_lt hx.1 hx.2]
 
-/- Lemma 10.11 (lower secant bound) from the paper. -/
 lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * Real.pi - η) :
     (2 / Real.pi) * η ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
   by_cases ηpos : η ≤ 0
@@ -213,15 +210,3 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.p
     apply lower_secant_bound' xAbs
     rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
     exact xIcc
-
-/-Further definitions-/
-/-TODO : relocate this-/
-
---TODO : call constructor in a better way?
-def integer_linear (n : ℤ) : C(ℝ, ℝ) := ⟨fun (x : ℝ) ↦ n * x, by fun_prop⟩
-
---local notation "θ" => integer_linear
-
---lemma θcont {n : ℤ} : Continuous (θ n) := sorry
-
---local notation "Θ" => {(θ n) | n : ℤ}

@@ -37,3 +37,44 @@ lemma IntervalIntegrable.mul_bdd {F : Type} [NormedField F] {f g : ℝ → F} {a
 lemma MeasureTheory.IntegrableOn.sub {α : Type} {β : Type} {m : MeasurableSpace α}
     {μ : MeasureTheory.Measure α} [NormedAddCommGroup β] {s : Set α} {f g : α → β} (hf : IntegrableOn f s μ) (hg : IntegrableOn g s μ) : IntegrableOn (f - g) s μ := by
   apply MeasureTheory.Integrable.sub <;> rwa [← IntegrableOn]
+
+
+
+
+lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLinearOrder α] {ι : Type} [Nonempty ι]
+    {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
+    a ≤ ⨆ i ∈ s, f i := by
+  apply ConditionallyCompleteLattice.le_csSup
+  · --TODO: improve this
+    rw [bddAbove_def] at *
+    rcases hfs with ⟨x, hx⟩
+    use (max x (sSup ∅))
+    intro y hy
+    simp at hy
+    rcases hy with ⟨z, hz⟩
+    rw [iSup] at hz
+    by_cases h : z ∈ s
+    · have : (@Set.range α (z ∈ s) fun _ ↦ f z) = {f z} := by
+        rw [Set.eq_singleton_iff_unique_mem]
+        exact ⟨Set.mem_range_self h, fun x hx => hx.2.symm⟩
+      rw [this] at hz
+      have : sSup {f z} = f z := csSup_singleton _
+      rw [this] at hz
+      simp at hx
+      have : f z ≤ x := hx z h
+      rw [hz] at this
+      exact le_max_of_le_left this
+    have : (@Set.range α (z ∈ s) fun _ ↦ f z) = ∅ := by simpa
+    rw [this] at hz
+    exact hz ▸ le_max_right x y
+  rw [Set.mem_range]
+  rcases ha with ⟨i, hi, fia⟩
+  use i
+  rw [iSup]
+  convert csSup_singleton _
+  rw [Set.eq_singleton_iff_unique_mem]
+  refine ⟨?_, fun x hx ↦ ?_⟩
+  · simp
+    use hi, fia
+  · simp at hx
+    rwa [hx.2] at fia
