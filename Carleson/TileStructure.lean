@@ -33,9 +33,9 @@ def 𝔓 := PreTileStructure.𝔓 𝕜 X A
 instance : Fintype (𝔓 X) := PreTileStructure.fintype_𝔓
 def 𝓘 : 𝔓 X → Grid X := PreTileStructure.𝓘
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → Grid X) := PreTileStructure.surjective_𝓘
+instance : Inhabited (𝔓 X) := ⟨(surjective_𝓘 default).choose⟩
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
-
 
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
