@@ -2840,18 +2840,6 @@ We have
     By \eqref{eq-C4-def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq-L2-def} and \eqref{eq-C3-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp \lesssim \fu$ and $\scI(\fp) \ne \scI(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(k,n,j)$. By the definition of $\fU_3(k,n,j)$, there exists $\fu' \in \fU_3(k,n,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
 \end{proof}
 
-\begin{lemma}[C6 convex] %% TODO: delete, duplicate of forest-convex
-    \label{C6-convex}
-    \uses{C5-convex}
-    Let $\fu \in \fU_3(k,n,j)$. If $\fp \le \fp' \le \fp''$ and $\fp, \fp'' \in \mathfrak{T}_2(\fu)$, then $\fp' \in \mathfrak{T}_2(\fu)$.
-\end{lemma}
-
-\begin{proof}
-    Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. Then by \Cref{C5-convex}, we have
-$\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\subset G'$, hence $\scI(\fp') \not \subset G'$. This implies $\fp' \in \fC_6(k,n,j)$. Since $\fp'' \in \mathfrak{T}_2(\fu)$, we have $2\fp'' \lesssim \fu'$ and $\scI(\fp'')\ne\scI(\fu')$ for some $\fu' \sim \fp''$. By \eqref{eq-sc1}, we have $2\fp' \lesssim 2\fp''$, so by transitivity of $\lesssim$ we have $2\fp' \lesssim \fu'$. Finally, $\scI(\fp') \subset \scI(\fp'')$ implies $\scI(\fp') \ne \scI(\fu')$, thus $\fp' \in \mathfrak{T}_1(\fu') \subset \mathfrak{T}_2(\fu)$.
-\end{proof}
-
-
 \begin{lemma}[forest geometry]
     \label{forest-geometry}
     \uses{relation-geometry}
@@ -2881,7 +2869,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 
 \begin{lemma}[forest convex]
     \label{forest-convex}
-    \uses{C6-convex}
+    \uses{C5-convex}
     \leanok
     \lean{forest_convex}
     For each $\fu\in \fU_3(k,n,j)$,
