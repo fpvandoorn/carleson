@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Integral.MeanInequalities
 import Mathlib.MeasureTheory.Integral.Layercake
+import Mathlib.MeasureTheory.Integral.Lebesgue
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.Analysis.NormedSpace.Dual
 import Mathlib.Analysis.NormedSpace.LinearIsometry
@@ -234,33 +235,50 @@ def wnorm' [NNNorm E] (f : α → E) (p : ℝ) (μ : Measure α) : ℝ≥0∞ :=
   ⨆ t : ℝ≥0, t * distribution f t μ ^ (p : ℝ)⁻¹
 
 lemma wnorm'_le_snorm' {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
-    wnorm' f p μ ≤ snorm' f p μ := sorry
+    wnorm' f p μ ≤ snorm' f p μ := by
+  refine iSup_le (fun t ↦ ?_)
+  unfold snorm' distribution
+  have p0 : 0 < p := lt_of_lt_of_le one_pos hp
+  have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
+  have set_eq : {x | ofNNReal t < ‖f x‖₊} = {x | ofNNReal t ^ p < ‖f x‖₊ ^ p} := by
+    simp [ENNReal.rpow_lt_rpow_iff p0]
+  have : ofNNReal t = (ofNNReal t ^ p) ^ (1 / p) := by simp [p0.ne.symm]
+  nth_rewrite 1 [inv_eq_one_div p, this, ← mul_rpow_of_nonneg _ _ p0', set_eq]
+  refine rpow_le_rpow ?_ p0'
+  refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.ennnorm.pow_const p) (ofNNReal t ^ p)
+  gcongr
+  exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
 
 /-- The weak L^p norm of a function. -/
 def wnorm [NNNorm E] (f : α → E) (p : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   if p = ∞ then snormEssSup f μ else wnorm' f (ENNReal.toReal p) μ
 
 lemma wnorm_le_snorm {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
-    wnorm f p μ ≤ snorm f p μ := sorry
+    wnorm f p μ ≤ snorm f p μ := by
+  by_cases h : p = ⊤
+  · simp [h, wnorm]
+  · have p0 : p ≠ 0 := (lt_of_lt_of_le one_pos hp).ne.symm
+    simpa [h, wnorm, snorm, p0] using wnorm'_le_snorm' hf (toReal_mono h hp)
 
 /-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
 def MemWℒp [NNNorm E] (f : α → E) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
   AEStronglyMeasurable f μ ∧ wnorm f p μ < ∞
 
 lemma Memℒp.memWℒp {f : α → E} {p : ℝ≥0∞} (hp : 1 ≤ p) (hf : Memℒp f p μ) :
-    MemWℒp f p μ := sorry
+    MemWℒp f p μ :=
+  ⟨hf.1, lt_of_le_of_lt (wnorm_le_snorm hf.1 hp) hf.2⟩
 
 /- Todo: define `MeasureTheory.WLp` as a subgroup, similar to `MeasureTheory.Lp` -/
 
 /-- An operator has weak type `(p, q)` if it is bounded as a map from L^p to weak-L^q.
-`HasWeakType T p p' μ ν c` means that `T` has weak type (p, q) w.r.t. measures `μ`, `ν`
+`HasWeakType T p p' μ ν c` means that `T` has weak type (p, p') w.r.t. measures `μ`, `ν`
 and constant `c`.  -/
 def HasWeakType (T : (α → E₁) → (α' → E₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0) : Prop :=
   ∀ f : α → E₁, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * snorm f p μ
 
 /-- An operator has strong type (p, q) if it is bounded as an operator on `L^p → L^q`.
-`HasStrongType T p p' μ ν c` means that `T` has strong type (p, q) w.r.t. measures `μ`, `ν`
+`HasStrongType T p p' μ ν c` means that `T` has strong type (p, p') w.r.t. measures `μ`, `ν`
 and constant `c`.  -/
 def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
@@ -276,9 +294,9 @@ def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAdd
   AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
 
 
-lemma HasStrongType.hasWeakType (hp : 1 ≤ p)
-    (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c := by
-  sorry
+lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
+    (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
+  fun f hf ↦ ⟨(h f hf).1, (wnorm_le_snorm (h f hf).1 hp').trans (h f hf).2⟩
 
 lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
