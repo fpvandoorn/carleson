@@ -577,7 +577,7 @@ lemma distribution_shift_trunc (t : ℝ) (s : ℝ≥0∞) :
     rw [Real.toNNReal_of_nonpos (le_of_not_lt h₀)]
     simp
 
-lemma trunc_comp_Lp_Lq_lower {p q : ℝ≥0∞} (hp : p ∈ Ico 1 ⊤) (hq : q ∈ Ico 1 p) {f : α → E₁}
+lemma trunc_compl_Lp_Lq_lower {p q : ℝ≥0∞} (hp : p ∈ Ico 1 ⊤) (hq : q ∈ Ico 1 p) {f : α → E₁}
     (hf : Memℒp f p μ) {a : ℝ} (ha : a > 0) : Memℒp (f - trunc f a) q μ := by
   have q_lt_p := hq.2
   apply weakℒp_interpolate_lower hp.1 hq
@@ -673,48 +673,6 @@ def Sublinear (T : (α → E₁) → α' → E₂) : Prop :=
 def PreservesAEStrongMeasurability (T : (α → E₁) → α' → E₂) (p : ℝ≥0∞) : Prop :=
     ∀ (f : α → E₁), Memℒp f p μ → AEStronglyMeasurable (T f) ν
 
-/-- Marcinkiewicz real interpolation theorem, for the case of equal domain: p₀ = p₁. -/
-lemma exists_hasStrongType_real_interpolation' {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
-    (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
-    {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
-    (hp₀₁ : p₀ = p₁) :
-    ∃ C > 0, HasStrongType T p q μ ν C := by
-  let Cfinal : ℝ≥0 := C₀
-  exists Cfinal
-  constructor
-  · sorry
-  · have p_eq_p₀ : p = p₀ := by sorry
-    intros f f_mem
-    rewrite [p_eq_p₀] at f_mem
-    have h₀T_ap := (h₀T f f_mem).2
-    rewrite [hp₀₁] at f_mem
-    have h₁T_ap := (h₁T f f_mem).2
-    constructor
-    · exact (h₁T f f_mem).1
-    · unfold wnorm at h₀T_ap
-      split at h₀T_ap
-      · have q_eq_top : q = ⊤ := sorry
-        rewrite [← p_eq_p₀] at h₀T_ap
-        unfold snorm
-        split
-        · apply zero_le
-        · exact h₀T_ap
-      · sorry
-
-/-- Marcinkiewicz real interpolation theorem, for the case p₀ ≠ p₁ and all exponents
-    are less than ∞.
-    TODO: So far the assymption that p₀ ≠ p₁ is not added -/
-lemma exists_hasStrongType_real_interpolation'' {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
-    (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
-    {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
-    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p)
-    (hq₀ : q₀ < ∞) (hq₁ : q₁ < ∞) :
-    ∃ C > 0, HasStrongType T p q μ ν C := sorry
-
 /-- A collection of small lemmas to help with integral manipulations -/
 
 lemma measure_preserving_shift {a : ℝ} :
@@ -791,13 +749,13 @@ lemma lintegral_scale_constant' {f: ℝ → ENNReal} {a : ℝ} (h : a ≠ 0):
 /-- Estimate the strong norm of the complement of the truncation by an integral involving
   the distribution function-/
 
-lemma estimate_snorm_trunc_compl_ {p₀ : ℝ} (hp₀ : 1 ≤ p₀) (hf : AEStronglyMeasurable f μ) {a : ℝ} (ha : 0 ≤ a) :
+lemma estimate_snorm_trunc_compl_ {p₀ : ℝ} (hp₀ : 1 ≤ p₀) (hf : AEStronglyMeasurable f μ) {a : ℝ}
+    (ha : 0 ≤ a) :
   snorm (f - trunc f a) (ENNReal.ofReal p₀) μ =
   (∫⁻ s : ℝ in Ioi (a : ℝ), ENNReal.ofReal p₀ * ENNReal.ofReal ((s - a) ^ (p₀ - 1)) *
     distribution f (ENNReal.ofReal s) μ) ^ (p₀⁻¹) := by
   rewrite [← lintegral_add_right_Ioi (a := a), sub_self]
   simp only [add_sub_cancel_right]
-  have p₀_inv_pos : p₀⁻¹ > 0 := inv_pos_of_pos (by linarith)
   rw [snorm_pow_eq_distribution']
   rw [← lintegral_const_mul']
   refine congrFun (congrArg ?_ ?_) p₀⁻¹
@@ -808,11 +766,12 @@ lemma estimate_snorm_trunc_compl_ {p₀ : ℝ} (hp₀ : 1 ≤ p₀) (hf : AEStro
     rw [mul_comm _ (ENNReal.ofReal (t ^ (p₀ - 1))), ← mul_assoc]
     congr
     · rw [ofReal_add]
-      · sorry
+      · rw [coe_coe_eq_ofReal]
       · exact (le_of_lt ht)
       · exact ha
   · exact coe_ne_top
-  · sorry
+  · apply AEStronglyMeasurable.aemeasurable
+    apply aestronglyMeasurable_trunc_compl hf
   · linarith
 
 lemma estimate_snorm_trunc_compl {p₀ : ℝ} {a : ℝ}
@@ -933,13 +892,6 @@ lemma _rewrite_norm_func' (q : ℝ) (f : α → E₁) (hq : 1 ≤ q) (a : ℝ) {
     · apply distribution_measurable_from_real
     · exact Measurable.ennreal_ofReal <| Measurable.pow_const (fun ⦃t⦄ a ↦ a) (q - 1)
 
-lemma lintegral_const_mul_set' {r : ℝ≥0∞} (hr : r ≠ ⊤) (s : Set α) (f : α → ℝ≥0∞):
-    r * ∫⁻ x in s, f x ∂μ = ∫⁻ x in s, r * f x ∂μ :=
-  Eq.symm (lintegral_const_mul' r (fun a ↦ f a) hr)
-
-lemma test_ (a b : ℝ≥0∞) (c : ℝ) (hc : c≠ 0) : (a ^ c) ^ c⁻¹ = a := by
-  exact ENNReal.rpow_rpow_inv hc a
-
 lemma weaktype_estimate {C₀ : ℝ} {p : ℝ≥0} {q : ℝ≥0} (hq : 1 ≤ q)
   {f : α → E₁} (hf : Memℒp f p μ)
     (h₀T : HasWeakType T p q μ ν C₀.toNNReal) (t : ℝ) (ht : t > 0) :
@@ -950,8 +902,9 @@ lemma weaktype_estimate {C₀ : ℝ} {p : ℝ≥0} {q : ℝ≥0} (hq : 1 ≤ q)
   have one_le_q : q.toReal ≥ 1 := by exact hq
   have q_pos : q.toReal > 0 := by linarith
   have q_nonneg := le_of_lt q_pos
-  have tq_pos : (ENNReal.ofReal t) ^ q.toReal > 0 := sorry
-  have tq_ne_top : (ENNReal.ofReal t) ^ q.toReal ≠ ⊤ := sorry
+  have tq_pos : (ENNReal.ofReal t) ^ q.toReal > 0 :=
+    rpow_pos_of_nonneg (ofReal_pos.mpr ht) q_nonneg
+  have tq_ne_top : (ENNReal.ofReal t) ^ q.toReal ≠ ⊤ := rpow_ne_top_of_nonneg q_nonneg coe_ne_top
   unfold wnorm wnorm' at h₀
   simp at h₀
   have h₁ := h₀ t.toNNReal
@@ -966,6 +919,37 @@ lemma weaktype_estimate {C₀ : ℝ} {p : ℝ≥0} {q : ℝ≥0} (hq : 1 ≤ q)
   · exact h₁
   · exact Ne.symm (ne_of_lt q_pos)
   · exact one_div_nonneg.mpr q_nonneg
+
+-- TODO: this may need to be generalized to the cases where the exponents equal ⊤
+lemma weaktype_estimate_trunc {C₀ : ℝ} {p p₀: ℝ≥0} (hp : 1 ≤ p) {q₀ : ℝ≥0} (hq₀ : 1 ≤ q₀) (hp₀q₀ : q₀ < p₀)
+  {f : α → E₁} (hf : Memℒp f p μ)
+    (h₀T : HasWeakType T p₀ q₀ μ ν C₀.toNNReal) (t : ℝ) (ht : t > 0) {a : ℝ} (ha : a > 0):
+    distribution (T (f - trunc f a)) (ENNReal.ofReal t) ν ≤ ENNReal.ofReal C₀ ^ q₀.toReal *
+        snorm (f - trunc f a) p₀ μ ^ q₀.toReal * ENNReal.ofReal t⁻¹ ^ q₀.toReal := by
+  apply weaktype_estimate hq₀
+  · apply trunc_compl_Lp_Lq_lower (p := p)
+    · sorry
+    · sorry
+    · exact hf
+    · exact ha
+  · exact h₀T
+  · exact ht
+
+lemma weaktype_estimate_trunc_compl {C₁ : ℝ} {p p₁: ℝ≥0} (hp : 1 ≤ p) {q₁ : ℝ≥0} (hp₁q₁ : q₁ < p₁)
+  {f : α → E₁} (hf : Memℒp f p μ)
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁.toNNReal) (t : ℝ) (ht : t > 0) {a : ℝ} (ha : a > 0):
+    distribution (T (trunc f a)) (ENNReal.ofReal t) ν ≤ ENNReal.ofReal C₁ ^ q₁.toReal *
+        snorm (trunc f a) p₁ μ ^ q₁.toReal * ENNReal.ofReal t⁻¹ ^ q₁.toReal := by
+  have hq₁ : 1 ≤ q₁ := sorry
+  apply weaktype_estimate hq₁
+  · apply trunc_Lp_MemLq_higher (p := p)
+    · sorry
+    · sorry
+    · exact hf
+  · exact h₁T
+  · exact ht
+
+#exit
 
 structure ScaledPowerFunction where
   σ : ℝ
@@ -1489,6 +1473,48 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
           exact (ofReal_lt_iff_lt_toReal toReal_nonneg coe_ne_top).mpr
               (lt_of_add_lt_of_nonneg_right wn (toReal_nonneg))
       · refine False.elim (hx (A_mon le_add_self wm))
+
+/-- Marcinkiewicz real interpolation theorem, for the case of equal domain: p₀ = p₁. -/
+lemma exists_hasStrongType_real_interpolation' {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
+    (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
+    {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
+    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
+    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
+    (hp₀₁ : p₀ = p₁) :
+    ∃ C > 0, HasStrongType T p q μ ν C := by
+  let Cfinal : ℝ≥0 := C₀
+  exists Cfinal
+  constructor
+  · sorry
+  · have p_eq_p₀ : p = p₀ := by sorry
+    intros f f_mem
+    rewrite [p_eq_p₀] at f_mem
+    have h₀T_ap := (h₀T f f_mem).2
+    rewrite [hp₀₁] at f_mem
+    have h₁T_ap := (h₁T f f_mem).2
+    constructor
+    · exact (h₁T f f_mem).1
+    · unfold wnorm at h₀T_ap
+      split at h₀T_ap
+      · have q_eq_top : q = ⊤ := sorry
+        rewrite [← p_eq_p₀] at h₀T_ap
+        unfold snorm
+        split
+        · apply zero_le
+        · exact h₀T_ap
+      · sorry
+
+/-- Marcinkiewicz real interpolation theorem, for the case p₀ ≠ p₁ and all exponents
+    are less than ∞.
+    TODO: So far the assymption that p₀ ≠ p₁ is not added -/
+lemma exists_hasStrongType_real_interpolation'' {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
+    (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
+    {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
+    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
+    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
+    (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p)
+    (hq₀ : q₀ < ∞) (hq₁ : q₁ < ∞) :
+    ∃ C > 0, HasStrongType T p q μ ν C := sorry
 
 /-- Marcinkiewicz real interpolation theorem. -
 -- feel free to assume that T also respect a.e.-equality if needed. -/
