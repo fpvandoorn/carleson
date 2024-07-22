@@ -32,6 +32,13 @@ lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
   apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)
   simp [iff_true_intro (@h x)]
 
+-- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
+lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
+    ∑ p ∈ Finset.univ.filter (· ∈ C), (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
+  rw [stackSize, Nat.cast_sum]
+  refine Finset.sum_congr rfl (fun u _ ↦ ?_)
+  by_cases hx : x ∈ (𝓘 u : Set X) <;> simp [hx]
+
 /-! We might want to develop some API about partitioning a set.
 But maybe `Set.PairwiseDisjoint` and `Set.Union` are enough.
 Related, but not quite useful: `Setoid.IsPartition`. -/
