@@ -74,9 +74,11 @@ lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖�
 lemma distribution_snormEssSup : distribution f (snormEssSup f μ) μ = 0 :=
   meas_snormEssSup_lt
 
+@[measurability]
 lemma distribution_measurable : Measurable (fun t ↦ distribution f t μ) :=
   Antitone.measurable (distribution_mono_right' (f := f) (μ := μ))
 
+@[measurability]
 lemma distribution_measurable_from_real : Measurable (fun t : ℝ ↦ distribution f (.ofReal t) μ) := by
   let composition := (fun t : ℝ≥0∞ ↦ distribution f t μ) ∘ (fun t : ℝ ↦ ENNReal.ofReal t)
   change Measurable (composition)

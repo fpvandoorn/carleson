@@ -146,7 +146,6 @@ lemma weakℒp_interpolate_lower {p q : ℝ≥0∞} (hp : p ≥ 1) (hq : q ∈ I
     Memℒp f q μ := by
   let q' := q.toReal
   have coe_q : ENNReal.ofReal (q') = q := ofReal_toReal_eq_iff.mpr (LT.lt.ne_top hq.2)
-  have hq1 := hq.1
   have one_le_q' : 1 ≤ q' := one_le_ofReal.mp (le_of_le_of_eq hq.1 (Eq.symm coe_q))
   have q'min_1 : 0 ≤ q' - 1 := by linarith
   have q'pos : q' > 0 := by linarith
@@ -170,7 +169,7 @@ lemma weakℒp_interpolate_lower {p q : ℝ≥0∞} (hp : p ≥ 1) (hq : q ∈ I
             measurableSet_Ioi measurableSet_Ioo]
         · rw [inter_eq_self_of_subset_right Ioo_subset_Ioi_self]
           calc
-          _ ≤ ∫⁻ (x : ℝ) in Ioo 0 M,
+          _ ≤ ∫⁻ (_ : ℝ) in Ioo 0 M,
               distribution f 0 μ * .ofReal (M ^ (q' - 1)) := by
             apply setLIntegral_mono' measurableSet_Ioo
             intro x hx
@@ -344,7 +343,6 @@ lemma weakℒp_interpolate_higher {p q : ℝ≥0∞} (hp : p ≥ 1) (hq : q ∈ 
                 ofReal_toReal_eq_iff.mpr (ne_of_lt est)
             let p' := p.toReal
             have p'pos : p' > 0 := toReal_pos_iff.mpr ⟨p_pos, Ne.lt_top is_ptop⟩
-            have p_lt_top : p < ⊤ := Ne.lt_top is_ptop
             have q'lt_p': p' < q' := by
               refine toReal_strict_mono (LT.lt.ne_top q_ne_top) p_lt_q
             calc
@@ -579,7 +577,6 @@ lemma distribution_shift_trunc (t : ℝ) (s : ℝ≥0∞) :
 
 lemma trunc_compl_Lp_Lq_lower {p q : ℝ≥0∞} (hp : p ∈ Ico 1 ⊤) (hq : q ∈ Ico 1 p) {f : α → E₁}
     (hf : Memℒp f p μ) {a : ℝ} (ha : a > 0) : Memℒp (f - trunc f a) q μ := by
-  have q_lt_p := hq.2
   apply weakℒp_interpolate_lower hp.1 hq
   · apply Memℒp.memWℒp hp.1
     apply trunc_compl_preserves_Lp hf
@@ -603,8 +600,8 @@ lemma trunc_compl_Lp_Lq_lower {p q : ℝ≥0∞} (hp : p ∈ Ico 1 ⊤) (hq : q 
         · have est := hf.2
           unfold snorm at est
           split_ifs at est with is_p_0 is_p_top
-          · contrapose! is_p_0; exact ne_of_gt p_pos
-          · contrapose! is_p_top; exact ofReal_toReal_eq_iff.mp coe_p
+          · exact False.elim <| ne_of_gt p_pos is_p_0
+          · exact False.elim <| ofReal_toReal_eq_iff.mp coe_p is_p_top
           · exact est
         · linarith
       · exact Preorder.le_refl 0
@@ -662,7 +659,7 @@ lemma distribution_trunc (t : ℝ) :
 def Subadditive (T : (α → E₁) → α' → E₂) : Prop :=
   ∃ A > 0, ∀ (f g : α → E₁) (x : α'), ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
 
-def Subadditive' (T : (α → E₁) → α' → E₂) {A : ℝ} (hA : A > 0) : Prop :=
+def Subadditive' (T : (α → E₁) → α' → E₂) (A : ℝ) : Prop :=
   ∀ (f g : α → E₁) (x : α'), ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
 
 def Sublinear (T : (α → E₁) → α' → E₂) : Prop :=
@@ -790,30 +787,15 @@ lemma estimate_snorm_trunc_compl {p₀ : ℝ} {a : ℝ}
   rw [ofReal_rpow_of_pos (lt_of_le_of_lt ha t_gt_a)]
   apply ofReal_le_ofReal_iff'.mpr; left; apply Real.rpow_le_rpow <;> linarith
 
--- lemma estimate_distribution_subadditive {q : ℝ} (hq : 1 ≤ q) (f : α → E₁) (t : ℝ)
---     (ht : t > 0)(a : ℝ) {A : ℝ} (hA : A > 0) (h : Subadditive' T hA) :
---     distribution (T f) (ENNReal.ofReal ((2 : ℝ) * t)) ν ≤
---     distribution ((A • T) (trunc f a)) (ENNReal.ofReal t) ν +
---     distribution ((A • T) (f - trunc f a)) (ENNReal.ofReal t) ν := by
---   rw [← one_add_one_eq_two, add_mul, one_mul, ofReal_add (le_of_lt ht) (le_of_lt ht)]
---   apply distribution_add_le'
---   apply ae_of_all
---   intro x
---   have h₀ : ∀ g : α → E₁, (A • T) g = A • (T g) := by intro g; rfl
---   have h₁ : ∀ (g : α → E₁) (x : α'), (A • (T g)) x = A • (T g x) := by intros g x; rfl
---   rw [h₀, h₀, h₁, h₁, norm_smul, norm_smul, Real.norm_eq_abs, (abs_of_pos hA), ← mul_add]
---   have h₂ : f = trunc f a + (f - trunc f a) := by rw [@add_sub_cancel]
---   nth_rewrite 1 [h₂]
---   apply h
-
-lemma estimate_distribution_subadditive {q : ℝ} (hq : 1 ≤ q) {f : α → E₁} {t : ℝ}
-    (ht : t > 0) {a : ℝ} {A : ℝ} (hA : A > 0) (h : Subadditive' T hA) :
+lemma estimate_distribution_subadditive {f : α → E₁} {t : ℝ}
+    (ht : t > 0) {a : ℝ} {A : ℝ} (hA : A > 0) (h : Subadditive' T A) :
     distribution (T f) (ENNReal.ofReal ((2 : ℝ) * t)) ν ≤
     distribution (T (trunc f a)) (ENNReal.ofReal (t / A)) ν +
     distribution (T (f - trunc f a)) (ENNReal.ofReal (t / A)) ν := by
   rw [ofReal_div_of_pos hA, ← Real.ennnorm_eq_ofReal (le_of_lt hA)]
   rw [← distribution_smul_left (ne_of_gt hA), ← distribution_smul_left (ne_of_gt hA)]
-  have : ENNReal.ofReal (2 * t) = ENNReal.ofReal t + ENNReal.ofReal t := sorry
+  have : ENNReal.ofReal (2 * t) = ENNReal.ofReal t + ENNReal.ofReal t := by
+    rw [← ofReal_add, two_mul] <;> try positivity
   rewrite [this]
   apply distribution_add_le'
   apply ae_of_all
@@ -823,8 +805,8 @@ lemma estimate_distribution_subadditive {q : ℝ} (hq : 1 ≤ q) {f : α → E�
   nth_rewrite 1 [← add_sub_cancel (trunc f a) f]
   apply h
 
-lemma estimate_distribution_subadditive' {q : ℝ} (hq : 1 ≤ q) {f : α → E₁} {t : ℝ}
-    (ht : t > 0) (a : ℝ) {A : ℝ} (hA : A > 0) (h : Subadditive' T hA) :
+lemma estimate_distribution_subadditive' {f : α → E₁} {t : ℝ}
+    (ht : t > 0) (a : ℝ) {A : ℝ} (hA : A > 0) (h : Subadditive' T A) :
     distribution (T f) (ENNReal.ofReal (2 * A * t)) ν ≤
     distribution (T (trunc f a)) (ENNReal.ofReal t) ν +
     distribution (T (f - trunc f a)) (ENNReal.ofReal t) ν := by
@@ -834,11 +816,12 @@ lemma estimate_distribution_subadditive' {q : ℝ} (hq : 1 ≤ q) {f : α → E�
   rw [← inv_mul_cancel (ne_of_gt hA)]
   rw [mul_rotate]
   rw [← div_eq_mul_inv]
-  apply estimate_distribution_subadditive hq
+  apply estimate_distribution_subadditive
   · exact Real.mul_pos hA ht
+  · exact hA
   · exact h
 
-lemma _rewrite_norm_func (q : ℝ) (g : α' → E) (hq : 1 ≤ q) {A : ℝ} (hA : A > 0)
+lemma _rewrite_norm_func {q : ℝ} {g : α' → E} (hq : 1 ≤ q) {A : ℝ} (hA : A > 0)
     (hg : AEMeasurable g ν):
     ∫⁻ x, ‖g x‖₊ ^q ∂ν =
     ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s in Ioi (0 : ℝ),
@@ -873,24 +856,26 @@ lemma _rewrite_norm_func (q : ℝ) (g : α' → E) (hq : 1 ≤ q) {A : ℝ} (hA 
     · linarith
     · exact (le_of_lt zero_lt_t)
 
-lemma _rewrite_norm_func' (q : ℝ) (f : α → E₁) (hq : 1 ≤ q) (a : ℝ) {A : ℝ} (hA : A > 0)
-    (hT : Subadditive' T hA) :
-    ∫⁻ s in Ioi (0 : ℝ),
-    distribution (T f) ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) ≤
-    (∫⁻ s in Ioi (0 : ℝ),
-    distribution (T (trunc f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1))) +
-    ∫⁻ s in Ioi (0 : ℝ),
-    distribution (T (f - trunc f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) := by
-  rw [← lintegral_add_left]
-  · rw [← funext fun _ ↦ add_mul _ _ _]
-    apply setLIntegral_mono' measurableSet_Ioi
-    intro s s_pos
-    apply mul_le_mul'
-    · apply estimate_distribution_subadditive' hq s_pos a hA hT
-    · exact Preorder.le_refl _
-  · apply Measurable.mul
-    · apply distribution_measurable_from_real
-    · exact Measurable.ennreal_ofReal <| Measurable.pow_const (fun ⦃t⦄ a ↦ a) (q - 1)
+-- lemma _rewrite_norm_func' {q : ℝ} {f : α → E₁} (hq : 1 ≤ q) (a : ℝ) {A : ℝ} (hA : A > 0)
+--     (hT : Subadditive' T hA) :
+--     ∫⁻ s in Ioi (0 : ℝ),
+--     distribution (T f) ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) ≤
+--     (∫⁻ s in Ioi (0 : ℝ),
+--     distribution (T (trunc f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1))) +
+--     ∫⁻ s in Ioi (0 : ℝ),
+--     distribution (T (f - trunc f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) := by
+--   rw [← lintegral_add_left]
+--   · rw [← funext fun _ ↦ add_mul _ _ _]
+--     apply setLIntegral_mono' measurableSet_Ioi
+--     intro s s_pos
+--     apply mul_le_mul'
+--     · apply estimate_distribution_subadditive' hq s_pos a hA hT
+--     · exact Preorder.le_refl _
+--   · apply Measurable.mul
+--     · apply distribution_measurable_from_real
+--     · exact Measurable.ennreal_ofReal <| Measurable.pow_const (fun ⦃t⦄ a ↦ a) (q - 1)
+
+
 
 lemma weaktype_estimate {C₀ : ℝ} {p : ℝ≥0} {q : ℝ≥0} (hq : 1 ≤ q)
   {f : α → E₁} (hf : Memℒp f p μ)
@@ -921,35 +906,87 @@ lemma weaktype_estimate {C₀ : ℝ} {p : ℝ≥0} {q : ℝ≥0} (hq : 1 ≤ q)
   · exact one_div_nonneg.mpr q_nonneg
 
 -- TODO: this may need to be generalized to the cases where the exponents equal ⊤
-lemma weaktype_estimate_trunc {C₀ : ℝ} {p p₀: ℝ≥0} (hp : 1 ≤ p) {q₀ : ℝ≥0} (hq₀ : 1 ≤ q₀) (hp₀q₀ : q₀ < p₀)
+lemma weaktype_estimate_trunc_compl {C₀ : ℝ} {p p₀: ℝ≥0} (hp₀ : 1 ≤ p₀) {q₀ : ℝ≥0} (hq₀ : 1 ≤ q₀) (hp₀p : p₀ < p)
   {f : α → E₁} (hf : Memℒp f p μ)
-    (h₀T : HasWeakType T p₀ q₀ μ ν C₀.toNNReal) (t : ℝ) (ht : t > 0) {a : ℝ} (ha : a > 0):
+    (h₀T : HasWeakType T p₀ q₀ μ ν C₀.toNNReal) {t : ℝ} (ht : t > 0) {a : ℝ} (ha : a > 0):
     distribution (T (f - trunc f a)) (ENNReal.ofReal t) ν ≤ ENNReal.ofReal C₀ ^ q₀.toReal *
         snorm (f - trunc f a) p₀ μ ^ q₀.toReal * ENNReal.ofReal t⁻¹ ^ q₀.toReal := by
   apply weaktype_estimate hq₀
   · apply trunc_compl_Lp_Lq_lower (p := p)
-    · sorry
-    · sorry
+    · exact ⟨one_le_coe_iff.mpr (le_of_lt (lt_of_le_of_lt hp₀ hp₀p)), coe_lt_top⟩
+    · exact ⟨one_le_coe_iff.mpr hp₀, coe_lt_coe_of_lt hp₀p⟩
     · exact hf
     · exact ha
   · exact h₀T
   · exact ht
 
-lemma weaktype_estimate_trunc_compl {C₁ : ℝ} {p p₁: ℝ≥0} (hp : 1 ≤ p) {q₁ : ℝ≥0} (hp₁q₁ : q₁ < p₁)
+lemma weaktype_estimate_trunc {C₁ : ℝ} {p p₁: ℝ≥0} (hp : 1 ≤ p) {q₁ : ℝ≥0} (hq₁ : 1 ≤ q₁) (hp₁p : p < p₁)
   {f : α → E₁} (hf : Memℒp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁.toNNReal) (t : ℝ) (ht : t > 0) {a : ℝ} (ha : a > 0):
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁.toNNReal) {t : ℝ} (ht : t > 0) {a : ℝ} :
     distribution (T (trunc f a)) (ENNReal.ofReal t) ν ≤ ENNReal.ofReal C₁ ^ q₁.toReal *
         snorm (trunc f a) p₁ μ ^ q₁.toReal * ENNReal.ofReal t⁻¹ ^ q₁.toReal := by
-  have hq₁ : 1 ≤ q₁ := sorry
   apply weaktype_estimate hq₁
   · apply trunc_Lp_MemLq_higher (p := p)
-    · sorry
-    · sorry
+    · exact one_le_coe_iff.mpr hp
+    · exact coe_lt_coe_of_lt hp₁p
     · exact hf
   · exact h₁T
   · exact ht
 
-#exit
+lemma _estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁} (hq : 1 ≤ q) (a : ℝ) {A : ℝ} (hA : A > 0)
+    (ht : Subadditive' T A) (hTf : AEMeasurable (T f) ν) :
+  ∫⁻ x : α', ‖T f x‖₊ ^ q ∂ν ≤
+  (ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s in Ioi (0 : ℝ), distribution (T (trunc f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1))) +
+  ENNReal.ofReal ((2 * A)^q * q) *
+  ∫⁻ s in Ioi (0 : ℝ), distribution (T (f - trunc f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) := by
+  rw [← mul_add]
+  rw [_rewrite_norm_func hq hA]
+  apply mul_le_mul'
+  · exact le_refl _
+  · rw [← lintegral_add_left]
+    · apply setLIntegral_mono' measurableSet_Ioi
+      intro s s_pos
+      rw [← add_mul]
+      apply mul_le_mul'
+      · apply estimate_distribution_subadditive' s_pos a hA ht
+      · exact le_refl _
+    · apply Measurable.mul
+      · apply distribution_measurable_from_real
+      · exact Measurable.ennreal_ofReal <| Measurable.pow_const (fun ⦃t⦄ a ↦ a) (q - 1)
+  · exact hTf
+
+lemma _estimate_norm_rpow_range_operator_trunc {C : ℝ} {p p' : ℝ≥0} (hp : 1 ≤ p) {q q' : ℝ≥0}
+  {f : α → E₁} (hf : Memℒp f p μ) (hq' : 1 ≤ q')  (hp'p : p < p') {a : ℝ}
+  (h₁T : HasWeakType T p' q' μ ν C.toNNReal) :
+  ∫⁻ s : ℝ in Ioi 0, distribution (T (trunc f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q.toReal - 1)) ≤
+  ENNReal.ofReal C ^ q'.toReal * ∫⁻ s : ℝ in Ioi 0, snorm (trnc ⊤ f a) p' μ ^ q'.toReal * ENNReal.ofReal (s ^ (q.toReal - q'.toReal - 1)) := by
+  rw [← lintegral_const_mul']; swap; refine rpow_ne_top_of_nonneg (by positivity) coe_ne_top
+  apply setLIntegral_mono' measurableSet_Ioi
+  intro s (s_pos : s > 0)
+  rw [← mul_assoc]
+  refine le_trans (mul_le_mul_right' (weaktype_estimate_trunc hp hq' hp'p hf h₁T s_pos)
+        (ENNReal.ofReal (s ^ (q.toReal - 1)))) ?_
+  rw [ofReal_rpow_of_nonneg (x := s⁻¹), mul_assoc, ← ofReal_mul] <;> try positivity
+  unfold trnc; simp only [top_eq_true, ↓reduceIte]
+  gcongr
+  rw [Real.inv_rpow, ← Real.rpow_neg_one, ← Real.rpow_mul, ← Real.rpow_add s_pos] <;> try positivity
+  apply le_of_eq; apply congr_arg; group
+
+lemma _estimate_norm_rpow_range_operator_trunc_compl {C : ℝ} {p p' : ℝ≥0} (hp' : 1 ≤ p') {q q' : ℝ≥0}
+  {f : α → E₁} (hf : Memℒp f p μ) (hq' : 1 ≤ q') (hp'p : p' < p) {a : ℝ} (ha : a > 0) (h₁T : HasWeakType T p' q' μ ν C.toNNReal) :
+  ∫⁻ s : ℝ in Ioi 0, distribution (T (trnc ⊥ f a)) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q.toReal - 1)) ≤
+  ENNReal.ofReal C ^ q'.toReal * ∫⁻ s : ℝ in Ioi 0, snorm (trnc ⊥ f a) p' μ ^ q'.toReal * ENNReal.ofReal (s ^ (q.toReal - q'.toReal - 1)) := by
+  rw [← lintegral_const_mul']; swap; refine rpow_ne_top_of_nonneg (by positivity) coe_ne_top
+  apply setLIntegral_mono' measurableSet_Ioi
+  intro s (s_pos : s > 0)
+  rw [← mul_assoc]
+  refine le_trans (mul_le_mul_right' (weaktype_estimate_trunc_compl hp' hq' hp'p hf h₁T s_pos ha)
+        (ENNReal.ofReal (s ^ (q.toReal - 1)))) ?_
+  rw [ofReal_rpow_of_nonneg (x := s⁻¹), mul_assoc, ← ofReal_mul] <;> try positivity
+  unfold trnc; simp only [top_eq_true, ↓reduceIte]
+  gcongr
+  rw [Real.inv_rpow, ← Real.rpow_neg_one, ← Real.rpow_mul, ← Real.rpow_add s_pos] <;> try positivity
+  apply le_of_eq; apply congr_arg; group
 
 structure ScaledPowerFunction where
   σ : ℝ
@@ -1099,7 +1136,6 @@ lemma value_integral_φ' {j : Bool} {p' q' q : ℝ} [tc : ToneCouple] {t : ℝ}
         distribution f (ENNReal.ofReal t) μ) ^
       (q' / p')
     := by
-  have h₀ : q' / p' ≥ 0 := by sorry
   rw [lintegral_double_restrict_set (B := res (xor j tc.mon) (tc.inv t))]
   · rw [inter_eq_right.mpr (res_subset_Ioi (tc.ran_inv t ht))]
     apply lintegral_congr_ae
@@ -1209,7 +1245,6 @@ lemma estimate_trunc' (p₁ : ℝ) (A : ℝ):
     · rw [mul_zero]
   · exact measurableSet_Ioi
 
--- TODO link this to the lemmas that are proven
 lemma estimate_trunc {p₁ : ℝ} (hp₁ : p₁ > 0) (A : ℝ) (hf : AEStronglyMeasurable f μ):
     snorm (trunc f A) (.ofReal p₁) μ =
     (∫⁻ (t : ℝ) in Ioo (0 : ℝ) A, ENNReal.ofReal p₁ * ENNReal.ofReal t ^ (p₁ - 1) *
@@ -1473,6 +1508,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
           exact (ofReal_lt_iff_lt_toReal toReal_nonneg coe_ne_top).mpr
               (lt_of_add_lt_of_nonneg_right wn (toReal_nonneg))
       · refine False.elim (hx (A_mon le_add_self wm))
+  sorry
 
 /-- Marcinkiewicz real interpolation theorem, for the case of equal domain: p₀ = p₁. -/
 lemma exists_hasStrongType_real_interpolation' {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
