@@ -9,10 +9,10 @@ open NNReal ENNReal NormedSpace MeasureTheory Set
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'}
-  [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
-  [NormedAddCommGroup E₁] [NormedSpace ℝ E₁] [FiniteDimensional ℝ E₁]
-  [NormedAddCommGroup E₂] [NormedSpace ℝ E₂] [FiniteDimensional ℝ E₂]
-  [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] [FiniteDimensional ℝ E₃]
+  [NormedAddCommGroup E] [NormedSpace ℝ E] -- [FiniteDimensional ℝ E]
+  [NormedAddCommGroup E₁] [NormedSpace ℝ E₁] -- [FiniteDimensional ℝ E₁]
+  [NormedAddCommGroup E₂] [NormedSpace ℝ E₂] -- [FiniteDimensional ℝ E₂]
+  [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] -- [FiniteDimensional ℝ E₃]
   [MeasurableSpace E] [BorelSpace E]
   [MeasurableSpace E₁] [BorelSpace E₁]
   [MeasurableSpace E₂] [BorelSpace E₂]
@@ -33,8 +33,10 @@ def trunc'' (f : α → E) (t : ℝ) :=
 def trunc (f : α → E) (t : ℝ) (x : α) : E := if ‖f x‖ ≤ t then f x else
     if 0 < t then (t * ‖f x‖⁻¹) • f x else 0
 
-def trnc (j : Bool) (f : α → E) (t : ℝ) :=
-    if j then trunc f t else (f - trunc f t)
+def trnc (j : Bool) (f : α → E) (t : ℝ)  : α → E :=
+  match j with
+  | false => f - trunc f t
+  | true => trunc f t
 
 lemma trunc_buildup : trunc f t = trunc' f t + trunc'' f t := by
   ext x
@@ -154,7 +156,7 @@ lemma weakℒp_interpolate_lower {p q : ℝ≥0∞} (hp : p ≥ 1) (hq : q ∈ I
     simp
   refine ⟨hf.1, ?_⟩
   rw [← coe_q]
-  rw [snorm_pow_eq_distribution' (aestronglyMeasurable_iff_aemeasurable.mp hf.1) q'pos]
+  rw [snorm_pow_eq_distribution' (AEStronglyMeasurable.aemeasurable hf.1) q'pos]
   · refine (rpow_lt_top_iff_of_pos ?hy).mpr ?_
     · exact inv_pos_of_pos (lt_of_lt_of_le Real.zero_lt_one one_le_q')
     · refine mul_lt_top coe_ne_top ?_
@@ -321,7 +323,7 @@ lemma weakℒp_interpolate_higher {p q : ℝ≥0∞} (hp : p ≥ 1) (hq : q ∈ 
       apply toReal_pos_iff.mpr; exact ⟨q_pos, q_ne_top⟩
     have q'inv_pos : 0 < q'⁻¹ := inv_pos_of_pos q'pos
     rw [← coe_q]
-    rw [snorm_pow_eq_distribution' (aestronglyMeasurable_iff_aemeasurable.mp hf.1) q'pos]
+    rw [snorm_pow_eq_distribution' (AEStronglyMeasurable.aemeasurable hf.1) q'pos]
     · apply rpow_lt_top_of_nonneg
       · exact le_of_lt q'inv_pos
       · refine ne_of_lt ?_
@@ -596,7 +598,7 @@ lemma trunc_compl_Lp_Lq_lower {p q : ℝ≥0∞} (hp : p ∈ Ico 1 ⊤) (hq : q 
           apply toReal_pos_iff.mpr
           exact ⟨p_pos, hp.2⟩
         apply distribution_finite_for_finite_snorm p'pos
-        · exact (aestronglyMeasurable_iff_aemeasurable.mp hf.1)
+        · exact (AEStronglyMeasurable.aemeasurable hf.1)
         · have est := hf.2
           unfold snorm at est
           split_ifs at est with is_p_0 is_p_top
