@@ -1,6 +1,6 @@
 % This is the main point of entry to the blueprint.
 % Add chapters of the blueprint here.
-% This file is not meant to be built. Build src/web.tex or src/print.text instead.
+% This file is not meant to be built. Build src/web.tex or src/print.tex instead.
 
 % Note: still have to upstream section ~> chapter and subsection ~> section to Overleaf
 % Replace spaces by dashes in labels using search&replace (leave out `, keep space)
@@ -7622,7 +7622,7 @@ We prove in \Cref{10smooth}:
 We prove in \Cref{10difference}:
 \begin{lemma}[control approximation effect]
 \label{control-approximation-effect}
-\uses{real-Carleson,Dirichlet-kernel}
+\uses{partial-Fourier-sums-of-small}
 \leanok
 \lean{control_approximation_effect'}
     There is a set $E \subset \R$ with Lebesgue measure
@@ -8524,7 +8524,6 @@ This completes the proof of the lemma.
     \begin{equation*}
         \left|K_N(x) - (e^{-iNx}\kappa(x) + \overline{e^{-iNx}\kappa(x)})\right| \le \pi \,.
     \end{equation*}
-    %fixme: Add something like "for a bounded function \tilde{K}_N(x) ?
 \end{lemma}
 
 \begin{proof}
@@ -8543,7 +8542,7 @@ This completes the proof of the lemma.
 
 \begin{lemma}[partial Fourier sum bound]
     \label{partial-Fourier-sum-bound}
-    %fixme: avoid explicit \delta here?
+    \uses{Dirichlet-kernel, Dirichlet-Hilbert}
     Let $g:\R\to\C$ be a measurable $2\pi$-periodic function such that for some $\delta>0$ and every $x\in\R$,
     \begin{equation}
         |g(x)|\le \delta \,.
@@ -8552,7 +8551,6 @@ This completes the proof of the lemma.
     \begin{equation*}
         |S_N g(x)| \le \frac{1}{2\pi} (Tg(x) + T\bar{g}(x)) + \pi\delta.
     \end{equation*}
-    %where $h=g\mathbf{1}_{[-\pi,3\pi]}$.
 \end{lemma}
 
 \begin{proof}
@@ -8574,7 +8572,6 @@ This completes the proof of the lemma.
         + \frac{1}{2\pi} \left|\int_{x-\pi}^{x+\pi} g(y) \max(|x-y|,0) K_N(x-y) \, dy\right|\,.
     \end{equation}
     Note that all integrals are well defined, since $K_N$ is by \eqref{eqksumexp} bounded by $2N+1$.
-    %fixme: make this a lemma?
     Using that
     \begin{equation}
         \label{eq-Dirichlet-Hilbert}
@@ -8604,17 +8601,41 @@ This completes the proof of the lemma.
     \end{equation*}
 \end{proof}
 
-%fixme: Put this somewhere else and complete statement and proof
+%fixme: Put this somewhere else?
 \begin{lemma}[real Carleson operator measurable]
     \label{real-Carleson-operator-measurable}
-    $Tf$ as defined in ... is measurable.
+    \uses{Hilbert-kernel-bound}
+    \leanok
+    \lean{CarlesonOperatorReal_measurable}
+    Let $f$ be a bounded measurable function on $\R$. Then $Tf$ as defined in \eqref{define-T-carleson} is measurable.
 \end{lemma}
 \begin{proof}
     \leanok
+    Since a countable supremum of measurable functions is measurable, it suffices to show that for every $n\in\Z$,
+    \begin{equation*}
+        x \mapsto \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|
+    \end{equation*}
+    is measurable. So let $n\in\Z$.
+    Note that for each $x\in\R$, the function
+    \begin{equation*}
+        r \mapsto \left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|
+    \end{equation*}
+    is continuous on $(0,\infty)$ since the integrand is locally bounded on the domain $0<|x-y|<1$ by the assumptions on $f$ and \Cref{Hilbert-kernel-bound}.
+    Thus, for each $x\in\R$,
+    \begin{equation*}
+        \sup_{r>0}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|
+        =\sup_{r\in\Q_{>0}}\left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right|
+    \end{equation*}
+    The right hand side is again a countable supremum so it remains to show that for every $r\in\Q_{>0}$,
+    \begin{equation*}
+        x \mapsto \left|\int_{r<|x-y|<1} f(y)\kappa(x-y) e^{iny}\, dy\right| = \left|\int \mathbf{1}_{\{r<|x-\cdot|<1\}}(y) f(y)\kappa(x-y) e^{iny}\, dy\right|
+    \end{equation*}
+    is measurable, which follows from the fact that the integrand is measurable in $(x,y)$.
 \end{proof}
 
 \begin{lemma}[partial Fourier sums of small]
     \label{partial-Fourier-sums-of-small}
+    \uses{real-Carleson-operator-measurable,real-Carleson,partial-Fourier-sum-bound}
     %fixme: rename \delta to \epsilon' ?
     Let $g:\R\to\C$ be a measurable $2\pi$-periodic function such that for some $\delta>0$ and every $x\in\R$,
     \begin{equation} \label{g-small}

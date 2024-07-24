@@ -54,6 +54,7 @@ lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
 
 local notation "T" => CarlesonOperatorReal K
 
+
 lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
   --TODO: clean up proof
   apply measurable_iSup
@@ -202,7 +203,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         (helper f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
   apply measurable_biSup _
-  apply Set.Countable.mono Set.inter_subset_right hQ.2
+  . apply Set.Countable.mono Set.inter_subset_right hQ.2
   intro r _
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)
   rw [← stronglyMeasurable_iff_measurable]
