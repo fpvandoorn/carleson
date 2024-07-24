@@ -4,12 +4,11 @@ import Mathlib.MeasureTheory.Integral.Lebesgue
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.Analysis.NormedSpace.Dual
 import Mathlib.Analysis.NormedSpace.LinearIsometry
+import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 noncomputable section
 
 open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
-
-#check AEMeasurable
 
 variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
@@ -205,29 +204,47 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     _ ≤ _ := measure_union_le _ _
 
 /- The lemmas below are almost already in Mathlib, see
-`MeasureTheory.lintegral_rpow_eq_lintegral_meas_le_mul`. -/
+`MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul`. -/
 
-/-- The layer-cake theorem, or Cavalieri's principle for functions into `ℝ≥0∞` -/
-lemma lintegral_norm_pow_eq_measure_lt {f : α → ℝ≥0∞} (hf : AEMeasurable f μ)
-    {p : ℝ} (hp : 1 ≤ p) :
-    ∫⁻ x, (f x) ^ p ∂μ =
-    ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * μ { x | ENNReal.ofReal t < f x } := by
-  sorry
+-- /-- The layer-cake theorem, or Cavalieri's principle for functions into `ℝ≥0∞` -/
+-- lemma lintegral_norm_pow_eq_measure_lt {f : α → ℝ≥0∞} (hf : AEMeasurable f μ)
+--     {p : ℝ} (hp : 1 ≤ p) :
+--     ∫⁻ x, (f x) ^ p ∂μ =
+--     ∫⁻ t in Ioi (0 : ℝ), .ofReal (p * t ^ (p - 1)) * μ { x | ENNReal.ofReal t < f x } := by
+--   sorry
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
-lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 1 ≤ p) :
+lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖₊ ^ p ∂μ =
-    ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := sorry
+    ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
+  have h2p : 0 ≤ p := hp.le
+  have := MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
+    (eventually_of_forall fun x ↦ norm_nonneg _) hf.norm hp
+  simp [*, ENNReal.coe_rpow_of_nonneg, ← ENNReal.ofReal_rpow_of_nonneg, ← ofReal_norm_eq_coe_nnnorm,
+    ofReal_mul, ← lintegral_const_mul', ← mul_assoc, mul_comm (μ _), distribution]
+    at this ⊢
+  convert this using 1
+  refine setLIntegral_congr_fun measurableSet_Ioi (eventually_of_forall fun x hx ↦ ?_)
+  simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `snorm`. -/
-lemma snorm_pow_eq_distribution {p : ℝ≥0} (hp : 1 ≤ p) :
+lemma snorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
     snorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
-  sorry
+  have h2p : 0 < (p : ℝ) := hp
+  have h3p : (p : ℝ) ≠ 0 := h2p.ne'
+  have h4p : 0 ≤ (p : ℝ) := zero_le_coe
+  simp_rw [MeasureTheory.snorm_nnreal_eq_snorm' hp.ne', snorm', one_div, ← ENNReal.rpow_mul,
+    inv_mul_cancel h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
+    ENNReal.ofReal_mul h4p, ofReal_coe_nnreal]
 
-lemma lintegral_pow_mul_distribution {p : ℝ} (hp : 1 ≤ p) :
+lemma lintegral_pow_mul_distribution {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
-    ENNReal.ofReal p⁻¹ * ∫⁻ x, ‖f x‖₊ ^ (p + 1) ∂μ  := sorry
+    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖₊ ^ (p + 1) ∂μ  := by
+  have h2p : 0 < p + 1 := by linarith
+  have h3p : 0 ≤ p + 1 := by linarith
+  have h4p : p + 1 ≠ 0 := by linarith
+  simp [*, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul', ← ofReal_mul, ← mul_assoc]
 
 
 /-- The weak L^p norm of a function, for `p < ∞` -/

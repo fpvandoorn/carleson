@@ -10,8 +10,6 @@ import Carleson.GridStructure
 import Carleson.HardyLittlewood
 import Carleson.HolderVanDerCorput
 import Carleson.MetricCarleson
-import Carleson.Proposition2
-import Carleson.Proposition3
 import Carleson.Psi
 import Carleson.RealInterpolation
 import Carleson.Theorem1_1.Approximation
@@ -22,6 +20,7 @@ import Carleson.Theorem1_1.ClassicalCarleson
 import Carleson.Theorem1_1.Control_Approximation_Effect
 import Carleson.Theorem1_1.Dirichlet_kernel
 import Carleson.Theorem1_1.Hilbert_kernel
+import Carleson.Theorem1_1.Van_der_Corput
 import Carleson.TileExistence
 import Carleson.TileStructure
 import Carleson.ToMathlib.Finiteness

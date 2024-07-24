@@ -6,7 +6,7 @@ open NNReal ENNReal NormedSpace MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
-  {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField ℝ]
+  {μ : Measure α} {ν : Measure α'}
   [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
   [NormedAddCommGroup E₁] [NormedSpace ℝ E₁] [FiniteDimensional ℝ E₁]
   [NormedAddCommGroup E₂] [NormedSpace ℝ E₂] [FiniteDimensional ℝ E₂]
@@ -36,11 +36,21 @@ lemma aestronglyMeasurable_trunc (hf : AEStronglyMeasurable f μ) :
 -- class IsClosedUnderTruncation (U : Set (α →ₘ[μ] E)) : Prop where
 --   trunc_mem {f : α →ₘ[μ] E} (hf : f ∈ U) (t : ℝ) : f.trunc t ∈ U
 
-def Subadditive (T : (α → E₁) → α' → E₂) : Prop :=
-  ∃ A > 0, ∀ (f g : α → E₁) (x : α'), ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
+/-- The operator is subadditive on functions satisfying `P`. -/
+def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) : Prop :=
+  ∃ A > 0, ∀ (f g : α → E₁) (x : α'), P f → P g → ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
 
-def Sublinear (T : (α → E₁) → α' → E₂) : Prop :=
-  Subadditive T ∧ ∀ (f : α → E₁) (c : ℝ), T (c • f) = c • T f
+/-- The operator is sublinear on `L^p`. -/
+def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) : Prop :=
+  SubadditiveOn T P ∧ ∀ (f : α → E₁) (c : ℝ), P f → T (c • f) = c • T f
+
+/-- The constant occurring in the real interpolation theorem. -/
+-- todo: remove unused variables
+def C_realInterpolation (p₀ p₁ q₀ q₁ p q : ℝ≥0∞) (C₀ C₁ : ℝ≥0) (t : ℝ) : ℝ≥0 := sorry
+
+-- todo: add necessary hypotheses
+lemma C_realInterpolation_pos (p₀ p₁ q₀ q₁ p q : ℝ≥0∞) (C₀ C₁ : ℝ≥0) (t : ℝ) :
+    0 < C_realInterpolation p₀ p₁ q₀ q₁ p q C₀ C₁ t := sorry
 
 /-- Marcinkiewicz real interpolation theorem. -/
 -- feel free to assume that T also respect a.e.-equality if needed.
@@ -52,8 +62,10 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
     (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
     {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
-    (hT : Sublinear T) (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁) :
-    ∃ C > 0, HasStrongType T p p μ ν C := sorry
+    (hmT : ∀ f, Memℒp f p₀ μ ∨ Memℒp f p₁ μ → AEStronglyMeasurable (T f) ν)
+    (hT : SublinearOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ))
+    (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁) :
+    HasStrongType T p p μ ν (C_realInterpolation p₀ p₁ q₀ q₁ p q C₀ C₁ t) := sorry
 
 /- State and prove Remark 1.2.7 -/
 

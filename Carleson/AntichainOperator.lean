@@ -43,8 +43,7 @@ open MeasureTheory Metric Bornology Set
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     (ha : 1 ≤ a) {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (x : X) :
-    ‖∑ (p ∈ 𝔄), T p f x‖₊ ≤ (C_6_1_2 a) *
-      MB volume ((fun (𝔭 : 𝔓 X) ↦ (𝔠 𝔭, 8*D ^ 𝔰 𝔭)) '' (𝔄 : Set (𝔓 X))) f x := by
+    ‖∑ (p ∈ 𝔄), T p f x‖₊ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
   by_cases hx : ∃ (p : 𝔄), T p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
     have hxE : x ∈ E ↑p := mem_of_indicator_ne_zero hpx
@@ -125,7 +124,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith)
           (zpow_pos_of_pos (defaultD_pos a) _))
-    _ ≤ (C_6_1_2 a) * MB volume ((fun (𝔭 : 𝔓 X) ↦ (𝔠 𝔭, 8*D ^ 𝔰 𝔭)) '' (𝔄 : Set (𝔓 X))) f x := by
+    _ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
       rw [mul_le_mul_left _ _, MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iSup_iff]
       simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff,
         and_imp, forall_apply_eq_imp_iff₂, ENNReal.rpow_one]

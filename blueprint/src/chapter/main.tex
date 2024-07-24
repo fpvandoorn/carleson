@@ -582,8 +582,8 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 \begin{proposition}[Hardy--Littlewood]
 \label{Hardy-Littlewood}
 \leanok
-\lean{measure_biUnion_le_lintegral, maximalFunction_le_snorm, hasStrongType_maximalFunction, M_lt_top,
-  laverage_le_M, snorm_M_le}
+\lean{measure_biUnion_le_lintegral, maximalFunction_le_snorm, hasStrongType_maximalFunction,
+    supMB_lt_top, laverage_le_supMB, snorm_supMB_le}
 \uses{layer-cake-representation,covering-separable-space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
 If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have
@@ -6226,6 +6226,7 @@ we have
 \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     The left-hand side of \eqref{eq-layercake} is by definition
 \begin{equation}
     \int_X u(x)^p \, d\mu(x)\, .\end{equation}
@@ -6244,6 +6245,9 @@ This proves the lemma.
 The following lemma will be used to define $M$ in the proof of \Cref{Hardy-Littlewood}.
 \begin{lemma}[covering separable space]
     \label{covering-separable-space}
+    \leanok
+    \lean{covering_separable_space}
+    % Since X is separable, we can even choose `C` independent of `r`.
     For each $r > 0$, there exists a countable collection $C(r) \subset X$ of points such that
     $$
         X \subset \bigcup_{c \in C(r)} B(c, r)\,.
@@ -6251,6 +6255,7 @@ The following lemma will be used to define $M$ in the proof of \Cref{Hardy-Littl
 \end{lemma}
 
 \begin{proof}
+    \leanok
     It clearly suffices to construct finite collections $C(r,k)$ such that
     $$
         B(o, r2^k) \subset \bigcup_{c \in C(r,k)} B(c,r)\,,
@@ -6402,7 +6407,7 @@ With \Cref{layer-cake-representation},
    2^{2a}
     \int_0^\infty \mu (\{x: |u_\lambda (x)|\ge \lambda'\})\, d\lambda'\, .
 \end{equation}
-By definition of $h_\lambda$, making a case distinction between $\lambda\ge \lambda'$ and $\lambda <\lambda'$, we see that
+By definition of $u_\lambda$, making a case distinction between $\lambda\ge \lambda'$ and $\lambda <\lambda'$, we see that
 \begin{equation}\label{eqbesi13}
    \mu (\{x: |u_\lambda (x)|\ge \lambda'\})
    \le

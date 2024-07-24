@@ -13,6 +13,7 @@ We should move them to separate files once we start proving things about them. -
 
 section DoublingMeasure
 universe u
+
 variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
 
 section localOscillation
