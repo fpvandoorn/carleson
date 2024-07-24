@@ -582,8 +582,9 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 \begin{proposition}[Hardy--Littlewood]
 \label{Hardy-Littlewood}
 \leanok
-\lean{measure_biUnion_le_lintegral, maximalFunction_le_snorm, hasStrongType_maximalFunction,
-    supMB_lt_top, laverage_le_supMB, snorm_supMB_le}
+\lean{measure_biUnion_le_lintegral, hasStrongType_maximalFunction,
+MeasureTheory.AEStronglyMeasurable.globalMaximalFunction, laverage_le_globalMaximalFunction,
+snorm_globalMaximalFunction_le}
 \uses{layer-cake-representation,covering-separable-space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
 If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have

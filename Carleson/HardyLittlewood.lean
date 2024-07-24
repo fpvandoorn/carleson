@@ -226,33 +226,39 @@ theorem hasStrongType_maximalFunction {p₁ p₂ : ℝ≥0}
       p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
   sorry
 
-
-variable (μ) in
-/-- Auxiliary definition for `supMB`. -/
-@[nolint unusedArguments]
-def auxM [μ.IsDoubling A] (c : ℕ → X) (r : ℕ → ℝ) (u : X → ℂ) (x : X) : ℝ≥0∞ := by
-  exact A ^ 2 * ⨆ n : ℕ, MB μ (Iic n) c r u x
-
 variable (μ) in
 /-- The transformation `M` characterized in Proposition 2.0.6. -/
-irreducible_def supMB (u : X → ℂ) (x : X) : ℝ≥0∞ := by
-  choose C h1C _ using covering_separable_space X
-  let B := Set.enumerateCountable (h1C.prod countable_univ (β := ℤ)) (Classical.choice ⟨x, 0⟩)
-  exact auxM μ (fun n ↦ (B n).1) (fun n ↦ 2 ^ (B n).2) u x
+@[nolint unusedArguments]
+def globalMaximalFunction [μ.IsDoubling A] (u : X → E) (x : X) : ℝ≥0∞ :=
+  A ^ 2 * MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
+    (fun z ↦ z.1) (fun z ↦ 2 ^ z.2) u x
 
-theorem supMB_lt_top {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
-    {u : X → ℂ} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
-    supMB μ u x < ∞ := by
+variable (X) in
+lemma countable_globalMaximalFunction :
+    (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
+  (covering_separable_space X).choose_spec.1.prod countable_univ
+
+-- prove if needed. Use `MB_le_snormEssSup`
+theorem globalMaximalFunction_lt_top {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
+    {u : X → E} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
+    globalMaximalFunction μ u x < ∞ := by
   sorry
 
-theorem laverage_le_supMB {u : X → ℂ} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u))
-    {z x : X} {r : ℝ} : ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ supMB μ u x := by
+protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction {p : ℝ}
+    {u : X → E} (hu : AEStronglyMeasurable u μ) :
+    AEStronglyMeasurable (globalMaximalFunction μ u) μ := by
+  refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
+  exact hu.maximalFunction (countable_globalMaximalFunction X) |>.aemeasurable.const_mul _
+
+theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurable u μ)
+    (hu : IsBounded (range u)) {z x : X} {r : ℝ} (h : dist x z < r) :
+    ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ u x := by
   sorry
 
-theorem snorm_supMB_le {p₁ p₂ : ℝ≥0}
+theorem snorm_globalMaximalFunction_le {p₁ p₂ : ℝ≥0}
     (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
     {u : X → ℂ} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u))
     {z x : X} {r : ℝ} :
-    snorm (fun x ↦ (supMB μ (fun x ↦ u x ^ (p₁ : ℂ)) x).toReal ^ (p₁⁻¹ : ℝ)) p₂ μ ≤
-    A ^ 4  * p₂ / (p₂ - p₁) * snorm u p₂ μ := by
+    snorm (fun x ↦ (globalMaximalFunction μ (fun x ↦ u x ^ (p₁ : ℂ)) x).toReal ^ (p₁⁻¹ : ℝ))
+      p₂ μ ≤ A ^ 4 * p₂ / (p₂ - p₁) * snorm u p₂ μ := by
   sorry
