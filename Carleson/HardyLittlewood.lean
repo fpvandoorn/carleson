@@ -136,7 +136,7 @@ lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := 
 end MeasureTheory
 
 protected theorem MeasureTheory.AEStronglyMeasurable.maximalFunction {p : ℝ}
-    {u : X → E} (hu : AEStronglyMeasurable u μ) :
+    {u : X → E} (hu : AEStronglyMeasurable u μ) (h𝓑 : 𝓑.Countable) :
     AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ := by
   sorry
 
@@ -147,9 +147,9 @@ theorem MeasureTheory.AEStronglyMeasurable.ennreal_toReal
   exact ENNReal.measurable_toReal.comp_aemeasurable hu.aemeasurable
 
 theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal {p : ℝ}
-    {u : X → E} (hu : AEStronglyMeasurable u μ) :
+    {u : X → E} (hu : AEStronglyMeasurable u μ) (h𝓑 : 𝓑.Countable) :
     AEStronglyMeasurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) μ :=
-  hu.maximalFunction.ennreal_toReal
+  hu.maximalFunction h𝓑 |>.ennreal_toReal
 
 theorem MB_le_snormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ snormEssSup u μ :=
   calc MB μ 𝓑 c r u x ≤
@@ -164,10 +164,10 @@ theorem MB_le_snormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ snormEs
     _ ≤ snormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
-protected theorem HasStrongType.MB_top :
+protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) ⊤ ⊤ μ μ 1 := by
   intro f hf
-  use hf.1.maximalFunction_toReal
+  use hf.1.maximalFunction_toReal h𝓑
   simp only [ENNReal.coe_one, one_mul, snorm_exponent_top]
   refine essSup_le_of_ae_le _ (eventually_of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
@@ -186,10 +186,10 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction {p : ℝ} (hp₁ : 1
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
 variable (μ) in
-protected theorem HasWeakType.MB_one [μ.IsDoubling A] :
+protected theorem HasWeakType.MB_one [μ.IsDoubling A] (h𝓑 : 𝓑.Countable) :
     HasWeakType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) 1 1 μ μ (A ^ 2) := by
   intro f hf
-  use hf.1.maximalFunction_toReal
+  use hf.1.maximalFunction_toReal h𝓑
   sorry
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
@@ -197,7 +197,7 @@ irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := sorry
 
 /- The proof is given between (9.0.12)-(9.0.34).
 Use the real interpolation theorem instead of following the blueprint. -/
-lemma hasStrongType_MB {p : ℝ≥0}
+lemma hasStrongType_MB (h𝓑 : 𝓑.Countable) {p : ℝ≥0}
     (hp : 1 < p) {u : X → E} (hu : AEStronglyMeasurable u μ) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
       p p μ μ (CMB A p) := by
@@ -208,10 +208,10 @@ lemma hasStrongType_MB {p : ℝ≥0}
     zero_lt_one (pow_pos (A_pos μ) 2)
     (p := p) (q := p)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
-    (fun f hf ↦ .maximalFunction_toReal (hf.elim (·.1) (·.1)))
+    (fun f hf ↦ .maximalFunction_toReal (hf.elim (·.1) (·.1)) h𝓑)
     (.maximalFunction hp.le)
-    (HasStrongType.MB_top.hasWeakType le_top)
-    (HasWeakType.MB_one μ)
+    (HasStrongType.MB_top h𝓑 |>.hasWeakType le_top)
+    (HasWeakType.MB_one μ h𝓑)
   convert this using 1
   sorry -- let's deal with the constant later
 
