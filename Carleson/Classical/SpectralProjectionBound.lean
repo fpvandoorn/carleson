@@ -47,7 +47,6 @@ lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (
       rw [← coe_fourierBasis]
       simp only [LinearIsometryEquiv.apply_symm_apply, lp.coeFn_smul, Pi.smul_apply, ← lp.single_smul]
       have : 2 = (2 : ENNReal).toReal := by simp
-      --TODO: Why do we need to manually replace set the DecidableEq argument??
       rw [this, ← lp.norm_sum_single (by simp), ← this]
       congr 2
       apply Finset.sum_congr (by simp)
