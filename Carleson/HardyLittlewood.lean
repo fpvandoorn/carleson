@@ -181,7 +181,7 @@ protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
 * constant maps are sublinear -/
 protected theorem MeasureTheory.SublinearOn.maximalFunction {p : ℝ} (hp₁ : 1 ≤ p) :
     SublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
-      (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) := by
+      (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 := by
   sorry
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
@@ -206,7 +206,7 @@ lemma hasStrongType_MB (h𝓑 : 𝓑.Countable) {p : ℝ≥0}
     (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
     ⟨le_top, le_rfl⟩ ⟨le_rfl, le_rfl⟩ (by norm_num) (by simp [inv_lt_one_iff, hp, h2p] : p⁻¹ ∈ _)
     zero_lt_one (pow_pos (A_pos μ) 2)
-    (p := p) (q := p)
+    (p := p) (q := p) (A := 1)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f hf ↦ .maximalFunction_toReal (hf.elim (·.1) (·.1)) h𝓑)
     (.maximalFunction hp.le)

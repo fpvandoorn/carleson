@@ -36,20 +36,20 @@ lemma aestronglyMeasurable_trunc (hf : AEStronglyMeasurable f μ) :
 -- class IsClosedUnderTruncation (U : Set (α →ₘ[μ] E)) : Prop where
 --   trunc_mem {f : α →ₘ[μ] E} (hf : f ∈ U) (t : ℝ) : f.trunc t ∈ U
 
-/-- The operator is subadditive on functions satisfying `P`. -/
-def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) : Prop :=
-  ∃ A > 0, ∀ (f g : α → E₁) (x : α'), P f → P g → ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
+/-- The operator is subadditive on functions satisfying `P` with constant `A`. -/
+def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=
+  ∀ (f g : α → E₁) (x : α'), P f → P g → ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
 
-/-- The operator is sublinear on `L^p`. -/
-def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) : Prop :=
-  SubadditiveOn T P ∧ ∀ (f : α → E₁) (c : ℝ), P f → T (c • f) = c • T f
+/-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
+def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=
+  SubadditiveOn T P A ∧ ∀ (f : α → E₁) (c : ℝ), P f → T (c • f) = c • T f
 
 /-- The constant occurring in the real interpolation theorem. -/
 -- todo: remove unused variables
-def C_realInterpolation (p₀ p₁ q₀ q₁ p q : ℝ≥0∞) (C₀ C₁ : ℝ≥0) (t : ℝ) : ℝ≥0 := sorry
+def C_realInterpolation (p₀ p₁ q₀ q₁ p q : ℝ≥0∞) (C₀ C₁ t A : ℝ≥0) : ℝ≥0 := sorry
 
 -- todo: add necessary hypotheses
-lemma C_realInterpolation_pos (p₀ p₁ q₀ q₁ p q : ℝ≥0∞) (C₀ C₁ : ℝ≥0) (t : ℝ) :
+lemma C_realInterpolation_pos (p₀ p₁ q₀ q₁ p q : ℝ≥0∞) (C₀ C₁ t A : ℝ≥0) :
     0 < C_realInterpolation p₀ p₁ q₀ q₁ p q C₀ C₁ t := sorry
 
 /-- Marcinkiewicz real interpolation theorem. -/
@@ -60,12 +60,12 @@ You want to use `trunc f A` when the book uses `h_A`.
 Minkowski's inequality is `ENNReal.lintegral_Lp_add_le` -/
 theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     (hp₀ : p₀ ∈ Icc 1 q₀) (hp₁ : p₁ ∈ Icc 1 q₁) (hq : q₀ ≠ q₁)
-    {C₀ C₁ t : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
+    {C₀ C₁ t A : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
     (hmT : ∀ f, Memℒp f p₀ μ ∨ Memℒp f p₁ μ → AEStronglyMeasurable (T f) ν)
-    (hT : SublinearOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ))
+    (hT : SublinearOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁) :
-    HasStrongType T p p μ ν (C_realInterpolation p₀ p₁ q₀ q₁ p q C₀ C₁ t) := sorry
+    HasStrongType T p p μ ν (C_realInterpolation p₀ p₁ q₀ q₁ p q C₀ C₁ t A) := sorry
 
 /- State and prove Remark 1.2.7 -/
 
