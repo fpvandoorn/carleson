@@ -227,11 +227,12 @@ theorem hasStrongType_maximalFunction {p₁ p₂ : ℝ≥0}
   sorry
 
 variable (μ) in
-/-- The transformation `M` characterized in Proposition 2.0.6. -/
+/-- The transformation `M` characterized in Proposition 2.0.6.
+`p` is `1` in the blueprint, and `globalMaximalFunction μ p u = (M (u ^ p)) ^ p⁻¹ ` -/
 @[nolint unusedArguments]
-def globalMaximalFunction [μ.IsDoubling A] (u : X → E) (x : X) : ℝ≥0∞ :=
-  A ^ 2 * MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
-    (fun z ↦ z.1) (fun z ↦ 2 ^ z.2) u x
+def globalMaximalFunction [μ.IsDoubling A] (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+  A ^ 2 * maximalFunction μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
+    (fun z ↦ z.1) (fun z ↦ 2 ^ z.2) p u x
 
 variable (X) in
 lemma countable_globalMaximalFunction :
@@ -239,26 +240,31 @@ lemma countable_globalMaximalFunction :
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
 -- prove if needed. Use `MB_le_snormEssSup`
-theorem globalMaximalFunction_lt_top {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
+theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
     {u : X → E} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
-    globalMaximalFunction μ u x < ∞ := by
+    globalMaximalFunction μ p u  x < ∞ := by
   sorry
 
 protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction {p : ℝ}
     {u : X → E} (hu : AEStronglyMeasurable u μ) :
-    AEStronglyMeasurable (globalMaximalFunction μ u) μ := by
+    AEStronglyMeasurable (globalMaximalFunction μ p u) μ := by
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
   exact hu.maximalFunction (countable_globalMaximalFunction X) |>.aemeasurable.const_mul _
 
 theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurable u μ)
     (hu : IsBounded (range u)) {z x : X} {r : ℝ} (h : dist x z < r) :
-    ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ u x := by
+    ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
   sorry
 
-theorem snorm_globalMaximalFunction_le {p₁ p₂ : ℝ≥0}
+/-- The constant factor in the statement that `M` has strong type. -/
+def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
+
+/- easy from `hasStrongType_maximalFunction`. Ideally prove separately
+`HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
+theorem hasStrongType_globalMaximalFunction {p₁ p₂ : ℝ≥0}
     (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
     {u : X → ℂ} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u))
     {z x : X} {r : ℝ} :
-    snorm (fun x ↦ (globalMaximalFunction μ (fun x ↦ u x ^ (p₁ : ℂ)) x).toReal ^ (p₁⁻¹ : ℝ))
-      p₂ μ ≤ A ^ 4 * p₂ / (p₂ - p₁) * snorm u p₂ μ := by
+    HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
+      p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   sorry

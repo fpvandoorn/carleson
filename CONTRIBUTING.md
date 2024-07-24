@@ -42,4 +42,4 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `𝔓₂`       | `𝔓₁ᶜ` |         |
 | `M_{𝓑, p}` | `maximalFunction` |     |
 | `M_𝓑` | `MB`       |     |
-| `M`        | `globalMaximalFunction volume` |     |
+| `M`        | `globalMaximalFunction volume 1` |     |
