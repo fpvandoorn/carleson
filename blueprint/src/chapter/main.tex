@@ -6557,7 +6557,7 @@ For the remainder of this chapter, fix an integer $a\ge 4$, a doubling metric me
 
 The following lemma is proved in \Cref{subsec-cotlar}.
 \begin{lemma}[nontangential-from-simple]\label{nontangential-from-simple}
-    \uses{simple-nontangential-operator}
+    \uses{simple-nontangential-operator, tang-unm-op-ball-diff}
     Assume \eqref{two-sided-Hr-bound-assumption} holds.
     Then, for every bounded measurable function $g : X \to \C$ supported on a set of finite measure we have
     \begin{equation}\label{concretetstarbound}
@@ -6947,6 +6947,7 @@ By continuity from above of $\mu$, the right factor becomes arbitrarily small as
 \end{proof}
 
 \begin{lemma}\label{tang-unm-op-ball-diff}
+    \uses{small-annulus}
     Let $f$ be a bounded measurable function with bounded support on $X$.
     For all $x\in X$,
     \begin{equation}
@@ -7737,7 +7738,7 @@ use the following \Cref{real-Carleson}, which itself is proven
  in \Cref{10carleson} as an application of
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
-\uses{two-sided-metric-space-Carleson,real-line-metric,real-line-measure,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2,Hilbert-kernel-regularity,Hilbert-kernel-bound}
+\uses{two-sided-metric-space-Carleson,real-line-doubling,real-line-metric,real-line-measure,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2,Hilbert-kernel-regularity,Hilbert-kernel-bound}
 \leanok
 \lean{rcarleson}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
@@ -8703,6 +8704,8 @@ This completes the proof of the lemma.
 \begin{lemma}[partial Fourier sums of small]
     \label{partial-Fourier-sums-of-small}
     \uses{real-Carleson-operator-measurable,real-Carleson,partial-Fourier-sum-bound}
+    \leanok
+    \lean{control_approximation_effect} % todo: fix. This seems currently inlined in control_approximation_effect ?
     %fixme: rename \delta to \epsilon' ?
     Let $g:\R\to\C$ be a measurable $2\pi$-periodic function such that for some $\delta>0$ and every $x\in\R$,
     \begin{equation} \label{g-small}
@@ -8875,6 +8878,7 @@ Define
 
 \begin{proof}
     \lean{instFunctionDistancesReal}
+    \leanok
     This follows immediately from the fact that the standard metric on $\mathbb{Z}$ is a metric.
 \end{proof}
 
@@ -9012,6 +9016,7 @@ This completes the proof of the lemma.
 
 \begin{lemma}[real van der Corput]
 \label{real-van-der-Corput}
+\leanok
 \lean{real_van_der_Corput}
 \uses{van-der-Corput}
     For any $x\in \R$ and $R>0$ and any
