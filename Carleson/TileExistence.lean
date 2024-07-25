@@ -69,7 +69,8 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
     have volume_finite : volume (ball o (4 * D^S)) < ⊤ := measure_ball_lt_top
     rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne, mul_comm,mul_comm (volume _)]
     exact this
-  have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := by exact_mod_cast (As_pos' X (2 ^J' X)).ne.symm
+  have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast (As_pos' (volume : Measure X) (2 ^J' X)).ne.symm
   calc
     (Y.encard).toENNReal * volume (ball o (4 * D ^ S))
       = ∑' (y : Y), volume (ball o (4 * D^S)) := by rw [ENNReal.tsum_const_eq']
@@ -83,7 +84,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
       apply tsum_le_tsum _ ENNReal.summable ENNReal.summable
       intro y hy
       rw_mod_cast [← twopow_J]
-      apply volume_ball_le_same'
+      apply measure_ball_le_same'
       · positivity
       · exact le_refl _
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * ∑' (y : Y), volume (ball (y : X) (D^k)):= by
@@ -1049,7 +1050,7 @@ lemma volume_tile_le_volume_ball (k:ℤ) (hk:-S ≤ k) (y:Yk X k):
         exact I3_prop_3_2 hk y
     _ ≤ C4_1_7 X * volume (ball (y:X) (4⁻¹ * D^k:ℝ)):= by
       rw [C4_1_7]
-      apply volume_ball_le_same' (y:X) (by linarith)
+      apply measure_ball_le_same' (y:X) (by linarith)
       apply mul_le_mul_of_nonneg_right (le_refl _)
       simp only [gt_iff_lt, inv_pos, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
       exact zpow_nonneg realD_nonneg _

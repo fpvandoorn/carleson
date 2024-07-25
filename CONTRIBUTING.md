@@ -40,3 +40,6 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `𝓓`         | `Grid`      | The unicode characters were causing issues with Overleaf and leanblueprint (on Windows) |
 | `𝔓_{G\G'}`       | `𝔓pos` |         |
 | `𝔓₂`       | `𝔓₁ᶜ` |         |
+| `M_{𝓑, p}` | `maximalFunction` |     |
+| `M_𝓑` | `MB`       |     |
+| `M`        | `globalMaximalFunction volume 1` |     |

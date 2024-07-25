@@ -33,9 +33,9 @@ def 𝔓 := PreTileStructure.𝔓 𝕜 X A
 instance : Fintype (𝔓 X) := PreTileStructure.fintype_𝔓
 def 𝓘 : 𝔓 X → Grid X := PreTileStructure.𝓘
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → Grid X) := PreTileStructure.surjective_𝓘
+instance : Inhabited (𝔓 X) := ⟨(surjective_𝓘 default).choose⟩
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
-
 
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
@@ -74,6 +74,10 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 
 @[simp] lemma cball_subset {p : 𝔓 X} : ball_(p) (𝒬 p) 5⁻¹ ⊆ Ω p := TileStructure.cball_subset
 @[simp] lemma subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := TileStructure.subset_cball
+
+lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
+    Disjoint (ball_(p) (𝒬 p) 5⁻¹) (ball_(p') (𝒬 p') 5⁻¹) :=
+  disjoint_of_subset cball_subset cball_subset (disjoint_Ω h hp)
 
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
@@ -132,6 +136,10 @@ lemma toTileLike_le_smul : toTileLike p ≤ smul 5⁻¹ p := by
   simp [TileLike.le_def, cball_subset (p := p)]
 
 lemma 𝒬_mem_Ω : 𝒬 p ∈ Ω p := cball_subset <| mem_ball_self <| by norm_num
+
+lemma 𝒬_inj {p' : 𝔓 X} (h : 𝒬 p = 𝒬 p') (h𝓘 : 𝓘 p = 𝓘 p') : p = p' := by
+  contrapose! h
+  exact fun h𝒬 ↦ (not_disjoint_iff.2 ⟨𝒬 p, 𝒬_mem_Ω, h𝒬 ▸ 𝒬_mem_Ω⟩) (disjoint_Ω h h𝓘)
 
 lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   intros p p' h

@@ -19,23 +19,8 @@ open MeasureTheory Function Metric Bornology
 
 section
 @[reducible]
-def DoublingMeasureR2 : DoublingMeasure ℝ 2 where
-  --rwa [FiniteDimensional.finrank_self, pow_one] at this
-  volume_ball_two_le_same := by
-    have : DoublingMeasure ℝ (2 ^ FiniteDimensional.finrank ℝ ℝ) := by infer_instance
-    intro x r
-    have := this.volume_ball_two_le_same x r
-    simp only [FiniteDimensional.finrank_self, pow_one] at this
-    --rw [FiniteDimensional.finrank_self, pow_one] at this
-
-    calc MeasureTheory.volume.real (Metric.ball x (2 * r))
-      _ ≤ 2 * MeasureTheory.volume.real (Metric.ball x r) := by
-        by_cases r_nonneg : r < 0
-        . rw [ball_eq_empty.mpr, ball_eq_empty.mpr]
-          simp
-          all_goals linarith
-        rw [measureReal_def, measureReal_def, Real.volume_ball, Real.volume_ball, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal]
-        <;> linarith
+def DoublingMeasureR2 : DoublingMeasure ℝ 2 :=
+  InnerProductSpace.DoublingMeasure.mono (by simp)
 
 instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ 4 : ℕ) :=
   DoublingMeasureR2.mono (by norm_num)

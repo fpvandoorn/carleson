@@ -582,8 +582,9 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 \begin{proposition}[Hardy--Littlewood]
 \label{Hardy-Littlewood}
 \leanok
-\lean{measure_biUnion_le_lintegral, maximalFunction_le_snorm, hasStrongType_maximalFunction, M_lt_top,
-  laverage_le_M, snorm_M_le}
+\lean{measure_biUnion_le_lintegral, hasStrongType_maximalFunction,
+MeasureTheory.AEStronglyMeasurable.globalMaximalFunction, laverage_le_globalMaximalFunction,
+snorm_globalMaximalFunction_le}
 \uses{layer-cake-representation,covering-separable-space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
 If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have
@@ -1960,7 +1961,7 @@ the complement of the set of tiles in Lemma
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{discrete-Carleson}]
-    \proves{exceptional-set}
+\proves{discrete-Carleson}
 \Cref{discrete-Carleson} follows by applying the
 triangle inequality to \eqref{disclesssim}
 according to the splitting in \Cref{forest-union}
@@ -2290,10 +2291,11 @@ As the center of $B'$ can be in at most one of the disjoint balls
 $B_{\fu}(\fcc(\fu),0.2)$ and
 $B_{\fu}(\fcc(\fu'),0.2)$,
 the ball $B'$ can contain at most
-one of the points $\fu$, $\fu'$.
+one of the points $\fcc(\fu)$, $\fcc(\fu')$.
 
-Hence the set $\fU(\mathfrak{m})$ has at most
-$2^{9a}$ many elements.
+Hence the image of $\fU(\mathfrak{m})$ under $\fcc$ has at most
+$2^{9a}$ elements; since $\fcc$ is injective on $\fU(\mathfrak{m})$,
+the same is true of $\fU(\mathfrak{m})$.
 Inserting this into \eqref{usumbymsum} proves the lemma.
 \end{proof}
 
@@ -2839,18 +2841,6 @@ We have
     By \eqref{eq-C4-def} and \eqref{defc5}, we have $\fp \in \fC_3(k,n,j)$. By \eqref{eq-L2-def} and \eqref{eq-C3-def}, there exists $\fu \in \fU_1(k,n,j)$ with $2\fp \lesssim \fu$ and $\scI(\fp) \ne \scI(\fu)$, that is, with $\fp \in \mathfrak{T}_1(\fu)$. Then $\mathfrak{T}_1(\fu)$ is clearly nonempty, so $\fu \in \fU_2(k,n,j)$. By the definition of $\fU_3(k,n,j)$, there exists $\fu' \in \fU_3(k,n,j)$ with $\fu \sim \fu'$. By \eqref{definesv}, we have $\fp \in \mathfrak{T}_2(\fu')$.
 \end{proof}
 
-\begin{lemma}[C6 convex] %% TODO: delete, duplicate of forest-convex
-    \label{C6-convex}
-    \uses{C5-convex}
-    Let $\fu \in \fU_3(k,n,j)$. If $\fp \le \fp' \le \fp''$ and $\fp, \fp'' \in \mathfrak{T}_2(\fu)$, then $\fp' \in \mathfrak{T}_2(\fu)$.
-\end{lemma}
-
-\begin{proof}
-    Suppose that $\fp, \fp'' \in \mathfrak{T}_2(\fu)$. Then by \Cref{C5-convex}, we have
-$\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\subset G'$, hence $\scI(\fp') \not \subset G'$. This implies $\fp' \in \fC_6(k,n,j)$. Since $\fp'' \in \mathfrak{T}_2(\fu)$, we have $2\fp'' \lesssim \fu'$ and $\scI(\fp'')\ne\scI(\fu')$ for some $\fu' \sim \fp''$. By \eqref{eq-sc1}, we have $2\fp' \lesssim 2\fp''$, so by transitivity of $\lesssim$ we have $2\fp' \lesssim \fu'$. Finally, $\scI(\fp') \subset \scI(\fp'')$ implies $\scI(\fp') \ne \scI(\fu')$, thus $\fp' \in \mathfrak{T}_1(\fu') \subset \mathfrak{T}_2(\fu)$.
-\end{proof}
-
-
 \begin{lemma}[forest geometry]
     \label{forest-geometry}
     \uses{relation-geometry}
@@ -2880,7 +2870,7 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
 
 \begin{lemma}[forest convex]
     \label{forest-convex}
-    \uses{C6-convex}
+    \uses{C5-convex}
     \leanok
     \lean{forest_convex}
     For each $\fu\in \fU_3(k,n,j)$,
@@ -2961,15 +2951,27 @@ $\fp' \in \fC_5(k,n,j)$. Since $\fp \in \fC_6(k,n,j)$ we have $\scI(\fp) \not\su
     \label{forest-stacking}
     \leanok
     \lean{forest_stacking}
-    It holds that
+    It holds for $k<n$ that
     \begin{equation}
-        \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le 1 + (4n+12)2^{n}\,.
+        \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le (4n+12)2^{n}\,.
     \end{equation}
-    % Note(Georges Gonthier): Because we removed the `1 +` from \eqref{eq-Aoverlap-def} we can also remove the 1+ here.
 \end{lemma}
 
 \begin{proof}
-    Suppose that a point $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\scI(\fu)$ with $\fu \in \fU_3(k,n,j)$. Since $\fU_3(k,n,j) \subset \fC_1(k,n,j)$ for each such $\fu$, there exists $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$. We fix such an $\mathfrak{m}(\fu) := \mathfrak{m}$ for each $\fu$, and claim that the map $\fu \mapsto\mathfrak{m}(\fu)$ is injective. Indeed, assume for $\fu\neq \fu'$ there is $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$ and $100\fu' \lesssim \mathfrak{m}$. By \eqref{dyadicproperty}, either $\scI(\fu) \subset \scI(\fu')$ or $\scI(\fu') \subset \scI(\fu)$. By \eqref{defunkj}, $B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$. This contradicts $\Omega(\mathfrak{m})$ being contained in both sets by \eqref{eq-freq-comp-ball}. Thus $x$ is contained in more than $1 + (4n + 12)2^n$ cubes $\scI(\mathfrak{m})$, $\mathfrak{m} \in \mathfrak{M}(k,n)$. Consequently, we have by \eqref{eq-Aoverlap-def} that $x \in A(2n + 6, k,n) \subset G_2$. Let $\scI(\fu)$ be an inclusion minimal cube among the $\scI(\fu'), \fu' \in \fU_3(k,n,j)$ with $x \in \scI(\fu)$. By the dyadic property \eqref{dyadicproperty}, we have $\scI(\fu) \subset \scI(\fu')$ for all cubes $\scI(\fu')$ containing $x$. Thus
+    \leanok
+    Suppose that a point $x$ is contained in more than $(4n + 12)2^n$ cubes $\scI(\fu)$ with $\fu \in \fU_3(k,n,j)$.
+    Since $\fU_3(k,n,j) \subset \fC_1(k,n,j)$ for each such $\fu$,
+    there exists $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that $100\fu \lesssim \mathfrak{m}$.
+    We fix such an $\mathfrak{m}(\fu) := \mathfrak{m}$ for each $\fu$, and claim that the map $\fu \mapsto\mathfrak{m}(\fu)$ is injective.
+    Indeed, assume for $\fu\neq \fu'$ there is $\mathfrak{m} \in \mathfrak{M}(k,n)$ such that
+    $100\fu \lesssim \mathfrak{m}$ and $100\fu' \lesssim \mathfrak{m}$. By \eqref{dyadicproperty},
+    either $\scI(\fu) \subset \scI(\fu')$ or $\scI(\fu') \subset \scI(\fu)$.
+    By \eqref{defunkj}, $B_{\fu}(\fcc(\fu),100) \cap B_{\fu'}(\fcc(\fu'), 100) = \emptyset$.
+    This contradicts $\Omega(\mathfrak{m})$ being contained in both sets by \eqref{eq-freq-comp-ball}.
+    Thus $x$ is contained in more than $(4n + 12)2^n$ cubes $\scI(\mathfrak{m})$, $\mathfrak{m} \in \mathfrak{M}(k,n)$.
+    Consequently, we have by \eqref{eq-Aoverlap-def} that $x \in A(2n + 6, k,n) \subset G_2$.
+    Let $\scI(\fu)$ be an inclusion minimal cube among the $\scI(\fu'), \fu' \in \fU_3(k,n,j)$ with $x \in \scI(\fu)$.
+    By the dyadic property \eqref{dyadicproperty}, we have $\scI(\fu) \subset \scI(\fu')$ for all cubes $\scI(\fu')$ containing $x$. Thus
     $$
         \scI(\fu) \subset \{y \ : \ \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)}(y) > 1 + (4n+12)2^{n}\} \subset G_2\,.
     $$
@@ -3517,6 +3519,9 @@ The following lemma will be proved in \Cref{subsec-geolem}.
     \end{equation}
 \end{lemma}
 
+From these lemmas it is easy to prove \Cref{antichain-operator}.
+\begin{proof}[Proof of \Cref{antichain-operator}]
+\proves{antichain-operator}
 We have
 \begin{equation}
     \left (\frac 1{\tilde{q}} -\frac 12\right) (2-q)= \frac 1q -\frac 12\,.
@@ -3531,6 +3536,7 @@ and estimating gives after simplification of some factors
 \end{equation}
 With the definition of $p$, this implies
 \Cref{antichain-operator}.
+\end{proof}
 
 
 \section{Proof of the Tile Correlation Lemma}\label{sec-tile-operator}
@@ -5996,6 +6002,8 @@ Recall that $\tau = 1/a$.
 
 \begin{lemma}[Lipschitz Holder approximation]
     \label{Lipschitz-Holder-approximation}
+    \leanok
+    \lean{support_holderApprox_subset, dist_holderApprox_le, lipschitzWith_holderApprox}
     Let $z\in X$ and $R>0$. Let $\varphi: X \to \mathbb{C}$ be a function supported in the ball
     $B:=B(z,R)$ with finite norm $\|\varphi\|_{C^\tau(B)}$. Let $0<t \leq 1$. There exists a function $\tilde \varphi : X \to \mathbb{C}$, supported in $B(z,2R)$, such that for every $x\in X$
     \begin{equation}\label{eq-firstt}
@@ -6138,6 +6146,8 @@ of \Cref{Lipschitz-Holder-approximation}.
 
 
 We turn to the proof of \Cref{Holder-van-der-Corput}.
+\begin{proof}[Proof of \Cref{Holder-van-der-Corput}]
+    \proves{Holder-van-der-Corput}
 Let $z\in X$ and $R>0$ and set $B=B(z,R)$. Let $\varphi$
 be given as in \Cref{Holder-van-der-Corput}.
 Set
@@ -6199,7 +6209,7 @@ Using the definition \eqref{eql69} of $t$ and adding
  \end{equation}
 where we used $\tau\le 1$.
 This completes the proof of \Cref{Holder-van-der-Corput}.
-
+\end{proof}
 
 \chapter{Proof of Vitali covering and Hardy--Littlewood}
 \label{sec-hlm}
@@ -6217,6 +6227,7 @@ we have
 \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     The left-hand side of \eqref{eq-layercake} is by definition
 \begin{equation}
     \int_X u(x)^p \, d\mu(x)\, .\end{equation}
@@ -6232,11 +6243,44 @@ we have
 This proves the lemma.
 \end{proof}
 
+The following lemma will be used to define $M$ in the proof of \Cref{Hardy-Littlewood}.
+\begin{lemma}[covering separable space]
+    \label{covering-separable-space}
+    \leanok
+    \lean{covering_separable_space}
+    % Since X is separable, we can even choose `C` independent of `r`.
+    For each $r > 0$, there exists a countable collection $C(r) \subset X$ of points such that
+    $$
+        X \subset \bigcup_{c \in C(r)} B(c, r)\,.
+    $$
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    It clearly suffices to construct finite collections $C(r,k)$ such that
+    $$
+        B(o, r2^k) \subset \bigcup_{c \in C(r,k)} B(c,r)\,,
+    $$
+    since then the collection $C(r) = \bigcup_{k \in \mathbb{N}} C(r,k)$ has the desired property.
+
+    Suppose that $Y \subset B(o, r2^k)$ is a collection of points such that for all $y, y' \in Y$ with $y \ne y'$, we have $\rho(y,y') \ge r$. Then the balls $B(y, r/2)$ are pairwise disjoint and contained in $B(o, r2^{k+1})$. If $y \in B(o, r)$, then $B(o, r2^{k+1}) \subset B(y, r2^{k+2})$. Thus, by the doubling property \eqref{doublingx},
+    $$
+        \mu(B(y, \frac{r}{2})) \ge 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
+    $$
+    Thus, we have
+    $$
+        \mu(B(o, r2^{k+1})) \ge \sum_{y \in Y} \mu(B(y, \frac{r}{2})) \ge |Y| 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
+    $$
+    We conclude that $|Y| \le 2^{(k+2)a}$. In particular, there exists a set $Y$ of maximal cardinality. Define $C(r,k)$ to be such a set.
+
+    If $x \in B(o, r2^k)$ and $x \notin C(r,k)$, then there must exist $y \in C(r,k)$ with $\rho(x,y) < r$. Thus $C(r,k)$ has the desired property.
+\end{proof}
+
 We turn to the proof of \Cref{Hardy-Littlewood}.
+\begin{proof}[Proof of \Cref{Hardy-Littlewood}]
+\proves{Hardy-Littlewood}
 Let the collection $\mathcal{B}$ be given.
 We first show \eqref{eq-besico}.
-
-
 
 We recursively choose a finite sequence $B_i\in \mathcal{B}$
 for $i\ge 0$ as follows. Assume $B_{i'}$
@@ -6364,7 +6408,7 @@ With \Cref{layer-cake-representation},
    2^{2a}
     \int_0^\infty \mu (\{x: |u_\lambda (x)|\ge \lambda'\})\, d\lambda'\, .
 \end{equation}
-By definition of $h_\lambda$, making a case distinction between $\lambda\ge \lambda'$ and $\lambda <\lambda'$, we see that
+By definition of $u_\lambda$, making a case distinction between $\lambda\ge \lambda'$ and $\lambda <\lambda'$, we see that
 \begin{equation}\label{eqbesi13}
    \mu (\{x: |u_\lambda (x)|\ge \lambda'\})
    \le
@@ -6449,39 +6493,11 @@ Applying the special case of \eqref{eq-hlm} for $M_{\mathcal{B}}$ gives
 This proves \eqref{eq-hlm} in general.
 
 Now we construct the operator $M$ satisfying \eqref{eq-ball-av} and \eqref{eq-hlm-2}.
-
-\begin{lemma}[covering separable space]
-    \label{covering-separable-space}
-    For each $r > 0$, there exists a countable collection $C(r) \subset X$ of points such that
-    $$
-        X \subset \bigcup_{c \in C(r)} B(c, r)\,.
-    $$
-\end{lemma}
-
-\begin{proof}
-    It clearly suffices to construct finite collections $C(r,k)$ such that
-    $$
-        B(o, r2^k) \subset \bigcup_{c \in C(r,k)} B(c,r)\,,
-    $$
-    since then the collection $C(r) = \bigcup_{k \in \mathbb{N}} C(r,k)$ has the desired property.
-
-    Suppose that $Y \subset B(o, r2^k)$ is a collection of points such that for all $y, y' \in Y$ with $y \ne y'$, we have $\rho(y,y') \ge r$. Then the balls $B(y, r/2)$ are pairwise disjoint and contained in $B(o, r2^{k+1})$. If $y \in B(o, r)$, then $B(o, r2^{k+1}) \subset B(y, r2^{k+2})$. Thus, by the doubling property \eqref{doublingx},
-    $$
-        \mu(B(y, \frac{r}{2})) \ge 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
-    $$
-    Thus, we have
-    $$
-        \mu(B(o, r2^{k+1})) \ge \sum_{y \in Y} \mu(B(y, \frac{r}{2})) \ge |Y| 2^{-(k+2)a} \mu(B(o, r2^{k+1}))\,.
-    $$
-    We conclude that $|Y| \le 2^{(k+2)a}$. In particular, there exists a set $Y$ of maximal cardinality. Define $C(r,k)$ to be such a set.
-
-    If $x \in B(o, r2^k)$ and $x \notin C(r,k)$, then there must exist $y \in C(r,k)$ with $\rho(x,y) < r$. Thus $C(r,k)$ has the desired property.
-\end{proof}
-
-For each $k \in \mathbb{N}$ we choose a countable set $C(2^k)$ as in the lemma.
+For each $k \in \mathbb{Z}$ we choose a countable set $C(2^k)$ as in \Cref{covering-separable-space}.
+% Note: Sébastien Gouëzel commented that $k$ should live in $\mathbb{Z}$ instead of $\mathbb{N}$
 Define
 $$
-    \mathcal{B}_\infty = \{B(c, 2^k) \ : \ c \in C(2^k), k \in \mathbb{N}\}\,.
+    \mathcal{B}_\infty = \{B(c, 2^k) \ : \ c \in C(2^k), k \in \mathbb{Z}\}\,.
 $$
 By \Cref{covering-separable-space}, this is a countable collection of balls. We choose an enumeration $\mathcal{B}_\infty = \{B_1, \dotsc\}$ and define
 $$
@@ -6503,10 +6519,7 @@ It follows that for each $z \in B(x,r)$
     &\le Mw(z)\,.
 \end{align*}
 This completes the proof.
-
-
-
-
+\end{proof}
 
 \chapter{Two-sided Metric Space Carleson}
 

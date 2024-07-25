@@ -57,6 +57,7 @@ def c : Grid X → X := GridStructure.c
 
 variable {i j : Grid X}
 
+instance : Inhabited (Grid X) := ⟨topCube⟩
 instance : Fintype (Grid X) := GridStructure.fintype_Grid
 instance : Coe (Grid X) (Set X) := ⟨GridStructure.coeGrid⟩
 instance : Membership X (Grid X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩

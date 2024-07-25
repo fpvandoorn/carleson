@@ -347,7 +347,7 @@ lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ)
     volume.real (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume.real (ball x r) := by
   induction' n with d ih; simp
   rw [add_comm, pow_add, pow_one, mul_assoc]
-  apply (volume_ball_two_le_same x _).trans
+  apply (measure_real_ball_two_le_same x _).trans
   have A_cast: (defaultA a : ℝ≥0).toReal = (defaultA a : ℝ) := rfl
   rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_left (by positivity)]
 
@@ -393,7 +393,8 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) 
     ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
   rw_mod_cast [measureNNReal_val, div_le_div_iff (by exact_mod_cast v0₂) v0₃]
-  apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <| volume_ball_two_le_same_repeat' s x
+  apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
+    DoublingMeasure.volume_ball_two_le_same_repeat' s x
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
   rw_mod_cast [← pow_mul]
   congr
@@ -441,7 +442,7 @@ private lemma ψ_ineq {x y y' : X} :
     |ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')| ≤
     4 * D * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   by_cases hyy' : dist y y' = 0
-  · rw [PseudoMetricSpace.dist_eq_of_dist_zero x hyy', sub_self, abs_zero]
+  · rw [PseudoMetricSpace.dist_eq_of_dist_zero x hyy', _root_.sub_self, abs_zero]
     positivity
   by_cases h : dist y y' / D ^ s ≥ 1    -- If `dist y y'` is large, then the RHS is large while
   · apply le_trans norm_ψ_sub_ψ_le_two  -- the LHS remains bounded.
