@@ -123,7 +123,7 @@ lemma IsAntichain_foo {n : ℕ}: IsAntichain (·≤·) (foo s n) := by
   apply minimals_antichain
 
 -- TODO: Define via foo and dual order to get all the nice bits
-def foo' (s : Set α) (n : ℕ) : Set α := maximals (·≤·) (s \ ⋃ (n' < n), foo s n')
+def foo' (s : Set α) (n : ℕ) : Set α := maximals (·≤·) (s \ ⋃ (n' < n), foo' s n')
 
 lemma IsAntichain_foo' {n : ℕ}: IsAntichain (·≤·) (foo' s n) := by
   rw [foo']
