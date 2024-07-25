@@ -569,7 +569,7 @@ instance h6 : IsOneSidedKernel 4 K where
         · norm_num
       · norm_num
   /- Lemma ?-/
-  measurable_K_left := fun y ↦ Measurable.of_uncurry_right Hilbert_kernel_measurable
+  measurable_K_left := fun y ↦ Hilbert_kernel_measurable.of_uncurry_right
   /- Lemma ?-/
   measurable_K_right := Hilbert_kernel_measurable
 

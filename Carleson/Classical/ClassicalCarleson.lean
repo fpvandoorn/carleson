@@ -25,7 +25,7 @@ theorem classical_carleson {f : ℝ → ℂ}
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
 
   set h := f₀ - f with hdef
-  have h_measurable : Measurable h := Continuous.measurable (Continuous.sub contDiff_f₀.continuous unicontf.continuous)
+  have h_measurable : Measurable h := (Continuous.sub contDiff_f₀.continuous unicontf.continuous).measurable
   have h_periodic : h.Periodic (2 * Real.pi) := periodic_f₀.sub periodicf
   have h_bound : ∀ x, Complex.abs (h x) ≤ ε' := by
     intro x

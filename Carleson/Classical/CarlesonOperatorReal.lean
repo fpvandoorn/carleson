@@ -49,7 +49,7 @@ lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Se
 
 lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
     Measurable (Function.uncurry fun x y ↦ f y * K x y * (Complex.I * n * y).exp) :=
-  Measurable.mul (Measurable.mul (hf.comp measurable_snd) Hilbert_kernel_measurable)
+      ((hf.comp measurable_snd).mul Hilbert_kernel_measurable).mul
   (measurable_const.mul (Complex.measurable_ofReal.comp measurable_snd)).cexp
 
 local notation "T" => CarlesonOperatorReal K
@@ -209,7 +209,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   rw [← stronglyMeasurable_iff_measurable]
   apply MeasureTheory.StronglyMeasurable.integral_prod_right
   rw [stronglyMeasurable_iff_measurable, Fdef]
-  exact Measurable.indicator (helper f_measurable) (measurable_dist measurableSet_Ioo)
+  exact (helper f_measurable).indicator (measurable_dist measurableSet_Ioo)
 
 lemma CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal, CarlesonOperatorReal, ENNReal.mul_iSup]
