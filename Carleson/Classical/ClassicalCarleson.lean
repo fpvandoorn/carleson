@@ -1,7 +1,7 @@
 import Carleson.MetricCarleson
-import Carleson.Theorem1_1.Basic
-import Carleson.Theorem1_1.Approximation
-import Carleson.Theorem1_1.Control_Approximation_Effect
+import Carleson.Classical.Basic
+import Carleson.Classical.Approximation
+import Carleson.Classical.ControlApproximationEffect
 
 import Mathlib.Analysis.Fourier.AddCircle
 
@@ -17,27 +17,24 @@ theorem classical_carleson {f : ℝ → ℂ}
     Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
   rcases hε with ⟨εpos, εle⟩
   set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
-  have ε'pos : ε' > 0 := by
-    rw [ε'def]
-    apply div_pos _ (C_control_approximation_effect_pos εpos)
-    exact div_pos εpos (by norm_num)
+  have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
 
-    -- Approximation
-  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := closeSmoothApproxPeriodic unicontf periodicf ε'pos
+  -- Approximation
+  obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic unicontf periodicf ε'pos
   have ε4pos : ε / 4 > 0 := by linarith
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
 
   set h := f₀ - f with hdef
   have h_measurable : Measurable h := Continuous.measurable (Continuous.sub contDiff_f₀.continuous unicontf.continuous)
-  have h_periodic : h.Periodic (2 * Real.pi) := Function.Periodic.sub periodic_f₀ periodicf
-  have h_bound : ∀ x ∈ Set.Icc (-Real.pi) (3 * Real.pi), Complex.abs (h x) ≤ ε' := by
-    intro x _
+  have h_periodic : h.Periodic (2 * Real.pi) := periodic_f₀.sub periodicf
+  have h_bound : ∀ x, Complex.abs (h x) ≤ ε' := by
+    intro x
     simp [hdef]
     rw [← Complex.dist_eq, dist_comm, Complex.dist_eq]
     exact hf₀ x
 
   -- Control approximation effect
-  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect' ⟨εpos, εle⟩ ε'pos h_measurable h_periodic h_bound
+  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect ⟨εpos, εle⟩ ε'pos h_measurable h_periodic h_bound
 
   -- "epsilon third" argument
   use E, Esubset, Emeasurable, Evolume, N₀
