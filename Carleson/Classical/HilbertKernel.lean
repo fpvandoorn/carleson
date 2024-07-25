@@ -32,7 +32,7 @@ def K (x y : ℝ) : ℂ := k (x - y)
 @[measurability]
 lemma Hilbert_kernel_measurable : Measurable (Function.uncurry K) := k_measurable.comp measurable_sub
 
-/- Lemma 10.13 (Hilbert kernel bound) -/
+/- Lemma 11.1.11 (Hilbert kernel bound) -/
 lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := by
   by_cases h : 0 < |x - y| ∧ |x - y| < 1
   · calc ‖K x y‖
@@ -202,7 +202,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
   · rwa [abs_neg, abs_of_nonneg yy'nonneg.2]
   · rwa [abs_neg, abs_of_nonneg yy'nonneg.1]
 
-/- Lemma 10.14 (Hilbert kernel regularity) -/
+/- Lemma 11.1.12 (Hilbert kernel regularity) -/
 lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     2 * |y - y'| ≤ |x - y| → ‖K x y - K x y'‖ ≤ 2 ^ 8 * (1 / |x - y|) * (|y - y'| / |x - y|)  := by
   rw [K, K]

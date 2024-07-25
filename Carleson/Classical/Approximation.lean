@@ -1,4 +1,4 @@
-/- The arguments in this file replace section 10.2 (Piecewise constant functions) from the paper. -/
+/- The arguments in this file contains section 11.2 (smooth functions) from the paper. -/
 
 import Carleson.MetricCarleson
 import Carleson.Classical.Basic

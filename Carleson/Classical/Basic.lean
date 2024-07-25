@@ -190,7 +190,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
         · simp [pow_two_nonneg]
         · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
 
-/-Slightly weaker version of Lemma 10.11 (lower secant bound) with simplified constant. -/
+/-Slightly weaker version of Lemma 11..1.9 (lower secant bound) with simplified constant. -/
 lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
     η / 2 ≤ Complex.abs (1 - Complex.exp (Complex.I * x)) := by
   by_cases ηpos : η < 0

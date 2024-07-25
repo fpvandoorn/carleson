@@ -1,4 +1,4 @@
-/- This file contains the proof of Lemma 10.4, from section 10.7-/
+/- This file contains the proof of Lemma 11.1.4, from section 11.7 -/
 
 import Carleson.MetricCarleson
 import Carleson.Classical.Basic
@@ -434,10 +434,10 @@ instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
     intro x R R' f
     exact integer_ball_cover.mono_nat (by norm_num)
 
---TODO : What is Lemma 10.34 (frequency ball growth) needed for?
+--TODO : What is Lemma 11.7.10 (frequency ball growth) needed for?
 
 instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
-  /- Lemma 10.36 (real van der Corput) from the paper. -/
+  /- Lemma 11.7.12 (real van der Corput) from the paper. -/
   norm_integral_exp_le := by
     intro x r ϕ K hK _ f g
     by_cases r_pos : 0 ≥ r
@@ -599,7 +599,7 @@ lemma CarlesonOperatorReal_le_CarlesonOperator : T ≤ CarlesonOperator K := by
   ring_nf
 
 
-/- Lemma 10.4 (ENNReal version) -/
+/- Lemma 11.1.4 (ENNReal version) -/
 lemma rcarleson {F G : Set ℝ}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)

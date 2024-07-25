@@ -1,4 +1,4 @@
-/- This file formalizes section 10.8 (The error bound) from the paper. -/
+/- This file formalizes section 11.6 (The error bound) from the paper. -/
 import Carleson.MetricCarleson
 import Carleson.Classical.Helper
 import Carleson.Classical.Basic
@@ -181,7 +181,7 @@ lemma intervalIntegrable_mul_dirichletKernel'_max' {x : ℝ} (hx : x ∈ Set.Icc
 lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g MeasureTheory.volume (-Real.pi) (3 * Real.pi)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) :
       ∫ (y : ℝ) in x - Real.pi..x + Real.pi,
         g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
-    = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, 
+    = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1},
         g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
   calc _
     _ = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 Real.pi}, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
@@ -527,7 +527,7 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
 --TODO: add doc-strings !
 
 
-/-ENNReal version of a generalized Lemma 10.3 (control approximation effect).-/
+/-ENNReal version of a generalized Lemma 11.1.3 (control approximation effect).-/
 --added subset assumption
 --changed interval to match the interval in the theorem
 lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)

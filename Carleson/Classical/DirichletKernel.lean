@@ -57,7 +57,7 @@ lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' 
 lemma dirichletKernel'_measurable {N : ℕ} : Measurable (dirichletKernel' N) :=
   by apply Measurable.add <;> apply Measurable.div <;> measurability
 
-/-Second part of Lemma 10.10 (Dirichlet kernel) from the paper.-/
+/-Second part of Lemma 11.1.8 (Dirichlet kernel) from the paper.-/
 lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
     dirichletKernel N x = dirichletKernel' N x := by
   have : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
@@ -167,7 +167,7 @@ lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ 
     rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
 
-/-First part of lemma 10.10 (Dirichlet kernel) from the paper.-/
+/-First part of lemma 11.1.8 (Dirichlet kernel) from the paper.-/
 /-TODO (maybe): correct statement so that the integral is taken over the interval [-pi, pi] -/
 lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) :
     partialFourierSum f N x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel N (x - y)  := by

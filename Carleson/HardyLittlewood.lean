@@ -30,15 +30,11 @@ M_𝓑 in the blueprint. -/
 abbrev MB (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (u : X → E) (x : X) :=
   maximalFunction μ 𝓑 c r 1 u x
 
-lemma covering_separable_space (X : Type*) [MetricSpace X] [SeparableSpace X] :
+lemma covering_separable_space (X : Type*) [PseudoMetricSpace X] [SeparableSpace X] :
     ∃ C : Set X, C.Countable ∧ ∀ r > 0, ⋃ c ∈ C, ball c r = univ := by
-  obtain ⟨C, hC, h2C⟩ := exists_countable_dense X
-  use C, hC
-  simp_rw [eq_univ_iff_forall, mem_iUnion, exists_prop, mem_ball]
-  intro r hr x
-  simp_rw [Dense, Metric.mem_closure_iff] at h2C
-  exact h2C x r hr
+  simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
 
+-- this can be removed next Mathlib bump
 /-- A slight generalization of Mathlib's version, with 5 replaced by τ. Already PR'd -/
 theorem Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall' {α ι} [MetricSpace α]
     (t : Set ι) (x : ι → α) (r : ι → ℝ) (R : ℝ) (hr : ∀ a ∈ t, r a ≤ R) (τ : ℝ) (hτ : 3 < τ) :
@@ -80,7 +76,7 @@ theorem Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall' {α ι}
 proof of `first_exception` in DiscreteCarleson.lean. But everything involved there is finite, so
 you can prove this with `ℝ≥0` and deal with casting between `ℝ≥0` and `ℝ≥0∞` there, if that turns
 out to be easier. -/
-theorem measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l : ℝ≥0∞} (hl : 0 < l)
+theorem Set.Countable.measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l : ℝ≥0∞} (hl : 0 < l)
     {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
     (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
@@ -96,55 +92,17 @@ theorem measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l : ℝ≥0∞} (
     _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := sorry -- does this exist in Mathlib?
     _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := sorry
 
-theorem measure_biUnion_le_lintegral' (𝓑 : Finset ι) {l : ℝ≥0∞} (hl : 0 < l)
+protected theorem Finset.measure_biUnion_le_lintegral (𝓑 : Finset ι) {l : ℝ≥0∞} (hl : 0 < l)
     {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  :=
   let ⟨c, hc⟩ := (𝓑.image r).exists_le
-  measure_biUnion_le_lintegral 𝓑.countable_toSet hl hu c (by simpa using hc) h2u
-
-attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
-attribute [simp] MeasureTheory.laverage_const
-
-
-namespace MeasureTheory
-variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
-  {F : Type*} [NormedAddCommGroup F]
-lemma laverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a, f a ∂μ ≤ ⨍⁻ a, g a ∂μ := by
-  exact lintegral_mono_ae <| h.filter_mono <| Measure.ae_mono' Measure.smul_absolutelyContinuous
-
-lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ := by
-  refine laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
-
-lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
-  simp_rw [setLaverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
-    univ_inter, div_eq_mul_inv, mul_assoc]
-  conv_rhs => rw [← mul_one c]
-  gcongr
-  exact ENNReal.mul_inv_le_one (μ s)
-
-theorem snormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞} (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) :
-    snormEssSup f μ ≤ C :=
-  essSup_le_of_ae_le C hfC
-
-@[simp]
-lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
-  ext; simp [ENNReal.toReal]
-
-end MeasureTheory
+  𝓑.countable_toSet.measure_biUnion_le_lintegral hl hu c (by simpa using hc) h2u
 
 protected theorem MeasureTheory.AEStronglyMeasurable.maximalFunction {p : ℝ}
     {u : X → E} (hu : AEStronglyMeasurable u μ) (h𝓑 : 𝓑.Countable) :
     AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ := by
   sorry
-
-theorem MeasureTheory.AEStronglyMeasurable.ennreal_toReal
-    {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
-    AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
-  refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
-  exact ENNReal.measurable_toReal.comp_aemeasurable hu.aemeasurable
 
 theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal {p : ℝ}
     {u : X → E} (hu : AEStronglyMeasurable u μ) (h𝓑 : 𝓑.Countable) :
@@ -239,7 +197,7 @@ lemma countable_globalMaximalFunction :
     (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
--- prove if needed. Use `MB_le_snormEssSup`
+-- prove only if needed. Use `MB_le_snormEssSup`
 theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
     {u : X → E} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
     globalMaximalFunction μ p u  x < ∞ := by

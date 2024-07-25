@@ -1,7 +1,5 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
--- import Carleson.Proposition2
--- import Carleson.Proposition3
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
@@ -325,7 +323,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     simp only [Finset.mem_image, mem_toFinset, 𝓑] at hz
     rcases hz with ⟨p, h, rfl⟩
     simpa [u, lintegral_indicator, Measure.restrict_apply, measurableSet_F, r, h] using (hr h).2.le
-  have ineq := measure_biUnion_le_lintegral' (A := defaultA a) 𝓑 K0 hu h2u
+  have ineq := Finset.measure_biUnion_le_lintegral (A := defaultA a) 𝓑 K0 hu h2u
   simp only [u, lintegral_indicator, measurableSet_F, Pi.one_apply, lintegral_const,
     MeasurableSet.univ, Measure.restrict_apply, univ_inter, one_mul] at ineq
   rw [← mul_le_mul_left K0.ne.symm K_ne_top]

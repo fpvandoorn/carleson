@@ -6536,7 +6536,7 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
 \end{equation}
 \begin{theorem}[two-sided metric space Carleson]
     \label{two-sided-metric-space-Carleson}
-    \uses{metric-space-Carleson,non-tangential-from-simple}
+    \uses{metric-space-Carleson, nontangential-from-simple}
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$
         the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
@@ -7737,7 +7737,7 @@ use the following \Cref{real-Carleson}, which itself is proven
  in \Cref{10carleson} as an application of
  \Cref{metric-space-Carleson}.
 \begin{lemma}[real Carleson]\label{real-Carleson}
-\uses{two-sided-metric-space-Carleson,real-line-metric,real-line-measure,real-line-doubling,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2,Hilbert-kernel-regularity,Hilbert-kernel-bound}
+\uses{two-sided-metric-space-Carleson,real-line-metric,real-line-measure,oscillation-control,frequency-monotone,frequency-ball-doubling,frequency-ball-growth,integer-ball-cover,real-van-der-Corput,Hilbert-strong-2-2,Hilbert-kernel-regularity,Hilbert-kernel-bound}
 \leanok
 \lean{rcarleson}
     Let $F,G$ be Borel subsets of $\R$ with finite measure. Let $f$ be a bounded measurable function on $\R$ with $|f|\le \mathbf{1}_F$. Then
@@ -8580,6 +8580,8 @@ This completes the proof of the lemma.
 
 \begin{lemma}[Dirichlet kernel - Hilbert kernel relation]
     \label{Dirichlet-Hilbert}
+    \leanok
+    \lean{Dirichlet_Hilbert_diff}
     \uses{Dirichlet-kernel,lower-secant-bound}
     For all $N\in\Z$ and $x\in [-\pi,\pi] \setminus \{0\}$,
     \begin{equation*}
@@ -8588,6 +8590,7 @@ This completes the proof of the lemma.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $N\in\Z$ and $x\in [-\pi,\pi] \setminus \{0\}$. With \Cref{Dirichlet-kernel}, we obtain
     \begin{equation*}
         K_N(x) - (e^{-iNx}\kappa(x) + \overline{e^{-iNx}\kappa(x)})
@@ -8604,6 +8607,8 @@ This completes the proof of the lemma.
 \begin{lemma}[partial Fourier sum bound]
     \label{partial-Fourier-sum-bound}
     \uses{Dirichlet-kernel, Dirichlet-Hilbert}
+    \leanok
+    \lean{partialFourierSum_bound}
     Let $g:\R\to\C$ be a measurable $2\pi$-periodic function such that for some $\delta>0$ and every $x\in\R$,
     \begin{equation}
         |g(x)|\le \delta \,.
@@ -8615,6 +8620,7 @@ This completes the proof of the lemma.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $x\in [0,2\pi]$ and $N>0$. We have with \Cref{Dirichlet-kernel}
     \begin{equation*}
         |S_N g(x)| = \frac{1}{2\pi} \left| \int_0^{2\pi} g(y) K_N(x-y) \, dy\right|\,.
@@ -8746,6 +8752,7 @@ Analogously, we get the same estimate for $|E_2|$. This completes the proof usin
 
 %fixme: It seems unnecessary to have the extra lemma with this proof that is really only application.
 \begin{proof}[Proof of \Cref{control-approximation-effect}]
+\proves{control-approximation-effect}
 \leanok
     \Cref{control-approximation-effect} now follows directly from \Cref{partial-Fourier-sums-of-small} with $\delta:=\epsilon'$.
 \end{proof}
@@ -8765,9 +8772,12 @@ Consider the standard distance function
 on the real line $\R$.
 \begin{lemma}[real line metric]
 \label{real-line-metric}
+\leanok
+\lean{instProperSpaceReal, locally_compact_of_proper, Real.instCompleteSpace}
 The space $(\R,\rho)$ is a complete locally compact metric space.
 \end{lemma}
 \begin{proof}
+    \leanok
     This is part of the Lean library.
 \end{proof}
 \begin{lemma}[real line ball]
@@ -8791,10 +8801,13 @@ This proves the lemma.
 We consider the Lebesgue measure $\mu$ on $\R$.
 \begin{lemma}[real line measure]
 \label{real-line-measure}
+\leanok
+\lean{instIsAddHaarMeasureVolume}
     The measure $\mu$ is a sigma-finite non-zero
     Radon-Borel measure on $\R$.
 \end{lemma}
 \begin{proof}
+    \leanok
     This is part of the Lean library.
 \end{proof}
 \begin{lemma}[real line ball measure]
@@ -8817,6 +8830,8 @@ We have with \Cref{real-line-ball}
 
 \begin{lemma}[real line doubling]
 \label{real-line-doubling}
+\leanok
+\lean{MeasureTheory.InnerProductSpace.IsDoubling}
 \uses{real-line-ball-measure}
     We have for every $x\in \R$ and $R>0$
     \begin{equation}
@@ -8826,7 +8841,7 @@ We have with \Cref{real-line-ball}
 \begin{proof}
     We have with \Cref{real-line-ball-measure}
 \begin{equation}
-    \mu(B(x,2R)=4R=2\mu(B(x,R)\, .
+    \mu(B(x,2R)=4R=2\mu(B(x,R))\, .
 \end{equation}
 This proves the lemma.
 \end{proof}
@@ -8854,10 +8869,12 @@ Define
 
 \begin{lemma}[frequency metric]
     \label{frequency-metric}
+    \leanok
     For every $R > 0$ and $x \in X$, the function $d_{B(x,R)}$ is a metric on $\Mf$.
 \end{lemma}
 
 \begin{proof}
+    \lean{instFunctionDistancesReal}
     This follows immediately from the fact that the standard metric on $\mathbb{Z}$ is a metric.
 \end{proof}
 
@@ -9011,6 +9028,7 @@ is finite and for any $n,m\in \mathbb{Z}$, we have
 \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
 Set $n'=n-m$. Then we have to prove
 \begin{equation}
     \label{eq-vdc-cond2}
