@@ -63,9 +63,9 @@ lemma mem_minimals_iff_height_zero {x} (hxs : x ∈ s) :
 -- This could show that this construction just partitions by height.
 -- Maybe worth using as the definition (and getting pairwise disjoint for free)?
 -- Or maybe worth avoiding height here altogether, with the `WithBot (WithTop _)` complications?
-lemma mem_foo_iff_height {n : ℕ} {x} (hxs : x ∈ s) :
-  x ∈ foo s n ↔ height s ⟨x, hxs⟩ = n := by
-  induction n generalizing x hxs with
+lemma mem_foo_iff_height {n : ℕ} {x : s} :
+  x.val ∈ foo s n ↔ height s x = n := by
+  induction n generalizing x with
   | zero =>
     rw [foo]; simp_rw [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty]
     apply mem_minimals_iff_height_zero
