@@ -179,8 +179,10 @@ lemma intervalIntegrable_mul_dirichletKernel'_max' {x : ℝ} (hx : x ∈ Set.Icc
   exact (intervalIntegrable_mul_dirichletKernel' hx hf).sub (intervalIntegrable_mul_dirichletKernel'_max hx hf)
 
 lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g MeasureTheory.volume (-Real.pi) (3 * Real.pi)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) :
-      ∫ (y : ℝ) in x - Real.pi..x + Real.pi, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
-    = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
+      ∫ (y : ℝ) in x - Real.pi..x + Real.pi,
+        g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))
+    = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, 
+        g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
   calc _
     _ = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 Real.pi}, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
       rw [annulus_real_eq (le_refl 0), MeasureTheory.integral_union (by simp) measurableSet_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.integral_union (Set.disjoint_of_subset_right Set.Ioo_subset_Ioc_self (by simp)) measurableSet_Ioo,
