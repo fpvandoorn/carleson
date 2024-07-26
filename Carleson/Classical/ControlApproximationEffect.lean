@@ -452,7 +452,7 @@ end section
 
 lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} {F : Set ℝ} (measurableSetF : MeasurableSet F) (hf : ∀ x, ‖f x‖ ≤ δ * F.indicator 1 x)
     {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
-      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2) * MeasureTheory.volume F ^ (2 : ℝ)⁻¹ * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
+      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C10_1 4 2) * MeasureTheory.volume F ^ (2 : ℝ)⁻¹ * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
   calc ε * MeasureTheory.volume E
     _ = ∫⁻ _ in E, ε := by
       symm
@@ -465,21 +465,21 @@ lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ �
       rw [CarlesonOperatorReal_mul δpos]
       congr
       exact ENNReal.ofReal_ne_top
-    _ ≤ ENNReal.ofReal δ * (ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹) := by
+    _ ≤ ENNReal.ofReal δ * (ENNReal.ofReal (C10_1 4 2) * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹) := by
       gcongr
       apply rcarleson measurableSetF measurableSetE
       intro x
       simp
       rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff δpos]
       exact hf x
-    _ = ENNReal.ofReal (δ * C1_2 4 2) * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ := by
+    _ = ENNReal.ofReal (δ * C10_1 4 2) * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ := by
       rw [ENNReal.ofReal_mul δpos.le]
       ring
 
 lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hf : ∀ x, ‖f x‖ ≤ δ)
     {E : Set ℝ} (measurableSetE : MeasurableSet E) (E_subset : E ⊆ Set.Icc 0 (2 * Real.pi)) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
-      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C1_2 4 2 * (2 * Real.pi + 2) ^ (2 : ℝ)⁻¹) * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
-  rw [ENNReal.ofReal_mul (by apply mul_nonneg δpos.le; rw [C1_2]; norm_num), ← ENNReal.ofReal_rpow_of_pos (by linarith [Real.pi_pos])]
+      ε * MeasureTheory.volume E ≤ ENNReal.ofReal (δ * C10_1 4 2 * (2 * Real.pi + 2) ^ (2 : ℝ)⁻¹) * MeasureTheory.volume E ^ (2 : ℝ)⁻¹ := by
+  rw [ENNReal.ofReal_mul (by apply mul_nonneg δpos.le (C10_1_pos one_lt_two).le), ← ENNReal.ofReal_rpow_of_pos (by linarith [Real.pi_pos])]
   set F := (Set.Ioo (0 - 1) (2 * Real.pi + 1)) with Fdef
   set h := F.indicator f with hdef
   have hh : ∀ x, ‖h x‖ ≤ δ * F.indicator 1 x := by
@@ -496,22 +496,22 @@ lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f
     exact hE x hx
 
 
-def C_control_approximation_effect (ε : ℝ) := (C1_2 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹) + Real.pi
+def C_control_approximation_effect (ε : ℝ) := (C10_1 4 2 * (8 / (Real.pi * ε)) ^ (2 : ℝ)⁻¹) + Real.pi
 
 lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : Real.pi < C_control_approximation_effect ε := by
   rw [C_control_approximation_effect]
   apply lt_add_of_pos_of_le _ (by rfl)
-  apply mul_pos (C1_2_pos (by norm_num))
+  apply mul_pos (C10_1_pos (by norm_num))
   apply Real.rpow_pos_of_pos
   apply div_pos (by norm_num)
   apply mul_pos Real.pi_pos εpos
 
 lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε := lt_trans' (lt_C_control_approximation_effect εpos) Real.pi_pos
 
-lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + Real.pi * δ := by
+lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C10_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / Real.pi) + Real.pi * δ := by
   symm
   rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc,
-    mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C1_2 4 2), mul_assoc]
+    mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C10_1 4 2), mul_assoc]
   congr
   rw [Real.div_rpow, Real.div_rpow _ (mul_nonneg _ _), Real.mul_rpow, Real.mul_rpow]
   ring_nf
@@ -576,9 +576,7 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
           rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right]
           apply div_nonneg (mul_nonneg _ (Real.rpow_nonneg (div_nonneg (by norm_num) hε.1.le) _)) Real.pi_pos.le
           rw [mul_assoc]
-          apply mul_nonneg hδ.le
-          rw [C1_2]
-          apply mul_nonneg (by norm_num) (Real.rpow_nonneg _ _)
+          apply mul_nonneg hδ.le (mul_nonneg (C10_1_pos one_lt_two).le (Real.rpow_nonneg _ _))
           linarith [Real.pi_pos]
         · apply mul_nonneg (mul_nonneg Real.pi_pos.le hδ.le) Real.two_pi_pos.le
       _ ≤ ENNReal.ofReal (2 * Real.pi) * ‖partialFourierSum h N x‖₊ := by
@@ -606,20 +604,20 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
       _ < ⊤ := ENNReal.ofReal_lt_top
   obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (CarlesonOperatorReal_measurable h_measurable h_bound) (CarlesonOperatorReal_measurable (continuous_star.measurable.comp h_measurable) conj_h_bound) le_operator_add
   have E'volume : MeasureTheory.volume E' < ⊤ := lt_of_le_of_lt (MeasureTheory.measure_mono E'subset) Evolume
-  have E'volume_bound: ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
+  have E'volume_bound: ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C10_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
     calc ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E'
     _ = ENNReal.ofReal ((ε' - Real.pi * δ) * (2 * Real.pi)) / 2 * MeasureTheory.volume E' := by
       rw [← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_div_of_pos (by norm_num)]
       ring_nf
-    _ ≤ ENNReal.ofReal (δ * C1_2 4 2 * (2 * Real.pi + 2) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
+    _ ≤ ENNReal.ofReal (δ * C10_1 4 2 * (2 * Real.pi + 2) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
       rcases h with hE' | hE'
       · exact rcarleson_exceptional_set_estimate_specific hδ h_bound measurableSetE' (E'subset.trans Esubset) hE'
       . exact rcarleson_exceptional_set_estimate_specific hδ conj_h_bound measurableSetE' (E'subset.trans Esubset) hE'
-    _ ≤ ENNReal.ofReal (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
+    _ ≤ ENNReal.ofReal (δ * C10_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
       gcongr
-      . exact mul_nonneg hδ.le (C1_2_pos one_lt_two).le
+      . exact mul_nonneg hδ.le (C10_1_pos one_lt_two).le
       . linarith [Real.two_le_pi]
-  have δ_mul_const_pos : 0 < δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ := mul_pos (mul_pos hδ (by rw [C1_2]; norm_num)) (Real.rpow_pos_of_pos (by linarith [Real.two_pi_pos]) _)
+  have δ_mul_const_pos : 0 < δ * C10_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ := mul_pos (mul_pos hδ (C10_1_pos one_lt_two)) (Real.rpow_pos_of_pos (by linarith [Real.two_pi_pos]) _)
   have ε'_δ_expression_pos : 0 < Real.pi * (ε' - Real.pi * δ) := by
     rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm]
     exact mul_pos δ_mul_const_pos (Real.rpow_pos_of_pos (div_pos (by norm_num) hε.1) _)
@@ -632,7 +630,7 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
     _ = 2 * MeasureTheory.volume.real E' ^ ((1 + -(2 : ℝ)⁻¹) * 2) := by
       conv => lhs; rw [←Real.rpow_one (MeasureTheory.volume.real E')]
       norm_num
-    _ ≤ 2 * (δ * C1_2 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - Real.pi * δ))) ^ (2 : ℝ) := by
+    _ ≤ 2 * (δ * C10_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - Real.pi * δ))) ^ (2 : ℝ) := by
       rw [Real.rpow_mul MeasureTheory.measureReal_nonneg]
       gcongr
       rw [Real.rpow_add' MeasureTheory.measureReal_nonneg (by norm_num), Real.rpow_one, le_div_iff' ε'_δ_expression_pos, ← mul_assoc]

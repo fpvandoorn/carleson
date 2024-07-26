@@ -6616,6 +6616,8 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
 \begin{theorem}[two-sided metric space Carleson]
     \label{two-sided-metric-space-Carleson}
     \uses{metric-space-Carleson, nontangential-from-simple}
+    \leanok
+    \lean{two_sided_metric_carleson}
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$
         the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
@@ -7837,8 +7839,8 @@ One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concernin
 \begin{lemma}[Hilbert strong 2 2]
     \label{Hilbert-strong-2-2}
     \uses{modulated-averaged-projection,integrable-bump-convolution,Dirichlet-approximation}
-    %\lean{Hilbert_strong_2_2}
-    %\leanok
+    \leanok
+    \lean{Hilbert_strong_2_2}
     Let $0<r<1$. Let $f$ be a bounded, measurable function on $\mathbb{R}$ with bounded support. Then
     \begin{equation}
         \label{eq-Hr-L2-bound}
