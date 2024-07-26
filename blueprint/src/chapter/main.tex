@@ -44,13 +44,13 @@ Define the partial Fourier sum for $N\ge 0$ as
     \lean{classical_carleson}
     \uses{smooth-approximation, convergence-for-smooth,
     control-approximation-effect}
-    Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\mathbb{R}$. For all $\epsilon>0$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
+    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$. For all $\epsilon>0$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
     \begin{equation}\label{aeconv}
     |f(x)-S_N f(x)|\le \epsilon.
     \end{equation}
 \end{theorem}
 
-Note that mere continuity implies uniform continuity in the setting of this theorem.
+%Note that mere continuity implies uniform continuity in the setting of this theorem.
 By applying this theorem with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union
 of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier
 sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and
@@ -7721,7 +7721,8 @@ where
 \begin{equation*}
     C_\epsilon = \left(\frac{8}{\pi\epsilon}\right)^\frac{1}{2} C_{4,2} + \pi \,.
 \end{equation*}
-By uniform continuity of $f$, there is a $0<\delta<\pi$
+Since $f$ is continuous and periodic, $f$ is uniformly continuous.
+Thus, there is a $0<\delta<\pi$
 such that for all $x,x' \in \R$ with $|x-x'|\le \delta$
 we have
 \begin{equation}\label{uniconbound}

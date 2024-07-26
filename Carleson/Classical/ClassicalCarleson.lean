@@ -10,7 +10,7 @@ noncomputable section
 
 /- Theorem 1.1 (Classical Carleson) -/
 theorem classical_carleson {f : ℝ → ℂ}
-    (unicontf : UniformContinuous f) (periodicf : f.Periodic (2 * Real.pi))
+    (contf : Continuous f) (periodicf : f.Periodic (2 * Real.pi))
     {ε : ℝ} (εpos : 0 < ε) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
     ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
@@ -20,12 +20,13 @@ theorem classical_carleson {f : ℝ → ℂ}
   have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
 
   -- Approximation
+  have unicontf : UniformContinuous f := periodicf.uniformContinuous_of_continuous Real.two_pi_pos contf.continuousOn
   obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic unicontf periodicf ε'pos
   have ε4pos : ε / 4 > 0 := by linarith
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
 
   set h := f₀ - f with hdef
-  have h_measurable : Measurable h := (Continuous.sub contDiff_f₀.continuous unicontf.continuous).measurable
+  have h_measurable : Measurable h := (Continuous.sub contDiff_f₀.continuous contf).measurable
   have h_periodic : h.Periodic (2 * Real.pi) := periodic_f₀.sub periodicf
   have h_bound : ∀ x, Complex.abs (h x) ≤ ε' := by
     intro x
@@ -51,7 +52,7 @@ theorem classical_carleson {f : ℝ → ℂ}
     · exact hf₀ x
     · exact hN₀ N NgtN₀ x hx.1
     · have := hE x hx N
-      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (unicontf.continuous.intervalIntegrable 0 (2 * Real.pi))] at this
+      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (contf.intervalIntegrable 0 (2 * Real.pi))] at this
       apply le_trans this
       rw [ε'def, mul_div_cancel₀ _ (C_control_approximation_effect_pos εpos).ne.symm]
   _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
