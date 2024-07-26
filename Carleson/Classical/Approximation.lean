@@ -16,10 +16,9 @@ open Finset
 
 section
 open Metric
-variable {α : Type} {β : Type}
 --might be generalized
 --TODO : choose better name
-lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} {b : ℝ} (bpos : b > 0):
+lemma uniformContinuous_iff_bounded {α : Type*} {β : Type*} [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} {b : ℝ} (bpos : b > 0):
   UniformContinuous f ↔ ∀ ε > 0, ∃ δ > 0, δ < b ∧ ∀ {x y : α}, dist x y < δ → dist (f x) (f y) < ε := by
   rw [Metric.uniformContinuous_iff]
   refine ⟨fun h ε εpos ↦ ?_, fun h ε εpos ↦ ?_⟩
@@ -30,6 +29,8 @@ lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β
   · obtain ⟨δ, δpos, _, hδ⟩ := h ε εpos
     use δ
 end section
+
+local notation "S_" => partialFourierSum
 
 /- TODO: might be generalized. -/
 --TODO: probably not needed here in this form
@@ -234,7 +235,7 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
 
 /-TODO: Weaken statement to pointwise convergence to simplify proof?-/
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
-    ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+    ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * Real.pi), ‖f x - S_ N f x‖ ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * Real.pi) := by
     rw [fact_iff]
     exact Real.two_pi_pos

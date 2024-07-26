@@ -13,12 +13,17 @@ noncomputable section
 --local notation "S_" => partialFourierSum f
 
 --TODO: use this as base to build on?
-def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (f : AddCircle T → ℂ) (N : ℕ) (x : AddCircle T) : ℂ :=
+/-
+def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) (x : AddCircle T) : ℂ :=
     ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeff f n * fourier n x
+-/
 
 --TODO: switch N and f
-def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N,
+    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 --fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
+
+local notation "S_" => partialFourierSum
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} :
@@ -49,19 +54,19 @@ lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
 
 @[simp]
 lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)) :
-  partialFourierSum (f + g) N = partialFourierSum f N + partialFourierSum g N := by
+  S_ N (f + g) = S_ N f + S_ N g := by
   ext x
   simp [partialFourierSum, sum_add_distrib, fourierCoeffOn_add hf hg, add_mul]
 
 @[simp]
 lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)) :
-  partialFourierSum (f - g) N = partialFourierSum f N - partialFourierSum g N := by
+  S_ N (f - g) = S_ N f - S_ N g := by
   ext x
   simp [partialFourierSum, sum_sub_distrib, fourierCoeffOn_sub hf hg, sub_mul]
 
 @[simp]
 lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
-  partialFourierSum (fun x ↦ a * f x) N = fun x ↦ a * partialFourierSum f N x := by
+  S_ N (fun x ↦ a * f x) = fun x ↦ a * S_ N f x := by
   ext x
   simp [partialFourierSum, mul_sum, fourierCoeffOn_mul, mul_assoc]
 
@@ -69,7 +74,7 @@ lemma fourier_periodic {n : ℤ} :
     (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))).Periodic (2 * Real.pi) := by
     simp
 
-lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (partialFourierSum f N).Periodic (2 * Real.pi) := by
+lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (S_ N f).Periodic (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
 /-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
@@ -107,7 +112,7 @@ lemma fourier_uniformContinuous {n : ℤ} :
   apply fourier_periodic.uniformContinuous_of_continuous Real.two_pi_pos (Continuous.continuousOn _)
   continuity
 
-lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (partialFourierSum f N) := by
+lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (S_ N f) := by
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
     (Continuous.continuousOn (continuous_finset_sum _ _))
   continuity

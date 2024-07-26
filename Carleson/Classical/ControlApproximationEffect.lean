@@ -13,6 +13,8 @@ import Mathlib.Analysis.Fourier.AddCircle
 noncomputable section
 
 local notation "T" => CarlesonOperatorReal K
+local notation "S_" => partialFourierSum
+
 
 
 /- TODO: might be generalized. -/
@@ -384,13 +386,13 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g Measu
 lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measurable_g : Measurable g)
     (periodic_g : Function.Periodic g (2 * Real.pi)) (bound_g : ∀ x, ‖g x‖ ≤ δ)
     {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) :
-    ‖partialFourierSum g N x‖₊
+    ‖S_ N g x‖₊
     ≤ (T g x + T (conj ∘ g) x) / (ENNReal.ofReal (2 * Real.pi)) + ENNReal.ofReal (Real.pi * δ) := by
   have intervalIntegrable_g : IntervalIntegrable g MeasureTheory.volume (-Real.pi) (3 * Real.pi) := intervalIntegrable_of_bdd measurable_g bound_g
-  have decomposition : partialFourierSum g N x
+  have decomposition : S_ N g x
       = (  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
          + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) / (2 * Real.pi) := by
-    calc partialFourierSum g N x
+    calc S_ N g x
       _ = (∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), g y * dirichletKernel' N (x - y)) / (2 * Real.pi) := by
         rw [partialFourierSum_eq_conv_dirichletKernel' (intervalIntegrable_g.mono_set _)]
         ring
@@ -410,7 +412,7 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
         rw [← intervalIntegral.integral_add (intervalIntegrable_mul_dirichletKernel'_max hx intervalIntegrable_g) (intervalIntegrable_mul_dirichletKernel'_max' hx intervalIntegrable_g)]
         congr with y
         ring
-  calc ENNReal.ofNNReal ‖partialFourierSum g N x‖₊
+  calc ENNReal.ofNNReal ‖S_ N g x‖₊
     _ ≤ (  ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊
          + ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊) / ENNReal.ofReal (2 * Real.pi) := by
       rw [decomposition, nnnorm_div, ENNReal.coe_div (by simp [Real.pi_pos.ne.symm])]
@@ -533,10 +535,10 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
 lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ : 0 < δ)
     {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : h.Periodic (2 * Real.pi)) (h_bound : ∀ x, ‖h x‖ ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
-      ∀ N, ‖partialFourierSum h N x‖ ≤ C_control_approximation_effect ε * δ := by
+      ∀ N, ‖S_ N h x‖ ≤ C_control_approximation_effect ε * δ := by
   set ε' := C_control_approximation_effect ε * δ with ε'def
-  set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε' < abs (partialFourierSum h N x)} with Edef
-  have E_eq: E = Set.Icc 0 (2 * Real.pi) ∩ ⋃ N : ℕ, {x | ε' < ‖partialFourierSum h N x‖} := by
+  set E := {x ∈ Set.Icc 0 (2 * Real.pi) | ∃ N, ε' < abs (S_ N h x)} with Edef
+  have E_eq: E = Set.Icc 0 (2 * Real.pi) ∩ ⋃ N : ℕ, {x | ε' < ‖S_ N h x‖} := by
       rw [Edef]
       ext x
       simp
@@ -579,7 +581,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
           apply mul_nonneg hδ.le (mul_nonneg (C10_1_pos one_lt_two).le (Real.rpow_nonneg _ _))
           linarith [Real.pi_pos]
         · apply mul_nonneg (mul_nonneg Real.pi_pos.le hδ.le) Real.two_pi_pos.le
-      _ ≤ ENNReal.ofReal (2 * Real.pi) * ‖partialFourierSum h N x‖₊ := by
+      _ ≤ ENNReal.ofReal (2 * Real.pi) * ‖S_ N h x‖₊ := by
         rw [← ofReal_norm_eq_coe_nnnorm]
         gcongr
         exact hN.le
