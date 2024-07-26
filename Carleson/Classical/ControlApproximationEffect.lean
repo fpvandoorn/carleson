@@ -530,7 +530,7 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
 /-ENNReal version of a generalized Lemma 11.1.3 (control approximation effect).-/
 --added subset assumption
 --changed interval to match the interval in the theorem
-lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.pi) {δ : ℝ} (hδ : 0 < δ)
+lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ : 0 < δ)
     {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : h.Periodic (2 * Real.pi)) (h_bound : ∀ x, ‖h x‖ ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
       ∀ N, ‖partialFourierSum h N x‖ ≤ C_control_approximation_effect ε * δ := by
@@ -573,8 +573,8 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
         rw [← ENNReal.ofReal_add, ← ENNReal.ofReal_mul Real.two_pi_pos.le]
         · ring_nf
         · apply mul_nonneg _ Real.two_pi_pos.le
-          rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right]
-          apply div_nonneg (mul_nonneg _ (Real.rpow_nonneg (div_nonneg (by norm_num) hε.1.le) _)) Real.pi_pos.le
+          rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right]
+          apply div_nonneg (mul_nonneg _ (Real.rpow_nonneg (div_nonneg (by norm_num) εpos.le) _)) Real.pi_pos.le
           rw [mul_assoc]
           apply mul_nonneg hδ.le (mul_nonneg (C10_1_pos one_lt_two).le (Real.rpow_nonneg _ _))
           linarith [Real.pi_pos]
@@ -619,8 +619,8 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
       . linarith [Real.two_le_pi]
   have δ_mul_const_pos : 0 < δ * C10_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ := mul_pos (mul_pos hδ (C10_1_pos one_lt_two)) (Real.rpow_pos_of_pos (by linarith [Real.two_pi_pos]) _)
   have ε'_δ_expression_pos : 0 < Real.pi * (ε' - Real.pi * δ) := by
-    rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm]
-    exact mul_pos δ_mul_const_pos (Real.rpow_pos_of_pos (div_pos (by norm_num) hε.1) _)
+    rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm]
+    exact mul_pos δ_mul_const_pos (Real.rpow_pos_of_pos (div_pos (by norm_num) εpos) _)
   calc MeasureTheory.volume.real E
     _ ≤ 2 * MeasureTheory.volume.real E' := by
       --uses E'measure
@@ -645,6 +645,7 @@ lemma control_approximation_effect {ε : ℝ} (hε : 0 < ε ∧ ε ≤ 2 * Real.
       apply Real.rpow_nonneg MeasureTheory.measureReal_nonneg
     _ = ε := by
       --We have chosen ε' such that this works.
-      rw [ε'def, C_control_approximation_effect_eq hε.1.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm,
-          div_mul_eq_div_div, div_self δ_mul_const_pos.ne.symm, one_div, Real.inv_rpow (Real.rpow_nonneg (div_nonneg zero_le_two hε.1.le) _), ← Real.rpow_mul (div_nonneg zero_le_two hε.1.le), inv_mul_cancel (by norm_num), Real.rpow_one, inv_div]
+      rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm,
+          div_mul_eq_div_div, div_self δ_mul_const_pos.ne.symm, one_div, Real.inv_rpow (Real.rpow_nonneg (div_nonneg zero_le_two εpos.le) _),
+          ← Real.rpow_mul (div_nonneg zero_le_two εpos.le), inv_mul_cancel (by norm_num), Real.rpow_one, inv_div]
       ring

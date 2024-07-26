@@ -11,11 +11,11 @@ noncomputable section
 /- Theorem 1.1 (Classical Carleson) -/
 theorem classical_carleson {f : ℝ → ℂ}
     (unicontf : UniformContinuous f) (periodicf : f.Periodic (2 * Real.pi))
-    {ε : ℝ} (hε : ε ∈ Set.Ioc 0 (2 * Real.pi)) :
+    {ε : ℝ} (εpos : 0 < ε) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
     ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
-    Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
-  rcases hε with ⟨εpos, εle⟩
+    ‖f x - partialFourierSum f N x‖ ≤ ε := by
+  --rcases hε with ⟨εpos, εle⟩
   set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
   have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
 
@@ -34,7 +34,7 @@ theorem classical_carleson {f : ℝ → ℂ}
     exact hf₀ x
 
   -- Control approximation effect
-  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect ⟨εpos, εle⟩ ε'pos h_measurable h_periodic h_bound
+  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect εpos ε'pos h_measurable h_periodic h_bound
 
   -- "epsilon third" argument
   use E, Esubset, Emeasurable, Evolume, N₀
