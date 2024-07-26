@@ -10,7 +10,7 @@ noncomputable section
 
 /- Theorem 1.1 (Classical Carleson) -/
 theorem classical_carleson {f : ℝ → ℂ}
-    (unicontf : UniformContinuous f) (periodicf : f.Periodic (2 * Real.pi)) --(bdd_one : ∀ x, Complex.abs (f x) ≤ 1)
+    (unicontf : UniformContinuous f) (periodicf : f.Periodic (2 * Real.pi))
     {ε : ℝ} (hε : ε ∈ Set.Ioc 0 (2 * Real.pi)) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
     ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
