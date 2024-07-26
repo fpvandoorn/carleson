@@ -167,6 +167,52 @@ $1<q<2$.
         \end{equation}
 \end{theorem}
 
+For a Borel function $\tQ\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
+\begin{equation}
+    R_{\tQ}(\mfa,x)=\sup\{r>0:d_{B(x,r)}(\mfa, \tQ(x))<1\}
+\end{equation}
+and define further
+\begin{equation}
+    \label{def-lin-star-op}
+    T_{\tQ}^\mfa f(x):=\sup_{R_1>0} \ \sup_{\rho(x,x')<R_1}
+    \left|\int_{R_1< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+\end{equation}
+Define further the linearized generalized Carleson operator $T_\tQ$ by
+ \begin{equation}
+        \label{def-lin-main-op}
+        T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\end{equation}
+where again $e(r)=e^{ir}$.
+
+\begin{theorem}[linearised metric Carleson]
+\label{linearised-metric-Carleson}
+%\leanok
+%\lean{lin_metric_carleson}
+%\uses{R-truncation}
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$
+    the following holds.
+    Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
+    cancellative compatible collection of functions.
+    Let $\tQ:X\to \Mf$ be a Borel function with finite range
+    .
+    Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    \begin{equation}\label{linnontanbound}
+        \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
+    \end{equation}
+    where $T_{\tQ}^\mfa$ is defined in
+\eqref{def-lin-star-op}.
+    Then for all bounded Borel sets $F$ and $G$ in $X$ and
+    all Borel functions $f:X\to \C$ with
+    $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
+    \begin{equation}
+    \label{linresweak}
+        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \end{equation}
+\end{theorem}
+
+We note that in Chapter \ref{lin max} we formulate a variant of this theorem where
+$\tQ$ has countable range.
+
 In the one-dimensional Euclidean setting, with $K$ representing the Hilbert kernel:
 \begin{equation*}
 K(x,y)=(x-y)^{-1}
@@ -232,14 +278,11 @@ Let $o\in X$ be a point such that $\mfa(o)=0$
 for all $\mfa\in \Mf$.
 
 
-
-
-
-
-
-Let a one-sided Calder\'on--Zygmund kernel $K$ on $X$ be given so that the operator $T_*$ defined in \eqref{def-tang-unm-op}
+Let a Borel measurable function $\tQ:X\to \Mf$ with finite range be given.
+Let a one-sided Calder\'on--Zygmund kernel $K$ on $X$ be given so that for every $\mfa\in \Mf$ the operator $T_{\tQ}^{\mfa}$ defined in \eqref{def-lin-star-op}
 satisfies
-\eqref{nontanbound}. Let $T$ be the corresponding operator as defined in \eqref{def-main-op}.
+\eqref{linnontanbound}.
+
 
 
 For $s\in\mathbb{Z}$, we define
@@ -249,8 +292,8 @@ For $s\in\mathbb{Z}$, we define
 so that for each $x, y \in X$ with $x\neq y$ we have
 $$K(x,y)=\sum_{s\in\mathbb{Z}}K_s(x,y).$$
 
-In \Cref{thmfromproplinear}, we prove \Cref{metric-space-Carleson}
-from its finitary version, \Cref{finitary-Carleson} below. Recall
+In \Cref{thmfromproplinear}, we prove \Cref{metric-space-Carleson} and \Cref{linearised-metric-Carleson}
+from the finitary version, \Cref{finitary-Carleson} below. Recall
 that a function from a measure space to a finite set is measurable if the pre-image of each of the elements in the range is measurable.
 
 
@@ -259,7 +302,7 @@ that a function from a measure space to a finite set is measurable if the pre-im
 \leanok
 \lean{finitary_carleson}
 \uses{discrete-Carleson, grid-existence, tile-structure, tile-sum-operator}
-Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq \sigma_2$. Let $\tQ\colon X\to \Mf$ be a measurable function with finite range. Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that
+Let ${\sigma_1},\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and ${\sigma_1}\leq \sigma_2$.  Let $F,G$ be bounded Borel sets in $X$. Then there is a Borel set $G'$ in $X$ with $2\mu(G')\leq \mu(G)$ such that
 for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
 \begin{equation*}
     \int_{G \setminus G'} \left|\sum_{s={\sigma_1}(x)}^{{\sigma_2}(x)} \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right| \mathrm{d}\mu(x)
@@ -270,9 +313,7 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
      \mu(F)^{\frac 1 q}\,.
 \end{equation}
 \end{proposition}
-Let measurable functions ${\sigma_1}\leq \sigma_2\colon X\to \mathbb{Z}$ with finite range be given. Let a measurable function
-$\tQ\colon X\to \Mf$ with finite range
-be given.
+Let measurable functions ${\sigma_1}\leq \sigma_2\colon X\to \mathbb{Z}$ with finite range be given.
 Let bounded Borel sets $F,G$ in $X$ be given.
 Let $S$ be the smallest integer such that the ranges of
 $\sigma_1$ and $\sigma_2$ are contained in $[-S,S]$ and $F$ and $G$ are contained
@@ -280,9 +321,6 @@ in the ball $B(o, \frac{1}{4}D^S)$.
 
 In \Cref{christsection}, we prove \Cref{finitary-Carleson} using a
 bound for a dyadic model formulated in \Cref{discrete-Carleson} below.
-
-% fixme:
-% Simplify some arguments in antichain bounds/estimates, because we only have 1 top cube
 
 A grid structure $(\mathcal{D}, c, s)$ on $X$ consists of a finite collection $\mathcal{D}$ of pairs $(I, k)$ of Borel
 sets in $X$ and integers $k \in [-S, S]$, the projection $s\colon \mathcal{D}\to [-S, S], (I, k) \mapsto k$ to the second component which is assumed to be surjective and
@@ -773,6 +811,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \chapter{Proof of Metric Space Carleson}
 \label{thmfromproplinear}
 
+\textit{This section is currently under construction, to incoroporate the proof of \Cref{linearised-metric-Carleson}}\\
 
 Let Borel sets $F$, $G$ in $X$ be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 We have that
@@ -4198,10 +4237,10 @@ For a finite collection of pairwise disjoint cubes $\mathcal{C}$, define the pro
 $$
     P_{\mathcal{C}}f(x) :=\sum_{J\in\mathcal{C}}\mathbf{1}_J(x) \frac{1}{\mu(J)}\int_J f(y) \, \mathrm{d}\mu(y)\,.
 $$
-Given a scale $-S \le s\le S$ and a point $x \in \bigcup_{I\in \mathcal{D}, s(I) = s} I$, there exists a unique cube in $\mathcal{D}$ of scale $s$ containing $x$ by \eqref{coverdyadic}. We denote it by $I_s(x)$. Define the nontangential maximal operator
+Given a scale $-S \le s\le S$ and a point $x \in \bigcup_{I\in \mathcal{D}, s(I) = s} I$, there exists a unique cube in $\mathcal{D}$ of scale $s$ containing $x$ by \eqref{coverdyadic}. We denote it by $I_s(x)$. Define for $\mfa \in \Mf$ the nontangential maximal operator
 \begin{equation}
     \label{eq-TN-def}
-    T_{\mathcal{N}} f(x) := \sup_{-S \le s_1 < s_2 \le S} \sup_{x' \in I_{s_1}(x)} \left| \sum_{s = s_1}^{s_2} \int K_s(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
+    T_{\mathcal{N}}^\mfa f(x) := \sup_{-S \le s_1 < S} \sup_{x' \in I_{s_1}(x)} \sup_{\substack{s_1 < s_2 \le S\\ D^{s_2-1} \le R_Q(\mfa, x')}} \left| \sum_{s = s_1}^{s_2} \int K_s(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
 \end{equation}
 Define for each $\fu \in \fU$ the auxiliary operator
 $$
@@ -4231,7 +4270,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     $$
     \begin{equation}
         \label{eq-LJ-ptwise}
-        \leq 2^{151a^3}(M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}f(x')|,
+        \leq 2^{151a^3}(M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}^{\fcc(\fu)} P_{\mathcal{J}(\fT(\fu))}f(x')|,
     \end{equation}
 \end{lemma}
 
@@ -4325,12 +4364,29 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     \label{second-tree-pointwise}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
-         \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) P_{\mathcal{J}(\fT(\fu))} f(y) \, \mathrm{d}\mu(y) \Bigg| \le T_{\mathcal{N}} P_{\mathcal{J}(\fT(\fu))} f(x')\,.
+         \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) P_{\mathcal{J}(\fT(\fu))} f(y) \, \mathrm{d}\mu(y) \Bigg| \le T_{\mathcal{N}}^{\fcc(\fu)} P_{\mathcal{J}(\fT(\fu))} f(x')\,.
     $$
 \end{lemma}
 
 \begin{proof}
-    Let $s = \underline{\sigma}(\fu, x)$. By definition, there exists a tile $\fp \in \fT(\fu)$ with $\ps(\fp) = s$ and $x \in E(\fp)$. Then $x \in \scI(\fp) \cap L$. By \eqref{dyadicproperty} and the definition of $\mathcal{L}(\fT(\fu))$, it follows that $L \subset \scI(\fp)$, in particular $x' \in \scI(\fp)$, so $x \in I_s(x')$.
+    Let $s_1 = \underline{\sigma}(\fu, x)$. By definition, there exists a tile $\fp \in \fT(\fu)$ with $\ps(\fp) = s_1$ and $x \in E(\fp)$. Then $x \in \scI(\fp) \cap L$. By \eqref{dyadicproperty} and the definition of $\mathcal{L}(\fT(\fu))$, it follows that $L \subset \scI(\fp)$, in particular $x' \in \scI(\fp)$, so $x \in I_{s_1}(x')$.
+    Next, let $s_2 = \overline{\sigma}(\fu, x)$ and let $\fp' \in \fT(\fu)$ with $\ps(\fp') = s_2$ and $x \in E(\fp')$. Since $\fp' \in \fT(\fu)$, we have $4\fp' \lesssim 1\fu$. Since $\tQ(x) \in \fc(\fp')$, it follows that
+    $$
+        d_{\fp}(\fcc(\fu), \tQ(x)) \le 5\,.
+    $$
+    Applying the doubling property \eqref{firstdb} five times, we obtain
+    $$
+        d_{B(c(\fp), 8D^{s_2})}(\fcc(\fu), \tQ(x)) \le 5 \cdot 2^{5a}\,.
+    $$
+    By the triangle inequality, we have $B(x, D^{s_2}) \subset B(c(\fp), 8 D^{s_2})$, so by \eqref{monotonedb}
+    $$
+        d_{B(x, D^{s_2})}(\fcc(\fu), \tQ(x)) \le 5 \cdot 2^{5a}\,.
+    $$
+    Finally, by applying \eqref{seconddb} $2^{100a}$ times, we obtain
+    $$
+        d_{B(x, D^{s_2-1})}(\fcc(\fu), \tQ(x)) \le 5 \cdot 2^{-95a} < 1\,.
+    $$
+    Consequently, $D^{s_2 - 1} < R_Q(\fcc(\fu), x)$.
     The lemma now follows from the definition of $T_{\mathcal{N}}$.
 \end{proof}
 
@@ -4407,9 +4463,9 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 \begin{lemma}[nontangential operator bound]
     \label{nontangential-operator-bound}
   \uses{Hardy-Littlewood}
-    For all bounded $f$ with bounded support
+    For all bounded $f$ with bounded supportand all $\mfa \in \Mf$
     $$
-        \|T_{\mathcal{N}} f\|_2 \le 2^{103a^3} \|f\|_2\,.
+        \|T_{\mathcal{N}}^{\mfa} f\|_2 \le 2^{103a^3} \|f\|_2\,.
     $$
 \end{lemma}
 
@@ -4431,28 +4487,28 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
         \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg|
     $$
     $$
-        \le 2^{151a^3} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
+        \le 2^{151a^3} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
     $$
     Hence, by taking an infimum, we have for $y \in L$
     $$
         \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg|
     $$
     $$
-        \le 2^{151a^3} \inf_{x' \in L} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
+        \le 2^{151a^3} \inf_{x' \in L} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
     $$
     Integrating this estimate yields
     $$
         \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
     $$
     $$
-        \le 2^{151a^3} \int_L |g(y)| \inf_{x' \in L}((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| ) \, \mathrm{d}\mu(y)
+        \le 2^{151a^3} \int_L |g(y)| \inf_{x' \in L}((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| ) \, \mathrm{d}\mu(y)
     $$
     \begin{multline*}
         \le 2^{151a^3} \int_L |g(y)| \, \mathrm{d}\mu(y)\times\\
-         \int_L 2((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
+         \int_L 2((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
     \end{multline*}
     \begin{multline*}
-        = 2^{151a^3 } \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
+        = 2^{151a^3 } \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
     \end{multline*}
     By \eqref{definetp}, we have $T_{\fp} f = \mathbf{1}_{\scI(\fp)} T_{\fp} f$ for all $\fp \in \fP$, so
     $$
@@ -4465,14 +4521,14 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
     $$
     which by the above computation is bounded by
     \begin{multline*}
-        2^{151a^3} \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
+        2^{151a^3} \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
     \end{multline*}
     \begin{multline*}
-        = 2^{151a^3} \int_X P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
+        = 2^{151a^3} \int_X P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
     \end{multline*}
     Applying Cauchy-Schwarz and Minkowski's inequality, this is bounded by
     \begin{multline*}
-        2^{151a^3} \|P_{\mathcal{L}(\fT(\fu))}|g|\|_2 \times \\(\|M_{\mathcal{B},1}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|S_{1,\fu}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|T_{\mathcal{N}}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)|\|_2)\,.
+        2^{151a^3} \|P_{\mathcal{L}(\fT(\fu))}|g|\|_2 \times \\(\|M_{\mathcal{B},1}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|S_{1,\fu}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)|\|_2)\,.
     \end{multline*}
     By \Cref{Hardy-Littlewood}, \Cref{nontangential-operator-bound} and \Cref{boundary-operator-bound}, the second factor is at most
     $$
@@ -4505,7 +4561,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
         0 \le \sum_{s = s_1}^{s_2} \psi(D^{-s}x) \le 1\,.
     $$
-    Let $x' \in I_{s_1}(x)$. By the triangle inequality and \eqref{eq-vol-sp-cube}, it holds that $\rho(x,x') \le 8D^{s_1}$. We have
+    Let $x' \in I_{s_1}(x)$ and suppose that $D^{s_2 - 1} \le R_Q(\mfa, x')$. By the triangle inequality and \eqref{eq-vol-sp-cube}, it holds that $\rho(x,x') \le 8D^{s_1}$. We have
     $$
         \Bigg|\sum_{s = s_1}^{s_2} \int K_s(x',y) f(y) \, \mathrm{d}\mu(y)\Bigg|
     $$
@@ -4514,7 +4570,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
     \begin{equation}
         \label{eq-sharp-trunc-term}
-        \le \Bigg| \int_{8D^{s_1} \le \rho(x',y) \le \frac{1}{4}D^{s_2}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
+        \le \Bigg| \int_{8D^{s_1} \le \rho(x',y) \le \frac{1}{4}D^{s_2-1}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
     \end{equation}
     \begin{equation}
         \label{eq-lower-bound-term}
@@ -4522,9 +4578,32 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     \end{equation}
     \begin{equation}
         \label{eq-upper-bound-term}
-        + \int_{\frac{1}{4}D^{s_2} \le \rho(x',y) \le \frac{1}{2}D^{s_2}} |K(x', y)| |f(y)| \, \mathrm{d}\mu(y)\,.
+        + \int_{\frac{1}{4}D^{s_2-1} \le \rho(x',y) \le \frac{1}{2}D^{s_2}} |K(x', y)| |f(y)| \, \mathrm{d}\mu(y)\,.
     \end{equation}
-    The first term \eqref{eq-sharp-trunc-term} is at most $T_* f(x)$.
+    The first term \eqref{eq-sharp-trunc-term} is at most
+     $2T_{\tQ}^\mfa f(x)$ ,
+    using with $R_1:=8D^{s_1}$ and
+    $R_2:=\frac{1}{4}D^{s_2-1}$
+    and
+    \begin{equation}
+        R_1 \le  R_2<R_{\tQ}(\mfa,x')
+    \end{equation}
+    the triangle inequality in the form
+    \begin{equation}
+    \sup_{\rho(x,x')<R_1}
+        \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+    \begin{equation}
+    \le \sup_{\rho(x,x')<R_1}
+        \left|\int_{R_1< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+    \begin{equation}
+        + \sup_{\rho(x,x')<R_1}
+        \left|\int_{R_2< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+    and making the second term larger by replacing the
+    constraint $\rho(x,x')<R_1$ by the constraint $\rho(x,x')<R_2$.
+
 
     The other two terms will be estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
     For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
@@ -4551,10 +4630,10 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
         |K(x', y)| \le \frac{2^{a^3}}{\mu(B(x', \frac{1}{4}D^{s_2}))}\,.
     $$
-    Using the doubling property \eqref{doublingx} $6$ times estimates
+    Using the doubling property \eqref{doublingx} $6 + 100a^2$ times estimates
     the last display by
     \begin{equation}
-        \le \frac{2^{6a + a^3}}{\mu(B(x', 16 D^{s_2}))}\, .
+        \le \frac{2^{6a + 101a^3}}{\mu(B(x', 16 D^{s_2}))}\, .
     \end{equation}
     Note that by \eqref{dyadicproperty} we have $I_{s_1}(x) \subset I_{s_2}(x)$, in particular $x' \in I_{s_2}(x)$.
     By the triangle inequality and \eqref{eq-vol-sp-cube}, we have
@@ -4563,14 +4642,14 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
     Combining this, \eqref{eq-upper-bound-term} is at most
     $$
-        2^{6a+a^3} M_{\mathcal{B},1} f(x)\,.
+        2^{6a+101a^3} M_{\mathcal{B},1} f(x)\,.
     $$
 
     Using $a \ge 4$, taking a supremum over all $x' \in I_{s_1}(x)$ and then a supremum over all $-S \le s_1 < s_2 \le S$, we obtain
     $$
         T_{\mathcal{N}} f(x) \le T_*f(x) + 2^{102a^3} M_{\mathcal{B},1} f(x)\,.
     $$
-    The lemma now follows from assumption \eqref{nontanbound}, \Cref{Hardy-Littlewood}and $a \ge 4$.
+    The lemma now follows from assumption \eqref{nontanbound}, \Cref{Hardy-Littlewood} and $a \ge 4$.
 \end{proof}
 
 We need the following lemma to prepare the $L^2$-estimate for the auxiliary operators $S_{1, \fu}$.
