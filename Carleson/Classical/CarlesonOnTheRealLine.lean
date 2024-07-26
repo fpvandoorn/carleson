@@ -475,7 +475,6 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           . rw [hxy]
             simp
           rw [dist_eq_norm, ← div_le_iff (dist_pos.mpr hxy), Ldef, NNReal.coe_mk]
-          --apply ConditionallyCompleteLattice.le_csSup
           apply le_ciSup_of_le _ x
           apply le_ciSup_of_le _ y
           apply le_ciSup_of_le _ hxy
@@ -533,8 +532,6 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           simp only [Int.cast_abs, Int.cast_sub, le_add_iff_nonneg_right]
           exact mul_nonneg (by linarith) (abs_nonneg _)
 
-
---TODO : add some Real.vol lemma
 
 lemma Real.vol_real_eq {x y : ℝ} : Real.vol x y = 2 * |x - y| := by
   rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
