@@ -44,7 +44,7 @@ Define the partial Fourier sum for $N\ge 0$ as
     \lean{classical_carleson}
     \uses{smooth-approximation, convergence-for-smooth,
     control-approximation-effect}
-    Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\mathbb{R}$. For all $0<\epsilon<1$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
+    Let $f$ be a $2\pi$-periodic complex-valued uniformly continuous function on $\mathbb{R}$. For all $\epsilon>0$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
     \begin{equation}\label{aeconv}
     |f(x)-S_N f(x)|\le \epsilon.
     \end{equation}
@@ -7706,7 +7706,7 @@ All subsections past \Cref{10classical} are mutually independent.
 \section{The classical Carleson theorem}
 \label{10classical}
 
-Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ and $0<\epsilon<1$ be given.
+Let a uniformly continuous $2\pi$-periodic function $f:\R\to \mathbb{C}$ and $\epsilon>0$ be given.
 Let
 \begin{equation}
     C_{a,q} := \frac{2^{452a^3}}{(q-1)^6}
