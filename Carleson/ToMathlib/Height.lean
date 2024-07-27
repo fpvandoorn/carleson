@@ -7,8 +7,10 @@ Authors: Joachim Breitner
 import Mathlib.Order.RelSeries
 import Mathlib.Order.WithBot
 import Mathlib.Order.Height
+import Mathlib.Order.Minimal
 import Mathlib.Data.Nat.Lattice
 import Mathlib.Data.ENat.Lattice
+import Mathlib.Data.Set.Pairwise.Basic
 
 /-!
 This module contains a definition for the height of an element in a partial order
@@ -17,25 +19,32 @@ with assorted API.
 This could replace the `height` definition in mathlib. I think it is preferrable,
 due to the simpler construction and more precise type (the height cannot be -∞, even
 though the `krullDim` could).
--/
 
-/-
-TODO
+Some results found here:
+
 * An element of finite height n has a LTSeries ending in it of length n
-* For an element of height n there exists a series of length n ending in it (this is almost all that's needed for the lemma that gives you a p' with s differing by at least n , and maybe allows to strengthen it to unblock Jeremy)
+* For an element of finite height n there exists a series of length n ending in it
 * A series of length n ends in an element of height at least n
 * The element at position i of a series has height at least i
-* Every series of length n ending in the element has at position I an element of height I
-* The elements of height n are the minimal elements when removing elements of height <n. This lemma proves the recursive equation in the blueprint.
+* Every series of length n ending in the element has at position i an element of height i
+* The elements of height n are the minimal elements among those of height ≥n.
+  This lemma proves the recursive equation in the blueprint.
+
+It also defines `Set.with_height`, the subset of a set `s` of elements with given height in that
+set. Some results
+
+* the sets are disjoint antichains
+* a recursive equation in terms of `minimals`
+* if the length of ascending sequences in `s` is bounded, `s` is the union of these sets
+
 -/
 
-
-lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : Nat) :
-  (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
+lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
+    (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   sorry
 
 lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat) :
-  (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
+    (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   simp [ENat.iSup_eq_coe_iff']
 
 @[simp]
@@ -296,8 +305,16 @@ lemma mem_minimal_univ_iff_height_eq_zero (a : α) :
     a ∈ minimals (·≤·) Set.univ ↔ height a = 0 := by
   simp [mem_minimals_iff_forall_lt_not_mem'', height_eq_zero_iff]
 
-lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) (hfin : height a < ⊤) :
+lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
     a ∈ minimals (·≤·) { y | n ≤ height y } ↔ height a = n := by
+  wlog hfin : height a < ⊤
+  · simp only [not_lt, top_le_iff] at hfin
+    -- have ha' : n < height a := by simp [hfin]
+    simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, hfin, le_top, not_le,
+      true_and, ENat.top_ne_coe, iff_false, not_forall, Classical.not_imp, not_lt]
+
+    sorry
+  have hfin : height a < ⊤ := by sorry
   simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, not_le]
   simp only [height_eq_iff, hfin, true_and, and_congr_left_iff]
   intro _
@@ -309,22 +326,72 @@ lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) (hfin : height a < ⊤
     simp only [lt_height_iff, hfin]
     rfl
 
+def Set.with_height (s : Set α) (n : ℕ) : Set α :=
+  minimals (·≤·) (s \ ⋃ (n' < n), Set.with_height s n')
+
+-- Q: Should this be the definition and the other a lemma? Does it matter?
+-- Q: What's a good name?
+
+/-- `Set.mem_with_height s n` contains those elements of `s` that have height `n` in `s` -/
+lemma Set.mem_with_height_iff (s : Set α) (n : Nat) (x : α) :
+    x ∈ s.with_height n ↔ ∃ (hx : x ∈ s), height (⟨x, hx⟩ : s) = n := by
+-- induction n using Set.with_height.induct -- TODO: investigate this induction theorem bug?
+  wlog hxs : x ∈ s
+  · sorry
+  simp only [hxs, exists_true_left]
+  rw [Set.with_height]
+  simp_rw [← mem_minimal_le_height_iff_height]
+  simp [mem_minimals_iff_forall_lt_not_mem'', hxs]
+  sorry
+
+/- Variant of Set.mem_with_height_iff' expressed on the subtype of `s`  -/
+lemma Set.mem_with_height_iff' (s : Set α) (n : Nat) (x : s) :
+    x.val ∈ s.with_height n ↔ height x = n := by
+  cases x; simp only [mem_with_height_iff, exists_true_left, *]
+
+lemma Set.Disjoint_with_height (s : Set α) {n n'} (h : n ≠ n') :
+    Disjoint (s.with_height n) (s.with_height n') := by
+  wlog hl : n < n'
+  · exact (this s h.symm (by omega)).symm
+  rw [disjoint_right]; intro p hp hp'
+  rw [Set.mem_with_height_iff] at hp hp'
+  aesop
+
+lemma Set.PairwiseDisjoint_with_height (s : Set α) : univ.PairwiseDisjoint s.with_height :=
+    fun _ _ _ _ => Disjoint_with_height s
+
+lemma Set.with_height_subset (s : Set α) (n : ℕ) : s.with_height n ⊆ s := by
+  intro x
+  rw [Set.mem_with_height_iff]
+  tauto
 
 /-
-noncomputable def height_in {α : Type*} [Preorder α] (s : Set α) (a : α) : ℕ∞ :=
-  ⨆ (l ∈ s.subchain) (_ : l.getLast? = some a), l.length - 1
+If all increasing series have lenght bounded by `n`, then `s` is the union of its elements with
+height `≤ n`.
 
-
-
-
-variable {α : Type*} [Preorder α]
-variable (s : Set α)
-variable (a : α)
-
-
-
-lemma exists_subchain_of_finite_height (a : α) {n : ℕ} (h : height_in s a = n) :
-    ∃ l ∈ s.subchain, l.getLast? = some a ∧ l.length = n + 1 := by
-  unfold height_in at h
-  rw [ENat.iSup_eq_coe_iff (s := s.subchain)] at h
+The precondition could also be expressed as `(hkrull : krullDim α < n)`.
 -/
+lemma Set.iUnion_with_height_of_bounded_series {s : Set α} {n : ℕ}
+    (hlength : (p : LTSeries s) → p.length ≤ n) :
+    (⋃ (l ≤ n), s.with_height l) = s := by
+  ext x
+  simp only [mem_iUnion, exists_prop]
+  constructor
+  · intro ⟨l, hln, hx⟩
+    apply Set.with_height_subset _ _ hx
+  · intro hx
+    simp_rw [Set.mem_with_height_iff' s _ ⟨x, hx⟩]
+    cases hh : height (⟨x, hx⟩ : s)
+    next =>
+      exfalso
+      sorry -- if height is ⊤, then arbitrary long sequences exist
+    next l =>
+      use l
+      obtain ⟨p, hlast, hp⟩ := exists_series_of_finite_height _  hh
+      specialize hlength p
+      constructor; omega; rfl
+
+lemma Set.IsAntichain_with_height {α} [PartialOrder α] (s : Set α) (n : ℕ) :
+    IsAntichain (·≤·) (s.with_height n) := by
+  rw [with_height]
+  apply minimals_antichain
