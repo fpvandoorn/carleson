@@ -48,6 +48,10 @@ lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat)
   simp [ENat.iSup_eq_coe_iff']
 
 @[simp]
+theorem ENat.iSup_eq_zero {ι : Type*} (s : ι → ℕ∞) : iSup s = 0 ↔ ∀ i, s i = 0 := iSup_eq_bot
+
+
+@[simp]
 lemma ENat.not_lt_zero (n : ℕ∞) : ¬ n < 0 := by
   cases n <;> simp
 
@@ -189,8 +193,19 @@ lemma height_last_ge_length (p : LTSeries α) : p.length ≤ height p.last :=
 lemma height_ge_index (p : LTSeries α) (i : Fin (p.length + 1)) : i ≤ height (p i) :=
   height_last_ge_length (p.take i)
 
-@[simp]
-theorem ENat.iSup_eq_zero {ι : Type*} (s : ι → ℕ∞) : iSup s = 0 ↔ ∀ i, s i = 0 := iSup_eq_bot
+lemma height_eq_index_of_length_eq_last_height (p : LTSeries α) (h : p.length = height p.last) :
+    ∀ (i : Fin (p.length + 1)), i = height (p i) := by
+  suffices ∀ i, height (p i) ≤ i by
+    apply_rules [le_antisymm, height_ge_index]
+  intro i
+  apply iSup_le
+  intro ⟨p', hp'⟩
+  simp only [Nat.cast_le]
+  have hp'' := height_last_ge_length <| p'.smash (p.drop i) (by simpa)
+  simp [← h] at hp''; clear h
+  norm_cast at hp''
+  omega
+
 
 lemma height_mono : Monotone (α := α) height := by
   intro x y hxy
@@ -200,12 +215,11 @@ lemma height_mono : Monotone (α := α) height := by
   ext ⟨p, hp⟩
   simp
 
-
 -- only true for finite height
 lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
     height x < height y := by
-  obtain ⟨n, hfin : height y = n⟩ := Option.ne_none_iff_exists'.mp (LT.lt.ne_top hfin)
   suffices height x + 1 ≤ height y by
+    obtain ⟨n, hfin : height y = n⟩ := Option.ne_none_iff_exists'.mp (LT.lt.ne_top hfin)
     revert hfin this
     cases height y <;> cases height x <;> simp_all;  norm_cast;  omega
   unfold height
@@ -217,44 +231,35 @@ lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
   simp
 
 
+/-- Another characterization of height, based on the supremum of the heights of elements below -/
+lemma height_eq_isup_lt_height (x : α) :
+    height x = ⨆ (y : α) (_  : y < x), height y + 1 := by
+  unfold height
+  simp_rw [ENat.isup_add]
+  apply le_antisymm
+  · apply iSup_le; intro ⟨p, hp⟩
+    simp only
+    cases hlen : p.length; simp; next n =>
+    apply le_iSup_of_le p.eraseLast.last
+    apply le_iSup_of_le (by rw [← hp]; apply RelSeries.eraseLast_last_rel_last _ (by omega))
+    apply le_iSup_of_le ⟨p.eraseLast, rfl⟩
+    simp [hlen]
+  · apply iSup_le; intro y
+    apply iSup_le; intro hyx
+    apply iSup_le; intro ⟨p, hp⟩
+    apply le_iSup_of_le ⟨p.snoc x (hp ▸ hyx), by simp⟩
+    simp
+
 lemma height_le_iff (x : α) (n : ℕ) :
     height x ≤ n ↔ (∀ y, y < x → height y < n) := by
-  constructor
-  · intro h y hyx
-    refine lt_of_lt_of_le ?_ h
-    apply height_strictMono y x hyx
-    apply lt_of_le_of_lt h
-    exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
-  · intro h
-    unfold height
-    apply iSup_le
-    intro ⟨p, hp⟩
-    simp only
-    cases hlen : p.length
-    case zero => simp
-    case succ m =>
-      specialize h p.eraseLast.last (by rw [←hp]; apply RelSeries.eraseLast_last_rel_last _ (by omega))
-      have h' := height_last_ge_length p.eraseLast
-      have := lt_of_le_of_lt h' h
-      simp at *
-      norm_cast at *
-      omega
+  conv_lhs => rw [height_eq_isup_lt_height]
+  simp only [iSup_le_iff]
+  congr! 2 with y _
+  cases height y; simp; norm_cast
 
 lemma height_eq_zero_iff (x : α) : height x = 0 ↔ (∀ y, ¬(y < x)) := by
   simpa using height_le_iff x 0
 
-lemma height_eq_index_of_length_eq_last_height (p : LTSeries α) (h : p.length = height p.last) :
-    ∀ (i : Fin (p.length + 1)), i = height (p i) := by
-  suffices ∀ i, height (p i) ≤ i by
-    apply_rules [le_antisymm, height_ge_index]
-  intro i
-  apply iSup_le
-  intro ⟨p', hp'⟩
-  simp only [Nat.cast_le, ge_iff_le]
-  have hp'' := height_last_ge_length <| p'.smash (p.drop i) (by simpa)
-  simp [← h] at hp''; clear h
-  norm_cast at hp''
-  omega
 
 lemma lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
     n < height x ↔ (∃ y, y < x ∧ height y = n) := by
@@ -273,24 +278,6 @@ lemma lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
   · intro ⟨y, hyx, hy⟩
     exact hy ▸ height_strictMono y x hyx hfin
 
-/-- Another characterization of height, based on the supremum of the heights of elements below -/
-lemma height_eq_isup_lt_height (x : α) :
-    height x = ⨆ (y : α) (_  : y < x), height y + 1 := by
-  unfold height
-  simp_rw [ENat.isup_add]
-  apply le_antisymm
-  · apply iSup_le; intro ⟨p, hp⟩
-    simp only []
-    cases hlen : p.length; simp; next n =>
-    apply le_iSup_of_le p.eraseLast.last
-    apply le_iSup_of_le (by rw [← hp]; apply RelSeries.eraseLast_last_rel_last _ (by omega))
-    apply le_iSup_of_le ⟨p.eraseLast, rfl⟩
-    simp [hlen]
-  · apply iSup_le; intro y
-    apply iSup_le; intro hyx
-    apply iSup_le; intro ⟨p, hp⟩
-    apply le_iSup_of_le ⟨p.snoc x (hp ▸ hyx), by simp⟩
-    simp
 
 lemma height_eq_succ_iff (x : α) (n : ℕ)  :
     height x = n + 1 ↔ height x < ⊤ ∧ (∃ y < x, height y = n) ∧ (∀ y, y < x → height y ≤ n) := by
