@@ -536,7 +536,13 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
 
 --TODO : add some Real.vol lemma
 
-instance h6 : IsOneSidedKernel 4 K where
+lemma Real.vol_real_eq {x y : ℝ} : Real.vol x y = 2 * |x - y| := by
+  rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+
+lemma Real.vol_real_symm {x y : ℝ} : Real.vol x y = Real.vol y x := by
+  rw [Real.vol_real_eq, Real.vol_real_eq, abs_sub_comm]
+
+instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
   norm_K_le_vol_inv := by
     intro x y
@@ -553,7 +559,7 @@ instance h6 : IsOneSidedKernel 4 K where
       apply Hilbert_kernel_regularity
       linarith [abs_nonneg (x-y)]
     _ ≤ (|y - y'| / |x - y|) ^ (4 : ℝ)⁻¹ * (2 ^ (4 : ℝ) ^ 3 / Real.vol x y) := by
-      rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+      rw [Real.vol_real_eq]
       ring_nf
       rw [pow_two, mul_assoc |x - y|⁻¹]
       gcongr
@@ -573,8 +579,14 @@ instance h6 : IsOneSidedKernel 4 K where
   /- Lemma ?-/
   measurable_K_right := Hilbert_kernel_measurable
 
+instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
+  norm_K_sub_le' := by
+    intro x x' y h
+    rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, Complex.norm_eq_abs, Complex.abs_conj, ← Complex.norm_eq_abs, dist_comm x y, Real.vol_real_symm]
+    rw [dist_comm x y] at h
+    exact isOneSidedKernelHilbert.norm_K_sub_le h
 
-lemma T_star_strong_2_2 : HasBoundedStrongType (ANCZOperator K) 2 2 volume volume (C_Ts 4) := sorry
+lemma Hilbert_strong_2_2 : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) := sorry
 
 
 local notation "T" => CarlesonOperatorReal K
@@ -605,11 +617,12 @@ lemma rcarleson {F G : Set ℝ}
     (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     :
     ∫⁻ x in G, T f x ≤
-    ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
+    ENNReal.ofReal (C10_1 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
   have conj_exponents : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, CarlesonOperator K f x :=
       MeasureTheory.lintegral_mono (CarlesonOperatorReal_le_CarlesonOperator _)
-    _ ≤ ENNReal.ofReal (C1_2 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := metric_carleson (a := 4) K (by norm_num) (by simp) conj_exponents hF hG T_star_strong_2_2 f hf
+    _ ≤ ENNReal.ofReal (C10_1 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ :=
+      two_sided_metric_carleson (a := 4) K (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 f hf
 
 end section
