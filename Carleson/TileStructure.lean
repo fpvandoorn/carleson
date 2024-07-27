@@ -40,6 +40,8 @@ def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
 /-- A tile structure. -/
+-- note: we don't explicitly include injectivity of `Ω` on `𝔓(I)`, since it follows from these
+-- axioms: see `toTileLike_injective`
 class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
     (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
     extends PreTileStructure Q D κ S o where
@@ -153,6 +155,11 @@ instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_inje
 
 lemma 𝔓.le_def {p q : 𝔓 X} : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
 lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
+
+lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := by
+  intros p p' h
+  refine h.le.1.lt_of_ne <| fun h' ↦ ?_
+  exact Set.disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' := by
   by_contra h3
