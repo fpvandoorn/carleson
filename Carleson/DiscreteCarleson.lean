@@ -1,6 +1,6 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
-import Carleson.MinLayer
+import Carleson.MinLayerTiles
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
@@ -1155,10 +1155,7 @@ lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j
     refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
   · rw [mem_iUnion₂] at h; obtain ⟨_, _, mp, _⟩ := h; exact mp
 
-/- Lemma 5.4.4 seems to be a duplicate of Lemma 5.4.6.
-The numberings below might change once we remove Lemma 5.4.4 -/
-
-/-- Lemma 5.4.5, verifying (2.0.32) -/
+/-- Lemma 5.4.4, verifying (2.0.32) -/
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
   rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
   obtain ⟨_, u', mu', w⟩ := hp; rw [mem_iUnion] at w; obtain ⟨ru, mp'⟩ := w
@@ -1183,7 +1180,7 @@ lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : 
       · rwa [@mem_ball] at ϑy
     _ < _ := by norm_num
 
-/-- Lemma 5.4.6, verifying (2.0.33) -/
+/-- Lemma 5.4.5, verifying (2.0.33) -/
 lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
   rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
   have mp'₅ : p' ∈ ℭ₅ (X := X) k n j :=
@@ -1200,7 +1197,7 @@ lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
   use (ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁) mp'₅, pnu.ne
   exact (wiggle_order_11_10 mp'.2 (C5_3_3_le (X := X).trans (by norm_num))).trans sl
 
-/-- Lemma 5.4.7, verifying (2.0.36)
+/-- Lemma 5.4.6, verifying (2.0.36)
 Note: swapped `u` and `u'` to match (2.0.36) -/
 lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) (huu' : u ≠ u')
     (hp : p ∈ 𝔗₂ k n j u') (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u) := by
@@ -1258,7 +1255,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
       rwa [← mul_le_mul_iff_of_pos_left Cdpos, inv_pow, ← mul_assoc, mul_inv_cancel Cdpos.ne',
         one_mul]
 
-/-- Lemma 5.4.8, verifying (2.0.37) -/
+/-- Lemma 5.4.7, verifying (2.0.37) -/
 lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
     ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u := by
   let C : Set (𝔓 X) :=
@@ -1290,10 +1287,8 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
     have ru'' : URel k n j u u'' := equivalenceOn_urel.trans (𝔘₃_subset_𝔘₂ hu) mu' hu'' ru' ur
     simp_rw [C, mem_setOf, mem_inter_iff, mq', z, mem_iUnion₂, mem_iUnion, true_and, and_true]
     use u'', hu'', ru''; exact ⟨(ℭ₃_subset_ℭ₂.trans ℭ₂_subset_ℭ₁) mq', nu''.ne, sl⟩
-  -- ...
   -- obtain ⟨r, r_max_ℭ₃, lr, sr⟩ := exists_le_add_scale_of_mem_layersBelow p₄
-  have sq : 𝔰 p + (Z * (n + 1) : ℕ) ≤ 𝔰 q := sorry
-  -- ...
+  have sq : 𝔰 p + (Z * (n + 1) : ℕ) ≤ 𝔰 q := sorry -- ...
   simp_rw [C, mem_inter_iff, mem_iUnion₂, mem_iUnion] at mq
   obtain ⟨-, u', mu', ru', mq'⟩ := mq.1
   have qlu : 𝓘 q < 𝓘 u := URel.eq (𝔘₃_subset_𝔘₂ hu) mu' ru' ▸ 𝓘_lt_of_mem_𝔗₁ mq'
@@ -1379,7 +1374,7 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
     simp_rw [mf', mu.1, mu'.1, dite_true, Subtype.val_inj] at e
     simpa using mf_injOn mu.2 mu'.2 e
 
-/-- Lemma 5.4.9, used to verify that 𝔘₄ satisfies 2.0.34. -/
+/-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
 lemma forest_stacking (x : X) (hkn : k < n) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
   by_contra! h
   let C : Finset (𝔓 X) := Finset.univ.filter fun u ↦ u ∈ 𝔘₃ (X := X) k n j ∧ x ∈ 𝓘 u
