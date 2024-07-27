@@ -162,6 +162,12 @@ lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : 
     (p.replaceLast x h).length = p.length := by
   unfold replaceLast; split <;> (simp;omega)
 
+lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last := by
+  sorry
+
+lemma LTSeries.int_head_add_len_le_last (p : LTSeries ℤ) : p.head + p.length ≤ p.last := by
+  sorry
+
 variable [Preorder α]
 
 noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
@@ -395,3 +401,21 @@ lemma Set.IsAntichain_with_height {α} [PartialOrder α] (s : Set α) (n : ℕ) 
     IsAntichain (·≤·) (s.with_height n) := by
   rw [with_height]
   apply minimals_antichain
+
+lemma Set.exists_series_of_mem_with_height {s : Set α} {a : α} {n : ℕ} (h : a ∈ s.with_height n) :
+  ∃ p : LTSeries s, p.last = a ∧ p.length = n := by
+  rw [mem_with_height_iff] at h
+  obtain ⟨p, hlast, hp⟩ := exists_series_of_finite_height _  h.2
+  use p
+  simp_all
+
+/-- The dual of `Set.with_height`.  -/
+def Set.with_coheight (s : Set α) (n : ℕ) : Set α :=
+  maximals (·≤·) (s \ ⋃ (n' < n), Set.with_coheight s n')
+
+-- TODO: Copy the API
+
+lemma Set.IsAntichain_with_coheight {α} [PartialOrder α] (s : Set α) (n : ℕ) :
+    IsAntichain (·≤·) (s.with_coheight n) := by
+  rw [with_coheight]
+  apply maximals_antichain

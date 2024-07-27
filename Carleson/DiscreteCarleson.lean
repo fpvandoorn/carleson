@@ -1,6 +1,6 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
-import Mathlib.Order.KrullDimension
+import Carleson.ToMathlib.Height
 -- import Carleson.Proposition2
 -- import Carleson.Proposition3
 
@@ -8,128 +8,6 @@ open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Borno
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
 noncomputable section
-
-
-section PartialOrderConstructionWithoutNameSoFar
-
-variable {α} [PartialOrder α] {s : Set α}
-
--- This operation needs a name.
--- And maybe easier to define via the height, rather than iteratively?
-
-def foo (s : Set α) (n : ℕ) : Set α := minimals (·≤·) (s \ ⋃ (n' < n), foo s n')
-
-lemma Disjoint_foo {n n'} (h : n ≠ n') : Disjoint (foo s n) (foo (α := α) s n') := by
-  wlog hl : n < n'; · exact (this h.symm (by omega)).symm
-  rw [disjoint_right]; intro p hp
-  rw [foo, mem_minimals_iff, mem_diff] at hp; replace hp := hp.1.2; contrapose! hp
-  refine mem_iUnion₂_of_mem hl hp
-
-lemma PairwiseDisjoint_foo : univ.PairwiseDisjoint (foo s) := fun _ _ _ _ => Disjoint_foo
-
-lemma foo_subset {n : ℕ} : foo s n ⊆ s := calc
-  foo s n = minimals (·≤·) (s \ ⋃ (n' < n), foo s n') := foo.eq_def ..
-  _ ⊆ s \ ⋃ (n' < n), foo s n' := minimals_subset ..
-  _ ⊆ s := diff_subset
-
--- How do we want to express “has no chains of length n+1”?
--- Direcly via LTSeries, or via the krullDim?
-
-
--- Relating minimals and height; base case for the next lemma
-lemma mem_minimals_iff_height_zero {x} (hxs : x ∈ s) :
-    x ∈ minimals (·≤·) s ↔ height s ⟨x, hxs⟩ = 0 := by
-  constructor
-  · intro hx
-    unfold height
-    have : Iic (⟨x, hxs⟩ : s) = {(⟨x, hxs⟩ : s)} := sorry
-    rw [this]
-    apply krullDim_eq_zero_of_unique
-  · intro hx
-    rw [mem_minimals_iff_forall_lt_not_mem]
-    refine ⟨hxs, ?_⟩
-    intros y hyx hys
-    let ls : LTSeries (Iic (⟨x, hxs⟩ : s)) := RelSeries.singleton _ ⟨⟨y, hys⟩, le_of_lt hyx⟩
-    let ls : LTSeries _ := ls.snoc ⟨⟨x, hxs⟩, le_rfl⟩ hyx
-    have : ls.length = 1 := rfl
-    have : 1 ≤ height s ⟨x, hxs⟩ := by
-      apply le_iSup_of_le
-      apply le_of_eq
-      apply symm
-      norm_cast
-    rw [hx] at this
-    contradiction
-
--- This could show that this construction just partitions by height.
--- Maybe worth using as the definition (and getting pairwise disjoint for free)?
--- Or maybe worth avoiding height here altogether, with the `WithBot (WithTop _)` complications?
-lemma mem_foo_iff_height {n : ℕ} {x : s} :
-  x.val ∈ foo s n ↔ height s x = n := by
-  induction n generalizing x with
-  | zero =>
-    rw [foo]; simp_rw [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty]
-    apply mem_minimals_iff_height_zero
-  | succ n ih =>
-    sorry
-
-
--- This is generalized from 𝔰 to arbrary f
--- But maybe more natural would be to say that there is a chain of length `n` that ends in `x`
--- (which might follow from mem_foo_iff_height)
-lemma exists_le_of_mem_foo {n : ℕ} {x : α} (hx : x ∈ foo s n) (f : α → ℤ) (hf : StrictMono f) :
-    ∃ x' ∈ s, x' ≤ x ∧ f x' + n ≤ f x := by
-  induction n generalizing x with
-  | zero =>
-    rw [foo] at hx; simp_rw [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty] at hx
-    use x, hx.1; simp
-  | succ n ih =>
-    have nx : x ∉ foo s n := disjoint_right.mp (Disjoint_foo (by omega)) hx
-    rw [foo, mem_minimals_iff] at hx nx
-    have rl : x ∈ s \ ⋃ (n' < n), foo s n' := by
-      refine mem_of_mem_of_subset hx.1 (diff_subset_diff_right ?_)
-      refine biUnion_subset_biUnion_left fun k hk ↦ ?_
-      rw [mem_def, Nat.le_eq] at hk ⊢; omega
-    simp_rw [rl, true_and] at nx; push_neg at nx; obtain ⟨x', hx', lp⟩ := nx
-    have mp' : x' ∈ foo s n := by
-      by_contra h
-      have cp : x' ∈ s \ ⋃ (n' < n + 1), foo s n' := by
-        have : ∀ n', n' < n + 1 ↔ n' < n ∨ n' = n := by omega
-        simp_rw [this, iUnion_or, iUnion_union_distrib]
-        simp only [iUnion_iUnion_eq_left, mem_diff, mem_union, mem_iUnion, exists_prop, not_or,
-          not_exists, not_and] at hx' ⊢
-        tauto
-      exact absurd (hx.2 cp lp.1) (ne_eq _ _ ▸ lp.2)
-    obtain ⟨d, md, ld, sd⟩ := ih mp'
-    use d, md, (ld.trans lp.1)
-    have hp' : f x' < f x := hf (lt_of_le_of_ne lp.1 lp.2.symm)
-    omega
-
--- WIP. Unclear what the best formulation for the precondition is
-lemma iUnion_foo {n : ℕ}
-  (hlength : (s : LTSeries s) → s.length ≤ n)
-  -- (hkrull : krullDim α < n)
-  : ⋃ (l ≤ n), foo s l = s := by
-  apply subset_antisymm
-  · apply iUnion_subset
-    intro _
-    apply iUnion_subset
-    intro _
-    apply foo_subset
-  · intro x hx
-    sorry
-
-lemma IsAntichain_foo {n : ℕ}: IsAntichain (·≤·) (foo s n) := by
-  rw [foo]
-  apply minimals_antichain
-
--- TODO: Define via foo and dual order to get all the nice bits
-def foo' (s : Set α) (n : ℕ) : Set α := maximals (·≤·) (s \ ⋃ (n' < n), foo' s n')
-
-lemma IsAntichain_foo' {n : ℕ}: IsAntichain (·≤·) (foo' s n) := by
-  rw [foo']
-  apply maximals_antichain
-
-end PartialOrderConstructionWithoutNameSoFar
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -198,30 +76,29 @@ Not to be confused with `𝔏₀(k, n, j)` which is called `𝔏₀'` in Lean. -
 def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ k n | 𝔅 k n p = ∅ }
 
-
 /-- `𝔏₁(k, n, j, l)` consists of the minimal elements in `ℭ₁(k, n, j)` not in
   `𝔏₁(k, n, j, l')` for some `l' < l`. Defined near (5.1.11). -/
 def 𝔏₁ (k n j l : ℕ) : Set (𝔓 X) :=
-  -- minimals (·≤·) (ℭ₁ k n j \ ⋃ (l' < l), 𝔏₁ k n j l')
-  foo (ℭ₁ k n j) l
+  (ℭ₁ k n j).with_height l
 
 lemma 𝔏₁_disjoint {k n j l l' : ℕ} (h : l ≠ l') : Disjoint (𝔏₁ (X := X) k n j l) (𝔏₁ k n j l') :=
-  Disjoint_foo h
-
-/-
-TODO: How to extract this into its own lemma
-
-lemma strict_mono_s : StrictMono 𝔰 := by
-  sorry
--/
+  Set.Disjoint_with_height _ h
 
 lemma exists_le_of_mem_𝔏₁ {k n j l : ℕ} {p : 𝔓 X} (hp : p ∈ 𝔏₁ k n j l) :
     ∃ p' ∈ ℭ₁ k n j, p' ≤ p ∧ 𝔰 p' + l ≤ 𝔰 p := by
-  refine exists_le_of_mem_foo hp _ ?mono
-  · show StrictMono 𝔰
-    intro p' p hp
-    have 𝓘lt : 𝓘 p' < 𝓘 p := 𝓘_strict_mono hp
-    rw [Grid.lt_def] at 𝓘lt; exact 𝓘lt.2
+  obtain ⟨p, rfl, rfl⟩ := Set.exists_series_of_mem_with_height hp
+  use p.head
+  simp only [defaultA, defaultD, defaultκ, Subtype.coe_prop, Subtype.coe_le_coe, true_and]
+  constructor
+  · apply LTSeries.head_le_last
+  · let p' := p.map (β := ℤ) (fun (x : ℭ₁ k n j) => 𝔰 x.1) ?mono
+    exact LTSeries.int_head_add_len_le_last p'
+    case mono =>
+      show StrictMono (fun (x : ℭ₁ k n j) => 𝔰 x.1)
+      intro ⟨p',hp'⟩ ⟨p, hp⟩ hp'p
+      simp only [defaultA, defaultD, defaultκ, Subtype.mk_lt_mk] at hp'p
+      have 𝓘lt : 𝓘 p' < 𝓘 p := 𝓘_strict_mono hp'p
+      rw [Grid.lt_def] at 𝓘lt; exact 𝓘lt.2
 
 /-- The subset `ℭ₂(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.13). -/
 def ℭ₂ (k n j : ℕ) : Set (𝔓 X) :=
@@ -250,7 +127,7 @@ lemma exists_le_of_mem_ℭ₂ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₂ k n 
     not_and, mem_toFinset] at mp' maxp'
   conv at maxp' => enter [x]; rw [and_imp]
   have mp'₁ : p' ∈ 𝔏₁ k n j (Z * (n + 1)) := by
-    rw [𝔏₁, foo, mem_minimals_iff]
+    rw [𝔏₁, Set.with_height, mem_minimals_iff]
     simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
     exact ⟨mp'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (maxp' y hy (ly.trans mp'.2))).symm⟩
   obtain ⟨po, mpo, lpo, spo⟩ := exists_le_of_mem_𝔏₁ mp'₁
@@ -276,7 +153,7 @@ lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n 
 /-- `𝔏₃(k, n, j, l)` consists of the maximal elements in `ℭ₃(k, n, j)` not in
   `𝔏₃(k, n, j, l')` for some `l' < l`. Defined near (5.1.17). -/
 def 𝔏₃ (k n j l : ℕ) : Set (𝔓 X) :=
-  foo' (ℭ₃ k n j) l
+ (ℭ₃ k n j).with_coheight l
 
 /-- The subset `ℭ₄(k, n, j)` of `ℭ₃(k, n, j)`, given in (5.1.19). -/
 def ℭ₄ (k n j : ℕ) : Set (𝔓 X) :=
@@ -1069,7 +946,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   by_cases e : p = p'; · rwa [e] at mp
   simp_rw [ℭ₂, mem_diff, mp'₁, true_and]
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
-  rw [𝔏₁, foo, mem_minimals_iff] at p'm
+  rw [𝔏₁, Set.with_height, mem_minimals_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
     replace mp := mp.2; contrapose! mp
     exact mem_of_mem_of_subset mp
@@ -1097,7 +974,7 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   by_cases e : p' = p''; · rwa [← e] at mp''
   simp_rw [ℭ₄, mem_diff, mp'₁, true_and]
   by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
-  rw [𝔏₃, foo', mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
+  rw [𝔏₃, Set.with_coheight, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
@@ -1584,24 +1461,23 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
--- Note: this is basically the same construction as `𝔏₁`.
--- Please generalize this construction and prove properties
--- (antichainness, union, the fact that it stops after `n`
--- steps if there are no antichains of length `n + 1`)
--- in proper generality.
-def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := foo (𝔏₀ k n) l
+def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).with_height l
+
+/-- Part of Lemma 5.5.2 -/
+lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤ n := sorry
+
 
 /-- Part of Lemma 5.5.2 -/
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
-  sorry
+  Set.iUnion_with_height_of_bounded_series L0_has_bounded_series
 
 /-- Part of Lemma 5.5.2 -/
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
-  PairwiseDisjoint_foo
+  Set.PairwiseDisjoint_with_height _
 
 /-- Part of Lemma 5.5.2 -/
 lemma antichain_L0' : IsAntichain (·≤·) (𝔏₀' (X := X) k n l) :=
-  IsAntichain_foo
+  Set.IsAntichain_with_height _ _
 
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
@@ -1609,11 +1485,11 @@ lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L1 : IsAntichain (·≤·) (𝔏₁ (X := X) k n j l) :=
-  IsAntichain_foo
+  Set.IsAntichain_with_height _ _
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L3 : IsAntichain (·≤·) (𝔏₃ (X := X) k n j l) :=
-  IsAntichain_foo'
+  Set.IsAntichain_with_coheight _ _
 
 /-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
 -- todo: redefine in terms of other constants

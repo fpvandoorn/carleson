@@ -161,14 +161,14 @@ lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' 
 lemma not_lt_of_𝓘_eq_𝓘 (h1 : 𝓘 p = 𝓘 p') : ¬ p < p' :=
   fun h2 ↦ h2.ne <| eq_of_𝓘_eq_𝓘_of_le h1 h2.le
 
--- TODO: This is a bit confusing with the two lemmas above
-lemma 𝓘_strict_mono (h : p < p') : 𝓘 p < 𝓘 p' := by
+-- TODO: Clean up this lemma and the two above, it seems strict monotonicty is the basic idea
+lemma 𝓘_strict_mono : StrictMono (𝓘 (X := X)) := by
+  intro p p' h
   apply lt_of_le_of_ne
   · exact (𝔓.le_def'.mp (le_of_lt h)).left
   · intro h'
     have := not_lt_of_𝓘_eq_𝓘 h'
     contradiction
-
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
