@@ -273,6 +273,25 @@ lemma lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
   · intro ⟨y, hyx, hy⟩
     exact hy ▸ height_strictMono y x hyx hfin
 
+/-- Another characterization of height, based on the supremum of the heights of elements below -/
+lemma height_eq_isup_lt_height (x : α) :
+    height x = ⨆ (y : α) (_  : y < x), height y + 1 := by
+  unfold height
+  simp_rw [ENat.isup_add]
+  apply le_antisymm
+  · apply iSup_le; intro ⟨p, hp⟩
+    simp only []
+    cases hlen : p.length; simp; next n =>
+    apply le_iSup_of_le p.eraseLast.last
+    apply le_iSup_of_le (by rw [← hp]; apply RelSeries.eraseLast_last_rel_last _ (by omega))
+    apply le_iSup_of_le ⟨p.eraseLast, rfl⟩
+    simp [hlen]
+  · apply iSup_le; intro y
+    apply iSup_le; intro hyx
+    apply iSup_le; intro ⟨p, hp⟩
+    apply le_iSup_of_le ⟨p.snoc x (hp ▸ hyx), by simp⟩
+    simp
+
 lemma height_eq_succ_iff (x : α) (n : ℕ)  :
     height x = n + 1 ↔ height x < ⊤ ∧ (∃ y < x, height y = n) ∧ (∀ y, y < x → height y ≤ n) := by
   wlog hfin : height x < ⊤
