@@ -38,6 +38,19 @@ lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat)
   (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   simp [ENat.iSup_eq_coe_iff']
 
+@[simp]
+lemma ENat.not_lt_zero (n : ℕ∞) : ¬ n < 0 := by
+  cases n <;> simp
+
+@[simp]
+lemma ENat.coe_lt_top (n : ℕ) : (n : ℕ∞) < ⊤ := by
+  exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
+
+theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
+  cases n <;> cases m <;> try contradiction
+  · norm_num
+  · norm_cast; omega
+
 lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
     (⨆ x, f x) + n = (⨆ x, f x + n) := by
   cases n; simp; next n =>
@@ -189,24 +202,6 @@ lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
   simp
 
 
-lemma height_eq_zero_iff_minimal (x : α) (n : ℕ) :
-    height x = 0 ↔ (∀ y, ¬(y < x)) := by
-  constructor
-  · intro h y hyx
-    have := h ▸ height_strictMono y x hyx (by simp [h])
-    -- this is silly
-    revert this; cases height y <;> simp
-  · intro h
-    unfold height
-    rw [ENat.iSup_eq_zero]
-    intro ⟨p, hp⟩
-    simp only
-    cases hlen : p.length
-    case zero => simp
-    case succ m =>
-      exfalso
-      exact h p.eraseLast.last (by rw [←hp]; apply RelSeries.eraseLast_last_rel_last _ (by omega))
-
 lemma height_le_iff (x : α) (n : ℕ) :
     height x ≤ n ↔ (∀ y, y < x → height y < n) := by
   constructor
@@ -218,21 +213,6 @@ lemma height_le_iff (x : α) (n : ℕ) :
   · intro h
     unfold height
     apply iSup_le
-    -- · cases n
-    --   case zero =>
-    --     use ⟨RelSeries.singleton _ _, rfl⟩
-    --     rfl
-    --   case succ n =>
-    --     by_cases (∃ y, y < x ∧ height y = n)
-    --     next h' =>
-    --       clear h
-    --       obtain ⟨y, hyx, hy⟩ := h'
-    --       obtain ⟨p, hp, hlen⟩ := exists_series_of_finite_height y hy
-    --       use ⟨p.snoc x (hp ▸ hyx), by simp⟩
-    --       simpa using hlen
-    --     next h' =>
-    --       push_neg at h'
-    --       sorry
     intro ⟨p, hp⟩
     simp only
     cases hlen : p.length
@@ -245,6 +225,8 @@ lemma height_le_iff (x : α) (n : ℕ) :
       norm_cast at *
       omega
 
+lemma height_eq_zero_iff (x : α) : height x = 0 ↔ (∀ y, ¬(y < x)) := by
+  simpa using height_le_iff x 0
 
 lemma height_eq_index_of_length_eq_last_height (p : LTSeries α) (h : p.length = height p.last) :
     ∀ (i : Fin (p.length + 1)), i = height (p i) := by
@@ -276,12 +258,33 @@ lemma lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
   · intro ⟨y, hyx, hy⟩
     exact hy ▸ height_strictMono y x hyx hfin
 
-#exit
+lemma height_eq_succ_iff (x : α) (n : ℕ)  :
+    height x = n + 1 ↔ height x < ⊤ ∧ (∃ y < x, height y = n) ∧ (∀ y, y < x → height y ≤ n) := by
+  wlog hfin : height x < ⊤
+  · simp_all
+    exact ne_of_beq_false rfl
+  simp only [hfin, true_and]
+  trans (n < height x ∧ height x ≤ n + 1)
+  · rw [le_antisymm_iff, and_comm]
+    simp [hfin, ENat.lt_add_one_iff, ENat.add_one_le_iff]
+  · congr! 1
+    · exact lt_height_iff x n hfin
+    · simpa [hfin, ENat.lt_add_one_iff] using height_le_iff x (n+1)
 
-
-lemma height_eq_succ_iff (x : α) (n : ℕ) :
-    height x = n + 1 ↔ ((∃ y < x, height y = n) ∧ (∀ y, y < x → height y ≤ n)) := by
-  sorry
+lemma height_eq_iff (x : α) (n : ℕ) :
+    height x = n ↔ height x < ⊤ ∧ (n = 0 ∨ ∃ y < x, height y = n - 1) ∧ (∀ y, y < x → height y < n) := by
+  wlog hfin : height x < ⊤
+  · simp_all
+  simp only [hfin, true_and]
+  cases n
+  case zero => simp_all [height_eq_zero_iff x]
+  case succ n =>
+    simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
+    rw [height_eq_succ_iff x n]
+    simp only [hfin, true_and]
+    congr! 3
+    rename_i y _
+    cases height y <;> simp ; norm_cast; omega
 
 
 -- This is from mathlib, but has too strict requirements, PartialOrder is too strong, Preorder suffices
@@ -293,28 +296,19 @@ lemma mem_minimal_univ_iff_height_eq_zero (a : α) :
     a ∈ minimals (·≤·) Set.univ ↔ height a = 0 := by
   simp [mem_minimals_iff_forall_lt_not_mem'', height_eq_zero_iff]
 
-lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ):
+lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) (hfin : height a < ⊤) :
     a ∈ minimals (·≤·) { y | n ≤ height y } ↔ height a = n := by
-  induction n generalizing a
-  case zero =>
-    simp only [Nat.cast_zero, zero_le, Set.setOf_true]
-    exact mem_minimal_univ_iff_height_eq_zero a
-  case succ n ih =>
-    simp only [Nat.cast_add, Nat.cast_one]
-    simp [mem_minimals_iff_forall_lt_not_mem'']
-    wlog hle : n + 1≤ height a
-    · simp [mem_minimals_iff_forall_lt_not_mem'', hle]
-      contrapose! hle
-      simp [hle]
-    simp only [hle, true_and]
-    simp only [height_eq_succ_iff]
-    sorry
+  simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, not_le]
+  simp only [height_eq_iff, hfin, true_and, and_congr_left_iff]
+  intro _
+  cases n
+  case zero => simp
+  case succ _ =>
+    simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
+    simp only [ne_eq, ENat.coe_ne_top, not_false_eq_true, ENat.add_one_le_iff]
+    simp only [lt_height_iff, hfin]
+    rfl
 
-
-
-
-
-#exit
 
 /-
 noncomputable def height_in {α : Type*} [Preorder α] (s : Set α) (a : α) : ℕ∞ :=
