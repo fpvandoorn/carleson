@@ -99,7 +99,7 @@ lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) 
 
 variable {α : Type*}
 
-lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : p.length > 0) :
+lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0 < p.length) :
     r p.eraseLast.last p.last := by
   simp only [last, Fin.last, eraseLast_length, eraseLast_toFun]
   convert p.step ⟨p.length -1, by omega⟩
@@ -115,12 +115,9 @@ def RelSeries.take {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) : 
 def RelSeries.drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) : RelSeries r :=
   { length := p.length - i
     toFun := fun ⟨j, h⟩ => p.toFun ⟨j+i, by omega⟩
-    step := fun ⟨j, h⟩ => by -- TODO: not pretty
-      cases i with | _ i hi =>
-      have := p.step ⟨j+i, by simp_all; omega⟩
-      convert this
-      simp; omega
-  }
+    step := fun ⟨j, h⟩ => by
+      convert p.step ⟨j+i.1, by omega⟩
+      simp only [Nat.succ_eq_add_one, Fin.succ_mk]; omega }
 
 @[simp]
 lemma RelSeries.head_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
@@ -130,21 +127,14 @@ lemma RelSeries.head_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length +
 lemma RelSeries.last_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
     (p.drop i).last = p.last := by simp [drop, last, Fin.last]; congr; omega
 
-def RelSeries.replaceLast {r : Rel α α} (trans : Transitive r) (p : RelSeries r) (x : α)
-    (h : r p.last x) : RelSeries r :=
-  if hlen : p.length = 0
-  then singleton r x
-  else p.eraseLast.snoc x (by
-    apply trans
-    · apply p.step ⟨p.length - 1, by omega⟩
-    · convert h
-      simp only [Fin.succ_mk, Nat.succ_eq_add_one, last, Fin.last]
-      congr; omega)
-
 @[simp]
 lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last = x :=
   by simp [singleton, last]
 
+/--
+Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
+`p` is a singleton.
+-/
 def LTSeries.replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
     LTSeries α :=
   if hlen : p.length = 0
@@ -166,11 +156,22 @@ lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : 
     (p.replaceLast x h).length = p.length := by
   unfold replaceLast; split <;> (simp;omega)
 
-lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last := by
-  sorry
+lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last :=
+  LTSeries.monotone p (Fin.zero_le (Fin.last p.length))
+
+lemma LTSeries.int_head_add_le_toFun (p : LTSeries ℤ) (i : Fin (p.length + 1)) : p.head + i ≤ p i := by
+  have ⟨i, hi⟩ := i
+  simp only
+  induction i with
+  | zero => simp [RelSeries.head]
+  | succ i ih =>
+    suffices p.head + i < p.toFun ⟨i + 1, hi⟩ by
+      apply Int.le_of_lt_add_one
+      simpa [← add_assoc]
+    exact lt_of_le_of_lt (ih (by omega)) (p.step ⟨i, by omega⟩)
 
 lemma LTSeries.int_head_add_len_le_last (p : LTSeries ℤ) : p.head + p.length ≤ p.last := by
-  sorry
+  apply LTSeries.int_head_add_le_toFun
 
 variable [Preorder α]
 
@@ -179,13 +180,6 @@ noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
 
 instance (a : α) : Nonempty { p : LTSeries α // p.last = a } := ⟨RelSeries.singleton _ a, rfl⟩
 
-lemma exists_series_of_finite_height (a : α) {n : ℕ} (h : height a = n) :
-    ∃ p : LTSeries α, p.last = a ∧ p.length = n := by
-  unfold height at h
-  rw [ENat.iSup_eq_coe_iff'] at h
-  obtain ⟨⟨⟨p, hlast⟩, hlen⟩, _hmax⟩ := h
-  simp only [Nat.cast_inj] at hlen
-  exact ⟨p, hlast, hlen⟩
 
 lemma height_last_ge_length (p : LTSeries α) : p.length ≤ height p.last :=
   le_iSup (α := ℕ∞) (ι := {p' : LTSeries α // p'.last = p.last}) (f := fun p' =>↑p'.1.length) ⟨p, rfl⟩
@@ -230,6 +224,51 @@ lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
   ext ⟨p, _hp⟩
   simp
 
+/-- There exist a series ending in a element for any lenght up to the element’s height.  -/
+lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
+    ∃ p : LTSeries α, p.last = a ∧ p.length = n := by
+  cases ha : height a with
+  | top =>
+    clear h
+    rw [height, ENat.iSup_coe_eq_top, bddAbove_def] at ha
+    push_neg at ha
+    contrapose! ha
+    use n
+    rintro m ⟨⟨p, rfl⟩, hp⟩
+    simp at hp
+    by_contra! hnm
+    apply ha (p.drop ⟨m-n, by omega⟩) (by simp) (by simp; omega)
+  | coe m =>
+    rw [ha, Nat.cast_le] at h
+    rw [height, ENat.iSup_eq_coe_iff'] at ha
+    obtain ⟨⟨⟨p, hlast⟩, hlen⟩, _hmax⟩ := ha
+    simp only [Nat.cast_inj] at hlen
+    use p.drop ⟨m-n, by omega⟩
+    constructor
+    · simp [hlast]
+    . simp [hlen]; omega
+
+/-- For an element of finite height there exists a series ending in that element of that height. -/
+lemma exists_series_of_height_eq_coe (a : α) {n : ℕ} (h : height a = n) :
+    ∃ p : LTSeries α, p.last = a ∧ p.length = n :=
+  exists_series_of_le_height a (le_of_eq h.symm)
+
+/--
+The height of an elemnet is infinite if there exist series of arbitrary length ending in that
+element.
+-/
+lemma height_eq_top_iff (x : α) :
+    height x = ⊤ ↔ (∀ n, ∃ p : LTSeries α, p.last = x ∧ p.length = n) := by
+  constructor
+  · intro h n
+    apply exists_series_of_le_height x (n := n)
+    simp [h]
+  · intro h
+    rw [height, ENat.iSup_coe_eq_top, bddAbove_def]
+    push_neg
+    intro n
+    obtain ⟨p, hlast, hp⟩ := h (n+1)
+    exact ⟨p.length, ⟨⟨⟨p, hlast⟩, by simp [hp]⟩, by simp [hp]⟩⟩
 
 /-- Another characterization of height, based on the supremum of the heights of elements below -/
 lemma height_eq_isup_lt_height (x : α) :
@@ -250,7 +289,8 @@ lemma height_eq_isup_lt_height (x : α) :
     apply le_iSup_of_le ⟨p.snoc x (hp ▸ hyx), by simp⟩
     simp
 
-lemma height_le_iff (x : α) (n : ℕ) :
+
+lemma height_le_coe_iff (x : α) (n : ℕ) :
     height x ≤ n ↔ (∀ y, y < x → height y < n) := by
   conv_lhs => rw [height_eq_isup_lt_height]
   simp only [iSup_le_iff]
@@ -258,16 +298,15 @@ lemma height_le_iff (x : α) (n : ℕ) :
   cases height y; simp; norm_cast
 
 lemma height_eq_zero_iff (x : α) : height x = 0 ↔ (∀ y, ¬(y < x)) := by
-  simpa using height_le_iff x 0
+  simpa using height_le_coe_iff x 0
 
-
-lemma lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
+lemma coe_lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
     n < height x ↔ (∃ y, y < x ∧ height y = n) := by
   constructor
   · intro h
     obtain ⟨m, hx : height x = m⟩ := Option.ne_none_iff_exists'.mp (LT.lt.ne_top hfin)
     rw [hx] at h; norm_num at h
-    obtain ⟨p, hp, hlen⟩ := exists_series_of_finite_height x hx
+    obtain ⟨p, hp, hlen⟩ := exists_series_of_height_eq_coe x hx
     use p ⟨n, by omega⟩
     constructor
     · rw [←hp]
@@ -279,7 +318,7 @@ lemma lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
     exact hy ▸ height_strictMono y x hyx hfin
 
 
-lemma height_eq_succ_iff (x : α) (n : ℕ)  :
+lemma height_eq_coe_add_one_iff (x : α) (n : ℕ)  :
     height x = n + 1 ↔ height x < ⊤ ∧ (∃ y < x, height y = n) ∧ (∀ y, y < x → height y ≤ n) := by
   wlog hfin : height x < ⊤
   · simp_all
@@ -289,10 +328,10 @@ lemma height_eq_succ_iff (x : α) (n : ℕ)  :
   · rw [le_antisymm_iff, and_comm]
     simp [hfin, ENat.lt_add_one_iff, ENat.add_one_le_iff]
   · congr! 1
-    · exact lt_height_iff x n hfin
-    · simpa [hfin, ENat.lt_add_one_iff] using height_le_iff x (n+1)
+    · exact coe_lt_height_iff x n hfin
+    · simpa [hfin, ENat.lt_add_one_iff] using height_le_coe_iff x (n+1)
 
-lemma height_eq_iff (x : α) (n : ℕ) :
+lemma height_eq_coe_iff (x : α) (n : ℕ) :
     height x = n ↔ height x < ⊤ ∧ (n = 0 ∨ ∃ y < x, height y = n - 1) ∧ (∀ y, y < x → height y < n) := by
   wlog hfin : height x < ⊤
   · simp_all
@@ -301,7 +340,7 @@ lemma height_eq_iff (x : α) (n : ℕ) :
   case zero => simp_all [height_eq_zero_iff x]
   case succ n =>
     simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
-    rw [height_eq_succ_iff x n]
+    rw [height_eq_coe_add_one_iff x n]
     simp only [hfin, true_and]
     congr! 3
     rename_i y _
@@ -328,14 +367,14 @@ lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
     sorry
   have hfin : height a < ⊤ := by sorry
   simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, not_le]
-  simp only [height_eq_iff, hfin, true_and, and_congr_left_iff]
+  simp only [height_eq_coe_iff, hfin, true_and, and_congr_left_iff]
   intro _
   cases n
   case zero => simp
   case succ _ =>
     simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
     simp only [ne_eq, ENat.coe_ne_top, not_false_eq_true, ENat.add_one_le_iff]
-    simp only [lt_height_iff, hfin]
+    simp only [coe_lt_height_iff, hfin]
     rfl
 
 def Set.with_height (s : Set α) (n : ℕ) : Set α :=
@@ -399,7 +438,7 @@ lemma Set.iUnion_with_height_of_bounded_series {s : Set α} {n : ℕ}
       sorry -- if height is ⊤, then arbitrary long sequences exist
     next l =>
       use l
-      obtain ⟨p, hlast, hp⟩ := exists_series_of_finite_height _  hh
+      obtain ⟨p, hlast, hp⟩ := exists_series_of_height_eq_coe _  hh
       specialize hlength p
       constructor; omega; rfl
 
@@ -411,7 +450,7 @@ lemma Set.IsAntichain_with_height {α} [PartialOrder α] (s : Set α) (n : ℕ) 
 lemma Set.exists_series_of_mem_with_height {s : Set α} {a : α} {n : ℕ} (h : a ∈ s.with_height n) :
   ∃ p : LTSeries s, p.last = a ∧ p.length = n := by
   rw [mem_with_height_iff] at h
-  obtain ⟨p, hlast, hp⟩ := exists_series_of_finite_height _  h.2
+  obtain ⟨p, hlast, hp⟩ := exists_series_of_height_eq_coe _  h.2
   use p
   simp_all
 
