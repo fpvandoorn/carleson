@@ -358,63 +358,98 @@ lemma mem_minimal_univ_iff_height_eq_zero (a : α) :
 
 lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
     a ∈ minimals (·≤·) { y | n ≤ height y } ↔ height a = n := by
-  wlog hfin : height a < ⊤
-  · simp only [not_lt, top_le_iff] at hfin
-    -- have ha' : n < height a := by simp [hfin]
-    simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, hfin, le_top, not_le,
-      true_and, ENat.top_ne_coe, iff_false, not_forall, Classical.not_imp, not_lt]
-
-    sorry
-  have hfin : height a < ⊤ := by sorry
-  simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, not_le]
-  simp only [height_eq_coe_iff, hfin, true_and, and_congr_left_iff]
-  intro _
-  cases n
-  case zero => simp
-  case succ _ =>
-    simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
-    simp only [ne_eq, ENat.coe_ne_top, not_false_eq_true, ENat.add_one_le_iff]
-    simp only [coe_lt_height_iff, hfin]
-    rfl
-
-def Set.with_height (s : Set α) (n : ℕ) : Set α :=
-  minimals (·≤·) (s \ ⋃ (n' < n), Set.with_height s n')
+  by_cases hfin : height a < ⊤
+  · simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, not_le]
+    simp only [height_eq_coe_iff, hfin, true_and, and_congr_left_iff]
+    intro _
+    cases n
+    case pos.zero => simp
+    case pos.succ _ =>
+      simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
+      simp only [ne_eq, ENat.coe_ne_top, not_false_eq_true, ENat.add_one_le_iff]
+      simp only [coe_lt_height_iff, hfin]
+      rfl
+  · suffices ∃ x, ∃ (_ : x < a), ↑n ≤ height x by
+      simp only [not_lt, top_le_iff] at hfin
+      simpa only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, hfin, le_top, not_le,
+        true_and, ENat.top_ne_coe, iff_false, not_forall, Classical.not_imp, not_lt]
+    simp only [not_lt, top_le_iff, height_eq_top_iff] at hfin
+    obtain ⟨p, rfl, hp⟩ := hfin (n+1)
+    use p.eraseLast.last, RelSeries.eraseLast_last_rel_last _ (by omega)
+    simpa [hp] using height_last_ge_length p.eraseLast
 
 -- Q: Should this be the definition and the other a lemma? Does it matter?
 -- Q: What's a good name?
+def Set.with_height (s : Set α) (n : ℕ) : Set α :=
+  minimals (·≤·) (s \ ⋃ (n' < n), Set.with_height s n')
 
-/-- `Set.mem_with_height s n` contains those elements of `s` that have height `n` in `s` -/
-lemma Set.mem_with_height_iff (s : Set α) (n : Nat) (x : α) :
-    x ∈ s.with_height n ↔ ∃ (hx : x ∈ s), height (⟨x, hx⟩ : s) = n := by
--- induction n using Set.with_height.induct -- TODO: investigate this induction theorem bug?
+lemma Set.with_height_subset (s : Set α) (n : ℕ) : s.with_height n ⊆ s := by
+  intro x; unfold Set.with_height minimals; intro ⟨⟨h,_⟩, _⟩; exact h
+
+lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : Set s) (x : α)
+    (hx : x ∈ s) : (⟨x, hx⟩:s) ∈ minimals (α := s) (·≤·) t ↔
+      x ∈ minimals (·≤·) { y | ∃ h, y ∈ s ∧ ⟨y,h⟩ ∈ t} := by
+  wlog hxt : (⟨x, hx⟩:s) ∈ t
+  · clear this
+    have := Set.not_mem_subset (minimals_subset (·≤·) t) hxt
+    simp only [exists_and_left, false_iff, this]; clear this
+    contrapose! hxt
+    have := minimals_subset _ _ hxt
+    simp_all
+  rw [← map_mem_minimals_iff (f := fun (x : s) => (x : α)) (s := (·≤·))]
+  case hf => simp
+  case ha => assumption
+  simp
+  congr! 2
+  ext y
+  simp only [Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right, Set.mem_setOf_eq,
+    iff_and_self, forall_exists_index]
+  intros hy _; exact hy
+
+/-- `Set.with_height s n` contains those elements of `s` that have height `n` in `s` -/
+lemma Set.with_height_eq (s : Set α) (n : Nat) :
+    s.with_height n = { x | ∃ hx : x ∈ s, height (⟨x, hx⟩ : s) = n } := by
+  induction n using Nat.strongRec with | ind n ih =>
+  ext x
+  simp only [mem_setOf_eq]
   wlog hxs : x ∈ s
-  · sorry
+  · simp only [hxs, IsEmpty.exists_iff, iff_false]
+    contrapose! hxs; exact Set.with_height_subset s n hxs
   simp only [hxs, exists_true_left]
   rw [Set.with_height]
   simp_rw [← mem_minimal_le_height_iff_height]
-  simp [mem_minimals_iff_forall_lt_not_mem'', hxs]
-  sorry
+  simp (config := {contextual:=true}) [ih]; clear ih
+  rw [subtype_mk_mem_minimals_iff]
+  congr! 2
+  ext y
+  wlog hys : y ∈ s
+  · simp [hys]
+  simp only [mem_diff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_setOf_eq,
+    exists_and_left, exists_true_left]
+  cases height (⟨y, hys⟩:s)
+  next => simp
+  next z =>
+    simp only [Nat.cast_inj, Nat.cast_le]
+    -- no single tactic for goal `∀ x < n, ¬z = x) ↔ n ≤ z`?
+    constructor
+    · intro h; contrapose! h; simp [h]
+    · intro h m hm; omega
 
 /- Variant of Set.mem_with_height_iff' expressed on the subtype of `s`  -/
 lemma Set.mem_with_height_iff' (s : Set α) (n : Nat) (x : s) :
     x.val ∈ s.with_height n ↔ height x = n := by
-  cases x; simp only [mem_with_height_iff, exists_true_left, *]
+  simp [s.with_height_eq]
 
 lemma Set.Disjoint_with_height (s : Set α) {n n'} (h : n ≠ n') :
     Disjoint (s.with_height n) (s.with_height n') := by
   wlog hl : n < n'
   · exact (this s h.symm (by omega)).symm
   rw [disjoint_right]; intro p hp hp'
-  rw [Set.mem_with_height_iff] at hp hp'
+  rw [Set.with_height_eq] at hp hp'
   aesop
 
-lemma Set.PairwiseDisjoint_with_height (s : Set α) : univ.PairwiseDisjoint s.with_height :=
+lemma Set.PairwiseDisjointSet.with_heig_with_height (s : Set α) : univ.PairwiseDisjoint s.with_height :=
     fun _ _ _ _ => Disjoint_with_height s
-
-lemma Set.with_height_subset (s : Set α) (n : ℕ) : s.with_height n ⊆ s := by
-  intro x
-  rw [Set.mem_with_height_iff]
-  tauto
 
 /-
 If all increasing series have lenght bounded by `n`, then `s` is the union of its elements with
@@ -428,17 +463,20 @@ lemma Set.iUnion_with_height_of_bounded_series {s : Set α} {n : ℕ}
   ext x
   simp only [mem_iUnion, exists_prop]
   constructor
-  · intro ⟨l, hln, hx⟩
+  · intro ⟨l, _hln, hx⟩
     apply Set.with_height_subset _ _ hx
   · intro hx
     simp_rw [Set.mem_with_height_iff' s _ ⟨x, hx⟩]
     cases hh : height (⟨x, hx⟩ : s)
-    next =>
+    case top =>
       exfalso
-      sorry -- if height is ⊤, then arbitrary long sequences exist
-    next l =>
+      have : (n + 1 : ℕ) ≤ height (⟨x, hx⟩ : s) := by simp [hh]
+      obtain ⟨p, _hpast, hlen⟩ := exists_series_of_le_height _ this
+      specialize hlength p
+      omega
+    case coe l =>
       use l
-      obtain ⟨p, hlast, hp⟩ := exists_series_of_height_eq_coe _  hh
+      obtain ⟨p, _hlast, hp⟩ := exists_series_of_height_eq_coe _  hh
       specialize hlength p
       constructor; omega; rfl
 
@@ -449,7 +487,7 @@ lemma Set.IsAntichain_with_height {α} [PartialOrder α] (s : Set α) (n : ℕ) 
 
 lemma Set.exists_series_of_mem_with_height {s : Set α} {a : α} {n : ℕ} (h : a ∈ s.with_height n) :
   ∃ p : LTSeries s, p.last = a ∧ p.length = n := by
-  rw [mem_with_height_iff] at h
+  rw [with_height_eq] at h
   obtain ⟨p, hlast, hp⟩ := exists_series_of_height_eq_coe _  h.2
   use p
   simp_all
