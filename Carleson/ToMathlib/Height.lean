@@ -39,9 +39,45 @@ set. Some results
 
 -/
 
+
+theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
+  cases n <;> cases m <;> try contradiction
+  · norm_num
+  · norm_cast; omega
+
+
 lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
     (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
-  sorry
+  constructor
+  · intro h
+    have hle : ∀ (y : α), f y ≤ ↑n := by
+      replace h : ⨆ x, f x ≤ n := by simp [h]
+      rw [iSup_le_iff] at h
+      assumption
+    simp only [hle, implies_true, and_true]
+    by_contra! hnotn
+    cases n with
+    | zero =>
+      specialize hle Classical.ofNonempty
+      specialize hnotn Classical.ofNonempty
+      simp_all
+    | succ n =>
+      suffices ⨆ x, f x < n+1 by simp_all; clear h
+      rw [ENat.lt_add_one_iff _ _ (by simp)]
+      rw [iSup_le_iff] at *
+      intro i
+      specialize hnotn i
+      specialize hle i
+      generalize f i = m at *
+      cases m
+      · simp_all
+      · simp_all; norm_cast at *; omega
+  · intro ⟨⟨x, hx⟩, h2⟩
+    apply le_antisymm
+    · rw [iSup_le_iff]
+      intro i; exact h2 i
+    ·apply le_iSup_of_le x (by simp [hx])
+
 
 lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat) :
     (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
@@ -58,11 +94,6 @@ lemma ENat.not_lt_zero (n : ℕ∞) : ¬ n < 0 := by
 @[simp]
 lemma ENat.coe_lt_top (n : ℕ) : (n : ℕ∞) < ⊤ := by
   exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
-
-theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
-  cases n <;> cases m <;> try contradiction
-  · norm_num
-  · norm_cast; omega
 
 lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
     (⨆ x, f x) + n = (⨆ x, f x + n) := by
