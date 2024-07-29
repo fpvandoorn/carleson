@@ -279,7 +279,6 @@ lemma Yk_finite {k:ℤ} (hk_lower : -S ≤ k): (Yk X k).Finite := by
       ≤ C4_1_1 X := counting_balls hk_lower (Yk_subset k) (Yk_pairwise k)
     _ < ⊤ := ENNReal.coe_lt_top
 
-
 variable (X) in
 lemma Yk_countable (k:ℤ) : (Yk X k).Countable := by
   apply (Yk_pairwise k).countable_of_isOpen (fun y _ => isOpen_ball)
@@ -333,15 +332,12 @@ mutual
         ⋃ (_ : y' ∈ Yk X (k-1) ↓∩ ball y (2 * D^k)), I3 (I_induction_proof hk hk') y'
   termination_by (3 * (S+k).toNat, sizeOf y)
 
-
   def Xk {k:ℤ} (hk : -S ≤ k) : Set X := ⋃ (y' : Yk X k), I1 hk y'
   termination_by (3 * (S+k).toNat + 1, 0)
 
   def I3 {k:ℤ} (hk : -S ≤ k) (y:Yk X k) : Set X :=
     I1 hk y ∪ (I2 hk y \ (Xk hk ∪ ⋃ (y' < y), I3 hk y'))
-
   termination_by (3 * (S+k).toNat + 2, sizeOf y)
-
 end
 
 lemma I3_apply {k:ℤ} (hk : -S ≤ k) (y : Yk X k) :
@@ -434,7 +430,6 @@ mutual
     letI := (Yk_countable X k).to_subtype
     exact (MeasurableSet.iUnion fun b ↦ MeasurableSet.iUnion fun _ ↦ I3_measurableSet hk b)
   termination_by (3 * (S+k).toNat+2, sizeOf y)
-
 end
 
 section basic_grid_structure
@@ -593,7 +588,6 @@ mutual
   lemma I3_prop_2 {k:ℤ} (hk : -S ≤ k) :
       ball o (4 * D^S - 2 * D^k) ⊆ ⋃ (y:Yk X k), I3 hk y := by
     intro x hx
-
     if hx_mem_Xk : x ∈ Xk hk then
       rw [Xk] at hx_mem_Xk
       simp only [mem_iUnion] at hx_mem_Xk ⊢
@@ -633,11 +627,8 @@ mutual
       intro hy_i2'
       specialize hy_min y' hy_i2' hy'
       contradiction
-
   termination_by (2 * (S + k)).toNat + 1
-
 end
-
 
 lemma I3_prop_3_1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     ball (y:X) (2⁻¹ * D^k) ⊆ I3 hk y := by
@@ -931,12 +922,12 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
     apply LT.lt.ne
     exact ENNReal.zpow_lt_top (hd_nzero) (ENNReal.natCast_ne_top D) _
   constructor
-  · exact ⟨hi3_1_2,by
+  · refine ⟨hi3_1_2, ?_⟩
     apply lt_of_le_of_lt _ hx'
     apply EMetric.infEdist_anti
     simp only [compl_subset_compl]
-    exact hi3_2_3⟩
-  · exact ⟨hi3_2_3,by
+    exact hi3_2_3
+  · refine ⟨hi3_2_3, ?_⟩
     rw [← emetric_ball,EMetric.mem_ball] at hx_4k2 hx_4k2'
     rw [edist_comm] at hx_4k2'
     rw [← Real.rpow_intCast] at hx_4k2 hx_4k2'
@@ -988,7 +979,6 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
       _ = 6 * D ^ k2 := by
         rw [← right_distrib]
         norm_num
-    ⟩
 
 lemma transitive_boundary {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) (hk3 : -S ≤ k3)
   (hk1_2 : k1 ≤ k2) (hk2_3 : k2 ≤ k3) (y1 : Yk X k1) (y2 : Yk X k2) (y3 : Yk X k3)
@@ -1014,8 +1004,7 @@ lemma transitive_boundary {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) (
     have : k1 < k2 := lt_of_le_of_ne hk1_2 hk1_eq_2
     exact transitive_boundary' hk1 hk2 hk3 this hk2_3 y1 y2 y3 x hx
 
-
-def const_K  : ℕ := 2 ^ (4 * a + 1)
+def const_K : ℕ := 2 ^ (4 * a + 1)
 
 namespace ShortVariables
 set_option hygiene false in
@@ -1037,8 +1026,6 @@ lemma C4_1_7_eq : C4_1_7 X = 2 ^ (4 * a) := by
   simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.ceil_ofNat]
   group
 
--- #check C4_1_7
-
 lemma volume_tile_le_volume_ball (k:ℤ) (hk:-S ≤ k) (y:Yk X k):
     volume (I3 hk y) ≤ C4_1_7 X * volume (ball (y:X) (4⁻¹ * D^k)) := by
   calc
@@ -1055,9 +1042,8 @@ lemma volume_tile_le_volume_ball (k:ℤ) (hk:-S ≤ k) (y:Yk X k):
       simp only [gt_iff_lt, inv_pos, Nat.ofNat_pos, mul_nonneg_iff_of_pos_left]
       exact zpow_nonneg realD_nonneg _
 
-lemma le_s {k:ℤ} (hk_mK : -S ≤ k-K') (k' : Ioc (k-K') k): (-S:ℤ) ≤ k' := by
-  have := k'.property.left
-  linarith
+lemma le_s {k : ℤ} (hk_mK : -S ≤ k - K') (k' : Ioc (k - K') k) : (-S : ℤ) ≤ k' := by
+  linarith [k'.property.left]
 
 lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     ∑' (z:Yk X (k-K')), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), (I3 hk_mK z))
@@ -1342,10 +1328,6 @@ lemma boundary_sum_eq {k:ℤ} (hk:-S ≤ k) {k':ℤ} (hk':-S ≤ k')(y:Yk X k) :
   intro y'
   exact MeasurableSet.iUnion (fun _ => I3_measurableSet hk' y')
 
--- lemma smaller_boundar_base {k:ℤ} (hk: -S ≤ k) (y:Yk X k):
---     ∑'(y':Yk X k),∑
-
--- set_option maxHeartbeats 400000 in
 lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -S ≤ k - n * K') → ∀(y:Yk X k),
     ∑'(y':Yk X (k-n*K')),∑ᶠ (_:clProp(hk_mnK,y'|hk,y)),volume (I3 hk_mnK y') ≤
       2⁻¹^n * volume (I3 hk y) := by
@@ -1462,9 +1444,8 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       rw [pow_add,pow_one,mul_assoc]
 
 variable (X) in
-lemma one_lt_realD : 1 < (D:ℝ) := by
-  have := four_le_realD X
-  linarith
+lemma one_lt_realD : 1 < (D : ℝ) := by
+  linarith [four_le_realD X]
 
 variable (a) in
 def const_n {t:ℝ} (_:t∈Ioo 0 1): ℕ := ⌊-Real.logb D t / K'⌋₊
@@ -1503,7 +1484,6 @@ lemma const_n_is_max {t:ℝ} (ht:t∈Ioo 0 1) (n:ℕ) : D^(n * K') ≤ t⁻¹ �
   rw [const_n]
   intro h
   exact Nat.le_floor h
-
 
 variable (X) in
 lemma const_n_prop_3 {t:ℝ} (ht:t ∈ Ioo 0 1) :
@@ -1548,10 +1528,7 @@ lemma Real.self_lt_two_rpow (x:ℝ) : x < 2^x := by
       refine Nat.floor_le hx
 
 variable (X) in
-lemma two_le_a : 2 ≤ a := by
-  trans 4
-  · linarith
-  · exact four_le_a X
+lemma two_le_a : 2 ≤ a := by linarith [four_le_a X]
 
 variable (X) in
 lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
@@ -1788,7 +1765,7 @@ lemma boundary_measure'  {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ S
 variable (X) in
 @[ext]
 structure 𝓓 where
-  k:ℤ
+  k : ℤ
   hk : -S ≤ k
   hk_max : k ≤ S
   y : Yk X k
@@ -1801,7 +1778,6 @@ def max_𝓓 : 𝓓 X where
   hk_max := Int.le_refl (S : ℤ)
   y := ⟨o,o_mem_Yk_S⟩
   hsub := fun ⦃a_1⦄ a ↦ a
-
 
 def 𝓓.coe (z: 𝓓 X) : Set X := I3 z.hk z.y
 
@@ -1820,11 +1796,10 @@ def 𝓓_finite : Finite (𝓓 X) := by
     Set.Finite.to_subtype (Yk_finite k.property.left)
   apply Finite.of_injective (forget_map X) forget_map_inj
 
-
-/-! Proof that there exists a grid structure. -/
 -- Note: we might want to slightly adapt the construction so that there is only 1 tile at level S
 -- with center `o` (then we might not cover all of `ball o (D ^ S)`, but most of it)
 variable (X) in
+/-- Proof that there exists a grid structure. -/
 def grid_existence : GridStructure X D κ S o where
   Grid := 𝓓 X
   fintype_Grid := @Fintype.ofFinite (𝓓 X) (𝓓_finite X)
@@ -2056,7 +2031,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
   let f := Finite.equivFin (𝓩 I)
   by_cases h : ∃ y ∈ 𝓩 I, ϑ ∈ ball_{I} y C𝓩
   · obtain ⟨z', mz', hz'⟩ := h
-    exact (subset_iUnion_of_subset _ subset_rfl) ((ball_subset_Ω₁ ⟨I, ⟨z', mz'⟩⟩) hz')
+    exact subset_iUnion_of_subset _ subset_rfl (ball_subset_Ω₁ ⟨I, ⟨z', mz'⟩⟩ hz')
   · let L := {k : Fin (Nat.card (𝓩 I)) | ϑ ∈ ball_{I} (f.symm k).1 C4_2_1}
     have Ln : L.Nonempty := by use f ⟨z, mz⟩; rwa [mem_setOf, Equiv.symm_apply_apply]
     obtain ⟨k, mem_k, hk⟩ := L.exists_min_image id L.toFinite Ln
