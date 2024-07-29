@@ -1955,9 +1955,8 @@ lemma 𝓩_max_card : ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := 𝓩_s
 
 lemma 𝓩_nonempty : (𝓩 I).Nonempty := by
   by_contra h; rw [Finset.not_nonempty_iff_eq_empty] at h
-  have j := 𝓩_spec (I := I)
-  simp only [h, Finset.empty_subset, Finset.coe_empty, pairwiseDisjoint_empty, Finset.card_empty,
-    nonpos_iff_eq_zero, Finset.card_eq_zero, true_and] at j
+  have j := 𝓩_max_card (I := I)
+  simp_rw [h, Finset.card_empty, nonpos_iff_eq_zero, Finset.card_eq_zero] at j
   replace j : 𝓩_cands I = {∅} := Finset.eq_singleton_iff_unique_mem.mpr ⟨(by simp [𝓩_cands]), j⟩
   have k : {Q default} ∈ 𝓩_cands I := by simp [𝓩_cands]
   simp_all
