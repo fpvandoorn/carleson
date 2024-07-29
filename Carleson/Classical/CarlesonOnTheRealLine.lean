@@ -395,7 +395,6 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     _ = R' := by ring
 
 
---TODO: Some of the statements are stronger in the paper. Extract these
 instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   eq_zero := by
     use 0
@@ -419,7 +418,6 @@ instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
     intro x R R' f
     exact integer_ball_cover.mono_nat (by norm_num)
 
---TODO : What is Lemma 11.7.10 (frequency ball growth) needed for?
 
 instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
   /- Lemma 11.7.12 (real van der Corput) from the paper. -/
@@ -564,6 +562,10 @@ instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
     rw [dist_comm x y] at h
     exact isOneSidedKernelHilbert.norm_K_sub_le h
 
+
+/- This verifies the assumption on the operators T_r in two-sided metric space Carleson.
+   Its proof is done in Section 11.3 (The truncated Hilbert transform) and is yet to be formalized.
+-/
 lemma Hilbert_strong_2_2 : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) := sorry
 
 
