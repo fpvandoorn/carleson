@@ -1,3 +1,6 @@
+/- This file contains the definition and basic properties of the Carleson operator on the real line.
+-/
+
 import Carleson.Classical.HilbertKernel
 
 noncomputable section
@@ -47,16 +50,16 @@ lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Se
   rw [Set.mem_inter_iff, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ioi] at hy
   exact hy.1.2.le.trans (le_biSup _ ⟨hy.1.1, hy.2⟩)
 
-lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
+lemma measurable_mul_kernel {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
     Measurable (Function.uncurry fun x y ↦ f y * K x y * (Complex.I * n * y).exp) :=
       ((hf.comp measurable_snd).mul Hilbert_kernel_measurable).mul
   (measurable_const.mul (Complex.measurable_ofReal.comp measurable_snd)).cexp
+
 
 local notation "T" => CarlesonOperatorReal K
 
 
 lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
-  --TODO: clean up proof
   apply measurable_iSup
   intro n
   set F : ℝ → ℝ → ℝ → ℂ := fun x r y ↦ {y | dist x y ∈ Set.Ioo r 1}.indicator (fun t ↦ f t * K x t * (Complex.I * ↑n * ↑t).exp) y with Fdef
@@ -106,7 +109,8 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       . rw [Sdef]
         constructor <;> linarith [hr.1]
     apply MeasureTheory.continuousAt_of_dominated _  h_bound
-    . have F_bound_on_set :  ∀ a ∈ {y | dist x y ∈ Set.Ioo (r / 2) 1},  ‖f a * K x a * (Complex.I * ↑n * ↑a).exp‖ ≤ B * ‖2 ^ (2 : ℝ) / (2 * (r / 2))‖ := by
+    . have F_bound_on_set :  ∀ a ∈ {y | dist x y ∈ Set.Ioo (r / 2) 1},
+          ‖f a * K x a * (Complex.I * ↑n * ↑a).exp‖ ≤ B * ‖2 ^ (2 : ℝ) / (2 * (r / 2))‖ := by
         intro a ha
         rw [norm_mul, norm_mul, mul_assoc Complex.I, mul_comm Complex.I]
         norm_cast
@@ -130,8 +134,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       apply MeasureTheory.Measure.integrableOn_of_bounded
       . rw [annulus_real_volume (by constructor <;> linarith [hr.1, hr.2])]
         exact ENNReal.ofReal_ne_top
-      . --measurability
-        apply ((Measurable.of_uncurry_left (helper f_measurable)).norm).aestronglyMeasurable
+      . apply ((Measurable.of_uncurry_left (measurable_mul_kernel f_measurable)).norm).aestronglyMeasurable
       . --interesting part
         rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
         simp_rw [norm_norm]
@@ -200,7 +203,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       rw [MeasureTheory.ae_iff]
       exact MeasureTheory.measure_mono_null subset_finite (Finset.measure_zero _ _)
     . exact Filter.eventually_of_forall fun r ↦ ((Measurable.of_uncurry_left
-        (helper f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
+        (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
   apply measurable_biSup _
   . apply Set.Countable.mono Set.inter_subset_right hQ.2
@@ -209,7 +212,31 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   rw [← stronglyMeasurable_iff_measurable]
   apply MeasureTheory.StronglyMeasurable.integral_prod_right
   rw [stronglyMeasurable_iff_measurable, Fdef]
-  exact (helper f_measurable).indicator (measurable_dist measurableSet_Ioo)
+  exact (measurable_mul_kernel f_measurable).indicator (measurable_dist measurableSet_Ioo)
+
+--TODO: Refactor the measurability proof to use the following.
+
+/-
+import Mathlib.MeasureTheory.Measure.MeasureSpace
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+
+open TopologicalSpace MeasureTheory Set
+
+variable {α β : Type*} [MeasurableSpace α]
+  [MeasurableSpace β]
+  {ι : Type*} [LinearOrder ι] [TopologicalSpace ι] [OrderTopology ι] [DenselyOrdered ι] [SecondCountableTopology ι]
+  {f : ι → α → β} [ConditionallyCompleteLattice β]
+  [TopologicalSpace β] [OrderTopology β] [SecondCountableTopology β]
+  [BorelSpace β]
+
+lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
+    (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
+    (h2f : ∀ i, Measurable (f i)) :
+    Measurable (⨆ i ∈ s, f i ·) := sorry
+  -- use SecondCountableTopology to rewrite the sup as a sup over the countable dense set (or similar)
+  -- then use measurable_iSup
+-/
+
 
 lemma CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal, CarlesonOperatorReal, ENNReal.mul_iSup]
@@ -252,24 +279,3 @@ lemma CarlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ}
     rcases hy with hy | hy
     . left; linarith [hx.1]
     . right; linarith [hx.2]
-
-/-
-import Mathlib.MeasureTheory.Measure.MeasureSpace
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-
-open TopologicalSpace MeasureTheory Set
-
-variable {α β : Type*} [MeasurableSpace α]
-  [MeasurableSpace β]
-  {ι : Type*} [LinearOrder ι] [TopologicalSpace ι] [OrderTopology ι] [DenselyOrdered ι] [SecondCountableTopology ι]
-  {f : ι → α → β} [ConditionallyCompleteLattice β]
-  [TopologicalSpace β] [OrderTopology β] [SecondCountableTopology β]
-  [BorelSpace β]
-
-lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
-    (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
-    (h2f : ∀ i, Measurable (f i)) :
-    Measurable (⨆ i ∈ s, f i ·) := sorry
-  -- use SecondCountableTopology to rewrite the sup as a sup over the countable dense set (or similar)
-  -- then use measurable_iSup
--/

@@ -1,3 +1,5 @@
+/- This file contains basic definitions and lemmas. -/
+
 import Carleson.MetricCarleson
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
@@ -5,25 +7,21 @@ import Mathlib.Analysis.Convolution
 
 open BigOperators
 open Finset
---open Complex
 
 noncomputable section
 
---TODO : add reasonable notation
---local notation "S_" => partialFourierSum f
 
---TODO: use this as base to build on?
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := ∑ n ∈ Icc (-(N : ℤ)) N,
+    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
+
+--TODO: Add an AddCircle version?
 /-
 def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) (x : AddCircle T) : ℂ :=
     ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeff f n * fourier n x
 -/
 
---TODO: switch N and f
-def partialFourierSum (N : ℕ) (f : ℝ → ℂ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N,
-    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
---fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
-
 local notation "S_" => partialFourierSum
+
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} :

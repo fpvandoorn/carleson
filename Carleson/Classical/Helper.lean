@@ -1,11 +1,14 @@
+/- This file contains helper lemmas. Either they should be replaced by a mathlib version if there is
+   one or they might be candidates to go there, possibly in a generalized form. -/
+
 import Carleson.ToMathlib.Misc
 import Mathlib.MeasureTheory.Integral.IntervalIntegral
 
 
-/-The lemmas in this file might either already exist in mathlib or be candidates to go there
-  (in a generalized form).
--/
 
+theorem Real.volume_uIoc {a b : ℝ} : MeasureTheory.volume (Set.uIoc a b) = ENNReal.ofReal |b - a| := by
+  /- Cf. proof of Real.volume_interval-/
+  rw [Set.uIoc, volume_Ioc, max_sub_min_eq_abs]
 
 lemma intervalIntegral.integral_conj' {μ : MeasureTheory.Measure ℝ} {𝕜 : Type} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ}:
     ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
@@ -37,8 +40,6 @@ lemma IntervalIntegrable.mul_bdd {F : Type} [NormedField F] {f g : ℝ → F} {a
 lemma MeasureTheory.IntegrableOn.sub {α : Type} {β : Type} {m : MeasurableSpace α}
     {μ : MeasureTheory.Measure α} [NormedAddCommGroup β] {s : Set α} {f g : α → β} (hf : IntegrableOn f s μ) (hg : IntegrableOn g s μ) : IntegrableOn (f - g) s μ := by
   apply MeasureTheory.Integrable.sub <;> rwa [← IntegrableOn]
-
-
 
 
 lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLinearOrder α] {ι : Type} [Nonempty ι]

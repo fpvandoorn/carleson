@@ -1,4 +1,4 @@
-/- The arguments in this file contains section 11.2 (smooth functions) from the paper. -/
+/- This file contains the arguments from section 11.2 (smooth functions) from the blueprint. -/
 
 import Carleson.MetricCarleson
 import Carleson.Classical.Basic
@@ -16,22 +16,7 @@ open Finset
 
 local notation "S_" => partialFourierSum
 
-/- TODO: might be generalized. -/
---TODO: probably not needed here in this form
-lemma close_smooth_approx {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
-    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
-  obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
-  let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
-  let f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
-    (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume
-  refine ⟨f₀, ?_, fun x ↦ ?_⟩
-  · exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
-      φ.contDiff_normed unicontf.continuous.locallyIntegrable
-  · rw [← Complex.dist_eq, dist_comm]
-    exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
-      fun y hy ↦ (hδ hy).le
 
-/- Slightly different version-/
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * Real.pi)) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ f₀.Periodic (2 * Real.pi) ∧
@@ -43,8 +28,7 @@ lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuo
   refine ⟨f₀, ?_, fun x ↦ ?_, fun x ↦ ?_⟩
   · exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
       φ.contDiff_normed unicontf.continuous.locallyIntegrable
-  · /-TODO: improve this. -/
-    rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
+  · rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
     congr with t
     congr 1
     convert periodicf (x - t) using 2
@@ -131,10 +115,9 @@ lemma periodic_deriv {𝕜 : Type} [NontriviallyNormedField 𝕜] {F : Type} [No
   simp [(periodic_f y).symm]
 
 /-TODO: might be generalized. -/
-/-TODO: Assumption periodicf is probably not needed actually. -/
-lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f): ∃ C, ∀ n ≠ 0, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C / n ^ 2 := by
---#check IsCompact.exists_isMaxOn
-  --TODO: improve this
+/-TODO: The assumption periodicf is probably not needed actually. -/
+lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) :
+    ∃ C, ∀ n ≠ 0, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C / n ^ 2 := by
   have h : ∀ x ∈ Set.uIcc 0 (2 * Real.pi), HasDerivAt f (deriv f x) x := by
     intro x _
     rw [hasDerivAt_deriv_iff]
@@ -165,7 +148,7 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
 open Topology Filter
 
 /-TODO : Assumptions might be weakened-/
-lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
+lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
     Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
   have := hfa.nat_add_neg.tendsto_sum_nat
   have := (Filter.Tendsto.add_const (- (f 0))) this
@@ -196,7 +179,6 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
       linarith
 
 
-/-TODO: Weaken statement to pointwise convergence to simplify proof?-/
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
     ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * Real.pi), ‖f x - S_ N f x‖ ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * Real.pi) := by

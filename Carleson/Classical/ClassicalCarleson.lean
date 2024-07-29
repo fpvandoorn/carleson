@@ -1,3 +1,5 @@
+/- This file contains the proof of the classical Carleson theorem from Section 11.1. -/
+
 import Carleson.MetricCarleson
 import Carleson.Classical.Basic
 import Carleson.Classical.Approximation
@@ -5,6 +7,7 @@ import Carleson.Classical.ControlApproximationEffect
 
 import Mathlib.Analysis.Fourier.AddCircle
 
+open MeasureTheory
 
 noncomputable section
 
@@ -14,14 +17,13 @@ local notation "S_" => partialFourierSum
 theorem classical_carleson {f : ℝ → ℂ}
     (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi))
     {ε : ℝ} (εpos : 0 < ε) :
-    ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧
+    ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ volume.real E ≤ ε ∧
     ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
     ‖f x - S_ N f x‖ ≤ ε := by
-  --rcases hε with ⟨εpos, εle⟩
   set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
   have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
 
-  -- Approximation
+  /- Approximate f by a smooth f₀. -/
   have unicont_f : UniformContinuous f := periodic_f.uniformContinuous_of_continuous Real.two_pi_pos cont_f.continuousOn
   obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic unicont_f periodic_f ε'pos
   have ε4pos : ε / 4 > 0 := by linarith
@@ -36,10 +38,10 @@ theorem classical_carleson {f : ℝ → ℂ}
     rw [← Complex.dist_eq, dist_comm, Complex.dist_eq]
     exact hf₀ x
 
-  -- Control approximation effect
+  /- Control approximation effect: Get a bound on the partial Fourier sums of h. -/
   obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect εpos ε'pos h_measurable h_periodic h_bound
 
-  -- "epsilon third" argument
+  /- This is a classical "epsilon third" argument. -/
   use E, Esubset, Emeasurable, Evolume, N₀
   intro x hx N NgtN₀
   calc ‖f x - S_ N f x‖

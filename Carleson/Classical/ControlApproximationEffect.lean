@@ -1,4 +1,6 @@
-/- This file formalizes section 11.6 (The error bound) from the paper. -/
+/- This file contains most of Section 11.6 (The error bound) from the blueprint.
+   The main result is control_approximation_effect.
+-/
 import Carleson.MetricCarleson
 import Carleson.Classical.Helper
 import Carleson.Classical.Basic
@@ -136,7 +138,6 @@ lemma Dirichlet_Hilbert_diff {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc (-Real.pi) 
 section
 open Filter Topology
 
---TODO: proof might be improved
 lemma le_iSup_of_tendsto {α β} [TopologicalSpace α] [CompleteLinearOrder α] [OrderTopology α]
     [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
   apply le_of_forall_lt
@@ -448,8 +449,6 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
       congr
       rw [← ENNReal.ofReal_div_of_pos Real.two_pi_pos, mul_div_assoc, div_self Real.two_pi_pos.ne.symm, mul_one]
 
---TODO: replace congr;ext by congr with
-
 end section
 
 lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} {F : Set ℝ} (measurableSetF : MeasurableSet F) (hf : ∀ x, ‖f x‖ ≤ δ * F.indicator 1 x)
@@ -526,12 +525,8 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
   all_goals linarith [Real.pi_pos]
 
 
---TODO: add doc-strings !
 
-
-/-ENNReal version of a generalized Lemma 11.1.3 (control approximation effect).-/
---added subset assumption
---changed interval to match the interval in the theorem
+/- This is Lemma 11.6.4 (partial Fourier sums of small) in the blueprint.-/
 lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ : 0 < δ)
     {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : h.Periodic (2 * Real.pi)) (h_bound : ∀ x, ‖h x‖ ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
@@ -642,11 +637,10 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       rw [← ENNReal.ofReal_le_ofReal_iff, ENNReal.ofReal_mul ε'_δ_expression_pos.le, MeasureTheory.measureReal_def, ENNReal.ofReal_toReal E'volume.ne]
       apply le_trans E'volume_bound
       rw [ENNReal.ofReal_mul δ_mul_const_pos.le, ← ENNReal.ofReal_rpow_of_nonneg ENNReal.toReal_nonneg (by norm_num), ENNReal.ofReal_toReal E'volume.ne]
-      --small goal remaining
       apply mul_nonneg δ_mul_const_pos.le
       apply Real.rpow_nonneg MeasureTheory.measureReal_nonneg
     _ = ε := by
-      --We have chosen ε' such that this works.
+      --We have defined C_control_approximation_effect such that this works.
       rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm,
           div_mul_eq_div_div, div_self δ_mul_const_pos.ne.symm, one_div, Real.inv_rpow (Real.rpow_nonneg (div_nonneg zero_le_two εpos.le) _),
           ← Real.rpow_mul (div_nonneg zero_le_two εpos.le), inv_mul_cancel (by norm_num), Real.rpow_one, inv_div]
