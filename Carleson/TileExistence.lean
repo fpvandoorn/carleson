@@ -1953,7 +1953,16 @@ lemma 𝓩_subset : 𝓩 I ⊆ Q.range := 𝓩_spec.1
 lemma 𝓩_pairwiseDisjoint : (𝓩 I).toSet.PairwiseDisjoint (ball_{I} · C𝓩) := 𝓩_spec.2.1
 lemma 𝓩_max_card : ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := 𝓩_spec.2.2
 
-instance : Inhabited (𝓩 I) := sorry
+lemma 𝓩_nonempty : (𝓩 I).Nonempty := by
+  by_contra h; rw [Finset.not_nonempty_iff_eq_empty] at h
+  have j := 𝓩_spec (I := I)
+  simp only [h, Finset.empty_subset, Finset.coe_empty, pairwiseDisjoint_empty, Finset.card_empty,
+    nonpos_iff_eq_zero, Finset.card_eq_zero, true_and] at j
+  replace j : 𝓩_cands I = {∅} := Finset.eq_singleton_iff_unique_mem.mpr ⟨(by simp [𝓩_cands]), j⟩
+  have k : {Q default} ∈ 𝓩_cands I := by simp [𝓩_cands]
+  simp_all
+
+instance : Inhabited (𝓩 I) := ⟨⟨_, 𝓩_nonempty.choose_spec⟩⟩
 
 /-- 7 / 10 -/
 @[simp] def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
@@ -1963,9 +1972,7 @@ lemma frequency_ball_cover : Q.range.toSet ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2
   obtain ⟨z, hz, hz'⟩ : ∃ z, z ∈ 𝓩 I ∧ ¬Disjoint (ball_{I} z C𝓩) (ball_{I} θ C𝓩) := by
     by_contra! h
     have hθ' : θ ∉ (𝓩 I : Set (Θ X)) := fun hθ' ↦ by
-      have := h _ hθ'
-      simp only [C𝓩, disjoint_self, bot_eq_empty, ball_eq_empty] at this
-      norm_num at this
+      have := h _ hθ'; norm_num at this
     let 𝓩' := insert θ (𝓩 I)
     apply absurd (𝓩_max_card (I := I)) _; push_neg; refine ⟨𝓩', ?_, ?_⟩
     · simp_rw [𝓩', 𝓩_cands, Finset.mem_filter, Finset.mem_powerset, Finset.insert_subset_iff,
@@ -2180,7 +2187,8 @@ lemma Ω_biUnion {I : Grid X} : Q.range.toSet ⊆ ⋃ p ∈ 𝓘 ⁻¹' ({I} : S
     replace ih := ih mϑ
     simp only [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at ih ⊢
     obtain ⟨⟨J, z⟩, (rfl : J = I.succ), h⟩ := ih
-    have := mem_of_mem_of_subset z.2 (𝓩_subset.trans (frequency_ball_cover (I := I)))
+    have : z.1 ∈ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 :=
+      ((Finset.coe_subset.mpr 𝓩_subset).trans frequency_ball_cover) z.2
     rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
     have zi : ball_{I} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 :=
       subset_iUnion₂_of_subset z' mz' (subset_refl _)
@@ -2202,7 +2210,8 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     rw [k]
   · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
       Grid.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
-    have := mem_of_mem_of_subset q.2.2 (𝓩_subset.trans (frequency_ball_cover (I := J)))
+    have : q.2.1 ∈ ⋃ z ∈ 𝓩 J, ball_{J} z C4_2_1 :=
+      ((Finset.coe_subset.mpr 𝓩_subset).trans frequency_ball_cover) q.2.2
     rw [mem_iUnion₂] at this; obtain ⟨z', mz', dz⟩ := this
     have zi' : ball_{J} z' C4_2_1 ⊆ ⋃ z ∈ 𝓩 J, ball_{J} z C4_2_1 :=
       subset_iUnion₂_of_subset z' mz' (subset_refl _)
@@ -2238,7 +2247,7 @@ end Construction
 variable (X) in
 def tile_existence : TileStructure Q D κ S o where
   Ω := Construction.Ω
-  biUnion_Ω {I} := Construction.Ω_biUnion
+  biUnion_Ω {I} := by rw [← SimpleFunc.coe_range]; exact Construction.Ω_biUnion
   disjoint_Ω := Construction.Ω_disjoint
   relative_fundamental_dyadic {p q} := Construction.Ω_RFD
   cball_subset {p} := by

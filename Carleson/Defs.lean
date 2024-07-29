@@ -144,6 +144,9 @@ instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
   use x
 
+instance inhabited_Space [CompatibleFunctions 𝕜 X A] : Inhabited X :=
+  ⟨nonempty_Space.some⟩
+
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
 variable (X) in
