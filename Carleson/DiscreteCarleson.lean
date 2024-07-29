@@ -1,8 +1,6 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
 import Carleson.ToMathlib.Height
--- import Carleson.Proposition2
--- import Carleson.Proposition3
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
@@ -271,7 +269,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   have K_ne_top : K ≠ ⊤ := by
     simp only [K]
     refine ne_of_lt (div_lt_top (ne_of_lt (mul_lt_top (pow_ne_top two_ne_top) ?_)) hG)
-    exact lt_of_le_of_lt (measure_mono (ProofData.F_subset)) measure_ball_lt_top |>.ne
+    exact (measure_mono (ProofData.F_subset)).trans_lt measure_ball_lt_top |>.ne
   -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
       volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by
@@ -284,16 +282,16 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     exact Or.inl <| (measure_ball_pos volume (𝔠 p) r0).ne.symm
   let r (p : 𝔓 X) := dite (p ∈ highDensityTiles) (fun hp ↦ choose (this p hp)) (fun _ ↦ 0)
   have hr {p : 𝔓 X} (hp : p ∈ highDensityTiles) := choose_spec (this p hp)
-  -- Define a collection of balls `𝓑` that covers `G₁`. Then we need only bound the volume of ⋃ 𝓑
-  let 𝓑 : Finset (X × ℝ) := Finset.image (fun p ↦ (𝔠 p, r p)) highDensityTiles.toFinset
-  have : (G₁ : Set X) ⊆ ⋃ z ∈ 𝓑, (ball z.1 z.2) := by
+  -- Show that balls with centers in `highDensityTiles` covers `G₁`.
+  let 𝓑 : Finset (𝔓 X) := highDensityTiles.toFinset
+  have : (G₁ : Set X) ⊆ ⋃ p ∈ 𝓑, (ball (𝔠 p) (r p)) := by
     refine fun x hx ↦ mem_iUnion.2 ?_
     simp only [G₁, mem_iUnion, exists_prop] at hx
     rcases hx with ⟨p, hp, xp⟩
-    use (𝔠 p, r p)
-    simp only [mem_iUnion, mem_ball, exists_prop, Finset.mem_image, mem_toFinset, 𝓑]
-    refine ⟨by {use p}, ?_⟩
-    suffices GridStructure.coeGrid (𝓘 p) ⊆ ball (𝔠 p) (r p) from this xp
+    use p
+    simp only [mem_iUnion, exists_prop, 𝓑, mem_toFinset]
+    refine ⟨hp, ?_⟩
+    suffices (𝓘 p : Set X) ⊆ ball (𝔠 p) (r p) from this xp
     apply Grid_subset_ball.trans ∘ ball_subset_ball
     convert (hr hp).1.le
     simp [r, hp]
@@ -302,16 +300,16 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   let u := F.indicator (1 : X → ℝ≥0∞)
   have hu : AEStronglyMeasurable u volume :=
     AEStronglyMeasurable.indicator aestronglyMeasurable_one measurableSet_F
-  have h2u : ∀ z ∈ 𝓑, K * volume (Metric.ball z.1 z.2) ≤ ∫⁻ (x : X) in ball z.1 z.2, u x := by
-    intro z hz
-    simp only [Finset.mem_image, mem_toFinset, 𝓑] at hz
-    rcases hz with ⟨p, h, rfl⟩
+  have h2u : ∀ p ∈ 𝓑, K * volume (Metric.ball (𝔠 p) (r p)) ≤
+      ∫⁻ (x : X) in ball (𝔠 p) (r p), u x := by
+    intro p h
+    simp_rw [𝓑, mem_toFinset] at h
     simpa [u, lintegral_indicator, Measure.restrict_apply, measurableSet_F, r, h] using (hr h).2.le
-  have ineq := measure_biUnion_le_lintegral' (A := defaultA a) 𝓑 K0 hu h2u
+  have ineq := 𝓑.measure_biUnion_le_lintegral (A := defaultA a) K0 hu h2u
   simp only [u, lintegral_indicator, measurableSet_F, Pi.one_apply, lintegral_const,
     MeasurableSet.univ, Measure.restrict_apply, univ_inter, one_mul] at ineq
   rw [← mul_le_mul_left K0.ne.symm K_ne_top]
-  apply le_of_le_of_eq ineq
+  apply ineq.trans_eq
   -- Prove that the desired bound for the volume of ⋃ 𝓑 is equal to the bound proven above.
   simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, coe_ofNat, K]
   have : (volume G)⁻¹ * (2 ^ (2 * a + 5) * volume F) * (2 ^ (-5 : ℤ) * volume G) =
@@ -1471,7 +1469,7 @@ lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
   Set.iUnion_with_height_of_bounded_series L0_has_bounded_series
 
-/-- Part of Lemma 5.5.2 -/
+/-- Part of Lemma 5.5.2 -/repo, 
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
   Set.PairwiseDisjoint_with_height _
 

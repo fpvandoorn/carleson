@@ -1,5 +1,5 @@
 import Carleson.MetricCarleson
-import Carleson.Theorem1_1.Basic
+import Carleson.Classical.Basic
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 import Mathlib.Analysis.Convolution
@@ -57,7 +57,7 @@ lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' 
 lemma dirichletKernel'_measurable {N : ℕ} : Measurable (dirichletKernel' N) :=
   by apply Measurable.add <;> apply Measurable.div <;> measurability
 
-/-Second part of Lemma 10.10 (Dirichlet kernel) from the paper.-/
+/-Second part of Lemma 11.1.8 (Dirichlet kernel) from the paper.-/
 lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
     dirichletKernel N x = dirichletKernel' N x := by
   have : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
@@ -167,11 +167,11 @@ lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ 
     rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
 
-/-First part of lemma 10.10 (Dirichlet kernel) from the paper.-/
+/-First part of lemma 11.1.8 (Dirichlet kernel) from the paper.-/
 /-TODO (maybe): correct statement so that the integral is taken over the interval [-pi, pi] -/
 lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) :
-    partialFourierSum f N x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel N (x - y)  := by
-  calc partialFourierSum f N x
+    partialFourierSum N f x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel N (x - y)  := by
+  calc partialFourierSum N f x
     _ = ∑ n in Icc (-Int.ofNat N) ↑N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x := by
       rw [partialFourierSum]
     _ = ∑ n in Icc (-Int.ofNat N) ↑N, (1 / (2 * Real.pi - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
@@ -202,7 +202,7 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x :
       rw [mul_sub, sub_eq_neg_add]
 
 lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) :
-    partialFourierSum f N x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel' N (x - y)  := by
+    partialFourierSum N f x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel' N (x - y)  := by
   rw [partialFourierSum_eq_conv_dirichletKernel h]
   calc _
     _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (x - 2 * Real.pi)..(x - 0), f (x - y) * dirichletKernel N y := by

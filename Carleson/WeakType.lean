@@ -310,7 +310,6 @@ def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAdd
   ∀ f : α → E, Memℒp f p μ → snorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
 
-
 lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
   fun f hf ↦ ⟨(h f hf).1, (wnorm_le_snorm (h f hf).1 hp').trans (h f hf).2⟩

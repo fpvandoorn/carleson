@@ -12,8 +12,18 @@ noncomputable section
 --TODO : add reasonable notation
 --local notation "S_" => partialFourierSum f
 
-def partialFourierSum (f : ℝ → ℂ) (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
+--TODO: use this as base to build on?
+/-
+def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) (x : AddCircle T) : ℂ :=
+    ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeff f n * fourier n x
+-/
+
+--TODO: switch N and f
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N,
+    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
 --fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
+
+local notation "S_" => partialFourierSum
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} :
@@ -44,19 +54,19 @@ lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
 
 @[simp]
 lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)) :
-  partialFourierSum (f + g) N = partialFourierSum f N + partialFourierSum g N := by
+  S_ N (f + g) = S_ N f + S_ N g := by
   ext x
   simp [partialFourierSum, sum_add_distrib, fourierCoeffOn_add hf hg, add_mul]
 
 @[simp]
 lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * Real.pi)) :
-  partialFourierSum (f - g) N = partialFourierSum f N - partialFourierSum g N := by
+  S_ N (f - g) = S_ N f - S_ N g := by
   ext x
   simp [partialFourierSum, sum_sub_distrib, fourierCoeffOn_sub hf hg, sub_mul]
 
 @[simp]
 lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
-  partialFourierSum (fun x ↦ a * f x) N = fun x ↦ a * partialFourierSum f N x := by
+  S_ N (fun x ↦ a * f x) = fun x ↦ a * S_ N f x := by
   ext x
   simp [partialFourierSum, mul_sum, fourierCoeffOn_mul, mul_assoc]
 
@@ -64,7 +74,7 @@ lemma fourier_periodic {n : ℤ} :
     (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * Real.pi))).Periodic (2 * Real.pi) := by
     simp
 
-lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (partialFourierSum f N).Periodic (2 * Real.pi) := by
+lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (S_ N f).Periodic (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
 
 /-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
@@ -76,8 +86,6 @@ theorem Function.Periodic.exists_mem_Ico₀' {α : Type} {β : Type} {f : α →
 
 --TODO: maybe generalize to (hc : ContinuousOn f (Set.Icc 0 T)) and leave out condition (hT : 0 < T)
 lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hT : 0 < T) (hp : Function.Periodic f T) (hc : ContinuousOn f (Set.Icc (-T) (2 * T))) : UniformContinuous f := by
-  --rw [Metric.uniformContinuous_iff]
-  --IsCompact.uniformContinuous_on
   have : IsCompact (Set.Icc (-T) (2 * T)) := isCompact_Icc
   have unicont_on_Icc := this.uniformContinuousOn_of_continuous hc
   rw [Metric.uniformContinuousOn_iff] at unicont_on_Icc
@@ -104,7 +112,7 @@ lemma fourier_uniformContinuous {n : ℤ} :
   apply fourier_periodic.uniformContinuous_of_continuous Real.two_pi_pos (Continuous.continuousOn _)
   continuity
 
-lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (partialFourierSum f N) := by
+lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (S_ N f) := by
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
     (Continuous.continuousOn (continuous_finset_sum _ _))
   continuity
@@ -114,7 +122,6 @@ theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (Real.pi / 2) (Real
   rw [interior_Icc] at hx
   simp [Real.cos_neg_of_pi_div_two_lt_of_lt hx.1 hx.2]
 
-/- Lemma 10.11 (lower secant bound) from the paper. -/
 lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * Real.pi - η) :
     (2 / Real.pi) * η ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
   by_cases ηpos : η ≤ 0
@@ -188,7 +195,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
         · simp [pow_two_nonneg]
         · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
 
-/-Slightly weaker version of Lemma 10.11 (lower secant bound) with simplified constant. -/
+/-Slightly weaker version of Lemma 11..1.9 (lower secant bound) with simplified constant. -/
 lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.pi + η) (2 * Real.pi - η)) (xAbs : η ≤ |x|) :
     η / 2 ≤ Complex.abs (1 - Complex.exp (Complex.I * x)) := by
   by_cases ηpos : η < 0
@@ -208,15 +215,3 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * Real.p
     apply lower_secant_bound' xAbs
     rw [abs_le, neg_sub', sub_neg_eq_add, neg_mul_eq_neg_mul]
     exact xIcc
-
-/-Further definitions-/
-/-TODO : relocate this-/
-
---TODO : call constructor in a better way?
-def integer_linear (n : ℤ) : C(ℝ, ℝ) := ⟨fun (x : ℝ) ↦ n * x, by fun_prop⟩
-
---local notation "θ" => integer_linear
-
---lemma θcont {n : ℤ} : Continuous (θ n) := sorry
-
---local notation "Θ" => {(θ n) | n : ℤ}

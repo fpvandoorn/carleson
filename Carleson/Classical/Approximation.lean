@@ -1,7 +1,7 @@
-/- The arguments in this file replace section 10.2 (Piecewise constant functions) from the paper. -/
+/- The arguments in this file contains section 11.2 (smooth functions) from the paper. -/
 
 import Carleson.MetricCarleson
-import Carleson.Theorem1_1.Basic
+import Carleson.Classical.Basic
 
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convolution
@@ -16,10 +16,9 @@ open Finset
 
 section
 open Metric
-variable {α : Type} {β : Type}
 --might be generalized
 --TODO : choose better name
-lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} {b : ℝ} (bpos : b > 0):
+lemma uniformContinuous_iff_bounded {α : Type*} {β : Type*} [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} {b : ℝ} (bpos : b > 0):
   UniformContinuous f ↔ ∀ ε > 0, ∃ δ > 0, δ < b ∧ ∀ {x y : α}, dist x y < δ → dist (f x) (f y) < ε := by
   rw [Metric.uniformContinuous_iff]
   refine ⟨fun h ε εpos ↦ ?_, fun h ε εpos ↦ ?_⟩
@@ -31,8 +30,11 @@ lemma uniformContinuous_iff_bounded [PseudoMetricSpace α] [PseudoMetricSpace β
     use δ
 end section
 
+local notation "S_" => partialFourierSum
+
 /- TODO: might be generalized. -/
-lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
+--TODO: probably not needed here in this form
+lemma close_smooth_approx {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
@@ -46,7 +48,7 @@ lemma closeSmoothApprox {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε :
       fun y hy ↦ (hδ hy).le
 
 /- Slightly different version-/
-lemma closeSmoothApproxPeriodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
+lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * Real.pi)) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ f₀.Periodic (2 * Real.pi) ∧
       ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
@@ -233,7 +235,7 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
 
 /-TODO: Weaken statement to pointwise convergence to simplify proof?-/
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
-    ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * Real.pi), Complex.abs (f x - partialFourierSum f N x) ≤ ε := by
+    ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * Real.pi), ‖f x - S_ N f x‖ ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * Real.pi) := by
     rw [fact_iff]
     exact Real.two_pi_pos

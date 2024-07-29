@@ -1,8 +1,8 @@
-import Carleson.Theorem1_1.Hilbert_kernel
+import Carleson.Classical.HilbertKernel
 
 noncomputable section
 
-
+--TODO: avoid this extra definition?
 def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
@@ -28,8 +28,7 @@ lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) :
   intro y hy
   linarith [hy.1.2, hy.2.1, hr.1]
 
-lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} :=
-  measurableSet_preimage (measurable_const.dist measurable_id) measurableSet_Ioo
+lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.Ioo r R} := measurableSet_preimage (measurable_const.dist measurable_id) measurableSet_Ioo
 
 lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :
     ⨆ r ∈ S, f r = ⨆ r ∈ (S ∩ D), f r := by
@@ -50,10 +49,11 @@ lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Se
 
 lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
     Measurable (Function.uncurry fun x y ↦ f y * K x y * (Complex.I * n * y).exp) :=
-  Measurable.mul (Measurable.mul (hf.comp measurable_snd) Hilbert_kernel_measurable)
+      ((hf.comp measurable_snd).mul Hilbert_kernel_measurable).mul
   (measurable_const.mul (Complex.measurable_ofReal.comp measurable_snd)).cexp
 
 local notation "T" => CarlesonOperatorReal K
+
 
 lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
   --TODO: clean up proof
@@ -64,13 +64,10 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   have : (fun x ↦ ⨆ r, ⨆ (_ : 0 < r), ⨆ (_ : r < 1), ↑‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * (Complex.I * ↑n * ↑y).exp‖₊)
         = fun x ↦ ⨆ (r : ℝ) (_ : r ∈ Set.Ioo 0 1), G x r := by
     ext x
-    congr
-    ext r
+    congr with r
     rw [iSup_and, Gdef, Fdef]
-    congr
-    ext
-    congr
-    ext
+    congr with _
+    congr with _
     congr 2
     rw [← MeasureTheory.integral_indicator annulus_measurableSet]
   rw [this]
@@ -206,15 +203,15 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         (helper f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
   apply measurable_biSup _
-  apply Set.Countable.mono Set.inter_subset_right hQ.2
+  . apply Set.Countable.mono Set.inter_subset_right hQ.2
   intro r _
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)
   rw [← stronglyMeasurable_iff_measurable]
   apply MeasureTheory.StronglyMeasurable.integral_prod_right
   rw [stronglyMeasurable_iff_measurable, Fdef]
-  exact Measurable.indicator (helper f_measurable) (measurable_dist measurableSet_Ioo)
+  exact (helper f_measurable).indicator (measurable_dist measurableSet_Ioo)
 
-theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
+lemma CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal, CarlesonOperatorReal, ENNReal.mul_iSup]
   congr with n
   rw [ENNReal.mul_iSup]
@@ -223,10 +220,8 @@ theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 <
   congr
   ext rpos
   rw [ENNReal.mul_iSup]
-  congr
-  ext rle1
+  congr with rle1
   norm_cast
-  --rw [← norm_toNNReal, ← norm_toNNReal]
   apply NNReal.eq
   simp only [coe_nnnorm, NNReal.coe_mul]
   rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
@@ -236,3 +231,45 @@ theorem CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 <
   rw [mul_div_cancel_left₀]
   norm_cast
   exact ha.ne.symm
+
+
+lemma CarlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
+  rw [CarlesonOperatorReal, CarlesonOperatorReal]
+  congr with n
+  congr with _
+  congr with _
+  congr with _
+  congr with y
+  rw [mul_eq_mul_right_iff, mul_eq_mul_right_iff]
+  left
+  rw [Set.indicator]
+  split_ifs with hy
+  . left; rfl
+  . right
+    apply k_of_one_le_abs
+    simp only [Set.mem_Ioo, not_and_or, not_lt] at hy
+    rw [le_abs]
+    rcases hy with hy | hy
+    . left; linarith [hx.1]
+    . right; linarith [hx.2]
+
+/-
+import Mathlib.MeasureTheory.Measure.MeasureSpace
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+
+open TopologicalSpace MeasureTheory Set
+
+variable {α β : Type*} [MeasurableSpace α]
+  [MeasurableSpace β]
+  {ι : Type*} [LinearOrder ι] [TopologicalSpace ι] [OrderTopology ι] [DenselyOrdered ι] [SecondCountableTopology ι]
+  {f : ι → α → β} [ConditionallyCompleteLattice β]
+  [TopologicalSpace β] [OrderTopology β] [SecondCountableTopology β]
+  [BorelSpace β]
+
+lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
+    (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
+    (h2f : ∀ i, Measurable (f i)) :
+    Measurable (⨆ i ∈ s, f i ·) := sorry
+  -- use SecondCountableTopology to rewrite the sup as a sup over the countable dense set (or similar)
+  -- then use measurable_iSup
+-/

@@ -1,5 +1,5 @@
-/- This file formalizes section 10.6 (The proof of the van der Corput Lemma) from the paper. -/
-import Carleson.Theorem1_1.Basic
+/- This file formalizes section 11.4 (The proof of the van der Corput Lemma) from the paper. -/
+import Carleson.Classical.Basic
 
 
 noncomputable section
