@@ -1464,10 +1464,9 @@ def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).withHeight l
 /-- Part of Lemma 5.5.2 -/
 lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤ n := sorry
 
-
 /-- Part of Lemma 5.5.2 -/
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
-  Set.iUnion_withHeight_of_bounded_series L0_has_bounded_series
+  Set.iUnion_withHeight_iff_bounded_series.mpr L0_has_bounded_series
 
 /-- Part of Lemma 5.5.2 -/repo, 
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=

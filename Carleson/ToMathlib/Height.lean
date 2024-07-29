@@ -482,37 +482,40 @@ lemma Set.Disjoint_withHeight (s : Set α) {n n'} (h : n ≠ n') :
   rw [Set.withHeight_eq] at hp hp'
   aesop
 
-lemma Set.PairwiseDisjointSet.with_heig_withHeight (s : Set α) : univ.PairwiseDisjoint s.withHeight :=
+lemma Set.PairwiseDisjoint_withHeight (s : Set α) : univ.PairwiseDisjoint s.withHeight :=
     fun _ _ _ _ => Disjoint_withHeight s
 
-/-
-If all increasing series have lenght bounded by `n`, then `s` is the union of its elements with
-height `≤ n`.
-
-The precondition could also be expressed as `(hkrull : krullDim α < n)`.
+/--
+Iff all increasing series have lenght bounded by `n`, then `s` is the union of its elements with
+height `≤ n` (which could be expresse as `krullDim α < n`).
 -/
-lemma Set.iUnion_withHeight_of_bounded_series {s : Set α} {n : ℕ}
-    (hlength : (p : LTSeries s) → p.length ≤ n) :
-    (⋃ (l ≤ n), s.withHeight l) = s := by
-  ext x
-  simp only [mem_iUnion, exists_prop]
+lemma Set.iUnion_withHeight_iff_bounded_series {s : Set α} {n : ℕ} :
+    (⋃ (l ≤ n), s.withHeight l) = s ↔ (∀ (p : LTSeries s), p.length ≤ n) := by
   constructor
-  · intro ⟨l, _hln, hx⟩
-    apply Set.withHeight_subset _ _ hx
-  · intro hx
-    simp_rw [Set.mem_withHeight_iff' s _ ⟨x, hx⟩]
-    cases hh : height (⟨x, hx⟩ : s)
-    case top =>
-      exfalso
-      have : (n + 1 : ℕ) ≤ height (⟨x, hx⟩ : s) := by simp [hh]
-      obtain ⟨p, _hpast, hlen⟩ := exists_series_of_le_height _ this
-      specialize hlength p
-      omega
-    case coe l =>
-      use l
-      obtain ⟨p, _hlast, hp⟩ := exists_series_of_height_eq_coe _  hh
-      specialize hlength p
-      constructor; omega; rfl
+  · intro h p
+    have hx : p.last.1 ∈ (⋃ (l ≤ n), s.withHeight l) := h.symm ▸ p.last.2
+    simp only [withHeight_eq, mem_iUnion, mem_setOf_eq, Subtype.coe_eta, Subtype.coe_prop,
+      exists_const, exists_prop] at hx
+    obtain ⟨i, hix, hi⟩ := hx
+    have hh := height_last_ge_length p
+    simp only [hi, Nat.cast_le] at hh
+    apply le_trans hh hix
+  · intro hlength
+    ext x
+    simp only [withHeight_eq, mem_iUnion, mem_setOf_eq, exists_prop]
+    wlog hxs : x ∈ s
+    · simp [hxs]
+    simp only [hxs, exists_true_left, iff_true]
+    suffices height (⟨x, hxs⟩ : s) ≤ n by
+      revert this
+      cases height (⟨x, hxs⟩ : s) <;> simp
+    unfold height
+    apply iSup_le
+    intro ⟨p, _⟩
+    simp only [Nat.cast_le, ge_iff_le]
+    exact hlength p
+
+-- TODO: Maybe also state that if all chains are smaller than n then s.withHeight n = \empty?
 
 lemma Set.IsAntichain_withHeight {α} [PartialOrder α] (s : Set α) (n : ℕ) :
     IsAntichain (·≤·) (s.withHeight n) := by
