@@ -77,14 +77,14 @@ def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
 /-- `𝔏₁(k, n, j, l)` consists of the minimal elements in `ℭ₁(k, n, j)` not in
   `𝔏₁(k, n, j, l')` for some `l' < l`. Defined near (5.1.11). -/
 def 𝔏₁ (k n j l : ℕ) : Set (𝔓 X) :=
-  (ℭ₁ k n j).with_height l
+  (ℭ₁ k n j).withHeight l
 
 lemma 𝔏₁_disjoint {k n j l l' : ℕ} (h : l ≠ l') : Disjoint (𝔏₁ (X := X) k n j l) (𝔏₁ k n j l') :=
-  Set.Disjoint_with_height _ h
+  Set.Disjoint_withHeight _ h
 
 lemma exists_le_of_mem_𝔏₁ {k n j l : ℕ} {p : 𝔓 X} (hp : p ∈ 𝔏₁ k n j l) :
     ∃ p' ∈ ℭ₁ k n j, p' ≤ p ∧ 𝔰 p' + l ≤ 𝔰 p := by
-  obtain ⟨p, rfl, rfl⟩ := Set.exists_series_of_mem_with_height hp
+  obtain ⟨p, rfl, rfl⟩ := Set.exists_series_of_mem_withHeight hp
   use p.head
   simp only [defaultA, defaultD, defaultκ, Subtype.coe_prop, Subtype.coe_le_coe, true_and]
   constructor
@@ -125,7 +125,7 @@ lemma exists_le_of_mem_ℭ₂ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₂ k n 
     not_and, mem_toFinset] at mp' maxp'
   conv at maxp' => enter [x]; rw [and_imp]
   have mp'₁ : p' ∈ 𝔏₁ k n j (Z * (n + 1)) := by
-    rw [𝔏₁, Set.with_height, mem_minimals_iff]
+    rw [𝔏₁, Set.withHeight, mem_minimals_iff]
     simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
     exact ⟨mp'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (maxp' y hy (ly.trans mp'.2))).symm⟩
   obtain ⟨po, mpo, lpo, spo⟩ := exists_le_of_mem_𝔏₁ mp'₁
@@ -944,7 +944,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   by_cases e : p = p'; · rwa [e] at mp
   simp_rw [ℭ₂, mem_diff, mp'₁, true_and]
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
-  rw [𝔏₁, Set.with_height, mem_minimals_iff] at p'm
+  rw [𝔏₁, Set.withHeight, mem_minimals_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
     replace mp := mp.2; contrapose! mp
     exact mem_of_mem_of_subset mp
@@ -1459,7 +1459,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
-def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).with_height l
+def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).withHeight l
 
 /-- Part of Lemma 5.5.2 -/
 lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤ n := sorry
@@ -1467,15 +1467,15 @@ lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤
 
 /-- Part of Lemma 5.5.2 -/
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
-  Set.iUnion_with_height_of_bounded_series L0_has_bounded_series
+  Set.iUnion_withHeight_of_bounded_series L0_has_bounded_series
 
 /-- Part of Lemma 5.5.2 -/repo, 
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
-  Set.PairwiseDisjoint_with_height _
+  Set.PairwiseDisjoint_withHeight _
 
 /-- Part of Lemma 5.5.2 -/
 lemma antichain_L0' : IsAntichain (·≤·) (𝔏₀' (X := X) k n l) :=
-  Set.IsAntichain_with_height _ _
+  Set.IsAntichain_withHeight _ _
 
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
@@ -1483,7 +1483,7 @@ lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L1 : IsAntichain (·≤·) (𝔏₁ (X := X) k n j l) :=
-  Set.IsAntichain_with_height _ _
+  Set.IsAntichain_withHeight _ _
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L3 : IsAntichain (·≤·) (𝔏₃ (X := X) k n j l) :=
