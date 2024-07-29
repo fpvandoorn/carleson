@@ -203,6 +203,10 @@ Lemma 3.6 - Lemma 3.9
 --     Prop :=
 --   ∀ x, ‖T x‖ ≤ c * ‖x‖
 
+/-- The Calderon Zygmund operator `T_r` in chapter Two-sided Metric Space Carleson -/
+def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+  ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
+
 set_option linter.unusedVariables false in
 /-- The associated nontangential Calderon Zygmund operator `T_*` -/
 def ANCZOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ :=
@@ -256,6 +260,15 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
     ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
 export IsOneSidedKernel (measurable_K_right measurable_K_left norm_K_le_vol_inv norm_K_sub_le)
+
+/-- `K` is a two-sided Calderon-Zygmund kernel
+In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
+that `K x x = 0`. -/
+class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
+  norm_K_sub_le' {x x' y : X} (h : 2 /-* A-/ * dist x x' ≤ dist x y) :
+    ‖K x y - K x' y‖ ≤ (dist x x' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+
+export IsTwoSidedKernel (norm_K_sub_le')
 
 end Kernel
 
