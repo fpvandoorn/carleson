@@ -1,12 +1,12 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
 import Carleson.MinLayerTiles
+import Carleson.ToMathlib.Height
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
 noncomputable section
-
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -111,7 +111,7 @@ lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n 
 /-- `𝔏₃(k, n, j, l)` consists of the maximal elements in `ℭ₃(k, n, j)` not in
   `𝔏₃(k, n, j, l')` for some `l' < l`. Defined near (5.1.17). -/
 def 𝔏₃ (k n j l : ℕ) : Set (𝔓 X) :=
-  (ℭ₃ k n j).maxLayer l
+ (ℭ₃ k n j).maxLayer l
 
 /-- The subset `ℭ₄(k, n, j)` of `ℭ₃(k, n, j)`, given in (5.1.19). -/
 def ℭ₄ (k n j : ℕ) : Set (𝔓 X) :=
@@ -1258,49 +1258,32 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
 /-- Lemma 5.4.7, verifying (2.0.37) -/
 lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
     ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u := by
-  let C : Set (𝔓 X) :=
-    {q ∈ ℭ₃ k n j ∩ ⋃ (u' ∈ 𝔘₂ k n j) (_ : URel k n j u u'), (𝔗₁ k n j u') | p ≤ q}
   have p₄ := (𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄) hp
   have p₁ := (ℭ₄_subset_ℭ₃.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁) p₄
-  have mpC : p ∈ C := by
-    simp_rw [C, mem_setOf]; simp_rw [𝔗₂, mem_inter_iff] at hp ⊢
-    simp_rw [hp.2, le_rfl]; simpa using ℭ₄_subset_ℭ₃ p₄
-  obtain ⟨q, mq, maxq⟩ := Finset.exists_maximal _ (toFinset_nonempty.mpr ⟨_, mpC⟩)
-  simp only [mem_toFinset] at mq maxq
-  have lq : p ≤ q := mq.2
-  have q_max_ℭ₃ : q ∈ (ℭ₃ k n j).maxLayer 0 := by
-    rw [maxLayer_zero, mem_maximals_iff]
-    refine ⟨mq.1.1, fun q' mq' lq' ↦ eq_of_le_of_not_lt lq' (maxq q' ?_)⟩
-    have z : p ≤ q' := lq.trans lq'
-    obtain ⟨-, u'', mu'', nu'', sl⟩ := ℭ₃_def.mp mq'
-    replace nu'' : 𝓘 q' < 𝓘 u'' := lt_of_le_of_ne sl.1 nu''
-    have s2 : smul 2 p ≤ smul 2 q' := wiggle_order_11_10 z (C5_3_3_le (X := X).trans (by norm_num))
-    have s2' : smul 2 p ≤ smul 1 u'' := s2.trans sl
-    have s10 : smul 10 p ≤ smul 1 u'' := smul_mono s2' le_rfl (by norm_num)
-    simp_rw [𝔗₂, mem_inter_iff, mem_iUnion₂, mem_iUnion] at hp
-    obtain ⟨p₆, u', mu', ru', pu'⟩ := hp
-    have ur : URel k n j u' u'' := Or.inr ⟨p, pu', s10⟩
-    have hu'' : u'' ∈ 𝔘₂ k n j := by
-      rw [𝔘₂, mem_setOf, not_disjoint_iff]
-      refine ⟨mu'', ⟨p, ?_, p₆⟩⟩
-      simpa [𝔗₁, p₁, s2'] using (z.1.trans_lt nu'').ne
-    have ru'' : URel k n j u u'' := equivalenceOn_urel.trans (𝔘₃_subset_𝔘₂ hu) mu' hu'' ru' ur
-    simp_rw [C, mem_setOf, mem_inter_iff, mq', z, mem_iUnion₂, mem_iUnion, true_and, and_true]
-    use u'', hu'', ru''; exact ⟨(ℭ₃_subset_ℭ₂.trans ℭ₂_subset_ℭ₁) mq', nu''.ne, sl⟩
-  -- obtain ⟨r, r_max_ℭ₃, lr, sr⟩ := exists_le_add_scale_of_mem_layersBelow p₄
-  have sq : 𝔰 p + (Z * (n + 1) : ℕ) ≤ 𝔰 q := sorry -- ...
-  simp_rw [C, mem_inter_iff, mem_iUnion₂, mem_iUnion] at mq
-  obtain ⟨-, u', mu', ru', mq'⟩ := mq.1
-  have qlu : 𝓘 q < 𝓘 u := URel.eq (𝔘₃_subset_𝔘₂ hu) mu' ru' ▸ 𝓘_lt_of_mem_𝔗₁ mq'
+  obtain ⟨q, mq, lq, sq⟩ := exists_le_add_scale_of_mem_layersBelow p₄
+  obtain ⟨-, u'', mu'', nu'', sl⟩ := ℭ₃_def.mp (maxLayer_subset mq)
+  replace nu'' : 𝓘 q < 𝓘 u'' := lt_of_le_of_ne sl.1 nu''
+  have s2 : smul 2 p ≤ smul 2 q := wiggle_order_11_10 lq (C5_3_3_le (X := X).trans (by norm_num))
+  have s2' : smul 2 p ≤ smul 1 u'' := s2.trans sl
+  have s10 : smul 10 p ≤ smul 1 u'' := smul_mono s2' le_rfl (by norm_num)
+  simp_rw [𝔗₂, mem_inter_iff, mem_iUnion₂, mem_iUnion] at hp
+  obtain ⟨p₆, u', mu', ru', pu'⟩ := hp
+  have ur : URel k n j u' u'' := Or.inr ⟨p, pu', s10⟩
+  have hu'' : u'' ∈ 𝔘₂ k n j := by
+    rw [𝔘₂, mem_setOf, not_disjoint_iff]
+    refine ⟨mu'', ⟨p, ?_, p₆⟩⟩
+    simpa [𝔗₁, p₁, s2'] using (lq.1.trans_lt nu'').ne
+  have ru'' : URel k n j u u'' := equivalenceOn_urel.trans (𝔘₃_subset_𝔘₂ hu) mu' hu'' ru' ur
+  have qlu : 𝓘 q < 𝓘 u := URel.eq (𝔘₃_subset_𝔘₂ hu) hu'' ru'' ▸ nu''
   have squ : 𝔰 q < 𝔰 u := (Grid.lt_def.mp qlu).2
-  have spu : 𝔰 p ≤ 𝔰 u - (Z * (n + 1) : ℕ) - 1 := by omega -- ...
+  have spu : 𝔰 p ≤ 𝔰 u - (Z * (n + 1) : ℕ) - 1 := by omega
   have : ∃ I, s I = 𝔰 u - (Z * (n + 1) : ℕ) - 1 ∧ 𝓘 p ≤ I ∧ I ≤ 𝓘 u := by
     apply Grid.exists_sandwiched (lq.1.trans qlu.le) (𝔰 u - (Z * (n + 1) : ℕ) - 1)
     refine ⟨spu, ?_⟩; change _ ≤ 𝔰 u; suffices 0 ≤ Z * (n + 1) by omega
     exact Nat.zero_le _
   obtain ⟨I, sI, plI, Ilu⟩ := this
   have bI : I ∉ 𝓛 n u := by
-    have p₅ := (𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) hp
+    have p₅ := ℭ₆_subset_ℭ₅ p₆
     rw [ℭ₅_def] at p₅; replace p₅ := p₅.2; contrapose! p₅
     use u, (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁) hu, plI.1.trans (subset_biUnion_of_mem p₅)
   rw [𝓛, mem_setOf, not_and] at bI; specialize bI Ilu
@@ -1487,37 +1470,34 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
--- Note: this is basically the same construction as `𝔏₁`.
--- Please generalize this construction and prove properties
--- (antichainness, union, the fact that it stops after `n`
--- steps if there are no antichains of length `n + 1`)
--- in proper generality.
-def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) :=
-  minimals (·≤·) (𝔏₀ k n \ ⋃ (l' < l), 𝔏₀' k n l')
+def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).withHeight l
+
+/-- Part of Lemma 5.5.2 -/
+lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤ n := sorry
 
 /-- Part of Lemma 5.5.2 -/
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
-  sorry
+  Set.iUnion_withHeight_iff_bounded_series.mpr L0_has_bounded_series
 
 /-- Part of Lemma 5.5.2 -/
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
-  sorry
+  PairwiseDisjoint_withHeight ..
 
 /-- Part of Lemma 5.5.2 -/
-lemma antichain_L0' : IsAntichain (·≤·) (𝔏₀' (X := X) k n l) :=
-  sorry
+lemma antichain_L0' : IsAntichain (· ≤ ·) (𝔏₀' (X := X) k n l) :=
+  IsAntichain_withHeight ..
 
 /-- Lemma 5.5.3 -/
-lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
+lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) :=
   sorry
 
 /-- Part of Lemma 5.5.4 -/
-lemma antichain_L1 : IsAntichain (·≤·) (𝔏₁ (X := X) k n j l) :=
-  sorry
+lemma antichain_L1 : IsAntichain (· ≤ ·) (𝔏₁ (X := X) k n j l) :=
+  isAntichain_minLayer ..
 
 /-- Part of Lemma 5.5.4 -/
-lemma antichain_L3 : IsAntichain (·≤·) (𝔏₃ (X := X) k n j l) :=
-  sorry
+lemma antichain_L3 : IsAntichain (· ≤ ·) (𝔏₃ (X := X) k n j l) :=
+  isAntichain_maxLayer ..
 
 /-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
 -- todo: redefine in terms of other constants

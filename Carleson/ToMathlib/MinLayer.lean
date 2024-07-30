@@ -58,6 +58,12 @@ lemma pairwiseDisjoint_minLayer : univ.PairwiseDisjoint A.minLayer := fun _ _ _ 
 lemma pairwiseDisjoint_maxLayer : univ.PairwiseDisjoint A.maxLayer := fun _ _ _ _ ↦
   disjoint_minLayer_of_ne
 
+lemma isAntichain_minLayer : IsAntichain (· ≤ ·) (A.minLayer n) := by
+  rw [minLayer]; apply minimals_antichain
+
+lemma isAntichain_maxLayer : IsAntichain (· ≤ ·) (A.maxLayer n) := by
+  rw [maxLayer_def]; apply maximals_antichain
+
 lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
     ∃ c ∈ A.minLayer m, c ≤ a := by
   induction n, hm using Nat.le_induction generalizing a with

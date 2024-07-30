@@ -1620,7 +1620,7 @@ Since $\tQ(X)$ is finite, there exists a set $\mathcal{Z}$ satisfying both \eqre
 \end{lemma}
 
 \begin{proof}
-% \leanok % the lemma is proven, but let's wait until \mathcal{Z} is defined to actually mark it.
+    \leanok
     Let $\mfb \in \bigcup_{\mfa \in \tQ(X)} B_{I^\circ}(\mfa, 1)$. By maximality of $\mathcal{Z}(I)$, there must be a point $z \in \mathcal{Z}(I)$ such that $B_{I^\circ}(z, 0.3) \cap B_{I^\circ}(\mfb, 0.3) \ne \emptyset$. Else, $\mathcal{Z}(I) \cup \{\mfb\}$ would be a set of larger cardinality than $\mathcal{Z}(I)$ satisfying \eqref{eq-tile-Z} and \eqref{eq-tile-disjoint-Z}. Fix such $z$, and fix a point $z_1 \in B_{I^\circ}(z, 0.3) \cap B_{I^\circ}(\mfb, 0.3)$. By the triangle inequality, we deduce that
     $$
         d_{I^\circ}(z,\mfb) \le d_{I^\circ}(z,z_1) + d_{I^\circ}(\mfb, z_1) < 0.3 + 0.3 = 0.6\,,
@@ -2971,18 +2971,24 @@ We have
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \in \mathfrak{T}_2(\fu)$. Let
-    \begin{equation}
-        \label{eq-c3-tree}
-        \fq \in \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(k,n,j)
-    \end{equation}
-    be a maximal element of this set with respect to $\le$ such that $\fp \le \fq$.
-    We show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile.
-    By \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. Then we have in particular by \Cref{wiggle-order-1} that $10 \fp \lesssim \fu''$. Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$. By definition of $\sim$, we have $\fu' \sim \fu''$, hence $\fu \sim \fu''$. This implies that $\fq'$ is in the set in \eqref{eq-c3-tree}, contradicting maximality of $\fq$.
+    \leanok
+    Let $\fp \in \mathfrak{T}_2(\fu)$. Then $\fp \in \fC_4(k,n,j)$, hence there exists a chain
+    $$
+        \fp \le \fp_{Z(n+1)} \le \dotsb \le \fp_0
+    $$
+    of distinct tiles in $\fC_3(n,k,j)$. We pick such a chain and set $\fq = \fp_0$.
+    Then we have from distinctness of the tiles in the chain that
+    $\ps(\fp) \le \ps(\fq) - Z(n+1)$.
+    By \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq \lesssim \fu''$ and $\ps(\fq) < \ps(\fu'')$.
+    Then we have in particular by \Cref{wiggle-order-1} that $10 \fp \lesssim \fu''$.
+    Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$.
+    By the definition of $\sim$, it follows that $\fu' \sim \fu''$.
+    By transitivity of $\sim$, we have $\fu \sim \fu''$.
+    By \Cref{relation-geometry}, we have $\sc(\fu'') = \sc(\fu)$, hence $\ps(\fq) < \ps(\fu)$ and $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
 
-    Let $\fu' \sim \fu$ with $\fq \in \mathfrak{T}_1(\fu')$. By the definition \eqref{eq-T1-def} of $\mathfrak{T}_1$, we have $\ps(\fp) < \ps(\fu')$. By \Cref{relation-geometry}, we have $\ps(\fu) = \ps(\fu')$, hence $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
-
-    Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $\scI(\fp) \subset I$. Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \scI(\fu)$. By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\scI(\fp) \subset I$.
+    Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $\scI(\fp) \subset I$.
+    Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \scI(\fu)$.
+    By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\scI(\fp) \subset I$.
 \end{proof}
 
 
