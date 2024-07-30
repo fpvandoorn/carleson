@@ -48,6 +48,7 @@ theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m �
   · norm_num
   · norm_cast; omega
 
+-- Parts of it in https://github.com/leanprover-community/mathlib4/pull/15347
 lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
     (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   constructor
