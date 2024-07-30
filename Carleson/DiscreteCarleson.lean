@@ -1481,7 +1481,7 @@ lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
 
 /-- Part of Lemma 5.5.2 -/
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
-  PairwiseDisjoint_withHeight ..
+  PairwiseDisjoint_withHeight _
 
 /-- Part of Lemma 5.5.2 -/
 lemma antichain_L0' : IsAntichain (· ≤ ·) (𝔏₀' (X := X) k n l) :=
@@ -1492,12 +1492,10 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) :=
   sorry
 
 /-- Part of Lemma 5.5.4 -/
-lemma antichain_L1 : IsAntichain (· ≤ ·) (𝔏₁ (X := X) k n j l) :=
-  isAntichain_minLayer ..
+lemma antichain_L1 : IsAntichain (· ≤ ·) (𝔏₁ (X := X) k n j l) := isAntichain_minLayer
 
 /-- Part of Lemma 5.5.4 -/
-lemma antichain_L3 : IsAntichain (· ≤ ·) (𝔏₃ (X := X) k n j l) :=
-  isAntichain_maxLayer ..
+lemma antichain_L3 : IsAntichain (· ≤ ·) (𝔏₃ (X := X) k n j l) := isAntichain_maxLayer
 
 /-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
 -- todo: redefine in terms of other constants
