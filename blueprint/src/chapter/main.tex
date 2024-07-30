@@ -2971,18 +2971,23 @@ We have
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \in \mathfrak{T}_2(\fu)$. Let
-    \begin{equation}
-        \label{eq-c3-tree}
-        \fq \in \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(k,n,j)
-    \end{equation}
-    be a maximal element of this set with respect to $\le$ such that $\fp \le \fq$.
-    We show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile.
-    By \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. Then we have in particular by \Cref{wiggle-order-1} that $10 \fp \lesssim \fu''$. Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$. By definition of $\sim$, we have $\fu' \sim \fu''$, hence $\fu \sim \fu''$. This implies that $\fq'$ is in the set in \eqref{eq-c3-tree}, contradicting maximality of $\fq$.
+    Let $\fp \in \mathfrak{T}_2(\fu)$. Then $\fp \in \fC_4(k,n,j)$, hence there exists a chain
+    $$
+        \fp \le \fp_{Z(n+1)} \le \dotsb \le \fp_0
+    $$
+    of distinct tiles in $\fC_3(n,k,j)$. We pick such a chain and set $\fq = \fp_0$.
+    Then we have from distinctness of the tiles in the chain that
+    $\ps(\fp) \le \ps(\fq) - Z(n+1)$.
+    By \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq \lesssim \fu''$ and $\ps(\fq) < \ps(\fu'')$.
+    Then we have in particular by \Cref{wiggle-order-1} that $10 \fp \lesssim \fu''$.
+    Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$.
+    By the definition of $\sim$, it follows that $\fu' \sim \fu''$.
+    By transitivity of $\sim$, we have $\fu \sim \fu''$.
+    By \Cref{relation-geometry}, we have $\sc(\fu'') = \sc(\fu)$, hence $\ps(\fq) < \ps(\fu)$ and $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
 
-    Let $\fu' \sim \fu$ with $\fq \in \mathfrak{T}_1(\fu')$. By the definition \eqref{eq-T1-def} of $\mathfrak{T}_1$, we have $\ps(\fp) < \ps(\fu')$. By \Cref{relation-geometry}, we have $\ps(\fu) = \ps(\fu')$, hence $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
-
-    Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $\scI(\fp) \subset I$. Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \scI(\fu)$. By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\scI(\fp) \subset I$.
+    Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $\scI(\fp) \subset I$.
+    Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \scI(\fu)$.
+    By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\scI(\fp) \subset I$.
 \end{proof}
 
 
