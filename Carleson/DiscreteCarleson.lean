@@ -1,11 +1,11 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
+import Carleson.ToMathlib.Height
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
 noncomputable section
-
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -77,44 +77,26 @@ def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
 /-- `𝔏₁(k, n, j, l)` consists of the minimal elements in `ℭ₁(k, n, j)` not in
   `𝔏₁(k, n, j, l')` for some `l' < l`. Defined near (5.1.11). -/
 def 𝔏₁ (k n j l : ℕ) : Set (𝔓 X) :=
-  minimals (·≤·) (ℭ₁ k n j \ ⋃ (l' < l), 𝔏₁ k n j l')
+  (ℭ₁ k n j).withHeight l
 
-lemma 𝔏₁_disjoint {k n j l l' : ℕ} (h : l ≠ l') : Disjoint (𝔏₁ (X := X) k n j l) (𝔏₁ k n j l') := by
-  wlog hl : l < l'; · exact (this h.symm (by omega)).symm
-  rw [disjoint_right]; intro p hp
-  rw [𝔏₁, mem_minimals_iff, mem_diff] at hp; replace hp := hp.1.2; contrapose! hp
-  refine mem_iUnion₂_of_mem hl hp
+lemma 𝔏₁_disjoint {k n j l l' : ℕ} (h : l ≠ l') : Disjoint (𝔏₁ (X := X) k n j l) (𝔏₁ k n j l') :=
+  Set.Disjoint_withHeight _ h
 
 lemma exists_le_of_mem_𝔏₁ {k n j l : ℕ} {p : 𝔓 X} (hp : p ∈ 𝔏₁ k n j l) :
     ∃ p' ∈ ℭ₁ k n j, p' ≤ p ∧ 𝔰 p' + l ≤ 𝔰 p := by
-  induction l generalizing p with
-  | zero =>
-    rw [𝔏₁] at hp; simp_rw [not_lt_zero', iUnion_of_empty, iUnion_empty, diff_empty] at hp
-    use p, hp.1; simp
-  | succ l ih =>
-    have np : p ∉ 𝔏₁ k n j l := disjoint_right.mp (𝔏₁_disjoint (by omega)) hp
-    rw [𝔏₁, mem_minimals_iff] at hp np
-    have rl : p ∈ ℭ₁ k n j \ ⋃ (l' < l), 𝔏₁ k n j l' := by
-      refine mem_of_mem_of_subset hp.1 (diff_subset_diff_right ?_)
-      refine biUnion_subset_biUnion_left fun k hk ↦ ?_
-      rw [mem_def, Nat.le_eq] at hk ⊢; omega
-    simp_rw [rl, true_and] at np; push_neg at np; obtain ⟨p', hp', lp⟩ := np
-    have mp' : p' ∈ 𝔏₁ k n j l := by
-      by_contra h
-      have cp : p' ∈ ℭ₁ k n j \ ⋃ (l' < l + 1), 𝔏₁ k n j l' := by
-        have : ∀ l', l' < l + 1 ↔ l' < l ∨ l' = l := by omega
-        simp_rw [this, iUnion_or, iUnion_union_distrib]
-        simp only [iUnion_iUnion_eq_left, mem_diff, mem_union, mem_iUnion, exists_prop, not_or,
-          not_exists, not_and] at hp' ⊢
-        tauto
-      exact absurd (hp.2 cp lp.1) (ne_eq _ _ ▸ lp.2)
-    obtain ⟨d, md, ld, sd⟩ := ih mp'; use d, md, (ld.trans lp.1)
-    rw [Nat.cast_add, Nat.cast_one, ← add_assoc]
-    have 𝓘lt : 𝓘 p' < 𝓘 p := by
-      refine lt_of_le_of_ne lp.1.1 (not_lt_of_𝓘_eq_𝓘.mt ?_)
-      rw [not_not]; exact lt_of_le_of_ne lp.1 lp.2.symm
-    have 𝔰lt : 𝔰 p' < 𝔰 p := by rw [Grid.lt_def] at 𝓘lt; exact 𝓘lt.2
-    omega
+  obtain ⟨p, rfl, rfl⟩ := Set.exists_series_of_mem_withHeight hp
+  use p.head
+  simp only [defaultA, defaultD, defaultκ, Subtype.coe_prop, Subtype.coe_le_coe, true_and]
+  constructor
+  · apply LTSeries.head_le_last
+  · let p' := p.map (β := ℤ) (fun (x : ℭ₁ k n j) => 𝔰 x.1) ?mono
+    exact LTSeries.int_head_add_len_le_last p'
+    case mono =>
+      show StrictMono (fun (x : ℭ₁ k n j) => 𝔰 x.1)
+      intro ⟨p',hp'⟩ ⟨p, hp⟩ hp'p
+      simp only [defaultA, defaultD, defaultκ, Subtype.mk_lt_mk] at hp'p
+      have 𝓘lt : 𝓘 p' < 𝓘 p := 𝓘_strict_mono hp'p
+      rw [Grid.lt_def] at 𝓘lt; exact 𝓘lt.2
 
 /-- The subset `ℭ₂(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.13). -/
 def ℭ₂ (k n j : ℕ) : Set (𝔓 X) :=
@@ -143,7 +125,7 @@ lemma exists_le_of_mem_ℭ₂ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₂ k n 
     not_and, mem_toFinset] at mp' maxp'
   conv at maxp' => enter [x]; rw [and_imp]
   have mp'₁ : p' ∈ 𝔏₁ k n j (Z * (n + 1)) := by
-    rw [𝔏₁, mem_minimals_iff]
+    rw [𝔏₁, Set.withHeight, mem_minimals_iff]
     simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
     exact ⟨mp'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (maxp' y hy (ly.trans mp'.2))).symm⟩
   obtain ⟨po, mpo, lpo, spo⟩ := exists_le_of_mem_𝔏₁ mp'₁
@@ -169,7 +151,7 @@ lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n 
 /-- `𝔏₃(k, n, j, l)` consists of the maximal elements in `ℭ₃(k, n, j)` not in
   `𝔏₃(k, n, j, l')` for some `l' < l`. Defined near (5.1.17). -/
 def 𝔏₃ (k n j l : ℕ) : Set (𝔓 X) :=
-  maximals (·≤·) (ℭ₃ k n j \ ⋃ (l' < l), 𝔏₃ k n j l')
+ (ℭ₃ k n j).with_coheight l
 
 /-- The subset `ℭ₄(k, n, j)` of `ℭ₃(k, n, j)`, given in (5.1.19). -/
 def ℭ₄ (k n j : ℕ) : Set (𝔓 X) :=
@@ -962,7 +944,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   by_cases e : p = p'; · rwa [e] at mp
   simp_rw [ℭ₂, mem_diff, mp'₁, true_and]
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
-  rw [𝔏₁, mem_minimals_iff] at p'm
+  rw [𝔏₁, Set.withHeight, mem_minimals_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
     replace mp := mp.2; contrapose! mp
     exact mem_of_mem_of_subset mp
@@ -990,7 +972,7 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   by_cases e : p' = p''; · rwa [← e] at mp''
   simp_rw [ℭ₄, mem_diff, mp'₁, true_and]
   by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
-  rw [𝔏₃, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
+  rw [𝔏₃, Set.with_coheight, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
@@ -1477,25 +1459,22 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
--- Note: this is basically the same construction as `𝔏₁`.
--- Please generalize this construction and prove properties
--- (antichainness, union, the fact that it stops after `n`
--- steps if there are no antichains of length `n + 1`)
--- in proper generality.
-def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) :=
-  minimals (·≤·) (𝔏₀ k n \ ⋃ (l' < l), 𝔏₀' k n l')
+def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).withHeight l
+
+/-- Part of Lemma 5.5.2 -/
+lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤ n := sorry
 
 /-- Part of Lemma 5.5.2 -/
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
-  sorry
+  Set.iUnion_withHeight_iff_bounded_series.mpr L0_has_bounded_series
 
 /-- Part of Lemma 5.5.2 -/
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
-  sorry
+  Set.PairwiseDisjoint_withHeight _
 
 /-- Part of Lemma 5.5.2 -/
 lemma antichain_L0' : IsAntichain (·≤·) (𝔏₀' (X := X) k n l) :=
-  sorry
+  Set.IsAntichain_withHeight _ _
 
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
@@ -1503,11 +1482,11 @@ lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L1 : IsAntichain (·≤·) (𝔏₁ (X := X) k n j l) :=
-  sorry
+  Set.IsAntichain_withHeight _ _
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L3 : IsAntichain (·≤·) (𝔏₃ (X := X) k n j l) :=
-  sorry
+  Set.IsAntichain_with_coheight _ _
 
 /-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
 -- todo: redefine in terms of other constants
