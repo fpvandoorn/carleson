@@ -42,49 +42,50 @@ set. Some results
 
 -/
 
+-- https://github.com/leanprover-community/mathlib4/pull/15342
+@[simp]
+lemma ENat.coe_lt_top (n : ℕ) : (n : ℕ∞) < ⊤ := by
+  exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
+
 -- https://github.com/leanprover-community/mathlib4/pull/15341
 theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
   cases n <;> cases m <;> try contradiction
   · norm_num
   · norm_cast; omega
 
--- Parts of it in https://github.com/leanprover-community/mathlib4/pull/15347
-lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
-    (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
-  constructor
-  · intro h
-    have hle : ∀ (y : α), f y ≤ ↑n := by
-      replace h : ⨆ x, f x ≤ n := by simp [h]
-      rw [iSup_le_iff] at h
-      assumption
-    simp only [hle, implies_true, and_true]
-    by_contra! hnotn
-    cases n with
-    | zero =>
-      specialize hle Classical.ofNonempty
-      specialize hnotn Classical.ofNonempty
-      simp_all
-    | succ n =>
-      suffices ⨆ x, f x < n+1 by simp_all
-      rw [ENat.lt_add_one_iff _ _ (by simp)]
-      rw [iSup_le_iff] at *
-      intro i
-      specialize hnotn i
-      specialize hle i
-      generalize f i = m at *
-      cases m
-      · simp_all
-      · simp_all; norm_cast at *; omega
-  · intro ⟨⟨x, hx⟩, h2⟩
-    apply le_antisymm
-    · rw [iSup_le_iff]
-      intro i; exact h2 i
-    ·apply le_iSup_of_le x (by simp [hx])
+-- https://github.com/leanprover-community/mathlib4/pull/15347
+lemma sSup_eq_top_of_infinite {s : Set ℕ∞} (h : s.Infinite) : sSup s = ⊤ := by
+  apply (sSup_eq_top ..).mpr
+  intro x hx
+  cases x; simp at hx; next x =>
+  contrapose! h
+  simp only [Set.not_infinite]
+  apply Set.Finite.subset <| Finite.Set.finite_image {n : ℕ | n ≤ x} (fun (n : ℕ) => (n : ℕ∞))
+  intro y hy
+  specialize h y hy
+  have hxt : y < ⊤ := lt_of_le_of_lt h hx
+  use y.toNat
+  simp [ENat.toNat_le_of_le_coe h, LT.lt.ne_top hxt]
 
+-- https://github.com/leanprover-community/mathlib4/pull/15347
+lemma finite_of_sSup_lt_top {s : Set ℕ∞} (h : sSup s < ⊤) : s.Finite := by
+  contrapose! h
+  simp only [top_le_iff]
+  exact sSup_eq_top_of_infinite h
 
-lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat) :
-    (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
-  simp [ENat.iSup_eq_coe_iff']
+-- https://github.com/leanprover-community/mathlib4/pull/15347
+lemma sSup_mem_of_Nonempty_of_lt_top {s : Set ℕ∞} [Nonempty s] (hs' : sSup s < ⊤) : sSup s ∈ s :=
+  Set.Nonempty.csSup_mem Set.nonempty_of_nonempty_subtype (finite_of_sSup_lt_top hs')
+
+lemma exist_eq_iSup_of_iSup_eq_coe {α : Type*} [Nonempty α] {f : α → ℕ∞} {n : ℕ}
+    (h : (⨆ x, f x) = n) : ∃ x, f x = n := by
+  have : (⨆ x, f x) < ⊤ := by simp [h]
+  have := sSup_mem_of_Nonempty_of_lt_top this
+  obtain ⟨x, hx⟩ := this
+  simp only at hx
+  use x
+  rw [hx]
+  exact h
 
 -- https://github.com/leanprover-community/mathlib4/pull/15342
 @[simp]
@@ -268,8 +269,8 @@ lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
     apply ha (p.drop ⟨m-n, by omega⟩) (by simp) (by simp; omega)
   | coe m =>
     rw [ha, Nat.cast_le] at h
-    rw [height, ENat.iSup_eq_coe_iff'] at ha
-    obtain ⟨⟨⟨p, hlast⟩, hlen⟩, _hmax⟩ := ha
+    obtain ⟨⟨p,hlast⟩, hlen⟩ := exist_eq_iSup_of_iSup_eq_coe ha
+    simp only at hlen
     simp only [Nat.cast_inj] at hlen
     use p.drop ⟨m-n, by omega⟩
     constructor
