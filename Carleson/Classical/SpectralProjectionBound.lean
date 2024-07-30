@@ -36,8 +36,7 @@ lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (
     ‖partialFourierSumLp 2 N f‖ ^ 2 = ∑ n in Finset.Icc (-Int.ofNat N) N, ‖@fourierCoeff T hT _ _ _ f n‖ ^ 2 := by
   --TODO: this can probably be simplified
   calc ‖partialFourierSumLp 2 N f‖ ^ 2
-    _ = ‖partialFourierSumLp 2 N f‖ ^ (2 : ℝ) := by
-      rw [← Real.rpow_natCast]; rfl
+    _ = ‖partialFourierSumLp 2 N f‖ ^ (2 : ℝ) := Eq.symm (Real.rpow_two ‖partialFourierSumLp 2 N f‖)
     _ = ‖fourierBasis.repr (partialFourierSumLp 2 N f)‖ ^ (2 : ℝ) := by
       rw [fourierBasis.repr.norm_map (partialFourierSumLp 2 N f)]
     _ = ‖∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • (fourierBasis.repr (@fourierLp T hT 2 h2 n))‖ ^ (2 : ℝ) := by
@@ -49,8 +48,7 @@ lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (
       have : 2 = (2 : ENNReal).toReal := by simp
       rw [this, ← lp.norm_sum_single (by simp), ← this]
       congr 2
-      apply Finset.sum_congr (by simp)
-      intro n _
+      refine Finset.sum_congr (by simp) fun n ↦ ?_
       simp only [smul_eq_mul, mul_one]
       congr!
     _ = ∑ n in Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ 2 := by
@@ -60,20 +58,17 @@ lemma spectral_projection_bound_sq {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : 
     ‖partialFourierSumLp 2 N f‖ ^ 2 ≤ ‖f‖ ^ 2 := by
   rw [partialFourierSumL2_norm]
   simp_rw [fourierCoeff_eq_innerProduct]
-  apply orthonormal_fourier.sum_inner_products_le
+  exact orthonormal_fourier.sum_inner_products_le _
 
 lemma spectral_projection_bound_sq_integral {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
     ∫ t : AddCircle T, ‖partialFourierSumLp 2 N f t‖ ^ 2 ∂haarAddCircle ≤ ∫ t : AddCircle T, ‖f t‖ ^ 2 ∂haarAddCircle := by
   rw [← L2norm_sq_eq, ← L2norm_sq_eq]
-  apply spectral_projection_bound_sq
+  exact spectral_projection_bound_sq _ _
 
 lemma spectral_projection_bound {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
     ‖partialFourierSumLp 2 N f‖ ≤ ‖f‖ := by
   rw [← abs_norm, ← abs_norm f, ← sq_le_sq]
-  apply spectral_projection_bound_sq
-
-
-
+  exact spectral_projection_bound_sq _ _
 
 -- Bessel's inequality
 -- #check Orthonormal.sum_inner_products_le
