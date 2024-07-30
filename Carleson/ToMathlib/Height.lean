@@ -42,12 +42,11 @@ set. Some results
 
 -/
 
-
+-- https://github.com/leanprover-community/mathlib4/pull/15341
 theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
   cases n <;> cases m <;> try contradiction
   · norm_num
   · norm_cast; omega
-
 
 lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
     (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
@@ -86,18 +85,12 @@ lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat)
     (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   simp [ENat.iSup_eq_coe_iff']
 
-@[simp]
-theorem ENat.iSup_eq_zero {ι : Type*} (s : ι → ℕ∞) : iSup s = 0 ↔ ∀ i, s i = 0 := iSup_eq_bot
-
-
+-- https://github.com/leanprover-community/mathlib4/pull/15342
 @[simp]
 lemma ENat.not_lt_zero (n : ℕ∞) : ¬ n < 0 := by
   cases n <;> simp
 
-@[simp]
-lemma ENat.coe_lt_top (n : ℕ) : (n : ℕ∞) < ⊤ := by
-  exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
-
+-- https://github.com/leanprover-community/mathlib4/pull/15344
 lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
     (⨆ x, f x) + n = (⨆ x, f x + n) := by
   cases n; simp; next n =>
