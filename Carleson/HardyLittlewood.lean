@@ -11,7 +11,7 @@ noncomputable section
 -- #check VitaliFamily
 -- Note: Lemma 9.0.2 is roughly Vitali.exists_disjoint_covering_ae
 
-variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
+variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X] [BorelSpace X]
   {μ : Measure X} [μ.IsDoubling A] [NormedAddCommGroup E]
   [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
   {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}

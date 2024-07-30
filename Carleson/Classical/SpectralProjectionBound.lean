@@ -76,6 +76,6 @@ lemma spectral_projection_bound {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp 
 
 
 -- Bessel's inequality
-#check Orthonormal.sum_inner_products_le
-#check OrthogonalFamily.norm_sum
-#check orthonormal_fourier
+-- #check Orthonormal.sum_inner_products_le
+-- #check OrthogonalFamily.norm_sum
+-- #check orthonormal_fourier

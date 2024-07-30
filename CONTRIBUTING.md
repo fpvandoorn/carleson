@@ -31,7 +31,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `d_{Iᵒ}(f,g)`   | `dist_{I} f g` |  |
 | `d_{𝔭}(f,g)`   | `dist_(𝔭) f g` | `d_{𝔭}(f,g) = d_{𝓘(p)ᵒ}(f,g)`. |
 | `Kₛ(x, y)`       | `Ks s x y`       |         |
-| `T_*f(x)`       | `ANCZOperator K f x`       | The associated nontangential Calderon Zygmund operator |
+| `T_*f(x)`       | `NontangentialOperator K f x`       | The associated nontangential Calderon Zygmund operator |
 | `Tf(x)`       | `CarlesonOperator K f x` | The generalized Carleson operator        |
 | `Tₚf(x)`       | `T p f x`       |         |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
