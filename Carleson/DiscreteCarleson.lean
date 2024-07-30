@@ -151,7 +151,7 @@ lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n 
 /-- `𝔏₃(k, n, j, l)` consists of the maximal elements in `ℭ₃(k, n, j)` not in
   `𝔏₃(k, n, j, l')` for some `l' < l`. Defined near (5.1.17). -/
 def 𝔏₃ (k n j l : ℕ) : Set (𝔓 X) :=
- (ℭ₃ k n j).with_coheight l
+ (ℭ₃ k n j).withCoheight l
 
 /-- The subset `ℭ₄(k, n, j)` of `ℭ₃(k, n, j)`, given in (5.1.19). -/
 def ℭ₄ (k n j : ℕ) : Set (𝔓 X) :=
@@ -972,7 +972,7 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   by_cases e : p' = p''; · rwa [← e] at mp''
   simp_rw [ℭ₄, mem_diff, mp'₁, true_and]
   by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
-  rw [𝔏₃, Set.with_coheight, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
+  rw [𝔏₃, Set.withCoheight, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
@@ -1486,7 +1486,7 @@ lemma antichain_L1 : IsAntichain (·≤·) (𝔏₁ (X := X) k n j l) :=
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L3 : IsAntichain (·≤·) (𝔏₃ (X := X) k n j l) :=
-  Set.IsAntichain_with_coheight _ _
+  Set.IsAntichain_withCoheight _ _
 
 /-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
 -- todo: redefine in terms of other constants

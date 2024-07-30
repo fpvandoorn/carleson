@@ -530,12 +530,12 @@ lemma Set.exists_series_of_mem_withHeight {s : Set α} {a : α} {n : ℕ} (h : a
   simp_all
 
 /-- The dual of `Set.withHeight`.  -/
-def Set.with_coheight (s : Set α) (n : ℕ) : Set α :=
-  maximals (·≤·) (s \ ⋃ (n' < n), Set.with_coheight s n')
+def Set.withCoheight (s : Set α) (n : ℕ) : Set α :=
+  maximals (·≤·) (s \ ⋃ (n' < n), Set.withCoheight s n')
 
 -- TODO: Copy the API
 
-lemma Set.IsAntichain_with_coheight {α} [PartialOrder α] (s : Set α) (n : ℕ) :
-    IsAntichain (·≤·) (s.with_coheight n) := by
-  rw [with_coheight]
+lemma Set.IsAntichain_withCoheight {α} [PartialOrder α] (s : Set α) (n : ℕ) :
+    IsAntichain (·≤·) (s.withCoheight n) := by
+  rw [withCoheight]
   apply maximals_antichain
