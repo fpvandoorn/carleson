@@ -72,6 +72,56 @@ theorem Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall' {α ι}
     rcases A b ⟨rb.1, rb.2⟩ with ⟨c, cu, _⟩
     exact ⟨c, cu, by simp only [closedBall_eq_empty.2 h'a, empty_subset]⟩
 
+theorem Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall'' {α ι} [MetricSpace α]
+    (t : Set ι) (x : ι → α) (r : ι → ℝ) (R : ℝ) (hr : ∀ a ∈ t, r a ≤ R) (τ : ℝ) (hτ : 3 < τ) :
+    ∃ u ⊆ t,
+      (u.PairwiseDisjoint fun a => closedBall (x a) (r a)) ∧
+        (∀ a ∈ t, ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b)) ∧
+        ∀ a ∈ t, ∃ b ∈ u, ball (x a) (r a) ⊆ ball (x b) (τ * r b) := by
+  rcases eq_empty_or_nonempty t with (rfl | _)
+  · exact ⟨∅, Subset.refl _, pairwiseDisjoint_empty, by simp⟩
+  by_cases ht : ∀ a ∈ t, r a < 0
+  · exact ⟨t, Subset.rfl, fun a ha b _ _ => by
+      #adaptation_note /-- nightly-2024-03-16
+      Previously `Function.onFun` unfolded in the following `simp only`,
+      but now needs a separate `rw`.
+      This may be a bug: a no import minimization may be required. -/
+      rw [Function.onFun]
+      simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
+      fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset]⟩,
+      fun a ha ↦ ⟨a, ha, by simp only [ball_eq_empty.mpr (le_of_lt (ht a ha)), empty_subset]⟩⟩
+  push_neg at ht
+  let t' := { a ∈ t | 0 ≤ r a }
+  rcases exists_disjoint_subfamily_covering_enlargment (fun a => closedBall (x a) (r a)) t' r
+      ((τ - 1) / 2) (by linarith) (fun a ha => ha.2) R (fun a ha => hr a ha.1) fun a ha =>
+      ⟨x a, mem_closedBall_self ha.2⟩ with
+    ⟨u, ut', u_disj, hu⟩
+  have A : ∀ a ∈ t', ∃ b ∈ u, r a + dist (x a) (x b) ≤ τ * r b := by
+    intro a ha
+    rcases hu a ha with ⟨b, bu, hb, rb⟩
+    refine ⟨b, bu, ?_⟩
+    have : dist (x a) (x b) ≤ r a + r b := dist_le_add_of_nonempty_closedBall_inter_closedBall hb
+    linarith
+  have Ac : ∀ a ∈ t', ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) := by
+    intro a ha
+    rcases A a ha with ⟨b, bu, hb⟩
+    refine ⟨b, bu, closedBall_subset_closedBall' hb⟩
+  have Ao : ∀ a ∈ t', ∃ b ∈ u, ball (x a) (r a) ⊆ ball (x b) (τ * r b) := by
+    intro a ha
+    rcases A a ha with ⟨b, bu, hb⟩
+    refine ⟨b, bu, ball_subset_ball' hb⟩
+  refine ⟨u, ut'.trans fun a ha => ha.1, u_disj, fun a ha => ?_, fun a ha => ?_⟩
+  · rcases le_or_lt 0 (r a) with (h'a | h'a)
+    · exact Ac a ⟨ha, h'a⟩
+    · rcases ht with ⟨b, rb⟩
+      rcases Ac b ⟨rb.1, rb.2⟩ with ⟨c, cu, _⟩
+      exact ⟨c, cu, by simp only [closedBall_eq_empty.2 h'a, empty_subset]⟩
+  · rcases le_total 0 (r a) with (h'a | h'a)
+    · exact Ao a ⟨ha, h'a⟩
+    · rcases ht with ⟨b, rb⟩
+      rcases Ao b ⟨rb.1, rb.2⟩ with ⟨c, cu, _⟩
+      exact ⟨c, cu, by simp only [ball_eq_empty.2 h'a, empty_subset]⟩
+
 /- NOTE: This was changed to use `ℝ≥0∞` rather than `ℝ≥0` because that was more convenient for the
 proof of `first_exception` in DiscreteCarleson.lean. But everything involved there is finite, so
 you can prove this with `ℝ≥0` and deal with casting between `ℝ≥0` and `ℝ≥0∞` there, if that turns
@@ -81,16 +131,34 @@ theorem Set.Countable.measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l :
     (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  := by
-  obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall'
+  -- obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall'
+  --   𝓑 c r R hR (2 ^ 2) (by norm_num)
+  obtain ⟨B, hB𝓑, hB, h2B, h3B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall''
     𝓑 c r R hR (2 ^ 2) (by norm_num)
   calc
-    l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := sorry
-    _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) := sorry
-    _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := sorry
-    _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := sorry
-    _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := sorry
-    _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := sorry -- does this exist in Mathlib?
-    _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := sorry
+    l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
+      -- it was need to use the strongest `Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall''`
+      gcongr l * μ ?_
+      refine iUnion₂_subset fun i hi ↦ ?_
+      obtain ⟨j, hj, hj'⟩ := h3B i hi
+      exact Set.Subset.trans hj' (Set.subset_iUnion_of_subset j
+        (Set.subset_iUnion_of_subset hj fun _ a ↦ a))
+    _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) := by
+      gcongr
+      exact measure_biUnion_le _ (mono hB𝓑 h𝓑) _
+    _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
+      gcongr
+      exact measure_ball_le_pow_two'
+    _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
+      rw [ENNReal.tsum_mul_left, ← mul_assoc, mul_comm l, mul_assoc, ENNReal.tsum_mul_left]
+    _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
+      gcongr with i
+      --exact h2u
+      sorry
+    _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
+      sorry -- does this exist in Mathlib?
+    _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
+      sorry
 
 protected theorem Finset.measure_biUnion_le_lintegral (𝓑 : Finset ι) {l : ℝ≥0∞} (hl : 0 < l)
     {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
