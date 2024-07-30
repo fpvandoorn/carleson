@@ -101,6 +101,8 @@ lemma isTop_topCube : IsTop (topCube : Grid X) := fun _ ↦ le_topCube
 
 lemma isMax_iff : IsMax i ↔ i = topCube := isTop_topCube.isMax_iff
 
+lemma isMin_iff : IsMin i ↔ s i = - S := sorry
+
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : Grid X) : Set X := ball (c i) (D ^ s i / 4)
 
