@@ -79,3 +79,16 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
     use hi, fia
   · simp at hx
     rwa [hx.2] at fia
+
+
+/-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
+theorem Function.Periodic.exists_mem_Ico₀' {α : Type} {β : Type} {f : α → β} {c : α}
+  [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x : α) : ∃ (n : ℤ), (x - n • c) ∈ Set.Ico 0 c ∧ f x = f (x - n • c) :=
+  let ⟨n, H, _⟩ := existsUnique_zsmul_near_of_pos' hc x
+  ⟨n, H, (h.sub_zsmul_eq n).symm⟩
+
+/-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
+theorem Function.Periodic.exists_mem_Ico' {α : Type} {β : Type} {f : α → β} {c : α}
+  [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x a: α) : ∃ (n : ℤ), (x - n • c) ∈ Set.Ico a (a + c) ∧ f x = f (x - n • c) :=
+  let ⟨n, H, _⟩ := existsUnique_sub_zsmul_mem_Ico hc x a
+  ⟨n, H, (h.sub_zsmul_eq n).symm⟩

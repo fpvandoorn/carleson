@@ -66,3 +66,147 @@ theorem classical_carleson {f : ℝ → ℂ}
     rw [← div_le_iff' (by norm_num)]
     exact le_trans' (lt_C_control_approximation_effect εpos).le (by linarith [Real.two_le_pi])
   _ ≤ ε := by linarith
+
+
+--TODO: Does the centerdot mean the right thing?
+theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi)) :
+    ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * Real.pi)), Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+  let δ (k : ℕ) : ℝ := 1 / (k + 1) --arbitrary sequence tending to zero
+  have δconv : Filter.Tendsto δ Filter.atTop (nhds 0) := tendsto_one_div_add_atTop_nhds_zero_nat
+  have δpos (k : ℕ) : 0 < δ k := by apply div_pos zero_lt_one (by linarith)
+
+  --TODO : Try to get along with just the ENNReal deltas
+  let δ' (k : ℕ) := ENNReal.ofReal (δ k)
+  have δ'conv : Filter.Tendsto δ' Filter.atTop (nhds 0) := by
+    rw [← ENNReal.ofReal_zero]
+    exact ENNReal.tendsto_ofReal δconv
+
+  set ε := fun k n ↦ (1 / 2) ^ n * 2⁻¹ * δ k with εdef
+  have εpos (k n : ℕ) : 0 < ε k n := by positivity
+  have εsmall (k : ℕ) {e : ℝ} (epos : 0 < e) : ∃ n, ε k n < e := by
+    have : Filter.Tendsto (ε k) Filter.atTop (nhds 0) := by
+      rw [εdef]
+      simp_rw [mul_assoc] --, ← zero_mul 1
+      conv => pattern 0; rw [← zero_mul (2⁻¹ * δ k)]
+      apply Filter.Tendsto.mul_const
+      exact tendsto_pow_atTop_nhds_zero_of_lt_one (by linarith) (by linarith)
+    rw [Metric.tendsto_atTop] at this
+    rcases (this e epos) with ⟨n, hn⟩
+    use n
+    convert (hn n (by simp))
+    simp_rw [dist_zero_right, Real.norm_eq_abs, abs_of_nonneg (εpos k n).le]
+
+  have δ'_eq {k : ℕ} : δ' k = ∑' n, ENNReal.ofReal (ε k n) := by
+    rw [εdef]
+    conv => rhs; pattern ENNReal.ofReal _; rw [ENNReal.ofReal_mul' (δpos k).le, ENNReal.ofReal_mul' (by norm_num), ENNReal.ofReal_pow (by norm_num)]
+    rw [ENNReal.tsum_mul_right, ENNReal.tsum_mul_right, ENNReal.tsum_geometric, ← ENNReal.ofReal_one,
+      ← ENNReal.ofReal_sub, ← ENNReal.ofReal_inv_of_pos (by norm_num), ← ENNReal.ofReal_mul' (by norm_num)]
+    conv => pattern ENNReal.ofReal _; ring_nf; rw [ENNReal.ofReal_one]
+    rw [one_mul]
+    norm_num
+    --tsum_geometric_two
+
+  choose Eε hEε_subset _ hEε_measure hEε using (@classical_carleson f cont_f periodic_f)
+  --hEε_measurableSet
+
+  have Eεmeasure {ε : ℝ} (hε : 0 < ε) : volume (Eε hε) ≤ ENNReal.ofReal ε := by
+    rw [ENNReal.le_ofReal_iff_toReal_le _ hε.le]
+    . exact hEε_measure hε
+    . rw [← lt_top_iff_ne_top]
+      apply lt_of_le_of_lt (measure_mono (hEε_subset hε)) measure_Icc_lt_top
+  let Eδ (k : ℕ) := ⋃ (n : ℕ), Eε (εpos k n)
+  have Eδmeasure (k : ℕ) : volume (Eδ k) ≤ δ' k := by
+    apply le_trans (measure_iUnion_le _)
+    rw [δ'_eq]
+    exact ENNReal.tsum_le_tsum (fun n ↦ Eεmeasure (εpos k n))
+  let E := ⋂ (k : ℕ), Eδ k
+
+  have hE : ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+    intro x hx
+    rw [Set.diff_iInter, Set.mem_iUnion] at hx
+    rcases hx with ⟨k,hk⟩
+    rw [Set.diff_iUnion, Set.mem_iInter] at hk
+
+    rw [Metric.tendsto_atTop'] --, tendsto_atTop_nhds
+    intro e epos
+    rcases (εsmall k epos) with ⟨n, lt_e⟩
+
+    rcases (hEε (εpos k n)) with ⟨N₀,hN₀⟩
+    use N₀
+    intro N hN
+    rw [dist_comm, dist_eq_norm]
+    exact (hN₀ x (hk n) N hN).trans_lt lt_e
+
+
+  have Emeasure : volume E ≤ 0 := by
+    have : ∀ k, volume E ≤ δ' k := by
+      intro k
+      apply le_trans' (Eδmeasure k)
+      apply measure_mono
+      apply Set.iInter_subset
+    exact ge_of_tendsto' δ'conv this
+
+  rw [ae_restrict_iff' measurableSet_Icc]
+  apply le_antisymm _ (zero_le _)
+  apply le_trans' Emeasure
+  apply measure_mono
+  intro x hx
+  simp only [and_imp, Set.mem_compl_iff, Set.mem_setOf_eq, Classical.not_imp] at hx
+  by_contra h
+  exact hx.2 (hE x ⟨hx.1, h⟩)
+
+
+--still need to translate to the whole real line from the result for the interval [0,2π]
+
+section
+open Pointwise
+
+--TODO: might be generalized
+lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : (x : ℝ) → Prop} (hP : Function.Periodic P T)
+    (h : ∀ᵐ x ∂volume.restrict (Set.Ico a (a + T)), P x) :
+    ∀ᵐ x, P x := by
+  rw [ae_restrict_iff' measurableSet_Ico, ae_iff] at h
+  set E_interval := {x | ¬(x ∈ Set.Ico a (a + T) → P x)} with E_interval_def
+  set E := ⋃ (k : ℤ), k • T +ᵥ E_interval with Edef
+
+  have hE : E = {a | ¬P a} := by
+    ext x
+    rw [Set.mem_iUnion]
+    constructor
+    . intro h
+      rcases h with ⟨k, hk⟩
+      rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def] at hk
+      simp only [and_imp, Classical.not_imp, Set.mem_setOf_eq, hP.sub_zsmul_eq k] at hk
+      exact hk.2
+    . dsimp
+      rcases (hP.exists_mem_Ico' hT x a) with ⟨n, hn, hxn⟩
+      rw [hxn]
+      intro h
+      use n
+      rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def]
+      simp only [and_imp, Classical.not_imp, Set.mem_setOf_eq]
+      exact ⟨hn, h⟩
+  have Emeasure : volume E = 0 := by
+    rw [Edef, measure_iUnion_null]
+    intro k
+    apply measure_vadd_null h
+
+  rw [ae_iff, ← hE]
+  exact Emeasure
+
+end section
+
+
+theorem carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi)) :
+    ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+  -- Reduce to a.e. convergence on [0,2π]
+  apply @Function.Periodic.ae_of_ae_restrict _ Real.two_pi_pos 0
+  . rw [Function.Periodic]
+    intro x
+    conv => pattern S_ _ _ _; rw [partialFourierSum_periodic]
+    conv => pattern f _; rw [periodic_f]
+  apply MeasureTheory.ae_restrict_of_ae_eq_of_ae_restrict MeasureTheory.Ico_ae_eq_Icc.symm
+  rw [zero_add]
+
+  -- Show a.e. convergence on [0,2π]
+  exact carleson_interval cont_f periodic_f
