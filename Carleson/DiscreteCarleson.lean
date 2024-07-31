@@ -1,7 +1,6 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
 import Carleson.MinLayerTiles
-import Carleson.ToMathlib.Height
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
@@ -1470,22 +1469,18 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
-def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).withHeight l
+def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).minLayer l
 
 /-- Part of Lemma 5.5.2 -/
-lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤ n := sorry
+lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
+  simp_rw [𝔏₀', iUnion_minLayer_iff_bounded_series]; intro p
+  sorry
 
 /-- Part of Lemma 5.5.2 -/
-lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
-  Set.iUnion_withHeight_iff_bounded_series.mpr L0_has_bounded_series
+lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) := pairwiseDisjoint_minLayer
 
 /-- Part of Lemma 5.5.2 -/
-lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
-  PairwiseDisjoint_withHeight _
-
-/-- Part of Lemma 5.5.2 -/
-lemma antichain_L0' : IsAntichain (· ≤ ·) (𝔏₀' (X := X) k n l) :=
-  IsAntichain_withHeight ..
+lemma antichain_L0' : IsAntichain (· ≤ ·) (𝔏₀' (X := X) k n l) := isAntichain_minLayer
 
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) :=

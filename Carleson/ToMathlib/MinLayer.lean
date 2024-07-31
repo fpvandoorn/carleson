@@ -1,7 +1,25 @@
-import Mathlib.Algebra.Order.Ring.Nat
-import Mathlib.Data.Fintype.Card
-import Mathlib.Order.Minimal
-import Mathlib.Order.OmegaCompletePartialOrder
+/-
+Copyright (c) 2024 Jeremy Tan. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jeremy Tan, Joachim Breitner
+-/
+import Carleson.ToMathlib.Height
+
+/-!
+# Minimal and maximal layers of a set
+
+This file defines `Set.minLayer` and `Set.maxLayer` as the sets obtained from iterated application
+of `minimals`/`maximals` on a set, excluding earlier layers.
+
+## Main declarations
+
+* `Set.minLayer` (`Set.maxLayer`): The `n`th minimal (maximal) layer of the given set `A`.
+* `Set.pairwiseDisjoint_minLayer` (`Set.pairwiseDisjoint_maxLayer`),
+  `Set.isAntichain_minLayer` (`Set.isAntichain_maxLayer`):
+  minimal (maximal) layers are pairwise disjoint antichains.
+* `Set.iUnion_minLayer_iff_bounded_series`: if the length of `LTSeries` in `A` is bounded,
+  `A` equals the union of its `minLayer`s up to `n`.
+-/
 
 namespace Set
 
@@ -90,6 +108,54 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
 
 lemma exists_le_in_maxLayer_of_le (ha : a ∈ A.maxLayer n) (hm : m ≤ n) :
     ∃ c ∈ A.maxLayer m, a ≤ c := exists_le_in_minLayer_of_le (α := αᵒᵈ) ha hm
+
+/-- `A.minLayer n` comprises exactly `A`'s elements of height `n`. -/
+lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (⟨x, hx⟩ : A) = n} := by
+  induction n using Nat.strongRec with
+  | ind n ih =>
+    ext x
+    simp only [mem_setOf_eq]
+    wlog hxs : x ∈ A
+    · simp only [hxs, IsEmpty.exists_iff, iff_false]
+      contrapose! hxs; exact minLayer_subset hxs
+    simp only [hxs, exists_true_left]
+    rw [minLayer]
+    simp_rw [← mem_minimal_le_height_iff_height]
+    simp (config := {contextual := true}) only [ih]; clear ih
+    rw [subtype_mk_mem_minimals_iff]
+    congr! 2
+    ext y
+    wlog hys : y ∈ A
+    · simp [hys]
+    simp only [mem_diff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_setOf_eq,
+      exists_and_left, exists_true_left]
+    cases height (⟨y, hys⟩ : A)
+    · simp
+    · simp only [Nat.cast_inj, Nat.cast_le]
+      constructor
+      · intro h; contrapose! h; simp [h]
+      · intro h m hm; omega
+
+/-- `A` equals the union of its `minLayer`s up to `n` iff
+all `LTSeries` in `A` have length at most `n`. -/
+lemma iUnion_minLayer_iff_bounded_series :
+    ⋃ (k ≤ n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length ≤ n := by
+  refine ⟨fun h p ↦ ?_, fun hlength ↦ ?_⟩
+  · have hx : p.last.1 ∈ ⋃ (k ≤ n), A.minLayer k := h.symm ▸ p.last.2
+    simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, Subtype.coe_eta,
+      Subtype.coe_prop, exists_const, exists_prop] at hx
+    obtain ⟨i, hix, hi⟩ := hx
+    have hh := height_last_ge_length p
+    rw [hi, Nat.cast_le] at hh
+    exact hh.trans hix
+  · ext x
+    simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, exists_prop]
+    wlog hxs : x ∈ A; · simp [hxs]
+    simp only [hxs, exists_true_left, iff_true]
+    suffices height (⟨x, hxs⟩ : A) ≤ n by
+      revert this
+      cases height (⟨x, hxs⟩ : A) <;> simp
+    exact iSup_le fun _ ↦ by simp [hlength]
 
 open Classical
 
