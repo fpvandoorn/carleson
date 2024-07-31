@@ -12,7 +12,7 @@ import Mathlib.Analysis.Fourier.AddCircle
 
 noncomputable section
 
-local notation "T" => CarlesonOperatorReal K
+local notation "T" => carlesonOperatorReal K
 local notation "S_" => partialFourierSum
 
 
@@ -373,7 +373,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g Measu
           congr 1 <;>
           . rw [MeasureTheory.integral_mul_left, norm_mul, norm_eq_abs, mul_comm I, abs_exp_ofReal_mul_I, one_mul]
     _ ≤ T g x + T (conj ∘ g) x := by
-      rw [CarlesonOperatorReal, CarlesonOperatorReal]
+      rw [CarlesonOperatorReal, carlesonOperatorReal]
       apply iSup₂_le
       intro n r
       apply iSup₂_le
@@ -495,7 +495,7 @@ lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f
   . rw [Real.volume_Ioo]
     ring_nf
   . intro x hx
-    rw [← CarlesonOperatorReal_eq_of_restrict_interval (E_subset hx)]
+    rw [← carlesonOperatorReal_eq_of_restrict_interval (E_subset hx)]
     exact hE x hx
 
 

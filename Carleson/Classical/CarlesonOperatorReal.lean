@@ -3,7 +3,7 @@ import Carleson.Classical.HilbertKernel
 noncomputable section
 
 --TODO: avoid this extra definition?
-def CarlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
+def carlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
   ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, f y * K x y * Complex.exp (Complex.I * n * y)‖₊
 
@@ -52,10 +52,10 @@ lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
       ((hf.comp measurable_snd).mul Hilbert_kernel_measurable).mul
   (measurable_const.mul (Complex.measurable_ofReal.comp measurable_snd)).cexp
 
-local notation "T" => CarlesonOperatorReal K
+local notation "T" => carlesonOperatorReal K
 
 
-lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
+lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
   --TODO: clean up proof
   apply measurable_iSup
   intro n
@@ -211,8 +211,8 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   rw [stronglyMeasurable_iff_measurable, Fdef]
   exact (helper f_measurable).indicator (measurable_dist measurableSet_Ioo)
 
-lemma CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
-  rw [CarlesonOperatorReal, CarlesonOperatorReal, ENNReal.mul_iSup]
+lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
+  rw [CarlesonOperatorReal, carlesonOperatorReal, ENNReal.mul_iSup]
   congr with n
   rw [ENNReal.mul_iSup]
   congr with r
@@ -233,8 +233,8 @@ lemma CarlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   exact ha.ne.symm
 
 
-lemma CarlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
-  rw [CarlesonOperatorReal, CarlesonOperatorReal]
+lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
+  rw [CarlesonOperatorReal, carlesonOperatorReal]
   congr with n
   congr with _
   congr with _

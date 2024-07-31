@@ -26,8 +26,8 @@ theorem metric_carleson [CompatibleFunctions ℝ X (defaultA a)]
   [IsCancellative X (defaultτ a)] [IsOneSidedKernel a K]
     (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (hT : HasBoundedStrongType (NontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a))
+    (hT : HasBoundedStrongType (nontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a))
     (f : X → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G, CarlesonOperator K f x ≤
+    ∫⁻ x in G, carlesonOperator K f x ≤
     ENNReal.ofReal (C1_0_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
   sorry
