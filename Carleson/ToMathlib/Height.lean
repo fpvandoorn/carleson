@@ -116,6 +116,7 @@ lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) 
 
 variable {α : Type*}
 
+-- https://github.com/leanprover-community/mathlib4/pull/15386
 lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0 < p.length) :
     r p.eraseLast.last p.last := by
   simp only [last, Fin.last, eraseLast_length, eraseLast_toFun]
@@ -144,10 +145,12 @@ lemma RelSeries.head_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length +
 lemma RelSeries.last_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
     (p.drop i).last = p.last := by simp [drop, last, Fin.last]; congr; omega
 
+-- https://github.com/leanprover-community/mathlib4/pull/15384
 @[simp]
 lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last = x :=
   by simp [singleton, last]
 
+-- https://github.com/leanprover-community/mathlib4/pull/15385
 /--
 Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
 `p` is a singleton.
@@ -173,6 +176,7 @@ lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : 
     (p.replaceLast x h).length = p.length := by
   unfold replaceLast; split <;> (simp;omega)
 
+-- https://github.com/leanprover-community/mathlib4/pull/15386
 lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last :=
   LTSeries.monotone p (Fin.zero_le (Fin.last p.length))
 
