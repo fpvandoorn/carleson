@@ -838,23 +838,19 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
   sorry
 
 /-- Lemma 5.1.1 -/
-lemma exceptional_set : volume (G' : Set X) ≤ 3 / 8 * volume G :=
+lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 1 : ℤ) * volume G :=
   calc volume G'
     _ ≤ volume G₁ + volume G₂ + volume G₃ :=
       le_add_of_le_add_right (measure_union_le _ G₃) (measure_union_le _ _)
     _ ≤ 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 2 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G :=
       add_le_add_three first_exception second_exception third_exception
     _ = ((2 : ℝ≥0∞) * 2 ^ (-4 : ℤ) + 2 ^ (- 2 : ℤ)) * volume G := by ring
-    _ = ((2 : ℝ≥0∞) + (2 ^ (2 : ℤ))) * 2 ^ (- 4 : ℤ) * volume G := by
-      rw [add_mul 2, ← ENNReal.zpow_add] <;> norm_num
-    _ = 6 / 16 * volume G := by
-      rw [div_eq_mul_inv]
-      norm_cast
-      norm_num
-    _ = (2 * 3) / (2 * 8) * volume G := by
-      norm_num
-    _ = 3 / 8 * volume G := by
-      rw [ENNReal.mul_div_mul_left] <;> norm_num
+    _ ≤ 2 ^ (- 1 : ℤ) * volume G := by
+      gcongr
+      change ((2 : ℝ≥0) : ℝ≥0∞) * (2 : ℝ≥0) ^ (-4 : ℤ) + (2 : ℝ≥0) ^ (-2 : ℤ) ≤
+        (2 : ℝ≥0) ^ (-1 : ℤ)
+      repeat rw [← ENNReal.coe_zpow (show (2 : ℝ≥0) ≠ 0 by norm_num)]
+      rw_mod_cast [← NNReal.coe_le_coe]; norm_num
 
 /-! ## Section 5.3 -/
 
