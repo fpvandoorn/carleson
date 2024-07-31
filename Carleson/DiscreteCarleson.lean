@@ -507,14 +507,14 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
 
 /-- An equivalence used in the proof of `second_exception`. -/
 def secondExceptionSupportEquiv :
-    (support fun n : ℕ ↦ if k < n then (2 : ℝ≥0∞) ^ (-2 * (n - k - 1) : ℤ) else 0) ≃
+    (support fun n : ℕ ↦ if k ≤ n then (2 : ℝ≥0∞) ^ (-2 * (n - k) : ℤ) else 0) ≃
     support fun n' : ℕ ↦ (2 : ℝ≥0∞) ^ (-2 * n' : ℤ) where
   toFun n := by
-    obtain ⟨n, _⟩ := n; use n - k - 1
+    obtain ⟨n, _⟩ := n; use n - k
     rw [mem_support, neg_mul, ← ENNReal.rpow_intCast]; simp
   invFun n' := by
-    obtain ⟨n', _⟩ := n'; use n' + k + 1
-    simp_rw [mem_support, show k < n' + k + 1 by omega, ite_true, neg_mul, ← ENNReal.rpow_intCast]
+    obtain ⟨n', _⟩ := n'; use n' + k
+    simp_rw [mem_support, show k ≤ n' + k by omega, ite_true, neg_mul, ← ENNReal.rpow_intCast]
     simp
   left_inv n := by
     obtain ⟨n, mn⟩ := n
@@ -525,36 +525,36 @@ def secondExceptionSupportEquiv :
     simp only [Subtype.mk.injEq]; omega
 
 /-- Lemma 5.2.6 -/
-lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G :=
+lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-2 : ℤ) * volume G :=
   calc
-    _ ≤ ∑' (n : ℕ), volume (⋃ (k < n), setA (X := X) (2 * n + 6) k n) := measure_iUnion_le _
-    _ = ∑' (n : ℕ), volume (⋃ (k : ℕ), if k < n then setA (X := X) (2 * n + 6) k n else ∅) := by
+    _ ≤ ∑' (n : ℕ), volume (⋃ (k ≤ n), setA (X := X) (2 * n + 6) k n) := measure_iUnion_le _
+    _ = ∑' (n : ℕ), volume (⋃ (k : ℕ), if k ≤ n then setA (X := X) (2 * n + 6) k n else ∅) := by
       congr!; exact iUnion_eq_if _
-    _ ≤ ∑' (n : ℕ) (k : ℕ), volume (if k < n then setA (X := X) (2 * n + 6) k n else ∅) := by
+    _ ≤ ∑' (n : ℕ) (k : ℕ), volume (if k ≤ n then setA (X := X) (2 * n + 6) k n else ∅) := by
       gcongr; exact measure_iUnion_le _
-    _ = ∑' (k : ℕ) (n : ℕ), if k < n then volume (setA (X := X) (2 * n + 6) k n) else 0 := by
+    _ = ∑' (k : ℕ) (n : ℕ), if k ≤ n then volume (setA (X := X) (2 * n + 6) k n) else 0 := by
       rw [ENNReal.tsum_comm]; congr!; split_ifs <;> simp
-    _ ≤ ∑' (k : ℕ) (n : ℕ), if k < n then 2 ^ (k - 5 - 2 * n : ℤ) * volume G else 0 := by
+    _ ≤ ∑' (k : ℕ) (n : ℕ), if k ≤ n then 2 ^ (k - 5 - 2 * n : ℤ) * volume G else 0 := by
       gcongr; split_ifs
       · convert john_nirenberg using 3; omega
       · rfl
-    _ = ∑' (k : ℕ), 2 ^ (-k - 7 : ℤ) * volume G * ∑' (n' : ℕ), 2 ^ (-2 * n' : ℤ) := by
+    _ = ∑' (k : ℕ), 2 ^ (-k - 5 : ℤ) * volume G * ∑' (n' : ℕ), 2 ^ (- 2 * n' : ℤ) := by
       congr with k -- n' = n - k - 1; n = n' + k + 1
-      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 7 + (-2 * (n - k - 1)) : ℤ) := by omega
+      have rearr : ∀ n : ℕ, (k - 5 - 2 * n : ℤ) = (-k - 5 + (-2 * (n - k)) : ℤ) := by omega
       conv_lhs =>
         enter [1, n]
         rw [rearr, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate,
-          ← mul_zero (volume G * 2 ^ (-k - 7 : ℤ)), ← mul_ite]
+          ← mul_zero (volume G * 2 ^ (-k - 5 : ℤ)), ← mul_ite]
       rw [ENNReal.tsum_mul_left, mul_comm (volume G)]; congr 1
       refine Equiv.tsum_eq_tsum_of_support secondExceptionSupportEquiv fun ⟨n, mn⟩ ↦ ?_
       simp_rw [secondExceptionSupportEquiv, Equiv.coe_fn_mk, neg_mul]
       rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
       simp_rw [mn.1, ite_true]; congr; omega
-    _ ≤ ∑' (k : ℕ), 2 ^ (-k - 7 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
+    _ ≤ ∑' (k : ℕ), 2 ^ (-k - 5 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
       gcongr
       rw [ENNReal.sum_geometric_two_pow_neg_two, zpow_two]; norm_num
       rw [← ENNReal.coe_ofNat, ← Real.toNNReal_ofNat, ENNReal.coe_le_coe]; norm_num
-    _ = 2 ^ (-6 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
+    _ = 2 ^ (-4 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
       simp_rw [mul_assoc, ENNReal.tsum_mul_right]; congr
       conv_lhs => enter [1, k]; rw [sub_eq_add_neg, ENNReal.zpow_add (by simp) (by simp)]
       nth_rw 1 [ENNReal.tsum_mul_right, ENNReal.sum_geometric_two_pow_neg_one,
@@ -838,19 +838,23 @@ lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G :=
   sorry
 
 /-- Lemma 5.1.1 -/
-lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 2 : ℤ) * volume G :=
+lemma exceptional_set : volume (G' : Set X) ≤ 3 / 8 * volume G :=
   calc volume G'
     _ ≤ volume G₁ + volume G₂ + volume G₃ :=
       le_add_of_le_add_right (measure_union_le _ G₃) (measure_union_le _ _)
-    _ ≤ 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G :=
+    _ ≤ 2 ^ (- 4 : ℤ) * volume G + 2 ^ (- 2 : ℤ) * volume G + 2 ^ (- 4 : ℤ) * volume G :=
       add_le_add_three first_exception second_exception third_exception
-    _ = (3 : ℝ≥0∞) * 2 ^ (-4 : ℤ) * volume G := by ring
-    _ ≤ 2 ^ (- 2 : ℤ) * volume G :=
-      have coefficient_inequality : (3 : ℝ≥0∞) * 2 ^ (-4 : ℤ) ≤ (2 : ℝ≥0∞) ^ (-2 : ℤ) := by
-        change ((3 : ℝ≥0) : ℝ≥0∞) * (2 : ℝ≥0) ^ (-4 : ℤ) ≤ (2 : ℝ≥0) ^ (-2 : ℤ)
-        repeat rw [← ENNReal.coe_zpow (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-        rw_mod_cast [← NNReal.coe_le_coe]; norm_num
-      mul_le_mul_right' coefficient_inequality _
+    _ = ((2 : ℝ≥0∞) * 2 ^ (-4 : ℤ) + 2 ^ (- 2 : ℤ)) * volume G := by ring
+    _ = ((2 : ℝ≥0∞) + (2 ^ (2 : ℤ))) * 2 ^ (- 4 : ℤ) * volume G := by
+      rw [add_mul 2, ← ENNReal.zpow_add] <;> norm_num
+    _ = 6 / 16 * volume G := by
+      rw [div_eq_mul_inv]
+      norm_cast
+      norm_num
+    _ = (2 * 3) / (2 * 8) * volume G := by
+      norm_num
+    _ = 3 / 8 * volume G := by
+      rw [ENNReal.mul_div_mul_left] <;> norm_num
 
 /-! ## Section 5.3 -/
 
