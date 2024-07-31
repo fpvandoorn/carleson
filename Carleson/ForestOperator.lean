@@ -87,6 +87,7 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 G).PairwiseDisjoint (fun I ↦ (I : Set X)) 
 
 /-! ## Section 7.7 and Proposition 2.0.4 -/
 
+end TileStructure.Forest
 
 /-- The constant used in `forest_operator`.
 Has value `2 ^ (432 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
