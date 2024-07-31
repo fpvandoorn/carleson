@@ -176,19 +176,46 @@ lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : 
 lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last :=
   LTSeries.monotone p (Fin.zero_le (Fin.last p.length))
 
-lemma LTSeries.int_head_add_le_toFun (p : LTSeries ℤ) (i : Fin (p.length + 1)) : p.head + i ≤ p i := by
+/-- In ℕ, two entries in an `LTSeries` differ by at least the difference of their indices.  -/
+lemma LTSeries.toFun_add_sub_le_toFun_nat (p : LTSeries ℕ) (i j : Fin (p.length + 1))
+    (hij : i ≤ j) : p i + (j - i) ≤ p j := by
   have ⟨i, hi⟩ := i
-  simp only
-  induction i with
-  | zero => simp [RelSeries.head]
-  | succ i ih =>
-    suffices p.head + i < p.toFun ⟨i + 1, hi⟩ by
-      apply Int.le_of_lt_add_one
-      simpa [← add_assoc]
-    exact lt_of_le_of_lt (ih (by omega)) (p.step ⟨i, by omega⟩)
+  have ⟨j, hj⟩ := j
+  simp only [Fin.mk_le_mk] at hij
+  simp only at *
+  induction j, hij using Nat.le_induction  with
+  | base => simp
+  | succ j _hij ih =>
+    have := lt_of_le_of_lt (ih (by omega)) (p.step ⟨j, by omega⟩); clear ih
+    apply Nat.le_of_lt_add_one
+    simp only [Fin.succ_mk, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one] at *
+    omega
 
-lemma LTSeries.int_head_add_len_le_last (p : LTSeries ℤ) : p.head + p.length ≤ p.last := by
-  apply LTSeries.int_head_add_le_toFun
+/-- In ℤ, two entries in an `LTSeries` differ by at least the difference of their indices.  -/
+lemma LTSeries.toFun_add_sub_le_toFun_int (p : LTSeries ℤ) (i j : Fin (p.length + 1))
+    (hij : i ≤ j) : p i + (j - i) ≤ p j := by
+  -- The proof is identical to `LTSeries.toFun_add_sub_le_toFun_nat`, but seemed easier to
+  -- copy rather than to abstract
+  have ⟨i, hi⟩ := i
+  have ⟨j, hj⟩ := j
+  simp only [Fin.mk_le_mk] at hij
+  simp only at *
+  induction j, hij using Nat.le_induction  with
+  | base => simp
+  | succ j _hij ih =>
+    have := lt_of_le_of_lt (ih (by omega)) (p.step ⟨j, by omega⟩); clear ih
+    apply Int.le_of_lt_add_one
+    simp only [Fin.succ_mk, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one] at *
+    omega
+
+/-- In ℕ, the head and tail of an `LTSeries` differ at least by the length of the series -/
+lemma LTSeries.head_add_length_le_nat (p : LTSeries ℕ) : p.head + p.length ≤ p.last :=
+  LTSeries.toFun_add_sub_le_toFun_nat _ _ (Fin.last _) (Fin.zero_le _)
+
+/-- In ℤ, the head and tail of an `LTSeries` differ at least by the length of the series -/
+lemma LTSeries.head_add_length_le_int (p : LTSeries ℤ) : p.head + p.length ≤ p.last :=
+  LTSeries.toFun_add_sub_le_toFun_int _ _ (Fin.last _) (Fin.zero_le _)
+
 
 variable [Preorder α]
 
