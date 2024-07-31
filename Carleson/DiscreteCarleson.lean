@@ -1,6 +1,6 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
-import Carleson.ToMathlib.Height
+import Carleson.MinLayerTiles
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
@@ -77,59 +77,13 @@ def 𝔏₀ (k n : ℕ) : Set (𝔓 X) :=
 /-- `𝔏₁(k, n, j, l)` consists of the minimal elements in `ℭ₁(k, n, j)` not in
   `𝔏₁(k, n, j, l')` for some `l' < l`. Defined near (5.1.11). -/
 def 𝔏₁ (k n j l : ℕ) : Set (𝔓 X) :=
-  (ℭ₁ k n j).withHeight l
-
-lemma 𝔏₁_disjoint {k n j l l' : ℕ} (h : l ≠ l') : Disjoint (𝔏₁ (X := X) k n j l) (𝔏₁ k n j l') :=
-  Set.Disjoint_withHeight _ h
-
-lemma exists_le_of_mem_𝔏₁ {k n j l : ℕ} {p : 𝔓 X} (hp : p ∈ 𝔏₁ k n j l) :
-    ∃ p' ∈ ℭ₁ k n j, p' ≤ p ∧ 𝔰 p' + l ≤ 𝔰 p := by
-  obtain ⟨p, rfl, rfl⟩ := Set.exists_series_of_mem_withHeight hp
-  use p.head
-  simp only [defaultA, defaultD, defaultκ, Subtype.coe_prop, Subtype.coe_le_coe, true_and]
-  constructor
-  · apply LTSeries.head_le_last
-  · let p' := p.map (β := ℤ) (fun (x : ℭ₁ k n j) => 𝔰 x.1) ?mono
-    exact LTSeries.int_head_add_len_le_last p'
-    case mono =>
-      show StrictMono (fun (x : ℭ₁ k n j) => 𝔰 x.1)
-      intro ⟨p',hp'⟩ ⟨p, hp⟩ hp'p
-      simp only [defaultA, defaultD, defaultκ, Subtype.mk_lt_mk] at hp'p
-      have 𝓘lt : 𝓘 p' < 𝓘 p := 𝓘_strict_mono hp'p
-      rw [Grid.lt_def] at 𝓘lt; exact 𝓘lt.2
+  (ℭ₁ k n j).minLayer l
 
 /-- The subset `ℭ₂(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.13). -/
 def ℭ₂ (k n j : ℕ) : Set (𝔓 X) :=
-  ℭ₁ k n j \ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l
+  (ℭ₁ k n j).layersAbove (Z * (n + 1))
 
-lemma ℭ₂_subset_ℭ₁ {k n j : ℕ} : ℭ₂ k n j ⊆ ℭ₁ (X := X) k n j := fun t mt ↦ by
-  rw [ℭ₂, mem_diff] at mt; exact mt.1
-
-lemma exists_le_of_mem_ℭ₂ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₂ k n j) :
-    ∃ p' ∈ ℭ₁ k n j, p' ≤ p ∧ 𝔰 p' + (Z * (n + 1) : ℕ) ≤ 𝔰 p := by
-  have mp : p ∈ ℭ₁ k n j \ ⋃ (l' < Z * (n + 1)), 𝔏₁ k n j l' := by
-    refine mem_of_mem_of_subset hp (diff_subset_diff_right ?_)
-    refine biUnion_subset_biUnion_left fun k hk ↦ ?_
-    rw [mem_def, Nat.le_eq] at hk ⊢; omega
-  let C : Finset (𝔓 X) :=
-    ((ℭ₁ k n j).toFinset \ (Finset.range (Z * (n + 1))).biUnion fun l' ↦
-      (𝔏₁ k n j l').toFinset).filter (· ≤ p)
-  have Cn : C.Nonempty := by
-    use p
-    simp_rw [C, Finset.mem_filter, le_rfl, and_true, Finset.mem_sdiff,
-      Finset.mem_biUnion, Finset.mem_range, not_exists, not_and, mem_toFinset]
-    simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at mp
-    exact mp
-  obtain ⟨p', mp', maxp'⟩ := C.exists_minimal Cn
-  simp_rw [C, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_biUnion, Finset.mem_range, not_exists,
-    not_and, mem_toFinset] at mp' maxp'
-  conv at maxp' => enter [x]; rw [and_imp]
-  have mp'₁ : p' ∈ 𝔏₁ k n j (Z * (n + 1)) := by
-    rw [𝔏₁, Set.withHeight, mem_minimals_iff]
-    simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
-    exact ⟨mp'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (maxp' y hy (ly.trans mp'.2))).symm⟩
-  obtain ⟨po, mpo, lpo, spo⟩ := exists_le_of_mem_𝔏₁ mp'₁
-  use po, mpo, lpo.trans mp'.2, spo.trans mp'.2.1.2
+lemma ℭ₂_subset_ℭ₁ {k n j : ℕ} : ℭ₂ k n j ⊆ ℭ₁ (X := X) k n j := layersAbove_subset
 
 /-- The subset `𝔘₁(k, n, j)` of `ℭ₁(k, n, j)`, given in (5.1.14). -/
 def 𝔘₁ (k n j : ℕ) : Set (𝔓 X) :=
@@ -145,25 +99,29 @@ def 𝔏₂ (k n j : ℕ) : Set (𝔓 X) :=
 def ℭ₃ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₂ k n j \ 𝔏₂ k n j
 
+lemma ℭ₃_def {k n j : ℕ} {p : 𝔓 X} :
+    p ∈ ℭ₃ k n j ↔ p ∈ ℭ₂ k n j ∧ ∃ u ∈ 𝔘₁ k n j, 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u := by
+  rw [ℭ₃, mem_diff, 𝔏₂, mem_setOf, not_and, and_congr_right_iff]; intro h
+  simp_rw [h, true_implies, not_not]
+
 lemma ℭ₃_subset_ℭ₂ {k n j : ℕ} : ℭ₃ k n j ⊆ ℭ₂ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₃, mem_diff] at mt; exact mt.1
 
 /-- `𝔏₃(k, n, j, l)` consists of the maximal elements in `ℭ₃(k, n, j)` not in
   `𝔏₃(k, n, j, l')` for some `l' < l`. Defined near (5.1.17). -/
 def 𝔏₃ (k n j l : ℕ) : Set (𝔓 X) :=
- (ℭ₃ k n j).with_coheight l
+ (ℭ₃ k n j).maxLayer l
 
 /-- The subset `ℭ₄(k, n, j)` of `ℭ₃(k, n, j)`, given in (5.1.19). -/
 def ℭ₄ (k n j : ℕ) : Set (𝔓 X) :=
-  ℭ₃ k n j \ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l
+  (ℭ₃ k n j).layersBelow (Z * (n + 1))
 
-lemma ℭ₄_subset_ℭ₃ {k n j : ℕ} : ℭ₄ k n j ⊆ ℭ₃ (X := X) k n j := fun t mt ↦ by
-  rw [ℭ₄, mem_diff] at mt; exact mt.1
+lemma ℭ₄_subset_ℭ₃ {k n j : ℕ} : ℭ₄ k n j ⊆ ℭ₃ (X := X) k n j := layersBelow_subset
 
 /-- The subset `𝓛(u)` of `Grid X`, given near (5.1.20).
 Note: It seems to also depend on `n`. -/
 def 𝓛 (n : ℕ) (u : 𝔓 X) : Set (Grid X) :=
-  { i : Grid X | i ≤ 𝓘 u ∧ s i + Z * (n + 1) + 1 = 𝔰 u ∧ ¬ ball (c i) (8 * D ^ s i) ⊆ 𝓘 u }
+  { i : Grid X | i ≤ 𝓘 u ∧ s i + (Z * (n + 1) : ℕ) + 1 = 𝔰 u ∧ ¬ ball (c i) (8 * D ^ s i) ⊆ 𝓘 u }
 
 /-- The subset `𝔏₄(k, n, j)` of `ℭ₄(k, n, j)`, given near (5.1.22).
 Todo: we may need to change the definition to say that `p`
@@ -174,6 +132,11 @@ def 𝔏₄ (k n j : ℕ) : Set (𝔓 X) :=
 /-- The subset `ℭ₅(k, n, j)` of `ℭ₄(k, n, j)`, given in (5.1.23). -/
 def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₄ k n j \ 𝔏₄ k n j
+
+lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
+    p ∈ ℭ₅ k n j ↔ p ∈ ℭ₄ k n j ∧ ∀ u ∈ 𝔘₁ k n j, ¬(𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i := by
+  rw [ℭ₅, mem_diff, 𝔏₄, mem_setOf, not_and, and_congr_right_iff]; intro h
+  simp_rw [h, true_implies]; push_neg; rfl
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_diff] at mt; exact mt.1
@@ -942,9 +905,9 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   have mp'₁ : p' ∈ ℭ₁ (X := X) k n j := mem_of_mem_of_subset mp'
     (ordConnected_C1.out mp₁ (mem_of_mem_of_subset mp'' ℭ₂_subset_ℭ₁))
   by_cases e : p = p'; · rwa [e] at mp
-  simp_rw [ℭ₂, mem_diff, mp'₁, true_and]
+  simp_rw [ℭ₂, layersAbove, mem_diff, mp'₁, true_and]
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
-  rw [𝔏₁, Set.withHeight, mem_minimals_iff] at p'm
+  rw [minLayer, mem_minimals_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
     replace mp := mp.2; contrapose! mp
     exact mem_of_mem_of_subset mp
@@ -957,9 +920,8 @@ lemma ordConnected_C3 : OrdConnected (ℭ₃ k n j : Set (𝔓 X)) := by
   have mp₁ := mem_of_mem_of_subset mp ℭ₃_subset_ℭ₂
   have mp''₁ := mem_of_mem_of_subset mp'' ℭ₃_subset_ℭ₂
   have mp'₁ : p' ∈ ℭ₂ (X := X) k n j := mem_of_mem_of_subset mp' (ordConnected_C2.out mp₁ mp''₁)
-  simp_rw [ℭ₃, mem_diff, mp''₁, mp'₁, true_and, 𝔏₂, mem_setOf,
-    mp''₁, mp'₁, true_and, not_not] at mp'' ⊢
-  obtain ⟨u, mu, 𝓘nu, su⟩ := mp''; use u, mu
+  rw [ℭ₃_def] at mp'' ⊢
+  obtain ⟨-, u, mu, 𝓘nu, su⟩ := mp''; refine ⟨mp'₁, ⟨u, mu, ?_⟩⟩
   exact ⟨(mp'.2.1.trans_lt (lt_of_le_of_ne su.1 𝓘nu)).ne,
     (wiggle_order_11_10 mp'.2 (C5_3_3_le (X := X).trans (by norm_num))).trans su⟩
 
@@ -970,9 +932,9 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   have mp'₁ : p' ∈ ℭ₃ (X := X) k n j := mem_of_mem_of_subset mp'
     (ordConnected_C3.out (mem_of_mem_of_subset mp ℭ₄_subset_ℭ₃) mp''₁)
   by_cases e : p' = p''; · rwa [← e] at mp''
-  simp_rw [ℭ₄, mem_diff, mp'₁, true_and]
+  simp_rw [ℭ₄, layersBelow, mem_diff, mp'₁, true_and]
   by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
-  rw [𝔏₃, Set.with_coheight, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
+  rw [maxLayer_def, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
@@ -1029,6 +991,9 @@ lemma ℭ₆_subset_ℭ : ℭ₆ (X := X) k n j ⊆ ℭ k n :=
 In lemmas, we will assume `u ∈ 𝔘₁ k n l` -/
 def 𝔗₁ (k n j : ℕ) (u : 𝔓 X) : Set (𝔓 X) :=
   { p ∈ ℭ₁ k n j | 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u }
+
+lemma 𝓘_lt_of_mem_𝔗₁ (h : p ∈ 𝔗₁ k n j p') : 𝓘 p < 𝓘 p' := by
+  rw [𝔗₁, mem_setOf] at h; exact lt_of_le_of_ne h.2.2.1 h.2.1
 
 /-- The subset `𝔘₂(k, n, j)` of `𝔘₁(k, n, j)`, given in (5.4.2). -/
 def 𝔘₂ (k n j : ℕ) : Set (𝔓 X) :=
@@ -1189,10 +1154,7 @@ lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j
     refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
   · rw [mem_iUnion₂] at h; obtain ⟨_, _, mp, _⟩ := h; exact mp
 
-/- Lemma 5.4.4 seems to be a duplicate of Lemma 5.4.6.
-The numberings below might change once we remove Lemma 5.4.4 -/
-
-/-- Lemma 5.4.5, verifying (2.0.32) -/
+/-- Lemma 5.4.4, verifying (2.0.32) -/
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
   rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
   obtain ⟨_, u', mu', w⟩ := hp; rw [mem_iUnion] at w; obtain ⟨ru, mp'⟩ := w
@@ -1217,7 +1179,7 @@ lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : 
       · rwa [@mem_ball] at ϑy
     _ < _ := by norm_num
 
-/-- Lemma 5.4.6, verifying (2.0.33) -/
+/-- Lemma 5.4.5, verifying (2.0.33) -/
 lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
   rw [ordConnected_def]; intro p mp p'' mp'' p' mp'
   have mp'₅ : p' ∈ ℭ₅ (X := X) k n j :=
@@ -1234,13 +1196,13 @@ lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
   use (ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁) mp'₅, pnu.ne
   exact (wiggle_order_11_10 mp'.2 (C5_3_3_le (X := X).trans (by norm_num))).trans sl
 
-/-- Lemma 5.4.7, verifying (2.0.36)
+/-- Lemma 5.4.6, verifying (2.0.36)
 Note: swapped `u` and `u'` to match (2.0.36) -/
 lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) (huu' : u ≠ u')
     (hp : p ∈ 𝔗₂ k n j u') (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u) := by
   simp_rw [𝔗₂, mem_inter_iff, mem_iUnion₂, mem_iUnion] at hp
   obtain ⟨mp₆, v, mv, rv, ⟨-, np, sl⟩⟩ := hp
-  obtain ⟨p', mp', lp', sp'⟩ := exists_le_of_mem_ℭ₂ <|
+  obtain ⟨p', mp', lp', sp'⟩ := exists_scale_add_le_of_mem_layersAbove <|
     (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂) mp₆
   have np'u : ¬URel k n j v u := by
     by_contra h; apply absurd (Eq.symm _) huu'
@@ -1249,7 +1211,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
   have vnu : v ≠ u := by by_contra h; subst h; exact absurd URel.rfl np'u
   simp_rw [URel, vnu, false_or, not_exists, not_and] at np'u
   have mpt : p' ∈ 𝔗₁ k n j v := by
-    refine ⟨mp', ?_, ?_⟩
+    refine ⟨minLayer_subset mp', ?_, ?_⟩
     · exact (lp'.1.trans_lt (lt_of_le_of_ne sl.1 np)).ne
     · exact (wiggle_order_11_10 lp' (C5_3_3_le (X := X).trans (by norm_num))).trans sl
   specialize np'u p' mpt
@@ -1292,10 +1254,58 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
       rwa [← mul_le_mul_iff_of_pos_left Cdpos, inv_pow, ← mul_assoc, mul_inv_cancel Cdpos.ne',
         one_mul]
 
-/-- Lemma 5.4.8, verifying (2.0.37) -/
-lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u') :
+/-- Lemma 5.4.7, verifying (2.0.37) -/
+lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
     ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u := by
-  sorry
+  have p₄ := (𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄) hp
+  have p₁ := (ℭ₄_subset_ℭ₃.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁) p₄
+  obtain ⟨q, mq, lq, sq⟩ := exists_le_add_scale_of_mem_layersBelow p₄
+  obtain ⟨-, u'', mu'', nu'', sl⟩ := ℭ₃_def.mp (maxLayer_subset mq)
+  replace nu'' : 𝓘 q < 𝓘 u'' := lt_of_le_of_ne sl.1 nu''
+  have s2 : smul 2 p ≤ smul 2 q := wiggle_order_11_10 lq (C5_3_3_le (X := X).trans (by norm_num))
+  have s2' : smul 2 p ≤ smul 1 u'' := s2.trans sl
+  have s10 : smul 10 p ≤ smul 1 u'' := smul_mono s2' le_rfl (by norm_num)
+  simp_rw [𝔗₂, mem_inter_iff, mem_iUnion₂, mem_iUnion] at hp
+  obtain ⟨p₆, u', mu', ru', pu'⟩ := hp
+  have ur : URel k n j u' u'' := Or.inr ⟨p, pu', s10⟩
+  have hu'' : u'' ∈ 𝔘₂ k n j := by
+    rw [𝔘₂, mem_setOf, not_disjoint_iff]
+    refine ⟨mu'', ⟨p, ?_, p₆⟩⟩
+    simpa [𝔗₁, p₁, s2'] using (lq.1.trans_lt nu'').ne
+  have ru'' : URel k n j u u'' := equivalenceOn_urel.trans (𝔘₃_subset_𝔘₂ hu) mu' hu'' ru' ur
+  have qlu : 𝓘 q < 𝓘 u := URel.eq (𝔘₃_subset_𝔘₂ hu) hu'' ru'' ▸ nu''
+  have squ : 𝔰 q < 𝔰 u := (Grid.lt_def.mp qlu).2
+  have spu : 𝔰 p ≤ 𝔰 u - (Z * (n + 1) : ℕ) - 1 := by omega
+  have : ∃ I, s I = 𝔰 u - (Z * (n + 1) : ℕ) - 1 ∧ 𝓘 p ≤ I ∧ I ≤ 𝓘 u := by
+    apply Grid.exists_sandwiched (lq.1.trans qlu.le) (𝔰 u - (Z * (n + 1) : ℕ) - 1)
+    refine ⟨spu, ?_⟩; change _ ≤ 𝔰 u; suffices 0 ≤ Z * (n + 1) by omega
+    exact Nat.zero_le _
+  obtain ⟨I, sI, plI, Ilu⟩ := this
+  have bI : I ∉ 𝓛 n u := by
+    have p₅ := ℭ₆_subset_ℭ₅ p₆
+    rw [ℭ₅_def] at p₅; replace p₅ := p₅.2; contrapose! p₅
+    use u, (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁) hu, plI.1.trans (subset_biUnion_of_mem p₅)
+  rw [𝓛, mem_setOf, not_and] at bI; specialize bI Ilu
+  rw [not_and, not_not] at bI; specialize bI (by omega); rw [← sI] at spu
+  rcases spu.eq_or_lt with h | h
+  · have : 𝓘 p = I := by
+      apply eq_of_le_of_not_lt plI; rw [Grid.lt_def, not_and_or, not_lt]; exact Or.inr h.symm.le
+    rwa [← this] at bI
+  · apply subset_trans (ball_subset_ball' _) bI
+    have ds : c (𝓘 p) ∈ ball (c I) (4 * D ^ s I) := (plI.1.trans Grid_subset_ball) Grid.c_mem_Grid
+    rw [mem_ball] at ds
+    calc
+      _ ≤ 4 * D * (D : ℝ) ^ 𝔰 p + 4 * D ^ s I := by
+        gcongr
+        · linarith [four_le_realD X]
+        · exact ds.le
+      _ = 4 * D ^ (𝔰 p + 1) + 4 * D ^ s I := by
+        rw [mul_assoc]; congr; rw [mul_comm, ← zpow_add_one₀ (defaultD_pos _).ne']
+      _ ≤ 4 * D ^ s I + 4 * D ^ s I := by
+        gcongr
+        · exact one_le_D
+        · omega
+      _ = _ := by ring
 
 def C5_4_8 (n : ℕ) : ℕ := (4 * n + 12) * 2 ^ n
 
@@ -1346,7 +1356,7 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
     simp_rw [mf', mu.1, mu'.1, dite_true, Subtype.val_inj] at e
     simpa using mf_injOn mu.2 mu'.2 e
 
-/-- Lemma 5.4.9, used to verify that 𝔘₄ satisfies 2.0.34. -/
+/-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
 lemma forest_stacking (x : X) (hkn : k < n) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
   by_contra! h
   let C : Finset (𝔓 X) := Finset.univ.filter fun u ↦ u ∈ 𝔘₃ (X := X) k n j ∧ x ∈ 𝓘 u
@@ -1459,34 +1469,28 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
-def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).withHeight l
+def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).minLayer l
 
 /-- Part of Lemma 5.5.2 -/
-lemma L0_has_bounded_series (p : LTSeries (𝔏₀ (X := X) k n)) : p.length ≤ n := sorry
+lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
+  simp_rw [𝔏₀', iUnion_minLayer_iff_bounded_series]; intro p
+  sorry
 
 /-- Part of Lemma 5.5.2 -/
-lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n :=
-  Set.iUnion_withHeight_iff_bounded_series.mpr L0_has_bounded_series
+lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) := pairwiseDisjoint_minLayer
 
 /-- Part of Lemma 5.5.2 -/
-lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) :=
-  Set.PairwiseDisjoint_withHeight _
-
-/-- Part of Lemma 5.5.2 -/
-lemma antichain_L0' : IsAntichain (·≤·) (𝔏₀' (X := X) k n l) :=
-  Set.IsAntichain_withHeight _ _
+lemma antichain_L0' : IsAntichain (· ≤ ·) (𝔏₀' (X := X) k n l) := isAntichain_minLayer
 
 /-- Lemma 5.5.3 -/
-lemma antichain_L2 : IsAntichain (·≤·) (𝔏₂ (X := X) k n j) :=
+lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) :=
   sorry
 
 /-- Part of Lemma 5.5.4 -/
-lemma antichain_L1 : IsAntichain (·≤·) (𝔏₁ (X := X) k n j l) :=
-  Set.IsAntichain_withHeight _ _
+lemma antichain_L1 : IsAntichain (· ≤ ·) (𝔏₁ (X := X) k n j l) := isAntichain_minLayer
 
 /-- Part of Lemma 5.5.4 -/
-lemma antichain_L3 : IsAntichain (·≤·) (𝔏₃ (X := X) k n j l) :=
-  Set.IsAntichain_with_coheight _ _
+lemma antichain_L3 : IsAntichain (· ≤ ·) (𝔏₃ (X := X) k n j l) := isAntichain_maxLayer
 
 /-- The constant used in Lemma 5.1.3, with value `2 ^ (210 * a ^ 3) / (q - 1) ^ 5` -/
 -- todo: redefine in terms of other constants
