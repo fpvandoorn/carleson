@@ -150,6 +150,12 @@ lemma RelSeries.last_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length +
 lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last = x :=
   by simp [singleton, last]
 
+-- https://github.com/leanprover-community/mathlib4/pull/15387
+@[simp] lemma head_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).head = f p.head := rfl
+
+@[simp] lemma last_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).last = f p.last := rfl
+
+
 -- https://github.com/leanprover-community/mathlib4/pull/15385
 /--
 Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
@@ -230,6 +236,17 @@ lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
   use fun ⟨p, h⟩ => ⟨p.snoc y (h ▸ hxy), by simp⟩
   ext ⟨p, _hp⟩
   simp
+
+
+
+lemma height_le_height_of_strictmono {α β : Type*} [Preorder α] [Preorder β] (f : α → β)
+    (hf : StrictMono f) (x : α) :
+    height x ≤ height (f x) := by
+  unfold height
+  apply sSup_le_sSup_of_forall_exists_le
+  rintro _ ⟨⟨p, hlast⟩, rfl⟩
+  exact ⟨p.length, ⟨⟨⟨p.map f hf, by simp⟩, rfl⟩, by simp⟩⟩
+
 
 /-- There exist a series ending in a element for any lenght up to the element’s height.  -/
 lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
