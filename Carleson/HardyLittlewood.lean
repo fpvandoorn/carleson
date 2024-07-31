@@ -100,8 +100,7 @@ theorem Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall'' {α ι
     intro a ha
     rcases hu a ha with ⟨b, bu, hb, rb⟩
     refine ⟨b, bu, ?_⟩
-    have : dist (x a) (x b) ≤ r a + r b := dist_le_add_of_nonempty_closedBall_inter_closedBall hb
-    linarith
+    linarith [dist_le_add_of_nonempty_closedBall_inter_closedBall hb]
   have Ac : ∀ a ∈ t', ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) := by
     intro a ha
     rcases A a ha with ⟨b, bu, hb⟩
