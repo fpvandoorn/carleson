@@ -152,6 +152,7 @@ theorem Set.Countable.measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l :
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
       gcongr with i ; exact h2u i (hB𝓑 i.2)
     _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
+      congr
       sorry -- does this exist in Mathlib?
     _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
       sorry
