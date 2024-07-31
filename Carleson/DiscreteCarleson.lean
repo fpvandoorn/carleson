@@ -196,7 +196,7 @@ lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=
 def MsetA (l k n : ℕ) : Finset (Grid X) := Finset.univ.filter fun j ↦ (j : Set X) ⊆ setA l k n
 
 /-- The set `G₂`, defined in (5.1.27). -/
-def G₂ : Set X := ⋃ (n : ℕ) (k < n), setA (2 * n + 6) k n
+def G₂ : Set X := ⋃ (n : ℕ) (k ≤ n), setA (2 * n + 6) k n
 
 /-- The set `G₃`, defined in (5.1.28). -/
 def G₃ : Set X := ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3) (p ∈ 𝔏₄ (X := X) k n j), 𝓘 p
@@ -1357,7 +1357,7 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
     simpa using mf_injOn mu.2 mu'.2 e
 
 /-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
-lemma forest_stacking (x : X) (hkn : k < n) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
+lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
   by_contra! h
   let C : Finset (𝔓 X) := Finset.univ.filter fun u ↦ u ∈ 𝔘₃ (X := X) k n j ∧ x ∈ 𝓘 u
   have Cc : C.card = stackSize (𝔘₃ k n j) x := by
