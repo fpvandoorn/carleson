@@ -137,24 +137,20 @@ theorem Set.Countable.measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l :
     𝓑 c r R hR (2 ^ 2) (by norm_num)
   calc
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
-      -- it was need to use the strongest `Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall''`
+      -- it was need to use the strongest thesis `Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall''`
       gcongr l * μ ?_
       refine iUnion₂_subset fun i hi ↦ ?_
       obtain ⟨j, hj, hj'⟩ := h3B i hi
       exact Set.Subset.trans hj' (Set.subset_iUnion_of_subset j
         (Set.subset_iUnion_of_subset hj fun _ a ↦ a))
     _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) := by
-      gcongr
-      exact measure_biUnion_le _ (mono hB𝓑 h𝓑) _
+      gcongr; exact measure_biUnion_le _ (mono hB𝓑 h𝓑) _
     _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
-      gcongr
-      exact measure_ball_le_pow_two'
+      gcongr; exact measure_ball_le_pow_two'
     _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
       rw [ENNReal.tsum_mul_left, ← mul_assoc, mul_comm l, mul_assoc, ENNReal.tsum_mul_left]
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
-      gcongr with i
-      --exact h2u
-      sorry
+      gcongr with i ; exact h2u i (hB𝓑 i.2)
     _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
       sorry -- does this exist in Mathlib?
     _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
