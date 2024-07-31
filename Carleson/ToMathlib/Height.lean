@@ -81,7 +81,7 @@ lemma ENat.not_lt_zero (n : ℕ∞) : ¬ n < 0 := by
   cases n <;> simp
 
 -- https://github.com/leanprover-community/mathlib4/pull/15344
-lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
+lemma ENat.iSup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
     (⨆ x, f x) + n = (⨆ x, f x + n) := by
   cases n; simp; next n =>
   apply le_antisymm
@@ -151,9 +151,15 @@ lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last =
   by simp [singleton, last]
 
 -- https://github.com/leanprover-community/mathlib4/pull/15387
-@[simp] lemma head_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).head = f p.head := rfl
+@[simp] lemma RelSeries.head_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).head = f p.head := rfl
 
-@[simp] lemma last_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).last = f p.last := rfl
+@[simp] lemma RelSeries.last_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).last = f p.last := rfl
+
+@[simp] lemma LTSeries.head_map  {α β : Type*} [Preorder α] [Preorder β] (p : LTSeries α) (f : α → β) (hf : StrictMono f) :
+  (p.map f hf).head = f p.head := rfl
+
+@[simp] lemma LTSeries.last_map  {α β : Type*} [Preorder α] [Preorder β] (p : LTSeries α) (f : α → β) (hf : StrictMono f) :
+  (p.map f hf).last = f p.last := rfl
 
 
 -- https://github.com/leanprover-community/mathlib4/pull/15385
@@ -271,14 +277,12 @@ lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
     revert hfin this
     cases height y <;> cases height x <;> simp_all;  norm_cast;  omega
   unfold height
-  rw [ENat.isup_add]
+  rw [ENat.iSup_add]
   apply sSup_le_sSup
   rw [Set.range_subset_range_iff_exists_comp]
   use fun ⟨p, h⟩ => ⟨p.snoc y (h ▸ hxy), by simp⟩
   ext ⟨p, _hp⟩
   simp
-
-
 
 lemma height_le_height_of_strictmono {α β : Type*} [Preorder α] [Preorder β] (f : α → β)
     (hf : StrictMono f) (x : α) :
@@ -286,8 +290,7 @@ lemma height_le_height_of_strictmono {α β : Type*} [Preorder α] [Preorder β]
   unfold height
   apply sSup_le_sSup_of_forall_exists_le
   rintro _ ⟨⟨p, hlast⟩, rfl⟩
-  exact ⟨p.length, ⟨⟨⟨p.map f hf, by simp⟩, rfl⟩, by simp⟩⟩
-
+  exact ⟨p.length, ⟨⟨⟨p.map f hf, by simp [hlast]⟩, rfl⟩, by simp⟩⟩
 
 /-- There exist a series ending in a element for any lenght up to the element’s height.  -/
 lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
@@ -339,7 +342,7 @@ lemma height_eq_top_iff (x : α) :
 lemma height_eq_isup_lt_height (x : α) :
     height x = ⨆ (y : α) (_  : y < x), height y + 1 := by
   unfold height
-  simp_rw [ENat.isup_add]
+  simp_rw [ENat.iSup_add]
   apply le_antisymm
   · apply iSup_le; intro ⟨p, hp⟩
     simp only
@@ -462,3 +465,50 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
   simp only [Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right, Set.mem_setOf_eq,
     iff_and_self, forall_exists_index]
   intros hy _; exact hy
+
+@[simp] lemma height_nat (n : ℕ) : height n = n := by
+  induction n using Nat.strongInductionOn with | ind n ih =>
+  apply le_antisymm
+  · apply (height_le_coe_iff ..).mpr
+    simp (config := { contextual := true }) only [ih, Nat.cast_lt, implies_true]
+  · let p' : LTSeries ℕ := { length := n, toFun := fun i => i, step := fun i => by simp }
+    apply height_last_ge_length p'
+
+@[simp] lemma height_int (a : ℤ) : height a = ⊤ := by
+  rw [height_eq_top_iff]
+  intro n
+  use { length := n, toFun := fun i => a - n + i, step := fun i => by simp }
+  simp [RelSeries.last]
+
+@[simp] lemma height_bot_WithBot (α : Type*) [Preorder α] : height (⊥ : WithBot α) = 0 := by
+  simp [height_eq_zero_iff]
+
+@[simp] lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
+  unfold height
+  rw [ENat.iSup_add]
+  apply le_antisymm
+  · apply iSup_le
+    intro ⟨p, hlast⟩
+    simp only
+    wlog h0 : p.length > 0
+    · simp_all
+    -- let hgb : (i : Nat) (i > 0i > 0: F)
+    let p' : LTSeries α := {
+        length := p.length - 1
+        toFun := fun ⟨i, hi⟩ => (p ⟨i+1, by omega⟩).unbot (by
+          intro heqbot
+          have := p.step ⟨0, by omega⟩
+          sorry)
+        step := by sorry }
+    have hlast' : p'.last = x := by
+      simp [RelSeries.last, Fin.last] at hlast
+      simp [RelSeries.last, hlast]
+      sorry
+    apply le_iSup_of_le ⟨p', hlast'⟩
+    simp only; norm_cast; omega
+  · apply iSup_le
+    intro ⟨p, hlast⟩
+    simp only
+    let p' := (p.map _ WithBot.coe_strictMono).cons ⊥ (by simp)
+    apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩
+    simp [p']
