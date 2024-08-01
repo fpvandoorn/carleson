@@ -241,21 +241,21 @@ noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
 instance (a : α) : Nonempty { p : LTSeries α // p.last = a } := ⟨RelSeries.singleton _ a, rfl⟩
 
 
-lemma height_last_ge_length (p : LTSeries α) : p.length ≤ height p.last :=
+lemma length_le_height_last (p : LTSeries α) : p.length ≤ height p.last :=
   le_iSup (α := ℕ∞) (ι := {p' : LTSeries α // p'.last = p.last}) (f := fun p' =>↑p'.1.length) ⟨p, rfl⟩
 
-lemma height_ge_index (p : LTSeries α) (i : Fin (p.length + 1)) : i ≤ height (p i) :=
-  height_last_ge_length (p.take i)
+lemma index_le_height (p : LTSeries α) (i : Fin (p.length + 1)) : i ≤ height (p i) :=
+  length_le_height_last (p.take i)
 
 lemma height_eq_index_of_length_eq_last_height (p : LTSeries α) (h : p.length = height p.last) :
     ∀ (i : Fin (p.length + 1)), i = height (p i) := by
   suffices ∀ i, height (p i) ≤ i by
-    apply_rules [le_antisymm, height_ge_index]
+    apply_rules [le_antisymm, index_le_height]
   intro i
   apply iSup_le
   intro ⟨p', hp'⟩
   simp only [Nat.cast_le]
-  have hp'' := height_last_ge_length <| p'.smash (p.drop i) (by simpa)
+  have hp'' := length_le_height_last <| p'.smash (p.drop i) (by simpa)
   simp [← h] at hp''; clear h
   norm_cast at hp''
   omega
@@ -444,7 +444,7 @@ lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
     simp only [not_lt, top_le_iff, height_eq_top_iff] at hfin
     obtain ⟨p, rfl, hp⟩ := hfin (n+1)
     use p.eraseLast.last, RelSeries.eraseLast_last_rel_last _ (by omega)
-    simpa [hp] using height_last_ge_length p.eraseLast
+    simpa [hp] using length_le_height_last p.eraseLast
 
 lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : Set s) (x : α)
     (hx : x ∈ s) : (⟨x, hx⟩:s) ∈ minimals (α := s) (·≤·) t ↔
@@ -472,7 +472,7 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
   · apply (height_le_coe_iff ..).mpr
     simp (config := { contextual := true }) only [ih, Nat.cast_lt, implies_true]
   · let p' : LTSeries ℕ := { length := n, toFun := fun i => i, step := fun i => by simp }
-    apply height_last_ge_length p'
+    apply length_le_height_last p'
 
 @[simp] lemma height_int (a : ℤ) : height a = ⊤ := by
   rw [height_eq_top_iff]

@@ -145,7 +145,7 @@ lemma iUnion_minLayer_iff_bounded_series :
     simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, Subtype.coe_eta,
       Subtype.coe_prop, exists_const, exists_prop] at hx
     obtain ⟨i, hix, hi⟩ := hx
-    have hh := height_last_ge_length p
+    have hh := length_le_height_last p
     rw [hi, Nat.cast_le] at hh
     exact hh.trans hix
   · ext x
