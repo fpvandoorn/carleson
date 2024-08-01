@@ -486,6 +486,7 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
 @[simp] lemma height_bot (α : Type*) [Preorder α] [OrderBot α] : height (⊥ : α) = 0 := by
   simp [height_eq_zero_iff]
 
+-- https://github.com/leanprover-community/mathlib4/pull/15421
 theorem WithBot.unbot_lt_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
     a.unbot h < b ↔ a < b := by
   induction a
