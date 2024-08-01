@@ -114,7 +114,7 @@ lemma ENat.iSup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) 
     exact le_iSup f i
 
 
-variable {α : Type*}
+variable {α β : Type*}
 
 -- https://github.com/leanprover-community/mathlib4/pull/15386
 lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0 < p.length) :
@@ -207,7 +207,8 @@ lemma LTSeries.head_add_length_le_int (p : LTSeries ℤ) : p.head + p.length ≤
   LTSeries.toFun_add_sub_le_toFun_int _ _ (Fin.last _) (Fin.zero_le _)
 
 
-variable [Preorder α]
+variable [Preorder α] [Preorder β]
+
 
 noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
   ⨆ (p : {p : LTSeries α // p.last = a}), p.1.length
@@ -278,13 +279,18 @@ lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
   ext ⟨p, _hp⟩
   simp
 
-lemma height_le_height_of_strictmono {α β : Type*} [Preorder α] [Preorder β] (f : α → β)
-    (hf : StrictMono f) (x : α) :
+lemma height_le_height_of_strictmono (f : α → β) (hf : StrictMono f) (x : α) :
     height x ≤ height (f x) := by
   unfold height
   apply sSup_le_sSup_of_forall_exists_le
   rintro _ ⟨⟨p, hlast⟩, rfl⟩
   exact ⟨p.length, ⟨⟨⟨p.map f hf, by simp [hlast]⟩, rfl⟩, by simp⟩⟩
+
+@[simp]
+lemma height_eq_of_orderIso (f : α ≃o β) (x : α) : height (f x) = height x := by
+  apply le_antisymm
+  · simpa using height_le_height_of_strictmono _ f.symm.strictMono (f x)
+  · exact height_le_height_of_strictmono _ f.strictMono x
 
 /-- There exist a series ending in a element for any lenght up to the element’s height.  -/
 lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
@@ -459,6 +465,58 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
   simp only [Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right, Set.mem_setOf_eq,
     iff_and_self, forall_exists_index]
   intros hy _; exact hy
+
+/-! Krull dimension -/
+
+noncomputable def krullDim (α : Type*) [Preorder α] : WithBot ℕ∞ :=
+  ⨆ (p : LTSeries α), (p.length : WithBot ℕ∞)
+
+
+noncomputable instance : CompleteLinearOrder (WithBot ENat) :=
+  inferInstanceAs (CompleteLinearOrder (WithBot (WithTop ℕ)))
+
+set_option pp.notation false in
+lemma krullDim_nonneg_of_nonempty [Nonempty α] : 0 ≤ krullDim α :=
+  le_sSup ⟨⟨0, fun _ ↦ @Nonempty.some α inferInstance, fun f ↦ f.elim0⟩, rfl⟩
+
+lemma krullDim_eq_bot_of_isEmpty [IsEmpty α] : krullDim α = ⊥ := WithBot.ciSup_empty _
+
+lemma krullDim_eq_top_of_infiniteDimensionalOrder [InfiniteDimensionalOrder α] :
+    krullDim α = ⊤ :=
+  le_antisymm le_top <| le_iSup_iff.mpr <| fun m hm ↦ match m, hm with
+  | ⊥, hm => False.elim <| by
+    haveI : Inhabited α := ⟨LTSeries.withLength _ 0 0⟩
+    exact not_le_of_lt (WithBot.bot_lt_coe _ : ⊥ < (0 : WithBot (WithTop ℕ))) <| hm default
+  | some ⊤, _ => le_refl _
+  | some (some m), hm => by
+    refine (not_lt_of_le (hm (LTSeries.withLength _ (m + 1))) ?_).elim
+    erw [WithBot.coe_lt_coe, WithTop.coe_lt_coe]
+    simp
+
+@[simp] lemma krullDim_orderDual : krullDim αᵒᵈ = krullDim α :=
+  le_antisymm (iSup_le fun i ↦ le_sSup ⟨i.reverse, rfl⟩) <|
+    iSup_le fun i ↦ le_sSup ⟨i.reverse, rfl⟩
+
+lemma krullDim_eq_iSup_height : krullDim α = ⨆ (a : α), height a := by
+  apply le_antisymm
+  · apply iSup_le
+    intro p
+    suffices p.length ≤ (⨆ a, height a) by
+      exact (WithBot.unbot'_le_iff fun a ↦ this).mp this
+    apply le_iSup_of_le p.last (length_le_height_last p)
+  · sorry
+  /-
+  le_antisymm
+    (iSup_le fun i ↦ le_iSup_of_le (i ⟨i.length, lt_add_one _⟩) <|
+    le_sSup ⟨⟨_, fun m ↦ ⟨i m, i.strictMono.monotone <| show m.1 ≤ i.length by omega⟩,
+      i.step⟩, rfl⟩) <|
+    iSup_le fun a ↦ krullDim_le_of_strictMono Subtype.val fun _ _ h ↦ h
+  -/
+
+
+/-! TODO: coheight -/
+
+/-! Concrete calculations -/
 
 @[simp] lemma height_nat (n : ℕ) : height n = n := by
   induction n using Nat.strongInductionOn with | ind n ih =>
