@@ -12,7 +12,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
 def aux𝓒 (k : ℕ) : Set (Grid X) :=
-  {i : Grid X | ∃ j : Grid X, i ≤ j ∧ 2 ^ (- (k : ℤ)) * volume (j : Set X) < volume (G ∩ j) }
+  {i : Grid X | ∃ j : Grid X, i ≤ j ∧ 2 ^ (-k : ℤ) * volume (j : Set X) < volume (G ∩ j) }
 
 /-- The partition `𝓒(G, k)` of `Grid X` by volume, given in (5.1.1) and (5.1.2).
 Note: the `G` is fixed with properties in `ProofData`. -/
@@ -23,7 +23,7 @@ def 𝓒 (k : ℕ) : Set (Grid X) :=
 def TilesAt (k : ℕ) : Set (𝔓 X) := 𝓘 ⁻¹' 𝓒 k
 
 def aux𝔐 (k n : ℕ) : Set (𝔓 X) :=
-  {p ∈ TilesAt k | 2 ^ (- (n : ℤ)) * volume (𝓘 p : Set X) < volume (E₁ p) }
+  {p ∈ TilesAt k | 2 ^ (-n : ℤ) * volume (𝓘 p : Set X) < volume (E₁ p) }
 
 /-- The definition `𝔐(k, n)` given in (5.1.4) and (5.1.5). -/
 def 𝔐 (k n : ℕ) : Set (𝔓 X) := maximals (·≤·) (aux𝔐 k n)
@@ -505,25 +505,6 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
           obtain ⟨L, mL, lL⟩ := Grid.exists_maximal_supercube mM
           rw [mem_iUnion₂]; use L, mL, mem_of_mem_of_subset lM lL.1
 
-/-- An equivalence used in the proof of `second_exception`. -/
-def secondExceptionSupportEquiv :
-    (support fun n : ℕ ↦ if k ≤ n then (2 : ℝ≥0∞) ^ (-2 * (n - k) : ℤ) else 0) ≃
-    support fun n' : ℕ ↦ (2 : ℝ≥0∞) ^ (-2 * n' : ℤ) where
-  toFun n := by
-    obtain ⟨n, _⟩ := n; use n - k
-    rw [mem_support, neg_mul, ← ENNReal.rpow_intCast]; simp
-  invFun n' := by
-    obtain ⟨n', _⟩ := n'; use n' + k
-    simp_rw [mem_support, show k ≤ n' + k by omega, ite_true, neg_mul, ← ENNReal.rpow_intCast]
-    simp
-  left_inv n := by
-    obtain ⟨n, mn⟩ := n
-    rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
-    simp only [Subtype.mk.injEq]; omega
-  right_inv n' := by
-    obtain ⟨n', mn'⟩ := n'
-    simp only [Subtype.mk.injEq]; omega
-
 /-- Lemma 5.2.6 -/
 lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-2 : ℤ) * volume G :=
   calc
@@ -546,10 +527,7 @@ lemma second_exception : volume (G₂ (X := X)) ≤ 2 ^ (-2 : ℤ) * volume G :=
         rw [rearr, ENNReal.zpow_add (by simp) (by simp), ← mul_rotate,
           ← mul_zero (volume G * 2 ^ (-k - 5 : ℤ)), ← mul_ite]
       rw [ENNReal.tsum_mul_left, mul_comm (volume G)]; congr 1
-      refine Equiv.tsum_eq_tsum_of_support secondExceptionSupportEquiv fun ⟨n, mn⟩ ↦ ?_
-      simp_rw [secondExceptionSupportEquiv, Equiv.coe_fn_mk, neg_mul]
-      rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
-      simp_rw [mn.1, ite_true]; congr; omega
+      exact tsum_geometric_ite_eq_tsum_geometric
     _ ≤ ∑' (k : ℕ), 2 ^ (-k - 5 : ℤ) * volume G * 2 ^ (2 : ℤ) := by
       gcongr
       rw [ENNReal.sum_geometric_two_pow_neg_two, zpow_two]; norm_num
@@ -833,12 +811,163 @@ lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
     volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by
   sorry
 
+lemma third_exception_aux :
+    volume (⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) ≤
+    C5_2_9 X n * 2 ^ (9 * a - j : ℤ) * 2 ^ (n + k + 3) * volume G :=
+  calc
+    _ ≤ volume (⋃ u ∈ 𝔘₁ (X := X) k n j, ⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) := by
+      refine measure_mono (iUnion₂_subset fun p mp ↦ ?_)
+      obtain ⟨u, mu, hu⟩ := mp.2; exact subset_iUnion₂_of_subset u mu hu
+    _ ≤ ∑' u : 𝔘₁ (X := X) k n j, volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) :=
+      measure_biUnion_le _ (𝔘₁ k n j).to_countable _
+    _ ≤ ∑' u : 𝔘₁ (X := X) k n j, C5_2_9 X n * volume (𝓘 u.1 : Set X) :=
+      ENNReal.tsum_le_tsum fun x ↦ boundary_exception x.2
+    _ = C5_2_9 X n * ∑ u ∈ Finset.univ.filter (· ∈ 𝔘₁ (X := X) k n j), volume (𝓘 u : Set X) := by
+      rw [filter_mem_univ_eq_toFinset, ENNReal.tsum_mul_left]; congr
+      rw [tsum_fintype]; convert (Finset.sum_subtype _ (fun u ↦ mem_toFinset) _).symm; rfl
+    _ ≤ C5_2_9 X n * 2 ^ (9 * a - j : ℤ) *
+        ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) := by
+      rw [mul_assoc]; refine mul_le_mul_left' ?_ _
+      simp_rw [← lintegral_indicator_one coeGrid_measurable,
+        ← lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
+      have c1 : ∀ C : Set (𝔓 X),
+          ∫⁻ x, ∑ u ∈ Finset.univ.filter (· ∈ C), (𝓘 u : Set X).indicator 1 x =
+          ∫⁻ x, stackSize C x := fun C ↦ by
+        refine lintegral_congr fun _ ↦ ?_; rw [stackSize, Nat.cast_sum]; congr!
+        simp_rw [indicator]; split_ifs <;> simp
+      rw [c1, c1, ← lintegral_const_mul _ stackSize_measurable]
+      refine lintegral_mono fun x ↦ ?_
+      simp_rw [← ENNReal.coe_natCast, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
+        ← ENNReal.coe_zpow two_ne_zero, ← ENNReal.coe_mul, ENNReal.coe_le_coe,
+        ← toNNReal_coe_nat]
+      have c2 : (2 : ℝ≥0) ^ (9 * a - j : ℤ) = ((2 : ℝ) ^ (9 * a - j : ℤ)).toNNReal := by
+        refine ((fun h ↦ (Real.toNNReal_eq_iff_eq_coe h).mpr) ?_ rfl).symm
+        positivity
+      rw [c2, ← Real.toNNReal_mul (by positivity)]
+      refine Real.toNNReal_le_toNNReal tree_count
+    _ ≤ _ := by rw [mul_assoc _ _ (volume G)]; gcongr; exact top_tiles
+
+lemma third_exception_rearrangement :
+    (∑' n, ∑' k, if k ≤ n then ∑' (j : ℕ),
+      C5_2_9 X n * 2 ^ (9 * a - j : ℤ) * 2 ^ (n + k + 3) * volume G else 0) =
+    ∑' k, 2 ^ (9 * a + 4 + 2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G *
+      ∑' n, if k ≤ n then (2 * D ^ (-κ * Z) : ℝ≥0∞) ^ (n - k : ℝ) else 0 := by
+  calc
+    _ = ∑' n, ∑' k, if k ≤ n then C5_2_9 X n * 2 ^ (9 * a) * 2 ^ (n + k + 3) * volume G *
+        ∑' (j : ℕ), 2 ^ (-j : ℤ) else 0 := by
+      congr!; rw [← ENNReal.tsum_mul_left]; congr! 2 with j
+      rw [← mul_rotate (2 ^ (-j : ℤ)), ← mul_assoc (2 ^ (-j : ℤ)), ← mul_assoc (2 ^ (-j : ℤ)),
+        mul_rotate (2 ^ (-j : ℤ)), mul_assoc _ _ (2 ^ (-j : ℤ))]; congr
+      rw [sub_eq_add_neg, ENNReal.zpow_add two_ne_zero (by simp)]; congr 1; norm_cast
+    _ = ∑' k, ∑' n, if k ≤ n then
+        C5_2_9 X n * 2 ^ (9 * a) * 2 ^ (n + k + 3) * volume G * 2 else 0 := by
+      rw [ENNReal.tsum_comm]; congr!; exact ENNReal.sum_geometric_two_pow_neg_one
+    _ = ∑' k, 2 ^ (9 * a + 4 + 2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G *
+        ∑' n, if k ≤ n then (2 : ℝ≥0∞) ^ (n - k : ℝ) * D ^ (-κ * Z * (n - k)) else 0 := by
+      congr! 2 with k; rw [← ENNReal.tsum_mul_left]
+      congr! 2 with n; rw [mul_ite, mul_zero]; congr 1
+      have c1 : (C5_2_9 X n : ℝ≥0∞) = D ^ (1 - κ * Z * (k + 1)) * D ^ (-κ * Z * (n - k)) := by
+        rw [C5_2_9, ← ENNReal.coe_rpow_of_ne_zero (by rw [defaultD]; positivity),
+          ENNReal.coe_natCast,
+          ← ENNReal.rpow_add _ _ (by rw [defaultD]; positivity) (by rw [defaultD]; simp)]
+        congr; ring
+      have c2 : (2 : ℝ≥0∞) ^ (n + k + 3) = 2 ^ (2 * k + 3) * 2 ^ (n - k : ℝ) := by
+        rw [show (2 : ℝ≥0∞) ^ (2 * k + 3) = 2 ^ (2 * k + 3 : ℝ) by norm_cast,
+          show (2 : ℝ≥0∞) ^ (n + k + 3) = 2 ^ (n + k + 3 : ℝ) by norm_cast,
+          ← ENNReal.rpow_add _ _ two_ne_zero (by simp)]
+        congr 1; ring
+      rw [c1, c2]; ring
+    _ = _ := by congr!; rw [ENNReal.rpow_mul, ENNReal.mul_rpow_of_ne_top (by simp) (by simp)]
+
 /-- Lemma 5.2.10 -/
-lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (- 4 : ℤ) * volume G := by
-  sorry
+lemma third_exception : volume (G₃ (X := X)) ≤ 2 ^ (-4 : ℤ) * volume G := by
+  calc
+    _ ≤ ∑' n, volume (⋃ k, ⋃ (_ : k ≤ n), ⋃ j, ⋃ (_ : j ≤ 2 * n + 3),
+        ⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) := measure_iUnion_le _
+    _ ≤ ∑' n, ∑' k, volume (⋃ (_ : k ≤ n), ⋃ j, ⋃ (_ : j ≤ 2 * n + 3),
+        ⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) := by gcongr; exact measure_iUnion_le _
+    _ = ∑' n, ∑' k, volume (if k ≤ n then ⋃ j, ⋃ (_ : j ≤ 2 * n + 3),
+        ⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X) else ∅) := by congr!; exact iUnion_eq_if _
+    _ = ∑' n, ∑' k, if k ≤ n then volume (⋃ j, ⋃ (_ : j ≤ 2 * n + 3),
+        ⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) else 0 := by congr!; split_ifs <;> simp
+    _ ≤ ∑' n, ∑' k, if k ≤ n then ∑' j, volume (⋃ (_ : j ≤ 2 * n + 3),
+        ⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) else 0 := by
+      gcongr; split_ifs
+      · exact measure_iUnion_le _
+      · exact le_rfl
+    _ ≤ ∑' n, ∑' k, if k ≤ n then ∑' j, volume (⋃ p ∈ 𝔏₄ (X := X) k n j, (𝓘 p : Set X)) else 0 := by
+      gcongr; split_ifs
+      · gcongr; exact iUnion_subset fun _ _ ↦ id
+      · exact le_rfl
+    _ ≤ ∑' n, ∑' k, if k ≤ n then ∑' (j : ℕ),
+        C5_2_9 X n * 2 ^ (9 * a - j : ℤ) * 2 ^ (n + k + 3) * volume G else 0 := by
+      gcongr; split_ifs
+      · gcongr; exact third_exception_aux
+      · exact le_rfl
+    _ = ∑' k, 2 ^ (9 * a + 4 + 2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G *
+        ∑' n, if k ≤ n then (2 * D ^ (-κ * Z) : ℝ≥0∞) ^ (n - k : ℝ) else 0 :=
+      third_exception_rearrangement
+    _ ≤ ∑' k, 2 ^ (9 * a + 4 + 2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G *
+        ∑' n, if k ≤ n then 2⁻¹ ^ (n - k : ℝ) else 0 := by
+      gcongr with k n; split_ifs with hnk
+      · refine ENNReal.rpow_le_rpow ?_ (by simpa using hnk)
+        calc
+          _ ≤ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_left' (DκZ_le_two_rpow_100 (X := X)) 2
+          _ ≤ _ := by
+            nth_rw 1 [← ENNReal.rpow_one 2, ← ENNReal.rpow_add _ _ (by simp) (by simp),
+              ← ENNReal.rpow_neg_one 2]
+            exact ENNReal.rpow_le_rpow_of_exponent_le one_le_two (by norm_num)
+      · exact le_rfl
+    _ = ∑' k, 2 ^ (9 * a + 4 + 2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G *
+        ∑' (n : ℕ), 2 ^ (-(1 : ℕ) * n : ℤ) := by
+      congr! 3 with k; convert tsum_geometric_ite_eq_tsum_geometric with n hnk
+      rw [← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul]; norm_cast
+    _ = ∑' k, 2 ^ (9 * a + 4 + 2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G * 2 := by
+      congr!; simpa using ENNReal.sum_geometric_two_pow_neg_one
+    _ = 2 ^ (9 * a + 5) * D ^ (1 - κ * Z) * volume G *
+        ∑' (k : ℕ), (2 : ℝ≥0∞) ^ (2 * k) * D ^ (-κ * Z * k) := by
+      rw [← ENNReal.tsum_mul_left]; congr with k
+      have lhsr :
+          (2 : ℝ≥0∞) ^ (9 * a + 4 + 2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G * 2 =
+          2 ^ (9 * a + 5) * 2 ^ (2 * k) * D ^ (1 - κ * Z * (k + 1)) * volume G := by ring
+      have rhsr :
+          (2 : ℝ≥0∞) ^ (9 * a + 5) * D ^ (1 - κ * Z) * volume G * (2 ^ (2 * k) * D ^ (-κ * Z * k)) =
+          2 ^ (9 * a + 5) * 2 ^ (2 * k) * (D ^ (1 - κ * Z) * D ^ (-κ * Z * k)) * volume G := by
+        ring
+      rw [lhsr, rhsr]; congr
+      rw [← ENNReal.rpow_add _ _ (by rw [defaultD]; simp) (by rw [defaultD]; simp)]
+      congr; ring
+    _ = 2 ^ (9 * a + 5) * D ^ (1 - κ * Z) * volume G *
+        ∑' k, ((2 : ℝ≥0∞) ^ 2 * D ^ (-κ * Z)) ^ k := by
+      congr! with k
+      rw [ENNReal.rpow_mul, ← ENNReal.rpow_natCast, Nat.cast_mul, ENNReal.rpow_mul 2,
+        ← ENNReal.mul_rpow_of_ne_top (by simp) (by simp), ENNReal.rpow_natCast]
+      congr 2; norm_cast
+    _ ≤ 2 ^ (9 * a + 5) * D ^ (1 - κ * Z) * volume G * ∑' k, 2⁻¹ ^ k := by
+      gcongr
+      calc
+        _ ≤ 2 ^ 2 * (2 : ℝ≥0∞) ^ (-100 : ℝ) := mul_le_mul_left' (DκZ_le_two_rpow_100 (X := X)) _
+        _ ≤ _ := by
+          nth_rw 1 [← ENNReal.rpow_natCast, ← ENNReal.rpow_add _ _ (by simp) (by simp),
+            ← ENNReal.rpow_neg_one 2]
+          exact ENNReal.rpow_le_rpow_of_exponent_le one_le_two (by norm_num)
+    _ = 2 ^ (9 * a + 5) * D ^ (1 - κ * Z) * volume G * 2 := by
+      congr; convert ENNReal.sum_geometric_two_pow_neg_one with k
+      rw [← ENNReal.rpow_intCast, show (-k : ℤ) = (-k : ℝ) by norm_cast, ENNReal.rpow_neg,
+        ← ENNReal.inv_pow, ENNReal.rpow_natCast]
+    _ ≤ 2 ^ (9 * a + 5) * D ^ (-1 : ℝ) * volume G * 2 := by
+      gcongr
+      · exact_mod_cast one_le_D
+      · linarith [two_le_κZ (X := X)]
+    _ = 2 ^ (9 * a + 6 - 100 * a ^ 2 : ℤ) * volume G := by
+      rw [← mul_rotate, ← mul_assoc, ← pow_succ', defaultD, Nat.cast_pow,
+        show ((2 : ℕ) : ℝ≥0∞) = 2 by rfl, ← ENNReal.rpow_natCast, ← ENNReal.rpow_natCast,
+        ← ENNReal.rpow_mul, ← ENNReal.rpow_add _ _ (by simp) (by simp), ← ENNReal.rpow_intCast]
+      congr 2; norm_num; ring
+    _ ≤ _ := mul_le_mul_right' (ENNReal.zpow_le_of_le one_le_two (by nlinarith [four_le_a X])) _
 
 /-- Lemma 5.1.1 -/
-lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (- 1 : ℤ) * volume G :=
+lemma exceptional_set : volume (G' : Set X) ≤ 2 ^ (-1 : ℤ) * volume G :=
   calc volume G'
     _ ≤ volume G₁ + volume G₂ + volume G₃ :=
       le_add_of_le_add_right (measure_union_le _ G₃) (measure_union_le _ _)
@@ -1473,7 +1602,7 @@ def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).minLayer l
 
 /-- Part of Lemma 5.5.2 -/
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
-  simp_rw [𝔏₀', iUnion_minLayer_iff_bounded_series]; intro p
+  refine iUnion_minLayer_iff_bounded_series.mpr fun p ↦ ?_
   sorry
 
 /-- Part of Lemma 5.5.2 -/
