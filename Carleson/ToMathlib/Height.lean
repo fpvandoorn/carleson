@@ -215,20 +215,11 @@ noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
 instance (a : α) : Nonempty { p : LTSeries α // p.last = a } := ⟨RelSeries.singleton _ a, rfl⟩
 
 lemma height_le_iff (x : α) (n : ℕ∞) :
-    height x ≤ n ↔ ∀ (p : LTSeries α), p.last = x → p.length > 0 → p.length ≤ n := by
-  unfold height
-  rw [iSup_le_iff]
-  constructor
-  · intro h p hlast _hlen0
-    exact h ⟨p, hlast⟩
-  · intro h ⟨p, hlast⟩
-    simp only
-    by_cases hlen0 : p.length > 0
-    · exact h p hlast hlen0
-    · simp_all
+    height x ≤ n ↔ ∀ (p : LTSeries α), p.last = x → p.length ≤ n := by
+  simp [height, iSup_le_iff]
 
 lemma height_le (x : α) (n : ℕ∞) :
-    (∀ (p : LTSeries α), p.last = x → p.length > 0 → p.length ≤ n) → height x ≤ n :=
+    (∀ (p : LTSeries α), p.last = x → p.length ≤ n) → height x ≤ n :=
   (height_le_iff x n).mpr
 
 lemma le_height_of_last_le (x : α) (p : LTSeries α) (hlast : p.last ≤ x) : p.length ≤ height x := by
@@ -259,7 +250,7 @@ lemma height_eq_index_of_length_eq_last_height (p : LTSeries α) (h : p.length =
     apply_rules [le_antisymm, index_le_height]
   intro i
   apply height_le
-  intro p' hp' _
+  intro p' hp'
   simp only [Nat.cast_le]
   have hp'' := length_le_height_last <| p'.smash (p.drop i) (by simpa)
   simp [← h] at hp''; clear h
@@ -515,7 +506,9 @@ theorem WithTop.untop_lt_iff {a : WithTop α} {b : α} (h : a ≠ ⊤) :
 lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
   apply le_antisymm
   · apply height_le
-    intro p hlast hlenpos
+    intro p hlast
+    wlog hlenpos : p.length > 0
+    · simp_all
     let p' : LTSeries α := {
       length := p.length - 1
       toFun := fun ⟨i, hi⟩ => (p ⟨i+1, by omega⟩).unbot (by
@@ -548,7 +541,7 @@ lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
 lemma height_coe_WithTop (x : α) : height (x : WithTop α) = height x := by
   apply le_antisymm
   · apply height_le
-    intro p hlast hlenpos
+    intro p hlast
     let p' : LTSeries α := {
       length := p.length
       toFun := fun i => (p i).untop (by
@@ -569,7 +562,7 @@ lemma height_coe_WithTop (x : α) : height (x : WithTop α) = height x := by
       simpa [p'] using this
     apply length_le_height_last
   · apply height_le
-    intro p hlast _
+    intro p hlast
     let p' := p.map _ WithTop.coe_strictMono
     apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩
     simp [p']
