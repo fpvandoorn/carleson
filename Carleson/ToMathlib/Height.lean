@@ -483,7 +483,7 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
   use { length := n, toFun := fun i => a - n + i, step := fun i => by simp }
   simp [RelSeries.last]
 
-@[simp] lemma height_bot_WithBot (α : Type*) [Preorder α] : height (⊥ : WithBot α) = 0 := by
+@[simp] lemma height_bot (α : Type*) [Preorder α] [OrderBot α] : height (⊥ : α) = 0 := by
   simp [height_eq_zero_iff]
 
 theorem WithBot.unbot_lt_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
