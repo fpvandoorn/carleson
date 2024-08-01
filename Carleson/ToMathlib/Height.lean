@@ -486,7 +486,6 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
 @[simp] lemma height_bot_WithBot (α : Type*) [Preorder α] : height (⊥ : WithBot α) = 0 := by
   simp [height_eq_zero_iff]
 
-@[simp]
 theorem WithBot.unbot_lt_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
     a.unbot h < b ↔ a < b := by
   induction a
@@ -499,22 +498,35 @@ theorem WithBot.unbot_eq_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
   · simpa [bot_lt_coe] using h rfl
   · simp
 
+theorem WithTop.untop_eq_iff {a : WithTop α} {b : α} (h : a ≠ ⊤) :
+    a.untop h = b ↔ a = b := by
+  induction a
+  · simpa [coe_lt_top] using h rfl
+  · simp
+
+theorem WithTop.untop_lt_iff {a : WithTop α} {b : α} (h : a ≠ ⊤) :
+    a.untop h < b ↔ a < b := by
+  induction a
+  · simpa [coe_lt_top] using h rfl
+  · simp
+
 @[simp]
 lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
   apply le_antisymm
   · apply height_le
     intro p hlast hlenpos
     let p' : LTSeries α := {
-        length := p.length - 1
-        toFun := fun ⟨i, hi⟩ => (p ⟨i+1, by omega⟩).unbot (by
-          apply LT.lt.ne_bot (a := p.head)
-          apply p.strictMono
-          exact compare_gt_iff_gt.mp rfl)
-        step := by
-          intro ⟨i, hi⟩
-          simp [Fin.castSucc_mk, Nat.succ_eq_add_one, Fin.succ_mk, gt_iff_lt]
-          exact p.step ⟨i + 1, by omega⟩
-        }
+      length := p.length - 1
+      toFun := fun ⟨i, hi⟩ => (p ⟨i+1, by omega⟩).unbot (by
+        apply LT.lt.ne_bot (a := p.head)
+        apply p.strictMono
+        exact compare_gt_iff_gt.mp rfl)
+      step := by
+        intro ⟨i, hi⟩
+        simp only [Fin.castSucc_mk, Nat.succ_eq_add_one, Fin.succ_mk, WithBot.unbot_lt_iff,
+          WithBot.coe_unbot, gt_iff_lt]
+        exact p.step ⟨i + 1, by omega⟩
+      }
     have hlast' : p'.last = x := by
       simp only [RelSeries.last, Fin.val_last, WithBot.unbot_eq_iff, ← hlast]
       congr; omega
@@ -530,3 +542,36 @@ lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
     let p' := (p.map _ WithBot.coe_strictMono).cons ⊥ (by simp)
     apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩
     simp [p']
+
+@[simp]
+lemma height_coe_WithTop (x : α) : height (x : WithTop α) = height x := by
+  apply le_antisymm
+  · apply height_le
+    intro p hlast hlenpos
+    let p' : LTSeries α := {
+      length := p.length
+      toFun := fun i => (p i).untop (by
+        apply WithTop.lt_top_iff_ne_top.mp
+        apply lt_of_le_of_lt
+        · exact p.monotone (Fin.le_last _)
+        · rw [RelSeries.last] at hlast
+          simp [hlast])
+      step := by
+        intro i
+        simp only [WithTop.untop_lt_iff, WithTop.coe_untop]
+        exact p.step i
+      }
+    have hlast' : p'.last = x := by
+      simp only [RelSeries.last, Fin.val_last, WithTop.untop_eq_iff, ← hlast]
+    suffices p'.length ≤ height p'.last by
+      rw [hlast'] at this
+      simpa [p'] using this
+    apply length_le_height_last
+  · apply height_le
+    intro p hlast _
+    let p' := p.map _ WithTop.coe_strictMono
+    apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩
+    simp [p']
+
+-- TODO: For height_top_WithTop we need the krull dimension
+-- Then we can show that height is the identity on ℕ∞
