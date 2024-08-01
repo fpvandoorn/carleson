@@ -162,32 +162,6 @@ lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last =
   (p.map f hf).last = f p.last := rfl
 
 
--- https://github.com/leanprover-community/mathlib4/pull/15385
-/--
-Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
-`p` is a singleton.
--/
-def LTSeries.replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
-    LTSeries α :=
-  if hlen : p.length = 0
-  then RelSeries.singleton _ x
-  else p.eraseLast.snoc x (by
-    apply lt_of_lt_of_le
-    · apply p.step ⟨p.length - 1, by omega⟩
-    · convert h
-      simp only [Fin.succ_mk, Nat.succ_eq_add_one, RelSeries.last, Fin.last]
-      congr; omega)
-
-@[simp]
-lemma LTSeries.last_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
-    (p.replaceLast x h).last = x := by
-  unfold replaceLast; split <;> simp
-
-@[simp]
-lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
-    (p.replaceLast x h).length = p.length := by
-  unfold replaceLast; split <;> (simp;omega)
-
 -- https://github.com/leanprover-community/mathlib4/pull/15386
 lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last :=
   LTSeries.monotone p (Fin.zero_le (Fin.last p.length))
@@ -240,9 +214,41 @@ noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
 
 instance (a : α) : Nonempty { p : LTSeries α // p.last = a } := ⟨RelSeries.singleton _ a, rfl⟩
 
+lemma height_le_iff (x : α) (n : ℕ∞) :
+    height x ≤ n ↔ ∀ (p : LTSeries α), p.last = x → p.length > 0 → p.length ≤ n := by
+  unfold height
+  rw [iSup_le_iff]
+  constructor
+  · intro h p hlast _hlen0
+    exact h ⟨p, hlast⟩
+  · intro h ⟨p, hlast⟩
+    simp only
+    by_cases hlen0 : p.length > 0
+    · exact h p hlast hlen0
+    · simp_all
+
+lemma height_le (x : α) (n : ℕ∞) :
+    (∀ (p : LTSeries α), p.last = x → p.length > 0 → p.length ≤ n) → height x ≤ n :=
+  (height_le_iff x n).mpr
+
+lemma le_height_of_last_le (x : α) (p : LTSeries α) (hlast : p.last ≤ x) : p.length ≤ height x := by
+  by_cases hlen0 : p.length > 0
+  · let p' := p.eraseLast.snoc x (by
+      apply lt_of_lt_of_le
+      · apply p.step ⟨p.length - 1, by omega⟩
+      · convert hlast
+        simp only [Fin.succ_mk, Nat.succ_eq_add_one, RelSeries.last, Fin.last]
+        congr; omega)
+    suffices p'.length ≤ height x by
+      simp [p'] at this
+      convert this
+      norm_cast
+      omega
+    exact le_iSup_of_le ⟨p', by simp [p']⟩ (by simp)
+  · simp_all
 
 lemma length_le_height_last (p : LTSeries α) : p.length ≤ height p.last :=
-  le_iSup (α := ℕ∞) (ι := {p' : LTSeries α // p'.last = p.last}) (f := fun p' =>↑p'.1.length) ⟨p, rfl⟩
+  le_height_of_last_le _ p (le_refl _)
 
 lemma index_le_height (p : LTSeries α) (i : Fin (p.length + 1)) : i ≤ height (p i) :=
   length_le_height_last (p.take i)
@@ -252,22 +258,19 @@ lemma height_eq_index_of_length_eq_last_height (p : LTSeries α) (h : p.length =
   suffices ∀ i, height (p i) ≤ i by
     apply_rules [le_antisymm, index_le_height]
   intro i
-  apply iSup_le
-  intro ⟨p', hp'⟩
+  apply height_le
+  intro p' hp' _
   simp only [Nat.cast_le]
   have hp'' := length_le_height_last <| p'.smash (p.drop i) (by simpa)
   simp [← h] at hp''; clear h
   norm_cast at hp''
   omega
 
-
 lemma height_mono : Monotone (α := α) height := by
   intro x y hxy
-  apply sSup_le_sSup
-  rw [Set.range_subset_range_iff_exists_comp]
-  use fun ⟨p, h⟩ => ⟨p.replaceLast y (h ▸ hxy), by simp⟩
-  ext ⟨p, hp⟩
-  simp
+  apply height_le
+  intros p hlast _
+  apply le_height_of_last_le y p (hlast ▸ hxy)
 
 -- only true for finite height
 lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
@@ -392,7 +395,7 @@ lemma height_eq_coe_add_one_iff (x : α) (n : ℕ)  :
   · simp_all
     exact ne_of_beq_false rfl
   simp only [hfin, true_and]
-  trans (n < height x ∧ height x ≤ n + 1)
+  trans n < height x ∧ height x ≤ n + 1
   · rw [le_antisymm_iff, and_comm]
     simp [hfin, ENat.lt_add_one_iff, ENat.add_one_le_iff]
   · congr! 1
