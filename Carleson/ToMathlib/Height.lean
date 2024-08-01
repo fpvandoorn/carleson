@@ -486,30 +486,45 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
 @[simp] lemma height_bot_WithBot (α : Type*) [Preorder α] : height (⊥ : WithBot α) = 0 := by
   simp [height_eq_zero_iff]
 
-@[simp] lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
-  unfold height
-  rw [ENat.iSup_add]
+@[simp]
+theorem WithBot.unbot_lt_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
+    a.unbot h < b ↔ a < b := by
+  induction a
+  · simpa [bot_lt_coe] using h rfl
+  · simp
+
+theorem WithBot.unbot_eq_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
+    a.unbot h = b ↔ a = b := by
+  induction a
+  · simpa [bot_lt_coe] using h rfl
+  · simp
+
+@[simp]
+lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
   apply le_antisymm
-  · apply iSup_le
-    intro ⟨p, hlast⟩
-    simp only
-    wlog h0 : p.length > 0
-    · simp_all
-    -- let hgb : (i : Nat) (i > 0i > 0: F)
+  · apply height_le
+    intro p hlast hlenpos
     let p' : LTSeries α := {
         length := p.length - 1
         toFun := fun ⟨i, hi⟩ => (p ⟨i+1, by omega⟩).unbot (by
-          intro heqbot
-          have := p.step ⟨0, by omega⟩
-          sorry)
-        step := by sorry }
+          apply LT.lt.ne_bot (a := p.head)
+          apply p.strictMono
+          exact compare_gt_iff_gt.mp rfl)
+        step := by
+          intro ⟨i, hi⟩
+          simp [Fin.castSucc_mk, Nat.succ_eq_add_one, Fin.succ_mk, gt_iff_lt]
+          exact p.step ⟨i + 1, by omega⟩
+        }
     have hlast' : p'.last = x := by
-      simp [RelSeries.last, Fin.last] at hlast
-      simp [RelSeries.last, hlast]
-      sorry
-    apply le_iSup_of_le ⟨p', hlast'⟩
-    simp only; norm_cast; omega
-  · apply iSup_le
+      simp only [RelSeries.last, Fin.val_last, WithBot.unbot_eq_iff, ← hlast]
+      congr; omega
+    suffices p'.length ≤ height p'.last by
+      rw [hlast'] at this
+      simpa [p'] using this
+    apply length_le_height_last
+  · unfold height
+    rw [ENat.iSup_add]
+    apply iSup_le
     intro ⟨p, hlast⟩
     simp only
     let p' := (p.map _ WithBot.coe_strictMono).cons ⊥ (by simp)
