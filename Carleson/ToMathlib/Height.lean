@@ -522,10 +522,15 @@ lemma krullDim_eq_iSup_height : krullDim α = ⨆ (a : α), (height a : WithBot 
     · rw [krullDim_eq_of_nonempty]
       simp only [WithBot.coe_le_coe, iSup_le_iff]
       intro x
-      apply height_le
-      intro p _
-      apply le_iSup_of_le p
-      simp only [le_refl]
+      exact height_le _ _ (fun p _ ↦ le_iSup_of_le p (le_refl _))
+
+@[simp]
+lemma height_top_eq_krullDim [OrderTop α] : height (⊤ : α) = krullDim α := by
+  rw [krullDim_eq_of_nonempty]
+  simp only [WithBot.coe_inj]
+  apply le_antisymm
+  · exact height_le _ _ (fun p _ ↦ le_iSup_of_le p (le_refl _))
+  · exact iSup_le (fun p => le_height_of_last_le ⊤ p le_top)
 
 
 /-! TODO: coheight -/
