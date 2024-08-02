@@ -471,14 +471,24 @@ lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : S
 noncomputable def krullDim (α : Type*) [Preorder α] : WithBot ℕ∞ :=
   ⨆ (p : LTSeries α), (p.length : WithBot ℕ∞)
 
-
 noncomputable instance : CompleteLinearOrder (WithBot ENat) :=
   inferInstanceAs (CompleteLinearOrder (WithBot (WithTop ℕ)))
 
-set_option pp.notation false in
 lemma krullDim_nonneg_of_nonempty [Nonempty α] : 0 ≤ krullDim α :=
   le_sSup ⟨⟨0, fun _ ↦ @Nonempty.some α inferInstance, fun f ↦ f.elim0⟩, rfl⟩
 
+theorem WithBot.coe_iSup_OrderTop {ι : Type*} [Nonempty ι] [SupSet α] [OrderTop α] {f : ι → α} :
+    ↑(⨆ i, f i) = (⨆ i, f i : WithBot α) :=
+  WithBot.coe_iSup (OrderTop.bddAbove (Set.range f))
+
+/-- A definition of krullDim for nonempty `α` that avoids `WithBot` -/
+lemma krullDim_eq_of_nonempty [Nonempty α] :
+    krullDim α = ⨆ (p : LTSeries α), (p.length : ℕ∞) := by
+  unfold krullDim
+  rw [WithBot.coe_iSup_OrderTop]
+  rfl
+
+@[simp]
 lemma krullDim_eq_bot_of_isEmpty [IsEmpty α] : krullDim α = ⊥ := WithBot.ciSup_empty _
 
 lemma krullDim_eq_top_of_infiniteDimensionalOrder [InfiniteDimensionalOrder α] :
@@ -497,21 +507,25 @@ lemma krullDim_eq_top_of_infiniteDimensionalOrder [InfiniteDimensionalOrder α] 
   le_antisymm (iSup_le fun i ↦ le_sSup ⟨i.reverse, rfl⟩) <|
     iSup_le fun i ↦ le_sSup ⟨i.reverse, rfl⟩
 
-lemma krullDim_eq_iSup_height : krullDim α = ⨆ (a : α), height a := by
-  apply le_antisymm
-  · apply iSup_le
-    intro p
-    suffices p.length ≤ (⨆ a, height a) by
-      exact (WithBot.unbot'_le_iff fun a ↦ this).mp this
-    apply le_iSup_of_le p.last (length_le_height_last p)
-  · sorry
-  /-
-  le_antisymm
-    (iSup_le fun i ↦ le_iSup_of_le (i ⟨i.length, lt_add_one _⟩) <|
-    le_sSup ⟨⟨_, fun m ↦ ⟨i m, i.strictMono.monotone <| show m.1 ≤ i.length by omega⟩,
-      i.step⟩, rfl⟩) <|
-    iSup_le fun a ↦ krullDim_le_of_strictMono Subtype.val fun _ _ h ↦ h
-  -/
+
+lemma krullDim_eq_iSup_height : krullDim α = ⨆ (a : α), (height a : WithBot ℕ∞) := by
+  cases isEmpty_or_nonempty α with
+  | inl h => simp
+  | inr h =>
+    rw [← WithBot.coe_iSup_OrderTop]
+    apply le_antisymm
+    · apply iSup_le
+      intro p
+      suffices p.length ≤ ⨆ (a : α), height a by
+        exact (WithBot.unbot'_le_iff fun _ => this).mp this
+      apply le_iSup_of_le p.last (length_le_height_last p)
+    · rw [krullDim_eq_of_nonempty]
+      simp only [WithBot.coe_le_coe, iSup_le_iff]
+      intro x
+      apply height_le
+      intro p _
+      apply le_iSup_of_le p
+      simp only [le_refl]
 
 
 /-! TODO: coheight -/
