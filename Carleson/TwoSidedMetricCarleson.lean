@@ -23,7 +23,7 @@ theorem two_sided_metric_carleson [CompatibleFunctions ℝ X (defaultA a)]
     (hF : MeasurableSet F) (hG : MeasurableSet G)
     (hT : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts a))
     (f : X → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G, CarlesonOperator K f x ≤
+    ∫⁻ x in G, carlesonOperator K f x ≤
     ENNReal.ofReal (C10_0_1 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
   sorry
 
