@@ -524,7 +524,7 @@ lemma krullDim_eq_iSup_height : krullDim α = ⨆ (a : α), (height a : WithBot 
       intro x
       exact height_le _ _ (fun p _ ↦ le_iSup_of_le p (le_refl _))
 
-@[simp]
+@[simp] -- not as useful as it looks, due to the coe on the left
 lemma height_top_eq_krullDim [OrderTop α] : height (⊤ : α) = krullDim α := by
   rw [krullDim_eq_of_nonempty]
   simp only [WithBot.coe_inj]
@@ -544,6 +544,21 @@ lemma height_top_eq_krullDim [OrderTop α] : height (⊤ : α) = krullDim α := 
     simp (config := { contextual := true }) only [ih, Nat.cast_lt, implies_true]
   · let p' : LTSeries ℕ := { length := n, toFun := fun i => i, step := fun i => by simp }
     apply length_le_height_last p'
+
+@[simp]
+lemma krullDim_nat : krullDim ℕ = ⊤ := by
+  simp only [krullDim_eq_iSup_height, height_nat]
+  rw [← WithBot.coe_iSup_OrderTop]
+  simp only [WithBot.coe_eq_top]
+  show (⨆ (i : ℕ), ↑i = (⊤ : ℕ∞)) -- nothing simpler form here on?
+  rw [iSup_eq_top]
+  intro n hn
+  cases n with
+  | top => contradiction
+  | coe n =>
+    use (n+1)
+    norm_cast
+    simp
 
 @[simp] lemma height_int (a : ℤ) : height a = ⊤ := by
   rw [height_eq_top_iff]
@@ -644,5 +659,19 @@ lemma height_coe_WithTop (x : α) : height (x : WithTop α) = height x := by
     apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩
     simp [p']
 
--- TODO: For height_top_WithTop we need the krull dimension
--- Then we can show that height is the identity on ℕ∞
+@[simp]
+lemma height_coe_ENat (x : ℕ) : height (x : ℕ∞) = height x := height_coe_WithTop x
+
+@[simp]
+lemma krullDim_WithTop [Nonempty α] : krullDim (WithTop α) = krullDim α + 1 := by
+  sorry
+
+@[simp]
+lemma height_ENat (n : ℕ∞) : height n = n := by
+  cases n with
+  | top =>
+    rw [← WithBot.coe_eq_coe, height_top_eq_krullDim]
+    show (krullDim (WithTop ℕ) = ↑⊤)
+    simp only [krullDim_WithTop, krullDim_nat]
+    rfl
+  | coe n => simp
