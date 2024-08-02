@@ -524,6 +524,9 @@ lemma krullDim_eq_iSup_height : krullDim α = ⨆ (a : α), (height a : WithBot 
       intro x
       exact height_le _ _ (fun p _ ↦ le_iSup_of_le p (le_refl _))
 
+lemma krullDim_eq_iSup_height_of_nonempty [Nonempty α] : krullDim α = ⨆ (a : α), height a := by
+  rw [krullDim_eq_iSup_height, WithBot.coe_iSup_OrderTop]
+
 @[simp] -- not as useful as it looks, due to the coe on the left
 lemma height_top_eq_krullDim [OrderTop α] : height (⊤ : α) = krullDim α := by
   rw [krullDim_eq_of_nonempty]
@@ -656,15 +659,33 @@ lemma height_coe_WithTop (x : α) : height (x : WithTop α) = height x := by
   · apply height_le
     intro p hlast
     let p' := p.map _ WithTop.coe_strictMono
-    apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩
-    simp [p']
+    apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩ (by simp [p'])
 
 @[simp]
 lemma height_coe_ENat (x : ℕ) : height (x : ℕ∞) = height x := height_coe_WithTop x
 
 @[simp]
 lemma krullDim_WithTop [Nonempty α] : krullDim (WithTop α) = krullDim α + 1 := by
-  sorry
+  rw [← height_top_eq_krullDim]
+  rw [krullDim_eq_iSup_height_of_nonempty]
+  norm_cast
+  rw [ENat.iSup_add]
+  rw [height_eq_isup_lt_height]
+  apply le_antisymm
+  · apply iSup_le
+    intro x
+    apply iSup_le
+    intro h
+    cases x with
+    | top => simp at h
+    | coe x =>
+      simp only [height_coe_WithTop]
+      exact le_iSup_of_le x (le_refl _)
+  · apply iSup_le
+    intro x
+    apply le_iSup_of_le (↑x)
+    apply le_iSup_of_le (WithTop.coe_lt_top x)
+    simp only [height_coe_WithTop, le_refl]
 
 @[simp]
 lemma height_ENat (n : ℕ∞) : height n = n := by
