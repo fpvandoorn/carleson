@@ -131,31 +131,14 @@ lemma ENNReal.sum_geometric_two_pow_neg_two :
   conv_lhs => enter [1, n, 2]; rw [← Nat.cast_two]
   rw [ENNReal.sum_geometric_two_pow_toNNReal zero_lt_two]; norm_num
 
-def sumGeometricSupportEquiv {k c : ℕ} :
-    (support fun n : ℕ ↦ if k ≤ n then (2 : ℝ≥0∞) ^ (-c * (n - k) : ℤ) else 0) ≃
-    support fun n' : ℕ ↦ (2 : ℝ≥0∞) ^ (-c * n' : ℤ) where
-  toFun n := by
-    obtain ⟨n, _⟩ := n; use n - k
-    rw [mem_support, neg_mul, ← ENNReal.rpow_intCast]; simp
-  invFun n' := by
-    obtain ⟨n', _⟩ := n'; use n' + k
-    simp_rw [mem_support, show k ≤ n' + k by omega, ite_true, neg_mul, ← ENNReal.rpow_intCast]
-    simp
-  left_inv n := by
-    obtain ⟨n, mn⟩ := n
-    rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
-    simp only [Subtype.mk.injEq]; omega
-  right_inv n' := by
-    obtain ⟨n', mn'⟩ := n'
-    simp only [Subtype.mk.injEq]; omega
-
 lemma tsum_geometric_ite_eq_tsum_geometric {k c : ℕ} :
     (∑' (n : ℕ), if k ≤ n then (2 : ℝ≥0∞) ^ (-c * (n - k) : ℤ) else 0) =
     ∑' (n : ℕ), 2 ^ (-c * n : ℤ) := by
-  refine Equiv.tsum_eq_tsum_of_support sumGeometricSupportEquiv fun ⟨n, mn⟩ ↦ ?_
-  simp_rw [sumGeometricSupportEquiv, Equiv.coe_fn_mk, neg_mul]
-  rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
-  simp_rw [mn.1, ite_true]; congr; omega
+  convert (Injective.tsum_eq (f := fun n ↦ if k ≤ n then (2 : ℝ≥0∞) ^ (-c * (n - k) : ℤ) else 0)
+    (add_left_injective k) (fun n mn ↦ _)).symm
+  · simp
+  · rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
+    use n - k, Nat.sub_add_cancel mn.1
 
 end ENNReal
 

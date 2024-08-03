@@ -1943,9 +1943,7 @@ Define
         \bigcup_{\fp \in \fL_4 (k,n,j)}
         \scI(\fp)\, .
      \end{equation}
-Define $G'=G_1\cup G_2 \cup G_3$
-The following bound of the measure of $G'$ will be proven in
-\Cref{subsetexcset}.
+Define $G'=G_1\cup G_2 \cup G_3$. The following bound of the measure of $G'$ will be proven in \Cref{subsetexcset}.
 \begin{lemma}[exceptional set]
     \label{exceptional-set}
     \leanok
@@ -1968,7 +1966,7 @@ In \Cref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G'$ as fore
     Let
     \begin{equation}
         \fP_1 =\bigcup_{k\ge 0}\bigcup_{n\ge k}
-        \bigcup_{0\le j\le 2n+3}\fC_5(k,n,j)
+        \bigcup_{0\le j\le 2n+3}\fC_4(k,n,j)
     \end{equation}
     For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
     \begin{equation}
@@ -3075,7 +3073,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
     \begin{align}
         \label{eq-fp'-decomposition}
         &\quad \fP_2 \cap \fP_{G \setminus G'}\\
-        &= \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{G \setminus G'} \\
+        &\subset \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{G \setminus G'} \\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \fL_2(k,n,j) \cap \fP_{G \setminus G'}\\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_1(k,n,j,l) \cap \fP_{G \setminus G'}\\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\cap \fP_{G \setminus G'}\,.
@@ -3083,6 +3081,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp \in \fP_2 \cap \fP_{G \setminus G'}$. Clearly, for every cube $J = \scI(\fp)$ with $\fp \in \fP_{G \setminus G'}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
 
     Next, since $E_2(\lambda, \fp') \subset \scI(\fp')\cap G$ for every $\lambda \ge 2$ and every tile $\fp' \in \fP(k)$ with $\lambda\fp \lesssim \lambda \fp'$, it follows from \eqref{muhj2} that $\mu(E_2(\lambda, \fp')) \le 2^{-k} \mu(\scI(\fp'))$ for every such $\fp'$, so $\dens_k'(\{\fp\}) \le 2^{-k}$. Combining this with $a \ge 0$, it follows from \eqref{def-cnk} that there exists $n\ge k$ with $\fp \in \fC(k,n)$.
