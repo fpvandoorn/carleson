@@ -24,7 +24,6 @@ lemma fourierCoeff_eq_innerProduct {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 �
 
 noncomputable section
 def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ↥(Lp ℂ 2 (@haarAddCircle T hT))) : Lp ℂ p (@haarAddCircle T hT) :=
-def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ↥(Lp ℂ 2 (@haarAddCircle T hT))) : Lp ℂ p (@haarAddCircle T hT) :=
     ∑ n in Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
 
 --TODO: add some lemma relating partialFourierSum and partialFourierSumLp
