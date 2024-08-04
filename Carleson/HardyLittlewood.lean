@@ -54,7 +54,7 @@ private lemma P'_of_P {u : X → E} (hu : P μ u) : P' μ u := by
       ENNReal.rpow_one, ne_eq, not_false_eq_true, div_self] at this
     exact lt_of_le_of_lt (setLIntegral_le_lintegral _ _) this
 
-private lemma P'.add  {f : X → E} {g : X → E} (hf : P' μ f) (hg : P' μ g) : P' μ (f + g) := by
+private lemma P'.add {f : X → E} {g : X → E} (hf : P' μ f) (hg : P' μ g) : P' μ (f + g) := by
   constructor
   · exact AEStronglyMeasurable.add hf.1 hg.1
   · intro c r
@@ -63,7 +63,7 @@ private lemma P'.add  {f : X → E} {g : X → E} (hf : P' μ f) (hg : P' μ g) 
       hf.1.aemeasurable.nnnorm.restrict]
     exact ENNReal.add_lt_top.mpr ⟨hf.2 c r, hg.2 c r⟩
 
-private lemma P'.smul  {f : X → E} (hf : P' μ f) (s : ℝ) : P' μ (s • f) := by
+private lemma P'.smul {f : X → E} (hf : P' μ f) (s : ℝ) : P' μ (s • f) := by
   refine ⟨AEStronglyMeasurable.const_smul hf.1 s, fun c r ↦ ?_⟩
   simp_rw [Pi.smul_apply, nnnorm_smul, ENNReal.coe_mul, lintegral_const_mul' _ _ ENNReal.coe_ne_top]
   exact ENNReal.mul_lt_top ENNReal.coe_ne_top (hf.2 c r).ne
