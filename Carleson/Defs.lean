@@ -392,6 +392,30 @@ lemma κ_nonneg : 0 ≤ κ := by
   rw [defaultκ]
   exact Real.rpow_nonneg (by norm_num) _
 
+/-- Used in `third_exception` (Lemma 5.2.10). -/
+lemma two_le_κZ : 2 ≤ κ * Z := by
+  rw [defaultκ, defaultZ, Nat.cast_pow, show ((2 : ℕ) : ℝ) = 2 by rfl,
+    show (2 : ℝ) ^ (12 * a) = 2 ^ (12 * a : ℝ) by norm_cast, ← Real.rpow_add zero_lt_two,
+    show (-10 * a + 12 * a : ℝ) = 2 * a by ring]
+  norm_cast; change 2 ^ 1 ≤ _
+  exact Nat.pow_le_pow_of_le one_lt_two (by linarith [four_le_a X])
+
+/-- Used in `third_exception` (Lemma 5.2.10). -/
+lemma DκZ_le_two_rpow_100 : (D : ℝ≥0∞) ^ (-κ * Z) ≤ 2 ^ (-100 : ℝ) := by
+  rw [defaultD, Nat.cast_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul,
+    show ((2 : ℕ) : ℝ≥0∞) = 2 by rfl]
+  apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
+  rw [defaultκ, defaultZ, Nat.cast_pow, show ((2 : ℕ) : ℝ) = 2 by rfl, neg_mul,
+    show (2 : ℝ) ^ (12 * a) = 2 ^ (12 * a : ℝ) by norm_cast, mul_neg,
+    ← Real.rpow_add zero_lt_two, show (-10 * a + 12 * a : ℝ) = 2 * a by ring,
+    neg_le_neg_iff]
+  norm_cast
+  calc
+    _ ≤ 100 * a ^ 2 := by nlinarith [four_le_a X]
+    _ ≤ _ := by
+      nth_rw 1 [← mul_one (a ^ 2), ← mul_assoc]
+      gcongr; exact Nat.one_le_two_pow
+
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
 def nnD : ℝ≥0 := ⟨D, by simp [D_nonneg]⟩

@@ -165,14 +165,14 @@ protected theorem Finset.measure_biUnion_le_lintegral (𝓑 : Finset ι) {l : �
   𝓑.countable_toSet.measure_biUnion_le_lintegral hl hu c (by simpa using hc) h2u
 
 protected theorem MeasureTheory.AEStronglyMeasurable.maximalFunction {p : ℝ}
-    {u : X → E} (hu : AEStronglyMeasurable u μ) (h𝓑 : 𝓑.Countable) :
-    AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ := by
-  sorry
+    {u : X → E} (h𝓑 : 𝓑.Countable) : AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ :=
+  (aemeasurable_biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
+    aemeasurable_const |>.aestronglyMeasurable
 
-theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal {p : ℝ}
-    {u : X → E} (hu : AEStronglyMeasurable u μ) (h𝓑 : 𝓑.Countable) :
+theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal
+    {p : ℝ} {u : X → E} (h𝓑 : 𝓑.Countable) :
     AEStronglyMeasurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) μ :=
-  hu.maximalFunction h𝓑 |>.ennreal_toReal
+  AEStronglyMeasurable.maximalFunction h𝓑 |>.ennreal_toReal
 
 theorem MB_le_snormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ snormEssSup u μ :=
   calc MB μ 𝓑 c r u x ≤
@@ -189,8 +189,8 @@ theorem MB_le_snormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ snormEs
 
 protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) ⊤ ⊤ μ μ 1 := by
-  intro f hf
-  use hf.1.maximalFunction_toReal h𝓑
+  intro f _
+  use AEStronglyMeasurable.maximalFunction_toReal h𝓑
   simp only [ENNReal.coe_one, one_mul, snorm_exponent_top]
   refine essSup_le_of_ae_le _ (eventually_of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
@@ -226,7 +226,7 @@ variable (μ) in
 protected theorem HasWeakType.MB_one [μ.IsDoubling A] (h𝓑 : 𝓑.Countable) :
     HasWeakType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) 1 1 μ μ (A ^ 2) := by
   intro f hf
-  use hf.1.maximalFunction_toReal h𝓑
+  use AEStronglyMeasurable.maximalFunction_toReal h𝓑
   sorry
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
@@ -245,7 +245,7 @@ lemma hasStrongType_MB (h𝓑 : 𝓑.Finite) {p : ℝ≥0}
     zero_lt_one (pow_pos (A_pos μ) 2)
     (p := p) (q := p) (A := 1)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
-    (fun f hf ↦ .maximalFunction_toReal (hf.elim (·.1) (·.1)) h𝓑.countable)
+    (fun f hf ↦ AEStronglyMeasurable.maximalFunction_toReal (hf.elim (·.1) (·.1)) h𝓑)
     (.maximalFunction h𝓑)
     (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
     (HasWeakType.MB_one μ h𝓑.countable)
@@ -283,10 +283,10 @@ theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
   sorry
 
 protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction {p : ℝ}
-    {u : X → E} (hu : AEStronglyMeasurable u μ) :
-    AEStronglyMeasurable (globalMaximalFunction μ p u) μ := by
-  refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
-  exact hu.maximalFunction (countable_globalMaximalFunction X) |>.aemeasurable.const_mul _
+    {u : X → E} : AEStronglyMeasurable (globalMaximalFunction μ p u) μ :=
+  aestronglyMeasurable_iff_aemeasurable.mpr <|
+    AEStronglyMeasurable.maximalFunction
+      (countable_globalMaximalFunction X) |>.aemeasurable.const_mul _
 
 theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurable u μ)
     (hu : IsBounded (range u)) {z x : X} {r : ℝ} (h : dist x z < r) :
