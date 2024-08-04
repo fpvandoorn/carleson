@@ -140,7 +140,7 @@ lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop
 -- certain requirements, then `SublinearOn T P 1`
 lemma const (t : (α → E₁) → E₂) (P : (α → E₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖t (f + g)‖ ≤ ‖t f‖ + ‖t g‖)
-    (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → t (c • f) = c • t f):
+    (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → t (c • f) = c • t f) :
     SublinearOn (fun u (_ : α') ↦ t u) P 1 := by
   refine ⟨SubadditiveOn.const t P h_add, fun f c hf hc ↦ funext (fun x ↦ ?_)⟩
   simpa using h_smul f hf hc

@@ -326,9 +326,9 @@ namespace Set.Finite
 lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
     (hs : s.Finite) (hs' : s.Nonempty) (f : ι → α) :
     ∃ i ∈ s, ⨆ j ∈ s, f j = f i := by
-  induction' s, hs using Set.Finite.dinduction_on with a s _ _ ihs hf
+  induction' s, hs using dinduction_on with a s _ _ ihs hf
   · simp at hs'
-  simp_rw [iSup_insert]
+  rw [iSup_insert]
   by_cases hs : s.Nonempty
   · by_cases ha : f a ⊔ ⨆ x ∈ s, f x = f a
     · use a, mem_insert a s
