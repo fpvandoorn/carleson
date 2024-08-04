@@ -209,8 +209,7 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction (h𝓑 : 𝓑.Finite
         (B.indicator (fun _ ↦ (⨍⁻ y in B, ‖u y‖₊ ∂μ).toReal) x) := by
       by_cases hx : x ∈ B <;> simp [hx]
     simp_rw [this]
-    apply SublinearOn.indicator
-    apply SublinearOn.const (T μ c r i) (P' μ) (T.add_le i) (fun f d ↦ T.smul i)
+    apply (SublinearOn.const (T μ c r i) (P' μ) (T.add_le i) (fun f d ↦ T.smul i)).indicator
   · intro f x hf
     by_cases h𝓑' : 𝓑.Nonempty; swap
     · simp [not_nonempty_iff_eq_empty.mp h𝓑']
