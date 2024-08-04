@@ -95,6 +95,8 @@ lemma 𝔘₁_subset_ℭ₁ {k n j : ℕ} : 𝔘₁ k n j ⊆ ℭ₁ (X := X) k 
 def 𝔏₂ (k n j : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ₂ k n j | ¬ ∃ u ∈ 𝔘₁ k n j, 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u }
 
+lemma 𝔏₂_subset_ℭ₂ {k n j : ℕ} : 𝔏₂ k n j ⊆ ℭ₂ (X := X) k n j := fun _ mu ↦ mu.1
+
 /-- The subset `ℭ₃(k, n, j)` of `ℭ₂(k, n, j)`, given in (5.1.16). -/
 def ℭ₃ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₂ k n j \ 𝔏₂ k n j
@@ -1780,9 +1782,70 @@ lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) := pa
 /-- Part of Lemma 5.5.2 -/
 lemma antichain_L0' : IsAntichain (· ≤ ·) (𝔏₀' (X := X) k n l) := isAntichain_minLayer
 
+section L2Antichain
+
+/-- Type synonym of `ℭ₁` to apply the `Preorder` of the proof of Lemma 5.5.3 on. -/
+private def ℭ₁' (k n j : ℕ) : Type _ := ℭ₁ (X := X) k n j
+
+private instance : Fintype (ℭ₁' (X := X) k n j) := inferInstanceAs (Fintype (ℭ₁ k n j))
+
+private instance : Preorder (ℭ₁' (X := X) k n j) where
+  le x y := smul 200 x.1 ≤ smul 200 y.1
+  le_refl := by simp
+  le_trans _ _ _ xy yz := by
+    change smul _ _ ≤ smul _ _ at xy yz ⊢
+    exact xy.trans yz
+
 /-- Lemma 5.5.3 -/
-lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) :=
-  sorry
+lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
+  by_contra h; rw [isAntichain_iff_forall_not_lt] at h; push_neg at h
+  obtain ⟨p', mp', p, mp, l⟩ := h
+  have p200 : smul 2 p' ≤ smul 200 p := by
+    calc
+      _ ≤ smul (11 / 10 + C2_1_2 a * 200) p' := by
+        apply smul_mono_left
+        calc
+          _ ≤ 11 / 10 + 1 / 512 * (200 : ℝ) := by gcongr; exact C2_1_2_le_inv_512 X
+          _ ≤ _ := by norm_num
+      _ ≤ _ := by
+        refine smul_C2_1_2 _ (by norm_num) ?_ (wiggle_order_11_10 l.le (C5_3_3_le (X := X)))
+        apply not_lt_of_𝓘_eq_𝓘.mt; rwa [not_not]
+  have cp : p ∈ ℭ₁ k n j := (𝔏₂_subset_ℭ₂.trans ℭ₂_subset_ℭ₁) mp
+  let C : Finset (LTSeries (ℭ₁' k n j)) := Finset.univ.filter fun s ↦ s.head = ⟨p, cp⟩
+  have Cn : C.Nonempty := by
+    use RelSeries.singleton _ ⟨p, cp⟩
+    simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and]; rfl
+  obtain ⟨z, mz, maxz⟩ := C.exists_max_image (·.length) Cn
+  simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and] at mz
+  by_cases mu : z.last.1 ∈ 𝔘₁ k n j
+  · have px : z.head ≤ z.last := z.monotone (Fin.zero_le _)
+    rw [mz] at px
+    apply absurd mp'; rw [𝔏₂, mem_setOf, not_and_or, not_not]; right; use z.last.1, mu
+    have : 𝓘 p' < 𝓘 p := lt_of_le_of_ne l.le.1 (not_lt_of_𝓘_eq_𝓘.mt (by rwa [not_not]))
+    exact ⟨(this.trans_le px.1).ne, (p200.trans px).trans (smul_mono_left (by norm_num))⟩
+  · simp_rw [𝔘₁, mem_setOf, not_and, z.last.2, true_implies, not_forall, exists_prop] at mu
+    obtain ⟨q, mq, lq, ndjq⟩ := mu; rw [not_disjoint_iff] at ndjq; obtain ⟨ϑ, mϑ₁, mϑ₂⟩ := ndjq
+    have cpos : 0 < C2_1_2 a := by rw [C2_1_2]; positivity
+    have s200 : smul 200 z.last.1 ≤ smul 200 q := by
+      refine ⟨lq.le, (?_ : ball_(q) (𝒬 q) 200 ⊆ ball_(z.last.1) (𝒬 z.last.1) 200)⟩
+      intro (r : Θ X) mr
+      rw [@mem_ball] at mr mϑ₁ mϑ₂ ⊢
+      calc
+        _ ≤ dist_(z.last.1) r (𝒬 q) + dist_(z.last.1) (𝒬 q) ϑ + dist_(z.last.1) ϑ (𝒬 z.last.1) :=
+          dist_triangle4 ..
+        _ ≤ C2_1_2 a * dist_(q) r (𝒬 q) + C2_1_2 a * dist_(q) (𝒬 q) ϑ + 100 := by
+          gcongr <;> exact Grid.dist_strictMono lq
+        _ ≤ C2_1_2 a * (200 + 100) + 100 := by rw [mul_add]; gcongr; rw [dist_comm]; exact mϑ₂.le
+        _ ≤ (1 / 512) * 300 + 100 := by
+          rw [show (200 : ℝ) + 100 = 300 by norm_num]; gcongr
+          exact C2_1_2_le_inv_512 X
+        _ < _ := by norm_num
+    have : z.last < ⟨q, mq⟩ := by
+      refine ⟨s200, (?_ : ¬(smul 200 q ≤ smul 200 z.last.1))⟩
+      rw [TileLike.le_def, not_and_or]; exact Or.inl (not_le_of_gt lq)
+    apply absurd maxz; push_neg; use z.snoc ⟨q, mq⟩ this, by simp [C, mz], by simp
+
+end L2Antichain
 
 /-- Part of Lemma 5.5.4 -/
 lemma antichain_L1 : IsAntichain (· ≤ ·) (𝔏₁ (X := X) k n j l) := isAntichain_minLayer

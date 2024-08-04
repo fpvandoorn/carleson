@@ -282,3 +282,41 @@ lemma reprs_inj (hx : x ∈ hr.reprs) (hy : y ∈ hr.reprs) (h : r x y) : x = y 
   exact out_inj' hx hy h
 
 end EquivalenceOn
+
+namespace LTSeries
+
+variable {α : Type*} [Preorder α] [Fintype α]
+
+lemma length_lt_card (s : LTSeries α) : s.length < Fintype.card α := by
+  by_contra! h
+  obtain ⟨i, j, hn, he⟩ := Fintype.exists_ne_map_eq_of_card_lt s (by rw [Fintype.card_fin]; omega)
+  wlog hl : i < j generalizing i j
+  · exact this j i hn.symm he.symm (by omega)
+  exact absurd he (s.strictMono hl).ne
+
+def embeddingOption : LTSeries α ↪ (Fin (Fintype.card α + 1) → Option α) where
+  toFun s i := if i.1 < s.length + 1 then some (s i) else none
+  inj' s t e := by
+    have el : s.length = t.length := by
+      by_contra! h
+      wlog hl : s.length < t.length generalizing s t
+      · exact this t s e.symm h.symm (by omega)
+      simp only [funext_iff] at e
+      have := s.length_lt_card
+      specialize e ⟨s.length + 1, by omega⟩
+      simp [hl] at e
+    ext i
+    · exact el
+    · simp_rw [funext_iff, ← el] at e
+      have := s.length_lt_card
+      specialize e ⟨i.1, by omega⟩
+      simp_rw [i.2, ite_true, Option.some.injEq, Fin.cast_val_eq_self] at e
+      rw [comp_apply, e]; congr
+      change Fin.mk (i % (t.length + 1)) _ = Fin.mk i _
+      rw [Fin.mk.injEq, Nat.mod_succ_eq_iff_lt, Nat.succ_eq_add_one, ← el]
+      exact i.2
+
+noncomputable instance instFintype : Fintype (LTSeries α) :=
+  Fintype.ofInjective _ embeddingOption.2
+
+end LTSeries
