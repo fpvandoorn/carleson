@@ -245,7 +245,7 @@ lemma hasStrongType_MB (h𝓑 : 𝓑.Finite) {p : ℝ≥0}
     zero_lt_one (pow_pos (A_pos μ) 2)
     (p := p) (q := p) (A := 1)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
-    (fun f hf ↦ AEStronglyMeasurable.maximalFunction_toReal (hf.elim (·.1) (·.1)) h𝓑)
+    (fun f hf ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑.countable)
     (.maximalFunction h𝓑)
     (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
     (HasWeakType.MB_one μ h𝓑.countable)
