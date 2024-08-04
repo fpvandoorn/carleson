@@ -40,9 +40,112 @@ lemma aestronglyMeasurable_trunc (hf : AEStronglyMeasurable f μ) :
 def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=
   ∀ (f g : α → E₁) (x : α'), P f → P g → ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
 
+namespace SubadditiveOn
+
+def antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
+    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sa : SubadditiveOn T P' A) : SubadditiveOn T P A :=
+  fun f g x hf hg ↦ sa f g x (h hf) (h hg)
+
+lemma neg (P : (α → E₁) → Prop) {A : ℝ} (hA : A < 0) (h : SubadditiveOn T P A)
+  (f : α → E₁) (hf : P f) : T f = 0 :=
+  funext fun x ↦ norm_le_zero_iff.mp (by nlinarith [norm_nonneg (T (f + f) x), h f f x hf hf])
+
+lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
+    (A : ℝ) (h : ∀ u, P u → T u = 0) : SubadditiveOn T P A :=
+  fun f g x hf hg ↦ by simp [h f hf, h g hg, h (f + g) (hP hf hg)]
+
+lemma biSup {ι : Type*} (𝓑 : Set ι) {T : ι → (α → E₁) → α' → ℝ≥0∞}
+    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁) (x : α'), P u → ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+    (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
+    (A : ℝ) (h : ∀ i ∈ 𝓑, SubadditiveOn (fun u x ↦ (T i u x).toReal) P A) :
+    SubadditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A := by
+  have hT' : ∀ i ∈ 𝓑, ∀ (x : α') (u : α → E₁), P u → T i u x ≠ ∞ :=
+    fun i hi x f hf h ↦ hT f x hf <| eq_top_iff.mpr <| h ▸ le_biSup (fun i ↦ T i f x) hi
+  by_cases A0 : A < 0
+  · refine SubadditiveOn.zero hP A (fun f hf ↦ funext fun x ↦ ?_)
+    suffices ⨆ i ∈ 𝓑, T i f x = 0 by simp [this]
+    simp only [iSup_eq_zero]
+    intro i hi
+    have := (toReal_eq_zero_iff _).mp (congr_fun ((h i hi).neg P A0 f hf) x)
+    exact this.resolve_right (hT' i hi x f hf)
+  push_neg at A0
+  intro f g x hf hg
+  simp only [Real.norm_eq_abs, abs_toReal]
+  rw [← toReal_add (hT f x hf) (hT g x hg), ← toReal_ofReal A0, ← toReal_mul]
+  apply toReal_mono <| mul_ne_top ofReal_ne_top (add_ne_top.mpr ⟨hT f x hf, hT g x hg⟩)
+  simp only [iSup_le_iff]
+  intro i hi
+  specialize h i hi f g x hf hg
+  simp only [Real.norm_eq_abs, abs_toReal] at h
+  rw [← toReal_add (hT' i hi x f hf) (hT' i hi x g hg), ← toReal_ofReal A0, ← toReal_mul,
+    toReal_le_toReal (hT' i hi x (f + g) (hP hf hg)) <| mul_ne_top ofReal_ne_top <|
+    add_ne_top.mpr ⟨hT' i hi x f hf, hT' i hi x g hg⟩] at h
+  apply h.trans
+  gcongr <;> apply le_biSup _ hi
+
+lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ}
+    (sa : SubadditiveOn T P A) (S : Set α') :
+    SubadditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A := by
+  intro f g x hf hg
+  by_cases hx : x ∈ S <;> simp [hx, sa f g x hf hg]
+
+-- If `T` is constant in the second argument (but not necessarily the first) and satisfies
+-- a subadditivity criterion, then `SubadditiveOn T P 1`
+lemma const (t : (α → E₁) → E₂) (P : (α → E₁) → Prop)
+    (h_add : ∀ {f g}, P f → P g → ‖t (f + g)‖ ≤ ‖t f‖ + ‖t g‖) :
+    SubadditiveOn (fun u (_ : α') ↦ t u) P 1 := by
+  intro f g x hf hg
+  simpa using h_add hf hg
+
+end SubadditiveOn
+
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
 def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=
-  SubadditiveOn T P A ∧ ∀ (f : α → E₁) (c : ℝ), P f → T (c • f) = c • T f
+  SubadditiveOn T P A ∧ ∀ (f : α → E₁) (c : ℝ), P f → c ≥ 0 → T (c • f) = c • T f
+
+namespace SublinearOn
+
+lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
+    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sl : SublinearOn T P' A) : SublinearOn T P A :=
+  ⟨sl.1.antitone (fun hu ↦ h hu), fun u c hu hc ↦ sl.2 u c (h hu) hc⟩
+
+lemma biSup {ι : Type*} (𝓑 : Set ι) (T : ι → (α → E₁) → α' → ℝ≥0∞)
+    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁) (x : α'), P u → ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+    (h_add : ∀ {f g : α → E₁}, P f → P g → P (f + g))
+    (h_smul : ∀ {f : α → E₁} {c : ℝ}, P f → c ≥ 0 → P (c • f))
+    {A : ℝ} (h : ∀ i ∈ 𝓑, SublinearOn (fun u x ↦ (T i u x).toReal) P A) :
+    SublinearOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A := by
+  have hT' : ∀ i ∈ 𝓑, ∀ (x : α') (u : α → E₁), P u → T i u x ≠ ∞ :=
+    fun i hi x f hf h ↦ hT f x hf <| eq_top_iff.mpr <| h ▸ le_biSup (fun i ↦ T i f x) hi
+  refine ⟨SubadditiveOn.biSup 𝓑 hT h_add A (fun i hi ↦ (h i hi).1), ?_⟩
+  intro f c hf hc
+  ext x
+  rw [Pi.smul_apply, ← ENNReal.toReal_ofReal hc, smul_eq_mul]
+  simp only [← toReal_mul, ENNReal.mul_iSup]
+  congr 1
+  refine biSup_congr (fun i hi ↦ ?_)
+  have := congr_fun ((h i hi).2 f c hf hc) x
+  simp only [Pi.smul_apply, smul_eq_mul, ← toReal_ofReal_mul c (T i f x) hc] at this
+  rw [ENNReal.toReal_eq_toReal (hT' i hi x (c • f) (h_smul hf hc))
+    (mul_lt_top ofReal_ne_top (hT' i hi x f hf)).ne] at this
+  rwa [toReal_ofReal hc]
+
+lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ} (S : Set α')
+    (sl : SublinearOn T P A) :
+    SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A := by
+  refine ⟨SubadditiveOn.indicator sl.1 S, fun f c hf hc ↦ funext (fun x ↦ ?_)⟩
+  by_cases hx : x ∈ S <;> simp [hx, congr_fun (sl.2 f c hf hc) x]
+
+-- If `T` is constant in the second argument (but not necessarily the first) and satisfies
+-- certain requirements, then `SublinearOn T P 1`
+lemma const (t : (α → E₁) → E₂) (P : (α → E₁) → Prop)
+    (h_add : ∀ {f g}, P f → P g → ‖t (f + g)‖ ≤ ‖t f‖ + ‖t g‖)
+    (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → t (c • f) = c • t f):
+    SublinearOn (fun u (_ : α') ↦ t u) P 1 := by
+  refine ⟨SubadditiveOn.const t P h_add, fun f c hf hc ↦ funext (fun x ↦ ?_)⟩
+  simpa using h_smul f hf hc
+
+end SublinearOn
 
 /-- The constant occurring in the real interpolation theorem. -/
 -- todo: remove unused variables
