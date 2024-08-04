@@ -39,7 +39,7 @@ lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f
 
 section
 
-open ENNReal
+open ENNReal MeasureTheory
 
 section
 
@@ -427,9 +427,9 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
     . rw [ball_eq_empty.mpr r_pos]
       simp
     push_neg at r_pos
-    rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos])]
-    rw [dist_integer_linear_eq]
-    rw [max_eq_left r_pos.le]
+    rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]),
+        Real.ball_eq_Ioo, ← integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos]),
+        dist_integer_linear_eq, max_eq_left r_pos.le]
     set L : NNReal :=
       ⟨⨆ (x : ℝ) (y : ℝ) (_ : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y,
         Real.iSup_nonneg fun x ↦ Real.iSup_nonneg fun y ↦ Real.iSup_nonneg
@@ -515,7 +515,7 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
 
 
 lemma Real.vol_real_eq {x y : ℝ} : Real.vol x y = 2 * |x - y| := by
-  rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+  rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
 
 lemma Real.vol_real_symm {x y : ℝ} : Real.vol x y = Real.vol y x := by
   rw [Real.vol_real_eq, Real.vol_real_eq, abs_sub_comm]
@@ -524,7 +524,7 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
   norm_K_le_vol_inv := by
     intro x y
-    rw [Complex.norm_eq_abs, Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+    rw [Complex.norm_eq_abs, Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
     calc Complex.abs (K x y)
     _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
@@ -591,18 +591,16 @@ lemma CarlesonOperatorReal_le_CarlesonOperator : T ≤ CarlesonOperator K := by
   ring_nf
 
 
-/- Lemma 11.1.4 (ENNReal version) -/
-lemma rcarleson {F G : Set ℝ}
-    (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    :
+/- Lemma 11.1.4 -/
+lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
+    (f : ℝ → ℂ) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, T f x ≤
-    ENNReal.ofReal (C10_1 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
+      ENNReal.ofReal (C10_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
   have conj_exponents : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, CarlesonOperator K f x :=
-      MeasureTheory.lintegral_mono (CarlesonOperatorReal_le_CarlesonOperator _)
-    _ ≤ ENNReal.ofReal (C10_1 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ :=
+      lintegral_mono (CarlesonOperatorReal_le_CarlesonOperator _)
+    _ ≤ ENNReal.ofReal (C10_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
       two_sided_metric_carleson (a := 4) K (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 f hf
 
 end section

@@ -68,14 +68,16 @@ theorem classical_carleson {f : ℝ → ℂ}
   _ ≤ ε := by linarith
 
 
---TODO: Does the centerdot mean the right thing?
+
 theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi)) :
-    ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * Real.pi)), Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+    ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * Real.pi)),
+      Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+
   let δ (k : ℕ) : ℝ := 1 / (k + 1) --arbitrary sequence tending to zero
   have δconv : Filter.Tendsto δ Filter.atTop (nhds 0) := tendsto_one_div_add_atTop_nhds_zero_nat
   have δpos (k : ℕ) : 0 < δ k := by apply div_pos zero_lt_one (by linarith)
 
-  --TODO : Try to get along with just the ENNReal deltas
+  -- ENNReal version to be comparable to volumes
   let δ' (k : ℕ) := ENNReal.ofReal (δ k)
   have δ'conv : Filter.Tendsto δ' Filter.atTop (nhds 0) := by
     rw [← ENNReal.ofReal_zero]
@@ -86,8 +88,8 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
   have εsmall (k : ℕ) {e : ℝ} (epos : 0 < e) : ∃ n, ε k n < e := by
     have : Filter.Tendsto (ε k) Filter.atTop (nhds 0) := by
       rw [εdef]
-      simp_rw [mul_assoc] --, ← zero_mul 1
-      conv => pattern 0; rw [← zero_mul (2⁻¹ * δ k)]
+      simp_rw [mul_assoc]
+      rw [← zero_mul (2⁻¹ * δ k)]
       apply Filter.Tendsto.mul_const
       exact tendsto_pow_atTop_nhds_zero_of_lt_one (by linarith) (by linarith)
     rw [Metric.tendsto_atTop] at this
@@ -104,30 +106,34 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
     conv => pattern ENNReal.ofReal _; ring_nf; rw [ENNReal.ofReal_one]
     rw [one_mul]
     norm_num
-    --tsum_geometric_two
 
+  -- Main step: Apply classical_carleson to get a family of exceptional sets parameterized by ε.
   choose Eε hEε_subset _ hEε_measure hEε using (@classical_carleson f cont_f periodic_f)
-  --hEε_measurableSet
 
   have Eεmeasure {ε : ℝ} (hε : 0 < ε) : volume (Eε hε) ≤ ENNReal.ofReal ε := by
     rw [ENNReal.le_ofReal_iff_toReal_le _ hε.le]
     . exact hEε_measure hε
     . rw [← lt_top_iff_ne_top]
       apply lt_of_le_of_lt (measure_mono (hEε_subset hε)) measure_Icc_lt_top
+
+  -- Define exceptional sets parameterized by δ.
   let Eδ (k : ℕ) := ⋃ (n : ℕ), Eε (εpos k n)
   have Eδmeasure (k : ℕ) : volume (Eδ k) ≤ δ' k := by
     apply le_trans (measure_iUnion_le _)
     rw [δ'_eq]
     exact ENNReal.tsum_le_tsum (fun n ↦ Eεmeasure (εpos k n))
+
+  -- Define final exceptional set.
   let E := ⋂ (k : ℕ), Eδ k
 
+  -- Show that it has the desired property.
   have hE : ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
     intro x hx
     rw [Set.diff_iInter, Set.mem_iUnion] at hx
     rcases hx with ⟨k,hk⟩
     rw [Set.diff_iUnion, Set.mem_iInter] at hk
 
-    rw [Metric.tendsto_atTop'] --, tendsto_atTop_nhds
+    rw [Metric.tendsto_atTop']
     intro e epos
     rcases (εsmall k epos) with ⟨n, lt_e⟩
 
@@ -137,7 +143,7 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
     rw [dist_comm, dist_eq_norm]
     exact (hN₀ x (hk n) N hN).trans_lt lt_e
 
-
+  -- Show that is has measure zero.
   have Emeasure : volume E ≤ 0 := by
     have : ∀ k, volume E ≤ δ' k := by
       intro k
@@ -146,6 +152,7 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
       apply Set.iInter_subset
     exact ge_of_tendsto' δ'conv this
 
+  -- Use results to prove the statement.
   rw [ae_restrict_iff' measurableSet_Icc]
   apply le_antisymm _ (zero_le _)
   apply le_trans' Emeasure
@@ -156,7 +163,6 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
   exact hx.2 (hE x ⟨hx.1, h⟩)
 
 
---still need to translate to the whole real line from the result for the interval [0,2π]
 
 section
 open Pointwise
@@ -167,6 +173,7 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
     ∀ᵐ x, P x := by
   rw [ae_restrict_iff' measurableSet_Ico, ae_iff] at h
   set E_interval := {x | ¬(x ∈ Set.Ico a (a + T) → P x)} with E_interval_def
+  -- Define exceptional set as countable union of translations of the exceptional set on the interval
   set E := ⋃ (k : ℤ), k • T +ᵥ E_interval with Edef
 
   have hE : E = {a | ¬P a} := by
@@ -186,6 +193,8 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
       rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def]
       simp only [and_imp, Classical.not_imp, Set.mem_setOf_eq]
       exact ⟨hn, h⟩
+
+  -- The union still has measure zero
   have Emeasure : volume E = 0 := by
     rw [Edef, measure_iUnion_null]
     intro k
@@ -196,7 +205,7 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
 
 end section
 
-
+/- Carleson's theorem asserting a.e. convergence of the partial Fourier sums for continous functions. -/
 theorem carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi)) :
     ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
   -- Reduce to a.e. convergence on [0,2π]
