@@ -85,6 +85,9 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
+lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
+  measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
+
 namespace Grid
 
 /- not sure whether these should be simp lemmas, but that might be required if we want to
@@ -100,6 +103,8 @@ lemma le_topCube : i ≤ topCube :=
 lemma isTop_topCube : IsTop (topCube : Grid X) := fun _ ↦ le_topCube
 
 lemma isMax_iff : IsMax i ↔ i = topCube := isTop_topCube.isMax_iff
+
+lemma isMin_iff : IsMin i ↔ s i = - S := sorry
 
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : Grid X) : Set X := ball (c i) (D ^ s i / 4)

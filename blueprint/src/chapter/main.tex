@@ -1620,7 +1620,7 @@ Since $\tQ(X)$ is finite, there exists a set $\mathcal{Z}$ satisfying both \eqre
 \end{lemma}
 
 \begin{proof}
-% \leanok % the lemma is proven, but let's wait until \mathcal{Z} is defined to actually mark it.
+    \leanok
     Let $\mfb \in \bigcup_{\mfa \in \tQ(X)} B_{I^\circ}(\mfa, 1)$. By maximality of $\mathcal{Z}(I)$, there must be a point $z \in \mathcal{Z}(I)$ such that $B_{I^\circ}(z, 0.3) \cap B_{I^\circ}(\mfb, 0.3) \ne \emptyset$. Else, $\mathcal{Z}(I) \cup \{\mfb\}$ would be a set of larger cardinality than $\mathcal{Z}(I)$ satisfying \eqref{eq-tile-Z} and \eqref{eq-tile-disjoint-Z}. Fix such $z$, and fix a point $z_1 \in B_{I^\circ}(z, 0.3) \cap B_{I^\circ}(\mfb, 0.3)$. By the triangle inequality, we deduce that
     $$
         d_{I^\circ}(z,\mfb) \le d_{I^\circ}(z,z_1) + d_{I^\circ}(\mfb, z_1) < 0.3 + 0.3 = 0.6\,,
@@ -1932,7 +1932,7 @@ of all $x\in X$ such that
 and define
 \begin{equation}\label{definegone2}
     G_2:=
-\bigcup_{k\ge 0}\bigcup_{k< n}
+\bigcup_{k\ge 0}\bigcup_{k\le n}
 A(2n+6,k,n)\, .
 \end{equation}
 Define
@@ -1953,7 +1953,7 @@ The following bound of the measure of $G'$ will be proven in
     \uses{first-exception,second-exception, third-exception}
     We have
     \begin{equation}
-        \mu(G')\le 2^{-2}\mu(G)\, .
+        \mu(G')\le 2^{-1}\mu(G)\, .
     \end{equation}
 \end{lemma}
 
@@ -2212,7 +2212,7 @@ Using the induction hypothesis, this proves
 \uses{John-Nirenberg}
 We have
 \begin{equation}
-    \mu(G_2)\le 2^{-4} \mu(G)\, .
+    \mu(G_2)\le 2^{-2} \mu(G)\, .
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -2220,11 +2220,11 @@ We have
 We use \Cref{John-Nirenberg} and sum twice a geometric series
 to obtain
 \begin{equation}
-    \sum_{0\le k}\sum_{k< n}
-\mu(A(2n+6,k,n))\le \sum_{0\le k}\sum_{k< n} 2^{k-5-2n}\mu(G)
+    \sum_{0\le k}\sum_{k\le n}
+\mu(A(2n+6,k,n))\le \sum_{0\le k}\sum_{k\le n} 2^{k-5-2n}\mu(G)
 \end{equation}
 \begin{equation}
-   \le \sum_{0\le k} 2^{-k-5}\mu(G)\le 2^{-4}\mu(G)\, .
+   \le \sum_{0\le k} 2^{-k-3}\mu(G)\le 2^{-2}\mu(G)\, .
 \end{equation}
 This proves the lemma.
 \end{proof}
@@ -2278,6 +2278,7 @@ Let $k,n,j\ge 0$. We have for every $x\in X$
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $x\in X$. For each
 $\fu\in \fU_1(k,n,j)$ with $x\in \scI(\fu)$, as $\fu \in \fC_1(k,n,j)$,
 there are at least $2^{j}$ elements $\mathfrak{m}\in \mathfrak{M}(k,n)$
@@ -2382,6 +2383,7 @@ Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 As each $\fp\in \fL_4(k,n,j)$
 is contained in $\cup\mathcal{L}(\fu)$ for some
 $\fu\in \fU_1(k,n,l)$, we have
@@ -2418,22 +2420,22 @@ Now we estimate $G_3$ defined in \eqref{defineg3} by
 \begin{equation}
     \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
     \sum_{0\le j\le 2n+3}
-    2^{100a^2 + 9a + 4 + n + k -j} D^{-\kappa Z(n+1)}\mu(G)
+    2^{100a^2 + 9a + 3 + n + k -j} D^{-\kappa Z(n+1)}\mu(G)
 \end{equation}
 Summing geometric series, using that $D^{\kappa Z}\ge 8$ by \eqref{defineD}, \eqref{definekappa} and \eqref{defineZ}, we estimate this by
 \begin{equation}
     \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
-    2^{100a^2 + 9a + 5 + n + k} D^{-\kappa Z(n+1)}\mu(G)
+    2^{100a^2 + 9a + 4 + n + k} D^{-\kappa Z(n+1)}\mu(G)
 \end{equation}
 \begin{equation}
-    = \sum_{k\ge 0} 2^{100a^2 + 9a + 5 + 2k} D^{-\kappa Z(k+1)} \sum_{n \geq k}\,
+    = \sum_{k\ge 0} 2^{100a^2 + 9a + 4 + 2k} D^{-\kappa Z(k+1)} \sum_{n \geq k}\,
     2^{n - k} D^{-\kappa Z(n-k)}\mu(G)
 \end{equation}
 \begin{equation}
-    \le \sum_{k\ge 0} 2^{100a^2 + 9a + 6 + 2k} D^{-\kappa Z(k+1)}\mu(G)
+    \le \sum_{k\ge 0} 2^{100a^2 + 9a + 5 + 2k} D^{-\kappa Z(k+1)}\mu(G)
 \end{equation}
 \begin{equation}
-   \le 2^{100a^2 + 9a + 7} D^{-\kappa Z}\mu(G)
+   \le 2^{100a^2 + 9a + 6} D^{-\kappa Z}\mu(G)
 \end{equation}
 Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and \eqref{definekappa} proves the lemma.
 \end{proof}
@@ -2970,18 +2972,24 @@ We have
 \end{lemma}
 
 \begin{proof}
-    Let $\fp \in \mathfrak{T}_2(\fu)$. Let
-    \begin{equation}
-        \label{eq-c3-tree}
-        \fq \in \bigcup_{\fu \sim \fu'} \mathfrak{T}_1(\fu') \cap \fC_3(k,n,j)
-    \end{equation}
-    be a maximal element of this set with respect to $\le$ such that $\fp \le \fq$.
-    We show that there is no $\fq' \in \fC_3(k,n,j)$ with $\fq \le \fq'$ and $\fq \ne \fq'$. Indeed, suppose $\fq'$ was such a tile.
-    By \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq' \lesssim \fu''$. Then we have in particular by \Cref{wiggle-order-1} that $10 \fp \lesssim \fu''$. Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$. By definition of $\sim$, we have $\fu' \sim \fu''$, hence $\fu \sim \fu''$. This implies that $\fq'$ is in the set in \eqref{eq-c3-tree}, contradicting maximality of $\fq$.
+    \leanok
+    Let $\fp \in \mathfrak{T}_2(\fu)$. Then $\fp \in \fC_4(k,n,j)$, hence there exists a chain
+    $$
+        \fp \le \fp_{Z(n+1)} \le \dotsb \le \fp_0
+    $$
+    of distinct tiles in $\fC_3(n,k,j)$. We pick such a chain and set $\fq = \fp_0$.
+    Then we have from distinctness of the tiles in the chain that
+    $\ps(\fp) \le \ps(\fq) - Z(n+1)$.
+    By \eqref{eq-C3-def} there exists $\fu'' \in \fU_1(k,n,j)$ with $2\fq \lesssim \fu''$ and $\ps(\fq) < \ps(\fu'')$.
+    Then we have in particular by \Cref{wiggle-order-1} that $10 \fp \lesssim \fu''$.
+    Let $\fu' \sim \fu$ be such that $\fp \in \mathfrak{T}_1(\fu')$.
+    By the definition of $\sim$, it follows that $\fu' \sim \fu''$.
+    By transitivity of $\sim$, we have $\fu \sim \fu''$.
+    By \Cref{relation-geometry}, we have $\sc(\fu'') = \sc(\fu)$, hence $\ps(\fq) < \ps(\fu)$ and $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
 
-    Let $\fu' \sim \fu$ with $\fq \in \mathfrak{T}_1(\fu')$. By the definition \eqref{eq-T1-def} of $\mathfrak{T}_1$, we have $\ps(\fp) < \ps(\fu')$. By \Cref{relation-geometry}, we have $\ps(\fu) = \ps(\fu')$, hence $\ps(\fq) < \ps(\fu)$. By definition of $\fC_4(k,n,j)$, $\fp$ is not in any of the maximal $Z(n+1)$ layers of tiles in $\fC_3(k,n,j)$, and hence $\ps(\fp) \le \ps(\fq) - Z(n+1) \le \ps(\fu) - Z(n+1) - 1$.
-
-    Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $\scI(\fp) \subset I$. Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \scI(\fu)$. By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\scI(\fp) \subset I$.
+    Thus, there exists some cube $I \in \mathcal{D}$ with $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $\scI(\fp) \subset I$.
+    Since $\fp \in \fC_5(k,n,j)$, we have that $I \notin \mathcal{L}(\fu)$, so $B(c(I), 8D^{s(I)}) \subset \scI(\fu)$.
+    By the triangle inequality, \eqref{defineD} and $a \ge 4$, the same then holds for the subcube $\scI(\fp) \subset I$.
 \end{proof}
 
 
@@ -2989,7 +2997,7 @@ We have
     \label{forest-stacking}
     \leanok
     \lean{forest_stacking}
-    It holds for $k<n$ that
+    It holds for $k\le n$ that
     \begin{equation}
         \sum_{\fu \in \fU_3(k,n,j)} \mathbf{1}_{\scI(\fu)} \le (4n+12)2^{n}\,.
     \end{equation}
@@ -3165,6 +3173,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
+    \leanok
     By its definition \eqref{eq-L1-def}, each set $\fL_1(k,n,j,l)$ is a set of minimal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_1(k,n,j,l)$ with $\fp \le \fq$, then $\fq$ would not be minimal. Hence such $\fp, \fq$ do not exist. Similarly, by \eqref{eq-L3-def}, each set $\fL_3(k,n,j,l)$ is a set of maximal elements in some set of tiles with respect to $\le$. If there were distinct $\fp, \fq \in \fL_3(k,n,j,l)$ with $\fp \le \fq$, then $\fp$ would not be maximal.
 \end{proof}
 

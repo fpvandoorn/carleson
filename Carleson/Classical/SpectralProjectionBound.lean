@@ -24,6 +24,7 @@ lemma fourierCoeff_eq_innerProduct {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 �
 
 noncomputable section
 def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ↥(Lp ℂ 2 (@haarAddCircle T hT))) : Lp ℂ p (@haarAddCircle T hT) :=
+def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ↥(Lp ℂ 2 (@haarAddCircle T hT))) : Lp ℂ p (@haarAddCircle T hT) :=
     ∑ n in Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
 
 --TODO: add some lemma relating partialFourierSum and partialFourierSumLp
@@ -45,8 +46,7 @@ lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (
       have : 2 = (2 : ENNReal).toReal := by simp
       rw [this, ← lp.norm_sum_single (by simp), ← this]
       congr 2
-      apply Finset.sum_congr (by simp)
-      intro n _
+      refine Finset.sum_congr (by simp) fun n ↦ ?_
       simp only [smul_eq_mul, mul_one]
       congr!
     _ = ∑ n in Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ 2 := by
@@ -56,14 +56,14 @@ lemma spectral_projection_bound_sq {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : 
     ‖partialFourierSumLp 2 N f‖ ^ 2 ≤ ‖f‖ ^ 2 := by
   rw [partialFourierSumL2_norm]
   simp_rw [fourierCoeff_eq_innerProduct]
-  apply orthonormal_fourier.sum_inner_products_le
+  exact orthonormal_fourier.sum_inner_products_le _
 
 lemma spectral_projection_bound_sq_integral {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
     ∫ t : AddCircle T, ‖partialFourierSumLp 2 N f t‖ ^ 2 ∂haarAddCircle ≤ ∫ t : AddCircle T, ‖f t‖ ^ 2 ∂haarAddCircle := by
   rw [← L2norm_sq_eq, ← L2norm_sq_eq]
-  apply spectral_projection_bound_sq
+  exact spectral_projection_bound_sq _ _
 
 lemma spectral_projection_bound {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
     ‖partialFourierSumLp 2 N f‖ ≤ ‖f‖ := by
   rw [← abs_norm, ← abs_norm f, ← sq_le_sq]
-  apply spectral_projection_bound_sq
+  exact spectral_projection_bound_sq _ _

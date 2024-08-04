@@ -168,7 +168,9 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)}
     exact (nnq_mem_Ioc X).1.le
   sorry
 
-/-- Constant appearing in Proposition 2.0.3. -/
+/-- The constant appearing in Proposition 2.0.3.
+Has value `2 ^ (150 * a ^ 3) / (q - 1)` in the blueprint. -/
+-- Todo: define this recursively in terms of previous constants
 def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
 
 /-- Proposition 2.0.3 -/

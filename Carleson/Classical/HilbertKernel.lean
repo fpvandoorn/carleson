@@ -10,6 +10,8 @@ noncomputable section
 
 open Complex ComplexConjugate
 
+open Complex ComplexConjugate
+
 
 
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - exp (I * x))
@@ -32,9 +34,9 @@ lemma k_measurable : Measurable k := by
   unfold k
   fun_prop
 
-
 def K (x y : ℝ) : ℂ := k (x - y)
-
+--TODO: maybe change to
+--def K : ℝ → ℝ → ℂ := fun x y ↦ k (x - y)
 
 lemma Hilbert_kernel_conj_symm {x y : ℝ} : K y x = conj (K x y) := by
   rw [K, ← neg_sub, k_of_neg_eq_conj_k, ← K]
