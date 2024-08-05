@@ -446,25 +446,7 @@ lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
     use p.eraseLast.last, RelSeries.eraseLast_last_rel_last _ (by omega)
     simpa [hp] using length_le_height_last p.eraseLast
 
-lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : Set s) (x : α)
-    (hx : x ∈ s) : (⟨x, hx⟩:s) ∈ minimals (α := s) (·≤·) t ↔
-      x ∈ minimals (·≤·) { y | ∃ h, y ∈ s ∧ ⟨y,h⟩ ∈ t} := by
-  wlog hxt : (⟨x, hx⟩:s) ∈ t
-  · clear this
-    have := Set.not_mem_subset (minimals_subset (·≤·) t) hxt
-    simp only [exists_and_left, false_iff, this]; clear this
-    contrapose! hxt
-    have := minimals_subset _ _ hxt
-    simp_all
-  rw [← map_mem_minimals_iff (f := fun (x : s) => (x : α)) (s := (·≤·))]
-  case hf => simp
-  case ha => assumption
-  simp
-  congr! 2
-  ext y
-  simp only [Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right, Set.mem_setOf_eq,
-    iff_and_self, forall_exists_index]
-  intros hy _; exact hy
+
 
 /-! Krull dimension -/
 
