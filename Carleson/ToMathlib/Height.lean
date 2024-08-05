@@ -30,62 +30,58 @@ Some results found here:
   This lemma proves the recursive equation in the blueprint.
 -/
 
+-- https://github.com/leanprover-community/mathlib4/pull/15342
+@[simp]
+lemma ENat.coe_lt_top (n : ℕ) : (n : ℕ∞) < ⊤ := by
+  exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
+
+-- https://github.com/leanprover-community/mathlib4/pull/15341
 theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
   cases n <;> cases m <;> try contradiction
   · norm_num
   · norm_cast; omega
 
+-- https://github.com/leanprover-community/mathlib4/pull/15347
+lemma sSup_eq_top_of_infinite {s : Set ℕ∞} (h : s.Infinite) : sSup s = ⊤ := by
+  apply (sSup_eq_top ..).mpr
+  intro x hx
+  cases x; simp at hx; next x =>
+  contrapose! h
+  simp only [Set.not_infinite]
+  apply Set.Finite.subset <| Finite.Set.finite_image {n : ℕ | n ≤ x} (fun (n : ℕ) => (n : ℕ∞))
+  intro y hy
+  specialize h y hy
+  have hxt : y < ⊤ := lt_of_le_of_lt h hx
+  use y.toNat
+  simp [ENat.toNat_le_of_le_coe h, LT.lt.ne_top hxt]
 
-lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
-    (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
-  constructor
-  · intro h
-    have hle : ∀ (y : α), f y ≤ ↑n := by
-      replace h : ⨆ x, f x ≤ n := by simp [h]
-      rw [iSup_le_iff] at h
-      assumption
-    simp only [hle, implies_true, and_true]
-    by_contra! hnotn
-    cases n with
-    | zero =>
-      specialize hle Classical.ofNonempty
-      specialize hnotn Classical.ofNonempty
-      simp_all
-    | succ n =>
-      suffices ⨆ x, f x < n+1 by simp_all
-      rw [ENat.lt_add_one_iff _ _ (by simp)]
-      rw [iSup_le_iff] at *
-      intro i
-      specialize hnotn i
-      specialize hle i
-      generalize f i = m at *
-      cases m
-      · simp_all
-      · simp_all; norm_cast at *; omega
-  · intro ⟨⟨x, hx⟩, h2⟩
-    apply le_antisymm
-    · rw [iSup_le_iff]
-      intro i; exact h2 i
-    ·apply le_iSup_of_le x (by simp [hx])
+-- https://github.com/leanprover-community/mathlib4/pull/15347
+lemma finite_of_sSup_lt_top {s : Set ℕ∞} (h : sSup s < ⊤) : s.Finite := by
+  contrapose! h
+  simp only [top_le_iff]
+  exact sSup_eq_top_of_infinite h
 
+-- https://github.com/leanprover-community/mathlib4/pull/15347
+lemma sSup_mem_of_Nonempty_of_lt_top {s : Set ℕ∞} [Nonempty s] (hs' : sSup s < ⊤) : sSup s ∈ s :=
+  Set.Nonempty.csSup_mem Set.nonempty_of_nonempty_subtype (finite_of_sSup_lt_top hs')
 
-lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat) :
-    (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
-  simp [ENat.iSup_eq_coe_iff']
+lemma exist_eq_iSup_of_iSup_eq_coe {α : Type*} [Nonempty α] {f : α → ℕ∞} {n : ℕ}
+    (h : (⨆ x, f x) = n) : ∃ x, f x = n := by
+  have : (⨆ x, f x) < ⊤ := by simp [h]
+  have := sSup_mem_of_Nonempty_of_lt_top this
+  obtain ⟨x, hx⟩ := this
+  simp only at hx
+  use x
+  rw [hx]
+  exact h
 
-@[simp]
-theorem ENat.iSup_eq_zero {ι : Type*} (s : ι → ℕ∞) : iSup s = 0 ↔ ∀ i, s i = 0 := iSup_eq_bot
-
-
+-- https://github.com/leanprover-community/mathlib4/pull/15342
 @[simp]
 lemma ENat.not_lt_zero (n : ℕ∞) : ¬ n < 0 := by
   cases n <;> simp
 
-@[simp]
-lemma ENat.coe_lt_top (n : ℕ) : (n : ℕ∞) < ⊤ := by
-  exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
-
-lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
+-- https://github.com/leanprover-community/mathlib4/pull/15344
+lemma ENat.iSup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
     (⨆ x, f x) + n = (⨆ x, f x + n) := by
   cases n; simp; next n =>
   apply le_antisymm
@@ -118,8 +114,9 @@ lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) 
     exact le_iSup f i
 
 
-variable {α : Type*}
+variable {α β : Type*}
 
+-- https://github.com/leanprover-community/mathlib4/pull/15386
 lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0 < p.length) :
     r p.eraseLast.last p.last := by
   simp only [last, Fin.last, eraseLast_length, eraseLast_toFun]
@@ -148,87 +145,124 @@ lemma RelSeries.head_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length +
 lemma RelSeries.last_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
     (p.drop i).last = p.last := by simp [drop, last, Fin.last]; congr; omega
 
+-- https://github.com/leanprover-community/mathlib4/pull/15384
 @[simp]
 lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last = x :=
   by simp [singleton, last]
 
-/--
-Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
-`p` is a singleton.
--/
-def LTSeries.replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
-    LTSeries α :=
-  if hlen : p.length = 0
-  then RelSeries.singleton _ x
-  else p.eraseLast.snoc x (by
-    apply lt_of_lt_of_le
-    · apply p.step ⟨p.length - 1, by omega⟩
-    · convert h
-      simp only [Fin.succ_mk, Nat.succ_eq_add_one, RelSeries.last, Fin.last]
-      congr; omega)
+-- https://github.com/leanprover-community/mathlib4/pull/15387
+@[simp] lemma RelSeries.head_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).head = f p.head := rfl
 
-@[simp]
-lemma LTSeries.last_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
-    (p.replaceLast x h).last = x := by
-  unfold replaceLast; split <;> simp
+@[simp] lemma RelSeries.last_map {r : Rel α α} {s : Rel α α} (p : RelSeries r) (f : r →r s) : (p.map f).last = f p.last := rfl
 
-@[simp]
-lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
-    (p.replaceLast x h).length = p.length := by
-  unfold replaceLast; split <;> (simp;omega)
+@[simp] lemma LTSeries.head_map  {α β : Type*} [Preorder α] [Preorder β] (p : LTSeries α) (f : α → β) (hf : StrictMono f) :
+  (p.map f hf).head = f p.head := rfl
 
+@[simp] lemma LTSeries.last_map  {α β : Type*} [Preorder α] [Preorder β] (p : LTSeries α) (f : α → β) (hf : StrictMono f) :
+  (p.map f hf).last = f p.last := rfl
+
+
+-- https://github.com/leanprover-community/mathlib4/pull/15386
 lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last :=
   LTSeries.monotone p (Fin.zero_le (Fin.last p.length))
 
-lemma LTSeries.int_head_add_le_toFun (p : LTSeries ℤ) (i : Fin (p.length + 1)) : p.head + i ≤ p i := by
+/-- In ℕ, two entries in an `LTSeries` differ by at least the difference of their indices.  -/
+lemma LTSeries.toFun_add_sub_le_toFun_nat (p : LTSeries ℕ) (i j : Fin (p.length + 1))
+    (hij : i ≤ j) : p i + (j - i) ≤ p j := by
   have ⟨i, hi⟩ := i
-  simp only
-  induction i with
-  | zero => simp [RelSeries.head]
-  | succ i ih =>
-    suffices p.head + i < p.toFun ⟨i + 1, hi⟩ by
-      apply Int.le_of_lt_add_one
-      simpa [← add_assoc]
-    exact lt_of_le_of_lt (ih (by omega)) (p.step ⟨i, by omega⟩)
+  have ⟨j, hj⟩ := j
+  simp only [Fin.mk_le_mk] at hij
+  simp only at *
+  induction j, hij using Nat.le_induction  with
+  | base => simp
+  | succ j _hij ih =>
+    have := lt_of_le_of_lt (ih (by omega)) (p.step ⟨j, by omega⟩); clear ih
+    apply Nat.le_of_lt_add_one
+    simp only [Fin.succ_mk, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one] at *
+    omega
 
-lemma LTSeries.int_head_add_len_le_last (p : LTSeries ℤ) : p.head + p.length ≤ p.last := by
-  apply LTSeries.int_head_add_le_toFun
+/-- In ℤ, two entries in an `LTSeries` differ by at least the difference of their indices.  -/
+lemma LTSeries.toFun_add_sub_le_toFun_int (p : LTSeries ℤ) (i j : Fin (p.length + 1))
+    (hij : i ≤ j) : p i + (j - i) ≤ p j := by
+  -- The proof is identical to `LTSeries.toFun_add_sub_le_toFun_nat`, but seemed easier to
+  -- copy rather than to abstract
+  have ⟨i, hi⟩ := i
+  have ⟨j, hj⟩ := j
+  simp only [Fin.mk_le_mk] at hij
+  simp only at *
+  induction j, hij using Nat.le_induction  with
+  | base => simp
+  | succ j _hij ih =>
+    have := lt_of_le_of_lt (ih (by omega)) (p.step ⟨j, by omega⟩); clear ih
+    apply Int.le_of_lt_add_one
+    simp only [Fin.succ_mk, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one] at *
+    omega
 
-variable [Preorder α]
+/-- In ℕ, the head and tail of an `LTSeries` differ at least by the length of the series -/
+lemma LTSeries.head_add_length_le_nat (p : LTSeries ℕ) : p.head + p.length ≤ p.last :=
+  LTSeries.toFun_add_sub_le_toFun_nat _ _ (Fin.last _) (Fin.zero_le _)
+
+/-- In ℤ, the head and tail of an `LTSeries` differ at least by the length of the series -/
+lemma LTSeries.head_add_length_le_int (p : LTSeries ℤ) : p.head + p.length ≤ p.last :=
+  LTSeries.toFun_add_sub_le_toFun_int _ _ (Fin.last _) (Fin.zero_le _)
+
+
+variable [Preorder α] [Preorder β]
+
 
 noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
   ⨆ (p : {p : LTSeries α // p.last = a}), p.1.length
 
 instance (a : α) : Nonempty { p : LTSeries α // p.last = a } := ⟨RelSeries.singleton _ a, rfl⟩
 
+lemma height_le_iff (x : α) (n : ℕ∞) :
+    height x ≤ n ↔ ∀ (p : LTSeries α), p.last = x → p.length ≤ n := by
+  simp [height, iSup_le_iff]
 
-lemma height_last_ge_length (p : LTSeries α) : p.length ≤ height p.last :=
-  le_iSup (α := ℕ∞) (ι := {p' : LTSeries α // p'.last = p.last}) (f := fun p' =>↑p'.1.length) ⟨p, rfl⟩
+lemma height_le (x : α) (n : ℕ∞) :
+    (∀ (p : LTSeries α), p.last = x → p.length ≤ n) → height x ≤ n :=
+  (height_le_iff x n).mpr
 
-lemma height_ge_index (p : LTSeries α) (i : Fin (p.length + 1)) : i ≤ height (p i) :=
-  height_last_ge_length (p.take i)
+lemma le_height_of_last_le (x : α) (p : LTSeries α) (hlast : p.last ≤ x) : p.length ≤ height x := by
+  by_cases hlen0 : p.length > 0
+  · let p' := p.eraseLast.snoc x (by
+      apply lt_of_lt_of_le
+      · apply p.step ⟨p.length - 1, by omega⟩
+      · convert hlast
+        simp only [Fin.succ_mk, Nat.succ_eq_add_one, RelSeries.last, Fin.last]
+        congr; omega)
+    suffices p'.length ≤ height x by
+      simp [p'] at this
+      convert this
+      norm_cast
+      omega
+    exact le_iSup_of_le ⟨p', by simp [p']⟩ (by simp)
+  · simp_all
+
+lemma length_le_height_last (p : LTSeries α) : p.length ≤ height p.last :=
+  le_height_of_last_le _ p (le_refl _)
+
+lemma index_le_height (p : LTSeries α) (i : Fin (p.length + 1)) : i ≤ height (p i) :=
+  length_le_height_last (p.take i)
 
 lemma height_eq_index_of_length_eq_last_height (p : LTSeries α) (h : p.length = height p.last) :
     ∀ (i : Fin (p.length + 1)), i = height (p i) := by
   suffices ∀ i, height (p i) ≤ i by
-    apply_rules [le_antisymm, height_ge_index]
+    apply_rules [le_antisymm, index_le_height]
   intro i
-  apply iSup_le
-  intro ⟨p', hp'⟩
+  apply height_le
+  intro p' hp'
   simp only [Nat.cast_le]
-  have hp'' := height_last_ge_length <| p'.smash (p.drop i) (by simpa)
+  have hp'' := length_le_height_last <| p'.smash (p.drop i) (by simpa)
   simp [← h] at hp''; clear h
   norm_cast at hp''
   omega
 
-
 lemma height_mono : Monotone (α := α) height := by
   intro x y hxy
-  apply sSup_le_sSup
-  rw [Set.range_subset_range_iff_exists_comp]
-  use fun ⟨p, h⟩ => ⟨p.replaceLast y (h ▸ hxy), by simp⟩
-  ext ⟨p, hp⟩
-  simp
+  apply height_le
+  intros p hlast _
+  apply le_height_of_last_le y p (hlast ▸ hxy)
 
 -- only true for finite height
 lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
@@ -238,12 +272,25 @@ lemma height_strictMono (x y : α) (hxy : x < y) (hfin : height y < ⊤) :
     revert hfin this
     cases height y <;> cases height x <;> simp_all;  norm_cast;  omega
   unfold height
-  rw [ENat.isup_add]
+  rw [ENat.iSup_add]
   apply sSup_le_sSup
   rw [Set.range_subset_range_iff_exists_comp]
   use fun ⟨p, h⟩ => ⟨p.snoc y (h ▸ hxy), by simp⟩
   ext ⟨p, _hp⟩
   simp
+
+lemma height_le_height_of_strictmono (f : α → β) (hf : StrictMono f) (x : α) :
+    height x ≤ height (f x) := by
+  unfold height
+  apply sSup_le_sSup_of_forall_exists_le
+  rintro _ ⟨⟨p, hlast⟩, rfl⟩
+  exact ⟨p.length, ⟨⟨⟨p.map f hf, by simp [hlast]⟩, rfl⟩, by simp⟩⟩
+
+@[simp]
+lemma height_eq_of_orderIso (f : α ≃o β) (x : α) : height (f x) = height x := by
+  apply le_antisymm
+  · simpa using height_le_height_of_strictmono _ f.symm.strictMono (f x)
+  · exact height_le_height_of_strictmono _ f.strictMono x
 
 /-- There exist a series ending in a element for any lenght up to the element’s height.  -/
 lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
@@ -261,8 +308,8 @@ lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
     apply ha (p.drop ⟨m-n, by omega⟩) (by simp) (by simp; omega)
   | coe m =>
     rw [ha, Nat.cast_le] at h
-    rw [height, ENat.iSup_eq_coe_iff'] at ha
-    obtain ⟨⟨⟨p, hlast⟩, hlen⟩, _hmax⟩ := ha
+    obtain ⟨⟨p,hlast⟩, hlen⟩ := exist_eq_iSup_of_iSup_eq_coe ha
+    simp only at hlen
     simp only [Nat.cast_inj] at hlen
     use p.drop ⟨m-n, by omega⟩
     constructor
@@ -295,7 +342,7 @@ lemma height_eq_top_iff (x : α) :
 lemma height_eq_isup_lt_height (x : α) :
     height x = ⨆ (y : α) (_  : y < x), height y + 1 := by
   unfold height
-  simp_rw [ENat.isup_add]
+  simp_rw [ENat.iSup_add]
   apply le_antisymm
   · apply iSup_le; intro ⟨p, hp⟩
     simp only
@@ -345,7 +392,7 @@ lemma height_eq_coe_add_one_iff (x : α) (n : ℕ)  :
   · simp_all
     exact ne_of_beq_false rfl
   simp only [hfin, true_and]
-  trans (n < height x ∧ height x ≤ n + 1)
+  trans n < height x ∧ height x ≤ n + 1
   · rw [le_antisymm_iff, and_comm]
     simp [hfin, ENat.lt_add_one_iff, ENat.add_one_le_iff]
   · congr! 1
@@ -397,24 +444,237 @@ lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
     simp only [not_lt, top_le_iff, height_eq_top_iff] at hfin
     obtain ⟨p, rfl, hp⟩ := hfin (n+1)
     use p.eraseLast.last, RelSeries.eraseLast_last_rel_last _ (by omega)
-    simpa [hp] using height_last_ge_length p.eraseLast
+    simpa [hp] using length_le_height_last p.eraseLast
 
-lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : Set s) (x : α)
-    (hx : x ∈ s) : (⟨x, hx⟩:s) ∈ minimals (α := s) (·≤·) t ↔
-      x ∈ minimals (·≤·) { y | ∃ h, y ∈ s ∧ ⟨y,h⟩ ∈ t} := by
-  wlog hxt : (⟨x, hx⟩:s) ∈ t
-  · clear this
-    have := Set.not_mem_subset (minimals_subset (·≤·) t) hxt
-    simp only [exists_and_left, false_iff, this]; clear this
-    contrapose! hxt
-    have := minimals_subset _ _ hxt
-    simp_all
-  rw [← map_mem_minimals_iff (f := fun (x : s) => (x : α)) (s := (·≤·))]
-  case hf => simp
-  case ha => assumption
-  simp
-  congr! 2
-  ext y
-  simp only [Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right, Set.mem_setOf_eq,
-    iff_and_self, forall_exists_index]
-  intros hy _; exact hy
+
+
+/-! Krull dimension -/
+
+noncomputable def krullDim (α : Type*) [Preorder α] : WithBot ℕ∞ :=
+  ⨆ (p : LTSeries α), (p.length : WithBot ℕ∞)
+
+noncomputable instance : CompleteLinearOrder (WithBot ENat) :=
+  inferInstanceAs (CompleteLinearOrder (WithBot (WithTop ℕ)))
+
+lemma krullDim_nonneg_of_nonempty [Nonempty α] : 0 ≤ krullDim α :=
+  le_sSup ⟨⟨0, fun _ ↦ @Nonempty.some α inferInstance, fun f ↦ f.elim0⟩, rfl⟩
+
+theorem WithBot.coe_iSup_OrderTop {ι : Type*} [Nonempty ι] [SupSet α] [OrderTop α] {f : ι → α} :
+    ↑(⨆ i, f i) = (⨆ i, f i : WithBot α) :=
+  WithBot.coe_iSup (OrderTop.bddAbove (Set.range f))
+
+/-- A definition of krullDim for nonempty `α` that avoids `WithBot` -/
+lemma krullDim_eq_of_nonempty [Nonempty α] :
+    krullDim α = ⨆ (p : LTSeries α), (p.length : ℕ∞) := by
+  unfold krullDim
+  rw [WithBot.coe_iSup_OrderTop]
+  rfl
+
+@[simp]
+lemma krullDim_eq_bot_of_isEmpty [IsEmpty α] : krullDim α = ⊥ := WithBot.ciSup_empty _
+
+lemma krullDim_eq_top_of_infiniteDimensionalOrder [InfiniteDimensionalOrder α] :
+    krullDim α = ⊤ :=
+  le_antisymm le_top <| le_iSup_iff.mpr <| fun m hm ↦ match m, hm with
+  | ⊥, hm => False.elim <| by
+    haveI : Inhabited α := ⟨LTSeries.withLength _ 0 0⟩
+    exact not_le_of_lt (WithBot.bot_lt_coe _ : ⊥ < (0 : WithBot (WithTop ℕ))) <| hm default
+  | some ⊤, _ => le_refl _
+  | some (some m), hm => by
+    refine (not_lt_of_le (hm (LTSeries.withLength _ (m + 1))) ?_).elim
+    erw [WithBot.coe_lt_coe, WithTop.coe_lt_coe]
+    simp
+
+@[simp] lemma krullDim_orderDual : krullDim αᵒᵈ = krullDim α :=
+  le_antisymm (iSup_le fun i ↦ le_sSup ⟨i.reverse, rfl⟩) <|
+    iSup_le fun i ↦ le_sSup ⟨i.reverse, rfl⟩
+
+
+lemma krullDim_eq_iSup_height : krullDim α = ⨆ (a : α), (height a : WithBot ℕ∞) := by
+  cases isEmpty_or_nonempty α with
+  | inl h => simp
+  | inr h =>
+    rw [← WithBot.coe_iSup_OrderTop]
+    apply le_antisymm
+    · apply iSup_le
+      intro p
+      suffices p.length ≤ ⨆ (a : α), height a by
+        exact (WithBot.unbot'_le_iff fun _ => this).mp this
+      apply le_iSup_of_le p.last (length_le_height_last p)
+    · rw [krullDim_eq_of_nonempty]
+      simp only [WithBot.coe_le_coe, iSup_le_iff]
+      intro x
+      exact height_le _ _ (fun p _ ↦ le_iSup_of_le p (le_refl _))
+
+lemma krullDim_eq_iSup_height_of_nonempty [Nonempty α] : krullDim α = ⨆ (a : α), height a := by
+  rw [krullDim_eq_iSup_height, WithBot.coe_iSup_OrderTop]
+
+@[simp] -- not as useful as it looks, due to the coe on the left
+lemma height_top_eq_krullDim [OrderTop α] : height (⊤ : α) = krullDim α := by
+  rw [krullDim_eq_of_nonempty]
+  simp only [WithBot.coe_inj]
+  apply le_antisymm
+  · exact height_le _ _ (fun p _ ↦ le_iSup_of_le p (le_refl _))
+  · exact iSup_le (fun p => le_height_of_last_le ⊤ p le_top)
+
+
+/-! TODO: coheight -/
+
+/-! Concrete calculations -/
+
+@[simp] lemma height_nat (n : ℕ) : height n = n := by
+  induction n using Nat.strongInductionOn with | ind n ih =>
+  apply le_antisymm
+  · apply (height_le_coe_iff ..).mpr
+    simp (config := { contextual := true }) only [ih, Nat.cast_lt, implies_true]
+  · let p' : LTSeries ℕ := { length := n, toFun := fun i => i, step := fun i => by simp }
+    apply length_le_height_last p'
+
+@[simp]
+lemma krullDim_nat : krullDim ℕ = ⊤ := by
+  simp only [krullDim_eq_iSup_height, height_nat]
+  rw [← WithBot.coe_iSup_OrderTop]
+  simp only [WithBot.coe_eq_top]
+  show (⨆ (i : ℕ), ↑i = (⊤ : ℕ∞)) -- nothing simpler form here on?
+  rw [iSup_eq_top]
+  intro n hn
+  cases n with
+  | top => contradiction
+  | coe n =>
+    use (n+1)
+    norm_cast
+    simp
+
+@[simp] lemma height_int (a : ℤ) : height a = ⊤ := by
+  rw [height_eq_top_iff]
+  intro n
+  use { length := n, toFun := fun i => a - n + i, step := fun i => by simp }
+  simp [RelSeries.last]
+
+@[simp] lemma height_bot (α : Type*) [Preorder α] [OrderBot α] : height (⊥ : α) = 0 := by
+  simp [height_eq_zero_iff]
+
+-- https://github.com/leanprover-community/mathlib4/pull/15421
+theorem WithBot.unbot_lt_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
+    a.unbot h < b ↔ a < b := by
+  induction a
+  · simpa [bot_lt_coe] using h rfl
+  · simp
+
+theorem WithBot.unbot_eq_iff {a : WithBot α} {b : α} (h : a ≠ ⊥) :
+    a.unbot h = b ↔ a = b := by
+  induction a
+  · simpa [bot_lt_coe] using h rfl
+  · simp
+
+theorem WithTop.untop_eq_iff {a : WithTop α} {b : α} (h : a ≠ ⊤) :
+    a.untop h = b ↔ a = b := by
+  induction a
+  · simpa [coe_lt_top] using h rfl
+  · simp
+
+theorem WithTop.untop_lt_iff {a : WithTop α} {b : α} (h : a ≠ ⊤) :
+    a.untop h < b ↔ a < b := by
+  induction a
+  · simpa [coe_lt_top] using h rfl
+  · simp
+
+@[simp]
+lemma height_coe_WithBot (x : α) : height (x : WithBot α) = height x + 1 := by
+  apply le_antisymm
+  · apply height_le
+    intro p hlast
+    wlog hlenpos : p.length > 0
+    · simp_all
+    let p' : LTSeries α := {
+      length := p.length - 1
+      toFun := fun ⟨i, hi⟩ => (p ⟨i+1, by omega⟩).unbot (by
+        apply LT.lt.ne_bot (a := p.head)
+        apply p.strictMono
+        exact compare_gt_iff_gt.mp rfl)
+      step := by
+        intro ⟨i, hi⟩
+        simp only [Fin.castSucc_mk, Nat.succ_eq_add_one, Fin.succ_mk, WithBot.unbot_lt_iff,
+          WithBot.coe_unbot, gt_iff_lt]
+        exact p.step ⟨i + 1, by omega⟩
+      }
+    have hlast' : p'.last = x := by
+      simp only [RelSeries.last, Fin.val_last, WithBot.unbot_eq_iff, ← hlast]
+      congr; omega
+    suffices p'.length ≤ height p'.last by
+      rw [hlast'] at this
+      simpa [p'] using this
+    apply length_le_height_last
+  · unfold height
+    rw [ENat.iSup_add]
+    apply iSup_le
+    intro ⟨p, hlast⟩
+    simp only
+    let p' := (p.map _ WithBot.coe_strictMono).cons ⊥ (by simp)
+    apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩
+    simp [p']
+
+@[simp]
+lemma height_coe_WithTop (x : α) : height (x : WithTop α) = height x := by
+  apply le_antisymm
+  · apply height_le
+    intro p hlast
+    let p' : LTSeries α := {
+      length := p.length
+      toFun := fun i => (p i).untop (by
+        apply WithTop.lt_top_iff_ne_top.mp
+        apply lt_of_le_of_lt
+        · exact p.monotone (Fin.le_last _)
+        · rw [RelSeries.last] at hlast
+          simp [hlast])
+      step := by
+        intro i
+        simp only [WithTop.untop_lt_iff, WithTop.coe_untop]
+        exact p.step i
+      }
+    have hlast' : p'.last = x := by
+      simp only [RelSeries.last, Fin.val_last, WithTop.untop_eq_iff, ← hlast]
+    suffices p'.length ≤ height p'.last by
+      rw [hlast'] at this
+      simpa [p'] using this
+    apply length_le_height_last
+  · apply height_le
+    intro p hlast
+    let p' := p.map _ WithTop.coe_strictMono
+    apply le_iSup_of_le ⟨p', by simp [p', hlast]⟩ (by simp [p'])
+
+@[simp]
+lemma height_coe_ENat (x : ℕ) : height (x : ℕ∞) = height x := height_coe_WithTop x
+
+@[simp]
+lemma krullDim_WithTop [Nonempty α] : krullDim (WithTop α) = krullDim α + 1 := by
+  rw [← height_top_eq_krullDim]
+  rw [krullDim_eq_iSup_height_of_nonempty]
+  norm_cast
+  rw [ENat.iSup_add]
+  rw [height_eq_isup_lt_height]
+  apply le_antisymm
+  · apply iSup_le
+    intro x
+    apply iSup_le
+    intro h
+    cases x with
+    | top => simp at h
+    | coe x =>
+      simp only [height_coe_WithTop]
+      exact le_iSup_of_le x (le_refl _)
+  · apply iSup_le
+    intro x
+    apply le_iSup_of_le (↑x)
+    apply le_iSup_of_le (WithTop.coe_lt_top x)
+    simp only [height_coe_WithTop, le_refl]
+
+@[simp]
+lemma height_ENat (n : ℕ∞) : height n = n := by
+  cases n with
+  | top =>
+    rw [← WithBot.coe_eq_coe, height_top_eq_krullDim]
+    show (krullDim (WithTop ℕ) = ↑⊤)
+    simp only [krullDim_WithTop, krullDim_nat]
+    rfl
+  | coe n => simp
