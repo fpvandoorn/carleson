@@ -129,7 +129,7 @@ lemma property_set_nonempty (k:ℤ): (if k = S then ({o}:Set X) else ∅) ∈ pr
 
 variable (X) in
 lemma chain_property_set_has_bound (k : ℤ):
-    ∀ c ⊆ property_set X k, IsChain (. ⊆ .) c → ∃ ub ∈ property_set X k,
+    ∀ c ⊆ property_set X k, IsChain (· ⊆ ·) c → ∃ ub ∈ property_set X k,
     ∀ s ∈ c, s ⊆ ub := by
   intro c hc hchain
   use (⋃ s ∈ c,s) ∪ (if k = S then {o} else ∅)
@@ -1788,7 +1788,7 @@ lemma forget_map_inj : Function.Injective (forget_map X) := by
   intro x1 x2 h
   dsimp only [forget_map] at h
   simp only [Sigma.mk.inj_iff, Subtype.mk.injEq] at h
-  exact (𝓓.ext_iff x1 x2).mpr h
+  exact 𝓓.ext_iff.mpr h
 
 variable (X) in
 def 𝓓_finite : Finite (𝓓 X) := by

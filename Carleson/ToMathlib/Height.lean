@@ -380,9 +380,8 @@ lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
   change Minimal (· ∈ t) _ ↔ _
   rw [← OrderEmbedding.minimal_mem_image_iff
     (f := ⟨Function.Embedding.subtype (· ∈ s), by simp⟩) hxt]
-  simp only [RelEmbedding.coe_mk, Function.Embedding.coe_subtype, Set.mem_image, Subtype.exists,
+  simp_rw [RelEmbedding.coe_mk, Function.Embedding.coe_subtype, Set.mem_image, Subtype.exists,
     exists_and_right, exists_eq_right, exists_and_left]
-  congr! 2 with x'
-  change _ ↔ x' ∈ s ∧ _
-  rw [iff_and_self, forall_exists_index]
-  exact fun hy _ ↦ hy
+  congr! 2
+  rw [setOf, iff_and_self, forall_exists_index]
+  exact fun h _ ↦ h

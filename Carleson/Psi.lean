@@ -582,7 +582,7 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   apply le_trans <| add_le_add norm_Ks_le norm_Ks_le
   rw [div_mul_eq_mul_div, div_add_div_same, ← two_mul,
     div_le_div_right (measure_ball_pos_real x (D ^ s) (D_pow0' (D1 X) s)), ← pow_one 2]
-  rw [not_le, ← div_lt_iff' two_pos] at h
+  rw [not_le, ← _root_.div_lt_iff' two_pos] at h
   have dist_pos : dist y y' > 0 := lt_of_le_of_lt (div_nonneg dist_nonneg two_pos.le) h
   have := lt_of_le_of_lt
     ((div_le_div_right two_pos).2 ((mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1)) h
