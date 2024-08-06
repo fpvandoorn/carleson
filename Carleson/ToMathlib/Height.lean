@@ -368,23 +368,21 @@ lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
     use p.eraseLast.last, RelSeries.eraseLast_last_rel_last _ (by omega)
     simpa [hp] using height_last_ge_length p.eraseLast
 
-lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α]
+lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
     (s : Set α) (t : Set s) (x : α) (hx : x ∈ s) :
-    Minimal (α := s) t (⟨x, hx⟩ : s) ↔ Minimal {y | ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t} x := by
+    Minimal t (⟨x, hx⟩ : s) ↔ Minimal {y | ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t} x := by
   wlog hxt : (⟨x, hx⟩ : s) ∈ t
   · clear this
-    have := Set.not_mem_subset (minimals_subset (·≤·) t) hxt
-    simp only [exists_and_left, false_iff, this]
-    clear this
-    contrapose! hxt
-    have := minimals_subset _ _ hxt
+    have : ¬Minimal t (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
+    simp_rw [this, false_iff, exists_and_left]; clear this; contrapose! hxt
+    have : x ∈ {y | y ∈ s ∧ ∃ (x : y ∈ s), ⟨y, x⟩ ∈ t} := hxt.prop
     simp_all
-  rw [← map_mem_minimals_iff (f := fun (x : s) => (x : α)) (s := (·≤·))]
-  case hf => simp
-  case ha => assumption
-  simp
-  congr! 2
-  ext y
-  simp only [Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right, Set.mem_setOf_eq,
-    iff_and_self, forall_exists_index]
-  intros hy _; exact hy
+  change Minimal (· ∈ t) _ ↔ _
+  rw [← OrderEmbedding.minimal_mem_image_iff
+    (f := ⟨Function.Embedding.subtype (· ∈ s), by simp⟩) hxt]
+  simp only [RelEmbedding.coe_mk, Function.Embedding.coe_subtype, Set.mem_image, Subtype.exists,
+    exists_and_right, exists_eq_right, exists_and_left]
+  congr! 2 with x'
+  change _ ↔ x' ∈ s ∧ _
+  rw [iff_and_self, forall_exists_index]
+  exact fun hy _ ↦ hy
