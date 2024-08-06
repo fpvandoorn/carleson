@@ -415,7 +415,7 @@ theorem sum_measureReal_le_measureReal_univ [IsFiniteMeasure μ] {s : Finset ι}
   simp only [measureReal_def]
   rw [← ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
   apply ENNReal.toReal_mono (measure_ne_top _ _)
-  exact sum_measure_le_measure_univ h H
+  exact sum_measure_le_measure_univ (fun i mi ↦ (h i mi).nullMeasurableSet) H.aedisjoint
 
 /-- Pigeonhole principle for measure spaces: if `s` is a `Finset` and
 `∑ i in s, μ.real (t i) > μ.real univ`, then one of the intersections `t i ∩ t j` is not empty. -/
@@ -424,7 +424,8 @@ theorem exists_nonempty_inter_of_measureReal_univ_lt_sum_measureReal
     {s : Finset ι} {t : ι → Set α} (h : ∀ i ∈ s, MeasurableSet (t i))
     (H : μ.real (univ : Set α) < ∑ i in s, μ.real (t i)) :
     ∃ i ∈ s, ∃ j ∈ s, ∃ _h : i ≠ j, (t i ∩ t j).Nonempty := by
-  apply exists_nonempty_inter_of_measure_univ_lt_sum_measure μ h
+  apply exists_nonempty_inter_of_measure_univ_lt_sum_measure μ
+    (fun i mi ↦ (h i mi).nullMeasurableSet)
   apply (ENNReal.toReal_lt_toReal (measure_ne_top _ _) _).1
   · convert H
     rw [ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]

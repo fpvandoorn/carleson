@@ -109,28 +109,28 @@ theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal
     AEStronglyMeasurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) μ :=
   AEStronglyMeasurable.maximalFunction h𝓑 |>.ennreal_toReal
 
-theorem MB_le_snormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ snormEssSup u μ :=
+theorem MB_le_eLpNormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ eLpNormEssSup u μ :=
   calc MB μ 𝓑 c r u x ≤
     ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
-        fun _x ↦ ⨍⁻ _y in ball (c i) (r i), snormEssSup u μ ∂μ := by
+        fun _x ↦ ⨍⁻ _y in ball (c i) (r i), eLpNormEssSup u μ ∂μ := by
         simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
         gcongr
-        exact setLAverage_mono_ae <| coe_nnnorm_ae_le_snormEssSup u μ
-    _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x) fun _x ↦ snormEssSup u μ := by
+        exact setLAverage_mono_ae <| coe_nnnorm_ae_le_eLpNormEssSup u μ
+    _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x) fun _x ↦ eLpNormEssSup u μ := by
       gcongr; apply setLaverage_const_le
-    _ ≤ ⨆ i ∈ 𝓑, snormEssSup u μ := by gcongr; apply indicator_le_self
-    _ ≤ snormEssSup u μ := by
+    _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; apply indicator_le_self
+    _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
 protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) ⊤ ⊤ μ μ 1 := by
   intro f _
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
-  simp only [ENNReal.coe_one, one_mul, snorm_exponent_top]
+  simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
   refine essSup_le_of_ae_le _ (eventually_of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
   refine ENNReal.coe_toNNReal_le_self |>.trans ?_
-  apply MB_le_snormEssSup
+  apply MB_le_eLpNormEssSup
 
 /- Prove this by proving that
 * suprema of sublinear maps are sublinear,
@@ -196,7 +196,7 @@ lemma countable_globalMaximalFunction :
     (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
--- prove only if needed. Use `MB_le_snormEssSup`
+-- prove only if needed. Use `MB_le_eLpNormEssSup`
 theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
     {u : X → E} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
     globalMaximalFunction μ p u  x < ∞ := by
