@@ -211,9 +211,8 @@ lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := b
   gcongr
   exact ENNReal.mul_inv_le_one (μ s)
 
-theorem snormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞} (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) :
-    eLpNormEssSup f μ ≤ C :=
-  essSup_le_of_ae_le C hfC
+theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
+    (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
 @[simp]
 lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
