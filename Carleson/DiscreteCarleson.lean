@@ -430,9 +430,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
     calc
       _ ≤ ∑ q ∈ Q₁, 2 ^ n * volume (E₁ q) := by
         refine Finset.sum_le_sum fun q mq ↦ ?_
-        simp_rw [Q₁, Finset.mem_filter, 𝔐, mem_setOf] at mq
-        change _ ∧ Maximal (· ∈ aux𝔐 k n) q ∧ _ at mq
-        simp_rw [aux𝔐, mem_setOf] at mq
+        simp_rw [Q₁, Finset.mem_filter, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf] at mq
         replace mq := mq.2.1.1.2
         rw [← ENNReal.rpow_intCast, show (-(n : ℕ) : ℤ) = (-n : ℝ) by simp, mul_comm,
           ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
@@ -1037,9 +1035,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   by_cases e : p = p'; · rwa [e] at mp
   simp_rw [ℭ₂, layersAbove, mem_diff, mp'₁, true_and]
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
-  rw [minLayer, mem_setOf] at p'm
-  change Minimal (· ∈ ℭ₁ k n j \ ⋃ (k' < l'), (ℭ₁ k n j).minLayer k') p' at p'm
-  rw [minimal_iff] at p'm
+  rw [minLayer, mem_setOf, minimal_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
     replace mp := mp.2; contrapose! mp
     exact mem_of_mem_of_subset mp
@@ -1066,9 +1062,8 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   by_cases e : p' = p''; · rwa [← e] at mp''
   simp_rw [ℭ₄, layersBelow, mem_diff, mp'₁, true_and]
   by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
-  rw [maxLayer_def, mem_setOf] at p'm
-  change Maximal (· ∈ ℭ₃ k n j \ ⋃ (k' < l'), (ℭ₃ k n j).maxLayer k') p' at p'm
-  rw [maximal_iff] at p'm; simp_rw [mem_diff] at p'm
+  rw [maxLayer_def, mem_setOf, maximal_iff] at p'm
+  simp_rw [mem_diff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩
