@@ -106,27 +106,6 @@ lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0
   convert p.step ⟨p.length -1, by omega⟩
   simp; omega
 
-def RelSeries.take {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) : RelSeries r where
-  length := i
-  toFun := fun ⟨j, h⟩ => p.toFun ⟨j, by omega⟩
-  step := fun ⟨j, h⟩ => p.step ⟨j, by omega⟩
-
-@[simps]
-def RelSeries.drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) : RelSeries r :=
-  { length := p.length - i
-    toFun := fun ⟨j, h⟩ => p.toFun ⟨j+i, by omega⟩
-    step := fun ⟨j, h⟩ => by
-      convert p.step ⟨j+i.1, by omega⟩
-      simp only [Nat.succ_eq_add_one, Fin.succ_mk]; omega }
-
-@[simp]
-lemma RelSeries.head_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
-    (p.drop i).head = p.toFun i := by simp [drop, head]
-
-@[simp]
-lemma RelSeries.last_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
-    (p.drop i).last = p.last := by simp [drop, last, Fin.last]; congr; omega
-
 @[simp]
 lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last = x :=
   by simp [singleton, last]
