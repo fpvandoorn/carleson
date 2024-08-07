@@ -1,3 +1,9 @@
+/- This file contains the proof of Lemma 11.1.10 (spectral projection bound).
+   At the moment, its results are not used as the section about truncated Hilbert transforms
+   is still missing.
+   Thus, the result here might not yet have the exact form needed later.
+-/
+
 import Carleson.Classical.Basic
 
 open MeasureTheory AddCircle
@@ -16,27 +22,18 @@ lemma fourierCoeff_eq_innerProduct {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 �
   exact HilbertBasis.repr_apply_apply fourierBasis f n
 
 
---TODO: add version of partialFourierSum for the AddCircle?
 noncomputable section
 def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ↥(Lp ℂ 2 (@haarAddCircle T hT))) : Lp ℂ p (@haarAddCircle T hT) :=
     ∑ n in Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
 
 --TODO: add some lemma relating partialFourierSum and partialFourierSumLp
 
-/-
-lemma partialFourierSumLp_apply {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {f : ↥(Lp ℂ 2 (@haarAddCircle T hT))} {N : ℕ} {x : AddCircle T} :
-    partialFourierSumLp p N f x = partialFourierSum N f x := by
--/
-
---TODO: completely reformulate partialFourierSum in terms of more abstract structures?
-
---#check Finset.sum
 
 lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (2 : ENNReal))] {f : ↥(Lp ℂ 2 haarAddCircle)} {N : ℕ} :
     ‖partialFourierSumLp 2 N f‖ ^ 2 = ∑ n in Finset.Icc (-Int.ofNat N) N, ‖@fourierCoeff T hT _ _ _ f n‖ ^ 2 := by
-  --TODO: this can probably be simplified
   calc ‖partialFourierSumLp 2 N f‖ ^ 2
-    _ = ‖partialFourierSumLp 2 N f‖ ^ (2 : ℝ) := Eq.symm (Real.rpow_two ‖partialFourierSumLp 2 N f‖)
+    _ = ‖partialFourierSumLp 2 N f‖ ^ (2 : ℝ) := by
+      rw [← Real.rpow_natCast]; rfl
     _ = ‖fourierBasis.repr (partialFourierSumLp 2 N f)‖ ^ (2 : ℝ) := by
       rw [fourierBasis.repr.norm_map (partialFourierSumLp 2 N f)]
     _ = ‖∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • (fourierBasis.repr (@fourierLp T hT 2 h2 n))‖ ^ (2 : ℝ) := by
@@ -69,8 +66,3 @@ lemma spectral_projection_bound {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp 
     ‖partialFourierSumLp 2 N f‖ ≤ ‖f‖ := by
   rw [← abs_norm, ← abs_norm f, ← sq_le_sq]
   exact spectral_projection_bound_sq _ _
-
--- Bessel's inequality
--- #check Orthonormal.sum_inner_products_le
--- #check OrthogonalFamily.norm_sum
--- #check orthonormal_fourier

@@ -1,29 +1,29 @@
+/- This file contains basic definitions and lemmas. -/
+
 import Carleson.MetricCarleson
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 import Mathlib.Analysis.Convolution
 
+import Carleson.Classical.Helper
+
 open BigOperators
 open Finset
---open Complex
 
 noncomputable section
 
---TODO : add reasonable notation
---local notation "S_" => partialFourierSum f
 
---TODO: use this as base to build on?
+def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := ∑ n ∈ Icc (-(N : ℤ)) N,
+    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
+
+--TODO: Add an AddCircle version?
 /-
 def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) (x : AddCircle T) : ℂ :=
     ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeff f n * fourier n x
 -/
 
---TODO: switch N and f
-def partialFourierSum (N : ℕ) (f : ℝ → ℂ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N,
-    fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
---fun x ↦ ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * Real.pi))
-
 local notation "S_" => partialFourierSum
+
 
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} :
@@ -76,13 +76,6 @@ lemma fourier_periodic {n : ℤ} :
 
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (S_ N f).Periodic (2 * Real.pi) := by
     simp [Function.Periodic, partialFourierSum, fourier_periodic]
-
-/-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
-theorem Function.Periodic.exists_mem_Ico₀' {α : Type} {β : Type} {f : α → β} {c : α}
-  [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x : α) : ∃ (n : ℤ), (x - n • c) ∈ Set.Ico 0 c ∧ f x = f (x - n • c) :=
-  let ⟨n, H, _⟩ := existsUnique_zsmul_near_of_pos' hc x
-  ⟨n, H, (h.sub_zsmul_eq n).symm⟩
-
 
 --TODO: maybe generalize to (hc : ContinuousOn f (Set.Icc 0 T)) and leave out condition (hT : 0 < T)
 lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hT : 0 < T) (hp : Function.Periodic f T) (hc : ContinuousOn f (Set.Icc (-T) (2 * T))) : UniformContinuous f := by

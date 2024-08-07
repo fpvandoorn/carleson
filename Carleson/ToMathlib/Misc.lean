@@ -168,6 +168,27 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
       Nat.Ico_succ_right_eq_insert_Ico h, Finset.sum_insert Finset.right_not_mem_Ico,
       add_comm (lintegral ..), ih]
 
+/-! ## Averaging -/
+
+-- Named for consistency with `lintegral_add_left'`
+-- Maybe add laverage/setLaverage theorems for all the other lintegral_add statements?
+lemma setLaverage_add_left' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+    {s : Set α} {f g : α → ENNReal} (hf : AEMeasurable f μ) :
+    ⨍⁻ x in s, (f x + g x) ∂μ = ⨍⁻ x in s, f x ∂μ + ⨍⁻ x in s, g x ∂μ := by
+  simp_rw [setLaverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf.restrict]
+
+-- Named for consistency with `setLintegral_mono'`
+lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+    {s : Set α} (hs : MeasurableSet s) {f g : α → ENNReal} (h : ∀ x ∈ s, f x ≤ g x) :
+    ⨍⁻ x in s, f x ∂μ ≤ ⨍⁻ x in s, g x ∂μ := by
+  simp_rw [setLaverage_eq]
+  exact ENNReal.div_le_div_right (setLIntegral_mono' hs h) (μ s)
+
+lemma setLaverage_const_mul' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+    {s : Set α} {f : α → ENNReal} {c : ENNReal} (hc : c ≠ ⊤) :
+    c * ⨍⁻ x in s, f x ∂μ = ⨍⁻ x in s, c * f x ∂μ := by
+  simp_rw [setLaverage_eq, ← mul_div_assoc c, lintegral_const_mul' c f hc]
+
 end MeasureTheory
 
 namespace MeasureTheory
@@ -320,3 +341,23 @@ noncomputable instance instFintype : Fintype (LTSeries α) :=
   Fintype.ofInjective _ embeddingOption.2
 
 end LTSeries
+
+namespace Set.Finite
+
+lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
+    (hs : s.Finite) (hs' : s.Nonempty) (f : ι → α) :
+    ∃ i ∈ s, ⨆ j ∈ s, f j = f i := by
+  induction' s, hs using dinduction_on with a s _ _ ihs hf
+  · simp at hs'
+  rw [iSup_insert]
+  by_cases hs : s.Nonempty
+  · by_cases ha : f a ⊔ ⨆ x ∈ s, f x = f a
+    · use a, mem_insert a s
+    · obtain ⟨i, hi⟩ := ihs hs
+      use i, Set.mem_insert_of_mem a hi.1
+      rw [← hi.2, sup_eq_right]
+      simp only [sup_eq_left, not_le] at ha
+      exact ha.le
+  · simpa using Or.inl fun i hi ↦ (hs (nonempty_of_mem hi)).elim
+
+end Set.Finite
