@@ -183,9 +183,6 @@ lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
         _ ≤ r := hr
   exact mem_ball'.mpr h1
 
-
-
-
 lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s d : ℝ} (hs : 0 < s) (hd : 0 < d)
     (hsr : r' ≤ s * dist x x') (hdr : dist x x' ≤ d * r) :
     μ (ball x' r') ≤ Ad A s d * μ (ball x r) := by
@@ -210,6 +207,14 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s d : ℝ} (hs : 0 < s) (hd :
       dsimp only [Ad]
       simp only [coe_mul]
 
+lemma measure_ball_le_of_dist_le''' {x x' : X} {r : ℝ} (hr : dist x x' = (1/(2 : ℝ)) * r) :
+    μ (ball x' r) ≤ A ^ 2 * μ (ball x r) := by
+  have hsr : r ≤ (2 : ℝ) * dist x x' := by rw [hr]; linarith
+  convert measure_ball_le_of_dist_le' (μ := μ) zero_lt_two (by positivity) hsr (le_of_eq hr)
+  · simp only [Ad, As, Nat.one_lt_ofNat, Real.logb_self_eq_one, Nat.ceil_one, pow_one, one_div,
+      Real.logb_inv, coe_mul, ENNReal.coe_pow]
+    have : ⌈-(1 : ℝ)⌉₊ = 0 := by rw [Nat.ceil_eq_zero]; linarith
+    rw [this, pow_zero, mul_one, pow_two]
 section
 variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 
