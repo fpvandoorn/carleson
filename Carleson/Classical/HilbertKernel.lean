@@ -10,10 +10,6 @@ noncomputable section
 
 open Complex ComplexConjugate
 
-open Complex ComplexConjugate
-
-
-
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - exp (I * x))
 
 
