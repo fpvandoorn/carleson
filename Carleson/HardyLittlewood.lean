@@ -43,14 +43,14 @@ private def P' (f : X → E) : Prop :=
 private lemma P'_of_P {u : X → E} (hu : P μ u) : P' μ u := by
   refine ⟨hu.elim Memℒp.aestronglyMeasurable Memℒp.aestronglyMeasurable, fun c r ↦ ?_⟩
   refine hu.elim (fun hu ↦ ?_) (fun hu ↦ ?_)
-  · have hfg : ∀ᵐ (x : X) ∂μ, x ∈ ball c r → ‖u x‖₊ ≤ snormEssSup u μ :=
-      (coe_nnnorm_ae_le_snormEssSup u μ).mono (by tauto)
+  · have hfg : ∀ᵐ (x : X) ∂μ, x ∈ ball c r → ‖u x‖₊ ≤ eLpNormEssSup u μ :=
+      (coe_nnnorm_ae_le_eLpNormEssSup u μ).mono (by tauto)
     apply lt_of_le_of_lt (MeasureTheory.setLIntegral_mono_ae' measurableSet_ball hfg)
-    rw [MeasureTheory.setLIntegral_const (ball c r) (snormEssSup u μ)]
+    rw [MeasureTheory.setLIntegral_const (ball c r) (eLpNormEssSup u μ)]
     refine ENNReal.mul_lt_top ?_ (measure_ball_ne_top c r)
-    exact snorm_exponent_top (f := u) ▸ hu.snorm_lt_top |>.ne
-  · have := hu.snorm_lt_top
-    simp [snorm, one_ne_zero, reduceIte, ENNReal.one_ne_top, snorm', ENNReal.one_toReal,
+    exact eLpNorm_exponent_top (f := u) ▸ hu.eLpNorm_lt_top |>.ne
+  · have := hu.eLpNorm_lt_top
+    simp [eLpNorm, one_ne_zero, reduceIte, ENNReal.one_ne_top, eLpNorm', ENNReal.one_toReal,
       ENNReal.rpow_one, ne_eq, not_false_eq_true, div_self] at this
     exact lt_of_le_of_lt (setLIntegral_le_lintegral _ _) this
 
