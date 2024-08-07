@@ -27,7 +27,7 @@ variable {α : Type*} [PartialOrder α]
 
 /-- The `n`th minimal layer of `A`. -/
 def minLayer (A : Set α) (n : ℕ) : Set α :=
-  {a | Minimal (A \ ⋃ (k < n), A.minLayer k) a}
+  {a | Minimal (· ∈ A \ ⋃ (k < n), A.minLayer k) a}
 
 /-- The `n`th maximal layer of `A`. -/
 def maxLayer (A : Set α) (n : ℕ) : Set α :=
@@ -43,12 +43,13 @@ def layersBelow (A : Set α) (n : ℕ) : Set α :=
 
 variable {A : Set α} {m n : ℕ} {a : α}
 
-lemma maxLayer_def : A.maxLayer n = {a | Maximal (A \ ⋃ (k < n), A.maxLayer k) a} := by
+lemma maxLayer_def : A.maxLayer n = {a | Maximal (· ∈ A \ ⋃ (k < n), A.maxLayer k) a} := by
   rw [maxLayer, minLayer]; rfl
 
 lemma minLayer_subset : A.minLayer n ⊆ A :=
   calc
-    _ ⊆ A \ ⋃ (k < n), A.minLayer k := by rw [minLayer]; exact fun _ h ↦ h.prop
+    _ ⊆ A \ ⋃ (k < n), A.minLayer k := by
+      rw [minLayer]; refine fun _ h ↦ ?_; rw [mem_setOf] at h; exact h.prop
     _ ⊆ A := diff_subset
 
 lemma maxLayer_subset : A.maxLayer n ⊆ A := minLayer_subset
@@ -57,11 +58,9 @@ lemma layersAbove_subset : A.layersAbove n ⊆ A := diff_subset
 
 lemma layersBelow_subset : A.layersBelow n ⊆ A := diff_subset
 
-lemma minLayer_zero : A.minLayer 0 = {a | Minimal A a} := by
-  rw [minLayer]; congr!; simpa using fun _ _ ↦ id
+lemma minLayer_zero : A.minLayer 0 = {a | Minimal (· ∈ A) a} := by rw [minLayer]; simp
 
-lemma maxLayer_zero : A.maxLayer 0 = {a | Maximal A a} := by
-  rw [maxLayer_def]; congr!; simpa using fun _ _ ↦ id
+lemma maxLayer_zero : A.maxLayer 0 = {a | Maximal (· ∈ A) a} := by rw [maxLayer_def]; simp
 
 lemma disjoint_minLayer_of_ne (h : m ≠ n) : Disjoint (A.minLayer m) (A.minLayer n) := by
   wlog hl : m < n generalizing m n; · exact (this h.symm (by omega)).symm
@@ -92,9 +91,8 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
     have nma : a ∉ A.minLayer n :=
       disjoint_right.mp (disjoint_minLayer_of_ne (by omega)) ha
     rw [minLayer, mem_setOf, minimal_iff] at ha nma
-    have al : (A \ ⋃ (l < n), A.minLayer l) a := by
-      have ha1 : a ∈ A \ ⋃ (k < n + 1), A.minLayer k := ha.1
-      refine (diff_subset_diff_right (biUnion_subset_biUnion_left fun k hk ↦ ?_)) ha1
+    have al : a ∈ A \ ⋃ (l < n), A.minLayer l := by
+      refine (diff_subset_diff_right (biUnion_subset_biUnion_left fun k hk ↦ ?_)) ha.1
       rw [mem_def, Nat.le_eq] at hk ⊢; omega
     simp_rw [al, true_and] at nma; push_neg at nma; obtain ⟨a', ha', la⟩ := nma
     have ma' : a' ∈ A.minLayer n := by
@@ -104,8 +102,7 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
         simp_rw [this, iUnion_or, iUnion_union_distrib]
         simp only [iUnion_iUnion_eq_left, mem_diff, mem_union, mem_iUnion, exists_prop, not_or,
           not_exists, not_and] at ha' ⊢
-        change a' ∈ A ∧ a' ∉ ⋃ (k < n), A.minLayer k at ha'
-        rw [mem_iUnion₂] at ha'; push_neg at ha'; tauto
+        tauto
       exact absurd (ha.2 a'l la.1) (ne_eq _ _ ▸ la.2)
     obtain ⟨c, mc, lc⟩ := ih ma'; use c, mc, lc.trans la.1
 
@@ -125,10 +122,12 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     rw [minLayer]
     simp_rw [← mem_minimal_le_height_iff_height]
     simp (config := {contextual := true}) only [ih]; clear ih
-    simp_rw [subtype_mk_minimal_iff, mem_setOf_eq, exists_and_left]
-    congr! 1; ext y; rw [Pi.sdiff_apply]
-    change y ∈ A ∧ y ∉ ⋃ (k < n), _ ↔ y ∈ A ∧ _
-    rw [and_congr_right_iff]; intro hys
+    have : Minimal (n ≤ height ·) (⟨x, hxs⟩ : A) ↔
+        Minimal (· ∈ {y | n ≤ height y}) (⟨x, hxs⟩ : A) := Eq.to_iff rfl
+    rw [this, subtype_mk_minimal_iff, mem_setOf]
+    congr! 2 with y
+    wlog hys : y ∈ A
+    · simp [hys]
     simp only [mem_diff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_setOf_eq,
       exists_and_left, exists_true_left]
     cases height (⟨y, hys⟩ : A)

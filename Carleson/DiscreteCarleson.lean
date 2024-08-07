@@ -26,7 +26,7 @@ def aux𝔐 (k n : ℕ) : Set (𝔓 X) :=
   {p ∈ TilesAt k | 2 ^ (-n : ℤ) * volume (𝓘 p : Set X) < volume (E₁ p) }
 
 /-- The definition `𝔐(k, n)` given in (5.1.4) and (5.1.5). -/
-def 𝔐 (k n : ℕ) : Set (𝔓 X) := {m | Maximal (aux𝔐 k n) m}
+def 𝔐 (k n : ℕ) : Set (𝔓 X) := {m | Maximal (· ∈ aux𝔐 k n) m}
 
 /-- The definition `dens'_k(𝔓')` given in (5.1.6). -/
 def dens' (k : ℕ) (P' : Set (𝔓 X)) : ℝ≥0∞ :=
@@ -177,11 +177,9 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
   replace mx := (zero_le _).trans_lt mx
   rw [Finset.card_pos] at mx
   obtain ⟨p, hp⟩ := mx
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔐] at hp
-  rw [mem_iUnion₂]; use 𝓘 p, ?_, hp.2
-  have hp' : p ∈ aux𝔐 k n := mem_of_mem_of_subset hp.1 (fun _ h ↦ h.prop)
-  rw [aux𝔐, mem_setOf, TilesAt, mem_preimage] at hp'
-  exact hp'.1
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔐, mem_setOf, maximal_iff,
+    aux𝔐, mem_setOf, TilesAt, mem_preimage] at hp
+  rw [mem_iUnion₂]; use 𝓘 p, hp.1.1.1, hp.2
 
 lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n := by
   refine setOf_subset_setOf.mpr fun x hx ↦ ?_
@@ -330,6 +328,7 @@ lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p m
   rw [mem_preimage] at mxp mxp'
   have l𝓘 := Grid.le_def.mpr ⟨(fundamental_dyadic hs).resolve_right (disjoint_comm.not.mpr h𝓘), hs⟩
   have sΩ := (relative_fundamental_dyadic l𝓘).resolve_left <| not_disjoint_iff.mpr ⟨_, mxp', mxp⟩
+  rw [𝔐, mem_setOf] at mp mp'
   exact mp'.eq_of_ge mp.prop ⟨l𝓘, sΩ⟩
 
 /-- Lemma 5.2.4 -/

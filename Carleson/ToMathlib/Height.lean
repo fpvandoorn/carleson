@@ -341,39 +341,39 @@ lemma height_eq_coe_iff (x : α) (n : ℕ) :
 
 /-- Probably redundant -/
 theorem minimal_iff_forall_lt_not_mem {x : α} {s : Set α} :
-    Minimal s x ↔ x ∈ s ∧ ∀ ⦃y⦄, y < x → y ∉ s := minimal_iff_forall_lt
+    Minimal (· ∈ s) x ↔ x ∈ s ∧ ∀ ⦃y⦄, y < x → y ∉ s := minimal_iff_forall_lt
 
-lemma minimal_iff_height_eq_zero (a : α) : Minimal Set.univ a ↔ height a = 0 := by
-  simp [minimal_iff_forall_lt_not_mem, height_eq_zero_iff]
+lemma minimal_iff_height_eq_zero (a : α) : Minimal (fun _ ↦ True) a ↔ height a = 0 := by
+  simp [minimal_iff_forall_lt, height_eq_zero_iff]
 
 lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
-    Minimal { y | n ≤ height y } a ↔ height a = n := by
+    Minimal (fun y ↦ n ≤ height y) a ↔ height a = n := by
   by_cases hfin : height a < ⊤
-  · simp only [minimal_iff_forall_lt_not_mem, Set.mem_setOf_eq, not_le]
-    simp only [height_eq_coe_iff, hfin, true_and, and_congr_left_iff]
-    intro _
-    cases n
-    case pos.zero => simp
-    case pos.succ _ =>
+  · simp_rw [minimal_iff_forall_lt, not_le, height_eq_coe_iff, hfin, true_and, and_congr_left_iff]
+    intro
+    induction n with
+    | zero => simp
+    | succ n _ =>
       simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
       simp only [ne_eq, ENat.coe_ne_top, not_false_eq_true, ENat.add_one_le_iff]
       simp only [coe_lt_height_iff, hfin]
       rfl
-  · suffices ∃ x, ∃ (_ : x < a), ↑n ≤ height x by
+  · suffices ∃ x < a, ↑n ≤ height x by
       simp only [not_lt, top_le_iff] at hfin
-      simpa only [minimal_iff_forall_lt_not_mem, Set.mem_setOf_eq, hfin, le_top, not_le,
+      simp only [minimal_iff_forall_lt, Set.mem_setOf_eq, hfin, le_top, not_le,
         true_and, ENat.top_ne_coe, iff_false, not_forall, Classical.not_imp, not_lt]
+      rwa [bex_def]
     simp only [not_lt, top_le_iff, height_eq_top_iff] at hfin
-    obtain ⟨p, rfl, hp⟩ := hfin (n+1)
+    obtain ⟨p, rfl, hp⟩ := hfin (n + 1)
     use p.eraseLast.last, RelSeries.eraseLast_last_rel_last _ (by omega)
     simpa [hp] using height_last_ge_length p.eraseLast
 
 lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
     (s : Set α) (t : Set s) (x : α) (hx : x ∈ s) :
-    Minimal t (⟨x, hx⟩ : s) ↔ Minimal {y | ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t} x := by
+    Minimal (· ∈ t) (⟨x, hx⟩ : s) ↔ Minimal (fun y ↦ ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t) x := by
   wlog hxt : (⟨x, hx⟩ : s) ∈ t
   · clear this
-    have : ¬Minimal t (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
+    have : ¬Minimal (· ∈ t) (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
     simp_rw [this, false_iff, exists_and_left]; clear this; contrapose! hxt
     have : x ∈ {y | y ∈ s ∧ ∃ (x : y ∈ s), ⟨y, x⟩ ∈ t} := hxt.prop
     simp_all
@@ -383,5 +383,5 @@ lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
   simp_rw [RelEmbedding.coe_mk, Function.Embedding.coe_subtype, Set.mem_image, Subtype.exists,
     exists_and_right, exists_eq_right, exists_and_left]
   congr! 2
-  rw [setOf, iff_and_self, forall_exists_index]
+  rw [iff_and_self, forall_exists_index]
   exact fun h _ ↦ h

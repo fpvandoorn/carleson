@@ -33,7 +33,7 @@ def 𝓙₀ (G : Set (𝔓 X)) : Set (Grid X) :=
 
 /-- The definition of `𝓙(G), defined below Lemma 7.1.1 -/
 def 𝓙 (G : Set (𝔓 X)) : Set (Grid X) :=
-  {x | Maximal (𝓙₀ G) x}
+  {x | Maximal (· ∈ 𝓙₀ G) x}
 
 /-- The definition of `𝓛₀(G), defined below Lemma 7.1.1 -/
 def 𝓛₀ (G : Set (𝔓 X)) : Set (Grid X) :=
@@ -41,7 +41,7 @@ def 𝓛₀ (G : Set (𝔓 X)) : Set (Grid X) :=
 
 /-- The definition of `𝓛(G), defined below Lemma 7.1.1 -/
 def 𝓛 (G : Set (𝔓 X)) : Set (Grid X) :=
-  {x | Maximal (𝓛₀ G) x}
+  {x | Maximal (· ∈ 𝓛₀ G) x}
 
 @[simp]
 lemma biUnion_𝓙 : ⋃ J ∈ 𝓙 G, J = ⋃ I : Grid X, (I : Set X) := by
