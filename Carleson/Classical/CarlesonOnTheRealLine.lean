@@ -1,4 +1,7 @@
-/- This file contains the proof of Lemma 11.1.4, from section 11.7 -/
+/- This file contains the proof of Lemma 11.1.4 (real Carleson), from section 11.7.
+   We need to verify the assumptions of the two-sided metric Carleson theorem.
+   All smaller ones are done but the estimate for the truncated Hilbert transform is still missing.
+-/
 
 import Carleson.TwoSidedMetricCarleson
 import Carleson.Classical.Basic
@@ -36,7 +39,7 @@ lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f
 
 section
 
-open ENNReal
+open ENNReal MeasureTheory
 
 section
 
@@ -48,13 +51,9 @@ local notation "θ" => integer_linear
 local notation "Θ" => {(θ n) | n : ℤ}
 
 
-/-Stronger version of oscillation_control from the paper-/
-/-Based on earlier version of the paper. -/
+
 /-
-
-theorem localOscillation_of_same  {X : Type} [PseudoMetricSpace X] {E : Set X} {f : C(X, ℝ)} :
-    localOscillation E f f = 0 := by simp [localOscillation]
-
+/-Stronger version of oscillation_control based on earlier version of the blueprint -/
 lemma localOscillation_of_integer_linear {x R : ℝ} (R_nonneg : 0 ≤ R) : ∀ n m : ℤ, localOscillation (Metric.ball x R) (θ n) (θ m) = 2 * R * |(n : ℝ) - m| := by
   intro n m
   by_cases n_ne_m : n = m
@@ -169,8 +168,11 @@ instance instFunctionDistancesReal : FunctionDistances ℝ ℝ where
       edist_dist := fun x y ↦ rfl
   }
 
---TODO: add lemma to avoid unfolds.
---lemma dist_eq_
+
+lemma dist_integer_linear_eq {n m : Θ ℝ} {x R : ℝ} : dist_{x, R} n m = 2 * max R 0 * |(n : ℝ) - m| := by
+  unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance
+    FunctionDistances.metric instFunctionDistancesReal integer_linear
+  norm_cast
 
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
@@ -182,9 +184,7 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
     unfold localOscillation
     simp [dist_nonneg]
   push_neg at r_pos
-  unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-    localOscillation integer_linear
-  dsimp
+  rw [dist_integer_linear_eq]
   calc ⨆ z ∈ ball x r ×ˢ ball x r, |↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2|
     _ = ⨆ z ∈ ball x r ×ˢ ball x r, ‖(f - g) * (z.1 - x) - (f - g) * (z.2 - x)‖ := by
       congr
@@ -216,11 +216,9 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
     _ ≤ 2 * max r 0 * |↑f - ↑g| := by
       gcongr
       apply le_max_left
-  norm_cast
 
 lemma frequency_monotone {x₁ x₂ r R : ℝ} {f g : Θ ℝ} (h : ball x₁ r ⊆ ball x₂ R) : dist_{x₁,r} f g ≤ dist_{x₂,R} f g := by
-  unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-  dsimp
+  rw [dist_integer_linear_eq, dist_integer_linear_eq]
   by_cases r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos] at h
     rw [max_eq_right r_pos]
@@ -232,8 +230,7 @@ lemma frequency_monotone {x₁ x₂ r R : ℝ} {f g : Θ ℝ} (h : ball x₁ r �
   linarith [h.1, h.2]
 
 lemma frequency_ball_doubling {x₁ x₂ r : ℝ} {f g : Θ ℝ} : dist_{x₂, 2 * r} f g ≤ 2 * dist_{x₁, r} f g := by
-  unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal Real.pseudoMetricSpace
-  dsimp
+  rw [dist_integer_linear_eq, dist_integer_linear_eq]
   by_cases r_nonneg : r ≥ 0
   · rw [max_eq_left, max_eq_left]
     ring_nf;rfl
@@ -243,8 +240,7 @@ lemma frequency_ball_doubling {x₁ x₂ r : ℝ} {f g : Θ ℝ} : dist_{x₂, 2
     all_goals linarith [r_nonneg]
 
   theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} : 2 * dist_{x₁, r} f g ≤ dist_{x₂, 2 * r} f g := by
-    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-    dsimp
+    rw [dist_integer_linear_eq, dist_integer_linear_eq]
     by_cases r_nonneg : r ≥ 0
     · rw [max_eq_left, max_eq_left]
       ring_nf;rfl
@@ -277,8 +273,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     constructor
     · simp
     simp only [Set.mem_univ, mem_ball, true_implies]
-    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-    dsimp
+    rw [dist_integer_linear_eq]
     convert R'pos
     simp
     left
@@ -306,10 +301,9 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     constructor
     · rw [balls_def]
       simp
-    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-    dsimp
-    calc 2 * max R 0 * |↑φ - m₁|
-      _ = 2 * R * |↑φ - m₁| := by
+    rw [dist_integer_linear_eq]
+    calc 2 * max R 0 * |↑φ - ↑m₁|
+      _ = 2 * R * |↑φ - ↑m₁| := by
         congr
         rw [max_eq_left_iff]
         exact Rpos.le
@@ -336,9 +330,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
               apply le_abs_self
             _ < 2 * R' := by
               convert hφ
-              unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-              dsimp
-              norm_cast
+              rw [dist_integer_linear_eq]
               congr
               symm
               rw [max_eq_left_iff]
@@ -351,9 +343,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     · rw [balls_def]
       simp
     rw [m₂def, dist_comm]
-    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-    dsimp
-    push_cast
+    rw [dist_integer_linear_eq]
     calc 2 * max R 0 * |↑f - ↑φ|
       _ = 2 * R * |↑f - ↑φ| := by
         congr
@@ -368,9 +358,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
   use m₃
   constructor
   · simp [balls_def]
-  unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-  dsimp
-  push_cast
+  rw [dist_integer_linear_eq]
   calc 2 * max R 0 * |↑φ - ↑m₃|
     _ = 2 * R * (↑φ - ↑m₃) := by
       rw [abs_of_nonneg]
@@ -391,9 +379,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
             exact abs_sub_comm _ _
           _ < 2 * R' := by
             convert hφ
-            unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-            dsimp
-            norm_cast
+            rw [dist_integer_linear_eq]
             congr
             symm
             rw [max_eq_left_iff]
@@ -409,7 +395,6 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     _ = R' := by ring
 
 
---TODO: Some of the statements are stronger in the paper. Extract these
 instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   eq_zero := by
     use 0
@@ -424,17 +409,15 @@ instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   le_cdist := by
     intro x₁ x₂ r f g _
     apply le_trans (@frequency_ball_growth x₁ x₂ r _ _)
-    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric instFunctionDistancesReal
-    dsimp
+    rw [dist_integer_linear_eq, dist_integer_linear_eq]
     by_cases r_nonneg : 0 ≤ r
     · gcongr; norm_num
     · push_neg at r_nonneg
-      rw [max_eq_right (by linarith), max_eq_right (by linarith)]
+      rw [max_eq_right (by linarith), max_eq_right (by norm_num; linarith)]
   ballsCoverBalls := by
     intro x R R' f
     exact integer_ball_cover.mono_nat (by norm_num)
 
---TODO : What is Lemma 11.7.10 (frequency ball growth) needed for?
 
 instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
   /- Lemma 11.7.12 (real van der Corput) from the paper. -/
@@ -444,12 +427,9 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
     · rw [ball_eq_empty.mpr r_pos]
       simp
     push_neg at r_pos
-    rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos])]
-    unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance FunctionDistances.metric CompatibleFunctions.toFunctionDistances compatibleFunctions_R
-    dsimp only
-    unfold instFunctionDistancesReal
-    dsimp only
-    rw [max_eq_left r_pos.le]
+    rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]),
+        Real.ball_eq_Ioo, ← integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos]),
+        dist_integer_linear_eq, max_eq_left r_pos.le]
     set L : NNReal :=
       ⟨⨆ (x : ℝ) (y : ℝ) (_ : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y,
         Real.iSup_nonneg fun x ↦ Real.iSup_nonneg fun y ↦ Real.iSup_nonneg
@@ -475,7 +455,6 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           · rw [hxy]
             simp
           rw [dist_eq_norm, ← div_le_iff (dist_pos.mpr hxy), Ldef, NNReal.coe_mk]
-          --apply ConditionallyCompleteLattice.le_csSup
           apply le_ciSup_of_le _ x
           apply le_ciSup_of_le _ y
           apply le_ciSup_of_le _ hxy
@@ -532,12 +511,11 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           apply Real.rpow_le_rpow_of_exponent_le _ (by norm_num)
           simp only [Int.cast_abs, Int.cast_sub, le_add_iff_nonneg_right]
           exact mul_nonneg (by linarith) (abs_nonneg _)
+    norm_cast
 
-
---TODO : add some Real.vol lemma
 
 lemma Real.vol_real_eq {x y : ℝ} : Real.vol x y = 2 * |x - y| := by
-  rw [Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+  rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
 
 lemma Real.vol_real_symm {x y : ℝ} : Real.vol x y = Real.vol y x := by
   rw [Real.vol_real_eq, Real.vol_real_eq, abs_sub_comm]
@@ -546,7 +524,7 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
   norm_K_le_vol_inv := by
     intro x y
-    rw [Complex.norm_eq_abs, Real.vol, MeasureTheory.measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+    rw [Complex.norm_eq_abs, Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
     calc Complex.abs (K x y)
     _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
@@ -574,9 +552,7 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
         · norm_num
         · norm_num
       · norm_num
-  /- Lemma ?-/
   measurable_K_left := fun y ↦ Hilbert_kernel_measurable.of_uncurry_right
-  /- Lemma ?-/
   measurable_K_right := Hilbert_kernel_measurable
 
 instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
@@ -586,6 +562,10 @@ instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
     rw [dist_comm x y] at h
     exact isOneSidedKernelHilbert.norm_K_sub_le h
 
+
+/- This verifies the assumption on the operators T_r in two-sided metric space Carleson.
+   Its proof is done in Section 11.3 (The truncated Hilbert transform) and is yet to be formalized.
+-/
 lemma Hilbert_strong_2_2 : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) := sorry
 
 
@@ -611,11 +591,9 @@ lemma CarlesonOperatorReal_le_CarlesonOperator : T ≤ CarlesonOperator K := by
   ring_nf
 
 
-/- Lemma 11.1.4 (ENNReal version) -/
-lemma rcarleson {F G : Set ℝ}
-    (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    :
+/- Lemma 11.1.4 -/
+lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
+    (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, T f x ≤
     ENNReal.ofReal (C10_0_1 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ := by
   have conj_exponents : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num

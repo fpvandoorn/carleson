@@ -1,4 +1,6 @@
-/- This file formalizes section 11.6 (The error bound) from the paper. -/
+/- This file contains most of Section 11.6 (The error bound) from the blueprint.
+   The main result is control_approximation_effect.
+-/
 import Carleson.MetricCarleson
 import Carleson.Classical.Helper
 import Carleson.Classical.Basic
@@ -136,7 +138,6 @@ lemma Dirichlet_Hilbert_diff {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc (-Real.pi) 
 section
 open Filter Topology
 
---TODO: proof might be improved
 lemma le_iSup_of_tendsto {α β} [TopologicalSpace α] [CompleteLinearOrder α] [OrderTopology α]
     [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
   apply le_of_forall_lt
@@ -232,7 +233,6 @@ lemma intervalIntegrable_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set
 
 
 lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g MeasureTheory.volume (-Real.pi) (3 * Real.pi)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) :
-    --‖∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 1}, f y * (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)‖₊ ≤ T f x + T (conj ∘ f) x := by
     ‖∫ (y : ℝ) in x - Real.pi..x + Real.pi, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊
     ≤ T g x + T (conj ∘ g) x := by
   rw [domain_reformulation hg hx]
@@ -258,7 +258,8 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g Measu
       refine ⟨lt_trans' hn.1 ?_, hn.2⟩
       norm_num
       linarith
-  have : Tendsto (fun i => ∫ y in s i, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))) atTop (𝓝 (∫ y in ⋃ n, s n, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) := by
+  have : Tendsto (fun i => ∫ y in s i, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
+          atTop (𝓝 (∫ y in ⋃ n, s n, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) := by
     apply MeasureTheory.tendsto_setIntegral_of_monotone
     · intro n
       exact annulus_measurableSet
@@ -387,11 +388,14 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
     (periodic_g : Function.Periodic g (2 * Real.pi)) (bound_g : ∀ x, ‖g x‖ ≤ δ)
     {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * Real.pi)) :
     ‖S_ N g x‖₊
-    ≤ (T g x + T (conj ∘ g) x) / (ENNReal.ofReal (2 * Real.pi)) + ENNReal.ofReal (Real.pi * δ) := by
+      ≤ (T g x + T (conj ∘ g) x) / (ENNReal.ofReal (2 * Real.pi)) + ENNReal.ofReal (Real.pi * δ) := by
   have intervalIntegrable_g : IntervalIntegrable g MeasureTheory.volume (-Real.pi) (3 * Real.pi) := intervalIntegrable_of_bdd measurable_g bound_g
   have decomposition : S_ N g x
-      = (  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
-         + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) / (2 * Real.pi) := by
+      = (  (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi),
+              g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
+         + (∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi),
+              g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))))
+        / (2 * Real.pi) := by
     calc S_ N g x
       _ = (∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), g y * dirichletKernel' N (x - y)) / (2 * Real.pi) := by
         rw [partialFourierSum_eq_conv_dirichletKernel' (intervalIntegrable_g.mono_set _)]
@@ -412,6 +416,7 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
         rw [← intervalIntegral.integral_add (intervalIntegrable_mul_dirichletKernel'_max hx intervalIntegrable_g) (intervalIntegrable_mul_dirichletKernel'_max' hx intervalIntegrable_g)]
         congr with y
         ring
+
   calc ENNReal.ofNNReal ‖S_ N g x‖₊
     _ ≤ (  ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊
          + ‖∫ (y : ℝ) in (x - Real.pi)..(x + Real.pi), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊) / ENNReal.ofReal (2 * Real.pi) := by
@@ -447,8 +452,6 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
       rw [ENNReal.add_div]
       congr
       rw [← ENNReal.ofReal_div_of_pos Real.two_pi_pos, mul_div_assoc, div_self Real.two_pi_pos.ne.symm, mul_one]
-
---TODO: replace congr;ext by congr with
 
 end section
 
@@ -527,11 +530,8 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
   all_goals linarith [Real.pi_pos]
 
 
---TODO: add doc-strings !
 
-/-ENNReal version of a generalized Lemma 11.1.3 (control approximation effect).-/
---added subset assumption
---changed interval to match the interval in the theorem
+/- This is Lemma 11.6.4 (partial Fourier sums of small) in the blueprint.-/
 lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ : 0 < δ)
     {h : ℝ → ℂ} (h_measurable : Measurable h) (h_periodic : h.Periodic (2 * Real.pi)) (h_bound : ∀ x, ‖h x‖ ≤ δ ) :
     ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ MeasureTheory.volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * Real.pi) \ E,
@@ -643,7 +643,6 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       rw [← ENNReal.ofReal_le_ofReal_iff, ENNReal.ofReal_mul ε'_δ_expression_pos.le, MeasureTheory.measureReal_def, ENNReal.ofReal_toReal E'volume.ne]
       apply le_trans E'volume_bound
       rw [ENNReal.ofReal_mul δ_mul_const_pos.le, ← ENNReal.ofReal_rpow_of_nonneg ENNReal.toReal_nonneg (by norm_num), ENNReal.ofReal_toReal E'volume.ne]
-      --small goal remaining
       apply mul_nonneg δ_mul_const_pos.le
       apply Real.rpow_nonneg MeasureTheory.measureReal_nonneg
     _ = ε := by

@@ -30,6 +30,71 @@ M_𝓑 in the blueprint. -/
 abbrev MB (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (u : X → E) (x : X) :=
   maximalFunction μ 𝓑 c r 1 u x
 
+-- We will replace the criterion `P` used in `MeasureTheory.SublinearOn.maximalFunction` with a
+-- weaker criterion `P'` that is closed under addition and scalar multiplication.
+
+variable (μ) in
+private def P (f : X → E) : Prop := Memℒp f ∞ μ ∨ Memℒp f 1 μ
+
+variable (μ) in
+private def P' (f : X → E) : Prop :=
+  AEStronglyMeasurable f μ ∧ ∀ (c : X) (r : ℝ), ∫⁻ (y : X) in ball c r, ‖f y‖₊ ∂μ < ⊤
+
+private lemma P'_of_P {u : X → E} (hu : P μ u) : P' μ u := by
+  refine ⟨hu.elim Memℒp.aestronglyMeasurable Memℒp.aestronglyMeasurable, fun c r ↦ ?_⟩
+  refine hu.elim (fun hu ↦ ?_) (fun hu ↦ ?_)
+  · have hfg : ∀ᵐ (x : X) ∂μ, x ∈ ball c r → ‖u x‖₊ ≤ snormEssSup u μ :=
+      (coe_nnnorm_ae_le_snormEssSup u μ).mono (by tauto)
+    apply lt_of_le_of_lt (MeasureTheory.setLIntegral_mono_ae' measurableSet_ball hfg)
+    rw [MeasureTheory.setLIntegral_const (ball c r) (snormEssSup u μ)]
+    refine ENNReal.mul_lt_top ?_ (measure_ball_ne_top c r)
+    exact snorm_exponent_top (f := u) ▸ hu.snorm_lt_top |>.ne
+  · have := hu.snorm_lt_top
+    simp [snorm, one_ne_zero, reduceIte, ENNReal.one_ne_top, snorm', ENNReal.one_toReal,
+      ENNReal.rpow_one, ne_eq, not_false_eq_true, div_self] at this
+    exact lt_of_le_of_lt (setLIntegral_le_lintegral _ _) this
+
+private lemma P'.add {f : X → E} {g : X → E} (hf : P' μ f) (hg : P' μ g) : P' μ (f + g) := by
+  constructor
+  · exact AEStronglyMeasurable.add hf.1 hg.1
+  · intro c r
+    apply lt_of_le_of_lt (lintegral_mono_nnreal fun y ↦ Pi.add_apply f g y ▸ nnnorm_add_le _ _)
+    simp_rw [ENNReal.coe_add, lintegral_add_left' <| aemeasurable_coe_nnreal_ennreal_iff.mpr
+      hf.1.aemeasurable.nnnorm.restrict]
+    exact ENNReal.add_lt_top.mpr ⟨hf.2 c r, hg.2 c r⟩
+
+private lemma P'.smul {f : X → E} (hf : P' μ f) (s : ℝ) : P' μ (s • f) := by
+  refine ⟨AEStronglyMeasurable.const_smul hf.1 s, fun c r ↦ ?_⟩
+  simp_rw [Pi.smul_apply, nnnorm_smul, ENNReal.coe_mul, lintegral_const_mul' _ _ ENNReal.coe_ne_top]
+  exact ENNReal.mul_lt_top ENNReal.coe_ne_top (hf.2 c r).ne
+
+-- The average that appears in the definition of `MB`
+variable (μ) (c) (r) in
+private def T (i : ι) (u : X → E) := (⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖₊ ∂μ).toReal
+
+private lemma T.add_le (i : ι) {f g : X → E} (hf : P' μ f) (hg : P' μ g) :
+    ‖T μ c r i (f + g)‖ ≤ ‖T μ c r i f‖ + ‖T μ c r i g‖ := by
+  simp only [T, Pi.add_apply, Real.norm_eq_abs, ENNReal.abs_toReal]
+  rw [← ENNReal.toReal_add (laverage_lt_top (hf.2 _ _).ne).ne (laverage_lt_top (hg.2 _ _).ne).ne]
+  rw [ENNReal.toReal_le_toReal]
+  · rw [← setLaverage_add_left' hf.1.ennnorm]
+    exact setLaverage_mono' measurableSet_ball (fun x _ ↦ ENNNorm_add_le (f x) (g x))
+  · exact (laverage_lt_top ((P'.add hf hg).2 _ _).ne).ne
+  · exact (ENNReal.add_lt_top.2 ⟨laverage_lt_top (hf.2 _ _).ne, (laverage_lt_top (hg.2 _ _).ne)⟩).ne
+
+private lemma T.smul (i : ι) : ∀ {f : X → E} {d : ℝ}, P' μ f → d ≥ 0 →
+    T μ c r i (d • f) = d • T μ c r i f := by
+  intro f d _ hd
+  simp_rw [T, Pi.smul_apply, smul_eq_mul]
+  nth_rewrite 2 [← (ENNReal.toReal_ofReal hd)]
+  rw [← ENNReal.toReal_mul]
+  congr
+  rw [setLaverage_const_mul' ENNReal.ofReal_ne_top]
+  congr
+  ext x
+  simp only [nnnorm_smul, ENNReal.coe_mul, ← Real.toNNReal_eq_nnnorm_of_nonneg hd]
+  congr
+
 lemma covering_separable_space (X : Type*) [PseudoMetricSpace X] [SeparableSpace X] :
     ∃ C : Set X, C.Countable ∧ ∀ r > 0, ⋃ c ∈ C, ball c r = univ := by
   simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
@@ -94,14 +159,28 @@ protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
   refine ENNReal.coe_toNNReal_le_self |>.trans ?_
   apply MB_le_eLpNormEssSup
 
-/- Prove this by proving that
-* suprema of sublinear maps are sublinear,
-* the indicator of a sublinear map is sublinear
-* constant maps are sublinear -/
-protected theorem MeasureTheory.SublinearOn.maximalFunction {p : ℝ} (hp₁ : 1 ≤ p) :
+protected theorem MeasureTheory.SublinearOn.maximalFunction (h𝓑 : 𝓑.Finite) :
     SublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
-      (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 := by
-  sorry
+    (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 := by
+  apply SublinearOn.antitone P'_of_P
+  simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
+  apply SublinearOn.biSup 𝓑 _ _ P'.add (fun hf _ ↦ P'.smul hf _)
+  · intro i _
+    let B := ball (c i) (r i)
+    have (u : X → E) (x : X) : (B.indicator (fun _ ↦ ⨍⁻ y in B, ‖u y‖₊ ∂μ) x).toReal =
+        (B.indicator (fun _ ↦ (⨍⁻ y in B, ‖u y‖₊ ∂μ).toReal) x) := by
+      by_cases hx : x ∈ B <;> simp [hx]
+    simp_rw [this]
+    apply (SublinearOn.const (T μ c r i) (P' μ) (T.add_le i) (fun f d ↦ T.smul i)).indicator
+  · intro f x hf
+    by_cases h𝓑' : 𝓑.Nonempty; swap
+    · simp [not_nonempty_iff_eq_empty.mp h𝓑']
+    have ⟨i, _, hi⟩ := h𝓑.biSup_eq h𝓑' (fun i ↦ (ball (c i) (r i)).indicator
+      (fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖f y‖₊ ∂μ) x)
+    rw [hi]
+    by_cases hx : x ∈ ball (c i) (r i)
+    · simpa [hx] using (laverage_lt_top (hf.2 (c i) (r i)).ne).ne
+    · simp [hx]
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
 variable (μ) in
@@ -116,7 +195,7 @@ irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := sorry
 
 /- The proof is given between (9.0.12)-(9.0.34).
 Use the real interpolation theorem instead of following the blueprint. -/
-lemma hasStrongType_MB (h𝓑 : 𝓑.Countable) {p : ℝ≥0}
+lemma hasStrongType_MB (h𝓑 : 𝓑.Finite) {p : ℝ≥0}
     (hp : 1 < p) {u : X → E} (hu : AEStronglyMeasurable u μ) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
       p p μ μ (CMB A p) := by
@@ -127,10 +206,10 @@ lemma hasStrongType_MB (h𝓑 : 𝓑.Countable) {p : ℝ≥0}
     zero_lt_one (pow_pos (A_pos μ) 2)
     (p := p) (q := p) (A := 1)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
-    (fun f hf ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑)
-    (.maximalFunction hp.le)
-    (HasStrongType.MB_top h𝓑 |>.hasWeakType le_top)
-    (HasWeakType.MB_one μ h𝓑)
+    (fun f hf ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑.countable)
+    (.maximalFunction h𝓑)
+    (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
+    (HasWeakType.MB_one μ h𝓑.countable)
   convert this using 1
   sorry -- let's deal with the constant later
 
