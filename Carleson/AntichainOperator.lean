@@ -424,7 +424,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)}
     (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (x : X) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), T p f x‖₊ ≤
-      (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) * (snorm f 2 volume) * (snorm f 2 volume) := by
+      (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) * (eLpNorm f 2 volume) * (eLpNorm f 2 volume) := by
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   set q' := 2*nnq/(1 + nnq) with hq'
   have hq0 : 0 < nnq := nnq_pos X
@@ -449,4 +449,4 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄)) :
     ‖∫ x, conj (g x) * ∑ᶠ p : 𝔄, T p f x‖ ≤
     C_2_0_3 a q * (dens₁ 𝔄).toReal ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄).toReal ^ (q⁻¹ - 2⁻¹) *
-    (snorm f 2 volume).toReal * (snorm g 2 volume).toReal := sorry
+    (eLpNorm f 2 volume).toReal * (eLpNorm g 2 volume).toReal := sorry

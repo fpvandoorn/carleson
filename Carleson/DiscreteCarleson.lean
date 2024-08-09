@@ -26,7 +26,7 @@ def aux𝔐 (k n : ℕ) : Set (𝔓 X) :=
   {p ∈ TilesAt k | 2 ^ (-n : ℤ) * volume (𝓘 p : Set X) < volume (E₁ p) }
 
 /-- The definition `𝔐(k, n)` given in (5.1.4) and (5.1.5). -/
-def 𝔐 (k n : ℕ) : Set (𝔓 X) := maximals (·≤·) (aux𝔐 k n)
+def 𝔐 (k n : ℕ) : Set (𝔓 X) := {m | Maximal (· ∈ aux𝔐 k n) m}
 
 /-- The definition `dens'_k(𝔓')` given in (5.1.6). -/
 def dens' (k : ℕ) (P' : Set (𝔓 X)) : ℝ≥0∞ :=
@@ -177,11 +177,9 @@ lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
   replace mx := (zero_le _).trans_lt mx
   rw [Finset.card_pos] at mx
   obtain ⟨p, hp⟩ := mx
-  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔐] at hp
-  rw [mem_iUnion₂]; use 𝓘 p, ?_, hp.2
-  have hp' : p ∈ aux𝔐 k n := mem_of_mem_of_subset hp.1 (maximals_subset ..)
-  rw [aux𝔐, mem_setOf, TilesAt, mem_preimage] at hp'
-  exact hp'.1
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔐, mem_setOf, maximal_iff,
+    aux𝔐, mem_setOf, TilesAt, mem_preimage] at hp
+  rw [mem_iUnion₂]; use 𝓘 p, hp.1.1.1, hp.2
 
 lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n := by
   refine setOf_subset_setOf.mpr fun x hx ↦ ?_
@@ -330,7 +328,8 @@ lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p m
   rw [mem_preimage] at mxp mxp'
   have l𝓘 := Grid.le_def.mpr ⟨(fundamental_dyadic hs).resolve_right (disjoint_comm.not.mpr h𝓘), hs⟩
   have sΩ := (relative_fundamental_dyadic l𝓘).resolve_left <| not_disjoint_iff.mpr ⟨_, mxp', mxp⟩
-  exact (eq_of_mem_maximals mp' (mem_of_mem_of_subset mp (maximals_subset ..)) ⟨l𝓘, sΩ⟩).symm
+  rw [𝔐, mem_setOf] at mp mp'
+  exact mp'.eq_of_ge mp.prop ⟨l𝓘, sΩ⟩
 
 /-- Lemma 5.2.4 -/
 lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Set X) ⊆ setA l k n := by
@@ -431,7 +430,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
     calc
       _ ≤ ∑ q ∈ Q₁, 2 ^ n * volume (E₁ q) := by
         refine Finset.sum_le_sum fun q mq ↦ ?_
-        simp_rw [Q₁, Finset.mem_filter, 𝔐, maximals, aux𝔐, mem_setOf] at mq
+        simp_rw [Q₁, Finset.mem_filter, 𝔐, mem_setOf, maximal_iff, aux𝔐, mem_setOf] at mq
         replace mq := mq.2.1.1.2
         rw [← ENNReal.rpow_intCast, show (-(n : ℕ) : ℤ) = (-n : ℝ) by simp, mul_comm,
           ← ENNReal.lt_div_iff_mul_lt (by simp) (by simp), ENNReal.div_eq_inv_mul,
@@ -442,7 +441,7 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
   calc
     _ = ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, 2 ^ (n + 1) := (setLIntegral_const _ _).symm
     _ ≤ ∫⁻ x in setA (X := X) (l + 1) k n ∩ L, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
-      refine setLIntegral_mono (by simp) (Finset.measurable_sum Q₁ Q₁m) fun x ⟨mx, mx₂⟩ ↦ ?_
+      refine setLIntegral_mono (Finset.measurable_sum Q₁ Q₁m) fun x ⟨mx, mx₂⟩ ↦ ?_
       have : 2 ^ (n + 1) ≤ ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := by
         convert john_nirenberg_aux1 mL mx mx₂
         simp_rw [stackSize, Q₁, mem_setOf_eq]
@@ -1036,7 +1035,7 @@ lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
   by_cases e : p = p'; · rwa [e] at mp
   simp_rw [ℭ₂, layersAbove, mem_diff, mp'₁, true_and]
   by_contra h; rw [mem_iUnion₂] at h; obtain ⟨l', bl', p'm⟩ := h
-  rw [minLayer, mem_minimals_iff] at p'm
+  rw [minLayer, mem_setOf, minimal_iff] at p'm
   have pnm : p ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₁ k n j l'' := by
     replace mp := mp.2; contrapose! mp
     exact mem_of_mem_of_subset mp
@@ -1063,7 +1062,8 @@ lemma ordConnected_C4 : OrdConnected (ℭ₄ k n j : Set (𝔓 X)) := by
   by_cases e : p' = p''; · rwa [← e] at mp''
   simp_rw [ℭ₄, layersBelow, mem_diff, mp'₁, true_and]
   by_contra h; simp_rw [mem_iUnion] at h; obtain ⟨l', hl', p'm⟩ := h
-  rw [maxLayer_def, mem_maximals_iff] at p'm; simp_rw [mem_diff] at p'm
+  rw [maxLayer_def, mem_setOf, maximal_iff] at p'm
+  simp_rw [mem_diff] at p'm
   have p''nm : p'' ∉ ⋃ l'', ⋃ (_ : l'' < l'), 𝔏₃ k n j l'' := by
     replace mp'' := mp''.2; contrapose! mp''
     refine mem_of_mem_of_subset mp'' <| iUnion₂_mono' fun i hi ↦ ⟨i, hi.le.trans hl', subset_rfl⟩

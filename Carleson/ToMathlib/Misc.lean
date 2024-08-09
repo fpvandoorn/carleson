@@ -232,9 +232,8 @@ lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := b
   gcongr
   exact ENNReal.mul_inv_le_one (μ s)
 
-theorem snormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞} (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) :
-    snormEssSup f μ ≤ C :=
-  essSup_le_of_ae_le C hfC
+theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
+    (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
 @[simp]
 lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
@@ -301,7 +300,7 @@ lemma out_inj (hx : x ∈ s) (hy : y ∈ s) (h : r x y) : hr.out x = hr.out y :=
 
 lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.out x = hr.out y := by
   apply out_inj hx hy
-  refine' hr.trans hx _ hy (rel_out hx) <| hr.trans _ _ hy h <| out_rel hy
+  refine hr.trans hx ?_ hy (rel_out hx) <| hr.trans ?_ ?_ hy h <| out_rel hy
   all_goals simpa
 
 variable (hr) in

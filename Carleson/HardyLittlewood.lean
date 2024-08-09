@@ -43,14 +43,14 @@ private def P' (f : X → E) : Prop :=
 private lemma P'_of_P {u : X → E} (hu : P μ u) : P' μ u := by
   refine ⟨hu.elim Memℒp.aestronglyMeasurable Memℒp.aestronglyMeasurable, fun c r ↦ ?_⟩
   refine hu.elim (fun hu ↦ ?_) (fun hu ↦ ?_)
-  · have hfg : ∀ᵐ (x : X) ∂μ, x ∈ ball c r → ‖u x‖₊ ≤ snormEssSup u μ :=
-      (coe_nnnorm_ae_le_snormEssSup u μ).mono (by tauto)
+  · have hfg : ∀ᵐ (x : X) ∂μ, x ∈ ball c r → ‖u x‖₊ ≤ eLpNormEssSup u μ :=
+      (coe_nnnorm_ae_le_eLpNormEssSup u μ).mono (by tauto)
     apply lt_of_le_of_lt (MeasureTheory.setLIntegral_mono_ae' measurableSet_ball hfg)
-    rw [MeasureTheory.setLIntegral_const (ball c r) (snormEssSup u μ)]
+    rw [MeasureTheory.setLIntegral_const (ball c r) (eLpNormEssSup u μ)]
     refine ENNReal.mul_lt_top ?_ (measure_ball_ne_top c r)
-    exact snorm_exponent_top (f := u) ▸ hu.snorm_lt_top |>.ne
-  · have := hu.snorm_lt_top
-    simp [snorm, one_ne_zero, reduceIte, ENNReal.one_ne_top, snorm', ENNReal.one_toReal,
+    exact eLpNorm_exponent_top (f := u) ▸ hu.eLpNorm_lt_top |>.ne
+  · have := hu.eLpNorm_lt_top
+    simp [eLpNorm, one_ne_zero, reduceIte, ENNReal.one_ne_top, eLpNorm', ENNReal.one_toReal,
       ENNReal.rpow_one, ne_eq, not_false_eq_true, div_self] at this
     exact lt_of_le_of_lt (setLIntegral_le_lintegral _ _) this
 
@@ -99,44 +99,6 @@ lemma covering_separable_space (X : Type*) [PseudoMetricSpace X] [SeparableSpace
     ∃ C : Set X, C.Countable ∧ ∀ r > 0, ⋃ c ∈ C, ball c r = univ := by
   simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
 
--- this can be removed next Mathlib bump
-/-- A slight generalization of Mathlib's version, with 5 replaced by τ. Already PR'd -/
-theorem Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall' {α ι} [MetricSpace α]
-    (t : Set ι) (x : ι → α) (r : ι → ℝ) (R : ℝ) (hr : ∀ a ∈ t, r a ≤ R) (τ : ℝ) (hτ : 3 < τ) :
-    ∃ u ⊆ t,
-      (u.PairwiseDisjoint fun a => closedBall (x a) (r a)) ∧
-        ∀ a ∈ t, ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) := by
-  rcases eq_empty_or_nonempty t with (rfl | _)
-  · exact ⟨∅, Subset.refl _, pairwiseDisjoint_empty, by simp⟩
-  by_cases ht : ∀ a ∈ t, r a < 0
-  · exact ⟨t, Subset.rfl, fun a ha b _ _ => by
-      #adaptation_note /-- nightly-2024-03-16
-      Previously `Function.onFun` unfolded in the following `simp only`,
-      but now needs a separate `rw`.
-      This may be a bug: a no import minimization may be required. -/
-      rw [Function.onFun]
-      simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
-      fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset]⟩⟩
-  push_neg at ht
-  let t' := { a ∈ t | 0 ≤ r a }
-  rcases exists_disjoint_subfamily_covering_enlargment (fun a => closedBall (x a) (r a)) t' r
-      ((τ - 1) / 2) (by linarith) (fun a ha => ha.2) R (fun a ha => hr a ha.1) fun a ha =>
-      ⟨x a, mem_closedBall_self ha.2⟩ with
-    ⟨u, ut', u_disj, hu⟩
-  have A : ∀ a ∈ t', ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) := by
-    intro a ha
-    rcases hu a ha with ⟨b, bu, hb, rb⟩
-    refine ⟨b, bu, ?_⟩
-    have : dist (x a) (x b) ≤ r a + r b := dist_le_add_of_nonempty_closedBall_inter_closedBall hb
-    apply closedBall_subset_closedBall'
-    linarith
-  refine ⟨u, ut'.trans fun a ha => ha.1, u_disj, fun a ha => ?_⟩
-  rcases le_or_lt 0 (r a) with (h'a | h'a)
-  · exact A a ⟨ha, h'a⟩
-  · rcases ht with ⟨b, rb⟩
-    rcases A b ⟨rb.1, rb.2⟩ with ⟨c, cu, _⟩
-    exact ⟨c, cu, by simp only [closedBall_eq_empty.2 h'a, empty_subset]⟩
-
 /- NOTE: This was changed to use `ℝ≥0∞` rather than `ℝ≥0` because that was more convenient for the
 proof of `first_exception` in DiscreteCarleson.lean. But everything involved there is finite, so
 you can prove this with `ℝ≥0` and deal with casting between `ℝ≥0` and `ℝ≥0∞` there, if that turns
@@ -146,7 +108,7 @@ theorem Set.Countable.measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l :
     (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  := by
-  obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall'
+  obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall
     𝓑 c r R hR (2 ^ 2) (by norm_num)
   calc
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := sorry
@@ -174,28 +136,28 @@ theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal
     AEStronglyMeasurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) μ :=
   AEStronglyMeasurable.maximalFunction h𝓑 |>.ennreal_toReal
 
-theorem MB_le_snormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ snormEssSup u μ :=
+theorem MB_le_eLpNormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ eLpNormEssSup u μ :=
   calc MB μ 𝓑 c r u x ≤
     ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
-        fun _x ↦ ⨍⁻ _y in ball (c i) (r i), snormEssSup u μ ∂μ := by
+        fun _x ↦ ⨍⁻ _y in ball (c i) (r i), eLpNormEssSup u μ ∂μ := by
         simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
         gcongr
-        exact setLAverage_mono_ae <| coe_nnnorm_ae_le_snormEssSup u μ
-    _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x) fun _x ↦ snormEssSup u μ := by
+        exact setLAverage_mono_ae <| coe_nnnorm_ae_le_eLpNormEssSup u μ
+    _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x) fun _x ↦ eLpNormEssSup u μ := by
       gcongr; apply setLaverage_const_le
-    _ ≤ ⨆ i ∈ 𝓑, snormEssSup u μ := by gcongr; apply indicator_le_self
-    _ ≤ snormEssSup u μ := by
+    _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; apply indicator_le_self
+    _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
 protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) ⊤ ⊤ μ μ 1 := by
   intro f _
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
-  simp only [ENNReal.coe_one, one_mul, snorm_exponent_top]
+  simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
   refine essSup_le_of_ae_le _ (eventually_of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
   refine ENNReal.coe_toNNReal_le_self |>.trans ?_
-  apply MB_le_snormEssSup
+  apply MB_le_eLpNormEssSup
 
 protected theorem MeasureTheory.SublinearOn.maximalFunction (h𝓑 : 𝓑.Finite) :
     SublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
@@ -275,7 +237,7 @@ lemma countable_globalMaximalFunction :
     (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
--- prove only if needed. Use `MB_le_snormEssSup`
+-- prove only if needed. Use `MB_le_eLpNormEssSup`
 theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
     {u : X → E} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
     globalMaximalFunction μ p u  x < ∞ := by

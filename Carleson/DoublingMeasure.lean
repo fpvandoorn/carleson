@@ -1,12 +1,10 @@
 import Carleson.CoverByBalls
 import Carleson.ToMathlib.Misc
-import Mathlib.Analysis.NormedSpace.FiniteDimension
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.MeasureTheory.Integral.Average
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Doubling
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
-import Mathlib.MeasureTheory.Constructions.Polish
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section

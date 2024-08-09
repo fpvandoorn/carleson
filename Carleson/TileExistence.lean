@@ -129,7 +129,7 @@ lemma property_set_nonempty (k:ℤ): (if k = S then ({o}:Set X) else ∅) ∈ pr
 
 variable (X) in
 lemma chain_property_set_has_bound (k : ℤ):
-    ∀ c ⊆ property_set X k, IsChain (. ⊆ .) c → ∃ ub ∈ property_set X k,
+    ∀ c ⊆ property_set X k, IsChain (· ⊆ ·) c → ∃ ub ∈ property_set X k,
     ∀ s ∈ c, s ⊆ ub := by
   intro c hc hchain
   use (⋃ s ∈ c,s) ∪ (if k = S then {o} else ∅)
@@ -195,8 +195,9 @@ lemma chain_property_set_has_bound (k : ℤ):
 
 variable (X) in
 def zorn_apply_maximal_set (k : ℤ):
-    ∃ s ∈ property_set X k, ∀ s' ∈ property_set X k, s ⊆ s' → s' = s :=
-  zorn_subset (property_set X k) (chain_property_set_has_bound X k)
+    ∃ s ∈ property_set X k, ∀ s' ∈ property_set X k, s ⊆ s' → s' = s := by
+  have := zorn_subset (property_set X k) (chain_property_set_has_bound X k)
+  simp_rw [maximal_iff] at this; convert this using 6; exact eq_comm
 
 variable (X) in
 def Yk (k : ℤ): Set X := (zorn_apply_maximal_set X k).choose
@@ -1788,7 +1789,7 @@ lemma forget_map_inj : Function.Injective (forget_map X) := by
   intro x1 x2 h
   dsimp only [forget_map] at h
   simp only [Sigma.mk.inj_iff, Subtype.mk.injEq] at h
-  exact (𝓓.ext_iff x1 x2).mpr h
+  exact 𝓓.ext_iff.mpr h
 
 variable (X) in
 def 𝓓_finite : Finite (𝓓 X) := by

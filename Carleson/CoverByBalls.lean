@@ -37,14 +37,12 @@ protected lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r :=
 @[simp]
 lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
   refine ⟨fun ⟨b, hn, hs⟩ ↦ ?_, by rintro rfl; exact CoveredByBalls.empty⟩
-  simp at hn; subst hn; simp at hs
-  exact Set.subset_eq_empty hs rfl
+  simp at hn; subst hn; simpa using hs
 
 @[simp]
 lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
   refine ⟨fun ⟨_, _, hs⟩ ↦ ?_, fun hs ↦ ?_⟩
-  · simp at hs
-    exact Set.subset_eq_empty hs rfl
+  · simpa using hs
   · have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
       simp only [not_mem_empty, ball_zero, Set.iUnion_of_empty, Set.iUnion_empty]
       exact Set.subset_empty_iff.mpr hs
@@ -80,7 +78,7 @@ lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCove
 lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
   let a : Finset X := singleton x
   have h : a.card ≤ 1 := by rfl
-  have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by simp [a]; rfl
+  have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by simp [a]
   exact ⟨a, h, h2⟩
 
 lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
