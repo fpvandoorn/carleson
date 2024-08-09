@@ -106,10 +106,6 @@ lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0
   convert p.step ⟨p.length -1, by omega⟩
   simp; omega
 
-@[simp]
-lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last = x :=
-  by simp [singleton, last]
-
 /-- Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
 `p` is a singleton. -/
 def LTSeries.replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :

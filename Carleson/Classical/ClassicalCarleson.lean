@@ -112,8 +112,8 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
 
   have Eεmeasure {ε : ℝ} (hε : 0 < ε) : volume (Eε hε) ≤ ENNReal.ofReal ε := by
     rw [ENNReal.le_ofReal_iff_toReal_le _ hε.le]
-    . exact hEε_measure hε
-    . rw [← lt_top_iff_ne_top]
+    · exact hEε_measure hε
+    · rw [← lt_top_iff_ne_top]
       apply lt_of_le_of_lt (measure_mono (hEε_subset hε)) measure_Icc_lt_top
 
   -- Define exceptional sets parameterized by δ.
@@ -180,12 +180,12 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
     ext x
     rw [Set.mem_iUnion]
     constructor
-    . intro h
+    · intro h
       rcases h with ⟨k, hk⟩
       rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def] at hk
       simp only [and_imp, Classical.not_imp, Set.mem_setOf_eq, hP.sub_zsmul_eq k] at hk
       exact hk.2
-    . dsimp
+    · dsimp
       rcases (hP.exists_mem_Ico' hT x a) with ⟨n, hn, hxn⟩
       rw [hxn]
       intro h
@@ -210,7 +210,7 @@ theorem carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Perio
     ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
   -- Reduce to a.e. convergence on [0,2π]
   apply @Function.Periodic.ae_of_ae_restrict _ Real.two_pi_pos 0
-  . rw [Function.Periodic]
+  · rw [Function.Periodic]
     intro x
     conv => pattern S_ _ _ _; rw [partialFourierSum_periodic]
     conv => pattern f _; rw [periodic_f]
