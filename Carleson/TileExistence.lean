@@ -4,6 +4,10 @@ import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.Data.Set.Subset
 
+-- https://github.com/leanprover/lean4/issues/4947
+-- https://github.com/leanprover/lean4/pull/4968
+attribute [-simp] Nat.reducePow
+
 open Set MeasureTheory Metric Function Complex Bornology Notation
 open scoped NNReal ENNReal ComplexConjugate
 

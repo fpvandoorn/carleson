@@ -1,5 +1,9 @@
 import Carleson.TileStructure
 
+-- https://github.com/leanprover/lean4/issues/4947
+-- https://github.com/leanprover/lean4/pull/4968
+attribute [-simp] Nat.reducePow
+
 open Set MeasureTheory Metric Function Complex Bornology Classical
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section

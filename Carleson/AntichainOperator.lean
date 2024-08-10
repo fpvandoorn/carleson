@@ -2,6 +2,10 @@ import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
 
+-- https://github.com/leanprover/lean4/issues/4947
+-- https://github.com/leanprover/lean4/pull/4968
+attribute [-simp] Nat.reducePow
+
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]

@@ -2,6 +2,10 @@ import Carleson.Forest
 import Carleson.HardyLittlewood
 import Carleson.MinLayerTiles
 
+-- https://github.com/leanprover/lean4/issues/4947
+-- https://github.com/leanprover/lean4/pull/4968
+attribute [-simp] Nat.reducePow
+
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
