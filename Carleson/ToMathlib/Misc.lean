@@ -232,9 +232,8 @@ lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := b
   gcongr
   exact ENNReal.mul_inv_le_one (μ s)
 
-theorem snormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞} (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) :
-    snormEssSup f μ ≤ C :=
-  essSup_le_of_ae_le C hfC
+theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
+    (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
 @[simp]
 lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
@@ -267,6 +266,7 @@ protected def setoid : Setoid s where
     trans := fun {x y z} ↦ hr.trans x.2 y.2 z.2
   }
 
+include hr in
 lemma exists_rep (x : α) : ∃ y, x ∈ s → y ∈ s ∧ r x y :=
   ⟨x, fun hx ↦ ⟨hx, hr.refl x hx⟩⟩
 
@@ -301,7 +301,7 @@ lemma out_inj (hx : x ∈ s) (hy : y ∈ s) (h : r x y) : hr.out x = hr.out y :=
 
 lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.out x = hr.out y := by
   apply out_inj hx hy
-  refine' hr.trans hx _ hy (rel_out hx) <| hr.trans _ _ hy h <| out_rel hy
+  refine hr.trans hx ?_ hy (rel_out hx) <| hr.trans ?_ ?_ hy h <| out_rel hy
   all_goals simpa
 
 variable (hr) in
@@ -340,3 +340,11 @@ lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
   · simpa using Or.inl fun i hi ↦ (hs (nonempty_of_mem hi)).elim
 
 end Set.Finite
+
+lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
+  rcases lt_or_le x 0 with h | h
+  · exact h.trans (rpow_pos_of_pos zero_lt_two x)
+  · calc
+      _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
+      _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two _
+      _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)

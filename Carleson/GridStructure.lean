@@ -1,5 +1,8 @@
 import Carleson.Defs
 
+-- https://github.com/leanprover/lean4/issues/4947
+attribute [-simp] Nat.reducePow
+
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
@@ -125,11 +128,13 @@ open scoped ShortVariables
 variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
   {σ₁ σ₂ : X → ℤ} {F G : Set X} [ProofData a q K σ₁ σ₂ F G]
 
-variable [GridStructure X D κ S o]
-
 notation "dist_{" I "}" => @dist (WithFunctionDistance (c I) (D ^ s I / 4)) _
 notation "nndist_{" I "}" => @nndist (WithFunctionDistance (c I) (D ^ s I / 4)) _
 notation "ball_{" I "}" => @ball (WithFunctionDistance (c I) (D ^ s I / 4)) _
+
+section GridManipulation
+
+variable [GridStructure X D κ S o]
 
 lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
   obtain ⟨hD⟩ := NeZero.of_pos <| zero_lt_one.trans_le one_le_D
@@ -250,51 +255,49 @@ lemma succ_def (h : ¬IsMax i) : i.succ = j ↔ i ≤ j ∧ s j = s i + 1 := by
   have : s i < s j' := (lt_def.mp hj').2
   exact le_dyadic (by omega) h₁.le hj'.le
 
+/-! ## Maximal elements of finsets of dyadic cubes -/
 
-lemma dist_congr {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ X} (e₁ : x₁ = x₂) (e₂ : r₁ = r₂) :
-    dist_{x₁, r₁} f g = dist_{x₂, r₂} f g := by congr
+open Classical in
+def maxCubes (s : Finset (Grid X)) : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
 
-lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
-    2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
-  induction k with
-  | zero => rw [pow_zero, one_mul]; congr! <;> simp
-  | succ k ih =>
-    trans 2 * dist_{x, (defaultA a) ^ k * r} f g
-    · rw [pow_succ', mul_assoc]
-      exact (mul_le_mul_left zero_lt_two).mpr ih
-    · convert le_cdist (ball_subset_ball _) using 1
-      · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
-      · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
-        rw [← Nat.cast_one, Nat.cast_le]; exact Nat.one_le_two_pow
+lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) :
+    ∃ j ∈ maxCubes s, i ≤ j := by
+  classical let C : Finset (Grid X) := s.filter (i ≤ ·)
+  have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
+  obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
+  simp_rw [C, maxCubes, Finset.mem_filter] at hj maxj ⊢
+  refine ⟨j, ?_, hj.2⟩
+  exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
 
-lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
-    dist_{x, 2 ^ k * r} f g ≤ (defaultA a) ^ k * dist_{x, r} f g := by
-  induction k with
-  | zero => simp_rw [pow_zero, one_mul]; congr! <;> simp
-  | succ k ih =>
-    trans defaultA a * dist_{x, 2 ^ k * r} f g
-    · convert cdist_le _ using 1
-      · exact dist_congr rfl (by ring)
-      · rw [dist_self]; positivity
-    · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
-      rwa [← mul_assoc, ← pow_succ'] at ih
+lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
+    (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
+  simp only [maxCubes, and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
+  exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
+    |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
+
+end GridManipulation
 
 /-- The constant appearing in Lemma 2.1.2, `2 ^ {-95a}`. -/
-def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ (-95 * (a : ℝ))
+def _root_.C2_1_2 (a : ℕ) : ℝ := 2 ^ (-95 * a : ℝ)
 
+include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_le_inv_512 : C2_1_2 a ≤ 1 / 512 := by
   rw [C2_1_2, show (1 / 512 : ℝ) = 2 ^ (-9 : ℝ) by norm_num,
     Real.rpow_le_rpow_left_iff one_lt_two, neg_mul, neg_le_neg_iff]
   norm_cast; linarith [four_le_a X]
 
+include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_le_one : C2_1_2 a ≤ 1 :=
   (C2_1_2_le_inv_512 X).trans <| by norm_num
 
+include q K σ₁ σ₂ F G in
 variable (X) in
 lemma _root_.C2_1_2_lt_one : C2_1_2 a < 1 :=
   (C2_1_2_le_inv_512 X).trans_lt <| by norm_num
+
+variable [GridStructure X D κ S o]
 
 /-- Stronger version of Lemma 2.1.2. -/
 lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
@@ -351,24 +354,5 @@ lemma dist_strictMono_iterate {I J : Grid X} {d : ℕ} (hij : I ≤ J) (hs : s I
         · rw [C2_1_2]; positivity
         · exact dist_strictMono KJ
       _ = _ := by ring
-
-/-! Maximal elements of finsets of dyadic cubes -/
-
-open Classical in
-def maxCubes (s : Finset (Grid X)) : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
-
-lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) : ∃ j ∈ maxCubes s, i ≤ j := by
-  classical let C : Finset (Grid X) := s.filter (i ≤ ·)
-  have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
-  obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
-  simp_rw [C, maxCubes, Finset.mem_filter] at hj maxj ⊢
-  refine ⟨j, ?_, hj.2⟩
-  exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
-
-lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
-    (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
-  simp only [maxCubes, and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
-  exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
-    |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
 
 end Grid

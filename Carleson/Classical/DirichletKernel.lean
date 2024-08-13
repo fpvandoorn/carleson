@@ -29,25 +29,25 @@ lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' 
   simp_rw [dirichletKernel']
   push_cast
   congr 2
-  . rw [mul_add, exp_add]
+  · rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
     convert exp_int_mul_two_pi_mul_I N using 2
     norm_cast
     ring
-  . congr 1
+  · congr 1
     rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
     convert exp_int_mul_two_pi_mul_I (-1) using 2
     ring
-  . rw [mul_add, exp_add]
+  · rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
     convert exp_int_mul_two_pi_mul_I (-(N : ℤ)) using 2
     simp
     ring
-  . congr 1
+  · congr 1
     rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
@@ -73,7 +73,7 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
           congr 1
           rw [mul_assoc, mul_assoc]
           congr
-          rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel, one_mul]
+          rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel₀, one_mul]
           exact Real.pi_pos.ne.symm
       _ = ∑ n in Icc (-(N : ℤ)) N, cexp ((n + 1 / 2) * I * ↑x) - ∑ n in Icc (-(N : ℤ)) N, cexp ((n - 1 / 2) * I * ↑x) := by
         rw [sum_sub_distrib]

@@ -2,6 +2,9 @@ import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
 
+-- https://github.com/leanprover/lean4/issues/4947
+attribute [-simp] Nat.reducePow
+
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
@@ -68,7 +71,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
         rw [mul_div_assoc, ← div_div, div_eq_mul_inv]
         congr
         rw [eq_div_iff_mul_eq (mul_ne_zero (by positivity) hvol), mul_comm, mul_assoc,
-          mul_inv_cancel hvol, mul_one]
+          mul_inv_cancel₀ hvol, mul_one]
     _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
       apply div_le_div_of_nonneg_left (by positivity)
         (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos_of_pos (defaultD_pos _) _)))
@@ -77,7 +80,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
           rw [← hD]
           ring_nf
-          rw [mul_inv_cancel (ne_of_gt (defaultD_pos _)), one_mul]
+          rw [mul_inv_cancel₀ (ne_of_gt (defaultD_pos _)), one_mul]
         convert (DoublingMeasure.volume_ball_two_le_same_repeat x
           ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)) (100*a^2 + 5)) using 1
         · conv_lhs => rw [← heq, ← pow_add]
@@ -224,7 +227,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have h0 : (∑ (p ∈ 𝔄), T p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
 
-lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+/-lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     f = (F.indicator 1) * f := by
   ext y
   simp only [Pi.mul_apply, indicator, Pi.one_apply, ite_mul, one_mul, zero_mul]
@@ -233,7 +236,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
   · specialize hf y
     simp only [indicator, hy, ↓reduceIte] at hf
     rw [← norm_eq_zero]
-    exact le_antisymm hf (norm_nonneg _)
+    exact le_antisymm hf (norm_nonneg _)-/
 
 /-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
@@ -250,8 +253,8 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (x : X) : ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), T p f x‖₊ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((q' : ℝ)⁻¹ - 2⁻¹) *
-        (snorm f 2 volume) * (snorm g 2 volume) := by
-  have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
+        (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  -- have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   have hq0 : 0 < nnq := nnq_pos X
   have h1q' : 1 ≤ q' := by -- Better proof?
     rw [one_le_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, add_le_add_iff_left]
@@ -272,23 +275,23 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     rw [← two_add_one_eq_three, add_le_add_iff_right]
     exact (nnq_mem_Ioc X).2
   calc ↑‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), T p f x‖₊
-    _ ≤ (snorm (∑ (p ∈ 𝔄), T p f) 2 volume) * (snorm g 2 volume) := by
+    _ ≤ (eLpNorm (∑ (p ∈ 𝔄), T p f) 2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.18. Use Cauchy-Schwarz
       rw [mul_comm]
       sorry
-    _ ≤ 2 ^ (107*a^3) * (snorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
-          2 volume) * (snorm g 2 volume) := by
+    _ ≤ 2 ^ (107*a^3) * (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
+          2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.19. Use Lemma 6.1.2.
       apply mul_le_mul_of_nonneg_right _ (zero_le _)
       have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
         simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
-      rw [h2, ← MeasureTheory.snorm_const_smul]
-      apply snorm_mono_nnnorm
+      rw [h2, ← MeasureTheory.eLpNorm_const_smul]
+      apply eLpNorm_mono_nnnorm
       intro z
       have MB_top : MB volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) f z ≠ ⊤ := by
-       -- apply ne_top_of_le_ne_top _ (MB_le_snormEssSup)
+       -- apply ne_top_of_le_ne_top _ (MB_le_eLpNormEssSup)
         --apply ne_of_lt
-        --apply snormEssSup_lt_top_of_ae_nnnorm_bound
+        --apply eLpNormEssSup_lt_top_of_ae_nnnorm_bound
         sorry
       rw [← ENNReal.coe_le_coe, Finset.sum_apply]
       convert (MaximalBoundAntichain h𝔄 (le_trans (by linarith) ha) hf z)
@@ -297,16 +300,16 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
         nnnorm_eq, coe_mul, C_6_1_2, ENNReal.coe_toNNReal MB_top]
         norm_cast
     _ ≤ 2 ^ (107*a^3 + 2*a + 2) * (q' - 1)⁻¹ * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((q' : ℝ)⁻¹ - 2⁻¹) *
-        (snorm f 2 volume) * (snorm g 2 volume) := by
+        (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.20. use 6.1.14 and 6.1.16.
       sorry
     _ ≤ (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((q' : ℝ)⁻¹ - 2⁻¹) *
-        (snorm f 2 volume) * (snorm g 2 volume) := by
+        (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
       -- use 4 ≤ a, hq'_inv.
       have h3 : 3 * ((C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((q' : ℝ)⁻¹ - 2⁻¹) *
-          (snorm f 2 volume) * (snorm g 2 volume)) =
+          (eLpNorm f 2 volume) * (eLpNorm g 2 volume)) =
           (2 : ℝ≥0)^(111*a^3) * (3 * (nnq-1)⁻¹) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((q' : ℝ)⁻¹ - 2⁻¹) *
-          (snorm f 2 volume) * (snorm g 2 volume) := by
+          (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
         conv_lhs => simp only [C_6_1_3, ENNReal.coe_mul, ← mul_assoc]
         rw [mul_comm 3, mul_assoc _ 3]
         norm_cast
@@ -349,4 +352,4 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄)) :
     ‖∫ x, conj (g x) * ∑ᶠ p : 𝔄, T p f x‖ ≤
     C_2_0_3 a q * (dens₁ 𝔄).toReal ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄).toReal ^ (q⁻¹ - 2⁻¹) *
-    (snorm f 2 volume).toReal * (snorm g 2 volume).toReal := sorry
+    (eLpNorm f 2 volume).toReal * (eLpNorm g 2 volume).toReal := sorry

@@ -7,18 +7,17 @@ open NNReal ENNReal NormedSpace MeasureTheory Set
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'}
-  [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
-  [NormedAddCommGroup E₁] [NormedSpace ℝ E₁] [FiniteDimensional ℝ E₁]
-  [NormedAddCommGroup E₂] [NormedSpace ℝ E₂] [FiniteDimensional ℝ E₂]
-  [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] [FiniteDimensional ℝ E₃]
+  [NormedAddCommGroup E] --[NormedSpace ℝ E] [FiniteDimensional ℝ E]
+  [NormedAddCommGroup E₁] --[NormedSpace ℝ E₁] [FiniteDimensional ℝ E₁]
+  [NormedAddCommGroup E₂] --[NormedSpace ℝ E₂] [FiniteDimensional ℝ E₂]
+  [NormedAddCommGroup E₃] --[NormedSpace ℝ E₃] [FiniteDimensional ℝ E₃]
   [MeasurableSpace E] [BorelSpace E]
-  [MeasurableSpace E₁] [BorelSpace E₁]
-  [MeasurableSpace E₂] [BorelSpace E₂]
-  [MeasurableSpace E₃] [BorelSpace E₃]
-  (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
+--[MeasurableSpace E₁] [BorelSpace E₁]
+--[MeasurableSpace E₂] [BorelSpace E₂]
+--[MeasurableSpace E₃] [BorelSpace E₃]
+--(L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
   {f g : α → E} {t : ℝ} {s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
-
 
 namespace MeasureTheory
 
@@ -98,6 +97,8 @@ lemma const (t : (α → E₁) → E₂) (P : (α → E₁) → Prop)
   simpa using h_add hf hg
 
 end SubadditiveOn
+
+variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
 def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=

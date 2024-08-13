@@ -1,12 +1,10 @@
 import Carleson.CoverByBalls
 import Carleson.ToMathlib.Misc
-import Mathlib.Analysis.NormedSpace.FiniteDimension
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.MeasureTheory.Integral.Average
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Doubling
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
-import Mathlib.MeasureTheory.Constructions.Polish
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
@@ -21,9 +19,19 @@ export IsDoubling (measure_ball_two_le_same)
 
 section PseudoMetric
 
-variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [MeasurableSpace X]
-  {μ : Measure X} [μ.IsDoubling A] [IsFiniteMeasureOnCompacts μ] [ProperSpace X]
-  [Nonempty X] [IsOpenPosMeasure μ] -- only needed sometimes
+variable {X : Type*} [PseudoMetricSpace X]
+
+lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
+    (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
+  intro y h
+  have h1 : dist x y < r := by
+    calc dist x y ≤ dist x x' + dist x' y := dist_triangle _ _ _
+        _ < dist x x' + r' := by gcongr; exact mem_ball'.mp h
+        _ ≤ r := hr
+  exact mem_ball'.mpr h1
+
+variable {A : ℝ≥0} [MeasurableSpace X] [ProperSpace X]
+  {μ : Measure X} [μ.IsDoubling A] [IsFiniteMeasureOnCompacts μ]
 
 lemma measure_real_ball_two_le_same (x : X) (r : ℝ) :
     μ.real (ball x (2 * r)) ≤ A * μ.real (ball x r) := by
@@ -32,12 +40,12 @@ lemma measure_real_ball_two_le_same (x : X) (r : ℝ) :
   · exact ENNReal.mul_ne_top coe_ne_top measure_ball_lt_top.ne
   · exact measure_ball_two_le_same x r
 
-lemma measure_real_ball_pos (x : X) {r : ℝ} (hr : 0 < r) :
+lemma measure_real_ball_pos [μ.IsOpenPosMeasure] (x : X) {r : ℝ} (hr : 0 < r) :
     0 < μ.real (ball x r) :=
   toReal_pos ((measure_ball_pos μ x hr).ne.symm) (measure_ball_lt_top.ne)
 
 variable (μ) in
-lemma one_le_A : 1 ≤ A := by
+lemma one_le_A [Nonempty X] [μ.IsOpenPosMeasure] : 1 ≤ A := by
   obtain ⟨x⟩ := ‹Nonempty X›
   have : 0 < μ.real (ball x 1) := measure_real_ball_pos x (by linarith)
   apply le_of_mul_le_mul_right _ this
@@ -50,12 +58,14 @@ lemma one_le_A : 1 ≤ A := by
           (μ.mono (ball_subset_ball (by linarith)))
     _ ≤ A * μ.real (ball x 1) := measure_real_ball_two_le_same x 1
 
-variable (μ) in lemma A_pos : 0 < A := by
+variable (μ) in
+lemma A_pos [Nonempty X] [μ.IsOpenPosMeasure] : 0 < A := by
   calc
     0 < 1 := by norm_num
     _ ≤ A := one_le_A μ
 
-variable (X) in lemma A_pos' : 0 < (A : ℝ≥0∞) := by
+variable (μ) in
+lemma A_pos' [Nonempty X] [μ.IsOpenPosMeasure] : 0 < (A : ℝ≥0∞) := by
   rw [ENNReal.coe_pos]
   exact A_pos μ
 
@@ -84,7 +94,6 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
       (measure_real_ball_two_le_same _ _) (zero_le_coe)
     _ = A ^ 2 * μ.real (ball x r) := by ring_nf
 
-
 lemma measure_ball_ne_top (x : X) (r : ℝ) : μ (ball x r) ≠ ∞ := measure_ball_lt_top.ne
 
 attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
@@ -105,7 +114,7 @@ lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
         exact mul_le_mul_of_nonneg_left hm (by exact zero_le_coe)
       _ = A^(m.succ) * μ.real (ball x r) := by rw [NNReal.coe_pow,← mul_assoc, pow_succ']
 
-lemma measure_ball_le_pow_two' {x:X} {r:ℝ} {n : ℕ} :
+lemma measure_ball_le_pow_two' {x : X} {r : ℝ} {n : ℕ} :
     μ (ball x (2 ^ n * r)) ≤ A ^ n * μ (ball x r) := by
   letI : Nonempty X := ⟨x⟩
   have hleft : μ (ball x (2 ^ n * r)) ≠ ⊤ := measure_ball_ne_top x (2 ^ n * r)
@@ -119,12 +128,12 @@ lemma measure_ball_le_pow_two' {x:X} {r:ℝ} {n : ℕ} :
 def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
 
 variable (μ) in
-lemma As_pos (s:ℝ) : 0 < As A s := pow_pos (A_pos μ) ⌈Real.logb 2 s⌉₊
+lemma As_pos [Nonempty X] [μ.IsOpenPosMeasure] (s : ℝ) : 0 < As A s :=
+  pow_pos (A_pos μ) ⌈Real.logb 2 s⌉₊
 
 variable (μ) in
-lemma As_pos' (s:ℝ) : 0 < (As A s : ℝ≥0∞) := by
-  rw [ENNReal.coe_pos]
-  exact As_pos μ s
+lemma As_pos' [Nonempty X] [μ.IsOpenPosMeasure] (s : ℝ) : 0 < (As A s : ℝ≥0∞) := by
+  rw [ENNReal.coe_pos]; exact As_pos μ s
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
 lemma measure_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
@@ -146,11 +155,9 @@ lemma measure_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s *
     _ ≤ 2 ^ (⌈Real.logb 2 s⌉₊ : ℝ) := Real.rpow_le_rpow_of_exponent_le
       (by linarith) (Nat.le_ceil (Real.logb 2 s))
     _ = 2 ^ ⌈Real.logb 2 s⌉₊ := Real.rpow_natCast 2 ⌈Real.logb 2 s⌉₊
-
   have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by
     calc ball x r' ⊆ ball x (s * r) := ball_subset_ball hs
         _ ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := ball_subset_ball haux
-
   /-Apply result for power of two to slightly larger ball-/
   calc μ (ball x r')
       ≤ μ (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr
@@ -171,20 +178,10 @@ lemma measure_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
   positivity
   simp only [coe_toReal, zero_le_coe]
 
-
 def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 := As A s * A * As A d
 
-lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
-    (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
-  intro y h
-  have h1 : dist x y < r := by
-    calc dist x y ≤ dist x x' + dist x' y := dist_triangle _ _ _
-        _ < dist x x' + r' := by gcongr; exact mem_ball'.mp h
-        _ ≤ r := hr
-  exact mem_ball'.mpr h1
-
-lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s d : ℝ} (hs : 0 < s) (hd : 0 < d)
-    (hsr : r' ≤ s * dist x x') (hdr : dist x x' ≤ d * r) :
+lemma measure_ball_le_of_dist_le' [μ.IsOpenPosMeasure] {x x' : X} {r r' s d : ℝ} (hs : 0 < s)
+    (hd : 0 < d) (hsr : r' ≤ s * dist x x') (hdr : dist x x' ≤ d * r) :
     μ (ball x' r') ≤ Ad A s d * μ (ball x r) := by
   letI : Nonempty X := ⟨x⟩
   calc
@@ -207,15 +204,17 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s d : ℝ} (hs : 0 < s) (hd :
       dsimp only [Ad]
       simp only [coe_mul]
 
-lemma measure_ball_le_of_dist_le''' {x x' : X} {r : ℝ} (hr : dist x x' = (1/(2 : ℝ)) * r) :
-    μ (ball x' r) ≤ A ^ 2 * μ (ball x r) := by
+lemma measure_ball_le_of_dist_le''' [μ.IsOpenPosMeasure] {x x' : X} {r : ℝ}
+    (hr : dist x x' = (1/(2 : ℝ)) * r) : μ (ball x' r) ≤ A ^ 2 * μ (ball x r) := by
   have hsr : r ≤ (2 : ℝ) * dist x x' := by rw [hr]; linarith
   convert measure_ball_le_of_dist_le' (μ := μ) zero_lt_two (by positivity) hsr (le_of_eq hr)
   · simp only [Ad, As, Nat.one_lt_ofNat, Real.logb_self_eq_one, Nat.ceil_one, pow_one, one_div,
       Real.logb_inv, coe_mul, ENNReal.coe_pow]
     have : ⌈-(1 : ℝ)⌉₊ = 0 := by rw [Nat.ceil_eq_zero]; linarith
     rw [this, pow_zero, mul_one, pow_two]
+
 section
+
 variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 
 -- #check (@measure_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
