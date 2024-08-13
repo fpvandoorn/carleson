@@ -703,7 +703,7 @@ lemma I3_prop_3_1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
           rw [zpow_add₀ (defaultD_pos a).ne.symm,zpow_one]
           exact mul_le_mul_of_nonneg_right (eight_le_realD X) (zpow_nonneg (defaultD_pos a).le _)
         _ = D ^ k := by
-          rw [← two_mul,← mul_assoc,inv_mul_cancel (by norm_num),one_mul]
+          rw [← two_mul, ← mul_assoc, inv_mul_cancel₀ two_ne_zero, one_mul]
     rw [mem_iUnion]
     use y'
     rw [mem_iUnion]
@@ -1448,6 +1448,9 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
     _ = 2⁻¹ ^ (n + 1) * volume (I3 hk y) := by
       rw [pow_add,pow_one,mul_assoc]
 
+section PreProofData
+include q K σ₁ σ₂ F G
+
 variable (X) in
 lemma one_lt_realD : 1 < (D : ℝ) := by
   linarith [four_le_realD X]
@@ -1512,26 +1515,6 @@ lemma const_n_nonneg {t:ℝ} (ht:t∈Ioo 0 1) : 0 ≤ const_n a ht := by
   rw [one_le_inv_iff]
   use ht.left,ht.right.le
 
-lemma Real.self_lt_two_rpow (x:ℝ) : x < 2^x := by
-  if h:x < 0 then
-    calc
-      x < 0 := h
-      _ < 2^x := rpow_pos_of_pos (by linarith) x
-  else
-    have hx : 0 ≤ x := le_of_not_lt h
-    have := Nat.lt_pow_self one_lt_two (Nat.floor x)
-    rw [← Nat.succ_le, Nat.succ_eq_add_one, ← Nat.floor_add_one hx] at this
-    calc
-      x < Nat.floor (x + 1) := ?_
-      _ ≤ 2 ^ (Nat.floor x) := ?_
-      _ ≤ 2 ^ x := ?_
-    · convert Nat.lt_succ_floor x
-      rw [Nat.succ_eq_add_one, ← Nat.floor_add_one hx]
-    · norm_cast
-    · rw [← Real.rpow_natCast]
-      rw [Real.rpow_le_rpow_left_iff one_lt_two]
-      refine Nat.floor_le hx
-
 variable (X) in
 lemma two_le_a : 2 ≤ a := by linarith [four_le_a X]
 
@@ -1576,6 +1559,8 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
     _ ≤ 2 ^ (10 * a:ℝ) := by
       simp_rw [← Real.rpow_add (by norm_num : 0 < (2:ℝ)),← right_distrib]
       norm_num
+
+end PreProofData
 
 lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set.Ioo 0 1)
     (htD : (D^(-S:ℤ):ℝ) ≤ t * D^k):
@@ -1697,9 +1682,9 @@ lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set
           congr 1
           rw [mul_neg,mul_neg]
           congr 1
-          rw [mul_inv,mul_assoc,mul_comm (K':ℝ),mul_assoc,inv_mul_cancel K_pos.ne.symm,
+          rw [mul_inv, mul_assoc, mul_comm (K' : ℝ), mul_assoc, inv_mul_cancel₀ K_pos.ne.symm,
             mul_one,mul_comm]
-        _ = (D ^ (const_n a ht * K':ℝ):ℝ)⁻¹ ^ (Real.logb 2 D * K' :ℝ)⁻¹ := by
+        _ = (D ^ (const_n a ht * K':ℝ):ℝ)⁻¹ ^ (Real.logb 2 D * K' : ℝ)⁻¹ := by
           rw [Real.rpow_mul (realD_nonneg), Real.rpow_neg (Real.rpow_nonneg (realD_nonneg) _)]
           rw [Real.inv_rpow (Real.rpow_nonneg (realD_nonneg) _)]
         _ ≤ (t * D ^(K':ℝ)) ^ (Real.logb 2 D * K' :ℝ)⁻¹ := by
@@ -1720,7 +1705,7 @@ lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set
             exact Real.logb_pos (by norm_num) (one_lt_realD X)
         _ = 2 * t ^ (Real.logb 2 D * K':ℝ)⁻¹ := by
           rw [Real.mul_rpow,mul_comm,← Real.rpow_mul (realD_nonneg),mul_comm (K':ℝ)]
-          · rw [mul_inv,mul_assoc,inv_mul_cancel (K_pos).ne.symm,mul_one,Real.inv_logb]
+          · rw [mul_inv, mul_assoc, inv_mul_cancel₀ K_pos.ne.symm, mul_one, Real.inv_logb]
             rw [Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (by norm_num)]
           · exact ht.left.le
           exact Real.rpow_nonneg (realD_nonneg) _
@@ -1731,8 +1716,8 @@ lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set
           rw [Real.rpow_le_rpow_left_iff_of_base_lt_one (this.left) (this.right)]
           exact kappa_le_log2D_inv_mul_K_inv X
 
-lemma boundary_measure'  {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set.Ioo 0 1)
-    (htD : (D^(-S:ℤ):ℝ) ≤ t * D^k):
+lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht : t ∈ Set.Ioo 0 1)
+    (htD : (D ^ (-S : ℤ) : ℝ) ≤ t * D ^ k) :
     volume.real ({x|x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) ≤ 2 * t^κ * volume.real (I3 hk y) := by
   dsimp only [Measure.real]
   calc

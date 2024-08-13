@@ -72,7 +72,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
         rw [mul_div_assoc, ← div_div, div_eq_mul_inv]
         congr
         rw [eq_div_iff_mul_eq (mul_ne_zero (by positivity) hvol), mul_comm, mul_assoc,
-          mul_inv_cancel hvol, mul_one]
+          mul_inv_cancel₀ hvol, mul_one]
     _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
       apply div_le_div_of_nonneg_left (by positivity)
         (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos_of_pos (defaultD_pos _) _)))
@@ -81,7 +81,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
           rw [← hD]
           ring_nf
-          rw [mul_inv_cancel (ne_of_gt (defaultD_pos _)), one_mul]
+          rw [mul_inv_cancel₀ (ne_of_gt (defaultD_pos _)), one_mul]
         convert (DoublingMeasure.volume_ball_two_le_same_repeat x
           ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)) (100*a^2 + 5)) using 1
         · conv_lhs => rw [← heq, ← pow_add]
@@ -228,7 +228,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have h0 : (∑ (p ∈ 𝔄), T p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
 
-lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+/-lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     f = (F.indicator 1) * f := by
   ext y
   simp only [Pi.mul_apply, indicator, Pi.one_apply, ite_mul, one_mul, zero_mul]
@@ -237,7 +237,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
   · specialize hf y
     simp only [indicator, hy, ↓reduceIte] at hf
     rw [← norm_eq_zero]
-    exact le_antisymm hf (norm_nonneg _)
+    exact le_antisymm hf (norm_nonneg _)-/
 
 /-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
@@ -255,7 +255,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     (x : X) : ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), T p f x‖₊ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((q' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
-  have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
+  -- have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   have hq0 : 0 < nnq := nnq_pos X
   have h1q' : 1 ≤ q' := by -- Better proof?
     rw [one_le_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, add_le_add_iff_left]

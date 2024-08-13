@@ -323,7 +323,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
               apply Int.floor_le
             _ = -R' := by
               ring_nf
-              rw [mul_comm, ←mul_assoc, inv_mul_cancel Rpos.ne.symm, one_mul]
+              rw [mul_comm, ←mul_assoc, inv_mul_cancel₀ Rpos.ne.symm, one_mul]
         · calc 2 * R * (↑f - ↑φ)
             _ ≤ 2 * R * |↑f - ↑φ| := by
               gcongr
@@ -391,7 +391,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
             exact Int.le_ceil _
           _ = -R' := by
             ring_nf
-            rw [mul_comm, ←mul_assoc, inv_mul_cancel Rpos.ne.symm, one_mul]
+            rw [mul_comm, ←mul_assoc, inv_mul_cancel₀ Rpos.ne.symm, one_mul]
     _ = R' := by ring
 
 

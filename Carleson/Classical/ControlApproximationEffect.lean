@@ -649,5 +649,5 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       --We have chosen ε' such that this works.
       rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ Real.pi_pos.ne.symm,
           div_mul_eq_div_div, div_self δ_mul_const_pos.ne.symm, one_div, Real.inv_rpow (Real.rpow_nonneg (div_nonneg zero_le_two εpos.le) _),
-          ← Real.rpow_mul (div_nonneg zero_le_two εpos.le), inv_mul_cancel (by norm_num), Real.rpow_one, inv_div]
+          ← Real.rpow_mul (div_nonneg zero_le_two εpos.le), inv_mul_cancel₀ (by norm_num), Real.rpow_one, inv_div]
       ring

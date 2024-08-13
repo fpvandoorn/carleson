@@ -11,16 +11,12 @@ open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField 𝕜]
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E]
-  [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁] [FiniteDimensional 𝕜 E₁]
-  [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂] [FiniteDimensional 𝕜 E₂]
-  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃] [FiniteDimensional 𝕜 E₃]
-  [MeasurableSpace E] [BorelSpace E]
-  [MeasurableSpace E₁] [BorelSpace E₁]
-  [MeasurableSpace E₂] [BorelSpace E₂]
-  [MeasurableSpace E₃] [BorelSpace E₃]
+  [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁]
+  [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂]
+  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃]
   (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
-  {f g : α → E} (hf : AEMeasurable f μ) {t s x y : ℝ≥0∞}
+  {f g : α → E} {t s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
 -- #check meas_ge_le_mul_pow_eLpNorm -- Chebyshev's inequality
@@ -211,6 +207,11 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
 --     ∫⁻ t in Ioi (0 : ℝ), .ofReal (p * t ^ (p - 1)) * μ { x | ENNReal.ofReal t < f x } := by
 --   sorry
 
+section BorelSpace
+
+variable [MeasurableSpace E] [BorelSpace E] (hf : AEMeasurable f μ)
+include hf
+
 /-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
 lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖₊ ^ p ∂μ =
@@ -233,17 +234,18 @@ lemma eLpNorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
   have h3p : (p : ℝ) ≠ 0 := h2p.ne'
   have h4p : 0 ≤ (p : ℝ) := zero_le_coe
   simp_rw [MeasureTheory.eLpNorm_nnreal_eq_eLpNorm' hp.ne', eLpNorm', one_div, ← ENNReal.rpow_mul,
-    inv_mul_cancel h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
+    inv_mul_cancel₀ h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
     ENNReal.ofReal_mul h4p, ofReal_coe_nnreal]
 
 lemma lintegral_pow_mul_distribution {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
-    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖₊ ^ (p + 1) ∂μ  := by
+    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖₊ ^ (p + 1) ∂μ := by
   have h2p : 0 < p + 1 := by linarith
   have h3p : 0 ≤ p + 1 := by linarith
   have h4p : p + 1 ≠ 0 := by linarith
   simp [*, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul', ← ofReal_mul, ← mul_assoc]
 
+end BorelSpace
 
 /-- The weak L^p norm of a function, for `p < ∞` -/
 def wnorm' [NNNorm E] (f : α → E) (p : ℝ) (μ : Measure α) : ℝ≥0∞ :=

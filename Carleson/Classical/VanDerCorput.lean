@@ -74,7 +74,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
       _ = B * (b - a) := by rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
       _ = (1 + |n| * (b - a)) * (1 + |n| * (b - a))⁻¹ * (b - a) * B := by
-        rw [mul_inv_cancel]
+        rw [mul_inv_cancel₀]
         ring
         exact ne_of_gt this
       _ ≤ (Real.pi + Real.pi) * (1 + |n| * (b - a))⁻¹ * (b - a) * (B + K * (b - a) / 2) := by

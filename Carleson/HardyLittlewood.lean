@@ -11,11 +11,23 @@ noncomputable section
 -- #check VitaliFamily
 -- Note: Lemma 9.0.2 is roughly Vitali.exists_disjoint_covering_ae
 
-variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X] [BorelSpace X]
+section Prelude
+
+variable (X : Type*) [PseudoMetricSpace X] [SeparableSpace X]
+
+lemma covering_separable_space :
+    ∃ C : Set X, C.Countable ∧ ∀ r > 0, ⋃ c ∈ C, ball c r = univ := by
+  simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
+
+lemma countable_globalMaximalFunction :
+    (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
+  (covering_separable_space X).choose_spec.1.prod countable_univ
+
+end Prelude
+
+variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
   {μ : Measure X} [μ.IsDoubling A] [NormedAddCommGroup E]
-  [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
   {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}
-  [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
   -- feel free to assume `A ≥ 16` or similar
 
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
@@ -40,7 +52,8 @@ variable (μ) in
 private def P' (f : X → E) : Prop :=
   AEStronglyMeasurable f μ ∧ ∀ (c : X) (r : ℝ), ∫⁻ (y : X) in ball c r, ‖f y‖₊ ∂μ < ⊤
 
-private lemma P'_of_P {u : X → E} (hu : P μ u) : P' μ u := by
+private lemma P'_of_P [BorelSpace X] [ProperSpace X] [IsFiniteMeasureOnCompacts μ]
+    {u : X → E} (hu : P μ u) : P' μ u := by
   refine ⟨hu.elim Memℒp.aestronglyMeasurable Memℒp.aestronglyMeasurable, fun c r ↦ ?_⟩
   refine hu.elim (fun hu ↦ ?_) (fun hu ↦ ?_)
   · have hfg : ∀ᵐ (x : X) ∂μ, x ∈ ball c r → ‖u x‖₊ ≤ eLpNormEssSup u μ :=
@@ -54,7 +67,8 @@ private lemma P'_of_P {u : X → E} (hu : P μ u) : P' μ u := by
       ENNReal.rpow_one, ne_eq, not_false_eq_true, div_self] at this
     exact lt_of_le_of_lt (setLIntegral_le_lintegral _ _) this
 
-private lemma P'.add {f : X → E} {g : X → E} (hf : P' μ f) (hg : P' μ g) : P' μ (f + g) := by
+private lemma P'.add [MeasurableSpace E] [BorelSpace E]
+    {f : X → E} {g : X → E} (hf : P' μ f) (hg : P' μ g) : P' μ (f + g) := by
   constructor
   · exact AEStronglyMeasurable.add hf.1 hg.1
   · intro c r
@@ -63,16 +77,17 @@ private lemma P'.add {f : X → E} {g : X → E} (hf : P' μ f) (hg : P' μ g) :
       hf.1.aemeasurable.nnnorm.restrict]
     exact ENNReal.add_lt_top.mpr ⟨hf.2 c r, hg.2 c r⟩
 
-private lemma P'.smul {f : X → E} (hf : P' μ f) (s : ℝ) : P' μ (s • f) := by
+private lemma P'.smul [NormedSpace ℝ E] {f : X → E} (hf : P' μ f) (s : ℝ) : P' μ (s • f) := by
   refine ⟨AEStronglyMeasurable.const_smul hf.1 s, fun c r ↦ ?_⟩
   simp_rw [Pi.smul_apply, nnnorm_smul, ENNReal.coe_mul, lintegral_const_mul' _ _ ENNReal.coe_ne_top]
   exact ENNReal.mul_lt_top ENNReal.coe_ne_top (hf.2 c r).ne
 
 -- The average that appears in the definition of `MB`
-variable (μ) (c) (r) in
+variable (μ c r) in
 private def T (i : ι) (u : X → E) := (⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖₊ ∂μ).toReal
 
-private lemma T.add_le (i : ι) {f g : X → E} (hf : P' μ f) (hg : P' μ g) :
+private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X]
+    (i : ι) {f g : X → E} (hf : P' μ f) (hg : P' μ g) :
     ‖T μ c r i (f + g)‖ ≤ ‖T μ c r i f‖ + ‖T μ c r i g‖ := by
   simp only [T, Pi.add_apply, Real.norm_eq_abs, ENNReal.abs_toReal]
   rw [← ENNReal.toReal_add (laverage_lt_top (hf.2 _ _).ne).ne (laverage_lt_top (hg.2 _ _).ne).ne]
@@ -82,7 +97,7 @@ private lemma T.add_le (i : ι) {f g : X → E} (hf : P' μ f) (hg : P' μ g) :
   · exact (laverage_lt_top ((P'.add hf hg).2 _ _).ne).ne
   · exact (ENNReal.add_lt_top.2 ⟨laverage_lt_top (hf.2 _ _).ne, (laverage_lt_top (hg.2 _ _).ne)⟩).ne
 
-private lemma T.smul (i : ι) : ∀ {f : X → E} {d : ℝ}, P' μ f → d ≥ 0 →
+private lemma T.smul [NormedSpace ℝ E] (i : ι) : ∀ {f : X → E} {d : ℝ}, P' μ f → d ≥ 0 →
     T μ c r i (d • f) = d • T μ c r i f := by
   intro f d _ hd
   simp_rw [T, Pi.smul_apply, smul_eq_mul]
@@ -94,10 +109,6 @@ private lemma T.smul (i : ι) : ∀ {f : X → E} {d : ℝ}, P' μ f → d ≥ 0
   ext x
   simp only [nnnorm_smul, ENNReal.coe_mul, ← Real.toNNReal_eq_nnnorm_of_nonneg hd]
   congr
-
-lemma covering_separable_space (X : Type*) [PseudoMetricSpace X] [SeparableSpace X] :
-    ∃ C : Set X, C.Countable ∧ ∀ r > 0, ⋃ c ∈ C, ball c r = univ := by
-  simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
 
 /- NOTE: This was changed to use `ℝ≥0∞` rather than `ℝ≥0` because that was more convenient for the
 proof of `first_exception` in DiscreteCarleson.lean. But everything involved there is finite, so
@@ -126,12 +137,12 @@ protected theorem Finset.measure_biUnion_le_lintegral (𝓑 : Finset ι) {l : �
   let ⟨c, hc⟩ := (𝓑.image r).exists_le
   𝓑.countable_toSet.measure_biUnion_le_lintegral hl hu c (by simpa using hc) h2u
 
-protected theorem MeasureTheory.AEStronglyMeasurable.maximalFunction {p : ℝ}
+protected theorem MeasureTheory.AEStronglyMeasurable.maximalFunction [BorelSpace X] {p : ℝ}
     {u : X → E} (h𝓑 : 𝓑.Countable) : AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ :=
   (aemeasurable_biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
     aemeasurable_const |>.aestronglyMeasurable
 
-theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal
+theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal [BorelSpace X]
     {p : ℝ} {u : X → E} (h𝓑 : 𝓑.Countable) :
     AEStronglyMeasurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) μ :=
   AEStronglyMeasurable.maximalFunction h𝓑 |>.ennreal_toReal
@@ -149,7 +160,7 @@ theorem MB_le_eLpNormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ eLpNo
     _ ≤ eLpNormEssSup u μ := by
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
-protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
+protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) ⊤ ⊤ μ μ 1 := by
   intro f _
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
@@ -159,7 +170,9 @@ protected theorem HasStrongType.MB_top (h𝓑 : 𝓑.Countable) :
   refine ENNReal.coe_toNNReal_le_self |>.trans ?_
   apply MB_le_eLpNormEssSup
 
-protected theorem MeasureTheory.SublinearOn.maximalFunction (h𝓑 : 𝓑.Finite) :
+protected theorem MeasureTheory.SublinearOn.maximalFunction
+    [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Finite) :
     SublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
     (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 := by
   apply SublinearOn.antitone P'_of_P
@@ -184,7 +197,7 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction (h𝓑 : 𝓑.Finite
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
 variable (μ) in
-protected theorem HasWeakType.MB_one [μ.IsDoubling A] (h𝓑 : 𝓑.Countable) :
+protected theorem HasWeakType.MB_one [BorelSpace X] [μ.IsDoubling A] (h𝓑 : 𝓑.Countable) :
     HasWeakType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) 1 1 μ μ (A ^ 2) := by
   intro f hf
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
@@ -195,8 +208,9 @@ irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := sorry
 
 /- The proof is given between (9.0.12)-(9.0.34).
 Use the real interpolation theorem instead of following the blueprint. -/
-lemma hasStrongType_MB (h𝓑 : 𝓑.Finite) {p : ℝ≥0}
-    (hp : 1 < p) {u : X → E} (hu : AEStronglyMeasurable u μ) :
+lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
+    (h𝓑 : 𝓑.Finite) {p : ℝ≥0} (hp : 1 < p) {u : X → E} (hu : AEStronglyMeasurable u μ) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
       p p μ μ (CMB A p) := by
   have h2p : 0 < p := zero_lt_one.trans hp
@@ -224,6 +238,10 @@ theorem hasStrongType_maximalFunction {p₁ p₂ : ℝ≥0}
       p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
   sorry
 
+section GMF
+
+variable [ProperSpace X]
+
 variable (μ) in
 /-- The transformation `M` characterized in Proposition 2.0.6.
 `p` is `1` in the blueprint, and `globalMaximalFunction μ p u = (M (u ^ p)) ^ p⁻¹ ` -/
@@ -232,19 +250,14 @@ def globalMaximalFunction [μ.IsDoubling A] (p : ℝ) (u : X → E) (x : X) : �
   A ^ 2 * maximalFunction μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
     (fun z ↦ z.1) (fun z ↦ 2 ^ z.2) p u x
 
-variable (X) in
-lemma countable_globalMaximalFunction :
-    (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
-  (covering_separable_space X).choose_spec.1.prod countable_univ
-
 -- prove only if needed. Use `MB_le_eLpNormEssSup`
 theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
     {u : X → E} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
     globalMaximalFunction μ p u  x < ∞ := by
   sorry
 
-protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction {p : ℝ}
-    {u : X → E} : AEStronglyMeasurable (globalMaximalFunction μ p u) μ :=
+protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
+    [BorelSpace X] {p : ℝ} {u : X → E} : AEStronglyMeasurable (globalMaximalFunction μ p u) μ :=
   aestronglyMeasurable_iff_aemeasurable.mpr <|
     AEStronglyMeasurable.maximalFunction
       (countable_globalMaximalFunction X) |>.aemeasurable.const_mul _
@@ -266,3 +279,5 @@ theorem hasStrongType_globalMaximalFunction {p₁ p₂ : ℝ≥0}
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   sorry
+
+end GMF

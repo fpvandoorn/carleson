@@ -73,7 +73,7 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
           congr 1
           rw [mul_assoc, mul_assoc]
           congr
-          rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel, one_mul]
+          rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel₀, one_mul]
           exact Real.pi_pos.ne.symm
       _ = ∑ n in Icc (-(N : ℤ)) N, cexp ((n + 1 / 2) * I * ↑x) - ∑ n in Icc (-(N : ℤ)) N, cexp ((n - 1 / 2) * I * ↑x) := by
         rw [sum_sub_distrib]

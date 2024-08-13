@@ -266,6 +266,7 @@ protected def setoid : Setoid s where
     trans := fun {x y z} ↦ hr.trans x.2 y.2 z.2
   }
 
+include hr in
 lemma exists_rep (x : α) : ∃ y, x ∈ s → y ∈ s ∧ r x y :=
   ⟨x, fun hx ↦ ⟨hx, hr.refl x hx⟩⟩
 
@@ -339,3 +340,11 @@ lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
   · simpa using Or.inl fun i hi ↦ (hs (nonempty_of_mem hi)).elim
 
 end Set.Finite
+
+lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
+  rcases lt_or_le x 0 with h | h
+  · exact h.trans (rpow_pos_of_pos zero_lt_two x)
+  · calc
+      _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
+      _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two _
+      _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
