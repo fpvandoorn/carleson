@@ -3,7 +3,6 @@ import Carleson.HardyLittlewood
 import Carleson.Psi
 
 -- https://github.com/leanprover/lean4/issues/4947
--- https://github.com/leanprover/lean4/pull/4968
 attribute [-simp] Nat.reducePow
 
 open scoped ShortVariables
