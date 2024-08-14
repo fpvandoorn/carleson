@@ -49,7 +49,7 @@ def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (8 * a)
 
 /-- Proposition 2.0.5. -/
 theorem holder_van_der_corput {z : X} {R : ℝ≥0} (hR : 0 < R) {ϕ : X → ℂ}
-    (hϕ : support ϕ ⊆ ball z R) (h2ϕ : hnorm ϕ z R < ∞) {f g : Θ X} :
+    (hϕ : support ϕ ⊆ ball z R) (h2ϕ : hnorm (a := a) ϕ z R < ∞) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖₊ ≤
-    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * hnorm ϕ z R *
+    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * hnorm (a := a) ϕ z R *
     (1 + nndist_{z, R} f g) ^ (2 * a^2 + a^3 : ℝ)⁻¹ := sorry

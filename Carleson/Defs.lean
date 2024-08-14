@@ -1,6 +1,9 @@
 import Carleson.DoublingMeasure
 import Carleson.WeakType
 
+-- https://github.com/leanprover/lean4/issues/4947
+attribute [-simp] Nat.reducePow
+
 open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
 open scoped ENNReal
 noncomputable section
@@ -14,7 +17,7 @@ We should move them to separate files once we start proving things about them. -
 section DoublingMeasure
 universe u
 
-variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X] [DoublingMeasure X A]
+variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X]
 
 section localOscillation
 
@@ -116,6 +119,9 @@ instance inhabited_Space [CompatibleFunctions 𝕜 X A] : Inhabited X :=
 
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
+lemma dist_congr [FunctionDistances 𝕜 X] {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ X}
+    (e₁ : x₁ = x₂) (e₂ : r₁ = r₂) : dist_{x₁, r₁} f g = dist_{x₂, r₂} f g := by congr
+
 variable (X) in
 /-- The point `o` in the blueprint -/
 def cancelPt [CompatibleFunctions 𝕜 X A] : X :=
@@ -138,6 +144,8 @@ lemma iLipNorm_nonneg {𝕜} [NormedField 𝕜] {ϕ : X → 𝕜} {x₀ : X} {R 
   add_nonneg (Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg fun _ ↦ norm_nonneg _)
     (mul_nonneg hR (Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg
     fun _ ↦ div_nonneg (norm_nonneg _) dist_nonneg))
+
+variable [DoublingMeasure X A]
 
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
@@ -276,12 +284,46 @@ section ProofData
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
 
+section CDistIterate
+
+lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
+    2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
+  induction k with
+  | zero => rw [pow_zero, one_mul]; congr! <;> simp
+  | succ k ih =>
+    trans 2 * dist_{x, (defaultA a) ^ k * r} f g
+    · rw [pow_succ', mul_assoc]
+      exact (mul_le_mul_left zero_lt_two).mpr ih
+    · convert le_cdist (ball_subset_ball _) using 1
+      · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
+      · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
+        rw [← Nat.cast_one, Nat.cast_le]; exact Nat.one_le_two_pow
+
+lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
+    dist_{x, 2 ^ k * r} f g ≤ (defaultA a) ^ k * dist_{x, r} f g := by
+  induction k with
+  | zero => simp_rw [pow_zero, one_mul]; congr! <;> simp
+  | succ k ih =>
+    trans defaultA a * dist_{x, 2 ^ k * r} f g
+    · convert cdist_le _ using 1
+      · exact dist_congr rfl (by ring)
+      · rw [dist_self]; positivity
+    · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
+      rwa [← mul_assoc, ← pow_succ'] at ih
+
+end CDistIterate
+
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
 
+include a q K σ₁ σ₂ F G
+
+section DBounds
+
+variable (X)
+
 -- used in 4.1.7 (`small_boundary`)
-variable (X) in
-lemma twentyfive_le_realD : (25:ℝ) ≤ defaultD a := by
+lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
   simp only [defaultD, Nat.ofNat_le_cast]
   have : 4 ≤ a := four_le_a X
   calc
@@ -293,27 +335,24 @@ lemma twentyfive_le_realD : (25:ℝ) ≤ defaultD a := by
       (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
 
 -- used in 4.1.3 (`I3_prop_3_1`)
-variable (X) in
-lemma eight_le_realD : (8:ℝ) ≤ defaultD a := by
+lemma eight_le_realD : (8 : ℝ) ≤ defaultD a := by
   linarith [twentyfive_le_realD X]
 
 -- used in 4.1.6 (`transitive_boundary`)
-variable (X) in
-lemma five_le_realD : (5:ℝ) ≤ defaultD a := by
+lemma five_le_realD : (5 : ℝ) ≤ defaultD a := by
   linarith [twentyfive_le_realD X]
 
 -- used in various places in `Carleson.TileExistence`
-variable (X) in
-lemma four_le_realD : (4:ℝ) ≤ defaultD a := by
+lemma four_le_realD : (4 : ℝ) ≤ defaultD a := by
   linarith [twentyfive_le_realD X]
 
-variable (X) in
-lemma one_le_realD : (1:ℝ) ≤ defaultD a := by
+lemma one_le_realD : (1 : ℝ) ≤ defaultD a := by
   linarith [twentyfive_le_realD X]
 
-variable (X) in
 open Classical in
 def defaultS [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
+
+end DBounds
 
 lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] :
     range σ₁ ⊆ Icc (- defaultS X) (defaultS X) := sorry
@@ -377,9 +416,8 @@ end ShortVariables
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma one_lt_D : 1 < (D : ℝ) := by
+lemma one_lt_D [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 1 < (D : ℝ) := by
   exact_mod_cast one_lt_pow Nat.one_lt_two (by nlinarith [four_le_a X])
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
@@ -393,7 +431,7 @@ lemma κ_nonneg : 0 ≤ κ := by
   exact Real.rpow_nonneg (by norm_num) _
 
 /-- Used in `third_exception` (Lemma 5.2.10). -/
-lemma two_le_κZ : 2 ≤ κ * Z := by
+lemma two_le_κZ [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 2 ≤ κ * Z := by
   rw [defaultκ, defaultZ, Nat.cast_pow, show ((2 : ℕ) : ℝ) = 2 by rfl,
     show (2 : ℝ) ^ (12 * a) = 2 ^ (12 * a : ℝ) by norm_cast, ← Real.rpow_add zero_lt_two,
     show (-10 * a + 12 * a : ℝ) = 2 * a by ring]
@@ -401,7 +439,8 @@ lemma two_le_κZ : 2 ≤ κ * Z := by
   exact Nat.pow_le_pow_of_le one_lt_two (by linarith [four_le_a X])
 
 /-- Used in `third_exception` (Lemma 5.2.10). -/
-lemma DκZ_le_two_rpow_100 : (D : ℝ≥0∞) ^ (-κ * Z) ≤ 2 ^ (-100 : ℝ) := by
+lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
+    (D : ℝ≥0∞) ^ (-κ * Z) ≤ 2 ^ (-100 : ℝ) := by
   rw [defaultD, Nat.cast_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul,
     show ((2 : ℕ) : ℝ≥0∞) = 2 by rfl]
   apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
@@ -427,9 +466,10 @@ scoped notation "nnD" => nnD a
 
 end ShortVariables
 
+variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
-@[nolint unusedArguments]
-def hnorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
+def hnorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
   ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +
   R ^ τ * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖₊ / (nndist x y) ^ τ : ℝ≥0∞)
 

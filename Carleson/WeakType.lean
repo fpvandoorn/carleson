@@ -2,8 +2,6 @@ import Mathlib.MeasureTheory.Integral.MeanInequalities
 import Mathlib.MeasureTheory.Integral.Layercake
 import Mathlib.MeasureTheory.Integral.Lebesgue
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-import Mathlib.Analysis.NormedSpace.Dual
-import Mathlib.Analysis.NormedSpace.LinearIsometry
 import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 noncomputable section
@@ -13,19 +11,15 @@ open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField 𝕜]
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E] [FiniteDimensional 𝕜 E]
-  [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁] [FiniteDimensional 𝕜 E₁]
-  [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂] [FiniteDimensional 𝕜 E₂]
-  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃] [FiniteDimensional 𝕜 E₃]
-  [MeasurableSpace E] [BorelSpace E]
-  [MeasurableSpace E₁] [BorelSpace E₁]
-  [MeasurableSpace E₂] [BorelSpace E₂]
-  [MeasurableSpace E₃] [BorelSpace E₃]
+  [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁]
+  [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂]
+  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃]
   (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
-  {f g : α → E} (hf : AEMeasurable f μ) {t s x y : ℝ≥0∞}
+  {f g : α → E} {t s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
--- #check meas_ge_le_mul_pow_snorm -- Chebyshev's inequality
+-- #check meas_ge_le_mul_pow_eLpNorm -- Chebyshev's inequality
 
 namespace MeasureTheory
 /- If we need more properties of `E`, we can add `[RCLike E]` *instead of* the above type-classes-/
@@ -213,6 +207,11 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
 --     ∫⁻ t in Ioi (0 : ℝ), .ofReal (p * t ^ (p - 1)) * μ { x | ENNReal.ofReal t < f x } := by
 --   sorry
 
+section BorelSpace
+
+variable [MeasurableSpace E] [BorelSpace E] (hf : AEMeasurable f μ)
+include hf
+
 /-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
 lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖₊ ^ p ∂μ =
@@ -227,34 +226,35 @@ lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
   refine setLIntegral_congr_fun measurableSet_Ioi (eventually_of_forall fun x hx ↦ ?_)
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
-/-- The layer-cake theorem, or Cavalieri's principle, written using `snorm`. -/
-lemma snorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
-    snorm f p μ ^ (p : ℝ) =
+/-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
+lemma eLpNorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
+    eLpNorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 < (p : ℝ) := hp
   have h3p : (p : ℝ) ≠ 0 := h2p.ne'
   have h4p : 0 ≤ (p : ℝ) := zero_le_coe
-  simp_rw [MeasureTheory.snorm_nnreal_eq_snorm' hp.ne', snorm', one_div, ← ENNReal.rpow_mul,
-    inv_mul_cancel h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
+  simp_rw [MeasureTheory.eLpNorm_nnreal_eq_eLpNorm' hp.ne', eLpNorm', one_div, ← ENNReal.rpow_mul,
+    inv_mul_cancel₀ h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
     ENNReal.ofReal_mul h4p, ofReal_coe_nnreal]
 
 lemma lintegral_pow_mul_distribution {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
-    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖₊ ^ (p + 1) ∂μ  := by
+    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖₊ ^ (p + 1) ∂μ := by
   have h2p : 0 < p + 1 := by linarith
   have h3p : 0 ≤ p + 1 := by linarith
   have h4p : p + 1 ≠ 0 := by linarith
   simp [*, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul', ← ofReal_mul, ← mul_assoc]
 
+end BorelSpace
 
 /-- The weak L^p norm of a function, for `p < ∞` -/
 def wnorm' [NNNorm E] (f : α → E) (p : ℝ) (μ : Measure α) : ℝ≥0∞ :=
   ⨆ t : ℝ≥0, t * distribution f t μ ^ (p : ℝ)⁻¹
 
-lemma wnorm'_le_snorm' {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
-    wnorm' f p μ ≤ snorm' f p μ := by
+lemma wnorm'_le_eLpNorm' {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
+    wnorm' f p μ ≤ eLpNorm' f p μ := by
   refine iSup_le (fun t ↦ ?_)
-  unfold snorm' distribution
+  unfold eLpNorm' distribution
   have p0 : 0 < p := lt_of_lt_of_le one_pos hp
   have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
   have set_eq : {x | ofNNReal t < ‖f x‖₊} = {x | ofNNReal t ^ p < ‖f x‖₊ ^ p} := by
@@ -268,14 +268,14 @@ lemma wnorm'_le_snorm' {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ}
 
 /-- The weak L^p norm of a function. -/
 def wnorm [NNNorm E] (f : α → E) (p : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
-  if p = ∞ then snormEssSup f μ else wnorm' f (ENNReal.toReal p) μ
+  if p = ∞ then eLpNormEssSup f μ else wnorm' f (ENNReal.toReal p) μ
 
-lemma wnorm_le_snorm {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
-    wnorm f p μ ≤ snorm f p μ := by
+lemma wnorm_le_eLpNorm {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
+    wnorm f p μ ≤ eLpNorm f p μ := by
   by_cases h : p = ⊤
   · simp [h, wnorm]
   · have p0 : p ≠ 0 := (lt_of_lt_of_le one_pos hp).ne.symm
-    simpa [h, wnorm, snorm, p0] using wnorm'_le_snorm' hf (toReal_mono h hp)
+    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_mono h hp)
 
 /-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
 def MemWℒp [NNNorm E] (f : α → E) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
@@ -283,7 +283,7 @@ def MemWℒp [NNNorm E] (f : α → E) (p : ℝ≥0∞) (μ : Measure α) : Prop
 
 lemma Memℒp.memWℒp {f : α → E} {p : ℝ≥0∞} (hp : 1 ≤ p) (hf : Memℒp f p μ) :
     MemWℒp f p μ :=
-  ⟨hf.1, lt_of_le_of_lt (wnorm_le_snorm hf.1 hp) hf.2⟩
+  ⟨hf.1, lt_of_le_of_lt (wnorm_le_eLpNorm hf.1 hp) hf.2⟩
 
 /- Todo: define `MeasureTheory.WLp` as a subgroup, similar to `MeasureTheory.Lp` -/
 
@@ -292,7 +292,7 @@ lemma Memℒp.memWℒp {f : α → E} {p : ℝ≥0∞} (hp : 1 ≤ p) (hf : Mem�
 and constant `c`.  -/
 def HasWeakType (T : (α → E₁) → (α' → E₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0) : Prop :=
-  ∀ f : α → E₁, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * snorm f p μ
+  ∀ f : α → E₁, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- An operator has strong type (p, q) if it is bounded as an operator on `L^p → L^q`.
 `HasStrongType T p p' μ ν c` means that `T` has strong type (p, p') w.r.t. measures `μ`, `ν`
@@ -300,23 +300,22 @@ and constant `c`.  -/
 def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
+  ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- A weaker version of `HasStrongType`. This is the same as `HasStrongType` if `T` is continuous
 w.r.t. the L^2 norm, but weaker in general. -/
 def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
-  ∀ f : α → E, Memℒp f p μ → snorm f ∞ μ < ∞ → μ (support f) < ∞ →
-  AEStronglyMeasurable (T f) ν ∧ snorm (T f) p' ν ≤ c * snorm f p μ
+  ∀ f : α → E, Memℒp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
+  AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
-  fun f hf ↦ ⟨(h f hf).1, (wnorm_le_snorm (h f hf).1 hp').trans (h f hf).2⟩
+  fun f hf ↦ ⟨(h f hf).1, (wnorm_le_eLpNorm (h f hf).1 hp').trans (h f hf).2⟩
 
 lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
   fun f hf _ _ ↦ h f hf
-
 
 end MeasureTheory

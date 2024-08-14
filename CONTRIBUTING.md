@@ -17,7 +17,7 @@ Some remarks:
   - either just write a comment in the Lean file that the constant can be improved to X
   - or improve the constant in Lean with a comment that this has to be incorporated in the blueprint
   - or improve the constant both in Lean and the TeX file, making sure you also fix all downstream uses of the lemma.
-* If you are writing lemma statements yourself, make sure to look at the class [`ProofData`](http://florisvandoorn.com/carleson/docs/Carleson/Defs.html#ProofData), which contains a lot of the common data/assumptions used throughout sections 2-8.
+* If you are writing lemma statements yourself, make sure to look at the class [`ProofData`](https://florisvandoorn.com/carleson/docs/Carleson/Defs.html#ProofData), which contains a lot of the common data/assumptions used throughout sections 2-8.
 
 Below, I will try to give a translation of some notation/conventions. We use mathcal/mathfrak unicode characters liberally to make the Lean look similar to the blueprint.
 
