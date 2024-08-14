@@ -178,40 +178,14 @@ lemma measure_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
   positivity
   simp only [coe_toReal, zero_le_coe]
 
-def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 := As A s * A * As A d
-
-lemma measure_ball_le_of_dist_le' [μ.IsOpenPosMeasure] {x x' : X} {r r' s d : ℝ} (hs : 0 < s)
-    (hd : 0 < d) (hsr : r' ≤ s * dist x x') (hdr : dist x x' ≤ d * r) :
-    μ (ball x' r') ≤ Ad A s d * μ (ball x r) := by
+lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
+    (h : dist x x' + r' ≤ s * r) :
+    μ (ball x' r') ≤ As A s * μ (ball x r) := by
   letI : Nonempty X := ⟨x⟩
   calc
     μ (ball x' r')
-      ≤ As A s * μ (ball x' (dist x x')) := measure_ball_le_same' x' hs hsr
-    _ ≤ As A s * μ (ball x (2 * dist x x')) := by
-      rw [ENNReal.mul_le_mul_left (As_pos' μ s).ne.symm (coe_ne_top)]
-      apply MeasureTheory.measure_mono
-      rw [two_mul]
-      exact ball_subset_ball_of_le (le_refl _)
-    _ ≤ As A s * A * μ (ball x (dist x x')) := by
-      rw [mul_assoc, ENNReal.mul_le_mul_left (As_pos' μ s).ne.symm coe_ne_top]
-      exact measure_ball_two_le_same x (dist x x')
-    _ ≤ As A s * A * As A d * μ (ball x r) := by
-      rw [mul_assoc (As A s * A : ℝ≥0∞)]
-      apply mul_le_mul_of_nonneg_left _
-      · exact zero_le ((As A s : ℝ≥0∞) * A)
-      exact measure_ball_le_same' x hd hdr
-    _ = Ad A s d * μ (ball x r) := by
-      dsimp only [Ad]
-      simp only [coe_mul]
-
-lemma measure_ball_le_of_dist_le''' [μ.IsOpenPosMeasure] {x x' : X} {r : ℝ}
-    (hr : dist x x' = (1/(2 : ℝ)) * r) : μ (ball x' r) ≤ A ^ 2 * μ (ball x r) := by
-  have hsr : r ≤ (2 : ℝ) * dist x x' := by rw [hr]; linarith
-  convert measure_ball_le_of_dist_le' (μ := μ) zero_lt_two (by positivity) hsr (le_of_eq hr)
-  · simp only [Ad, As, Nat.one_lt_ofNat, Real.logb_self_eq_one, Nat.ceil_one, pow_one, one_div,
-      Real.logb_inv, coe_mul, ENNReal.coe_pow]
-    have : ⌈-(1 : ℝ)⌉₊ = 0 := by rw [Nat.ceil_eq_zero]; linarith
-    rw [this, pow_zero, mul_one, pow_two]
+      ≤ μ (ball x (dist x x' + r')) := by gcongr; exact ball_subset_ball_of_le le_rfl
+    _ ≤ As A s * μ (ball x r) := measure_ball_le_same' x hs h
 
 section
 
@@ -220,7 +194,7 @@ variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 -- #check (@measure_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
 
 end
-def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := Ad A s s
+def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := As A s -- maybe wrong
 
 lemma measure_ball_le_of_subset {x' x : X} {r r' s : ℝ}
     (hs : r' ≤ s * r) (hr : ball x' r ⊆ ball x r') :
@@ -232,7 +206,7 @@ lemma measure_ball_two_le_of_subset {x' x : X} {r : ℝ} (hr : ball x' r ⊆ bal
     μ.real (ball x (2 * r)) ≤ Ai2 A * μ.real (ball x' r) :=
   measure_ball_le_of_subset le_rfl hr
 
-def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊Ad A (s * A + 2⁻¹) s⌋₊
+def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊As A (s * A + 2⁻¹)⌋₊ -- probably wrong
 
 /- Proof sketch: take a ball of radius `r / (2 * A)` around each point in `s`.
 These are disjoint, and are subsets of `ball x (r * (2 * A + 2⁻¹))`. -/
