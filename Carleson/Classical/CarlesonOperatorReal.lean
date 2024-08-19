@@ -94,7 +94,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       use S
       constructor
       · intro s hs
-        apply Filter.eventually_of_forall
+        apply Filter.Eventually.of_forall
         intro y
         rw [bound_def, Fdef, norm_indicator_eq_indicator_norm]
         simp only
@@ -138,7 +138,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       · --interesting part
         rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
         simp_rw [norm_norm]
-        apply Filter.eventually_of_forall
+        apply Filter.Eventually.of_forall
         apply F_bound_on_set
     · have contOn1 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Iio (dist x y)) := by
         intro y
@@ -202,7 +202,7 @@ lemma CarlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         · right; linarith
       rw [MeasureTheory.ae_iff]
       exact MeasureTheory.measure_mono_null subset_finite (Finset.measure_zero _ _)
-    · exact Filter.eventually_of_forall fun r ↦ ((Measurable.of_uncurry_left
+    · exact Filter.Eventually.of_forall fun r ↦ ((Measurable.of_uncurry_left
         (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
   apply measurable_biSup _

@@ -343,14 +343,14 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g Measu
           · conv => pattern ((g _) * _); rw [mul_comm]
             apply MeasureTheory.Integrable.bdd_mul' integrable₁ measurable₁.aestronglyMeasurable
             · rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
-              apply eventually_of_forall
+              apply Eventually.of_forall
               exact fun _ hy ↦ boundedness₁ hy.1.le
           · conv => pattern ((g _) * _); rw [mul_comm]
             apply MeasureTheory.Integrable.bdd_mul' integrable₁
             · apply Measurable.aestronglyMeasurable
               exact continuous_star.measurable.comp measurable₁
             · rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
-              apply eventually_of_forall
+              apply Eventually.of_forall
               intro y hy
               rw [RCLike.norm_conj]
               exact boundedness₁ hy.1.le

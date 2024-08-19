@@ -258,7 +258,7 @@ lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) :
   rw [mem_Ioo, nonzeroS, Finset.mem_Icc, Int.floor_le_iff, Int.le_ceil_iff, mul_inv_rev,
     add_comm _ 1, Real.add_lt_add_iff_left, ← lt_div_iff hx, mul_comm (D : ℝ)⁻¹,
     ← div_lt_div_iff hx (inv_pos.2 (D0 hD)), div_inv_eq_mul, ← zpow_add_one₀ ((D0 hD).ne.symm),
-    zpow_neg, ← rpow_intCast, ← rpow_intCast, lt_logb_iff_rpow_lt hD (four_x0 hx),
+    zpow_neg, ← Real.rpow_intCast, ← Real.rpow_intCast, lt_logb_iff_rpow_lt hD (four_x0 hx),
     logb_lt_iff_lt_rpow hD (mul_pos two_pos hx), ← sub_eq_neg_add, ← neg_sub i 1, ← inv_mul',
     ← inv_mul', inv_lt_inv (D_pow0 hD _) (mul_pos two_pos hx), Int.cast_neg, Int.cast_sub,
     Int.cast_one, rpow_neg (D0 hD).le, inv_lt_inv (four_x0 hx) (D_pow0 hD _), and_comm]

@@ -3,8 +3,8 @@ Copyright (c) 2024 Joachim Breitner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-import Mathlib.Order.RelSeries
 import Mathlib.Data.ENat.Lattice
+import Mathlib.Order.RelSeries
 
 /-!
 # Height of an element in a partial order
@@ -265,7 +265,7 @@ lemma coe_lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
   constructor
   · intro h
     obtain ⟨m, hx : height x = m⟩ := Option.ne_none_iff_exists'.mp (LT.lt.ne_top hfin)
-    rw [hx] at h; norm_num at h
+    rw [hx, Nat.cast_lt] at h
     obtain ⟨p, hp, hlen⟩ := exists_series_of_height_eq_coe x hx
     use p ⟨n, by omega⟩
     constructor

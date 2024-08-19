@@ -165,7 +165,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   intro f _
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
   simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
-  refine essSup_le_of_ae_le _ (eventually_of_forall fun x ↦ ?_)
+  refine essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
   refine ENNReal.coe_toNNReal_le_self |>.trans ?_
   apply MB_le_eLpNormEssSup

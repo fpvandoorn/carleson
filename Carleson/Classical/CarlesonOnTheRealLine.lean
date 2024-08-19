@@ -48,6 +48,7 @@ def integer_linear (n : ℤ) : C(ℝ, ℝ) := ⟨fun (x : ℝ) ↦ n * x, by fun
 
 local notation "θ" => integer_linear
 
+set_option quotPrecheck false in
 local notation "Θ" => {(θ n) | n : ℤ}
 
 
