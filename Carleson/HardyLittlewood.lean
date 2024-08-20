@@ -121,6 +121,9 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  := by
   obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall
     𝓑 c r R hR (2 ^ 2) (by norm_num)
+  have : Countable B := h𝓑.mono hB𝓑
+  have disj := fun i j hij ↦ Disjoint.mono ball_subset_closedBall ball_subset_closedBall <|
+    hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
   calc
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
           refine l.mul_left_mono (μ.mono fun x hx ↦ ?_)
@@ -135,23 +138,18 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
     _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
           l.mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
     _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
-          refine l.mul_left_mono <| ENNReal.tsum_le_tsum (fun a ↦ ?_)
+          refine l.mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
           rw [sq, sq, mul_assoc, mul_assoc]
-          apply (measure_ball_two_le_same (c a) (2 * r a)).trans
-          exact ENNReal.mul_left_mono (measure_ball_two_le_same (c a) (r a))
+          apply (measure_ball_two_le_same (c i) (2 * r i)).trans
+          exact ENNReal.mul_left_mono (measure_ball_two_le_same (c i) (r i))
     _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
           rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
           gcongr; exact h2u _ (hB𝓑 (Subtype.coe_prop _))
     _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
-          apply congrArg (HMul.hMul _)
-          have : Countable B := h𝓑.mono hB𝓑
-          have hd := fun i j hij ↦ Disjoint.mono ball_subset_closedBall ball_subset_closedBall <|
-            hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
-          simpa using (lintegral_iUnion (fun i ↦ measurableSet_ball) hd u).symm
+          congr; simpa using (lintegral_iUnion (fun i ↦ measurableSet_ball) disj u).symm
     _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
-          gcongr
-          exact setLIntegral_le_lintegral (⋃ i ∈ B, ball (c i) (r i)) u
+          gcongr; exact setLIntegral_le_lintegral (⋃ i ∈ B, ball (c i) (r i)) u
 
 protected theorem Finset.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (𝓑 : Finset ι)
     {l : ℝ≥0∞} (hl : 0 < l) {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
@@ -249,11 +247,9 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable) :
     exact ⟨hi, mul_le_of_le_div <| le_of_lt (by simpa [setLaverage_eq, hi, hx] using ht)⟩
   · exact coe_pos.mpr (pos_iff_ne_zero.mpr ht)
   · exact continuous_coe.comp_aestronglyMeasurable hf.aestronglyMeasurable.nnnorm
-  · sorry -- Removing these two sorries is trivial if `𝓑` is finite, but
-  · sorry -- I don't see how to do it for countable `𝓑`.
-  · intro i hi
-    refine hi.2.trans (setLIntegral_mono' measurableSet_ball fun x hx ↦ ?_)
-    exact (em (‖f x‖₊ < t)).elim (fun h ↦ by simp [h]) (fun h ↦ by simp [h])
+  · sorry -- Removing these two sorries is trivial if `𝓑` is finite.
+  · sorry
+  · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x hx ↦ by simp)
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
 irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := sorry
