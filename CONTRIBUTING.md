@@ -17,7 +17,7 @@ Some remarks:
   - either just write a comment in the Lean file that the constant can be improved to X
   - or improve the constant in Lean with a comment that this has to be incorporated in the blueprint
   - or improve the constant both in Lean and the TeX file, making sure you also fix all downstream uses of the lemma.
-* If you are writing lemma statements yourself, make sure to look at the class [`ProofData`](http://florisvandoorn.com/carleson/docs/Carleson/Defs.html#ProofData), which contains a lot of the common data/assumptions used throughout sections 2-8.
+* If you are writing lemma statements yourself, make sure to look at the class [`ProofData`](https://florisvandoorn.com/carleson/docs/Carleson/Defs.html#ProofData), which contains a lot of the common data/assumptions used throughout sections 2-8.
 
 Below, I will try to give a translation of some notation/conventions. We use mathcal/mathfrak unicode characters liberally to make the Lean look similar to the blueprint.
 
@@ -31,7 +31,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `d_{Iᵒ}(f,g)`   | `dist_{I} f g` |  |
 | `d_{𝔭}(f,g)`   | `dist_(𝔭) f g` | `d_{𝔭}(f,g) = d_{𝓘(p)ᵒ}(f,g)`. |
 | `Kₛ(x, y)`       | `Ks s x y`       |         |
-| `T_*f(x)`       | `ANCZOperator K f x`       | The associated nontangential Calderon Zygmund operator |
+| `T_*f(x)`       | `NontangentialOperator K f x`       | The associated nontangential Calderon Zygmund operator |
 | `Tf(x)`       | `CarlesonOperator K f x` | The generalized Carleson operator        |
 | `Tₚf(x)`       | `T p f x`       |         |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
@@ -40,3 +40,6 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `𝓓`         | `Grid`      | The unicode characters were causing issues with Overleaf and leanblueprint (on Windows) |
 | `𝔓_{G\G'}`       | `𝔓pos` |         |
 | `𝔓₂`       | `𝔓₁ᶜ` |         |
+| `M_{𝓑, p}` | `maximalFunction` |     |
+| `M_𝓑` | `MB`       |     |
+| `M`        | `globalMaximalFunction volume 1` |     |

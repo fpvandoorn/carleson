@@ -61,7 +61,7 @@ end aux_lemmas
 
 namespace MeasureTheory
 
-variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} [MeasurableSpace β] (μ : Measure α)
+variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} (μ : Measure α)
 
 /-- The real-valued version of a measure. Maps infinite measure sets to zero. Use as `μ.real s`. -/
 protected def Measure.real (s : Set α) : ℝ :=
@@ -131,8 +131,8 @@ theorem nonempty_of_measureReal_ne_zero (h : μ.real s ≠ 0) : s.Nonempty :=
   rw [measureReal_def, smul_apply, smul_eq_mul, ENNReal.toReal_mul]
   rfl
 
-theorem map_measureReal_apply {f : α → β} (hf : Measurable f) {s : Set β} (hs : MeasurableSet s) :
-    (μ.map f).real s = μ.real (f ⁻¹' s) := by
+theorem map_measureReal_apply [MeasurableSpace β] {f : α → β} (hf : Measurable f)
+    {s : Set β} (hs : MeasurableSet s) : (μ.map f).real s = μ.real (f ⁻¹' s) := by
   rw [measureReal_def, map_apply hf hs]
   rfl
 
@@ -415,7 +415,7 @@ theorem sum_measureReal_le_measureReal_univ [IsFiniteMeasure μ] {s : Finset ι}
   simp only [measureReal_def]
   rw [← ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
   apply ENNReal.toReal_mono (measure_ne_top _ _)
-  exact sum_measure_le_measure_univ h H
+  exact sum_measure_le_measure_univ (fun i mi ↦ (h i mi).nullMeasurableSet) H.aedisjoint
 
 /-- Pigeonhole principle for measure spaces: if `s` is a `Finset` and
 `∑ i in s, μ.real (t i) > μ.real univ`, then one of the intersections `t i ∩ t j` is not empty. -/
@@ -424,7 +424,8 @@ theorem exists_nonempty_inter_of_measureReal_univ_lt_sum_measureReal
     {s : Finset ι} {t : ι → Set α} (h : ∀ i ∈ s, MeasurableSet (t i))
     (H : μ.real (univ : Set α) < ∑ i in s, μ.real (t i)) :
     ∃ i ∈ s, ∃ j ∈ s, ∃ _h : i ≠ j, (t i ∩ t j).Nonempty := by
-  apply exists_nonempty_inter_of_measure_univ_lt_sum_measure μ h
+  apply exists_nonempty_inter_of_measure_univ_lt_sum_measure μ
+    (fun i mi ↦ (h i mi).nullMeasurableSet)
   apply (ENNReal.toReal_lt_toReal (measure_ne_top _ _) _).1
   · convert H
     rw [ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
@@ -455,9 +456,8 @@ theorem nonempty_inter_of_measureReal_lt_add' {m : MeasurableSpace α} (μ : Mea
   rw [inter_comm]
   exact nonempty_inter_of_measureReal_lt_add μ hs h't h's h hu
 
-theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite ν] (s : Set α)
-    (t : Set β) :
-    (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
+theorem measureReal_prod_prod [MeasurableSpace β] {μ : Measure α} {ν : Measure β} [SigmaFinite ν]
+    (s : Set α) (t : Set β) : (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
 -- find this in library?  generalize?

@@ -1,20 +1,18 @@
-/- This file formalizes section 10.6 (The proof of the van der Corput Lemma) from the paper. -/
-import Carleson.Theorem1_1.Basic
-
+/- This file formalizes section 11.4 (The proof of the van der Corput Lemma) from the paper. -/
+import Carleson.Classical.Basic
 
 noncomputable section
 
 open Complex
 
-
-lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B K: NNReal} (h1 : LipschitzWith K ϕ) (h2 : ∀ x ∈ (Set.Ioo a b), ‖ϕ x‖ ≤ B) :
-  ‖∫ (x : ℝ) in a..b, (I * n * x).exp * ϕ x‖ ≤
-    2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
+lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B K: NNReal}
+    (h1 : LipschitzWith K ϕ) (h2 : ∀ x ∈ (Set.Ioo a b), ‖ϕ x‖ ≤ B) :
+    ‖∫ (x : ℝ) in a..b, (I * n * x).exp * ϕ x‖ ≤
+     2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
   have hK : 0 ≤ K * (b - a) / 2 := by
-    apply mul_nonneg _ (by norm_num)
-    apply mul_nonneg (by simp) (by linarith)
+    apply mul_nonneg (mul_nonneg (by simp) (by linarith)) (by norm_num)
   by_cases n_nonzero : n = 0
-  . rw [n_nonzero]
+  · rw [n_nonzero]
     simp only [Int.cast_zero, mul_zero, zero_mul, exp_zero, one_mul, abs_zero,
       add_zero, inv_one, mul_one]
     calc ‖∫ (x : ℝ) in a..b, ϕ x‖
@@ -23,22 +21,19 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         linarith
       _ ≤ B * (MeasureTheory.volume (Set.Ioo a b)).toReal := by
         apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
-        . intro x hx
-          exact (h2 x hx)
-        . rw [Real.volume_Ioo]
-          apply ENNReal.ofReal_lt_top
-      _ = B * (b - a) := by
-        rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
-      _ = 1 * (b - a) * B := by
-        ring
+        · exact fun x hx ↦ (h2 x hx)
+        · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
+      _ = B * (b - a) := by rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
+      _ = 1 * (b - a) * B := by ring
       _ ≤ 2 * Real.pi * (b - a) * (↑B + ↑K * (b - a) / 2) := by
         gcongr
-        . apply mul_nonneg Real.two_pi_pos.le (by linarith)
-        . linarith
-        . linarith [Real.two_le_pi]
-        . simpa
+        · exact mul_nonneg Real.two_pi_pos.le (by linarith)
+        · exact sub_nonneg_of_le hab
+        · linarith [Real.two_le_pi]
+        · exact (le_add_iff_nonneg_right ↑B).mpr hK
   wlog n_pos : 0 < n generalizing n ϕ
-  . --We could do calculations analogous to those below. Instead, we apply the positive case to the complex conjugate.
+  · /-We could do calculations analogous to those below. Instead, we apply the positive
+    case to the complex conjugate.-/
     push_neg at n_pos
     calc ‖∫ (x : ℝ) in a..b, cexp (I * ↑n * ↑x) * ϕ x‖
       _ = ‖(starRingEnd ℂ) (∫ (x : ℝ) in a..b, cexp (I * ↑n * ↑x) * ϕ x)‖ := Eq.symm RCLike.norm_conj
@@ -49,24 +44,22 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         rw [map_mul, ← exp_conj]
         congr
         simp
-        left
-        apply conj_ofReal
+        -- exact Or.inl (conj_ofReal _)
       _ ≤ 2 * Real.pi * (b - a) * (↑B + ↑K * (b - a) / 2) * (1 + ↑|-n| * (b - a))⁻¹ := by
         apply this
-        . intro x y
+        · intro x y
           simp only [Function.comp_apply]
           rw [edist_eq_coe_nnnorm_sub, ← map_sub, starRingEnd_apply, nnnorm_star, ← edist_eq_coe_nnnorm_sub]
-          apply h1
-        . intro x hx
+          exact h1 _ _
+        · intro x hx
           rw [Function.comp_apply, RCLike.norm_conj]
-          apply (h2 x hx)
-        . simp [n_nonzero]
-        . simp only [Left.neg_pos_iff]
-          exact lt_of_le_of_ne n_pos n_nonzero
+          exact h2 x hx
+        · exact Int.neg_ne_zero.mpr n_nonzero
+        · rw [Left.neg_pos_iff]; exact lt_of_le_of_ne n_pos n_nonzero
     rw [abs_neg]
   --Case distinction such that splitting integrals in the second case works.
   by_cases h : b - a < Real.pi / n
-  . have : 0 < 1 + ↑|n| * (b - a) := by
+  · have : 0 < 1 + ↑|n| * (b - a) := by
       apply add_pos_of_pos_of_nonneg zero_lt_one
       apply mul_nonneg (by simp) (by linarith)
     calc _
@@ -75,35 +68,30 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         linarith
       _ ≤ B * (MeasureTheory.volume (Set.Ioo a b)).toReal := by
         apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
-        . intro x hx
-          rw [norm_mul, mul_assoc, mul_comm I]
-          norm_cast
-          rw [Complex.norm_exp_ofReal_mul_I, one_mul]
-          exact (h2 x hx)
-        . rw [Real.volume_Ioo]
-          exact ENNReal.ofReal_lt_top
-      _ = B * (b - a) := by
-        rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
+        · intro x hx
+          rw_mod_cast [norm_mul, mul_assoc, mul_comm I, Complex.norm_exp_ofReal_mul_I, one_mul]
+          exact h2 x hx
+        · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
+      _ = B * (b - a) := by rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
       _ = (1 + |n| * (b - a)) * (1 + |n| * (b - a))⁻¹ * (b - a) * B := by
-        rw [mul_inv_cancel]
+        rw [mul_inv_cancel₀]
         ring
         exact ne_of_gt this
       _ ≤ (Real.pi + Real.pi) * (1 + |n| * (b - a))⁻¹ * (b - a) * (B + K * (b - a) / 2) := by
         gcongr
-        . apply mul_nonneg
+        · apply mul_nonneg
           apply mul_nonneg
           linarith [Real.two_pi_pos]
-          exact inv_nonneg_of_nonneg this.le
-          linarith
-        . linarith
-        . linarith [Real.two_le_pi]
-        . rw [mul_comm, _root_.abs_of_nonneg n_pos.le]
-          apply mul_le_of_nonneg_of_le_div Real.pi_pos.le (by norm_cast; exact n_pos.le)
-          exact h.le
-        . simpa
+          · exact inv_nonneg_of_nonneg this.le
+          · linarith
+        · linarith
+        · linarith [Real.two_le_pi]
+        · rw [mul_comm, _root_.abs_of_nonneg n_pos.le]
+          exact mul_le_of_nonneg_of_le_div Real.pi_pos.le (by exact_mod_cast n_pos.le) h.le
+        · simpa
       _ = 2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by ring
   push_neg at h
-  have pi_div_n_pos : 0 < Real.pi / n := div_pos Real.pi_pos (by simpa)
+  have pi_div_n_pos : 0 < Real.pi / n := div_pos Real.pi_pos (Int.cast_pos.mpr n_pos)
   have integrand_continuous : Continuous (fun x ↦ cexp (I * ↑n * ↑x) * ϕ x)  :=
     Continuous.mul (by continuity) h1.continuous
   have integrand_continuous2 : Continuous (fun x ↦ cexp (I * ↑n * (↑x + ↑Real.pi / ↑n)) * ϕ x) :=
@@ -169,12 +157,12 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
                  +  (∫ (x : ℝ) in (a + Real.pi / n)..b, (I * n * x).exp * (ϕ x - ϕ (x - Real.pi / n)))‖
                  + ‖∫ (x : ℝ) in (b - Real.pi / n)..b, (I * n * (x + Real.pi / n)).exp * ϕ x‖) := by
       gcongr
-      apply norm_sub_le
+      exact norm_sub_le _ _
     _ ≤ 1 / 2 * (  ‖(∫ (x : ℝ) in a..(a + Real.pi / n), (I * n * x).exp * ϕ x)‖
                  + ‖(∫ (x : ℝ) in (a + Real.pi / n)..b, (I * n * x).exp * (ϕ x - ϕ (x - Real.pi / n)))‖
                  + ‖∫ (x : ℝ) in (b - Real.pi / n)..b, (I * n * (x + Real.pi / n)).exp * ϕ x‖) := by
       gcongr
-      apply norm_add_le
+      exact norm_add_le _ _
     _ = 1 / 2 * (  ‖∫ (x : ℝ) in Set.Ioo a (a + Real.pi / n), (I * n * x).exp * ϕ x‖
                  + ‖∫ (x : ℝ) in Set.Ioo (a + Real.pi / n) b, (I * n * x).exp * (ϕ x - ϕ (x - Real.pi / n))‖
                  + ‖∫ (x : ℝ) in Set.Ioo (b - Real.pi / n) b, (I * n * (x + Real.pi / n)).exp * ϕ x‖) := by
@@ -186,36 +174,30 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
                  + (K * Real.pi / n) * (MeasureTheory.volume (Set.Ioo (a + Real.pi / n) b)).toReal
                  + B * (MeasureTheory.volume (Set.Ioo (b - Real.pi / n) b)).toReal) := by
       gcongr
-      . apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
-        . intro x hx
+      · apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+        · intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
-          norm_cast
-          rw [Complex.norm_exp_ofReal_mul_I, one_mul]
+          rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul]
           apply h2
           constructor <;> linarith [hx.1, hx.2]
-        . rw [Real.volume_Ioo]
-          apply ENNReal.ofReal_lt_top
-      . apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
-        . intro x _
+        · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
+      · apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+        · intro x _
           rw [norm_mul, mul_assoc, mul_comm I]
-          norm_cast
-          rw [Complex.norm_exp_ofReal_mul_I, one_mul, ← dist_eq_norm]
+          rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul, ← dist_eq_norm]
           apply le_trans (h1.dist_le_mul _ _)
-          . simp
-            rw [_root_.abs_of_nonneg Real.pi_pos.le, _root_.abs_of_nonneg (by simp; linarith [n_pos])]
-            apply le_of_eq
-            ring
-        . rw [Real.volume_Ioo]
-          exact ENNReal.ofReal_lt_top
-      . apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
-        . intro x hx
+          simp
+          rw [_root_.abs_of_nonneg Real.pi_pos.le, _root_.abs_of_nonneg (by simp; linarith [n_pos])]
+          apply le_of_eq
+          ring
+        · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
+      · apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+        · intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
-          norm_cast
-          rw [Complex.norm_exp_ofReal_mul_I, one_mul]
+          rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul]
           apply h2
           constructor <;> linarith [hx.1, hx.2]
-        . rw [Real.volume_Ioo]
-          exact ENNReal.ofReal_lt_top
+        · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
     _ = Real.pi / n * (B + K * (b - (a + Real.pi / n)) / 2) := by
       rw [Real.volume_Ioo, Real.volume_Ioo, Real.volume_Ioo, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal]
       ring
@@ -232,9 +214,9 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           linarith [Real.two_le_pi]
         _ ≤ Real.pi * (n * (b - a) + n * (b - a)) := by
           gcongr
-          rwa [← div_le_iff' (by simpa)]
+          rwa [← div_le_iff' (Int.cast_pos.mpr n_pos)]
         _ = (b - a) * (2 * Real.pi) * n := by ring
-      exact add_pos zero_lt_one (mul_pos (by simpa) (by linarith))
+      exact add_pos zero_lt_one (mul_pos (Int.cast_pos.mpr n_pos) (gt_of_ge_of_gt h pi_div_n_pos))
     _ = 2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
       rw [_root_.abs_of_nonneg n_pos.le]
       ring

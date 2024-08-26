@@ -1,6 +1,9 @@
 import Carleson.GridStructure
 import Carleson.Psi
 
+-- https://github.com/leanprover/lean4/issues/4947
+attribute [-simp] Nat.reducePow
+
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
@@ -33,13 +36,15 @@ def 𝔓 := PreTileStructure.𝔓 𝕜 X A
 instance : Fintype (𝔓 X) := PreTileStructure.fintype_𝔓
 def 𝓘 : 𝔓 X → Grid X := PreTileStructure.𝓘
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → Grid X) := PreTileStructure.surjective_𝓘
+instance : Inhabited (𝔓 X) := ⟨(surjective_𝓘 default).choose⟩
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
-
 
 local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 
 /-- A tile structure. -/
+-- note: we don't explicitly include injectivity of `Ω` on `𝔓(I)`, since it follows from these
+-- axioms: see `toTileLike_injective`
 class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
     (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
     extends PreTileStructure Q D κ S o where
@@ -60,6 +65,9 @@ end Generic
 open scoped ShortVariables
 variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
   {σ₁ σ₂ : X → ℤ} {F G : Set X} [ProofData a q K σ₁ σ₂ F G]
+
+section
+
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 -- maybe we should delete the following three notations, and use `dist_{𝓘 p}` instead?
@@ -74,6 +82,10 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 
 @[simp] lemma cball_subset {p : 𝔓 X} : ball_(p) (𝒬 p) 5⁻¹ ⊆ Ω p := TileStructure.cball_subset
 @[simp] lemma subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := TileStructure.subset_cball
+
+lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
+    Disjoint (ball_(p) (𝒬 p) 5⁻¹) (ball_(p') (𝒬 p') 5⁻¹) :=
+  disjoint_of_subset cball_subset cball_subset (disjoint_Ω h hp)
 
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
@@ -133,6 +145,10 @@ lemma toTileLike_le_smul : toTileLike p ≤ smul 5⁻¹ p := by
 
 lemma 𝒬_mem_Ω : 𝒬 p ∈ Ω p := cball_subset <| mem_ball_self <| by norm_num
 
+lemma 𝒬_inj {p' : 𝔓 X} (h : 𝒬 p = 𝒬 p') (h𝓘 : 𝓘 p = 𝓘 p') : p = p' := by
+  contrapose! h
+  exact fun h𝒬 ↦ (not_disjoint_iff.2 ⟨𝒬 p, 𝒬_mem_Ω, h𝒬 ▸ 𝒬_mem_Ω⟩) (disjoint_Ω h h𝓘)
+
 lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   intros p p' h
   simp_rw [toTileLike, TileLike, Prod.ext_iff] at h
@@ -146,12 +162,26 @@ instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_inje
 lemma 𝔓.le_def {p q : 𝔓 X} : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
 lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
 
+lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := by
+  intros p p' h
+  refine h.le.1.lt_of_ne <| fun h' ↦ ?_
+  exact Set.disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
+
 lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' := by
   by_contra h3
   exact Set.disjoint_left.mp (disjoint_Ω h3 h1) (h2.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 lemma not_lt_of_𝓘_eq_𝓘 (h1 : 𝓘 p = 𝓘 p') : ¬ p < p' :=
   fun h2 ↦ h2.ne <| eq_of_𝓘_eq_𝓘_of_le h1 h2.le
+
+-- TODO: Clean up this lemma and the two above, it seems strict monotonicty is the basic idea
+lemma 𝓘_strict_mono : StrictMono (𝓘 (X := X)) := by
+  intro p p' h
+  apply lt_of_le_of_ne
+  · exact (𝔓.le_def'.mp (le_of_lt h)).left
+  · intro h'
+    have := not_lt_of_𝓘_eq_𝓘 h'
+    contradiction
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
@@ -174,12 +204,17 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
         exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
 
+end
+
 /-- The constraint on `λ` in the first part of Lemma 5.3.3. -/
 def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 
+include q K σ₁ σ₂ F G in
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
   rw [C5_3_3, inv_le (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
   exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
+
+variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 /-- Lemma 5.3.3, Equation (5.3.3) -/
 lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul n p ≤ smul n p' := by
