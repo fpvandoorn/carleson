@@ -63,7 +63,7 @@ theorem classical_carleson {f : ℝ → ℂ}
     gcongr
     rw [ε'def, div_div]
     apply div_le_div_of_nonneg_left εpos.le (by norm_num)
-    rw [← div_le_iff' (by norm_num)]
+    rw [← div_le_iff₀' (by norm_num)]
     exact le_trans' (lt_C_control_approximation_effect εpos).le (by linarith [Real.two_le_pi])
   _ ≤ ε := by linarith
 

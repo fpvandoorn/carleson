@@ -306,7 +306,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
     _ ≤ dist_{c I, 4 * D ^ s I} f g :=
       cdist_mono (ball_subset_ball (by simp_rw [div_eq_inv_mul, defaultD]; gcongr; norm_num))
     _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c I, 4 * D ^ (s I + 1)} f g := by
-      rw [← div_le_iff' (by positivity), neg_mul, Real.rpow_neg zero_le_two, div_inv_eq_mul, mul_comm]
+      rw [← div_le_iff₀' (by positivity), neg_mul, Real.rpow_neg zero_le_two, div_inv_eq_mul, mul_comm]
       convert le_cdist_iterate (x := c I) (r := 4 * D ^ s I) (by positivity) f g (100 * a) using 1
       · norm_cast
       · apply dist_congr rfl

@@ -72,7 +72,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
     fourier_coe_apply', Complex.ofReal_mul, Complex.ofReal_ofNat, smul_eq_mul, Complex.real_smul,
     Complex.ofReal_inv, map_mul, map_inv₀, Complex.abs_ofReal, Complex.abs_ofNat]
   field_simp
-  rw [abs_of_nonneg Real.pi_pos.le, mul_comm Real.pi, div_le_iff Real.two_pi_pos, ←Complex.norm_eq_abs]
+  rw [abs_of_nonneg Real.pi_pos.le, mul_comm Real.pi, div_le_iff₀ Real.two_pi_pos, ←Complex.norm_eq_abs]
   calc ‖∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), (starRingEnd ℂ) (Complex.exp (2 * Real.pi * Complex.I * n * x / (2 * Real.pi))) * f x‖
     _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), (starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
       congr with x

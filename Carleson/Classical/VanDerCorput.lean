@@ -214,7 +214,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           linarith [Real.two_le_pi]
         _ ≤ Real.pi * (n * (b - a) + n * (b - a)) := by
           gcongr
-          rwa [← div_le_iff' (Int.cast_pos.mpr n_pos)]
+          rwa [← div_le_iff₀' (Int.cast_pos.mpr n_pos)]
         _ = (b - a) * (2 * Real.pi) * n := by ring
       exact add_pos zero_lt_one (mul_pos (Int.cast_pos.mpr n_pos) (gt_of_ge_of_gt h pi_div_n_pos))
     _ = 2 * Real.pi * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by

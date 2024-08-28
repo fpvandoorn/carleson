@@ -430,7 +430,7 @@ theorem exists_nonempty_inter_of_measureReal_univ_lt_sum_measureReal
   · convert H
     rw [ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
     rfl
-  · exact (ENNReal.sum_lt_top (fun i hi ↦ measure_ne_top _ _)).ne
+  · exact (ENNReal.sum_lt_top.mpr (fun i hi ↦ measure_lt_top _ _)).ne
 
 /-- If two sets `s` and `t` are included in a set `u` of finite measure,
 and `μ.real s + μ.real t > μ.real u`, then `s` intersects `t`.
