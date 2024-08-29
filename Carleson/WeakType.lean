@@ -68,17 +68,18 @@ lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
   meas_eLpNormEssSup_lt
 
 @[measurability]
-lemma distribution_measurable : Measurable (fun t ↦ distribution f t μ) :=
+lemma distribution_measurable₀ : Measurable (fun t ↦ distribution f t μ) :=
   Antitone.measurable (distribution_mono_right' (f := f) (μ := μ))
 
 @[measurability]
-lemma distribution_measurable_from_real : Measurable (fun t : ℝ ↦ distribution f (.ofReal t) μ) := by
-  let composition := (fun t : ℝ≥0∞ ↦ distribution f t μ) ∘ (fun t : ℝ ↦ ENNReal.ofReal t)
+lemma distribution_measurable {g : α' → ℝ≥0∞} (hg : Measurable g) :
+    Measurable (fun y : α' ↦ distribution f (g y) μ) := by
+  let composition := (fun t : ℝ≥0∞ ↦ distribution f t μ) ∘ g
   change Measurable (composition)
-  refine Antitone.measurable ?_
-  refine Antitone.comp_monotone ?_ ?_
-  · exact distribution_mono_right'
-  · intro s t hst; exact ofReal_le_ofReal hst
+  exact Measurable.comp distribution_measurable₀ hg
+
+@[measurability, deprecated]
+lemma distribution_measurable_from_real : Measurable (fun t : ℝ ↦ distribution f (.ofReal t) μ) := distribution_measurable measurable_ofReal
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
   (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
