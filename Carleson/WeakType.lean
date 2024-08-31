@@ -100,23 +100,24 @@ lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) :
   simp only [le_Prop_eq, Classical.not_imp]
   exact h
 
-lemma distribution_add_le' (g₁ g₂ : α → E) (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g₁ x‖ + ‖g₂ x‖) :
-    distribution f (t + s) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
+lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E) (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ A * (‖g₁ x‖ + ‖g₂ x‖)) :
+    distribution f (ENNReal.ofReal A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
   unfold distribution
-  have h₁ : μ ({x | t + s < ↑‖f x‖₊} \ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊})) = 0 := by
+  have h₁ : μ ({x | ENNReal.ofReal A * (t + s) < ↑‖f x‖₊} \ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊})) = 0 := by
     apply measure_mono_null ?_ h
     intro x
-    simp
+    simp only [mem_diff, mem_setOf_eq, mem_union, not_or, not_lt, mem_compl_iff, not_le, and_imp]
     intro h₁
     intro h₂
     intro h₃
-    apply (ofReal_lt_ofReal_iff_of_nonneg (add_nonneg (norm_nonneg (g₁ x))
-       (norm_nonneg (g₂ x)))).mp
-    rw [ofReal_add (norm_nonneg (g₁ x)) (norm_nonneg (g₂ x))]
-    rw [ofReal_norm_eq_coe_nnnorm, ofReal_norm_eq_coe_nnnorm, ofReal_norm_eq_coe_nnnorm]
-    exact lt_of_le_of_lt (add_le_add h₂ h₃) h₁
+    refine (ofReal_lt_ofReal_iff_of_nonneg ?_).mp ?_
+    · positivity
+    · rw [ofReal_mul, ofReal_add] <;> try positivity
+      repeat rw [ofReal_norm_eq_coe_nnnorm] <;> try positivity
+      refine lt_of_le_of_lt ?_ h₁
+      gcongr
   calc
-    μ {x | t + s < ‖f x‖₊}
+    μ {x | ENNReal.ofReal A * (t + s) < ‖f x‖₊}
       ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := by
         apply measure_mono_ae' h₁
     _ ≤ μ {x | t < ↑‖g₁ x‖₊} + μ {x | s < ↑‖g₂ x‖₊} := by apply measure_union_le
