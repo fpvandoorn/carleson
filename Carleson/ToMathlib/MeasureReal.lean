@@ -278,7 +278,7 @@ lemma measureReal_symmDiff_eq (hs : MeasurableSet s) (ht : MeasurableSet t)
     (h₁ : μ s ≠ ∞ := by finiteness) (h₂ : μ t ≠ ∞ := by finiteness) :
     μ.real (s ∆ t) = μ.real (s \ t) + μ.real (t \ s) := by
   simp only [Measure.real]
-  rw [← ENNReal.toReal_add, measure_symmDiff_eq hs ht]
+  rw [← ENNReal.toReal_add, measure_symmDiff_eq hs.nullMeasurableSet ht.nullMeasurableSet]
   · exact measure_ne_top_of_subset diff_subset h₁
   · exact measure_ne_top_of_subset diff_subset h₂
 

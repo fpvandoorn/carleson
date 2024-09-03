@@ -1,9 +1,6 @@
 import Carleson.Discrete.Forests
 import Carleson.TileExistence
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology Classical
 open scoped ENNReal
 noncomputable section

@@ -4,9 +4,6 @@ import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.Data.Set.Subset
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open Set MeasureTheory Metric Function Complex Bornology Notation
 open scoped NNReal ENNReal ComplexConjugate
 
@@ -2200,7 +2197,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     · exact Or.inr (key.trans c)
 termination_by (𝔰 q - 𝔰 p).toNat
 decreasing_by
-  simp_wf
+  rw [Int.lt_toNat]
   change (s J - 𝔰 p).toNat < 𝔰 q - 𝔰 p
   rw [sJ, Int.toNat_of_nonneg (by omega), sub_right_comm]
   exact sub_one_lt _
@@ -2219,3 +2216,5 @@ def tile_existence : TileStructure Q D κ S o where
       exact this.trans (Construction.ball_subset_Ω₁ p)
     · simp
   subset_cball {p} := Construction.Ω_subset_cball
+
+set_option linter.style.longFile 2400

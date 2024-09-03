@@ -1,8 +1,5 @@
 import Carleson.Defs
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure
 open scoped ENNReal
 noncomputable section
@@ -346,7 +343,7 @@ lemma kernel_bound {s : ℤ} {x y : X} :
   change ‖K x y * ψ (D ^ (-s) * dist x y)‖ ≤ 2 ^ a ^ 3 / volume.real (ball x (dist x y))
   apply le_trans <| calc
     ‖K x y * ψ (D ^ (-s) * dist x y)‖
-      = ‖K x y‖ * ‖(ψ (D ^ (-s) * dist x y) : ℂ)‖ := by exact_mod_cast norm_mul _ _
+      = ‖K x y‖ * ‖(ψ (D ^ (-s) * dist x y) : ℂ)‖ := norm_mul ..
     _ ≤ ‖K x y‖ * 1               := by gcongr; rw [norm_eq_abs, abs_ofReal]; exact abs_ψ_le_one D _
     _ ≤ ‖K x y‖                   := by rw [mul_one]
   convert norm_K_le_vol_inv (K := K) x y

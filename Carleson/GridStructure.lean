@@ -1,8 +1,5 @@
 import Carleson.Defs
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
@@ -63,7 +60,7 @@ variable {i j : Grid X}
 instance : Inhabited (Grid X) := ⟨topCube⟩
 instance : Fintype (Grid X) := GridStructure.fintype_Grid
 instance : Coe (Grid X) (Set X) := ⟨GridStructure.coeGrid⟩
-instance : Membership X (Grid X) := ⟨fun x i ↦ x ∈ (i : Set X)⟩
+instance : Membership X (Grid X) := ⟨fun i x ↦ x ∈ (i : Set X)⟩
 instance : PartialOrder (Grid X) := PartialOrder.lift _ GridStructure.inj
 /- These should probably not/only rarely be used. I comment them out for now,
 so that we don't accidentally use it. We can put it back if useful after all. -/

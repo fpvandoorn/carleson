@@ -1,9 +1,6 @@
 import Carleson.Discrete.Defs
 import Carleson.HardyLittlewood
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
@@ -206,8 +203,8 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     at mx
   simp_rw [mem_setOf_eq, and_assoc] at mx
   have mid0 : stackSize { p' ∈ 𝔐 k n | ¬𝓘 p' ≤ L ∧ Disjoint (𝓘 p' : Set X) L} x = 0 := by
-    simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero, imp_false,
-      Finset.mem_filter, Finset.mem_univ, true_and]
+    simp_rw [stackSize, Finset.sum_eq_zero_iff, indicator_apply_eq_zero,
+      show ¬(1 : X → ℕ) x = 0 by simp, imp_false, Finset.mem_filter, Finset.mem_univ, true_and]
     rintro y ⟨-, -, dj2⟩
     exact disjoint_right.mp dj2 mx₂
   rw [mid0, zero_add] at mx
