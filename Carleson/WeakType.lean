@@ -79,7 +79,9 @@ lemma distribution_measurable {g : α' → ℝ≥0∞} (hg : Measurable g) :
   exact Measurable.comp distribution_measurable₀ hg
 
 @[measurability, deprecated]
-lemma distribution_measurable_from_real : Measurable (fun t : ℝ ↦ distribution f (.ofReal t) μ) := distribution_measurable measurable_ofReal
+lemma distribution_measurable_from_real :
+    Measurable (fun t : ℝ ↦ distribution f (.ofReal t) μ) :=
+  distribution_measurable measurable_ofReal
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
   (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
@@ -100,16 +102,16 @@ lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) :
   simp only [le_Prop_eq, Classical.not_imp]
   exact h
 
-lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E) (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ A * (‖g₁ x‖ + ‖g₂ x‖)) :
+lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E)
+    (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ A * (‖g₁ x‖ + ‖g₂ x‖)) :
     distribution f (ENNReal.ofReal A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
   unfold distribution
-  have h₁ : μ ({x | ENNReal.ofReal A * (t + s) < ↑‖f x‖₊} \ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊})) = 0 := by
+  have h₁ : μ ({x | ENNReal.ofReal A * (t + s) < ↑‖f x‖₊} \
+      ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊})) = 0 := by
     apply measure_mono_null ?_ h
     intro x
     simp only [mem_diff, mem_setOf_eq, mem_union, not_or, not_lt, mem_compl_iff, not_le, and_imp]
-    intro h₁
-    intro h₂
-    intro h₃
+    intro h₁ h₂ h₃
     refine (ofReal_lt_ofReal_iff_of_nonneg ?_).mp ?_
     · positivity
     · rw [ofReal_mul, ofReal_add] <;> try positivity
@@ -118,8 +120,7 @@ lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E) (h : 
       gcongr
   calc
     μ {x | ENNReal.ofReal A * (t + s) < ‖f x‖₊}
-      ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := by
-        apply measure_mono_ae' h₁
+      ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := by apply measure_mono_ae' h₁
     _ ≤ μ {x | t < ↑‖g₁ x‖₊} + μ {x | s < ↑‖g₂ x‖₊} := by apply measure_union_le
 
 lemma distribution_add_le :
@@ -275,33 +276,6 @@ lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
   refine setLIntegral_congr_fun measurableSet_Ioi (eventually_of_forall fun x hx ↦ ?_)
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
-/-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
-lemma lintegral_norm_pow_eq_distribution' {p : ℝ} (hp : p > 0) :
-    ∫⁻ x, ‖f x‖₊ ^ p ∂μ =
-    ENNReal.ofReal p *
-    ∫⁻ (t : ℝ) in Ioi 0, distribution f (ENNReal.ofReal t) μ * ENNReal.ofReal (t ^ (p - 1)) := by
-  have : (∫⁻ (a : α), ↑‖f a‖₊ ^ p ∂μ) =
-        (∫⁻ (a : α), ENNReal.ofReal (‖f a‖ ^ p) ∂μ) := by
-      apply congrArg; ext a; rw [← norm_toNNReal]
-      refine ofReal_rpow_of_nonneg (norm_nonneg (f a)) (le_of_lt hp)
-  rw [this]
-  rw [lintegral_rpow_eq_lintegral_meas_lt_mul]
-  · apply congr_arg
-    apply lintegral_congr_ae
-    filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
-    intro t ht
-    unfold distribution
-    congr
-    ext x
-    simp
-    rw [← norm_toNNReal]
-    have : (ofNNReal ‖f x‖.toNNReal) = ENNReal.ofReal ‖f x‖ := rfl
-    rw [this]
-    exact Iff.symm (ofReal_lt_ofReal_iff_of_nonneg (le_of_lt ht))
-  · apply ae_of_all; simp
-  · exact AEMeasurable.norm hf
-  · exact hp
-
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
 lemma eLpNorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
     eLpNorm f p μ ^ (p : ℝ) =
@@ -313,21 +287,22 @@ lemma eLpNorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
     inv_mul_cancel₀ h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
     ENNReal.ofReal_mul h4p, ofReal_coe_nnreal]
 
-/-- The layer-cake theorem, or Cavalieri's principle, written using `snorm`. -/
-lemma snorm_pow_eq_distribution' {p : ℝ} (hp : p > 0) :
+/-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
+    taking powers. -/
+lemma eLpNorm_eq_distribution {p : ℝ} (hp : 0 < p) :
     eLpNorm f (.ofReal p) μ =
     (ENNReal.ofReal p  * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
-        ENNReal.ofReal (t ^ (p - 1)) )^ p⁻¹ := by
+        ENNReal.ofReal (t ^ (p - 1)) ) ^ p⁻¹ := by
   unfold eLpNorm
   split_ifs with sgn_p sz_p
   · exact False.elim (not_le_of_lt hp (ofReal_eq_zero.mp sgn_p))
   · exact False.elim (coe_ne_top sz_p)
   · unfold eLpNorm'
     rw [toReal_ofReal (le_of_lt hp), one_div]
-    refine congrFun (congrArg ?_ ?_) p⁻¹
-    apply lintegral_norm_pow_eq_distribution'
-    · assumption
-    · exact hp
+    congr 1
+    rw [← lintegral_const_mul']; swap; exact coe_ne_top
+    rw [lintegral_norm_pow_eq_distribution hf hp]
+    congr 1; ext x; rw [ofReal_mul] <;> [ring; positivity]
 
 lemma lintegral_pow_mul_distribution {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
