@@ -4,10 +4,26 @@ import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Mathlib.Analysis.Convex.Basic
 import Mathlib.Data.Real.Sign
 
-/-! This file contains a proof of the real Marcinkiewisz real interpolation theorem.
+/-! This file contains a proof of the Marcinkiewisz real interpolation theorem.
     The proof roughly follows Folland, Real Analysis. Modern Techniques and Their Applications,
     section 6.4, theorem 6.28, but a different truncation is used, and some estimates instead
-    follow the technique as described in [Duoandikoetxea, Fourier Analysis, 2000].
+    follow the technique as e.g. described in [Duoandikoetxea, Fourier Analysis, 2000].
+
+    The file consists of the following sections:
+    - Convience results for working with (interpolated) exponents
+    - Results about the particular choice of exponent
+    - Interface for using cutoff functions
+    - Results about the particular choice of scale
+    - Some tools for measure theory computations
+    - Results about truncations of a function
+    - Measurability properties of truncations
+    - Truncations and Lp spaces
+    - Some results about the integrals of truncations
+    - Minkowski's integral inequality
+    - Apply Minkowski's integral inequality to truncations
+    - Weaktype estimates applied to truncations
+    - Definitions
+    - Proof of the real interpolation theorem
 -/
 noncomputable section
 
@@ -1132,6 +1148,8 @@ end ComputationsChoiceExponent
 
 end
 
+/-! ## Interface for using cutoff functions
+-/
 noncomputable section
 
 open Real Set
@@ -1403,21 +1421,12 @@ end
 
 noncomputable section
 
-open NNReal ENNReal NormedSpace MeasureTheory Set
+open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'}
-  -- [NormedAddCommGroup E] [NormedSpace ℝ E] -- [FiniteDimensional ℝ E]
-  -- [NormedAddCommGroup E₁] -- [NormedSpace ℝ E₁] -- [FiniteDimensional ℝ E₁]
-  -- [NormedAddCommGroup E₂] -- [NormedSpace ℝ E₂] -- [FiniteDimensional ℝ E₂]
-  -- [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] -- [FiniteDimensional ℝ E₃]
-  -- [MeasurableSpace E] [BorelSpace E]
---[MeasurableSpace E₁] [BorelSpace E₁]
---[MeasurableSpace E₂] [BorelSpace E₂]
---[MeasurableSpace E₃] [BorelSpace E₃]
---(L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Some tools for measure theory computations
@@ -1576,20 +1585,11 @@ end
 
 noncomputable section
 
-open NNReal ENNReal NormedSpace MeasureTheory Set ComputationsInterpolatedExponents
+open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
-  -- [NormedAddCommGroup E] [NormedSpace ℝ E] -- [FiniteDimensional ℝ E]
-  -- [NormedAddCommGroup E₁] -- [NormedSpace ℝ E₁] -- [FiniteDimensional ℝ E₁]
-  -- [NormedAddCommGroup E₂] -- [NormedSpace ℝ E₂] -- [FiniteDimensional ℝ E₂]
-  -- [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] -- [FiniteDimensional ℝ E₃]
-  -- [MeasurableSpace E] [BorelSpace E]
---[MeasurableSpace E₁] [BorelSpace E₁]
---[MeasurableSpace E₂] [BorelSpace E₂]
---[MeasurableSpace E₃] [BorelSpace E₃]
---(L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
   {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
@@ -1651,7 +1651,7 @@ lemma trunc_compl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁
     have : ‖f x‖ ≥ 0 := by exact norm_nonneg _
     linarith
 
-/-! ### Measurability properties of truncations -/
+/-! ## Measurability properties of truncations -/
 
 @[measurability]
 lemma measurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -1897,7 +1897,7 @@ lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α}
 -- class IsClosedUnderTruncation (U : Set (α →ₘ[μ] E)) : Prop where
 --   trunc_mem {f : α →ₘ[μ] E} (hf : f ∈ U) (t : ℝ) : f.trunc t ∈ U
 
-/-! ## Interpolation properties for weak L-p spaces -/
+/-! ## Truncations and L-p spaces -/
 
 lemma power_estimate {a b t γ : ℝ} (hγ : γ > 0) (htγ : γ ≤ t) (hab : a ≤ b) :
     (t / γ) ^ a ≤ (t / γ) ^ b := by
@@ -1969,7 +1969,7 @@ lemma trunc_preserves_Lp {p : ℝ≥0∞} {a : ℝ}
   split_ifs with is_fx_le_a <;> simp
 
 lemma snorm_trunc_compl_le {p : ℝ≥0∞} {a : ℝ}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] [NormedSpace ℝ E₁] :
+    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
     eLpNorm (f - trunc f a) p μ ≤
     eLpNorm f p μ := by
   apply eLpNorm_mono
@@ -2154,20 +2154,16 @@ end
 
 noncomputable section
 
-open NNReal ENNReal NormedSpace MeasureTheory Set
+open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ}-- truncation parameter
-  [NormedAddCommGroup E] [NormedSpace ℝ E] -- [FiniteDimensional ℝ E]
-  [NormedAddCommGroup E₁] --[NormedSpace ℝ E₁] -- [FiniteDimensional ℝ E₁]
-  [NormedAddCommGroup E₂] --[NormedSpace ℝ E₂] -- [FiniteDimensional ℝ E₂]
-  [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] -- [FiniteDimensional ℝ E₃]
+  [NormedAddCommGroup E]
+  [NormedAddCommGroup E₁]
+  [NormedAddCommGroup E₂]
   [MeasurableSpace E] [BorelSpace E]
-  -- [MeasurableSpace E₁] [BorelSpace E₁]
-  -- [MeasurableSpace E₂] [BorelSpace E₂]
-  [MeasurableSpace E₃] [BorelSpace E₃]
   -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
   {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
@@ -2337,7 +2333,7 @@ lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : Ton
   refine (rpow_lt_top_iff_of_pos hp).mpr coe_lt_top
 
 
-/-- Extract expressions for the lower Lebesgue integral of power functions -/
+/-! Extract expressions for the lower Lebesgue integral of power functions -/
 
 lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : β > 0) (hγ : γ > -1) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
@@ -2405,29 +2401,19 @@ end
 
 noncomputable section
 
-open NNReal ENNReal NormedSpace MeasureTheory Set ComputationsInterpolatedExponents
+open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
     ComputationsChoiceExponent
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
-  {a : ℝ}-- truncation parameter
-  -- [NormedAddCommGroup E] [NormedSpace ℝ E] -- [FiniteDimensional ℝ E]
-  -- [NormedAddCommGroup E₁] --[NormedSpace ℝ E₁] -- [FiniteDimensional ℝ E₁]
-  -- [NormedAddCommGroup E₂] --[NormedSpace ℝ E₂] -- [FiniteDimensional ℝ E₂]
-  -- [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] -- [FiniteDimensional ℝ E₃]
-  -- [MeasurableSpace E] [BorelSpace E]
-  -- [MeasurableSpace E₁] [BorelSpace E₁]
-  -- [MeasurableSpace E₂] [BorelSpace E₂]
-  -- [MeasurableSpace E₃] [BorelSpace E₃]
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {a : ℝ}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
+/-! ## Minkowski's integral inequality
+-/
 namespace MeasureTheory
 
--- For Minkowski's inequality: first prove statement dual statement about the norm
-
--- The following results could be useful for Minkowski's integral inequality
 lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : c > 0) (hd : d > 0):
     a ^ (c + d) = a ^ c * a ^ d := by
   have hcd : c + d  > 0 := by linarith
@@ -2449,7 +2435,7 @@ lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab': b ≤ a) : a = b 
 def trunc_cut (f : α → ℝ≥0∞) (μ : Measure α) [SigmaFinite μ] :=
   fun n : ℕ ↦ indicator (spanningSets μ n) (fun x ↦ min (f x) n)
 
-lemma trunc_cut_mon {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
+lemma trunc_cut_mono {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
     ∀ x : α, Monotone (fun n ↦ trunc_cut f μ n x) := by
   intro x m n hmn; unfold trunc_cut; unfold indicator; simp only
   split_ifs with is_fx_le_m is_fx_le_n
@@ -2459,9 +2445,9 @@ lemma trunc_cut_mon {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
   · exact zero_le _
   · exact zero_le _
 
-lemma trunc_cut_mon₀ {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
+lemma trunc_cut_mono₀ {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
     Monotone (trunc_cut f μ) := by
-  intro m n hmn x; apply trunc_cut_mon
+  intro m n hmn x; apply trunc_cut_mono
   exact hmn
 
 lemma trunc_cut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
@@ -2496,6 +2482,7 @@ lemma trunc_cut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
         exact this
       · exact wm
 
+/-- Characterization of `∫⁻ x : α, f x ^ p ∂μ` by a duality argument. -/
 lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞}
     (hf : AEMeasurable f μ) {p q : ℝ} (hp : p > 1) (hq : q ≥ 1)
     (hpq : p⁻¹ + q⁻¹ = 1) :
@@ -2519,7 +2506,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
   have g_lim : ∀ x : α, Filter.Tendsto (fun n ↦ g n x) Filter.atTop (nhds (f x)) := by
     intro x
     apply tendsto_atTop_isLUB
-    · apply trunc_cut_mon
+    · apply trunc_cut_mono
     · refine isLUB_iff_sSup_eq.mpr ?_
       apply trunc_cut_sup
   have g_sup' : (fun x ↦ ⨆ n : ℕ, (g n x) ^ p) = fun x ↦ (f x) ^ p := by
@@ -2528,7 +2515,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     · intro m n hmn
       dsimp only
       gcongr
-      apply trunc_cut_mon
+      apply trunc_cut_mono
       exact hmn
     · exact Filter.Tendsto.ennrpow_const p (g_lim x)
   have g_meas : ∀ n : ℕ, AEMeasurable (g n) μ := by
@@ -2621,7 +2608,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       intro x m n hmn
       dsimp only
       gcongr
-      apply trunc_cut_mon
+      apply trunc_cut_mono
       exact hmn
   have sup_rpow : (⨆ n : ℕ, ∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) =
       ⨆ n : ℕ, (∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) := by
@@ -2702,8 +2689,6 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       exact hr.2
     _ = _ := by simp
 
-
-/-- Minkowsi's integral inequality -/
 lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
@@ -2744,7 +2729,9 @@ lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
   intro x h; exact lintegral_congr_ae h
 
 /-- Minkowsi's integral inequality -/
-lemma lintegral_power_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 1 ≤ p)
+-- TODO: the condition on `μ` can probably be weakened to `SFinite μ`, by using a limit
+-- argument
+lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 1 ≤ p)
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
     [MeasureTheory.SigmaFinite μ] ⦃f : α → β → ENNReal⦄
@@ -2796,7 +2783,7 @@ lemma lintegral_power_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 1 ≤
     apply le_of_eq
     exact lintegral_lintegral_swap hf
 
-lemma lintegral_power_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : p ≥ 1)
+lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : p ≥ 1)
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
     [MeasureTheory.SigmaFinite μ] ⦃f : α → β → ENNReal⦄
@@ -2807,7 +2794,10 @@ lemma lintegral_power_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 
   have p_inv_pos : p⁻¹ > 0 := inv_pos_of_pos p_pos
   refine le_of_rpow_le p_inv_pos ?_
   rw [ENNReal.rpow_rpow_inv (ne_of_gt p_pos)]
-  apply lintegral_power_swap hp hf
+  apply lintegral_lintegral_pow_swap hp hf
+
+/-! ## Apply Minkowski's integral inequality to truncations
+-/
 
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
@@ -2859,8 +2849,6 @@ lemma truncation_ton_measurable {f : α → E₁}
   · apply AEMeasurable.restrict
     apply AEMeasurable.snd
     exact AEMeasurable.restrict hf
-
-
 
 @[measurability]
 lemma truncation_compl_ton_measurable {f : α → E₁}
@@ -2924,7 +2912,8 @@ lemma restrict_to_support_trnc {a : ℝ} {p : ℝ} {j : Bool}
   · dsimp only [Pi.sub_apply]; simp_rw [f_zero]; simp [hp]
   · simp_rw [f_zero]; simp [hp]
 
-lemma lintegral_power_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
+lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
+    [NormedAddCommGroup E₁]
     [BorelSpace E₁] {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
     (hp₀ : p₀ > 0) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
@@ -2935,7 +2924,7 @@ lemma lintegral_power_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSpace E₁
       (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ↑‖trnc j f (tc.ton s) a‖₊  ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
-  apply lintegral_power_swap_rpow
+  apply lintegral_lintegral_pow_swap_rpow
   · apply le_of_mul_le_mul_left _ hp₀
     field_simp [hp₀q₀]
   · unfold Function.uncurry
@@ -3039,7 +3028,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ↑‖trnc j f (tc.ton s) a‖₊  ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       -- This is a consequence of Minkowski's integral inequality
-      apply lintegral_power_swap_trunc_compl hp₀ hp₀q₀ hf tc; assumption
+      apply lintegral_lintegral_pow_swap_trunc_compl hp₀ hp₀q₀ hf tc; assumption
     _ = (∫⁻ a : α in Function.support f,
         (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) *
@@ -3250,8 +3239,6 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     refine Eq.symm (eLpNorm_eq_lintegral_rpow_nnnorm ?_ ?_)
     · exact ne_of_gt (interpolated_pos' hp₀ hp₁ hp)
     · refine interp_exp_ne_top (ne_of_lt hp₀p₁) ht hp
-
-/-! ### Applications of interpolation properties to truncations -/
 
 -- TODO: move this to Weaktype.lean?
 lemma wnorm_eq_zero_iff {f : α → E₁} {p : ℝ≥0∞} [NormedAddCommGroup E₁] (hp : p ≠ 0) :
@@ -3640,16 +3627,16 @@ end
 
 noncomputable section
 
-open NNReal ENNReal NormedSpace MeasureTheory Set
+open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ}-- truncation parameter
-  [NormedAddCommGroup E] [NormedSpace ℝ E] -- [FiniteDimensional ℝ E]
-  [NormedAddCommGroup E₁] --[NormedSpace ℝ E₁] -- [FiniteDimensional ℝ E₁]
-  [NormedAddCommGroup E₂] --[NormedSpace ℝ E₂] -- [FiniteDimensional ℝ E₂]
-  [NormedAddCommGroup E₃] [NormedSpace ℝ E₃] -- [FiniteDimensional ℝ E₃]
+  [NormedAddCommGroup E]
+  [NormedAddCommGroup E₁]
+  [NormedAddCommGroup E₂]
+  [NormedAddCommGroup E₃]
   [MeasurableSpace E] [BorelSpace E]
   -- [MeasurableSpace E₁] [BorelSpace E₁]
   -- [MeasurableSpace E₂] [BorelSpace E₂]
@@ -3798,17 +3785,15 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ}-- truncation parameter
-  -- [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]--[NormedSpace ℝ E₁] -- [FiniteDimensional ℝ E₁]
-  -- [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
-  -- [NormedAddCommGroup E₃] --[NormedSpace ℝ E₃] -- [FiniteDimensional ℝ E₃]
-  -- [MeasurableSpace E] [BorelSpace E]
-  -- [MeasurableSpace E₁] [BorelSpace E₁]
-  -- [MeasurableSpace E₂] [BorelSpace E₂]
-  -- [MeasurableSpace E₃] [BorelSpace E₃]
   -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
   {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
 
+/-! ## Proof of the real interpolation theorem
+
+    In this section the estimates are combined to finally give a proof of the
+    real interpolation theorem.
+-/
 namespace MeasureTheory
 
 /-- Proposition that expresses that the map `T` map between function spaces preserves
