@@ -215,14 +215,11 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
       p p μ μ (CMB A p) := by
   have h2p : 0 < p := zero_lt_one.trans hp
   have := exists_hasStrongType_real_interpolation
-    (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
-    ⟨le_top, le_rfl⟩ ⟨le_rfl, le_rfl⟩ (by norm_num) (by simp [inv_lt_one_iff, hp, h2p] : p⁻¹ ∈ _)
-    zero_lt_one (pow_pos (A_pos μ) 2)
-    (p := p) (q := p) (A := 1)
+    (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) (p := p) (q := p) (A := 1) ⟨ENNReal.zero_lt_top, le_rfl⟩
+    ⟨zero_lt_one, le_rfl⟩ (by norm_num) zero_lt_one (by simp [inv_lt_one_iff, hp, h2p] : p⁻¹ ∈ _) zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f hf ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑.countable)
-    (.maximalFunction h𝓑)
-    (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
+    (SublinearOn.maximalFunction h𝓑).1 (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
     (HasWeakType.MB_one μ h𝓑.countable)
   convert this using 1
   sorry -- let's deal with the constant later
