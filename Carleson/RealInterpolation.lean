@@ -2439,35 +2439,144 @@ lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : c > 0) (hd : d > 0):
       rw [top_rpow_of_pos hcd, top_rpow_of_pos hc, top_rpow_of_pos hd, top_mul_top]
     · rw [ENNReal.rpow_add c d a_ne_zero a_ne_top]
 
-lemma representationLp_aux {μ : Measure α} [IsFiniteMeasure μ] {f : α → ℝ≥0∞}
+lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab': b ≤ a) : a = b := by
+  rcases (eq_or_ne a b) with a_eq_b | a_ne_b
+  · exact a_eq_b
+  · rcases lt_or_gt_of_ne a_ne_b with a_lt_b | b_lt_a
+    · contrapose! a_lt_b; exact hab'
+    · contrapose! b_lt_a; exact hab
+
+def trunc_cut (f : α → ℝ≥0∞) (μ : Measure α) [SigmaFinite μ] :=
+  fun n : ℕ ↦ indicator (spanningSets μ n) (fun x ↦ min (f x) n)
+
+lemma trunc_cut_mon {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
+    ∀ x : α, Monotone (fun n ↦ trunc_cut f μ n x) := by
+  intro x m n hmn; unfold trunc_cut; unfold indicator; simp only
+  split_ifs with is_fx_le_m is_fx_le_n
+  · refine min_le_min_left (f x) (Nat.cast_le.mpr hmn)
+  · contrapose! is_fx_le_n
+    apply monotone_spanningSets _ hmn is_fx_le_m
+  · exact zero_le _
+  · exact zero_le _
+
+lemma trunc_cut_mon₀ {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
+    Monotone (trunc_cut f μ) := by
+  intro m n hmn x; apply trunc_cut_mon
+  exact hmn
+
+lemma trunc_cut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
+    ∀ x : α, ⨆ n : ℕ, trunc_cut f μ n x = f x := by
+  intro x; refine iSup_eq_of_forall_le_of_forall_lt_exists_gt ?h₁ ?h₂
+  · intro n; unfold trunc_cut
+    unfold indicator
+    split_ifs
+    · exact min_le_left (f x) ↑n
+    · exact zero_le _
+  · intro w hw
+    unfold trunc_cut
+    have : ∃ m : ℕ, x ∈ spanningSets μ m := by
+      have obs := iUnion_spanningSets μ
+      refine mem_iUnion.mp ?_
+      rw [obs]
+      exact trivial
+    rcases this with ⟨m, wm⟩
+    have : (w ≠ ⊤) := LT.lt.ne_top hw
+    rcases ENNReal.exists_nat_gt (this) with ⟨n, wn⟩
+    use (m + n)
+    unfold indicator; simp only
+    split_ifs with is_x_in_Ampn
+    · refine lt_min hw ?_
+      calc
+      w < n := wn
+      _ ≤ m + n := by exact le_add_self
+      _ = _ := by exact Eq.symm (Nat.cast_add m n)
+    · contrapose! is_x_in_Ampn
+      apply monotone_spanningSets
+      · have : m ≤ m + n := by exact Nat.le_add_right m n
+        exact this
+      · exact wm
+
+lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞}
     (hf : AEMeasurable f μ) {p q : ℝ} (hp : p > 1) (hq : q ≥ 1)
-    (hpq : 1 / p + 1 / q = 1):
-    ∫⁻ x : α, (f x) ^ p ∂μ =
-    ⨆ g ∈ {g' : α → ℝ≥0∞ | ∫⁻ x : α, (g x) ^ q ∂μ ≤ 1},
+    (hpq : p⁻¹ + q⁻¹ = 1) :
+    (∫⁻ x : α, (f x) ^ p ∂μ) ^ (1 / p) =
+    ⨆ g ∈ {g' : α → ℝ≥0∞ | AEMeasurable g' μ ∧ ∫⁻ x : α, (g' x) ^ q ∂μ ≤ 1},
     ∫⁻ x : α, (f x) * g x ∂μ := by
-  let A := fun n ↦ {x | ((1 : ℝ≥0∞) / (n + 1)) < f x}
-  have A_mon : Monotone A := by sorry
-  let g := fun n : ℕ ↦ (fun x ↦ min (f x) n)
-  have g_mon : Monotone g := by
-    intro m n hmn x; unfold_let g; simp only
-    refine min_le_min_left (f x) (Nat.cast_le.mpr hmn)
+  let A := spanningSets μ
+  let g := trunc_cut f μ
+  have hpq' : p.IsConjExponent q := Real.IsConjExponent.mk hp hpq
   have f_mul : ∀ n : ℕ, (g n) ^ p ≤ f * (g n) ^ (p - 1) := by
     intro n x; unfold_let g;
     simp only [Pi.pow_apply, Pi.mul_apply]
-    refine le_trans (b := (min (f x) ↑n) * min (f x) ↑n ^ (p - 1)) ?_ ?_
-    · nth_rewrite 1 [← add_sub_cancel 1 p]
-      rw [rpow_add_of_pos, ENNReal.rpow_one]; exact Real.zero_lt_one; linarith
-    · exact mul_le_mul_right' (min_le_left (f x) ↑n) (min (f x) ↑n ^ (p - 1))
-  have g_sup : ∀ x : α, ⨆ n : ℕ, g n x = f x := by
-    intro x; refine iSup_eq_of_forall_le_of_forall_lt_exists_gt ?h₁ ?h₂
-    · intro n; unfold_let g; simp only
-      exact min_le_left (f x) ↑n
-    · intro w hw
-      have : (w ≠ ⊤) := LT.lt.ne_top hw
-      rcases ENNReal.exists_nat_gt (this) with ⟨n, wn⟩
-      use n
-      unfold_let g; simp only
-      exact lt_min hw wn
+    unfold trunc_cut
+    unfold indicator
+    split_ifs
+    · refine le_trans (b := (min (f x) ↑n) * min (f x) ↑n ^ (p - 1)) ?_ ?_
+      · nth_rewrite 1 [← add_sub_cancel 1 p]
+        rw [rpow_add_of_pos, ENNReal.rpow_one] <;> try linarith
+      · exact mul_le_mul_right' (min_le_left (f x) ↑n) (min (f x) ↑n ^ (p - 1))
+    · rw [ENNReal.zero_rpow_of_pos] <;> positivity
+  have g_lim : ∀ x : α, Filter.Tendsto (fun n ↦ g n x) Filter.atTop (nhds (f x)) := by
+    intro x
+    apply tendsto_atTop_isLUB
+    · apply trunc_cut_mon
+    · refine isLUB_iff_sSup_eq.mpr ?_
+      apply trunc_cut_sup
+  have g_sup' : (fun x ↦ ⨆ n : ℕ, (g n x) ^ p) = fun x ↦ (f x) ^ p := by
+    ext x
+    apply iSup_eq_of_tendsto
+    · intro m n hmn
+      dsimp only
+      gcongr
+      apply trunc_cut_mon
+      exact hmn
+    · exact Filter.Tendsto.ennrpow_const p (g_lim x)
+  have g_meas : ∀ n : ℕ, AEMeasurable (g n) μ := by
+    intro n
+    unfold_let g
+    apply AEMeasurable.indicator
+    · apply AEMeasurable.inf hf
+      exact aemeasurable_const
+    · exact measurable_spanningSets μ n
+  have gp_meas : ∀ n : ℕ, AEMeasurable (fun a ↦ g n a ^ (p - 1)) μ := by
+    intro n
+    apply AEMeasurable.pow_const
+    apply g_meas
+  have g_fin : ∀ n : ℕ, ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
+    intro n
+    calc
+    _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
+      unfold_let g
+      unfold trunc_cut
+      rw [← lintegral_indicator]; swap; exact measurable_spanningSets μ n
+      congr 1
+      ext x
+      unfold indicator
+      dsimp only
+      split_ifs
+      · rfl
+      · simp; positivity
+    _ ≤ ∫⁻ (x : α) in A n, n ^ p ∂μ := by
+      apply setLIntegral_mono
+      · exact measurable_const
+      · intro x hx
+        unfold_let g
+        unfold_let A
+        unfold trunc_cut
+        gcongr
+        unfold indicator
+        split_ifs
+        · exact min_le_right (f x) ↑n
+        · contradiction
+    _ = n ^ p * μ (A n) := setLIntegral_const (A n) (↑n ^ p)
+    _ < ⊤ := by
+      apply mul_lt_top
+      · apply rpow_ne_top_of_nonneg
+        · linarith
+        · exact coe_ne_top
+      · unfold_let A
+        apply ne_of_lt
+        exact measure_spanningSets_lt_top μ n
   have obs : ∀ n : ℕ, ∫⁻ x : α, (f x) * ((g n x) ^ (p - 1) /
       (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹) ∂μ ≥
       (∫⁻ x : α, (g n x) ^ p ∂μ) ^ p⁻¹ := by
@@ -2482,7 +2591,7 @@ lemma representationLp_aux {μ : Measure α} [IsFiniteMeasure μ] {f : α → �
           (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ := by
         simp_rw [div_eq_mul_inv, ← mul_assoc]
         rw [lintegral_mul_const'']
-        sorry
+        apply AEMeasurable.mul hf (gp_meas n)
       _ ≥ (∫⁻ x : α, (g n x) ^ (p) ∂μ) * ((∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ := by
         gcongr
         apply f_mul
@@ -2491,39 +2600,206 @@ lemma representationLp_aux {μ : Measure α} [IsFiniteMeasure μ] {f : α → �
         ext x
         rw [← ENNReal.rpow_mul]
         congr
-        sorry
+        refine Real.IsConjExponent.sub_one_mul_conj ?_
+        apply Real.IsConjExponent.mk hp hpq
       _ = (∫⁻ x : α, (g n x) ^ p ∂μ) ^ p⁻¹ := by
         rw [← ENNReal.rpow_neg]
         nth_rw 1 [← ENNReal.rpow_one (x := (∫⁻ x : α, (g n x) ^ (p) ∂μ))]
         rw [← ENNReal.rpow_add]
         · congr
-          refine Eq.symm (eq_add_neg_of_add_eq ?_)
-          rw [← one_div, ← one_div]
-          exact hpq
+          exact add_neg_eq_of_eq_add (id (Eq.symm hpq))
         · exact int_ne_zero
-        · sorry
-  sorry
+        · apply ne_of_lt
+          exact g_fin n
+  have int_fg : ∫⁻ (x : α), f x ^ p ∂μ = ⨆ n : ℕ, ∫⁻ x : α, g n x ^ p ∂μ := by
+    rw [← g_sup']
+    apply lintegral_iSup'
+    · intro n
+      apply AEMeasurable.pow_const
+      apply g_meas
+    · apply ae_of_all
+      intro x m n hmn
+      dsimp only
+      gcongr
+      apply trunc_cut_mon
+      exact hmn
+  have sup_rpow : (⨆ n : ℕ, ∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) =
+      ⨆ n : ℕ, (∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) := by
+    apply Monotone.map_iSup_of_continuousAt (f := fun (x : ℝ≥0∞) ↦ x ^ (1 / p))
+    · apply Continuous.continuousAt
+      exact ENNReal.continuous_rpow_const
+    · apply ENNReal.monotone_rpow_of_nonneg
+      positivity
+    · simp; positivity
+  let h := fun n : ℕ ↦ (fun x ↦ g n x ^ (p - 1) / (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)
+  have comp_sup : (⨆ n : ℕ, ∫⁻ (x : α), f x * h n x ∂μ) ≤
+      ⨆ g ∈ {g' : α → ℝ≥0∞ | AEMeasurable g' μ ∧ ∫⁻ (z : α), (g' z) ^ q ∂μ ≤ 1},
+      ∫⁻ (x : α), f x * g x ∂μ := by
+    nth_rw 1 [← iSup_range (f := fun n : ℕ ↦ h n) (g := fun r ↦ ∫⁻ x : α, f x * r x ∂μ)]
+    apply iSup_le_iSup_of_subset
+    intro r
+    unfold range
+    dsimp only [mem_setOf_eq]
+    intro exists_n
+    rcases exists_n with ⟨n, wn⟩
+    simp_rw [← wn]
+    unfold_let h
+    dsimp only
+    constructor
+    · apply AEMeasurable.div_const
+      exact gp_meas n
+    · simp_rw [div_eq_mul_inv]
+      calc
+      _ = ∫⁻ (z : α), ((g n z ^ (p - 1)) ^ q) *
+          ((∫⁻ (y : α), (g n y ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ ^ q ∂μ := by
+        congr 1
+        ext z
+        rw [ENNReal.mul_rpow_of_nonneg]
+        linarith
+      _ = (∫⁻ (z : α), ((g n z ^ (p - 1)) ^ q) ∂μ) *
+          ((∫⁻ (y : α), (g n y ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ ^ q := by
+        rw [lintegral_mul_const'']
+        apply AEMeasurable.pow_const (gp_meas n)
+      _ ≤ _ := by
+        rcases eq_or_ne (∫⁻ x : α, ((g n x) ^ (p - 1)) ^ q ∂μ) 0 with int_eq_zero | int_ne_zero
+        · rw [int_eq_zero]
+          simp
+        · rw [ENNReal.inv_rpow, ENNReal.rpow_inv_rpow]
+          apply le_of_eq
+          refine ENNReal.mul_inv_cancel int_ne_zero ?inr.a.ht
+          · apply ne_of_lt
+            calc
+            _ = ∫⁻ (z : α), g n z ^ p ∂μ := by
+              congr 1
+              ext z
+              rw [← ENNReal.rpow_mul]
+              congr
+              exact Real.IsConjExponent.sub_one_mul_conj hpq'
+            _ < ⊤ := g_fin n
+          · linarith
+  apply eq_of_le_of_le
+  · rw [int_fg, sup_rpow]
+    calc
+    _ ≤ ⨆ n : ℕ, ∫⁻ x : α, (f x) * ((g n x) ^ (p - 1) /
+        (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹) ∂μ := by
+      gcongr
+      rw [one_div]
+      apply obs
+    _ ≤ _ := comp_sup
+  · apply iSup_le
+    intro r
+    apply iSup_le
+    simp only [mem_setOf_eq]
+    intro hr
+    calc
+    _ ≤ (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) * (∫⁻ x : α, r x ^ q ∂μ) ^ (1 / q) := by
+      apply ENNReal.lintegral_mul_le_Lp_mul_Lq
+      · exact hpq'
+      · exact hf
+      · exact hr.1
+    _ ≤ (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) * (1) ^ (1 / q) := by
+      gcongr
+      exact hr.2
+    _ = _ := by simp
 
-lemma representationLp {μ : Measure α} [SFinite μ] {f : α → ℝ≥0∞}
-    (hf : Measurable f) {p q : ℝ} (hp : p > 1) (hq : q ≥ 1)
-    (hpq : 1 / p + 1 / q = 1):
-    ∫⁻ x : α, (f x) ^ p ∂μ =
-    ⨆ g ∈ {g' : α → ℝ≥0∞ | ∫⁻ x : α, (g x) ^ q ∂μ ≤ 1},
-    ∫⁻ x : α, (f x) * g x ∂μ := sorry
 
 /-- Minkowsi's integral inequality -/
-lemma lintegral_power_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : p ≥ 1)
+lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
-    [MeasureTheory.SFinite μ] ⦃f : α → β → ENNReal⦄
+    [MeasureTheory.SFinite μ] ⦃f : α × β → ENNReal⦄
+    (hf : AEMeasurable f (μ.prod ν)) :
+    ∀ᵐ x : α ∂μ, AEMeasurable (f ∘ (Prod.mk x)) ν := by
+  rcases hf with ⟨g, hg⟩
+  filter_upwards [Measure.ae_ae_of_ae_prod hg.2]
+  intro x h
+  use (g ∘ Prod.mk x)
+  constructor
+  · exact Measurable.comp hg.1 (measurable_prod_mk_left)
+  · exact h
+
+lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
+    [MeasurableSpace α] [MeasurableSpace β]
+    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
+    [MeasureTheory.SFinite μ] ⦃f : α × β → ENNReal⦄
+    (hf : AEMeasurable f (μ.prod ν)) :
+    ∀ᵐ y : β ∂ν, AEMeasurable (f ∘ (fun x ↦ Prod.mk x y)) μ := by
+  have : AEMeasurable (f ∘ Prod.swap) (ν.prod μ) := by
+    refine AEMeasurable.comp_measurable ?_ ?_
+    · rw [Measure.prod_swap]
+      exact hf
+    · exact measurable_swap
+  exact aemeasurability_prod₁ this
+
+lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
+    [MeasurableSpace α] [MeasurableSpace β]
+    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
+    [MeasureTheory.SFinite μ] ⦃f : α × β → ENNReal⦄
+    (hf : AEMeasurable f (μ.prod ν)) :
+    AEMeasurable (fun x ↦ ∫⁻ (y : β), f (x, y) ∂ν) μ := by
+  rcases hf with ⟨g, hg⟩
+  use (fun x ↦ ∫⁻ y : β, g (x, y) ∂ν)
+  refine ⟨Measurable.lintegral_prod_right hg.1, ?_⟩
+  filter_upwards [Measure.ae_ae_of_ae_prod hg.2]
+  intro x h; exact lintegral_congr_ae h
+
+/-- Minkowsi's integral inequality -/
+lemma lintegral_power_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 1 ≤ p)
+    [MeasurableSpace α] [MeasurableSpace β]
+    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
+    [MeasureTheory.SigmaFinite μ] ⦃f : α → β → ENNReal⦄
     (hf : AEMeasurable (Function.uncurry f) (μ.prod ν)) :
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ^ p⁻¹ ≤
-    ∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν := sorry
+    ∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν := by
+  rcases Decidable.lt_or_eq_of_le hp with one_lt_p | one_eq_p
+  · let q := Real.conjExponent p
+    have hpq' : p.IsConjExponent q := Real.IsConjExponent.conjExponent one_lt_p
+    have one_lt_q : 1 < q := (Real.IsConjExponent.symm hpq').one_lt
+    have ineq : ∀ g ∈ {g' : α → ℝ≥0∞ | AEMeasurable g' μ ∧ ∫⁻ (z : α), (g' z) ^ q ∂μ ≤ 1},
+        ∫⁻ x : α, (∫⁻ y : β, f x y ∂ν) * g x ∂μ ≤
+        ∫⁻ (y : β), (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ ∂ν := by
+      intro g ⟨hg1, hg2⟩
+      have ae_meas₁ : ∀ᵐ x : α ∂μ, AEMeasurable (f x) ν := by
+        apply aemeasurability_prod₁ (f := Function.uncurry f) hf
+      have ae_meas₂ : ∀ᵐ y : β ∂ν, AEMeasurable (fun x ↦ f x y) μ := by
+        apply aemeasurability_prod₂ hf
+      calc
+      _ = ∫⁻ x : α, (∫⁻ y : β, f x y * g x ∂ν) ∂μ := by
+        apply lintegral_congr_ae
+        filter_upwards [ae_meas₁]
+        intro a ha
+        apply Eq.symm
+        apply lintegral_mul_const'' _ ha
+      _ = ∫⁻ y : β, (∫⁻ x : α, f x y * g x ∂μ) ∂ν := by
+        apply lintegral_lintegral_swap
+        apply AEMeasurable.mul hf (AEMeasurable.fst hg1)
+      _ ≤ ∫⁻ (y : β), (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ ∂ν := by
+        apply lintegral_mono_ae
+        filter_upwards [ae_meas₂]
+        intro y hy
+        calc
+        _ ≤ (∫⁻ (x : α), f x y ^ p ∂μ) ^ (1 / p) * (∫⁻ (x : α), g x ^ q ∂μ) ^ (1 / q) :=
+          ENNReal.lintegral_mul_le_Lp_mul_Lq μ hpq' hy hg1
+        _ ≤ (∫⁻ (x : α), f x y ^ p ∂μ) ^ (1 / p) * 1 ^ (1 / q) := by
+          gcongr
+        _ = (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ := by
+          simp [one_div]
+    nth_rw 1 [← one_div]
+    rw [representationLp (q := q)]
+    · exact iSup_le fun g ↦ iSup_le fun hg ↦ ineq g hg
+    · exact aemeasurability_integral_component hf
+    · exact one_lt_p
+    · exact le_of_lt one_lt_q
+    · exact hpq'.inv_add_inv_conj
+  · rw [← one_eq_p]
+    simp only [ENNReal.rpow_one, inv_one]
+    apply le_of_eq
+    exact lintegral_lintegral_swap hf
 
 lemma lintegral_power_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : p ≥ 1)
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
-    [MeasureTheory.SFinite μ] ⦃f : α → β → ENNReal⦄
+    [MeasureTheory.SigmaFinite μ] ⦃f : α → β → ENNReal⦄
     (hf : AEMeasurable (Function.uncurry f) (μ.prod ν)) :
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ≤
     (∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν) ^ p := by
@@ -2535,7 +2811,7 @@ lemma lintegral_power_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 
 
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
-    [BorelSpace E₁] [SFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton s }
         ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_le ?hf ?hg
@@ -2551,7 +2827,7 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
-    [BorelSpace E₁] [SFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | tc.ton s < ‖g x‖₊ }
         ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_lt ?hf ?hg
@@ -2568,7 +2844,7 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [Norm
 @[measurability]
 lemma truncation_ton_measurable {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    [SFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
+    [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a : ℝ × α ↦ (trunc f (tc.ton a.1)) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f) )) := by
@@ -2589,7 +2865,7 @@ lemma truncation_ton_measurable {f : α → E₁}
 @[measurability]
 lemma truncation_compl_ton_measurable {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    [SFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
+    [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a : ℝ × α ↦ ((f - trunc f (tc.ton a.1))) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f) )) := by
@@ -2649,7 +2925,7 @@ lemma restrict_to_support_trnc {a : ℝ} {p : ℝ} {j : Bool}
   · simp_rw [f_zero]; simp [hp]
 
 lemma lintegral_power_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
-    [BorelSpace E₁] {j : Bool} {hμ : SFinite (μ.restrict (Function.support f))}
+    [BorelSpace E₁] {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
     (hp₀ : p₀ > 0) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
     ∫⁻ (s : ℝ) in Ioi 0,
@@ -2708,7 +2984,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₀q₀ : p₀ ≤ q₀)
-    (hf : AEMeasurable f μ) (hf₂ : SFinite (μ.restrict (Function.support f)))
+    (hf : AEMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
     (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton s)) (ENNReal.ofReal p₀) μ ^ q₀ *
@@ -2861,7 +3137,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤)  (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
     (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
-    (hf : AEMeasurable f μ) (hf₂ : SFinite (μ.restrict (Function.support f)))
+    (hf : AEMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
     (hspf : spf.σ = @ζ p₀ q₀ p₁ q₁ t) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton s)) (sel j p₀ p₁) μ ^ (sel j q₀ q₁).toReal *
@@ -3957,8 +4233,8 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
   have p₁pos : p₁ > 0 := hp₁.1
   have q₁pos : q₁ > 0 := lt_of_lt_of_le hp₁.1 hp₁.2
   have p_pos : p > 0 := by exact interpolated_pos' one_le_p₀ one_le_p1 hp
-  have : SFinite (μ.restrict (Function.support f)) := by
-    apply support_sfinite_from_Memℒp (p := p) hf
+  have : SigmaFinite (μ.restrict (Function.support f)) := by
+    apply support_sigma_finite_from_Memℒp (p := p) hf
     · exact interp_exp_ne_top (ne_of_lt hp₀p₁) ht hp
     · exact ne_of_gt p_pos
   let tc := spf_to_tc spf
