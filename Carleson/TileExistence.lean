@@ -156,7 +156,7 @@ lemma chain_property_set_has_bound (k : ℤ):
       dsimp only [property_set] at hc
       rw [mem_setOf_eq] at hc
       exact hc.right.right r.left
-    · exact fun a_1 ↦ Or.intro_left (x ∈ if k = ↑S then {o} else ∅) a_1
+    · exact fun hex ↦ Or.intro_left (x ∈ if k = ↑S then {o} else ∅) hex
   simp_rw [this]
   dsimp only [property_set] at hc ⊢
   simp only [mem_setOf_eq, iUnion_subset_iff]
@@ -590,7 +590,7 @@ mutual
       refine hx_mem_Xk.elim (fun y hy ↦ ?_)
       use y
       rw [I3]
-      exact mem_union_left (I2 hk y \ (Xk hk ∪ ⋃ y', ⋃ (_ : y' < y), I3 hk y')) hy
+      exact mem_union_left _ hy
     else
       simp only [mem_iUnion]
       have : x ∈ ⋃ (y : Yk X k), I2 hk y := I2_prop_2 hk hx
@@ -633,23 +633,23 @@ lemma I3_prop_3_1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
   else
     rw [dif_neg hk_s]
     simp only [mem_preimage]
-    have : (y:X) ∈ ball o (4 * D^S-D^k:ℝ) := Yk_subset k y.property
-    have : ball (y:X) (2⁻¹ * D^k) ⊆ ⋃ (y':Yk X (k-1)), I3 (I_induction_proof hk hk_s) y' := by
+    have : (y : X) ∈ ball o (4 * D ^ S - D ^ k : ℝ) := Yk_subset k y.property
+    have : ball (y : X) (2⁻¹ * D ^ k) ⊆ ⋃ (y' : Yk X (k - 1)), I3 (I_induction_proof hk hk_s) y' := by
       calc
-        ball (y:X) (2⁻¹ * D^k)
-          ⊆ ball o (4 * D^S - D^k + 2⁻¹ * D^k) := by
+        ball (y : X) (2⁻¹ * D ^ k)
+          ⊆ ball o (4 * D ^ S - D ^ k + 2⁻¹ * D ^ k) := by
             apply ball_subset
             ring_nf
             rw [mul_comm]
             rw [mem_ball] at this
             exact this.le
-        _ ⊆ ball o (4 * D^S-2 * D^(k-1)) := by
+        _ ⊆ ball o (4 * D ^ S - 2 * D ^ (k - 1)) := by
           apply ball_subset_ball
           rw [sub_eq_add_neg,sub_eq_add_neg, add_assoc, add_le_add_iff_left]
           simp only [neg_add_le_iff_le_add, le_add_neg_iff_add_le]
           calc
             (2⁻¹ * D ^ k + 2 * D ^ (k - 1) : ℝ)
-              = 2⁻¹ * D^(k) + 2⁻¹ * 4 * D^(k-1) := by
+              = 2⁻¹ * D ^ k + 2⁻¹ * 4 * D ^ (k - 1) := by
                 rw [add_right_inj]
                 norm_num
             _ ≤ 2⁻¹ * (2 * D ^ k) := by
