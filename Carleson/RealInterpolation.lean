@@ -242,8 +242,7 @@ lemma interp_exp_in_Ioo_zero_top (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ 
   ⟨interpolated_pos' hp₀ hp₁ hp, interp_exp_lt_top' hp₀p₁ ht hp⟩
 
 lemma inv_toReal_pos_of_ne_top (hp₀ : p₀ > 0) (hp' : p₀ ≠ ⊤) : p₀⁻¹.toReal > 0 := by
-  rw [toReal_inv]
-  exact inv_pos_of_pos (exp_toReal_pos hp₀ hp')
+  rw [toReal_inv]; exact inv_pos_of_pos (exp_toReal_pos hp₀ hp')
 
 lemma inv_toReal_ne_zero_of_ne_top (hp₀ : p₀ > 0) (hp' : p₀ ≠ ⊤) : p₀⁻¹.toReal ≠ 0 :=
   (inv_toReal_pos_of_ne_top hp₀ hp').ne.symm
@@ -259,11 +258,10 @@ lemma interp_exp_toReal_pos' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p�
   toReal_pos (interpolated_pos' hp₀ hp₁ hp).ne.symm (interp_exp_ne_top' hp₀p₁ ht hp)
 
 lemma interp_exp_inv_pos (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
-  (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
+    (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
     0 < p⁻¹.toReal := by
-  rw [toReal_inv]
-  exact inv_pos_of_pos (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp)
+  rw [toReal_inv]; exact inv_pos_of_pos (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp)
 
 lemma interp_exp_inv_ne_zero (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
     (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
@@ -318,9 +316,7 @@ lemma ne_inv_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
   rw [preservation_interpolation ht hp₀ hp₁ hp,
     ← sub_ne_zero, _root_.sub_mul, one_mul, add_comm_sub, sub_add_eq_sub_sub, sub_self, zero_sub,
     neg_sub, ← _root_.mul_sub]
-  apply mul_ne_zero ht.1.ne.symm
-  refine sub_ne_zero_of_ne ?_
-  exact ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁
+  exact mul_ne_zero ht.1.ne.symm (sub_ne_zero_of_ne (ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁))
 
 lemma ne_sub_toReal_exp (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁) :
     p₁⁻¹.toReal - p₀⁻¹.toReal ≠ 0 :=
@@ -332,7 +328,7 @@ lemma ne_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : 
   intro h
   apply ne_inv_toReal_exp_interp_exp ht hp₀ hp₁ hp₀p₁ hp
   rw [toReal_inv, toReal_inv]
-  apply congrArg Inv.inv h
+  exact congrArg Inv.inv h
 
 lemma ne_toReal_exp_interp_exp₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
@@ -343,51 +339,44 @@ lemma ne_toReal_exp_interp_exp₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁
 lemma ofReal_inv_interp_sub_exp_pos₁ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
     (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) :
-    ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ > 0 := by
-  refine ofReal_pos.mpr ?_
-  apply inv_pos_of_pos
-  refine abs_sub_pos.mpr ?_
-  exact ne_toReal_exp_interp_exp₁ ht hq₀ hq₁ hq₀q₁ hq
+    ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ > 0 :=
+  ofReal_pos.mpr (inv_pos_of_pos (abs_sub_pos.mpr (ne_toReal_exp_interp_exp₁ ht hq₀ hq₁ hq₀q₁ hq)))
 
 lemma ofReal_inv_interp_sub_exp_pos₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
     (hq₀q₁ : q₀ ≠ q₁) (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) :
-    ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ > 0 := by
-  refine ofReal_pos.mpr ?_
-  apply inv_pos_of_pos
-  refine abs_sub_pos.mpr ?_
-  exact Ne.symm (ne_toReal_exp_interp_exp ht hq₀ hq₁ hq₀q₁ hq)
+    ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ > 0 :=
+  ofReal_pos.mpr (inv_pos_of_pos (abs_sub_pos.mpr (Ne.symm
+    (ne_toReal_exp_interp_exp ht hq₀ hq₁ hq₀q₁ hq))))
 
 lemma exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
     p < p₀ ↔ p₁ < p₀ := by
   rcases lt_or_gt_of_ne hp₀p₁ with p₀lt_p₁ | p₁lt_p₀
-  · exact ⟨fun h ↦
-      False.elim <| not_le_of_gt h (le_of_lt (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1),
-      fun h ↦ False.elim <| not_le_of_gt h (le_of_lt p₀lt_p₁)⟩
-  · have hp' := switch_exponents ht hp
-    exact ⟨fun _ ↦ p₁lt_p₀,
-        fun _ ↦ (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) hp').2⟩
+  · exact ⟨fun h ↦ (not_le_of_gt h (le_of_lt (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1)).elim,
+      fun h ↦ (not_le_of_gt h (le_of_lt p₀lt_p₁)).elim⟩
+  · exact ⟨fun _ ↦ p₁lt_p₀,
+      fun _ ↦ (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2⟩
 
 lemma exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
     p₀ < p ↔ p₀ < p₁ := by
   rcases lt_or_gt_of_ne hp₀p₁ with p₀lt_p₁ | p₁lt_p₀
   · exact ⟨fun _ ↦ p₀lt_p₁, fun _ ↦ (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩
-  · exact ⟨fun h ↦ False.elim <| not_le_of_gt h (le_of_lt
-        (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2),
-        fun h ↦ False.elim <| not_le_of_gt h (le_of_lt p₁lt_p₀)⟩
+  · exact ⟨fun h ↦ (not_le_of_gt h (le_of_lt (interp_exp_between hp₁ hp₀ p₁lt_p₀
+      (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2)).elim,
+      fun h ↦ (not_le_of_gt h (le_of_lt p₁lt_p₀)).elim⟩
 
 lemma exp_lt_exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
     p < p₀ ↔ p₁ < p := by
-  rw [exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp]
-  rw [← exp_gt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁) (switch_exponents ht hp)]
+  rw [exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_gt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁)
+    (switch_exponents ht hp)]
 
 lemma exp_gt_exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
     p₀ < p ↔ p < p₁ := by
-  rw [exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp]
-  rw [← exp_lt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁) (switch_exponents ht hp)]
+  rw [exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_lt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁)
+    (switch_exponents ht hp)]
 
 lemma exp_lt_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
@@ -1173,7 +1162,7 @@ lemma d_ne_top_aux₀ {b : ℝ} {F : ℝ≥0∞} (hF : F ∈ Ioo 0 ⊤)  :
 lemma d_ne_zero_aux₀ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (eLpNorm f p μ ^ p.toReal) ^ b ≠ 0 := by
   apply ne_of_gt
-  apply ENNReal.rpow_pos
+  apply ENNReal.rpow_pos _ _
   · exact d_pos_aux₀ hF
   · exact d_ne_top_aux₀ hF
 
