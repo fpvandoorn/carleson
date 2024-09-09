@@ -364,7 +364,7 @@ lemma preservation_positivity_inv_toReal (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
   rcases (eq_or_ne p₀ ⊤) with p₀eq_top | p₀ne_top
   · rw [p₀eq_top]
     simp only [inv_top, zero_toReal, mul_zero, zero_add]
-    apply Real.mul_pos
+    apply _root_.mul_pos
     · exact ht.1
     · rw [toReal_inv]
       apply inv_pos_of_pos
@@ -372,7 +372,7 @@ lemma preservation_positivity_inv_toReal (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
       rw [p₀eq_top] at hp₀p₁
       exact Ne.symm hp₀p₁
   · apply add_pos_of_pos_of_nonneg
-    · apply Real.mul_pos
+    · apply _root_.mul_pos
       · exact (Ioo.one_sub_mem ht).1
       · rw [toReal_inv]
         apply inv_pos_of_pos
@@ -661,8 +661,8 @@ lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
   rw [hq₀']
   simp only [inv_top, zero_toReal, sub_zero, mul_zero, zero_add]
   have obs : p₀.toReal * p.toReal * q.toReal > 0 := by
-    apply Real.mul_pos
-    · apply Real.mul_pos
+    apply _root_.mul_pos
+    · apply _root_.mul_pos
       · refine toReal_pos ?_ ?_
         · apply ne_of_gt hp₀
         · exact hp₀'
@@ -1186,7 +1186,7 @@ instance spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
   inv := fun t : ℝ ↦ spf.d * t ^ spf.σ⁻¹
   mon := if (spf.σ > 0) then true else false
   ran_ton := fun t ht ↦ rpow_pos_of_pos (div_pos ht spf.hd) _
-  ran_inv := fun t ht ↦ Real.mul_pos spf.hd (rpow_pos_of_pos ht spf.σ⁻¹)
+  ran_inv := fun t ht ↦ mul_pos spf.hd (rpow_pos_of_pos ht spf.σ⁻¹)
   ton_is_ton := by
     split <;> rename_i sgn_σ
     · simp only [↓reduceIte]
@@ -1195,7 +1195,7 @@ instance spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
       · apply le_of_lt (div_pos hs spf.hd)
       · apply le_of_lt (div_pos ht spf.hd)
       · exact div_lt_div_of_pos_right hst spf.hd
-    · simp only [↓reduceIte]
+    · simp only [Bool.false_eq_true, ↓reduceIte]
       intro s (hs : s > 0) t (ht : t > 0) hst
       rcases spf.hσ with σ_pos | σ_neg
       · exact False.elim (sgn_σ σ_pos)
@@ -1497,7 +1497,7 @@ lemma lintegral_scale_constant_halfspace (f: ℝ → ENNReal) {a : ℝ} (h : 0 <
     · intro h₁
       exact (pos_iff_pos_of_mul_pos h₁).mp h
     · intro h₁
-      exact Real.mul_pos h h₁
+      exact mul_pos h h₁
   rw [h₀]
 
 lemma lintegral_scale_constant_halfspace' {f: ℝ → ENNReal} {a : ℝ} (h : 0 < a) :
@@ -2126,8 +2126,7 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [NormedAddCommGroup E₁] [Borel
     refine (rpow_lt_top_iff_of_pos this).mp ?_
     have := (estimate_eLpNorm_trunc (a := a) q_ne_top hpq (AEStronglyMeasurable.aemeasurable hf.1))
     refine lt_of_le_of_lt this ?_
-    apply mul_lt_top coe_ne_top
-    apply ne_of_lt
+    apply mul_lt_top coe_lt_top
     refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
     apply toReal_pos
     · exact ne_of_gt hpq.1
@@ -2143,8 +2142,7 @@ lemma trunc_compl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [
   refine (rpow_lt_top_iff_of_pos this).mp ?_
   refine lt_of_le_of_lt
       (estimate_eLpNorm_trunc_compl hp hpq (AEStronglyMeasurable.aemeasurable hf.1) ha ) ?_
-  apply mul_lt_top coe_ne_top
-  apply ne_of_lt
+  apply mul_lt_top coe_lt_top
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (ne_of_gt (lt_trans hpq.left hpq.right)) hp
 
@@ -2543,12 +2541,11 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       split_ifs
       · rfl
       · simp; positivity
-    _ ≤ ∫⁻ (x : α) in A n, n ^ p ∂μ := by
+    _ ≤ ∫⁻ (_x : α) in A n, n ^ p ∂μ := by
       apply setLIntegral_mono
       · exact measurable_const
       · intro x hx
         unfold_let g
-        unfold_let A
         unfold trunc_cut
         gcongr
         unfold indicator
@@ -2558,11 +2555,10 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     _ = n ^ p * μ (A n) := setLIntegral_const (A n) (↑n ^ p)
     _ < ⊤ := by
       apply mul_lt_top
-      · apply rpow_ne_top_of_nonneg
+      · apply rpow_lt_top_of_nonneg
         · linarith
         · exact coe_ne_top
       · unfold_let A
-        apply ne_of_lt
         exact measure_spanningSets_lt_top μ n
   have obs : ∀ n : ℕ, ∫⁻ x : α, (f x) * ((g n x) ^ (p - 1) /
       (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹) ∂μ ≥
@@ -3004,7 +3000,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         := by
       apply setLIntegral_congr_fun measurableSet_Ioi
       apply ae_of_all
-      intro s hs
+      intro s _
       rw [ENNReal.rpow_inv_rpow]
       · rw [one_div, ← ENNReal.rpow_mul, restrict_to_support_trnc hp₀]
       · positivity
@@ -3066,7 +3062,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
           exact norm_pos_iff'.mpr hfx
         · split_ifs with h
           · simp only [h, ↓reduceIte] at hpowers; linarith
-          · simp only [h, ↓reduceIte] at hpowers; linarith
+          · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
       · rw [← ofReal_rpow_of_nonneg] <;> try positivity
         congr
         exact Eq.symm norm_toNNReal
@@ -3294,7 +3290,7 @@ lemma wnorm_eq_zero_iff {f : α → E₁} {p : ℝ≥0∞} [NormedAddCommGroup E
 /-! ## Weaktype estimates applied to truncations -/
 
 lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} {a : ℝ} [NormedAddCommGroup E₁] :
-    eLpNorm (trnc j f a) p μ ≤ eLpNorm f p μ := eLpNorm_mono fun x ↦ trnc_le_func
+    eLpNorm (trnc j f a) p μ ≤ eLpNorm f p μ := eLpNorm_mono fun _x ↦ trnc_le_func
 
 -- TODO: remove the subindex 0 here
 lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : α → E₁}
@@ -3975,7 +3971,7 @@ lemma simplify_factor₀ {D : ℝ}
     · nth_rw 2 [div_eq_mul_inv]
       rw [ENNReal.mul_inv]
       · repeat rw [ENNReal.mul_rpow_of_ne_zero _ _ (q.toReal - q₀.toReal)]
-        · rw [← ENNReal.rpow_neg, ← ENNReal.rpow_neg] <;> try assumption
+        · rw [← ENNReal.rpow_neg, ← ENNReal.rpow_neg]
           repeat rw [← ENNReal.rpow_mul]
           repeat rw [← mul_assoc]
           rw [simplify_factor_rw_aux₀ (a := C₀ ^ q₀.toReal)]
@@ -4422,7 +4418,6 @@ lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     (eLpNorm f p μ ^ p.toReal) ^ (t * p₁⁻¹.toReal * q.toReal) = C₀ ^ ((1 - t) * q.toReal) *
     C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal := by
   have hp' : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
-  have t_pos := ht.1
   have := (Ioo.one_sub_mem ht).1
   have p₀pos : p₀ > 0 := hp₀.1
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀' hp₀.2
@@ -4637,11 +4632,8 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
   have q₁pos : q₁ > 0 := pos_of_rb_Ioc hp₁
   have q₀ne_top : q₀ ≠ ⊤ := LT.lt.ne_top hq₀q₁
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top q₀ne_top hp₀.2
-  have q₀lt_q_toReal : q₀.toReal < q.toReal :=
-    preservation_inequality_of_lt₀ ht q₀pos q₁pos hq hq₀q₁
   have q_toReal_ne_zero : q.toReal ≠ 0 :=
     ne_of_gt <| interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl q₀ne_top)
-  have hp' : p ∈ Ioo 0 ⊤ := interp_exp_in_Ioo_zero_top ht p₀pos p₁pos (Or.inl p₀ne_top) hp
   have p_eq_p₀ : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
   · refine le_of_eq_of_le ?_ (zero_le _)
@@ -4918,7 +4910,7 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A 
             apply ne_of_gt
             refine (ofReal_lt_ofReal_iff_of_nonneg ?_).mpr ?_
             · rfl
-            · apply Real.mul_pos
+            · apply _root_.mul_pos
               · exact zero_lt_two
               · exact hA
         · apply ne_of_gt
