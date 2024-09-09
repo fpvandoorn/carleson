@@ -31,3 +31,8 @@ theorem metric_carleson [CompatibleFunctions ℝ X (defaultA a)]
     ∫⁻ x in G, carlesonOperator K f x ≤
     ENNReal.ofReal (C1_0_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
   sorry
+
+/- maybe investigate: making `volume` implicit in both `hg` and `h3g` of `metric_carleson` causes slow
+elaboration. -/
+
+end

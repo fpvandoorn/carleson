@@ -36,7 +36,7 @@ def 𝓙₀ (G : Set (𝔓 X)) : Set (Grid X) :=
 
 /-- The definition of `𝓙(G), defined above Lemma 7.1.2 -/
 def 𝓙 (G : Set (𝔓 X)) : Set (Grid X) :=
-  maximals (·≤·) (𝓙₀ G)
+  {x | Maximal (· ∈ 𝓙₀ G) x}
 
 /-- The definition of `𝓛₀(G), defined above Lemma 7.1.2 -/
 def 𝓛₀ (G : Set (𝔓 X)) : Set (Grid X) :=
@@ -44,7 +44,7 @@ def 𝓛₀ (G : Set (𝔓 X)) : Set (Grid X) :=
 
 /-- The definition of `𝓛(G), defined above Lemma 7.1.2 -/
 def 𝓛 (G : Set (𝔓 X)) : Set (Grid X) :=
-  maximals (·≤·) (𝓛₀ G)
+  {x | Maximal (· ∈ 𝓛₀ G) x}
 
 /-- Part of Lemma 7.1.2 -/
 @[simp]
@@ -188,5 +188,5 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     ‖∫ x, conj (g x) * ∑ u ∈ Finset.univ.filter (· ∈ 𝔉.𝔘),
       ∑ p ∈ Finset.univ.filter (· ∈ 𝔉.𝔗 u), T p f x‖₊ ≤
     C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉.𝔘, 𝔉.𝔗 u)) ^ (q⁻¹ - 2⁻¹) *
-    snorm f 2 volume * snorm g 2 volume := by
+    eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry

@@ -1,4 +1,4 @@
-import Carleson.DiscreteCarleson
+import Carleson.Discrete.Forests
 import Carleson.TileExistence
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology Classical
@@ -7,7 +7,7 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 theorem integrable_tile_sum_operator
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {x : X} {s : ℤ} :
@@ -21,7 +21,11 @@ theorem integrable_tile_sum_operator
     · exact le_trans (h2f y) (F.indicator_le_self' (by simp) y)
     · rw_mod_cast [mul_comm, norm_eq_abs, abs_exp_ofReal_mul_I]
 
-@[reducible]   -- Used to simplify notation in the proof of `tile_sum_operator`
+section
+
+variable [TileStructure Q D κ S o]
+
+@[reducible] -- Used to simplify notation in the proof of `tile_sum_operator`
 private def 𝔓X_s (s : ℤ) := (@Finset.univ (𝔓 X) _).filter (fun p ↦ 𝔰 p = s)
 
 private lemma 𝔰_eq {s : ℤ} {p : 𝔓 X} (hp : p ∈ 𝔓X_s s) : 𝔰 p = s := by simpa using hp
@@ -92,11 +96,12 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ �
     rw [indicator_apply_eq_self.2 fun hy ↦ norm_le_zero_iff.1 (by simpa [hy] using h2f y),
       (Finset.mem_filter.1 p𝔓Xs).2]
 
+end
 
 /- The constant used in Proposition 2.0.1 -/
 def C2_0_1 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 
-lemma C2_0_1_pos : C2_0_1 a nnq > 0 := C2_0_2_pos
+lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
 
 variable (X) in
 theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧

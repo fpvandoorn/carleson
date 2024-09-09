@@ -12,7 +12,9 @@ import Carleson.Classical.SpectralProjectionBound
 import Carleson.Classical.VanDerCorput
 import Carleson.CoverByBalls
 import Carleson.Defs
-import Carleson.DiscreteCarleson
+import Carleson.Discrete.Defs
+import Carleson.Discrete.ExceptionalSet
+import Carleson.Discrete.Forests
 import Carleson.DoublingMeasure
 import Carleson.FinitaryCarleson
 import Carleson.Forest

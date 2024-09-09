@@ -62,6 +62,9 @@ end Generic
 open scoped ShortVariables
 variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
   {σ₁ σ₂ : X → ℤ} {F G : Set X} [ProofData a q K σ₁ σ₂ F G]
+
+section
+
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 -- maybe we should delete the following three notations, and use `dist_{𝓘 p}` instead?
@@ -198,12 +201,17 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
         exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
 
+end
+
 /-- The constraint on `λ` in the first part of Lemma 5.3.3. -/
 def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 
+include q K σ₁ σ₂ F G in
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
   rw [C5_3_3, inv_le (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
   exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
+
+variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 /-- Lemma 5.3.3, Equation (5.3.3) -/
 lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul n p ≤ smul n p' := by

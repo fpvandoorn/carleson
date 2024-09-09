@@ -2383,6 +2383,7 @@ Using $\kappa<1$ and $D \ge 12$, this proves the lemma.
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 As each $\fp\in \fL_4(k,n,j)$
 is contained in $\cup\mathcal{L}(\fu)$ for some
 $\fu\in \fU_1(k,n,l)$, we have
@@ -2419,22 +2420,22 @@ Now we estimate $G_3$ defined in \eqref{defineg3} by
 \begin{equation}
     \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
     \sum_{0\le j\le 2n+3}
-    2^{100a^2 + 9a + 4 + n + k -j} D^{-\kappa Z(n+1)}\mu(G)
+    2^{100a^2 + 9a + 3 + n + k -j} D^{-\kappa Z(n+1)}\mu(G)
 \end{equation}
 Summing geometric series, using that $D^{\kappa Z}\ge 8$ by \eqref{defineD}, \eqref{definekappa} and \eqref{defineZ}, we estimate this by
 \begin{equation}
     \le \sum_{k\ge 0}\, \sum_{n \geq k}\,
-    2^{100a^2 + 9a + 5 + n + k} D^{-\kappa Z(n+1)}\mu(G)
+    2^{100a^2 + 9a + 4 + n + k} D^{-\kappa Z(n+1)}\mu(G)
 \end{equation}
 \begin{equation}
-    = \sum_{k\ge 0} 2^{100a^2 + 9a + 5 + 2k} D^{-\kappa Z(k+1)} \sum_{n \geq k}\,
+    = \sum_{k\ge 0} 2^{100a^2 + 9a + 4 + 2k} D^{-\kappa Z(k+1)} \sum_{n \geq k}\,
     2^{n - k} D^{-\kappa Z(n-k)}\mu(G)
 \end{equation}
 \begin{equation}
-    \le \sum_{k\ge 0} 2^{100a^2 + 9a + 6 + 2k} D^{-\kappa Z(k+1)}\mu(G)
+    \le \sum_{k\ge 0} 2^{100a^2 + 9a + 5 + 2k} D^{-\kappa Z(k+1)}\mu(G)
 \end{equation}
 \begin{equation}
-   \le 2^{100a^2 + 9a + 7} D^{-\kappa Z}\mu(G)
+   \le 2^{100a^2 + 9a + 6} D^{-\kappa Z}\mu(G)
 \end{equation}
 Using $D = 2^{100a^2}$ and $a \ge 4$ and $\kappa Z \ge 2$ by \eqref{defineD} and \eqref{definekappa} proves the lemma.
 \end{proof}
@@ -3336,7 +3337,7 @@ Since $1< q\le 2$, we have $1<\tilde{q}<q\le 2$.
 We have that
 \begin{equation}\label{eqttt9}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
-  2^{111a^2}({q}-1)^{-1} \dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12} \|f\|_2\|g\|_2\, .
+  2^{111a^3}({q}-1)^{-1} \dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12} \|f\|_2\|g\|_2\, .
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -3362,7 +3363,7 @@ Taking the maximum over all $B'$ containing $x$, we obtain
 \end{equation}
 We have with \Cref{Hardy-Littlewood}
 \begin{equation}
-\left\|M_{\mathcal{B}, \frac {2q}{3q-2}} f\right\|_2\le 2^{2a}(3\tilde{q}-2)(2\tilde{q}-2)^{-1}\|f\|_2\, .
+\left\|M_{\mathcal{B}, \frac {2{\tilde{q}}}{3{\tilde{q}}-2}} f\right\|_2\le 2^{2a}(3\tilde{q}-2)(2\tilde{q}-2)^{-1}\|f\|_2\, .
 \end{equation}
 Using $1<\tilde{q}\le 2$ estimates the last display by
 \begin{equation}\label{eqttt2}
@@ -3377,12 +3378,12 @@ and then \Cref{maximal-bound-antichain}
      \le \|g\|_2 \Big\| \sum_{\fp \in \mathfrak{A}} T_{\fp} f \Big\|_2
 \end{equation}
  \begin{equation}
-     \le 2^{107a^2}\|g\|_2 \| M_{\mathcal{B}}f \|_2
+     \le 2^{107a^3}\|g\|_2 \| M_{\mathcal{B}}f \|_2
 \end{equation}
 With \eqref{eqttt1} and
 \eqref{eqttt2} we can estimate the last display by
 \begin{equation}
-    \le 2^{107a^2+2a+2}(\tilde{q}-1)^{-1} \|g\|_2 \|f\|_2\dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}
+    \le 2^{107a^3+2a+2}(\tilde{q}-1)^{-1} \|g\|_2 \|f\|_2\dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}
 \end{equation}
 Using $a\ge 4$ and
 $(\tilde q - 1)^{-1} = (q+1)/(q-1) \le 3(q-1)^{-1}$
@@ -6304,7 +6305,7 @@ This completes the proof of \Cref{Holder-van-der-Corput}.
 We begin with a classical representation of the Lebesgue norm.
 \begin{lemma}[layer cake representation]\label{layer-cake-representation}
 \leanok
-\lean{MeasureTheory.snorm_pow_eq_distribution}
+\lean{MeasureTheory.eLpNorm_pow_eq_distribution}
 Let $1\le p< \infty$. Then for any measurable function $u:X\to [0,\infty)$ on the measure space $X$
 relative to the measure $\mu$
 we have
@@ -6615,7 +6616,7 @@ We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Z
     |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
 \end{equation}
 %fixme: Should it be V(y,x) rather?
-By the additional regularity, we can weaken the assumption \eqref{nontanbound} to an operator that is easier to work with in applications.
+By the additional regularity, we can weaken the assumption \eqref{nontanbound} to a family of operators that is easier to work with in applications.
 Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f:X\to\C$ supported on a set of finite measure, we define
 \begin{equation}
 \label{def-T_r}
@@ -6657,7 +6658,7 @@ The following lemma is proved in \Cref{subsec-cotlar}.
 \begin{proof}[Proof of \Cref{two-sided-metric-space-Carleson}]
     \proves{two-sided-metric-space-Carleson}
     Let $1<q\le 2$ be a real number. Let $\Theta$ be a cancellative compatible collection of functions.
-    By the assumption \eqref{two-sided-Hr-bound-assumption}, we can apply \Cref{nontangential-from-simple} to obtain
+    By the assumption \eqref{two-sided-Hr-bound-assumption}, we can apply \Cref{nontangential-from-simple} to obtain for every bounded measurable $g:X\to\C$ supported on a set of finite measure,
     \begin{equation}\label{original-operator-assumption}
         \|T_*g\|_2\le 2^{3a^3}\|g\|_2.
     \end{equation}
@@ -6666,7 +6667,7 @@ The following lemma is proved in \Cref{subsec-cotlar}.
         K'(x,y):= 2^{-2a^3} K(x,y) \,.
     \end{equation*}
     Then $K'$ is a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Denote the corresponding maximally truncated non-tangential singular operator by $T_*'$ and the corresponding generalized Carleson operator by $T'$.
-    With \eqref{original-operator-assumption}, we obtain
+    With \eqref{original-operator-assumption}, we obtain for $g$ as above,
     \begin{equation}\label{modified-operator-assumption}
         \|T_*'g\|_2\le 2^{a^3}\|g\|_2.
     \end{equation}
@@ -6674,11 +6675,11 @@ The following lemma is proved in \Cref{subsec-cotlar}.
     all Borel functions $f:X\to \C$ with
     $|f|\le \mathbf{1}_F$, we have
     \begin{equation*}
-        \left|\int_{G} T' f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \left|\int_{G} T' f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation*}
     This finishes the proof since for all $x\in X$,
     \begin{equation*}
-        T'f(x) = 2^{-2^a} Tf(x) \,.
+        T'f(x) = 2^{-2a^3} Tf(x) \,.
     \end{equation*}
 \end{proof}
 
@@ -6686,7 +6687,7 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
 \begin{lemma}[Weak 1 1]
     \label{weak-1-1}
     \uses{Calderon-Zygmund-decomposition,estimate-bad,estimate-good}
-    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that for every bounded measurable function $g$ on $X$ supported on a set of finite measure,
+    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that for every bounded measurable function $g:X\to\C$ supported on a set of finite measure,
     \begin{equation}
         \label{eq-strong-2-2-assumption}
         \|T_rg\|_{2}\le 2^{a^3} \|g\|_2.
@@ -6707,10 +6708,9 @@ Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD,subsec-cotlar} have no depe
 
 \begin{lemma}
     \label{geometric-series-estimate}
-    %fixme: Rename a to something else, make the estimate sharp?
-    For all real numbers $a\ge 4$,
+    For all real numbers $x\ge 4$,
     \begin{equation*}
-        \sum_{n=0}^\infty 2^{-\frac{n}{a}} \le 2^a.
+        \sum_{n=0}^\infty 2^{-\frac{n}{x}} \le 2^x.
     \end{equation*}
 \end{lemma}
 \begin{proof}
@@ -6718,13 +6718,13 @@ Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD,subsec-cotlar} have no depe
     \begin{equation*}
         2^{\lambda(-\frac{1}{4})} \le \lambda 2^{-\frac{1}{4}} + (1-\lambda)2^0.
     \end{equation*}
-    For $\lambda:=\frac{4}{a}$, we obtain
+    For $\lambda:=\frac{4}{x}$, we obtain
     \begin{equation*}
-        2^{-\frac 1 a} \le 1 - (1-2^{-\frac 1 4}) \frac{4}{a}.
+        2^{-\frac 1 x} \le 1 - (1-2^{-\frac 1 4}) \frac{4}{x}.
     \end{equation*}
     We conclude
     \begin{equation*}
-        \sum_{n=0}^\infty 2^{-\frac{n}{a}} = \frac{1}{1-2^{-\frac 1 a}} \le \frac{1}{4(1-2^{-\frac 1 4})} a \le 2^a.
+        \sum_{n=0}^\infty 2^{-\frac{n}{x}} = \frac{1}{1-2^{-\frac 1 x}} \le \frac{1}{4(1-2^{-\frac 1 4})} x \le 2^x.
     \end{equation*}
 \end{proof}
 
@@ -6765,14 +6765,13 @@ Overall, we have estimated \eqref{xx'difference} by
 \end{equation}
 \begin{equation}
 \label{secondxx'}
-  +  \left|\int_{2r\le\rho(x,y)} (K(x',y)-K(x,y)) g(y) \,d\mu(y)
+  +  \left|\int_{2r\le\rho(x,y)} (K(x,y)-K(x',y)) g(y) \,d\mu(y)
 \right|
 \end{equation}
 \begin{equation}
 \label{thirdxx'}
-  +\left|\int_{r\le\rho(x',y), r\le\rho(x,y)<2r}
-|K(x',y) g(y)|\, d\mu(y)
-\right|
+  +\int_{r\le\rho(x',y), r\le\rho(x,y)<2r}
+|K(x',y)| |g(y)|\, d\mu(y)\,.
 \end{equation}
 Using the bound on $K$ in \eqref{eqkernel-size} and the doubling condition \eqref{doublingx}, we estimate \eqref{firstxx'} by
 \begin{align}
@@ -6813,13 +6812,13 @@ with the triangle inequality by
 \begin{align}
  &\sum_{j=1}^\infty  \int_{2^jr\le\rho(x,y)< 2^{j+1}r}
  \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)} |g(y)| \,d\mu(y)\, \\
- &\le
+ \le&
  \sum_{j=1}^\infty \left( 2^{-j} \right)^{\frac{1}{a}} \int_{2^jr\le\rho(x,y)< 2^{j+1}r} \frac{2^{a^3}}{\mu(B(x,2^j r))} |g(y)| \,d\mu(y) \\
- &\le
+ \le&
 \sum_{j=1}^\infty 2^{-\frac{j}{a}} \frac{2^{a^3 + a}}{\mu(B(x,2^{j+1} r))} \int_{\rho(x,y)<2^{j+1}r}
 |g(y)| \, d\mu(y) \\
 \label{secondxx'c}
-&\le 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
+\le& 2^{a^3 + a} \sum_{j=1}^\infty 2^{-\frac{j}{a}} Mg(x)\,.
 \end{align}
 Using \Cref{geometric-series-estimate}, we estimate
 \eqref{secondxx'c} by
@@ -6887,7 +6886,7 @@ We  have
 = \int_{B(x',R)\setminus (B(x',r) \cup B(x,\frac{R}{2}))} K(x',y) g(y) \,d\mu(y)
 \end{equation}
 As $\frac{R}{2}\le\rho(x,y)$ together with $\rho(x,x')\le\frac {R}{4}$ implies
-$\frac {R}{4}\le\rho(x',y)$, we can estimate \eqref{eqcotlar2} with \eqref{eqkernel-size} by
+$\frac {R}{4}\le\rho(x',y)$, we can estimate the absolute value of \eqref{eqcotlar2} with \eqref{eqkernel-size} by
 \begin{align*}
 \le &\frac{2^{a^3}}{\mu(B(x',\frac{R}{4}))} \int_{B(x,2R)\setminus B(x',\frac{R}{4})}
 |g(y)|\, d\mu(y) \\
@@ -6929,7 +6928,7 @@ We have with \eqref{first-cotlar-exception}
 \end{equation}
 \begin{equation}
     \ge
-    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{F_1} 4 M(T_rg)(x)\, dx'
+    \frac 1{\mu(B(x,\frac{R}{4}))}\int_{F_1} 4 M(T_rg)(x)\, dx' \,.
 \end{equation}
 Dividing by $M(T_rg)(x)$ gives
 \begin{equation}
@@ -7003,9 +7002,9 @@ Taking the $L^2$ norm and using \Cref{Hardy-Littlewood} with $a=4$  and $p_2=2$ 
      \le 2^{a^3+20a+4} \|Mg\|_2 + 2^{2}\|M(T_rg)\|_2
 \end{equation}
 \begin{equation}
-     \le 2^{a^3+24a+5} \|g\|_2 + 2^{4a+3}\|T_r(g)\|_2\, .
+     \le 2^{a^3+24a+5} \|g\|_2 + 2^{4a+3}\|T_r g\|_2\, .
 \end{equation}
-Applying \eqref{two-sided-Hr-bound-assumption}, gives
+Applying \eqref{two-sided-Hr-bound-assumption} gives
 \begin{equation}
       \|T_{*}^r g\|_2\le 2^{a^3+24a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
 \end{equation}
@@ -7014,7 +7013,7 @@ This shows \eqref{trzerobound} and completes the proof of the lemma.
 %fixme: Change location of next argument?
 In order to pass from the one-sided truncation in $T_r$ and $T_{*}^r$ to the two-sided truncation in $T_*$, we show in the following two lemmas that the integral in \eqref{def-tang-unm-op} can be exchanged for an integral over the difference of two balls.
 \begin{lemma} \label{small-annulus}
-    Let $f$ be a bounded measurable function with bounded support on $X$.
+    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure.
     Let $x\in X$ and $R>0$.
     Then, for all $\epsilon>0$, there exists some $\delta>0$ such that
     \begin{equation}
@@ -7037,7 +7036,7 @@ By continuity from above of $\mu$, the right factor becomes arbitrarily small as
 
 \begin{lemma}\label{tang-unm-op-ball-diff}
     \uses{small-annulus}
-    Let $f$ be a bounded measurable function with bounded support on $X$.
+    Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure.
     For all $x\in X$,
     \begin{equation}
     \label{tang-unm-op-eq}
@@ -7046,7 +7045,7 @@ By continuity from above of $\mu$, the right factor becomes arbitrarily small as
 \end{lemma}
 \begin{proof}
 We show two inequalities. Let $\epsilon>0$.
-Let $R_1<R_2$ and $x'\in B(x,R_1)$. Then for $\delta>0$,
+Let $R_1<R_2$ and $x'\in B(x,R_1)$. Then for small enough $\delta>0$,
 \begin{alignat}{3}
     \label{eq-without-suprema-1}
     &&&\left|\int_{R_1<\rho(x',y)<R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right| \\
@@ -7085,11 +7084,11 @@ Fix $g$ as in the Lemma.
 Applying \Cref{simple-nontangential-operator} with a
 sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
 \begin{equation}\label{tzerobound}
-    \|T_{0}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
+    \|T_*^{0}g\|_2\le 2^{a^3+24a+6}\|g\|_2,
 \end{equation}
 where
 \begin{equation}\label{eq-simpler--nontangential}
-    T_{0} g(x):=\sup_{0<R}\sup_{x'\in B(x,R)} \left|\int_{X\setminus B(x',R)}
+    T_*^{0} g(x):=\sup_{0<R}\sup_{x'\in B(x,R)} \left|\int_{X\setminus B(x',R)}
 K(x',y) g(y)\, d\mu(y)\right|\, .
 \end{equation}
 We now write using \Cref{tang-unm-op-ball-diff} and the triangle inequality,
@@ -7117,6 +7116,9 @@ $x'\in B(x,R_2)$, at which time the integral does not depend on $R_1$, we estima
 
 \section{Calder\'on-Zygmund Decomposition}
 \label{subsec-CZD}
+Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
+It is classical and can be found in \cite{stein-book}.
+
 The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref{Hardy-Littlewood}.
 %fixme: Incorporate this into Hardy-Littlewood?
 \begin{lemma} [Maximal theorem]
@@ -7184,8 +7186,6 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
 \end{proof}
 
-Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
-It is classical and can be found in \cite{stein-book}.
 %\begin{lemma}[Vitali covering]
 %    \label{Vitali-covering}
 %    \leanok
@@ -7246,7 +7246,7 @@ so
 \end{equation}
 Now let $z\in X$. By maximality, there exists some $j\in J$ with $B(z,\frac{\delta(z)}{6}) \cap B_j \ne \emptyset$. By \eqref{control-distance-growth},
 \begin{equation*}
-    \rho(z,x_j)\le \frac{\delta(z)}{6} + \frac{\delta(x_j)}{6} \le \frac{3\delta(x_j)}{6} = 3r_j
+    \rho(z,x_j)< \frac{\delta(z)}{6} + \frac{\delta(x_j)}{6} \le \frac{3\delta(x_j)}{6} = 3r_j
 \end{equation*}
 and thus $z\in B_j^*$.
 
@@ -7326,11 +7326,11 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
 
 \begin{proof}
 Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$.
-Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$. We apply \Cref{ball-covering} with $O=E_\alpha$ to obtain the family $B_j, j\in J,$. Without loss of generality, we can assume $J=\N$. Define
+Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$. We apply \Cref{ball-covering} with $O=E_\alpha$ to obtain the family $B_j, j\in J,$. Without loss of generality, we can assume $J=\N$. Define inductively
 \begin{equation}
     Q_j := B_j^* \setminus \left(\bigcup_{i<j} Q_i \cup \bigcup_{i>j} B_i \right).
 \end{equation}
-Then the $B_j\subset Q_j\subset B_j^*$, the $Q_j$ are pairwise disjoint and $\bigcup_j Q_j = E_\alpha$.
+Then $B_j\subset Q_j\subset B_j^*$, the $Q_j$ are pairwise disjoint and $\bigcup_j Q_j = E_\alpha$.
 Define
 \begin{equation}
     \label{eq-g-def}
@@ -7414,7 +7414,7 @@ and $\alpha' := c\alpha$. If $\alpha'\le\frac{1}{\mu(X)}\int |f|\,d\mu$, then we
     \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)\le \mu(X) \le \frac{1}{\alpha'} \int |f(y)|\, d\mu(y)
     \le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y),
 \end{equation*}
-which proves \eqref{eq-weak-1-1}
+which proves \eqref{eq-weak-1-1}.
 So assume from now on that $\alpha'>\frac{1}{\mu(X)}\int |f|\,d\mu$.
 Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $\alpha'$, we obtain the decomposition
 \begin{equation*}
@@ -7536,7 +7536,7 @@ For each $j\in \mathcal{J}_2(x)$, we have
     T_r b_j(x)&=\int_{B_j} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy \\
     &= \int_{B_j} (K(x,y)-K(x,x_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy.
 \end{align*}
-Thus, using the triangle inequality, the estimate above and \eqref{eq-dj-est}, we obtain
+Thus, using the triangle inequality, the equation above and \eqref{eq-dj-est}, we obtain
 \begin{equation*}
     |T_r b_j(x)|\le
 \end{equation*}
@@ -7559,7 +7559,7 @@ We claim that
     \label{eq-J2-union-subset}
     A\subset B(x,3r) \setminus B(x,\frac{r}{3}).
 \end{equation}
-Indeed, for each $j\in \mathcal{J}_2(x)$ and $y\in B_j$,
+Indeed, for each $j\in \mathcal{J}_2(x)$ and $y\in B_j$, using again \eqref{eq-Om-cj},
 \begin{equation*}
     \rho(x,x_j) < r+r_j \le r + \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) < 2r
 \end{equation*}
@@ -7601,10 +7601,10 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \label{estimate-F-set}
     \uses{Calderon-Zygmund-decomposition,geometric-series-estimate}
     For $F$ as defined in \Cref{estimate-Tr-bad-X-minus-Omega}, we have
-    \begin{equation*}
+    \begin{equation}
         \label{eq-F-X-minus-Omega}
         \mu(\{x\in X\setminus\Omega: F(x)>\alpha/8\}) \le \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
-    \end{equation*}
+    \end{equation}
 \end{lemma}
 
 \begin{proof}
@@ -7756,7 +7756,7 @@ where $\phi_\delta$ is a nonnegative smooth bump function with $\supp (\phi_\del
 
 \begin{proof}
     \leanok
-    Most of this is part of the Lean library.
+    Periodicity follows directly from the definitions. The other properties are part of the Lean library.
 \end{proof}
 
 We prove in \Cref{10smooth}:
@@ -7812,7 +7812,7 @@ Using \Cref{smooth-approximation,convergence-for-smooth,control-approximation-ef
 This shows \eqref{aeconv} for the given $E$ and $N_0$.
 \end{proof}
 
-Let $\kappa:\R\to \R$ be the function defined by
+Let $\kappa:\R\to \C$ be the function defined by
 $\kappa(0)=0$ and for $0<|x|<1$
 \begin{equation}\label{eq-hilker}
 \kappa(x)=\frac { 1-|x|}{1-e^{ix}}\,

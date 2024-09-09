@@ -1,4 +1,4 @@
-/- The arguments in this file contains section 11.2 (smooth functions) from the paper. -/
+/- This file contains the arguments from section 11.2 (smooth functions) from the blueprint. -/
 
 import Carleson.MetricCarleson
 import Carleson.Classical.Basic
@@ -14,40 +14,9 @@ noncomputable section
 open BigOperators
 open Finset
 
-section
-open Metric
---might be generalized
---TODO : choose better name
-lemma uniformContinuous_iff_bounded {α : Type*} {β : Type*} [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} {b : ℝ} (bpos : b > 0):
-  UniformContinuous f ↔ ∀ ε > 0, ∃ δ > 0, δ < b ∧ ∀ {x y : α}, dist x y < δ → dist (f x) (f y) < ε := by
-  rw [Metric.uniformContinuous_iff]
-  refine ⟨fun h ε εpos ↦ ?_, fun h ε εpos ↦ ?_⟩
-  · obtain ⟨δ', δ'pos, hδ'⟩ := h ε εpos
-    use min δ' (b / 2)
-    refine ⟨(lt_min δ'pos (by linarith)).gt, ⟨min_lt_of_right_lt (div_two_lt_of_pos bpos),
-        fun hxy ↦ hδ' (lt_of_lt_of_le hxy (min_le_left δ' (b / 2)))⟩⟩
-  · obtain ⟨δ, δpos, _, hδ⟩ := h ε εpos
-    use δ
-end section
-
 local notation "S_" => partialFourierSum
 
-/- TODO: might be generalized. -/
---TODO: probably not needed here in this form
-lemma close_smooth_approx {f : ℝ → ℂ} (unicontf : UniformContinuous f) {ε : ℝ} (εpos : ε > 0):
-    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
-  obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
-  let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
-  let f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
-    (ContinuousLinearMap.lsmul ℝ ℝ) MeasureTheory.volume
-  refine ⟨f₀, ?_, fun x ↦ ?_⟩
-  · exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
-      φ.contDiff_normed unicontf.continuous.locallyIntegrable
-  · rw [← Complex.dist_eq, dist_comm]
-    exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
-      fun y hy ↦ (hδ hy).le
 
-/- Slightly different version-/
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * Real.pi)) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ f₀.Periodic (2 * Real.pi) ∧
@@ -59,8 +28,7 @@ lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuo
   refine ⟨f₀, ?_, fun x ↦ ?_, fun x ↦ ?_⟩
   · exact HasCompactSupport.contDiff_convolution_left _ φ.hasCompactSupport_normed
       φ.contDiff_normed unicontf.continuous.locallyIntegrable
-  · /-TODO: improve this. -/
-    rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
+  · rw [f₀def, MeasureTheory.convolution, MeasureTheory.convolution]
     congr with t
     congr 1
     convert periodicf (x - t) using 2
@@ -68,25 +36,6 @@ lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuo
   · rw [← Complex.dist_eq, dist_comm]
     exact ContDiffBump.dist_normed_convolution_le unicontf.continuous.aestronglyMeasurable
       fun y hy ↦ (hδ hy).le
-
-/- Inspired by mathlib : NNReal.summable_of_le-/
-lemma Real.summable_of_le {β : Type} {f g : β → ℝ}
-    (hgpos : 0 ≤ g) (hgf : ∀ (b : β), g b ≤ f b) (summablef : Summable f) :
-  Summable g := Summable.of_nonneg_of_le hgpos hgf summablef
-  /-
-  set g' : β → NNReal := fun b ↦ ⟨g b, hgpos b⟩ with g'def
-  set f' : β → NNReal := fun b ↦ ⟨f b, (hgpos b).trans (hgf b)⟩ with f'def
-  have hf'f: f = (fun b ↦ (f' b : ℝ)) := by norm_cast
-  have hg'g: g = (fun b ↦ (g' b : ℝ)) := by norm_cast
-  rw [hg'g, NNReal.summable_coe]
-  have : ∀ b : β, g' b ≤ f' b := by
-    intro b
-    rw [f'def, g'def, ←NNReal.coe_le_coe]
-    simp
-    exact hgf b
-  apply NNReal.summable_of_le this
-  rwa [←NNReal.summable_coe, ←hf'f]
-  -/
 
 -- local lemma
 lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ i ≠ 0, g i ≤ f i) (summablef : Summable f) : Summable g := by
@@ -98,7 +47,7 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
     · simp [h]
     · simp only [h, ↓reduceIte]
       exact hgf i h
-  apply Real.summable_of_le hgpos this
+  apply Summable.of_nonneg_of_le hgpos this
   let s : Finset ℤ := {0}
   rw [← s.summable_compl_iff]
   apply (summable_congr _).mpr (s.summable_compl_iff.mpr summablef)
@@ -123,13 +72,13 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
     fourier_coe_apply', Complex.ofReal_mul, Complex.ofReal_ofNat, smul_eq_mul, Complex.real_smul,
     Complex.ofReal_inv, map_mul, map_inv₀, Complex.abs_ofReal, Complex.abs_ofNat]
   field_simp
-  rw [abs_of_nonneg Real.pi_pos.le, mul_comm Real.pi, div_le_iff Real.two_pi_pos, ←Complex.norm_eq_abs]
+  rw [abs_of_nonneg Real.pi_pos.le, mul_comm Real.pi, div_le_iff₀ Real.two_pi_pos, ←Complex.norm_eq_abs]
   calc ‖∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), (starRingEnd ℂ) (Complex.exp (2 * Real.pi * Complex.I * n * x / (2 * Real.pi))) * f x‖
     _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), (starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
       congr with x
       congr
       ring_nf
-      rw [mul_comm, ←mul_assoc, ←mul_assoc, ←mul_assoc, inv_mul_cancel]
+      rw [mul_comm, ←mul_assoc, ←mul_assoc, ←mul_assoc, inv_mul_cancel₀]
       · ring
       · simp [ne_eq, Complex.ofReal_eq_zero, Real.pi_pos.ne.symm]
     _ ≤ ∫ (x : ℝ) in (0 : ℝ)..(2 * Real.pi), ‖(starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
@@ -166,10 +115,9 @@ lemma periodic_deriv {𝕜 : Type} [NontriviallyNormedField 𝕜] {F : Type} [No
   simp [(periodic_f y).symm]
 
 /-TODO: might be generalized. -/
-/-TODO: Assumption periodicf is probably not needed actually. -/
-lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f): ∃ C, ∀ n ≠ 0, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C / n ^ 2 := by
---#check IsCompact.exists_isMaxOn
-  --TODO: improve this
+/-TODO: The assumption periodicf is probably not needed actually. -/
+lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) :
+    ∃ C, ∀ n ≠ 0, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C / n ^ 2 := by
   have h : ∀ x ∈ Set.uIcc 0 (2 * Real.pi), HasDerivAt f (deriv f x) x := by
     intro x _
     rw [hasDerivAt_deriv_iff]
@@ -200,7 +148,7 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
 open Topology Filter
 
 /-TODO : Assumptions might be weakened-/
-lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
+lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
     Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
   have := hfa.nat_add_neg.tendsto_sum_nat
   have := (Filter.Tendsto.add_const (- (f 0))) this
@@ -230,10 +178,7 @@ lemma int_sum_nat {β : Type} [AddCommGroup β] [TopologicalSpace β] [Continuou
     · norm_num
       linarith
 
---theorem HasSum.nat_add_neg {f : ℤ → M} (hf : HasSum f m) :
---    HasSum (fun n : ℕ ↦ f n + f (-n)) (m + f 0) := by
 
-/-TODO: Weaken statement to pointwise convergence to simplify proof?-/
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * Real.pi)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
     ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * Real.pi), ‖f x - S_ N f x‖ ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * Real.pi) := by

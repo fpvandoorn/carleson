@@ -39,6 +39,10 @@ lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
   refine Finset.sum_congr rfl (fun u _ ↦ ?_)
   by_cases hx : x ∈ (𝓘 u : Set X) <;> simp [hx]
 
+lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) := by
+  simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
+  refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
+
 /-! We might want to develop some API about partitioning a set.
 But maybe `Set.PairwiseDisjoint` and `Set.Union` are enough.
 Related, but not quite useful: `Setoid.IsPartition`. -/

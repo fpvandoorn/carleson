@@ -1,14 +1,20 @@
+/- This file contains definitions and lemmas regarding the Hilbert kernel. -/
+
+import Carleson.Classical.Helper
 import Carleson.Classical.Basic
+
 import Mathlib.Tactic.FunProp
+
 
 noncomputable section
 
 open Complex ComplexConjugate
 
---TODO: rename this and introduce local notation
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - exp (I * x))
 
-/- Little helper lemmas. -/
+
+/- Basic properties of k. -/
+
 lemma k_of_neg_eq_conj_k {x : ℝ} : k (-x) = conj (k x) := by
   simp [k, conj_ofReal, ← exp_conj, conj_I, neg_mul]
 
@@ -18,7 +24,6 @@ lemma k_of_abs_le_one {x : ℝ} (abs_le_one : |x| ≤ 1) : k x = (1 - |x|) / (1 
 lemma k_of_one_le_abs {x : ℝ} (abs_le_one : 1 ≤ |x|) : k x = 0 := by
   rw [k, max_eq_right (by linarith)]
   simp
-
 
 @[measurability]
 lemma k_measurable : Measurable k := by
@@ -50,7 +55,6 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
         · linarith
         · apply lower_secant_bound _ (by rfl)
           rw [Set.mem_Icc]
-          --TODO : improve calculations
           constructor
           · simp
             calc |x - y|
@@ -78,14 +82,8 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
     rw [this]
     exact div_nonneg (by norm_num) (by linarith [abs_nonneg (x-y)])
 
-/-TODO: to mathlib-/
-theorem Real.volume_uIoc {a b : ℝ} : MeasureTheory.volume (Set.uIoc a b) = ENNReal.ofReal |b - a| := by
-  /- Cf. proof of Real.volume_interval-/
-  rw [Set.uIoc, volume_Ioc, max_sub_min_eq_abs]
-
 /-Main part of the proof of Hilbert_kernel_regularity -/
 /-TODO: This can be local, i.e. invisible to other files. -/
-/-TODO: might be improved using lower_secant_bound' -/
 lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 0 ≤ y') (ypos : 0 < y) (y2ley' : y / 2 ≤ y') (hy : y ≤ 1) (hy' : y' ≤ 1) :
     ‖k (-y) - k (-y')‖ ≤ 2 ^ 6 * (1 / |y|) * (|y - y'| / |y|) := by
   rw [k_of_abs_le_one, k_of_abs_le_one]
@@ -93,7 +91,6 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
     rw [_root_.abs_of_nonneg yy'nonneg.1, _root_.abs_of_nonneg yy'nonneg.2]
     let f : ℝ → ℂ := fun t ↦ (1 - t) / (1 - exp (-(I * t)))
     set f' : ℝ → ℂ := fun t ↦ (-1 + exp (-(I * t)) + I * (t - 1) * exp (-(I * t))) / (1 - exp (-(I * t))) ^ 2 with f'def
-    /-TODO: externalize as lemma?-/
     set c : ℝ → ℂ := fun t ↦ (1 - t) with cdef
     set c' : ℝ → ℂ := fun t ↦ -1 with c'def
     set d : ℝ → ℂ := fun t ↦ (1 - exp (-(I * t))) with ddef
@@ -223,29 +220,27 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
   simp at h
   simp only [zero_sub, abs_neg]
   wlog yy'nonneg : 0 ≤ y ∧ 0 ≤ y' generalizing y y'
-  · --TODO : improve case distinction to avoid nesting
-    by_cases yge0 : 0 ≤ y
+  · by_cases yge0 : 0 ≤ y
     · push_neg at yy'nonneg
       exfalso
       rw [_root_.abs_of_nonneg yge0, _root_.abs_of_nonneg] at h <;> linarith [yy'nonneg yge0]
-    --rcases ltTrichotomy
-    · push_neg at yge0
-      by_cases y'ge0 : 0 ≤ y'
-      · exfalso
-        rw [abs_of_neg yge0, abs_of_neg] at h <;> linarith
-      · -- This is the only interesting case.
-        push_neg at y'ge0
-        set! y_ := -y with y_def
-        set! y'_ := -y' with y'_def
-        have h_ : 2 * |y_ - y'_| ≤ |y_| := by
-          rw [y_def, y'_def, ← abs_neg]
-          simpa [neg_add_eq_sub]
-        have y_y'_nonneg : 0 ≤ y_ ∧ 0 ≤ y'_ := by constructor <;> linarith
-        have := this h_ y_y'_nonneg
-        rw [y_def, y'_def] at this
-        simp only [neg_neg, abs_neg, sub_neg_eq_add, neg_add_eq_sub] at this
-        rw [← RCLike.norm_conj, map_sub, ← k_of_neg_eq_conj_k, ← k_of_neg_eq_conj_k, ←abs_neg (y' - y)] at this
-        simpa
+    push_neg at yge0
+    by_cases y'ge0 : 0 ≤ y'
+    · exfalso
+      rw [abs_of_neg yge0, abs_of_neg] at h <;> linarith
+    /- This is the only interesting case. -/
+    push_neg at y'ge0
+    set! y_ := -y with y_def
+    set! y'_ := -y' with y'_def
+    have h_ : 2 * |y_ - y'_| ≤ |y_| := by
+      rw [y_def, y'_def, ← abs_neg]
+      simpa [neg_add_eq_sub]
+    have y_y'_nonneg : 0 ≤ y_ ∧ 0 ≤ y'_ := by constructor <;> linarith
+    have := this h_ y_y'_nonneg
+    rw [y_def, y'_def] at this
+    simp only [neg_neg, abs_neg, sub_neg_eq_add, neg_add_eq_sub] at this
+    rw [← RCLike.norm_conj, map_sub, ← k_of_neg_eq_conj_k, ← k_of_neg_eq_conj_k, ←abs_neg (y' - y)] at this
+    simpa
   /-"Wlog" 0 < y-/
   by_cases ypos : y ≤ 0
   · have y_eq_zero : y = 0 := le_antisymm ypos yy'nonneg.1
@@ -255,9 +250,9 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     simp [y_eq_zero, y'_eq_zero]
   push_neg at ypos
 
-  -- Beginning of the main proof.
+  /- Beginning of the main proof -/
   have y2ley' : y / 2 ≤ y' := by
-    rw [div_le_iff two_pos]
+    rw [div_le_iff₀ two_pos]
     calc y
       _ = 2 * (y - y') - y + 2 * y' := by ring
       _ ≤ 2 * |y - y'| - y + 2 * y' := by gcongr; exact le_abs_self _
@@ -266,7 +261,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
         rw [abs_eq_self.mpr yy'nonneg.1] at h
         exact h
       _ = y' * 2 := by ring
-  /- Distinguish four cases. -/
+  /- Distinguish four cases -/
   rcases le_or_gt y 1, le_or_gt y' 1 with ⟨hy | hy, hy' | hy'⟩
   · apply le_trans (Hilbert_kernel_regularity_main_part yy'nonneg ypos y2ley' hy hy')
     gcongr <;> norm_num
@@ -317,7 +312,6 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
           rw [_root_.abs_of_nonneg yy'nonneg.1]
         _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by norm_num
     · rw [abs_neg, _root_.abs_of_nonneg] <;> linarith
-
   · calc ‖k (-y) - k (-y')‖
       _ = 0 := by
         rw [norm_eq_abs, AbsoluteValue.map_sub_eq_zero_iff, k_of_one_le_abs,

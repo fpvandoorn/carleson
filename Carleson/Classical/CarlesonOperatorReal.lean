@@ -1,3 +1,6 @@
+/- This file contains the definition and basic properties of the Carleson operator on the real line.
+-/
+
 import Carleson.Classical.HilbertKernel
 
 noncomputable section
@@ -47,7 +50,7 @@ lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Se
   rw [Set.mem_inter_iff, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ioi] at hy
   exact hy.1.2.le.trans (le_biSup _ ⟨hy.1.1, hy.2⟩)
 
-lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
+lemma measurable_mul_kernel {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
     Measurable (Function.uncurry fun x y ↦ f y * K x y * (Complex.I * n * y).exp) :=
       ((hf.comp measurable_snd).mul Hilbert_kernel_measurable).mul
   (measurable_const.mul (Complex.measurable_ofReal.comp measurable_snd)).cexp
@@ -55,7 +58,7 @@ lemma helper {n : ℤ} {f : ℝ → ℂ} (hf : Measurable f) :
 local notation "T" => carlesonOperatorReal K
 
 
-lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f):= by
+lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f) := by
   --TODO: clean up proof
   apply measurable_iSup
   intro n
@@ -74,9 +77,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   set Q : Set ℝ := Rat.cast '' Set.univ with Qdef
   have hQ : Dense Q ∧ Countable Q := by
     constructor
-    . rw [Rat.denseEmbedding_coe_real.dense_image]
+    · rw [Rat.denseEmbedding_coe_real.dense_image]
       exact dense_univ
-    . rw [Set.countable_coe_iff, Qdef, Set.image_univ]
+    · rw [Set.countable_coe_iff, Qdef, Set.image_univ]
       exact Set.countable_range _
   have : (fun x ↦ ⨆ (r ∈ Set.Ioo 0 1), G x r) = (fun x ↦ ⨆ (r ∈ (Set.Ioo 0 1) ∩ Q), G x r) := by
     ext x
@@ -90,54 +93,54 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       rw [eventually_nhds_iff]
       use S
       constructor
-      . intro s hs
-        apply Filter.eventually_of_forall
+      · intro s hs
+        apply Filter.Eventually.of_forall
         intro y
         rw [bound_def, Fdef, norm_indicator_eq_indicator_norm]
         simp only
         rw [norm_indicator_eq_indicator_norm]
         apply Set.indicator_le_indicator_of_subset
-        . intro y hy
+        · intro y hy
           constructor <;> linarith [hy.1, hy.2, hs.1]
-        . intro y
+        · intro y
           apply norm_nonneg
       constructor
-      . apply isOpen_Ioo
-      . rw [Sdef]
+      · apply isOpen_Ioo
+      · rw [Sdef]
         constructor <;> linarith [hr.1]
     apply MeasureTheory.continuousAt_of_dominated _  h_bound
-    . have F_bound_on_set :  ∀ a ∈ {y | dist x y ∈ Set.Ioo (r / 2) 1},  ‖f a * K x a * (Complex.I * ↑n * ↑a).exp‖ ≤ B * ‖2 ^ (2 : ℝ) / (2 * (r / 2))‖ := by
+    · have F_bound_on_set :  ∀ a ∈ {y | dist x y ∈ Set.Ioo (r / 2) 1},
+          ‖f a * K x a * (Complex.I * ↑n * ↑a).exp‖ ≤ B * ‖2 ^ (2 : ℝ) / (2 * (r / 2))‖ := by
         intro a ha
         rw [norm_mul, norm_mul, mul_assoc Complex.I, mul_comm Complex.I]
         norm_cast
         rw [Complex.norm_exp_ofReal_mul_I, mul_one]
         gcongr
-        . linarith [f_bounded 0, norm_nonneg (f 0)]
-        . exact f_bounded a
-        . rw [Set.mem_setOf_eq] at ha
+        · linarith [f_bounded 0, norm_nonneg (f 0)]
+        · exact f_bounded a
+        · rw [Set.mem_setOf_eq] at ha
           rw [Real.norm_eq_abs, abs_of_nonneg (by apply div_nonneg (by norm_num); linarith [hr.1])]
           calc _
             _ ≤ 2 ^ (2 : ℝ) / (2 * |x - a|) := Hilbert_kernel_bound
             _ ≤ 4 / (2 * (r / 2)) := by
               gcongr
-              . linarith [hr.1]
-              . norm_num
-              . rw [← Real.dist_eq]
+              · linarith [hr.1]
+              · norm_num
+              · rw [← Real.dist_eq]
                 exact ha.1.le
       rw [bound_def, Fdef]
       conv => pattern ‖_‖; rw [norm_indicator_eq_indicator_norm]
       rw [MeasureTheory.integrable_indicator_iff annulus_measurableSet]
       apply MeasureTheory.Measure.integrableOn_of_bounded
-      . rw [annulus_real_volume (by constructor <;> linarith [hr.1, hr.2])]
+      · rw [annulus_real_volume (by constructor <;> linarith [hr.1, hr.2])]
         exact ENNReal.ofReal_ne_top
-      . --measurability
-        apply ((Measurable.of_uncurry_left (helper f_measurable)).norm).aestronglyMeasurable
-      . --interesting part
+      · apply ((Measurable.of_uncurry_left (measurable_mul_kernel f_measurable)).norm).aestronglyMeasurable
+      · --interesting part
         rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
         simp_rw [norm_norm]
-        apply Filter.eventually_of_forall
+        apply Filter.Eventually.of_forall
         apply F_bound_on_set
-    . have contOn1 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Iio (dist x y)) := by
+    · have contOn1 : ∀ (y : ℝ), ContinuousOn (fun s ↦ F x s y) (Set.Iio (dist x y)) := by
         intro y
         rw [continuousOn_iff_continuous_restrict]
         apply continuous_of_const
@@ -146,12 +149,12 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         rw [Fdef]
         simp only [Set.mem_Ioo]
         by_cases h : dist x y < 1
-        . rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
-          . simp
+        · rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
+          · simp
             use ht
-          . simp
+          · simp
             use hs
-        . push_neg at h
+        · push_neg at h
           rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
           all_goals
             simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
@@ -165,25 +168,25 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         rw [Fdef]
         simp
         rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
-        . rw [Set.mem_Ioi, min_lt_iff] at ht
+        · rw [Set.mem_Ioi, min_lt_iff] at ht
           simp
           intro h
           rcases ht with h' | h'
-          . exfalso
+          · exfalso
             exact (lt_self_iff_false _).mp (h'.trans h)
-          . exact (h'.trans h).le
-        . rw [Set.mem_Ioi, min_lt_iff] at hs
+          · exact (h'.trans h).le
+        · rw [Set.mem_Ioi, min_lt_iff] at hs
           simp
           intro h
           rcases hs with h' | h'
-          . exfalso
+          · exfalso
             exact (lt_self_iff_false _).mp (h'.trans h)
-          . exact (h'.trans h).le
+          · exact (h'.trans h).le
       have contOn : ∀ y, ∀ t ≠ dist x y, ContinuousAt (fun s ↦ F x s y) t := by
         intro y t ht
         by_cases h : t < dist x y
-        . exact_mod_cast (contOn1 y).continuousAt (Iio_mem_nhds h)
-        . push_neg at h
+        · exact_mod_cast (contOn1 y).continuousAt (Iio_mem_nhds h)
+        · push_neg at h
           exact ContinuousOn.continuousAt (contOn2 y) (Ioi_mem_nhds
             ((min_le_left _ _).trans_lt (lt_of_le_of_ne h ht.symm)))
       have subset_finite : {y | ¬ContinuousAt (fun s ↦ F x s y) r} ⊆ ({x - r, x + r} : Finset ℝ) := by
@@ -195,21 +198,45 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         rw [Real.dist_eq, abs_eq hr.1.le] at this
         simp
         rcases this with h | h
-        . left; linarith
-        . right; linarith
+        · left; linarith
+        · right; linarith
       rw [MeasureTheory.ae_iff]
       exact MeasureTheory.measure_mono_null subset_finite (Finset.measure_zero _ _)
-    . exact Filter.eventually_of_forall fun r ↦ ((Measurable.of_uncurry_left
-        (helper f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
+    · exact Filter.Eventually.of_forall fun r ↦ ((Measurable.of_uncurry_left
+        (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
   apply measurable_biSup _
-  . apply Set.Countable.mono Set.inter_subset_right hQ.2
+  · apply Set.Countable.mono Set.inter_subset_right hQ.2
   intro r _
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)
   rw [← stronglyMeasurable_iff_measurable]
   apply MeasureTheory.StronglyMeasurable.integral_prod_right
   rw [stronglyMeasurable_iff_measurable, Fdef]
-  exact (helper f_measurable).indicator (measurable_dist measurableSet_Ioo)
+  exact (measurable_mul_kernel f_measurable).indicator (measurable_dist measurableSet_Ioo)
+
+--TODO: Refactor the measurability proof to use the following.
+
+/-
+import Mathlib.MeasureTheory.Measure.MeasureSpace
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+
+open TopologicalSpace MeasureTheory Set
+
+variable {α β : Type*} [MeasurableSpace α]
+  [MeasurableSpace β]
+  {ι : Type*} [LinearOrder ι] [TopologicalSpace ι] [OrderTopology ι] [DenselyOrdered ι] [SecondCountableTopology ι]
+  {f : ι → α → β} [ConditionallyCompleteLattice β]
+  [TopologicalSpace β] [OrderTopology β] [SecondCountableTopology β]
+  [BorelSpace β]
+
+lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
+    (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
+    (h2f : ∀ i, Measurable (f i)) :
+    Measurable (⨆ i ∈ s, f i ·) := sorry
+  -- use SecondCountableTopology to rewrite the sup as a sup over the countable dense set (or similar)
+  -- then use measurable_iSup
+-/
+
 
 lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
   rw [CarlesonOperatorReal, carlesonOperatorReal, ENNReal.mul_iSup]
@@ -244,32 +271,11 @@ lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ}
   left
   rw [Set.indicator]
   split_ifs with hy
-  . left; rfl
-  . right
+  · left; rfl
+  · right
     apply k_of_one_le_abs
     simp only [Set.mem_Ioo, not_and_or, not_lt] at hy
     rw [le_abs]
     rcases hy with hy | hy
-    . left; linarith [hx.1]
-    . right; linarith [hx.2]
-
-/-
-import Mathlib.MeasureTheory.Measure.MeasureSpace
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-
-open TopologicalSpace MeasureTheory Set
-
-variable {α β : Type*} [MeasurableSpace α]
-  [MeasurableSpace β]
-  {ι : Type*} [LinearOrder ι] [TopologicalSpace ι] [OrderTopology ι] [DenselyOrdered ι] [SecondCountableTopology ι]
-  {f : ι → α → β} [ConditionallyCompleteLattice β]
-  [TopologicalSpace β] [OrderTopology β] [SecondCountableTopology β]
-  [BorelSpace β]
-
-lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
-    (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
-    (h2f : ∀ i, Measurable (f i)) :
-    Measurable (⨆ i ∈ s, f i ·) := sorry
-  -- use SecondCountableTopology to rewrite the sup as a sup over the countable dense set (or similar)
-  -- then use measurable_iSup
--/
+    · left; linarith [hx.1]
+    · right; linarith [hx.2]
