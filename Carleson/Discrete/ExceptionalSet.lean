@@ -35,7 +35,7 @@ lemma third_exception_rearrangement :
       congr! 2 with k; rw [← ENNReal.tsum_mul_left]
       congr! 2 with n; rw [mul_ite, mul_zero]; congr 1
       have c1 : (C5_2_9 X n : ℝ≥0∞) = D ^ (1 - κ * Z * (k + 1)) * D ^ (-κ * Z * (n - k)) := by
-        rw [C5_2_9, ← ENNReal.coe_rpow_of_ne_zero (by rw [defaultD]; positivity),
+        rw [C5_2_9, ENNReal.coe_rpow_of_ne_zero (by rw [defaultD]; positivity),
           ENNReal.coe_natCast,
           ← ENNReal.rpow_add _ _ (by rw [defaultD]; positivity) (by rw [defaultD]; simp)]
         congr; ring
