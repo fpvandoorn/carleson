@@ -67,16 +67,14 @@ lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖�
 lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
   meas_eLpNormEssSup_lt
 
-@[measurability]
+@[measurability, fun_prop]
 lemma distribution_measurable₀ : Measurable (fun t ↦ distribution f t μ) :=
   Antitone.measurable (distribution_mono_right' (f := f) (μ := μ))
 
-@[measurability]
+@[measurability, fun_prop]
 lemma distribution_measurable {g : α' → ℝ≥0∞} (hg : Measurable g) :
     Measurable (fun y : α' ↦ distribution f (g y) μ) := by
-  let composition := (fun t : ℝ≥0∞ ↦ distribution f t μ) ∘ g
-  change Measurable (composition)
-  exact Measurable.comp distribution_measurable₀ hg
+  fun_prop
 
 @[measurability, deprecated]
 lemma distribution_measurable_from_real :
@@ -112,12 +110,11 @@ lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E)
     intro x
     simp only [mem_diff, mem_setOf_eq, mem_union, not_or, not_lt, mem_compl_iff, not_le, and_imp]
     intro h₁ h₂ h₃
-    refine (ofReal_lt_ofReal_iff_of_nonneg ?_).mp ?_
-    · positivity
-    · rw [ofReal_mul, ofReal_add] <;> try positivity
-      repeat rw [ofReal_norm_eq_coe_nnnorm] <;> try positivity
-      refine lt_of_le_of_lt ?_ h₁
-      gcongr
+    refine (ofReal_lt_ofReal_iff_of_nonneg (by positivity)).mp ?_
+    rw [ofReal_mul, ofReal_add] <;> try positivity
+    repeat rw [ofReal_norm_eq_coe_nnnorm] <;> try positivity
+    refine lt_of_le_of_lt ?_ h₁
+    gcongr
   calc
     μ {x | ENNReal.ofReal A * (t + s) < ‖f x‖₊}
       ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := by apply measure_mono_ae' h₁
@@ -145,10 +142,9 @@ lemma approx_above_superset (t₀ : ℝ≥0∞) :
     have h₂ := ENNReal.tendsto_inv_nat_nhds_zero h₁
     simp at h₂
     rcases h₂ with ⟨n, wn⟩
-    have h₃ : (↑n)⁻¹ < ↑‖f y‖₊ - t₀ := wn n (Nat.le_refl n)
-    simp
+    simp only [mem_iUnion, mem_setOf_eq]
     use n
-    exact lt_tsub_iff_left.mp h₃
+    exact lt_tsub_iff_left.mp (wn n (Nat.le_refl n))
 
 lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
     Filter.Tendsto (⇑μ ∘ (fun n : ℕ ↦ {x | t₀ + (↑n)⁻¹ < ‖f x‖₊}))
@@ -188,8 +184,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
       constructor
       · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top
           (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
-      · use Ioi t₀
-        exact ⟨by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
+      · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
     -- Case: distribution f t₀ μ < ⊤
     · refine (ENNReal.tendsto_nhds db_not_top.ne_top).mpr fun ε ε_gt_0 ↦
         eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
@@ -281,11 +276,9 @@ lemma eLpNorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
     eLpNorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 < (p : ℝ) := hp
-  have h3p : (p : ℝ) ≠ 0 := h2p.ne'
-  have h4p : 0 ≤ (p : ℝ) := zero_le_coe
   simp_rw [eLpNorm_nnreal_eq_eLpNorm' hp.ne', eLpNorm', one_div, ← ENNReal.rpow_mul,
-    inv_mul_cancel₀ h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
-    ENNReal.ofReal_mul h4p, ofReal_coe_nnreal]
+    inv_mul_cancel₀ h2p.ne', ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
+    ENNReal.ofReal_mul zero_le_coe, ofReal_coe_nnreal]
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
     taking powers. -/
