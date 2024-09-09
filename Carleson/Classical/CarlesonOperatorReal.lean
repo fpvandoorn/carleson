@@ -219,8 +219,8 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
 --TODO: Refactor the measurability proof to use the following.
 
 /-
-import Mathlib.Measure.MeasureSpace
-import Mathlib.Constructions.BorelSpace.Basic
+import Mathlib.MeasureTheory.Measure.MeasureSpace
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
 open TopologicalSpace MeasureTheory Set
 
