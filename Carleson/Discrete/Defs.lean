@@ -41,7 +41,7 @@ def auxℭ (k n : ℕ) : Set (𝔓 X) :=
 
 /-- The partition `ℭ(k, n)` of `𝔓(k)` by density, given in (5.1.7). -/
 def ℭ (k n : ℕ) : Set (𝔓 X) :=
-  { p ∈ TilesAt k | dens' k {p} ∈ Ioc (2 ^ (4 * a - n)) (2 ^ (4 * a - n + 1)) }
+  { p ∈ TilesAt k | dens' k {p} ∈ Ioc (2 ^ (4 * a - n : ℤ)) (2 ^ (4 * a - n + 1 : ℤ)) }
 
 lemma ℭ_subset_TilesAt {k n : ℕ} : ℭ k n ⊆ TilesAt (X := X) k := fun t mt ↦ by
   rw [ℭ, mem_setOf] at mt; exact mt.1
@@ -93,6 +93,8 @@ lemma 𝔘₁_subset_ℭ₁ {k n j : ℕ} : 𝔘₁ k n j ⊆ ℭ₁ (X := X) k 
 /-- The subset `𝔏₂(k, n, j)` of `ℭ₂(k, n, j)`, given in (5.1.15). -/
 def 𝔏₂ (k n j : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ₂ k n j | ¬ ∃ u ∈ 𝔘₁ k n j, 𝓘 p ≠ 𝓘 u ∧ smul 2 p ≤ smul 1 u }
+
+lemma 𝔏₂_subset_ℭ₂ {k n j : ℕ} : 𝔏₂ k n j ⊆ ℭ₂ (X := X) k n j := fun _ mu ↦ mu.1
 
 /-- The subset `ℭ₃(k, n, j)` of `ℭ₂(k, n, j)`, given in (5.1.16). -/
 def ℭ₃ (k n j : ℕ) : Set (𝔓 X) :=
