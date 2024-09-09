@@ -146,12 +146,12 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         /- simp only [T, indicator, if_pos hxE, mul_ite, mul_zero, ENNReal.coe_le_coe,
           ← NNReal.coe_le_coe, coe_nnnorm] -/
         /- simp only [T, indicator, if_pos hxE]
-        apply le_trans (MeasureTheory.ennnorm_integral_le_lintegral_ennnorm _)
-        apply MeasureTheory.lintegral_mono
+        apply le_trans (ennnorm_integral_le_lintegral_ennnorm _)
+        apply lintegral_mono
         intro z w -/
         simp only [carlesonOn, indicator, if_pos hxE]
-        apply le_trans (MeasureTheory.ennnorm_integral_le_lintegral_ennnorm _)
-        apply MeasureTheory.lintegral_mono
+        apply le_trans (ennnorm_integral_le_lintegral_ennnorm _)
+        apply lintegral_mono
         intro z w
         simp only [nnnorm_mul, coe_mul, some_eq_coe', Nat.cast_pow,
           Nat.cast_ofNat, zpow_neg, mul_ite, mul_zero]
@@ -194,7 +194,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     _ = (2 : ℝ≥0)^(5*a + 101*a^3) * ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       congr 2
 
-      --apply MeasureTheory.Measure.restrict_congr_set
+      --apply Measure.restrict_congr_set
       --refine ae_eq_of_subset_of_measure_ge ?_ ?_ ?_ ?_
       --sorry
       sorry
@@ -282,7 +282,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
       apply mul_le_mul_of_nonneg_right _ (zero_le _)
       have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
         simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
-      rw [h2, ← MeasureTheory.eLpNorm_const_smul]
+      rw [h2, ← eLpNorm_const_smul]
       apply eLpNorm_mono_nnnorm
       intro z
       have MB_top : MB volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) f z ≠ ⊤ := by

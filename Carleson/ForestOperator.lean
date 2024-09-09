@@ -101,7 +101,7 @@ def r𝓑 (z : ℕ × Grid X) : ℝ := 2 ^ z.1 * D ^ s z.2
 /-- The constant used in `first_tree_pointwise`.
 Has value `10 * 2 ^ (105 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_1_4 (a : ℝ) : ℝ≥0 := 10 * 2 ^ (105 * a ^ 3)
+def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (105 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.4 -/
 lemma first_tree_pointwise (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (hx : x ∈ L) (hx' : x' ∈ L)
@@ -120,7 +120,7 @@ lemma second_tree_pointwise (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (hx
 /-- The constant used in `third_tree_pointwise`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_1_6 (a : ℝ) : ℝ≥0 := 2 ^ (151 * a ^ 3)
+def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.6 -/
 lemma third_tree_pointwise (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (hx : x ∈ L) (hx' : x' ∈ L)
@@ -132,7 +132,7 @@ lemma third_tree_pointwise (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (hx 
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_1_3 (a : ℝ) : ℝ≥0 := 2 ^ (151 * a ^ 3)
+def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (hx : x ∈ L) (hx' : x' ∈ L)

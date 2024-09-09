@@ -172,19 +172,19 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
 
 -- Named for consistency with `lintegral_add_left'`
 -- Maybe add laverage/laverage theorems for all the other lintegral_add statements?
-lemma laverage_add_left {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+lemma laverage_add_left {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {f g : α → ENNReal} (hf : AEMeasurable f μ) :
     ⨍⁻ x, (f x + g x) ∂μ = ⨍⁻ x, f x ∂μ + ⨍⁻ x, g x ∂μ := by
   simp_rw [laverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf]
 
 -- Named for consistency with `lintegral_mono'`
-lemma laverage_mono {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+lemma laverage_mono {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {f g : α → ENNReal} (h : ∀ x, f x ≤ g x) :
     ⨍⁻ x, f x ∂μ ≤ ⨍⁻ x, g x ∂μ := by
   simp_rw [laverage_eq]
   exact ENNReal.div_le_div_right (lintegral_mono h) (μ univ)
 
-lemma laverage_const_mul {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+lemma laverage_const_mul {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {f : α → ENNReal} {c : ENNReal} (hc : c ≠ ⊤) :
     c * ⨍⁻ x, f x ∂μ = ⨍⁻ x, c * f x ∂μ := by
   simp_rw [laverage_eq, ← mul_div_assoc c, lintegral_const_mul' c f hc]
@@ -193,13 +193,13 @@ lemma laverage_const_mul {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureThe
 
 -- Named for consistency with `lintegral_add_left'`
 -- Maybe add laverage/setLaverage theorems for all the other lintegral_add statements?
-lemma setLaverage_add_left' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+lemma setLaverage_add_left' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} {f g : α → ENNReal} (hf : AEMeasurable f μ) :
     ⨍⁻ x in s, (f x + g x) ∂μ = ⨍⁻ x in s, f x ∂μ + ⨍⁻ x in s, g x ∂μ := by
   simp_rw [setLaverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf.restrict]
 
 -- Named for consistency with `setLintegral_mono'`
-lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} (hs : MeasurableSet s) {f g : α → ENNReal} (h : ∀ x ∈ s, f x ≤ g x) :
     ⨍⁻ x in s, f x ∂μ ≤ ⨍⁻ x in s, g x ∂μ := by
   simp_rw [setLaverage_eq]
