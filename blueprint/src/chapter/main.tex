@@ -4467,6 +4467,8 @@ In this subsection we prove the following estimate on $L^2$ for operators associ
 
 \begin{lemma}[tree projection estimate]
     \label{tree-projection-estimate}
+    \leanok
+    \lean{TileStructure.Forest.tree_projection_estimate}
     \uses{dyadic-partitions,pointwise-tree-estimate,nontangential-operator-bound,boundary-operator-bound}
     Let $\fu \in \fU$.
     Then we have for all $f, g$ bounded with bounded support
@@ -4484,7 +4486,9 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 
 \begin{lemma}[nontangential operator bound]
     \label{nontangential-operator-bound}
-  \uses{Hardy-Littlewood}
+    \leanok
+    \lean{TileStructure.Forest.nontangential_operator_bound}
+    \uses{Hardy-Littlewood}
     For all bounded $f$ with bounded supportand all $\mfa \in \Mf$
     $$
         \|T_{\mathcal{N}}^{\mfa} f\|_2 \le 2^{103a^3} \|f\|_2\,.
@@ -4493,6 +4497,8 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 
 \begin{lemma}[boundary operator bound]
     \label{boundary-operator-bound}
+    \leanok
+    \lean{TileStructure.Forest.boundary_operator_bound}
     \uses{Hardy-Littlewood,boundary-overlap}
     For all $\fu \in \fU$ and all bounded functions $f$ with bounded support
     \begin{equation}
@@ -4678,6 +4684,8 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 
 \begin{lemma}[boundary overlap]
     \label{boundary-overlap}
+    \leanok
+    \lean{TileStructure.Forest.boundary_overlap}
     For every cube $I \in \mathcal{D}$, there exist at most $2^{9a}$ cubes $J \in \mathcal{D}$ with $s(J) = s(I)$ and $B(c(I), 16D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne \emptyset$.
 \end{lemma}
 

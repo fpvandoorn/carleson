@@ -157,6 +157,7 @@ lemma nontangential_operator_bound
     eLpNorm (nontangentialMaximalFunction θ f · |>.toReal) 2 volume ≤ eLpNorm f 2 volume := by
   sorry
 
+/-- Lemma 7.2.4. -/
 lemma boundary_overlap (I : Grid X) :
     Finset.card { J | s J = s I ∧ ¬ Disjoint (ball (c I) (4 * D ^ s I)) (ball (c J) (4 * D ^ s J)) }
     ≤ 2 ^ (9 * a) := by
