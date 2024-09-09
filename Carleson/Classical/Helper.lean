@@ -19,7 +19,7 @@ lemma intervalIntegrable_of_bdd {a b : ℝ} {δ : ℝ} {g : ℝ → ℂ} (measur
   · exact intervalIntegrable_const
   · exact measurable_g.aestronglyMeasurable
   · rw [Filter.EventuallyLE, ae_restrict_iff_subtype measurableSet_uIoc]
-    apply Filter.eventually_of_forall
+    apply Filter.Eventually.of_forall
     rw [Subtype.forall]
     exact fun x _ ↦ bddg x
 

@@ -1,9 +1,6 @@
 import Carleson.GridStructure
 import Carleson.Psi
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section

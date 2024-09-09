@@ -218,12 +218,12 @@ lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 ≤ p := hp.le
   have := MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
-    (eventually_of_forall fun x ↦ norm_nonneg _) hf.norm hp
+    (Eventually.of_forall fun x ↦ norm_nonneg _) hf.norm hp
   simp [*, ENNReal.coe_rpow_of_nonneg, ← ENNReal.ofReal_rpow_of_nonneg, ← ofReal_norm_eq_coe_nnnorm,
     ofReal_mul, ← lintegral_const_mul', ← mul_assoc, mul_comm (μ _), distribution]
     at this ⊢
   convert this using 1
-  refine setLIntegral_congr_fun measurableSet_Ioi (eventually_of_forall fun x hx ↦ ?_)
+  refine setLIntegral_congr_fun measurableSet_Ioi (Eventually.of_forall fun x hx ↦ ?_)
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/

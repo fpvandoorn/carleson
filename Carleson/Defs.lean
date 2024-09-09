@@ -1,9 +1,6 @@
 import Carleson.DoublingMeasure
 import Carleson.WeakType
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
 open scoped ENNReal
 noncomputable section

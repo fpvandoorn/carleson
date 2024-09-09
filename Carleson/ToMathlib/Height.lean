@@ -3,8 +3,8 @@ Copyright (c) 2024 Joachim Breitner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-import Mathlib.Order.RelSeries
 import Mathlib.Data.ENat.Lattice
+import Mathlib.Order.RelSeries
 
 /-!
 # Height of an element in a partial order
@@ -100,12 +100,6 @@ lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) 
 
 variable {α : Type*}
 
-lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0 < p.length) :
-    r p.eraseLast.last p.last := by
-  simp only [last, Fin.last, eraseLast_length, eraseLast_toFun]
-  convert p.step ⟨p.length -1, by omega⟩
-  simp; omega
-
 /-- Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
 `p` is a singleton. -/
 def LTSeries.replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
@@ -128,9 +122,6 @@ lemma LTSeries.last_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.
 lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
     (p.replaceLast x h).length = p.length := by
   unfold replaceLast; split <;> (simp;omega)
-
-lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last :=
-  LTSeries.monotone p (Fin.zero_le (Fin.last p.length))
 
 lemma LTSeries.int_head_add_le_toFun (p : LTSeries ℤ) (i : Fin (p.length + 1)) : p.head + i ≤ p i := by
   have ⟨i, hi⟩ := i
@@ -274,7 +265,7 @@ lemma coe_lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
   constructor
   · intro h
     obtain ⟨m, hx : height x = m⟩ := Option.ne_none_iff_exists'.mp (LT.lt.ne_top hfin)
-    rw [hx] at h; norm_num at h
+    rw [hx, Nat.cast_lt] at h
     obtain ⟨p, hp, hlen⟩ := exists_series_of_height_eq_coe x hx
     use p ⟨n, by omega⟩
     constructor
@@ -313,10 +304,6 @@ lemma height_eq_coe_iff (x : α) (n : ℕ) :
     congr! 3
     rename_i y _
     cases height y <;> simp ; norm_cast; omega
-
-/-- Probably redundant -/
-theorem minimal_iff_forall_lt_not_mem {x : α} {s : Set α} :
-    Minimal (· ∈ s) x ↔ x ∈ s ∧ ∀ ⦃y⦄, y < x → y ∉ s := minimal_iff_forall_lt
 
 lemma minimal_iff_height_eq_zero (a : α) : Minimal (fun _ ↦ True) a ↔ height a = 0 := by
   simp [minimal_iff_forall_lt, height_eq_zero_iff]
