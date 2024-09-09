@@ -239,7 +239,7 @@ lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
 
 
 lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
-  rw [CarlesonOperatorReal, carlesonOperatorReal, ENNReal.mul_iSup]
+  rw [carlesonOperatorReal, carlesonOperatorReal, ENNReal.mul_iSup]
   congr with n
   rw [ENNReal.mul_iSup]
   congr with r
@@ -261,7 +261,7 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
 
 
 lemma carlesonOperatorReal_eq_of_restrict_interval {f : ℝ → ℂ} {a b : ℝ} {x : ℝ} (hx : x ∈ Set.Icc a b) : T f x = T ((Set.Ioo (a - 1) (b + 1)).indicator f) x := by
-  rw [CarlesonOperatorReal, carlesonOperatorReal]
+  simp_rw [carlesonOperatorReal]
   congr with n
   congr with _
   congr with _

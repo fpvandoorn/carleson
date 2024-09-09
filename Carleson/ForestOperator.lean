@@ -186,7 +186,7 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)
     (h2g : IsBounded (support g)) :
     ‖∫ x, conj (g x) * ∑ u ∈ Finset.univ.filter (· ∈ 𝔉.𝔘),
-      ∑ p ∈ Finset.univ.filter (· ∈ 𝔉.𝔗 u), T p f x‖₊ ≤
+      ∑ p ∈ Finset.univ.filter (· ∈ 𝔉.𝔗 u), carlesonOn p f x‖₊ ≤
     C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉.𝔘, 𝔉.𝔗 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry

@@ -573,9 +573,9 @@ lemma Hilbert_strong_2_2 : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 
 local notation "T" => carlesonOperatorReal K
 
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
-lemma carlesonOperatorReal_le_CarlesonOperator : T ≤ carlesonOperator K := by
+lemma carlesonOperatorReal_le_carlesonOperator : T ≤ carlesonOperator K := by
   intro f x
-  rw [CarlesonOperator, carlesonOperatorReal]
+  rw [carlesonOperator, carlesonOperatorReal]
   apply iSup_le
   intro n
   apply iSup_le
@@ -600,7 +600,7 @@ lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
   have conj_exponents : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, carlesonOperator K f x :=
-      MeasureTheory.lintegral_mono (CarlesonOperatorReal_le_CarlesonOperator _)
+      MeasureTheory.lintegral_mono (carlesonOperatorReal_le_carlesonOperator _)
     _ ≤ ENNReal.ofReal (C10_0_1 4 2) * (MeasureTheory.volume G) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹ :=
       two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 f hmf hf
 

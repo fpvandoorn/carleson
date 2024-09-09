@@ -40,11 +40,11 @@ private lemma 𝔓_biUnion : @Finset.univ (𝔓 X) _ = (Icc (-S : ℤ) S).toFins
 
 private lemma sum_eq_zero_of_nmem_Icc {f : X → ℂ} {x : X} (s : ℤ)
     (hs : s ∈ (Icc (-S : ℤ) S).toFinset.filter (fun t ↦ t ∉ Icc (σ₁ x) (σ₂ x))) :
-    ∑ i ∈ Finset.filter (fun p ↦ 𝔰 p = s) Finset.univ, T i f x = 0 := by
+    ∑ i ∈ Finset.filter (fun p ↦ 𝔰 p = s) Finset.univ, carlesonOn i f x = 0 := by
   refine Finset.sum_eq_zero (fun p hp ↦ ?_)
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
-  rw [T, Set.indicator_of_not_mem]
+  rw [carlesonOn, Set.indicator_of_not_mem]
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
@@ -63,7 +63,7 @@ lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (�
 
 /-- Lemma 4.0.3 -/
 theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    {x : X} (hx : x ∈ G \ G') : ∑ (p : 𝔓 X), T p f x =
+    {x : X} (hx : x ∈ G \ G') : ∑ (p : 𝔓 X), carlesonOn p f x =
     ∑ s in Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   rw [𝔓_biUnion, Finset.sum_biUnion]; swap
   · exact fun s _ s' _ hss' A hAs hAs' p pA ↦ False.elim <| hss' (𝔰_eq (hAs pA) ▸ 𝔰_eq (hAs' pA))
@@ -78,7 +78,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ �
   · rcases exists_Grid hx.1 hs with ⟨I, Is, xI⟩
     obtain ⟨p, 𝓘pI, Qp⟩ : ∃ (p : 𝔓 X), 𝓘 p = I ∧ Q x ∈ Ω p := by simpa using biUnion_Ω ⟨x, rfl⟩
     have p𝔓Xs : p ∈ 𝔓X_s s := by simpa [𝔰, 𝓘pI]
-    have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → T p' f x = 0 := by
+    have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → carlesonOn p' f x = 0 := by
       intro p' p'𝔓Xs p'p
       apply indicator_of_not_mem
       simp only [E, mem_setOf_eq, not_and]
@@ -91,10 +91,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ �
       ⟨𝓘pI ▸ xI, Qp, by
         have := 𝔰_eq p𝔓Xs ▸ hs
         simpa only [toFinset_Icc, Finset.mem_Icc] using this⟩
-    simp only [T_def', Nat.cast_pow, Nat.cast_ofNat, defaultκ, zpow_neg, xEp, indicator_of_mem]
-    refine congr_arg _ (funext fun y ↦ ?_)
-    rw [indicator_apply_eq_self.2 fun hy ↦ norm_le_zero_iff.1 (by simpa [hy] using h2f y),
-      (Finset.mem_filter.1 p𝔓Xs).2]
+    simp_rw [carlesonOn_def', indicator_of_mem xEp, 𝔰_eq p𝔓Xs]
 
 end
 
