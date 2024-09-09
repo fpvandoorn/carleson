@@ -101,14 +101,12 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   apply (OuterMeasureClass.measure_mono volume this).trans
   -- Apply `measure_biUnion_le_lintegral` to `u := F.indicator 1` to bound the volume of ⋃ 𝓑.
   let u := F.indicator (1 : X → ℝ≥0∞)
-  have hu : AEStronglyMeasurable u volume :=
-    AEStronglyMeasurable.indicator aestronglyMeasurable_one measurableSet_F
   have h2u : ∀ p ∈ 𝓑, K * volume (Metric.ball (𝔠 p) (r p)) ≤
       ∫⁻ (x : X) in ball (𝔠 p) (r p), u x := by
     intro p h
     simp_rw [𝓑, mem_toFinset] at h
     simpa [u, lintegral_indicator, Measure.restrict_apply, measurableSet_F, r, h] using (hr h).2.le
-  have ineq := 𝓑.measure_biUnion_le_lintegral (A := defaultA a) K0 hu h2u
+  have ineq := 𝓑.measure_biUnion_le_lintegral (A := defaultA a) K u h2u
   simp only [u, lintegral_indicator, measurableSet_F, Pi.one_apply, lintegral_const,
     MeasurableSet.univ, Measure.restrict_apply, univ_inter, one_mul] at ineq
   rw [← mul_le_mul_left K0.ne.symm K_ne_top]
