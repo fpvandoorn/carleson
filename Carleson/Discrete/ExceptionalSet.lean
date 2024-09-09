@@ -131,7 +131,7 @@ end first_exception
 /-- Lemma 5.2.2 -/
 lemma dense_cover (k : ℕ) : volume (⋃ i ∈ 𝓒 (X := X) k, (i : Set X)) ≤ 2 ^ (k + 1) * volume G := by
   let M : Finset (Grid X) :=
-    Finset.univ.filter fun j ↦ (2 ^ (-(k + 1 : ℕ) : ℤ) * volume (j : Set X) < volume (G ∩ j))
+    { j | 2 ^ (-(k + 1 : ℕ) : ℤ) * volume (j : Set X) < volume (G ∩ j) }
   have s₁ : ⋃ i ∈ 𝓒 (X := X) k, (i : Set X) ⊆ ⋃ i ∈ M, ↑i := by
     simp_rw [𝓒]; intro q mq; rw [mem_iUnion₂] at mq ⊢; obtain ⟨i, hi, mi⟩ := mq
     rw [aux𝓒, mem_diff, mem_setOf] at hi; obtain ⟨j, hj, mj⟩ := hi.1
@@ -173,7 +173,7 @@ lemma pairwiseDisjoint_E1 : (𝔐 (X := X) k n).PairwiseDisjoint E₁ := fun p m
 
 /-- Lemma 5.2.4 -/
 lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Set X) ⊆ setA l k n := by
-  let M : Finset (𝔓 X) := Finset.univ.filter (fun p ↦ p ∈ 𝔐 k n ∧ x ∈ 𝓘 p)
+  let M : Finset (𝔓 X) := { p | p ∈ 𝔐 k n ∧ x ∈ 𝓘 p }
   simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at hx ⊢
   obtain ⟨b, memb, minb⟩ := M.exists_min_image 𝔰 (Finset.card_pos.mp (zero_le'.trans_lt hx))
@@ -251,7 +251,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
 /-- Equation (5.2.11) in the proof of Lemma 5.2.5. -/
 lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) :
     2 * volume (setA (X := X) (l + 1) k n ∩ L) ≤ volume (L : Set X) := by
-  let Q₁ := Finset.univ.filter (fun q ↦ q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L)
+  let Q₁ : Finset (𝔓 X) := { q | q ∈ 𝔐 (X := X) k n ∧ 𝓘 q ≤ L }
   have Q₁m : ∀ i ∈ Q₁, Measurable ((𝓘 i : Set X).indicator (1 : X → ℝ≥0∞)) := fun _ _ ↦
     measurable_one.indicator coeGrid_measurable
   have e528 : ∑ q ∈ Q₁, volume (E₁ q) ≤ volume (L : Set X) :=
@@ -382,7 +382,7 @@ section TopTiles
 
 /-- The volume of a "layer" in the key function of Lemma 5.2.7. -/
 def layervol (k n : ℕ) (t : ℝ) : ℝ≥0∞ :=
-  volume {x | t ≤ ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n),
+  volume {x | t ≤ ∑ m ∈ {p | p ∈ 𝔐 (X := X) k n },
     (𝓘 m : Set X).indicator (1 : X → ℝ) x}
 
 lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
@@ -429,16 +429,16 @@ lemma lintegral_Ioc_layervol_le {a b : ℕ} : ∫⁻ t in Ioc (a : ℝ) b, layer
       Finset.sum_le_sum fun l ml ↦ antitone_layervol (by simp_all)
     _ = _ := by rw [Finset.sum_const, Nat.card_Ico, nsmul_eq_mul]
 
-lemma top_tiles_aux : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) =
+lemma top_tiles_aux : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) =
     ∫⁻ t in Ioc 0 ((𝔐 (X := X) k n).toFinset.card * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t := by
   set M := 𝔐 (X := X) k n
   set Mc := M.toFinset.card
   calc
-    _ = ∑ m ∈ Finset.univ.filter (· ∈ M), ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
+    _ = ∑ m ∈ { p | p ∈ M }, ∫⁻ x, (𝓘 m : Set X).indicator 1 x := by
       congr! with m; exact (lintegral_indicator_one coeGrid_measurable).symm
-    _ = ∫⁻ x, ∑ m ∈ Finset.univ.filter (· ∈ M), (𝓘 m : Set X).indicator 1 x :=
+    _ = ∫⁻ x, ∑ m ∈ { p | p ∈ M }, (𝓘 m : Set X).indicator 1 x :=
       (lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable).symm
-    _ = ∫⁻ x, ENNReal.ofReal (∑ m ∈ Finset.univ.filter (· ∈ M), (𝓘 m : Set X).indicator 1 x) := by
+    _ = ∫⁻ x, ENNReal.ofReal (∑ m ∈ { p | p ∈ M }, (𝓘 m : Set X).indicator 1 x) := by
       congr! 2 with x; rw [ENNReal.ofReal_sum_of_nonneg]
       · congr!; unfold indicator; split_ifs <;> simp
       · exact fun _ _ ↦ indicator_nonneg (fun _ _ ↦ by simp) _
@@ -460,7 +460,7 @@ lemma top_tiles_aux : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), v
       rw [cgr, lintegral_zero]
 
 /-- Lemma 5.2.7 -/
-lemma top_tiles : ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) ≤
+lemma top_tiles : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) ≤
     2 ^ (n + k + 3) * volume G := by
   set M := 𝔐 (X := X) k n
   let Mc := M.toFinset.card
@@ -665,16 +665,16 @@ lemma third_exception_aux :
       measure_biUnion_le _ (𝔘₁ k n j).to_countable _
     _ ≤ ∑' u : 𝔘₁ (X := X) k n j, C5_2_9 X n * volume (𝓘 u.1 : Set X) :=
       ENNReal.tsum_le_tsum fun x ↦ boundary_exception x.2
-    _ = C5_2_9 X n * ∑ u ∈ Finset.univ.filter (· ∈ 𝔘₁ (X := X) k n j), volume (𝓘 u : Set X) := by
+    _ = C5_2_9 X n * ∑ u ∈ { p | p ∈ 𝔘₁ (X := X) k n j }, volume (𝓘 u : Set X) := by
       rw [filter_mem_univ_eq_toFinset, ENNReal.tsum_mul_left]; congr
       rw [tsum_fintype]; convert (Finset.sum_subtype _ (fun u ↦ mem_toFinset) _).symm; rfl
     _ ≤ C5_2_9 X n * 2 ^ (9 * a - j : ℤ) *
-        ∑ m ∈ Finset.univ.filter (· ∈ 𝔐 (X := X) k n), volume (𝓘 m : Set X) := by
+        ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m : Set X) := by
       rw [mul_assoc]; refine mul_le_mul_left' ?_ _
       simp_rw [← lintegral_indicator_one coeGrid_measurable,
         ← lintegral_finset_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable]
       have c1 : ∀ C : Set (𝔓 X),
-          ∫⁻ x, ∑ u ∈ Finset.univ.filter (· ∈ C), (𝓘 u : Set X).indicator 1 x =
+          ∫⁻ x, ∑ u ∈ { p | p ∈ C }, (𝓘 u : Set X).indicator 1 x =
           ∫⁻ x, stackSize C x := fun C ↦ by
         refine lintegral_congr fun _ ↦ ?_; rw [stackSize, Nat.cast_sum]; congr!
         simp_rw [indicator]; split_ifs <;> simp

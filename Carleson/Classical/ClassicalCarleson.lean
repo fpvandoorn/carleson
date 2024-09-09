@@ -1,13 +1,11 @@
 /- This file contains the proof of the classical Carleson theorem from Section 11.1. -/
 
-import Carleson.MetricCarleson
-import Carleson.Classical.Basic
 import Carleson.Classical.Approximation
 import Carleson.Classical.ControlApproximationEffect
 
 import Mathlib.Analysis.Fourier.AddCircle
 
-open MeasureTheory
+open MeasureTheory Real
 
 noncomputable section
 
@@ -15,10 +13,10 @@ local notation "S_" => partialFourierSum
 
 /- Theorem 1.1 (Classical Carleson) -/
 theorem classical_carleson {f : ℝ → ℂ}
-    (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi))
+    (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π))
     {ε : ℝ} (εpos : 0 < ε) :
-    ∃ E ⊆ Set.Icc 0 (2 * Real.pi), MeasurableSet E ∧ volume.real E ≤ ε ∧
-    ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, ∀ N > N₀,
+    ∃ E ⊆ Set.Icc 0 (2 * π), MeasurableSet E ∧ volume.real E ≤ ε ∧
+    ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * π)) \ E, ∀ N > N₀,
     ‖f x - S_ N f x‖ ≤ ε := by
   set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
   have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
@@ -31,7 +29,7 @@ theorem classical_carleson {f : ℝ → ℂ}
 
   set h := f₀ - f with hdef
   have h_measurable : Measurable h := (Continuous.sub contDiff_f₀.continuous cont_f).measurable
-  have h_periodic : h.Periodic (2 * Real.pi) := periodic_f₀.sub periodic_f
+  have h_periodic : h.Periodic (2 * π) := periodic_f₀.sub periodic_f
   have h_bound : ∀ x, ‖h x‖ ≤ ε' := by
     intro x
     simp [hdef]
@@ -56,7 +54,7 @@ theorem classical_carleson {f : ℝ → ℂ}
     · exact hf₀ x
     · exact hN₀ N NgtN₀ x hx.1
     · have := hE x hx N
-      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * Real.pi)) (cont_f.intervalIntegrable 0 (2 * Real.pi))] at this
+      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * π)) (cont_f.intervalIntegrable 0 (2 * π))] at this
       apply le_trans this
       rw [ε'def, mul_div_cancel₀ _ (C_control_approximation_effect_pos εpos).ne.symm]
   _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
@@ -69,8 +67,8 @@ theorem classical_carleson {f : ℝ → ℂ}
 
 
 
-theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi)) :
-    ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * Real.pi)),
+theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
+    ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * π)),
       Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
 
   let δ (k : ℕ) : ℝ := 1 / (k + 1) --arbitrary sequence tending to zero
@@ -127,7 +125,7 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
   let E := ⋂ (k : ℕ), Eδ k
 
   -- Show that it has the desired property.
-  have hE : ∀ x ∈ (Set.Icc 0 (2 * Real.pi)) \ E, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
+  have hE : ∀ x ∈ (Set.Icc 0 (2 * π)) \ E, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
     intro x hx
     rw [Set.diff_iInter, Set.mem_iUnion] at hx
     rcases hx with ⟨k,hk⟩
@@ -206,7 +204,7 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
 end section
 
 /- Carleson's theorem asserting a.e. convergence of the partial Fourier sums for continous functions. -/
-theorem carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * Real.pi)) :
+theorem carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
     ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
   -- Reduce to a.e. convergence on [0,2π]
   apply @Function.Periodic.ae_of_ae_restrict _ Real.two_pi_pos 0

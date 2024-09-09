@@ -4,7 +4,7 @@ import Carleson.HardyLittlewood
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
-  {n : ℕ} {t : Forest X n} {u : 𝔓 X} {x x' : X} {G : Set (𝔓 X)} {f : X → ℂ}
+  {n : ℕ} {t : Forest X n} {u : 𝔓 X} {x x' : X} {G : Set (𝔓 X)} {f g : X → ℂ}
   {I J L : Grid X}
 variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
@@ -20,12 +20,12 @@ namespace TileStructure.Forest
 variable (t) in
 /-- The definition `σ(u, x)` given in Section 7.1.
 We may assume `u ∈ t.𝔘` whenever proving things about this definition. -/
-def σ (u : 𝔓 X) (x : X) : Finset ℤ := Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ x ∈ E p) |>.image 𝔰
+def σ (u : 𝔓 X) (x : X) : Finset ℤ := .image 𝔰 { p | p ∈ t.𝔗 u ∧ x ∈ E p }
 
 /- Maybe we should try to avoid using \overline{σ} and \underline{σ} in Lean:
 I don't think the set is always non-empty(?) -/
 -- def σMax (u : 𝔓 X) (x : X) : ℤ :=
---   Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ x ∈ E p) |>.image 𝔰 |>.max' sorry
+--  Finset.image 𝔰 { p | p ∈ t.𝔗 u ∧ x ∈ E p } |>.max' sorry
 
 /-- Lemma 7.1.1, freely translated. -/
 lemma convex_scales (hu : u ∈ t.𝔘) : OrdConnected (t.σ u x : Set ℤ) := sorry
@@ -67,7 +67,7 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 G).PairwiseDisjoint (fun I ↦ (I : Set X)) 
 /-- The projection operator `P_𝓒 f(x)`, given above Lemma 7.1.3.
 In lemmas the `c` will be pairwise disjoint on `C`. -/
 def approxOnCube (C : Set (Grid X)) (f : X → E') (x : X) : E' :=
-  ∑ J ∈ Finset.univ.filter (· ∈ C), (J : Set X).indicator (fun _ ↦ ⨍ y, f y) x
+  ∑ J ∈ { p | p ∈ C }, (J : Set X).indicator (fun _ ↦ ⨍ y, f y) x
 
 /-- The definition `I_i(x)`, given above Lemma 7.1.3.
 The cube of scale `s` that contains `x`. There is at most 1 such cube, if it exists. -/
@@ -84,10 +84,9 @@ def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0�
 
 variable (t) in
 /-- The operator `S_{1,𝔲} f(x)`, given in (7.1.4). -/
-def auxiliaryOperator1 (u : 𝔓 X) (f : X → ℝ) (x : X) : ℝ≥0∞ :=
+def boundaryOperator1 (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ∑ I : Grid X, (I : Set X).indicator (x := x) fun _ ↦
-  ∑ J ∈ Finset.univ.filter fun J ↦
-    J ∈ 𝓙 (t.𝔗 u) ∧ (J : Set X) ⊆ ball (c I) (16 * D ^ (s I)) ∧ s J ≤ s I,
+  ∑ J ∈ { J | J ∈ 𝓙 (t.𝔗 u) ∧ (J : Set X) ⊆ ball (c I) (16 * D ^ (s I)) ∧ s J ≤ s I },
   D ^ ((s J - s I) / a) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in J, ‖f y‖₊
 
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
@@ -126,7 +125,7 @@ def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 lemma third_tree_pointwise (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
     ‖∑ i in t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ ≤
-    C7_1_6 a * t.auxiliaryOperator1 u (approxOnCube (𝓙 (t.𝔗 u)) (‖f ·‖)) x' := by
+    C7_1_6 a * t.boundaryOperator1 u (approxOnCube (𝓙 (t.𝔗 u)) (‖f ·‖)) x' := by
   sorry
 
 /-- The constant used in `pointwise_tree_estimate`.
@@ -137,9 +136,9 @@ def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
-    ‖∑ p ∈ Finset.univ.filter (· ∈ t.𝔗 u), carlesonOn p (fun y ↦ exp (.I * - 𝒬 u y) * f y) x‖₊ ≤
+    ‖∑ p ∈ { p | p ∈ t.𝔗 u }, carlesonOn p (fun y ↦ exp (.I * - 𝒬 u y) * f y) x‖₊ ≤
     C7_1_3 a * (MB volume 𝓑 (c ·.2) r𝓑 (approxOnCube (𝓙 (t.𝔗 u)) (‖f ·‖)) x' +
-    t.auxiliaryOperator1 u (approxOnCube (𝓙 (t.𝔗 u)) (‖f ·‖)) x' +
+    t.boundaryOperator1 u (approxOnCube (𝓙 (t.𝔗 u)) (‖f ·‖)) x' +
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t.𝔗 u)) f) x'):= by
   set g := approxOnCube (𝓙 (t.𝔗 u)) (‖f ·‖)
   sorry
@@ -147,7 +146,41 @@ lemma pointwise_tree_estimate (hu : u ∈ t.𝔘) (hL : L ∈ 𝓛 (t.𝔗 u)) (
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
-/- todo: make the argument `a` a natural number to constants everywhere(?) -/
+/-- The constant used in `nontangential_operator_bound`.
+Has value `2 ^ (103 * a ^ 3)` in the blueprint. -/
+-- Todo: define this recursively in terms of previous constants
+def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (103 * (a : ℝ) ^ 3)
+
+/-- Lemma 7.2.2. -/
+lemma nontangential_operator_bound
+  (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (θ : Θ X) :
+    eLpNorm (nontangentialMaximalFunction θ f · |>.toReal) 2 volume ≤ eLpNorm f 2 volume := by
+  sorry
+
+lemma boundary_overlap (I : Grid X) :
+    Finset.card { J | s J = s I ∧ ¬ Disjoint (ball (c I) (4 * D ^ s I)) (ball (c J) (4 * D ^ s J)) }
+    ≤ 2 ^ (9 * a) := by
+  sorry
+
+/-- Lemma 7.2.3. -/
+lemma boundary_operator_bound
+  (hf : IsBounded (range f)) (h2f : HasCompactSupport f) {u : 𝔓 X} (hu : u ∈ t.𝔘) :
+    eLpNorm (boundaryOperator1 t u f · |>.toReal) 2 volume ≤ eLpNorm f 2 volume := by
+  sorry
+
+/-- The constant used in `nontangential_operator_bound`.
+Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
+-- Todo: define this recursively in terms of previous constants
+def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
+
+/-- Lemma 7.2.1. -/
+lemma tree_projection_estimate
+  (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+  (hg : IsBounded (range g)) (h2g : HasCompactSupport g) {u : 𝔓 X} (hu : u ∈ t.𝔘) :
+    ‖∫ x, ∑ p ∈ t.𝔗 u, conj (g x) * carlesonOn p f x‖₊ ≤
+    C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t.𝔗 u)) (‖f ·‖)) 2 volume *
+    eLpNorm (approxOnCube (𝓛 (t.𝔗 u)) (‖g ·‖)) 2 volume := by
+  sorry
 
 /-! ## Section 7.3 and Lemma 7.3.1 -/
 
@@ -185,8 +218,8 @@ def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := 2 ^ (432 * a ^ 3 - (q - 1) / q * n
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)
     (h2g : IsBounded (support g)) :
-    ‖∫ x, conj (g x) * ∑ u ∈ Finset.univ.filter (· ∈ 𝔉.𝔘),
-      ∑ p ∈ Finset.univ.filter (· ∈ 𝔉.𝔗 u), carlesonOn p f x‖₊ ≤
+    ‖∫ x, conj (g x) * ∑ u ∈ { p | p ∈ 𝔉.𝔘 },
+      ∑ p ∈ { p | p ∈ 𝔉.𝔗 u }, carlesonOn p f x‖₊ ≤
     C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉.𝔘, 𝔉.𝔗 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry

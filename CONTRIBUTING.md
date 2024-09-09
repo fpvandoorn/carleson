@@ -35,7 +35,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `T_Q^θ f(x)`       | `linearizedNontangentialOperator Q θ K f x`       | The linearized associated nontangential Calderon Zygmund operator |
 | `T f(x)`       | `carlesonOperator K f x` | The generalized Carleson operator        |
 | `T_Q f(x)`       | `linearizedCarlesonOperator Q K f x` | The linearized generalized Carleson operator        |
-| `T_𝓝^θ f(x)`       | `nontangentialMaximalFunction K θ f x` |   |
+| `T_𝓝^θ f(x)`       | `nontangentialMaximalFunction θ f x` |   |
 | `Tₚ f(x)`       | `carlesonOn p f x`       |         |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
 | `𝔓(I)`       | `𝓘 ⁻¹' {I}` |         |
@@ -48,8 +48,8 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `M`        | `globalMaximalFunction volume 1` |     |
 | `I_i(x)`        | `cubeOf i x` |     |
 | `R_Q(θ, x)`        | `upperRadius Q θ x` |     |
-| `S_{1,𝔲} f(x)`        | `auxiliaryOperator1 u f x` |     |
-| `S_{2,𝔲} g(x)`        | `auxiliaryOperator2 u g x` |     |
+| `S_{1,𝔲} f(x)`        | `boundaryOperator1 t u f x` |     |
+| `S_{2,𝔲} g(x)`        | `boundaryOperator2 t u g x` |     |
 | ``        | `` |     |
 | ``        | `` |     |
 | ``        | `` |     |
