@@ -4,17 +4,12 @@
 -/
 
 import Carleson.TwoSidedMetricCarleson
-import Carleson.Classical.Basic
-import Carleson.Classical.Helper
-import Carleson.Classical.HilbertKernel
 import Carleson.Classical.CarlesonOperatorReal
 import Carleson.Classical.VanDerCorput
 
-import Mathlib.Analysis.Fourier.AddCircle
-
 noncomputable section
 
-open MeasureTheory Function Metric Bornology
+open MeasureTheory Function Metric Bornology Real
 
 --#lint
 
@@ -445,7 +440,7 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
         push_cast
         rw [_root_.sub_mul]
         norm_cast
-      _ ≤ 2 * Real.pi * ((x + r) - (x - r)) * (B + L * ((x + r) - (x - r)) / 2) * (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
+      _ ≤ 2 * π * ((x + r) - (x - r)) * (B + L * ((x + r) - (x - r)) / 2) * (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
         apply van_der_Corput (by linarith)
         · rw [lipschitzWith_iff_dist_le_mul]
           intro x y
@@ -495,13 +490,13 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           use y
           rw [Real.ball_eq_Ioo]
           use hy
-      _ = 2 * Real.pi * (2 * r) * (B + r * L) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
+      _ = 2 * π * (2 * r) * (B + r * L) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
         ring
       _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (4 : ℝ))) := by
         gcongr
         · exact mul_nonneg (mul_nonneg (by norm_num) (by linarith)) (iLipNorm_nonneg r_pos.le)
         · norm_num
-          linarith [Real.pi_le_four]
+          linarith [pi_le_four]
         · unfold iLipNorm
           gcongr
           apply le_of_eq Bdef

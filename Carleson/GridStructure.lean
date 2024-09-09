@@ -160,7 +160,7 @@ lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j)
 lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
     ∃! j ∈ Finset.univ, i < j ∧ ∀ j', i < j' → j ≤ j' := by
   simp_rw [Finset.mem_univ, true_and]
-  classical let incs : Finset (Grid X) := Finset.univ.filter (i < ·)
+  classical let incs : Finset (Grid X) := { j | i < j }
   have ine : incs.Nonempty := by
     use topCube; simp only [incs, Finset.mem_filter, Finset.mem_univ, true_and]
     exact lt_of_le_of_ne le_topCube (isMax_iff.not.mp h)

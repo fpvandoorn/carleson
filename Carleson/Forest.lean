@@ -12,7 +12,7 @@ variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 /-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
 def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
-  ∑ p ∈ Finset.univ.filter (· ∈ C), (𝓘 p : Set X).indicator 1 x
+  ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator 1 x
 
 lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
     stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
@@ -34,7 +34,7 @@ lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
 
 -- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
 lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
-    ∑ p ∈ Finset.univ.filter (· ∈ C), (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
+    ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
   rw [stackSize, Nat.cast_sum]
   refine Finset.sum_congr rfl (fun u _ ↦ ?_)
   by_cases hx : x ∈ (𝓘 u : Set X) <;> simp [hx]

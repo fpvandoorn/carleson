@@ -519,7 +519,7 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
 /-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
 lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
   by_contra! h
-  let C : Finset (𝔓 X) := Finset.univ.filter fun u ↦ u ∈ 𝔘₃ (X := X) k n j ∧ x ∈ 𝓘 u
+  let C : Finset (𝔓 X) := { u | u ∈ 𝔘₃ (X := X) k n j ∧ x ∈ 𝓘 u }
   have Cc : C.card = stackSize (𝔘₃ k n j) x := by
     simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
       C, Grid.mem_def, Finset.filter_filter]
@@ -602,7 +602,7 @@ def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (235 * a ^ 3) / (q - 1) ^ 4
 lemma C5_1_2_pos : C5_1_2 a nnq > 0 := sorry
 
 lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖∑ p ∈ Finset.univ.filter (· ∈ 𝔓₁), carlesonOn p f x‖₊ ≤
+  ∫⁻ x in G \ G', ‖∑ p ∈ { p | p ∈ 𝔓₁ }, carlesonOn p f x‖₊ ≤
     C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
   sorry
 
@@ -742,10 +742,10 @@ lemma exists_k_n_j_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) :
     h.trans_le (measure_mono (inter_subset_left.trans inter_subset_left))
   obtain ⟨x, mx, nx⟩ := nonempty_of_measure_ne_zero h.ne'
   simp_rw [G₂, mem_compl_iff, mem_iUnion] at nx; push_neg at nx; specialize nx n k hkn
-  let B : ℕ := (Finset.univ.filter (· ∈ 𝔅 k n p)).card
+  let B : ℕ := Finset.card { q | q ∈ 𝔅 k n p }
   have Blt : B < 2 ^ (2 * n + 4) := by
     calc
-      _ ≤ (Finset.univ.filter fun m ↦ m ∈ 𝔐 k n ∧ x ∈ 𝓘 m).card :=
+      _ ≤ Finset.card { m | m ∈ 𝔐 k n ∧ x ∈ 𝓘 m } :=
         Finset.card_le_card (Finset.monotone_filter_right _ (Pi.le_def.mpr fun m ⟨m₁, m₂⟩ ↦
           ⟨m₁, m₂.1.1 mx⟩))
       _ = stackSize (𝔐 k n) x := by
@@ -849,7 +849,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
         refine smul_C2_1_2 _ (by norm_num) ?_ (wiggle_order_11_10 l.le (C5_3_3_le (X := X)))
         apply not_lt_of_𝓘_eq_𝓘.mt; rwa [not_not]
   have cp : p ∈ ℭ₁ k n j := (𝔏₂_subset_ℭ₂.trans ℭ₂_subset_ℭ₁) mp
-  let C : Finset (LTSeries (ℭ₁' k n j)) := Finset.univ.filter fun s ↦ s.head = ⟨p, cp⟩
+  let C : Finset (LTSeries (ℭ₁' k n j)) := { s | s.head = ⟨p, cp⟩ }
   have Cn : C.Nonempty := by
     use RelSeries.singleton _ ⟨p, cp⟩
     simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and]; rfl
@@ -898,7 +898,7 @@ def C5_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (210 * a ^ 3) / (q - 1) ^ 5
 lemma C5_1_3_pos : C5_1_3 a nnq > 0 := sorry
 
 lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖∑ p ∈ Finset.univ.filter (· ∉ 𝔓₁), carlesonOn p f x‖₊ ≤
+  ∫⁻ x in G \ G', ‖∑ p ∈ { p | p ∉ 𝔓₁ }, carlesonOn p f x‖₊ ≤
     C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
   sorry
 

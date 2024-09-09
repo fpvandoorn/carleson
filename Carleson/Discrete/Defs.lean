@@ -51,7 +51,7 @@ def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
   { m ∈ 𝔐 k n | smul 100 p ≤ smul 1 m }
 
 def preℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
-  { p ∈ ℭ k n | 2 ^ j ≤ (Finset.univ.filter (· ∈ 𝔅 k n p)).card }
+  { p ∈ ℭ k n | 2 ^ j ≤ Finset.card { q | q ∈ 𝔅 k n p } }
 
 /-- The subset `ℭ₁(k, n, j)` of `ℭ(k, n)`, given in (5.1.9).
 Together with `𝔏₀(k, n)` this forms a partition. -/
@@ -192,7 +192,7 @@ lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=
   measurableSet_lt measurable_const (Finset.measurable_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable)
 
 /-- Finset of cubes in `setA`. Appears in the proof of Lemma 5.2.5. -/
-def MsetA (l k n : ℕ) : Finset (Grid X) := Finset.univ.filter fun j ↦ (j : Set X) ⊆ setA l k n
+def MsetA (l k n : ℕ) : Finset (Grid X) := { j | (j : Set X) ⊆ setA l k n }
 
 /-- The set `G₂`, defined in (5.1.27). -/
 def G₂ : Set X := ⋃ (n : ℕ) (k ≤ n), setA (2 * n + 6) k n
