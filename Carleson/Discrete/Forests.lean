@@ -779,6 +779,12 @@ def ℜ₃ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 
 lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ ⊆ ℜ₀ ∪ ℜ₁ ∪ ℜ₂ ∪ ℜ₃ := by
   unfold ℜ₀ ℜ₁ ℜ₂ ℜ₃; simp_rw [← inter_union_distrib_left]; intro p ⟨h, mp'⟩
   refine ⟨h, ?_⟩; simp_rw [mem_union, mem_iUnion, or_assoc]
+  have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
+    suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
+    by_contra hv
+    rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc, ← diff_eq_compl_inter,
+      diff_eq_empty.mpr hv] at h
+    simp at h
   obtain ⟨k, n, hkn, mp⟩ := exists_k_n_j_of_mem_𝔓pos h
   rcases mp with ml0 | ⟨j, hj, mc1⟩
   · exact Or.inl ⟨n, k, hkn, ml0⟩
@@ -794,7 +800,10 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ ⊆ ℜ₀ ∪ �
           simp_rw [mem_iUnion] at mc4; obtain ⟨l, hl, f⟩ := mc4
           exact ⟨n, k, hkn, j, hj, l, hl, f⟩
         · apply absurd mp'; simp_rw [mem_compl_iff, not_not_mem, 𝔓₁, mem_iUnion]
-          exact ⟨n, k, hkn, j, hj, not_not_mem.mp mc4⟩
+          refine ⟨n, k, hkn, j, hj, not_not_mem.mp mc4, ?_⟩
+          contrapose! nG₃
+          exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <| le_iSup₂_of_le hj p <|
+            le_iSup_of_le nG₃ subset_rfl
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
