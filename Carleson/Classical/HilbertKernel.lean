@@ -8,7 +8,7 @@ import Mathlib.Tactic.FunProp
 
 noncomputable section
 
-open Complex ComplexConjugate
+open Complex ComplexConjugate MeasureTheory
 
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - exp (I * x))
 
@@ -145,11 +145,11 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
         · exact f_deriv
         · exact f'_cont.intervalIntegrable
       _ = ‖∫ (t : ℝ) in Ι y' y, f' t‖ := intervalIntegral.norm_intervalIntegral_eq _ _ _ _
-      _ ≤ ∫ (t : ℝ) in Ι y' y, ‖f' t‖ := MeasureTheory.norm_integral_le_integral_norm _
+      _ ≤ ∫ (t : ℝ) in Ι y' y, ‖f' t‖ := norm_integral_le_integral_norm _
       _ ≤ ∫ (t : ℝ) in Ι y' y, 3 / ((y / 2) / 2) ^ 2 := by
-        apply MeasureTheory.setIntegral_mono_on
+        apply setIntegral_mono_on
         · exact f'_cont.norm.integrableOn_uIcc.mono_set Set.Ioc_subset_Icc_self
-        · apply MeasureTheory.integrableOn_const.mpr
+        · apply integrableOn_const.mpr
           rw [Real.volume_uIoc]
           right
           exact ENNReal.ofReal_lt_top
@@ -193,8 +193,8 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
             · rw [abs_neg, le_abs]
               left
               rcases ht with ht | ht <;> linarith [ht.1]
-      _ = (MeasureTheory.volume (Ι y' y)).toReal * (3 / ((y / 2) / 2) ^ 2) :=
-        MeasureTheory.setIntegral_const _
+      _ = (volume (Ι y' y)).toReal * (3 / ((y / 2) / 2) ^ 2) :=
+        setIntegral_const _
       _ = |y - y'| * (3 / ((y / 2) / 2) ^ 2) := by
         rw [Real.volume_uIoc, ENNReal.toReal_ofReal (abs_nonneg (y - y'))]
       _ = (3 * (2 * 2) ^ 2) * (1 / y) * (|y - y'| / y) := by ring

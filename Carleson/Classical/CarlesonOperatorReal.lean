@@ -5,6 +5,8 @@ import Carleson.Classical.HilbertKernel
 
 noncomputable section
 
+open MeasureTheory
+
 --TODO: avoid this extra definition?
 def carlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
   ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1),
@@ -24,8 +26,8 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
     · exact ⟨by right; linarith, by constructor <;> linarith⟩
 
 lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) :
-    MeasureTheory.volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
-  rw [annulus_real_eq hr.1, MeasureTheory.measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
+    volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
+  rw [annulus_real_eq hr.1, measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
   ring_nf
   rw [Set.disjoint_iff]
   intro y hy
@@ -72,7 +74,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
     congr with _
     congr with _
     congr 2
-    rw [← MeasureTheory.integral_indicator annulus_measurableSet]
+    rw [← integral_indicator annulus_measurableSet]
   rw [this]
   set Q : Set ℝ := Rat.cast '' Set.univ with Qdef
   have hQ : Dense Q ∧ Countable Q := by
@@ -108,7 +110,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
       · apply isOpen_Ioo
       · rw [Sdef]
         constructor <;> linarith [hr.1]
-    apply MeasureTheory.continuousAt_of_dominated _  h_bound
+    apply continuousAt_of_dominated _  h_bound
     · have F_bound_on_set :  ∀ a ∈ {y | dist x y ∈ Set.Ioo (r / 2) 1},
           ‖f a * K x a * (Complex.I * ↑n * ↑a).exp‖ ≤ B * ‖2 ^ (2 : ℝ) / (2 * (r / 2))‖ := by
         intro a ha
@@ -130,13 +132,13 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
                 exact ha.1.le
       rw [bound_def, Fdef]
       conv => pattern ‖_‖; rw [norm_indicator_eq_indicator_norm]
-      rw [MeasureTheory.integrable_indicator_iff annulus_measurableSet]
-      apply MeasureTheory.Measure.integrableOn_of_bounded
+      rw [integrable_indicator_iff annulus_measurableSet]
+      apply Measure.integrableOn_of_bounded
       · rw [annulus_real_volume (by constructor <;> linarith [hr.1, hr.2])]
         exact ENNReal.ofReal_ne_top
       · apply ((Measurable.of_uncurry_left (measurable_mul_kernel f_measurable)).norm).aestronglyMeasurable
       · --interesting part
-        rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
+        rw [ae_restrict_iff' annulus_measurableSet]
         simp_rw [norm_norm]
         apply Filter.Eventually.of_forall
         apply F_bound_on_set
@@ -200,8 +202,8 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         rcases this with h | h
         · left; linarith
         · right; linarith
-      rw [MeasureTheory.ae_iff]
-      exact MeasureTheory.measure_mono_null subset_finite (Finset.measure_zero _ _)
+      rw [ae_iff]
+      exact measure_mono_null subset_finite (Finset.measure_zero _ _)
     · exact Filter.Eventually.of_forall fun r ↦ ((Measurable.of_uncurry_left
         (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
@@ -210,15 +212,15 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   intro r _
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)
   rw [← stronglyMeasurable_iff_measurable]
-  apply MeasureTheory.StronglyMeasurable.integral_prod_right
+  apply StronglyMeasurable.integral_prod_right
   rw [stronglyMeasurable_iff_measurable, Fdef]
   exact (measurable_mul_kernel f_measurable).indicator (measurable_dist measurableSet_Ioo)
 
 --TODO: Refactor the measurability proof to use the following.
 
 /-
-import Mathlib.MeasureTheory.Measure.MeasureSpace
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+import Mathlib.Measure.MeasureSpace
+import Mathlib.Constructions.BorelSpace.Basic
 
 open TopologicalSpace MeasureTheory Set
 
@@ -252,7 +254,7 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   apply NNReal.eq
   simp only [coe_nnnorm, NNReal.coe_mul]
   rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
-    ← MeasureTheory.integral_mul_left, Real.coe_toNNReal a ha.le]
+    ← integral_mul_left, Real.coe_toNNReal a ha.le]
   congr with y
   field_simp
   rw [mul_div_cancel_left₀]

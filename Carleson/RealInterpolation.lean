@@ -24,7 +24,7 @@ import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 -/
 noncomputable section
 
-open ENNReal Real Set
+open ENNReal Real Set MeasureTheory
 
 variable {p₀ q₀ p₁ q₁ p q : ℝ≥0∞} {t : ℝ}
 
@@ -1646,7 +1646,7 @@ lemma aestronglyMeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
   exists (trunc g t)
   constructor
-  · apply MeasureTheory.StronglyMeasurable.indicator (s := {x | ‖g x‖ ≤ t})
+  · apply StronglyMeasurable.indicator (s := {x | ‖g x‖ ≤ t})
     · exact wg1
     · apply StronglyMeasurable.measurableSet_le
       apply StronglyMeasurable.norm
@@ -1669,7 +1669,7 @@ lemma aestronglyMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGrou
   exists (g - trunc g t)
   constructor
   · rw [trunc_compl_eq]
-    apply MeasureTheory.StronglyMeasurable.indicator (s := {x | t < ‖g x‖})
+    apply StronglyMeasurable.indicator (s := {x | t < ‖g x‖})
     · exact wg1
     · apply StronglyMeasurable.measurableSet_lt
       · exact stronglyMeasurable_const
@@ -1788,7 +1788,7 @@ lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α}
 
 -- /-- The `t`-truncation of `f : α →ₘ[μ] E`. -/
 -- def AEEqFun.trunc (f : α →ₘ[μ] E) (t : ℝ) : α →ₘ[μ] E :=
---   AEEqFun.mk (MeasureTheory.trunc f t) (aestronglyMeasurable_trunc f.aestronglyMeasurable)
+--   AEEqFun.mk (trunc f t) (aestronglyMeasurable_trunc f.aestronglyMeasurable)
 
 -- /-- A set of measurable functions is closed under truncation. -/
 -- class IsClosedUnderTruncation (U : Set (α →ₘ[μ] E)) : Prop where
@@ -2572,8 +2572,8 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
 
 lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
-    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
-    [MeasureTheory.SFinite μ] ⦃f : α × β → ENNReal⦄
+    {μ : Measure α} {ν : Measure β} [SFinite ν]
+    [SFinite μ] ⦃f : α × β → ENNReal⦄
     (hf : AEMeasurable f (μ.prod ν)) :
     ∀ᵐ x : α ∂μ, AEMeasurable (f ∘ (Prod.mk x)) ν := by
   rcases hf with ⟨g, hg⟩
@@ -2582,8 +2582,8 @@ lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
 
 lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
-    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
-    [MeasureTheory.SFinite μ] ⦃f : α × β → ENNReal⦄
+    {μ : Measure α} {ν : Measure β} [SFinite ν]
+    [SFinite μ] ⦃f : α × β → ENNReal⦄
     (hf : AEMeasurable f (μ.prod ν)) :
     ∀ᵐ y : β ∂ν, AEMeasurable (f ∘ (fun x ↦ Prod.mk x y)) μ := by
   have : AEMeasurable (f ∘ Prod.swap) (ν.prod μ) := by
@@ -2594,8 +2594,8 @@ lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
 
 lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
-    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
-    [MeasureTheory.SFinite μ] ⦃f : α × β → ENNReal⦄
+    {μ : Measure α} {ν : Measure β} [SFinite ν]
+    [SFinite μ] ⦃f : α × β → ENNReal⦄
     (hf : AEMeasurable f (μ.prod ν)) :
     AEMeasurable (fun x ↦ ∫⁻ (y : β), f (x, y) ∂ν) μ := by
   rcases hf with ⟨g, hg⟩
@@ -2608,8 +2608,8 @@ lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
 -- argument
 lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : 1 ≤ p)
     [MeasurableSpace α] [MeasurableSpace β]
-    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
-    [MeasureTheory.SigmaFinite μ] ⦃f : α → β → ENNReal⦄
+    {μ : Measure α} {ν : Measure β} [SFinite ν]
+    [SigmaFinite μ] ⦃f : α → β → ENNReal⦄
     (hf : AEMeasurable (Function.uncurry f) (μ.prod ν)) :
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ^ p⁻¹ ≤
     ∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν := by
@@ -2658,8 +2658,8 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
 
 lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : p ≥ 1)
     [MeasurableSpace α] [MeasurableSpace β]
-    {μ : MeasureTheory.Measure α} {ν : MeasureTheory.Measure β} [MeasureTheory.SFinite ν]
-    [MeasureTheory.SigmaFinite μ] ⦃f : α → β → ENNReal⦄
+    {μ : Measure α} {ν : Measure β} [SFinite ν]
+    [SigmaFinite μ] ⦃f : α → β → ENNReal⦄
     (hf : AEMeasurable (Function.uncurry f) (μ.prod ν)) :
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ≤
     (∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν) ^ p := by
@@ -3427,7 +3427,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
         exact fun x ↦ trunc_le_func
       _ ≤ _ := by
         have : eLpNorm f p₁ μ = 0 := Trans.trans (eLpNorm_congr_ae
-            (eLpNormEssSup_eq_zero_iff.mp snorm_zero)) MeasureTheory.eLpNorm_zero
+            (eLpNormEssSup_eq_zero_iff.mp snorm_zero)) eLpNorm_zero
         simp only [this, mul_zero, zero_le]
     · have snorm_p_pos : eLpNorm f p μ ≠ 0 := by
         intro snorm_0

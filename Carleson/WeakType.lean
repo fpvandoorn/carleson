@@ -154,7 +154,7 @@ lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
     Filter.Tendsto (⇑μ ∘ (fun n : ℕ ↦ {x | t₀ + (↑n)⁻¹ < ‖f x‖₊}))
       Filter.atTop (nhds (μ ({x | t₀ < ‖f x‖₊}))) := by
   rw [← approx_above_superset]
-  apply MeasureTheory.tendsto_measure_iUnion
+  apply tendsto_measure_iUnion
   intro a b h x h₁
   calc
     _ ≤ t₀ + (↑a)⁻¹ := by gcongr
@@ -267,7 +267,7 @@ lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖₊ ^ p ∂μ =
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 ≤ p := hp.le
-  have := MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
+  have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
     (Eventually.of_forall fun x ↦ norm_nonneg _) hf.norm hp
   simp [*, ENNReal.coe_rpow_of_nonneg, ← ENNReal.ofReal_rpow_of_nonneg, ← ofReal_norm_eq_coe_nnnorm,
     ofReal_mul, ← lintegral_const_mul', ← mul_assoc, mul_comm (μ _), distribution]
@@ -283,7 +283,7 @@ lemma eLpNorm_pow_eq_distribution {p : ℝ≥0} (hp : 0 < p) :
   have h2p : 0 < (p : ℝ) := hp
   have h3p : (p : ℝ) ≠ 0 := h2p.ne'
   have h4p : 0 ≤ (p : ℝ) := zero_le_coe
-  simp_rw [MeasureTheory.eLpNorm_nnreal_eq_eLpNorm' hp.ne', eLpNorm', one_div, ← ENNReal.rpow_mul,
+  simp_rw [eLpNorm_nnreal_eq_eLpNorm' hp.ne', eLpNorm', one_div, ← ENNReal.rpow_mul,
     inv_mul_cancel₀ h3p, ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
     ENNReal.ofReal_mul h4p, ofReal_coe_nnreal]
 

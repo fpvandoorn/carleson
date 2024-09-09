@@ -214,7 +214,7 @@ theorem carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Perio
     intro x
     conv => pattern S_ _ _ _; rw [partialFourierSum_periodic]
     conv => pattern f _; rw [periodic_f]
-  apply MeasureTheory.ae_restrict_of_ae_eq_of_ae_restrict MeasureTheory.Ico_ae_eq_Icc.symm
+  apply ae_restrict_of_ae_eq_of_ae_restrict Ico_ae_eq_Icc.symm
   rw [zero_add]
 
   -- Show a.e. convergence on [0,2π]

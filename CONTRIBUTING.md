@@ -33,7 +33,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `Kₛ(x, y)`       | `Ks s x y`       |         |
 | `T_* f(x)`       | `nontangentialOperator K f x`       | The associated nontangential Calderon Zygmund operator |
 | `T_Q^θ f(x)`       | `linearizedNontangentialOperator Q θ K f x`       | The linearized associated nontangential Calderon Zygmund operator |
-| `T f(x)`       | `CarlesonOperator K f x` | The generalized Carleson operator        |
+| `T f(x)`       | `carlesonOperator K f x` | The generalized Carleson operator        |
 | `T_Q f(x)`       | `linearizedCarlesonOperator Q K f x` | The linearized generalized Carleson operator        |
 | `T_𝓝^θ f(x)`       | `nontangentialMaximalFunction K θ f x` |   |
 | `Tₚ f(x)`       | `carlesonOn p f x`       |         |

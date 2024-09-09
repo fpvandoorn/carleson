@@ -3,7 +3,7 @@ import Carleson.Classical.Basic
 
 noncomputable section
 
-open Complex
+open Complex MeasureTheory
 
 lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B K: NNReal}
     (h1 : LipschitzWith K ϕ) (h2 : ∀ x ∈ (Set.Ioo a b), ‖ϕ x‖ ≤ B) :
@@ -17,10 +17,10 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       add_zero, inv_one, mul_one]
     calc ‖∫ (x : ℝ) in a..b, ϕ x‖
       _ = ‖∫ (x : ℝ) in Set.Ioo a b, ϕ x‖ := by
-        rw [intervalIntegral.integral_of_le, ← MeasureTheory.integral_Ioc_eq_integral_Ioo]
+        rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
         linarith
-      _ ≤ B * (MeasureTheory.volume (Set.Ioo a b)).toReal := by
-        apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      _ ≤ B * (volume (Set.Ioo a b)).toReal := by
+        apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
         · exact fun x hx ↦ (h2 x hx)
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
       _ = B * (b - a) := by rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
@@ -64,10 +64,10 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       apply mul_nonneg (by simp) (by linarith)
     calc _
       _ = ‖∫ (x : ℝ) in Set.Ioo a b, cexp (I * ↑n * ↑x) * ϕ x‖ := by
-        rw [intervalIntegral.integral_of_le, ← MeasureTheory.integral_Ioc_eq_integral_Ioo]
+        rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
         linarith
-      _ ≤ B * (MeasureTheory.volume (Set.Ioo a b)).toReal := by
-        apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      _ ≤ B * (volume (Set.Ioo a b)).toReal := by
+        apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
         · intro x hx
           rw_mod_cast [norm_mul, mul_assoc, mul_comm I, Complex.norm_exp_ofReal_mul_I, one_mul]
           exact h2 x hx
@@ -168,20 +168,20 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
                  + ‖∫ (x : ℝ) in Set.Ioo (b - Real.pi / n) b, (I * n * (x + Real.pi / n)).exp * ϕ x‖) := by
       congr
       all_goals
-        rw [intervalIntegral.integral_of_le, ← MeasureTheory.integral_Ioc_eq_integral_Ioo]
+        rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
         linarith
-    _ ≤ 1 / 2 * (  B * (MeasureTheory.volume (Set.Ioo a (a + Real.pi / n))).toReal
-                 + (K * Real.pi / n) * (MeasureTheory.volume (Set.Ioo (a + Real.pi / n) b)).toReal
-                 + B * (MeasureTheory.volume (Set.Ioo (b - Real.pi / n) b)).toReal) := by
+    _ ≤ 1 / 2 * (  B * (volume (Set.Ioo a (a + Real.pi / n))).toReal
+                 + (K * Real.pi / n) * (volume (Set.Ioo (a + Real.pi / n) b)).toReal
+                 + B * (volume (Set.Ioo (b - Real.pi / n) b)).toReal) := by
       gcongr
-      · apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      · apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
         · intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul]
           apply h2
           constructor <;> linarith [hx.1, hx.2]
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
-      · apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      · apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
         · intro x _
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul, ← dist_eq_norm]
@@ -191,7 +191,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           apply le_of_eq
           ring
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
-      · apply MeasureTheory.norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      · apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
         · intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul]
