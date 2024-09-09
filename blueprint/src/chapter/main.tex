@@ -1943,9 +1943,7 @@ Define
         \bigcup_{\fp \in \fL_4 (k,n,j)}
         \scI(\fp)\, .
      \end{equation}
-Define $G'=G_1\cup G_2 \cup G_3$
-The following bound of the measure of $G'$ will be proven in
-\Cref{subsetexcset}.
+Define $G'=G_1\cup G_2 \cup G_3$. The following bound of the measure of $G'$ will be proven in \Cref{subsetexcset}.
 \begin{lemma}[exceptional set]
     \label{exceptional-set}
     \leanok
@@ -3075,7 +3073,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
     \begin{align}
         \label{eq-fp'-decomposition}
         &\quad \fP_2 \cap \fP_{G \setminus G'}\\
-        &= \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{G \setminus G'} \\
+        &\subset \bigcup_{k \ge 0} \bigcup_{n \ge k} \fL_0(k,n) \cap \fP_{G \setminus G'} \\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \fL_2(k,n,j) \cap \fP_{G \setminus G'}\\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_1(k,n,j,l) \cap \fP_{G \setminus G'}\\
         &\quad\cup \bigcup_{k \ge 0} \bigcup_{n \ge k}\bigcup_{0 \le j \le 2n+3} \bigcup_{0 \le l \le Z(n+1)} \fL_3(k,n,j,l)\cap \fP_{G \setminus G'}\,.
@@ -3083,6 +3081,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp \in \fP_2 \cap \fP_{G \setminus G'}$. Clearly, for every cube $J = \scI(\fp)$ with $\fp \in \fP_{G \setminus G'}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
 
     Next, since $E_2(\lambda, \fp') \subset \scI(\fp')\cap G$ for every $\lambda \ge 2$ and every tile $\fp' \in \fP(k)$ with $\lambda\fp \lesssim \lambda \fp'$, it follows from \eqref{muhj2} that $\mu(E_2(\lambda, \fp')) \le 2^{-k} \mu(\scI(\fp'))$ for every such $\fp'$, so $\dens_k'(\{\fp\}) \le 2^{-k}$. Combining this with $a \ge 0$, it follows from \eqref{def-cnk} that there exists $n\ge k$ with $\fp \in \fC(k,n)$.
@@ -3161,7 +3160,8 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
-    Suppose that there are $\fp_0, \fp_1 \in \fL_2(k,n,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By \Cref{wiggle-order-1} and \Cref{wiggle-order-2}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(k,n,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
+    \leanok
+    Suppose that there are $\fp_0, \fp_1 \in \fL_2(k,n,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By \Cref{wiggle-order-1} and \Cref{wiggle-order-2}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(k,n,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with all $\fp_i$ in $\fC_1(k,n,j)$ and $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
     If we have $\fp_l \in \fU_1(k,n,j)$, then it follows from $2\fp_0 \lesssim 200 \fp_l \lesssim \fp_l$ and \eqref{eq-L2-def} that $\fp_0 \not\in \fL_2(k,n,j)$, a contradiction. Thus, by the definition \eqref{defunkj} of $\fU_1(k,n,j)$, there exists $\fp_{l+1} \in \fC_1(k,n,j)$ with $\scI(\fp_l) \subsetneq \scI(\fp_{l+1}) $ and $\mfa \in B_{\fp_l}(\fcc(\fp_l), 100) \cap B_{\fp_{l+1}}(\fcc(\fp_{l+1}), 100)$. Using the triangle inequality and \Cref{monotone-cube-metrics}, one deduces that $200 \fp_l \lesssim 200\fp_{l+1}$. This contradicts maximality of $l$.
 \end{proof}
 
