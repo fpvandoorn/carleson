@@ -4195,7 +4195,7 @@ $$
 \begin{lemma}[convex scales]
 \label{convex-scales}
 \leanok
-\lean{convex_scales}
+\lean{TileStructure.Forest.convex_scales}
     For each $\fu \in \fU$, we have
     $$
         \sigma(\fu, x) = \mathbb{Z} \cap [\underline{\sigma} (\fu, x), \overline{\sigma} (\fu, x)]\,.
@@ -4225,7 +4225,8 @@ to be the collection of dyadic cubes $L \in \mathcal{D}$ such that $s(L) = -S$, 
 \begin{lemma}[dyadic partitions]
     \label{dyadic-partitions}
     \leanok
-    \lean{biUnion_𝓙, pairwiseDisjoint_𝓙, biUnion_𝓛, pairwiseDisjoint_𝓛}
+    \lean{TileStructure.Forest.biUnion_𝓙, TileStructure.Forest.pairwiseDisjoint_𝓙,
+    TileStructure.Forest.biUnion_𝓛, TileStructure.Forest.pairwiseDisjoint_𝓛}
     For each $\mathfrak{S} \subset \fP$, we have
     \begin{equation}
         \label{eq-J-partition}
@@ -4276,7 +4277,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \begin{lemma}[pointwise tree estimate]
     \label{pointwise-tree-estimate}
     \leanok
-    \lean{pointwise_tree_estimate}
+    \lean{TileStructure.Forest.pointwise_tree_estimate}
     \uses{first-tree-pointwise,second-tree-pointwise,third-tree-pointwise}
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Let $x, x' \in L$.
     Then for all bounded functions $f$ with bounded support
@@ -4319,7 +4320,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \begin{lemma}[first tree pointwise]
     \label{first-tree-pointwise}
     \leanok
-    \lean{first_tree_pointwise}
+    \lean{TileStructure.Forest.first_tree_pointwise}
     \uses{convex-scales}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
@@ -4380,7 +4381,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \begin{lemma}[second tree pointwise]
     \label{second-tree-pointwise}
     \leanok
-    \lean{second_tree_pointwise}
+    \lean{TileStructure.Forest.second_tree_pointwise}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
          \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) P_{\mathcal{J}(\fT(\fu))} f(y) \, \mathrm{d}\mu(y) \Bigg| \le T_{\mathcal{N}}^{\fcc(\fu)} P_{\mathcal{J}(\fT(\fu))} f(x')\,.
@@ -4412,7 +4413,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \begin{lemma}[third tree pointwise]
     \label{third-tree-pointwise}
     \leanok
-    \lean{third_tree_pointwise}
+    \lean{TileStructure.Forest.third_tree_pointwise}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     \begin{equation*}
         \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) (f(y) - P_{\mathcal{J}(\fT(\fu))} f(y)) \, \mathrm{d}\mu(y) \Bigg|
