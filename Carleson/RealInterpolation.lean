@@ -485,23 +485,12 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
       (p₀⁻¹.toReal * p₀.toReal) * p.toReal) := by ring
   rw [eq₁, eq₂, ← @toReal_mul q⁻¹ q, ← @toReal_mul p⁻¹ p, ← @toReal_mul p₀⁻¹ p₀,
       ← @toReal_mul q₀⁻¹ q₀]
+  all_goals try assumption
   -- TODO: why can below goals not be discharged?
-  · repeat rw [ENNReal.inv_mul_cancel] <;> try positivity
-    rw [one_toReal]
-    repeat rw [one_mul]
-    repeat rw [mul_one]
-    · assumption
-    · assumption
-    · apply interp_exp_ne_top hq₀q₁ ht hq
-    · apply interp_exp_ne_top hp₀p₁ ht hp
-  · exact ht
-  · assumption
-  · assumption
-  · assumption
-  · exact ht
-  · assumption
-  · assumption
-  · assumption
+  repeat rw [ENNReal.inv_mul_cancel] <;> try positivity
+  all_goals simp <;> try assumption
+  · apply interp_exp_ne_top hq₀q₁ ht hq
+  · apply interp_exp_ne_top hp₀p₁ ht hp
 
 lemma one_sub_coe_one_sub (ht : t ∈ Ioo 0 1) :
     (1 - ENNReal.ofReal (1 - t)) = ENNReal.ofReal t := by
