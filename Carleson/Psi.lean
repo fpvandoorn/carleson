@@ -1,8 +1,5 @@
 import Carleson.Defs
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure
 open scoped ENNReal
 noncomputable section
@@ -49,15 +46,15 @@ lemma ψ_formula₀ {x : ℝ} (hx : x ≤ 1 / (4 * D : ℝ)) : ψ D x = 0 := by
   by_cases hD : D = 0
   · simp [ψ, hD]
   · exact max_eq_left <| (min_le_right 1 _).trans <| (min_le_left _ _).trans <|
-      tsub_nonpos.2 <| (_root_.le_div_iff' (mul_pos four_pos
+      tsub_nonpos.2 <| (le_div_iff₀' (mul_pos four_pos
       (by exact_mod_cast Nat.zero_lt_of_ne_zero hD))).1 hx
 
 include hD in
 lemma ψ_formula₁ {x : ℝ} (hx : 1 / (4 * D) ≤ x ∧ x ≤ 1 / (2 * D)) :
     ψ D x = 4 * D * x - 1 := by
   have : x ≥ 0 := le_trans (one_div_nonneg.2 (le_of_lt <| fourD0 hD)) hx.1
-  have hx1 := (div_le_iff' (fourD0 hD)).1 hx.1
-  have hx2 := (le_div_iff' (twoD0 hD)).1 hx.2
+  have hx1 := (div_le_iff₀' (fourD0 hD)).1 hx.1
+  have hx2 := (le_div_iff₀' (twoD0 hD)).1 hx.2
   have ineq₀ : 4 * D * x - 1 ≤ 2 - 4 * x := by
     suffices (2 * D + 2 * D + 4) * x ≤ 3 by linarith
     exact le_trans (by gcongr; linarith [D2 hD]) (by linarith: (2 * D + 2 * D + 2 * D) * x ≤ 3)
@@ -69,7 +66,7 @@ include hD in
 lemma ψ_formula₂ {x : ℝ} (hx : 1 / (2 * D) ≤ x ∧ x ≤ 1 / 4) : ψ D x = 1 := by
   unfold ψ
   suffices min 1 (min (4 * D * x - 1) (2 - 4 * x)) = 1 from this.symm ▸ max_eq_right_of_lt one_pos
-  have := (div_le_iff' (twoD0 hD)).1 hx.1
+  have := (div_le_iff₀' (twoD0 hD)).1 hx.1
   exact min_eq_left (le_min (by linarith) (by linarith))
 
 include hD in
@@ -161,7 +158,7 @@ show that `nonzeroS D x` has either 1 or 2 elements. The next two lemmas prove `
 include hD
 
 private lemma le_div_ceil_mul (hx : 0 < x) : 1 / (4 * D) ≤ D ^ (-⌈logb D (4 * x)⌉) * x := by
-  rw [← div_le_iff hx, div_div, ← rpow_logb (D0 hD) (ne_of_gt hD) (cDx0 hD four_pos hx),
+  rw [← div_le_iff₀ hx, div_div, ← rpow_logb (D0 hD) (ne_of_gt hD) (cDx0 hD four_pos hx),
     ← inv_eq_one_div, (by norm_cast : (D : ℝ) ^ (-⌈logb D (4 * x)⌉) = D ^ (-⌈logb D (4 * x)⌉ : ℝ)),
     ← rpow_neg (D0 hD).le, rpow_le_rpow_left_iff hD, neg_le_neg_iff]
   apply le_of_le_of_eq <| calc
@@ -240,8 +237,8 @@ private lemma sum_ψ₂ (hx : 0 < x)
     rw [zpow_sub₀ (ne_of_gt (D0 hD)), zpow_neg, zpow_one, div_eq_mul_inv]
   rw [neg_sub, sub_eq_add_neg, zpow_add₀ (ne_of_gt (D0 hD)), zpow_one, mul_assoc]
   constructor
-  · rw [← div_le_iff' (D0 hD), div_div]; exact hs₀.1
-  · rw [← le_div_iff' (D0 hD), div_div]; exact hs₀.2
+  · rw [← div_le_iff₀' (D0 hD), div_div]; exact hs₀.1
+  · rw [← le_div_iff₀' (D0 hD), div_div]; exact hs₀.2
 
 -- See `finsum_ψ` for the version that doesn't explicitly restrict to the support.
 lemma sum_ψ (hx : 0 < x) : ∑ s in nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
@@ -258,7 +255,7 @@ lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) :
   rw [mem_Ioo, nonzeroS, Finset.mem_Icc, Int.floor_le_iff, Int.le_ceil_iff, mul_inv_rev,
     add_comm _ 1, Real.add_lt_add_iff_left, ← lt_div_iff hx, mul_comm (D : ℝ)⁻¹,
     ← div_lt_div_iff hx (inv_pos.2 (D0 hD)), div_inv_eq_mul, ← zpow_add_one₀ ((D0 hD).ne.symm),
-    zpow_neg, ← rpow_intCast, ← rpow_intCast, lt_logb_iff_rpow_lt hD (four_x0 hx),
+    zpow_neg, ← Real.rpow_intCast, ← Real.rpow_intCast, lt_logb_iff_rpow_lt hD (four_x0 hx),
     logb_lt_iff_lt_rpow hD (mul_pos two_pos hx), ← sub_eq_neg_add, ← neg_sub i 1, ← inv_mul',
     ← inv_mul', inv_lt_inv (D_pow0 hD _) (mul_pos two_pos hx), Int.cast_neg, Int.cast_sub,
     Int.cast_one, rpow_neg (D0 hD).le, inv_lt_inv (four_x0 hx) (D_pow0 hD _), and_comm]
@@ -331,8 +328,8 @@ lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
   simp only [Ks, Nat.cast_pow, Nat.cast_ofNat, zpow_neg, ne_eq, mul_eq_zero, ofReal_eq_zero] at h
   have dist_mem_Icc := Ioo_subset_Icc_self (support_ψ (D1 X) ▸ mem_support.2 (not_or.1 h).2)
-  rwa [mem_Icc, ← div_eq_inv_mul, le_div_iff (D_pow0' (D1 X) s),
-    div_le_iff (D_pow0' (D1 X) s), mul_inv, mul_assoc, inv_mul_eq_div (4 : ℝ), ← zpow_neg_one,
+  rwa [mem_Icc, ← div_eq_inv_mul, le_div_iff₀ (D_pow0' (D1 X) s),
+    div_le_iff₀ (D_pow0' (D1 X) s), mul_inv, mul_assoc, inv_mul_eq_div (4 : ℝ), ← zpow_neg_one,
     ← zpow_add₀ (D0' X).ne.symm, neg_add_eq_sub, ← div_eq_inv_mul] at dist_mem_Icc
 
 /-- The constant appearing in part 2 of Lemma 2.1.3. -/
@@ -346,7 +343,7 @@ lemma kernel_bound {s : ℤ} {x y : X} :
   change ‖K x y * ψ (D ^ (-s) * dist x y)‖ ≤ 2 ^ a ^ 3 / volume.real (ball x (dist x y))
   apply le_trans <| calc
     ‖K x y * ψ (D ^ (-s) * dist x y)‖
-      = ‖K x y‖ * ‖(ψ (D ^ (-s) * dist x y) : ℂ)‖ := by exact_mod_cast norm_mul _ _
+      = ‖K x y‖ * ‖(ψ (D ^ (-s) * dist x y) : ℂ)‖ := norm_mul ..
     _ ≤ ‖K x y‖ * 1               := by gcongr; rw [norm_eq_abs, abs_ofReal]; exact abs_ψ_le_one D _
     _ ≤ ‖K x y‖                   := by rw [mul_one]
   convert norm_K_le_vol_inv (K := K) x y
@@ -666,7 +663,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       intro y hy
       rw [mem_support, ne_eq, ofReal_eq_zero, ← ne_eq, ← mem_support, support_ψ (D1 X)] at hy
       replace hy := le_of_lt hy.2
-      rw [zpow_neg, mul_comm, ← div_eq_mul_inv, _root_.div_le_iff (Ds0 X s)] at hy
+      rw [zpow_neg, mul_comm, ← div_eq_mul_inv, div_le_iff₀ (Ds0 X s)] at hy
       rwa [mem_closedBall, dist_comm, div_eq_mul_inv, mul_comm]
   · refine Measurable.ite ?_ measurable_const measurable_K_right.of_uncurry_left
     convert measurableSet_closedBall (x := x) (ε := D ^ s / (4 * D))

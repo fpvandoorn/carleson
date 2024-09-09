@@ -127,7 +127,8 @@ lemma Dirichlet_Hilbert_diff {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc (-Real.pi) 
     _ = 2 * (|x| / ‖1 - exp (I * x)‖) := by ring
     _ ≤ 2 * (Real.pi / 2) := by
       gcongr 2 * ?_
-      rw [div_le_iff' (by rwa [norm_pos_iff]), ←div_le_iff (by linarith [Real.pi_pos]), div_div_eq_mul_div, mul_div_assoc, mul_comm]
+      rw [div_le_iff₀' (by rwa [norm_pos_iff]), ← div_le_iff₀ (by linarith [Real.pi_pos]),
+        div_div_eq_mul_div, mul_div_assoc, mul_comm]
       apply lower_secant_bound' (by rfl)
       have : |x| ≤ Real.pi := by
         rwa [abs_le]
@@ -343,14 +344,14 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g Measu
           · conv => pattern ((g _) * _); rw [mul_comm]
             apply MeasureTheory.Integrable.bdd_mul' integrable₁ measurable₁.aestronglyMeasurable
             · rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
-              apply eventually_of_forall
+              apply Eventually.of_forall
               exact fun _ hy ↦ boundedness₁ hy.1.le
           · conv => pattern ((g _) * _); rw [mul_comm]
             apply MeasureTheory.Integrable.bdd_mul' integrable₁
             · apply Measurable.aestronglyMeasurable
               exact continuous_star.measurable.comp measurable₁
             · rw [MeasureTheory.ae_restrict_iff' annulus_measurableSet]
-              apply eventually_of_forall
+              apply Eventually.of_forall
               intro y hy
               rw [RCLike.norm_conj]
               exact boundedness₁ hy.1.le
@@ -636,7 +637,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
     _ ≤ 2 * (δ * C10_0_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹ / (Real.pi * (ε' - Real.pi * δ))) ^ (2 : ℝ) := by
       rw [Real.rpow_mul MeasureTheory.measureReal_nonneg]
       gcongr
-      rw [Real.rpow_add' MeasureTheory.measureReal_nonneg (by norm_num), Real.rpow_one, le_div_iff' ε'_δ_expression_pos, ← mul_assoc]
+      rw [Real.rpow_add' MeasureTheory.measureReal_nonneg (by norm_num), Real.rpow_one, le_div_iff₀' ε'_δ_expression_pos, ← mul_assoc]
       apply mul_le_of_nonneg_of_le_div δ_mul_const_pos.le
       apply Real.rpow_nonneg MeasureTheory.measureReal_nonneg
       rw[Real.rpow_neg MeasureTheory.measureReal_nonneg, div_inv_eq_mul]

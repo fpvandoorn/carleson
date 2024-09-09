@@ -11,10 +11,12 @@ noncomputable section
 
 namespace MeasureTheory
 
-class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
-    (μ : Measure X) (A : outParam ℝ≥0) where
-  measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
 
+/-- A doubling measure is a measure on a metric space with the condition doubling
+the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
+class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
+    (μ : Measure X) (A : outParam ℝ≥0) : Prop where
+  measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
 export IsDoubling (measure_ball_two_le_same)
 
 section PseudoMetric
@@ -30,8 +32,16 @@ lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
         _ ≤ r := hr
   exact mem_ball'.mpr h1
 
-variable {A : ℝ≥0} [MeasurableSpace X] [ProperSpace X]
-  {μ : Measure X} [μ.IsDoubling A] [IsFiniteMeasureOnCompacts μ]
+variable {A : ℝ≥0} [MeasurableSpace X] {μ : Measure X} [μ.IsDoubling A]
+
+lemma IsDoubling.mono {A'} (h : A ≤ A') : IsDoubling μ A' where
+  measure_ball_two_le_same := by
+    intro x r
+    calc μ (Metric.ball x (2 * r))
+      _ ≤ A * μ (Metric.ball x r) := measure_ball_two_le_same _ _
+      _ ≤ A' * μ (Metric.ball x r) := by gcongr
+
+variable [ProperSpace X] [IsFiniteMeasureOnCompacts μ]
 
 lemma measure_real_ball_two_le_same (x : X) (r : ℝ) :
     μ.real (ball x (2 * r)) ≤ A * μ.real (ball x r) := by
@@ -76,17 +86,8 @@ lemma A_pos' [Nonempty X] [μ.IsOpenPosMeasure] : 0 < (A : ℝ≥0∞) := by
 --     (coe_ne_top : (A : ℝ≥0∞) ≠ ⊤), ← ENNReal.ofReal_mul (by exact toReal_nonneg)]
 --   exact ENNReal.ofReal_le_ofReal (measure_ball_two_le_same x r)
 
-@[reducible]
-def IsDoubling.mono {A'} (h : A ≤ A') : IsDoubling μ A' where
-  measure_ball_two_le_same := by
-    intro x r
-    calc μ (Metric.ball x (2 * r))
-      _ ≤ A * μ (Metric.ball x r) := measure_ball_two_le_same _ _
-      _ ≤ A' * μ (Metric.ball x r) := by gcongr
-
 lemma measure_ball_four_le_same (x : X) (r : ℝ) :
     μ.real (ball x (4 * r)) ≤ A ^ 2 * μ.real (ball x r) := by
-  have : Nonempty X := ⟨x⟩
   calc μ.real (ball x (4 * r))
       = μ.real (ball x (2 * (2 * r))) := by ring_nf
     _ ≤ A * μ.real (ball x (2 * r)) := measure_real_ball_two_le_same _ _
@@ -100,7 +101,6 @@ attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
 
 lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
     μ.real (ball x (2 ^ n * r)) ≤ A ^ n * μ.real (ball x r) := by
-  have : Nonempty X := ⟨x⟩
   induction n
   case zero => simp
   case succ m hm =>
@@ -116,7 +116,6 @@ lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
 
 lemma measure_ball_le_pow_two' {x : X} {r : ℝ} {n : ℕ} :
     μ (ball x (2 ^ n * r)) ≤ A ^ n * μ (ball x r) := by
-  letI : Nonempty X := ⟨x⟩
   have hleft : μ (ball x (2 ^ n * r)) ≠ ⊤ := measure_ball_ne_top x (2 ^ n * r)
   have hright : μ (ball x r) ≠ ⊤ := measure_ball_ne_top x r
   have hfactor : (A ^n : ℝ≥0∞) ≠ ⊤ := Ne.symm (ne_of_beq_false rfl)
@@ -125,6 +124,7 @@ lemma measure_ball_le_pow_two' {x : X} {r : ℝ} {n : ℕ} :
   · exact ENNReal.ofReal_le_ofReal measure_ball_le_pow_two
   simp only [toReal_pow, coe_toReal, ge_iff_le, zero_le_coe, pow_nonneg]
 
+/-- The blow-up factor of repeatedly increasing the size of balls. -/
 def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
 
 variable (μ) in
@@ -178,40 +178,13 @@ lemma measure_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
   positivity
   simp only [coe_toReal, zero_le_coe]
 
-def Ad (A : ℝ≥0) (s d : ℝ) : ℝ≥0 := As A s * A * As A d
-
-lemma measure_ball_le_of_dist_le' [μ.IsOpenPosMeasure] {x x' : X} {r r' s d : ℝ} (hs : 0 < s)
-    (hd : 0 < d) (hsr : r' ≤ s * dist x x') (hdr : dist x x' ≤ d * r) :
-    μ (ball x' r') ≤ Ad A s d * μ (ball x r) := by
-  letI : Nonempty X := ⟨x⟩
+lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
+    (h : dist x x' + r' ≤ s * r) :
+    μ (ball x' r') ≤ As A s * μ (ball x r) := by
   calc
     μ (ball x' r')
-      ≤ As A s * μ (ball x' (dist x x')) := measure_ball_le_same' x' hs hsr
-    _ ≤ As A s * μ (ball x (2 * dist x x')) := by
-      rw [ENNReal.mul_le_mul_left (As_pos' μ s).ne.symm (coe_ne_top)]
-      apply MeasureTheory.measure_mono
-      rw [two_mul]
-      exact ball_subset_ball_of_le (le_refl _)
-    _ ≤ As A s * A * μ (ball x (dist x x')) := by
-      rw [mul_assoc, ENNReal.mul_le_mul_left (As_pos' μ s).ne.symm coe_ne_top]
-      exact measure_ball_two_le_same x (dist x x')
-    _ ≤ As A s * A * As A d * μ (ball x r) := by
-      rw [mul_assoc (As A s * A : ℝ≥0∞)]
-      apply mul_le_mul_of_nonneg_left _
-      · exact zero_le ((As A s : ℝ≥0∞) * A)
-      exact measure_ball_le_same' x hd hdr
-    _ = Ad A s d * μ (ball x r) := by
-      dsimp only [Ad]
-      simp only [coe_mul]
-
-lemma measure_ball_le_of_dist_le''' [μ.IsOpenPosMeasure] {x x' : X} {r : ℝ}
-    (hr : dist x x' = (1/(2 : ℝ)) * r) : μ (ball x' r) ≤ A ^ 2 * μ (ball x r) := by
-  have hsr : r ≤ (2 : ℝ) * dist x x' := by rw [hr]; linarith
-  convert measure_ball_le_of_dist_le' (μ := μ) zero_lt_two (by positivity) hsr (le_of_eq hr)
-  · simp only [Ad, As, Nat.one_lt_ofNat, Real.logb_self_eq_one, Nat.ceil_one, pow_one, one_div,
-      Real.logb_inv, coe_mul, ENNReal.coe_pow]
-    have : ⌈-(1 : ℝ)⌉₊ = 0 := by rw [Nat.ceil_eq_zero]; linarith
-    rw [this, pow_zero, mul_one, pow_two]
+      ≤ μ (ball x (dist x x' + r')) := by gcongr; exact ball_subset_ball_of_le le_rfl
+    _ ≤ As A s * μ (ball x r) := measure_ball_le_same' x hs h
 
 section
 
@@ -220,7 +193,7 @@ variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 -- #check (@measure_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
 
 end
-def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := Ad A s s
+def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := As A s -- maybe wrong
 
 lemma measure_ball_le_of_subset {x' x : X} {r r' s : ℝ}
     (hs : r' ≤ s * r) (hr : ball x' r ⊆ ball x r') :
@@ -232,7 +205,7 @@ lemma measure_ball_two_le_of_subset {x' x : X} {r : ℝ} (hr : ball x' r ⊆ bal
     μ.real (ball x (2 * r)) ≤ Ai2 A * μ.real (ball x' r) :=
   measure_ball_le_of_subset le_rfl hr
 
-def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊Ad A (s * A + 2⁻¹) s⌋₊
+def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊As A (s * A + 2⁻¹)⌋₊ -- probably wrong
 
 /- Proof sketch: take a ball of radius `r / (2 * A)` around each point in `s`.
 These are disjoint, and are subsets of `ball x (r * (2 * A + 2⁻¹))`. -/
@@ -370,6 +343,7 @@ variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
 end MetricSpace
 
 
+/-- Monotonicity of doubling measure metric spaces in `A`. -/
 @[reducible]
 def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
   toIsDoubling := IsDoubling.mono h

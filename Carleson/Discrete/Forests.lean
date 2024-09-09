@@ -1,8 +1,5 @@
 import Carleson.Discrete.ExceptionalSet
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
@@ -902,7 +899,7 @@ lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1
 which has value `2 ^ (440 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
 def C2_0_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C5_1_2 a q + C5_1_3 a q
 
-lemma C2_0_2_pos : C2_0_2 a nnq > 0 := sorry
+lemma C2_0_2_pos : C2_0_2 a nnq > 0 := add_pos C5_1_2_pos C5_1_3_pos
 
 variable (X) in
 theorem discrete_carleson :

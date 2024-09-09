@@ -60,8 +60,8 @@ private lemma P'_of_P [BorelSpace X] [ProperSpace X] [IsFiniteMeasureOnCompacts 
       (coe_nnnorm_ae_le_eLpNormEssSup u μ).mono (by tauto)
     apply lt_of_le_of_lt (MeasureTheory.setLIntegral_mono_ae' measurableSet_ball hfg)
     rw [MeasureTheory.setLIntegral_const (ball c r) (eLpNormEssSup u μ)]
-    refine ENNReal.mul_lt_top ?_ (measure_ball_ne_top c r)
-    exact eLpNorm_exponent_top (f := u) ▸ hu.eLpNorm_lt_top |>.ne
+    refine ENNReal.mul_lt_top ?_ measure_ball_lt_top
+    exact eLpNorm_exponent_top (f := u) ▸ hu.eLpNorm_lt_top
   · have := hu.eLpNorm_lt_top
     simp [eLpNorm, one_ne_zero, reduceIte, ENNReal.one_ne_top, eLpNorm', ENNReal.one_toReal,
       ENNReal.rpow_one, ne_eq, not_false_eq_true, div_self] at this
@@ -80,7 +80,7 @@ private lemma P'.add [MeasurableSpace E] [BorelSpace E]
 private lemma P'.smul [NormedSpace ℝ E] {f : X → E} (hf : P' μ f) (s : ℝ) : P' μ (s • f) := by
   refine ⟨AEStronglyMeasurable.const_smul hf.1 s, fun c r ↦ ?_⟩
   simp_rw [Pi.smul_apply, nnnorm_smul, ENNReal.coe_mul, lintegral_const_mul' _ _ ENNReal.coe_ne_top]
-  exact ENNReal.mul_lt_top ENNReal.coe_ne_top (hf.2 c r).ne
+  exact ENNReal.mul_lt_top ENNReal.coe_lt_top (hf.2 c r)
 
 -- The average that appears in the definition of `MB`
 variable (μ c r) in
@@ -111,27 +111,48 @@ private lemma T.smul [NormedSpace ℝ E] (i : ι) : ∀ {f : X → E} {d : ℝ},
   congr
 
 /- NOTE: This was changed to use `ℝ≥0∞` rather than `ℝ≥0` because that was more convenient for the
-proof of `first_exception` in DiscreteCarleson.lean. But everything involved there is finite, so
+proof of `first_exception'` in ExceptionalSet.lean. But everything involved there is finite, so
 you can prove this with `ℝ≥0` and deal with casting between `ℝ≥0` and `ℝ≥0∞` there, if that turns
 out to be easier. -/
-theorem Set.Countable.measure_biUnion_le_lintegral (h𝓑 : 𝓑.Countable) {l : ℝ≥0∞} (hl : 0 < l)
-    {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
+theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h𝓑 : 𝓑.Countable)
+    {l : ℝ≥0∞} (hl : 0 < l) {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
     (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  := by
   obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargment_closedBall
     𝓑 c r R hR (2 ^ 2) (by norm_num)
+  have : Countable B := h𝓑.mono hB𝓑
+  have disj := fun i j hij ↦ Disjoint.mono ball_subset_closedBall ball_subset_closedBall <|
+    hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
   calc
-    l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := sorry
-    _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) := sorry
-    _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := sorry
-    _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := sorry
-    _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := sorry
-    _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := sorry -- does this exist in Mathlib?
-    _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := sorry
+    l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
+          refine l.mul_left_mono (μ.mono fun x hx ↦ ?_)
+          simp only [mem_iUnion, mem_ball, exists_prop] at hx
+          rcases hx with ⟨i, i𝓑, hi⟩
+          obtain ⟨b, bB, hb⟩ := h2B i i𝓑
+          refine mem_iUnion₂.mpr ⟨b, bB, ?_⟩
+          have := interior_mono hb (Metric.ball_subset_interior_closedBall hi)
+          -- We would be done if `interior (closedBall (c b) (2 ^ 2 * r b))` was known to be a
+          -- subset of `ball (c b) (2 ^ 2 * r b)`.
+          sorry
+    _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
+          l.mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
+    _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
+          refine l.mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
+          rw [sq, sq, mul_assoc, mul_assoc]
+          apply (measure_ball_two_le_same (c i) (2 * r i)).trans
+          exact ENNReal.mul_left_mono (measure_ball_two_le_same (c i) (r i))
+    _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
+          rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
+    _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
+          gcongr; exact h2u _ (hB𝓑 (Subtype.coe_prop _))
+    _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
+          congr; simpa using (lintegral_iUnion (fun i ↦ measurableSet_ball) disj u).symm
+    _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
+          gcongr; exact setLIntegral_le_lintegral (⋃ i ∈ B, ball (c i) (r i)) u
 
-protected theorem Finset.measure_biUnion_le_lintegral (𝓑 : Finset ι) {l : ℝ≥0∞} (hl : 0 < l)
-    {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
+protected theorem Finset.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (𝓑 : Finset ι)
+    {l : ℝ≥0∞} (hl : 0 < l) {u : X → ℝ≥0∞} (hu : AEStronglyMeasurable u μ)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  :=
   let ⟨c, hc⟩ := (𝓑.image r).exists_le
@@ -165,7 +186,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   intro f _
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
   simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
-  refine essSup_le_of_ae_le _ (eventually_of_forall fun x ↦ ?_)
+  refine essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
   refine ENNReal.coe_toNNReal_le_self |>.trans ?_
   apply MB_le_eLpNormEssSup
@@ -196,12 +217,39 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction
     · simp [hx]
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
+open ENNReal in
 variable (μ) in
-protected theorem HasWeakType.MB_one [BorelSpace X] [μ.IsDoubling A] (h𝓑 : 𝓑.Countable) :
+protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable) :
     HasWeakType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) 1 1 μ μ (A ^ 2) := by
   intro f hf
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
-  sorry
+  let Bₗ (ℓ : ℝ≥0∞) := { i ∈ 𝓑 | ∫⁻ y in (ball (c i) (r i)), ‖f y‖₊ ∂μ ≥ ℓ * μ (ball (c i) (r i)) }
+  simp only [wnorm, one_ne_top, reduceIte, wnorm', one_toReal, inv_one, rpow_one, coe_pow, eLpNorm,
+    one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self, iSup_le_iff]
+  intro t
+  by_cases ht : t = 0
+  · simp [ht]
+  have hBₗ : (Bₗ t).Countable := h𝓑.mono (fun i hi ↦ mem_of_mem_inter_left hi)
+  refine le_trans ?_ (hBₗ.measure_biUnion_le_lintegral (c := c) (r := r) (l := t) ?_ ?_ ?_ ?_ ?_)
+  · refine mul_left_mono <| μ.mono (fun x hx ↦ mem_iUnion₂.mpr ?_)
+    -- We need a ball in `Bₗ t` containing `x`. Since `MB μ 𝓑 c r f x` is large, such a ball exists
+    simp only [nnorm_toReal, mem_setOf_eq] at hx
+    replace hx := lt_of_lt_of_le hx coe_toNNReal_le_self
+    simp only [MB, maximalFunction, rpow_one, inv_one] at hx
+    obtain ⟨i, ht⟩ := lt_iSup_iff.mp hx
+    replace hx : x ∈ ball (c i) (r i) :=
+      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le t) (coe_lt_coe.mp <| by simp [h] at ht)
+    refine ⟨i, ?_, hx⟩
+    -- It remains only to confirm that the chosen ball is actually in `Bₗ t`
+    simp only [ge_iff_le, mem_setOf_eq, Bₗ]
+    have hi : i ∈ 𝓑 :=
+      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le t) (coe_lt_coe.mp <| by simp [h] at ht)
+    exact ⟨hi, mul_le_of_le_div <| le_of_lt (by simpa [setLaverage_eq, hi, hx] using ht)⟩
+  · exact coe_pos.mpr (pos_iff_ne_zero.mpr ht)
+  · exact continuous_coe.comp_aestronglyMeasurable hf.aestronglyMeasurable.nnnorm
+  · sorry -- Removing these two sorries is trivial if `𝓑` is finite.
+  · sorry
+  · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x hx ↦ by simp)
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
 irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := sorry
@@ -215,14 +263,11 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
       p p μ μ (CMB A p) := by
   have h2p : 0 < p := zero_lt_one.trans hp
   have := exists_hasStrongType_real_interpolation
-    (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
-    ⟨le_top, le_rfl⟩ ⟨le_rfl, le_rfl⟩ (by norm_num) (by simp [inv_lt_one_iff, hp, h2p] : p⁻¹ ∈ _)
-    zero_lt_one (pow_pos (A_pos μ) 2)
-    (p := p) (q := p) (A := 1)
+    (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) (p := p) (q := p) (A := 1) ⟨ENNReal.zero_lt_top, le_rfl⟩
+    ⟨zero_lt_one, le_rfl⟩ (by norm_num) zero_lt_one (by simp [inv_lt_one_iff, hp, h2p] : p⁻¹ ∈ _) zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f hf ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑.countable)
-    (.maximalFunction h𝓑)
-    (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
+    (SublinearOn.maximalFunction h𝓑).1 (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
     (HasWeakType.MB_one μ h𝓑.countable)
   convert this using 1
   sorry -- let's deal with the constant later

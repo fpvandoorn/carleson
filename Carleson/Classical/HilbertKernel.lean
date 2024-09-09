@@ -252,7 +252,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
 
   /- Beginning of the main proof -/
   have y2ley' : y / 2 ≤ y' := by
-    rw [div_le_iff two_pos]
+    rw [div_le_iff₀ two_pos]
     calc y
       _ = 2 * (y - y') - y + 2 * y' := by ring
       _ ≤ 2 * |y - y'| - y + 2 * y' := by gcongr; exact le_abs_self _

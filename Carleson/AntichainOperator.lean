@@ -2,9 +2,6 @@ import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
@@ -260,7 +257,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     rw [one_le_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, add_le_add_iff_left]
     exact le_of_lt (q_mem_Ioc X).1
   have hqq' : q' ≤ nnq := by -- Better proof?
-    rw [add_comm, div_le_iff (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0,
+    rw [add_comm, div_le_iff₀ (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0,
       ← one_add_one_eq_two, add_le_add_iff_left]
     exact (nnq_mem_Ioc X).1.le
   have hq'_inv : (q' - 1)⁻¹ ≤ 3 * (nnq - 1)⁻¹ := by
@@ -347,8 +344,8 @@ def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
 
 /-- Proposition 2.0.3 -/
 theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
-    (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : Measurable g) (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄)) :
     ‖∫ x, conj (g x) * ∑ᶠ p : 𝔄, T p f x‖ ≤
     C_2_0_3 a q * (dens₁ 𝔄).toReal ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄).toReal ^ (q⁻¹ - 2⁻¹) *
