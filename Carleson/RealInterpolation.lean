@@ -1744,11 +1744,8 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : γ > 0) (htγ 
   rw [mul_comm]
   have t_pos : 0 < t := by exact gt_of_ge_of_gt htγ hγ
   rw [Real.rpow_sub hγ]
-  refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-a) )) ?_ ?_).mp ?_
-  · apply ne_of_gt
-    refine ofReal_pos.mpr ?_
-    exact Real.rpow_pos_of_pos hγ (-a)
-  · exact coe_ne_top
+  refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
+  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne.symm
   · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
         Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
     nth_rw 2 [mul_comm]
@@ -1776,17 +1773,14 @@ lemma trunc_preserves_Lp {p : ℝ≥0∞} {a : ℝ}
 lemma snorm_trunc_compl_le {p : ℝ≥0∞} {a : ℝ}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
     eLpNorm (f - trunc f a) p μ ≤
-    eLpNorm f p μ := by
-  apply eLpNorm_mono
-  intro x
-  apply trunc_compl_le_func
+    eLpNorm f p μ :=
+  eLpNorm_mono (fun _ ↦ trunc_compl_le_func)
 
 lemma trunc_compl_preserves_Lp {p : ℝ≥0∞} {a : ℝ}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     (hf : Memℒp f p μ) :
-    Memℒp (f - trunc f a) p μ := by
-  have truncLp : Memℒp (trunc f a) p μ := trunc_preserves_Lp hf
-  apply Memℒp.sub hf truncLp
+    Memℒp (f - trunc f a) p μ :=
+  Memℒp.sub hf (trunc_preserves_Lp hf)
 
 lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] (hp : p ≠ ⊤) (hpq : q ∈ Ioo 0 p) (hf : AEMeasurable f μ) (ha : a > 0) :
@@ -1795,10 +1789,9 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
     eLpNorm f p μ ^ p.toReal := by
   unfold eLpNorm eLpNorm'
   have q_ne_top: q ≠ ⊤ := LT.lt.ne_top hpq.2
-  have q_pos : q > 0 := hpq.1
-  have p_ne_zero : p ≠ 0 := (lt_trans q_pos hpq.2).ne.symm
+  have p_ne_zero : p ≠ 0 := (lt_trans hpq.1 hpq.2).ne.symm
   have q_ne_zero : q ≠ 0 := hpq.1.ne.symm
-  have q_toReal_pos : q.toReal > 0 := exp_toReal_pos q_pos q_ne_top
+  have q_toReal_pos : q.toReal > 0 := exp_toReal_pos hpq.1 q_ne_top
   split_ifs
   · contradiction
   · calc
@@ -1813,7 +1806,7 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
         split_ifs with is_a_lt_fx
         · exact fun _ => is_a_lt_fx
         · contrapose; intro _; simpa
-      · exact exp_toReal_ne_zero' q_pos q_ne_top
+      · exact exp_toReal_ne_zero' hpq.1 q_ne_top
     _ ≤ ∫⁻ x : α in {x | a < ‖f x‖}, ↑‖f x‖₊ ^ q.toReal ∂μ := by
       apply lintegral_mono_ae
       apply ae_of_all
@@ -1825,13 +1818,7 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
     _ ≤ ENNReal.ofReal (a ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | a < ‖f x‖},
         ↑‖f x‖₊ ^ p.toReal ∂μ := by
       rw [← lintegral_const_mul']; swap; exact coe_ne_top
-      apply setLIntegral_mono_ae
-      · apply AEMeasurable.restrict
-        apply AEMeasurable.mul
-        · exact aemeasurable_const
-        · apply AEMeasurable.pow_const
-          apply AEMeasurable.coe_nnreal_ennreal
-          apply AEMeasurable.nnnorm hf
+      apply setLIntegral_mono_ae (AEMeasurable.restrict (by fun_prop))
       · apply ae_of_all
         intro x (hx : a < ‖f x‖)
         rw [mul_comm]
@@ -1859,9 +1846,8 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
   unfold eLpNorm eLpNorm'
   have : q ≠ ⊤ := hq
   have p_ne_top : p ≠ ⊤ := LT.lt.ne_top hpq.2
-  have p_pos : p > 0 := hpq.1
-  have : p ≠ 0 := p_pos.ne.symm
-  have : q ≠ 0 := (lt_trans p_pos hpq.2).ne.symm
+  have : p ≠ 0 := hpq.1.ne.symm
+  have : q ≠ 0 := (lt_trans hpq.1 hpq.2).ne.symm
   have q_toReal_pos : q.toReal > 0 := by exact toReal_pos this hq
   split_ifs
   · contradiction
@@ -1893,12 +1879,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
     _ ≤ ENNReal.ofReal (a ^ (q.toReal - p.toReal)) *
         ∫⁻ (x : α) in {x | 0 < ‖f x‖ ∧ ‖f x‖ ≤ a}, ‖f x‖₊ ^ p.toReal ∂ μ := by
       rw [← lintegral_const_mul']
-      · apply setLIntegral_mono_ae
-        · apply AEMeasurable.restrict
-          apply AEMeasurable.const_mul
-          apply AEMeasurable.pow_const
-          apply AEMeasurable.coe_nnreal_ennreal
-          exact AEMeasurable.nnnorm hf
+      · apply setLIntegral_mono_ae (AEMeasurable.restrict (by fun_prop))
         · apply ae_of_all
           intro x hx
           rw [mul_comm]
@@ -1913,7 +1894,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       gcongr
       rw [one_div, ENNReal.rpow_inv_rpow]
       · exact setLIntegral_le_lintegral _ _
-      · exact exp_toReal_ne_zero' p_pos p_ne_top
+      · exact exp_toReal_ne_zero' hpq.1 p_ne_top
 
 /-- If `f` is in `Lp`, the truncation is element of `Lq` for `q > p`. -/
 lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -1921,21 +1902,15 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [NormedAddCommGroup E₁] [Borel
     Memℒp (trnc ⊤ f a) q μ := by
   refine ⟨aestronglyMeasurable_trnc hf.1, ?_⟩
   rcases (eq_or_ne q ⊤) with q_eq_top | q_ne_top
-  · rw [q_eq_top]
-    rw [eLpNorm_exponent_top]
+  · rw [q_eq_top, eLpNorm_exponent_top]
     exact Trans.trans trunc_eLpNormEssSup_le coe_lt_top
-  · have : q.toReal > 0 := by
-      apply toReal_pos
-      · exact (lt_trans hpq.1 hpq.2).ne.symm
-      · exact q_ne_top
+  · have : q.toReal > 0 := toReal_pos (lt_trans hpq.1 hpq.2).ne.symm q_ne_top
     refine (rpow_lt_top_iff_of_pos this).mp ?_
     have := (estimate_eLpNorm_trunc (a := a) q_ne_top hpq (AEStronglyMeasurable.aemeasurable hf.1))
     refine lt_of_le_of_lt this ?_
     apply mul_lt_top coe_lt_top
     refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
-    apply toReal_pos
-    · exact hpq.1.ne.symm
-    · exact LT.lt.ne_top hpq.2
+    exact toReal_pos hpq.1.ne.symm hpq.2.ne_top
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q < p`. -/
 lemma trunc_compl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -1946,7 +1921,7 @@ lemma trunc_compl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [
   have : q.toReal > 0 := toReal_pos hpq.left.ne.symm (LT.lt.ne_top hpq.right)
   refine (rpow_lt_top_iff_of_pos this).mp ?_
   refine lt_of_le_of_lt
-      (estimate_eLpNorm_trunc_compl hp hpq (AEStronglyMeasurable.aemeasurable hf.1) ha ) ?_
+      (estimate_eLpNorm_trunc_compl hp hpq hf.1.aemeasurable ha) ?_
   apply mul_lt_top coe_lt_top
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (lt_trans hpq.left hpq.right).ne.symm hp
@@ -2019,9 +1994,7 @@ lemma res'comp (j : Bool) (β : ℝ) (hβ : β > 0) :
 
 lemma measurableSet_res' {j : Bool} {β : ℝ} : MeasurableSet (res' j β) := by
   unfold res'
-  split
-  · exact measurableSet_Ioc
-  · exact measurableSet_Ici
+  measurability
 
 lemma res'subset_Ioi {j : Bool} {β : ℝ} (hβ : β > 0) : res' j β ⊆ Ioi 0 := by
   unfold res'
@@ -2130,8 +2103,8 @@ lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : Ton
     (hp : p > 0) (hfx : ‖f x‖₊ > 0) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton s) x‖₊ ^ p =
     (∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖), (g s)) * ‖f x‖₊ ^ p := by
-  rw [lintegral_trunc_mul₀ hp hfx, lintegral_trunc_mul₁, lintegral_trunc_mul₂ hfx]
-  rw [lintegral_mul_const']
+  rw [lintegral_trunc_mul₀ hp hfx, lintegral_trunc_mul₁, lintegral_trunc_mul₂ hfx,
+    lintegral_mul_const']
   apply ne_of_lt
   refine (rpow_lt_top_iff_of_pos hp).mpr coe_lt_top
 
@@ -2150,10 +2123,8 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : β > 0) (hσ : σ < -1):
     ∫⁻ s : ℝ in Ioi β, ENNReal.ofReal (s ^ σ) =
     ENNReal.ofReal (β ^ (σ + 1) / |σ + 1|) := by
   have hσ2 : σ + 1 < 0 := by linarith
-  rw [abs_of_neg hσ2]
-  rw [← ofReal_integral_eq_lintegral_ofReal]
-  · rw [integral_Ioi_rpow_of_lt hσ hβ]
-    rw [div_neg, neg_div]
+  rw [abs_of_neg hσ2, ← ofReal_integral_eq_lintegral_ofReal]
+  · rw [integral_Ioi_rpow_of_lt hσ hβ, div_neg, neg_div]
   · apply integrableOn_Ioi_rpow_of_lt hσ hβ
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     exact fun s hs ↦ Real.rpow_nonneg (le_of_lt (lt_trans hβ hs)) σ
@@ -2221,11 +2192,9 @@ lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : c > 0) (hd : d > 0):
     a ^ (c + d) = a ^ c * a ^ d := by
   have hcd : c + d  > 0 := by linarith
   rcases (eq_or_ne a 0) with a_eq_zero | a_ne_zero
-  · rw [a_eq_zero]
-    rw [zero_rpow_of_pos hcd, zero_rpow_of_pos hc, zero_rpow_of_pos hd, mul_zero]
+  · rw [a_eq_zero, zero_rpow_of_pos hcd, zero_rpow_of_pos hc, zero_rpow_of_pos hd, mul_zero]
   · rcases (eq_or_ne a ⊤) with a_eq_top | a_ne_top
-    · rw [a_eq_top]
-      rw [top_rpow_of_pos hcd, top_rpow_of_pos hc, top_rpow_of_pos hd, top_mul_top]
+    · rw [a_eq_top, top_rpow_of_pos hcd, top_rpow_of_pos hc, top_rpow_of_pos hd, top_mul_top]
     · rw [ENNReal.rpow_add c d a_ne_zero a_ne_top]
 
 lemma eq_of_le_of_le (a b : ℝ≥0∞) (hab : a ≤ b) (hab': b ≤ a) : a = b := by
@@ -2318,19 +2287,12 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       apply trunc_cut_mono
       exact hmn
     · exact Filter.Tendsto.ennrpow_const p (g_lim x)
-  have g_meas : ∀ n : ℕ, AEMeasurable (g n) μ := by
-    intro n
+  have g_meas (n : ℕ): AEMeasurable (g n) μ := by
     unfold_let g
-    apply AEMeasurable.indicator
-    · apply AEMeasurable.inf hf
-      exact aemeasurable_const
-    · exact measurable_spanningSets μ n
-  have gp_meas : ∀ n : ℕ, AEMeasurable (fun a ↦ g n a ^ (p - 1)) μ := by
-    intro n
-    apply AEMeasurable.pow_const
-    apply g_meas
-  have g_fin : ∀ n : ℕ, ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
-    intro n
+    apply AEMeasurable.indicator (by fun_prop)
+    exact measurable_spanningSets μ n
+  have gp_meas (n : ℕ) : AEMeasurable (fun a ↦ g n a ^ (p - 1)) μ := by fun_prop
+  have g_fin (n : ℕ): ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
     calc
     _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
       unfold_let g
@@ -2397,8 +2359,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     rw [← g_sup']
     apply lintegral_iSup'
     · intro n
-      apply AEMeasurable.pow_const
-      apply g_meas
+      fun_prop
     · apply ae_of_all
       intro x m n hmn
       dsimp only
@@ -2425,8 +2386,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     unfold_let h
     dsimp only
     constructor
-    · apply AEMeasurable.div_const
-      exact gp_meas n
+    · fun_prop
     · simp_rw [div_eq_mul_inv]
       calc
       _ = ∫⁻ (z : α), ((g n z ^ (p - 1)) ^ q) *
@@ -2507,8 +2467,7 @@ lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
     (hf : AEMeasurable f (μ.prod ν)) :
     AEMeasurable (fun x ↦ ∫⁻ (y : β), f (x, y) ∂ν) μ := by
   rcases hf with ⟨g, hg⟩
-  use (fun x ↦ ∫⁻ y : β, g (x, y) ∂ν)
-  refine ⟨Measurable.lintegral_prod_right hg.1, ?_⟩
+  refine ⟨fun x ↦ ∫⁻ y : β, g (x, y) ∂ν, Measurable.lintegral_prod_right hg.1, ?_⟩
   filter_upwards [Measure.ae_ae_of_ae_prod hg.2] with x h using lintegral_congr_ae h
 
 /-- Minkowsi's integral inequality -/
@@ -2529,10 +2488,8 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
         ∫⁻ x : α, (∫⁻ y : β, f x y ∂ν) * g x ∂μ ≤
         ∫⁻ (y : β), (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ ∂ν := by
       intro g ⟨hg1, hg2⟩
-      have ae_meas₁ : ∀ᵐ x : α ∂μ, AEMeasurable (f x) ν := by
-        apply aemeasurability_prod₁ (f := Function.uncurry f) hf
-      have ae_meas₂ : ∀ᵐ y : β ∂ν, AEMeasurable (fun x ↦ f x y) μ := by
-        apply aemeasurability_prod₂ hf
+      have ae_meas₁ : ∀ᵐ x : α ∂μ, AEMeasurable (f x) ν :=
+        aemeasurability_prod₁ (f := Function.uncurry f) hf
       calc
       _ = ∫⁻ x : α, (∫⁻ y : β, f x y * g x ∂ν) ∂μ := by
         apply lintegral_congr_ae
@@ -2544,7 +2501,7 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
         apply AEMeasurable.mul hf (AEMeasurable.fst hg1)
       _ ≤ ∫⁻ (y : β), (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ ∂ν := by
         apply lintegral_mono_ae
-        filter_upwards [ae_meas₂] with y hy
+        filter_upwards [aemeasurability_prod₂ hf] with y hy
         calc
         _ ≤ (∫⁻ (x : α), f x y ^ p ∂μ) ^ (1 / p) * (∫⁻ (x : α), g x ^ q ∂μ) ^ (1 / q) :=
           ENNReal.lintegral_mul_le_Lp_mul_Lq μ hpq' hy hg1
@@ -2561,8 +2518,7 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
     · exact hpq'.inv_add_inv_conj
   · rw [← one_eq_p]
     simp only [ENNReal.rpow_one, inv_one]
-    apply le_of_eq
-    exact lintegral_lintegral_swap hf
+    exact (lintegral_lintegral_swap hf).le
 
 lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ} (hp : p ≥ 1)
     [MeasurableSpace α] [MeasurableSpace β]
@@ -2572,10 +2528,9 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ≤
     (∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν) ^ p := by
   have p_pos : p > 0 := lt_of_lt_of_le zero_lt_one hp
-  have p_inv_pos : p⁻¹ > 0 := inv_pos_of_pos p_pos
-  refine le_of_rpow_le p_inv_pos ?_
+  refine le_of_rpow_le (inv_pos_of_pos p_pos) ?_
   rw [ENNReal.rpow_rpow_inv p_pos.ne.symm]
-  apply lintegral_lintegral_pow_swap hp hf
+  exact lintegral_lintegral_pow_swap hp hf
 
 /-! ## Apply Minkowski's integral inequality to truncations
 -/
@@ -2585,15 +2540,13 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton s }
         ((volume.restrict (Ioi 0)).prod μ) := by
-  refine nullMeasurableSet_le (AEMeasurable.snd hg).norm ?hg
+  refine nullMeasurableSet_le hg.snd.norm ?hg
   refine AEMeasurable.fst ?_
   -- ton is either increasing or decreasing
   have mono_or_anti := tc.ton_is_ton
   split_ifs at mono_or_anti
-  · refine aemeasurable_restrict_of_monotoneOn measurableSet_Ioi ?_
-    exact StrictMonoOn.monotoneOn mono_or_anti
-  · refine aemeasurable_restrict_of_antitoneOn measurableSet_Ioi ?_
-    exact StrictAntiOn.antitoneOn mono_or_anti
+  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi mono_or_anti.monotoneOn
+  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
@@ -2605,10 +2558,8 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [Norm
   -- ton is either increasing or decreasing
   have mono_or_anti := tc.ton_is_ton
   split_ifs at mono_or_anti
-  · refine aemeasurable_restrict_of_monotoneOn measurableSet_Ioi ?_
-    exact StrictMonoOn.monotoneOn mono_or_anti
-  · refine aemeasurable_restrict_of_antitoneOn measurableSet_Ioi ?_
-    exact StrictAntiOn.antitoneOn mono_or_anti
+  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi mono_or_anti.monotoneOn
+  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
 
 @[measurability]
 lemma truncation_ton_measurable {f : α → E₁}
@@ -2622,12 +2573,8 @@ lemma truncation_ton_measurable {f : α → E₁}
       Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
     ext z; unfold trunc; unfold indicator; unfold_let A; simp
   rw [this]
-  refine (aemeasurable_indicator_iff₀ ?hs).mpr ?_
-  · apply indicator_ton_measurable
-    exact AEMeasurable.restrict hf
-  · apply AEMeasurable.restrict
-    apply AEMeasurable.snd
-    exact AEMeasurable.restrict hf
+  refine (aemeasurable_indicator_iff₀ ?hs).mpr hf.restrict.snd.restrict
+  apply indicator_ton_measurable hf.restrict
 
 @[measurability]
 lemma truncation_compl_ton_measurable {f : α → E₁}
@@ -2640,12 +2587,8 @@ lemma truncation_compl_ton_measurable {f : α → E₁}
   have : (fun z : ℝ × α ↦ (f - trunc f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
     ext z; rw [trunc_compl_eq]; unfold_let A; unfold indicator; simp
   rw [this]
-  refine (aemeasurable_indicator_iff₀ ?hs).mpr ?_
-  · apply indicator_ton_measurable_lt
-    exact AEMeasurable.restrict hf
-  · apply AEMeasurable.restrict
-    apply AEMeasurable.snd
-    exact AEMeasurable.restrict hf
+  refine (aemeasurable_indicator_iff₀ ?hs).mpr hf.restrict.snd.restrict
+  apply indicator_ton_measurable_lt hf.restrict
 
 lemma restrict_to_support {a : ℝ} {p : ℝ} (hp : p > 0)
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (f : α → E₁) :
@@ -2708,19 +2651,14 @@ lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSp
     field_simp [hp₀q₀]
   · unfold Function.uncurry
     simp only [Pi.sub_apply]
-    apply AEMeasurable.mul
-    · apply Measurable.aemeasurable
-      apply Measurable.pow_const
-      exact Measurable.coe_nnreal_ennreal
-          (Measurable.real_toNNReal
-            (Measurable.pow_const measurable_fst _))
-    · apply AEMeasurable.pow_const
-      apply AEMeasurable.coe_nnreal_ennreal
-      apply AEMeasurable.nnnorm
-      unfold trnc
-      rcases j
-      · apply truncation_compl_ton_measurable hf
-      · apply truncation_ton_measurable hf
+    apply AEMeasurable.mul (by fun_prop)
+    apply AEMeasurable.pow_const
+    apply AEMeasurable.coe_nnreal_ennreal
+    apply AEMeasurable.nnnorm
+    unfold trnc
+    rcases j
+    · apply truncation_compl_ton_measurable hf
+    · apply truncation_ton_measurable hf
 
 lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -2730,12 +2668,9 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
   apply ae_iff.mpr
   rw [Measure.restrict_apply₀']
   · apply measure_mono_null _ measure_empty
-    intro x
-    intro h₀
-    have : x ∈ Function.support f := by exact mem_of_mem_inter_right h₀
-    have : g x = h x := by
-      apply hgh _ this
-    have : x ∈ {a | ¬g a = h a} := by exact mem_of_mem_diff h₀
+    intro x h₀
+    have : g x = h x := hgh _ (mem_of_mem_inter_right h₀)
+    have : x ∈ {a | ¬g a = h a} := mem_of_mem_diff h₀
     change ¬ (g x = h x) at this
     contradiction
   · have : (Function.support f) = (Function.support (fun x ↦ ‖f x‖)) := by
