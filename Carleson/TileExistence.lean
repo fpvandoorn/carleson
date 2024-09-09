@@ -4,9 +4,6 @@ import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.Data.Set.Subset
 
--- https://github.com/leanprover/lean4/issues/4947
-attribute [-simp] Nat.reducePow
-
 open Set MeasureTheory Metric Function Complex Bornology Notation
 open scoped NNReal ENNReal ComplexConjugate
 
@@ -1470,7 +1467,7 @@ lemma const_n_prop_1 {t:ℝ} (ht:t∈Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹
   rw [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (inv_pos.mpr ht.left)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
   simp only [Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Real.logb_inv]
-  rw [← le_div_iff (K_pos)]
+  rw [← le_div_iff₀ (K_pos)]
   rw [const_n]
   exact Nat.floor_le (prefloor_nonneg X ht)
 
@@ -1487,7 +1484,7 @@ lemma const_n_is_max {t:ℝ} (ht:t∈Ioo 0 1) (n:ℕ) : D^(n * K') ≤ t⁻¹ �
   rw [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (inv_pos.mpr ht.left)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
   simp only [Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Real.logb_inv]
-  rw [← le_div_iff (K_pos)]
+  rw [← le_div_iff₀ (K_pos)]
   rw [const_n]
   intro h
   exact Nat.le_floor h
@@ -1496,14 +1493,14 @@ variable (X) in
 lemma const_n_prop_3 {t:ℝ} (ht:t ∈ Ioo 0 1) :
     (t * D ^ K' : ℝ)⁻¹ ≤ ↑D ^ (const_n a ht * K') := by
   dsimp only [const_n]
-  rw [mul_inv,← div_eq_mul_inv,div_le_iff (pow_pos (defaultD_pos a) _), ← pow_add]
+  rw [mul_inv, ← div_eq_mul_inv, div_le_iff₀ (pow_pos (defaultD_pos a) _), ← pow_add]
   nth_rw 3 [← one_mul K']
   rw [← right_distrib]
   nth_rw 1 [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm ht.left]
   rw [← Real.rpow_neg (realD_nonneg)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
   push_cast
-  rw [← div_le_iff (K_pos)]
+  rw [← div_le_iff₀ (K_pos)]
   apply LT.lt.le
   exact Nat.lt_floor_add_one (-Real.logb (↑D) t / ↑const_K)
 
@@ -1611,8 +1608,8 @@ lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set
           apply ENNReal.add_lt_add_of_le_of_lt _ hxb' hxy'
           apply LT.lt.ne
           apply lt_of_le_of_lt hxb'
-          apply ENNReal.mul_lt_top (ENNReal.coe_ne_top)
-          apply (ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D) _).ne
+          apply ENNReal.mul_lt_top ENNReal.coe_lt_top
+          apply ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D) _
           rw [ne_comm]
           apply LT.lt.ne
           rw [← ENNReal.ofReal_natCast]
@@ -1869,7 +1866,7 @@ def grid_existence : GridStructure X D κ S o where
       · simp only [mem_Ioo]
         refine ⟨?_, ht'⟩
         apply lt_of_lt_of_le (zpow_pos_of_pos (defaultD_pos a) _) ht
-      rw [zpow_sub₀, div_le_iff] at ht
+      rw [zpow_sub₀, div_le_iff₀] at ht
       · exact ht
       · exact zpow_pos_of_pos (defaultD_pos a) _
       rw [ne_comm]
@@ -2200,7 +2197,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     · exact Or.inr (key.trans c)
 termination_by (𝔰 q - 𝔰 p).toNat
 decreasing_by
-  simp_wf
+  rw [Int.lt_toNat]
   change (s J - 𝔰 p).toNat < 𝔰 q - 𝔰 p
   rw [sJ, Int.toNat_of_nonneg (by omega), sub_right_comm]
   exact sub_one_lt _
@@ -2219,3 +2216,5 @@ def tile_existence : TileStructure Q D κ S o where
       exact this.trans (Construction.ball_subset_Ω₁ p)
     · simp
   subset_cball {p} := Construction.Ω_subset_cball
+
+set_option linter.style.longFile 2400

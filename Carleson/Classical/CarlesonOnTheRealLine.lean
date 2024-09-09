@@ -48,6 +48,7 @@ def integer_linear (n : ℤ) : C(ℝ, ℝ) := ⟨fun (x : ℝ) ↦ n * x, by fun
 
 local notation "θ" => integer_linear
 
+set_option quotPrecheck false in
 local notation "Θ" => {(θ n) | n : ℤ}
 
 
@@ -454,7 +455,7 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           by_cases hxy : x = y
           · rw [hxy]
             simp
-          rw [dist_eq_norm, ← div_le_iff (dist_pos.mpr hxy), Ldef, NNReal.coe_mk]
+          rw [dist_eq_norm, ← div_le_iff₀ (dist_pos.mpr hxy), Ldef, NNReal.coe_mk]
           apply le_ciSup_of_le _ x
           apply le_ciSup_of_le _ y
           apply le_ciSup_of_le _ hxy
@@ -464,7 +465,7 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
             simp only [ne_eq, Set.mem_range, exists_prop, and_imp,
               forall_apply_eq_imp_iff, Set.mem_setOf_eq]
             intro h
-            rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
+            rw [div_le_iff₀ (dist_pos.mpr h), dist_eq_norm]
             exact LipschitzWith.norm_sub_le hK _ _
           · use K
             rw [upperBounds]
@@ -473,7 +474,7 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
             intro y
             apply Real.iSup_le _ NNReal.zero_le_coe
             intro h
-            rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
+            rw [div_le_iff₀ (dist_pos.mpr h), dist_eq_norm]
             exact LipschitzWith.norm_sub_le hK _ _
           · use K
             rw [upperBounds]
@@ -484,7 +485,7 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
             intro y
             apply Real.iSup_le _ NNReal.zero_le_coe
             intro h
-            rw [div_le_iff (dist_pos.mpr h), dist_eq_norm]
+            rw [div_le_iff₀ (dist_pos.mpr h), dist_eq_norm]
             apply LipschitzWith.norm_sub_le hK
         · --prove main property of B
           intro y hy

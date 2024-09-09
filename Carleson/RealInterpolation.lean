@@ -3686,7 +3686,7 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) {T : ι → (α → E₁) → α' → �
   by_cases A0 : A < 0
   · refine SubadditiveOn.zero hP A (fun f hf ↦ funext fun x ↦ ?_)
     suffices ⨆ i ∈ 𝓑, T i f x = 0 by simp [this]
-    simp only [iSup_eq_zero]
+    simp only [ENNReal.iSup_eq_zero]
     intro i hi
     have := (toReal_eq_zero_iff _).mp (congr_fun ((h i hi).neg P A0 f hf) x)
     exact this.resolve_right (hT' i hi x f hf)
@@ -3751,7 +3751,7 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) (T : ι → (α → E₁) → α' → �
   have := congr_fun ((h i hi).2 f c hf hc) x
   simp only [Pi.smul_apply, smul_eq_mul, ← toReal_ofReal_mul c (T i f x) hc] at this
   rw [ENNReal.toReal_eq_toReal (hT' i hi x (c • f) (h_smul hf hc))
-    (mul_lt_top ofReal_ne_top (hT' i hi x f hf)).ne] at this
+    (mul_ne_top ofReal_ne_top (hT' i hi x f hf))] at this
   rwa [toReal_ofReal hc]
 
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ} (S : Set α')

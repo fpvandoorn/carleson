@@ -60,8 +60,8 @@ private lemma P'_of_P [BorelSpace X] [ProperSpace X] [IsFiniteMeasureOnCompacts 
       (coe_nnnorm_ae_le_eLpNormEssSup u μ).mono (by tauto)
     apply lt_of_le_of_lt (MeasureTheory.setLIntegral_mono_ae' measurableSet_ball hfg)
     rw [MeasureTheory.setLIntegral_const (ball c r) (eLpNormEssSup u μ)]
-    refine ENNReal.mul_lt_top ?_ (measure_ball_ne_top c r)
-    exact eLpNorm_exponent_top (f := u) ▸ hu.eLpNorm_lt_top |>.ne
+    refine ENNReal.mul_lt_top ?_ measure_ball_lt_top
+    exact eLpNorm_exponent_top (f := u) ▸ hu.eLpNorm_lt_top
   · have := hu.eLpNorm_lt_top
     simp [eLpNorm, one_ne_zero, reduceIte, ENNReal.one_ne_top, eLpNorm', ENNReal.one_toReal,
       ENNReal.rpow_one, ne_eq, not_false_eq_true, div_self] at this
@@ -80,7 +80,7 @@ private lemma P'.add [MeasurableSpace E] [BorelSpace E]
 private lemma P'.smul [NormedSpace ℝ E] {f : X → E} (hf : P' μ f) (s : ℝ) : P' μ (s • f) := by
   refine ⟨AEStronglyMeasurable.const_smul hf.1 s, fun c r ↦ ?_⟩
   simp_rw [Pi.smul_apply, nnnorm_smul, ENNReal.coe_mul, lintegral_const_mul' _ _ ENNReal.coe_ne_top]
-  exact ENNReal.mul_lt_top ENNReal.coe_ne_top (hf.2 c r).ne
+  exact ENNReal.mul_lt_top ENNReal.coe_lt_top (hf.2 c r)
 
 -- The average that appears in the definition of `MB`
 variable (μ c r) in
@@ -165,7 +165,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   intro f _
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
   simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
-  refine essSup_le_of_ae_le _ (eventually_of_forall fun x ↦ ?_)
+  refine essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
   refine ENNReal.coe_toNNReal_le_self |>.trans ?_
   apply MB_le_eLpNormEssSup
