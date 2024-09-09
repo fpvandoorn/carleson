@@ -170,32 +170,32 @@ def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ 
 def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
 
-/-- `R_Q` defined in (1.0.20). -/
+/-- `R_Q(θ, x)` defined in (1.0.20). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ :=
   sSup { r : ℝ | dist_{x, r} θ (Q x) < 1 }
 
-/-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_*` -/
-def LinearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
+/-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
+def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ (upperRadius Q θ x')}, K x' y * f y‖₊
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
-def NontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
 
-/-- The linearized generalized Carleson operator `T`, taking values in `ℝ≥0∞`.
+/-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/
-def LinearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X) (K : X → X → ℂ)
+def linearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X) (K : X → X → ℂ)
     (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
   ‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q x y)‖₊
 
 /-- The generalized Carleson operator `T`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/
-def CarlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (θ : Θ X), LinearizedCarlesonOperator (fun _ ↦ θ) K f x
+def carlesonOperator [FunctionDistances ℝ X] (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
+  ⨆ (θ : Θ X), linearizedCarlesonOperator (fun _ ↦ θ) K f x
 
 
 end DoublingMeasure
@@ -248,7 +248,7 @@ end Kernel
 
 
 /- A constant used on the boundedness of `T_*`. We generally assume
-`HasBoundedStrongType (NontangentialOperator K) volume volume 2 2 (C_Ts a)`
+`HasBoundedStrongType (nontangentialOperator K) volume volume 2 2 (C_Ts a)`
 throughout this formalization. -/
 def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
@@ -261,7 +261,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   c : IsCancellative X (defaultτ a)
   hcz : IsOneSidedKernel a K
   hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (NontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a)
+    HasBoundedStrongType (nontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
   measurable_σ₁ : Measurable σ₁

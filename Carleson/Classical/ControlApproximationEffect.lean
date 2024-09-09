@@ -14,7 +14,7 @@ import Mathlib.Analysis.Fourier.AddCircle
 
 noncomputable section
 
-local notation "T" => CarlesonOperatorReal K
+local notation "T" => carlesonOperatorReal K
 local notation "S_" => partialFourierSum
 
 
@@ -375,7 +375,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g Measu
           congr 1 <;>
           · rw [MeasureTheory.integral_mul_left, norm_mul, norm_eq_abs, mul_comm I, abs_exp_ofReal_mul_I, one_mul]
     _ ≤ T g x + T (conj ∘ g) x := by
-      rw [CarlesonOperatorReal, CarlesonOperatorReal]
+      simp_rw [carlesonOperatorReal]
       apply iSup₂_le
       intro n r
       apply iSup₂_le
@@ -469,7 +469,7 @@ lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ �
     _ = ENNReal.ofReal δ * ∫⁻ x in E, T (fun x ↦ (1 / δ) * f x) x := by
       rw [← MeasureTheory.lintegral_const_mul']
       congr with x
-      rw [CarlesonOperatorReal_mul δpos]
+      rw [carlesonOperatorReal_mul δpos]
       congr
       exact ENNReal.ofReal_ne_top
     _ ≤ ENNReal.ofReal δ * (ENNReal.ofReal (C10_0_1 4 2) * (MeasureTheory.volume E) ^ (2 : ℝ)⁻¹ * (MeasureTheory.volume F) ^ (2 : ℝ)⁻¹) := by
@@ -499,7 +499,7 @@ lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f
   · rw [Real.volume_Ioo]
     ring_nf
   · intro x hx
-    rw [← CarlesonOperatorReal_eq_of_restrict_interval (E_subset hx)]
+    rw [← carlesonOperatorReal_eq_of_restrict_interval (E_subset hx)]
     exact hE x hx
 
 
@@ -605,7 +605,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       _ = ENNReal.ofReal (2 * Real.pi) := by
         rw [Real.volume_Icc, sub_zero]
       _ < ⊤ := ENNReal.ofReal_lt_top
-  obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (CarlesonOperatorReal_measurable h_measurable h_bound) (CarlesonOperatorReal_measurable (continuous_star.measurable.comp h_measurable) conj_h_bound) le_operator_add
+  obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset MeasureTheory.volume measurableSetE (carlesonOperatorReal_measurable h_measurable h_bound) (carlesonOperatorReal_measurable (continuous_star.measurable.comp h_measurable) conj_h_bound) le_operator_add
   have E'volume : MeasureTheory.volume E' < ⊤ := lt_of_le_of_lt (MeasureTheory.measure_mono E'subset) Evolume
   have E'volume_bound: ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E' ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (4 * Real.pi) ^ (2 : ℝ)⁻¹) * (MeasureTheory.volume E') ^ (2 : ℝ)⁻¹ := by
     calc ENNReal.ofReal (Real.pi * (ε' - Real.pi * δ)) * MeasureTheory.volume E'
