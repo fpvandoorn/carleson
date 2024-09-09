@@ -22,7 +22,7 @@ project, but we should probably add them back in the long run if they turn out t
 -/
 
 open MeasureTheory Measure Set symmDiff
-open scoped ENNReal NNReal BigOperators
+open scoped ENNReal NNReal
 
 variable {ι : Type*}
 section aux_lemmas

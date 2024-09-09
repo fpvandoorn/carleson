@@ -8,7 +8,7 @@ import Mathlib.Analysis.PSeries
 
 noncomputable section
 
-open BigOperators Finset Real
+open Finset Real
 
 local notation "S_" => partialFourierSum
 

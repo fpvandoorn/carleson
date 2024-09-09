@@ -7,7 +7,7 @@ import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 import Mathlib.Analysis.Convolution
 
 open scoped Real
-open BigOperators Finset Complex MeasureTheory
+open Finset Complex MeasureTheory
 
 noncomputable section
 

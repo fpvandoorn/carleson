@@ -1,6 +1,6 @@
 import Carleson.Discrete.ExceptionalSet
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
+open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
 noncomputable section
