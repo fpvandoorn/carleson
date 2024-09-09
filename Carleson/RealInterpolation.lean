@@ -2751,8 +2751,8 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [Norm
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | tc.ton s < ‖g x‖₊ }
         ((volume.restrict (Ioi 0)).prod μ) := by
-  refine nullMeasurableSet_lt ?hf (AEMeasurable.snd hg).norm
-· refine AEMeasurable.fst ?_
+  refine nullMeasurableSet_lt ?_ (AEMeasurable.snd hg).norm
+  refine AEMeasurable.fst ?_
   -- ton is either increasing or decreasing
   have mono_or_anti := tc.ton_is_ton
   split_ifs at mono_or_anti
