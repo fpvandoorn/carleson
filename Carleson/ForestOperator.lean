@@ -274,7 +274,7 @@ def C7_4_2 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
-    eLpNorm (adjointCarlesonSum (t.𝔗 u) p f) 2 volume ≤
+    eLpNorm (adjointCarlesonSum (t.𝔗 u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t.𝔗 u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   sorry
 

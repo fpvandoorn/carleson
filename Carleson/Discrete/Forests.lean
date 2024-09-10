@@ -898,8 +898,8 @@ def C5_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (210 * a ^ 3) / (q - 1) ^ 5
 lemma C5_1_3_pos : C5_1_3 a nnq > 0 := sorry
 
 lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖‖carlesonSum 𝔓₁ᶜ f x‖₊ ≤
-    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
+  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ ≤
+    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by
   sorry
 
 /-! ## Proposition 2.0.2 -/
