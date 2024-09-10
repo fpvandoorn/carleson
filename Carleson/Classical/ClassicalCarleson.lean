@@ -12,7 +12,7 @@ noncomputable section
 local notation "S_" => partialFourierSum
 
 /- Theorem 1.1 (Classical Carleson) -/
-theorem classical_carleson {f : ℝ → ℂ}
+theorem exceptional_set_carleson {f : ℝ → ℂ}
     (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π))
     {ε : ℝ} (εpos : 0 < ε) :
     ∃ E ⊆ Set.Icc 0 (2 * π), MeasurableSet E ∧ volume.real E ≤ ε ∧
@@ -105,8 +105,8 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
     rw [one_mul]
     norm_num
 
-  -- Main step: Apply classical_carleson to get a family of exceptional sets parameterized by ε.
-  choose Eε hEε_subset _ hEε_measure hEε using (@classical_carleson f cont_f periodic_f)
+  -- Main step: Apply exceptional_set_carleson to get a family of exceptional sets parameterized by ε.
+  choose Eε hEε_subset _ hEε_measure hEε using (@exceptional_set_carleson f cont_f periodic_f)
 
   have Eεmeasure {ε : ℝ} (hε : 0 < ε) : volume (Eε hε) ≤ ENNReal.ofReal ε := by
     rw [ENNReal.le_ofReal_iff_toReal_le _ hε.le]
@@ -204,7 +204,7 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
 end section
 
 /- Carleson's theorem asserting a.e. convergence of the partial Fourier sums for continous functions. -/
-theorem carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
+theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
     ∀ᵐ x, Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
   -- Reduce to a.e. convergence on [0,2π]
   apply @Function.Periodic.ae_of_ae_restrict _ Real.two_pi_pos 0

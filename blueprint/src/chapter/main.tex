@@ -27,7 +27,7 @@
 
 \chapter{Introduction}
 
-In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere. \Cref{classical-Carleson} represents a version of this result.
+In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere, as stated below in \Cref{classical-carleson}.
 
 Let $f$ be a complex valued, $2\pi$-periodic bounded Borel measurable function on the real line, and for an integer $n$, define the Fourier coefficient as
 \begin{equation}
@@ -39,25 +39,19 @@ Define the partial Fourier sum for $N\ge 0$ as
 \end{equation}
 
 \begin{theorem}[classical Carleson]
-    \label{classical-Carleson}
+    \label{classical-carleson}
     \leanok
     \lean{classical_carleson}
-    \uses{smooth-approximation, convergence-for-smooth,
-    control-approximation-effect}
-    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$. For all $\epsilon>0$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
-    \begin{equation}\label{aeconv}
-    |f(x)-S_N f(x)|\le \epsilon.
+    \uses{exceptional-set-carleson}
+    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
+    Then for almost all $x \in \mathbb{R}$ we have
+    \begin{equation}\label{eq:fourier_limit}
+      \lim_{n\to\infty}S_n f(x) = f(x).
     \end{equation}
+    In other words: the set of real numbers $x$ where \eqref{eq:fourier_limit} fails has Lebesgue measure $0$.
 \end{theorem}
 
-%Note that mere continuity implies uniform continuity in the setting of this theorem.
-By applying this theorem with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union
-of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier
-sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and
-taking the intersection of the corresponding exceptional sets, which has measure zero, we see that the Fourier
-series converges outside a set of measure zero.
-
-The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-Carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
+The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
 
 We proceed to introduce the setup for our general theorem.
 We carry a multi purpose parameter, a natural number
@@ -7715,8 +7709,6 @@ This proves \eqref{eq-weak-1-1}.
 
 \chapter{Proof of The Classical Carleson Theorem}
 
-
-
 The convergence of partial Fourier sums is proved in
 \Cref{10classical} in two steps. In the first step,
 we establish convergence on a suitable dense subclass of functions. We choose smooth functions as subclass, the convergence is stated in \Cref{convergence-for-smooth} and proved in \Cref{10smooth}.
@@ -7810,9 +7802,20 @@ We prove in \Cref{10difference}:
     \end{equation}
 \end{lemma}
 
-We are now ready to prove classical Carleson:
-\begin{proof} [Proof of \Cref{classical-Carleson}]
-\proves{classical-Carleson}
+We are now ready to prove \Cref{classical-carleson}. We first prove a version with explicit exceptional sets.
+
+\begin{theorem}[classical Carleson with exceptional sets]
+    \label{exceptional-set-carleson}
+    \leanok
+    \lean{exceptional_set_carleson}
+    \uses{smooth-approximation, convergence-for-smooth,
+    control-approximation-effect}
+    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$. For all $\epsilon>0$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
+    \begin{equation}\label{aeconv}
+    |f(x)-S_N f(x)|\le \epsilon.
+    \end{equation}
+\end{theorem}
+\begin{proof}
 \leanok
 Let $N_0$ be as in \Cref{convergence-for-smooth}.
 For every
@@ -7831,6 +7834,18 @@ Using \Cref{smooth-approximation,convergence-for-smooth,control-approximation-ef
     \le \epsilon' +\frac \epsilon 4 +\frac \epsilon 4\le \epsilon\, .
 \end{equation}
 This shows \eqref{aeconv} for the given $E$ and $N_0$.
+\end{proof}
+
+Now we turn to the proof of the statement of Carleson theorem given in the introduction.
+\begin{proof}[Proof of \Cref{classical-carleson}]
+\proves{classical-carleson}
+\leanok
+%Note that mere continuity implies uniform continuity in the setting of this theorem.
+By applying \Cref{exceptional-set-carleson} with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union
+of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier
+sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and
+taking the intersection of the corresponding exceptional sets, which has measure zero, we see that the Fourier
+series converges outside a set of measure zero.
 \end{proof}
 
 Let $\kappa:\R\to \C$ be the function defined by
