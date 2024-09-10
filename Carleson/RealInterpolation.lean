@@ -369,7 +369,7 @@ lemma exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp�
 lemma exp_lt_exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
     p < p₀ ↔ p₁ < p := by
-  rw [exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_gt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁) 
+  rw [exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_gt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁)
     (switch_exponents ht hp)]
 
 lemma exp_gt_exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
@@ -1062,7 +1062,7 @@ instance spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
             ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne.symm]
         · rw [← Real.lt_rpow_inv_iff_of_neg (div_pos hs spf.hd) ht σ_neg,
             ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne.symm]
-            
+
 end
 
 noncomputable section
@@ -3195,7 +3195,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
           := by
         rw [ENNReal.mul_rpow_of_nonneg]
         gcongr
-        · exact estimate_eLpNorm_trunc p₁ne_top ⟨hp, hp₁p⟩ AEStronglyMeasurable.aemeasurable hf.1
+        · apply estimate_eLpNorm_trunc p₁ne_top ⟨hp, hp₁p⟩ (AEStronglyMeasurable.aemeasurable hf.1)
         · exact toReal_nonneg
       _ = ↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal * (ENNReal.ofReal (d ^ p₁.toReal))⁻¹ *
           ENNReal.ofReal (t ^ p₁.toReal) := by
