@@ -143,9 +143,7 @@ def ℭ₆ (k n j : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ₅ k n j | ¬ (𝓘 p : Set X) ⊆ G' }
 
 lemma ℭ₆_subset_ℭ₅ : ℭ₆ (X := X) k n j ⊆ ℭ₅ k n j := sep_subset ..
-lemma ℭ₆_subset_ℭ : ℭ₆ (X := X) k n j ⊆ ℭ k n :=
-  ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans
-    ℭ₂_subset_ℭ₁ |>.trans ℭ₁_subset_ℭ
+lemma ℭ₆_subset_ℭ : ℭ₆ (X := X) k n j ⊆ ℭ k n := ℭ₆_subset_ℭ₅.trans ℭ₅_subset_ℭ
 
 /-- The subset `𝔗₁(u)` of `ℭ₁(k, n, j)`, given in (5.4.1).
 In lemmas, we will assume `u ∈ 𝔘₁ k n l` -/
@@ -775,35 +773,81 @@ def ℜ₂ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 
 /-- The union occurring in the statement of Lemma 5.5.1 containing 𝔏₃ -/
 def ℜ₃ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3) (l ≤ Z * (n + 1)), 𝔏₃ k n j l
 
+lemma mem_iUnion_iff_mem_of_mem_ℭ {f : ℕ → ℕ → Set (𝔓 X)} (hp : p ∈ ℭ k n ∧ k ≤ n)
+    (hf : ∀ k n, f k n ⊆ ℭ k n) : p ∈ ⋃ (n : ℕ) (k ≤ n), f k n ↔ p ∈ f k n := by
+  simp_rw [mem_iUnion]; constructor <;> intro h
+  · obtain ⟨n', k', _, mp⟩ := h
+    have e := pairwiseDisjoint_ℭ (X := X).elim (mem_univ (k, n)) (mem_univ (k', n'))
+      (not_disjoint_iff.mpr ⟨p, hp.1, hf k' n' mp⟩)
+    rw [Prod.mk.inj_iff] at e
+    exact e.1 ▸ e.2 ▸ mp
+  · use n, k, hp.2
+
+lemma mem_iUnion_iff_mem_of_mem_ℭ₁ {f : ℕ → Set (𝔓 X)} (hp : p ∈ ℭ₁ k n j ∧ j ≤ 2 * n + 3)
+    (hf : ∀ j, f j ⊆ ℭ₁ k n j) : p ∈ ⋃ (j ≤ 2 * n + 3), f j ↔ p ∈ f j := by
+  simp_rw [mem_iUnion]; constructor <;> intro h
+  · obtain ⟨j', _, mp⟩ := h
+    have e := pairwiseDisjoint_ℭ₁ (X := X).elim (mem_univ j) (mem_univ j')
+      (not_disjoint_iff.mpr ⟨p, hp.1, hf j' mp⟩)
+    exact e ▸ mp
+  · use j, hp.2
+
 /-- Lemma 5.5.1 -/
-lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ ⊆ ℜ₀ ∪ ℜ₁ ∪ ℜ₂ ∪ ℜ₃ := by
-  unfold ℜ₀ ℜ₁ ℜ₂ ℜ₃; simp_rw [← inter_union_distrib_left]; intro p ⟨h, mp'⟩
-  refine ⟨h, ?_⟩; simp_rw [mem_union, mem_iUnion, or_assoc]
+lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ₁ ∪ ℜ₂ ∪ ℜ₃ := by
+  unfold ℜ₀ ℜ₁ ℜ₂ ℜ₃ 𝔓₁; simp_rw [← inter_union_distrib_left]; ext p
+  simp_rw [mem_inter_iff, and_congr_right_iff, mem_compl_iff, mem_union]; intro h
+  obtain ⟨k, n, hkn, split⟩ := exists_k_n_j_of_mem_𝔓pos h
+  have pc : p ∈ ℭ k n := by
+    rcases split with ml0 | ⟨_, _, mc1⟩
+    · exact 𝔏₀_subset_ℭ ml0
+    · exact ℭ₁_subset_ℭ mc1
+  iterate 5 rw [mem_iUnion_iff_mem_of_mem_ℭ ⟨pc, hkn⟩]
+  pick_goal 5; · exact fun _ _ ↦ 𝔏₀_subset_ℭ
+  pick_goal 4; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₁_subset_ℭ
+  pick_goal 3; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₂_subset_ℭ
+  pick_goal 2; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₃_subset_ℭ
+  pick_goal -1; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ ℭ₅_subset_ℭ
+  by_cases ml0 : p ∈ 𝔏₀ k n
+  · simp_rw [ml0, true_or, iff_true, mem_iUnion₂]; push_neg; intro j hj
+    exact fun a ↦ disjoint_left.mp 𝔏₀_disjoint_ℭ₁ ml0 (ℭ₅_subset_ℭ₁ a)
+  simp_rw [ml0, false_or] at split ⊢
+  obtain ⟨j, hj, mc1⟩ := split
+  iterate 4 rw [mem_iUnion_iff_mem_of_mem_ℭ₁ ⟨mc1, hj⟩]
+  pick_goal 4; · exact fun _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₁_subset_ℭ₁
+  pick_goal 3; · exact fun _ ↦ 𝔏₂_subset_ℭ₁
+  pick_goal 2; · exact fun _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₃_subset_ℭ₁
+  pick_goal -1; · exact fun _ ↦ ℭ₅_subset_ℭ₁
+  by_cases mc2 : p ∉ ℭ₂ k n j
+  all_goals
+    have mc2' := mc2
+    simp_rw [ℭ₂, layersAbove, mem_diff, not_and, mc1, true_implies, not_not_mem] at mc2'
+  · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l at mc2'
+    simp_rw [mc2', true_or, iff_true]; contrapose! mc2
+    exact ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ mc2
+  change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l at mc2'; simp_rw [mc2', false_or]
+  rw [not_not_mem] at mc2; by_cases ml2 : p ∈ 𝔏₂ k n j
+  · simp_rw [ml2, true_or, iff_true]
+    exact fun a ↦ disjoint_left.mp 𝔏₂_disjoint_ℭ₃ ml2 (ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ a)
+  simp_rw [ml2, false_or]
+  have mc3 : p ∈ ℭ₃ k n j := ⟨mc2, ml2⟩
+  by_cases mc4 : p ∉ ℭ₄ k n j
+  all_goals
+    have mc4' := mc4
+    simp_rw [ℭ₄, layersBelow, mem_diff, not_and, mc3, true_implies, not_not_mem] at mc4'
+  · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
+    simp_rw [mc4', iff_true]; contrapose! mc4
+    exact ℭ₅_subset_ℭ₄ mc4
+  change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
+  simp_rw [mc4', iff_false, ℭ₅]; rw [not_not_mem] at mc4 ⊢; simp_rw [mem_diff, mc4, true_and]
   have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
     suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
     by_contra hv
     rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc, ← diff_eq_compl_inter,
       diff_eq_empty.mpr hv] at h
     simp at h
-  obtain ⟨k, n, hkn, mp⟩ := exists_k_n_j_of_mem_𝔓pos h
-  rcases mp with ml0 | ⟨j, hj, mc1⟩
-  · exact Or.inl ⟨n, k, hkn, ml0⟩
-  · right; by_cases mc2 : p ∉ ℭ₂ k n j
-    · simp_rw [ℭ₂, layersAbove, mem_diff, not_and, mc1, true_implies, not_not_mem] at mc2
-      simp_rw [mem_iUnion] at mc2; obtain ⟨l, hl, f⟩ := mc2
-      exact Or.inl ⟨n, k, hkn, j, hj, l, hl, f⟩
-    · right; rw [not_not_mem] at mc2; by_cases ml2 : p ∈ 𝔏₂ k n j
-      · exact Or.inl ⟨n, k, hkn, j, hj, ml2⟩
-      · have mc3 : p ∈ ℭ₃ k n j := ⟨mc2, ml2⟩
-        right; by_cases mc4 : p ∉ ℭ₄ k n j
-        · simp_rw [ℭ₄, layersBelow, mem_diff, not_and, mc3, true_implies, not_not_mem] at mc4
-          simp_rw [mem_iUnion] at mc4; obtain ⟨l, hl, f⟩ := mc4
-          exact ⟨n, k, hkn, j, hj, l, hl, f⟩
-        · apply absurd mp'; simp_rw [mem_compl_iff, not_not_mem, 𝔓₁, mem_iUnion]
-          refine ⟨n, k, hkn, j, hj, not_not_mem.mp mc4, ?_⟩
-          contrapose! nG₃
-          exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <| le_iSup₂_of_le hj p <|
-            le_iSup_of_le nG₃ subset_rfl
+  contrapose! nG₃
+  exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <|
+    le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ subset_rfl
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
