@@ -94,11 +94,11 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
   push_neg at h
   have pi_div_n_pos : 0 < π / n := div_pos Real.pi_pos (Int.cast_pos.mpr n_pos)
   have integrand_continuous : Continuous (fun x ↦ cexp (I * ↑n * ↑x) * ϕ x)  :=
-    Continuous.mul (by continuity) h1.continuous
+    Continuous.mul (by fun_prop) h1.continuous
   have integrand_continuous2 : Continuous (fun x ↦ cexp (I * ↑n * (↑x + ↑π / ↑n)) * ϕ x) :=
-    Continuous.mul (by continuity) h1.continuous
+    Continuous.mul (by fun_prop) h1.continuous
   have integrand_continuous3 : Continuous (fun (x : ℝ) ↦ cexp (I * n * x) * ϕ (x - π / n)) :=
-    Continuous.mul (by continuity) (h1.continuous.comp (by continuity))
+    Continuous.mul (by fun_prop) (h1.continuous.comp (by continuity))
   calc _
     _ = ‖∫ (x : ℝ) in a..b, (1 / 2 * (I * n * x).exp - 1 / 2 * (I * ↑n * (↑x + ↑π / ↑n)).exp) * ϕ x‖ := by
       congr

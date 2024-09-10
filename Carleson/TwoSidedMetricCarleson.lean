@@ -1,7 +1,7 @@
 import Carleson.MetricCarleson
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators
-open scoped ENNReal
+open MeasureTheory Set
+
 noncomputable section
 
 /-- The constant used in `two_sided_metric_carleson`.

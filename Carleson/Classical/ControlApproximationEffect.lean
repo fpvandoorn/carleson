@@ -610,8 +610,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
     _ ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (2 * π + 2) ^ (2 : ℝ)⁻¹) * (volume E') ^ (2 : ℝ)⁻¹ := by
       rcases h with hE' | hE'
       · exact rcarleson_exceptional_set_estimate_specific hδ h_measurable h_bound measurableSetE' (E'subset.trans Esubset) hE'
-      · refine rcarleson_exceptional_set_estimate_specific hδ ?_ conj_h_bound measurableSetE' (E'subset.trans Esubset) hE'
-        exact ContinuousStar.continuous_star.measurable.comp h_measurable
+      · exact rcarleson_exceptional_set_estimate_specific hδ (by fun_prop) conj_h_bound measurableSetE' (E'subset.trans Esubset) hE'
     _ ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹) * (volume E') ^ (2 : ℝ)⁻¹ := by
       gcongr
       · exact mul_nonneg hδ.le (C10_0_1_pos one_lt_two).le

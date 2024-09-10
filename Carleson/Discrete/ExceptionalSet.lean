@@ -1,7 +1,7 @@
 import Carleson.Discrete.Defs
 import Carleson.HardyLittlewood
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
+open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
 noncomputable section

@@ -7,7 +7,7 @@ import Mathlib.Analysis.Convolution
 
 import Carleson.Classical.Helper
 
-open BigOperators Finset Real
+open Finset Real
 
 noncomputable section
 
