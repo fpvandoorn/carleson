@@ -773,6 +773,7 @@ def ℜ₂ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 
 /-- The union occurring in the statement of Lemma 5.5.1 containing 𝔏₃ -/
 def ℜ₃ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3) (l ≤ Z * (n + 1)), 𝔏₃ k n j l
 
+/-- Lemma allowing to peel `⋃ (n : ℕ) (k ≤ n)` from unions in the proof of Lemma 5.5.1. -/
 lemma mem_iUnion_iff_mem_of_mem_ℭ {f : ℕ → ℕ → Set (𝔓 X)} (hp : p ∈ ℭ k n ∧ k ≤ n)
     (hf : ∀ k n, f k n ⊆ ℭ k n) : p ∈ ⋃ (n : ℕ) (k ≤ n), f k n ↔ p ∈ f k n := by
   simp_rw [mem_iUnion]; constructor <;> intro h
@@ -783,6 +784,7 @@ lemma mem_iUnion_iff_mem_of_mem_ℭ {f : ℕ → ℕ → Set (𝔓 X)} (hp : p �
     exact e.1 ▸ e.2 ▸ mp
   · use n, k, hp.2
 
+/-- Lemma allowing to peel `⋃ (j ≤ 2 * n + 3)` from unions in the proof of Lemma 5.5.1. -/
 lemma mem_iUnion_iff_mem_of_mem_ℭ₁ {f : ℕ → Set (𝔓 X)} (hp : p ∈ ℭ₁ k n j ∧ j ≤ 2 * n + 3)
     (hf : ∀ j, f j ⊆ ℭ₁ k n j) : p ∈ ⋃ (j ≤ 2 * n + 3), f j ↔ p ∈ f j := by
   simp_rw [mem_iUnion]; constructor <;> intro h
@@ -808,7 +810,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   pick_goal 2; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ iUnion₂_subset fun _ _ ↦ 𝔏₃_subset_ℭ
   pick_goal -1; · exact fun _ _ ↦ iUnion₂_subset fun _ _ ↦ ℭ₅_subset_ℭ
   by_cases ml0 : p ∈ 𝔏₀ k n
-  · simp_rw [ml0, true_or, iff_true, mem_iUnion₂]; push_neg; intro j hj
+  · simp_rw [ml0, true_or, iff_true, mem_iUnion₂]; push_neg; intros
     exact fun a ↦ disjoint_left.mp 𝔏₀_disjoint_ℭ₁ ml0 (ℭ₅_subset_ℭ₁ a)
   simp_rw [ml0, false_or] at split ⊢
   obtain ⟨j, hj, mc1⟩ := split
