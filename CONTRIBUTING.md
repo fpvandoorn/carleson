@@ -37,6 +37,8 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `T_Q f(x)`       | `linearizedCarlesonOperator Q K f x` | The linearized generalized Carleson operator        |
 | `T_𝓝^θ f(x)`       | `nontangentialMaximalFunction θ f x` |   |
 | `Tₚ f(x)`       | `carlesonOn p f x`       |         |
+| `T_ℭ f(x)`       | `carlesonSum ℭ f x`       | The sum of Tₚ f(x) for p ∈ ℭ. In the blueprint only used in chapter 7, but in the formalization we will use it more.        |
+| `Tₚ* f(x)`       | `adjointCarleson p f x`       |         |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
 | `𝔓(I)`       | `𝓘 ⁻¹' {I}` |         |
 | `I ⊆ J`         | `I ≤ J`      | We noticed recently that we cannot (easily) assume that the coercion `Grid X → Set X` is injective. Therefore, Lean introduces two orders on `Grid X`: `I ⊆ J` means that the underlying sets satisfy this relation, and `I ≤ J` means *additionally* that `s I ≤ s J`. The order is what you should use in (almost?) all cases. |
@@ -48,8 +50,8 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `M`        | `globalMaximalFunction volume 1` |     |
 | `I_i(x)`        | `cubeOf i x` |     |
 | `R_Q(θ, x)`        | `upperRadius Q θ x` |     |
-| `S_{1,𝔲} f(x)`        | `boundaryOperator1 t u f x` |     |
-| `S_{2,𝔲} g(x)`        | `boundaryOperator2 t u g x` |     |
+| `S_{1,𝔲} f(x)`        | `boundaryOperator t u f x` |     |
+| `S_{2,𝔲} g(x)`        | `adjointBoundaryOperator t u g x` |     |
 | ``        | `` |     |
 | ``        | `` |     |
 | ``        | `` |     |

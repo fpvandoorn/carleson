@@ -97,6 +97,12 @@ def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
+open Classical in
+/-- The operator `T_ℭ f` defined at the bottom of Section 7.4.
+We will use this in other places of the formalization as well. -/
+def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
+  ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
+
 lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
   unfold carlesonOn Ks

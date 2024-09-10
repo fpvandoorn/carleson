@@ -39,7 +39,7 @@ def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → 
 
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑 with exponent 1.
 M_𝓑 in the blueprint. -/
-abbrev MB (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (u : X → E) (x : X) :=
+abbrev MB (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
   maximalFunction μ 𝓑 c r 1 u x
 
 -- We will replace the criterion `P` used in `MeasureTheory.SublinearOn.maximalFunction` with the
