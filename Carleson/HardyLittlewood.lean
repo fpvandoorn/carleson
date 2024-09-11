@@ -252,7 +252,8 @@ lemma hasStrongType_MB (h𝓑 : 𝓑.Finite) {p : ℝ≥0}
   sorry -- let's deal with the constant later
 
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
-irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := sorry -- todo: define in terms of `CMB`.
+irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A^2 * p₂ / (p₂ - p₁)
+  -- todo: define in terms of `CMB`.
 
 /- The proof is given between (9.0.34)-(9.0.36). -/
 theorem hasStrongType_maximalFunction {p₁ p₂ : ℝ≥0}

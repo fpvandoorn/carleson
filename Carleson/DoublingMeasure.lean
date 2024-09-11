@@ -207,7 +207,7 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s d : ℝ} (hs : 0 < s) (hd :
       dsimp only [Ad]
       simp only [coe_mul]
 
-lemma measure_ball_le_of_dist_le''' {x x' : X} {r : ℝ} (hr : dist x x' = (1/(2 : ℝ)) * r) :
+lemma measure_ball_le_of_dist_le'' {x x' : X} {r : ℝ} (hr : dist x x' = (1/(2 : ℝ)) * r) :
     μ (ball x' r) ≤ A ^ 2 * μ (ball x r) := by
   have hsr : r ≤ (2 : ℝ) * dist x x' := by rw [hr]; linarith
   convert measure_ball_le_of_dist_le' (μ := μ) zero_lt_two (by positivity) hsr (le_of_eq hr)
@@ -215,6 +215,7 @@ lemma measure_ball_le_of_dist_le''' {x x' : X} {r : ℝ} (hr : dist x x' = (1/(2
       Real.logb_inv, coe_mul, ENNReal.coe_pow]
     have : ⌈-(1 : ℝ)⌉₊ = 0 := by rw [Nat.ceil_eq_zero]; linarith
     rw [this, pow_zero, mul_one, pow_two]
+
 section
 variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 
