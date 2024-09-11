@@ -3,8 +3,8 @@ Copyright (c) 2024 Joachim Breitner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-import Mathlib.Order.RelSeries
 import Mathlib.Data.ENat.Lattice
+import Mathlib.Order.RelSeries
 
 /-!
 # Height of an element in a partial order
@@ -30,12 +30,6 @@ Some results found here:
   This lemma proves the recursive equation in the blueprint.
 -/
 
-theorem ENat.lt_add_one_iff (n m : ℕ∞) (hm : n ≠ ⊤) : m < n + 1 ↔ m ≤ n := by
-  cases n <;> cases m <;> try contradiction
-  · norm_num
-  · norm_cast; omega
-
-
 lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
     (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   constructor
@@ -53,7 +47,7 @@ lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : 
       simp_all
     | succ n =>
       suffices ⨆ x, f x < n+1 by simp_all
-      rw [ENat.lt_add_one_iff _ _ (by simp)]
+      rw [ENat.lt_add_one_iff (by simp)]
       rw [iSup_le_iff] at *
       intro i
       specialize hnotn i
@@ -66,24 +60,11 @@ lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : 
     apply le_antisymm
     · rw [iSup_le_iff]
       intro i; exact h2 i
-    ·apply le_iSup_of_le x (by simp [hx])
-
+    · apply le_iSup_of_le x (by simp [hx])
 
 lemma ENat.iSup_eq_coe_iff {α : Type*} [Nonempty α] (f : α → ℕ) (n : Nat) :
     (⨆ x, (f x : ℕ∞) = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   simp [ENat.iSup_eq_coe_iff']
-
-@[simp]
-theorem ENat.iSup_eq_zero {ι : Type*} (s : ι → ℕ∞) : iSup s = 0 ↔ ∀ i, s i = 0 := iSup_eq_bot
-
-
-@[simp]
-lemma ENat.not_lt_zero (n : ℕ∞) : ¬ n < 0 := by
-  cases n <;> simp
-
-@[simp]
-lemma ENat.coe_lt_top (n : ℕ) : (n : ℕ∞) < ⊤ := by
-  exact Batteries.compareOfLessAndEq_eq_lt.mp rfl
 
 lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) :
     (⨆ x, f x) + n = (⨆ x, f x + n) := by
@@ -117,45 +98,10 @@ lemma ENat.isup_add (ι : Type*) [Nonempty ι] (f : ι → ℕ∞) (n : ℕ∞) 
     gcongr
     exact le_iSup f i
 
-
 variable {α : Type*}
 
-lemma RelSeries.eraseLast_last_rel_last {r : Rel α α} (p : RelSeries r) (h : 0 < p.length) :
-    r p.eraseLast.last p.last := by
-  simp only [last, Fin.last, eraseLast_length, eraseLast_toFun]
-  convert p.step ⟨p.length -1, by omega⟩
-  simp; omega
-
-def RelSeries.take {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) : RelSeries r :=
-  { length := i
-    toFun := fun ⟨j, h⟩ => p.toFun ⟨j, by omega⟩
-    step := fun ⟨j, h⟩ => p.step ⟨j, by omega⟩
-  }
-
-@[simps]
-def RelSeries.drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) : RelSeries r :=
-  { length := p.length - i
-    toFun := fun ⟨j, h⟩ => p.toFun ⟨j+i, by omega⟩
-    step := fun ⟨j, h⟩ => by
-      convert p.step ⟨j+i.1, by omega⟩
-      simp only [Nat.succ_eq_add_one, Fin.succ_mk]; omega }
-
-@[simp]
-lemma RelSeries.head_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
-    (p.drop i).head = p.toFun i := by simp [drop, head]
-
-@[simp]
-lemma RelSeries.last_drop {r : Rel α α} (p : RelSeries r) (i : Fin (p.length + 1)) :
-    (p.drop i).last = p.last := by simp [drop, last, Fin.last]; congr; omega
-
-@[simp]
-lemma RelSeries.last_singleton {r : Rel α α} (x : α) : (singleton r x).last = x :=
-  by simp [singleton, last]
-
-/--
-Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
-`p` is a singleton.
--/
+/-- Replaces the last element in a series. Essentially `p.eraseLast.snoc x`, but also works when
+`p` is a singleton. -/
 def LTSeries.replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : p.last ≤ x) :
     LTSeries α :=
   if hlen : p.length = 0
@@ -177,9 +123,6 @@ lemma LTSeries.length_replaceLast [Preorder α] (p : LTSeries α) (x : α) (h : 
     (p.replaceLast x h).length = p.length := by
   unfold replaceLast; split <;> (simp;omega)
 
-lemma LTSeries.head_le_last [Preorder α] (p : LTSeries α) : p.head ≤ p.last :=
-  LTSeries.monotone p (Fin.zero_le (Fin.last p.length))
-
 lemma LTSeries.int_head_add_le_toFun (p : LTSeries ℤ) (i : Fin (p.length + 1)) : p.head + i ≤ p i := by
   have ⟨i, hi⟩ := i
   simp only
@@ -200,7 +143,6 @@ noncomputable def height {α : Type*} [Preorder α] (a : α) : ℕ∞ :=
   ⨆ (p : {p : LTSeries α // p.last = a}), p.1.length
 
 instance (a : α) : Nonempty { p : LTSeries α // p.last = a } := ⟨RelSeries.singleton _ a, rfl⟩
-
 
 lemma height_last_ge_length (p : LTSeries α) : p.length ≤ height p.last :=
   le_iSup (α := ℕ∞) (ι := {p' : LTSeries α // p'.last = p.last}) (f := fun p' =>↑p'.1.length) ⟨p, rfl⟩
@@ -267,17 +209,15 @@ lemma exists_series_of_le_height (a : α) {n : ℕ} (h : n ≤ height a) :
     use p.drop ⟨m-n, by omega⟩
     constructor
     · simp [hlast]
-    . simp [hlen]; omega
+    · simp [hlen]; omega
 
 /-- For an element of finite height there exists a series ending in that element of that height. -/
 lemma exists_series_of_height_eq_coe (a : α) {n : ℕ} (h : height a = n) :
     ∃ p : LTSeries α, p.last = a ∧ p.length = n :=
   exists_series_of_le_height a (le_of_eq h.symm)
 
-/--
-The height of an elemnet is infinite if there exist series of arbitrary length ending in that
-element.
--/
+/-- The height of an element is infinite if there exist series of arbitrary length ending in that
+element. -/
 lemma height_eq_top_iff (x : α) :
     height x = ⊤ ↔ (∀ n, ∃ p : LTSeries α, p.last = x ∧ p.length = n) := by
   constructor
@@ -310,7 +250,6 @@ lemma height_eq_isup_lt_height (x : α) :
     apply le_iSup_of_le ⟨p.snoc x (hp ▸ hyx), by simp⟩
     simp
 
-
 lemma height_le_coe_iff (x : α) (n : ℕ) :
     height x ≤ n ↔ (∀ y, y < x → height y < n) := by
   conv_lhs => rw [height_eq_isup_lt_height]
@@ -326,7 +265,7 @@ lemma coe_lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
   constructor
   · intro h
     obtain ⟨m, hx : height x = m⟩ := Option.ne_none_iff_exists'.mp (LT.lt.ne_top hfin)
-    rw [hx] at h; norm_num at h
+    rw [hx, Nat.cast_lt] at h
     obtain ⟨p, hp, hlen⟩ := exists_series_of_height_eq_coe x hx
     use p ⟨n, by omega⟩
     constructor
@@ -337,7 +276,6 @@ lemma coe_lt_height_iff (x : α) (n : ℕ) (hfin : height x < ⊤):
       exact height_eq_index_of_length_eq_last_height p (by simp [hlen, hp, hx]) ⟨n, by omega⟩
   · intro ⟨y, hyx, hy⟩
     exact hy ▸ height_strictMono y x hyx hfin
-
 
 lemma height_eq_coe_add_one_iff (x : α) (n : ℕ)  :
     height x = n + 1 ↔ height x < ⊤ ∧ (∃ y < x, height y = n) ∧ (∀ y, y < x → height y ≤ n) := by
@@ -367,54 +305,45 @@ lemma height_eq_coe_iff (x : α) (n : ℕ) :
     rename_i y _
     cases height y <;> simp ; norm_cast; omega
 
-
--- This is from mathlib, but has too strict requirements, PartialOrder is too strong, Preorder suffices
-theorem mem_minimals_iff_forall_lt_not_mem'' {x : α} {s : Set α} :
-    x ∈ minimals (· ≤ ·) s ↔ x ∈ s ∧ ∀ ⦃y⦄, y < x → y ∉ s :=
-  mem_minimals_iff_forall_lt_not_mem' (· < ·)
-
-lemma mem_minimal_univ_iff_height_eq_zero (a : α) :
-    a ∈ minimals (·≤·) Set.univ ↔ height a = 0 := by
-  simp [mem_minimals_iff_forall_lt_not_mem'', height_eq_zero_iff]
+lemma minimal_iff_height_eq_zero (a : α) : Minimal (fun _ ↦ True) a ↔ height a = 0 := by
+  simp [minimal_iff_forall_lt, height_eq_zero_iff]
 
 lemma mem_minimal_le_height_iff_height (a : α) (n : ℕ) :
-    a ∈ minimals (·≤·) { y | n ≤ height y } ↔ height a = n := by
+    Minimal (fun y ↦ n ≤ height y) a ↔ height a = n := by
   by_cases hfin : height a < ⊤
-  · simp only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, not_le]
-    simp only [height_eq_coe_iff, hfin, true_and, and_congr_left_iff]
-    intro _
-    cases n
-    case pos.zero => simp
-    case pos.succ _ =>
+  · simp_rw [minimal_iff_forall_lt, not_le, height_eq_coe_iff, hfin, true_and, and_congr_left_iff]
+    intro
+    induction n with
+    | zero => simp
+    | succ n _ =>
       simp only [Nat.cast_add, Nat.cast_one, add_eq_zero, one_ne_zero, and_false, false_or]
       simp only [ne_eq, ENat.coe_ne_top, not_false_eq_true, ENat.add_one_le_iff]
       simp only [coe_lt_height_iff, hfin]
       rfl
-  · suffices ∃ x, ∃ (_ : x < a), ↑n ≤ height x by
+  · suffices ∃ x < a, ↑n ≤ height x by
       simp only [not_lt, top_le_iff] at hfin
-      simpa only [mem_minimals_iff_forall_lt_not_mem'', Set.mem_setOf_eq, hfin, le_top, not_le,
+      simp only [minimal_iff_forall_lt, Set.mem_setOf_eq, hfin, le_top, not_le,
         true_and, ENat.top_ne_coe, iff_false, not_forall, Classical.not_imp, not_lt]
+      rwa [bex_def]
     simp only [not_lt, top_le_iff, height_eq_top_iff] at hfin
-    obtain ⟨p, rfl, hp⟩ := hfin (n+1)
+    obtain ⟨p, rfl, hp⟩ := hfin (n + 1)
     use p.eraseLast.last, RelSeries.eraseLast_last_rel_last _ (by omega)
     simpa [hp] using height_last_ge_length p.eraseLast
 
-lemma subtype_mk_mem_minimals_iff (α : Type*) [Preorder α] (s : Set α) (t : Set s) (x : α)
-    (hx : x ∈ s) : (⟨x, hx⟩:s) ∈ minimals (α := s) (·≤·) t ↔
-      x ∈ minimals (·≤·) { y | ∃ h, y ∈ s ∧ ⟨y,h⟩ ∈ t} := by
-  wlog hxt : (⟨x, hx⟩:s) ∈ t
+lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
+    (s : Set α) (t : Set s) (x : α) (hx : x ∈ s) :
+    Minimal (· ∈ t) (⟨x, hx⟩ : s) ↔ Minimal (fun y ↦ ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t) x := by
+  wlog hxt : (⟨x, hx⟩ : s) ∈ t
   · clear this
-    have := Set.not_mem_subset (minimals_subset (·≤·) t) hxt
-    simp only [exists_and_left, false_iff, this]; clear this
-    contrapose! hxt
-    have := minimals_subset _ _ hxt
+    have : ¬Minimal (· ∈ t) (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
+    simp_rw [this, false_iff, exists_and_left]; clear this; contrapose! hxt
+    have : x ∈ {y | y ∈ s ∧ ∃ (x : y ∈ s), ⟨y, x⟩ ∈ t} := hxt.prop
     simp_all
-  rw [← map_mem_minimals_iff (f := fun (x : s) => (x : α)) (s := (·≤·))]
-  case hf => simp
-  case ha => assumption
-  simp
+  change Minimal (· ∈ t) _ ↔ _
+  rw [← OrderEmbedding.minimal_mem_image_iff
+    (f := ⟨Function.Embedding.subtype (· ∈ s), by simp⟩) hxt]
+  simp_rw [RelEmbedding.coe_mk, Function.Embedding.coe_subtype, Set.mem_image, Subtype.exists,
+    exists_and_right, exists_eq_right, exists_and_left]
   congr! 2
-  ext y
-  simp only [Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right, Set.mem_setOf_eq,
-    iff_and_self, forall_exists_index]
-  intros hy _; exact hy
+  rw [iff_and_self, forall_exists_index]
+  exact fun h _ ↦ h

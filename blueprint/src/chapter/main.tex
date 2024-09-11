@@ -1943,9 +1943,7 @@ Define
         \bigcup_{\fp \in \fL_4 (k,n,j)}
         \scI(\fp)\, .
      \end{equation}
-Define $G'=G_1\cup G_2 \cup G_3$
-The following bound of the measure of $G'$ will be proven in
-\Cref{subsetexcset}.
+Define $G'=G_1\cup G_2 \cup G_3$. The following bound of the measure of $G'$ will be proven in \Cref{subsetexcset}.
 \begin{lemma}[exceptional set]
     \label{exceptional-set}
     \leanok
@@ -3083,11 +3081,12 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $\fp \in \fP_2 \cap \fP_{G \setminus G'}$. Clearly, for every cube $J = \scI(\fp)$ with $\fp \in \fP_{G \setminus G'}$ there exists some $k \ge 0$ such that \eqref{muhj1} holds, and for no cube $J \in \mathcal{D}$ and no $k < 0$ does \eqref{muhj2} hold. Thus $\fp \in \fP(k)$ for some $k \ge 0$.
 
     Next, since $E_2(\lambda, \fp') \subset \scI(\fp')\cap G$ for every $\lambda \ge 2$ and every tile $\fp' \in \fP(k)$ with $\lambda\fp \lesssim \lambda \fp'$, it follows from \eqref{muhj2} that $\mu(E_2(\lambda, \fp')) \le 2^{-k} \mu(\scI(\fp'))$ for every such $\fp'$, so $\dens_k'(\{\fp\}) \le 2^{-k}$. Combining this with $a \ge 0$, it follows from \eqref{def-cnk} that there exists $n\ge k$ with $\fp \in \fC(k,n)$.
 
-    Since $\fp \in \fP_{G \setminus G'}$, we have in particular $\scI(\fp) \not \subset A(2n + 6, k, n)$, so there exist at most $1 + (4n + 12)2^n < 2^{2n+4}$ tiles $\mathfrak{m} \in \mathfrak{M}(k,n)$ with $\fp \le \mathfrak{m}$. It follows that $\fp \in \fL_0(k,n)$ or $\fp \in \fC_1(k,n,j)$ for some $1 \le j \le 2n + 3$. In the former case we are done, in the latter case the inclusion to be shown follows immediately from the definitions of the collections $\fC_i$ and $\fL_i$.
+    Since $\fp \in \fP_{G \setminus G'}$, we have in particular $\scI(\fp) \not \subset A(2n + 6, k, n)$, so there exist at most $1 + (4n + 12)2^n < 2^{2n+4}$ tiles $\mathfrak{m} \in \mathfrak{M}(k,n)$ with $\fp \le \mathfrak{m}$. It follows that $\fp \in \fL_0(k,n)$ or $\fp \in \fC_1(k,n,j)$ for some $1 \le j \le 2n + 3$. In the former case we are done, in the latter case the equality to be shown follows from the definitions of the collections $\fC_i$ and $\fL_i$.
 \end{proof}
 
 \begin{lemma}[L0 antichain]
@@ -3161,7 +3160,8 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
-    Suppose that there are $\fp_0, \fp_1 \in \fL_2(k,n,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By \Cref{wiggle-order-1} and \Cref{wiggle-order-2}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(k,n,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
+    \leanok
+    Suppose that there are $\fp_0, \fp_1 \in \fL_2(k,n,j)$ with $\fp_0 \ne \fp_1$ and $\fp_0 \le \fp_1$. By \Cref{wiggle-order-1} and \Cref{wiggle-order-2}, it follows that $2\fp_0 \lesssim 200\fp_1$. Since $\fL_2(k,n,j)$ is finite, there exists a maximal $l \ge 1$ such that there exists a chain $2\fp_0 \lesssim 200 \fp_1 \lesssim \dotsb \lesssim 200 \fp_l$ with all $\fp_i$ in $\fC_1(k,n,j)$ and $\fp_i \ne \fp_{i+1}$ for $i = 0, \dotsc, l-1$.
     If we have $\fp_l \in \fU_1(k,n,j)$, then it follows from $2\fp_0 \lesssim 200 \fp_l \lesssim \fp_l$ and \eqref{eq-L2-def} that $\fp_0 \not\in \fL_2(k,n,j)$, a contradiction. Thus, by the definition \eqref{defunkj} of $\fU_1(k,n,j)$, there exists $\fp_{l+1} \in \fC_1(k,n,j)$ with $\scI(\fp_l) \subsetneq \scI(\fp_{l+1}) $ and $\mfa \in B_{\fp_l}(\fcc(\fp_l), 100) \cap B_{\fp_{l+1}}(\fcc(\fp_{l+1}), 100)$. Using the triangle inequality and \Cref{monotone-cube-metrics}, one deduces that $200 \fp_l \lesssim 200\fp_{l+1}$. This contradicts maximality of $l$.
 \end{proof}
 
@@ -3337,7 +3337,7 @@ Since $1< q\le 2$, we have $1<\tilde{q}<q\le 2$.
 We have that
 \begin{equation}\label{eqttt9}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
-  2^{111a^2}({q}-1)^{-1} \dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12} \|f\|_2\|g\|_2\, .
+  2^{111a^3}({q}-1)^{-1} \dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12} \|f\|_2\|g\|_2\, .
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -3363,7 +3363,7 @@ Taking the maximum over all $B'$ containing $x$, we obtain
 \end{equation}
 We have with \Cref{Hardy-Littlewood}
 \begin{equation}
-\left\|M_{\mathcal{B}, \frac {2q}{3q-2}} f\right\|_2\le 2^{2a}(3\tilde{q}-2)(2\tilde{q}-2)^{-1}\|f\|_2\, .
+\left\|M_{\mathcal{B}, \frac {2{\tilde{q}}}{3{\tilde{q}}-2}} f\right\|_2\le 2^{2a}(3\tilde{q}-2)(2\tilde{q}-2)^{-1}\|f\|_2\, .
 \end{equation}
 Using $1<\tilde{q}\le 2$ estimates the last display by
 \begin{equation}\label{eqttt2}
@@ -3378,12 +3378,12 @@ and then \Cref{maximal-bound-antichain}
      \le \|g\|_2 \Big\| \sum_{\fp \in \mathfrak{A}} T_{\fp} f \Big\|_2
 \end{equation}
  \begin{equation}
-     \le 2^{107a^2}\|g\|_2 \| M_{\mathcal{B}}f \|_2
+     \le 2^{107a^3}\|g\|_2 \| M_{\mathcal{B}}f \|_2
 \end{equation}
 With \eqref{eqttt1} and
 \eqref{eqttt2} we can estimate the last display by
 \begin{equation}
-    \le 2^{107a^2+2a+2}(\tilde{q}-1)^{-1} \|g\|_2 \|f\|_2\dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}
+    \le 2^{107a^3+2a+2}(\tilde{q}-1)^{-1} \|g\|_2 \|f\|_2\dens_2(\mathfrak{A})^{\frac 1{\tilde{q}}-\frac 12}
 \end{equation}
 Using $a\ge 4$ and
 $(\tilde q - 1)^{-1} = (q+1)/(q-1) \le 3(q-1)^{-1}$
@@ -4194,6 +4194,8 @@ $$
 $$
 \begin{lemma}[convex scales]
 \label{convex-scales}
+\leanok
+\lean{TileStructure.Forest.convex_scales}
     For each $\fu \in \fU$, we have
     $$
         \sigma(\fu, x) = \mathbb{Z} \cap [\underline{\sigma} (\fu, x), \overline{\sigma} (\fu, x)]\,.
@@ -4222,6 +4224,9 @@ to be the collection of dyadic cubes $L \in \mathcal{D}$ such that $s(L) = -S$, 
 
 \begin{lemma}[dyadic partitions]
     \label{dyadic-partitions}
+    \leanok
+    \lean{TileStructure.Forest.biUnion_𝓙, TileStructure.Forest.pairwiseDisjoint_𝓙,
+    TileStructure.Forest.biUnion_𝓛, TileStructure.Forest.pairwiseDisjoint_𝓛}
     For each $\mathfrak{S} \subset \fP$, we have
     \begin{equation}
         \label{eq-J-partition}
@@ -4271,6 +4276,8 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
 \begin{lemma}[pointwise tree estimate]
     \label{pointwise-tree-estimate}
+    \leanok
+    \lean{TileStructure.Forest.pointwise_tree_estimate}
     \uses{first-tree-pointwise,second-tree-pointwise,third-tree-pointwise}
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Let $x, x' \in L$.
     Then for all bounded functions $f$ with bounded support
@@ -4312,6 +4319,8 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
 \begin{lemma}[first tree pointwise]
     \label{first-tree-pointwise}
+    \leanok
+    \lean{TileStructure.Forest.first_tree_pointwise}
     \uses{convex-scales}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
@@ -4371,6 +4380,8 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
 \begin{lemma}[second tree pointwise]
     \label{second-tree-pointwise}
+    \leanok
+    \lean{TileStructure.Forest.second_tree_pointwise}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
          \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) P_{\mathcal{J}(\fT(\fu))} f(y) \, \mathrm{d}\mu(y) \Bigg| \le T_{\mathcal{N}}^{\fcc(\fu)} P_{\mathcal{J}(\fT(\fu))} f(x')\,.
@@ -4401,6 +4412,8 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
 \begin{lemma}[third tree pointwise]
     \label{third-tree-pointwise}
+    \leanok
+    \lean{TileStructure.Forest.third_tree_pointwise}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     \begin{equation*}
         \Bigg| \sum_{s \in \sigma(\fu, x)} \int K_s(x,y) (f(y) - P_{\mathcal{J}(\fT(\fu))} f(y)) \, \mathrm{d}\mu(y) \Bigg|
@@ -4454,6 +4467,8 @@ In this subsection we prove the following estimate on $L^2$ for operators associ
 
 \begin{lemma}[tree projection estimate]
     \label{tree-projection-estimate}
+    \leanok
+    \lean{TileStructure.Forest.tree_projection_estimate}
     \uses{dyadic-partitions,pointwise-tree-estimate,nontangential-operator-bound,boundary-operator-bound}
     Let $\fu \in \fU$.
     Then we have for all $f, g$ bounded with bounded support
@@ -4471,7 +4486,9 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 
 \begin{lemma}[nontangential operator bound]
     \label{nontangential-operator-bound}
-  \uses{Hardy-Littlewood}
+    \leanok
+    \lean{TileStructure.Forest.nontangential_operator_bound}
+    \uses{Hardy-Littlewood}
     For all bounded $f$ with bounded supportand all $\mfa \in \Mf$
     $$
         \|T_{\mathcal{N}}^{\mfa} f\|_2 \le 2^{103a^3} \|f\|_2\,.
@@ -4480,6 +4497,8 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 
 \begin{lemma}[boundary operator bound]
     \label{boundary-operator-bound}
+    \leanok
+    \lean{TileStructure.Forest.boundary_operator_bound}
     \uses{Hardy-Littlewood,boundary-overlap}
     For all $\fu \in \fU$ and all bounded functions $f$ with bounded support
     \begin{equation}
@@ -4665,6 +4684,8 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 
 \begin{lemma}[boundary overlap]
     \label{boundary-overlap}
+    \leanok
+    \lean{TileStructure.Forest.boundary_overlap}
     For every cube $I \in \mathcal{D}$, there exist at most $2^{9a}$ cubes $J \in \mathcal{D}$ with $s(J) = s(I)$ and $B(c(I), 16D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne \emptyset$.
 \end{lemma}
 
@@ -6305,7 +6326,7 @@ This completes the proof of \Cref{Holder-van-der-Corput}.
 We begin with a classical representation of the Lebesgue norm.
 \begin{lemma}[layer cake representation]\label{layer-cake-representation}
 \leanok
-\lean{MeasureTheory.snorm_pow_eq_distribution}
+\lean{MeasureTheory.eLpNorm_pow_eq_distribution}
 Let $1\le p< \infty$. Then for any measurable function $u:X\to [0,\infty)$ on the measure space $X$
 relative to the measure $\mu$
 we have
@@ -8764,7 +8785,7 @@ This completes the proof of the lemma.
     \label{real-Carleson-operator-measurable}
     \uses{Hilbert-kernel-bound}
     \leanok
-    \lean{CarlesonOperatorReal_measurable}
+    \lean{carlesonOperatorReal_measurable}
     Let $f$ be a bounded measurable function on $\R$. Then $Tf$ as defined in \eqref{define-T-carleson} is measurable.
 \end{lemma}
 \begin{proof}

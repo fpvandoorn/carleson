@@ -62,6 +62,9 @@ end Generic
 open scoped ShortVariables
 variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
   {σ₁ σ₂ : X → ℤ} {F G : Set X} [ProofData a q K σ₁ σ₂ F G]
+
+section
+
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 -- maybe we should delete the following three notations, and use `dist_{𝓘 p}` instead?
@@ -90,13 +93,13 @@ section T
 /-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
 It is the map `T ∘ (1_F * ·) : f ↦ T (1_F * f)`, also denoted `T1_F`
 The operator `T` in Proposition 2.0.2 is therefore `applied to `(F := Set.univ)`. -/
-def T (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
+def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
-    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * F.indicator f y
+    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
-lemma T_def' (p : 𝔓 X) (f : X → ℂ) : T p f =
-    indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * F.indicator f y * exp (I * (Q x y - Q x x)) := by
-  unfold T Ks
+lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
+    indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
+  unfold carlesonOn Ks
   exact congr_arg _ (funext fun x ↦ (congr_arg _ (funext fun y ↦ by ring)))
 
 end T
@@ -198,12 +201,17 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
         exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
 
+end
+
 /-- The constraint on `λ` in the first part of Lemma 5.3.3. -/
 def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 
+include q K σ₁ σ₂ F G in
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
   rw [C5_3_3, inv_le (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
   exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
+
+variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 
 /-- Lemma 5.3.3, Equation (5.3.3) -/
 lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul n p ≤ smul n p' := by

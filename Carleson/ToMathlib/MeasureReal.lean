@@ -22,7 +22,7 @@ project, but we should probably add them back in the long run if they turn out t
 -/
 
 open MeasureTheory Measure Set symmDiff
-open scoped ENNReal NNReal BigOperators
+open scoped ENNReal NNReal
 
 variable {ι : Type*}
 section aux_lemmas
@@ -61,7 +61,7 @@ end aux_lemmas
 
 namespace MeasureTheory
 
-variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} [MeasurableSpace β] (μ : Measure α)
+variable {α : Type*} {β : Type*} {_ : MeasurableSpace α} (μ : Measure α)
 
 /-- The real-valued version of a measure. Maps infinite measure sets to zero. Use as `μ.real s`. -/
 protected def Measure.real (s : Set α) : ℝ :=
@@ -131,8 +131,8 @@ theorem nonempty_of_measureReal_ne_zero (h : μ.real s ≠ 0) : s.Nonempty :=
   rw [measureReal_def, smul_apply, smul_eq_mul, ENNReal.toReal_mul]
   rfl
 
-theorem map_measureReal_apply {f : α → β} (hf : Measurable f) {s : Set β} (hs : MeasurableSet s) :
-    (μ.map f).real s = μ.real (f ⁻¹' s) := by
+theorem map_measureReal_apply [MeasurableSpace β] {f : α → β} (hf : Measurable f)
+    {s : Set β} (hs : MeasurableSet s) : (μ.map f).real s = μ.real (f ⁻¹' s) := by
   rw [measureReal_def, map_apply hf hs]
   rfl
 
@@ -278,7 +278,7 @@ lemma measureReal_symmDiff_eq (hs : MeasurableSet s) (ht : MeasurableSet t)
     (h₁ : μ s ≠ ∞ := by finiteness) (h₂ : μ t ≠ ∞ := by finiteness) :
     μ.real (s ∆ t) = μ.real (s \ t) + μ.real (t \ s) := by
   simp only [Measure.real]
-  rw [← ENNReal.toReal_add, measure_symmDiff_eq hs ht]
+  rw [← ENNReal.toReal_add, measure_symmDiff_eq hs.nullMeasurableSet ht.nullMeasurableSet]
   · exact measure_ne_top_of_subset diff_subset h₁
   · exact measure_ne_top_of_subset diff_subset h₂
 
@@ -415,7 +415,7 @@ theorem sum_measureReal_le_measureReal_univ [IsFiniteMeasure μ] {s : Finset ι}
   simp only [measureReal_def]
   rw [← ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
   apply ENNReal.toReal_mono (measure_ne_top _ _)
-  exact sum_measure_le_measure_univ h H
+  exact sum_measure_le_measure_univ (fun i mi ↦ (h i mi).nullMeasurableSet) H.aedisjoint
 
 /-- Pigeonhole principle for measure spaces: if `s` is a `Finset` and
 `∑ i in s, μ.real (t i) > μ.real univ`, then one of the intersections `t i ∩ t j` is not empty. -/
@@ -424,12 +424,13 @@ theorem exists_nonempty_inter_of_measureReal_univ_lt_sum_measureReal
     {s : Finset ι} {t : ι → Set α} (h : ∀ i ∈ s, MeasurableSet (t i))
     (H : μ.real (univ : Set α) < ∑ i in s, μ.real (t i)) :
     ∃ i ∈ s, ∃ j ∈ s, ∃ _h : i ≠ j, (t i ∩ t j).Nonempty := by
-  apply exists_nonempty_inter_of_measure_univ_lt_sum_measure μ h
+  apply exists_nonempty_inter_of_measure_univ_lt_sum_measure μ
+    (fun i mi ↦ (h i mi).nullMeasurableSet)
   apply (ENNReal.toReal_lt_toReal (measure_ne_top _ _) _).1
   · convert H
     rw [ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
     rfl
-  · exact (ENNReal.sum_lt_top (fun i hi ↦ measure_ne_top _ _)).ne
+  · exact (ENNReal.sum_lt_top.mpr (fun i hi ↦ measure_lt_top _ _)).ne
 
 /-- If two sets `s` and `t` are included in a set `u` of finite measure,
 and `μ.real s + μ.real t > μ.real u`, then `s` intersects `t`.
@@ -455,9 +456,8 @@ theorem nonempty_inter_of_measureReal_lt_add' {m : MeasurableSpace α} (μ : Mea
   rw [inter_comm]
   exact nonempty_inter_of_measureReal_lt_add μ hs h't h's h hu
 
-theorem measureReal_prod_prod {μ : Measure α} {ν : Measure β} [SigmaFinite ν] (s : Set α)
-    (t : Set β) :
-    (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
+theorem measureReal_prod_prod [MeasurableSpace β] {μ : Measure α} {ν : Measure β} [SigmaFinite ν]
+    (s : Set α) (t : Set β) : (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
 -- find this in library?  generalize?

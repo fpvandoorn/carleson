@@ -6,48 +6,47 @@ import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 import Mathlib.Analysis.Convolution
 
-open BigOperators
-open Finset
-open Complex
+open scoped Real
+open Finset Complex MeasureTheory
 
 noncomputable section
 
 def dirichletKernel (N : ℕ) : ℝ → ℂ :=
-  fun x ↦ ∑ n in Icc (-Int.ofNat N) N, fourier n (x : AddCircle (2 * Real.pi))
+  fun x ↦ ∑ n in Icc (-Int.ofNat N) N, fourier n (x : AddCircle (2 * π))
 
 def dirichletKernel' (N : ℕ) : ℝ → ℂ :=
   fun x ↦ (exp (I * N * x) / (1 - exp (-I * x)) + exp (-I * N * x) / (1 - exp (I * x)))
 
-lemma dirichletKernel_periodic {N : ℕ} : Function.Periodic (dirichletKernel N) (2 * Real.pi) := by
+lemma dirichletKernel_periodic {N : ℕ} : Function.Periodic (dirichletKernel N) (2 * π) := by
   intro x
   simp_rw [dirichletKernel]
   congr
   simp
 
-lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' N) (2 * Real.pi) := by
+lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' N) (2 * π) := by
   intro x
   simp_rw [dirichletKernel']
   push_cast
   congr 2
-  . rw [mul_add, exp_add]
+  · rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
     convert exp_int_mul_two_pi_mul_I N using 2
     norm_cast
     ring
-  . congr 1
+  · congr 1
     rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
     convert exp_int_mul_two_pi_mul_I (-1) using 2
     ring
-  . rw [mul_add, exp_add]
+  · rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
     convert exp_int_mul_two_pi_mul_I (-(N : ℤ)) using 2
     simp
     ring
-  . congr 1
+  · congr 1
     rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
     congr
@@ -73,7 +72,7 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
           congr 1
           rw [mul_assoc, mul_assoc]
           congr
-          rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel, one_mul]
+          rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel₀, one_mul]
           exact Real.pi_pos.ne.symm
       _ = ∑ n in Icc (-(N : ℤ)) N, cexp ((n + 1 / 2) * I * ↑x) - ∑ n in Icc (-(N : ℤ)) N, cexp ((n - 1 / 2) * I * ↑x) := by
         rw [sum_sub_distrib]
@@ -129,7 +128,7 @@ lemma dirichletKernel'_eq_zero {N : ℕ} {x : ℝ} (h : cexp (I * x) = 1) : diri
 
 /- "a.e." version of previous lemma. -/
 lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
-  have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ {x | ∃ n : ℤ, n * (2 * Real.pi) = x} := by
+  have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ {x | ∃ n : ℤ, n * (2 * π) = x} := by
     intro x hx
     simp at *
     by_contra h
@@ -142,10 +141,10 @@ lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = 
     simp only [I_ne_zero, or_false]
     norm_cast
     exact (h n).symm
-  rw [MeasureTheory.ae_iff]
-  apply MeasureTheory.measure_mono_null this
+  rw [ae_iff]
+  apply measure_mono_null this
   apply Set.Countable.measure_zero
-  let f : ℤ → ℝ := fun n ↦ n * (2 * Real.pi)
+  let f : ℤ → ℝ := fun n ↦ n * (2 * π)
   apply Set.countable_range f
 
 lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 1 := by
@@ -154,7 +153,7 @@ lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ �
     _ ≤ ∑ n ∈ Icc (-(N : ℤ)) N, ‖(fourier n) ↑x‖ := norm_sum_le _ _
     _ ≤ ∑ n ∈ Icc (-(N : ℤ)) N, 1 := by
       apply sum_le_sum
-      have : Fact (0 < 2 * Real.pi) := by rw [fact_iff]; exact Real.two_pi_pos
+      have : Fact (0 < 2 * π) := by rw [fact_iff]; exact Real.two_pi_pos
       exact fun n _ ↦ le_trans (ContinuousMap.norm_coe_le_norm (fourier n) x) (fourier_norm n).le
     _ = 2 * N + 1 := by
       rw_mod_cast [sum_const, Int.card_Icc, sub_neg_eq_add, nsmul_eq_mul, mul_one,
@@ -170,30 +169,30 @@ lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ 
     linarith
 
 /-First part of lemma 11.1.8 (Dirichlet kernel) from the blueprint.-/
-lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) :
-    partialFourierSum N f x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel N (x - y)  := by
+lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f volume 0 (2 * π)) :
+    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel N (x - y)  := by
   calc partialFourierSum N f x
     _ = ∑ n in Icc (-(N : ℤ)) N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x := by
       rw [partialFourierSum]
-    _ = ∑ n in Icc (-(N : ℤ)) N, (1 / (2 * Real.pi - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
+    _ = ∑ n in Icc (-(N : ℤ)) N, (1 / (2 * π - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       congr 1 with n
       rw [fourierCoeffOn_eq_integral, smul_mul_assoc]
-    _ = (1 / (2 * Real.pi)) * ∑ n in Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
+    _ = (1 / (2 * π)) * ∑ n in Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       rw_mod_cast [← smul_sum, real_smul, sub_zero]
-    _ = (1 / (2 * Real.pi)) * ∑ n in Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * Real.pi, (fourier (-n) ↑y • f y) * (fourier n) ↑x)) := by
+    _ = (1 / (2 * π)) * ∑ n in Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y) * (fourier n) ↑x)) := by
       congr with n
       exact (intervalIntegral.integral_mul_const _ _).symm
-    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), ∑ n in Icc (-(N : ℤ)) N, (fourier (-n)) y • f y * (fourier n) x := by
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), ∑ n in Icc (-(N : ℤ)) N, (fourier (-n)) y • f y * (fourier n) x := by
       rw [← intervalIntegral.integral_finset_sum]
       exact fun _ _ ↦ IntervalIntegrable.mul_const
         (h.continuousOn_mul fourier_uniformContinuous.continuous.continuousOn) _
-    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * ∑ n in Icc (-(N : ℤ)) N, (fourier (-n)) y * (fourier n) x := by
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * ∑ n in Icc (-(N : ℤ)) N, (fourier (-n)) y * (fourier n) x := by
       congr with y
       rw [mul_sum]
       congr with n
       rw [smul_eq_mul]
       ring
-    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel N (x - y) := by
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel N (x - y) := by
       congr with y
       rw [dirichletKernel]
       congr with n
@@ -202,18 +201,18 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x :
       field_simp
       rw [mul_sub, sub_eq_neg_add]
 
-lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f MeasureTheory.volume 0 (2 * Real.pi)) :
-    partialFourierSum N f x = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel' N (x - y)  := by
+lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f volume 0 (2 * π)) :
+    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel' N (x - y)  := by
   rw [partialFourierSum_eq_conv_dirichletKernel h]
   calc _
-    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (x - 2 * Real.pi)..(x - 0), f (x - y) * dirichletKernel N y := by
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (x - 2 * π)..(x - 0), f (x - y) * dirichletKernel N y := by
       congr 1
       rw [← intervalIntegral.integral_comp_sub_left]
       simp
-    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (x - 2 * Real.pi)..(x - 0), f (x - y) * dirichletKernel' N y := by
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (x - 2 * π)..(x - 0), f (x - y) * dirichletKernel' N y := by
       congr 1
-      apply intervalIntegral.integral_congr_ae (MeasureTheory.ae_imp_of_ae_restrict
-        (MeasureTheory.ae_restrict_of_ae _))
+      apply intervalIntegral.integral_congr_ae (ae_imp_of_ae_restrict
+        (ae_restrict_of_ae _))
       have : {a | ¬f (x - a) * dirichletKernel N a = f (x - a) * dirichletKernel' N a} ⊆ {a | ¬dirichletKernel N a = dirichletKernel' N a} := by
         intro a ha
         contrapose! ha
@@ -221,8 +220,8 @@ lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {N : ℕ} {x 
         intro h
         exfalso
         exact h ha
-      apply MeasureTheory.measure_mono_null this dirichletKernel_eq_ae
-    _ = (1 / (2 * Real.pi)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * Real.pi), f y * dirichletKernel' N (x - y) := by
+      apply measure_mono_null this dirichletKernel_eq_ae
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel' N (x - y) := by
       congr 1
       rw [← intervalIntegral.integral_comp_sub_left]
       simp

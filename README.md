@@ -2,11 +2,11 @@
 A (WIP) formalized proof of a generalized Carleson's theorem in Lean.
 
 * [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/442935-Carleson) for coordination
-* [Webpage](http://florisvandoorn.com/carleson/)
-* [Blueprint](http://florisvandoorn.com/carleson/blueprint/)
-* [Blueprint as pdf](http://florisvandoorn.com/carleson/blueprint.pdf)
+* [Webpage](https://florisvandoorn.com/carleson/)
+* [Blueprint](https://florisvandoorn.com/carleson/blueprint/)
+* [Blueprint as pdf](https://florisvandoorn.com/carleson/blueprint.pdf)
 * [Dependency graph](https://florisvandoorn.com/carleson/blueprint/dep_graph_document.html)
-* [Doc pages for this repository](http://florisvandoorn.com/carleson/docs/)
+* [Doc pages for this repository](https://florisvandoorn.com/carleson/docs/)
 
 ## Carleson's theorem
 

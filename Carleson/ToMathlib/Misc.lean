@@ -113,7 +113,7 @@ lemma ENNReal.sum_geometric_two_pow_toNNReal {k : ℕ} (hk : k > 0) :
     enter [1, n]
     rw [← rpow_intCast, show (-k * n : ℤ) = (-k * n : ℝ) by simp, rpow_mul, rpow_natCast]
   rw [tsum_geometric, show (2 : ℝ≥0∞) = (2 : ℝ).toNNReal by simp,
-    coe_rpow_of_ne_zero (by simp), ← Real.toNNReal_rpow_of_nonneg zero_le_two,
+    ← coe_rpow_of_ne_zero (by simp), ← Real.toNNReal_rpow_of_nonneg zero_le_two,
     ← coe_one, ← Real.toNNReal_one, ← coe_sub, NNReal.sub_def,
     Real.toNNReal_one, NNReal.coe_one, Real.coe_toNNReal', max_eq_left (by positivity),
     Real.rpow_neg zero_le_two, Real.rpow_natCast, one_div]
@@ -131,31 +131,14 @@ lemma ENNReal.sum_geometric_two_pow_neg_two :
   conv_lhs => enter [1, n, 2]; rw [← Nat.cast_two]
   rw [ENNReal.sum_geometric_two_pow_toNNReal zero_lt_two]; norm_num
 
-def sumGeometricSupportEquiv {k c : ℕ} :
-    (support fun n : ℕ ↦ if k ≤ n then (2 : ℝ≥0∞) ^ (-c * (n - k) : ℤ) else 0) ≃
-    support fun n' : ℕ ↦ (2 : ℝ≥0∞) ^ (-c * n' : ℤ) where
-  toFun n := by
-    obtain ⟨n, _⟩ := n; use n - k
-    rw [mem_support, neg_mul, ← ENNReal.rpow_intCast]; simp
-  invFun n' := by
-    obtain ⟨n', _⟩ := n'; use n' + k
-    simp_rw [mem_support, show k ≤ n' + k by omega, ite_true, neg_mul, ← ENNReal.rpow_intCast]
-    simp
-  left_inv n := by
-    obtain ⟨n, mn⟩ := n
-    rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
-    simp only [Subtype.mk.injEq]; omega
-  right_inv n' := by
-    obtain ⟨n', mn'⟩ := n'
-    simp only [Subtype.mk.injEq]; omega
-
 lemma tsum_geometric_ite_eq_tsum_geometric {k c : ℕ} :
     (∑' (n : ℕ), if k ≤ n then (2 : ℝ≥0∞) ^ (-c * (n - k) : ℤ) else 0) =
     ∑' (n : ℕ), 2 ^ (-c * n : ℤ) := by
-  refine Equiv.tsum_eq_tsum_of_support sumGeometricSupportEquiv fun ⟨n, mn⟩ ↦ ?_
-  simp_rw [sumGeometricSupportEquiv, Equiv.coe_fn_mk, neg_mul]
-  rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
-  simp_rw [mn.1, ite_true]; congr; omega
+  convert (Injective.tsum_eq (f := fun n ↦ if k ≤ n then (2 : ℝ≥0∞) ^ (-c * (n - k) : ℤ) else 0)
+    (add_left_injective k) (fun n mn ↦ _)).symm
+  · simp
+  · rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
+    use n - k, Nat.sub_add_cancel mn.1
 
 end ENNReal
 
@@ -188,23 +171,39 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
 /-! ## Averaging -/
 
 -- Named for consistency with `lintegral_add_left'`
+-- Maybe add laverage/laverage theorems for all the other lintegral_add statements?
+lemma laverage_add_left {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
+    {f g : α → ENNReal} (hf : AEMeasurable f μ) :
+    ⨍⁻ x, (f x + g x) ∂μ = ⨍⁻ x, f x ∂μ + ⨍⁻ x, g x ∂μ := by
+  simp_rw [laverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf]
+
+-- Named for consistency with `lintegral_mono'`
+lemma laverage_mono {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
+    {f g : α → ENNReal} (h : ∀ x, f x ≤ g x) :
+    ⨍⁻ x, f x ∂μ ≤ ⨍⁻ x, g x ∂μ := by
+  simp_rw [laverage_eq]
+  exact ENNReal.div_le_div_right (lintegral_mono h) (μ univ)
+
+lemma laverage_const_mul {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
+    {f : α → ENNReal} {c : ENNReal} (hc : c ≠ ⊤) :
+    c * ⨍⁻ x, f x ∂μ = ⨍⁻ x, c * f x ∂μ := by
+  simp_rw [laverage_eq, ← mul_div_assoc c, lintegral_const_mul' c f hc]
+
+-- The following two lemmas are unused
+
+-- Named for consistency with `lintegral_add_left'`
 -- Maybe add laverage/setLaverage theorems for all the other lintegral_add statements?
-lemma setLaverage_add_left' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+lemma setLaverage_add_left' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} {f g : α → ENNReal} (hf : AEMeasurable f μ) :
     ⨍⁻ x in s, (f x + g x) ∂μ = ⨍⁻ x in s, f x ∂μ + ⨍⁻ x in s, g x ∂μ := by
   simp_rw [setLaverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf.restrict]
 
 -- Named for consistency with `setLintegral_mono'`
-lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
+lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} (hs : MeasurableSet s) {f g : α → ENNReal} (h : ∀ x ∈ s, f x ≤ g x) :
     ⨍⁻ x in s, f x ∂μ ≤ ⨍⁻ x in s, g x ∂μ := by
   simp_rw [setLaverage_eq]
   exact ENNReal.div_le_div_right (setLIntegral_mono' hs h) (μ s)
-
-lemma setLaverage_const_mul' {α : Type*} {m0 : MeasurableSpace α} {μ : MeasureTheory.Measure α}
-    {s : Set α} {f : α → ENNReal} {c : ENNReal} (hc : c ≠ ⊤) :
-    c * ⨍⁻ x in s, f x ∂μ = ⨍⁻ x in s, c * f x ∂μ := by
-  simp_rw [setLaverage_eq, ← mul_div_assoc c, lintegral_const_mul' c f hc]
 
 end MeasureTheory
 
@@ -232,9 +231,8 @@ lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := b
   gcongr
   exact ENNReal.mul_inv_le_one (μ s)
 
-theorem snormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞} (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) :
-    snormEssSup f μ ≤ C :=
-  essSup_le_of_ae_le C hfC
+theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
+    (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
 @[simp]
 lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
@@ -267,6 +265,7 @@ protected def setoid : Setoid s where
     trans := fun {x y z} ↦ hr.trans x.2 y.2 z.2
   }
 
+include hr in
 lemma exists_rep (x : α) : ∃ y, x ∈ s → y ∈ s ∧ r x y :=
   ⟨x, fun hx ↦ ⟨hx, hr.refl x hx⟩⟩
 
@@ -301,7 +300,7 @@ lemma out_inj (hx : x ∈ s) (hy : y ∈ s) (h : r x y) : hr.out x = hr.out y :=
 
 lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.out x = hr.out y := by
   apply out_inj hx hy
-  refine' hr.trans hx _ hy (rel_out hx) <| hr.trans _ _ hy h <| out_rel hy
+  refine hr.trans hx ?_ hy (rel_out hx) <| hr.trans ?_ ?_ hy h <| out_rel hy
   all_goals simpa
 
 variable (hr) in
@@ -340,3 +339,11 @@ lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
   · simpa using Or.inl fun i hi ↦ (hs (nonempty_of_mem hi)).elim
 
 end Set.Finite
+
+lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
+  rcases lt_or_le x 0 with h | h
+  · exact h.trans (rpow_pos_of_pos zero_lt_two x)
+  · calc
+      _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
+      _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two _
+      _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)

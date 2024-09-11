@@ -1,13 +1,13 @@
-import Carleson.DiscreteCarleson
+import Carleson.Discrete.Forests
 import Carleson.TileExistence
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology Classical
+open MeasureTheory Measure NNReal Metric Complex Set Classical
 open scoped ENNReal
 noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
 theorem integrable_tile_sum_operator
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {x : X} {s : ℤ} :
@@ -21,7 +21,11 @@ theorem integrable_tile_sum_operator
     · exact le_trans (h2f y) (F.indicator_le_self' (by simp) y)
     · rw_mod_cast [mul_comm, norm_eq_abs, abs_exp_ofReal_mul_I]
 
-@[reducible]   -- Used to simplify notation in the proof of `tile_sum_operator`
+section
+
+variable [TileStructure Q D κ S o]
+
+@[reducible] -- Used to simplify notation in the proof of `tile_sum_operator`
 private def 𝔓X_s (s : ℤ) := (@Finset.univ (𝔓 X) _).filter (fun p ↦ 𝔰 p = s)
 
 private lemma 𝔰_eq {s : ℤ} {p : 𝔓 X} (hp : p ∈ 𝔓X_s s) : 𝔰 p = s := by simpa using hp
@@ -36,11 +40,11 @@ private lemma 𝔓_biUnion : @Finset.univ (𝔓 X) _ = (Icc (-S : ℤ) S).toFins
 
 private lemma sum_eq_zero_of_nmem_Icc {f : X → ℂ} {x : X} (s : ℤ)
     (hs : s ∈ (Icc (-S : ℤ) S).toFinset.filter (fun t ↦ t ∉ Icc (σ₁ x) (σ₂ x))) :
-    ∑ i ∈ Finset.filter (fun p ↦ 𝔰 p = s) Finset.univ, T i f x = 0 := by
+    ∑ i ∈ Finset.filter (fun p ↦ 𝔰 p = s) Finset.univ, carlesonOn i f x = 0 := by
   refine Finset.sum_eq_zero (fun p hp ↦ ?_)
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
-  rw [T, Set.indicator_of_not_mem]
+  rw [carlesonOn, Set.indicator_of_not_mem]
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
@@ -58,8 +62,8 @@ lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (�
   simpa only [mem_iUnion, exists_prop] using Grid_subset_biUnion s s_mem x_mem_topCube
 
 /-- Lemma 4.0.3 -/
-theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    {x : X} (hx : x ∈ G \ G') : ∑ (p : 𝔓 X), T p f x =
+theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
+    {x : X} (hx : x ∈ G \ G') : ∑ (p : 𝔓 X), carlesonOn p f x =
     ∑ s in Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   rw [𝔓_biUnion, Finset.sum_biUnion]; swap
   · exact fun s _ s' _ hss' A hAs hAs' p pA ↦ False.elim <| hss' (𝔰_eq (hAs pA) ▸ 𝔰_eq (hAs' pA))
@@ -74,7 +78,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ �
   · rcases exists_Grid hx.1 hs with ⟨I, Is, xI⟩
     obtain ⟨p, 𝓘pI, Qp⟩ : ∃ (p : 𝔓 X), 𝓘 p = I ∧ Q x ∈ Ω p := by simpa using biUnion_Ω ⟨x, rfl⟩
     have p𝔓Xs : p ∈ 𝔓X_s s := by simpa [𝔰, 𝓘pI]
-    have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → T p' f x = 0 := by
+    have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → carlesonOn p' f x = 0 := by
       intro p' p'𝔓Xs p'p
       apply indicator_of_not_mem
       simp only [E, mem_setOf_eq, not_and]
@@ -87,16 +91,14 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ} (h2f : ∀ x, ‖f x‖ �
       ⟨𝓘pI ▸ xI, Qp, by
         have := 𝔰_eq p𝔓Xs ▸ hs
         simpa only [toFinset_Icc, Finset.mem_Icc] using this⟩
-    simp only [T_def', Nat.cast_pow, Nat.cast_ofNat, defaultκ, zpow_neg, xEp, indicator_of_mem]
-    refine congr_arg _ (funext fun y ↦ ?_)
-    rw [indicator_apply_eq_self.2 fun hy ↦ norm_le_zero_iff.1 (by simpa [hy] using h2f y),
-      (Finset.mem_filter.1 p𝔓Xs).2]
+    simp_rw [carlesonOn_def', indicator_of_mem xEp, 𝔰_eq p𝔓Xs]
 
+end
 
 /- The constant used in Proposition 2.0.1 -/
 def C2_0_1 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 
-lemma C2_0_1_pos : C2_0_1 a nnq > 0 := C2_0_2_pos
+lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
 
 variable (X) in
 theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
@@ -109,7 +111,7 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
   rcases discrete_carleson X with ⟨G', hG', h2G', hfG'⟩
   refine ⟨G', hG', h2G', fun f meas_f h2f ↦ le_of_eq_of_le ?_ (hfG' f meas_f h2f)⟩
   refine setLIntegral_congr_fun (measurableSet_G.diff hG') (ae_of_all volume fun x hx ↦ ?_)
-  simp_rw [tile_sum_operator h2f hx, mul_sub, exp_sub, mul_div, div_eq_mul_inv,
+  simp_rw [tile_sum_operator hx, mul_sub, exp_sub, mul_div, div_eq_mul_inv,
     ← smul_eq_mul (a' := _⁻¹), integral_smul_const, ← Finset.sum_smul, nnnorm_smul]
   suffices ‖(cexp (I * ((Q x) x : ℂ)))⁻¹‖₊ = 1 by rw [this, mul_one]
   simp [← coe_eq_one, mul_comm I]

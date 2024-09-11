@@ -17,7 +17,7 @@ Some remarks:
   - either just write a comment in the Lean file that the constant can be improved to X
   - or improve the constant in Lean with a comment that this has to be incorporated in the blueprint
   - or improve the constant both in Lean and the TeX file, making sure you also fix all downstream uses of the lemma.
-* If you are writing lemma statements yourself, make sure to look at the class [`ProofData`](http://florisvandoorn.com/carleson/docs/Carleson/Defs.html#ProofData), which contains a lot of the common data/assumptions used throughout sections 2-8.
+* If you are writing lemma statements yourself, make sure to look at the class [`ProofData`](https://florisvandoorn.com/carleson/docs/Carleson/Defs.html#ProofData), which contains a lot of the common data/assumptions used throughout sections 2-8.
 
 Below, I will try to give a translation of some notation/conventions. We use mathcal/mathfrak unicode characters liberally to make the Lean look similar to the blueprint.
 
@@ -31,15 +31,25 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `d_{Iᵒ}(f,g)`   | `dist_{I} f g` |  |
 | `d_{𝔭}(f,g)`   | `dist_(𝔭) f g` | `d_{𝔭}(f,g) = d_{𝓘(p)ᵒ}(f,g)`. |
 | `Kₛ(x, y)`       | `Ks s x y`       |         |
-| `T_*f(x)`       | `NontangentialOperator K f x`       | The associated nontangential Calderon Zygmund operator |
-| `Tf(x)`       | `CarlesonOperator K f x` | The generalized Carleson operator        |
-| `Tₚf(x)`       | `T p f x`       |         |
+| `T_* f(x)`       | `nontangentialOperator K f x`       | The associated nontangential Calderon Zygmund operator |
+| `T_Q^θ f(x)`       | `linearizedNontangentialOperator Q θ K f x`       | The linearized associated nontangential Calderon Zygmund operator |
+| `T f(x)`       | `carlesonOperator K f x` | The generalized Carleson operator        |
+| `T_Q f(x)`       | `linearizedCarlesonOperator Q K f x` | The linearized generalized Carleson operator        |
+| `T_𝓝^θ f(x)`       | `nontangentialMaximalFunction θ f x` |   |
+| `Tₚ f(x)`       | `carlesonOn p f x`       |         |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
 | `𝔓(I)`       | `𝓘 ⁻¹' {I}` |         |
 | `I ⊆ J`         | `I ≤ J`      | We noticed recently that we cannot (easily) assume that the coercion `Grid X → Set X` is injective. Therefore, Lean introduces two orders on `Grid X`: `I ⊆ J` means that the underlying sets satisfy this relation, and `I ≤ J` means *additionally* that `s I ≤ s J`. The order is what you should use in (almost?) all cases. |
 | `𝓓`         | `Grid`      | The unicode characters were causing issues with Overleaf and leanblueprint (on Windows) |
 | `𝔓_{G\G'}`       | `𝔓pos` |         |
 | `𝔓₂`       | `𝔓₁ᶜ` |         |
-| `M_{𝓑, p}` | `maximalFunction` |     |
-| `M_𝓑` | `MB`       |     |
+| `M_{𝓑, p} f(x)` | `maximalFunction μ 𝓑 c r p f x` |     |
+| `M_𝓑 f(x)` | `MB μ 𝓑 c r f x`       | equals `M_{𝓑, 1}`    |
 | `M`        | `globalMaximalFunction volume 1` |     |
+| `I_i(x)`        | `cubeOf i x` |     |
+| `R_Q(θ, x)`        | `upperRadius Q θ x` |     |
+| `S_{1,𝔲} f(x)`        | `boundaryOperator1 t u f x` |     |
+| `S_{2,𝔲} g(x)`        | `boundaryOperator2 t u g x` |     |
+| ``        | `` |     |
+| ``        | `` |     |
+| ``        | `` |     |
