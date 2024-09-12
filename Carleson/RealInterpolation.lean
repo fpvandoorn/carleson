@@ -3401,6 +3401,18 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
   apply mul_le_mul' ?_ (le_refl _)
   exact estimate_distribution_Subadditive_trunc s_pos (tc.ran_ton s s_pos) hA.le ht
 
+-- XXX: can this be golfed or unified with `ton_aeMeasurable`?
+@[measurability, fun_prop]
+theorem ton_aeMeasurable_foobar [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+    (tc : ToneCouple) :
+    AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) (volume.restrict (Ioi 0)) := by
+  change AEMeasurable ((fun t : ℝ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton)) (volume.restrict (Ioi 0))
+  have tone := tc.ton_is_ton
+  split_ifs at tone
+  · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
+    exact norm_trunc_mono.comp_monotoneOn tone.monotoneOn
+  · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
+    exact norm_trunc_mono.comp_antitoneOn tone.antitoneOn
 
 lemma estimate_norm_rpow_range_operator'
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -3439,17 +3451,8 @@ lemma estimate_norm_rpow_range_operator'
       · apply weaktype_estimate_trunc_compl (p₀ := p₀) hp₀ <;> try assumption
         · exact hp₁p.ne_top
         · exact tc.ran_ton s s_pos
-  -- TODO: split off as a separate lemma
-    have : AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) (volume.restrict (Ioi 0)) := by
-      change AEMeasurable ((fun t : ℝ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton))
-                  (volume.restrict (Ioi 0))
-      have tone := tc.ton_is_ton
-      split_ifs at tone
-      · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-        exact Monotone.comp_monotoneOn norm_trunc_mono (StrictMonoOn.monotoneOn tone)
-      · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-        exact Monotone.comp_antitoneOn norm_trunc_mono (StrictAntiOn.antitoneOn tone)
-    exact (((this.pow_const _).const_mul _).mul (by fun_prop)).mul (by fun_prop)
+    exact ((((ton_aeMeasurable_foobar tc).pow_const _).const_mul _).mul
+      (by fun_prop)).mul (by fun_prop)
   · rw [one_mul, zero_mul, add_zero]
     apply setLIntegral_mono' measurableSet_Ioi
     intro s (s_pos : s > 0)
