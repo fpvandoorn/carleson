@@ -3445,14 +3445,13 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
       (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) +
   distribution (T (f - trunc f (tc.ton s))) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) := by
   rw [rewrite_norm_func hq hA hTf]
-  apply mul_le_mul'
-  · exact le_refl _
-  · apply setLIntegral_mono' measurableSet_Ioi
-    intro s s_pos
-    rw [← add_mul]
-    apply mul_le_mul'
-    · exact estimate_distribution_Subadditive_trunc s_pos (tc.ran_ton s s_pos) (le_of_lt hA) ht
-    · exact le_refl _
+  apply mul_le_mul' (le_refl _)
+  apply setLIntegral_mono' measurableSet_Ioi
+  intro s s_pos
+  rw [← add_mul]
+  apply mul_le_mul' ?_ (le_refl _)
+  exact estimate_distribution_Subadditive_trunc s_pos (tc.ran_ton s s_pos) hA.le ht
+
 
 lemma estimate_norm_rpow_range_operator'
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -3491,27 +3490,18 @@ lemma estimate_norm_rpow_range_operator'
       · apply weaktype_estimate_trunc_compl (p₀ := p₀) hp₀ <;> try assumption
         · exact LT.lt.ne_top hp₁p
         · exact tc.ran_ton s s_pos
-  -- TODO: split off the measurability lemmas
-    · apply AEMeasurable.mul
-      · apply AEMeasurable.mul
-        · apply AEMeasurable.const_mul
-          · apply AEMeasurable.pow_const
-            · change AEMeasurable ((fun t : ℝ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton))
+  -- TODO: split off as a separate lemma
+    have : AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) (volume.restrict (Ioi 0)) := by
+      change AEMeasurable ((fun t : ℝ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton))
                   (volume.restrict (Ioi 0))
-              have tone := tc.ton_is_ton
-              split_ifs at tone
-              · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-                exact Monotone.comp_monotoneOn norm_trunc_mono (StrictMonoOn.monotoneOn tone)
-              · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-                exact Monotone.comp_antitoneOn norm_trunc_mono (StrictAntiOn.antitoneOn tone)
-        · apply AEMeasurable.coe_nnreal_ennreal
-          · apply AEMeasurable.real_toNNReal
-            · apply AEMeasurable.pow_const
-              apply aemeasurable_id'
-      · apply AEMeasurable.coe_nnreal_ennreal
-        · apply AEMeasurable.real_toNNReal
-          · apply AEMeasurable.pow_const
-            · apply aemeasurable_id'
+      have tone := tc.ton_is_ton
+      split_ifs at tone
+      · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
+        exact Monotone.comp_monotoneOn norm_trunc_mono (StrictMonoOn.monotoneOn tone)
+      · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
+        exact Monotone.comp_antitoneOn norm_trunc_mono (StrictAntiOn.antitoneOn tone)
+    apply AEMeasurable.mul ?_ (by fun_prop)
+    exact ((this.pow_const _).const_mul _).mul (by fun_prop)
   · rw [one_mul, zero_mul, add_zero]
     apply setLIntegral_mono' measurableSet_Ioi
     intro s (s_pos : s > 0)
@@ -4194,8 +4184,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [Measurab
             · rw [abs_of_neg] <;> linarith
             · rw [abs_of_neg] <;> linarith
             · linarith
-      rw [eq]
-      rw [coe_q]
+      rw [eq, coe_q]
       nth_rw 1 [mul_assoc]
       nth_rw 3 [mul_assoc]
       rw [← mul_add]
@@ -4223,27 +4212,23 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
       ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * (if q₁ = ⊤ then 0 else 1)) ^ q.toReal⁻¹ *
     ↑C₀ ^ ((1 - t)) * ↑C₁ ^ t * eLpNorm f p μ := by
   let M := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f
-  have hq₀q₁' : q₀ ≠ q₁ := ne_of_lt hq₀q₁
-  have p₀pos : p₀ > 0 := hp₀.1
-  have p₁pos : p₁ > 0 := hp₁.1
   have q₀pos : q₀ > 0 := pos_of_rb_Ioc hp₀
   have q₁pos : q₁ > 0 := pos_of_rb_Ioc hp₁
-  have q₀ne_top : q₀ ≠ ⊤ := LT.lt.ne_top hq₀q₁
-  have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top q₀ne_top hp₀.2
+  have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀q₁.ne_top hp₀.2
   have q_toReal_ne_zero : q.toReal ≠ 0 :=
-    (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl q₀ne_top)).ne'
+    (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
   have p_eq_p₀ : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨snorm_pos, hf.2⟩
     have M_pos : M > 0 := by
-      apply d_pos <;> try assumption
+      apply d_pos <;> assumption
     have coe_q : ENNReal.ofReal q.toReal = q :=
-    ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁' ht hq)
+    ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     nth_rw 1 [← coe_q]
     rw [eLpNorm_eq_distribution (AEStronglyMeasurable.aemeasurable (h₂T hf))
-        (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁' hq)]
+        (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁.ne hq)]
     calc
     (ENNReal.ofReal q.toReal *
     ∫⁻ (t : ℝ) in Ioi 0, distribution (T f) (ENNReal.ofReal t) ν *
@@ -4287,17 +4272,17 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
             rw [weaktype_estimate_top] <;> try assumption
             · simp
             · rw [p_eq_p₀, hp₀p₁]; exact h₁T
-            · unfold_let M at ht
+            · have p₀pos : p₀ > 0 := hp₀.1
+              have p₁pos : p₁ > 0 := hp₁.1
+              have q₀ne_top : q₀ ≠ ⊤ := hq₀q₁.ne_top
+              unfold_let M at ht
               rw [d_eq_top_of_eq] at ht <;> try assumption
               have : ENNReal.ofReal (C₁ * eLpNorm f p μ).toReal = C₁ * eLpNorm f p μ := by
                 refine ofReal_toReal_eq_iff.mpr ?_
-                refine mul_ne_top ?_ ?_
-                · exact coe_ne_top
-                · exact (ne_of_lt hF.2)
+                exact mul_ne_top coe_ne_top hF.2.ne
               rw [← this]
               exact ofReal_le_ofReal ht
-          rw [setLIntegral_congr_fun measurableSet_Ici hf_0]
-          rw [lintegral_zero]
+          rw [setLIntegral_congr_fun measurableSet_Ici hf_0, lintegral_zero]
         · rw [mul_one]
           apply setLIntegral_mono' measurableSet_Ici
           intro t (ht : t ≥ M)
