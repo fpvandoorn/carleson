@@ -2464,13 +2464,8 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
 /-! ## Apply Minkowski's integral inequality to truncations
 -/
 
-@[measurability]
-lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
-    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton s }
-        ((volume.restrict (Ioi 0)).prod μ) := by
-  refine nullMeasurableSet_le hg.snd.norm ?hg
-  refine AEMeasurable.fst ?_
+@[measurability, fun_prop]
+theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
   -- ton is either increasing or decreasing
   have mono_or_anti := tc.ton_is_ton
   split_ifs at mono_or_anti
@@ -2478,17 +2473,18 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
   · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
 
 @[measurability]
+lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
+    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton s }
+        ((volume.restrict (Ioi 0)).prod μ) :=
+  nullMeasurableSet_le hg.snd.norm (ton_aeMeasurable tc).fst
+
+@[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | tc.ton s < ‖g x‖₊ }
-        ((volume.restrict (Ioi 0)).prod μ) := by
-  refine nullMeasurableSet_lt ?_ (AEMeasurable.snd hg).norm
-  refine AEMeasurable.fst ?_
-  -- ton is either increasing or decreasing
-  have mono_or_anti := tc.ton_is_ton
-  split_ifs at mono_or_anti
-  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi mono_or_anti.monotoneOn
-  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
+        ((volume.restrict (Ioi 0)).prod μ) :=
+  nullMeasurableSet_lt (ton_aeMeasurable tc).fst hg.snd.norm
 
 @[measurability]
 lemma truncation_ton_measurable {f : α → E₁}
@@ -2502,8 +2498,8 @@ lemma truncation_ton_measurable {f : α → E₁}
       Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
     ext z; unfold trunc; unfold indicator; unfold_let A; simp
   rw [this]
-  refine (aemeasurable_indicator_iff₀ ?hs).mpr hf.restrict.snd.restrict
-  apply indicator_ton_measurable hf.restrict
+  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable hf.restrict _)).mpr
+    hf.restrict.snd.restrict
 
 @[measurability]
 lemma truncation_compl_ton_measurable {f : α → E₁}
@@ -2516,8 +2512,8 @@ lemma truncation_compl_ton_measurable {f : α → E₁}
   have : (fun z : ℝ × α ↦ (f - trunc f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
     ext z; rw [trunc_compl_eq]; unfold_let A; unfold indicator; simp
   rw [this]
-  refine (aemeasurable_indicator_iff₀ ?hs).mpr hf.restrict.snd.restrict
-  apply indicator_ton_measurable_lt hf.restrict
+  refine (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
+    hf.restrict.snd.restrict
 
 lemma restrict_to_support {a : ℝ} {p : ℝ} (hp : p > 0)
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (f : α → E₁) :
