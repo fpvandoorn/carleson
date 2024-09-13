@@ -577,8 +577,8 @@ lemma ζ_eq_top_top (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
     ← preservation_interpolation ht hq₀ hq₁ hq, hp₁', hq₁']
   simp only [inv_top, zero_toReal, sub_zero]
   rw [mul_comm, div_eq_mul_inv, mul_inv_cancel₀]
-  exact ne_of_gt (mul_pos (interp_exp_inv_pos ht hq₀ hq₁ hq₀q₁ hq)
-    (interp_exp_inv_pos ht hp₀ hp₁ hp₀p₁ hp))
+  exact (mul_pos (interp_exp_inv_pos ht hq₀ hq₁ hq₀q₁ hq)
+    (interp_exp_inv_pos ht hp₀ hp₁ hp₀p₁ hp)).ne'
 
 lemma ζ_pos_iff_aux (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ ≠ ⊤) :
     ( 0 < p₀.toReal * (q₀.toReal - q.toReal) / (q₀.toReal * (p₀.toReal - p.toReal))) ↔
@@ -796,11 +796,11 @@ lemma ζ_ne_zero (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp�
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
     (@ζ p₀ q₀ p₁ q₁ t ≠ 0) := by
   refine div_ne_zero ?_ ?_
-  · apply mul_ne_zero (ne_of_gt (preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁))
+  · apply mul_ne_zero (preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁).ne'
     refine sub_ne_zero_of_ne (Ne.symm fun h ↦ hq₀q₁ ?_)
     rw [← inv_inv q₀, ← inv_inv q₁, ← coe_inv_exponent hq₀, ← coe_inv_exponent hq₁]
     exact congrArg Inv.inv (congrArg ENNReal.ofReal h)
-  · apply mul_ne_zero (ne_of_gt (preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁))
+  · apply mul_ne_zero (preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁).ne'
     refine sub_ne_zero_of_ne (Ne.symm fun h ↦ hp₀p₁ ?_)
     rw [← inv_inv p₀, ← inv_inv p₁, ← coe_inv_exponent hp₀, ← coe_inv_exponent hp₁]
     exact congrArg Inv.inv (congrArg ENNReal.ofReal h)
@@ -1004,7 +1004,7 @@ structure ToneCouple where
 def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
   ton := fun s : ℝ ↦ (s / spf.d) ^ spf.σ
   inv := fun t : ℝ ↦ spf.d * t ^ spf.σ⁻¹
-  mon := if (spf.σ > 0) then true else false
+  mon := if spf.σ > 0 then true else false
   ran_ton := fun t ht ↦ rpow_pos_of_pos (div_pos ht spf.hd) _
   ran_inv := fun t ht ↦ mul_pos spf.hd (rpow_pos_of_pos ht spf.σ⁻¹)
   ton_is_ton := by
@@ -1018,7 +1018,7 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
     · simp only [Bool.false_eq_true, ↓reduceIte]
       intro s (hs : s > 0) t (ht : t > 0) hst
       rcases spf.hσ with σ_pos | σ_neg
-      · exact False.elim (sgn_σ σ_pos)
+      · exact (sgn_σ σ_pos).elim
       · simp only
         exact (Real.rpow_lt_rpow_iff_of_neg (div_pos ht spf.hd)
           (div_pos hs spf.hd) σ_neg).mpr (div_lt_div_of_pos_right hst spf.hd)
@@ -1189,8 +1189,8 @@ lemma d_eq_top_top (hq₀ : q₀ > 0) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁
     zero_mul, one_div]
   rw [div_neg, div_eq_mul_inv, mul_inv_cancel₀]
   · rw [ENNReal.rpow_neg, ENNReal.rpow_one, inv_inv, coe_toReal]
-  · exact ne_of_gt (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁))
-      (ENNReal.inv_ne_top.mpr hq₀.ne'))
+  · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁))
+      (ENNReal.inv_ne_top.mpr hq₀.ne')).ne'
 
 /-- The particular choice of scaled power function that works in the proof of the
     real interpolation theorem. -/
@@ -1620,8 +1620,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : t > 0) (htγ : 
   have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
   rw [Real.rpow_sub γ_pos]
   refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-b) )) ?_ ?_).mp ?_
-  · apply ne_of_gt
-    refine ofReal_pos.mpr ?_
+  · refine ofReal_pos.mpr ?_ |>.ne'
     exact Real.rpow_pos_of_pos γ_pos (-b)
   · exact coe_ne_top
   · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
@@ -3019,10 +3018,8 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0
         := by
       apply ENNReal.mul_pos
-      · apply ne_of_gt
-        refine rpow_pos_of_nonneg (by positivity) (by positivity)
-      · apply ne_of_gt
-        refine rpow_pos_of_nonneg (by positivity) (by positivity)
+      · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
+      · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
     have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤
         := by
       apply mul_ne_top
@@ -3111,10 +3108,8 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0
           := by
         apply ENNReal.mul_pos
-        · apply ne_of_gt
-          exact rpow_pos_of_nonneg (by positivity) (by positivity)
-        · apply ne_of_gt
-          exact rpow_pos_of_nonneg (by positivity) (by positivity)
+        · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
+        · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
       have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ := by
         apply mul_ne_top
         · refine rpow_ne_top' ?_ coe_ne_top
@@ -3399,10 +3394,10 @@ lemma estimate_norm_rpow_range_operator'
     ENNReal.ofReal (s^(q.toReal - 1)) +
     distribution (T (f - trunc f (tc.ton s))) (ENNReal.ofReal s) ν *
     ENNReal.ofReal (s^(q.toReal - 1)) ≤
-    (if (q₁ < ⊤) then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
+    (if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
-    (if (q₀ < ⊤) then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
+    (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (f - trunc f (tc.ton s)) (p₀) μ ^ q₀.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1))) := by
   have : ∀ q' q : ℝ, -q' + (q - 1) = q - q' - 1 := by intro q' q; group
@@ -3432,9 +3427,9 @@ lemma estimate_norm_rpow_range_operator'
               have tone := tc.ton_is_ton
               split_ifs at tone
               · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-                exact Monotone.comp_monotoneOn norm_trunc_mono (StrictMonoOn.monotoneOn tone)
+                exact Monotone.comp_monotoneOn norm_trunc_mono tone.monotoneOn
               · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-                exact Monotone.comp_antitoneOn norm_trunc_mono (StrictAntiOn.antitoneOn tone)
+                exact Monotone.comp_antitoneOn norm_trunc_mono tone.antitoneOn
         · apply AEMeasurable.coe_nnreal_ennreal
           · apply AEMeasurable.real_toNNReal
             · apply AEMeasurable.pow_const
@@ -3734,8 +3729,8 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
   (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ)) :
     ∫⁻ x , ‖T f x‖₊ ^ q.toReal ∂ν ≤
     ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) *
-    ((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹) *
+    ((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹) *
     C₀ ^ ((1 - t) * q.toReal) * C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal := by
   have one_le_p₀ := hp₀.1
   have one_le_p1 := hp₁.1
@@ -3762,10 +3757,10 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
     · exact hT
     · exact AEStronglyMeasurable.aemeasurable (h₂T hf)
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
-      ((if (q₁ < ⊤) then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
+      ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
-      (if (q₀ < ⊤) then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
+      (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (f - trunc f (tc.ton s)) p₀ μ ^ q₀.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1)))) := by
     gcongr
@@ -3816,11 +3811,11 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
         · exact Ne.lt_top p₁ne_top
         · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
-      ((if (q₁ < ⊤) then 1 else 0) * (C₁ ^ q₁.toReal *
+      ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal *
       (ENNReal.ofReal (spf.d ^ (q.toReal - q₁.toReal)) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ *
         ((eLpNorm f p μ) ^ p.toReal) ^ ((sel ⊤ p₀ p₁).toReal ⁻¹ * (sel ⊤ q₀ q₁).toReal)))
         +
-      (if (q₀ < ⊤) then 1 else 0) * (C₀ ^ q₀.toReal *
+      (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal *
       (ENNReal.ofReal (spf.d ^ (q.toReal - q₀.toReal)) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ *
         (((eLpNorm f p μ) ^ p.toReal) ^ ((sel ⊥ p₀ p₁).toReal ⁻¹ * (sel ⊥ q₀ q₁).toReal))))) := by
       apply mul_le_mul_left'
@@ -3896,8 +3891,8 @@ lemma combine_estimates₁ {A : ℝ} [MeasurableSpace E₁] [NormedAddCommGroup 
         (lt_of_lt_of_le hp₁.1 hp₁.2) (ne_of_lt hp₀p₁) hC₀ hC₁ hF) :
     eLpNorm (T f) q ν ≤
     ENNReal.ofReal (2 * A) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t * eLpNorm f p μ := by
   have q_ne_zero : q ≠ 0 := (interpolated_pos' (lt_of_lt_of_le hp₀.1 hp₀.2) (lt_of_lt_of_le hp₁.1 hp₁.2) hq).ne'
   have q_ne_top : q ≠ ⊤ := interp_exp_ne_top hq₀q₁ ht hq
@@ -3959,8 +3954,7 @@ lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     ring_nf
     field_simp
   · rw [← hp']
-    apply ne_of_gt
-    exact d_pos_aux₀ hF
+    exact d_pos_aux₀ hF |>.ne'
   · rw [← hp']
     refine d_ne_top_aux₀ hF
 
@@ -4039,8 +4033,8 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : Memℒp f p μ) :
     eLpNorm (T f) q ν ≤
     ENNReal.ofReal (2 * A) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t * eLpNorm f p μ := by
   have hq₀ : q₀ > 0 := pos_of_rb_Ioc hp₀
   have hq₁ : q₁ > 0 := pos_of_rb_Ioc hp₁
@@ -4313,8 +4307,8 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : Memℒp f p μ) :
     eLpNorm (T f) q ν ≤
     (if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t * eLpNorm f p μ := by
   let M := if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)
   have hM : M = if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A) := rfl
@@ -4360,8 +4354,8 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
     an element of `ℝ≥0∞`. -/
 def C_realInterpolation_ENNReal (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁: ℝ≥0) (A : ℝ≥0) (t : ℝ) :=
     (if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t
 
 lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0}
@@ -4380,8 +4374,7 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
           · exact Ne.symm top_ne_one
           · exact coe_ne_top
         · apply rpow_ne_top'
-          · apply ne_of_gt
-            exact interpolated_pos' q₀pos q₁pos hq
+          · exact interpolated_pos' q₀pos q₁pos hq |>.ne'
           · exact interp_exp_ne_top hq₀q₁ ht hq
       · apply rpow_ne_top'
         · split_ifs
@@ -4391,23 +4384,19 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
             · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
             · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
           · rw [one_mul, zero_mul, add_zero]
-            apply ne_of_gt
-            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
+            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
           · rw [zero_mul, one_mul, zero_add]
-            apply ne_of_gt
-            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
+            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
           · have q₀top : q₀ = ⊤ := not_lt_top.mp (by assumption)
             have q₁top : q₁ = ⊤ := not_lt_top.mp (by assumption)
             rw [q₀top, q₁top] at hq₀q₁
             simp only [ne_eq, not_true_eq_false] at hq₀q₁
         · split_ifs <;> exact Ne.symm (ne_of_beq_false rfl)
     · apply rpow_ne_top'
-      · apply ne_of_gt
-        exact ENNReal.coe_pos.mpr hC₀
+      · exact ENNReal.coe_pos.mpr hC₀ |>.ne'
       · exact coe_ne_top
   · apply rpow_ne_top'
-    · apply ne_of_gt
-      exact ENNReal.coe_pos.mpr hC₁
+    · exact ENNReal.coe_pos.mpr hC₁ |>.ne'
     · exact coe_ne_top
 
 lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0} (hA : A > 0)
@@ -4425,8 +4414,7 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
         · split_ifs
           · exact one_ne_zero
           · rw [← ofReal_zero]
-            apply ne_of_gt
-            refine (ofReal_lt_ofReal_iff_of_nonneg ?_).mpr ?_
+            refine (ofReal_lt_ofReal_iff_of_nonneg ?_).mpr ?_ |>.ne'
             · rfl
             · apply _root_.mul_pos
               · exact zero_lt_two
