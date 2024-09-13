@@ -29,7 +29,7 @@ noncomputable section
 
 open ENNReal Real Set MeasureTheory
 
--- F: can we make `t : ℝ≥0∞` for a large part of the proof
+-- Note (F): can we make `t : ℝ≥0∞` for a large part of the proof?
 variable {p₀ q₀ p₁ q₁ p q : ℝ≥0∞} {t : ℝ}
 
 /-! ## Convenience results for working with (interpolated) exponents
