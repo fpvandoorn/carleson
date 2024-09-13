@@ -3010,27 +3010,18 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
       Trans.trans (distribution_mono_right (Trans.trans obs (zero_le (ENNReal.ofReal t))))
         meas_eLpNormEssSup_lt
   · have p_pos : p > 0 := lt_trans hp₀ hp₀p
-    have snorm_p_pos : eLpNorm f p μ ≠ 0 := by
-      intro snorm_0
-      apply Ne.symm (ne_of_lt snorm_pos)
-      apply eLpNormEssSup_eq_zero_iff.mpr
-      exact (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp snorm_0
+    have snorm_p_pos : eLpNorm f p μ ≠ 0 :=
+      fun snorm_0 ↦ snorm_pos.ne' <| eLpNormEssSup_eq_zero_iff.mpr <|
+        (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp snorm_0
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0
         := by
-      apply ENNReal.mul_pos
-      · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
-      · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
+      apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
     have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤
-        := by
-      apply mul_ne_top
-      · refine rpow_ne_top' ?_ coe_ne_top
-        exact ENNReal.coe_ne_zero.mpr hC₀.ne'
-      · exact rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf)
+        := mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
+          (rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf))
     have d_pos : d > 0 := by
       rw [hdeq]
-      apply Real.rpow_pos_of_pos
-      rw [← zero_toReal]
-      exact toReal_strict_mono term_ne_top term_pos
+      exact Real.rpow_pos_of_pos (zero_toReal ▸ toReal_strict_mono term_ne_top term_pos) _
     have a_pos : a > 0 := by rw [ha]; positivity
     have obs : Memℒp (f - trunc f a) p₀ μ := trunc_compl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ a_pos hf
     have wt_est := (h₀T (f - trunc f a) obs).2
@@ -3105,21 +3096,14 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
         apply Ne.symm (ne_of_lt snorm_pos)
         apply eLpNormEssSup_eq_zero_iff.mpr
         exact (eLpNorm_eq_zero_iff hf.1 hp.ne').mp snorm_0
-      have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0
-          := by
-        apply ENNReal.mul_pos
-        · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
-        · exact rpow_pos_of_nonneg (by positivity) (by positivity) |>.ne'
-      have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ := by
-        apply mul_ne_top
-        · refine rpow_ne_top' ?_ coe_ne_top
-          exact ENNReal.coe_ne_zero.mpr hC₁.ne'
-        · exact rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf)
+      have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
+        apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
+      have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
+        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
+          (rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf))
       have d_pos : d > 0 := by
         rw [hdeq]
-        apply Real.rpow_pos_of_pos
-        rw [← zero_toReal]
-        exact toReal_strict_mono term_ne_top term_pos
+        exact Real.rpow_pos_of_pos (zero_toReal ▸ toReal_strict_mono term_ne_top term_pos) _
       calc
       _ ≤ ↑C₁ ^ p₁.toReal *
           ((ENNReal.ofReal (a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal)
@@ -3300,7 +3284,6 @@ end MeasureTheory
 end
 
 
-
 noncomputable section
 
 open NNReal ENNReal MeasureTheory Set ComputationsChoiceExponent
@@ -3371,14 +3354,11 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
       (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) +
   distribution (T (f - trunc f (tc.ton s))) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) := by
   rw [rewrite_norm_func hq hA hTf]
-  apply mul_le_mul'
-  · exact le_refl _
-  · apply setLIntegral_mono' measurableSet_Ioi
-    intro s s_pos
-    rw [← add_mul]
-    apply mul_le_mul'
-    · exact estimate_distribution_Subadditive_trunc s_pos (tc.ran_ton s s_pos) (le_of_lt hA) ht
-    · exact le_refl _
+  apply mul_le_mul' (le_refl _)
+  apply setLIntegral_mono' measurableSet_Ioi
+  intro s s_pos
+  rw [← add_mul]
+  exact mul_le_mul' (estimate_distribution_Subadditive_trunc s_pos (tc.ran_ton s s_pos) (le_of_lt hA) ht) (le_refl _)
 
 lemma estimate_norm_rpow_range_operator'
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -3401,7 +3381,7 @@ lemma estimate_norm_rpow_range_operator'
         eLpNorm (f - trunc f (tc.ton s)) (p₀) μ ^ q₀.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1))) := by
   have : ∀ q' q : ℝ, -q' + (q - 1) = q - q' - 1 := by intro q' q; group
-  rw [← this, ← this]
+  repeat rw [← this]
   have p_pos : p > 0 := lt_trans hp₀ hp₀p
   -- TODO: is there a way to use lintegral_rw₂ conveniently?
   rw [lintegral_rw_aux power_aux_2, lintegral_rw_aux power_aux_2]
@@ -3511,31 +3491,23 @@ lemma simplify_factor₀ {D : ℝ}
             · congr 1
               rw [mul_assoc, ← mul_add]
               rw [eq_exponents₂ (t := t)] <;> try assumption
-              rw [mul_assoc, mul_assoc, ← mul_add]
-              rw [neg_mul]
+              rw [mul_assoc, mul_assoc, ← mul_add, neg_mul]
               rw [eq_exponents₃ (t := t)] <;> try assumption
               simp only [neg_mul, neg_neg]
-              rw [← mul_assoc, ← add_mul]
-              rw [← preservation_interpolation ht hp₀.1 hp₁.1 hp]
-              rw [toReal_inv]
+              rw [← mul_assoc, ← add_mul, ← preservation_interpolation ht hp₀.1 hp₁.1 hp, toReal_inv]
               field_simp
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
           · exact coe_ne_top
-        · apply ENNReal.inv_ne_zero.mpr
-          exact d_ne_top_aux₁ hC₁
-        · apply ENNReal.inv_ne_zero.mpr
-          exact d_ne_top_aux₂ hF
+        · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁)
+        · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF)
         · exact d_ne_zero_aux₁ hC₀
         · exact d_ne_zero_aux₀ hF
         · exact d_ne_zero_aux₂ hC₀ hF
-        · apply mul_ne_zero
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₁ hC₁
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₂ hF
+        · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁))
+            (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF))
       · exact Or.inr (d_ne_top_aux₂ hF)
       · exact Or.inr (d_ne_zero_aux₀ hF)
     · exact d_ne_top_aux₄ hC₀ hC₁ hF
@@ -3558,7 +3530,8 @@ lemma simplify_factor₁ {D : ℝ}
   have p₁pos : p₁ > 0 := hp₁.1
   have q₁pos : q₁ > 0 := lt_of_lt_of_le hp₁.1 hp₁.2
   have p₁ne_top : p₁ ≠ ⊤ := ne_top_of_le_ne_top hq₁' hp₁.2
-  have hp' : p ∈ Ioo 0 ⊤ := interp_exp_in_Ioo_zero_top ht p₀pos p₁pos (by right; exact p₁ne_top) hp
+  have hp' : p ∈ Ioo 0 ⊤ := interp_exp_in_Ioo_zero_top ht p₀pos p₁pos
+    (Decidable.not_or_of_imp fun _ ↦ p₁ne_top) hp
   have p_toReal_pos : p.toReal > 0 := toReal_pos_of_Ioo hp'
   rw [hD]
   unfold d
@@ -3576,34 +3549,24 @@ lemma simplify_factor₁ {D : ℝ}
             congr 3
             · rw [eq_exponents₆] <;> try assumption
             · rw [eq_exponents₅] <;> try assumption
-            · rw [mul_assoc, mul_assoc, ← mul_add]
-              rw [eq_exponents₈] <;> try assumption
-              rw [neg_mul]
-              rw [eq_exponents₇ (ht := ht)] <;> try assumption
-              rw [← mul_add, ← add_mul, add_comm]
-              rw [← preservation_interpolation ht hp₀.1 hp₁.1 hp]
-              rw [toReal_inv]
+            · rw [mul_assoc, mul_assoc, ← mul_add, eq_exponents₈, neg_mul,
+                eq_exponents₇ (ht := ht)] <;> try assumption
+              rw [← mul_add, ← add_mul, add_comm, ← preservation_interpolation ht hp₀.1 hp₁.1 hp,
+                toReal_inv]
               field_simp
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
-          · apply (ENNReal.coe_pos.mpr hC₁).ne'
+          · exact (ENNReal.coe_pos.mpr hC₁).ne'
           · exact coe_ne_top
-        · apply ENNReal.inv_ne_zero.mpr
-          apply rpow_ne_top'
-          · apply (ENNReal.coe_pos.mpr hC₁).ne'
-          · exact coe_ne_top
-        · apply ENNReal.inv_ne_zero.mpr
-          exact d_ne_top_aux₂ hF
+        · exact ENNReal.inv_ne_zero.mpr (rpow_ne_top' ((ENNReal.coe_pos.mpr hC₁).ne') coe_ne_top)
+        · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF)
         · exact d_ne_zero_aux₁ hC₀
         · exact d_ne_zero_aux₀ hF
         · exact d_ne_zero_aux₂ hC₀ hF
-        · apply mul_ne_zero
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₁ hC₁
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₂ hF
+        · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁))
+            (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF))
       · exact Or.inr (d_ne_top_aux₂ hF)
       · exact Or.inr (d_ne_zero_aux₀ hF)
     · exact d_ne_top_aux₄ hC₀ hC₁ hF
