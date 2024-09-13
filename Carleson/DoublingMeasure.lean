@@ -111,7 +111,7 @@ lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
       _ ≤ A * μ.real (ball x (2 ^ m * r)) := by
         rw[mul_assoc]; norm_cast; exact measure_real_ball_two_le_same _ _
       _ ≤ A * (↑(A ^ m) * μ.real (ball x r)) := by
-        exact mul_le_mul_of_nonneg_left hm (by exact zero_le_coe)
+        exact mul_le_mul_of_nonneg_left hm zero_le_coe
       _ = A^(m.succ) * μ.real (ball x r) := by rw [NNReal.coe_pow,← mul_assoc, pow_succ']
 
 lemma measure_ball_le_pow_two' {x : X} {r : ℝ} {n : ℕ} :
