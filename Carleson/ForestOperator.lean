@@ -5,8 +5,8 @@ import Carleson.Discrete.Forests
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
-  {n j j' : ℕ} {t : Forest X n} {u u₁ u₂ p : 𝔓 X} {x x' : X} {𝔖 : Set (𝔓 X)} {f f₁ f₂ g g₁ g₂ : X → ℂ}
-  {I J J' L : Grid X}
+  {n j j' : ℕ} {t : Forest X n} {u u₁ u₂ p : 𝔓 X} {x x' : X} {𝔖 : Set (𝔓 X)}
+  {f f₁ f₂ g g₁ g₂ : X → ℂ} {I J J' L : Grid X}
 variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
