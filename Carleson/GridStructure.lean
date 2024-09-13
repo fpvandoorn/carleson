@@ -114,7 +114,7 @@ postfix:max "ᵒ" => Grid.int
 /-- An auxiliary measure used in the well-foundedness of `Ω` in Lemma `tile_structure`. -/
 def opSize (i : Grid X) : ℕ := (S - s i).toNat
 
-lemma int_subset : i.int ⊆ i := by exact ball_subset_Grid
+lemma int_subset : i.int ⊆ i := ball_subset_Grid
 
 end Grid
 end Generic

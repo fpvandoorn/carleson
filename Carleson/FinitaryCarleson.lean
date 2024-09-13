@@ -1,7 +1,7 @@
 import Carleson.Discrete.Forests
 import Carleson.TileExistence
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology Classical
+open MeasureTheory Measure NNReal Metric Complex Set Classical
 open scoped ENNReal
 noncomputable section
 

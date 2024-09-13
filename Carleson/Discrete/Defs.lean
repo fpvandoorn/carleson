@@ -1,6 +1,6 @@
 import Carleson.MinLayerTiles
 
-open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
+open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
 noncomputable section
@@ -19,6 +19,16 @@ def 𝓒 (k : ℕ) : Set (Grid X) :=
 
 /-- The definition `𝔓(k)` given in (5.1.3). -/
 def TilesAt (k : ℕ) : Set (𝔓 X) := 𝓘 ⁻¹' 𝓒 k
+
+lemma disjoint_TilesAt_of_ne {m n : ℕ} (h : m ≠ n) : Disjoint (TilesAt (X := X) m) (TilesAt n) := by
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by omega)).symm
+  by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at mp₁ mp₂
+  apply absurd _ mp₂.2; obtain ⟨j, lj, vj⟩ := mp₁.1; use j, lj; apply lt_of_le_of_lt _ vj
+  exact mul_le_mul_right' (ENNReal.zpow_le_of_le one_le_two (by omega)) _
+
+lemma pairwiseDisjoint_TilesAt : univ.PairwiseDisjoint (TilesAt (X := X)) := fun _ _ _ _ ↦
+  disjoint_TilesAt_of_ne
 
 def aux𝔐 (k n : ℕ) : Set (𝔓 X) :=
   {p ∈ TilesAt k | 2 ^ (-n : ℤ) * volume (𝓘 p : Set X) < volume (E₁ p) }
@@ -45,6 +55,21 @@ def ℭ (k n : ℕ) : Set (𝔓 X) :=
 lemma ℭ_subset_TilesAt {k n : ℕ} : ℭ k n ⊆ TilesAt (X := X) k := fun t mt ↦ by
   rw [ℭ, mem_setOf] at mt; exact mt.1
 
+lemma disjoint_ℭ_of_ne {k m n : ℕ} (h : m ≠ n) : Disjoint (ℭ (X := X) k m) (ℭ k n) := by
+  wlog hl : m < n generalizing m n; · exact (this h.symm (by omega)).symm
+  by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
+  apply absurd _ (not_disjoint_iff.mpr ⟨_, mp₁.2, mp₂.2⟩)
+  rw [Ioc_disjoint_Ioc, le_max_iff]; left; rw [min_le_iff]; right
+  exact ENNReal.zpow_le_of_le one_le_two (by omega)
+
+lemma pairwiseDisjoint_ℭ :
+    (univ : Set (ℕ × ℕ)).PairwiseDisjoint (fun kn ↦ ℭ (X := X) kn.1 kn.2) :=
+  fun ⟨k₁, n₁⟩ _ ⟨k₂, n₂⟩ _ hn ↦ by
+    change Disjoint (ℭ k₁ n₁) (ℭ k₂ n₂)
+    by_cases hk : k₁ = k₂
+    · rw [ne_eq, Prod.mk.injEq, not_and] at hn; exact hk ▸ disjoint_ℭ_of_ne (hn hk)
+    · exact disjoint_of_subset ℭ_subset_TilesAt ℭ_subset_TilesAt (disjoint_TilesAt_of_ne hk)
+
 /-- The subset `𝔅(p)` of `𝔐(k, n)`, given in (5.1.8). -/
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
   { m ∈ 𝔐 k n | smul 100 p ≤ smul 1 m }
@@ -59,6 +84,16 @@ def ℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
 
 lemma ℭ₁_subset_ℭ {k n j : ℕ} : ℭ₁ k n j ⊆ ℭ (X := X) k n := fun t mt ↦ by
   rw [ℭ₁, preℭ₁, mem_diff, mem_setOf] at mt; exact mt.1.1
+
+lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X := X) k n j) (ℭ₁ k n l) := by
+  wlog hl : j < l generalizing j l; · exact (this h.symm (by omega)).symm
+  by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
+  simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, mp₁.1.1, true_and, not_le] at mp₁ mp₂
+  have := mp₂.1.trans_lt mp₁.2
+  rw [pow_lt_pow_iff_right one_lt_two] at this; omega
+
+lemma pairwiseDisjoint_ℭ₁ {k n : ℕ} : univ.PairwiseDisjoint (ℭ₁ (X := X) k n) := fun _ _ _ _ ↦
+  disjoint_ℭ₁_of_ne
 
 lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n j) :
     (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
@@ -129,6 +164,8 @@ is at most the least upper bound of `𝓛 n u` in `Grid X`. -/
 def 𝔏₄ (k n j : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ₄ k n j | ∃ u ∈ 𝔘₁ k n j, (𝓘 p : Set X) ⊆ ⋃ (i ∈ 𝓛 (X := X) n u), i }
 
+lemma 𝔏₄_subset_ℭ₄ {k n j : ℕ} : 𝔏₄ k n j ⊆ ℭ₄ (X := X) k n j := fun _ mu ↦ mu.1
+
 /-- The subset `ℭ₅(k, n, j)` of `ℭ₄(k, n, j)`, given in (5.1.23). -/
 def ℭ₅ (k n j : ℕ) : Set (𝔓 X) :=
   ℭ₄ k n j \ 𝔏₄ k n j
@@ -140,6 +177,37 @@ lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
 
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_diff] at mt; exact mt.1
+
+-- These inclusion and disjointness lemmas are only used in `antichain_decomposition`
+section AntichainDecomp
+
+variable {k n j l : ℕ}
+
+lemma 𝔏₀_subset_ℭ : 𝔏₀ (X := X) k n ⊆ ℭ k n := fun _ mu ↦ mu.1
+lemma 𝔏₀_disjoint_ℭ₁ : Disjoint (𝔏₀ (X := X) k n) (ℭ₁ k n j) := by
+  by_contra h; rw [not_disjoint_iff] at h; obtain ⟨p, ⟨_, b0⟩, ⟨⟨_, bp⟩ , _⟩⟩ := h
+  simp [filter_mem_univ_eq_toFinset, b0] at bp
+
+lemma 𝔏₁_subset_ℭ₁ : 𝔏₁ (X := X) k n j l ⊆ ℭ₁ k n j := minLayer_subset
+lemma 𝔏₁_subset_ℭ : 𝔏₁ (X := X) k n j l ⊆ ℭ k n := minLayer_subset.trans ℭ₁_subset_ℭ
+
+lemma 𝔏₂_subset_ℭ₁ : 𝔏₂ k n j ⊆ ℭ₁ (X := X) k n j := 𝔏₂_subset_ℭ₂.trans ℭ₂_subset_ℭ₁
+lemma 𝔏₂_subset_ℭ : 𝔏₂ k n j ⊆ ℭ (X := X) k n := 𝔏₂_subset_ℭ₁.trans ℭ₁_subset_ℭ
+lemma 𝔏₂_disjoint_ℭ₃ : Disjoint (𝔏₂ (X := X) k n j) (ℭ₃ k n j) := disjoint_sdiff_right
+
+lemma 𝔏₃_subset_ℭ₁ : 𝔏₃ k n j l ⊆ ℭ₁ (X := X) k n j :=
+  maxLayer_subset.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁
+lemma 𝔏₃_subset_ℭ : 𝔏₃ k n j l ⊆ ℭ (X := X) k n := 𝔏₃_subset_ℭ₁.trans ℭ₁_subset_ℭ
+
+lemma 𝔏₄_subset_ℭ₁ : 𝔏₄ k n j ⊆ ℭ₁ (X := X) k n j :=
+  𝔏₄_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁
+lemma 𝔏₄_subset_ℭ : 𝔏₄ k n j ⊆ ℭ (X := X) k n := 𝔏₄_subset_ℭ₁.trans ℭ₁_subset_ℭ
+
+lemma ℭ₅_subset_ℭ₁ : ℭ₅ k n j ⊆ ℭ₁ (X := X) k n j :=
+  ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁
+lemma ℭ₅_subset_ℭ : ℭ₅ k n j ⊆ ℭ (X := X) k n := ℭ₅_subset_ℭ₁.trans ℭ₁_subset_ℭ
+
+end AntichainDecomp
 
 /-- The set $\mathcal{P}_{F,G}$, defined in (5.1.24). -/
 def highDensityTiles : Set (𝔓 X) :=

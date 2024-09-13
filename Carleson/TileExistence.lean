@@ -399,7 +399,7 @@ mutual
       rw [I2,dif_pos hk_s]
       exact measurableSet_ball
     else
-      let hk'' : -S < k := by exact lt_of_le_of_ne hk fun a_1 ↦ hk_s (id (Eq.symm a_1))
+      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id (Eq.symm a_1))
       have : (S + (k-1)).toNat < (S + k).toNat := by
         rw [Int.lt_toNat,Int.toNat_of_nonneg (by linarith)]
         linarith
@@ -534,7 +534,7 @@ mutual
     else
       simp_rw [dif_neg hk_s]
       intro x hx
-      have : -S < k := by exact lt_of_le_of_ne hk fun a_1 ↦ hk_s (id (Eq.symm a_1))
+      have : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id (Eq.symm a_1))
       have : ((2 * (S + (k - 1))).toNat : ℤ) + 1 < 2 * (S + k) := by
         rw [Int.toNat_of_nonneg (by linarith)]
         linarith
@@ -1583,8 +1583,8 @@ lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set
           simp only at this
           nth_rw 1 [NNReal.val_eq_coe] at this
           simp_rw [← Real.rpow_intCast] at this
-          · rw [← ENNReal.ofReal_le_ofReal_iff (Real.rpow_nonneg (realD_nonneg) _), ENNReal.ofReal_mul (by exact ht.left.le),
-              ENNReal.ofReal_coe_nnreal,
+          · rw [← ENNReal.ofReal_le_ofReal_iff (Real.rpow_nonneg (realD_nonneg) _),
+              ENNReal.ofReal_mul (by exact ht.left.le), ENNReal.ofReal_coe_nnreal,
               ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),
               ENNReal.ofReal_natCast, ENNReal.rpow_intCast, ENNReal.rpow_intCast] at this
             exact this
@@ -2137,7 +2137,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     rw [mem_iUnion] at zi; obtain ⟨a, ma⟩ := zi -- Paper's `q'` is `⟨J, a⟩`
     have nmaxJ : ¬IsMax J := by
       by_contra maxJ; rw [Grid.isMax_iff] at maxJ
-      rw [maxJ, show s topCube = S by exact s_topCube (X := X)] at sJ
+      rw [maxJ, show s topCube = S from s_topCube (X := X)] at sJ
       have : 𝔰 q ≤ S := (range_s_subset ⟨q.1, rfl⟩).2
       omega
     have succJ : J.succ = q.1 := (Grid.succ_def nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; omega⟩

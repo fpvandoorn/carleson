@@ -80,12 +80,10 @@ lemma ψ_formula₄ {x : ℝ} (hx : x ≥ 1 / 2) : ψ D x = 0 :=
   max_eq_left <| (min_le_right _ _).trans <| (min_le_right _ _).trans (by linarith)
 ---------------------------------------------
 
-lemma psi_zero : ψ D 0 = 0 :=
-  ψ_formula₀ (div_nonneg one_pos.le <| mul_nonneg four_pos.le (Nat.cast_nonneg D))
+lemma psi_zero : ψ D 0 = 0 := ψ_formula₀ (by positivity)
 
-lemma continuous_ψ : Continuous (ψ D) :=
-  continuous_const.max <| continuous_const.min <| ((continuous_mul_left _).sub continuous_const).min
-    (continuous_const.sub (continuous_mul_left 4))
+lemma continuous_ψ : Continuous (ψ D) := by
+  unfold ψ; fun_prop
 
 include hD in
 lemma support_ψ : support (ψ D) = Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
@@ -657,8 +655,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
   rw [this]
   refine Integrable.bdd_mul ?_ (Measurable.aestronglyMeasurable ?_) ?_
   · apply Continuous.integrable_of_hasCompactSupport
-    · exact continuous_ofReal.comp <| continuous_ψ.comp <| continuous_const.mul <|
-        continuous_const.dist continuous_id
+    · exact continuous_ofReal.comp <| continuous_ψ.comp <| (by fun_prop)
     · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
       intro y hy
       rw [mem_support, ne_eq, ofReal_eq_zero, ← ne_eq, ← mem_support, support_ψ (D1 X)] at hy
