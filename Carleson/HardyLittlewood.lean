@@ -111,12 +111,7 @@ theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricS
   rcases eq_empty_or_nonempty t with (rfl | _)
   · exact ⟨∅, Subset.refl _, pairwiseDisjoint_empty, by simp⟩
   by_cases ht : ∀ a ∈ t, r a < 0
-  · refine ⟨t, .rfl, fun a ha b _ _ => by
-      #adaptation_note /-- nightly-2024-03-16
-      Previously `Function.onFun` unfolded in the following `simp only`,
-      but now needs a separate `rw`.
-      This may be a bug: a no import minimization may be required. -/
-      rw [Function.onFun]
+  · refine ⟨t, .rfl, fun a ha b _ _ ↦ by
       simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
       fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset],
       fun u hut hu ↦ (ht u hut).not_le hu |>.elim⟩⟩
@@ -247,8 +242,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
   refine essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ ?_)
   simp_rw [ENNReal.nnorm_toReal]
-  refine ENNReal.coe_toNNReal_le_self |>.trans ?_
-  apply MB_le_eLpNormEssSup
+  exact ENNReal.coe_toNNReal_le_self |>.trans MB_le_eLpNormEssSup
 
 protected theorem MeasureTheory.SublinearOn.maximalFunction
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
