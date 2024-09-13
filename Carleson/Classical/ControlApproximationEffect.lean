@@ -501,10 +501,8 @@ def C_control_approximation_effect (ε : ℝ) := (C10_0_1 4 2 * (8 / (π * ε)) 
 lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : π < C_control_approximation_effect ε := by
   rw [C_control_approximation_effect]
   apply lt_add_of_pos_of_le _ (by rfl)
-  apply mul_pos (C10_0_1_pos (by norm_num))
-  apply Real.rpow_pos_of_pos
-  apply div_pos (by norm_num)
-  apply mul_pos pi_pos εpos
+  have := @C10_0_1_pos 4 2 (by norm_num)
+  positivity
 
 lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε := lt_trans' (lt_C_control_approximation_effect εpos) pi_pos
 
@@ -568,13 +566,10 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       _ = ENNReal.ofReal (2 * π) * ENNReal.ofReal ε' := by
         rw [← ENNReal.ofReal_add, ← ENNReal.ofReal_mul Real.two_pi_pos.le]
         · ring_nf
-        · apply mul_nonneg _ Real.two_pi_pos.le
+        · have aux := @C10_0_1_pos 4 2 one_lt_two
           rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right]
-          apply div_nonneg (mul_nonneg _ (Real.rpow_nonneg (div_nonneg (by norm_num) εpos.le) _)) pi_pos.le
-          rw [mul_assoc]
-          apply mul_nonneg hδ.le (mul_nonneg (C10_0_1_pos one_lt_two).le (Real.rpow_nonneg _ _))
-          linarith [pi_pos]
-        · apply mul_nonneg (mul_nonneg pi_pos.le hδ.le) Real.two_pi_pos.le
+          positivity
+        · positivity
       _ ≤ ENNReal.ofReal (2 * π) * ‖S_ N h x‖₊ := by
         rw [← ofReal_norm_eq_coe_nnnorm]
         gcongr
@@ -600,6 +595,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       _ < ⊤ := ENNReal.ofReal_lt_top
   obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset volume measurableSetE (carlesonOperatorReal_measurable h_measurable h_bound) (carlesonOperatorReal_measurable (continuous_star.measurable.comp h_measurable) conj_h_bound) le_operator_add
   have E'volume : volume E' < ⊤ := lt_of_le_of_lt (measure_mono E'subset) Evolume
+  have aux := @C10_0_1_pos 4 2 one_lt_two
   have E'volume_bound: ENNReal.ofReal (π * (ε' - π * δ)) * volume E' ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹) * (volume E') ^ (2 : ℝ)⁻¹ := by
     calc ENNReal.ofReal (π * (ε' - π * δ)) * volume E'
     _ = ENNReal.ofReal ((ε' - π * δ) * (2 * π)) / 2 * volume E' := by
@@ -611,12 +607,11 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       · exact rcarleson_exceptional_set_estimate_specific hδ (by fun_prop) conj_h_bound measurableSetE' (E'subset.trans Esubset) hE'
     _ ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹) * (volume E') ^ (2 : ℝ)⁻¹ := by
       gcongr
-      · exact mul_nonneg hδ.le (C10_0_1_pos one_lt_two).le
       · linarith [Real.two_le_pi]
-  have δ_mul_const_pos : 0 < δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ := mul_pos (mul_pos hδ (C10_0_1_pos one_lt_two)) (Real.rpow_pos_of_pos (by linarith [Real.two_pi_pos]) _)
+  have δ_mul_const_pos : 0 < δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ := by positivity
   have ε'_δ_expression_pos : 0 < π * (ε' - π * δ) := by
     rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ pi_pos.ne.symm]
-    exact mul_pos δ_mul_const_pos (Real.rpow_pos_of_pos (div_pos (by norm_num) εpos) _)
+    positivity
   calc volume.real E
     _ ≤ 2 * volume.real E' := by
       --uses E'measure
