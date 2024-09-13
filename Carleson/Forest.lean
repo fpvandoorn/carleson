@@ -28,6 +28,7 @@ variable (X) in
 /-- An `n`-forest -/
 structure Forest (n : ℕ) where
   𝔘 : Set (𝔓 X)
+  /-- The value of `𝔗 u` only matters when `u ∈ 𝔘`. -/
   𝔗 : 𝔓 X → Set (𝔓 X)
   nonempty' {u} (hu : u ∈ 𝔘) : (𝔗 u).Nonempty
   ordConnected' {u} (hu : u ∈ 𝔘) : OrdConnected (𝔗 u) -- (2.0.33)
