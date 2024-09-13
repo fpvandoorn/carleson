@@ -674,7 +674,7 @@ lemma row_correlation (hjj' : j < j') (hj' : j' < 2 ^ n)
   sorry
 
 variable (t) in
-/-- The definition of `E_j` defined above Lemma 7.7.4. -/
+/-- The definition of `Eⱼ` defined above Lemma 7.7.4. -/
 def rowSupport (j : ℕ) : Set X := ⋃ (u ∈ rowDecomp t j) (p ∈ t u), E p
 
 /-- Lemma 7.7.4 -/

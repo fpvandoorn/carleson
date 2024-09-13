@@ -57,5 +57,5 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `𝔗(u)`        | `t u` | `t` is the (implicit) forest, and this notation is equivalent to `t.𝔗 u`  |
 | `𝔘ⱼ`        | `rowDecomp t j` | sometimes `(rowDecomp t j : Set (𝔓 X))`    |
 | `𝔗ⱼ(u)`        | `rowDecomp t j u` |     |
-| ``        | `` |     |
-| ``        | `` |     |
+| `E`        | `E` |     |
+| `Eⱼ`        | `rowSupport t j` |     |
