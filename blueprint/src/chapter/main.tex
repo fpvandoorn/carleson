@@ -4749,6 +4749,8 @@ The main result of this subsection is the following quantitative bound for opera
 
 \begin{lemma}[densities tree bound]
     \label{densities-tree-bound}
+    \leanok
+    \lean{TileStructure.Forest.density_tree_bound1, TileStructure.Forest.density_tree_bound2}
     \uses{tree-projection-estimate,local-dens1-tree-bound,local-dens2-tree-bound}
     Let $\fu \in \fU$. Then for all $f,g$ bounded with bounded support
     \begin{equation}
@@ -4766,6 +4768,8 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
 \begin{lemma}[local dens1 tree bound]
     \label{local-dens1-tree-bound}
+    \leanok
+    \lean{TileStructure.Forest.local_dens1_tree_bound}
     \uses{monotone-cube-metrics}
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Then
     \begin{equation}
@@ -4776,6 +4780,8 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
 \begin{lemma}[local dens2 tree bound]
     \label{local-dens2-tree-bound}
+    \leanok
+    \lean{TileStructure.Forest.local_dens2_tree_bound}
     Let $J \in \mathcal{J}(\fT(\fu))$ be such that there exist $\fq \in \fT(\fu)$ with $J \cap \scI(\fq) \ne \emptyset$. Then
     $$
         \mu(F \cap J) \le 2^{200a^3 + 19} \dens_2(\fT(\fu)) \mu(J)\,.
@@ -4942,6 +4948,8 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 
 \begin{lemma}[adjoint tile support]
     \label{adjoint-tile-support}
+    \leanok
+    \lean{TileStructure.Forest.adjoint_tile_support1, TileStructure.Forest.adjoint_tile_support2}
     For each $\fp \in \fP$, we have
     $$
         T_{\fp}^* g = \mathbf{1}_{B(\pc(\fp), 5D^{\ps(\fp)})} T_{\fp}^* \mathbf{1}_{\scI(\fp)} g\,.
@@ -4973,6 +4981,8 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 
 \begin{lemma}[adjoint tree estimate]
     \label{adjoint-tree-estimate}
+    \leanok
+    \lean{TileStructure.Forest.adjoint_tree_estimate}
     \uses{densities-tree-bound}
     For all bounded $g$ with bounded support, we have that
     $$
@@ -4998,6 +5008,8 @@ $$
 $$
 \begin{lemma}[adjoint tree control]
     \label{adjoint-tree-control}
+    \leanok
+    \lean{TileStructure.Forest.adjoint_tree_control}
     \uses{adjoint-tree-estimate}
     We have for all $\fu \in \fU$ and bounded $g$ with bounded support
     $$
@@ -5014,6 +5026,8 @@ Now we are ready to state the main result of this subsection.
 
 \begin{lemma}[correlation separated trees]
     \label{correlation-separated-trees}
+    \leanok
+    \lean{TileStructure.Forest.correlation_separated_trees}
     \uses{correlation-distant-tree-parts,correlation-near-tree-parts}
     For any $\fu_1 \ne \fu_2 \in \fU$ and all bounded $g_1, g_2$ with bounded support, we have
     \begin{equation}
@@ -5040,6 +5054,8 @@ Now we are ready to state the main result of this subsection.
 
 \begin{lemma}[correlation distant tree parts]
         \label{correlation-distant-tree-parts}
+        \leanok
+        \lean{TileStructure.Forest.correlation_distant_tree_parts}
         \uses{Holder-van-der-Corput,Lipschitz-partition-unity,Holder-correlation-tree,lower-oscillation-bound}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
@@ -5053,6 +5069,8 @@ Now we are ready to state the main result of this subsection.
     \end{lemma}
     \begin{lemma}[correlation near tree parts]
         \label{correlation-near-tree-parts}
+        \leanok
+        \lean{TileStructure.Forest.correlation_near_tree_parts}
         \uses{tree-projection-estimate,dyadic-partition-2,bound-for-tree-projection}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
@@ -5069,6 +5087,8 @@ In the proofs of both lemmas, we will need the following observation.
 
 \begin{lemma}[overlap implies distance]
     \label{overlap-implies-distance}
+    \leanok
+    \lean{TileStructure.Forest.𝔗_subset_𝔖₀, TileStructure.Forest.overlap_implies_distance}
     Let $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$. If $\fp \in \fT(\fu_1) \cup \fT(\fu_2)$ with $\scI(\fp) \cap \scI(\fu_1) \ne \emptyset$, then $\fp \in \mathfrak{S}$. In particular, we have $\fT(\fu_1) \subset \mathfrak{S}$.
 \end{lemma}
 
@@ -5107,6 +5127,8 @@ $$
 
     \begin{lemma}[dyadic partition 1]
         \label{dyadic-partition-1}
+        \leanok
+        \lean{TileStructure.Forest.union_𝓙₅, TileStructure.Forest.pairwiseDisjoint_𝓙₅}
         \uses{dyadic-partitions}
         We have that
         $$
@@ -5127,7 +5149,10 @@ $$
 
     \begin{lemma}[Lipschitz partition unity]
         \label{Lipschitz-partition-unity}
-           \uses{dyadic-partition-1,moderate-scale-change}
+        \leanok
+        \lean{TileStructure.Forest.sum_χ, TileStructure.Forest.χ_mem_Icc,
+          TileStructure.Forest.dist_χ_χ_le}
+        \uses{dyadic-partition-1,moderate-scale-change}
         There exists a family of functions $\chi_J$, $J \in \mathcal{J}'$ such that \begin{equation}
             \label{eq-pao-1}
             \mathbf{1}_{\scI(\fu_1)} = \sum_{J \in \mathcal{J}'} \chi_J\,,
@@ -5147,6 +5172,8 @@ $$
 
     \begin{lemma}[moderate scale change]
         \label{moderate-scale-change}
+        \leanok
+        \lean{TileStructure.Forest.moderate_scale_change}
 
         If $J, J' \in \mathcal{J'}$ with
         $$
@@ -5244,6 +5271,8 @@ $$
 
     \begin{lemma}[Holder correlation tree]
         \label{Holder-correlation-tree}
+        \leanok
+        \lean{TileStructure.Forest.holder_correlation_tree}
         \uses{global-tree-control-2}
         We have for all $J \in \mathcal{J}'$ that
         \begin{equation}
@@ -5257,6 +5286,8 @@ $$
     We begin with the following H\"older continuity estimate for adjoints of operators associated to tiles.
     \begin{lemma}[Holder correlation tile]
         \label{Holder-correlation-tile}
+        \leanok
+        \lean{TileStructure.Forest.holder_correlation_tile}
         \uses{adjoint-tile-support}
         Let $\fu \in \fU$ and $\fp \in \fT(\fu)$. Then for all $y, y' \in X$ and all bounded $g$ with bounded support, we have
         $$
@@ -5379,8 +5410,10 @@ $$
 
     \begin{lemma}[limited scale impact]
         \label{limited-scale-impact}
+        \leanok
+        \lean{TileStructure.Forest.limited_scale_impact}
         \uses{overlap-implies-distance}
-        Let $\fp \in \fT_2 \setminus \mathfrak{S}$, $J \in \mathcal{J}'$ and suppose that
+        Let $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$, $J \in \mathcal{J}'$ and suppose that
         $$
            B(\scI(\fp)) \cap B^\circ(J) \ne \emptyset\,.
         $$
@@ -5427,6 +5460,8 @@ $$
 
     \begin{lemma}[local tree control]
         \label{local-tree-control}
+        \leanok
+        \lean{TileStructure.Forest.local_tree_control}
         \uses{limited-scale-impact}
         For all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
@@ -5469,6 +5504,8 @@ $$
 
     \begin{lemma}[scales impacting interval]
         \label{scales-impacting-interval}
+        \leanok
+        \lean{TileStructure.Forest.scales_impacting_interval}
         \uses{overlap-implies-distance}
         Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and $\fp \in \fC$ with $B(\scI(\fp)) \cap B(J) \neq \emptyset$, we have $\ps(\fp) \ge s(J)$.
     \end{lemma}
@@ -5479,6 +5516,8 @@ $$
 
     \begin{lemma}[global tree control 1]
         \label{global-tree-control-1}
+        \leanok
+        \lean{TileStructure.Forest.global_tree_control1_1, TileStructure.Forest.global_tree_control1_2}
         \uses{Holder-correlation-tile,scales-impacting-interval}
         Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
@@ -5530,10 +5569,12 @@ $$
 
     \begin{lemma}[global tree control 2]
         \label{global-tree-control-2}
+        \leanok
+        \lean{TileStructure.Forest.global_tree_control2}
         \uses{global-tree-control-1, local-tree-control}
         We have for all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
-            \sup_{B(J)} |T^*_{\mathfrak{T}_2 \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\mathfrak{T}_2} g| + 2^{155a^3} \inf_{J} M_{\mathcal{B},1}|g|\,.
+            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{155a^3} \inf_{J} M_{\mathcal{B},1}|g|\,.
         $$
     \end{lemma}
 
@@ -5597,6 +5638,8 @@ $$
 \label{subsubsec-van-der-corput}
     \begin{lemma}[lower oscillation bound]
         \label{lower-oscillation-bound}
+        \leanok
+        \lean{TileStructure.Forest.lower_oscillation_bound}
         \uses{overlap-implies-distance}
         For all $J \in \mathcal{J}'$, we have that
         $$
@@ -5671,6 +5714,8 @@ $$
     note that this is different from the $\mathcal{J}'$ defined in the previous subsection.
     \begin{lemma}[dyadic partition 2]
         \label{dyadic-partition-2}
+        \leanok
+        \lean{TileStructure.Forest.union_𝓙₆, TileStructure.Forest.pairwiseDisjoint_𝓙₆}
         \uses{dyadic-partitions}
         We have
         $$
@@ -5686,10 +5731,12 @@ $$
 
     \begin{lemma}[bound for tree projection]
         \label{bound-for-tree-projection}
+        \leanok
+        \lean{TileStructure.Forest.bound_for_tree_projection}
         \uses{adjoint-tile-support,overlap-implies-distance,dyadic-partition-2,thin-scale-impact,square-function-count}
         We have
         $$
-            \|P_{\mathcal{J}'}|T_{\mathfrak{T}_2 \setminus \mathfrak{S}}^* g_2|\|_2
+            \|P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2
             \le 2^{118a^3} 2^{-\frac{100}{202a}Zn\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
         $$
     \end{lemma}
@@ -5717,7 +5764,9 @@ $$
 
     \begin{lemma}[thin scale impact]
         \label{thin-scale-impact}
-        If $\fp \in \fT_2 \setminus \mathfrak{S}$ and $J \in \mathcal{J'}$ with $B(\scI(\fp)) \cap B(J) \ne \emptyset$, then
+        % \leanok
+        % \lean{TileStructure.Forest.thin_scale_impact}
+        If $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$ and $J \in \mathcal{J'}$ with $B(\scI(\fp)) \cap B(J) \ne \emptyset$, then
         $$
             \ps(\fp) \le s(J) + 2 - \frac{Zn}{202a^3}\,.
         $$
@@ -5765,6 +5814,8 @@ $$
 
     \begin{lemma}[square function count]
         \label{square-function-count}
+        \leanok
+        \lean{TileStructure.Forest.square_function_count}
         For each $J \in \mathcal{J}'$, we have
         $$
             \frac{1}{\mu(J)} \int_J \Bigg(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
@@ -5772,8 +5823,7 @@ $$
         $$
     \end{lemma}
 
-    \begin{proof}[Proof of \Cref{square-function-count}]
-        \proves{square-function-count}
+    \begin{proof}
         Since $J \in \mathcal{J}'$ we have $J \subset \scI(\fu_1)$. Thus, if $B(I) \cap J \ne \emptyset$ then
     \begin{equation}
         \label{eq-sep-small-incl}
@@ -5802,7 +5852,7 @@ $$
     \proves{bound-for-tree-projection}
     Expanding the definition of $P_{\mathcal{J}'}$, we have
     $$
-        \|P_{\mathcal{J}'}|T_{\mathfrak{T}_2 \setminus \mathfrak{S}}^* g_2|\|_2
+        \|P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2
     $$
     $$
         = \left(\sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left|\int_J \sum_{\fp \in \fT(\fu_2) \setminus \mathfrak{S}} T_{\fp}^* g_2 \, \mathrm{d}\mu(y) \right|^2 \right)^{1/2}\,.
@@ -5896,6 +5946,9 @@ Define an $n$-row to be an $n$-forest $(\fU, \fT)$, i.e. satisfying conditions \
 
 \begin{lemma}[forest row decomposition]
     \label{forest-row-decomposition}
+    \leanok
+    \lean{TileStructure.Forest.rowDecomp, TileStructure.Forest.biUnion_rowDecomp,
+    TileStructure.Forest.pairwiseDisjoint_rowDecomp}
     Let $(\fU, \fT)$ be an $n$-forest. Then there exists a decomposition
     $$
         \fU = \dot{\bigcup_{1 \le j \le 2^n}} \fU_j
@@ -5921,6 +5974,8 @@ as in \Cref{forest-row-decomposition}.
 
 \begin{lemma}[row bound]
     \label{row-bound}
+    \leanok
+    \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{densities-tree-bound,adjoint-tile-support}
     For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support, we have
     \begin{equation}
@@ -5967,6 +6022,8 @@ as in \Cref{forest-row-decomposition}.
 
 \begin{lemma}[row correlation]
     \label{row-correlation}
+    \leanok
+    \lean{TileStructure.Forest.row_correlation}
     \uses{adjoint-tree-control,correlation-separated-trees}
     For all $1 \le j < j' \le 2^n$ and for all bounded $g_1, g_2$ with bounded support, it holds that
     $$
@@ -6024,6 +6081,8 @@ $$
 
 \begin{lemma}[disjoint row support]
     \label{disjoint-row-support}
+    \leanok
+    \lean{TileStructure.Forest.pairwiseDisjoint_rowSupport}
     The sets $E_j$, $1 \le j \le 2^n$ are pairwise disjoint.
 \end{lemma}
 
@@ -6104,6 +6163,8 @@ Recall that $\tau = 1/a$.
 
 \begin{lemma}[Lipschitz Holder approximation]
     \label{Lipschitz-Holder-approximation}
+    % \leanok
+    % \lean{TileStructure.Forest.}
     \leanok
     \lean{support_holderApprox_subset, dist_holderApprox_le, lipschitzWith_holderApprox}
     Let $z\in X$ and $R>0$. Let $\varphi: X \to \mathbb{C}$ be a function supported in the ball

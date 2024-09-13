@@ -1,4 +1,3 @@
-import Carleson.Forest
 import Carleson.MinLayerTiles
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology

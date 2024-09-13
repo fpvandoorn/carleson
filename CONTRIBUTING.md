@@ -52,6 +52,10 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `R_Q(θ, x)`        | `upperRadius Q θ x` |     |
 | `S_{1,𝔲} f(x)`        | `boundaryOperator t u f x` |     |
 | `S_{2,𝔲} g(x)`        | `adjointBoundaryOperator t u g x` |     |
-| ``        | `` |     |
+| `𝔘`        | `t` | `t` is the (implicit) forest, sometimes `(t : Set (𝔓 X))` is required. It is equivalent to `t.𝔘` |
+| `u ∈ 𝔘`        | `u ∈ t` | `t` is the (implicit) forest, and this notation is equivalent to `u ∈ t.𝔘` |
+| `𝔗(u)`        | `t u` | `t` is the (implicit) forest, and this notation is equivalent to `t.𝔗 u`  |
+| `𝔘ⱼ`        | `rowDecomp t j` | sometimes `(rowDecomp t j : Set (𝔓 X))`    |
+| `𝔗ⱼ(u)`        | `rowDecomp t j u` |     |
 | ``        | `` |     |
 | ``        | `` |     |

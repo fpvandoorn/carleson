@@ -1,4 +1,5 @@
 import Carleson.Discrete.ExceptionalSet
+import Carleson.Forest
 
 open MeasureTheory Measure NNReal Metric Complex Set Function BigOperators Bornology
 open scoped ENNReal
@@ -128,13 +129,13 @@ lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ d
     apply absurd _ this.2; use J, sl.1.trans lJ
 
 /-- Lemma 5.3.12 -/
-lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * a - n + 1 : ℤ) :=
+lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * (a : ℝ) - n + 1) :=
   calc
     _ ≤ dens' k A := dens1_le_dens' (hA.trans ℭ_subset_TilesAt)
     _ ≤ dens' k (ℭ (X := X) k n) := iSup_le_iSup_of_subset hA
     _ ≤ _ := by
       rw [dens'_iSup, iSup₂_le_iff]; intro p mp
-      rw [ℭ, mem_setOf] at mp; exact mp.2.2
+      rw [ℭ, mem_setOf] at mp; exact_mod_cast mp.2.2
 
 /-! ## Section 5.4 and Lemma 5.1.2 -/
 
@@ -586,14 +587,14 @@ variable (k n j l) in
 def forest : Forest X n where
   𝔘 := 𝔘₄ k n j l
   𝔗 := 𝔗₂ k n j
-  nonempty {u} hu := sorry
-  ordConnected {u} hu := forest_convex
-  𝓘_ne_𝓘 hu hp := sorry
-  smul_four_le {u} hu := forest_geometry <| 𝔘₄_subset_𝔘₃ hu
-  stackSize_le {x} := stackSize_𝔘₄_le x
-  dens₁_𝔗_le {u} hu := dens1_le <| 𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ
-  lt_dist hu hu' huu' p hp := forest_separation (𝔘₄_subset_𝔘₃ hu) (𝔘₄_subset_𝔘₃ hu') huu' hp
-  ball_subset hu p hp := forest_inner (𝔘₄_subset_𝔘₃ hu) hp
+  nonempty' {u} hu := sorry
+  ordConnected' {u} hu := forest_convex
+  𝓘_ne_𝓘' hu hp := sorry
+  smul_four_le' {u} hu := forest_geometry <| 𝔘₄_subset_𝔘₃ hu
+  stackSize_le' {x} := stackSize_𝔘₄_le x
+  dens₁_𝔗_le' {u} hu := dens1_le <| 𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ
+  lt_dist' hu hu' huu' p hp := forest_separation (𝔘₄_subset_𝔘₃ hu) (𝔘₄_subset_𝔘₃ hu') huu' hp
+  ball_subset' hu p hp := forest_inner (𝔘₄_subset_𝔘₃ hu) hp
 
 /-- The constant used in Lemma 5.1.2, with value `2 ^ (235 * a ^ 3) / (q - 1) ^ 4` -/
 -- todo: redefine in terms of other constants

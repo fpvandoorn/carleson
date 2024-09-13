@@ -287,3 +287,41 @@ lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
+
+/-! ### Stack sizes -/
+
+variable {C C' : Set (𝔓 X)} {x x' : X}
+open scoped Classical
+
+/-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
+def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
+  ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator 1 x
+
+lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
+    stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
+  classical
+  simp_rw [stackSize]
+  conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
+  simp_rw [Finset.filter_filter]
+  congr
+
+lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
+    stackSize C x = stackSize C x' := by
+  refine Finset.sum_congr rfl fun p hp ↦ ?_
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+  simp_rw [indicator, h p hp, Pi.one_apply]
+
+lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
+  apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)
+  simp [iff_true_intro (@h x)]
+
+-- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
+lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
+    ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
+  rw [stackSize, Nat.cast_sum]
+  refine Finset.sum_congr rfl (fun u _ ↦ ?_)
+  by_cases hx : x ∈ (𝓘 u : Set X) <;> simp [hx]
+
+lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) := by
+  simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
+  refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
