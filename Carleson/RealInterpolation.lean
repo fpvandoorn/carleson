@@ -1693,7 +1693,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : t > 0) (htγ : 
 lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : γ > 0) (htγ : γ ≤ t) (hab : a ≤ b) :
     ENNReal.ofReal (t ^ a) ≤ ENNReal.ofReal (t ^ b) * ENNReal.ofReal (γ ^ (a - b)) := by
   rw [mul_comm]
-  have t_pos : 0 < t := by exact gt_of_ge_of_gt htγ hγ
+  have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
   rw [Real.rpow_sub hγ]
   refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
   · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne.symm
@@ -1799,7 +1799,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
   have p_ne_top : p ≠ ⊤ := LT.lt.ne_top hpq.2
   have : p ≠ 0 := hpq.1.ne.symm
   have : q ≠ 0 := (lt_trans hpq.1 hpq.2).ne.symm
-  have q_toReal_pos : q.toReal > 0 := by exact toReal_pos this hq
+  have q_toReal_pos : q.toReal > 0 := toReal_pos this hq
   split_ifs
   · contradiction
   · calc
@@ -1939,7 +1939,7 @@ lemma res'comp (j : Bool) (β : ℝ) (hβ : β > 0) :
       exact ⟨lt_trans hβ h, fun _ ↦ h⟩
   · ext x
     simp only [Ioi_diff_Ici, mem_Ioo]
-  · have : j = false := by exact eq_false_of_ne_true h₀
+  · have : j = false := eq_false_of_ne_true h₀
     rw [this] at h₂
     simp at h₂
 
@@ -2649,7 +2649,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
   unfold eLpNorm eLpNorm'
   let tc := spf_to_tc spf
   split_ifs with is_p₀pos is_p₀top
-  · have : p₀ ≤ 0 := by exact ofReal_eq_zero.mp is_p₀pos
+  · have : p₀ ≤ 0 := ofReal_eq_zero.mp is_p₀pos
     contrapose! this; exact hp₀
   · contrapose! is_p₀top; exact coe_ne_top
   · have coe_p₀ : (ENNReal.ofReal p₀).toReal = p₀ := by
@@ -3515,7 +3515,7 @@ lemma estimate_norm_rpow_range_operator'
     apply setLIntegral_mono' measurableSet_Ioi
     intro s (s_pos : s > 0)
     simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
-    have : q₀ = ⊤ := by exact not_lt_top.mp is_q₀top
+    have : q₀ = ⊤ := not_lt_top.mp is_q₀top
     rw [hq₀' this s s_pos, zero_mul, add_zero]
     gcongr
     apply weaktype_estimate_trunc p_pos <;> try assumption
@@ -3523,14 +3523,14 @@ lemma estimate_norm_rpow_range_operator'
     apply setLIntegral_mono' measurableSet_Ioi
     intro s (s_pos : s > 0)
     simp only [is_q₁top, mem_Ioi, false_or] at hq₁'
-    have : q₁ = ⊤ := by exact not_lt_top.mp is_q₁top
+    have : q₁ = ⊤ := not_lt_top.mp is_q₁top
     rw [hq₁' this s s_pos, zero_mul, zero_add]
     gcongr
     apply weaktype_estimate_trunc_compl (p₀ := p₀) <;> try assumption
     · exact LT.lt.ne_top hp₁p
     · exact tc.ran_ton s s_pos
   · simp only [zero_mul, add_zero, nonpos_iff_eq_zero]
-    have : ∫⁻ (_ : ℝ) in Ioi 0, 0 = 0 := by exact lintegral_zero
+    have : ∫⁻ (_ : ℝ) in Ioi 0, 0 = 0 := lintegral_zero
     rw [← this]
     apply lintegral_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (s_pos)
@@ -3562,7 +3562,7 @@ lemma simplify_factor₀ {D : ℝ}
   have q₁pos : q₁ > 0 := lt_of_lt_of_le hp₁.1 hp₁.2
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀' hp₀.2
   have hp' : p ∈ Ioo 0 ⊤ := interp_exp_in_Ioo_zero_top ht p₀pos p₁pos (by left; exact p₀ne_top) hp
-  have p_toReal_pos : p.toReal > 0 := by exact toReal_pos_of_Ioo hp'
+  have p_toReal_pos : p.toReal > 0 := toReal_pos_of_Ioo hp'
   rw [hD]
   unfold d
   rw [← ofReal_rpow_of_pos]
@@ -3811,7 +3811,7 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
   have q₀pos : q₀ > 0 := lt_of_lt_of_le hp₀.1 hp₀.2
   have p₁pos : p₁ > 0 := hp₁.1
   have q₁pos : q₁ > 0 := lt_of_lt_of_le hp₁.1 hp₁.2
-  have p_pos : p > 0 := by exact interpolated_pos' one_le_p₀ one_le_p1 hp
+  have p_pos : p > 0 := interpolated_pos' one_le_p₀ one_le_p1 hp
   have : SigmaFinite (μ.restrict (Function.support f)) := by
     apply support_sigma_finite_from_Memℒp (p := p) hf
     · exact interp_exp_ne_top (ne_of_lt hp₀p₁) ht hp
@@ -3997,7 +3997,7 @@ lemma simplify_factor₃ [NormedAddCommGroup E₁] (hp₀ : p₀ > 0) (hp₀' : 
     (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) (hp₀p₁ : p₀ = p₁) :
     C₀ ^ q₀.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₀.toReal / p₀.toReal) =
     (↑C₀ * eLpNorm f p μ) ^ q₀.toReal := by
-  have hp' : p = p₀ := by exact Eq.symm (interp_exp_eq hp₀p₁ ht hp) -- TODO abstract
+  have hp' : p = p₀ := (interp_exp_eq hp₀p₁ ht hp).symm -- TODO abstract
   rw [hp']
   rw [ENNReal.mul_rpow_of_nonneg, ← ENNReal.rpow_mul, ← mul_div_assoc, mul_div_cancel_left₀] <;>
       try positivity
@@ -4597,7 +4597,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
       · exact interpolated_pos' hp₀ hp₁ hp
       · exact (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).2
     · left
-      have : p₀ = p := by exact interp_exp_eq p₀eq_p₁ ht hp
+      have : p₀ = p := interp_exp_eq p₀eq_p₁ ht hp
       rw [this]
       exact trunc_preserves_Lp hf
     · left
@@ -4613,7 +4613,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
         · exact hp₀
         · exact (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1
     · left
-      have : p₀ = p := by exact interp_exp_eq p₀eq_p₁ ht hp
+      have : p₀ = p := interp_exp_eq p₀eq_p₁ ht hp
       rw [this]
       exact trunc_compl_preserves_Lp hf
     · right

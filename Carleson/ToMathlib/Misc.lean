@@ -66,13 +66,13 @@ section ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
-    have hfin' : Finite s := by exact hfin
+    have hfin' : Finite s := hfin
     rw [tsum_def]
     simp only [ENNReal.summable, ↓reduceDIte]
     have hsup: support (fun (_ : s) ↦ (1 : ℝ≥0∞)) = Set.univ := by
       ext i
       simp only [mem_support, ne_eq, one_ne_zero, not_false_eq_true, mem_univ]
-    have hsupfin: (Set.univ : Set s).Finite := by exact finite_univ
+    have hsupfin: (Set.univ : Set s).Finite := finite_univ
     rw [← hsup] at hsupfin
     rw [if_pos hsupfin]
     rw [hfin.encard_eq_coe_toFinset_card]
@@ -94,7 +94,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
       simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
         exists_const]
   else
-  have : Infinite s := by exact infinite_coe_iff.mpr hfin
+  have : Infinite s := infinite_coe_iff.mpr hfin
   rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num)]
   rw [Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
