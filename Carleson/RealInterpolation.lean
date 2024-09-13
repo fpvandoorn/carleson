@@ -36,6 +36,7 @@ variable {p₀ q₀ p₁ q₁ p q : ℝ≥0∞} {t : ℝ}
 -/
 namespace ComputationsInterpolatedExponents
 
+-- unused
 lemma ofReal_mem_Ioo_0_1 (h : t ∈ Ioo 0 1) : ENNReal.ofReal t ∈ Ioo 0 1 :=
   ⟨ofReal_pos.mpr h.1, ofReal_lt_one.mpr h.2⟩
 
@@ -123,7 +124,7 @@ lemma switch_exponents (ht : t ∈ Ioo 0 1)
   · exact (Ioo.one_sub_mem ht).1.le
 
 lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
-  toReal_mono (LT.lt.ne_top ha₂) ha₁
+  toReal_mono ha₂.ne_top ha₁
 
 lemma one_le_interp (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
@@ -165,10 +166,10 @@ lemma ne_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ ⊤ := hq.
 lemma lt_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q < ⊤ := (ne_top_of_Ioo hq).lt_top
 
 lemma ne_top_of_Ioc {p q r : ℝ≥0∞} (hq : q ∈ Ioc p r) (hr : r < ⊤) : q ≠ ⊤ :=
-  (lt_of_le_of_lt hq.2 hr).ne_top
+  hq.2.trans_lt hr |>.ne_top
 
 lemma pos_of_rb_Ioc {p q r : ℝ≥0∞} (hr : q ∈ Ioc p r) : 0 < r :=
-  Trans.trans (Trans.trans (zero_le p) hr.left) hr.right
+  zero_le p |>.trans_lt hr.1 |>.trans_le hr.2
 
 lemma exp_toReal_ne_zero {q : ℝ≥0∞} (hq : q ≥ 1) (hq' : q < ⊤) : q.toReal ≠ 0 :=
   (exp_toReal_pos' hq hq').ne'
@@ -656,18 +657,6 @@ lemma inv_toReal_iff (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) :
     p₀⁻¹.toReal < p₁⁻¹.toReal ↔ p₁ < p₀ :=
   Iff.trans (toReal_lt_toReal (ne_of_lt (inv_lt_top.mpr hp₀))
     (ne_of_lt (inv_lt_top.mpr hp₁))) ENNReal.inv_lt_inv
-
--- TODO: check where this is used, replace by ζ_pos_iff'
-lemma ζ_pos_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
-    (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
-    (hq₀' : q₀ ≠ ⊤) :
-    (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
-    ((q < q₀) ∧ (p < p₀)) ∨ ((q₀ < q) ∧ (p₀ < p)) := by
-  rw [ζ_pos_toReal_iff₀ ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁ hp hq hp₀' hq₀',
-    preservation_inequality ht hq₀q₁ hq hq₀', preservation_inequality ht hp₀p₁ hp hp₀',
-    preservation_inequality' ht hq₀q₁ hq hq₀', preservation_inequality' ht hp₀p₁ hp hp₀']
 
 lemma ζ_pos_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
@@ -4534,7 +4523,7 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A 
 /-- The constant occurring in the real interpolation theorem. -/
 -- todo: check order of arguments
 def C_realInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ) : ℝ≥0 :=
-    ENNReal.toNNReal (C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t)
+    C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t |>.toNNReal
 
 lemma C_realInterpolation_pos {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0} (hA : A > 0)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
