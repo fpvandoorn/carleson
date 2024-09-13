@@ -184,7 +184,9 @@ lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (
         g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
   calc _
     _ = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 π}, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
-      rw [annulus_real_eq (le_refl 0), integral_union (by simp) measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo, ← integral_union (Set.disjoint_of_subset_right Set.Ioo_subset_Ioc_self (by simp)) measurableSet_Ioo,
+      rw [annulus_real_eq (le_refl 0),
+        integral_union (by simp) measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo,
+        ← integral_union (Set.disjoint_of_subset_right Set.Ioo_subset_Ioc_self (by simp)) measurableSet_Ioo,
         intervalIntegral.integral_of_le (by linarith [pi_pos]), integral_Ioc_eq_integral_Ioo,
         sub_zero, add_zero, Set.Ioc_union_Ioo_eq_Ioo (by linarith [pi_pos]) (by linarith [pi_pos])]
       --TODO: Many similar goals => improve this further?
@@ -228,6 +230,7 @@ lemma intervalIntegrable_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set
   rcases hy with h | h <;> constructor <;> linarith [h.1, h.2, hx.1, hx.2, Real.two_le_pi]
 
 
+attribute [gcongr] iSup_congr
 lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (-π) (3 * π)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖∫ (y : ℝ) in x - π..x + π, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊
     ≤ T g x + T (conj ∘ g) x := by
@@ -257,8 +260,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
   have : Tendsto (fun i => ∫ y in s i, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
           atTop (𝓝 (∫ y in ⋃ n, s n, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) := by
     apply tendsto_setIntegral_of_monotone
-    · intro n
-      exact annulus_measurableSet
+    · exact fun n ↦ annulus_measurableSet
     · intro n m nlem
       simp only [Set.le_eq_subset]
       intro y hy
@@ -284,12 +286,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       apply le_iSup₂_of_le (by simp; linarith) (by rw [div_lt_iff] <;> linarith)
       rfl
     _ = ⨆ (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * N * y) + conj (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * (Int.ofNat N) * y)))‖₊ := by
-      apply iSup_congr
-      intro r
-      apply iSup_congr
-      intro _
-      apply iSup_congr
-      intro _
+      gcongr
       congr with y
       congr
       rw [Dirichlet_Hilbert_eq]
@@ -343,7 +340,8 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
               exact fun _ hy ↦ boundedness₁ hy.1.le
           · conv => pattern ((g _) * _); rw [mul_comm]
             apply Integrable.bdd_mul' integrable₁
-            · apply Measurable.aestronglyMeasurable
+            · -- xxx: can fun_prop prove this?
+              apply Measurable.aestronglyMeasurable
               exact continuous_star.measurable.comp measurable₁
             · rw [ae_restrict_iff' annulus_measurableSet]
               apply Eventually.of_forall
