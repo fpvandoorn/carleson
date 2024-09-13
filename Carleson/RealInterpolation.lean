@@ -1445,10 +1445,8 @@ lemma trunc_compl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁
 lemma measurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     (hf : Measurable f) :
     Measurable (trunc f t) := by
-  apply Measurable.ite
-  · apply measurableSet_le <;> fun_prop
-  · exact hf
-  · exact measurable_const
+  apply Measurable.ite ?_ hf measurable_const
+  apply measurableSet_le <;> fun_prop
 
 @[measurability, fun_prop]
 lemma measurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -1514,7 +1512,7 @@ lemma aestronglyMeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁
   exists (trunc g t)
   constructor
   · apply wg1.indicator (s := {x | ‖g x‖ ≤ t})
-    exact StronglyMeasurable.measurableSet_le wg1.norm stronglyMeasurable_const
+    exact wg1.norm.measurableSet_le stronglyMeasurable_const
   · apply measure_mono_null ?_ wg2
     intro x
     contrapose
@@ -1533,7 +1531,7 @@ lemma aestronglyMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGrou
   constructor
   · rw [trunc_compl_eq]
     apply wg1.indicator (s := {x | t < ‖g x‖})
-    exact StronglyMeasurable.measurableSet_lt stronglyMeasurable_const wg1.norm
+    exact stronglyMeasurable_const.measurableSet_lt wg1.norm
   · apply measure_mono_null ?_ wg2
     intro x
     contrapose
@@ -2223,7 +2221,6 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
   have g_meas (n : ℕ): AEMeasurable (g n) μ := by
     unfold_let g
     exact AEMeasurable.indicator (by fun_prop) (measurable_spanningSets μ n)
-  have gp_meas (n : ℕ) : AEMeasurable (fun a ↦ g n a ^ (p - 1)) μ := by fun_prop
   have g_fin (n : ℕ): ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
     calc
     _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
@@ -2322,8 +2319,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
         linarith
       _ = (∫⁻ (z : α), ((g n z ^ (p - 1)) ^ q) ∂μ) *
           ((∫⁻ (y : α), (g n y ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ ^ q := by
-        rw [lintegral_mul_const'']
-        apply AEMeasurable.pow_const (gp_meas n)
+        rw [lintegral_mul_const'' _ (by fun_prop)]
       _ ≤ _ := by
         rcases eq_or_ne (∫⁻ x : α, ((g n x) ^ (p - 1)) ^ q ∂μ) 0 with int_eq_zero | int_ne_zero
         · rw [int_eq_zero]
@@ -2572,6 +2568,7 @@ lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSp
     apply AEMeasurable.pow_const
     apply AEMeasurable.coe_nnreal_ennreal
     apply AEMeasurable.nnnorm
+    -- FIXME: extract a separate lemma here!
     unfold trnc
     rcases j
     · apply truncation_compl_ton_measurable hf
@@ -3684,8 +3681,7 @@ instance support_sigma_finite_from_Memℒp
   rw [← this]
   apply support_sigma_finite_of_lintegrable
   · unfold_let g
-    apply AEMeasurable.pow_const
-    exact hf.1.aemeasurable.nnnorm.coe_nnreal_ennreal
+    exact (hf.1.aemeasurable.nnnorm.coe_nnreal_ennreal).pow_const _
   · unfold_let g
     have obs := hf.2
     unfold eLpNorm eLpNorm' at obs
@@ -3811,7 +3807,7 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
           · exact is_q₁top.ne_top
-          · exact AEStronglyMeasurable.aemeasurable hf.1
+          · exact hf.1.aemeasurable
           · rw [hspf]; rfl
         · simp
       · split_ifs with is_q₀top
@@ -4127,7 +4123,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
     have coe_q : ENNReal.ofReal q.toReal = q :=
     ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     nth_rw 1 [← coe_q]
-    rw [eLpNorm_eq_distribution (AEStronglyMeasurable.aemeasurable (h₂T hf))
+    rw [eLpNorm_eq_distribution (h₂T hf).aemeasurable
         (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁.ne hq)]
     calc
     (ENNReal.ofReal q.toReal *
