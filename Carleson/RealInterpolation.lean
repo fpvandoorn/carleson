@@ -1058,8 +1058,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   [NormedAddCommGroup E₃]
   [MeasurableSpace E] [BorelSpace E]
   [MeasurableSpace E₃] [BorelSpace E₃]
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Results about the particular choice of scale
@@ -1352,7 +1351,7 @@ open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Results about truncations of a function
@@ -1836,8 +1835,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   [NormedAddCommGroup E₁]
   [NormedAddCommGroup E₂]
   [MeasurableSpace E] [BorelSpace E]
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Some results about the integrals of truncations
@@ -2077,8 +2075,8 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   {a : ℝ}
   {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
-/-! ## Minkowski's integral inequality
--/
+
+/-! ## Minkowski's integral inequality -/
 namespace MeasureTheory
 
 lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : c > 0) (hd : d > 0):
@@ -3173,11 +3171,8 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   [NormedAddCommGroup E₂]
   [NormedAddCommGroup E₃]
   [MeasurableSpace E] [BorelSpace E]
-  -- [MeasurableSpace E₁] [BorelSpace E₁]
-  -- [MeasurableSpace E₂] [BorelSpace E₂]
   [MeasurableSpace E₃] [BorelSpace E₃]
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 namespace MeasureTheory
 
