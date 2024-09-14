@@ -50,7 +50,7 @@ lemma ENNReal_preservation_positivity₀ {p q : ℝ≥0∞} (ht : t ∈ Ioo 0 1)
 lemma ENNReal_preservation_positivity {p q : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
     0 < (1 - ENNReal.ofReal t) * p⁻¹ + (ENNReal.ofReal t) * q⁻¹ := by
   apply ENNReal_preservation_positivity₀ ht
-  cases (lt_or_gt_of_ne hpq) <;> rename_i dir <;> exact Ne.ne_or_ne ⊤ hpq
+  cases (lt_or_gt_of_ne hpq) <;> exact Ne.ne_or_ne ⊤ hpq
 
 lemma ENNReal_preservation_positivity' {p p₀ p₁ : ℝ≥0∞} (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p > 0 :=
@@ -153,7 +153,7 @@ lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : q ≥ 0): ENNReal.ofReal a ^ q �
 
 -- Note this lemma can directly be applied to elements of `ℝ≥0` as well
 lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ :=
-  coe_rpow_ne_top (le_of_lt hq)
+  coe_rpow_ne_top hq.le
 
 lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : a > 0) : ENNReal.ofReal a ^ q > 0 :=
   ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
@@ -271,7 +271,7 @@ lemma interp_exp_inv_ne_zero (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
 lemma preservation_interpolation (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
     (hp₁ : p₁ > 0) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
     p⁻¹.toReal = (1 - t) * (p₀⁻¹).toReal + t * (p₁⁻¹).toReal := by
-  rw [← one_toReal, ← toReal_ofReal (le_of_lt ht.1), ← ENNReal.toReal_sub_of_le]
+  rw [← one_toReal, ← toReal_ofReal ht.1.le, ← ENNReal.toReal_sub_of_le]
   · rw [← toReal_mul, ← toReal_mul, ← toReal_add]
     · exact congrArg ENNReal.toReal hp
     · exact mul_ne_top (sub_ne_top (top_ne_one.symm)) (inv_ne_top.mpr hp₀.ne')
@@ -353,7 +353,7 @@ lemma exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp�
     p < p₀ ↔ p₁ < p₀ := by
   rcases lt_or_gt_of_ne hp₀p₁ with p₀lt_p₁ | p₁lt_p₀
   · exact ⟨fun h ↦ (not_le_of_gt h (le_of_lt (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1)).elim,
-      fun h ↦ (not_le_of_gt h (le_of_lt p₀lt_p₁)).elim⟩
+      fun h ↦ (not_le_of_gt h p₀lt_p₁.le).elim⟩
   · exact ⟨fun _ ↦ p₁lt_p₀,
       fun _ ↦ (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2⟩
 
@@ -362,9 +362,9 @@ lemma exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp�
     p₀ < p ↔ p₀ < p₁ := by
   rcases lt_or_gt_of_ne hp₀p₁ with p₀lt_p₁ | p₁lt_p₀
   · exact ⟨fun _ ↦ p₀lt_p₁, fun _ ↦ (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩
-  · exact ⟨fun h ↦ (not_le_of_gt h (le_of_lt (interp_exp_between hp₁ hp₀ p₁lt_p₀
-      (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2)).elim,
-      fun h ↦ (not_le_of_gt h (le_of_lt p₁lt_p₀)).elim⟩
+  · exact ⟨fun h ↦ (not_le_of_gt h (interp_exp_between hp₁ hp₀ p₁lt_p₀
+      (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2.le).elim,
+      fun h ↦ (not_le_of_gt h p₁lt_p₀.le).elim⟩
 
 lemma exp_lt_exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
@@ -1048,9 +1048,9 @@ instance spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
     · simp only [↓reduceIte, mem_Ioi]
       intro s hs t ht
       constructor
-      · rw [← Real.lt_rpow_inv_iff_of_pos (div_nonneg (le_of_lt hs) (le_of_lt spf.hd))
-          (le_of_lt ht) sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-      · rw [← Real.rpow_inv_lt_iff_of_pos (le_of_lt ht) (div_nonneg (le_of_lt hs) (le_of_lt spf.hd))
+      · rw [← Real.lt_rpow_inv_iff_of_pos (div_nonneg hs.le spf.hd.le) ht.le sgn_σ,
+        ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
+      · rw [← Real.rpow_inv_lt_iff_of_pos ht.le (div_nonneg hs.le spf.hd.le)
           sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
     · simp only [↓reduceIte, mem_Ioi]
       intro s hs t ht
@@ -1359,13 +1359,13 @@ lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : β > 0) (hγ : γ > -1) :
     ENNReal.ofReal (β ^ (γ + 1) / (γ + 1)) := by
   have hγ2 : γ + 1 > 0 := by linarith
   rw [setLIntegral_congr Ioo_ae_eq_Ioc, ← ofReal_integral_eq_lintegral_ofReal]
-  · rw [← intervalIntegral.integral_of_le (le_of_lt hβ), integral_rpow]
+  · rw [← intervalIntegral.integral_of_le hβ.le, integral_rpow]
     · rw [Real.zero_rpow hγ2.ne', sub_zero]
     · exact Or.inl hγ
   · apply (@intervalIntegral.intervalIntegrable_rpow' 0 β γ ?_).1
     linarith
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioc]
-      with s hs using Real.rpow_nonneg (le_of_lt hs.1) γ
+      with s hs using Real.rpow_nonneg hs.1.le γ
 
 end MeasureTheory
 
@@ -1555,7 +1555,7 @@ lemma trunc_le {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (x : α) :
   unfold trunc
   split_ifs with h
   · rcases (lt_or_le a 0) with a_lt_0 | _
-    · exact Trans.trans (Trans.trans h (le_of_lt a_lt_0)) (le_max_left 0 a)
+    · exact Trans.trans (Trans.trans h a_lt_0.le) (le_max_left 0 a)
     · exact Trans.trans h (le_max_right 0 a)
   · simp
 
@@ -2050,7 +2050,7 @@ lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : β > 0) (hγ : γ > -1) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
     ENNReal.ofReal (β ^ (γ + 1) / |γ + 1|) := by
   have hγ2 : γ + 1 > 0 := by linarith
-  rw [abs_of_nonneg (le_of_lt hγ2)]
+  rw [abs_of_nonneg hγ2.le]
   exact lintegral_rpow_of_gt hβ hγ
 
 -- TODO: treat symmetrically to Ioo case?
@@ -2062,7 +2062,7 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : β > 0) (hσ : σ < -1):
   · rw [integral_Ioi_rpow_of_lt hσ hβ, div_neg, neg_div]
   · apply integrableOn_Ioi_rpow_of_lt hσ hβ
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
-    exact fun s hs ↦ Real.rpow_nonneg (le_of_lt (lt_trans hβ hs)) σ
+    exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
 
 lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : t > 0) :
@@ -2427,12 +2427,9 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
         _ = (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ := by
           simp [one_div]
     nth_rw 1 [← one_div]
-    rw [representationLp (q := q)]
-    · exact iSup_le fun g ↦ iSup_le fun hg ↦ ineq g hg
-    · exact aemeasurability_integral_component hf
-    · exact one_lt_p
-    · exact le_of_lt one_lt_q
-    · exact hpq'.inv_add_inv_conj
+    rw [representationLp (hp := one_lt_p) (hq := one_lt_q.le) (hpq := hpq'.inv_add_inv_conj)]
+    · exact (iSup_le fun g ↦ iSup_le fun hg ↦ ineq g hg)
+    · exact (aemeasurability_integral_component hf)
   · rw [← one_eq_p]
     simp only [ENNReal.rpow_one, inv_one]
     exact (lintegral_lintegral_swap hf).le
@@ -2615,9 +2612,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
   · have : p₀ ≤ 0 := by exact ofReal_eq_zero.mp is_p₀pos
     contrapose! this; exact hp₀
   · contrapose! is_p₀top; exact coe_ne_top
-  · have coe_p₀ : (ENNReal.ofReal p₀).toReal = p₀ := by
-      refine toReal_ofReal (le_of_lt hp₀)
-    rw [coe_p₀]
+  · rw [toReal_ofReal hp₀.le]
     calc
     _ = ∫⁻ s : ℝ in Ioi 0, ENNReal.ofReal (s ^ (q - q₀ - 1)) *
     ((∫⁻ (a : α), ↑‖trnc j f ((spf_to_tc spf).ton s) a‖₊ ^ p₀ ∂μ) ^ (1 / p₀)) ^ q₀  := by
