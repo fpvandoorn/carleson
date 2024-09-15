@@ -1,4 +1,5 @@
 import Carleson.Discrete.ExceptionalSet
+import Carleson.Forest
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -128,13 +129,13 @@ lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ d
     apply absurd _ this.2; use J, sl.1.trans lJ
 
 /-- Lemma 5.3.12 -/
-lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * a - n + 1 : ℤ) :=
+lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * (a : ℝ) - n + 1) :=
   calc
     _ ≤ dens' k A := dens1_le_dens' (hA.trans ℭ_subset_TilesAt)
     _ ≤ dens' k (ℭ (X := X) k n) := iSup_le_iSup_of_subset hA
     _ ≤ _ := by
       rw [dens'_iSup, iSup₂_le_iff]; intro p mp
-      rw [ℭ, mem_setOf] at mp; exact mp.2.2
+      rw [ℭ, mem_setOf] at mp; exact_mod_cast mp.2.2
 
 /-! ## Section 5.4 and Lemma 5.1.2 -/
 
@@ -584,14 +585,14 @@ variable (k n j l) in
 def forest : Forest X n where
   𝔘 := 𝔘₄ k n j l
   𝔗 := 𝔗₂ k n j
-  nonempty {u} hu := sorry
-  ordConnected {u} hu := forest_convex
-  𝓘_ne_𝓘 hu hp := sorry
-  smul_four_le {u} hu := forest_geometry <| 𝔘₄_subset_𝔘₃ hu
-  stackSize_le {x} := stackSize_𝔘₄_le x
-  dens₁_𝔗_le {u} hu := dens1_le <| 𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ
-  lt_dist hu hu' huu' p hp := forest_separation (𝔘₄_subset_𝔘₃ hu) (𝔘₄_subset_𝔘₃ hu') huu' hp
-  ball_subset hu p hp := forest_inner (𝔘₄_subset_𝔘₃ hu) hp
+  nonempty' {u} hu := sorry
+  ordConnected' {u} hu := forest_convex
+  𝓘_ne_𝓘' hu hp := sorry
+  smul_four_le' {u} hu := forest_geometry <| 𝔘₄_subset_𝔘₃ hu
+  stackSize_le' {x} := stackSize_𝔘₄_le x
+  dens₁_𝔗_le' {u} hu := dens1_le <| 𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ
+  lt_dist' hu hu' huu' p hp := forest_separation (𝔘₄_subset_𝔘₃ hu) (𝔘₄_subset_𝔘₃ hu') huu' hp
+  ball_subset' hu p hp := forest_inner (𝔘₄_subset_𝔘₃ hu) hp
 
 /-- The constant used in Lemma 5.1.2, with value `2 ^ (235 * a ^ 3) / (q - 1) ^ 4` -/
 -- todo: redefine in terms of other constants
@@ -600,7 +601,7 @@ def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (235 * a ^ 3) / (q - 1) ^ 4
 lemma C5_1_2_pos : C5_1_2 a nnq > 0 := sorry
 
 lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖∑ p ∈ { p | p ∈ 𝔓₁ }, carlesonOn p f x‖₊ ≤
+  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
     C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
   sorry
 
@@ -944,8 +945,8 @@ def C5_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (210 * a ^ 3) / (q - 1) ^ 5
 lemma C5_1_3_pos : C5_1_3 a nnq > 0 := sorry
 
 lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖∑ p ∈ { p | p ∉ 𝔓₁ }, carlesonOn p f x‖₊ ≤
-    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
+  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ ≤
+    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by
   sorry
 
 /-! ## Proposition 2.0.2 -/
@@ -960,5 +961,5 @@ variable (X) in
 theorem discrete_carleson :
     ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
-    ∫⁻ x in G \ G', ‖∑ p, carlesonOn p f x‖₊ ≤
+    ∫⁻ x in G \ G', ‖carlesonSum univ f x‖₊ ≤
     C2_0_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by sorry
