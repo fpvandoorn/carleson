@@ -1399,8 +1399,7 @@ lemma trunc_compl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁
   dsimp only [Pi.zero_apply]
   split_ifs
   · rfl
-  · apply Eq.symm
-    apply norm_eq_zero.mp
+  · apply (norm_eq_zero.mp ?_).symm
     have : ‖f x‖ ≥ 0 := norm_nonneg _
     linarith
 
@@ -2012,7 +2011,7 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ}
     ENNReal.ofReal ((tc.inv t) ^ (γ + 1) / |γ + 1|) := by
   rw [← lintegral_congr_ae (Filter.mp_mem (self_mem_ae_restrict measurableSet_res)
       (Filter.univ_mem'
-      (fun s hs ↦ Eq.symm (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)))))]
+      (fun s hs ↦ (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)).symm)))]
   unfold res
   split at hγ <;> rename_i xor_split
   · rw [xor_split]
@@ -2220,7 +2219,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
         nth_rw 1 [← ENNReal.rpow_one (x := (∫⁻ x : α, (g n x) ^ (p) ∂μ))]
         rw [← ENNReal.rpow_add _ _ int_ne_zero (g_fin n).ne]
         congr
-        exact add_neg_eq_of_eq_add (id (Eq.symm hpq))
+        exact add_neg_eq_of_eq_add hpq.symm
   have int_fg : ∫⁻ (x : α), f x ^ p ∂μ = ⨆ n : ℕ, ∫⁻ x : α, g n x ^ p ∂μ := by
     rw [← g_sup']
     apply lintegral_iSup' (fun n ↦ by fun_prop)
@@ -2624,7 +2623,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
       · rw [← ofReal_rpow_of_nonneg] <;> try positivity
         congr
-        exact Eq.symm norm_toNNReal
+        exact norm_toNNReal.symm
     _ = (∫⁻ a : α in Function.support f,
         ((ENNReal.ofReal
         (spf.d ^ (q - q₀ - 1 + 1) * ‖f a‖ ^ (spf.σ⁻¹ * (q - q₀ - 1 + 1) + q₀) /
@@ -2784,7 +2783,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     rw [← one_div]
-    refine Eq.symm (eLpNorm_eq_lintegral_rpow_nnnorm ?_ ?_)
+    refine (eLpNorm_eq_lintegral_rpow_nnnorm ?_ ?_).symm
     · exact (interpolated_pos' hp₀ hp₁ hp).ne'
     · exact interp_exp_ne_top hp₀p₁.ne ht hp
 
@@ -3825,10 +3824,10 @@ lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
       ↑C₁ ^ (t * q.toReal) *
     (eLpNorm f p μ ^ p.toReal) ^ (t * p₁⁻¹.toReal * q.toReal) = C₀ ^ ((1 - t) * q.toReal) *
     C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal := by
-  have hp' : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
+  have hp' : p₀ = p := (interp_exp_eq hp₀p₁ ht hp)
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀' hp₀.2
   have p₀toReal_pos : p₀.toReal > 0 := toReal_pos hp₀.1.ne' p₀ne_top
-  rw [hp', ← hp₀p₁]
+  rw [← hp', ← hp₀p₁]
   have (a b c d : ℝ≥0∞): a * b * c * d = a * c * (b * d) := by ring
   rw [this, ← ENNReal.rpow_add]
   · rw [← ENNReal.rpow_mul]
@@ -3836,9 +3835,9 @@ lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     rw [toReal_inv]
     ring_nf
     field_simp
-  · rw [← hp']
+  · rw [hp']
     exact d_pos_aux₀ hF |>.ne'
-  · rw [← hp']
+  · rw [hp']
     exact d_ne_top_aux₀ hF
 
 lemma simplify_factor₄ {D : ℝ} [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
@@ -4156,7 +4155,7 @@ lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q :
     have hq' := switch_exponents ht hq
     nth_rw 1 [← sub_sub_self 1 t]
     apply exists_hasStrongType_real_interpolation_aux₂
-      (ht := Ioo.one_sub_mem ht) (hp₀p₁ := Eq.symm hp₀p₁) (hq₀q₁ := q₁lt_q₀) <;> try assumption
+      (ht := Ioo.one_sub_mem ht) (hp₀p₁ := hp₀p₁.symm) (hq₀q₁ := q₁lt_q₀) <;> try assumption
 
 /-- The main estimate for the real interpolation theorem, before taking roots, combining
     the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
@@ -4180,7 +4179,7 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
   rw [← hM]
   split_ifs at hM with are_ps_eq
   · rw [hM, one_mul]
-    have p_eq_p₀ : p = p₀ := Eq.symm (interp_exp_eq are_ps_eq ht hp)
+    have p_eq_p₀ : p = p₀ := (interp_exp_eq are_ps_eq ht hp).symm
     calc
     _ ≤ q ^ q.toReal⁻¹ * (ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ * (if q₀ = ⊤ then 0 else 1) +
         ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * (if q₁ = ⊤ then 0 else 1)) ^ q.toReal⁻¹ *
@@ -4380,9 +4379,9 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
   intro f hf
   refine ⟨hmT f hf, ?_⟩
   have hp' : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹ := by
-    rw [hp]; congr <;> exact Eq.symm Real.toNNReal_coe
+    rw [hp]; congr <;> exact Real.toNNReal_coe.symm
   have hq' : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹ := by
-    rw [hq]; congr <;> exact Eq.symm Real.toNNReal_coe
+    rw [hq]; congr <;> exact Real.toNNReal_coe.symm
   have obs : Subadditive_trunc T A f ν :=
     Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ hp₀.1 hp₁.1 ht hp' hT hf
   rw [coe_C_realInterpolation hp₀ hp₁ hq₀q₁] <;> try assumption
