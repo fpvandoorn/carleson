@@ -2482,6 +2482,17 @@ lemma restrict_to_support_trnc {a : ℝ} {p : ℝ} {j : Bool} [NormedAddCommGrou
   · dsimp only [Pi.sub_apply]; simp_rw [f_zero]; simp [hp]
   · simp_rw [f_zero]; simp [hp]
 
+@[fun_prop]
+theorem aeMeasurable_trunc_restrict
+    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] {j : Bool}
+    {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
+    AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
+      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
+  unfold trnc
+  rcases j
+  · apply truncation_compl_ton_measurable hf
+  · apply truncation_ton_measurable hf
+
 lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
     [BorelSpace E₁] {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
@@ -2499,15 +2510,7 @@ lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSp
     field_simp [hp₀q₀]
   · unfold Function.uncurry
     simp only [Pi.sub_apply]
-    apply AEMeasurable.mul (by fun_prop)
-    apply AEMeasurable.pow_const
-    apply AEMeasurable.coe_nnreal_ennreal
-    apply AEMeasurable.nnnorm
-    -- FIXME: extract a separate lemma here!
-    unfold trnc
-    rcases j
-    · apply truncation_compl_ton_measurable hf
-    · apply truncation_ton_measurable hf
+    fun_prop
 
 lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
