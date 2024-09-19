@@ -165,6 +165,12 @@ instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_inje
 lemma 𝔓.le_def {p q : 𝔓 X} : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
 lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
 
+lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (𝒬 p) < 1 :=
+  ((cball_subset.trans h.2).trans subset_cball) (mem_ball_self (by norm_num))
+
+lemma dist_𝒬_lt_one_of_le' {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 p) (𝒬 q) < 1 :=
+  mem_ball'.mp (dist_𝒬_lt_one_of_le h)
+
 lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := by
   intros p p' h
   refine h.le.1.lt_of_ne <| fun h' ↦ ?_
@@ -206,6 +212,17 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
         rw [add_comm]; gcongr
         exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
+
+lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length = n) {f g : Θ X} :
+    dist_(s.head.1) f g ≤ C2_1_2 a ^ n * dist_(s.last.1) f g := by
+  induction n generalizing s with
+  | zero => rw [pow_zero, one_mul]; apply Grid.dist_mono s.head_le_last.1
+  | succ n ih =>
+    let s' : LTSeries u := s.eraseLast
+    specialize ih (show s'.length = n by simp [s', hs])
+    have link : dist_(s'.last.1) f g ≤ C2_1_2 a * dist_(s.last.1) f g :=
+      Grid.dist_strictMono <| 𝓘_strict_mono <| s.eraseLast_last_rel_last (by omega)
+    apply ih.trans; rw [pow_succ, mul_assoc]; gcongr; unfold C2_1_2; positivity
 
 end
 
@@ -266,6 +283,11 @@ def E₂ (l : ℝ) (p : 𝔓 X) : Set X :=
 
 lemma E₁_subset (p : 𝔓 X) : E₁ p ⊆ 𝓘 p := by
   change ↑(𝓘 p) ∩ G ∩ (Q ⁻¹' Ω p) ⊆ ↑(𝓘 p)
+  rw [inter_assoc]
+  exact inter_subset_left
+
+lemma E₂_subset (l : ℝ) (p : 𝔓 X) : E₂ l p ⊆ 𝓘 p := by
+  change ↑(𝓘 p) ∩ G ∩ (Q ⁻¹' (ball_(p) (𝒬 p) l)) ⊆ ↑(𝓘 p)
   rw [inter_assoc]
   exact inter_subset_left
 

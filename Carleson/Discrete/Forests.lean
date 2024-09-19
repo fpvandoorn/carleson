@@ -1,5 +1,6 @@
 import Carleson.Discrete.ExceptionalSet
 import Carleson.Forest
+import Mathlib.Combinatorics.Enumerative.DoubleCounting
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -856,10 +857,230 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
 def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).minLayer l
 
-/-- Part of Lemma 5.5.2 -/
+/-- Logarithmic inequality used in the proof of Lemma 5.5.2. -/
+lemma ceil_log2_le_floor_four_add_log2 {l : ℝ} (hl : 2 ≤ l) :
+    ⌈Real.logb 2 ((l + 6 / 5) / 5⁻¹)⌉₊ ≤ ⌊4 + Real.logb 2 l⌋₊ := by
+  have : 2 ≤ Real.logb 2 (l + 6 / 5) + Real.logb 2 5 :=
+    calc
+      _ ≥ Real.logb 2 (2 ^ (0 : ℝ)) + Real.logb 2 (2 ^ (2 : ℝ)) :=
+        add_le_add
+          (Real.logb_le_logb_of_le one_lt_two (by positivity) (by linarith))
+          (Real.logb_le_logb_of_le one_lt_two (by positivity) (by norm_num))
+      _ ≥ _ := by simp_rw [Real.logb_rpow zero_lt_two one_lt_two.ne']; norm_num
+  rw [div_inv_eq_mul, Real.logb_mul (by positivity) (by positivity), Nat.le_floor_iff']
+  · calc
+      _ ≤ 1 + Real.logb 2 (l + 6 / 5) + Real.logb 2 5 := by
+        rw [add_rotate]; exact (Nat.ceil_lt_add_one (zero_le_two.trans this)).le
+      _ ≤ 1 + Real.logb 2 (8 / 5 * l) + Real.logb 2 5 := by
+        gcongr
+        · exact one_lt_two
+        · linarith
+      _ = _ := by
+        rw [add_assoc, ← Real.logb_mul (by positivity) (by positivity), ← mul_rotate,
+          show (5 : ℝ) * (8 / 5) = 2 ^ 3 by norm_num,
+          Real.logb_mul (by positivity) (by positivity), ← Real.rpow_natCast,
+          Real.logb_rpow zero_lt_two one_lt_two.ne', ← add_assoc]
+        norm_num
+  · exact (zero_lt_one.trans_le (Nat.one_le_ceil_iff.mpr (zero_lt_two.trans_le this))).ne'
+
+/-- The set `𝔒` in the proof of Lemma 5.5.2. -/
+def 𝔒 (p' : 𝔓 X) (l : ℝ≥0) : Finset (𝔓 X) :=
+  {p'' | 𝓘 p'' = 𝓘 p' ∧ ¬Disjoint (ball_(p') (𝒬 p') l) (Ω p'')}
+
+lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := by
+  have djO : (𝔒 p' l).toSet.PairwiseDisjoint fun p'' ↦ ball_(p') (𝒬 p'') 5⁻¹ :=
+    fun p₁ mp₁ p₂ mp₂ hn ↦ by
+      simp_rw [𝔒, Finset.coe_filter, mem_setOf, Finset.mem_univ, true_and] at mp₁ mp₂
+      change Disjoint (ball_{𝓘 p'} (𝒬 p₁) 5⁻¹) (ball_{𝓘 p'} (𝒬 p₂) 5⁻¹)
+      conv => enter [1]; rw [← mp₁.1]
+      conv => enter [2]; rw [← mp₂.1]
+      exact cball_disjoint hn (mp₁.1.trans mp₂.1.symm)
+  have tO : ∀ p'' ∈ 𝔒 p' l,
+      ball_(p') (𝒬 p'') 5⁻¹ ⊆ ball_(p') (𝒬 p') (l + 6 / 5) := fun p'' mp'' ↦ by
+    apply ball_subset_ball'
+    simp_rw [𝔒, Finset.mem_filter, Finset.mem_univ, true_and] at mp''
+    obtain ⟨x, mx₁, mx₂⟩ := not_disjoint_iff.mp mp''.2
+    replace mx₂ := _root_.subset_cball mx₂
+    rw [@mem_ball] at mx₁ mx₂
+    calc
+      _ ≤ 5⁻¹ + (dist_{𝓘 p'} x (𝒬 p'') + dist_{𝓘 p'} x (𝒬 p')) :=
+        add_le_add_left (dist_triangle_left ..) _
+      _ ≤ 5⁻¹ + (1 + l) := by gcongr; rw [← mp''.1]; exact mx₂.le
+      _ = _ := by rw [inv_eq_one_div, ← add_assoc, add_comm _ l.toReal]; norm_num
+  have vO : CoveredByBalls (ball_(p') (𝒬 p') (l + 6 / 5)) ⌊2 ^ (4 * a) * l ^ a⌋₊ 5⁻¹ := by
+    apply (ballsCoverBalls_iterate (show 0 < l.toReal + 6 / 5 by positivity)
+      (show 0 < 5⁻¹ by positivity) (𝒬 p')).mono_nat
+    calc
+      _ ≤ (defaultA a) ^ ⌊4 + Real.logb 2 l⌋₊ :=
+        pow_le_pow_right Nat.one_le_two_pow (ceil_log2_le_floor_four_add_log2 hl)
+      _ ≤ ⌊(defaultA a : ℝ) ^ (4 + Real.logb 2 l)⌋₊ := by
+        apply Nat.le_floor; rw [Nat.cast_npow, ← Real.rpow_natCast]
+        refine Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast Nat.one_le_two_pow)
+          (Nat.floor_le ?_)
+        calc
+          _ ≥ 4 + Real.logb 2 2 :=
+            add_le_add_left (Real.logb_le_logb_of_le one_lt_two zero_lt_two hl) _
+          _ ≥ _ := by rw [Real.logb_self_eq_one one_lt_two]; norm_num
+      _ = _ := by
+        rw [Nat.cast_pow, Nat.cast_ofNat, ← Real.rpow_natCast, ← Real.rpow_mul zero_le_two,
+          mul_comm, add_mul, Real.rpow_add zero_lt_two, show (4 : ℝ) * a = (4 * a : ℕ) by simp,
+          Real.rpow_natCast, Real.rpow_mul zero_le_two, Real.rpow_natCast,
+          Real.rpow_logb zero_lt_two one_lt_two.ne']
+        congr 1; exact zero_lt_two.trans_le hl
+  obtain ⟨(T : Finset (Θ X)), cT, uT⟩ := vO
+  refine (Finset.card_le_card_of_forall_subsingleton (fun p'' t ↦ 𝒬 p'' ∈ ball_(p') t 5⁻¹)
+      (fun p'' mp'' ↦ ?_) (fun t _ o₁ mo₁ o₂ mo₂ ↦ ?_)).trans cT
+  · have := (tO _ mp'').trans uT (mem_ball_self (by positivity))
+    rwa [mem_iUnion₂, bex_def] at this
+  · simp_rw [mem_setOf_eq] at mo₁ mo₂; rw [@mem_ball_comm] at mo₁ mo₂
+    exact djO.elim mo₁.1 mo₂.1 (not_disjoint_iff.mpr ⟨t, mo₁.2, mo₂.2⟩)
+
+section
+
+variable {p' : 𝔓 X} {l : ℝ≥0} (hl : 2 ≤ l)
+  (qp' : 2 ^ (4 * a - n : ℤ) < l ^ (-a : ℤ) * volume (E₂ l p') / volume (𝓘 p' : Set X))
+include hl qp'
+
+lemma lt_quotient_rearrange :
+    (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) < volume (E₂ l p') / volume (𝓘 p' : Set X) := by
+  rw [mul_div_assoc] at qp'; convert ENNReal.div_lt_of_lt_mul' qp' using 1
+  rw [ENNReal.div_eq_inv_mul,
+    ← ENNReal.zpow_neg (by exact_mod_cast (zero_lt_two.trans_le hl).ne') ENNReal.coe_ne_top,
+    neg_neg, ENNReal.coe_mul, mul_rotate, mul_assoc, ENNReal.coe_pow, zpow_natCast]
+  congr 1
+  rw [ENNReal.coe_pow, ENNReal.coe_ofNat, ← zpow_natCast,
+    ← ENNReal.zpow_add two_ne_zero ENNReal.two_ne_top]
+  congr 1; omega
+
+lemma l_upper_bound : l < 2 ^ n := by
+  have ql1 : volume (E₂ l p') / volume (𝓘 p' : Set X) ≤ 1 := by
+    apply ENNReal.div_le_of_le_mul; rw [one_mul]; exact measure_mono (E₂_subset ..)
+  replace qp' := (lt_quotient_rearrange hl qp').trans_le ql1
+  rw [← ENNReal.mul_lt_mul_right (c := 2 ^ (n : ℤ)) (by simp) (by simp), one_mul, mul_assoc,
+    ← ENNReal.zpow_add two_ne_zero ENNReal.two_ne_top, neg_add_cancel, zpow_zero, mul_one,
+    show (2 ^ (n : ℤ) : ℝ≥0∞) = (2 ^ (n : ℤ) : ℝ≥0) by simp, ENNReal.coe_lt_coe,
+    zpow_natCast] at qp'
+  calc
+    _ ≤ l ^ a := le_self_pow (one_le_two.trans hl) (by linarith [four_le_a X])
+    _ ≤ 2 ^ (4 * a) * l ^ a := by
+      nth_rw 1 [← one_mul (l ^ a)]; gcongr; exact_mod_cast Nat.one_le_two_pow
+    _ < _ := qp'
+
+lemma exists_𝔒_with_le_quotient :
+    ∃ b ∈ 𝔒 p' l, 2 ^ (-n : ℤ) < volume (E₁ b) / volume (𝓘 b : Set X) := by
+  have cO : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := card_𝔒 _ hl
+  have ltq : (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) <
+      ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p'' : Set X) :=
+    calc
+      _ < volume (E₂ l p') / volume (𝓘 p' : Set X) := lt_quotient_rearrange hl qp'
+      _ ≤ volume (⋃ p'' ∈ 𝔒 p' l, E₁ p'') / volume (𝓘 p' : Set X) := by
+        gcongr; simp_rw [E₁, E₂, smul, toTileLike, TileLike.toSet]; intro x mx
+        have rsub := biUnion_Ω (i := 𝓘 p'); rw [range_subset_iff] at rsub; specialize rsub x
+        simp_rw [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] at rsub
+        obtain ⟨(ps : 𝔓 X), (ips : 𝓘 ps = 𝓘 p'), mps⟩ := rsub; rw [← mem_preimage] at mps
+        rw [mem_iUnion₂]; refine ⟨ps, ?_, ?_⟩
+        · simp_rw [𝔒, Finset.mem_filter, Finset.mem_univ, ips, true_and, not_disjoint_iff]
+          use Q x, mem_preimage.mp mx.2, mem_preimage.mp mps
+        · exact ⟨⟨ips.symm ▸ mx.1.1, mx.1.2⟩, mps⟩
+      _ ≤ (∑ p'' ∈ 𝔒 p' l, volume (E₁ p'')) / volume (𝓘 p' : Set X) :=
+        ENNReal.div_le_div_right (measure_biUnion_finset_le _ _) _
+      _ = ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p' : Set X) := by
+        simp_rw [ENNReal.div_eq_inv_mul, Finset.mul_sum]
+      _ = _ := by
+        refine Finset.sum_congr rfl fun p'' mp'' ↦ ?_
+        rw [𝔒, Finset.mem_filter] at mp''; rw [mp''.2.1]
+  by_contra! h
+  have : ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p'' : Set X) ≤
+      (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) :=
+    calc
+      _ ≤ ∑ _ ∈ 𝔒 p' l, (2 : ℝ≥0∞) ^ (-n : ℤ) := by
+        refine Finset.sum_le_sum h
+      _ = (𝔒 p' l).card * (2 : ℝ≥0∞) ^ (-n : ℤ) := by rw [Finset.sum_const, nsmul_eq_mul]
+      _ ≤ _ := by
+        refine mul_le_mul_right' ?_ _
+        rw [show ((𝔒 p' l).card : ℝ≥0∞) = ((𝔒 p' l).card : ℝ≥0) by simp, ENNReal.coe_le_coe]
+        rw [← Nat.cast_le (α := ℝ≥0)] at cO
+        exact cO.trans (Nat.floor_le (by positivity))
+  exact (ltq.trans_le this).false
+
+end
+
+/-- Main part of Lemma 5.5.2. -/
 lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   refine iUnion_minLayer_iff_bounded_series.mpr fun p ↦ ?_
-  sorry
+  suffices ¬∃ s : LTSeries (𝔏₀ (X := X) k n), s.length = n + 1 by
+    rcases lt_or_le p.length (n + 1) with c | c
+    · exact Nat.le_of_lt_succ c
+    · exact absurd ⟨p.take ⟨n + 1, by omega⟩, by rw [RelSeries.take_length]⟩ this
+  by_contra h; obtain ⟨s, hs⟩ := h; let sl := s.last; have dsl := sl.2.1.2.1
+  simp_rw [dens', lt_iSup_iff, mem_singleton_iff, exists_prop, exists_eq_left] at dsl
+  obtain ⟨l, hl, p', mp', sp', qp'⟩ := dsl
+  obtain ⟨b, mb, qb⟩ := exists_𝔒_with_le_quotient hl qp'
+  have 𝓘p'b : 𝓘 p' = 𝓘 b := by rw [𝔒, Finset.mem_filter] at mb; exact mb.2.1.symm
+  replace qb := ENNReal.mul_lt_of_lt_div qb
+  have mba : b ∈ (aux𝔐 k n).toFinset := by
+    simp_rw [mem_toFinset, aux𝔐, mem_setOf, qb, and_true]; rw [TilesAt, mem_preimage] at mp' ⊢
+    exact 𝓘p'b ▸ mp'
+  obtain ⟨m, lm, maxm⟩ := exists_maximal_upper_bound mba
+  replace maxm : m ∈ 𝔐 k n := by simpa only [mem_toFinset] using maxm
+  -- We will now show a contradiction. As a member of `𝔏₀ k n` the _first_ element `s₀` of the
+  -- `LTSeries s` satisfies `𝔅 k n s₀ = ∅`. But we will show that `m ∈ 𝔅 k n s₀`,
+  -- i.e. `smul 100 s₀ ≤ smul 1 m`.
+  let s₀ := s.head; apply absurd s₀.2.2; rw [← ne_eq, ← nonempty_iff_ne_empty]; use m, maxm
+  constructor
+  · have l1 : 𝓘 s₀.1 ≤ 𝓘 sl.1 := s.head_le_last.1
+    have l2 : 𝓘 sl.1 ≤ 𝓘 b := 𝓘p'b ▸ sp'.1
+    have l3 : 𝓘 b ≤ 𝓘 m := lm.1
+    exact (l1.trans l2).trans l3
+  change ball_(m) (𝒬 m) 1 ⊆ ball_(s₀.1) (𝒬 s₀.1) 100; intro (θ : Θ X) mθ; rw [@mem_ball] at mθ ⊢
+  have aux : dist_(sl.1) (𝒬 sl.1) θ < 2 * l + 3 :=
+    calc
+      _ ≤ dist_(sl.1) (𝒬 sl.1) (𝒬 p') + dist_(sl.1) (𝒬 p') θ := dist_triangle ..
+      _ < l + dist_(sl.1) (𝒬 p') θ := by
+        apply add_lt_add_right
+        have : 𝒬 p' ∈ ball_(p') (𝒬 p') l := by convert mem_ball_self (zero_lt_two.trans_le hl)
+        exact mem_ball'.mp (sp'.2 this)
+      _ ≤ l + dist_(p') (𝒬 p') θ := add_le_add_left (Grid.dist_mono sp'.1) _
+      _ ≤ l + dist_(p') (𝒬 p') (𝒬 b) + dist_(p') (𝒬 b) θ := by
+        rw [add_assoc]; apply add_le_add_left; exact dist_triangle ..
+      _ ≤ l + (l + 1) + dist_(b) (𝒬 b) θ := by
+        gcongr
+        · rw [𝔒, Finset.mem_filter] at mb
+          obtain ⟨(x : Θ X), x₁, x₂⟩ := not_disjoint_iff.mp mb.2.2
+          replace x₂ := _root_.subset_cball x₂
+          rw [@mem_ball] at x₁ x₂
+          calc
+            _ ≤ dist_(p') x (𝒬 p') + dist_(p') x (𝒬 b) := dist_triangle_left ..
+            _ ≤ _ := by
+              apply add_le_add x₁.le
+              change dist_{𝓘 p'} x (𝒬 b) ≤ 1; rw [𝓘p'b]; exact x₂.le
+        · change dist_{𝓘 p'} (𝒬 b) θ ≤ dist_{𝓘 b} (𝒬 b) θ; rw [𝓘p'b]
+      _ ≤ l + (l + 1) + (dist_(b) (𝒬 m) (𝒬 b) + dist_(b) (𝒬 m) θ) :=
+        add_le_add_left (dist_triangle_left ..) _
+      _ ≤ l + (l + 1) + (1 + dist_(m) (𝒬 m) θ) := by
+        gcongr
+        · exact (dist_𝒬_lt_one_of_le lm).le
+        · exact Grid.dist_mono lm.1
+      _ < l + (l + 1) + (1 + 1) := by gcongr; exact mem_ball'.mp mθ
+      _ = _ := by ring
+  calc
+    _ ≤ dist_(s₀.1) (𝒬 sl.1) θ + dist_(s₀.1) (𝒬 sl.1) (𝒬 s₀.1) := dist_triangle_left ..
+    _ < 1 + dist_(s₀.1) (𝒬 sl.1) θ := by
+      rw [add_comm]; exact add_lt_add_right (dist_𝒬_lt_one_of_le s.head_le_last) _
+    _ ≤ 1 + C2_1_2 a ^ (n + 1) * dist_(sl.1) (𝒬 sl.1) θ := add_le_add_left (dist_LTSeries hs) _
+    _ < 1 + C2_1_2 a ^ (n + 1) * (2 * l + 3) := by gcongr; rw [C2_1_2]; positivity
+    _ ≤ 1 + (1 / 512) ^ (n + 1) * (2 ^ (n + 1) + 3) := by
+      gcongr
+      · rw [C2_1_2]; positivity
+      · exact C2_1_2_le_inv_512 X
+      · rw [pow_succ']
+        exact mul_le_mul_of_nonneg_left (by exact_mod_cast (l_upper_bound hl qp').le) zero_le_two
+    _ = 1 + (2 / 512) ^ (n + 1) + (1 / 512) ^ (n + 1) * 3 := by
+      rw [mul_add, ← add_assoc, ← mul_pow]; norm_num
+    _ ≤ 1 + (2 / 512) ^ 1 + (1 / 512) ^ 1 * 3 := by
+      gcongr 1 + ?_ + ?_ * 3 <;>
+        exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (by omega)
+    _ < _ := by norm_num
 
 /-- Part of Lemma 5.5.2 -/
 lemma pairwiseDisjoint_L0' : univ.PairwiseDisjoint (𝔏₀' (X := X) k n) := pairwiseDisjoint_minLayer
