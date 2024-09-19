@@ -72,6 +72,9 @@ lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
       obtain ⟨c, _, hc⟩ := tmp
       use c, (by rw [mem_biUnion]; use b), hc
 
+lemma BallsCoverBalls.mono (h : BallsCoverBalls X r₂ r₃ n) (h2 : r₁ ≤ r₂) :
+    BallsCoverBalls X r₁ r₃ n := fun x ↦ (h x).mono_set (ball_subset_ball h2)
+
 lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCoverBalls X r₂ r₃ m) :
     BallsCoverBalls X r₁ r₃ (n * m) := fun x ↦ (h1 x).trans h2
 

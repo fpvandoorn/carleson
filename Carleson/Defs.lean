@@ -281,7 +281,7 @@ section ProofData
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
 
-section CDistIterate
+section Iterate
 
 lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
     2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
@@ -308,7 +308,20 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
 
-end CDistIterate
+lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
+    BallsCoverBalls (WithFunctionDistance x d) R r (defaultA a ^ ⌈Real.logb 2 (R / r)⌉₊) := by
+  have double := fun s ↦ PreProofData.cf.ballsCoverBalls (x := x) (r := d) (R := s)
+  apply (BallsCoverBalls.pow_mul double).mono
+  calc
+    _ = R / r * r := by rw [div_mul_cancel₀ R hr.ne']
+    _ = 2 ^ Real.logb 2 (R / r) * r := by
+      rw [Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
+    _ ≤ _ := by
+      refine mul_le_mul_of_nonneg_right ?_ hr.le
+      rw [← Real.rpow_natCast]
+      exact Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil _)
+
+end Iterate
 
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry

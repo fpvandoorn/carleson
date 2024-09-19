@@ -347,3 +347,14 @@ lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
       _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
       _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two _
       _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
+
+/-- For every element in a finset over a type equipped with a partial order,
+there is a maximal upper bound for that element. -/
+lemma exists_maximal_upper_bound {α : Type*} [PartialOrder α] {s : Finset α} {a : α} (ha : a ∈ s) :
+    ∃ m ≥ a, Maximal (· ∈ s) m := by
+  classical let C : Finset α := s.filter (a ≤ ·)
+  have Cn : C.Nonempty := ⟨a, by simp only [C, Finset.mem_filter, ha, le_rfl, true_and]⟩
+  obtain ⟨m, hm, maxm⟩ := C.exists_maximal Cn
+  simp_rw [C, Finset.mem_filter] at hm maxm
+  use m, hm.2; rw [maximal_iff]
+  exact ⟨hm.1, fun b mb lb ↦ eq_of_le_of_not_lt lb (maxm b ⟨mb, hm.2.trans lb⟩)⟩
