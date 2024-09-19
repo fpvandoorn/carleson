@@ -1079,10 +1079,7 @@ lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
       rw [mul_add, ← add_assoc, ← mul_pow]; norm_num
     _ ≤ 1 + (2 / 512) ^ 1 + (1 / 512) ^ 1 * 3 := by
       gcongr 1 + ?_ + ?_ * 3 <;>
-      · apply pow_le_pow_of_le_one
-        · norm_num
-        · norm_num
-        · omega
+        exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (by omega)
     _ < _ := by norm_num
 
 /-- Part of Lemma 5.5.2 -/
