@@ -186,6 +186,14 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
       ≤ μ (ball x (dist x x' + r')) := by gcongr; exact ball_subset_ball_of_le le_rfl
     _ ≤ As A s * μ (ball x r) := measure_ball_le_same' x hs h
 
+lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
+    (h : dist x x' + r' ≤ s * r) :
+    μ.nnreal (ball x' r') ≤ As A s * μ.nnreal (ball x r) := by
+  simp only [Measure.nnreal,← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal
+    (measure_ball_ne_top x r), ENNReal.coe_toNNReal (measure_ball_ne_top x' r')]
+  exact measure_ball_le_of_dist_le' hs h
+
+
 section
 
 variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
