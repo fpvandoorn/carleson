@@ -81,6 +81,12 @@ lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : S
   · have := le_or_disjoint h; tauto
   · have := le_or_disjoint h.le; tauto
 
+lemma le_or_ge_of_mem_of_mem {c : X} (mi : c ∈ i) (mj : c ∈ j) : i ≤ j ∨ j ≤ i :=
+  (or_assoc.mpr le_or_ge_or_disjoint).resolve_right (not_disjoint_iff.mpr ⟨c, mi, mj⟩)
+
+lemma le_of_mem_of_mem (h : s i ≤ s j) {c : X} (mi : c ∈ i) (mj : c ∈ j) : i ≤ j :=
+  ⟨(fundamental_dyadic h).resolve_right (not_disjoint_iff.mpr ⟨c, mi, mj⟩), h⟩
+
 lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set X) :=
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
@@ -138,9 +144,6 @@ lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
   exact mem_of_mem_of_subset (Metric.mem_ball_self (by positivity)) ball_subset_Grid
 
 lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
-
-lemma le_of_mem_of_mem {i j : Grid X} (h : s i ≤ s j) {c : X} (mi : c ∈ i) (mj : c ∈ j) : i ≤ j :=
-  ⟨(fundamental_dyadic h).resolve_right (not_disjoint_iff.mpr ⟨c, mi, mj⟩), h⟩
 
 lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j) : i ≤ j := by
   obtain ⟨c, mc⟩ := k.nonempty
@@ -200,6 +203,14 @@ lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
   by_cases k : IsMax i
   · simp only [k, succ, dite_true]; exact h.le
   · exact (succ_spec k).2 j h
+
+lemma exists_containing_subcube (l : ℤ) (h : l ∈ Icc (-S : ℤ) (s i)) {x : X} (mx : x ∈ i) :
+    ∃ j, s j = l ∧ x ∈ j := by
+  obtain ⟨lb, ub⟩ := h
+  rcases ub.eq_or_lt with ub | ub; · exact ⟨i, ub.symm, mx⟩
+  have := Grid_subset_biUnion l ⟨lb, ub⟩ mx
+  simp_rw [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] at this
+  exact this
 
 lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
   obtain ⟨lb, ub⟩ := h

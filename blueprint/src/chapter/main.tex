@@ -4198,6 +4198,7 @@ $$
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $s \in \mathbb{Z}$ with $\underline{\sigma} (\fu, x) \le s \le \overline{\sigma} (\fu, x)$. By definition of $\sigma$, there exists $\fp \in \fT(\fu)$ with $\ps(\fp) = \underline{\sigma} (\fu, x)$ and $x \in E(\fp)$, and there exists $\fp'' \in \fT(\fu)$ with $\ps(\fp'') = \overline{\sigma} (\fu, x)$ and $x \in E(\fp'') \subset \scI(\fp'')$. By property \eqref{coverdyadic} of the dyadic grid, there exists a cube $I \in \mathcal{D}$ of scale $s$ with $x \in I$. By property \eqref{eq-dis-freq-cover}, there exists a tile $\fp' \in \fP(I)$ with $\tQ(x) \in \fc(\fp')$. By the dyadic property \eqref{dyadicproperty} we have $\scI(\fp) \subset \scI(\fp') \subset \scI(\fp'')$, and by \eqref{eq-freq-dyadic}, we have $\fc(\fp'') \subset \fc(\fp') \subset \fc(\fp)$. Thus $\fp \le \fp' \le\fp''$, which gives with the convexity property \eqref{forest2} of $\fT(\fu)$ that $\fp' \in \fT(\fu)$, so $s \in \sigma(\fu, x)$.
 \end{proof}
 
@@ -4235,6 +4236,7 @@ to be the collection of dyadic cubes $L \in \mathcal{D}$ such that $s(L) = -S$, 
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Since $\mathcal{J}(\mathfrak{S})$ is the set of inclusion maximal cubes in $\mathcal{J}_0(\mathfrak{S})$, cubes in $\mathcal{J}(\mathfrak{S})$ are pairwise disjoint by \eqref{dyadicproperty}. The same applies to $\mathcal{L}(\mathfrak{S})$.
 
     If $x \in \bigcup_{I \in \mathcal{D}} I$, then there exists by \eqref{coverdyadic} a cube $I \in \mathcal{D}$ with $x \in I$ and $s(I) = -S$. Then $I \in \mathcal{J}_0(\mathfrak{S})$. There exists an inclusion maximal cube in $\mathcal{J}_0(\mathfrak{S})$ containing $I$. This cube contains $x$ and is contained in $\mathcal{J}(\mathfrak{S})$. This shows one inclusion in \eqref{eq-J-partition}, the other one follows from $\mathcal{J}(\mathfrak{S}) \subset \mathcal{D}$.

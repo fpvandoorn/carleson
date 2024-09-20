@@ -181,7 +181,7 @@ lemma dyadic_union (hx : x ∈ setA l k n) : ∃ i : Grid X, x ∈ i ∧ (i : Se
   use 𝓘 b, memb.2; intro c mc; rw [mem_setOf]
   refine hx.trans_le (Finset.card_le_card fun y hy ↦ ?_)
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hy ⊢
-  exact ⟨hy.1, mem_of_mem_of_subset mc (Grid.le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
+  exact ⟨hy.1, mem_of_mem_of_subset mc (le_of_mem_of_mem (minb y hy) memb.2 hy.2).1⟩
 
 lemma iUnion_MsetA_eq_setA : ⋃ i ∈ MsetA (X := X) l k n, ↑i = setA (X := X) l k n := by
   ext x
