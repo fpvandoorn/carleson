@@ -46,7 +46,6 @@ lemma nnq'_lt_two_coe : (nnq' : ℝ≥0∞) < 2 := by
 
 end
 
-
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
@@ -144,16 +143,14 @@ lemma norm_Ks_le'  {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hy : Ks (𝔰 p.1
   rw [zpow_sub₀ (by simp), zpow_one, div_div]
   exact ineq_6_1_7 x p
 
--- TODO: golf
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
-    (ha : 1 ≤ a) {F : Set X} {f : X → ℂ} --(hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hfm : Measurable f) (x : X) :
+    (ha : 1 ≤ a) {f : X → ℂ} (hfm : Measurable f) (x : X) :
     ‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
   by_cases hx : ∃ (p : 𝔄), carlesonOn p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
-    have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := zpow_pos_of_pos (defaultD_pos _) _
-    have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_pos (by positivity) hDpow_pos -- TODO: use everywhere
+    have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos _ _
+    have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_defaultD_pow_pos _ (by linarith) _
     have hxE : x ∈ E ↑p := mem_of_indicator_ne_zero hpx
     have hne_p : ∀ b ∈ 𝔄, b ≠ ↑p → carlesonOn b f x = 0 := by
       intro p' hp' hpp'
@@ -232,14 +229,13 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         exact this
         · exact inv_pos.mpr (measure_ball_pos_nnreal _ _ h8Dpow_pos)
         · exact measure_ball_pos_nnreal _ _ h8Dpow_pos
-      have foo : dist x (𝔠 p) + 8 * ↑D ^ 𝔰 p.1 ≤ 2 * (8 * ↑D ^ 𝔰 p.1) :=
+      have h2 : dist x (𝔠 p) + 8 * ↑D ^ 𝔰 p.1 ≤ 2 * (8 * ↑D ^ 𝔰 p.1) :=
         calc dist x (𝔠 p) + 8 * ↑D ^ 𝔰 p.1
           ≤ 4 * ↑D ^ 𝔰 p.1 + 8 * ↑D ^ 𝔰 p.1 := (add_le_add_iff_right _).mpr hdist_cp
         _ ≤ 2 * (8 * ↑D ^ 𝔰 p.1) := by
           ring_nf
           exact mul_le_mul_of_nonneg (le_refl _) (by linarith) (le_of_lt hDpow_pos) (by linarith)
-      have := measureNNReal_ball_le_of_dist_le' (μ := volume) zero_lt_two foo
-      convert this
+      convert measureNNReal_ball_le_of_dist_le' (μ := volume) zero_lt_two h2
       simp only [As, defaultA, Nat.cast_pow, Nat.cast_ofNat, Nat.one_lt_ofNat, logb_self_eq_one,
         Nat.ceil_one, pow_one]
     _ = (2 : ℝ≥0)^(5*a + 101*a^3 + a) *
@@ -277,9 +273,6 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
 
-
-#exit -- TODO: remove before PR
-
 -- TODO: PR
 omit [MetricSpace X] in
 lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
@@ -298,7 +291,7 @@ noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)
 
 -- Inequality 6.1.15
 lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
-    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hf_vol : AEMeasurable f volume) :
+    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) : /- (hf_vol : AEMeasurable f volume) -/
     eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭)
       ((2*nnq')/(3*nnq' - 2)) f x).toReal) 2 volume ≤
       (2 ^ (2 * a)) * (3*nnq' - 2) / (2*nnq' - 2) * eLpNorm f 2 volume := by
@@ -318,7 +311,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
   /- have hF1 : AEStronglyMeasurable (F.indicator (1 : X → ℝ≥0∞)) volume :=
     AEStronglyMeasurable.indicator aestronglyMeasurable_one measurableSet_F -/
   -- Could this be deduced from hF1?
-  have hf1 : AEStronglyMeasurable f volume := hf_vol.aestronglyMeasurable
+  have hf1 : AEStronglyMeasurable f volume := hfm.aestronglyMeasurable
   by_cases hf_top : eLpNorm f 2 volume < ⊤
   · --have hf2 :  Memℒp f 2 volume := ⟨hf1, hf_top⟩
     have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁
@@ -360,7 +353,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
 
 -- lemma 6.1.3, inequality 6.1.10
 lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ha : 4 ≤ a)
-    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hf_vol : AEMeasurable f volume)
+    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) /- (hf_vol : AEMeasurable f volume) -/
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
@@ -421,7 +414,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     calc eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠
         (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2)) f x).toReal) 2 volume
       _ ≤ (2 ^ (2 * a)) * (3*nnq' - 2) / (2*nnq' - 2) * eLpNorm f 2 volume :=
-        eLpNorm_maximal_function_le' h𝔄 hf hf_vol
+        eLpNorm_maximal_function_le' h𝔄 hf hfm
       _ ≤ (2 ^ (2*a + 2) / (nnq' - 1)) * eLpNorm f 2 volume := by
         apply mul_le_mul_right'
         rw [pow_add, mul_div_assoc (2 ^ (2 * a)), mul_div_assoc (2 ^ (2 * a))]
@@ -447,11 +440,12 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
         --apply eLpNormEssSup_lt_top_of_ae_nnnorm_bound
         sorry
       rw [← ENNReal.coe_le_coe, Finset.sum_apply]
-      convert (MaximalBoundAntichain h𝔄 (le_trans (by linarith) ha) hf z)
+      convert (MaximalBoundAntichain h𝔄 (le_trans (by linarith) ha) hfm z)
       · simp only [Pi.smul_apply, real_smul, nnnorm_mul, nnnorm_eq, nnnorm_mul,
          nnnorm_real, nnnorm_pow, nnnorm_two,
         nnnorm_eq, coe_mul, C_6_1_2, ENNReal.coe_toNNReal MB_top]
         norm_cast
+        sorry
     _ ≤ 2 ^ (107*a^3 + 2*a + 2) * (nnq' - 1)⁻¹ * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.20. use 6.1.14 and 6.1.16.
