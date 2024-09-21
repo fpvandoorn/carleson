@@ -113,7 +113,7 @@ lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) 
   · refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
     · sorry
     · sorry
-  · sorry
+  · rw [← uncurry_def]; exact measurable_K_right
   · apply measurable_ofReal.comp
     apply Measurable.comp (f := fun (x : X × X) ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
     · exact measurable_const.max (measurable_const.min
@@ -130,11 +130,6 @@ def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
 lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonSum ℭ f) :=
   Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
-
-lemma ennnorm_carlesonSum_union_le {s t : Set (𝔓 X)} {f : X → ℂ} {x : X} (dj : Disjoint s t) :
-    (‖carlesonSum (s ∪ t) f x‖₊ : ℝ≥0∞) ≤ ‖carlesonSum s f x‖₊ + ‖carlesonSum t f x‖₊ := by
-  norm_cast; unfold carlesonSum
-  sorry
 
 lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
