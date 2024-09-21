@@ -126,6 +126,7 @@ We will use this in other places of the formalization as well. -/
 def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
 
+@[fun_prop]
 lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonSum ℭ f) :=
   Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
