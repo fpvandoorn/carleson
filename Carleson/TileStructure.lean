@@ -110,13 +110,13 @@ lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) 
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
   refine (((Measurable.mul ?_ measurable_K_right).mul ?_).mul ?_).stronglyMeasurable
-  · refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
-    · sorry
-    · sorry
+  · have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
+    refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
+    · exact measurable_Q₂
+    · exact measurable_Q₂.comp this
   · apply measurable_ofReal.comp
-    apply Measurable.comp (f := fun (x : X × X) ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
-    · exact measurable_const.max (measurable_const.min
-        (Measurable.min (by fun_prop) (by fun_prop)))
+    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
+    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
     · exact measurable_dist.const_mul _
   · exact measf.comp measurable_snd
 

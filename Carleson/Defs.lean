@@ -323,6 +323,18 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
 
 end Iterate
 
+lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
+  have : (fun p : X × X ↦ (Q p.1) p.2) ⁻¹' s = ⋃ θ ∈ Q.range, (Q ⁻¹' {θ}) ×ˢ (θ ⁻¹' s) := by
+    ext ⟨x, y⟩
+    simp only [mem_preimage, SimpleFunc.mem_range, mem_range, iUnion_exists, iUnion_iUnion_eq',
+      mem_iUnion, mem_prod, mem_singleton_iff]
+    constructor <;> intro h
+    · use x
+    · obtain ⟨j, hj⟩ := h; exact congr($(hj.1) y).symm ▸ hj.2
+  rw [this]
+  exact Q.range.measurableSet_biUnion fun θ _ ↦
+    (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)
+
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
 
