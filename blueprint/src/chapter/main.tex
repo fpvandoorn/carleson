@@ -524,7 +524,7 @@ hold.
 For each $\fu\in \fU$ and each $\fp\in \fT(\fu)$
 we have $\scI(\fp) \ne \scI(\fu)$ and
 \begin{equation}\label{forest1}
-4\fp\lesssim 1\fu.
+4\fp\lesssim \fu.
 \end{equation}
 For each $\fu \in \fU$ and each $\fp,\fp''\in \fT(\fu)$ and $\fp'\in \fP$
 we have
@@ -2897,7 +2897,7 @@ We have
     $$
         B_{\fu}(\fcc(\fu), 1) \subset B_{\fu'}(\fcc(\fu'), 500) \subset B_{\fp}(\fcc(\fp), 4)\,.
     $$
-    Together with $\scI(\fp) \subset \scI(\fu') = \scI(\fu)$, this gives $4\fp \lesssim 1\fu$, which is \eqref{forest1}.
+    Together with $\scI(\fp) \subset \scI(\fu') = \scI(\fu)$, this gives $4\fp \lesssim \fu$, which is \eqref{forest1}.
 \end{proof}
 
 \begin{lemma}[forest convex]
@@ -4387,7 +4387,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
 \begin{proof}
     Let $s_1 = \underline{\sigma}(\fu, x)$. By definition, there exists a tile $\fp \in \fT(\fu)$ with $\ps(\fp) = s_1$ and $x \in E(\fp)$. Then $x \in \scI(\fp) \cap L$. By \eqref{dyadicproperty} and the definition of $\mathcal{L}(\fT(\fu))$, it follows that $L \subset \scI(\fp)$, in particular $x' \in \scI(\fp)$, so $x \in I_{s_1}(x')$.
-    Next, let $s_2 = \overline{\sigma}(\fu, x)$ and let $\fp' \in \fT(\fu)$ with $\ps(\fp') = s_2$ and $x \in E(\fp')$. Since $\fp' \in \fT(\fu)$, we have $4\fp' \lesssim 1\fu$. Since $\tQ(x) \in \fc(\fp')$, it follows that
+    Next, let $s_2 = \overline{\sigma}(\fu, x)$ and let $\fp' \in \fT(\fu)$ with $\ps(\fp') = s_2$ and $x \in E(\fp')$. Since $\fp' \in \fT(\fu)$, we have $4\fp' \lesssim \fu$. Since $\tQ(x) \in \fc(\fp')$, it follows that
     $$
         d_{\fp}(\fcc(\fu), \tQ(x)) \le 5\,.
     $$
@@ -4399,7 +4399,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     $$
         d_{B(x, D^{s_2})}(\fcc(\fu), \tQ(x)) \le 5 \cdot 2^{5a}\,.
     $$
-    Finally, by applying \eqref{seconddb} $2^{100a}$ times, we obtain
+    Finally, by applying \eqref{seconddb} $100a$ times, we obtain
     $$
         d_{B(x, D^{s_2-1})}(\fcc(\fu), \tQ(x)) \le 5 \cdot 2^{-95a} < 1\,.
     $$

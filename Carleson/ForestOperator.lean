@@ -201,7 +201,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
         · unfold defaultD; positivity
       _ < _ := by rw [mul_comm]; gcongr
   have d1 : dist_{x, D ^ (s₂ - 1)} (𝒬 u) (Q x) < 1 := by
-    have := le_cdist_iterate (x := x) (r := D ^ (s₂ - 1)) (by sorry) (𝒬 u) (Q x) (100 * a)
+    have := le_cdist_iterate (x := x) (r := D ^ (s₂ - 1)) (by positivity) (𝒬 u) (Q x) (100 * a)
     calc
       _ ≤ dist_{x, D ^ s₂} (𝒬 u) (Q x) * 2 ^ (-100 * a : ℤ) := by
         rw [neg_mul, zpow_neg, le_mul_inv_iff₀ (by positivity), mul_comm]
