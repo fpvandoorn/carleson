@@ -1,4 +1,4 @@
-import Carleson.Discrete.ForestUnion
+import Carleson.Discrete.MainTheorem
 import Carleson.TileExistence
 
 open MeasureTheory Measure NNReal Metric Complex Set Classical

@@ -16,6 +16,7 @@ import Carleson.Discrete.Defs
 import Carleson.Discrete.ExceptionalSet
 import Carleson.Discrete.ForestComplement
 import Carleson.Discrete.ForestUnion
+import Carleson.Discrete.MainTheorem
 import Carleson.DoublingMeasure
 import Carleson.FinitaryCarleson
 import Carleson.Forest
