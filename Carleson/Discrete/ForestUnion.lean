@@ -1,7 +1,6 @@
 import Carleson.Discrete.ExceptionalSet
 import Carleson.Discrete.ForestComplement
 import Carleson.Forest
-import Mathlib.Combinatorics.Enumerative.DoubleCounting
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal

@@ -1,5 +1,4 @@
 import Carleson.Discrete.Defs
-import Carleson.Forest
 import Mathlib.Combinatorics.Enumerative.DoubleCounting
 
 open MeasureTheory Measure NNReal Metric Complex Set
