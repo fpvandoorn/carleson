@@ -88,6 +88,15 @@ lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
 
+lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
+  refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
+  · rw [← measurableSet_setOf]; exact coeGrid_measurable
+  · simp_rw [← mem_preimage, ← measurableSet_setOf]; exact SimpleFunc.measurableSet_preimage ..
+  · apply (measurable_set_mem _).comp
+    apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
+    · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+    · exact measurable_σ₁.prod_mk measurable_σ₂
+
 section T
 
 /-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
@@ -97,11 +106,35 @@ def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
+lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
+    Measurable (carlesonOn p f) := by
+  refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
+  refine (((Measurable.mul ?_ ?_).mul ?_).mul ?_).stronglyMeasurable
+  · refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
+    · sorry
+    · sorry
+  · sorry
+  · apply measurable_ofReal.comp
+    apply Measurable.comp (f := fun (x : X × X) ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
+    · exact measurable_const.max (measurable_const.min
+        (Measurable.min (by fun_prop) (by fun_prop)))
+    · exact measurable_dist.const_mul _
+  · exact measf.comp measurable_snd
+
 open Classical in
 /-- The operator `T_ℭ f` defined at the bottom of Section 7.4.
 We will use this in other places of the formalization as well. -/
 def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
+
+lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
+    Measurable (carlesonSum ℭ f) :=
+  Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
+
+lemma ennnorm_carlesonSum_union_le {s t : Set (𝔓 X)} {f : X → ℂ} {x : X} (dj : Disjoint s t) :
+    (‖carlesonSum (s ∪ t) f x‖₊ : ℝ≥0∞) ≤ ‖carlesonSum s f x‖₊ + ‖carlesonSum t f x‖₊ := by
+  norm_cast; unfold carlesonSum
+  sorry
 
 lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by

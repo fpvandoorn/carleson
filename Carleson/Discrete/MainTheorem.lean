@@ -25,4 +25,20 @@ theorem discrete_carleson :
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖carlesonSum univ f x‖₊ ≤
     C2_0_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by
-  sorry
+  have exc := exceptional_set (X := X)
+  rw [zpow_neg_one, ← ENNReal.div_eq_inv_mul] at exc
+  use G', measurable_G', ENNReal.mul_le_of_le_div' exc; intro f measf hf
+  calc
+    _ ≤ ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ + ‖carlesonSum 𝔓₁ᶜ f x‖₊ := by
+      refine setLIntegral_mono ?_ fun x mx ↦ ?_
+      · exact ((measurable_carlesonSum measf).nnnorm.add
+          (measurable_carlesonSum measf).nnnorm).coe_nnreal_ennreal
+      · rw [ENNReal.coe_le_coe]
+        sorry
+    _ = (∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊) +
+        ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ :=
+      lintegral_add_left ((measurable_carlesonSum measf).nnnorm).coe_nnreal_ennreal _
+    _ ≤ C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ +
+        C5_1_3 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ :=
+      add_le_add (forest_union hf) (forest_complement hf)
+    _ = _ := by simp_rw [mul_assoc, ← add_mul]; congr
