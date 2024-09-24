@@ -81,6 +81,9 @@ def c𝓑 (z : ℕ × Grid X) : X := c z.2
 /-- The radius function for the collection of balls 𝓑. -/
 def r𝓑 (z : ℕ × Grid X) : ℝ := 2 ^ z.1 * D ^ s z.2
 
+lemma 𝓑_finite : (𝓑 (X := X)).Finite :=
+  finite_Icc .. |>.prod finite_univ
+
 /-- Lemma 7.1.1, freely translated. -/
 lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
   rw [ordConnected_def]; intro i mi j mj k mk
@@ -143,14 +146,14 @@ def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (105 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.4 -/
 lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     ‖∑ i in t.σ u x, ∫ y, (exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y * f y ‖₊ ≤
     C7_1_4 a * MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
   sorry
 
 /-- Lemma 7.1.5 -/
 lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     ‖∑ i in t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
@@ -240,7 +243,7 @@ def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.6 -/
 lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     ‖∑ i in t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊ ≤
     C7_1_6 a * t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
   sorry
@@ -252,7 +255,7 @@ def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     ‖carlesonSum (t u) (fun y ↦ exp (.I * - 𝒬 u y) * f y) x‖₊ ≤
     C7_1_3 a * (MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
     t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
@@ -270,7 +273,8 @@ def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (103 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.2.2. -/
 lemma nontangential_operator_bound
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (θ : Θ X) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f · |>.toReal) 2 volume ≤ eLpNorm f 2 volume := by
   sorry
 
@@ -341,7 +345,8 @@ lemma boundary_overlap (I : Grid X) : (kissing I).card ≤ 2 ^ (9 * a) := by
 
 /-- Lemma 7.2.3. -/
 lemma boundary_operator_bound
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (hu : u ∈ t) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (hu : u ∈ t) :
     eLpNorm (boundaryOperator t u f · |>.toReal) 2 volume ≤ eLpNorm f 2 volume := by
   sorry
 
@@ -352,8 +357,9 @@ def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.2.1. -/
 lemma tree_projection_estimate
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (hu : u ∈ t) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
+    (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume *
     eLpNorm (approxOnCube (𝓛 (t u)) (‖g ·‖)) 2 volume := by
@@ -390,8 +396,9 @@ def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- First part of Lemma 7.3.1. -/
 lemma density_tree_bound1
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (hu : u ∈ t) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
+    (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_1 a *  dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry
@@ -402,9 +409,11 @@ Has value `2 ^ (256 * a ^ 3)` in the blueprint. -/
 def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (256 * (a : ℝ) ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
-lemma density_tree_bound2
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (hu : u ∈ t) :
+lemma density_tree_bound2 -- some assumptions on f are superfluous
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (h4f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
+    (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
@@ -432,7 +441,8 @@ def 𝔖₀ : Set (𝔓 X) := { p ∈ t u₁ ∪ t u₂ | 2 ^ ((Z : ℝ) * n / 2
 
 /-- Part 1 of Lemma 7.4.1.
 Todo: update blueprint with precise properties needed on the function. -/
-lemma adjoint_tile_support1 (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+lemma adjoint_tile_support1 (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) :
     adjointCarleson p f =
     (ball (𝔠 p) (5 * D ^ 𝔰 p)).indicator (adjointCarleson p ((𝓘 p : Set X).indicator f)) := by
   sorry
@@ -440,7 +450,7 @@ lemma adjoint_tile_support1 (hf : IsBounded (range f)) (h2f : HasCompactSupport 
 /-- Part 2 of Lemma 7.4.1.
 Todo: update blueprint with precise properties needed on the function. -/
 lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     adjointCarleson p f =
     (𝓘 p : Set X).indicator (adjointCarleson p ((𝓘 p : Set X).indicator f)) := by
   sorry
@@ -451,7 +461,8 @@ Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
 def C7_4_2 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.4.2. -/
-lemma adjoint_tree_estimate (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+lemma adjoint_tree_estimate (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   sorry
@@ -462,10 +473,46 @@ Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
 def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.4.3. -/
-lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) :
     eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume ≤
     C7_4_3 a * eLpNorm f 2 volume := by
-  sorry
+  calc _ ≤ eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume := by rfl
+  _ ≤ eLpNorm
+    ((‖adjointCarlesonSum (t u) f ·‖) + (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) + (‖f ·‖))
+    2 volume := by
+      refine MeasureTheory.eLpNorm_mono_real fun x ↦ ?_
+      simp_rw [Real.norm_eq_abs, ENNReal.abs_toReal, Pi.add_apply]
+      refine ENNReal.toReal_add_le.trans ?_
+      gcongr
+      · exact ENNReal.toReal_add_le
+      · rfl
+  _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖) 2 volume +
+    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) 2 volume +
+    eLpNorm (‖f ·‖) 2 volume := by
+      refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
+      · sorry
+      · sorry
+      gcongr
+      refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
+      · sorry
+      · sorry
+      rfl
+  _ ≤ eLpNorm (adjointCarlesonSum (t u) f) 2 volume +
+    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) 2 volume +
+    eLpNorm f 2 volume := by simp_rw [eLpNorm_norm]; rfl
+  _ ≤ C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
+    CMB (defaultA a) 2 * eLpNorm f 2 volume +
+    eLpNorm f 2 volume := by
+      gcongr
+      · exact adjoint_tree_estimate hu hf h2f h3f
+      · refine hasStrongType_MB 𝓑_finite one_lt_two _ ?_ |>.2
+        sorry
+
+
+  _ ≤ C7_4_3 a * eLpNorm f 2 volume := by sorry
+
+
 
 /-- Part 2 of Lemma 7.4.7. -/
 lemma 𝔗_subset_𝔖₀ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -556,7 +603,7 @@ def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.5.5. -/
 lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     nndist (exp (.I * 𝒬 u x) * adjointCarleson p f x)
       (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
     C7_5_5 a / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
@@ -578,7 +625,7 @@ def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
 /-- Lemma 7.5.7. -/
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖₊ ≤
     C7_5_7 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
   sorry
@@ -602,7 +649,8 @@ def C7_5_9_2 (a : ℕ) : ℝ≥0 := 2 ^ (153 * (a : ℝ) ^ 3)
 /-- Part 1 of Lemma 7.5.9 -/
 lemma global_tree_control1_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (ℭ : Set (𝔓 X)) (hℭ : ℭ = t u₁ ∨ ℭ = t u₂ ∩ 𝔖₀ t u₁ u₂)
-    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) :
     ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖₊ ≤
     (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum ℭ f x‖₊) +
     C7_5_9_1 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
@@ -612,6 +660,7 @@ lemma global_tree_control1_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 lemma global_tree_control1_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (ℭ : Set (𝔓 X)) (hℭ : ℭ = t u₁ ∨ ℭ = t u₂ ∩ 𝔖₀ t u₁ u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f)
     (hx : x ∈ ball (c J) (8 * D ^ s J)) (hx' : x' ∈ ball (c J) (8 * D ^ s J)) :
     nndist (exp (.I * 𝒬 u x) * adjointCarlesonSum ℭ f x)
       (exp (.I * 𝒬 u x') * adjointCarlesonSum ℭ f x') ≤
@@ -627,7 +676,7 @@ def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 /-- Lemma 7.5.10 -/
 lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
     ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f x‖₊ ≤
     ⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖₊ +
     C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
@@ -737,7 +786,8 @@ def C7_6_2 (a n : ℕ) : ℝ≥0 := 2 ^ (118 * (a : ℝ) ^ 3 - 100 / (202 * a) *
 
 /-- Lemma 7.6.2. Todo: add needed hypothesis to LaTeX -/
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C7_6_2 a n *
     eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) · |>.toReal)) 2 volume := by
@@ -822,13 +872,15 @@ Has value `2 ^ (257 * a ^ 3 - n / 2)` in the blueprint. -/
 def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (257 * (a : ℝ) ^ 3 - n / 2)
 
 /-- Part of Lemma 7.7.2. -/
-lemma row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+lemma row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) :
     eLpNorm (∑ u ∈ {p | p ∈ rowDecomp t j}, adjointCarlesonSum (t u) f) 2 volume ≤
     C7_7_2_1 a n * eLpNorm f 2 volume := by
   sorry
 
 /-- Part of Lemma 7.7.2. -/
-lemma indicator_row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : HasCompactSupport f) :
+lemma indicator_row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) :
     eLpNorm (∑ u ∈ {p | p ∈ rowDecomp t j}, F.indicator <| adjointCarlesonSum (t u) f) 2 volume ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   sorry
