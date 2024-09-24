@@ -8,6 +8,9 @@
 % to
 % `$1-`
 %
+% Regex to (hopefully) count the number of green bubbles:
+%  \\begin\{proof\}.*\n(.*\n)? *\\leanok
+
 \title{Carleson operators on doubling metric measure spaces}
 
 \date{\today}
@@ -45,10 +48,10 @@ Define the partial Fourier sum for $N\ge 0$ as
     \uses{exceptional-set-carleson}
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
     Then for almost all $x \in \mathbb{R}$ we have
-    \begin{equation}\label{eq:fourier_limit}
+    \begin{equation}\label{eq:fourier-limit}
       \lim_{n\to\infty}S_n f(x) = f(x).
     \end{equation}
-    In other words: the set of real numbers $x$ where \eqref{eq:fourier_limit} fails has Lebesgue measure $0$.
+    In other words: the set of real numbers $x$ where \eqref{eq:fourier-limit} fails has Lebesgue measure $0$.
 \end{theorem}
 
 The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
@@ -3247,7 +3250,8 @@ Let $\fp,\fp'\in \mathfrak{A}$.
 If there exists an $x\in X$ with $x\in E(\fp)\cap E(\fp')$,
 then $\fp= \fp'$.
 \end{lemma}
-\begin{proof}\leanok
+\begin{proof}
+\leanok
 Let $\fp,\fp'$ and $x$ be given.
 Assume without loss of generality that $\ps(\fp)\le \ps(\fp')$.
 As we have $x\in E(\fp)\subset \scI(\fp)$ and $x\in E(\fp')\subset \scI(\fp')$ by Definition \eqref{defineep}, we conclude
@@ -6168,8 +6172,6 @@ Recall that $\tau = 1/a$.
 
 \begin{lemma}[Lipschitz Holder approximation]
     \label{Lipschitz-Holder-approximation}
-    % \leanok
-    % \lean{TileStructure.Forest.}
     \leanok
     \lean{support_holderApprox_subset, dist_holderApprox_le, lipschitzWith_holderApprox}
     Let $z\in X$ and $R>0$. Let $\varphi: X \to \mathbb{C}$ be a function supported in the ball
@@ -6700,7 +6702,7 @@ We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Z
 By the additional regularity, we can weaken the assumption \eqref{nontanbound} to a family of operators that is easier to work with in applications.
 Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f:X\to\C$ supported on a set of finite measure, we define
 \begin{equation}
-\label{def-T_r}
+\label{def-T-r}
 T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
 \begin{theorem}[two-sided metric space Carleson]
@@ -7782,7 +7784,7 @@ In the second step, one controls the relevant error of approximating a general f
 the subclass. This is stated in \Cref{control-approximation-effect} and proved
 in \Cref{10difference}.
 The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}, which involves showing that the real line fits into the setting of \Cref{overviewsection}.
-This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $T_r$ defined in \eqref{def-T_r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
+This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $T_r$ defined in \eqref{def-T-r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
 The cancellative property is verified by \Cref{van-der-Corput}, which is proved in \Cref{10vandercorput}.
 Several further auxiliary lemmas are stated and proved in \Cref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
 
@@ -7946,7 +7948,7 @@ where
 \end{lemma}
 
 
-One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concerning the operator $T_r$ defined in \eqref{def-T_r}, is verified by the following lemma, which is proved in \Cref{10hilbert}.
+One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concerning the operator $T_r$ defined in \eqref{def-T-r}, is verified by the following lemma, which is proved in \Cref{10hilbert}.
 \begin{lemma}[Hilbert strong 2 2]
     \label{Hilbert-strong-2-2}
     \uses{modulated-averaged-projection,integrable-bump-convolution,Dirichlet-approximation}
@@ -7959,7 +7961,7 @@ One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concernin
     \end{equation}
     where
     \begin{equation}
-        \label{def-H_r}
+        \label{def-H-r}
         H_r f(x) := T_r f(x) = \int_{r\le\rho(x,y)} \kappa(x-y) f(y) \, dy
     \end{equation}
 \end{lemma}
@@ -8551,7 +8553,7 @@ We now prove \Cref{Hilbert-strong-2-2}.
     \end{equation}
     which gives \eqref{eq-Hr-short-support}.
 
-    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H_r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
+    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H-r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
     \begin{equation}
         \label{eq-Hr-short-support-2}
         \|H_rg\|_2 = \|H_r f\|_2 \le 2^{11} \|f\|_2 = \|g\|_2\,.
@@ -8904,7 +8906,7 @@ This completes the proof of the lemma.
         |g(x)|\le \delta \,.
     \end{equation}
     Then for every $\epsilon>0$, there exists a measurable set $E\subset [0,2\pi]$ with $|E|<\epsilon$ such that for every $x\in [0,2\pi]\setminus E$ and $N>0$,
-    \begin{equation}  \label{S_Ng-small}
+    \begin{equation}  \label{S-Ng-small}
         |S_N g(x)|\le C_\epsilon \delta,
     \end{equation}
     where
@@ -8920,7 +8922,7 @@ Define
 \begin{equation*}
     E := \{x \in [0, 2\pi] \ : \ \sup_{N > 0} |S_N g (x)| > C_\epsilon \delta \} \,.
 \end{equation*}
-Then \eqref{S_Ng-small} clearly holds, and it remains to show that $|E| \le \epsilon$.
+Then \eqref{S-Ng-small} clearly holds, and it remains to show that $|E| \le \epsilon$.
 Using \Cref{partial-Fourier-sum-bound}, we obtain
 \begin{equation*}
     E \subset \{x\in [0,2\pi] \ : \ C_\epsilon \delta < \frac{1}{2\pi} (Tg(x) + T\bar{g}(x)) + \pi\delta\} \subset E_1 \cup E_2,
@@ -9065,12 +9067,12 @@ Define
 
 \begin{lemma}[frequency metric]
     \label{frequency-metric}
+    \lean{instFunctionDistancesReal}
     \leanok
     For every $R > 0$ and $x \in X$, the function $d_{B(x,R)}$ is a metric on $\Mf$.
 \end{lemma}
 
 \begin{proof}
-    \lean{instFunctionDistancesReal}
     \leanok
     This follows immediately from the fact that the standard metric on $\mathbb{Z}$ is a metric.
 \end{proof}
