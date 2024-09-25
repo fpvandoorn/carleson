@@ -113,7 +113,7 @@ lemma biUnion_𝓙 : ⋃ J ∈ 𝓙 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
   obtain ⟨J, sJ, mJ⟩ :=
     Grid.exists_containing_subcube _ ⟨le_rfl, (range_subset_iff.mp range_s_subset I).1⟩ mI
   have : J ∈ (𝓙₀ 𝔖).toFinset := by rw [mem_toFinset]; left; exact sJ
-  obtain ⟨M, lM, maxM⟩ := exists_maximal_upper_bound this
+  obtain ⟨M, lM, maxM⟩ := (𝓙₀ 𝔖).toFinset.exists_le_maximal this
   simp_rw [mem_toFinset] at maxM
   use M, maxM, (Grid.le_def.mp lM).1 mJ
 
@@ -130,7 +130,7 @@ lemma biUnion_𝓛 : ⋃ J ∈ 𝓛 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
   obtain ⟨J, sJ, mJ⟩ :=
     Grid.exists_containing_subcube _ ⟨le_rfl, (range_subset_iff.mp range_s_subset I).1⟩ mI
   have : J ∈ (𝓛₀ 𝔖).toFinset := by rw [mem_toFinset]; left; exact sJ
-  obtain ⟨M, lM, maxM⟩ := exists_maximal_upper_bound this
+  obtain ⟨M, lM, maxM⟩ := (𝓛₀ 𝔖).toFinset.exists_le_maximal this
   simp_rw [mem_toFinset] at maxM
   use M, maxM, (Grid.le_def.mp lM).1 mJ
 

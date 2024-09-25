@@ -7,7 +7,7 @@
 import Carleson.Classical.Basic
 
 open MeasureTheory AddCircle
-
+open scoped InnerProductSpace
 
 --TODO: move somewhere else?
 lemma L2norm_sq_eq {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
