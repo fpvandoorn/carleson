@@ -641,6 +641,11 @@ lemma norm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
   · exact norm_Ks_sub_Ks_le₀ hK h
   · exact norm_Ks_sub_Ks_le₁ hK h
 
+lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
+  unfold Ks _root_.ψ
+  refine aestronglyMeasurable_K.mul ?_
+  fun_prop
+
 /-- The function `y ↦ Ks s x y` is integrable. -/
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by
   /- Define a measurable, bounded function `K₀` that is equal to `K x` on the support of
