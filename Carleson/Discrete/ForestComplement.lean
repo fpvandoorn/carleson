@@ -427,7 +427,7 @@ lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   have mba : b ∈ (aux𝔐 k n).toFinset := by
     simp_rw [mem_toFinset, aux𝔐, mem_setOf, qb, and_true]; rw [TilesAt, mem_preimage] at mp' ⊢
     exact 𝓘p'b ▸ mp'
-  obtain ⟨m, lm, maxm⟩ := exists_maximal_upper_bound mba
+  obtain ⟨m, lm, maxm⟩ := (aux𝔐 k n).toFinset.exists_le_maximal mba
   replace maxm : m ∈ 𝔐 k n := by simpa only [mem_toFinset] using maxm
   -- We will now show a contradiction. As a member of `𝔏₀ k n` the _first_ element `s₀` of the
   -- `LTSeries s` satisfies `𝔅 k n s₀ = ∅`. But we will show that `m ∈ 𝔅 k n s₀`,
@@ -521,7 +521,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
           _ ≤ _ := by norm_num
       _ ≤ _ := by
         refine smul_C2_1_2 _ (by norm_num) ?_ (wiggle_order_11_10 l.le (C5_3_3_le (X := X)))
-        apply not_lt_of_𝓘_eq_𝓘.mt; rwa [not_not]
+        exact (𝓘_strictMono l).ne
   have cp : p ∈ ℭ₁ k n j := (𝔏₂_subset_ℭ₂.trans ℭ₂_subset_ℭ₁) mp
   let C : Finset (LTSeries (ℭ₁' k n j)) := { s | s.head = ⟨p, cp⟩ }
   have Cn : C.Nonempty := by
@@ -533,7 +533,7 @@ lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
   · have px : z.head ≤ z.last := z.monotone (Fin.zero_le _)
     rw [mz] at px
     apply absurd mp'; rw [𝔏₂, mem_setOf, not_and_or, not_not]; right; use z.last.1, mu
-    have : 𝓘 p' < 𝓘 p := lt_of_le_of_ne l.le.1 (not_lt_of_𝓘_eq_𝓘.mt (by rwa [not_not]))
+    have : 𝓘 p' < 𝓘 p := 𝓘_strictMono l
     exact ⟨(this.trans_le px.1).ne, (p200.trans px).trans (smul_mono_left (by norm_num))⟩
   · simp_rw [𝔘₁, mem_setOf, not_and, z.last.2, true_implies, not_forall, exists_prop] at mu
     obtain ⟨q, mq, lq, ndjq⟩ := mu; rw [not_disjoint_iff] at ndjq; obtain ⟨ϑ, mϑ₁, mϑ₂⟩ := ndjq

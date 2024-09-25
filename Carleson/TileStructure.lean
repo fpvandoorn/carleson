@@ -199,26 +199,9 @@ lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (�
 lemma dist_𝒬_lt_one_of_le' {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 p) (𝒬 q) < 1 :=
   mem_ball'.mp (dist_𝒬_lt_one_of_le h)
 
-lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := by
-  intros p p' h
+lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun p p' h ↦ by
   refine h.le.1.lt_of_ne <| fun h' ↦ ?_
-  exact Set.disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
-
-lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' := by
-  by_contra h3
-  exact Set.disjoint_left.mp (disjoint_Ω h3 h1) (h2.2 𝒬_mem_Ω) 𝒬_mem_Ω
-
-lemma not_lt_of_𝓘_eq_𝓘 (h1 : 𝓘 p = 𝓘 p') : ¬ p < p' :=
-  fun h2 ↦ h2.ne <| eq_of_𝓘_eq_𝓘_of_le h1 h2.le
-
--- TODO: Clean up this lemma and the two above, it seems strict monotonicty is the basic idea
-lemma 𝓘_strict_mono : StrictMono (𝓘 (X := X)) := by
-  intro p p' h
-  apply lt_of_le_of_ne
-  · exact (𝔓.le_def'.mp (le_of_lt h)).left
-  · intro h'
-    have := not_lt_of_𝓘_eq_𝓘 h'
-    contradiction
+  exact disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
@@ -228,7 +211,7 @@ lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) 
 /-- Lemma 5.3.2 (generalizing `1` to `k > 0`) -/
 lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul k p') :
     smul (n + C2_1_2 a * m) p ≤ smul m p' := by
-  replace hp : 𝓘 p < 𝓘 p' := lt_of_le_of_ne hl.1 hp
+  replace hp : 𝓘 p < 𝓘 p' := hl.1.lt_of_ne hp
   have : ball_(p') (𝒬 p') m ⊆ ball_(p) (𝒬 p) (n + C2_1_2 a * m) := fun x hx ↦ by
     rw [@mem_ball] at hx ⊢
     calc
@@ -249,7 +232,7 @@ lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length
     let s' : LTSeries u := s.eraseLast
     specialize ih (show s'.length = n by simp [s', hs])
     have link : dist_(s'.last.1) f g ≤ C2_1_2 a * dist_(s.last.1) f g :=
-      Grid.dist_strictMono <| 𝓘_strict_mono <| s.eraseLast_last_rel_last (by omega)
+      Grid.dist_strictMono <| 𝓘_strictMono <| s.eraseLast_last_rel_last (by omega)
     apply ih.trans; rw [pow_succ, mul_assoc]; gcongr; unfold C2_1_2; positivity
 
 end
@@ -269,7 +252,7 @@ lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul 
   rcases eq_or_ne (𝓘 p) (𝓘 p') with h | h
   · rcases eq_or_ne p p' with rfl | h2
     · rfl
-    · exact absurd (eq_of_𝓘_eq_𝓘_of_le h hp) h2
+    · exact absurd h (𝓘_strictMono (lt_of_le_of_ne hp h2)).ne
   · calc
       _ ≤ smul (1 + C2_1_2 a * n) p := by
         apply smul_mono_left

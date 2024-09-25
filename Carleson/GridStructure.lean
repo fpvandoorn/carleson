@@ -268,14 +268,9 @@ lemma succ_def (h : ¬IsMax i) : i.succ = j ↔ i ≤ j ∧ s j = s i + 1 := by
 open Classical in
 def maxCubes (s : Finset (Grid X)) : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
 
-lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) :
-    ∃ j ∈ maxCubes s, i ≤ j := by
-  classical let C : Finset (Grid X) := s.filter (i ≤ ·)
-  have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
-  obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
-  simp_rw [C, maxCubes, Finset.mem_filter] at hj maxj ⊢
-  refine ⟨j, ?_, hj.2⟩
-  exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
+lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) : ∃ j ∈ maxCubes s, i ≤ j := by
+  obtain ⟨j, lj, maxj⟩ := s.exists_le_maximal hi; rw [maximal_iff] at maxj
+  simp_rw [maxCubes, Finset.mem_filter]; exact ⟨j, maxj, lj⟩
 
 lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
     (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
