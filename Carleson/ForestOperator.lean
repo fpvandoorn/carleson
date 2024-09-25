@@ -62,7 +62,7 @@ For convenience, the suprema are written a bit differently than in the blueprint
 (avoiding `cubeOf`), but this should be equivalent.
 This is `0` if `x` doesn't lie in a cube. -/
 def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Ioc (s I) S) (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
+  ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S) (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
   ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖₊
 
 variable (t) in
@@ -226,14 +226,6 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
   simp_rw [nontangentialMaximalFunction]
   -- ...
-  refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp ?_
-  by_cases fl2 : 𝔰 p = S
-  · change _ ≤ ⨆ s₂ ∈ Ioc (𝔰 p) S, _
-    simp_rw [fl2, Ioc_self]
-    simp only [mem_empty_iff_false, not_false_eq_true, iSup_neg, bot_eq_zero', ciSup_const,
-      nonpos_iff_eq_zero, ENNReal.coe_eq_zero, nnnorm_eq_zero]
-    -- ∑ x_1 ∈ t.σ u x, ∫ (y : X), Ks x_1 x y * approxOnCube (𝓙 (t.𝔗 u)) f y = 0
-    sorry
   sorry
 
 /-- The constant used in `third_tree_pointwise`.
