@@ -208,6 +208,11 @@ namespace MeasureTheory
 variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
   {F : Type*} [NormedAddCommGroup F]
 
+attribute [fun_prop] Continuous.comp_aestronglyMeasurable
+  AEStronglyMeasurable.mul AEStronglyMeasurable.prod_mk
+attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
+
+
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
     AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
@@ -235,7 +240,25 @@ theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
 lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
   ext; simp [ENNReal.toReal]
 
+theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
+  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
+
 end MeasureTheory
+
+section
+
+open MeasureTheory Bornology
+variable {E X : Type*} {p : ℝ≥0∞} [NormedAddCommGroup E] [TopologicalSpace X] [MeasurableSpace X]
+  {μ : Measure X} [IsFiniteMeasureOnCompacts μ]
+
+lemma _root_.HasCompactSupport.memℒp_of_isBounded {f : X → E} (hf : HasCompactSupport f)
+    (h2f : IsBounded (range f))
+    (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : Memℒp f p μ := by
+  obtain ⟨C, hC⟩ := h2f.exists_norm_le
+  simp only [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
+  exact hf.memℒp_of_bound h3f C <| .of_forall hC
+
+end
 
 /-! ## `EquivalenceOn` -/
 

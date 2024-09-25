@@ -10,7 +10,7 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
@@ -142,7 +142,7 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
 /-- The constant used in `first_tree_pointwise`.
 Has value `10 * 2 ^ (105 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (105 * (a : ℝ) ^ 3)
+irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (105 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.4 -/
 lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
@@ -231,7 +231,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
 /-- The constant used in `third_tree_pointwise`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
+irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.6 -/
 lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
@@ -243,7 +243,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
+irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
@@ -261,7 +261,7 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
 /-- The constant used in `nontangential_operator_bound`.
 Has value `2 ^ (103 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (103 * (a : ℝ) ^ 3)
+irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (103 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.2.2. -/
 lemma nontangential_operator_bound
@@ -345,7 +345,7 @@ lemma boundary_operator_bound
 /-- The constant used in `nontangential_operator_bound`.
 Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
+irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.2.1. -/
 lemma tree_projection_estimate
@@ -362,7 +362,7 @@ lemma tree_projection_estimate
 /-- The constant used in `local_dens1_tree_bound`.
 Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ (101 * (a : ℝ) ^ 3)
+irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ (101 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.3.2. -/
 lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
@@ -373,7 +373,7 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
 Has value `2 ^ (200 * a ^ 3 + 19)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 -- feel free to modify the constant to something simpler.
-def C7_3_3 (a : ℕ) : ℝ≥0 := 2 ^ (201 * (a : ℝ) ^ 3)
+irreducible_def C7_3_3 (a : ℕ) : ℝ≥0 := 2 ^ (201 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.3.3. -/
 lemma local_dens2_tree_bound (hJ : J ∈ 𝓙 (t u)) {q : 𝔓 X} (hq : q ∈ t u)
@@ -384,7 +384,7 @@ lemma local_dens2_tree_bound (hJ : J ∈ 𝓙 (t u)) {q : 𝔓 X} (hq : q ∈ t 
 /-- The constant used in `density_tree_bound1`.
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
+irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- First part of Lemma 7.3.1. -/
 lemma density_tree_bound1
@@ -398,7 +398,7 @@ lemma density_tree_bound1
 /-- The constant used in `density_tree_bound2`.
 Has value `2 ^ (256 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (256 * (a : ℝ) ^ 3)
+irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (256 * (a : ℝ) ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2 -- some assumptions on f are superfluous
@@ -431,6 +431,27 @@ variable (t u₁ u₂) in
 We append a subscript 0 to distinguish it from the section variable. -/
 def 𝔖₀ : Set (𝔓 X) := { p ∈ t u₁ ∪ t u₂ | 2 ^ ((Z : ℝ) * n / 2) ≤ dist_(p) (𝒬 u₁) (𝒬 u₂) }
 
+lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
+    AEStronglyMeasurable (adjointCarleson p f) := by
+  refine .integral_prod_right'
+    (f := fun z ↦ conj (Ks (𝔰 p) z.2 z.1) * exp (Complex.I * (Q z.2 z.2 - Q z.2 z.1)) * f z.2) ?_
+  refine .mono_ac (.prod .rfl restrict_absolutelyContinuous) ?_
+  refine .mul (.mul ?_ ?_) ?_
+  · refine Complex.continuous_conj.comp_aestronglyMeasurable ?_
+    refine aestronglyMeasurable_Ks.prod_swap
+  · refine Complex.continuous_exp.comp_aestronglyMeasurable ?_
+    refine .const_mul (.sub ?_ ?_) _
+    . refine Measurable.aestronglyMeasurable ?_
+      fun_prop
+    . refine continuous_ofReal.comp_aestronglyMeasurable ?_
+      exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
+  · exact hf.snd
+
+lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)}
+    (hf : AEStronglyMeasurable f) :
+    AEStronglyMeasurable (adjointCarlesonSum ℭ f) :=
+  Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.adjointCarleson
+
 /-- Part 1 of Lemma 7.4.1.
 Todo: update blueprint with precise properties needed on the function. -/
 lemma adjoint_tile_support1 (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
@@ -450,7 +471,7 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u)
 /-- The constant used in `adjoint_tree_estimate`.
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_4_2 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
+irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
@@ -461,8 +482,8 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : Has
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-def C7_4_3 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
+irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
+  C7_4_2 a + CMB (defaultA a) 2 + 1
 
 /-- Lemma 7.4.3. -/
 lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
@@ -483,12 +504,12 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasC
     eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) 2 volume +
     eLpNorm (‖f ·‖) 2 volume := by
       refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
-      · sorry
-      · sorry
+      · exact h3f.adjointCarlesonSum.norm.add <| .maximalFunction_toReal 𝓑_finite.countable
+      · exact h3f.norm
       gcongr
       refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
-      · sorry
-      · sorry
+      · exact h3f.adjointCarlesonSum.norm
+      · exact .maximalFunction_toReal 𝓑_finite.countable
       rfl
   _ ≤ eLpNorm (adjointCarlesonSum (t u) f) 2 volume +
     eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) 2 volume +
@@ -498,13 +519,15 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasC
     eLpNorm f 2 volume := by
       gcongr
       · exact adjoint_tree_estimate hu hf h2f h3f
-      · refine hasStrongType_MB 𝓑_finite one_lt_two _ ?_ |>.2
-        sorry
-
-
-  _ ≤ C7_4_3 a * eLpNorm f 2 volume := by sorry
-
-
+      · exact hasStrongType_MB 𝓑_finite one_lt_two _ (h2f.memℒp_of_isBounded hf h3f) |>.2
+  _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
+    simp_rw [add_mul]
+    gcongr
+    · exact dens₁_le_one
+    · simp only [ENNReal.coe_one, one_mul, le_refl]
+  _ ≤ C7_4_3 a * eLpNorm f 2 volume := by
+    simp_rw [C7_4_3, ENNReal.coe_add, ENNReal.one_rpow, mul_one, ENNReal.coe_one]
+    with_reducible rfl
 
 /-- Part 2 of Lemma 7.4.7. -/
 lemma 𝔗_subset_𝔖₀ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -565,7 +588,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
 /-- The constant used in `dist_χ_χ_le`.
 Has value `2 ^ (226 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ (226 * (a : ℝ) ^ 3)
+irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ (226 * (a : ℝ) ^ 3)
 
 /-- Part of Lemma 7.5.2. -/
 lemma sum_χ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -591,7 +614,7 @@ lemma dist_χ_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
 /-- The constant used in `holder_correlation_tile`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
+irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.5.5. -/
 lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u)
@@ -612,7 +635,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 /-- The constant used in `local_tree_control`.
 Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
+irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.5.7. -/
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -631,12 +654,12 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 /-- The constant used in `global_tree_control1_1`.
 Has value `2 ^ (154 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_9_1 (a : ℕ) : ℝ≥0 := 2 ^ (154 * (a : ℝ) ^ 3)
+irreducible_def C7_5_9_1 (a : ℕ) : ℝ≥0 := 2 ^ (154 * (a : ℝ) ^ 3)
 
 /-- The constant used in `global_tree_control1_2`.
 Has value `2 ^ (153 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_9_2 (a : ℕ) : ℝ≥0 := 2 ^ (153 * (a : ℝ) ^ 3)
+irreducible_def C7_5_9_2 (a : ℕ) : ℝ≥0 := 2 ^ (153 * (a : ℝ) ^ 3)
 
 /-- Part 1 of Lemma 7.5.9 -/
 lemma global_tree_control1_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -663,7 +686,7 @@ lemma global_tree_control1_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 /-- The constant used in `global_tree_control2`.
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
+irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.5.10 -/
 lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -677,7 +700,7 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 /-- The constant used in `holder_correlation_tree`.
 Has value `2 ^ (535 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ (535 * (a : ℝ) ^ 3)
+irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ (535 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.5.4. -/
 lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -698,7 +721,7 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 /-- The constant used in `lower_oscillation_bound`.
 Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - 201 * (a : ℝ) ^ 3)
+irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - 201 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.5.11 -/
 lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -709,7 +732,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 /-- The constant used in `correlation_distant_tree_parts`.
 Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_4_5 (a n : ℕ) : ℝ≥0 := 2 ^ (541 * (a : ℝ) ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))
+irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 := 2 ^ (541 * (a : ℝ) ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))
 
 /-- Lemma 7.4.5 -/
 lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -742,7 +765,7 @@ lemma pairwiseDisjoint_𝓙₆ (hu₁ : u₁ ∈ t) :
 /-- The constant used in `thin_scale_impact`. This is denoted `s₁` in the proof of Lemma 7.6.3.
 Has value `Z * n / (202 * a ^ 3) - 2` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_6_3 (a n : ℕ) : ℝ := Z * n / (202 * a ^ 3) - 2
+irreducible_def C7_6_3 (a n : ℕ) : ℝ := Z * n / (202 * a ^ 3) - 2
 
 -- if needed
 lemma C7_6_3_pos [ProofData a q K σ₁ σ₂ F G] (h : 1 ≤ n) : 0 < C7_6_3 a n := by
@@ -758,7 +781,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
 /-- The constant used in `square_function_count`.
 Has value `Z * n / (202 * a ^ 3) - 2` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 2) * (8 * D ^ (- s)) ^ κ
+irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 2) * (8 * D ^ (- s)) ^ κ
 
 /-- Lemma 7.6.4. -/
 lemma square_function_count (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -774,7 +797,7 @@ lemma square_function_count (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
 /-- The constant used in `bound_for_tree_projection`.
 Has value `2 ^ (118 * a ^ 3 - 100 / (202 * a) * Z * n * κ)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_6_2 (a n : ℕ) : ℝ≥0 := 2 ^ (118 * (a : ℝ) ^ 3 - 100 / (202 * a) * Z * n * κ)
+irreducible_def C7_6_2 (a n : ℕ) : ℝ≥0 := 2 ^ (118 * (a : ℝ) ^ 3 - 100 / (202 * a) * Z * n * κ)
 
 /-- Lemma 7.6.2. Todo: add needed hypothesis to LaTeX -/
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -788,7 +811,7 @@ lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 /-- The constant used in `correlation_near_tree_parts`.
 Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_4_6 (a n : ℕ) : ℝ≥0 := 2 ^ (222 * (a : ℝ) ^ 3 - Z * n * 2 ^ (-10 * (a : ℝ)))
+irreducible_def C7_4_6 (a n : ℕ) : ℝ≥0 := 2 ^ (222 * (a : ℝ) ^ 3 - Z * n * 2 ^ (-10 * (a : ℝ)))
 
 /-- Lemma 7.4.6 -/
 lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -806,7 +829,7 @@ lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
 /-- The constant used in `correlation_separated_trees`.
 Has value `2 ^ (550 * a ^ 3 - 3 * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (550 * (a : ℝ) ^ 3 - 3 * n)
+irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (550 * (a : ℝ) ^ 3 - 3 * n)
 
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -856,12 +879,12 @@ lemma pairwiseDisjoint_rowDecomp :
 /-- The constant used in `row_bound`.
 Has value `2 ^ (156 * a ^ 3 - n / 2)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_7_2_1 (a n : ℕ) : ℝ≥0 := 2 ^ (156 * (a : ℝ) ^ 3 - n / 2)
+irreducible_def C7_7_2_1 (a n : ℕ) : ℝ≥0 := 2 ^ (156 * (a : ℝ) ^ 3 - n / 2)
 
 /-- The constant used in `indicator_row_bound`.
 Has value `2 ^ (257 * a ^ 3 - n / 2)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (257 * (a : ℝ) ^ 3 - n / 2)
+irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (257 * (a : ℝ) ^ 3 - n / 2)
 
 /-- Part of Lemma 7.7.2. -/
 lemma row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
@@ -880,7 +903,7 @@ lemma indicator_row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : Has
 /-- The constant used in `row_correlation`.
 Has value `2 ^ (862 * a ^ 3 - 3 * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C7_7_3 (a n : ℕ) : ℝ≥0 := 2 ^ (862 * (a : ℝ) ^ 3 - 2 * n)
+irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := 2 ^ (862 * (a : ℝ) ^ 3 - 2 * n)
 
 /-- Lemma 7.7.3. -/
 lemma row_correlation (hjj' : j < j') (hj' : j' < 2 ^ n)
@@ -905,7 +928,7 @@ end TileStructure.Forest
 /-- The constant used in `forest_operator`.
 Has value `2 ^ (432 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := 2 ^ (432 * a ^ 3 - (q - 1) / q * n)
+irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := 2 ^ (432 * a ^ 3 - (q - 1) / q * n)
 
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)

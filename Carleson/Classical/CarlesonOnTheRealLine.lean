@@ -559,6 +559,9 @@ instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
 
 /- This verifies the assumption on the operators T_r in two-sided metric space Carleson.
    Its proof is done in Section 11.3 (The truncated Hilbert transform) and is yet to be formalized.
+
+   Note: we can simplify the proof in the blueprint by using real interpolation
+   `MeasureTheory.exists_hasStrongType_real_interpolation`.
 -/
 lemma Hilbert_strong_2_2 : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) := sorry
 

@@ -321,6 +321,33 @@ lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
 
+lemma ENNReal.rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0) (h : x ≤ y) :
+    y ^ z ≤ x ^ z := by
+  rw [← neg_neg z, rpow_neg y, rpow_neg x, ← inv_rpow, ← inv_rpow]
+  exact rpow_le_rpow (ENNReal.inv_le_inv.mpr h) (neg_nonneg.mpr hz)
+
+/- A rough estimate. It's also less than 2 ^ (-a) -/
+def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
+  conv_rhs => rw [← mul_one 1]
+  simp only [dens₁, mem_lowerClosure, iSup_exists, iSup_le_iff]
+  intros i _ j hj
+  gcongr
+  · calc
+    (j : ℝ≥0∞) ^ (-(a : ℝ)) ≤ 2 ^ (-(a : ℝ)) := by
+      apply ENNReal.rpow_le_rpow_of_nonpos
+      · simp_rw [neg_nonpos, Nat.cast_nonneg']
+      exact_mod_cast hj
+    _ ≤ 2 ^ (0 : ℝ) :=
+      ENNReal.rpow_le_rpow_of_exponent_le (by norm_num) (neg_nonpos.mpr (Nat.cast_nonneg' _))
+    _ = 1 := by norm_num
+  simp only [iSup_le_iff, and_imp]
+  intros i' _ _ _ _
+  calc
+  volume (E₂ j i') / volume (𝓘 i' : Set X) ≤ volume (𝓘 i' : Set X) / volume (𝓘 i' : Set X) := by
+    gcongr
+    apply E₂_subset
+  _ ≤ 1 := ENNReal.div_self_le_one
+
 /-! ### Stack sizes -/
 
 variable {C C' : Set (𝔓 X)} {x x' : X}

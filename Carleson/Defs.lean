@@ -233,6 +233,10 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
 
 export IsOneSidedKernel (measurable_K_right measurable_K_left norm_K_le_vol_inv norm_K_sub_le)
 
+lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
+    AEStronglyMeasurable (fun x : X × X ↦ K x.1 x.2) :=
+  sorry -- this probably needs to be replaced in the definition of 1-sided kernel.
+
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
@@ -323,6 +327,7 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
 
 end Iterate
 
+@[fun_prop]
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
   have : (fun p : X × X ↦ (Q p.1) p.2) ⁻¹' s = ⋃ θ ∈ Q.range, (Q ⁻¹' {θ}) ×ˢ (θ ⁻¹' s) := by
     ext ⟨x, y⟩
@@ -334,6 +339,10 @@ lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass �
   rw [this]
   exact Q.range.measurableSet_biUnion fun θ _ ↦
     (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)
+
+@[fun_prop]
+lemma aestronglyMeasurable_Q₂ : AEStronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
+  measurable_Q₂.aestronglyMeasurable
 
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
