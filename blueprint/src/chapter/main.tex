@@ -4394,6 +4394,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $s_1 = \underline{\sigma}(\fu, x)$. By definition, there exists a tile $\fp \in \fT(\fu)$ with $\ps(\fp) = s_1$ and $x \in E(\fp)$. Then $x \in \scI(\fp) \cap L$. By \eqref{dyadicproperty} and the definition of $\mathcal{L}(\fT(\fu))$, it follows that $L \subset \scI(\fp)$, in particular $x' \in \scI(\fp)$, so $x \in I_{s_1}(x')$.
     Next, let $s_2 = \overline{\sigma}(\fu, x)$ and let $\fp' \in \fT(\fu)$ with $\ps(\fp') = s_2$ and $x \in E(\fp')$. Since $\fp' \in \fT(\fu)$, we have $4\fp' \lesssim \fu$. Since $\tQ(x) \in \fc(\fp')$, it follows that
     $$
@@ -5106,11 +5107,12 @@ In the proofs of both lemmas, we will need the following observation.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Suppose first that $\fp \in \fT(\fu_1)$. Then $\scI(\fp) \subset \scI(\fu_1) \subset \scI(\fu_2)$, by \eqref{forest1}. Thus we have by the separation condition \eqref{forest5}, \eqref{eq-freq-comp-ball}, \eqref{forest1} and the triangle inequality
     \begin{align*}
         d_{\fp}(\fcc(\fu_1), \fcc(\fu_2)) &\ge d_{\fp}(\fcc(\fp), \fcc(\fu_2)) - d_{\fp}(\fcc(\fp), \fcc(\fu_1))\\
         &\ge 2^{Z(n+1)} - 4\\
-        &\ge 2^{Zn}\,,
+        &\ge 2^{Zn/2}\,,
     \end{align*}
     using that $Z= 2^{12a}\ge 4$. Hence $\fp \in \mathfrak{S}$.
 

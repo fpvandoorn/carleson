@@ -91,6 +91,8 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
+lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
+
 lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
   measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
 
@@ -104,7 +106,7 @@ namespace Grid
 protected lemma inj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
 
 lemma le_topCube : i ≤ topCube :=
-  ⟨subset_topCube, (range_s_subset ⟨i, rfl⟩).2.trans_eq s_topCube.symm⟩
+  ⟨subset_topCube, scale_mem_Icc.2.trans_eq s_topCube.symm⟩
 
 lemma isTop_topCube : IsTop (topCube : Grid X) := fun _ ↦ le_topCube
 
@@ -216,7 +218,7 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
   obtain ⟨lb, ub⟩ := h
   rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
-  have bound_i : -S ≤ s i ∧ s i ≤ S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
+  have bound_i : -S ≤ s i ∧ s i ≤ S := scale_mem_Icc
   have ts := Grid_subset_biUnion (X := X) (i := topCube) l (by rw [s_topCube, mem_Ico]; omega)
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
@@ -225,7 +227,7 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
 
 lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
     ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
-  have bound_q : -S ≤ s j ∧ s j ≤ S := mem_Icc.mp (range_s_subset ⟨j, rfl⟩)
+  have bound_q : -S ≤ s j ∧ s j ≤ S := scale_mem_Icc
   rw [mem_Icc] at hl
   obtain ⟨K, sK, lbK⟩ := exists_supercube l (by change s i ≤ _ ∧ _; omega)
   use K, sK, lbK
@@ -242,7 +244,7 @@ lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
 
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   simp only [opSize, Int.lt_toNat]
-  have : s i.succ ≤ S := (mem_Icc.mp (range_s_subset ⟨i.succ, rfl⟩)).2
+  have : s i.succ ≤ S := (mem_Icc.mp scale_mem_Icc).2
   replace : 0 ≤ S - s i.succ := by omega
   rw [Int.toNat_of_nonneg this, scale_succ h]
   omega

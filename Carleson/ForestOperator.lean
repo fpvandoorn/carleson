@@ -111,7 +111,7 @@ lemma biUnion_𝓙 : ⋃ J ∈ 𝓙 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
   refine subset_antisymm (iUnion₂_subset_iUnion ..) fun x mx ↦ ?_
   simp_rw [mem_iUnion] at mx ⊢; obtain ⟨I, mI⟩ := mx
   obtain ⟨J, sJ, mJ⟩ :=
-    Grid.exists_containing_subcube _ ⟨le_rfl, (range_subset_iff.mp range_s_subset I).1⟩ mI
+    Grid.exists_containing_subcube _ ⟨le_rfl, scale_mem_Icc.1⟩ mI
   have : J ∈ (𝓙₀ 𝔖).toFinset := by rw [mem_toFinset]; left; exact sJ
   obtain ⟨M, lM, maxM⟩ := (𝓙₀ 𝔖).toFinset.exists_le_maximal this
   simp_rw [mem_toFinset] at maxM
@@ -128,7 +128,7 @@ lemma biUnion_𝓛 : ⋃ J ∈ 𝓛 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
   refine subset_antisymm (iUnion₂_subset_iUnion ..) fun x mx ↦ ?_
   simp_rw [mem_iUnion] at mx ⊢; obtain ⟨I, mI⟩ := mx
   obtain ⟨J, sJ, mJ⟩ :=
-    Grid.exists_containing_subcube _ ⟨le_rfl, (range_subset_iff.mp range_s_subset I).1⟩ mI
+    Grid.exists_containing_subcube _ ⟨le_rfl, scale_mem_Icc.1⟩ mI
   have : J ∈ (𝓛₀ 𝔖).toFinset := by rw [mem_toFinset]; left; exact sJ
   obtain ⟨M, lM, maxM⟩ := (𝓛₀ 𝔖).toFinset.exists_le_maximal this
   simp_rw [mem_toFinset] at maxM
@@ -152,23 +152,22 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
   sorry
 
 /-- Lemma 7.1.5 -/
-lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
+lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
     ‖∑ i in t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
   let s₁ := Finset.min' (t.σ u x) hne
   have ms₁ : s₁ ∈ t.σ u x := Finset.min'_mem ..
   simp_rw [σ, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and] at ms₁
-  obtain ⟨p, ⟨mp, xp, Qxp, sxp⟩, sp⟩ := ms₁
+  obtain ⟨p, ⟨mp, xp, _, _⟩, sp⟩ := ms₁
   have Lle : L ≤ 𝓘 p := by
     rcases 𝓛_subset_𝓛₀ hL with hL | hL
-    · exact le_of_mem_of_mem (hL.symm ▸ (range_subset_iff.mp range_s_subset (𝓘 p)).1) hx xp
+    · exact le_of_mem_of_mem (hL.symm ▸ scale_mem_Icc.1) hx xp
     · exact (le_or_ge_of_mem_of_mem xp hx).resolve_left (hL.2 p mp)
   let s₂ := Finset.max' (t.σ u x) hne
   have ms₂ : s₂ ∈ t.σ u x := Finset.max'_mem ..
   simp_rw [σ, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and] at ms₂
-  obtain ⟨p', ⟨mp', xp', Qxp', sxp'⟩, sp'⟩ := ms₂
+  obtain ⟨p', ⟨mp', xp', Qxp', _⟩, sp'⟩ := ms₂
   have s_ineq : 𝔰 p ≤ 𝔰 p' := by
     rw [sp, sp']; exact (t.σ u x).min'_le s₂ (Finset.max'_mem ..)
   have pinc : 𝓘 p ≤ 𝓘 p' := le_of_mem_of_mem s_ineq xp xp'
@@ -176,7 +175,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
     calc
       _ ≤ dist_(p') (𝒬 u) (𝒬 p') + dist_(p') (Q x) (𝒬 p') := dist_triangle_right ..
       _ < 4 + 1 :=
-        add_lt_add_of_lt_of_lt ((t.smul_four_le' hu mp').2 (by convert mem_ball_self zero_lt_one))
+        add_lt_add_of_lt_of_lt ((t.smul_four_le hu mp').2 (by convert mem_ball_self zero_lt_one))
           (subset_cball Qxp')
       _ = _ := by norm_num
   have d5' : dist_{x, D ^ s₂} (𝒬 u) (Q x) < 5 * defaultA a ^ 5 := by
@@ -224,9 +223,17 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
         · linarith [four_le_a X]
       _ < _ := by norm_num
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
-  simp_rw [nontangentialMaximalFunction]
-  -- ...
-  sorry
+  refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp <|
+    le_iSup₂_of_le (𝔰 p') ⟨s_ineq, scale_mem_Icc.2⟩ <| le_iSup_of_le ?_ ?_
+  · have : ((D : ℝ≥0∞) ^ (𝔰 p' - 1)).toReal = D ^ (s₂ - 1) := by
+      rw [sp', ← ENNReal.toReal_zpow]; simp
+    apply le_sSup; rwa [mem_setOf, dist_congr rfl this]
+  · convert le_rfl; change (Icc (𝔰 p) _).toFinset = _; rw [sp, sp']
+    apply subset_antisymm
+    · rw [← Finset.toFinset_coe (t.σ u x), toFinset_subset_toFinset]
+      exact (convex_scales hu).out (Finset.min'_mem ..) (Finset.max'_mem ..)
+    · intro z mz; rw [toFinset_Icc, Finset.mem_Icc]
+      exact ⟨Finset.min'_le _ _ mz, Finset.le_max' _ _ mz⟩
 
 /-- The constant used in `third_tree_pointwise`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
@@ -413,11 +420,11 @@ lemma density_tree_bound2 -- some assumptions on f are superfluous
 
 /-! ## Section 7.4 except Lemmas 4-6 -/
 
-/-- The definition of `Tₚ*g(x), defined above Lemma 7.4.1 -/
+/-- The definition of `Tₚ*g(x)`, defined above Lemma 7.4.1 -/
 def adjointCarleson (p : 𝔓 X) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in E p, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y
 
-/-- The definition of `T_ℭ*g(x), defined at the bottom of Section 7.4 -/
+/-- The definition of `T_ℭ*g(x)`, defined at the bottom of Section 7.4 -/
 def adjointCarlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, adjointCarleson p f x
 
@@ -441,9 +448,9 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStrongly
     refine aestronglyMeasurable_Ks.prod_swap
   · refine Complex.continuous_exp.comp_aestronglyMeasurable ?_
     refine .const_mul (.sub ?_ ?_) _
-    . refine Measurable.aestronglyMeasurable ?_
+    · refine Measurable.aestronglyMeasurable ?_
       fun_prop
-    . refine continuous_ofReal.comp_aestronglyMeasurable ?_
+    · refine continuous_ofReal.comp_aestronglyMeasurable ?_
       exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
   · exact hf.snd
 
@@ -529,16 +536,60 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasC
     simp_rw [C7_4_3, ENNReal.coe_add, ENNReal.one_rpow, mul_one, ENNReal.coe_one]
     with_reducible rfl
 
-/-- Part 2 of Lemma 7.4.7. -/
-lemma 𝔗_subset_𝔖₀ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) : t u₁ ⊆ 𝔖₀ t u₁ u₂ := by
-  sorry
-
 /-- Part 1 of Lemma 7.4.7. -/
 lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₁ ∪ t u₂)
-    (hpu₁ : ¬ Disjoint (𝓘 p : Set X) (𝓘 u₁)) : p ∈ 𝔖₀ t u₁ u₂ := by
-  sorry
+    (hpu₁ : ¬Disjoint (𝓘 p : Set X) (𝓘 u₁)) : p ∈ 𝔖₀ t u₁ u₂ := by
+  simp_rw [𝔖₀, mem_setOf, hp, true_and]
+  wlog plu₁ : 𝓘 p ≤ 𝓘 u₁ generalizing p
+  · have u₁lp : 𝓘 u₁ ≤ 𝓘 p := (le_or_ge_or_disjoint.resolve_left plu₁).resolve_right hpu₁
+    obtain ⟨p', mp'⟩ := t.nonempty hu₁
+    have p'lu₁ : 𝓘 p' ≤ 𝓘 u₁ := (t.smul_four_le hu₁ mp').1
+    obtain ⟨c, mc⟩ := (𝓘 p').nonempty
+    specialize this (mem_union_left _ mp') (not_disjoint_iff.mpr ⟨c, mc, p'lu₁.1 mc⟩) p'lu₁
+    exact this.trans (Grid.dist_mono (p'lu₁.trans u₁lp))
+  have four_Z := four_le_Z (X := X)
+  have four_le_Zn : 4 ≤ Z * (n + 1) := by rw [← mul_one 4]; exact mul_le_mul' four_Z (by omega)
+  have four_le_two_pow_Zn : 4 ≤ 2 ^ (Z * (n + 1) - 1) := by
+    change 2 ^ 2 ≤ _; exact Nat.pow_le_pow_right zero_lt_two (by omega)
+  have ha : (2 : ℝ) ^ (Z * (n + 1)) - 4 ≥ 2 ^ (Z * n / 2 : ℝ) :=
+    calc
+      _ ≥ (2 : ℝ) ^ (Z * (n + 1)) - 2 ^ (Z * (n + 1) - 1) := by gcongr; norm_cast
+      _ = 2 ^ (Z * (n + 1) - 1) := by
+        rw [sub_eq_iff_eq_add, ← two_mul, ← pow_succ', Nat.sub_add_cancel (by omega)]
+      _ ≥ 2 ^ (Z * n) := by apply pow_le_pow_right one_le_two; rw [mul_add_one]; omega
+      _ ≥ _ := by
+        rw [← Real.rpow_natCast]
+        apply Real.rpow_le_rpow_of_exponent_le one_le_two; rw [Nat.cast_mul]
+        exact half_le_self (by positivity)
+  rcases hp with (c : p ∈ t.𝔗 u₁) | (c : p ∈ t.𝔗 u₂)
+  · calc
+    _ ≥ dist_(p) (𝒬 p) (𝒬 u₂) - dist_(p) (𝒬 p) (𝒬 u₁) := by
+      change _ ≤ _; rw [sub_le_iff_le_add, add_comm]; exact dist_triangle ..
+    _ ≥ 2 ^ (Z * (n + 1)) - 4 := by
+      gcongr
+      · exact (t.lt_dist' hu₂ hu₁ hu.symm c (plu₁.trans h2u)).le
+      · have : 𝒬 u₁ ∈ ball_(p) (𝒬 p) 4 :=
+          (t.smul_four_le hu₁ c).2 (by convert mem_ball_self zero_lt_one)
+        rw [@mem_ball'] at this; exact this.le
+    _ ≥ _ := ha
+  · calc
+    _ ≥ dist_(p) (𝒬 p) (𝒬 u₁) - dist_(p) (𝒬 p) (𝒬 u₂) := by
+      change _ ≤ _; rw [sub_le_iff_le_add, add_comm]; exact dist_triangle_right ..
+    _ ≥ 2 ^ (Z * (n + 1)) - 4 := by
+      gcongr
+      · exact (t.lt_dist' hu₁ hu₂ hu c plu₁).le
+      · have : 𝒬 u₂ ∈ ball_(p) (𝒬 p) 4 :=
+          (t.smul_four_le hu₂ c).2 (by convert mem_ball_self zero_lt_one)
+        rw [@mem_ball'] at this; exact this.le
+    _ ≥ _ := ha
+
+/-- Part 2 of Lemma 7.4.7. -/
+lemma 𝔗_subset_𝔖₀ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
+    t u₁ ⊆ 𝔖₀ t u₁ u₂ := fun p mp ↦ by
+  apply overlap_implies_distance hu₁ hu₂ hu h2u (mem_union_left _ mp)
+  obtain ⟨c, mc⟩ := (𝓘 p).nonempty
+  exact not_disjoint_iff.mpr ⟨c, mc, (t.smul_four_le hu₁ mp).1.1 mc⟩
 
 /-! ## Section 7.5 -/
 

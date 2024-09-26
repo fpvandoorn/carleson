@@ -171,14 +171,15 @@ def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
-def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ :=
-  sSup { r : ℝ | dist_{x, r} θ (Q x) < 1 }
+def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
+  sSup { r : ℝ≥0∞ | dist_{x, r.toReal} θ (Q x) < 1 }
 
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
-  ‖∫ y in {y | dist x' y ∈ Ioo R₁ (upperRadius Q θ x')}, K x' y * f y‖₊
+  ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioo (ENNReal.ofReal R₁) (upperRadius Q θ x')},
+    K x' y * f y‖₊
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
@@ -485,6 +486,10 @@ lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F 
     _ ≤ _ := by
       nth_rw 1 [← mul_one (a ^ 2), ← mul_assoc]
       gcongr; exact Nat.one_le_two_pow
+
+lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ Z := by
+  rw [defaultZ, show 4 = 2 ^ 2 by rfl]
+  exact Nat.pow_le_pow_right zero_lt_two (by linarith [four_le_a X])
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
