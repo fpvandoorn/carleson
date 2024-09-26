@@ -487,6 +487,10 @@ lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F 
       nth_rw 1 [← mul_one (a ^ 2), ← mul_assoc]
       gcongr; exact Nat.one_le_two_pow
 
+lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ Z := by
+  rw [defaultZ, show 4 = 2 ^ 2 by rfl]
+  exact Nat.pow_le_pow_right zero_lt_two (by linarith [four_le_a X])
+
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
 def nnD : ℝ≥0 := ⟨D, by simp [D_nonneg]⟩
