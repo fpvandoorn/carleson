@@ -2138,7 +2138,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     have nmaxJ : ¬IsMax J := by
       by_contra maxJ; rw [Grid.isMax_iff] at maxJ
       rw [maxJ, show s topCube = S from s_topCube (X := X)] at sJ
-      have : 𝔰 q ≤ S := (range_s_subset ⟨q.1, rfl⟩).2
+      have : 𝔰 q ≤ S := scale_mem_Icc.2
       omega
     have succJ : J.succ = q.1 := (Grid.succ_def nmaxJ).mpr ⟨ubJ, by change 𝔰 q = _; omega⟩
     have key : Ω q ⊆ Ω ⟨J, a⟩ := by

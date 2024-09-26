@@ -137,6 +137,9 @@ lemma tsum_geometric_ite_eq_tsum_geometric {k c : ℕ} :
   · rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
     use n - k, Nat.sub_add_cancel mn.1
 
+lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).toReal := by
+  rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
+
 end ENNReal
 
 section Indicator
