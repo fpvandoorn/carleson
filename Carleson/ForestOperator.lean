@@ -111,7 +111,7 @@ lemma biUnion_𝓙 : ⋃ J ∈ 𝓙 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
   refine subset_antisymm (iUnion₂_subset_iUnion ..) fun x mx ↦ ?_
   simp_rw [mem_iUnion] at mx ⊢; obtain ⟨I, mI⟩ := mx
   obtain ⟨J, sJ, mJ⟩ :=
-    Grid.exists_containing_subcube _ ⟨le_rfl, (range_subset_iff.mp range_s_subset I).1⟩ mI
+    Grid.exists_containing_subcube _ ⟨le_rfl, scale_mem_Icc.1⟩ mI
   have : J ∈ (𝓙₀ 𝔖).toFinset := by rw [mem_toFinset]; left; exact sJ
   obtain ⟨M, lM, maxM⟩ := (𝓙₀ 𝔖).toFinset.exists_le_maximal this
   simp_rw [mem_toFinset] at maxM
@@ -128,7 +128,7 @@ lemma biUnion_𝓛 : ⋃ J ∈ 𝓛 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
   refine subset_antisymm (iUnion₂_subset_iUnion ..) fun x mx ↦ ?_
   simp_rw [mem_iUnion] at mx ⊢; obtain ⟨I, mI⟩ := mx
   obtain ⟨J, sJ, mJ⟩ :=
-    Grid.exists_containing_subcube _ ⟨le_rfl, (range_subset_iff.mp range_s_subset I).1⟩ mI
+    Grid.exists_containing_subcube _ ⟨le_rfl, scale_mem_Icc.1⟩ mI
   have : J ∈ (𝓛₀ 𝔖).toFinset := by rw [mem_toFinset]; left; exact sJ
   obtain ⟨M, lM, maxM⟩ := (𝓛₀ 𝔖).toFinset.exists_le_maximal this
   simp_rw [mem_toFinset] at maxM
@@ -152,23 +152,22 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
   sorry
 
 /-- Lemma 7.1.5 -/
-lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
+lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
     ‖∑ i in t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
   let s₁ := Finset.min' (t.σ u x) hne
   have ms₁ : s₁ ∈ t.σ u x := Finset.min'_mem ..
   simp_rw [σ, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and] at ms₁
-  obtain ⟨p, ⟨mp, xp, Qxp, sxp⟩, sp⟩ := ms₁
+  obtain ⟨p, ⟨mp, xp, _, _⟩, sp⟩ := ms₁
   have Lle : L ≤ 𝓘 p := by
     rcases 𝓛_subset_𝓛₀ hL with hL | hL
-    · exact le_of_mem_of_mem (hL.symm ▸ (range_subset_iff.mp range_s_subset (𝓘 p)).1) hx xp
+    · exact le_of_mem_of_mem (hL.symm ▸ scale_mem_Icc.1) hx xp
     · exact (le_or_ge_of_mem_of_mem xp hx).resolve_left (hL.2 p mp)
   let s₂ := Finset.max' (t.σ u x) hne
   have ms₂ : s₂ ∈ t.σ u x := Finset.max'_mem ..
   simp_rw [σ, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and] at ms₂
-  obtain ⟨p', ⟨mp', xp', Qxp', sxp'⟩, sp'⟩ := ms₂
+  obtain ⟨p', ⟨mp', xp', Qxp', _⟩, sp'⟩ := ms₂
   have s_ineq : 𝔰 p ≤ 𝔰 p' := by
     rw [sp, sp']; exact (t.σ u x).min'_le s₂ (Finset.max'_mem ..)
   have pinc : 𝓘 p ≤ 𝓘 p' := le_of_mem_of_mem s_ineq xp xp'
@@ -224,9 +223,17 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
         · linarith [four_le_a X]
       _ < _ := by norm_num
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
-  simp_rw [nontangentialMaximalFunction]
-  -- ...
-  sorry
+  refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp <|
+    le_iSup₂_of_le (𝔰 p') ⟨s_ineq, scale_mem_Icc.2⟩ <| le_iSup_of_le ?_ ?_
+  · have : ((D : ℝ≥0∞) ^ (𝔰 p' - 1)).toReal = D ^ (s₂ - 1) := by
+      rw [sp', ← ENNReal.toReal_zpow]; simp
+    apply le_sSup; rwa [mem_setOf, dist_congr rfl this]
+  · convert le_rfl; change (Icc (𝔰 p) _).toFinset = _; rw [sp, sp']
+    apply subset_antisymm
+    · rw [← Finset.toFinset_coe (t.σ u x), toFinset_subset_toFinset]
+      exact (convex_scales hu).out (Finset.min'_mem ..) (Finset.max'_mem ..)
+    · intro z mz; rw [toFinset_Icc, Finset.mem_Icc]
+      exact ⟨Finset.min'_le _ _ mz, Finset.le_max' _ _ mz⟩
 
 /-- The constant used in `third_tree_pointwise`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
