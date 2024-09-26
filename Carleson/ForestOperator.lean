@@ -444,10 +444,8 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStrongly
     (f := fun z ↦ conj (Ks (𝔰 p) z.2 z.1) * exp (Complex.I * (Q z.2 z.2 - Q z.2 z.1)) * f z.2) ?_
   refine .mono_ac (.prod .rfl restrict_absolutelyContinuous) ?_
   refine .mul (.mul ?_ ?_) ?_
-  · refine Complex.continuous_conj.comp_aestronglyMeasurable ?_
-    refine aestronglyMeasurable_Ks.prod_swap
-  · refine Complex.continuous_exp.comp_aestronglyMeasurable ?_
-    refine .const_mul (.sub ?_ ?_) _
+  · exact Complex.continuous_conj.comp_aestronglyMeasurable (aestronglyMeasurable_Ks.prod_swap)
+  · refine Complex.continuous_exp.comp_aestronglyMeasurable (.const_mul (.sub ?_ ?_) _)
     · refine Measurable.aestronglyMeasurable ?_
       fun_prop
     · refine continuous_ofReal.comp_aestronglyMeasurable ?_
@@ -841,9 +839,6 @@ lemma square_function_count (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
     (ball (c I) (8 * D ^ s I)).indicator 1 x) ^ 2 ≤ C7_6_4 a s' := by
   sorry
-
-
-
 
 /-- The constant used in `bound_for_tree_projection`.
 Has value `2 ^ (118 * a ^ 3 - 100 / (202 * a) * Z * n * κ)` in the blueprint. -/
