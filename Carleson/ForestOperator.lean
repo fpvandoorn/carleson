@@ -446,7 +446,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStrongly
   refine .mul (.mul ?_ ?_) ?_
   · exact Complex.continuous_conj.comp_aestronglyMeasurable (aestronglyMeasurable_Ks.prod_swap)
   · refine Complex.continuous_exp.comp_aestronglyMeasurable (.const_mul (.sub ?_ ?_) _)
-    . refine Measurable.aestronglyMeasurable ?_
+    · refine Measurable.aestronglyMeasurable ?_
       fun_prop
     · refine continuous_ofReal.comp_aestronglyMeasurable ?_
       exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
