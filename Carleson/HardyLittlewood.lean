@@ -249,23 +249,34 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   simp_rw [ENNReal.nnorm_toReal]
   exact ENNReal.coe_toNNReal_le_self |>.trans MB_le_eLpNormEssSup
 
+open Pointwise in
+/-- The Hardy-Littlewood maximal operator is sublinear on functions that are in L^1 or L^∞,
+  assuming that the radii of the family of balls is locally bounded below. -/
 protected theorem MeasureTheory.SublinearOn.maximalFunction
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
-    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Finite) :
+    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Finite)
+    (h𝓑 : ∀ x, ∃ r₀ > 0, ∀ i ∈ 𝓑, x ∈ ball (c i) (r i) → r₀ < r i) :
     SublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
     (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 := by
-  apply SublinearOn.antitone LocallyIntegrable_of_P
+  have h0 : ∀ f, Memℒp f ∞ μ ∨ Memℒp f 1 μ →
+    f ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ} := by
+    rintro f (hf|hf)
+    · use f, hf, 0, zero_memℒp, by simp
+    · use 0, zero_memℒp, f, hf, by simp
+  have h1 : ∀ {f}, f ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ} →
+    LocallyIntegrable f μ := by
+    sorry
+  apply SublinearOn.antitone @h0
   simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  apply SublinearOn.biSup (P := (LocallyIntegrable · μ)) 𝓑 _ _
-    LocallyIntegrable.add (fun hf _ ↦ hf.smul _)
+  apply SublinearOn.biSup 𝓑 _ _ _ _
   · intro i _
     let B := ball (c i) (r i)
     have (u : X → E) (x : X) : (B.indicator (fun _ ↦ ⨍⁻ y in B, ‖u y‖₊ ∂μ) x).toReal =
         (B.indicator (fun _ ↦ (⨍⁻ y in B, ‖u y‖₊ ∂μ).toReal) x) := by
       by_cases hx : x ∈ B <;> simp [hx]
     simp_rw [this]
-    apply (SublinearOn.const (T μ c r i) (LocallyIntegrable · μ) (T.add_le i)
-      (fun f d ↦ T.smul i)).indicator
+    apply SublinearOn.const (T μ c r i) _ (fun hf hg ↦ T.add_le i (h1 hf) (h1 hg))
+      (fun f c hf ↦ T.smul i (h1 hf)) |>.indicator
   · intro f x hf
     by_cases h𝓑' : 𝓑.Nonempty; swap
     · simp [not_nonempty_iff_eq_empty.mp h𝓑']
