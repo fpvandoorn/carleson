@@ -20,7 +20,13 @@ import Carleson.Discrete.MainTheorem
 import Carleson.DoublingMeasure
 import Carleson.FinitaryCarleson
 import Carleson.Forest
-import Carleson.ForestOperator
+import Carleson.ForestOperator.AlmostOrthogonality
+import Carleson.ForestOperator.Forests
+import Carleson.ForestOperator.L2Estimate
+import Carleson.ForestOperator.LargeSeparation
+import Carleson.ForestOperator.PointwiseEstimate
+import Carleson.ForestOperator.QuantativeEstimate
+import Carleson.ForestOperator.RemainingTiles
 import Carleson.GridStructure
 import Carleson.HardyLittlewood
 import Carleson.HolderVanDerCorput
