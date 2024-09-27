@@ -280,6 +280,7 @@ namespace EquivalenceOn
 variable {α : Type*} {r : α → α → Prop} {s : Set α} {hr : EquivalenceOn r s} {x y : α}
 
 variable (hr) in
+/-- The setoid defined from an equivalence relation on a set. -/
 protected def setoid : Setoid s where
   r x y := r x y
   iseqv := {
@@ -327,7 +328,7 @@ lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.
   all_goals simpa
 
 variable (hr) in
-/-- The set of representatives. -/
+/-- The set of representatives of an equivalence relation on a set. -/
 def reprs : Set α := hr.out '' s
 
 lemma out_mem_reprs (hx : x ∈ s) : hr.out x ∈ hr.reprs := ⟨x, hx, rfl⟩
@@ -348,18 +349,7 @@ namespace Set.Finite
 lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
     (hs : s.Finite) (hs' : s.Nonempty) (f : ι → α) :
     ∃ i ∈ s, ⨆ j ∈ s, f j = f i := by
-  induction' s, hs using dinduction_on with a s _ _ ihs hf
-  · simp at hs'
-  rw [iSup_insert]
-  by_cases hs : s.Nonempty
-  · by_cases ha : f a ⊔ ⨆ x ∈ s, f x = f a
-    · use a, mem_insert a s
-    · obtain ⟨i, hi⟩ := ihs hs
-      use i, Set.mem_insert_of_mem a hi.1
-      rw [← hi.2, sup_eq_right]
-      simp only [sup_eq_left, not_le] at ha
-      exact ha.le
-  · simpa using Or.inl fun i hi ↦ (hs (nonempty_of_mem hi)).elim
+  simpa [sSup_image, eq_comm] using hs'.image f |>.csSup_mem (hs.image f)
 
 end Set.Finite
 
