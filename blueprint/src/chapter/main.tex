@@ -3278,11 +3278,12 @@ $M_{\mathcal{B}}$ from Definition \ref{def-hlm}.
     Let $x\in X$.
     Then
     \begin{equation}\label{hlmbound}
-    | \sum_{\fp \in \mathfrak{A}}T_{\fp} f(x)|\le 2^{107 a^3} M_{\mathcal{B}} f (x) \, .
+    | \sum_{\fp \in \mathfrak{A}}T_{\fp} f(x)|\le 2^{107 a^3 + a} M_{\mathcal{B}} f (x) \, .
     \end{equation}
 \end{lemma}
 
 \begin{proof}
+\leanok
 Fix $x\in X$. By \Cref{tile-disjointness}, there is at most one $\fp \in \mathfrak{A}$
 such that
  $T_{\fp} f(x)$ is not zero.
@@ -3302,7 +3303,7 @@ we have
 \end{equation}
 The triangle inequality with \eqref{eqtttt0} and \eqref{supp-Ks1} implies
 \begin{equation}
-    \rho(\pc(\fp),y)\le 8D^{\ps(\fp)}\, .
+    \rho(\pc(\fp),y) < 8D^{\ps(\fp)}\, .
 \end{equation}
 Using the kernel bound \eqref{eqkernel-size} and the lower bound in \eqref{supp-Ks}
 we obtain
@@ -3313,13 +3314,17 @@ Using $D=2^{100a^2}$
 and the doubling property \eqref{doublingx} $5 +100a^2$ times estimates
 the last display by
 \begin{equation}
-\le \frac{2^{5a+101a^3}}{\mu(B(x, 8D^{\ps(\fp)}))}\, .
+\le \frac{2^{5a+101a^3}}{\mu(B(x, 8D^{\ps(\fp)}))}\,
+\end{equation}
+which, thanks to the closeness of the points $x$ and $\pc(\fp)$ shown in \eqref{eqtttt0}, is in turn bounded by
+\begin{equation}
+\le \frac{2^{6a+101a^3}}{\mu(B(\pc(\fp), 8D^{\ps(\fp)}))}\.
 \end{equation}
  Using that {$|e(\mfa)|$} is bounded by $1$
 for every $\mfa\in \Mf$, we estimate with the triangle inequality and the above information
  \begin{equation}
   | T_{\fp} f(x)|
-    \le \frac{2^{5a+101 a^3}}{\mu(B(x, 8D^{\ps(\fp)}))} \int _{\mu(B(x, 8D^{\ps(\fp)}))} |f(y)|\, dy
+    \le \frac{2^{6a+101 a^3}}{\mu(B(\pc(\fp), 8D^{\ps(\fp)}))} \int _{\mu(B(\pc(\fp), 8D^{\ps(\fp)}))} |f(y)|\, dy
   \end{equation}
 This together with $a\ge 1$ proves the Lemma.
 \end{proof}

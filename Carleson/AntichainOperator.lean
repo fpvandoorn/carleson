@@ -129,10 +129,23 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           ring
     _ = 2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by ring_nf
 
--- Composition of inequalities 6.1.6, 6.1.7
-lemma norm_Ks_le'  {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hy : Ks (𝔰 p.1) x y ≠ 0)  :
-    ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume.nnreal (ball x (8*D ^ 𝔰 p.1)) := by
-  have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume.real (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
+private lemma ineq_6_1_7' (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
+    (2 : ℝ≥0) ^ a ^ 3 / volume.nnreal (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
+      2 ^ (5 * a + 101 * a ^ 3) / volume.nnreal (ball x (8 * ↑D ^ 𝔰 p.1)) := by
+  suffices (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
+      2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) by
+    simp only [← NNReal.coe_le_coe, NNReal.coe_div, ← NNReal.val_eq_coe, measureNNReal_val]
+    exact this
+  exact ineq_6_1_7 x p
+
+-- Composition of inequalities 6.1.6, 6.1.7, 6.1.8.
+lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p) (hy : Ks (𝔰 p.1) x y ≠ 0)  :
+    ‖Ks (𝔰 p.1) x y‖₊ ≤
+      (2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
+  have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos _ _
+  have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_defaultD_pow_pos _ (by linarith) _
+  have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
+  have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume.nnreal (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
     apply le_trans (NNReal.coe_le_coe.mpr kernel_bound)
     rw [NNReal.coe_div, NNReal.coe_pow, NNReal.coe_ofNat, ← NNReal.val_eq_coe, measureNNReal_val]
     exact div_le_div_of_nonneg_left (pow_nonneg zero_le_two _)
@@ -141,7 +154,30 @@ lemma norm_Ks_le'  {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hy : Ks (𝔰 p.1
         (measure_ball_ne_top x (dist x y)))
   apply le_trans h
   rw [zpow_sub₀ (by simp), zpow_one, div_div]
-  exact ineq_6_1_7 x p
+  apply le_trans (ineq_6_1_7' x p)
+  have ha : 6 * a + 101 * a ^ 3 = (5 * a + 101 * a ^ 3) + a := by omega
+  simp only [Nat.cast_pow, Nat.cast_ofNat,
+    div_eq_mul_inv, val_eq_coe, NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat, NNReal.coe_inv,
+    ge_iff_le]
+  rw [ha, pow_add _ (5 * a + 101 * a ^ 3) a, mul_assoc]
+  apply mul_le_mul_of_nonneg_left _ (zero_le _)
+  suffices (volume.nnreal (ball (𝔠 p.1) (8 * ↑D ^ 𝔰 p.1))) ≤
+      2 ^ a * (volume.nnreal (ball x (8 * ↑D ^ 𝔰 p.1))) by
+    rw [le_mul_inv_iff₀]
+    rw [← le_inv_mul_iff₀ , mul_comm _ (_^a), inv_inv]
+    exact this
+    · exact inv_pos.mpr (measure_ball_pos_nnreal _ _ h8Dpow_pos)
+    · exact measure_ball_pos_nnreal _ _ h8Dpow_pos
+  have h2 : dist x (𝔠 p) + 8 * ↑D ^ 𝔰 p.1 ≤ 2 * (8 * ↑D ^ 𝔰 p.1) :=
+    calc dist x (𝔠 p) + 8 * ↑D ^ 𝔰 p.1
+      ≤ 4 * ↑D ^ 𝔰 p.1 + 8 * ↑D ^ 𝔰 p.1 := (add_le_add_iff_right _).mpr hdist_cp
+    _ ≤ 2 * (8 * ↑D ^ 𝔰 p.1) := by
+      ring_nf
+      exact mul_le_mul_of_nonneg (le_refl _) (by linarith) (le_of_lt hDpow_pos) (by linarith)
+  convert measureNNReal_ball_le_of_dist_le' (μ := volume) zero_lt_two h2
+  simp only [As, defaultA, Nat.cast_pow, Nat.cast_ofNat, Nat.one_lt_ofNat, logb_self_eq_one,
+    Nat.ceil_one, pow_one]
+
 
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
@@ -160,7 +196,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
         dist x y ∈ Icc ((D ^ ((𝔰 p.1) - 1) : ℝ) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
       dist_mem_Icc_of_Ks_ne_zero hy
-    -- Ineq. 6.1.5. TODO: strict inequality in blueprint.
+    -- Ineq. 6.1.5. NOTE: I changed this to a strict inequality in the blueprint.
     have hdist_cpy : ∀ (y : X), (Ks (𝔰 p.1) x y ≠ 0) → dist (𝔠 p) y < 8*D ^ 𝔰 p.1 := by
       intro y hy
       calc dist (𝔠 p) y
@@ -171,10 +207,10 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       _ < 8*D ^ 𝔰 p.1 := by
         rw [div_eq_inv_mul, ← add_mul]
         exact mul_lt_mul_of_pos_right (by norm_num) hDpow_pos
-    -- 6.1.6, 6.1.7
+    -- 6.1.6, 6.1.7, 6.1.8
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
-        (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume.nnreal (ball x (8*D ^ 𝔰 p.1)) := fun y hy ↦
-      norm_Ks_le' _ hy
+        (2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := fun y hy ↦
+      norm_Ks_le' _ hxE hy
     calc (‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ : ℝ≥0∞)
       = ↑‖carlesonOn p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
     _ ≤ ∫⁻ (y : X), ‖cexp (I * (↑((Q x) y) - ↑((Q x) x))) * Ks (𝔰 p.1) x y * f y‖₊ := by
@@ -204,7 +240,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         rw [mem_ball, dist_comm]
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1),
-        (((2 : ℝ≥0) ^ (5*a + 101*a^3) / volume.nnreal (ball x (8*D ^ 𝔰 p.1))) * ‖f y‖₊ : ℝ≥0) := by
+        (((2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) * ‖f y‖₊ : ℝ≥0) := by
       refine lintegral_mono_nnreal ?_
       intro y
       simp only [nnnorm_mul]
@@ -212,32 +248,6 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       by_cases hy : Ks (𝔰 p.1) x y = 0
       · simp only [hy, nnnorm_zero, zero_le]
       · exact hKs y hy
-    _ ≤ ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1),
-        (((2 : ℝ≥0) ^ (5*a + 101*a^3 + a) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)))
-          * ‖f y‖₊ : ℝ≥0) := by
-      simp only [Nat.cast_pow, Nat.cast_ofNat,
-        div_eq_mul_inv, coe_mul, ENNReal.coe_pow, coe_ofNat]
-      refine lintegral_mono_nnreal ?_
-      intro y
-      apply mul_le_mul_of_nonneg_right _ (zero_le _)
-      rw [pow_add _ (5 * a + 101 * a ^ 3) a, mul_assoc]
-      apply mul_le_mul_of_nonneg_left _ (zero_le _)
-      suffices (volume.nnreal (ball (𝔠 p.1) (8 * ↑D ^ 𝔰 p.1))) ≤
-          2 ^ a * (volume.nnreal (ball x (8 * ↑D ^ 𝔰 p.1))) by
-        rw [le_mul_inv_iff₀]
-        rw [← le_inv_mul_iff₀ , mul_comm _ (_^a), inv_inv]
-        exact this
-        · exact inv_pos.mpr (measure_ball_pos_nnreal _ _ h8Dpow_pos)
-        · exact measure_ball_pos_nnreal _ _ h8Dpow_pos
-      have h2 : dist x (𝔠 p) + 8 * ↑D ^ 𝔰 p.1 ≤ 2 * (8 * ↑D ^ 𝔰 p.1) :=
-        calc dist x (𝔠 p) + 8 * ↑D ^ 𝔰 p.1
-          ≤ 4 * ↑D ^ 𝔰 p.1 + 8 * ↑D ^ 𝔰 p.1 := (add_le_add_iff_right _).mpr hdist_cp
-        _ ≤ 2 * (8 * ↑D ^ 𝔰 p.1) := by
-          ring_nf
-          exact mul_le_mul_of_nonneg (le_refl _) (by linarith) (le_of_lt hDpow_pos) (by linarith)
-      convert measureNNReal_ball_le_of_dist_le' (μ := volume) zero_lt_two h2
-      simp only [As, defaultA, Nat.cast_pow, Nat.cast_ofNat, Nat.one_lt_ofNat, logb_self_eq_one,
-        Nat.ceil_one, pow_one]
     _ = (2 : ℝ≥0)^(5*a + 101*a^3 + a) *
         ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       rw [laverage_eq, Measure.restrict_apply MeasurableSet.univ, univ_inter]
@@ -273,7 +283,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
 
--- TODO: PR
+-- TODO: PR to Mathlib
 omit [MetricSpace X] in
 lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     f = (F.indicator 1) * f := by
