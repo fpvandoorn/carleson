@@ -116,7 +116,7 @@ lemma ENNReal.sum_geometric_two_pow_toNNReal {k : ℕ} (hk : k > 0) :
     Real.rpow_neg zero_le_two, Real.rpow_natCast, one_div]
   have : ((1 : ℝ) - (2 ^ k)⁻¹).toNNReal ≠ 0 := by
     rw [ne_eq, Real.toNNReal_eq_zero, tsub_le_iff_right, zero_add, not_le, inv_lt_one_iff]
-    right; exact one_lt_pow (R := ℝ) _root_.one_lt_two hk.ne'
+    right; exact one_lt_pow₀ (R := ℝ) _root_.one_lt_two hk.ne'
   rw [← coe_inv this, coe_inj, Real.toNNReal_inv, one_div]
 
 lemma ENNReal.sum_geometric_two_pow_neg_one : ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-n : ℤ) = 2 := by
