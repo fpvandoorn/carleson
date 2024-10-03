@@ -322,7 +322,7 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
     _ = 2 ^ Real.logb 2 (R / r) * r := by
       rw [Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
     _ ≤ _ := by
-      refine mul_le_mul_of_nonneg_right ?_ hr.le
+      gcongr
       rw [← Real.rpow_natCast]
       exact Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil _)
 

@@ -67,17 +67,17 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
               (mul_pos (by positivity) (zpow_pos_of_pos (defaultD_pos _) _))))
         rw [mul_div_assoc, ← div_div, div_eq_mul_inv]
         congr
-        rw [eq_div_iff_mul_eq (mul_ne_zero (by positivity) hvol), mul_comm, mul_assoc,
+        rw [eq_div_iff_mul_eq (by positivity), mul_comm, mul_assoc,
           mul_inv_cancel₀ hvol, mul_one]
     _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
-      apply div_le_div_of_nonneg_left (by positivity)
-        (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos_of_pos (defaultD_pos _) _)))
+      gcongr
+      apply (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos_of_pos (defaultD_pos _) _)))
       · have heq : 2 ^ (100 * a ^ 2) * 2 ^ 5 * (1 / (↑D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
             (8 * ↑D ^ 𝔰 p.1) := by
           have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
           rw [← hD]
           ring_nf
-          rw [mul_inv_cancel₀ (ne_of_gt (defaultD_pos _)), one_mul]
+          rw [mul_inv_cancel₀ (defaultD_pos _).ne', one_mul]
         convert (DoublingMeasure.volume_ball_two_le_same_repeat x
           ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)) (100*a^2 + 5)) using 1
         · conv_lhs => rw [← heq, ← pow_add]
@@ -99,7 +99,6 @@ lemma norm_Ks_le'  {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hy : Ks (𝔰 p.1
   apply le_trans h
   rw [zpow_sub₀ (by simp), zpow_one, div_div]
   exact ineq_6_1_7 x p
-
 
 
 -- lemma 6.1.2
@@ -126,7 +125,8 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         simp only [add_le_add_iff_left, (mem_Icc.mpr (hdist_y hy)).2]
       _ ≤ 8*D ^ 𝔰 p.1 := by
         rw [div_eq_inv_mul, ← add_mul]
-        exact mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
+        gcongr
+        norm_num
     -- 6.1.6, 6.1.7
     /- have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
         (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume.real (ball x (8*D ^ 𝔰 p.1)) := fun y hy ↦
@@ -134,7 +134,6 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
         (2 : ℝ≥0) ^ (5*a + 101*a^3) / volume.nnreal (ball x (8*D ^ 𝔰 p.1)) := fun y hy ↦
       norm_Ks_le' _ hy
-
 
     calc (‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ : ℝ≥0∞)
       = ↑‖carlesonOn p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
@@ -158,18 +157,18 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         sorry
     _ ≤ ∫⁻ (y : X), ‖Ks (𝔰 p.1) x y * f y‖₊ := by
       simp only [nnnorm_mul]
-      refine lintegral_mono_nnreal ?h
+      refine lintegral_mono_nnreal ?_
       intro y
       simp only [mul_assoc]
       conv_rhs => rw [← one_mul (‖Ks (𝔰 p.1) x y‖₊ * ‖f y‖₊)]
-      apply mul_le_mul_of_nonneg_right _ (zero_le _)
+      gcongr
       · sorry
     _ ≤ ∫⁻ (y : X), (((2 : ℝ≥0) ^ (5*a + 101*a^3) / volume.nnreal (ball x (8*D ^ 𝔰 p.1)))
         * ‖f y‖₊ : ℝ≥0) := by
       refine lintegral_mono_nnreal ?_
       intro y
       simp only [nnnorm_mul]
-      apply mul_le_mul_of_nonneg_right _ (zero_le _)
+      gcongr
       by_cases hy : Ks (𝔰 p.1) x y = 0
       · simp only [hy, nnnorm_zero, zero_le]
       · exact hKs y hy
@@ -202,7 +201,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         (fun _ ↦ ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
       simp only [coe_ofNat, indicator, mem_ball, mul_ite, mul_zero]
       rw [if_pos]
-      apply mul_le_mul_of_nonneg_right _ (zero_le _)
+      gcongr
       · rw [C_6_1_2]; norm_cast
         apply pow_le_pow_right one_le_two
         calc
@@ -210,16 +209,16 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
           gcongr; exact le_self_pow (by linarith [four_le_a X]) (by omega)
         _ = 106 * a ^ 3 := by ring
         _ ≤ 107 * a ^ 3 := by gcongr; norm_num
-      · exact lt_of_le_of_lt hdist_cp
-          (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith)
-          (zpow_pos_of_pos (defaultD_pos a) _))
+      · apply lt_of_le_of_lt hdist_cp
+        gcongr
+        · exact zpow_pos_of_pos (defaultD_pos a) _
+        · linarith
     _ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
-      rw [mul_le_mul_left _ _, MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iSup_iff]
+      rw [mul_le_mul_left (C_6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
+        inv_one, ENNReal.rpow_one, le_iSup_iff]
       simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff,
         and_imp, forall_apply_eq_imp_iff₂, ENNReal.rpow_one]
       exact (fun _ hc ↦ hc p.1 p.2)
-      · exact C_6_1_2_ne_zero a
-      · exact coe_ne_top
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
     have h0 : (∑ (p ∈ 𝔄), carlesonOn p f x) = (∑ (p ∈ 𝔄), 0) := Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
     simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
@@ -254,10 +253,10 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
   -- have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   have hq0 : 0 < nnq := nnq_pos X
   have h1q' : 1 ≤ q' := by -- Better proof?
-    rw [one_le_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, add_le_add_iff_left]
+    rw [one_le_div (by positivity), two_mul, add_le_add_iff_left]
     exact le_of_lt (q_mem_Ioc X).1
   have hqq' : q' ≤ nnq := by -- Better proof?
-    rw [add_comm, div_le_iff₀ (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0,
+    rw [add_comm, div_le_iff₀ (by positivity), mul_comm, mul_le_mul_iff_of_pos_left hq0,
       ← one_add_one_eq_two, add_le_add_iff_left]
     exact (nnq_mem_Ioc X).1.le
   have hq'_inv : (q' - 1)⁻¹ ≤ 3 * (nnq - 1)⁻¹ := by
@@ -279,7 +278,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     _ ≤ 2 ^ (107*a^3) * (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
           2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.19. Use Lemma 6.1.2.
-      apply mul_le_mul_of_nonneg_right _ (zero_le _)
+      gcongr
       have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
         simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
       rw [h2, ← eLpNorm_const_smul]
@@ -315,12 +314,12 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
       gcongr
       · norm_cast
         calc 3 * 2 ^ (107 * a ^ 3 + 2 * a + 2)
-          _ ≤ 4 * 2 ^ (107 * a ^ 3 + 2 * a + 2) := mul_le_mul_of_nonneg_right (by omega) (zero_le _)
+          _ ≤ 4 * 2 ^ (107 * a ^ 3 + 2 * a + 2) := by gcongr; omega
           _ = 2 ^ (107 * a ^ 3 + 2 * a + 4) := by ring
           _ ≤ 2 ^ (107 * a ^ 3) * 2 ^ (4 * a ^ 3) := by
             rw [add_assoc, pow_add]
-            apply mul_le_mul_of_nonneg_left _ (zero_le _)
-            apply pow_right_mono one_le_two
+            gcongr
+            · norm_num
             apply Nat.add_le_of_le_sub'
             · have h4a3 : 4 * a ^ 3 = 2 * a * (2 * a^2) := by ring
               exact h4a3 ▸ Nat.le_mul_of_pos_right _ (by positivity)
