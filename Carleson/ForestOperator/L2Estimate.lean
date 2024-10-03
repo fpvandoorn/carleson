@@ -46,7 +46,8 @@ lemma subset_of_kissing (h : J ∈ kissing I) :
       · exact (mem_ball.mp xI).le
     _ ≤ _ := by
       rw [h.1, div_eq_mul_inv, mul_comm _ 4⁻¹, ← distrib_three_right]
-      exact mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
+      gcongr
+      norm_num
 
 lemma volume_le_of_kissing (h : J ∈ kissing I) :
     volume (ball (c I) (33 * D ^ s I)) ≤ 2 ^ (9 * a) * volume (ball (c J) (D ^ s J / 4)) := by
@@ -63,7 +64,7 @@ lemma volume_le_of_kissing (h : J ∈ kissing I) :
         · exact (mem_ball.mp xJ).le
       _ ≤ _ := by
         rw [h.1, ← distrib_three_right]
-        exact mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
+        gcongr; norm_num
   have double := measure_ball_le_pow_two' (μ := volume) (x := c J) (r := D ^ s J / 4) (n := 9)
   have A9 : (defaultA a : ℝ≥0) ^ 9 = (2 : ℝ≥0∞) ^ (9 * a) := by
     simp only [defaultA]; norm_cast; ring
