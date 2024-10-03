@@ -253,10 +253,10 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
   -- have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   have hq0 : 0 < nnq := nnq_pos X
   have h1q' : 1 ≤ q' := by -- Better proof?
-    rw [one_le_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, add_le_add_iff_left]
+    rw [one_le_div (by positivity), two_mul, add_le_add_iff_left]
     exact le_of_lt (q_mem_Ioc X).1
   have hqq' : q' ≤ nnq := by -- Better proof?
-    rw [add_comm, div_le_iff₀ (add_pos (zero_lt_one) hq0), mul_comm, mul_le_mul_iff_of_pos_left hq0,
+    rw [add_comm, div_le_iff₀ (by positivity), mul_comm, mul_le_mul_iff_of_pos_left hq0,
       ← one_add_one_eq_two, add_le_add_iff_left]
     exact (nnq_mem_Ioc X).1.le
   have hq'_inv : (q' - 1)⁻¹ ≤ 3 * (nnq - 1)⁻¹ := by

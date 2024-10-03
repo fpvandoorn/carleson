@@ -2180,7 +2180,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     rcases eq_or_ne (∫⁻ x : α, (g n x) ^ p ∂μ) 0  with int_eq_zero | int_ne_zero
     · rw [int_eq_zero, ENNReal.zero_rpow_of_pos]
       · exact zero_le _
-      · refine inv_pos_of_pos (lt_trans zero_lt_one hp)
+      · refine inv_pos_of_pos (by positivity)
     · calc
       _ = (∫⁻ x : α, (f x) * (g n x) ^ (p - 1) ∂μ) * (
           (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ := by
