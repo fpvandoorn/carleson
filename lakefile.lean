@@ -27,7 +27,7 @@ package «carleson» where
     ⟨`autoImplicit, false⟩]
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git" @ "master"
+  "https://github.com/leanprover-community/mathlib4.git" @ "v4.12.0"
 
 require checkdecls from git
   "https://github.com/PatrickMassot/checkdecls.git" @ "master"
