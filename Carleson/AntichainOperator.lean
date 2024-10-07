@@ -77,7 +77,7 @@ open MeasureTheory Metric
 open ENNReal NNReal Real
 
 /-- Constant appearing in Lemma 6.1.2. -/
-noncomputable def C_6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3 + a)
+noncomputable def C_6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3)
 
 lemma C_6_1_2_ne_zero (a : ℕ) : (C_6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C_6_1_2]; positivity
 
@@ -181,7 +181,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
 
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
-    (ha : 1 ≤ a) {f : X → ℂ} (hfm : Measurable f) (x : X) :
+    {f : X → ℂ} (hfm : Measurable f) (x : X) :
     ‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
   by_cases hx : ∃ (p : 𝔄), carlesonOn p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
@@ -240,7 +240,8 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         rw [mem_ball, dist_comm]
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1),
-        (((2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) * ‖f y‖₊ : ℝ≥0) := by
+        (((2 : ℝ≥0) ^ (6*a + 101*a^3) /
+          volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) * ‖f y‖₊ : ℝ≥0) := by
       refine lintegral_mono_nnreal ?_
       intro y
       simp only [nnnorm_mul]
@@ -261,14 +262,15 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       simp only [coe_ofNat, indicator, mem_ball, mul_ite, mul_zero]
       rw [if_pos]
       gcongr
-      · rw [C_6_1_2]; norm_cast
+      · rw [C_6_1_2, add_comm (5*a), add_assoc]; norm_cast
         apply pow_le_pow_right one_le_two
-        rw [add_le_add_iff_right]
         calc
-        _ ≤ 5 * a ^ 3 + 101 * a ^ 3 := by
-          gcongr; exact le_self_pow (by linarith [four_le_a X]) (by omega)
-        _ = 106 * a ^ 3 := by ring
-        _ ≤ 107 * a ^ 3 := by gcongr; norm_num
+        _ ≤ 101 * a ^ 3  + 6 * a ^ 3:= by
+          rw [add_le_add_iff_left]
+          ring_nf
+          gcongr
+          exact le_self_pow (by linarith [four_le_a X]) (by omega)
+        _ = 107 * a ^ 3 := by ring
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
     _ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
@@ -300,7 +302,7 @@ noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)
 
 -- Inequality 6.1.15
 lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
-    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) : /- (hf_vol : AEMeasurable f volume) -/
+    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) :
     eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭)
       ((2*nnq')/(3*nnq' - 2)) f x).toReal) 2 volume ≤
       (2 ^ (2 * a)) * (3*nnq' - 2) / (2*nnq' - 2) * eLpNorm f 2 volume := by
@@ -323,9 +325,10 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
   have hf1 : AEStronglyMeasurable f volume := hfm.aestronglyMeasurable
   by_cases hf_top : eLpNorm f 2 volume < ⊤
   · --have hf2 :  Memℒp f 2 volume := ⟨hf1, hf_top⟩
-    have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁
-        f x |>.toReal) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
-      sorry --hasStrongType_maximalFunction (X := X) hp₁_ge hp₁_lt (u := f) (r := fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) hf1
+    have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠
+        (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x |>.toReal) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
+      sorry
+      --hasStrongType_maximalFunction (X := X) hp₁_ge hp₁_lt (u := f) (r := fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) hf1
     have hh := (this f ⟨hf1, hf_top⟩).2
     simp only [hp₁, Nat.cast_pow, Nat.cast_ofNat, C2_0_6] at hh
 
@@ -362,7 +365,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
 
 -- lemma 6.1.3, inequality 6.1.10
 lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ha : 4 ≤ a)
-    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) /- (hf_vol : AEMeasurable f volume) -/
+    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
@@ -449,12 +452,11 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
         --apply eLpNormEssSup_lt_top_of_ae_nnnorm_bound
         sorry
       rw [← ENNReal.coe_le_coe, Finset.sum_apply]
-      convert (MaximalBoundAntichain h𝔄 (le_trans (by linarith) ha) hfm z)
+      convert (MaximalBoundAntichain h𝔄 hfm z)
       · simp only [Pi.smul_apply, real_smul, nnnorm_mul, nnnorm_eq, nnnorm_mul,
          nnnorm_real, nnnorm_pow, nnnorm_two,
         nnnorm_eq, coe_mul, C_6_1_2, ENNReal.coe_toNNReal MB_top]
         norm_cast
-        sorry
     _ ≤ 2 ^ (107*a^3 + 2*a + 2) * (nnq' - 1)⁻¹ * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.20. use 6.1.14 and 6.1.16.
