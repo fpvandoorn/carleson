@@ -1,4 +1,3 @@
-import Carleson.Forest
 import Carleson.MinLayerTiles
 
 open MeasureTheory Measure NNReal Metric Set
@@ -235,6 +234,9 @@ lemma G₁_empty (hF : volume F = 0) : G₁ = (∅ : Set X) := by
 lemma G₁_empty' (hG : volume G = 0) : G₁ = (∅ : Set X) := by
   simp [G₁, highDensityTiles_empty' hG]
 
+lemma measurable_G₁ : MeasurableSet (G₁ (X := X)) :=
+  Finite.measurableSet_biUnion highDensityTiles.toFinite fun _ _ ↦ coeGrid_measurable
+
 /-- The set `A(λ, k, n)`, defined in (5.1.26). -/
 def setA (l k n : ℕ) : Set X :=
   {x : X | l * 2 ^ (n + 1) < stackSize (𝔐 (X := X) k n) x }
@@ -265,11 +267,22 @@ def MsetA (l k n : ℕ) : Finset (Grid X) := { j | (j : Set X) ⊆ setA l k n }
 /-- The set `G₂`, defined in (5.1.27). -/
 def G₂ : Set X := ⋃ (n : ℕ) (k ≤ n), setA (2 * n + 6) k n
 
+lemma measurable_G₂ : MeasurableSet (G₂ (X := X)) := by
+  iterate 3 refine MeasurableSet.iUnion fun _ ↦ ?_
+  exact measurable_setA
+
 /-- The set `G₃`, defined in (5.1.28). -/
 def G₃ : Set X := ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3) (p ∈ 𝔏₄ (X := X) k n j), 𝓘 p
 
+lemma measurable_G₃ : MeasurableSet (G₃ (X := X)) := by
+  iterate 7 refine MeasurableSet.iUnion fun _ ↦ ?_
+  exact coeGrid_measurable
+
 /-- The set `G'`, defined below (5.1.28). -/
 def G' : Set X := G₁ ∪ G₂ ∪ G₃
+
+lemma measurable_G' : MeasurableSet (G' (X := X)) :=
+  (measurable_G₁.union measurable_G₂).union measurable_G₃
 
 /-- The set `𝔓₁`, defined in (5.1.30). -/
 def 𝔓₁ : Set (𝔓 X) := ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3), ℭ₅ k n j

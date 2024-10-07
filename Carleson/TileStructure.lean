@@ -88,6 +88,15 @@ lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
 
+lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
+  refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
+  · rw [← measurableSet_setOf]; exact coeGrid_measurable
+  · simp_rw [← mem_preimage, ← measurableSet_setOf]; exact SimpleFunc.measurableSet_preimage ..
+  · apply (measurable_set_mem _).comp
+    apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
+    · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+    · exact measurable_σ₁.prod_mk measurable_σ₂
+
 section T
 
 /-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
@@ -96,6 +105,31 @@ The operator `T` in Proposition 2.0.2 is therefore `applied to `(F := Set.univ)`
 def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
+
+lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
+    Measurable (carlesonOn p f) := by
+  refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
+  refine (((Measurable.mul ?_ measurable_K_right).mul ?_).mul ?_).stronglyMeasurable
+  · have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
+    refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
+    · exact measurable_Q₂
+    · exact measurable_Q₂.comp this
+  · apply measurable_ofReal.comp
+    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
+    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
+    · exact measurable_dist.const_mul _
+  · exact measf.comp measurable_snd
+
+open Classical in
+/-- The operator `T_ℭ f` defined at the bottom of Section 7.4.
+We will use this in other places of the formalization as well. -/
+def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
+  ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
+
+@[fun_prop]
+lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
+    Measurable (carlesonSum ℭ f) :=
+  Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
 
 lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
@@ -159,26 +193,15 @@ instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_inje
 lemma 𝔓.le_def {p q : 𝔓 X} : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
 lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
 
-lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := by
-  intros p p' h
+lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (𝒬 p) < 1 :=
+  ((cball_subset.trans h.2).trans subset_cball) (mem_ball_self (by norm_num))
+
+lemma dist_𝒬_lt_one_of_le' {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 p) (𝒬 q) < 1 :=
+  mem_ball'.mp (dist_𝒬_lt_one_of_le h)
+
+lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun p p' h ↦ by
   refine h.le.1.lt_of_ne <| fun h' ↦ ?_
-  exact Set.disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
-
-lemma eq_of_𝓘_eq_𝓘_of_le (h1 : 𝓘 p = 𝓘 p') (h2 : p ≤ p') : p = p' := by
-  by_contra h3
-  exact Set.disjoint_left.mp (disjoint_Ω h3 h1) (h2.2 𝒬_mem_Ω) 𝒬_mem_Ω
-
-lemma not_lt_of_𝓘_eq_𝓘 (h1 : 𝓘 p = 𝓘 p') : ¬ p < p' :=
-  fun h2 ↦ h2.ne <| eq_of_𝓘_eq_𝓘_of_le h1 h2.le
-
--- TODO: Clean up this lemma and the two above, it seems strict monotonicty is the basic idea
-lemma 𝓘_strict_mono : StrictMono (𝓘 (X := X)) := by
-  intro p p' h
-  apply lt_of_le_of_ne
-  · exact (𝔓.le_def'.mp (le_of_lt h)).left
-  · intro h'
-    have := not_lt_of_𝓘_eq_𝓘 h'
-    contradiction
+  exact disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
@@ -188,7 +211,7 @@ lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) 
 /-- Lemma 5.3.2 (generalizing `1` to `k > 0`) -/
 lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (hl : smul n p ≤ smul k p') :
     smul (n + C2_1_2 a * m) p ≤ smul m p' := by
-  replace hp : 𝓘 p < 𝓘 p' := lt_of_le_of_ne hl.1 hp
+  replace hp : 𝓘 p < 𝓘 p' := hl.1.lt_of_ne hp
   have : ball_(p') (𝒬 p') m ⊆ ball_(p) (𝒬 p) (n + C2_1_2 a * m) := fun x hx ↦ by
     rw [@mem_ball] at hx ⊢
     calc
@@ -200,6 +223,17 @@ lemma smul_C2_1_2 (m : ℝ) {n k : ℝ} (hk : 0 < k) (hp : 𝓘 p ≠ 𝓘 p') (
         rw [add_comm]; gcongr
         exact mem_ball.mp <| mem_of_mem_of_subset (by convert mem_ball_self hk) hl.2
   exact ⟨hl.1, this⟩
+
+lemma dist_LTSeries {n : ℕ} {u : Set (𝔓 X)} {s : LTSeries u} (hs : s.length = n) {f g : Θ X} :
+    dist_(s.head.1) f g ≤ C2_1_2 a ^ n * dist_(s.last.1) f g := by
+  induction n generalizing s with
+  | zero => rw [pow_zero, one_mul]; apply Grid.dist_mono s.head_le_last.1
+  | succ n ih =>
+    let s' : LTSeries u := s.eraseLast
+    specialize ih (show s'.length = n by simp [s', hs])
+    have link : dist_(s'.last.1) f g ≤ C2_1_2 a * dist_(s.last.1) f g :=
+      Grid.dist_strictMono <| 𝓘_strictMono <| s.eraseLast_last_rel_last (by omega)
+    apply ih.trans; rw [pow_succ, mul_assoc]; gcongr; unfold C2_1_2; positivity
 
 end
 
@@ -218,7 +252,7 @@ lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul 
   rcases eq_or_ne (𝓘 p) (𝓘 p') with h | h
   · rcases eq_or_ne p p' with rfl | h2
     · rfl
-    · exact absurd (eq_of_𝓘_eq_𝓘_of_le h hp) h2
+    · exact absurd h (𝓘_strictMono (lt_of_le_of_ne hp h2)).ne
   · calc
       _ ≤ smul (1 + C2_1_2 a * n) p := by
         apply smul_mono_left
@@ -263,6 +297,11 @@ lemma E₁_subset (p : 𝔓 X) : E₁ p ⊆ 𝓘 p := by
   rw [inter_assoc]
   exact inter_subset_left
 
+lemma E₂_subset (l : ℝ) (p : 𝔓 X) : E₂ l p ⊆ 𝓘 p := by
+  change ↑(𝓘 p) ∩ G ∩ (Q ⁻¹' (ball_(p) (𝒬 p) l)) ⊆ ↑(𝓘 p)
+  rw [inter_assoc]
+  exact inter_subset_left
+
 /-! `𝔓(𝔓')` in the blueprint is `lowerClosure 𝔓'` in Lean. -/
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
@@ -281,3 +320,68 @@ lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔
     ∀ p p', p ∈ 𝔄 → p' ∈ 𝔄 → p ≠ p' →
     Disjoint (toTileLike (X := X) p).toTile (toTileLike p').toTile := sorry
+
+lemma ENNReal.rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0) (h : x ≤ y) :
+    y ^ z ≤ x ^ z := by
+  rw [← neg_neg z, rpow_neg y, rpow_neg x, ← inv_rpow, ← inv_rpow]
+  exact rpow_le_rpow (ENNReal.inv_le_inv.mpr h) (neg_nonneg.mpr hz)
+
+/- A rough estimate. It's also less than 2 ^ (-a) -/
+def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
+  conv_rhs => rw [← mul_one 1]
+  simp only [dens₁, mem_lowerClosure, iSup_exists, iSup_le_iff]
+  intros i _ j hj
+  gcongr
+  · calc
+    (j : ℝ≥0∞) ^ (-(a : ℝ)) ≤ 2 ^ (-(a : ℝ)) := by
+      apply ENNReal.rpow_le_rpow_of_nonpos
+      · simp_rw [neg_nonpos, Nat.cast_nonneg']
+      exact_mod_cast hj
+    _ ≤ 2 ^ (0 : ℝ) :=
+      ENNReal.rpow_le_rpow_of_exponent_le (by norm_num) (neg_nonpos.mpr (Nat.cast_nonneg' _))
+    _ = 1 := by norm_num
+  simp only [iSup_le_iff, and_imp]
+  intros i' _ _ _ _
+  calc
+  volume (E₂ j i') / volume (𝓘 i' : Set X) ≤ volume (𝓘 i' : Set X) / volume (𝓘 i' : Set X) := by
+    gcongr
+    apply E₂_subset
+  _ ≤ 1 := ENNReal.div_self_le_one
+
+/-! ### Stack sizes -/
+
+variable {C C' : Set (𝔓 X)} {x x' : X}
+open scoped Classical
+
+/-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
+def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
+  ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator 1 x
+
+lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
+    stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
+  classical
+  simp_rw [stackSize]
+  conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
+  simp_rw [Finset.filter_filter]
+  congr
+
+lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
+    stackSize C x = stackSize C x' := by
+  refine Finset.sum_congr rfl fun p hp ↦ ?_
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
+  simp_rw [indicator, h p hp, Pi.one_apply]
+
+lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
+  apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)
+  simp [iff_true_intro (@h x)]
+
+-- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
+lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
+    ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
+  rw [stackSize, Nat.cast_sum]
+  refine Finset.sum_congr rfl (fun u _ ↦ ?_)
+  by_cases hx : x ∈ (𝓘 u : Set X) <;> simp [hx]
+
+lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) := by
+  simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
+  refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp

@@ -184,7 +184,9 @@ lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (
         g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
   calc _
     _ = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 π}, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
-      rw [annulus_real_eq (le_refl 0), integral_union (by simp) measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo, ← integral_union (Set.disjoint_of_subset_right Set.Ioo_subset_Ioc_self (by simp)) measurableSet_Ioo,
+      rw [annulus_real_eq (le_refl 0),
+        integral_union (by simp) measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo,
+        ← integral_union (Set.disjoint_of_subset_right Set.Ioo_subset_Ioc_self (by simp)) measurableSet_Ioo,
         intervalIntegral.integral_of_le (by linarith [pi_pos]), integral_Ioc_eq_integral_Ioo,
         sub_zero, add_zero, Set.Ioc_union_Ioo_eq_Ioo (by linarith [pi_pos]) (by linarith [pi_pos])]
       --TODO: Many similar goals => improve this further?
@@ -228,6 +230,7 @@ lemma intervalIntegrable_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set
   rcases hy with h | h <;> constructor <;> linarith [h.1, h.2, hx.1, hx.2, Real.two_le_pi]
 
 
+attribute [gcongr] iSup_congr
 lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (-π) (3 * π)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖∫ (y : ℝ) in x - π..x + π, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊
     ≤ T g x + T (conj ∘ g) x := by
@@ -257,8 +260,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
   have : Tendsto (fun i => ∫ y in s i, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))
           atTop (𝓝 (∫ y in ⋃ n, s n, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)))) := by
     apply tendsto_setIntegral_of_monotone
-    · intro n
-      exact annulus_measurableSet
+    · exact fun n ↦ annulus_measurableSet
     · intro n m nlem
       simp only [Set.le_eq_subset]
       intro y hy
@@ -284,12 +286,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       apply le_iSup₂_of_le (by simp; linarith) (by rw [div_lt_iff] <;> linarith)
       rfl
     _ = ⨆ (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * N * y) + conj (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * (Int.ofNat N) * y)))‖₊ := by
-      apply iSup_congr
-      intro r
-      apply iSup_congr
-      intro _
-      apply iSup_congr
-      intro _
+      gcongr
       congr with y
       congr
       rw [Dirichlet_Hilbert_eq]
@@ -334,7 +331,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
               _ ≤ (2 ^ (2 : ℝ) / (2 * r)) := by
                 rw [one_mul, mul_one, ← Real.dist_eq]
                 gcongr
-          have integrable₁ := (integrable_annulus hx hg rpos.le rle1)
+          have integrable₁ := integrable_annulus hx hg rpos.le rle1
           rw [integral_add]
           · conv => pattern ((g _) * _); rw [mul_comm]
             apply Integrable.bdd_mul' integrable₁ measurable₁.aestronglyMeasurable
@@ -343,7 +340,8 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
               exact fun _ hy ↦ boundedness₁ hy.1.le
           · conv => pattern ((g _) * _); rw [mul_comm]
             apply Integrable.bdd_mul' integrable₁
-            · apply Measurable.aestronglyMeasurable
+            · -- xxx: can fun_prop prove this?
+              apply Measurable.aestronglyMeasurable
               exact continuous_star.measurable.comp measurable₁
             · rw [ae_restrict_iff' annulus_measurableSet]
               apply Eventually.of_forall
@@ -416,7 +414,7 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
   calc ENNReal.ofNNReal ‖S_ N g x‖₊
     _ ≤ (  ‖∫ (y : ℝ) in (x - π)..(x + π), g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊
          + ‖∫ (y : ℝ) in (x - π)..(x + π), g y * (dirichletKernel' N (x - y) - (max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊) / ENNReal.ofReal (2 * π) := by
-      rw [decomposition, nnnorm_div, ENNReal.coe_div (by simp [pi_pos.ne.symm])]
+      rw [decomposition, nnnorm_div, ENNReal.coe_div (by simp [pi_pos.ne'])]
       norm_cast
       gcongr
       · apply nnnorm_add_le
@@ -447,7 +445,7 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
     _ = (T g x + T (conj ∘ g) x) / ENNReal.ofReal (2 * π) + ENNReal.ofReal (π * δ) := by
       rw [ENNReal.add_div]
       congr
-      rw [← ENNReal.ofReal_div_of_pos Real.two_pi_pos, mul_div_assoc, div_self Real.two_pi_pos.ne.symm, mul_one]
+      rw [← ENNReal.ofReal_div_of_pos Real.two_pi_pos, mul_div_assoc, div_self Real.two_pi_pos.ne', mul_one]
 
 end section
 
@@ -481,7 +479,8 @@ lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ �
 lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ δ)
     {E : Set ℝ} (measurableSetE : MeasurableSet E) (E_subset : E ⊆ Set.Icc 0 (2 * π)) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
       ε * volume E ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (2 * π + 2) ^ (2 : ℝ)⁻¹) * volume E ^ (2 : ℝ)⁻¹ := by
-  rw [ENNReal.ofReal_mul (by apply mul_nonneg δpos.le (C10_0_1_pos one_lt_two).le), ← ENNReal.ofReal_rpow_of_pos (by linarith [pi_pos])]
+  rw [ENNReal.ofReal_mul (by have := @C10_0_1_pos 4 2 one_lt_two; positivity),
+    ← ENNReal.ofReal_rpow_of_pos (by positivity)]
   set F := (Set.Ioo (0 - 1) (2 * π + 1))
   set h := F.indicator f with hdef
   have hh : ∀ x, ‖h x‖ ≤ δ * F.indicator 1 x := by
@@ -503,14 +502,14 @@ def C_control_approximation_effect (ε : ℝ) := (C10_0_1 4 2 * (8 / (π * ε)) 
 lemma lt_C_control_approximation_effect {ε : ℝ} (εpos : 0 < ε) : π < C_control_approximation_effect ε := by
   rw [C_control_approximation_effect]
   apply lt_add_of_pos_of_le _ (by rfl)
-  apply mul_pos (C10_0_1_pos (by norm_num))
-  apply Real.rpow_pos_of_pos
-  apply div_pos (by norm_num)
-  apply mul_pos pi_pos εpos
+  have := @C10_0_1_pos 4 2 (by norm_num)
+  positivity
 
-lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε := lt_trans' (lt_C_control_approximation_effect εpos) pi_pos
+lemma C_control_approximation_effect_pos {ε : ℝ} (εpos : 0 < ε) : 0 < C_control_approximation_effect ε :=
+  lt_trans' (lt_C_control_approximation_effect εpos) pi_pos
 
-lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) : C_control_approximation_effect ε * δ = ((δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / π) + π * δ := by
+lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤ ε) :
+    C_control_approximation_effect ε * δ = ((δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / π) + π * δ := by
   symm
   rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc,
     mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C10_0_1 4 2), mul_assoc]
@@ -570,13 +569,10 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       _ = ENNReal.ofReal (2 * π) * ENNReal.ofReal ε' := by
         rw [← ENNReal.ofReal_add, ← ENNReal.ofReal_mul Real.two_pi_pos.le]
         · ring_nf
-        · apply mul_nonneg _ Real.two_pi_pos.le
-          rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right]
-          apply div_nonneg (mul_nonneg _ (Real.rpow_nonneg (div_nonneg (by norm_num) εpos.le) _)) pi_pos.le
-          rw [mul_assoc]
-          apply mul_nonneg hδ.le (mul_nonneg (C10_0_1_pos one_lt_two).le (Real.rpow_nonneg _ _))
-          linarith [pi_pos]
-        · apply mul_nonneg (mul_nonneg pi_pos.le hδ.le) Real.two_pi_pos.le
+        · rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right]
+          have aux := @C10_0_1_pos 4 2 one_lt_two
+          positivity
+        · positivity
       _ ≤ ENNReal.ofReal (2 * π) * ‖S_ N h x‖₊ := by
         rw [← ofReal_norm_eq_coe_nnnorm]
         gcongr
@@ -602,6 +598,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       _ < ⊤ := ENNReal.ofReal_lt_top
   obtain ⟨E', E'subset, measurableSetE', E'measure, h⟩ := ENNReal.le_on_subset volume measurableSetE (carlesonOperatorReal_measurable h_measurable h_bound) (carlesonOperatorReal_measurable (continuous_star.measurable.comp h_measurable) conj_h_bound) le_operator_add
   have E'volume : volume E' < ⊤ := lt_of_le_of_lt (measure_mono E'subset) Evolume
+  have aux := @C10_0_1_pos 4 2 one_lt_two
   have E'volume_bound: ENNReal.ofReal (π * (ε' - π * δ)) * volume E' ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹) * (volume E') ^ (2 : ℝ)⁻¹ := by
     calc ENNReal.ofReal (π * (ε' - π * δ)) * volume E'
     _ = ENNReal.ofReal ((ε' - π * δ) * (2 * π)) / 2 * volume E' := by
@@ -613,12 +610,11 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       · exact rcarleson_exceptional_set_estimate_specific hδ (by fun_prop) conj_h_bound measurableSetE' (E'subset.trans Esubset) hE'
     _ ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹) * (volume E') ^ (2 : ℝ)⁻¹ := by
       gcongr
-      · exact mul_nonneg hδ.le (C10_0_1_pos one_lt_two).le
       · linarith [Real.two_le_pi]
-  have δ_mul_const_pos : 0 < δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ := mul_pos (mul_pos hδ (C10_0_1_pos one_lt_two)) (Real.rpow_pos_of_pos (by linarith [Real.two_pi_pos]) _)
+  have δ_mul_const_pos : 0 < δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ := by positivity
   have ε'_δ_expression_pos : 0 < π * (ε' - π * δ) := by
-    rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ pi_pos.ne.symm]
-    exact mul_pos δ_mul_const_pos (Real.rpow_pos_of_pos (div_pos (by norm_num) εpos) _)
+    rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ pi_pos.ne']
+    positivity
   calc volume.real E
     _ ≤ 2 * volume.real E' := by
       --uses E'measure
@@ -638,11 +634,11 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       rw [← ENNReal.ofReal_le_ofReal_iff, ENNReal.ofReal_mul ε'_δ_expression_pos.le, measureReal_def, ENNReal.ofReal_toReal E'volume.ne]
       apply le_trans E'volume_bound
       rw [ENNReal.ofReal_mul δ_mul_const_pos.le, ← ENNReal.ofReal_rpow_of_nonneg ENNReal.toReal_nonneg (by norm_num), ENNReal.ofReal_toReal E'volume.ne]
-      apply mul_nonneg δ_mul_const_pos.le
-      apply Real.rpow_nonneg measureReal_nonneg
+      positivity
     _ = ε := by
       --We have chosen ε' such that this works.
-      rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right, mul_div_cancel₀ _ pi_pos.ne.symm,
-          div_mul_eq_div_div, div_self δ_mul_const_pos.ne.symm, one_div, Real.inv_rpow (Real.rpow_nonneg (div_nonneg zero_le_two εpos.le) _),
-          ← Real.rpow_mul (div_nonneg zero_le_two εpos.le), inv_mul_cancel₀ (by norm_num), Real.rpow_one, inv_div]
+      rw [ε'def, C_control_approximation_effect_eq εpos.le, add_sub_cancel_right,
+        mul_div_cancel₀ _ pi_pos.ne', div_mul_eq_div_div, div_self δ_mul_const_pos.ne', one_div,
+        Real.inv_rpow (by positivity), ← Real.rpow_mul (by positivity),
+        inv_mul_cancel₀ (by norm_num), Real.rpow_one, inv_div]
       ring

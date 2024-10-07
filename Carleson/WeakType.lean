@@ -76,10 +76,10 @@ lemma distribution_measurable {g : α' → ℝ≥0∞} (hg : Measurable g) :
     Measurable (fun y : α' ↦ distribution f (g y) μ) := by
   fun_prop
 
-@[measurability, deprecated]
+/-@[measurability, deprecated]
 lemma distribution_measurable_from_real :
     Measurable (fun t : ℝ ↦ distribution f (.ofReal t) μ) :=
-  distribution_measurable measurable_ofReal
+  distribution_measurable measurable_ofReal-/
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
   (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
@@ -150,7 +150,7 @@ lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
     Filter.Tendsto (⇑μ ∘ (fun n : ℕ ↦ {x | t₀ + (↑n)⁻¹ < ‖f x‖₊}))
       Filter.atTop (nhds (μ ({x | t₀ < ‖f x‖₊}))) := by
   rw [← approx_above_superset]
-  apply tendsto_measure_iUnion
+  apply tendsto_measure_iUnion_atTop
   intro a b h x h₁
   calc
     _ ≤ t₀ + (↑a)⁻¹ := by gcongr

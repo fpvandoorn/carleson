@@ -52,7 +52,7 @@ lemma ψ_formula₀ {x : ℝ} (hx : x ≤ 1 / (4 * D : ℝ)) : ψ D x = 0 := by
 include hD in
 lemma ψ_formula₁ {x : ℝ} (hx : 1 / (4 * D) ≤ x ∧ x ≤ 1 / (2 * D)) :
     ψ D x = 4 * D * x - 1 := by
-  have : x ≥ 0 := le_trans (one_div_nonneg.2 (le_of_lt <| fourD0 hD)) hx.1
+  have : x ≥ 0 := le_trans (one_div_nonneg.2 (fourD0 hD).le) hx.1
   have hx1 := (div_le_iff₀' (fourD0 hD)).1 hx.1
   have hx2 := (le_div_iff₀' (twoD0 hD)).1 hx.2
   have ineq₀ : 4 * D * x - 1 ≤ 2 - 4 * x := by
@@ -109,7 +109,7 @@ lemma support_ψ : support (ψ D) = Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
     exact fun _ ↦ hx₃
 
 lemma lipschitzWith_ψ (hD : 1 ≤ D) : LipschitzWith (4 * D) (ψ D) := by
-  have max_eq_4D : max 0 (4 * D : ℝ≥0) = 4 * D := max_eq_right (le_of_lt (fourD0' hD))
+  have max_eq_4D : max 0 (4 * D : ℝ≥0) = 4 * D := max_eq_right (fourD0' hD).le
   have max_eq_4D' : max (4 * D) 4 = 4 * D := by apply max_eq_left; linarith
   suffices LipschitzWith (4 * D) (fun (x : ℝ) ↦ min 1 <| min (4 * D * x - 1) (2 - 4 * x)) from
     max_eq_4D ▸ (LipschitzWith.const 0).max this
@@ -122,7 +122,8 @@ lemma lipschitzWith_ψ (hD : 1 ≤ D) : LipschitzWith (4 * D) (ψ D) := by
   have lw2 : LipschitzWith 4 (fun (x : ℝ) ↦ 2 - 4 * x) := by
     refine LipschitzWith.of_le_add_mul 4 (fun x y ↦ ?_)
     suffices 4 * (y - x) ≤ 4 * dist x y by norm_cast at this ⊢; linarith
-    exact (mul_le_mul_left four_pos).2 <| dist_comm x y ▸ sub_le_dist y x
+    gcongr
+    exact dist_comm x y ▸ sub_le_dist y x
   have := lw1.min lw2
   norm_cast at this ⊢
   convert max_eq_4D' ▸ this
@@ -132,7 +133,7 @@ lemma lipschitzWith_ψ' (hD : 1 ≤ D) (a b : ℝ) : ‖ψ D a - ψ D b‖ ≤ 4
   have lipschitz := lipschitzWith_ψ hD a b
   rw [edist_dist, edist_dist, dist_eq_norm_sub] at lipschitz
   norm_cast at lipschitz
-  rw [← ENNReal.ofReal_natCast, ← ENNReal.ofReal_mul (by exact_mod_cast le_of_lt (fourD0' hD)),
+  rw [← ENNReal.ofReal_natCast, ← ENNReal.ofReal_mul (by exact_mod_cast (fourD0' hD).le),
     ← ENNReal.toReal_le_toReal ENNReal.ofReal_ne_top ENNReal.ofReal_ne_top] at lipschitz
   repeat rw [ENNReal.toReal_ofReal (by positivity)] at lipschitz
   norm_cast
@@ -470,7 +471,7 @@ private lemma ψ_ineq {x y y' : X} :
   rw [zpow_neg, ← smul_eq_mul, ← smul_eq_mul, dist_smul₀]
   apply (mul_le_mul_of_nonneg_left (dist_dist_dist_le_right x y y') (norm_nonneg _)).trans
   rw [← Real.rpow_one (_ * _), Real.norm_of_nonneg (inv_pos.2 (Ds0 X s)).le, inv_mul_eq_div]
-  exact Real.rpow_le_rpow_of_exponent_ge (by positivity) (le_of_lt h) (Nat.cast_inv_le_one a)
+  exact Real.rpow_le_rpow_of_exponent_ge (by positivity) h.le (Nat.cast_inv_le_one a)
 
 private lemma D_pow_a_inv : (D : ℝ) ^ (a : ℝ)⁻¹ = 2 ^ (100 * a) :=
   calc
@@ -520,7 +521,7 @@ private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   replace mem_supp := mem_supp.1
   rw [← _root_.div_lt_iff' (Ds0 X (-s)), zpow_neg, inv_div_inv, div_eq_inv_mul] at mem_supp
   have : dist y y' / dist x y ≤ (dist y y' / ((4 * D : ℝ)⁻¹ * D ^ s)) :=
-    div_le_div_of_nonneg_left dist_nonneg (by positivity) (le_of_lt mem_supp)
+    div_le_div_of_nonneg_left dist_nonneg (by positivity) mem_supp.le
   rw [← div_eq_inv_mul, ← div_mul] at this
   have : (dist y y' / dist x y) ^ (a : ℝ)⁻¹ ≤ (dist y y' / D ^ s * (4 * D)) ^ (a : ℝ)⁻¹ := by
     apply Real.rpow_le_rpow (div_nonneg dist_nonneg dist_nonneg) this (by positivity)
@@ -640,6 +641,11 @@ lemma norm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
   · exact norm_Ks_sub_Ks_le₀ hK h
   · exact norm_Ks_sub_Ks_le₁ hK h
 
+lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
+  unfold Ks _root_.ψ
+  refine aestronglyMeasurable_K.mul ?_
+  fun_prop
+
 /-- The function `y ↦ Ks s x y` is integrable. -/
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by
   /- Define a measurable, bounded function `K₀` that is equal to `K x` on the support of
@@ -659,7 +665,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
     · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
       intro y hy
       rw [mem_support, ne_eq, ofReal_eq_zero, ← ne_eq, ← mem_support, support_ψ (D1 X)] at hy
-      replace hy := le_of_lt hy.2
+      replace hy := hy.2.le
       rw [zpow_neg, mul_comm, ← div_eq_mul_inv, div_le_iff₀ (Ds0 X s)] at hy
       rwa [mem_closedBall, dist_comm, div_eq_mul_inv, mul_comm]
   · refine Measurable.ite ?_ measurable_const measurable_K_right.of_uncurry_left

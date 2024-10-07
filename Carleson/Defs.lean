@@ -171,14 +171,15 @@ def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
-def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ :=
-  sSup { r : ℝ | dist_{x, r} θ (Q x) < 1 }
+def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
+  sSup { r : ℝ≥0∞ | dist_{x, r.toReal} θ (Q x) < 1 }
 
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
-  ‖∫ y in {y | dist x' y ∈ Ioo R₁ (upperRadius Q θ x')}, K x' y * f y‖₊
+  ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioo (ENNReal.ofReal R₁) (upperRadius Q θ x')},
+    K x' y * f y‖₊
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
@@ -233,6 +234,10 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
 
 export IsOneSidedKernel (measurable_K_right measurable_K_left norm_K_le_vol_inv norm_K_sub_le)
 
+lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
+    AEStronglyMeasurable (fun x : X × X ↦ K x.1 x.2) :=
+  sorry -- this probably needs to be replaced in the definition of 1-sided kernel.
+
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
@@ -281,7 +286,7 @@ section ProofData
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
 
-section CDistIterate
+section Iterate
 
 lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
     2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
@@ -308,7 +313,37 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
 
-end CDistIterate
+lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
+    BallsCoverBalls (WithFunctionDistance x d) R r (defaultA a ^ ⌈Real.logb 2 (R / r)⌉₊) := by
+  have double := fun s ↦ PreProofData.cf.ballsCoverBalls (x := x) (r := d) (R := s)
+  apply (BallsCoverBalls.pow_mul double).mono
+  calc
+    _ = R / r * r := by rw [div_mul_cancel₀ R hr.ne']
+    _ = 2 ^ Real.logb 2 (R / r) * r := by
+      rw [Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
+    _ ≤ _ := by
+      gcongr
+      rw [← Real.rpow_natCast]
+      exact Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil _)
+
+end Iterate
+
+@[fun_prop]
+lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
+  have : (fun p : X × X ↦ (Q p.1) p.2) ⁻¹' s = ⋃ θ ∈ Q.range, (Q ⁻¹' {θ}) ×ˢ (θ ⁻¹' s) := by
+    ext ⟨x, y⟩
+    simp only [mem_preimage, SimpleFunc.mem_range, mem_range, iUnion_exists, iUnion_iUnion_eq',
+      mem_iUnion, mem_prod, mem_singleton_iff]
+    constructor <;> intro h
+    · use x
+    · obtain ⟨j, hj⟩ := h; exact congr($(hj.1) y).symm ▸ hj.2
+  rw [this]
+  exact Q.range.measurableSet_biUnion fun θ _ ↦
+    (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)
+
+@[fun_prop]
+lemma aestronglyMeasurable_Q₂ : AEStronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
+  measurable_Q₂.aestronglyMeasurable
 
 variable (X) in
 lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
@@ -415,7 +450,7 @@ open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
 lemma one_lt_D [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 1 < (D : ℝ) := by
-  exact_mod_cast one_lt_pow Nat.one_lt_two (by nlinarith [four_le_a X])
+  exact_mod_cast one_lt_pow₀ Nat.one_lt_two (by nlinarith [four_le_a X])
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
   rw [← Nat.cast_one, Nat.cast_le, defaultD, ← pow_zero 2]
@@ -451,6 +486,10 @@ lemma DκZ_le_two_rpow_100 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F 
     _ ≤ _ := by
       nth_rw 1 [← mul_one (a ^ 2), ← mul_assoc]
       gcongr; exact Nat.one_le_two_pow
+
+lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ Z := by
+  rw [defaultZ, show 4 = 2 ^ 2 by rfl]
+  exact Nat.pow_le_pow_right zero_lt_two (by linarith [four_le_a X])
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/

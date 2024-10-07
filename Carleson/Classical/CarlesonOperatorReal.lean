@@ -79,7 +79,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
   set Q : Set ℝ := Rat.cast '' Set.univ with Qdef
   have hQ : Dense Q ∧ Countable Q := by
     constructor
-    · rw [Rat.denseEmbedding_coe_real.dense_image]
+    · rw [Rat.isDenseEmbedding_coe_real.dense_image]
       exact dense_univ
     · rw [Set.countable_coe_iff, Qdef, Set.image_univ]
       exact Set.countable_range _

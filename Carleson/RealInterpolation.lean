@@ -22,138 +22,127 @@ import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
     - Definitions
     - Proof of the real interpolation theorem
 -/
+
+set_option linter.unusedVariables false -- contrapose! is noisy
+
 noncomputable section
 
 open ENNReal Real Set MeasureTheory
 
+-- Note (F): can we make `t : ℝ≥0∞` for a large part of the proof?
 variable {p₀ q₀ p₁ q₁ p q : ℝ≥0∞} {t : ℝ}
 
 /-! ## Convenience results for working with (interpolated) exponents
 -/
 namespace ComputationsInterpolatedExponents
 
-lemma preservation_positivity {p q : ℝ} (hp : p > 0) (hq : q > 0) (ht : t ∈ Ioo 0 1) :
-  0 < (1 - t) * p⁻¹ + t * q⁻¹ :=
-  add_pos (mul_pos (sub_pos.mpr ht.2) (inv_pos_of_pos hp))
-      (mul_pos ht.1 (inv_pos_of_pos hq))
+-- unused
+lemma ofReal_mem_Ioo_0_1 (h : t ∈ Ioo 0 1) : ENNReal.ofReal t ∈ Ioo 0 1 :=
+  ⟨ofReal_pos.mpr h.1, ofReal_lt_one.mpr h.2⟩
 
-lemma ENNReal_preservation_positivity₀ {p q : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠ ⊤) :
-    0 < (1 - ENNReal.ofReal t) * p⁻¹ + (ENNReal.ofReal t) * q⁻¹ := by
+lemma ENNReal_preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ ∨ q ≠ ⊤) :
+    0 < (1 - ENNReal.ofReal t) * p⁻¹ + ENNReal.ofReal t * q⁻¹ := by
   have t_mem : ENNReal.ofReal t ∈ Ioo 0 1 :=
     ⟨ofReal_pos.mpr ht.1, ENNReal.ofReal_one ▸ (ofReal_lt_ofReal_iff zero_lt_one).mpr ht.2⟩
-  cases hpq <;> rename_i dir
-  · exact Left.add_pos_of_pos_of_nonneg (mul_pos ((tsub_pos_of_lt t_mem.2).ne.symm)
-      (ENNReal.inv_ne_zero.mpr (dir))) (zero_le _)
+  obtain dir|dir := hpq
+  · exact Left.add_pos_of_pos_of_nonneg (mul_pos ((tsub_pos_of_lt t_mem.2).ne')
+      (ENNReal.inv_ne_zero.mpr dir)) (zero_le _)
   · exact Right.add_pos_of_nonneg_of_pos (zero_le _)
-      (mul_pos ((ofReal_pos.mpr ht.1).ne.symm) (ENNReal.inv_ne_zero.mpr (dir)))
+      (mul_pos ((ofReal_pos.mpr ht.1).ne') (ENNReal.inv_ne_zero.mpr dir))
 
-lemma ENNReal_preservation_positivity {p q : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
-    0 < (1 - ENNReal.ofReal t) * p⁻¹ + (ENNReal.ofReal t) * q⁻¹ := by
+lemma ENNReal_preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
+    0 < (1 - ENNReal.ofReal t) * p⁻¹ + ENNReal.ofReal t * q⁻¹ := by
   apply ENNReal_preservation_positivity₀ ht
-  cases (lt_or_gt_of_ne hpq) <;> rename_i dir <;> exact Ne.ne_or_ne ⊤ hpq
+  cases (lt_or_gt_of_ne hpq) <;> exact Ne.ne_or_ne ⊤ hpq
 
-lemma ENNReal_preservation_positivity' {p p₀ p₁ : ℝ≥0∞} (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p > 0 :=
-  inv_lt_top.mp (hp ▸ Ne.lt_top (add_ne_top.mpr ⟨mul_ne_top (Ne.symm (ne_of_beq_false (by rfl)))
-    (inv_ne_top.mpr hp₀.ne.symm), mul_ne_top (coe_ne_top) (inv_ne_top.mpr hp₁.ne.symm)⟩))
+lemma ENNReal_preservation_positivity' (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p > 0 := by
+  rw [← inv_inv p, hp]
+  simp [ENNReal.mul_eq_top, sub_eq_zero, hp₀.ne', hp₁.ne']
 
-lemma interp_exp_ne_top {p p₀ p₁ : ℝ≥0∞} (hp₀p₁ : p₀ ≠ p₁)
+lemma interp_exp_ne_top (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p ≠ ⊤ :=
+  ENNReal.inv_ne_zero.mp <| hp ▸ (ENNReal_preservation_positivity ht hp₀p₁).ne'
+
+lemma interp_exp_ne_top' (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤) (ht : t ∈ Ioo 0 1)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p ≠ ⊤ :=
+  ENNReal.inv_ne_zero.mp (hp ▸ (ENNReal_preservation_positivity₀ ht hp₀p₁).ne')
+
+lemma interp_exp_eq (hp₀p₁ : p₀ = p₁)
     (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p ≠ ⊤ :=
-  ENNReal.inv_ne_zero.mp (hp ▸ (ENNReal_preservation_positivity ht hp₀p₁).ne.symm)
-
-lemma interp_exp_ne_top' {p p₀ p₁ : ℝ≥0∞} (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤)
-    (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p ≠ ⊤ :=
-  ENNReal.inv_ne_zero.mp (hp ▸ (ENNReal_preservation_positivity₀ ht hp₀p₁).ne.symm)
-
-lemma interp_exp_eq {p p₀ p₁ : ℝ≥0∞} (hp₀p₁ : p₀ = p₁)
-    (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p₀ = p := by
-  have t_pos := ht.1
-  have : 1 - ENNReal.ofReal t + ENNReal.ofReal t  = 1 := by
-    rw [← ENNReal.ofReal_one, ← ENNReal.ofReal_sub, ← ENNReal.ofReal_add (p := 1 - t) (q := t),
-        sub_add_cancel, ofReal_one] <;> try positivity
-    · exact le_of_lt (Ioo.one_sub_mem ht).1
-  rw [← hp₀p₁, ← add_mul, this, one_mul] at hp
-  rw [← inv_inv (a := p₀), ← inv_inv (a := p), hp]
+  rw [← inv_inv (a := p), hp, ← hp₀p₁, ← add_mul,
+    tsub_add_cancel_of_le <| ofReal_lt_one.mpr ht.2 |>.le, one_mul, inv_inv]
 
-lemma interp_exp_lt_top {p p₀ p₁ : ℝ≥0∞} (hp₀p₁ : p₀ ≠ p₁)
+lemma interp_exp_lt_top (hp₀p₁ : p₀ ≠ p₁)
     (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p < ⊤ :=
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p < ⊤ :=
   Ne.lt_top <| interp_exp_ne_top hp₀p₁ ht hp
 
-lemma interp_exp_lt_top' {p p₀ p₁ : ℝ≥0∞} (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤)
+lemma interp_exp_lt_top' (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤)
     (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p < ⊤ :=
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p < ⊤ :=
   Ne.lt_top <| interp_exp_ne_top' hp₀p₁ ht hp
 
-lemma interp_exp_between {p p₀ p₁ : ℝ≥0∞} (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
+lemma interp_exp_between (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
     (hp₀p₁ : p₀ < p₁) (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p ∈ Ioo p₀ p₁ := by
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p ∈ Ioo p₀ p₁ := by
   refine ⟨?_, ?_⟩
   · apply ENNReal.inv_lt_inv.mp
     rw [hp]
-    have : p₀⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₀⁻¹ := by
+    have : p₀⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₀⁻¹ := by
       rw [← add_mul, tsub_add_eq_max, max_eq_left_of_lt, one_mul]
       exact ofReal_lt_one.mpr ht.2
     nth_rw 2 [this]
     gcongr
-    · exact mul_ne_top (sub_ne_top top_ne_one.symm) (inv_ne_top.mpr hp₀.ne.symm)
-    · exact (ofReal_pos.mpr ht.1).ne.symm
+    · exact mul_ne_top (sub_ne_top top_ne_one.symm) (inv_ne_top.mpr hp₀.ne')
+    · exact (ofReal_pos.mpr ht.1).ne'
     · exact coe_ne_top
   · apply ENNReal.inv_lt_inv.mp
     rw [hp]
-    have : p₁⁻¹ = (1 - (ENNReal.ofReal t)) * p₁⁻¹ + (ENNReal.ofReal t) * p₁⁻¹ := by
+    have : p₁⁻¹ = (1 - ENNReal.ofReal t) * p₁⁻¹ + ENNReal.ofReal t * p₁⁻¹ := by
       rw [← add_mul, tsub_add_eq_max, max_eq_left_of_lt, one_mul]
       exact ofReal_lt_one.mpr ht.2
     nth_rw 1 [this]
     gcongr
-    · exact mul_ne_top coe_ne_top (inv_ne_top.mpr hp₁.ne.symm)
-    · exact (tsub_pos_iff_lt.mpr (ofReal_lt_one.mpr ht.2)).ne.symm
+    · exact mul_ne_top coe_ne_top (inv_ne_top.mpr hp₁.ne')
+    · exact (tsub_pos_iff_lt.mpr (ofReal_lt_one.mpr ht.2)).ne'
     · exact coe_ne_top
 
-lemma one_le_interp_exp_aux {p p₀ p₁ : ℝ≥0∞} (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
-    (hp₀p₁ : p₀ < p₁) (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : 1 ≤ p :=
-  le_of_lt (lt_of_le_of_lt hp₀ (interp_exp_between (lt_of_lt_of_le zero_lt_one hp₀)
-    (lt_of_lt_of_le zero_lt_one hp₁) hp₀p₁ ht hp).1)
+lemma one_le_interp_exp_aux (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hp₀p₁ : p₀ < p₁) (ht : t ∈ Ioo 0 1)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : 1 ≤ p :=
+  hp₀.trans_lt
+    (interp_exp_between (zero_lt_one.trans_le hp₀) (zero_lt_one.trans_le hp₁) hp₀p₁ ht hp).1 |>.le
 
-lemma switch_exponents {p p₀ p₁ : ℝ≥0∞} (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+lemma switch_exponents (ht : t ∈ Ioo 0 1)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p⁻¹ = (1 - ENNReal.ofReal (1 - t)) * p₁⁻¹ + ENNReal.ofReal (1 - t) * p₀⁻¹ := by
-  rw [add_comm, ← ofReal_one, ← ofReal_sub, _root_.sub_sub_cancel, ofReal_sub, ofReal_one]
+  rw [add_comm, ← ofReal_one, ← ofReal_sub, _root_.sub_sub_cancel, ofReal_sub _ ht.1.le, ofReal_one]
   · exact hp
-  · exact ht.1.le
   · exact (Ioo.one_sub_mem ht).1.le
 
 lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
-  toReal_mono (LT.lt.ne_top ha₂) ha₁
+  toReal_mono ha₂.ne_top ha₁
 
-lemma one_le_interp {p p₀ p₁ : ℝ≥0∞} (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
+lemma one_le_interp (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : 1 ≤ p := by
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : 1 ≤ p := by
   rcases (lt_or_gt_of_ne hp₀p₁) with p₀lt_p₁ | p₁lt_p₀
   · exact one_le_interp_exp_aux hp₀ hp₁ p₀lt_p₁ ht hp
   · exact one_le_interp_exp_aux hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)
 
-lemma one_le_interp_toReal {p p₀ p₁ : ℝ≥0∞} (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
+lemma one_le_interp_toReal (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : 1 ≤ p.toReal :=
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : 1 ≤ p.toReal :=
   one_le_toReal (one_le_interp hp₀ hp₁ hp₀p₁ ht hp) (Ne.lt_top (interp_exp_ne_top hp₀p₁ ht hp))
-
-lemma ENNReal_preservation_positivity_real {p p₀ p₁ : ℝ≥0∞} (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
-    (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p.toReal > 0 :=
-  toReal_pos (ENNReal_preservation_positivity' hp₀ hp₁ hp).ne.symm (interp_exp_ne_top hp₀p₁ ht hp)
 
 lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : q ≥ 0): ENNReal.ofReal a ^ q ≠ ⊤ :=
   rpow_ne_top_of_nonneg hq coe_ne_top
 
 -- Note this lemma can directly be applied to elements of `ℝ≥0` as well
 lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ :=
-  coe_rpow_ne_top (le_of_lt hq)
+  coe_rpow_ne_top hq.le
 
 lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : a > 0) : ENNReal.ofReal a ^ q > 0 :=
   ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
@@ -165,7 +154,7 @@ lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤)  
   · exact (ha' a_top).elim
 
 lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : q ≥ 1) (hq' : q < ⊤) : q.toReal > 0 :=
-  toReal_pos (lt_of_lt_of_le zero_lt_one hq).ne.symm (LT.lt.ne_top hq')
+  toReal_pos (lt_of_lt_of_le zero_lt_one hq).ne' hq'.ne_top
 
 lemma ne_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q ≠ ⊤ := hq.2.ne_top
 
@@ -176,24 +165,24 @@ lemma ne_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ ⊤ := hq.
 lemma lt_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q < ⊤ := (ne_top_of_Ioo hq).lt_top
 
 lemma ne_top_of_Ioc {p q r : ℝ≥0∞} (hq : q ∈ Ioc p r) (hr : r < ⊤) : q ≠ ⊤ :=
-  (lt_of_le_of_lt hq.2 hr).ne_top
+  hq.2.trans_lt hr |>.ne_top
 
 lemma pos_of_rb_Ioc {p q r : ℝ≥0∞} (hr : q ∈ Ioc p r) : 0 < r :=
-  Trans.trans (Trans.trans (zero_le p) hr.left) hr.right
+  zero_le p |>.trans_lt hr.1 |>.trans_le hr.2
 
 lemma exp_toReal_ne_zero {q : ℝ≥0∞} (hq : q ≥ 1) (hq' : q < ⊤) : q.toReal ≠ 0 :=
-  (exp_toReal_pos' hq hq').ne.symm
+  (exp_toReal_pos' hq hq').ne'
 
 -- TODO: remove the top one?
 lemma exp_toReal_ne_zero' {q : ℝ≥0∞} (hq : q > 0) (hq' : q ≠ ⊤) : q.toReal ≠ 0 :=
-  (toReal_pos hq.ne.symm hq').ne.symm
+  (toReal_pos hq.ne' hq').ne'
 
 lemma exp_toReal_ne_zero_of_Ico {q p : ℝ≥0∞} (hq : q ∈ Ico 1 p) : q.toReal ≠ 0 :=
   exp_toReal_ne_zero hq.1 (lt_top_of_Ico hq)
 
 lemma pos_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q > 0 := pos_of_gt hq.1
 
-lemma ne_zero_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ 0 := (pos_of_gt hq.1).ne.symm
+lemma ne_zero_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ 0 := (pos_of_gt hq.1).ne'
 
 lemma pos_of_Icc_1 {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : p > 0 := lt_of_lt_of_le zero_lt_one hp.1
 
@@ -203,10 +192,10 @@ lemma pos_rb_of_Icc_1_inh {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : q > 0 :=
   lt_of_lt_of_le zero_lt_one (le_trans hp.1 hp.2)
 
 lemma toReal_pos_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : p.toReal > 0 :=
-  toReal_pos (ne_zero_of_lt hp.1) (LT.lt.ne_top hp.2)
+  toReal_pos (ne_zero_of_lt hp.1) hp.2.ne_top
 
 lemma toReal_ne_zero_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : p.toReal ≠ 0 :=
-  toReal_ne_zero.mpr ⟨ne_zero_of_lt hp.1, LT.lt.ne_top hp.2⟩
+  toReal_ne_zero.mpr ⟨ne_zero_of_lt hp.1, hp.2.ne_top⟩
 
 -- TODO: check which ones are actually used
 lemma eq_of_rpow_eq (a b: ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ c) : a = b := by
@@ -214,7 +203,7 @@ lemma eq_of_rpow_eq (a b: ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ 
   exact congrFun (congrArg HPow.hPow h) c⁻¹
 
 lemma le_of_rpow_le {a b: ℝ≥0∞} {c : ℝ} (hc : c > 0) (h : a ^ c ≤ b ^ c) : a ≤ b := by
-  rw [← ENNReal.rpow_rpow_inv hc.ne.symm a, ← ENNReal.rpow_rpow_inv hc.ne.symm b]
+  rw [← ENNReal.rpow_rpow_inv hc.ne' a, ← ENNReal.rpow_rpow_inv hc.ne' b]
   exact (ENNReal.rpow_le_rpow_iff (inv_pos_of_pos hc)).mpr h
 
 -- TODO : decide if this is wanted
@@ -222,60 +211,60 @@ lemma le_of_rpow_le {a b: ℝ≥0∞} {c : ℝ} (hc : c > 0) (h : a ^ c ≤ b ^ 
 --   coe x := ENNReal.ofReal x
 
 lemma coe_inv_exponent (hp₀ : p₀ > 0) : ENNReal.ofReal (p₀⁻¹.toReal) = p₀⁻¹ :=
-  ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne.symm)
+  ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne')
 
 lemma inv_of_interpolated_pos' (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : 0 < p⁻¹ :=
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : 0 < p⁻¹ :=
   ENNReal.inv_pos.mpr (interp_exp_ne_top hp₀p₁ ht hp)
 
 -- TODO: remove, this is redundant, but for now mirror the development for reals...
 lemma interpolated_pos' (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹): 0 < p :=
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹): 0 < p :=
   ENNReal_preservation_positivity' hp₀ hp₁ hp
 
 lemma exp_toReal_pos (hp₀ : p₀ > 0) (hp₀' : p₀ ≠ ⊤) : 0 < p₀.toReal :=
-  toReal_pos hp₀.ne.symm hp₀'
+  toReal_pos hp₀.ne' hp₀'
 
 lemma interp_exp_in_Ioo_zero_top (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
     (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p ∈ Ioo 0 ⊤ :=
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p ∈ Ioo 0 ⊤ :=
   ⟨interpolated_pos' hp₀ hp₁ hp, interp_exp_lt_top' hp₀p₁ ht hp⟩
 
 lemma inv_toReal_pos_of_ne_top (hp₀ : p₀ > 0) (hp' : p₀ ≠ ⊤) : p₀⁻¹.toReal > 0 := by
   rw [toReal_inv]; exact inv_pos_of_pos (exp_toReal_pos hp₀ hp')
 
 lemma inv_toReal_ne_zero_of_ne_top (hp₀ : p₀ > 0) (hp' : p₀ ≠ ⊤) : p₀⁻¹.toReal ≠ 0 :=
-  (inv_toReal_pos_of_ne_top hp₀ hp').ne.symm
+  (inv_toReal_pos_of_ne_top hp₀ hp').ne'
 
 lemma interp_exp_toReal_pos (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     : 0 < p.toReal :=
-  toReal_pos (interpolated_pos' hp₀ hp₁ hp).ne.symm (interp_exp_ne_top hp₀p₁ ht hp)
+  toReal_pos (interpolated_pos' hp₀ hp₁ hp).ne' (interp_exp_ne_top hp₀p₁ ht hp)
 
 lemma interp_exp_toReal_pos' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤) : 0 < p.toReal :=
-  toReal_pos (interpolated_pos' hp₀ hp₁ hp).ne.symm (interp_exp_ne_top' hp₀p₁ ht hp)
+  toReal_pos (interpolated_pos' hp₀ hp₁ hp).ne' (interp_exp_ne_top' hp₀p₁ ht hp)
 
 lemma interp_exp_inv_pos (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
     (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     0 < p⁻¹.toReal := by
   rw [toReal_inv]; exact inv_pos_of_pos (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp)
 
 lemma interp_exp_inv_ne_zero (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
     (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) : p⁻¹.toReal ≠ 0 :=
-  (interp_exp_inv_pos ht hp₀ hp₁ hp₀p₁ hp).ne.symm
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p⁻¹.toReal ≠ 0 :=
+  (interp_exp_inv_pos ht hp₀ hp₁ hp₀p₁ hp).ne'
 
 lemma preservation_interpolation (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
-    (hp₁ : p₁ > 0) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp₁ : p₁ > 0) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p⁻¹.toReal = (1 - t) * (p₀⁻¹).toReal + t * (p₁⁻¹).toReal := by
-  rw [← one_toReal, ← toReal_ofReal (le_of_lt ht.1), ← ENNReal.toReal_sub_of_le]
+  rw [← one_toReal, ← toReal_ofReal ht.1.le, ← ENNReal.toReal_sub_of_le]
   · rw [← toReal_mul, ← toReal_mul, ← toReal_add]
     · exact congrArg ENNReal.toReal hp
-    · exact mul_ne_top (sub_ne_top (top_ne_one.symm)) (inv_ne_top.mpr hp₀.ne.symm)
-    · exact mul_ne_top coe_ne_top (inv_ne_top.mpr hp₁.ne.symm)
+    · exact mul_ne_top (sub_ne_top (top_ne_one.symm)) (inv_ne_top.mpr hp₀.ne')
+    · exact mul_ne_top coe_ne_top (inv_ne_top.mpr hp₁.ne')
   · exact ofReal_le_one.mpr ht.2.le
   · exact top_ne_one.symm
 
@@ -298,94 +287,89 @@ lemma preservation_positivity_inv_toReal (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
 
 lemma ne_inv_toReal_exponents (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁) :
     (p₀⁻¹.toReal ≠ p₁⁻¹.toReal) := by
-  intro h
-  apply hp₀p₁
+  refine fun h ↦ hp₀p₁ ?_
   rw [← inv_inv p₀, ← inv_inv p₁]
   apply congrArg Inv.inv
-  have coe_p₀ : ENNReal.ofReal (p₀⁻¹).toReal = p₀⁻¹ :=
-    ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne.symm)
-  have coe_p₁ : ENNReal.ofReal (p₁⁻¹).toReal = p₁⁻¹ :=
-    ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₁.ne.symm)
-  rw [← coe_p₀, ← coe_p₁]
+  rw [← ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne'),
+    ← ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₁.ne')]
   exact congrArg ENNReal.ofReal h
 
 lemma ne_inv_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0)
   (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     (p₀⁻¹.toReal ≠ p⁻¹.toReal) := by
   rw [preservation_interpolation ht hp₀ hp₁ hp,
     ← sub_ne_zero, _root_.sub_mul, one_mul, add_comm_sub, sub_add_eq_sub_sub, sub_self, zero_sub,
     neg_sub, ← _root_.mul_sub]
-  exact mul_ne_zero ht.1.ne.symm (sub_ne_zero_of_ne (ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁))
+  exact mul_ne_zero ht.1.ne' (sub_ne_zero_of_ne (ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁))
 
 lemma ne_sub_toReal_exp (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁) :
     p₁⁻¹.toReal - p₀⁻¹.toReal ≠ 0 :=
   sub_ne_zero_of_ne (ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁).symm
 
 lemma ne_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p₀.toReal ≠ p.toReal := by
-  intro h
-  apply ne_inv_toReal_exp_interp_exp ht hp₀ hp₁ hp₀p₁ hp
-  rw [toReal_inv, toReal_inv]
+  refine fun h ↦ ne_inv_toReal_exp_interp_exp ht hp₀ hp₁ hp₀p₁ hp ?_
+  repeat rw [toReal_inv]
   exact congrArg Inv.inv h
 
 lemma ne_toReal_exp_interp_exp₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p.toReal ≠ p₁.toReal :=
   (ne_toReal_exp_interp_exp (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁)
     (switch_exponents ht hp)).symm
 
 lemma ofReal_inv_interp_sub_exp_pos₁ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
     (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) :
     ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ > 0 :=
   ofReal_pos.mpr (inv_pos_of_pos (abs_sub_pos.mpr (ne_toReal_exp_interp_exp₁ ht hq₀ hq₁ hq₀q₁ hq)))
 
 lemma ofReal_inv_interp_sub_exp_pos₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
-    (hq₀q₁ : q₀ ≠ q₁) (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) :
+    (hq₀q₁ : q₀ ≠ q₁) (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) :
     ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ > 0 :=
   ofReal_pos.mpr (inv_pos_of_pos (abs_sub_pos.mpr (Ne.symm
     (ne_toReal_exp_interp_exp ht hq₀ hq₁ hq₀q₁ hq))))
 
 lemma exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p < p₀ ↔ p₁ < p₀ := by
   rcases lt_or_gt_of_ne hp₀p₁ with p₀lt_p₁ | p₁lt_p₀
   · exact ⟨fun h ↦ (not_le_of_gt h (le_of_lt (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1)).elim,
-      fun h ↦ (not_le_of_gt h (le_of_lt p₀lt_p₁)).elim⟩
+      fun h ↦ (not_le_of_gt h p₀lt_p₁.le).elim⟩
   · exact ⟨fun _ ↦ p₁lt_p₀,
       fun _ ↦ (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2⟩
 
 lemma exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p₀ < p ↔ p₀ < p₁ := by
   rcases lt_or_gt_of_ne hp₀p₁ with p₀lt_p₁ | p₁lt_p₀
   · exact ⟨fun _ ↦ p₀lt_p₁, fun _ ↦ (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩
-  · exact ⟨fun h ↦ (not_le_of_gt h (le_of_lt (interp_exp_between hp₁ hp₀ p₁lt_p₀
-      (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2)).elim,
-      fun h ↦ (not_le_of_gt h (le_of_lt p₁lt_p₀)).elim⟩
+  · exact ⟨fun h ↦ (not_le_of_gt h (interp_exp_between hp₁ hp₀ p₁lt_p₀
+      (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2.le).elim,
+      fun h ↦ (not_le_of_gt h p₁lt_p₀.le).elim⟩
 
 lemma exp_lt_exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p < p₀ ↔ p₁ < p := by
   rw [exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_gt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁)
     (switch_exponents ht hp)]
 
 lemma exp_gt_exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p₀ < p ↔ p < p₁ := by
   rw [exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_lt_iff (Ioo.one_sub_mem ht) hp₁ hp₀ (Ne.symm hp₀p₁)
     (switch_exponents ht hp)]
 
 lemma exp_lt_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p < p₁ ↔ p₀ < p₁ := by
   rw [← exp_gt_exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp]
   exact exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp
 
 lemma exp_gt_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) :
     p₁ < p ↔ p₁ < p₀ := by
   rw [← exp_lt_exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp]
   exact exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp
@@ -424,7 +408,7 @@ lemma ζ_equality₁ (ht : t ∈ Ioo 0 1) :
     ((1 - t) * p₀⁻¹.toReal + t * p₁⁻¹.toReal - p₀⁻¹.toReal)) := by
   unfold ζ
   have t_pos : 0 < t := ht.1
-  rw [← mul_div_mul_right _ _ t_pos.ne.symm, mul_assoc _ _ t, mul_assoc _ _ t]
+  rw [← mul_div_mul_right _ _ t_pos.ne', mul_assoc _ _ t, mul_assoc _ _ t]
   congr <;> ring
 
 lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
@@ -435,7 +419,7 @@ lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
     ((1 - t) * p₀⁻¹.toReal + t * p₁⁻¹.toReal - p₁⁻¹.toReal)) := by
   unfold ζ
   have : - (1 - t) < 0 := neg_neg_iff_pos.mpr (sub_pos.mpr ht.2)
-  rw [← mul_div_mul_right _ _ (ne_of_lt this), mul_assoc _ _ (-(1 - t)), mul_assoc _ _ (-(1 - t))]
+  rw [← mul_div_mul_right _ _ this.ne, mul_assoc _ _ (-(1 - t)), mul_assoc _ _ (-(1 - t))]
   congr <;> ring
 
 lemma ζ_symm :
@@ -447,8 +431,8 @@ lemma ζ_symm :
 
 lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) :
     @ζ p₀ q₀ p₁ q₁ t = (p₀.toReal * (q₀.toReal - q.toReal))  / (q₀.toReal * (p₀.toReal - p.toReal))
     := by
@@ -459,7 +443,7 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
     mul_pos (mul_pos (mul_pos (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp)
     (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq)) (exp_toReal_pos hp₀ hp₀'))
     (exp_toReal_pos hq₀ hq₀')
-  rw [← mul_div_mul_right _ _ hne.ne.symm]
+  rw [← mul_div_mul_right _ _ hne.ne']
   have eq₁ : p⁻¹.toReal * (q⁻¹.toReal - q₀⁻¹.toReal) *
       (p.toReal * q.toReal * p₀.toReal * q₀.toReal) =
       p₀.toReal * (p⁻¹.toReal * p.toReal) * ((q⁻¹.toReal * q.toReal) * q₀.toReal -
@@ -491,8 +475,8 @@ lemma coe_one_sub (ht : t ∈ Ioo 0 1) :
 
 lemma ζ_equality₄ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ ≠ ⊤) :
     @ζ p₀ q₀ p₁ q₁ t =
     (p₁.toReal * (q₁.toReal - q.toReal)) / (q₁.toReal * (p₁.toReal - p.toReal)) := by
@@ -506,8 +490,8 @@ lemma ζ_equality₄ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
 
 lemma ζ_equality₅ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) :
     p₀.toReal + (@ζ p₀ q₀ p₁ q₁ t)⁻¹ * (q.toReal - q₀.toReal) * (p₀.toReal / q₀.toReal) = p.toReal
     := by
@@ -521,13 +505,13 @@ lemma ζ_equality₅ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
     rw [inv_mul_cancel₀, inv_mul_cancel₀, inv_mul_cancel₀]
     · simp only [one_mul, mul_one, _root_.sub_sub_cancel]
     · exact sub_ne_zero_of_ne (ne_toReal_exp_interp_exp ht hq₀ hq₁ hq₀q₁ hq)
-    · exact (exp_toReal_pos hp₀ hp₀').ne.symm
-    · exact (exp_toReal_pos hq₀ hq₀').ne.symm
+    · exact (exp_toReal_pos hp₀ hp₀').ne'
+    · exact (exp_toReal_pos hq₀ hq₀').ne'
 
 lemma ζ_equality₆ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ ≠ ⊤) :
     p₁.toReal + (@ζ p₀ q₀ p₁ q₁ t)⁻¹ * (q.toReal - q₁.toReal) * (p₁.toReal / q₁.toReal) = p.toReal
     := by
@@ -537,17 +521,17 @@ lemma ζ_equality₆ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
 
 lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ = ⊤) :
     @ζ p₀ q₀ p₁ q₁ t = p₀.toReal / (p₀.toReal - p.toReal) := by
   rw [ζ_equality₁ ht, ← preservation_interpolation ht hp₀ hp₁ hp,
     ← preservation_interpolation ht hq₀ hq₁ hq, hq₀']
   simp only [inv_top, zero_toReal, sub_zero, mul_zero, zero_add]
   have obs : p₀.toReal * p.toReal * q.toReal > 0 :=
-    mul_pos (mul_pos (toReal_pos hp₀.ne.symm hp₀') (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp))
+    mul_pos (mul_pos (toReal_pos hp₀.ne' hp₀') (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp))
     (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq)
-  rw [← mul_div_mul_right _ _ obs.ne.symm]
+  rw [← mul_div_mul_right _ _ obs.ne']
   congr
   · calc
     _ = (p.toReal⁻¹ * p.toReal) * (q.toReal⁻¹ * q.toReal) * p₀.toReal := by
@@ -555,8 +539,8 @@ lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
       ring
     _ = _ := by
       rw [inv_mul_cancel₀, inv_mul_cancel₀, one_mul, one_mul]
-      · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne.symm
-      · exact (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp).ne.symm
+      · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
+      · exact (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp).ne'
   · calc
     _ = (q.toReal⁻¹ * q.toReal) * (p.toReal⁻¹ * p.toReal * p₀.toReal - p₀.toReal⁻¹ *
         p₀.toReal * p.toReal) := by
@@ -564,14 +548,14 @@ lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
       ring
     _ = _ := by
       repeat rw [inv_mul_cancel₀, one_mul]
-      · exact (toReal_pos hp₀.ne.symm hp₀').ne.symm
-      · exact (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp).ne.symm
-      · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne.symm
+      · exact (toReal_pos hp₀.ne' hp₀').ne'
+      · exact (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp).ne'
+      · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
 
 lemma ζ_equality₈ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ = ⊤) :
     @ζ p₀ q₀ p₁ q₁ t = p₁.toReal / (p₁.toReal - p.toReal) :=
   ζ_symm ▸ ζ_equality₇ (Ioo.one_sub_mem ht) hp₁ hq₁ hp₀ hq₀ (Ne.symm hp₀p₁) (Ne.symm hq₀q₁)
@@ -579,16 +563,16 @@ lemma ζ_equality₈ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
 
 lemma ζ_eq_top_top (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
     (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₁' : p₁ = ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ = ⊤)
     (hq₁' : q₁ = ⊤) :
     @ζ p₀ q₀ p₁ q₁ t = 1 := by
   rw [ζ_equality₂ ht, ← preservation_interpolation ht hp₀ hp₁ hp,
     ← preservation_interpolation ht hq₀ hq₁ hq, hp₁', hq₁']
   simp only [inv_top, zero_toReal, sub_zero]
   rw [mul_comm, div_eq_mul_inv, mul_inv_cancel₀]
-  exact ne_of_gt (mul_pos (interp_exp_inv_pos ht hq₀ hq₁ hq₀q₁ hq)
-    (interp_exp_inv_pos ht hp₀ hp₁ hp₀p₁ hp))
+  exact (mul_pos (interp_exp_inv_pos ht hq₀ hq₁ hq₀q₁ hq)
+    (interp_exp_inv_pos ht hp₀ hp₁ hp₀p₁ hp)).ne'
 
 lemma ζ_pos_iff_aux (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ ≠ ⊤) :
     ( 0 < p₀.toReal * (q₀.toReal - q.toReal) / (q₀.toReal * (p₀.toReal - p.toReal))) ↔
@@ -605,32 +589,32 @@ lemma ζ_pos_iff_aux (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₀' : p₀ ≠ �
   · exact exp_toReal_pos hp₀ hp₀'
 
 lemma preservation_inequality (ht : t ∈ Ioo 0 1) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) (hp₀' : p₀ ≠ ⊤) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) (hp₀' : p₀ ≠ ⊤) :
     p.toReal < p₀.toReal ↔ p < p₀ :=
   toReal_lt_toReal (interp_exp_ne_top hp₀p₁ ht hp) hp₀'
 
 lemma preservation_inequality' (ht : t ∈ Ioo 0 1)(hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) (hp₀' : p₀ ≠ ⊤) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) (hp₀' : p₀ ≠ ⊤) :
     p₀.toReal < p.toReal ↔ p₀ < p :=
   toReal_lt_toReal hp₀' (interp_exp_ne_top hp₀p₁ ht hp)
 
 lemma preservation_inequality_of_lt₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₀q₁ : q₀ < q₁) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀q₁ : q₀ < q₁) :
     q₀.toReal < q.toReal :=
-  (toReal_lt_toReal (LT.lt.ne_top hq₀q₁) (interp_exp_ne_top (ne_of_lt hq₀q₁) ht hq)).mpr
-    ((exp_gt_iff ht hq₀ hq₁ (ne_of_lt hq₀q₁) hq).mpr hq₀q₁)
+  (toReal_lt_toReal hq₀q₁.ne_top (interp_exp_ne_top hq₀q₁.ne ht hq)).mpr
+    ((exp_gt_iff ht hq₀ hq₁ hq₀q₁.ne hq).mpr hq₀q₁)
 
 lemma preservation_inequality_of_lt₁ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₀q₁ : q₀ < q₁)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀q₁ : q₀ < q₁)
     (hq₁' : q₁ ≠ ⊤):
     q.toReal < q₁.toReal :=
-  (toReal_lt_toReal (interp_exp_ne_top (ne_of_lt hq₀q₁) ht hq) hq₁').mpr
-    ((exp_lt_iff₁ ht hq₀ hq₁ (ne_of_lt hq₀q₁) hq).mpr hq₀q₁)
+  (toReal_lt_toReal (interp_exp_ne_top hq₀q₁.ne ht hq) hq₁').mpr
+    ((exp_lt_iff₁ ht hq₀ hq₁ hq₀q₁.ne hq).mpr hq₀q₁)
 
 lemma ζ_pos_toReal_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) : (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
     ((q.toReal < q₀.toReal) ∧ (p.toReal < p₀.toReal)) ∨
     ((q₀.toReal < q.toReal) ∧ (p₀.toReal < p.toReal)) := by
@@ -639,8 +623,8 @@ lemma ζ_pos_toReal_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀
 
 lemma ζ_pos_toReal_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ ≠ ⊤) :
     (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
     ((q.toReal < q₁.toReal) ∧ (p.toReal < p₁.toReal)) ∨
@@ -668,18 +652,6 @@ lemma inv_toReal_iff (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) :
   Iff.trans (toReal_lt_toReal (ne_of_lt (inv_lt_top.mpr hp₀))
     (ne_of_lt (inv_lt_top.mpr hp₁))) ENNReal.inv_lt_inv
 
--- TODO: check where this is used, replace by ζ_pos_iff'
-lemma ζ_pos_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
-    (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
-    (hq₀' : q₀ ≠ ⊤) :
-    (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
-    ((q < q₀) ∧ (p < p₀)) ∨ ((q₀ < q) ∧ (p₀ < p)) := by
-  rw [ζ_pos_toReal_iff₀ ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁ hp hq hp₀' hq₀',
-    preservation_inequality ht hq₀q₁ hq hq₀', preservation_inequality ht hp₀p₁ hp hp₀',
-    preservation_inequality' ht hq₀q₁ hq hq₀', preservation_inequality' ht hp₀p₁ hp hp₀']
-
 lemma ζ_pos_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
     (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
@@ -690,8 +662,8 @@ lemma ζ_pos_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp�
 
 lemma ζ_pos_iff' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
     (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) :
     (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
     ((q < q₀) ∧ (p < p₀)) ∨ ((q₀ < q) ∧ (p₀ < p)) := by
   rw [ζ_pos_iff ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁,
@@ -700,19 +672,19 @@ lemma ζ_pos_iff' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
 
 lemma ζ_pos_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
     (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀p₁' : p₀ < p₁)  :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁)  :
     (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
     (q₀ < q) := by
-  rw [ζ_pos_iff' ht hp₀ hq₀ hp₁ hq₁ (ne_of_lt hp₀p₁') hq₀q₁ hp hq]
-  rw [← exp_gt_iff (p := p) ht hp₀ hp₁ (ne_of_lt hp₀p₁') hp] at hp₀p₁'
+  rw [ζ_pos_iff' ht hp₀ hq₀ hp₁ hq₁ hp₀p₁'.ne hq₀q₁ hp hq]
+  rw [← exp_gt_iff (p := p) ht hp₀ hp₁ hp₀p₁'.ne hp] at hp₀p₁'
   have : ¬ (p < p₀) := not_lt_of_gt hp₀p₁'
   tauto
 
 lemma ζ_pos_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
   (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
     (0 < @ζ p₀ q₀ p₁ q₁ t) ↔
     (q < q₁) := by
   rw [← exp_gt_exp_lt_iff ht hq₀ hq₁ hq₀q₁ hq]
@@ -742,8 +714,8 @@ lemma ζ_neg_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp�
 
 lemma ζ_neg_iff' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) :
     (@ζ p₀ q₀ p₁ q₁ t) < 0 ↔
     ((q < q₀) ∧ (p₀ < p)) ∨ ((q₀ < q) ∧ (p < p₀)) := by
   rw [ζ_neg_iff ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁, ← exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp,
@@ -752,18 +724,18 @@ lemma ζ_neg_iff' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp
 
 lemma ζ_neg_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
     (@ζ p₀ q₀ p₁ q₁ t) < 0 ↔ q < q₀ := by
-  rw [ζ_neg_iff' ht hp₀ hq₀ hp₁ hq₁ (ne_of_lt hp₀p₁') hq₀q₁ hp hq]
-  rw [← exp_gt_iff (p := p) ht hp₀ hp₁ (ne_of_lt hp₀p₁') hp] at hp₀p₁'
+  rw [ζ_neg_iff' ht hp₀ hq₀ hp₁ hq₁ hp₀p₁'.ne hq₀q₁ hp hq]
+  rw [← exp_gt_iff (p := p) ht hp₀ hp₁ hp₀p₁'.ne hp] at hp₀p₁'
   have : ¬ (p < p₀) := not_lt_of_gt hp₀p₁'
   tauto
 
 lemma ζ_neg_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
     (@ζ p₀ q₀ p₁ q₁ t) < 0 ↔ q₁ < q := by
   rw [← exp_lt_exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_neg_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
@@ -784,8 +756,8 @@ lemma ζ_neg_iff_aux (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₀' : p₀ ≠ �
 
 lemma ζ_neg_toReal_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) :
     (@ζ p₀ q₀ p₁ q₁ t < 0) ↔
     ((q.toReal < q₀.toReal) ∧ (p₀.toReal < p.toReal)) ∨
@@ -795,8 +767,8 @@ lemma ζ_neg_toReal_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀
 
 lemma ζ_neg_toReal_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ ≠ ⊤) :
     (@ζ p₀ q₀ p₁ q₁ t < 0) ↔
     ((q.toReal < q₁.toReal) ∧ (p₁.toReal < p.toReal)) ∨ ((q₁.toReal < q.toReal) ∧
@@ -806,8 +778,8 @@ lemma ζ_neg_toReal_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀
 
 lemma ζ_neg_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) : (@ζ p₀ q₀ p₁ q₁ t < 0) ↔
     ((q < q₀) ∧ (p₀ < p)) ∨ ((q₀ < q) ∧ (p < p₀)) := by
   rw [ζ_neg_toReal_iff₀ ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁ hp hq hp₀' hq₀',
@@ -818,36 +790,36 @@ lemma ζ_ne_zero (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp�
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
     (@ζ p₀ q₀ p₁ q₁ t ≠ 0) := by
   refine div_ne_zero ?_ ?_
-  · apply mul_ne_zero (ne_of_gt (preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁))
+  · apply mul_ne_zero (preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁).ne' _
     refine sub_ne_zero_of_ne (Ne.symm fun h ↦ hq₀q₁ ?_)
     rw [← inv_inv q₀, ← inv_inv q₁, ← coe_inv_exponent hq₀, ← coe_inv_exponent hq₁]
     exact congrArg Inv.inv (congrArg ENNReal.ofReal h)
-  · apply mul_ne_zero (ne_of_gt (preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁))
+  · apply mul_ne_zero (preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁).ne'
     refine sub_ne_zero_of_ne (Ne.symm fun h ↦ hp₀p₁ ?_)
     rw [← inv_inv p₀, ← inv_inv p₁, ← coe_inv_exponent hp₀, ← coe_inv_exponent hp₁]
     exact congrArg Inv.inv (congrArg ENNReal.ofReal h)
 
 lemma ζ_le_zero_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
     (@ζ p₀ q₀ p₁ q₁ t ≤ 0) ↔ q < q₀ := by
   constructor <;> intro h
   · rcases (Decidable.lt_or_eq_of_le h) with ζ_lt_0 | ζ_eq_0
     · exact (ζ_neg_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁').mp ζ_lt_0
-    · exact False.elim <| (ζ_ne_zero ht hp₀ hq₀ hp₁ hq₁ (ne_of_lt hp₀p₁') hq₀q₁) ζ_eq_0
-  · exact le_of_lt ((ζ_neg_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁').mpr h)
+    · exact False.elim <| (ζ_ne_zero ht hp₀ hq₀ hp₁ hq₁ hp₀p₁'.ne hq₀q₁) ζ_eq_0
+  · exact ((ζ_neg_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁').mpr h).le
 
 lemma ζ_le_zero_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0)
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
     (@ζ p₀ q₀ p₁ q₁ t) ≤ 0 ↔ q₁ < q := by
   rw [← exp_lt_exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_le_zero_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
 
 lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (q₀.toReal + q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) *
     (q.toReal - q₀.toReal)) = (1 - t) * q.toReal := by
   rw [mul_comm_div, ← mul_div_assoc, add_div']
@@ -860,8 +832,8 @@ lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
       _ = q₁⁻¹.toReal * q.toReal - q⁻¹.toReal * q.toReal := by
         rw [toReal_inv, toReal_inv, toReal_inv, mul_inv_cancel₀, inv_mul_cancel₀]
         · ring
-        · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne.symm
-        · exact (toReal_pos hq₀.ne.symm hq₀').ne.symm
+        · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
+        · exact (toReal_pos hq₀.ne' hq₀').ne'
       _ = q.toReal * (q₁⁻¹.toReal - q⁻¹.toReal) := by ring
       _ = _ := by
         rw [preservation_interpolation ht hq₀ hq₁ hq]
@@ -873,11 +845,11 @@ lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
   · exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
 lemma eq_exponents₂ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (q₀.toReal / p₀.toReal + p₀⁻¹.toReal * q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) *
     (q.toReal - q₀.toReal)) = (1 - t) * p₀⁻¹.toReal * q.toReal := by
-  rw [div_eq_inv_mul]
-  rw [mul_div_assoc, mul_assoc, toReal_inv, ← mul_add, mul_comm_div, ← mul_div_assoc, add_div']
+  rw [div_eq_inv_mul, mul_div_assoc, mul_assoc, toReal_inv, ← mul_add, mul_comm_div,
+    ← mul_div_assoc, add_div']
   · have : q₀.toReal * (q₁⁻¹.toReal - q₀⁻¹.toReal) + q₁⁻¹.toReal * (q.toReal - q₀.toReal) =
         q.toReal * ((1 - t) * (q₁⁻¹.toReal - q₀⁻¹.toReal)) := by
       calc
@@ -887,8 +859,8 @@ lemma eq_exponents₂ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
       _ = q₁⁻¹.toReal * q.toReal - q⁻¹.toReal * q.toReal := by
         rw [toReal_inv, toReal_inv, toReal_inv, mul_inv_cancel₀, inv_mul_cancel₀]
         · ring
-        · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne.symm
-        · exact (toReal_pos hq₀.ne.symm hq₀').ne.symm
+        · exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
+        · exact (toReal_pos hq₀.ne' hq₀').ne'
       _ = q.toReal * (q₁⁻¹.toReal - q⁻¹.toReal) := by ring
       _ = _ := by
         rw [preservation_interpolation ht hq₀ hq₁ hq]
@@ -900,7 +872,7 @@ lemma eq_exponents₂ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
   · exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
 lemma eq_exponents₁ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (q.toReal - q₀.toReal) = - t * q.toReal := by
   rw [mul_comm_div, ← mul_div_assoc]
   have : q₀⁻¹.toReal * (q.toReal - q₀.toReal) = - t * q.toReal * (q₁⁻¹.toReal - q₀⁻¹.toReal) := by
@@ -908,10 +880,10 @@ lemma eq_exponents₁ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
     _ = (q₀⁻¹.toReal * q.toReal - q₀⁻¹.toReal * q₀.toReal) := by ring
     _ = (q₀⁻¹.toReal * q.toReal - 1) := by
       rw [toReal_inv, inv_mul_cancel₀]
-      exact (exp_toReal_pos hq₀ hq₀').ne.symm
+      exact (exp_toReal_pos hq₀ hq₀').ne'
     _ = (q₀⁻¹.toReal * q.toReal - q⁻¹.toReal * q.toReal) := by
       rw [toReal_inv, toReal_inv, inv_mul_cancel₀]
-      exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne.symm
+      exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
     _ = q.toReal * (q₀⁻¹.toReal - q⁻¹.toReal) := by ring
     _ = _ := by
       rw [preservation_interpolation ht hq₀ hq₁ hq]
@@ -921,7 +893,7 @@ lemma eq_exponents₁ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
 
 -- TODO: simplify these proofs with statements above
 lemma eq_exponents₃ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (p₁⁻¹.toReal * q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (q.toReal - q₀.toReal) =
     - t * p₁⁻¹.toReal * q.toReal := by
   rw [mul_comm_div, ← mul_div_assoc]
@@ -931,10 +903,10 @@ lemma eq_exponents₃ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
     _ = p₁⁻¹.toReal * (q₀⁻¹.toReal * q.toReal - q₀⁻¹.toReal * q₀.toReal) := by ring
     _ = p₁⁻¹.toReal * (q₀⁻¹.toReal * q.toReal - 1) := by
       rw [toReal_inv, toReal_inv, inv_mul_cancel₀]
-      apply (exp_toReal_pos hq₀ hq₀').ne.symm
+      apply (exp_toReal_pos hq₀ hq₀').ne'
     _ = p₁⁻¹.toReal * (q₀⁻¹.toReal * q.toReal - q⁻¹.toReal * q.toReal) := by
       rw [toReal_inv, toReal_inv, toReal_inv, inv_mul_cancel₀]
-      exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne.symm
+      exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
     _ = p₁⁻¹.toReal * q.toReal * (q₀⁻¹.toReal - q⁻¹.toReal) := by ring
     _ = _ := by
       rw [preservation_interpolation ht hq₀ hq₁ hq]
@@ -950,7 +922,7 @@ lemma eq_exponents₄  :
   _ = _ := by congr; rw [neg_inv, neg_sub]
 
 lemma eq_exponents₅ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₁' : q₁ ≠ ⊤):
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤):
     (q₁.toReal + -(q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal)))
     = t * q.toReal := by
   rw [eq_exponents₄, neg_mul, neg_neg, eq_exponents₀ (Ioo.one_sub_mem ht) hq₁ hq₀ (Ne.symm hq₀q₁)
@@ -958,14 +930,14 @@ lemma eq_exponents₅ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
   ring
 
 lemma eq_exponents₆ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
     q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal) = (1 - t) * q.toReal := by
   rw [← neg_neg (a := q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)), ← eq_exponents₄, neg_mul,
     eq_exponents₁ (Ioo.one_sub_mem ht) hq₁ hq₀ (Ne.symm hq₀q₁) (switch_exponents ht hq) hq₁']
   ring
 
 lemma eq_exponents₇ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
     q₁.toReal / p₁.toReal + -(p₁⁻¹.toReal * q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) *
     (q.toReal - q₁.toReal)) =
     t * p₁⁻¹.toReal * q.toReal := by
@@ -978,7 +950,7 @@ lemma eq_exponents₇ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
     ring
 
 lemma eq_exponents₈ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
     p₀⁻¹.toReal * q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal) =
     (1 - t) * p₀⁻¹.toReal * q.toReal := calc
   _ = p₀⁻¹.toReal * (q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal)) := by ring
@@ -1023,10 +995,10 @@ structure ToneCouple where
       else ∀ s ∈ Ioi (0 : ℝ), ∀ t ∈ Ioi (0 : ℝ), (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
 
 /-- A scaled power function gives rise to a ToneCouple. -/
-instance spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
+def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
   ton := fun s : ℝ ↦ (s / spf.d) ^ spf.σ
   inv := fun t : ℝ ↦ spf.d * t ^ spf.σ⁻¹
-  mon := if (spf.σ > 0) then true else false
+  mon := if spf.σ > 0 then true else false
   ran_ton := fun t ht ↦ rpow_pos_of_pos (div_pos ht spf.hd) _
   ran_inv := fun t ht ↦ mul_pos spf.hd (rpow_pos_of_pos ht spf.σ⁻¹)
   ton_is_ton := by
@@ -1040,28 +1012,27 @@ instance spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
     · simp only [Bool.false_eq_true, ↓reduceIte]
       intro s (hs : s > 0) t (ht : t > 0) hst
       rcases spf.hσ with σ_pos | σ_neg
-      · exact False.elim (sgn_σ σ_pos)
+      · exact (sgn_σ σ_pos).elim
       · simp only
         exact (Real.rpow_lt_rpow_iff_of_neg (div_pos ht spf.hd)
           (div_pos hs spf.hd) σ_neg).mpr (div_lt_div_of_pos_right hst spf.hd)
   inv_pf := by
     split <;> rename_i sgn_σ
     · simp only [↓reduceIte, mem_Ioi]
-      intro s hs t ht
-      constructor
-      · rw [← Real.lt_rpow_inv_iff_of_pos (div_nonneg (le_of_lt hs) (le_of_lt spf.hd))
-          (le_of_lt ht) sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne.symm]
-      · rw [← Real.rpow_inv_lt_iff_of_pos (le_of_lt ht) (div_nonneg (le_of_lt hs) (le_of_lt spf.hd))
-          sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne.symm]
+      refine fun s hs t ht => ⟨?_, ?_⟩
+      · rw [← Real.lt_rpow_inv_iff_of_pos (div_nonneg hs.le spf.hd.le) ht.le sgn_σ,
+        ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
+      · rw [← Real.rpow_inv_lt_iff_of_pos ht.le (div_nonneg hs.le spf.hd.le)
+          sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
     · simp only [↓reduceIte, mem_Ioi]
       intro s hs t ht
       rcases spf.hσ with σ_pos | σ_neg
       · contradiction
       · constructor
         · rw [← Real.rpow_inv_lt_iff_of_neg ht (div_pos hs spf.hd) σ_neg,
-            ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne.symm]
+            ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
         · rw [← Real.lt_rpow_inv_iff_of_neg (div_pos hs spf.hd) ht σ_neg,
-            ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne.symm]
+            ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
 
 end
 
@@ -1080,8 +1051,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   [NormedAddCommGroup E₃]
   [MeasurableSpace E] [BorelSpace E]
   [MeasurableSpace E₃] [BorelSpace E₃]
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Results about the particular choice of scale
@@ -1112,24 +1082,24 @@ lemma d_ne_top_aux₀ {b : ℝ} {F : ℝ≥0∞} (hF : F ∈ Ioo 0 ⊤) : F ^ b 
 
 lemma d_ne_zero_aux₀ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (eLpNorm f p μ ^ p.toReal) ^ b ≠ 0 :=
-  (ENNReal.rpow_pos (d_pos_aux₀ hF) (d_ne_top_aux₀ hF)).ne.symm
+  (ENNReal.rpow_pos (d_pos_aux₀ hF) (d_ne_top_aux₀ hF)).ne'
 
 lemma d_ne_zero_aux₁ {C : ℝ≥0} {c : ℝ} (hC : C > 0) :
     (ENNReal.ofNNReal C) ^ c ≠ 0 :=
-  (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC) coe_ne_top).ne.symm
+  (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC) coe_ne_top).ne'
 
 lemma d_ne_zero_aux₂ {C : ℝ≥0} {b c : ℝ} (hC : C > 0)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     C ^ c * (eLpNorm f p μ ^ p.toReal) ^ b ≠ 0 :=
-  (ENNReal.mul_pos (d_ne_zero_aux₁ hC) (d_ne_zero_aux₀ hF)).ne.symm
+  (ENNReal.mul_pos (d_ne_zero_aux₁ hC) (d_ne_zero_aux₀ hF)).ne'
 
 lemma d_ne_top_aux₁ {C : ℝ≥0} {c : ℝ} (hC : C > 0) :
     (ENNReal.ofNNReal C) ^ c ≠ ⊤ :=
-  rpow_ne_top' (ENNReal.coe_pos.mpr hC).ne.symm coe_ne_top
+  rpow_ne_top' (ENNReal.coe_pos.mpr hC).ne' coe_ne_top
 
 lemma d_ne_top_aux₂ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (eLpNorm f p μ ^ p.toReal) ^ b ≠ ⊤ :=
-  rpow_ne_top' (d_pos_aux₀ hF).ne.symm (d_ne_top_aux₀ hF)
+  rpow_ne_top' (d_pos_aux₀ hF).ne' (d_ne_top_aux₀ hF)
 
 lemma d_ne_top_aux₃ {C : ℝ≥0} {b c : ℝ} (hC : C > 0)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
@@ -1146,7 +1116,7 @@ lemma d_ne_zero_aux₃ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : C₀ > 0) (hC₁ : C
 lemma d_ne_top_aux₄ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : C₀ > 0) (hC₁ : C₁ > 0) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (C₀ ^ c₀ * (eLpNorm f p μ ^ p.toReal) ^ b₀) /
     (C₁ ^ c₁ * (eLpNorm f p μ ^ p.toReal) ^ b₁) ≠ ⊤ := by
-  refine ne_of_lt (div_lt_top ?_ ?_)
+  refine (div_lt_top ?_ ?_).ne
   · apply d_ne_top_aux₃ <;> assumption
   · apply d_ne_zero_aux₂ <;> assumption
 
@@ -1166,10 +1136,10 @@ lemma d_eq_top₀ (hp₀ : p₀ > 0) (hq₁ : q₁ > 0) (hp₀' : p₀ ≠ ⊤) 
   · rw [div_eq_mul_inv, mul_inv_cancel₀, ENNReal.rpow_one]
     · rw [toReal_rpow, ENNReal.mul_rpow_of_nonneg]
       · rw [ENNReal.rpow_rpow_inv, toReal_inv]
-        exact (exp_toReal_pos hp₀ hp₀').ne.symm
+        exact (exp_toReal_pos hp₀ hp₀').ne'
       · positivity
-    · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne.symm
-  · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne.symm
+    · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
+  · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
 
 lemma d_eq_top₁ (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hp₁' : p₁ ≠ ⊤) (hq₁' : q₁ = ⊤)
     (hq₀q₁ : q₀ ≠ q₁) (hC₁ : C₁ > 0) :
@@ -1187,11 +1157,11 @@ lemma d_eq_top₁ (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hp₁' : p₁ ≠ ⊤) 
         · rw [← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, toReal_inv, mul_neg, mul_one, neg_neg,
             toReal_mul, coe_toReal]
         · left; exact ENNReal.inv_ne_zero.mpr coe_ne_top
-        · left; exact inv_ne_top.mpr <| (ENNReal.coe_pos.mpr hC₁).ne.symm
-        · exact (exp_toReal_pos hp₁ hp₁').ne.symm
+        · left; exact inv_ne_top.mpr <| (ENNReal.coe_pos.mpr hC₁).ne'
+        · exact (exp_toReal_pos hp₁ hp₁').ne'
       · positivity
-    · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne.symm
-  · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne.symm
+    · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne'
+  · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne'
 
 lemma d_eq_top_of_eq (hC₁ : C₁ > 0) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hq₀' : q₀ ≠ ⊤)
 (hp₀': p₀ ≠ ⊤) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ = p₁) (hpp₀: p = p₀) (hq₁' : q₁ = ⊤) :
@@ -1212,8 +1182,7 @@ lemma d_eq_top_top (hq₀ : q₀ > 0) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁
     zero_mul, one_div]
   rw [div_neg, div_eq_mul_inv, mul_inv_cancel₀]
   · rw [ENNReal.rpow_neg, ENNReal.rpow_one, inv_inv, coe_toReal]
-  · exact ne_of_gt (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁))
-      (ENNReal.inv_ne_top.mpr hq₀.ne.symm))
+  · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁)) (ENNReal.inv_ne_top.mpr hq₀.ne')).ne'
 
 /-- The particular choice of scaled power function that works in the proof of the
     real interpolation theorem. -/
@@ -1294,7 +1263,7 @@ lemma lintegral_scale_constant_preimage (f: ℝ → ENNReal) {a : ℝ} (h : a �
 
 lemma lintegral_scale_constant_halfspace (f: ℝ → ENNReal) {a : ℝ} (h : 0 < a) :
     ∫⁻ x : ℝ in Ioi 0, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in Ioi 0, f x := by
-  rw [← lintegral_scale_constant_preimage f (Ne.symm (ne_of_lt h))]
+  rw [← lintegral_scale_constant_preimage f h.ne']
   have h₀ : (fun z ↦ a * z) ⁻¹' Ioi 0 = Ioi 0 := by
     ext x
     simp [mul_pos_iff_of_pos_left h]
@@ -1303,7 +1272,7 @@ lemma lintegral_scale_constant_halfspace (f: ℝ → ENNReal) {a : ℝ} (h : 0 <
 lemma lintegral_scale_constant_halfspace' {f: ℝ → ENNReal} {a : ℝ} (h : 0 < a) :
     ENNReal.ofReal |a| * ∫⁻ x : ℝ in Ioi 0, f (a*x) = ∫⁻ x : ℝ in Ioi 0, f x := by
   rw [lintegral_scale_constant_halfspace f h, ← mul_assoc, ← ofReal_mul (abs_nonneg a),
-      abs_inv, mul_inv_cancel₀ (abs_ne_zero.mpr (Ne.symm (ne_of_lt h)))]
+    abs_inv, mul_inv_cancel₀ (abs_ne_zero.mpr h.ne')]
   simp
 
 lemma lintegral_scale_constant' {f: ℝ → ENNReal} {a : ℝ} (h : a ≠ 0):
@@ -1315,9 +1284,8 @@ lemma lintegral_scale_constant' {f: ℝ → ENNReal} {a : ℝ} (h : a ≠ 0):
 -- local convenience function
 lemma lintegral_rw_aux {g : ℝ → ℝ≥0∞} {f₁ f₂ : ℝ → ℝ≥0∞} {A : Set ℝ}
     (heq : f₁ =ᶠ[ae (volume.restrict A)] f₂) :
-  (∫⁻ s in A, g s * f₁ s) =
-  (∫⁻ s in A, g s * f₂ s) :=
-(lintegral_rw₂ (Filter.EventuallyEq.refl (ae (volume.restrict A)) g) heq HMul.hMul)
+    ∫⁻ s in A, g s * f₁ s = ∫⁻ s in A, g s * f₂ s :=
+  (lintegral_rw₂ (Filter.EventuallyEq.refl (ae (volume.restrict A)) g) heq HMul.hMul)
 
 lemma power_aux {p q : ℝ} :
     (fun s ↦ ENNReal.ofReal s ^ (p + q)) =ᶠ[ae (volume.restrict (Ioi (0 : ℝ)))]
@@ -1340,15 +1308,10 @@ lemma ofReal_rpow_of_pos_aux {p : ℝ} :
 
 lemma extract_constant_double_integral_rpow {f : ℝ → ℝ → ℝ≥0∞} {q : ℝ} (hq : q ≥ 0) {a : ℝ≥0∞}
     (ha : a ≠ ⊤):
-    ∫⁻ (s : ℝ) in Ioi 0, (∫⁻ (t : ℝ) in Ioi 0, a * f s t)^q =
-    (a ^ q) * ∫⁻ (s : ℝ) in Ioi 0, (∫⁻ (t : ℝ) in Ioi 0, f s t)^q := by
-  rw [← lintegral_const_mul']; swap; exact rpow_ne_top_of_nonneg hq ha
-  apply congr
-  · rfl
-  · ext s
-    rw [← ENNReal.mul_rpow_of_nonneg _ _ hq]
-    congr
-    rw [lintegral_const_mul' a (f s) ha]
+    ∫⁻ (s : ℝ) in Ioi 0, (∫⁻ (t : ℝ) in Ioi 0, a * f s t) ^ q =
+    a ^ q * ∫⁻ (s : ℝ) in Ioi 0, (∫⁻ (t : ℝ) in Ioi 0, f s t) ^ q := by
+  simp_rw [← lintegral_const_mul' _ _ (rpow_ne_top_of_nonneg hq ha),
+    ← ENNReal.mul_rpow_of_nonneg _ _ hq, lintegral_const_mul' a _ ha]
 
 lemma ofReal_rpow_rpow_aux {p : ℝ} :
     (fun s ↦ ENNReal.ofReal s ^ p) =ᶠ[ae (volume.restrict (Ioi (0 : ℝ)))]
@@ -1361,13 +1324,13 @@ lemma lintegral_rpow_of_gt {β γ : ℝ} (hβ : β > 0) (hγ : γ > -1) :
     ENNReal.ofReal (β ^ (γ + 1) / (γ + 1)) := by
   have hγ2 : γ + 1 > 0 := by linarith
   rw [setLIntegral_congr Ioo_ae_eq_Ioc, ← ofReal_integral_eq_lintegral_ofReal]
-  · rw [← intervalIntegral.integral_of_le (le_of_lt hβ), integral_rpow]
-    · rw [Real.zero_rpow hγ2.ne.symm, sub_zero]
+  · rw [← intervalIntegral.integral_of_le hβ.le, integral_rpow]
+    · rw [Real.zero_rpow hγ2.ne', sub_zero]
     · exact Or.inl hγ
   · apply (@intervalIntegral.intervalIntegrable_rpow' 0 β γ ?_).1
     linarith
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioc]
-      with s hs using Real.rpow_nonneg (le_of_lt hs.1) γ
+      with s hs using Real.rpow_nonneg hs.1.le γ
 
 end MeasureTheory
 
@@ -1380,7 +1343,7 @@ open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Results about truncations of a function
@@ -1393,16 +1356,10 @@ def trunc [NormedAddCommGroup E₁] (f : α → E₁) (t : ℝ) (x : α) : E₁ 
 /-- The complement of a `t`-truncatoin of a function `f`. -/
 def trunc_compl [NormedAddCommGroup E₁] (f : α → E₁) (t : ℝ) : α → E₁ := f - trunc f t
 
-lemma trunc_compl_eq [NormedAddCommGroup E₁] {a : ℝ} {f : α → E₁} [NormedAddCommGroup E₁] :
-    (f - trunc f a) = fun x ↦ if a < ‖f x‖ then f x else 0 := by
+lemma trunc_compl_eq [NormedAddCommGroup E₁] {a : ℝ} {f : α → E₁} :
+    f - trunc f a = fun x ↦ if a < ‖f x‖ then f x else 0 := by
   ext x
-  unfold trunc
-  simp only [Pi.sub_apply]
-  split_ifs with h h₁
-  · contrapose! h; assumption
-  · rw [sub_self]
-  · rw [sub_zero]
-  · contrapose! h; linarith
+  simp_rw [Pi.sub_apply, trunc, ← not_lt, ite_not, apply_ite (f x - ·), sub_zero, sub_self]
 
 /-- A function to deal with truncations and complement of truncations in one go. -/
 def trnc [NormedAddCommGroup E₁] (j : Bool) (f : α → E₁) (t : ℝ)  : α → E₁ :=
@@ -1423,7 +1380,7 @@ lemma trunc_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (ha 
   · dsimp only [Pi.zero_apply]
     apply norm_eq_zero.mp
     · have : ‖f x‖ ≥ 0 := norm_nonneg _
-      linarith
+      linarith []
   · rfl
 
 /-- If the truncation parameter is non-positive, the complement of the truncation is the
@@ -1436,106 +1393,95 @@ lemma trunc_compl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁
   dsimp only [Pi.zero_apply]
   split_ifs
   · rfl
-  · apply Eq.symm
-    apply norm_eq_zero.mp
+  · apply (norm_eq_zero.mp ?_).symm
     have : ‖f x‖ ≥ 0 := norm_nonneg _
     linarith
 
 /-! ## Measurability properties of truncations -/
 
-@[measurability, fun_prop]
-lemma measurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hf : Measurable f) :
-    Measurable (trunc f t) := by
-  apply Measurable.ite
-  · apply measurableSet_le <;> fun_prop
-  · exact hf
-  · exact measurable_const
+-- @[measurability, fun_prop]
+-- lemma _root_.Measurable.trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : Measurable f) : Measurable (trunc f t) := by
+--   refine hf.ite (measurableSet_le ?_ ?_) measurable_const <;> fun_prop
 
-@[measurability, fun_prop]
-lemma measurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hf : Measurable f) :
-    Measurable (f - trunc f t) := by
-  rw [trunc_compl_eq]
-  apply Measurable.ite ?_ hf measurable_const
-  exact measurableSet_lt measurable_const hf.norm
+-- @[measurability, fun_prop]
+-- lemma _root_.Measurable.trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : Measurable f) :
+--     Measurable (f - trunc f t) := by
+--   rw [trunc_compl_eq]
+--   apply Measurable.ite ?_ hf measurable_const
+--   exact measurableSet_lt measurable_const hf.norm
 
 @[measurability]
-lemma stronglyMeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hf : StronglyMeasurable f) :
-    StronglyMeasurable (trunc f t) := by
+protected lemma StronglyMeasurable.trunc [NormedAddCommGroup E₁]
+    (hf : StronglyMeasurable f) : StronglyMeasurable (trunc f t) := by
   apply StronglyMeasurable.ite ?_ hf stronglyMeasurable_const
-  exact measurableSet_le hf.measurable.norm measurable_const
+  exact measurableSet_le hf.norm stronglyMeasurable_const
 
 @[measurability]
-lemma stronglyMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hf : StronglyMeasurable f) :
-    StronglyMeasurable (f - trunc f t) := by
+protected lemma StronglyMeasurable.trunc_compl [NormedAddCommGroup E₁]
+    (hf : StronglyMeasurable f) : StronglyMeasurable (f - trunc f t) := by
   rw [trunc_compl_eq]
-  apply StronglyMeasurable.ite ?_ hf stronglyMeasurable_const
-  exact measurableSet_lt measurable_const hf.measurable.norm
+  exact hf.ite (measurableSet_lt stronglyMeasurable_const hf.norm) stronglyMeasurable_const
 
-@[measurability, fun_prop]
-lemma aeMeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hf : AEMeasurable f μ) :
-    AEMeasurable (trunc f t) μ := by
-  rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
-  exists (trunc g t)
-  constructor
-  · apply wg1.indicator (s := {x | ‖g x‖ ≤ t}) (measurableSet_le wg1.norm measurable_const)
-  apply measure_mono_null ?_ wg2
-  intro x
-  contrapose
-  simp only [mem_compl_iff, mem_setOf_eq, not_not]
-  intro h₂
-  unfold trunc
-  rewrite [h₂]
-  rfl
+-- @[measurability, fun_prop]
+-- lemma aemeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : AEMeasurable f μ) :
+--     AEMeasurable (trunc f t) μ := by
+--   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
+--   exists (trunc g t)
+--   constructor
+--   · apply wg1.indicator (s := {x | ‖g x‖ ≤ t}) (measurableSet_le wg1.norm measurable_const)
+--   apply measure_mono_null ?_ wg2
+--   intro x
+--   contrapose
+--   simp only [mem_compl_iff, mem_setOf_eq, not_not]
+--   intro h₂
+--   unfold trunc
+--   rewrite [h₂]
+--   rfl
 
-@[measurability, fun_prop]
-lemma aeMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hf : AEMeasurable f μ) :
-    AEMeasurable (trunc_compl f t) μ := by
-  rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
-  exists (trunc_compl g t)
-  constructor
-  · unfold trunc_compl
-    rw [trunc_compl_eq]
-    exact wg1.indicator (s := {x | t < ‖g x‖}) (measurableSet_lt measurable_const wg1.norm)
-  · apply measure_mono_null ?_ wg2
-    intro x
-    contrapose
-    simp only [mem_compl_iff, mem_setOf_eq, not_not]
-    intro f_eq_g; unfold trunc_compl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
+-- @[measurability, fun_prop]
+-- lemma aeMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : AEMeasurable f μ) :
+--     AEMeasurable (trunc_compl f t) μ := by
+--   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
+--   exists (trunc_compl g t)
+--   constructor
+--   · unfold trunc_compl
+--     rw [trunc_compl_eq]
+--     exact wg1.indicator (s := {x | t < ‖g x‖}) (measurableSet_lt measurable_const wg1.norm)
+--   · apply measure_mono_null ?_ wg2
+--     intro x
+--     contrapose
+--     simp only [mem_compl_iff, mem_setOf_eq, not_not]
+--     intro f_eq_g; unfold trunc_compl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
 
 @[measurability]
-lemma aestronglyMeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+lemma aestronglyMeasurable_trunc [NormedAddCommGroup E₁]
     (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (trunc f t) μ := by
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
   exists (trunc g t)
   constructor
   · apply wg1.indicator (s := {x | ‖g x‖ ≤ t})
-    exact StronglyMeasurable.measurableSet_le wg1.norm stronglyMeasurable_const
-  · apply measure_mono_null ?_ wg2
-    intro x
+    exact wg1.norm.measurableSet_le stronglyMeasurable_const
+  · refine measure_mono_null (fun x ↦ ?_) wg2
     contrapose
     simp only [mem_compl_iff, mem_setOf_eq, not_not]
     intro h₂
     unfold trunc
-    rewrite [h₂]
-    rfl
+    rw [h₂]
 
 @[measurability]
-lemma aestronglyMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+lemma aestronglyMeasurable_trunc_compl [NormedAddCommGroup E₁]
     (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (f - trunc f t) μ := by
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
   exists (g - trunc g t)
   constructor
   · rw [trunc_compl_eq]
-    apply wg1.indicator (s := {x | t < ‖g x‖})
-    exact StronglyMeasurable.measurableSet_lt stronglyMeasurable_const wg1.norm
+    exact wg1.indicator (s := {x | t < ‖g x‖}) (stronglyMeasurable_const.measurableSet_lt wg1.norm)
   · apply measure_mono_null ?_ wg2
     intro x
     contrapose
@@ -1546,8 +1492,7 @@ lemma aestronglyMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGrou
     rw [h₂]
 
 @[measurability]
-lemma aestronglyMeasurable_trnc {j : Bool}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+lemma aestronglyMeasurable_trnc {j : Bool} [NormedAddCommGroup E₁]
     (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (trnc j f t) μ := by
   rcases j
@@ -1559,27 +1504,21 @@ lemma trunc_le {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (x : α) :
   unfold trunc
   split_ifs with h
   · rcases (lt_or_le a 0) with a_lt_0 | _
-    · exact Trans.trans (Trans.trans h (le_of_lt a_lt_0)) (le_max_left 0 a)
+    · exact Trans.trans (Trans.trans h a_lt_0.le) (le_max_left 0 a)
     · exact Trans.trans h (le_max_right 0 a)
   · simp
 
 /-- A small lemma that is helpful for rewriting -/
 lemma coe_coe_eq_ofReal (a : ℝ) : ofNNReal a.toNNReal = ENNReal.ofReal a := by rfl
 
-lemma trunc_eLpNormEssSup_le {f : α → E₁} {a : ℝ}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
-    eLpNormEssSup (trunc f a) μ ≤
-    ENNReal.ofReal (max 0 a) := by
-  apply essSup_le_of_ae_le
-  apply ae_of_all
-  intro x
+lemma trunc_eLpNormEssSup_le {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] :
+    eLpNormEssSup (trunc f a) μ ≤ ENNReal.ofReal (max 0 a) := by
+  refine essSup_le_of_ae_le _ (ae_of_all _ fun x ↦ ?_)
   simp only [← norm_toNNReal, coe_coe_eq_ofReal]
   exact ofReal_le_ofReal (trunc_le x)
 
-lemma trunc_mono {f : α → E₁} {a b : ℝ}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hab : a ≤ b) {x : α} :
-    ‖trunc f a x‖ ≤ ‖trunc f b x‖ := by
+lemma trunc_mono {f : α → E₁} {a b : ℝ} [NormedAddCommGroup E₁]
+    (hab : a ≤ b) {x : α} : ‖trunc f a x‖ ≤ ‖trunc f b x‖ := by
   unfold trunc
   split_ifs
   · rfl
@@ -1588,28 +1527,23 @@ lemma trunc_mono {f : α → E₁} {a b : ℝ}
   · exact le_refl _
 
 /-- The norm of the truncation is monotone in the truncation parameter -/
-lemma norm_trunc_mono {f : α → E₁}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
-    Monotone fun s ↦ eLpNorm (trunc f s) p μ := by
-  intros a b hab; apply eLpNorm_mono; apply trunc_mono; exact hab
+lemma norm_trunc_mono {f : α → E₁} [NormedAddCommGroup E₁] :
+    Monotone fun s ↦ eLpNorm (trunc f s) p μ :=
+  fun a b hab ↦ eLpNorm_mono fun x ↦ trunc_mono hab
 
-lemma trunc_buildup_norm {f : α → E₁} {a : ℝ} {x : α}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
+lemma trunc_buildup_norm {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
     ‖trunc f a x‖ + ‖(f - trunc f a) x‖ = ‖f x‖ := by
-  unfold trunc; simp only [Pi.sub_apply]; split_ifs with h <;> simp
+  simp only [trunc, Pi.sub_apply]; split_ifs with h <;> simp
 
-lemma trunc_le_func {f : α → E₁} {a : ℝ} {x : α}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] : ‖trunc f a x‖ ≤ ‖f x‖ := by
+lemma trunc_le_func {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
+    ‖trunc f a x‖ ≤ ‖f x‖ := by
   unfold trunc; split_ifs <;> simp
 
-lemma trunc_compl_le_func {f : α → E₁} {a : ℝ} {x : α}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] : ‖(f - trunc f a) x‖ ≤ ‖f x‖
-    := by
+lemma trunc_compl_le_func {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
+    ‖(f - trunc f a) x‖ ≤ ‖f x‖ := by
   rw [trunc_compl_eq]; dsimp only; split_ifs <;> simp
 
-lemma trunc_compl_anti {f : α → E₁} {a b : ℝ} {x : α}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hab : a ≤ b) :
+lemma trunc_compl_anti {f : α → E₁} {a b : ℝ} {x : α} [NormedAddCommGroup E₁] (hab : a ≤ b) :
     ‖(f - trunc f b) x‖ ≤ ‖(f - trunc f a) x‖ := by
   have obs : ‖trunc f a x‖ + ‖(f - trunc f a) x‖ = ‖trunc f b x‖ + ‖(f - trunc f b) x‖ := by
     rw [trunc_buildup_norm, trunc_buildup_norm]
@@ -1617,25 +1551,24 @@ lemma trunc_compl_anti {f : α → E₁} {a b : ℝ} {x : α}
   linarith
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
-lemma norm_trunc_compl_anti {f : α → E₁}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
+lemma norm_trunc_compl_anti {f : α → E₁} [NormedAddCommGroup E₁] :
     Antitone (fun s ↦ eLpNorm (f - trunc f s) p μ) :=
   fun _a _b hab ↦ eLpNorm_mono (fun _ ↦ trunc_compl_anti hab)
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
 @[measurability, fun_prop]
-lemma norm_trunc_measurable [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
+lemma norm_trunc_measurable [NormedAddCommGroup E₁] :
     Measurable (fun s ↦ eLpNorm (trunc f s) p μ) :=
   norm_trunc_mono.measurable
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
 @[measurability, fun_prop]
-lemma norm_trunc_compl_measurable [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
+lemma norm_trunc_compl_measurable [NormedAddCommGroup E₁] :
     Measurable (fun s ↦ eLpNorm (f - trunc f s) p μ) :=
   norm_trunc_compl_anti.measurable
 
-lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α}
-    [NormedAddCommGroup E₁] : ‖trnc j f a x‖ ≤ ‖f x‖ := by
+lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
+    ‖trnc j f a x‖ ≤ ‖f x‖ := by
   unfold trnc trunc
   rcases j
   · dsimp only [Pi.sub_apply]
@@ -1663,20 +1596,15 @@ lemma power_estimate {a b t γ : ℝ} (hγ : γ > 0) (htγ : γ ≤ t) (hab : a 
 lemma power_estimate' {a b t γ : ℝ} (ht : t > 0) (htγ : t ≤ γ) (hab: a ≤ b) :
     (t / γ) ^ b ≤ (t / γ) ^ a := by
   have γ_pos : γ > 0 := lt_of_lt_of_le ht htγ
-  refine Real.rpow_le_rpow_of_exponent_ge ?_ ?_ hab
-  · exact div_pos ht γ_pos
-  · exact div_le_one_of_le htγ (le_of_lt γ_pos)
+  exact Real.rpow_le_rpow_of_exponent_ge (div_pos ht (γ_pos)) (div_le_one_of_le htγ γ_pos.le) hab
 
 lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : t > 0) (htγ : t ≤ γ) (hab : a ≤ b) :
     ENNReal.ofReal (t ^ b) ≤ ENNReal.ofReal (t ^ a) * ENNReal.ofReal (γ ^ (b - a)) := by
   rw [mul_comm]
   have γ_pos : 0 < γ := lt_of_lt_of_le ht htγ
   rw [Real.rpow_sub γ_pos]
-  refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-b) )) ?_ ?_).mp ?_
-  · apply ne_of_gt
-    refine ofReal_pos.mpr ?_
-    exact Real.rpow_pos_of_pos γ_pos (-b)
-  · exact coe_ne_top
+  refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-b) )) ?_ coe_ne_top).mp ?_
+  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos γ_pos (-b))).ne'
   · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
         Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
     nth_rw 2 [mul_comm]
@@ -1686,17 +1614,16 @@ lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : t > 0) (htγ : 
     rw [← Real.rpow_mul]; swap; positivity
     nth_rw 3 [mul_comm]
     rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
-    apply ofReal_le_ofReal
-    exact power_estimate' ht htγ hab
+    exact ofReal_le_ofReal (power_estimate' ht htγ hab)
 
 -- TODO: there is a lot of overlap between above proof and below
 lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : γ > 0) (htγ : γ ≤ t) (hab : a ≤ b) :
     ENNReal.ofReal (t ^ a) ≤ ENNReal.ofReal (t ^ b) * ENNReal.ofReal (γ ^ (a - b)) := by
   rw [mul_comm]
-  have t_pos : 0 < t := by exact gt_of_ge_of_gt htγ hγ
+  have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
   rw [Real.rpow_sub hγ]
   refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
-  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne.symm
+  · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne'
   · rw [← ofReal_mul, ← mul_assoc, ← ofReal_mul, ← mul_div_assoc, ← Real.rpow_add, neg_add_cancel,
         Real.rpow_zero, ← ofReal_mul, mul_comm] <;> try positivity
     nth_rw 2 [mul_comm]
@@ -1706,30 +1633,21 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : γ > 0) (htγ 
     rw [← Real.rpow_mul]; swap; positivity
     nth_rw 3 [mul_comm]
     rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
-    apply ofReal_le_ofReal
-    exact Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab
+    exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
 
-lemma trunc_preserves_Lp {p : ℝ≥0∞} {a : ℝ}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+lemma trunc_preserves_Lp {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁]
     (hf : Memℒp f p μ) :
     Memℒp (trunc f a) p μ := by
-  refine ⟨aestronglyMeasurable_trunc hf.1, ?_⟩
-  refine lt_of_le_of_lt ?_ hf.2
-  apply eLpNorm_mono_ae
-  apply ae_of_all
+  refine ⟨aestronglyMeasurable_trunc hf.1, lt_of_le_of_lt (eLpNorm_mono_ae (ae_of_all _ ?_)) hf.2⟩
   intro x
   unfold trunc
   split_ifs with is_fx_le_a <;> simp
 
-lemma snorm_trunc_compl_le {p : ℝ≥0∞} {a : ℝ}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] :
-    eLpNorm (f - trunc f a) p μ ≤
-    eLpNorm f p μ :=
-  eLpNorm_mono (fun _ ↦ trunc_compl_le_func)
+-- lemma snorm_trunc_compl_le {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] :
+--     eLpNorm (f - trunc f a) p μ ≤ eLpNorm f p μ :=
+--   eLpNorm_mono (fun _ ↦ trunc_compl_le_func)
 
-lemma trunc_compl_preserves_Lp {p : ℝ≥0∞} {a : ℝ}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
-    (hf : Memℒp f p μ) :
+lemma trunc_compl_preserves_Lp {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] (hf : Memℒp f p μ) :
     Memℒp (f - trunc f a) p μ :=
   Memℒp.sub hf (trunc_preserves_Lp hf)
 
@@ -1739,9 +1657,9 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
     ENNReal.ofReal (a ^ (q.toReal - p.toReal)) *
     eLpNorm f p μ ^ p.toReal := by
   unfold eLpNorm eLpNorm'
-  have q_ne_top: q ≠ ⊤ := LT.lt.ne_top hpq.2
-  have p_ne_zero : p ≠ 0 := (lt_trans hpq.1 hpq.2).ne.symm
-  have q_ne_zero : q ≠ 0 := hpq.1.ne.symm
+  have q_ne_top: q ≠ ⊤ := hpq.2.ne_top
+  have p_ne_zero : p ≠ 0 := (lt_trans hpq.1 hpq.2).ne'
+  have q_ne_zero : q ≠ 0 := hpq.1.ne'
   have q_toReal_pos : q.toReal > 0 := exp_toReal_pos hpq.1 q_ne_top
   split_ifs
   · contradiction
@@ -1773,13 +1691,10 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
       · apply ae_of_all
         intro x (hx : a < ‖f x‖)
         rw [mul_comm]
-        have : ofNNReal ‖f x‖₊ = ENNReal.ofReal ‖f x‖ := by
-          exact Eq.symm (ofReal_norm_eq_coe_nnnorm (f x))
+        have : ofNNReal ‖f x‖₊ = ENNReal.ofReal ‖f x‖ := (ofReal_norm_eq_coe_nnnorm (f x)).symm
         rw [this, ENNReal.ofReal_rpow_of_nonneg, ENNReal.ofReal_rpow_of_nonneg]
           <;> try positivity
-        apply rpow_le_rpow_of_exponent_le_base_ge ha
-        · exact (le_of_lt hx)
-        · exact toReal_mono hp (le_of_lt hpq.2)
+        exact rpow_le_rpow_of_exponent_le_base_ge ha hx.le (toReal_mono hp hpq.2.le)
     _ ≤ ENNReal.ofReal (a ^ (q.toReal - p.toReal)) * ∫⁻ x : α,
         ↑‖f x‖₊ ^ p.toReal ∂μ := by
       gcongr
@@ -1795,11 +1710,9 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
     eLpNorm (trunc f a) q μ ^ q.toReal ≤
     ENNReal.ofReal (a ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   unfold eLpNorm eLpNorm'
-  have : q ≠ ⊤ := hq
-  have p_ne_top : p ≠ ⊤ := LT.lt.ne_top hpq.2
-  have : p ≠ 0 := hpq.1.ne.symm
-  have : q ≠ 0 := (lt_trans hpq.1 hpq.2).ne.symm
-  have q_toReal_pos : q.toReal > 0 := by exact toReal_pos this hq
+  have p_ne_top : p ≠ ⊤ := hpq.2.ne_top
+  have : p ≠ 0 := hpq.1.ne'
+  have : q ≠ 0 := (lt_trans hpq.1 hpq.2).ne'
   split_ifs
   · contradiction
   · calc
@@ -1816,8 +1729,8 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
           refine ⟨?_, is_fx_le_a⟩
           contrapose! fx_rpow_ne_zero
           rw [norm_le_zero_iff.mp fx_rpow_ne_zero]
-          simpa
-        · contrapose; intro _; simpa
+          simpa using toReal_pos this hq
+        · contrapose; intro _; simpa using toReal_pos this hq
       · exact exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hq
     _ ≤ ∫⁻ (x : α) in {x | 0 < ‖f x‖ ∧ ‖f x‖ ≤ a}, ‖f x‖₊ ^ q.toReal ∂ μ := by
       apply lintegral_mono_ae
@@ -1825,8 +1738,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       intro x
       gcongr
       rw [← norm_toNNReal, ← norm_toNNReal]
-      apply Real.toNNReal_mono
-      apply trnc_le_func (j := ⊤)
+      exact Real.toNNReal_mono (trnc_le_func (j := ⊤))
     _ ≤ ENNReal.ofReal (a ^ (q.toReal - p.toReal)) *
         ∫⁻ (x : α) in {x | 0 < ‖f x‖ ∧ ‖f x‖ ≤ a}, ‖f x‖₊ ^ p.toReal ∂ μ := by
       rw [← lintegral_const_mul']
@@ -1834,12 +1746,10 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · apply ae_of_all
           intro x hx
           rw [mul_comm]
-          have : ofNNReal ‖f x‖₊ = ENNReal.ofReal ‖f x‖ := by
-            exact Eq.symm (ofReal_norm_eq_coe_nnnorm (f x))
-          rw [this, ENNReal.ofReal_rpow_of_nonneg, ENNReal.ofReal_rpow_of_nonneg]
-              <;> try positivity
+          rw [(ofReal_norm_eq_coe_nnnorm (f x)).symm, ENNReal.ofReal_rpow_of_nonneg,
+            ENNReal.ofReal_rpow_of_nonneg] <;> try positivity
           apply rpow_le_rpow_of_exponent_le_base_le hx.1 hx.2
-          apply toReal_mono hq (le_of_lt hpq.2)
+          exact toReal_mono hq hpq.2.le
       · exact coe_ne_top
     _ ≤ _ := by
       gcongr
@@ -1855,13 +1765,13 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [NormedAddCommGroup E₁] [Borel
   rcases (eq_or_ne q ⊤) with q_eq_top | q_ne_top
   · rw [q_eq_top, eLpNorm_exponent_top]
     exact Trans.trans trunc_eLpNormEssSup_le coe_lt_top
-  · have : q.toReal > 0 := toReal_pos (lt_trans hpq.1 hpq.2).ne.symm q_ne_top
+  · have : q.toReal > 0 := toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top
     refine (rpow_lt_top_iff_of_pos this).mp ?_
-    have := (estimate_eLpNorm_trunc (a := a) q_ne_top hpq (AEStronglyMeasurable.aemeasurable hf.1))
+    have := (estimate_eLpNorm_trunc (a := a) q_ne_top hpq hf.1.aemeasurable)
     refine lt_of_le_of_lt this ?_
     apply mul_lt_top coe_lt_top
     refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
-    exact toReal_pos hpq.1.ne.symm hpq.2.ne_top
+    exact toReal_pos hpq.1.ne' hpq.2.ne_top
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q < p`. -/
 lemma trunc_compl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -1869,13 +1779,13 @@ lemma trunc_compl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [
     (hpq : q ∈ Ioo 0 p) (ha : a > 0) (hf : Memℒp f p μ) :
     Memℒp (trnc ⊥ f a) q μ := by
   refine ⟨aestronglyMeasurable_trnc hf.1, ?_⟩
-  have : q.toReal > 0 := toReal_pos hpq.left.ne.symm (LT.lt.ne_top hpq.right)
+  have : q.toReal > 0 := toReal_pos hpq.left.ne' hpq.right.ne_top
   refine (rpow_lt_top_iff_of_pos this).mp ?_
   refine lt_of_le_of_lt
-      (estimate_eLpNorm_trunc_compl hp hpq hf.1.aemeasurable ha) ?_
+    (estimate_eLpNorm_trunc_compl hp hpq hf.1.aemeasurable ha) ?_
   apply mul_lt_top coe_lt_top
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
-  exact toReal_pos (lt_trans hpq.left hpq.right).ne.symm hp
+  exact toReal_pos (lt_trans hpq.left hpq.right).ne' hp
 
 end MeasureTheory
 
@@ -1893,8 +1803,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   [NormedAddCommGroup E₁]
   [NormedAddCommGroup E₂]
   [MeasurableSpace E] [BorelSpace E]
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Some results about the integrals of truncations
@@ -1939,7 +1848,7 @@ lemma res'comp (j : Bool) (β : ℝ) (hβ : β > 0) :
       exact ⟨lt_trans hβ h, fun _ ↦ h⟩
   · ext x
     simp only [Ioi_diff_Ici, mem_Ioo]
-  · have : j = false := by exact eq_false_of_ne_true h₀
+  · have : j = false := eq_false_of_ne_true h₀
     rw [this] at h₂
     simp at h₂
 
@@ -1977,8 +1886,7 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
         · simp [hp]
         · have := (mon_pf s (lt_trans (tc.ran_inv ‖f x‖ hfx) hs) (‖f x‖) hfx).2.mpr hs
           contrapose! h; linarith
-      · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_True,
-          ↓reduceIte]
+      · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_True]
         intro hs
         split_ifs with h
         · have := (mon_pf s hs.1 (‖f x‖) hfx).1.mpr hs.2
@@ -2056,8 +1964,7 @@ lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : Ton
     (∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖), (g s)) * ‖f x‖₊ ^ p := by
   rw [lintegral_trunc_mul₀ hp hfx, lintegral_trunc_mul₁, lintegral_trunc_mul₂ hfx,
     lintegral_mul_const']
-  apply ne_of_lt
-  refine (rpow_lt_top_iff_of_pos hp).mpr coe_lt_top
+  exact ((rpow_lt_top_iff_of_pos hp).mpr coe_lt_top).ne
 
 
 /-! Extract expressions for the lower Lebesgue integral of power functions -/
@@ -2066,7 +1973,7 @@ lemma lintegral_rpow_of_gt_abs {β γ : ℝ} (hβ : β > 0) (hγ : γ > -1) :
     ∫⁻ s : ℝ in Ioo 0 β, ENNReal.ofReal (s ^ γ) =
     ENNReal.ofReal (β ^ (γ + 1) / |γ + 1|) := by
   have hγ2 : γ + 1 > 0 := by linarith
-  rw [abs_of_nonneg (le_of_lt hγ2)]
+  rw [abs_of_nonneg hγ2.le]
   exact lintegral_rpow_of_gt hβ hγ
 
 -- TODO: treat symmetrically to Ioo case?
@@ -2078,7 +1985,7 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : β > 0) (hσ : σ < -1):
   · rw [integral_Ioi_rpow_of_lt hσ hβ, div_neg, neg_div]
   · apply integrableOn_Ioi_rpow_of_lt hσ hβ
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
-    exact fun s hs ↦ Real.rpow_nonneg (le_of_lt (lt_trans hβ hs)) σ
+    exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
 
 lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : t > 0) :
@@ -2086,7 +1993,7 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ}
     ENNReal.ofReal ((tc.inv t) ^ (γ + 1) / |γ + 1|) := by
   rw [← lintegral_congr_ae (Filter.mp_mem (self_mem_ae_restrict measurableSet_res)
       (Filter.univ_mem'
-      (fun s hs ↦ Eq.symm (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)))))]
+      (fun s hs ↦ (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)).symm)))]
   unfold res
   split at hγ <;> rename_i xor_split
   · rw [xor_split]
@@ -2135,8 +2042,8 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   {a : ℝ}
   {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
-/-! ## Minkowski's integral inequality
--/
+
+/-! ## Minkowski's integral inequality -/
 namespace MeasureTheory
 
 lemma rpow_add_of_pos (a : ℝ≥0∞) (c d : ℝ) (hc : c > 0) (hd : d > 0):
@@ -2189,8 +2096,7 @@ lemma trunc_cut_sup {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞} :
       rw [obs]
       exact trivial
     rcases this with ⟨m, wm⟩
-    have : (w ≠ ⊤) := LT.lt.ne_top hw
-    rcases ENNReal.exists_nat_gt (this) with ⟨n, wn⟩
+    rcases ENNReal.exists_nat_gt hw.ne_top with ⟨n, wn⟩
     use (m + n)
     unfold indicator; simp only
     split_ifs with is_x_in_Ampn
@@ -2225,24 +2131,19 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     · rw [ENNReal.zero_rpow_of_pos] <;> positivity
   have g_lim : ∀ x : α, Filter.Tendsto (fun n ↦ g n x) Filter.atTop (nhds (f x)) := by
     intro x
-    apply tendsto_atTop_isLUB
-    · apply trunc_cut_mono
-    · refine isLUB_iff_sSup_eq.mpr ?_
-      apply trunc_cut_sup
+    apply tendsto_atTop_isLUB (trunc_cut_mono _)
+    exact isLUB_iff_sSup_eq.mpr (trunc_cut_sup _)
   have g_sup' : (fun x ↦ ⨆ n : ℕ, (g n x) ^ p) = fun x ↦ (f x) ^ p := by
     ext x
     apply iSup_eq_of_tendsto
     · intro m n hmn
       dsimp only
       gcongr
-      apply trunc_cut_mono
-      exact hmn
-    · exact Filter.Tendsto.ennrpow_const p (g_lim x)
+      exact trunc_cut_mono _ hmn
+    · exact (g_lim x).ennrpow_const p
   have g_meas (n : ℕ): AEMeasurable (g n) μ := by
     unfold_let g
-    apply AEMeasurable.indicator (by fun_prop)
-    exact measurable_spanningSets μ n
-  have gp_meas (n : ℕ) : AEMeasurable (fun a ↦ g n a ^ (p - 1)) μ := by fun_prop
+    exact AEMeasurable.indicator (by fun_prop) (measurable_spanningSets μ n)
   have g_fin (n : ℕ): ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
     calc
     _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
@@ -2269,7 +2170,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     _ = n ^ p * μ (A n) := setLIntegral_const (A n) (↑n ^ p)
     _ < ⊤ := by
       apply mul_lt_top
-      · apply rpow_lt_top_of_nonneg (by linarith) coe_ne_top
+      · exact rpow_lt_top_of_nonneg (by linarith) coe_ne_top
       · unfold_let A
         exact measure_spanningSets_lt_top μ n
   have obs : ∀ n : ℕ, ∫⁻ x : α, (f x) * ((g n x) ^ (p - 1) /
@@ -2277,16 +2178,14 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       (∫⁻ x : α, (g n x) ^ p ∂μ) ^ p⁻¹ := by
     intro n
     rcases eq_or_ne (∫⁻ x : α, (g n x) ^ p ∂μ) 0  with int_eq_zero | int_ne_zero
-    · rw [int_eq_zero]
-      rw [ENNReal.zero_rpow_of_pos]
+    · rw [int_eq_zero, ENNReal.zero_rpow_of_pos]
       · exact zero_le _
-      · refine inv_pos_of_pos (lt_trans zero_lt_one hp)
+      · refine inv_pos_of_pos (by positivity)
     · calc
       _ = (∫⁻ x : α, (f x) * (g n x) ^ (p - 1) ∂μ) * (
           (∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ := by
         simp_rw [div_eq_mul_inv, ← mul_assoc]
-        rw [lintegral_mul_const'']
-        apply AEMeasurable.mul hf (gp_meas n)
+        rw [lintegral_mul_const'' _ (by fun_prop)]
       _ ≥ (∫⁻ x : α, (g n x) ^ (p) ∂μ) * ((∫⁻ y : α, ((g n y) ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ := by
         gcongr
         apply f_mul
@@ -2296,26 +2195,21 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
         rw [← ENNReal.rpow_mul]
         congr
         refine Real.IsConjExponent.sub_one_mul_conj ?_
-        apply Real.IsConjExponent.mk hp hpq
+        exact Real.IsConjExponent.mk hp hpq
       _ = (∫⁻ x : α, (g n x) ^ p ∂μ) ^ p⁻¹ := by
         rw [← ENNReal.rpow_neg]
         nth_rw 1 [← ENNReal.rpow_one (x := (∫⁻ x : α, (g n x) ^ (p) ∂μ))]
-        rw [← ENNReal.rpow_add]
-        · congr
-          exact add_neg_eq_of_eq_add (id (Eq.symm hpq))
-        · exact int_ne_zero
-        · apply ne_of_lt
-          exact g_fin n
+        rw [← ENNReal.rpow_add _ _ int_ne_zero (g_fin n).ne]
+        congr
+        exact add_neg_eq_of_eq_add hpq.symm
   have int_fg : ∫⁻ (x : α), f x ^ p ∂μ = ⨆ n : ℕ, ∫⁻ x : α, g n x ^ p ∂μ := by
     rw [← g_sup']
-    apply lintegral_iSup'
-    · intro n
-      fun_prop
-    · apply ae_of_all
-      intro x m n hmn
-      dsimp only
-      gcongr
-      exact trunc_cut_mono _ hmn
+    apply lintegral_iSup' (fun n ↦ by fun_prop)
+    apply ae_of_all
+    intro x m n hmn
+    dsimp only
+    gcongr
+    exact trunc_cut_mono _ hmn
   have sup_rpow : (⨆ n : ℕ, ∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) =
       ⨆ n : ℕ, (∫⁻ x : α, g n x ^ p ∂μ) ^ (1 / p) := by
     apply Monotone.map_iSup_of_continuousAt (f := fun (x : ℝ≥0∞) ↦ x ^ (1 / p))
@@ -2348,8 +2242,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
         linarith
       _ = (∫⁻ (z : α), ((g n z ^ (p - 1)) ^ q) ∂μ) *
           ((∫⁻ (y : α), (g n y ^ (p - 1)) ^ q ∂μ) ^ q⁻¹)⁻¹ ^ q := by
-        rw [lintegral_mul_const'']
-        apply AEMeasurable.pow_const (gp_meas n)
+        rw [lintegral_mul_const'' _ (by fun_prop)]
       _ ≤ _ := by
         rcases eq_or_ne (∫⁻ x : α, ((g n x) ^ (p - 1)) ^ q ∂μ) 0 with int_eq_zero | int_ne_zero
         · rw [int_eq_zero]
@@ -2392,7 +2285,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
 lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : Measure α} {ν : Measure β} [SFinite ν]
-    [SFinite μ] ⦃f : α × β → ENNReal⦄
+    ⦃f : α × β → ENNReal⦄
     (hf : AEMeasurable f (μ.prod ν)) :
     ∀ᵐ x : α ∂μ, AEMeasurable (f ∘ (Prod.mk x)) ν := by
   rcases hf with ⟨g, hg⟩
@@ -2414,7 +2307,7 @@ lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
 lemma aemeasurability_integral_component {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
     {μ : Measure α} {ν : Measure β} [SFinite ν]
-    [SFinite μ] ⦃f : α × β → ENNReal⦄
+    ⦃f : α × β → ENNReal⦄
     (hf : AEMeasurable f (μ.prod ν)) :
     AEMeasurable (fun x ↦ ∫⁻ (y : β), f (x, y) ∂ν) μ := by
   rcases hf with ⟨g, hg⟩
@@ -2444,11 +2337,8 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
       calc
       _ = ∫⁻ x : α, (∫⁻ y : β, f x y * g x ∂ν) ∂μ := by
         apply lintegral_congr_ae
-        filter_upwards [ae_meas₁] with a ha
-        apply (lintegral_mul_const'' _ ha).symm
-      _ = ∫⁻ y : β, (∫⁻ x : α, f x y * g x ∂μ) ∂ν := by
-        apply lintegral_lintegral_swap
-        apply AEMeasurable.mul hf (AEMeasurable.fst hg1)
+        filter_upwards [ae_meas₁] with a ha using (lintegral_mul_const'' _ ha).symm
+      _ = ∫⁻ y : β, (∫⁻ x : α, f x y * g x ∂μ) ∂ν := lintegral_lintegral_swap (hf.mul hg1.fst)
       _ ≤ ∫⁻ (y : β), (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ ∂ν := by
         apply lintegral_mono_ae
         filter_upwards [aemeasurability_prod₂ hf] with y hy
@@ -2460,12 +2350,9 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
         _ = (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ := by
           simp [one_div]
     nth_rw 1 [← one_div]
-    rw [representationLp (q := q)]
-    · exact iSup_le fun g ↦ iSup_le fun hg ↦ ineq g hg
-    · exact aemeasurability_integral_component hf
-    · exact one_lt_p
-    · exact le_of_lt one_lt_q
-    · exact hpq'.inv_add_inv_conj
+    rw [representationLp (hp := one_lt_p) (hq := one_lt_q.le) (hpq := hpq'.inv_add_inv_conj)]
+    · exact (iSup_le fun g ↦ iSup_le fun hg ↦ ineq g hg)
+    · exact (aemeasurability_integral_component hf)
   · rw [← one_eq_p]
     simp only [ENNReal.rpow_one, inv_one]
     exact (lintegral_lintegral_swap hf).le
@@ -2479,19 +2366,14 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
     (∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν) ^ p := by
   have p_pos : p > 0 := lt_of_lt_of_le zero_lt_one hp
   refine le_of_rpow_le (inv_pos_of_pos p_pos) ?_
-  rw [ENNReal.rpow_rpow_inv p_pos.ne.symm]
+  rw [ENNReal.rpow_rpow_inv p_pos.ne']
   exact lintegral_lintegral_pow_swap hp hf
 
 /-! ## Apply Minkowski's integral inequality to truncations
 -/
 
-@[measurability]
-lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
-    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton s }
-        ((volume.restrict (Ioi 0)).prod μ) := by
-  refine nullMeasurableSet_le hg.snd.norm ?hg
-  refine AEMeasurable.fst ?_
+@[measurability, fun_prop]
+theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
   -- ton is either increasing or decreasing
   have mono_or_anti := tc.ton_is_ton
   split_ifs at mono_or_anti
@@ -2499,17 +2381,18 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
   · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
 
 @[measurability]
+lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
+    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton s }
+        ((volume.restrict (Ioi 0)).prod μ) :=
+  nullMeasurableSet_le hg.snd.norm (ton_aeMeasurable tc).fst
+
+@[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | tc.ton s < ‖g x‖₊ }
-        ((volume.restrict (Ioi 0)).prod μ) := by
-  refine nullMeasurableSet_lt ?_ (AEMeasurable.snd hg).norm
-  refine AEMeasurable.fst ?_
-  -- ton is either increasing or decreasing
-  have mono_or_anti := tc.ton_is_ton
-  split_ifs at mono_or_anti
-  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi mono_or_anti.monotoneOn
-  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
+        ((volume.restrict (Ioi 0)).prod μ) :=
+  nullMeasurableSet_lt (ton_aeMeasurable tc).fst hg.snd.norm
 
 @[measurability]
 lemma truncation_ton_measurable {f : α → E₁}
@@ -2523,8 +2406,8 @@ lemma truncation_ton_measurable {f : α → E₁}
       Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
     ext z; unfold trunc; unfold indicator; unfold_let A; simp
   rw [this]
-  refine (aemeasurable_indicator_iff₀ ?hs).mpr hf.restrict.snd.restrict
-  apply indicator_ton_measurable hf.restrict
+  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable hf.restrict _)).mpr
+    hf.restrict.snd.restrict
 
 @[measurability]
 lemma truncation_compl_ton_measurable {f : α → E₁}
@@ -2537,11 +2420,10 @@ lemma truncation_compl_ton_measurable {f : α → E₁}
   have : (fun z : ℝ × α ↦ (f - trunc f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
     ext z; rw [trunc_compl_eq]; unfold_let A; unfold indicator; simp
   rw [this]
-  refine (aemeasurable_indicator_iff₀ ?hs).mpr hf.restrict.snd.restrict
-  apply indicator_ton_measurable_lt hf.restrict
+  refine (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
+    hf.restrict.snd.restrict
 
-lemma restrict_to_support {a : ℝ} {p : ℝ} (hp : p > 0)
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (f : α → E₁) :
+lemma restrict_to_support {a : ℝ} {p : ℝ} (hp : p > 0) [NormedAddCommGroup E₁] (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖trunc f a x‖₊ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f a x‖₊ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support
@@ -2552,8 +2434,7 @@ lemma restrict_to_support {a : ℝ} {p : ℝ} (hp : p > 0)
   intro f_zero
   simp_rw [f_zero]; simp [hp]
 
-lemma restrict_to_support_trunc_compl {a : ℝ} {p : ℝ}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (hp : p > 0)
+lemma restrict_to_support_trunc_compl {a : ℝ} {p : ℝ} [NormedAddCommGroup E₁] (hp : p > 0)
     (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖(f - trunc f a) x‖₊ ^ p ∂μ =
     ∫⁻ x : α, ‖(f - trunc f a) x‖₊ ^ p ∂μ := by
@@ -2568,8 +2449,7 @@ lemma restrict_to_support_trunc_compl {a : ℝ} {p : ℝ}
   simp_rw [f_zero]
   simp [hp]
 
-lemma restrict_to_support_trnc {a : ℝ} {p : ℝ} {j : Bool}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (hp : p > 0)
+lemma restrict_to_support_trnc {a : ℝ} {p : ℝ} {j : Bool} [NormedAddCommGroup E₁] (hp : p > 0)
     (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖trnc j f a x‖₊ ^ p ∂μ =
     ∫⁻ x : α, ‖trnc j f a x‖₊ ^ p ∂μ := by
@@ -2583,6 +2463,17 @@ lemma restrict_to_support_trnc {a : ℝ} {p : ℝ} {j : Bool}
   rcases j
   · dsimp only [Pi.sub_apply]; simp_rw [f_zero]; simp [hp]
   · simp_rw [f_zero]; simp [hp]
+
+@[fun_prop]
+theorem aeMeasurable_trunc_restrict
+    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] {j : Bool}
+    {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
+    AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
+      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
+  unfold trnc
+  rcases j
+  · apply truncation_compl_ton_measurable hf
+  · apply truncation_ton_measurable hf
 
 lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
@@ -2601,14 +2492,7 @@ lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSp
     field_simp [hp₀q₀]
   · unfold Function.uncurry
     simp only [Pi.sub_apply]
-    apply AEMeasurable.mul (by fun_prop)
-    apply AEMeasurable.pow_const
-    apply AEMeasurable.coe_nnreal_ennreal
-    apply AEMeasurable.nnnorm
-    unfold trnc
-    rcases j
-    · apply truncation_compl_ton_measurable hf
-    · apply truncation_ton_measurable hf
+    fun_prop
 
 lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -2628,8 +2512,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
       ext x
       simp only [ne_eq, mem_setOf_eq, norm_eq_zero]
     rw [this]
-    refine AEStronglyMeasurable.nullMeasurableSet_support ?_
-    exact aestronglyMeasurable_iff_aemeasurable.mpr hf.norm
+    exact (aestronglyMeasurable_iff_aemeasurable.mpr hf.norm).nullMeasurableSet_support
 
 /-- One of the key estimates for the real interpolation theorem, not yet using
     the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
@@ -2649,12 +2532,10 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
   unfold eLpNorm eLpNorm'
   let tc := spf_to_tc spf
   split_ifs with is_p₀pos is_p₀top
-  · have : p₀ ≤ 0 := by exact ofReal_eq_zero.mp is_p₀pos
+  · have : p₀ ≤ 0 := ofReal_eq_zero.mp is_p₀pos
     contrapose! this; exact hp₀
   · contrapose! is_p₀top; exact coe_ne_top
-  · have coe_p₀ : (ENNReal.ofReal p₀).toReal = p₀ := by
-      refine toReal_ofReal (le_of_lt hp₀)
-    rw [coe_p₀]
+  · rw [toReal_ofReal hp₀.le]
     calc
     _ = ∫⁻ s : ℝ in Ioi 0, ENNReal.ofReal (s ^ (q - q₀ - 1)) *
     ((∫⁻ (a : α), ↑‖trnc j f ((spf_to_tc spf).ton s) a‖₊ ^ p₀ ∂μ) ^ (1 / p₀)) ^ q₀  := by
@@ -2727,7 +2608,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
       · rw [← ofReal_rpow_of_nonneg] <;> try positivity
         congr
-        exact Eq.symm norm_toNNReal
+        exact norm_toNNReal.symm
     _ = (∫⁻ a : α in Function.support f,
         ((ENNReal.ofReal
         (spf.d ^ (q - q₀ - 1 + 1) * ‖f a‖ ^ (spf.σ⁻¹ * (q - q₀ - 1 + 1) + q₀) /
@@ -2782,8 +2663,8 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (ht : t ∈ Ioo 0 1)
     (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤)  (hp₀p₁ : p₀ < p₁)
-    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
+    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
     (hf : AEMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
     (hspf : spf.σ = @ζ p₀ q₀ p₁ q₁ t) :
     ∫⁻ s : ℝ in Ioi 0,
@@ -2793,7 +2674,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
     ((eLpNorm f p μ) ^ p.toReal) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
   have p_toReal_pos : p.toReal > 0 :=
-    interp_exp_toReal_pos' ht hp₀ hp₁ hp (Or.inl (LT.lt.ne_top hp₀p₁))
+    interp_exp_toReal_pos' ht hp₀ hp₁ hp (Or.inl hp₀p₁.ne_top)
   calc
   _ ≤ ENNReal.ofReal (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
@@ -2808,15 +2689,15 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       · cases j
         · unfold sel
           dsimp only
-          apply hp₀.ne.symm
+          apply hp₀.ne'
         · unfold sel
           dsimp only
-          apply hp₁.ne.symm
+          apply hp₁.ne'
       · exact hp'
     · apply toReal_pos
       · cases j
-        · exact hq₀.ne.symm
-        · exact hq₁.ne.symm
+        · exact hq₀.ne'
+        · exact hq₁.ne'
       · exact hq'
     · exact toReal_mono hq' hpq
     · exact hf
@@ -2858,11 +2739,11 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     · unfold sel
       dsimp only
       rw [hspf]
-      apply ζ_equality₅ (hp₀p₁ := ne_of_lt hp₀p₁) <;> assumption
+      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> assumption
     · unfold sel
       dsimp only
       rw [hspf]
-      apply ζ_equality₆ (hp₀p₁ := ne_of_lt hp₀p₁) <;> assumption
+      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> assumption
   _ ≤ ENNReal.ofReal (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α),
@@ -2887,9 +2768,9 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     rw [← one_div]
-    refine Eq.symm (eLpNorm_eq_lintegral_rpow_nnnorm ?_ ?_)
-    · exact (interpolated_pos' hp₀ hp₁ hp).ne.symm
-    · exact interp_exp_ne_top (ne_of_lt hp₀p₁) ht hp
+    refine (eLpNorm_eq_lintegral_rpow_nnnorm ?_ ?_).symm
+    · exact (interpolated_pos' hp₀ hp₁ hp).ne'
+    · exact interp_exp_ne_top hp₀p₁.ne ht hp
 
 -- TODO: move this to Weaktype.lean?
 lemma wnorm_eq_zero_iff {f : α → E₁} {p : ℝ≥0∞} [NormedAddCommGroup E₁] (hp : p ≠ 0) :
@@ -2908,8 +2789,8 @@ lemma wnorm_eq_zero_iff {f : α → E₁} {p : ℝ≥0∞} [NormedAddCommGroup E
       rw [essSup_eq_sInf] at this
       let b := (min (sInf {a : ℝ≥0∞ | μ {x | a < ↑‖f x‖₊} = 0}) 1) / 2
       have b_lt_inf : b < min (sInf {a : ℝ≥0∞ | μ {x | a < ↑‖f x‖₊} = 0}) 1 :=
-        ENNReal.half_lt_self (lt_min this zero_lt_one).ne.symm
-            (ne_of_lt (lt_of_le_of_lt (min_le_right _ 1) one_lt_top))
+        ENNReal.half_lt_self (lt_min this zero_lt_one).ne'
+          (lt_of_le_of_lt (min_le_right _ 1) one_lt_top).ne
       have meas_ne_zero : μ {x | b < ↑‖f x‖₊} ≠ 0 := by
         intro h
         have obs : sInf {a | μ {x | a < ↑‖f x‖₊} = 0} ≤ b := csInf_le' h
@@ -2917,9 +2798,9 @@ lemma wnorm_eq_zero_iff {f : α → E₁} {p : ℝ≥0∞} [NormedAddCommGroup E
         calc
         _ < _ := b_lt_inf
         _ ≤ _ := min_le_left _ _
-      have b_ne_0 : b ≠ 0 := (ENNReal.half_pos (lt_min this zero_lt_one).ne.symm).ne.symm
+      have b_ne_0 : b ≠ 0 := (ENNReal.half_pos (lt_min this zero_lt_one).ne').ne'
       have p_toReal_inv_pos : p.toReal⁻¹ > 0 := inv_pos_of_pos (toReal_pos hp h₀)
-      have coe_b : ENNReal.ofNNReal b.toNNReal = b := coe_toNNReal (LT.lt.ne_top b_lt_inf)
+      have coe_b : ENNReal.ofNNReal b.toNNReal = b := coe_toNNReal b_lt_inf.ne_top
       have : distribution f b μ = 0 := by
         refine (rpow_eq_zero_iff_of_pos p_toReal_inv_pos).mp ?_
         refine eq_zero_of_ne_zero_of_mul_left_eq_zero b_ne_0 ?_
@@ -2952,7 +2833,7 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
         eLpNorm f p μ ^ q.toReal * ENNReal.ofReal (t ^ (-q.toReal)) := by
   have wt_est := (h₀T f hf).2 -- the weaktype estimate
   have q_pos : q.toReal > 0 := by
-    refine toReal_pos hq.ne.symm hq'.ne_top
+    refine toReal_pos hq.ne' hq'.ne_top
   have tq_pos : ENNReal.ofReal t ^ q.toReal > 0 := coe_pow_pos ht
   have tq_ne_top : (ENNReal.ofReal t) ^ q.toReal ≠ ⊤ := coe_rpow_ne_top' q_pos
   -- have hq₁ : q.toReal = q := by exact toReal_ofReal q_nonneg
@@ -2975,7 +2856,6 @@ lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
   have wt_est := (hT f hf).2
   unfold wnorm at wt_est
   split_ifs at wt_est
-  have : eLpNormEssSup (T f) ν ^ p.toReal ≤ (C * eLpNorm f p μ) ^ p.toReal := by gcongr
   have snorm_est : eLpNormEssSup (T f) ν ≤ ENNReal.ofReal t := le_trans wt_est ht
   apply nonpos_iff_eq_zero.mp
   calc
@@ -2992,14 +2872,14 @@ lemma weaktype_aux₀ {p₀ q₀ p q : ℝ≥0∞} [NormedAddCommGroup E₁] [No
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (hf : AEStronglyMeasurable f μ)
     (hF : eLpNorm f p μ = 0) :
     eLpNorm (T f) q ν = 0 := by
-  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff hf hp.ne.symm).mp hF
-  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff hf hp₀.ne.symm).mpr f_ae_0
+  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff hf hp.ne').mp hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff hf hp₀.ne').mpr f_ae_0
   have hf₁ : Memℒp f p₀ μ := ⟨hf, by rw [hf₂]; exact zero_lt_top⟩
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
-  have : (T f) =ᵐ[ν] 0 := (wnorm_eq_zero_iff hq₀.ne.symm).mp wnorm_0
-  exact (eLpNorm_eq_zero_iff (h₀T _ hf₁).1 hq.ne.symm).mpr this
+  have : (T f) =ᵐ[ν] 0 := (wnorm_eq_zero_iff hq₀.ne').mp wnorm_0
+  exact (eLpNorm_eq_zero_iff (h₀T _ hf₁).1 hq.ne').mpr this
 
 lemma weaktype_estimate_trunc_compl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] [NormedAddCommGroup E₂]
@@ -3038,7 +2918,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
     _ ≤ C₁ * eLpNormEssSup (trunc f (t / C₁)) μ := wt_est
     _ ≤ C₁ * ENNReal.ofReal (max 0 (t / C₁)) := by
       gcongr
-      apply trunc_eLpNormEssSup_le
+      exact trunc_eLpNormEssSup_le
     _ ≤ _ := by
       let C := C₁.toReal
       have coe_C : C.toNNReal = C₁ := Real.toNNReal_coe
@@ -3060,51 +2940,39 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
     (hdeq : d = ((ENNReal.ofNNReal C₀) ^ p₀.toReal *
         eLpNorm f p μ ^ p.toReal).toReal ^ p₀.toReal⁻¹) :
     distribution (T (f - trunc f a)) (ENNReal.ofReal t) ν = 0 := by
-  have p₀ne_top : p₀ ≠ ⊤ := LT.lt.ne_top hp₀p
   rcases (eq_zero_or_pos (eLpNormEssSup f μ)) with snorm_zero | snorm_pos
   · have : eLpNorm (trnc ⊥ f a) ⊤ μ = 0 := by
       apply nonpos_iff_eq_zero.mp
       rw [← snorm_zero]
-      apply eLpNorm_trnc_est (p := ⊤)
+      exact eLpNorm_trnc_est (p := ⊤)
     have obs : eLpNorm (T (trnc ⊥ f a)) ⊤ ν = 0 := by
       have q₀pos : q₀ > 0 := by rw [hq₀]; exact zero_lt_top
-      apply weaktype_aux₀ hp₀ q₀pos zero_lt_top zero_lt_top h₀T
+      exact weaktype_aux₀ hp₀ q₀pos zero_lt_top zero_lt_top h₀T
           (aestronglyMeasurable_trunc_compl hf.1) this
     apply nonpos_iff_eq_zero.mp
     exact
       Trans.trans (distribution_mono_right (Trans.trans obs (zero_le (ENNReal.ofReal t))))
         meas_eLpNormEssSup_lt
   · have p_pos : p > 0 := lt_trans hp₀ hp₀p
-    have snorm_p_pos : eLpNorm f p μ ≠ 0 := by
-      intro snorm_0
-      apply Ne.symm (ne_of_lt snorm_pos)
-      apply eLpNormEssSup_eq_zero_iff.mpr
-      exact (eLpNorm_eq_zero_iff hf.1 p_pos.ne.symm).mp snorm_0
+    have snorm_p_pos : eLpNorm f p μ ≠ 0 :=
+      fun snorm_0 ↦ snorm_pos.ne' <| eLpNormEssSup_eq_zero_iff.mpr <|
+        (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp snorm_0
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0
         := by
-      apply ENNReal.mul_pos
-      · apply ne_of_gt
-        refine rpow_pos_of_nonneg (by positivity) (by positivity)
-      · apply ne_of_gt
-        refine rpow_pos_of_nonneg (by positivity) (by positivity)
+      apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
     have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤
-        := by
-      apply mul_ne_top
-      · refine rpow_ne_top' ?_ coe_ne_top
-        exact ENNReal.coe_ne_zero.mpr hC₀.ne.symm
-      · exact rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf)
+        := mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
+          (rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf))
     have d_pos : d > 0 := by
       rw [hdeq]
-      apply Real.rpow_pos_of_pos
-      rw [← zero_toReal]
-      exact toReal_strict_mono term_ne_top term_pos
+      exact Real.rpow_pos_of_pos (zero_toReal ▸ toReal_strict_mono term_ne_top term_pos) _
     have a_pos : a > 0 := by rw [ha]; positivity
     have obs : Memℒp (f - trunc f a) p₀ μ := trunc_compl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ a_pos hf
     have wt_est := (h₀T (f - trunc f a) obs).2
     unfold wnorm at wt_est
     split_ifs at wt_est
     have snorm_est : eLpNormEssSup (T (f - trunc f a)) ν ≤ ENNReal.ofReal t := by
-      apply le_of_rpow_le (exp_toReal_pos hp₀ p₀ne_top)
+      apply le_of_rpow_le (exp_toReal_pos hp₀ hp₀p.ne_top)
       calc
       _ ≤ (↑C₀ * eLpNorm (f - trunc f a) p₀ μ) ^ p₀.toReal := by gcongr
       _ ≤ (↑C₀) ^ p₀.toReal * (ENNReal.ofReal (a ^ (p₀.toReal - p.toReal)) *
@@ -3119,9 +2987,7 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
           rw [ENNReal.ofReal_div_of_pos] <;> try positivity
           rw [div_eq_mul_inv]
           ring
-        · apply ne_of_lt
-          apply sub_neg.mpr
-          apply toReal_strict_mono hp hp₀p
+        · exact (sub_neg.mpr (toReal_strict_mono hp hp₀p)).ne
         · positivity
       _ = _ := by
         rw [ofReal_rpow_of_pos ht]
@@ -3130,14 +2996,14 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
         rw [hdeq]
         rw [Real.rpow_inv_rpow] <;> try positivity
         rw [ofReal_toReal term_ne_top, ENNReal.mul_inv_cancel (by positivity) term_ne_top]
-        exact toReal_ne_zero.mpr ⟨(ne_of_lt hp₀).symm, p₀ne_top⟩
+        exact toReal_ne_zero.mpr ⟨hp₀.ne', hp₀p.ne_top⟩
     apply nonpos_iff_eq_zero.mp
     calc
     _ ≤ distribution (T (f - trunc f a)) (eLpNormEssSup (T (f - trunc f a)) ν) ν := by gcongr
     _ = _ := meas_eLpNormEssSup_lt
 
 lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q₁ : ℝ≥0∞} [MeasurableSpace E₁]
-    [NormedAddCommGroup E₁] [NormedAddCommGroup E₁]
+    [NormedAddCommGroup E₁]
     [BorelSpace E₁] [NormedAddCommGroup E₂] (hp : 0 < p)
     (hp₁ : p₁ < ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : Memℒp f p μ)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ} (ht : t > 0) {a : ℝ} {d : ℝ} -- (hd : d > 0)
@@ -3149,7 +3015,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
   have p₁pos : p₁ > 0 := lt_trans hp hp₁p
-  have p₁ne_top : p₁ ≠ ⊤ := LT.lt.ne_top hp₁
+  have p₁ne_top : p₁ ≠ ⊤ := hp₁.ne_top
   split_ifs at wt_est
   have : p₁.toReal ≠ 0 := exp_toReal_ne_zero' p₁pos p₁ne_top
   have : eLpNormEssSup (T (trunc f a)) ν ^ p₁.toReal ≤ (↑C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal
@@ -3171,31 +3037,20 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
         intro snorm_0
         apply Ne.symm (ne_of_lt snorm_pos)
         apply eLpNormEssSup_eq_zero_iff.mpr
-        exact (eLpNorm_eq_zero_iff hf.1 hp.ne.symm).mp snorm_0
-      have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0
-          := by
-        apply ENNReal.mul_pos
-        · apply ne_of_gt
-          exact rpow_pos_of_nonneg (by positivity) (by positivity)
-        · apply ne_of_gt
-          exact rpow_pos_of_nonneg (by positivity) (by positivity)
-      have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ := by
-        apply mul_ne_top
-        · refine rpow_ne_top' ?_ coe_ne_top
-          exact ENNReal.coe_ne_zero.mpr hC₁.ne.symm
-        · exact rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf)
+        exact (eLpNorm_eq_zero_iff hf.1 hp.ne').mp snorm_0
+      have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
+        apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
+      have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
+        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
+          (rpow_ne_top' snorm_p_pos (Memℒp.eLpNorm_ne_top hf))
       have d_pos : d > 0 := by
         rw [hdeq]
-        apply Real.rpow_pos_of_pos
-        rw [← zero_toReal]
-        exact toReal_strict_mono term_ne_top term_pos
+        exact Real.rpow_pos_of_pos (zero_toReal ▸ toReal_strict_mono term_ne_top term_pos) _
       calc
-      _ ≤ ↑C₁ ^ p₁.toReal *
-          ((ENNReal.ofReal (a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal)
-          := by
+      _ ≤ ↑C₁ ^ p₁.toReal * ((ENNReal.ofReal (a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg]
         gcongr
-        · apply estimate_eLpNorm_trunc p₁ne_top ⟨hp, hp₁p⟩ (AEStronglyMeasurable.aemeasurable hf.1)
+        · exact estimate_eLpNorm_trunc p₁ne_top ⟨hp, hp₁p⟩ hf.1.aemeasurable
         · exact toReal_nonneg
       _ = ↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal * (ENNReal.ofReal (d ^ p₁.toReal))⁻¹ *
           ENNReal.ofReal (t ^ p₁.toReal) := by
@@ -3204,7 +3059,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
           rw [ENNReal.ofReal_div_of_pos] <;> try positivity
           rw [div_eq_mul_inv]
           ring
-        · exact (sub_pos.mpr (toReal_strict_mono p₁ne_top hp₁p)).ne.symm
+        · exact (sub_pos.mpr (toReal_strict_mono p₁ne_top hp₁p)).ne'
         · positivity
       _ = _ := by
         rw [ofReal_rpow_of_pos ht]
@@ -3235,11 +3090,8 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   [NormedAddCommGroup E₂]
   [NormedAddCommGroup E₃]
   [MeasurableSpace E] [BorelSpace E]
-  -- [MeasurableSpace E₁] [BorelSpace E₁]
-  -- [MeasurableSpace E₂] [BorelSpace E₂]
   [MeasurableSpace E₃] [BorelSpace E₃]
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 namespace MeasureTheory
 
@@ -3261,7 +3113,7 @@ def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Pr
 
 namespace SubadditiveOn
 
-def antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
+lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
     (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sa : SubadditiveOn T P' A) : SubadditiveOn T P A :=
   fun f g x hf hg ↦ sa f g x (h hf) (h hg)
 
@@ -3372,7 +3224,6 @@ end MeasureTheory
 end
 
 
-
 noncomputable section
 
 open NNReal ENNReal MeasureTheory Set ComputationsChoiceExponent
@@ -3382,8 +3233,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ}-- truncation parameter
-  -- (L : E₁ →L[ℝ] E₂ →L[ℝ] E₃)
-  {f : α → E₁} {t : ℝ} -- {s x y : ℝ≥0∞}
+  {f : α → E₁} {t : ℝ}
   {T : (α → E₁) → (α' → E₂)}
 
 /-! ## Proof of the real interpolation theorem
@@ -3396,7 +3246,7 @@ namespace MeasureTheory
 /-- Proposition that expresses that the map `T` map between function spaces preserves
     AE strong measurability on L^p. -/
 def PreservesAEStrongMeasurability
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
+    [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
     (T : (α → E₁) → α' → E₂) (p : ℝ≥0∞) : Prop :=
     ∀ ⦃f : α → E₁⦄, Memℒp f p μ → AEStronglyMeasurable (T f) ν
 
@@ -3418,7 +3268,7 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
     ∫⁻ x, ‖g x‖₊ ^q ∂ν =
     ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s in Ioi (0 : ℝ),
     distribution g ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) := by
-  rewrite [lintegral_norm_pow_eq_distribution hg (by linarith)]
+  rw [lintegral_norm_pow_eq_distribution hg (by linarith)]
   nth_rewrite 1 [← lintegral_scale_constant_halfspace' (a := (2*A)) (by linarith)]
   rw [← lintegral_const_mul']; swap; exact coe_ne_top
   rw [← lintegral_const_mul']; swap; exact coe_ne_top
@@ -3444,14 +3294,24 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
       (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) +
   distribution (T (f - trunc f (tc.ton s))) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) := by
   rw [rewrite_norm_func hq hA hTf]
-  apply mul_le_mul'
-  · exact le_refl _
-  · apply setLIntegral_mono' measurableSet_Ioi
-    intro s s_pos
-    rw [← add_mul]
-    apply mul_le_mul'
-    · exact estimate_distribution_Subadditive_trunc s_pos (tc.ran_ton s s_pos) (le_of_lt hA) ht
-    · exact le_refl _
+  apply mul_le_mul' (le_refl _)
+  apply setLIntegral_mono' measurableSet_Ioi
+  intro s s_pos
+  rw [← add_mul]
+  apply mul_le_mul' ?_ (le_refl _)
+  exact estimate_distribution_Subadditive_trunc s_pos (tc.ran_ton s s_pos) hA.le ht
+
+-- XXX: can this be golfed or unified with `ton_aeMeasurable`?
+@[measurability, fun_prop]
+theorem ton_aeMeasurable_eLpNorm_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] (tc : ToneCouple) :
+    AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) (volume.restrict (Ioi 0)) := by
+  change AEMeasurable ((fun t : ℝ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton)) (volume.restrict (Ioi 0))
+  have tone := tc.ton_is_ton
+  split_ifs at tone
+  · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
+    exact norm_trunc_mono.comp_monotoneOn tone.monotoneOn
+  · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
+    exact norm_trunc_mono.comp_antitoneOn tone.antitoneOn
 
 lemma estimate_norm_rpow_range_operator'
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -3467,14 +3327,14 @@ lemma estimate_norm_rpow_range_operator'
     ENNReal.ofReal (s^(q.toReal - 1)) +
     distribution (T (f - trunc f (tc.ton s))) (ENNReal.ofReal s) ν *
     ENNReal.ofReal (s^(q.toReal - 1)) ≤
-    (if (q₁ < ⊤) then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
+    (if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
-    (if (q₀ < ⊤) then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
+    (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (f - trunc f (tc.ton s)) (p₀) μ ^ q₀.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1))) := by
   have : ∀ q' q : ℝ, -q' + (q - 1) = q - q' - 1 := by intro q' q; group
-  rw [← this, ← this]
+  repeat rw [← this]
   have p_pos : p > 0 := lt_trans hp₀ hp₀p
   -- TODO: is there a way to use lintegral_rw₂ conveniently?
   rw [lintegral_rw_aux power_aux_2, lintegral_rw_aux power_aux_2]
@@ -3488,34 +3348,15 @@ lemma estimate_norm_rpow_range_operator'
       gcongr
       · apply weaktype_estimate_trunc p_pos hq₁ <;> assumption
       · apply weaktype_estimate_trunc_compl (p₀ := p₀) hp₀ <;> try assumption
-        · exact LT.lt.ne_top hp₁p
+        · exact hp₁p.ne_top
         · exact tc.ran_ton s s_pos
-  -- TODO: split off the measurability lemmas
-    · apply AEMeasurable.mul
-      · apply AEMeasurable.mul
-        · apply AEMeasurable.const_mul
-          · apply AEMeasurable.pow_const
-            · change AEMeasurable ((fun t : ℝ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton))
-                  (volume.restrict (Ioi 0))
-              have tone := tc.ton_is_ton
-              split_ifs at tone
-              · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-                exact Monotone.comp_monotoneOn norm_trunc_mono (StrictMonoOn.monotoneOn tone)
-              · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-                exact Monotone.comp_antitoneOn norm_trunc_mono (StrictAntiOn.antitoneOn tone)
-        · apply AEMeasurable.coe_nnreal_ennreal
-          · apply AEMeasurable.real_toNNReal
-            · apply AEMeasurable.pow_const
-              apply aemeasurable_id'
-      · apply AEMeasurable.coe_nnreal_ennreal
-        · apply AEMeasurable.real_toNNReal
-          · apply AEMeasurable.pow_const
-            · apply aemeasurable_id'
+    exact ((((ton_aeMeasurable_eLpNorm_trunc tc).pow_const _).const_mul _).mul
+      (by fun_prop)).mul (by fun_prop)
   · rw [one_mul, zero_mul, add_zero]
     apply setLIntegral_mono' measurableSet_Ioi
     intro s (s_pos : s > 0)
     simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
-    have : q₀ = ⊤ := by exact not_lt_top.mp is_q₀top
+    have : q₀ = ⊤ := not_lt_top.mp is_q₀top
     rw [hq₀' this s s_pos, zero_mul, add_zero]
     gcongr
     apply weaktype_estimate_trunc p_pos <;> try assumption
@@ -3523,14 +3364,14 @@ lemma estimate_norm_rpow_range_operator'
     apply setLIntegral_mono' measurableSet_Ioi
     intro s (s_pos : s > 0)
     simp only [is_q₁top, mem_Ioi, false_or] at hq₁'
-    have : q₁ = ⊤ := by exact not_lt_top.mp is_q₁top
+    have : q₁ = ⊤ := not_lt_top.mp is_q₁top
     rw [hq₁' this s s_pos, zero_mul, zero_add]
     gcongr
     apply weaktype_estimate_trunc_compl (p₀ := p₀) <;> try assumption
-    · exact LT.lt.ne_top hp₁p
+    · exact hp₁p.ne_top
     · exact tc.ran_ton s s_pos
   · simp only [zero_mul, add_zero, nonpos_iff_eq_zero]
-    have : ∫⁻ (_ : ℝ) in Ioi 0, 0 = 0 := by exact lintegral_zero
+    have : ∫⁻ (_ : ℝ) in Ioi 0, 0 = 0 := lintegral_zero
     rw [← this]
     apply lintegral_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (s_pos)
@@ -3548,8 +3389,8 @@ lemma simplify_factor₀ {D : ℝ}
     [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁)
     (ht : t ∈ Ioo 0 1)
-    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
+    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
     (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
@@ -3562,7 +3403,7 @@ lemma simplify_factor₀ {D : ℝ}
   have q₁pos : q₁ > 0 := lt_of_lt_of_le hp₁.1 hp₁.2
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀' hp₀.2
   have hp' : p ∈ Ioo 0 ⊤ := interp_exp_in_Ioo_zero_top ht p₀pos p₁pos (by left; exact p₀ne_top) hp
-  have p_toReal_pos : p.toReal > 0 := by exact toReal_pos_of_Ioo hp'
+  have p_toReal_pos : p.toReal > 0 := toReal_pos_of_Ioo hp'
   rw [hD]
   unfold d
   rw [← ofReal_rpow_of_pos]
@@ -3578,37 +3419,26 @@ lemma simplify_factor₀ {D : ℝ}
           · congr 1
             · congr 1
               · rw [eq_exponents₀] <;> try assumption
-              · rw [neg_mul]
-                rw [eq_exponents₁ (t := t)] <;> try assumption
+              · rw [neg_mul, eq_exponents₁ (t := t)] <;> try assumption
                 ring_nf
             · congr 1
-              rw [mul_assoc, ← mul_add]
-              rw [eq_exponents₂ (t := t)] <;> try assumption
-              rw [mul_assoc, mul_assoc, ← mul_add]
-              rw [neg_mul]
-              rw [eq_exponents₃ (t := t)] <;> try assumption
+              rw [mul_assoc, ← mul_add, eq_exponents₂ (t := t)] <;> try assumption
+              rw [mul_assoc, mul_assoc, ← mul_add, neg_mul, eq_exponents₃ (t := t)] <;> try assumption
               simp only [neg_mul, neg_neg]
-              rw [← mul_assoc, ← add_mul]
-              rw [← preservation_interpolation ht hp₀.1 hp₁.1 hp]
-              rw [toReal_inv]
+              rw [← mul_assoc, ← add_mul, ← preservation_interpolation ht hp₀.1 hp₁.1 hp, toReal_inv]
               field_simp
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
           · exact coe_ne_top
-        · apply ENNReal.inv_ne_zero.mpr
-          exact d_ne_top_aux₁ hC₁
-        · apply ENNReal.inv_ne_zero.mpr
-          exact d_ne_top_aux₂ hF
+        · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁)
+        · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF)
         · exact d_ne_zero_aux₁ hC₀
         · exact d_ne_zero_aux₀ hF
         · exact d_ne_zero_aux₂ hC₀ hF
-        · apply mul_ne_zero
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₁ hC₁
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₂ hF
+        · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁))
+            (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF))
       · exact Or.inr (d_ne_top_aux₂ hF)
       · exact Or.inr (d_ne_zero_aux₀ hF)
     · exact d_ne_top_aux₄ hC₀ hC₁ hF
@@ -3618,8 +3448,8 @@ lemma simplify_factor₁ {D : ℝ}
     [NormedAddCommGroup E₁] (hq₁' : q₁ ≠ ⊤)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁)
     (ht : t ∈ Ioo 0 1)
-    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
+    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
     (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
@@ -3631,7 +3461,8 @@ lemma simplify_factor₁ {D : ℝ}
   have p₁pos : p₁ > 0 := hp₁.1
   have q₁pos : q₁ > 0 := lt_of_lt_of_le hp₁.1 hp₁.2
   have p₁ne_top : p₁ ≠ ⊤ := ne_top_of_le_ne_top hq₁' hp₁.2
-  have hp' : p ∈ Ioo 0 ⊤ := interp_exp_in_Ioo_zero_top ht p₀pos p₁pos (by right; exact p₁ne_top) hp
+  have hp' : p ∈ Ioo 0 ⊤ := interp_exp_in_Ioo_zero_top ht p₀pos p₁pos
+    (Decidable.not_or_of_imp fun _ ↦ p₁ne_top) hp
   have p_toReal_pos : p.toReal > 0 := toReal_pos_of_Ioo hp'
   rw [hD]
   unfold d
@@ -3649,40 +3480,30 @@ lemma simplify_factor₁ {D : ℝ}
             congr 3
             · rw [eq_exponents₆] <;> try assumption
             · rw [eq_exponents₅] <;> try assumption
-            · rw [mul_assoc, mul_assoc, ← mul_add]
-              rw [eq_exponents₈] <;> try assumption
-              rw [neg_mul]
-              rw [eq_exponents₇ (ht := ht)] <;> try assumption
-              rw [← mul_add, ← add_mul, add_comm]
-              rw [← preservation_interpolation ht hp₀.1 hp₁.1 hp]
-              rw [toReal_inv]
+            · rw [mul_assoc, mul_assoc, ← mul_add, eq_exponents₈, neg_mul,
+                eq_exponents₇ (ht := ht)] <;> try assumption
+              rw [← mul_add, ← add_mul, add_comm, ← preservation_interpolation ht hp₀.1 hp₁.1 hp,
+                toReal_inv]
               field_simp
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
           · exact ne_zero_of_Ioo hF
           · exact ne_top_of_Ioo hF
-          · apply (ENNReal.coe_pos.mpr hC₁).ne.symm
+          · exact (ENNReal.coe_pos.mpr hC₁).ne'
           · exact coe_ne_top
-        · apply ENNReal.inv_ne_zero.mpr
-          apply rpow_ne_top'
-          · apply (ENNReal.coe_pos.mpr hC₁).ne.symm
-          · exact coe_ne_top
-        · apply ENNReal.inv_ne_zero.mpr
-          exact d_ne_top_aux₂ hF
+        · exact ENNReal.inv_ne_zero.mpr (rpow_ne_top' ((ENNReal.coe_pos.mpr hC₁).ne') coe_ne_top)
+        · exact ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF)
         · exact d_ne_zero_aux₁ hC₀
         · exact d_ne_zero_aux₀ hF
         · exact d_ne_zero_aux₂ hC₀ hF
-        · apply mul_ne_zero
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₁ hC₁
-          · apply ENNReal.inv_ne_zero.mpr
-            exact d_ne_top_aux₂ hF
+        · exact mul_ne_zero (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₁ hC₁))
+            (ENNReal.inv_ne_zero.mpr (d_ne_top_aux₂ hF))
       · exact Or.inr (d_ne_top_aux₂ hF)
       · exact Or.inr (d_ne_zero_aux₀ hF)
     · exact d_ne_top_aux₄ hC₀ hC₁ hF
   · exact d_pos hC₀ hC₁ hF
 
-instance finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasurable g μ)
+def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasurable g μ)
     (hg_int : ∫⁻ x, g x ∂μ < ⊤) : Measure.FiniteSpanningSetsIn
       (μ.restrict (Function.support g)) (Set.univ) where
   set := fun n ↦ if n = 0 then {x | g x = 0} else { x | 1 / (n + 1) ≤ g x }
@@ -3695,25 +3516,21 @@ instance finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEM
       · rw [measure_mono_null _ measure_empty]
         · exact zero_lt_top
         · intro x; simp
-      · exact AEStronglyMeasurable.nullMeasurableSet_support
-            (aestronglyMeasurable_iff_aemeasurable.mpr hg)
+      · exact (aestronglyMeasurable_iff_aemeasurable.mpr hg).nullMeasurableSet_support
     · have one_div_ne_zero : (1 : ℝ≥0∞) / (n + 1) ≠ 0 := by
         apply ne_of_gt
         rw [one_div]
-        apply ENNReal.inv_pos.mpr
-        refine add_ne_top.mpr ⟨coe_ne_top, one_ne_top⟩
+        exact ENNReal.inv_pos.mpr (add_ne_top.mpr ⟨coe_ne_top, one_ne_top⟩)
       calc
       _ ≤ (∫⁻ x : α in (Function.support g), g x ∂μ) / (1 / (n + 1)) := by
-        apply meas_ge_le_lintegral_div
-        · apply AEMeasurable.restrict hg
-        · exact one_div_ne_zero
+        apply meas_ge_le_lintegral_div hg.restrict one_div_ne_zero
         · rw [one_div]
           apply inv_ne_top.mpr
           simp
       _ ≤ (∫⁻ x : α, g x ∂μ) / (1 / (n + 1)) := by
         gcongr
         exact setLIntegral_le_lintegral _ _
-      _ < ⊤ := div_lt_top (ne_of_lt hg_int)  one_div_ne_zero
+      _ < ⊤ := div_lt_top hg_int.ne one_div_ne_zero
   spanning := by
     ext x
     constructor
@@ -3722,10 +3539,8 @@ instance finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEM
       rcases (eq_zero_or_pos (g x)) with gx_zero | gx_pos
       · simp only [mem_iUnion]; use 0; simpa
       · simp only [mem_iUnion]
-        have : ∃ n : ℕ, (g x)⁻¹ < n := by
-          refine ENNReal.exists_nat_gt (ne_of_lt ?_)
-          exact inv_lt_top.mpr gx_pos
-        rcases this with ⟨n, wn⟩
+        have : ∃ n : ℕ, (g x)⁻¹ < n := ENNReal.exists_nat_gt (inv_lt_top.mpr gx_pos).ne
+        obtain ⟨n, wn⟩ := ENNReal.exists_nat_gt (inv_lt_top.mpr gx_pos).ne
         use n
         simp only [one_div]
         split_ifs with is_n_zero
@@ -3735,16 +3550,16 @@ instance finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEM
           apply le_of_lt
           refine lt_trans wn ?_
           nth_rw 1 [← add_zero (n : ℝ≥0∞)]
-          refine (ENNReal.add_lt_add_iff_left coe_ne_top).mpr zero_lt_one
+          exact (ENNReal.add_lt_add_iff_left coe_ne_top).mpr zero_lt_one
 
-instance support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasurable g μ)
+lemma support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasurable g μ)
     (hg_int : ∫⁻ x, g x ∂μ < ⊤) :
     SigmaFinite (μ.restrict (Function.support g)) where
   out' := by
     apply nonempty_of_exists
     use (finite_spanning_sets_from_lintegrable hg hg_int)
 
-instance support_sigma_finite_from_Memℒp
+lemma support_sigma_finite_from_Memℒp
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     (hf : Memℒp f p μ) (hp : p ≠ ⊤) (hp' : p ≠ 0) :
     SigmaFinite (μ.restrict (Function.support f)) := by
@@ -3764,11 +3579,7 @@ instance support_sigma_finite_from_Memℒp
   rw [← this]
   apply support_sigma_finite_of_lintegrable
   · unfold_let g
-    apply AEMeasurable.pow_const
-    refine AEMeasurable.coe_nnreal_ennreal ?hg.hf.hf
-    refine AEMeasurable.nnnorm ?hg.hf.hf.hf
-    apply AEStronglyMeasurable.aemeasurable
-    exact hf.1
+    exact (hf.1.aemeasurable.nnnorm.coe_nnreal_ennreal).pow_const _
   · unfold_let g
     have obs := hf.2
     unfold eLpNorm eLpNorm' at obs
@@ -3776,13 +3587,12 @@ instance support_sigma_finite_from_Memℒp
     · contradiction
     · exact lintegral_rpow_nnnorm_lt_top_of_eLpNorm'_lt_top (toReal_pos hp' hp) obs
 
-instance support_sfinite_from_Memℒp
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (hf : Memℒp f p μ)
-    (hp : p ≠ ⊤) (hp' : p ≠ 0) :
-    SFinite (μ.restrict (Function.support f)) := by
-  have : SigmaFinite (μ.restrict (Function.support f)) := by
-    apply support_sigma_finite_from_Memℒp hf hp hp'
-  apply instSFiniteOfSigmaFinite
+-- lemma support_sfinite_from_Memℒp
+--     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (hf : Memℒp f p μ)
+--     (hp : p ≠ ⊤) (hp' : p ≠ 0) :
+--     SFinite (μ.restrict (Function.support f)) := by
+--   have : SigmaFinite (μ.restrict (Function.support f)) := support_sigma_finite_from_Memℒp hf hp hp'
+--   exact instSFiniteOfSigmaFinite
 
 lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
   [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -3790,20 +3600,20 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
   {spf : ScaledPowerFunction}
   (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
   (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
-  (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-  (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
+  (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+  (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
   (hf : Memℒp f p μ) (hT : Subadditive_trunc T A f ν)
   (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
   (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
   (hspf : spf = spf_ch ht hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
-      (lt_of_lt_of_le hp₁.1 hp₁.2) (ne_of_lt hp₀p₁) hC₀ hC₁ hF)
+      (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF)
   (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
   (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
   (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ)) :
     ∫⁻ x , ‖T f x‖₊ ^ q.toReal ∂ν ≤
     ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) *
-    ((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹) *
+    ((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹) *
     C₀ ^ ((1 - t) * q.toReal) * C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal := by
   have one_le_p₀ := hp₀.1
   have one_le_p1 := hp₁.1
@@ -3811,30 +3621,24 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
   have q₀pos : q₀ > 0 := lt_of_lt_of_le hp₀.1 hp₀.2
   have p₁pos : p₁ > 0 := hp₁.1
   have q₁pos : q₁ > 0 := lt_of_lt_of_le hp₁.1 hp₁.2
-  have p_pos : p > 0 := by exact interpolated_pos' one_le_p₀ one_le_p1 hp
-  have : SigmaFinite (μ.restrict (Function.support f)) := by
-    apply support_sigma_finite_from_Memℒp (p := p) hf
-    · exact interp_exp_ne_top (ne_of_lt hp₀p₁) ht hp
-    · exact p_pos.ne.symm
+  have p_pos : p > 0 := interpolated_pos' one_le_p₀ one_le_p1 hp
+  have : SigmaFinite (μ.restrict (Function.support f)) :=
+    support_sigma_finite_from_Memℒp hf (interp_exp_ne_top hp₀p₁.ne ht hp) p_pos.ne'
   let tc := spf_to_tc spf
-  have := spf.hd
   calc
   ∫⁻ x , ‖T f x‖₊ ^ q.toReal ∂ν
     ≤ ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) * ∫⁻ s in Ioi (0 : ℝ),
       distribution (T (trunc f (tc.ton s))) (ENNReal.ofReal s) ν *
       ENNReal.ofReal (s^(q.toReal - 1)) +
       distribution (T (f - trunc f (tc.ton s))) (ENNReal.ofReal s) ν *
-      ENNReal.ofReal (s^(q.toReal - 1)) := by
-    apply estimate_norm_rpow_range_operator
-    · exact interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq
-    · exact hA
-    · exact hT
-    · exact AEStronglyMeasurable.aemeasurable (h₂T hf)
+      ENNReal.ofReal (s^(q.toReal - 1)) :=
+    estimate_norm_rpow_range_operator
+      (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT (h₂T hf).aemeasurable
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
-      ((if (q₁ < ⊤) then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
+      ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
-      (if (q₀ < ⊤) then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
+      (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (f - trunc f (tc.ton s)) p₀ μ ^ q₀.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1)))) := by
     gcongr
@@ -3844,9 +3648,9 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
     · intro q₀top s (hs : s > 0)
       apply weaktype_estimate_trunc_compl_top (d := spf.d) hC₀ hp₀.1 q₀top _ _ hf h₀T hs _
       · rw [hspf]
-        exact d_eq_top₀ one_le_p₀ q₁pos (LT.lt.ne_top hp₀p₁) q₀top hq₀q₁
+        exact d_eq_top₀ one_le_p₀ q₁pos hp₀p₁.ne_top q₀top hq₀q₁
       · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).1
-      · refine interp_exp_ne_top (ne_of_lt hp₀p₁) ht hp
+      · exact interp_exp_ne_top hp₀p₁.ne ht hp
       · unfold_let tc
         unfold spf_to_tc
         dsimp only
@@ -3854,8 +3658,8 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
         rw [hspf]
         unfold spf_ch
         dsimp only
-        refine ζ_equality₇ ht one_le_p₀ q₀pos one_le_p1 q₁pos (ne_of_lt hp₀p₁) hq₀q₁ hp hq ?_ q₀top
-        exact LT.lt.ne_top hp₀p₁
+        exact ζ_equality₇ ht one_le_p₀ q₀pos one_le_p1 q₁pos hp₀p₁.ne hq₀q₁ hp hq hp₀p₁.ne_top q₀top
+
     · intro q₁top s (hs : s > 0)
       rcases (eq_or_ne p₁ ⊤) with p₁eq_top | p₁ne_top
       · apply weaktype_estimate_trunc_top_top hC₁ _ p₁eq_top q₁top _ hf h₁T hs
@@ -3867,7 +3671,7 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
           dsimp only
           rw [d_eq_top_top] <;> try assumption
           rw [ζ_eq_top_top, Real.rpow_one] <;> try assumption
-          exact (ne_of_lt hp₀p₁)
+          exact hp₀p₁.ne
         · exact p_pos
         · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
       · apply weaktype_estimate_trunc_top (p₁ := p₁) (p := p) (d := spf.d) hC₁ <;> try assumption
@@ -3876,20 +3680,20 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
           unfold spf_to_tc spf_ch
           dsimp only
           congr
-          apply ζ_equality₈ ht (hp₀p₁ := ne_of_lt hp₀p₁) <;> assumption
+          apply ζ_equality₈ ht (hp₀p₁ := hp₀p₁.ne) <;> assumption
         · unfold_let tc
           rw [hspf]
           unfold spf_ch
           dsimp only
           apply d_eq_top₁ <;> assumption
-        · exact Ne.lt_top p₁ne_top
+        · exact p₁ne_top.lt_top
         · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
-      ((if (q₁ < ⊤) then 1 else 0) * (C₁ ^ q₁.toReal *
+      ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal *
       (ENNReal.ofReal (spf.d ^ (q.toReal - q₁.toReal)) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ *
         ((eLpNorm f p μ) ^ p.toReal) ^ ((sel ⊤ p₀ p₁).toReal ⁻¹ * (sel ⊤ q₀ q₁).toReal)))
         +
-      (if (q₀ < ⊤) then 1 else 0) * (C₀ ^ q₀.toReal *
+      (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal *
       (ENNReal.ofReal (spf.d ^ (q.toReal - q₀.toReal)) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ *
         (((eLpNorm f p μ) ^ p.toReal) ^ ((sel ⊥ p₀ p₁).toReal ⁻¹ * (sel ⊥ q₀ q₁).toReal))))) := by
       apply mul_le_mul_left'
@@ -3899,8 +3703,8 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
           apply estimate_trnc₁ (j := ⊤) ht <;> try assumption
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
-          · exact LT.lt.ne_top is_q₁top
-          · exact AEStronglyMeasurable.aemeasurable hf.1
+          · exact is_q₁top.ne_top
+          · exact hf.1.aemeasurable
           · rw [hspf]; rfl
         · simp
       · split_ifs with is_q₀top
@@ -3908,8 +3712,8 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
           apply estimate_trnc₁ (j := ⊥) ht <;> try assumption
           · exact hp₀.2
           · exact ne_top_of_Ioc hp₀ is_q₀top
-          · exact LT.lt.ne_top is_q₀top
-          · exact AEStronglyMeasurable.aemeasurable hf.1
+          · exact is_q₀top.ne_top
+          · exact hf.1.aemeasurable
           · rw [hspf]; rfl
         · simp
   _ = (if q₁ < ⊤ then 1 else 0) *
@@ -3938,13 +3742,13 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
       congr 3
       · apply simplify_factor₁ _ hp₀ <;> try assumption
         · rw [hspf]; rfl
-        · exact LT.lt.ne_top is_q₁top
+        · exact is_q₁top.ne_top
       · simp
     · split_ifs with is_q₀top
       congr 3
       · apply simplify_factor₀ _ hp₀ hp₁ <;> try assumption
         · rw [hspf]; rfl
-        · exact LT.lt.ne_top is_q₀top
+        · exact is_q₀top.ne_top
       · simp
   _ = _ := by ring_nf
 
@@ -3953,8 +3757,8 @@ lemma combine_estimates₁ {A : ℝ} [MeasurableSpace E₁] [NormedAddCommGroup 
     {spf : ScaledPowerFunction}
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
     (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
     (hf : Memℒp f p μ) (hT : Subadditive_trunc T A f ν)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
@@ -3962,83 +3766,70 @@ lemma combine_estimates₁ {A : ℝ} [MeasurableSpace E₁] [NormedAddCommGroup 
     (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hspf : spf = spf_ch ht hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
-        (lt_of_lt_of_le hp₁.1 hp₁.2) (ne_of_lt hp₀p₁) hC₀ hC₁ hF) :
+        (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF) :
     eLpNorm (T f) q ν ≤
     ENNReal.ofReal (2 * A) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t * eLpNorm f p μ := by
-  have q_ne_zero : q ≠ 0 := (interpolated_pos' (lt_of_lt_of_le hp₀.1 hp₀.2) (lt_of_lt_of_le hp₁.1 hp₁.2) hq).ne.symm
+  have q_ne_zero : q ≠ 0 := (interpolated_pos' (lt_of_lt_of_le hp₀.1 hp₀.2) (lt_of_lt_of_le hp₁.1 hp₁.2) hq).ne'
   have q_ne_top : q ≠ ⊤ := interp_exp_ne_top hq₀q₁ ht hq
   have q'pos : q.toReal > 0 := toReal_pos q_ne_zero q_ne_top
   refine le_of_rpow_le q'pos ?_
   calc
   _ = ∫⁻ x , ‖T f x‖₊ ^ q.toReal ∂ν := by
     unfold eLpNorm eLpNorm'
-    split_ifs <;> [contradiction; rw [one_div, ENNReal.rpow_inv_rpow q'pos.ne.symm]]
+    split_ifs <;> [contradiction; rw [one_div, ENNReal.rpow_inv_rpow q'pos.ne']]
   _ ≤ _ := by
     apply combine_estimates₀ (hT := hT) (p := p) <;> try assumption
-
   _ = _ := by
-    repeat rw [ENNReal.mul_rpow_of_nonneg _ _ (le_of_lt q'pos)]
-    rw [ENNReal.ofReal_mul' (le_of_lt q'pos)]
+    repeat rw [ENNReal.mul_rpow_of_nonneg _ _ q'pos.le]
+    rw [ENNReal.ofReal_mul' q'pos.le]
     repeat rw [ENNReal.rpow_mul]
     congr
     · rw [ofReal_rpow_of_nonneg] <;> positivity
-    · rw [toReal_inv]
-      rw [ENNReal.rpow_inv_rpow]
-      · exact ofReal_toReal_eq_iff.mpr q_ne_top
-      · exact q'pos.ne.symm
-    · rw [toReal_inv]
-      rw [ENNReal.rpow_inv_rpow]
-      exact q'pos.ne.symm
+    · rw [toReal_inv, ENNReal.rpow_inv_rpow q'pos.ne']
+      exact ofReal_toReal_eq_iff.mpr q_ne_top
+    · rw [toReal_inv, ENNReal.rpow_inv_rpow q'pos.ne']
 
 lemma simplify_factor₃ [NormedAddCommGroup E₁] (hp₀ : p₀ > 0) (hp₀' : p₀ ≠ ⊤) (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹) (hp₀p₁ : p₀ = p₁) :
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) (hp₀p₁ : p₀ = p₁) :
     C₀ ^ q₀.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₀.toReal / p₀.toReal) =
     (↑C₀ * eLpNorm f p μ) ^ q₀.toReal := by
-  have hp' : p = p₀ := by exact Eq.symm (interp_exp_eq hp₀p₁ ht hp) -- TODO abstract
-  rw [hp']
-  rw [ENNReal.mul_rpow_of_nonneg, ← ENNReal.rpow_mul, ← mul_div_assoc, mul_div_cancel_left₀] <;>
-      try positivity
-  apply ne_of_gt
-  apply toReal_pos
-  · apply hp₀.ne.symm
-  · exact hp₀'
+  rw [← interp_exp_eq hp₀p₁ ht hp, ENNReal.mul_rpow_of_nonneg, ← ENNReal.rpow_mul, ← mul_div_assoc,
+    mul_div_cancel_left₀]
+  · exact (toReal_pos hp₀.ne' hp₀').ne'
+  positivity
 
 lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (ht : t ∈ Ioo 0 1)
-    (hp₀p₁ : p₀ = p₁) (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
+    (hp₀p₁ : p₀ = p₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     ↑C₀ ^ ((1 - t) * q.toReal) * (eLpNorm f p μ ^ p.toReal) ^ ((1 - t) * p₀⁻¹.toReal * q.toReal) *
       ↑C₁ ^ (t * q.toReal) *
     (eLpNorm f p μ ^ p.toReal) ^ (t * p₁⁻¹.toReal * q.toReal) = C₀ ^ ((1 - t) * q.toReal) *
     C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal := by
-  have hp' : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
-  have := (Ioo.one_sub_mem ht).1
-  have p₀pos : p₀ > 0 := hp₀.1
+  have hp' : p₀ = p := (interp_exp_eq hp₀p₁ ht hp)
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀' hp₀.2
-  have p₀toReal_pos : p₀.toReal > 0 := toReal_pos p₀pos.ne.symm (p₀ne_top)
-  rw [hp', ← hp₀p₁]
-  have : ∀ a b c d : ℝ≥0∞, a * b * c * d = a * c * (b * d) := by intro a b c d; ring
-  rw [this]
-  rw [← ENNReal.rpow_add]
+  have p₀toReal_pos : p₀.toReal > 0 := toReal_pos hp₀.1.ne' p₀ne_top
+  rw [← hp', ← hp₀p₁]
+  have (a b c d : ℝ≥0∞): a * b * c * d = a * c * (b * d) := by ring
+  rw [this, ← ENNReal.rpow_add]
   · rw [← ENNReal.rpow_mul]
     congr
     rw [toReal_inv]
     ring_nf
     field_simp
-  · rw [← hp']
-    apply ne_of_gt
-    exact d_pos_aux₀ hF
-  · rw [← hp']
-    refine d_ne_top_aux₀ hF
+  · rw [hp']
+    exact d_pos_aux₀ hF |>.ne'
+  · rw [hp']
+    exact d_ne_top_aux₀ hF
 
 lemma simplify_factor₄ {D : ℝ} [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
     (hp₀p₁ : p₀ = p₁)
-    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
+    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
     (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
@@ -4054,8 +3845,8 @@ lemma simplify_factor₅ {D : ℝ} [NormedAddCommGroup E₁] (hq₁' : q₁ ≠ 
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁)
     (ht : t ∈ Ioo 0 1)
     (hp₀p₁ : p₀ = p₁)
-    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹)
+    (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
     (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f) :
@@ -4071,30 +3862,28 @@ lemma simplify_factor₅ {D : ℝ} [NormedAddCommGroup E₁] (hq₁' : q₁ ≠ 
 /-- The trivial case for the estimate in the real interpolation theorem
     when the function `Lp` norm of `f` vanishes. -/
 lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
+    [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁)
     {C₀ : ℝ≥0}
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + (ENNReal.ofReal t) / p₁)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : Memℒp f p μ)
     (hF : eLpNorm f p μ = 0) :
     eLpNorm (T f) q ν = 0 := by
   unfold HasWeakType at h₀T
-  have p₀pos : p₀ > 0 := hp₀.1
-  have p₁pos : p₁ > 0 := hp₁.1
-  have p_pos : p > 0 := interpolated_pos' p₀pos p₁pos hp
+  have p_pos : p > 0 := interpolated_pos' hp₀.1 hp₁.1 hp
   have q₀pos : q₀ > 0 := pos_of_rb_Ioc hp₀
   have q₁pos : q₁ > 0 := pos_of_rb_Ioc hp₁
   have q_pos : q > 0 := interpolated_pos' q₀pos q₁pos hq
-  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff hf.1 p_pos.ne.symm).mp hF
-  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff hf.1 p₀pos.ne.symm).mpr f_ae_0
+  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff hf.1 hp₀.1.ne').mpr f_ae_0
   have hf₁ : Memℒp f p₀ μ := ⟨hf.1, by rw [hf₂]; exact zero_lt_top⟩
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
-  have : (T f) =ᵐ[ν] 0 := (wnorm_eq_zero_iff q₀pos.ne.symm).mp wnorm_0
-  exact (eLpNorm_eq_zero_iff (h₂T hf) q_pos.ne.symm).mpr this
+  have : (T f) =ᵐ[ν] 0 := (wnorm_eq_zero_iff q₀pos.ne').mp wnorm_0
+  exact (eLpNorm_eq_zero_iff (h₂T hf) q_pos.ne').mpr this
 
 /-- The estimate for the real interpolation theorem in case `p₀ < p₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ}
@@ -4102,35 +3891,33 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
     [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂] (hA : A > 0)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + (ENNReal.ofReal t) / p₁)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁)
     (hT : Subadditive_trunc T A f ν) (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : Memℒp f p μ) :
     eLpNorm (T f) q ν ≤
     ENNReal.ofReal (2 * A) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t * eLpNorm f p μ := by
   have hq₀ : q₀ > 0 := pos_of_rb_Ioc hp₀
   have hq₁ : q₁ > 0 := pos_of_rb_Ioc hp₁
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | hF
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
-  · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨hF, hf.2⟩
-    let spf := spf_ch ht hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ (ne_of_lt hp₀p₁) hC₀ hC₁ hF
+  · let spf := spf_ch ht hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
     apply combine_estimates₁ <;> try assumption
     unfold_let spf
     rfl
 
 -- TODO: the below lemmas were split because otherwise the lean server would crash
 -- (seems to be related to the linter?) (after the merge)
-lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [MeasurableSpace E₁]
-    [NormedAddCommGroup E₁] [BorelSpace E₁]
+lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [NormedAddCommGroup E₁]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ < q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + (ENNReal.ofReal t) / p₁)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁)
     (hF : eLpNorm f p μ ∈  Ioo 0 ⊤) :
     (ENNReal.ofReal q.toReal *
         ((C₀ * eLpNorm f p μ )^ q₀.toReal *
@@ -4144,18 +3931,17 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [Measurab
       ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * (if q₁ = ⊤ then 0 else 1)) ^ q.toReal⁻¹ *
     ↑C₀ ^ ((1 - t)) * ↑C₁ ^ t * eLpNorm f p μ := by
     let M := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f
-    have hq₀q₁' : q₀ ≠ q₁ := ne_of_lt hq₀q₁
+    have hq₀q₁' : q₀ ≠ q₁ := hq₀q₁.ne
     have q₀pos : q₀ > 0 := pos_of_rb_Ioc hp₀
     have q₁pos : q₁ > 0 := pos_of_rb_Ioc hp₁
-    have q₀ne_top : q₀ ≠ ⊤ := LT.lt.ne_top hq₀q₁
     have q₀lt_q_toReal : q₀.toReal < q.toReal :=
       preservation_inequality_of_lt₀ ht q₀pos q₁pos hq hq₀q₁
     have q_toReal_ne_zero : q.toReal ≠ 0 :=
-      (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl q₀ne_top)).ne.symm
+      (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
     have M_pos : M > 0 := by
       apply d_pos <;> try assumption
     have coe_q : ENNReal.ofReal q.toReal = q :=
-    ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁' ht hq)
+    ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     · have eq :
           (ENNReal.ofReal q.toReal *
           ((((↑C₀ * eLpNorm f p μ) ^ q₀.toReal * ∫⁻ (t : ℝ) in Ioo 0 M,
@@ -4173,8 +3959,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [Measurab
         congr 3
         · rw [lintegral_rpow_of_gt_abs, sub_add_cancel, ENNReal.ofReal_div_of_pos,
               div_eq_mul_inv, ← ofReal_inv_of_pos] <;> try positivity
-          rw [← mul_assoc]
-          rw [simplify_factor₄ (ht := ht) (hC₁ := hC₁) (hD := rfl) (hq₀' := LT.lt.ne_top hq₀q₁)]
+          rw [← mul_assoc, simplify_factor₄ (ht := ht) (hC₁ := hC₁) (hD := rfl) (hq₀' := hq₀q₁.ne_top)]
               <;> try assumption
           · rw [abs_of_pos] <;> linarith
           · rw [abs_of_pos] <;> linarith
@@ -4183,18 +3968,15 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [Measurab
           · rw [mul_zero, mul_zero]
           · have q_lt_q₁toReal : q.toReal < q₁.toReal :=
               preservation_inequality_of_lt₁ ht q₀pos q₁pos hq hq₀q₁ is_q₁top
-            rw [mul_one, mul_one]
-            rw [setLIntegral_congr (Filter.EventuallyEq.symm Ioi_ae_eq_Ici),
+            rw [mul_one, mul_one, setLIntegral_congr (Filter.EventuallyEq.symm Ioi_ae_eq_Ici),
             lintegral_Ioi_rpow_of_lt_abs, sub_add_cancel, ENNReal.ofReal_div_of_pos,
               div_eq_mul_inv, ← ofReal_inv_of_pos] <;> try positivity
-            rw [← mul_assoc]
-            rw [simplify_factor₅ (hC₀ := hC₀) (ht := ht) (q₀ := q₀) (q₁ := q₁) (p₀ := p₀)
+            rw [← mul_assoc, simplify_factor₅ (hC₀ := hC₀) (ht := ht) (q₀ := q₀) (q₁ := q₁) (p₀ := p₀)
                 (p₁ := p₁) (hD := rfl)] <;> try assumption
             · rw [abs_of_neg] <;> linarith
             · rw [abs_of_neg] <;> linarith
             · linarith
-      rw [eq]
-      rw [coe_q]
+      rw [eq, coe_q]
       nth_rw 1 [mul_assoc]
       nth_rw 3 [mul_assoc]
       rw [← mul_add]
@@ -4207,13 +3989,12 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [Measurab
 
 /-- The main estimate in the real interpolation theorem for `p₀ = p₁`, before taking roots,
     for the case `q₀ < q₁`. -/
-lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [MeasurableSpace E₁]
-    [NormedAddCommGroup E₁]
-    [BorelSpace E₁] [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
+lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
+    [NormedAddCommGroup E₁] [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ < q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + (ENNReal.ofReal t) / p₁)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p)
     (hf : Memℒp f p μ) :
@@ -4222,27 +4003,23 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
       ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * (if q₁ = ⊤ then 0 else 1)) ^ q.toReal⁻¹ *
     ↑C₀ ^ ((1 - t)) * ↑C₁ ^ t * eLpNorm f p μ := by
   let M := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ f
-  have hq₀q₁' : q₀ ≠ q₁ := ne_of_lt hq₀q₁
-  have p₀pos : p₀ > 0 := hp₀.1
-  have p₁pos : p₁ > 0 := hp₁.1
   have q₀pos : q₀ > 0 := pos_of_rb_Ioc hp₀
   have q₁pos : q₁ > 0 := pos_of_rb_Ioc hp₁
-  have q₀ne_top : q₀ ≠ ⊤ := LT.lt.ne_top hq₀q₁
-  have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top q₀ne_top hp₀.2
+  have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀q₁.ne_top hp₀.2
   have q_toReal_ne_zero : q.toReal ≠ 0 :=
-    (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl q₀ne_top)).ne.symm
+    (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
   have p_eq_p₀ : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨snorm_pos, hf.2⟩
     have M_pos : M > 0 := by
-      apply d_pos <;> try assumption
+      apply d_pos <;> assumption
     have coe_q : ENNReal.ofReal q.toReal = q :=
-    ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁' ht hq)
+    ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     nth_rw 1 [← coe_q]
-    rw [eLpNorm_eq_distribution (AEStronglyMeasurable.aemeasurable (h₂T hf))
-        (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁' hq)]
+    rw [eLpNorm_eq_distribution (h₂T hf).aemeasurable
+        (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁.ne hq)]
     calc
     (ENNReal.ofReal q.toReal *
     ∫⁻ (t : ℝ) in Ioi 0, distribution (T f) (ENNReal.ofReal t) ν *
@@ -4269,13 +4046,13 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
       apply mul_le_mul_left'
       apply add_le_add
       · split_ifs with is_q₀top
-        · contrapose! is_q₀top; exact LT.lt.ne_top hq₀q₁
+        · contrapose! is_q₀top; exact hq₀q₁.ne_top
         · rw [mul_one]
           apply setLIntegral_mono' measurableSet_Ioo
           intro t ⟨(ht₁ : t > 0), _⟩
           gcongr
           apply weaktype_estimate <;> try assumption
-          · exact Ne.lt_top (LT.lt.ne_top hq₀q₁)
+          · exact (hq₀q₁.ne_top).lt_top
           · rw [p_eq_p₀]; exact h₀T
       · split_ifs with is_q₁_top
         · simp only [mul_zero, nonpos_iff_eq_zero]
@@ -4286,17 +4063,17 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
             rw [weaktype_estimate_top] <;> try assumption
             · simp
             · rw [p_eq_p₀, hp₀p₁]; exact h₁T
-            · unfold_let M at ht
+            · have p₀pos : p₀ > 0 := hp₀.1
+              have p₁pos : p₁ > 0 := hp₁.1
+              have q₀ne_top : q₀ ≠ ⊤ := hq₀q₁.ne_top
+              unfold_let M at ht
               rw [d_eq_top_of_eq] at ht <;> try assumption
               have : ENNReal.ofReal (C₁ * eLpNorm f p μ).toReal = C₁ * eLpNorm f p μ := by
                 refine ofReal_toReal_eq_iff.mpr ?_
-                refine mul_ne_top ?_ ?_
-                · exact coe_ne_top
-                · exact (ne_of_lt hF.2)
+                exact mul_ne_top coe_ne_top hF.2.ne
               rw [← this]
               exact ofReal_le_ofReal ht
-          rw [setLIntegral_congr_fun measurableSet_Ici hf_0]
-          rw [lintegral_zero]
+          rw [setLIntegral_congr_fun measurableSet_Ici hf_0, lintegral_zero]
         · rw [mul_one]
           apply setLIntegral_mono' measurableSet_Ici
           intro t (ht : t ≥ M)
@@ -4319,8 +4096,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
           apply ae_of_all
           intro t ⟨(ht₁ : t > 0), _⟩
           rw [ENNReal.mul_rpow_of_nonneg] <;> try positivity
-          rw [mul_assoc]
-          rw [← ofReal_mul] <;> try positivity
+          rw [mul_assoc, ← ofReal_mul] <;> try positivity
           congr
           rw [← Real.rpow_add ht₁]
           congr 1; linarith
@@ -4332,8 +4108,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
           intro t (ht : t ≥ M)
           have t_pos : t > 0 := lt_of_lt_of_le M_pos ht
           rw [ENNReal.mul_rpow_of_nonneg] <;> try positivity
-          rw [mul_assoc]
-          rw [← ofReal_mul] <;> try positivity
+          rw [mul_assoc, ← ofReal_mul] <;> try positivity
           congr
           rw [← Real.rpow_add] <;> try positivity
           congr 1; linarith
@@ -4345,12 +4120,11 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁} [Measurab
 /-- The main estimate for the real interpolation theorem for `p₀ = p₁`, requiring
     `q₀ ≠ q₁`, before taking roots. -/
 lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
-    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] [MeasurableSpace E₂]
-    [NormedAddCommGroup E₂] [BorelSpace E₂]
+    [NormedAddCommGroup E₁] [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + (ENNReal.ofReal t) / p₁)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p)
     (hf : Memℒp f p μ) :
@@ -4360,17 +4134,13 @@ lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q :
     ↑C₀ ^ ((1 - t)) * ↑C₁ ^ t * eLpNorm f p μ := by
   rcases lt_or_gt_of_ne hq₀q₁ with q₀lt_q₁ | q₁lt_q₀
   · apply exists_hasStrongType_real_interpolation_aux₂ <;> assumption
-  · have : forall a b c d: ℝ≥0∞, a * b * c * d = a * c * b * d := by
-        intro a b c d; ring
+  · have (a b c d : ℝ≥0∞) : a * b * c * d = a * c * b * d := by ring
     rw [this, add_comm]
     have hp' := switch_exponents ht hp
     have hq' := switch_exponents ht hq
-    let s := 1 - t
-    have : t = 1 - s := Eq.symm (sub_sub_self 1 t)
-    nth_rw 1 [this]
-    unfold_let s
+    nth_rw 1 [← sub_sub_self 1 t]
     apply exists_hasStrongType_real_interpolation_aux₂
-        (ht := Ioo.one_sub_mem ht) (hp₀p₁ := Eq.symm hp₀p₁) (hq₀q₁ := q₁lt_q₀) <;> try assumption
+      (ht := Ioo.one_sub_mem ht) (hp₀p₁ := hp₀p₁.symm) (hq₀q₁ := q₁lt_q₀) <;> try assumption
 
 /-- The main estimate for the real interpolation theorem, before taking roots, combining
     the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
@@ -4379,22 +4149,22 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
     [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂] (hA : A > 0)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + (ENNReal.ofReal t) / p₁)
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁)
     (hT : Subadditive_trunc T A f ν) (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₂T : PreservesAEStrongMeasurability (μ := μ) (ν := ν) T p) (hf : Memℒp f p μ) :
     eLpNorm (T f) q ν ≤
     (if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t * eLpNorm f p μ := by
   let M := if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)
   have hM : M = if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A) := rfl
   rw [← hM]
   split_ifs at hM with are_ps_eq
   · rw [hM, one_mul]
-    have p_eq_p₀ : p = p₀ := Eq.symm (interp_exp_eq are_ps_eq ht hp)
+    have p_eq_p₀ : p = p₀ := (interp_exp_eq are_ps_eq ht hp).symm
     calc
     _ ≤ q ^ q.toReal⁻¹ * (ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ * (if q₀ = ⊤ then 0 else 1) +
         ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * (if q₁ = ⊤ then 0 else 1)) ^ q.toReal⁻¹ *
@@ -4416,35 +4186,27 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
   · rcases (lt_or_gt_of_ne are_ps_eq) with p₀lt_p₁ | p₁lt_p₀
     · rw [hM]
       apply exists_hasStrongType_real_interpolation_aux <;> try assumption
-    · rw [hM]
-      have : forall a b c d e f : ℝ≥0∞, a * b * c * d * e * f = a * b * c * e * d * f := by
-          intro a b c d e f; ring
-      rw [this, add_comm]
+    · have (a b c d e f : ℝ≥0∞) : a * b * c * d * e * f = a * b * c * e * d * f := by ring
+      rw [hM, this, add_comm]
       have hp' := switch_exponents ht hp
       have hq' := switch_exponents ht hq
-      let s := 1 - t
-      have : t = 1 - s := Eq.symm (sub_sub_self 1 t)
-      nth_rw 1 [this]
-      unfold_let s
+      nth_rw 1 [← sub_sub_self 1 t]
       apply exists_hasStrongType_real_interpolation_aux
-          (ht := Ioo.one_sub_mem ht) (hq₀q₁ := Ne.symm hq₀q₁) <;> assumption
+        (ht := Ioo.one_sub_mem ht) (hq₀q₁ := hq₀q₁.symm) <;> assumption
 
 /-- The definition of the constant in the real interpolation theorem, when viewed as
     an element of `ℝ≥0∞`. -/
 def C_realInterpolation_ENNReal (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁: ℝ≥0) (A : ℝ≥0) (t : ℝ) :=
     (if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)) * q ^ q⁻¹.toReal *
-    (((if (q₁ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
-    (if (q₀ < ⊤) then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
     C₀ ^ (1 - t) * C₁ ^ t
 
-lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
+lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0}
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁) :
     C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t ≠ ⊤ := by
-  have p₀pos : p₀ > 0 := hp₀.1
-  have p₁pos : p₁ > 0 := hp₁.1
   have q₀pos : q₀ > 0 := pos_of_rb_Ioc hp₀
   have q₁pos : q₁ > 0 := pos_of_rb_Ioc hp₁
   unfold C_realInterpolation_ENNReal
@@ -4453,11 +4215,10 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} 
     · apply mul_ne_top
       · apply mul_ne_top
         · split_ifs
-          · exact Ne.symm top_ne_one
+          · exact top_ne_one.symm
           · exact coe_ne_top
         · apply rpow_ne_top'
-          · apply ne_of_gt
-            exact interpolated_pos' q₀pos q₁pos hq
+          · exact interpolated_pos' q₀pos q₁pos hq |>.ne'
           · exact interp_exp_ne_top hq₀q₁ ht hq
       · apply rpow_ne_top'
         · split_ifs
@@ -4467,33 +4228,22 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} 
             · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
             · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
           · rw [one_mul, zero_mul, add_zero]
-            apply ne_of_gt
-            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
+            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
           · rw [zero_mul, one_mul, zero_add]
-            apply ne_of_gt
-            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
+            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
           · have q₀top : q₀ = ⊤ := not_lt_top.mp (by assumption)
             have q₁top : q₁ = ⊤ := not_lt_top.mp (by assumption)
             rw [q₀top, q₁top] at hq₀q₁
             simp only [ne_eq, not_true_eq_false] at hq₀q₁
-        · split_ifs <;> exact Ne.symm (ne_of_beq_false rfl)
-    · apply rpow_ne_top'
-      · apply ne_of_gt
-        exact ENNReal.coe_pos.mpr hC₀
-      · exact coe_ne_top
-  · apply rpow_ne_top'
-    · apply ne_of_gt
-      exact ENNReal.coe_pos.mpr hC₁
-    · exact coe_ne_top
+        · split_ifs <;> exact (ne_of_beq_false rfl).symm
+    · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₀).ne' coe_ne_top
+  · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₁).ne' coe_ne_top
 
-lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0} (hA : A > 0)
+lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0} (hA : A > 0)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁) :
     C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t > 0 := by
-  have p₀pos : p₀ > 0 := hp₀.1
-  have p₁pos : p₁ > 0 := hp₁.1
   have q₀pos : q₀ > 0 := pos_of_rb_Ioc hp₀
   have q₁pos : q₁ > 0 := pos_of_rb_Ioc hp₁
   unfold C_realInterpolation_ENNReal
@@ -4504,12 +4254,7 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A 
         · split_ifs
           · exact one_ne_zero
           · rw [← ofReal_zero]
-            apply ne_of_gt
-            refine (ofReal_lt_ofReal_iff_of_nonneg ?_).mpr ?_
-            · rfl
-            · apply _root_.mul_pos
-              · exact zero_lt_two
-              · exact hA
+            exact ((ofReal_lt_ofReal_iff_of_nonneg le_rfl).mpr (_root_.mul_pos zero_lt_two hA)).ne'
         · apply ne_of_gt
           apply ENNReal.rpow_pos
           · exact interpolated_pos' q₀pos q₁pos hq
@@ -4530,47 +4275,37 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A 
             rw [q₀top, q₁top] at hq₀q₁
             simp only [ne_eq, not_true_eq_false] at hq₀q₁
         · refine add_ne_top.mpr ⟨?_, ?_⟩
-          · apply mul_ne_top
-            · split_ifs
-              · exact Ne.symm top_ne_one
-              · exact Ne.symm top_ne_zero
-            · exact coe_ne_top
-          · apply mul_ne_top
-            · split_ifs
-              · exact Ne.symm top_ne_one
-              · exact Ne.symm top_ne_zero
-            · exact coe_ne_top
-    · apply ne_of_gt
-      apply ENNReal.rpow_pos
-      · exact ENNReal.coe_pos.mpr hC₀
-      · exact coe_ne_top
-  · apply ne_of_gt
-    apply ENNReal.rpow_pos
-    · exact ENNReal.coe_pos.mpr hC₁
-    · exact coe_ne_top
+          · apply mul_ne_top ?_ coe_ne_top
+            split_ifs
+            · exact top_ne_one.symm
+            · exact top_ne_zero.symm
+          · apply mul_ne_top ?_ coe_ne_top
+            split_ifs
+            · exact top_ne_one.symm
+            · exact top_ne_zero.symm
+    · exact (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC₀) coe_ne_top).ne'
+  · exact (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC₁) coe_ne_top).ne'
 
 /-- The constant occurring in the real interpolation theorem. -/
 -- todo: check order of arguments
 def C_realInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ) : ℝ≥0 :=
-    ENNReal.toNNReal (C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t)
+    C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t |>.toNNReal
 
-lemma C_realInterpolation_pos {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0} (hA : A > 0)
+lemma C_realInterpolation_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0} (hA : A > 0)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁) :
     0 < C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t := by
   unfold C_realInterpolation
   refine toNNReal_pos ?_ ?_
   · apply ne_of_gt
-    apply C_realInterpolation_ENNReal_pos <;> try assumption
+    apply C_realInterpolation_ENNReal_pos <;> assumption
   · apply C_realInterpolation_ENNReal_ne_top (A := A) <;> assumption
 
-lemma coe_C_realInterpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
+lemma coe_C_realInterpolation {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0}
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + (ENNReal.ofReal t) / p₁)
-    (hq : q⁻¹ = (1 - (ENNReal.ofReal t)) / q₀ + (ENNReal.ofReal t) / q₁) :
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁) :
   ENNReal.ofNNReal (C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) =
      C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t := by
   unfold C_realInterpolation
@@ -4582,7 +4317,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     [NormedAddCommGroup E₂]
     (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
     {A : ℝ≥0} (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - (ENNReal.ofReal t)) / p₀ + ENNReal.ofReal t / p₁)
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + ENNReal.ofReal t / p₁)
     (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A)
     (hf : Memℒp f p μ) :
     Subadditive_trunc T A f ν := by
@@ -4593,36 +4328,27 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
     · right
       apply trunc_Lp_Lq_higher (p := p) _ hf
-      refine ⟨?_, ?_⟩
-      · exact interpolated_pos' hp₀ hp₁ hp
-      · exact (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).2
+      exact ⟨interpolated_pos' hp₀ hp₁ hp, (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).2⟩
     · left
-      have : p₀ = p := by exact interp_exp_eq p₀eq_p₁ ht hp
-      rw [this]
+      rw [interp_exp_eq p₀eq_p₁ ht hp]
       exact trunc_preserves_Lp hf
     · left
       apply trunc_Lp_Lq_higher (p := p) _ hf
-      constructor
-      · exact interpolated_pos' hp₀ hp₁ hp
-      · exact (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2
+      exact ⟨interpolated_pos' hp₀ hp₁ hp,
+        (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2⟩
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
     · left
       apply trunc_compl_Lp_Lq_lower (p := p) _ _ a_pos hf
-      · exact interp_exp_ne_top (ne_of_lt p₀lt_p₁) ht hp
-      · constructor
-        · exact hp₀
-        · exact (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1
+      · exact interp_exp_ne_top p₀lt_p₁.ne ht hp
+      · exact ⟨hp₀, (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩
     · left
-      have : p₀ = p := by exact interp_exp_eq p₀eq_p₁ ht hp
-      rw [this]
+      rw [interp_exp_eq p₀eq_p₁ ht hp]
       exact trunc_compl_preserves_Lp hf
     · right
       apply trunc_compl_Lp_Lq_lower (p := p) _ _ a_pos hf
-      · exact interp_exp_ne_top (ne_of_lt p₁lt_p₀) (Ioo.one_sub_mem ht) (switch_exponents ht hp)
-      · constructor
-        · exact hp₁
-        · exact (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht)
-              (switch_exponents ht hp)).1
+      · exact interp_exp_ne_top p₁lt_p₀.ne (Ioo.one_sub_mem ht) (switch_exponents ht hp)
+      · exact ⟨hp₁,
+          (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).1⟩
 
 /-- Marcinkiewicz real interpolation theorem. -/
 theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
@@ -4635,17 +4361,16 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
     (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁) :
     HasStrongType T p q μ ν (C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) := by
-  intro f
-  intro hf
+  intro f hf
   refine ⟨hmT f hf, ?_⟩
-  have hp' : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + (ENNReal.ofReal t) * p₁⁻¹ := by
-    rw [hp]; congr <;> exact Eq.symm Real.toNNReal_coe
-  have hq' : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + (ENNReal.ofReal t) * q₁⁻¹ := by
-    rw [hq]; congr <;> exact Eq.symm Real.toNNReal_coe
+  have hp' : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹ := by
+    rw [hp]; congr <;> exact Real.toNNReal_coe.symm
+  have hq' : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹ := by
+    rw [hq]; congr <;> exact Real.toNNReal_coe.symm
   have obs : Subadditive_trunc T A f ν :=
     Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ hp₀.1 hp₁.1 ht hp' hT hf
   rw [coe_C_realInterpolation hp₀ hp₁ hq₀q₁] <;> try assumption
-  apply exists_hasStrongType_real_interpolation_aux₄ <;> try assumption
+  apply exists_hasStrongType_real_interpolation_aux₄ <;> assumption
 
 /- State and prove Remark 1.2.7 -/
 
