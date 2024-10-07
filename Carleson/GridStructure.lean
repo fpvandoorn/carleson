@@ -81,9 +81,17 @@ lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : S
   · have := le_or_disjoint h; tauto
   · have := le_or_disjoint h.le; tauto
 
+lemma le_or_ge_of_mem_of_mem {c : X} (mi : c ∈ i) (mj : c ∈ j) : i ≤ j ∨ j ≤ i :=
+  (or_assoc.mpr le_or_ge_or_disjoint).resolve_right (not_disjoint_iff.mpr ⟨c, mi, mj⟩)
+
+lemma le_of_mem_of_mem (h : s i ≤ s j) {c : X} (mi : c ∈ i) (mj : c ∈ j) : i ≤ j :=
+  ⟨(fundamental_dyadic h).resolve_right (not_disjoint_iff.mpr ⟨c, mi, mj⟩), h⟩
+
 lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set X) :=
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
+
+lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
 
 lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
   measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
@@ -98,7 +106,7 @@ namespace Grid
 protected lemma inj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
 
 lemma le_topCube : i ≤ topCube :=
-  ⟨subset_topCube, (range_s_subset ⟨i, rfl⟩).2.trans_eq s_topCube.symm⟩
+  ⟨subset_topCube, scale_mem_Icc.2.trans_eq s_topCube.symm⟩
 
 lemma isTop_topCube : IsTop (topCube : Grid X) := fun _ ↦ le_topCube
 
@@ -114,7 +122,7 @@ postfix:max "ᵒ" => Grid.int
 /-- An auxiliary measure used in the well-foundedness of `Ω` in Lemma `tile_structure`. -/
 def opSize (i : Grid X) : ℕ := (S - s i).toNat
 
-lemma int_subset : i.int ⊆ i := by exact ball_subset_Grid
+lemma int_subset : i.int ⊆ i := ball_subset_Grid
 
 end Grid
 end Generic
@@ -138,9 +146,6 @@ lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
   exact mem_of_mem_of_subset (Metric.mem_ball_self (by positivity)) ball_subset_Grid
 
 lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
-
-lemma le_of_mem_of_mem {i j : Grid X} (h : s i ≤ s j) {c : X} (mi : c ∈ i) (mj : c ∈ j) : i ≤ j :=
-  ⟨(fundamental_dyadic h).resolve_right (not_disjoint_iff.mpr ⟨c, mi, mj⟩), h⟩
 
 lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j) : i ≤ j := by
   obtain ⟨c, mc⟩ := k.nonempty
@@ -201,11 +206,19 @@ lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
   · simp only [k, succ, dite_true]; exact h.le
   · exact (succ_spec k).2 j h
 
+lemma exists_containing_subcube (l : ℤ) (h : l ∈ Icc (-S : ℤ) (s i)) {x : X} (mx : x ∈ i) :
+    ∃ j, s j = l ∧ x ∈ j := by
+  obtain ⟨lb, ub⟩ := h
+  rcases ub.eq_or_lt with ub | ub; · exact ⟨i, ub.symm, mx⟩
+  have := Grid_subset_biUnion l ⟨lb, ub⟩ mx
+  simp_rw [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] at this
+  exact this
+
 lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
   obtain ⟨lb, ub⟩ := h
   rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
-  have bound_i : -S ≤ s i ∧ s i ≤ S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
+  have bound_i : -S ≤ s i ∧ s i ≤ S := scale_mem_Icc
   have ts := Grid_subset_biUnion (X := X) (i := topCube) l (by rw [s_topCube, mem_Ico]; omega)
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
@@ -214,7 +227,7 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
 
 lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
     ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
-  have bound_q : -S ≤ s j ∧ s j ≤ S := mem_Icc.mp (range_s_subset ⟨j, rfl⟩)
+  have bound_q : -S ≤ s j ∧ s j ≤ S := scale_mem_Icc
   rw [mem_Icc] at hl
   obtain ⟨K, sK, lbK⟩ := exists_supercube l (by change s i ≤ _ ∧ _; omega)
   use K, sK, lbK
@@ -231,7 +244,7 @@ lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
 
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   simp only [opSize, Int.lt_toNat]
-  have : s i.succ ≤ S := (mem_Icc.mp (range_s_subset ⟨i.succ, rfl⟩)).2
+  have : s i.succ ≤ S := (mem_Icc.mp scale_mem_Icc).2
   replace : 0 ≤ S - s i.succ := by omega
   rw [Int.toNat_of_nonneg this, scale_succ h]
   omega
@@ -257,14 +270,9 @@ lemma succ_def (h : ¬IsMax i) : i.succ = j ↔ i ≤ j ∧ s j = s i + 1 := by
 open Classical in
 def maxCubes (s : Finset (Grid X)) : Finset (Grid X) := s.filter fun i ↦ ∀ j ∈ s, i ≤ j → i = j
 
-lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) :
-    ∃ j ∈ maxCubes s, i ≤ j := by
-  classical let C : Finset (Grid X) := s.filter (i ≤ ·)
-  have Cn : C.Nonempty := ⟨i, by simp only [C, Finset.mem_filter, hi, le_rfl, true_and]⟩
-  obtain ⟨j, hj, maxj⟩ := C.exists_maximal Cn
-  simp_rw [C, maxCubes, Finset.mem_filter] at hj maxj ⊢
-  refine ⟨j, ?_, hj.2⟩
-  exact ⟨hj.1, fun k hk lk ↦ eq_of_le_of_not_lt lk (maxj k ⟨hk, hj.2.trans lk⟩)⟩
+lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) : ∃ j ∈ maxCubes s, i ≤ j := by
+  obtain ⟨j, lj, maxj⟩ := s.exists_le_maximal hi; rw [maximal_iff] at maxj
+  simp_rw [maxCubes, Finset.mem_filter]; exact ⟨j, maxj, lj⟩
 
 lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
     (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by

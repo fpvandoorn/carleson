@@ -45,9 +45,6 @@ section Int
 theorem Int.floor_le_iff (c : ℝ) (z : ℤ) : ⌊c⌋ ≤ z ↔ c < z + 1 := by
   rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel_right]
 
-theorem Int.le_ceil_iff (c : ℝ) (z : ℤ) : z ≤ ⌈c⌉ ↔ z - 1 < c := by
-  rw_mod_cast [← Int.add_one_le_ceil_iff, sub_add_cancel]
-
 theorem Int.Icc_of_eq_sub_1 {a b : ℤ} (h : a = b - 1) : Finset.Icc a b = {a, b} := by
   refine le_antisymm (fun t ht ↦ ?_) (fun t ht ↦ ?_)
   · rw [h, Finset.mem_Icc] at ht
@@ -66,13 +63,13 @@ section ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
   if hfin : s.Finite then
-    have hfin' : Finite s := by exact hfin
+    have hfin' : Finite s := hfin
     rw [tsum_def]
     simp only [ENNReal.summable, ↓reduceDIte]
     have hsup: support (fun (_ : s) ↦ (1 : ℝ≥0∞)) = Set.univ := by
       ext i
       simp only [mem_support, ne_eq, one_ne_zero, not_false_eq_true, mem_univ]
-    have hsupfin: (Set.univ : Set s).Finite := by exact finite_univ
+    have hsupfin: (Set.univ : Set s).Finite := finite_univ
     rw [← hsup] at hsupfin
     rw [if_pos hsupfin]
     rw [hfin.encard_eq_coe_toFinset_card]
@@ -94,7 +91,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
       simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
         exists_const]
   else
-  have : Infinite s := by exact infinite_coe_iff.mpr hfin
+  have : Infinite s := infinite_coe_iff.mpr hfin
   rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num)]
   rw [Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
@@ -119,7 +116,7 @@ lemma ENNReal.sum_geometric_two_pow_toNNReal {k : ℕ} (hk : k > 0) :
     Real.rpow_neg zero_le_two, Real.rpow_natCast, one_div]
   have : ((1 : ℝ) - (2 ^ k)⁻¹).toNNReal ≠ 0 := by
     rw [ne_eq, Real.toNNReal_eq_zero, tsub_le_iff_right, zero_add, not_le, inv_lt_one_iff]
-    right; exact one_lt_pow (R := ℝ) _root_.one_lt_two hk.ne'
+    right; exact one_lt_pow₀ (R := ℝ) _root_.one_lt_two hk.ne'
   rw [← coe_inv this, coe_inj, Real.toNNReal_inv, one_div]
 
 lemma ENNReal.sum_geometric_two_pow_neg_one : ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-n : ℤ) = 2 := by
@@ -139,6 +136,9 @@ lemma tsum_geometric_ite_eq_tsum_geometric {k c : ℕ} :
   · simp
   · rw [mem_support, ne_eq, ite_eq_right_iff, Classical.not_imp] at mn
     use n - k, Nat.sub_add_cancel mn.1
+
+lemma ENNReal.toReal_zpow (x : ℝ≥0∞) (z : ℤ) : x.toReal ^ z = (x ^ z).toReal := by
+  rw [← rpow_intCast, ← toReal_rpow, Real.rpow_intCast]
 
 end ENNReal
 
@@ -211,6 +211,11 @@ namespace MeasureTheory
 variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
   {F : Type*} [NormedAddCommGroup F]
 
+attribute [fun_prop] Continuous.comp_aestronglyMeasurable
+  AEStronglyMeasurable.mul AEStronglyMeasurable.prod_mk
+attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
+
+
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
     AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
@@ -238,7 +243,25 @@ theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
 lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
   ext; simp [ENNReal.toReal]
 
+theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
+  fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
+
 end MeasureTheory
+
+section
+
+open MeasureTheory Bornology
+variable {E X : Type*} {p : ℝ≥0∞} [NormedAddCommGroup E] [TopologicalSpace X] [MeasurableSpace X]
+  {μ : Measure X} [IsFiniteMeasureOnCompacts μ]
+
+lemma _root_.HasCompactSupport.memℒp_of_isBounded {f : X → E} (hf : HasCompactSupport f)
+    (h2f : IsBounded (range f))
+    (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : Memℒp f p μ := by
+  obtain ⟨C, hC⟩ := h2f.exists_norm_le
+  simp only [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
+  exact hf.memℒp_of_bound h3f C <| .of_forall hC
+
+end
 
 /-! ## `EquivalenceOn` -/
 
@@ -257,6 +280,7 @@ namespace EquivalenceOn
 variable {α : Type*} {r : α → α → Prop} {s : Set α} {hr : EquivalenceOn r s} {x y : α}
 
 variable (hr) in
+/-- The setoid defined from an equivalence relation on a set. -/
 protected def setoid : Setoid s where
   r x y := r x y
   iseqv := {
@@ -304,7 +328,7 @@ lemma out_inj' (hx : x ∈ s) (hy : y ∈ s) (h : r (hr.out x) (hr.out y)) : hr.
   all_goals simpa
 
 variable (hr) in
-/-- The set of representatives. -/
+/-- The set of representatives of an equivalence relation on a set. -/
 def reprs : Set α := hr.out '' s
 
 lemma out_mem_reprs (hx : x ∈ s) : hr.out x ∈ hr.reprs := ⟨x, hx, rfl⟩
@@ -325,18 +349,7 @@ namespace Set.Finite
 lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
     (hs : s.Finite) (hs' : s.Nonempty) (f : ι → α) :
     ∃ i ∈ s, ⨆ j ∈ s, f j = f i := by
-  induction' s, hs using dinduction_on with a s _ _ ihs hf
-  · simp at hs'
-  rw [iSup_insert]
-  by_cases hs : s.Nonempty
-  · by_cases ha : f a ⊔ ⨆ x ∈ s, f x = f a
-    · use a, mem_insert a s
-    · obtain ⟨i, hi⟩ := ihs hs
-      use i, Set.mem_insert_of_mem a hi.1
-      rw [← hi.2, sup_eq_right]
-      simp only [sup_eq_left, not_le] at ha
-      exact ha.le
-  · simpa using Or.inl fun i hi ↦ (hs (nonempty_of_mem hi)).elim
+  simpa [sSup_image, eq_comm] using hs'.image f |>.csSup_mem (hs.image f)
 
 end Set.Finite
 

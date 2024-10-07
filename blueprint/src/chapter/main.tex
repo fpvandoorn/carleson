@@ -8,6 +8,12 @@
 % to
 % `$1-`
 %
+% Regex to (hopefully) count the number of green bubbles:
+%  \\begin\{proof\}.*\n(.*\n)? *\\leanok
+%
+% Regex to (hopefully) count the number of green borders:
+% \\leanok.*\n.*\\lean
+
 \title{Carleson operators on doubling metric measure spaces}
 
 \date{\today}
@@ -27,7 +33,7 @@
 
 \chapter{Introduction}
 
-In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere. \Cref{classical-Carleson} represents a version of this result.
+In \cite{carleson}, L. Carleson addressed a classical question regarding the convergence of Fourier series of continuous functions by proving their pointwise convergence almost everywhere, as stated below in \Cref{classical-carleson}.
 
 Let $f$ be a complex valued, $2\pi$-periodic bounded Borel measurable function on the real line, and for an integer $n$, define the Fourier coefficient as
 \begin{equation}
@@ -39,25 +45,19 @@ Define the partial Fourier sum for $N\ge 0$ as
 \end{equation}
 
 \begin{theorem}[classical Carleson]
-    \label{classical-Carleson}
+    \label{classical-carleson}
     \leanok
     \lean{classical_carleson}
-    \uses{smooth-approximation, convergence-for-smooth,
-    control-approximation-effect}
-    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$. For all $\epsilon>0$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
-    \begin{equation}\label{aeconv}
-    |f(x)-S_N f(x)|\le \epsilon.
+    \uses{exceptional-set-carleson}
+    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
+    Then for almost all $x \in \mathbb{R}$ we have
+    \begin{equation}\label{eq:fourier-limit}
+      \lim_{n\to\infty}S_n f(x) = f(x).
     \end{equation}
+    In other words: the set of real numbers $x$ where \eqref{eq:fourier-limit} fails has Lebesgue measure $0$.
 \end{theorem}
 
-%Note that mere continuity implies uniform continuity in the setting of this theorem.
-By applying this theorem with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union
-of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier
-sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and
-taking the intersection of the corresponding exceptional sets, which has measure zero, we see that the Fourier
-series converges outside a set of measure zero.
-
-The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-Carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
+The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
 
 We proceed to introduce the setup for our general theorem.
 We carry a multi purpose parameter, a natural number
@@ -530,7 +530,7 @@ hold.
 For each $\fu\in \fU$ and each $\fp\in \fT(\fu)$
 we have $\scI(\fp) \ne \scI(\fu)$ and
 \begin{equation}\label{forest1}
-4\fp\lesssim 1\fu.
+4\fp\lesssim \fu.
 \end{equation}
 For each $\fu \in \fU$ and each $\fp,\fp''\in \fT(\fu)$ and $\fp'\in \fP$
 we have
@@ -1997,6 +1997,7 @@ the complement of the set of tiles in Lemma
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{discrete-Carleson}]
+\leanok
 \proves{discrete-Carleson}
 \Cref{discrete-Carleson} follows by applying the
 triangle inequality to \eqref{disclesssim}
@@ -2037,7 +2038,7 @@ The bound for $G_1$ follows from the Vitali covering lemma, \Cref{Hardy-Littlewo
     {\mu(F\cap B(\pc(\fp),r(\fp)))}\ge K{\mu(B(\pc(\fp),r(\fp)))}\, .
     $$
     This ball exists by definition of $\fP_{F,G}$
-    and $\dens_2$. By applying \Cref{Hardy-Littlewood}to the collection of balls
+    and $\dens_2$. By applying \Cref{Hardy-Littlewood} to the collection of balls
     $$
         \mathcal{B} = \{B(\pc(\fp),r(\fp)) \ : \ \fp \in \fP_{F,G}\}
     $$
@@ -2903,7 +2904,7 @@ We have
     $$
         B_{\fu}(\fcc(\fu), 1) \subset B_{\fu'}(\fcc(\fu'), 500) \subset B_{\fp}(\fcc(\fp), 4)\,.
     $$
-    Together with $\scI(\fp) \subset \scI(\fu') = \scI(\fu)$, this gives $4\fp \lesssim 1\fu$, which is \eqref{forest1}.
+    Together with $\scI(\fp) \subset \scI(\fu') = \scI(\fu)$, this gives $4\fp \lesssim \fu$, which is \eqref{forest1}.
 \end{proof}
 
 \begin{lemma}[forest convex]
@@ -3102,6 +3103,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \end{lemma}
 
 \begin{proof}
+    \leanok
     It suffices to show that $\fL_0(k,n)$ contains no chain of length $n + 1$. Suppose that we had such a chain $\fp_0 \le \fp_1 \le \dotsb \le \fp_{n}$ with $\fp_i \ne \fp_{i+1}$ for $i =0, \dotsc, n-1$. By \eqref{def-cnk}, we have that $\dens_k'(\{\fp_n\}) > 2^{-n}$. Thus, by \eqref{eq-densdef}, there exists $\fp' \in \fP(k)$ and $\lambda \ge 2$ with $\lambda \fp_n \le \lambda \fp'$ and
     \begin{equation}
         \label{eq-p'}
@@ -3251,7 +3253,8 @@ Let $\fp,\fp'\in \mathfrak{A}$.
 If there exists an $x\in X$ with $x\in E(\fp)\cap E(\fp')$,
 then $\fp= \fp'$.
 \end{lemma}
-\begin{proof}\leanok
+\begin{proof}
+\leanok
 Let $\fp,\fp'$ and $x$ be given.
 Assume without loss of generality that $\ps(\fp)\le \ps(\fp')$.
 As we have $x\in E(\fp)\subset \scI(\fp)$ and $x\in E(\fp')\subset \scI(\fp')$ by Definition \eqref{defineep}, we conclude
@@ -3518,7 +3521,7 @@ the last display is observed to be
 = 2^{255a^3+110a + 1}
  {\dens_1(\mathfrak{A})^{\frac 1p}} \int |g|(y)(M_{\mathcal{B}', p'}g)(y) \, dy\,.
          \end{equation}
-Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood}estimates the last display by
+Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood} estimates the last display by
 \begin{equation}
     2^{255a^3+110a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
     \|g\|_2 \|M_{\mathcal{B}', p'} g\|_2
@@ -4208,6 +4211,7 @@ $$
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $s \in \mathbb{Z}$ with $\underline{\sigma} (\fu, x) \le s \le \overline{\sigma} (\fu, x)$. By definition of $\sigma$, there exists $\fp \in \fT(\fu)$ with $\ps(\fp) = \underline{\sigma} (\fu, x)$ and $x \in E(\fp)$, and there exists $\fp'' \in \fT(\fu)$ with $\ps(\fp'') = \overline{\sigma} (\fu, x)$ and $x \in E(\fp'') \subset \scI(\fp'')$. By property \eqref{coverdyadic} of the dyadic grid, there exists a cube $I \in \mathcal{D}$ of scale $s$ with $x \in I$. By property \eqref{eq-dis-freq-cover}, there exists a tile $\fp' \in \fP(I)$ with $\tQ(x) \in \fc(\fp')$. By the dyadic property \eqref{dyadicproperty} we have $\scI(\fp) \subset \scI(\fp') \subset \scI(\fp'')$, and by \eqref{eq-freq-dyadic}, we have $\fc(\fp'') \subset \fc(\fp') \subset \fc(\fp)$. Thus $\fp \le \fp' \le\fp''$, which gives with the convexity property \eqref{forest2} of $\fT(\fu)$ that $\fp' \in \fT(\fu)$, so $s \in \sigma(\fu, x)$.
 \end{proof}
 
@@ -4245,6 +4249,7 @@ to be the collection of dyadic cubes $L \in \mathcal{D}$ such that $s(L) = -S$, 
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Since $\mathcal{J}(\mathfrak{S})$ is the set of inclusion maximal cubes in $\mathcal{J}_0(\mathfrak{S})$, cubes in $\mathcal{J}(\mathfrak{S})$ are pairwise disjoint by \eqref{dyadicproperty}. The same applies to $\mathcal{L}(\mathfrak{S})$.
 
     If $x \in \bigcup_{I \in \mathcal{D}} I$, then there exists by \eqref{coverdyadic} a cube $I \in \mathcal{D}$ with $x \in I$ and $s(I) = -S$. Then $I \in \mathcal{J}_0(\mathfrak{S})$. There exists an inclusion maximal cube in $\mathcal{J}_0(\mathfrak{S})$ containing $I$. This cube contains $x$ and is contained in $\mathcal{J}(\mathfrak{S})$. This shows one inclusion in \eqref{eq-J-partition}, the other one follows from $\mathcal{J}(\mathfrak{S}) \subset \mathcal{D}$.
@@ -4259,7 +4264,7 @@ $$
 Given a scale $-S \le s\le S$ and a point $x \in \bigcup_{I\in \mathcal{D}, s(I) = s} I$, there exists a unique cube in $\mathcal{D}$ of scale $s$ containing $x$ by \eqref{coverdyadic}. We denote it by $I_s(x)$. Define for $\mfa \in \Mf$ the nontangential maximal operator
 \begin{equation}
     \label{eq-TN-def}
-    T_{\mathcal{N}}^\mfa f(x) := \sup_{-S \le s_1 < S} \sup_{x' \in I_{s_1}(x)} \sup_{\substack{s_1 < s_2 \le S\\ D^{s_2-1} \le R_Q(\mfa, x')}} \left| \sum_{s = s_1}^{s_2} \int K_s(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
+    T_{\mathcal{N}}^\mfa f(x) := \sup_{-S \le s_1 < S} \sup_{x' \in I_{s_1}(x)} \sup_{\substack{s_1 \le s_2 \le S\\ D^{s_2-1} \le R_Q(\mfa, x')}} \left| \sum_{s = s_1}^{s_2} \int K_s(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
 \end{equation}
 Define for each $\fu \in \fU$ the auxiliary operator
 $$
@@ -4394,8 +4399,9 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $s_1 = \underline{\sigma}(\fu, x)$. By definition, there exists a tile $\fp \in \fT(\fu)$ with $\ps(\fp) = s_1$ and $x \in E(\fp)$. Then $x \in \scI(\fp) \cap L$. By \eqref{dyadicproperty} and the definition of $\mathcal{L}(\fT(\fu))$, it follows that $L \subset \scI(\fp)$, in particular $x' \in \scI(\fp)$, so $x \in I_{s_1}(x')$.
-    Next, let $s_2 = \overline{\sigma}(\fu, x)$ and let $\fp' \in \fT(\fu)$ with $\ps(\fp') = s_2$ and $x \in E(\fp')$. Since $\fp' \in \fT(\fu)$, we have $4\fp' \lesssim 1\fu$. Since $\tQ(x) \in \fc(\fp')$, it follows that
+    Next, let $s_2 = \overline{\sigma}(\fu, x)$ and let $\fp' \in \fT(\fu)$ with $\ps(\fp') = s_2$ and $x \in E(\fp')$. Since $\fp' \in \fT(\fu)$, we have $4\fp' \lesssim \fu$. Since $\tQ(x) \in \fc(\fp')$, it follows that
     $$
         d_{\fp}(\fcc(\fu), \tQ(x)) \le 5\,.
     $$
@@ -4407,7 +4413,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     $$
         d_{B(x, D^{s_2})}(\fcc(\fu), \tQ(x)) \le 5 \cdot 2^{5a}\,.
     $$
-    Finally, by applying \eqref{seconddb} $2^{100a}$ times, we obtain
+    Finally, by applying \eqref{seconddb} $100a$ times, we obtain
     $$
         d_{B(x, D^{s_2-1})}(\fcc(\fu), \tQ(x)) \le 5 \cdot 2^{-95a} < 1\,.
     $$
@@ -4695,6 +4701,7 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Suppose that $B(c(I), 16 D^{s(I)}) \cap B(c(J), 16 D^{s(J)}) \ne \emptyset$ and $s(I) = s(J)$. Then $B(c(I), 33 D^{s(I)}) \subset B(c(J), 128 D^{s(J)})$. Hence by the doubling property \eqref{doublingx}
     $$
         2^{9a}\mu(B(c(J), \frac{1}{4}D^{s(J)})) \ge \mu(B(c(I), 33 D^{s(I)}))\,,
@@ -4760,6 +4767,8 @@ The main result of this subsection is the following quantitative bound for opera
 
 \begin{lemma}[densities tree bound]
     \label{densities-tree-bound}
+    \leanok
+    \lean{TileStructure.Forest.density_tree_bound1, TileStructure.Forest.density_tree_bound2}
     \uses{tree-projection-estimate,local-dens1-tree-bound,local-dens2-tree-bound}
     Let $\fu \in \fU$. Then for all $f,g$ bounded with bounded support
     \begin{equation}
@@ -4777,6 +4786,8 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
 \begin{lemma}[local dens1 tree bound]
     \label{local-dens1-tree-bound}
+    \leanok
+    \lean{TileStructure.Forest.local_dens1_tree_bound}
     \uses{monotone-cube-metrics}
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Then
     \begin{equation}
@@ -4787,6 +4798,8 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
 \begin{lemma}[local dens2 tree bound]
     \label{local-dens2-tree-bound}
+    \leanok
+    \lean{TileStructure.Forest.local_dens2_tree_bound}
     Let $J \in \mathcal{J}(\fT(\fu))$ be such that there exist $\fq \in \fT(\fu)$ with $J \cap \scI(\fq) \ne \emptyset$. Then
     $$
         \mu(F \cap J) \le 2^{200a^3 + 19} \dens_2(\fT(\fu)) \mu(J)\,.
@@ -4953,6 +4966,8 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 
 \begin{lemma}[adjoint tile support]
     \label{adjoint-tile-support}
+    \leanok
+    \lean{TileStructure.Forest.adjoint_tile_support1, TileStructure.Forest.adjoint_tile_support2}
     For each $\fp \in \fP$, we have
     $$
         T_{\fp}^* g = \mathbf{1}_{B(\pc(\fp), 5D^{\ps(\fp)})} T_{\fp}^* \mathbf{1}_{\scI(\fp)} g\,.
@@ -4984,6 +4999,8 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 
 \begin{lemma}[adjoint tree estimate]
     \label{adjoint-tree-estimate}
+    \leanok
+    \lean{TileStructure.Forest.adjoint_tree_estimate}
     \uses{densities-tree-bound}
     For all bounded $g$ with bounded support, we have that
     $$
@@ -5009,15 +5026,18 @@ $$
 $$
 \begin{lemma}[adjoint tree control]
     \label{adjoint-tree-control}
+    \leanok
+    \lean{TileStructure.Forest.adjoint_tree_control}
     \uses{adjoint-tree-estimate}
-    We have for all bounded $g$ with bounded support
+    We have for all $\fu \in \fU$ and bounded $g$ with bounded support
     $$
         \|S_{2, \fu} g\|_2 \le 2^{156a^3} \|g\|_2\,.
     $$
 \end{lemma}
 
 \begin{proof}
-    This follows immediately from Minkowski's inequality, \Cref{Hardy-Littlewood}and \Cref{adjoint-tree-estimate}, using that $a \ge 4$.
+    \leanok
+    This follows immediately from Minkowski's inequality, \Cref{Hardy-Littlewood} and \Cref{adjoint-tree-estimate}, using that $a \ge 4$.
 \end{proof}
 
 
@@ -5025,6 +5045,8 @@ Now we are ready to state the main result of this subsection.
 
 \begin{lemma}[correlation separated trees]
     \label{correlation-separated-trees}
+    \leanok
+    \lean{TileStructure.Forest.correlation_separated_trees}
     \uses{correlation-distant-tree-parts,correlation-near-tree-parts}
     For any $\fu_1 \ne \fu_2 \in \fU$ and all bounded $g_1, g_2$ with bounded support, we have
     \begin{equation}
@@ -5051,6 +5073,8 @@ Now we are ready to state the main result of this subsection.
 
 \begin{lemma}[correlation distant tree parts]
         \label{correlation-distant-tree-parts}
+        \leanok
+        \lean{TileStructure.Forest.correlation_distant_tree_parts}
         \uses{Holder-van-der-Corput,Lipschitz-partition-unity,Holder-correlation-tree,lower-oscillation-bound}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
@@ -5064,6 +5088,8 @@ Now we are ready to state the main result of this subsection.
     \end{lemma}
     \begin{lemma}[correlation near tree parts]
         \label{correlation-near-tree-parts}
+        \leanok
+        \lean{TileStructure.Forest.correlation_near_tree_parts}
         \uses{tree-projection-estimate,dyadic-partition-2,bound-for-tree-projection}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
         \begin{equation}
@@ -5072,7 +5098,7 @@ Now we are ready to state the main result of this subsection.
         \end{equation}
         \begin{equation}
             \label{eq-rhs-small-sep-tree}
-            \le 2^{222a^3} 2^{-Zn 2^{-10a}} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1)}\,.
+            \le 2^{222a^3} 2^{-Zn 2^{-10a}} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
         \end{equation}
     \end{lemma}
 
@@ -5080,15 +5106,18 @@ In the proofs of both lemmas, we will need the following observation.
 
 \begin{lemma}[overlap implies distance]
     \label{overlap-implies-distance}
+    \leanok
+    \lean{TileStructure.Forest.𝔗_subset_𝔖₀, TileStructure.Forest.overlap_implies_distance}
     Let $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$. If $\fp \in \fT(\fu_1) \cup \fT(\fu_2)$ with $\scI(\fp) \cap \scI(\fu_1) \ne \emptyset$, then $\fp \in \mathfrak{S}$. In particular, we have $\fT(\fu_1) \subset \mathfrak{S}$.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Suppose first that $\fp \in \fT(\fu_1)$. Then $\scI(\fp) \subset \scI(\fu_1) \subset \scI(\fu_2)$, by \eqref{forest1}. Thus we have by the separation condition \eqref{forest5}, \eqref{eq-freq-comp-ball}, \eqref{forest1} and the triangle inequality
     \begin{align*}
         d_{\fp}(\fcc(\fu_1), \fcc(\fu_2)) &\ge d_{\fp}(\fcc(\fp), \fcc(\fu_2)) - d_{\fp}(\fcc(\fp), \fcc(\fu_1))\\
         &\ge 2^{Z(n+1)} - 4\\
-        &\ge 2^{Zn}\,,
+        &\ge 2^{Zn/2}\,,
     \end{align*}
     using that $Z= 2^{12a}\ge 4$. Hence $\fp \in \mathfrak{S}$.
 
@@ -5118,6 +5147,8 @@ $$
 
     \begin{lemma}[dyadic partition 1]
         \label{dyadic-partition-1}
+        \leanok
+        \lean{TileStructure.Forest.union_𝓙₅, TileStructure.Forest.pairwiseDisjoint_𝓙₅}
         \uses{dyadic-partitions}
         We have that
         $$
@@ -5138,7 +5169,10 @@ $$
 
     \begin{lemma}[Lipschitz partition unity]
         \label{Lipschitz-partition-unity}
-           \uses{dyadic-partition-1,moderate-scale-change}
+        \leanok
+        \lean{TileStructure.Forest.sum_χ, TileStructure.Forest.χ_mem_Icc,
+          TileStructure.Forest.dist_χ_χ_le}
+        \uses{dyadic-partition-1,moderate-scale-change}
         There exists a family of functions $\chi_J$, $J \in \mathcal{J}'$ such that \begin{equation}
             \label{eq-pao-1}
             \mathbf{1}_{\scI(\fu_1)} = \sum_{J \in \mathcal{J}'} \chi_J\,,
@@ -5158,6 +5192,8 @@ $$
 
     \begin{lemma}[moderate scale change]
         \label{moderate-scale-change}
+        \leanok
+        \lean{TileStructure.Forest.moderate_scale_change}
 
         If $J, J' \in \mathcal{J'}$ with
         $$
@@ -5255,6 +5291,8 @@ $$
 
     \begin{lemma}[Holder correlation tree]
         \label{Holder-correlation-tree}
+        \leanok
+        \lean{TileStructure.Forest.holder_correlation_tree}
         \uses{global-tree-control-2}
         We have for all $J \in \mathcal{J}'$ that
         \begin{equation}
@@ -5268,6 +5306,8 @@ $$
     We begin with the following H\"older continuity estimate for adjoints of operators associated to tiles.
     \begin{lemma}[Holder correlation tile]
         \label{Holder-correlation-tile}
+        \leanok
+        \lean{TileStructure.Forest.holder_correlation_tile}
         \uses{adjoint-tile-support}
         Let $\fu \in \fU$ and $\fp \in \fT(\fu)$. Then for all $y, y' \in X$ and all bounded $g$ with bounded support, we have
         $$
@@ -5390,8 +5430,10 @@ $$
 
     \begin{lemma}[limited scale impact]
         \label{limited-scale-impact}
+        \leanok
+        \lean{TileStructure.Forest.limited_scale_impact}
         \uses{overlap-implies-distance}
-        Let $\fp \in \fT_2 \setminus \mathfrak{S}$, $J \in \mathcal{J}'$ and suppose that
+        Let $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$, $J \in \mathcal{J}'$ and suppose that
         $$
            B(\scI(\fp)) \cap B^\circ(J) \ne \emptyset\,.
         $$
@@ -5438,6 +5480,8 @@ $$
 
     \begin{lemma}[local tree control]
         \label{local-tree-control}
+        \leanok
+        \lean{TileStructure.Forest.local_tree_control}
         \uses{limited-scale-impact}
         For all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
@@ -5480,6 +5524,8 @@ $$
 
     \begin{lemma}[scales impacting interval]
         \label{scales-impacting-interval}
+        \leanok
+        \lean{TileStructure.Forest.scales_impacting_interval}
         \uses{overlap-implies-distance}
         Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and $\fp \in \fC$ with $B(\scI(\fp)) \cap B(J) \neq \emptyset$, we have $\ps(\fp) \ge s(J)$.
     \end{lemma}
@@ -5490,6 +5536,8 @@ $$
 
     \begin{lemma}[global tree control 1]
         \label{global-tree-control-1}
+        \leanok
+        \lean{TileStructure.Forest.global_tree_control1_1, TileStructure.Forest.global_tree_control1_2}
         \uses{Holder-correlation-tile,scales-impacting-interval}
         Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
@@ -5541,10 +5589,12 @@ $$
 
     \begin{lemma}[global tree control 2]
         \label{global-tree-control-2}
+        \leanok
+        \lean{TileStructure.Forest.global_tree_control2}
         \uses{global-tree-control-1, local-tree-control}
         We have for all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
-            \sup_{B(J)} |T^*_{\mathfrak{T}_2 \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\mathfrak{T}_2} g| + 2^{155a^3} \inf_{J} M_{\mathcal{B},1}|g|\,.
+            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{155a^3} \inf_{J} M_{\mathcal{B},1}|g|\,.
         $$
     \end{lemma}
 
@@ -5608,6 +5658,8 @@ $$
 \label{subsubsec-van-der-corput}
     \begin{lemma}[lower oscillation bound]
         \label{lower-oscillation-bound}
+        \leanok
+        \lean{TileStructure.Forest.lower_oscillation_bound}
         \uses{overlap-implies-distance}
         For all $J \in \mathcal{J}'$, we have that
         $$
@@ -5682,6 +5734,8 @@ $$
     note that this is different from the $\mathcal{J}'$ defined in the previous subsection.
     \begin{lemma}[dyadic partition 2]
         \label{dyadic-partition-2}
+        \leanok
+        \lean{TileStructure.Forest.union_𝓙₆, TileStructure.Forest.pairwiseDisjoint_𝓙₆}
         \uses{dyadic-partitions}
         We have
         $$
@@ -5697,10 +5751,12 @@ $$
 
     \begin{lemma}[bound for tree projection]
         \label{bound-for-tree-projection}
+        \leanok
+        \lean{TileStructure.Forest.bound_for_tree_projection}
         \uses{adjoint-tile-support,overlap-implies-distance,dyadic-partition-2,thin-scale-impact,square-function-count}
         We have
         $$
-            \|P_{\mathcal{J}'}|T_{\mathfrak{T}_2 \setminus \mathfrak{S}}^* g_2|\|_2
+            \|P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2
             \le 2^{118a^3} 2^{-\frac{100}{202a}Zn\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
         $$
     \end{lemma}
@@ -5728,7 +5784,9 @@ $$
 
     \begin{lemma}[thin scale impact]
         \label{thin-scale-impact}
-        If $\fp \in \fT_2 \setminus \mathfrak{S}$ and $J \in \mathcal{J'}$ with $B(\scI(\fp)) \cap B(J) \ne \emptyset$, then
+        \leanok
+        \lean{TileStructure.Forest.thin_scale_impact}
+        If $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$ and $J \in \mathcal{J'}$ with $B(\scI(\fp)) \cap B(J) \ne \emptyset$, then
         $$
             \ps(\fp) \le s(J) + 2 - \frac{Zn}{202a^3}\,.
         $$
@@ -5776,15 +5834,16 @@ $$
 
     \begin{lemma}[square function count]
         \label{square-function-count}
-        For each $J \in \mathcal{J}'$, we have
+        \leanok
+        \lean{TileStructure.Forest.square_function_count}
+        For each $J \in \mathcal{J}'$ and all $s \ge 0$, we have
         $$
             \frac{1}{\mu(J)} \int_J \Bigg(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
         J \cap B(I) \ne \emptyset}} \mathbf{1}_{B(I)}\bigg)^2 \, \mathrm{d}\mu \le 2^{104a^2} (8 D^{-s})^\kappa\,.
         $$
     \end{lemma}
 
-    \begin{proof}[Proof of \Cref{square-function-count}]
-        \proves{square-function-count}
+    \begin{proof}
         Since $J \in \mathcal{J}'$ we have $J \subset \scI(\fu_1)$. Thus, if $B(I) \cap J \ne \emptyset$ then
     \begin{equation}
         \label{eq-sep-small-incl}
@@ -5813,7 +5872,7 @@ $$
     \proves{bound-for-tree-projection}
     Expanding the definition of $P_{\mathcal{J}'}$, we have
     $$
-        \|P_{\mathcal{J}'}|T_{\mathfrak{T}_2 \setminus \mathfrak{S}}^* g_2|\|_2
+        \|P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2
     $$
     $$
         = \left(\sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left|\int_J \sum_{\fp \in \fT(\fu_2) \setminus \mathfrak{S}} T_{\fp}^* g_2 \, \mathrm{d}\mu(y) \right|^2 \right)^{1/2}\,.
@@ -5907,6 +5966,9 @@ Define an $n$-row to be an $n$-forest $(\fU, \fT)$, i.e. satisfying conditions \
 
 \begin{lemma}[forest row decomposition]
     \label{forest-row-decomposition}
+    \leanok
+    \lean{TileStructure.Forest.rowDecomp, TileStructure.Forest.biUnion_rowDecomp,
+    TileStructure.Forest.pairwiseDisjoint_rowDecomp}
     Let $(\fU, \fT)$ be an $n$-forest. Then there exists a decomposition
     $$
         \fU = \dot{\bigcup_{1 \le j \le 2^n}} \fU_j
@@ -5932,6 +5994,8 @@ as in \Cref{forest-row-decomposition}.
 
 \begin{lemma}[row bound]
     \label{row-bound}
+    \leanok
+    \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{densities-tree-bound,adjoint-tile-support}
     For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support, we have
     \begin{equation}
@@ -5978,6 +6042,8 @@ as in \Cref{forest-row-decomposition}.
 
 \begin{lemma}[row correlation]
     \label{row-correlation}
+    \leanok
+    \lean{TileStructure.Forest.row_correlation}
     \uses{adjoint-tree-control,correlation-separated-trees}
     For all $1 \le j < j' \le 2^n$ and for all bounded $g_1, g_2$ with bounded support, it holds that
     $$
@@ -6035,6 +6101,8 @@ $$
 
 \begin{lemma}[disjoint row support]
     \label{disjoint-row-support}
+    \leanok
+    \lean{TileStructure.Forest.pairwiseDisjoint_rowSupport}
     The sets $E_j$, $1 \le j \le 2^n$ are pairwise disjoint.
 \end{lemma}
 
@@ -6645,7 +6713,7 @@ We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Z
 By the additional regularity, we can weaken the assumption \eqref{nontanbound} to a family of operators that is easier to work with in applications.
 Namely, for $r > 0$, $x\in X$, and a bounded, measurable function $f:X\to\C$ supported on a set of finite measure, we define
 \begin{equation}
-\label{def-T_r}
+\label{def-T-r}
 T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)} K(x,y) f(y) \, d\mu(y).
 \end{equation}
 \begin{theorem}[two-sided metric space Carleson]
@@ -7720,8 +7788,6 @@ This proves \eqref{eq-weak-1-1}.
 
 \chapter{Proof of The Classical Carleson Theorem}
 
-
-
 The convergence of partial Fourier sums is proved in
 \Cref{10classical} in two steps. In the first step,
 we establish convergence on a suitable dense subclass of functions. We choose smooth functions as subclass, the convergence is stated in \Cref{convergence-for-smooth} and proved in \Cref{10smooth}.
@@ -7729,7 +7795,7 @@ In the second step, one controls the relevant error of approximating a general f
 the subclass. This is stated in \Cref{control-approximation-effect} and proved
 in \Cref{10difference}.
 The proof relies on a bound on the real Carleson maximal operator stated in \Cref{real-Carleson} and proved in \Cref{10carleson}, which involves showing that the real line fits into the setting of \Cref{overviewsection}.
-This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $T_r$ defined in \eqref{def-T_r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
+This latter proof refers to the two-sided variant of the Carleson \Cref{two-sided-metric-space-Carleson}. Two assumptions in \Cref{metric-space-Carleson} require more work. The boundedness of the operator $T_r$ defined in \eqref{def-T-r} is established in \ref{Hilbert-strong-2-2}. This lemma is proved in \Cref{10hilbert}.
 The cancellative property is verified by \Cref{van-der-Corput}, which is proved in \Cref{10vandercorput}.
 Several further auxiliary lemmas are stated and proved in \Cref{10classical}, the proof of one of these auxiliary lemmas, \Cref{spectral-projection-bound}, is done in \Cref{10projection}.
 
@@ -7815,9 +7881,20 @@ We prove in \Cref{10difference}:
     \end{equation}
 \end{lemma}
 
-We are now ready to prove classical Carleson:
-\begin{proof} [Proof of \Cref{classical-Carleson}]
-\proves{classical-Carleson}
+We are now ready to prove \Cref{classical-carleson}. We first prove a version with explicit exceptional sets.
+
+\begin{theorem}[classical Carleson with exceptional sets]
+    \label{exceptional-set-carleson}
+    \leanok
+    \lean{exceptional_set_carleson}
+    \uses{smooth-approximation, convergence-for-smooth,
+    control-approximation-effect}
+    Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$. For all $\epsilon>0$, there exists a Borel set $E\subset [0,2\pi]$ with Lebesgue measure $|E|\le \epsilon$ and a positive integer $N_0$ such that for all $x\in [0,2\pi]\setminus E$ and all integers $N>N_0$, we have
+    \begin{equation}\label{aeconv}
+    |f(x)-S_N f(x)|\le \epsilon.
+    \end{equation}
+\end{theorem}
+\begin{proof}
 \leanok
 Let $N_0$ be as in \Cref{convergence-for-smooth}.
 For every
@@ -7836,6 +7913,18 @@ Using \Cref{smooth-approximation,convergence-for-smooth,control-approximation-ef
     \le \epsilon' +\frac \epsilon 4 +\frac \epsilon 4\le \epsilon\, .
 \end{equation}
 This shows \eqref{aeconv} for the given $E$ and $N_0$.
+\end{proof}
+
+Now we turn to the proof of the statement of Carleson theorem given in the introduction.
+\begin{proof}[Proof of \Cref{classical-carleson}]
+\proves{classical-carleson}
+\leanok
+%Note that mere continuity implies uniform continuity in the setting of this theorem.
+By applying \Cref{exceptional-set-carleson} with a sequence of $\epsilon_n:= 2^{-n}\delta$ for $n\ge 1$ and taking the union
+of corresponding exceptional sets $E_n$, we see that outside a set of measure $\delta$, the partial Fourier
+sums converge pointwise for $N\to \infty$. Applying this with a sequence of $\delta$ shrinking to zero and
+taking the intersection of the corresponding exceptional sets, which has measure zero, we see that the Fourier
+series converges outside a set of measure zero.
 \end{proof}
 
 Let $\kappa:\R\to \C$ be the function defined by
@@ -7870,7 +7959,7 @@ where
 \end{lemma}
 
 
-One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concerning the operator $T_r$ defined in \eqref{def-T_r}, is verified by the following lemma, which is proved in \Cref{10hilbert}.
+One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concerning the operator $T_r$ defined in \eqref{def-T-r}, is verified by the following lemma, which is proved in \Cref{10hilbert}.
 \begin{lemma}[Hilbert strong 2 2]
     \label{Hilbert-strong-2-2}
     \uses{modulated-averaged-projection,integrable-bump-convolution,Dirichlet-approximation}
@@ -7883,7 +7972,7 @@ One of the main assumptions of \Cref{two-sided-metric-space-Carleson}, concernin
     \end{equation}
     where
     \begin{equation}
-        \label{def-H_r}
+        \label{def-H-r}
         H_r f(x) := T_r f(x) = \int_{r\le\rho(x,y)} \kappa(x-y) f(y) \, dy
     \end{equation}
 \end{lemma}
@@ -8475,7 +8564,7 @@ We now prove \Cref{Hilbert-strong-2-2}.
     \end{equation}
     which gives \eqref{eq-Hr-short-support}.
 
-    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H_r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
+    Suppose now that $f$ is supported in $[c, c+3]$ for some $c \in \R$. Then the function $g(x) = f(c+ \frac{3}{2} +x)$ is supported in $[-3/2,3/2]$. By a change of variables in \eqref{def-H-r}, we have $H_r g(x ) = H_r f(c+ 3/2+x)$. Thus, by \eqref{eq-Hr-short-support}
     \begin{equation}
         \label{eq-Hr-short-support-2}
         \|H_rg\|_2 = \|H_r f\|_2 \le 2^{11} \|f\|_2 = \|g\|_2\,.
@@ -8828,7 +8917,7 @@ This completes the proof of the lemma.
         |g(x)|\le \delta \,.
     \end{equation}
     Then for every $\epsilon>0$, there exists a measurable set $E\subset [0,2\pi]$ with $|E|<\epsilon$ such that for every $x\in [0,2\pi]\setminus E$ and $N>0$,
-    \begin{equation}  \label{S_Ng-small}
+    \begin{equation}  \label{S-Ng-small}
         |S_N g(x)|\le C_\epsilon \delta,
     \end{equation}
     where
@@ -8844,7 +8933,7 @@ Define
 \begin{equation*}
     E := \{x \in [0, 2\pi] \ : \ \sup_{N > 0} |S_N g (x)| > C_\epsilon \delta \} \,.
 \end{equation*}
-Then \eqref{S_Ng-small} clearly holds, and it remains to show that $|E| \le \epsilon$.
+Then \eqref{S-Ng-small} clearly holds, and it remains to show that $|E| \le \epsilon$.
 Using \Cref{partial-Fourier-sum-bound}, we obtain
 \begin{equation*}
     E \subset \{x\in [0,2\pi] \ : \ C_\epsilon \delta < \frac{1}{2\pi} (Tg(x) + T\bar{g}(x)) + \pi\delta\} \subset E_1 \cup E_2,
@@ -8989,12 +9078,12 @@ Define
 
 \begin{lemma}[frequency metric]
     \label{frequency-metric}
+    \lean{instFunctionDistancesReal}
     \leanok
     For every $R > 0$ and $x \in X$, the function $d_{B(x,R)}$ is a metric on $\Mf$.
 \end{lemma}
 
 \begin{proof}
-    \lean{instFunctionDistancesReal}
     \leanok
     This follows immediately from the fact that the standard metric on $\mathbb{Z}$ is a metric.
 \end{proof}

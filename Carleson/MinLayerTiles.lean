@@ -17,7 +17,7 @@ lemma exists_scale_add_le_of_mem_minLayer (hp : p ∈ A.minLayer n) :
     obtain ⟨p', mp', lp'⟩ := exists_le_in_minLayer_of_le hp (show n ≤ n + 1 by omega)
     obtain ⟨q, mq, lq, _⟩ := ih mp'; use q, mq, lq.trans lp'; suffices 𝔰 p' < 𝔰 p by omega
     have l : 𝓘 p' < 𝓘 p := by
-      refine lt_of_le_of_ne lp'.1 (not_lt_of_𝓘_eq_𝓘.mt ?_); rw [not_not]
+      apply 𝓘_strictMono
       exact lt_of_le_of_ne lp' <| (disjoint_minLayer_of_ne (by omega)).ne_of_mem mp' hp
     rw [Grid.lt_def] at l; exact l.2
 
@@ -29,7 +29,7 @@ lemma exists_le_add_scale_of_mem_maxLayer (hp : p ∈ A.maxLayer n) :
     obtain ⟨p', mp', lp'⟩ := exists_le_in_maxLayer_of_le hp (show n ≤ n + 1 by omega)
     obtain ⟨q, mq, lq, _⟩ := ih mp'; use q, mq, lp'.trans lq; suffices 𝔰 p < 𝔰 p' by omega
     have l : 𝓘 p < 𝓘 p' := by
-      refine lt_of_le_of_ne lp'.1 (not_lt_of_𝓘_eq_𝓘.mt ?_); rw [not_not]
+      apply 𝓘_strictMono
       exact lt_of_le_of_ne lp' <| (disjoint_maxLayer_of_ne (by omega)).ne_of_mem hp mp'
     rw [Grid.lt_def] at l; exact l.2
 
