@@ -119,11 +119,183 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
     C7_5_7 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
   sorry
 
+lemma calculations (d : ℝ) (s sFancy : ℤ) (h1: sFancy < s) (h2: 1 < d) : 8 * d ^ (s : ℝ) + 8 * d ^ (sFancy : ℝ) < 16 * d ^ s := by
+  have woah : 8 * d ^ s + 8 * d ^ sFancy < 16 * d ^ s := by
+    calc 8 * d ^ s + 8 * d ^ sFancy
+      _ < 8 * d ^ s + 8 * d ^ s := by
+          gcongr
+          exact h2
+      _ = 16 * d ^ s := by
+        rw [← Real.commRing.proof_8]
+        norm_num
+  norm_cast
+
+lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d ^ n < 100 * d ^ (n + 1) := by
+  have help_1 : 0 < d := LT.lt.trans zero_lt_one h2
+
+  have help_3 : 0 < d ^ (n : ℝ) := by
+    norm_cast
+    have d_pos : 0 < d := lt_trans zero_lt_one h2
+    have what : 0 < d ^ (n : ℝ) := Real.rpow_pos_of_pos d_pos (n : ℝ)
+    norm_cast at what
+
+  have hey :  d ^ n > d ^ m := by
+    gcongr
+    exact h2
+
+  have yes : 25 * d - 4 > 1 := by linarith
+
+  have aha : d ^ n * (25 * d - 4) > d ^ n := by
+    have sure := lt_mul_left (ha := help_3) (b := (25 * d - 4)) yes
+    apply LT.lt.gt
+    norm_cast at sure
+    linarith
+
+  have lets := gt_trans aha hey
+
+  have h_pos : 0 < (4 : ℝ) := by norm_num
+  have h_div := div_lt_div_right h_pos (a := 4 * d ^ m + 16 * d ^ n) (b := 100 * d ^ (n + 1))
+  apply h_div.mp
+
+  ring_nf
+
+  clear h_div h_pos
+
+  let theor := (lt_tsub_iff_left (a := d ^ m) (b := d ^ (1 + n) * 25) (c := d ^ n * 4))
+  rewrite (config := {occs := .pos [2]}) [add_comm] at theor
+
+  apply theor.mp
+  clear theor
+
+  clear aha
+
+  have letsss := GT.gt.lt lets
+  clear lets
+
+  have th := mul_sub (a := d ^ n) (b := 25 * d) (c := 4)
+  rw [th] at letsss
+  clear th
+
+  have well := mul_comm 25 d
+  rw [well] at letsss
+  clear well
+
+  have well := mul_assoc (a := d ^ n) (b := d) (c := 25)
+  rw [← well] at letsss
+  clear well
+
+  have powers := Real.rpow_add help_1 (x := d) (y := n) (z := 1)
+  rewrite (config := {occs := .pos [3]}) [← Real.rpow_one d] at letsss
+  norm_cast at powers
+
+  rw [add_comm]
+  rw [powers]
+
+  norm_cast at letsss
+
 /-- Lemma 7.5.8. -/
 lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hp : p ∈ t u₁ ∪ (t u₂ ∩ 𝔖₀ t u₁ u₂))
-    (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J))) : s J ≤ 𝔰 p := by
-  sorry
+  (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
+  (hp : p ∈ (t u₁ ∪ (t u₂ ∩ 𝔖₀ t u₁ u₂)))
+  (h : ¬ Disjoint
+        (ball (𝔠 p) (8 * D ^ 𝔰 p))
+        (ball (c J) (8 * D ^ s J))
+  )
+  : s J ≤ 𝔰 p := by
+  rcases hJ with ⟨hJ_left, _nothing⟩
+  apply 𝓙_subset_𝓙₀ at hJ_left
+  apply Set.mem_or_mem_of_mem_union at hp
+
+  have belongs : p ∈ t.𝔖₀ u₁ u₂ := by
+    cases' hp with hi hello
+    exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u hi
+    exact Set.mem_of_mem_inter_right hello
+
+  cases' hJ_left with wow hm
+
+  have bound_i : -S ≤ 𝔰 p ∧ 𝔰 p ≤ S := scale_mem_Icc
+  cases' bound_i with aaa bbbb
+  rw [←wow] at aaa
+  exact aaa
+
+  by_contra contr
+  apply lt_of_not_ge at contr
+
+  have calculation : 8 * (D ^ s J : ℝ) + 8 * D ^ 𝔰 p < 16 * ↑D ^ s J := by
+    have well := calculations D (s J) (𝔰 p) contr (one_lt_D (X := X))
+    norm_cast at well
+
+  clear hp _nothing
+
+  simp [not_disjoint_iff] at h
+
+  rcases h with ⟨middleX, ⟨xxx, yyy⟩⟩
+
+  have well : dist (𝔠 p) (c J) ≤ dist (𝔠 p) middleX + dist middleX (c J) := dist_triangle (𝔠 p) middleX (c J)
+
+  have numbers : dist middleX (𝔠 p) + dist middleX (c J) < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p + 8 * (2 ^ (100 * a ^ 2)) ^ s J := by
+    exact add_lt_add xxx yyy
+
+  clear xxx yyy
+
+  rewrite (config := {occs := .pos [2]}) [dist_comm] at well
+
+  have white := trans well numbers
+
+  have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
+  rw [← hD] at white
+  clear hD
+
+  rw [add_comm] at calculation
+  have smallerThan16 := white.trans calculation
+  clear white well numbers calculation middleX
+
+  have hmm := hm p belongs
+  clear hm
+
+  rw [not_subset] at hmm
+  rcases hmm with ⟨ x, ⟨ xInTile, xNotInBall ⟩ ⟩
+
+  change  (x ∈ ball (c J) (100 * ↑D ^ (s J + 1))) → False at xNotInBall
+
+  have betterTheorem := Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))
+  rw [betterTheorem] at xNotInBall
+  clear betterTheorem
+
+  have h_def : 𝔠 p = c (𝓘 p) := rfl
+
+  have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
+  have same : (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) = (↑(𝓘 p) ⊆ ball (GridStructure.c (𝓘 p)) (4 * ↑D ^ GridStructure.s (𝓘 p))) := by
+    rfl
+
+  rw [← same] at interesting
+  clear same h_def
+
+  rw [subset_def] at interesting
+  have interestingWithX := interesting x xInTile
+  clear interesting
+
+  have betterTheorem := Metric.mem_ball' (y := x) (x := 𝔠 p) (ε := 4 * ↑D ^ 𝔰 p)
+
+  have x_and_p_arePrettyClose := betterTheorem.mp interestingWithX
+
+  clear interestingWithX betterTheorem
+
+  rw [dist_comm] at x_and_p_arePrettyClose
+
+  have triangle : dist x (c J) ≤ dist x (𝔠 p) + dist (𝔠 p) (c J) := by
+    exact dist_triangle (x := x) (y := 𝔠 p) (z := c J)
+
+  have numbers : dist x (𝔠 p) + dist (𝔠 p) (c J) < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
+    exact add_lt_add x_and_p_arePrettyClose smallerThan16
+
+  have rrr := trans triangle numbers
+  clear numbers triangle x_and_p_arePrettyClose smallerThan16
+  rw [dist_comm] at rrr
+  have result := calcme D (s J) (𝔰 p) contr (one_lt_D (X := X))
+  have blue := Trans.trans rrr result
+
+  exact xNotInBall blue
 
 /-- The constant used in `global_tree_control1_1`.
 Has value `2 ^ (154 * a ^ 3)` in the blueprint. -/
