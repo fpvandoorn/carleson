@@ -131,13 +131,8 @@ lemma calculations (d : ℝ) (s sFancy : ℤ) (h1: sFancy < s) (h2: 1 < d) : 8 *
   norm_cast
 
 lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d ^ n < 100 * d ^ (n + 1) := by
-  have help_1 : 0 < d := LT.lt.trans zero_lt_one h2
-
-  have help_3 : 0 < d ^ (n : ℝ) := by
-    norm_cast
-    have d_pos : 0 < d := lt_trans zero_lt_one h2
-    have what : 0 < d ^ (n : ℝ) := Real.rpow_pos_of_pos d_pos (n : ℝ)
-    norm_cast at what
+  have help_1 : 0 < d := by positivity
+  have help_3 : 0 < d ^ (n : ℝ) := by positivity
 
   have hey :  d ^ n > d ^ m := by
     gcongr
@@ -161,7 +156,7 @@ lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d 
 
   clear h_div h_pos
 
-  let theor := (lt_tsub_iff_left (a := d ^ m) (b := d ^ (1 + n) * 25) (c := d ^ n * 4))
+  let theor := lt_tsub_iff_left (a := d ^ m) (b := d ^ (1 + n) * 25) (c := d ^ n * 4)
   rewrite (config := {occs := .pos [2]}) [add_comm] at theor
 
   apply theor.mp
