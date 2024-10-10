@@ -257,14 +257,12 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   rw [betterTheorem] at xNotInBall
   clear betterTheorem
 
-  have h_def : 𝔠 p = c (𝓘 p) := rfl
-
   have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
   have same : (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) = (↑(𝓘 p) ⊆ ball (GridStructure.c (𝓘 p)) (4 * ↑D ^ GridStructure.s (𝓘 p))) := by
     rfl
 
   rw [← same] at interesting
-  clear same h_def
+  clear same
 
   rw [subset_def] at interesting
   have interestingWithX := interesting x xInTile
