@@ -261,6 +261,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   rw [Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))] at xNotInBall
 
   have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
+  change (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) at interesting
   rw [subset_def] at interesting
   have interestingWithX := interesting x xInTile
   clear interesting
