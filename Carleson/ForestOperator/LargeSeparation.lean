@@ -267,14 +267,12 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       exact smallerThan16 middleX xxx yyy contr
     _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
       gcongr
-      have betterTheorem := (Metric.mem_ball' (y := x) (x := 𝔠 p) (ε := 4 * ↑D ^ 𝔰 p)).mp
+      rw [dist_comm]
+      apply (Metric.mem_ball' (y := x) (x := 𝔠 p) (ε := 4 * ↑D ^ 𝔰 p)).mp
       have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
       change (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) at interesting
       rw [subset_def] at interesting
-      have interestingWithX := interesting x xInTile
-      have hello := betterTheorem interestingWithX
-      rw [dist_comm]
-      exact hello
+      exact interesting x xInTile
     _ < 100 * ↑D ^ (s J + 1) := by
       exact calcme D (s J) (𝔰 p) contr (one_lt_D (X := X))
 
