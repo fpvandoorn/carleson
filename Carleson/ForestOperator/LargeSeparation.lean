@@ -249,19 +249,9 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   rw [not_subset] at hmm
   rcases hmm with ⟨ x, ⟨ xInTile, xNotInBall ⟩ ⟩
 
-  change  (x ∈ ball (c J) (100 * ↑D ^ (s J + 1))) → False at xNotInBall
-
-  have betterTheorem := Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))
-  rw [betterTheorem] at xNotInBall
-  clear betterTheorem
+  rw [Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))] at xNotInBall
 
   have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
-  have same : (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) = (↑(𝓘 p) ⊆ ball (GridStructure.c (𝓘 p)) (4 * ↑D ^ GridStructure.s (𝓘 p))) := by
-    rfl
-
-  rw [← same] at interesting
-  clear same
-
   rw [subset_def] at interesting
   have interestingWithX := interesting x xInTile
   clear interesting
