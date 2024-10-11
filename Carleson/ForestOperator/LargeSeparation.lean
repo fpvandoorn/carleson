@@ -246,6 +246,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 
   rw [not_subset] at hmm
   rcases hmm with ⟨ x, ⟨ xInTile, xNotInBall ⟩ ⟩
+  rw [Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))] at xNotInBall
 
   by_contra contr
   apply lt_of_not_ge at contr
@@ -254,39 +255,28 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   simp [not_disjoint_iff] at h
   rcases h with ⟨middleX, ⟨xxx, yyy⟩⟩
 
-  have smallerThan16 := smallerThan16 middleX xxx yyy contr
+  apply xNotInBall
 
-
-
-  rw [Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))] at xNotInBall
-
-  have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
-  change (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) at interesting
-  rw [subset_def] at interesting
-  have interestingWithX := interesting x xInTile
-  clear interesting
-
-  have betterTheorem := Metric.mem_ball' (y := x) (x := 𝔠 p) (ε := 4 * ↑D ^ 𝔰 p)
-
-  have x_and_p_arePrettyClose := betterTheorem.mp interestingWithX
-
-  clear interestingWithX betterTheorem
-
-  rw [dist_comm] at x_and_p_arePrettyClose
-
-  have triangle : dist x (c J) ≤ dist x (𝔠 p) + dist (𝔠 p) (c J) := by
-    exact dist_triangle (x := x) (y := 𝔠 p) (z := c J)
-
-  have numbers : dist x (𝔠 p) + dist (𝔠 p) (c J) < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
-    exact add_lt_add x_and_p_arePrettyClose smallerThan16
-
-  have rrr := trans triangle numbers
-  clear numbers triangle x_and_p_arePrettyClose smallerThan16
-  rw [dist_comm] at rrr
-  have result := calcme D (s J) (𝔰 p) contr (one_lt_D (X := X))
-  have blue := Trans.trans rrr result
-
-  exact xNotInBall blue
+  calc dist (c J) (x)
+    _ = dist (x) (c J) := by
+      apply dist_comm
+    _ ≤ dist (x) (𝔠 p) + dist (𝔠 p) (c J) := by
+      exact dist_triangle (x := x) (y := 𝔠 p) (z := c J)
+    _ < dist (x) (𝔠 p) + 16 * ↑D ^ s J := by
+      gcongr
+      exact smallerThan16 middleX xxx yyy contr
+    _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
+      gcongr
+      have betterTheorem := (Metric.mem_ball' (y := x) (x := 𝔠 p) (ε := 4 * ↑D ^ 𝔰 p)).mp
+      have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
+      change (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) at interesting
+      rw [subset_def] at interesting
+      have interestingWithX := interesting x xInTile
+      have hello := betterTheorem interestingWithX
+      rw [dist_comm]
+      exact hello
+    _ < 100 * ↑D ^ (s J + 1) := by
+      exact calcme D (s J) (𝔰 p) contr (one_lt_D (X := X))
 
 /-- The constant used in `global_tree_control1_1`.
 Has value `2 ^ (154 * a ^ 3)` in the blueprint. -/
