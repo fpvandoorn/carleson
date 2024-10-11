@@ -188,6 +188,27 @@ lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d 
 
   norm_cast at letsss
 
+lemma smallerThan16
+  (middleX : X)
+  (xxx: dist middleX (𝔠 p) < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p)
+  (yyy: dist middleX (c J) < 8 * (2 ^ (100 * a ^ 2)) ^ s J)
+  (contr: 𝔰 p < s J)
+  : dist (𝔠 p) (c J) < 16 * ↑D ^ s J := by
+  calc dist (𝔠 p) (c J)
+    _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
+      rewrite (config := {occs := .pos [2]}) [dist_comm]
+      apply dist_triangle (𝔠 p) middleX (c J)
+    _ < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p + 8 * (2 ^ (100 * a ^ 2)) ^ s J := by
+      exact add_lt_add xxx yyy
+    _ = 8 * ↑D ^ 𝔰 p + 8 * ↑D ^ s J := by
+      have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
+      rw [← hD]
+    _ < 16 * ↑D ^ s J := by
+      have well := calculations D (s J) (𝔰 p) contr (one_lt_D (X := X))
+      norm_cast at well
+      rw [add_comm] at well
+      exact well
+
 /-- Lemma 7.5.8. -/
 lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
@@ -216,34 +237,11 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   by_contra contr
   apply lt_of_not_ge at contr
 
-  have calculation : 8 * (D ^ s J : ℝ) + 8 * D ^ 𝔰 p < 16 * ↑D ^ s J := by
-    have well := calculations D (s J) (𝔰 p) contr (one_lt_D (X := X))
-    norm_cast at well
-
   clear hp _nothing
-
   simp [not_disjoint_iff] at h
-
   rcases h with ⟨middleX, ⟨xxx, yyy⟩⟩
 
-  have well : dist (𝔠 p) (c J) ≤ dist (𝔠 p) middleX + dist middleX (c J) := dist_triangle (𝔠 p) middleX (c J)
-
-  have numbers : dist middleX (𝔠 p) + dist middleX (c J) < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p + 8 * (2 ^ (100 * a ^ 2)) ^ s J := by
-    exact add_lt_add xxx yyy
-
-  clear xxx yyy
-
-  rewrite (config := {occs := .pos [2]}) [dist_comm] at well
-
-  have white := trans well numbers
-
-  have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
-  rw [← hD] at white
-  clear hD
-
-  rw [add_comm] at calculation
-  have smallerThan16 := white.trans calculation
-  clear white well numbers calculation middleX
+  have smallerThan16 := smallerThan16 middleX xxx yyy contr
 
   have hmm := hm p belongs
   clear hm
