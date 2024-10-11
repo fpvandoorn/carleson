@@ -234,6 +234,19 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   rw [←wow] at aaa
   exact aaa
 
+
+
+  --
+  --
+  -- We only need to refactor stuff below this line
+  --
+  --
+  have hmm := hm p belongs
+  clear hm
+
+  rw [not_subset] at hmm
+  rcases hmm with ⟨ x, ⟨ xInTile, xNotInBall ⟩ ⟩
+
   by_contra contr
   apply lt_of_not_ge at contr
 
@@ -243,11 +256,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 
   have smallerThan16 := smallerThan16 middleX xxx yyy contr
 
-  have hmm := hm p belongs
-  clear hm
 
-  rw [not_subset] at hmm
-  rcases hmm with ⟨ x, ⟨ xInTile, xNotInBall ⟩ ⟩
 
   rw [Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))] at xNotInBall
 
