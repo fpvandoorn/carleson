@@ -131,83 +131,38 @@ lemma calculations (d : ℝ) (s sFancy : ℤ) (h1: sFancy < s) (h2: 1 < d) : 8 *
   norm_cast
 
 lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d ^ n < 100 * d ^ (n + 1) := by
-  have help_1 : 0 < d := by positivity
-  have help_3 : 0 < d ^ (n : ℝ) := by positivity
-
-  have hey :  d ^ n > d ^ m := by
-    gcongr
-    exact h2
-
-  have yes : 25 * d - 4 > 1 := by linarith
-
-  have aha : d ^ n * (25 * d - 4) > d ^ n := by
-    have sure := lt_mul_left (ha := help_3) (b := (25 * d - 4)) yes
-    apply LT.lt.gt
-    norm_cast at sure
-    linarith
-
-  have lets := gt_trans aha hey
-
   have h_pos : 0 < (4 : ℝ) := by norm_num
   have h_div := div_lt_div_right h_pos (a := 4 * d ^ m + 16 * d ^ n) (b := 100 * d ^ (n + 1))
   apply h_div.mp
 
   ring_nf
 
-  clear h_div h_pos
-
   let theor := lt_tsub_iff_left (a := d ^ m) (b := d ^ (1 + n) * 25) (c := d ^ n * 4)
   rewrite (config := {occs := .pos [2]}) [add_comm] at theor
 
   apply theor.mp
-  clear theor
 
-  clear aha
-
-  have letsss := GT.gt.lt lets
-  clear lets
-
-  have th := mul_sub (a := d ^ n) (b := 25 * d) (c := 4)
-  rw [th] at letsss
-  clear th
-
-  have well := mul_comm 25 d
-  rw [well] at letsss
-  clear well
-
-  have well := mul_assoc (a := d ^ n) (b := d) (c := 25)
-  rw [← well] at letsss
-  clear well
-
-  have powers := Real.rpow_add help_1 (x := d) (y := n) (z := 1)
-  rewrite (config := {occs := .pos [3]}) [← Real.rpow_one d] at letsss
-  norm_cast at powers
-
-  rw [add_comm]
-  rw [powers]
-
-  norm_cast at letsss
-
-lemma smallerThan16
-  (middleX : X)
-  (xxx: dist middleX (𝔠 p) < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p)
-  (yyy: dist middleX (c J) < 8 * (2 ^ (100 * a ^ 2)) ^ s J)
-  (contr: 𝔰 p < s J)
-  : dist (𝔠 p) (c J) < 16 * ↑D ^ s J := by
-  calc dist (𝔠 p) (c J)
-    _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
-      rewrite (config := {occs := .pos [2]}) [dist_comm]
-      apply dist_triangle (𝔠 p) middleX (c J)
-    _ < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p + 8 * (2 ^ (100 * a ^ 2)) ^ s J := by
-      exact add_lt_add xxx yyy
-    _ = 8 * ↑D ^ 𝔰 p + 8 * ↑D ^ s J := by
-      have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
-      rw [← hD]
-    _ < 16 * ↑D ^ s J := by
-      have well := calculations D (s J) (𝔰 p) contr (one_lt_D (X := X))
-      norm_cast at well
-      rw [add_comm] at well
-      exact well
+  calc d ^ m
+    _ < d ^ n := by
+      gcongr
+      exact h2
+    _ < d ^ n * (25 * d - 4) := by
+      have help_3 : 0 < d ^ (n : ℝ) := by positivity
+      have sure := lt_mul_left (ha := help_3) (b := (25 * d - 4)) (by linarith)
+      norm_cast at sure
+      linarith
+    _ = d ^ n * (25 * d) - d ^ n * 4 := by
+      ring_nf
+    _ = d ^ n * (d * 25) - d ^ n * 4 := by
+      ring
+    _ = (d ^ n * d) * 25 - d ^ n * 4 := by
+      ring
+    _ = d ^ (n + 1) * 25 - d ^ n * 4 := by
+      congr
+      apply eq_comm.mp
+      exact_mod_cast Real.rpow_add_one (x:=d) (by positivity) (y:=n)
+    _ = d ^ (1 + n) * 25 - d ^ n * 4 := by
+      ring_nf
 
 /-- Lemma 7.5.8. -/
 lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -264,7 +219,20 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       exact dist_triangle (x := x) (y := 𝔠 p) (z := c J)
     _ < dist (x) (𝔠 p) + 16 * ↑D ^ s J := by
       gcongr
-      exact smallerThan16 middleX xxx yyy contr
+      calc dist (𝔠 p) (c J)
+        _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
+          rewrite (config := {occs := .pos [2]}) [dist_comm]
+          apply dist_triangle (𝔠 p) middleX (c J)
+        _ < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p + 8 * (2 ^ (100 * a ^ 2)) ^ s J := by
+          exact add_lt_add xxx yyy
+        _ = 8 * ↑D ^ 𝔰 p + 8 * ↑D ^ s J := by
+          have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
+          rw [← hD]
+        _ < 16 * ↑D ^ s J := by
+          have well := calculations D (s J) (𝔰 p) contr (one_lt_D (X := X))
+          norm_cast at well
+          rw [add_comm] at well
+          exact well
     _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
       gcongr
       rw [dist_comm]
