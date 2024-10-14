@@ -119,17 +119,6 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
     C7_5_7 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
   sorry
 
-lemma calculations (d : ℝ) (s sFancy : ℤ) (h1: sFancy < s) (h2: 1 < d) : 8 * d ^ (s : ℝ) + 8 * d ^ (sFancy : ℝ) < 16 * d ^ s := by
-  have woah : 8 * d ^ s + 8 * d ^ sFancy < 16 * d ^ s := by
-    calc 8 * d ^ s + 8 * d ^ sFancy
-      _ < 8 * d ^ s + 8 * d ^ s := by
-          gcongr
-          exact h2
-      _ = 16 * d ^ s := by
-        rw [← Real.commRing.proof_8]
-        norm_num
-  norm_cast
-
 lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d ^ n < 100 * d ^ (n + 1) := by
   have h_pos : 0 < (4 : ℝ) := by norm_num
   have h_div := div_lt_div_right h_pos (a := 4 * d ^ m + 16 * d ^ n) (b := 100 * d ^ (n + 1))
@@ -225,11 +214,14 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
           apply dist_triangle (𝔠 p) middleX (c J)
         _ < 8 * D ^ 𝔰 p + 8 * D ^ s J := by
           exact add_lt_add xxx yyy
-        _ < 16 * D ^ s J := by
-          have well := calculations D (s J) (𝔰 p) contr (one_lt_D (X := X))
-          norm_cast at well
-          rw [add_comm] at well
-          exact well
+        _ = 8 * D ^ s J + 8 * D ^ 𝔰 p := by
+          rw [add_comm]
+        _ < 8 * D ^ (s J) + 8 * D ^ (s J) := by
+          gcongr
+          norm_cast
+          exact_mod_cast one_lt_D (X := X)
+        _ = 16 * D ^ s J := by
+          linarith
     _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
       gcongr
       rw [dist_comm]
