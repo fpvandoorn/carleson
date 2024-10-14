@@ -207,7 +207,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   apply lt_of_not_ge at contr
 
   clear hp _nothing
-  simp [not_disjoint_iff] at h
+  simp only [not_disjoint_iff] at h
   rcases h with ⟨middleX, ⟨xxx, yyy⟩⟩
 
   apply xNotInBall
@@ -223,12 +223,9 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
         _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
           rewrite (config := {occs := .pos [2]}) [dist_comm]
           apply dist_triangle (𝔠 p) middleX (c J)
-        _ < 8 * (2 ^ (100 * a ^ 2)) ^ 𝔰 p + 8 * (2 ^ (100 * a ^ 2)) ^ s J := by
+        _ < 8 * D ^ 𝔰 p + 8 * D ^ s J := by
           exact add_lt_add xxx yyy
-        _ = 8 * ↑D ^ 𝔰 p + 8 * ↑D ^ s J := by
-          have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
-          rw [← hD]
-        _ < 16 * ↑D ^ s J := by
+        _ < 16 * D ^ s J := by
           have well := calculations D (s J) (𝔰 p) contr (one_lt_D (X := X))
           norm_cast at well
           rw [add_comm] at well
