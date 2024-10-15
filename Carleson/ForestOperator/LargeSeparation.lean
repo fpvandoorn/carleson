@@ -120,16 +120,10 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
   sorry
 
 lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d ^ n < 100 * d ^ (n + 1) := by
-  have h_pos : 0 < (4 : ℝ) := by norm_num
-  have h_div := div_lt_div_right h_pos (a := 4 * d ^ m + 16 * d ^ n) (b := 100 * d ^ (n + 1))
-  apply h_div.mp
-
+  apply (div_lt_div_right zero_lt_four).mp
   ring_nf
-
-  let theor := lt_tsub_iff_left (a := d ^ m) (b := d ^ (1 + n) * 25) (c := d ^ n * 4)
-  rewrite (config := {occs := .pos [2]}) [add_comm] at theor
-
-  apply theor.mp
+  rewrite (config := {occs := .pos [1]}) [add_comm]
+  apply lt_tsub_iff_left.mp
 
   calc d ^ m
     _ < d ^ n := by
