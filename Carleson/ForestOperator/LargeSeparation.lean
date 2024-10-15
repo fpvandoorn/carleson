@@ -120,52 +120,30 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
   sorry
 
 /-- Lemma 7.5.8. -/
-lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-  (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
-  (hp : p ∈ (t u₁ ∪ (t u₂ ∩ 𝔖₀ t u₁ u₂)))
-  (h : ¬ Disjoint
-        (ball (𝔠 p) (8 * D ^ 𝔰 p))
-        (ball (c J) (8 * D ^ s J))
-  )
-  : s J ≤ 𝔰 p := by
-  rcases hJ with ⟨hJ_left, _nothing⟩
-  apply 𝓙_subset_𝓙₀ at hJ_left
+lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hp : p ∈ (t u₁ ∪ (t u₂ ∩ 𝔖₀ t u₁ u₂))) (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J))) : s J ≤ 𝔰 p := by
+  rcases hJ with ⟨hJLeft, _⟩
+  apply 𝓙_subset_𝓙₀ at hJLeft
   apply Set.mem_or_mem_of_mem_union at hp
 
   have belongs : p ∈ t.𝔖₀ u₁ u₂ := by
-    cases' hp with hi hello
-    exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u hi
-    exact Set.mem_of_mem_inter_right hello
+    cases' hp with h1 h2
+    exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
+    exact Set.mem_of_mem_inter_right h2
 
-  cases' hJ_left with wow hm
+  cases' hJLeft with scaleVerySmall noGridInBall
 
-  have bound_i : -S ≤ 𝔰 p ∧ 𝔰 p ≤ S := scale_mem_Icc
-  cases' bound_i with aaa bbbb
-  rw [←wow] at aaa
-  exact aaa
+  exact trans scaleVerySmall (scale_mem_Icc.left)
 
-
-
-  --
-  --
-  -- We only need to refactor stuff below this line
-  --
-  --
-  have hmm := hm p belongs
-  clear hm
-
-  rw [not_subset] at hmm
-  rcases hmm with ⟨ x, ⟨ xInTile, xNotInBall ⟩ ⟩
-  rw [Metric.mem_ball' (y := x) (ε := 100 * ↑D ^ (s J + 1)) (x := (c J))] at xNotInBall
+  have pGridIsNotInBall := noGridInBall p belongs
+  rw [not_subset] at pGridIsNotInBall
+  rcases pGridIsNotInBall with ⟨x, ⟨xInTile, xIsNotInBall⟩⟩
+  rw [Metric.mem_ball'] at xIsNotInBall
 
   by_contra contr
   apply lt_of_not_ge at contr
-
-  clear hp _nothing
+  apply xIsNotInBall
   simp only [not_disjoint_iff] at h
   rcases h with ⟨middleX, ⟨xxx, yyy⟩⟩
-
-  apply xNotInBall
 
   calc dist (c J) (x)
     _ = dist (x) (c J) := by
@@ -184,18 +162,15 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
           rw [add_comm]
         _ < 8 * D ^ (s J) + 8 * D ^ (s J) := by
           gcongr
-          norm_cast
-          exact_mod_cast one_lt_D (X := X)
+          exact one_lt_D (X := X)
         _ = 16 * D ^ s J := by
           linarith
     _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
       gcongr
       rw [dist_comm]
       apply Metric.mem_ball'.mp
-      have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
-      change (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) at interesting
-      rw [subset_def] at interesting
-      exact interesting x xInTile
+      apply Grid_subset_ball (X := X) (i := 𝓘 p)
+      exact xInTile
     _ < 100 * ↑D ^ (s J + 1) := by
       apply (div_lt_div_right zero_lt_four).mp
       ring_nf
