@@ -180,10 +180,6 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
           apply lt_mul_left
           positivity
           linarith
-        _ = D ^ (s J) * (25 * D) - D ^ (s J) * 4 := by
-          ring_nf
-        _ = D ^ (s J) * (D * 25) - D ^ (s J) * 4 := by
-          ring
         _ = (D ^ (s J) * D) * 25 - D ^ (s J) * 4 := by
           ring
         _ = D ^ ((s J) + 1) * 25 - D ^ (s J) * 4 := by
