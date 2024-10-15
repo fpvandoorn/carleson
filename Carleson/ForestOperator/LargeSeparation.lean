@@ -123,7 +123,69 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
 lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hp : p ∈ t u₁ ∪ (t u₂ ∩ 𝔖₀ t u₁ u₂))
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J))) : s J ≤ 𝔰 p := by
-  sorry
+  rcases hJ with ⟨hJLeft, _⟩
+  apply 𝓙_subset_𝓙₀ at hJLeft
+  apply Set.mem_or_mem_of_mem_union at hp
+  have belongs : p ∈ t.𝔖₀ u₁ u₂ := by
+    cases' hp with h1 h2
+    exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
+    exact Set.mem_of_mem_inter_right h2
+  cases' hJLeft with scaleVerySmall noGridInBall
+  · exact trans scaleVerySmall (scale_mem_Icc.left)
+  have pGridIsNotInBall := noGridInBall p belongs
+  rw [not_subset] at pGridIsNotInBall
+  rcases pGridIsNotInBall with ⟨x, ⟨xInTile, xIsNotInBall⟩⟩
+  rw [Metric.mem_ball'] at xIsNotInBall
+  by_contra! contr
+  apply xIsNotInBall
+  simp only [not_disjoint_iff] at h
+  rcases h with ⟨middleX, xxx, yyy⟩
+  calc dist (c J) x
+    _ = dist (x) (c J) := by
+      apply dist_comm
+    _ ≤ dist (x) (𝔠 p) + dist (𝔠 p) (c J) := dist_triangle ..
+    _ < dist (x) (𝔠 p) + 16 * ↑D ^ s J := by
+      gcongr
+      calc dist (𝔠 p) (c J)
+        _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
+          nth_rw 2 [dist_comm]
+          apply dist_triangle
+        _ < 8 * D ^ 𝔰 p + 8 * D ^ s J := by
+          exact add_lt_add xxx yyy
+        _ = 8 * D ^ s J + 8 * D ^ 𝔰 p := by
+          rw [add_comm]
+        _ < 8 * D ^ (s J) + 8 * D ^ (s J) := by
+          gcongr
+          exact one_lt_D (X := X)
+        _ = 16 * D ^ s J := by
+          linarith
+    _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
+      gcongr
+      rw [dist_comm]
+      apply Metric.mem_ball'.mp
+      apply Grid_subset_ball (X := X) (i := 𝓘 p)
+      exact xInTile
+    _ < 100 * ↑D ^ (s J + 1) := by
+      apply (div_lt_div_right zero_lt_four).mp
+      ring_nf
+      rewrite (config := {occs := .pos [1]}) [add_comm]
+      apply lt_tsub_iff_left.mp
+      have DIsPos := one_lt_D (X := X)
+      calc (D : ℝ) ^ 𝔰 p
+        _ < D ^ (s J) := by
+          gcongr
+          exact DIsPos
+        _ < D ^ (s J) * (25 * D - 4) := by
+          rewrite (config := {occs := .pos [1]}) [mul_comm]
+          apply lt_mul_left
+          positivity
+          linarith
+        _ = (D ^ (s J) * D) * 25 - D ^ (s J) * 4 := by
+          ring
+        _ = D ^ ((s J) + 1) * 25 - D ^ (s J) * 4 := by
+          rw [zpow_add_one₀ (by positivity)]
+        _ = D ^ (1 + (s J)) * 25 - D ^ (s J) * 4 := by
+          ring_nf
 
 /-- The constant used in `global_tree_control1_1`.
 Has value `2 ^ (154 * a ^ 3)` in the blueprint. -/
