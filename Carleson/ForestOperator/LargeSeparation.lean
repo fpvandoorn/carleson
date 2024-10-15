@@ -148,7 +148,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       gcongr
       calc dist (𝔠 p) (c J)
         _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
-          rewrite (config := {occs := .pos [2]}) [dist_comm]
+          nth_rw 2 [dist_comm]
           apply dist_triangle
         _ < 8 * D ^ 𝔰 p + 8 * D ^ s J := by
           exact add_lt_add xxx yyy
