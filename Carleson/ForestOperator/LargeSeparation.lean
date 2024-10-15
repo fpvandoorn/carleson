@@ -143,8 +143,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   calc dist (c J) x
     _ = dist (x) (c J) := by
       apply dist_comm
-    _ ≤ dist (x) (𝔠 p) + dist (𝔠 p) (c J) := by
-      exact dist_triangle (x := x) (y := 𝔠 p) (z := c J)
+    _ ≤ dist (x) (𝔠 p) + dist (𝔠 p) (c J) := dist_triangle ..
     _ < dist (x) (𝔠 p) + 16 * ↑D ^ s J := by
       gcongr
       calc dist (𝔠 p) (c J)
