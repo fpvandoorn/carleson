@@ -140,7 +140,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   apply xIsNotInBall
   simp only [not_disjoint_iff] at h
   rcases h with ⟨middleX, xxx, yyy⟩
-  calc dist (c J) (x)
+  calc dist (c J) x
     _ = dist (x) (c J) := by
       apply dist_comm
     _ ≤ dist (x) (𝔠 p) + dist (𝔠 p) (c J) := by
