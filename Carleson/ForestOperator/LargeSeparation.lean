@@ -183,9 +183,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
         _ = (D ^ (s J) * D) * 25 - D ^ (s J) * 4 := by
           ring
         _ = D ^ ((s J) + 1) * 25 - D ^ (s J) * 4 := by
-          congr
-          apply eq_comm.mp
-          exact_mod_cast Real.rpow_add_one (x:=D) (by positivity) (y:=(s J))
+          rw [zpow_add_one₀ (by positivity)]
         _ = D ^ (1 + (s J)) * 25 - D ^ (s J) * 4 := by
           ring_nf
 
