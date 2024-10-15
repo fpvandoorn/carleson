@@ -232,26 +232,30 @@ lemma C_K_pos (a : ℝ) : 0 < C_K a := by unfold C_K; positivity
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
 class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
-  measurable_K_right : Measurable (uncurry K)
-  measurable_K_left (y : X) : Measurable (K · y)
+  measurable_K : Measurable (uncurry K)
   norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
-  norm_K_sub_le {x y y' : X} (h : 2 /-* A-/ * dist y y' ≤ dist x y) :
+  norm_K_sub_le {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
     ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
-export IsOneSidedKernel (measurable_K_right measurable_K_left norm_K_le_vol_inv norm_K_sub_le)
+export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
 lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
-    AEStronglyMeasurable (fun x : X × X ↦ K x.1 x.2) :=
-  sorry -- this probably needs to be replaced in the definition of 1-sided kernel.
+    AEStronglyMeasurable (uncurry K) :=
+  measurable_K.aestronglyMeasurable
+
+lemma measurable_K_left [IsOneSidedKernel a K] (y : X) : Measurable (K · y) :=
+  measurable_K.of_uncurry_right
 
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
-  norm_K_sub_le' {x x' y : X} (h : 2 /-* A-/ * dist x x' ≤ dist x y) :
+  norm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
     ‖K x y - K x' y‖ ≤ (dist x x' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
 export IsTwoSidedKernel (norm_K_sub_le')
+
+-- maybe show: `K` is a 2-sided kernel iff `K` and `fun x y ↦ K y x` are one-sided kernels.
 
 end Kernel
 
