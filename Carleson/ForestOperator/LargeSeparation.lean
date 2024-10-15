@@ -131,7 +131,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
     exact Set.mem_of_mem_inter_right h2
   cases' hJLeft with scaleVerySmall noGridInBall
-  exact trans scaleVerySmall (scale_mem_Icc.left)
+  · exact trans scaleVerySmall (scale_mem_Icc.left)
   have pGridIsNotInBall := noGridInBall p belongs
   rw [not_subset] at pGridIsNotInBall
   rcases pGridIsNotInBall with ⟨x, ⟨xInTile, xIsNotInBall⟩⟩
