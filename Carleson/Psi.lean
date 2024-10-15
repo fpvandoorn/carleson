@@ -668,7 +668,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       replace hy := hy.2.le
       rw [zpow_neg, mul_comm, ← div_eq_mul_inv, div_le_iff₀ (Ds0 X s)] at hy
       rwa [mem_closedBall, dist_comm, div_eq_mul_inv, mul_comm]
-  · refine Measurable.ite ?_ measurable_const measurable_K_right.of_uncurry_left
+  · refine Measurable.ite ?_ measurable_const measurable_K.of_uncurry_left
     convert measurableSet_closedBall (x := x) (ε := D ^ s / (4 * D))
     simp_rw [dist_comm x _, closedBall]
   · refine ⟨C_K a / volume.real (ball x (D ^ s / (4 * D))), fun y ↦ ?_⟩

@@ -109,7 +109,7 @@ def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
 lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
-  refine (((Measurable.mul ?_ measurable_K_right).mul ?_).mul ?_).stronglyMeasurable
+  refine (((Measurable.mul ?_ measurable_K).mul ?_).mul ?_).stronglyMeasurable
   · have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
     refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
     · exact measurable_Q₂
