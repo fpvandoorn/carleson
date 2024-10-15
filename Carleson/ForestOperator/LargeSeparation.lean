@@ -126,27 +126,21 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   rcases hJ with ⟨hJLeft, _⟩
   apply 𝓙_subset_𝓙₀ at hJLeft
   apply Set.mem_or_mem_of_mem_union at hp
-
   have belongs : p ∈ t.𝔖₀ u₁ u₂ := by
     cases' hp with h1 h2
     exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
     exact Set.mem_of_mem_inter_right h2
-
   cases' hJLeft with scaleVerySmall noGridInBall
-
   exact trans scaleVerySmall (scale_mem_Icc.left)
-
   have pGridIsNotInBall := noGridInBall p belongs
   rw [not_subset] at pGridIsNotInBall
   rcases pGridIsNotInBall with ⟨x, ⟨xInTile, xIsNotInBall⟩⟩
   rw [Metric.mem_ball'] at xIsNotInBall
-
   by_contra contr
   apply lt_of_not_ge at contr
   apply xIsNotInBall
   simp only [not_disjoint_iff] at h
   rcases h with ⟨middleX, ⟨xxx, yyy⟩⟩
-
   calc dist (c J) (x)
     _ = dist (x) (c J) := by
       apply dist_comm
