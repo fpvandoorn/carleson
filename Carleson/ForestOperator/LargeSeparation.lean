@@ -136,8 +136,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   rw [not_subset] at pGridIsNotInBall
   rcases pGridIsNotInBall with ⟨x, ⟨xInTile, xIsNotInBall⟩⟩
   rw [Metric.mem_ball'] at xIsNotInBall
-  by_contra contr
-  apply lt_of_not_ge at contr
+  by_contra! contr
   apply xIsNotInBall
   simp only [not_disjoint_iff] at h
   rcases h with ⟨middleX, ⟨xxx, yyy⟩⟩
