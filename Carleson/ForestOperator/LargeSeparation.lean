@@ -130,9 +130,9 @@ lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d 
       gcongr
       exact h2
     _ < d ^ n * (25 * d - 4) := by
-      have help_3 : 0 < d ^ (n : ℝ) := by positivity
-      have sure := lt_mul_left (ha := help_3) (b := (25 * d - 4)) (by linarith)
-      norm_cast at sure
+      rewrite (config := {occs := .pos [1]}) [mul_comm]
+      apply lt_mul_left
+      positivity
       linarith
     _ = d ^ n * (25 * d) - d ^ n * 4 := by
       ring_nf
@@ -205,7 +205,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       calc dist (𝔠 p) (c J)
         _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
           rewrite (config := {occs := .pos [2]}) [dist_comm]
-          apply dist_triangle (𝔠 p) middleX (c J)
+          apply dist_triangle
         _ < 8 * D ^ 𝔰 p + 8 * D ^ s J := by
           exact add_lt_add xxx yyy
         _ = 8 * D ^ s J + 8 * D ^ 𝔰 p := by
@@ -219,7 +219,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
       gcongr
       rw [dist_comm]
-      apply (Metric.mem_ball' (y := x) (x := 𝔠 p) (ε := 4 * ↑D ^ 𝔰 p)).mp
+      apply Metric.mem_ball'.mp
       have interesting := Grid_subset_ball (X := X) (i := 𝓘 p)
       change (↑(𝓘 p) ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p)) at interesting
       rw [subset_def] at interesting
