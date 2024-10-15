@@ -119,34 +119,6 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
     C7_5_7 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
   sorry
 
-lemma calcme (d : ℝ) (n m : ℤ) (h1: m < n) (h2: 1 < d) : 4 * d ^ m + 16 * d ^ n < 100 * d ^ (n + 1) := by
-  apply (div_lt_div_right zero_lt_four).mp
-  ring_nf
-  rewrite (config := {occs := .pos [1]}) [add_comm]
-  apply lt_tsub_iff_left.mp
-
-  calc d ^ m
-    _ < d ^ n := by
-      gcongr
-      exact h2
-    _ < d ^ n * (25 * d - 4) := by
-      rewrite (config := {occs := .pos [1]}) [mul_comm]
-      apply lt_mul_left
-      positivity
-      linarith
-    _ = d ^ n * (25 * d) - d ^ n * 4 := by
-      ring_nf
-    _ = d ^ n * (d * 25) - d ^ n * 4 := by
-      ring
-    _ = (d ^ n * d) * 25 - d ^ n * 4 := by
-      ring
-    _ = d ^ (n + 1) * 25 - d ^ n * 4 := by
-      congr
-      apply eq_comm.mp
-      exact_mod_cast Real.rpow_add_one (x:=d) (by positivity) (y:=n)
-    _ = d ^ (1 + n) * 25 - d ^ n * 4 := by
-      ring_nf
-
 /-- Lemma 7.5.8. -/
 lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
@@ -225,7 +197,32 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       rw [subset_def] at interesting
       exact interesting x xInTile
     _ < 100 * ↑D ^ (s J + 1) := by
-      exact calcme D (s J) (𝔰 p) contr (one_lt_D (X := X))
+      apply (div_lt_div_right zero_lt_four).mp
+      ring_nf
+      rewrite (config := {occs := .pos [1]}) [add_comm]
+      apply lt_tsub_iff_left.mp
+      have DIsPos := one_lt_D (X := X)
+      calc (D : ℝ) ^ 𝔰 p
+        _ < D ^ (s J) := by
+          gcongr
+          exact DIsPos
+        _ < D ^ (s J) * (25 * D - 4) := by
+          rewrite (config := {occs := .pos [1]}) [mul_comm]
+          apply lt_mul_left
+          positivity
+          linarith
+        _ = D ^ (s J) * (25 * D) - D ^ (s J) * 4 := by
+          ring_nf
+        _ = D ^ (s J) * (D * 25) - D ^ (s J) * 4 := by
+          ring
+        _ = (D ^ (s J) * D) * 25 - D ^ (s J) * 4 := by
+          ring
+        _ = D ^ ((s J) + 1) * 25 - D ^ (s J) * 4 := by
+          congr
+          apply eq_comm.mp
+          exact_mod_cast Real.rpow_add_one (x:=D) (by positivity) (y:=(s J))
+        _ = D ^ (1 + (s J)) * 25 - D ^ (s J) * 4 := by
+          ring_nf
 
 /-- The constant used in `global_tree_control1_1`.
 Has value `2 ^ (154 * a ^ 3)` in the blueprint. -/
