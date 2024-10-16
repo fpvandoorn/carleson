@@ -19,9 +19,7 @@ def dirichletKernel' (N : ℕ) : ℝ → ℂ :=
 
 lemma dirichletKernel_periodic {N : ℕ} : Function.Periodic (dirichletKernel N) (2 * π) := by
   intro x
-  simp_rw [dirichletKernel]
-  congr
-  simp
+  simp [dirichletKernel]
 
 lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' N) (2 * π) := by
   intro x
