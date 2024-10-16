@@ -20,14 +20,14 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
 
 -- Q : should this be a subset of 𝔄 instead? Let's see which version makes things easier
 -- Def 6.3.15
-def 𝔄_aux (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Set (𝔓 X) :=
-  {p : 𝔓 X | p ∈ 𝔄 ∧ 1 + dist_(p) (𝒬 p) ϑ ∈ Icc (2^N) (2^(N+1))}
+def 𝔄_aux (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Finset (𝔓 X) :=
+  {p ∈ 𝔄 | 1 + dist_(p) (𝒬 p) ϑ ∈ Icc (2^N) (2^(N+1))}
 
--- TODO: ask about sum
 open Classical
+
 -- Lemma 6.3.2
 lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
-    ∑ (p ∈ {p : 𝔓 X | p ∈ (𝔄_aux 𝔄 ϑ N) ∧ 𝓘 p = L}), volume (E p ∩ G) ≤
+    ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝓘 p = L}), volume (E p ∩ G) ≤
       2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (coeGrid L) := sorry
 
 -- Lemma 6.3.3
