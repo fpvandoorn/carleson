@@ -17,7 +17,8 @@ def dirichletKernel (N : ℕ) : ℝ → ℂ := fun x ↦ ∑ n in Icc (-Int.ofNa
 def dirichletKernel' (N : ℕ) : ℝ → ℂ := fun x ↦ (exp (I * N * x) / (1 - exp (-I * x)) + exp (-I * N * x) / (1 - exp (I * x)))
 
 lemma dirichletKernel_periodic {N : ℕ} : Function.Periodic (dirichletKernel N) (2 * Real.pi) := by
-  sorry
+  intro n
+  simp [dirichletKernel]
 
 lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' N) (2 * Real.pi) := by
   sorry
