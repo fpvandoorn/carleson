@@ -417,10 +417,32 @@ lemma range_σ₂_subset : range σ₂ ⊆ Icc (- defaultS X) (defaultS X) := by
 lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (- defaultS X) (defaultS X) :=
   fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
 
-lemma neg_S_mem_or_S_mem :
+lemma neg_S_mem_or_S_mem [Nonempty X] :
     (- defaultS X : ℤ) ∈ range σ₁ ∨ (defaultS X : ℤ) ∈ range σ₂ := by
+  by_cases h₀ : defaultS X = 0
+  · right
+    simp only [h₀, CharP.cast_eq_zero, mem_range]
+    have : range σ₂ ⊆ Icc (- defaultS X) (defaultS X) := range_σ₂_subset
+    simp only [h₀, CharP.cast_eq_zero, neg_zero, Icc_self, subset_singleton_iff, mem_range,
+      forall_exists_index, forall_apply_eq_imp_iff] at this
+    let x : X := Classical.choice inferInstance
+    exact ⟨x, this x⟩
+  by_contra! h
+  have h1 (x : X) : -(defaultS X) < σ₁ x := by
 
-  sorry
+    sorry
+  have h2 (x : X) : σ₂ x < defaultS X := by sorry
+  let n := (defaultS X) - 1
+  have h1' (x : X) : -n ≤ σ₁ x := by
+    rw [Int.natCast_sub (Nat.one_le_iff_ne_zero.mpr h₀), neg_sub, sub_eq_add_neg, add_comm]
+    exact h1 x
+  have h2' (x : X) : σ₂ x ≤ n :=
+    Int.natCast_sub (Nat.one_le_iff_ne_zero.mpr h₀) ▸ le_sub_right_of_add_le (h2 x)
+  have hn : n < defaultS X := by
+    simp only [tsub_lt_self_iff, zero_lt_one, and_true, n]
+    exact Nat.zero_lt_of_ne_zero h₀
+  classical
+  exact Nat.find_min (S_spec X) hn fun x ↦ ⟨h1' x, h2' x⟩
 
 variable (X)
 
