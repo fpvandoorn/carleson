@@ -405,21 +405,14 @@ def defaultS : ℕ := Nat.find (S_spec X)
 end DBounds
 
 lemma range_σ₁_subset : range σ₁ ⊆ Icc (- defaultS X) (defaultS X) := by
+  classical
   rw [range_subset_iff]
-  intro x
-  refine ⟨?_, ?_⟩
-  ·
-    classical
-    have h := Nat.find_spec (S_spec X)
-    refine ?_
-
-    sorry
-  ·
-    sorry
+  exact fun x ↦ ⟨(Nat.find_spec (S_spec X) x).1, (σ₁_le_σ₂ x).trans (Nat.find_spec (S_spec X) x).2⟩
 
 lemma range_σ₂_subset : range σ₂ ⊆ Icc (- defaultS X) (defaultS X) := by
-
-  sorry
+  classical
+  rw [range_subset_iff]
+  exact fun x ↦ ⟨(Nat.find_spec (S_spec X) x).1.trans (σ₁_le_σ₂ x), (Nat.find_spec (S_spec X) x).2⟩
 
 lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (- defaultS X) (defaultS X) :=
   fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
