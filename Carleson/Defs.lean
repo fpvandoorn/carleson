@@ -355,10 +355,18 @@ lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass �
 lemma aestronglyMeasurable_Q₂ : AEStronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
   measurable_Q₂.aestronglyMeasurable
 
-variable (X) in
-lemma S_spec [PreProofData a q K σ₁ σ₂ F G] : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := sorry
-
 include a q K σ₁ σ₂ F G
+
+variable (X) in
+lemma S_spec : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := by
+  have h1 : (range σ₁).Finite := finite_range_σ₁
+  have h2 : (range σ₂).Finite := finite_range_σ₂
+  have h1' := bddBelow_def.mp h1.bddBelow
+  have h2' := bddAbove_def.mp h2.bddAbove
+  refine ⟨(max (-h1'.choose) h2'.choose).toNat, fun x ↦ ?_⟩
+  simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
+  exact ⟨Or.inl (Or.inl (h1'.choose_spec _ (mem_range_self x))),
+    Or.inl (Or.inr (h2'.choose_spec _ (mem_range_self x)))⟩
 
 section DBounds
 
@@ -369,11 +377,11 @@ lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
   simp only [defaultD, Nat.ofNat_le_cast]
   have : 4 ≤ a := four_le_a X
   calc
-    (25:ℕ)
+    (25 : ℕ)
       ≤ 32 := Nat.le_of_ble_eq_true rfl
     _ = 2 ^ (5) := by rfl
     _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by rfl)
-    _ ≤ 2 ^ (100 * a^2) := Nat.pow_le_pow_right (by norm_num)
+    _ ≤ 2 ^ (100 * a ^ 2) := Nat.pow_le_pow_right (by norm_num)
       (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
 
 -- used in 4.1.3 (`I3_prop_3_1`)
@@ -392,21 +400,47 @@ lemma one_le_realD : (1 : ℝ) ≤ defaultD a := by
   linarith [twentyfive_le_realD X]
 
 open Classical in
-def defaultS [PreProofData a q K σ₁ σ₂ F G] : ℕ := Nat.find (S_spec X)
+def defaultS : ℕ := Nat.find (S_spec X)
 
 end DBounds
 
-lemma range_σ₁_subset [PreProofData a q K σ₁ σ₂ F G] :
-    range σ₁ ⊆ Icc (- defaultS X) (defaultS X) := sorry
+lemma range_σ₁_subset : range σ₁ ⊆ Icc (- defaultS X) (defaultS X) := by
+  classical
+  rw [range_subset_iff]
+  exact fun x ↦ ⟨(Nat.find_spec (S_spec X) x).1, (σ₁_le_σ₂ x).trans (Nat.find_spec (S_spec X) x).2⟩
 
-lemma range_σ₂_subset [PreProofData a q K σ₁ σ₂ F G] :
-    range σ₂ ⊆ Icc (- defaultS X) (defaultS X) := sorry
+lemma range_σ₂_subset : range σ₂ ⊆ Icc (- defaultS X) (defaultS X) := by
+  classical
+  rw [range_subset_iff]
+  exact fun x ↦ ⟨(Nat.find_spec (S_spec X) x).1.trans (σ₁_le_σ₂ x), (Nat.find_spec (S_spec X) x).2⟩
 
 lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (- defaultS X) (defaultS X) :=
   fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
 
-lemma neg_S_mem_or_S_mem [PreProofData a q K σ₁ σ₂ F G] :
-    (- defaultS X : ℤ) ∈ range σ₁ ∨ (defaultS X : ℤ) ∈ range σ₂ := sorry
+lemma neg_S_mem_or_S_mem [Nonempty X] :
+    (- defaultS X : ℤ) ∈ range σ₁ ∨ (defaultS X : ℤ) ∈ range σ₂ := by
+  by_cases h₀ : defaultS X = 0
+  · right
+    simp only [h₀, CharP.cast_eq_zero, mem_range]
+    have : range σ₂ ⊆ Icc (- defaultS X) (defaultS X) := range_σ₂_subset
+    simp only [h₀, CharP.cast_eq_zero, neg_zero, Icc_self, subset_singleton_iff, mem_range,
+      forall_exists_index, forall_apply_eq_imp_iff] at this
+    let x : X := Classical.choice inferInstance
+    exact ⟨x, this x⟩
+  by_contra! h
+  let n := (defaultS X) - 1
+  have h1 (x : X) : -n ≤ σ₁ x := by
+    rw [Int.natCast_sub (Nat.one_le_iff_ne_zero.mpr h₀), neg_sub, sub_eq_add_neg, add_comm]
+    exact lt_iff_le_and_ne.mpr ⟨(range_σ₁_subset (mem_range_self x)).1,
+      fun h' ↦ h.1 <| mem_range.mpr ⟨x, h'.symm⟩⟩
+  have h2 (x : X) : σ₂ x ≤ n :=
+    Int.natCast_sub (Nat.one_le_iff_ne_zero.mpr h₀) ▸ le_sub_right_of_add_le (lt_iff_le_and_ne.mpr
+      ⟨(range_σ₂_subset (mem_range_self x)).2, fun h' ↦ h.2 <| mem_range.mpr ⟨x, h'⟩⟩)
+  have hn : n < defaultS X := by
+    simp only [tsub_lt_self_iff, zero_lt_one, and_true, n]
+    exact Nat.zero_lt_of_ne_zero h₀
+  classical
+  exact Nat.find_min (S_spec X) hn fun x ↦ ⟨h1 x, h2 x⟩
 
 variable (X)
 
