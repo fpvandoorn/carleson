@@ -428,21 +428,19 @@ lemma neg_S_mem_or_S_mem [Nonempty X] :
     let x : X := Classical.choice inferInstance
     exact ⟨x, this x⟩
   by_contra! h
-  have h1 (x : X) : -(defaultS X) < σ₁ x := by
-
-    sorry
-  have h2 (x : X) : σ₂ x < defaultS X := by sorry
   let n := (defaultS X) - 1
-  have h1' (x : X) : -n ≤ σ₁ x := by
+  have h1 (x : X) : -n ≤ σ₁ x := by
     rw [Int.natCast_sub (Nat.one_le_iff_ne_zero.mpr h₀), neg_sub, sub_eq_add_neg, add_comm]
-    exact h1 x
-  have h2' (x : X) : σ₂ x ≤ n :=
-    Int.natCast_sub (Nat.one_le_iff_ne_zero.mpr h₀) ▸ le_sub_right_of_add_le (h2 x)
+    exact lt_iff_le_and_ne.mpr ⟨(range_σ₁_subset (mem_range_self x)).1,
+      fun h' ↦ h.1 <| mem_range.mpr ⟨x, h'.symm⟩⟩
+  have h2 (x : X) : σ₂ x ≤ n :=
+    Int.natCast_sub (Nat.one_le_iff_ne_zero.mpr h₀) ▸ le_sub_right_of_add_le (lt_iff_le_and_ne.mpr
+      ⟨(range_σ₂_subset (mem_range_self x)).2, fun h' ↦ h.2 <| mem_range.mpr ⟨x, h'⟩⟩)
   have hn : n < defaultS X := by
     simp only [tsub_lt_self_iff, zero_lt_one, and_true, n]
     exact Nat.zero_lt_of_ne_zero h₀
   classical
-  exact Nat.find_min (S_spec X) hn fun x ↦ ⟨h1' x, h2' x⟩
+  exact Nat.find_min (S_spec X) hn fun x ↦ ⟨h1 x, h2 x⟩
 
 variable (X)
 
