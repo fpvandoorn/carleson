@@ -37,7 +37,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
     case to the complex conjugate.-/
     push_neg at n_pos
     calc ‖∫ (x : ℝ) in a..b, cexp (I * ↑n * ↑x) * ϕ x‖
-      _ = ‖(starRingEnd ℂ) (∫ (x : ℝ) in a..b, cexp (I * ↑n * ↑x) * ϕ x)‖ := Eq.symm (RCLike.norm_conj _)
+      _ = ‖(starRingEnd ℂ) (∫ (x : ℝ) in a..b, cexp (I * ↑n * ↑x) * ϕ x)‖ := (RCLike.norm_conj _).symm
       _ = ‖∫ (x : ℝ) in a..b, cexp (I * ↑(-n) * ↑x) * ((starRingEnd ℂ) ∘ ϕ) x‖ := by
         rw [intervalIntegral.integral_of_le (by linarith), ← integral_conj, ← intervalIntegral.integral_of_le (by linarith)]
         congr
