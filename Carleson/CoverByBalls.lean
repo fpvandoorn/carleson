@@ -98,4 +98,4 @@ lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X 
 lemma BallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
     BallsCoverBalls X (a^k) 1 (n^k) := by
   convert BallsCoverBalls.pow_mul h using 1
-  exact Eq.symm (MulOneClass.mul_one (a ^ k))
+  exact (MulOneClass.mul_one (a ^ k)).symm

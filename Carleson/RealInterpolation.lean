@@ -1666,8 +1666,7 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
   · calc
     _ = ∫⁻ x : α in {x | a < ‖f x‖}, ↑‖(f - trunc f a) x‖₊ ^ q.toReal ∂μ := by
       rw [one_div, ENNReal.rpow_inv_rpow]
-      · apply Eq.symm
-        apply setLIntegral_eq_of_support_subset
+      · apply (setLIntegral_eq_of_support_subset _).symm
         unfold Function.support
         intro x
         rw [trunc_compl_eq]
@@ -4008,7 +4007,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀q₁.ne_top hp₀.2
   have q_toReal_ne_zero : q.toReal ≠ 0 :=
     (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
-  have p_eq_p₀ : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
+  have p_eq_p₀ : p = p₀ := (interp_exp_eq hp₀p₁ ht hp).symm
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
