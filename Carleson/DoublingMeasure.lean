@@ -12,7 +12,7 @@ noncomputable section
 namespace MeasureTheory
 
 
-/-- A doubling measure is a measure on a metric space with the condition doubling
+/-- A doubling measure is a measure on a metric space with the condition that doubling
 the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
 class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
     (μ : Measure X) (A : outParam ℝ≥0) : Prop where
