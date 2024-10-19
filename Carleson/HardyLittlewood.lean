@@ -31,9 +31,9 @@ variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
 M_{𝓑, p} in the blueprint. -/
 def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ)
-  (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+    (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
   (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
-  fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖₊ ^ p ∂μ) ^ p⁻¹
+    fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖₊ ^ p ∂μ) ^ p⁻¹
 
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑 with exponent 1.
 M_𝓑 in the blueprint. -/
@@ -395,13 +395,23 @@ theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurab
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
 /-- Equation (2.0.46).
-
-easy from `hasStrongType_maximalFunction`. Ideally prove separately
+Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 `HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
-theorem hasStrongType_globalMaximalFunction {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
-    {u : X → ℂ} (hu : AEStronglyMeasurable u μ) (h2u : IsBounded (range u)) :
+theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
-      p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
+      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
+  unfold globalMaximalFunction
+  simp_rw [ENNReal.toReal_mul]
+  apply HasStrongType.const_mul
+  refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
+  /- The problem here is that `hasStrongType_maximalFunction` requires the collection of balls `𝓑`
+  to be finite, but in our case it is `((covering_separable_space X).choose ×ˢ (univ : Set ℤ))`,
+  which is obviously not finite. I think the lemma can actually be generalized to (at least)
+  countable collections, which would suffice in our case. This generalization should boil down to
+  the generalization of `SublinearOn.maximalFunction` to the (at least) countable case.
+  -/
   sorry
+
+
 
 end GMF
