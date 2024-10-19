@@ -173,8 +173,7 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
   simp only [gt_iff_lt, Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
     rcases lt_or_le (s x) (s j) with c | c
-    · have := le_dyadic c.le mx.le mj.le
-      exact (eq_of_le_of_not_lt this (hj x mx)).symm.le
+    · exact (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) (hj x mx)).symm.le
     · exact le_dyadic c mj.le mx.le
   use j, ⟨mj, hj⟩, fun k ⟨hk₁, hk₂⟩ ↦ le_antisymm (hk₂ j mj) (hj k hk₁)
 
@@ -209,10 +208,10 @@ lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
 lemma exists_containing_subcube (l : ℤ) (h : l ∈ Icc (-S : ℤ) (s i)) {x : X} (mx : x ∈ i) :
     ∃ j, s j = l ∧ x ∈ j := by
   obtain ⟨lb, ub⟩ := h
-  rcases ub.eq_or_lt with ub | ub; · exact ⟨i, ub.symm, mx⟩
-  have := Grid_subset_biUnion l ⟨lb, ub⟩ mx
-  simp_rw [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] at this
-  exact this
+  rcases ub.eq_or_lt with ub | ub
+  · exact ⟨i, ub.symm, mx⟩
+  · simpa [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] using
+      Grid_subset_biUnion l ⟨lb, ub⟩ mx
 
 lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
   obtain ⟨lb, ub⟩ := h

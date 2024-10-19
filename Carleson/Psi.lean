@@ -487,10 +487,9 @@ private lemma four_D_rpow_a_inv : (4 * D : ℝ) ^ (a : ℝ)⁻¹ ≤ 2 ^ (1 + 10
   · suffices 4 ^ (a : ℝ)⁻¹ ≤ (4 : ℝ) ^ (2 : ℝ)⁻¹ by
       apply le_of_le_of_eq this
       rw [(by norm_num : (4 : ℝ) = 2 ^ (2 : ℝ)), ← Real.rpow_mul, mul_inv_cancel₀] <;> norm_num
-    have := four_le_a X
     rw [Real.rpow_le_rpow_left_iff Nat.one_lt_ofNat, inv_le_inv (a0 X) (by linarith)]
     norm_cast
-    exact le_of_add_le_right this
+    exact le_of_add_le_right (four_le_a X)
   · exact le_of_eq D_pow_a_inv
 
 /-
@@ -507,7 +506,6 @@ private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
     (2 : ℝ) ^ (1 + 102 * a + 101 * a ^ 3) / volume.real (ball x (D ^ s)) *
     (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   have CKa0 : C_K a > 0 := by unfold C_K; positivity
-  have : a ≥ 4 := four_le_a X
   have D1 := D1 X
   have d0 : dist x y > 0 :=
     lt_of_lt_of_le (by positivity) (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1

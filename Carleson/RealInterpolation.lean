@@ -1764,10 +1764,8 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [NormedAddCommGroup E₁] [Borel
   rcases (eq_or_ne q ⊤) with q_eq_top | q_ne_top
   · rw [q_eq_top, eLpNorm_exponent_top]
     exact Trans.trans trunc_eLpNormEssSup_le coe_lt_top
-  · have : q.toReal > 0 := toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top
-    refine (rpow_lt_top_iff_of_pos this).mp ?_
-    have := (estimate_eLpNorm_trunc (a := a) q_ne_top hpq hf.1.aemeasurable)
-    refine lt_of_le_of_lt this ?_
+  · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
+    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1.aemeasurable)
     apply mul_lt_top coe_lt_top
     refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
     exact toReal_pos hpq.1.ne' hpq.2.ne_top
