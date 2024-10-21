@@ -378,10 +378,6 @@ lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
   fun f hf _ _ ↦ h f hf
 
-/- Equation (2.0.46).
-Easy from `hasStrongType_maximalFunction`. Ideally prove separately
-`HasStrongType.const_smul` and `HasStrongType.const_mul`.-/
-
 -- lemma HasStrongType.const_smul
 
 lemma HasStrongType.const_mul {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
