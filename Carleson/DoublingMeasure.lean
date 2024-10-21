@@ -12,7 +12,7 @@ noncomputable section
 namespace MeasureTheory
 
 
-/-- A doubling measure is a measure on a metric space with the condition doubling
+/-- A doubling measure is a measure on a metric space with the condition that doubling
 the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
 class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
     (μ : Measure X) (A : outParam ℝ≥0) : Prop where
@@ -147,9 +147,9 @@ lemma measure_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s *
     simp only [measure_empty, mul_zero, le_refl]
   else
   push_neg at hr
-  /-Show inclusion in larger ball-/
+  /- Show inclusion in larger ball -/
   have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by
-    apply mul_le_mul_of_nonneg_right _ hr
+    gcongr
     calc s
       = 2 ^ (Real.logb 2 s) := (Real.rpow_logb (by linarith) (by linarith) hsp ).symm
     _ ≤ 2 ^ (⌈Real.logb 2 s⌉₊ : ℝ) := Real.rpow_le_rpow_of_exponent_le
@@ -158,7 +158,7 @@ lemma measure_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s *
   have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by
     calc ball x r' ⊆ ball x (s * r) := ball_subset_ball hs
         _ ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := ball_subset_ball haux
-  /-Apply result for power of two to slightly larger ball-/
+  /- Apply result for power of two to slightly larger ball -/
   calc μ (ball x r')
       ≤ μ (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr
     _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * μ (ball x r) := measure_ball_le_pow_two'
@@ -185,6 +185,14 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     μ (ball x' r')
       ≤ μ (ball x (dist x x' + r')) := by gcongr; exact ball_subset_ball_of_le le_rfl
     _ ≤ As A s * μ (ball x r) := measure_ball_le_same' x hs h
+
+lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
+    (h : dist x x' + r' ≤ s * r) :
+    μ.nnreal (ball x' r') ≤ As A s * μ.nnreal (ball x r) := by
+  simp only [Measure.nnreal,← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal
+    (measure_ball_ne_top x r), ENNReal.coe_toNNReal (measure_ball_ne_top x' r')]
+  exact measure_ball_le_of_dist_le' hs h
+
 
 section
 
@@ -267,10 +275,10 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
             simp only [mul_zero, closedBall_zero]
         rw [cball_eq]
         nth_rw 1 [← one_mul (μ (closedBall x r))]
-        apply mul_le_mul_of_nonneg_right _ (zero_le _)
+        gcongr
         have : 1 ≤ (A:ℝ≥0∞) := by rw [one_le_coe_iff]; exact one_le_A μ
-        rw [← one_mul 1,pow_two]
-        exact mul_le_mul this this (by norm_num) (zero_le _)
+        rw [← one_mul 1, pow_two]
+        gcongr
       else
       calc
         μ (closedBall x (2 * r))

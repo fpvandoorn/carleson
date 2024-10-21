@@ -546,8 +546,7 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
         · norm_num
         · norm_num
       · norm_num
-  measurable_K_left := fun y ↦ Hilbert_kernel_measurable.of_uncurry_right
-  measurable_K_right := Hilbert_kernel_measurable
+  measurable_K := Hilbert_kernel_measurable
 
 instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
   norm_K_sub_le' := by

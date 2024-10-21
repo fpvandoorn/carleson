@@ -88,9 +88,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
       exact disjoint_left.1 (disjoint_Ω p'p <| Or.resolve_right (eq_or_disjoint s_eq) this) Qp' Qp
     rw [Finset.sum_eq_single_of_mem p p𝔓Xs this]
     have xEp : x ∈ E p :=
-      ⟨𝓘pI ▸ xI, Qp, by
-        have := 𝔰_eq p𝔓Xs ▸ hs
-        simpa only [toFinset_Icc, Finset.mem_Icc] using this⟩
+      ⟨𝓘pI ▸ xI, Qp, by simpa only [toFinset_Icc, Finset.mem_Icc, 𝔰_eq p𝔓Xs] using hs⟩
     simp_rw [carlesonOn_def', indicator_of_mem xEp, 𝔰_eq p𝔓Xs]
 
 end

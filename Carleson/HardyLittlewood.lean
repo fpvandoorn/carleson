@@ -331,7 +331,7 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     (h𝓑 : 𝓑.Finite) {p : ℝ≥0} (hp : 1 < p) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
       p p μ μ (CMB A p) := by
-  have h2p : 0 < p := zero_lt_one.trans hp
+  have h2p : 0 < p := by positivity
   rw [CMB]
   apply exists_hasStrongType_real_interpolation
     (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) (p := p) (q := p) (A := 1) ⟨ENNReal.zero_lt_top, le_rfl⟩
@@ -352,7 +352,7 @@ theorem hasStrongType_maximalFunction
       p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
   dsimp only
   constructor; · exact AEStronglyMeasurable.maximalFunction_toReal h𝓑.countable
-  have cp₁p : 0 < (p₁ : ℝ) := zero_lt_one.trans_le hp₁
+  have cp₁p : 0 < (p₁ : ℝ) := by positivity
   have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
   conv_lhs =>
     enter [1, x]
