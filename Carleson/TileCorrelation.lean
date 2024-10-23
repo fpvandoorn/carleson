@@ -4,7 +4,7 @@ import Carleson.Psi
 
 noncomputable section
 
-open scoped ComplexConjugate ENNReal ShortVariables
+open scoped ComplexConjugate ENNReal NNReal ShortVariables
 
 open MeasureTheory Metric Set
 
@@ -26,7 +26,7 @@ lemma mem_ball_of_correlation_ne_zero (s₁ s₂ : ℤ) {x₁ x₂ y : X}
   exact lt_of_le_of_lt (dist_mem_Icc_of_Ks_ne_zero hKs).2
     (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
 
-def C_6_2_3 (a : ℕ) : ℝ≥0∞ := 2^(254 * a^3)
+def C_6_2_3 (a : ℕ) : ℝ≥0 := 2^(254 * a^3)
 
 -- Eq. 6.2.3 (Lemma 6.2.1)
 lemma correlation_kernel_bound {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ Icc (- (S : ℤ)) s₂)
