@@ -379,20 +379,19 @@ lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
   fun f hf _ _ ↦ h f hf
 
 lemma HasStrongType.const_smul {𝕜 E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
-    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → E) → (α' → E')}
-    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
+    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c)
+    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
-  refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, ?_⟩
-  rw [show (k • T) f = k • T f from rfl]
-  refine (eLpNorm_const_smul_le k (T f)).trans ?_
+  refine fun f hf ↦
+    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, (eLpNorm_const_smul_le k (T f)).trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
   gcongr
   exact (h f hf).2
 
 lemma HasStrongType.const_mul {E E' α α' : Type*} [NormedAddCommGroup E] [NormedRing E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → E) → (α' → E')}
-    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → E) → (α' → E')} {p p' : ℝ≥0∞}
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
   h.const_smul e
 
