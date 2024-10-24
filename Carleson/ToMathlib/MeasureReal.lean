@@ -461,7 +461,7 @@ theorem Measure.ext_iff_singleton {S} [Fintype S] [MeasurableSpace S] [Measurabl
     ext s
     have hs : Set.Finite s := Set.toFinite s
     rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
-    simp_rw [h]
+    exact Finset.sum_congr rfl fun _ _ ↦ h _
 
 theorem ext_iff_measureReal_singleton {S} [Fintype S] [MeasurableSpace S]
     [MeasurableSingletonClass S]
@@ -469,10 +469,8 @@ theorem ext_iff_measureReal_singleton {S} [Fintype S] [MeasurableSpace S]
     μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
   rw [Measure.ext_iff_singleton]
   congr! with x
-  have h1 : μ1 {x} ≠ ⊤ := by finiteness
-  have h2 : μ2 {x} ≠ ⊤ := by finiteness
   rw [measureReal_def, measureReal_def, ENNReal.toReal_eq_toReal_iff]
-  simp [h1, h2]
+  simp [measure_ne_top]
 
 end MeasureTheory
 
