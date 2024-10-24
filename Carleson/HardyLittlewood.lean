@@ -31,9 +31,9 @@ variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
 M_{𝓑, p} in the blueprint. -/
 def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ)
-  (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+    (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
   (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
-  fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖₊ ^ p ∂μ) ^ p⁻¹
+    fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖₊ ^ p ∂μ) ^ p⁻¹
 
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑 with exponent 1.
 M_𝓑 in the blueprint. -/
@@ -395,13 +395,19 @@ theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurab
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
 /-- Equation (2.0.46).
-
-easy from `hasStrongType_maximalFunction`. Ideally prove separately
+Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 `HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
-theorem hasStrongType_globalMaximalFunction {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
-    {u : X → ℂ} (hu : AEStronglyMeasurable u μ) (h2u : IsBounded (range u)) :
+theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
+  unfold globalMaximalFunction
+  simp_rw [ENNReal.toReal_mul]
+  -- apply HasStrongType.const_mul -- this needs to be adapted
+  -- refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
+  /- `hasStrongType_maximalFunction` currently requires the collection of balls `𝓑`
+  to be finite, but its generalization to countable collectinos is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
+  -/
   sorry
+
 
 end GMF
