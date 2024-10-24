@@ -399,19 +399,15 @@ Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 `HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
-      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
+      p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul]
-  apply HasStrongType.const_mul
-  refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
-  /- The problem here is that `hasStrongType_maximalFunction` requires the collection of balls `𝓑`
-  to be finite, but in our case it is `((covering_separable_space X).choose ×ˢ (univ : Set ℤ))`,
-  which is obviously not finite. I think the lemma can actually be generalized to (at least)
-  countable collections, which would suffice in our case. This generalization should boil down to
-  the generalization of `SublinearOn.maximalFunction` to the (at least) countable case.
+  -- apply HasStrongType.const_mul -- this needs to be adapted
+  -- refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
+  /- `hasStrongType_maximalFunction` currently requires the collection of balls `𝓑`
+  to be finite, but its generalization to countable collectinos is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
   -/
   sorry
-
 
 
 end GMF
