@@ -51,12 +51,11 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
 /-- The constant used in `square_function_count`. -/
 irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (14 * (a : ℝ) + 1) * (8 * D ^ (- s)) ^ κ
 
-attribute [local instance] Measure.Subtype.measureSpace in
 /-- Lemma 7.6.4. -/
 lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
-    ⨍⁻ x : (J : Set X), (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+    ⨍⁻ x in J, (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
     ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
-    (ball (c I) (8 * D ^ s I)).indicator 1 x) ^ 2 ≤ C7_6_4 a s' := by
+    (ball (c I) (8 * D ^ s I)).indicator 1 x) ^ 2 ∂volume ≤ C7_6_4 a s' := by
   cases' lt_or_ge (↑S + s J) s' with hs' hs'
   · suffices ({I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
         ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
@@ -67,12 +66,12 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     intros I hI
     have : -S ≤ s I := (range_s_subset ⟨I, rfl⟩).1
     linarith
-  have : NeZero (volume (α := (J : Set X)) univ) := ⟨by
-    rw [Measure.Subtype.volume_univ coeGrid_measurable.nullMeasurableSet]
+  have : NeZero (volume.restrict (J : Set X) univ) := ⟨by
+    rw [Measure.restrict_apply_univ]
     exact ((measure_ball_pos _ _ (by simp; positivity)).trans_le
       (measure_mono (μ := volume) (ball_subset_Grid (i := J)))).ne'⟩
-  have : IsFiniteMeasure (volume : Measure (J : Set X)) := ⟨by
-    rw [Measure.Subtype.volume_univ coeGrid_measurable.nullMeasurableSet]
+  have : IsFiniteMeasure (volume.restrict (J : Set X)) := ⟨by
+    rw [Measure.restrict_apply_univ]
     exact volume_coeGrid_lt_top⟩
   let 𝒟 (s₀ x) : Set (Grid X) := { I | x ∈ ball (c I) (8 * D ^ s I) ∧ s I = s₀ }
   let supp : Set X := { x ∈ J | EMetric.infEdist x Jᶜ ≤ 8 * (D ^ (s J - s')) }
@@ -162,12 +161,10 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
         fun h ↦ Set.disjoint_iff.mp hI₁ ⟨Grid.c_mem_Grid, hJ.2.1 h⟩)
   have est₂' (x) (hx : x ∈ J) : _ ≤ supp.indicator (fun _ ↦ (↑(defaultA a ^ 7 : ℕ) : ℝ≥0∞) ^ 2) x :=
     (pow_left_mono 2 <| est₂ x hx).trans (by simp [Set.indicator_apply])
-  refine (laverage_mono fun x : (J : Set X) ↦ est₂' x.1 x.2).trans ?_
-  rw [laverage_eq, ENNReal.div_le_iff (NeZero.ne (volume univ)) (by finiteness)]
-  erw [lintegral_subtype_comap coeGrid_measurable]
+  refine (setLaverage_mono' coeGrid_measurable est₂').trans ?_
+  rw [laverage_eq, ENNReal.div_le_iff (NeZero.ne _) (by finiteness)]
   refine (lintegral_indicator_const_le _ _).trans ?_
-  rw [Measure.restrict_apply' coeGrid_measurable,
-    Measure.Subtype.volume_univ coeGrid_measurable.nullMeasurableSet,
+  rw [Measure.restrict_apply' coeGrid_measurable, Measure.restrict_apply_univ,
     Set.inter_eq_left.mpr (fun x hx ↦ hx.1)]
   refine ((ENNReal.mul_le_mul_left (by simp) (ne_of_beq_false rfl).symm).mpr vsupp).trans ?_
   rw [← mul_assoc, ENNReal.ofReal, ← ENNReal.coe_natCast, ← ENNReal.coe_pow, ← ENNReal.coe_mul]
