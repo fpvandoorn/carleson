@@ -300,7 +300,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
 /-- Constant appearing in Lemma 6.1.3. -/
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
 
--- Inequality 6.1.15
+-- Inequality 6.1.16
 lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) :
     eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭)
@@ -510,8 +510,8 @@ def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
 
 /-- Proposition 2.0.3 -/
 theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : Measurable g) (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+    (hf : Measurable f) (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄)) :
     ‖∫ x, conj (g x) * ∑ᶠ p : 𝔄, carlesonOn p f x‖ ≤
     C_2_0_3 a q * (dens₁ 𝔄).toReal ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄).toReal ^ (q⁻¹ - 2⁻¹) *
