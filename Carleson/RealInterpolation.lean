@@ -1666,8 +1666,7 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
   · calc
     _ = ∫⁻ x : α in {x | a < ‖f x‖}, ↑‖(f - trunc f a) x‖₊ ^ q.toReal ∂μ := by
       rw [one_div, ENNReal.rpow_inv_rpow]
-      · apply Eq.symm
-        apply setLIntegral_eq_of_support_subset
+      · apply (setLIntegral_eq_of_support_subset _).symm
         unfold Function.support
         intro x
         rw [trunc_compl_eq]
@@ -1765,10 +1764,8 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [NormedAddCommGroup E₁] [Borel
   rcases (eq_or_ne q ⊤) with q_eq_top | q_ne_top
   · rw [q_eq_top, eLpNorm_exponent_top]
     exact Trans.trans trunc_eLpNormEssSup_le coe_lt_top
-  · have : q.toReal > 0 := toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top
-    refine (rpow_lt_top_iff_of_pos this).mp ?_
-    have := (estimate_eLpNorm_trunc (a := a) q_ne_top hpq hf.1.aemeasurable)
-    refine lt_of_le_of_lt this ?_
+  · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
+    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1.aemeasurable)
     apply mul_lt_top coe_lt_top
     refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
     exact toReal_pos hpq.1.ne' hpq.2.ne_top
@@ -4008,7 +4005,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
   have p₀ne_top : p₀ ≠ ⊤ := ne_top_of_le_ne_top hq₀q₁.ne_top hp₀.2
   have q_toReal_ne_zero : q.toReal ≠ 0 :=
     (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
-  have p_eq_p₀ : p = p₀ := Eq.symm (interp_exp_eq hp₀p₁ ht hp)
+  have p_eq_p₀ : p = p₀ := (interp_exp_eq hp₀p₁ ht hp).symm
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | snorm_pos
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption

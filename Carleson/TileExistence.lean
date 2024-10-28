@@ -298,14 +298,14 @@ local instance {k : ℤ} : SizeOf (Yk X k) where
   sizeOf := (Yk_encodable X k).encode
 
 lemma I_induction_proof {k:ℤ} (hk:-S ≤ k) (hneq : ¬ k = -S) : -S ≤ k - 1 := by
-  linarith [lt_of_le_of_ne hk fun a_1 ↦ hneq (id (Eq.symm a_1))]
+  linarith [lt_of_le_of_ne hk fun a_1 ↦ hneq (id a_1.symm)]
 
 mutual
   def I1 {k:ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
     if hk': k = -S then
       ball y (D^(-S:ℤ))
     else
-      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id (Eq.symm a_1))
+      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
       have h1: 0 ≤ S + (k - 1) := by linarith
       have : (S + (k-1)).toNat < (S + k).toNat := by
         rw [Int.lt_toNat,Int.toNat_of_nonneg h1]
@@ -318,7 +318,7 @@ mutual
     if hk': k = -S then
       ball y (2 * D^(-S:ℤ))
     else
-      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id (Eq.symm a_1))
+      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
       have : (S + (k-1)).toNat < (S + k).toNat := by
         rw [Int.lt_toNat,Int.toNat_of_nonneg (by linarith)]
         linarith
@@ -384,7 +384,7 @@ mutual
       rw [I1,dif_pos hk_s]
       exact measurableSet_ball
     else
-      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id (Eq.symm a_1))
+      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have h1: 0 ≤ S + (k - 1) := by linarith
       have : (S + (k-1)).toNat < (S + k).toNat := by
         rw [Int.lt_toNat, Int.toNat_of_nonneg h1]
@@ -401,7 +401,7 @@ mutual
       rw [I2,dif_pos hk_s]
       exact measurableSet_ball
     else
-      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id (Eq.symm a_1))
+      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have : (S + (k-1)).toNat < (S + k).toNat := by
         rw [Int.lt_toNat,Int.toNat_of_nonneg (by linarith)]
         linarith
@@ -538,7 +538,7 @@ mutual
     else
       simp_rw [dif_neg hk_s]
       intro x hx
-      have : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id (Eq.symm a_1))
+      have : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have : ((2 * (S + (k - 1))).toNat : ℤ) + 1 < 2 * (S + k) := by
         rw [Int.toNat_of_nonneg (by linarith)]
         linarith
@@ -732,7 +732,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
     simp only [heq_eq_eq]
     exact I3_prop_1 hk (And.intro hxl hxk)
   else
-    have : l < k := lt_of_le_of_ne hl_k fun a ↦ hk_l (id (Eq.symm a))
+    have : l < k := lt_of_le_of_ne hl_k fun a ↦ hk_l (id a.symm)
     have hl_k_m1 : l ≤ k-1 := by linarith
     have hk_not_neg_s : ¬ k = -S := by linarith
     have : x ∈ ⋃ (y'': Yk X (k-1)), I3 (I_induction_proof hk hk_not_neg_s) y'' :=
