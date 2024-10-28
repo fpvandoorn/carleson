@@ -40,7 +40,7 @@ Let $f$ be a complex valued, $2\pi$-periodic bounded Borel measurable function o
     \widehat{f}_n:=\frac {1}{2\pi} \int_0^{2\pi} f(x) e^{- i nx} dx .
 \end{equation}
 Define the partial Fourier sum for $N\ge 0$ as
-\begin{equation}
+\begin{equation}\label{eq:partial-fourier-sum}
     S_Nf(x):=\sum_{n=-N}^N \widehat{f}_n e^{i nx}\ .
 \end{equation}
 
@@ -52,9 +52,10 @@ Define the partial Fourier sum for $N\ge 0$ as
     Let $f$ be a $2\pi$-periodic complex-valued continuous function on $\mathbb{R}$.
     Then for almost all $x \in \mathbb{R}$ we have
     \begin{equation}\label{eq:fourier-limit}
-      \lim_{n\to\infty}S_n f(x) = f(x).
+      \lim_{N\to\infty}S_N f(x) = f(x),
     \end{equation}
-    In other words: the set of real numbers $x$ where \eqref{eq:fourier-limit} fails has Lebesgue measure $0$.
+    where $S_N f$ is the partial Fourier sum of $f$ defined in \eqref{eq:partial-fourier-sum}.
+    % In other words: the set of real numbers $x$ where \eqref{eq:fourier-limit} fails has Lebesgue measure $0$.
 \end{theorem}
 
 The purpose of this paper is twofold. On the one hand, it prepares computer verification of \Cref{classical-carleson} by presenting a very detailed proof as a blueprint for coding in Lean. We pass through a bound for a generalization of the so-called Carleson operator to doubling metric measure spaces. This generalization is new, and proving these bounds constitutes the second purpose of this paper. This generalization incorporates several results from the recent literature, most prominently bounds for the polynomial Carleson operator of V. Lie \cite{lie-polynomial} as well as its generalization \cite{zk-polynomial}. A computer verification of our theorem will also entail a computer verification for the bulk of the work in these results.
