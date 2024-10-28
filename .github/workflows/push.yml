@@ -46,21 +46,29 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake -Kenv=dev build Carleson
 
-      - name: Cache mathlib documentation
+      # - name: Cache mathlib documentation
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       .lake/build/doc/Init
+      #       .lake/build/doc/Lake
+      #       .lake/build/doc/Lean
+      #       .lake/build/doc/Std
+      #       .lake/build/doc/Mathlib
+      #       .lake/build/doc/declarations
+      #       .lake/build/doc/find
+      #       .lake/build/doc/*.*
+      #       !.lake/build/doc/declarations/declaration-data-Carleson*
+      #     key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
+      #     restore-keys: MathlibDoc-
+
+      - name: Cache API docs
         uses: actions/cache@v4
         with:
           path: |
-            .lake/build/doc/Init
-            .lake/build/doc/Lake
-            .lake/build/doc/Lean
-            .lake/build/doc/Std
-            .lake/build/doc/Mathlib
-            .lake/build/doc/declarations
-            .lake/build/doc/find
-            .lake/build/doc/*.*
-            !.lake/build/doc/declarations/declaration-data-Carleson*
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: MathlibDoc-
+            .lake/build/doc
+          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
+          restore-keys: LakeBuild-
 
       - name: Build project documentation
         run: ~/.elan/bin/lake -Kenv=dev build Carleson:docs
