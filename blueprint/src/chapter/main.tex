@@ -3561,6 +3561,8 @@ The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
 The following lemma will be proved in \Cref{subsec-geolem}.
 \begin{lemma}[antichain tile count]
     \label{antichain-tile-count}
+\leanok
+\lean{Antichain.tile_count}
     \uses{global-antichain-density}
     Set $p:=4a^4$ and let $p'$ be the dual exponent of $p$, that is $1/p+1/p'=1$.
     For every $\mfa\in\Mf$ and every subset $\mathfrak{A}'$ of $\mathfrak{A}$ we have
@@ -3820,6 +3822,8 @@ we conclude
 
 
 \begin{lemma}[tile reach]\label{tile-reach}
+\leanok
+\lean{Antichain.tile_reach}
 \uses{monotone-cube-metrics}
 Let $\mfa\in \Mf$ and $N\ge0$ be an integer.
 Let $\fp, \fp'\in \fP$ with
@@ -3895,6 +3899,8 @@ For $\mfa \in \Mf$ and $N\ge 0$ define
 
 \begin{lemma}[stack density]
 \label{stack-density}
+\leanok
+\lean{Antichain.stack_density}
 Let $\mfa \in \Mf$, $N\ge 0$ and
 $L\in \mathcal{D}$. Then
 \begin{equation}\label{eqanti-1}
@@ -3944,6 +3950,8 @@ $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
 
 
 \begin{lemma}[local antichain density]\label{local-antichain-density}
+\leanok
+\lean{Antichain.local_antichain_density}
 \uses{tile-disjointness,tile-reach}
 Let $\mfa\in\Mf$ and {$N$} be
 an integer. Let $\fp_{\mfa}$ be a tile with $\mfa\in \fc(\fp_{\mfa})$.
@@ -3991,6 +3999,8 @@ This proves the lemma.
 \end{proof}
 \begin{lemma}[global antichain density]
 \label{global-antichain-density}
+\leanok
+\lean{Antichain.global_antichain_density}
 \uses{stack-density,local-antichain-density}
 Let $\mfa\in\Mf$ and let $N\ge 0$ be
 an integer. Then we have
