@@ -10,7 +10,7 @@ open scoped ComplexConjugate ENNReal NNReal ShortVariables
 
 open MeasureTheory Metric Set
 
-section
+namespace Tile
 
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X} [MetricSpace X]
   [ProofData a q K σ₁ σ₂ F G]
@@ -42,7 +42,7 @@ variable [TileStructure Q D κ S o]
 def C_6_2_2 (a : ℕ) : ℝ≥0 := 2^(3 * a)
 
 -- Lemma 6.2.2
-lemma two_tile_estimate {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂) {x₁ x₂ : X} (hx₁ : x₁ ∈ E p₁)
+lemma uncertainty {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂) {x₁ x₂ : X} (hx₁ : x₁ ∈ E p₁)
     (hx₂ : x₂ ∈ E p₂) :
     1  + dist_(p₁) (𝒬 p₁) (𝒬 p₂) ≤ (C_6_2_2 a) * (1 + dist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) :=
   sorry
@@ -50,7 +50,7 @@ lemma two_tile_estimate {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂) {x�
 open TileStructure.Forest
 
 -- Lemma 6.2.3
-lemma tile_range_support {p : 𝔓 X} {g : X → ℂ} (hg : Measurable g)
+lemma range_support {p : 𝔓 X} {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) {y : X} (hpy : adjointCarleson p g y ≠ 0) :
     y ∈ (ball (𝔠 p) (5 * ↑D ^𝔰 p)) :=
   sorry
@@ -60,7 +60,7 @@ def C_6_1_5 (a : ℕ) : ℝ≥0 := 2^(255 * a^3)
 open GridStructure
 
 -- Lemma 6.1.5 (part I)
-lemma tile_correlation {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
+lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
       (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
@@ -68,7 +68,7 @@ lemma tile_correlation {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ
   sorry
 
 -- Lemma 6.1.5 (part II)
-lemma tile_correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
+lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hpp' : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p) ) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ = 0 := by
@@ -77,3 +77,5 @@ lemma tile_correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰
   have hy : ∃ y : X, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ≠ 0 := sorry
   obtain ⟨y, hy⟩ := hy
   sorry
+
+end Tile
