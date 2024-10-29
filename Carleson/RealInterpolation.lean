@@ -3105,35 +3105,47 @@ def Subadditive_trunc (T : (α → E₁) → α' → E₂) (A : ℝ) (f : α →
   ‖T (trunc f a + trunc_compl f a) y‖ ≤ A * (‖T (trunc f a) y‖ + ‖T (trunc_compl f a) y‖)
 
 /-- The operator is subadditive on functions satisfying `P` with constant `A`. -/
-def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=
-  ∀ (f g : α → E₁) (x : α'), P f → P g → ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
+def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) (ν : Measure α') : Prop :=
+  ∀ (f g : α → E₁), P f → P g → ∀ᵐ x ∂ν, ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
 
 namespace SubadditiveOn
 
-lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
-    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sa : SubadditiveOn T P' A) : SubadditiveOn T P A :=
-  fun f g x hf hg ↦ sa f g x (h hf) (h hg)
+variable {ν : Measure α'}
 
-lemma neg (P : (α → E₁) → Prop) {A : ℝ} (hA : A < 0) (h : SubadditiveOn T P A)
-  (f : α → E₁) (hf : P f) : T f = 0 :=
-  funext fun x ↦ norm_le_zero_iff.mp (by nlinarith [norm_nonneg (T (f + f) x), h f f x hf hf])
+lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
+    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sa : SubadditiveOn T P' A ν) : SubadditiveOn T P A ν :=
+  fun f g hf hg ↦ sa f g (h hf) (h hg)
+
+lemma neg (P : (α → E₁) → Prop) {A : ℝ} (hA : A < 0) (h : SubadditiveOn T P A ν)
+    (f : α → E₁) (hf : P f) : T f =ᵐ[ν] 0 := by
+  filter_upwards [h f f hf hf] with x hx using norm_le_zero_iff.mp
+    (by nlinarith [norm_nonneg (T (f + f) x), hx])
 
 lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (A : ℝ) (h : ∀ u, P u → T u = 0) : SubadditiveOn T P A :=
-  fun f g x hf hg ↦ by simp [h f hf, h g hg, h (f + g) (hP hf hg)]
+    (A : ℝ) (h : ∀ u, P u → T u =ᵐ[ν] 0) : SubadditiveOn T P A ν := by
+  intro f g hf hg
+  filter_upwards [h f hf, h g hg, h (f + g) (hP hf hg)] with x hx1 hx2 hx3
+  simp [hx1, hx2, hx3]
 
 lemma biSup {ι : Type*} (𝓑 : Set ι) {T : ι → (α → E₁) → α' → ℝ≥0∞}
     {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁) (x : α'), P u → ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (A : ℝ) (h : ∀ i ∈ 𝓑, SubadditiveOn (fun u x ↦ (T i u x).toReal) P A) :
-    SubadditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A := by
+    (A : ℝ) (h : ∀ i ∈ 𝓑, SubadditiveOn (fun u x ↦ (T i u x).toReal) P A ν) :
+    SubadditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A ν := by
   have hT' : ∀ i ∈ 𝓑, ∀ (x : α') (u : α → E₁), P u → T i u x ≠ ∞ :=
     fun i hi x f hf h ↦ hT f x hf <| eq_top_iff.mpr <| h ▸ le_biSup (fun i ↦ T i f x) hi
   by_cases A0 : A < 0
-  · refine SubadditiveOn.zero hP A (fun f hf ↦ funext fun x ↦ ?_)
-    suffices ⨆ i ∈ 𝓑, T i f x = 0 by simp [this]
+  ·
+    refine SubadditiveOn.zero hP A (fun f hf ↦ ?_)
+    refine ?_
+    -- filter_upwards [(h i hi).neg P A0 f hf] with x hx
+
+    suffices ⨆ i ∈ 𝓑, T i f =ᵐ[ν] 0 by sorry
+    refine ?_
     simp only [ENNReal.iSup_eq_zero]
     intro i hi
+    refine ?_
+    filter_upwards [(h i hi).neg P A0 f hf] with x hx
     have := (toReal_eq_zero_iff _).mp (congr_fun ((h i hi).neg P A0 f hf) x)
     exact this.resolve_right (hT' i hi x f hf)
   push_neg at A0
@@ -3152,8 +3164,8 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) {T : ι → (α → E₁) → α' → �
   gcongr <;> apply le_biSup _ hi
 
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ}
-    (sa : SubadditiveOn T P A) (S : Set α') :
-    SubadditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A := by
+    (sa : SubadditiveOn T P A ν) (S : Set α') :
+    SubadditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
   intro f g x hf hg
   by_cases hx : x ∈ S <;> simp [hx, sa f g x hf hg]
 
@@ -3171,7 +3183,7 @@ variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
 def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=
-  SubadditiveOn T P A ∧ ∀ (f : α → E₁) (c : ℝ), P f → c ≥ 0 → T (c • f) = c • T f
+  SubadditiveOn T P A ν ∧ ∀ (f : α → E₁) (c : ℝ), P f → c ≥ 0 → T (c • f) = c • T f
 
 namespace SublinearOn
 
@@ -4315,7 +4327,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
     {A : ℝ≥0} (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + ENNReal.ofReal t / p₁)
-    (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A)
+    (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A ν)
     (hf : Memℒp f p μ) :
     Subadditive_trunc T A f ν := by
   intro a a_pos
@@ -4355,7 +4367,7 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
     {C₀ C₁ t A : ℝ≥0} (hA : A > 0) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
     (hmT : ∀ f, Memℒp f p μ → AEStronglyMeasurable (T f) ν)
-    (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A)
+    (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A ν)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁) :
     HasStrongType T p q μ ν (C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) := by
   intro f hf
