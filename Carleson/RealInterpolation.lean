@@ -3127,12 +3127,11 @@ lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P
   filter_upwards [h f hf, h g hg, h (f + g) (hP hf hg)] with x hx1 hx2 hx3
   simp [hx1, hx2, hx3]
 
-/- This may be false with the new definition `SublinearOn` (the problem is that if the set of indexes
+/- This may be false with the new definition `SubadditiveOn` (the problem is that if the set of indexes
 is uncountable then we cannot use the properties of the a.e. filter, because things true for every `i`
 may be false in the case of all `i` at the same time), maybe the right way to handle this is to add
 the hypothesis `Countable 𝓑`, at that point we may have to use `filter_upwards` with infinitely many
-hypotheses, I'm not sure how to do this.
--/
+hypotheses, I'm not sure how to do this. -/
 lemma biSup {ι : Type*} (𝓑 : Set ι) {T : ι → (α → E₁) → α' → ℝ≥0∞}
     {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁) (x : α'), P u → ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
