@@ -3166,8 +3166,9 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) [h𝓑 : Countable 𝓑] {T : ι → (�
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ}
     (sa : SubadditiveOn T P A ν) (S : Set α') :
     SubadditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
-  intro f g x hf hg
-  by_cases hx : x ∈ S <;> simp [hx, sa f g x hf hg]
+  intro f g hf hg
+  filter_upwards [sa f g hf hg] with x hx
+  by_cases h : x ∈ S <;> simp [hx, h]
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
 -- a subadditivity criterion, then `SubadditiveOn T P 1`
