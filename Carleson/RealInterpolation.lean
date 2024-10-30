@@ -3172,10 +3172,10 @@ lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
 -- a subadditivity criterion, then `SubadditiveOn T P 1`
-lemma const (t : (α → E₁) → E₂) (P : (α → E₁) → Prop)
-    (h_add : ∀ {f g}, P f → P g → ‖t (f + g)‖ ≤ ‖t f‖ + ‖t g‖) :
-    SubadditiveOn (fun u (_ : α') ↦ t u) P 1 := by
-  intro f g x hf hg
+lemma const (T : (α → E₁) → E₂) (P : (α → E₁) → Prop)
+    (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ ≤ ‖T f‖ + ‖T g‖) :
+    SubadditiveOn (fun u (_ : α') ↦ T u) P 1 ν := by
+  refine fun f g hf hg ↦ ae_of_all _ fun _ ↦ ?_
   simpa using h_add hf hg
 
 end SubadditiveOn
