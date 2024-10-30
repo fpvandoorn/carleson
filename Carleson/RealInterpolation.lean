@@ -3127,23 +3127,80 @@ lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P
   filter_upwards [h f hf, h g hg, h (f + g) (hP hf hg)] with x hx1 hx2 hx3
   simp [hx1, hx2, hx3]
 
+
+lemma biSup' {ι : Type*} (𝓑 : Set ι) {T : ι → (α → E₁) → α' → ℝ≥0∞}
+    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁) (x : α'), P u → ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+    (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
+    (A : ℝ) (h : ∀ i ∈ 𝓑, SubadditiveOn (fun u x ↦ (T i u x).toReal) P A) :
+    SubadditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A := by
+  have hT' : ∀ i ∈ 𝓑, ∀ (x : α') (u : α → E₁), P u → T i u x ≠ ∞ :=
+    fun i hi x f hf h ↦ hT f x hf <| eq_top_iff.mpr <| h ▸ le_biSup (fun i ↦ T i f x) hi
+  by_cases A0 : A < 0
+  · refine SubadditiveOn.zero hP A (fun f hf ↦ funext fun x ↦ ?_)
+    suffices ⨆ i ∈ 𝓑, T i f x = 0 by simp [this]
+    simp only [ENNReal.iSup_eq_zero]
+    intro i hi
+    have := (toReal_eq_zero_iff _).mp (congr_fun ((h i hi).neg P A0 f hf) x)
+    exact this.resolve_right (hT' i hi x f hf)
+  push_neg at A0
+  intro f g x hf hg
+  simp only [Real.norm_eq_abs, abs_toReal]
+  rw [← toReal_add (hT f x hf) (hT g x hg), ← toReal_ofReal A0, ← toReal_mul]
+  apply toReal_mono <| mul_ne_top ofReal_ne_top (add_ne_top.mpr ⟨hT f x hf, hT g x hg⟩)
+  simp only [iSup_le_iff]
+  intro i hi
+  specialize h i hi f g x hf hg
+  simp only [Real.norm_eq_abs, abs_toReal] at h
+  rw [← toReal_add (hT' i hi x f hf) (hT' i hi x g hg), ← toReal_ofReal A0, ← toReal_mul,
+    toReal_le_toReal (hT' i hi x (f + g) (hP hf hg)) <| mul_ne_top ofReal_ne_top <|
+    add_ne_top.mpr ⟨hT' i hi x f hf, hT' i hi x g hg⟩] at h
+  apply h.trans
+  gcongr <;> apply le_biSup _ hi
+
+
+
+
 /- This may be false with the new definition `SubadditiveOn` (the problem is that if the set of indexes
 is uncountable then we cannot use the properties of the a.e. filter, because things true for every `i`
 may be false in the case of all `i` at the same time), maybe the right way to handle this is to add
 the hypothesis `Countable 𝓑`, at that point we may have to use `filter_upwards` with infinitely many
 hypotheses, I'm not sure how to do this. -/
-lemma biSup {ι : Type*} (𝓑 : Set ι) {T : ι → (α → E₁) → α' → ℝ≥0∞}
-    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁) (x : α'), P u → ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+lemma biSup {ι : Type*} (𝓑 : Set ι) [h𝓑 : Countable 𝓑] {T : ι → (α → E₁) → α' → ℝ≥0∞}
+    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
     (A : ℝ) (h : ∀ i ∈ 𝓑, SubadditiveOn (fun u x ↦ (T i u x).toReal) P A ν) :
     SubadditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A ν := by
-  have hT' : ∀ i ∈ 𝓑, ∀ (x : α') (u : α → E₁), P u → T i u x ≠ ∞ :=
-    fun i hi x f hf h ↦ hT f x hf <| eq_top_iff.mpr <| h ▸ le_biSup (fun i ↦ T i f x) hi
+  have hT' : ∀ i ∈ 𝓑, ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
+    intro i hi f hf
+    filter_upwards [hT f hf] with x hx
+    rw [ne_eq, eq_top_iff] at hx ⊢
+    exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
   by_cases A0 : A < 0
-  · refine SubadditiveOn.zero hP A (fun f hf ↦ ?_)
+  ·
+    refine SubadditiveOn.zero hP A (fun f hf ↦ ?_)
     refine ?_
+    have h {i : ι} (hi : i ∈ 𝓑) := (h i hi).neg A0
+    rw [Set.forall_in_swap] at h hT'
+    simp_rw [imp.swap, ← imp_forall_iff] at h hT'
+    specialize h f hf
+    specialize hT' f hf
+    refine ?_
+    -- #check ae_ball_iff h𝓑
+    have hh := (ae_ball_iff h𝓑).mpr h
+    filter_upwards [(ae_ball_iff h𝓑).mpr h, (ae_ball_iff h𝓑).mpr hT'] with x hx hx'
+    refine ?_
+    simp [ENNReal.toReal_eq_zero_iff, hx, hx']
+    left
+    refine ?_
+    simp [hx, hx']
+
+    -- rw [← ae_ball_iff h𝓑] at h
     -- filter_upwards [(h i hi).neg P A0 f hf] with x hxs
-    suffices ⨆ i ∈ 𝓑, T i f =ᵐ[ν] 0 by sorry
+
+    -- refine SubadditiveOn.zero hP A (fun f hf ↦ funext fun x ↦ ?_)
+    -- suffices ⨆ i ∈ 𝓑, T i f x = 0 by simp [this]
+
+    suffices ⨆ i ∈ 𝓑, T i f =ᵐ[ν] 0 by simp []
     refine ?_
     simp only [ENNReal.iSup_eq_zero]
     intro i hi
