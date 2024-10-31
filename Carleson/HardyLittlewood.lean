@@ -256,7 +256,6 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction
     (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
   apply SublinearOn.antitone LocallyIntegrable_of_P
   simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  -- have : 𝓑.Countable := by exact  h𝓑.countable
   apply SublinearOn.biSup (P := (LocallyIntegrable · μ)) 𝓑 h𝓑.countable _ _
     LocallyIntegrable.add (fun hf _ ↦ hf.smul _)
   · intro i _
@@ -267,7 +266,7 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction
     simp_rw [this]
     apply (SublinearOn.const (T μ c r i) (LocallyIntegrable · μ) (T.add_le i)
       (fun f d ↦ T.smul i)).indicator
-  · intro f hf
+  · refine fun f hf ↦ ae_of_all _ (fun x ↦ ?_)
     by_cases h𝓑' : 𝓑.Nonempty; swap
     · simp [not_nonempty_iff_eq_empty.mp h𝓑']
     have ⟨i, _, hi⟩ := h𝓑.biSup_eq h𝓑' (fun i ↦ (ball (c i) (r i)).indicator
