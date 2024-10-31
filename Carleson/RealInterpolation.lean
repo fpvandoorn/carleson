@@ -4324,7 +4324,6 @@ lemma coe_C_realInterpolation {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0}
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) / q₀ + (ENNReal.ofReal t) / q₁) :
   ENNReal.ofNNReal (C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) =
      C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t := by
-  unfold C_realInterpolation
   refine coe_toNNReal ?_
   apply C_realInterpolation_ENNReal_ne_top (A := A) <;> assumption
 
@@ -4337,31 +4336,20 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A ν)
     (hf : Memℒp f p μ) :
     Subadditive_trunc T A f ν := by
-  intro a a_pos
-  apply ae_of_all
-  intro x
+  refine fun a a_pos ↦ ?_
   apply hT
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
-    · right
-      apply trunc_Lp_Lq_higher (p := p) _ hf
+    · refine Or.inr (trunc_Lp_Lq_higher (p := p) ?_ hf)
       exact ⟨interpolated_pos' hp₀ hp₁ hp, (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).2⟩
-    · left
-      rw [interp_exp_eq p₀eq_p₁ ht hp]
-      exact trunc_preserves_Lp hf
-    · left
-      apply trunc_Lp_Lq_higher (p := p) _ hf
+    · exact Or.inl <| interp_exp_eq p₀eq_p₁ ht hp ▸ trunc_preserves_Lp hf
+    · refine Or.inl (trunc_Lp_Lq_higher (p := p) ?_ hf)
       exact ⟨interpolated_pos' hp₀ hp₁ hp,
         (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2⟩
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
-    · left
-      apply trunc_compl_Lp_Lq_lower (p := p) _ _ a_pos hf
-      · exact interp_exp_ne_top p₀lt_p₁.ne ht hp
-      · exact ⟨hp₀, (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩
-    · left
-      rw [interp_exp_eq p₀eq_p₁ ht hp]
-      exact trunc_compl_preserves_Lp hf
-    · right
-      apply trunc_compl_Lp_Lq_lower (p := p) _ _ a_pos hf
+    · refine Or.inl (trunc_compl_Lp_Lq_lower (p := p) (interp_exp_ne_top p₀lt_p₁.ne ht hp)
+        ⟨hp₀, (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩ a_pos hf)
+    · exact Or.inl <| interp_exp_eq p₀eq_p₁ ht hp ▸ trunc_compl_preserves_Lp hf
+    · refine Or.inr <| trunc_compl_Lp_Lq_lower (p := p) ?_ ?_ a_pos hf
       · exact interp_exp_ne_top p₁lt_p₀.ne (Ioo.one_sub_mem ht) (switch_exponents ht hp)
       · exact ⟨hp₁,
           (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).1⟩
