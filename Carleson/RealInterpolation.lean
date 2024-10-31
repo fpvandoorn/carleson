@@ -3222,15 +3222,16 @@ lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop
     (sl : SublinearOn T P A ν) :
     SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
   refine ⟨SubadditiveOn.indicator sl.1 S, fun f c hf hc ↦ ?_⟩
-  by_cases hx : x ∈ S <;> simp [hx, congr_fun (sl.2 f c hf hc) x]
+  filter_upwards [sl.2 f c hf hc] with x hx
+  by_cases h : x ∈ S <;> simp [h, hx]
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
 -- certain requirements, then `SublinearOn T P 1`
-lemma const (t : (α → E₁) → E₂) (P : (α → E₁) → Prop)
-    (h_add : ∀ {f g}, P f → P g → ‖t (f + g)‖ ≤ ‖t f‖ + ‖t g‖)
-    (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → t (c • f) = c • t f) :
-    SublinearOn (fun u (_ : α') ↦ t u) P 1 ν := by
-  refine ⟨SubadditiveOn.const t P h_add, fun f c hf hc ↦ funext (fun x ↦ ?_)⟩
+lemma const (T : (α → E₁) → E₂) (P : (α → E₁) → Prop)
+    (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ ≤ ‖T f‖ + ‖T g‖)
+    (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → T (c • f) = c • T f) :
+    SublinearOn (fun u (_ : α') ↦ T u) P 1 ν := by
+  refine ⟨SubadditiveOn.const T P h_add, fun f c hf hc ↦ ?_⟩
   simpa using h_smul f hf hc
 
 end SublinearOn
