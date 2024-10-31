@@ -3127,7 +3127,7 @@ lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P
   filter_upwards [h f hf, h g hg, h (f + g) (hP hf hg)] with x hx1 hx2 hx3
   simp [hx1, hx2, hx3]
 
-lemma biSup {ι : Type*} (𝓑 : Set ι) [h𝓑 : Countable 𝓑] {T : ι → (α → E₁) → α' → ℝ≥0∞}
+lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ℝ≥0∞}
     {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
     (A : ℝ) (h : ∀ i ∈ 𝓑, SubadditiveOn (fun u x ↦ (T i u x).toReal) P A ν) :
@@ -3194,7 +3194,7 @@ lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Pr
     (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sl : SublinearOn T P' A ν) : SublinearOn T P A ν :=
   ⟨sl.1.antitone (fun hu ↦ h hu), fun u c hu hc ↦ sl.2 u c (h hu) hc⟩
 
-lemma biSup {ι : Type*} (𝓑 : Set ι) [h𝓑 : Countable 𝓑] (T : ι → (α → E₁) → α' → ℝ≥0∞)
+lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) (T : ι → (α → E₁) → α' → ℝ≥0∞)
     {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (h_add : ∀ {f g : α → E₁}, P f → P g → P (f + g))
     (h_smul : ∀ {f : α → E₁} {c : ℝ}, P f → c ≥ 0 → P (c • f))
@@ -3205,7 +3205,7 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) [h𝓑 : Countable 𝓑] (T : ι → (�
     filter_upwards [hT f hf] with x hx
     rw [ne_eq, eq_top_iff] at hx ⊢
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
-  refine ⟨SubadditiveOn.biSup 𝓑 hT h_add A (fun i hi ↦ (h i hi).1), fun f c hf hc ↦ ?_⟩
+  refine ⟨SubadditiveOn.biSup 𝓑 h𝓑 hT h_add A (fun i hi ↦ (h i hi).1), fun f c hf hc ↦ ?_⟩
   simp_rw [Set.forall_in_swap, imp.swap, ← imp_forall_iff] at hT'
   filter_upwards [(ae_ball_iff h𝓑).mpr (fun i hi ↦ (h i hi).2 f c hf hc),
     (ae_ball_iff h𝓑).mpr (hT' f hf), (ae_ball_iff h𝓑).mpr (hT' (c • f) (h_smul hf hc))] with x hx hT'fx hT'cfx
