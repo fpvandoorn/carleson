@@ -1353,7 +1353,7 @@ namespace MeasureTheory
 /-- The `t`-truncation of a function `f`. -/
 def trunc [NormedAddCommGroup E₁] (f : α → E₁) (t : ℝ) (x : α) : E₁ := if ‖f x‖ ≤ t then f x else 0
 
-/-- The complement of a `t`-truncatoin of a function `f`. -/
+/-- The complement of a `t`-truncation of a function `f`. -/
 def trunc_compl [NormedAddCommGroup E₁] (f : α → E₁) (t : ℝ) : α → E₁ := f - trunc f t
 
 lemma trunc_compl_eq [NormedAddCommGroup E₁] {a : ℝ} {f : α → E₁} :
@@ -3231,7 +3231,7 @@ lemma const (T : (α → E₁) → E₂) (P : (α → E₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ ≤ ‖T f‖ + ‖T g‖)
     (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → T (c • f) = c • T f) :
     SublinearOn (fun u (_ : α') ↦ T u) P 1 ν := by
-  refine ⟨SubadditiveOn.const T P h_add, fun f c hf hc ↦ ?_⟩
+  refine ⟨SubadditiveOn.const T P h_add, fun f c hf hc ↦ ae_of_all _ fun _ ↦ ?_⟩
   simpa using h_smul f hf hc
 
 end SublinearOn
