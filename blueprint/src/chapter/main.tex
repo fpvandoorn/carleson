@@ -3542,6 +3542,8 @@ $a\ge 4$.
 The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
 \begin{lemma}[tile correlation]
     \label{tile-correlation}
+    \leanok
+    \lean{Tile.correlation_le, Tile.correlation_zero_of_ne_subset}
     \uses{Holder-van-der-Corput,correlation-kernel-bound,tile-uncertainty,tile-range-support}
     Let $\fp, \fp'\in \fP$ with
     $\ps({\fp'})\leq \ps({\fp})$.
@@ -3602,6 +3604,8 @@ With the definition of $p$, this implies
 The next lemma prepares an application of
 \Cref{Holder-van-der-Corput}.
 \begin{lemma}[correlation kernel bound]\label{correlation-kernel-bound}
+\leanok
+\lean{Tile.correlation, Tile.mem_ball_of_correlation_ne_zero, Tile.correlation_kernel_bound}
 Let $-S\le s_1\le s_2\le S$ and let $x_1,x_2\in X$.
 Define \begin{equation}
  \varphi(y) := \overline{K_{s_1}(x_1, y)}
@@ -3655,6 +3659,8 @@ This proves the lemma.
 \end{proof}
 The next lemma is a geometric estimate for two tiles.
 \begin{lemma}\label{tile-uncertainty}
+\leanok
+\lean{Tile.uncertainty}
 \uses{monotone-cube-metrics}
     Let $\fp_1, \fp_2\in \fP$ with
 $\ps({\fp_1})\leq \ps({\fp_2})$. For each $x_1\in E(\fp_1)$ and
@@ -3704,6 +3710,8 @@ Now \eqref{tgeo} follows with $a\ge 1$.
 
 
 \begin{lemma}[tile range support]\label{tile-range-support}
+\leanok
+\lean{Tile.range_support}
     For each $\fp\in \fP$, and each $y\in X$, we have that
 \begin{equation}\label{tstargnot0}
      T_{\fp}^* g(y)\neq 0
