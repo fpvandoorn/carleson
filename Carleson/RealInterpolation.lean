@@ -3183,40 +3183,45 @@ end SubadditiveOn
 variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
-def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) : Prop :=
-  SubadditiveOn T P A ν ∧ ∀ (f : α → E₁) (c : ℝ), P f → c ≥ 0 → T (c • f) = c • T f
+def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) (ν : Measure α') : Prop :=
+  SubadditiveOn T P A ν ∧ ∀ (f : α → E₁) (c : ℝ), P f → c ≥ 0 → T (c • f) =ᵐ[ν] c • T f
 
 namespace SublinearOn
 
+variable {ν : Measure α'}
+
 lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
-    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sl : SublinearOn T P' A) : SublinearOn T P A :=
+    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sl : SublinearOn T P' A ν) : SublinearOn T P A ν :=
   ⟨sl.1.antitone (fun hu ↦ h hu), fun u c hu hc ↦ sl.2 u c (h hu) hc⟩
 
-lemma biSup {ι : Type*} (𝓑 : Set ι) (T : ι → (α → E₁) → α' → ℝ≥0∞)
-    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁) (x : α'), P u → ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+lemma biSup {ι : Type*} (𝓑 : Set ι) [h𝓑 : Countable 𝓑] (T : ι → (α → E₁) → α' → ℝ≥0∞)
+    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (h_add : ∀ {f g : α → E₁}, P f → P g → P (f + g))
     (h_smul : ∀ {f : α → E₁} {c : ℝ}, P f → c ≥ 0 → P (c • f))
-    {A : ℝ} (h : ∀ i ∈ 𝓑, SublinearOn (fun u x ↦ (T i u x).toReal) P A) :
-    SublinearOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A := by
-  have hT' : ∀ i ∈ 𝓑, ∀ (x : α') (u : α → E₁), P u → T i u x ≠ ∞ :=
-    fun i hi x f hf h ↦ hT f x hf <| eq_top_iff.mpr <| h ▸ le_biSup (fun i ↦ T i f x) hi
-  refine ⟨SubadditiveOn.biSup 𝓑 hT h_add A (fun i hi ↦ (h i hi).1), ?_⟩
-  intro f c hf hc
-  ext x
+    {A : ℝ} (h : ∀ i ∈ 𝓑, SublinearOn (fun u x ↦ (T i u x).toReal) P A ν) :
+    SublinearOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A ν := by
+  have hT' : ∀ i ∈ 𝓑, ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
+    intro i hi f hf
+    filter_upwards [hT f hf] with x hx
+    rw [ne_eq, eq_top_iff] at hx ⊢
+    exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
+  refine ⟨SubadditiveOn.biSup 𝓑 hT h_add A (fun i hi ↦ (h i hi).1), fun f c hf hc ↦ ?_⟩
+  simp_rw [Set.forall_in_swap, imp.swap, ← imp_forall_iff] at hT'
+  filter_upwards [(ae_ball_iff h𝓑).mpr (fun i hi ↦ (h i hi).2 f c hf hc),
+    (ae_ball_iff h𝓑).mpr (hT' f hf), (ae_ball_iff h𝓑).mpr (hT' (c • f) (h_smul hf hc))] with x hx hT'fx hT'cfx
   rw [Pi.smul_apply, ← ENNReal.toReal_ofReal hc, smul_eq_mul]
   simp only [← toReal_mul, ENNReal.mul_iSup]
   congr 1
   refine biSup_congr (fun i hi ↦ ?_)
-  have := congr_fun ((h i hi).2 f c hf hc) x
-  simp only [Pi.smul_apply, smul_eq_mul, ← toReal_ofReal_mul c (T i f x) hc] at this
-  rw [ENNReal.toReal_eq_toReal (hT' i hi x (c • f) (h_smul hf hc))
-    (mul_ne_top ofReal_ne_top (hT' i hi x f hf))] at this
+  specialize hx i hi
+  simp only [Pi.smul_apply, smul_eq_mul, ← toReal_ofReal_mul c (T i f x) hc] at hx
+  simp_rw [ENNReal.toReal_eq_toReal (hT'cfx i hi) (mul_ne_top ofReal_ne_top (hT'fx i hi))] at hx
   rwa [toReal_ofReal hc]
 
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ} (S : Set α')
-    (sl : SublinearOn T P A) :
-    SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A := by
-  refine ⟨SubadditiveOn.indicator sl.1 S, fun f c hf hc ↦ funext (fun x ↦ ?_)⟩
+    (sl : SublinearOn T P A ν) :
+    SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
+  refine ⟨SubadditiveOn.indicator sl.1 S, fun f c hf hc ↦ ?_⟩
   by_cases hx : x ∈ S <;> simp [hx, congr_fun (sl.2 f c hf hc) x]
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
@@ -3224,7 +3229,7 @@ lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop
 lemma const (t : (α → E₁) → E₂) (P : (α → E₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖t (f + g)‖ ≤ ‖t f‖ + ‖t g‖)
     (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → t (c • f) = c • t f) :
-    SublinearOn (fun u (_ : α') ↦ t u) P 1 := by
+    SublinearOn (fun u (_ : α') ↦ t u) P 1 ν := by
   refine ⟨SubadditiveOn.const t P h_add, fun f c hf hc ↦ funext (fun x ↦ ?_)⟩
   simpa using h_smul f hf hc
 
