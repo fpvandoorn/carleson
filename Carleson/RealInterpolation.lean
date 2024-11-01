@@ -3105,24 +3105,24 @@ def Subadditive_trunc (T : (α → E₁) → α' → E₂) (A : ℝ) (f : α →
   ‖T (trunc f a + trunc_compl f a) y‖ ≤ A * (‖T (trunc f a) y‖ + ‖T (trunc_compl f a) y‖)
 
 /-- The operator is subadditive on functions satisfying `P` with constant `A`. -/
-def SubadditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) (ν : Measure α') : Prop :=
+def AESubAdditiveOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) (ν : Measure α') : Prop :=
   ∀ (f g : α → E₁), P f → P g → ∀ᵐ x ∂ν, ‖T (f + g) x‖ ≤ A * (‖T f x‖ + ‖T g x‖)
 
-namespace SubadditiveOn
+namespace AESubAdditiveOn
 
 variable {ν : Measure α'}
 
 lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
-    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sa : SubadditiveOn T P' A ν) : SubadditiveOn T P A ν :=
+    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sa : AESubAdditiveOn T P' A ν) : AESubAdditiveOn T P A ν :=
   fun f g hf hg ↦ sa f g (h hf) (h hg)
 
-lemma neg (P : (α → E₁) → Prop) {A : ℝ} (hA : A < 0) (h : SubadditiveOn T P A ν)
+lemma neg (P : (α → E₁) → Prop) {A : ℝ} (hA : A < 0) (h : AESubAdditiveOn T P A ν)
     (f : α → E₁) (hf : P f) : T f =ᵐ[ν] 0 := by
   filter_upwards [h f f hf hf] with x hx using norm_le_zero_iff.mp
     (by nlinarith [norm_nonneg (T (f + f) x), hx])
 
 lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (A : ℝ) (h : ∀ u, P u → T u =ᵐ[ν] 0) : SubadditiveOn T P A ν := by
+    (A : ℝ) (h : ∀ u, P u → T u =ᵐ[ν] 0) : AESubAdditiveOn T P A ν := by
   intro f g hf hg
   filter_upwards [h f hf, h g hg, h (f + g) (hP hf hg)] with x hx1 hx2 hx3
   simp [hx1, hx2, hx3]
@@ -3130,15 +3130,15 @@ lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P
 lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ℝ≥0∞}
     {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (A : ℝ) (h : ∀ i ∈ 𝓑, SubadditiveOn (fun u x ↦ (T i u x).toReal) P A ν) :
-    SubadditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A ν := by
+    (A : ℝ) (h : ∀ i ∈ 𝓑, AESubAdditiveOn (fun u x ↦ (T i u x).toReal) P A ν) :
+    AESubAdditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A ν := by
   have hT' : ∀ i ∈ 𝓑, ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
     intro i hi f hf
     filter_upwards [hT f hf] with x hx
     rw [ne_eq, eq_top_iff] at hx ⊢
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
   rcases lt_or_le A 0 with A0 | A0
-  · refine SubadditiveOn.zero hP A (fun f hf ↦ ?_)
+  · refine AESubAdditiveOn.zero hP A (fun f hf ↦ ?_)
     have h {i : ι} (hi : i ∈ 𝓑) := (h i hi).neg A0
     simp_rw [Set.forall_in_swap, imp.swap, ← imp_forall_iff] at h hT'
     filter_upwards [(ae_ball_iff h𝓑).mpr (h f hf), (ae_ball_iff h𝓑).mpr (hT' f hf)] with x hx hx'
@@ -3147,7 +3147,7 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) {T : ι → (�
     have := (ENNReal.toReal_eq_zero_iff _).mp (hx i hi)
     tauto
   intro f g hf hg
-  simp_rw [SubadditiveOn, Set.forall_in_swap, imp.swap, ← imp_forall_iff] at h hT'
+  simp_rw [AESubAdditiveOn, Set.forall_in_swap, imp.swap, ← imp_forall_iff] at h hT'
   specialize h f hf g hg
   simp only [Real.norm_eq_abs, abs_toReal] at h ⊢
   filter_upwards [hT f hf, hT g hg, (ae_ball_iff h𝓑).mpr h, (ae_ball_iff h𝓑).mpr (hT' f hf),
@@ -3164,48 +3164,48 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) {T : ι → (�
   gcongr <;> apply le_biSup _ hi
 
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ}
-    (sa : SubadditiveOn T P A ν) (S : Set α') :
-    SubadditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
+    (sa : AESubAdditiveOn T P A ν) (S : Set α') :
+    AESubAdditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
   intro f g hf hg
   filter_upwards [sa f g hf hg] with x hx
   by_cases h : x ∈ S <;> simp [hx, h]
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
--- a subadditivity criterion, then `SubadditiveOn T P 1`
+-- a subadditivity criterion, then `AESubAdditiveOn T P 1`
 lemma const (T : (α → E₁) → E₂) (P : (α → E₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ ≤ ‖T f‖ + ‖T g‖) :
-    SubadditiveOn (fun u (_ : α') ↦ T u) P 1 ν := by
+    AESubAdditiveOn (fun u (_ : α') ↦ T u) P 1 ν := by
   refine fun f g hf hg ↦ ae_of_all _ fun _ ↦ ?_
   simpa using h_add hf hg
 
-end SubadditiveOn
+end AESubAdditiveOn
 
 variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
-def SublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) (ν : Measure α') : Prop :=
-  SubadditiveOn T P A ν ∧ ∀ (f : α → E₁) (c : ℝ), P f → c ≥ 0 → T (c • f) =ᵐ[ν] c • T f
+def AESublinearOn (T : (α → E₁) → α' → E₂) (P : (α → E₁) → Prop) (A : ℝ) (ν : Measure α') : Prop :=
+  AESubAdditiveOn T P A ν ∧ ∀ (f : α → E₁) (c : ℝ), P f → c ≥ 0 → T (c • f) =ᵐ[ν] c • T f
 
-namespace SublinearOn
+namespace AESublinearOn
 
 variable {ν : Measure α'}
 
 lemma antitone {T : (α → E₁) → α' → E₂} {P P' : (α → E₁) → Prop}
-    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sl : SublinearOn T P' A ν) : SublinearOn T P A ν :=
+    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ} (sl : AESublinearOn T P' A ν) : AESublinearOn T P A ν :=
   ⟨sl.1.antitone (fun hu ↦ h hu), fun u c hu hc ↦ sl.2 u c (h hu) hc⟩
 
 lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) (T : ι → (α → E₁) → α' → ℝ≥0∞)
     {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (h_add : ∀ {f g : α → E₁}, P f → P g → P (f + g))
     (h_smul : ∀ {f : α → E₁} {c : ℝ}, P f → c ≥ 0 → P (c • f))
-    {A : ℝ} (h : ∀ i ∈ 𝓑, SublinearOn (fun u x ↦ (T i u x).toReal) P A ν) :
-    SublinearOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A ν := by
+    {A : ℝ} (h : ∀ i ∈ 𝓑, AESublinearOn (fun u x ↦ (T i u x).toReal) P A ν) :
+    AESublinearOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) P A ν := by
   have hT' : ∀ i ∈ 𝓑, ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
     intro i hi f hf
     filter_upwards [hT f hf] with x hx
     rw [ne_eq, eq_top_iff] at hx ⊢
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
-  refine ⟨SubadditiveOn.biSup 𝓑 h𝓑 hT h_add A (fun i hi ↦ (h i hi).1), fun f c hf hc ↦ ?_⟩
+  refine ⟨AESubAdditiveOn.biSup 𝓑 h𝓑 hT h_add A (fun i hi ↦ (h i hi).1), fun f c hf hc ↦ ?_⟩
   simp_rw [Set.forall_in_swap, imp.swap, ← imp_forall_iff] at hT'
   filter_upwards [(ae_ball_iff h𝓑).mpr (fun i hi ↦ (h i hi).2 f c hf hc),
     (ae_ball_iff h𝓑).mpr (hT' f hf), (ae_ball_iff h𝓑).mpr (hT' (c • f) (h_smul hf hc))] with x hx hT'fx hT'cfx
@@ -3219,22 +3219,23 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) (T : ι → (�
   rwa [toReal_ofReal hc]
 
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ} (S : Set α')
-    (sl : SublinearOn T P A ν) :
-    SublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
-  refine ⟨SubadditiveOn.indicator sl.1 S, fun f c hf hc ↦ ?_⟩
+    (sl : AESublinearOn T P A ν) :
+    AESublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
+  refine ⟨AESubAdditiveOn.indicator sl.1 S, fun f c hf hc ↦ ?_⟩
   filter_upwards [sl.2 f c hf hc] with x hx
   by_cases h : x ∈ S <;> simp [h, hx]
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
--- certain requirements, then `SublinearOn T P 1`
+-- certain requirements, then `AESublinearOn T P 1`
 lemma const (T : (α → E₁) → E₂) (P : (α → E₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ ≤ ‖T f‖ + ‖T g‖)
     (h_smul : ∀ f {c : ℝ}, P f → c ≥ 0 → T (c • f) = c • T f) :
-    SublinearOn (fun u (_ : α') ↦ T u) P 1 ν := by
-  refine ⟨SubadditiveOn.const T P h_add, fun f c hf hc ↦ ae_of_all _ fun _ ↦ ?_⟩
+    AESublinearOn (fun u (_ : α') ↦ T u) P 1 ν := by
+  refine ⟨AESubAdditiveOn.const T P h_add, fun f c hf hc ↦ ae_of_all _ fun _ ↦ ?_⟩
   simpa using h_smul f hf hc
 
-end SublinearOn
+end AESublinearOn
+
 end MeasureTheory
 
 end
@@ -4333,7 +4334,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
     {A : ℝ≥0} (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) / p₀ + ENNReal.ofReal t / p₁)
-    (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A ν)
+    (hT : AESubAdditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A ν)
     (hf : Memℒp f p μ) :
     Subadditive_trunc T A f ν := by
   refine fun a a_pos ↦ ?_
@@ -4362,7 +4363,7 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
     {C₀ C₁ t A : ℝ≥0} (hA : A > 0) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
     (hmT : ∀ f, Memℒp f p μ → AEStronglyMeasurable (T f) ν)
-    (hT : SubadditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A ν)
+    (hT : AESubAdditiveOn T (fun f ↦ Memℒp f p₀ μ ∨ Memℒp f p₁ μ) A ν)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (h₁T : HasWeakType T p₁ q₁ μ ν C₁) :
     HasStrongType T p q μ ν (C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) := by
   intro f hf

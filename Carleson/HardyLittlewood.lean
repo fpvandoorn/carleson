@@ -47,7 +47,7 @@ lemma maximalFunction_eq_MB
   rw [ENNReal.rpow_one, ← ENNReal.coe_rpow_of_nonneg _ hp, ENNReal.coe_inj,
     Real.nnnorm_rpow_of_nonneg (by simp), nnnorm_norm]
 
--- We will replace the criterion `P` used in `MeasureTheory.SublinearOn.maximalFunction` with the
+-- We will replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `LocallyIntegrable` that is closed under addition and scalar multiplication.
 
 variable (μ) in
@@ -249,14 +249,14 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   simp_rw [ENNReal.nnorm_toReal]
   exact ENNReal.coe_toNNReal_le_self |>.trans MB_le_eLpNormEssSup
 
-protected theorem MeasureTheory.SublinearOn.maximalFunction
+protected theorem MeasureTheory.AESublinearOn.maximalFunction
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Finite) :
-    SublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
+    AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
     (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
-  apply SublinearOn.antitone LocallyIntegrable_of_P
+  apply AESublinearOn.antitone LocallyIntegrable_of_P
   simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  apply SublinearOn.biSup (P := (LocallyIntegrable · μ)) 𝓑 h𝓑.countable _ _
+  apply AESublinearOn.biSup (P := (LocallyIntegrable · μ)) 𝓑 h𝓑.countable _ _
     LocallyIntegrable.add (fun hf _ ↦ hf.smul _)
   · intro i _
     let B := ball (c i) (r i)
@@ -264,7 +264,7 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction
         (B.indicator (fun _ ↦ (⨍⁻ y in B, ‖u y‖₊ ∂μ).toReal) x) := by
       by_cases hx : x ∈ B <;> simp [hx]
     simp_rw [this]
-    apply (SublinearOn.const (T μ c r i) (LocallyIntegrable · μ) (T.add_le i)
+    apply (AESublinearOn.const (T μ c r i) (LocallyIntegrable · μ) (T.add_le i)
       (fun f d ↦ T.smul i)).indicator
   · refine fun f hf ↦ ae_of_all _ (fun x ↦ ?_)
     by_cases h𝓑' : 𝓑.Nonempty; swap
@@ -327,7 +327,7 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) zero_lt_one (by simp [inv_lt_one_iff, hp, h2p] : p⁻¹ ∈ _) zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑.countable)
-    (SublinearOn.maximalFunction h𝓑).1 (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
+    (AESublinearOn.maximalFunction h𝓑).1 (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
     (HasWeakType.MB_one μ h𝓑.countable (h𝓑.exists_image_le r).choose_spec)
 
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
