@@ -15,6 +15,21 @@ open scoped NNReal ENNReal ComplexConjugate
 def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
   ⟨max 0 (1 - dist x y / (t * R)), by positivity⟩
 
+section new
+
+variable {R t : ℝ} {x y : X}
+
+/-- equation 8.0.4 from the blueprint -/
+lemma aux_8_0_4 (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := sorry
+
+lemma aux_8_0_5 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) : 0.5 ≤ |cutoff R t x y| := sorry
+
+lemma aux_8_0_6 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) :
+    (2^(-1: ℝ)) * volume (ball x (2^(-1: ℝ) * R * t)) ≤ 2 := by -- XXX: how to even state this? ((∫ y, (cutoff R t x y)) : ℝ≥0) := by
+  sorry
+
+end new
+
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
 
