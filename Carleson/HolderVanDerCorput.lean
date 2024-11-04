@@ -24,14 +24,25 @@ include hR ht in
 lemma aux_8_0_4 (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
   rw [mem_ball']
   have : 0 < 1 - dist x y / (t * R) := by
-    by_contra h'
-    push_neg at h'
+    by_contra! h'
     have h2 : cutoff R t x y = 0 := by rw [cutoff, max_eq_left_iff]; exact h'
     exact h h2
-  have : dist x y / (t * R) < 1 := lt_add_neg_iff_lt.mp this
-  exact (div_lt_one (mul_pos ht hR)).mp this
+  exact (div_lt_one (mul_pos ht hR)).mp (lt_add_neg_iff_lt.mp this)
 
-lemma aux_8_0_5 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) : 0.5 ≤ |cutoff R t x y| := sorry
+lemma aux {a b c : ℝ} (hc : 0 < c) (h : a < b * c) : a / c < b := by
+  sorry--exact (div_le_iff₀ hc).mpr h
+
+include hR ht in
+lemma aux_8_0_5 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ |cutoff R t x y| := by
+  rw [mem_ball'] at h
+  have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := by
+    apply aux (mul_pos ht hR)
+    sorry
+  calc 2 ^ (-1 : ℝ)
+    _ ≤ 1 - dist x y / (t * R) := by
+      sorry
+    _ ≤ cutoff R t x y := le_max_right _ _
+    _ ≤ |cutoff R t x y| := le_abs_self _
 
 lemma aux_8_0_6 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) :
     (2^(-1: ℝ)) * volume (ball x (2^(-1: ℝ) * R * t)) ≤ 2 := by -- XXX: how to even state this? ((∫ y, (cutoff R t x y)) : ℝ≥0) := by
