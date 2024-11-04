@@ -17,10 +17,19 @@ def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
 
 section new
 
-variable {R t : ℝ} {x y : X}
+variable {R t : ℝ} {hR : 0 < R} {ht : 0 < t} {ht': t ≤ 1} {x y : X}
 
+include hR ht in
 /-- equation 8.0.4 from the blueprint -/
-lemma aux_8_0_4 (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := sorry
+lemma aux_8_0_4 (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
+  rw [mem_ball']
+  have : 0 < 1 - dist x y / (t * R) := by
+    by_contra h'
+    push_neg at h'
+    have h2 : cutoff R t x y = 0 := by rw [cutoff, max_eq_left_iff]; exact h'
+    exact h h2
+  have : dist x y / (t * R) < 1 := lt_add_neg_iff_lt.mp this
+  exact (div_lt_one (mul_pos ht hR)).mp this
 
 lemma aux_8_0_5 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) : 0.5 ≤ |cutoff R t x y| := sorry
 
