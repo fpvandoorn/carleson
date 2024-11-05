@@ -147,7 +147,7 @@ lemma aux_8_0_8 : ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* (n_8_0_7 +2)
           gcongr
           exact n_spec1 (ht' := ht')
         _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
-          ring
+          ring_nf
 
 end new
 
