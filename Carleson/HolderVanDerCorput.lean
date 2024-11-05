@@ -49,14 +49,35 @@ lemma aux_8_0_5 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ 
   have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := (div_lt_iff (by positivity)).mpr h
   calc 2 ^ (-1 : ℝ)
     _ ≤ 1 - dist x y / (t * R) := by
-      norm_num at *; linarith
+      norm_num at *; linarith only [h, this]
       -- bug: putting the cursor on the previous line shows 'no goals', but also
       -- "Error: The requested module 'blob:vscode-webview://1rd9dtr7c96784kh96b2qlls7kpl0nadnnmhqp1v0dsavkhrgljh/a2aa2681-8a8a-42aa-8c1e-e9fcde1af97c' does not provide an export named 'useRpcSession'"
     _ ≤ cutoff R t x y := le_max_right _ _
 
+#check lintegral_mono
+
+-- seems missing from mathlib
+@[gcongr]
+theorem lintegral_monoOn {α : Type*} {m : MeasurableSpace α} {μ : Measure α}
+    {s : Set α} ⦃f g : α → ℝ≥0∞⦄ (hfg : ∀ x : s, f x ≤ g x) :
+    ∫⁻ a in s, f a ∂μ ≤ ∫⁻ a in s, g a ∂μ := by
+  rw [lintegral, lintegral]
+  -- rewrite: integral equals the integral over the restriction
+  -- then use lintegral there
+  sorry
+
+include hR ht in
 lemma aux_8_0_6 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
     (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y)  := by
-  sorry
+  calc (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R))
+    _ = ∫⁻ y in ((ball x (2 ^ (-1: ℝ) * t * R))), (2 ^ (-1: ℝ)) :=
+      (setLIntegral_const _ _).symm
+    _ ≤ ∫⁻ y in (ball x (2 ^ (-1: ℝ) * t * R)), (cutoff R t x y) := by
+      refine lintegral_monoOn fun ⟨y', hy'⟩ ↦ ?_
+      convert aux_8_0_5 hy' (hR := hR) (ht := ht)
+      sorry
+      -- mismatch: one side has NNReal, other has ENNReal
+    _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
 end new
 
