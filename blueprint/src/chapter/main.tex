@@ -118,17 +118,17 @@ $$
 $$
 
 A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$ is a measurable function
- \begin{equation}\label{eqkernel0}
-K:X\times X\to \mathbb{C}
- \end{equation}
+\begin{equation}\label{eqkernel0}
+  K:X\times X\to \mathbb{C}
+\end{equation}
 such that for all $x,y',y\in X$ with $x\neq y$, we have
 \begin{equation}\label{eqkernel-size}
     |K(x,y)| \leq \frac{2^{a^3}}{V(x,y)}
-  \end{equation}
- and if $2\rho(y,y') \leq \rho(x,y)$, then
-  \begin{equation}
+\end{equation}
+and if $2\rho(y,y') \leq \rho(x,y)$, then
+\begin{equation}
   \label{eqkernel-y-smooth}
-       |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
+  |K(x,y) - K(x,y')| \leq \left(\frac{\rho(y,y')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)},
 \end{equation}
 where \[V(x,y):=\mu(B(x,\rho(x,y))).\]
 Define the maximally truncated non-tangential singular integral $T_{*}$ associated with $K$ by
@@ -137,9 +137,9 @@ Define the maximally truncated non-tangential singular integral $T_{*}$ associat
     T_{*}f(x):=\sup_{R_1 < R_2} \sup_{\rho(x,x')<R_1} \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|\,.
 \end{equation}
 We define the generalized Carleson operator $T$ by
- \begin{equation}
-        \label{def-main-op}
-        Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\begin{equation}
+    \label{def-main-op}
+    Tf(x):=\sup_{\mfa\in\Mf} \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|\, ,
 \end{equation}
 where $e(r)=e^{ir}$.
 
@@ -163,9 +163,9 @@ $1<q<2$.
     all Borel functions $f:X\to \C$ with
     $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
     \begin{equation}
-    \label{resweak}
+        \label{resweak}
         \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
-        \end{equation}
+    \end{equation}
 \end{theorem}
 
 For a Borel function $\tQ\to \Mf$, and $\mfa \in \Mf$ and $x\in X$ define
@@ -179,9 +179,9 @@ and define further
     \left|\int_{R_1< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
 \end{equation}
 Define further the linearized generalized Carleson operator $T_\tQ$ by
- \begin{equation}
-        \label{def-lin-main-op}
-        T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
+\begin{equation}
+    \label{def-lin-main-op}
+    T_\tQ f(x):= \sup_{0 < R_1 < R_2}\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y) \right|\, ,
 \end{equation}
 where again $e(r)=e^{ir}$.
 
@@ -194,21 +194,19 @@ where again $e(r)=e^{ir}$.
     the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
     cancellative compatible collection of functions.
-    Let $\tQ:X\to \Mf$ be a Borel function with finite range
-    .
+    Let $\tQ:X\to \Mf$ be a Borel function with finite range.
     Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{linnontanbound}
         \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
-    where $T_{\tQ}^\mfa$ is defined in
-\eqref{def-lin-star-op}.
+    where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
     Then for all bounded Borel sets $F$ and $G$ in $X$ and
     all Borel functions $f:X\to \C$ with
     $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
     \begin{equation}
-    \label{linresweak}
+        \label{linresweak}
         \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
-        \end{equation}
+    \end{equation}
 \end{theorem}
 
 We note that in Chapter \ref{lin max} we formulate a variant of this theorem where
@@ -216,7 +214,7 @@ $\tQ$ has countable range.
 
 In the one-dimensional Euclidean setting, with $K$ representing the Hilbert kernel:
 \begin{equation*}
-K(x,y)=(x-y)^{-1}
+    K(x,y)=(x-y)^{-1}
 \end{equation*}
 and $\Mf$ denoting the class of linear functions, the operator \eqref{def-main-op} is the classical Carleson operator, which plays a crucial role in proving the almost everywhere convergence of Fourier series \cite{carleson}, \cite{fefferman}, \cite{lacey-thiele}. The supremum in $R_1$ and $R_2$ is often omitted in classical treatments, but considering the maximal truncations can easily be reduced to the case without these truncations.
 
@@ -247,10 +245,10 @@ Let $a, q$ be given as in \Cref{metric-space-Carleson}.
 
 Define
 \begin{equation}\label{defineD}
-D:= 2^{100 a^2}\, ,
+    D:= 2^{100 a^2}\, ,
 \end{equation}
 \begin{equation}\label{definekappa}
-\kappa:= 2^{-10a}\,,
+    \kappa:= 2^{-10a}\,,
 \end{equation}
 and
 \begin{equation}
@@ -270,9 +268,6 @@ with constant $4D$.
 
 
 
-
-
-
 Let a doubling metric measure space $(X,\rho,\mu, a)$ be given.
 Let a cancellative compatible collection $\Mf$ of functions on $X$ be given.
 Let $o\in X$ be a point such that $\mfa(o)=0$
@@ -281,8 +276,7 @@ for all $\mfa\in \Mf$.
 
 Let a Borel measurable function $\tQ:X\to \Mf$ with finite range be given.
 Let a one-sided Calder\'on--Zygmund kernel $K$ on $X$ be given so that for every $\mfa\in \Mf$ the operator $T_{\tQ}^{\mfa}$ defined in \eqref{def-lin-star-op}
-satisfies
-\eqref{linnontanbound}.
+satisfies \eqref{linnontanbound}.
 
 
 
@@ -332,11 +326,11 @@ called center function such that the five properties
 
 For each dyadic cube $I$ and each $-S\le k<s(I)$ we have
 \begin{equation}\label{coverdyadic}
-I\subset \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
+    I\subset \bigcup_{J\in \mathcal {D}: s(J)=k}J\, .
 \end{equation}
 Any two non-disjoint dyadic cubes $I,J$ with $s(I)\le s(J)$ satisfy
 \begin{equation}\label{dyadicproperty}
-I\subset J.
+    I\subset J.
 \end{equation}
 There exists a $I_0 \in \mathcal{D}$ with $s(I_0) = S$ and $c(I_0) = o$
 %\begin{equation}\label{coverball}
@@ -348,10 +342,10 @@ and for all cubes $J \in \mathcal{D}$, we have
 \end{equation}
 %changed the above sentence on June 25, CT
 For any dyadic cube $I$,
- \begin{equation}
-        \label{eq-vol-sp-cube}
-        c(I)\in B(c(I), \frac{1}{4} D^{s(I)}) \subset I \subset B(c(I), 4 D^{s(I)})\,.
-    \end{equation}
+\begin{equation}
+    \label{eq-vol-sp-cube}
+    c(I)\in B(c(I), \frac{1}{4} D^{s(I)}) \subset I \subset B(c(I), 4 D^{s(I)})\,.
+\end{equation}
 For any dyadic cube $I$ and any $t$ with $tD^{s(I)} \ge D^{-S}$,
 \begin{equation}
     \label{eq-small-boundary}
@@ -364,11 +358,11 @@ A tile structure $(\fP,\scI,\fc,\fcc,\pc,\ps)$
 for a given grid structure $(\mathcal{D}, c, s)$
 is a finite set $\fP$ of elements called tiles with five maps
 \begin{align*}
-\scI&\colon \fP\to {\mathcal{D}}\\
-\fc&\colon \fP\to \mathcal{P}(\Mf) \\
-\fcc &\colon \fP\to \tQ(X)\\
-\pc &\colon \fP\to X\\
-\ps &\colon \fP\to \mathbb{Z}
+    \scI&\colon \fP\to {\mathcal{D}}\\
+    \fc&\colon \fP\to \mathcal{P}(\Mf) \\
+    \fcc &\colon \fP\to \tQ(X)\\
+    \pc &\colon \fP\to X\\
+    \ps &\colon \fP\to \mathbb{Z}
 \end{align*}
 with $\scI$ surjective and $\mathcal{P}(\Mf)$ denoting the power set of $\Mf$ such that the five properties \eqref{eq-dis-freq-cover}, \eqref{eq-freq-dyadic},
 \eqref{eq-freq-comp-ball}, \eqref{tilecenter}, and
@@ -380,23 +374,23 @@ For each dyadic cube $I$, the restriction of the map $\Omega$ to the set
 is injective
 and we have the disjoint covering property (we use the union symbol with dot on top to denote a disjoint union)
 \begin{equation}\label{eq-dis-freq-cover}
-\tQ(X)\subset \dot{\bigcup}_{\fp\in \fP(I)}\fc(\fp).
+    \tQ(X)\subset \dot{\bigcup}_{\fp\in \fP(I)}\fc(\fp).
 \end{equation}
 For any tiles $\fp,\fq$ with $\scI(\fp)\subset \scI(\fq)$ and $\fc(\fp) \cap \fc(\fq) \neq \emptyset$ we have
 \begin{equation} \label{eq-freq-dyadic}
-\fc(\fq)\subset \fc(\fp) .
+    \fc(\fq)\subset \fc(\fp) .
 \end{equation}
 For each tile $\fp$,
-        \begin{equation}\label{eq-freq-comp-ball}
-        \fcc(\fp)\in B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
-        \end{equation}
-        where
+\begin{equation}\label{eq-freq-comp-ball}
+    \fcc(\fp)\in B_{\fp}(\fcc(\fp), 0.2) \subset \fc(\fp) \subset B_{\fp}(\fcc(\fp),1)\,,
+\end{equation}
+where
 \begin{equation}
     B_{\fp} (\mfa, R) := \{\mfb \in \Mf \, : \, d_{\fp}(\mfa, \mfb) < R\,\} ,
 \end{equation}
- and
+and
 \begin{equation}\label{defdp}
-d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}\, .
+    d_{\fp} := d_{B(\pc(\fp),\frac 14 D^{\ps(\fp)})}\, .
 \end{equation}
 We have for each tile $\fp$
 \begin{equation}\label{tilecenter}
@@ -412,7 +406,8 @@ We have for each tile $\fp$
 \leanok
 \lean{discrete_carleson}
 \uses{exceptional-set, forest-union, forest-complement}
-Let $(\mathcal{D}, c, s)$ be a grid structure and \begin{equation*}
+Let $(\mathcal{D}, c, s)$ be a grid structure and
+\begin{equation*}
     (\fP,\scI,\fc,\fcc,\pc,\ps)
 \end{equation*}
 a tile structure for this grid structure.
@@ -462,8 +457,7 @@ the relation
 on $\fP\times \fP$ meaning
 $\scI(\fp)\subset \scI(\fp')$ and
 \begin{equation}
-    B_{\fp'}(\fcc(\fp'),\lambda' )
-    \subset B_{\fp}(\fcc(\fp),\lambda )\, .
+    B_{\fp'}(\fcc(\fp'),\lambda') \subset B_{\fp}(\fcc(\fp),\lambda)\, .
 \end{equation}
 
 
@@ -531,7 +525,7 @@ hold.
 For each $\fu\in \fU$ and each $\fp\in \fT(\fu)$
 we have $\scI(\fp) \ne \scI(\fu)$ and
 \begin{equation}\label{forest1}
-4\fp\lesssim \fu.
+    4\fp\lesssim \fu.
 \end{equation}
 For each $\fu \in \fU$ and each $\fp,\fp''\in \fT(\fu)$ and $\fp'\in \fP$
 we have
@@ -544,15 +538,15 @@ We have
 \end{equation}
 We have for every $\fu\in \fU$
 \begin{equation}\label{forest4}
-\dens_1(\fT(\fu))\le 2^{4a + 1-n}\, .
+    \dens_1(\fT(\fu))\le 2^{4a + 1-n}\, .
 \end{equation}
 We have for $\fu, \fu'\in \fU$ with $\fu\neq \fu'$ and $\fp\in \fT(\fu')$ with $\scI(\fp)\subset \scI(\fu)$ that
 \begin{equation}\label{forest5}
-d_{\fp}(\fcc(\fp), \fcc(\fu))>2^{Z(n+1)}\, .
+    d_{\fp}(\fcc(\fp), \fcc(\fu))>2^{Z(n+1)}\, .
 \end{equation}
 We have for every $\fu\in \fU$ and $\fp\in \fT(\fu)$ that
 \begin{equation}\label{forest6}
-B(\pc(\fp), 8D^{\ps(\fp)})\subset \scI(\fu).
+    B(\pc(\fp), 8D^{\ps(\fp)})\subset \scI(\fu).
 \end{equation}
 
 
@@ -614,7 +608,7 @@ and $r>0$ as defined in \eqref{eq-define-ball}.
 For a finite collection $\mathcal{B}$ of balls in $X$
 and $1\le p< \infty$ define the measurable function $M_{\mathcal{B},p}u$ on $X$ by
 \begin{equation}\label{def-hlm}
-M_{\mathcal{B},p}u(x):=\left(\sup_{B\in \mathcal{B}} \frac{\mathbf{1}_{B}(x)}{\mu(B)}\int _{B} |u(y)|^p\, d\mu(y)\right)^\frac 1p\, .
+    M_{\mathcal{B},p}u(x):=\left(\sup_{B\in \mathcal{B}} \frac{\mathbf{1}_{B}(x)}{\mu(B)}\int _{B} |u(y)|^p\, d\mu(y)\right)^\frac 1p\, .
 \end{equation}
 Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 
@@ -629,10 +623,9 @@ If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have
 \begin{equation}\label{eq-ball-assumption}
 \int_{B} u(x)\, d\mu(x)\ge \lambda \mu(B)
 \end{equation}
-   for each $B\in \mathcal{B}$,
-   then
-   \begin{equation}\label{eq-besico}
-\lambda \mu(\bigcup \mathcal{B}) \le 2^{2a}\int_X u(x)\, d\mu(x)\, .
+for each $B\in \mathcal{B}$, then
+\begin{equation}\label{eq-besico}
+    \lambda \mu(\bigcup \mathcal{B}) \le 2^{2a}\int_X u(x)\, d\mu(x)\, .
 \end{equation}
 For every measurable function $v$
 and $1\le p_1<p_2$ we have
@@ -1395,7 +1388,7 @@ write $(y',k'|y,k)$ if $I_3(y',k')\subset I_3(y,k)$ and
     \leanok
     \lean{small_boundary}
     Let $K = 2^{4a+1}$. For each $-S+K\le k\le S$ and $y\in Y_k$ we have
-        \begin{equation}
+      \begin{equation}
             \label{new-small-boundary}
             \sum_{z\in Y_{k-K}: (z,k-K|y,k)}\mu(I_3(z,k-K)) \le \frac 12 \mu(I_3(y,k))\,.
         \end{equation}
@@ -5096,11 +5089,11 @@ Now we are ready to state the main result of this subsection.
         \lean{TileStructure.Forest.correlation_distant_tree_parts}
         \uses{Holder-van-der-Corput,Lipschitz-partition-unity,Holder-correlation-tree,lower-oscillation-bound}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
-        \begin{equation}
+      \begin{equation}
             \label{eq-lhs-big-sep-tree}
             \left| \int_X \sum_{\fp_1 \in \fT(\fu_1)} \sum_{\fp_2 \in \fT(\fu_2) \cap \mathfrak{S}} T^*_{\fp_1}g_1 \overline{T^*_{\fp_2}g_2 }\,\mathrm{d}\mu \right|
         \end{equation}
-        \begin{equation}
+      \begin{equation}
             \label{eq-rhs-big-sep-tree}
             \le 2^{541a^3} 2^{-Zn/(4a^2 + 2a^3)} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
         \end{equation}
@@ -5111,11 +5104,11 @@ Now we are ready to state the main result of this subsection.
         \lean{TileStructure.Forest.correlation_near_tree_parts}
         \uses{tree-projection-estimate,dyadic-partition-2,bound-for-tree-projection}
         We have for all $\fu_1 \ne \fu_2 \in \fU$ with $\scI(\fu_1) \subset \scI(\fu_2)$ and all bounded $g_1, g_2$ with bounded support
-        \begin{equation}
+      \begin{equation}
             \label{eq-lhs-small-sep-tree}
             \left| \int_X \sum_{\fp_1 \in \fT(\fu_1)} \sum_{\fp_2 \in \fT(\fu_2) \setminus \mathfrak{S}} T^*_{\fp_1}g_1 \overline{T^*_{\fp_2}g_2 }\,\mathrm{d}\mu \right|
         \end{equation}
-        \begin{equation}
+      \begin{equation}
             \label{eq-rhs-small-sep-tree}
             \le 2^{222a^3} 2^{-Zn 2^{-10a}} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
         \end{equation}
@@ -5197,11 +5190,11 @@ $$
             \mathbf{1}_{\scI(\fu_1)} = \sum_{J \in \mathcal{J}'} \chi_J\,,
         \end{equation}
         and for all $J \in \mathcal{J}'$ and all $y,y' \in \scI(\fu_1)$
-        \begin{equation}
+      \begin{equation}
             \label{eq-pao-2}
             0 \leq \chi_J(y) \leq \mathbf{1}_{B(J)}(y)\,,
         \end{equation}
-        \begin{equation}
+      \begin{equation}
             \label{eq-pao-3}
             |\chi_J(y) - \chi_J(y')| \le 2^{226a^3} \frac{\rho(y,y')}{D^{s(J)}}\,.
         \end{equation}
@@ -5280,13 +5273,13 @@ $$
     \begin{proof}[Proof of \Cref{moderate-scale-change}]
         \proves{moderate-scale-change}
         Suppose that $s(J') < s(J) - 1$. Then $s(J) > -S$. Thus, by the definition of $\mathcal{J}'$ there exists no $\fp \in \mathfrak{S}$ with
-        \begin{equation}
+      \begin{equation}
             \label{eq-tile-incl-1}
             \scI(\fp) \subset B(c(J), 100D^{s(J) + 1})\,.
         \end{equation}
         Since $s(J') < s(J)$ and $J', J \subset \scI(\fu_1)$, we have $J' \subsetneq \scI(\fu_1)$.
         By \eqref{coverdyadic}, \eqref{dyadicproperty} there exists a cube $J'' \in \mathcal{D}$ with $J \subset J''$ and $s(J'') = s(J') + 1$. By the definition of $\mathcal{J}'$, there exists a tile $\fp \in \mathfrak{S}$ with
-        \begin{equation}
+      \begin{equation}
             \label{tile-incl-2}
             \scI(\fp) \subset B(c(J''), 100 D^{s(J')+2})\,.
         \end{equation}
@@ -5314,7 +5307,7 @@ $$
         \lean{TileStructure.Forest.holder_correlation_tree}
         \uses{global-tree-control-2}
         We have for all $J \in \mathcal{J}'$ that
-        \begin{equation}
+      \begin{equation}
             \label{hHolder}
             \|h_J\|_{C^{\tau}(B(c(J), 8D^{s(J)}))} \le 2^{535a^3} \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
         \end{equation}
@@ -5332,7 +5325,7 @@ $$
         $$
             |e(\fcc(\fu)(y)) T_{\fp}^* g(y) - e(\fcc(\fu)(y')) T_{\fp}^* g(y')|
         $$
-        \begin{equation}
+      \begin{equation}
             \label{T*Holder2}
             \le \frac{2^{151a^3}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \left(\frac{\rho(y, y')}{D^{\ps(\fp)}}\right)^{1/a} \int_{E(\fp)} |g(x)| \, \mathrm{d}\mu(x)\,.
         \end{equation}
@@ -5355,14 +5348,14 @@ $$
             \leq\int_{E(\fp)} |g(x)| |e(-\tQ(x)(y) + \tQ(x)(y') + \fcc(\fu)(y) - \fcc(\fu)(y')) - 1| \\
             \times |\overline{K_{\ps(\fp)}(x, y)}|\, \mathrm{d}\mu(x) \label{T*Holder1b}
         \end{multline}
-        \begin{equation}
+      \begin{equation}
             + \int_{E(\fp)} |g(x)| |\overline{K_{\ps(\fp)}(x, y)} - \overline{K_{\ps(\fp)}(x, y')} |\, \mathrm{d}\mu(x)\,.\label{T*Holder1}
         \end{equation}
         By the oscillation estimate \eqref{osccontrol}, we have
         $$
             |-\tQ(x)(y) + \tQ(x)(y') + \fcc(\fu)(y) - \fcc(\fu)(y')|
         $$
-        \begin{equation}
+      \begin{equation}
             \label{eq-lem-tile-Holder-comp}
             \le d_{B(y, \rho(y,y'))}(\tQ(x), \fcc(\fu))\,.
         \end{equation}
@@ -5379,7 +5372,7 @@ $$
             k \le \frac{1}{a} \log_2\left(\frac{10 D^{\ps(\fp)}}{\rho(y,y')}\right)\,,
         $$
         which gives
-        \begin{equation}
+      \begin{equation}
             \label{eq-lem-Tile-holder-im1}
              |-\tQ(x)(y) + \tQ(x)(y') + \fcc(\fu)(y) - \fcc(\fu)(y')| \le 5 \cdot 2^{6a} \left(\frac{\rho(y,y')}{10 D^{\ps(\fp)}}\right)^{1/a}\,.
         \end{equation}
@@ -5410,7 +5403,7 @@ $$
             \le \int_{E(\fp)} |K_{\ps(\fp)}(x,y)| |g(x)| \, \mathrm{d}\mu(x)\,.
         $$
         By the same argument used to prove \eqref{eq-Ks-aux}, this is bounded by
-        \begin{equation}
+      \begin{equation}
             \label{eq-lem-Tile-holder-im2}
             \le 2^{102a^3} \int_{E(\fp)} \frac{1}{\mu(B(x, D^s))} \psi(D^{-s} \rho(x,y)) |g(x)| \, \mathrm{d}\mu(x)\,.
         \end{equation}
@@ -5515,7 +5508,7 @@ $$
             \leq \sup_{B^\circ{}(J)} \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ B(\scI(\fp)) \cap B^\circ(J) \ne \emptyset}} |T_{\fp}^*g|\,.
         $$
         By \Cref{limited-scale-impact}, this is at most
-        \begin{equation}
+      \begin{equation}
             \label{eq-sep-tree-aux-3}
             \sum_{s = s(J)}^{s(J) + 3} \sum_{\substack{\fp \in \fP, \ps(\fp) = s\\ B(\scI(\fp)) \cap B^\circ(J) \ne \emptyset}} \sup_{B^\circ{}(J)} |T_{\fp}^* g|\,.
         \end{equation}
@@ -6250,9 +6243,8 @@ Using that $\varphi$ is supported in $B(z,R)$ and
 \eqref{eql01}, we have that $\tilde{\varphi}$ is supported in $B(z,2R)$.
 
 We prove \eqref{eq-firstt}.
- For any $x\in X$, using
-    that $L$ is nonnegative,
-    \begin{equation}\label{eql1}
+ For any $x\in X$, using that $L$ is nonnegative,
+   \begin{equation}\label{eql1}
     \left(\int L(x,y) \, \mathrm{d}\mu(y)\right)
         |\varphi(x) - \tilde \varphi(x)|
     \end{equation}
@@ -6263,13 +6255,13 @@ Using \eqref{eql01}, we estimate the last display by
  \begin{equation}\label{eql3}
          \le \int_{B(x, tR)} L(x,y)|\varphi(x) - \varphi(y)| \, \mathrm{d}\mu(y)\, .\end{equation}
   Using the definition of $\|\varphi\|_{C^\tau(B)}$, we estimate the last display further by
-        \begin{equation}\label{eql4}
+       \begin{equation}\label{eql4}
          \le \left(\int_{B(x, tR)} L(x,y)
           \rho(x,y)^\tau \, \mathrm{d}\mu(y) \right)\|\varphi\|_{C^\tau(B)}R^{-\tau}\, .
     \end{equation}
   Using the condition on the domain of integration to estimate $\rho(x,y)$ by $tR$ and then expanding the domain by positivity of the integrand, we estimate this further by
 
-    \begin{equation}\label{eql5}
+   \begin{equation}\label{eql5}
          \le \left(\int L(x,y) \, \mathrm{d}\mu(y)\right)
          \|\varphi\|_{C^\tau(B)} t^{\tau} \, .
     \end{equation}
@@ -6361,10 +6353,10 @@ Then
    \begin{equation}\label{eql60}
        \left|\int e(\mfa(x)-{\mfb(x)}) \varphi (x)\, \mathrm{d}\mu(x)\right|
    \end{equation}
-      \begin{equation}\label{eql61}
+    \begin{equation}\label{eql61}
    \le \left|\int e(\mfa(x)-{\mfb(x)}) \tilde{\varphi} (x)\, \mathrm{d}\mu(x)\right|
    \end{equation}
-           \begin{equation}\label{eql62}
+         \begin{equation}\label{eql62}
      + \left|\int e(\mfa(x)-{\mfb(x)}) (\varphi (x)-\tilde{\varphi}(x))\, \mathrm{d}\mu(x)\right|
    \end{equation}
 Using the cancellative condition \eqref{eq-vdc-cond} of $\Mf$ on the ball $B(z,2R)$, the term \eqref{eql61} is bounded above by
@@ -6746,13 +6738,13 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
         the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
         cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
-        \begin{equation}\label{two-sided-Hr-bound-assumption}
+      \begin{equation}\label{two-sided-Hr-bound-assumption}
             \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
         Then for all Borel sets $F$ and $G$ in $X$ and
         all Borel functions $f:X\to \C$ with
         $|f|\le \mathbf{1}_F$, we have, with $T$ defined in \eqref{def-main-op},
-        \begin{equation}
+      \begin{equation}
         \label{two-sided-resweak}
             \left|\int_{G} T f \, \mathrm{d}\mu\right| \leq \frac{2^{452a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
         \end{equation}
@@ -8314,7 +8306,7 @@ We have for every bounded measurable $2\pi$-periodic function $g$
          = \frac 1N\sum_{n=0}^{N-1} \|
     S_{N+n}M_{N+n}g\|_{L^2[-\pi, \pi]}
     \end{equation*}
-       \begin{equation}
+     \begin{equation}
      \le \frac 1N\sum_{n=0}^{N-1} \|
  M_{N+n}g\|_{L^2[-\pi, \pi]} = \frac 1N\sum_{n=0}^{N-1} \|
 g\|_{L^2[-\pi, \pi]} =\|g\|_{L^2[-\pi, \pi]}\, .
