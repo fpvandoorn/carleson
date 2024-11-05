@@ -116,6 +116,15 @@ lemma aux_8_0_6 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
       sorry -- mismatch: one side has NNReal, other has ENNReal
     _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
+-- smallest integer so that 2^n t ≥ 1
+private def n_8_0_7 : ℕ := sorry
+
+private lemma n_spec : 1 ≤ 2 ^ n_8_0_7 * t := sorry
+
+lemma aux_8_0_8 : ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℤ) - a* (n_8_0_7 +2)) * volume (ball x (2*R)) :=
+  -- iterating the doubling condition n + 2 times ---> prove this for all n by induction and specialise?
+  sorry
+
 end new
 
 /-- The constant occurring in Lemma 8.0.1. -/
