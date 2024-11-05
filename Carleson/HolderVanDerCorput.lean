@@ -17,7 +17,48 @@ def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
 
 section new
 
-variable {R t : ℝ} {hR : 0 < R} {ht : 0 < t} {ht': t ≤ 1} {x y : X}
+def cutoff' (R t : ℝ) (x y : X) : ℝ :=
+  max 0 (1 - dist x y / (t * R))
+
+lemma aux {α : Type*} [PseudoEMetricSpace α] {K : ℝ≥0} {f : α → ℝ} (hf : LipschitzWith K f) (c : ℝ) :
+    LipschitzWith K (fun x ↦ c - f x) := by
+  intro x y
+  rw [edist_sub_left]
+  apply hf
+
+variable {R t : ℝ} {hR : 0 < R} {ht : 0 < t} {x y : X}
+
+variable (hR ht) in
+lemma cutoff_Lipschitz :
+    LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
+  have aux0 : LipschitzWith 1 (fun y ↦ dist x y) := LipschitzWith.dist_right x
+  have aux1 : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
+    -- WTF: this seems to be necessary
+    haveI : SeminormedCommGroup ℝ := sorry
+    let as := LipschitzWith.const (α := X) (1 / (t * R))
+    -- but the next line still fails, no matter what
+    --let asdf := LipschitzWith.mul (α := X) (E := ℝ) as aux0
+    --apply LipschitzWith.mul (α := X) (E := ℝ) as aux0
+    sorry
+  have aux1' : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ 1 - dist x y / (t * R)) := by
+    intro y y'; apply aux aux1
+  have : LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff' R t x y) := by
+    unfold cutoff'
+    apply LipschitzWith.max (LipschitzWith.const' (0 : ℝ)) aux1'
+  convert this
+
+include hR ht in
+@[fun_prop]
+lemma cutoff_continuous : Continuous (fun y ↦ cutoff R t x y) := by
+  apply (cutoff_Lipschitz hR ht (X := X)).continuous
+
+include hR ht in
+/-- `cutoff R t x` is measurable in `y`. -/
+@[fun_prop]
+lemma cutoff_measurable : Measurable (fun y ↦ cutoff R t x y) := by
+  apply cutoff_continuous.measurable
+  apply hR
+  apply ht
 
 -- xxx: exact? and aesop both cannot prove this
 lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
@@ -27,6 +68,8 @@ lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
 lemma leq_of_max_neq_right {a b : ℝ} (h : max a b ≠ b) : b < a := by
   by_contra! h'
   exact h (max_eq_right h')
+
+variable {ht': t ≤ 1}
 
 include hR ht in
 /-- equation 8.0.4 from the blueprint -/
@@ -54,9 +97,10 @@ lemma aux_8_0_5 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ 
       -- "Error: The requested module 'blob:vscode-webview://1rd9dtr7c96784kh96b2qlls7kpl0nadnnmhqp1v0dsavkhrgljh/a2aa2681-8a8a-42aa-8c1e-e9fcde1af97c' does not provide an export named 'useRpcSession'"
     _ ≤ cutoff R t x y := le_max_right _ _
 
--- naming oddity: names with L have a monotonicity *on s*, names without L have global monotonicity
-#check setLIntegral_mono_ae
-#check setLIntegral_mono
+-- naming oddity: names with L take a monotonicity hypothesis *on s*,
+-- names without L ask for global monotonicity
+-- #check setLIntegral_mono_ae
+-- #check setLIntegral_mono
 
 include hR ht in
 lemma aux_8_0_6 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
@@ -66,8 +110,7 @@ lemma aux_8_0_6 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
       (setLIntegral_const _ _).symm
     _ ≤ ∫⁻ y in (ball x (2 ^ (-1: ℝ) * t * R)), (cutoff R t x y) := by
       -- 'gcongr with y'' does too much: I want y in the ball, not in X
-      apply setLIntegral_mono
-      sorry -- cutoff is measurable
+      apply setLIntegral_mono (by fun_prop (discharger := assumption))
       intro y' hy'
       convert aux_8_0_5 hy' (hR := hR) (ht := ht)
       sorry -- mismatch: one side has NNReal, other has ENNReal
