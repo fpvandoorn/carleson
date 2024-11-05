@@ -11,16 +11,16 @@ noncomputable section
 open Set MeasureTheory Metric Function Complex Bornology TileStructure
 open scoped NNReal ENNReal ComplexConjugate
 
-/-- `L R t x y` is `L(x, y)` in the proof of Lemma 8.0.1. -/
-def cutoff (R t : ℝ) (x y : X) : ℝ :=
-  max 0 (1 - dist x y / (t * R))
+/-- `cutoff R t x y` is `L(x, y)` in the proof of Lemma 8.0.1. -/
+def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
+  ⟨max 0 (1 - dist x y / (t * R)), by positivity⟩
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
 
 /-- `ϕ ↦ \tilde{ϕ}` in the proof of Lemma 8.0.1. -/
 def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
-  (∫ y, cutoff R t x y * ϕ y) / ∫ y, cutoff R t x y
+  (∫ y, cutoff R t x y * ϕ y) / (∫⁻ y, cutoff R t x y).toReal
 
 /-- Part of Lemma 8.0.1. -/
 lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
