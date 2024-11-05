@@ -19,33 +19,43 @@ section new
 
 variable {R t : ℝ} {hR : 0 < R} {ht : 0 < t} {ht': t ≤ 1} {x y : X}
 
+-- xxx: exact? and aesop both cannot prove this
+lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
+  by_contra! h'
+  apply h (max_eq_left h')
+
+lemma leq_of_max_neq_right {a b : ℝ} (h : max a b ≠ b) : b < a := by
+  by_contra! h'
+  exact h (max_eq_right h')
+
 include hR ht in
 /-- equation 8.0.4 from the blueprint -/
 lemma aux_8_0_4 (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
   rw [mem_ball']
   have : 0 < 1 - dist x y / (t * R) := by
-    by_contra! h'
-    have h2 : cutoff R t x y = 0 := by rw [cutoff, max_eq_left_iff]; exact h'
-    exact h h2
-  exact (div_lt_one (mul_pos ht hR)).mp (lt_add_neg_iff_lt.mp this)
+    apply leq_of_max_neq_left
+    rw [cutoff] at h
+    -- best way now?
+    convert h
+    exact eq_iff_eq_of_cmp_eq_cmp rfl
+  -- also works: field_simp at this; exact this
+  apply (div_lt_one (by positivity)).mp (by linarith)
 
-lemma aux {a b c : ℝ} (hc : 0 < c) (h : a < b * c) : a / c < b := by
-  sorry--exact (div_le_iff₀ hc).mpr h
+-- XXX: lemma names are `div_lt_iff` vs `div_le_iff₀`; ping Yael!
 
 include hR ht in
-lemma aux_8_0_5 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ |cutoff R t x y| := by
-  rw [mem_ball'] at h
-  have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := by
-    apply aux (mul_pos ht hR)
-    sorry
+lemma aux_8_0_5 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
+  rw [mem_ball', mul_assoc] at h
+  have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := (div_lt_iff (by positivity)).mpr h
   calc 2 ^ (-1 : ℝ)
     _ ≤ 1 - dist x y / (t * R) := by
-      sorry
+      norm_num at *; linarith
+      -- bug: putting the cursor on the previous line shows 'no goals', but also
+      -- "Error: The requested module 'blob:vscode-webview://1rd9dtr7c96784kh96b2qlls7kpl0nadnnmhqp1v0dsavkhrgljh/a2aa2681-8a8a-42aa-8c1e-e9fcde1af97c' does not provide an export named 'useRpcSession'"
     _ ≤ cutoff R t x y := le_max_right _ _
-    _ ≤ |cutoff R t x y| := le_abs_self _
 
-lemma aux_8_0_6 (h : y ∈ ball x (2^(-1: ℝ) * t * R)) :
-    (2^(-1: ℝ)) * volume (ball x (2^(-1: ℝ) * R * t)) ≤ 2 := by -- XXX: how to even state this? ((∫ y, (cutoff R t x y)) : ℝ≥0) := by
+lemma aux_8_0_6 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
+    (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y)  := by
   sorry
 
 end new
