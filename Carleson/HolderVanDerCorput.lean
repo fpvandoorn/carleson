@@ -103,8 +103,7 @@ lemma aux_8_0_5 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ 
 -- #check setLIntegral_mono
 
 include hR ht in
-lemma aux_8_0_6 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
-    (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y)  := by
+lemma aux_8_0_6 : (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
   calc (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R))
     _ = ∫⁻ y in ((ball x (2 ^ (-1: ℝ) * t * R))), (2 ^ (-1: ℝ)) :=
       (setLIntegral_const _ _).symm
@@ -116,16 +115,43 @@ lemma aux_8_0_6 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
       sorry -- mismatch: one side has NNReal, other has ENNReal
     _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
--- smallest integer so that 2^n t ≥ 1
-private def n_8_0_7 : ℕ := sorry
+include ht' in
+/-- The smallest integer `n` so that `2^n t ≥ 1`. -/
+private def n_8_0_7 : ℕ := sorry -- log_2 of 1/t, rounded up to an integer
 
-private lemma n_spec : 1 ≤ 2 ^ n_8_0_7 * t := sorry
+include ht' in -- use 1/t > 1 for existence/not being junk and the property of the log
+private lemma n_spec1 : 1 ≤ 2 ^ n_8_0_7 * t := sorry
 
-lemma aux_8_0_8 : ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℤ) - a* (n_8_0_7 +2)) * volume (ball x (2*R)) :=
-  -- iterating the doubling condition n + 2 times ---> prove this for all n by induction and specialise?
-  sorry
+-- might not be needed
+-- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
+
+-- xxx: simplify variable management; include hypotheses explicitly?
+
+include hR ht ht' in
+lemma aux_8_0_8 : ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* (n_8_0_7 +2)) * volume (ball x (2*R)) := by
+  calc ∫⁻ y, cutoff R t x y
+    _ ≥ (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
+      apply aux_8_0_6
+      exact hR
+      exact ht
+    _ ≥ (2 ^ ((-1 : ℝ) - a * (n_8_0_7 + 2))) * volume (ball x (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
+      sorry -- apply doubling n + 2 times; use induction (for all k) and specialize to n + 2?
+    _ ≥ (2 ^ ((-1 : ℝ) - a * (n_8_0_7 + 2))) * volume (ball x (2 * R)) := by
+      gcongr
+      calc
+        2 ≤ (2 * 2 ^ n_8_0_7) * t := by
+          rw [mul_assoc]
+          -- more elegant way than these two lines?
+          have h : (2 : ℝ) = 2 * 1 := by norm_num
+          nth_rewrite 1 [h]
+          gcongr
+          exact n_spec1 (ht' := ht')
+        _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
+          ring
 
 end new
+
+#exit
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
