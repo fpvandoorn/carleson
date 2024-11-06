@@ -123,6 +123,10 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
 
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
+-- I'm looking for a theorem like this for the two sorries below
+theorem barXX {a b : ℝ} : ((2 : ℝ≥0) ^ a) * (2 ^ b) = 2 ^ (a + b) := by
+  sorry
+
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) := by
   calc ∫⁻ y, cutoff R t x y
@@ -143,7 +147,14 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
           gcongr
           exact (n_spec1 ht).le
         _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
-          sorry --ring_nf
+          apply congrFun (congrArg HMul.hMul _)
+          -- there should be a nicer way!
+          calc 2 * (2 : ℝ) ^ (@n_8_0_7 t)
+            _ = 2 ^ ((@n_8_0_7 t) + 1) := by
+              sorry
+            _ = 2 ^ (((@n_8_0_7 t) + 2) - 1) := by ring_nf
+            _ = 2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) := by
+              sorry
 
 end new
 
