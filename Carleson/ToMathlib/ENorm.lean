@@ -158,16 +158,15 @@ theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : �
   · exact (MemWℒp_zero _ _ <| hp_zero ▸ hf).elim
   set A := {x | ‖f x‖ₑ = ∞} with hA
   unfold MemWℒp wnorm wnorm' at hf
-  simp [hp_inf] at hf
+  simp only [hp_inf] at hf
   rw [Filter.eventually_iff, mem_ae_iff]
-  simp [compl_def, ← hA]
+  simp only [ne_eq, compl_def, mem_setOf_eq, Decidable.not_not, ← hA]
   have h1 (t : ℝ≥0) : μ A ≤ distribution f t μ := by
     refine μ.mono ?_
     simp_all only [setOf_subset_setOf, coe_lt_top, implies_true, A]
   set C := ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹ with hC
   by_cases hC_zero : C = 0
-  · #check ∀ (i : ℝ≥0), (i = 0) ∨ ((distribution f (↑i) μ = 0 ∧ 0 < p.toReal) ∨ (distribution f (↑i) μ = ⊤ ∧ p.toReal < 0))
-    simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero, ENNReal.rpow_eq_zero_iff,
+  · simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.rpow_eq_zero_iff,
       inv_neg'', C] at hC_zero
     specialize hC_zero 1
     simp only [one_ne_zero, ENNReal.coe_one, (@ENNReal.toReal_nonneg p).not_lt, and_false, or_false,
@@ -183,21 +182,20 @@ theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : �
   have h5 : μ A ≤ μ A / 2 := by
     convert h4 (C * (2 / μ A) ^ p.toReal⁻¹).toNNReal ?_
     swap
-    · sorry
+    ·
+      rw [ENNReal.toNNReal_ne_zero]
+      simp [hC_zero]
+      refine ?_
+      sorry
     refine ?_
-    rw [ENNReal.coe_toNNReal]
+    rw [ENNReal.coe_toNNReal ?_]
     swap
     · refine mul_ne_top h2.ne_top (rpow_ne_top_of_nonneg (inv_nonneg.mpr toReal_nonneg) ?_)
       simp [div_eq_top, h]
-    refine ?_
     nth_rw 1 [← mul_one C]
-    rw [ENNReal.mul_div_mul_left _ _ ?_ h2.ne_top]
-    swap
-    ·
-      sorry
-    rw [div_rpow_of_nonneg]
-    refine ?_
-    rw [ENNReal.rpow_inv_rpow <| toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩, ENNReal.one_rpow, one_div, ENNReal.inv_div (Or.inr two_ne_top) (Or.inr (NeZero.ne' 2).symm)]
+    rw [ENNReal.mul_div_mul_left _ _ hC_zero h2.ne_top, div_rpow_of_nonneg _ _ toReal_nonneg,
+      ENNReal.rpow_inv_rpow <| toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩, ENNReal.one_rpow, one_div,
+        ENNReal.inv_div (Or.inr two_ne_top) (Or.inr (NeZero.ne' 2).symm)]
   -- Find a way to make a contradiction from h5, it is mathematically clear, we need a lemma from
   -- Mathlib that says that h5 → μ A = 0, then the contradiction comes from h
   have h6 : μ A = 0 := by sorry
