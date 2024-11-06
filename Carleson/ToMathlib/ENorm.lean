@@ -18,7 +18,6 @@ export ENorm (enorm)
 @[inherit_doc]
 notation "‖" e "‖ₑ" => enorm e
 
-#check EMetricSpace
 /-- An enormed monoid is an additive monoid endowed with an enorm. -/
 class ENormedAddMonoid (E : Type*) extends ENorm E, AddMonoid E, TopologicalSpace E where
   enorm_zero : ∀ x : E, enorm x = 0 ↔ x = 0
@@ -70,6 +69,8 @@ def eLpNorm {_ : MeasurableSpace α}
     (f : α → F) (p : ℝ≥0∞) (μ : Measure α := by volume_tac) : ℝ≥0∞ :=
   if p = 0 then 0 else if p = ∞ then eLpNormEssSup f μ else eLpNorm' f (ENNReal.toReal p) μ
 
+/-- The property that `f : α → E` is a.e. strongly measurable and `(∫ ‖f a‖^p ∂μ)^(1/p)` is finite
+if `p < ∞`, or `essSup f < ∞` if `p = ∞`. -/
 def Memℒp [TopologicalSpace E] [ENorm E] {_ : MeasurableSpace α} (f : α → E) (p : ℝ≥0∞)
     (μ : Measure α := by volume_tac) : Prop :=
   AEStronglyMeasurable f μ ∧ eLpNorm f p μ < ∞
@@ -147,7 +148,7 @@ lemma _root_.ENNReal.inv_div {a b : ℝ≥0∞} (h1 : b ≠ ∞ ∨ a ≠ ∞) (
   rw [← ENNReal.inv_ne_top] at h2
   rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ENNReal.mul_inv h1 h2, mul_comm, inv_inv]
 
-/-- If a function into `ENNReal` is `MemWℒp`, then its norm almost everywhere not infinity.-/
+/-- If a function `f : α → ENNReal` is `MemWℒp`, then its norm is almost everywhere finite.-/
 theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : ℝ≥0∞} {μ : Measure α}
     (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
   by_cases hp_inf : p = ∞
@@ -161,45 +162,45 @@ theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : �
   simp only [hp_inf] at hf
   rw [Filter.eventually_iff, mem_ae_iff]
   simp only [ne_eq, compl_def, mem_setOf_eq, Decidable.not_not, ← hA]
+  have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩
   have h1 (t : ℝ≥0) : μ A ≤ distribution f t μ := by
     refine μ.mono ?_
     simp_all only [setOf_subset_setOf, coe_lt_top, implies_true, A]
-  set C := ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹ with hC
+  set C := ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹
   by_cases hC_zero : C = 0
-  · simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.rpow_eq_zero_iff,
-      inv_neg'', C] at hC_zero
+  · simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_neg'', C] at hC_zero
     specialize hC_zero 1
-    simp only [one_ne_zero, ENNReal.coe_one, (@ENNReal.toReal_nonneg p).not_lt, and_false, or_false,
+    simp only [one_ne_zero, ENNReal.coe_one, toReal_nonneg.not_lt, and_false, or_false,
       false_or] at hC_zero
     exact measure_mono_null (setOf_subset_setOf.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
   by_contra h
   have h2 : C < ∞ := by aesop
-  -- maybe separate the case C = 0?
-  have h3' (t : ℝ≥0) : t * distribution f t μ ^ p.toReal⁻¹ ≤ C := le_iSup_iff.mpr fun b a ↦ a t
-  have h3 (t : ℝ≥0) (ht : t ≠ 0) : distribution f t μ ≤ (C / t) ^ p.toReal := by
-    sorry
-  have h4 (t : ℝ≥0) (ht : t ≠ 0) : μ A ≤ (C / t) ^ p.toReal := (h1 t).trans (h3 t ht)
+  have h3 (t : ℝ≥0) : distribution f t μ ≤ (C / t) ^ p.toReal := by
+    rw [← rpow_inv_rpow hp_toReal_zero (distribution ..)]
+    refine rpow_le_rpow ?_ toReal_nonneg
+    rw [ENNReal.le_div_iff_mul_le (Or.inr hC_zero) (Or.inl coe_ne_top), mul_comm]
+    exact le_iSup_iff.mpr fun _ a ↦ a t
+  have h4 (t : ℝ≥0) : μ A ≤ (C / t) ^ p.toReal := (h1 t).trans (h3 t)
   have h5 : μ A ≤ μ A / 2 := by
-    convert h4 (C * (2 / μ A) ^ p.toReal⁻¹).toNNReal ?_
-    swap
-    ·
-      rw [ENNReal.toNNReal_ne_zero]
-      simp [hC_zero]
-      refine ?_
-      sorry
-    refine ?_
-    rw [ENNReal.coe_toNNReal ?_]
+    convert h4 (C * (2 / μ A) ^ p.toReal⁻¹).toNNReal
+    rw [coe_toNNReal ?_]
     swap
     · refine mul_ne_top h2.ne_top (rpow_ne_top_of_nonneg (inv_nonneg.mpr toReal_nonneg) ?_)
       simp [div_eq_top, h]
     nth_rw 1 [← mul_one C]
     rw [ENNReal.mul_div_mul_left _ _ hC_zero h2.ne_top, div_rpow_of_nonneg _ _ toReal_nonneg,
-      ENNReal.rpow_inv_rpow <| toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩, ENNReal.one_rpow, one_div,
+      ENNReal.rpow_inv_rpow hp_toReal_zero, ENNReal.one_rpow, one_div,
         ENNReal.inv_div (Or.inr two_ne_top) (Or.inr (NeZero.ne' 2).symm)]
-  -- Find a way to make a contradiction from h5, it is mathematically clear, we need a lemma from
-  -- Mathlib that says that h5 → μ A = 0, then the contradiction comes from h
-  have h6 : μ A = 0 := by sorry
+  have h6 : μ A = 0 := by
+    convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top (rpow_ne_top_of_nonneg
+      toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_lt
+    tauto
   exact h h6
+
+-- Maybe this statement is not needed
+/-- If a function `f : α → ENNReal` is `MemWℒp`, then it is almost everywhere finite.-/
+theorem MemWℒp.ae_ne_top' {f : α → ENNReal} {p : ℝ≥0∞} {μ : Measure α}
+    (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, f x ≠ ∞ := hf.ae_ne_top
 
 /-
 2. Prove a variant `HasWeakType.MB_one` but for the function `MB` that
