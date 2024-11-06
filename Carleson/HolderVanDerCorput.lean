@@ -116,17 +116,28 @@ lemma aux_8_0_6 : (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ 
       exact aux_8_0_5'' hy' (hR := hR) (ht := ht)
     _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
-include ht' in
+include t in
 /-- The smallest integer `n` so that `2^n t ≥ 1`. -/
-private def n_8_0_7 : ℕ := sorry -- log_2 of 1/t, rounded up to an integer
+-- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
+private def n_8_0_7 : ℤ := Int.log 2 (1 / t) + 1
 
-include ht' in -- use 1/t > 1 for existence/not being junk and the property of the log
-private lemma n_spec1 : 1 ≤ 2 ^ n_8_0_7 * t := sorry
+include ht in
+private lemma n_spec1 : 1 < 2 ^ (@n_8_0_7 t) * t := by
+  calc
+    1 = (1 / t) * t := by
+      norm_num
+      rw [mul_comm]
+      exact (mul_inv_cancel₀ ht.ne').symm
+    _ < 2 ^ (@n_8_0_7 t) * t := by
+      gcongr
+      unfold n_8_0_7
+      exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
--- might not be needed
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
 -- xxx: simplify variable management; include hypotheses explicitly?
+
+#exit
 
 include hR ht ht' in
 lemma aux_8_0_8 : ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* (n_8_0_7 +2)) * volume (ball x (2*R)) := by
