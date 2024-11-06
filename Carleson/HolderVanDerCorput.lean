@@ -97,10 +97,12 @@ lemma aux_8_0_5 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ 
       -- "Error: The requested module 'blob:vscode-webview://1rd9dtr7c96784kh96b2qlls7kpl0nadnnmhqp1v0dsavkhrgljh/a2aa2681-8a8a-42aa-8c1e-e9fcde1af97c' does not provide an export named 'useRpcSession'"
     _ ≤ cutoff R t x y := le_max_right _ _
 
--- naming oddity: names with L take a monotonicity hypothesis *on s*,
--- names without L ask for global monotonicity
--- #check setLIntegral_mono_ae
--- #check setLIntegral_mono
+lemma foo {a b : ℝ≥0} (h : a ≤ b) : (a : ℝ≥0∞) ≤ (b : ℝ≥0∞) := ENNReal.coe_le_coe.mpr h
+
+include hR ht in
+lemma aux_8_0_5'' (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : ((2 ^ (-1 : ℝ))) ≤ (cutoff R t x y : ℝ≥0∞) := by
+  let aux := foo (aux_8_0_5 (ht := ht) (hR := hR) h)
+  sorry -- *why* does 'exact aux' not work?
 
 include hR ht in
 lemma aux_8_0_6 : (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
@@ -111,8 +113,7 @@ lemma aux_8_0_6 : (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ 
       -- 'gcongr with y'' does too much: I want y in the ball, not in X
       apply setLIntegral_mono (by fun_prop (discharger := assumption))
       intro y' hy'
-      convert aux_8_0_5 hy' (hR := hR) (ht := ht)
-      sorry -- mismatch: one side has NNReal, other has ENNReal
+      exact aux_8_0_5'' hy' (hR := hR) (ht := ht)
     _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
 include ht' in
@@ -147,7 +148,7 @@ lemma aux_8_0_8 : ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* (n_8_0_7 +2)
           gcongr
           exact n_spec1 (ht' := ht')
         _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
-          ring_nf
+          sorry --ring_nf
 
 end new
 
