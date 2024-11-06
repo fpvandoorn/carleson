@@ -140,23 +140,40 @@ def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAdd
 not infinity (this should be relatively easy from unfolding the definitions).
 -/
 
-/- If a function into `ENNReal` is `MemWℒp`, then its norm almost everywhere not infinity.-/
-lemma MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : ℝ≥0∞} {μ : Measure α}
+/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/18704-/
+lemma _root_.ENNReal.inv_div {a b : ℝ≥0∞} (h1 : b ≠ ∞ ∨ a ≠ ∞) (h2 : b ≠ 0 ∨ a ≠ 0) :
+    (a / b)⁻¹ = b / a := by
+  rw [← ENNReal.inv_ne_zero] at h1
+  rw [← ENNReal.inv_ne_top] at h2
+  rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ENNReal.mul_inv h1 h2, mul_comm, inv_inv]
+
+/-- If a function into `ENNReal` is `MemWℒp`, then its norm almost everywhere not infinity.-/
+theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : ℝ≥0∞} {μ : Measure α}
     (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
   by_cases hp_inf : p = ∞
   · rw [hp_inf] at hf
     simp_rw [← lt_top_iff_ne_top]
     exact ae_lt_of_essSup_lt hf.2
-  set A := { x | ‖f x‖ₑ = ∞ } with hA
+  by_cases hp_zero : p = 0
+  · exact (MemWℒp_zero _ _ <| hp_zero ▸ hf).elim
+  set A := {x | ‖f x‖ₑ = ∞} with hA
   unfold MemWℒp wnorm wnorm' at hf
   simp [hp_inf] at hf
   rw [Filter.eventually_iff, mem_ae_iff]
   simp [compl_def, ← hA]
-  by_contra h
   have h1 (t : ℝ≥0) : μ A ≤ distribution f t μ := by
     refine μ.mono ?_
     simp_all only [setOf_subset_setOf, coe_lt_top, implies_true, A]
   set C := ⨆ t : ℝ≥0, t * distribution f t μ ^ p.toReal⁻¹ with hC
+  by_cases hC_zero : C = 0
+  · #check ∀ (i : ℝ≥0), (i = 0) ∨ ((distribution f (↑i) μ = 0 ∧ 0 < p.toReal) ∨ (distribution f (↑i) μ = ⊤ ∧ p.toReal < 0))
+    simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero, ENNReal.rpow_eq_zero_iff,
+      inv_neg'', C] at hC_zero
+    specialize hC_zero 1
+    simp only [one_ne_zero, ENNReal.coe_one, (@ENNReal.toReal_nonneg p).not_lt, and_false, or_false,
+      false_or] at hC_zero
+    exact measure_mono_null (setOf_subset_setOf.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
+  by_contra h
   have h2 : C < ∞ := by aesop
   -- maybe separate the case C = 0?
   have h3' (t : ℝ≥0) : t * distribution f t μ ^ p.toReal⁻¹ ≤ C := le_iSup_iff.mpr fun b a ↦ a t
@@ -174,18 +191,13 @@ lemma MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : ℝ�
       simp [div_eq_top, h]
     refine ?_
     nth_rw 1 [← mul_one C]
-    rw [ENNReal.mul_div_mul_left]
-    rotate_left
-    · sorry
-    · exact h2.ne_top
-    -- simp  [toNNReal_mul, toNNReal_rpow, toNNReal_div, coe_mul]
-    simp? [div_rpow_of_nonneg, - one_div]
-
-    refine ?_
-    rw [ENNReal.rpow_inv_rpow]
-    refine ?_
+    rw [ENNReal.mul_div_mul_left _ _ ?_ h2.ne_top]
+    swap
+    ·
+      sorry
     rw [div_rpow_of_nonneg]
-    sorry -- use t = (C * (2 / μ A) ^ p.toReal⁻¹)
+    refine ?_
+    rw [ENNReal.rpow_inv_rpow <| toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩, ENNReal.one_rpow, one_div, ENNReal.inv_div (Or.inr two_ne_top) (Or.inr (NeZero.ne' 2).symm)]
   -- Find a way to make a contradiction from h5, it is mathematically clear, we need a lemma from
   -- Mathlib that says that h5 → μ A = 0, then the contradiction comes from h
   have h6 : μ A = 0 := by sorry
