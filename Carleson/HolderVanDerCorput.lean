@@ -20,18 +20,13 @@ section new
 def cutoff' (R t : ℝ) (x y : X) : ℝ :=
   max 0 (1 - dist x y / (t * R))
 
-lemma aux {α : Type*} [PseudoEMetricSpace α] {K : ℝ≥0} {f : α → ℝ} (hf : LipschitzWith K f) (c : ℝ) :
-    LipschitzWith K (fun x ↦ c - f x) := by
-  intro x y
-  rw [edist_sub_left]
-  apply hf
-
 variable {R t : ℝ} {x y : X}
 
 lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
     LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
+  -- this one should be inlined, once aux1 works
   have aux0 : LipschitzWith 1 (fun y ↦ dist x y) := LipschitzWith.dist_right x
-  have aux1 : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
+  have aux : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
     -- WTF: this seems to be necessary
     haveI : SeminormedCommGroup ℝ := sorry
     let as := LipschitzWith.const (α := X) (1 / (t * R))
@@ -39,11 +34,10 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
     --let asdf := LipschitzWith.mul (α := X) (E := ℝ) as aux0
     --apply LipschitzWith.mul (α := X) (E := ℝ) as aux0
     sorry
-  have aux1' : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ 1 - dist x y / (t * R)) := by
-    intro y y'; apply aux aux1
   have : LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff' R t x y) := by
     unfold cutoff'
-    apply LipschitzWith.max (LipschitzWith.const' (0 : ℝ)) aux1'
+    apply (LipschitzWith.const' (0 : ℝ)).max ?_
+    convert LipschitzWith.sub (LipschitzWith.const' 1) (Kf := 0) aux; ring
   convert this
 
 @[fun_prop]
@@ -74,7 +68,7 @@ lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ bal
     convert h
     exact eq_iff_eq_of_cmp_eq_cmp rfl
   -- also works: field_simp at this; exact this
-  apply (div_lt_one (by positivity)).mp (by linarith)
+  exact (div_lt_one (by positivity)).mp (by linarith)
 
 -- XXX: lemma names are `div_lt_iff` vs `div_le_iff₀`; ping Yael!
 
