@@ -107,6 +107,9 @@ lemma wnorm_zero [ENorm E] (f : α → E) (μ : Measure α) : wnorm f 0 μ = ∞
 def MemWℒp [TopologicalSpace E] [ENorm E] (f : α → E) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
   AEStronglyMeasurable f μ ∧ wnorm f p μ < ∞
 
+lemma MemWℒp_zero [TopologicalSpace E] [ENorm E] (f : α → E) (μ : Measure α) : ¬ MemWℒp f 0 μ := by
+  simp [MemWℒp, wnorm_zero]
+
 variable [ENorm E₁] [ENorm E₂] [TopologicalSpace E₁] [TopologicalSpace E₂]
 
 /-- An operator has weak type `(p, q)` if it is bounded as a map from L^p to weak-L^q.
