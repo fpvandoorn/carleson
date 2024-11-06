@@ -26,10 +26,9 @@ lemma aux {α : Type*} [PseudoEMetricSpace α] {K : ℝ≥0} {f : α → ℝ} (h
   rw [edist_sub_left]
   apply hf
 
-variable {R t : ℝ} {hR : 0 < R} {ht : 0 < t} {x y : X}
+variable {R t : ℝ} {x y : X}
 
-variable (hR ht) in
-lemma cutoff_Lipschitz :
+lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
     LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
   have aux0 : LipschitzWith 1 (fun y ↦ dist x y) := LipschitzWith.dist_right x
   have aux1 : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
@@ -47,20 +46,16 @@ lemma cutoff_Lipschitz :
     apply LipschitzWith.max (LipschitzWith.const' (0 : ℝ)) aux1'
   convert this
 
-include hR ht in
 @[fun_prop]
-lemma cutoff_continuous : Continuous (fun y ↦ cutoff R t x y) := by
+lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) := by
   apply (cutoff_Lipschitz hR ht (X := X)).continuous
 
-include hR ht in
 /-- `cutoff R t x` is measurable in `y`. -/
 @[fun_prop]
-lemma cutoff_measurable : Measurable (fun y ↦ cutoff R t x y) := by
-  apply cutoff_continuous.measurable
-  apply hR
-  apply ht
+lemma cutoff_measurable (hR : 0 < R) (ht : 0 < t) : Measurable (fun y ↦ cutoff R t x y) :=
+  (cutoff_continuous hR ht).measurable
 
--- xxx: exact? and aesop both cannot prove this
+-- is this useful for mathlib? none of exact? and aesop both cannot prove this
 lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
   by_contra! h'
   apply h (max_eq_left h')
@@ -69,11 +64,8 @@ lemma leq_of_max_neq_right {a b : ℝ} (h : max a b ≠ b) : b < a := by
   by_contra! h'
   exact h (max_eq_right h')
 
-variable {ht': t ≤ 1}
-
-include hR ht in
 /-- equation 8.0.4 from the blueprint -/
-lemma aux_8_0_4 (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
+lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
   rw [mem_ball']
   have : 0 < 1 - dist x y / (t * R) := by
     apply leq_of_max_neq_left
@@ -86,8 +78,8 @@ lemma aux_8_0_4 (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
 
 -- XXX: lemma names are `div_lt_iff` vs `div_le_iff₀`; ping Yael!
 
-include hR ht in
-lemma aux_8_0_5 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
+lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
+    2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
   rw [mem_ball', mul_assoc] at h
   have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := (div_lt_iff (by positivity)).mpr h
   calc 2 ^ (-1 : ℝ)
@@ -99,13 +91,13 @@ lemma aux_8_0_5 (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : 2 ^ (-1 : ℝ) ≤ 
 
 lemma foo {a b : ℝ≥0} (h : a ≤ b) : (a : ℝ≥0∞) ≤ (b : ℝ≥0∞) := ENNReal.coe_le_coe.mpr h
 
-include hR ht in
-lemma aux_8_0_5'' (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) : ((2 ^ (-1 : ℝ))) ≤ (cutoff R t x y : ℝ≥0∞) := by
+lemma aux_8_0_5'' (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
+    ((2 ^ (-1 : ℝ))) ≤ (cutoff R t x y : ℝ≥0∞) := by
   let aux := foo (aux_8_0_5 (ht := ht) (hR := hR) h)
   sorry -- *why* does 'exact aux' not work?
 
-include hR ht in
-lemma aux_8_0_6 : (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
+lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
+    (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
   calc (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R))
     _ = ∫⁻ y in ((ball x (2 ^ (-1: ℝ) * t * R))), (2 ^ (-1: ℝ)) :=
       (setLIntegral_const _ _).symm
@@ -116,48 +108,40 @@ lemma aux_8_0_6 : (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ 
       exact aux_8_0_5'' hy' (hR := hR) (ht := ht)
     _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
-include t in
 /-- The smallest integer `n` so that `2^n t ≥ 1`. -/
 -- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
-private def n_8_0_7 : ℤ := Int.log 2 (1 / t) + 1
+private def n_8_0_7 {t : ℝ} : ℤ := Int.log 2 (1 / t) + 1
 
-include ht in
-private lemma n_spec1 : 1 < 2 ^ (@n_8_0_7 t) * t := by
-  calc
-    1 = (1 / t) * t := by
-      norm_num
-      rw [mul_comm]
-      exact (mul_inv_cancel₀ ht.ne').symm
-    _ < 2 ^ (@n_8_0_7 t) * t := by
-      gcongr
-      unfold n_8_0_7
-      exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
+private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
+  1 = (1 / t) * t := by
+    norm_num
+    rw [mul_comm]
+    exact (mul_inv_cancel₀ ht.ne').symm
+  _ < 2 ^ (@n_8_0_7 t) * t := by
+    gcongr
+    exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
--- xxx: simplify variable management; include hypotheses explicitly?
-
-#exit
-
-include hR ht ht' in
-lemma aux_8_0_8 : ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* (n_8_0_7 +2)) * volume (ball x (2*R)) := by
+lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
+    ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) := by
   calc ∫⁻ y, cutoff R t x y
     _ ≥ (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
       apply aux_8_0_6
       exact hR
       exact ht
-    _ ≥ (2 ^ ((-1 : ℝ) - a * (n_8_0_7 + 2))) * volume (ball x (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
+    _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
       sorry -- apply doubling n + 2 times; use induction (for all k) and specialize to n + 2?
-    _ ≥ (2 ^ ((-1 : ℝ) - a * (n_8_0_7 + 2))) * volume (ball x (2 * R)) := by
+    _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 * R)) := by
       gcongr
       calc
-        2 ≤ (2 * 2 ^ n_8_0_7) * t := by
+        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by
           rw [mul_assoc]
           -- more elegant way than these two lines?
           have h : (2 : ℝ) = 2 * 1 := by norm_num
           nth_rewrite 1 [h]
           gcongr
-          exact n_spec1 (ht' := ht')
+          exact (n_spec1 ht).le
         _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
           sorry --ring_nf
 
