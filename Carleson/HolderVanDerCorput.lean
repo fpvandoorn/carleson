@@ -88,7 +88,9 @@ lemma foo {a b : ℝ≥0} (h : a ≤ b) : (a : ℝ≥0∞) ≤ (b : ℝ≥0∞) 
 lemma aux_8_0_5'' (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
     ((2 ^ (-1 : ℝ))) ≤ (cutoff R t x y : ℝ≥0∞) := by
   let aux := foo (aux_8_0_5 (ht := ht) (hR := hR) h)
-  sorry -- *why* does 'exact aux' not work?
+  -- mismatch: 2 (the base on the LHS of the goal) is inferred as ℝ≥0∞; want an ℝ≥0 instead
+  --exact aux
+  sorry
 
 lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
     (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
@@ -129,7 +131,8 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
       exact hR
       exact ht
     _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
-      sorry -- apply doubling n + 2 times; use induction (for all k) and specialize to n + 2?
+      -- apply doubling n + 2 times; basic formula is `measure_ball_le_pow_two`
+      sorry
     _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 * R)) := by
       gcongr
       calc
@@ -152,8 +155,6 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
 
 end new
 
-#exit
-
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
 
@@ -162,11 +163,26 @@ def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
   (∫ y, cutoff R t x y * ϕ y) / (∫⁻ y, cutoff R t x y).toReal
 
 /-- Part of Lemma 8.0.1. -/
-lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
+lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
     support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
+  unfold support
+  intro x hx
+  rw [mem_setOf] at hx
+  have hx'' := left_ne_zero_of_mul hx
+  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := sorry -- use hx'', somehow
+  choose y hy using this
+  have : y ∈ ball z R := hϕ (right_ne_zero_of_mul hy)
+  have : x ∈ ball y (t * R) := by
+    have hy'' : (cutoff R t x y) ≠ 0 := sorry -- have hy'' := (left_ne_zero_of_mul hy)
+    have hy''' : (cutoff R t y x) ≠ 0 := sorry -- easy, dist is commutative
+    exact aux_8_0_4 hR ht.1 hy'''
+    -- XXX: why the extra factor t * R?
+  -- then triangle inequality and done
   sorry
+
+#exit
 
 /-- Part of Lemma 8.0.1. -/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
