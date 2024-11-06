@@ -127,7 +127,7 @@ def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAdd
 not infinity (this should be relatively easy from unfolding the definitions).
 -/
 
-/- If a function into `ENNReal` is `MemWℒp`, then it is almost everywhere not infinity.-/
+/- If a function into `ENNReal` is `MemWℒp`, then its norm almost everywhere not infinity.-/
 lemma MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : ℝ≥0∞} {μ : Measure α}
     (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
   by_cases hp : p = ∞
