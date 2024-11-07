@@ -245,14 +245,6 @@ For the average on a set, use `⨍⁻ x in s, f x ∂μ`, defined as `⨍⁻ x, 
 average w.r.t. the volume, one can omit `∂volume`. -/
 notation3 "⨍⁻ "(...)", "r:60:(scoped f => f)" ∂"μ:70 => laverage μ r
 
-/-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. to the standard measure.
-
-It is equal to `(volume univ)⁻¹ * ∫⁻ x, f x`, so it takes value zero if the space has infinite
-measure. In a probability space, the average of any function is equal to its integral.
-
-For the average on a set, use `⨍⁻ x in s, f x`, defined as `⨍⁻ x, f x ∂(volume.restrict s)`. -/
-notation3 "⨍⁻ "(...)", "r:60:(scoped f => laverage volume f) => r
-
 /-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. a measure `μ` on a set `s`.
 
 It is equal to `(μ s)⁻¹ * ∫⁻ x, f x ∂μ`, so it takes value zero if `s` has infinite measure. If `s`
@@ -261,33 +253,10 @@ has measure `1`, then the average of any function is equal to its integral.
 For the average w.r.t. the volume, one can omit `∂volume`. -/
 notation3 "⨍⁻ "(...)" in "s", "r:60:(scoped f => f)" ∂"μ:70 => laverage (Measure.restrict μ s) r
 
-/-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. to the standard measure on a set `s`.
-
-It is equal to `(volume s)⁻¹ * ∫⁻ x, f x`, so it takes value zero if `s` has infinite measure. If
-`s` has measure `1`, then the average of any function is equal to its integral. -/
-notation3 (prettyPrint := false)
-  "⨍⁻ "(...)" in "s", "r:60:(scoped f => laverage Measure.restrict volume s f) => r
-
-@[simp]
-theorem laverage_zero : ⨍⁻ _x, (0 : ℝ≥0∞) ∂μ = 0 := by rw [laverage, lintegral_zero]
-
-@[simp]
-theorem laverage_zero_measure (f : α → ℝ≥0∞) : ⨍⁻ x, f x ∂(0 : Measure α) = 0 := by simp [laverage]
-
 theorem laverage_eq' (f : α → ℝ≥0∞) : ⨍⁻ x, f x ∂μ = ∫⁻ x, f x ∂(μ univ)⁻¹ • μ := rfl
 
 theorem laverage_eq (f : α → ℝ≥0∞) : ⨍⁻ x, f x ∂μ = (∫⁻ x, f x ∂μ) / μ univ := by
   rw [laverage_eq', lintegral_smul_measure, ENNReal.div_eq_inv_mul]
-
-theorem laverage_eq_lintegral [IsProbabilityMeasure μ] (f : α → ℝ≥0∞) :
-    ⨍⁻ x, f x ∂μ = ∫⁻ x, f x ∂μ := by rw [laverage, measure_univ, inv_one, one_smul]
-
-@[simp]
-theorem measure_mul_laverage [IsFiniteMeasure μ] (f : α → ℝ≥0∞) :
-    μ univ * ⨍⁻ x, f x ∂μ = ∫⁻ x, f x ∂μ := by
-  rcases eq_or_ne μ 0 with hμ | hμ
-  · rw [hμ, lintegral_zero_measure, laverage_zero_measure, mul_zero]
-  · rw [laverage_eq, ENNReal.mul_div_cancel' (Measure.measure_univ_ne_zero.2 hμ) (measure_ne_top _ _)]
 
 theorem setLaverage_eq (f : α → ℝ≥0∞) (s : Set α) :
     ⨍⁻ x in s, f x ∂μ = (∫⁻ x in s, f x ∂μ) / μ s := by rw [laverage_eq, restrict_apply_univ]
