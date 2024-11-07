@@ -3,7 +3,7 @@ import Mathlib.MeasureTheory.Function.EssSup
 import Mathlib.MeasureTheory.Function.AEEqFun
 import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 
--- these imports are only needed in the `temp` section
+-- these imports are only needed in the `tmp` section
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
 import Mathlib.MeasureTheory.Covering.Vitali
 
@@ -201,8 +201,8 @@ theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : �
 theorem MemWℒp.ae_ne_top' {f : α → ENNReal} {p : ℝ≥0∞} {μ : Measure α}
     (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, f x ≠ ∞ := hf.ae_ne_top
 
-
-section temp
+/- Add temporary section. -/
+section tmp
 
 /- Copy-pasted all this code here temporarily to be able to prove `HasWeakType.MB_one'` while avoiding the import conflicts, the problem is that this file redefines some objects that are imported in the files that define `IsDoubling`, `MB` ecc. When these definitions will replace the old ones this can be fixed
 -/
@@ -404,6 +404,6 @@ protected theorem HasWeakType.MB_one' [BorelSpace X] (h𝓑 : 𝓑.Countable)
   · exact fun i hi ↦ hR i (mem_of_mem_inter_left hi)
   · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
-end temp
+end tmp
 
 end MeasureTheory
