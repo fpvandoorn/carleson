@@ -3,6 +3,10 @@ import Mathlib.MeasureTheory.Function.EssSup
 import Mathlib.MeasureTheory.Function.AEEqFun
 import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 
+-- these imports are only needed in the `temp` section
+import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Mathlib.MeasureTheory.Covering.Vitali
+
 noncomputable section
 
 open ENNReal NNReal MeasureTheory Function Set
@@ -136,12 +140,7 @@ def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAdd
   ∀ f : α → E, Memℒp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
-/-
-1. Prove that for a function into `ENNReal`, if it is `MemWℒp` then it is almost everywhere
-not infinity (this should be relatively easy from unfolding the definitions).
--/
-
-/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/18704-/
+/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/18704. -/
 lemma _root_.ENNReal.inv_div {a b : ℝ≥0∞} (h1 : b ≠ ∞ ∨ a ≠ ∞) (h2 : b ≠ 0 ∨ a ≠ 0) :
     (a / b)⁻¹ = b / a := by
   rw [← ENNReal.inv_ne_zero] at h1
@@ -202,9 +201,244 @@ theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : �
 theorem MemWℒp.ae_ne_top' {f : α → ENNReal} {p : ℝ≥0∞} {μ : Measure α}
     (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, f x ≠ ∞ := hf.ae_ne_top
 
-/-
-2. Prove a variant `HasWeakType.MB_one` but for the function `MB` that
-has codomain `ENNReal`.
+
+section temp
+
+/- We have copy pasted all this code here temporarily to be able to prove `HasWeakType.MB_one'` while avoiding the import conflicts, the problem is that this file redefines some objects that are imported in the files that define `IsDoubling`, `MB` ecc. When these definitions will replace the old ones this can be fixed
 -/
+
+open Metric Vitali MeasureTheory Measure
+
+/-- A doubling measure is a measure on a metric space with the condition doubling
+the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
+class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
+    (μ : Measure X) (A : outParam ℝ≥0) : Prop where
+  measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
+
+/-
+2. Prove a variant `HasWeakType.MB_one` but for the function `MB` that has codomain `ENNReal`.
+-/
+
+variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
+  {μ : Measure X} [μ.IsDoubling A] [NormedAddCommGroup E]
+  {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}
+
+section laverage
+
+variable (μ : Measure α)
+
+/-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. a measure `μ`, denoted `⨍⁻ x, f x ∂μ`.
+
+It is equal to `(μ univ)⁻¹ * ∫⁻ x, f x ∂μ`, so it takes value zero if `μ` is an infinite measure. If
+`μ` is a probability measure, then the average of any function is equal to its integral.
+
+For the average on a set, use `⨍⁻ x in s, f x ∂μ`, defined as `⨍⁻ x, f x ∂(μ.restrict s)`. For the
+average w.r.t. the volume, one can omit `∂volume`. -/
+noncomputable def laverage (f : α → ℝ≥0∞) := ∫⁻ x, f x ∂(μ univ)⁻¹ • μ
+
+/-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. a measure `μ`.
+
+It is equal to `(μ univ)⁻¹ * ∫⁻ x, f x ∂μ`, so it takes value zero if `μ` is an infinite measure. If
+`μ` is a probability measure, then the average of any function is equal to its integral.
+
+For the average on a set, use `⨍⁻ x in s, f x ∂μ`, defined as `⨍⁻ x, f x ∂(μ.restrict s)`. For the
+average w.r.t. the volume, one can omit `∂volume`. -/
+notation3 "⨍⁻ "(...)", "r:60:(scoped f => f)" ∂"μ:70 => laverage μ r
+
+/-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. to the standard measure.
+
+It is equal to `(volume univ)⁻¹ * ∫⁻ x, f x`, so it takes value zero if the space has infinite
+measure. In a probability space, the average of any function is equal to its integral.
+
+For the average on a set, use `⨍⁻ x in s, f x`, defined as `⨍⁻ x, f x ∂(volume.restrict s)`. -/
+notation3 "⨍⁻ "(...)", "r:60:(scoped f => laverage volume f) => r
+
+/-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. a measure `μ` on a set `s`.
+
+It is equal to `(μ s)⁻¹ * ∫⁻ x, f x ∂μ`, so it takes value zero if `s` has infinite measure. If `s`
+has measure `1`, then the average of any function is equal to its integral.
+
+For the average w.r.t. the volume, one can omit `∂volume`. -/
+notation3 "⨍⁻ "(...)" in "s", "r:60:(scoped f => f)" ∂"μ:70 => laverage (Measure.restrict μ s) r
+
+/-- Average value of an `ℝ≥0∞`-valued function `f` w.r.t. to the standard measure on a set `s`.
+
+It is equal to `(volume s)⁻¹ * ∫⁻ x, f x`, so it takes value zero if `s` has infinite measure. If
+`s` has measure `1`, then the average of any function is equal to its integral. -/
+notation3 (prettyPrint := false)
+  "⨍⁻ "(...)" in "s", "r:60:(scoped f => laverage Measure.restrict volume s f) => r
+
+@[simp]
+theorem laverage_zero : ⨍⁻ _x, (0 : ℝ≥0∞) ∂μ = 0 := by rw [laverage, lintegral_zero]
+
+@[simp]
+theorem laverage_zero_measure (f : α → ℝ≥0∞) : ⨍⁻ x, f x ∂(0 : Measure α) = 0 := by simp [laverage]
+
+theorem laverage_eq' (f : α → ℝ≥0∞) : ⨍⁻ x, f x ∂μ = ∫⁻ x, f x ∂(μ univ)⁻¹ • μ := rfl
+
+theorem laverage_eq (f : α → ℝ≥0∞) : ⨍⁻ x, f x ∂μ = (∫⁻ x, f x ∂μ) / μ univ := by
+  rw [laverage_eq', lintegral_smul_measure, ENNReal.div_eq_inv_mul]
+
+theorem laverage_eq_lintegral [IsProbabilityMeasure μ] (f : α → ℝ≥0∞) :
+    ⨍⁻ x, f x ∂μ = ∫⁻ x, f x ∂μ := by rw [laverage, measure_univ, inv_one, one_smul]
+
+@[simp]
+theorem measure_mul_laverage [IsFiniteMeasure μ] (f : α → ℝ≥0∞) :
+    μ univ * ⨍⁻ x, f x ∂μ = ∫⁻ x, f x ∂μ := by
+  rcases eq_or_ne μ 0 with hμ | hμ
+  · rw [hμ, lintegral_zero_measure, laverage_zero_measure, mul_zero]
+  · rw [laverage_eq, ENNReal.mul_div_cancel' (Measure.measure_univ_ne_zero.2 hμ) (measure_ne_top _ _)]
+
+theorem setLaverage_eq (f : α → ℝ≥0∞) (s : Set α) :
+    ⨍⁻ x in s, f x ∂μ = (∫⁻ x in s, f x ∂μ) / μ s := by rw [laverage_eq, restrict_apply_univ]
+
+end laverage
+
+/-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
+M_{𝓑, p} in the blueprint. -/
+def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ)
+  (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+  (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
+  fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖₊ ^ p ∂μ) ^ p⁻¹
+
+/-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑 with exponent 1.
+M_𝓑 in the blueprint. -/
+abbrev MB (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+  maximalFunction μ 𝓑 c r 1 u x
+
+-- todo: move
+-- slightly more general than the Mathlib version
+-- the extra conclusion says that if there is a nonnegative radius, then we can choose `r b` to be
+-- larger than `r a` (up to a constant)
+theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricSpace α] (t : Set ι)
+    (x : ι → α) (r : ι → ℝ) (R : ℝ) (hr : ∀ a ∈ t, r a ≤ R) (τ : ℝ) (hτ : 3 < τ) :
+    ∃ u ⊆ t,
+      (u.PairwiseDisjoint fun a => closedBall (x a) (r a)) ∧
+        ∀ a ∈ t, ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) ∧
+        (∀ u ∈ t, 0 ≤ r u → r a ≤ (τ - 1) / 2 * r b) := by
+  rcases eq_empty_or_nonempty t with (rfl | _)
+  · exact ⟨∅, Subset.refl _, pairwiseDisjoint_empty, by simp⟩
+  by_cases ht : ∀ a ∈ t, r a < 0
+  · refine ⟨t, .rfl, fun a ha b _ _ ↦ by
+      simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
+      fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset],
+      fun u hut hu ↦ (ht u hut).not_le hu |>.elim⟩⟩
+  push_neg at ht
+  let t' := { a ∈ t | 0 ≤ r a }
+  have h2τ : 1 < (τ - 1) / 2 := by linarith
+  rcases exists_disjoint_subfamily_covering_enlargment (fun a => closedBall (x a) (r a)) t' r
+      ((τ - 1) / 2) h2τ (fun a ha => ha.2) R (fun a ha => hr a ha.1) fun a ha =>
+      ⟨x a, mem_closedBall_self ha.2⟩ with
+    ⟨u, ut', u_disj, hu⟩
+  have A : ∀ a ∈ t', ∃ b ∈ u, closedBall (x a) (r a) ⊆ closedBall (x b) (τ * r b) ∧
+    ∀ u ∈ t, 0 ≤ r u → r a ≤ (τ - 1) / 2 * r b := by
+    intro a ha
+    rcases hu a ha with ⟨b, bu, hb, rb⟩
+    refine ⟨b, bu, ?_⟩
+    have : dist (x a) (x b) ≤ r a + r b := dist_le_add_of_nonempty_closedBall_inter_closedBall hb
+    exact ⟨closedBall_subset_closedBall' <| by linarith, fun _ _ _ ↦ rb⟩
+  refine ⟨u, ut'.trans fun a ha => ha.1, u_disj, fun a ha => ?_⟩
+  rcases le_or_lt 0 (r a) with (h'a | h'a)
+  · exact A a ⟨ha, h'a⟩
+  · rcases ht with ⟨b, rb⟩
+    rcases A b ⟨rb.1, rb.2⟩ with ⟨c, cu, _, hc⟩
+    refine ⟨c, cu, by simp only [closedBall_eq_empty.2 h'a, empty_subset], fun _ _ _ ↦ ?_⟩
+    have : 0 ≤ r c := nonneg_of_mul_nonneg_right (rb.2.trans <| hc b rb.1 rb.2) (by positivity)
+    exact h'a.le.trans <| by positivity
+
+-- move to Vitali
+theorem Vitali.exists_disjoint_subfamily_covering_enlargement_ball {α} [MetricSpace α] (t : Set ι)
+    (x : ι → α) (r : ι → ℝ) (R : ℝ) (hr : ∀ a ∈ t, r a ≤ R) (τ : ℝ) (hτ : 3 < τ) :
+    ∃ u ⊆ t,
+      (u.PairwiseDisjoint fun a => ball (x a) (r a)) ∧
+        ∀ a ∈ t, ∃ b ∈ u, ball (x a) (r a) ⊆ ball (x b) (τ * r b) := by
+  obtain ⟨σ, hσ, hστ⟩ := exists_between hτ
+  obtain ⟨u, hut, hux, hu⟩ :=
+    exists_disjoint_subfamily_covering_enlargement_closedBall' t x r R hr σ hσ
+  refine ⟨u, hut, fun i hi j hj hij ↦ ?_, fun a ha => ?_⟩
+  · exact (hux hi hj hij).mono ball_subset_closedBall ball_subset_closedBall
+  obtain ⟨b, hbu, hb⟩ := hu a ha
+  refine ⟨b, hbu, ?_⟩
+  obtain h2a|h2a := le_or_lt (r a) 0
+  · simp_rw [ball_eq_empty.mpr h2a, empty_subset]
+  refine ball_subset_closedBall.trans hb.1 |>.trans <| closedBall_subset_ball ?_
+  gcongr
+  apply pos_of_mul_pos_right <| h2a.trans_le <| hb.2 a ha h2a.le
+  linarith
+
+/- NOTE: This was changed to use `ℝ≥0∞` rather than `ℝ≥0` because that was more convenient for the
+proof of `first_exception'` in ExceptionalSet.lean. But everything involved there is finite, so
+you can prove this with `ℝ≥0` and deal with casting between `ℝ≥0` and `ℝ≥0∞` there, if that turns
+out to be easier. -/
+theorem _root_.Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h𝓑 : 𝓑.Countable)
+    (l : ℝ≥0∞) (u : X → ℝ≥0∞) (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
+    (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
+    l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ A ^ 2 * ∫⁻ x, u x ∂μ  := by
+  obtain ⟨B, hB𝓑, hB, h2B⟩ := Vitali.exists_disjoint_subfamily_covering_enlargement_ball
+    𝓑 c r R hR (2 ^ 2) (by norm_num)
+  have : Countable B := h𝓑.mono hB𝓑
+  have disj := fun i j hij ↦
+    hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
+  calc
+    l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
+          refine l.mul_left_mono (μ.mono fun x hx ↦ ?_)
+          simp only [mem_iUnion, mem_ball, exists_prop] at hx
+          rcases hx with ⟨i, i𝓑, hi⟩
+          obtain ⟨b, bB, hb⟩ := h2B i i𝓑
+          refine mem_iUnion₂.mpr ⟨b, bB, hb <| mem_ball.mpr hi⟩
+    _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
+          l.mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
+    _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
+          refine l.mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
+          rw [sq, sq, mul_assoc, mul_assoc]
+          apply (Measure.IsDoubling.measure_ball_two_le_same (c i) (2 * r i)).trans
+          exact ENNReal.mul_left_mono (Measure.IsDoubling.measure_ball_two_le_same (c i) (r i))
+    _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
+          rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
+    _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
+          gcongr; exact h2u _ (hB𝓑 (Subtype.coe_prop _))
+    _ = A ^ 2 * ∫⁻ x in ⋃ i ∈ B, ball (c i) (r i), u x ∂μ := by
+          congr; simpa using (lintegral_iUnion (fun i ↦ measurableSet_ball) disj u).symm
+    _ ≤ A ^ 2 * ∫⁻ x, u x ∂μ := by
+          gcongr; exact setLIntegral_le_lintegral (⋃ i ∈ B, ball (c i) (r i)) u
+
+protected theorem AEStronglyMeasurable.maximalFunction [BorelSpace X] {p : ℝ}
+    {u : X → E} (h𝓑 : 𝓑.Countable) : AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ :=
+  (aemeasurable_biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
+    aemeasurable_const |>.aestronglyMeasurable
+
+protected theorem HasWeakType.MB_one' [BorelSpace X] (h𝓑 : 𝓑.Countable)
+    {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
+    HasWeakType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) 1 1 μ μ (A ^ 2) := by
+  intro f _
+  use AEStronglyMeasurable.maximalFunction h𝓑
+  let Bₗ (ℓ : ℝ≥0∞) := { i ∈ 𝓑 | ∫⁻ y in (ball (c i) (r i)), ‖f y‖₊ ∂μ ≥ ℓ * μ (ball (c i) (r i)) }
+  simp only [wnorm, one_ne_top, wnorm', one_toReal, inv_one, ENNReal.rpow_one, reduceIte,
+    ENNReal.coe_pow, eLpNorm, one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self,
+    iSup_le_iff]
+  intro t
+  by_cases ht : t = 0
+  · simp [ht]
+  have hBₗ : (Bₗ t).Countable := h𝓑.mono (fun i hi ↦ mem_of_mem_inter_left hi)
+  refine le_trans ?_ (hBₗ.measure_biUnion_le_lintegral (c := c) (r := r) (l := t)
+    (u := fun x ↦ ‖f x‖₊) (R := R) ?_ ?_)
+  · refine mul_left_mono <| μ.mono (fun x hx ↦ mem_iUnion₂.mpr ?_)
+    -- We need a ball in `Bₗ t` containing `x`. Since `MB μ 𝓑 c r f x` is large, such a ball exists
+    simp only [mem_setOf_eq] at hx
+    -- replace hx := lt_of_lt_of_le hx coe_toNNReal_le_self
+    simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one] at hx
+    obtain ⟨i, ht⟩ := lt_iSup_iff.mp hx
+    replace hx : x ∈ ball (c i) (r i) :=
+      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le t) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
+    refine ⟨i, ?_, hx⟩
+    -- It remains only to confirm that the chosen ball is actually in `Bₗ t`
+    simp only [ge_iff_le, mem_setOf_eq, Bₗ]
+    have hi : i ∈ 𝓑 :=
+      by_contradiction <| fun h ↦ not_lt_of_ge (zero_le t) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
+    exact ⟨hi, mul_le_of_le_div <| le_of_lt (by simpa [setLaverage_eq, hi, hx] using ht)⟩
+  · exact fun i hi ↦ hR i (mem_of_mem_inter_left hi)
+  · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
+
+end temp
 
 end MeasureTheory
