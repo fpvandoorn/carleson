@@ -24,8 +24,10 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   -- this one should be inlined, once aux1 works
   have aux0 : LipschitzWith 1 (fun y ↦ dist x y) := LipschitzWith.dist_right x
   have aux : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
+    -- add a mul_const version? (or, actually, smul_const and const_smul)
     -- WTF: this seems to be necessary
-    haveI : SeminormedCommGroup ℝ := sorry
+    --haveI : SeminormedCommGroup ℝ := sorry
+    -- R is an additive group , wants a mult. group!
     let as := LipschitzWith.const (α := X) (1 / (t * R))
     -- but the next line still fails, no matter what
     --let asdf := LipschitzWith.mul (α := X) (E := ℝ) as aux0
