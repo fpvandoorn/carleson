@@ -197,7 +197,7 @@ theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : �
     tauto
   exact h h6
 
--- Maybe this statement is not needed
+-- Maybe this statement is not needed, we can just use the previous one.
 /-- If a function `f : α → ENNReal` is `MemWℒp`, then it is almost everywhere finite.-/
 theorem MemWℒp.ae_ne_top' {f : α → ENNReal} {p : ℝ≥0∞} {μ : Measure α}
     (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, f x ≠ ∞ := hf.ae_ne_top
