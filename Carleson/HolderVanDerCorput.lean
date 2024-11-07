@@ -17,9 +17,6 @@ def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
 
 section new
 
-def cutoff' (R t : ℝ) (x y : X) : ℝ :=
-  max 0 (1 - dist x y / (t * R))
-
 variable {R t : ℝ} {x y : X}
 
 lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
@@ -34,11 +31,9 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
     --let asdf := LipschitzWith.mul (α := X) (E := ℝ) as aux0
     --apply LipschitzWith.mul (α := X) (E := ℝ) as aux0
     sorry
-  have : LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff' R t x y) := by
-    unfold cutoff'
-    apply (LipschitzWith.const' (0 : ℝ)).max ?_
-    convert LipschitzWith.sub (LipschitzWith.const' 1) (Kf := 0) aux; ring
-  convert this
+  unfold cutoff
+  apply (LipschitzWith.const' (0 : ℝ)).max ?_
+  convert LipschitzWith.sub (LipschitzWith.const' 1) (Kf := 0) aux; ring
 
 @[fun_prop]
 lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) := by
@@ -49,7 +44,7 @@ lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff
 lemma cutoff_measurable (hR : 0 < R) (ht : 0 < t) : Measurable (fun y ↦ cutoff R t x y) :=
   (cutoff_continuous hR ht).measurable
 
--- is this useful for mathlib? none of exact? and aesop both cannot prove this
+-- is this useful for mathlib? neither exact? nor aesop can prove this
 lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
   by_contra! h'
   apply h (max_eq_left h')
