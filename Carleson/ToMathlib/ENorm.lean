@@ -204,7 +204,7 @@ theorem MemWℒp.ae_ne_top' {f : α → ENNReal} {p : ℝ≥0∞} {μ : Measure 
 
 section temp
 
-/- We have copy pasted all this code here temporarily to be able to prove `HasWeakType.MB_one'` while avoiding the import conflicts, the problem is that this file redefines some objects that are imported in the files that define `IsDoubling`, `MB` ecc. When these definitions will replace the old ones this can be fixed
+/- Copy-pasted all this code here temporarily to be able to prove `HasWeakType.MB_one'` while avoiding the import conflicts, the problem is that this file redefines some objects that are imported in the files that define `IsDoubling`, `MB` ecc. When these definitions will replace the old ones this can be fixed
 -/
 
 open Metric Vitali MeasureTheory Measure
@@ -214,10 +214,6 @@ the radius of a ball only increases the volume by a constant factor, independent
 class Measure.IsDoubling {X : Type*} [MeasurableSpace X] [PseudoMetricSpace X]
     (μ : Measure X) (A : outParam ℝ≥0) : Prop where
   measure_ball_two_le_same : ∀ (x : X) r, μ (ball x (2 * r)) ≤ A * μ (ball x r)
-
-/-
-2. Prove a variant `HasWeakType.MB_one` but for the function `MB` that has codomain `ENNReal`.
--/
 
 variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
   {μ : Measure X} [μ.IsDoubling A] [NormedAddCommGroup E]
