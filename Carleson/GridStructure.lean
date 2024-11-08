@@ -322,7 +322,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
       exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
-        (zpow_le_of_le one_le_D (by omega)) zero_le_four))
+        (zpow_le_zpow_right₀ one_le_D (by omega)) zero_le_four))
     _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=
