@@ -62,7 +62,7 @@ local notation "T" => carlesonOperatorReal K
 
 lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f) := by
   --TODO: clean up proof
-  apply measurable_iSup
+  apply Measurable.iSup
   intro n
   set F : ℝ → ℝ → ℝ → ℂ := fun x r y ↦ {y | dist x y ∈ Set.Ioo r 1}.indicator (fun t ↦ f t * K x t * (Complex.I * ↑n * ↑t).exp) y with Fdef
   set G : ℝ → ℝ → ENNReal := fun x r ↦ ↑‖∫ (y : ℝ), F x r y‖₊ with Gdef
@@ -207,7 +207,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
     · exact Filter.Eventually.of_forall fun r ↦ ((Measurable.of_uncurry_left
         (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
-  apply measurable_biSup _
+  apply Measurable.biSup _
   · apply Set.Countable.mono Set.inter_subset_right hQ.2
   intro r _
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)

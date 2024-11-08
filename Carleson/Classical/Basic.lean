@@ -142,7 +142,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       · simp
         constructor <;> linarith [pi_nonneg]
       · rw [sub_nonneg, mul_comm]
-        exact mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
+        exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) x_nonneg
       · simp
     _ = Real.sin x := by field_simp
@@ -170,7 +170,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       · simp
         constructor <;> linarith [pi_nonneg]
       · rw [sub_nonneg, mul_comm]
-        exact mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
+        exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) (by linarith [h])
       · simp
     _ = 1 - Real.cos x := by congr; field_simp; ring

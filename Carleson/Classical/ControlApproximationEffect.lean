@@ -470,7 +470,7 @@ lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ �
       apply rcarleson measurableSetF measurableSetE _ (by fun_prop)
       intro x
       simp
-      rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff δpos]
+      rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff₀ δpos]
       exact hf x
     _ = ENNReal.ofReal (δ * C10_0_1 4 2) * (volume F) ^ (2 : ℝ)⁻¹ * (volume E) ^ (2 : ℝ)⁻¹ := by
       rw [ENNReal.ofReal_mul δpos.le]
@@ -628,7 +628,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
       rw [Real.rpow_mul measureReal_nonneg]
       gcongr
       rw [Real.rpow_add' measureReal_nonneg (by norm_num), Real.rpow_one, le_div_iff₀' ε'_δ_expression_pos, ← mul_assoc]
-      apply mul_le_of_nonneg_of_le_div δ_mul_const_pos.le
+      apply mul_le_of_le_div₀ δ_mul_const_pos.le
       apply Real.rpow_nonneg measureReal_nonneg
       rw[Real.rpow_neg measureReal_nonneg, div_inv_eq_mul]
       rw [← ENNReal.ofReal_le_ofReal_iff, ENNReal.ofReal_mul ε'_δ_expression_pos.le, measureReal_def, ENNReal.ofReal_toReal E'volume.ne]
