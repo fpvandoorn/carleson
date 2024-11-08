@@ -542,7 +542,7 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
         · field_simp
           exact div_nonneg (abs_nonneg (y - y')) (abs_nonneg (x - y))
         · field_simp
-          apply div_le_one_of_le <;> linarith [abs_nonneg (x - y)]
+          apply div_le_one_of_le₀ <;> linarith [abs_nonneg (x - y)]
         · norm_num
         · norm_num
       · norm_num
