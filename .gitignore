@@ -8,6 +8,7 @@
 /lakefile.olean
 /lake-packages/*
 /build
+*.bak
 ## Blueprint
 /blueprint/lean_decls
 /blueprint/print/print.log
