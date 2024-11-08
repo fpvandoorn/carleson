@@ -1596,7 +1596,7 @@ lemma power_estimate {a b t γ : ℝ} (hγ : γ > 0) (htγ : γ ≤ t) (hab : a 
 lemma power_estimate' {a b t γ : ℝ} (ht : t > 0) (htγ : t ≤ γ) (hab: a ≤ b) :
     (t / γ) ^ b ≤ (t / γ) ^ a := by
   have γ_pos : γ > 0 := lt_of_lt_of_le ht htγ
-  exact Real.rpow_le_rpow_of_exponent_ge (div_pos ht (γ_pos)) (div_le_one_of_le htγ γ_pos.le) hab
+  exact Real.rpow_le_rpow_of_exponent_ge (div_pos ht (γ_pos)) (div_le_one_of_le₀ htγ γ_pos.le) hab
 
 lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : t > 0) (htγ : t ≤ γ) (hab : a ≤ b) :
     ENNReal.ofReal (t ^ b) ≤ ENNReal.ofReal (t ^ a) * ENNReal.ofReal (γ ^ (b - a)) := by
@@ -2140,13 +2140,13 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     · exact (g_lim x).ennrpow_const p
   have g_meas (n : ℕ): AEMeasurable (g n) μ := by
     unfold_let g
-    exact AEMeasurable.indicator (by fun_prop) (measurable_spanningSets μ n)
+    exact AEMeasurable.indicator (by fun_prop) (measurableSet_spanningSets μ n)
   have g_fin (n : ℕ): ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
     calc
     _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
       unfold_let g
       unfold trunc_cut
-      rw [← lintegral_indicator]; swap; exact measurable_spanningSets μ n
+      rw [← lintegral_indicator]; swap; exact measurableSet_spanningSets μ n
       congr 1
       ext x
       unfold indicator
