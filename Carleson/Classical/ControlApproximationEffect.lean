@@ -185,8 +185,8 @@ lemma domain_reformulation {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (
   calc _
     _ = ∫ (y : ℝ) in {y | dist x y ∈ Set.Ioo 0 π}, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y)) := by
       rw [annulus_real_eq (le_refl 0),
-        integral_union (by simp) measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo,
-        ← integral_union (Set.disjoint_of_subset_right Set.Ioo_subset_Ioc_self (by simp)) measurableSet_Ioo,
+        setIntegral_union (by simp) measurableSet_Ioo, ← integral_Ioc_eq_integral_Ioo,
+        ← setIntegral_union (Set.disjoint_of_subset_right Set.Ioo_subset_Ioc_self (by simp)) measurableSet_Ioo,
         intervalIntegral.integral_of_le (by linarith [pi_pos]), integral_Ioc_eq_integral_Ioo,
         sub_zero, add_zero, Set.Ioc_union_Ioo_eq_Ioo (by linarith [pi_pos]) (by linarith [pi_pos])]
       --TODO: Many similar goals => improve this further?
@@ -246,7 +246,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       use n
       rw [sdef, Set.mem_setOf_eq, one_div]
       refine ⟨?_, hy.2⟩
-      rw [inv_lt (by linarith) hy.1, inv_eq_one_div]
+      rw [inv_lt_comm₀ (by linarith) hy.1, inv_eq_one_div]
       apply lt_trans hn
       linarith
     · intro hy
@@ -267,7 +267,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       rw [sdef] at *
       simp only [one_div, Set.mem_Ioo, Set.mem_setOf_eq] at *
       refine ⟨lt_of_le_of_lt ?_ hy.1, hy.2⟩
-      rw [inv_le_inv]
+      rw [inv_le_inv₀]
       norm_cast
       all_goals linarith
     · rw [← hs]
