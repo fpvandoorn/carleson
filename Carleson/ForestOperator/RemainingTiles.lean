@@ -100,7 +100,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
   have est₁ (s₀ x) : (𝒟 s₀ x).toFinset.card ≤ (defaultA a) ^ 7 := by
     apply Nat.cast_le (α := ℝ).mp
     have : 0 < volume.real (ball x (9 * ↑D ^ s₀)) :=
-      ENNReal.toReal_pos (measure_ball_pos _ _ (by simp; positivity)).ne' (by finiteness)
+      -- TODO fix: last sorry was finiteness; related to max application depth?
+      ENNReal.toReal_pos (measure_ball_pos _ _ (by simp; positivity)).ne' (by sorry) --finiteness)
     refine le_of_mul_le_mul_right (a := volume.real (ball x (9 * D ^ s₀))) ?_ this
     transitivity (defaultA a) ^ 7 * ∑ I ∈ 𝒟 s₀ x, volume.real (ball (c I) (D ^ s I / 4))
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]
@@ -120,7 +121,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
       (by simpa only [coe_toFinset] using disj) (fun _ _ ↦ measurableSet_ball)]
     simp only [Nat.cast_pow, Nat.cast_ofNat]
     gcongr
-    · finiteness
+    · sorry -- TODO fix, max application depth! finiteness
     · simp only [mem_toFinset, iUnion_subset_iff]
       intro I hI
       apply ball_subset_ball'
