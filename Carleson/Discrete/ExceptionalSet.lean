@@ -643,7 +643,7 @@ lemma tree_count :
   apply le_trans (sum_le_sum indicator_le)
   simp_rw [← mul_sum, stackSize_real, mem_coe, filter_univ_mem, interchange, sum_const]
   -- Replace the cardinality of `𝔘` with the upper bound proven in `card_𝔘m_le`, and simplify.
-  apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos_of_pos two_pos _)).mpr <| sum_le_sum <|
+  apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos two_pos _)).mpr <| sum_le_sum <|
     fun _ _ ↦ smul_le_smul_of_nonneg_right card_𝔘m_le <| Set.indicator_apply_nonneg (by simp)
   simp_rw [← smul_sum, nsmul_eq_mul, ← mul_assoc, filter_mem_univ_eq_toFinset (𝔐 k n), defaultA]
   rw [sub_eq_add_neg, zpow_add₀ two_ne_zero, ← pow_mul, mul_comm 9, mul_comm (2 ^ _)]

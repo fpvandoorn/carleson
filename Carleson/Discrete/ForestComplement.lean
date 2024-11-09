@@ -318,7 +318,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
       (show 0 < 5⁻¹ by positivity) (𝒬 p')).mono_nat
     calc
       _ ≤ (defaultA a) ^ ⌊4 + Real.logb 2 l⌋₊ :=
-        pow_le_pow_right Nat.one_le_two_pow (ceil_log2_le_floor_four_add_log2 hl)
+        pow_le_pow_right₀ Nat.one_le_two_pow (ceil_log2_le_floor_four_add_log2 hl)
       _ ≤ ⌊(defaultA a : ℝ) ^ (4 + Real.logb 2 l)⌋₊ := by
         apply Nat.le_floor; rw [Nat.cast_npow, ← Real.rpow_natCast]
         refine Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast Nat.one_le_two_pow)
@@ -367,7 +367,7 @@ lemma l_upper_bound : l < 2 ^ n := by
     show (2 ^ (n : ℤ) : ℝ≥0∞) = (2 ^ (n : ℤ) : ℝ≥0) by simp, ENNReal.coe_lt_coe,
     zpow_natCast] at qp'
   calc
-    _ ≤ l ^ a := le_self_pow (one_le_two.trans hl) (by linarith [four_le_a X])
+    _ ≤ l ^ a := le_self_pow₀ (one_le_two.trans hl) (by linarith [four_le_a X])
     _ ≤ 2 ^ (4 * a) * l ^ a := by
       nth_rw 1 [← one_mul (l ^ a)]; gcongr; exact_mod_cast Nat.one_le_two_pow
     _ < _ := qp'

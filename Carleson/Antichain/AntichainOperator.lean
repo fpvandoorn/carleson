@@ -28,7 +28,7 @@ lemma one_lt_nnq'_coe : (1 : ℝ≥0∞) < nnq' := by
   exact one_lt_nnq'
 
 lemma nnq'_lt_nnq : nnq' < nnq := by
-  rw [add_comm, div_lt_iff (add_pos (zero_lt_one) (nnq_pos X)), mul_comm,
+  rw [add_comm, div_lt_iff₀ (add_pos (zero_lt_one) (nnq_pos X)), mul_comm,
     mul_lt_mul_iff_of_pos_left (nnq_pos X), ← one_add_one_eq_two, _root_.add_lt_add_iff_left]
   exact (nnq_mem_Ioc X).1
 
@@ -107,14 +107,14 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
         have hvol : volume.real (ball x (1 / ↑D / 32 * (8 * ↑D ^ 𝔰 p.1))) ≠ 0 :=
           ne_of_gt (measure_real_ball_pos _
             (mul_pos (div_pos (one_div_pos.mpr (defaultD_pos _)) (by positivity))
-              (mul_pos (by positivity) (zpow_pos_of_pos (defaultD_pos _) _))))
+              (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _))))
         rw [mul_div_assoc, ← div_div, div_eq_mul_inv]
         congr
         rw [eq_div_iff_mul_eq (by positivity), mul_comm, mul_assoc,
           mul_inv_cancel₀ hvol, mul_one]
     _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
       gcongr
-      apply (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos_of_pos (defaultD_pos _) _)))
+      apply (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
       · have heq : 2 ^ (100 * a ^ 2) * 2 ^ 5 * (1 / (↑D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
             (8 * ↑D ^ 𝔰 p.1) := by
           have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
@@ -149,7 +149,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
     apply le_trans (NNReal.coe_le_coe.mpr kernel_bound)
     rw [NNReal.coe_div, NNReal.coe_pow, NNReal.coe_ofNat, ← NNReal.val_eq_coe, measureNNReal_val]
     exact div_le_div_of_nonneg_left (pow_nonneg zero_le_two _)
-      (measure_ball_pos_real x _ (div_pos (zpow_pos_of_pos (defaultD_pos _) _) zero_lt_four))
+      (measure_ball_pos_real x _ (div_pos (zpow_pos (defaultD_pos _) _) zero_lt_four))
       (measureReal_mono (Metric.ball_subset_ball (dist_mem_Icc_of_Ks_ne_zero hy).1)
         (measure_ball_ne_top x (dist x y)))
   apply le_trans h
@@ -263,13 +263,13 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       rw [if_pos]
       gcongr
       · rw [C_6_1_2, add_comm (5*a), add_assoc]; norm_cast
-        apply pow_le_pow_right one_le_two
+        apply pow_le_pow_right₀ one_le_two
         calc
         _ ≤ 101 * a ^ 3  + 6 * a ^ 3:= by
           rw [add_le_add_iff_left]
           ring_nf
           gcongr
-          exact le_self_pow (by linarith [four_le_a X]) (by omega)
+          exact le_self_pow₀ (by linarith [four_le_a X]) (by omega)
         _ = 107 * a ^ 3 := by ring
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
@@ -317,7 +317,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
   have hp₁_lt : p₁ < 2 := by
     have rhs : 2 * (3 * (2 * nnq / (nnq + 1))) - 2 * (2 * nnq / (nnq + 1)) =
       4 * (2 * nnq / (nnq + 1)) := by ring_nf; rw [← mul_tsub]; norm_cast
-    rw [hp₁, NNReal.div_lt_iff (ne_of_gt aux), mul_tsub, lt_tsub_comm, rhs, ← mul_one (2 * 2)]
+    rw [hp₁, div_lt_iff₀ aux, mul_tsub, lt_tsub_comm, rhs, ← mul_one (2 * 2)]
     exact _root_.mul_lt_mul' (by norm_cast) one_lt_nnq' zero_le_one zero_lt_four
   /- have hF1 : AEStronglyMeasurable (F.indicator (1 : X → ℝ≥0∞)) volume :=
     AEStronglyMeasurable.indicator aestronglyMeasurable_one measurableSet_F -/
@@ -360,7 +360,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
         (inv_ne_top.mpr (by simp)))⟩
       · rw [tsub_eq_zero_iff_le]
         exact not_le.mpr (lt_trans (by norm_cast)
-          (ENNReal.mul_lt_mul_left' three_ne_zero (ofNat_ne_top 3) one_lt_nnq'_coe))
+          (ENNReal.mul_lt_mul_left' three_ne_zero ofNat_ne_top one_lt_nnq'_coe))
 
 
 -- lemma 6.1.3, inequality 6.1.10
@@ -416,7 +416,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     calc 3 * (2 * ↑nnq / (↑nnq + 1)) - 2
       _ ≤ (3 * 2 : ℝ≥0∞) - 2 := by
         apply tsub_le_tsub_right
-          ((ENNReal.mul_le_mul_left three_ne_zero (ofNat_ne_top 3)).mpr nnq'_lt_two_coe.le)
+          ((ENNReal.mul_le_mul_left three_ne_zero ofNat_ne_top).mpr nnq'_lt_two_coe.le)
       _ ≤ (8 : ℝ≥0∞) := by norm_cast -- could just be ≤ 4
 
     -- 6.1.16. Note: could have 2 ^ (2*a + 1) in the RHS.
@@ -476,7 +476,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
         conv_lhs => simp only [C_6_1_3, ENNReal.coe_mul, ← mul_assoc]
         rw [mul_comm 3, mul_assoc _ 3]
         norm_cast
-      rw [← ENNReal.mul_le_mul_left (Ne.symm (NeZero.ne' 3)) (ofNat_ne_top 3), h3]
+      rw [← ENNReal.mul_le_mul_left (Ne.symm (NeZero.ne' 3)) ofNat_ne_top, h3]
       conv_lhs => simp only [← mul_assoc]
       gcongr
       · norm_cast
