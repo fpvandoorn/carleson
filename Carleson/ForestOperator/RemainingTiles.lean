@@ -121,7 +121,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
       (fun _ _ ↦ measurableSet_ball) (fun _ _ ↦ measure_ball_ne_top _ _)]
     simp only [Nat.cast_pow, Nat.cast_ofNat]
     gcongr
-    · sorry -- TODO fix, max application depth! finiteness
+    · exact measure_ball_ne_top _ _ -- TODO fix, max application depth! finiteness
     · simp only [mem_toFinset, iUnion_subset_iff]
       intro I hI
       apply ball_subset_ball'
