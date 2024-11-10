@@ -166,11 +166,11 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
               I * (↑t - 1) * exp (-(I * ↑t)))
               _ ≤ abs (-1 + exp (-(I * ↑t))) +
                 abs (I * (↑t - 1) * exp (-(I * ↑t))) :=
-                  abs.isAbsoluteValue.abv_add _ _
+                  abs.isAbsoluteValue.abv_add ..
               _ ≤ abs (-1 : ℂ) + abs (exp (-(I * ↑t))) +
                 abs (I * (↑t - 1) * exp (-(I * ↑t))) := by
                 gcongr
-                exact abs.isAbsoluteValue.abv_add _ _
+                exact abs.isAbsoluteValue.abv_add ..
               _ ≤ 1 + 1 + 1 := by
                 gcongr
                 · simp
@@ -178,7 +178,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
                   norm_cast
                   exact le_of_eq (abs_exp_ofReal_mul_I _)
                 · simp only [map_mul, abs_I, one_mul]
-                  apply mul_le_one
+                  apply mul_le_one₀
                   norm_cast
                   rw [abs_of_nonpos] <;> linarith
                   simp only [apply_nonneg]

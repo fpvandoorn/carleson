@@ -405,8 +405,8 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
       apply Real.rpow_le_rpow_of_exponent_le one_le_two
       norm_cast; linarith [four_le_a X]
     _ ≤ (C2_1_2 a)⁻¹ ^ d := by
-      refine pow_le_pow_right ?_ (by omega)
-      simp_rw [one_le_inv_iff, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
+      refine pow_le_pow_right₀ ?_ (by omega)
+      simp_rw [one_le_inv_iff₀, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
     _ ≤ (C2_1_2 a)⁻¹ ^ d * 8 := by nth_rw 1 [← mul_one (_ ^ d)]; gcongr; norm_num
     _ < (C2_1_2 a)⁻¹ ^ d * dist_(p') (𝒬 p) (𝒬 u) := by gcongr
     _ ≤ _ := by

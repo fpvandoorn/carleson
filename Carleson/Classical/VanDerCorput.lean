@@ -88,7 +88,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         · linarith
         · linarith [Real.two_le_pi]
         · rw [mul_comm, _root_.abs_of_nonneg n_pos.le]
-          exact mul_le_of_nonneg_of_le_div Real.pi_pos.le (by exact_mod_cast n_pos.le) h.le
+          exact mul_le_of_le_div₀ Real.pi_pos.le (by exact_mod_cast n_pos.le) h.le
         · simpa
       _ = 2 * π * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by ring
   push_neg at h

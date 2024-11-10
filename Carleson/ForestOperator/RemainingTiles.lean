@@ -100,13 +100,14 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
   have est₁ (s₀ x) : (𝒟 s₀ x).toFinset.card ≤ (defaultA a) ^ 7 := by
     apply Nat.cast_le (α := ℝ).mp
     have : 0 < volume.real (ball x (9 * ↑D ^ s₀)) :=
-      ENNReal.toReal_pos (measure_ball_pos _ _ (by simp; positivity)).ne' (by finiteness)
+      -- TODO fix: last sorry was finiteness; related to max application depth?
+      ENNReal.toReal_pos (measure_ball_pos _ _ (by simp; positivity)).ne' (measure_ball_ne_top _ _) --finiteness
     refine le_of_mul_le_mul_right (a := volume.real (ball x (9 * D ^ s₀))) ?_ this
     transitivity (defaultA a) ^ 7 * ∑ I ∈ 𝒟 s₀ x, volume.real (ball (c I) (D ^ s I / 4))
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]
       refine Finset.sum_le_sum fun I hI ↦ ?_
       simp only [mem_toFinset] at hI
-      refine (measureReal_mono ?_).trans measure_ball_le_pow_two
+      refine (measureReal_mono ?_ (measure_ball_ne_top _ _)).trans measure_ball_le_pow_two
       apply ball_subset_ball'
       refine (add_le_add le_rfl hI.1.le).trans ?_
       rw [div_eq_mul_one_div, mul_comm _ (1 / 4), hI.2, ← add_mul, ← mul_assoc]
@@ -116,11 +117,11 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
       intros I₁ hI₁ I₂ hI₂ e
       exact disjoint_of_subset ball_subset_Grid ball_subset_Grid
         ((eq_or_disjoint (hI₁.2.trans hI₂.2.symm)).resolve_left e)
-    rw [← measureReal_biUnion_finset
-      (by simpa only [coe_toFinset] using disj) (fun _ _ ↦ measurableSet_ball)]
+    rw [← measureReal_biUnion_finset (by simpa only [coe_toFinset] using disj)
+      (fun _ _ ↦ measurableSet_ball) (fun _ _ ↦ measure_ball_ne_top _ _)]
     simp only [Nat.cast_pow, Nat.cast_ofNat]
     gcongr
-    · finiteness
+    · exact measure_ball_ne_top _ _
     · simp only [mem_toFinset, iUnion_subset_iff]
       intro I hI
       apply ball_subset_ball'
