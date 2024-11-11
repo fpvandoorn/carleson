@@ -213,9 +213,12 @@ private lemma sum_ψ₁ (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) ≥ 1 / (2
   calc
     D ^ (-⌈logb D (4 * x)⌉) * x
       = D ^ (-⌈logb D (4 * x)⌉ : ℝ) * x := by norm_cast
-    _ ≤ D ^ (-logb D (4 * x)) * x      := by gcongr; exact hD.le; exact Int.le_ceil (logb D (4 * x))
-    _ = 1 / (4 * x) * x                := by rw [rpow_neg (D0 hD).le, inv_eq_one_div,
-                                              rpow_logb (D0 hD) hD.ne.symm (by linarith)]
+    _ ≤ D ^ (-logb D (4 * x)) * x      := by
+      gcongr
+      · exact hD.le
+      · exact Int.le_ceil (logb D (4 * x))
+    _ = 1 / (4 * x) * x                := by
+      rw [rpow_neg (D0 hD).le, inv_eq_one_div, rpow_logb (D0 hD) hD.ne.symm (by linarith)]
     _ = 1 / 4                          := by field_simp; exact mul_comm x 4
 
 -- Special case of `sum_ψ`, for the case where `nonzeroS D x` has two elements.
