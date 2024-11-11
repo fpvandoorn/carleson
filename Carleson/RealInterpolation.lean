@@ -2559,8 +2559,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       apply setLIntegral_congr_fun measurableSet_Ioi
       apply ae_of_all
       intro s _
-      rw [lintegral_const_mul']
-      rw [ENNReal.mul_rpow_of_nonneg]
+      rw [lintegral_const_mul', ENNReal.mul_rpow_of_nonneg]
       · positivity
       · exact (ENNReal.rpow_lt_top_of_nonneg (by positivity) coe_ne_top).ne
     _ ≤ (∫⁻ a : α in Function.support f,
@@ -2836,7 +2835,7 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
   have tq_pos : ENNReal.ofReal t ^ q.toReal > 0 := coe_pow_pos ht
   have tq_ne_top : (ENNReal.ofReal t) ^ q.toReal ≠ ⊤ := coe_rpow_ne_top' q_pos
   -- have hq₁ : q.toReal = q := by exact toReal_ofReal q_nonneg
-  unfold wnorm wnorm' at wt_est; simp [hq'.ne_top] at wt_est
+  simp only [wnorm, wnorm', hq'.ne_top, ↓reduceIte, iSup_le_iff] at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t
   rw [← ENNReal.mul_le_mul_right (c := (ENNReal.ofReal t) ^ q.toReal) _ tq_ne_top,
       ofReal_rpow_of_pos, mul_assoc _ _ (ENNReal.ofReal (t ^ q.toReal)), ← ofReal_mul',
@@ -2910,8 +2909,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
   rw [ha]
   have obs : Memℒp (trunc f (t / C₁)) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf
   have wt_est := (h₁T (trunc f (t / C₁)) obs).2
-  unfold wnorm eLpNorm at wt_est
-  simp [hq₁, hp₁] at wt_est
+  simp only [wnorm, eLpNorm, hq₁, ↓reduceIte, hp₁, top_ne_zero] at wt_est
   apply nonpos_iff_eq_zero.mp
   have ineq : eLpNormEssSup (T (trunc f (t / C₁))) ν ≤ ENNReal.ofReal t := calc
     _ ≤ C₁ * eLpNormEssSup (trunc f (t / C₁)) μ := wt_est
@@ -2923,7 +2921,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
       have coe_C : C.toNNReal = C₁ := Real.toNNReal_coe
       rw [← coe_C, coe_coe_eq_ofReal, ← ENNReal.ofReal_mul, max_eq_right, congrArg toReal coe_C,
         mul_div_cancel₀]
-      · exact Ne.symm (ne_of_lt hC₁)
+      · exact Ne.symm hC₁.ne
       · positivity
       · positivity
   calc
@@ -2949,8 +2947,7 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
       exact weaktype_aux₀ hp₀ q₀pos zero_lt_top zero_lt_top h₀T
           (aestronglyMeasurable_trunc_compl hf.1) this
     apply nonpos_iff_eq_zero.mp
-    exact
-      Trans.trans (distribution_mono_right (Trans.trans obs (zero_le (ENNReal.ofReal t))))
+    exact Trans.trans (distribution_mono_right (Trans.trans obs (zero_le (ENNReal.ofReal t))))
         meas_eLpNormEssSup_lt
   · have p_pos : p > 0 := lt_trans hp₀ hp₀p
     have snorm_p_pos : eLpNorm f p μ ≠ 0 :=
