@@ -2921,7 +2921,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
       have coe_C : C.toNNReal = C₁ := Real.toNNReal_coe
       rw [← coe_C, coe_coe_eq_ofReal, ← ENNReal.ofReal_mul, max_eq_right, congrArg toReal coe_C,
         mul_div_cancel₀]
-      · exact Ne.symm hC₁.ne
+      · exact Ne.symm (ne_of_lt hC₁)
       · positivity
       · positivity
   calc
@@ -2947,7 +2947,8 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
       exact weaktype_aux₀ hp₀ q₀pos zero_lt_top zero_lt_top h₀T
           (aestronglyMeasurable_trunc_compl hf.1) this
     apply nonpos_iff_eq_zero.mp
-    exact Trans.trans (distribution_mono_right (Trans.trans obs (zero_le (ENNReal.ofReal t))))
+    exact
+      Trans.trans (distribution_mono_right (Trans.trans obs (zero_le (ENNReal.ofReal t))))
         meas_eLpNormEssSup_lt
   · have p_pos : p > 0 := lt_trans hp₀ hp₀p
     have snorm_p_pos : eLpNorm f p μ ≠ 0 :=
@@ -3081,10 +3082,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
   {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ}-- truncation parameter
-  [NormedAddCommGroup E]
-  [NormedAddCommGroup E₁]
-  [NormedAddCommGroup E₂]
-  [NormedAddCommGroup E₃]
+  [NormedAddCommGroup E] [NormedAddCommGroup E₁] [NormedAddCommGroup E₂] [NormedAddCommGroup E₃]
   [MeasurableSpace E] [BorelSpace E]
   [MeasurableSpace E₃] [BorelSpace E₃]
   {f : α → E₁} {t : ℝ}
@@ -3286,8 +3284,8 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
     distribution g ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) := by
   rw [lintegral_norm_pow_eq_distribution hg (by linarith)]
   nth_rewrite 1 [← lintegral_scale_constant_halfspace' (a := (2*A)) (by linarith)]
-  rw [← lintegral_const_mul']; swap; exact coe_ne_top
-  rw [← lintegral_const_mul']; swap; exact coe_ne_top
+  rw [← lintegral_const_mul']; swap; · exact coe_ne_top
+  rw [← lintegral_const_mul']; swap; · exact coe_ne_top
   apply lintegral_congr_ae
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with t (zero_lt_t : 0 < t)
   nth_rw 12 [mul_comm]
@@ -3354,8 +3352,8 @@ lemma estimate_norm_rpow_range_operator'
   have p_pos : p > 0 := lt_trans hp₀ hp₀p
   -- TODO: is there a way to use lintegral_rw₂ conveniently?
   rw [lintegral_rw_aux power_aux_2, lintegral_rw_aux power_aux_2]
-  nth_rw 2 [← lintegral_const_mul']; swap; refine rpow_ne_top_of_nonneg toReal_nonneg coe_ne_top
-  nth_rw 1 [← lintegral_const_mul']; swap; refine rpow_ne_top_of_nonneg toReal_nonneg coe_ne_top
+  nth_rw 2 [← lintegral_const_mul']; swap; · exact rpow_ne_top_of_nonneg toReal_nonneg coe_ne_top
+  nth_rw 1 [← lintegral_const_mul']; swap; · exact rpow_ne_top_of_nonneg toReal_nonneg coe_ne_top
   simp_rw [← mul_assoc]
   split_ifs with is_q₁top is_q₀top
   · rw [one_mul, one_mul, ← lintegral_add_left']
@@ -3755,14 +3753,14 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
         ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹) := by
     congr 1
     · split_ifs with is_q₁top
-      congr 3
-      · apply simplify_factor₁ _ hp₀ <;> try assumption
+      · congr 3
+        apply simplify_factor₁ _ hp₀ <;> try assumption
         · rw [hspf]; rfl
         · exact is_q₁top.ne_top
       · simp
     · split_ifs with is_q₀top
-      congr 3
-      · apply simplify_factor₀ _ hp₀ hp₁ <;> try assumption
+      · congr 3
+        apply simplify_factor₀ _ hp₀ hp₁ <;> try assumption
         · rw [hspf]; rfl
         · exact is_q₀top.ne_top
       · simp
