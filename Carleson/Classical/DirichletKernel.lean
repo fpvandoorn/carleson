@@ -132,7 +132,7 @@ lemma dirichletKernel'_eq_zero {x : ℝ} (h : cexp (I * x) = 1) : dirichletKerne
 lemma dirichletKernel_eq_ae : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
   have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ {x | ∃ n : ℤ, n * (2 * π) = x} := by
     intro x hx
-    simp at *
+    simp only [Set.mem_setOf_eq]
     by_contra h
     apply hx (dirichletKernel_eq _)
     rw [ne_eq, Complex.exp_eq_one_iff]
@@ -219,7 +219,8 @@ lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ} (h 
       have : {a | ¬f (x - a) * dirichletKernel N a = f (x - a) * dirichletKernel' N a} ⊆ {a | ¬dirichletKernel N a = dirichletKernel' N a} := by
         intro a ha
         contrapose! ha
-        simp at *
+        simp only [ne_eq, Set.mem_setOf_eq, Decidable.not_not, mul_eq_mul_left_iff, not_or,
+          not_and] at *
         intro h
         exfalso
         exact h ha
