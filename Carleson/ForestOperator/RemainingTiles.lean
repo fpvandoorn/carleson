@@ -51,6 +51,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
 /-- The constant used in `square_function_count`. -/
 irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (14 * (a : ℝ) + 1) * (8 * D ^ (- s)) ^ κ
 
+set_option linter.flexible false in -- Addressing the linter makes the code less readable.
 /-- Lemma 7.6.4. -/
 lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     ⨍⁻ x in J, (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
