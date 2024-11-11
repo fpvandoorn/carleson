@@ -1,1 +1,3 @@
-.lake
+# Lake
+.lake/*
+.cache/*

@@ -37,7 +37,7 @@ jobs:
       - name: Get cache
         run: ~/.elan/bin/lake exe cache get || true
 
-      - name: "Build project"
+      - name: Build project
         run: ~/.elan/bin/lake build Carleson
 
       # - name: Cache mathlib documentation
@@ -64,10 +64,19 @@ jobs:
           key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
           restore-keys: LakeBuild-
 
+      - name: Setup symlinks between project and docbuild
+        working-directory: docbuild
+        run: |
+          mkdir -p .lake/packages
+          for package_path in ../.lake/packages/*; do
+            package=$(basename $package_path)
+            ln -s ../../../.lake/packages/$package .lake/packages/$package
+          done
+
       - name: Build project documentation
         working-directory: docbuild
         run: |
-          lake update
+          ~/.elan/bin/lake exe cache get || true
           ~/.elan/bin/lake build Carleson:docs
 
       - name: Build blueprint and copy to `docs/blueprint`
@@ -94,15 +103,14 @@ jobs:
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Copy documentation to `docs/docs`
-        working-directory: "docbuild"
         run: |
           sudo chown -R runner docs
-          cp -r .lake/build/doc docs/docs
+          cp -r docbuild/.lake/build/doc docs/docs
 
-      - name: Remove lake files from documentation in `docs/docs`
-        run: |
-          find docs/docs -name "*.trace" -delete
-          find docs/docs -name "*.hash" -delete
+      # - name: Remove lake files from documentation in `docs/docs`
+      #   run: |
+      #     find docs/docs -name "*.trace" -delete
+      #     find docs/docs -name "*.hash" -delete
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
