@@ -147,8 +147,8 @@ open Topology Filter
 lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
     Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
   have := Filter.Tendsto.add_const (- (f 0)) hfa.nat_add_neg.tendsto_sum_nat
-  simp at this
-  /-Need to start at 1 instead of zero for the base case to be true· -/
+  simp only [add_neg_cancel_right] at this
+  /- Need to start at 1 instead of zero for the base case to be true. -/
   rw [←tendsto_add_atTop_iff_nat 1] at this
   convert this using 1
   ext N
@@ -165,10 +165,10 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
       · norm_num
         linarith
     rw [this, sum_insert, sum_insert, ih, ← add_assoc]
-    symm
-    rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
-    simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
-      Int.ofNat_eq_coe, add_right_inj, add_comm]
+    · symm
+      rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
+      simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
+        Int.ofNat_eq_coe, add_right_inj, add_comm]
     · simp
     · norm_num
       linarith
@@ -182,7 +182,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
   set g : C(AddCircle (2 * π), ℂ) := ⟨AddCircle.liftIco (2*π) 0 f, AddCircle.liftIco_continuous ((periodicf 0).symm) fdiff.continuous.continuousOn⟩ with g_def
   have two_pi_pos' : 0 < 0 + 2 * π := by linarith [Real.two_pi_pos]
   have fourierCoeff_correspondence {i : ℤ} : fourierCoeff g i = fourierCoeffOn two_pi_pos' f i := fourierCoeff_liftIco_eq f i
-  simp at fourierCoeff_correspondence
+  simp only [zero_add] at fourierCoeff_correspondence
   have function_sum : HasSum (fun (i : ℤ) => fourierCoeff g i • fourier i) g := by
     apply hasSum_fourier_series_of_summable
     obtain ⟨C, hC⟩ := fourierCoeffOn_ContDiff_two_bound periodicf fdiff

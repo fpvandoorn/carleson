@@ -57,7 +57,7 @@ lemma Hilbert_kernel_bound {x y : ℝ} : ‖K x y‖ ≤ 2 ^ (2 : ℝ) / (2 * |x
         · apply lower_secant_bound _ (by rfl)
           rw [Set.mem_Icc]
           constructor
-          · simp
+          · simp only [neg_mul, neg_add_le_iff_le_add]
             calc |x - y|
               _ ≤ 1 := h.2.le
               _ ≤ 2 * π - 1 := by rw [le_sub_iff_add_le]; linarith [Real.two_le_pi]
@@ -101,7 +101,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
       have ht' : 0 < t ∧ t ≤ 1 := by
         rcases ht with ht | ht <;> (constructor <;> linarith)
       rw [ddef]
-      simp
+      simp only [ne_eq]
       rw [←norm_eq_zero]
       apply ne_of_gt
       calc ‖1 - exp (-(I * ↑t))‖
@@ -124,7 +124,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
       apply HasDerivAt.div _ _ _
       · exact cdef ▸ c'def ▸ HasDerivAt.const_sub _ (HasDerivAt.ofReal_comp (hasDerivAt_id' _))
       · rw [ddef, d'def]
-        simp
+        simp only
         rw [←neg_neg (I * exp (-(I * ↑t)))]
         rw [←neg_mul, mul_comm]
         apply HasDerivAt.const_sub _ (HasDerivAt.cexp (HasDerivAt.neg _))
@@ -137,7 +137,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
         apply hasDerivAt_mul_const
       · exact d_nonzero ht
     have f'_cont : ContinuousOn (fun t ↦ f' t) (Set.uIcc y' y) :=
-      ContinuousOn.div (by fun_prop) (by fun_prop) (by simp; exact fun _ ht ↦ d_nonzero ht)
+      ContinuousOn.div (by fun_prop) (by fun_prop) (by simpa using fun _ ht ↦ d_nonzero ht)
     calc ‖(1 - ↑y) / (1 - exp (-(I * ↑y))) - (1 - ↑y') / (1 - exp (-(I * ↑y')))‖
       _ = ‖f y - f y'‖ := by simp
       _ = ‖∫ (t : ℝ) in y'..y, f' t‖ := by
@@ -179,9 +179,9 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
                   exact le_of_eq (abs_exp_ofReal_mul_I _)
                 · simp only [map_mul, abs_I, one_mul]
                   apply mul_le_one₀
-                  norm_cast
+                  on_goal 1 => norm_cast
                   rw [abs_of_nonpos] <;> linarith
-                  simp only [apply_nonneg]
+                  · simp only [apply_nonneg]
                   rw [mul_comm, ←neg_mul]
                   norm_cast
                   exact le_of_eq (abs_exp_ofReal_mul_I _)
@@ -218,7 +218,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     simpa
   rw [x_eq_zero]
   intro h
-  simp at h
+  simp only [zero_sub, abs_neg] at h
   simp only [zero_sub, abs_neg]
   wlog yy'nonneg : 0 ≤ y ∧ 0 ≤ y' generalizing y y'
   · by_cases yge0 : 0 ≤ y
@@ -308,9 +308,8 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
         _ ≤ (2 ^ 6 * 2 * 2) * (1 / |y|) * (|y - y'| / |y|) := by
           gcongr
           apply div_nonneg <;> linarith
-          rw [_root_.abs_of_nonneg yy'nonneg.1]
-          rw [_root_.abs_of_nonneg] <;> linarith
-          rw [_root_.abs_of_nonneg yy'nonneg.1]
+          on_goal 2 => rw [_root_.abs_of_nonneg] <;> linarith
+          all_goals rw [_root_.abs_of_nonneg yy'nonneg.1]
         _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := by norm_num
     · rw [abs_neg, _root_.abs_of_nonneg] <;> linarith
   · calc ‖k (-y) - k (-y')‖
