@@ -360,7 +360,7 @@ variable (s)
 /-- Apply `volume_ball_two_le_same` `n` times. -/
 lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
     volume.real (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume.real (ball x r) := by
-  induction' n with d ih; simp
+  induction' n with d ih; · simp
   rw [add_comm, pow_add, pow_one, mul_assoc]
   apply (measure_real_ball_two_le_same x _).trans
   have A_cast: (defaultA a : ℝ≥0).toReal = (defaultA a : ℝ) := rfl
