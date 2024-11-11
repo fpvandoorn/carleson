@@ -17,11 +17,13 @@ def dirichletKernel (N : ℕ) : ℝ → ℂ :=
 def dirichletKernel' (N : ℕ) : ℝ → ℂ :=
   fun x ↦ (exp (I * N * x) / (1 - exp (-I * x)) + exp (-I * N * x) / (1 - exp (I * x)))
 
-lemma dirichletKernel_periodic {N : ℕ} : Function.Periodic (dirichletKernel N) (2 * π) := by
+variable {N : ℕ}
+
+lemma dirichletKernel_periodic : Function.Periodic (dirichletKernel N) (2 * π) := by
   intro x
   simp [dirichletKernel]
 
-lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' N) (2 * π) := by
+lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π) := by
   intro x
   simp_rw [dirichletKernel']
   push_cast
@@ -51,12 +53,12 @@ lemma dirichletKernel'_periodic {N : ℕ} : Function.Periodic (dirichletKernel' 
     convert exp_int_mul_two_pi_mul_I 1 using 2
     ring
 
-@[measurability]
-lemma dirichletKernel'_measurable {N : ℕ} : Measurable (dirichletKernel' N) :=
-  by apply Measurable.add <;> apply Measurable.div <;> measurability
+@[fun_prop, measurability]
+lemma dirichletKernel'_measurable : Measurable (dirichletKernel' N) := by
+  apply Measurable.add <;> fun_prop
 
-/-Second part of Lemma 11.1.8 (Dirichlet kernel) from the paper.-/
-lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
+/-- Second part of Lemma 11.1.8 (Dirichlet kernel) from the paper. -/
+lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
     dirichletKernel N x = dirichletKernel' N x := by
   have : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
       = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
@@ -72,14 +74,16 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
           congr
           rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel₀, one_mul]
           exact Real.pi_pos.ne.symm
-      _ = ∑ n in Icc (-(N : ℤ)) N, cexp ((n + 1 / 2) * I * ↑x) - ∑ n in Icc (-(N : ℤ)) N, cexp ((n - 1 / 2) * I * ↑x) := by
+      _ = ∑ n in Icc (-(N : ℤ)) N, cexp ((n + 1 / 2) * I * ↑x)
+          - ∑ n in Icc (-(N : ℤ)) N, cexp ((n - 1 / 2) * I * ↑x) := by
         rw [sum_sub_distrib]
       _ = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
         rw [← sum_Ico_add_eq_sum_Icc, ← sum_Ioc_add_eq_sum_Icc, add_sub_add_comm,
           ← zero_add (cexp ((N + 1 / 2) * I * ↑x) - cexp (-(N + 1 / 2) * I * ↑x))]
         congr
         rw [sub_eq_zero]
-        conv => lhs; rw [← Int.add_sub_cancel (-(N : ℤ)) 1, sub_eq_add_neg, ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
+        conv => lhs; rw [← Int.add_sub_cancel (-(N : ℤ)) 1, sub_eq_add_neg,
+          ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
         congr with n
         · rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right,
             ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
@@ -121,11 +125,11 @@ lemma dirichletKernel_eq {N : ℕ} {x : ℝ} (h : cexp (I * x) ≠ 1) :
     rw [← exp_add, ← exp_add, ← exp_add, neg_add_eq_sub]
     congr 2 <;> ring
 
-lemma dirichletKernel'_eq_zero {N : ℕ} {x : ℝ} (h : cexp (I * x) = 1) : dirichletKernel' N x = 0 := by
+lemma dirichletKernel'_eq_zero {x : ℝ} (h : cexp (I * x) = 1) : dirichletKernel' N x = 0 := by
   simp [dirichletKernel', exp_neg, h]
 
 /- "a.e." version of previous lemma. -/
-lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
+lemma dirichletKernel_eq_ae : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletKernel' N x := by
   have : {x | ¬dirichletKernel N x = dirichletKernel' N x} ⊆ {x | ∃ n : ℤ, n * (2 * π) = x} := by
     intro x hx
     simp at *
@@ -145,7 +149,7 @@ lemma dirichletKernel_eq_ae {N : ℕ} : ∀ᵐ (x : ℝ), dirichletKernel N x = 
   let f : ℤ → ℝ := fun n ↦ n * (2 * π)
   apply Set.countable_range f
 
-lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 1 := by
+lemma norm_dirichletKernel_le {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 1 := by
   rw [dirichletKernel]
   calc ‖∑ n ∈ Icc (-(N : ℤ)) N, (fourier n) ↑x‖
     _ ≤ ∑ n ∈ Icc (-(N : ℤ)) N, ‖(fourier n) ↑x‖ := norm_sum_le _ _
@@ -158,7 +162,7 @@ lemma norm_dirichletKernel_le {N : ℕ} {x : ℝ} : ‖dirichletKernel N x‖ �
         Int.toNat_ofNat]
       ring
 
-lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
+lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
   by_cases h : cexp (I * x) ≠ 1
   · simp only [ne_eq, h, not_false_eq_true, ← dirichletKernel_eq, norm_eq_abs]
     exact norm_dirichletKernel_le
@@ -166,9 +170,10 @@ lemma norm_dirichletKernel'_le {N : ℕ} {x : ℝ} : ‖dirichletKernel' N x‖ 
     rw [dirichletKernel'_eq_zero h, norm_zero]
     linarith
 
-/-First part of lemma 11.1.8 (Dirichlet kernel) from the blueprint.-/
-lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f volume 0 (2 * π)) :
-    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel N (x - y)  := by
+/-- First part of lemma 11.1.8 (Dirichlet kernel) from the blueprint. -/
+lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
+    (h : IntervalIntegrable f volume 0 (2 * π)) :
+    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel N (x - y) := by
   calc partialFourierSum N f x
     _ = ∑ n in Icc (-(N : ℤ)) N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x := by
       rw [partialFourierSum]
@@ -199,8 +204,8 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {N : ℕ} {x :
       field_simp
       rw [mul_sub, sub_eq_neg_add]
 
-lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {N : ℕ} {x : ℝ} (h : IntervalIntegrable f volume 0 (2 * π)) :
-    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel' N (x - y)  := by
+lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ} (h : IntervalIntegrable f volume 0 (2 * π)) :
+    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel' N (x - y) := by
   rw [partialFourierSum_eq_conv_dirichletKernel h]
   calc _
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (x - 2 * π)..(x - 0), f (x - y) * dirichletKernel N y := by
