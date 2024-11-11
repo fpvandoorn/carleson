@@ -229,8 +229,8 @@ lemma intervalIntegrable_mul_dirichletKernel'_specific {x : ℝ} (hx : x ∈ Set
   rw [annulus_real_eq (by rfl)] at hy
   rcases hy with h | h <;> constructor <;> linarith [h.1, h.2, hx.1, hx.2, Real.two_le_pi]
 
-
 attribute [gcongr] iSup_congr
+
 lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volume (-π) (3 * π)) {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) :
     ‖∫ (y : ℝ) in x - π..x + π, g y * ((max (1 - |x - y|) 0) * dirichletKernel' N (x - y))‖₊
     ≤ T g x + T (conj ∘ g) x := by
@@ -299,10 +299,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       exact le_iSup F ((Int.ofNat N))
     _ ≤ ⨆ (n : ℤ) (r : ℝ) (_ : 0 < r) (_ : r < 1), (  ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * K x y * exp (I * n * y)‖₊
                                                     + ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, (conj ∘ g) y * K x y * exp (I * n * y)‖₊) := by
-      apply iSup₂_mono
-      intro n r
-      apply iSup₂_mono
-      intro rpos rle1
+      gcongr with n r rpos rle1
       norm_cast
       push_cast
       calc ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-n * x)) * K x y * exp (I * n * y) + conj (exp (I * (-n * x)) * K x y * exp (I * n * y)))‖₊
@@ -314,7 +311,8 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
           congr
           -- Integrability follows from r > 0
           have measurable₁ : Measurable fun x_1 ↦ (I * (-↑n * ↑x)).exp * K x x_1 * (I * ↑n * ↑x_1).exp := by
-            apply Measurable.mul (Measurable.mul _ Hilbert_kernel_measurable.of_uncurry_left) <;> measurability
+            apply Measurable.mul (Measurable.mul _ Hilbert_kernel_measurable.of_uncurry_left) <;>
+              fun_prop
           have boundedness₁ {y : ℝ} (h : r ≤ dist x y) : ‖(I * (-↑n * ↑x)).exp * K x y * (I * ↑n * ↑y).exp‖ ≤ (2 ^ (2 : ℝ) / (2 * r)) := by
             calc ‖(I * (-↑n * ↑x)).exp * K x y * (I * ↑n * ↑y).exp‖
               _ = ‖(I * (-↑n * ↑x)).exp‖ * ‖K x y‖ * ‖(I * ↑n * ↑y).exp‖ := by

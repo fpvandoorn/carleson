@@ -55,7 +55,7 @@ lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π
 
 @[fun_prop, measurability]
 lemma dirichletKernel'_measurable : Measurable (dirichletKernel' N) := by
-  apply Measurable.add <;> apply Measurable.div <;> measurability
+  apply Measurable.add <;> fun_prop
 
 /-- Second part of Lemma 11.1.8 (Dirichlet kernel) from the paper. -/
 lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
