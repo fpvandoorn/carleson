@@ -3139,7 +3139,8 @@ lemma biSup {ι : Type*} (𝓑 : Set ι) (h𝓑 : 𝓑.Countable) {T : ι → (�
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
   rcases lt_or_le A 0 with A0 | A0
   · refine AESubAdditiveOn.zero hP A (fun f hf ↦ ?_)
-    sorry  /- TODO fix! have h {i : ι} (hi : i ∈ 𝓑) := (h i hi).neg A0
+    sorry  /- TODO(bump-4.13): fix this proof, was
+    have h {i : ι} (hi : i ∈ 𝓑) := (h i hi).neg A0
     simp_rw [Set.forall_in_swap, imp.swap, ← imp_forall_iff] at h hT'
     filter_upwards [(ae_ball_iff h𝓑).mpr (h f hf), (ae_ball_iff h𝓑).mpr (hT' f hf)] with x hx hx'
     simp only [Pi.zero_apply, toReal_eq_zero_iff, ENNReal.iSup_eq_zero]

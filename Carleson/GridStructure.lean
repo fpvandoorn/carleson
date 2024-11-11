@@ -218,7 +218,7 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
   rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
   have bound_i : -S ≤ s i ∧ s i ≤ S := scale_mem_Icc
-  sorry /- TODO: fix proof again, was
+  sorry /- TODO(bump-4.13): fix proof again, was
   have ts := Grid_subset_biUnion (X := X) (i := topCube) l (by rw [s_topCube, mem_Ico]; omega)
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
