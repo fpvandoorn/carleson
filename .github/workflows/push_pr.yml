@@ -6,12 +6,6 @@ jobs:
     name: Lint style
     runs-on: ubuntu-latest
     steps:
-      # Check for long lines in .lean files and report if any lines exceed 100 characters
-      - name: Check for long lines
-        if: always()
-        run: |
-          ! (find Carleson -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
-
       - name: Don't 'import Mathlib', use precise imports
         if: always()
         run: |
