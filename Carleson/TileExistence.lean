@@ -2096,7 +2096,7 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     obtain ⟨I, y⟩ := p
     obtain ⟨J, z⟩ := q
     have hij : I = J := le_antisymm h𝓘 (Grid.le_dyadic h h𝓘 le_rfl)
-    sorry /- TODO: fix this proof, was
+    sorry /- TODO(bump-4.13): fix this proof, was
     have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
     rw [k] -/

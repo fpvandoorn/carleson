@@ -52,7 +52,7 @@ lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (�
     ∃ I : GridStructure.Grid X (defaultA a), GridStructure.s I = s ∧ x ∈ I := by
   have DS : (D : ℝ) ^ S = (D : ℝ) ^ (S : ℤ) := rfl
   have : x ∈ ball o (D ^ S / 4) := ProofData.G_subset hx
-  sorry /- TODO fix proof, was
+  sorry /- TODO(bump-4.13): fix proof, was
   rw [← c_topCube (X := X), DS, ← s_topCube (X := X)] at this
   have x_mem_topCube := ball_subset_Grid this
   by_cases hS : s = S -- Handle separately b/c `Grid_subset_biUnion`, as stated, doesn't cover `s=S`
