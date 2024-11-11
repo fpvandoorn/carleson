@@ -89,9 +89,9 @@ lemma _root_.ENNReal.div_mul (a : ℝ≥0∞) {b c : ℝ≥0∞} (hb0 : b ≠ 0)
     a / b * c = a / (b / c) := by
   rw [← ENNReal.mul_div_right_comm, ENNReal.div_eq_div_iff (ENNReal.div_ne_zero.mpr ⟨hb0, hc_top⟩)
     _ hb0 hb_top]
-  rw [ENNReal.div_eq_inv_mul, mul_comm a, mul_assoc]
-  simp only [mul_comm b, ← mul_assoc, ENNReal.inv_mul_cancel hc0 hc_top]
-  ring
+  · rw [ENNReal.div_eq_inv_mul, mul_comm a, mul_assoc]
+    simp only [mul_comm b, ← mul_assoc, ENNReal.inv_mul_cancel hc0 hc_top]
+    ring
   · simp only [ne_eq, div_eq_top]
     tauto
 
@@ -114,7 +114,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           mul_inv_cancel₀ hvol, mul_one]
     _ ≤ 2 ^ a ^ 3 * 2 ^ (5 * a + 100 * a ^ 3) / volume.real (ball x (8 * D ^ 𝔰 p.1)) := by
       gcongr
-      apply (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
+      · exact (measure_real_ball_pos x (mul_pos (by positivity) (zpow_pos (defaultD_pos _) _)))
       · have heq : 2 ^ (100 * a ^ 2) * 2 ^ 5 * (1 / (↑D * 32) * (8 * (D : ℝ) ^ 𝔰 p.1)) =
             (8 * ↑D ^ 𝔰 p.1) := by
           have hD : (D : ℝ) = 2 ^ (100 * a^2) := by simp
@@ -261,8 +261,8 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         (fun _ ↦ ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
       simp only [coe_ofNat, indicator, mem_ball, mul_ite, mul_zero]
       rw [if_pos]
-      gcongr
-      · rw [C_6_1_2, add_comm (5*a), add_assoc]; norm_cast
+      · gcongr
+        rw [C_6_1_2, add_comm (5*a), add_assoc]; norm_cast
         apply pow_le_pow_right₀ one_le_two
         calc
         _ ≤ 101 * a ^ 3  + 6 * a ^ 3:= by
@@ -352,15 +352,15 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
       sorry
   · simp only [not_lt, top_le_iff] at hf_top
     rw [hf_top, mul_top]
-    exact le_top
-    · simp only [ne_eq, ENNReal.div_eq_zero_iff, mul_eq_zero, pow_eq_zero_iff',
-      OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, two_ne_top, not_false_eq_true,
-      and_true, not_or]
-      refine ⟨?_, mul_ne_top two_ne_top (mul_ne_top (mul_ne_top two_ne_top coe_ne_top)
-        (inv_ne_top.mpr (by simp)))⟩
-      · rw [tsub_eq_zero_iff_le]
-        exact not_le.mpr (lt_trans (by norm_cast)
-          (ENNReal.mul_lt_mul_left' three_ne_zero ofNat_ne_top one_lt_nnq'_coe))
+    · exact le_top
+    simp only [ne_eq, ENNReal.div_eq_zero_iff, mul_eq_zero, pow_eq_zero_iff',
+    OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, two_ne_top, not_false_eq_true,
+    and_true, not_or]
+    refine ⟨?_, mul_ne_top two_ne_top (mul_ne_top (mul_ne_top two_ne_top coe_ne_top)
+      (inv_ne_top.mpr (by simp)))⟩
+    rw [tsub_eq_zero_iff_le]
+    exact not_le.mpr (lt_trans (by norm_cast)
+      (ENNReal.mul_lt_mul_left' three_ne_zero ofNat_ne_top one_lt_nnq'_coe))
 
 
 -- lemma 6.1.3, inequality 6.1.10

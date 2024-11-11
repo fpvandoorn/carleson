@@ -28,7 +28,7 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
 lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) :
     volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
   rw [annulus_real_eq hr.1, measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
-  ring_nf
+  · ring_nf
   rw [Set.disjoint_iff]
   intro y hy
   linarith [hy.1.2, hy.2.1, hr.1]
@@ -152,9 +152,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         simp only [Set.mem_Ioo]
         by_cases h : dist x y < 1
         · rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
-          · simp
+          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
             use ht
-          · simp
+          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
             use hs
         · push_neg at h
           rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
@@ -168,17 +168,17 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         simp only [Set.restrict_apply, Subtype.forall]
         intro s hs t ht
         rw [Fdef]
-        simp
+        simp only [Set.mem_Ioo]
         rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
         · rw [Set.mem_Ioi, min_lt_iff] at ht
-          simp
+          simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
           intro h
           rcases ht with h' | h'
           · exfalso
             exact (lt_self_iff_false _).mp (h'.trans h)
           · exact (h'.trans h).le
         · rw [Set.mem_Ioi, min_lt_iff] at hs
-          simp
+          simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
           intro h
           rcases hs with h' | h'
           · exfalso
@@ -198,7 +198,8 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
           rw [Set.mem_setOf_eq, not_not]
           exact contOn y r hy.symm
         rw [Real.dist_eq, abs_eq hr.1.le] at this
-        simp
+        simp only [Finset.coe_insert, Finset.coe_singleton, Set.mem_insert_iff,
+          Set.mem_singleton_iff]
         rcases this with h | h
         · left; linarith
         · right; linarith
