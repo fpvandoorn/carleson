@@ -425,10 +425,12 @@ lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
 lemma ζ_symm :
     @ζ p₀ q₀ p₁ q₁ t = @ζ p₁ q₁ p₀ q₀ (1 - t) := by
   unfold ζ
-  rw [← mul_div_mul_right (c := - 1), mul_assoc _ _ (-1), mul_assoc _ _ (-1)]; swap; positivity
+  rw [← mul_div_mul_right (c := - 1), mul_assoc _ _ (-1), mul_assoc _ _ (-1)]; on_goal 2 => positivity
   simp only [mul_neg, mul_one, neg_sub, _root_.sub_sub_cancel]
   nth_rewrite 1 [add_comm]; nth_rw 2 [add_comm]
 
+set_option linter.style.multiGoal false in
+set_option linter.flexible false in
 lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
@@ -464,8 +466,7 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
 lemma one_sub_coe_one_sub (ht : t ∈ Ioo 0 1) :
     (1 - ENNReal.ofReal (1 - t)) = ENNReal.ofReal t := by
   have := ht.2
-  rw [← ofReal_one, ← ENNReal.ofReal_sub]
-  congr
+  rw [← ofReal_one, ← ENNReal.ofReal_sub] <;> congr
   · linarith
   · linarith
 
@@ -641,7 +642,7 @@ lemma ζ_pos_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 
   rw [_root_.div_pos_iff, ← Left.neg_pos_iff, ← Left.neg_pos_iff, neg_mul_eq_mul_neg,
       neg_mul_eq_mul_neg, mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left,
       mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, neg_sub, neg_sub]
-  simp only [sub_pos, sub_neg]
+  · simp only [sub_pos, sub_neg]
   · exact preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁
   · exact preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁
   · exact preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁
@@ -840,7 +841,7 @@ lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
         congr
         ring
     rw [this, mul_div_assoc, mul_div_cancel_right₀]
-    ring
+    · ring
     exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
   · exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
