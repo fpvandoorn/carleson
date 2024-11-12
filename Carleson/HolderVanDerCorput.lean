@@ -130,7 +130,7 @@ lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
   sorry
 
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
-    ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) := by
+    2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
   have inside_computation (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
     have : volume.real (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume.real (ball x r) := by
@@ -159,6 +159,42 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     -- the former tries to "unfold A"; can I prevent this?
     -- baz fires, but I want baz'
     exact baz' (X := X)
+
+  set N : ℝ := @n_8_0_7 t + 2 with N_eq
+  calc (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 * R))
+    _ ≤ (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+      gcongr
+      calc -- or: apply the right lemma...
+        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by
+          rw [mul_assoc]
+          -- future: linear_combination should do this! multiply (n_spec ht).lt with 2
+          nth_rewrite 1 [show (2 : ℝ) = 2 * 1 by norm_num]
+          gcongr
+          exact (n_spec1 ht).le
+        _ = 2 ^ N * 2 ^ (-1 : ℝ) * t := by
+          rw [N_eq]
+          set Nn : ℤ := @n_8_0_7 t
+          norm_cast
+          rw [show Int.negSucc 0 = -1 by rfl]
+          congr 1
+          set A : ℝ := 2
+          -- now, it should be obvious
+          sorry
+          -- nth_rw 1 [show (2 : ℝ) = (2 : ℝ) ^ (1 : ℤ) by norm_num]
+          -- trans (2 : ℝ) ^ (@n_8_0_7 t + 1)
+          -- · sorry
+          -- · sorry
+    _ ≤ (2 ^ (-1 : ℝ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+      gcongr
+      set N' := a * N -- note: one N' uses ℝ, the other ℤ
+      apply le_of_eq
+      -- now, it's almost an rpow thing --- but need to rewrite by that cast
+      sorry
+    _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
+      sorry -- use inside_computation
+    _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
+
+/-
   calc ∫⁻ y, cutoff R t x y
     _ ≥ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := aux_8_0_6 (ht := ht) (hR := hR)
     _ ≥ (2 ^ (-1 : ℝ)) * 2 ^ (- a * ((@n_8_0_7 t) + 2)) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
@@ -185,7 +221,8 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
             _ = 2 ^ (((@n_8_0_7 t) + 2) - 1) := by ring_nf
             _ = 2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) := by
               sorry
-
+-/
+#exit
 end new
 
 /-- The constant occurring in Lemma 8.0.1. -/
