@@ -41,6 +41,7 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
 lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) := by
   apply (cutoff_Lipschitz hR ht (X := X)).continuous
 
+omit [TileStructure Q D κ S o] in
 /-- `cutoff R t x` is measurable in `y`. -/
 @[fun_prop]
 lemma cutoff_measurable (hR : 0 < R) (ht : 0 < t) : Measurable (fun y ↦ cutoff R t x y) :=
@@ -67,12 +68,10 @@ lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ bal
   -- also works: field_simp at this; exact this
   exact (div_lt_one (by positivity)).mp (by linarith)
 
--- XXX: lemma names are `div_lt_iff` vs `div_le_iff₀`; ping Yael!
-
 lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
     2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
   rw [mem_ball', mul_assoc] at h
-  have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := (div_lt_iff (by positivity)).mpr h
+  have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := (div_lt_iff₀ (by positivity)).mpr h
   calc 2 ^ (-1 : ℝ)
     _ ≤ 1 - dist x y / (t * R) := by
       norm_num at *; linarith only [h, this]
@@ -85,6 +84,7 @@ lemma aux_8_0_5'' (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t
   rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_rpow_of_ne_zero (by norm_num)]
   exact ENNReal.coe_le_coe.mpr (aux_8_0_5 (ht := ht) (hR := hR) h)
 
+omit [TileStructure Q D κ S o] in
 lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
     (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
   calc (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R))
@@ -174,8 +174,6 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) 
     -- XXX: why the extra factor t * R?
   -- then triangle inequality and done
   sorry
-
-#exit
 
 /-- Part of Lemma 8.0.1. -/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
