@@ -199,9 +199,8 @@ lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (�
 lemma dist_𝒬_lt_one_of_le' {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 p) (𝒬 q) < 1 :=
   mem_ball'.mp (dist_𝒬_lt_one_of_le h)
 
-lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun p p' h ↦ by
-  refine h.le.1.lt_of_ne <| fun h' ↦ ?_
-  exact disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
+lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun _ _ h ↦ h.le.1.lt_of_ne <|
+  fun h' ↦ disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :

@@ -1415,9 +1415,9 @@ lemma trunc_compl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁
 
 @[measurability]
 protected lemma StronglyMeasurable.trunc [NormedAddCommGroup E₁]
-    (hf : StronglyMeasurable f) : StronglyMeasurable (trunc f t) := by
-  apply StronglyMeasurable.ite ?_ hf stronglyMeasurable_const
-  exact measurableSet_le hf.norm stronglyMeasurable_const
+    (hf : StronglyMeasurable f) : StronglyMeasurable (trunc f t) :=
+  StronglyMeasurable.ite (measurableSet_le hf.norm stronglyMeasurable_const) hf
+    stronglyMeasurable_const
 
 @[measurability]
 protected lemma StronglyMeasurable.trunc_compl [NormedAddCommGroup E₁]
@@ -1465,8 +1465,7 @@ lemma aestronglyMeasurable_trunc [NormedAddCommGroup E₁]
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
   exists (trunc g t)
   constructor
-  · apply wg1.indicator (s := {x | ‖g x‖ ≤ t})
-    exact wg1.norm.measurableSet_le stronglyMeasurable_const
+  · exact wg1.indicator (s := {x | ‖g x‖ ≤ t}) (wg1.norm.measurableSet_le stronglyMeasurable_const)
   · refine measure_mono_null (fun x ↦ ?_) wg2
     contrapose
     simp only [mem_compl_iff, mem_setOf_eq, not_not]

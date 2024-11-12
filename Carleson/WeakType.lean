@@ -117,8 +117,8 @@ lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E)
     gcongr
   calc
     μ {x | ENNReal.ofReal A * (t + s) < ‖f x‖₊}
-      ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := by apply measure_mono_ae' h₁
-    _ ≤ μ {x | t < ↑‖g₁ x‖₊} + μ {x | s < ↑‖g₂ x‖₊} := by apply measure_union_le
+      ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := measure_mono_ae' h₁
+    _ ≤ μ {x | t < ↑‖g₁ x‖₊} + μ {x | s < ↑‖g₂ x‖₊} := measure_union_le _ _
 
 lemma distribution_add_le :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
@@ -179,9 +179,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
       have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ :=
         select_neighborhood_distribution _ _ (db_top ▸ coe_lt_top)
       rcases h₀ with ⟨n, wn⟩
-      refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
-      use Iio (t₀ + (↑n)⁻¹)
-      constructor
+      refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ⟨Iio (t₀ + (↑n)⁻¹), ?_, ?_⟩)
       · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top
           (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
       · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩

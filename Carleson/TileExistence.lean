@@ -15,7 +15,6 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 lemma realD_nonneg : 0 ≤ (D:ℝ) := (defaultD_pos a).le
 
-
 lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
   (hY : Y ⊆ ball o (4*D^(S:ℤ)-D^k:ℝ)) (y : X) (hy : y ∈ Y) :
     ball o (4 * D ^ (S:ℤ):ℝ) ⊆ ball y (8 * D^(2 * S:ℤ) * D^k:ℝ) := by
