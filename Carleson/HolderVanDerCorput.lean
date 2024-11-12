@@ -116,24 +116,40 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
 theorem barXX {a b : ℝ} : ((2 : ℝ≥0) ^ a) * (2 ^ b) = 2 ^ (a + b) := by
   sorry
 
+lemma aux (a b c : ℝ) (h : b ≤ c) (ha : 0 ≤ a) : a * b ≤ a * c := by
+  exact mul_le_mul_of_nonneg_left h ha
+
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) := by
+  have inside_computation (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
+    have : volume.real (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume.real (ball x r) := by
+      convert measure_ball_le_pow_two (x := x) (r := r) (n := N + 2) (μ := volume)
+      rw [show defaultA a = 2 ^ a from rfl]
+      norm_cast
+      ring
+    have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
+      sorry -- `this` should do it, morally... need to find the right lemma for the conversion?
+    let aux := mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
+    convert aux
+    -- rw by mul_one, then use congr and ring, or so
+    sorry
+
   calc ∫⁻ y, cutoff R t x y
-    _ ≥ (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
-      apply aux_8_0_6
-      exact hR
-      exact ht
+    _ ≥ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := aux_8_0_6 (ht := ht) (hR := hR)
+    _ ≥ (2 ^ (-1 : ℝ)) * 2 ^ (- a * ((@n_8_0_7 t) + 2)) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
+      -- use inside_computation
+      sorry
     _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
-      -- apply doubling n + 2 times; basic formula is `measure_ball_le_pow_two`
+      -- hopefully, the previous step will make this moot,
+      -- and also simplify the next calc step
       sorry
     _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 * R)) := by
       gcongr
       calc
         2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by
           rw [mul_assoc]
-          -- more elegant way than these two lines?
-          have h : (2 : ℝ) = 2 * 1 := by norm_num
-          nth_rewrite 1 [h]
+          nth_rewrite 1 [show (2 : ℝ) = 2 * 1 by norm_num]
           gcongr
           exact (n_spec1 ht).le
         _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
