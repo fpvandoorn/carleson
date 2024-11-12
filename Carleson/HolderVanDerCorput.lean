@@ -116,8 +116,18 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
 theorem barXX {a b : ℝ} : ((2 : ℝ≥0) ^ a) * (2 ^ b) = 2 ^ (a + b) := by
   sorry
 
-lemma aux (a b c : ℝ) (h : b ≤ c) (ha : 0 ≤ a) : a * b ≤ a * c := by
-  exact mul_le_mul_of_nonneg_left h ha
+lemma baz {A X : ℝ} : X = 2 ^ (-A) * (2 ^ A * X) := by
+  rw [← mul_assoc, ← Real.rpow_add (by norm_num)]
+  ring_nf
+
+lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
+  rw [← mul_assoc]
+  nth_rw 1 [← one_mul X]
+  congr
+  -- doesn't fire as the base is an ℝ≥0∞ now...
+  -- rw [← Real.rpow_add (by norm_num)]
+  ring_nf
+  sorry
 
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     ∫⁻ y, cutoff R t x y ≥ 2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) := by
@@ -129,12 +139,26 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
       norm_cast
       ring
     have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
-      sorry -- `this` should do it, morally... need to find the right lemma for the conversion?
-    let aux := mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
-    convert aux
-    -- rw by mul_one, then use congr and ring, or so
-    sorry
-
+      rw [Measure.real] at this
+      set A := volume (ball x (2 ^ (N + 2) * r))
+      set B := volume (ball x r) with hB
+      set D' : ℝ := ↑a * (↑N + 2)
+      set D'' : ℝ≥0∞ := 2 ^ D'
+      have : A.toReal ≤ D''.toReal * B.toReal := by
+        convert this
+        sorry -- D' is non-negative and finite, so obvious
+      show A ≤ D'' * B
+      -- A, B and D'' are finite, so this should be obvious. how to prove this best?
+      -- (A being finite is necessary, otherwise this is false)
+      sorry
+    set A : ℝ := (↑a * (↑N + 2))
+    set X := volume (ball x r)
+    convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
+    rw [show (-↑a * (↑N + 2)) = -A by ring]
+    -- XXX: at this point, neither `ring` nor `field_simp` work.
+    -- the former tries to "unfold A"; can I prevent this?
+    -- baz fires, but I want baz'
+    exact baz' (X := X)
   calc ∫⁻ y, cutoff R t x y
     _ ≥ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := aux_8_0_6 (ht := ht) (hR := hR)
     _ ≥ (2 ^ (-1 : ℝ)) * 2 ^ (- a * ((@n_8_0_7 t) + 2)) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
