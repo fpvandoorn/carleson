@@ -42,8 +42,8 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add, Complex.real_smul,
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
-  ring_nf
-  · apply hf.continuousOn_mul (Continuous.continuousOn _); continuity
+  · ring_nf
+    apply hf.continuousOn_mul (Continuous.continuousOn _); continuity
   · apply hg.continuousOn_mul (Continuous.continuousOn _); continuity
 
 @[simp]
@@ -92,11 +92,11 @@ lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : �
   have hyb: f y = f (y - n • T) := (hp.sub_zsmul_eq n).symm
   rw [hxa, hyb]
   apply h (x - n • T) _ (y - n • T)
-  rw [Real.dist_eq, abs_lt] at hxy
+  on_goal 1 => rw [Real.dist_eq, abs_lt] at hxy
   constructor <;> linarith [ha.1, ha.2]
-  rw [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
-  exact hxy.trans_le h1
-  constructor <;> linarith [ha.1, ha.2]
+  · rw [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
+    exact hxy.trans_le h1
+  · constructor <;> linarith [ha.1, ha.2]
 
 
 lemma fourier_uniformContinuous {n : ℤ} :

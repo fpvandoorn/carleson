@@ -76,14 +76,14 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       _ = B * (b - a) := by rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
       _ = (1 + |n| * (b - a)) * (1 + |n| * (b - a))⁻¹ * (b - a) * B := by
         rw [mul_inv_cancel₀]
-        ring
+        · ring
         exact ne_of_gt this
       _ ≤ (π + π) * (1 + |n| * (b - a))⁻¹ * (b - a) * (B + K * (b - a) / 2) := by
         gcongr
         · apply mul_nonneg
-          apply mul_nonneg
-          linarith [Real.two_pi_pos]
-          · exact inv_nonneg_of_nonneg this.le
+          · apply mul_nonneg
+            · linarith [Real.two_pi_pos]
+            · exact inv_nonneg_of_nonneg this.le
           · linarith
         · linarith
         · linarith [Real.two_le_pi]
@@ -115,7 +115,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
     _ = 1 / 2 * ‖(∫ (x : ℝ) in a..b, (I * n * x).exp * ϕ x) - (∫ (x : ℝ) in a..b, (I * n * (x + π / n)).exp * ϕ x)‖ := by
       rw [norm_mul]
       congr
-      simp
+      · simp
       rw [← intervalIntegral.integral_sub]
       · exact integrand_continuous.intervalIntegrable _ _
       · exact integrand_continuous2.intervalIntegrable _ _
@@ -124,7 +124,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
                  -((∫ (x : ℝ) in a..(b - π / n), (I * n * (x + π / n)).exp * ϕ x)
                  + (∫ (x : ℝ) in (b - π / n)..b, (I * n * (x + π / n)).exp * ϕ x))‖ := by
       congr 3
-      rw [intervalIntegral.integral_add_adjacent_intervals]
+      on_goal 1 => rw [intervalIntegral.integral_add_adjacent_intervals]
       · exact integrand_continuous.intervalIntegrable _ _
       · exact integrand_continuous.intervalIntegrable _ _
       rw [intervalIntegral.integral_add_adjacent_intervals]
@@ -149,9 +149,9 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
                  - (∫ (x : ℝ) in (b - π / n)..b, (I * n * (x + π / n)).exp * ϕ x)‖ := by
       congr 4
       rw [← intervalIntegral.integral_sub]
-      congr
-      ext x
-      ring
+      · congr
+        ext x
+        ring
       · exact integrand_continuous.intervalIntegrable _ _
       · exact integrand_continuous3.intervalIntegrable _ _
     _ ≤ 1 / 2 * (  ‖(∫ (x : ℝ) in a..(a + π / n), (I * n * x).exp * ϕ x)
@@ -187,7 +187,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul, ← dist_eq_norm]
           apply le_trans (h1.dist_le_mul _ _)
-          simp
+          simp only [dist_self_sub_right, norm_div, Real.norm_eq_abs]
           rw [_root_.abs_of_nonneg Real.pi_pos.le, _root_.abs_of_nonneg (by simp; linarith [n_pos])]
           apply le_of_eq
           ring
@@ -201,7 +201,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
     _ = π / n * (B + K * (b - (a + π / n)) / 2) := by
       rw [Real.volume_Ioo, Real.volume_Ioo, Real.volume_Ioo, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal]
-      ring
+      · ring
       all_goals linarith
     _ ≤ π / n * (B + K * (b - a) / 2) := by
       gcongr
@@ -209,15 +209,15 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
     _ ≤ (2 * π / (1 + n * (b - a)) * (b - a)) * (B + K * (b - a) / 2) := by
       gcongr
       rw [mul_comm, ← mul_div_assoc, div_le_div_iff (by simpa)]
-      calc π * (1 + n * (b - a))
-        _ ≤ π * (π + n * (b - a)) := by
-          gcongr
-          linarith [Real.two_le_pi]
-        _ ≤ π * (n * (b - a) + n * (b - a)) := by
-          gcongr
-          rwa [← div_le_iff₀' (Int.cast_pos.mpr n_pos)]
-        _ = (b - a) * (2 * π) * n := by ring
-      exact add_pos zero_lt_one (mul_pos (Int.cast_pos.mpr n_pos) (gt_of_ge_of_gt h pi_div_n_pos))
+      · calc π * (1 + n * (b - a))
+          _ ≤ π * (π + n * (b - a)) := by
+            gcongr
+            linarith [Real.two_le_pi]
+          _ ≤ π * (n * (b - a) + n * (b - a)) := by
+            gcongr
+            rwa [← div_le_iff₀' (Int.cast_pos.mpr n_pos)]
+          _ = (b - a) * (2 * π) * n := by ring
+      · exact add_pos zero_lt_one (mul_pos (Int.cast_pos.mpr n_pos) (gt_of_ge_of_gt h pi_div_n_pos))
     _ = 2 * π * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
       rw [_root_.abs_of_nonneg n_pos.le]
       ring

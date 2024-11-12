@@ -191,16 +191,19 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
     _ ≤ 2 * r * |↑f - ↑g| := by
       apply Real.iSup_le
       --TODO: investigate strange (delaborator) behavior - why is there still a sup?
-      intro z
-      apply Real.iSup_le
+      on_goal 1 => intro z
+      on_goal 1 => apply Real.iSup_le
       · intro hz
-        simp at hz
+        simp only [Set.mem_prod, mem_ball] at hz
         rw [Real.dist_eq, Real.dist_eq] at hz
         rw [Real.norm_eq_abs]
         calc |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)|
         _ ≤ |(f - g) * (z.1 - x)| + |(f - g) * (z.2 - x)| := by apply abs_sub
         _ = |↑f - ↑g| * |z.1 - x| + |↑f - ↑g| * |z.2 - x| := by congr <;> apply abs_mul
-        _ ≤ |↑f - ↑g| * r + |↑f - ↑g| * r := by gcongr; linarith [hz.1]; linarith [hz.2]
+        _ ≤ |↑f - ↑g| * r + |↑f - ↑g| * r := by
+          gcongr
+          · linarith [hz.1]
+          · linarith [hz.2]
         _ = 2 * r * |↑f - ↑g| := by ring
       all_goals
       repeat
@@ -227,20 +230,20 @@ lemma frequency_ball_doubling {x₁ x₂ r : ℝ} {f g : Θ ℝ} : dist_{x₂, 2
   rw [dist_integer_linear_eq, dist_integer_linear_eq]
   by_cases r_nonneg : r ≥ 0
   · rw [max_eq_left, max_eq_left]
-    ring_nf;rfl
+    · ring_nf; rfl
     all_goals linarith [r_nonneg]
   · rw [max_eq_right, max_eq_right]
-    simp
+    · simp
     all_goals linarith [r_nonneg]
 
   theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} : 2 * dist_{x₁, r} f g ≤ dist_{x₂, 2 * r} f g := by
     rw [dist_integer_linear_eq, dist_integer_linear_eq]
     by_cases r_nonneg : r ≥ 0
     · rw [max_eq_left, max_eq_left]
-      ring_nf;rfl
+      · ring_nf; rfl
       all_goals linarith [r_nonneg]
     · rw [max_eq_right, max_eq_right]
-      simp
+      · simp
       all_goals linarith [r_nonneg]
 
 lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
@@ -269,7 +272,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     simp only [Set.mem_univ, mem_ball, true_implies]
     rw [dist_integer_linear_eq]
     convert R'pos
-    simp
+    simp only [mul_eq_zero, OfNat.ofNat_ne_zero, max_eq_right_iff, false_or, abs_eq_zero]
     left
     exact Rpos
   push_neg at Rpos
@@ -303,7 +306,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
         exact Rpos.le
       _ = 2 * R * (m₁ - ↑φ) := by
         rw [abs_of_nonpos]
-        simp only [neg_sub]
+        on_goal 1 => simp only [neg_sub]
         norm_cast
         simp only [tsub_le_iff_right, zero_add, Int.cast_le]
         rwa [m₁def, Int.le_floor]
@@ -356,9 +359,9 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
   calc 2 * max R 0 * |↑φ - ↑m₃|
     _ = 2 * R * (↑φ - ↑m₃) := by
       rw [abs_of_nonneg]
-      congr
-      rw [max_eq_left_iff]
-      exact Rpos.le
+      · congr
+        rw [max_eq_left_iff]
+        exact Rpos.le
       simp only [sub_nonneg, Int.cast_le]
       rwa [m₃def, Int.ceil_le]
     _ = 2 * R * (φ - f) + 2 * R * (f - m₃) := by ring
@@ -450,9 +453,9 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
             simp
           rw [dist_eq_norm, ← div_le_iff₀ (dist_pos.mpr hxy), Ldef, NNReal.coe_mk]
           apply le_ciSup_of_le _ x
-          apply le_ciSup_of_le _ y
-          apply le_ciSup_of_le _ hxy
-          rfl
+          on_goal 1 => apply le_ciSup_of_le _ y
+          on_goal 1 => apply le_ciSup_of_le _ hxy
+          · rfl
           · use K
             rw [upperBounds]
             simp only [ne_eq, Set.mem_range, exists_prop, and_imp,
@@ -499,8 +502,8 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           linarith [pi_le_four]
         · unfold iLipNorm
           gcongr
-          apply le_of_eq Bdef
-          apply le_of_eq Ldef
+          · apply le_of_eq Bdef
+          · apply le_of_eq Ldef
         · rw [← Real.rpow_neg_one]
           apply Real.rpow_le_rpow_of_exponent_le _ (by norm_num)
           simp only [Int.cast_abs, Int.cast_sub, le_add_iff_nonneg_right]
@@ -562,7 +565,9 @@ instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
    Note: we can simplify the proof in the blueprint by using real interpolation
    `MeasureTheory.exists_hasStrongType_real_interpolation`.
 -/
-lemma Hilbert_strong_2_2 : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) := sorry
+lemma Hilbert_strong_2_2 :
+    ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) :=
+  sorry
 
 
 local notation "T" => carlesonOperatorReal K
@@ -592,7 +597,8 @@ lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, T f x ≤
     ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
-  have conj_exponents : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
+  have conj_exponents : Real.IsConjExponent 2 2 := by
+    rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, carlesonOperator K f x :=
       lintegral_mono (carlesonOperatorReal_le_carlesonOperator _)

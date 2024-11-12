@@ -31,6 +31,11 @@ Some results found here:
   This lemma proves the recursive equation in the blueprint.
 -/
 
+-- This file is polished while upstreaming to mathlib and has an open PR already:
+-- no reason to also do the same polish here.
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+
 lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
     (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by
   constructor

@@ -49,18 +49,17 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
     rcases hfs with ⟨x, hx⟩
     use (max x (sSup ∅))
     intro y hy
-    simp at hy
+    simp only [Set.mem_range] at hy
     rcases hy with ⟨z, hz⟩
     rw [iSup] at hz
     by_cases h : z ∈ s
     · have : (@Set.range α (z ∈ s) fun _ ↦ f z) = {f z} := by
         rw [Set.eq_singleton_iff_unique_mem]
-        exact ⟨Set.mem_range_self h, fun x hx => hx.2.symm⟩
-      rw [this] at hz
-      have : sSup {f z} = f z := csSup_singleton _
-      rw [this] at hz
-      simp at hx
-      have : f z ≤ x := hx z h
+        exact ⟨Set.mem_range_self h, fun x hx ↦ hx.2.symm⟩
+      rw [this, csSup_singleton _] at hz
+      have : f z ≤ x := by
+        simp only [Set.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hx
+        exact hx z h
       rw [hz] at this
       exact le_max_of_le_left this
     have : (@Set.range α (z ∈ s) fun _ ↦ f z) = ∅ := by simpa

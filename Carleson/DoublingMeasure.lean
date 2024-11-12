@@ -170,11 +170,11 @@ lemma measure_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
   have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := coe_ne_top
   rw [← ENNReal.ofReal_toReal hbr,← ENNReal.ofReal_toReal hbr',
     ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul] at hz
-  simp only [coe_toReal] at hz
-  rw [← ENNReal.ofReal_le_ofReal_iff]
-  · exact hz
-  positivity
-  simp only [coe_toReal, zero_le_coe]
+  · simp only [coe_toReal] at hz
+    rw [← ENNReal.ofReal_le_ofReal_iff]
+    · exact hz
+    positivity
+  · simp only [coe_toReal, zero_le_coe]
 
 lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     (h : dist x x' + r' ≤ s * r) :

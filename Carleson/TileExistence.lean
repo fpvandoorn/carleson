@@ -289,8 +289,8 @@ instance {k : ℤ}: LinearOrder (Yk X k) := (Yk_encodable X k).linearOrder
 instance {k : ℤ}: WellFoundedLT (Yk X k) where
   wf := by
     apply (@OrderEmbedding.wellFounded (Yk X k) ℕ)
-    use ⟨(Yk_encodable X k).encode,(Yk_encodable X k).encode_injective⟩
-    · simp only [Embedding.coeFn_mk, Subtype.forall]
+    · use ⟨(Yk_encodable X k).encode,(Yk_encodable X k).encode_injective⟩
+      simp only [Embedding.coeFn_mk, Subtype.forall]
       exact fun i hi j hj ↦ by rfl
     exact wellFounded_lt
 
@@ -922,14 +922,14 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
         exact hx_4k2
       _ < 6 * D^k1 + 4 * D^k1 + 4 * D^k2 := by
         rw [ENNReal.add_lt_add_iff_right]
-        apply ENNReal.add_lt_add hx' hx_4k2'
-        exact ENNReal.mul_ne_top (by finiteness) (hdp_finit k2)
+        · apply ENNReal.add_lt_add hx' hx_4k2'
+        · exact ENNReal.mul_ne_top (by finiteness) (hdp_finit k2)
       _ ≤ 2 * D^k2 + 4 * D^k2 := by
         rw [← right_distrib 6 4 (D^k1:ℝ≥0∞)]
         have hz : (6 + 4 : ℝ≥0∞) = 2 * 5 := by norm_num
         rw [hz, ENNReal.add_le_add_iff_right, mul_assoc]
-        apply mul_le_mul_of_nonneg_left _ (by norm_num)
-        · calc
+        · apply mul_le_mul_of_nonneg_left _ (by norm_num)
+          calc
             (5 * D ^ k1:ℝ≥0∞)
               ≤ D * D^k1 := by
                 gcongr
@@ -1079,9 +1079,9 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
       constructor
       · apply And.right
         apply transitive_boundary hk_mK (le_s hk_mK k') hk k'.property.left.le k'.property.right z y' y
-        simp only [mem_inter_iff]
-        exact And.intro (And.intro hx hy') this
-        exact hz
+        · simp only [mem_inter_iff]
+          exact And.intro (And.intro hx hy') this
+        · exact hz
       exact hy'
     _ = ∑ (k':Ioc (k-K') k), ∑'(z:Yk X k'),
         volume (⋃ (_ : clProp((le_s hk_mK k'),z|hk,y)), I3 (le_s hk_mK k') z) := by
@@ -1557,11 +1557,11 @@ lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set
           -- add_lt_add_of_le_of_lt hxb' hxy'
         _ ≤ D^(k-const_n a ht * K') + 4 * D^(k-const_n a ht * K') := by
           rw [ENNReal.add_le_add_iff_right]
-          have := const_n_prop_2 X ht k
-          simp only at this
-          nth_rw 1 [NNReal.val_eq_coe] at this
-          simp_rw [← Real.rpow_intCast] at this
-          · rw [← ENNReal.ofReal_le_ofReal_iff (Real.rpow_nonneg (realD_nonneg) _),
+          · have := const_n_prop_2 X ht k
+            simp only at this
+            nth_rw 1 [NNReal.val_eq_coe] at this
+            simp_rw [← Real.rpow_intCast] at this
+            rw [← ENNReal.ofReal_le_ofReal_iff (Real.rpow_nonneg (realD_nonneg) _),
               ENNReal.ofReal_mul (by exact ht.left.le), ENNReal.ofReal_coe_nnreal,
               ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),
               ENNReal.ofReal_natCast, ENNReal.rpow_intCast, ENNReal.rpow_intCast] at this
