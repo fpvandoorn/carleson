@@ -369,7 +369,7 @@ theorem _root_.Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace 
 
 protected theorem AEStronglyMeasurable.maximalFunction [BorelSpace X] {p : ℝ}
     {u : X → E} (h𝓑 : 𝓑.Countable) : AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ :=
-  (aemeasurable_biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
+  (AEMeasurable.biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
     aemeasurable_const |>.aestronglyMeasurable
 
 protected theorem HasWeakType.MB_one' [BorelSpace X] (h𝓑 : 𝓑.Countable)
