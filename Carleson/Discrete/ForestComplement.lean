@@ -87,7 +87,7 @@ lemma exists_E₂_volume_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) : ∃ r
 lemma dens'_pos_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) (hp : p ∈ TilesAt k) : 0 < dens' k {p} := by
   simp_rw [dens', mem_singleton_iff, iSup_iSup_eq_left, lt_iSup_iff]
   obtain ⟨l, hl⟩ := exists_E₂_volume_pos_of_mem_𝔓pos h
-  use max 2 l, le_max_left _ _, p, hp, le_rfl
+  use max 2 l, le_max_left .., p, hp, le_rfl
   simp_rw [ENNReal.div_pos_iff, ne_eq, mul_eq_zero, not_or, ← ne_eq, ← pos_iff_ne_zero]
   refine ⟨⟨ENNReal.zpow_pos (by simp) (by simp) _, ?_⟩, volume_coeGrid_lt_top.ne⟩
   refine hl.trans_le <| measure_mono <| inter_subset_inter_right _ <| preimage_mono ?_

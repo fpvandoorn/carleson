@@ -117,19 +117,19 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       congr
       · simp
       rw [← intervalIntegral.integral_sub]
-      · exact integrand_continuous.intervalIntegrable _ _
-      · exact integrand_continuous2.intervalIntegrable _ _
+      · exact integrand_continuous.intervalIntegrable ..
+      · exact integrand_continuous2.intervalIntegrable ..
     _ = 1 / 2 * ‖  (∫ (x : ℝ) in a..(a + π / n), (I * n * x).exp * ϕ x)
                  + (∫ (x : ℝ) in (a + π / n)..b, (I * n * x).exp * ϕ x)
                  -((∫ (x : ℝ) in a..(b - π / n), (I * n * (x + π / n)).exp * ϕ x)
                  + (∫ (x : ℝ) in (b - π / n)..b, (I * n * (x + π / n)).exp * ϕ x))‖ := by
       congr 3
       on_goal 1 => rw [intervalIntegral.integral_add_adjacent_intervals]
-      · exact integrand_continuous.intervalIntegrable _ _
-      · exact integrand_continuous.intervalIntegrable _ _
+      · exact integrand_continuous.intervalIntegrable ..
+      · exact integrand_continuous.intervalIntegrable ..
       rw [intervalIntegral.integral_add_adjacent_intervals]
-      · exact integrand_continuous2.intervalIntegrable _ _
-      · exact integrand_continuous2.intervalIntegrable _ _
+      · exact integrand_continuous2.intervalIntegrable ..
+      · exact integrand_continuous2.intervalIntegrable ..
     _ = 1 / 2 * ‖  (∫ (x : ℝ) in a..(a + π / n), (I * n * x).exp * ϕ x)
                  + (∫ (x : ℝ) in (a + π / n)..b, (I * n * x).exp * ϕ x)
                  -((∫ (x : ℝ) in (a + π / n)..(b - π / n + π / n), (I * n * x).exp * ϕ (x - π / n))
@@ -152,18 +152,18 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       · congr
         ext x
         ring
-      · exact integrand_continuous.intervalIntegrable _ _
-      · exact integrand_continuous3.intervalIntegrable _ _
+      · exact integrand_continuous.intervalIntegrable ..
+      · exact integrand_continuous3.intervalIntegrable ..
     _ ≤ 1 / 2 * (  ‖(∫ (x : ℝ) in a..(a + π / n), (I * n * x).exp * ϕ x)
                  +  (∫ (x : ℝ) in (a + π / n)..b, (I * n * x).exp * (ϕ x - ϕ (x - π / n)))‖
                  + ‖∫ (x : ℝ) in (b - π / n)..b, (I * n * (x + π / n)).exp * ϕ x‖) := by
       gcongr
-      exact norm_sub_le _ _
+      exact norm_sub_le ..
     _ ≤ 1 / 2 * (  ‖(∫ (x : ℝ) in a..(a + π / n), (I * n * x).exp * ϕ x)‖
                  + ‖(∫ (x : ℝ) in (a + π / n)..b, (I * n * x).exp * (ϕ x - ϕ (x - π / n)))‖
                  + ‖∫ (x : ℝ) in (b - π / n)..b, (I * n * (x + π / n)).exp * ϕ x‖) := by
       gcongr
-      exact norm_add_le _ _
+      exact norm_add_le ..
     _ = 1 / 2 * (  ‖∫ (x : ℝ) in Set.Ioo a (a + π / n), (I * n * x).exp * ϕ x‖
                  + ‖∫ (x : ℝ) in Set.Ioo (a + π / n) b, (I * n * x).exp * (ϕ x - ϕ (x - π / n))‖
                  + ‖∫ (x : ℝ) in Set.Ioo (b - π / n) b, (I * n * (x + π / n)).exp * ϕ x‖) := by
@@ -186,7 +186,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         · intro x _
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul, ← dist_eq_norm]
-          apply le_trans (h1.dist_le_mul _ _)
+          apply le_trans (h1.dist_le_mul ..)
           simp only [dist_self_sub_right, norm_div, Real.norm_eq_abs]
           rw [_root_.abs_of_nonneg Real.pi_pos.le, _root_.abs_of_nonneg (by simp; linarith [n_pos])]
           apply le_of_eq
