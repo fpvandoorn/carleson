@@ -15,6 +15,10 @@ open scoped NNReal ENNReal ComplexConjugate
 def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
   ⟨max 0 (1 - dist x y / (t * R)), by positivity⟩
 
+lemma cutoff_symm {R t : ℝ} {x y : X} : cutoff R t x y = cutoff R t y x := by
+  unfold cutoff
+  simp_rw [dist_comm x y]
+
 section new
 
 variable {R t : ℝ} {x y : X}
@@ -222,7 +226,6 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
             _ = 2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) := by
               sorry
 -/
-#exit
 end new
 
 /-- The constant occurring in Lemma 8.0.1. -/
@@ -233,7 +236,7 @@ def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
   (∫ y, cutoff R t x y * ϕ y) / (∫⁻ y, cutoff R t x y).toReal
 
 /-- Part of Lemma 8.0.1. -/
-lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) {C : ℝ≥0}
+lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
     support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
@@ -241,16 +244,25 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) 
   intro x hx
   rw [mem_setOf] at hx
   have hx'' := left_ne_zero_of_mul hx
-  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := sorry -- use hx'', somehow
+  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := by
+    sorry -- use hx''; standard lemma
   choose y hy using this
-  have : y ∈ ball z R := hϕ (right_ne_zero_of_mul hy)
+  have h₁ : y ∈ ball z R := hϕ (right_ne_zero_of_mul hy)
   have : x ∈ ball y (t * R) := by
-    have hy'' : (cutoff R t x y) ≠ 0 := sorry -- have hy'' := (left_ne_zero_of_mul hy)
-    have hy''' : (cutoff R t y x) ≠ 0 := sorry -- easy, dist is commutative
+    -- golfing of this `have` welcome
+    have hy'' : (cutoff R t x y) ≠ 0 :=
+      NNReal.coe_ne_zero.mp fun a ↦ (left_ne_zero_of_mul hy) (congrArg ofReal a)
+    have hy''' : (cutoff R t y x) ≠ 0 := by rw [cutoff_symm]; exact hy''
     exact aux_8_0_4 hR ht.1 hy'''
-    -- XXX: why the extra factor t * R?
-  -- then triangle inequality and done
-  sorry
+  have h₂ : x ∈ ball y R := by
+    refine Set.mem_of_mem_of_subset this (ball_subset_ball ?_)
+    nth_rw 2 [← one_mul R]
+    gcongr
+    exact ht.2
+  calc dist x z
+    _ ≤ dist x y + dist y z := dist_triangle x y z
+    _ < R + R := add_lt_add h₂ h₁
+    _ = 2 * R := by ring
 
 /-- Part of Lemma 8.0.1. -/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
