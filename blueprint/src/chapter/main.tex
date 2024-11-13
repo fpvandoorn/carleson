@@ -3650,17 +3650,54 @@ and for $y'\neq y$ additionally with \eqref{eq-Ks-smooth}
 Adding the estimates \eqref{suppart} and \eqref{holderpart} gives \eqref{eqt11}.
 This proves the lemma.
 \end{proof}
+
+The following auxilliary statement about the support of $T_\fp^*g$ will be used repeatedly.
+
+\begin{lemma}[tile range support]\label{tile-range-support}
+    \leanok
+    \lean{Tile.range_support}
+        For each $\fp\in \fP$, and each $y\in X$, we have that
+    \begin{equation}\label{tstargnot0}
+         T_{\fp}^* g(y)\neq 0
+    \end{equation}
+       implies
+    \begin{equation}\label{ynotfar}
+        y\in B(\pc(\fp),5D^{\ps(\fp)})\, .
+    \end{equation}
+    \end{lemma}
+    \begin{proof}
+    Fix $\fp$ and $y$ with \eqref{tstargnot0}.
+    Then there exists $x\in E(\fp)$ with
+    \begin{equation}
+       \overline{K_{\ps(\fp)}(x,y)}e(-\tQ(x)(y)
+        +\tQ(x)(x))g(x) \neq 0\, .
+    \end{equation}
+    As $E(\fp)\subset \scI(\fp)$ and by the squeezing property
+    \eqref{eq-vol-sp-cube}, we have
+    \begin{equation}
+        \rho(x,\pc(\fp))\le 4D^{\ps(\fp)}\, .
+    \end{equation}
+    As $K_{\ps(\fp)}(x,y)\neq 0$, we have by \eqref{supp-Ks}
+    that
+    \begin{equation}
+    \rho(x,y)\le \frac 12 D^{\ps(\fp)}\, .
+    \end{equation}
+    Now \eqref{ynotfar} follows by the triangle inequality.
+\end{proof}
+
+
 The next lemma is a geometric estimate for two tiles.
 \begin{lemma}\label{tile-uncertainty}
 \leanok
 \lean{Tile.uncertainty}
-\uses{monotone-cube-metrics}
+\uses{monotone-cube-metrics,tile-range-support}
     Let $\fp_1, \fp_2\in \fP$ with
+    $B(\pc(\fp_1),5D^{\ps(\fp_1)}) \cap B(\pc(\fp_2),5D^{\ps(\fp_2)}) \ne \emptyset$ and
 $\ps({\fp_1})\leq \ps({\fp_2})$. For each $x_1\in E(\fp_1)$ and
 $x_2\in E(\fp_2)$ we have
 \begin{equation}\label{tgeo}
   1+d_{\fp_1}(\fcc(\fp_1), \fcc(\fp_2))\le
-    2^{3a}(1 + d_{B(x_1, D^{\ps(\fp_1)})}(\tQ(x_1),\tQ(x_2)))\, .
+    2^{8a}(1 + d_{B(x_1, D^{\ps(\fp_1)})}(\tQ(x_1),\tQ(x_2)))\, .
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -3671,14 +3708,15 @@ With \eqref{eq-freq-comp-ball} we then conclude
 \begin{equation}\label{dponetwo}
     d_{\fp_i}(\tQ(x_i),\fcc(\fp_i))\le 1\, .
 \end{equation}
-We have $\scI(\fp_1)\subset \scI(\fp_2)$ by \eqref{dyadicproperty}. Using \Cref{monotone-cube-metrics} it follows that
+We have by the triangle inequality and \eqref{eq-vol-sp-cube} that $\sc(\fp_1) \subset B(\pc(\fp_2),15D^{\ps(\fp_2)})$.
+Thus, using again \eqref{eq-vol-sp-cube} and the doubling property \eqref{firstdb}
 \begin{equation}\label{tgeo0.5}
-    d_{\fp_1}(\tQ(x_2), \fcc(\fp_2)) \le 1\,.
+    d_{\fp_1}(\tQ(x_2), \fcc(\fp_2)) \le 2^{6a} d_{\fp_2}(\tQ(x_2), \fcc(\fp_2)) \le 2^{6a}\,.
 \end{equation}
 By the triangle inequality, we obtain from \eqref{dponetwo} and
 \eqref{tgeo0.5}
 \begin{equation}\label{tgeo1}
-     1+d_{\fp_1}(\fcc(\fp_1), \fcc(\fp_2))\le 3 +d_{\fp_1}(\tQ(x_1), \tQ(x_2))\, .
+     1+d_{\fp_1}(\fcc(\fp_1), \fcc(\fp_2))\le 2 + 2^{6a} +d_{\fp_1}(\tQ(x_1), \tQ(x_2))\, .
 \end{equation}
 As $x_1\in \scI(\fp_1)$ by Definition \eqref{defineep} of $E$, we have by the squeezing property \eqref{eq-vol-sp-cube}
 \begin{equation}
@@ -3690,11 +3728,11 @@ and thus by \eqref{eq-vol-sp-cube} again and the triangle inequality
 \end{equation}
 We thus estimate the right-hand side of \eqref{tgeo1} with monotonicity \eqref{monotonedb} of the metrics $d_B$ by
 \begin{equation}\label{tgeo1.5}
-    \le 3+d_{B(x_1,8D^{\ps(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
+    \le 2 + 2^{6a} + d_{B(x_1,8D^{\ps(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
 \end{equation}
 This is further estimated by applying the doubling property \eqref{firstdb} three times by
 \begin{equation}\label{tgeo2}
-    \le 3+2^{3a}d_{B_1(x_1, D^{\ps(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
+    \le 2 + 2^{6a} +2^{3a}d_{B_1(x_1, D^{\ps(\fp_1)})}(\tQ(x_1), \tQ(x_2))\, .
 \end{equation}
 Now \eqref{tgeo} follows with $a\ge 1$.
 \end{proof}
@@ -3702,41 +3740,18 @@ Now \eqref{tgeo} follows with $a\ge 1$.
 
 
 
-\begin{lemma}[tile range support]\label{tile-range-support}
-\leanok
-\lean{Tile.range_support}
-    For each $\fp\in \fP$, and each $y\in X$, we have that
-\begin{equation}\label{tstargnot0}
-     T_{\fp}^* g(y)\neq 0
-\end{equation}
-   implies
-\begin{equation}\label{ynotfar}
-    y\in B(\pc(\fp),5D^{\ps(\fp)})\, .
-\end{equation}
-\end{lemma}
-\begin{proof}
-Fix $\fp$ and $y$ with \eqref{tstargnot0}.
-Then there exists $x\in E(\fp)$ with
-\begin{equation}
-   \overline{K_{\ps(\fp)}(x,y)}e(-\tQ(x)(y)
-    +\tQ(x)(x))g(x) \neq 0\, .
-\end{equation}
-As $E(\fp)\subset \scI(\fp)$ and by the squeezing property
-\eqref{eq-vol-sp-cube}, we have
-\begin{equation}
-    \rho(x,\pc(\fp))\le 4D^{\ps(\fp)}\, .
-\end{equation}
-As $K_{\ps(\fp)}(x,y)\neq 0$, we have by \eqref{supp-Ks}
-that
-\begin{equation}
-\rho(x,y)\le \frac 12 D^{\ps(\fp)}\, .
-\end{equation}
-Now \eqref{ynotfar} follows by the triangle inequality.
-\end{proof}
+
 
 
 We now prove \Cref{tile-correlation}. We begin with \eqref{eq-basic-TT*-est}.
 
+By Lemma \ref{tile-range-support}, the left-hand side of \eqref{eq-basic-TT*-est} vanishes if
+$B(\pc(\fp_1),5D^{\ps(\fp_1)}) \cap B(\pc(\fp_2),5D^{\ps(\fp_2)}) = \emptyset$.
+Thus we can assume for the remainder of the proof that
+\begin{equation}
+        \label{intersec5B}
+        B(\pc(\fp_1),5D^{\ps(\fp_1)}) \cap B(\pc(\fp_2),5D^{\ps(\fp_2)}) \neq \emptyset\,.
+\end{equation}
 We expand the left-hand side of \eqref{eq-basic-TT*-est} as
 \begin{equation}\label{tstartstar}
 \left|\int \int_{E(\fp_1)} \overline{K_{\ps(\fp_1)}(x_1,y)}e(-\tQ(x_1)(y)+
@@ -3777,7 +3792,7 @@ We obtain with $B':= B(x_1, D^{\ps(\fp_1)})$,
  {\mu(B(x_2, D^{\ps(\fp_2)}))}
        (1 + d_{B'}(\tQ(x_1),\tQ(x_2)))^{-1/(2a^2+a^3)}\,.
 \end{equation}
-Using \Cref{tile-uncertainty} and $a\ge 1$ estimates \eqref{eqa1.5} by
+Using \eqref{intersec5B}, \Cref{tile-uncertainty} and $a\ge 1$ estimates \eqref{eqa1.5} by
 \begin{equation}\label{eqa2}
  \le \frac{2^{254a^3 + 8a + 1}}
  {\mu(B(x_2, D^{\ps(\fp_2)}))}
