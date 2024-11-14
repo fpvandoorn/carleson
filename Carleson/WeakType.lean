@@ -117,8 +117,8 @@ lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E)
     gcongr
   calc
     μ {x | ENNReal.ofReal A * (t + s) < ‖f x‖₊}
-      ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := by apply measure_mono_ae' h₁
-    _ ≤ μ {x | t < ↑‖g₁ x‖₊} + μ {x | s < ↑‖g₂ x‖₊} := by apply measure_union_le
+      ≤ μ ({x | t < ↑‖g₁ x‖₊} ∪ {x | s < ↑‖g₂ x‖₊}) := measure_mono_ae' h₁
+    _ ≤ μ {x | t < ↑‖g₁ x‖₊} + μ {x | s < ↑‖g₂ x‖₊} := measure_union_le _ _
 
 lemma distribution_add_le :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
@@ -140,7 +140,7 @@ lemma approx_above_superset (t₀ : ℝ≥0∞) :
       _  < ↑‖f y‖₊     := wn
   · have h₁ : Iio (↑‖f y‖₊ - t₀) ∈ 𝓝 0 := Iio_mem_nhds (tsub_pos_of_lt h)
     have h₂ := ENNReal.tendsto_inv_nat_nhds_zero h₁
-    simp at h₂
+    simp only [mem_map, mem_atTop_sets, mem_preimage, mem_Iio] at h₂
     rcases h₂ with ⟨n, wn⟩
     simp only [mem_iUnion, mem_setOf_eq]
     use n
@@ -160,7 +160,7 @@ lemma select_neighborhood_distribution (t₀ : ℝ≥0∞) (l : ℝ≥0∞) (hu 
     ∃ n : ℕ, l < distribution f (t₀ + (↑n)⁻¹) μ := by
   have h₁ : Ioi l ∈ (𝓝 (distribution f t₀ μ)) := Ioi_mem_nhds hu
   have h₂ := (tendsto_measure_iUnion_distribution t₀) h₁
-  simp at h₂
+  simp only [mem_map, mem_atTop_sets, mem_preimage, comp_apply, mem_Ioi] at h₂
   rcases h₂ with ⟨n, wn⟩
   use n; exact wn n (Nat.le_refl n)
 
@@ -173,15 +173,13 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
   · unfold ContinuousWithinAt
     rcases (eq_top_or_lt_top (distribution f t₀ μ)) with db_top | db_not_top
     -- Case: distribution f t₀ μ = ⊤
-    · simp
+    · simp only
       rw [db_top, ENNReal.tendsto_nhds_top_iff_nnreal]
       intro b
       have h₀ : ∃ n : ℕ, ↑b < distribution f (t₀ + (↑n)⁻¹) μ :=
         select_neighborhood_distribution _ _ (db_top ▸ coe_lt_top)
       rcases h₀ with ⟨n, wn⟩
-      refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ?_)
-      use Iio (t₀ + (↑n)⁻¹)
-      constructor
+      refine eventually_mem_set.mpr (mem_inf_iff_superset.mpr ⟨Iio (t₀ + (↑n)⁻¹), ?_, ?_⟩)
       · exact Iio_mem_nhds (lt_add_right t₀nottop.ne_top
           (ENNReal.inv_ne_zero.mpr (ENNReal.natCast_ne_top n)))
       · exact ⟨Ioi t₀, by simp, fun z h₁ ↦ wn.trans_le (distribution_mono_right (le_of_lt h₁.1))⟩
@@ -264,9 +262,9 @@ lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
   have h2p : 0 ≤ p := hp.le
   have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
     (Eventually.of_forall fun x ↦ norm_nonneg _) hf.norm hp
-  simp [*, ENNReal.coe_rpow_of_nonneg, ← ENNReal.ofReal_rpow_of_nonneg, ← ofReal_norm_eq_coe_nnnorm,
-    ofReal_mul, ← lintegral_const_mul', ← mul_assoc, mul_comm (μ _), distribution]
-    at this ⊢
+  simp only [norm_nonneg, ← ofReal_rpow_of_nonneg, mul_comm (μ _), ne_eq, ofReal_ne_top,
+    not_false_eq_true, ← lintegral_const_mul', ← mul_assoc, ← ofReal_norm_eq_coe_nnnorm, ofReal_mul,
+    distribution, h2p] at this ⊢
   convert this using 1
   refine setLIntegral_congr_fun measurableSet_Ioi (Eventually.of_forall fun x hx ↦ ?_)
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
@@ -293,7 +291,8 @@ lemma eLpNorm_eq_distribution {p : ℝ} (hp : 0 < p) :
   · unfold eLpNorm'
     rw [toReal_ofReal (le_of_lt hp), one_div]
     congr 1
-    rw [← lintegral_const_mul']; swap; exact coe_ne_top
+    rw [← lintegral_const_mul']
+    on_goal 2 => exact coe_ne_top
     rw [lintegral_norm_pow_eq_distribution hf hp]
     congr 1; ext x; rw [ofReal_mul] <;> [ring; positivity]
 
@@ -377,5 +376,22 @@ lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
 lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
   fun f hf _ _ ↦ h f hf
+
+lemma HasStrongType.const_smul {𝕜 E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → E) → (α' → E')}
+    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c)
+    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
+    HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
+  refine fun f hf ↦
+    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, (eLpNorm_const_smul_le k (T f)).trans ?_⟩
+  simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
+  gcongr
+  exact (h f hf).2
+
+lemma HasStrongType.const_mul {E E' α α' : Type*} [NormedAddCommGroup E] [NormedRing E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → E) → (α' → E')} {p p' : ℝ≥0∞}
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
+    HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
+  h.const_smul e
 
 end MeasureTheory

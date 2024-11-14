@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 import Mathlib.Data.ENat.Lattice
+import Mathlib.Order.Minimal
 import Mathlib.Order.RelSeries
 
 /-!
@@ -29,6 +30,11 @@ Some results found here:
 * The elements of height n are the minimal elements among those of height ≥n.
   This lemma proves the recursive equation in the blueprint.
 -/
+
+-- This file is polished while upstreaming to mathlib and has an open PR already:
+-- no reason to also do the same polish here.
+set_option linter.flexible false
+set_option linter.style.multiGoal false
 
 lemma ENat.iSup_eq_coe_iff' {α : Type*} [Nonempty α] (f : α → ℕ∞) (n : ℕ) :
     (⨆ x, f x = n) ↔ (∃ x, f x = n) ∧ (∀ y, f y ≤ n) := by

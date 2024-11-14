@@ -199,9 +199,8 @@ lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (�
 lemma dist_𝒬_lt_one_of_le' {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 p) (𝒬 q) < 1 :=
   mem_ball'.mp (dist_𝒬_lt_one_of_le h)
 
-lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun p p' h ↦ by
-  refine h.le.1.lt_of_ne <| fun h' ↦ ?_
-  exact disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
+lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun _ _ h ↦ h.le.1.lt_of_ne <|
+  fun h' ↦ disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
@@ -242,7 +241,7 @@ def C5_3_3 (a : ℕ) : ℝ := (1 - C2_1_2 a)⁻¹
 
 include q K σ₁ σ₂ F G in
 lemma C5_3_3_le : C5_3_3 a ≤ 11 / 10 := by
-  rw [C5_3_3, inv_le (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
+  rw [C5_3_3, inv_le_comm₀ (sub_pos.mpr <| C2_1_2_lt_one X) (by norm_num), le_sub_comm]
   exact C2_1_2_le_inv_512 X |>.trans <| by norm_num
 
 variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
@@ -256,7 +255,7 @@ lemma wiggle_order_11_10 {n : ℝ} (hp : p ≤ p') (hn : C5_3_3 a ≤ n) : smul 
   · calc
       _ ≤ smul (1 + C2_1_2 a * n) p := by
         apply smul_mono_left
-        rwa [← le_sub_iff_add_le, ← one_sub_mul, ← inv_pos_le_iff_one_le_mul']
+        rwa [← le_sub_iff_add_le, ← one_sub_mul, ← inv_le_iff_one_le_mul₀']
         linarith [C2_1_2_le_inv_512 (X := X)]
       _ ≤ smul n p' := smul_C2_1_2 (k := 5⁻¹) n (by norm_num) h
         (smul_le_toTileLike.trans <| 𝔓.le_def.mp hp |>.trans toTileLike_le_smul)

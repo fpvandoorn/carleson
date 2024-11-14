@@ -28,7 +28,7 @@ lemma annulus_real_eq {x r R: ℝ} (r_nonneg : 0 ≤ r) : {y | dist x y ∈ Set.
 lemma annulus_real_volume {x r R : ℝ} (hr : r ∈ Set.Icc 0 R) :
     volume {y | dist x y ∈ Set.Ioo r R} = ENNReal.ofReal (2 * (R - r)) := by
   rw [annulus_real_eq hr.1, measure_union _ measurableSet_Ioo, Real.volume_Ioo, Real.volume_Ioo, ← ENNReal.ofReal_add (by linarith [hr.2]) (by linarith [hr.2])]
-  ring_nf
+  · ring_nf
   rw [Set.disjoint_iff]
   intro y hy
   linarith [hy.1.2, hy.2.1, hr.1]
@@ -62,7 +62,7 @@ local notation "T" => carlesonOperatorReal K
 
 lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurable f) {B : ℝ} (f_bounded : ∀ x, ‖f x‖ ≤ B) : Measurable (T f) := by
   --TODO: clean up proof
-  apply measurable_iSup
+  apply Measurable.iSup
   intro n
   set F : ℝ → ℝ → ℝ → ℂ := fun x r y ↦ {y | dist x y ∈ Set.Ioo r 1}.indicator (fun t ↦ f t * K x t * (Complex.I * ↑n * ↑t).exp) y with Fdef
   set G : ℝ → ℝ → ENNReal := fun x r ↦ ↑‖∫ (y : ℝ), F x r y‖₊ with Gdef
@@ -152,9 +152,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         simp only [Set.mem_Ioo]
         by_cases h : dist x y < 1
         · rw [Set.indicator_apply, ite_cond_eq_true, Set.indicator_apply, ite_cond_eq_true]
-          · simp
+          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
             use ht
-          · simp
+          · simp only [Set.mem_setOf_eq, eq_iff_iff, iff_true]
             use hs
         · push_neg at h
           rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
@@ -168,17 +168,17 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
         simp only [Set.restrict_apply, Subtype.forall]
         intro s hs t ht
         rw [Fdef]
-        simp
+        simp only [Set.mem_Ioo]
         rw [Set.indicator_apply, ite_cond_eq_false, Set.indicator_apply, ite_cond_eq_false]
         · rw [Set.mem_Ioi, min_lt_iff] at ht
-          simp
+          simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
           intro h
           rcases ht with h' | h'
           · exfalso
             exact (lt_self_iff_false _).mp (h'.trans h)
           · exact (h'.trans h).le
         · rw [Set.mem_Ioi, min_lt_iff] at hs
-          simp
+          simp only [Set.mem_setOf_eq, eq_iff_iff, iff_false, not_and, not_lt]
           intro h
           rcases hs with h' | h'
           · exfalso
@@ -198,7 +198,8 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
           rw [Set.mem_setOf_eq, not_not]
           exact contOn y r hy.symm
         rw [Real.dist_eq, abs_eq hr.1.le] at this
-        simp
+        simp only [Finset.coe_insert, Finset.coe_singleton, Set.mem_insert_iff,
+          Set.mem_singleton_iff]
         rcases this with h | h
         · left; linarith
         · right; linarith
@@ -207,7 +208,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
     · exact Filter.Eventually.of_forall fun r ↦ ((Measurable.of_uncurry_left
         (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [this]
-  apply measurable_biSup _
+  apply Measurable.biSup _
   · apply Set.Countable.mono Set.inter_subset_right hQ.2
   intro r _
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)

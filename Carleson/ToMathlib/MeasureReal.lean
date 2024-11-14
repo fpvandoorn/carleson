@@ -1,4 +1,5 @@
-import Carleson.ToMathlib.Finiteness
+import Mathlib.MeasureTheory.Measure.Prod
+import Mathlib.Tactic.Finiteness
 
 /-!
 # Measures as real valued-functions
@@ -89,9 +90,8 @@ theorem measure_ne_top_of_subset (h : s ⊆ t) (ht : μ t ≠ ∞) : μ s ≠ �
 
 theorem measure_diff_eq_top (hs : μ s = ∞) (ht : μ t ≠ ∞) : μ (s \ t) = ∞ := by
   contrapose! hs
-  apply ((measure_mono (subset_diff_union s t)).trans_lt _).ne
-  apply (measure_union_le _ _).trans_lt
-  exact ENNReal.add_lt_top.2 ⟨hs.lt_top, ht.lt_top⟩
+  exact ((measure_mono (subset_diff_union s t)).trans_lt
+    ((measure_union_le _ _).trans_lt (ENNReal.add_lt_top.2 ⟨hs.lt_top, ht.lt_top⟩))).ne
 
 theorem measure_symmDiff_eq_top (hs : μ s ≠ ∞) (ht : μ t = ∞) : μ (s ∆ t) = ∞ :=
   measure_mono_top subset_union_right (measure_diff_eq_top ht hs)
@@ -101,31 +101,26 @@ end move_to_MeasureSpace.lean
 theorem measureReal_eq_zero_iff (h : μ s ≠ ∞ := by finiteness) :
     μ.real s = 0 ↔ μ s = 0 := by
   rw [Measure.real, ENNReal.toReal_eq_zero_iff]
-  simp [h]
+  exact or_iff_left h
 
-@[simp] theorem measureReal_zero (s : Set α) : (0 : Measure α).real s = 0 := by
-  simp [measureReal_def]
+@[simp] theorem measureReal_zero (s : Set α) : (0 : Measure α).real s = 0 := rfl
 
 @[simp] theorem measureReal_nonneg : 0 ≤ μ.real s := ENNReal.toReal_nonneg
 
-@[simp] theorem measureReal_empty : μ.real ∅ = 0 :=
-  by simp [Measure.real]
+@[simp] theorem measureReal_empty : μ.real ∅ = 0 := by simp [Measure.real]
 
 @[simp] theorem IsProbabilityMeasure.measureReal_univ [IsProbabilityMeasure μ] :
     μ.real Set.univ = 1 := by
   simp [Measure.real]
 
-theorem measureReal_univ_pos [IsFiniteMeasure μ] [NeZero μ] : 0 < μ.real Set.univ := by
-  rw [measureReal_def]
-  apply ENNReal.toReal_pos
-  exact NeZero.ne (μ Set.univ)
-  finiteness
+theorem measureReal_univ_pos [IsFiniteMeasure μ] [NeZero μ] : 0 < μ.real Set.univ :=
+  ENNReal.toReal_pos (NeZero.ne (μ Set.univ)) (measure_ne_top μ univ)
 
 theorem measureReal_univ_ne_zero [IsFiniteMeasure μ] [NeZero μ] : μ.real Set.univ ≠ 0 :=
   measureReal_univ_pos.ne'
 
 theorem nonempty_of_measureReal_ne_zero (h : μ.real s ≠ 0) : s.Nonempty :=
-  nonempty_iff_ne_empty.2 fun h' => h <| h'.symm ▸ measureReal_empty
+  nonempty_iff_ne_empty.2 fun h' ↦ h <| h'.symm ▸ measureReal_empty
 
 @[simp] theorem measureReal_smul_apply (c : ℝ≥0∞) : (c • μ).real s = c.toReal • μ.real s := by
   rw [measureReal_def, smul_apply, smul_eq_mul, ENNReal.toReal_mul]
@@ -186,18 +181,16 @@ theorem measureReal_iUnion_fintype [Fintype β] {f : β → Set α} (hn : Pairwi
   rfl
 
 theorem measureReal_union_null (h₁ : μ.real s₁ = 0) (h₂ : μ.real s₂ = 0) :
-    μ.real (s₁ ∪ s₂) = 0 := by
-  apply le_antisymm _ measureReal_nonneg
-  exact (measureReal_union_le s₁ s₂).trans (by simp [h₁, h₂])
+    μ.real (s₁ ∪ s₂) = 0 :=
+  le_antisymm ((measureReal_union_le s₁ s₂).trans (by simp [h₁, h₂])) measureReal_nonneg
 
 @[simp]
 theorem measureReal_union_null_iff
     (h₁ : μ s₁ ≠ ∞ := by finiteness) (h₂ : μ s₂ ≠ ∞ := by finiteness) :
-    μ.real (s₁ ∪ s₂) = 0 ↔ μ.real s₁ = 0 ∧ μ.real s₂ = 0 := by
-  have : μ (s₁ ∪ s₂) ≠ ∞ := measure_union_ne_top h₁ h₂
-  refine ⟨fun h => ⟨?_, ?_⟩, fun h => measureReal_union_null h.1 h.2⟩
-  · exact measureReal_mono_null subset_union_left h this
-  · exact measureReal_mono_null subset_union_right h this
+    μ.real (s₁ ∪ s₂) = 0 ↔ μ.real s₁ = 0 ∧ μ.real s₂ = 0 :=
+  ⟨fun h ↦ ⟨measureReal_mono_null subset_union_left h (measure_union_ne_top h₁ h₂),
+      measureReal_mono_null subset_union_right h (measure_union_ne_top h₁ h₂)⟩,
+        fun h ↦ measureReal_union_null h.1 h.2⟩
 
 /-- If two sets are equal modulo a set of measure zero, then `μ.real s = μ.real t`. -/
 theorem measureReal_congr (H : s =ᵐ[μ] t) : μ.real s = μ.real t := by
@@ -286,12 +279,11 @@ lemma measureReal_symmDiff_le (s t u : Set α)
     (h₁ : μ s ≠ ∞ := by finiteness) (h₂ : μ t ≠ ∞ := by finiteness) :
     μ.real (s ∆ u) ≤ μ.real (s ∆ t) + μ.real (t ∆ u) := by
   rcases eq_top_or_lt_top (μ u) with hu|hu
-  · have : μ (s ∆ u) = ∞ := measure_symmDiff_eq_top h₁ hu
-    simp only [measureReal_def, this, ENNReal.top_toReal]
+  · simp only [measureReal_def, measure_symmDiff_eq_top h₁ hu, ENNReal.top_toReal]
     exact add_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
-  · apply le_trans _ (measureReal_union_le (s ∆ t) (t ∆ u))
-    apply measureReal_mono (symmDiff_triangle s t u) ?_
-    exact measure_union_ne_top (measure_symmDiff_ne_top h₁ h₂) (measure_symmDiff_ne_top h₂ hu.ne)
+  · exact le_trans (measureReal_mono (symmDiff_triangle s t u) (measure_union_ne_top
+      (measure_symmDiff_ne_top h₁ h₂) (measure_symmDiff_ne_top h₂ hu.ne)))
+        (measureReal_union_le (s ∆ t) (t ∆ u))
 
 theorem measureReal_add_measureReal_compl [IsFiniteMeasure μ] (h : MeasurableSet s) :
     μ.real s + μ.real sᶜ = μ.real univ :=
@@ -326,8 +318,7 @@ theorem measureReal_diff_null' (h : μ.real (s₁ ∩ s₂) = 0) (h' : μ s₁ �
     μ.real (s₁ \ s₂) = μ.real s₁ := by
   simp only [measureReal_def]
   rw [measure_diff_null']
-  apply (measureReal_eq_zero_iff _).1 h
-  exact measure_ne_top_of_subset inter_subset_left h'
+  exact (measureReal_eq_zero_iff (measure_ne_top_of_subset inter_subset_left h')).1 h
 
 theorem measureReal_diff_null (h : μ.real s₂ = 0) (h' : μ s₂ ≠ ∞ := by finiteness) :
     μ.real (s₁ \ s₂) = μ.real s₁ := by
@@ -404,7 +395,7 @@ theorem measureReal_union_congr_of_subset {t₁ t₂ : Set α} (hs : s₁ ⊆ s�
     (hsμ : μ.real s₂ ≤ μ.real s₁) (ht : t₁ ⊆ t₂) (htμ : μ.real t₂ ≤ μ.real t₁)
     (h₁ : μ s₂ ≠ ∞ := by finiteness) (h₂ : μ t₂ ≠ ∞ := by finiteness) :
     μ.real (s₁ ∪ t₁) = μ.real (s₂ ∪ t₂) := by
-  simp [measureReal_def]
+  simp only [measureReal_def]
   rw [measure_union_congr_of_subset hs _ ht]
   · exact (ENNReal.toReal_le_toReal h₂ (measure_ne_top_of_subset ht h₂)).1 htμ
   · exact (ENNReal.toReal_le_toReal h₁ (measure_ne_top_of_subset hs h₁)).1 hsμ
@@ -430,7 +421,7 @@ theorem exists_nonempty_inter_of_measureReal_univ_lt_sum_measureReal
   · convert H
     rw [ENNReal.toReal_sum (fun i hi ↦ measure_ne_top _ _)]
     rfl
-  · exact (ENNReal.sum_lt_top.mpr (fun i hi ↦ measure_lt_top _ _)).ne
+  · exact (ENNReal.sum_lt_top.mpr (fun i hi ↦ measure_lt_top ..)).ne
 
 /-- If two sets `s` and `t` are included in a set `u` of finite measure,
 and `μ.real s + μ.real t > μ.real u`, then `s` intersects `t`.
@@ -439,7 +430,7 @@ theorem nonempty_inter_of_measureReal_lt_add {m : MeasurableSpace α} (μ : Meas
     (ht : MeasurableSet t) (h's : s ⊆ u) (h't : t ⊆ u) (h : μ.real u < μ.real s + μ.real t)
     (hu : μ u ≠ ∞ := by finiteness) :
     (s ∩ t).Nonempty := by
-  apply nonempty_inter_of_measure_lt_add μ ht h's h't
+  apply nonempty_inter_of_measure_lt_add μ ht h's h't ?_
   apply (ENNReal.toReal_lt_toReal hu _).1
   · rw [ENNReal.toReal_add (measure_ne_top_of_subset h's hu) (measure_ne_top_of_subset h't hu)]
     exact h
@@ -460,30 +451,14 @@ theorem measureReal_prod_prod [MeasurableSpace β] {μ : Measure α} {ν : Measu
     (s : Set α) (t : Set β) : (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
--- find this in library?  generalize?
-theorem Measure.ext_iff_singleton {S} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    {μ1 μ2 : Measure S} :
-    μ1 = μ2 ↔ ∀ x, μ1 {x} = μ2 {x} := by
-  classical
-  constructor
-  · rintro rfl
-    simp
-  · intro h
-    ext s
-    have hs : Set.Finite s := Set.toFinite s
-    rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
-    simp_rw [h]
-
 theorem ext_iff_measureReal_singleton {S} [Fintype S] [MeasurableSpace S]
     [MeasurableSingletonClass S]
     {μ1 μ2 : Measure S} [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
     μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
   rw [Measure.ext_iff_singleton]
   congr! with x
-  have h1 : μ1 {x} ≠ ⊤ := by finiteness
-  have h2 : μ2 {x} ≠ ⊤ := by finiteness
   rw [measureReal_def, measureReal_def, ENNReal.toReal_eq_toReal_iff]
-  simp [h1, h2]
+  simp [measure_ne_top]
 
 end MeasureTheory
 

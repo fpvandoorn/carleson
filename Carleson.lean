@@ -1,4 +1,6 @@
-import Carleson.AntichainOperator
+import Carleson.Antichain.AntichainOperator
+import Carleson.Antichain.AntichainTileCount
+import Carleson.Antichain.TileCorrelation
 import Carleson.Classical.Approximation
 import Carleson.Classical.Basic
 import Carleson.Classical.CarlesonOnTheRealLine
@@ -37,8 +39,6 @@ import Carleson.Psi
 import Carleson.RealInterpolation
 import Carleson.TileExistence
 import Carleson.TileStructure
-import Carleson.ToMathlib.Finiteness
-import Carleson.ToMathlib.Finiteness.Attr
 import Carleson.ToMathlib.Height
 import Carleson.ToMathlib.MeasureReal
 import Carleson.ToMathlib.MinLayer

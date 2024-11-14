@@ -31,9 +31,9 @@ variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
 M_{𝓑, p} in the blueprint. -/
 def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ)
-  (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+    (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
   (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
-  fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖₊ ^ p ∂μ) ^ p⁻¹
+    fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖u y‖₊ ^ p ∂μ) ^ p⁻¹
 
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑 with exponent 1.
 M_𝓑 in the blueprint. -/
@@ -47,7 +47,7 @@ lemma maximalFunction_eq_MB
   rw [ENNReal.rpow_one, ← ENNReal.coe_rpow_of_nonneg _ hp, ENNReal.coe_inj,
     Real.nnnorm_rpow_of_nonneg (by simp), nnnorm_norm]
 
--- We will replace the criterion `P` used in `MeasureTheory.SublinearOn.maximalFunction` with the
+-- We will replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `LocallyIntegrable` that is closed under addition and scalar multiplication.
 
 variable (μ) in
@@ -219,7 +219,7 @@ protected theorem Finset.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (
 
 protected theorem MeasureTheory.AEStronglyMeasurable.maximalFunction [BorelSpace X] {p : ℝ}
     {u : X → E} (h𝓑 : 𝓑.Countable) : AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ :=
-  (aemeasurable_biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
+  (AEMeasurable.biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
     aemeasurable_const |>.aestronglyMeasurable
 
 theorem MeasureTheory.AEStronglyMeasurable.maximalFunction_toReal [BorelSpace X]
@@ -249,14 +249,14 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   simp_rw [ENNReal.nnorm_toReal]
   exact ENNReal.coe_toNNReal_le_self |>.trans MB_le_eLpNormEssSup
 
-protected theorem MeasureTheory.SublinearOn.maximalFunction
+protected theorem MeasureTheory.AESublinearOn.maximalFunction
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Finite) :
-    SublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
-    (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 := by
-  apply SublinearOn.antitone LocallyIntegrable_of_P
+    AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
+    (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
+  apply AESublinearOn.antitone LocallyIntegrable_of_P
   simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  apply SublinearOn.biSup (P := (LocallyIntegrable · μ)) 𝓑 _ _
+  apply AESublinearOn.biSup (P := (LocallyIntegrable · μ)) 𝓑 h𝓑.countable _ _
     LocallyIntegrable.add (fun hf _ ↦ hf.smul _)
   · intro i _
     let B := ball (c i) (r i)
@@ -264,9 +264,9 @@ protected theorem MeasureTheory.SublinearOn.maximalFunction
         (B.indicator (fun _ ↦ (⨍⁻ y in B, ‖u y‖₊ ∂μ).toReal) x) := by
       by_cases hx : x ∈ B <;> simp [hx]
     simp_rw [this]
-    apply (SublinearOn.const (T μ c r i) (LocallyIntegrable · μ) (T.add_le i)
+    apply (AESublinearOn.const (T μ c r i) (LocallyIntegrable · μ) (T.add_le i)
       (fun f d ↦ T.smul i)).indicator
-  · intro f x hf
+  · refine fun f hf ↦ ae_of_all _ (fun x ↦ ?_)
     by_cases h𝓑' : 𝓑.Nonempty; swap
     · simp [not_nonempty_iff_eq_empty.mp h𝓑']
     have ⟨i, _, hi⟩ := h𝓑.biSup_eq h𝓑' (fun i ↦ (ball (c i) (r i)).indicator
@@ -324,10 +324,10 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
   rw [CMB]
   apply exists_hasStrongType_real_interpolation
     (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) (p := p) (q := p) (A := 1) ⟨ENNReal.zero_lt_top, le_rfl⟩
-    ⟨zero_lt_one, le_rfl⟩ (by norm_num) zero_lt_one (by simp [inv_lt_one_iff, hp, h2p] : p⁻¹ ∈ _) zero_lt_one (pow_pos (A_pos μ) 2)
+    ⟨zero_lt_one, le_rfl⟩ (by norm_num) zero_lt_one (by simp [inv_lt_one_iff₀, hp, h2p] : p⁻¹ ∈ _) zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑.countable)
-    (SublinearOn.maximalFunction h𝓑).1 (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
+    (AESublinearOn.maximalFunction h𝓑).1 (HasStrongType.MB_top h𝓑.countable |>.hasWeakType le_top)
     (HasWeakType.MB_one μ h𝓑.countable (h𝓑.exists_image_le r).choose_spec)
 
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
@@ -354,7 +354,7 @@ theorem hasStrongType_maximalFunction
       apply ENNReal.rpow_le_rpow _ (by positivity)
       convert (hasStrongType_MB h𝓑 (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
       · exact (ENNReal.coe_div p₁n).symm
-      · rwa [NNReal.lt_div_iff p₁n, one_mul]
+      · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact Memℒp.norm_rpow_div mlpv p₁
     _ ≤ _ := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), eLpNorm_norm_rpow _ cp₁p,
@@ -395,13 +395,19 @@ theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurab
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
 /-- Equation (2.0.46).
-
-easy from `hasStrongType_maximalFunction`. Ideally prove separately
+Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 `HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
-theorem hasStrongType_globalMaximalFunction {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
-    {u : X → ℂ} (hu : AEStronglyMeasurable u μ) (h2u : IsBounded (range u)) :
+theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
+  unfold globalMaximalFunction
+  simp_rw [ENNReal.toReal_mul]
+  -- apply HasStrongType.const_mul -- this needs to be adapted
+  -- refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
+  /- `hasStrongType_maximalFunction` currently requires the collection of balls `𝓑`
+  to be finite, but its generalization to countable collectinos is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
+  -/
   sorry
+
 
 end GMF

@@ -32,11 +32,11 @@ lemma ordConnected_C : OrdConnected (ℭ k n : Set (𝔓 X)) := by
   rw [ℭ, mem_setOf] at mp mp'' ⊢
   have z := mem_of_mem_of_subset mp' (ordConnected_tilesAt.out mp.1 mp''.1)
   refine ⟨z, ?_⟩
-  have : ∀ q' ∈ TilesAt (X := X) k, ∀ q ≤ q', dens' k {q'} ≤ dens' k {q} := fun q' _ q hq ↦ by
+  have hk : ∀ q' ∈ TilesAt (X := X) k, ∀ q ≤ q', dens' k {q'} ≤ dens' k {q} := fun q' _ q hq ↦ by
     simp_rw [dens', mem_singleton_iff, iSup_iSup_eq_left]; gcongr with l hl a _
     exact iSup_const_mono fun h ↦
       wiggle_order_11_10 hq (C5_3_3_le (X := X).trans (by norm_num) |>.trans hl) |>.trans h
-  exact ⟨mp''.2.1.trans_le (this _ mp''.1 _ mp'.2), (this _ z _ mp'.1).trans mp.2.2⟩
+  exact ⟨mp''.2.1.trans_le (hk _ mp''.1 _ mp'.2), (hk _ z _ mp'.1).trans mp.2.2⟩
 
 /-- Lemma 5.3.6 -/
 lemma ordConnected_C1 : OrdConnected (ℭ₁ k n j : Set (𝔓 X)) := by
@@ -51,12 +51,12 @@ lemma ordConnected_C1 : OrdConnected (ℭ₁ k n j : Set (𝔓 X)) := by
   constructor
   · refine mp''.1.trans (Finset.card_le_card fun b mb ↦ ?_)
     simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
-    have := wiggle_order_11_10 (n := 100) mp'.2 (C5_3_3_le (X := X).trans (by norm_num))
-    exact ⟨mb.1, this.trans mb.2⟩
+    have h100 := wiggle_order_11_10 (n := 100) mp'.2 (C5_3_3_le (X := X).trans (by norm_num))
+    exact ⟨mb.1, h100.trans mb.2⟩
   · refine (Finset.card_le_card fun b mb ↦ ?_).trans_lt mp.2
     simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝔅, mem_setOf] at mb ⊢
-    have := wiggle_order_11_10 (n := 100) mp'.1 (C5_3_3_le (X := X).trans (by norm_num))
-    exact ⟨mb.1, this.trans mb.2⟩
+    have h100 := wiggle_order_11_10 (n := 100) mp'.1 (C5_3_3_le (X := X).trans (by norm_num))
+    exact ⟨mb.1, h100.trans mb.2⟩
 
 /-- Lemma 5.3.7 -/
 lemma ordConnected_C2 : OrdConnected (ℭ₂ k n j : Set (𝔓 X)) := by
@@ -120,13 +120,13 @@ lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ d
   simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf]
   constructor
   · rw [mem_lowerClosure] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
-    have := mem_of_mem_of_subset mp'' hP
-    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at this
-    obtain ⟨J, lJ, vJ⟩ := this.1; use J, lp''.1.trans lJ
+    have hp'' := mem_of_mem_of_subset mp'' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp''
+    obtain ⟨J, lJ, vJ⟩ := hp''.1; use J, lp''.1.trans lJ
   · by_contra h; obtain ⟨J, lJ, vJ⟩ := h
-    have := mem_of_mem_of_subset mp' hP
-    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at this
-    apply absurd _ this.2; use J, sl.1.trans lJ
+    have hp' := mem_of_mem_of_subset mp' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp'
+    apply absurd _ hp'.2; use J, sl.1.trans lJ
 
 /-- Lemma 5.3.12 -/
 lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * (a : ℝ) - n + 1) :=
@@ -229,8 +229,9 @@ lemma urel_of_not_disjoint {x y : 𝔓 X} (my : y ∈ 𝔘₂ k n j) (xny : x �
   rw [𝔘₂, mem_setOf, not_disjoint_iff] at my; obtain ⟨p, hp, _⟩ := my.2
   suffices w : ball_(x) (𝒬 x) 1 ⊆ ball_(y) (𝒬 y) 500 by
     right; use p, hp; obtain ⟨_, np, sl⟩ := hp
-    have : smul 10 p ≤ smul 500 y := (smul_mono_left (by norm_num)).trans (wiggle_order_500 sl np)
-    exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 x), this.2.trans w⟩
+    have hpy : smul 10 p ≤ smul 500 y :=
+      (smul_mono_left (by norm_num)).trans (wiggle_order_500 sl np)
+    exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 x), hpy.2.trans w⟩
   intro (q : Θ X) (mq : q ∈ ball_{𝓘 x} (𝒬 x) 1)
   rw [@mem_ball] at mq ⊢
   calc
@@ -250,13 +251,13 @@ lemma equivalenceOn_urel : EquivalenceOn (URel (X := X) k n j) (𝔘₂ k n j) w
   trans {x y z} mx my mz xy yz := by
     by_cases xny : x = y; · rwa [xny]
     have xye := URel.eq mx my xy
-    have := URel.not_disjoint mx my xy
-    rw [not_disjoint_iff] at this
-    obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 x} (𝒬 x) 100), (ϑy : ϑ ∈ ball_{𝓘 y} (𝒬 y) 100)⟩ := this
+    have hxy := URel.not_disjoint mx my xy
+    rw [not_disjoint_iff] at hxy
+    obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 x} (𝒬 x) 100), (ϑy : ϑ ∈ ball_{𝓘 y} (𝒬 y) 100)⟩ := hxy
     have yze := URel.eq my mz yz
-    have := URel.not_disjoint my mz yz
-    rw [not_disjoint_iff] at this
-    obtain ⟨(θ : Θ X), (θy : θ ∈ ball_{𝓘 y} (𝒬 y) 100), (θz : θ ∈ ball_{𝓘 z} (𝒬 z) 100)⟩ := this
+    have hyz := URel.not_disjoint my mz yz
+    rw [not_disjoint_iff] at hyz
+    obtain ⟨(θ : Θ X), (θy : θ ∈ ball_{𝓘 y} (𝒬 y) 100), (θz : θ ∈ ball_{𝓘 z} (𝒬 z) 100)⟩ := hyz
     simp_rw [URel, xny, false_or] at xy; obtain ⟨p, mp, sp⟩ := xy
     suffices ball_(z) (𝒬 z) 1 ⊆ ball_(x) (𝒬 x) 500 by
       right; use p, mp; obtain ⟨_, np, sl⟩ := mp
@@ -299,11 +300,11 @@ lemma 𝔗₂_subset_ℭ₆ : 𝔗₂ k n j u ⊆ ℭ₆ k n j := inter_subset_l
 /-- Lemma 5.4.3 -/
 lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j u := by
   ext p; constructor <;> intro h
-  · have : p ∈ ℭ₃ k n j := (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃) h
-    rw [ℭ₃, mem_diff, 𝔏₂, mem_setOf] at this
-    have mp := this.1
-    simp_rw [this.1, true_and, not_not] at this
-    obtain ⟨u, mu, np, sl⟩ := this
+  · have hp : p ∈ ℭ₃ k n j := (ℭ₆_subset_ℭ₅ |>.trans ℭ₅_subset_ℭ₄ |>.trans ℭ₄_subset_ℭ₃) h
+    rw [ℭ₃, mem_diff, 𝔏₂, mem_setOf] at hp
+    have mp := hp.1
+    simp_rw [hp.1, true_and, not_not] at hp
+    obtain ⟨u, mu, np, sl⟩ := hp
     have mp' : p ∈ 𝔗₁ k n j u := by
       rw [𝔗₁, mem_setOf]; exact ⟨ℭ₂_subset_ℭ₁ mp, np, sl⟩
     have mu' : u ∈ 𝔘₂ k n j := by
@@ -319,9 +320,9 @@ lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : 
   obtain ⟨_, u', mu', w⟩ := hp; rw [mem_iUnion] at w; obtain ⟨ru, mp'⟩ := w
   rw [𝔗₁, mem_setOf] at mp'; obtain ⟨_, np, sl⟩ := mp'
   have xye := URel.eq (EquivalenceOn.reprs_subset hu) mu' ru
-  have := URel.not_disjoint (EquivalenceOn.reprs_subset hu) mu' ru
-  rw [not_disjoint_iff] at this
-  obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 u} (𝒬 u) 100), (ϑy : ϑ ∈ ball_{𝓘 u'} (𝒬 u') 100)⟩ := this
+  have huu' := URel.not_disjoint (EquivalenceOn.reprs_subset hu) mu' ru
+  rw [not_disjoint_iff] at huu'
+  obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 u} (𝒬 u) 100), (ϑy : ϑ ∈ ball_{𝓘 u'} (𝒬 u') 100)⟩ := huu'
   suffices ball_(u) (𝒬 u) 1 ⊆ ball_(u') (𝒬 u') 500 by
     have w : smul 4 p ≤ smul 500 u' := (wiggle_order_500 sl np)
     exact ⟨(xye ▸ sl.1 : 𝓘 p ≤ 𝓘 u), w.2.trans this⟩
@@ -345,9 +346,9 @@ lemma forest_convex : OrdConnected (𝔗₂ k n j u) := by
     (ordConnected_C5.out ((𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) mp)
       ((𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ₅) mp'')) mp'
   have mp'₆ : p' ∈ ℭ₆ k n j := by
-    have := 𝔗₂_subset_ℭ₆ mp; rw [ℭ₆, mem_setOf] at this ⊢
-    refine ⟨mp'₅, ?_⟩; replace this := this.2; contrapose! this
-    exact mp'.1.1.1.trans this
+    have hp := 𝔗₂_subset_ℭ₆ mp; rw [ℭ₆, mem_setOf] at hp ⊢
+    refine ⟨mp'₅, ?_⟩; have hpG := hp.2; contrapose! hpG
+    exact mp'.1.1.1.trans hpG
   simp_rw [𝔗₂, mem_inter_iff, mp'₆, true_and, mem_iUnion₂, mem_iUnion] at mp'' ⊢
   obtain ⟨u', mu', ru, _, np'', sl⟩ := mp''.2
   have pnu : 𝓘 p' < 𝓘 u' := (mp'.2.1).trans_lt (lt_of_le_of_ne sl.1 np'')
@@ -405,8 +406,8 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
       apply Real.rpow_le_rpow_of_exponent_le one_le_two
       norm_cast; linarith [four_le_a X]
     _ ≤ (C2_1_2 a)⁻¹ ^ d := by
-      refine pow_le_pow_right ?_ (by omega)
-      simp_rw [one_le_inv_iff, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
+      refine pow_le_pow_right₀ ?_ (by omega)
+      simp_rw [one_le_inv_iff₀, C2_1_2_le_one (X := X), and_true, C2_1_2]; positivity
     _ ≤ (C2_1_2 a)⁻¹ ^ d * 8 := by nth_rw 1 [← mul_one (_ ^ d)]; gcongr; norm_num
     _ < (C2_1_2 a)⁻¹ ^ d * dist_(p') (𝒬 p) (𝒬 u) := by gcongr
     _ ≤ _ := by
@@ -435,11 +436,10 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
   have qlu : 𝓘 q < 𝓘 u := URel.eq (𝔘₃_subset_𝔘₂ hu) hu'' ru'' ▸ nu''
   have squ : 𝔰 q < 𝔰 u := (Grid.lt_def.mp qlu).2
   have spu : 𝔰 p ≤ 𝔰 u - (Z * (n + 1) : ℕ) - 1 := by omega
-  have : ∃ I, s I = 𝔰 u - (Z * (n + 1) : ℕ) - 1 ∧ 𝓘 p ≤ I ∧ I ≤ 𝓘 u := by
+  have ⟨I, sI, plI, Ilu⟩ : ∃ I, s I = 𝔰 u - (Z * (n + 1) : ℕ) - 1 ∧ 𝓘 p ≤ I ∧ I ≤ 𝓘 u := by
     apply Grid.exists_sandwiched (lq.1.trans qlu.le) (𝔰 u - (Z * (n + 1) : ℕ) - 1)
     refine ⟨spu, ?_⟩; change _ ≤ 𝔰 u; suffices 0 ≤ Z * (n + 1) by omega
     exact Nat.zero_le _
-  obtain ⟨I, sI, plI, Ilu⟩ := this
   have bI : I ∉ 𝓛 n u := by
     have p₅ := ℭ₆_subset_ℭ₅ p₆
     rw [ℭ₅_def] at p₅; replace p₅ := p₅.2; contrapose! p₅
@@ -447,9 +447,9 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
   rw [𝓛, mem_setOf, not_and] at bI; specialize bI Ilu
   rw [not_and, not_not] at bI; specialize bI (by omega); rw [← sI] at spu
   rcases spu.eq_or_lt with h | h
-  · have : 𝓘 p = I := by
+  · have hI : 𝓘 p = I := by
       apply eq_of_le_of_not_lt plI; rw [Grid.lt_def, not_and_or, not_lt]; exact Or.inr h.symm.le
-    rwa [← this] at bI
+    rwa [← hI] at bI
   · apply subset_trans (ball_subset_ball' _) bI
     have ds : c (𝓘 p) ∈ ball (c I) (4 * D ^ s I) := (plI.1.trans Grid_subset_ball) Grid.c_mem_Grid
     rw [mem_ball] at ds
@@ -494,14 +494,14 @@ lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ 
     contrapose! nr; rw [disjoint_comm] at nd
     exact urel_of_not_disjoint (𝔘₃_subset_𝔘₂ u.2) h.symm nr.symm nd
   rcases le_or_lt (s (𝓘 u.1)) (s (𝓘 u'.1)) with hs | hs
-  · have := lt_of_le_of_ne ((le_or_disjoint hs).resolve_right
+  · have hu := lt_of_le_of_ne ((le_or_disjoint hs).resolve_right
       (not_disjoint_iff.mpr ⟨_, mu, mu'⟩)) n𝓘
     have u₁ := (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁) u.2
-    exact u₁.2 u' ((𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁ |>.trans 𝔘₁_subset_ℭ₁) u'.2) this
-  · have := lt_of_le_of_ne ((le_or_disjoint hs.le).resolve_right
+    exact u₁.2 u' ((𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁ |>.trans 𝔘₁_subset_ℭ₁) u'.2) hu
+  · have hu := lt_of_le_of_ne ((le_or_disjoint hs.le).resolve_right
       (not_disjoint_iff.mpr ⟨_, mu', mu⟩)) n𝓘.symm
     have u'₁ := (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁) u'.2
-    exact (u'₁.2 u ((𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁ |>.trans 𝔘₁_subset_ℭ₁) u.2) this).symm
+    exact (u'₁.2 u ((𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁ |>.trans 𝔘₁_subset_ℭ₁) u.2) hu).symm
 
 lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackSize (𝔐 k n) x := by
   let mf' : 𝔓 X → 𝔓 X := fun u ↦ if mu : u ∈ 𝔘₃ k n j then mf k n j ⟨u, mu⟩ else default
@@ -509,8 +509,8 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
   refine Finset.card_le_card_of_injOn mf' (fun u mu ↦ ?_) (fun u mu u' mu' e ↦ ?_)
   · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu ⊢
     simp_rw [mf', mu.1, dite_true]
-    have : 𝓘 u ≤ 𝓘 (mf k n j ⟨u, mu.1⟩) := (exists_smul_le_of_𝔘₃ ⟨u, mu.1⟩).choose_spec.1
-    exact ⟨(mf k n j ⟨u, mu.1⟩).2, this.1 mu.2⟩
+    have hu : 𝓘 u ≤ 𝓘 (mf k n j ⟨u, mu.1⟩) := (exists_smul_le_of_𝔘₃ ⟨u, mu.1⟩).choose_spec.1
+    exact ⟨(mf k n j ⟨u, mu.1⟩).2, hu.1 mu.2⟩
   · simp_rw [Finset.coe_filter, mem_setOf, Finset.mem_filter, Finset.mem_univ, true_and] at mu mu'
     simp_rw [mf', mu.1, mu'.1, dite_true, Subtype.val_inj] at e
     simpa using mf_injOn mu.2 mu'.2 e

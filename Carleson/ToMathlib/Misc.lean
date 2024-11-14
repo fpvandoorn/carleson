@@ -10,7 +10,7 @@ import Carleson.ToMathlib.MeasureReal
 
 /-
 * This file can import all ToMathlib files.
-* If adding more than a few result, please put them in a more appropriate file in ToMathlib.
+* If adding more than a few results, please put them in a more appropriate file in ToMathlib.
 -/
 
 open Function Set
@@ -115,8 +115,8 @@ lemma ENNReal.sum_geometric_two_pow_toNNReal {k : ℕ} (hk : k > 0) :
     Real.toNNReal_one, NNReal.coe_one, Real.coe_toNNReal', max_eq_left (by positivity),
     Real.rpow_neg zero_le_two, Real.rpow_natCast, one_div]
   have : ((1 : ℝ) - (2 ^ k)⁻¹).toNNReal ≠ 0 := by
-    rw [ne_eq, Real.toNNReal_eq_zero, tsub_le_iff_right, zero_add, not_le, inv_lt_one_iff]
-    right; exact one_lt_pow₀ (R := ℝ) _root_.one_lt_two hk.ne'
+    rw [ne_eq, Real.toNNReal_eq_zero, tsub_le_iff_right, zero_add, not_le, inv_lt_one_iff₀]
+    right; exact one_lt_pow₀ (M₀ := ℝ) _root_.one_lt_two hk.ne'
   rw [← coe_inv this, coe_inj, Real.toNNReal_inv, one_div]
 
 lemma ENNReal.sum_geometric_two_pow_neg_one : ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-n : ℤ) = 2 := by

@@ -173,8 +173,7 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
   simp only [gt_iff_lt, Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
     rcases lt_or_le (s x) (s j) with c | c
-    · have := le_dyadic c.le mx.le mj.le
-      exact (eq_of_le_of_not_lt this (hj x mx)).symm.le
+    · exact (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) (hj x mx)).symm.le
     · exact le_dyadic c mj.le mx.le
   use j, ⟨mj, hj⟩, fun k ⟨hk₁, hk₂⟩ ↦ le_antisymm (hk₂ j mj) (hj k hk₁)
 
@@ -209,21 +208,22 @@ lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
 lemma exists_containing_subcube (l : ℤ) (h : l ∈ Icc (-S : ℤ) (s i)) {x : X} (mx : x ∈ i) :
     ∃ j, s j = l ∧ x ∈ j := by
   obtain ⟨lb, ub⟩ := h
-  rcases ub.eq_or_lt with ub | ub; · exact ⟨i, ub.symm, mx⟩
-  have := Grid_subset_biUnion l ⟨lb, ub⟩ mx
-  simp_rw [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] at this
-  exact this
+  rcases ub.eq_or_lt with ub | ub
+  · exact ⟨i, ub.symm, mx⟩
+  · simpa [mem_iUnion₂, mem_preimage, mem_singleton_iff, exists_prop] using
+      Grid_subset_biUnion l ⟨lb, ub⟩ mx
 
 lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i ≤ j := by
   obtain ⟨lb, ub⟩ := h
   rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
   have bound_i : -S ≤ s i ∧ s i ≤ S := scale_mem_Icc
+  sorry /- TODO(bump-4.13): fix proof again, was
   have ts := Grid_subset_biUnion (X := X) (i := topCube) l (by rw [s_topCube, mem_Ico]; omega)
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
   obtain ⟨j, (sj : s j = l), mj⟩ := this; use j, sj
-  exact le_of_mem_of_mem (by omega) hx mj
+  exact le_of_mem_of_mem (by omega) hx mj -/
 
 lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
     ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
@@ -323,7 +323,7 @@ lemma dist_strictMono {I J : Grid X} (hpq : I < J) {f g : Θ X} :
       gcongr
       have : s I < s J := (Grid.lt_def.mp hpq).2
       exact cdist_mono (ball_subset_ball (mul_le_mul_of_nonneg_left
-        (zpow_le_of_le one_le_D (by omega)) zero_le_four))
+        (zpow_le_zpow_right₀ one_le_D (by omega)) zero_le_four))
     _ ≤ 2 ^ (-100 * (a : ℝ)) * dist_{c J, 8 * D ^ s J} f g := by
       gcongr
       have : c I ∈ ball (c J) (4 * D ^ s J) :=

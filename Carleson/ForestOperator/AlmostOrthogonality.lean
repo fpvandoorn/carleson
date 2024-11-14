@@ -42,8 +42,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStrongly
   refine .mul (.mul ?_ ?_) ?_
   · exact Complex.continuous_conj.comp_aestronglyMeasurable (aestronglyMeasurable_Ks.prod_swap)
   · refine Complex.continuous_exp.comp_aestronglyMeasurable (.const_mul (.sub ?_ ?_) _)
-    · refine Measurable.aestronglyMeasurable ?_
-      fun_prop
+    · exact Measurable.aestronglyMeasurable (by fun_prop)
     · refine continuous_ofReal.comp_aestronglyMeasurable ?_
       exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
   · exact hf.snd
@@ -151,7 +150,7 @@ lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u
       _ ≥ (2 : ℝ) ^ (Z * (n + 1)) - 2 ^ (Z * (n + 1) - 1) := by gcongr; norm_cast
       _ = 2 ^ (Z * (n + 1) - 1) := by
         rw [sub_eq_iff_eq_add, ← two_mul, ← pow_succ', Nat.sub_add_cancel (by omega)]
-      _ ≥ 2 ^ (Z * n) := by apply pow_le_pow_right one_le_two; rw [mul_add_one]; omega
+      _ ≥ 2 ^ (Z * n) := by apply pow_le_pow_right₀ one_le_two; rw [mul_add_one]; omega
       _ ≥ _ := by
         rw [← Real.rpow_natCast]
         apply Real.rpow_le_rpow_of_exponent_le one_le_two; rw [Nat.cast_mul]

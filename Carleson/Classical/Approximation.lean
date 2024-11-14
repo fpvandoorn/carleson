@@ -12,7 +12,6 @@ open Finset Real
 
 local notation "S_" => partialFourierSum
 
-
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ f₀.Periodic (2 * π) ∧
@@ -91,7 +90,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
         fun x hx ↦ f_bounded x hx
       /-Could specify `aestronglyMeasurable` and `intervalIntegrable` intead of `f_continuous`. -/
       exact IntervalIntegrable.intervalIntegrable_norm_iff f_continuous.aestronglyMeasurable |>.mpr
-        (f_continuous.intervalIntegrable _ _)
+        (f_continuous.intervalIntegrable ..)
     _ = C * (2 * π) := by simp; ring
 
 /-TODO: Assumptions might be weakened. -/
@@ -132,8 +131,8 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
       simp [h1, h2]
       ring_nf
       simp [mul_inv_cancel, one_mul, pi_pos.ne.symm]
-    · exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable _ _
-    · exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable _ _
+    · exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable ..
+    · exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable ..
   obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
   refine ⟨C, fun n hn ↦ ?_⟩
   simp only [fourierCoeffOn_eq hn, Nat.cast_one, Int.cast_pow, map_mul, map_div₀, map_neg_eq_map,
@@ -146,10 +145,9 @@ open Topology Filter
 /-TODO : Assumptions might be weakened-/
 lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
     Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
-  have := hfa.nat_add_neg.tendsto_sum_nat
-  have := (Filter.Tendsto.add_const (- (f 0))) this
-  simp at this
-  /-Need to start at 1 instead of zero for the base case to be true· -/
+  have := Filter.Tendsto.add_const (- (f 0)) hfa.nat_add_neg.tendsto_sum_nat
+  simp only [add_neg_cancel_right] at this
+  /- Need to start at 1 instead of zero for the base case to be true. -/
   rw [←tendsto_add_atTop_iff_nat 1] at this
   convert this using 1
   ext N
@@ -166,10 +164,10 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
       · norm_num
         linarith
     rw [this, sum_insert, sum_insert, ih, ← add_assoc]
-    symm
-    rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
-    simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
-      Int.ofNat_eq_coe, add_right_inj, add_comm]
+    · symm
+      rw [sum_range_succ, add_comm, ←add_assoc, add_comm]
+      simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, Int.reduceNeg, Nat.succ_eq_add_one,
+        Int.ofNat_eq_coe, add_right_inj, add_comm]
     · simp
     · norm_num
       linarith
@@ -183,7 +181,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
   set g : C(AddCircle (2 * π), ℂ) := ⟨AddCircle.liftIco (2*π) 0 f, AddCircle.liftIco_continuous ((periodicf 0).symm) fdiff.continuous.continuousOn⟩ with g_def
   have two_pi_pos' : 0 < 0 + 2 * π := by linarith [Real.two_pi_pos]
   have fourierCoeff_correspondence {i : ℤ} : fourierCoeff g i = fourierCoeffOn two_pi_pos' f i := fourierCoeff_liftIco_eq f i
-  simp at fourierCoeff_correspondence
+  simp only [zero_add] at fourierCoeff_correspondence
   have function_sum : HasSum (fun (i : ℤ) => fourierCoeff g i • fourier i) g := by
     apply hasSum_fourier_series_of_summable
     obtain ⟨C, hC⟩ := fourierCoeffOn_ContDiff_two_bound periodicf fdiff
@@ -205,8 +203,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
   have := this ε εpos
   rw [Filter.eventually_atTop] at this
   obtain ⟨N₀, hN₀⟩ := this
-  use N₀
-  intro N hN x hx
+  refine ⟨N₀, fun N hN x hx ↦ ?_⟩
   have := hN₀ N hN.le x
   simp only [Complex.dist_eq, ContinuousMap.coe_sum, sum_apply] at this
   convert this.le using 2
@@ -218,8 +215,6 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
       rw [zero_add] at this
       rw [h, this, AddCircle.liftIco_coe_apply]
       simp [pi_pos]
-    · have : x ∈ Set.Ico 0 (2 * π) := by
-        use hx.1
-        exact lt_of_le_of_ne hx.2 h
+    · have : x ∈ Set.Ico 0 (2 * π) := ⟨hx.1, lt_of_le_of_ne hx.2 h⟩
       simp [AddCircle.liftIco_coe_apply, zero_add, this]
   · simp [partialFourierSum, fourierCoeff_correspondence]

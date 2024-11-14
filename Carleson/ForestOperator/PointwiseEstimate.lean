@@ -181,7 +181,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have d5' : dist_{x, D ^ s₂} (𝒬 u) (Q x) < 5 * defaultA a ^ 5 := by
     have i1 : dist x (𝔠 p) < 4 * D ^ 𝔰 p' :=
       (mem_ball.mp (Grid_subset_ball xp)).trans_le <|
-        mul_le_mul_of_nonneg_left (zpow_le_of_le one_le_D s_ineq) zero_le_four
+        mul_le_mul_of_nonneg_left (zpow_le_zpow_right₀ one_le_D s_ineq) zero_le_four
     have i2 : dist (𝔠 p') (𝔠 p) < 4 * D ^ 𝔰 p' :=
       mem_ball'.mp (ball_subset_Grid.trans (Grid.le_def.mp pinc).1 |>.trans Grid_subset_ball <|
         mem_ball_self (by unfold defaultD; positivity))
@@ -203,7 +203,6 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
         · unfold defaultD; positivity
       _ < _ := by rw [mul_comm]; gcongr
   have d1 : dist_{x, D ^ (s₂ - 1)} (𝒬 u) (Q x) < 1 := by
-    have := le_cdist_iterate (x := x) (r := D ^ (s₂ - 1)) (by positivity) (𝒬 u) (Q x) (100 * a)
     calc
       _ ≤ dist_{x, D ^ s₂} (𝒬 u) (Q x) * 2 ^ (-100 * a : ℤ) := by
         rw [neg_mul, zpow_neg, le_mul_inv_iff₀ (by positivity), mul_comm]
