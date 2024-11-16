@@ -6,7 +6,7 @@ noncomputable section
 
 open scoped ENNReal NNReal ShortVariables
 
-open GridStructure MeasureTheory Set
+open MeasureTheory Set
 
 namespace Antichain
 
@@ -27,7 +27,7 @@ open Classical
 -- Lemma 6.3.2
 lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
     ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝓘 p = L}), volume (E p ∩ G) ≤
-      2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (coeGrid L) := sorry
+      2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := sorry
 
 
 -- Lemma 6.3.3
@@ -42,7 +42,7 @@ def C_6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
 -- Lemma 6.3.4
 lemma global_antichain_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) :
     ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) ≤
-      (C_6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ (p ∈ 𝔄), coeGrid (𝓘 p)) := sorry
+      (C_6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ (p ∈ 𝔄), (𝓘 p : Set X)) := sorry
 
 -- p in Lemma 6.1.6
 private def p (a : ℕ) := 4 * a^2
@@ -55,7 +55,7 @@ lemma tile_count {𝔄 𝔄' : Finset (𝔓 X)} (h_le : 𝔄' ⊆ 𝔄) (ϑ : Θ
     eLpNorm (∑ 𝔭 ∈ 𝔄', (1 + dist_(𝔭) (𝒬 𝔭) ϑ) ^ ((-1 : ℝ)/(2*a^2 + a^3)) •
       ((E 𝔭).indicator 1) *  (G.indicator (1 : X → ℝ))) (p a) volume ≤
       (C_6_1_6 a) * dens₁ (𝔄 : Set (𝔓 X)) ^ ((1 : ℝ)/(p a)) *
-        (volume (⋃ (p ∈ 𝔄), coeGrid (𝓘 p))) ^ ((1 : ℝ)/(p a)) := by
+        (volume (⋃ (p ∈ 𝔄), (𝓘 p : Set X))) ^ ((1 : ℝ)/(p a)) := by
   sorry
 
 end Antichain
