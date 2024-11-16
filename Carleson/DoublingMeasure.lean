@@ -94,8 +94,7 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
 
 lemma measure_ball_ne_top (x : X) (r : ℝ) : μ (ball x r) ≠ ∞ := measure_ball_lt_top.ne
 
--- XXX is this still needed?
---attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
+attribute [aesop (rule_sets := [finiteness]) safe apply] measure_ball_ne_top
 
 lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
     μ.real (ball x (2 ^ n * r)) ≤ A ^ n * μ.real (ball x r) := by

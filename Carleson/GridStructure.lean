@@ -7,14 +7,13 @@ noncomputable section
 section Generic
 universe u
 variable {𝕜 : Type*} [_root_.RCLike 𝕜]
-variable {X : Type u} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 variable (X) in
 /-- A grid structure on `X`.
 I expect we prefer `coeGrid : Grid → Set X` over `Grid : Set (Set X)`
 Note: the `s` in this paper is `-s` of Christ's paper.
 -/
-class GridStructure
+class GridStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
     (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X) where
   /-- indexing set for a grid structure -/
   Grid : Type u
@@ -44,13 +43,14 @@ export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_s
 
 attribute [coe] GridStructure.coeGrid
 
+variable {X : Type u} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 variable {D : ℕ} {κ : ℝ} {S : ℕ} {o : X}
 variable [GridStructure X D κ S o]
 
 variable (X) in
 /-- The indexing type of the grid structure. Elements are called (dyadic) cubes.
 Note that this type has instances for both `≤` and `⊆`, but they do *not* coincide. -/
-abbrev Grid : Type u := GridStructure.Grid X A
+abbrev Grid : Type u := GridStructure.Grid X
 
 def s : Grid X → ℤ := GridStructure.s
 def c : Grid X → X := GridStructure.c
@@ -238,7 +238,7 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
   rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
   have bound_i : -S ≤ s i ∧ s i ≤ S := scale_mem_Icc
-  have ts := Grid_subset_biUnion (X := X) (i := (topCube : Grid X)) l
+  have ts := Grid_subset_biUnion (X := X) (i := topCube) l
     (by rw [s_topCube, mem_Ico]; omega)
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
