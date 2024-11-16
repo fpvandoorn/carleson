@@ -16,7 +16,7 @@ Note: the `s` in this paper is `-s` of Christ's paper.
 class GridStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
     (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X) where
   /-- indexing set for a grid structure -/
-  Grid : Type u
+  protected Grid : Type u
   fintype_Grid : Fintype Grid
   /-- The collection of dyadic cubes -/
   coeGrid : Grid → Set X
