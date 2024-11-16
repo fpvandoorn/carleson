@@ -112,8 +112,6 @@ lemma isTop_topCube : IsTop (topCube : Grid X) := fun _ ↦ le_topCube
 
 lemma isMax_iff : IsMax i ↔ i = topCube := isTop_topCube.isMax_iff
 
-lemma isMin_iff : IsMin i ↔ s i = - S := sorry
-
 /-- The set `I ↦ Iᵒ` in the blueprint. -/
 def int (i : Grid X) : Set X := ball (c i) (D ^ s i / 4)
 
@@ -160,6 +158,28 @@ lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j)
     rwa [lt_self_iff_false] at l
   · apply lt_of_le_of_ne (le_def.mpr ⟨h.1, h.2.le⟩)
     by_contra a; rw [a, lt_self_iff_false] at h; exact h.2
+
+lemma isMin_iff {i : Grid X} : IsMin i ↔ s i = - S := by
+  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+  · apply le_antisymm ?_ scale_mem_Icc.1
+    contrapose! h
+    have : -(S : ℤ) ∈ Ico (-(S : ℤ)) (s i) := by simp [h]
+    have := Grid_subset_biUnion (i := i) (-S) this c_mem_Grid
+    simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, mem_preimage, mem_singleton_iff, mem_iUnion,
+      exists_prop] at this
+    rcases this with ⟨j, (hj : s j = -(S : ℤ)), h'j⟩
+    have sji : s j < s i := by simpa [hj] using h
+    have : (j : Set X) ⊆ i := by
+      rcases fundamental_dyadic sji.le with hji | h_disj
+      · exact hji
+      · exact (disjoint_right.1 h_disj c_mem_Grid h'j).elim
+    have : j < i := by simp [this, sji]
+    exact this.not_isMin
+  · intro j hj
+    have : s i ≤ s j := by rw [h]; exact (scale_mem_Icc (i := j)).1
+    rcases le_or_disjoint this with h' | h_disj
+    · exact h'
+    · exact False.elim (disjoint_right.1 h_disj c_mem_Grid (hj.1 c_mem_Grid))
 
 /-- There exists a unique successor of each non-maximal cube. -/
 lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
@@ -218,12 +238,12 @@ lemma exists_supercube (l : ℤ) (h : l ∈ Icc (s i) S) : ∃ j, s j = l ∧ i 
   rcases ub.eq_or_lt with ub | ub; · exact ⟨topCube, by simpa [ub] using s_topCube, le_topCube⟩
   obtain ⟨x, hx⟩ := i.nonempty
   have bound_i : -S ≤ s i ∧ s i ≤ S := scale_mem_Icc
-  sorry /- TODO(bump-4.13): fix proof again, was
-  have ts := Grid_subset_biUnion (X := X) (i := topCube) l (by rw [s_topCube, mem_Ico]; omega)
+  have ts := Grid_subset_biUnion (X := X) (i := (topCube : Grid X)) l
+    (by rw [s_topCube, mem_Ico]; omega)
   have := mem_of_mem_of_subset hx ((le_topCube (i := i)).1.trans ts)
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
   obtain ⟨j, (sj : s j = l), mj⟩ := this; use j, sj
-  exact le_of_mem_of_mem (by omega) hx mj -/
+  exact le_of_mem_of_mem (by omega) hx mj
 
 lemma exists_sandwiched (h : i ≤ j) (l : ℤ) (hl : l ∈ Icc (s i) (s j)) :
     ∃ k, s k = l ∧ i ≤ k ∧ k ≤ j := by
