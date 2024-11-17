@@ -88,7 +88,7 @@ lemma distribution_smul_left {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖₊) μ := by
   unfold distribution
   have h₀ : ofNNReal ‖c‖₊ ≠ 0 := ENNReal.coe_ne_zero.mpr (nnnorm_ne_zero_iff.mpr hc)
-  congr; ext x
+  congr with x
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ coe_ne_top,
     ENNNorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
@@ -294,7 +294,7 @@ lemma eLpNorm_eq_distribution {p : ℝ} (hp : 0 < p) :
     rw [← lintegral_const_mul']
     on_goal 2 => exact coe_ne_top
     rw [lintegral_norm_pow_eq_distribution hf hp]
-    congr 1; ext x; rw [ofReal_mul] <;> [ring; positivity]
+    congr 1 with x; rw [ofReal_mul] <;> [ring; positivity]
 
 lemma lintegral_pow_mul_distribution {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
