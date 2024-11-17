@@ -15,7 +15,7 @@ open scoped NNReal ENNReal ComplexConjugate
 def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
   ⟨max 0 (1 - dist x y / (t * R)), by positivity⟩
 
-lemma cutoff_symm {R t : ℝ} {x y : X} : cutoff R t x y = cutoff R t y x := by
+lemma cutoff_comm {R t : ℝ} {x y : X} : cutoff R t x y = cutoff R t y x := by
   unfold cutoff
   simp_rw [dist_comm x y]
 
@@ -229,33 +229,38 @@ def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1))
 def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
   (∫ y, cutoff R t x y * ϕ y) / (∫⁻ y, cutoff R t x y).toReal
 
+-- This surely exists in mathlib; how is it named?
+omit [TileStructure Q D κ S o] in
+lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
+  by_contra! h
+  apply hf
+  have : φ = 0 := by ext; apply h
+  rw [this]
+  simp
+
+omit [TileStructure Q D κ S o] in
 /-- Part of Lemma 8.0.1. -/
-lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
-    (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
-    (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
+lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
+    (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
     support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
   unfold support
   intro x hx
   rw [mem_setOf] at hx
   have hx'' := left_ne_zero_of_mul hx
-  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := by
-    sorry -- use hx''; standard lemma
+  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := foo hx''
   choose y hy using this
-  have h₁ : y ∈ ball z R := hϕ (right_ne_zero_of_mul hy)
   have : x ∈ ball y (t * R) := by
-    -- golfing of this `have` welcome
-    have hy'' : (cutoff R t x y) ≠ 0 :=
-      NNReal.coe_ne_zero.mp fun a ↦ (left_ne_zero_of_mul hy) (congrArg ofReal a)
-    have hy''' : (cutoff R t y x) ≠ 0 := by rw [cutoff_symm]; exact hy''
-    exact aux_8_0_4 hR ht.1 hy'''
-  have h₂ : x ∈ ball y R := by
-    refine Set.mem_of_mem_of_subset this (ball_subset_ball ?_)
+    apply aux_8_0_4 hR ht.1
+    rw [cutoff_comm]
+    exact NNReal.coe_ne_zero.mp fun a ↦ (left_ne_zero_of_mul hy) (congrArg ofReal a)
+  have h : x ∈ ball y R := by
+    refine Set.mem_of_mem_of_subset this ?_
     nth_rw 2 [← one_mul R]
     gcongr
     exact ht.2
   calc dist x z
     _ ≤ dist x y + dist y z := dist_triangle x y z
-    _ < R + R := add_lt_add h₂ h₁
+    _ < R + R := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
     _ = 2 * R := by ring
 
 /-- Part of Lemma 8.0.1. -/
