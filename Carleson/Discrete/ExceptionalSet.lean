@@ -317,7 +317,7 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
       _ = 2 * ∑ L ∈ Grid.maxCubes (MsetA (X := X) l k n),
           volume (setA (X := X) (l + 1) k n ∩ L) := by
         congr; rw [← measure_biUnion_finset]
-        · congr; ext x; constructor <;> intro h
+        · congr with x; constructor <;> intro h
           · obtain ⟨L', mL'⟩ := dyadic_union h
             have := mem_of_mem_of_subset mL'.1 (mL'.2.trans setA_subset_setA)
             rw [← iUnion_MsetA_eq_setA, mem_iUnion₂] at this
@@ -333,7 +333,7 @@ lemma john_nirenberg : volume (setA (X := X) l k n) ≤ 2 ^ (k + 1 - l : ℤ) * 
         rw [Finset.mul_sum]; exact Finset.sum_le_sum fun L mL ↦ john_nirenberg_aux2 mL
       _ = _ := by
         rw [← measure_biUnion_finset Grid.maxCubes_pairwiseDisjoint (fun _ _ ↦ coeGrid_measurable)]
-        congr; ext x; constructor <;> intro h
+        congr with x; constructor <;> intro h
         · rw [mem_iUnion₂] at h; obtain ⟨i, mi₁, mi₂⟩ := h
           simp only [Grid.maxCubes, Finset.mem_filter, MsetA, Finset.mem_univ, true_and] at mi₁
           exact mem_of_mem_of_subset mi₂ mi₁.1
@@ -406,7 +406,7 @@ lemma lintegral_Ioc_layervol_one {l : ℕ} :
   calc
     _ = ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n (l + 1) := by
       refine setLIntegral_congr_fun measurableSet_Ioc (ae_of_all volume fun t mt ↦ ?_)
-      unfold layervol; congr; ext x; simp_rw [mem_setOf]; constructor <;> intro h
+      unfold layervol; congr with x; simp_rw [mem_setOf]; constructor <;> intro h
       · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
         rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
         rwa [Nat.ceil_eq_iff (by omega), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
