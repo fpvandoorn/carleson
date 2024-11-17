@@ -17,8 +17,12 @@ def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
 
 variable {R t : ℝ} {x y : X}
 
+lemma cutoff_comm : cutoff R t x y = cutoff R t y x := by
+  unfold cutoff
+  simp_rw [dist_comm x y]
+
 lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
-    LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
+    LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ cutoff R t x y) := by
   -- Still working on this:
   -- mathlib is missing a lemma Lipschitz.smul_const for CommGroupWithZero (or so).
   sorry
@@ -77,6 +81,22 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
       exact aux_8_0_5'' hy' (hR := hR) (ht := ht)
     _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
+/-- The smallest integer `n` so that `2^n t ≥ 1`. -/
+-- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
+private def n_8_0_7 {t : ℝ} : ℤ := Int.log 2 (1 / t) + 1
+
+private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
+  1 = (1 / t) * t := by
+    norm_num
+    rw [mul_comm]
+    exact (mul_inv_cancel₀ ht.ne').symm
+  _ < 2 ^ (@n_8_0_7 t) * t := by
+    gcongr
+    exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
+
+-- This lemma is probably not needed.
+-- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
+
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
 
@@ -84,12 +104,38 @@ def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1))
 def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
   (∫ y, cutoff R t x y * ϕ y) / (∫⁻ y, cutoff R t x y).toReal
 
+-- This surely exists in mathlib; how is it named?
+lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
+  by_contra! h
+  apply hf
+  have : φ = 0 := by ext; apply h
+  rw [this]
+  simp
+
 /-- Part of Lemma 8.0.1. -/
 lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
     support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
-  sorry
+  unfold support
+  intro x hx
+  rw [mem_setOf] at hx
+  have hx'' := left_ne_zero_of_mul hx
+  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := foo hx''
+  choose y hy using this
+  have : x ∈ ball y (t * R) := by
+    apply aux_8_0_4 hR ht.1
+    rw [cutoff_comm]
+    exact NNReal.coe_ne_zero.mp fun a ↦ (left_ne_zero_of_mul hy) (congrArg ofReal a)
+  have h : x ∈ ball y R := by
+    refine Set.mem_of_mem_of_subset this ?_
+    nth_rw 2 [← one_mul R]
+    gcongr
+    exact ht.2
+  calc dist x z
+    _ ≤ dist x y + dist y z := dist_triangle x y z
+    _ < R + R := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
+    _ = 2 * R := by ring
 
 /-- Part of Lemma 8.0.1. -/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
