@@ -85,8 +85,8 @@ lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : �
   intro ε εpos
   rcases (unicont_on_Icc ε εpos) with ⟨δ, δpos, h⟩
   use min δ T, lt_min δpos hT
-  have h1: min δ T ≤ δ := min_le_left _ _
-  have h2 : min δ T ≤ T := min_le_right _ _
+  have h1: min δ T ≤ δ := min_le_left ..
+  have h2 : min δ T ≤ T := min_le_right ..
   intro x y hxy
   rcases (hp.exists_mem_Ico₀' hT x) with ⟨n, ha, hxa⟩
   have hyb: f y = f (y - n • T) := (hp.sub_zsmul_eq n).symm
@@ -106,11 +106,11 @@ lemma fourier_uniformContinuous {n : ℤ} :
 
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (S_ N f) := by
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
-    (Continuous.continuousOn (continuous_finset_sum _ _))
+    (Continuous.continuousOn (continuous_finset_sum ..))
   continuity
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (π / 2) (π + π / 2)) Real.cos := by
-  apply strictConvexOn_of_deriv2_pos (convex_Icc _ _) Real.continuousOn_cos fun x hx => ?_
+  apply strictConvexOn_of_deriv2_pos (convex_Icc ..) Real.continuousOn_cos fun x hx => ?_
   rw [interior_Icc] at hx
   simp [Real.cos_neg_of_pi_div_two_lt_of_lt hx.1 hx.2]
 
@@ -128,7 +128,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
     · rwa [abs_neg]
   rw [abs_of_nonneg x_nonneg] at *
   wlog x_le_pi : x ≤ π generalizing x
-  · convert (@this (2 * π - x) _ _ _ _) using 1
+  · convert (@this (2 * π - x) ..) using 1
     · rw [Complex.norm_eq_abs, ← Complex.abs_conj]
       simp [← Complex.exp_conj, mul_sub, Complex.conj_ofReal, Complex.exp_sub,
         mul_comm Complex.I (2 * π), Complex.exp_two_pi_mul_I, ←inv_eq_one_div, ←Complex.exp_neg]

@@ -15,7 +15,6 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 lemma realD_nonneg : 0 ≤ (D:ℝ) := (defaultD_pos a).le
 
-
 lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
   (hY : Y ⊆ ball o (4*D^(S:ℤ)-D^k:ℝ)) (y : X) (hy : y ∈ Y) :
     ball o (4 * D ^ (S:ℤ):ℝ) ⊆ ball y (8 * D^(2 * S:ℤ) * D^k:ℝ) := by
@@ -2043,8 +2042,8 @@ lemma Ω_disjoint_aux {I : Grid X} (nmaxI : ¬IsMax I) {y z : 𝓩 I} (hn : y �
   replace u := (ball_subset_Ω₁ ⟨I, y⟩) u
   have := dj.ne_of_mem u mx₂; contradiction
 
-lemma Ω_disjoint {p q : 𝔓 X} (hn : p ≠ q) (h𝓘 : 𝓘 p = 𝓘 q) : Disjoint (Ω p) (Ω q) := by
-  change p.1 = q.1 at h𝓘; obtain ⟨I, y⟩ := p; obtain ⟨_, z⟩ := q
+lemma Ω_disjoint {p p' : 𝔓 X} (hn : p ≠ p') (h𝓘 : 𝓘 p = 𝓘 p') : Disjoint (Ω p) (Ω p') := by
+  change p.1 = p'.1 at h𝓘; obtain ⟨I, y⟩ := p; obtain ⟨_, z⟩ := p'
   subst h𝓘; dsimp only at hn z ⊢
   replace hn : y ≠ z := fun e ↦ hn (congrArg (Sigma.mk I) e)
   induction I using Grid.induction with
@@ -2096,10 +2095,9 @@ lemma Ω_RFD {p q : 𝔓 X} (h𝓘 : 𝓘 p ≤ 𝓘 q) : Disjoint (Ω p) (Ω q)
     obtain ⟨I, y⟩ := p
     obtain ⟨J, z⟩ := q
     have hij : I = J := le_antisymm h𝓘 (Grid.le_dyadic h h𝓘 le_rfl)
-    sorry /- TODO(bump-4.13): fix this proof, was
-    have k := @Ω_disjoint (p := ⟨I, y⟩) ⟨J, z⟩
+    have k := Ω_disjoint (p := ⟨I, y⟩) (p' := ⟨J, z⟩)
     replace k : (⟨I, y⟩ : 𝔓 X) = ⟨J, z⟩ := by tauto
-    rw [k] -/
+    rw [k]
   · obtain ⟨J, sJ, lbJ, ubJ⟩ :=
       Grid.exists_sandwiched h𝓘 (𝔰 q - 1) (by change 𝔰 p ≤ _ ∧ _ ≤ 𝔰 q; omega)
     have : q.2.1 ∈ ⋃ z ∈ 𝓩 J, ball_{J} z C4_2_1 :=

@@ -12,7 +12,6 @@ open Finset Real
 
 local notation "S_" => partialFourierSum
 
-
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ f₀.Periodic (2 * π) ∧
@@ -91,7 +90,7 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
         fun x hx ↦ f_bounded x hx
       /-Could specify `aestronglyMeasurable` and `intervalIntegrable` intead of `f_continuous`. -/
       exact IntervalIntegrable.intervalIntegrable_norm_iff f_continuous.aestronglyMeasurable |>.mpr
-        (f_continuous.intervalIntegrable _ _)
+        (f_continuous.intervalIntegrable ..)
     _ = C * (2 * π) := by simp; ring
 
 /-TODO: Assumptions might be weakened. -/
@@ -132,8 +131,8 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
       simp [h1, h2]
       ring_nf
       simp [mul_inv_cancel, one_mul, pi_pos.ne.symm]
-    · exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable _ _
-    · exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable _ _
+    · exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable ..
+    · exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable ..
   obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
   refine ⟨C, fun n hn ↦ ?_⟩
   simp only [fourierCoeffOn_eq hn, Nat.cast_one, Int.cast_pow, map_mul, map_div₀, map_neg_eq_map,
@@ -204,8 +203,7 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
   have := this ε εpos
   rw [Filter.eventually_atTop] at this
   obtain ⟨N₀, hN₀⟩ := this
-  use N₀
-  intro N hN x hx
+  refine ⟨N₀, fun N hN x hx ↦ ?_⟩
   have := hN₀ N hN.le x
   simp only [Complex.dist_eq, ContinuousMap.coe_sum, sum_apply] at this
   convert this.le using 2
@@ -217,8 +215,6 @@ lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodi
       rw [zero_add] at this
       rw [h, this, AddCircle.liftIco_coe_apply]
       simp [pi_pos]
-    · have : x ∈ Set.Ico 0 (2 * π) := by
-        use hx.1
-        exact lt_of_le_of_ne hx.2 h
+    · have : x ∈ Set.Ico 0 (2 * π) := ⟨hx.1, lt_of_le_of_ne hx.2 h⟩
       simp [AddCircle.liftIco_coe_apply, zero_add, this]
   · simp [partialFourierSum, fourierCoeff_correspondence]

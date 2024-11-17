@@ -13,7 +13,8 @@ variable {X : Type u} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 /- The data in a tile structure, and some basic properties.
 This is mostly separated out so that we can nicely define the notation `d_𝔭`.
 Note: compose `𝓘` with `Grid` to get the `𝓘` of the paper. -/
-class PreTileStructure [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (Θ X)))
+class PreTileStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
+  [FunctionDistances 𝕜 X] (Q : outParam (SimpleFunc X (Θ X)))
   (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
   extends GridStructure X D κ S o where
   protected 𝔓 : Type u
@@ -29,7 +30,7 @@ variable {D : ℕ} {κ : ℝ} {S : ℕ} {o : X}
 variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
 
 variable (X) in
-def 𝔓 := PreTileStructure.𝔓 𝕜 X A
+def 𝔓 := PreTileStructure.𝔓 𝕜 X
 instance : Fintype (𝔓 X) := PreTileStructure.fintype_𝔓
 def 𝓘 : 𝔓 X → Grid X := PreTileStructure.𝓘
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → Grid X) := PreTileStructure.surjective_𝓘
@@ -42,7 +43,8 @@ local notation "ball_(" D "," 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭
 /-- A tile structure. -/
 -- note: we don't explicitly include injectivity of `Ω` on `𝔓(I)`, since it follows from these
 -- axioms: see `toTileLike_injective`
-class TileStructure [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
+class TileStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
+    [FunctionDistances ℝ X] (Q : outParam (SimpleFunc X (Θ X)))
     (D : outParam ℕ) (κ : outParam ℝ) (S : outParam ℕ) (o : outParam X)
     extends PreTileStructure Q D κ S o where
   Ω : 𝔓 → Set (Θ X)
@@ -199,9 +201,8 @@ lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (�
 lemma dist_𝒬_lt_one_of_le' {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 p) (𝒬 q) < 1 :=
   mem_ball'.mp (dist_𝒬_lt_one_of_le h)
 
-lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun p p' h ↦ by
-  refine h.le.1.lt_of_ne <| fun h' ↦ ?_
-  exact disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
+lemma 𝓘_strictMono : StrictMono (𝓘 (X := X)) := fun _ _ h ↦ h.le.1.lt_of_ne <|
+  fun h' ↦ disjoint_left.mp (disjoint_Ω h.ne h') (h.le.2 𝒬_mem_Ω) 𝒬_mem_Ω
 
 /-- Lemma 5.3.1 -/
 lemma smul_mono {m m' n n' : ℝ} (hp : smul n p ≤ smul m p') (hm : m' ≤ m) (hn : n ≤ n') :
