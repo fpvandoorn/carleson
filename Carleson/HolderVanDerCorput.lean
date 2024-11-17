@@ -19,12 +19,13 @@ lemma cutoff_symm {R t : ℝ} {x y : X} : cutoff R t x y = cutoff R t y x := by
   unfold cutoff
   simp_rw [dist_comm x y]
 
-section new
-
 variable {R t : ℝ} {x y : X}
 
 lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
     LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
+  -- Still working on this:
+  -- mathlib is missing a lemma Lipschitz.smul_const for CommGroupWithZero (or so).
+
   -- this one should be inlined, once aux1 works
   have aux0 : LipschitzWith 1 (fun y ↦ dist x y) := LipschitzWith.dist_right x
   have aux : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
@@ -42,8 +43,8 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   convert LipschitzWith.sub (LipschitzWith.const' 1) (Kf := 0) aux; ring
 
 @[fun_prop]
-lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) := by
-  apply (cutoff_Lipschitz hR ht (X := X)).continuous
+lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) :=
+  (cutoff_Lipschitz hR ht (X := X)).continuous
 
 omit [TileStructure Q D κ S o] in
 /-- `cutoff R t x` is measurable in `y`. -/
@@ -51,7 +52,7 @@ omit [TileStructure Q D κ S o] in
 lemma cutoff_measurable (hR : 0 < R) (ht : 0 < t) : Measurable (fun y ↦ cutoff R t x y) :=
   (cutoff_continuous hR ht).measurable
 
--- is this useful for mathlib? neither exact? nor aesop can prove this
+-- Is this useful for mathlib? neither exact? nor aesop can prove this. Same for the next lemma.
 lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
   by_contra! h'
   apply h (max_eq_left h')
@@ -60,16 +61,14 @@ lemma leq_of_max_neq_right {a b : ℝ} (h : max a b ≠ b) : b < a := by
   by_contra! h'
   exact h (max_eq_right h')
 
-/-- equation 8.0.4 from the blueprint -/
+/-- Equation 8.0.4 from the blueprint -/
 lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
   rw [mem_ball']
   have : 0 < 1 - dist x y / (t * R) := by
     apply leq_of_max_neq_left
     rw [cutoff] at h
-    -- best way now?
     convert h
     exact eq_iff_eq_of_cmp_eq_cmp rfl
-  -- also works: field_simp at this; exact this
   exact (div_lt_one (by positivity)).mp (by linarith)
 
 lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
@@ -79,8 +78,6 @@ lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t *
   calc 2 ^ (-1 : ℝ)
     _ ≤ 1 - dist x y / (t * R) := by
       norm_num at *; linarith only [h, this]
-      -- bug: putting the cursor on the previous line shows 'no goals', but also
-      -- "Error: The requested module 'blob:vscode-webview://1rd9dtr7c96784kh96b2qlls7kpl0nadnnmhqp1v0dsavkhrgljh/a2aa2681-8a8a-42aa-8c1e-e9fcde1af97c' does not provide an export named 'useRpcSession'"
     _ ≤ cutoff R t x y := le_max_right _ _
 
 lemma aux_8_0_5'' (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
@@ -92,10 +89,8 @@ omit [TileStructure Q D κ S o] in
 lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
     (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
   calc (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R))
-    _ = ∫⁻ y in ((ball x (2 ^ (-1: ℝ) * t * R))), (2 ^ (-1: ℝ)) :=
-      (setLIntegral_const _ _).symm
+    _ = ∫⁻ y in ((ball x (2 ^ (-1: ℝ) * t * R))), (2 ^ (-1: ℝ)) := (setLIntegral_const _ _).symm
     _ ≤ ∫⁻ y in (ball x (2 ^ (-1: ℝ) * t * R)), (cutoff R t x y) := by
-      -- 'gcongr with y'' does too much: I want y in the ball, not in X
       apply setLIntegral_mono (by fun_prop (discharger := assumption))
       intro y' hy'
       exact aux_8_0_5'' hy' (hR := hR) (ht := ht)
@@ -226,69 +221,6 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
             _ = 2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) := by
               sorry
 -/
-end new
-
-variable {R t : ℝ} {x y : X}
-
-lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
-    LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
-  -- Still working on this:
-  -- mathlib is missing a lemma Lipschitz.smul_const for CommGroupWithZero (or so).
-  sorry
-
-@[fun_prop]
-lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) :=
-  (cutoff_Lipschitz hR ht (X := X)).continuous
-
-omit [TileStructure Q D κ S o] in
-/-- `cutoff R t x` is measurable in `y`. -/
-@[fun_prop]
-lemma cutoff_measurable (hR : 0 < R) (ht : 0 < t) : Measurable (fun y ↦ cutoff R t x y) :=
-  (cutoff_continuous hR ht).measurable
-
--- Is this useful for mathlib? neither exact? nor aesop can prove this. Same for the next lemma.
-lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
-  by_contra! h'
-  apply h (max_eq_left h')
-
-lemma leq_of_max_neq_right {a b : ℝ} (h : max a b ≠ b) : b < a := by
-  by_contra! h'
-  exact h (max_eq_right h')
-
-/-- Equation 8.0.4 from the blueprint -/
-lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ ball x (t * R) := by
-  rw [mem_ball']
-  have : 0 < 1 - dist x y / (t * R) := by
-    apply leq_of_max_neq_left
-    rw [cutoff] at h
-    convert h
-    exact eq_iff_eq_of_cmp_eq_cmp rfl
-  exact (div_lt_one (by positivity)).mp (by linarith)
-
-lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
-    2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
-  rw [mem_ball', mul_assoc] at h
-  have : dist x y / (t * R) < 2 ^ (-1 : ℝ) := (div_lt_iff₀ (by positivity)).mpr h
-  calc 2 ^ (-1 : ℝ)
-    _ ≤ 1 - dist x y / (t * R) := by
-      norm_num at *; linarith only [h, this]
-    _ ≤ cutoff R t x y := le_max_right _ _
-
-lemma aux_8_0_5'' (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
-    ((2 ^ (-1 : ℝ))) ≤ (cutoff R t x y : ℝ≥0∞) := by
-  rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_rpow_of_ne_zero (by norm_num)]
-  exact ENNReal.coe_le_coe.mpr (aux_8_0_5 (ht := ht) (hR := hR) h)
-
-omit [TileStructure Q D κ S o] in
-lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
-    (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) ≤ ∫⁻ y, (cutoff R t x y) := by
-  calc (2 ^ (-1: ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R))
-    _ = ∫⁻ y in ((ball x (2 ^ (-1: ℝ) * t * R))), (2 ^ (-1: ℝ)) := (setLIntegral_const _ _).symm
-    _ ≤ ∫⁻ y in (ball x (2 ^ (-1: ℝ) * t * R)), (cutoff R t x y) := by
-      apply setLIntegral_mono (by fun_prop (discharger := assumption))
-      intro y' hy'
-      exact aux_8_0_5'' hy' (hR := hR) (ht := ht)
-    _ ≤ ∫⁻ y, (cutoff R t x y) := setLIntegral_le_lintegral _ _
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
