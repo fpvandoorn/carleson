@@ -129,37 +129,40 @@ lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
   ring_nf
   sorry
 
+lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
+  have : volume.real (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume.real (ball x r) := by
+    convert measure_ball_le_pow_two (x := x) (r := r) (n := N + 2) (μ := volume)
+    rw [show defaultA a = 2 ^ a from rfl]
+    norm_cast
+    ring
+  have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
+    rw [Measure.real] at this
+    set A := volume (ball x (2 ^ (N + 2) * r))
+    set B := volume (ball x r) with hB
+    set D' : ℝ := ↑a * (↑N + 2)
+    set D'' : ℝ≥0∞ := 2 ^ D'
+    have : A.toReal ≤ D''.toReal * B.toReal := by
+      convert this
+      sorry -- D' is non-negative and finite, so obvious
+    show A ≤ D'' * B
+    -- A, B and D'' are finite, so this should be obvious. how to prove this best?
+    -- (A being finite is necessary, otherwise this is false)
+    sorry
+  set A : ℝ := (↑a * (↑N + 2))
+  set X := volume (ball x r)
+  convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
+  rw [show (-↑a * (↑N + 2)) = -A by ring]
+  -- XXX: at this point, neither `ring` nor `field_simp` work.
+  -- the former tries to "unfold A"; can I prevent this?
+  -- baz fires, but I want baz'
+  exact baz' (X := X)
+
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
   have inside_computation (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
-    have : volume.real (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume.real (ball x r) := by
-      convert measure_ball_le_pow_two (x := x) (r := r) (n := N + 2) (μ := volume)
-      rw [show defaultA a = 2 ^ a from rfl]
-      norm_cast
-      ring
-    have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
-      rw [Measure.real] at this
-      set A := volume (ball x (2 ^ (N + 2) * r))
-      set B := volume (ball x r) with hB
-      set D' : ℝ := ↑a * (↑N + 2)
-      set D'' : ℝ≥0∞ := 2 ^ D'
-      have : A.toReal ≤ D''.toReal * B.toReal := by
-        convert this
-        sorry -- D' is non-negative and finite, so obvious
-      show A ≤ D'' * B
-      -- A, B and D'' are finite, so this should be obvious. how to prove this best?
-      -- (A being finite is necessary, otherwise this is false)
-      sorry
-    set A : ℝ := (↑a * (↑N + 2))
-    set X := volume (ball x r)
-    convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
-    rw [show (-↑a * (↑N + 2)) = -A by ring]
-    -- XXX: at this point, neither `ring` nor `field_simp` work.
-    -- the former tries to "unfold A"; can I prevent this?
-    -- baz fires, but I want baz'
-    exact baz' (X := X)
-
+    exact aux_8_0_8_inner hR ht ht' N r
   set N : ℝ := @n_8_0_7 t + 2 with N_eq
   calc (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 * R))
     _ ≤ (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
