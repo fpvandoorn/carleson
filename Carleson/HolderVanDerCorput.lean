@@ -15,10 +15,6 @@ open scoped NNReal ENNReal ComplexConjugate
 def cutoff (R t : ℝ) (x y : X) : ℝ≥0 :=
   ⟨max 0 (1 - dist x y / (t * R)), by positivity⟩
 
-lemma cutoff_comm {R t : ℝ} {x y : X} : cutoff R t x y = cutoff R t y x := by
-  unfold cutoff
-  simp_rw [dist_comm x y]
-
 variable {R t : ℝ} {x y : X}
 
 lemma cutoff_comm : cutoff R t x y = cutoff R t y x := by
@@ -113,6 +109,7 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
     gcongr
     exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
+-- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
 -- I'm looking for a theorem like this for the two sorries below
