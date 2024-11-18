@@ -263,12 +263,61 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     _ < R + R := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
     _ = 2 * R := by ring
 
-/-- Part of Lemma 8.0.1. -/
-lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
+/-- Equation 8.0.9/8.0.10 from the blueprint:
+  the first estimate towards `dist_holderApprox_le`. -/
+-- missing hypotheses? right notion of integral?
+lemma aux_8_0_9 (ϕ : X → ℂ) :
+    (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+      = ∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y))) := sorry
+
+include x y R t in
+/-- Equation 8.0.11 from the blueprint: the first estimate towards `dist_holderApprox_le`. -/
+-- missing hypotheses?
+-- right notion of integral? right formalisation of absolute value?
+lemma aux_8_0_11 (ϕ : X → ℂ) :
+    ∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))
+      ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := sorry
+
+/-- Equation 8.0.12 from the blueprint: the second estimate towards `dist_holderApprox_le`. -/
+-- missing hypotheses?
+-- right notion of integral? right formalisation of absolute value?
+lemma aux_8_0_12 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
+    ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
+    ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := sorry
+
+/-- Equation 8.0.13 from the blueprint: the last estimate towards `dist_holderApprox_le`. -/
+-- missing hypotheses?
+-- right notion of integral? right formalisation of absolute value?
+lemma aux_8_0_13 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
+    True :=
+  -- TODO: this statement doesn't compile yet
+  --  (∫⁻ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ)
+  --  ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := sorry
+  sorry
+
+-- should be in mathlib. otherwise, an easy exercise
+lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
+  have : 0 ≤ 1 / I := by positivity
+  sorry
+
+include x y in
+/-- Part of Lemma 8.0.1. Equation (8.0.1) in the blueprint. -/
+lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) (x : X) :
     dist (ϕ x) (holderApprox R t ϕ x) ≤ t ^ τ * C := by
-  sorry
+  have : (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+      ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
+    calc (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+      _ = ∫ y, (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_9
+      _ ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_11 (y := y) ϕ
+      _ ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by apply aux_8_0_12 h2ϕ
+      _ ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
+        sorry -- will be `apply aux_8_0_13 h2ϕ`, once that is fixed...
+  set I := (∫⁻ y, cutoff R t x y).toReal
+  apply missing (I := I) (by positivity)
+  convert this using 1
+  ring
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
