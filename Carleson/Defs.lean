@@ -375,17 +375,24 @@ section DBounds
 
 variable (X)
 
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_realD : (100 : ℝ) < defaultD a := by
+  simp only [defaultD]
+  norm_cast
+  calc 100
+    _ < 128 := by
+      linarith
+    _ = 2 ^ 7 := by
+      rfl
+    _ < 2 ^ (100 * a ^ 2) := by
+      have : 4 ≤ a := four_le_a X
+      gcongr
+      linarith
+      nlinarith
+
 -- used in 4.1.7 (`small_boundary`)
 lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
-  simp only [defaultD, Nat.ofNat_le_cast]
-  have : 4 ≤ a := four_le_a X
-  calc
-    (25 : ℕ)
-      ≤ 32 := Nat.le_of_ble_eq_true rfl
-    _ = 2 ^ (5) := by rfl
-    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by norm_num)
-    _ ≤ 2 ^ (100 * a ^ 2) := Nat.pow_le_pow_right (by norm_num)
-      (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
+  linarith [hundred_lt_realD X]
 
 -- used in 4.1.3 (`I3_prop_3_1`)
 lemma eight_le_realD : (8 : ℝ) ≤ defaultD a := by

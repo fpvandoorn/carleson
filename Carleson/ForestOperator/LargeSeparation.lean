@@ -1,4 +1,5 @@
 import Carleson.ForestOperator.AlmostOrthogonality
+import Mathlib.Tactic.Rify
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -15,21 +16,6 @@ open scoped NNReal ENNReal ComplexConjugate
 namespace TileStructure.Forest
 
 /-! ## Section 7.5 -/
-
-theorem useful : (D : ℝ) ^ (s J + 3) = (D : ℝ) ^ (s J + 2) * (D : ℝ) := by
-  have fact_1 : (D : ℝ)^(s J + 3) = D^(s J) * D^3 := by
-    have well := Real.rpow_add (x:= (D : ℝ)) (y:= s J) (z:= 3) (hx:= defaultD_pos a)
-    norm_cast at well
-    rw [well]
-    norm_cast
-  have fact_2 : (D : ℝ)^(s J + 2) = D^(s J) * D^2 := by
-    have well := Real.rpow_add (x:= (D : ℝ)) (y:= s J) (z:= 2) (hx:= defaultD_pos a)
-    norm_cast at well
-    rw [well]
-    norm_cast
-  rw [fact_1, fact_2]
-  rw [mul_assoc]
-  congr
 
 variable (t u₁ u₂) in
 /-- The definition `𝓙'` at the start of Section 7.5.1.
@@ -114,90 +100,61 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u)
     (nndist x x' / D ^ (𝔰 p : ℝ)) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ := by
   sorry
 
-theorem size_of_D (aIsBig: a ≥ 4) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
-  have DIsPos := defaultD_pos a
-  have D_huge : D > 1000 := by
-    simp
-    have yellow : 2 ^ 10 = 1024 := by rfl
-    calc 1000
-      _ < 1024 := by
-        linarith
-      _ = 2 ^ 10 := by
-        exact yellow
-      _ < 2 ^ (100 * a ^ 2) := by
-        gcongr
-        linarith
-        nlinarith
-
-  have h1 : 100 * (D : ℝ) ^ (-1 : ℝ) < 100 * (100 : ℝ) ^ (-1 : ℝ) := by
-    have www := mul_lt_mul_left (a:= 100) (b:= (D : ℝ) ^ (-1 : ℝ)) (c:= ((100 : ℝ) ^ (-1 : ℝ))) (by positivity)
-    apply www.mpr
-    have red := Real.rpow_lt_rpow_iff_of_neg (x:= D) (y:= 100) (z:= -1) (DIsPos) (by linarith) (by linarith)
-    apply red.mpr
-    norm_cast
-    linarith
-
-  have h2 : 4 * (D : ℝ) ^ (-3 : ℝ) < 4 * ((10 : ℝ) ^ (-3 : ℝ)) := by
-    have www := mul_lt_mul_left (a:= 4) (b:= (D : ℝ) ^ (-3 : ℝ)) (c:= ((10 : ℝ) ^ (-3 : ℝ))) (by positivity)
-    apply www.mpr
-    have red := Real.rpow_lt_rpow_iff_of_neg (x:= D) (y:= 10) (z:= -3) (DIsPos) (by linarith) (by linarith)
-    apply red.mpr
-    norm_cast
-    linarith
-
-  have h3 : 8⁻¹ * (D : ℝ) ^ (-4 : ℝ) < 8⁻¹ * ((10 : ℝ) ^ (-4 : ℝ)) := by
-    have www := mul_lt_mul_left (a:= 8⁻¹) (b:= (D : ℝ) ^ (-4 : ℝ)) (c:= ((10 : ℝ) ^ (-4 : ℝ))) (by positivity)
-    apply www.mpr
-    have red := Real.rpow_lt_rpow_iff_of_neg (x:= D) (y:= 10) (z:= -4) (DIsPos) (by linarith) (by linarith)
-    apply red.mpr
-    norm_cast
-    linarith
-
-  have _h1 : 100 * 100 ^ (-1 : ℝ) = (1 : ℝ) := by norm_num
-  rw [_h1] at h1
-  have _h2 : 4 * ((10 : ℝ) ^ (-3 : ℝ)) = 1 / 250 := by norm_num
-  rw [_h2] at h2
-  have _h3 : 8⁻¹ * ((10 : ℝ) ^ (-4 : ℝ)) = 1 / 80000 := by norm_num
-  rw [_h3] at h3
-  clear _h1 _h2 _h3
-
+theorem size_of_D (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
   calc ((100 : ℝ) + 4 * ↑D ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (-1 : ℝ)
     _ = (100 : ℝ) * ↑D ^ (-1 : ℝ) + 4 * ↑D ^ (-2 : ℝ) * ↑D ^ (-1 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ) * ↑D ^ (-1 : ℝ) := by
       ring
     _ = (100 : ℝ) * ↑D ^ (-1 : ℝ) + 4 * ↑D ^ (-3 : ℝ) + 8⁻¹ * ↑D ^ (-4 : ℝ) := by
-      rw [mul_assoc, mul_assoc]
-      rw [← Real.rpow_add (by positivity), ← Real.rpow_add (by positivity)]
-      congr
-      norm_num
-      norm_num
+      rw [mul_assoc, mul_assoc, ← Real.rpow_add (by positivity), ← Real.rpow_add (by positivity)]
+      congr <;> norm_num
     _ < (1 : ℝ) + 1 / 250 + 1 / 80000 := by
+      have h1 : 100 * (D : ℝ) ^ (-1 : ℝ) < 1 := by
+        nth_rw 2 [show (1 : ℝ) = 100 * 100 ^ (-1 : ℝ) by norm_num]
+        gcongr 100 * ?_
+        apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
+        all_goals linarith
+      have h2 : 4 * (D : ℝ) ^ (-3 : ℝ) < 1 / 250 := by
+        rw [show (1 / 250 : ℝ) = 4 * ((10 : ℝ) ^ (-3 : ℝ)) by norm_num]
+        gcongr 4 * ?_
+        apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
+        all_goals linarith
+      have h3 : 8⁻¹ * (D : ℝ) ^ (-4 : ℝ) < 1 / 80000 := by
+        rw [show (1 / 80000 : ℝ) = 8⁻¹ * ((10 : ℝ) ^ (-4 : ℝ)) by norm_num]
+        gcongr 8⁻¹ * ?_
+        apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
+        all_goals linarith
       gcongr
     _ < 2 := by
       norm_num
 
 theorem disjoint
   {J: X} {d: ℝ} {pSet: Set X} {p: X}
-  (belongs: p ∈ pSet)
-  (h : Disjoint (Metric.ball J d) pSet)
+  (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J d) pSet)
   : dist J p ≥ d := by
+  rw [disjoint_iff_inter_eq_empty, inter_comm] at h
   by_contra! contr
-  have opposition : p ∈ ball J d := mem_ball_comm.mp contr
-  rw [disjoint_iff_inter_eq_empty] at h
-  rw [inter_comm] at h
-  have th := (Set.mem_inter_iff (x := p) (a := pSet) (b := ball J d)).mpr
-  have AND := And.intro belongs opposition
-  have wow := th AND
-  rw [h] at wow
-  exact (Set.mem_empty_iff_false p).mp wow
+  have belongsIntersection := (Set.mem_inter_iff ..).mpr ⟨belongs, (mem_ball_comm.mp contr)⟩
+  rw [h] at belongsIntersection
+  exact (Set.mem_empty_iff_false p).mp belongsIntersection
 
 theorem IF_subset_THEN_distance_between_centers
-  (subset : (J : Set X) ⊆ J') :
-  dist (c J) (c J') < 4 * D ^ s J' := by
-  have cJ_in_J : c J ∈ (J : Set X) := Grid.c_mem_Grid
-  have cJ_in_J' : c J ∈ (J' : Set X) := subset cJ_in_J
-  have bound := Grid_subset_ball cJ_in_J'
-  simp only [mem_ball] at bound
-  exact bound
+  (subset : (J : Set X) ⊆ J')
+  : dist (c J) (c J') < 4 * D ^ s J' := by
+  apply Grid_subset_ball
+  exact (subset (Grid.c_mem_Grid))
+
+theorem calculation_1 (aIsBig: a ≥ 4) : Real.logb (2 ^ (100 * a ^ 2)) 64 < 1 := by
+  have sixtyFourSmaller : (64 : ℝ) < 2 ^ (100 * a ^ 2) := by
+    calc (64 : ℝ)
+      _ = 2^6 := by norm_num
+      _ < 2 ^ (100 * a ^ 2) := by
+        gcongr
+        exact one_lt_two
+        apply lt_of_lt_of_le (b:=1600) (by norm_num)
+        exact Nat.mul_le_mul_left 100 (Nat.pow_le_pow_of_le_left aIsBig 2)
+  apply (Real.logb_lt_iff_lt_rpow (b := 2 ^ (100 * a ^ 2)) (x := 64) (y := 1) (by linarith) (by linarith)).mpr
+  simp
+  exact sixtyFourSmaller
 
 lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
@@ -210,7 +167,7 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
 
   cases' hp with hi _
 
-  have disjoint : Disjoint (𝓘 p : Set X) (𝓘 u₁ : Set X) := by
+  have disjointness : Disjoint (𝓘 p : Set X) (𝓘 u₁ : Set X) := by
     by_contra love
     have well : p ∈ t.𝔖₀ u₁ u₂ := by
       apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := love)
@@ -219,23 +176,13 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     contradiction
 
   have onOneHand : dist (c J) (𝔠 p) ≥ (D ^ s J / 4) := by
-    rw [disjoint_comm] at disjoint
-    have pJDisjoint := Disjoint.inter_left (h := disjoint) (u := ↑(J))
-    have u_inter_J_is_J : (𝓘 u₁ : Set X) ∩ J = J := inter_eq_self_of_subset_right hJaaa
-    rw [u_inter_J_is_J] at pJDisjoint
-    clear u_inter_J_is_J
-
-    have gridProperty : ball (c J) (D ^ s J / 4) ⊆ J := ball_subset_Grid (X := X) (i := J)
-    have inter : (J : Set X) ∩ (ball (c J) (D ^ s J / 4) : Set X) = ball (c J) (D ^ s J / 4) := inter_eq_self_of_subset_right gridProperty
-    clear disjoint gridProperty
-
+    rw [disjoint_comm] at disjointness
+    have pJDisjoint := Disjoint.inter_left (h := disjointness) (u := ↑(J))
+    rw [inter_eq_self_of_subset_right hJaaa] at pJDisjoint
+    have inter : (J : Set X) ∩ (ball (c J) (D ^ s J / 4) : Set X) = ball (c J) (D ^ s J / 4) := inter_eq_self_of_subset_right (ball_subset_Grid (X := X) (i := J))
     have pBallDisjoint : Disjoint (↑J ∩ ball (c J) (D ^ s J / 4)) ↑(𝓘 p) := Disjoint.inter_left (h := pJDisjoint) (s := J) (t := 𝓘 p) (u := ball (c J) (D ^ s J / 4))
     rw [inter] at pBallDisjoint
-    clear inter pJDisjoint
-
-    have belongs : 𝔠 p ∈ ↑(𝓘 p) := by
-      exact Grid.c_mem_Grid
-    exact disjoint (h := pBallDisjoint) (p := 𝔠 p) (belongs := belongs)
+    exact disjoint (h := pBallDisjoint) (p := 𝔠 p) (belongs := Grid.c_mem_Grid)
 
   have onOtherHand : dist (c J) (𝔠 p) ≤ D ^ (s J) / 8 + 8 * D^(𝔰 p) := by
     simp only [not_disjoint_iff] at h
@@ -260,104 +207,37 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
             exact Eq.symm (div_eq_inv_mul ..)
           rw [equal] at h2
           exact h2
-        have wwwwwww := add_le_add first second
         nth_rw 2 [add_comm]
-        exact wwwwwww
+        exact add_le_add first second
+
+  apply Int.not_le.mpr contr
+  apply Int.sub_one_lt_iff.mp
+  apply Int.sub_lt_of_sub_lt
+  rify
+  apply lt_of_le_of_lt (a:=(s J - 𝔰 p : ℝ)) (b:=Real.logb D 64) (c:=1)
+
+  apply tsub_le_iff_left.mpr
+
+  have DIsOne := one_lt_D (X := X)
+
+  rw [
+    ← Real.logb_rpow (b:=D) (x:=𝔰 p) (by positivity) (by linarith),
+    ← Real.logb_mul (by positivity) (by positivity),
+    ← Real.logb_rpow (b:=D) (x:=s J) (by positivity) (by linarith)
+  ]
+  apply (Real.logb_le_logb DIsOne (by positivity) (by positivity)).mpr
 
   have thus : (D : ℝ) ^ 𝔰 p * 64 ≥ ↑D ^ s J := by
     rw [← ge_iff_le] at onOtherHand
     have well := Trans.trans onOtherHand onOneHand
-    have white : (D : ℝ) ^ s J / 8 + 8 * ↑D ^ 𝔰 p - (↑D ^ s J / 4) ≥ 0 := by exact sub_nonneg_of_le well
-    have red : 8 * ((D : ℝ) ^ s J / 8 + 8 * ↑D ^ 𝔰 p - (↑D ^ s J / 4)) ≥ 8 * 0 := by
-      exact mul_le_mul_of_nonneg_left (a := 8) white (by positivity)
+    have white := sub_nonneg_of_le well
+    apply le_neg_add_iff_le.mp
+    have red := mul_le_mul_of_nonneg_left (a := 8) white (by positivity)
     ring_nf at red
-    exact le_neg_add_iff_le.mp red
+    exact red
+  exact_mod_cast thus
 
-  have violet : (D : ℝ) ^ 𝔰 p * 64 ≥ ↑D ^ (s J - 1) := by
-    have oneness : 𝔰 p ≤ s J - 1 := Int.le_sub_one_of_lt contr
-    have dIsPos := one_lt_D (X := X)
-    have less : (s J : ℝ) - 1 ≤ s J := by
-      linarith
-    have intermediate := Real.rpow_le_rpow_of_exponent_le
-      (x := ↑D)
-      (y := s J - 1)
-      (z := s J)
-      (hx := le_of_lt dIsPos)
-      (hyz := less)
-    have new := (ge_iff_le.mpr) intermediate
-    clear less dIsPos oneness intermediate
-    norm_cast at new
-    exact Preorder.le_trans ((D : ℝ) ^ (s J - 1)) (↑D ^ s J) (↑D ^ 𝔰 p * 64) new thus
-
-  have aIsBig : a ≥ 4 := four_le_a X
-  have DIsPos := defaultD_pos a
-  have DIsOne := one_lt_D (X := X)
-  have monotone := (Real.logb_le_logb
-    (b:= (D : ℝ))
-    (x:= (D : ℝ) ^ (s J))
-    (y:= (D) ^ 𝔰 p * 64)
-    (hb:= DIsOne)
-    (h := by positivity)
-    (h₁ := by positivity)).mpr
-
-  have red := monotone thus
-  clear monotone
-
-  have dNotOne : (D : ℝ) ≠ 1 := Ne.symm (ne_of_lt DIsOne)
-  have cool := Real.logb_rpow (b:= D) (x:= s J) (by positivity) (dNotOne)
-  norm_cast at cool
-  rw [cool] at red
-  clear cool
-  have wow := Real.logb_mul (b:= D) (x:= D ^ 𝔰 p) (y:= 64) (hx:= by positivity) (hy := by positivity)
-
-  rw [wow] at red
-  clear wow
-
-  have cool := Real.logb_rpow (b:= D) (x:= 𝔰 p) (by positivity) (dNotOne)
-  norm_cast at cool
-  rw [cool] at red
-  clear cool
-
-  simp at red
-
-  have smallllll : Real.logb (2 ^ (100 * a ^ 2)) 64 < 1 := by
-    have hundred_a_squared_ge_1600 : 100 * a^2 ≥ 1600 := by
-      have a_squared_ge_16 : a^2 ≥ 4^2 := Nat.pow_le_pow_of_le_left aIsBig 2
-      exact Nat.mul_le_mul_left 100 a_squared_ge_16
-    have aIsLargeTODO : (1 : ℝ) < 2 ^ (100 * a ^ 2) := by
-      calc (1 : ℝ)
-       _ = 2^0 := by norm_num
-       _ < 2 ^ (100 * a ^ 2) := by
-        gcongr
-        exact one_lt_two
-        have compare_0_and_1600 : 0 < 1600 := by norm_num
-        exact Nat.zero_lt_of_lt hundred_a_squared_ge_1600
-
-    have powers := (Real.logb_lt_iff_lt_rpow (b := 2 ^ (100 * a ^ 2)) (x := 64) (y := 1) (aIsLargeTODO) (by linarith))
-    apply powers.mpr
-    clear powers
-    simp
-    have easy : 2 ^ 6 = (64 : ℝ) := by norm_num
-    rw [← easy]
-    apply (pow_lt_pow_iff_right (a:=2) (n:=6) (m:= (100 * a ^ 2)) one_lt_two).mpr
-
-    have six_lt_1600 : 6 < 1600 := by norm_num
-    exact lt_of_lt_of_le six_lt_1600 hundred_a_squared_ge_1600
-
-  have yellow : (s J : ℝ) - (𝔰 p) ≤ Real.logb (2 ^ (100 * a ^ 2)) 64 := tsub_le_iff_left.mpr red
-  clear red dNotOne DIsOne DIsPos aIsBig
-  have green : (s J : ℝ) - (𝔰 p : ℝ) < 1 := by
-    exact lt_of_le_of_lt yellow smallllll
-  clear yellow smallllll violet thus
-  norm_cast at green
-  have lime : s J - 1 < 𝔰 p := Int.sub_lt_of_sub_lt green
-  clear green
-  have final : s J ≤ 𝔰 p := by
-    exact (Int.sub_one_lt_iff (m:= s J) (n:= 𝔰 p)).mp lime
-  have contrFalse : ¬(s J ≤ 𝔰 p) := by exact Int.not_le.mpr contr
-  contradiction
-
-
+  exact_mod_cast calculation_1 (aIsBig := four_le_a X)
 
 lemma sentence_2
   (plusOne: s J' = s J + 1)
@@ -470,7 +350,7 @@ lemma sentence_3
           have well := mul_assoc (a:= (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ))) (b:= (D : ℝ) ^ (-1 : ℝ)) (c:= (D : ℝ) ^ 𝔰 p)
           rw [← well]
           gcongr
-          exact size_of_D (four_le_a X)
+          exact size_of_D (hundred_lt_realD X)
 
 theorem last_step (hp: p ∈ t.𝔗 u₂ \ t.𝔖₀ u₁ u₂) : 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * (n : ℝ) / 2) := by
   cases' hp with l evil_children
@@ -541,6 +421,9 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       clear well
       rw [mul_comm]
 
+      have useful : (D : ℝ) ^ (s J + 3) = (D : ℝ) ^ (s J + 2) * (D : ℝ) := by
+        rw [zpow_add₀ (by linarith [defaultD_pos a]) (s J) 3, zpow_add₀ (by linarith [defaultD_pos a]) (s J) 2, mul_assoc]
+        congr
       rw [useful]
       have equality :
         (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s J + 2)) =
