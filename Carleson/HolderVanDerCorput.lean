@@ -72,6 +72,9 @@ lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ bal
     exact eq_iff_eq_of_cmp_eq_cmp rfl
   exact (div_lt_one (by positivity)).mp (by linarith)
 
+lemma support_cutoff_subset_ball (hR : 0 < R) (ht : 0 < t) :
+    support (fun y ↦ cutoff R t x y) ⊆ ball x (t * R) := fun _ hy ↦ aux_8_0_4 hR ht hy
+
 lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
     2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
   rw [mem_ball', mul_assoc] at h
@@ -275,22 +278,63 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
 -- missing hypotheses? right notion of integral?
 lemma aux_8_0_9 (ϕ : X → ℂ) :
     (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
-      = ∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y))) := sorry
+      = |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))| := by
+  -- pull the dist ... inside the integral
+  -- cutoff R t x y is non-negative, so both parts are -> so can add the absolute value,
+  -- and take it out again
+  -- calc (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+  --   _ = (∫⁻ y, (cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))) := sorry
+  --   _ = (∫⁻ y, (cutoff R t x y) * (dist (ϕ x) (holderApprox R t ϕ x))) := sorry
+  --   _ = |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))| := sorry
+  sorry
 
 include x y R t in
 /-- Equation 8.0.11 from the blueprint: the first estimate towards `dist_holderApprox_le`. -/
--- missing hypotheses?
 -- right notion of integral? right formalisation of absolute value?
-lemma aux_8_0_11 (ϕ : X → ℂ) :
-    ∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))
-      ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := sorry
+lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioo 0 1) (ϕ : X → ℂ) :
+    |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
+      ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
+  calc |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
+    _ ≤ ∫ y, |(cutoff R t x y) * (dist (ϕ x) (ϕ y))| := by
+      sorry -- standard lemma...
+    _ = ∫ y, ((cutoff R t x y) * dist (ϕ x) (ϕ y)) := by
+      -- can ext do this?
+      have : ∀ y, |(cutoff R t x y) * (dist (ϕ x) (ϕ y))| = (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
+        intro y
+        exact _root_.abs_of_nonneg (by positivity)
+      simp_rw [this]
+    _ = ∫ y in ball x (t * R), ((cutoff R t x y) * dist (ϕ x) (ϕ y)) := by
+      set f := fun y ↦ ((cutoff R t x y) * dist (ϕ x) (ϕ y))
+      symm
+      apply MeasureTheory.setIntegral_eq_integral_of_forall_compl_eq_zero (X := X) (s := ball x (t * R))
+      intro y hy
+      have : cutoff R t x y = 0 := by by_contra! h; exact hy (aux_8_0_4 hR ht.1 h)
+      simp [this]
 
 /-- Equation 8.0.12 from the blueprint: the second estimate towards `dist_holderApprox_le`. -/
 -- missing hypotheses?
 -- right notion of integral? right formalisation of absolute value?
 lemma aux_8_0_12 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
     ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
-    ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := sorry
+    ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by
+  calc ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
+    _ ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ * C * R ^ (-τ)) := by
+      apply setIntegral_mono
+      · sorry -- integrability goal ---> use Lebesgue integral instead??
+      · sorry -- another
+      intro y
+      -- now, the real goal I wanted to prove
+      beta_reduce
+      have : dist (ϕ x) (ϕ y) ≤ dist x y ^ τ * ↑C * R ^ (-τ) := by
+        sorry -- mismatch, h2ϕ expects an edist! --convert h2ϕ (x := x) (y := y)
+      set A := ↑(cutoff R t x y)
+      -- type conversions strike again...
+      --apply mul_le_mul_of_nonneg (a := A) (b := A) (c := edist (ϕ x) (ϕ y)|>.toNNReal) (le_refl A) this (by positivity) (by positivity) --this
+      sorry
+    _ = (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by
+      -- move the constant out of the integral
+      set DDD := C * R ^ (-τ) -- sth types, does not extract
+      sorry
 
 /-- Equation 8.0.13 from the blueprint: the last estimate towards `dist_holderApprox_le`. -/
 -- missing hypotheses?
