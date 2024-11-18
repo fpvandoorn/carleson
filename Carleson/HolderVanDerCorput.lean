@@ -22,7 +22,8 @@ lemma cutoff_comm : cutoff R t x y = cutoff R t y x := by
   simp_rw [dist_comm x y]
 
 lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
-    LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ cutoff R t x y) := by
+  -- FIXME: remove the `max 0` again
+    LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
   -- Still working on this:
   -- mathlib is missing a lemma Lipschitz.smul_const for CommGroupWithZero (or so).
 
@@ -129,7 +130,7 @@ lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
   ring_nf
   sorry
 
-lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) (N : ℕ) (r : ℝ) :
+lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
   have : volume.real (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume.real (ball x r) := by
     convert measure_ball_le_pow_two (x := x) (r := r) (n := N + 2) (μ := volume)
@@ -144,6 +145,8 @@ lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) (N : ℕ) (r : �
     set D'' : ℝ≥0∞ := 2 ^ D'
     have : A.toReal ≤ D''.toReal * B.toReal := by
       convert this
+      have : 0 ≤ D''.toReal := by positivity
+      unfold D''
       sorry -- D' is non-negative and finite, so obvious
     show A ≤ D'' * B
     -- A, B and D'' are finite, so this should be obvious. how to prove this best?
@@ -161,8 +164,8 @@ lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) (N : ℕ) (r : �
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
   have inside_computation (N : ℕ) (r : ℝ) :
-      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
-    exact aux_8_0_8_inner hR ht ht' N r
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
+    aux_8_0_8_inner hR ht N r
   set N : ℝ := @n_8_0_7 t + 2 with N_eq
   calc (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 * R))
     _ ≤ (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
