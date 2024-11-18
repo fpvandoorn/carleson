@@ -21,8 +21,12 @@ lemma cutoff_comm {R t : ℝ} {x y : X} : cutoff R t x y = cutoff R t y x := by
 
 variable {R t : ℝ} {x y : X}
 
+lemma cutoff_comm : cutoff R t x y = cutoff R t y x := by
+  unfold cutoff
+  simp_rw [dist_comm x y]
+
 lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
-    LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
+    LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ cutoff R t x y) := by
   -- Still working on this:
   -- mathlib is missing a lemma Lipschitz.smul_const for CommGroupWithZero (or so).
 

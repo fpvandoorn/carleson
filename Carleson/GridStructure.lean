@@ -93,6 +93,7 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
 
 lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
 
+@[aesop (rule_sets := [finiteness]) safe apply]
 lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
   measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
 
