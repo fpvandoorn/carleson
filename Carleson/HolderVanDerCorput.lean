@@ -276,10 +276,10 @@ lemma aux_8_0_9 (ϕ : X → ℂ) :
 -- ext: structure of types proven equal (e.g., functions, sets)
 -- congr, gcongr: structure of terms proven equal (using injectivity/monotonicity for = or ≤)
 
-include x y R t in
+omit [TileStructure Q D κ S o] y in
 /-- Equation 8.0.11 from the blueprint: the first estimate towards `dist_holderApprox_le`. -/
 -- right notion of integral? right formalisation of absolute value?
-lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioo 0 1) (ϕ : X → ℂ) :
+lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
     |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
       ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
   calc |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
@@ -296,7 +296,13 @@ lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioo 0 1) (ϕ : X → ℂ) :
       have : cutoff R t x y = 0 := by by_contra! h; exact hy (aux_8_0_4 hR ht.1 h)
       simp [this]
 
-lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR := R ≠ 0) (ht : t ∈ Ioo 0 1) (h2ϕ : HolderWith C nnτ ϕ) :
+-- TODO: copy over the proof of 8_0_11, somehow/adapt it!
+lemma aux_8_0_11'' (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
+    |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
+      ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
+  sorry
+
+lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR : R ≠ 0) (ht : t ∈ Ioc 0 1) (h2ϕ : HolderWith C nnτ ϕ) :
     ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
     ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
   calc ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
@@ -362,7 +368,6 @@ lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
 
 -- just divide cutoff by R^τ instead? feel free to fix yourself... but should do it on paper first :-)
 
-#exit
 include x y in
 /-- Part of Lemma 8.0.1. Equation (8.0.1) in the blueprint. -/
 lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
@@ -372,15 +377,29 @@ lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
   have : (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
       ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
     calc (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
-      _ = ∫ y, (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_9
-      _ ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_11 (y := y) ϕ
-      _ ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by apply aux_8_0_12 h2ϕ
+      _ = |∫ y, (cutoff R t x y) * (dist (ϕ x) (ϕ y))| := by apply aux_8_0_9
+      _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
+        apply aux_8_0_11'' hR ht
+        --_ ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_11 (y := y) ϕ
+      _ ≤ ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal := by
+        -- side effect of using different types: need to prove the integral is bounded,
+        -- to use monotonicity of .toReal
+        gcongr
+        · sorry -- idea: function is bounded, ball has finite volume
+        apply aux_8_0_12'' (R := ⟨R, by positivity⟩) (Ne.symm (ne_of_lt hR)) ht h2ϕ
       _ ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
+        have : 0 < t := sorry
+        let t' : ℝ≥0 := ⟨t, this.le⟩
+        have : 0 < t' := sorry
+        let asdf := aux_8_0_13 h2ϕ (R := ⟨R, by positivity⟩) (t := t') (x := x)
+        -- not quite there yet... apply asdf
         sorry -- will be `apply aux_8_0_13 h2ϕ`, once that is fixed...
   set I := (∫⁻ y, cutoff R t x y).toReal
   apply missing (I := I) (by positivity)
   convert this using 1
   ring
+
+#exit
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
