@@ -296,7 +296,7 @@ lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioo 0 1) (ϕ : X → ℂ) :
       have : cutoff R t x y = 0 := by by_contra! h; exact hy (aux_8_0_4 hR ht.1 h)
       simp [this]
 
-lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
+lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR := R ≠ 0) (ht : t ∈ Ioo 0 1) (h2ϕ : HolderWith C nnτ ϕ) :
     ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
     ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
   calc ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
@@ -306,7 +306,14 @@ lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ
       have : nndist (ϕ x) (ϕ y) ≤ C * nndist x y ^ τ := h2ϕ.dist_le (x := x) (y := y)
       --apply this--convert h2ϕ.nndist_le (x := x) (y := y)
       sorry
-    _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := sorry
+    _ = (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ * C) := by
+      simp_rw [← mul_comm (C : ℝ≥0∞) _, mul_assoc]
+    _ = (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
+      rw [lintegral_mul_const]
+      have : 0 < R := by sorry -- should be easy...
+      have aux := cutoff_measurable (R := R) this ht.1 (X := X) (x := x)
+      apply Measurable.mul (by fun_prop) (by fun_prop)
+
 
   -- heuristic: if both sides are ℝ≥0, use lintegral
   -- use lintegral if I can
@@ -321,7 +328,7 @@ lemma aux_8_0_12 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
   calc ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
     _ ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ * C) := by
       apply setIntegral_mono
-      · sorry -- integrability goal ---> use Lebesgue integral instead??
+      · sorry -- integrability goal ---> use Lebesgue integral instead?? yes!
       · sorry -- another
       intro y
       -- now, the real goal I wanted to prove
