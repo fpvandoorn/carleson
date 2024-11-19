@@ -140,8 +140,11 @@ lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
     rw [show defaultA a = 2 ^ a from rfl]
     norm_cast
     ring
+
   have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
-    rw [Measure.real] at this
+    -- FIXME: prove a version of the doubling formula for `volume`, then use here!
+    sorry
+    /- rw [Measure.real] at this
     set A := volume (ball x (2 ^ (N + 2) * r))
     set B := volume (ball x r) with hB
     set D' : ℝ := ↑a * (↑N + 2)
@@ -154,7 +157,7 @@ lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
     show A ≤ D'' * B
     -- A, B and D'' are finite, so this should be obvious. how to prove this best?
     -- (A being finite is necessary, otherwise this is false)
-    sorry
+    sorry -/
   set A : ℝ := (↑a * (↑N + 2))
   set X := volume (ball x r)
   convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
@@ -240,12 +243,12 @@ def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
   (∫ y, cutoff R t x y * ϕ y) / (∫⁻ y, cutoff R t x y).toReal
 
 -- This surely exists in mathlib; how is it named?
+-- if not, PR welcome?
 omit [TileStructure Q D κ S o] in
 lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
   by_contra! h
   apply hf
-  have : φ = 0 := by ext; apply h
-  rw [this]
+  simp_rw [h]
   simp
 
 omit [TileStructure Q D κ S o] in
@@ -288,6 +291,9 @@ lemma aux_8_0_9 (ϕ : X → ℂ) :
   --   _ = |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))| := sorry
   sorry
 
+-- ext: structure of types proven equal (e.g., functions, sets)
+-- congr, gcongr: structure of terms proven equal (using injectivity/monotonicity for = or ≤)
+
 include x y R t in
 /-- Equation 8.0.11 from the blueprint: the first estimate towards `dist_holderApprox_le`. -/
 -- right notion of integral? right formalisation of absolute value?
@@ -298,18 +304,31 @@ lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioo 0 1) (ϕ : X → ℂ) :
     _ ≤ ∫ y, |(cutoff R t x y) * (dist (ϕ x) (ϕ y))| := by
       sorry -- standard lemma...
     _ = ∫ y, ((cutoff R t x y) * dist (ϕ x) (ϕ y)) := by
-      -- can ext do this?
-      have : ∀ y, |(cutoff R t x y) * (dist (ϕ x) (ϕ y))| = (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
-        intro y
-        exact _root_.abs_of_nonneg (by positivity)
-      simp_rw [this]
+      congr! 2 with y
+      exact _root_.abs_of_nonneg (by positivity)
     _ = ∫ y in ball x (t * R), ((cutoff R t x y) * dist (ϕ x) (ϕ y)) := by
       set f := fun y ↦ ((cutoff R t x y) * dist (ϕ x) (ϕ y))
       symm
-      apply MeasureTheory.setIntegral_eq_integral_of_forall_compl_eq_zero (X := X) (s := ball x (t * R))
+      apply setIntegral_eq_integral_of_forall_compl_eq_zero
       intro y hy
       have : cutoff R t x y = 0 := by by_contra! h; exact hy (aux_8_0_4 hR ht.1 h)
       simp [this]
+
+lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
+    ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
+    ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
+  calc ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
+    _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * C * (nndist x y) ^ τ) := by
+      simp_rw [mul_assoc]
+      gcongr with y
+      have : nndist (ϕ x) (ϕ y) ≤ C * nndist x y ^ τ := h2ϕ.dist_le (x := x) (y := y)
+      --apply this--convert h2ϕ.nndist_le (x := x) (y := y)
+      sorry
+    _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := sorry
+
+  -- heuristic: if both sides are ℝ≥0, use lintegral
+  -- use lintegral if I can
+  -- estimates with ≤, generally use lintegral (or Bochner with real numbers)
 
 /-- Equation 8.0.12 from the blueprint: the second estimate towards `dist_holderApprox_le`. -/
 -- missing hypotheses?
@@ -318,19 +337,22 @@ lemma aux_8_0_12 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
     ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
     ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by
   calc ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
-    _ ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ * C * R ^ (-τ)) := by
+    _ ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ * C) := by
       apply setIntegral_mono
       · sorry -- integrability goal ---> use Lebesgue integral instead??
       · sorry -- another
       intro y
       -- now, the real goal I wanted to prove
       beta_reduce
+      have : dist (ϕ x) (ϕ y) ≤ C * dist x y ^ τ := h2ϕ.dist_le (x := x) (y := y)
+      -- is the R^-τ wrong and should just be deleted?
       have : dist (ϕ x) (ϕ y) ≤ dist x y ^ τ * ↑C * R ^ (-τ) := by
-        sorry -- mismatch, h2ϕ expects an edist! --convert h2ϕ (x := x) (y := y)
-      set A := ↑(cutoff R t x y)
-      -- type conversions strike again...
-      --apply mul_le_mul_of_nonneg (a := A) (b := A) (c := edist (ϕ x) (ϕ y)|>.toNNReal) (le_refl A) this (by positivity) (by positivity) --this
-      sorry
+        convert h2ϕ.dist_le
+        sorry -- mismatch, h2ϕ expects an edist! --
+        --convert h2ϕ (x := x) (y := y)
+      -- associativity orders, be careful!
+      sorry--rw [mul_assoc ((cutoff R t x y) : ℝ), mul_assoc]
+      --gcongr
     _ = (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by
       -- move the constant out of the integral
       set DDD := C * R ^ (-τ) -- sth types, does not extract
@@ -339,18 +361,19 @@ lemma aux_8_0_12 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
 /-- Equation 8.0.13 from the blueprint: the last estimate towards `dist_holderApprox_le`. -/
 -- missing hypotheses?
 -- right notion of integral? right formalisation of absolute value?
-lemma aux_8_0_13 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
-    True :=
-  -- TODO: this statement doesn't compile yet
-  --  (∫⁻ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ)
-  --  ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := sorry
-  sorry
+lemma aux_8_0_13 {ϕ : X → ℂ} {R t C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) : -- R also superfluous?
+   (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C * R ^ (-τ)
+   ≤ (∫⁻ y, cutoff R t x y) * C * t ^ τ := sorry
+
 
 -- should be in mathlib. otherwise, an easy exercise
 lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
   have : 0 ≤ 1 / I := by positivity
   sorry
 
+-- just divide cutoff by R^τ instead? feel free to fix yourself... but should do it on paper first :-)
+
+#exit
 include x y in
 /-- Part of Lemma 8.0.1. Equation (8.0.1) in the blueprint. -/
 lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
