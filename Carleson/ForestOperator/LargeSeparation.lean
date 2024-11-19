@@ -68,7 +68,7 @@ irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ (226 * (a : ℝ) ^ 3)
 /-- Part of Lemma 7.5.2. -/
 lemma sum_χ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (x : X) :
-    ∑ J ∈ { I | I ∈ 𝓙₅ t u₁ u₂ }, χ t u₁ u₂ J x = (𝓘 u₁ : Set X).indicator 1 x := by
+    ∑ J ∈ { I | I ∈ 𝓙₅ t u₁ u₂   }, χ t u₁ u₂ J x = (𝓘 u₁ : Set X).indicator 1 x := by
   sorry
 
 /-- Part of Lemma 7.5.2. -/
@@ -292,7 +292,6 @@ lemma sentence_3
       have step3 : dist (c J) middleX < 8⁻¹ * ↑D ^ s J := by
         rw [dist_comm]
         exact yyy
-      have step4 : dist middleX (𝔠 p) < 8 * ↑D ^ 𝔰 p := xxx
       calc dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) ≤
         100 * ↑D ^ (s J + 3) + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) :=
             by gcongr
@@ -482,8 +481,6 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
   have contr : (1 : ℝ) ≤ 2 ^ (-94 * (a : ℝ )) := by
     exact one_le_of_le_mul_right₀ zer contradiction
 
-  clear zer contradiction
-
   have aIsBig : a ≥ 4 := four_le_a X
   have trio : (2 : ℝ)^(0 :ℝ) = 1 := by norm_num
   rw [← trio] at contr
@@ -496,7 +493,6 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       _ = 376 := by norm_num
   norm_cast at ff
   linarith
-
 
 
 /-- The constant used in `local_tree_control`.
