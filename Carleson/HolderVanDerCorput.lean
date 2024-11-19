@@ -135,29 +135,11 @@ lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
 
 lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
-  have : volume.real (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume.real (ball x r) := by
-    convert measure_ball_le_pow_two (x := x) (r := r) (n := N + 2) (μ := volume)
+  have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
+    convert measure_ball_le_pow_two' (x := x) (μ := volume)
     rw [show defaultA a = 2 ^ a from rfl]
     norm_cast
     ring
-
-  have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
-    -- FIXME: prove a version of the doubling formula for `volume`, then use here!
-    sorry
-    /- rw [Measure.real] at this
-    set A := volume (ball x (2 ^ (N + 2) * r))
-    set B := volume (ball x r) with hB
-    set D' : ℝ := ↑a * (↑N + 2)
-    set D'' : ℝ≥0∞ := 2 ^ D'
-    have : A.toReal ≤ D''.toReal * B.toReal := by
-      convert this
-      have : 0 ≤ D''.toReal := by positivity
-      unfold D''
-      sorry -- D' is non-negative and finite, so obvious
-    show A ≤ D'' * B
-    -- A, B and D'' are finite, so this should be obvious. how to prove this best?
-    -- (A being finite is necessary, otherwise this is false)
-    sorry -/
   set A : ℝ := (↑a * (↑N + 2))
   set X := volume (ball x r)
   convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
@@ -301,8 +283,8 @@ lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioo 0 1) (ϕ : X → ℂ) :
     |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
       ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
   calc |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
-    _ ≤ ∫ y, |(cutoff R t x y) * (dist (ϕ x) (ϕ y))| := by
-      sorry -- standard lemma...
+    _ ≤ ∫ y, |(cutoff R t x y) * (dist (ϕ x) (ϕ y))| :=
+    norm_integral_le_integral_norm (fun y ↦ (cutoff R t x y) * (dist (ϕ x) (ϕ y)))
     _ = ∫ y, ((cutoff R t x y) * dist (ϕ x) (ϕ y)) := by
       congr! 2 with y
       exact _root_.abs_of_nonneg (by positivity)
