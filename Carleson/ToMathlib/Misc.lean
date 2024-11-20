@@ -20,12 +20,13 @@ section Metric
 
 attribute [gcongr] Metric.ball_subset_ball
 
-
+/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19294-/
 lemma Metric.dense_iff_iUnion_ball {X : Type*} [PseudoMetricSpace X] (s : Set X) :
     Dense s ↔ ∀ r > 0, ⋃ c ∈ s, ball c r = univ := by
   simp_rw [eq_univ_iff_forall, mem_iUnion, exists_prop, mem_ball, Dense, Metric.mem_closure_iff,
     forall_comm (α := X)]
 
+/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19294-/
 theorem PseudoMetricSpace.dist_eq_of_dist_zero {X : Type*} [PseudoMetricSpace X] (x : X) {y y' : X}
     (hyy' : dist y y' = 0) : dist x y = dist x y' :=
   dist_comm y x ▸ dist_comm y' x ▸ sub_eq_zero.1 (abs_nonpos_iff.1 (hyy' ▸ abs_dist_sub_le y y' x))
