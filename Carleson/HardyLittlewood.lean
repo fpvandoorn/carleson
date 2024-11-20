@@ -362,6 +362,7 @@ theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
+
 section GMF
 
 variable [ProperSpace X]
@@ -385,11 +386,31 @@ protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
   AEStronglyMeasurable.maximalFunction (countable_globalMaximalFunction X)
     |>.aemeasurable.const_mul _ |>.aestronglyMeasurable
 
-/-- Equation (2.0.45). -/
+/-- Equation (2.0.45).
+This result may be false the way it is stated now, because the laverage on the left has the freedom to choose any radius `r` for the ball, while the global maximal function (as it is currently defined) can only use discrete radii of the form `2 ^ n` with `n : ℤ`, see the counterexample below.
+Let's suppose `A = 1` for simplicity.
+Let `X = E = ℝ`, `μ` the Lebesgue measure, `x = 0`, `u = 𝟙_[2,3] - 𝟙_[3,4] - 𝟙_[-1,0]`.
+Then we can have a ball of radius 3/2 that contains 0 such that the laverage on that ball is positive (it is enough to put the centre of the ball in `3/2 - ε` for a small `ε`).
+However if we take any ball of radius `2 ^ n` that contains 0, then the laverage on that ball is necessarily non positive, in fact if the radius of the ball is smaller or equal than 1 then it cannot contain any region where `u` is positive, if the radius is greater or equal than 2 then it contains at least a region of measure 1 where `u` is negative, which conunterbalances the positive region.
+
+On another note, should there be `A ^ 2` that multiplies the laverage on the left? Or should we assume that `1 ≤ A`? Or maybe there is a reason for this that I am missing.
+-/
 theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurable u μ)
     (hu : IsBounded (range u)) {z x : X} {r : ℝ} (h : dist x z < r) :
-    ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
-  sorry
+    -- we have multiplied the lhs by `A ^ 2`, should we instead assume `1 ≤ A`?
+    A ^ 2 * ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
+  rw [globalMaximalFunction, maximalFunction]
+  simp only [gt_iff_lt, mem_prod, mem_univ, and_true, ENNReal.rpow_one, inv_one]
+  gcongr
+  refine le_iSup₂_of_le ⟨z, 1⟩ ?_ ?_
+  ·
+    simp
+    refine ?_
+    sorry
+  ·
+    refine ?_
+    sorry
+
 
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
@@ -400,12 +421,12 @@ Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul]
+  -- unfold globalMaximalFunction
+  -- simp_rw [ENNReal.toReal_mul]
   -- apply HasStrongType.const_mul -- this needs to be adapted
   -- refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
   /- `hasStrongType_maximalFunction` currently requires the collection of balls `𝓑`
-  to be finite, but its generalization to countable collectinos is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
+  to be finite, but its generalization to countable collections is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
   -/
   sorry
 
