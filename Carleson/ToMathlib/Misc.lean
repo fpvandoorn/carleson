@@ -42,9 +42,6 @@ end Order
 
 section Int
 
-theorem Int.floor_le_iff (c : ℝ) (z : ℤ) : ⌊c⌋ ≤ z ↔ c < z + 1 := by
-  rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel_right]
-
 theorem Int.Icc_of_eq_sub_1 {a b : ℤ} (h : a = b - 1) : Finset.Icc a b = {a, b} := by
   refine le_antisymm (fun t ht ↦ ?_) (fun t ht ↦ ?_)
   · rw [h, Finset.mem_Icc] at ht
