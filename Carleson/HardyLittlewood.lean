@@ -362,6 +362,7 @@ theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
+
 section GMF
 
 variable [ProperSpace X]
@@ -400,12 +401,12 @@ Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul]
+  -- unfold globalMaximalFunction
+  -- simp_rw [ENNReal.toReal_mul]
   -- apply HasStrongType.const_mul -- this needs to be adapted
   -- refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
   /- `hasStrongType_maximalFunction` currently requires the collection of balls `𝓑`
-  to be finite, but its generalization to countable collectinos is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
+  to be finite, but its generalization to countable collections is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
   -/
   sorry
 

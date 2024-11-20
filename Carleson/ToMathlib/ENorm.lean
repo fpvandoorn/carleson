@@ -6,6 +6,8 @@ import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 -- these imports are only needed in the `tmp` section
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
 import Mathlib.MeasureTheory.Covering.Vitali
+import Mathlib.MeasureTheory.Measure.OpenPos
+import Mathlib.Topology.Bases
 
 noncomputable section
 
@@ -127,7 +129,9 @@ def HasWeakType (T : (α → E₁) → (α' → E₂)) (p p' : ℝ≥0∞) (μ :
 /-- An operator has strong type `(p, q)` if it is bounded as an operator on `L^p → L^q`.
 `HasStrongType T p p' μ ν c` means that `T` has strong type `(p, p')` w.r.t. measures `μ`, `ν`
 and constant `c`.  -/
-def HasStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E']
+def HasStrongType {E E' α α' : Type*}
+    -- [NormedAddCommGroup E] [NormedAddCommGroup E']
+    [ENorm E] [ENorm E'] [TopologicalSpace E] [TopologicalSpace E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → E) → (α' → E'))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
   ∀ f : α → E, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
@@ -204,7 +208,9 @@ theorem MemWℒp.ae_ne_top' {f : α → ENNReal} {p : ℝ≥0∞} {μ : Measure 
 /- Add temporary section. -/
 section tmp
 
-/- Copy-pasted all this code here temporarily to be able to prove `HasWeakType.MB_one'` while avoiding the import conflicts, the problem is that this file redefines some objects that are imported in the files that define `IsDoubling`, `MB` ecc. When these definitions will replace the old ones this can be fixed
+/- Copy-pasted all this code here temporarily to be able to prove `HasWeakType.MB_one'` while avoiding the import conflicts, the problem is that this file redefines some objects that are imported in the files that define `IsDoubling`, `MB` ecc. When these definitions will replace the old ones this can be fixed.
+
+After `HasWeakType.MB_one'` we also had to copy-paste other code for the same reason, in order to prove `hasStrongType_globalMaximalFunction` (Task 109).
 -/
 
 open Metric Vitali MeasureTheory Measure
@@ -270,6 +276,13 @@ def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → 
 M_𝓑 in the blueprint. -/
 abbrev MB (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
   maximalFunction μ 𝓑 c r 1 u x
+
+lemma maximalFunction_eq_MB
+    {μ : Measure X} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → E} {x : X} (hp : 0 ≤ p) :
+    maximalFunction μ 𝓑 c r p u x = (MB μ 𝓑 c r (‖u ·‖ ^ p) x) ^ p⁻¹ := by
+  unfold MB maximalFunction; rw [← ENNReal.rpow_mul, inv_one, one_mul]; congr! 8
+  rw [ENNReal.rpow_one, ← ENNReal.coe_rpow_of_nonneg _ hp, ENNReal.coe_inj,
+    Real.nnnorm_rpow_of_nonneg (by simp), nnnorm_norm]
 
 -- todo: move
 -- slightly more general than the Mathlib version
@@ -404,6 +417,125 @@ protected theorem HasWeakType.MB_one' [BorelSpace X] (h𝓑 : 𝓑.Countable)
   · exact fun i hi ↦ hR i (mem_of_mem_inter_left hi)
   · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
+/- TASK 109 -/
+
+open TopologicalSpace
+
+/-- The definition of the constant in the real interpolation theorem, when viewed as
+    an element of `ℝ≥0∞`. -/
+def C_realInterpolation_ENNReal (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁: ℝ≥0) (A : ℝ≥0) (t : ℝ) :=
+    (if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)) * q ^ q⁻¹.toReal *
+    (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
+    (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
+    C₀ ^ (1 - t) * C₁ ^ t
+
+/-- The constant occurring in the real interpolation theorem. -/
+-- todo: check order of arguments
+def C_realInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ) : ℝ≥0 :=
+    C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t |>.toNNReal
+
+
+/-- The constant factor in the statement that `M_𝓑` has strong type. -/
+irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹
+
+/-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
+irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
+
+section Prelude
+
+variable (X : Type*) [PseudoMetricSpace X] [SeparableSpace X]
+
+lemma Metric.dense_iff_iUnion_ball {X : Type*} [PseudoMetricSpace X] (s : Set X) :
+    Dense s ↔ ∀ r > 0, ⋃ c ∈ s, ball c r = univ := by
+  simp_rw [eq_univ_iff_forall, mem_iUnion, exists_prop, mem_ball, Dense, Metric.mem_closure_iff,
+    forall_comm (α := X)]
+
+/-- Lemma 9.0.2 -/
+lemma covering_separable_space :
+    ∃ C : Set X, C.Countable ∧ ∀ r > 0, ⋃ c ∈ C, ball c r = univ := by
+  simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
+
+end Prelude
+
+#check AEStronglyMeasurable.maximalFunction
+
+-- protected theorem AEStronglyMeasurable.maximalFunction [BorelSpace X] {p : ℝ}
+--     {u : X → E} (h𝓑 : 𝓑.Countable) : AEStronglyMeasurable (maximalFunction μ 𝓑 c r p u) μ :=
+--   (AEMeasurable.biSup 𝓑 h𝓑 fun _ _ ↦ aemeasurable_const.indicator measurableSet_ball).pow
+--     aemeasurable_const |>.aestronglyMeasurable
+
+-- theorem AEStronglyMeasurable.maximalFunction_toReal [BorelSpace X]
+--     {p : ℝ} {u : X → E} (h𝓑 : 𝓑.Countable) :
+--     AEStronglyMeasurable (fun x ↦ maximalFunction μ 𝓑 c r p u x |>.toReal) μ :=
+--   AEStronglyMeasurable.maximalFunction h𝓑 |>.ennreal_toReal
+
+/-- Equation (2.0.44). The proof is given between (9.0.34) and (9.0.36). -/
+theorem hasStrongType_maximalFunction
+    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
+    {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
+    HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
+      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
+  dsimp only
+  refine ⟨AEStronglyMeasurable.maximalFunction h𝓑, ?_⟩
+  have cp₁p : 0 < (p₁ : ℝ) := by positivity
+  have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
+  conv_lhs =>
+    enter [1, x]
+    rw [maximalFunction_eq_MB (by exact zero_le_one.trans hp₁),
+
+    -- ← ENNReal.toReal_rpow,
+      -- ← ENNReal.abs_toReal,
+      -- ← Real.norm_eq_abs
+      ]
+    change ‖MB μ 𝓑 c r _ x‖ₑ ^ p₁⁻¹
+
+  rw [eLpNorm_norm_rpow _ (by positivity), ENNReal.ofReal_inv_of_pos cp₁p,
+    ENNReal.ofReal_coe_nnreal, ← div_eq_mul_inv, ← ENNReal.coe_div p₁n]
+  calc
+    _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
+      apply ENNReal.rpow_le_rpow _ (by positivity)
+      convert (hasStrongType_MB h𝓑 (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
+      · exact (ENNReal.coe_div p₁n).symm
+      · rwa [lt_div_iff₀, one_mul]; exact cp₁p
+      · rw [ENNReal.coe_div p₁n]; exact Memℒp.norm_rpow_div mlpv p₁
+    _ ≤ _ := by
+      rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), eLpNorm_norm_rpow _ cp₁p,
+        ENNReal.ofReal_coe_nnreal, ENNReal.div_mul_cancel (by positivity) (by simp),
+        ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
+        C2_0_6]
+
+section GMF
+
+variable [ProperSpace X]
+
+variable (μ) in
+/-- The transformation `M` characterized in Proposition 2.0.6.
+`p` is `1` in the blueprint, and `globalMaximalFunction μ p u = (M (u ^ p)) ^ p⁻¹ ` -/
+@[nolint unusedArguments]
+def globalMaximalFunction [μ.IsDoubling A] (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
+  A ^ 2 * maximalFunction μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
+    (·.1) (2 ^ ·.2) p u x
+
+/-- The constant factor in the statement that `M` has strong type. -/
+def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
+
+
+/-- Equation (2.0.46).
+Easy from `hasStrongType_maximalFunction`. Ideally prove separately
+`HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
+theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
+    HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
+      p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
+  -- unfold globalMaximalFunction
+  -- simp_rw [ENNReal.toReal_mul]
+  -- apply HasStrongType.const_mul -- this needs to be adapted
+  -- refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
+  /- `hasStrongType_maximalFunction` currently requires the collection of balls `𝓑`
+  to be finite, but its generalization to countable collections is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
+  -/
+  sorry
+
+end GMF
 end tmp
 
 end MeasureTheory
