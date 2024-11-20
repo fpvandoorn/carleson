@@ -387,30 +387,36 @@ protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
     |>.aemeasurable.const_mul _ |>.aestronglyMeasurable
 
 /-- Equation (2.0.45).
-This result may be false the way it is stated now, because the laverage on the left has the freedom to choose any radius `r` for the ball, while the global maximal function (as it is currently defined) can only use discrete radii of the form `2 ^ n` with `n : ℤ`, see the counterexample below.
-Let's suppose `A = 1` for simplicity.
+This result may be false the way it is stated now, because the laverage on the left has the freedom
+to choose any radius `r` for the ball, while the global maximal function (as it is currently defined)
+can only use discrete radii of the form `2 ^ n` with `n : ℤ`, see the counterexample below.
+Let's suppose `A = 1` for simplicity (even though the argument holds for any value of A).
 Let `X = E = ℝ`, `μ` the Lebesgue measure, `x = 0`, `u = 𝟙_[2,3] - 𝟙_[3,4] - 𝟙_[-1,0]`.
-Then we can have a ball of radius 3/2 that contains 0 such that the laverage on that ball is positive (it is enough to put the centre of the ball in `3/2 - ε` for a small `ε`).
-However if we take any ball of radius `2 ^ n` that contains 0, then the laverage on that ball is necessarily non positive, in fact if the radius of the ball is smaller or equal than 1 then it cannot contain any region where `u` is positive, if the radius is greater or equal than 2 then it contains at least a region of measure 1 where `u` is negative, which conunterbalances the positive region.
+Then we can have a ball of radius `3/2` that contains `0` such that the laverage on that ball is
+positive (it is enough to put the centre of the ball in `3/2 - ε` for a small `ε`).
+However if we take any ball of radius `2 ^ n` that contains 0, then the laverage on that ball is
+ necessarily non positive, in fact if the radius of the ball is smaller or equal than 1 then it
+ cannot contain any region where `u` is positive, if the radius is greater or equal than 2 then it
+ contains at least a region of measure 1 where `u` is negative, which conunterbalances the positive
+ region.
 
 On another note, should there be `A ^ 2` that multiplies the laverage on the left? Or should we assume that `1 ≤ A`? Or maybe there is a reason for this that I am missing.
 -/
 theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurable u μ)
     (hu : IsBounded (range u)) {z x : X} {r : ℝ} (h : dist x z < r) :
-    -- we have multiplied the lhs by `A ^ 2`, should we instead assume `1 ≤ A`?
-    A ^ 2 * ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
+    ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
   rw [globalMaximalFunction, maximalFunction]
   simp only [gt_iff_lt, mem_prod, mem_univ, and_true, ENNReal.rpow_one, inv_one]
-  gcongr
-  refine le_iSup₂_of_le ⟨z, 1⟩ ?_ ?_
-  ·
-    simp
-    refine ?_
-    sorry
-  ·
-    refine ?_
-    sorry
-
+  -- gcongr
+  -- refine le_iSup₂_of_le ⟨z, 1⟩ ?_ ?_
+  -- ·
+    -- simp
+    -- refine ?_
+    -- sorry
+  -- ·
+    -- refine ?_
+    -- sorry
+  sorry
 
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
