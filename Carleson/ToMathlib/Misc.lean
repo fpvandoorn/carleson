@@ -44,6 +44,7 @@ end Order
 
 section Int
 
+/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19308 -/
 theorem Int.Icc_of_eq_sub_1 {a b : ℤ} (h : a = b - 1) : Finset.Icc a b = {a, b} := by
   refine le_antisymm (fun t ht ↦ ?_) (fun t ht ↦ ?_)
   · rw [h, Finset.mem_Icc] at ht
