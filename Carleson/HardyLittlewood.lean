@@ -21,6 +21,35 @@ lemma countable_globalMaximalFunction :
     (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
+-- [TODO] change the name?
+lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
+    ∃ c' ∈ (covering_separable_space X).choose, ∃ m : ℤ, ball c r ⊆ ball c' (2 ^ m) ∧ 2 ^ m ≤ 2 * r := by
+  obtain ⟨_, hCr⟩ := (covering_separable_space X).choose_spec
+  let m := ⌊Real.logb 2 r⌋
+  have hm : 2 ^ m ≤ r := by
+    calc _ ≤ (2 : ℝ) ^ (Real.logb 2 r) := by
+          convert Real.monotone_rpow_of_base_ge_one one_le_two (Int.floor_le _)
+          exact (Real.rpow_intCast 2 m).symm
+      _ = _ := Real.rpow_logb zero_lt_two (OfNat.one_ne_ofNat 2).symm hr
+  have hm' : r < 2 ^ (m + 1) := by
+    calc _ = (2 : ℝ) ^ Real.logb 2 r := (Real.rpow_logb zero_lt_two (OfNat.one_ne_ofNat 2).symm hr).symm
+      _ < _ := by
+        rw [← Real.rpow_intCast 2 (m + 1)]
+        refine Real.strictMono_rpow_of_base_gt_one one_lt_two ?_
+        simp [m]
+  let a := ((2 : ℝ) ^ (m + 1) - r) / 2
+  have h_univ := hCr a (by simp [a, hm'])
+  obtain ⟨c', hc', hcc'⟩ := mem_iUnion₂.mp <| h_univ ▸ Set.mem_univ c
+  refine ⟨c', hc', m + 1, ball_subset_ball_of_le ?_, ?_⟩
+  · calc
+      _ ≤ a + r := by gcongr; exact (dist_comm c c' ▸ mem_ball.mp hcc').le
+      _ ≤ _ := by simp only [a, sub_div]; linarith
+  · rw [← Real.rpow_intCast 2 (m + 1)]
+    push_cast
+    rw [Real.rpow_add_one two_ne_zero m, mul_comm]
+    gcongr
+    exact_mod_cast hm
+
 end Prelude
 
 variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
@@ -407,6 +436,9 @@ theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurab
     ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
   rw [globalMaximalFunction, maximalFunction]
   simp only [gt_iff_lt, mem_prod, mem_univ, and_true, ENNReal.rpow_one, inv_one]
+  have hr : 0 < r := lt_of_le_of_lt dist_nonneg h
+  obtain ⟨c, hc, m, h_subset, hm⟩ := exists_ball_subset_ball_two _ z hr
+
   -- gcongr
   -- refine le_iSup₂_of_le ⟨z, 1⟩ ?_ ?_
   -- ·
@@ -417,6 +449,8 @@ theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurab
     -- refine ?_
     -- sorry
   sorry
+
+#check exists_ball_subset_ball_two
 
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
