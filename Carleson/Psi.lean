@@ -229,7 +229,10 @@ private lemma sum_ψ₂ (hx : 0 < x)
   have endpts := endpoint_sub_one hD hx h
   have ne : ⌈logb D (4 * x)⌉ - 1 ≠ ⌈logb D (4 * x)⌉ := pred_ne_self _
   have : nonzeroS D x = {⌈logb D (4 * x)⌉ - 1, ⌈logb D (4 * x)⌉} := by
-    rw [nonzeroS, ← endpts]; exact Int.Icc_of_eq_sub_1 endpts
+    rw [nonzeroS, ← endpts]
+    have Icc_of_eq_add_one {a b : ℤ} (h : a + 1 = b) : Finset.Icc a b = {a, b} := by
+      subst h; exact Int.Icc_eq_pair a
+    exact Icc_of_eq_add_one (add_eq_of_eq_sub endpts)
   set s₀ := ⌈logb D (4 * x)⌉
   rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
@@ -259,7 +262,7 @@ lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) :
     i ∈ nonzeroS D x ↔ (D ^ (-i) * x) ∈ Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   rw [mem_Ioo, nonzeroS, Finset.mem_Icc, Int.floor_le_iff, Int.le_ceil_iff, mul_inv_rev,
     add_comm _ 1, Real.add_lt_add_iff_left, ← lt_div_iff₀ hx, mul_comm (D : ℝ)⁻¹,
-    ← div_lt_div_iff hx (inv_pos.2 (D0 hD)), div_inv_eq_mul, ← zpow_add_one₀ ((D0 hD).ne.symm),
+    ← div_lt_div_iff₀ hx (inv_pos.2 (D0 hD)), div_inv_eq_mul, ← zpow_add_one₀ ((D0 hD).ne.symm),
     zpow_neg, ← Real.rpow_intCast, ← Real.rpow_intCast, lt_logb_iff_rpow_lt hD (four_x0 hx),
     logb_lt_iff_lt_rpow hD (mul_pos two_pos hx), ← sub_eq_neg_add, ← neg_sub i 1, ← inv_mul',
     ← inv_mul', inv_lt_inv₀ (D_pow0 hD _) (mul_pos two_pos hx), Int.cast_neg, Int.cast_sub,
@@ -406,10 +409,10 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) 
   have v0₂ := measure_ball_pos_nnreal x (D ^ (s - 1) / 4) (by have := D0' X; positivity)
   have v0₃ := measure_ball_pos_real x (D ^ s) (zpow_pos (D0' X) _)
   have ball_subset := ball_subset_ball (x := x) (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
-  apply le_trans <| (div_le_div_left hc v0₁ v0₂).2 <|
+  apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
     ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
-  rw_mod_cast [measureNNReal_val, div_le_div_iff (by exact_mod_cast v0₂) v0₃]
+  rw_mod_cast [measureNNReal_val, div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
     DoublingMeasure.volume_ball_two_le_same_repeat' s x
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
@@ -599,11 +602,11 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   apply le_trans <| norm_sub_le (Ks s x y) (Ks s x y')
   apply le_trans <| add_le_add norm_Ks_le norm_Ks_le
   rw [div_mul_eq_mul_div, div_add_div_same, ← two_mul,
-    div_le_div_right (measure_ball_pos_real x (D ^ s) (D_pow0' (D1 X) s)), ← pow_one 2]
+    div_le_div_iff_of_pos_right (measure_ball_pos_real x (D ^ s) (D_pow0' (D1 X) s)), ← pow_one 2]
   rw [not_le, ← div_lt_iff₀' two_pos] at h
   have dist_pos : dist y y' > 0 := lt_of_le_of_lt (div_nonneg dist_nonneg two_pos.le) h
   have := lt_of_le_of_lt
-    ((div_le_div_right two_pos).2 ((mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1)) h
+    ((div_le_div_iff_of_pos_right two_pos).2 ((mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1)) h
   rw [div_div, (show (4 : ℝ) * 2 = 8 by norm_num), zpow_sub₀ (D0' X).ne.symm, div_div, zpow_one,
     div_lt_comm₀ (by positivity) dist_pos] at this
   have dist_div_Ds_gt := inv_strictAnti₀ (div_pos (Ds0 X s) dist_pos) this

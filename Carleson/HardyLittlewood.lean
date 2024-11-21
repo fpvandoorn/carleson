@@ -232,18 +232,18 @@ theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h�
     hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
   calc
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
-          refine l.mul_left_mono (μ.mono fun x hx ↦ ?_)
+          refine mul_left_mono (μ.mono fun x hx ↦ ?_)
           simp only [mem_iUnion, mem_ball, exists_prop] at hx
           rcases hx with ⟨i, i𝓑, hi⟩
           obtain ⟨b, bB, hb⟩ := h2B i i𝓑
           refine mem_iUnion₂.mpr ⟨b, bB, hb <| mem_ball.mpr hi⟩
     _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
-          l.mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
+          mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
     _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
-          refine l.mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
+          refine mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
           rw [sq, sq, mul_assoc, mul_assoc]
           apply (measure_ball_two_le_same (c i) (2 * r i)).trans
-          exact ENNReal.mul_left_mono (measure_ball_two_le_same (c i) (r i))
+          exact mul_left_mono (measure_ball_two_le_same (c i) (r i))
     _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
           rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by

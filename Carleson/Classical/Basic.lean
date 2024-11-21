@@ -208,7 +208,7 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + �
     rw [mul_assoc]
     gcongr
     field_simp
-    rw [div_le_div_iff (by norm_num) pi_pos]
+    rw [div_le_div_iff₀ (by norm_num) pi_pos]
     linarith [pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs

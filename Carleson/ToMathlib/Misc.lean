@@ -16,49 +16,6 @@ import Carleson.ToMathlib.MeasureReal
 open Function Set
 open scoped ENNReal
 
-section Metric
-
-attribute [gcongr] Metric.ball_subset_ball
-
-
-lemma Metric.dense_iff_iUnion_ball {X : Type*} [PseudoMetricSpace X] (s : Set X) :
-    Dense s ↔ ∀ r > 0, ⋃ c ∈ s, ball c r = univ := by
-  simp_rw [eq_univ_iff_forall, mem_iUnion, exists_prop, mem_ball, Dense, Metric.mem_closure_iff,
-    forall_comm (α := X)]
-
-theorem PseudoMetricSpace.dist_eq_of_dist_zero {X : Type*} [PseudoMetricSpace X] (x : X) {y y' : X}
-    (hyy' : dist y y' = 0) : dist x y = dist x y' :=
-  dist_comm y x ▸ dist_comm y' x ▸ sub_eq_zero.1 (abs_nonpos_iff.1 (hyy' ▸ abs_dist_sub_le y y' x))
-
-end Metric
-
-section Order
-
-lemma IsTop.isMax_iff {α} [PartialOrder α] {i j : α} (h : IsTop i) : IsMax j ↔ j = i := by
-  simp_rw [le_antisymm_iff, h j, true_and]
-  refine ⟨(· (h j)), swap (fun _ ↦ h · |>.trans ·)⟩
-
-end Order
-
-section Int
-
-theorem Int.floor_le_iff (c : ℝ) (z : ℤ) : ⌊c⌋ ≤ z ↔ c < z + 1 := by
-  rw_mod_cast [← Int.floor_le_sub_one_iff, add_sub_cancel_right]
-
-theorem Int.Icc_of_eq_sub_1 {a b : ℤ} (h : a = b - 1) : Finset.Icc a b = {a, b} := by
-  refine le_antisymm (fun t ht ↦ ?_) (fun t ht ↦ ?_)
-  · rw [h, Finset.mem_Icc] at ht
-    by_cases hta : t = b - 1
-    · rw [hta, ← h]; exact Finset.mem_insert_self a {b}
-    · suffices b = t from this ▸ Finset.mem_insert.2 (Or.inr (Finset.mem_singleton.2 rfl))
-      exact le_antisymm (sub_add_cancel b 1 ▸ (ne_eq t (b - 1) ▸ hta).symm.lt_of_le ht.1) ht.2
-  · have hab : a ≤ b := h ▸ sub_le_self b one_pos.le
-    rcases Finset.mem_insert.1 ht with rfl | hb
-    · exact Finset.mem_Icc.2 ⟨le_refl t, hab⟩
-    · rw [Finset.mem_singleton.1 hb]; exact Finset.mem_Icc.2 ⟨hab, le_refl b⟩
-
-end Int
-
 section ENNReal
 
 lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.encard := by
@@ -96,11 +53,14 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
   rw [Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
 
+#find_home! tsum_one_eq'
 
 lemma ENNReal.tsum_const_eq' {α : Type*} (s : Set α) (c : ℝ≥0∞) :
     ∑' (_:s), (c : ℝ≥0∞) = s.encard * c := by
   nth_rw 1 [← one_mul c]
   rw [ENNReal.tsum_mul_right,tsum_one_eq']
+
+#find_home! ENNReal.tsum_const_eq'
 
 /-! ## `ENNReal` manipulation lemmas -/
 

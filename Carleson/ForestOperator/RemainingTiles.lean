@@ -87,7 +87,11 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     · rw [show (8 : ℝ≥0) = 2 ^ 3 by norm_num]
       simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
         ← zpow_neg, ← zpow_natCast, ← zpow_mul, ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-      gcongr
+      -- #adaptation note(2024-11-02): this line was `gcongr`
+      -- This was probably broken by mathlib4#19626 and friends, see
+      -- https://leanprover.zulipchat.com/#narrow/channel/428973-nightly-testing/topic/.2319314.20adaptations.20for.20nightly-2024-11-20
+      -- for details.
+      refine zpow_le_zpow_right₀ ?ha ?hmn
       · norm_num
       · simp only [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, mul_neg,
         le_add_neg_iff_add_le, ← mul_add]

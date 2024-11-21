@@ -400,7 +400,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
   have Cidpos : 0 < (C2_1_2 a)⁻¹ ^ d := by rw [C2_1_2]; positivity
   calc
     _ ≤ (C2_1_2 a)⁻¹ ^ (Z * (n + 1)) := by
-      refine pow_le_pow_left zero_le_two ?_ _
+      refine pow_le_pow_left₀ zero_le_two ?_ _
       nth_rw 1 [C2_1_2, ← Real.inv_rpow zero_le_two, ← Real.rpow_neg_one,
         ← Real.rpow_mul zero_le_two, neg_one_mul, neg_mul, neg_neg, ← Real.rpow_one 2]
       apply Real.rpow_le_rpow_of_exponent_le one_le_two

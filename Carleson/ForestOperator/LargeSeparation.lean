@@ -166,7 +166,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       apply Grid_subset_ball (X := X) (i := 𝓘 p)
       exact xInTile
     _ < 100 * ↑D ^ (s J + 1) := by
-      apply (div_lt_div_right zero_lt_four).mp
+      apply (div_lt_div_iff_of_pos_right zero_lt_four).mp
       ring_nf
       rewrite (config := {occs := .pos [1]}) [add_comm]
       apply lt_tsub_iff_left.mp
