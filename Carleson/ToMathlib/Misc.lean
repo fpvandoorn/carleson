@@ -18,7 +18,7 @@ open scoped ENNReal
 
 section Metric
 
-attribute [gcongr] Metric.ball_subset_ball
+-- attribute [gcongr] Metric.ball_subset_ball
 
 -- /- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19294 -/
 -- lemma Metric.dense_iff_iUnion_ball {X : Type*} [PseudoMetricSpace X] (s : Set X) :
@@ -44,15 +44,16 @@ end Order
 
 section Int
 
-/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19308 -/
-theorem Int.Icc_eq_pair {a : ℤ} : Finset.Icc a (a + 1) = {a, a + 1} := by
-   ext
-   simp
-   omega
+-- /- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19308 -/
+-- theorem Int.Icc_eq_pair {a : ℤ} : Finset.Icc a (a + 1) = {a, a + 1} := by
+--    ext
+--    simp
+--    omega
 
 -- theorem Int.Icc_of_eq_add_one {a b : ℤ} (h : a + 1 = b) : Finset.Icc a b = {a, b} := by
 --   subst h; exact Int.Icc_eq_pair
 
+/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19308 -/
 -- theorem Int.Icc_of_eq_sub_one {a b : ℤ} (h : a = b - 1) : Finset.Icc a b = {a, b} := by
 --   refine le_antisymm (fun t ht ↦ ?_) (fun t ht ↦ ?_)
 --   · rw [h, Finset.mem_Icc] at ht

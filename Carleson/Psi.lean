@@ -231,7 +231,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
   have : nonzeroS D x = {⌈logb D (4 * x)⌉ - 1, ⌈logb D (4 * x)⌉} := by
     rw [nonzeroS, ← endpts]
     have Icc_of_eq_add_one {a b : ℤ} (h : a + 1 = b) : Finset.Icc a b = {a, b} := by
-      subst h; exact Int.Icc_eq_pair
+      subst h; exact Int.Icc_eq_pair a
     exact Icc_of_eq_add_one (add_eq_of_eq_sub endpts)
   set s₀ := ⌈logb D (4 * x)⌉
   rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
