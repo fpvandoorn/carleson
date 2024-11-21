@@ -222,7 +222,6 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
     contrapose! hpy
     exact setIntegral_eq_zero_of_forall_eq_zero hpy
   obtain ⟨x, hxE, hx0⟩ := hx
-  -- TODO: change to strict inequality in blueprint.
   have hxp : dist x (𝔠 p) < 4 * ↑D ^𝔰 p := -- 6.2.13
     Grid_subset_ball (mem_of_subset_of_mem (fun _ ha ↦ ha.1) hxE)
   have hyx : dist y x ≤ (1/2) * ↑D ^𝔰 p := by -- 6.2.14
@@ -242,7 +241,6 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
 
 def C_6_2_3 (a : ℕ) : ℝ≥0 := 2^(8 * a)
 
---TODO: < in blueprint
 lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p) < 1 :=
   subset_cball hx.2.1
 
@@ -255,7 +253,7 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
   have hp₁ : dist_(p₁) (𝒬 p₁) (Q x₁) < 1 := by rw [dist_comm]; exact ineq_6_2_16 hx₁
   have hp₂ := ineq_6_2_16 hx₂
   --Needed for ineq. 6.2.17
-  have hss : ↑(𝓘 p₁) ⊆ ball (𝔠 p₂) (14 * D^𝔰 p₂) := by --TODO: change in blueprint
+  have hss : ↑(𝓘 p₁) ⊆ ball (𝔠 p₂) (14 * D^𝔰 p₂) := by
     have h1D : 1 ≤ (D : ℝ) := by
         rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
         exact pow_le_pow_right (one_le_two) (by omega)
