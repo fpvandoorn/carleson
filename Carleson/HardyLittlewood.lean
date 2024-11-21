@@ -21,6 +21,49 @@ lemma countable_globalMaximalFunction :
     (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
+-- [TODO] change the name?
+lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
+    ∃ c' ∈ (covering_separable_space X).choose,
+      ∃ m : ℤ, ball c r ⊆ ball c' (2 ^ m) ∧ 2 ^ m ≤ 2 * r ∧ ball c' (2 ^ m) ⊆ ball c (4 * r) := by
+  obtain ⟨_, hCr⟩ := (covering_separable_space X).choose_spec
+  let m := ⌊Real.logb 2 r⌋
+  have hm : 2 ^ m ≤ r := by
+    calc _ ≤ (2 : ℝ) ^ (Real.logb 2 r) := by
+          convert Real.monotone_rpow_of_base_ge_one one_le_two (Int.floor_le _)
+          exact (Real.rpow_intCast 2 m).symm
+      _ = _ := Real.rpow_logb zero_lt_two (OfNat.one_ne_ofNat 2).symm hr
+  have hm' : r < 2 ^ (m + 1) := by
+    calc _ = (2 : ℝ) ^ Real.logb 2 r := (Real.rpow_logb zero_lt_two (OfNat.one_ne_ofNat 2).symm hr).symm
+      _ < _ := by
+        rw [← Real.rpow_intCast 2 (m + 1)]
+        refine Real.strictMono_rpow_of_base_gt_one one_lt_two ?_
+        simp [m]
+  let a := ((2 : ℝ) ^ (m + 1) - r) / 2
+  have h_univ := hCr a (by simp [a, hm'])
+  obtain ⟨c', hc', hcc'⟩ := mem_iUnion₂.mp <| h_univ ▸ Set.mem_univ c
+  refine ⟨c', hc', m + 1, ball_subset_ball_of_le ?_, ?_, ?_⟩
+  · calc
+      _ ≤ a + r := by gcongr; exact (dist_comm c c' ▸ mem_ball.mp hcc').le
+      _ ≤ _ := by simp only [a, sub_div]; linarith
+  · rw [← Real.rpow_intCast 2 (m + 1)]
+    push_cast
+    rw [Real.rpow_add_one two_ne_zero m, mul_comm]
+    gcongr
+    exact_mod_cast hm
+  · refine ball_subset_ball_of_le ?_
+    calc
+      _ ≤ a + 2 ^ (m + 1) := by gcongr; exact (mem_ball.mp hcc').le
+      _ ≤ 2 ^ (m + 1) + 2 ^ (m + 1) := by
+        gcongr
+        simp only [a]
+        linarith
+      _ ≤ 2 * r + 2 * r := by
+        rw [← Real.rpow_intCast 2 (m + 1)]
+        push_cast
+        rw [Real.rpow_add_one two_ne_zero m, mul_comm]
+        gcongr <;> simp [hm]
+      _ = 4 * r := by ring
+
 end Prelude
 
 variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
@@ -362,6 +405,7 @@ theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
+
 section GMF
 
 variable [ProperSpace X]
@@ -385,11 +429,32 @@ protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
   AEStronglyMeasurable.maximalFunction (countable_globalMaximalFunction X)
     |>.aemeasurable.const_mul _ |>.aestronglyMeasurable
 
-/-- Equation (2.0.45). -/
-theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurable u μ)
-    (hu : IsBounded (range u)) {z x : X} {r : ℝ} (h : dist x z < r) :
+/-- Equation (2.0.45).-/
+theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
+    {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
     ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
-  sorry
+  rw [globalMaximalFunction, maximalFunction]
+  simp only [gt_iff_lt, mem_prod, mem_univ, and_true, ENNReal.rpow_one, inv_one]
+  have hr : 0 < r := lt_of_le_of_lt dist_nonneg h
+  obtain ⟨c, hc, m, h_subset, _, h_subset'⟩ := exists_ball_subset_ball_two _ z hr
+  calc
+    _ ≤ (μ (ball z r))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖₊ ∂μ := by
+      simp only [laverage, MeasurableSet.univ, Measure.restrict_apply, univ_inter,
+        lintegral_smul_measure]
+      gcongr
+      exact lintegral_mono_set h_subset
+    _ ≤ A ^ 2 * (μ (ball c (2 ^ m)))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖₊ ∂μ := by
+      gcongr
+      rw [mul_comm, ← ENNReal.mul_le_iff_le_inv
+        ((measure_ball_pos _ (zpow_pos zero_lt_two _) (μ := μ)).ne')
+          (measure_ball_ne_top c _), ENNReal.mul_inv_le_iff
+            ((measure_ball_pos _ hr (μ := μ)).ne') (measure_ball_ne_top z r)]
+      exact (μ.mono h_subset').trans <| measure_ball_four_le_same' z r
+    _ ≤ _ := by
+      rw [mul_assoc]
+      gcongr
+      refine (le_iSup₂ (c, m) hc).trans_eq' ?_
+      simp [laverage, indicator_of_mem (h_subset h)]
 
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
@@ -400,12 +465,12 @@ Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul]
+  -- unfold globalMaximalFunction
+  -- simp_rw [ENNReal.toReal_mul]
   -- apply HasStrongType.const_mul -- this needs to be adapted
   -- refine hasStrongType_maximalFunction ?_ hp₁ hp₁₂
   /- `hasStrongType_maximalFunction` currently requires the collection of balls `𝓑`
-  to be finite, but its generalization to countable collectinos is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
+  to be finite, but its generalization to countable collections is already planned (see https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Hardy-Littlewood.20maximal.20principle.20for.20countable.20many.20balls/near/478069896).
   -/
   sorry
 
