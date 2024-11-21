@@ -23,7 +23,8 @@ lemma countable_globalMaximalFunction :
 
 -- [TODO] change the name?
 lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
-    ∃ c' ∈ (covering_separable_space X).choose, ∃ m : ℤ, ball c r ⊆ ball c' (2 ^ m) ∧ 2 ^ m ≤ 2 * r := by
+    ∃ c' ∈ (covering_separable_space X).choose,
+      ∃ m : ℤ, ball c r ⊆ ball c' (2 ^ m) ∧ 2 ^ m ≤ 2 * r ∧ ball c' (2 ^ m) ⊆ ball c (4 * r) := by
   obtain ⟨_, hCr⟩ := (covering_separable_space X).choose_spec
   let m := ⌊Real.logb 2 r⌋
   have hm : 2 ^ m ≤ r := by
@@ -40,7 +41,7 @@ lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
   let a := ((2 : ℝ) ^ (m + 1) - r) / 2
   have h_univ := hCr a (by simp [a, hm'])
   obtain ⟨c', hc', hcc'⟩ := mem_iUnion₂.mp <| h_univ ▸ Set.mem_univ c
-  refine ⟨c', hc', m + 1, ball_subset_ball_of_le ?_, ?_⟩
+  refine ⟨c', hc', m + 1, ball_subset_ball_of_le ?_, ?_, ?_⟩
   · calc
       _ ≤ a + r := by gcongr; exact (dist_comm c c' ▸ mem_ball.mp hcc').le
       _ ≤ _ := by simp only [a, sub_div]; linarith
@@ -49,6 +50,19 @@ lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
     rw [Real.rpow_add_one two_ne_zero m, mul_comm]
     gcongr
     exact_mod_cast hm
+  · refine ball_subset_ball_of_le ?_
+    calc
+      _ ≤ a + 2 ^ (m + 1) := by gcongr; exact (mem_ball.mp hcc').le
+      _ ≤ 2 ^ (m + 1) + 2 ^ (m + 1) := by
+        gcongr
+        simp only [a]
+        linarith
+      _ ≤ 2 * r + 2 * r := by
+        rw [← Real.rpow_intCast 2 (m + 1)]
+        push_cast
+        rw [Real.rpow_add_one two_ne_zero m, mul_comm]
+        gcongr <;> simp [hm]
+      _ = 4 * r := by ring
 
 end Prelude
 
@@ -431,26 +445,31 @@ However if we take any ball of radius `2 ^ n` that contains 0, then the laverage
 
 On another note, should there be `A ^ 2` that multiplies the laverage on the left? Or should we assume that `1 ≤ A`? Or maybe there is a reason for this that I am missing.
 -/
-theorem laverage_le_globalMaximalFunction {u : X → E} (hu : AEStronglyMeasurable u μ)
-    (hu : IsBounded (range u)) {z x : X} {r : ℝ} (h : dist x z < r) :
+theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
+    {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
     ⨍⁻ y, ‖u y‖₊ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
   rw [globalMaximalFunction, maximalFunction]
   simp only [gt_iff_lt, mem_prod, mem_univ, and_true, ENNReal.rpow_one, inv_one]
   have hr : 0 < r := lt_of_le_of_lt dist_nonneg h
-  obtain ⟨c, hc, m, h_subset, hm⟩ := exists_ball_subset_ball_two _ z hr
-
-  -- gcongr
-  -- refine le_iSup₂_of_le ⟨z, 1⟩ ?_ ?_
-  -- ·
-    -- simp
-    -- refine ?_
-    -- sorry
-  -- ·
-    -- refine ?_
-    -- sorry
-  sorry
-
-#check exists_ball_subset_ball_two
+  obtain ⟨c, hc, m, h_subset, _, h_subset'⟩ := exists_ball_subset_ball_two _ z hr
+  calc
+    _ ≤ (μ (ball z r))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖₊ ∂μ := by
+      simp only [laverage, MeasurableSet.univ, Measure.restrict_apply, univ_inter,
+        lintegral_smul_measure]
+      gcongr
+      exact lintegral_mono_set h_subset
+    _ ≤ A ^ 2 * (μ (ball c (2 ^ m)))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖₊ ∂μ := by
+      gcongr
+      rw [mul_comm, ← ENNReal.mul_le_iff_le_inv
+        ((measure_ball_pos _ (zpow_pos zero_lt_two _) (μ := μ)).ne')
+          (measure_ball_ne_top c _), ENNReal.mul_inv_le_iff
+            ((measure_ball_pos _ hr (μ := μ)).ne') (measure_ball_ne_top z r)]
+      exact (μ.mono h_subset').trans <| measure_ball_four_le_same' z r
+    _ ≤ _ := by
+      rw [mul_assoc]
+      gcongr
+      refine (le_iSup₂ (c, m) hc).trans_eq' ?_
+      simp [laverage, indicator_of_mem (h_subset h)]
 
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
