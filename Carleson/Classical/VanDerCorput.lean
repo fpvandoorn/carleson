@@ -208,7 +208,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
       linarith
     _ ≤ (2 * π / (1 + n * (b - a)) * (b - a)) * (B + K * (b - a) / 2) := by
       gcongr
-      rw [mul_comm, ← mul_div_assoc, div_le_div_iff (by simpa)]
+      rw [mul_comm, ← mul_div_assoc, div_le_div_iff₀ (by simpa)]
       · calc π * (1 + n * (b - a))
           _ ≤ π * (π + n * (b - a)) := by
             gcongr

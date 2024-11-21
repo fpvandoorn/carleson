@@ -87,12 +87,14 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     · rw [show (8 : ℝ≥0) = 2 ^ 3 by norm_num]
       simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
         ← zpow_neg, ← zpow_natCast, ← zpow_mul, ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-      gcongr
-      · norm_num
-      · simp only [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, mul_neg,
-        le_add_neg_iff_add_le, ← mul_add]
-        refine (Int.mul_nonpos_of_nonneg_of_nonpos (by simp) ?_).trans (by norm_num)
-        rwa [ge_iff_le, ← sub_nonpos, sub_eq_neg_add, neg_add] at hs'
+      sorry
+      -- [TODO]: `gcongr` doesn't make progress anymore
+      -- gcongr
+      -- · norm_num
+      -- · simp only [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, mul_neg,
+      --   le_add_neg_iff_add_le, ← mul_add]
+      --   refine (Int.mul_nonpos_of_nonneg_of_nonpos (by simp) ?_).trans (by norm_num)
+      --   rwa [ge_iff_le, ← sub_nonpos, sub_eq_neg_add, neg_add] at hs'
   have vsupp : volume supp ≤ ENNReal.ofReal (2 * (↑8 * ↑D ^ (-s')) ^ κ) * volume (J : Set X) := by
     apply ENNReal.ofReal_le_ofReal at vsupp
     rwa [Measure.real, Measure.real, ENNReal.ofReal_mul (by positivity),

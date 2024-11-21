@@ -20,44 +20,50 @@ section Metric
 
 attribute [gcongr] Metric.ball_subset_ball
 
-/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19294 -/
-lemma Metric.dense_iff_iUnion_ball {X : Type*} [PseudoMetricSpace X] (s : Set X) :
-    Dense s ↔ ∀ r > 0, ⋃ c ∈ s, ball c r = univ := by
-  simp_rw [eq_univ_iff_forall, mem_iUnion, exists_prop, mem_ball, Dense, Metric.mem_closure_iff,
-    forall_comm (α := X)]
+-- /- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19294 -/
+-- lemma Metric.dense_iff_iUnion_ball {X : Type*} [PseudoMetricSpace X] (s : Set X) :
+--     Dense s ↔ ∀ r > 0, ⋃ c ∈ s, ball c r = univ := by
+--   simp_rw [eq_univ_iff_forall, mem_iUnion, exists_prop, mem_ball, Dense, Metric.mem_closure_iff,
+--     forall_comm (α := X)]
 
-/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19294 -/
-theorem PseudoMetricSpace.dist_eq_of_dist_zero {X : Type*} [PseudoMetricSpace X] (x : X) {y y' : X}
-    (hyy' : dist y y' = 0) : dist x y = dist x y' :=
-  dist_comm y x ▸ dist_comm y' x ▸ sub_eq_zero.1 (abs_nonpos_iff.1 (hyy' ▸ abs_dist_sub_le y y' x))
+-- /- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19294 -/
+-- theorem PseudoMetricSpace.dist_eq_of_dist_zero {X : Type*} [PseudoMetricSpace X] (x : X) {y y' : X}
+--     (hyy' : dist y y' = 0) : dist x y = dist x y' :=
+--   dist_comm y x ▸ dist_comm y' x ▸ sub_eq_zero.1 (abs_nonpos_iff.1 (hyy' ▸ abs_dist_sub_le y y' x))
 
 end Metric
 
 section Order
 
-/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19305 -/
-lemma IsTop.isMax_iff {α} [PartialOrder α] {i j : α} (h : IsTop i) : IsMax j ↔ j = i := by
-  simp_rw [le_antisymm_iff, h j, true_and]
-  exact ⟨(· (h j)), swap (fun _ ↦ h · |>.trans ·)⟩
+-- /- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19305 -/
+-- lemma IsTop.isMax_iff {α} [PartialOrder α] {i j : α} (h : IsTop i) : IsMax j ↔ j = i := by
+--   simp_rw [le_antisymm_iff, h j, true_and]
+--   exact ⟨(· (h j)), swap (fun _ ↦ h · |>.trans ·)⟩
 
 end Order
 
 section Int
 
 /- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/19308 -/
-theorem Int.Icc_of_eq_sub_1 {a b : ℤ} (h : a = b - 1) : Finset.Icc a b = {a, b} := by
-  refine le_antisymm (fun t ht ↦ ?_) (fun t ht ↦ ?_)
-  · rw [h, Finset.mem_Icc] at ht
-    by_cases hta : t = b - 1
-    · rw [hta, ← h]; exact Finset.mem_insert_self a {b}
-    · suffices b = t from this ▸ Finset.mem_insert.2 (Or.inr (Finset.mem_singleton.2 rfl))
-      exact le_antisymm (sub_add_cancel b 1 ▸ (ne_eq t (b - 1) ▸ hta).symm.lt_of_le ht.1) ht.2
-  · have hab : a ≤ b := h ▸ sub_le_self b one_pos.le
-    rcases Finset.mem_insert.1 ht with rfl | hb
-    · exact Finset.mem_Icc.2 ⟨le_refl t, hab⟩
-    · rw [Finset.mem_singleton.1 hb]; exact Finset.mem_Icc.2 ⟨hab, le_refl b⟩
+theorem Int.Icc_eq_pair {a : ℤ} : Finset.Icc a (a + 1) = {a, a + 1} := by
+   ext
+   simp
+   omega
 
-#find_home! Int.Icc_of_eq_sub_1
+-- theorem Int.Icc_of_eq_add_one {a b : ℤ} (h : a + 1 = b) : Finset.Icc a b = {a, b} := by
+--   subst h; exact Int.Icc_eq_pair
+
+-- theorem Int.Icc_of_eq_sub_one {a b : ℤ} (h : a = b - 1) : Finset.Icc a b = {a, b} := by
+--   refine le_antisymm (fun t ht ↦ ?_) (fun t ht ↦ ?_)
+--   · rw [h, Finset.mem_Icc] at ht
+--     by_cases hta : t = b - 1
+--     · rw [hta, ← h]; exact Finset.mem_insert_self a {b}
+--     · suffices b = t from this ▸ Finset.mem_insert.2 (Or.inr (Finset.mem_singleton.2 rfl))
+--       exact le_antisymm (sub_add_cancel b 1 ▸ (ne_eq t (b - 1) ▸ hta).symm.lt_of_le ht.1) ht.2
+--   · have hab : a ≤ b := h ▸ sub_le_self b one_pos.le
+--     rcases Finset.mem_insert.1 ht with rfl | hb
+--     · exact Finset.mem_Icc.2 ⟨le_refl t, hab⟩
+--     · rw [Finset.mem_singleton.1 hb]; exact Finset.mem_Icc.2 ⟨hab, le_refl b⟩
 
 end Int
 

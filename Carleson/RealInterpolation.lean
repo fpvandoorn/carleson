@@ -2112,7 +2112,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
   let g := trunc_cut f μ
   have hpq' : p.IsConjExponent q := Real.IsConjExponent.mk hp hpq
   have f_mul : ∀ n : ℕ, (g n) ^ p ≤ f * (g n) ^ (p - 1) := by
-    intro n x; unfold_let g;
+    intro n x; unfold g;
     simp only [Pi.pow_apply, Pi.mul_apply]
     unfold trunc_cut
     unfold indicator
@@ -2135,12 +2135,12 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
       exact trunc_cut_mono _ hmn
     · exact (g_lim x).ennrpow_const p
   have g_meas (n : ℕ): AEMeasurable (g n) μ := by
-    unfold_let g
+    unfold g
     exact AEMeasurable.indicator (by fun_prop) (measurableSet_spanningSets μ n)
   have g_fin (n : ℕ): ∫⁻ (z : α), g n z ^ p ∂μ < ⊤ := by
     calc
     _ = ∫⁻ (z : α) in A n, g n z ^ p ∂μ := by
-      unfold_let g
+      unfold g
       unfold trunc_cut
       rw [← lintegral_indicator]; swap; exact measurableSet_spanningSets μ n
       congr 1
@@ -2153,7 +2153,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     _ ≤ ∫⁻ (_x : α) in A n, n ^ p ∂μ := by
       apply setLIntegral_mono measurable_const
       · intro x hx
-        unfold_let g
+        unfold g
         unfold trunc_cut
         gcongr
         unfold indicator
@@ -2212,7 +2212,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     apply iSup_le_iSup_of_subset fun r exists_n ↦ ?_
     rcases exists_n with ⟨n, wn⟩
     simp_rw [← wn]
-    unfold_let h
+    unfold h
     refine ⟨by fun_prop, ?_⟩
     simp_rw [div_eq_mul_inv]
     calc
@@ -2382,7 +2382,7 @@ lemma truncation_ton_measurable {f : α → E₁}
   let A := {(s, x) : ℝ × α | ‖f x‖₊ ≤ tc.ton s}
   have : (fun z : ℝ × α ↦ (trunc f (tc.ton z.1)) z.2) =
       Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
-    ext z; unfold trunc; unfold indicator; unfold_let A; simp
+    ext z; unfold trunc; unfold indicator; unfold A; simp
   rw [this]
   exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable hf.restrict _)).mpr
     hf.restrict.snd.restrict
@@ -2396,7 +2396,7 @@ lemma truncation_compl_ton_measurable {f : α → E₁}
     ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f) )) := by
   let A := {(s, x) : ℝ × α | tc.ton s < ‖f x‖₊}
   have : (fun z : ℝ × α ↦ (f - trunc f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
-    ext z; rw [trunc_compl_eq]; unfold_let A; unfold indicator; simp
+    ext z; rw [trunc_compl_eq]; unfold A; unfold indicator; simp
   rw [this]
   refine (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
     hf.restrict.snd.restrict
@@ -2590,7 +2590,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       apply lintegral_congr_support hf
       intro x hfx
       congr 1
-      unfold_let tc
+      unfold tc
       apply value_lintegral_res₁
       exact norm_pos_iff'.mpr hfx
     _ = (∫⁻ a : α in Function.support f,
@@ -3528,7 +3528,7 @@ lemma support_sigma_finite_from_Memℒp
   let g : α → ℝ≥0∞ := fun x ↦ ‖f x‖₊ ^ p.toReal
   have : Function.support g = Function.support f := by
     unfold Function.support
-    unfold_let g
+    unfold g
     ext x
     simp only [ne_eq, ENNReal.rpow_eq_zero_iff, ENNReal.coe_eq_zero, nnnorm_eq_zero, coe_ne_top,
       false_and, or_false, not_and, not_lt, mem_setOf_eq]
@@ -3540,9 +3540,9 @@ lemma support_sigma_finite_from_Memℒp
     · tauto
   rw [← this]
   apply support_sigma_finite_of_lintegrable
-  · unfold_let g
+  · unfold g
     exact (hf.1.aemeasurable.nnnorm.coe_nnreal_ennreal).pow_const _
-  · unfold_let g
+  · unfold g
     have obs := hf.2
     unfold eLpNorm eLpNorm' at obs
     split_ifs at obs
@@ -3613,7 +3613,7 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
         exact d_eq_top₀ one_le_p₀ q₁pos hp₀p₁.ne_top q₀top hq₀q₁
       · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).1
       · exact interp_exp_ne_top hp₀p₁.ne ht hp
-      · unfold_let tc
+      · unfold tc
         unfold spf_to_tc
         dsimp only
         congr
@@ -3625,7 +3625,7 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
     · intro q₁top s (hs : s > 0)
       rcases (eq_or_ne p₁ ⊤) with p₁eq_top | p₁ne_top
       · apply weaktype_estimate_trunc_top_top hC₁ _ p₁eq_top q₁top _ hf h₁T hs
-        · unfold_let tc
+        · unfold tc
           unfold spf_to_tc
           dsimp only
           rw [hspf]
@@ -3637,14 +3637,13 @@ lemma combine_estimates₀ {A : ℝ} (hA : A > 0)
         · exact p_pos
         · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
       · apply weaktype_estimate_trunc_top (p₁ := p₁) (p := p) (d := spf.d) hC₁ <;> try assumption
-        · unfold_let tc
+        · unfold tc
           rw [hspf]
           unfold spf_to_tc spf_ch
           dsimp only
           congr
           apply ζ_equality₈ ht (hp₀p₁ := hp₀p₁.ne) <;> assumption
-        · unfold_let tc
-          rw [hspf]
+        · rw [hspf]
           unfold spf_ch
           dsimp only
           apply d_eq_top₁ <;> assumption
@@ -3870,7 +3869,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · let spf := spf_ch ht hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
     apply combine_estimates₁ <;> try assumption
-    on_goal 1 => unfold_let spf
+    on_goal 1 => unfold spf
     rfl
 
 -- TODO: the below lemmas were split because otherwise the lean server would crash
@@ -4028,7 +4027,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
             · have p₀pos : p₀ > 0 := hp₀.1
               have p₁pos : p₁ > 0 := hp₁.1
               have q₀ne_top : q₀ ≠ ⊤ := hq₀q₁.ne_top
-              unfold_let M at ht
+              unfold M at ht
               rw [d_eq_top_of_eq] at ht <;> try assumption
               have : ENNReal.ofReal (C₁ * eLpNorm f p μ).toReal = C₁ * eLpNorm f p μ := by
                 refine ofReal_toReal_eq_iff.mpr ?_
