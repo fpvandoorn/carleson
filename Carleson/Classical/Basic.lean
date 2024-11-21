@@ -27,57 +27,67 @@ local notation "S_" => partialFourierSum
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} :
   fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):= by
-  simp [fourierCoeffOn_eq_integral, intervalIntegral.integral_mul_const, mul_assoc, mul_comm]
+  simp [fourierCoeffOn_eq_integral, mul_assoc, mul_comm]
   ring
 
 @[simp]
 lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {n : ℤ} :
   fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
-  simp [fourierCoeffOn_eq_integral, fourierCoeffOn_eq_integral]
+  simp [fourierCoeffOn_eq_integral]
 
 @[simp]
-lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ} (hf : IntervalIntegrable f MeasureTheory.volume a b) (hg : IntervalIntegrable g MeasureTheory.volume a b) :
+lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
+    (hf : IntervalIntegrable f MeasureTheory.volume a b)
+    (hg : IntervalIntegrable g MeasureTheory.volume a b) :
     fourierCoeffOn hab (f + g) n = fourierCoeffOn hab f n + fourierCoeffOn hab g n:= by
   simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
     fourier_coe_apply', Complex.ofReal_sub, Pi.add_apply, smul_eq_mul, mul_add, Complex.real_smul,
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
-  ring_nf
-  · apply hf.continuousOn_mul (Continuous.continuousOn _); continuity
+  · ring_nf
+    apply hf.continuousOn_mul (Continuous.continuousOn _); continuity
   · apply hg.continuousOn_mul (Continuous.continuousOn _); continuity
 
 @[simp]
-lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ} (hf : IntervalIntegrable f MeasureTheory.volume a b) (hg : IntervalIntegrable g MeasureTheory.volume a b) :
+lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
+    (hf : IntervalIntegrable f MeasureTheory.volume a b)
+    (hg : IntervalIntegrable g MeasureTheory.volume a b) :
     fourierCoeffOn hab (f - g) n = fourierCoeffOn hab f n - fourierCoeffOn hab g n:= by
   rw [sub_eq_add_neg, fourierCoeffOn_add hf hg.neg, fourierCoeffOn_neg, ← sub_eq_add_neg]
 
 @[simp]
-lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * π)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * π)) :
+lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ}
+    (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * π))
+    (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * π)) :
   S_ N (f + g) = S_ N f + S_ N g := by
   ext x
   simp [partialFourierSum, sum_add_distrib, fourierCoeffOn_add hf hg, add_mul]
 
 @[simp]
-lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ} (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * π)) (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * π)) :
-  S_ N (f - g) = S_ N f - S_ N g := by
+lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ}
+    (hf : IntervalIntegrable f MeasureTheory.volume 0 (2 * π))
+    (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * π)) :
+    S_ N (f - g) = S_ N f - S_ N g := by
   ext x
-  simp [partialFourierSum, sum_sub_distrib, fourierCoeffOn_sub hf hg, sub_mul]
+  simp [partialFourierSum, fourierCoeffOn_sub hf hg, sub_mul]
 
 @[simp]
 lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
   S_ N (fun x ↦ a * f x) = fun x ↦ a * S_ N f x := by
   ext x
-  simp [partialFourierSum, mul_sum, fourierCoeffOn_mul, mul_assoc]
+  simp [partialFourierSum, mul_sum, mul_assoc]
 
 lemma fourier_periodic {n : ℤ} :
     (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * π))).Periodic (2 * π) := by
-    simp
+  simp
 
 lemma partialFourierSum_periodic {f : ℝ → ℂ} {N : ℕ} : (S_ N f).Periodic (2 * π) := by
-    simp [Function.Periodic, partialFourierSum, fourier_periodic]
+  simp [partialFourierSum]
 
 --TODO: maybe generalize to (hc : ContinuousOn f (Set.Icc 0 T)) and leave out condition (hT : 0 < T)
-lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hT : 0 < T) (hp : Function.Periodic f T) (hc : ContinuousOn f (Set.Icc (-T) (2 * T))) : UniformContinuous f := by
+lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : ℝ} (hT : 0 < T)
+    (hp : Function.Periodic f T) (hc : ContinuousOn f (Set.Icc (-T) (2 * T))) :
+    UniformContinuous f := by
   have : IsCompact (Set.Icc (-T) (2 * T)) := isCompact_Icc
   have unicont_on_Icc := this.uniformContinuousOn_of_continuous hc
   rw [Metric.uniformContinuousOn_iff] at unicont_on_Icc
@@ -85,19 +95,17 @@ lemma Function.Periodic.uniformContinuous_of_continuous {f : ℝ → ℂ} {T : �
   intro ε εpos
   rcases (unicont_on_Icc ε εpos) with ⟨δ, δpos, h⟩
   use min δ T, lt_min δpos hT
-  have h1: min δ T ≤ δ := min_le_left _ _
-  have h2 : min δ T ≤ T := min_le_right _ _
+  have h1 : min δ T ≤ T := min_le_right ..
   intro x y hxy
   rcases (hp.exists_mem_Ico₀' hT x) with ⟨n, ha, hxa⟩
   have hyb: f y = f (y - n • T) := (hp.sub_zsmul_eq n).symm
   rw [hxa, hyb]
   apply h (x - n • T) _ (y - n • T)
-  rw [Real.dist_eq, abs_lt] at hxy
+  on_goal 1 => rw [Real.dist_eq, abs_lt] at hxy
   constructor <;> linarith [ha.1, ha.2]
-  rw [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
-  exact hxy.trans_le h1
-  constructor <;> linarith [ha.1, ha.2]
-
+  · rw [Real.dist_eq,zsmul_eq_mul, sub_sub_sub_cancel_right, ← Real.dist_eq]
+    exact hxy.trans_le (min_le_left ..)
+  · constructor <;> linarith [ha.1, ha.2]
 
 lemma fourier_uniformContinuous {n : ℤ} :
     UniformContinuous (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * π))) := by
@@ -106,11 +114,11 @@ lemma fourier_uniformContinuous {n : ℤ} :
 
 lemma partialFourierSum_uniformContinuous {f : ℝ → ℂ} {N : ℕ} : UniformContinuous (S_ N f) := by
   apply partialFourierSum_periodic.uniformContinuous_of_continuous Real.two_pi_pos
-    (Continuous.continuousOn (continuous_finset_sum _ _))
+    (Continuous.continuousOn (continuous_finset_sum ..))
   continuity
 
 theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (π / 2) (π + π / 2)) Real.cos := by
-  apply strictConvexOn_of_deriv2_pos (convex_Icc _ _) Real.continuousOn_cos fun x hx => ?_
+  apply strictConvexOn_of_deriv2_pos (convex_Icc ..) Real.continuousOn_cos fun x hx => ?_
   rw [interior_Icc] at hx
   simp [Real.cos_neg_of_pi_div_two_lt_of_lt hx.1 hx.2]
 
@@ -123,15 +131,16 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
   push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
   · convert (@this (-x) _ (by simpa) (by linarith)) using 1
-    · rw [Complex.norm_eq_abs, ←Complex.abs_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg, Complex.norm_eq_abs,
-          ←Complex.exp_conj, map_mul, Complex.conj_I, neg_mul, Complex.conj_ofReal]
+    · rw [Complex.norm_eq_abs, ← Complex.abs_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg,
+        Complex.norm_eq_abs, ← Complex.exp_conj, map_mul, Complex.conj_I, neg_mul,
+        Complex.conj_ofReal]
     · rwa [abs_neg]
   rw [abs_of_nonneg x_nonneg] at *
   wlog x_le_pi : x ≤ π generalizing x
-  · convert (@this (2 * π - x) _ _ _ _) using 1
+  · convert (@this (2 * π - x) ..) using 1
     · rw [Complex.norm_eq_abs, ← Complex.abs_conj]
       simp [← Complex.exp_conj, mul_sub, Complex.conj_ofReal, Complex.exp_sub,
-        mul_comm Complex.I (2 * π), Complex.exp_two_pi_mul_I, ←inv_eq_one_div, ←Complex.exp_neg]
+        mul_comm Complex.I (2 * π), ← Complex.exp_neg]
     all_goals linarith
   by_cases h : x ≤ π / 2
   · calc (2 / π) * η
@@ -142,7 +151,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       · simp
         constructor <;> linarith [pi_nonneg]
       · rw [sub_nonneg, mul_comm]
-        exact mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
+        exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) x_nonneg
       · simp
     _ = Real.sin x := by field_simp
@@ -152,9 +161,8 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
         rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
         simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.cos_ofReal_re,
-          Complex.mul_re, Complex.sin_ofReal_re, Complex.I_re, mul_zero, Complex.sin_ofReal_im,
-          Complex.I_im, mul_one, sub_self, add_zero, Complex.sub_im, Complex.one_im, Complex.add_im,
-          Complex.cos_ofReal_im, Complex.mul_im, zero_add, zero_sub, even_two, Even.neg_pow]
+          Complex.mul_re, Complex.sin_ofReal_re, Complex.I_re, Complex.sin_ofReal_im, Complex.I_im,
+          Complex.sub_im, Complex.one_im, Complex.add_im, Complex.cos_ofReal_im, Complex.mul_im]
         apply (Real.sqrt_le_sqrt_iff _).mpr
         · simp [pow_two_nonneg]
         · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
@@ -170,7 +178,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       · simp
         constructor <;> linarith [pi_nonneg]
       · rw [sub_nonneg, mul_comm]
-        exact mul_le_of_nonneg_of_le_div (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
+        exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
       · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) (by linarith [h])
       · simp
     _ = 1 - Real.cos x := by congr; field_simp; ring
@@ -179,9 +187,8 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
         rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
         simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.mul_re, Complex.I_re,
-          mul_zero, Complex.sin_ofReal_im, Complex.I_im, mul_one, sub_self, add_zero,
-          Complex.sub_im, Complex.one_im, Complex.add_im, Complex.cos_ofReal_im, Complex.mul_im,
-          zero_add, zero_sub, even_two, Even.neg_pow]
+          Complex.sin_ofReal_im, Complex.I_im, Complex.sub_im, Complex.one_im, Complex.add_im,
+          Complex.cos_ofReal_im, Complex.mul_im]
         rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
         apply (Real.sqrt_le_sqrt_iff _).mpr
         · simp [pow_two_nonneg]
@@ -201,7 +208,7 @@ lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + �
     rw [mul_assoc]
     gcongr
     field_simp
-    rw [div_le_div_iff (by norm_num) pi_pos]
+    rw [div_le_div_iff₀ (by norm_num) pi_pos]
     linarith [pi_le_four]
   _ ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
     apply lower_secant_bound' xAbs

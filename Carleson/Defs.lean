@@ -1,5 +1,8 @@
 import Carleson.DoublingMeasure
 import Carleson.WeakType
+import Mathlib.Algebra.Order.Group.Int
+import Mathlib.Analysis.CStarAlgebra.Classes
+import Mathlib.Data.Int.Star
 
 open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
 open scoped ENNReal
@@ -212,7 +215,7 @@ and `CompatibleFunctions` -/
 lemma defaultD_pos (a : ℕ) : 0 < (defaultD a : ℝ) := by rw [defaultD]; positivity
 
 lemma defaultD_pow_pos (a : ℕ) (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
-  zpow_pos_of_pos (defaultD_pos _) _
+  zpow_pos (defaultD_pos _) _
 
 lemma mul_defaultD_pow_pos (a : ℕ) {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * (defaultD a : ℝ) ^ z :=
   mul_pos hr (defaultD_pow_pos a z)
@@ -380,7 +383,7 @@ lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
     (25 : ℕ)
       ≤ 32 := Nat.le_of_ble_eq_true rfl
     _ = 2 ^ (5) := by rfl
-    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by rfl)
+    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by norm_num)
     _ ≤ 2 ^ (100 * a ^ 2) := Nat.pow_le_pow_right (by norm_num)
       (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
 

@@ -37,7 +37,7 @@ protected lemma CoveredByBalls.empty : CoveredByBalls (∅ : Set X) n r :=
 @[simp]
 lemma CoveredByBalls.zero_left : CoveredByBalls s 0 r ↔ s = ∅ := by
   refine ⟨fun ⟨b, hn, hs⟩ ↦ ?_, by rintro rfl; exact CoveredByBalls.empty⟩
-  simp at hn; subst hn; simpa using hs
+  simp only [nonpos_iff_eq_zero, card_eq_zero] at hn; subst hn; simpa using hs
 
 @[simp]
 lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by

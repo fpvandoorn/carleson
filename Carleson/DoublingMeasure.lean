@@ -1,10 +1,7 @@
 import Carleson.CoverByBalls
-import Carleson.ToMathlib.Misc
-import Mathlib.Analysis.SpecialFunctions.Log.Base
-import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.MeasureTheory.Measure.Haar.Basic
-import Mathlib.MeasureTheory.Measure.Doubling
+import Mathlib.Data.Real.StarOrdered
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
+import Mathlib.Order.CompletePartialOrder
 
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
@@ -97,7 +94,16 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
 
 lemma measure_ball_ne_top (x : X) (r : ℝ) : μ (ball x r) ≠ ∞ := measure_ball_lt_top.ne
 
-attribute [aesop (rule_sets := [Finiteness]) safe apply] measure_ball_ne_top
+lemma measure_ball_four_le_same' (x : X) (r : ℝ) :
+    μ (ball x (4 * r)) ≤ A ^ 2 * μ (ball x r) := by
+  have hfactor : (A ^ 2 : ℝ≥0∞) ≠ ⊤ := ne_of_beq_false rfl
+  rw [← ENNReal.ofReal_toReal (measure_ball_ne_top x (4 * r)),
+    ← ENNReal.ofReal_toReal (measure_ball_ne_top x r), ← ENNReal.ofReal_toReal hfactor,
+    ← ENNReal.ofReal_mul]
+  · exact ENNReal.ofReal_le_ofReal <| measure_ball_four_le_same x r
+  · simp
+
+attribute [aesop (rule_sets := [finiteness]) safe apply] measure_ball_ne_top
 
 lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
     μ.real (ball x (2 ^ n * r)) ≤ A ^ n * μ.real (ball x r) := by
@@ -172,11 +178,11 @@ lemma measure_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
   have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := coe_ne_top
   rw [← ENNReal.ofReal_toReal hbr,← ENNReal.ofReal_toReal hbr',
     ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul] at hz
-  simp only [coe_toReal] at hz
-  rw [← ENNReal.ofReal_le_ofReal_iff]
-  · exact hz
-  positivity
-  simp only [coe_toReal, zero_le_coe]
+  · simp only [coe_toReal] at hz
+    rw [← ENNReal.ofReal_le_ofReal_iff]
+    · exact hz
+    positivity
+  · simp only [coe_toReal, zero_le_coe]
 
 lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     (h : dist x x' + r' ≤ s * r) :
@@ -294,7 +300,7 @@ end Metric
 
 section Normed
 
-open FiniteDimensional ENNReal
+open Module ENNReal
 
 lemma Subsingleton.ball_eq {α} [PseudoMetricSpace α] [Subsingleton α] {x : α} {r : ℝ} :
     ball x r = if r > 0 then {x} else ∅ := by
@@ -305,7 +311,7 @@ instance InnerProductSpace.IsDoubling {E : Type*} [NormedAddCommGroup E]
     IsDoubling (volume : Measure E) (2 ^ finrank ℝ E) where
   measure_ball_two_le_same x r := by
     obtain hE|hE := subsingleton_or_nontrivial E
-    · simp_rw [Subsingleton.ball_eq, FiniteDimensional.finrank_zero_of_subsingleton]; simp
+    · simp_rw [Subsingleton.ball_eq, finrank_zero_of_subsingleton]; simp
     simp_rw [InnerProductSpace.volume_ball, ofReal_mul zero_le_two, ← ENNReal.rpow_natCast,
       ENNReal.mul_rpow_of_ne_top ofReal_ne_top ofReal_ne_top, ENNReal.rpow_natCast, mul_assoc]
     simp
@@ -357,7 +363,7 @@ def DoublingMeasure.mono {A'} (h : A ≤ A') : DoublingMeasure X A' where
   toIsDoubling := IsDoubling.mono h
   __ := ‹DoublingMeasure X A›
 
-open FiniteDimensional
+open Module
 /- Preferably we prove that in this form. -/
 instance InnerProductSpace.DoublingMeasure
     {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]

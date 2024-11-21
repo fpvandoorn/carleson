@@ -19,42 +19,44 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
     ∃ N₀, ∀ x ∈ (Set.Icc 0 (2 * π)) \ E, ∀ N > N₀,
     ‖f x - S_ N f x‖ ≤ ε := by
   set ε' := ε / 4 / C_control_approximation_effect ε with ε'def
-  have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num)) (C_control_approximation_effect_pos εpos)
+  have ε'pos : ε' > 0 := div_pos (div_pos εpos (by norm_num))
+    (C_control_approximation_effect_pos εpos)
 
   /- Approximate f by a smooth f₀. -/
-  have unicont_f : UniformContinuous f := periodic_f.uniformContinuous_of_continuous Real.two_pi_pos cont_f.continuousOn
+  have unicont_f : UniformContinuous f := periodic_f.uniformContinuous_of_continuous
+    Real.two_pi_pos cont_f.continuousOn
   obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic unicont_f periodic_f ε'pos
   have ε4pos : ε / 4 > 0 := by linarith
-  obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀ ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
-
+  obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀
+    ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
   set h := f₀ - f with hdef
   have h_measurable : Measurable h := (Continuous.sub contDiff_f₀.continuous cont_f).measurable
   have h_periodic : h.Periodic (2 * π) := periodic_f₀.sub periodic_f
   have h_bound : ∀ x, ‖h x‖ ≤ ε' := by
     intro x
-    simp [hdef]
+    simp only [hdef, Pi.sub_apply, Complex.norm_eq_abs]
     rw [← Complex.dist_eq, dist_comm, Complex.dist_eq]
     exact hf₀ x
 
   /- Control approximation effect: Get a bound on the partial Fourier sums of h. -/
-  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect εpos ε'pos h_measurable h_periodic h_bound
+  obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect εpos ε'pos
+    h_measurable h_periodic h_bound
 
   /- This is a classical "epsilon third" argument. -/
   use E, Esubset, Emeasurable, Evolume, N₀
   intro x hx N NgtN₀
   calc ‖f x - S_ N f x‖
-  _ = ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x) + (S_ N f₀ x - S_ N f x)‖ := by congr; ring
-  _ ≤ ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x)‖ + ‖S_ N f₀ x - S_ N f x‖ := by
-    apply norm_add_le
-  _ ≤ ‖f x - f₀ x‖ + ‖f₀ x - S_ N f₀ x‖ + ‖S_ N f₀ x - S_ N f x‖ := by
-    apply add_le_add_right
-    apply norm_add_le
+  _ = ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x) + (S_ N f₀ x - S_ N f x)‖ := by ring_nf
+  _ ≤ ‖(f x - f₀ x) + (f₀ x - S_ N f₀ x)‖ + ‖S_ N f₀ x - S_ N f x‖ := norm_add_le ..
+  _ ≤ ‖f x - f₀ x‖ + ‖f₀ x - S_ N f₀ x‖ + ‖S_ N f₀ x - S_ N f x‖ :=
+    add_le_add_right (norm_add_le ..) _
   _ ≤ ε' + (ε / 4) + (ε / 4) := by
     gcongr
     · exact hf₀ x
     · exact hN₀ N NgtN₀ x hx.1
     · have := hE x hx N
-      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * π)) (cont_f.intervalIntegrable 0 (2 * π))] at this
+      rw [hdef, partialFourierSum_sub (contDiff_f₀.continuous.intervalIntegrable 0 (2 * π))
+        (cont_f.intervalIntegrable 0 (2 * π))] at this
       apply le_trans this
       rw [ε'def, mul_div_cancel₀ _ (C_control_approximation_effect_pos εpos).ne.symm]
   _ ≤ (ε / 2) + (ε / 4) + (ε / 4) := by
@@ -98,9 +100,11 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
 
   have δ'_eq {k : ℕ} : δ' k = ∑' n, ENNReal.ofReal (ε k n) := by
     rw [εdef]
-    conv => rhs; pattern ENNReal.ofReal _; rw [ENNReal.ofReal_mul' (δpos k).le, ENNReal.ofReal_mul' (by norm_num), ENNReal.ofReal_pow (by norm_num)]
-    rw [ENNReal.tsum_mul_right, ENNReal.tsum_mul_right, ENNReal.tsum_geometric, ← ENNReal.ofReal_one,
-      ← ENNReal.ofReal_sub, ← ENNReal.ofReal_inv_of_pos (by norm_num), ← ENNReal.ofReal_mul' (by norm_num)]
+    conv => rhs; pattern ENNReal.ofReal _; rw [ENNReal.ofReal_mul' (δpos k).le,
+      ENNReal.ofReal_mul' (by norm_num), ENNReal.ofReal_pow (by norm_num)]
+    rw [ENNReal.tsum_mul_right, ENNReal.tsum_mul_right, ENNReal.tsum_geometric,
+      ← ENNReal.ofReal_one, ← ENNReal.ofReal_sub, ← ENNReal.ofReal_inv_of_pos (by norm_num),
+      ← ENNReal.ofReal_mul' (by norm_num)]
     conv => pattern ENNReal.ofReal _; ring_nf; rw [ENNReal.ofReal_one]
     rw [one_mul]
     norm_num
@@ -166,14 +170,13 @@ section
 open Pointwise
 
 --TODO: might be generalized
-lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : (x : ℝ) → Prop} (hP : Function.Periodic P T)
-    (h : ∀ᵐ x ∂volume.restrict (Set.Ico a (a + T)), P x) :
-    ∀ᵐ x, P x := by
+lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : (x : ℝ) → Prop}
+    (hP : Function.Periodic P T)
+    (h : ∀ᵐ x ∂volume.restrict (Set.Ico a (a + T)), P x) : ∀ᵐ x, P x := by
   rw [ae_restrict_iff' measurableSet_Ico, ae_iff] at h
   set E_interval := {x | ¬(x ∈ Set.Ico a (a + T) → P x)} with E_interval_def
   -- Define exceptional set as countable union of translations of the exceptional set on the interval
   set E := ⋃ (k : ℤ), k • T +ᵥ E_interval with Edef
-
   have hE : E = {a | ¬P a} := by
     ext x
     rw [Set.mem_iUnion]
@@ -186,18 +189,14 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
     · dsimp
       rcases (hP.exists_mem_Ico' hT x a) with ⟨n, hn, hxn⟩
       rw [hxn]
-      intro h
-      use n
+      refine fun h ↦ ⟨n, ?_⟩
       rw [Set.mem_vadd_set_iff_neg_vadd_mem, vadd_eq_add, ← sub_eq_neg_add, E_interval_def]
       simp only [and_imp, Classical.not_imp, Set.mem_setOf_eq]
       exact ⟨hn, h⟩
-
   -- The union still has measure zero
   have Emeasure : volume E = 0 := by
     rw [Edef, measure_iUnion_null]
-    intro k
-    apply measure_vadd_null h
-
+    refine fun k ↦ measure_vadd_null h ..
   rw [ae_iff, ← hE]
   exact Emeasure
 

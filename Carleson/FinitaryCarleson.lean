@@ -49,7 +49,7 @@ private lemma sum_eq_zero_of_nmem_Icc {f : X → ℂ} {x : X} (s : ℤ)
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
 lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset) :
-    ∃ I : GridStructure.Grid X (defaultA a), GridStructure.s I = s ∧ x ∈ I := by
+    ∃ I : Grid X, GridStructure.s I = s ∧ x ∈ I := by
   have DS : (D : ℝ) ^ S = (D : ℝ) ^ (S : ℤ) := rfl
   have : x ∈ ball o (D ^ S / 4) := ProofData.G_subset hx
   rw [← c_topCube (X := X), DS, ← s_topCube (X := X)] at this

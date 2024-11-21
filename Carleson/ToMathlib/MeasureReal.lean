@@ -1,4 +1,5 @@
-import Carleson.ToMathlib.Finiteness
+import Mathlib.MeasureTheory.Measure.Prod
+import Mathlib.Tactic.Finiteness
 
 /-!
 # Measures as real valued-functions
@@ -449,19 +450,6 @@ theorem nonempty_inter_of_measureReal_lt_add' {m : MeasurableSpace α} (μ : Mea
 theorem measureReal_prod_prod [MeasurableSpace β] {μ : Measure α} {ν : Measure β} [SigmaFinite ν]
     (s : Set α) (t : Set β) : (μ.prod ν).real (s ×ˢ t) = μ.real s * ν.real t := by
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
-
--- find this in library?  generalize?
-theorem Measure.ext_iff_singleton {S} [Fintype S] [MeasurableSpace S] [MeasurableSingletonClass S]
-    {μ1 μ2 : Measure S} :
-    μ1 = μ2 ↔ ∀ x, μ1 {x} = μ2 {x} := by
-  classical
-  constructor
-  · rintro rfl; simp
-  · intro h
-    ext s
-    have hs : Set.Finite s := Set.toFinite s
-    rw [← hs.coe_toFinset, ← Finset.sum_measure_singleton μ1, ← Finset.sum_measure_singleton μ2]
-    exact Finset.sum_congr rfl fun _ _ ↦ h _
 
 theorem ext_iff_measureReal_singleton {S} [Fintype S] [MeasurableSpace S]
     [MeasurableSingletonClass S]

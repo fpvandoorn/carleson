@@ -11,8 +11,6 @@ noncomputable section
 
 open MeasureTheory Function Metric Bornology Real
 
---#lint
-
 section
 @[reducible]
 def DoublingMeasureR2 : DoublingMeasure ℝ 2 :=
@@ -25,8 +23,8 @@ end
 lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℝ)} :
     localOscillation ∅ f g = 0 := by simp [localOscillation]
 
-lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℝ)} {R : ℝ} (R_nonpos : R ≤ 0):
-    localOscillation (Metric.ball x R) f g = 0 := by
+lemma localOscillation_on_empty_ball {X : Type} [PseudoMetricSpace X] {x : X} {f g : C(X, ℝ)}
+    {R : ℝ} (R_nonpos : R ≤ 0): localOscillation (Metric.ball x R) f g = 0 := by
   rw [Metric.ball_eq_empty.mpr R_nonpos, localOscillation_on_emptyset]
 
 
@@ -37,7 +35,6 @@ open ENNReal MeasureTheory
 section
 
 def integer_linear (n : ℤ) : C(ℝ, ℝ) := ⟨fun (x : ℝ) ↦ n * x, by fun_prop⟩
-
 
 local notation "θ" => integer_linear
 
@@ -144,31 +141,26 @@ instance instFunctionDistancesReal : FunctionDistances ℝ ℝ where
       dist := fun n m ↦ 2 * max R 0 * |n - m|
       dist_self := by simp
       dist_comm := by
-        simp only [Int.cast_abs, Int.cast_sub, mul_eq_mul_left_iff, mul_eq_zero,
-          OfNat.ofNat_ne_zero, false_or]
-        intro x y
-        left
-        norm_cast
-        apply abs_sub_comm
+        simp only [Int.cast_abs, Int.cast_sub, mul_eq_mul_left_iff]
+        exact fun _ _ ↦  Or.inl (abs_sub_comm ..)
       dist_triangle := by
         simp only [Int.cast_abs, Int.cast_sub]
         intro x y z
         rw [← mul_add]
         gcongr
-        norm_cast
         apply abs_sub_le
       --next field will get default in mathlib and is left out here
       --TODO: remove when that is the case
-      edist_dist := fun x y ↦ rfl
+      edist_dist := fun _ _ ↦ rfl
   }
 
 
-lemma dist_integer_linear_eq {n m : Θ ℝ} {x R : ℝ} : dist_{x, R} n m = 2 * max R 0 * |(n : ℝ) - m| := by
-  unfold dist PseudoMetricSpace.toDist instPseudoMetricSpaceWithFunctionDistance
-    FunctionDistances.metric instFunctionDistancesReal integer_linear
+lemma dist_integer_linear_eq {n m : Θ ℝ} {x R : ℝ} :
+    dist_{x, R} n m = 2 * max R 0 * |(n : ℝ) - m| := by
   norm_cast
 
 lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
+
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
 lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
@@ -181,26 +173,26 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
   rw [dist_integer_linear_eq]
   calc ⨆ z ∈ ball x r ×ˢ ball x r, |↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2|
     _ = ⨆ z ∈ ball x r ×ˢ ball x r, ‖(f - g) * (z.1 - x) - (f - g) * (z.2 - x)‖ := by
-      congr
-      ext z
-      congr
-      ext h
+      congr with z
+      congr with h
       rw [Real.norm_eq_abs]
-      congr 1
-      ring
+      ring_nf
     _ ≤ 2 * r * |↑f - ↑g| := by
       apply Real.iSup_le
       --TODO: investigate strange (delaborator) behavior - why is there still a sup?
-      intro z
-      apply Real.iSup_le
+      on_goal 1 => intro z
+      on_goal 1 => apply Real.iSup_le
       · intro hz
-        simp at hz
+        simp only [Set.mem_prod, mem_ball] at hz
         rw [Real.dist_eq, Real.dist_eq] at hz
         rw [Real.norm_eq_abs]
         calc |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)|
-        _ ≤ |(f - g) * (z.1 - x)| + |(f - g) * (z.2 - x)| := by apply abs_sub
+        _ ≤ |(f - g) * (z.1 - x)| + |(f - g) * (z.2 - x)| := abs_sub ..
         _ = |↑f - ↑g| * |z.1 - x| + |↑f - ↑g| * |z.2 - x| := by congr <;> apply abs_mul
-        _ ≤ |↑f - ↑g| * r + |↑f - ↑g| * r := by gcongr; linarith [hz.1]; linarith [hz.2]
+        _ ≤ |↑f - ↑g| * r + |↑f - ↑g| * r := by
+          gcongr
+          · linarith [hz.1]
+          · linarith [hz.2]
         _ = 2 * r * |↑f - ↑g| := by ring
       all_goals
       repeat
@@ -223,24 +215,26 @@ lemma frequency_monotone {x₁ x₂ r R : ℝ} {f g : Θ ℝ} (h : ball x₁ r �
   rw [Real.ball_eq_Ioo, Real.ball_eq_Ioo, Set.Ioo_subset_Ioo_iff (by linarith)] at h
   linarith [h.1, h.2]
 
-lemma frequency_ball_doubling {x₁ x₂ r : ℝ} {f g : Θ ℝ} : dist_{x₂, 2 * r} f g ≤ 2 * dist_{x₁, r} f g := by
+lemma frequency_ball_doubling {x₁ x₂ r : ℝ} {f g : Θ ℝ} :
+    dist_{x₂, 2 * r} f g ≤ 2 * dist_{x₁, r} f g := by
   rw [dist_integer_linear_eq, dist_integer_linear_eq]
   by_cases r_nonneg : r ≥ 0
   · rw [max_eq_left, max_eq_left]
-    ring_nf;rfl
+    · ring_nf; rfl
     all_goals linarith [r_nonneg]
   · rw [max_eq_right, max_eq_right]
-    simp
+    · simp
     all_goals linarith [r_nonneg]
 
-  theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} : 2 * dist_{x₁, r} f g ≤ dist_{x₂, 2 * r} f g := by
+  theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} :
+      2 * dist_{x₁, r} f g ≤ dist_{x₂, 2 * r} f g := by
     rw [dist_integer_linear_eq, dist_integer_linear_eq]
     by_cases r_nonneg : r ≥ 0
     · rw [max_eq_left, max_eq_left]
-      ring_nf;rfl
+      · ring_nf; rfl
       all_goals linarith [r_nonneg]
     · rw [max_eq_right, max_eq_right]
-      simp
+      · simp
       all_goals linarith [r_nonneg]
 
 lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
@@ -269,7 +263,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     simp only [Set.mem_univ, mem_ball, true_implies]
     rw [dist_integer_linear_eq]
     convert R'pos
-    simp
+    simp only [mul_eq_zero, OfNat.ofNat_ne_zero, max_eq_right_iff, false_or, abs_eq_zero]
     left
     exact Rpos
   push_neg at Rpos
@@ -303,7 +297,7 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
         exact Rpos.le
       _ = 2 * R * (m₁ - ↑φ) := by
         rw [abs_of_nonpos]
-        simp only [neg_sub]
+        on_goal 1 => simp only [neg_sub]
         norm_cast
         simp only [tsub_le_iff_right, zero_add, Int.cast_le]
         rwa [m₁def, Int.le_floor]
@@ -356,9 +350,9 @@ lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
   calc 2 * max R 0 * |↑φ - ↑m₃|
     _ = 2 * R * (↑φ - ↑m₃) := by
       rw [abs_of_nonneg]
-      congr
-      rw [max_eq_left_iff]
-      exact Rpos.le
+      · congr
+        rw [max_eq_left_iff]
+        exact Rpos.le
       simp only [sub_nonneg, Int.cast_le]
       rwa [m₃def, Int.ceil_le]
     _ = 2 * R * (φ - f) + 2 * R * (f - m₃) := by ring
@@ -421,9 +415,10 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
     · rw [ball_eq_empty.mpr r_pos]
       simp
     push_neg at r_pos
-    rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [r_pos]),
-        Real.ball_eq_Ioo, ← integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by linarith [r_pos]),
-        dist_integer_linear_eq, max_eq_left r_pos.le]
+    rw [defaultτ, ← one_div, measureReal_def, Real.volume_ball,
+      ENNReal.toReal_ofReal (by linarith [r_pos]), Real.ball_eq_Ioo, ← integral_Ioc_eq_integral_Ioo,
+      ← intervalIntegral.integral_of_le (by linarith [r_pos]), dist_integer_linear_eq,
+      max_eq_left r_pos.le]
     set L : NNReal :=
       ⟨⨆ (x : ℝ) (y : ℝ) (_ : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y,
         Real.iSup_nonneg fun x ↦ Real.iSup_nonneg fun y ↦ Real.iSup_nonneg
@@ -433,14 +428,14 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
         fun _ ↦ norm_nonneg _⟩  with Bdef
     calc ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * (↑(f x) - ↑(g x))).exp * ϕ x‖
       _ = ‖∫ (x : ℝ) in x - r..x + r, (Complex.I * ((↑f - ↑g) : ℤ) * x).exp * ϕ x‖ := by
-        congr
-        ext x
+        congr with x
         rw [mul_assoc]
         congr
         push_cast
         rw [_root_.sub_mul]
         norm_cast
-      _ ≤ 2 * π * ((x + r) - (x - r)) * (B + L * ((x + r) - (x - r)) / 2) * (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
+      _ ≤ 2 * π * ((x + r) - (x - r)) * (B + L * ((x + r) - (x - r)) / 2) *
+        (1 + |((↑f - ↑g) : ℤ)| * ((x + r) - (x - r)))⁻¹ := by
         apply van_der_Corput (by linarith)
         · rw [lipschitzWith_iff_dist_le_mul]
           intro x y
@@ -450,9 +445,9 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
             simp
           rw [dist_eq_norm, ← div_le_iff₀ (dist_pos.mpr hxy), Ldef, NNReal.coe_mk]
           apply le_ciSup_of_le _ x
-          apply le_ciSup_of_le _ y
-          apply le_ciSup_of_le _ hxy
-          rfl
+          on_goal 1 => apply le_ciSup_of_le _ y
+          on_goal 1 => apply le_ciSup_of_le _ hxy
+          · rfl
           · use K
             rw [upperBounds]
             simp only [ne_eq, Set.mem_range, exists_prop, and_imp,
@@ -492,15 +487,16 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
           use hy
       _ = 2 * π * (2 * r) * (B + r * L) * (1 + 2 * r * |((↑f - ↑g) : ℤ)|)⁻¹ := by
         ring
-      _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNorm ϕ x r * (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (4 : ℝ))) := by
+      _ ≤ (2 ^ 4 : ℕ) * (2 * r) * iLipNorm ϕ x r *
+        (1 + 2 * r * ↑|(↑f - ↑g : ℤ)|) ^ (- (1 / (4 : ℝ))) := by
         gcongr
         · exact mul_nonneg (mul_nonneg (by norm_num) (by linarith)) (iLipNorm_nonneg r_pos.le)
         · norm_num
           linarith [pi_le_four]
         · unfold iLipNorm
           gcongr
-          apply le_of_eq Bdef
-          apply le_of_eq Ldef
+          · apply le_of_eq Bdef
+          · apply le_of_eq Ldef
         · rw [← Real.rpow_neg_one]
           apply Real.rpow_le_rpow_of_exponent_le _ (by norm_num)
           simp only [Int.cast_abs, Int.cast_sub, le_add_iff_nonneg_right]
@@ -542,7 +538,7 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
         · field_simp
           exact div_nonneg (abs_nonneg (y - y')) (abs_nonneg (x - y))
         · field_simp
-          apply div_le_one_of_le <;> linarith [abs_nonneg (x - y)]
+          apply div_le_one_of_le₀ <;> linarith [abs_nonneg (x - y)]
         · norm_num
         · norm_num
       · norm_num
@@ -562,7 +558,9 @@ instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
    Note: we can simplify the proof in the blueprint by using real interpolation
    `MeasureTheory.exists_hasStrongType_real_interpolation`.
 -/
-lemma Hilbert_strong_2_2 : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) := sorry
+lemma Hilbert_strong_2_2 :
+    ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) :=
+  sorry
 
 
 local notation "T" => carlesonOperatorReal K
@@ -592,7 +590,8 @@ lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, T f x ≤
     ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
-  have conj_exponents : Real.IsConjExponent 2 2 := by rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
+  have conj_exponents : Real.IsConjExponent 2 2 := by
+    rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, carlesonOperator K f x :=
       lintegral_mono (carlesonOperatorReal_le_carlesonOperator _)

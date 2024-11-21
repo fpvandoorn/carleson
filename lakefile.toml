@@ -1,0 +1,26 @@
+name = "carleson"
+defaultTargets = ["Carleson"]
+
+[leanOptions]
+relaxedAutoImplicit = false
+pp.unicode.fun = true
+autoImplicit = false
+# This has lots of false positives currently.
+linter.style.longLine = false
+linter.oldObtain = true
+linter.refine = true
+linter.style.multiGoal = true
+linter.flexible = true
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+
+[[require]]
+name = "checkdecls"
+git = "https://github.com/PatrickMassot/checkdecls.git"
+rev = "master"
+
+[[lean_lib]]
+name = "Carleson"
+moreLeanArgs = ["-Dpp.unicode.fun=true", "-DautoImplicit=false", "-DrelaxedAutoImplicit=false"]

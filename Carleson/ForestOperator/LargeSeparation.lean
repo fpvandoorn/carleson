@@ -128,8 +128,8 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   apply Set.mem_or_mem_of_mem_union at hp
   have belongs : p ∈ t.𝔖₀ u₁ u₂ := by
     cases' hp with h1 h2
-    exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
-    exact Set.mem_of_mem_inter_right h2
+    · exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
+    · exact Set.mem_of_mem_inter_right h2
   cases' hJLeft with scaleVerySmall noGridInBall
   · exact trans scaleVerySmall (scale_mem_Icc.left)
   have pGridIsNotInBall := noGridInBall p belongs
@@ -166,26 +166,22 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       apply Grid_subset_ball (X := X) (i := 𝓘 p)
       exact xInTile
     _ < 100 * ↑D ^ (s J + 1) := by
-      apply (div_lt_div_right zero_lt_four).mp
+      apply (div_lt_div_iff_of_pos_right zero_lt_four).mp
       ring_nf
       rewrite (config := {occs := .pos [1]}) [add_comm]
       apply lt_tsub_iff_left.mp
       have DIsPos := one_lt_D (X := X)
       calc (D : ℝ) ^ 𝔰 p
-        _ < D ^ (s J) := by
-          gcongr
-          exact DIsPos
+        _ < D ^ (s J) := by gcongr; exact DIsPos
         _ < D ^ (s J) * (25 * D - 4) := by
           rewrite (config := {occs := .pos [1]}) [mul_comm]
           apply lt_mul_left
-          positivity
-          linarith
-        _ = (D ^ (s J) * D) * 25 - D ^ (s J) * 4 := by
-          ring
+          · positivity
+          · linarith
+        _ = (D ^ (s J) * D) * 25 - D ^ (s J) * 4 := by ring
         _ = D ^ ((s J) + 1) * 25 - D ^ (s J) * 4 := by
           rw [zpow_add_one₀ (by positivity)]
-        _ = D ^ (1 + (s J)) * 25 - D ^ (s J) * 4 := by
-          ring_nf
+        _ = D ^ (1 + (s J)) * 25 - D ^ (s J) * 4 := by ring_nf
 
 /-- The constant used in `global_tree_control1_1`.
 Has value `2 ^ (154 * a ^ 3)` in the blueprint. -/
