@@ -229,7 +229,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
   have endpts := endpoint_sub_one hD hx h
   have ne : ⌈logb D (4 * x)⌉ - 1 ≠ ⌈logb D (4 * x)⌉ := pred_ne_self _
   have : nonzeroS D x = {⌈logb D (4 * x)⌉ - 1, ⌈logb D (4 * x)⌉} := by
-    rw [nonzeroS, ← endpts]; exact Int.Icc_of_eq_sub_1 /- new lemma -/ endpts
+    rw [nonzeroS, ← endpts]; exact Int.Icc_eq_pair endpts
   set s₀ := ⌈logb D (4 * x)⌉
   rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
