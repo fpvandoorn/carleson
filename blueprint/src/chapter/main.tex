@@ -3618,6 +3618,7 @@ Moreover, we have with $\tau = 1/a$
 
 \end{lemma}
 \begin{proof}
+\leanok
 
 If $\varphi(y)$ is not zero, then $K_{s_1}(x_1, y)$ is not zero and thus
 \eqref{supp-Ks} gives \eqref{eqt10}.
@@ -3667,6 +3668,7 @@ The following auxilliary statement about the support of $T_\fp^*g$ will be used 
     \end{equation}
     \end{lemma}
     \begin{proof}
+    \leanok
     Fix $\fp$ and $y$ with \eqref{tstargnot0}.
     Then there exists $x\in E(\fp)$ with
     \begin{equation}
@@ -3676,7 +3678,7 @@ The following auxilliary statement about the support of $T_\fp^*g$ will be used 
     As $E(\fp)\subset \scI(\fp)$ and by the squeezing property
     \eqref{eq-vol-sp-cube}, we have
     \begin{equation}
-        \rho(x,\pc(\fp))\le 4D^{\ps(\fp)}\, .
+        \rho(x,\pc(\fp)) < 4D^{\ps(\fp)}\, .
     \end{equation}
     As $K_{\ps(\fp)}(x,y)\neq 0$, we have by \eqref{supp-Ks}
     that
@@ -3702,14 +3704,15 @@ $x_2\in E(\fp_2)$ we have
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 Let $i\in \{1,2\}$.
 By Definition \eqref{defineep} of $E$,
 we have $\tQ(x_i)\in \fc(\fp_i)$
 With \eqref{eq-freq-comp-ball} we then conclude
 \begin{equation}\label{dponetwo}
-    d_{\fp_i}(\tQ(x_i),\fcc(\fp_i))\le 1\, .
+    d_{\fp_i}(\tQ(x_i),\fcc(\fp_i)) < 1\, .
 \end{equation}
-We have by the triangle inequality and \eqref{eq-vol-sp-cube} that $\sc(\fp_1) \subset B(\pc(\fp_2),15D^{\ps(\fp_2)})$.
+We have by the triangle inequality and \eqref{eq-vol-sp-cube} that $\scI(\fp_1) \subset B(\pc(\fp_2),14D^{\ps(\fp_2)})$.
 Thus, using again \eqref{eq-vol-sp-cube} and the doubling property \eqref{firstdb}
 \begin{equation}\label{tgeo0.5}
     d_{\fp_1}(\tQ(x_2), \fcc(\fp_2)) \le 2^{6a} d_{\fp_2}(\tQ(x_2), \fcc(\fp_2)) \le 2^{6a}\,.
