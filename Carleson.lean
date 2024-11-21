@@ -39,7 +39,6 @@ import Carleson.Psi
 import Carleson.RealInterpolation
 import Carleson.TileExistence
 import Carleson.TileStructure
-import Carleson.ToMathlib.Height
 import Carleson.ToMathlib.MeasureReal
 import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
