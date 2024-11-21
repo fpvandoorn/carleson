@@ -192,8 +192,8 @@ private lemma eq_endpoints (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) ≥ 1 /
 
 -- If `D ^ (-⌈logb D (4 * x)⌉) < 1 / (2 * D * x)`, then the endpoints of `nonzeroS x` differ by 1.
 private lemma endpoint_sub_one (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) < 1 / (2 * D * x)) :
-    ⌊1 + logb D (2 * x)⌋ = ⌈logb D (4 * x)⌉ - 1 := by
-  rw [one_add_logb hD hx]
+    ⌊1 + logb D (2 * x)⌋ + 1 = ⌈logb D (4 * x)⌉ := by
+  rw [← eq_sub_iff_add_eq, one_add_logb hD hx]
   apply le_antisymm
   · rw [← inv_eq_one_div, zpow_neg, inv_lt_inv₀ (D_pow0' hD _) (cDx0 hD two_pos hx)] at h
     rw [Int.floor_le_sub_one_iff, ← rpow_lt_rpow_left_iff hD,
@@ -229,7 +229,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
   have endpts := endpoint_sub_one hD hx h
   have ne : ⌈logb D (4 * x)⌉ - 1 ≠ ⌈logb D (4 * x)⌉ := pred_ne_self _
   have : nonzeroS D x = {⌈logb D (4 * x)⌉ - 1, ⌈logb D (4 * x)⌉} := by
-    rw [nonzeroS, ← endpts]; exact Int.Icc_of_eq_sub_1 endpts
+    rw [nonzeroS, ← endpts]; exact Int.Icc_of_eq_sub_1 /- new lemma -/ endpts
   set s₀ := ⌈logb D (4 * x)⌉
   rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
