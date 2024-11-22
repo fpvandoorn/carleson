@@ -114,7 +114,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         rw [ENNReal.mul_le_mul_left, two_mul, ENNReal.add_le_add_iff_left]
         apply ENNReal.div_le_div_left
         rw [ENNReal.rpow_le_rpow_iff, ENNReal.coe_le_coe]
-        exact zpow_le_of_le one_le_D hs₁.2
+        exact zpow_le_zpow_right₀ one_le_D hs₁.2
         · exact hτ
         · -- I also used this in Psi.lean, with slightly different coercions.
           have hnetop : (nndist y y' : ℝ≥0∞) / ((D ^ s₁  : ℝ≥0) : ℝ≥0∞) ≠ ⊤ := by
@@ -125,7 +125,10 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
                 exact ENNReal.coe_ne_zero.mpr (ne_of_gt (defaultD_pow_pos a s₁))
             exact ⟨fun h ↦ absurd h h', fun _ ↦ ENNReal.coe_ne_top⟩
           rw [← ENNReal.div_rpow_of_nonneg _ _ (le_of_lt hτ)]
-          simp [ne_eq, ENNReal.rpow_eq_top_iff, -defaultD, -coe_nnreal_ennreal_nndist]
+          simp only [defaultτ, ne_eq, ENNReal.rpow_eq_top_iff, ENNReal.div_eq_zero_iff,
+            ENNReal.coe_eq_zero, nndist_eq_zero, ENNReal.coe_ne_top, or_false, inv_neg'', inv_pos,
+            Nat.cast_pos, not_or, not_and, not_lt, Nat.cast_nonneg, implies_true,
+            nonpos_iff_eq_zero, true_and]
           intro htop
           exact absurd htop hnetop
         · simp only [ne_eq, ENNReal.div_eq_zero_iff, pow_eq_zero_iff', OfNat.ofNat_ne_zero,
@@ -205,23 +208,26 @@ variable [TileStructure Q D κ S o]
 
 open TileStructure.Forest
 
--- Would it be worth it to PR this? The proof is so short...
-/- theorem MeasureTheory.exists_ne_zero_of_setIntegral_ne_zero {α E : Type*} [NormedAddCommGroup E]
+-- TODO: PR both versions
+theorem MeasureTheory.exists_ne_zero_of_setIntegral_ne_zero {α E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E} {U : Set α}
     (hU : ∫ (u : α) in U, f u ∂μ ≠ 0) :
     ∃ u : α, u ∈ U ∧ f u ≠ 0 := by
   contrapose! hU
-  exact setIntegral_eq_zero_of_forall_eq_zero hU -/
+  exact setIntegral_eq_zero_of_forall_eq_zero hU
+
+theorem MeasureTheory.exists_ne_zero_of_integral_ne_zero {α E : Type*} [NormedAddCommGroup E]
+    [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E}
+    (h : ∫ (u : α), f u ∂μ ≠ 0) :
+    ∃ u : α, f u ≠ 0 := by
+  contrapose! h
+  exact integral_eq_zero_of_ae ((eqOn_univ f 0).mp fun ⦃x⦄ a ↦ h x).eventuallyEq
 
 -- Lemma 6.2.2
 lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson p g y ≠ 0) :
     y ∈ (ball (𝔠 p) (5 * ↑D ^𝔰 p)) := by
   simp only [adjointCarleson] at hpy
-  have hx : ∃ (x : X), x ∈ E p ∧ (starRingEnd ℂ) (Ks (𝔰 p) x y) *
-      Complex.exp (Complex.I * (↑((Q x) x) - ↑((Q x) y))) * g x ≠ 0 := by -- 6.2.12
-    contrapose! hpy
-    exact setIntegral_eq_zero_of_forall_eq_zero hpy
-  obtain ⟨x, hxE, hx0⟩ := hx
+  obtain ⟨x, hxE, hx0⟩ := MeasureTheory.exists_ne_zero_of_setIntegral_ne_zero hpy
   have hxp : dist x (𝔠 p) < 4 * ↑D ^𝔰 p := -- 6.2.13
     Grid_subset_ball (mem_of_subset_of_mem (fun _ ha ↦ ha.1) hxE)
   have hyx : dist y x ≤ (1/2) * ↑D ^𝔰 p := by -- 6.2.14
@@ -244,6 +250,11 @@ def C_6_2_3 (a : ℕ) : ℝ≥0 := 2^(8 * a)
 lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p) < 1 :=
   subset_cball hx.2.1
 
+--TODO: move to correct file
+lemma one_le_defaultD : 1 ≤ (D : ℝ) := by
+  rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
+  exact pow_le_pow_right₀ (one_le_two) (by omega)
+
 -- Lemma 6.2.3
 lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
   (hinter : (ball (𝔠 p₁) (5 * D^𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D^𝔰 p₂)).Nonempty) {x₁ x₂ : X}
@@ -254,9 +265,7 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
   have hp₂ := ineq_6_2_16 hx₂
   --Needed for ineq. 6.2.17
   have hss : ↑(𝓘 p₁) ⊆ ball (𝔠 p₂) (14 * D^𝔰 p₂) := by
-    have h1D : 1 ≤ (D : ℝ) := by
-        rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
-        exact pow_le_pow_right (one_le_two) (by omega)
+    have h1D : 1 ≤ (D : ℝ) := one_le_defaultD
     have hdist : dist (𝔠 p₁) (𝔠 p₂) < 10 * ↑D ^ 𝔰 p₂ := by
       have h5 : 10 * (D : ℝ)^ 𝔰 p₂ = 5 * ↑D ^ 𝔰 p₂ + 5 * ↑D ^ 𝔰 p₂ := by ring
       obtain ⟨y, hy₁, hy₂⟩ := hinter
@@ -355,23 +364,61 @@ def C_6_1_5 (a : ℕ) : ℝ≥0 := 2^(255 * a^3)
 
 open GridStructure
 
+--TODO: replace p1, p2 in blueprint proof by p, p'
 -- Lemma 6.1.5 (part I)
 lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
       (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
-        (volume.nnreal (coeGrid (𝓘 p))) * ∫ y in E p', ‖ g y‖ * ∫ y in E p, ‖ g y‖ := by
-  sorry
+        (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * (∫ y in E p, ‖ g y‖) := by
+  by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
+  · -- We assume 6.2.23.
+    -- Express (LHS of 6.1.43) = 6.2.24 * 6.2.25.
+
+    sorry
+  · -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
+    calc (‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ : ℝ)
+      _ = 0 := by
+        simp only [inter_nonempty, not_exists, not_and_or] at hinter
+        simp only [defaultA, coe_nnnorm, Complex.norm_eq_abs, map_eq_zero]
+        apply MeasureTheory.integral_eq_zero_of_ae (Eq.eventuallyEq _)
+        ext y
+        rcases hinter y with hp'y | hpy
+        · have hp'0 : adjointCarleson p' g y = 0 := by
+            by_contra hy
+            exact hp'y (range_support hy)
+          simp only [hp'0, zero_mul, Pi.zero_apply]
+        · have hp'0 : adjointCarleson p g y = 0 := by
+            by_contra hy
+            exact hpy (range_support hy)
+          simp only [hp'0, map_zero, mul_zero, Pi.zero_apply]
+      _ ≤ (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
+          (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * ∫ y in E p, ‖ g y‖ := by
+        positivity
+
 
 -- Lemma 6.1.5 (part II)
-lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
-    (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (hpp' : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p) ) :
+lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ)
+    (hpp' : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p)) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ = 0 := by
+  have hD : 1 ≤ (D : ℝ) := one_le_defaultD
+  have h415 : (4 : ℝ) ≤ 15 := by linarith
+  have hsp : 𝔰 p = GridStructure.s (𝓘 p) := rfl
   by_contra h0
+  simp only [nnnorm_eq_zero] at h0
   apply hpp'
-  have hy : ∃ y : X, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ≠ 0 := sorry
-  obtain ⟨y, hy⟩ := hy
-  sorry
+  obtain ⟨y, hy⟩ := MeasureTheory.exists_ne_zero_of_integral_ne_zero h0 --6.2.33
+  simp only [ne_eq, mul_eq_zero, map_eq_zero, not_or] at hy
+  -- 6.2.34
+  have hdist : dist (𝔠 p) (𝔠 p') < 10*D^(𝔰 p) :=
+    calc dist (𝔠 p) (𝔠 p')
+      _ ≤ dist (𝔠 p) y + dist y (𝔠 p') := dist_triangle _ _ _
+      _ = dist y (𝔠 p) + dist y (𝔠 p') := by rw [dist_comm]
+      _ < 5*D^(𝔰 p) + 5*D^(𝔰 p') := add_lt_add (range_support hy.2) (range_support hy.1)
+      _ ≤ 5*D^(𝔰 p) + 5*D^(𝔰 p) := add_le_add_left (by gcongr) _
+      _ = 10*D^(𝔰 p) := by ring
+  -- 6.2.35
+  rw [hsp]
+  exact subset_trans Grid_subset_ball (ball_subset_ball (by gcongr))
 
 end Tile
