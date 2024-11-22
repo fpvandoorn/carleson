@@ -114,7 +114,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         rw [ENNReal.mul_le_mul_left, two_mul, ENNReal.add_le_add_iff_left]
         apply ENNReal.div_le_div_left
         rw [ENNReal.rpow_le_rpow_iff, ENNReal.coe_le_coe]
-        exact zpow_le_of_le one_le_D hs₁.2
+        exact zpow_le_zpow_right₀ one_le_D hs₁.2
         · exact hτ
         · -- I also used this in Psi.lean, with slightly different coercions.
           have hnetop : (nndist y y' : ℝ≥0∞) / ((D ^ s₁  : ℝ≥0) : ℝ≥0∞) ≠ ⊤ := by
@@ -125,7 +125,10 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
                 exact ENNReal.coe_ne_zero.mpr (ne_of_gt (defaultD_pow_pos a s₁))
             exact ⟨fun h ↦ absurd h h', fun _ ↦ ENNReal.coe_ne_top⟩
           rw [← ENNReal.div_rpow_of_nonneg _ _ (le_of_lt hτ)]
-          simp [ne_eq, ENNReal.rpow_eq_top_iff, -defaultD, -coe_nnreal_ennreal_nndist]
+          simp only [defaultτ, ne_eq, ENNReal.rpow_eq_top_iff, ENNReal.div_eq_zero_iff,
+            ENNReal.coe_eq_zero, nndist_eq_zero, ENNReal.coe_ne_top, or_false, inv_neg'', inv_pos,
+            Nat.cast_pos, not_or, not_and, not_lt, Nat.cast_nonneg, implies_true,
+            nonpos_iff_eq_zero, true_and]
           intro htop
           exact absurd htop hnetop
         · simp only [ne_eq, ENNReal.div_eq_zero_iff, pow_eq_zero_iff', OfNat.ofNat_ne_zero,
@@ -256,7 +259,7 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
   have hss : ↑(𝓘 p₁) ⊆ ball (𝔠 p₂) (14 * D^𝔰 p₂) := by
     have h1D : 1 ≤ (D : ℝ) := by
         rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
-        exact pow_le_pow_right (one_le_two) (by omega)
+        exact pow_le_pow_right₀ (one_le_two) (by omega)
     have hdist : dist (𝔠 p₁) (𝔠 p₂) < 10 * ↑D ^ 𝔰 p₂ := by
       have h5 : 10 * (D : ℝ)^ 𝔰 p₂ = 5 * ↑D ^ 𝔰 p₂ + 5 * ↑D ^ 𝔰 p₂ := by ring
       obtain ⟨y, hy₁, hy₂⟩ := hinter
