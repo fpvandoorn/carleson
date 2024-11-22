@@ -138,7 +138,7 @@ lemma le_iSup_of_tendsto {α β} [TopologicalSpace α] [CompleteLinearOrder α] 
     [Nonempty β] [SemilatticeSup β] {f : β → α} {a : α} (ha : Tendsto f atTop (𝓝 a)) : a ≤ iSup f := by
   apply le_of_forall_lt
   intro c hc
-  have : ∀ᶠ (x : β) in atTop, c < f x := eventually_gt_of_tendsto_gt hc ha
+  have : ∀ᶠ (x : β) in atTop, c < f x := Tendsto.eventually_const_lt hc ha
   rcases this.exists with ⟨x, hx⟩
   exact lt_of_lt_of_le hx (le_iSup _ _)
 
