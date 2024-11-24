@@ -52,21 +52,37 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarlesonSum {ℭ : Set (�
     AEStronglyMeasurable (adjointCarlesonSum ℭ f) :=
   Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.adjointCarleson
 
+lemma adjoint_eq_adjoint_indicator (h : E p ⊆ 𝓘 u) :
+    adjointCarleson p f = adjointCarleson p ((𝓘 u : Set X).indicator f) := by
+  ext x; refine setIntegral_congr_fun measurableSet_E (fun y my ↦ ?_); congr
+  exact (indicator_of_mem (h my) f).symm
+
 /-- Part 1 of Lemma 7.4.1.
 Todo: update blueprint with precise properties needed on the function. -/
-lemma adjoint_tile_support1 (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (h3f : AEStronglyMeasurable f) :
-    adjointCarleson p f =
+lemma adjoint_tile_support1 : adjointCarleson p f =
     (ball (𝔠 p) (5 * D ^ 𝔰 p)).indicator (adjointCarleson p ((𝓘 p : Set X).indicator f)) := by
-  sorry
+  rw [adjoint_eq_adjoint_indicator E_subset_𝓘]; ext x
+  rcases eq_or_ne (adjointCarleson p ((𝓘 p : Set X).indicator f) x) 0 with h0 | hn
+  · exact (indicator_apply_eq_self.mpr fun _ ↦ h0).symm
+  refine (indicator_of_mem ?_ _).symm
+  obtain ⟨y, my, Ky⟩ : ∃ y ∈ 𝓘 p, Ks (𝔰 p) y x ≠ 0 := by
+    contrapose! hn
+    refine setIntegral_eq_zero_of_forall_eq_zero fun y my ↦ ?_
+    simp [hn _ (E_subset_𝓘 my)]
+  rw [mem_ball]
+  calc
+    _ ≤ dist y x + dist y (𝔠 p) := dist_triangle_left ..
+    _ < D ^ 𝔰 p / 2 + 4 * (D : ℝ) ^ 𝔰 p :=
+      add_lt_add_of_le_of_lt (dist_mem_Icc_of_Ks_ne_zero Ky).2 (mem_ball.mpr (Grid_subset_ball my))
+    _ ≤ _ := by rw [div_eq_mul_inv, mul_comm, ← add_mul]; gcongr; norm_num
 
 /-- Part 2 of Lemma 7.4.1.
 Todo: update blueprint with precise properties needed on the function. -/
-lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u)
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
-    adjointCarleson p f =
-    (𝓘 p : Set X).indicator (adjointCarleson p ((𝓘 p : Set X).indicator f)) := by
-  sorry
+lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p f =
+    (𝓘 u : Set X).indicator (adjointCarleson p ((𝓘 u : Set X).indicator f)) := by
+  rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu hp).1.1),
+    adjoint_tile_support1, indicator_indicator, ← right_eq_inter.mpr]
+  exact (ball_subset_ball (by gcongr; norm_num)).trans (t.ball_subset hu hp)
 
 /-- The constant used in `adjoint_tree_estimate`.
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/

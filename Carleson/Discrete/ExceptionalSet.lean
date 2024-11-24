@@ -649,13 +649,11 @@ lemma tree_count :
   rw [sub_eq_add_neg, zpow_add₀ two_ne_zero, ← pow_mul, mul_comm 9, mul_comm (2 ^ _)]
   norm_cast
 
-
 /-- Lemma 5.2.9 -/
-lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
+lemma boundary_exception {u : 𝔓 X} :
     volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by
   by_cases  h_𝓛_n_u_non_empty : Set.Nonempty (𝓛 (X := X) n u)
   · set X_u := { x ∈ GridStructure.coeGrid (𝓘 u) | EMetric.infEdist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ 12 * (D ^ (𝔰 u - Z * (n + 1) - 1 : ℤ) : ℝ≥0∞)} with h_X_u -- 5.2.25
-
     calc volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X))
       _ ≤ volume X_u := by
           have i_subset_X_u : ∀ i ∈ 𝓛 (X := X) n u, GridStructure.coeGrid i ⊆ X_u := by
@@ -676,7 +674,7 @@ lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
                   rel [dist_ipt_c_i_le]
                 _ ≤ 4 * D ^ s i + dist bpt (c i) := by rw [dist_comm]
                 _ ≤ 4 * D ^ s i + 8 * D ^ s i := by
-                    have dist_bpt_c_i_le : dist bpt (c i) < 8 * D ^ s i := by 
+                    have dist_bpt_c_i_le : dist bpt (c i) < 8 * D ^ s i := by
                       simp_all only [le_eq_subset, ball, mem_setOf_eq, Grid.mem_def]
                     rel [dist_bpt_c_i_le]
                 _ ≤ 12 * D ^ s i := by linarith
@@ -725,27 +723,27 @@ lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
                 exact le_mul_of_one_le_of_le (by simp) <| zpow_le_zpow_right₀ (one_le_nnreal_D) bound_i_neg_S
               apply (mul_inv_le_iff₀ <| by positivity).mpr at small_boundary_h_intermediate
               rw [← NNReal.rpow_neg_one] at small_boundary_h_intermediate
-              have : (D ^ (𝔰 u : ℤ) : ℝ≥0) ^ (-1 : ℝ) = (D ^ (𝔰 u * (-1)) : ℝ≥0) := by 
+              have : (D ^ (𝔰 u : ℤ) : ℝ≥0) ^ (-1 : ℝ) = (D ^ (𝔰 u * (-1)) : ℝ≥0) := by
                 rw [show (D ^ (𝔰 u : ℤ) : ℝ≥0) = (D ^ (𝔰 u : ℝ) : ℝ≥0) by norm_cast, ← NNReal.rpow_mul]
                 norm_cast
               rwa [this, mul_neg_one, ← zpow_add₀ (show (D : ℝ≥0) ≠ 0 by norm_num),
                    show 𝔰 u = s (𝓘 u) from rfl, add_comm,
                    neg_add_eq_sub] at small_boundary_h_intermediate
-            
+
             have small_b := GridStructure.small_boundary small_boundary_h
 
             have X_u_in_terms_of_t : X_u = { x ∈ GridStructure.coeGrid (𝓘 u) | EMetric.infEdist x (GridStructure.coeGrid (𝓘 u))ᶜ ≤ ((t * D ^ (s (𝓘 u))):ℝ≥0∞)} := by
               rw [ht, show s (𝓘 u) = 𝔰 u from rfl,
                   show (D ^ 𝔰 u : ℝ≥0∞) = (D ^ 𝔰 u : ℝ≥0) by simp]
               rw_mod_cast [D_pow_algebra, h_X_u]
-              have : 12 * (D ^ (𝔰 u - (Z * (n + 1) : ℤ) - 1) : ℝ≥0∞) = ((12 * (D ^ (𝔰 u - (Z * (n + 1)) - 1) : ℝ≥0)) : ℝ≥0∞) := by 
+              have : 12 * (D ^ (𝔰 u - (Z * (n + 1) : ℤ) - 1) : ℝ≥0∞) = ((12 * (D ^ (𝔰 u - (Z * (n + 1)) - 1) : ℝ≥0)) : ℝ≥0∞) := by
                 simp
               rw_mod_cast [this]
             rw [show s (𝓘 u) = GridStructure.s (𝓘 u) from rfl] at X_u_in_terms_of_t
             rw [← X_u_in_terms_of_t, measureReal_def, measureReal_def] at small_b
             rw [← ENNReal.toReal_le_toReal] -- this requires showing everything is finite
             · rw [ENNReal.toReal_mul]
-              have : (2 * (t ^ κ : ℝ≥0∞)).toReal = 2 * t ^ κ  := by 
+              have : (2 * (t ^ κ : ℝ≥0∞)).toReal = 2 * t ^ κ  := by
                 norm_cast
                 rw [ENNReal.toReal_mul, ← ENNReal.toReal_rpow]
                 rfl
@@ -757,7 +755,7 @@ lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
             · apply LT.lt.ne
               have t_k_lt_top : 2 * (t : ℝ≥0∞) ^ κ < ⊤ := by
                 rw [ht]
-                exact WithTop.mul_lt_top (by apply WithTop.coe_lt_top) <| 
+                exact WithTop.mul_lt_top (by apply WithTop.coe_lt_top) <|
                   (ENNReal.rpow_lt_top_of_nonneg κ_nonneg) (lt_top_iff_ne_top.mp (by apply WithTop.coe_lt_top))
               exact WithTop.mul_lt_top t_k_lt_top volume_coeGrid_lt_top
 
@@ -765,13 +763,13 @@ lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
           exact small_boundary_observation i hi
 
       _ ≤ C5_2_9 X n * volume (𝓘 u : Set X) := by -- choosing the right k and D
-        have coeff_lt :  2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by 
-          have twelve_le_D : 12 ≤ D := by 
+        have coeff_lt :  2 * (12 * D ^ (-Z * (n + 1) - 1 : ℝ)) ^ κ ≤ (D ^ (1 - κ * Z * (n + 1)) : ℝ≥0) := by
+          have twelve_le_D : 12 ≤ D := by
             have : 4 ≤ a := (show ProofData a q K σ₁ σ₂ F G by infer_instance).four_le_a
             have : 2 ^ (100) ≤ 2^ (100 * a ^2) := (Nat.pow_le_pow_iff_right (by nlinarith)).mpr <| by nlinarith
             simp only [defaultD, ge_iff_le]
             nlinarith
-          have two_time_twelve_over_D_to_the_k_le_D : 2 * (12 / D) ^ κ ≤ (D : ℝ≥0) := by 
+          have two_time_twelve_over_D_to_the_k_le_D : 2 * (12 / D) ^ κ ≤ (D : ℝ≥0) := by
             have two_le_D : 2 ≤ D := by linarith
             have : 2 * (12 / D) ^ κ ≤ (2 : ℝ≥0) := by
               apply (MulLECancellable.mul_le_iff_le_one_right ?_).mpr
@@ -781,11 +779,11 @@ lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
               apply κ_nonneg
               simp [MulLECancellable]
             exact this.trans <| by norm_cast
-          have two_times_twelve_k_D_minus_k_le_D : 2 * 12 ^ κ * D ^ (-κ) ≤ (D : ℝ≥0) := by 
+          have two_times_twelve_k_D_minus_k_le_D : 2 * 12 ^ κ * D ^ (-κ) ≤ (D : ℝ≥0) := by
             rwa [← inv_mul_eq_div, NNReal.mul_rpow, NNReal.inv_rpow,
                 ← NNReal.rpow_neg, mul_comm _ (12 ^ κ), ← mul_assoc] at two_time_twelve_over_D_to_the_k_le_D
           have mul_by_D_to_the_k_Z : 2 * 12 ^ κ * D ^ (-1*κ)  * D ^ (-1* κ  * Z * (n + 1)) ≤ (D : ℝ≥0) * D ^ (-κ * Z * (n + 1)) := by
-            have : 2 * 12 ^ κ * D ^ (-κ) * D ^ (-κ * Z * (n + 1)) ≤ (D : ℝ≥0) * D ^ (-κ * Z * (n + 1)) := 
+            have : 2 * 12 ^ κ * D ^ (-κ) * D ^ (-κ * Z * (n + 1)) ≤ (D : ℝ≥0) * D ^ (-κ * Z * (n + 1)) :=
               mul_le_mul_of_nonneg_right two_times_twelve_k_D_minus_k_le_D (by positivity)
             rwa [← neg_eq_neg_one_mul]
           have rearrange_exponents : 2 * (12 : ℝ≥0) ^ κ * (D ^ (-(1 : ℝ))) ^ κ * (D ^ (-(1 : ℝ) * Z * (n + 1)) : ℝ≥0) ^ κ ≤ (D : ℝ≥0) ^ (1 : ℝ) * D ^ (-κ * Z * (n + 1)) := by
@@ -799,15 +797,15 @@ lemma boundary_exception {u : 𝔓 X} (hu : u ∈ 𝔘₁ k n l) :
         rw [C5_2_9]
         apply ENNReal.coe_le_coe.mpr at coeff_lt
         norm_cast
-        have : 12 * (D ^ (-Z * (n + 1) - 1: ℤ ) : ℝ≥0) ≠ 0 := by 
+        have : 12 * (D ^ (-Z * (n + 1) - 1: ℤ ) : ℝ≥0) ≠ 0 := by
           simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultZ, neg_mul, ne_eq, mul_eq_zero, OfNat.ofNat_ne_zero, false_or]
           positivity
         rw [← ENNReal.coe_rpow_of_ne_zero (by exact this)] -- why do I need this with exact_mod_cast?
         exact_mod_cast mul_le_mul_right' coeff_lt (volume (𝓘 u : Set X))
-  · have : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) = 0 := by 
+  · have : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) = 0 := by
       have h1 : volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) ≤ ∑' i : 𝓛 (X := X) n u, volume (i : Set X) := measure_biUnion_le _ (𝓛 n u).to_countable _
       have h2 : ∑' i : 𝓛 (X := X) n u, volume (i : Set X) = 0 := by
-        have : 𝓛 (X := X) n u = ∅ := Set.not_nonempty_iff_eq_empty'.mp <| by 
+        have : 𝓛 (X := X) n u = ∅ := Set.not_nonempty_iff_eq_empty'.mp <| by
           rw [Set.Nonempty] at h_𝓛_n_u_non_empty
           simp [h_𝓛_n_u_non_empty]
         simp [this]
@@ -824,7 +822,7 @@ lemma third_exception_aux :
     _ ≤ ∑' u : 𝔘₁ (X := X) k n j, volume (⋃ i ∈ 𝓛 (X := X) n u, (i : Set X)) :=
       measure_biUnion_le _ (𝔘₁ k n j).to_countable _
     _ ≤ ∑' u : 𝔘₁ (X := X) k n j, C5_2_9 X n * volume (𝓘 u.1 : Set X) :=
-      ENNReal.tsum_le_tsum fun x ↦ boundary_exception x.2
+      ENNReal.tsum_le_tsum fun x ↦ boundary_exception
     _ = C5_2_9 X n * ∑ u ∈ { p | p ∈ 𝔘₁ (X := X) k n j }, volume (𝓘 u : Set X) := by
       rw [filter_mem_univ_eq_toFinset, ENNReal.tsum_mul_left]; congr
       rw [tsum_fintype]; convert (Finset.sum_subtype _ (fun u ↦ mem_toFinset) _).symm; rfl
