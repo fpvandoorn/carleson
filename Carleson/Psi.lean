@@ -457,11 +457,9 @@ lemma nnnorm_Ks_le {s : ℤ} {x y : X} :
   simp only [measureReal_def, ← ENNReal.toReal_mul, ← coe_nnnorm] at h
   have : (0 : ℝ) ≤ ↑(C2_1_3 a) := by simp only [zero_le_coe]
   rw [← ENNReal.toReal_ofReal (r := ‖Ks s x y‖₊) (by positivity),
-    ← ENNReal.toReal_ofReal this, ← ENNReal.toReal_div, ENNReal.toReal_le_toReal] at h
-  convert h
-  · exact ENNReal.coe_nnreal_eq _
-  · exact ENNReal.coe_nnreal_eq _
-  · exact ENNReal.ofReal_ne_top
+    ← ENNReal.toReal_ofReal this, ← ENNReal.toReal_div,
+    ENNReal.toReal_le_toReal ENNReal.ofReal_ne_top] at h
+  · rwa [ENNReal.coe_nnreal_eq, ENNReal.coe_nnreal_eq]
   · simp only [NNReal.coe_pow, ne_eq, ENNReal.div_eq_top, ENNReal.ofReal_eq_zero, not_le,
       mul_eq_zero, ENNReal.ofReal_ne_top, false_and, or_false, not_and, not_or]
     exact fun _ ↦ ne_of_gt (measure_ball_pos volume x (defaultD_pow_pos a s))
@@ -699,10 +697,8 @@ lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
   simp only [measureReal_def, ← ENNReal.toReal_mul, ← coe_nnnorm, ← coe_nndist, ← NNReal.coe_div,
     ← NNReal.coe_pow, haux] at h
   rw [← ENNReal.toReal_ofReal (r := ‖Ks s x y - Ks s x y'‖₊) (by positivity),
-    ENNReal.toReal_le_toReal] at h
-  convert h
-  · exact ENNReal.coe_nnreal_eq _
-  · exact ENNReal.ofReal_ne_top
+    ENNReal.toReal_le_toReal ENNReal.ofReal_ne_top] at h
+  · rwa [ENNReal.coe_nnreal_eq]
   · refine ENNReal.mul_ne_top ?_ ?_
     · simp only [ne_eq, ENNReal.div_eq_top,
       ENNReal.coe_eq_zero, ENNReal.coe_ne_top, false_and, or_false, not_and]
