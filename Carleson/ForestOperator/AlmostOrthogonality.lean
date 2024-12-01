@@ -1,4 +1,5 @@
 import Carleson.ForestOperator.QuantativeEstimate
+import Carleson.ToMathlib.BoundedCompactSupport
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -92,9 +93,12 @@ lemma _root_.Set.indicator_eq_mul_indicator_one {ι M:Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = f x * s.indicator 1 x := by
   simp only [indicator]; split_ifs <;> simp
 
-omit [TileStructure Q D κ S o] in
+lemma _root_.Set.conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α):
+    conj (s.indicator f x) = s.indicator (conj f) x := by
+  simp only [indicator]; split_ifs <;> simp
+
 /-- If `f` has bounded range, then it is bounded ae. -/
--- where is this in mathlib?
+-- not currently used, remove?
 lemma _root_.MeasureTheory.ae_bounded_of_isBounded_range
     (μ : Measure X) (hf : IsBounded (range f)) : ∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M := by
   obtain ⟨M, hM⟩ := Metric.isBounded_range_iff.mp hf
@@ -107,18 +111,11 @@ lemma _root_.MeasureTheory.ae_bounded_of_isBounded_range
     _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le _ _
     _ ≤ _ := by gcongr; exact hM x x₀
 
-omit [TileStructure Q D κ S o] in
-/-- A bounded measurable function with compact support is integrable. -/
--- mathlib **must** have this, but I can't find it
-lemma _root_.MeasureTheory.integrable_of_bounded_compact_support
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
-    Integrable f := by
-  let s := tsupport f
-  have sfin : volume s ≠ ⊤ := IsCompact.measure_ne_top h2f
-  have hfs: IntegrableOn f s := by
-    obtain ⟨M, hM⟩ := ae_bounded_of_isBounded_range (volume.restrict s) hf
-    apply Measure.integrableOn_of_bounded sfin h3f hM
-  exact (integrableOn_iff_integrable_of_support_subset <| subset_tsupport f).mp hfs
+-- -- mathlib?
+-- lemma _root_.HasCompactSupport.integrable_of_isBounded
+--     (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
+--     Integrable f := by
+--   exact memℒp_one_iff_integrable.mp <| h2f.memℒp_of_isBounded hf h3f
 
 -- in mathlib?
 theorem _root_.MeasureTheory.integral_const_mul {X : Type*} [MeasurableSpace X] {μ : Measure X}
@@ -126,29 +123,24 @@ theorem _root_.MeasureTheory.integral_const_mul {X : Type*} [MeasurableSpace X] 
     ∫ x, c * f x ∂μ = c * ∫ x, f x ∂μ := by
   rw [mul_comm, ← smul_eq_mul, ← integral_smul_const]; simp_rw [mul_comm c, ← smul_eq_mul]
 
-#check integrableOn_iff_integrable_of_support_subset
-#check IntegrableOn.integrable
-#check Measure.integrableOn_of_bounded
-#check ae_of_all
-#check ae
-#check Integrable.prod_mul
+theorem _root_.MeasureTheory.integral_mul_const {X : Type*} [MeasurableSpace X] {μ : Measure X}
+  {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (c : 𝕜) :
+    ∫ x, f x * c ∂μ = (∫ x, f x ∂μ) * c := by
+  rw [← smul_eq_mul, ← integral_smul_const]; simp_rw [← smul_eq_mul]
+
+-- #check integrableOn_iff_integrable_of_support_subset
+-- #check IntegrableOn.integrable
+-- #check Measure.integrableOn_of_bounded
+-- #check ae_of_all
+-- #check ae
+-- #check Integrable.prod_mul
 
 -- short for `modulated kernel times dilated bump`
 abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
 
--- alternate expression for `carlesonOn p f x`
-lemma carlesonOn_eq : carlesonOn p f x =
-    ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
-  unfold carlesonOn
-  rw [indicator_eq_mul_indicator_one, mul_comm, ← integral_const_mul]
-  simp_rw [mul_assoc]
-
 /-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
--- of course the assumptions are too strong, but enough here
 lemma adjointCarleson_adjoint
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
-    (p : 𝔓 X) :
+    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (p : 𝔓 X) :
     ∫ x, conj (g x) * carlesonOn p f x = ∫ y, conj (adjointCarleson p g y) * f y := by
   let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
   have H_int : Integrable (uncurry H) := by
@@ -156,36 +148,33 @@ lemma adjointCarleson_adjoint
     sorry
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
-      simp_rw [carlesonOn_eq]
+      conv =>
+        enter [1, 2, x, 2]; unfold carlesonOn
+        rw [indicator_eq_mul_indicator_one, mul_comm, ← integral_const_mul]
+        enter [2, y]; rw [← mul_assoc]
     _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
     _ = ∫ y, ∫ x, H x y := integral_integral_swap H_int
-    _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by sorry
-    _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by sorry
+    _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
+      simp_rw [integral_mul_const]
+    _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
+      simp_rw [← integral_conj]; congr! 5; rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
     _ = _ := by
       congr! with y
       calc
-        _ = ∫ x, (E p).indicator 1 x * g x * conj (MKD (𝔰 p) x y) := by sorry
-        _ = ∫ x, (E p).indicator (fun x ↦ g x * conj (MKD (𝔰 p) x y)) x := by sorry
+        _ = ∫ x, (E p).indicator 1 x * g x * conj (MKD (𝔰 p) x y) := by congr! 3; exact mul_comm _ _
+        _ = ∫ x, (E p).indicator (fun x ↦ g x * conj (MKD (𝔰 p) x y)) x := by
+          congr! 3; simp only [indicator]; split_ifs <;> simp
         _ = ∫ x in E p, g x * conj (MKD (𝔰 p) x y) := integral_indicator measurableSet_E
         _ = ∫ x in E p, conj (MKD (𝔰 p) x y) * g x := by simp_rw [mul_comm]
         _ = _ := by
           unfold adjointCarleson MKD
-          congr; funext x
-          rw [mul_assoc, ← Ks_def, map_mul, ← exp_conj, mul_comm (cexp _)]
+          congr! 3; rw [mul_assoc, ← Ks_def, map_mul, ← exp_conj, mul_comm (cexp _)]
           congr; simp; ring
-
--- couldn't find this, only found `integrable_Ks_x`
-lemma integrable_carlesonOn
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
-    Integrable (carlesonOn p f) := by
-  sorry -- mathematically trivial, but hard to lean
 
 /-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
 -- of course the assumptions are too strong
 lemma adjointCarlesonSum_adjoint
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
-    (ℭ : Set (𝔓 X)) :
+    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (ℭ : Set (𝔓 X)) :
     ∫ x, conj (g x) * carlesonSum ℭ f x = ∫ x, conj (adjointCarlesonSum ℭ g x) * f x := by
   calc
     _ = ∫ x, ∑ p ∈ {p | p ∈ ℭ}, conj (g x) * carlesonOn p f x := by
@@ -196,7 +185,7 @@ lemma adjointCarlesonSum_adjoint
       -- have : Integrable (fun x ↦ conj (g x)) := by sorry
       -- apply Integrable.bdd_mul (integrable_carlesonOn hf h2f h3f)
     _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ y, conj (adjointCarleson p g y) * f y := by
-      simp_rw [adjointCarleson_adjoint hf h2f h3f hg h2g h3g]
+      simp_rw [adjointCarleson_adjoint hf hg]
     _ = ∫ y, ∑ p ∈ {p | p ∈ ℭ}, conj (adjointCarleson p g y) * f y := by
       symm; apply integral_finset_sum; intro p _
       sorry -- todo: integrability
@@ -209,28 +198,26 @@ Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
 /-- Lemma 7.4.2. -/
-lemma adjoint_tree_estimate (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (h3f : AEStronglyMeasurable f) :
+lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
   let g := adjointCarlesonSum (t u) f
-  have hg : IsBounded (range g) := by sorry
-  have h2g : HasCompactSupport g := by sorry
-  have h3g : AEStronglyMeasurable g := AEStronglyMeasurable.adjointCarlesonSum h3f
-  have h := density_tree_bound1 hg h2g h3g hf h2f h3f hu
-  simp_rw [adjointCarlesonSum_adjoint hg h2g h3g hf h2f h3f] at h
+  have hg : BoundedCompactSupport g := {
+    bounded := sorry
+    compact_support := sorry
+    measurable := AEStronglyMeasurable.adjointCarlesonSum hf.3
+  }
+  have h := density_tree_bound1 hg.1 hg.2 hg.3 hf.1 hf.2 hf.3 hu
+  simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
-    (eLpNorm g 2 volume)^2 := by sorry
+      (eLpNorm g 2 volume)^2 := by
+    simp_rw [mul_comm, Complex.mul_conj]; sorry
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
   have hg' : eLpNorm g 2 volume ≠ ∞ := by sorry
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]
   · exact (ENNReal.mul_le_mul_right hgz hg').mp h
-
-
-  -- let
-  -- convert density_tree_bound1 hf h2f h3f
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
@@ -270,7 +257,7 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasC
     CMB (defaultA a) 2 * eLpNorm f 2 volume +
     eLpNorm f 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hu hf h2f h3f
+      · exact adjoint_tree_estimate hu ⟨hf, h2f, h3f⟩
       · exact hasStrongType_MB 𝓑_finite one_lt_two _ (h2f.memℒp_of_isBounded hf h3f) |>.2
   _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
     simp_rw [add_mul]

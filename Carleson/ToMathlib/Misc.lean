@@ -212,9 +212,9 @@ section
 
 open MeasureTheory Bornology
 variable {E X : Type*} {p : ℝ≥0∞} [NormedAddCommGroup E] [TopologicalSpace X] [MeasurableSpace X]
-  {μ : Measure X} [IsFiniteMeasureOnCompacts μ]
+  {μ : Measure X} [IsFiniteMeasureOnCompacts μ] {f : X → E}
 
-lemma _root_.HasCompactSupport.memℒp_of_isBounded {f : X → E} (hf : HasCompactSupport f)
+lemma _root_.HasCompactSupport.memℒp_of_isBounded (hf : HasCompactSupport f)
     (h2f : IsBounded (range f))
     (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : Memℒp f p μ := by
   obtain ⟨C, hC⟩ := h2f.exists_norm_le
