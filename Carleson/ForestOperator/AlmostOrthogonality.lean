@@ -84,17 +84,153 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
     adjoint_tile_support1, indicator_indicator, ← right_eq_inter.mpr]
   exact (ball_subset_ball (by gcongr; norm_num)).trans (t.ball_subset hu hp)
 
+
+section ToBeMovedToAppropriateLocations
+
+-- mathlib should have this, but I can't find it
+lemma _root_.Set.indicator_eq_mul_indicator_one {ι M:Type*} [MulZeroOneClass M]
+    (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = f x * s.indicator 1 x := by
+  simp only [indicator]; split_ifs <;> simp
+
+omit [TileStructure Q D κ S o] in
+/-- If `f` has bounded range, then it is bounded ae. -/
+-- where is this in mathlib?
+lemma _root_.MeasureTheory.ae_bounded_of_isBounded_range
+    (μ : Measure X) (hf : IsBounded (range f)) : ∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M := by
+  obtain ⟨M, hM⟩ := Metric.isBounded_range_iff.mp hf
+  let x₀ : X := Classical.choice (by infer_instance)
+  use M+‖f x₀‖
+  apply ae_of_all
+  intro x
+  calc
+    _ = ‖f x - f x₀ + f x₀‖ := by group
+    _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le _ _
+    _ ≤ _ := by gcongr; exact hM x x₀
+
+omit [TileStructure Q D κ S o] in
+/-- A bounded measurable function with compact support is integrable. -/
+-- mathlib **must** have this, but I can't find it
+lemma _root_.MeasureTheory.integrable_of_bounded_compact_support
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
+    Integrable f := by
+  let s := tsupport f
+  have sfin : volume s ≠ ⊤ := IsCompact.measure_ne_top h2f
+  have hfs: IntegrableOn f s := by
+    obtain ⟨M, hM⟩ := ae_bounded_of_isBounded_range (volume.restrict s) hf
+    apply Measure.integrableOn_of_bounded sfin h3f hM
+  exact (integrableOn_iff_integrable_of_support_subset <| subset_tsupport f).mp hfs
+
+-- in mathlib?
+theorem _root_.MeasureTheory.integral_const_mul {X : Type*} [MeasurableSpace X] {μ : Measure X}
+  {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (c : 𝕜) :
+    ∫ x, c * f x ∂μ = c * ∫ x, f x ∂μ := by
+  rw [mul_comm, ← smul_eq_mul, ← integral_smul_const]; simp_rw [mul_comm c, ← smul_eq_mul]
+
+#check integrableOn_iff_integrable_of_support_subset
+#check IntegrableOn.integrable
+#check Measure.integrableOn_of_bounded
+#check ae_of_all
+#check ae
+#check Integrable.prod_mul
+
+-- short for `modulated kernel times dilated bump`
+abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
+
+-- alternate expression for `carlesonOn p f x`
+lemma carlesonOn_eq : carlesonOn p f x =
+    ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
+  unfold carlesonOn
+  rw [indicator_eq_mul_indicator_one, mul_comm, ← integral_const_mul]
+  simp_rw [mul_assoc]
+
+/-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
+-- of course the assumptions are too strong, but enough here
+lemma adjointCarleson_adjoint
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
+    (p : 𝔓 X) :
+    ∫ x, conj (g x) * carlesonOn p f x = ∫ y, conj (adjointCarleson p g y) * f y := by
+  let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
+  have H_int : Integrable (uncurry H) := by
+    -- todo: should be a tactic `integrable` or so that kills this
+    sorry
+  calc
+    _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
+      simp_rw [carlesonOn_eq]
+    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
+    _ = ∫ y, ∫ x, H x y := integral_integral_swap H_int
+    _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by sorry
+    _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by sorry
+    _ = _ := by
+      congr! with y
+      calc
+        _ = ∫ x, (E p).indicator 1 x * g x * conj (MKD (𝔰 p) x y) := by sorry
+        _ = ∫ x, (E p).indicator (fun x ↦ g x * conj (MKD (𝔰 p) x y)) x := by sorry
+        _ = ∫ x in E p, g x * conj (MKD (𝔰 p) x y) := integral_indicator measurableSet_E
+        _ = ∫ x in E p, conj (MKD (𝔰 p) x y) * g x := by simp_rw [mul_comm]
+        _ = _ := by
+          unfold adjointCarleson MKD
+          congr; funext x
+          rw [mul_assoc, ← Ks_def, map_mul, ← exp_conj, mul_comm (cexp _)]
+          congr; simp; ring
+
+-- couldn't find this, only found `integrable_Ks_x`
+lemma integrable_carlesonOn
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
+    Integrable (carlesonOn p f) := by
+  sorry -- mathematically trivial, but hard to lean
+
+/-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
+-- of course the assumptions are too strong
+lemma adjointCarlesonSum_adjoint
+    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
+    (ℭ : Set (𝔓 X)) :
+    ∫ x, conj (g x) * carlesonSum ℭ f x = ∫ x, conj (adjointCarlesonSum ℭ g x) * f x := by
+  calc
+    _ = ∫ x, ∑ p ∈ {p | p ∈ ℭ}, conj (g x) * carlesonOn p f x := by
+      unfold carlesonSum; simp_rw [Finset.mul_sum]
+    _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ x, conj (g x) * carlesonOn p f x := by
+      apply integral_finset_sum; intro p _
+      sorry -- todo: show integrability
+      -- have : Integrable (fun x ↦ conj (g x)) := by sorry
+      -- apply Integrable.bdd_mul (integrable_carlesonOn hf h2f h3f)
+    _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ y, conj (adjointCarleson p g y) * f y := by
+      simp_rw [adjointCarleson_adjoint hf h2f h3f hg h2g h3g]
+    _ = ∫ y, ∑ p ∈ {p | p ∈ ℭ}, conj (adjointCarleson p g y) * f y := by
+      symm; apply integral_finset_sum; intro p _
+      sorry -- todo: integrability
+    _ = _ := by sorry -- easy
+
+end ToBeMovedToAppropriateLocations
+
 /-- The constant used in `adjoint_tree_estimate`.
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
+irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
     (h3f : AEStronglyMeasurable f) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
-  sorry
+  rw [C7_4_2_def]
+  let g := adjointCarlesonSum (t u) f
+  have hg : IsBounded (range g) := by sorry
+  have h2g : HasCompactSupport g := by sorry
+  have h3g : AEStronglyMeasurable g := AEStronglyMeasurable.adjointCarlesonSum h3f
+  have h := density_tree_bound1 hg h2g h3g hf h2f h3f hu
+  simp_rw [adjointCarlesonSum_adjoint hg h2g h3g hf h2f h3f] at h
+  have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
+    (eLpNorm g 2 volume)^2 := by sorry
+  rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
+  have hg' : eLpNorm g 2 volume ≠ ∞ := by sorry
+  by_cases hgz : eLpNorm g 2 volume = 0
+  · simp [hgz]
+  · exact (ENNReal.mul_le_mul_right hgz hg').mp h
+
+
+  -- let
+  -- convert density_tree_bound1 hf h2f h3f
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
