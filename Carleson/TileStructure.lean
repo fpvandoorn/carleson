@@ -287,7 +287,7 @@ def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
 
 /-- From a TileLike, we can construct a set. This is used in the definitions `E₁` and `E₂`. -/
 def TileLike.toSet (t : TileLike X) : Set X :=
-  t.1 ∩ G ∩ Q ⁻¹' t.2
+  t.fst ∩ G ∩ Q ⁻¹' t.snd
 
 def E₁ (p : 𝔓 X) : Set X :=
   (toTileLike p).toSet
@@ -312,6 +312,23 @@ def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p' ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
   ⨆ (p ∈ lowerClosure 𝔓') (_h2 : smul l p' ≤ smul l p),
   volume (E₂ l p) / volume (𝓘 p : Set X)
+
+lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
+    dens₁ 𝔓₁ ≤ dens₁ 𝔓₂ := by
+  simp only [dens₁, iSup_le_iff]
+  intro p hp r hr
+  refine le_iSup₂_of_le p (h hp) ?_
+  apply ENNReal.mul_le_of_le_div'
+  simp only [iSup_le_iff]
+  intro q hq hqr
+  rw [ENNReal.le_div_iff_mul_le (by left; simp)]
+  · refine le_iSup₂_of_le r hr ?_
+    rw [mul_comm]
+    gcongr
+    exact le_iSup₂_of_le q (lowerClosure_mono h hq) (le_iSup_iff.mpr fun b a ↦ a hqr)
+  · left
+    have hr0 : r ≠ 0 := by positivity
+    simp [hr0]
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
