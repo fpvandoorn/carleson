@@ -97,19 +97,6 @@ lemma _root_.Set.conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜
   simp only [indicator]; split_ifs <;> simp
 
 
-/-- If `f` has bounded range, then it is bounded ae. -/
--- not currently used, remove?
-lemma _root_.MeasureTheory.ae_bounded_of_isBounded_range
-    (μ : Measure X) (hf : IsBounded (range f)) : ∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M := by
-  obtain ⟨M, hM⟩ := Metric.isBounded_range_iff.mp hf
-  let x₀ : X := Classical.choice (by infer_instance)
-  use M+‖f x₀‖
-  apply ae_of_all
-  intro x
-  calc
-    _ = ‖f x - f x₀ + f x₀‖ := by group
-    _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le ..
-    _ ≤ _ := by gcongr; exact hM x x₀
 
 -- -- mathlib?
 -- lemma _root_.HasCompactSupport.integrable_of_isBounded
@@ -135,31 +122,29 @@ theorem _root_.MeasureTheory.integral_mul_const {X : Type*} [MeasurableSpace X] 
 -- #check ae
 -- #check Integrable.prod_mul
 
--- short for `modulated kernel times dilated bump`
-abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
-
 #check integrable_Ks_x
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
-  bounded := sorry
-  compact_support := sorry
-  measurable := sorry -- hf.3.carlesonOn
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) :=
+  sorry
+
+-- comment out when actually used
+-- theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)}
+--     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
+--   Finset.boundedCompactSupport_sum <| fun _ _ ↦ hf.carlesonOn
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
-  bounded := sorry
-  compact_support := sorry
-  measurable := hf.3.adjointCarleson
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) :=
+  ⟨sorry, sorry, hf.3.adjointCarleson⟩
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) where
-  bounded := sorry
-  compact_support := sorry
-  measurable := hf.3.adjointCarlesonSum
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
+  Finset.boundedCompactSupport_sum <| fun _ _ ↦ hf.adjointCarleson
 
 end ToBeMovedToAppropriateLocations
 
+-- short for `modulated kernel times dilated bump`
+private abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
 
 /-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
 lemma adjointCarleson_adjoint
@@ -167,13 +152,12 @@ lemma adjointCarleson_adjoint
     ∫ x, conj (g x) * carlesonOn p f x = ∫ y, conj (adjointCarleson p g y) * f y := by
   let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
   have hH : BoundedCompactSupport (uncurry H) := by
+    let H₀ := fun x y ↦ ‖g x‖ * ‖f y‖
     let M₀ : ℝ := sorry -- insert bound for `K`
-    let H₀ := fun x y ↦ M₀ * ‖g x‖ * ‖f y‖
-    have hHleH₀ x y : ‖H x y‖ ≤ H₀ x y := by
+    have hHleH₀ x y : ‖H x y‖ ≤ M₀ * H₀ x y := by
       sorry -- use bound for `K`
-    refine BoundedCompactSupport.of_norm_le (g := uncurry H₀) ?_ ?_
-    · refine BoundedCompactSupport.prod_mul ?_ hf.norm
-      sorry -- hg.norm.const_mul _
+    refine BoundedCompactSupport.of_norm_le_const_mul (g := uncurry H₀) (M := M₀) ?_ ?_
+    · refine BoundedCompactSupport.prod_mul hg.norm hf.norm
     · intro ⟨x,y⟩; simp only [uncurry_apply_pair]; exact hHleH₀ ..
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by

@@ -10,8 +10,6 @@ import Carleson.ToMathlib.Misc
 
 /-!
 
--- EXPERIMENTAL
-
 # Bounded compactly supported measurable functions
 
 Bounded compactly supported measurable functions are a very convenient class of functions:
@@ -21,6 +19,8 @@ and it is closed under many common operations
 Often it is enough to reason with bounded compactly supported functions (as done in the blueprint).
 Here we provide helper lemmas mostly meant to streamline integrability proofs.
 
+Todo: make `Mathlib.Tactic.FunProp` work for this
+
 -/
 
 namespace MeasureTheory
@@ -28,15 +28,35 @@ namespace MeasureTheory
 open Bornology Function Set HasCompactSupport
 open scoped ENNReal
 
--- can generalize to vector-valued, but for this project scalar-valued should be enough
+-- Can generalize to vector-valued, but for this project scalar-valued should be enough
 variable {X 𝕜} [MeasureSpace X] [RCLike 𝕜] {f : X → 𝕜}
 variable [TopologicalSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
 
 variable (f) in
+/-- Bounded compactly supported measurable functions -/
+-- There are various alternative definitions one could use here
+-- For now I used the formulations that were already used throughout `ForestOperator`
 structure BoundedCompactSupport : Prop where
-  bounded : IsBounded (range f)
-  compact_support : HasCompactSupport f
-  measurable : AEStronglyMeasurable f
+  bounded : IsBounded (range f)  -- could use a version of essential boundedness instead,
+                                 -- e.g. `∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M`
+  compact_support : HasCompactSupport f -- could use bounded support instead
+  measurable : AEStronglyMeasurable f -- could use `Measurable` instead
+
+-- Why is there no `IsEssBounded` predicate in mathlib?
+
+-- /-- If `f` has bounded range, then it is bounded ae. -/
+-- -- not currently used, but maybe in the future
+-- lemma ae_bounded_of_isBounded_range [Nonempty X]
+--     (μ : Measure X) (hf : IsBounded (range f)) : ∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M := by
+--   obtain ⟨M, hM⟩ := Metric.isBounded_range_iff.mp hf
+--   let x₀ : X := Classical.choice (by infer_instance)
+--   use M+‖f x₀‖
+--   apply ae_of_all
+--   intro x
+--   calc
+--     _ = ‖f x - f x₀ + f x₀‖ := by group
+--     _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le ..
+--     _ ≤ _ := by gcongr; sorry -- fix broke after copy to this context: exact hM x x₀
 
 namespace BoundedCompactSupport
 
@@ -72,10 +92,14 @@ theorem conj : BoundedCompactSupport (star f) := sorry
 
 theorem norm : BoundedCompactSupport (‖f ·‖) := sorry
 
+theorem const_mul (c : 𝕜) : BoundedCompactSupport (fun x ↦ c * (f x)) := sorry
+
+theorem mul_const (c : 𝕜) : BoundedCompactSupport (fun x ↦ (f x) * c) := sorry
+
 end Includehf
 
 section Includehfhg
-/-! Results depending on `f` and `g` being bounded compactly supported. -/
+/-! Results depending on two functions `f`, `g` being bounded compactly supported. -/
 
 include hf hg
 
@@ -83,15 +107,28 @@ theorem mul : BoundedCompactSupport (f * g) := mul_bdd hf hg.bounded
 
 theorem add : BoundedCompactSupport (f + g) := sorry
 
-theorem const_mul (c : 𝕜) : BoundedCompactSupport (fun x ↦ c * (f x)) := sorry
-
-theorem mul_const (c : 𝕜) : BoundedCompactSupport (fun x ↦ (f x) * c) := sorry
-
 end Includehfhg
 
 /-- If `‖f‖` is bounded by `g` and `g` is bounded compactly supported, then so is `f`. -/
 theorem of_norm_le {g : X → ℝ} (hg : BoundedCompactSupport g)
     (hfg : ∀ x, ‖f x‖ ≤ g x) : BoundedCompactSupport f := sorry
+
+-- standardize hypotheses: `∀ x, ‖f x‖ ≤ M * g x` with implicit `M`
+-- vs. `∃ M, ∀ x, ‖f x‖ ≤ M * g x`
+-- this is a very common use case, so it deserves its own theorem
+theorem of_norm_le_const_mul {g : X → ℝ} {M : ℝ} (hg : BoundedCompactSupport g)
+    (hfg : ∀ x, ‖f x‖ ≤ M * g x) : BoundedCompactSupport f := sorry
+
+section Sum
+
+variable {ι : Type*} {s : Finset ι} {F : ι → X → 𝕜}
+
+/-- A finite sum of bounded compactly supported functions is bounded compactly supported. -/
+theorem _root_.Finset.boundedCompactSupport_sum
+    (hF : ∀ i ∈ s, BoundedCompactSupport (F i)) : BoundedCompactSupport (fun x ↦ ∑ i ∈ s, F i x) :=
+  sorry
+
+end Sum
 
 section Prod
 
@@ -105,6 +142,9 @@ theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
 
 end Prod
 
+
+----- Commented out below experiments with automating by typeclass inference abuse
+----- This is not the right way of doing it but can work for easy cases
 -- section PotentialDanger?
 
 -- instance [BoundedCompactSupport f] [BoundedCompactSupport g] :
