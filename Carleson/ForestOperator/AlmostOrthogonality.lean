@@ -96,14 +96,6 @@ lemma _root_.Set.conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜
     conj (s.indicator f x) = s.indicator (conj f) x := by
   simp only [indicator]; split_ifs <;> simp
 
-
-
--- -- mathlib?
--- lemma _root_.HasCompactSupport.integrable_of_isBounded
---     (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f) :
---     Integrable f := by
---   exact memℒp_one_iff_integrable.mp <| h2f.memℒp_of_isBounded hf h3f
-
 -- in mathlib?
 theorem _root_.MeasureTheory.integral_const_mul {X : Type*} [MeasurableSpace X] {μ : Measure X}
   {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (c : 𝕜) :
@@ -115,20 +107,12 @@ theorem _root_.MeasureTheory.integral_mul_const {X : Type*} [MeasurableSpace X] 
     ∫ x, f x * c ∂μ = (∫ x, f x ∂μ) * c := by
   rw [← smul_eq_mul, ← integral_smul_const]; simp_rw [← smul_eq_mul]
 
--- #check integrableOn_iff_integrable_of_support_subset
--- #check IntegrableOn.integrable
--- #check Measure.integrableOn_of_bounded
--- #check ae_of_all
--- #check ae
--- #check Integrable.prod_mul
-
-#check integrable_Ks_x
-
+--#check integrable_Ks_x
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) :=
   sorry
 
--- comment out when actually used
+-- remove comments when actually used
 -- theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)}
 --     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
 --   Finset.boundedCompactSupport_sum <| fun _ _ ↦ hf.carlesonOn
@@ -146,6 +130,21 @@ end ToBeMovedToAppropriateLocations
 -- short for `modulated kernel times dilated bump`
 private abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
 
+include a q K σ₁ σ₂ F G in
+def Ks_bounded_on (s : ℤ) (x y : X) (M₀ : ℝ): Prop :=
+  ‖Ks s x y‖ ≤ M₀
+
+/-- `Ks` is bounded on compact sets -/
+lemma _root_.IsCompact.exists_bound_of_norm_Ks
+    {A : Set (X × X)} (hA : IsCompact A) (s : ℤ):
+    ∃ C, 0 ≤ C ∧ ∀ x y, (x, y) ∈ A → ‖Ks s x y‖ ≤ C := by sorry
+
+-- for mathlib -- which namespace? seems to not be consistent currently
+lemma norm_indicator_one_le {α E}
+    [SeminormedAddCommGroup E] [One E] [NormOneClass E] {s : Set α} (x : α) :
+    ‖s.indicator (1 : α → E) x‖ ≤ 1 :=
+  Trans.trans (norm_indicator_le_norm_self 1 x) norm_one
+
 /-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
 lemma adjointCarleson_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (p : 𝔓 X) :
@@ -153,9 +152,33 @@ lemma adjointCarleson_adjoint
   let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
   have hH : BoundedCompactSupport (uncurry H) := by
     let H₀ := fun x y ↦ ‖g x‖ * ‖f y‖
-    let M₀ : ℝ := sorry -- insert bound for `K`
+    --let M₀ : ℝ := sorry -- insert bound for `K`
+    obtain ⟨M₀, hM₀nn, hM₀⟩ := (hg.2.prod hf.2).exists_bound_of_norm_Ks (𝔰 p)
     have hHleH₀ x y : ‖H x y‖ ≤ M₀ * H₀ x y := by
-      sorry -- use bound for `K`
+      by_cases h : (x, y) ∈ tsupport g ×ˢ tsupport f
+      · specialize hM₀ x y h
+        calc -- can certainly be shortened..
+          _ ≤ ‖conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
+          _ ≤ ‖conj (g x) * (E p).indicator 1 x‖ * ‖MKD (𝔰 p) x y‖ * ‖f y‖ := by
+            gcongr; exact norm_mul_le ..
+          _ ≤ ‖conj (g x)‖ * ‖(E p).indicator 1 x‖ * ‖MKD (𝔰 p) x y‖ * ‖f y‖ := by
+            gcongr; exact norm_mul_le ..
+          _ ≤ ‖g x‖ * 1 * ‖MKD (𝔰 p) x y‖ * ‖f y‖ := by
+            gcongr
+            · exact le_of_eq <| RCLike.norm_conj _
+            · exact norm_indicator_one_le ..
+          _ = ‖MKD (𝔰 p) x y‖ * ‖g x‖ * ‖f y‖ := by ring
+          _ ≤ _ := by
+            unfold H₀; rw [← mul_assoc]; gcongr
+            unfold MKD; rw [mul_assoc, ← Ks_def]
+            calc
+              _ ≤ ‖exp (.I * (Q x y - Q x x))‖ * ‖Ks (𝔰 p) x y‖ := norm_mul_le ..
+              _ = ‖Ks (𝔰 p) x y‖ := by
+                rw [mul_comm I _, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I, one_mul]
+              _ ≤ M₀ := hM₀
+      · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
+        unfold H; rw [mem_prod, Decidable.not_and_iff_or_not] at h
+        obtain h' | h' := h <;> simp [image_eq_zero_of_nmem_tsupport h']
     refine BoundedCompactSupport.of_norm_le_const_mul (g := uncurry H₀) (M := M₀) ?_ ?_
     · refine BoundedCompactSupport.prod_mul hg.norm hf.norm
     · intro ⟨x,y⟩; simp only [uncurry_apply_pair]; exact hHleH₀ ..

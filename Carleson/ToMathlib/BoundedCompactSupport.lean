@@ -67,7 +67,6 @@ variable (hf : BoundedCompactSupport f)
 variable (hg : BoundedCompactSupport g)
 
 section Includehf
-/-! Results depending on `f` being bounded compactly supported. -/
 
 include hf
 
@@ -99,7 +98,6 @@ theorem mul_const (c : 𝕜) : BoundedCompactSupport (fun x ↦ (f x) * c) := so
 end Includehf
 
 section Includehfhg
-/-! Results depending on two functions `f`, `g` being bounded compactly supported. -/
 
 include hf hg
 
@@ -113,8 +111,6 @@ end Includehfhg
 theorem of_norm_le {g : X → ℝ} (hg : BoundedCompactSupport g)
     (hfg : ∀ x, ‖f x‖ ≤ g x) : BoundedCompactSupport f := sorry
 
--- standardize hypotheses: `∀ x, ‖f x‖ ≤ M * g x` with implicit `M`
--- vs. `∃ M, ∀ x, ‖f x‖ ≤ M * g x`
 -- this is a very common use case, so it deserves its own theorem
 theorem of_norm_le_const_mul {g : X → ℝ} {M : ℝ} (hg : BoundedCompactSupport g)
     (hfg : ∀ x, ‖f x‖ ≤ M * g x) : BoundedCompactSupport f := sorry
@@ -141,50 +137,6 @@ theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
     BoundedCompactSupport (uncurry fun x y ↦ (f x) * (g y)) := sorry
 
 end Prod
-
-
------ Commented out below experiments with automating by typeclass inference abuse
------ This is not the right way of doing it but can work for easy cases
--- section PotentialDanger?
-
--- instance [BoundedCompactSupport f] [BoundedCompactSupport g] :
---     BoundedCompactSupport (f + g) := sorry
-
--- instance [hf : BoundedCompactSupport f] [hg : BoundedCompactSupport g]  :
---     BoundedCompactSupport (f * g) := mul_bdd hf hg.bounded
-
--- -- generalize to other types than `𝕜`
--- instance [BoundedCompactSupport f] (c : 𝕜) :
---     BoundedCompactSupport (c • f) := sorry
-
--- variable [BoundedCompactSupport f]
--- #synth BoundedCompactSupport ((5:𝕜)•f+f*f)
-
--- example : Integrable ((5:𝕜)•f+f*f) := BoundedCompactSupport.integrable (by infer_instance)
-
--- -- would be nice if this could work:
--- --variable {hg : IsBounded (range g)}
--- --#synth BoundedCompactSupport (f*g)
-
--- -- one could make `IsBounded` a typeclass too, and measurable and HasCompactSupport, ..
--- namespace Experimental
-
--- variable (f) in
--- class IsBounded : Prop where
---   intro : Bornology.IsBounded (range f)
-
--- instance [BoundedCompactSupport f] [IsBounded g] :
---     BoundedCompactSupport (f * g) := sorry
-
--- -- now this works
--- variable [IsBounded g]
--- #synth BoundedCompactSupport (f*g)
-
--- end Experimental
-
--- -- instance for fiberwise integral
-
--- end PotentialDanger?
 
 end BoundedCompactSupport
 
