@@ -85,7 +85,6 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
     adjoint_tile_support1, indicator_indicator, ← right_eq_inter.mpr]
   exact (ball_subset_ball (by gcongr; norm_num)).trans (t.ball_subset hu hp)
 
-
 section ToBeMovedToAppropriateLocations
 
 -- mathlib should have this, but I can't find it
@@ -96,6 +95,7 @@ lemma _root_.Set.indicator_eq_mul_indicator_one {ι M:Type*} [MulZeroOneClass M]
 lemma _root_.Set.conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α):
     conj (s.indicator f x) = s.indicator (conj f) x := by
   simp only [indicator]; split_ifs <;> simp
+
 
 /-- If `f` has bounded range, then it is bounded ae. -/
 -- not currently used, remove?
@@ -138,6 +138,29 @@ theorem _root_.MeasureTheory.integral_mul_const {X : Type*} [MeasurableSpace X] 
 -- short for `modulated kernel times dilated bump`
 abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
 
+#check integrable_Ks_x
+
+theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
+  bounded := sorry
+  compact_support := sorry
+  measurable := sorry -- hf.3.carlesonOn
+
+theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
+  bounded := sorry
+  compact_support := sorry
+  measurable := hf.3.adjointCarleson
+
+theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) where
+  bounded := sorry
+  compact_support := sorry
+  measurable := hf.3.adjointCarlesonSum
+
+end ToBeMovedToAppropriateLocations
+
+
 /-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
 lemma adjointCarleson_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (p : 𝔓 X) :
@@ -163,12 +186,12 @@ lemma adjointCarleson_adjoint
       calc
         _ = ∫ x, (E p).indicator 1 x * g x * conj (MKD (𝔰 p) x y) := by congr! 3; exact mul_comm _ _
         _ = ∫ x, (E p).indicator (fun x ↦ g x * conj (MKD (𝔰 p) x y)) x := by
-          congr! 3; simp only [indicator]; split_ifs <;> simp
+          congr!; simp only [indicator]; split_ifs <;> simp
         _ = ∫ x in E p, g x * conj (MKD (𝔰 p) x y) := integral_indicator measurableSet_E
         _ = ∫ x in E p, conj (MKD (𝔰 p) x y) * g x := by simp_rw [mul_comm]
         _ = _ := by
           unfold adjointCarleson MKD
-          congr! 3; rw [mul_assoc, ← Ks_def, map_mul, ← exp_conj, mul_comm (cexp _)]
+          congr! 2; rw [mul_assoc, ← Ks_def, map_mul, ← exp_conj, mul_comm (cexp _)]
           congr; simp; ring
 
 /-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
@@ -181,21 +204,38 @@ lemma adjointCarlesonSum_adjoint
       unfold carlesonSum; simp_rw [Finset.mul_sum]
     _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ x, conj (g x) * carlesonOn p f x := by
       apply integral_finset_sum; intro p _
-      sorry -- todo: show integrability
-      -- have : Integrable (fun x ↦ conj (g x)) := by sorry
-      -- apply Integrable.bdd_mul (integrable_carlesonOn hf h2f h3f)
+      refine hg.conj.mul hf.carlesonOn |>.integrable
     _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ y, conj (adjointCarleson p g y) * f y := by
       simp_rw [adjointCarleson_adjoint hf hg]
     _ = ∫ y, ∑ p ∈ {p | p ∈ ℭ}, conj (adjointCarleson p g y) * f y := by
       symm; apply integral_finset_sum; intro p _
-      sorry -- todo: integrability
-    _ = _ := by sorry -- easy
-
-end ToBeMovedToAppropriateLocations
+      refine BoundedCompactSupport.mul ?_ hf |>.integrable
+      exact hg.adjointCarleson.conj
+    _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
 /-- The constant used in `adjoint_tree_estimate`.
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
+
+-- unfortunate technicality
+lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
+    (hf : Memℒp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
+  rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
+  rw [nnnorm_real]
+  have hnn: 0 ≤ ∫ x, normSq (f x) := by -- todo: adjust `positivity` to handle this
+    refine integral_nonneg ?_
+    refine Pi.le_def.mpr ?_
+    exact fun _ ↦ normSq_nonneg _
+  rw [Real.ennnorm_eq_ofReal hnn]
+  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.two_ne_top]
+  rw [← ENNReal.rpow_natCast, ENNReal.ofReal_rpow_of_nonneg (by positivity) (by simp)]
+  rw [ENNReal.toReal_ofNat, Nat.cast_ofNat]
+  suffices ∫ x, normSq (f x) = ((∫ x, ‖f x‖ ^ 2) ^ ((2:ℝ)⁻¹)) ^ (2:ℝ) by
+    simp_rw [← Real.rpow_two] at this; rw [this]
+  have h : ∫ x, normSq (f x) = ∫ x, ‖f x‖ ^ 2 := by congr!; exact normSq_eq_norm_sq _
+  rw [← Real.rpow_mul ?_, IsUnit.inv_mul_cancel (by simp), Real.rpow_one]
+  · exact h
+  · rw [← h]; exact hnn
 
 /-- Lemma 7.4.2. -/
 lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
@@ -203,21 +243,17 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
   let g := adjointCarlesonSum (t u) f
-  have hg : BoundedCompactSupport g := {
-    bounded := sorry
-    compact_support := sorry
-    measurable := AEStronglyMeasurable.adjointCarlesonSum hf.3
-  }
+  have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
   have h := density_tree_bound1 hg.1 hg.2 hg.3 hf.1 hf.2 hf.3 hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
       (eLpNorm g 2 volume)^2 := by
-    simp_rw [mul_comm, Complex.mul_conj]; sorry
+    simp_rw [mul_comm, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memℒp 2
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
-  have hg' : eLpNorm g 2 volume ≠ ∞ := by sorry
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]
-  · exact (ENNReal.mul_le_mul_right hgz hg').mp h
+  · refine ENNReal.mul_le_mul_right hgz ?_ |>.mp h
+    exact (hg.memℒp 2).eLpNorm_ne_top
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
