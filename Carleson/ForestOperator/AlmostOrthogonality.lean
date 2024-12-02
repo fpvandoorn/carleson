@@ -108,7 +108,7 @@ lemma _root_.MeasureTheory.ae_bounded_of_isBounded_range
   intro x
   calc
     _ = ‖f x - f x₀ + f x₀‖ := by group
-    _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le _ _
+    _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le ..
     _ ≤ _ := by gcongr; exact hM x x₀
 
 -- -- mathlib?
@@ -166,9 +166,15 @@ lemma adjointCarleson_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (p : 𝔓 X) :
     ∫ x, conj (g x) * carlesonOn p f x = ∫ y, conj (adjointCarleson p g y) * f y := by
   let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
-  have H_int : Integrable (uncurry H) := by
-    -- todo: should be a tactic `integrable` or so that kills this
-    sorry
+  have hH : BoundedCompactSupport (uncurry H) := by
+    let M₀ : ℝ := sorry -- insert bound for `K`
+    let H₀ := fun x y ↦ M₀ * ‖g x‖ * ‖f y‖
+    have hHleH₀ x y : ‖H x y‖ ≤ H₀ x y := by
+      sorry -- use bound for `K`
+    refine BoundedCompactSupport.of_norm_le (g := uncurry H₀) ?_ ?_
+    · refine BoundedCompactSupport.prod_mul ?_ hf.norm
+      sorry -- hg.norm.const_mul _
+    · intro ⟨x,y⟩; simp only [uncurry_apply_pair]; exact hHleH₀ ..
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
       conv =>
@@ -176,7 +182,7 @@ lemma adjointCarleson_adjoint
         rw [indicator_eq_mul_indicator_one, mul_comm, ← integral_const_mul]
         enter [2, y]; rw [← mul_assoc]
     _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
-    _ = ∫ y, ∫ x, H x y := integral_integral_swap H_int
+    _ = ∫ y, ∫ x, H x y := integral_integral_swap hH.integrable
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
       simp_rw [integral_mul_const]
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
@@ -184,7 +190,7 @@ lemma adjointCarleson_adjoint
     _ = _ := by
       congr! with y
       calc
-        _ = ∫ x, (E p).indicator 1 x * g x * conj (MKD (𝔰 p) x y) := by congr! 3; exact mul_comm _ _
+        _ = ∫ x, (E p).indicator 1 x * g x * conj (MKD (𝔰 p) x y) := by congr! 3; exact mul_comm ..
         _ = ∫ x, (E p).indicator (fun x ↦ g x * conj (MKD (𝔰 p) x y)) x := by
           congr!; simp only [indicator]; split_ifs <;> simp
         _ = ∫ x in E p, g x * conj (MKD (𝔰 p) x y) := integral_indicator measurableSet_E
