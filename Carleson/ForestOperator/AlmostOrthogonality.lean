@@ -115,28 +115,28 @@ theorem _root_.MeasureTheory.integral_mul_const {X : Type*} [MeasurableSpace X] 
 --#check integrable_Ks_x
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) :=
-  sorry
+  sorry -- still painful, set up so that things below are reused as much as possible
 
 -- remove comments when actually used
 -- theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)}
 --     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
 --   Finset.boundedCompactSupport_sum fun _ _ ↦ hf.carlesonOn
 
-theorem adjointCarleson_isBounded (hf : BoundedCompactSupport f) :
-    IsBounded (range (adjointCarleson p f)) := by sorry
-  --apply isBounded_range_iff_forall_norm_le.mpr
+-- theorem adjointCarleson_isBounded (hf : BoundedCompactSupport f) :
+--     IsBounded (range (adjointCarleson p f)) := by sorry
+--   --apply isBounded_range_iff_forall_norm_le.mpr
 
-theorem _root_.HasCompactSupport.adjointCarleson (hf : BoundedCompactSupport f) :
-    HasCompactSupport (adjointCarleson p f) := sorry
+-- theorem _root_.HasCompactSupport.adjointCarleson (hf : BoundedCompactSupport f) :
+--     HasCompactSupport (adjointCarleson p f) := sorry
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) :=
-  ⟨adjointCarleson_isBounded hf, HasCompactSupport.adjointCarleson hf, hf.3.adjointCarleson⟩
+  sorry -- similar proof as for `carlesonOn` -- try to set it up with not too much redundancy
+--  ⟨adjointCarleson_isBounded hf, HasCompactSupport.adjointCarleson hf, hf.3.adjointCarleson⟩
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
   Finset.boundedCompactSupport_sum fun _ _ ↦ hf.adjointCarleson
-
 
 /-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
 lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
@@ -227,7 +227,7 @@ lemma adjointCarleson_adjoint
     have hHleH₀ x y : ‖H x y‖ ≤ M₀ * H₀ x y := by
       by_cases h : x ∈ tsupport g
       · specialize hM₀ x y h
-        calc -- can certainly be shortened..
+        calc -- can certainly be shortened!
           _ ≤ ‖conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
           _ ≤ ‖conj (g x) * (E p).indicator 1 x‖ * ‖MKD (𝔰 p) x y‖ * ‖f y‖ := by
             gcongr; exact norm_mul_le ..

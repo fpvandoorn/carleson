@@ -10,16 +10,19 @@ import Carleson.ToMathlib.Misc
 
 /-!
 
+EXPERIMENTAL
+
 # Bounded compactly supported measurable functions
 
-Bounded compactly supported measurable functions are a very convenient class of functions:
-it is contained in all `Lᵖ` spaces (in particular they are `Integrable`)
-and it is closed under many common operations
-
-Often it is enough to reason with bounded compactly supported functions (as done in the blueprint).
-Here we provide helper lemmas mostly meant to streamline integrability proofs.
+The purpose of this file is to provide helper lemmas to streamline proofs that
+functions are bounded compactly supported and measurable.
+Most functions we need to deal with are of this class.
+Hopefully this will be a useful way to streamline proofs of `L^p` membership,
+in particular integrability.
 
 Todo: make `Mathlib.Tactic.FunProp` work for this
+
+The `sorry`s in this file are supposed to be "easy".
 
 -/
 
