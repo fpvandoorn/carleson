@@ -3970,7 +3970,7 @@ $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
 
 \begin{lemma}[local antichain density]\label{local-antichain-density}
 \leanok
-\lean{Antichain.local_antichain_density}
+\lean{Antichain.local_antichain_density, Antichain.Ep_inter_G_inter_Ip'_subset_E2}
 \uses{tile-disjointness,tile-reach}
 Let $\mfa\in\Mf$ and {$N$} be
 an integer. Let $\fp_{\mfa}$ be a tile with $\mfa\in \fc(\fp_{\mfa})$.
@@ -3986,7 +3986,7 @@ Then we have
 \end{lemma}
 
 \begin{proof}
-
+\leanok
 
 Let $\fp$ be any tile in $\mathfrak{A}_{\mfa,N}$ with $\ps(\fp_{\mfa})<\ps(\fp)$. By definition of
 $E$, the tile contributes zero to the sum on the left-hand side of \eqref{eqanti-0.5} unless
@@ -3999,11 +3999,11 @@ we conclude from
 $\mfa\in \fc(\fp_{\mfa})$
 that
 \begin{equation}
-    \mfa\in B(\fcc(\fp_{\mfa}), 1)\, .
+    \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 1)\, .
 \end{equation}
 We conclude from $\fp \in \mathfrak{A}_{\mfa,N}$ that
 \begin{equation}
-    \mfa \in B(\fcc(\fp), 2^{N+1})\, .
+    \mfa \in B_\fp(\fcc(\fp), 2^{N+1})\, .
 \end{equation}
 With \Cref{tile-reach}, we conclude
 \begin{equation}
@@ -4011,7 +4011,7 @@ With \Cref{tile-reach}, we conclude
 \end{equation}
 By Definition \eqref{definee2} of $E_2$, we conclude
 \begin{equation}
-    E(\fp)\cap G \subset E_2(2^{N+3},\fp_{\mfa})\, .
+    E(\fp)\cap G \cap \scI(\fp_{\mfa}) \subset E_2(2^{N+3},\fp_{\mfa})\, .
 \end{equation}
 Using disjointedness of the various $E(\fp)$ with $\fp\in \mathfrak{A}$ by \Cref{tile-disjointness}, we obtain \eqref{eqanti-0.5}.
 This proves the lemma.
