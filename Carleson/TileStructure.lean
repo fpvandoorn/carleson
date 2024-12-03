@@ -287,7 +287,7 @@ def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
 
 /-- From a TileLike, we can construct a set. This is used in the definitions `E₁` and `E₂`. -/
 def TileLike.toSet (t : TileLike X) : Set X :=
-  t.1 ∩ G ∩ Q ⁻¹' t.2
+  t.fst ∩ G ∩ Q ⁻¹' t.snd
 
 def E₁ (p : 𝔓 X) : Set X :=
   (toTileLike p).toSet
