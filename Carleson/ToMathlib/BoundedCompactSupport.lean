@@ -58,6 +58,10 @@ structure BoundedCompactSupport : Prop where
 --     _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le ..
 --     _ ≤ _ := by gcongr; sorry -- fix broke after copy to this context: exact hM x x₀
 
+-- in mathlib?
+lemma isBounded_range_iff_forall_norm_le {α β} [SeminormedAddCommGroup α] {f : β → α} :
+    IsBounded (range f) ↔ ∃ C, ∀ x, ‖f x‖ ≤ C := by convert isBounded_iff_forall_norm_le; simp
+
 namespace BoundedCompactSupport
 
 variable {f : X → 𝕜}
