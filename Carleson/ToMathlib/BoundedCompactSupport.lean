@@ -31,7 +31,8 @@ namespace MeasureTheory
 open Bornology Function Set HasCompactSupport
 open scoped ENNReal
 
--- Can generalize to vector-valued, but for this project scalar-valued should be enough
+-- This setting should be enough for this project, but
+-- for mathlib should generalize to vector-valued, and use `MeasurableSpace X`, `Measure μ`
 variable {X 𝕜} [MeasureSpace X] [RCLike 𝕜] {f : X → 𝕜}
 variable [TopologicalSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
 
@@ -44,8 +45,7 @@ structure BoundedCompactSupport : Prop where
                                  -- e.g. `∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M`
   compact_support : HasCompactSupport f -- could use bounded support instead
   measurable : AEStronglyMeasurable f -- could use `Measurable` instead
-
--- Why is there no `IsEssBounded` predicate in mathlib?
+  -- or could use `Memℒp f ⊤` which also includes measurability
 
 -- /-- If `f` has bounded range, then it is bounded ae. -/
 -- -- not currently used, but maybe in the future

@@ -101,17 +101,6 @@ lemma _root_.Set.conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜
     conj (s.indicator f x) = s.indicator (conj f) x := by
   simp only [indicator]; split_ifs <;> simp
 
--- in mathlib?
-theorem _root_.MeasureTheory.integral_const_mul {X : Type*} [MeasurableSpace X] {μ : Measure X}
-  {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (c : 𝕜) :
-    ∫ x, c * f x ∂μ = c * ∫ x, f x ∂μ := by
-  rw [mul_comm, ← smul_eq_mul, ← integral_smul_const]; simp_rw [mul_comm c, ← smul_eq_mul]
-
-theorem _root_.MeasureTheory.integral_mul_const {X : Type*} [MeasurableSpace X] {μ : Measure X}
-  {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (c : 𝕜) :
-    ∫ x, f x * c ∂μ = (∫ x, f x ∂μ) * c := by
-  rw [← smul_eq_mul, ← integral_smul_const]; simp_rw [← smul_eq_mul]
-
 --#check integrable_Ks_x
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) :=
@@ -248,12 +237,12 @@ lemma adjointCarleson_adjoint
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
       conv =>
         enter [1, 2, x, 2]; unfold carlesonOn
-        rw [indicator_eq_indicator_one_mul, ← integral_const_mul]
+        rw [indicator_eq_indicator_one_mul, ← integral_mul_left]
         enter [2, y]; rw [← mul_assoc]
-    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
+    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_mul_left, mul_assoc]
     _ = ∫ y, ∫ x, H x y := integral_integral_swap hH.integrable
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
-      simp_rw [integral_mul_const]
+      simp_rw [integral_mul_right]
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
       simp_rw [← integral_conj]; congrm (∫ _, (∫ _, ?_) * (f _))
       rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
