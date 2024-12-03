@@ -373,7 +373,22 @@ lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} 
         (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * (∫ y in E p, ‖ g y‖) := by
   by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
   · -- We assume 6.2.23.
-    -- Express (LHS of 6.1.43) = 6.2.24 * 6.2.25.
+    -- Express (LHS of 6.1.43) = 6.2.24 -- 6.2.25.
+    have haux : ∀ (y : X), (starRingEnd ℂ) (∫ (y_1 : X) in E p, (starRingEnd ℂ) (Ks (𝔰 p) y_1 y) *
+        Complex.exp (Complex.I * (↑((Q y_1) y_1) - ↑((Q y_1) y))) * g y_1) =
+        (∫ (y_1 : X) in E p, (Ks (𝔰 p) y_1 y) *
+        Complex.exp (Complex.I * (- ((Q y_1) y_1) + ↑((Q y_1) y))) *  (starRingEnd ℂ) (g y_1)) := by
+      intro y
+      simp only [← integral_conj, map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
+      congr
+      ext x
+      rw [← Complex.exp_conj]
+      congr
+      simp only [map_mul, Complex.conj_I, map_sub, Complex.conj_ofReal]
+      ring
+    simp only [adjointCarleson, haux]
+    simp_rw [← MeasureTheory.setIntegral_prod_mul] --LHS is now 6.2.24 -- 6.2.25
+    -- Estimate the above by 6.2.26
 
     sorry
   · -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
