@@ -12,10 +12,13 @@ import Carleson.ToMathlib.Misc
 
 EXPERIMENTAL
 
-# Bounded compactly supported measurable functions
+# Bounded compactly supported functions
 
 The purpose of this file is to provide helper lemmas to streamline proofs that
-functions are bounded compactly supported and measurable.
+functions are (essentially) bounded, compactly supported and measurable.
+
+We use essential boundedness in the form of `Memℒp f ⊤`.
+
 Most functions we need to deal with are of this class.
 Hopefully this will be a useful way to streamline proofs of `L^p` membership,
 in particular integrability.
@@ -39,31 +42,34 @@ variable [TopologicalSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
 variable (f) in
 /-- Bounded compactly supported measurable functions -/
 -- There are various alternative definitions one could use here
--- For now I used the formulations that were already used throughout `ForestOperator`
 structure BoundedCompactSupport : Prop where
-  bounded : IsBounded (range f)  -- could use a version of essential boundedness instead,
-                                 -- e.g. `∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M`
-  compact_support : HasCompactSupport f -- could use bounded support instead
-  measurable : AEStronglyMeasurable f -- could use `Measurable` instead
-  -- or could use `Memℒp f ⊤` which also includes measurability
+  memℒp_top : Memℒp f ⊤
+  hasCompactSupport : HasCompactSupport f
 
--- /-- If `f` has bounded range, then it is bounded ae. -/
--- -- not currently used, but maybe in the future
--- lemma ae_bounded_of_isBounded_range [Nonempty X]
---     (μ : Measure X) (hf : IsBounded (range f)) : ∃ M, ∀ᵐ x ∂μ, ‖f x‖ ≤ M := by
---   obtain ⟨M, hM⟩ := Metric.isBounded_range_iff.mp hf
---   let x₀ : X := Classical.choice (by infer_instance)
---   use M+‖f x₀‖
---   apply ae_of_all
---   intro x
---   calc
---     _ = ‖f x - f x₀ + f x₀‖ := by group
---     _ ≤ ‖f x - f x₀‖ + ‖f x₀‖ := norm_add_le ..
---     _ ≤ _ := by gcongr; sorry -- fix broke after copy to this context: exact hM x x₀
-
--- in mathlib?
 lemma isBounded_range_iff_forall_norm_le {α β} [SeminormedAddCommGroup α] {f : β → α} :
     IsBounded (range f) ↔ ∃ C, ∀ x, ‖f x‖ ≤ C := by convert isBounded_iff_forall_norm_le; simp
+
+lemma _root_.Bornology.IsBounded.eLpNorm_top_lt_top (hf : IsBounded (range f)) :
+    eLpNorm f ⊤ < ⊤ := by
+  obtain ⟨C, hC⟩ := isBounded_range_iff_forall_norm_le.mp hf
+  apply eLpNormEssSup_lt_top_of_ae_bound (C := C)
+  exact ae_of_all volume hC
+
+-- alternative constructor
+theorem BoundedCompactSupport.mk' (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
+    (h3f : AEStronglyMeasurable f) : BoundedCompactSupport f :=
+  ⟨⟨h3f, hf.eLpNorm_top_lt_top⟩, h2f⟩
+
+-- mathlib?
+theorem ae_le_of_eLpNorm_top_lt_top (hf : eLpNorm f ⊤ < ⊤) :
+    ∀ᵐ x, ‖f x‖ ≤ ENNReal.toReal (eLpNorm f ⊤) := by
+  have := coe_nnnorm_ae_le_eLpNormEssSup f volume
+  filter_upwards [this] with x hx
+  have : ENNReal.ofReal ‖f x‖₊ ≠ ⊤ := ENNReal.ofReal_ne_top
+  convert (ENNReal.toReal_le_toReal this ?_).mpr ?_
+  · simp
+  · exact hf.ne_top
+  · exact trans ENNReal.ofReal_coe_nnreal hx
 
 namespace BoundedCompactSupport
 
@@ -77,18 +83,33 @@ section Includehf
 
 include hf
 
+omit [IsFiniteMeasureOnCompacts (volume : Measure X)] in
+theorem aestronglyMeasurable : AEStronglyMeasurable f := hf.memℒp_top.aestronglyMeasurable
+
+theorem ae_le : ∀ᵐ x, ‖f x‖ ≤ ENNReal.toReal (eLpNorm f ⊤) :=
+  ae_le_of_eLpNorm_top_lt_top hf.memℒp_top.2
+
 /-- Bounded compactly supported functions are in all `Lᵖ` spaces. -/
-theorem memℒp (p : ENNReal) : Memℒp f p := hf.2.memℒp_of_isBounded hf.1 hf.3
+theorem memℒp (p : ENNReal) : Memℒp f p :=
+  memℒp_of_bound hf.hasCompactSupport hf.aestronglyMeasurable _ hf.ae_le
 
 /-- Bounded compactly supported functions are integrable. -/
 theorem integrable : Integrable f := memℒp_one_iff_integrable.mp <| memℒp hf 1
 
+theorem mul_ess_bdd (hg : eLpNorm g ⊤ < ⊤) : BoundedCompactSupport (f * g) := sorry
+
+theorem ess_bdd_mul (hg : eLpNorm g ⊤ < ⊤) : BoundedCompactSupport (g * f) := by
+  rw [mul_comm]; exact mul_ess_bdd hf hg
+
 /-- A bounded compactly supported function times a bounded function is
 bounded compactly supported. -/
-theorem mul_bdd (hg : IsBounded (range g)) : BoundedCompactSupport (f * g) := sorry
+theorem mul_bdd (hg : IsBounded (range g)) : BoundedCompactSupport (f * g) :=
+  hf.mul_ess_bdd hg.eLpNorm_top_lt_top
 
-theorem bdd_mul (hg : IsBounded (range g)) : BoundedCompactSupport (g * f) := by
-  rw [mul_comm]; exact mul_bdd hf hg
+theorem bdd_mul (hg : IsBounded (range g)) : BoundedCompactSupport (g * f) :=
+  hf.ess_bdd_mul hg.eLpNorm_top_lt_top
+
+-- should eventually have version for essentially bounded, but not needed now
 
 #check Integrable.bdd_mul
 -- for convenience
@@ -108,7 +129,7 @@ section Includehfhg
 
 include hf hg
 
-theorem mul : BoundedCompactSupport (f * g) := mul_bdd hf hg.bounded
+theorem mul : BoundedCompactSupport (f * g) := mul_ess_bdd hf hg.memℒp_top.2
 
 theorem add : BoundedCompactSupport (f + g) := sorry
 

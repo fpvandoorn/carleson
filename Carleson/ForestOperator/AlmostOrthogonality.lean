@@ -288,7 +288,7 @@ lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
     (hf : Memℒp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
   rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
   rw [nnnorm_real]
-  have hnn: 0 ≤ ∫ x, normSq (f x) := by -- todo: adjust `positivity` to handle this
+  have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this
     refine integral_nonneg ?_
     refine Pi.le_def.mpr ?_
     exact fun _ ↦ normSq_nonneg _
@@ -310,7 +310,7 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
   rw [C7_4_2_def]
   let g := adjointCarlesonSum (t u) f
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
-  have h := density_tree_bound1 hg.1 hg.2 hg.3 hf.1 hf.2 hf.3 hu
+  have h := density_tree_bound1 hg hf hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
       (eLpNorm g 2 volume)^2 := by
@@ -327,8 +327,7 @@ irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
   C7_4_2 a + CMB (defaultA a) 2 + 1
 
 /-- Lemma 7.4.3. -/
-lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (h3f : AEStronglyMeasurable f) :
+lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume ≤
     C7_4_3 a * eLpNorm f 2 volume := by
   calc _ ≤ eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume := by rfl
@@ -345,11 +344,12 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasC
     eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) 2 volume +
     eLpNorm (‖f ·‖) 2 volume := by
       refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
-      · exact h3f.adjointCarlesonSum.norm.add <| .maximalFunction_toReal 𝓑_finite.countable
-      · exact h3f.norm
+      · exact hf.aestronglyMeasurable.adjointCarlesonSum.norm.add
+          <| .maximalFunction_toReal 𝓑_finite.countable
+      · exact hf.aestronglyMeasurable.norm
       gcongr
       refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
-      · exact h3f.adjointCarlesonSum.norm
+      · exact hf.aestronglyMeasurable.adjointCarlesonSum.norm
       · exact .maximalFunction_toReal 𝓑_finite.countable
       rfl
   _ ≤ eLpNorm (adjointCarlesonSum (t u) f) 2 volume +
@@ -359,8 +359,8 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : IsBounded (range f)) (h2f : HasC
     CMB (defaultA a) 2 * eLpNorm f 2 volume +
     eLpNorm f 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hu ⟨hf, h2f, h3f⟩
-      · exact hasStrongType_MB 𝓑_finite one_lt_two _ (h2f.memℒp_of_isBounded hf h3f) |>.2
+      · exact adjoint_tree_estimate hu hf
+      · exact hasStrongType_MB 𝓑_finite one_lt_two _ (hf.memℒp _) |>.2
   _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
     simp_rw [add_mul]
     gcongr
