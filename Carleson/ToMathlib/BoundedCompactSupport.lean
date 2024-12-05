@@ -34,10 +34,13 @@ namespace MeasureTheory
 open Bornology Function Set HasCompactSupport
 open scoped ENNReal
 
+section
+
 -- This setting should be enough for this project, but
 -- for mathlib should generalize to vector-valued, and use `MeasurableSpace X`, `Measure μ`
 variable {X 𝕜} [MeasureSpace X] [RCLike 𝕜] {f : X → 𝕜}
 variable [TopologicalSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+variable [SigmaFinite (volume : Measure X)]
 
 variable (f) in
 /-- Bounded compactly supported measurable functions -/
@@ -158,13 +161,68 @@ section Prod
 
 variable {Y: Type*} [MeasureSpace Y] {g : Y → 𝕜}
 variable [TopologicalSpace Y] [IsFiniteMeasureOnCompacts (volume : Measure Y)]
+variable [SigmaFinite (volume : Measure Y)]
 
 /-- An elementary tensor of bounded compactly supported functions is
 bounded compactly supported. -/
 theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
     BoundedCompactSupport (uncurry fun x y ↦ (f x) * (g y)) := sorry
 
+variable {F : X × Y → 𝕜}
+
+theorem swap (hF : BoundedCompactSupport F) : BoundedCompactSupport (F ∘ Prod.swap) :=
+  sorry
+
 end Prod
+
+end BoundedCompactSupport
+
+end
+
+namespace BoundedCompactSupport
+
+
+section Metric
+
+
+variable {X Y 𝕜: Type*} [RCLike 𝕜]
+variable [MeasureSpace X] {f : X → 𝕜} [PseudoMetricSpace X] [SigmaFinite (volume : Measure X)]
+variable [MeasureSpace Y] {g : Y → 𝕜} [PseudoMetricSpace Y] [SigmaFinite (volume : Measure Y)]
+
+variable (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
+
+section Prod
+
+variable {F : X × Y → 𝕜}
+
+-- theorem prod_left_ae (hF : BoundedCompactSupport F) :
+--     ∀ᵐ y, BoundedCompactSupport (fun x ↦ F (x, y)) := sorry
+
+-- theorem prod_right_ae (hF : BoundedCompactSupport F) :
+--     ∀ᵐ x, BoundedCompactSupport (fun y ↦ F (x, y)) := hF.swap.prod_left_ae
+
+-- theorem integral_prod_left (hF : BoundedCompactSupport F) :
+--     BoundedCompactSupport (fun x ↦ ∫ y, F (x, y)) := sorry
+-- --   have := hF.integrable.integrable_prod_left
+
+-- theorem integral_prod_right (hF : BoundedCompactSupport F) :
+--     BoundedCompactSupport (fun y ↦ ∫ x, F (x, y)) := hF.swap.integral_prod_left
+
+end Prod
+
+section
+include hf
+
+theorem isBoundedSupport' : IsBounded (tsupport f) :=
+  hf.hasCompactSupport.isBounded
+
+theorem isBoundedSupport : IsBounded (support f) :=
+  hf.isBoundedSupport'.subset <| subset_tsupport f
+
+end
+
+end Metric
+
 
 end BoundedCompactSupport
 
