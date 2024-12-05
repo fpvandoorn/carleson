@@ -148,7 +148,8 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
             simp_rw [← hp.2]
           have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
             rw [← zpow_natCast, ENNReal.zpow_neg two_ne_zero ENNReal.two_ne_top]
-          rw [← ENNReal.div_le_iff, ← ENNReal.div_le_iff', ENNReal.div_eq_inv_mul, h2a, dens₁]
+          rw [← ENNReal.div_le_iff, ← ENNReal.div_le_iff' (Ne.symm (NeZero.ne' (2 ^ a))),
+            ENNReal.div_eq_inv_mul, h2a, dens₁]
           refine le_iSup₂_of_le p hp fun c ↦ ?_
           · intro hc
             have h2c : 2 ^ (-(a : ℤ)) * (volume (E₂ 2 p) / volume (L : Set X)) ≤
@@ -171,7 +172,6 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
                   exact ENNReal.le_coe_iff.mp h2r
               exact ENNReal.le_coe_iff.mp h2d
             exact ENNReal.le_coe_iff.mp h2c
-          · exact Ne.symm (NeZero.ne' (2 ^ a))
           · exact Ne.symm (ne_of_beq_false rfl)
           · have hD_pos : 0 < D := by rw [defaultD]; positivity
             rw [← hIL]
