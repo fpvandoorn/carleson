@@ -1,6 +1,6 @@
-import Carleson.TileStructure
-import Carleson.HardyLittlewood
-import Carleson.Psi
+import Carleson.Antichain.AntichainOperator
+
+macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -116,12 +116,11 @@ lemma tile_reach (ha : 4 ≤ a) {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist
     _ < 2^(N + 2) := by ring_nf; gcongr -- uses h34
   -- 6.3.14 -- Not needed
 
-
 -- Def 6.3.15
 def 𝔄_aux (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Finset (𝔓 X) :=
   {p ∈ 𝔄 | 1 + dist_(p) (𝒬 p) ϑ ∈ Icc (2^N) (2^(N+1))}
 
-open Classical
+open Classical Metric
 
 -- Lemma 6.3.2
 lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) :
@@ -129,6 +128,9 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
       2^(a * (N + 5)) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
   -- 6.3.17
   set 𝔄' : Finset (𝔓 X) := {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝓘 p = L} with 𝔄'_def
+  have hI : ∀ {q q' : 𝔓 X} (hq : q ∈ 𝔄') (hq' : q' ∈ 𝔄'), 𝓘 q = 𝓘 q' := fun hq hq' ↦ by
+      simp only [𝔄'_def, Finset.mem_filter, 𝔄_aux] at hq hq'
+      rw [hq.2, hq'.2]
   by_cases h𝔄' : 𝔄'.Nonempty
   · -- 6.3.18
     have h_aux : ∀ (p : 𝔓 X) (hp : p ∈ 𝔄'), volume (E p ∩ G) ≤
@@ -183,26 +185,43 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
     -- 6.3.19
     have hth : ∃ (Θ' : Finset (Θ X)), Θ'.card ≤ 2^(a*(N+4)) ∧
         ball_(p) ϑ (2^(N+1)) ⊆ ⋃ ϑ' ∈ Θ', ball_(p) ϑ' 0.2 := by
-      have hs : ball_(p) ϑ (2^(N+1)) ⊆ ball_(p) ϑ (2^(N+4)*0.2) := sorry
-      --TODO: ask
-      /- lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
-        BallsCoverBalls X (a^k * r) r (n^k) := by-/
-      sorry
+      have hs : ball_(p) ϑ (2^(N+1)) ⊆ ball_(p) ϑ (2^(N+4)*0.2) := by
+        have hN4 : (2 : ℝ) ^ (N + 4) = 2 ^ (N + 1) * 2 ^ 3 := by ring
+        refine ball_subset_ball ?_
+        rw [← mul_one ((2 : ℝ)^ (N + 1) ), hN4, mul_assoc,
+          mul_le_mul_iff_of_pos_left (by positivity)]
+        norm_num
+      have hballs : BallsCoverBalls (WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)) (2 ^ (N + 4) * 0.2)
+        0.2 (defaultA a ^ (N + 4)) := ballsCoverBalls_iterate_nat
+      simp only [BallsCoverBalls, coveredByBalls_iff, defaultA, ← pow_mul] at hballs
+      obtain ⟨Θ', hΘ'_card, hΘ'_cover⟩ := hballs ϑ
+      exact ⟨Θ', hΘ'_card, subset_trans hs hΘ'_cover⟩
     obtain ⟨Θ', hΘ'_card, hΘ'_cover⟩ := hth
     have hex : ∀ (p' : 𝔓 X) (hp' : p' ∈ 𝔄'), ∃ (ϑ' : Θ X) (hϑ' : ϑ' ∈ Θ'),
         𝒬 p' ∈ ball_(p) ϑ' 0.2 := by
       intro p' hp'
       have hp'_in : 𝒬 p' ∈ ball_(p) ϑ (2 ^ (N + 1)) := by
-        simp only [𝔄'_def, Finset.mem_filter, 𝔄_aux] at hp'
-        -- TODO: ask
-        sorry
+        simp only [𝔄'_def, Finset.mem_filter, 𝔄_aux] at hp hp'
+        rw [← ball_𝓘, hp.2, ← hp'.2]
+        exact lt_of_lt_of_le (lt_one_add _) hp'.1.2.2
       have hp'_in' := hΘ'_cover hp'_in
       simp only [mem_iUnion] at hp'_in'
       exact hp'_in'
     --6.3.20
     -- TODO: Fix in blueprint (need 3 points for the argument to work)
     have hcap : ∀ (q q' : 𝔓 X) (hq : q ∈ 𝔄') (hq' : q' ∈ 𝔄') (hqq' : q ≠ q') (ϑ' : Θ X)
-      (hϑ' : ϑ' ∈ Θ'), ϑ' ∉ ball_(p) (𝒬 q) 0.2 ∩ ball_(p) (𝒬 q') 0.2 := sorry
+        (hϑ' : ϑ' ∈ Θ'), ϑ' ∉ ball_(p) (𝒬 q) (0.2 : ℝ) ∩ ball_(p) (𝒬 q') (0.2 : ℝ) := by
+      intro q q' hq hq' hqq' ϑ' hϑ'
+      have hdis := disjoint_Ω hqq' (hI hq hq')
+      simp only [disjoint_iff, inf_eq_inter, bot_eq_empty] at hdis
+      intro hint
+      have h5 : (0.2 : ℝ) = 5⁻¹ := by norm_num
+      rw [h5] at hint
+      have hsub : ϑ' ∈ (Ω q) ∩ (Ω q') :=
+        mem_of_subset_of_mem (inter_subset_inter (ball_eq_of_grid_eq (hI hp hq) ▸ cball_subset)
+          (ball_eq_of_grid_eq (hI hp hq') ▸ cball_subset)) hint
+      rw [hdis] at hsub
+      exact hsub
     have hcard : 𝔄'.card ≤ 2^(a*(N+4)) := by
       -- We only care about the restriction of f to 𝔄'
       set f : 𝔓 X → Θ X := fun q ↦ if hq : q ∈ 𝔄' then (hex q hq).choose else ϑ with hf_def
@@ -243,12 +262,79 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
   · simp only [Finset.not_nonempty_iff_eq_empty] at h𝔄'
     simp only [h𝔄', defaultA, defaultD, defaultκ.eq_1, Finset.sum_empty, zero_le]
 
+-- We prove inclusion 6.3.25 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
+-- `(𝓘 p : Set X) ∩ (𝓘 p') ≠ ∅`.
+-- p' is 𝔭_ϑ in the blueprint
+lemma Ep_inter_G_inter_Ip'_subset_E2 (ha : 4 ≤ a) {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : ℕ)
+    {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N)) (hp' : ϑ ∈ Ω p') (hs : 𝔰 p' < 𝔰 p)
+    (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
+    E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
+  have hle : 𝓘 p' ≤ 𝓘 p := ⟨Or.resolve_right (fundamental_dyadic (le_of_lt hs))
+    (not_disjoint_iff_nonempty_inter.mpr h𝓘), le_of_lt hs⟩
+  -- 6.3.22
+  have hϑaux : ϑ ∈ ball_(p') (𝒬 p') 1 := subset_cball hp'
+  have hϑin' : dist_(p') (𝒬 p') ϑ < ((2 : ℝ)^(N + 1)) := by
+    have h12 : (1 : ℝ) < 2 := one_lt_two
+    have h0N : 0 < N + 1 := Nat.zero_lt_succ N
+    simp only [mem_ball'] at hϑaux
+    apply lt_trans hϑaux
+    nth_rewrite 1 [← pow_zero 2]
+    gcongr -- uses h12, h0N
+  -- 6.3.23
+  have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
+    simp only [𝔄_aux, Finset.mem_filter] at hpin
+    exact lt_of_lt_of_le (lt_one_add (dist_(p) (𝒬 p) ϑ)) hpin.2.2
+  -- 6.3.24
+  have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
+    tile_reach ha (le_of_lt hϑin') (le_of_lt hϑin) hle hs
+  -- NOTE: TileLike.toSet is not a mono.
+  -- 6.3.25
+  have hss : E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
+    simp only [TileLike.le_def, smul_snd] at hsmul_le
+    simp only [E, E₂, TileLike.toSet, smul_fst, smul_snd, subset_inter_iff, inter_subset_right,
+      true_and]
+    constructor
+    · rw [inter_assoc, inter_comm, inter_assoc]
+      exact inter_subset_left
+    · have h1N : (1 : ℝ) ≤ 2 ^ (N + 3) := by exact_mod_cast Nat.one_le_two_pow
+      intro x hx
+      apply mem_of_subset_of_mem (le_trans (le_trans subset_cball (ball_subset_ball h1N))
+        hsmul_le.2) hx.1.1.2.1
+  exact hss
+
 -- Lemma 6.3.3
 -- p' is 𝔭_ϑ in the blueprint
-lemma local_antichain_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) {p' : 𝔓 X} (hp' : ϑ ∈ Ω p') :
+lemma local_antichain_density (ha : 4 ≤ a) {𝔄 : Finset (𝔓 X)}
+    (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ϑ : Θ X) (N : ℕ) {p' : 𝔓 X} (hp' : ϑ ∈ Ω p') :
     ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝔰 p' < 𝔰 p}), volume (E p ∩ G ∩ 𝓘 p') ≤
       volume (E₂ (2 ^ (N + 3)) p') := by
-  sorry
+  rw [← MeasureTheory.measure_biUnion_finset _
+    (fun _ _ ↦  MeasurableSet.inter (measurableSet_E.inter measurableSet_G) coeGrid_measurable)]
+  · apply measure_mono
+    simp only [ Finset.mem_filter, iUnion_subset_iff, and_imp]
+    intro p hp hs
+    by_cases h𝓘 : ((𝓘 p' : Set X) ∩ ↑(𝓘 p)).Nonempty
+    · exact Ep_inter_G_inter_Ip'_subset_E2 ha ϑ N hp hp' hs h𝓘
+    · rw [not_nonempty_iff_eq_empty] at h𝓘
+      have hemp : (𝓘 p' : Set X) ∩ E p = ∅ :=
+        eq_empty_of_subset_empty (h𝓘 ▸ inter_subset_inter_right _
+          (sep_subset ↑(𝓘 p) fun x ↦ Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x)))
+      rw [inter_comm, ← inter_assoc, hemp, empty_inter]
+      exact empty_subset _
+  · simp only [Finset.coe_filter]
+    intro q hq q' hq' hqq'
+    simp only [𝔄_aux, Finset.mem_filter, mem_setOf_eq] at hq hq'
+    have hE : E q ∩ E q' = ⊥ := by
+      rw [bot_eq_empty]
+      contrapose! hqq'
+      exact E_disjoint h𝔄 hq.1.1 hq'.1.1  hqq'
+    simp only [disjoint_iff, eq_bot_iff]
+    rw [← hE]
+    simp only [inf_eq_inter, le_eq_subset, subset_inter_iff]
+    constructor
+    · simp only [inter_assoc, inter_subset_left]
+    · rw [inter_comm]
+      simp only [inter_assoc, inter_subset_left]
 
 def C_6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
 
