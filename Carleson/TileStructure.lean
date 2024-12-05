@@ -82,6 +82,9 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 @[simp] lemma cball_subset {p : 𝔓 X} : ball_(p) (𝒬 p) 5⁻¹ ⊆ Ω p := TileStructure.cball_subset
 @[simp] lemma subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := TileStructure.subset_cball
 
+lemma ball_eq_of_grid_eq {p q : 𝔓 X} {ϑ : Θ X} {r : ℝ} (h : 𝓘 p = 𝓘 q) :
+    ball_(p) ϑ r = ball_(q) ϑ r := by rw [← ball_𝓘, h]
+
 lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
     Disjoint (ball_(p) (𝒬 p) 5⁻¹) (ball_(p') (𝒬 p') 5⁻¹) :=
   disjoint_of_subset cball_subset cball_subset (disjoint_Ω h hp)
@@ -312,6 +315,23 @@ def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p' ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
   ⨆ (p ∈ lowerClosure 𝔓') (_h2 : smul l p' ≤ smul l p),
   volume (E₂ l p) / volume (𝓘 p : Set X)
+
+lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
+    dens₁ 𝔓₁ ≤ dens₁ 𝔓₂ := by
+  simp only [dens₁, iSup_le_iff]
+  intro p hp r hr
+  refine le_iSup₂_of_le p (h hp) ?_
+  apply ENNReal.mul_le_of_le_div'
+  simp only [iSup_le_iff]
+  intro q hq hqr
+  rw [ENNReal.le_div_iff_mul_le (by left; simp)]
+  · refine le_iSup₂_of_le r hr ?_
+    rw [mul_comm]
+    gcongr
+    exact le_iSup₂_of_le q (lowerClosure_mono h hq) (le_iSup_iff.mpr fun b a ↦ a hqr)
+  · left
+    have hr0 : r ≠ 0 := by positivity
+    simp [hr0]
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
