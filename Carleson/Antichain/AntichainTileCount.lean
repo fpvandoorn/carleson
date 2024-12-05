@@ -201,14 +201,13 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
         𝒬 p' ∈ ball_(p) ϑ' 0.2 := by
       intro p' hp'
       have hp'_in : 𝒬 p' ∈ ball_(p) ϑ (2 ^ (N + 1)) := by
-        simp only [𝔄'_def, Finset.mem_filter, 𝔄_aux] at hp hp'
-        rw [← ball_𝓘, hp.2, ← hp'.2]
+        rw [ball_eq_of_grid_eq (hI hp hp')]
+        simp only [𝔄'_def, Finset.mem_filter, 𝔄_aux] at hp'
         exact lt_of_lt_of_le (lt_one_add _) hp'.1.2.2
       have hp'_in' := hΘ'_cover hp'_in
       simp only [mem_iUnion] at hp'_in'
       exact hp'_in'
     --6.3.20
-    -- TODO: Fix in blueprint (need 3 points for the argument to work)
     have hcap : ∀ (q q' : 𝔓 X) (hq : q ∈ 𝔄') (hq' : q' ∈ 𝔄') (hqq' : q ≠ q') (ϑ' : Θ X)
         (hϑ' : ϑ' ∈ Θ'), ϑ' ∉ ball_(p) (𝒬 q) (0.2 : ℝ) ∩ ball_(p) (𝒬 q') (0.2 : ℝ) := by
       intro q q' hq hq' hqq' ϑ' hϑ'

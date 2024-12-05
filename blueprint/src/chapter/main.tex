@@ -3927,6 +3927,7 @@ $L\in \mathcal{D}$. Then
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 Let $\mfa,N,L$ be given and set
 \begin{equation}
 \mathfrak{A}':=\{\fp\in\mathfrak{A}_{\mfa,N}:\scI(\fp)=L\}\, .
@@ -3945,22 +3946,22 @@ elements such that
     B_{\fp}(\mfa, 2^{N+1})\subset \bigcup_{\mfa'\in \Mf'}
     B_{\fp}(\mfa', 0.2)\, .
 \end{equation}
-As each $\fcc(\fp)$ with $\fp\in \mathfrak{A}_{\mfa,N}$
+As each $\fcc(\fp')$ with $\fp'\in \mathfrak{A}'$
 is contained in the left-hand-side
 of \eqref{eqanti-4}
-by definition, it is in at least one $B_{\fp}(\mfa', 0.2)$
+by definition (because \scI(\fp') = \scI(\fp)), it is in at least one $B_{\fp}(\mfa', 0.2)$
 with $\mfa'\in \Mf'$.
 
 
-For two different $\fp,\fp'\in \mathfrak{A}'$, we have by
+For two different $\fp',\fp''\in \mathfrak{A}'$, we have by
 \eqref{eq-dis-freq-cover} that
-$\fc(\fp)$ and $\fc(\fp')$ are disjoint and thus by the squeezing property \eqref{eq-freq-comp-ball} we have for every $\mfa'\in \Mf'$
+$\fc(\fp')$ and $\fc(\fp'')$ are disjoint and thus by the squeezing property \eqref{eq-freq-comp-ball} we have for every $\mfa'\in \Mf'$
 \begin{equation}
-    \mfa'\not\in B_{\fp}(\fcc(\fp), 0.2)\cap
-B_{\fp}(\fcc(\fp'), 0.2)\, .
+    \mfa'\not\in B_{\fp}(\fcc(\fp'), 0.2)\cap
+B_{\fp}(\fcc(\fp''), 0.2)\, .
 \end{equation}
-Hence at most one of $\fcc(\fp)$
-and $\fcc(\fp)$ is in
+Hence at most one of $\fcc(\fp')$
+and $\fcc(\fp'')$ is in
 $B_{\fp}(\mfa', 0.2)$.
 It follows that there are at most $2^{a(N+4)}$ elements in
 $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
