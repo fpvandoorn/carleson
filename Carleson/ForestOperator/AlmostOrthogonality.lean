@@ -172,14 +172,29 @@ lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ = 1 := by
 lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (.I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
 
+
+-- mathlib? also `ball` variant, remove `Nonempty`
+theorem _root_.MeasureTheory.HasCompactSupport.of_support_subset_closedBall {x : X}
+ {r : ℝ} [ProperSpace X] [Nonempty X] (hf : support f ⊆ closedBall x r) :
+    HasCompactSupport f := by
+  apply HasCompactSupport.of_support_subset_isCompact ?_ hf
+  exact isCompact_closedBall ..
+
+theorem _root_.MeasureTheory.HasCompactSupport.of_support_subset_isBounded {s : Set X}
+    [ProperSpace X] [Nonempty X] (hs : IsBounded s) (hf : support f ⊆ s) :
+    HasCompactSupport f := by
+  let x₀ : X := Classical.choice (by infer_instance)
+  obtain ⟨r₀, hr₀⟩ := hs.subset_closedBall x₀
+  exact HasCompactSupport.of_support_subset_closedBall <| Trans.trans hf hr₀
+
+-- move
+lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
+
 end ToBeMovedToAppropriateLocations
 
 -- #check norm_integral_le_of_norm_le_const
 -- #check norm_setIntegral_le_of_norm_le_const_ae
 --#check integrable_Ks_x
-
--- move
-lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
@@ -210,9 +225,8 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     obtain x₀ : X := Classical.choice (by infer_instance)
     obtain ⟨r₀, h⟩ := hf.isBoundedSupport.subset_ball x₀
     let C : ℝ := (↑D ^ 𝔰 p / 2) + r₀
-    suffices support (TileStructure.Forest.adjointCarleson p f) ⊆ closedBall x₀ C by
-      refine HasCompactSupport.of_support_subset_isCompact ?_ this
-      exact isCompact_closedBall ..
+    suffices support (TileStructure.Forest.adjointCarleson p f) ⊆ closedBall x₀ C from
+      HasCompactSupport.of_support_subset_closedBall this
     intro x hx
     apply mem_support.mp at hx
     have : ∃ y, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y ≠ 0 := by
@@ -228,19 +242,34 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     · rw [dist_comm]; exact (dist_mem_Icc_of_Ks_ne_zero hKy).2
     · exact le_of_lt <| h hfy
 
--- -- mathlib?
--- theorem _root_.MeasureTheory.HasCompactSupport.of_support_subset_isBounded {s : Set X}
---   (hs : IsBounded s) (hf : support f ⊆ s) : HasCompactSupport
-
 -- indicator (E p)
 --   fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
-  memℒp_top := sorry
+  memℒp_top := by
+    --obtain ⟨CKf, hCKf, hCKf⟩ := hf.2.isBounded.exists_bound_of_norm_Ks (𝔰 p)
+    let x₀ : X := Classical.choice inferInstance
+    obtain ⟨r₀, hr₀, hfr₀⟩ := hf.isBoundedSupport.subset_closedBall_lt 0 x₀
+    let r₁ := (↑D ^ 𝔰 p / 2) + r₀
+    obtain ⟨CK, hCK, hCK⟩ :=
+      IsBounded.exists_bound_of_norm_Ks (Metric.isBounded_ball (x := x₀) (r := r₁)) (𝔰 p)
+    let C := CK * (eLpNorm f ⊤).toReal
+    suffices ∀ᵐ x, ‖_root_.carlesonOn p f x‖ ≤ C from
+      memℒp_top_of_bound hf.aestronglyMeasurable.carlesonOn _ this
+    apply ae_of_all
+    intro x
+    wlog hx : x ∈ support (_root_.carlesonOn p f)
+    · simp only [mem_support, ne_eq, not_not] at hx
+      rw [hx, norm_zero]
+      positivity
+    · simp only [mem_support] at hx
+      sorry
+
   hasCompactSupport := by
-    -- suffices support (_root_.carlesonOn p f) ⊆ (E p) by
-      -- refine HasCompactSupport.of_support_subset_isCompact ?_ this
-    sorry
+    suffices support (_root_.carlesonOn p f) ⊆ 𝓘 p by
+      refine HasCompactSupport.of_support_subset_isBounded ?_ this
+      exact Metric.isBounded_ball.subset Grid_subset_ball
+    exact trans (fun _ hx ↦ mem_of_indicator_ne_zero hx) E_subset_𝓘
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
