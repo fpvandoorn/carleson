@@ -77,15 +77,13 @@ Has value `2 ^ (257 * a ^ 3 - n / 2)` in the blueprint. -/
 irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (257 * (a : ℝ) ^ 3 - n / 2)
 
 /-- Part of Lemma 7.7.2. -/
-lemma row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (h3f : AEStronglyMeasurable f) :
+lemma row_bound (hj : j < 2 ^ n) (hf : BoundedCompactSupport f) :
     eLpNorm (∑ u ∈ {p | p ∈ rowDecomp t j}, adjointCarlesonSum (t u) f) 2 volume ≤
     C7_7_2_1 a n * eLpNorm f 2 volume := by
   sorry
 
 /-- Part of Lemma 7.7.2. -/
-lemma indicator_row_bound (hj : j < 2 ^ n) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (h3f : AEStronglyMeasurable f) :
+lemma indicator_row_bound (hj : j < 2 ^ n) (hf : BoundedCompactSupport f) :
     eLpNorm (∑ u ∈ {p | p ∈ rowDecomp t j}, F.indicator <| adjointCarlesonSum (t u) f) 2 volume ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   sorry

@@ -113,6 +113,7 @@ def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
+-- obsolete in favor of `AEStronglyMeasurable.carlesonOn`?
 lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
@@ -133,10 +134,36 @@ We will use this in other places of the formalization as well. -/
 def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
 
+-- obsolete in favor of `AEStronglyMeasurable.carlesonSum`?
 @[fun_prop]
 lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonSum ℭ f) :=
   Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
+
+--    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
+lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X → ℂ}
+    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonOn p f) := by
+  refine .indicator ?_ measurableSet_E
+  -- refine AEStronglyMeasurable.integral_prod_right ?_
+  refine .integral_prod_right'
+    (f := fun z ↦ exp (Complex.I * (Q z.1 z.2 - Q z.1 z.1)) * K z.1 z.2 *
+      ψ (D ^ (- 𝔰 p) * dist z.1 z.2) * f z.2) ?_
+  refine (((AEStronglyMeasurable.mul ?_ aestronglyMeasurable_K).mul ?_).mul ?_)
+  · apply Measurable.aestronglyMeasurable
+    have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
+    refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
+    · exact measurable_Q₂
+    · exact measurable_Q₂.comp this
+  · apply Measurable.aestronglyMeasurable
+    apply measurable_ofReal.comp
+    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
+    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
+    · exact measurable_dist.const_mul _
+  · exact hf.snd
+
+lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
+    {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=
+  Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.carlesonOn
 
 lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by

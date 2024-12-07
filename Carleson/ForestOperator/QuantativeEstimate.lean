@@ -1,4 +1,5 @@
 import Carleson.ForestOperator.L2Estimate
+import Carleson.ToMathlib.BoundedCompactSupport
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -45,8 +46,7 @@ irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 
 /-- First part of Lemma 7.3.1. -/
 lemma density_tree_bound1
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
+    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
     (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_1 a *  dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
@@ -59,9 +59,9 @@ irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (256 * (a : ℝ) ^ 3)
 
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2 -- some assumptions on f are superfluous
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (hf : BoundedCompactSupport f)
     (h4f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
+    (hg : BoundedCompactSupport g)
     (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *
