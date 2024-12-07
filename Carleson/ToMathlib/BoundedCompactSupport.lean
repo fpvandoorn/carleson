@@ -99,6 +99,7 @@ theorem memℒp (p : ENNReal) : Memℒp f p :=
 /-- Bounded compactly supported functions are integrable. -/
 theorem integrable : Integrable f := memℒp_one_iff_integrable.mp <| memℒp hf 1
 
+-- needed
 theorem mul_ess_bdd (hg : eLpNorm g ⊤ < ⊤) : BoundedCompactSupport (f * g) := sorry
 
 theorem ess_bdd_mul (hg : eLpNorm g ⊤ < ⊤) : BoundedCompactSupport (g * f) := by
@@ -118,8 +119,10 @@ theorem bdd_mul (hg : IsBounded (range g)) : BoundedCompactSupport (g * f) :=
 -- for convenience
 theorem integrable_mul (hg : Integrable g) : Integrable (f * g) := sorry
 
+-- needed
 theorem conj : BoundedCompactSupport (star f) := sorry
 
+-- needed
 theorem norm : BoundedCompactSupport (‖f ·‖) := sorry
 
 theorem const_mul (c : 𝕜) : BoundedCompactSupport (fun x ↦ c * (f x)) := sorry
@@ -134,6 +137,7 @@ include hf hg
 
 theorem mul : BoundedCompactSupport (f * g) := mul_ess_bdd hf hg.memℒp_top.2
 
+-- prove when needed
 theorem add : BoundedCompactSupport (f + g) := sorry
 
 end Includehfhg
@@ -142,6 +146,7 @@ end Includehfhg
 theorem of_norm_le {g : X → ℝ} (hg : BoundedCompactSupport g)
     (hfg : ∀ x, ‖f x‖ ≤ g x) : BoundedCompactSupport f := sorry
 
+-- needed
 -- this is a very common use case, so it deserves its own theorem
 theorem of_norm_le_const_mul {g : X → ℝ} {M : ℝ} (hg : BoundedCompactSupport g)
     (hfg : ∀ x, ‖f x‖ ≤ M * g x) : BoundedCompactSupport f := sorry
@@ -150,6 +155,7 @@ section Sum
 
 variable {ι : Type*} {s : Finset ι} {F : ι → X → 𝕜}
 
+-- needed
 /-- A finite sum of bounded compactly supported functions is bounded compactly supported. -/
 theorem _root_.Finset.boundedCompactSupport_sum
     (hF : ∀ i ∈ s, BoundedCompactSupport (F i)) : BoundedCompactSupport (fun x ↦ ∑ i ∈ s, F i x) :=
@@ -163,6 +169,7 @@ variable {Y: Type*} [MeasureSpace Y] {g : Y → 𝕜}
 variable [TopologicalSpace Y] [IsFiniteMeasureOnCompacts (volume : Measure Y)]
 variable [SigmaFinite (volume : Measure Y)]
 
+-- needed
 /-- An elementary tensor of bounded compactly supported functions is
 bounded compactly supported. -/
 theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
@@ -170,6 +177,7 @@ theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
 
 variable {F : X × Y → 𝕜}
 
+-- prove when needed
 theorem swap (hF : BoundedCompactSupport F) : BoundedCompactSupport (F ∘ Prod.swap) :=
   sorry
 
@@ -184,7 +192,6 @@ namespace BoundedCompactSupport
 
 section Metric
 
-
 variable {X Y 𝕜: Type*} [RCLike 𝕜]
 variable [MeasureSpace X] {f : X → 𝕜} [PseudoMetricSpace X] [SigmaFinite (volume : Measure X)]
 variable [MeasureSpace Y] {g : Y → 𝕜} [PseudoMetricSpace Y] [SigmaFinite (volume : Measure Y)]
@@ -195,6 +202,7 @@ section Prod
 
 variable {F : X × Y → 𝕜}
 
+-- adapt and prove below when needed
 -- theorem prod_left_ae (hF : BoundedCompactSupport F) :
 --     ∀ᵐ y, BoundedCompactSupport (fun x ↦ F (x, y)) := sorry
 
