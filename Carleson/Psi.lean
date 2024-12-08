@@ -3,7 +3,7 @@ import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.Topology.CompletelyRegular
 import Mathlib.Topology.EMetricSpace.Paracompact
 
-open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure
+open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
 noncomputable section
 
@@ -463,6 +463,41 @@ lemma nnnorm_Ks_le {s : ℤ} {x y : X} :
   · simp only [NNReal.coe_pow, ne_eq, ENNReal.div_eq_top, ENNReal.ofReal_eq_zero, not_le,
       mul_eq_zero, ENNReal.ofReal_ne_top, false_and, or_false, not_and, not_or]
     exact fun _ ↦ ne_of_gt (measure_ball_pos volume x (defaultD_pow_pos a s))
+
+/-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
+lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
+    ‖Ks s x y‖ ≤ C2_1_3 a * (As (defaultA a) (2*r₀/D^s)) / volume.real (ball x₀ r₀) := by
+  let C := As (defaultA a) (2*r₀/D^s)
+  have : 0 < C := As_pos (volume : Measure X) (2*r₀/D^s)
+  have : 0 < volume.real (ball x₀ r₀) := measure_ball_pos_real _ _ hr₀
+  suffices h : C⁻¹*volume.real (ball x₀ r₀) ≤ volume.real (ball x (D^s)) by
+    apply norm_Ks_le.trans
+    calc
+      _ ≤ C2_1_3 a / (C⁻¹*volume.real (ball x₀ r₀)) := by gcongr
+      _ = _ := by unfold defaultA defaultD C; field_simp
+  have : volume.real (ball x (2*r₀)) ≤ C * volume.real (ball x (D^s)) := by
+    have : (0:ℝ) < D := defaultD_pos _
+    refine measure_ball_le_same x (by positivity) ?_
+    apply le_of_eq; field_simp
+  calc
+    _ ≤ C⁻¹ * volume.real (ball x (2*r₀)) := by
+      gcongr
+      · exact measure_ball_ne_top x (2 * r₀)
+      · exact ball_subset_ball_of_le (by linarith)
+    _ ≤ C⁻¹ * (C * volume.real (ball x (D^s))) := by gcongr
+    _ = _ := by field_simp
+
+/-- `‖Ks x y‖` is bounded if `x` is in a bounded set -/
+lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
+    {A : Set X} (hA : IsBounded A) (s : ℤ) :
+    ∃ C, 0 ≤ C ∧ ∀ x y, x ∈ A → ‖Ks s x y‖ ≤ C := by
+  obtain x₀ : X := Classical.choice (by infer_instance)
+  obtain ⟨r₀, hr₀, h⟩ := hA.subset_closedBall_lt 0 x₀
+  use ?_; constructor; swap -- let Lean fill in the value of the ugly constant
+  · intro x y hx
+    convert norm_Ks_le_of_dist_le hr₀ (h hx) s
+  · positivity
+
 
 -- Needed to prove `ψ_ineq`
 private lemma norm_ψ_sub_ψ_le_two {r s : ℝ} : ‖ψ r - ψ s‖ ≤ 2 :=

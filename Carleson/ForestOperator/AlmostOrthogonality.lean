@@ -86,122 +86,6 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
     adjoint_tile_support1, indicator_indicator, ← right_eq_inter.mpr]
   exact (ball_subset_ball (by gcongr; norm_num)).trans (t.ball_subset hu hp)
 
-section ToBeMovedToAppropriateLocations
-
--- mathlib should have this, but I can't find it
--- lemma _root_.Set.indicator_eq_mul_indicator_one {ι M:Type*} [MulZeroOneClass M]
---     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = f x * s.indicator 1 x := by
---   simp only [indicator]; split_ifs <;> simp
-
-lemma _root_.Set.indicator_eq_indicator_one_mul {ι M:Type*} [MulZeroOneClass M]
-    (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
-  simp only [indicator]; split_ifs <;> simp
-
-lemma _root_.Set.conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α):
-    conj (s.indicator f x) = s.indicator (conj f) x := by
-  simp only [indicator]; split_ifs <;> simp
-
-
-/-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
-lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
-    ‖Ks s x y‖ ≤ C2_1_3 a * (As (defaultA a) (2*r₀/D^s)) / volume.real (ball x₀ r₀) := by
-  let C := As (defaultA a) (2*r₀/D^s)
-  have : 0 < C := As_pos (volume : Measure X) (2*r₀/D^s)
-  have : 0 < volume.real (ball x₀ r₀) := measure_ball_pos_real _ _ hr₀
-  suffices h : C⁻¹*volume.real (ball x₀ r₀) ≤ volume.real (ball x (D^s)) by
-    apply norm_Ks_le.trans
-    calc
-      _ ≤ C2_1_3 a / (C⁻¹*volume.real (ball x₀ r₀)) := by gcongr
-      _ = _ := by unfold defaultA defaultD C; field_simp
-  have : volume.real (ball x (2*r₀)) ≤ C * volume.real (ball x (D^s)) := by
-    have : (0:ℝ) < D := defaultD_pos _
-    refine measure_ball_le_same x (by positivity) ?_
-    apply le_of_eq; field_simp
-  calc
-    _ ≤ C⁻¹ * volume.real (ball x (2*r₀)) := by
-      gcongr
-      · exact measure_ball_ne_top x (2 * r₀)
-      · exact ball_subset_ball_of_le (by linarith)
-    _ ≤ C⁻¹ * (C * volume.real (ball x (D^s))) := by gcongr
-    _ = _ := by field_simp
-
--- /-- Version of `norm_Ks_le_of_dist_le` without assumption `0 < r₀` but
--- with lengthy (irrelevant) constant -/
----- not needed, remove later
--- lemma norm_Ks_le_of_dist_le' {x y x₀ : X} {r₀ : ℝ} (hx : dist x x₀ ≤ r₀) (s : ℤ) :
---     ‖Ks s x y‖ ≤ (C2_1_3 a * (As (defaultA a) (2*r₀/D^s)) / volume.real (ball x₀ r₀)) ⊔
---         (C2_1_3 a / volume.real (ball x₀ (D^s))) := by
---   by_cases hr₀ : 0 < r₀
---   · exact norm_Ks_le_of_dist_le hr₀ hx _ |>.trans <| le_max_left ..
---   · have : x = x₀ := dist_le_zero.mp <| hx.trans <| not_lt.mp hr₀
---     rw [this]
---     exact norm_Ks_le.trans <| le_max_right ..
-
-/-- `‖Ks x y‖` is bounded if `x` is in a bounded set -/
-lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
-    {A : Set X} (hA : IsBounded A) (s : ℤ) :
-    ∃ C, 0 ≤ C ∧ ∀ x y, x ∈ A → ‖Ks s x y‖ ≤ C := by
-  obtain x₀ : X := Classical.choice (by infer_instance)
-  obtain ⟨r₀, hr₀, h⟩ := hA.subset_closedBall_lt 0 x₀
-  use ?_; constructor; swap -- let Lean fill in the value of the ugly constant
-  · intro x y hx
-    convert norm_Ks_le_of_dist_le hr₀ (h hx) s
-  · positivity
-
--- lemma _root_.Bornology.IsBounded.norm_Ks_mul_of_isBounded_range
---     (hf : IsBounded (range f)) (s : ℤ) :
-
----- not really needed
--- lemma measure_ball_le_same'' {x : X} {r r' : ℝ} (hr : r > 0) :
---     volume.real (ball x r') ≤ As (defaultA a) (r'/r) * volume.real (ball x r) := by
---   let s := r'/r
---   have : r' ≤ s * r := by apply le_of_eq; unfold s; field_simp
---   by_cases hr' : r' > 0
---   · apply measure_ball_le_same x (show 0 < s by positivity) this
---   · sorry
-
--- for mathlib?
-lemma norm_indicator_one_le {α E}
-    [SeminormedAddCommGroup E] [One E] [NormOneClass E] {s : Set α} (x : α) :
-    ‖s.indicator (1 : α → E) x‖ ≤ 1 :=
-  Trans.trans (norm_indicator_le_norm_self 1 x) norm_one
-
-lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ = 1 := by
-  rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
-
-lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (.I * (x - y))‖ = 1 := by
-  rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
-
-
--- mathlib? also `ball` variant, remove `Nonempty`
-theorem _root_.MeasureTheory.HasCompactSupport.of_support_subset_closedBall {x : X}
- {r : ℝ} [ProperSpace X] [Nonempty X] (hf : support f ⊆ closedBall x r) :
-    HasCompactSupport f := by
-  apply HasCompactSupport.of_support_subset_isCompact ?_ hf
-  exact isCompact_closedBall ..
-
-theorem _root_.MeasureTheory.HasCompactSupport.of_support_subset_isBounded {s : Set X}
-    [ProperSpace X] [Nonempty X] (hs : IsBounded s) (hf : support f ⊆ s) :
-    HasCompactSupport f := by
-  let x₀ : X := Classical.choice (by infer_instance)
-  obtain ⟨r₀, hr₀⟩ := hs.subset_closedBall x₀
-  exact HasCompactSupport.of_support_subset_closedBall <| Trans.trans hf hr₀
-
--- move
-lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
-
--- must be in mathlib but can't find it
-theorem _root_.MeasureTheory.Integrable.indicator_const {c : ℝ} {s: Set X}
-    (hs: MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun x ↦ c)) :=
-  (integrable_indicator_iff hs).mpr <| integrableOn_const.mpr <| Or.inr h2s
-
-
-end ToBeMovedToAppropriateLocations
-
--- #check norm_integral_le_of_norm_le_const
--- #check norm_setIntegral_le_of_norm_le_const_ae
---#check integrable_Ks_x
-
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
   memℒp_top := by
@@ -236,6 +120,7 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     intro x hx
     apply mem_support.mp at hx
     have : ∃ y, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y ≠ 0 := by
+      -- mathlib lemma: if integral ne zero, then integrand ne zero at a point
       by_contra hc
       simp only [not_exists, ne_eq, not_not] at hc
       exact hx <| setIntegral_eq_zero_of_forall_eq_zero fun x _ ↦ hc x
@@ -248,86 +133,11 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     · rw [dist_comm]; exact (dist_mem_Icc_of_Ks_ne_zero hKy).2
     · exact le_of_lt <| h hfy
 
-lemma support_carlesonOn_subset_E : support (carlesonOn p f) ⊆ E p :=
-  fun _ hx ↦ mem_of_indicator_ne_zero hx
-
--- indicator (E p)
---   fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
-theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
-  memℒp_top := by
-    let x₀ : X := Classical.choice inferInstance
-    obtain ⟨r₀, hr₀, hfr₀⟩ := hf.isBoundedSupport.subset_closedBall_lt 0 x₀
-    let r₁ := (↑D ^ 𝔰 p / 2) + r₀
-    have hcf : support (_root_.carlesonOn p f) ⊆ closedBall x₀ r₁ := by
-      simp_rw [carlesonOn_def']
-      intro x hx
-      simp only [mem_support] at hx
-      apply indicator_apply_ne_zero.mp at hx
-      replace hx := hx.2
-      simp only [mem_support] at hx
-      have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x))) ≠ 0 := by
-        by_contra hc
-        simp only [not_exists, ne_eq, not_not] at hc
-        refine hx ?_--<| integral_eq_zero_of_forall_eq_zero fun x _ ↦ hc x
-        refine integral_eq_zero_of_ae ?_
-        simp_all only [support_subset_iff, ne_eq,
-          mem_closedBall, integral_zero, not_true_eq_false, x₀]
-      obtain ⟨y, hy⟩ := this
-      simp only [ne_eq, mul_eq_zero, exp_ne_zero, or_false, not_or] at hy
-      have := dist_mem_Icc_of_Ks_ne_zero hy.1
-      apply (dist_triangle _ y _).trans
-      unfold r₁
-      gcongr
-      · exact (dist_mem_Icc_of_Ks_ne_zero hy.1).2
-      · exact hfr₀ hy.2
-    obtain ⟨CK, hCK, hCK⟩ :=
-      IsBounded.exists_bound_of_norm_Ks (Metric.isBounded_closedBall (x := x₀) (r := r₁)) (𝔰 p)
-    let C := volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤).toReal)
-    suffices ∀ᵐ x, ‖_root_.carlesonOn p f x‖ ≤ C from
-      memℒp_top_of_bound hf.aestronglyMeasurable.carlesonOn _ this
-    apply ae_of_all
-    intro x
-    wlog hx : x ∈ support (_root_.carlesonOn p f)
-    · simp only [mem_support, ne_eq, not_not] at hx
-      rw [hx, norm_zero]
-      positivity
-    · --simp only [mem_support] at hx
-      simp_rw [carlesonOn_def']
-      refine trans (norm_indicator_le_norm_self _ _) ?_
-      let g := (closedBall x₀ r₀).indicator (fun _ ↦ CK * (eLpNorm f ⊤).toReal)
-      have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ ≤ g y := by
-        filter_upwards [hf.ae_le] with y hy
-        by_cases hy' : y ∈ support f
-        · have := hfr₀ hy'
-          calc
-            _ ≤ ‖Ks (𝔰 p) x y * f y‖ * ‖cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ := norm_mul_le ..
-            _ = ‖Ks (𝔰 p) x y * f y‖ := by rw [norm_exp_I_mul_sub_ofReal, mul_one]
-            _ ≤ ‖Ks (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
-            _ ≤ CK * (eLpNorm f ⊤).toReal := by gcongr; exact hCK x y (hcf hx)
-            _ = g y := by simp_all only [indicator_of_mem, g]
-        · simp only [mem_support, ne_eq, not_not] at hy'
-          rw [hy']
-          simp only [mul_zero, zero_mul, norm_zero, g]
-          unfold indicator
-          split_ifs <;> positivity
-      calc
-        _ ≤ ∫ y, g y := by
-          refine norm_integral_le_of_norm_le ?_ hK
-          exact Integrable.indicator_const measurableSet_closedBall measure_closedBall_lt_top
-        _ = volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤ volume).toReal) :=
-          integral_indicator_const _ measurableSet_closedBall
-  hasCompactSupport := by
-    suffices support (_root_.carlesonOn p f) ⊆ 𝓘 p by
-      refine HasCompactSupport.of_support_subset_isBounded ?_ this
-      exact Metric.isBounded_ball.subset Grid_subset_ball
-    exact Trans.trans support_carlesonOn_subset_E E_subset_𝓘
-
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
-  Finset.boundedCompactSupport_sum fun _ _ ↦ hf.adjointCarleson
+  BoundedCompactSupport.finset_sum fun _ _ ↦ hf.adjointCarleson
 
--- short for `modulated kernel times dilated bump`
+/-- `MKD` is short for "modulated kernel times dilated bump". -/
 private abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
 
 omit [TileStructure Q D κ S o] in
@@ -342,10 +152,10 @@ lemma adjointCarleson_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (p : 𝔓 X) :
     ∫ x, conj (g x) * carlesonOn p f x = ∫ y, conj (adjointCarleson p g y) * f y := by
   let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
-  have hH : BoundedCompactSupport (uncurry H) := by
+  have hH : Integrable (uncurry H) := by
     let H₀ := fun x y ↦ ‖g x‖ * ‖f y‖
     obtain ⟨M₀, hM₀nn, hM₀⟩ := hg.2.isBounded.exists_bound_of_norm_Ks (𝔰 p)
-    have hHleH₀ x y : ‖H x y‖ ≤ M₀ * H₀ x y := by
+    have hHleH₀ x y : ‖H x y‖ ≤ M₀ * ‖g x‖ * ‖f y‖ := by
       by_cases h : x ∈ tsupport g
       · specialize hM₀ x y h
         calc
@@ -359,12 +169,39 @@ lemma adjointCarleson_adjoint
             · exact le_of_eq <| RCLike.norm_conj _
             · exact norm_indicator_one_le ..
           _ = ‖MKD (𝔰 p) x y‖ * (‖g x‖ * ‖f y‖) := by rw [mul_one, mul_comm ‖g _‖, mul_assoc]
-          _ ≤ M₀ * H₀ x y := by gcongr; exact norm_MKD_le_norm_Ks.trans hM₀
+          _ ≤ M₀ *  (‖g x‖ * ‖f y‖) := by gcongr; exact norm_MKD_le_norm_Ks.trans hM₀
+          _ = M₀ *  ‖g x‖ * ‖f y‖ := by rw [mul_assoc]
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
         unfold H; simp [image_eq_zero_of_nmem_tsupport h]
-    refine BoundedCompactSupport.of_norm_le_const_mul (g := uncurry H₀) (M := M₀) ?_ ?_
-    · exact hg.norm.prod_mul hf.norm
-    · intro ⟨x,y⟩; simp only [uncurry_apply_pair]; exact hHleH₀ ..
+    ---- If we were proving `BoundedCompactSupport (uncurry H)` instead, then the following
+    ---- three lines would finish it up
+    -- refine BoundedCompactSupport.of_norm_le_const_mul (g := uncurry H₀) (M := M₀) ?_ ?_
+    -- · exact hg.norm.prod_mul hf.norm
+    -- · intro ⟨x,y⟩; simp only [uncurry_apply_pair]; exact hHleH₀ ..
+    ---- But instead we have to do the following:
+    have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
+      Integrable.prod_mul (hg.norm.const_mul _).integrable hf.norm.integrable
+    refine this.mono ?_ ?_
+    · refine .mul ?_ <| .snd hf.aestronglyMeasurable
+      refine .mul ?_ ?_
+      · refine .mul ?_ ?_
+        · exact RCLike.continuous_conj.comp_aestronglyMeasurable hg.aestronglyMeasurable.fst
+        · have : AEStronglyMeasurable (fun x:X ↦ (E p).indicator (1:X→ℂ) x) :=
+            .indicator aestronglyMeasurable_const measurableSet_E
+          exact this.fst
+      · unfold MKD
+        simp_rw [mul_assoc, ← Ks_def]
+        refine .mul ?_ aestronglyMeasurable_Ks
+        apply Measurable.aestronglyMeasurable
+        have : Measurable fun (p : X × X) ↦ (p.1, p.1) :=
+          .prod_mk (.fst measurable_id') (.fst measurable_id')
+        refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
+        · exact measurable_Q₂
+        · exact measurable_Q₂.comp this
+    · apply ae_of_all
+      intro z
+      refine trans (hHleH₀ z.1 z.2) ?_
+      exact Real.le_norm_self _
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
       conv =>
@@ -372,7 +209,7 @@ lemma adjointCarleson_adjoint
         rw [indicator_eq_indicator_one_mul, ← integral_mul_left]
         enter [2, y]; rw [← mul_assoc]
     _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_mul_left, mul_assoc]
-    _ = ∫ y, ∫ x, H x y := integral_integral_swap hH.integrable
+    _ = ∫ y, ∫ x, H x y := integral_integral_swap hH
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
       simp_rw [integral_mul_right]
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
@@ -393,7 +230,6 @@ lemma adjointCarleson_adjoint
           congr; simp; ring
 
 /-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
--- of course the assumptions are too strong
 lemma adjointCarlesonSum_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (ℭ : Set (𝔓 X)) :
     ∫ x, conj (g x) * carlesonSum ℭ f x = ∫ x, conj (adjointCarlesonSum ℭ g x) * f x := by

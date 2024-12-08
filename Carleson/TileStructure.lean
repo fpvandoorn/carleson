@@ -1,5 +1,6 @@
 import Carleson.GridStructure
 import Carleson.Psi
+import Carleson.ToMathlib.BoundedCompactSupport
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
@@ -101,6 +102,8 @@ lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
     · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
     · exact measurable_σ₁.prod_mk measurable_σ₂
 
+lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
+
 section T
 
 /-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
@@ -110,7 +113,7 @@ def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
--- obsolete in favor of `AEStronglyMeasurable.carlesonOn`?
+-- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonOn`
 lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
@@ -131,17 +134,15 @@ We will use this in other places of the formalization as well. -/
 def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
 
--- obsolete in favor of `AEStronglyMeasurable.carlesonSum`?
+-- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonSum`
 @[fun_prop]
 lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonSum ℭ f) :=
   Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
 
---    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X → ℂ}
     (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonOn p f) := by
   refine .indicator ?_ measurableSet_E
-  -- refine AEStronglyMeasurable.integral_prod_right ?_
   refine .integral_prod_right'
     (f := fun z ↦ exp (Complex.I * (Q z.1 z.2 - Q z.1 z.1)) * K z.1 z.2 *
       ψ (D ^ (- 𝔰 p) * dist z.1 z.2) * f z.2) ?_
@@ -166,6 +167,79 @@ lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
   unfold carlesonOn Ks
   exact congr_arg _ (funext fun x ↦ (congr_arg _ (funext fun y ↦ by ring)))
+
+lemma support_carlesonOn_subset_E {f : X → ℂ} : support (carlesonOn p f) ⊆ E p :=
+  fun _ hx ↦ mem_of_indicator_ne_zero hx
+
+theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
+  memℒp_top := by
+    let x₀ : X := Classical.choice inferInstance
+    obtain ⟨r₀, hr₀, hfr₀⟩ := hf.isBoundedSupport.subset_closedBall_lt 0 x₀
+    let r₁ := (↑D ^ 𝔰 p / 2) + r₀
+    have hcf : support (_root_.carlesonOn p f) ⊆ closedBall x₀ r₁ := by
+      simp_rw [carlesonOn_def']
+      intro x hx
+      simp only [mem_support] at hx
+      apply indicator_apply_ne_zero.mp at hx
+      replace hx := hx.2
+      simp only [mem_support] at hx
+      have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x))) ≠ 0 := by
+        -- mathlib lemma: if integral ne zero, then integrand ne zero at a point
+        by_contra hc
+        simp only [not_exists, ne_eq, not_not] at hc
+        refine hx ?_
+        refine integral_eq_zero_of_ae ?_
+        simp_all only [support_subset_iff, ne_eq,
+          mem_closedBall, integral_zero, not_true_eq_false, x₀]
+      obtain ⟨y, hy⟩ := this
+      simp only [ne_eq, mul_eq_zero, exp_ne_zero, or_false, not_or] at hy
+      have := dist_mem_Icc_of_Ks_ne_zero hy.1
+      apply (dist_triangle _ y _).trans
+      unfold r₁
+      gcongr
+      · exact (dist_mem_Icc_of_Ks_ne_zero hy.1).2
+      · exact hfr₀ hy.2
+    obtain ⟨CK, hCK, hCK⟩ :=
+      IsBounded.exists_bound_of_norm_Ks (Metric.isBounded_closedBall (x := x₀) (r := r₁)) (𝔰 p)
+    let C := volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤).toReal)
+    suffices ∀ᵐ x, ‖_root_.carlesonOn p f x‖ ≤ C from
+      memℒp_top_of_bound hf.aestronglyMeasurable.carlesonOn _ this
+    apply ae_of_all
+    intro x
+    wlog hx : x ∈ support (_root_.carlesonOn p f)
+    · simp only [mem_support, ne_eq, not_not] at hx
+      rw [hx, norm_zero]
+      positivity
+    · simp_rw [carlesonOn_def']
+      refine trans (norm_indicator_le_norm_self _ _) ?_
+      let g := (closedBall x₀ r₀).indicator (fun _ ↦ CK * (eLpNorm f ⊤).toReal)
+      have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ ≤ g y := by
+        filter_upwards [hf.ae_le] with y hy
+        by_cases hy' : y ∈ support f
+        · have := hfr₀ hy'
+          calc
+            _ ≤ ‖Ks (𝔰 p) x y * f y‖ * ‖cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ := norm_mul_le ..
+            _ = ‖Ks (𝔰 p) x y * f y‖ := by rw [norm_exp_I_mul_sub_ofReal, mul_one]
+            _ ≤ ‖Ks (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
+            _ ≤ CK * (eLpNorm f ⊤).toReal := by gcongr; exact hCK x y (hcf hx)
+            _ = g y := by simp_all only [indicator_of_mem, g]
+        · simp only [mem_support, ne_eq, not_not] at hy'
+          rw [hy']
+          simp only [mul_zero, zero_mul, norm_zero, g]
+          unfold indicator
+          split_ifs <;> positivity
+      calc
+        _ ≤ ∫ y, g y := by
+          refine norm_integral_le_of_norm_le ?_ hK
+          exact Integrable.indicator_const measurableSet_closedBall measure_closedBall_lt_top
+        _ = volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤ volume).toReal) :=
+          integral_indicator_const _ measurableSet_closedBall
+  hasCompactSupport := by
+    suffices support (_root_.carlesonOn p f) ⊆ 𝓘 p by
+      refine HasCompactSupport.of_support_subset_isBounded ?_ this
+      exact Metric.isBounded_ball.subset Grid_subset_ball
+    exact Trans.trans support_carlesonOn_subset_E E_subset_𝓘
 
 end T
 
