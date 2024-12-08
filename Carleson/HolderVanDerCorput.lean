@@ -22,10 +22,26 @@ lemma cutoff_comm : cutoff R t x y = cutoff R t y x := by
   simp_rw [dist_comm x y]
 
 lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
-    LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ cutoff R t x y) := by
+  -- FIXME: remove the `max 0` again
+    LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
   -- Still working on this:
   -- mathlib is missing a lemma Lipschitz.smul_const for CommGroupWithZero (or so).
-  sorry
+
+  -- this one should be inlined, once aux1 works
+  have aux0 : LipschitzWith 1 (fun y ↦ dist x y) := LipschitzWith.dist_right x
+  have aux : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
+    -- add a mul_const version? (or, actually, smul_const and const_smul)
+    -- WTF: this seems to be necessary
+    --haveI : SeminormedCommGroup ℝ := sorry
+    -- R is an additive group , wants a mult. group!
+    let as := LipschitzWith.const (α := X) (1 / (t * R))
+    -- but the next line still fails, no matter what
+    --let asdf := LipschitzWith.mul (α := X) (E := ℝ) as aux0
+    --apply LipschitzWith.mul (α := X) (E := ℝ) as aux0
+    sorry
+  unfold cutoff
+  apply (LipschitzWith.const' (0 : ℝ)).max ?_
+  convert LipschitzWith.sub (LipschitzWith.const' 1) (Kf := 0) aux; ring
 
 @[fun_prop]
 lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) :=
@@ -55,6 +71,9 @@ lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ bal
     convert h
     exact eq_iff_eq_of_cmp_eq_cmp rfl
   exact (div_lt_one (by positivity)).mp (by linarith)
+
+lemma support_cutoff_subset_ball (hR : 0 < R) (ht : 0 < t) :
+    support (fun y ↦ cutoff R t x y) ⊆ ball x (t * R) := fun _ hy ↦ aux_8_0_4 hR ht hy
 
 lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
     2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
@@ -97,6 +116,107 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
+-- I'm looking for a theorem like this for the two sorries below
+theorem barXX {a b : ℝ} : ((2 : ℝ≥0) ^ a) * (2 ^ b) = 2 ^ (a + b) := by
+  sorry
+
+lemma baz {A X : ℝ} : X = 2 ^ (-A) * (2 ^ A * X) := by
+  rw [← mul_assoc, ← Real.rpow_add (by norm_num)]
+  ring_nf
+
+lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
+  rw [← mul_assoc]
+  nth_rw 1 [← one_mul X]
+  congr
+  -- doesn't fire as the base is an ℝ≥0∞ now...
+  -- rw [← Real.rpow_add (by norm_num)]
+  ring_nf
+  sorry
+
+lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
+  have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
+    convert measure_ball_le_pow_two' (x := x) (μ := volume)
+    rw [show defaultA a = 2 ^ a from rfl]
+    norm_cast
+    ring
+  set A : ℝ := (↑a * (↑N + 2))
+  set X := volume (ball x r)
+  convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
+  rw [show (-↑a * (↑N + 2)) = -A by ring]
+  -- XXX: at this point, neither `ring` nor `field_simp` work.
+  -- the former tries to "unfold A"; can I prevent this?
+  -- baz fires, but I want baz'
+  exact baz' (X := X)
+
+lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
+    2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
+  have inside_computation (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
+    aux_8_0_8_inner hR ht N r
+  set N : ℝ := @n_8_0_7 t + 2 with N_eq
+  calc (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 * R))
+    _ ≤ (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+      gcongr
+      calc -- or: apply the right lemma...
+        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by
+          rw [mul_assoc]
+          -- future: linear_combination should do this! multiply (n_spec ht).lt with 2
+          nth_rewrite 1 [show (2 : ℝ) = 2 * 1 by norm_num]
+          gcongr
+          exact (n_spec1 ht).le
+        _ = 2 ^ N * 2 ^ (-1 : ℝ) * t := by
+          rw [N_eq]
+          set Nn : ℤ := @n_8_0_7 t
+          norm_cast
+          rw [show Int.negSucc 0 = -1 by rfl]
+          congr 1
+          set A : ℝ := 2
+          -- now, it should be obvious
+          sorry
+          -- nth_rw 1 [show (2 : ℝ) = (2 : ℝ) ^ (1 : ℤ) by norm_num]
+          -- trans (2 : ℝ) ^ (@n_8_0_7 t + 1)
+          -- · sorry
+          -- · sorry
+    _ ≤ (2 ^ (-1 : ℝ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+      gcongr
+      set N' := a * N -- note: one N' uses ℝ, the other ℤ
+      apply le_of_eq
+      -- now, it's almost an rpow thing --- but need to rewrite by that cast
+      sorry
+    _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
+      sorry -- use inside_computation
+    _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
+
+/-
+  calc ∫⁻ y, cutoff R t x y
+    _ ≥ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := aux_8_0_6 (ht := ht) (hR := hR)
+    _ ≥ (2 ^ (-1 : ℝ)) * 2 ^ (- a * ((@n_8_0_7 t) + 2)) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
+      -- use inside_computation
+      sorry
+    _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
+      -- hopefully, the previous step will make this moot,
+      -- and also simplify the next calc step
+      sorry
+    _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 * R)) := by
+      gcongr
+      calc
+        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by
+          rw [mul_assoc]
+          nth_rewrite 1 [show (2 : ℝ) = 2 * 1 by norm_num]
+          gcongr
+          exact (n_spec1 ht).le
+        _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
+          apply congrFun (congrArg HMul.hMul _)
+          -- there should be a nicer way!
+          calc 2 * (2 : ℝ) ^ (@n_8_0_7 t)
+            _ = 2 ^ ((@n_8_0_7 t) + 1) := by
+              sorry
+            _ = 2 ^ (((@n_8_0_7 t) + 2) - 1) := by ring_nf
+            _ = 2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) := by
+              sorry
+-/
+
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
 
@@ -105,12 +225,12 @@ def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
   (∫ y, cutoff R t x y * ϕ y) / (∫⁻ y, cutoff R t x y).toReal
 
 -- This surely exists in mathlib; how is it named?
+-- if not, PR welcome?
 omit [TileStructure Q D κ S o] in
 lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
   by_contra! h
   apply hf
-  have : φ = 0 := by ext; apply h
-  rw [this]
+  simp_rw [h]
   simp
 
 omit [TileStructure Q D κ S o] in
@@ -138,12 +258,148 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     _ < R + R := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
     _ = 2 * R := by ring
 
-/-- Part of Lemma 8.0.1. -/
-lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
+/-- Equation 8.0.9/8.0.10 from the blueprint:
+  the first estimate towards `dist_holderApprox_le`. -/
+-- missing hypotheses? right notion of integral?
+lemma aux_8_0_9 (ϕ : X → ℂ) :
+    (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+      = |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))| := by
+  -- pull the dist ... inside the integral
+  -- cutoff R t x y is non-negative, so both parts are -> so can add the absolute value,
+  -- and take it out again
+  -- calc (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+  --   _ = (∫⁻ y, (cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))) := sorry
+  --   _ = (∫⁻ y, (cutoff R t x y) * (dist (ϕ x) (holderApprox R t ϕ x))) := sorry
+  --   _ = |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))| := sorry
+  sorry
+
+-- ext: structure of types proven equal (e.g., functions, sets)
+-- congr, gcongr: structure of terms proven equal (using injectivity/monotonicity for = or ≤)
+
+omit [TileStructure Q D κ S o] y in
+/-- Equation 8.0.11 from the blueprint: the first estimate towards `dist_holderApprox_le`. -/
+-- right notion of integral? right formalisation of absolute value?
+lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
+    |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
+      ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
+  calc |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
+    _ ≤ ∫ y, |(cutoff R t x y) * (dist (ϕ x) (ϕ y))| :=
+    norm_integral_le_integral_norm (fun y ↦ (cutoff R t x y) * (dist (ϕ x) (ϕ y)))
+    _ = ∫ y, ((cutoff R t x y) * dist (ϕ x) (ϕ y)) := by
+      congr! 2 with y
+      exact _root_.abs_of_nonneg (by positivity)
+    _ = ∫ y in ball x (t * R), ((cutoff R t x y) * dist (ϕ x) (ϕ y)) := by
+      set f := fun y ↦ ((cutoff R t x y) * dist (ϕ x) (ϕ y))
+      symm
+      apply setIntegral_eq_integral_of_forall_compl_eq_zero
+      intro y hy
+      have : cutoff R t x y = 0 := by by_contra! h; exact hy (aux_8_0_4 hR ht.1 h)
+      simp [this]
+
+-- TODO: copy over the proof of 8_0_11, somehow/adapt it!
+lemma aux_8_0_11'' (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
+    |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
+      ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
+  sorry
+
+lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR : R ≠ 0) (ht : t ∈ Ioc 0 1) (h2ϕ : HolderWith C nnτ ϕ) :
+    ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
+    ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
+  calc ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
+    _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * C * (nndist x y) ^ τ) := by
+      simp_rw [mul_assoc]
+      gcongr with y
+      have : nndist (ϕ x) (ϕ y) ≤ C * nndist x y ^ τ := h2ϕ.dist_le (x := x) (y := y)
+      --apply this--convert h2ϕ.nndist_le (x := x) (y := y)
+      sorry
+    _ = (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ * C) := by
+      simp_rw [← mul_comm (C : ℝ≥0∞) _, mul_assoc]
+    _ = (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
+      rw [lintegral_mul_const]
+      have : 0 < R := by sorry -- should be easy...
+      have aux := cutoff_measurable (R := R) this ht.1 (X := X) (x := x)
+      apply Measurable.mul (by fun_prop) (by fun_prop)
+
+
+  -- heuristic: if both sides are ℝ≥0, use lintegral
+  -- use lintegral if I can
+  -- estimates with ≤, generally use lintegral (or Bochner with real numbers)
+
+/-- Equation 8.0.12 from the blueprint: the second estimate towards `dist_holderApprox_le`. -/
+-- missing hypotheses?
+-- right notion of integral? right formalisation of absolute value?
+lemma aux_8_0_12 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
+    ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
+    ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by
+  calc ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y))
+    _ ≤ (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ * C) := by
+      apply setIntegral_mono
+      · sorry -- integrability goal ---> use Lebesgue integral instead?? yes!
+      · sorry -- another
+      intro y
+      -- now, the real goal I wanted to prove
+      beta_reduce
+      have : dist (ϕ x) (ϕ y) ≤ C * dist x y ^ τ := h2ϕ.dist_le (x := x) (y := y)
+      -- is the R^-τ wrong and should just be deleted?
+      have : dist (ϕ x) (ϕ y) ≤ dist x y ^ τ * ↑C * R ^ (-τ) := by
+        convert h2ϕ.dist_le
+        sorry -- mismatch, h2ϕ expects an edist! --
+        --convert h2ϕ (x := x) (y := y)
+      -- associativity orders, be careful!
+      sorry--rw [mul_assoc ((cutoff R t x y) : ℝ), mul_assoc]
+      --gcongr
+    _ = (∫ y in ball x (t * R), (cutoff R t x y) * (dist x y) ^ τ) * C * R ^ (-τ) := by
+      -- move the constant out of the integral
+      set DDD := C * R ^ (-τ) -- sth types, does not extract
+      sorry
+
+/-- Equation 8.0.13 from the blueprint: the last estimate towards `dist_holderApprox_le`. -/
+-- missing hypotheses?
+-- right notion of integral? right formalisation of absolute value?
+lemma aux_8_0_13 {ϕ : X → ℂ} {R t C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) : -- R also superfluous?
+   (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C * R ^ (-τ)
+   ≤ (∫⁻ y, cutoff R t x y) * C * t ^ τ := sorry
+
+
+-- should be in mathlib. otherwise, an easy exercise
+lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
+  have : 0 ≤ 1 / I := by positivity
+  sorry
+
+-- just divide cutoff by R^τ instead? feel free to fix yourself... but should do it on paper first :-)
+
+include x y in
+/-- Part of Lemma 8.0.1. Equation (8.0.1) in the blueprint. -/
+lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) (x : X) :
     dist (ϕ x) (holderApprox R t ϕ x) ≤ t ^ τ * C := by
-  sorry
+  have : (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+      ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
+    calc (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+      _ = |∫ y, (cutoff R t x y) * (dist (ϕ x) (ϕ y))| := by apply aux_8_0_9
+      _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
+        apply aux_8_0_11'' hR ht
+        --_ ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_11 (y := y) ϕ
+      _ ≤ ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal := by
+        -- side effect of using different types: need to prove the integral is bounded,
+        -- to use monotonicity of .toReal
+        gcongr
+        · sorry -- idea: function is bounded, ball has finite volume
+        apply aux_8_0_12'' (R := ⟨R, by positivity⟩) (Ne.symm (ne_of_lt hR)) ht h2ϕ
+      _ ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
+        have : 0 < t := sorry
+        let t' : ℝ≥0 := ⟨t, this.le⟩
+        have : 0 < t' := sorry
+        let asdf := aux_8_0_13 h2ϕ (R := ⟨R, by positivity⟩) (t := t') (x := x)
+        -- not quite there yet... apply asdf
+        sorry -- will be `apply aux_8_0_13 h2ϕ`, once that is fixed...
+  set I := (∫⁻ y, cutoff R t x y).toReal
+  apply missing (I := I) (by positivity)
+  convert this using 1
+  ring
+
+#exit
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
