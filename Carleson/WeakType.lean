@@ -383,7 +383,7 @@ lemma HasStrongType.const_smul {𝕜 E E' α α' : Type*} [NormedAddCommGroup E]
     [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
   refine fun f hf ↦
-    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, (eLpNorm_const_smul_le k (T f)).trans ?_⟩
+    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, (eLpNorm_const_smul_le).trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
   gcongr
   exact (h f hf).2
