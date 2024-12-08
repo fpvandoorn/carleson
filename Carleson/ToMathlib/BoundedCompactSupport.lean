@@ -141,7 +141,7 @@ theorem conj : BoundedCompactSupport (star f) where
       exact RCLike.continuous_conj.comp_aestronglyMeasurable hf.aestronglyMeasurable
     filter_upwards [hf.ae_le] with x hx
     exact trans (RCLike.norm_conj _) hx
-  hasCompactSupport := by -- mathlib should have a lemma `Memℒp.conj`?
+  hasCompactSupport := by -- mathlib should have a lemma `HasCompactSupport.conj`?
     suffices support (star f) = support f by
       rw [hasCompactSupport_def, this]; exact hf.hasCompactSupport
     apply support_eq_iff.mpr
