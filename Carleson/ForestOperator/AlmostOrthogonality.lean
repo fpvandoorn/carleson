@@ -173,12 +173,6 @@ lemma adjointCarleson_adjoint
           _ = M₀ *  ‖g x‖ * ‖f y‖ := by rw [mul_assoc]
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
         unfold H; simp [image_eq_zero_of_nmem_tsupport h]
-    ---- If we were proving `BoundedCompactSupport (uncurry H)` instead, then the following
-    ---- three lines would finish it up
-    -- refine BoundedCompactSupport.of_norm_le_const_mul (g := uncurry H₀) (M := M₀) ?_ ?_
-    -- · exact hg.norm.prod_mul hf.norm
-    -- · intro ⟨x,y⟩; simp only [uncurry_apply_pair]; exact hHleH₀ ..
-    ---- But instead we have to do the following:
     have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
       Integrable.prod_mul (hg.norm.const_mul _).integrable hf.norm.integrable
     refine this.mono ?_ ?_

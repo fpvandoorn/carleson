@@ -49,12 +49,11 @@ variable (f) in
 /-- Bounded compactly supported measurable functions -/
 -- There are various alternative definitions one could use here
 -- After all it does seem to be better to use `IsBounded (range f)`
--- (and `AEStronglyMeasurable f`)
 -- Todo: Refactor accordingly
 structure BoundedCompactSupport : Prop where
   memℒp_top : Memℒp f ⊤ -- comment this out and uncomment the next two lines
   -- isBounded : IsBounded (range f)
-  -- aestronglyMeasurable : AEStronglyMeasurable f
+  -- aestronglyMeasurable : AEStronglyMeasurable f -- consider `StronglyMeasurable`
   hasCompactSupport : HasCompactSupport f
 
 lemma isBounded_range_iff_forall_norm_le {α β} [SeminormedAddCommGroup α] {f : β → α} :
