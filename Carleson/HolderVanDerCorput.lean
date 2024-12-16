@@ -174,7 +174,8 @@ lemma aux_8_0_8_inner2 (hR : 0 < R) (ht : 0 < t) (N : ℝ) (r : ℝ) :
 
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
-  -- TODO: I need `inside_computation2`, but can only prove `inside_computation1`
+  -- can prove first half of computation 1, "rest" of computation 2
+  -- need computation 2... can I deduce one from the other?
   have inside_computation1 (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
     aux_8_0_8_inner hR ht N r
@@ -204,6 +205,7 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
               _ = 2 ^ (Nn + 1) := sorry -/
     _ = (2 ^ (-1 : ℝ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       congr
+      rw [show -↑a * N = -(a * N) by sorry]
       set N' : ℝ := a * N -- note: one N' uses ℝ, the other ℤ
       -- now, it's almost an rpow thing --- but need to rewrite by that cast
       sorry
@@ -305,6 +307,7 @@ lemma aux_8_0_9 (ϕ : X → ℂ) :
 -- ext: structure of types proven equal (e.g., functions, sets)
 -- congr, gcongr: structure of terms proven equal (using injectivity/monotonicity for = or ≤)
 
+#check norm_integral_le_lintegral_norm
 omit [TileStructure Q D κ S o] y in
 /-- Equation 8.0.11 from the blueprint: the first estimate towards `dist_holderApprox_le`. -/
 -- right notion of integral? right formalisation of absolute value?
@@ -325,14 +328,23 @@ lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
       have : cutoff R t x y = 0 := by by_contra! h; exact hy (aux_8_0_4 hR ht.1 h)
       simp [this]
 
+-- #check norm_integral_le_lintegral_norm
+
 -- TODO: copy over the proof of 8_0_11, somehow/adapt it!
 -- or: prove the RHS has finite integral, thus .toReal equals what I want
 lemma aux_8_0_11'' (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
     |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
       ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
+  have : |∫ (y : X), ↑(cutoff R t x y) * dist (ϕ x) (ϕ y)| ≤
+      ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
+    apply aux_8_0_11 hR ht
+  convert this; symm
+  set B := ball x (t * R)
+  -- two things mis-matching
+  -- the integrand, different types
+  -- the integral: Bochner vs lower Lebesgue + toReal
   sorry
 
--- basically works
 lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR : R ≠ 0) (ht : t ∈ Ioc 0 1) (h2ϕ : HolderWith C nnτ ϕ) :
     ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
     ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
@@ -383,16 +395,18 @@ lemma aux_8_0_12 {ϕ : X → ℂ} {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) :
       set DDD := C * R ^ (-τ) -- sth types, does not extract
       sorry
 
-/-- Equation 8.0.13 from the blueprint: the last estimate towards `dist_holderApprox_le`. -/
--- missing hypotheses?
--- right notion of integral? right formalisation of absolute value?
-lemma aux_8_0_13 {ϕ : X → ℂ} {R t C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) : -- R also superfluous?
-   (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C * R ^ (-τ)
-   ≤ (∫⁻ y, cutoff R t x y) * C * t ^ τ := sorry
 
+-- TODO: this equation is wrong, I think; need to divide by R^τ or something
+/-- Equation 8.0.13 from the blueprint: the last estimate towards `dist_holderApprox_le`. -/
+-- XXX: this version or its cousin? will see!
 lemma aux_8_0_13'' {ϕ : X → ℂ} {R t C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) : -- R also superfluous?
    ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal
    ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := sorry
+
+lemma aux_8_0_13''' {ϕ : X → ℂ} (hR : 0 ≤ R) (ht : 0 ≤ t) {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) : -- R also superfluous?
+    ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal
+    ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
+  sorry
 
 -- should be in mathlib. otherwise, an easy exercise
 lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
@@ -430,7 +444,7 @@ lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
         sorry -- exact? doesn't find anything
       apply aux_8_0_12'' (R := ⟨R, by positivity⟩) (Ne.symm (ne_of_lt hR)) ht h2ϕ
     _ ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
-      apply aux_8_0_13'' (R := ⟨R, by positivity⟩) (t := ⟨t, ht.1.le⟩) h2ϕ
+      apply aux_8_0_13''' hR.le ht.1.le h2ϕ
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
@@ -438,7 +452,6 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
     LipschitzWith (C8_0_1 a ⟨t, ht.1.le⟩) (holderApprox R t ϕ) := by
   sorry
-
 
 /-- The constant occurring in Proposition 2.0.5. -/
 def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (8 * a)
