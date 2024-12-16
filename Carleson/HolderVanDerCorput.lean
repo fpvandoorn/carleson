@@ -143,6 +143,8 @@ lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
     norm_cast
     ring
   set A : ℝ := (↑a * (↑N + 2))
+  -- note X is in ℝ≥0∞ (could a priori be infinite); can I show this to not be the case?
+  -- can I lift to ℝ instead?
   set X := volume (ball x r)
   convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
   rw [show (-↑a * (↑N + 2)) = -A by ring]
@@ -161,25 +163,21 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     _ ≤ (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       gcongr
       calc -- or: apply the right lemma...
-        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by
-          rw [mul_assoc]
-          -- future: linear_combination should do this! multiply (n_spec ht).lt with 2
-          nth_rewrite 1 [show (2 : ℝ) = 2 * 1 by norm_num]
-          gcongr
-          exact (n_spec1 ht).le
+        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by linear_combination 2 * (n_spec1 ht)
         _ = 2 ^ N * 2 ^ (-1 : ℝ) * t := by
           rw [N_eq]
-          set Nn : ℤ := @n_8_0_7 t
-          norm_cast
-          rw [show Int.negSucc 0 = -1 by rfl]
+          set Nn := @n_8_0_7 t
+          --norm_cast; rw [show Int.negSucc 0 = -1 by rfl]
           congr 1
-          set A : ℝ := 2
-          -- now, it should be obvious
-          sorry
-          -- nth_rw 1 [show (2 : ℝ) = (2 : ℝ) ^ (1 : ℤ) by norm_num]
-          -- trans (2 : ℝ) ^ (@n_8_0_7 t + 1)
-          -- · sorry
-          -- · sorry
+          trans 2 ^ (Nn + 1)
+          · sorry
+          · symm
+            sorry
+            /- calc 2 ^ ((Nn :ℝ) + 2) * 2 ^ (-1 : ℝ)
+              _ = (2 ^ (↑Nn) * 4) * 2 ^ (-1) := sorry
+              _ = 2 ^ (↑Nn) * (4 * 2 ^ (-1)) := sorry
+              _ = 2 ^ (↑Nn) * 2 := sorry
+              _ = 2 ^ (Nn + 1) := sorry -/
     _ ≤ (2 ^ (-1 : ℝ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       gcongr
       set N' := a * N -- note: one N' uses ℝ, the other ℤ
