@@ -122,6 +122,8 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
     gcongr
     exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
+private lemma n_pos (ht : 0 < t) : 0 < @n_8_0_7 t := sorry -- TODO
+
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
@@ -156,6 +158,7 @@ lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
   -- baz fires, but I want baz'
   exact baz' (X := X)
 
+-- not the real statement: but note that the second half of the proof works fine over ℝ...
 lemma aux_8_0_8_inner2 (hR : 0 < R) (ht : 0 < t) (N : ℝ) (r : ℝ) :
       2 ^ (- (a : ℝ) * N) * volume (ball x (2 ^ N * r)) ≤ volume (ball x r) := by
   -- TODO: this will fail, as the doubling formula only holds for N an integer...
@@ -175,19 +178,26 @@ lemma aux_8_0_8_inner2 (hR : 0 < R) (ht : 0 < t) (N : ℝ) (r : ℝ) :
   ring
 
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
-    2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
+    2 ^ ((-1 : ℤ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
   -- can prove first half of computation 1, "rest" of computation 2
   -- need computation 2... can I deduce one from the other?
   have inside_computation1 (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
     aux_8_0_8_inner hR ht N r
-  have inside_computation2 (N : ℝ) (r : ℝ) :
-      2 ^ (- (a : ℝ) * (N)) * volume (ball x (2 ^ (N) * r)) ≤ volume (ball x r) :=
-    aux_8_0_8_inner2 hR ht N r
 
-  set N : ℝ := @n_8_0_7 t + 2 with N_eq
-  calc (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 * R))
-    _ ≤ (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+  -- TOOD: lift to N, so I can use the first version
+  -- (or prove the doubling formula over ℤ by substitution)
+  have inside_computation1' (N : ℤ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
+    sorry
+
+  set N : ℤ := @n_8_0_7 t + 2 with N_eq
+  have : 0 ≤ N := by have :=  @n_pos t ht; positivity
+  -- XXX: this line fails, not sure why
+  -- lift N to ℕ using this
+
+  calc (2 ^ (-1 - a * N)) * volume (ball x (2 * R))
+    _ ≤ (2 ^ (-1 - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       gcongr
       calc -- or: apply the right lemma...
         2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by linear_combination 2 * (n_spec1 ht)
@@ -205,19 +215,18 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
               _ = 2 ^ (↑Nn) * (4 * 2 ^ (-1)) := sorry
               _ = 2 ^ (↑Nn) * 2 := sorry
               _ = 2 ^ (Nn + 1) := sorry -/
-    _ = (2 ^ (-1 : ℝ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+    _ = (2 ^ (-1 : ℤ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       congr
       rw [show -↑a * N = -(a * N) by sorry]
-      set N' : ℝ := a * N -- note: one N' uses ℝ, the other ℤ
-      -- now, it's almost an rpow thing --- but need to rewrite by that cast
-      sorry
-    _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
+      set N' : ℤ := a * N
+      exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-N')
+    _ ≤ (2 ^ (-1 : ℤ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
       set R'' := (2 ^ (-1: ℝ) * t * R)
       rw [mul_assoc]
       gcongr
-      convert inside_computation2 N R'' using 4
-      ring
-    _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
+      convert inside_computation1' (N) R'' using 1
+      sorry -- ring
+    _ ≤ ∫⁻ y, cutoff R t x y := by apply aux_8_0_6 (ht := ht) (hR := hR)
 
 /-
   calc ∫⁻ y, cutoff R t x y
