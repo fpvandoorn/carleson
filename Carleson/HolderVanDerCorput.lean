@@ -204,29 +204,35 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
         _ = 2 ^ N * 2 ^ (-1 : ℝ) * t := by
           rw [N_eq]
           set Nn := @n_8_0_7 t
-          --norm_cast; rw [show Int.negSucc 0 = -1 by rfl]
           congr 1
-          trans 2 ^ (Nn + 1)
-          · sorry
-          · symm
-            sorry
-            /- calc 2 ^ ((Nn :ℝ) + 2) * 2 ^ (-1 : ℝ)
-              _ = (2 ^ (↑Nn) * 4) * 2 ^ (-1) := sorry
-              _ = 2 ^ (↑Nn) * (4 * 2 ^ (-1)) := sorry
-              _ = 2 ^ (↑Nn) * 2 := sorry
-              _ = 2 ^ (Nn + 1) := sorry -/
+          rw [← show (2 : ℝ) ^ (-1 : ℤ) = (2 : ℝ) ^ (-1 : ℝ) by sorry]
+          sorry -- the following was not really shorter
+          -- trans 2 ^ (Nn + 1)
+          -- · have : 0 < @n_8_0_7 t := @n_pos t ht
+          --   sorry -- I'm very confused now, why does omega fail here? or norm_num? add integer operations!
+          -- · symm
+          --   -- goal: (2 : ℝ) ^ (Nn + 2 : ℤ) * (2 : ℝ)^(-1 : ℝ) = 2 ^ (Nn + 1 : ℤ)
+          --   rw [← show (2 : ℝ) ^ (-1 : ℤ) = (2 : ℝ) ^ (-1 : ℝ) by sorry] -- rw [← Real.rpow_intCast 2 (-1 :ℤ) *almost*
+          --   -- same issue as in the previous sorry
+          --   sorry
+          --   /- calc 2 ^ ((Nn :ℝ) + 2) * 2 ^ (-1 : ℝ)
+          --     _ = (2 ^ (↑Nn) * 4) * 2 ^ (-1) := sorry
+          --     _ = 2 ^ (↑Nn) * (4 * 2 ^ (-1)) := sorry
+          --     _ = 2 ^ (↑Nn) * 2 := sorry
+          --     _ = 2 ^ (Nn + 1) := sorry -/
     _ = (2 ^ (-1 : ℤ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       congr
       rw [show -↑a * N = -(a * N) by sorry]
       set N' : ℤ := a * N
       exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-N')
-    _ ≤ (2 ^ (-1 : ℤ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
+    _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
       set R'' := (2 ^ (-1: ℝ) * t * R)
       rw [mul_assoc]
       gcongr
+      · apply le_of_eq; sorry -- mathematically trivial; similar (but not the same) as above
       convert inside_computation1' (N) R'' using 1
-      sorry -- ring
-    _ ≤ ∫⁻ y, cutoff R t x y := by apply aux_8_0_6 (ht := ht) (hR := hR)
+      sorry -- 'ring' used to work
+    _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
 
 /-
   calc ∫⁻ y, cutoff R t x y
