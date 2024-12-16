@@ -80,6 +80,8 @@ lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ bal
 lemma support_cutoff_subset_ball (hR : 0 < R) (ht : 0 < t) :
     support (fun y ↦ cutoff R t x y) ⊆ ball x (t * R) := fun _ hy ↦ aux_8_0_4 hR ht hy
 
+lemma lintegral_cutoff_finite : (∫⁻ y, cutoff R t x y) < ∞ := sorry
+
 lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
     2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
   rw [mem_ball', mul_assoc] at h
@@ -258,9 +260,7 @@ def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
 omit [TileStructure Q D κ S o] in
 lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
   by_contra! h
-  apply hf
-  simp_rw [h]
-  simp
+  apply hf (by simp [h])
 
 omit [TileStructure Q D κ S o] in
 /-- Part of Lemma 8.0.1. -/
@@ -293,7 +293,7 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
 lemma aux_8_0_9 (ϕ : X → ℂ) :
     (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
       = |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))| := by
-  have : (∫⁻ y, cutoff R t x y) < ∞ := sorry -- so the .toReal does not matter
+  -- use lintegral_cutoff_finite, to argue the .toReal
 
   -- pull the dist ... inside the integral
   -- cutoff R t x y is non-negative, so both parts are -> so can add the absolute value,
