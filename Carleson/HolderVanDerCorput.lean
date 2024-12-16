@@ -21,12 +21,11 @@ lemma cutoff_comm : cutoff R t x y = cutoff R t y x := by
   unfold cutoff
   simp_rw [dist_comm x y]
 
-lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
-  -- FIXME: remove the `max 0` again
+-- auxiliary version, phrased in terms of `max 0 (the real constant)`
+lemma cutoff_Lipschitz_aux (hR : 0 < R) (ht : 0 < t) :
     LipschitzWith (max 0 ⟨(1 / (t * R)), by positivity⟩) (fun y ↦ cutoff R t x y) := by
   -- Still working on this:
   -- mathlib is missing a lemma Lipschitz.smul_const for CommGroupWithZero (or so).
-
   -- this one should be inlined, once aux1 works
   have aux0 : LipschitzWith 1 (fun y ↦ dist x y) := LipschitzWith.dist_right x
   have aux : LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ dist x y / (t * R)) := by
@@ -43,9 +42,15 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   apply (LipschitzWith.const' (0 : ℝ)).max ?_
   convert LipschitzWith.sub (LipschitzWith.const' 1) (Kf := 0) aux; ring
 
+lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
+    LipschitzWith ⟨(1 / (t * R)), by positivity⟩ (fun y ↦ cutoff R t x y) := by
+  convert cutoff_Lipschitz_aux hR ht
+  symm
+  apply max_eq_right (by positivity)
+
 @[fun_prop]
 lemma cutoff_continuous (hR : 0 < R) (ht : 0 < t) : Continuous (fun y ↦ cutoff R t x y) :=
-  (cutoff_Lipschitz hR ht (X := X)).continuous
+  (cutoff_Lipschitz hR ht).continuous
 
 omit [TileStructure Q D κ S o] in
 /-- `cutoff R t x` is measurable in `y`. -/
@@ -84,8 +89,10 @@ lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t *
       norm_num at *; linarith only [h, this]
     _ ≤ cutoff R t x y := le_max_right _ _
 
+-- FIXME: decide which version I prefer, rename accordingly!
+
 lemma aux_8_0_5'' (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
-    ((2 ^ (-1 : ℝ))) ≤ (cutoff R t x y : ℝ≥0∞) := by
+    2 ^ (-1 : ℝ) ≤ (cutoff R t x y : ℝ≥0∞) := by
   rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_rpow_of_ne_zero (by norm_num)]
   exact ENNReal.coe_le_coe.mpr (aux_8_0_5 (ht := ht) (hR := hR) h)
 
@@ -116,10 +123,6 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
--- I'm looking for a theorem like this for the two sorries below
-theorem barXX {a b : ℝ} : ((2 : ℝ≥0) ^ a) * (2 ^ b) = 2 ^ (a + b) := by
-  sorry
-
 lemma baz {A X : ℝ} : X = 2 ^ (-A) * (2 ^ A * X) := by
   rw [← mul_assoc, ← Real.rpow_add (by norm_num)]
   ring_nf
@@ -128,9 +131,8 @@ lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
   rw [← mul_assoc]
   nth_rw 1 [← one_mul X]
   congr
-  -- doesn't fire as the base is an ℝ≥0∞ now...
+  -- doesn't fire: 1 and 2 are ℝ≥0∞ now...
   -- rw [← Real.rpow_add (by norm_num)]
-  ring_nf
   sorry
 
 lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
