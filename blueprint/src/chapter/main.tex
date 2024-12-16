@@ -2344,6 +2344,7 @@ Let $\mathcal{L}(\fu)$ be as defined in \eqref{eq-L-def}. We have for each $\fu\
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 Let $\fu\in \fU_1(k,n,l)$.
 Let $I \in \mathcal{L}(\fu)$. Then we have $s(I) = \ps(\fu) - Z(n+1) - 1$ and $I \subset \scI(\fu)$ and $B(c(I), 8D^{s(I)}) \not \subset \scI(\fu)$.
 By \eqref{eq-vol-sp-cube}, the set $I$
@@ -3617,6 +3618,7 @@ Moreover, we have with $\tau = 1/a$
 
 \end{lemma}
 \begin{proof}
+\leanok
 
 If $\varphi(y)$ is not zero, then $K_{s_1}(x_1, y)$ is not zero and thus
 \eqref{supp-Ks} gives \eqref{eqt10}.
@@ -3666,6 +3668,7 @@ The following auxilliary statement about the support of $T_\fp^*g$ will be used 
     \end{equation}
     \end{lemma}
     \begin{proof}
+    \leanok
     Fix $\fp$ and $y$ with \eqref{tstargnot0}.
     Then there exists $x\in E(\fp)$ with
     \begin{equation}
@@ -3675,7 +3678,7 @@ The following auxilliary statement about the support of $T_\fp^*g$ will be used 
     As $E(\fp)\subset \scI(\fp)$ and by the squeezing property
     \eqref{eq-vol-sp-cube}, we have
     \begin{equation}
-        \rho(x,\pc(\fp))\le 4D^{\ps(\fp)}\, .
+        \rho(x,\pc(\fp)) < 4D^{\ps(\fp)}\, .
     \end{equation}
     As $K_{\ps(\fp)}(x,y)\neq 0$, we have by \eqref{supp-Ks}
     that
@@ -3701,14 +3704,15 @@ $x_2\in E(\fp_2)$ we have
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 Let $i\in \{1,2\}$.
 By Definition \eqref{defineep} of $E$,
 we have $\tQ(x_i)\in \fc(\fp_i)$
 With \eqref{eq-freq-comp-ball} we then conclude
 \begin{equation}\label{dponetwo}
-    d_{\fp_i}(\tQ(x_i),\fcc(\fp_i))\le 1\, .
+    d_{\fp_i}(\tQ(x_i),\fcc(\fp_i)) < 1\, .
 \end{equation}
-We have by the triangle inequality and \eqref{eq-vol-sp-cube} that $\sc(\fp_1) \subset B(\pc(\fp_2),15D^{\ps(\fp_2)})$.
+We have by the triangle inequality and \eqref{eq-vol-sp-cube} that $\scI(\fp_1) \subset B(\pc(\fp_2),14D^{\ps(\fp_2)})$.
 Thus, using again \eqref{eq-vol-sp-cube} and the doubling property \eqref{firstdb}
 \begin{equation}\label{tgeo0.5}
     d_{\fp_1}(\tQ(x_2), \fcc(\fp_2)) \le 2^{6a} d_{\fp_2}(\tQ(x_2), \fcc(\fp_2)) \le 2^{6a}\,.
@@ -3854,6 +3858,7 @@ Then
 \end{lemma}
 
 \begin{proof}
+\leanok
 By \Cref{monotone-cube-metrics}, we have
 \begin{equation}
      d_{\fp}(\fcc(\fp'),\mfa)
@@ -3862,7 +3867,7 @@ By \Cref{monotone-cube-metrics}, we have
 \end{equation}
 Together with \eqref{eqassumedismfa} and the triangle inequality, we obtain
 \begin{equation}\label{eqdistqpqp}
-    d_{\fp'}(\fcc(\fp'),\fcc(\fp))\le 2^{N+1} \, .
+    d_{\fp}(\fcc(\fp'),\fcc(\fp))\le 2^{N+1} \, .
 \end{equation}
 Now assume
 \begin{equation}
@@ -3879,7 +3884,7 @@ B(\pc(\fp'),4D^{\ps(\fp')})\, .
 Hence by the triangle inequality
 \begin{equation}
  B(\pc(\fp), 4D^{\ps(\fp')})
- \subset
+ \subseteq
 B(\pc(\fp'),8D^{\ps(\fp')})\, .
 \end{equation}
 Together with \eqref{ageo1} and monotonicity \eqref{monotonedb} of $d$
@@ -3922,6 +3927,7 @@ $L\in \mathcal{D}$. Then
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 Let $\mfa,N,L$ be given and set
 \begin{equation}
 \mathfrak{A}':=\{\fp\in\mathfrak{A}_{\mfa,N}:\scI(\fp)=L\}\, .
@@ -3940,22 +3946,22 @@ elements such that
     B_{\fp}(\mfa, 2^{N+1})\subset \bigcup_{\mfa'\in \Mf'}
     B_{\fp}(\mfa', 0.2)\, .
 \end{equation}
-As each $\fcc(\fp)$ with $\fp\in \mathfrak{A}_{\mfa,N}$
+As each $\fcc(\fp')$ with $\fp'\in \mathfrak{A}'$
 is contained in the left-hand-side
 of \eqref{eqanti-4}
-by definition, it is in at least one $B_{\fp}(\mfa', 0.2)$
+by definition (because $\scI(\fp') = \scI(\fp))$, it is in at least one $B_{\fp}(\mfa', 0.2)$
 with $\mfa'\in \Mf'$.
 
 
-For two different $\fp,\fp'\in \mathfrak{A}'$, we have by
+For two different $\fp',\fp''\in \mathfrak{A}'$, we have by
 \eqref{eq-dis-freq-cover} that
-$\fc(\fp)$ and $\fc(\fp')$ are disjoint and thus by the squeezing property \eqref{eq-freq-comp-ball} we have for every $\mfa'\in \Mf'$
+$\fc(\fp')$ and $\fc(\fp'')$ are disjoint and thus by the squeezing property \eqref{eq-freq-comp-ball} we have for every $\mfa'\in \Mf'$
 \begin{equation}
-    \mfa'\not\in B_{\fp}(\fcc(\fp), 0.2)\cap
-B_{\fp}(\fcc(\fp'), 0.2)\, .
+    \mfa'\not\in B_{\fp}(\fcc(\fp'), 0.2)\cap
+B_{\fp}(\fcc(\fp''), 0.2)\, .
 \end{equation}
-Hence at most one of $\fcc(\fp)$
-and $\fcc(\fp)$ is in
+Hence at most one of $\fcc(\fp')$
+and $\fcc(\fp'')$ is in
 $B_{\fp}(\mfa', 0.2)$.
 It follows that there are at most $2^{a(N+4)}$ elements in
 $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
@@ -3965,7 +3971,7 @@ $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
 
 \begin{lemma}[local antichain density]\label{local-antichain-density}
 \leanok
-\lean{Antichain.local_antichain_density}
+\lean{Antichain.local_antichain_density, Antichain.Ep_inter_G_inter_Ip'_subset_E2}
 \uses{tile-disjointness,tile-reach}
 Let $\mfa\in\Mf$ and {$N$} be
 an integer. Let $\fp_{\mfa}$ be a tile with $\mfa\in \fc(\fp_{\mfa})$.
@@ -3981,7 +3987,7 @@ Then we have
 \end{lemma}
 
 \begin{proof}
-
+\leanok
 
 Let $\fp$ be any tile in $\mathfrak{A}_{\mfa,N}$ with $\ps(\fp_{\mfa})<\ps(\fp)$. By definition of
 $E$, the tile contributes zero to the sum on the left-hand side of \eqref{eqanti-0.5} unless
@@ -3994,11 +4000,11 @@ we conclude from
 $\mfa\in \fc(\fp_{\mfa})$
 that
 \begin{equation}
-    \mfa\in B(\fcc(\fp_{\mfa}), 1)\, .
+    \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 1)\, .
 \end{equation}
 We conclude from $\fp \in \mathfrak{A}_{\mfa,N}$ that
 \begin{equation}
-    \mfa \in B(\fcc(\fp), 2^{N+1})\, .
+    \mfa \in B_\fp(\fcc(\fp), 2^{N+1})\, .
 \end{equation}
 With \Cref{tile-reach}, we conclude
 \begin{equation}
@@ -4006,7 +4012,7 @@ With \Cref{tile-reach}, we conclude
 \end{equation}
 By Definition \eqref{definee2} of $E_2$, we conclude
 \begin{equation}
-    E(\fp)\cap G \subset E_2(2^{N+3},\fp_{\mfa})\, .
+    E(\fp)\cap G \cap \scI(\fp_{\mfa}) \subset E_2(2^{N+3},\fp_{\mfa})\, .
 \end{equation}
 Using disjointedness of the various $E(\fp)$ with $\fp\in \mathfrak{A}$ by \Cref{tile-disjointness}, we obtain \eqref{eqanti-0.5}.
 This proves the lemma.
@@ -5003,6 +5009,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 \end{lemma}
 
 \begin{proof}
+    \leanok
     By \eqref{forest1}, $E(\fp) \subset \scI(\fp) \subset \scI(\fu)$. Thus by \eqref{definetp*}
     $$
          T_{\fp}^* g(x) = T_{\fp}^* (\mathbf{1}_{\scI(\fp)} g)(x)
@@ -5033,9 +5040,10 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 \end{lemma}
 
 \begin{proof}
-    By Cauchy-Schwarz and \Cref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
+    \leanok
+    By \Cref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
     $$
-        \left| \int_X \overline{\sum_{\fp\in \fT(\fu)} T_{\fp}^* g} f \,\mathrm{d}\mu \right| = \left| \int_X g \sum_{\fp \in \fT(\fu)} T_{\fp} f \,\mathrm{d}\mu \right|
+        \left| \int_X \overline{\sum_{\fp\in \fT(\fu)} T_{\fp}^* g} f \,\mathrm{d}\mu \right| = \left| \int_X \overline{g} \sum_{\fp \in \fT(\fu)} T_{\fp} f \,\mathrm{d}\mu \right|
     $$
     \begin{equation}
         \label{eq-adjoint-bound}
@@ -5869,6 +5877,7 @@ $$
     \end{lemma}
 
     \begin{proof}
+        \leanok
         Since $J \in \mathcal{J}'$ we have $J \subset \scI(\fu_1)$. Thus, if $B(I) \cap J \ne \emptyset$ then
     \begin{equation}
         \label{eq-sep-small-incl}

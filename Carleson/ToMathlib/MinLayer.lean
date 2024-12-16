@@ -3,7 +3,7 @@ Copyright (c) 2024 Jeremy Tan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Tan, Joachim Breitner
 -/
-import Carleson.ToMathlib.Height
+import Mathlib.Order.KrullDimension
 
 /-!
 # Minimal and maximal layers of a set
@@ -109,6 +109,27 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
 lemma exists_le_in_maxLayer_of_le (ha : a ∈ A.maxLayer n) (hm : m ≤ n) :
     ∃ c ∈ A.maxLayer m, a ≤ c := exists_le_in_minLayer_of_le (α := αᵒᵈ) ha hm
 
+open Order
+
+-- XXX: is this in mathlib already/can it also be removed?
+lemma subtype_mk_minimal_iff (α : Type*) [Preorder α]
+    (s : Set α) (t : Set s) (x : α) (hx : x ∈ s) :
+    Minimal (· ∈ t) (⟨x, hx⟩ : s) ↔ Minimal (fun y ↦ ∃ h, y ∈ s ∧ ⟨y, h⟩ ∈ t) x := by
+  wlog hxt : (⟨x, hx⟩ : s) ∈ t
+  · clear this
+    have : ¬Minimal (· ∈ t) (⟨x, hx⟩ : s) := by contrapose! hxt; exact hxt.prop
+    simp_rw [this, false_iff, exists_and_left]; clear this; contrapose! hxt
+    have : x ∈ {y | y ∈ s ∧ ∃ (x : y ∈ s), ⟨y, x⟩ ∈ t} := hxt.prop
+    simp_all
+  change Minimal (· ∈ t) _ ↔ _
+  rw [← OrderEmbedding.minimal_mem_image_iff
+    (f := ⟨Function.Embedding.subtype (· ∈ s), by simp⟩) hxt]
+  simp_rw [RelEmbedding.coe_mk, Function.Embedding.coe_subtype, Set.mem_image, Subtype.exists,
+    exists_and_right, exists_eq_right, exists_and_left]
+  congr! 2
+  rw [iff_and_self, forall_exists_index]
+  exact fun h _ ↦ h
+
 /-- `A.minLayer n` comprises exactly `A`'s elements of height `n`. -/
 lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (⟨x, hx⟩ : A) = n} := by
   induction n using Nat.strongRec with
@@ -120,7 +141,7 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
       contrapose! hxs; exact minLayer_subset hxs
     simp only [hxs, exists_true_left]
     rw [minLayer]
-    simp_rw [← mem_minimal_le_height_iff_height]
+    simp_rw [height_eq_coe_iff_minimal_le_height]
     simp (config := {contextual := true}) only [ih]; clear ih
     have : Minimal (n ≤ height ·) (⟨x, hxs⟩ : A) ↔
         Minimal (· ∈ {y | n ≤ height y}) (⟨x, hxs⟩ : A) := Eq.to_iff rfl
@@ -144,7 +165,7 @@ lemma iUnion_minLayer_iff_bounded_series :
     simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, Subtype.coe_eta,
       Subtype.coe_prop, exists_const, exists_prop] at hx
     obtain ⟨i, hix, hi⟩ := hx
-    have hh := height_last_ge_length p
+    have hh := length_le_height_last (p := p)
     rw [hi, Nat.cast_le] at hh
     exact hh.trans hix
   · ext x

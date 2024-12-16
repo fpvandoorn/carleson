@@ -326,10 +326,14 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
 
+lemma ballsCoverBalls_iterate_nat {x : X} {d r : ℝ} {n : ℕ} :
+    BallsCoverBalls (WithFunctionDistance x d) (2 ^ n * r) r (defaultA a ^ n) := by
+  have double := fun s ↦ PreProofData.cf.ballsCoverBalls (x := x) (r := d) (R := s)
+  apply BallsCoverBalls.pow_mul double
+
 lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
     BallsCoverBalls (WithFunctionDistance x d) R r (defaultA a ^ ⌈Real.logb 2 (R / r)⌉₊) := by
-  have double := fun s ↦ PreProofData.cf.ballsCoverBalls (x := x) (r := d) (R := s)
-  apply (BallsCoverBalls.pow_mul double).mono
+  apply ballsCoverBalls_iterate_nat.mono
   calc
     _ = R / r * r := by rw [div_mul_cancel₀ R hr.ne']
     _ = 2 ^ Real.logb 2 (R / r) * r := by

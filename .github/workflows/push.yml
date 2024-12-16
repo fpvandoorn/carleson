@@ -76,7 +76,7 @@ jobs:
       - name: Build project documentation
         working-directory: docbuild
         run: |
-          ~/.elan/bin/lake exe cache get || true
+          ~/.elan/bin/lake update carleson || true
           ~/.elan/bin/lake build Carleson:docs
 
       - name: Build blueprint and copy to `docs/blueprint`

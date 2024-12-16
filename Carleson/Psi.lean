@@ -3,7 +3,7 @@ import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.Topology.CompletelyRegular
 import Mathlib.Topology.EMetricSpace.Paracompact
 
-open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure
+open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
 noncomputable section
 
@@ -229,7 +229,10 @@ private lemma sum_ψ₂ (hx : 0 < x)
   have endpts := endpoint_sub_one hD hx h
   have ne : ⌈logb D (4 * x)⌉ - 1 ≠ ⌈logb D (4 * x)⌉ := pred_ne_self _
   have : nonzeroS D x = {⌈logb D (4 * x)⌉ - 1, ⌈logb D (4 * x)⌉} := by
-    rw [nonzeroS, ← endpts]; exact Int.Icc_of_eq_sub_1 endpts
+    rw [nonzeroS, ← endpts]
+    have Icc_of_eq_add_one {a b : ℤ} (h : a + 1 = b) : Finset.Icc a b = {a, b} := by
+      subst h; exact Int.Icc_eq_pair a
+    exact Icc_of_eq_add_one (add_eq_of_eq_sub endpts)
   set s₀ := ⌈logb D (4 * x)⌉
   rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
@@ -259,7 +262,7 @@ lemma mem_nonzeroS_iff {i : ℤ} {x : ℝ} (hx : 0 < x) :
     i ∈ nonzeroS D x ↔ (D ^ (-i) * x) ∈ Ioo (4 * D : ℝ)⁻¹ 2⁻¹ := by
   rw [mem_Ioo, nonzeroS, Finset.mem_Icc, Int.floor_le_iff, Int.le_ceil_iff, mul_inv_rev,
     add_comm _ 1, Real.add_lt_add_iff_left, ← lt_div_iff₀ hx, mul_comm (D : ℝ)⁻¹,
-    ← div_lt_div_iff hx (inv_pos.2 (D0 hD)), div_inv_eq_mul, ← zpow_add_one₀ ((D0 hD).ne.symm),
+    ← div_lt_div_iff₀ hx (inv_pos.2 (D0 hD)), div_inv_eq_mul, ← zpow_add_one₀ ((D0 hD).ne.symm),
     zpow_neg, ← Real.rpow_intCast, ← Real.rpow_intCast, lt_logb_iff_rpow_lt hD (four_x0 hx),
     logb_lt_iff_lt_rpow hD (mul_pos two_pos hx), ← sub_eq_neg_add, ← neg_sub i 1, ← inv_mul',
     ← inv_mul', inv_lt_inv₀ (D_pow0 hD _) (mul_pos two_pos hx), Int.cast_neg, Int.cast_sub,
@@ -338,9 +341,9 @@ lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     ← zpow_add₀ (D0' X).ne.symm, neg_add_eq_sub, ← div_eq_inv_mul] at dist_mem_Icc
 
 /-- The constant appearing in part 2 of Lemma 2.1.3. -/
-def C2_1_3 (a : ℝ) : ℝ := 2 ^ (102 * a ^ 3)
+def C2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 /-- The constant appearing in part 3 of Lemma 2.1.3. -/
-def D2_1_3 (a : ℝ) : ℝ := 2 ^ (150 * a ^ 3)
+def D2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (150 * (a : ℝ) ^ 3)
 
 --1.0.14.
 lemma kernel_bound {s : ℤ} {x y : X} :
@@ -406,10 +409,10 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) 
   have v0₂ := measure_ball_pos_nnreal x (D ^ (s - 1) / 4) (by have := D0' X; positivity)
   have v0₃ := measure_ball_pos_real x (D ^ s) (zpow_pos (D0' X) _)
   have ball_subset := ball_subset_ball (x := x) (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
-  apply le_trans <| (div_le_div_left hc v0₁ v0₂).2 <|
+  apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
     ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
-  rw_mod_cast [measureNNReal_val, div_le_div_iff (by exact_mod_cast v0₂) v0₃]
+  rw_mod_cast [measureNNReal_val, div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
     DoublingMeasure.volume_ball_two_le_same_repeat' s x
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
@@ -429,10 +432,12 @@ private lemma norm_K_le {s : ℤ} {x y : X} (hK : Ks s x y ≠ 0):
   norm_cast
   rw [← pow_add]
   gcongr
-  · norm_num
+  --· norm_num
   · rw [(by norm_num : 102 = 1 + 100 + 1), add_mul, add_mul, one_mul, (by rfl : a ^ 3 = a ^ 2 * a)]
+    norm_cast
     gcongr
-    nlinarith [four_le_a X]
+    · exact one_le_two
+    · nlinarith [four_le_a X]
 
 -- 2.1.3
 lemma norm_Ks_le {s : ℤ} {x y : X} :
@@ -444,6 +449,55 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
   gcongr
   · exact norm_K_le hK
   · exact abs_ψ_le_one D (D ^ (-s) * dist x y)
+
+-- 2.1.3 (ENNReal version)
+lemma nnnorm_Ks_le {s : ℤ} {x y : X} :
+    ‖Ks s x y‖₊ ≤ C2_1_3 a / volume (ball x (D ^ s)) := by
+  have h := norm_Ks_le (s := s) (x := x) (y := y)
+  simp only [measureReal_def, ← ENNReal.toReal_mul, ← coe_nnnorm] at h
+  have : (0 : ℝ) ≤ ↑(C2_1_3 a) := by simp only [zero_le_coe]
+  rw [← ENNReal.toReal_ofReal (r := ‖Ks s x y‖₊) (by positivity),
+    ← ENNReal.toReal_ofReal this, ← ENNReal.toReal_div,
+    ENNReal.toReal_le_toReal ENNReal.ofReal_ne_top] at h
+  · rwa [ENNReal.coe_nnreal_eq, ENNReal.coe_nnreal_eq]
+  · simp only [NNReal.coe_pow, ne_eq, ENNReal.div_eq_top, ENNReal.ofReal_eq_zero, not_le,
+      mul_eq_zero, ENNReal.ofReal_ne_top, false_and, or_false, not_and, not_or]
+    exact fun _ ↦ ne_of_gt (measure_ball_pos volume x (defaultD_pow_pos a s))
+
+/-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
+lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
+    ‖Ks s x y‖ ≤ C2_1_3 a * (As (defaultA a) (2*r₀/D^s)) / volume.real (ball x₀ r₀) := by
+  let C := As (defaultA a) (2*r₀/D^s)
+  have : 0 < C := As_pos (volume : Measure X) (2*r₀/D^s)
+  have : 0 < volume.real (ball x₀ r₀) := measure_ball_pos_real _ _ hr₀
+  suffices h : C⁻¹*volume.real (ball x₀ r₀) ≤ volume.real (ball x (D^s)) by
+    apply norm_Ks_le.trans
+    calc
+      _ ≤ C2_1_3 a / (C⁻¹*volume.real (ball x₀ r₀)) := by gcongr
+      _ = _ := by unfold defaultA defaultD C; field_simp
+  have : volume.real (ball x (2*r₀)) ≤ C * volume.real (ball x (D^s)) := by
+    have : (0:ℝ) < D := defaultD_pos _
+    refine measure_ball_le_same x (by positivity) ?_
+    apply le_of_eq; field_simp
+  calc
+    _ ≤ C⁻¹ * volume.real (ball x (2*r₀)) := by
+      gcongr
+      · exact measure_ball_ne_top x (2 * r₀)
+      · exact ball_subset_ball_of_le (by linarith)
+    _ ≤ C⁻¹ * (C * volume.real (ball x (D^s))) := by gcongr
+    _ = _ := by field_simp
+
+/-- `‖Ks x y‖` is bounded if `x` is in a bounded set -/
+lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
+    {A : Set X} (hA : IsBounded A) (s : ℤ) :
+    ∃ C, 0 ≤ C ∧ ∀ x y, x ∈ A → ‖Ks s x y‖ ≤ C := by
+  obtain x₀ : X := Classical.choice (by infer_instance)
+  obtain ⟨r₀, hr₀, h⟩ := hA.subset_closedBall_lt 0 x₀
+  use ?_; constructor; swap -- let Lean fill in the value of the ugly constant
+  · intro x y hx
+    convert norm_Ks_le_of_dist_le hr₀ (h hx) s
+  · positivity
+
 
 -- Needed to prove `ψ_ineq`
 private lemma norm_ψ_sub_ψ_le_two {r s : ℝ} : ‖ψ r - ψ s‖ ≤ 2 :=
@@ -599,11 +653,11 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   apply le_trans <| norm_sub_le (Ks s x y) (Ks s x y')
   apply le_trans <| add_le_add norm_Ks_le norm_Ks_le
   rw [div_mul_eq_mul_div, div_add_div_same, ← two_mul,
-    div_le_div_right (measure_ball_pos_real x (D ^ s) (D_pow0' (D1 X) s)), ← pow_one 2]
+    div_le_div_iff_of_pos_right (measure_ball_pos_real x (D ^ s) (D_pow0' (D1 X) s)), ← pow_one 2]
   rw [not_le, ← div_lt_iff₀' two_pos] at h
   have dist_pos : dist y y' > 0 := lt_of_le_of_lt (div_nonneg dist_nonneg two_pos.le) h
   have := lt_of_le_of_lt
-    ((div_le_div_right two_pos).2 ((mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1)) h
+    ((div_le_div_iff_of_pos_right two_pos).2 ((mem_Icc.1 <| dist_mem_Icc_of_Ks_ne_zero hK).1)) h
   rw [div_div, (show (4 : ℝ) * 2 = 8 by norm_num), zpow_sub₀ (D0' X).ne.symm, div_div, zpow_one,
     div_lt_comm₀ (by positivity) dist_pos] at this
   have dist_div_Ds_gt := inv_strictAnti₀ (div_pos (Ds0 X s) dist_pos) this
@@ -628,22 +682,75 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
       rw [← Real.rpow_left_inj (by positivity) (by positivity) three_pos.ne.symm]
       norm_num
       simp
-  have : D2_1_3 (a : ℝ) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ ≥
-      D2_1_3 (a : ℝ) * (2 : ℝ) ^ (- 100 * a + (-1 : ℝ)) := by
-    exact_mod_cast le_of_lt <| (mul_lt_mul_left (by unfold D2_1_3; positivity)).2 this
+  have hlt : 0 < (D2_1_3 a : ℝ) := rpow_pos zero_lt_two
+  have : D2_1_3 (a : ℝ≥0) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ ≥
+      D2_1_3 (a : ℝ≥0) * (2 : ℝ) ^ (- 100 * a + (-1 : ℝ)) := by
+    exact_mod_cast le_of_lt <| (mul_lt_mul_left hlt).2 this
   refine le_trans ?_ this
   unfold C2_1_3 D2_1_3
+  push_cast
   rw [(by norm_cast : 2 ^ 1 = (2 : ℝ) ^ (1 : ℝ)), ← Real.rpow_add two_pos,
     ← Real.rpow_add two_pos, Real.rpow_le_rpow_left_iff one_lt_two]
   linarith [add_nonneg (mul_nonneg a_ineq a.cast_nonneg) a_ineq']
 
--- 2.1.3
-lemma norm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
+
+lemma norm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
     ‖Ks s x y - Ks s x y'‖ ≤
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   by_cases h : 2 * dist y y' ≤ dist x y
   · exact norm_Ks_sub_Ks_le₀ hK h
   · exact norm_Ks_sub_Ks_le₁ hK h
+
+-- 2.1.3
+lemma norm_Ks_sub_Ks_le (s : ℤ) (x y y' : X) :
+    ‖Ks s x y - Ks s x y'‖ ≤
+    D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+  by_cases h : Ks s x y ≠ 0 ∨ Ks s x y' ≠ 0
+  · rcases h with hy | hy'
+    · exact norm_Ks_sub_Ks_le_of_nonzero hy
+    · rw [← neg_sub, norm_neg, dist_comm]
+      exact norm_Ks_sub_Ks_le_of_nonzero hy'
+  · simp only [ne_eq, not_or, Decidable.not_not] at h
+    rw [h.1, h.2, sub_zero, norm_zero]
+    positivity
+
+-- 2.1.3 (ENNReal version)
+lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
+    ‖Ks s x y - Ks s x y'‖₊ ≤
+      D2_1_3 a / volume (ball x (D ^ s)) * (nndist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+  have h := norm_Ks_sub_Ks_le s x y y'
+  have haux : (D2_1_3 a : ℝ) / (volume (ball x (↑D ^ s))).toReal *
+    ((nndist y y' : ℝ) / (D : ℝ) ^ s)^(a : ℝ)⁻¹ =
+      ((D2_1_3 a : ℝ≥0) / (volume (ball x (↑D ^ s))) *
+        ((nndist y y' / (D : ℝ≥0) ^ s) ^ (a : ℝ)⁻¹)).toReal := by
+    have : ((nndist y y' : ℝ) / (D : ℝ) ^ s) = (((nndist y y') / D ^ s : ℝ≥0) : ℝ) := rfl
+    rw [this, ENNReal.toReal_mul, ENNReal.toReal_div, ← ENNReal.toReal_rpow]
+    congr
+    rw [ENNReal.toNNReal_div]
+    congr
+    rw [← ENNReal.coe_zpow (by simp), ENNReal.toNNReal_coe]
+  simp only [measureReal_def, ← ENNReal.toReal_mul, ← coe_nnnorm, ← coe_nndist, ← NNReal.coe_div,
+    ← NNReal.coe_pow, haux] at h
+  rw [← ENNReal.toReal_ofReal (r := ‖Ks s x y - Ks s x y'‖₊) (by positivity),
+    ENNReal.toReal_le_toReal ENNReal.ofReal_ne_top] at h
+  · rwa [ENNReal.coe_nnreal_eq]
+  · refine ENNReal.mul_ne_top ?_ ?_
+    · simp only [ne_eq, ENNReal.div_eq_top,
+      ENNReal.coe_eq_zero, ENNReal.coe_ne_top, false_and, or_false, not_and]
+      exact fun _ ↦ ne_of_gt (measure_ball_pos volume _ (defaultD_pow_pos a s))
+    · simp only [ne_eq, ENNReal.rpow_eq_top_iff, not_or, not_and, not_lt, inv_neg'',
+        Nat.cast_nonneg,
+        implies_true, true_and]
+      intro htop
+      have hnetop : (nndist y y' : ℝ≥0∞) / ↑(D : ℝ≥0) ^ s ≠ ⊤ :=  by
+        simp only [Nat.cast_pow, Nat.cast_ofNat,
+          ENNReal.coe_pow, ENNReal.coe_ofNat, ne_eq, ENNReal.div_eq_top, not_or, not_and',
+          Decidable.not_not]
+        have h' : ((D : ℝ≥0) : ℝ≥0∞) ^ s ≠ 0 := by
+            rw [← ENNReal.coe_zpow (by simp)]
+            exact ENNReal.coe_ne_zero.mpr (ne_of_gt (defaultD_pow_pos a s))
+        exact ⟨fun h ↦ absurd h h', fun _ ↦ ENNReal.coe_ne_top⟩
+      exact absurd htop hnetop
 
 lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ

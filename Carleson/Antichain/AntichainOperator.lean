@@ -486,7 +486,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
                   apply Nat.le_mul_of_pos_right _
                   rw [tsub_pos_iff_lt]
                   exact lt_of_lt_of_le (by linarith)
-                    (Nat.mul_le_mul_left 4 (pow_le_pow_left zero_le_four ha 2))
+                    (Nat.mul_le_mul_left 4 (pow_le_pow_left₀ zero_le_four ha 2))
                 _ = 4 * a ^ 3 - 2 * a := by
                   rw [Nat.mul_sub]
                   ring_nf
