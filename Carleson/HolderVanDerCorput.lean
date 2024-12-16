@@ -135,6 +135,7 @@ lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
   -- rw [← Real.rpow_add (by norm_num)]
   sorry
 
+omit [TileStructure Q D κ S o] in
 lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
   have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
@@ -153,11 +154,34 @@ lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
   -- baz fires, but I want baz'
   exact baz' (X := X)
 
+lemma aux_8_0_8_inner2 (hR : 0 < R) (ht : 0 < t) (N : ℝ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * N) * volume (ball x (2 ^ N * r)) ≤ volume (ball x r) := by
+  -- TODO: this will fail, as the doubling formula only holds for N an integer...
+  have : volume (ball x (2 ^ N * r)) ≤ 2 ^ ((a : ℝ) * N) * volume (ball x r) := sorry
+  let asdf := mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (N))) this (by positivity)
+  convert asdf
+  set V := volume (ball x r)
+  rw [← mul_assoc]
+  nth_rw 1 [show V = 1 * V from (one_mul V).symm]
+  congr
+  rw [← ENNReal.rpow_add (x := 2)]; rotate_left
+  · norm_num
+  · exact ENNReal.two_ne_top
+  symm
+  rw [← show (2 :ℝ≥0∞) ^ (0:ℝ) = 1 by norm_num]
+  congr
+  ring
+
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     2 ^ ((-1 : ℝ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
-  have inside_computation (N : ℕ) (r : ℝ) :
+  -- TODO: I need `inside_computation2`, but can only prove `inside_computation1`
+  have inside_computation1 (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
     aux_8_0_8_inner hR ht N r
+  have inside_computation2 (N : ℝ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N)) * volume (ball x (2 ^ (N) * r)) ≤ volume (ball x r) :=
+    aux_8_0_8_inner2 hR ht N r
+
   set N : ℝ := @n_8_0_7 t + 2 with N_eq
   calc (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 * R))
     _ ≤ (2 ^ ((-1 : ℝ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
@@ -178,14 +202,17 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
               _ = 2 ^ (↑Nn) * (4 * 2 ^ (-1)) := sorry
               _ = 2 ^ (↑Nn) * 2 := sorry
               _ = 2 ^ (Nn + 1) := sorry -/
-    _ ≤ (2 ^ (-1 : ℝ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
-      gcongr
-      set N' := a * N -- note: one N' uses ℝ, the other ℤ
-      apply le_of_eq
+    _ = (2 ^ (-1 : ℝ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+      congr
+      set N' : ℝ := a * N -- note: one N' uses ℝ, the other ℤ
       -- now, it's almost an rpow thing --- but need to rewrite by that cast
       sorry
     _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
-      sorry -- use inside_computation
+      set R'' := (2 ^ (-1: ℝ) * t * R)
+      rw [mul_assoc]
+      gcongr
+      convert inside_computation2 N R'' using 4
+      ring
     _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
 
 /-
