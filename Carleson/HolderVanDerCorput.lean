@@ -80,7 +80,12 @@ lemma aux_8_0_4 (hR : 0 < R) (ht : 0 < t) (h : cutoff R t x y ≠ 0) : y ∈ bal
 lemma support_cutoff_subset_ball (hR : 0 < R) (ht : 0 < t) :
     support (fun y ↦ cutoff R t x y) ⊆ ball x (t * R) := fun _ hy ↦ aux_8_0_4 hR ht hy
 
-lemma lintegral_cutoff_finite : (∫⁻ y, cutoff R t x y) < ∞ := sorry
+lemma lintegral_cutoff_finite : ∫⁻ y, cutoff R t x y < ∞ := sorry
+
+lemma setIntegral_cutoff_finite : ∫⁻ (y : X) in ball x (t * R), (cutoff R t x y) < ∞ := by
+  -- deduce from lintegral_cutoff_finite (or perhaps the other way around)?
+  -- idea: function is only non-zero if y in ball x t*r, that ball has finite volume
+  sorry
 
 lemma aux_8_0_5 (hR : 0 < R) (ht : 0 < t) (h : y ∈ ball x (2 ^ (-1: ℝ) * t * R)) :
     2 ^ (-1 : ℝ) ≤ cutoff R t x y := by
@@ -177,6 +182,12 @@ lemma aux_8_0_8_inner2 (hR : 0 < R) (ht : 0 < t) (N : ℝ) (r : ℝ) :
   congr
   ring
 
+#check Real.rpow_add_intCast
+#check Real.rpow_intCast
+
+--#check Int.pow_add
+
+set_option pp.numericTypes true
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     2 ^ ((-1 : ℤ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
   -- can prove first half of computation 1, "rest" of computation 2
@@ -346,6 +357,7 @@ lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
 -- #check norm_integral_le_lintegral_norm
 
 -- TODO: copy over the proof of 8_0_11, somehow/adapt it!
+-- decision: re-doing the proof is annoying; don't want to pass to just the ball
 -- or: prove the RHS has finite integral, thus .toReal equals what I want
 lemma aux_8_0_11'' (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
     |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
@@ -353,11 +365,15 @@ lemma aux_8_0_11'' (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
   have : |∫ (y : X), ↑(cutoff R t x y) * dist (ϕ x) (ϕ y)| ≤
       ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by
     apply aux_8_0_11 hR ht
-  convert this; symm
+  --convert this; symm
   set B := ball x (t * R)
-  -- two things mis-matching
-  -- the integrand, different types
-  -- the integral: Bochner vs lower Lebesgue + toReal
+  simp_rw [← coe_nndist]
+  norm_cast
+  --simp_rw [ENNReal.coe_mul]
+  convert this; symm
+  -- now, prove that the RHS has finite integral
+  -- (nndist is bounded, cutoff has finite integral)
+  -- and thus the .toReal is superfluous
   sorry
 
 lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR : R ≠ 0) (ht : t ∈ Ioc 0 1) (h2ϕ : HolderWith C nnτ ϕ) :
@@ -452,10 +468,7 @@ lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
       -- to use monotonicity of .toReal
       gcongr
       · have : ((nndist x y) ^ τ) * ↑C < ∞ := by sorry -- obvious, right?
-        have : (∫⁻ (y : X) in ball x (t * R), ↑(cutoff R t x y)) < ∞ := by
-          -- need to prove. idea: function is only non-zero if y in ball x t*r,
-          -- that ball has finite volume
-          sorry
+        have := setIntegral_cutoff_finite (x := x) (t := t) (R := R)
         sorry -- exact? doesn't find anything
       apply aux_8_0_12'' (R := ⟨R, by positivity⟩) (Ne.symm (ne_of_lt hR)) ht h2ϕ
     _ ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
