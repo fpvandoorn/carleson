@@ -291,6 +291,8 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
 lemma aux_8_0_9 (ϕ : X → ℂ) :
     (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
       = |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))| := by
+  have : (∫⁻ y, cutoff R t x y) < ∞ := sorry -- so the .toReal does not matter
+
   -- pull the dist ... inside the integral
   -- cutoff R t x y is non-negative, so both parts are -> so can add the absolute value,
   -- and take it out again
@@ -324,11 +326,13 @@ lemma aux_8_0_11 (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
       simp [this]
 
 -- TODO: copy over the proof of 8_0_11, somehow/adapt it!
+-- or: prove the RHS has finite integral, thus .toReal equals what I want
 lemma aux_8_0_11'' (hR : 0 < R) (ht : t ∈ Ioc 0 1) (ϕ : X → ℂ) :
     |∫ y, ((cutoff R t x y) * (dist (ϕ x) (ϕ y)))|
       ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
   sorry
 
+-- basically works
 lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR : R ≠ 0) (ht : t ∈ Ioc 0 1) (h2ϕ : HolderWith C nnτ ϕ) :
     ∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))
     ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
@@ -337,16 +341,15 @@ lemma aux_8_0_12'' {ϕ : X → ℂ} {R C : ℝ≥0} (hR : R ≠ 0) (ht : t ∈ I
       simp_rw [mul_assoc]
       gcongr with y
       have : nndist (ϕ x) (ϕ y) ≤ C * nndist x y ^ τ := h2ϕ.dist_le (x := x) (y := y)
-      --apply this--convert h2ϕ.nndist_le (x := x) (y := y)
+      -- convert this -- convert h2ϕ.nndist_le (x := x) (y := y)
       sorry
     _ = (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ * C) := by
       simp_rw [← mul_comm (C : ℝ≥0∞) _, mul_assoc]
     _ = (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C := by
       rw [lintegral_mul_const]
-      have : 0 < R := by sorry -- should be easy...
+      have : 0 < R := pos_iff_ne_zero.mpr hR
       have aux := cutoff_measurable (R := R) this ht.1 (X := X) (x := x)
       apply Measurable.mul (by fun_prop) (by fun_prop)
-
 
   -- heuristic: if both sides are ℝ≥0, use lintegral
   -- use lintegral if I can
@@ -387,6 +390,9 @@ lemma aux_8_0_13 {ϕ : X → ℂ} {R t C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ
    (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C * R ^ (-τ)
    ≤ (∫⁻ y, cutoff R t x y) * C * t ^ τ := sorry
 
+lemma aux_8_0_13'' {ϕ : X → ℂ} {R t C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) : -- R also superfluous?
+   ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal
+   ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := sorry
 
 -- should be in mathlib. otherwise, an easy exercise
 lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
@@ -401,32 +407,30 @@ lemma dist_holderApprox_le {z : X} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) (x : X) :
     dist (ϕ x) (holderApprox R t ϕ x) ≤ t ^ τ * C := by
-  have : (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
-      ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
-    calc (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
-      _ = |∫ y, (cutoff R t x y) * (dist (ϕ x) (ϕ y))| := by apply aux_8_0_9
-      _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
-        apply aux_8_0_11'' hR ht
-        --_ ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_11 (y := y) ϕ
-      _ ≤ ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal := by
-        -- side effect of using different types: need to prove the integral is bounded,
-        -- to use monotonicity of .toReal
-        gcongr
-        · sorry -- idea: function is bounded, ball has finite volume
-        apply aux_8_0_12'' (R := ⟨R, by positivity⟩) (Ne.symm (ne_of_lt hR)) ht h2ϕ
-      _ ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
-        have : 0 < t := sorry
-        let t' : ℝ≥0 := ⟨t, this.le⟩
-        have : 0 < t' := sorry
-        let asdf := aux_8_0_13 h2ϕ (R := ⟨R, by positivity⟩) (t := t') (x := x)
-        -- not quite there yet... apply asdf
-        sorry -- will be `apply aux_8_0_13 h2ϕ`, once that is fixed...
-  set I := (∫⁻ y, cutoff R t x y).toReal
-  apply missing (I := I) (by positivity)
-  convert this using 1
-  ring
-
-#exit
+  suffices (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+      ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ by
+    set I := (∫⁻ y, cutoff R t x y).toReal
+    apply missing (I := I) (by positivity)
+    convert this using 1
+    ring
+  calc (∫⁻ y, cutoff R t x y).toReal * (dist (ϕ x) (holderApprox R t ϕ x))
+    _ = |∫ y, (cutoff R t x y) * (dist (ϕ x) (ϕ y))| := by apply aux_8_0_9
+    _ ≤ (∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist (ϕ x) (ϕ y))).toReal := by
+      apply aux_8_0_11'' hR ht
+      --_ ≤ ∫ y in ball x (t * R), (cutoff R t x y) * (dist (ϕ x) (ϕ y)) := by apply aux_8_0_11 (y := y) ϕ
+    _ ≤ ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal := by
+      -- side effect of using different types: need to prove the integral is bounded,
+      -- to use monotonicity of .toReal
+      gcongr
+      · have : ((nndist x y) ^ τ) * ↑C < ∞ := by sorry -- obvious, right?
+        have : (∫⁻ (y : X) in ball x (t * R), ↑(cutoff R t x y)) < ∞ := by
+          -- need to prove. idea: function is only non-zero if y in ball x t*r,
+          -- that ball has finite volume
+          sorry
+        sorry -- exact? doesn't find anything
+      apply aux_8_0_12'' (R := ⟨R, by positivity⟩) (Ne.symm (ne_of_lt hR)) ht h2ϕ
+    _ ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
+      apply aux_8_0_13'' (R := ⟨R, by positivity⟩) (t := ⟨t, ht.1.le⟩) h2ϕ
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
