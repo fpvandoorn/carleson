@@ -196,25 +196,24 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
     aux_8_0_8_inner hR ht N r
 
-  -- TOOD: lift to N, so I can use the first version
-  -- (or prove the doubling formula over ℤ by substitution)
-  have inside_computation1' (N : ℤ) (r : ℝ) :
-      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
-    sorry
+  -- -- TOOD: lift to N, so I can use the first version
+  -- -- (or prove the doubling formula over ℤ by substitution)
+  -- have inside_computation1' (N : ℤ) (r : ℝ) :
+  --     2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
+  --   sorry
 
   set N : ℤ := @n_8_0_7 t + 2 with N_eq
-  have : 0 ≤ N := by have :=  @n_pos t ht; positivity
-  -- XXX: this line fails, not sure why
-  -- lift N to ℕ using this
+  have : 0 ≤ N := by have := @n_pos t ht; positivity
+  clear_value N
+  lift N to ℕ using this
 
-  calc (2 ^ (-1 - a * N)) * volume (ball x (2 * R))
-    _ ≤ (2 ^ (-1 - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+  calc (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 * R))
+    _ ≤ (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       gcongr
       calc -- or: apply the right lemma...
         2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by linear_combination 2 * (n_spec1 ht)
         _ = 2 ^ N * 2 ^ (-1 : ℝ) * t := by
-          rw [N_eq]
-          set Nn := @n_8_0_7 t
+          -- set Nn := @n_8_0_7 t
           congr 1
           rw [← show (2 : ℝ) ^ (-1 : ℤ) = (2 : ℝ) ^ (-1 : ℝ) by sorry]
           sorry -- the following was not really shorter
@@ -231,9 +230,8 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
           --     _ = 2 ^ (↑Nn) * (4 * 2 ^ (-1)) := sorry
           --     _ = 2 ^ (↑Nn) * 2 := sorry
           --     _ = 2 ^ (Nn + 1) := sorry -/
-    _ = (2 ^ (-1 : ℤ)) * 2 ^ (- a * N) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+    _ = (2 ^ (-1 : ℤ)) * 2 ^ (-(a * N : ℤ)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       congr
-      rw [show -↑a * N = -(a * N) by sorry]
       set N' : ℤ := a * N
       exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-N')
     _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
@@ -241,7 +239,7 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
       rw [mul_assoc]
       gcongr
       · apply le_of_eq; sorry -- mathematically trivial; similar (but not the same) as above
-      convert inside_computation1' (N) R'' using 1
+      convert inside_computation1 (N) R'' using 1
       sorry -- 'ring' used to work
     _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
 
