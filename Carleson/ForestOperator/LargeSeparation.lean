@@ -98,15 +98,12 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     ⋃ J ∈ 𝓙₅ t u₁ u₂, (J : Set X) = 𝓘 u₁ := by
   apply Set.Subset.antisymm
 
-  rw [Set.subset_def]
-  intros x hx
-  simp at hx
-  rcases hx with ⟨grid, le, ri⟩
-  cases' le with a b
-  simp at b
-  cases' b with good bad
-  exact Set.mem_of_mem_of_subset ri good
-  
+  · rw [Set.subset_def]
+    intros x hx
+    simp only [mem_iUnion] at hx
+    rcases hx with ⟨cube, ⟨_, interval⟩, ri⟩
+    exact Set.mem_of_mem_of_subset ri interval.left
+
   -- PROVING
   intros x hx
 
