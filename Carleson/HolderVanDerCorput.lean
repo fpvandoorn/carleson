@@ -202,25 +202,31 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
   --     2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
   --   sorry
 
+  set Nn := @n_8_0_7 t
+  have h : 0 ≤ Nn := (@n_pos t ht).le
   set N : ℤ := @n_8_0_7 t + 2 with N_eq
   have : 0 ≤ N := by have := @n_pos t ht; positivity
-  clear_value N
-  lift N to ℕ using this
+  clear_value N; lift N to ℕ using this
+  clear_value Nn; lift Nn to ℕ using h
 
   calc (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 * R))
     _ ≤ (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
       gcongr
       calc -- or: apply the right lemma...
-        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by linear_combination 2 * (n_spec1 ht)
-        _ = 2 ^ N * 2 ^ (-1 : ℝ) * t := by
-          -- set Nn := @n_8_0_7 t
+        2 ≤ (2 * 2 ^ Nn) * t := by
+          rw [mul_assoc]; nth_rw 1 [← mul_one 2]; gcongr
+          -- use n_spec ht now, but transfer to ℕ... or relate ℕ- and ℤ-powers somehow
+          sorry
+        _ = 2 ^ N * 2 ^ (-1 : ℤ) * t := by
           congr 1
-          rw [← show (2 : ℝ) ^ (-1 : ℤ) = (2 : ℝ) ^ (-1 : ℝ) by sorry]
-          sorry -- the following was not really shorter
-          -- trans 2 ^ (Nn + 1)
-          -- · have : 0 < @n_8_0_7 t := @n_pos t ht
+          trans 2 ^ (Nn + 1)
+          · norm_cast
+            omega
           --   sorry -- I'm very confused now, why does omega fail here? or norm_num? add integer operations!
-          -- · symm
+          · symm
+            have : 1 + Nn = N + (-1 : ℤ) := by
+              sorry -- unsure how to prove best: zify fails; norm_cast fails; omega also
+            sorry
           --   -- goal: (2 : ℝ) ^ (Nn + 2 : ℤ) * (2 : ℝ)^(-1 : ℝ) = 2 ^ (Nn + 1 : ℤ)
           --   rw [← show (2 : ℝ) ^ (-1 : ℤ) = (2 : ℝ) ^ (-1 : ℝ) by sorry] -- rw [← Real.rpow_intCast 2 (-1 :ℤ) *almost*
           --   -- same issue as in the previous sorry
