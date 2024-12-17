@@ -90,6 +90,13 @@ theorem difficultTheorem
   rw [disjoint_comm] at white
   contradiction
 
+-- Auxiliary lemma for union_𝓙₅
+lemma exists_cube_in_𝓙_containing_point (hx: x ∈ (𝓘 u₁)) : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
+  have h : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
+  rw [← biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)] at h
+  apply (Set.mem_sUnion (x:=x)).mp at h
+  simp only [mem_range, exists_exists_eq_and, mem_iUnion, exists_prop] at h
+  exact h
 
 -- Blueprint (https://florisvandoorn.com/carleson/blueprint/treesection.html#dyadic-partition-1)
 /-- Part of Lemma 7.5.1. -/
@@ -107,13 +114,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   -- PROVING
   intros x hx
 
-  have ⟨cube, blue, yellow⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := by
-    have h_union := biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)
-    have useful : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
-    rw [← h_union] at useful
-    have woah := (Set.mem_sUnion (x:=x)).mp useful
-    simp only [mem_range, exists_exists_eq_and, mem_iUnion, exists_prop] at woah
-    exact woah
+  have ⟨cube, blue, yellow⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
 
   simp only [mem_iUnion, exists_prop]
   by_contra! www
