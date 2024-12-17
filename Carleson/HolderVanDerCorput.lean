@@ -210,7 +210,7 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
   clear_value Nn; lift Nn to ℕ using h
 
   calc (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 * R))
-    _ ≤ (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+    _ ≤ (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
       gcongr
       calc -- or: apply the right lemma...
         2 ≤ (2 * 2 ^ Nn) * t := by
@@ -218,28 +218,20 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
           -- use n_spec ht now, but transfer to ℕ... or relate ℕ- and ℤ-powers somehow
           rw [← zpow_natCast]
           have := n_spec1 ht
-          apply this
-          sorry
+          sorry -- does not work; need to see through the n_8_0_7... rw [← zpow_natCast (2 : ℝ) (Nn)] at this
         _ = 2 ^ N * 2 ^ (-1 : ℤ) * t := by
           congr 1
           trans 2 ^ (Nn + 1)
           · norm_cast
             omega
-          --   sorry -- I'm very confused now, why does omega fail here? or norm_num? add integer operations!
           · symm
-            have : 1 + Nn = N + (-1 : ℤ) := by
+            have : 1 + Nn = (N : ℤ) + (-1 : ℤ) := by
               sorry -- unsure how to prove best: zify fails; norm_cast fails; omega also
+            rw [← zpow_natCast, ← zpow_add₀ (a := (2 :ℝ)) (by norm_num) (N : ℤ) (-1 : ℤ),
+              ← zpow_natCast]
+            congr
             sorry
-          --   -- goal: (2 : ℝ) ^ (Nn + 2 : ℤ) * (2 : ℝ)^(-1 : ℝ) = 2 ^ (Nn + 1 : ℤ)
-          --   rw [← show (2 : ℝ) ^ (-1 : ℤ) = (2 : ℝ) ^ (-1 : ℝ) by sorry] -- rw [← Real.rpow_intCast 2 (-1 :ℤ) *almost*
-          --   -- same issue as in the previous sorry
-          --   sorry
-          --   /- calc 2 ^ ((Nn :ℝ) + 2) * 2 ^ (-1 : ℝ)
-          --     _ = (2 ^ (↑Nn) * 4) * 2 ^ (-1) := sorry
-          --     _ = 2 ^ (↑Nn) * (4 * 2 ^ (-1)) := sorry
-          --     _ = 2 ^ (↑Nn) * 2 := sorry
-          --     _ = 2 ^ (Nn + 1) := sorry -/
-    _ = (2 ^ (-1 : ℤ)) * 2 ^ (-(a * N : ℤ)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℝ) * t * R)) := by
+    _ = (2 ^ (-1 : ℤ)) * 2 ^ (-(a * N : ℤ)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
       congr
       set N' : ℤ := a * N
       exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-N')
@@ -247,39 +239,11 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
       set R'' := (2 ^ (-1: ℝ) * t * R)
       rw [mul_assoc]
       gcongr
-      · apply le_of_eq; sorry -- mathematically trivial; similar (but not the same) as above
+      · apply le_of_eq
+        rw [← ENNReal.rpow_intCast]; congr; simp
       convert inside_computation1 (N) R'' using 1
       sorry -- 'ring' used to work
     _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
-
-/-
-  calc ∫⁻ y, cutoff R t x y
-    _ ≥ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := aux_8_0_6 (ht := ht) (hR := hR)
-    _ ≥ (2 ^ (-1 : ℝ)) * 2 ^ (- a * ((@n_8_0_7 t) + 2)) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
-      -- use inside_computation
-      sorry
-    _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 ^ ((@n_8_0_7 t) + 2) * 2 ^ (-1 : ℝ) * t * R)) := by
-      -- hopefully, the previous step will make this moot,
-      -- and also simplify the next calc step
-      sorry
-    _ ≥ (2 ^ ((-1 : ℝ) - a * ((@n_8_0_7 t) + 2))) * volume (ball x (2 * R)) := by
-      gcongr
-      calc
-        2 ≤ (2 * 2 ^ (@n_8_0_7 t)) * t := by
-          rw [mul_assoc]
-          nth_rewrite 1 [show (2 : ℝ) = 2 * 1 by norm_num]
-          gcongr
-          exact (n_spec1 ht).le
-        _ = (2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ)) * t := by
-          apply congrFun (congrArg HMul.hMul _)
-          -- there should be a nicer way!
-          calc 2 * (2 : ℝ) ^ (@n_8_0_7 t)
-            _ = 2 ^ ((@n_8_0_7 t) + 1) := by
-              sorry
-            _ = 2 ^ (((@n_8_0_7 t) + 2) - 1) := by ring_nf
-            _ = 2 ^ (n_8_0_7 + 2) * 2 ^ (-1 : ℝ) := by
-              sorry
--/
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
