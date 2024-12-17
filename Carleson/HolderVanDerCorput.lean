@@ -132,62 +132,36 @@ private lemma n_pos (ht : 0 < t) : 0 < @n_8_0_7 t := sorry -- TODO
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
-lemma baz {A X : ℝ} : X = 2 ^ (-A) * (2 ^ A * X) := by
-  rw [← mul_assoc, ← Real.rpow_add (by norm_num)]
-  ring_nf
+-- should be in mathlib. otherwise, an easy exercise
+lemma missing' {I a b : ℝ≥0∞} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
+  have : 0 ≤ 1 / I := by positivity
+  sorry
 
-lemma baz' {A : ℝ} {X : ℝ≥0∞} : X = 2 ^ (-A) * (2 ^ A * X) := by
-  rw [← mul_assoc]
-  nth_rw 1 [← one_mul X]
-  congr
-  -- doesn't fire: 1 and 2 are ℝ≥0∞ now...
-  -- rw [← Real.rpow_add (by norm_num)]
+lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
+  have : 0 ≤ 1 / I := by positivity
   sorry
 
 omit [TileStructure Q D κ S o] in
-lemma aux_8_0_8_inner (hR : 0 < R) (ht : 0 < t) (N : ℕ) (r : ℝ) :
+lemma aux_8_0_8_inner (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
-  have : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
+  have aux : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
     convert measure_ball_le_pow_two' (x := x) (μ := volume)
     rw [show defaultA a = 2 ^ a from rfl]
     norm_cast
     ring
   set A : ℝ := (↑a * (↑N + 2))
-  -- note X is in ℝ≥0∞ (could a priori be infinite); can I show this to not be the case?
-  -- can I lift to ℝ instead?
-  set X := volume (ball x r)
-  convert mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (↑N + 2))) this (by positivity)
-  rw [show (-↑a * (↑N + 2)) = -A by ring]
-  -- XXX: at this point, neither `ring` nor `field_simp` work.
-  -- the former tries to "unfold A"; can I prevent this?
-  -- baz fires, but I want baz'
-  exact baz' (X := X)
+  apply missing' (I := 2 ^ A) (by positivity)
+  rw [← mul_assoc]; convert aux
+  nth_rw 2 [← one_mul (volume (ball x (2 ^ (N + 2) * r)))]; congr
+  rw [show -↑a * (↑N + 2) = -A by ring,
+    ← ENNReal.rpow_add A (-A) (by norm_num) (ENNReal.two_ne_top)]
+  simp
 
--- not the real statement: but note that the second half of the proof works fine over ℝ...
-lemma aux_8_0_8_inner2 (hR : 0 < R) (ht : 0 < t) (N : ℝ) (r : ℝ) :
-      2 ^ (- (a : ℝ) * N) * volume (ball x (2 ^ N * r)) ≤ volume (ball x r) := by
-  -- TODO: this will fail, as the doubling formula only holds for N an integer...
-  have : volume (ball x (2 ^ N * r)) ≤ 2 ^ ((a : ℝ) * N) * volume (ball x r) := sorry
-  let asdf := mul_le_mul_of_nonneg_left (a := 2 ^ (-(a : ℝ) * (N))) this (by positivity)
-  convert asdf
-  set V := volume (ball x r)
-  rw [← mul_assoc]
-  nth_rw 1 [show V = 1 * V from (one_mul V).symm]
-  congr
-  rw [← ENNReal.rpow_add (x := 2)]; rotate_left
-  · norm_num
-  · exact ENNReal.two_ne_top
-  symm
-  rw [← show (2 :ℝ≥0∞) ^ (0:ℝ) = 1 by norm_num]
-  congr
-  ring
-
-set_option pp.numericTypes true
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     2 ^ ((-1 : ℤ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
   have inside_computation1 (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
-    aux_8_0_8_inner hR ht N r
+    aux_8_0_8_inner N r
   set Nn := @n_8_0_7 t with Nn_eq
   have h : 0 ≤ Nn := (@n_pos t ht).le
   set N : ℤ := @n_8_0_7 t + 2 with N_eq
@@ -216,15 +190,15 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
             omega
     _ = (2 ^ (-1 : ℤ)) * 2 ^ (-(a * N : ℤ)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
       congr
-      set N' : ℤ := a * N
-      exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-N')
+      exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-(a * N : ℤ))
     _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
-      set R'' := (2 ^ (-1: ℝ) * t * R)
       rw [mul_assoc]
       gcongr
       · apply le_of_eq
         rw [← ENNReal.rpow_intCast]; congr; simp
-      convert aux_8_0_8_inner hR ht N R'' using 1
+      --set R'' := (2 ^ (-1: ℝ) * t * R)
+      convert aux_8_0_8_inner N (2 ^ (-1: ℝ) * t * R) using 1
+      ring
       sorry -- 'ring' used to work
     _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
 
@@ -391,11 +365,6 @@ lemma aux_8_0_13'' {ϕ : X → ℂ} {R t C : ℝ≥0} (h2ϕ : HolderWith C nnτ 
 lemma aux_8_0_13''' {ϕ : X → ℂ} (hR : 0 ≤ R) (ht : 0 ≤ t) {C : ℝ≥0} (h2ϕ : HolderWith C nnτ ϕ) : -- R also superfluous?
     ((∫⁻ y in ball x (t * R), (cutoff R t x y) * (nndist x y) ^ τ) * C).toReal
     ≤ (∫⁻ y, cutoff R t x y).toReal * C * t ^ τ := by
-  sorry
-
--- should be in mathlib. otherwise, an easy exercise
-lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
-  have : 0 ≤ 1 / I := by positivity
   sorry
 
 -- just divide cutoff by R^τ instead? feel free to fix yourself... but should do it on paper first :-)
