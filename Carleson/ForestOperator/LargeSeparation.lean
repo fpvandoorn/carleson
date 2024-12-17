@@ -41,12 +41,150 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
+-- fundamental_dyadic' : s i ≤ s j → i ⊆ j ∨ Disjoint i j
+-- lemma le_or_disjoint (h : s i ≤ s j) : i ≤ j ∨ Disjoint i j
+theorem difficultTheorem
+(cube : Grid X)
+(h : cube ∉ Iic (𝓘 u₁))
+(notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
+: (𝓘 u₁ : Set X) ⊂ cube := by
+  unfold Iic at h
+  rw [Set.nmem_setOf_iff] at h
+  rw [Grid.le_def] at h
+  rw [not_and_or] at h
+
+  cases' h with west east
+  have h_le_cases := le_or_ge_or_disjoint (i:=cube) (j:=𝓘 u₁)
+  rcases h_le_cases with h_cube_le | h_u₁_le | h_disj
+ 
+  have := h_cube_le.1
+  contradiction
+
+  constructor
+  exact h_u₁_le.1
+  intro h_eq
+  apply west
+      
+  exact h_eq
+  contradiction
+  
+  have opposite : s (𝓘 u₁) < s cube := Int.lt_of_not_ge east
+  have weaker : s (𝓘 u₁) ≤ s cube := Int.le_of_lt opposite
+  apply GridStructure.fundamental_dyadic' at weaker
+  cases' weaker with black white
+  have nnn : (𝓘 u₁) ≠ cube := by
+    by_contra equal
+    have good : s (𝓘 u₁) = s cube := by congr
+    rw [good] at opposite
+    exact (lt_self_iff_false (s cube)).mp opposite
+  
+  -- have injjj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
+  -- unfold Injective at injjj
+  -- simp at injjj
+  -- have applied := injjj (a₁ := cube) (a₂ := 𝓘 u₁)
+  -- simp at applied
+  
+  -- EVGENIA: we stopped here https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/search/injective
+  -- Read this zulip!
+  sorry
+  rw [disjoint_comm] at white
+  contradiction
+
+
+-- Blueprint (https://florisvandoorn.com/carleson/blueprint/treesection.html#dyadic-partition-1)
 /-- Part of Lemma 7.5.1. -/
 lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
     ⋃ J ∈ 𝓙₅ t u₁ u₂, (J : Set X) = 𝓘 u₁ := by
-  sorry
+  apply Set.Subset.antisymm
 
+  rw [Set.subset_def]
+  intros x hx
+  simp at hx
+  rcases hx with ⟨grid, le, ri⟩
+  cases' le with a b
+  simp at b
+  cases' b with good bad
+  exact Set.mem_of_mem_of_subset ri good
+  
+  -- PROVING
+  intros x hx
+
+  have ⟨cube, blue, yellow⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := by
+    have h_union := biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)
+    have useful : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
+    rw [← h_union] at useful
+    have woah := (Set.mem_sUnion (x:=x)).mp useful
+    simp only [mem_range, exists_exists_eq_and, mem_iUnion, exists_prop] at woah
+    exact woah
+
+  simp only [mem_iUnion, exists_prop]
+  by_contra! www
+  have notIn : cube ∉ t.𝓙₅ u₁ u₂ := fun a ↦ www cube a yellow
+  unfold 𝓙₅ at notIn
+  rw [inter_def] at notIn
+  simp only [Set.mem_setOf_eq] at notIn
+  rw [not_and_or] at notIn
+  cases' notIn with first second
+  contradiction
+  
+  have evil := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
+  beta_reduce at evil
+  rw [subset_def] at evil
+  let nonempty := t.nonempty' hu₁
+  rcases nonempty with ⟨p, belongs⟩
+  have evilTile := evil p belongs
+
+  have notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X) := by
+    apply Set.not_disjoint_iff.mpr
+    use x
+    exact ⟨yellow, hx⟩
+  have difficult : (𝓘 u₁ : Set X) ⊂ cube := difficultTheorem cube second notDisjoint
+
+  have inOtherFile : (𝓘 p : Set X) ⊆ 𝓘 u₁ := is_subset t hu₁ belongs
+  have final : (𝓘 p : Set X) ⊂ cube := Set.ssubset_of_subset_of_ssubset inOtherFile difficult
+  
+  have cool : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left blue
+  unfold 𝓙₀ at cool
+  simp only [mem_setOf_eq] at cool
+  cases' cool with west east
+
+  unfold Iic at second
+  have obvious : - S ≤ s (𝓘 u₁) := by
+    have factual := scale_mem_Icc (i:=𝓘 u₁)
+    simp at factual
+    exact factual.left
+  have next : s cube ≤ s (𝓘 u₁) := le_of_eq_of_le west obvious
+  have nnnn := GridStructure.fundamental_dyadic' next
+  have great := Or.resolve_right nnnn notDisjoint
+  have gr := not_ssubset_of_subset great
+  contradiction
+
+  have nomnomnom := east p evilTile
+  
+  have dyadicProp := GridStructure.Grid_subset_ball (i:=cube)
+  
+  have pInBall := trans final dyadicProp
+  
+  have obvious : ball (c cube) (4 * D ^ (s cube)) ⊆ ball (c cube) (100 * D ^ (s cube + 1)):= by
+    unfold ball
+    rw [subset_def]
+    intro y xy
+    rw [mem_setOf_eq] at xy
+    rw [mem_setOf_eq]
+    have easy : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
+      gcongr
+      linarith
+      exact one_lt_D (X := X)
+      linarith
+
+    exact gt_trans easy xy
+  have both := trans pInBall obvious
+  have relax : ↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := subset_of_ssubset both
+  contradiction
+
+
+-- Blueprint (https://florisvandoorn.com/carleson/blueprint/treesection.html#dyadic-partition-1)
 /-- Part of Lemma 7.5.1. -/
 lemma pairwiseDisjoint_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
