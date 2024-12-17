@@ -216,6 +216,9 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
         2 ≤ (2 * 2 ^ Nn) * t := by
           rw [mul_assoc]; nth_rw 1 [← mul_one 2]; gcongr
           -- use n_spec ht now, but transfer to ℕ... or relate ℕ- and ℤ-powers somehow
+          rw [← zpow_natCast]
+          have := n_spec1 ht
+          apply this
           sorry
         _ = 2 ^ N * 2 ^ (-1 : ℤ) * t := by
           congr 1
