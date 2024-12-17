@@ -182,55 +182,38 @@ lemma aux_8_0_8_inner2 (hR : 0 < R) (ht : 0 < t) (N : ℝ) (r : ℝ) :
   congr
   ring
 
-#check Real.rpow_add_intCast
-#check Real.rpow_intCast
-
---#check Int.pow_add
-
 set_option pp.numericTypes true
 lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
     2 ^ ((-1 : ℤ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
-  -- can prove first half of computation 1, "rest" of computation 2
-  -- need computation 2... can I deduce one from the other?
   have inside_computation1 (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
     aux_8_0_8_inner hR ht N r
-
-  -- -- TOOD: lift to N, so I can use the first version
-  -- -- (or prove the doubling formula over ℤ by substitution)
-  -- have inside_computation1' (N : ℤ) (r : ℝ) :
-  --     2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
-  --   sorry
-
-  set Nn := @n_8_0_7 t
+  set Nn := @n_8_0_7 t with Nn_eq
   have h : 0 ≤ Nn := (@n_pos t ht).le
   set N : ℤ := @n_8_0_7 t + 2 with N_eq
   have : 0 ≤ N := by have := @n_pos t ht; positivity
   clear_value N; lift N to ℕ using this
   clear_value Nn; lift Nn to ℕ using h
-
   calc (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 * R))
     _ ≤ (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
       gcongr
       calc -- or: apply the right lemma...
         2 ≤ (2 * 2 ^ Nn) * t := by
           rw [mul_assoc]; nth_rw 1 [← mul_one 2]; gcongr
-          -- use n_spec ht now, but transfer to ℕ... or relate ℕ- and ℤ-powers somehow
           rw [← zpow_natCast]
-          have := n_spec1 ht
-          sorry -- does not work; need to see through the n_8_0_7... rw [← zpow_natCast (2 : ℝ) (Nn)] at this
+
+          apply Nn_eq ▸ (n_spec1 ht).le
         _ = 2 ^ N * 2 ^ (-1 : ℤ) * t := by
           congr 1
           trans 2 ^ (Nn + 1)
           · norm_cast
             omega
           · symm
-            have : 1 + Nn = (N : ℤ) + (-1 : ℤ) := by
-              sorry -- unsure how to prove best: zify fails; norm_cast fails; omega also
             rw [← zpow_natCast, ← zpow_add₀ (a := (2 :ℝ)) (by norm_num) (N : ℤ) (-1 : ℤ),
               ← zpow_natCast]
             congr
-            sorry
+            rw [N_eq, ← Nn_eq]
+            omega
     _ = (2 ^ (-1 : ℤ)) * 2 ^ (-(a * N : ℤ)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
       congr
       set N' : ℤ := a * N
@@ -241,7 +224,7 @@ lemma aux_8_0_8 (hR : 0 < R) (ht : 0 < t) (ht' : t ≤ 1) :
       gcongr
       · apply le_of_eq
         rw [← ENNReal.rpow_intCast]; congr; simp
-      convert inside_computation1 (N) R'' using 1
+      convert aux_8_0_8_inner hR ht N R'' using 1
       sorry -- 'ring' used to work
     _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 (ht := ht) (hR := hR)
 
