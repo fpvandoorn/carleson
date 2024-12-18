@@ -41,54 +41,32 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
--- fundamental_dyadic' : s i ≤ s j → i ⊆ j ∨ Disjoint i j
--- lemma le_or_disjoint (h : s i ≤ s j) : i ≤ j ∨ Disjoint i j
-theorem difficultTheorem
-(cube : Grid X)
-(h : cube ∉ Iic (𝓘 u₁))
-(notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
-: (𝓘 u₁ : Set X) ⊂ cube := by
+lemma cube_subset
+  (cube : Grid X)
+  (h : cube ∉ Iic (𝓘 u₁))
+  (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
+  : (𝓘 u₁ : Set X) ⊆ cube := by
   unfold Iic at h
-  rw [Set.nmem_setOf_iff] at h
-  rw [Grid.le_def] at h
-  rw [not_and_or] at h
-
+  rw [Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
   cases' h with west east
-  have h_le_cases := le_or_ge_or_disjoint (i:=cube) (j:=𝓘 u₁)
-  rcases h_le_cases with h_cube_le | h_u₁_le | h_disj
- 
-  have := h_cube_le.1
-  contradiction
+  · have h_le_cases := le_or_ge_or_disjoint (i:=cube) (j:=𝓘 u₁)
+    rcases h_le_cases with cube_le | u₁_le | disjoint
+    · exfalso
+      exact west cube_le.left
+    · exact u₁_le.1
+    · exfalso
+      exact notDisjoint disjoint
+  · have weaker : s (𝓘 u₁) ≤ s cube := Int.le_of_lt (Int.lt_of_not_ge east)
+    apply GridStructure.fundamental_dyadic' at weaker
+    rw [disjoint_comm] at notDisjoint
+    exact Or.resolve_right weaker notDisjoint
 
-  constructor
-  exact h_u₁_le.1
-  intro h_eq
-  apply west
-      
-  exact h_eq
-  contradiction
-  
-  have opposite : s (𝓘 u₁) < s cube := Int.lt_of_not_ge east
-  have weaker : s (𝓘 u₁) ≤ s cube := Int.le_of_lt opposite
-  apply GridStructure.fundamental_dyadic' at weaker
-  cases' weaker with black white
-  have nnn : (𝓘 u₁) ≠ cube := by
-    by_contra equal
-    have good : s (𝓘 u₁) = s cube := by congr
-    rw [good] at opposite
-    exact (lt_self_iff_false (s cube)).mp opposite
-  
-  -- have injjj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
-  -- unfold Injective at injjj
-  -- simp at injjj
-  -- have applied := injjj (a₁ := cube) (a₂ := 𝓘 u₁)
-  -- simp at applied
-  
-  -- EVGENIA: we stopped here https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/search/injective
-  -- Read this zulip!
+theorem difficultTheorem
+  (cube : Grid X)
+  (h : cube ∉ Iic (𝓘 u₁))
+  (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
+  : (𝓘 u₁ : Set X) ⊂ cube := by
   sorry
-  rw [disjoint_comm] at white
-  contradiction
 
 -- Auxiliary lemma for union_𝓙₅
 lemma exists_cube_in_𝓙_containing_point (hx: x ∈ (𝓘 u₁)) : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
@@ -122,13 +100,12 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   unfold 𝓙₅ at notIn
   rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
 
-  have cubeGe := Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)  
   have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
-  have difficult : (𝓘 u₁ : Set X) ⊂ cube := difficultTheorem cube cubeGe notDisjoint
 
+  have cubeNotSmaller := Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)  
+  have difficult : (𝓘 u₁ : Set X) ⊂ cube := difficultTheorem cube cubeNotSmaller notDisjoint
   obtain ⟨p, belongs⟩ := t.nonempty' hu₁
-  have inOtherFile : (𝓘 p : Set X) ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
-  have final : (𝓘 p : Set X) ⊂ cube := Set.ssubset_of_subset_of_ssubset inOtherFile difficult
+
   
   have cool : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
   unfold 𝓙₀ at cool
@@ -144,34 +121,35 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   have nnnn := GridStructure.fundamental_dyadic' next
   have great := Or.resolve_right nnnn notDisjoint
   have gr := not_ssubset_of_subset great
-  contradiction
-  
-  have evil := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
-  beta_reduce at evil
-  rw [subset_def] at evil
-  have evilTile := evil p belongs
+  exact gr difficult
 
-  have nomnomnom := east p evilTile
-  
-  have dyadicProp := GridStructure.Grid_subset_ball (i:=cube)
-  
-  have pInBall := trans final dyadicProp
-  
-  have obvious : ball (c cube) (4 * D ^ (s cube)) ⊆ ball (c cube) (100 * D ^ (s cube + 1)):= by
-    unfold ball
-    rw [subset_def]
-    intro y xy
-    rw [mem_setOf_eq] at xy
-    rw [mem_setOf_eq]
-    have easy : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
-      gcongr
-      linarith
-      exact one_lt_D (X := X)
-      linarith
+  have white := calc (𝓘 p : Set X)
+    _ ⊆ cube := by
+      have p_in_u₁ : (𝓘 p : Set X) ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
+      have easy := cube_subset cube cubeNotSmaller notDisjoint
+      exact Trans.trans p_in_u₁ easy
+    _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
+      exact Grid_subset_ball (i:=cube)
+    _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+      unfold ball
+      rw [subset_def]
+      intro y xy
+      rw [mem_setOf_eq] at xy
+      rw [mem_setOf_eq]
+      have easy : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
+        gcongr
+        linarith
+        exact one_lt_D (X := X)
+        linarith
+      exact gt_trans easy xy
 
-    exact gt_trans easy xy
-  have both := trans pInBall obvious
-  have relax : ↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := subset_of_ssubset both
+  have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+    have evil := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
+    beta_reduce at evil
+    rw [subset_def] at evil
+    have evilTile := evil p belongs
+    exact east p evilTile
+
   contradiction
 
 
