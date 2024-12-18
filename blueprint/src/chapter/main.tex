@@ -3927,6 +3927,7 @@ $L\in \mathcal{D}$. Then
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 Let $\mfa,N,L$ be given and set
 \begin{equation}
 \mathfrak{A}':=\{\fp\in\mathfrak{A}_{\mfa,N}:\scI(\fp)=L\}\, .
@@ -3945,22 +3946,22 @@ elements such that
     B_{\fp}(\mfa, 2^{N+1})\subset \bigcup_{\mfa'\in \Mf'}
     B_{\fp}(\mfa', 0.2)\, .
 \end{equation}
-As each $\fcc(\fp)$ with $\fp\in \mathfrak{A}_{\mfa,N}$
+As each $\fcc(\fp')$ with $\fp'\in \mathfrak{A}'$
 is contained in the left-hand-side
 of \eqref{eqanti-4}
-by definition, it is in at least one $B_{\fp}(\mfa', 0.2)$
+by definition (because $\scI(\fp') = \scI(\fp))$, it is in at least one $B_{\fp}(\mfa', 0.2)$
 with $\mfa'\in \Mf'$.
 
 
-For two different $\fp,\fp'\in \mathfrak{A}'$, we have by
+For two different $\fp',\fp''\in \mathfrak{A}'$, we have by
 \eqref{eq-dis-freq-cover} that
-$\fc(\fp)$ and $\fc(\fp')$ are disjoint and thus by the squeezing property \eqref{eq-freq-comp-ball} we have for every $\mfa'\in \Mf'$
+$\fc(\fp')$ and $\fc(\fp'')$ are disjoint and thus by the squeezing property \eqref{eq-freq-comp-ball} we have for every $\mfa'\in \Mf'$
 \begin{equation}
-    \mfa'\not\in B_{\fp}(\fcc(\fp), 0.2)\cap
-B_{\fp}(\fcc(\fp'), 0.2)\, .
+    \mfa'\not\in B_{\fp}(\fcc(\fp'), 0.2)\cap
+B_{\fp}(\fcc(\fp''), 0.2)\, .
 \end{equation}
-Hence at most one of $\fcc(\fp)$
-and $\fcc(\fp)$ is in
+Hence at most one of $\fcc(\fp')$
+and $\fcc(\fp'')$ is in
 $B_{\fp}(\mfa', 0.2)$.
 It follows that there are at most $2^{a(N+4)}$ elements in
 $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
@@ -3970,7 +3971,7 @@ $\mathfrak{A}'$. Adding \eqref{eqanti-3} over $\mathfrak{A}'$ proves
 
 \begin{lemma}[local antichain density]\label{local-antichain-density}
 \leanok
-\lean{Antichain.local_antichain_density}
+\lean{Antichain.local_antichain_density, Antichain.Ep_inter_G_inter_Ip'_subset_E2}
 \uses{tile-disjointness,tile-reach}
 Let $\mfa\in\Mf$ and {$N$} be
 an integer. Let $\fp_{\mfa}$ be a tile with $\mfa\in \fc(\fp_{\mfa})$.
@@ -3986,7 +3987,7 @@ Then we have
 \end{lemma}
 
 \begin{proof}
-
+\leanok
 
 Let $\fp$ be any tile in $\mathfrak{A}_{\mfa,N}$ with $\ps(\fp_{\mfa})<\ps(\fp)$. By definition of
 $E$, the tile contributes zero to the sum on the left-hand side of \eqref{eqanti-0.5} unless
@@ -3999,11 +4000,11 @@ we conclude from
 $\mfa\in \fc(\fp_{\mfa})$
 that
 \begin{equation}
-    \mfa\in B(\fcc(\fp_{\mfa}), 1)\, .
+    \mfa\in B_{\fp_{\mfa}}(\fcc(\fp_{\mfa}), 1)\, .
 \end{equation}
 We conclude from $\fp \in \mathfrak{A}_{\mfa,N}$ that
 \begin{equation}
-    \mfa \in B(\fcc(\fp), 2^{N+1})\, .
+    \mfa \in B_\fp(\fcc(\fp), 2^{N+1})\, .
 \end{equation}
 With \Cref{tile-reach}, we conclude
 \begin{equation}
@@ -4011,7 +4012,7 @@ With \Cref{tile-reach}, we conclude
 \end{equation}
 By Definition \eqref{definee2} of $E_2$, we conclude
 \begin{equation}
-    E(\fp)\cap G \subset E_2(2^{N+3},\fp_{\mfa})\, .
+    E(\fp)\cap G \cap \scI(\fp_{\mfa}) \subset E_2(2^{N+3},\fp_{\mfa})\, .
 \end{equation}
 Using disjointedness of the various $E(\fp)$ with $\fp\in \mathfrak{A}$ by \Cref{tile-disjointness}, we obtain \eqref{eqanti-0.5}.
 This proves the lemma.
@@ -5039,9 +5040,10 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 \end{lemma}
 
 \begin{proof}
-    By Cauchy-Schwarz and \Cref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
+    \leanok
+    By \Cref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
     $$
-        \left| \int_X \overline{\sum_{\fp\in \fT(\fu)} T_{\fp}^* g} f \,\mathrm{d}\mu \right| = \left| \int_X g \sum_{\fp \in \fT(\fu)} T_{\fp} f \,\mathrm{d}\mu \right|
+        \left| \int_X \overline{\sum_{\fp\in \fT(\fu)} T_{\fp}^* g} f \,\mathrm{d}\mu \right| = \left| \int_X \overline{g} \sum_{\fp \in \fT(\fu)} T_{\fp} f \,\mathrm{d}\mu \right|
     $$
     \begin{equation}
         \label{eq-adjoint-bound}
