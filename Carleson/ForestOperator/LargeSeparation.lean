@@ -41,6 +41,7 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
+-- Auxiliary lemma for union_𝓙₅
 lemma cube_subset
   (cube : Grid X)
   (h : cube ∉ Iic (𝓘 u₁))
@@ -61,13 +62,6 @@ lemma cube_subset
     rw [disjoint_comm] at notDisjoint
     exact Or.resolve_right weaker notDisjoint
 
-theorem difficultTheorem
-  (cube : Grid X)
-  (h : cube ∉ Iic (𝓘 u₁))
-  (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
-  : (𝓘 u₁ : Set X) ⊂ cube := by
-  sorry
-
 -- Auxiliary lemma for union_𝓙₅
 lemma exists_cube_in_𝓙_containing_point (hx: x ∈ (𝓘 u₁)) : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
   have h : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
@@ -76,82 +70,56 @@ lemma exists_cube_in_𝓙_containing_point (hx: x ∈ (𝓘 u₁)) : ∃ cube �
   simp only [mem_range, exists_exists_eq_and, mem_iUnion, exists_prop] at h
   exact h
 
--- Blueprint (https://florisvandoorn.com/carleson/blueprint/treesection.html#dyadic-partition-1)
 /-- Part of Lemma 7.5.1. -/
 lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
     ⋃ J ∈ 𝓙₅ t u₁ u₂, (J : Set X) = 𝓘 u₁ := by
   apply Set.Subset.antisymm
-
   · rw [Set.subset_def]
     intros x hx
     simp only [mem_iUnion] at hx
     rcases hx with ⟨cube, ⟨_, interval⟩, h⟩
     exact Set.mem_of_mem_of_subset h interval.left
-
-  -- PROVING
-  intros x hx
-
-  have ⟨cube, cube_in_𝓙, xInCube⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
-
-  simp only [mem_iUnion, exists_prop]
-  by_contra! contr
-  have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
-  unfold 𝓙₅ at notIn
-  rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
-
-  have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
-
-  have cubeNotSmaller := Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)  
-  have difficult : (𝓘 u₁ : Set X) ⊂ cube := difficultTheorem cube cubeNotSmaller notDisjoint
-  obtain ⟨p, belongs⟩ := t.nonempty' hu₁
-
-  
-  have cool : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
-  unfold 𝓙₀ at cool
-  simp only [mem_setOf_eq] at cool
-  cases' cool with west east
-
-  
-  have obvious : - S ≤ s (𝓘 u₁) := by
-    have factual := scale_mem_Icc (i:=𝓘 u₁)
-    simp at factual
-    exact factual.left
-  have next : s cube ≤ s (𝓘 u₁) := le_of_eq_of_le west obvious
-  have nnnn := GridStructure.fundamental_dyadic' next
-  have great := Or.resolve_right nnnn notDisjoint
-  have gr := not_ssubset_of_subset great
-  exact gr difficult
-
-  have white := calc (𝓘 p : Set X)
-    _ ⊆ cube := by
-      have p_in_u₁ : (𝓘 p : Set X) ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
-      have easy := cube_subset cube cubeNotSmaller notDisjoint
-      exact Trans.trans p_in_u₁ easy
-    _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
-      exact Grid_subset_ball (i:=cube)
-    _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
-      unfold ball
-      rw [subset_def]
-      intro y xy
-      rw [mem_setOf_eq] at xy
-      rw [mem_setOf_eq]
-      have easy : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
-        gcongr
-        linarith
-        exact one_lt_D (X := X)
-        linarith
-      exact gt_trans easy xy
-
-  have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
-    have evil := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
-    beta_reduce at evil
-    rw [subset_def] at evil
-    have evilTile := evil p belongs
-    exact east p evilTile
-
-  contradiction
-
+  · intros x hx
+    have ⟨cube, cube_in_𝓙, xInCube⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
+    simp only [mem_iUnion, exists_prop]
+    by_contra! contr
+    have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
+    unfold 𝓙₅ at notIn
+    rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+    have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
+    have cubeNotSmaller := Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)  
+    have difficult : (𝓘 u₁ : Set X) ⊂ cube := sorry
+    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
+    simp only [mem_setOf_eq] at cubeIn𝓙₀
+    cases' cubeIn𝓙₀ with west east
+    · have contradict : ¬(𝓘 u₁ : Set X) ⊂ ↑cube := by
+        have le : s cube ≤ s (𝓘 u₁) := le_of_eq_of_le west scale_mem_Icc.left
+        apply not_ssubset_of_subset
+        exact Or.resolve_right (GridStructure.fundamental_dyadic' le) notDisjoint
+      exact contradict difficult
+    · obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+      have white := calc (𝓘 p : Set X)
+        _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
+        _ ⊆ cube := cube_subset cube cubeNotSmaller notDisjoint
+        _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by exact Grid_subset_ball (i:=cube)
+        _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+          unfold ball
+          rw [subset_def]
+          intro y xy
+          rw [mem_setOf_eq] at xy ⊢
+          have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
+            gcongr
+            linarith
+            exact one_lt_D (X := X)
+            linarith
+          exact gt_trans numbers xy
+      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+        have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
+        rw [subset_def] at in_𝔖₀
+        have tile := in_𝔖₀ p belongs
+        exact east p tile
+      contradiction
 
 /-- Part of Lemma 7.5.1. -/
 lemma pairwiseDisjoint_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
