@@ -63,17 +63,16 @@ lemma ball_subset (hu : u ∈ t) (hp : p ∈ t u) : ball (𝔠 p) (8 * D ^ 𝔰 
   t.ball_subset' hu hp
 
 lemma if_descendant_then_subset (hu : u ∈ t) (hp : p ∈ t u) : (𝓘 p : Set X) ⊆ 𝓘 u := by
-  have green := GridStructure.Grid_subset_ball (i := 𝓘 p)
-  have forest := ball_subset t hu hp
-  
-  have found : ball (𝔠 p) (4 * ↑D ^ 𝔰 p) ⊆ ball (𝔠 p) (8 * ↑D ^ 𝔰 p) := by
-    apply Metric.ball_subset_ball
-    gcongr
-    norm_num
-  
-  have first := subset_trans green found
-  have second := subset_trans first forest
-  exact second
+  calc ↑(𝓘 p)
+    _ ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p) := by
+      exact GridStructure.Grid_subset_ball (i := 𝓘 p)
+    _ ⊆ ball (𝔠 p) (8 * ↑D ^ 𝔰 p) := by
+      apply Metric.ball_subset_ball
+      gcongr
+      norm_num
+    _ ⊆ ↑(𝓘 u) := by
+      exact ball_subset t hu hp
+
 end Forest
 
 variable (X) in
