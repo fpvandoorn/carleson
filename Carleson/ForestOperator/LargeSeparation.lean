@@ -108,46 +108,34 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   · rw [Set.subset_def]
     intros x hx
     simp only [mem_iUnion] at hx
-    rcases hx with ⟨cube, ⟨_, interval⟩, ri⟩
-    exact Set.mem_of_mem_of_subset ri interval.left
+    rcases hx with ⟨cube, ⟨_, interval⟩, h⟩
+    exact Set.mem_of_mem_of_subset h interval.left
 
   -- PROVING
   intros x hx
 
-  have ⟨cube, blue, yellow⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
+  have ⟨cube, cube_in_𝓙, xInCube⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
 
   simp only [mem_iUnion, exists_prop]
-  by_contra! www
-  have notIn : cube ∉ t.𝓙₅ u₁ u₂ := fun a ↦ www cube a yellow
+  by_contra! contr
+  have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
   unfold 𝓙₅ at notIn
-  rw [inter_def] at notIn
-  simp only [Set.mem_setOf_eq] at notIn
-  rw [not_and_or] at notIn
-  cases' notIn with first second
-  contradiction
-  
-  have evil := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
-  beta_reduce at evil
-  rw [subset_def] at evil
-  let nonempty := t.nonempty' hu₁
-  rcases nonempty with ⟨p, belongs⟩
-  have evilTile := evil p belongs
+  rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
 
-  have notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X) := by
-    apply Set.not_disjoint_iff.mpr
-    use x
-    exact ⟨yellow, hx⟩
-  have difficult : (𝓘 u₁ : Set X) ⊂ cube := difficultTheorem cube second notDisjoint
+  have cubeGe := Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)  
+  have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
+  have difficult : (𝓘 u₁ : Set X) ⊂ cube := difficultTheorem cube cubeGe notDisjoint
 
-  have inOtherFile : (𝓘 p : Set X) ⊆ 𝓘 u₁ := is_subset t hu₁ belongs
+  obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+  have inOtherFile : (𝓘 p : Set X) ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
   have final : (𝓘 p : Set X) ⊂ cube := Set.ssubset_of_subset_of_ssubset inOtherFile difficult
   
-  have cool : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left blue
+  have cool : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
   unfold 𝓙₀ at cool
   simp only [mem_setOf_eq] at cool
   cases' cool with west east
 
-  unfold Iic at second
+  
   have obvious : - S ≤ s (𝓘 u₁) := by
     have factual := scale_mem_Icc (i:=𝓘 u₁)
     simp at factual
@@ -157,6 +145,11 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   have great := Or.resolve_right nnnn notDisjoint
   have gr := not_ssubset_of_subset great
   contradiction
+  
+  have evil := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
+  beta_reduce at evil
+  rw [subset_def] at evil
+  have evilTile := evil p belongs
 
   have nomnomnom := east p evilTile
   

@@ -62,7 +62,7 @@ lemma lt_dist (hu : u ∈ t) (hu' : u' ∈ t) (huu' : u ≠ u') {p} (hp : p ∈ 
 lemma ball_subset (hu : u ∈ t) (hp : p ∈ t u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u :=
   t.ball_subset' hu hp
 
-lemma is_subset (hu : u ∈ t) (hp : p ∈ t u) : (𝓘 p : Set X) ⊆ 𝓘 u := by
+lemma if_descendant_then_subset (hu : u ∈ t) (hp : p ∈ t u) : (𝓘 p : Set X) ⊆ 𝓘 u := by
   have green := GridStructure.Grid_subset_ball (i := 𝓘 p)
   have forest := ball_subset t hu hp
   
