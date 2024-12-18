@@ -212,14 +212,15 @@ section
 
 open MeasureTheory Bornology
 variable {E X : Type*} {p : ℝ≥0∞} [NormedAddCommGroup E] [TopologicalSpace X] [MeasurableSpace X]
-  {μ : Measure X} [IsFiniteMeasureOnCompacts μ]
+  {μ : Measure X} [IsFiniteMeasureOnCompacts μ] {f : X → E}
 
-lemma _root_.HasCompactSupport.memℒp_of_isBounded {f : X → E} (hf : HasCompactSupport f)
-    (h2f : IsBounded (range f))
-    (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : Memℒp f p μ := by
-  obtain ⟨C, hC⟩ := h2f.exists_norm_le
-  simp only [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
-  exact hf.memℒp_of_bound h3f C <| .of_forall hC
+---- now obsolete -> `BoundedCompactSupport.memℒp`
+-- lemma _root_.HasCompactSupport.memℒp_of_isBounded (hf : HasCompactSupport f)
+--     (h2f : IsBounded (range f))
+--     (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : Memℒp f p μ := by
+--   obtain ⟨C, hC⟩ := h2f.exists_norm_le
+--   simp only [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
+--   exact hf.memℒp_of_bound h3f C <| .of_forall hC
 
 end
 
@@ -320,3 +321,75 @@ lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
       _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
       _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two _
       _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
+
+namespace Set
+
+open ComplexConjugate
+
+lemma indicator_eq_indicator_one_mul {ι M:Type*} [MulZeroOneClass M]
+    (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
+  simp only [indicator]; split_ifs <;> simp
+
+lemma conj_indicator {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (s : Set α) (x : α):
+    conj (s.indicator f x) = s.indicator (conj f) x := by
+  simp only [indicator]; split_ifs <;> simp
+
+end Set
+
+section Norm
+
+open Complex
+
+-- for mathlib?
+lemma norm_indicator_one_le {α E}
+    [SeminormedAddCommGroup E] [One E] [NormOneClass E] {s : Set α} (x : α) :
+    ‖s.indicator (1 : α → E) x‖ ≤ 1 :=
+  Trans.trans (norm_indicator_le_norm_self 1 x) norm_one
+
+lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ = 1 := by
+  rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
+
+lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (.I * (x - y))‖ = 1 := by
+  rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
+
+end Norm
+
+namespace MeasureTheory
+
+open Metric Bornology
+
+variable {X 𝕜: Type*}
+variable [RCLike 𝕜] {f : X → 𝕜}
+
+namespace HasCompactSupport
+
+variable [PseudoMetricSpace X]
+
+-- mathlib? also `ball` variant, remove `Nonempty`
+theorem of_support_subset_closedBall {x : X}
+ {r : ℝ} [ProperSpace X] [Nonempty X] (hf : support f ⊆ closedBall x r) :
+    HasCompactSupport f := by
+  apply HasCompactSupport.of_support_subset_isCompact ?_ hf
+  exact isCompact_closedBall ..
+
+theorem of_support_subset_isBounded {s : Set X}
+    [ProperSpace X] [Nonempty X] (hs : IsBounded s) (hf : support f ⊆ s) :
+    HasCompactSupport f := by
+  let x₀ : X := Classical.choice (by infer_instance)
+  obtain ⟨r₀, hr₀⟩ := hs.subset_closedBall x₀
+  exact HasCompactSupport.of_support_subset_closedBall <| Trans.trans hf hr₀
+
+end HasCompactSupport
+
+namespace Integrable
+
+variable [MeasureSpace X]
+
+-- must be in mathlib but can't find it
+theorem indicator_const {c : ℝ} {s: Set X}
+    (hs: MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun _ ↦ c)) :=
+  (integrable_indicator_iff hs).mpr <| integrableOn_const.mpr <| Or.inr h2s
+
+end Integrable
+
+end MeasureTheory

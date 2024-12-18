@@ -23,7 +23,7 @@ irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (103 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.2.2. -/
 lemma nontangential_operator_bound
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
+    (hf : BoundedCompactSupport f)
     (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f · |>.toReal) 2 volume ≤ eLpNorm f 2 volume := by
   sorry
@@ -96,8 +96,7 @@ lemma boundary_overlap (I : Grid X) : (kissing I).card ≤ 2 ^ (9 * a) := by
 
 /-- Lemma 7.2.3. -/
 lemma boundary_operator_bound
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
-    (hu : u ∈ t) :
+    (hf : BoundedCompactSupport f) (hu : u ∈ t) :
     eLpNorm (boundaryOperator t u f · |>.toReal) 2 volume ≤ eLpNorm f 2 volume := by
   sorry
 
@@ -108,9 +107,7 @@ irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.2.1. -/
 lemma tree_projection_estimate
-    (hf : IsBounded (range f)) (h2f : HasCompactSupport f) (h3f : AEStronglyMeasurable f)
-    (hg : IsBounded (range g)) (h2g : HasCompactSupport g) (h3g : AEStronglyMeasurable g)
-    (hu : u ∈ t) :
+    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume *
     eLpNorm (approxOnCube (𝓛 (t u)) (‖g ·‖)) 2 volume := by
