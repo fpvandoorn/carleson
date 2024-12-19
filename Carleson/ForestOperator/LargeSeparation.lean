@@ -84,40 +84,24 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   · intros x hx
     have ⟨cube, cube_in_𝓙, xInCube⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
     simp only [mem_iUnion, exists_prop]
-    
-
-    
-    
-    
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
     simp only [mem_setOf_eq] at cubeIn𝓙₀
     cases' cubeIn𝓙₀ with west east
-    · have black : ¬(𝓘 u₁ : Set X) ⊂ ↑cube := by
-        have le : s cube ≤ s (𝓘 u₁) := le_of_eq_of_le west scale_mem_Icc.left
-        apply not_ssubset_of_subset
-        exact Or.resolve_right (GridStructure.fundamental_dyadic' le) notDisjoint
-      use cube
-      apply And.intro
-      
+    · refine ⟨cube, ?_, xInCube⟩
       unfold 𝓙₅
-      rw [inter_def]
-      simp
-      have size := scale_mem_Icc (i:= 𝓘 u₁)
-      simp at size
-      apply And.left at size
-      have smaller := le_of_eq_of_le west size
-      apply And.intro
+      rw [inter_def, mem_setOf_eq]
       refine ⟨cube_in_𝓙, ?_⟩
-
+      simp only [mem_Iic, Grid.le_def]
+      have smaller := calc s cube
+        _ = -S := west
+        _ ≤ s (𝓘 u₁) := (mem_Icc.mp (scale_mem_Icc (i := 𝓘 u₁))).left
+      refine ⟨?_, smaller⟩
       have fun_dyadic := GridStructure.fundamental_dyadic' smaller
-      cases' fun_dyadic with good bad
-      exact good
+      cases' fun_dyadic with subset disjoint
+      exact subset
       exfalso
-      contradiction
-      refine ⟨cube_in_𝓙, ?_⟩
-      exact smaller
-      exact xInCube
+      exact notDisjoint disjoint
     · obtain ⟨p, belongs⟩ := t.nonempty' hu₁
       by_contra! contr
       have white := calc (𝓘 p : Set X)
