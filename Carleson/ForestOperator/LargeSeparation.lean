@@ -84,10 +84,11 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   · intros x hx
     have ⟨cube, cube_in_𝓙, xInCube⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
     simp only [mem_iUnion, exists_prop]
-    by_contra! contr
-    have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
-    unfold 𝓙₅ at notIn
-    rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+    
+
+    
+    
+    
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
     simp only [mem_setOf_eq] at cubeIn𝓙₀
@@ -96,15 +97,38 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
         have le : s cube ≤ s (𝓘 u₁) := le_of_eq_of_le west scale_mem_Icc.left
         apply not_ssubset_of_subset
         exact Or.resolve_right (GridStructure.fundamental_dyadic' le) notDisjoint
-      have white : (𝓘 u₁ : Set X) ⊂ cube := sorry
-      exact black white
+      use cube
+      apply And.intro
+      
+      unfold 𝓙₅
+      rw [inter_def]
+      simp
+      have size := scale_mem_Icc (i:= 𝓘 u₁)
+      simp at size
+      apply And.left at size
+      have smaller := le_of_eq_of_le west size
+      apply And.intro
+      refine ⟨cube_in_𝓙, ?_⟩
+
+      have fun_dyadic := GridStructure.fundamental_dyadic' smaller
+      cases' fun_dyadic with good bad
+      exact good
+      exfalso
+      contradiction
+      refine ⟨cube_in_𝓙, ?_⟩
+      exact smaller
+      exact xInCube
     · obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+      by_contra! contr
       have white := calc (𝓘 p : Set X)
         _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
         _ ⊆ cube := by
           apply cube_subset cube
-          exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
-          exact notDisjoint
+          · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
+            unfold 𝓙₅ at notIn
+            rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+            exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
+          · exact notDisjoint
         _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
           exact Grid_subset_ball (i:=cube)
         _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
