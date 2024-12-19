@@ -43,7 +43,7 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
 -- Auxiliary lemma for union_𝓙₅
-lemma cube_subset
+lemma u₁_is_subset_of_cube
   (cube : Grid X)
   (h : cube ∉ Iic (𝓘 u₁))
   (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
@@ -107,7 +107,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
       have white := calc (𝓘 p : Set X)
         _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
         _ ⊆ cube := by
-          apply cube_subset cube
+          apply u₁_is_subset_of_cube cube
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
             unfold 𝓙₅ at notIn
             rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
