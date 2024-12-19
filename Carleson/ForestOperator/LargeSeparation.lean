@@ -42,17 +42,103 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
+-- Auxiliary lemma for union_𝓙₅
+lemma u₁_is_subset_of_cube
+  (cube : Grid X)
+  (h : cube ∉ Iic (𝓘 u₁))
+  (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
+  : (𝓘 u₁ : Set X) ⊆ cube := by
+  unfold Iic at h
+  rw [Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
+  cases' h with west east
+  · have h_le_cases := le_or_ge_or_disjoint (i:=cube) (j:=𝓘 u₁)
+    rcases h_le_cases with cube_le | u₁_le | disjoint
+    · exfalso
+      exact west cube_le.left
+    · exact u₁_le.1
+    · exfalso
+      exact notDisjoint disjoint
+  · have weaker : s (𝓘 u₁) ≤ s cube := Int.le_of_lt (Int.lt_of_not_ge east)
+    apply GridStructure.fundamental_dyadic' at weaker
+    rw [disjoint_comm] at notDisjoint
+    exact Or.resolve_right weaker notDisjoint
+
+-- Auxiliary lemma for union_𝓙₅
+lemma exists_cube_in_𝓙_containing_point (hx: x ∈ (𝓘 u₁)) : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
+  have h : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
+  rw [← biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)] at h
+  apply (Set.mem_sUnion (x:=x)).mp at h
+  simp only [mem_range, exists_exists_eq_and, mem_iUnion, exists_prop] at h
+  exact h
+
 /-- Part of Lemma 7.5.1. -/
 lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
     ⋃ J ∈ 𝓙₅ t u₁ u₂, (J : Set X) = 𝓘 u₁ := by
-  sorry
+  apply Set.Subset.antisymm
+  · rw [Set.subset_def]
+    intros x hx
+    simp only [mem_iUnion] at hx
+    rcases hx with ⟨cube, ⟨_, interval⟩, h⟩
+    exact Set.mem_of_mem_of_subset h interval.left
+  · intros x hx
+    have ⟨cube, cube_in_𝓙, xInCube⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
+    simp only [mem_iUnion, exists_prop]
+    have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
+    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
+    simp only [mem_setOf_eq] at cubeIn𝓙₀
+    cases' cubeIn𝓙₀ with west east
+    · refine ⟨cube, ?_, xInCube⟩
+      unfold 𝓙₅
+      rw [inter_def, mem_setOf_eq]
+      refine ⟨cube_in_𝓙, ?_⟩
+      simp only [mem_Iic, Grid.le_def]
+      have smaller := calc s cube
+        _ = -S := west
+        _ ≤ s (𝓘 u₁) := (mem_Icc.mp (scale_mem_Icc (i := 𝓘 u₁))).left
+      refine ⟨?_, smaller⟩
+      have fun_dyadic := GridStructure.fundamental_dyadic' smaller
+      cases' fun_dyadic with subset disjoint
+      exact subset
+      exfalso
+      exact notDisjoint disjoint
+    · obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+      by_contra! contr
+      have white := calc (𝓘 p : Set X)
+        _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
+        _ ⊆ cube := by
+          apply u₁_is_subset_of_cube cube
+          · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
+            unfold 𝓙₅ at notIn
+            rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+            exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
+          · exact notDisjoint
+        _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
+          exact Grid_subset_ball (i:=cube)
+        _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+          unfold ball
+          rw [subset_def]
+          intro y xy
+          rw [mem_setOf_eq] at xy ⊢
+          have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
+            gcongr
+            linarith
+            exact one_lt_D (X := X)
+            linarith
+          exact gt_trans numbers xy
+      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+        have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
+        rw [subset_def] at in_𝔖₀
+        have tile := in_𝔖₀ p belongs
+        exact east p tile
+      contradiction
 
 /-- Part of Lemma 7.5.1. -/
 lemma pairwiseDisjoint_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
     (𝓙₅ t u₁ u₂).PairwiseDisjoint (fun I ↦ (I : Set X)) := by
-  sorry
+  have ss : (𝓙 (t.𝔖₀ u₁ u₂) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t.𝔖₀ u₁ u₂) := inter_subset_left
+  exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)) ss
 
 /-- Lemma 7.5.3 (stated somewhat differently). -/
 lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
