@@ -92,12 +92,12 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
     simp only [mem_setOf_eq] at cubeIn𝓙₀
     cases' cubeIn𝓙₀ with west east
-    · have contradict : ¬(𝓘 u₁ : Set X) ⊂ ↑cube := by
+    · have black : ¬(𝓘 u₁ : Set X) ⊂ ↑cube := by
         have le : s cube ≤ s (𝓘 u₁) := le_of_eq_of_le west scale_mem_Icc.left
         apply not_ssubset_of_subset
         exact Or.resolve_right (GridStructure.fundamental_dyadic' le) notDisjoint
-      have difficult : (𝓘 u₁ : Set X) ⊂ cube := sorry
-      exact contradict difficult
+      have white : (𝓘 u₁ : Set X) ⊂ cube := sorry
+      exact black white
     · obtain ⟨p, belongs⟩ := t.nonempty' hu₁
       have white := calc (𝓘 p : Set X)
         _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
