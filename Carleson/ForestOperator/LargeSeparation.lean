@@ -52,7 +52,7 @@ lemma u₁_is_subset_of_cube
   rw [Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
   cases h with
   | inl west =>
-    have h_le_cases := le_or_ge_or_disjoint (i:=cube) (j:=𝓘 u₁)
+    have h_le_cases := le_or_ge_or_disjoint (i := cube) (j := 𝓘 u₁)
     rcases h_le_cases with cube_le | u₁_le | disjoint
     · exfalso
       exact west cube_le.left
@@ -71,7 +71,7 @@ lemma exists_cube_in_𝓙_containing_point
     ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
   have h : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
   rw [← biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)] at h
-  apply (Set.mem_sUnion (x:=x)).mp at h
+  apply (Set.mem_sUnion (x := x)).mp at h
   simp only [mem_range, exists_exists_eq_and, mem_iUnion, exists_prop] at h
   exact h
 
@@ -118,7 +118,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
             exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
-          exact Grid_subset_ball (i:=cube)
+          exact Grid_subset_ball (i := cube)
         _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
           unfold ball
           rw [subset_def]
