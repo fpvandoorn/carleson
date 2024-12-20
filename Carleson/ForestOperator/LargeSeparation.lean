@@ -54,11 +54,9 @@ lemma u₁_is_subset_of_cube
   | inl west =>
     have h_le_cases := le_or_ge_or_disjoint (i := cube) (j := 𝓘 u₁)
     rcases h_le_cases with cube_le | u₁_le | disjoint
-    · exfalso
-      exact west cube_le.left
+    · exact west cube_le.left |>.elim
     · exact u₁_le.1
-    · exfalso
-      exact notDisjoint disjoint
+    · exact notDisjoint disjoint |>.elim
   | inr east =>
     have weaker : s (𝓘 u₁) ≤ s cube := Int.le_of_lt (Int.lt_of_not_ge east)
     apply GridStructure.fundamental_dyadic' at weaker
