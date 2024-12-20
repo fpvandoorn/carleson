@@ -598,7 +598,71 @@ def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (235 * a ^ 3) / (q - 1) ^ 4
 
 lemma C5_1_2_pos : C5_1_2 a nnq > 0 := sorry
 
+#check ℭ₁
+#check ℭ₅
+#check ℭ₆
+
+lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
+    carlesonSum 𝔓₁ f x = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, carlesonSum (ℭ₅ k n j) f x := by
+  simp only [Finset.sum_sigma']
+  simp only [carlesonSum]
+  rw [← Finset.sum_biUnion]; swap
+  · rintro ⟨n, k, j⟩ - ⟨n', k', j'⟩ - h
+    simp only [ne_eq, Sigma.mk.inj_iff, heq_eq_eq] at h
+    simp only [Function.onFun, Finset.disjoint_filter, Finset.mem_univ, forall_const]
+    have W := pairwiseDisjoint_ℭ₅ (X := X) (mem_univ ⟨k, n, j⟩) (mem_univ ⟨k', n', j'⟩)
+      (by simp [-not_and]; tauto)
+    simpa [Function.onFun, disjoint_left] using W
+  congr
+  ext p
+  simp only [𝔓₁, mem_iUnion, exists_prop, Finset.mem_filter,
+    Finset.mem_univ, true_and, defaultZ, Finset.mem_biUnion, Finset.mem_sigma, Finset.mem_Iic,
+    Sigma.exists]
+  constructor
+  · rintro ⟨n, k, hk, j, hj, hp⟩
+    refine ⟨n, k, j, ⟨?_, hk, hj⟩, hp⟩
+    have : (ℭ (X := X) k n).Nonempty := ⟨p, ℭ₅_subset_ℭ hp⟩
+    exact le_maxℭ_of_nonempty this
+  · rintro ⟨n, k, j, ⟨hn, hk, hj⟩, hp⟩
+    exact ⟨n, k, hk, j, hj, hp⟩
+
+
+
+/-- The set `𝔓₁`, defined in (5.1.30). -/
+def 𝔓'₁ : Set (𝔓 X) := ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3), ℭ₆ k n j
+
+
+
+
+
+
+#exit
+
+lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') :
+    carlesonSum 𝔓₁ f x = carlesonSum 𝔓'₁ f x := by
+  simp only [carlesonSum, 𝔓₁, 𝔓'₁]
+  symm
+  apply Finset.sum_subset
+  · intro p hp
+    simp only [mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+    rcases hp with ⟨n, k, hk, j, hj, hp⟩
+    exact ⟨n, k, hk, j, hj, ℭ₆_subset_ℭ₅ hp⟩
+  · intro p hp h'p
+    simp only [mem_iUnion, exists_prop, Finset.mem_filter,
+      Finset.mem_univ, true_and, not_exists, not_and] at hp h'p
+    rcases hp with ⟨n, k, hk, j, hj, hp⟩
+    specialize h'p n k hk j hj
+    have : x ∉ 𝓘 p := by
+      simp only [ℭ₆, mem_setOf_eq, not_and, Decidable.not_not] at h'p
+      intro h'x
+      exact hx.2 (h'p hp h'x)
+    have : x ∉ E p := by simp at this; simp [E, this]
+    simp [carlesonOn, this]
+
 lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
-    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
-  sorry
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
+      C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
+  have : ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ = ∫⁻ x in G \ G', ‖carlesonSum 𝔓'₁ f x‖₊ := by
+    apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
+    exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
+  rw [this]
