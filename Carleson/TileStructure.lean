@@ -509,3 +509,15 @@ lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
 lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) := by
   simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
   refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
+
+/-- Given any family of tiles, one can extract a maximal disjoint subfamily, covering everything. -/
+lemma exists_maximal_disjoint_covering_subfamily
+    (A : Set (𝔓 X)) : ∃ (B : Set (𝔓 X)), B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧
+    B ⊆ A ∧ (∀ a ∈ A, ∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) := by
+  let M : Set (Set (𝔓 X)) := {B | B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧ B ⊆ A ∧ ∀ a ∈ A,
+    (∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) ∨ (∀ b ∈ B, Disjoint (𝓘 a : Set X) (𝓘 b))}
+  obtain ⟨B, BM, hB⟩ : ∃ B ∈ M, ∀ B' ∈ M, B ⊆ B' → B = B' :=
+    Finite.exists_maximal_wrt id _ (toFinite M) ⟨∅, by simp [M]⟩
+  refine ⟨B, BM.1, BM.2.1, fun a ha ↦ ?_⟩
+  rcases BM.2.2 a ha with h'a | h'a
+  · exact h'a

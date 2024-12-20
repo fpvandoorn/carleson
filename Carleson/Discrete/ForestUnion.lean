@@ -312,6 +312,22 @@ lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j
     refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
   · rw [mem_iUnion₂] at h; obtain ⟨_, _, mp, _⟩ := h; exact mp
 
+lemma forest_disjoint : (𝔘₃ k n j).PairwiseDisjoint (fun u ↦ 𝔗₂ (X := X) k n j u) := by
+  intro u hu u' hu' huu'
+  simp only [Function.onFun]
+  apply disjoint_left.2 (fun p pu pu' ↦ huu' ?_)
+  simp only [𝔗₂, mem_inter_iff, mem_iUnion, exists_prop, exists_and_left] at pu pu'
+  rcases pu.2 with ⟨v, v_mem, v_rel, pv⟩
+  rcases pu'.2 with ⟨v', v'_mem, v'_rel, pv'⟩
+  have E : URel k n j v v' :=
+    Or.inr ⟨p, pv, smul_mono pv'.2.2 le_rfl (by norm_num)⟩
+  have : URel k n j u v' :=
+    (equivalenceOn_urel (X := X)).trans (𝔘₃_subset_𝔘₂ hu) v_mem v'_mem v_rel E
+  have : URel k n j u u' := by
+    apply (equivalenceOn_urel (X := X)).trans (𝔘₃_subset_𝔘₂ hu) v'_mem (𝔘₃_subset_𝔘₂ hu') this
+    exact (equivalenceOn_urel (X := X)).symm (𝔘₃_subset_𝔘₂ hu') v'_mem v'_rel
+  exact (equivalenceOn_urel (X := X)).reprs_inj hu hu' this
+
 /-- Lemma 5.4.4, verifying (2.0.32) -/
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
   rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
@@ -602,6 +618,8 @@ lemma C5_1_2_pos : C5_1_2 a nnq > 0 := sorry
 #check ℭ₅
 #check ℭ₆
 
+/-- From the fact that the `ℭ₅ k n j` are disjoint, one can rewrite the whole Carleson sum over
+`𝔓₁` (a union of the `ℭ₅ k n j`) as a sum of Carleson sums over the `ℭ₅ k n j`. -/
 lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
     carlesonSum 𝔓₁ f x = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, carlesonSum (ℭ₅ k n j) f x := by
   simp only [Finset.sum_sigma']
@@ -615,9 +633,8 @@ lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
     simpa [Function.onFun, disjoint_left] using W
   congr
   ext p
-  simp only [𝔓₁, mem_iUnion, exists_prop, Finset.mem_filter,
-    Finset.mem_univ, true_and, defaultZ, Finset.mem_biUnion, Finset.mem_sigma, Finset.mem_Iic,
-    Sigma.exists]
+  simp only [𝔓₁, mem_iUnion, exists_prop, Finset.mem_filter, Sigma.exists,
+    Finset.mem_univ, true_and, Finset.mem_biUnion, Finset.mem_sigma, Finset.mem_Iic]
   constructor
   · rintro ⟨n, k, hk, j, hj, hp⟩
     refine ⟨n, k, j, ⟨?_, hk, hj⟩, hp⟩
@@ -626,32 +643,17 @@ lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
   · rintro ⟨n, k, j, ⟨hn, hk, hj⟩, hp⟩
     exact ⟨n, k, hk, j, hj, hp⟩
 
-
-
-/-- The set `𝔓₁`, defined in (5.1.30). -/
-def 𝔓'₁ : Set (𝔓 X) := ⋃ (n : ℕ) (k ≤ n) (j ≤ 2 * n + 3), ℭ₆ k n j
-
-
-
-
-
-
-#exit
-
-lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') :
-    carlesonSum 𝔓₁ f x = carlesonSum 𝔓'₁ f x := by
-  simp only [carlesonSum, 𝔓₁, 𝔓'₁]
+lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {k n j : ℕ} :
+    carlesonSum (ℭ₅ k n j) f x = carlesonSum (ℭ₆ k n j) f x := by
+  simp only [carlesonSum]
   symm
   apply Finset.sum_subset
   · intro p hp
     simp only [mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
-    rcases hp with ⟨n, k, hk, j, hj, hp⟩
-    exact ⟨n, k, hk, j, hj, ℭ₆_subset_ℭ₅ hp⟩
+    exact ℭ₆_subset_ℭ₅ hp
   · intro p hp h'p
     simp only [mem_iUnion, exists_prop, Finset.mem_filter,
       Finset.mem_univ, true_and, not_exists, not_and] at hp h'p
-    rcases hp with ⟨n, k, hk, j, hj, hp⟩
-    specialize h'p n k hk j hj
     have : x ∉ 𝓘 p := by
       simp only [ℭ₆, mem_setOf_eq, not_and, Decidable.not_not] at h'p
       intro h'x
@@ -659,10 +661,21 @@ lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') :
     have : x ∉ E p := by simp at this; simp [E, this]
     simp [carlesonOn, this]
 
-lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : AEStronglyMeasurable f) :
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
       C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
-  have : ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ = ∫⁻ x in G \ G', ‖carlesonSum 𝔓'₁ f x‖₊ := by
+  have A : ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
+      ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
+    simp only [Finset.sum_sigma']
+    rw [← lintegral_finset_sum']; swap
+    · exact fun b hb ↦ h'f.carlesonSum.restrict.ennnorm
+    apply lintegral_mono (fun x ↦ ?_)
+    simp only [Finset.sum_sigma', carlesonSum_𝔓₁_eq_sum]
+    exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
+  have B k n j : ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊
+      = ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ := by
     apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
     exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
-  rw [this]
+  simp only [B] at A
+  apply A.trans
+  sorry
