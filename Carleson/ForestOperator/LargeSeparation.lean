@@ -109,9 +109,8 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
         _ ⊆ cube := by
           apply u₁_is_subset_of_cube cube
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
-            unfold 𝓙₅ at notIn
-            rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
-            exact notIn.resolve_left (Set.not_not_mem.mpr cube_in_𝓙)
+            rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+            exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
@@ -128,8 +127,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
       have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
         have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
         rw [subset_def] at in_𝔖₀
-        have tile := in_𝔖₀ p belongs
-        exact east p tile
+        exact east p (in_𝔖₀ p belongs)
       contradiction
 
 /-- Part of Lemma 7.5.1. -/
