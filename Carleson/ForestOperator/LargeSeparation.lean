@@ -60,7 +60,7 @@ lemma u₁_is_subset_of_cube
   | inr east =>
     have fundamental := GridStructure.fundamental_dyadic' (le_of_not_ge east)
     rw [disjoint_comm] at notDisjoint
-    exact Or.resolve_right fundamental notDisjoint
+    exact fundamental.resolve_right notDisjoint
 
 -- Auxiliary lemma for union_𝓙₅
 lemma exists_cube_in_𝓙_containing_point
@@ -112,7 +112,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
             unfold 𝓙₅ at notIn
             rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
-            exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
+            exact notIn.resolve_left (Set.not_not_mem.mpr cube_in_𝓙)
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
