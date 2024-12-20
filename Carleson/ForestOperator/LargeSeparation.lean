@@ -44,10 +44,10 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 -- Auxiliary lemma for union_𝓙₅
 lemma u₁_is_subset_of_cube
-  (cube : Grid X)
-  (h : cube ∉ Iic (𝓘 u₁))
-  (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X))
-  : (𝓘 u₁ : Set X) ⊆ cube := by
+    (cube : Grid X)
+    (h : cube ∉ Iic (𝓘 u₁))
+    (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X)) :
+    (𝓘 u₁ : Set X) ⊆ cube := by
   unfold Iic at h
   rw [Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
   cases' h with west east
@@ -64,7 +64,9 @@ lemma u₁_is_subset_of_cube
     exact Or.resolve_right weaker notDisjoint
 
 -- Auxiliary lemma for union_𝓙₅
-lemma exists_cube_in_𝓙_containing_point (hx: x ∈ (𝓘 u₁)) : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
+lemma exists_cube_in_𝓙_containing_point
+    (hx: x ∈ (𝓘 u₁)) :
+    ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
   have h : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
   rw [← biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)] at h
   apply (Set.mem_sUnion (x:=x)).mp at h
