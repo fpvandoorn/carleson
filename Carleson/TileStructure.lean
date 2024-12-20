@@ -511,13 +511,62 @@ lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) :
   refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
 
 /-- Given any family of tiles, one can extract a maximal disjoint subfamily, covering everything. -/
-lemma exists_maximal_disjoint_covering_subfamily
-    (A : Set (𝔓 X)) : ∃ (B : Set (𝔓 X)), B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧
-    B ⊆ A ∧ (∀ a ∈ A, ∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) := by
+lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
+    ∃ (B : Set (𝔓 X)), B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧
+      B ⊆ A ∧ (∀ a ∈ A, ∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) := by
+  -- consider the pairwise disjoint families in `A` such that any element of `A` is disjoint from
+  -- every member of the family, or contained in one of them.
   let M : Set (Set (𝔓 X)) := {B | B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧ B ⊆ A ∧ ∀ a ∈ A,
     (∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) ∨ (∀ b ∈ B, Disjoint (𝓘 a : Set X) (𝓘 b))}
+  -- let `B` be a maximal such family. It satisfies the properties of the lemma.
   obtain ⟨B, BM, hB⟩ : ∃ B ∈ M, ∀ B' ∈ M, B ⊆ B' → B = B' :=
     Finite.exists_maximal_wrt id _ (toFinite M) ⟨∅, by simp [M]⟩
   refine ⟨B, BM.1, BM.2.1, fun a ha ↦ ?_⟩
   rcases BM.2.2 a ha with h'a | h'a
   · exact h'a
+  exfalso
+  let F := {a' ∈ A | (𝓘 a : Set X) ⊆ 𝓘 a' ∧ ∀ b ∈ B, Disjoint (𝓘 a' : Set X) (𝓘 b)}
+  obtain ⟨a', a'F, ha'⟩ : ∃ a' ∈ F, ∀ p ∈ F, (𝓘 a' : Set X) ⊆ 𝓘 p → (𝓘 a' : Set X) = 𝓘 p := by
+    apply Finite.exists_maximal_wrt _ _ (toFinite F)
+    exact ⟨a, by simpa [F, ha] using h'a⟩
+  have : insert a' B ∈ M := by
+    refine ⟨?_, ?_, fun p hp ↦ ?_⟩
+    · apply PairwiseDisjoint.insert BM.1 (fun b hb h'b ↦ a'F.2.2 b hb)
+    · apply insert_subset a'F.1 BM.2.1
+    rcases BM.2.2 p hp with ⟨b, hb⟩ | h'p
+    · exact Or.inl ⟨b, mem_insert_of_mem _ hb.1, hb.2⟩
+    by_cases Hp : Disjoint (𝓘 p : Set X) (𝓘 a')
+    · right
+      simpa [Hp] using h'p
+    refine Or.inl ⟨a', mem_insert a' B, ?_⟩
+    rcases le_or_ge_or_disjoint (i := 𝓘 p) (j := 𝓘 a') with hij | hij |hij
+    · exact (Grid.le_def.1 hij).1
+    · have : p ∈ F := ⟨hp, a'F.2.1.trans (Grid.le_def.1 hij).1, h'p⟩
+      rw [ha' p this (Grid.le_def.1 hij).1]
+    · exact (Hp hij).elim
+  have : B = insert a' B := hB _ this (subset_insert a' B)
+  have : a' ∈ B := by rw [this]; exact mem_insert a' B
+  have : Disjoint (𝓘 a' : Set X) (𝓘 a' : Set X) := a'F.2.2 _ this
+  exact disjoint_left.1 this Grid.c_mem_Grid Grid.c_mem_Grid
+
+def maximalSubfamily (A : Set (𝔓 X)) : Set (𝔓 X) :=
+  (exists_maximal_disjoint_covering_subfamily A).choose
+
+def iteratedMaximalSubfamily (A : Set (𝔓 X)) (n : ℕ) : Set (𝔓 X) :=
+  maximalSubfamily (A \ (⋃ (i : {i | i < n}), have : i < n := i.2; iteratedMaximalSubfamily A i))
+
+lemma pairwiseDisjoint_iteratedMaximalSubfamily_image (A : Set (𝔓 X)) (n : ℕ) :
+    (iteratedMaximalSubfamily A n).PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) := by
+  rw [iteratedMaximalSubfamily]
+  exact (exists_maximal_disjoint_covering_subfamily (X := X) _).choose_spec.1
+
+lemma iteratedMaximalSubfamily_subset (A : Set (𝔓 X)) (n : ℕ) :
+    iteratedMaximalSubfamily A n ⊆ A := by
+  rw [iteratedMaximalSubfamily]
+  exact (exists_maximal_disjoint_covering_subfamily (X := X) _).choose_spec.2.1.trans diff_subset
+
+lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
+    univ.PairwiseDisjoint (iteratedMaximalSubfamily A) := by
+  intro m hm n hn hmn
+  rcases lt_or_gt_of_ne hmn with hmn | hmn
+  · simp [Function.onFun]
