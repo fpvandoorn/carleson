@@ -113,8 +113,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
         _ ⊆ cube := by
           apply u₁_is_subset_of_cube cube
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
-            unfold 𝓙₅ at notIn
-            rw [inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+            rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
             exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
