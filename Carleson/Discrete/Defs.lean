@@ -90,7 +90,7 @@ lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X 
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, mp₁.1.1, true_and, not_le] at mp₁ mp₂
   have := mp₂.1.trans_lt mp₁.2
-  rw [pow_lt_pow_iff_right one_lt_two] at this; omega
+  rw [pow_lt_pow_iff_right₀ one_lt_two] at this; omega
 
 lemma pairwiseDisjoint_ℭ₁ {k n : ℕ} : univ.PairwiseDisjoint (ℭ₁ (X := X) k n) := fun _ _ _ _ ↦
   disjoint_ℭ₁_of_ne

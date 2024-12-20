@@ -87,7 +87,11 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     · rw [show (8 : ℝ≥0) = 2 ^ 3 by norm_num]
       simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
         ← zpow_neg, ← zpow_natCast, ← zpow_mul, ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
-      gcongr
+      -- #adaptation note(2024-11-02): this line was `gcongr`
+      -- This was probably broken by mathlib4#19626 and friends, see
+      -- https://leanprover.zulipchat.com/#narrow/channel/428973-nightly-testing/topic/.2319314.20adaptations.20for.20nightly-2024-11-20
+      -- for details.
+      refine zpow_le_zpow_right₀ ?ha ?hmn
       · norm_num
       · simp only [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, mul_neg,
         le_add_neg_iff_add_le, ← mul_add]
@@ -101,15 +105,13 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
   have est₁ (s₀ x) : (𝒟 s₀ x).toFinset.card ≤ (defaultA a) ^ 7 := by
     apply Nat.cast_le (α := ℝ).mp
     have : 0 < volume.real (ball x (9 * ↑D ^ s₀)) :=
-      -- TODO(bump-4.13): `measure_ball_ne_top` was `by finiteness`
-      ENNReal.toReal_pos (measure_ball_pos _ _ (by simp; positivity)).ne' (measure_ball_ne_top _ _)
+      ENNReal.toReal_pos (measure_ball_pos _ _ (by simp; positivity)).ne' (by finiteness)
     refine le_of_mul_le_mul_right (a := volume.real (ball x (9 * D ^ s₀))) ?_ this
     transitivity (defaultA a) ^ 7 * ∑ I ∈ 𝒟 s₀ x, volume.real (ball (c I) (D ^ s I / 4))
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]
       refine Finset.sum_le_sum fun I hI ↦ ?_
       simp only [mem_toFinset] at hI
-      -- TODO(bump-4.13): `measure_ball_ne_top` was `by finiteness`
-      refine (measureReal_mono ?_ (measure_ball_ne_top _ _)).trans measure_ball_le_pow_two
+      refine (measureReal_mono ?_ (by finiteness)).trans measure_ball_le_pow_two
       apply ball_subset_ball'
       refine (add_le_add le_rfl hI.1.le).trans ?_
       rw [div_eq_mul_one_div, mul_comm _ (1 / 4), hI.2, ← add_mul, ← mul_assoc]
@@ -119,13 +121,11 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
       intros I₁ hI₁ I₂ hI₂ e
       exact disjoint_of_subset ball_subset_Grid ball_subset_Grid
         ((eq_or_disjoint (hI₁.2.trans hI₂.2.symm)).resolve_left e)
-    -- TODO(bump-4.13): `measure_ball_ne_top` was `by finiteness`
     rw [← measureReal_biUnion_finset (by simpa only [coe_toFinset] using disj)
-      (fun _ _ ↦ measurableSet_ball) (fun _ _ ↦ measure_ball_ne_top _ _)]
+      (fun _ _ ↦ measurableSet_ball) (by finiteness)]
     simp only [Nat.cast_pow, Nat.cast_ofNat]
     gcongr
-    · -- TODO(bump-4.13): `measure_ball_ne_top` was `by finiteness`
-      exact measure_ball_ne_top _ _
+    · finiteness
     · simp only [mem_toFinset, iUnion_subset_iff]
       intro I hI
       apply ball_subset_ball'

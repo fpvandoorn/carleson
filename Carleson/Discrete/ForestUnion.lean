@@ -222,7 +222,7 @@ lemma URel.eq (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : UR
   · exact (eq_of_le_of_not_lt (Grid.le_dyadic h.le sl₂.1 sl₁.1) n₂).symm
 
 /-- Helper for 5.4.2 that is also used in 5.4.9. -/
-lemma urel_of_not_disjoint {x y : 𝔓 X} (my : y ∈ 𝔘₂ k n j) (xny : x ≠ y) (xye : 𝓘 x = 𝓘 y)
+lemma urel_of_not_disjoint {x y : 𝔓 X} (my : y ∈ 𝔘₂ k n j) (xye : 𝓘 x = 𝓘 y)
     (nd : ¬Disjoint (ball_(x) (𝒬 x) 100) (ball_(y) (𝒬 y) 100)) : URel k n j y x := by
   rw [not_disjoint_iff] at nd
   obtain ⟨(ϑ : Θ X), (ϑx : ϑ ∈ ball_{𝓘 x} (𝒬 x) 100), (ϑy : ϑ ∈ ball_{𝓘 y} (𝒬 y) 100)⟩ := nd
@@ -279,9 +279,7 @@ lemma equivalenceOn_urel : EquivalenceOn (URel (X := X) k n j) (𝔘₂ k n j) w
         · rwa [← yze, ← xye] at mq
         · rwa [@mem_ball, ← yze, ← xye] at θz
       _ < _ := by norm_num
-  symm {x y} mx my xy := by
-    by_cases xny : x = y; · rw [xny]; exact .rfl
-    exact urel_of_not_disjoint my xny (URel.eq mx my xy) (URel.not_disjoint mx my xy)
+  symm {x y} mx my xy := urel_of_not_disjoint my (URel.eq mx my xy) (URel.not_disjoint mx my xy)
 
 /-- `𝔘₃(k, n, j) ⊆ 𝔘₂ k n j` is an arbitary set of representatives of `URel` on `𝔘₂ k n j`,
 given above (5.4.5). -/
@@ -400,7 +398,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
   have Cidpos : 0 < (C2_1_2 a)⁻¹ ^ d := by rw [C2_1_2]; positivity
   calc
     _ ≤ (C2_1_2 a)⁻¹ ^ (Z * (n + 1)) := by
-      refine pow_le_pow_left zero_le_two ?_ _
+      refine pow_le_pow_left₀ zero_le_two ?_ _
       nth_rw 1 [C2_1_2, ← Real.inv_rpow zero_le_two, ← Real.rpow_neg_one,
         ← Real.rpow_mul zero_le_two, neg_one_mul, neg_mul, neg_neg, ← Real.rpow_one 2]
       apply Real.rpow_le_rpow_of_exponent_le one_le_two
@@ -492,7 +490,7 @@ lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ 
   have nr : ¬URel k n j u.1 u'.1 := by contrapose! h; exact EquivalenceOn.reprs_inj u.2 u'.2 h
   have n𝓘 : 𝓘 u.1 ≠ 𝓘 u'.1 := by
     contrapose! nr; rw [disjoint_comm] at nd
-    exact urel_of_not_disjoint (𝔘₃_subset_𝔘₂ u.2) h.symm nr.symm nd
+    exact urel_of_not_disjoint (𝔘₃_subset_𝔘₂ u.2) nr.symm nd
   rcases le_or_lt (s (𝓘 u.1)) (s (𝓘 u'.1)) with hs | hs
   · have hu := lt_of_le_of_ne ((le_or_disjoint hs).resolve_right
       (not_disjoint_iff.mpr ⟨_, mu, mu'⟩)) n𝓘

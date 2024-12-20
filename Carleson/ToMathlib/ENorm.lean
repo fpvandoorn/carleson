@@ -140,13 +140,6 @@ def HasBoundedStrongType {E E' α α' : Type*} [NormedAddCommGroup E] [NormedAdd
   ∀ f : α → E, Memℒp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
-/- Mathlib PR: https://github.com/leanprover-community/mathlib4/pull/18704. -/
-lemma _root_.ENNReal.inv_div {a b : ℝ≥0∞} (h1 : b ≠ ∞ ∨ a ≠ ∞) (h2 : b ≠ 0 ∨ a ≠ 0) :
-    (a / b)⁻¹ = b / a := by
-  rw [← ENNReal.inv_ne_zero] at h1
-  rw [← ENNReal.inv_ne_top] at h2
-  rw [ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul, ENNReal.mul_inv h1 h2, mul_comm, inv_inv]
-
 /-- If a function `f : α → ENNReal` is `MemWℒp`, then its norm is almost everywhere finite.-/
 theorem MemWℒp.ae_ne_top [TopologicalSpace E] [ENorm E] {f : α → E} {p : ℝ≥0∞} {μ : Measure α}
     (hf : MemWℒp f p μ) : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
@@ -346,18 +339,18 @@ theorem _root_.Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace 
     hB (Subtype.coe_prop i) (Subtype.coe_prop j) (Subtype.coe_ne_coe.mpr hij)
   calc
     l * μ (⋃ i ∈ 𝓑, ball (c i) (r i)) ≤ l * μ (⋃ i ∈ B, ball (c i) (2 ^ 2 * r i)) := by
-          refine l.mul_left_mono (μ.mono fun x hx ↦ ?_)
+          refine mul_left_mono (μ.mono fun x hx ↦ ?_)
           simp only [mem_iUnion, mem_ball, exists_prop] at hx
           rcases hx with ⟨i, i𝓑, hi⟩
           obtain ⟨b, bB, hb⟩ := h2B i i𝓑
           refine mem_iUnion₂.mpr ⟨b, bB, hb <| mem_ball.mpr hi⟩
     _ ≤ l * ∑' i : B, μ (ball (c i) (2 ^ 2 * r i)) :=
-          l.mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
+          mul_left_mono <| measure_biUnion_le μ (h𝓑.mono hB𝓑) fun i ↦ ball (c i) (2 ^ 2 * r i)
     _ ≤ l * ∑' i : B, A ^ 2 * μ (ball (c i) (r i)) := by
-          refine l.mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
+          refine mul_left_mono <| ENNReal.tsum_le_tsum (fun i ↦ ?_)
           rw [sq, sq, mul_assoc, mul_assoc]
           apply (Measure.IsDoubling.measure_ball_two_le_same (c i) (2 * r i)).trans
-          exact ENNReal.mul_left_mono (Measure.IsDoubling.measure_ball_two_le_same (c i) (r i))
+          exact mul_left_mono (Measure.IsDoubling.measure_ball_two_le_same (c i) (r i))
     _ = A ^ 2 * ∑' i : B, l * μ (ball (c i) (r i)) := by
           rw [ENNReal.tsum_mul_left, ENNReal.tsum_mul_left, ← mul_assoc, ← mul_assoc, mul_comm l]
     _ ≤ A ^ 2 * ∑' i : B, ∫⁻ x in ball (c i) (r i), u x ∂μ := by
