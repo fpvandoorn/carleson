@@ -77,8 +77,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
     ⋃ J ∈ 𝓙₅ t u₁ u₂, (J : Set X) = 𝓘 u₁ := by
   apply Set.Subset.antisymm
-  · rw [Set.subset_def]
-    intros x hx
+  · intros x hx
     simp only [mem_iUnion] at hx
     rcases hx with ⟨cube, ⟨_, interval⟩, h⟩
     exact Set.mem_of_mem_of_subset h interval.left
@@ -118,7 +117,6 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
           exact Grid_subset_ball (i := cube)
         _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
           unfold ball
-          rw [subset_def]
           intro y xy
           rw [mem_setOf_eq] at xy ⊢
           have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
