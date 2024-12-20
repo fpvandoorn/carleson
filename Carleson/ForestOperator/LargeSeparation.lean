@@ -132,8 +132,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
       have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
         have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
         rw [subset_def] at in_𝔖₀
-        have tile := in_𝔖₀ p belongs
-        exact east p tile
+        exact east p (in_𝔖₀ p belongs)
       contradiction
 
 /-- Part of Lemma 7.5.1. -/
