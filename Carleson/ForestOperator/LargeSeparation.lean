@@ -58,10 +58,9 @@ lemma u₁_is_subset_of_cube
     · exact u₁_le.1
     · exact notDisjoint disjoint |>.elim
   | inr east =>
-    have weaker : s (𝓘 u₁) ≤ s cube := Int.le_of_lt (Int.lt_of_not_ge east)
-    apply GridStructure.fundamental_dyadic' at weaker
+    have fundamental := GridStructure.fundamental_dyadic' (le_of_not_ge east)
     rw [disjoint_comm] at notDisjoint
-    exact Or.resolve_right weaker notDisjoint
+    exact Or.resolve_right fundamental notDisjoint
 
 -- Auxiliary lemma for union_𝓙₅
 lemma exists_cube_in_𝓙_containing_point
