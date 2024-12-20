@@ -474,8 +474,8 @@ def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
 
 /-! ### Stack sizes -/
 
-variable {C C' : Set (𝔓 X)} {x x' : X}
 open scoped Classical
+variable {C C' : Set (𝔓 X)} {x x' : X}
 
 /-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
 def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
@@ -491,6 +491,7 @@ lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
 
 lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
     stackSize C x = stackSize C x' := by
+  classical
   refine Finset.sum_congr rfl fun p hp ↦ ?_
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp_rw [indicator, h p hp, Pi.one_apply]
@@ -509,6 +510,9 @@ lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
 lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) := by
   simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
   refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
+
+
+/-! ### Decomposing a set of tiles into disjoint subfamilies -/
 
 /-- Given any family of tiles, one can extract a maximal disjoint subfamily, covering everything. -/
 lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
@@ -568,5 +572,75 @@ lemma iteratedMaximalSubfamily_subset (A : Set (𝔓 X)) (n : ℕ) :
 lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
     univ.PairwiseDisjoint (iteratedMaximalSubfamily A) := by
   intro m hm n hn hmn
-  rcases lt_or_gt_of_ne hmn with hmn | hmn
-  · simp [Function.onFun]
+  wlog h'mn : m < n generalizing m n with H
+  · exact (H (mem_univ n) (mem_univ m) hmn.symm (by omega)).symm
+  have : iteratedMaximalSubfamily A n
+      ⊆ A \ ⋃ (i : {i | i < n}), iteratedMaximalSubfamily A i := by
+    conv_lhs => rw [iteratedMaximalSubfamily]
+    apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.1
+  apply subset_compl_iff_disjoint_left.1
+  rw [compl_eq_univ_diff]
+  apply this.trans
+  apply diff_subset_diff (subset_univ _)
+  apply subset_iUnion_of_subset ⟨m, h'mn⟩
+  simp
+
+/-- Any set of tiles can be written as the union of disjoint subfamilies, their number being
+controlled by the maximal stack size. -/
+lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀ x, stackSize A x ≤ N) :
+    A = ⋃ n < N, iteratedMaximalSubfamily A n := by
+  apply Subset.antisymm; swap
+  · simp [iUnion_subset_iff, iteratedMaximalSubfamily_subset]
+  -- we show that after `N` steps the maximal subfamilies cover everything. Otherwise, say some
+  -- `p` is left. Then `𝓘 p` is contained in an element of each of the previous subfamilies.
+  -- This gives `N+1` different elements containing any element of `𝓘 p`, a contradiction with
+  -- the maximal stack size.
+  intro p hp
+  contrapose! hN
+  simp only [mem_iUnion, exists_prop, not_exists, not_and] at hN
+  have E n (hn : n < N) : ∃ u ∈ iteratedMaximalSubfamily A n, (𝓘 p : Set X) ⊆ (𝓘 u : Set X) := by
+    rw [iteratedMaximalSubfamily]
+    apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.2
+    simp only [coe_setOf, mem_setOf_eq, mem_diff, hp,
+      mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, true_and]
+    intro i hi
+    exact hN i (hi.trans hn)
+  choose! u hu h'u using E
+  obtain ⟨x, hxp⟩ : ∃ x, x ∈ (𝓘 p : Set X) := ⟨_, Grid.c_mem_Grid⟩
+  use x
+  have : stackSize {q ∈ A | q = p} x + stackSize {q ∈ A | q ≠ p} x = stackSize A x :=
+    stackSize_setOf_add_stackSize_setOf_not
+  have : 1 = stackSize {q ∈ A | q = p} x := by
+    have : 1 = ∑ q ∈ {p}, (𝓘 q : Set X).indicator 1 x := by simp [hxp]
+    rw [this]
+    congr
+    ext
+    simp (config := {contextual := true}) [hp]
+  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
+      ≤ stackSize {q | q ∈ A ∧ q ≠ p} x := by
+    apply Finset.sum_le_sum_of_subset
+    rintro p hp
+    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    rcases hp with ⟨n, hn, rfl⟩
+    simp only [ne_eq, mem_setOf_eq, Finset.mem_filter,
+      Finset.mem_univ, iteratedMaximalSubfamily_subset _ _ (hu n hn), true_and]
+    rintro rfl
+    exact hN n hn (hu n hn)
+  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
+      = ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 := by
+    apply Finset.sum_congr rfl (fun p hp ↦ ?_)
+    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    rcases hp with ⟨n, hn, rfl⟩
+    have : x ∈ (𝓘 (u n) : Set X) := h'u n hn hxp
+    simp [this]
+  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 = N := by
+    have : Finset.filter (fun p ↦ p ∈ u '' Iio N) Finset.univ = Finset.image u (Finset.Iio N) := by
+      ext p; simp
+    simp only [Finset.sum_const, smul_eq_mul, mul_one, this]
+    rw [Finset.card_image_of_injOn, Nat.card_Iio N]
+    intro a ha b hb hab
+    contrapose! hab
+    simp only [Finset.coe_Iio, mem_Iio] at ha hb
+    have := pairwiseDisjoint_iteratedMaximalSubfamily A (mem_univ a) (mem_univ b) hab
+    exact disjoint_iff_forall_ne.1 this (hu a ha) (hu b hb)
+  omega
