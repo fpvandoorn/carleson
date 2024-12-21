@@ -571,25 +571,55 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
     _ ⊆ G₂ := subset_iUnion₂_of_subset n k (subset_iUnion_of_subset hkn subset_rfl)
     _ ⊆ _ := subset_union_of_subset_left subset_union_right G₃
 
-/-- Pick a maximal subset of `s` satisfying `∀ x, stackSize s x ≤ 2 ^ n` -/
-def aux𝔘₄ (s : Set (𝔓 X)) : Set (𝔓 X) := by
-  revert s; sorry
+/-- Define `𝔘₄ k n j l` as the union of `2 ^ n` disjoint subfamilies in `𝔘₃ k n j`, to make sure
+the multiplicity is at most `2 ^ n` to get a forest. -/
+def 𝔘₄ (k n j l : ℕ) : Set (𝔓 X) :=
+  ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), iteratedMaximalSubfamily (𝔘₃ k n j) i
 
 /-- The sets `(𝔘₄(k, n, j, l))_l` form a partition of `𝔘₃ k n j`. -/
-def 𝔘₄ (k n j l : ℕ) : Set (𝔓 X) :=
-  aux𝔘₄ <| 𝔘₃ k n j \ ⋃ (l' < l), 𝔘₄ k n j l'
-
-lemma iUnion_𝔘₄ : ⋃ l, 𝔘₄ (X := X) k n j l = 𝔘₃ k n j := by
-  sorry
-
-lemma 𝔘₄_subset_𝔘₃ : 𝔘₄ (X := X) k n j l ⊆ 𝔘₃ k n j := by
-  sorry
-
-lemma le_of_nonempty_𝔘₄ (h : (𝔘₄ (X := X) k n j l).Nonempty) : l < 4 * n + 13 := by
-  sorry
+lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l < 4 * n + 12, 𝔘₄ (X := X) k n j l = 𝔘₃ k n j := by
+  have I : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X := X) k n j l
+    = ⋃ l < 4 * n + 12, 𝔘₄ (X := X) k n j l := rfl
+  have J : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X := X) k n j l =
+      ⋃ i < (4 * n + 12) * 2 ^ n, iteratedMaximalSubfamily (𝔘₃ k n j) i := by
+    apply Subset.antisymm
+    · simp only [mem_Iio, 𝔘₄, mem_Ico, biUnion_and', iUnion_subset_iff]
+      intro l i hi hl h'i
+      apply subset_biUnion_of_mem
+      change i + 1 ≤ (4 * n + 12) * 2 ^ n
+      suffices i < (4 * n + 12) * 2 ^ n by omega
+      exact h'i.trans_le (mul_le_mul' (by omega) le_rfl)
+    · simp only [𝔘₄, iUnion_subset_iff]
+      intro i hi
+      let l := i / 2 ^ n
+      have : iteratedMaximalSubfamily (𝔘₃ k n j) i ⊆
+          ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), iteratedMaximalSubfamily (X := X) (𝔘₃ k n j) i := by
+        apply subset_biUnion_of_mem
+        refine ⟨Nat.div_mul_le_self _ _, ?_⟩
+        rw [← Nat.div_lt_iff_lt_mul (Nat.two_pow_pos n)]
+        exact lt_add_one _
+      apply this.trans
+      apply subset_biUnion_of_mem (u := fun l ↦
+        ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), iteratedMaximalSubfamily (𝔘₃ k n j) i)
+      simp only [mem_Iio, l]
+      rwa [Nat.div_lt_iff_lt_mul (Nat.two_pow_pos n)]
+  rw [← I, J, eq_comm]
+  apply eq_biUnion_iteratedMaximalSubfamily
+  intro x
+  apply forest_stacking x hkn
 
 lemma pairwiseDisjoint_𝔘₄ : univ.PairwiseDisjoint (𝔘₄ (X := X) k n j) := by
-  sorry
+  intro l hl m hm hml
+  apply disjoint_iff_forall_ne.2 (fun x hx y hy ↦ ?_)
+  simp only [𝔘₄, mem_Ico, mem_iUnion, exists_prop] at hx hy
+  rcases hx with ⟨a, ⟨ha, h'a⟩, xa⟩
+  rcases hy with ⟨b, ⟨hb, h'b⟩, yb⟩
+  have h : a ≠ b := by
+    rcases lt_or_gt_of_ne hml with h | h
+    · exact (h'a.trans_le (le_trans (mul_le_mul' h le_rfl) hb)).ne
+    · exact (h'b.trans_le (le_trans (mul_le_mul' h le_rfl) ha)).ne'
+  have := pairwiseDisjoint_iteratedMaximalSubfamily (𝔘₃ (X := X) k n j) (mem_univ a) (mem_univ b) h
+  exact disjoint_iff_forall_ne.1 this xa yb
 
 lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 2 ^ n := by
   sorry
