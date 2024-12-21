@@ -111,7 +111,7 @@ section T
 
 /-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
 It is the map `T ∘ (1_F * ·) : f ↦ T (1_F * f)`, also denoted `T1_F`
-The operator `T` in Proposition 2.0.2 is therefore `applied to `(F := Set.univ)`. -/
+The operator `T` in Proposition 2.0.2 is therefore applied to `(F := Set.univ)`. -/
 def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
@@ -243,6 +243,10 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
       refine HasCompactSupport.of_support_subset_isBounded ?_ this
       exact Metric.isBounded_ball.subset Grid_subset_ball
     exact Trans.trans support_carlesonOn_subset_E E_subset_𝓘
+
+theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ}
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
+  .finset_sum (fun _ _ ↦ hf.carlesonOn)
 
 end T
 
@@ -511,6 +515,23 @@ lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) :
   simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
   refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
 
+lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
+    (h : C.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X))) : stackSize C x ≤ 1 := by
+  by_cases hx : ∃ p ∈ C, x ∈ (𝓘 p : Set X)
+  · rcases hx with ⟨p, pC, hp⟩
+    rw [stackSize, Finset.sum_eq_single_of_mem p]; rotate_left
+    · simp [pC]
+    · intro b hb hbp
+      simp only [indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false]
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hb
+      exact disjoint_left.1 (h pC hb hbp.symm) hp
+    simp [hp]
+  · have : stackSize C x = 0 := by
+      apply Finset.sum_eq_zero (fun p hp ↦ ?_)
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_exists, not_and,
+        indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at hp hx ⊢
+      exact hx _ hp
+    linarith
 
 /-! ### Decomposing a set of tiles into disjoint subfamilies -/
 

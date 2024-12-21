@@ -127,3 +127,26 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry
+
+lemma foo (z : ℂ) : conj (z / ‖z‖) * z = ‖z‖ := by
+  simp only [norm_eq_abs, div_eq_inv_mul, map_mul, map_inv₀, conj_ofReal, mul_assoc, conj_mul']
+  norm_cast
+  rcases eq_or_ne (Complex.abs z) 0 with hz| hz
+  · simp [hz]
+  · rw [pow_two, inv_mul_cancel_left₀ hz]
+
+#check lintegral_coe_eq_integral
+
+theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {G : Set X}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hG : MeasurableSet G)
+    (h'G : IsBounded G) :
+    ∫⁻ x in G, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ ≤
+    C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
+    eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
+  rw [lintegral_coe_eq_integral]; swap
+  ·
+  let F : X → ℂ := fun x ↦ ∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x
+  let g : X → ℂ := G.indicator (fun x ↦ F x / ‖F x‖ )
+  have A x (hx : x ∈ G) : conj (g x) * F x = ‖F x‖ := by
+    simp only [hx, indicator_of_mem, g]
+    apply foo
