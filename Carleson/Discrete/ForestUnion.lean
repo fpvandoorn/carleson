@@ -684,11 +684,11 @@ def forest : Forest X n where
 -- todo: redefine in terms of other constants
 def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (235 * a ^ 3) / (q - 1) ^ 4
 
-lemma C5_1_2_pos : C5_1_2 a nnq > 0 := sorry
-
-#check ℭ₁
-#check ℭ₅
-#check ℭ₆
+lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
+  simp only [C5_1_2]
+  apply div_pos (rpow_pos zero_lt_two)
+  apply pow_pos
+  simpa using one_lt_nnq X
 
 /-- From the fact that the `ℭ₅ k n j` are disjoint, one can rewrite the whole Carleson sum over
 `𝔓₁` (a union of the `ℭ₅ k n j`) as a sum of Carleson sums over the `ℭ₅ k n j`. -/
@@ -715,6 +715,7 @@ lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
   · rintro ⟨n, k, j, ⟨hn, hk, hj⟩, hp⟩
     exact ⟨n, k, hk, j, hj, hp⟩
 
+/-- The Carleson sum over `ℭ₅` and `ℭ₆` coincide, for points in `G \ G'`. -/
 lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {k n j : ℕ} :
     carlesonSum (ℭ₅ k n j) f x = carlesonSum (ℭ₆ k n j) f x := by
   simp only [carlesonSum]
@@ -733,6 +734,7 @@ lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {
     have : x ∉ E p := by simp at this; simp [E, this]
     simp [carlesonOn, this]
 
+/-- The Carleson sum over `ℭ₆` can be decomposed as a sum over `4 n + 12` forests. -/
 lemma carlesonSum_ℭ₆_eq_sum {f : X → ℂ} {x : X} {k n j : ℕ} (hkn : k ≤ n) :
     carlesonSum (ℭ₆ k n j) f x =
       ∑ l < 4 * n + 12, carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x := by
@@ -752,31 +754,52 @@ lemma carlesonSum_ℭ₆_eq_sum {f : X → ℂ} {x : X} {k n j : ℕ} (hkn : k �
   ext p
   simp [C6_forest' hkn]
 
-
-#check forest_operator
-
-#check setLIntegral_indicator
-
-lemma foo {f : X → ℂ} :
-  ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
+/-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
+the forest theorem. -/
+lemma lintegral_carlesonSum_forest
+    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
     C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u)) ^ (q⁻¹ - 2⁻¹) *
-    eLpNorm f 2 volume * volume G := by
-  rw [← lintegral_indicator (measurableSet_G.diff measurable_G')]
-  simp_rw [indicator_eq_indicator_one_mul
-    (f := (fun x ↦ (‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ : ℝ≥0∞)))]
+    eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
+  let 𝔉 := forest (X := X) k n j l
+  have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ =
+      ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ := by
+    congr with x
+    congr
+    simp only [carlesonSum]
+    rw [← Finset.sum_biUnion]; swap
+    · intro a ha b hb hab
+      simp only [Function.onFun, ← Finset.disjoint_coe, disjoint_iff_forall_ne]
+      intro x hx y hy
+      simp only [forest, Forest.mem_forestMk, Finset.coe_filter, Finset.mem_univ, true_and,
+        setOf_mem_eq, 𝔉] at ha hb hx hy
+      have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
+      exact disjoint_iff_forall_ne.1 this hx hy
+    congr with p
+    simp only [mem_iUnion, exists_prop, Finset.mem_filter,
+      Finset.mem_univ, true_and, forest, Finset.mem_biUnion, 𝔉]
+    exact Iff.rfl
+  rw [this]
+  have W := forest_operator' 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
+    (PreProofData.isBounded_G.subset diff_subset)
+  apply W.trans
+  gcongr
+  · have := (q_mem_Ioc (X := X)).2
+    simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
+    exact (q_mem_Ioc (X := X)).2
+  · exact le_rfl
+  · exact diff_subset
 
-
-
-#exit
-
-lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : AEStronglyMeasurable f) :
+/-- Putting all the above decompositions together, one obtains a control of the integral of the
+full Carleson sum over `𝔓₁`. -/
+lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
       C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
   have A : ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
       ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
     simp only [Finset.sum_sigma']
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.sum_sigma', carlesonSum_𝔓₁_eq_sum]
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
@@ -787,7 +810,8 @@ lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (
   have C k n j (hkn : k ≤ n) : ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ ≤
       ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ := by
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
     apply lintegral_mono (fun x ↦ ?_)
     rw [carlesonSum_ℭ₆_eq_sum hkn]
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
+  sorry

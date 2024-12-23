@@ -176,7 +176,9 @@ lemma support_carlesonOn_subset_E {f : X → ℂ} : support (carlesonOn p f) ⊆
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
-  memℒp_top := by
+  stronglyMeasurable :=
+    (measurable_carlesonOn hf.stronglyMeasurable.measurable).stronglyMeasurable
+  isBounded := by
     let x₀ : X := Classical.choice inferInstance
     obtain ⟨r₀, hr₀, hfr₀⟩ := hf.isBoundedSupport.subset_closedBall_lt 0 x₀
     let r₁ := (↑D ^ 𝔰 p / 2) + r₀
@@ -206,10 +208,7 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
     obtain ⟨CK, hCK, hCK⟩ :=
       IsBounded.exists_bound_of_norm_Ks (Metric.isBounded_closedBall (x := x₀) (r := r₁)) (𝔰 p)
     let C := volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤).toReal)
-    suffices ∀ᵐ x, ‖_root_.carlesonOn p f x‖ ≤ C from
-      memℒp_top_of_bound hf.aestronglyMeasurable.carlesonOn _ this
-    apply ae_of_all
-    intro x
+    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
     wlog hx : x ∈ support (_root_.carlesonOn p f)
     · simp only [mem_support, ne_eq, not_not] at hx
       rw [hx, norm_zero]

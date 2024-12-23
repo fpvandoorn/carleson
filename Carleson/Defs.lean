@@ -242,6 +242,10 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
+lemma MeasureTheory.stronglyMeasurable_K [IsOneSidedKernel a K] :
+    StronglyMeasurable (uncurry K) :=
+  measurable_K.stronglyMeasurable
+
 lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
     AEStronglyMeasurable (uncurry K) :=
   measurable_K.aestronglyMeasurable
@@ -282,6 +286,8 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
     HasBoundedStrongType (nontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
+  isBounded_F : IsBounded F
+  isBounded_G : IsBounded G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)
@@ -357,6 +363,9 @@ lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass �
   rw [this]
   exact Q.range.measurableSet_biUnion fun θ _ ↦
     (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)
+
+lemma stronglyMeasurable_Q₂ : StronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
+  measurable_Q₂.stronglyMeasurable
 
 @[fun_prop]
 lemma aestronglyMeasurable_Q₂ : AEStronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
@@ -459,12 +468,16 @@ lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
 /-- `τ` as an element of `ℝ≥0`. -/
 def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
 
-lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
+lemma one_lt_q : 1 < q := (q_mem_Ioc X).1
+lemma q_le_two : q ≤ 2 := (q_mem_Ioc X).2
+lemma q_pos : 0 < q := zero_lt_one.trans (one_lt_q X)
 lemma q_nonneg : 0 ≤ q := (q_pos X).le
 
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
+lemma one_lt_nnq : 1 < nnq X := one_lt_q X
+lemma nnq_le_two : nnq X ≤ 2 := q_le_two X
 lemma nnq_pos : 0 < nnq X := q_pos X
 lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
   ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
