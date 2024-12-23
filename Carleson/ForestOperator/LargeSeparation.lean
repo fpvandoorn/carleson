@@ -43,26 +43,6 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
 -- Auxiliary lemma for union_𝓙₅
-lemma u₁_is_subset_of_cube
-    (cube : Grid X)
-    (h : cube ∉ Iic (𝓘 u₁))
-    (notDisjoint : ¬ Disjoint (cube : Set X) (𝓘 u₁ : Set X)) :
-    (𝓘 u₁ : Set X) ⊆ cube := by
-  unfold Iic at h
-  rw [Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
-  cases h with
-  | inl west =>
-    have h_le_cases := le_or_ge_or_disjoint (i := cube) (j := 𝓘 u₁)
-    rcases h_le_cases with cube_le | u₁_le | disjoint
-    · exact west cube_le.left |>.elim
-    · exact u₁_le.1
-    · exact notDisjoint disjoint |>.elim
-  | inr east =>
-    have fundamental := GridStructure.fundamental_dyadic' (le_of_not_ge east)
-    rw [disjoint_comm] at notDisjoint
-    exact fundamental.resolve_right notDisjoint
-
--- Auxiliary lemma for union_𝓙₅
 lemma exists_cube_in_𝓙_containing_point
     (hx: x ∈ (𝓘 u₁)) :
     ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
@@ -107,7 +87,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
       have white := calc (𝓘 p : Set X)
         _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
         _ ⊆ cube := by
-          apply u₁_is_subset_of_cube cube
+          apply subset_of_nmem_Iic_of_not_disjoint cube
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
             rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
             exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
