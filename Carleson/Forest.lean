@@ -67,7 +67,6 @@ lemma if_descendant_then_subset (hu : u ∈ t) (hp : p ∈ t u) : (𝓘 p : Set 
     _ ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p) := by
       exact GridStructure.Grid_subset_ball (i := 𝓘 p)
     _ ⊆ ball (𝔠 p) (8 * ↑D ^ 𝔰 p) := by
-      apply Metric.ball_subset_ball
       gcongr
       norm_num
     _ ⊆ ↑(𝓘 u) := by
