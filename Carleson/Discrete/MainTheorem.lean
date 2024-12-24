@@ -35,5 +35,5 @@ theorem discrete_carleson :
       lintegral_add_left (by fun_prop) _
     _ ≤ C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ +
         C5_1_3 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ :=
-      add_le_add (forest_union hf) (forest_complement hf)
+      add_le_add (forest_union hf measf) (forest_complement hf)
     _ = _ := by simp_rw [mul_assoc, ← add_mul]; congr

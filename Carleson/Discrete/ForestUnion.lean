@@ -771,7 +771,7 @@ lemma lintegral_carlesonSum_forest
     · intro a ha b hb hab
       simp only [Function.onFun, ← Finset.disjoint_coe, disjoint_iff_forall_ne]
       intro x hx y hy
-      simp only [forest, Forest.mem_forestMk, Finset.coe_filter, Finset.mem_univ, true_and,
+      simp only [forest, Forest.mem_mk, Finset.coe_filter, Finset.mem_univ, true_and,
         setOf_mem_eq, 𝔉] at ha hb hx hy
       have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
       exact disjoint_iff_forall_ne.1 this hx hy

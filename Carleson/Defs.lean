@@ -472,6 +472,8 @@ lemma one_lt_q : 1 < q := (q_mem_Ioc X).1
 lemma q_le_two : q ≤ 2 := (q_mem_Ioc X).2
 lemma q_pos : 0 < q := zero_lt_one.trans (one_lt_q X)
 lemma q_nonneg : 0 ≤ q := (q_pos X).le
+lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
+  simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
 
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
