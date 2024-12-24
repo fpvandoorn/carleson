@@ -379,21 +379,27 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
   cases' J_is_maximal with left j5right
   simp at left j5right
 
+  by_contra! three
+
   have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 := by
     have notMax : ¬IsMax J := by
-      -- def 𝓙₅ : Set (Grid X) := 𝓙 (𝔖₀ t u₁ u₂) ∩ Iic (𝓘 u₁)
-      unfold IsMax
-      push_neg
-      sorry
+      rw [Grid.isMax_iff]
+      intro top
+      have topScale : s J = (S : ℤ) := by
+        rw [top]
+        exact s_topCube (X := X)
+      rw [topScale] at three
+      have range := (scale_mem_Icc (i:=𝓘 p)).2
+      change 𝔰 p ≤ ↑S at range 
+      linarith
     use J.succ
     constructor
     exact Grid.succ_def notMax |>.mp rfl |>.1
     exact Grid.scale_succ notMax
+
   rw [Grid.le_def] at belongs
 
   have sentence_2_result : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 (plusOne := plusOne) (belongs := belongs.left) (j5right := j5right)
-
-  by_contra! three
 
   have sentence_3_result : ball (c J') (100 * D^(s J + 3)) ⊆ ball (𝔠 p) (10 * D^(𝔰 p)) := sentence_3 belongs plusOne three h
 
