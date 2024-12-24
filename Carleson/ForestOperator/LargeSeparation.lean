@@ -169,9 +169,9 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   cases' hp with hi _
 
   have disjointness : Disjoint (𝓘 p : Set X) (𝓘 u₁ : Set X) := by
-    by_contra love
+    by_contra notDisjoint
     have well : p ∈ t.𝔖₀ u₁ u₂ := by
-      apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := love)
+      apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
       right
       exact hi
     contradiction
@@ -420,7 +420,6 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     _ ≤ 2^((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
       have result := le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (x := c J') (r := 100 * D^(s J + 2)) (hr := by positivity)
       rw [neg_mul, Real.rpow_neg (x:=(2 : ℝ)) (y:=(100 * (a : ℝ))) (hx := by positivity)]
-      -- (hc : 0 < c) : a ≤ b * c⁻¹ ↔ a * c ≤ b
       rw [mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
       have well := (le_mul_inv_iff₀ (c:=((2 : ℝ) ^ (100 * (a : ℝ)))) (b:= dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂)) (a:= dist_{c J', 100 * D^(s J + 2)} (𝒬 u₁) (𝒬 u₂)) (by positivity)).mpr
       apply well
@@ -440,9 +439,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
         simp
         have simple : ((2 : ℝ) ^ a) ^ (100 * a) = (2 : ℝ) ^ (a * (100 * a)) := by
           exact Eq.symm (pow_mul 2 a (100 * a))
-        rw [simple]
-        clear simple
-        rw [mul_comm (a:=a)]
+        rw [simple, mul_comm (a:=a)]
         simp
         ring
       rw [← equality]
@@ -466,10 +463,8 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       simp
       rw [Real.rpow_neg (by positivity), LinearOrderedField.mul_inv_cancel (a:= (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity)]
       simp
-      rw [← mul_assoc]
-      rw [←Real.rpow_add]
+      rw [← mul_assoc, ← Real.rpow_add]
       ring_nf
-
       have easy : 10 * (D : ℝ)^(𝔰 p) ≤ 2 ^ 6 * (↑D ^ 𝔰 p / 4) := by
         ring_nf
         gcongr
