@@ -42,15 +42,11 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
--- Auxiliary lemma for union_𝓙₅
-lemma exists_cube_in_𝓙_containing_point
-    (hx: x ∈ (𝓘 u₁)) :
-    ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ cube := by
-  have h : x ∈ ⋃ I : Grid X, (I : Set X) := mem_iUnion_of_mem (𝓘 u₁) hx
-  rw [← biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)] at h
-  apply (Set.mem_sUnion (x := x)).mp at h
-  simp only [mem_range, exists_exists_eq_and, mem_iUnion, exists_prop] at h
-  exact h
+-- Auxiliary lemma for Lemma 7.5.1.
+lemma 𝓘_subset_iUnion_𝓙_𝔖₀ : (𝓘 u₁ : Set X) ⊆ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := by
+  rw [biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)]
+  apply subset_iUnion_of_subset (𝓘 u₁)
+  rfl
 
 /-- Part of Lemma 7.5.1. -/
 lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -62,7 +58,9 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     rcases hx with ⟨cube, ⟨_, interval⟩, h⟩
     exact Set.mem_of_mem_of_subset h interval.left
   · intros x hx
-    have ⟨cube, cube_in_𝓙, xInCube⟩ : ∃ cube ∈ 𝓙 (t.𝔖₀ u₁ u₂), x ∈ ↑cube := exists_cube_in_𝓙_containing_point hx
+    have existsCube : x ∈ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := 𝓘_subset_iUnion_𝓙_𝔖₀ hx
+    simp only [mem_iUnion, exists_prop] at existsCube
+    rcases existsCube with ⟨cube, cube_in_𝓙, xInCube⟩
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
