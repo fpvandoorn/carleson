@@ -570,6 +570,16 @@ end ShortVariables
 
 variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
+lemma volume_F_lt_top : volume F < ⊤ :=
+  lt_of_le_of_lt (measure_mono ProofData.F_subset) measure_ball_lt_top
+
+lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
+
+lemma volume_G_lt_top : volume G < ⊤ :=
+  lt_of_le_of_lt (measure_mono ProofData.G_subset) measure_ball_lt_top
+
+lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
+
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 def hnorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
   ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +

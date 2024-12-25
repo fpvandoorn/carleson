@@ -442,6 +442,10 @@ def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (r ≥ 4 * (D ^ 𝔰 p : ℝ)),
   volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
 
+lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :
+    dens₂ (𝔓') = ⨆ (p ∈ 𝔓'), dens₂ ({p}) := by
+  simp [dens₂]
+
 -- a small characterization that might be useful
 lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
     IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄) ↔

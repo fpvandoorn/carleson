@@ -115,10 +115,12 @@ end TileStructure.Forest
 
 /-! ## Proposition 2.0.4 -/
 
+irreducible_def C2_0_4_base (a : ℝ) : ℝ≥0 := 2 ^ (432 * a ^ 3)
+
 /-- The constant used in `forest_operator`.
 Has value `2 ^ (432 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := 2 ^ (432 * a ^ 3 - (q - 1) / q * n)
+irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (- (q - 1) / q * n)
 
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)

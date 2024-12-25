@@ -684,6 +684,7 @@ def forest : Forest X n where
 -- todo: redefine in terms of other constants
 def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (235 * a ^ 3) / (q - 1) ^ 4
 
+omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
   simp only [C5_1_2]
   apply div_pos (rpow_pos zero_lt_two)
@@ -755,11 +756,11 @@ lemma carlesonSum_ℭ₆_eq_sum {f : X → ℂ} {x : X} {k n j : ℕ} (hkn : k �
   simp [C6_forest' hkn]
 
 /-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
-the forest theorem. -/
+the forest theorem and to the density control coming from the fact we are away from `G₁`. -/
 lemma lintegral_carlesonSum_forest
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
-    C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u)) ^ (q⁻¹ - 2⁻¹) *
+    C2_0_4 a q n * (2 ^ (2 * a + 5) * volume F / volume G) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
   let 𝔉 := forest (X := X) k n j l
   have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ =
@@ -787,31 +788,100 @@ lemma lintegral_carlesonSum_forest
   · have := (q_mem_Ioc (X := X)).2
     simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
     exact (q_mem_Ioc (X := X)).2
-  · exact le_rfl
+  · rw [dens₂_eq_biSup_dens₂]
+    simp only [mem_iUnion, exists_prop, iSup_exists, iSup_le_iff, and_imp]
+    intro p q hq hp
+    replace hp : p ∈ ℭ₆ k n j := 𝔗₂_subset_ℭ₆ hp
+    have : ¬ (𝓘 p : Set X) ⊆ G₁ := by
+      have W := hp.2
+      contrapose! W
+      exact W.trans (subset_union_left.trans subset_union_left)
+    contrapose! this
+    have : p ∈ highDensityTiles := by simp [highDensityTiles, this]
+    apply subset_biUnion_of_mem this
   · exact diff_subset
+
+/-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
+the forest theorem and to the density control coming from the fact we are away from `G₁`. -/
+lemma lintegral_carlesonSum_forest'
+    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
+    C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) * (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) := by
+  apply (lintegral_carlesonSum_forest hf h2f).trans
+  simp only [mul_assoc]
+  apply mul_le_mul_left'
+  simp only [div_eq_mul_inv, one_mul, ENNReal.mul_rpow_of_nonneg _ _ (inv_q_sub_half_nonneg X),
+    ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]
+  calc
+  2 ^ ((2 * a + 5 : ℕ) * (q⁻¹ - 2⁻¹)) * volume F ^ (q⁻¹ - 2⁻¹) * (volume G)⁻¹ ^ (q⁻¹ - 2⁻¹) *
+    (eLpNorm f 2 volume * volume G ^ (2⁻¹ : ℝ))
+  _ ≤ 2 ^ (a + 5/2 : ℝ) * volume F ^ (q⁻¹ - 2⁻¹) * (volume G)⁻¹ ^ (q⁻¹ - 2⁻¹) *
+    ((volume F) ^ (2⁻¹ : ℝ) * volume G ^ (2⁻¹ : ℝ)) := by
+    gcongr
+    · exact one_le_two
+    · have : 1 ≤ q := (one_lt_q X).le
+      have : (2 * a + 5 : ℕ) * (q⁻¹ - 2⁻¹) ≤ (2 * a + 5 : ℕ) * (1⁻¹ - 2⁻¹) := by gcongr
+      apply this.trans_eq
+      norm_num
+      simp [add_mul, div_eq_mul_inv]
+      ring
+    · have A x : ‖f x‖ ≤ ‖F.indicator (fun (x : X) ↦ (1 : ℝ)) x‖ := (h2f x).trans (le_abs_self _)
+      apply (eLpNorm_mono A).trans_eq
+      rw [eLpNorm_indicator_const measurableSet_F two_ne_zero (ENNReal.two_ne_top)]
+      simp
+  _ = 2 ^ (a + 5/2 : ℝ) * (volume F ^ q⁻¹ * volume G ^ (1 - q⁻¹)) := by
+    have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
+    have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
+      congr 1
+      simp only [sub_sub_eq_add_sub, sub_left_inj]
+      norm_num
+    rw [IF, IG, ENNReal.rpow_sub _ _ ProofData.volume_G_pos.ne' volume_G_ne_top,
+      ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
+      ENNReal.div_eq_inv_mul, ENNReal.inv_rpow]
+    ring
 
 /-- Putting all the above decompositions together, one obtains a control of the integral of the
 full Carleson sum over `𝔓₁`. -/
 lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
-      C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
-  have A : ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
-      ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
+      C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := calc
+  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊
+  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
     simp only [Finset.sum_sigma']
     rw [← lintegral_finset_sum']; swap
     · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.sum_sigma', carlesonSum_𝔓₁_eq_sum]
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
-  have B k n j : ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊
-      = ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ := by
+  _ = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ := by
+    congr with n
+    congr with k
+    congr with j
     apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
     exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
-  have C k n j (hkn : k ≤ n) : ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ ≤
-      ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ := by
+  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
+        ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ := by
+    gcongr with n hn k hk j hj
     rw [← lintegral_finset_sum']; swap
     · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
     apply lintegral_mono (fun x ↦ ?_)
-    rw [carlesonSum_ℭ₆_eq_sum hkn]
+    simp only [Finset.mem_Iic] at hk
+    rw [carlesonSum_ℭ₆_eq_sum hk]
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
-  sorry
+  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
+        ∑ l < 4 * n + 12, C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) *
+          (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) := by
+    gcongr with n hn k hk j hj l hl
+    apply lintegral_carlesonSum_forest' h'f hf
+  _ = C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) *
+        ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l < 4 * n + 12,
+          (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) := by
+    have A q n : (C2_0_4 a q n : ℝ≥0∞) = (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) * C2_0_4_base a := by
+      simp [C2_0_4, mul_comm]
+    simp only [A, ← Finset.sum_mul, ENNReal.coe_mul]
+
+
+
+
+
+  _ = _ := sorry
