@@ -29,7 +29,6 @@ If you prefer, you can use online development environment:
 
 <a href="https://codespaces.new/fpvandoorn/carleson"><img src="https://github.com/codespaces/badge.svg"/></a>
 
-
 To make changes to this repository, please make a pull request. There are more tips in the file [Contributing.md](https://github.com/fpvandoorn/carleson/blob/master/CONTRIBUTING.md). To push your changes, the easiest method is to use the `Source Control` panel in VSCode.
 Feel free to make pull requests with code that is work in progress, but make sure that the file(s)
 you've worked have no errors (having `sorry`'s is fine of course).
