@@ -754,8 +754,7 @@ lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
 
 lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ
-  refine measurable_K.mul ?_
-  fun_prop
+  exact measurable_K.mul (by fun_prop)
 
 lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) :=
   measurable_Ks.aestronglyMeasurable
