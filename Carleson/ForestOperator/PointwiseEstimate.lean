@@ -346,7 +346,6 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
   have h3 {i : ℤ} : Integrable (fun y ↦ (f y - approxOnCube (𝓙 (t.𝔗 u)) f y) * Ks i x y) := by
     simp_rw [sub_mul]
     exact hf.integrable_mul (integrable_Ks_x <| one_lt_D (K := K)) |>.sub h1
-  exact Finset.fold_congr fun i _ ↦ by rw [integral_add _ h1, integral_add h2 h3]; exact h2.add h3                        -- single line (at least not the obvious way).
-
+  exact Finset.fold_congr fun i _ ↦ by rw [integral_add _ h1, integral_add h2 h3]; exact h2.add h3
 
 end TileStructure.Forest
