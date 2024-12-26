@@ -752,10 +752,13 @@ lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
         exact ⟨fun h ↦ absurd h h', fun _ ↦ ENNReal.coe_ne_top⟩
       exact absurd htop hnetop
 
-lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
+lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ
-  refine aestronglyMeasurable_K.mul ?_
+  refine measurable_K.mul ?_
   fun_prop
+
+lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) :=
+  measurable_Ks.aestronglyMeasurable
 
 /-- The function `y ↦ Ks s x y` is integrable. -/
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by

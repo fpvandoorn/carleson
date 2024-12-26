@@ -1,6 +1,7 @@
 import Carleson.Forest
 import Carleson.HardyLittlewood
 import Carleson.ToMathlib.BoundedCompactSupport
+import Carleson.Psi
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -51,7 +52,11 @@ lemma 𝓛_subset_𝓛₀ {𝔖 : Set (𝔓 X)} : 𝓛 𝔖 ⊆ 𝓛₀ 𝔖 := 
 /-- The projection operator `P_𝓒 f(x)`, given above Lemma 7.1.3.
 In lemmas the `c` will be pairwise disjoint on `C`. -/
 def approxOnCube (C : Set (Grid X)) (f : X → E') (x : X) : E' :=
-  ∑ J ∈ { p | p ∈ C }, (J : Set X).indicator (fun _ ↦ ⨍ y, f y) x
+  ∑ J ∈ { p | p ∈ C }, (J : Set X).indicator (fun _ ↦ ⨍ y in J, f y) x
+
+lemma stronglyMeasurable_approxOnCube (C : Set (Grid X)) (f : X → E') :
+    StronglyMeasurable (approxOnCube (X := X) (K := K) C f) :=
+  Finset.stronglyMeasurable_sum _ (fun _ _ ↦ stronglyMeasurable_const.indicator coeGrid_measurable)
 
 /-- The definition `I_i(x)`, given above Lemma 7.1.3.
 The cube of scale `s` that contains `x`. There is at most 1 such cube, if it exists. -/
@@ -249,17 +254,99 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
 
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
+irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := max (C7_1_4 a) (C7_1_6 a) --2 ^ (151 * (a : ℝ) ^ 3)
+
+-- Used in the proof of Lemma 7.1.3 to translate `∑ p` into `∑ s`
+private lemma p_sum_eq_s_sum (I : ℤ → X → ℂ) :
+    ∑ p ∈ Finset.filter (fun p ↦ p ∈ (fun x ↦ t.𝔗 x) u) Finset.univ, (E p).indicator (I (𝔰 p)) x =
+    ∑ s ∈ t.σ u x, I s x := by
+  -- Restrict to a sum over those `p` such that `x ∈ E p`.
+  let 𝔗' := Finset.filter (fun p ↦ p ∈ (fun x ↦ t.𝔗 x) u ∧ x ∈ E p) Finset.univ
+  have : ∑ p ∈ 𝔗', (E p).indicator (I (𝔰 p)) x = ∑ p ∈ Finset.filter
+      (fun p ↦ p ∈ (fun x ↦ t.𝔗 x) u) Finset.univ, (E p).indicator (I (𝔰 p)) x := by
+    apply Finset.sum_subset (fun p hp ↦ by simp [(Finset.mem_filter.mp hp).2.1])
+    intro p p𝔗 p𝔗'
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_and, 𝔗'] at p𝔗 p𝔗'
+    exact indicator_of_not_mem (p𝔗' p𝔗) (I (𝔰 p))
+  rw [← this]
+  -- Now the relevant values of `p` and `s` are in bijection.
+  apply Finset.sum_bij (fun p _ ↦ 𝔰 p)
+  · intro p hp
+    simp only [σ, Finset.mem_image]
+    exact ⟨p, by simpa [𝔗'] using hp⟩
+  · intro p hp p' hp' hpp'
+    simp only [E, Grid.mem_def, sep_and, Finset.mem_filter, 𝔗'] at hp hp'
+    by_contra h
+    exact Nonempty.not_disjoint ⟨Q x, ⟨hp.2.2.1.2, hp'.2.2.1.2⟩⟩ <| disjoint_Ω h <|
+      (eq_or_disjoint hpp').resolve_right <| Nonempty.not_disjoint ⟨x, ⟨hp.2.2.1.1, hp'.2.2.1.1⟩⟩
+  · intro s hs
+    simpa [𝔗', σ] using hs
+  · intro p hp
+    simp only [Finset.mem_filter, 𝔗'] at hp
+    exact indicator_of_mem hp.2.2 (I (𝔰 p))
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : BoundedCompactSupport f) :
     ‖carlesonSum (t u) (fun y ↦ exp (.I * - 𝒬 u y) * f y) x‖₊ ≤
     C7_1_3 a * (MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
-    t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' +
-    nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x'):= by
-  set g := approxOnCube (𝓙 (t u)) (‖f ·‖)
-  sorry
+    t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x') +
+    nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
+  set g := approxOnCube (𝓙 (t u)) f
+  -- Convert the sum over `p` into a sum over `s`.
+  unfold carlesonSum carlesonOn
+  rw [p_sum_eq_s_sum fun s x ↦ ∫ (y : X), cexp (I * (Q x y - Q x x)) * K x y *
+    («ψ» D (D ^ (-s) * dist x y)) * (fun y ↦ cexp (I * -𝒬 u y) * f y) y]
+  -- Next introduce an extra factor of `‖cexp (I * 𝒬 u x)‖₊`, i.e., 1. Then simplify.
+  have : 1 = ‖cexp (I * 𝒬 u x)‖₊ := by simp [mul_comm I, nnnorm]
+  rw [← one_mul ‖_‖₊, this, ← nnnorm_mul, Finset.mul_sum]
+  have : ∑ i ∈ t.σ u x, cexp (I * 𝒬 u x) * ∫ (y : X), (cexp (I * (Q x y - Q x x)) * K x y *
+            («ψ» D (D ^ (-i) * dist x y)) * (cexp (I * -𝒬 u y) * f y)) =
+          ∑ i ∈ t.σ u x, ∫ (y : X),
+            (f y * ((exp (I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y) +
+            (f y - g y) * Ks i x y + g y * Ks i x y) := by
+    simp_rw [← integral_mul_left, Ks, mul_sub, mul_add, sub_eq_add_neg, exp_add]
+    exact Finset.fold_congr (fun s hs ↦ integral_congr_ae (funext fun y ↦ by ring).eventuallyEq)
+  rw [this]
+  -- It suffices to show that the integral splits into the three terms bounded by Lemmas 7.1.4-6
+  suffices ∑ i ∈ t.σ u x, ∫ (y : X),
+             (f y * ((cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y)) +
+             (f y - g y) * Ks i x y + g y * Ks i x y =
+           ∑ i ∈ t.σ u x,
+             ((∫ (y : X), f y * ((cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y)) +
+             (∫ (y : X), (f y - g y) * Ks i x y) + (∫ (y : X), g y * Ks i x y)) by
+    -- Separate the LHS into three pieces
+    rw [this, Finset.sum_add_distrib, Finset.sum_add_distrib]
+    apply le_trans <| ENNReal.coe_strictMono.monotone <| (nnnorm_add_le _ _).trans
+      (add_le_add_right (nnnorm_add_le _ _) _)
+    rw [ENNReal.coe_add, ENNReal.coe_add, mul_add]
+    -- Apply Lemmas 7.1.4, 7.1.5, and 7.1.6
+    simp_rw [← mul_comm (Ks _ x _)]
+    refine add_le_add_three ?_ ?_ (second_tree_pointwise hu hL hx hx')
+    · simp_rw [mul_comm (Ks _ x _), mul_comm (f _)]
+      have h : C7_1_3 a ≥ C7_1_4 a := by rw [C7_1_3_def]; exact le_max_left (C7_1_4 a) (C7_1_6 a)
+      exact (first_tree_pointwise hu hL hx hx' hf).trans <| mul_right_mono (by exact_mod_cast h)
+    · have h : C7_1_3 a ≥ C7_1_6 a := by rw [C7_1_3_def]; exact le_max_right (C7_1_4 a) (C7_1_6 a)
+      exact (third_tree_pointwise hu hL hx hx' hf).trans <| mul_right_mono (by exact_mod_cast h)
+  -- In order to split the integral, we will first need some trivial integrability results
+  have h1 {i : ℤ} : Integrable (fun y ↦ approxOnCube (𝓙 (t.𝔗 u)) f y * Ks i x y) := by
+    apply (integrable_Ks_x <| one_lt_D (K := K)).bdd_mul
+    · exact (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
+    · use ∑ J ∈ { p | p ∈ 𝓙 (t.𝔗 u) }, ‖⨍ y in J, f y‖
+      refine fun x ↦ (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
+      by_cases h : x ∈ (J : Set X) <;> simp [h]
+  have : ∃ C, ∀ (y : X), ‖cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ C := by
+    refine ⟨2, fun y ↦ le_of_le_of_eq (norm_sub_le _ _) ?_⟩
+    norm_cast
+    rw [mul_comm, norm_exp_ofReal_mul_I, one_add_one_eq_two]
+  have h2 {i : ℤ} : Integrable
+      (fun y ↦ f y * ((cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y)) :=
+    hf.integrable_mul <| (integrable_Ks_x <| one_lt_D (K := K)).bdd_mul
+      (Measurable.aestronglyMeasurable (by fun_prop)) this
+  have h3 {i : ℤ} : Integrable (fun y ↦ (f y - approxOnCube (𝓙 (t.𝔗 u)) f y) * Ks i x y) := by
+    simp_rw [sub_mul]
+    exact hf.integrable_mul (integrable_Ks_x <| one_lt_D (K := K)) |>.sub h1
+  exact Finset.fold_congr fun i _ ↦ by rw [integral_add _ h1, integral_add h2 h3]; exact h2.add h3                        -- single line (at least not the obvious way).
+
 
 end TileStructure.Forest
