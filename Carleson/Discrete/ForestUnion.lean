@@ -1,5 +1,6 @@
 import Carleson.Discrete.Defs
 import Carleson.ForestOperator.Forests
+import Carleson.ToMathlib.Analysis.SumIntegralComparisons
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -876,9 +877,12 @@ lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (
   _ = C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) *
         ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l < 4 * n + 12,
           (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) := by
-    have A q n : (C2_0_4 a q n : ℝ≥0∞) = (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) * C2_0_4_base a := by
-      simp [C2_0_4, mul_comm]
-    simp only [A, ← Finset.sum_mul, ENNReal.coe_mul]
+    have A n : (C2_0_4 a q n : ℝ≥0∞) = (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) * C2_0_4_base a := by
+      simp only [C2_0_4, neg_sub, mul_comm, ENNReal.coe_mul,
+        ENNReal.coe_rpow_of_ne_zero two_ne_zero]
+      rfl
+    simp only [A, ← Finset.sum_mul]
+    ring
 
 
 
