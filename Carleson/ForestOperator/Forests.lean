@@ -131,8 +131,8 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry
 
-/-- Verion of the forest operator theorem, but controlling the integral of the norm instead of
-the integral of the function muliplied by another function. -/
+/-- Version of the forest operator theorem, but controlling the integral of the norm instead of
+the integral of the function multiplied by another function. -/
 theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
     (h'A : IsBounded A) :
