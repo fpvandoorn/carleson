@@ -807,7 +807,7 @@ version, with the volume of `F`. -/
 lemma lintegral_carlesonSum_forest'
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
-    C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) * (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) := by
+    C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
   apply (lintegral_carlesonSum_forest hf h2f).trans
   simp only [mul_assoc]
   apply mul_le_mul_left'
@@ -830,7 +830,7 @@ lemma lintegral_carlesonSum_forest'
       apply (eLpNorm_mono A).trans_eq
       rw [eLpNorm_indicator_const measurableSet_F two_ne_zero (ENNReal.two_ne_top)]
       simp
-  _ = 2 ^ (a + 5/2 : ℝ) * (volume F ^ q⁻¹ * volume G ^ (1 - q⁻¹)) := by
+  _ = 2 ^ (a + 5/2 : ℝ) * (volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) := by
     have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
     have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
       congr 1
@@ -845,7 +845,7 @@ lemma lintegral_carlesonSum_forest'
 full Carleson sum over `𝔓₁`, as a sum over all the forests. -/
 lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤ C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) *
-        (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) *
+         (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) *
         ∑ n ≤ maxℭ X, ∑ _k ≤ n, ∑ _j ≤ 2 * n + 3, ∑ _l < 4 * n + 12,
           (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) := calc
   ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊
@@ -873,10 +873,10 @@ lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∑ l < 4 * n + 12, C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) *
-          (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) := by
+          (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
     gcongr with n hn k hk j hj l hl
     apply lintegral_carlesonSum_forest' h'f hf
-  _ = C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹) *
+  _ = C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) *
         ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l < 4 * n + 12,
           (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) := by
     have A n : (C2_0_4 a q n : ℝ≥0∞) = (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) * C2_0_4_base a := by
@@ -943,7 +943,8 @@ lemma sum_Iic_pow_mul_exp_neg_le {k : ℕ} {M : ℕ} {c : ℝ} (hc : 0 < c) :
   sum_Ico_pow_mul_exp_neg_le (M := M + 1) hc
 
 lemma sum_Iic_pow_mul_two_pow_neg_le {k : ℕ} {M : ℕ} {c : ℝ} (hc : 0 < c) :
-    ∑ i ∈ Finset.Iic M, i ^ k * (2 : ℝ) ^ (- (c * i)) ≤ 2 ^ c * k ! / (Real.log 2 * c) ^ (k + 1) := by
+    ∑ i ∈ Finset.Iic M, i ^ k * (2 : ℝ) ^ (- (c * i))
+      ≤ 2 ^ c * k ! / (Real.log 2 * c) ^ (k + 1) := by
   have A (i : ℕ) : (2 : ℝ) ^ (- (c * i)) = rexp (- (Real.log 2 * c) * i) := by
     conv_lhs => rw [← exp_log zero_lt_two, ← exp_mul]
     congr 1
@@ -1043,21 +1044,21 @@ def C5_1_2_optimized (a : ℝ) (q : ℝ≥0) : ℝ≥0 :=
 /-- Version of the forest union result with a better constant. -/
 lemma forest_union_optimized {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
-    C5_1_2_optimized a nnq * (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹)  := by
+    C5_1_2_optimized a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
   apply (forest_union_aux hf h'f).trans
   calc
-  C2_0_4_base a * 2 ^ (a + 5 / 2 : ℝ) * volume F ^ q⁻¹ * volume G ^ (1 - q⁻¹) *
+  C2_0_4_base a * 2 ^ (a + 5 / 2 : ℝ) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
     ∑ n ∈ Finset.Iic (maxℭ X),
       ∑ _k ∈ Finset.Iic n, ∑ _j ∈ Finset.Iic (2 * n + 3), ∑ _l ∈ Finset.Iio (4 * n + 12),
         2 ^ (-(q - 1) / q * ↑n)
-  _ ≤ C2_0_4_base a * 2 ^ (a + 5 / 2 : ℝ) * volume F ^ q⁻¹ * volume G ^ (1 - q⁻¹) *
+  _ ≤ C2_0_4_base a * 2 ^ (a + 5 / 2 : ℝ) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
       (13009 / (ENNReal.ofReal (q - 1)) ^ 4) := by
     gcongr
     have A n : (2 : ℝ≥0∞) ^ (-(q - 1) / q * n) = 2 ^ (- ((q - 1) / q * n)) := by
       congr; ring
     simp_rw [A]
     exact forest_union_sum_aux2 (maxℭ X) q (one_lt_q X) (q_le_two X)
-  _ = _ := by
+  _ = C5_1_2_optimized a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
     have : ENNReal.ofReal (q - 1) = (nnq - 1 : ℝ≥0) := rfl
     rw [this]
     simp only [ENNReal.div_eq_inv_mul, C5_1_2_optimized, div_eq_inv_mul _ ((nnq - 1) ^ 4),
@@ -1127,7 +1128,7 @@ naturally be decomposed as a union of forests can be controlled, thanks to the e
 a single forest. -/
 lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
-    C5_1_2 a nnq * (volume F) ^ (q⁻¹) * (volume G) ^ (1 - q⁻¹)  := by
+    C5_1_2 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
   apply (forest_union_optimized hf h'f).trans
   gcongr
   exact C5_1_2_optimized_le

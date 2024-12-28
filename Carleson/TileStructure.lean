@@ -481,8 +481,8 @@ def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
 
 /-! ### Stack sizes -/
 
-open scoped Classical
 variable {C C' : Set (𝔓 X)} {x x' : X}
+open scoped Classical
 
 /-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
 def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
@@ -490,7 +490,6 @@ def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
 
 lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
     stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
-  classical
   simp_rw [stackSize]
   conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
   simp_rw [Finset.filter_filter]
@@ -498,7 +497,6 @@ lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
 
 lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
     stackSize C x = stackSize C x' := by
-  classical
   refine Finset.sum_congr rfl fun p hp ↦ ?_
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp_rw [indicator, h p hp, Pi.one_apply]
@@ -577,9 +575,11 @@ lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
   have : Disjoint (𝓘 a' : Set X) (𝓘 a' : Set X) := a'F.2.2 _ this
   exact disjoint_left.1 this Grid.c_mem_Grid Grid.c_mem_Grid
 
+/-- A disjoint subfamily of `A` covering everything. -/
 def maximalSubfamily (A : Set (𝔓 X)) : Set (𝔓 X) :=
   (exists_maximal_disjoint_covering_subfamily A).choose
 
+/-- Iterating `maximalSubfamily` to obtain disjoint subfamilies of `A`. -/
 def iteratedMaximalSubfamily (A : Set (𝔓 X)) (n : ℕ) : Set (𝔓 X) :=
   maximalSubfamily (A \ (⋃ (i : {i | i < n}), have : i < n := i.2; iteratedMaximalSubfamily A i))
 
