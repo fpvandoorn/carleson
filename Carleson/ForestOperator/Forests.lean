@@ -1,5 +1,6 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
+import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -130,27 +131,6 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry
 
-lemma ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm
-    {𝕜 : Type*} [RCLike 𝕜] {α : Type*} [MeasurableSpace α] {μ : Measure α} {f : α → 𝕜}
-    (hf : Integrable f μ) :
-    ∫⁻ x, ‖f x‖₊ ∂μ = ‖∫ x, starRingEnd 𝕜 (f x / ‖f x‖) * f x ∂μ‖₊ := by
-  have A x : starRingEnd 𝕜 (f x / ‖f x‖) * f x = ‖f x‖ := by
-    simp only [div_eq_inv_mul, map_mul, map_inv₀, RCLike.conj_ofReal, mul_assoc, RCLike.conj_mul]
-    norm_cast
-    rcases eq_or_ne (‖f x‖) 0 with hx | hx
-    · simp [hx]
-    · rw [pow_two, inv_mul_cancel_left₀ hx]
-  simp_rw [A, integral_ofReal, nnnorm_algebraMap']
-  rw [lintegral_coe_eq_integral]; swap
-  · simpa only [coe_nnnorm] using hf.norm
-  simp only [coe_nnnorm, ENNReal.ofReal, ENNReal.coe_inj]
-  have : |∫ (a : α), ‖f a‖ ∂μ| = ∫ (a : α), ‖f a‖ ∂μ := by
-    apply abs_eq_self.2
-    exact integral_nonneg (fun x ↦ by positivity)
-  conv_lhs => rw [← this]
-  simp only [Real.norm_eq_abs, Real.toNNReal_abs]
-  rfl
-
 /-- Verion of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function muliplied by another function. -/
 theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
@@ -161,7 +141,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     eLpNorm f 2 volume * (volume A) ^ (1/2 : ℝ) := by
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  rw [ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm]; swap
+  rw [← ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm]; swap
   · apply BoundedCompactSupport.integrable
     apply BoundedCompactSupport.finset_sum (fun i hi ↦ ?_)
     apply BoundedCompactSupport.carlesonSum

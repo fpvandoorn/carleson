@@ -1,5 +1,6 @@
 import Carleson.ForestOperator.QuantativeEstimate
 import Carleson.ToMathlib.BoundedCompactSupport
+import Carleson.ToMathlib.MeasureTheory.Integral.Prod
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -35,25 +36,6 @@ variable (t u₁ u₂) in
 /-- The set `𝔖` defined in the proof of Lemma 7.4.4.
 We append a subscript 0 to distinguish it from the section variable. -/
 def 𝔖₀ : Set (𝔓 X) := { p ∈ t u₁ ∪ t u₂ | 2 ^ ((Z : ℝ) * n / 2) ≤ dist_(p) (𝒬 u₁) (𝒬 u₂) }
-
-theorem _root_.MeasureTheory.StronglyMeasurable.prod_swap {α β γ : Type*}
-    [MeasurableSpace α] [MeasurableSpace β] [TopologicalSpace γ]
-    {f : β × α → γ} (hf : StronglyMeasurable f) :
-    StronglyMeasurable (fun z : α × β => f z.swap) :=
-  hf.comp_measurable measurable_swap
-
-theorem _root_.MeasureTheory.StronglyMeasurable.fst {α β γ : Type*}
-    [MeasurableSpace α] [MeasurableSpace β] [TopologicalSpace γ]
-    {f : α → γ} (hf : StronglyMeasurable f) :
-    StronglyMeasurable (fun z : α × β => f z.1) :=
-  hf.comp_measurable measurable_fst
-
-theorem _root_.MeasureTheory.StronglyMeasurable.snd {α β γ : Type*}
-    [MeasurableSpace α] [MeasurableSpace β] [TopologicalSpace γ]
-    {f : β → γ} (hf : StronglyMeasurable f) :
-    StronglyMeasurable (fun z : α × β => f z.2) :=
-  hf.comp_measurable measurable_snd
-
 
 lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarleson (hf : StronglyMeasurable f) :
     StronglyMeasurable (adjointCarleson p f) := by

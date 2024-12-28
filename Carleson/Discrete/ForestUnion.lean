@@ -316,6 +316,8 @@ lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j
     refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
   · rw [mem_iUnion₂] at h; obtain ⟨_, _, mp, _⟩ := h; exact mp
 
+/-- This one could deserve a lemma in the blueprint, as it is needed to decompose the sum
+of Carleson operators over disjoint subfamilies. -/
 lemma forest_disjoint : (𝔘₃ k n j).PairwiseDisjoint (fun u ↦ 𝔗₂ (X := X) k n j u) := by
   intro u hu u' hu' huu'
   simp only [Function.onFun]
@@ -1092,7 +1094,7 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
 
 /-- The constant used in Lemma 5.1.2, with value `2 ^ (435 * a ^ 3) / (q - 1) ^ 4`.
 One could do better, for instance use `2 ^ (433 * a ^ 3) / (q - 1) ^ 4`. The best constant
-naturally given by this step is `C5_1_2_optimized` above. To follow the docstring, we do not try
+naturally given by this step is `C5_1_2_optimized` above. To follow the blueprint, we do not try
 to change the value of the constant here. -/
 def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (435 * a ^ 3) / (q - 1) ^ 4
 
