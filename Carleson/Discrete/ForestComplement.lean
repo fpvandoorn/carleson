@@ -138,9 +138,8 @@ private lemma two_mul_n_add_six_lt : 2 * n + 6 < 2 ^ (n + 3) := by
       _ < 2 ^ (n + 3) + 2 ^ (n + 3) := by omega
       _ = _ := by ring
 
-lemma exists_k_n_j_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) :
-    ∃ k n, k ≤ n ∧ (p ∈ 𝔏₀ k n ∨ ∃ j ≤ 2 * n + 3, p ∈ ℭ₁ k n j) := by
-  obtain ⟨k, n, mp, hkn⟩ := exists_k_n_of_mem_𝔓pos h; use k, n, hkn
+lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k n) (hkn : k ≤ n) :
+    p ∈ 𝔏₀ k n ∨ ∃ j ≤ 2 * n + 3, p ∈ ℭ₁ k n j := by
   rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc] at h
   replace h : 0 < volume (G'ᶜ ∩ (𝓘 p : Set X)) := h.trans_le (measure_mono inter_subset_left)
   rw [inter_comm, G', compl_union, compl_union, inter_comm G₁ᶜ, ← inter_assoc, ← inter_assoc] at h
@@ -168,6 +167,11 @@ lemma exists_k_n_j_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) :
     refine ⟨by omega, (?_ : _ ∧ _ ≤ B), (?_ : ¬(_ ∧ _ ≤ B))⟩
     · exact ⟨mp, Nat.pow_log_le_self 2 Bpos.ne'⟩
     · rw [not_and, not_le]; exact fun _ ↦ Nat.lt_pow_succ_log_self one_lt_two _
+
+lemma exists_k_n_j_of_mem_𝔓pos (h : p ∈ 𝔓pos (X := X)) :
+    ∃ k n, k ≤ n ∧ (p ∈ 𝔏₀ k n ∨ ∃ j ≤ 2 * n + 3, p ∈ ℭ₁ k n j) := by
+  obtain ⟨k, n, mp, hkn⟩ := exists_k_n_of_mem_𝔓pos h
+  exact ⟨k, n, hkn, exists_j_of_mem_𝔓pos_ℭ h mp hkn⟩
 
 /-- The union occurring in the statement of Lemma 5.5.1 containing 𝔏₀ -/
 def ℜ₀ : Set (𝔓 X) := 𝔓pos ∩ ⋃ (n : ℕ) (k ≤ n), 𝔏₀ k n
@@ -202,7 +206,38 @@ lemma mem_iUnion_iff_mem_of_mem_ℭ₁ {f : ℕ → Set (𝔓 X)} (hp : p ∈ �
     exact e ▸ mp
   · use j, hp.2
 
-/-- Lemma 5.5.1 -/
+lemma nmem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
+    (h : p ∈ 𝔓pos) (mc2 : p ∈ ℭ₂ k n j) (ml2 : p ∉ 𝔏₂ k n j) :
+    p ∉ ℭ₅ k n j ↔ p ∈ ⋃ l, ⋃ (_ : l ≤ Z * (n + 1)), 𝔏₃ k n j l := by
+  have mc3 : p ∈ ℭ₃ k n j := ⟨mc2, ml2⟩
+  by_cases mc4 : p ∉ ℭ₄ k n j
+  all_goals
+    have mc4' := mc4
+    simp_rw [ℭ₄, layersBelow, mem_diff, not_and, mc3, true_implies, not_not_mem] at mc4'
+  · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
+    simp_rw [mc4', iff_true]; contrapose! mc4
+    exact ℭ₅_subset_ℭ₄ mc4
+  change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
+  simp_rw [mc4', iff_false, ℭ₅]; rw [not_not_mem] at mc4 ⊢; simp_rw [mem_diff, mc4, true_and]
+  have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
+    suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
+    by_contra hv
+    rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc, ← diff_eq_compl_inter,
+      diff_eq_empty.mpr hv] at h
+    simp at h
+  contrapose! nG₃
+  exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <|
+    le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ subset_rfl
+
+
+/-- Lemma 5.5.1.
+
+We will not use the lemma in this form, as to decompose the Carleson sum it is also crucial that
+the union is disjoint. This is easier to formalize by decomposing into successive terms, taking
+advantage of disjointess at each step, instead of doing everything in one go. Still, we keep this
+lemma as it corresponds to the blueprint, and the key steps of its proof will also be the key steps
+when doing the successive decompositions.
+ -/
 lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ₁ ∪ ℜ₂ ∪ ℜ₃ := by
   unfold ℜ₀ ℜ₁ ℜ₂ ℜ₃ 𝔓₁; simp_rw [← inter_union_distrib_left]; ext p
   simp_rw [mem_inter_iff, and_congr_right_iff, mem_compl_iff, mem_union]; intro h
@@ -239,25 +274,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   · simp_rw [ml2, true_or, iff_true]
     exact fun a ↦ disjoint_left.mp 𝔏₂_disjoint_ℭ₃ ml2 (ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ a)
   simp_rw [ml2, false_or]
-  have mc3 : p ∈ ℭ₃ k n j := ⟨mc2, ml2⟩
-  by_cases mc4 : p ∉ ℭ₄ k n j
-  all_goals
-    have mc4' := mc4
-    simp_rw [ℭ₄, layersBelow, mem_diff, not_and, mc3, true_implies, not_not_mem] at mc4'
-  · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
-    simp_rw [mc4', iff_true]; contrapose! mc4
-    exact ℭ₅_subset_ℭ₄ mc4
-  change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
-  simp_rw [mc4', iff_false, ℭ₅]; rw [not_not_mem] at mc4 ⊢; simp_rw [mem_diff, mc4, true_and]
-  have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
-    suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
-    by_contra hv
-    rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc, ← diff_eq_compl_inter,
-      diff_eq_empty.mpr hv] at h
-    simp at h
-  contrapose! nG₃
-  exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <|
-    le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ subset_rfl
+  exact nmem_ℭ₅_iff_mem_𝔏₃ hkn hj h mc2 ml2
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
@@ -571,7 +588,146 @@ def C5_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (210 * a ^ 3) / (q - 1) ^ 5
 
 lemma C5_1_3_pos : C5_1_3 a nnq > 0 := sorry
 
+#check 𝔓pos
+
+/-- The Carleson sum over `𝔓₁ᶜ` and `𝔓pos ∩ 𝔓₁ᶜ` coincide at ae every point of `G \ G'`. -/
+lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
+    ∀ᵐ x, x ∈ G \ G' → carlesonSum 𝔓₁ᶜ f x = carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x := by
+  have A p (hp : p ∈ (𝔓pos (X := X))ᶜ) : ∀ᵐ x, x ∈ G \ G' → x ∉ 𝓘 p := by
+    simp only [𝔓pos, mem_compl_iff, mem_setOf_eq, not_lt, nonpos_iff_eq_zero] at hp
+    filter_upwards [measure_zero_iff_ae_nmem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
+    simp [h''x, h'x.1, h'x.2] at hx
+  rw [← ae_ball_iff (to_countable 𝔓posᶜ)] at A
+  filter_upwards [A] with x hx h'x
+  simp only [carlesonSum]
+  symm
+  apply Finset.sum_subset
+  · intro p hp
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+    exact hp.2
+  · intro p hp h'p
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp h'p
+    simp only [mem_inter_iff, hp, and_true] at h'p
+    have : x ∉ 𝓘 p := hx _ h'p h'x
+    have : x ∉ E p := by simp at this; simp [E, this]
+    simp [carlesonOn, this]
+
+/-- The Carleson sum over `𝔓pos ∩ 𝔓₁ᶜ` can be decomposed as a sum over the intersections of this
+set with various `ℭ k n`. -/
+lemma carlesonSum_𝔓pos_eq_sum {f : X → ℂ} {x : X} :
+    carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x =
+      ∑ n ≤ maxℭ X, ∑ k ≤ n, carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ ℭ k n) f x := by
+  simp only [Finset.sum_sigma']
+  simp only [carlesonSum]
+  rw [← Finset.sum_biUnion]; swap
+  · rintro ⟨n, k⟩ - ⟨n', k'⟩ - h
+    simp only [ne_eq, Sigma.mk.inj_iff, heq_eq_eq] at h
+    simp only [Function.onFun, Finset.disjoint_filter, Finset.mem_univ, forall_const]
+    have W := pairwiseDisjoint_ℭ (X := X) (mem_univ ⟨k, n⟩) (mem_univ ⟨k', n'⟩)
+      (by simp [-not_and]; tauto)
+    intro x hx h'x
+    exact (disjoint_iff_forall_ne.1 W) hx.2 h'x.2 rfl
+  congr
+  ext p
+  simp only [mem_inter_iff, mem_compl_iff, Finset.mem_filter, Finset.mem_univ, true_and,
+    Finset.mem_biUnion, Finset.mem_sigma, Finset.mem_Iic, Sigma.exists]
+  constructor
+  · intro hp
+    rcases exists_k_n_of_mem_𝔓pos hp.1 with ⟨k, n, h'p, hkn⟩
+    exact ⟨n, k, ⟨le_maxℭ_of_nonempty ⟨p, h'p⟩ , hkn⟩, hp, h'p⟩
+  · rintro ⟨a, b, hab⟩
+    exact hab.2.1
+
+/-- In each set `ℭ k n`, the Carleson sum can be decomposed as a sum over `𝔏₀ k n` and over
+various `ℭ₁ k n j`. -/
+lemma carlesonSum_𝔓pos_inter_ℭ_eq_add_sum {f : X → ℂ} {x : X} (hkn : k ≤ n) :
+    carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ k n) f x =
+      carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀ k n) f x
+      + ∑ j ≤ 2 * n + 3, carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x := by
+  conv_lhs => rw [← carlesonSum_inter_add_inter_compl _ (𝔏₀ k n)]
+  rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
+  · apply PairwiseDisjoint.subset _ (subset_univ _)
+    apply (pairwiseDisjoint_ℭ₁ (k := k) (n := n)).mono
+    intro j
+    exact inter_subset_right
+  congr 2
+  · ext p
+    simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
+    intro hp
+    simp [𝔏₀_subset_ℭ hp]
+  · apply Subset.antisymm
+    · rintro p ⟨⟨hp, Hp⟩, h'p⟩
+      rcases exists_j_of_mem_𝔓pos_ℭ hp.1 Hp hkn with H
+      simp only [mem_compl_iff] at h'p
+      simp only [h'p, false_or] at H
+      simp only [Finset.mem_Iic, mem_iUnion, mem_inter_iff, hp, true_and, exists_prop]
+      exact H
+    · intro p hp
+      simp only [Finset.mem_Iic, mem_iUnion, mem_compl_iff, exists_and_left, exists_prop] at hp
+      rcases hp with ⟨i, hi, h'i, h''i⟩
+      exact ⟨⟨h'i, ℭ₁_subset_ℭ h''i⟩, disjoint_left.1 𝔏₀_disjoint_ℭ₁.symm h''i⟩
+
+lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
+    carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x =
+      carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₂ k n j) f x
+      + ∑ l ≤ Z * (n + 1), carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x := by
+  conv_lhs => rw [← carlesonSum_inter_add_inter_compl _ (ℭ₂ k n j)]
+  rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
+  · apply PairwiseDisjoint.subset _ (subset_univ _)
+    have : univ.PairwiseDisjoint fun l ↦ 𝔏₁ (X := X) k n j l := pairwiseDisjoint_minLayer
+    apply this.mono
+    intro j
+    exact inter_subset_right
+  congr 2
+  · ext p
+    simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
+    intro hp
+    simp [ℭ₂_subset_ℭ₁ hp]
+  · ext p
+    simp only [ℭ₂, layersAbove, mem_inter_iff,
+      mem_compl_iff, mem_diff, mem_iUnion, exists_prop, not_exists, not_and, not_forall,
+      Classical.not_imp, Decidable.not_not, Finset.mem_Iic, 𝔏₁, exists_and_left]
+    refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+    · simpa [h.1.1] using h.2 h.1.2
+    · rcases h with ⟨i, hi, h'i⟩
+      simp only [h'i.1, not_false_eq_true, and_self, minLayer_subset h'i.2, forall_const, true_and]
+      exact ⟨i, hi, h'i.2⟩
+
+lemma carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum {f : X → ℂ} {x : X} (hkn : k ≤ n) (hj : j ≤ 2 * n + 3) :
+    carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₂ k n j) f x =
+      carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₂ k n j) f x
+      + ∑ l ≤ Z * (n + 1), carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₃ k n j l) f x := by
+  conv_lhs => rw [← carlesonSum_inter_add_inter_compl _ (𝔏₂ k n j)]
+  rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
+  · apply PairwiseDisjoint.subset _ (subset_univ _)
+    have : univ.PairwiseDisjoint fun l ↦ 𝔏₃ (X := X) k n j l := pairwiseDisjoint_minLayer
+    apply this.mono
+    intro j
+    exact inter_subset_right
+  congr 2
+  · ext p
+    simp only [mem_inter_iff, mem_compl_iff, and_congr_left_iff, and_iff_left_iff_imp, and_imp]
+    intro hp
+    simp [𝔏₂_subset_ℭ₂ hp]
+  · ext p
+    simp only [mem_inter_iff, mem_compl_iff,
+      Finset.mem_Iic, mem_iUnion, exists_and_left, exists_prop]
+    refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+    · refine ⟨h.1.1, ?_⟩
+      simp only [𝔓₁, mem_iUnion, exists_prop, not_exists, not_and] at h
+      have : p ∉ ℭ₅ k n j := h.1.1.2 n k hkn j hj
+      simpa using (nmem_ℭ₅_iff_mem_𝔏₃ (X := X) hkn hj h.1.1.1 h.1.2 h.2).1 this
+    · rcases h.2 with ⟨l, lZ, hl⟩
+      exact ⟨⟨h.1, ℭ₃_subset_ℭ₂ (maxLayer_subset hl)⟩,
+        disjoint_right.1 𝔏₂_disjoint_ℭ₃ (maxLayer_subset hl)⟩
+
 lemma forest_complement {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ ≤
-    C5_1_3 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by
-  sorry
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ ≤
+    C5_1_3 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := calc
+  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊
+  _ = ∫⁻ x in G \ G', ‖carlesonSum ((𝔓pos (X := X) ∩ 𝔓₁ᶜ)) f x‖₊ := by
+    apply lintegral_congr_ae
+    apply (ae_restrict_iff' (measurableSet_G.diff measurable_G')).2
+    filter_upwards [carlesonSum_𝔓₁_compl_eq_𝔓pos_inter f] with x hx h'x
+    simp [hx h'x]
+  _ ≤ _ := sorry

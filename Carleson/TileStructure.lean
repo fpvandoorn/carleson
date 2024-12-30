@@ -247,6 +247,36 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
   .finset_sum (fun _ _ ↦ hf.carlesonOn)
 
+lemma carlesonSum_inter_add_inter_compl {f : X → ℂ} {x : X} (A B : Set (𝔓 X)) :
+    carlesonSum (A ∩ B) f x + carlesonSum (A ∩ Bᶜ) f x = carlesonSum A f x := by
+  classical
+  simp only [carlesonSum]
+  conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ (fun p ↦ p ∈ B)]
+  congr 2
+  · ext; simp
+  · ext; simp
+
+lemma sum_carlesonSum_of_pairwiseDisjoint {ι : Type*} {f : X → ℂ} {x : X} {A : ι → Set (𝔓 X)}
+    {s : Finset ι} (hs : (s : Set ι).PairwiseDisjoint A) :
+    ∑ i ∈ s, carlesonSum (A i) f x = carlesonSum (⋃ i ∈ s, A i) f x := by
+  classical
+  simp only [carlesonSum]
+  rw [← Finset.sum_biUnion]
+  · congr
+    ext p
+    simp
+  · convert hs
+    refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+    · intro i hi j hj hij
+      convert Finset.disjoint_coe.2 (h hi hj hij)
+      · ext; simp
+      · ext; simp
+    · intro i hi j hj hij
+      apply Finset.disjoint_coe.1
+      convert h hi hj hij
+      · ext; simp
+      · ext; simp
+
 end T
 
 variable (X) in
