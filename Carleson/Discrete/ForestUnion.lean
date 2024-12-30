@@ -774,7 +774,7 @@ lemma lintegral_carlesonSum_forest
     exact Iff.rfl
   rw [this]
   have W := forest_operator' 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
-    (PreProofData.isBounded_G.subset diff_subset)
+    (isBounded_G.subset diff_subset)
   apply W.trans
   gcongr
   · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
@@ -1023,11 +1023,9 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
     _ ≤ a + a * (a * a - 1) := by gcongr
     _ = a ^ 3 := by ring
 
-/-- The constant used in Lemma 5.1.2, with value `2 ^ (435 * a ^ 3) / (q - 1) ^ 4`.
-One could do better, for instance use `2 ^ (433 * a ^ 3) / (q - 1) ^ 4`. The best constant
-naturally given by this step is `C5_1_2_optimized` above. To follow the blueprint, we do not try
-to change the value of the constant here. -/
-def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (435 * a ^ 3) / (q - 1) ^ 4
+/-- The constant used in Lemma 5.1.2, with value `2 ^ (433 * a ^ 3) / (q - 1) ^ 4`.
+The best constant naturally given by this step is `C5_1_2_optimized` above. -/
+def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (433 * a ^ 3) / (q - 1) ^ 4
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
@@ -1038,20 +1036,12 @@ lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_optimized_le : C5_1_2_optimized a nnq ≤ C5_1_2 a nnq := by
-  apply (C5_1_2_optimized_le' (four_le_a X)).trans
+  apply (C5_1_2_optimized_le' (four_le_a X)).trans_eq
   simp only [C2_0_4_base, C5_1_2]
   rw [← NNReal.rpow_natCast _ (a ^ 3), ← NNReal.rpow_add two_ne_zero]
-  gcongr
-  · exact one_le_two
+  congr
   simp only [Nat.cast_pow]
-  calc
-  432 * (a : ℝ) ^ 3 + (a : ℝ) ^ 3
-  _ ≤ 432 * (a : ℝ) ^ 3 + 3 * (a : ℝ) ^ 3 := by
-    gcongr
-    apply le_mul_of_one_le_left
-    · positivity
-    · norm_num
-  _ = 435 * (a : ℝ) ^ 3 := by ring
+  ring
 
 /-- Lemma 5.1.2 in the blueprint: the integral of the Carleson sum over the set which can
 naturally be decomposed as a union of forests can be controlled, thanks to the estimate for

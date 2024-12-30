@@ -286,8 +286,6 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
     HasBoundedStrongType (nontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
-  isBounded_F : IsBounded F
-  isBounded_G : IsBounded G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)
@@ -574,7 +572,7 @@ scoped notation "nnD" => nnD a
 
 end ShortVariables
 
-variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable [PseudoMetricSpace X] [h : ProofData a q K σ₁ σ₂ F G]
 
 lemma volume_F_lt_top : volume F < ⊤ :=
   lt_of_le_of_lt (measure_mono ProofData.F_subset) measure_ball_lt_top
@@ -585,6 +583,12 @@ lemma volume_G_lt_top : volume G < ⊤ :=
   lt_of_le_of_lt (measure_mono ProofData.G_subset) measure_ball_lt_top
 
 lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
+
+include h in
+lemma isBounded_F : IsBounded F := IsBounded.subset isBounded_ball ProofData.F_subset
+
+include h in
+lemma isBounded_G : IsBounded G := IsBounded.subset isBounded_ball ProofData.G_subset
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 def hnorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=

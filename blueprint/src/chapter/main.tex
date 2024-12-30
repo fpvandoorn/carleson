@@ -117,7 +117,7 @@ $$
     \|\varphi\|_{\Lip(B)} = \sup_{x \in B} |\varphi(x)| + R \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)}\,.
 $$
 
-A one-sided Calder\'on--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$ is a measurable function
+A one-sided Calderón--Zygmund kernel $K$ on the doubling metric measure space $(X, \rho, \mu, a)$ is a measurable function
 \begin{equation}\label{eqkernel0}
   K:X\times X\to \mathbb{C}
 \end{equation}
@@ -153,7 +153,7 @@ $1<q<2$.
     For all integers $a \ge 4$ and real numbers $1<q\le 2$
     the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
-    cancellative compatible collection of functions and let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    cancellative compatible collection of functions and let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{nontanbound}
         \|T_{*}g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
@@ -195,7 +195,7 @@ where again $e(r)=e^{ir}$.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
     cancellative compatible collection of functions.
     Let $\tQ:X\to \Mf$ be a Borel function with finite range.
-    Let $K$ be a one-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
+    Let $K$ be a one-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume that for every $\mfa\in \Mf$ and every bounded measurable function $g$ on $X$ supported on a set of finite measure we have
     \begin{equation}\label{linnontanbound}
         \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
@@ -218,9 +218,9 @@ In the one-dimensional Euclidean setting, with $K$ representing the Hilbert kern
 \end{equation*}
 and $\Mf$ denoting the class of linear functions, the operator \eqref{def-main-op} is the classical Carleson operator, which plays a crucial role in proving the almost everywhere convergence of Fourier series \cite{carleson}, \cite{fefferman}, \cite{lacey-thiele}. The supremum in $R_1$ and $R_2$ is often omitted in classical treatments, but considering the maximal truncations can easily be reduced to the case without these truncations.
 
-By replacing $\Mf$ with the class of polynomials vanishing at $0$ up to some fixed but arbitrary degree, we obtain the polynomial Carleson operator of Lie \cite{lie-quadratic} (quadratic case) and \cite{lie-polynomial}. The case of the class of polynomials with vanishing linear coefficient is simpler and was estimated in \cite{stein-wainger}. The polynomial Carleson operator was generalized to the high-dimensional Euclidean setting in \cite{zk-polynomial} for $K$ being a Calder\'on-Zygmund kernel with some H\"older regularity.
+By replacing $\Mf$ with the class of polynomials vanishing at $0$ up to some fixed but arbitrary degree, we obtain the polynomial Carleson operator of Lie \cite{lie-quadratic} (quadratic case) and \cite{lie-polynomial}. The case of the class of polynomials with vanishing linear coefficient is simpler and was estimated in \cite{stein-wainger}. The polynomial Carleson operator was generalized to the high-dimensional Euclidean setting in \cite{zk-polynomial} for $K$ being a Calderón-Zygmund kernel with some Hölder regularity.
 
-Doubling metric measure spaces are instances of spaces of homogeneous type. Indeed, by changing from a quasi-metric to an equivalent metric, every space of homogeneous type can be viewed as a doubling metric measure space (cf. \cite{MaciasSegovia}). Spaces of homogeneous type were introduced by \cite{MR0499948} as a natural setting for Calder\'on-Zygmund theory. We refer to the textbook \cite{stein-book} for an account of these spaces.
+Doubling metric measure spaces are instances of spaces of homogeneous type. Indeed, by changing from a quasi-metric to an equivalent metric, every space of homogeneous type can be viewed as a doubling metric measure space (cf. \cite{MaciasSegovia}). Spaces of homogeneous type were introduced by \cite{MR0499948} as a natural setting for Calderón-Zygmund theory. We refer to the textbook \cite{stein-book} for an account of these spaces.
 
 Our concept of a compatible collection $\Mf$ as a natural class of phase functions on a doubling metric measure space does not appear in \cite{stein-book} but is implicitly anticipated in \cite{zk-polynomial} and subsequent work of \cite{mnatsakanyan}, who proves a Carleson-type theorem for the Malmquist-Takenaka series, which leads to classes of phases related to Blaschke products. A generalization of \eqref{def-main-op} from the previously mentioned Euclidean setting into the anisotropic setting that was suggested in \cite{zk-polynomial} is included in our theory. The polynomial Carleson operator also plays a role in the study of maximally modulated singular Radon transforms along the parabola, see \cite{ramos} and \cite{becker2024maximal}.
 
@@ -229,7 +229,7 @@ For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polyno
 \noindent \textit{Acknowledgement.}
 L.B., F.v.D., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
 L.B. , R.S., and C.T. were also supported by SFB 1060.
-A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
+A.J. is funded by the TÜBITAK (Scientific and Technological Research Council of Türkiye) under Grant Number 123F122.
 
 \chapter{Proof of Metric Space Carleson, overview}
 \label{overviewsection}
@@ -275,7 +275,7 @@ for all $\mfa\in \Mf$.
 
 
 Let a Borel measurable function $\tQ:X\to \Mf$ with finite range be given.
-Let a one-sided Calder\'on--Zygmund kernel $K$ on $X$ be given so that for every $\mfa\in \Mf$ the operator $T_{\tQ}^{\mfa}$ defined in \eqref{def-lin-star-op}
+Let a one-sided Calderón--Zygmund kernel $K$ on $X$ be given so that for every $\mfa\in \Mf$ the operator $T_{\tQ}^{\mfa}$ defined in \eqref{def-lin-star-op}
 satisfies \eqref{linnontanbound}.
 
 
@@ -304,7 +304,7 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
 \end{equation*}
 \begin{equation}
     \label{eq-linearized}
-    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}}
+    \le \frac{2^{434a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}}
      \mu(F)^{\frac 1 q}\,.
 \end{equation}
 \end{proposition}
@@ -423,7 +423,7 @@ Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all
 we have
 \begin{equation}
     \label{disclesssim}
-   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{440a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{434a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
 \end{equation}
 \end{proposition}
 
@@ -567,7 +567,7 @@ $$
 \end{proposition}
 
 \Cref{metric-space-Carleson} is formulated at the level of generality
-for general kernels satisfying the mere H\"older regularity condition \eqref{eqkernel-y-smooth}. On the other hand, the cancellative condition \eqref{eq-vdc-cond} is a testing condition against more regular,
+for general kernels satisfying the mere Hölder regularity condition \eqref{eqkernel-y-smooth}. On the other hand, the cancellative condition \eqref{eq-vdc-cond} is a testing condition against more regular,
 namely Lipschitz functions. To bridge the gap, we follow \cite{zk-polynomial} to observe a variant of \eqref{eq-vdc-cond} that we formulate
 in the following proposition proved in \Cref{liphoel}.
 
@@ -576,7 +576,7 @@ Define
 \begin{equation}
     \tau:=\frac 1a\, .
 \end{equation}
-Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\tau$-H\"older norm by
+Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\tau$-Hölder norm by
 \begin{equation}
     \label{eq-Holder-norm}
     \|\varphi\|_{C^\tau(B)} = \sup_{x \in B} |\varphi(x)| + R^\tau \sup_{x,y \in B, x \neq y} \frac{|\varphi(x) - \varphi(y)|}{\rho(x,y)^\tau}\,.
@@ -875,7 +875,7 @@ To reduce \Cref{R-truncation} to \Cref{S-truncation}, we need estimates for the 
 \leq 2^{102 a^3} M\mathbf{1}_F(x),
 \end{multline}
 where $M\mathbf{1}_F$ is as defined in \Cref{Hardy-Littlewood}.
-Now, the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}, can be estimated using H\"older's inequality and \Cref{Hardy-Littlewood} by
+Now, the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}, can be estimated using Hölder's inequality and \Cref{Hardy-Littlewood} by
 $$
     2^{102 a^3}\int \mathbf{1}_{G}(x) M\mathbf{1}_F(x)\, d\mu(x)
     \leq \frac{2^{102 a^3+4a}q}{q-1}\mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
@@ -944,7 +944,7 @@ which, as we have just shown, is estimated by
      &2^{102 a^3}\int \mathbf{1}_{G}(x)
 M\mathbf{1}_{F}(x)\, d\mu(x).
 \end{align*}
-By H\"older's inequality and \Cref{Hardy-Littlewood}
+By Hölder's inequality and \Cref{Hardy-Littlewood}
  (more precisely, \eqref{eq-hlm-2} with $p=q$), the above is no greater than
 \begin{align*}
 &\frac{2^{102 a^3+4a}q}{q-1} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
@@ -1017,7 +1017,7 @@ for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
     \left| {T}_{2,\sigma_1,\sigma_2, \tQ} f(x) \right|\, d\mu(x)
 \end{equation*}
 \begin{equation}
-    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \le \frac{2^{434a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
 \end{equation}
 Adding the first $n$ of these inequalities, we obtain by bounding a geometric series
     \begin{equation} \label{Sqcut2}
@@ -1129,7 +1129,7 @@ We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \end{equation}
 \begin{equation}
  =\int_{G \setminus G'} \left|\sum_{\fp\in \fP}T_{\fp} f(x)\right| \mathrm{d}\mu(x)
- \le \frac{2^{440a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
+ \le \frac{2^{434a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
 \end{equation}
 This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and thus completes the proof of Proposition
 \ref{finitary-Carleson}.
@@ -1965,7 +1965,7 @@ In \Cref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G'$ as fore
     For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
     \begin{equation}
         \label{disclesssim1}
-        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{435a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{433a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
 
@@ -3020,12 +3020,12 @@ We have
 \end{proof}
 We now turn to the proof of \Cref{forest-union}.
 \begin{proof}[Proof of \Cref{forest-union}]
-    \proves{forest-union}
+    \proves{forest-union}\leanok
 
     We first fix $k,n, j$.
     By \eqref{definetp} and \eqref{defineep}, we have that
     $\mathbf{1}_{\scI(\fp)} T_{\fp}f(x) = T_{\fp}f(x)$ and hence $\mathbf{1}_{G \setminus G'} T_{\fp}f(x)= 0$ for all $\fp \in \fC_5(k,n,j) \setminus \fC_6(k,n,j)$.
-    Thus it suffices to estimate the contribution of the sets $\fC_6(k,n,j)$. By \Cref{forest-stacking}, we can decompose $\fU_3(k,n,j)$ as a disjoint union of at most $4n + 13$ collections $\fU_4(k,n,j,l)$, $1 \le l \le 4n+13$, each satisfying
+    Thus it suffices to estimate the contribution of the sets $\fC_6(k,n,j)$. By \Cref{forest-stacking}, we can decompose $\fU_3(k,n,j)$ as a disjoint union of at most $4n + 12$ collections $\fU_4(k,n,j,l)$, $1 \le l \le 4n+12$, each satisfying
     $$
         \sum_{\fu \in \fU_4(k,n,j,l)} \mathbf{1}_{\scI(\fu)} \le 2^n\,.
     $$
@@ -3035,7 +3035,7 @@ We now turn to the proof of \Cref{forest-union}.
     $$
     are $n$-forests for each $k,n,j,l$, and by \Cref{C6-forest}, we have
     $$
-        \fC_6(k,n,j) = \bigcup_{l = 1}^{4n + 13} \bigcup_{\fu \in \fU_4(k,n,j,l)} \mathfrak{T}_2(\fu)\,.
+        \fC_6(k,n,j) = \bigcup_{l = 1}^{4n + 12} \bigcup_{\fu \in \fU_4(k,n,j,l)} \mathfrak{T}_2(\fu)\,.
     $$
     Since $\scI(\fp) \not\subset G_1$ for all $\fp \in \fC_6(k,n,j)$, we have $\fC_6(k,n,j) \cap \fP_{F,G} = \emptyset$ and hence
     $$
@@ -3043,17 +3043,20 @@ We now turn to the proof of \Cref{forest-union}.
     $$
     Using the triangle inequality according to the splitting by $k,n,j$ and $l$ in \eqref{disclesssim1} and applying \Cref{forest-operator} to each term, we obtain the estimate
     $$
-        \sum_{k \ge 0}\sum_{n \ge k} (2n+3)(4n+13) 2^{432a^3}2^{-(1-\frac{1}{q})n}(2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2 \|\mathbf{1}_{G\setminus G'}\|_2
+        \sum_{k \ge 0}\sum_{n \ge k} (2n+3)(4n+12) 2^{432a^3}2^{-(1-\frac{1}{q})n}(2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2 \|\mathbf{1}_{G\setminus G'}\|_2
     $$
-    for the left hand side of \eqref{disclesssim1}. Since $|f| \le \mathbf{1}_F$, we have $\|f\|_2 \le \mu(F)^{1/2}$, and we have $\|\mathbf{1}_{G\setminus G'}\|_2 \le \mu(G)^{1/2}$. Combining this with $a \ge 4$, we estimate by
+    for the left hand side of \eqref{disclesssim1}. Since $|f| \le \mathbf{1}_F$, we have $\|f\|_2 \le \mu(F)^{1/2}$, and we have $\|\mathbf{1}_{G\setminus G'}\|_2 \le \mu(G)^{1/2}$.
+    We get a bound
     $$
-        2^{433a^3} \mu(F)^{\frac{1}{q}} \mu(G)^{1
-        -\frac{1}{q}} \sum_{k \ge 0}\sum_{n \ge k}n^2 2^{-(1-\frac{1}{q})n}\,.
+        2^{432a^3} \mu(F)^{\frac{1}{q}} \mu(G)^{1
+        -\frac{1}{q}} 2^{2a+5}\sum_{k \ge 0}\sum_{n \ge k}(2n+3)(4n+12) 2^{-(1-\frac{1}{q})n}\,.
     $$ % n^2 -> (n+1)^2
-    Interchanging the order of summation, the sum equals
+    Interchanging the order of summation, the last factor equals
     $$
-        \sum_{n \ge 0} n^2(n+1) 2^{-\frac{q-1}{q}n} \le \frac{2^{2a^3}}{(q-1)^4}\,,
+        2^{2a+5} \sum_{n \ge 0} (2n+3)(4n+12) (n+1) 2^{-\frac{q-1}{q}n}\,.
     $$
+    Up to an explicit constant, the sum is bounded by $\sum n^3 2^{-\frac{q-1}{q}n}$, which is at most
+    some constant times $1/(q-1)^4$ by comparing to an integral. Since $a \ge 4$, this is overall bounded by $2^{a^3}/(q-1)^4$,
     which completes the proof of the lemma.
 \end{proof}
 
@@ -3344,7 +3347,7 @@ We have that
 \end{equation}
 \end{lemma}
 \begin{proof}
-We have $f=\mathbf{1}_Ff$. Using H\"older's inequality, we obtain for
+We have $f=\mathbf{1}_Ff$. Using Hölder's inequality, we obtain for
 each $x\in B'$ and each $B'\in \mathcal{B}$ using $1<\tilde{q}\le 2$
 \begin{equation}
     \frac 1{\mu(B')}\int_{B'} |f(y)|\, d\mu(y)
@@ -3475,7 +3478,7 @@ with $h(\fp)$ defined as
 
 
 Note that $p\geq 4$ since $a>4$.
-We estimate $h(\fp)$ as defined in \eqref{def-hp} with H\"older using $|g|\le \mathbf{1}_G$ and $E(\fp')\subset B(\fp)$ by
+We estimate $h(\fp)$ as defined in \eqref{def-hp} with Hölder using $|g|\le \mathbf{1}_G$ and $E(\fp')\subset B(\fp)$ by
 
 \begin{equation}
     \frac{\|g\mathbf{1}_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
@@ -5168,7 +5171,7 @@ $$
 \section{Proof of the Tiles with large separation Lemma}
     \label{subsec-big-tiles}
 
-\Cref{correlation-distant-tree-parts} follows from the van der Corput estimate in \Cref{Holder-van-der-Corput}. We apply this proposition in \Cref{subsubsec-van-der-corput}. To prepare this application, we first, in \Cref{subsubsec-pao}, construct a suitable partition of unity, and show then, in \Cref{subsubsec-holder-estimates} the H\"older estimates needed to apply \Cref{Holder-van-der-Corput}.
+\Cref{correlation-distant-tree-parts} follows from the van der Corput estimate in \Cref{Holder-van-der-Corput}. We apply this proposition in \Cref{subsubsec-van-der-corput}. To prepare this application, we first, in \Cref{subsubsec-pao}, construct a suitable partition of unity, and show then, in \Cref{subsubsec-holder-estimates} the Hölder estimates needed to apply \Cref{Holder-van-der-Corput}.
 
 \subsection{A partition of unity}
 \label{subsubsec-pao}
@@ -5312,7 +5315,7 @@ $$
     \end{proof}
 
 
-\subsection{H\"older estimates for adjoint tree operators}
+\subsection{Hölder estimates for adjoint tree operators}
 \label{subsubsec-holder-estimates}
     Let $g_1, g_2:X \to \mathbb{C}$ be bounded with bounded support.
     Define for $J \in \mathcal{J}'$
@@ -5320,7 +5323,7 @@ $$
         \label{def-hj}
         h_J(y) := \chi_J(y)\cdot(e(\fcc(\fu_1)(y)) T_{\fT(\fu_1)}^* g_1(y)) \cdot \overline{(e(\fcc(\fu_2)(y)) T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y))}\,.
     \end{equation}
-    The main result of this subsubsection is the following $\tau$-H\"older estimate for $h_J$, where $\tau = 1/a$.
+    The main result of this subsubsection is the following $\tau$-Hölder estimate for $h_J$, where $\tau = 1/a$.
 
     \begin{lemma}[Holder correlation tree]
         \label{Holder-correlation-tree}
@@ -5336,7 +5339,7 @@ $$
 
     We will prove this lemma at the end of this section, after establishing several auxiliary results.
 
-    We begin with the following H\"older continuity estimate for adjoints of operators associated to tiles.
+    We begin with the following Hölder continuity estimate for adjoints of operators associated to tiles.
     \begin{lemma}[Holder correlation tile]
         \label{Holder-correlation-tile}
         \leanok
@@ -6210,7 +6213,7 @@ Now we prove \Cref{forest-operator}.
     \Cref{forest-operator} follows by taking the product of the $(2 - \frac{2}{q})$-th power of \eqref{eq-forest-bound-1} and the $(\frac{2}{q} - 1)$-st power of \eqref{eq-forest-bound-2}.
 \end{proof}
 
-\chapter{Proof of the H\"older cancellative condition}
+\chapter{Proof of the Hölder cancellative condition}
 \label{liphoel}
 
 We need the following auxiliary lemma.
@@ -6739,7 +6742,7 @@ This completes the proof.
 
 \chapter{Two-sided Metric Space Carleson}
 
-We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calder\'on--Zygmund kernel on the doubling metric measure space $(X,\rho,\mu,a)$, i.e. a one-sided Calder\'on--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
+We prove a variant of \Cref{metric-space-Carleson} for a two-sided Calderón--Zygmund kernel on the doubling metric measure space $(X,\rho,\mu,a)$, i.e. a one-sided Calderón--Zygmund kernel $K$ which additionally satisfies for all $x,x',y\in X$ with $x\neq y$ and $2\rho(x,x') \leq \rho(x,y)$,
 \begin{equation}
     \label{eqkernel-x-smooth}
     |K(x,y) - K(x',y)| \leq \left(\frac{\rho(x,x')}{\rho(x,y)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,y)}.
@@ -6759,7 +6762,7 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
         For all  integers $a \ge  4$ and real numbers $1<q\le 2$
         the following holds.
         Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let  $\Mf$ be a
-        cancellative compatible  collection of functions and let $K$ be a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
+        cancellative compatible  collection of functions and let $K$ be a two-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Assume  that for every bounded measurable function $g$ on $X$ supported on a set of finite measure and all $r>0$ we have
       \begin{equation}\label{two-sided-Hr-bound-assumption}
             \|T_r g\|_{2} \leq 2^{a^3} \|g\|_2\,.
         \end{equation}
@@ -6772,7 +6775,7 @@ T_r f(x):= \int_{r\le\rho(x,y)} K(x,y) f(y) \, d\mu(y) = \int_{X\setminus B(x,r)
         \end{equation}
 \end{theorem}
 
-For the remainder of this chapter, fix an integer $a\ge 4$, a doubling metric measure space $(X,\rho,\mu,a)$ and a two-sided Calder\'on--Zygmund kernel $K$ as in \Cref{two-sided-metric-space-Carleson}.
+For the remainder of this chapter, fix an integer $a\ge 4$, a doubling metric measure space $(X,\rho,\mu,a)$ and a two-sided Calderón--Zygmund kernel $K$ as in \Cref{two-sided-metric-space-Carleson}.
 
 The following lemma is proved in \Cref{subsec-cotlar}.
 \begin{lemma}[nontangential-from-simple]\label{nontangential-from-simple}
@@ -6795,7 +6798,7 @@ The following lemma is proved in \Cref{subsec-cotlar}.
     \begin{equation*}
         K'(x,y):= 2^{-2a^3} K(x,y) \,.
     \end{equation*}
-    Then $K'$ is a two-sided Calder\'on--Zygmund kernel on $(X,\rho,\mu,a)$. Denote the corresponding maximally truncated non-tangential singular operator by $T_*'$ and the corresponding generalized Carleson operator by $T'$.
+    Then $K'$ is a two-sided Calderón--Zygmund kernel on $(X,\rho,\mu,a)$. Denote the corresponding maximally truncated non-tangential singular operator by $T_*'$ and the corresponding generalized Carleson operator by $T'$.
     With \eqref{original-operator-assumption}, we obtain for $g$ as above,
     \begin{equation}\label{modified-operator-assumption}
         \|T_*'g\|_2\le 2^{a^3}\|g\|_2.
@@ -7243,9 +7246,9 @@ $x'\in B(x,R_2)$, at which time the integral does not depend on $R_1$, we estima
 
 
 
-\section{Calder\'on-Zygmund Decomposition}
+\section{Calderón-Zygmund Decomposition}
 \label{subsec-CZD}
-Calder\'on-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
+Calderón-Zygmund decomposition is a tool to extend $L^2$ bounds to $L^p$ bounds with $p<2$ or to the so-called weak $(1, 1)$ type endpoint bound.
 It is classical and can be found in \cite{stein-book}.
 
 The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref{Hardy-Littlewood}.
@@ -9300,7 +9303,7 @@ The function $K$ is continuous outside the diagonal
 $x=y$ and vanishes on the diagonal. Hence it is measurable.
 
 
-By \Cref{Hilbert-kernel-bound,Hilbert-kernel-regularity}, it follows that $K$ is a two-sided Calder\'on--Zygmund kernel on $(\R,\rho,\mu,4)$.
+By \Cref{Hilbert-kernel-bound,Hilbert-kernel-regularity}, it follows that $K$ is a two-sided Calderón--Zygmund kernel on $(\R,\rho,\mu,4)$.
 \Cref{Hilbert-strong-2-2} verifies \eqref{two-sided-Hr-bound-assumption}.
 Thus the assumptions of \Cref{two-sided-metric-space-Carleson} are all satisfied. Applying the Theorem, \Cref{real-Carleson} follows.
 

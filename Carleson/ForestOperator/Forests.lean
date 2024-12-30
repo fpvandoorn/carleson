@@ -149,7 +149,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
       apply BoundedCompactSupport.indicator_of_isBounded_range _ stronglyMeasurable_one _
         measurableSet_F
       · exact isBounded_range_iff_forall_norm_le.2 ⟨1, fun x ↦ by simp⟩
-      · exact PreProofData.isBounded_F
+      · exact isBounded_F
     apply BoundedCompactSupport.mono this hf.stronglyMeasurable h2f
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
