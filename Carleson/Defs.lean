@@ -362,6 +362,12 @@ lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass �
 lemma aestronglyMeasurable_Q₂ : AEStronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
   measurable_Q₂.aestronglyMeasurable
 
+@[fun_prop]
+lemma measurable_Q₁ (x : X) : Measurable (Q x) :=
+  let Q' : X → X → ℝ := fun x' y ↦ Q x' y
+  have : (fun y ↦ Q' x y) = Q x := rfl
+  this ▸ measurable_Q₂.of_uncurry_left
+
 include a q K σ₁ σ₂ F G
 
 variable (X) in
