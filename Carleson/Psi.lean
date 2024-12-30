@@ -758,10 +758,12 @@ lemma stronglyMeasurable_Ks {s : ℤ} : StronglyMeasurable (fun x : X × X ↦ K
   apply Continuous.stronglyMeasurable
   fun_prop
 
-lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
+lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ
-  refine aestronglyMeasurable_K.mul ?_
-  fun_prop
+  exact measurable_K.mul (by fun_prop)
+
+lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) :=
+  measurable_Ks.aestronglyMeasurable
 
 /-- The function `y ↦ Ks s x y` is integrable. -/
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by

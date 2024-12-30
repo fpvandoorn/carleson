@@ -4332,7 +4332,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 
 
 \begin{proof}
-    By \eqref{definetp}, if $T_{\fp}[ e(-\fcc(\fu))f](x) \ne 0$, then $x \in E(\fp)$. Combining this with $|e(\fcc(\fu)(x)-\tQ(x)(x))| = 1$, we obtain
+    By \eqref{definetp}, if $T_{\fp}[ e(-\fcc(\fu))f](x) \ne 0$, then $x \in E(\fp)$. Combining this with $|e(\fcc(\fu)(x))| = 1$, we obtain
     $$
         |\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(-\fcc(\fu))f](x)|
     $$
@@ -5189,7 +5189,8 @@ $$
     \end{lemma}
 
     \begin{proof}
-        By \Cref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\mathfrak{S})$ with $J \cap \scI(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\scI(\fu_1) \subsetneq J$. Pick $\fp \in \fT(\fu_1) \subset \mathfrak{S}$. Then $\scI(\fp) \subsetneq J$. This contradicts the definition of $\mathcal{J}(\mathfrak{S})$.
+        \leanok
+        By \Cref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\mathfrak{S})$ with $J \cap \scI(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\scI(\fu_1) \subset J$. Pick $\fp \in \fT(\fu_1) \subset \mathfrak{S}$. Then $\scI(\fp) \subset J$. This contradicts the definition of $\mathcal{J}(\mathfrak{S})$.
     \end{proof}
 
     For cubes $J \in \mathcal{D}$, denote
