@@ -1,5 +1,6 @@
 import Carleson.Discrete.Defs
-import Carleson.Forest
+import Carleson.ForestOperator.Forests
+import Carleson.Discrete.SumEstimates
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -312,6 +313,24 @@ lemma C6_forest : ℭ₆ (X := X) k n j = ⋃ u ∈ 𝔘₃ k n j, 𝔗₂ k n j
     refine ⟨h, ?_⟩; rw [mem_iUnion₂]; use u, mu'; rw [mem_iUnion]; use rr.out_rel mu'
   · rw [mem_iUnion₂] at h; obtain ⟨_, _, mp, _⟩ := h; exact mp
 
+/-- This one could deserve a lemma in the blueprint, as it is needed to decompose the sum
+of Carleson operators over disjoint subfamilies. -/
+lemma forest_disjoint : (𝔘₃ k n j).PairwiseDisjoint (fun u ↦ 𝔗₂ (X := X) k n j u) := by
+  intro u hu u' hu' huu'
+  simp only [Function.onFun]
+  apply disjoint_left.2 (fun p pu pu' ↦ huu' ?_)
+  simp only [𝔗₂, mem_inter_iff, mem_iUnion, exists_prop, exists_and_left] at pu pu'
+  rcases pu.2 with ⟨v, v_mem, v_rel, pv⟩
+  rcases pu'.2 with ⟨v', v'_mem, v'_rel, pv'⟩
+  have E : URel k n j v v' :=
+    Or.inr ⟨p, pv, smul_mono pv'.2.2 le_rfl (by norm_num)⟩
+  have : URel k n j u v' :=
+    (equivalenceOn_urel (X := X)).trans (𝔘₃_subset_𝔘₂ hu) v_mem v'_mem v_rel E
+  have : URel k n j u u' := by
+    apply (equivalenceOn_urel (X := X)).trans (𝔘₃_subset_𝔘₂ hu) v'_mem (𝔘₃_subset_𝔘₂ hu') this
+    exact (equivalenceOn_urel (X := X)).symm (𝔘₃_subset_𝔘₂ hu') v'_mem v'_rel
+  exact (equivalenceOn_urel (X := X)).reprs_inj hu hu' this
+
 /-- Lemma 5.4.4, verifying (2.0.32) -/
 lemma forest_geometry (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) : smul 4 p ≤ smul 1 u := by
   rw [𝔗₂, mem_inter_iff, mem_iUnion₂] at hp
@@ -436,8 +455,9 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
   have spu : 𝔰 p ≤ 𝔰 u - (Z * (n + 1) : ℕ) - 1 := by omega
   have ⟨I, sI, plI, Ilu⟩ : ∃ I, s I = 𝔰 u - (Z * (n + 1) : ℕ) - 1 ∧ 𝓘 p ≤ I ∧ I ≤ 𝓘 u := by
     apply Grid.exists_sandwiched (lq.1.trans qlu.le) (𝔰 u - (Z * (n + 1) : ℕ) - 1)
-    refine ⟨spu, ?_⟩; change _ ≤ 𝔰 u; suffices 0 ≤ Z * (n + 1) by omega
-    exact Nat.zero_le _
+    refine ⟨spu, ?_⟩
+    change _ ≤ 𝔰 u
+    omega
   have bI : I ∉ 𝓛 n u := by
     have p₅ := ℭ₆_subset_ℭ₅ p₆
     rw [ℭ₅_def] at p₅; replace p₅ := p₅.2; contrapose! p₅
@@ -464,6 +484,7 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
         · omega
       _ = _ := by ring
 
+/-- The multiplicity appearing in Lemma 5.4.8. -/
 def C5_4_8 (n : ℕ) : ℕ := (4 * n + 12) * 2 ^ n
 
 lemma exists_smul_le_of_𝔘₃ (u : 𝔘₃ k n j) : ∃ m : 𝔐 (X := X) k n, smul 100 u.1 ≤ smul 1 m.1 := by
@@ -475,6 +496,7 @@ lemma exists_smul_le_of_𝔘₃ (u : 𝔘₃ k n j) : ∃ m : 𝔐 (X := X) k n,
   rw [mem_toFinset, 𝔅] at hm; exact ⟨⟨m, hm.1⟩, hm.2⟩
 
 variable (k n j) in
+/-- The good choice of an element to get a contradiction in the proof of Lemma 5.4.8. -/
 def mf (u : 𝔘₃ (X := X) k n j) : 𝔐 (X := X) k n := (exists_smul_le_of_𝔘₃ u).choose
 
 lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ by
@@ -555,50 +577,478 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
     _ ⊆ G₂ := subset_iUnion₂_of_subset n k (subset_iUnion_of_subset hkn subset_rfl)
     _ ⊆ _ := subset_union_of_subset_left subset_union_right G₃
 
-/-- Pick a maximal subset of `s` satisfying `∀ x, stackSize s x ≤ 2 ^ n` -/
-def aux𝔘₄ (s : Set (𝔓 X)) : Set (𝔓 X) := by
-  revert s; sorry
+/-- Define `𝔘₄ k n j l` as the union of `2 ^ n` disjoint subfamilies in `𝔘₃ k n j`, to make sure
+the multiplicity is at most `2 ^ n` to get a forest. -/
+def 𝔘₄ (k n j l : ℕ) : Set (𝔓 X) :=
+  ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), iteratedMaximalSubfamily (𝔘₃ k n j) i
+
+lemma 𝔘₄_subset_𝔘₃ {k n j l} : 𝔘₄ (X := X) k n j l ⊆ 𝔘₃ k n j := by
+  simp [𝔘₄, iteratedMaximalSubfamily_subset]
 
 /-- The sets `(𝔘₄(k, n, j, l))_l` form a partition of `𝔘₃ k n j`. -/
-def 𝔘₄ (k n j l : ℕ) : Set (𝔓 X) :=
-  aux𝔘₄ <| 𝔘₃ k n j \ ⋃ (l' < l), 𝔘₄ k n j l'
+lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X := X) k n j l = 𝔘₃ k n j := by
+  have : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X := X) k n j l =
+      ⋃ i < (4 * n + 12) * 2 ^ n, iteratedMaximalSubfamily (𝔘₃ k n j) i := by
+    apply Subset.antisymm
+    · simp only [mem_Iio, 𝔘₄, mem_Ico, biUnion_and', iUnion_subset_iff]
+      intro l i hi hl h'i
+      apply subset_biUnion_of_mem
+      change i + 1 ≤ (4 * n + 12) * 2 ^ n
+      suffices i < (4 * n + 12) * 2 ^ n by omega
+      exact h'i.trans_le (mul_le_mul' (by omega) le_rfl)
+    · simp only [𝔘₄, iUnion_subset_iff]
+      intro i hi
+      let l := i / 2 ^ n
+      have : iteratedMaximalSubfamily (𝔘₃ k n j) i ⊆ ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n),
+          iteratedMaximalSubfamily (X := X) (𝔘₃ k n j) i := by
+        apply subset_biUnion_of_mem
+        refine ⟨Nat.div_mul_le_self _ _, ?_⟩
+        rw [← Nat.div_lt_iff_lt_mul (Nat.two_pow_pos n)]
+        exact lt_add_one _
+      apply this.trans
+      apply subset_biUnion_of_mem (u := fun l ↦
+        ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), iteratedMaximalSubfamily (𝔘₃ k n j) i)
+      simp only [mem_Iio, l]
+      rwa [Nat.div_lt_iff_lt_mul (Nat.two_pow_pos n)]
+  rw [this, eq_comm]
+  apply eq_biUnion_iteratedMaximalSubfamily
+  intro x
+  apply forest_stacking x hkn
 
-lemma iUnion_𝔘₄ : ⋃ l, 𝔘₄ (X := X) k n j l = 𝔘₃ k n j := by
-  sorry
-
-lemma 𝔘₄_subset_𝔘₃ : 𝔘₄ (X := X) k n j l ⊆ 𝔘₃ k n j := by
-  sorry
-
-lemma le_of_nonempty_𝔘₄ (h : (𝔘₄ (X := X) k n j l).Nonempty) : l < 4 * n + 13 := by
-  sorry
+lemma C6_forest' (hkn : k ≤ n) :
+    ℭ₆ (X := X) k n j = ⋃ l ∈ Iio (4 * n + 12), ⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u := by
+  rw [C6_forest, ← iUnion_𝔘₄ hkn]
+  simp
 
 lemma pairwiseDisjoint_𝔘₄ : univ.PairwiseDisjoint (𝔘₄ (X := X) k n j) := by
-  sorry
+  intro l hl m hm hml
+  apply disjoint_iff_forall_ne.2 (fun x hx y hy ↦ ?_)
+  simp only [𝔘₄, mem_Ico, mem_iUnion, exists_prop] at hx hy
+  rcases hx with ⟨a, ⟨ha, h'a⟩, xa⟩
+  rcases hy with ⟨b, ⟨hb, h'b⟩, yb⟩
+  have h : a ≠ b := by
+    rcases lt_or_gt_of_ne hml with h | h
+    · exact (h'a.trans_le (le_trans (mul_le_mul' h le_rfl) hb)).ne
+    · exact (h'b.trans_le (le_trans (mul_le_mul' h le_rfl) ha)).ne'
+  have := pairwiseDisjoint_iteratedMaximalSubfamily (𝔘₃ (X := X) k n j) (mem_univ a) (mem_univ b) h
+  exact disjoint_iff_forall_ne.1 this xa yb
 
-lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 2 ^ n := by
-  sorry
+lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 2 ^ n := calc
+  stackSize (𝔘₄ (X := X) k n j l) x
+  _ = ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n),
+        stackSize (iteratedMaximalSubfamily (𝔘₃ k n j) i) x := by
+    simp only [stackSize, 𝔘₄]
+    rw [← Finset.sum_biUnion]; swap
+    · intro a ha b hb hab
+      apply Finset.disjoint_coe.1
+      apply disjoint_iff_forall_ne.2 (fun p hp q hq ↦ ?_)
+      simp only [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at hp hq
+      have := pairwiseDisjoint_iteratedMaximalSubfamily (𝔘₃ (X := X) k n j)
+        (mem_univ a) (mem_univ b) hab
+      exact disjoint_iff_forall_ne.1 this hp hq
+    congr
+    ext p
+    simp
+  _ ≤ ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), 1 := by
+    gcongr with i hi
+    apply stackSize_le_one_of_pairwiseDisjoint
+    apply pairwiseDisjoint_iteratedMaximalSubfamily_image
+  _ = 2 ^ n := by simp [add_mul]
 
 open TileStructure
 variable (k n j l) in
+/-- The forest based on `𝔘₄ k n j l`. -/
 def forest : Forest X n where
   𝔘 := 𝔘₄ k n j l
   𝔗 := 𝔗₂ k n j
-  nonempty' {u} hu := sorry
+  nonempty' {u} hu := by
+    have m : u ∈ 𝔘₂ k n j := (𝔘₃_subset_𝔘₂ (𝔘₄_subset_𝔘₃ hu))
+    have : ℭ₆ k n j ∩ 𝔗₁ k n j u ⊆ 𝔗₂ k n j u := by
+      apply inter_subset_inter_right
+      have : 𝔗₁ k n j u ⊆ ⋃ (_ : URel k n j u u), 𝔗₁ k n j u := by
+        have : URel k n j u u := (equivalenceOn_urel (X := X)).refl _ m
+        simp [this]
+      apply this.trans
+      apply subset_biUnion_of_mem (u := fun u' ↦ ⋃ (_ : URel k n j u u'), 𝔗₁ k n j u') m
+    apply Nonempty.mono this
+    rw [inter_comm]
+    simp only [𝔘₂, not_disjoint_iff_nonempty_inter, mem_setOf_eq] at m
+    exact m.2
   ordConnected' {u} hu := forest_convex
-  𝓘_ne_𝓘' hu hp := sorry
+  𝓘_ne_𝓘' {u} hu p hp := by
+    have := hp.2
+    simp only [mem_iUnion, exists_prop, exists_and_left] at this
+    rcases this with ⟨u', hu', u'rel, hu'I⟩
+    rw [URel.eq (𝔘₃_subset_𝔘₂ (𝔘₄_subset_𝔘₃ hu)) hu' u'rel]
+    exact (𝓘_lt_of_mem_𝔗₁ hu'I).ne
   smul_four_le' {u} hu := forest_geometry <| 𝔘₄_subset_𝔘₃ hu
   stackSize_le' {x} := stackSize_𝔘₄_le x
   dens₁_𝔗_le' {u} hu := dens1_le <| 𝔗₂_subset_ℭ₆.trans ℭ₆_subset_ℭ
   lt_dist' hu hu' huu' p hp := forest_separation (𝔘₄_subset_𝔘₃ hu) (𝔘₄_subset_𝔘₃ hu') huu' hp
   ball_subset' hu p hp := forest_inner (𝔘₄_subset_𝔘₃ hu) hp
 
-/-- The constant used in Lemma 5.1.2, with value `2 ^ (235 * a ^ 3) / (q - 1) ^ 4` -/
--- todo: redefine in terms of other constants
-def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (235 * a ^ 3) / (q - 1) ^ 4
+/-- From the fact that the `ℭ₅ k n j` are disjoint, one can rewrite the whole Carleson sum over
+`𝔓₁` (the union of the `ℭ₅ k n j`) as a sum of Carleson sums over the `ℭ₅ k n j`. -/
+lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
+    carlesonSum 𝔓₁ f x = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, carlesonSum (ℭ₅ k n j) f x := by
+  simp only [Finset.sum_sigma']
+  rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
+  · rintro ⟨n, k, j⟩ - ⟨n', k', j'⟩ - h
+    simp only [ne_eq, Sigma.mk.inj_iff, heq_eq_eq] at h
+    simp only [Function.onFun, Finset.disjoint_filter, Finset.mem_univ, forall_const]
+    have W := pairwiseDisjoint_ℭ₅ (X := X) (mem_univ ⟨k, n, j⟩) (mem_univ ⟨k', n', j'⟩)
+      (by simp [-not_and]; tauto)
+    simpa [Function.onFun, disjoint_left] using W
+  congr
+  ext p
+  simp only [𝔓₁, mem_iUnion, exists_prop, Finset.mem_sigma, Finset.mem_Iic, Sigma.exists]
+  constructor
+  · rintro ⟨n, k, hk, j, hj, hp⟩
+    refine ⟨n, k, j, ⟨?_, hk, hj⟩, hp⟩
+    have : (ℭ (X := X) k n).Nonempty := ⟨p, ℭ₅_subset_ℭ hp⟩
+    exact le_maxℭ_of_nonempty this
+  · rintro ⟨n, k, j, ⟨hn, hk, hj⟩, hp⟩
+    exact ⟨n, k, hk, j, hj, hp⟩
 
-lemma C5_1_2_pos : C5_1_2 a nnq > 0 := sorry
+/-- The Carleson sum over `ℭ₅` and `ℭ₆` coincide, for points in `G \ G'`. -/
+lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {k n j : ℕ} :
+    carlesonSum (ℭ₅ k n j) f x = carlesonSum (ℭ₆ k n j) f x := by
+  simp only [carlesonSum]
+  symm
+  apply Finset.sum_subset
+  · intro p hp
+    simp only [mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+    exact ℭ₆_subset_ℭ₅ hp
+  · intro p hp h'p
+    simp only [mem_iUnion, exists_prop, Finset.mem_filter,
+      Finset.mem_univ, true_and, not_exists, not_and] at hp h'p
+    have : x ∉ 𝓘 p := by
+      simp only [ℭ₆, mem_setOf_eq, not_and, Decidable.not_not] at h'p
+      intro h'x
+      exact hx.2 (h'p hp h'x)
+    have : x ∉ E p := by simp at this; simp [E, this]
+    simp [carlesonOn, this]
 
-lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
-    C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹  := by
-  sorry
+/-- The Carleson sum over `ℭ₆` can be decomposed as a sum over `4 n + 12` forests
+based on `𝔘₄ k n j l`. -/
+lemma carlesonSum_ℭ₆_eq_sum {f : X → ℂ} {x : X} {k n j : ℕ} (hkn : k ≤ n) :
+    carlesonSum (ℭ₆ k n j) f x =
+      ∑ l < 4 * n + 12, carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x := by
+  rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
+  · intro a ha b hb hab
+    simp only [Function.onFun, disjoint_iff_forall_ne, mem_iUnion, exists_prop, ne_eq,
+      forall_exists_index, and_imp]
+    intro q p hp hq q' p' hp' hq'
+    have := pairwiseDisjoint_𝔘₄ (X := X) (k := k) (n := n) (j := j) (mem_univ a) (mem_univ b) hab
+    have : p ≠ p' := disjoint_iff_forall_ne.1 this hp hp'
+    have := forest_disjoint (𝔘₄_subset_𝔘₃ hp) (𝔘₄_subset_𝔘₃ hp') this
+    exact disjoint_iff_forall_ne.1 this hq hq'
+  congr
+  ext p
+  simp [C6_forest' hkn]
+
+/-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
+the forest theorem and to the density control coming from the fact we are away from `G₁`. First
+version, with the `L^2` norm of `f`. -/
+lemma lintegral_carlesonSum_forest
+    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
+    C2_0_4 a q n * (2 ^ (2 * a + 5) * volume F / volume G) ^ (q⁻¹ - 2⁻¹) *
+    eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
+  let 𝔉 := forest (X := X) k n j l
+  have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ =
+      ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ := by
+    congr with x
+    congr
+    rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
+    · intro a ha b hb hab
+      simp only [Function.onFun, disjoint_iff_forall_ne]
+      intro x hx y hy
+      simp only [forest, Forest.mem_mk, Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq,
+        𝔉] at ha hb hx hy
+      have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
+      exact disjoint_iff_forall_ne.1 this hx hy
+    congr with p
+    simp only [mem_iUnion, exists_prop, Finset.mem_filter,
+      Finset.mem_univ, true_and, forest, Finset.mem_biUnion, 𝔉]
+    exact Iff.rfl
+  rw [this]
+  have W := forest_operator' 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
+    (isBounded_G.subset diff_subset)
+  apply W.trans
+  gcongr
+  · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
+    exact (q_mem_Ioc (X := X)).2
+  · rw [dens₂_eq_biSup_dens₂]
+    simp only [mem_iUnion, exists_prop, iSup_exists, iSup_le_iff, and_imp]
+    intro p q hq hp
+    replace hp : p ∈ ℭ₆ k n j := 𝔗₂_subset_ℭ₆ hp
+    have : ¬ (𝓘 p : Set X) ⊆ G₁ := by
+      have W := hp.2
+      contrapose! W
+      exact W.trans (subset_union_left.trans subset_union_left)
+    contrapose! this
+    have : p ∈ highDensityTiles := by simp [highDensityTiles, this]
+    apply subset_biUnion_of_mem this
+  · exact diff_subset
+
+/-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
+the forest theorem and to the density control coming from the fact we are away from `G₁`. Second
+version, with the volume of `F`. -/
+lemma lintegral_carlesonSum_forest'
+    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
+    C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
+  apply (lintegral_carlesonSum_forest hf h2f).trans
+  simp only [mul_assoc]
+  apply mul_le_mul_left'
+  simp only [div_eq_mul_inv, one_mul, ENNReal.mul_rpow_of_nonneg _ _ (inv_q_sub_half_nonneg X),
+    ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]
+  calc
+  2 ^ ((2 * a + 5 : ℕ) * (q⁻¹ - 2⁻¹)) * volume F ^ (q⁻¹ - 2⁻¹) * (volume G)⁻¹ ^ (q⁻¹ - 2⁻¹) *
+    (eLpNorm f 2 volume * volume G ^ (2⁻¹ : ℝ))
+  _ ≤ 2 ^ (a + 5/2 : ℝ) * volume F ^ (q⁻¹ - 2⁻¹) * (volume G)⁻¹ ^ (q⁻¹ - 2⁻¹) *
+    ((volume F) ^ (2⁻¹ : ℝ) * volume G ^ (2⁻¹ : ℝ)) := by
+    gcongr
+    · exact one_le_two
+    · have : 1 ≤ q := (one_lt_q X).le
+      have : (2 * a + 5 : ℕ) * (q⁻¹ - 2⁻¹) ≤ (2 * a + 5 : ℕ) * (1⁻¹ - 2⁻¹) := by gcongr
+      apply this.trans_eq
+      norm_num
+      simp [add_mul, div_eq_mul_inv]
+      ring
+    · have A x : ‖f x‖ ≤ ‖F.indicator (fun (x : X) ↦ (1 : ℝ)) x‖ := (h2f x).trans (le_abs_self _)
+      apply (eLpNorm_mono A).trans_eq
+      rw [eLpNorm_indicator_const measurableSet_F two_ne_zero (ENNReal.two_ne_top)]
+      simp
+  _ = 2 ^ (a + 5/2 : ℝ) * (volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) := by
+    have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
+    have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
+      congr 1
+      simp only [sub_sub_eq_add_sub, sub_left_inj]
+      norm_num
+    rw [IF, IG, ENNReal.rpow_sub _ _ ProofData.volume_G_pos.ne' volume_G_ne_top,
+      ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
+      ENNReal.div_eq_inv_mul, ENNReal.inv_rpow]
+    ring
+
+/-- Putting all the above decompositions together, one obtains a control of the integral of the
+full Carleson sum over `𝔓₁`, as a sum over all the forests. -/
+lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤ C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) *
+         (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) *
+        ∑ n ≤ maxℭ X, ∑ _k ≤ n, ∑ _j ≤ 2 * n + 3, ∑ _l < 4 * n + 12,
+          (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) := calc
+  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊
+  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
+    simp only [Finset.sum_sigma']
+    rw [← lintegral_finset_sum']; swap
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    apply lintegral_mono (fun x ↦ ?_)
+    simp only [Finset.sum_sigma', carlesonSum_𝔓₁_eq_sum]
+    exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
+  _ = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ := by
+    congr with n
+    congr with k
+    congr with j
+    apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
+    exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
+  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
+        ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ := by
+    gcongr with n hn k hk j hj
+    rw [← lintegral_finset_sum']; swap
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    apply lintegral_mono (fun x ↦ ?_)
+    simp only [Finset.mem_Iic] at hk
+    rw [carlesonSum_ℭ₆_eq_sum hk]
+    exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
+  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
+        ∑ l < 4 * n + 12, C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) *
+          (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
+    gcongr with n hn k hk j hj l hl
+    apply lintegral_carlesonSum_forest' h'f hf
+  _ = C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) *
+        ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l < 4 * n + 12,
+          (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) := by
+    have A n : (C2_0_4 a q n : ℝ≥0∞) = (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) * C2_0_4_base a := by
+      simp only [C2_0_4, neg_sub, mul_comm, ENNReal.coe_mul,
+        ENNReal.coe_rpow_of_ne_zero two_ne_zero]
+      rfl
+    simp only [A, ← Finset.sum_mul]
+    ring
+
+/- It remains to bound the sum above, by a sum/integral comparison over `ℝ` and then a cast from
+`ℝ` to `ℝ≥0∞`. We do that in the next two lemmas. -/
+
+open scoped Nat
+open Real
+
+lemma forest_union_sum_aux1 (M : ℕ) (q : ℝ) (hq : 1 < q) (h'q : q ≤ 2) :
+    ∑ n ≤ M, ∑ _k ≤ n, ∑ _j ≤ 2 * n + 3, ∑ _l < 4 * n + 12,
+      (2 : ℝ) ^ (- ((q - 1) / q * n)) ≤ 13009 / (q - 1) ^ 4 := by
+  have A (x : ℝ) : (x + 1) * (2 * x + 3 + 1) * (4 * x + 12)
+      = 8 * x ^ 3 + 48 * x ^ 2 + 88 * x + 48:= by ring
+  simp only [Finset.sum_const, Nat.card_Iio, nsmul_eq_mul, Nat.cast_add, Nat.cast_mul,
+    Nat.cast_ofNat, Nat.card_Iic, Nat.cast_one, ← mul_assoc, A, ge_iff_le]
+  simp only [add_mul, Finset.sum_add_distrib, mul_assoc, ← Finset.mul_sum]
+  have : 0 ≤ q - 1 := by linarith
+  have : q - 1 ≤ 1 := by linarith
+  have : 0.6931471803 ≤ Real.log 2 := Real.log_two_gt_d9.le
+  let c := (q - 1) / q
+  have hc : 0 < c := div_pos (by linarith) (by linarith)
+  calc
+  8 * ∑ i ∈ Finset.Iic M, i ^ 3 * (2 : ℝ) ^ (-(c * i))
+    + 48 * ∑ i ∈ Finset.Iic M, i ^ 2 * (2 : ℝ) ^ (-(c * i))
+    + 88 * ∑ i ∈ Finset.Iic M, i * (2 : ℝ) ^ (-(c * i))
+    + 48 * ∑ i ∈ Finset.Iic M, (2 : ℝ) ^ (-(c * i))
+  _ = 8 * ∑ i ∈ Finset.Iic M, i ^ 3 * (2 : ℝ) ^ (-(c * i))
+      + 48 * ∑ i ∈ Finset.Iic M, i ^ 2 * (2 : ℝ) ^ (-(c * i))
+      + 88 * ∑ i ∈ Finset.Iic M, i ^ 1  * (2 : ℝ) ^ (-(c * i))
+      + 48 * ∑ i ∈ Finset.Iic M, i ^ 0 * (2 : ℝ) ^ (-(c * i)) := by simp
+  _ ≤ 8 * (2 ^ c * 3 ! / (Real.log 2 * c) ^ (3 + 1))
+      + 48 * (2 ^ c * 2 ! / (Real.log 2 * c) ^ (2 + 1))
+      + 88 * (2 ^ c * 1 ! / (Real.log 2 * c) ^ (1 + 1))
+      + 48 * (2 ^ c * 0! / (Real.log 2 * c) ^ (0 + 1)) := by
+    gcongr <;> exact sum_Iic_pow_mul_two_pow_neg_le hc
+  _ = (2 ^ c * (48 * q ^ 4 / (Real.log 2) ^ 4 + 96 * q^3 * (q - 1) / (Real.log 2) ^ 3
+      + 88 * q ^ 2 * (q - 1) ^ 2 / (Real.log 2) ^ 2
+      + 48 * q * (q - 1) ^ 3/ (Real.log 2))) / (q - 1) ^ 4 := by
+    simp only [Nat.factorial, Nat.succ_eq_add_one, Nat.reduceAdd, zero_add, mul_one, Nat.reduceMul,
+      Nat.cast_ofNat, mul_pow, div_pow, Nat.cast_one, pow_one, c]
+    have : q - 1 ≠ 0 := by linarith
+    field_simp
+    ring
+  _ ≤ (2 ^ (1 : ℝ) * (48 * 2 ^ 4 / (Real.log 2) ^ 4 + 96 * 2 ^ 3 * 1 / (Real.log 2) ^ 3
+      + 88 * 2 ^ 2 * 1 ^ 2 / (Real.log 2) ^ 2 + 48 * 2 * 1 ^ 3 / (Real.log 2))) / (q - 1) ^ 4 := by
+    gcongr
+    · exact one_le_two
+    · rw [div_le_one (by linarith)]
+      linarith
+  _ ≤ (2 ^ (1 : ℝ) * (48 * 2 ^ 4 / 0.6931471803 ^ 4 + 96 * 2 ^ 3 * 1 / 0.6931471803 ^ 3
+      + 88 * 2 ^ 2 * 1 ^ 2 / 0.6931471803 ^ 2 + 48 * 2 * 1 ^ 3 / 0.6931471803)) / (q - 1) ^ 4 := by
+    gcongr
+  _ ≤ 13009 / (q - 1) ^ 4 := by
+    gcongr
+    norm_num
+
+lemma forest_union_sum_aux2 (M : ℕ) (q : ℝ) (hq : 1 < q) (h'q : q ≤ 2) :
+    (∑ n ≤ M, ∑ _k ≤ n, ∑ _j ≤ 2 * n + 3, ∑ _l < 4 * n + 12,
+      (2 : ℝ≥0∞) ^ (- ((q - 1) / q * n))) ≤ 13009 / (ENNReal.ofReal (q - 1)) ^ 4 := by
+  have : (2 : ℝ≥0∞) = ENNReal.ofReal (2 : ℝ) := by simp
+  simp_rw [this, ENNReal.ofReal_rpow_of_pos zero_lt_two]
+  simp only [Finset.sum_const, Nat.card_Iio, nsmul_eq_mul, Nat.cast_add, Nat.cast_mul,
+    Nat.cast_ofNat, Nat.card_Iic, Nat.cast_one, ge_iff_le]
+  calc
+  ∑ x ∈ Finset.Iic M, (↑x + 1) * ((2 * ↑x + 3 + 1) * ((4 * ↑x + 12)
+      * ENNReal.ofReal (2 ^ (-((q - 1) / q * ↑x)))))
+  _ = ∑ x ∈ Finset.Iic M, ENNReal.ofReal
+      ((↑x + 1) * ((2 * ↑x + 3 + 1) * ((4 * ↑x + 12) * 2 ^ (-((q - 1) / q * ↑x))))) := by
+    congr with i
+    rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_mul (by positivity),
+      ENNReal.ofReal_mul (by positivity)]
+    congr <;> norm_cast
+  _ = ENNReal.ofReal (∑ x ∈ Finset.Iic M,
+      (↑x + 1) * ((2 * ↑x + 3 + 1) * ((4 * ↑x + 12) * 2 ^ (-((q - 1) / q * ↑x))))) := by
+    rw [ENNReal.ofReal_sum_of_nonneg]
+    intro i hi
+    positivity
+  _ = ENNReal.ofReal (∑ n ≤ M, ∑ _k ≤ n, ∑ _j ≤ 2 * n + 3, ∑ _l < 4 * n + 12,
+      (2 : ℝ) ^ (- ((q - 1) / q * n))) := by simp
+  _ ≤ ENNReal.ofReal (13009 / (q - 1) ^ 4) := by
+    apply ENNReal.ofReal_le_ofReal
+    exact forest_union_sum_aux1 M q hq h'q
+  _ = 13009 / (ENNReal.ofReal (q - 1)) ^ 4 := by
+    rw [ENNReal.ofReal_div_of_pos]; swap
+    · have : 0 < q - 1 := by linarith
+      positivity
+    congr
+    · norm_cast
+    · rw [ENNReal.ofReal_pow]
+      linarith
+
+/-- An optimized constant for the forest union theorem. The constant from the blueprint,
+defined as `C5_1_2` below, is slightly worse. -/
+def C5_1_2_optimized (a : ℝ) (q : ℝ≥0) : ℝ≥0 :=
+  C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * 13009 / (q - 1) ^ 4
+
+/-- Version of the forest union result with a better constant. -/
+lemma forest_union_optimized {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
+    C5_1_2_optimized a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
+  apply (forest_union_aux hf h'f).trans
+  calc
+  C2_0_4_base a * 2 ^ (a + 5 / 2 : ℝ) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
+    ∑ n ∈ Finset.Iic (maxℭ X),
+      ∑ _k ∈ Finset.Iic n, ∑ _j ∈ Finset.Iic (2 * n + 3), ∑ _l ∈ Finset.Iio (4 * n + 12),
+        2 ^ (-(q - 1) / q * ↑n)
+  _ ≤ C2_0_4_base a * 2 ^ (a + 5 / 2 : ℝ) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
+      (13009 / (ENNReal.ofReal (q - 1)) ^ 4) := by
+    gcongr
+    have A n : (2 : ℝ≥0∞) ^ (-(q - 1) / q * n) = 2 ^ (- ((q - 1) / q * n)) := by
+      congr; ring
+    simp_rw [A]
+    exact forest_union_sum_aux2 (maxℭ X) q (one_lt_q X) (q_le_two X)
+  _ = C5_1_2_optimized a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
+    have : ENNReal.ofReal (q - 1) = (nnq - 1 : ℝ≥0) := rfl
+    rw [this]
+    simp only [ENNReal.div_eq_inv_mul, C5_1_2_optimized, div_eq_inv_mul _ ((nnq - 1) ^ 4),
+      ENNReal.coe_sub, ENNReal.coe_one, ENNReal.coe_mul, ENNReal.coe_ofNat]
+    rw [ENNReal.coe_inv, ENNReal.coe_rpow_of_ne_zero two_ne_zero]; swap
+    · have : 0 < nnq - 1 := tsub_pos_of_lt (one_lt_nnq X)
+      apply ne_of_gt
+      positivity
+    simp only [ENNReal.coe_inv, ENNReal.coe_rpow_of_ne_zero two_ne_zero,
+      ENNReal.coe_pow, ENNReal.coe_sub, ENNReal.coe_one, ENNReal.coe_ofNat]
+    ring
+
+lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
+    C5_1_2_optimized a q ≤ C2_0_4_base a * 2 ^ (a ^ 3) / (q - 1) ^ 4 := by
+  have : C5_1_2_optimized a q = C2_0_4_base a * (2 ^ (a + 5/2 : ℝ) * 13009) / (q - 1) ^ 4 := by
+    simp [C5_1_2_optimized, mul_assoc]
+  rw [this]
+  gcongr
+  simp only [← NNReal.coe_le_coe, NNReal.coe_mul, coe_rpow, NNReal.coe_ofNat]
+  calc
+  (2 : ℝ) ^ (a + 5 / 2 : ℝ) * 13009
+  _ ≤ 2 ^ (a + 3 : ℝ) * 2 ^ 14 := by gcongr <;> norm_num
+  _ = 2 ^ (a + 17) := by
+    have : (a + 3 : ℝ) = (a + 3 : ℕ) := by norm_cast
+    rw [this, Real.rpow_natCast, ← pow_add]
+  _ ≤ 2 ^ (a ^ 3) := by
+    apply pow_le_pow_right₀ one_le_two
+    have : (4 : ℤ) ≤ a := mod_cast ha
+    zify
+    calc (a : ℤ) + 17
+    _ ≤ a + 4 * (4 * 4 - 1) := by gcongr; norm_num
+    _ ≤ a + a * (a * a - 1) := by gcongr
+    _ = a ^ 3 := by ring
+
+/-- The constant used in Lemma 5.1.2, with value `2 ^ (433 * a ^ 3) / (q - 1) ^ 4`.
+The best constant naturally given by this step is `C5_1_2_optimized` above. -/
+def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (433 * a ^ 3) / (q - 1) ^ 4
+
+omit [TileStructure Q D κ S o] in
+lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
+  simp only [C5_1_2]
+  apply div_pos (rpow_pos zero_lt_two)
+  apply pow_pos
+  simpa using one_lt_nnq X
+
+omit [TileStructure Q D κ S o] in
+lemma C5_1_2_optimized_le : C5_1_2_optimized a nnq ≤ C5_1_2 a nnq := by
+  apply (C5_1_2_optimized_le' (four_le_a X)).trans_eq
+  simp only [C2_0_4_base, C5_1_2]
+  rw [← NNReal.rpow_natCast _ (a ^ 3), ← NNReal.rpow_add two_ne_zero]
+  congr
+  simp only [Nat.cast_pow]
+  ring
+
+/-- Lemma 5.1.2 in the blueprint: the integral of the Carleson sum over the set which can
+naturally be decomposed as a union of forests can be controlled, thanks to the estimate for
+a single forest. -/
+lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
+    C5_1_2 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
+  apply (forest_union_optimized hf h'f).trans
+  gcongr
+  exact C5_1_2_optimized_le

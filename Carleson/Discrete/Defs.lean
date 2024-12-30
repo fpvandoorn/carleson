@@ -1,4 +1,5 @@
 import Carleson.MinLayerTiles
+import Carleson.ToMathlib.Data.Set.Finite.Lattice
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
@@ -70,6 +71,23 @@ lemma pairwiseDisjoint_ℭ :
     · rw [ne_eq, Prod.mk.injEq, not_and] at hn; exact hk ▸ disjoint_ℭ_of_ne (hn hk)
     · exact disjoint_of_subset ℭ_subset_TilesAt ℭ_subset_TilesAt (disjoint_TilesAt_of_ne hk)
 
+
+lemma exists_bound_ℭ : ∃ (n : ℕ × ℕ),
+    ∀ x ∈ {kn : ℕ × ℕ | (ℭ (X := X) kn.1 kn.2).Nonempty}, Prod.snd x ≤ Prod.snd n := by
+  apply exists_upper_bound_image
+  have : Set.Finite (⋃ kn : ℕ × ℕ, ℭ (X := X) kn.1 kn.2) := toFinite _
+  exact ((Set.finite_iUnion_iff_of_pairwiseDisjoint pairwiseDisjoint_ℭ).1 this).2
+
+variable (X) in
+def maxℭ : ℕ := (exists_bound_ℭ (X := X)).choose.2
+
+lemma le_maxℭ_of_nonempty {k n : ℕ} (h : (ℭ (X := X) k n).Nonempty) : n ≤ maxℭ X :=
+  (exists_bound_ℭ (X := X)).choose_spec (k, n) h
+
+lemma eq_empty_of_maxℭ_lt {k n : ℕ} (hn : maxℭ X < n) : ℭ (X := X) k n = ∅ := by
+  contrapose! hn
+  exact (exists_bound_ℭ (X := X)).choose_spec (k, n) hn
+
 /-- The subset `𝔅(p)` of `𝔐(k, n)`, given in (5.1.8). -/
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
   { m ∈ 𝔐 k n | smul 100 p ≤ smul 1 m }
@@ -94,6 +112,17 @@ lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X 
 
 lemma pairwiseDisjoint_ℭ₁ {k n : ℕ} : univ.PairwiseDisjoint (ℭ₁ (X := X) k n) := fun _ _ _ _ ↦
   disjoint_ℭ₁_of_ne
+
+lemma pairwiseDisjoint_ℭ₁' :
+    (univ : Set (ℕ × ℕ × ℕ)).PairwiseDisjoint (fun knj ↦ ℭ₁ (X := X) knj.1 knj.2.1 knj.2.2) := by
+  rintro ⟨k, n, j⟩ - ⟨k', n', j'⟩ - h
+  rcases ne_or_eq k k' with hkk' | rfl
+  · have := pairwiseDisjoint_ℭ (X := X) (mem_univ (k, n)) (mem_univ (k', n')) (by simp [hkk'])
+    exact this.mono ℭ₁_subset_ℭ ℭ₁_subset_ℭ
+  rcases ne_or_eq n n' with hnn' | rfl
+  · have := pairwiseDisjoint_ℭ (X := X) (mem_univ (k, n)) (mem_univ (k, n')) (by simp [hnn'])
+    exact this.mono ℭ₁_subset_ℭ ℭ₁_subset_ℭ
+  exact disjoint_ℭ₁_of_ne (by simpa using h)
 
 lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n j) :
     (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
@@ -178,6 +207,13 @@ lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_diff] at mt; exact mt.1
 
+lemma ℭ₅_subset_ℭ₁ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₁ (X := X) k n j :=
+  ℭ₅_subset_ℭ₄.trans <| ℭ₄_subset_ℭ₃.trans <| ℭ₃_subset_ℭ₂.trans ℭ₂_subset_ℭ₁
+
+lemma pairwiseDisjoint_ℭ₅ :
+    (univ : Set (ℕ × ℕ × ℕ)).PairwiseDisjoint (fun knj ↦ ℭ₅ (X := X) knj.1 knj.2.1 knj.2.2) :=
+  pairwiseDisjoint_ℭ₁'.mono (fun _ ↦ ℭ₅_subset_ℭ₁)
+
 -- These inclusion and disjointness lemmas are only used in `antichain_decomposition`
 section AntichainDecomp
 
@@ -203,8 +239,6 @@ lemma 𝔏₄_subset_ℭ₁ : 𝔏₄ k n j ⊆ ℭ₁ (X := X) k n j :=
   𝔏₄_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁
 lemma 𝔏₄_subset_ℭ : 𝔏₄ k n j ⊆ ℭ (X := X) k n := 𝔏₄_subset_ℭ₁.trans ℭ₁_subset_ℭ
 
-lemma ℭ₅_subset_ℭ₁ : ℭ₅ k n j ⊆ ℭ₁ (X := X) k n j :=
-  ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁
 lemma ℭ₅_subset_ℭ : ℭ₅ k n j ⊆ ℭ (X := X) k n := ℭ₅_subset_ℭ₁.trans ℭ₁_subset_ℭ
 
 end AntichainDecomp
