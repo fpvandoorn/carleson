@@ -71,7 +71,6 @@ lemma pairwiseDisjoint_ℭ :
     · rw [ne_eq, Prod.mk.injEq, not_and] at hn; exact hk ▸ disjoint_ℭ_of_ne (hn hk)
     · exact disjoint_of_subset ℭ_subset_TilesAt ℭ_subset_TilesAt (disjoint_TilesAt_of_ne hk)
 
-
 lemma exists_bound_ℭ : ∃ (n : ℕ × ℕ),
     ∀ x ∈ {kn : ℕ × ℕ | (ℭ (X := X) kn.1 kn.2).Nonempty}, Prod.snd x ≤ Prod.snd n := by
   apply exists_upper_bound_image
@@ -87,6 +86,32 @@ lemma le_maxℭ_of_nonempty {k n : ℕ} (h : (ℭ (X := X) k n).Nonempty) : n �
 lemma eq_empty_of_maxℭ_lt {k n : ℕ} (hn : maxℭ X < n) : ℭ (X := X) k n = ∅ := by
   contrapose! hn
   exact (exists_bound_ℭ (X := X)).choose_spec (k, n) hn
+
+/-- Lemma 5.3.11 -/
+lemma dens1_le_dens' {k : ℕ} {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ dens' k P := by
+  rw [dens₁, dens']; gcongr with p' mp' l hl
+  simp_rw [ENNReal.mul_iSup, iSup_le_iff, mul_div_assoc]; intro p mp sl
+  suffices p ∈ TilesAt k by
+    exact le_iSup_of_le p (le_iSup₂_of_le this sl (mul_le_mul' (by norm_cast) le_rfl))
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf]
+  constructor
+  · rw [mem_lowerClosure] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
+    have hp'' := mem_of_mem_of_subset mp'' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp''
+    obtain ⟨J, lJ, vJ⟩ := hp''.1; use J, lp''.1.trans lJ
+  · by_contra h; obtain ⟨J, lJ, vJ⟩ := h
+    have hp' := mem_of_mem_of_subset mp' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp'
+    apply absurd _ hp'.2; use J, sl.1.trans lJ
+
+/-- Lemma 5.3.12 -/
+lemma dens1_le {k n : ℕ} {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * (a : ℝ) - n + 1) :=
+  calc
+    _ ≤ dens' k A := dens1_le_dens' (hA.trans ℭ_subset_TilesAt)
+    _ ≤ dens' k (ℭ (X := X) k n) := iSup_le_iSup_of_subset hA
+    _ ≤ _ := by
+      rw [dens'_iSup, iSup₂_le_iff]; intro p mp
+      rw [ℭ, mem_setOf] at mp; exact_mod_cast mp.2.2
 
 /-- The subset `𝔅(p)` of `𝔐(k, n)`, given in (5.1.8). -/
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=

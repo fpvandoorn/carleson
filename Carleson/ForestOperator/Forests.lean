@@ -180,3 +180,26 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     · exact hA
     · norm_num
     · norm_num
+
+
+/-- Version of the forest operator theorem, but controlling the integral of the norm instead of
+the integral of the function multiplied by another function, and with the upper bound in terms
+of `volume F` and `volume G`.  -/
+theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
+    (h'A : IsBounded A) :
+    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ ≤
+    C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
+    (volume F) ^ (1/2 : ℝ) * (volume A) ^ (1/2 : ℝ) := by
+  apply (forest_operator' 𝔉 hf h2f hA h'A).trans
+  gcongr
+  calc
+  _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
+    apply eLpNorm_mono (fun x ↦ ?_)
+    apply (h2f x).trans (le_abs_self _)
+  _ ≤ _ := by
+    rw [eLpNorm_indicator_const]
+    · simp
+    · exact measurableSet_F
+    · norm_num
+    · norm_num

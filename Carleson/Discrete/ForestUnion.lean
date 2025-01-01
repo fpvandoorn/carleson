@@ -112,32 +112,6 @@ lemma ordConnected_C5 : OrdConnected (ℭ₅ k n j : Set (𝔓 X)) := by
     mp₁, mp'₁, true_and] at mp ⊢
   contrapose! mp; obtain ⟨u, mu, s𝓘u⟩ := mp; use u, mu, mp'.1.1.1.trans s𝓘u
 
-/-- Lemma 5.3.11 -/
-lemma dens1_le_dens' {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ dens' k P := by
-  rw [dens₁, dens']; gcongr with p' mp' l hl
-  simp_rw [ENNReal.mul_iSup, iSup_le_iff, mul_div_assoc]; intro p mp sl
-  suffices p ∈ TilesAt k by
-    exact le_iSup_of_le p (le_iSup₂_of_le this sl (mul_le_mul' (by norm_cast) le_rfl))
-  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf]
-  constructor
-  · rw [mem_lowerClosure] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
-    have hp'' := mem_of_mem_of_subset mp'' hP
-    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp''
-    obtain ⟨J, lJ, vJ⟩ := hp''.1; use J, lp''.1.trans lJ
-  · by_contra h; obtain ⟨J, lJ, vJ⟩ := h
-    have hp' := mem_of_mem_of_subset mp' hP
-    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp'
-    apply absurd _ hp'.2; use J, sl.1.trans lJ
-
-/-- Lemma 5.3.12 -/
-lemma dens1_le {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * (a : ℝ) - n + 1) :=
-  calc
-    _ ≤ dens' k A := dens1_le_dens' (hA.trans ℭ_subset_TilesAt)
-    _ ≤ dens' k (ℭ (X := X) k n) := iSup_le_iSup_of_subset hA
-    _ ≤ _ := by
-      rw [dens'_iSup, iSup₂_le_iff]; intro p mp
-      rw [ℭ, mem_setOf] at mp; exact_mod_cast mp.2.2
-
 /-! ## Section 5.4 and Lemma 5.1.2 -/
 
 /-- The subset `ℭ₆(k, n, j)` of `ℭ₅(k, n, j)`, given above (5.4.1). -/
@@ -754,7 +728,7 @@ lemma lintegral_carlesonSum_forest
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
     C2_0_4 a q n * (2 ^ (2 * a + 5) * volume F / volume G) ^ (q⁻¹ - 2⁻¹) *
-    eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
+    (volume F) ^ (1/2 : ℝ) * (volume G) ^ (1/2 : ℝ) := by
   let 𝔉 := forest (X := X) k n j l
   have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ =
       ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ := by
@@ -773,7 +747,7 @@ lemma lintegral_carlesonSum_forest
       Finset.mem_univ, true_and, forest, Finset.mem_biUnion, 𝔉]
     exact Iff.rfl
   rw [this]
-  have W := forest_operator' 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
+  have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
     (isBounded_G.subset diff_subset)
   apply W.trans
   gcongr
@@ -806,21 +780,17 @@ lemma lintegral_carlesonSum_forest'
     ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]
   calc
   2 ^ ((2 * a + 5 : ℕ) * (q⁻¹ - 2⁻¹)) * volume F ^ (q⁻¹ - 2⁻¹) * (volume G)⁻¹ ^ (q⁻¹ - 2⁻¹) *
-    (eLpNorm f 2 volume * volume G ^ (2⁻¹ : ℝ))
+    (volume F ^ (2⁻¹ : ℝ) * volume G ^ (2⁻¹ : ℝ))
   _ ≤ 2 ^ (a + 5/2 : ℝ) * volume F ^ (q⁻¹ - 2⁻¹) * (volume G)⁻¹ ^ (q⁻¹ - 2⁻¹) *
     ((volume F) ^ (2⁻¹ : ℝ) * volume G ^ (2⁻¹ : ℝ)) := by
     gcongr
     · exact one_le_two
-    · have : 1 ≤ q := (one_lt_q X).le
-      have : (2 * a + 5 : ℕ) * (q⁻¹ - 2⁻¹) ≤ (2 * a + 5 : ℕ) * (1⁻¹ - 2⁻¹) := by gcongr
-      apply this.trans_eq
-      norm_num
-      simp [add_mul, div_eq_mul_inv]
-      ring
-    · have A x : ‖f x‖ ≤ ‖F.indicator (fun (x : X) ↦ (1 : ℝ)) x‖ := (h2f x).trans (le_abs_self _)
-      apply (eLpNorm_mono A).trans_eq
-      rw [eLpNorm_indicator_const measurableSet_F two_ne_zero (ENNReal.two_ne_top)]
-      simp
+    have : 1 ≤ q := (one_lt_q X).le
+    have : (2 * a + 5 : ℕ) * (q⁻¹ - 2⁻¹) ≤ (2 * a + 5 : ℕ) * (1⁻¹ - 2⁻¹) := by gcongr
+    apply this.trans_eq
+    norm_num
+    simp [add_mul, div_eq_mul_inv]
+    ring
   _ = 2 ^ (a + 5/2 : ℝ) * (volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) := by
     have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
     have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
