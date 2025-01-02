@@ -2,7 +2,6 @@ import Carleson.Discrete.Defs
 import Mathlib.Combinatorics.Enumerative.DoubleCounting
 import Carleson.Antichain.AntichainOperator
 import Carleson.Discrete.SumEstimates
-import Carleson.ToMathlib.Data.Nat.Defs
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -1014,7 +1013,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
   _ ≤ a ^ 16 / (q - 1) ^ 4 * Z * 2 ^ 20 := by gcongr; norm_num
   _ ≤ (2 ^ a) ^ 16 / (q - 1) ^ 4 * Z * 2 ^ 20 := by
     gcongr
-    exact_mod_cast Nat.le_pow_self _ one_lt_two
+    exact_mod_cast (Nat.lt_pow_self one_lt_two _).le
   _ = (2 ^ (16 * a) * 2 ^ (12 * a) * 2 ^ 20) / (q - 1) ^ 4 := by
     simp [← pow_mul, mul_comm a]
     ring
