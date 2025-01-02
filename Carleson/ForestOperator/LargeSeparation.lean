@@ -1034,7 +1034,25 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     _ ≤ (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖₊) + (⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖₊) + C7_5_9_1 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
       sorry
     _ ≤ (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖₊) + C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
-      sorry
+      rw [add_assoc]
+      gcongr
+      have ltc := local_tree_control (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) (hJ := hJ) (hf := hf)
+      apply add_le_of_add_le_right (hle := ltc)
+      rw [← right_distrib, C7_5_7, C7_5_9_1, C7_5_10]
+      gcongr
+      norm_cast
+      rw [
+        show 2 ^ (104 * a ^ 3) = 2 ^ (104 * a ^ 3) * 1 by ring,
+        show 2 ^ (155 * a ^ 3) = 2 ^ (104 * a ^ 3) * 2 ^ (51 * a ^ 3) by ring,
+        show 2 ^ (154 * a ^ 3) = 2 ^ (104 * a ^ 3) * 2 ^ (50 * a ^ 3) by ring,
+        show 2 ^ (104 * a ^ 3) * 1 + 2 ^ (104 * a ^ 3) * 2 ^ (50 * a ^ 3) = 2 ^ (104 * a ^ 3) * (1 + 2 ^ (50 * a ^ 3)) by ring
+      ]
+      gcongr
+      have four : 4 ≤ a := four_le_a X
+      refine Nat.one_add_le_iff.mpr ?_
+      rw [Nat.pow_lt_pow_iff_right Nat.le.refl]
+      gcongr
+      linarith
 
 /-- The constant used in `holder_correlation_tree`.
 Has value `2 ^ (535 * a ^ 3)` in the blueprint. -/
