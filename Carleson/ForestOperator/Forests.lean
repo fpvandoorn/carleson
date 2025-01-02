@@ -1,5 +1,6 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
+import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -115,15 +116,90 @@ end TileStructure.Forest
 
 /-! ## Proposition 2.0.4 -/
 
+irreducible_def C2_0_4_base (a : ℝ) : ℝ≥0 := 2 ^ (432 * a ^ 3)
+
 /-- The constant used in `forest_operator`.
 Has value `2 ^ (432 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := 2 ^ (432 * a ^ 3 - (q - 1) / q * n)
+irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (- (q - 1) / q * n)
 
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)
     (h2g : IsBounded (support g)) :
     ‖∫ x, conj (g x) * ∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ ≤
-    C2_0_4 a q n * (dens₂ (X := X) (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
+    C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry
+
+/-- Version of the forest operator theorem, but controlling the integral of the norm instead of
+the integral of the function multiplied by another function. -/
+theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
+    (h'A : IsBounded A) :
+    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ ≤
+    C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
+    eLpNorm f 2 volume * (volume A) ^ (1/2 : ℝ) := by
+  /- This follows from the other version by taking for the test function `g` the argument of
+  the sum to be controlled. -/
+  rw [← ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm]; swap
+  · apply BoundedCompactSupport.integrable
+    apply BoundedCompactSupport.finset_sum (fun i hi ↦ ?_)
+    apply BoundedCompactSupport.carlesonSum
+    have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
+      apply BoundedCompactSupport.indicator_of_isBounded_range _ stronglyMeasurable_one _
+        measurableSet_F
+      · exact isBounded_range_iff_forall_norm_le.2 ⟨1, fun x ↦ by simp⟩
+      · exact isBounded_F
+    apply BoundedCompactSupport.mono this hf.stronglyMeasurable h2f
+  rw [← integral_indicator hA]
+  simp_rw [indicator_mul_left, ← comp_def,
+    Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
+  apply (forest_operator 𝔉 hf h2f ?_ ?_).trans; rotate_left
+  · apply Measurable.indicator _ hA
+    fun_prop
+  · apply h'A.subset support_indicator_subset
+  gcongr
+  · have := (q_mem_Ioc (X := X)).2
+    simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
+    exact (q_mem_Ioc (X := X)).2
+  · exact le_rfl
+  calc
+  _ ≤ eLpNorm (A.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
+    apply eLpNorm_mono (fun x ↦ ?_)
+    simp only [indicator, norm_eq_abs, coe_algebraMap, Pi.one_apply, Real.norm_eq_abs]
+    split_ifs
+    · have A (x : ℝ) : x / x ≤ 1 := by
+        rcases eq_or_ne x 0 with rfl | hx
+        · simp
+        · simp [hx]
+      simpa using A _
+    · simp
+  _ ≤ _ := by
+    rw [eLpNorm_indicator_const]
+    · simp
+    · exact hA
+    · norm_num
+    · norm_num
+
+
+/-- Version of the forest operator theorem, but controlling the integral of the norm instead of
+the integral of the function multiplied by another function, and with the upper bound in terms
+of `volume F` and `volume G`.  -/
+theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
+    (h'A : IsBounded A) :
+    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ ≤
+    C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
+    (volume F) ^ (1/2 : ℝ) * (volume A) ^ (1/2 : ℝ) := by
+  apply (forest_operator' 𝔉 hf h2f hA h'A).trans
+  gcongr
+  calc
+  _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
+    apply eLpNorm_mono (fun x ↦ ?_)
+    apply (h2f x).trans (le_abs_self _)
+  _ ≤ _ := by
+    rw [eLpNorm_indicator_const]
+    · simp
+    · exact measurableSet_F
+    · norm_num
+    · norm_num

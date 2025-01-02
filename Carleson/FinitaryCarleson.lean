@@ -94,7 +94,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
 end
 
 /- The constant used in Proposition 2.0.1 -/
-def C2_0_1 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
+def C2_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 
 lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
 
