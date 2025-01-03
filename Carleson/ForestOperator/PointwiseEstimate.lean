@@ -242,7 +242,7 @@ private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X
       ‖exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ ‖𝒬 u y - Q x y - 𝒬 u x + Q x x‖ := by
     convert exp_sub_one_le (- 𝒬 u y + Q x y + 𝒬 u x - Q x x) using 1
     · simp
-    · rw [← norm_neg]; congr; ring
+    · rw [← norm_neg]; ring_nf
   have : dist_(pₛ) (𝒬 u) (Q x) ≤ 2 ^ (s - σMax t u x ⟨s, hs⟩) * dist_(p') (𝒬 u) (Q x) := by
     have pₛ_le_p' : 𝓘 pₛ ≤ 𝓘 p' := le_of_mem_of_mem s_le xpₛ.1 xp'.1
     have sub_ge_0 : t.σMax u x ⟨s, hs⟩ - s ≥ 0 := by unfold σMax; linarith [(σ t u x).le_max' s hs]
@@ -250,13 +250,13 @@ private lemma L7_1_4_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u x) {y : X
       simp_rw [← hp', ← hpₛ, 𝔰, _root_.s]; ring
     apply le_trans <| Grid.dist_strictMono_iterate' sub_ge_0 pₛ_le_p' this
     gcongr
-    calc
+    calc  C2_1_2 a ^ (t.σMax u x ⟨s, hs⟩ - s)
       _ ≤ C2_1_2 a ^ (t.σMax u x ⟨s, hs⟩ - s : ℝ)                     := by norm_cast
       _ ≤ (1 / 2 : ℝ) ^ (t.σMax u x ⟨s, hs⟩ - s : ℝ)                  :=
         Real.rpow_le_rpow (by rw [C2_1_2]; positivity)
           ((C2_1_2_le_inv_512 X).trans (by norm_num)) (by norm_cast)
       _ = 2 ^ (s - σMax t u x ⟨s, hs⟩)                                := by simp [← Int.cast_sub]
-  calc
+  calc ‖exp (.I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖
     _ ≤ dist_{x, D ^ s / 2} (𝒬 u) (Q x) :=
       exp_bound.trans <| oscillation_le_cdist x _ (𝒬 u) (Q x)
         (mem_ball_comm.mp (mem_Ioo.mp (dist_mem_Ioo_of_Ks_ne_zero hKxy)).2) (mem_ball_self hr)
@@ -337,7 +337,7 @@ private lemma L7_1_4_dist_le {p : 𝔓 X} (xp : x ∈ E p) {J : Grid X}
     (hJ : ((J : Set X) ∩ ball x (D ^ 𝔰 p / 2)).Nonempty) :
     dist (c J) (𝔠 p) ≤ 4 * D ^ (s J) + 4.5 * D ^ (𝔰 p) := by
   have ⟨z, hz⟩ := hJ
-  calc
+  calc dist (c J) (𝔠 p)
     _ ≤ dist (c J) z + dist z x + dist x (𝔠 p)           := dist_triangle4 (c J) z x (𝔠 p)
     _ ≤ 4 * D ^ (s J) + 0.5 * D ^ (𝔰 p) + 4 * D ^ (𝔰 p)  := by
       apply add_le_add_three
@@ -357,7 +357,7 @@ private lemma L7_1_4_s_le_s {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p)
   push_neg at h
   apply False.elim ∘ hJ.1.1.resolve_left h.2 p pu ∘ le_trans Grid_subset_ball ∘ ball_subset_ball'
   have : (D : ℝ) ^ 𝔰 p ≤ D ^ s J := (zpow_le_zpow_iff_right₀ (one_lt_D (X := X))).mpr h.1.le
-  calc
+  calc 4 * (D : ℝ) ^ GridStructure.s (𝓘 p) + dist (GridStructure.c (𝓘 p)) (c J)
     _ ≤ 4 * (D : ℝ) ^ (s J) + (4 * D ^ (s J) + 4.5 * D ^ (s J)) := by
       gcongr 4 * ?_ + ?_
       · exact this
@@ -373,14 +373,14 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
   let Js := Set.toFinset { J ∈ 𝓙 (t u) | ((J : Set X) ∩ ball x (D ^ (𝔰 p) / 2)).Nonempty }
   have mem_Js {J : Grid X} : J ∈ Js ↔ J ∈ 𝓙 (t.𝔗 u) ∧ (↑J ∩ ball x (D ^ 𝔰 p / 2)).Nonempty := by
     simp [Js]
-  calc
+  calc ∫ y in ball x (D ^ (𝔰 p) / 2), ‖f y‖
     _ ≤ ∫ y in (⋃ J ∈ Js, (J : Set X)), ‖f y‖ := by
       apply setIntegral_mono_set hf.integrable.norm.integrableOn (Eventually.of_forall (by simp))
       suffices h : ball x (D ^ (𝔰 p) / 2) ⊆ ⋃ J ∈ 𝓙 (t.𝔗 u), (J : Set X) by
         refine ((subset_inter_iff.mpr ⟨h, subset_refl _⟩).trans (fun y hy ↦ ?_)).eventuallyLE
         have ⟨J, hJ, yJ⟩ := Set.mem_iUnion₂.mp hy.1
         exact ⟨J, ⟨⟨J, by simp [mem_Js.mpr ⟨hJ, ⟨y, mem_inter yJ hy.2⟩⟩]⟩, yJ⟩⟩
-      calc
+      calc ball x (D ^ 𝔰 p / 2)
         _ ⊆ ball x (4 * D ^ 𝔰 p)     := ball_subset_ball <| by linarith [defaultD_pow_pos a (𝔰 p)]
         _ ⊆ (𝓘 u : Set X)                 := ball_subset_of_mem_𝓘 hu pu xp.1
         _ ⊆ ⋃ (I : Grid X), (I : Set X)   := le_iSup _ _
@@ -486,11 +486,11 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
   rw [Nat.succ_mul 103, pow_add, mul_assoc, mul_le_mul_left (pow_pos two_pos _)]
   have ⟨pₛ, pₛu, xpₛ, hpₛ⟩ := t.exists_p_of_mem_σ u x hs
   have ball_subset : ball (𝔠 pₛ) (16 * D ^ s) ⊆ ball x ((2 ^ 5) * D ^ s) :=
-    ball_subset_ball' <| calc
-      _ ≤ 16 * (D : ℝ) ^ s + 4 * _   := add_le_add_left (mem_ball'.mp (Grid_subset_ball xpₛ.1)).le _
-      _ = 16 * (D : ℝ) ^ s + 4 * D ^ s := by nth_rewrite 3 [← hpₛ]; rfl
-      _ ≤ (2 ^ 5) * D ^ s              := by linarith [defaultD_pow_pos a s]
-  calc
+    ball_subset_ball' <| calc 16 * (D : ℝ) ^ s + dist (𝔠 pₛ) x
+      _ ≤ 16 * D ^ s + 4 * D ^ _ := add_le_add_left (mem_ball'.mp (Grid_subset_ball xpₛ.1)).le _
+      _ = 16 * D ^ s + 4 * D ^ s := by nth_rewrite 3 [← hpₛ]; rfl
+      _ ≤ (2 ^ 5) * D ^ s        := by linarith [defaultD_pow_pos a s]
+  calc (∫ y in ball x (D ^ s / 2), ‖f y‖) / volume.real (ball x (D ^ s))
   _ ≤ 2 ^ (5 * a) * ((∫ y in ball x (D^s / 2), ‖f y‖) / volume.real (ball (𝔠 pₛ) (16 * D^s))) := by
     rw [mul_comm (2 ^ (5 * a)), div_mul]
     apply div_le_div₀ (setIntegral_nonneg measurableSet_ball (fun _ _ ↦ norm_nonneg _)) (le_refl _)
