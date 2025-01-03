@@ -22,8 +22,8 @@ variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X]
 section localOscillation
 
 /-- The local oscillation of two functions w.r.t. a set `E`. This is `d_E` in the blueprint. -/
-def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ :=
-  ⨆ z ∈ E ×ˢ E, ‖f z.1 - g z.1 - f z.2 + g z.2‖
+def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
+  ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
 
 -- example (E : Set X) (hE : IsBounded E) (f : C(X, ℝ)) :
 --     BddAbove (range fun z : E ↦ f z) := by
@@ -39,7 +39,7 @@ variable {E : Set X} {f g : C(X, 𝕜)}
 /-- A ball w.r.t. the distance `localOscillation` -/
 def localOscillationBall (E : Set X) (f : C(X, 𝕜)) (r : ℝ) :
     Set C(X, 𝕜) :=
-  { g : C(X, 𝕜) | localOscillation E f g < r }
+  { g : C(X, 𝕜) | localOscillation E f g < ENNReal.ofReal r }
 
 end localOscillation
 
@@ -95,7 +95,7 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
   eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
   /-- The distance is bounded below by the local oscillation. (1.0.7) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
-    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ dist_{x, r} f g
+    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
   /-- The distance is monotone in the ball. (1.0.9) -/
   cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
     (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
@@ -116,6 +116,22 @@ instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
 
 instance inhabited_Space [CompatibleFunctions 𝕜 X A] : Inhabited X :=
   ⟨nonempty_Space.some⟩
+
+lemma le_localOscillation [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g : Θ X) {y z : X}
+    (hy : y ∈ ball x r) (hz : z ∈ ball x r) : ‖coeΘ f y - coeΘ g y - coeΘ f z + coeΘ g z‖ ≤
+    ENNReal.toReal (localOscillation (ball x r) (coeΘ f) (coeΘ g)) := by
+  rw [(ENNReal.toReal_ofReal (norm_nonneg _)).symm]
+  let f (z) := ⨆ (_ : z ∈ ball x r ×ˢ ball x r), ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
+  apply ENNReal.toReal_mono
+  · exact lt_of_le_of_lt CompatibleFunctions.localOscillation_le_cdist ENNReal.ofReal_lt_top |>.ne
+  · exact le_of_eq_of_le (Eq.symm (iSup_pos ⟨hy, hz⟩)) (le_iSup f ⟨y, z⟩)
+
+lemma oscillation_le_cdist [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g : Θ X) {y z : X}
+    (hy : y ∈ ball x r) (hz : z ∈ ball x r) :
+    ‖coeΘ f y - coeΘ g y - coeΘ f z + coeΘ g z‖ ≤ dist_{x, r} f g := by
+  apply le_trans <| le_localOscillation x r f g hy hz
+  rw [← ENNReal.toReal_ofReal dist_nonneg]
+  exact ENNReal.toReal_mono ENNReal.ofReal_ne_top CompatibleFunctions.localOscillation_le_cdist
 
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 

@@ -399,4 +399,10 @@ lemma dist_strictMono_iterate {I J : Grid X} {d : ℕ} (hij : I ≤ J) (hs : s I
         · exact dist_strictMono KJ
       _ = _ := by ring
 
+-- Version of `dist_strictMono_iterate` with `d` in `ℤ`
+lemma dist_strictMono_iterate' {I J : Grid X} {d : ℤ} (hd : d ≥ 0) (hij : I ≤ J)
+    (hs : s I + d = s J) {f g : Θ X} : dist_{I} f g ≤ C2_1_2 a ^ d * dist_{J} f g := by
+  rw [← Int.toNat_of_nonneg hd] at hs ⊢
+  exact dist_strictMono_iterate hij hs
+
 end Grid

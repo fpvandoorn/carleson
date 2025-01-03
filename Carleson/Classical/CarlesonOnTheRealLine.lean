@@ -164,29 +164,24 @@ lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
 lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
-    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ dist_{x, r} f g := by
+    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g) := by
   by_cases r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos]
-    unfold localOscillation
-    simp [dist_nonneg]
+    simp [localOscillation, norm_nonneg]
   push_neg at r_pos
-  rw [dist_integer_linear_eq]
-  calc ⨆ z ∈ ball x r ×ˢ ball x r, |↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2|
-    _ = ⨆ z ∈ ball x r ×ˢ ball x r, ‖(f - g) * (z.1 - x) - (f - g) * (z.2 - x)‖ := by
+  simp_rw [dist_integer_linear_eq]
+  calc ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal ‖↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2‖
+    _ = ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)| := by
       congr with z
       congr with h
       rw [Real.norm_eq_abs]
       ring_nf
-    _ ≤ 2 * r * |↑f - ↑g| := by
-      apply Real.iSup_le
-      --TODO: investigate strange (delaborator) behavior - why is there still a sup?
-      on_goal 1 => intro z
-      on_goal 1 => apply Real.iSup_le
-      · intro hz
-        simp only [Set.mem_prod, mem_ball] at hz
-        rw [Real.dist_eq, Real.dist_eq] at hz
-        rw [Real.norm_eq_abs]
-        calc |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)|
+    _ ≤ ENNReal.ofReal (2 * r * |↑f - ↑g|) := by
+      refine iSup₂_le (fun z hz ↦ ?_)
+      apply ENNReal.ofReal_le_of_le_toReal
+      rw [ENNReal.toReal_ofReal (by positivity)]
+      simp_rw [Set.mem_prod, mem_ball, Real.dist_eq] at hz
+      calc |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)|
         _ ≤ |(f - g) * (z.1 - x)| + |(f - g) * (z.2 - x)| := abs_sub ..
         _ = |↑f - ↑g| * |z.1 - x| + |↑f - ↑g| * |z.2 - x| := by congr <;> apply abs_mul
         _ ≤ |↑f - ↑g| * r + |↑f - ↑g| * r := by
@@ -194,12 +189,7 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
           · linarith [hz.1]
           · linarith [hz.2]
         _ = 2 * r * |↑f - ↑g| := by ring
-      all_goals
-      repeat
-        apply mul_nonneg
-        linarith
-        apply abs_nonneg
-    _ ≤ 2 * max r 0 * |↑f - ↑g| := by
+    _ ≤ ENNReal.ofReal (2 * max r 0 * |↑f - ↑g|) := by
       gcongr
       apply le_max_left
 
