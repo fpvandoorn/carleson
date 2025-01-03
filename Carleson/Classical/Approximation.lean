@@ -12,9 +12,11 @@ open Finset Real
 
 local notation "S_" => partialFourierSum
 
+open scoped ContDiff
+
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0):
-    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ⊤ f₀ ∧ f₀.Periodic (2 * π) ∧
+    ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic (2 * π) ∧
       ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
@@ -33,7 +35,8 @@ lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuo
       fun y hy ↦ (hδ hy).le
 
 -- local lemma
-lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ i ≠ 0, g i ≤ f i) (summablef : Summable f) : Summable g := by
+lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀ i ≠ 0, g i ≤ f i)
+    (summablef : Summable f) : Summable g := by
   set f' : ℤ → ℝ := fun i ↦ if i = 0 then g i else f i with f'def
   have : ∀ i, g i ≤ f' i := by
     intro i
@@ -114,7 +117,7 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
   have h' : ∀ x ∈ Set.uIcc 0 (2 * π), HasDerivAt (deriv f) (deriv (deriv f) x) x := by
     intro x _
     rw [hasDerivAt_deriv_iff]
-    exact (contDiff_succ_iff_deriv.mp fdiff).2.differentiable (by norm_num) _
+    exact ((contDiff_succ_iff_deriv (n := 1)).mp fdiff).2.2.differentiable (by norm_num) _
   /-Get better representation for the fourier coefficients of f. -/
   have fourierCoeffOn_eq {n : ℤ} (hn : n ≠ 0): (fourierCoeffOn Real.two_pi_pos f n) = - 1 / (n^2) * fourierCoeffOn Real.two_pi_pos (fun x ↦ deriv (deriv f) x) n := by
     rw [fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h, fourierCoeffOn_of_hasDerivAt Real.two_pi_pos hn h']
@@ -125,9 +128,11 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
       simp [h1, h2]
       ring_nf
       simp [mul_inv_cancel, one_mul, pi_pos.ne.symm]
-    · exact (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2.intervalIntegrable ..
-    · exact (contDiff_succ_iff_deriv.mp fdiff).2.continuous.intervalIntegrable ..
-  obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp (contDiff_succ_iff_deriv.mp fdiff).2).2
+    · exact (contDiff_one_iff_deriv.mp ((contDiff_succ_iff_deriv (n := 1)).mp
+        fdiff).2.2).2.intervalIntegrable ..
+    · exact ((contDiff_succ_iff_deriv (n := 1)).mp fdiff).2.2.continuous.intervalIntegrable ..
+  obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp
+    ((contDiff_succ_iff_deriv (n := 1)).mp fdiff).2.2).2
   refine ⟨C, fun n hn ↦ ?_⟩
   simp only [fourierCoeffOn_eq hn, Nat.cast_one, Int.cast_pow, map_mul, map_div₀, map_neg_eq_map,
   map_one, map_pow, Complex.abs_intCast, sq_abs, one_div, div_eq_mul_inv C, mul_comm _ (Complex.abs _)]
@@ -167,7 +172,8 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
       linarith
 
 
-lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * π)) (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
+lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * π))
+    (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :
     ∃ N₀, ∀ N > N₀, ∀ x ∈ Set.Icc 0 (2 * π), ‖f x - S_ N f x‖ ≤ ε := by
   have fact_two_pi_pos : Fact (0 < 2 * π) := by
     rw [fact_iff]
