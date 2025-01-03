@@ -69,6 +69,11 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 -- @[simp] lemma Grid.subset_def : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 -- @[simp] lemma Grid.ssubset_def : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
+/- not sure whether these should be simp lemmas, but that might be required if we want to
+  conveniently rewrite/simp with Set-lemmas -/
+@[simp] lemma Grid.mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
+@[simp] lemma Grid.le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
+
 lemma fundamental_dyadic :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
@@ -91,6 +96,18 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
+lemma subset_of_nmem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
+    (h : i ∉ Iic j)
+    (notDisjoint : ¬ Disjoint (i : Set X) j) :
+    (j : Set X) ⊆ i := by
+  rw [Iic, Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
+  have h_le_cases := le_or_ge_or_disjoint (i := i) (j := j)
+  rcases h_le_cases with i_le | j_le | disjoint
+  · exact (h.neg_resolve_left i_le.1 i_le.2).elim
+  · rw [disjoint_comm] at notDisjoint
+    exact (GridStructure.fundamental_dyadic' j_le.2).resolve_right notDisjoint
+  · exact (notDisjoint disjoint).elim
+
 lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
 
 lemma volume_coeGrid_pos (hD : 0 < D) : 0 < volume (i : Set X) := by
@@ -104,11 +121,6 @@ lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
   measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
 
 namespace Grid
-
-/- not sure whether these should be simp lemmas, but that might be required if we want to
-  conveniently rewrite/simp with Set-lemmas -/
-@[simp] lemma mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
-@[simp] lemma le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 
 protected lemma inj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
 

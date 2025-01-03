@@ -42,17 +42,78 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
+-- Auxiliary lemma for Lemma 7.5.1.
+lemma 𝓘_subset_iUnion_𝓙_𝔖₀ : (𝓘 u₁ : Set X) ⊆ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := by
+  rw [biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)]
+  apply subset_iUnion_of_subset (𝓘 u₁)
+  rfl
+
 /-- Part of Lemma 7.5.1. -/
 lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
     ⋃ J ∈ 𝓙₅ t u₁ u₂, (J : Set X) = 𝓘 u₁ := by
-  sorry
+  apply Set.Subset.antisymm
+  · intros x hx
+    simp only [mem_iUnion] at hx
+    rcases hx with ⟨cube, ⟨_, interval⟩, h⟩
+    exact Set.mem_of_mem_of_subset h interval.left
+  · intros x hx
+    have existsCube : x ∈ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := 𝓘_subset_iUnion_𝓙_𝔖₀ hx
+    simp only [mem_iUnion, exists_prop] at existsCube
+    rcases existsCube with ⟨cube, cube_in_𝓙, xInCube⟩
+    simp only [mem_iUnion, exists_prop]
+    have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
+    have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_mem_inter_left cube_in_𝓙
+    simp only [mem_setOf_eq] at cubeIn𝓙₀
+    cases cubeIn𝓙₀ with
+    | inl west =>
+      refine ⟨cube, ?_, xInCube⟩
+      unfold 𝓙₅
+      rw [inter_def, mem_setOf_eq]
+      refine ⟨cube_in_𝓙, ?_⟩
+      simp only [mem_Iic, Grid.le_def]
+      have smaller := calc s cube
+        _ = -S := west
+        _ ≤ s (𝓘 u₁) := (mem_Icc.mp (scale_mem_Icc (i := 𝓘 u₁))).left
+      refine ⟨?_, smaller⟩
+      cases GridStructure.fundamental_dyadic' smaller with
+      | inl subset => exact subset
+      | inr disjoint => exact False.elim (notDisjoint disjoint)
+    | inr east =>
+      obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+      by_contra! contr
+      have white := calc (𝓘 p : Set X)
+        _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
+        _ ⊆ cube := by
+          apply subset_of_nmem_Iic_of_not_disjoint cube
+          · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
+            rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
+            exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
+          · exact notDisjoint
+        _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
+          exact Grid_subset_ball (i := cube)
+        _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+          unfold ball
+          intro y xy
+          rw [mem_setOf_eq] at xy ⊢
+          have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
+            gcongr
+            linarith
+            exact one_lt_D (X := X)
+            linarith
+          exact gt_trans numbers xy
+      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+        have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
+        rw [subset_def] at in_𝔖₀
+        exact east p (in_𝔖₀ p belongs)
+      contradiction
 
 /-- Part of Lemma 7.5.1. -/
 lemma pairwiseDisjoint_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) :
     (𝓙₅ t u₁ u₂).PairwiseDisjoint (fun I ↦ (I : Set X)) := by
-  sorry
+  have ss : (𝓙 (t.𝔖₀ u₁ u₂) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t.𝔖₀ u₁ u₂) := inter_subset_left
+  exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)) ss
 
 /-- Lemma 7.5.3 (stated somewhat differently). -/
 lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -128,20 +189,22 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
   apply 𝓙_subset_𝓙₀ at hJLeft
   apply Set.mem_or_mem_of_mem_union at hp
   have belongs : p ∈ t.𝔖₀ u₁ u₂ := by
-    cases' hp with h1 h2
-    · exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
-    · exact Set.mem_of_mem_inter_right h2
-  cases' hJLeft with scaleVerySmall noGridInBall
-  · exact trans scaleVerySmall (scale_mem_Icc.left)
-  have pGridIsNotInBall := noGridInBall p belongs
-  rw [not_subset] at pGridIsNotInBall
-  rcases pGridIsNotInBall with ⟨x, ⟨xInTile, xIsNotInBall⟩⟩
-  rw [Metric.mem_ball'] at xIsNotInBall
-  by_contra! contr
-  apply xIsNotInBall
-  simp only [not_disjoint_iff] at h
-  rcases h with ⟨middleX, xxx, yyy⟩
-  calc dist (c J) x
+    cases hp with
+    | inl h1 => exact 𝔗_subset_𝔖₀ hu₁ hu₂ hu h2u h1
+    | inr h2 => exact Set.mem_of_mem_inter_right h2
+  cases hJLeft with
+  | inl scaleVerySmall =>
+    exact trans scaleVerySmall (scale_mem_Icc.left)
+  | inr noGridInBall =>
+    have pGridIsNotInBall := noGridInBall p belongs
+    rw [not_subset] at pGridIsNotInBall
+    rcases pGridIsNotInBall with ⟨x, ⟨xInTile, xIsNotInBall⟩⟩
+    rw [Metric.mem_ball'] at xIsNotInBall
+    by_contra! contr
+    apply xIsNotInBall
+    simp only [not_disjoint_iff] at h
+    rcases h with ⟨middleX, xxx, yyy⟩
+    calc dist (c J) x
     _ = dist (x) (c J) := by
       apply dist_comm
     _ ≤ dist (x) (𝔠 p) + dist (𝔠 p) (c J) := dist_triangle ..
