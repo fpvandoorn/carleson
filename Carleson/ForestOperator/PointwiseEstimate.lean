@@ -205,7 +205,7 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 /-- The constant used in `first_tree_pointwise`.
-Has value `10 * 2 ^ (105 * a ^ 3)` in the blueprint. -/
+Has value `10 * 2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (104 * (a : ℝ) ^ 3)
 
