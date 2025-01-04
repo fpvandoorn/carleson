@@ -1,6 +1,5 @@
 import Carleson.Defs
 import Mathlib.Algebra.Lie.OfAssociative
--- import Mathlib.Topology.CompletelyRegular
 import Mathlib.Topology.EMetricSpace.Paracompact
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
