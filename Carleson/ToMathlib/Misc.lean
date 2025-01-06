@@ -438,4 +438,11 @@ theorem setIntegral_biUnion_le_sum_setIntegral' {X : Type*} {ι : Type*} [Measur
     exact fun x ⟨hx₁, hx₂⟩ ↦ by simpa [← mem_setOf_eq ▸ hx₂] using hx₁
   · exact int_f.congr int_f.aestronglyMeasurable.ae_eq_mk
 
+-- Analogous to `MeasureTheory.integral_smul_const` in Mathlib
+theorem average_smul_const {X : Type*} {E : Type*} [MeasurableSpace X]
+    {μ : MeasureTheory.Measure X} [NormedAddCommGroup E] [NormedSpace ℝ E] {𝕜 : Type*}
+    [RCLike 𝕜] [NormedSpace 𝕜 E] [CompleteSpace E] (f : X → 𝕜) (c : E) :
+    ⨍ (x : X), f x • c ∂μ = (⨍ (x : X), f x ∂μ) • c :=
+  integral_smul_const f c
+
 end MeasureTheory
