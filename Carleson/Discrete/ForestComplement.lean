@@ -257,7 +257,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
     simp at h
   contrapose! nG₃
   exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <|
-    le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ subset_rfl
+    le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ Subset.rfl
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
