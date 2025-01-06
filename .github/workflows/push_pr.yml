@@ -29,20 +29,10 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build Carleson
 
-      - name: Setup symlinks between project and docbuild
-        working-directory: docbuild
-        run: |
-          mkdir -p .lake/packages
-          for package_path in ../.lake/packages/*; do
-            package=$(basename $package_path)
-            ln -s ../../../.lake/packages/$package .lake/packages/$package
-          done
-
       - name: Test carleson update in docbuild
         working-directory: docbuild
         run: |
-          ~/.elan/bin/lake update carleson || true
-          #~/.elan/bin/lake build Carleson:docs
+          MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update carleson || true
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2

@@ -229,7 +229,7 @@ For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polyno
 \noindent \textit{Acknowledgement.}
 L.B., F.v.D., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
 L.B. , R.S., and C.T. were also supported by SFB 1060.
-A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
+A.J. is funded by the TÜBITAK (Scientific and Technological Research Council of Türkiye) under Grant Number 123F122.
 
 \chapter{Proof of Metric Space Carleson, overview}
 \label{overviewsection}
@@ -304,7 +304,7 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
 \end{equation*}
 \begin{equation}
     \label{eq-linearized}
-    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}}
+    \le \frac{2^{434a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}}
      \mu(F)^{\frac 1 q}\,.
 \end{equation}
 \end{proposition}
@@ -423,7 +423,7 @@ Then there exists a Borel set $G'$ with $2\mu(G') \leq \mu(G)$ such that for all
 we have
 \begin{equation}
     \label{disclesssim}
-   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{440a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+   \int_{G \setminus G'} \left| \sum_{\fp \in \fP} T_{\fp} f (x) \right| \, \mathrm{d}\mu(x) \le \frac{2^{434a^3}}{(q-1)^4} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
 \end{equation}
 \end{proposition}
 
@@ -1017,7 +1017,7 @@ for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
     \left| {T}_{2,\sigma_1,\sigma_2, \tQ} f(x) \right|\, d\mu(x)
 \end{equation*}
 \begin{equation}
-    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \le \frac{2^{434a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
 \end{equation}
 Adding the first $n$ of these inequalities, we obtain by bounding a geometric series
     \begin{equation} \label{Sqcut2}
@@ -1129,7 +1129,7 @@ We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \end{equation}
 \begin{equation}
  =\int_{G \setminus G'} \left|\sum_{\fp\in \fP}T_{\fp} f(x)\right| \mathrm{d}\mu(x)
- \le \frac{2^{440a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
+ \le \frac{2^{434a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
 \end{equation}
 This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and thus completes the proof of Proposition
 \ref{finitary-Carleson}.
@@ -1965,7 +1965,7 @@ In \Cref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G'$ as fore
     For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
     \begin{equation}
         \label{disclesssim1}
-        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{435a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{433a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
 
@@ -3020,12 +3020,12 @@ We have
 \end{proof}
 We now turn to the proof of \Cref{forest-union}.
 \begin{proof}[Proof of \Cref{forest-union}]
-    \proves{forest-union}
+    \proves{forest-union}\leanok
 
     We first fix $k,n, j$.
     By \eqref{definetp} and \eqref{defineep}, we have that
     $\mathbf{1}_{\scI(\fp)} T_{\fp}f(x) = T_{\fp}f(x)$ and hence $\mathbf{1}_{G \setminus G'} T_{\fp}f(x)= 0$ for all $\fp \in \fC_5(k,n,j) \setminus \fC_6(k,n,j)$.
-    Thus it suffices to estimate the contribution of the sets $\fC_6(k,n,j)$. By \Cref{forest-stacking}, we can decompose $\fU_3(k,n,j)$ as a disjoint union of at most $4n + 13$ collections $\fU_4(k,n,j,l)$, $1 \le l \le 4n+13$, each satisfying
+    Thus it suffices to estimate the contribution of the sets $\fC_6(k,n,j)$. By \Cref{forest-stacking}, we can decompose $\fU_3(k,n,j)$ as a disjoint union of at most $4n + 12$ collections $\fU_4(k,n,j,l)$, $1 \le l \le 4n+12$, each satisfying
     $$
         \sum_{\fu \in \fU_4(k,n,j,l)} \mathbf{1}_{\scI(\fu)} \le 2^n\,.
     $$
@@ -3035,7 +3035,7 @@ We now turn to the proof of \Cref{forest-union}.
     $$
     are $n$-forests for each $k,n,j,l$, and by \Cref{C6-forest}, we have
     $$
-        \fC_6(k,n,j) = \bigcup_{l = 1}^{4n + 13} \bigcup_{\fu \in \fU_4(k,n,j,l)} \mathfrak{T}_2(\fu)\,.
+        \fC_6(k,n,j) = \bigcup_{l = 1}^{4n + 12} \bigcup_{\fu \in \fU_4(k,n,j,l)} \mathfrak{T}_2(\fu)\,.
     $$
     Since $\scI(\fp) \not\subset G_1$ for all $\fp \in \fC_6(k,n,j)$, we have $\fC_6(k,n,j) \cap \fP_{F,G} = \emptyset$ and hence
     $$
@@ -3043,17 +3043,20 @@ We now turn to the proof of \Cref{forest-union}.
     $$
     Using the triangle inequality according to the splitting by $k,n,j$ and $l$ in \eqref{disclesssim1} and applying \Cref{forest-operator} to each term, we obtain the estimate
     $$
-        \sum_{k \ge 0}\sum_{n \ge k} (2n+3)(4n+13) 2^{432a^3}2^{-(1-\frac{1}{q})n}(2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2 \|\mathbf{1}_{G\setminus G'}\|_2
+        \sum_{k \ge 0}\sum_{n \ge k} (2n+3)(4n+12) 2^{432a^3}2^{-(1-\frac{1}{q})n}(2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2 \|\mathbf{1}_{G\setminus G'}\|_2
     $$
-    for the left hand side of \eqref{disclesssim1}. Since $|f| \le \mathbf{1}_F$, we have $\|f\|_2 \le \mu(F)^{1/2}$, and we have $\|\mathbf{1}_{G\setminus G'}\|_2 \le \mu(G)^{1/2}$. Combining this with $a \ge 4$, we estimate by
+    for the left hand side of \eqref{disclesssim1}. Since $|f| \le \mathbf{1}_F$, we have $\|f\|_2 \le \mu(F)^{1/2}$, and we have $\|\mathbf{1}_{G\setminus G'}\|_2 \le \mu(G)^{1/2}$.
+    We get a bound
     $$
-        2^{433a^3} \mu(F)^{\frac{1}{q}} \mu(G)^{1
-        -\frac{1}{q}} \sum_{k \ge 0}\sum_{n \ge k}n^2 2^{-(1-\frac{1}{q})n}\,.
+        2^{432a^3} \mu(F)^{\frac{1}{q}} \mu(G)^{1
+        -\frac{1}{q}} 2^{2a+5}\sum_{k \ge 0}\sum_{n \ge k}(2n+3)(4n+12) 2^{-(1-\frac{1}{q})n}\,.
     $$ % n^2 -> (n+1)^2
-    Interchanging the order of summation, the sum equals
+    Interchanging the order of summation, the last factor equals
     $$
-        \sum_{n \ge 0} n^2(n+1) 2^{-\frac{q-1}{q}n} \le \frac{2^{2a^3}}{(q-1)^4}\,,
+        2^{2a+5} \sum_{n \ge 0} (2n+3)(4n+12) (n+1) 2^{-\frac{q-1}{q}n}\,.
     $$
+    Up to an explicit constant, the sum is bounded by $\sum n^3 2^{-\frac{q-1}{q}n}$, which is at most
+    some constant times $1/(q-1)^4$ by comparing to an integral. Since $a \ge 4$, this is overall bounded by $2^{a^3}/(q-1)^4$,
     which completes the proof of the lemma.
 \end{proof}
 
