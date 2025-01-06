@@ -53,14 +53,10 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
   rw [Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
 
-#find_home! tsum_one_eq'
-
 lemma ENNReal.tsum_const_eq' {α : Type*} (s : Set α) (c : ℝ≥0∞) :
     ∑' (_:s), (c : ℝ≥0∞) = s.encard * c := by
   nth_rw 1 [← one_mul c]
   rw [ENNReal.tsum_mul_right,tsum_one_eq']
-
-#find_home! ENNReal.tsum_const_eq'
 
 /-! ## `ENNReal` manipulation lemmas -/
 
@@ -319,7 +315,7 @@ lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
   · exact h.trans (rpow_pos_of_pos zero_lt_two x)
   · calc
       _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
-      _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two _
+      _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two
       _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
 
 namespace Set

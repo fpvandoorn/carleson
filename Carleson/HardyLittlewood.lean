@@ -166,7 +166,7 @@ theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricS
   push_neg at ht
   let t' := { a ∈ t | 0 ≤ r a }
   have h2τ : 1 < (τ - 1) / 2 := by linarith
-  rcases exists_disjoint_subfamily_covering_enlargment (fun a => closedBall (x a) (r a)) t' r
+  rcases exists_disjoint_subfamily_covering_enlargement (fun a => closedBall (x a) (r a)) t' r
       ((τ - 1) / 2) h2τ (fun a ha => ha.2) R (fun a ha => hr a ha.1) fun a ha =>
       ⟨x a, mem_closedBall_self ha.2⟩ with
     ⟨u, ut', u_disj, hu⟩
@@ -289,7 +289,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
   use AEStronglyMeasurable.maximalFunction_toReal h𝓑
   simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
   refine essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ ?_)
-  simp_rw [ENNReal.nnorm_toReal]
+  simp_rw [enorm_eq_nnnorm, ENNReal.nnorm_toReal]
   exact ENNReal.coe_toNNReal_le_self |>.trans MB_le_eLpNormEssSup
 
 protected theorem MeasureTheory.AESublinearOn.maximalFunction
@@ -462,7 +462,8 @@ def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 /-- Equation (2.0.46).
 Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 `HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
-theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
+theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
+    [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   -- unfold globalMaximalFunction

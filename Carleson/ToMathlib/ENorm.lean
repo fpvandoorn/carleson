@@ -11,17 +11,6 @@ noncomputable section
 
 open ENNReal NNReal MeasureTheory Function Set
 
-/-- Auxiliary class, endowing a type `α` with a function `enorm : α → ℝ≥0∞` with notation `‖x‖ₑ`. -/
-@[notation_class]
-class ENorm (E : Type*) where
-  /-- the `ℝ≥0∞`-valued norm function. -/
-  enorm : E → ℝ≥0∞
-
-export ENorm (enorm)
-
-@[inherit_doc]
-notation "‖" e "‖ₑ" => enorm e
-
 /-- An enormed monoid is an additive monoid endowed with an enorm. -/
 class ENormedAddMonoid (E : Type*) extends ENorm E, AddMonoid E, TopologicalSpace E where
   enorm_zero : ∀ x : E, enorm x = 0 ↔ x = 0
@@ -41,11 +30,6 @@ instance : ENormedAddCommMonoid ℝ≥0∞ where
   enorm_neg := by simp
   enorm_triangle := by simp
   add_comm := by simp [add_comm]
-
-instance [NNNorm E] : ENorm E where
-  enorm := (‖·‖₊ : E → ℝ≥0∞)
-
-lemma enorm_eq_nnnorm [NNNorm E] {x : E} : ‖x‖ₑ = ‖x‖₊ := rfl
 
 instance [NormedAddGroup E] : ENormedAddMonoid E where
   enorm_zero := by simp [enorm_eq_nnnorm]
@@ -284,7 +268,7 @@ theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricS
   push_neg at ht
   let t' := { a ∈ t | 0 ≤ r a }
   have h2τ : 1 < (τ - 1) / 2 := by linarith
-  rcases exists_disjoint_subfamily_covering_enlargment (fun a => closedBall (x a) (r a)) t' r
+  rcases exists_disjoint_subfamily_covering_enlargement (fun a => closedBall (x a) (r a)) t' r
       ((τ - 1) / 2) h2τ (fun a ha => ha.2) R (fun a ha => hr a ha.1) fun a ha =>
       ⟨x a, mem_closedBall_self ha.2⟩ with
     ⟨u, ut', u_disj, hu⟩
