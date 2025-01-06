@@ -7,7 +7,7 @@ import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
     follow the technique as e.g. described in [Duoandikoetxea, Fourier Analysis, 2000].
 
     The file consists of the following sections:
-    - Convience results for working with (interpolated) exponents
+    - Convenience results for working with (interpolated) exponents
     - Results about the particular choice of exponent
     - Interface for using cutoff functions
     - Results about the particular choice of scale
@@ -22,8 +22,6 @@ import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
     - Definitions
     - Proof of the real interpolation theorem
 -/
-
-set_option linter.unusedVariables false -- contrapose! is noisy
 
 noncomputable section
 
@@ -1508,7 +1506,7 @@ lemma coe_coe_eq_ofReal (a : ℝ) : ofNNReal a.toNNReal = ENNReal.ofReal a := by
 lemma trunc_eLpNormEssSup_le {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] :
     eLpNormEssSup (trunc f a) μ ≤ ENNReal.ofReal (max 0 a) := by
   refine essSup_le_of_ae_le _ (ae_of_all _ fun x ↦ ?_)
-  simp only [← norm_toNNReal, coe_coe_eq_ofReal]
+  simp only [enorm_eq_nnnorm, ← norm_toNNReal, coe_coe_eq_ofReal]
   exact ofReal_le_ofReal (trunc_le x)
 
 lemma trunc_mono {f : α → E₁} {a b : ℝ} [NormedAddCommGroup E₁]
@@ -1523,7 +1521,7 @@ lemma trunc_mono {f : α → E₁} {a b : ℝ} [NormedAddCommGroup E₁]
 /-- The norm of the truncation is monotone in the truncation parameter -/
 lemma norm_trunc_mono {f : α → E₁} [NormedAddCommGroup E₁] :
     Monotone fun s ↦ eLpNorm (trunc f s) p μ :=
-  fun a b hab ↦ eLpNorm_mono fun x ↦ trunc_mono hab
+  fun _a _b hab ↦ eLpNorm_mono fun _x ↦ trunc_mono hab
 
 lemma trunc_buildup_norm {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
     ‖trunc f a x‖ + ‖(f - trunc f a) x‖ = ‖f x‖ := by
@@ -1658,7 +1656,7 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
   split_ifs
   · contradiction
   · calc
-    _ = ∫⁻ x : α in {x | a < ‖f x‖}, ↑‖(f - trunc f a) x‖₊ ^ q.toReal ∂μ := by
+    _ = ∫⁻ x : α in {x | a < ‖f x‖}, ‖(f - trunc f a) x‖ₑ ^ q.toReal ∂μ := by
       rw [one_div, ENNReal.rpow_inv_rpow]
       · apply (setLIntegral_eq_of_support_subset _).symm
         unfold Function.support
@@ -1667,19 +1665,20 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
         dsimp only [Pi.sub_apply, mem_setOf_eq]
         split_ifs with is_a_lt_fx
         · exact fun _ => is_a_lt_fx
-        · contrapose; intro _; simpa
+        · contrapose; intro _; simpa [enorm_eq_nnnorm]
       · exact exp_toReal_ne_zero' hpq.1 q_ne_top
-    _ ≤ ∫⁻ x : α in {x | a < ‖f x‖}, ↑‖f x‖₊ ^ q.toReal ∂μ := by
+    _ ≤ ∫⁻ x : α in {x | a < ‖f x‖}, ‖f x‖ₑ ^ q.toReal ∂μ := by
       apply lintegral_mono_ae
       apply ae_of_all
       intro x
       gcongr
-      rw [← norm_toNNReal, ← norm_toNNReal]
-      apply Real.toNNReal_mono
+      rw [enorm_eq_nnnorm, ← norm_toNNReal, enorm_eq_nnnorm, ← norm_toNNReal]
+      simp only [Pi.sub_apply, ENNReal.coe_le_coe, norm_nonneg, Real.toNNReal_le_toNNReal_iff]
       apply trnc_le_func (j := ⊥)
     _ ≤ ENNReal.ofReal (a ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | a < ‖f x‖},
-        ↑‖f x‖₊ ^ p.toReal ∂μ := by
+        ‖f x‖ₑ ^ p.toReal ∂μ := by
       rw [← lintegral_const_mul']; swap; · exact coe_ne_top
+      simp only [enorm_eq_nnnorm]
       apply setLIntegral_mono_ae (AEMeasurable.restrict (by fun_prop))
       · apply ae_of_all
         intro x (hx : a < ‖f x‖)
@@ -1694,7 +1693,8 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
       exact setLIntegral_le_lintegral _ _
     _ = _ := by
       rw [one_div, ENNReal.rpow_inv_rpow]
-      refine exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hp
+      · simp only [enorm_eq_nnnorm]
+      · exact exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hp
 
 lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -1869,14 +1869,14 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
       split_ifs at mon_pf with mon
       · rw [mon]
         rcases j
-        · simp only [Bool.bne_true, Bool.not_false, not_true_eq_false, decide_False,
+        · simp only [Bool.bne_true, Bool.not_false, not_true_eq_false, decide_false,
           Bool.false_eq_true, ↓reduceIte, Pi.sub_apply]
           intro (hs : s > tc.inv ‖f x‖)
           split_ifs with h
           · simp [hp]
           · have := (mon_pf s (lt_trans (tc.ran_inv ‖f x‖ hfx) hs) (‖f x‖) hfx).2.mpr hs
             contrapose! h; linarith
-        · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_True]
+        · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_true]
           intro hs
           split_ifs with h
           · have := (mon_pf s hs.1 (‖f x‖) hfx).1.mpr hs.2
@@ -1885,14 +1885,14 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
       · rw [Bool.not_eq_true] at mon
         rw [mon]
         rcases j
-        · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_True,
+        · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_true,
           ↓reduceIte, Pi.sub_apply]
           intro hs
           split_ifs with h
           · simp [hp]
           · have := (mon_pf s hs.1 (‖f x‖) hfx).2.mpr hs.2
             linarith
-        · simp only [Bool.bne_false, not_true_eq_false, decide_False, Bool.false_eq_true, ↓reduceIte]
+        · simp only [Bool.bne_false, not_true_eq_false, decide_false, Bool.false_eq_true, ↓reduceIte]
           intro (hs : tc.inv ‖f x‖ < s)
           have := (mon_pf s (lt_trans (tc.ran_inv ‖f x‖ hfx) hs) (‖f x‖) hfx).1.mpr hs
           split_ifs with h
@@ -2500,6 +2500,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     calc
     _ = ∫⁻ s : ℝ in Ioi 0, ENNReal.ofReal (s ^ (q - q₀ - 1)) *
     ((∫⁻ (a : α), ↑‖trnc j f ((spf_to_tc spf).ton s) a‖₊ ^ p₀ ∂μ) ^ (1 / p₀)) ^ q₀  := by
+      simp only [enorm_eq_nnnorm]
       congr 1
       ext x
       rw [mul_comm]
@@ -2559,7 +2560,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       congr 2
       · apply value_lintegral_res₀
         · apply tc.ran_inv
-          exact norm_pos_iff'.mpr hfx
+          exact norm_pos_iff.mpr hfx
         · split_ifs with h
           · simp only [h, ↓reduceIte] at hpowers; linarith
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
@@ -2575,7 +2576,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       intro x hfx
       congr 1
       apply value_lintegral_res₁
-      exact norm_pos_iff'.mpr hfx
+      exact norm_pos_iff.mpr hfx
     _ = (∫⁻ a : α in Function.support f,
         ((ENNReal.ofReal (spf.d ^ (q - q₀)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ENNReal.ofReal (‖f a‖ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) *
@@ -3211,6 +3212,7 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
     ∫⁻ x, ‖g x‖₊ ^q ∂ν =
     ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s in Ioi (0 : ℝ),
     distribution g ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) := by
+  simp only [← enorm_eq_nnnorm]
   rw [lintegral_norm_pow_eq_distribution hg (by linarith)]
   nth_rewrite 1 [← lintegral_scale_constant_halfspace' (a := (2*A)) (by linarith)]
   rw [← lintegral_const_mul']; swap; · exact coe_ne_top
@@ -3246,7 +3248,7 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
 
 -- XXX: can this be golfed or unified with `ton_aeMeasurable`?
 @[measurability, fun_prop]
-theorem ton_aeMeasurable_eLpNorm_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] (tc : ToneCouple) :
+theorem ton_aeMeasurable_eLpNorm_trunc [NormedAddCommGroup E₁] (tc : ToneCouple) :
     AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) (volume.restrict (Ioi 0)) := by
   change AEMeasurable ((fun t : ℝ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton)) (volume.restrict (Ioi 0))
   have tone := tc.ton_is_ton
@@ -3710,6 +3712,7 @@ lemma combine_estimates₁ {A : ℝ} [MeasurableSpace E₁] [NormedAddCommGroup 
   calc
   _ = ∫⁻ x , ‖T f x‖₊ ^ q.toReal ∂ν := by
     unfold eLpNorm eLpNorm'
+    simp only [← enorm_eq_nnnorm]
     split_ifs <;> [contradiction; rw [one_div, ENNReal.rpow_inv_rpow q'pos.ne']]
   _ ≤ _ := by
     apply combine_estimates₀ (hT := hT) (p := p) <;> try assumption
