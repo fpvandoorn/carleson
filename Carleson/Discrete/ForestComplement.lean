@@ -618,25 +618,21 @@ lemma carlesonSum_𝔓pos_eq_sum {f : X → ℂ} {x : X} :
     carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x =
       ∑ n ≤ maxℭ X, ∑ k ≤ n, carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ ℭ k n) f x := by
   simp only [Finset.sum_sigma']
-  simp only [carlesonSum]
-  rw [← Finset.sum_biUnion]; swap
+  rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
   · rintro ⟨n, k⟩ - ⟨n', k'⟩ - h
     simp only [ne_eq, Sigma.mk.inj_iff, heq_eq_eq] at h
-    simp only [Function.onFun, Finset.disjoint_filter, Finset.mem_univ, forall_const]
+    simp only [Function.onFun, disjoint_iff_forall_ne]
     have W := pairwiseDisjoint_ℭ (X := X) (mem_univ ⟨k, n⟩) (mem_univ ⟨k', n'⟩)
       (by simp [-not_and]; tauto)
-    intro x hx h'x
-    exact (disjoint_iff_forall_ne.1 W) hx.2 h'x.2 rfl
+    intro x hx y hy
+    exact (disjoint_iff_forall_ne.1 W) hx.2 hy.2
   congr
   ext p
-  simp only [mem_inter_iff, mem_compl_iff, Finset.mem_filter, Finset.mem_univ, true_and,
-    Finset.mem_biUnion, Finset.mem_sigma, Finset.mem_Iic, Sigma.exists]
-  constructor
-  · intro hp
-    rcases exists_k_n_of_mem_𝔓pos hp.1 with ⟨k, n, h'p, hkn⟩
-    exact ⟨n, k, ⟨le_maxℭ_of_nonempty ⟨p, h'p⟩ , hkn⟩, hp, h'p⟩
-  · rintro ⟨a, b, hab⟩
-    exact hab.2.1
+  simp only [mem_inter_iff, mem_compl_iff, Finset.mem_sigma,
+    Finset.mem_Iic, mem_iUnion, exists_and_left, exists_prop, Sigma.exists, iff_self_and, and_imp]
+  intro hp h'p
+  rcases exists_k_n_of_mem_𝔓pos hp with ⟨k, n, h'p, hkn⟩
+  exact ⟨n, k, ⟨le_maxℭ_of_nonempty ⟨p, h'p⟩ , hkn⟩, h'p⟩
 
 /-- In each set `ℭ k n`, the Carleson sum can be decomposed as a sum over `𝔏₀ k n` and over
 various `ℭ₁ k n j`. -/
