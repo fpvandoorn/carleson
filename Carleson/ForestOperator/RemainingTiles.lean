@@ -111,7 +111,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]
       refine Finset.sum_le_sum fun I hI ↦ ?_
       simp only [mem_toFinset] at hI
-      refine (measureReal_mono ?_ (by finiteness)).trans measure_ball_le_pow_two
+      apply le_trans _ (measure_ball_le_pow_two (μ := volume) (x := c I) (r := D ^ s I / 4))
+      refine measureReal_mono ?_ (by finiteness)
       apply ball_subset_ball'
       refine (add_le_add le_rfl hI.1.le).trans ?_
       rw [div_eq_mul_one_div, mul_comm _ (1 / 4), hI.2, ← add_mul, ← mul_assoc]

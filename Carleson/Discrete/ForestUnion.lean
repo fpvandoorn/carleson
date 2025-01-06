@@ -722,8 +722,7 @@ lemma carlesonSum_ℭ₆_eq_sum {f : X → ℂ} {x : X} {k n j : ℕ} (hkn : k �
   simp [C6_forest' hkn]
 
 /-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
-the forest theorem and to the density control coming from the fact we are away from `G₁`. First
-version, with the `L^2` norm of `f`. -/
+the forest theorem and to the density control coming from the fact we are away from `G₁`. -/
 lemma lintegral_carlesonSum_forest
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
@@ -886,7 +885,7 @@ lemma forest_union_sum_aux1 (M : ℕ) (q : ℝ) (hq : 1 < q) (h'q : q ≤ 2) :
     simp only [Nat.factorial, Nat.succ_eq_add_one, Nat.reduceAdd, zero_add, mul_one, Nat.reduceMul,
       Nat.cast_ofNat, mul_pow, div_pow, Nat.cast_one, pow_one, c]
     have : q - 1 ≠ 0 := by linarith
-    field_simp
+    field_simp only
     ring
   _ ≤ (2 ^ (1 : ℝ) * (48 * 2 ^ 4 / (Real.log 2) ^ 4 + 96 * 2 ^ 3 * 1 / (Real.log 2) ^ 3
       + 88 * 2 ^ 2 * 1 ^ 2 / (Real.log 2) ^ 2 + 48 * 2 * 1 ^ 3 / (Real.log 2))) / (q - 1) ^ 4 := by

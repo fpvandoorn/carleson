@@ -229,7 +229,7 @@ lemma nmem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
     simp at h
   contrapose! nG₃
   exact le_iSup₂_of_le n k <| le_iSup₂_of_le hkn j <|
-    le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ subset_rfl
+    le_iSup₂_of_le hj p <| le_iSup_of_le nG₃ Subset.rfl
 
 
 /-- Lemma 5.5.1.
@@ -997,7 +997,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
       + ((q - 1) / (8 * a ^ 4)) ^ 2 * (40 * 1 + 40 * ↑Z)  / (Real.log 2) ^ 2
       + ((q - 1) / (8 * a ^ 4)) * (28 * 1 + 64 * ↑Z) / (Real.log 2) ^ 3
       + (48 * ↑Z) /  (Real.log 2) ^ 4) := by
-    field_simp
+    field_simp only
     ring
   _ ≤ ((8 * a ^ 4) / (q - 1)) ^ 4 *
      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (26 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.6931471803
@@ -1013,7 +1013,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
   _ ≤ a ^ 16 / (q - 1) ^ 4 * Z * 2 ^ 20 := by gcongr; norm_num
   _ ≤ (2 ^ a) ^ 16 / (q - 1) ^ 4 * Z * 2 ^ 20 := by
     gcongr
-    exact_mod_cast (Nat.lt_pow_self one_lt_two _).le
+    exact_mod_cast (Nat.lt_pow_self one_lt_two).le
   _ = (2 ^ (16 * a) * 2 ^ (12 * a) * 2 ^ 20) / (q - 1) ^ 4 := by
     simp [← pow_mul, mul_comm a]
     ring

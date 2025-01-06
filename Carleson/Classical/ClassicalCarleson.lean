@@ -28,7 +28,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
   obtain ⟨f₀, contDiff_f₀, periodic_f₀, hf₀⟩ := close_smooth_approx_periodic unicont_f periodic_f ε'pos
   have ε4pos : ε / 4 > 0 := by linarith
   obtain ⟨N₀, hN₀⟩ := fourierConv_ofTwiceDifferentiable periodic_f₀
-    ((contDiff_top.mp (contDiff_f₀)) 2) ε4pos
+    ((contDiff_infty.mp (contDiff_f₀)) 2) ε4pos
   set h := f₀ - f with hdef
   have h_measurable : Measurable h := (Continuous.sub contDiff_f₀.continuous cont_f).measurable
   have h_periodic : h.Periodic (2 * π) := periodic_f₀.sub periodic_f

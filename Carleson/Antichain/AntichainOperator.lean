@@ -56,12 +56,13 @@ open Set Complex MeasureTheory
 -- Lemma 6.1.1
 lemma E_disjoint {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
      {p p' : 𝔓 X} (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : (E p ∩ E p').Nonempty) : p = p' := by
+  wlog h𝔰 : 𝔰 p ≤ 𝔰 p'
+  · have hE' : (E p' ∩ E p).Nonempty := by simp only [inter_comm, hE]
+    symm
+    apply this h𝔄 hp' hp hE' (le_of_lt (not_le.mp h𝔰))
   set x := hE.some
   have hx := hE.some_mem
   simp only [E, mem_inter_iff, mem_setOf_eq] at hx
-  wlog h𝔰 : 𝔰 p ≤ 𝔰 p'
-  · have hE' : (E p' ∩ E p).Nonempty := by simp only [inter_comm, hE]
-    exact eq_comm.mp (this h𝔄 hp' hp hE' hE'.some_mem (le_of_lt (not_le.mp h𝔰)))
   obtain ⟨⟨hx𝓓p, hxΩp, _⟩ , hx𝓓p', hxΩp', _⟩ := hx
   have h𝓓 : 𝓘 p ≤ 𝓘 p' :=
     (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (le_or_disjoint h𝔰)

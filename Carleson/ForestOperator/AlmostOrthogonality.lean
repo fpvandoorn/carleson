@@ -1,6 +1,5 @@
 import Carleson.ForestOperator.QuantativeEstimate
 import Carleson.ToMathlib.BoundedCompactSupport
-import Carleson.ToMathlib.MeasureTheory.Integral.Prod
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

@@ -1,7 +1,7 @@
 import Mathlib.Analysis.SumIntegralComparisons
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.CompareExp
-import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Function.LocallyIntegrable
+import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+import Mathlib.MeasureTheory.Function.LocallyIntegrable
 import Carleson.ToMathlib.MeasureTheory.Integral.IntervalIntegral
 
 open MeasureTheory Set

@@ -181,7 +181,6 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     · norm_num
     · norm_num
 
-
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function, and with the upper bound in terms
 of `volume F` and `volume G`.  -/
