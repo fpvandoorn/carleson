@@ -22,7 +22,7 @@ variable {α α' 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : Me
 -- #check meas_ge_le_mul_pow_eLpNorm -- Chebyshev's inequality
 
 namespace MeasureTheory
-/- If we need more properties of `E`, we can add `[RCLike E]` *instead of* the above type-classes-/
+/- If we need more properties of `E`, we can add `[RCLike 𝕜]` *instead of* the above type-classes-/
 -- #check _root_.RCLike
 
 /- Proofs for this file can be found in
@@ -232,9 +232,11 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     calc
       (‖(L (f z)) (g z)‖₊ : ℝ≥0∞) ≤ ‖L‖₊ * ‖f z‖₊ * ‖g z‖₊ := by
         refine (toNNReal_le_toNNReal coe_ne_top coe_ne_top).mp ?_
+        simp only [toNNReal_coe, coe_mul, toNNReal_mul]
         calc
           _ ≤ ↑‖L (f z)‖₊ * ↑‖g z‖₊ := ContinuousLinearMap.le_opNNNorm (L (f z)) (g z)
-          _ ≤ _ := mul_le_mul' (ContinuousLinearMap.le_opNNNorm L (f z)) (by rfl)
+          _ ≤ ‖L‖₊ * ‖f z‖₊ * ‖g z‖₊ :=
+            mul_le_mul' (ContinuousLinearMap.le_opNNNorm L (f z)) (by rfl)
       _ ≤ _ := mul_le_mul' (mul_le_mul_left' hz.1 ↑‖L‖₊) hz.2
   calc
     _ ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := measure_mono h₀
@@ -257,7 +259,7 @@ include hf
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
 lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
-    ∫⁻ x, ‖f x‖₊ ^ p ∂μ =
+    ∫⁻ x, ‖f x‖ₑ ^ p ∂μ =
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 ≤ p := hp.le
   have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
@@ -266,6 +268,7 @@ lemma lintegral_norm_pow_eq_distribution {p : ℝ} (hp : 0 < p) :
     not_false_eq_true, ← lintegral_const_mul', ← mul_assoc, ← ofReal_norm_eq_coe_nnnorm, ofReal_mul,
     distribution, h2p] at this ⊢
   convert this using 1
+  · simp [ENNReal.ofReal, enorm_eq_nnnorm, norm_toNNReal]
   refine setLIntegral_congr_fun measurableSet_Ioi (Eventually.of_forall fun x hx ↦ ?_)
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
@@ -298,7 +301,7 @@ lemma eLpNorm_eq_distribution {p : ℝ} (hp : 0 < p) :
 
 lemma lintegral_pow_mul_distribution {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
-    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖₊ ^ (p + 1) ∂μ := by
+    ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖ₑ ^ (p + 1) ∂μ := by
   have h2p : 0 < p + 1 := by linarith
   have h3p : 0 ≤ p + 1 := by linarith
   have h4p : p + 1 ≠ 0 := by linarith
@@ -383,7 +386,7 @@ lemma HasStrongType.const_smul {𝕜 E E' α α' : Type*} [NormedAddCommGroup E]
     [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
   refine fun f hf ↦
-    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, (eLpNorm_const_smul_le k (T f)).trans ?_⟩
+    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
   gcongr
   exact (h f hf).2
