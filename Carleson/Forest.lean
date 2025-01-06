@@ -48,6 +48,9 @@ instance : CoeHead (Forest X n) (Set (𝔓 X)) := ⟨Forest.𝔘⟩
 instance : Membership (𝔓 X) (Forest X n) := ⟨fun t x ↦ x ∈ (t : Set (𝔓 X))⟩
 instance : CoeFun (Forest X n) (fun _ ↦ 𝔓 X → Set (𝔓 X)) := ⟨fun t x ↦ t.𝔗 x⟩
 
+@[simp] lemma mem_mk (n 𝔘 𝔗 a b c d e f g h) (p : 𝔓 X) :
+    p ∈ Forest.mk (n := n) 𝔘 𝔗 a b c d e f g h ↔ p ∈ 𝔘 := Iff.rfl
+
 @[simp] lemma mem_𝔘 : u ∈ t.𝔘 ↔ u ∈ t := .rfl
 @[simp] lemma mem_𝔗 : p ∈ t.𝔗 u ↔ p ∈ t u := .rfl
 
