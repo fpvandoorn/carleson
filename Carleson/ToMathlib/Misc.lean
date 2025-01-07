@@ -388,6 +388,7 @@ theorem indicator_const {c : ℝ} {s: Set X}
 
 end Integrable
 
+-- Currently unused
 open Classical in
 theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [MeasurableSpace X]
     {f : X → ℝ} (s : Finset ι) {S : ι → Set X} {μ : Measure X}
