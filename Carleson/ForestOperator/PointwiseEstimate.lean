@@ -374,6 +374,8 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
   let Js := Set.toFinset { J ∈ 𝓙 (t u) | ((J : Set X) ∩ ball x (D ^ (𝔰 p) / 2)).Nonempty }
   have mem_Js {J : Grid X} : J ∈ Js ↔ J ∈ 𝓙 (t.𝔗 u) ∧ (↑J ∩ ball x (D ^ 𝔰 p / 2)).Nonempty := by
     simp [Js]
+  have Js_disj : (Js : Set (Grid X)).Pairwise (Disjoint on fun J ↦ (J : Set X)) :=
+    fun i₁ hi₁ i₂ hi₂ h ↦ pairwiseDisjoint_𝓙 (mem_Js.mp hi₁).1 (mem_Js.mp hi₂).1 h
   calc ∫ y in ball x (D ^ (𝔰 p) / 2), ‖f y‖
     _ ≤ ∫ y in (⋃ J ∈ Js, (J : Set X)), ‖f y‖ := by
       apply setIntegral_mono_set hf.integrable.norm.integrableOn (Eventually.of_forall (by simp))
@@ -386,9 +388,11 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
         _ ⊆ (𝓘 u : Set X)                 := ball_subset_of_mem_𝓘 hu pu xp.1
         _ ⊆ ⋃ (I : Grid X), (I : Set X)   := le_iSup _ _
         _ = ⋃ J ∈ 𝓙 (t.𝔗 u), (J : Set X) := biUnion_𝓙.symm
-    _ ≤ ∑ J in Js, ∫ y in J, ‖f y‖ :=
-      setIntegral_biUnion_le_sum_setIntegral' Js (fun _ _ ↦ coeGrid_measurable)
-        (Eventually.of_forall fun x _ ↦ norm_nonneg (f x)) hf.integrable.norm
+    _ = ∑ J in Js, ∫ y in J, ‖f y‖ := by
+      have Js_disj : (Js : Set (Grid X)).Pairwise (Disjoint on fun J ↦ (J : Set X)) :=
+        fun i₁ hi₁ i₂ hi₂ h ↦ pairwiseDisjoint_𝓙 (mem_Js.mp hi₁).1 (mem_Js.mp hi₂).1 h
+      apply integral_finset_biUnion Js (fun _ _ ↦ coeGrid_measurable) Js_disj
+      exact fun i hi ↦ hf.norm.integrable.integrableOn
     _ = ∑ J in Js, ∫ y in J, (approxOnCube (𝓙 (t u)) (‖f ·‖)) y := by
       refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
       have eq : EqOn (approxOnCube (𝓙 (t u)) (‖f ·‖)) (fun _ ↦ ⨍ y in J, ‖f y‖) J :=
