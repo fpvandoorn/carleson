@@ -388,7 +388,9 @@ theorem indicator_const {c : ℝ} {s: Set X}
 
 end Integrable
 
-open Classical in
+-- These are not currently in use, but perhaps still worth adding to Mathlib
+
+/- open Classical in
 theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [MeasurableSpace X]
     {f : X → ℝ} (s : Finset ι) {S : ι → Set X} {μ : Measure X}
     (meas_f : Measurable f) (f_ae_nonneg : ∀ᵐ (x : X) ∂μ, x ∈ (⋃ i ∈ s, S i) → 0 ≤ f x)
@@ -432,7 +434,7 @@ theorem setIntegral_biUnion_le_sum_setIntegral' {X : Type*} {ι : Type*} [Measur
   apply setIntegral_biUnion_le_sum_setIntegral s int_f.aestronglyMeasurable.measurable_mk
   · apply Filter.mem_of_superset (Filter.inter_mem f_ae_nonneg int_f.aestronglyMeasurable.ae_eq_mk)
     exact fun x ⟨hx₁, hx₂⟩ ↦ by simpa [← mem_setOf_eq ▸ hx₂] using hx₁
-  · exact int_f.congr int_f.aestronglyMeasurable.ae_eq_mk
+  · exact int_f.congr int_f.aestronglyMeasurable.ae_eq_mk -/
 
 -- Analogous to `MeasureTheory.integral_smul_const` in Mathlib
 theorem average_smul_const {X : Type*} {E : Type*} [MeasurableSpace X]
