@@ -24,6 +24,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | Blueprint | Lean       | Remarks |
 | --------- | ---------- | ------- |
 | `⊂`       | `⊆`       |         |
+| `\dot{\bigcup}` |  `⋃ ...` and `PairwiseDisjoint` separately | notation for disjoint union
 | `𝔓(𝔓')`   | `lowerClosure 𝔓'` |         |
 | `λp ≲ λ'p'`   | `smul l p ≤ smul l' p' ` |         |
 | `p ≲ p'`   | `smul 1 p ≤ smul 1 p' ` | Beware that this is not the same as `p ≤ p'`. |
