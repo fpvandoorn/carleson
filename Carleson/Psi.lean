@@ -1,6 +1,5 @@
 import Carleson.Defs
 import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Topology.CompletelyRegular
 import Mathlib.Topology.EMetricSpace.Paracompact
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
@@ -755,6 +754,12 @@ lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
             exact ENNReal.coe_ne_zero.mpr (ne_of_gt (defaultD_pow_pos a s))
         exact ⟨fun h ↦ absurd h h', fun _ ↦ ENNReal.coe_ne_top⟩
       exact absurd htop hnetop
+
+lemma stronglyMeasurable_Ks {s : ℤ} : StronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
+  unfold Ks _root_.ψ
+  refine stronglyMeasurable_K.mul ?_
+  apply Continuous.stronglyMeasurable
+  fun_prop
 
 lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ

@@ -260,6 +260,10 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
+lemma MeasureTheory.stronglyMeasurable_K [IsOneSidedKernel a K] :
+    StronglyMeasurable (uncurry K) :=
+  measurable_K.stronglyMeasurable
+
 lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
     AEStronglyMeasurable (uncurry K) :=
   measurable_K.aestronglyMeasurable
@@ -376,6 +380,9 @@ lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass �
   exact Q.range.measurableSet_biUnion fun θ _ ↦
     (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)
 
+lemma stronglyMeasurable_Q₂ : StronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
+  measurable_Q₂.stronglyMeasurable
+
 @[fun_prop]
 lemma aestronglyMeasurable_Q₂ : AEStronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
   measurable_Q₂.aestronglyMeasurable
@@ -483,12 +490,18 @@ lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
 /-- `τ` as an element of `ℝ≥0`. -/
 def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
 
-lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
+lemma one_lt_q : 1 < q := (q_mem_Ioc X).1
+lemma q_le_two : q ≤ 2 := (q_mem_Ioc X).2
+lemma q_pos : 0 < q := zero_lt_one.trans (one_lt_q X)
 lemma q_nonneg : 0 ≤ q := (q_pos X).le
+lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
+  simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
 
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
+lemma one_lt_nnq : 1 < nnq X := one_lt_q X
+lemma nnq_le_two : nnq X ≤ 2 := q_le_two X
 lemma nnq_pos : 0 < nnq X := q_pos X
 lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
   ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
@@ -577,7 +590,23 @@ scoped notation "nnD" => nnD a
 
 end ShortVariables
 
-variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable [PseudoMetricSpace X] [h : ProofData a q K σ₁ σ₂ F G]
+
+lemma volume_F_lt_top : volume F < ⊤ :=
+  lt_of_le_of_lt (measure_mono ProofData.F_subset) measure_ball_lt_top
+
+lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
+
+lemma volume_G_lt_top : volume G < ⊤ :=
+  lt_of_le_of_lt (measure_mono ProofData.G_subset) measure_ball_lt_top
+
+lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
+
+include h in
+lemma isBounded_F : IsBounded F := IsBounded.subset isBounded_ball ProofData.F_subset
+
+include h in
+lemma isBounded_G : IsBounded G := IsBounded.subset isBounded_ball ProofData.G_subset
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 def hnorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=

@@ -33,6 +33,7 @@ lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π
     congr
     convert exp_int_mul_two_pi_mul_I N using 2
     norm_cast
+    simp
     ring
   · congr 1
     rw [mul_add, exp_add]
@@ -173,7 +174,8 @@ lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N 
 /-- First part of lemma 11.1.8 (Dirichlet kernel) from the blueprint. -/
 lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
     (h : IntervalIntegrable f volume 0 (2 * π)) :
-    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel N (x - y) := by
+    partialFourierSum N f x =
+      (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel N (x - y) := by
   calc partialFourierSum N f x
     _ = ∑ n in Icc (-(N : ℤ)) N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x := by
       rw [partialFourierSum]
@@ -204,8 +206,10 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
       field_simp
       rw [mul_sub, sub_eq_neg_add]
 
-lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ} (h : IntervalIntegrable f volume 0 (2 * π)) :
-    partialFourierSum N f x = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel' N (x - y) := by
+lemma partialFourierSum_eq_conv_dirichletKernel' {f : ℝ → ℂ} {x : ℝ}
+    (h : IntervalIntegrable f volume 0 (2 * π)) :
+    partialFourierSum N f x =
+      (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel' N (x - y) := by
   rw [partialFourierSum_eq_conv_dirichletKernel h]
   calc _
     _ = (1 / (2 * π)) * ∫ (y : ℝ) in (x - 2 * π)..(x - 0), f (x - y) * dirichletKernel N y := by
