@@ -392,17 +392,26 @@ end Integrable
 open Classical in
 theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [MeasurableSpace X]
     {f : X → ℝ} (s : Finset ι) {S : ι → Set X} {μ : Measure X}
-    (f_ae_nonneg : ∀ᵐ (x : X) ∂μ, x ∈ (⋃ i ∈ s, S i) → 0 ≤ f x)
-    (int_f : Integrable f μ) : ∫ x in (⋃ i ∈ s, S i), f x ∂μ ≤ ∑ i ∈ s, ∫ x in S i, f x ∂μ := by
+    (f_ae_nonneg : ∀ᵐ (x : X) ∂μ.restrict (⋃ i ∈ s, S i), 0 ≤ f x)
+    (int_f : IntegrableOn f (⋃ i ∈ s, S i) μ) :
+    ∫ x in (⋃ i ∈ s, S i), f x ∂μ ≤ ∑ i ∈ s, ∫ x in S i, f x ∂μ := by
+  have res_res : ∀ i ∈ s, (μ.restrict (⋃ i ∈ s, S i)).restrict (S i) = μ.restrict (S i) :=
+    fun i hi ↦ by rw [Measure.restrict_restrict_of_subset]; exact (subset_biUnion_of_mem hi)
   -- Show that it suffices to prove the result in the case where the integrand is measurable
   let g := AEMeasurable.mk f int_f.aemeasurable
-  have g_ae_nonneg : ∀ᵐ (x : X) ∂μ, x ∈ (⋃ i ∈ s, S i) → 0 ≤ g x := by
+  have g_ae_nonneg : ∀ᵐ (x : X) ∂μ.restrict (⋃ i ∈ s, S i), 0 ≤ g x := by
     apply f_ae_nonneg.congr ∘ int_f.aemeasurable.ae_eq_mk.mp
     exact Filter.Eventually.of_forall (fun _ h ↦ by rw [h])
-  have int_g : ∀ i ∈ s, Integrable g (μ.restrict (S i)) :=
-    fun _ _ ↦ (int_f.congr int_f.aemeasurable.ae_eq_mk).restrict
-  rw [integral_congr_ae int_f.aemeasurable.ae_eq_mk.restrict]
-  rw [Finset.sum_congr rfl (fun _ _ ↦ integral_congr_ae int_f.aemeasurable.ae_eq_mk.restrict)]
+  have int_g : ∀ i ∈ s, Integrable g (μ.restrict (S i)) := by
+    intro i hi
+    have := (int_f.congr int_f.aemeasurable.ae_eq_mk).restrict (s := S i)
+    rwa [res_res i hi] at this
+  have : ∑ i ∈ s, ∫ (x : X) in S i, f x ∂μ = ∑ i ∈ s, ∫ (x : X) in S i, g x ∂μ := by
+    refine Finset.sum_congr rfl (fun i hi ↦ integral_congr_ae ?_)
+    convert int_f.aemeasurable.ae_eq_mk.restrict (s := S i) using 2
+    rw [Measure.restrict_restrict_of_subset]
+    exact (subset_biUnion_of_mem hi)
+  rw [this, integral_congr_ae int_f.aemeasurable.ae_eq_mk]
   -- Now prove the result for the measurable integrand `g`
   have meas : MeasurableSet {x | 0 ≤ g x} :=
     have : {x | 0 ≤ g x} = g ⁻¹' (Ici 0) := by simp [preimage, mem_Ici]
@@ -418,12 +427,12 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
       ext T hT
       simp only [Measure.sum_apply (hs := hT), Measure.coe_finset_sum, s.sum_apply, μ₀]
       rw [tsum_eq_sum (s := s) (fun b hb ↦ by simp [hb])]
-      exact Finset.sum_congr rfl (fun x hx ↦ by simp [hx])
+      exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi, res_res])
     rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]
     intro i
     by_cases hi : i ∈ s
-    · simp only [Pi.zero_apply, hi, reduceIte, μ₀, ae_restrict_iff meas]
-      exact g_ae_nonneg.mono (fun x hx hx' ↦ hx (mem_biUnion hi hx'))
+    · simp only [Pi.zero_apply, hi, reduceIte, μ₀, ← res_res i hi, ae_restrict_iff meas]
+      exact g_ae_nonneg.mono (fun _ h _ ↦ h)
     · simp [hi, μ₀]
 
 end MeasureTheory
