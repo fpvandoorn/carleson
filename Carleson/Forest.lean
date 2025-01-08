@@ -65,15 +65,18 @@ lemma lt_dist (hu : u ∈ t) (hu' : u' ∈ t) (huu' : u ≠ u') {p} (hp : p ∈ 
 lemma ball_subset (hu : u ∈ t) (hp : p ∈ t u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u :=
   t.ball_subset' hu hp
 
+-- Used in the proof of Lemma 7.1.4
+variable {t} in
+lemma ball_subset_of_mem_𝓘 (hu : u ∈ t) {p : 𝔓 X} (hp : p ∈ t u) {x : X} (hx : x ∈ 𝓘 p) :
+    ball x (4 * D ^ (𝔰 p)) ⊆ 𝓘 u := by
+  refine (ball_subset_ball' ?_).trans (t.ball_subset hu hp)
+  linarith [show dist x (𝔠 p) < 4 * D ^ (𝔰 p) from Grid_subset_ball hx]
+
 lemma if_descendant_then_subset (hu : u ∈ t) (hp : p ∈ t u) : (𝓘 p : Set X) ⊆ 𝓘 u := by
   calc ↑(𝓘 p)
     _ ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p) := by
       exact GridStructure.Grid_subset_ball (i := 𝓘 p)
-    _ ⊆ ball (𝔠 p) (8 * ↑D ^ 𝔰 p) := by
-      gcongr
-      norm_num
-    _ ⊆ ↑(𝓘 u) := by
-      exact ball_subset t hu hp
+    _ ⊆ ↑(𝓘 u) := ball_subset_of_mem_𝓘 hu hp Grid.c_mem_Grid
 
 end Forest
 

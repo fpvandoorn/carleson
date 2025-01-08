@@ -388,4 +388,51 @@ theorem indicator_const {c : ℝ} {s: Set X}
 
 end Integrable
 
+-- Currently unused
+open Classical in
+theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [MeasurableSpace X]
+    {f : X → ℝ} (s : Finset ι) {S : ι → Set X} {μ : Measure X}
+    (f_ae_nonneg : ∀ᵐ (x : X) ∂μ.restrict (⋃ i ∈ s, S i), 0 ≤ f x)
+    (int_f : IntegrableOn f (⋃ i ∈ s, S i) μ) :
+    ∫ x in (⋃ i ∈ s, S i), f x ∂μ ≤ ∑ i ∈ s, ∫ x in S i, f x ∂μ := by
+  have res_res : ∀ i ∈ s, (μ.restrict (⋃ i ∈ s, S i)).restrict (S i) = μ.restrict (S i) :=
+    fun i hi ↦ by rw [Measure.restrict_restrict_of_subset]; exact (subset_biUnion_of_mem hi)
+  -- Show that it suffices to prove the result in the case where the integrand is measurable
+  let g := AEMeasurable.mk f int_f.aemeasurable
+  have g_ae_nonneg : ∀ᵐ (x : X) ∂μ.restrict (⋃ i ∈ s, S i), 0 ≤ g x := by
+    apply f_ae_nonneg.congr ∘ int_f.aemeasurable.ae_eq_mk.mp
+    exact Filter.Eventually.of_forall (fun _ h ↦ by rw [h])
+  have int_g : ∀ i ∈ s, Integrable g (μ.restrict (S i)) := by
+    intro i hi
+    have := (int_f.congr int_f.aemeasurable.ae_eq_mk).restrict (s := S i)
+    rwa [res_res i hi] at this
+  have : ∑ i ∈ s, ∫ (x : X) in S i, f x ∂μ = ∑ i ∈ s, ∫ (x : X) in S i, g x ∂μ := by
+    refine Finset.sum_congr rfl (fun i hi ↦ integral_congr_ae ?_)
+    convert int_f.aemeasurable.ae_eq_mk.restrict (s := S i) using 2
+    rw [Measure.restrict_restrict_of_subset]
+    exact (subset_biUnion_of_mem hi)
+  rw [this, integral_congr_ae int_f.aemeasurable.ae_eq_mk]
+  -- Now prove the result for the measurable integrand `g`
+  have meas : MeasurableSet {x | 0 ≤ g x} :=
+    have : {x | 0 ≤ g x} = g ⁻¹' (Ici 0) := by simp [preimage, mem_Ici]
+    this ▸ (AEMeasurable.measurable_mk int_f.aemeasurable) measurableSet_Ici
+  rw [← integral_finset_sum_measure int_g]
+  set μ₀ : ι → Measure X := fun i ↦ ite (i ∈ s) (μ.restrict (S i)) 0
+  refine integral_mono_measure ?_ ?_ (integrable_finset_sum_measure.mpr int_g)
+  · refine Measure.le_iff.mpr (fun T hT ↦ ?_)
+    simp_rw [μ.restrict_apply hT, Measure.coe_finset_sum, s.sum_apply, inter_iUnion]
+    apply le_trans <| measure_biUnion_finset_le s (T ∩ S ·)
+    exact s.sum_le_sum (fun _ _ ↦ ge_of_eq (μ.restrict_apply hT))
+  · have : ∑ i ∈ s, μ.restrict (S i) = Measure.sum μ₀ := by
+      ext T hT
+      simp only [Measure.sum_apply (hs := hT), Measure.coe_finset_sum, s.sum_apply, μ₀]
+      rw [tsum_eq_sum (s := s) (fun b hb ↦ by simp [hb])]
+      exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi, res_res])
+    rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]
+    intro i
+    by_cases hi : i ∈ s
+    · simp only [Pi.zero_apply, hi, reduceIte, μ₀, ← res_res i hi, ae_restrict_iff meas]
+      exact g_ae_nonneg.mono (fun _ h _ ↦ h)
+    · simp [hi, μ₀]
+
 end MeasureTheory

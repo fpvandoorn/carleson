@@ -4367,11 +4367,12 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     \uses{convex-scales}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
-        \eqref{eq-term-A} \le 10 \cdot 2^{105a^3} M_{\mathcal{B}, 1}P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
+        \eqref{eq-term-A} \le 10 \cdot 2^{104a^3} M_{\mathcal{B}, 1}P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
     $$
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Let $s \in \sigma(\fu,x)$.
     If $x, y \in X$ are such that $K_s(x,y)\neq 0$, then, by \eqref{supp-Ks}, we have $\rho(x,y)\leq 1/2 D^s$. By $1$-Lipschitz continuity of the function $t \mapsto \exp(it) = e(t)$ and the property \eqref{osccontrol} of the metrics $d_B$, it follows that
     \begin{multline*}
@@ -4379,19 +4380,19 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
         \leq d_{B(x, 1/2 D^{s})}(\fcc(\fu), \tQ(x))\,.
     \end{multline*}
     Let $\fp_s \in \fT(\fu)$ be a tile with $\ps(\fp_s) = s$ and $x \in E(\fp_s)$, and let $\fp'$ be a tile with $\ps(\fp') = \overline{\sigma}(\fu, x)$ and $x \in E(\fp')$.
-    Using the doubling property \eqref{firstdb}, the definition of $d_{\fp}$ and \Cref{monotone-cube-metrics}, we can bound the previous display by
+    Using the monotonicity property \eqref{monotonedb}, the doubling property \eqref{firstdb} repeatedly, the definition of $d_{\fp}$ and \Cref{monotone-cube-metrics}, we can bound the previous display by
     $$
-        2^a d_{\fp_s}(\fcc(\fu), \tQ(x)) \le 2^{a} 2^{s - \overline{\sigma}(\fu, x)} d_{\fp'}(\fcc(\fu), \tQ(x))\,.
+        d_{B(x, 4 D^{s})}(\fcc(\fu), \tQ(x)) \leq 2^{4a} d_{\fp_s}(\fcc(\fu), \tQ(x)) \le 2^{4a} 2^{s - \overline{\sigma}(\fu, x)} d_{\fp'}(\fcc(\fu), \tQ(x))\,.
     $$
     Since $\fcc(\fu) \in B_{\fp'}(\fcc(\fp'), 4)$ by \eqref{forest1} and $\tQ(x) \in \Omega(\fp') \subset B_{\fp'}(\fcc(\fp'), 1)$ by \eqref{eq-freq-comp-ball}, this is estimated by
     $$
-        \le 5 \cdot 2^{a} 2^{s - \overline{\sigma}(\fu, x)} \,.
+        \le 5 \cdot 2^{4a} 2^{s - \overline{\sigma}(\fu, x)} \,.
     $$
     Using \eqref{eq-Ks-size}, it follows that
     $$
         \eqref{eq-term-A} \le 5\cdot 2^{103a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(x,D^s))}\int_{B(x,0.5D^{s})}|f(y)|\,\mathrm{d}\mu(y)\,.
     $$
-    By \eqref{eq-J-partition}, the collection $\mathcal{J}$ is a partition of $X$, so this is estimated by
+    By \eqref{eq-J-partition}, the collection $\mathcal{J}$ is a partition of $\bigcup_{I \in \mathcal{D}} I$, so this is estimated by
     $$
          5\cdot 2^{103a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(x,D^s))}\sum_{\substack{J \in \mathcal{J}(\fT(\fu))\\J \cap B(x, 0.5D^s) \ne \emptyset} }\int_{J}|f(y)|\,\mathrm{d}\mu(y)\,.
     $$
@@ -4403,20 +4404,20 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     $$
         5\cdot 2^{103a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(x,D^s))}\int_{B(\pc(\fp_s),16 D^s)}P_{\mathcal{J}(\fT(\fu))}|f(y)|\,\mathrm{d}\mu(y)\,.
     $$
-    We have $B(\pc(\fp_s), 16D^s)) \subset B(x, 32D^s)$, by \eqref{eq-vol-sp-cube} and the triangle inequality, since $x \in \scI(\fp)$. Combining this with the doubling property \eqref{doublingx}, we obtain
+    We have $B(\pc(\fp_s), 16D^s)) \subset B(x, 32D^s)$, by \eqref{eq-vol-sp-cube} and the triangle inequality, since $x \in \scI(\fp_s)$. Combining this with the doubling property \eqref{doublingx}, we obtain
     $$
         \mu(B(\pc(\fp_s), 16D^s)) \le 2^{5a} \mu(B(x, D^s))\,.
     $$
     Since $a \ge 4$, it follows that \eqref{eq-term-A} is bounded by
     $$
-        2^{104a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(\pc(\fp_s),16D^s))}\int_{B(\pc(\fp_s),16D^s)}P_{\mathcal{J}(\fT(\fu))}|f(y)|\,\mathrm{d}\mu(y)\,.
+        5\cdot 2^{103a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} \frac{1}{\mu(B(\pc(\fp_s),16D^s))}\int_{B(\pc(\fp_s),16D^s)}P_{\mathcal{J}(\fT(\fu))}|f(y)|\,\mathrm{d}\mu(y)\,.
     $$
-    Since $L \in \mathcal{L}(\fT(\fu))$, we have $s(L) \le \ps(\fp)$ for all $\fp \in \fT(\fu)$. Since $x\in L \cap \scI(\fp_s)$, it follows by \eqref{dyadicproperty} that $L \subset \scI(\fp_s)$, in particular $x' \in \scI(\fp_s) \subset B(\pc(\fp_s), 16D^s)$. Thus
+    Since $L \in \mathcal{L}(\fT(\fu))$ and $x\in L \cap \scI(\fp_s)$, we have $s(L) \le \ps(\fp_s)$. It follows by \eqref{dyadicproperty} that $L \subset \scI(\fp_s)$, in particular $x' \in \scI(\fp_s) \subset B(\pc(\fp_s), 16D^s)$. Thus
     $$
-        \le 2^{104a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} M_{\mathcal{B}, 1}P_{\mathcal{J}(\fT(\fu))}|f|(x')
+        \le 5\cdot 2^{104a^3} \sum_{s\in\sigma(x)}2^{s - \overline{\sigma}(\fu, x)} M_{\mathcal{B}, 1}P_{\mathcal{J}(\fT(\fu))}|f|(x')
     $$
     $$
-        \le 2^{105a^3} M_{\mathcal{B}, 1}P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
+        \le 10\cdot 2^{104a^3} M_{\mathcal{B}, 1}P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
     $$
     This completes the estimate for term \eqref{eq-term-A}.
 \end{proof}
