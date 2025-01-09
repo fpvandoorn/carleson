@@ -1,19 +1,11 @@
 {
     "files.exclude": {
-        ".devcontainer": true,
-        ".docker": true,
         "**/.DS_Store": true,
         "**/.DS_yml": true,
         "**/.git": true,
-        "**/.gitpod.yml": true,
-        "**/.vscode": true,
         "**/*.olean": true,
         "build": true,
         "html": true,
-        "lake-packages": true,
-        "lean-tactics.tex": true,
-        "LICENSE": true,
-        "mathematics_in_lean.pdf": true
     },
     "editor.minimap.enabled": false,
     "editor.acceptSuggestionOnEnter": "off",
