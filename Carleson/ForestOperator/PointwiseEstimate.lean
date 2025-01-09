@@ -123,7 +123,7 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
       (fun _ h ↦ by simp [Finset.mem_singleton.mp h, hJ])
   rw [eq0, eq_ave, zero_add]
 
-lemma approxOnCube_BoundedCompactSupport (C : Set (Grid X)) (f : X → ℂ) :
+lemma BoundedCompactSupport_approxOnCube (C : Set (Grid X)) (f : X → ℂ) :
     BoundedCompactSupport (approxOnCube C f) :=
   BoundedCompactSupport.finset_sum fun J hJ ↦
     BoundedCompactSupport.indicator_of_isBounded_range (by simp) stronglyMeasurable_const
@@ -179,8 +179,7 @@ private lemma mem_𝓙_of_mem_𝓙' {x : X} {i : ℤ} {J : Grid X} : J ∈ 𝓙'
 variable (t) in
 /-- The operator `S_{1,𝔲} f(x)`, given in (7.1.4). -/
 def boundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ∑ I : Grid X, (I : Set X).indicator (x := x) fun _ ↦
-  ∑ J ∈ 𝓙' t u (c I) (s I),
+  ∑ I : Grid X, (I : Set X).indicator (x := x) fun _ ↦ ∑ J ∈ 𝓙' t u (c I) (s I),
   D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in (J : Set X), ‖f y‖₊
 
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
@@ -790,7 +789,7 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
     · intro i hi
       simp_rw [mul_comm (Ks (𝔰 p) x _)]
       refine (BoundedCompactSupport.integrable_mul ?_ ?_).integrableOn
-      · exact hf.sub <| approxOnCube_BoundedCompactSupport (𝓙 (t.𝔗 u)) f
+      · exact hf.sub <| BoundedCompactSupport_approxOnCube (𝓙 (t.𝔗 u)) f
       · exact integrable_Ks_x (one_lt_D (X := X))
   _ ≤ ∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), ‖∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ :=
     nnnorm_sum_le (𝓙' t u (𝔠 p) (𝔰 p)) _
