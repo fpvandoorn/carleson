@@ -279,7 +279,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   exact nmem_ℭ₅_iff_mem_𝔏₃ hkn hj h mc2 ml2
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
-  We use the name `𝔏₀'` in Lean. The indexing is off-by-one w.r.t. the blueprint -/
+  We use the name `𝔏₀'` in Lean. -/
 def 𝔏₀' (k n l : ℕ) : Set (𝔓 X) := (𝔏₀ k n).minLayer l
 
 /-- Logarithmic inequality used in the proof of Lemma 5.5.2. -/
@@ -431,12 +431,12 @@ lemma exists_𝔒_with_le_quotient :
 end
 
 /-- Main part of Lemma 5.5.2. -/
-lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
-  refine iUnion_minLayer_iff_bounded_series.mpr fun p ↦ ?_
-  suffices ¬∃ s : LTSeries (𝔏₀ (X := X) k n), s.length = n + 1 by
-    rcases lt_or_le p.length (n + 1) with c | c
-    · exact Nat.le_of_lt_succ c
-    · exact absurd ⟨p.take ⟨n + 1, by omega⟩, by rw [RelSeries.take_length]⟩ this
+lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
+  refine iUnion_lt_minLayer_iff_bounded_series.mpr fun p ↦ ?_
+  suffices ¬∃ s : LTSeries (𝔏₀ (X := X) k n), s.length = n by
+    rcases lt_or_le p.length n with c | c
+    · exact c
+    · exact absurd ⟨p.take ⟨n, by omega⟩, by rw [RelSeries.take_length]⟩ this
   by_contra h; obtain ⟨s, hs⟩ := h; let sl := s.last; have dsl := sl.2.1.2.1
   simp_rw [dens', lt_iSup_iff, mem_singleton_iff, exists_prop, exists_eq_left] at dsl
   obtain ⟨l, hl, p', mp', sp', qp'⟩ := dsl
@@ -492,18 +492,17 @@ lemma iUnion_L0' : ⋃ (l ≤ n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
     _ ≤ dist_(s₀.1) (𝒬 sl.1) θ + dist_(s₀.1) (𝒬 sl.1) (𝒬 s₀.1) := dist_triangle_left ..
     _ < 1 + dist_(s₀.1) (𝒬 sl.1) θ := by
       rw [add_comm]; exact add_lt_add_right (dist_𝒬_lt_one_of_le s.head_le_last) _
-    _ ≤ 1 + C2_1_2 a ^ (n + 1) * dist_(sl.1) (𝒬 sl.1) θ := add_le_add_left (dist_LTSeries hs) _
-    _ < 1 + C2_1_2 a ^ (n + 1) * (2 * l + 3) := by gcongr; rw [C2_1_2]; positivity
-    _ ≤ 1 + (1 / 512) ^ (n + 1) * (2 ^ (n + 1) + 3) := by
+    _ ≤ 1 + C2_1_2 a ^ n * dist_(sl.1) (𝒬 sl.1) θ := add_le_add_left (dist_LTSeries hs) _
+    _ < 1 + C2_1_2 a ^ n * (2 * l + 3) := by gcongr; rw [C2_1_2]; positivity
+    _ ≤ 1 + (1 / 512) ^ n * (2 * 2 ^ n + 3) := by
       gcongr
       · rw [C2_1_2]; positivity
       · exact C2_1_2_le_inv_512 X
-      · rw [pow_succ']
-        exact mul_le_mul_of_nonneg_left (by exact_mod_cast (l_upper_bound hl qp').le) zero_le_two
-    _ = 1 + (2 / 512) ^ (n + 1) + (1 / 512) ^ (n + 1) * 3 := by
-      rw [mul_add, ← add_assoc, ← mul_pow]; norm_num
-    _ ≤ 1 + (2 / 512) ^ 1 + (1 / 512) ^ 1 * 3 := by
-      gcongr 1 + ?_ + ?_ * 3 <;>
+      · exact_mod_cast (l_upper_bound hl qp').le
+    _ = 1 + 2 * (2 / 512) ^ n + (1 / 512) ^ n * 3 := by
+      simp [div_pow]; ring
+    _ ≤ 1 + 2 * (2 / 512) ^ 0 + (1 / 512) ^ 0 * 3 := by
+      gcongr 1 + 2 * ?_ + ?_ * 3 <;>
         exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (by omega)
     _ < _ := by norm_num
 
@@ -665,7 +664,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ_eq_add_sum {f : X → ℂ} {x : X} (hkn : k 
 
 lemma carlesonSum_𝔓pos_inter_𝔏₀_eq_sum {f : X → ℂ} {x : X} :
     carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀ k n) f x =
-      ∑ l ≤ n, carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x := by
+      ∑ l < n, carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x := by
   rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
   · apply PairwiseDisjoint.subset _ (subset_univ _)
     apply (pairwiseDisjoint_L0' (k := k) (n := n)).mono
@@ -739,7 +738,7 @@ of `‖carlesonSum 𝔓₁ᶜ f x‖₊` by a sum of integrals of the same form 
 which are all antichains by design. -/
 lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f : Measurable f) :
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ ≤
-        (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n,
+        (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n,
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖₊)
@@ -779,7 +778,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
       + ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x‖₊ := by
     simp only [Finset.sum_add_distrib]
-  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
+  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
       + ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x‖₊ := by
     gcongr with n hn k hk
@@ -790,7 +789,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
     norm_cast
     apply ENNReal.coe_le_coe.2
     apply nnnorm_sum_le
-  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
+  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
       + ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
       ((∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₂ k n j) f x‖₊)
         + ∑ l ≤ Z * (n + 1), ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖₊) := by
@@ -806,14 +805,14 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
     apply (nnnorm_add_le _ _).trans
     gcongr
     apply nnnorm_sum_le
-  _ = (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
+  _ = (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖₊)
       + ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₂ k n j) f x‖₊ := by
     simp only [Finset.sum_add_distrib]
     abel
-  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
+  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖₊)
       + ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
@@ -832,7 +831,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
     apply (nnnorm_add_le _ _).trans
     gcongr
     apply nnnorm_sum_le
-  _ = (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
+  _ = (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖₊)
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
@@ -933,7 +932,7 @@ open scoped Nat
 omit [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o] in
 lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ₂ F G] {N : ℕ} :
     ∑ x ≤ N,
-      (((13 + 8 * Z) * x ^ 0 + (20 + 20 * Z) * x ^ 1 + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
+      (((12 + 8 * Z) * x ^ 0 + (19 + 20 * Z) * x ^ 1 + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
         (2 : ℝ) ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ))) ≤ 2 ^ (28 * a + 20) / (q - 1) ^ 4 := by
   simp only [add_mul _ _ ((2 : ℝ) ^ (_ : ℝ)), Finset.sum_add_distrib]
   simp only [mul_assoc, ← Finset.mul_sum]
@@ -951,13 +950,13 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
     · exact one_le_two
     · linarith [four_le_a X]
   calc
-  (13 + 8 * ↑Z) * ∑ i ≤ N, ↑i ^ 0 * (2 : ℝ) ^ (-((q - 1) / (8 * a ^ 4) * i)) +
-      (20 + 20 * ↑Z) * ∑ i ≤ N, ↑i ^ 1 * 2 ^ (-((q - 1) / (8 * a ^ 4) * i)) +
+  (12 + 8 * ↑Z) * ∑ i ≤ N, ↑i ^ 0 * (2 : ℝ) ^ (-((q - 1) / (8 * a ^ 4) * i)) +
+      (19 + 20 * ↑Z) * ∑ i ≤ N, ↑i ^ 1 * 2 ^ (-((q - 1) / (8 * a ^ 4) * i)) +
       (7 + 16 * ↑Z) * ∑ i ≤ N, ↑i ^ 2 * 2 ^ (-((q - 1) / (8 * a ^ 4) * i)) +
       (4 * ↑Z) * ∑ i ≤ N, ↑i ^ 3 * 2 ^ (-((q - 1) / (8 * a ^ 4) * i))
-  _ ≤ (13 + 8 * ↑Z) * ((2 : ℝ) ^ ((q - 1) / (8 * a ^ 4)) *
+  _ ≤ (12 + 8 * ↑Z) * ((2 : ℝ) ^ ((q - 1) / (8 * a ^ 4)) *
         0 ! / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ (0 + 1)) +
-      (20 + 20 * ↑Z) * ((2 : ℝ) ^ ((q - 1) / (8 * a ^ 4)) *
+      (19 + 20 * ↑Z) * ((2 : ℝ) ^ ((q - 1) / (8 * a ^ 4)) *
         1 ! / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ (1 + 1)) +
       (7 + 16 * ↑Z) * ((2 : ℝ) ^ ((q - 1) / (8 * a ^ 4)) *
         2 ! / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ (2 + 1)) +
@@ -965,16 +964,16 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
         3 ! / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ (3 + 1)) := by
     gcongr <;> apply sum_Iic_pow_mul_two_pow_neg_le P
   _ = (2 : ℝ) ^ ((q - 1) / (8 * a ^ 4)) *
-      ( (13 + 8 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4)))
-      + (20 + 20 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
+      ( (12 + 8 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4)))
+      + (19 + 20 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
       + (14 + 32 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 3
       + (24 * ↑Z) /  (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 4) := by
     simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.factorial, Nat.cast_one, mul_one,
       zero_add, pow_one, Nat.succ_eq_add_one, Nat.reduceAdd, Nat.reduceMul]
     ring
   _ ≤ (2 : ℝ) ^ (1 : ℝ) *
-      ( (13 + 8 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4)))
-      + (20 + 20 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
+      ( (12 + 8 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4)))
+      + (19 + 20 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
       + (14 + 32 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 3
       + (24 * ↑Z) /  (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 4) := by
     gcongr
@@ -982,27 +981,27 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
     · apply div_le_one_of_le₀ _ (by positivity)
       have : 8 * (4 : ℝ) ^ 4 ≤ 8 * a ^ 4 := by gcongr
       linarith
-  _ = (26 + 16 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4)))
-      + (40 + 40 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
+  _ = (24 + 16 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4)))
+      + (38 + 40 * ↑Z)  / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 2
       + (28 + 64 * ↑Z) / (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 3
       + (48 * ↑Z) /  (Real.log 2 * ((q - 1) / (8 * a ^ 4))) ^ 4 := by
     simp only [Real.rpow_one, Nat.cast_pow, Nat.cast_ofNat]
     ring
   _ = ((8 * a ^ 4) / (q - 1)) ^ 4 *
-     (((q - 1) / (8 * a ^ 4)) ^ 3 * (26 * 1 + 16 * ↑Z) / Real.log 2
-      + ((q - 1) / (8 * a ^ 4)) ^ 2 * (40 * 1 + 40 * ↑Z)  / (Real.log 2) ^ 2
+     (((q - 1) / (8 * a ^ 4)) ^ 3 * (24 * 1 + 16 * ↑Z) / Real.log 2
+      + ((q - 1) / (8 * a ^ 4)) ^ 2 * (38 * 1 + 40 * ↑Z)  / (Real.log 2) ^ 2
       + ((q - 1) / (8 * a ^ 4)) * (28 * 1 + 64 * ↑Z) / (Real.log 2) ^ 3
       + (48 * ↑Z) /  (Real.log 2) ^ 4) := by
     field_simp only
     ring
   _ ≤ ((8 * a ^ 4) / (q - 1)) ^ 4 *
-     (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (26 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.6931471803
-      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (40 * (Z / 2 ^ 48) + 40 * ↑Z)  / 0.6931471803 ^ 2
+     (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.6931471803
+      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (Z / 2 ^ 48) + 40 * ↑Z)  / 0.6931471803 ^ 2
       + ((2 - 1) / (8 * 4 ^ 4)) * (28 * (Z / 2 ^ 48) + 64 * ↑Z) / 0.6931471803 ^ 3
       + (48 * ↑Z) / 0.6931471803 ^ 4) := by gcongr
   _ = a ^ 16 / (q - 1) ^ 4 * Z * (8 ^ 4 *
-      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (26 * (1 / 2 ^ 48) + 16) / 0.6931471803
-      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (40 * (1 / 2 ^ 48) + 40)  / 0.6931471803 ^ 2
+      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (1 / 2 ^ 48) + 16) / 0.6931471803
+      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (1 / 2 ^ 48) + 40)  / 0.6931471803 ^ 2
       + ((2 - 1) / (8 * 4 ^ 4)) * (28 * (1 / 2 ^ 48) + 64) / 0.6931471803 ^ 3
       + 48 / 0.6931471803 ^ 4)) := by
     rw [div_pow]; ring
@@ -1020,7 +1019,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
 
  omit [TileStructure Q D κ S o] in
  lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux2 {N : ℕ} :
-    ∑ x ≤ N, (((13 + 8 * Z) + (20 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
+    ∑ x ≤ N, (((12 + 8 * Z) + (19 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
         (2 : ℝ≥0∞) ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ)))
     ≤ (2 : ℝ≥0∞) ^ (28 * a + 20) / (nnq - 1) ^ 4 := by
   have : 0 < q - 1 := by linarith [one_lt_q X]
@@ -1029,17 +1028,17 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
   simp only [Finset.sum_const, Nat.card_Iio, nsmul_eq_mul, Nat.cast_add, Nat.cast_mul,
     Nat.cast_ofNat, Nat.card_Iic, Nat.cast_one, ge_iff_le]
   calc
-  ∑ x ≤ N, (((13 + 8 * ↑Z) + (20 + 20 * ↑Z) * x + (7 + 16 * ↑Z) * x ^ 2 + (4 * ↑Z) * x ^ 3)
+  ∑ x ≤ N, (((12 + 8 * ↑Z) + (19 + 20 * ↑Z) * x + (7 + 16 * ↑Z) * x ^ 2 + (4 * ↑Z) * x ^ 3)
       * ENNReal.ofReal (2 ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ))))
   _ = ∑ x ≤ N, ENNReal.ofReal
-      (((13 + 8 * Z) + (20 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
+      (((12 + 8 * Z) + (19 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
         2 ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ))) := by
     congr with i
     rw [ENNReal.ofReal_mul (by positivity)]
     congr
     norm_cast
   _ = ENNReal.ofReal (∑ x ≤ N,
-      (((13 + 8 * Z) + (20 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
+      (((12 + 8 * Z) + (19 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
         2 ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ)))) := by
     rw [ENNReal.ofReal_sum_of_nonneg]
     intro i hi
@@ -1102,7 +1101,7 @@ lemma forest_complement_optimized
     ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ ≤
       C5_1_3_optimized a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := calc
   ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊
-  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
+  _ ≤ (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₀' k n l) f x‖₊)
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖₊)
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
@@ -1110,7 +1109,7 @@ lemma forest_complement_optimized
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₃ k n j l) f x‖₊) :=
     lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral h'f
-  _ ≤   (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l ≤ n,
+  _ ≤   (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n,
           C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
           * 2 ^ (- ((q - 1) / (8 * a^4) * n)))
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
@@ -1133,18 +1132,18 @@ lemma forest_complement_optimized
         exact 𝔏₃_subset_ℭ
   _ = C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
     ∑ x ≤ maxℭ X,
-      (((↑x + 1) * (↑x + 1) + (↑x + 1) * (2 * ↑x + 3 + 1) * (↑Z * (↑x + 1) + 1)
+      (((↑x + 1) * ↑x + (↑x + 1) * (2 * ↑x + 3 + 1) * (↑Z * (↑x + 1) + 1)
       + (↑x + 1) * (2 * ↑x + 3 + 1)  + (↑x + 1) * (2 * ↑x + 3 + 1) * (↑Z * (↑x + 1) + 1))
         * 2 ^ (-((q - 1) / (8 * ↑a ^ 4) * ↑x))) := by
     simp only [← Finset.mul_sum, ← mul_add]
     simp only [Finset.sum_const, Nat.card_Iic, nsmul_eq_mul, Nat.cast_add, Nat.cast_one,
-      Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat]
+      Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Nat.card_Iio]
     simp only [← Finset.sum_add_distrib]
     congr with x
     ring
   _ = C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
     ∑ x ≤ maxℭ X,
-      (((13 + 8 * Z) + (20 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
+      (((12 + 8 * Z) + (19 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
         (2 : ℝ≥0∞) ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ))) := by
     congr with x
     ring

@@ -3095,7 +3095,7 @@ Define $\fP_{G \setminus G'}$ to be the set of all $\fp \in \fP$ such that $\mu(
 \lean{iUnion_L0', pairwiseDisjoint_L0', antichain_L0'}
     We have that
     $$
-        \fL_0(k,n) = \dot{\bigcup_{1 \le l \le n}} \fL_0(k,n,l)\,,
+        \fL_0(k,n) = \dot{\bigcup_{0 \le l < n}} \fL_0(k,n,l)\,,
     $$
     where each $\fL_0(k,n,l)$ is an antichain.
 \end{lemma}
@@ -3181,7 +3181,7 @@ We now turn to the proof of \Cref{forest-complement}.
 \begin{proof}[Proof of \Cref{forest-complement}]
     \proves{forest-complement}\leanok
     If $\fp \not\in \fP_{G \setminus G'}$, then $\mu(\scI(\fp) \cap (G \setminus G')) = 0$. By \eqref{definetp} and \eqref{definee1}, it follows that
-    $\mathbf{1}_{G \setminus G'} T_{\fp}f(x) = 0$. We thus have
+    $\mathbf{1}_{G \setminus G'} T_{\fp}f(x) = 0$ for almost every $x$. We thus have, almost everywhere,
     $$
         \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2} T_{\fp}f(x) = \mathbf{1}_{G\setminus G'} \sum_{\fp \in \fP_2 \cap \fP_{G \setminus G'}} T_{\fp}f(x)\,.
     $$
@@ -3200,7 +3200,7 @@ We now turn to the proof of \Cref{forest-complement}.
 
     Applying now the triangle inequality according to the decomposition in \Cref{antichain-decomposition}, and then applying \Cref{antichain-operator} to each term, we obtain the estimate
     \begin{multline*}
-        \le \sum_{k \ge 0} \sum_{n \ge k} (n + (2n+4) + 2(2n+4) Z(n+1)) \\
+        \le \sum_{k \ge 0} \sum_{n \ge k} (n + (2n+4) + 2(2n+4) (1+Z(n+1))) \\
         \times 2^{150a^3}(q-1)^{-1} (2^{4a+1-n})^{\frac{q-1}{8a^4}} (2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2\|\mathbf{1}_{G\setminus G'}\|_2\,.
     \end{multline*}
     Because $|f| \le \mathbf{1}_F$, we have $\|f\|_2 \le \mu(F)^{1/2}$, and we have $\|\mathbf{1}_{G\setminus G'}\|_2 \le \mu(G)^{1/2}$. Using this and \eqref{defineZ}, we bound
