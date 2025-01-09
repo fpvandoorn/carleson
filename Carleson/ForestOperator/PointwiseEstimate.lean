@@ -56,6 +56,10 @@ def 𝓙 (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
 
 lemma 𝓙_subset_𝓙₀ {𝔖 : Set (𝔓 X)} : 𝓙 𝔖 ⊆ 𝓙₀ 𝔖 := sep_subset ..
 
+lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X)) := fun I mI J mJ hn ↦ by
+  have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
+  exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
+
 /-- The definition of `𝓛₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓛₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
   {L : Grid X | s L = -S ∨ (∃ p ∈ 𝔖, L ≤ 𝓘 p) ∧ ∀ p ∈ 𝔖, ¬𝓘 p ≤ L}
@@ -68,7 +72,7 @@ lemma 𝓛_subset_𝓛₀ {𝔖 : Set (𝔓 X)} : 𝓛 𝔖 ⊆ 𝓛₀ 𝔖 := 
 
 private lemma s_le_s_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖)
     {p : 𝔓 X} (hp : p ∈ 𝔖) (hpL : ¬ Disjoint (𝓘 p : Set X) (L : Set X)) : s L ≤ s (𝓘 p) := by
-  simp only [𝓛, Maximal, 𝓛₀, Grid.le_def, not_and, not_le, mem_setOf_eq, and_imp] at hL
+  simp only [𝓛, 𝓛₀, Grid.le_def, not_and, not_le, and_imp] at hL
   rcases hL.1 with h | h
   · exact h ▸ (range_s_subset ⟨𝓘 p, rfl⟩).1
   · by_contra!
@@ -110,7 +114,8 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = 0 by simp [Finset.sum_congr rfl this]
     intro i hi
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi
-    simp [Set.disjoint_left.mp ((hC.eq_or_disjoint hJ hi.1).resolve_left hi.2) xJ]
+    apply indicator_of_not_mem <|
+      Set.disjoint_left.mp ((hC.eq_or_disjoint hJ hi.1).resolve_left hi.2) xJ
   have eq_ave : ∑ i ∈ (Finset.univ.filter (· ∈ C)).filter (J = ·),
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = ⨍ y in J, f y := by
     suffices (Finset.univ.filter (· ∈ C)).filter (J = ·) = {J} by simp [this, xJ, ← Grid.mem_def]
@@ -123,6 +128,31 @@ lemma approxOnCube_BoundedCompactSupport (C : Set (Grid X)) (f : X → ℂ) :
   BoundedCompactSupport.finset_sum fun J hJ ↦
     BoundedCompactSupport.indicator_of_isBounded_range (by simp) stronglyMeasurable_const
     ((isBounded_iff_subset_ball (c J)).mpr ⟨4 * D ^ s J, Grid_subset_ball⟩) coeGrid_measurable
+
+-- Used in the proof of Lemma 7.1.6
+lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
+    (hC : C.PairwiseDisjoint fun I ↦ (I : Set X)) {J : Grid X} (hJ : J ∈ C) {f : X → ℂ}
+    (hf : BoundedCompactSupport f) : ENNReal.ofReal (∫ y in J, ‖f y‖) =
+    ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖₊ := by
+  have nonneg : 0 ≤ᶠ[ae (volume.restrict J)] fun y ↦ ‖f y‖ := Filter.Eventually.of_forall (by simp)
+  have vol_J_ne_zero := (volume_coeGrid_pos (X := X) (i := J) (defaultD_pos' a)).ne.symm
+  have eq : ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖₊ =
+      ∫⁻ y in (J : Set X), ENNReal.ofReal (⨍ z in J, ‖f z‖) := by
+    refine setLIntegral_congr_fun coeGrid_measurable (Filter.Eventually.of_forall fun y hy ↦ ?_)
+    rw [approxOnCube_apply hC _ hJ hy, ENNReal.ofReal]
+    · apply congrArg
+      have : ‖⨍ y in J, (‖f y‖ : ℂ)‖₊ = ‖⨍ y in J, ‖f y‖‖₊ := by
+        convert congrArg (‖·‖₊) <| integral_ofReal (f := (‖f ·‖)) using 1
+        simp [average]
+      exact this ▸ (Real.toNNReal_eq_nnnorm_of_nonneg <| integral_nonneg (fun y ↦ by simp)).symm
+  rw [ofReal_integral_eq_lintegral_ofReal hf.integrable.norm.restrict nonneg,
+    eq, lintegral_const, average_eq, smul_eq_mul, ENNReal.ofReal_mul, ENNReal.ofReal_inv_of_pos,
+    ENNReal.ofReal_toReal, ofReal_integral_eq_lintegral_ofReal hf.norm.integrable nonneg, mul_comm,
+    ← mul_assoc, Measure.restrict_apply MeasurableSet.univ, univ_inter,
+    ENNReal.mul_inv_cancel vol_J_ne_zero volume_coeGrid_lt_top.ne, one_mul]
+  · simp [volume_coeGrid_lt_top.ne]
+  · simpa using ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
+  · exact inv_nonneg.mpr ENNReal.toReal_nonneg
 
 /-- The definition `I_i(x)`, given above Lemma 7.1.3.
 The cube of scale `s` that contains `x`. There is at most 1 such cube, if it exists. -/
@@ -137,12 +167,21 @@ def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0�
   ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S) (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
   ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖₊
 
+-- Set used in definition of `boundaryOperator`
+variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
+  { J | J ∈ 𝓙 (t u) ∧ (J : Set X) ⊆ ball x (16 * D ^ i) ∧ s J ≤ i }
+
+private lemma mem_𝓙_of_mem_𝓙' {x : X} {i : ℤ} {J : Grid X} : J ∈ 𝓙' t u x i → J ∈ 𝓙 (t u) := by
+  intro hJ
+  simp only [𝓙', Finset.mem_filter] at hJ
+  exact hJ.2.1
+
 variable (t) in
 /-- The operator `S_{1,𝔲} f(x)`, given in (7.1.4). -/
 def boundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ∑ I : Grid X, (I : Set X).indicator (x := x) fun _ ↦
-  ∑ J ∈ { J | J ∈ 𝓙 (t u) ∧ (J : Set X) ⊆ ball (c I) (16 * D ^ (s I)) ∧ s J ≤ s I },
-  D ^ ((s J - s I) / a) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in J, ‖f y‖₊
+  ∑ J ∈ 𝓙' t u (c I) (s I),
+  D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in (J : Set X), ‖f y‖₊
 
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
 def 𝓑 : Set (ℕ × Grid X) := Icc 0 (S + 5) ×ˢ univ
@@ -188,11 +227,6 @@ lemma biUnion_𝓙 : ⋃ J ∈ 𝓙 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
   obtain ⟨M, lM, maxM⟩ := (𝓙₀ 𝔖).toFinset.exists_le_maximal this
   simp_rw [mem_toFinset] at maxM
   use M, maxM, (Grid.le_def.mp lM).1 mJ
-
-/-- Part of Lemma 7.1.2 -/
-lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X)) := fun I mI J mJ hn ↦ by
-  have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
-  exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
 /-- Part of Lemma 7.1.2 -/
 @[simp]
@@ -445,7 +479,7 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
     have hc𝓑 : 𝔠 p = c𝓑 (4, 𝓘 p) := by simp [c𝓑, 𝔠]
     have hr𝓑 : 16 * D ^ 𝔰 p = r𝓑 (4, 𝓘 p) := by rw [r𝓑, 𝔰]; norm_num
     simp [-defaultD, laverage, x'_in_ball, ENNReal.div_eq_inv_mul, hc𝓑, hr𝓑]
-  · simp [MB, maximalFunction]
+  · simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
 
 /-- Lemma 7.1.4 -/
 lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
@@ -728,23 +762,12 @@ private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
       rw [div_eq_mul_inv 3, Real.rpow_mul two_pos.le]
       norm_num
 
--- Set used in proof of Lemma 7.1.6
-variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) :=
-  Set.toFinset <| { J ∈ 𝓙 (t u) | ↑J ⊆ ball x (16 * D ^ i) ∧ s J ≤ i }
-variable (t) (u) in private def 𝓙ₚ (p : 𝔓 X) := 𝓙' t u (𝔠 p) (𝔰 p)
-variable (t) (u) in private def 𝓙ᵢ (I : Grid X) := 𝓙' t u (c I) (s I)
-
-private lemma mem_𝓙_of_mem_𝓙ₚ {J : Grid X} (hJ : J ∈ 𝓙ₚ t u p) : J ∈ 𝓙 (t u) := by
-  rw [𝓙ₚ, 𝓙', toFinset_setOf, Finset.mem_filter] at hJ
-  exact hJ.2.1
-
 -- Prove an upper bound for the function `I` used in the proof of Lemma 7.1.6
-private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : 𝔓 X}
-    (hp : p ∈ t.𝔗 u) {x : X} (hxp : x ∈ E p) :
-    ‖∫ (y : X), Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ ≤
+private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : 𝔓 X} (hp : p ∈ t.𝔗 u)
+    {x : X} (hxp : x ∈ E p) : ‖∫ (y : X), Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ ≤
     Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ 𝔰 p))) * 2 ^ (3 / (a : ℝ)) *
-    ∑ J ∈ 𝓙ₚ t u p, D ^ ((s J - 𝔰 p) / (a : ℝ)) * ∫ y in J, ‖f y‖) := by
-  let U := ⋃ J ∈ 𝓙ₚ t u p, (J : Set X)
+    ∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), D ^ ((s J - 𝔰 p) / (a : ℝ)) * ∫ y in J, ‖f y‖) := by
+  let U := ⋃ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), (J : Set X)
   calc ‖∫ (y : X), Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊
   _ = ‖∫ y in U, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ := by
     refine congrArg (‖·‖₊) <| (setIntegral_eq_integral_of_ae_compl_eq_zero ?_).symm
@@ -757,20 +780,21 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
       use J
       simpa using hJ
     refine ⟨J, ⟨⟨J, ?_⟩, yJ⟩⟩
-    suffices J ∈ 𝓙ₚ t u p by simp [this]
-    simpa [𝓙ₚ, 𝓙', hJ] using And.intro (Grid_subset_ball' hp hxp ⟨hJ, y, yJ, mem_ball'.mpr hy⟩)
+    suffices J ∈ 𝓙' t u (𝔠 p) (𝔰 p) by simp [this]
+    simpa [𝓙', hJ] using And.intro (Grid_subset_ball' hp hxp ⟨hJ, y, yJ, mem_ball'.mpr hy⟩)
       (s_le_s hp hxp ⟨hJ, ⟨y, ⟨yJ, mem_ball'.mpr hy⟩⟩⟩)
-  _ = ‖∑ J ∈ 𝓙ₚ t u p, ∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ := by
-    refine congrArg _ (integral_finset_biUnion (𝓙ₚ t u p) (fun _ _ ↦ coeGrid_measurable) ?_ ?_)
-    · exact fun i hi j hj hij ↦ pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙ₚ hi) (mem_𝓙_of_mem_𝓙ₚ hj) hij
+  _ = ‖∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p),
+        ∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ := by
+    refine congrArg _ (integral_finset_biUnion _ (fun _ _ ↦ coeGrid_measurable) ?_ ?_)
+    · exact fun i hi j hj hij ↦ pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hi) (mem_𝓙_of_mem_𝓙' hj) hij
     · intro i hi
       simp_rw [mul_comm (Ks (𝔰 p) x _)]
       refine (BoundedCompactSupport.integrable_mul ?_ ?_).integrableOn
       · exact hf.sub <| approxOnCube_BoundedCompactSupport (𝓙 (t.𝔗 u)) f
       · exact integrable_Ks_x (one_lt_D (X := X))
-  _ ≤ ∑ J ∈ 𝓙ₚ t u p, ‖∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ :=
-    nnnorm_sum_le (𝓙ₚ t u p) _
-  _ ≤ _ := Finset.sum_le_sum (fun J hJ ↦ L7_1_6_integral_le (mem_𝓙_of_mem_𝓙ₚ hJ) hf)
+  _ ≤ ∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), ‖∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ :=
+    nnnorm_sum_le (𝓙' t u (𝔠 p) (𝔰 p)) _
+  _ ≤ _ := Finset.sum_le_sum (fun J hJ ↦ L7_1_6_integral_le (mem_𝓙_of_mem_𝓙' hJ) hf)
   _ = _ := by rw [Finset.mul_sum, Real.toNNReal_sum_of_nonneg (fun i hi ↦ by positivity)]
 
 -- Translate `∑ p` into `∑ I, ∑ p` in the proof of Lemma 7.1.6
@@ -803,7 +827,9 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     C7_1_6 a * t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
   let I (i : ℤ) (x : X) := ‖∫ (y : X), Ks i x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊
   let Js (p : 𝔓 X) := Set.toFinset <| { J ∈ 𝓙 (t u) | ↑J ⊆ ball x (16 * D ^ 𝔰 p) ∧ s J ≤ 𝔰 p }
+  let ps (I : Grid X) := Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ 𝓘 p = I)
   let 𝔗_fin := Finset.univ.filter (· ∈ t.𝔗 u)
+  have A5_pos : (defaultA a : ℝ) ^ 5 > 0 := pow_pos (by norm_num) 5
   calc ENNReal.ofNNReal (‖∑ i in t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊)
     _ ≤ ENNReal.ofNNReal (∑ i in t.σ u x, ‖∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊) :=
       ENNReal.coe_strictMono.monotone <| nnnorm_sum_le (t.σ u x) _
@@ -811,19 +837,128 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       simp_rw [← p_sum_eq_s_sum I, indicator_eq_indicator_one_mul _ (I _)]
     _ ≤ ENNReal.ofNNReal (∑ p ∈ 𝔗_fin, (E p).indicator 1 x *
           Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ 𝔰 p))) * 2 ^ (3 / (a : ℝ)) *
-          ∑ J ∈ 𝓙ₚ t u p, D ^ ((s J - 𝔰 p) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
+          ∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), D ^ ((s J - 𝔰 p) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
       refine ENNReal.coe_strictMono.monotone <| Finset.sum_le_sum (fun J hJ ↦ ?_)
       by_cases xJ : x ∈ E J
-      · simpa [xJ] using L7_1_6_I_le hu hf (Finset.mem_filter.mp hJ).2 xJ
-      · simp [xJ]
-    _ = ENNReal.ofNNReal (∑ I : Grid X, ∑ p ∈ Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ 𝓘 p = I),
-          (E p).indicator 1 x * Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ s I))) *
-          2 ^ (3 / (a : ℝ)) * ∑ J ∈ 𝓙ᵢ t u I, D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
+      · rw [indicator_of_mem xJ, Pi.one_apply, one_mul, one_mul]
+        exact L7_1_6_I_le hu hf (Finset.mem_filter.mp hJ).2 xJ
+      · simp only [indicator_of_not_mem xJ, zero_mul, le_refl]
+    _ = ENNReal.ofNNReal (∑ I : Grid X, ∑ p ∈ ps I, (E p).indicator 1 x *
+          Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ s I))) * 2 ^ (3 / (a : ℝ)) *
+          ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
       let summand := fun (y : X) (i : ℤ) ↦
           ((D2_1_3 (a : ℝ≥0)) / volume.real (ball x (D ^ i)) * 2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u y i, D ^ (((s J) - (i : ℝ)) / a) * ∫ y in J, ‖f y‖).toNNReal
       exact congrArg ENNReal.ofNNReal <| sum_p_eq_sum_I_sum_p t u x summand
-    _ ≤ _ := by sorry
+    _ ≤ ENNReal.ofNNReal (∑ I : Grid X, ∑ p ∈ ps I, (E p).indicator 1 x *
+          Real.toNNReal (D2_1_3 a / (volume.real (ball (c I) (16 * D ^ s I)) / (defaultA a) ^ 5) *
+          2 ^ (3 / (a : ℝ)) *
+          ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
+      apply ENNReal.coe_strictMono.monotone
+      refine Finset.sum_le_sum (fun I _ ↦ Finset.sum_le_sum (fun p hp ↦ ?_))
+      by_cases xEp : x ∈ E p; swap
+      · simp only [indicator_of_not_mem xEp, zero_mul, le_refl]
+      rw [mul_le_mul_left (by simp [indicator_of_mem xEp])]
+      apply Real.toNNReal_mono
+      gcongr
+      · apply div_pos (measure_real_ball_pos _ <| mul_pos (by norm_num) (defaultD_pow_pos a _))
+        exact A5_pos
+      · rw [div_le_iff₀' A5_pos]
+        calc volume.real (ball (c I) (16 * D ^ s I))
+        _ ≤ volume.real (ball x (32 * D ^ s I)) := by
+          refine measureReal_mono ?_ measure_ball_lt_top.ne
+          apply ball_subset_ball'
+          suffices dist (c I) x < 4 * D ^ (s I) by linarith [defaultD_pow_pos a (s I)]
+          exact mem_ball'.mp <| (Finset.mem_filter.mp hp).2.2 ▸ Grid_subset_ball (E_subset_𝓘 xEp)
+        _ ≤ (defaultA a) ^ 5 * volume.real (ball x (D ^ s I)) := by
+          rw [show (32 : ℝ) = 2 ^ 5 by norm_num]
+          exact measure_real_ball_two_le_same_iterate (μ := volume) x (D ^ s I) 5
+    _ ≤ ENNReal.ofNNReal (∑ I : Grid X, ((I : Set X).indicator 1 x') *
+          Real.toNNReal (D2_1_3 a / (volume.real (ball (c I) (16 * D ^ s I)) / (defaultA a) ^ 5) *
+          2 ^ (3 / (a : ℝ)) *
+          ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
+      simp_rw [← Finset.sum_mul]
+      gcongr
+      rename_i I hI
+      by_cases ex : ∃ p ∈ ps I, x ∈ E p
+      · obtain ⟨p, hp, xEp⟩ := ex
+        have L_subset_I : (L : Set X) ⊆ (I : Set X) := by
+          simp only [ps, Finset.mem_filter] at hp
+          exact hp.2.2 ▸ subset_of_mem_𝓛 hL hp.2.1 (not_disjoint_iff.mpr ⟨x, ⟨E_subset_𝓘 xEp, hx⟩⟩)
+        simp only [L_subset_I hx', indicator_of_mem, Pi.one_apply]
+        rw [Finset.sum_eq_single_of_mem p hp]
+        · exact le_of_eq <| (indicator_eq_one_iff_mem ℝ≥0).mpr xEp
+        · intro p' hp' p'_ne_p
+          simp only [ps, Finset.mem_filter] at hp hp'
+          exact (indicator_eq_zero_iff_not_mem ℝ≥0).mpr fun xEp' ↦
+            disjoint_left.mp (disjoint_Ω p'_ne_p (hp'.2.2.trans hp.2.2.symm)) xEp'.2.1 xEp.2.1
+      · push_neg at ex
+        suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0) x = 0 by rw [this]; exact zero_le _
+        exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_not_mem (ex p hp) _)
+    _ = ENNReal.ofNNReal (∑ I : Grid X, ((I : Set X).indicator 1 x') *
+          Real.toNNReal (((D2_1_3 a) * (defaultA a) ^ 5 * 2 ^ (3 / (a : ℝ))) /
+          (volume.real (ball (c I) (16 * D ^ s I))) *
+          ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
+      refine congrArg ENNReal.ofNNReal <| Finset.sum_congr rfl (fun I _ ↦ ?_)
+      rw [← div_mul]
+      congr 3
+      ring
+    _ ≤ ENNReal.ofNNReal (∑ I : Grid X, ((I : Set X).indicator 1 x') *
+          Real.toNNReal (2 ^ (151 * a ^ 3) / (volume.real (ball (c I) (16 * D ^ s I))) *
+           ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
+      gcongr
+      apply Real.toNNReal_mono
+      gcongr
+      unfold D2_1_3 defaultA
+      calc
+      _ = (2 : ℝ) ^ (150 * a ^ 3 + 5 * a + 3 / a : ℝ) := by
+        rw [Real.rpow_add two_pos, Real.rpow_add two_pos, mul_comm 5, Real.rpow_mul two_pos.le a 5]
+        norm_cast
+        congr
+        norm_cast
+      _ ≤ (2 : ℝ) ^ (151 * a ^ 3) := by
+        have : ((151 * a ^ 3 : ℕ) : ℝ) = (151 : ℝ) * (a : ℝ) ^ 3 := by norm_cast
+        rw [← Real.rpow_natCast 2, Real.rpow_le_rpow_left_iff one_lt_two, this]
+        suffices 5 * (a : ℝ) + 3 / (a : ℝ) ≤ (a : ℝ) ^ 2 * (a : ℝ) by linarith
+        have : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
+        calc 5 * (a : ℝ) + 3 / (a : ℝ)
+          _ ≤ 5 * (a : ℝ) + (a : ℝ)     := by
+            refine add_le_add_left (((div_le_one (cast_a_pos X)).mpr ?_).trans ?_) _ <;>
+              linarith
+          _ ≤ 4 ^ 2 * (a : ℝ)           := by linarith
+          _ ≤ (a : ℝ) ^ 2 * (a : ℝ)     := by gcongr
+    _ = ENNReal.ofNNReal (2 ^ (151 * a ^ 3)) * ENNReal.ofNNReal (
+          ∑ I : Grid X, ((I : Set X).indicator 1 x') *
+          Real.toNNReal (1 / (volume.real (ball (c I) (16 * D ^ s I))) *
+          ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
+      rw [← ENNReal.coe_mul]
+      apply congrArg ENNReal.ofNNReal
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl (fun I _ ↦ ?_)
+      rw [← mul_assoc, mul_comm (2 ^ _), mul_assoc, ← Real.toNNReal_eq_ofNat.mpr rfl,
+        ← Real.toNNReal_pow two_pos.le, ← Real.toNNReal_mul (by positivity), ← mul_assoc,
+        div_eq_mul_one_div]
+    _ = _ := by
+      congr
+      · rw [C7_1_6_def]; norm_cast
+      · simp_rw [← indicator_mul_const, Pi.one_apply, one_mul, ENNReal.coe_finset_sum,
+          ENNReal.coe_indicator]
+        apply Finset.sum_congr rfl (fun I _ ↦ ?_)
+        congr
+        ext
+        rw [Finset.mul_sum, ENNReal.ofNNReal_toNNReal]
+        rw [ENNReal.ofReal_sum_of_nonneg (fun _ _ ↦ by positivity)]
+        refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
+        repeat rw [ENNReal.ofReal_mul (by positivity)]
+        rw [ENNReal.ofReal_div_of_pos, ENNReal.ofReal_one, ← mul_assoc]; swap
+        · exact measure_real_ball_pos (c I) <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
+        rw [← ENNReal.mul_div_right_comm, one_mul]
+        congr
+        · rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a)]
+          norm_cast
+        · rw [Measure.real, ENNReal.ofReal_toReal (measure_ball_ne_top (c I) _)]
+        · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
+
 
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
@@ -890,6 +1025,6 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
   have h3 {i : ℤ} : Integrable (fun y ↦ (f y - approxOnCube (𝓙 (t.𝔗 u)) f y) * Ks i x y) := by
     simp_rw [sub_mul]
     exact hf.integrable_mul (integrable_Ks_x <| one_lt_D (K := K)) |>.sub h1
-  exact Finset.fold_congr fun i _ ↦ by rw [integral_add _ h1, integral_add h2 h3]; exact h2.add h3
+  exact Finset.fold_congr fun i _ ↦ (by rw [integral_add _ h1, integral_add h2 h3]; exact h2.add h3)
 
 end TileStructure.Forest
