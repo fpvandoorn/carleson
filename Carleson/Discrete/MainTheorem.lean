@@ -11,9 +11,10 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 /-- The constant used in Proposition 2.0.2,
 which has value `2 ^ (434 * a ^ 3) / (q - 1) ^ 5` in the blueprint. -/
-noncomputable def C2_0_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := C5_1_2 a q + C5_1_3 a q
+noncomputable def C2_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C5_1_2 a q + C5_1_3 a q
 
-lemma C2_0_2_pos : C2_0_2 a nnq > 0 := add_pos C5_1_2_pos C5_1_3_pos
+omit [TileStructure Q D κ S o] in
+lemma C2_0_2_pos : 0 < C2_0_2 a nnq := add_pos C5_1_2_pos C5_1_3_pos
 
 variable (X) in
 theorem discrete_carleson :
@@ -35,5 +36,5 @@ theorem discrete_carleson :
       lintegral_add_left (by fun_prop) _
     _ ≤ C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ +
         C5_1_3 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ :=
-      add_le_add (forest_union hf measf) (forest_complement hf)
+      add_le_add (forest_union hf measf) (forest_complement hf measf)
     _ = _ := by simp_rw [mul_assoc, ← add_mul]; congr

@@ -1,6 +1,8 @@
 import Carleson.TileStructure
 import Carleson.HardyLittlewood
 import Carleson.Psi
+import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
+
 
 open scoped ShortVariables
 
@@ -497,13 +499,85 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
 /-- The constant appearing in Proposition 2.0.3.
 Has value `2 ^ (150 * a ^ 3) / (q - 1)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C_2_0_3 (a q : ℝ) : ℝ := 2 ^ (150 * a ^ 3) / (q - 1)
+def C_2_0_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (150 * a ^ 3) / (q - 1)
 
 /-- Proposition 2.0.3 -/
 theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (hf : Measurable f) (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (h𝔄 : IsAntichain (·≤·) (toTileLike (X := X) '' 𝔄)) :
-    ‖∫ x, conj (g x) * ∑ᶠ p : 𝔄, carlesonOn p f x‖ ≤
-    C_2_0_3 a q * (dens₁ 𝔄).toReal ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄).toReal ^ (q⁻¹ - 2⁻¹) *
-    (eLpNorm f 2 volume).toReal * (eLpNorm g 2 volume).toReal := sorry
+    (h𝔄 : IsAntichain (·≤·) 𝔄) :
+    ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖₊ ≤
+    C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
+    (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := sorry
+
+/-- Version of the forest operator theorem, but controlling the integral of the norm instead of
+the integral of the function multiplied by another function. -/
+theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
+    (h𝔄 : IsAntichain (·≤·) 𝔄) :
+    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖₊ ≤
+    C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
+    eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
+  have I (x : ℝ) : x / x ≤ 1 := by
+    rcases eq_or_ne x 0 with rfl | hx
+    · simp
+    · simp [hx]
+  apply (lintegral_mono_set hA).trans
+  /- This follows from the other version by taking for the test function `g` the argument of
+  the sum to be controlled. -/
+  rw [← ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm]; swap
+  · apply BoundedCompactSupport.integrable
+    apply BoundedCompactSupport.carlesonSum
+    have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
+      apply BoundedCompactSupport.indicator_of_isBounded_range _ stronglyMeasurable_one _
+        measurableSet_F
+      · exact isBounded_range_iff_forall_norm_le.2 ⟨1, fun x ↦ by simp⟩
+      · exact isBounded_F
+    apply BoundedCompactSupport.mono this hf.stronglyMeasurable h2f
+  rw [← integral_indicator measurableSet_G]
+  simp_rw [indicator_mul_left, ← Function.comp_def,
+    Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
+  apply (antichain_operator hf h2f ?_ ?_ h𝔄).trans; rotate_left
+  · apply Measurable.indicator _ measurableSet_G
+    fun_prop
+  · intro x
+    simp [indicator]
+    split_ifs
+    · simp [I]
+    · simp
+  gcongr
+  calc
+  _ ≤ eLpNorm (G.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
+    apply eLpNorm_mono (fun x ↦ ?_)
+    simp only [indicator, Complex.norm_eq_abs, coe_algebraMap, Real.norm_eq_abs]
+    split_ifs
+    · simpa using I _
+    · simp
+  _ ≤ _ := by
+    rw [eLpNorm_indicator_const]
+    · simp
+    · exact measurableSet_G
+    · norm_num
+    · norm_num
+
+/-- Version of the forest operator theorem, but controlling the integral of the norm instead of
+the integral of the function multiplied by another function, and with the upper bound in terms
+of `volume F` and `volume G`. -/
+theorem antichain_operator_le_volume {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
+    (h𝔄 : IsAntichain (·≤·) 𝔄) :
+    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖₊ ≤
+    C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
+    (volume F) ^ (1/2 : ℝ) * (volume G) ^ (1/2 : ℝ) := by
+  apply (antichain_operator' hf h2f hA h𝔄).trans
+  gcongr
+  calc
+  _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
+    apply eLpNorm_mono (fun x ↦ ?_)
+    apply (h2f x).trans (le_abs_self _)
+  _ ≤ _ := by
+    rw [eLpNorm_indicator_const]
+    · simp
+    · exact measurableSet_F
+    · norm_num
+    · norm_num
