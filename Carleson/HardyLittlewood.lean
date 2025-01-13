@@ -388,6 +388,15 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
   apply ((AESublinearOn.maximalFunction h𝓑 hR).toReal _).1
   sorry -- already proven above, we will likely refactor this away
 
+lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
+    (h𝓑 : 𝓑.Finite) {p : ℝ≥0} (hp : 1 < p) :
+    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
+      p p μ μ (CMB A p) :=
+  hasStrongType_MB h𝓑.countable (Finite.exists_image_le h𝓑 _).choose_spec hp
+
+
+
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
 
