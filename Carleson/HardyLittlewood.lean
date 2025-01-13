@@ -2,7 +2,7 @@ import Carleson.DoublingMeasure
 import Carleson.RealInterpolation
 import Mathlib.MeasureTheory.Covering.Vitali
 
-open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter ENNReal
+open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter ENNReal Pointwise
 open scoped NNReal
 noncomputable section
 
@@ -19,7 +19,7 @@ lemma covering_separable_space :
   simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
 
 lemma countable_globalMaximalFunction :
-    (covering_separable_space X).choose ×ˢ (univ : Set ℕ) |>.Countable :=
+    (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
 lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
@@ -92,13 +92,6 @@ lemma maximalFunction_eq_MB
 
 -- We will replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `LocallyIntegrable` that is closed under addition and scalar multiplication.
-
-variable (μ) in
-private def P (f : X → E) : Prop := Memℒp f ∞ μ ∨ Memℒp f 1 μ
-
-private lemma LocallyIntegrable_of_P [BorelSpace X] [ProperSpace X] [IsFiniteMeasureOnCompacts μ]
-    {u : X → E} (hu : P μ u) : LocallyIntegrable u μ := by
-  refine hu.elim (Memℒp.locallyIntegrable · le_top) (Memℒp.locallyIntegrable · le_rfl)
 
 -- The average that appears in the definition of `MB`
 variable (μ c r) in
@@ -333,8 +326,8 @@ protected theorem HasWeakType.MB_one_toReal [BorelSpace X] (h𝓑 : 𝓑.Countab
 include A in
 theorem MB_ae_ne_top [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
-    {u : X → E} (hu : Memℒp u 1 μ) : ∀ᵐ x : X ∂μ, ‖MB μ 𝓑 c r u x‖ₑ ≠ ∞ :=
-  HasWeakType.MB_one h𝓑 hR |>.memWℒp hu |>.ae_ne_top
+    {u : X → E} (hu : Memℒp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
+  simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWℒp hu |>.ae_ne_top
 
 include A in
 protected theorem MeasureTheory.AESublinearOn.maximalFunction
@@ -343,22 +336,32 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
     AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
     (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
-  apply AESublinearOn.antitone LocallyIntegrable_of_P
+  -- let P := fun g ↦ g ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ}
+  -- have hP : ∀ {g}, P g → LocallyIntegrable g μ := by
+  --   rintro _ ⟨f, hf, g, hg, rfl⟩
+  --   exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
+  -- apply AESublinearOn.antitone (P' := P)
+  -- · rintro u (hu|hu)
+  --   · refine ⟨u, hu, 0, zero_memℒp, by simp⟩
+  --   · refine ⟨0, zero_memℒp, u, hu, by simp⟩
   simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  apply AESublinearOn.biSup (P := (LocallyIntegrable · μ)) 𝓑 h𝓑 _ _
-    LocallyIntegrable.add (fun hf _ ↦ hf.smul _)
+  refine AESublinearOn.biSup2 𝓑 h𝓑 _ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+  · intro u hu
+    have := MB_ae_ne_top' (u := u) (μ := μ) (c := c) h𝓑 hR hu
+    filter_upwards [this] with x hx
+    simpa [MB, maximalFunction] using hx
+  · rintro _ _ ⟨f₁, hf₁, g₁, hg₁, rfl⟩ ⟨f₂, hf₂, g₂, hg₂, rfl⟩
+    exact ⟨f₁ + f₂, hf₁.add hf₂, g₁ + g₂, hg₁.add hg₂, by abel_nf⟩
+  · rintro _ c ⟨f, hf, g, hg, rfl⟩ hc
+    exact ⟨c • f, hf.const_smul c, c • g, hg.const_smul c, by module⟩
   · intro i _
     let B := ball (c i) (r i)
     have (u : X → E) (x : X) : (B.indicator (fun _ ↦ ⨍⁻ y in B, ‖u y‖₊ ∂μ) x).toReal =
         (B.indicator (fun _ ↦ (⨍⁻ y in B, ‖u y‖₊ ∂μ).toReal) x) := by
       by_cases hx : x ∈ B <;> simp [hx]
     simp_rw [this]
-    apply (AESublinearOn.const (T μ c r i) (LocallyIntegrable · μ) (T.add_le i)
-      (fun f d ↦ T.smul i)).indicator
-  · intro u hu
-    have := MB_ae_ne_top (u := u) (μ := μ) (c := c) h𝓑 hR sorry
-    filter_upwards [this] with x hx
-    simpa [MB, maximalFunction] using hx
+    exact AESublinearOn.const (T μ c r i) P (fun hf hg ↦ T.add_le i (hP hf) (hP hg))
+      (fun f d hf ↦ T.smul i (hP hf)) |>.indicator _
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
 irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹
@@ -422,8 +425,8 @@ variable (μ) in
 `p` is `1` in the blueprint, and `globalMaximalFunction μ p u = (M (u ^ p)) ^ p⁻¹ ` -/
 @[nolint unusedArguments]
 def globalMaximalFunction [μ.IsDoubling A] (p : ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
-  A ^ 2 * maximalFunction μ ((covering_separable_space X).choose ×ˢ (univ : Set ℕ))
-    (·.1) (fun x ↦ 2 ^ (- (x.2 : ℤ))) p u x
+  A ^ 2 * maximalFunction μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
+    (·.1) (fun x ↦ 2 ^ (x.2)) p u x
 
 -- prove only if needed. Use `MB_le_eLpNormEssSup`
 -- theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
@@ -460,9 +463,8 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
     _ ≤ _ := by
       rw [mul_assoc]
       gcongr
-      sorry
-      -- refine (le_iSup₂ (c, m) hc).trans_eq' ?_
-      -- simp [laverage, indicator_of_mem (h_subset h)]
+      refine (le_iSup₂ (c, m) hc).trans_eq' ?_
+      simp [laverage, indicator_of_mem (h_subset h)]
 
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
@@ -476,11 +478,12 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul, C2_0_6']
-  convert HasStrongType.const_mul _ _ -- this needs to be adapted
+  convert HasStrongType.const_mul _ _
   · simp
   refine hasStrongType_maximalFunction (R := 1) countable_globalMaximalFunction ?_ hp₁ hp₁₂
   rintro ⟨_, i⟩ -
   simp [inv_le_comm₀, one_le_pow₀ (one_le_two (α := ℝ))]
+  sorry -- Can we get rid of this assumption?
 
 
 end GMF
