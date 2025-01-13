@@ -181,6 +181,7 @@ lemma laverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g 
     ⨍⁻ a, f a ∂μ ≤ ⨍⁻ a, g a ∂μ := by
   exact lintegral_mono_ae <| h.filter_mono <| Measure.ae_mono' Measure.smul_absolutelyContinuous
 
+@[gcongr]
 lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
     ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ := by
   refine laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self

@@ -269,7 +269,7 @@ theorem MB_le_eLpNormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ eLpNo
         fun _x ↦ ⨍⁻ _y in ball (c i) (r i), eLpNormEssSup u μ ∂μ := by
         simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
         gcongr
-        exact setLAverage_mono_ae <| coe_nnnorm_ae_le_eLpNormEssSup u μ
+        exact coe_nnnorm_ae_le_eLpNormEssSup u μ
     _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x) fun _x ↦ eLpNormEssSup u μ := by
       gcongr; apply setLaverage_const_le
     _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; apply indicator_le_self
@@ -329,6 +329,12 @@ theorem MB_ae_ne_top [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {u : X → E} (hu : Memℒp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
   simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWℒp hu |>.ae_ne_top
 
+-- move
+lemma MeasureTheory.Memℒp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ : Measure α}
+    {u : α → E} (hu : Memℒp u ⊤ μ) : eLpNormEssSup u μ < ⊤ := by
+  simp_rw [Memℒp, eLpNorm_exponent_top] at hu
+  exact hu.2
+
 include A in
 protected theorem MeasureTheory.AESublinearOn.maximalFunction
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
@@ -336,24 +342,30 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
     AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
     (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
-  -- let P := fun g ↦ g ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ}
-  -- have hP : ∀ {g}, P g → LocallyIntegrable g μ := by
-  --   rintro _ ⟨f, hf, g, hg, rfl⟩
-  --   exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
-  -- apply AESublinearOn.antitone (P' := P)
-  -- · rintro u (hu|hu)
-  --   · refine ⟨u, hu, 0, zero_memℒp, by simp⟩
-  --   · refine ⟨0, zero_memℒp, u, hu, by simp⟩
+  let P := fun g ↦ g ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ}
+  have hP : ∀ {g}, P g → LocallyIntegrable g μ := by
+    rintro _ ⟨f, hf, g, hg, rfl⟩
+    exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
   simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  refine AESublinearOn.biSup2 𝓑 h𝓑 _ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+  refine AESublinearOn.biSup2 h𝓑 ?_ ?_ zero_memℒp zero_memℒp Memℒp.add Memℒp.add
+    (fun h _ ↦ h.const_smul _) (fun h _ ↦ h.const_smul _) ?_
   · intro u hu
-    have := MB_ae_ne_top' (u := u) (μ := μ) (c := c) h𝓑 hR hu
+    refine .of_forall fun x ↦ ?_
+    rw [← lt_top_iff_ne_top]
+    calc
+      _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), eLpNormEssSup u μ ∂μ) x := by
+          gcongr; exact ENNReal.ae_le_essSup fun y ↦ ↑‖u y‖₊
+      _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (fun x ↦ eLpNormEssSup u μ) x := by
+          gcongr; exact setLaverage_const_le
+      _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; apply indicator_le_self
+      _ ≤ ⨆ i : ι, eLpNormEssSup u μ := by gcongr; exact iSup_const_le
+      _ ≤ eLpNormEssSup u μ := iSup_const_le
+      _ < ⊤ := hu.eLpNormEssSup_lt_top
+  · intro u hu
+    have := MB_ae_ne_top (u := u) (μ := μ) (c := c) h𝓑 hR hu
     filter_upwards [this] with x hx
     simpa [MB, maximalFunction] using hx
-  · rintro _ _ ⟨f₁, hf₁, g₁, hg₁, rfl⟩ ⟨f₂, hf₂, g₂, hg₂, rfl⟩
-    exact ⟨f₁ + f₂, hf₁.add hf₂, g₁ + g₂, hg₁.add hg₂, by abel_nf⟩
-  · rintro _ c ⟨f, hf, g, hg, rfl⟩ hc
-    exact ⟨c • f, hf.const_smul c, c • g, hg.const_smul c, by module⟩
   · intro i _
     let B := ball (c i) (r i)
     have (u : X → E) (x : X) : (B.indicator (fun _ ↦ ⨍⁻ y in B, ‖u y‖₊ ∂μ) x).toReal =
@@ -481,9 +493,10 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
   convert HasStrongType.const_mul _ _
   · simp
   refine hasStrongType_maximalFunction (R := 1) countable_globalMaximalFunction ?_ hp₁ hp₁₂
+  -- We need to get rid of this assumption, or fix the proof elsewhere
   rintro ⟨_, i⟩ -
   simp [inv_le_comm₀, one_le_pow₀ (one_le_two (α := ℝ))]
-  sorry -- Can we get rid of this assumption?
+  sorry
 
 
 end GMF

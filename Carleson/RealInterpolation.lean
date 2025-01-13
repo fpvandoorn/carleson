@@ -3059,9 +3059,8 @@ lemma forall_le {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι �
     {P : (α → E₁) → Prop} {A : ℝ}
     (h : ∀ i ∈ 𝓑, AESubadditiveOn (T i) P A ν)
     {f g : α → E₁} (hf : P f) (hg : P g) :
-    ∀ᵐ x ∂ν, ∀ i ∈ 𝓑, ‖T i (f + g) x‖ ≤ A * (‖T i f x‖ + ‖T i g x‖) := by
-  sorry
-
+    ∀ᵐ x ∂ν, ∀ i ∈ 𝓑, ‖T i (f + g) x‖ ≤ A * (‖T i f x‖ + ‖T i g x‖) :=
+  eventually_countable_ball h𝓑 |>.mpr fun i hi ↦ h i hi f g hf hg
 
 lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ℝ≥0∞}
     {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
@@ -3098,35 +3097,6 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
     add_ne_top.mpr ⟨hT'fx i hi, hT'gx i hi⟩] at hx
   apply hx.trans
   gcongr <;> apply le_biSup _ hi
-
-lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ℝ≥0∞}
-    {P : (α → E₁) → Prop} {Q : (α → E₁) → Prop}
-    (hPT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
-    (hQT : ∀ (u : α → E₁), Q u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
-    (P0 : P 0)
-    (Q0 : Q 0)
-    (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (hQ : ∀ {f g : α → E₁}, Q f → Q g → Q (f + g))
-    {A : ℝ}
-    (hAP : ∀ i ∈ 𝓑,
-      AESubadditiveOn (fun u x ↦ (T i u x).toReal) (fun g ↦ g ∈ {f | P f} + {f | Q f}) A ν) :
-    AESubadditiveOn (fun u x ↦ (⨆ i ∈ 𝓑, T i u x).toReal) (fun f ↦ P f ∨ Q f) A ν := by
-  set R := fun g ↦ g ∈ {f | P f} + {f | Q f}
-  have hPR : ∀ {f}, P f → R f := fun hu ↦ ⟨_, hu, 0, Q0, by simp⟩
-  have hQR : ∀ {f}, Q f → R f := fun hu ↦ ⟨0, P0, _, hu, by simp⟩
-  apply AESubadditiveOn.antitone (P' := R) (fun hu ↦ hu.elim hPR hQR)
-  refine AESubadditiveOn.biSup (P := R) h𝓑 ?_ ?_ hAP
-  · rintro _ ⟨f, hf, g, hg, rfl⟩
-    filter_upwards [hPT f hf, hQT g hg, forall_le h𝓑 hAP (hPR hf) (hQR hg)] with x hfx hgx hTx
-    simp_rw [← lt_top_iff_ne_top] at hfx hgx ⊢
-    simp only [Real.norm_eq_abs, abs_toReal] at hTx
-    sorry -- this is only doable with redefinition
-    -- calc
-    --   _ ≤ ⨆ i ∈ 𝓑, A * (T i f x + T i g x) := by gcongr
-    --   _ ≤ (⨆ i ∈ 𝓑, T i f x) + (⨆ i ∈ 𝓑, T i g x) := by sorry
-    --   _ < ⊤ := add_lt_top.mpr ⟨hfx, hgx⟩
-  · rintro _ _ ⟨f₁, hf₁, g₁, hg₁, rfl⟩ ⟨f₂, hf₂, g₂, hg₂, rfl⟩
-    exact ⟨f₁ + f₂, hP hf₁ hf₂, g₁ + g₂, hQ hg₁ hg₂, by abel_nf⟩
 
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ}
     (sa : AESubadditiveOn T P A ν) (S : Set α') :
@@ -3188,8 +3158,10 @@ lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (
     (hQT : ∀ (u : α → E₁), Q u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (P0 : P 0)
     (Q0 : Q 0)
-    (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (hQ : ∀ {f g : α → E₁}, Q f → Q g → Q (f + g))
+    (haP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
+    (haQ : ∀ {f g : α → E₁}, Q f → Q g → Q (f + g))
+    (hsP : ∀ {f : α → E₁} {c : ℝ}, P f → c ≥ 0 → P (c • f))
+    (hsQ : ∀ {f : α → E₁} {c : ℝ}, Q f → c ≥ 0 → Q (c • f))
     {A : ℝ}
     (hAP : ∀ i ∈ 𝓑,
       AESublinearOn (fun u x ↦ (T i u x).toReal) (fun g ↦ g ∈ {f | P f} + {f | Q f}) A ν) :
@@ -3210,7 +3182,9 @@ lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (
     --   _ ≤ (⨆ i ∈ 𝓑, T i f x) + (⨆ i ∈ 𝓑, T i g x) := by sorry
     --   _ < ⊤ := add_lt_top.mpr ⟨hfx, hgx⟩
   · rintro _ _ ⟨f₁, hf₁, g₁, hg₁, rfl⟩ ⟨f₂, hf₂, g₂, hg₂, rfl⟩
-    exact ⟨f₁ + f₂, hP hf₁ hf₂, g₁ + g₂, hQ hg₁ hg₂, by abel_nf⟩
+    exact ⟨f₁ + f₂, haP hf₁ hf₂, g₁ + g₂, haQ hg₁ hg₂, by abel_nf⟩
+  · rintro _ c ⟨f, hf, g, hg, rfl⟩ hc
+    exact ⟨c • f, hsP hf hc, c • g, hsQ hg hc, by module⟩
 
 lemma indicator {T : (α → E₁) → α' → E₂} {P : (α → E₁) → Prop} {A : ℝ} (S : Set α')
     (sl : AESublinearOn T P A ν) :
