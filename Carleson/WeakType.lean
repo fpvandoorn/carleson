@@ -407,15 +407,17 @@ section NormedGroup
 
 -- todo: generalize various results to ENorm.
 
-variable [ContinuousENorm ε] {f g : α → E}
+variable {f g : α → ε}
+section
+variable [ContinuousENorm ε]
 
-lemma distribution_eq_nnnorm : distribution f t μ =  μ { x | t < ‖f x‖₊ } := rfl
+lemma distribution_eq_nnnorm {f : α → E} : distribution f t μ =  μ { x | t < ‖f x‖₊ } := rfl
 
 @[gcongr]
-lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) :
+lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
     distribution f t μ ≤ distribution g t μ := by
-  have h₀ : {x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ} ⊆ {x | ¬‖f x‖ ≤ ‖g x‖} := fun x ↦ by
-    simp_rw [mem_diff, mem_setOf_eq, not_lt, not_le, and_imp, enorm_eq_nnnorm]
+  have h₀ : {x | t < ‖f x‖ₑ} \ {x | t < ‖g x‖ₑ} ⊆ {x | ¬‖f x‖ₑ ≤ ‖g x‖ₑ} := fun x ↦ by
+    simp_rw [mem_diff, mem_setOf_eq, not_lt, not_le, and_imp]
     intro i₁ i₂; simpa using i₂.trans_lt i₁
   calc
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∩ {x | t < ‖g x‖ₑ})
@@ -424,14 +426,14 @@ lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) :
     _ ≤ _ := by apply measure_mono; simp
 
 @[gcongr]
-lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) (h₂ : t ≤ s) :
+lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (h₂ : t ≤ s) :
     distribution f s μ ≤ distribution g t μ :=
   (distribution_mono_left h₁).trans (distribution_mono_right h₂)
 
 lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
-  meas_eLpNormEssSup_lt
+  meas_essSup_lt -- meas_eLpNormEssSup_lt
 
-lemma distribution_smul_left {c : 𝕜} (hc : c ≠ 0) :
+lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖₊) μ := by
   simp_rw [distribution_eq_nnnorm]
   have h₀ : ofNNReal ‖c‖₊ ≠ 0 := ENNReal.coe_ne_zero.mpr (nnnorm_ne_zero_iff.mpr hc)
@@ -440,21 +442,39 @@ lemma distribution_smul_left {c : 𝕜} (hc : c ≠ 0) :
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ coe_ne_top,
     ENNNorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
-lemma distribution_add_le' {A : ℝ} (hA : A ≥ 0) (g₁ g₂ : α → E)
-    (h : ∀ᵐ x ∂μ, ‖f x‖ ≤ A * (‖g₁ x‖ + ‖g₂ x‖)) :
-    distribution f (ENNReal.ofReal A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
+lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
+    (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ A * (‖g₁ x‖ₑ + ‖g₂ x‖ₑ)) :
+    distribution f (A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
   apply distribution_add_le_of_enorm
-  simp_rw [← ENNReal.ofReal_norm]
   simp (discharger := positivity) [← ofReal_mul, ← ofReal_add, h]
 
-lemma distribution_add_le :
+lemma HasStrongType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
+    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c)
+    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
+    HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
+  refine fun f hf ↦
+    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
+  simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
+  gcongr
+  exact (h f hf).2
+
+lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
+    HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
+  h.const_smul e
+
+end
+
+lemma distribution_add_le [ENormedAddMonoid ε] :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
-    _ ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := by
+    _ ≤ μ ({x | t < ↑‖f x‖ₑ} ∪ {x | s < ↑‖g x‖ₑ}) := by
       refine measure_mono fun x h ↦ ?_
       simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
       contrapose! h
-      exact (ENNNorm_add_le _ _).trans (add_le_add h.1 h.2)
+      exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
 
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
@@ -478,29 +498,12 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     _ ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := measure_mono h₀
     _ ≤ _ := measure_union_le _ _
 
-lemma HasStrongType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
-    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c)
-    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
-    HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
-  refine fun f hf ↦
-    ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
-  simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
-  gcongr
-  exact (h f hf).2
-
-lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
-    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
-    HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
-  h.const_smul e
-
 section BorelSpace
 
-variable [MeasurableSpace E] [BorelSpace E]
+variable [ContinuousENorm ε] [MeasurableSpace E] [BorelSpace E]
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
-lemma lintegral_norm_pow_eq_distribution (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖ₑ ^ p ∂μ =
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 ≤ p := hp.le
@@ -514,7 +517,7 @@ lemma lintegral_norm_pow_eq_distribution (hf : AEMeasurable f μ) {p : ℝ} (hp 
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
-lemma eLpNorm_pow_eq_distribution (hf : AEMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
+lemma eLpNorm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
     eLpNorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 < (p : ℝ) := hp
@@ -524,7 +527,7 @@ lemma eLpNorm_pow_eq_distribution (hf : AEMeasurable f μ) {p : ℝ≥0} (hp : 0
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
     taking powers. -/
-lemma eLpNorm_eq_distribution (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+lemma eLpNorm_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     eLpNorm f (.ofReal p) μ =
     (ENNReal.ofReal p  * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
         ENNReal.ofReal (t ^ (p - 1)) ) ^ p⁻¹ := by
@@ -540,7 +543,7 @@ lemma eLpNorm_eq_distribution (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     rw [lintegral_norm_pow_eq_distribution hf hp]
     congr 1 with x; rw [ofReal_mul] <;> [ring; positivity]
 
-lemma lintegral_pow_mul_distribution (hf : AEMeasurable f μ) {p : ℝ} (hp : -1 < p) :
+lemma lintegral_pow_mul_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
     ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖ₑ ^ (p + 1) ∂μ := by
   have h2p : 0 < p + 1 := by linarith

@@ -95,7 +95,7 @@ lemma maximalFunction_eq_MB
 
 -- The average that appears in the definition of `MB`
 variable (μ c r) in
-private def T (i : ι) (u : X → E) := (⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖₊ ∂μ).toReal
+private def T (i : ι) (u : X → E) := ⨍⁻ (y : X) in ball (c i) (r i), ‖u y‖₊ ∂μ
 
 -- move
 lemma MeasureTheory.LocallyIntegrable.integrableOn_of_isBounded [ProperSpace X]
@@ -118,26 +118,20 @@ lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top
 
 private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [ProperSpace X]
     (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) (hg : LocallyIntegrable g μ) :
-    ‖T μ c r i (f + g)‖ ≤ ‖T μ c r i f‖ + ‖T μ c r i g‖ := by
-  simp only [T, Pi.add_apply, Real.norm_eq_abs, ENNReal.abs_toReal]
-  rw [← ENNReal.toReal_add hf.laverage_ball_lt_top.ne hg.laverage_ball_lt_top.ne, ENNReal.toReal_le_toReal]
-  · rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.ennnorm]
-    exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x))
-  · exact (hf.add hg).laverage_ball_lt_top.ne
-  · exact (ENNReal.add_lt_top.2 ⟨hf.laverage_ball_lt_top, hg.laverage_ball_lt_top⟩).ne
+    ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
+  simp only [T, Pi.add_apply, enorm_eq_self]
+  rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.ennnorm]
+  exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x))
 
-private lemma T.smul [NormedSpace ℝ E] (i : ι) : ∀ {f : X → E} {d : ℝ}, LocallyIntegrable f μ →
-    d ≥ 0 → T μ c r i (d • f) = d • T μ c r i f := by
-  intro f d _ hd
-  simp_rw [T, Pi.smul_apply, smul_eq_mul]
-  nth_rewrite 2 [← (ENNReal.toReal_ofReal hd)]
-  rw [← ENNReal.toReal_mul]
-  congr
-  rw [laverage_const_mul ENNReal.ofReal_ne_top]
-  congr
-  ext x
-  simp only [nnnorm_smul, ENNReal.coe_mul, ← Real.toNNReal_eq_nnnorm_of_nonneg hd]
-  congr
+-- move
+lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl
+
+private lemma T.smul [NormedSpace ℝ E] (i : ι) : ∀ {f : X → E} {d : ℝ≥0}, LocallyIntegrable f μ →
+    T μ c r i (d • f) = d • T μ c r i f := by
+  intro f d _
+  simp_rw [T, Pi.smul_apply, NNReal.smul_def, NNReal.smul_ennreal_eq_mul,
+    laverage_const_mul ENNReal.coe_ne_top]
+  simp [nnnorm_smul]
 
 -- todo: move
 -- slightly more general than the Mathlib version
@@ -340,15 +334,15 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
-    AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
+    AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x)
     (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
   let P := fun g ↦ g ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ}
   have hP : ∀ {g}, P g → LocallyIntegrable g μ := by
     rintro _ ⟨f, hf, g, hg, rfl⟩
     exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
   simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  refine AESublinearOn.biSup2 h𝓑 ?_ ?_ zero_memℒp zero_memℒp Memℒp.add Memℒp.add
-    (fun h _ ↦ h.const_smul _) (fun h _ ↦ h.const_smul _) ?_
+  refine AESublinearOn.biSup2 (P := (Memℒp · ⊤ μ)) (Q := (Memℒp · 1 μ)) h𝓑 ?_ ?_ zero_memℒp zero_memℒp Memℒp.add Memℒp.add
+    ?_ ?_ ?_
   · intro u hu
     refine .of_forall fun x ↦ ?_
     rw [← lt_top_iff_ne_top]
@@ -366,13 +360,10 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     have := MB_ae_ne_top (u := u) (μ := μ) (c := c) h𝓑 hR hu
     filter_upwards [this] with x hx
     simpa [MB, maximalFunction] using hx
+  · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
+  · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
   · intro i _
-    let B := ball (c i) (r i)
-    have (u : X → E) (x : X) : (B.indicator (fun _ ↦ ⨍⁻ y in B, ‖u y‖₊ ∂μ) x).toReal =
-        (B.indicator (fun _ ↦ (⨍⁻ y in B, ‖u y‖₊ ∂μ).toReal) x) := by
-      by_cases hx : x ∈ B <;> simp [hx]
-    simp_rw [this]
-    exact AESublinearOn.const (T μ c r i) P (fun hf hg ↦ T.add_le i (hP hf) (hP hg))
+    refine AESublinearOn.const (T μ c r i) P (fun hf hg ↦ T.add_le i (hP hf) (hP hg))
       (fun f d hf ↦ T.smul i (hP hf)) |>.indicator _
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
@@ -392,8 +383,10 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) zero_lt_one (by simp [inv_lt_one_iff₀, hp, h2p] : p⁻¹ ∈ _) zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑)
-    (AESublinearOn.maximalFunction h𝓑 hR).1 (HasStrongType.MB_top h𝓑 |>.hasWeakType le_top)
+    _ (HasStrongType.MB_top h𝓑 |>.hasWeakType le_top)
     (HasWeakType.MB_one_toReal h𝓑 hR)
+  apply ((AESublinearOn.maximalFunction h𝓑 hR).toReal _).1
+  sorry -- already proven above, we will likely refactor this away
 
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
