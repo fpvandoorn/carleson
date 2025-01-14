@@ -199,6 +199,10 @@ protected theorem add : BoundedCompactSupport (f + g) where
   stronglyMeasurable := hf.stronglyMeasurable.add hg.stronglyMeasurable
   hasCompactSupport := hf.hasCompactSupport.add hg.hasCompactSupport
 
+protected theorem sub : BoundedCompactSupport (f - g) := by
+  rw [sub_eq_add_neg, neg_eq_neg_one_mul]
+  exact hf.add (hg.const_mul (-1))
+
 end Includehfhg
 
 /-- If `‖f‖` is bounded by `g` and `g` is bounded compactly supported, then so is `f`. -/
