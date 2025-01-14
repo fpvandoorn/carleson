@@ -1,5 +1,4 @@
 import Carleson.MinLayerTiles
-import Carleson.ToMathlib.Data.Set.Finite.Lattice
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
@@ -75,7 +74,8 @@ lemma exists_bound_ℭ : ∃ (n : ℕ × ℕ),
     ∀ x ∈ {kn : ℕ × ℕ | (ℭ (X := X) kn.1 kn.2).Nonempty}, Prod.snd x ≤ Prod.snd n := by
   apply exists_upper_bound_image
   have : Set.Finite (⋃ kn : ℕ × ℕ, ℭ (X := X) kn.1 kn.2) := toFinite _
-  exact ((Set.finite_iUnion_iff_of_pairwiseDisjoint pairwiseDisjoint_ℭ).1 this).2
+  exact ((Set.finite_iUnion_iff (fun i j hij ↦ pairwiseDisjoint_ℭ (mem_univ i) (mem_univ j) hij)).1
+    this).2
 
 variable (X) in
 def maxℭ : ℕ := (exists_bound_ℭ (X := X)).choose.2

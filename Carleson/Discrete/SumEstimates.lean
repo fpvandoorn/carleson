@@ -1,4 +1,4 @@
-import Carleson.ToMathlib.Analysis.SumIntegralComparisons
+import Mathlib.Analysis.SumIntegralComparisons
 import Mathlib.Analysis.SpecialFunctions.Integrals
 import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
 import Mathlib.Data.Complex.ExponentialBounds
@@ -33,7 +33,7 @@ lemma sum_Ico_pow_mul_exp_neg_le {k : ℕ} {M : ℕ} {c : ℝ} (hc : 0 < c) :
     ∑ i ∈ Finset.Ico 0 M, i ^ k * rexp (- (c * i)) ≤ rexp c * k ! / c ^ (k + 1) := calc
   ∑ i ∈ Finset.Ico 0 M, i ^ k * rexp (- (c * i))
   _ ≤ ∫ x in (0 : ℕ).. M, x ^ k * rexp (- (c * (x - 1))) := by
-    apply sum_mul_le_integral_of_monotone_antitone
+    apply sum_mul_Ico_le_integral_of_monotone_antitone
       (f := fun x ↦ x ^ k) (g := fun x ↦ rexp (- (c * x)))
     · exact Nat.zero_le M
     · intro x hx y hy hxy
