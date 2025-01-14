@@ -220,7 +220,7 @@ lemma adjointCarleson_adjoint
     _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_mul_left, mul_assoc]
     _ = ∫ y, ∫ x, H x y := integral_integral_swap hH
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
-      simp_rw [integral_mul_right]
+      simp_rw [H, integral_mul_right]
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
       simp_rw [← integral_conj]; congrm (∫ _, (∫ _, ?_) * (f _))
       rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
@@ -285,13 +285,13 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
-  let g := adjointCarlesonSum (t u) f
+  set g := adjointCarlesonSum (t u) f
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
   have h := density_tree_bound1 hg hf hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
       (eLpNorm g 2 volume)^2 := by
-    simp_rw [mul_comm, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memℒp 2
+    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memℒp 2
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]

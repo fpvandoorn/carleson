@@ -109,15 +109,14 @@ lemma MeasureTheory.LocallyIntegrable.integrableOn_ball [ProperSpace X]
   hf.integrableOn_of_isBounded isBounded_ball
 
 -- move
-lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top
-    [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [ProperSpace X]
+lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
     {f : X → E} (hf : LocallyIntegrable f μ)
     {x₀ : X} {r : ℝ} :
     ⨍⁻ x in ball x₀ r, ‖f x‖₊ ∂μ < ⊤ :=
   laverage_lt_top hf.integrableOn_ball.2.ne
 
 private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [ProperSpace X]
-    (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) (hg : LocallyIntegrable g μ) :
+    (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
   simp only [T, Pi.add_apply, enorm_eq_self]
   rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.ennnorm]
@@ -359,7 +358,7 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
   · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
   · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
   · intro i _
-    refine AESublinearOn.const (T μ c r i) P (fun hf hg ↦ T.add_le i (hP hf) (hP hg))
+    refine AESublinearOn.const (T μ c r i) P (fun hf hg ↦ T.add_le i (hP hf))
       (fun f d hf ↦ T.smul i (hP hf)) |>.indicator _
 
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
