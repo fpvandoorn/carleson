@@ -1,5 +1,4 @@
 import Mathlib.Analysis.Normed.Group.Basic
-import Mathlib.Topology.Instances.ENNReal
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
 
 noncomputable section

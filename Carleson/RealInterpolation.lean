@@ -2486,7 +2486,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     (p₀⁻¹ * q₀) := by
   have := spf.hd
   unfold eLpNorm eLpNorm'
-  let tc := spf_to_tc spf
+  set tc := spf_to_tc spf with htc
   split_ifs with is_p₀pos is_p₀top
   · have : p₀ ≤ 0 := ofReal_eq_zero.mp is_p₀pos
     contrapose! this; exact hp₀
@@ -2557,7 +2557,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         · apply tc.ran_inv
           exact norm_pos_iff.mpr hfx
         · split_ifs with h
-          · simp only [h, ↓reduceIte] at hpowers; linarith
+          · simp [h, ↓reduceIte] at hpowers; linarith
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
       · rw [← ofReal_rpow_of_nonneg] <;> try positivity
         congr
