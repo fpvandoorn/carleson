@@ -212,7 +212,7 @@ private lemma eLpNorm_two_cS_bound_le (hu : u ∈ t) : eLpNorm (cS_bound t u f) 
         refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
         exact lt_of_le_of_lt MB_le_eLpNormEssSup (boundedCompactSupport_approxOnCube.memℒp ⊤).2
       · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube hu
-        simp [eLpNorm, eLpNorm', aOC, approxOnCube_ofReal, enorm_eq_nnnorm]
+        simp [eLpNorm, eLpNorm', aOC, approxOnCube_ofReal, enorm_eq_nnnorm, μ]
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
         refine mul_le_mul_left' (eLpNorm_mono (fun x ↦ ?_)) _
         apply le_of_le_of_eq norm_approxOnCube_le_approxOnCube_norm
@@ -270,7 +270,7 @@ lemma tree_projection_estimate
       simp_rw [eaOC, enorm_eq_nnnorm]
       simp_rw [lintegral_coe_eq_integral (‖g ·‖₊) hg.integrable.norm.restrict, coe_nnnorm]
       rw [integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓛 (mem_toFinset.mp hL) hg]
-      simp_rw [← Real.ennnorm_eq_ofReal aOC_nonneg, approxOnCube_ofReal, nnnorm_real]
+      simp_rw [← Real.ennnorm_eq_ofReal aOC_nonneg, approxOnCube_ofReal, nnnorm_real, aOC]
     _ ≤ ∑ L in 𝓛 (t u), ∫⁻ x in L, eaOC x * ‖cS_bound t u f x‖ₑ :=
       Finset.sum_le_sum fun L hL ↦
         setLIntegral_mono' coeGrid_measurable (fun x hx ↦ mul_left_mono (biInf_le _ hx))
