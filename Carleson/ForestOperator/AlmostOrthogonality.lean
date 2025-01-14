@@ -285,7 +285,7 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
-  set g := adjointCarlesonSum (t u) f with h'g
+  set g := adjointCarlesonSum (t u) f
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
   have h := density_tree_bound1 hg hf hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
