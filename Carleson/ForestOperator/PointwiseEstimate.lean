@@ -872,7 +872,8 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     _ ≤ ENNReal.ofNNReal (∑ i in t.σ u x, ‖∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊) :=
       ENNReal.coe_strictMono.monotone <| nnnorm_sum_le (t.σ u x) _
     _ = ENNReal.ofNNReal (∑ p ∈ 𝔗_fin, (E p).indicator 1 x * (I (𝔰 p)) x) := by
-      simp_rw [← p_sum_eq_s_sum I, indicator_eq_indicator_one_mul _ (I _)]
+      rw [← p_sum_eq_s_sum I]
+      simp_rw [indicator_eq_indicator_one_mul _ (I _), 𝔗_fin]
     _ ≤ ENNReal.ofNNReal (∑ p ∈ 𝔗_fin, (E p).indicator 1 x *
           Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ 𝔰 p))) * 2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), D ^ ((s J - 𝔰 p) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
