@@ -12,7 +12,7 @@
 %  \\begin\{proof\}.*\n(.*\n)? *\\leanok
 %
 % Regex to (hopefully) count the number of green borders:
-% \\leanok.*\n.*\\lean
+% \\leanok.*\n[^%\n]*\\lean
 
 \title{Carleson operators on doubling metric measure spaces}
 
@@ -3245,8 +3245,8 @@ geometric \Cref{antichain-tile-count} counting the relevant tile pairs.
 We begin with the following crucial disjointedness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
 \begin{lemma}[tile disjointness]
 \label{tile-disjointness}
-\lean{E_disjoint}
 \leanok
+\lean{E_disjoint}
 Let $\fp,\fp'\in \mathfrak{A}$.
 If there exists an $x\in X$ with $x\in E(\fp)\cap E(\fp')$,
 then $\fp= \fp'$.
@@ -3338,8 +3338,8 @@ Since $1< q\le 2$, we have $1<\tilde{q}<q\le 2$.
 \begin{lemma}[dens2 antichain]
 \label{dens2-antichain}
 \uses{Hardy-Littlewood,maximal-bound-antichain}
-\lean{Dens2Antichain}
 \leanok
+\lean{Dens2Antichain}
 We have that
 \begin{equation}\label{eqttt9}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
@@ -7896,7 +7896,8 @@ We prove in \Cref{10smooth}:
 \label{convergence-for-smooth}
 \uses{convergence-for-twice-contdiff}
 \leanok
-%\lean{fourierConv_ofTwiceDifferentiable}
+\lean{fourierConv_ofTwiceDifferentiable}
+% note: we don't formulate this result in Lean separately from \ref{convergence-for-twice-contdiff}
     There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
     \begin{equation}
         |S_N f_0 (x)- f_0(x)|\le \frac \epsilon 4\, .
@@ -8228,8 +8229,8 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 \begin{lemma}
 \label{fourier-coeff-derivative}
 \leanok
-% \lean{}
-Let $f:\R \to \C$ be $2\pi$-periodic and differentiable, and let $n \in \Z \setminus \{0\}$. Then
+\lean{fourierCoeffOn_of_hasDerivAt}
+Let $f:\R \to \C$ be $2\pi$-periodic and continuously differentiable, and let $n \in \Z \setminus \{0\}$. Then
 \begin{equation}
     \widehat{f}_n = \frac{1}{i n} \widehat{f'}_n.
 \end{equation}
@@ -8281,7 +8282,7 @@ Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is 
 \end{equation*}
 \end{proof}
 
-\begin{proof}
+\begin{proof}[Proof of \Cref{convergence-for-smooth}]
 \leanok
 \proves{convergence-for-smooth}
     \Cref{convergence-for-smooth} now follows directly from the previous \Cref{convergence-for-twice-contdiff}.
@@ -8342,8 +8343,8 @@ This proves \eqref{mnbound} and completes the proof of the lemma.
 \end{proof}
 
 \begin{lemma}[periodic domain shift]\label{periodic-domain-shift}
-\lean{Function.Periodic.intervalIntegral_add_eq, intervalIntegral.integral_comp_sub_right}
 \leanok
+\lean{Function.Periodic.intervalIntegral_add_eq, intervalIntegral.integral_comp_sub_right}
 Let $f$ be a bounded $2\pi$-periodic function. We have for any
 $0 \le x\le 2\pi$ that
 \begin{equation}
@@ -9149,8 +9150,8 @@ Define
 
 \begin{lemma}[frequency monotone]
 \label{frequency-monotone}
-\lean{frequency_monotone}
 \leanok
+\lean{frequency_monotone}
 
     For any $x, x' \in X$ and $R, R' > 0$ with $B(x,R) \subset B(x, R')$, and for any $n, m \in \mathbb{Z}$
     $$
@@ -9165,8 +9166,8 @@ Define
 
 \begin{lemma}[frequency ball doubling]
 \label{frequency-ball-doubling}
-\lean{frequency_ball_doubling}
 \leanok
+\lean{frequency_ball_doubling}
 \uses{frequency-metric}
   For any $x,x'\in \R$ and $R>0$ with
    $x\in B(x',2R)$ and any $n,m\in \mathbb{Z}$, we have
@@ -9182,8 +9183,8 @@ With \eqref{eqcarl4}, both sides of \eqref{firstdb1} are equal to $4R|n-m|$. Thi
 
 \begin{lemma}[frequency ball growth]
 \label{frequency-ball-growth}
-\lean{frequency_ball_growth}
 \leanok
+\lean{frequency_ball_growth}
     For any $x,x'\in \R$ and $R>0$ with
    $B(x,R)\subset B(x',2R)$ and any $n,m\in \mathbb{Z}$, we have
 \begin{equation}\label{seconddb1}
@@ -9198,8 +9199,8 @@ With \eqref{eqcarl4}, both sides of \eqref{firstdb1} are equal to $4R|n-m|$. Thi
 
 \begin{lemma}[integer ball cover]
     \label{integer-ball-cover}
-    \lean{integer_ball_cover}
     \leanok
+    \lean{integer_ball_cover}
     For every $x\in \R$ and $R>0$ and every
     $n\in \mathbb{Z}$ and $R'>0$,
     there exist $m_1, m_2, m_3\in \mathbb{Z}$
