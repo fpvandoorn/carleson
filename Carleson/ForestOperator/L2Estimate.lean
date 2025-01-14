@@ -204,7 +204,7 @@ private lemma eLpNorm_two_cS_bound_le (hu : u ∈ t) : eLpNorm (cS_bound t u f) 
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
       · have : HasStrongType (fun (u : X → ℝ) (x : X) ↦ MB μ 𝓑 c𝓑 r𝓑 u x |>.toReal) 2 2 μ μ _ :=
-          hasStrongType_MB 𝓑_finite one_lt_two
+          hasStrongType_MB_finite 𝓑_finite one_lt_two
         convert (this aOC <| boundedCompactSupport_approxOnCube.memℒp 2).2 using 1
         congr
         ext
