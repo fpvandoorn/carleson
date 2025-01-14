@@ -123,7 +123,7 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
       (fun _ h ↦ by simp [Finset.mem_singleton.mp h, hJ])
   rw [eq0, eq_ave, zero_add]
 
-lemma BoundedCompactSupport_approxOnCube (C : Set (Grid X)) (f : X → ℂ) :
+lemma boundedCompactSupport_approxOnCube {𝕜 : Type*} [RCLike 𝕜] {C : Set (Grid X)} {f : X → 𝕜} :
     BoundedCompactSupport (approxOnCube C f) :=
   BoundedCompactSupport.finset_sum fun J hJ ↦
     BoundedCompactSupport.indicator_of_isBounded_range (by simp) stronglyMeasurable_const
@@ -342,7 +342,7 @@ private lemma sum_pow_two_le (a b : ℤ) : ∑ s ∈ Finset.Icc a b, (2 : ℝ≥
   · simp [Finset.Icc_eq_empty_of_lt h]
   obtain ⟨k, rfl⟩ : ∃ (k : ℕ), b = a + k := ⟨(b - a).toNat, by simp [not_lt.mp h]⟩
   suffices ∑ s ∈ Finset.Icc a (a + k), (2 : ℝ≥0) ^ s = 2 ^ a * ∑ n ∈ Finset.range (k + 1), 2 ^ n by
-    rw [this, add_assoc, zpow_add' (Or.inl two_pos.ne.symm), mul_le_mul_left (zpow_pos two_pos a),
+    rw [this, add_assoc, zpow_add' (Or.inl two_ne_zero), mul_le_mul_left (zpow_pos two_pos a),
       geom_sum_of_one_lt one_lt_two (k + 1), NNReal.sub_def (r := 2)]
     norm_num
     exact le_self_add
@@ -357,18 +357,18 @@ private lemma sum_pow_two_le (a b : ℤ) : ∑ s ∈ Finset.Icc a b, (2 : ℝ≥
     simpa [Int.sub_nonneg.mpr hn.1, Int.sub_nonneg.mpr hm.1] using congrArg Int.ofNat hnm
   · exact fun n hn ↦ by use a + n, by simp [Nat.le_of_lt_succ (Finset.mem_range.mp hn)], by simp
   · intro n hn
-    rw [← zpow_natCast, Int.ofNat_toNat, ← zpow_add' (Or.inl two_pos.ne.symm),
+    rw [← zpow_natCast, Int.ofNat_toNat, ← zpow_add' (Or.inl two_ne_zero),
       sup_eq_left.mpr <| Int.sub_nonneg_of_le (Finset.mem_Icc.mp hn).1, add_sub_cancel]
 
 -- The sum used in the proof of Lemma 7.1.4
 private lemma L7_1_4_sum (hσ : (t.σ u x).Nonempty) :
     ∑ s ∈ t.σ u x, (2 : ℝ≥0) ^ (s - t.σMax u x hσ) ≤ 2 := by
   have {s : ℤ} : (2 : ℝ≥0) ^ (s - t.σMax u x hσ) = 2 ^ s * 2 ^ (- t.σMax u x hσ) := by
-    rw [← zpow_add' (Or.inl two_pos.ne.symm), Int.sub_eq_add_neg]
+    rw [← zpow_add' (Or.inl two_ne_zero), Int.sub_eq_add_neg]
   simp_rw [this, ← Finset.sum_mul]
   suffices ∑ s ∈ t.σ u x, (2 : ℝ≥0) ^ s ≤ 2 ^ (t.σMax u x hσ + 1) from calc
     _ ≤ (2 : ℝ≥0) ^ (t.σMax u x hσ + 1) * 2 ^ (-t.σMax u x hσ) := by gcongr
-    _ = 2 := by rw [zpow_add' (Or.inl two_pos.ne.symm)]; field_simp
+    _ = 2 := by rw [zpow_add' (Or.inl two_ne_zero)]; field_simp
   refine le_trans (Finset.sum_le_sum_of_subset ?_) (sum_pow_two_le (t.σMin u x hσ) (t.σMax u x hσ))
   exact fun s hs ↦ Finset.mem_Icc.mpr <| ⟨(t.σ u x).min'_le s hs, (t.σ u x).le_max' s hs⟩
 
@@ -383,7 +383,7 @@ private lemma L7_1_4_dist_le {p : 𝔓 X} (xp : x ∈ E p) {J : Grid X}
       apply add_le_add_three
       · exact (mem_ball'.mp <| Grid_subset_ball hz.1).le
       · convert (mem_ball.mp hz.2).le using 1
-        exact (eq_div_iff two_pos.ne.symm).mpr (by linarith)
+        exact (eq_div_iff two_ne_zero).mpr (by linarith)
       · exact (mem_ball.mp <| Grid_subset_ball xp.1).le
     _ ≤ 4 * D ^ (s J) + 4.5 * D ^ (𝔰 p)                  := by linarith [defaultD_pow_pos a (𝔰 p)]
 
@@ -789,7 +789,7 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
     · intro i hi
       simp_rw [mul_comm (Ks (𝔰 p) x _)]
       refine (BoundedCompactSupport.integrable_mul ?_ ?_).integrableOn
-      · exact hf.sub <| BoundedCompactSupport_approxOnCube (𝓙 (t.𝔗 u)) f
+      · exact hf.sub boundedCompactSupport_approxOnCube
       · exact integrable_Ks_x (one_lt_D (X := X))
   _ ≤ ∑ J ∈ 𝓙' t u (𝔠 p) (𝔰 p), ‖∫ y in J, Ks (𝔰 p) x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊ :=
     nnnorm_sum_le (𝓙' t u (𝔠 p) (𝔰 p)) _
