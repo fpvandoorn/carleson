@@ -60,6 +60,10 @@ lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
   have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
+lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X)) := fun I mI J mJ hn ↦ by
+  have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
+  exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
+
 /-- The definition of `𝓛₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓛₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
   {L : Grid X | s L = -S ∨ (∃ p ∈ 𝔖, L ≤ 𝓘 p) ∧ ∀ p ∈ 𝔖, ¬𝓘 p ≤ L}
