@@ -2557,7 +2557,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         · apply tc.ran_inv
           exact norm_pos_iff.mpr hfx
         · split_ifs with h
-          · simp [h, ↓reduceIte] at hpowers; linarith
+          · simp only [h, ↓reduceIte] at hpowers; linarith
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
       · rw [← ofReal_rpow_of_nonneg] <;> try positivity
         congr
