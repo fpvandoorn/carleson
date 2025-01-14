@@ -389,7 +389,8 @@ theorem indicator_const {c : ℝ} {s: Set X}
 
 end Integrable
 
--- Currently unused
+-- Currently unused.
+-- The assumption `int_f` can likely be removed, as otherwise the integral is zero.
 open Classical in
 theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [MeasurableSpace X]
     {f : X → ℝ} (s : Finset ι) {S : ι → Set X} {μ : Measure X}
@@ -399,7 +400,7 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
   have res_res : ∀ i ∈ s, (μ.restrict (⋃ i ∈ s, S i)).restrict (S i) = μ.restrict (S i) :=
     fun i hi ↦ by rw [Measure.restrict_restrict_of_subset]; exact (subset_biUnion_of_mem hi)
   -- Show that it suffices to prove the result in the case where the integrand is measurable
-  let g := AEMeasurable.mk f int_f.aemeasurable
+  set g := AEMeasurable.mk f int_f.aemeasurable with hg
   have g_ae_nonneg : ∀ᵐ (x : X) ∂μ.restrict (⋃ i ∈ s, S i), 0 ≤ g x := by
     apply f_ae_nonneg.congr ∘ int_f.aemeasurable.ae_eq_mk.mp
     exact Filter.Eventually.of_forall (fun _ h ↦ by rw [h])
@@ -432,7 +433,7 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
     rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]
     intro i
     by_cases hi : i ∈ s
-    · simp only [Pi.zero_apply, hi, reduceIte, μ₀, ← res_res i hi, ae_restrict_iff meas]
+    · simp only [Pi.zero_apply, hi, reduceIte, μ₀, ← res_res i hi, ae_restrict_iff meas, ← hg]
       exact g_ae_nonneg.mono (fun _ h _ ↦ h)
     · simp [hi, μ₀]
 
