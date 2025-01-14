@@ -7,3 +7,7 @@
 \newcommand{\lean}[1]{}
 \newcommand{\leanok}{}
 \tracinglostchars=3
+
+% In some distributions, \C is already defined so \newcommand fails, however, \def seems to
+% break the web-build our CI does, so we declare this separately for the pdf and the web version
+\def\C{\mathbb{C}}
