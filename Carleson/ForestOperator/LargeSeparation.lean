@@ -123,6 +123,19 @@ lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B: Grid X} (le: A ≤ B) (sle: s
   cases' white with _ wow
   linarith
 
+lemma notMax {j W : Grid X} (h: s j < s W) : ¬IsMax j := by
+  rw [Grid.isMax_iff]
+  intro top
+  rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
+  have range := (scale_mem_Icc (i:=W)).2
+  linarith
+
+lemma existsScaleSuccessor {j W : Grid X} (h: s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
+  use j.succ
+  constructor
+  · exact Grid.le_succ
+  · exact Grid.scale_succ (notMax h)
+
 /-
 Lemma 7.5.3 (stated somewhat differently).
 Blueprint: https://florisvandoorn.com/carleson/blueprint/treesection.html#moderate-scale-change
@@ -167,20 +180,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
   -- TODO - change blueprint to reflect we don't need strict containment here either.
   -- TODO - this is equivalent to the part in 7.5.6, let's factor out
   have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := by
-    have notMax : ¬IsMax J' := by
-      rw [Grid.isMax_iff]
-      intro top
-      have topScale : s J' = (S : ℤ) := by
-        rw [top]
-        exact s_topCube (X := X)
-      rw [topScale] at refined
-      have range := (scale_mem_Icc (i:=J)).2
-      change s J ≤ ↑S at range
-      linarith
-    use J'.succ
-    constructor
-    exact Grid.succ_def notMax |>.mp rfl |>.1
-    exact Grid.scale_succ notMax
+    exact existsScaleSuccessor refined
 
   have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=by linarith) (A_in:= hJ'.1)
 
