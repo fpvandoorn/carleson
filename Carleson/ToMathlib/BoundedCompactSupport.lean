@@ -114,7 +114,8 @@ section Includehf
 
 include hf
 
-theorem aestronglyMeasurable : AEStronglyMeasurable f μ := hf.stronglyMeasurable.aestronglyMeasurable
+theorem aestronglyMeasurable : AEStronglyMeasurable f μ :=
+  hf.stronglyMeasurable.aestronglyMeasurable
 
 theorem memℒp_top : Memℒp f ⊤ μ :=
   ⟨hf.aestronglyMeasurable, hf.isBounded.eLpNorm_top_lt_top⟩
@@ -251,30 +252,30 @@ section Prod
 
 variable {Y: Type*} [MeasureSpace Y] {g : Y → 𝕜}
 variable [TopologicalSpace Y] [IsFiniteMeasureOnCompacts (volume : Measure Y)]
-variable [SigmaFinite (volume : Measure Y)]
+variable [SigmaFinite (volume : Measure Y)] [R1Space (X × Y)]
 
----- currently not used
--- /-- An elementary tensor of bounded compactly supported functions is
--- bounded compactly supported. -/
--- theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
---     BoundedCompactSupport (uncurry fun x y ↦ (f x) * (g y)) where
---   memℒp_top := by
---     have hm : AEStronglyMeasurable (uncurry fun x y ↦ (f x) * (g y)) := by
---       exact .mul (.fst hf.aestronglyMeasurable) (.snd hg.aestronglyMeasurable)
---     letI C := (eLpNorm f ⊤).toReal * (eLpNorm g ⊤).toReal
---     suffices ∀ᵐ z, ‖(uncurry fun x y ↦ (f x) * (g y)) z‖ ≤ C from memℒp_top_of_bound hm _ this
---     sorry
-    -- have h₀ : ∀ᵐ x, ∀ᵐ y, ‖(uncurry fun x y ↦ (f x) * (g y)) (x, y)‖ ≤ C := by
-    --   filter_upwards [hf.ae_le] with x hx
-    --   filter_upwards [hg.ae_le] with y hy
-    --   simp; simp only [C]
-    --   gcongr
-    -- let s := { z | ‖(uncurry fun x y ↦ (f x) * (g y)) z‖ ≤ C  }
-    -- have := Measure.ae_prod_mem_iff_ae_ae_mem (s := s) (μ := (volume : Measure X))
-    --         (ν := (volume : Measure Y)) ?_ |>.mpr h₀
-    -- exact this
-    -- have := hm.norm
-  -- hasCompactSupport := sorry
+/-- An elementary tensor of bounded compactly supported functions is
+  bounded compactly supported. -/
+theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
+    BoundedCompactSupport (uncurry fun x y ↦ (f x) * (g y)) where
+  isBounded := by
+    rcases isBounded_range_iff_forall_norm_le.1 hf.isBounded with ⟨C₁, hC₁⟩
+    rcases isBounded_range_iff_forall_norm_le.1 hg.isBounded with ⟨C₂, hC₂⟩
+    apply isBounded_range_iff_forall_norm_le.2 ⟨C₁ * C₂, fun x ↦ ?_⟩
+    simp only [uncurry, norm_mul]
+    gcongr
+    · apply (norm_nonneg _).trans (hC₁ x.1)
+    · exact hC₁ x.1
+    · exact hC₂ x.2
+  stronglyMeasurable := .mul (.fst hf.stronglyMeasurable) (.snd hg.stronglyMeasurable)
+  hasCompactSupport := by
+    apply HasCompactSupport.intro <| IsCompact.prod hf.hasCompactSupport hg.hasCompactSupport
+    intro ⟨x,y⟩ hxy
+    simp only [uncurry_apply_pair, mul_eq_zero]
+    simp only [mem_prod, not_and] at hxy
+    by_cases hx : x ∈ tsupport f
+    · right; exact image_eq_zero_of_nmem_tsupport (hxy hx)
+    · left; exact image_eq_zero_of_nmem_tsupport hx
 
 variable {F : X × Y → 𝕜}
 
