@@ -145,26 +145,26 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     (h : ¬ Disjoint (J : Set X) J') :
     s J - 1 ≤ s J' := by
   by_contra! contr
-  have thenn : s J > -S := by linarith [(scale_mem_Icc (i:=J')).left]
-  have thus :  ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
-    obtain ⟨ ⟨ wow, _⟩ , _⟩ := hJ
-    exact wow.resolve_left (Int.ne_of_gt thenn)
-  have refined : s J' < s J := by linarith
-  have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 :=  existsScaleSuccessor refined
 
-  have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=by linarith) (A_in:= hJ'.1)
+  have pNotSubset :  ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
+    obtain ⟨⟨Jin𝓙₀, _⟩, _⟩ := hJ
+    have notMin : s J ≠ -S := by linarith [(scale_mem_Icc (i:=J')).left]
+    exact Jin𝓙₀.resolve_left (notMin)
 
-  unfold 𝓙₀ at interesting
-  simp only [mem_setOf_eq, not_or,  Decidable.not_not] at interesting
-  push_neg at interesting
-  cases' interesting with west east
-  rw [plusOne] at east
-  have triangle :  ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
-    rcases east with ⟨p, m, good⟩
-    use p
-    use m
-    calc (𝓘 p : Set X)
-    _ ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := by exact good
+  have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
+    have smaller1 : s J' < s J := by linarith
+    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := existsScaleSuccessor smaller1
+    have smaller2 : s J' < s J'' := by linarith
+    have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=smaller2) (A_in:=hJ'.1)
+    unfold 𝓙₀ at interesting
+    simp only [mem_setOf_eq, not_or, Decidable.not_not] at interesting
+    push_neg at interesting
+    rw [plusOne] at interesting
+    rcases interesting with ⟨_, r, rIn, rSubset⟩
+    use r
+    use rIn
+    calc (𝓘 r : Set X)
+    _ ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := by exact rSubset
     _ ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
       intro x
       unfold ball
@@ -172,7 +172,6 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
       intro B
       rw [← plusOne] at B
 
-      -- First show s J'' ≤ s J using plusOne and contr
       have scale_lt : s J'' < s J := by
         rw [plusOne]
         calc s J' + 1
@@ -220,8 +219,8 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
           linarith
 
       exact hey
-  rcases triangle with ⟨silver, gold, wow⟩
-  exact thus silver gold wow
+  exact (pNotSubset p pIn) pSubset
+
 /-- The constant used in `dist_χ_χ_le`.
 Has value `2 ^ (226 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
