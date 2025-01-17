@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2024 Joris Roos. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Joris Roos, Sébastien Gouëzel
+-/
+
 import Mathlib.Analysis.Convex.PartitionOfUnity
 import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.MeasureTheory.Integral.Average
@@ -280,8 +286,10 @@ theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
 variable {F : X × Y → 𝕜}
 
 -- -- prove when needed
--- theorem swap (hF : BoundedCompactSupport F) : BoundedCompactSupport (F ∘ Prod.swap) :=
---   sorry
+-- theorem swap (hF : BoundedCompactSupport F) : BoundedCompactSupport (F ∘ Prod.swap) where
+--   isBounded := sorry
+--   stronglyMeasurable := sorry
+--   hasCompactSupport := sorry
 
 end Prod
 
@@ -304,9 +312,20 @@ section Prod
 
 variable {F : X × Y → 𝕜}
 
----- adapt and prove below when needed
--- theorem prod_left_ae (hF : BoundedCompactSupport F) :
---     ∀ᵐ y, BoundedCompactSupport (fun x ↦ F (x, y)) := sorry
+-- ---- adapt and prove below when needed
+-- theorem prod_left (hF : BoundedCompactSupport F) :
+--     ∀ y, BoundedCompactSupport (fun x ↦ F (x, y)) := fun y ↦ {
+--   isBounded := by
+--     rcases isBounded_range_iff_forall_norm_le.1 hF.isBounded with ⟨C, hC⟩
+--     apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
+--     exact hC (x, y)
+--   stronglyMeasurable := hF.stronglyMeasurable.comp_measurable measurable_prod_mk_right
+--   hasCompactSupport := sorry
+--   -- by
+--   --   apply HasCompactSupport.intro
+--   --   sorry
+-- }
+
 
 -- theorem prod_right_ae (hF : BoundedCompactSupport F) :
 --     ∀ᵐ x, BoundedCompactSupport (fun y ↦ F (x, y)) := hF.swap.prod_left_ae
