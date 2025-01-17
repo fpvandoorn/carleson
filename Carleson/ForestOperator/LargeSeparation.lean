@@ -146,23 +146,11 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     s J - 1 ≤ s J' := by
   by_contra! contr
   have thenn : s J > -S := by linarith [(scale_mem_Icc (i:=J')).left]
-
   have thus :  ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
-    unfold 𝓙₅ at hJ
-    unfold 𝓙 at hJ
-    unfold 𝓙₀ at hJ
-    cases' hJ with red h_
-    rw [Set.mem_setOf_eq] at red
-    cases' red with wow cool
-    beta_reduce at wow
-    rw [Set.mem_setOf_eq] at wow
-    have violet : ¬ s J = - ↑S := by linarith
-    exact wow.resolve_left violet
-
+    obtain ⟨ ⟨ wow, _⟩ , _⟩ := hJ
+    exact wow.resolve_left (Int.ne_of_gt thenn)
   have refined : s J' < s J := by linarith
-
-  have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := by
-    exact existsScaleSuccessor refined
+  have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 :=  existsScaleSuccessor refined
 
   have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=by linarith) (A_in:= hJ'.1)
 
