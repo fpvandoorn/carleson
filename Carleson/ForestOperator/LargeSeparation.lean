@@ -145,15 +145,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     (h : ¬ Disjoint (J : Set X) J') :
     s J - 1 ≤ s J' := by
   by_contra! contr
-  have thenn : s J > -S := by
-    have fact := (scale_mem_Icc (i:=J)).left
-    rw [le_iff_eq_or_lt] at fact
-    cases' fact with west east
-    exfalso
-    rw [← west] at contr
-    have reality := (scale_mem_Icc (i:=J')).left
-    linarith
-    exact east
+  have thenn : s J > -S := by linarith [(scale_mem_Icc (i:=J')).left]
 
   have thus :  ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
     unfold 𝓙₅ at hJ
