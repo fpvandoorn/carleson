@@ -3274,8 +3274,8 @@ $M_{\mathcal{B}}$ from Definition \ref{def-hlm}.
 \begin{lemma}[maximal bound antichain]
     \label{maximal-bound-antichain}
     \uses{tile-disjointness}
-    \lean{MaximalBoundAntichain}
     \leanok
+    \lean{MaximalBoundAntichain}
     Let $x\in X$.
     Then
     \begin{equation}\label{hlmbound}
@@ -7320,24 +7320,6 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
 \end{proof}
 
-%\begin{lemma}[Vitali covering]
-%    \label{Vitali-covering}
-%    \leanok
-%    Let $B_i$, $i\in I$, be a family of balls with center $x_i$ and radius $r_i$ such that $\sup_{i\in I} r_i < \infty$. Then there exists $J\subset I$ such that
-%    \begin{equation}
-%        \label{vitali-balls-disjoint}
-%        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j', \, j,j' \in J
-%    \end{equation}
-%    and
-%    \begin{equation}
-%        \label{vitali-enlarged-balls-covering}
-%        \forall i\in I, \exists j \in J, B_i \subset B (x_j, 6r_j) .
-%    \end{equation}
-%\end{lemma}
-%\begin{proof}
-%    This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
-%\end{proof}
-
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
 \begin{lemma}[Ball covering]
     \label{ball-covering}
@@ -9031,8 +9013,8 @@ The space $(\R,\rho)$ is a complete locally compact metric space.
 \end{proof}
 \begin{lemma}[real line ball]
 \label{real-line-ball}
-    \lean{Real.ball_eq_Ioo}
     \leanok
+    \lean{Real.ball_eq_Ioo}
     For $x\in R$ and $R>0$, the ball $B(x,R)$ is the interval $(x-R,x+R)$
 \end{lemma}
 \begin{proof}
@@ -9062,8 +9044,8 @@ We consider the Lebesgue measure $\mu$ on $\R$.
 \begin{lemma}[real line ball measure]
 \label{real-line-ball-measure}
 \uses{real-line-ball}
-    \lean{Real.volume_ball}
     \leanok
+    \lean{Real.volume_ball}
     We have for every $x\in \R$ and $R>0$
     \begin{equation}
         \mu(B(x,R))=2R\, .
@@ -9119,8 +9101,8 @@ Define
 
 \begin{lemma}[frequency metric]
     \label{frequency-metric}
-    \lean{instFunctionDistancesReal}
     \leanok
+    \lean{instFunctionDistancesReal}
     For every $R > 0$ and $x \in X$, the function $d_{B(x,R)}$ is a metric on $\Mf$.
 \end{lemma}
 
