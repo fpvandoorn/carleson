@@ -365,13 +365,11 @@ variable [Zero α] {f : X → α}
 
 variable [PseudoMetricSpace X] [ProperSpace X]
 
--- mathlib PR in progress
 theorem of_support_subset_closedBall {x : X}
     {r : ℝ} (hf : support f ⊆ closedBall x r) :
     HasCompactSupport f :=
   HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall ..) hf
 
--- mathlib PR in progress
 theorem of_support_subset_isBounded {s : Set X}
     (hs : IsBounded s) (hf : support f ⊆ s) :
     HasCompactSupport f :=
