@@ -169,16 +169,6 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
 
   have refined : s J' < s J := by linarith
 
-  -- have strictSubset : (J' : Set X) ⊂ 𝓘 u₁ := by
-  --   unfold 𝓙₅ at hJ hJ'
-  --   have one := hJ.2.1
-  --   have two := hJ'.2.1
-  --   simp at one two
-  --   -- ah, we tried to prove it last time - that didn't work
-  --   sorry
-
-  -- TODO - change blueprint to reflect we don't need strict containment here either.
-  -- TODO - this is equivalent to the part in 7.5.6, let's factor out
   have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := by
     exact existsScaleSuccessor refined
 
