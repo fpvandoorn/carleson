@@ -20,7 +20,7 @@ namespace TileStructure.Forest
 variable (t u₁) in
 /-- The definition `𝓙'` at the start of Section 7.6.
 We use a different notation to distinguish it from the 𝓙' used in Section 7.5 -/
-def 𝓙₆ : Set (Grid X) := 𝓙 (t u₁) ∩ Iic (𝓘 u₁) -- or {J | (J : Set X) ⊆ 𝓘 u₁}
+def 𝓙₆ : Set (Grid X) := 𝓙 (t u₁) ∩ Iic (𝓘 u₁)
 
 /-- Part of Lemma 7.6.1. -/
 -- Very similar to Lemma 7.5.1. Todo: simplify
