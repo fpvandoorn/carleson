@@ -114,11 +114,112 @@ lemma pairwiseDisjoint_𝓙₅ :
   have ss : (𝓙 (t.𝔖₀ u₁ u₂) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t.𝔖₀ u₁ u₂) := inter_subset_left
   exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)) ss
 
-/-- Lemma 7.5.3 (stated somewhat differently). -/
+lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B: Grid X} (le: A ≤ B) (sle: s A < s B) (A_in: A ∈ 𝓙 𝔖) : B ∉ 𝓙₀ 𝔖 := by
+  unfold 𝓙 Maximal at A_in
+  simp at A_in
+  cases' A_in with a b
+  intro contr
+  have white := b contr le.1 (le_of_lt sle)
+  cases' white with _ wow
+  linarith
+
+lemma notMax {j W : Grid X} (h: s j < s W) : ¬IsMax j := by
+  rw [Grid.isMax_iff]
+  intro top
+  rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
+  have range := (scale_mem_Icc (i:=W)).2
+  linarith
+
+lemma existsScaleSuccessor {j W : Grid X} (h: s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
+  use j.succ
+  constructor
+  · exact Grid.le_succ
+  · exact Grid.scale_succ (notMax h)
+
+/-
+Lemma 7.5.3 (stated somewhat differently).
+Blueprint: https://florisvandoorn.com/carleson/blueprint/treesection.html#moderate-scale-change
+-/
 lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙₅ t u₁ u₂)
-  (h : ¬ Disjoint (J : Set X) J') : s J + 1 ≤ s J' := by
-  sorry
+    (h : ¬ Disjoint (J : Set X) J') :
+    s J - 1 ≤ s J' := by
+  by_contra! contr
+
+  have pNotSubset :  ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
+    obtain ⟨⟨Jin𝓙₀, _⟩, _⟩ := hJ
+    have notMin : s J ≠ -S := by linarith [(scale_mem_Icc (i:=J')).left]
+    exact Jin𝓙₀.resolve_left (notMin)
+
+  have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
+    have smaller1 : s J' < s J := by linarith
+    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := existsScaleSuccessor smaller1
+    have smaller2 : s J' < s J'' := by linarith
+    have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=smaller2) (A_in:=hJ'.1)
+    unfold 𝓙₀ at interesting
+    simp only [mem_setOf_eq, not_or, Decidable.not_not] at interesting
+    push_neg at interesting
+    rw [plusOne] at interesting
+    rcases interesting with ⟨_, r, rIn, rSubset⟩
+    use r
+    use rIn
+    calc (𝓘 r : Set X)
+    _ ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := by exact rSubset
+    _ ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
+      intro x
+      unfold ball
+      simp only [mem_setOf_eq]
+      intro B
+      rw [← plusOne] at B
+
+      have scale_lt : s J'' < s J := by
+        rw [plusOne]
+        calc s J' + 1
+        _ < s J - 1 + 1 := by exact add_lt_add_right contr 1
+        _ = s J := by ring
+
+      have relationship : (J'' : Set X) ⊆ J := by
+        have h1 := fundamental_dyadic (le_of_lt scale_lt)
+        rcases h1 with (subset | disj)
+        · exact subset
+        · have j'_subset_j'' : (J' : Set X) ⊆ J'' := by
+            cases' belongs with white blue
+            exact white
+          have j'_disj_j : Disjoint (J' : Set X) (J : Set X) := by
+            exact Disjoint.mono_left j'_subset_j'' disj
+          rw [disjoint_comm] at j'_disj_j
+          contradiction
+
+      have A : dist (c J'') (c J) < 4*D^(s J) := by
+        have cool := Grid_subset_ball (X := X) (i := J)
+        have center : c J'' ∈ (J'' : Set X) := Grid.c_mem_Grid
+        have so : c J'' ∈  (J: Set X) := relationship center
+        exact cool so
+
+      have hey := calc dist x (c J)
+        _ ≤ 100*D^(s J'' + 1) + 4*D^(s J) := by
+          apply LT.lt.le at A
+          apply LT.lt.le at B
+          have := dist_triangle x (c J'') (c J)
+          have wow : dist x (c J) ≤ 100 * ↑D ^ (s J'' + 1) + dist (c J'') (c J) := by exact le_add_of_le_add_right this B
+          have woah : dist x (c J) ≤ 100 * ↑D ^ (s J'' + 1) + 4 * ↑D ^ s J := by exact le_add_of_le_add_left wow A
+          exact woah
+        _ ≤ 100*D^(s J) + 4*D^(s J) := by
+          gcongr
+          exact one_le_D
+          exact scale_lt
+        _ < 100*D^(s J + 1) := by
+          ring_nf
+          rw [zpow_one_add₀ (by linarith [one_le_D (a := a)])]
+          rw [mul_comm (a:=(D:ℝ))]
+          have pos : (D : ℝ) ^ s J > 0 := by exact defaultD_pow_pos a (s J)
+          have simple := twentyfive_le_realD X
+          rw [mul_assoc]
+          gcongr
+          linarith
+
+      exact hey
+  exact (pNotSubset p pIn) pSubset
 
 /-- The constant used in `dist_χ_χ_le`.
 Has value `2 ^ (226 * a ^ 3)` in the blueprint. -/
