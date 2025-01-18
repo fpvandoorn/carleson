@@ -174,6 +174,15 @@ lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
 lemma support_carlesonOn_subset_E {f : X → ℂ} : support (carlesonOn p f) ⊆ E p :=
   fun _ hx ↦ mem_of_indicator_ne_zero hx
 
+lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
+    support (carlesonSum ℭ f) ⊆ (⋃ p ∈ ℭ, 𝓘 p) := by
+  intro x hx
+  rw [mem_support] at hx
+  contrapose! hx
+  refine Finset.sum_eq_zero (fun p hp ↦ nmem_support.mp (fun hxp ↦ hx ?_))
+  simp only [Finset.mem_filter] at hp
+  exact Set.mem_biUnion hp.2 <| E_subset_𝓘 (support_carlesonOn_subset_E hxp)
+
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
   stronglyMeasurable :=

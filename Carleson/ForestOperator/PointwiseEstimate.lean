@@ -100,7 +100,7 @@ lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (ap
     apply lt_of_le_of_lt <| lintegral_indicator_const_le (i : Set X) _
     exact ENNReal.mul_lt_top ENNReal.coe_lt_top volume_coeGrid_lt_top
 
-lemma approxOnCube_nonneg (C : Set (Grid X)) {f : X → ℝ} (hf : ∀ (y : X), f y ≥ 0) (x : X) :
+lemma approxOnCube_nonneg {C : Set (Grid X)} {f : X → ℝ} (hf : ∀ (y : X), f y ≥ 0) {x : X} :
     approxOnCube C f x ≥ 0 :=
   Finset.sum_nonneg' (fun _ ↦ Set.indicator_nonneg (fun _ _ ↦ integral_nonneg hf) _)
 
@@ -154,6 +154,21 @@ lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
   · simpa using ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
   · exact inv_nonneg.mpr ENNReal.toReal_nonneg
 
+lemma approxOnCube_ofReal (C : Set (Grid X)) (f : X → ℝ) (x : X) :
+    approxOnCube C (Complex.ofReal <| f ·) x = Complex.ofReal (approxOnCube C f x) := by
+  simp_rw [approxOnCube, ofReal_sum]
+  refine Finset.sum_congr rfl (fun J _ ↦ ?_)
+  by_cases hx : x ∈ (J : Set X)
+  · simpa only [indicator_of_mem hx] using integral_ofReal
+  · simp only [indicator_of_not_mem hx, ofReal_zero]
+
+lemma norm_approxOnCube_le_approxOnCube_norm {C : Set (Grid X)} {f : X → E'} {x : X} :
+    ‖approxOnCube C f x‖ ≤ approxOnCube C (‖f ·‖) x := by
+  refine (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
+  rw [norm_indicator_eq_indicator_norm]
+  gcongr
+  apply norm_integral_le_integral_norm
+
 /-- The definition `I_i(x)`, given above Lemma 7.1.3.
 The cube of scale `s` that contains `x`. There is at most 1 such cube, if it exists. -/
 def cubeOf (i : ℤ) (x : X) : Grid X :=
@@ -166,6 +181,15 @@ This is `0` if `x` doesn't lie in a cube. -/
 def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S) (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
   ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖₊
+
+protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ X} {f : X → ℂ} :
+    Measurable (nontangentialMaximalFunction θ f) := by
+  refine Measurable.iSup (fun I ↦ ?_)
+  let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
+    (‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖₊ : ENNReal)
+  have : (fun x ↦ ⨆ (_ : x ∈ I), c) = fun x ↦ ite (x ∈ I) c 0 := by
+    ext x; by_cases hx : x ∈ I <;> simp [hx]
+  exact this ▸ (measurable_const.ite coeGrid_measurable measurable_const)
 
 -- Set used in definition of `boundaryOperator`
 variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
@@ -181,6 +205,21 @@ variable (t) in
 def boundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ∑ I : Grid X, (I : Set X).indicator (x := x) fun _ ↦ ∑ J ∈ 𝓙' t u (c I) (s I),
   D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in (J : Set X), ‖f y‖₊
+
+protected theorem MeasureTheory.Measurable.boundaryOperator {u : 𝔓 X} {f : X → ℂ} :
+    Measurable (t.boundaryOperator u f) := by
+  refine Finset.measurable_sum _ (fun I _ ↦ ?_)
+  exact (Finset.measurable_sum _ (fun J _ ↦ measurable_const)).indicator coeGrid_measurable
+
+-- Currently unused; uncomment if needed.
+/- lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperator u f x < ⊤ := by
+  refine ENNReal.sum_lt_top.mpr (fun I _ ↦ ?_)
+  by_cases hx : x ∈ (I : Set X)
+  · rw [indicator_of_mem hx]
+    refine ENNReal.sum_lt_top.mpr (fun J hJ ↦ ENNReal.mul_lt_top ?_ hf.integrable.integrableOn.2)
+    apply ENNReal.div_lt_top (by simp)
+    exact ne_of_gt <| measure_ball_pos volume _ <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
+  · simp [hx] -/
 
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
 def 𝓑 : Set (ℕ × Grid X) := Icc 0 (S + 5) ×ˢ univ
@@ -455,7 +494,7 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
         (integrable_approxOnCube (𝓙 (t u))).restrict.hasFiniteIntegral
     _ = ∫ y in (⋃ J ∈ Js, (J : Set X)), ‖(approxOnCube (𝓙 (t u)) (‖f ·‖)) y‖ :=
       setIntegral_congr_fun (Js.measurableSet_biUnion fun _ _ ↦ coeGrid_measurable) <| fun y _ ↦
-        (Real.norm_of_nonneg <| approxOnCube_nonneg (𝓙 (t u)) (fun _ ↦ norm_nonneg _) y).symm
+        (Real.norm_of_nonneg <| approxOnCube_nonneg (fun _ ↦ norm_nonneg _)).symm
     _ ≤ ∫ y in ball (𝔠 p) (16 * (D : ℝ) ^ (𝔰 p)), ‖approxOnCube (𝓙 (t u)) (‖f ·‖) y‖ := by
       apply setIntegral_mono_set (integrable_approxOnCube _).norm.integrableOn <|
         Eventually.of_forall (fun _ ↦ norm_nonneg _)
@@ -505,7 +544,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     rw [mul_comm _ 2, ← mul_assoc, ← mul_assoc, C7_1_4]
     gcongr
     · norm_num
-    · exact_mod_cast pow_le_pow_right₀ one_lt_two.le (le_refl _)
+    · exact_mod_cast pow_le_pow_right₀ one_le_two (le_refl _)
   intro s hs
   have eq1 : ∫ (y : X), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖ =
       ∫ y in ball x (D ^ s / 2), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖ := by
@@ -552,7 +591,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       simp [mul_comm 5 a, pow_mul]
   _ ≤ 2 ^ (a ^ 3) * (MB volume 𝓑 c𝓑 r𝓑 g x').toNNReal := by
     gcongr ?_ * ?_
-    · apply pow_right_mono₀ one_lt_two.le
+    · apply pow_right_mono₀ one_le_two
       rw [pow_succ a 2, mul_le_mul_right (a_pos X)]
       nlinarith [four_le_a X]
     · refine le_trans ?_ <| ENNReal.toReal_mono hMB <| L7_1_4_laverage_le_MB hL hx hx' g pₛu xpₛ
@@ -878,8 +917,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
           2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
       simp_rw [← Finset.sum_mul]
-      gcongr
-      rename_i I hI
+      gcongr with I hI
       by_cases ex : ∃ p ∈ ps I, x ∈ E p
       · obtain ⟨p, hp, xEp⟩ := ex
         have L_subset_I : (L : Set X) ⊆ (I : Set X) := by
@@ -963,6 +1001,19 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := max (C7_1_4 a) (C7_1_6 a) --2 ^ (151 * (a : ℝ) ^ 3)
+
+lemma C7_1_3_eq_C7_1_6 {a : ℕ} (ha : 4 ≤ a) : C7_1_3 a = C7_1_6 a := by
+  rw [C7_1_3_def, C7_1_6_def, sup_eq_right]
+  have : C7_1_4 a ≤ 2 ^ (4 : ℝ) * 2 ^ (104 * (a : ℝ) ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
+  apply this.trans
+  rw [← NNReal.rpow_add two_ne_zero]
+  gcongr
+  · exact one_le_two
+  · calc
+      4 + 104 * (a : ℝ) ^ 3 ≤ 4 ^ 3 + 104 * (a : ℝ) ^ 3 := by gcongr; norm_num
+      _                     ≤ a ^ 3 + 104 * (a : ℝ) ^ 3 := by gcongr; exact_mod_cast ha
+      _                     = 105 * (a : ℝ) ^ 3         := by ring
+      _                     ≤ _                         := by gcongr; norm_num
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
