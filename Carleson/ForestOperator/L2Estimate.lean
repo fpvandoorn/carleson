@@ -12,7 +12,27 @@ noncomputable section
 open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
 open scoped NNReal ENNReal ComplexConjugate
 
+lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
+  suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
+      ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
+    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
+  rw [← NNReal.rpow_mul, show (3 / 2 : ℝ) = 1 + (1 / 2 : ℝ) by norm_num]
+  repeat rw [NNReal.rpow_add two_ne_zero]
+  norm_num
+  ring
+
 namespace TileStructure.Forest
+
+lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (hf : BoundedCompactSupport f) :
+    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ (CMB (defaultA a) 2) * eLpNorm f 2 volume := by
+  have : HasStrongType (fun (u : X → 𝕜) ↦ (MB volume 𝓑 c𝓑 r𝓑 u · |>.toReal)) 2 2 _ _ _ :=
+    hasStrongType_MB_finite 𝓑_finite one_lt_two
+  convert this f (hf.memℒp 2) |>.2 using 1
+  congr
+  ext
+  rw [ENNReal.nnorm_toReal]
+  refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
+  exact lt_of_le_of_lt MB_le_eLpNormEssSup (hf.memℒp ⊤).2
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
@@ -26,8 +46,10 @@ lemma nontangential_operator_bound
     (hf : BoundedCompactSupport f)
     (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f ·) 2 volume ≤ (C7_2_2 a) * eLpNorm f 2 volume := by
-  have ae_meas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
+  have aemeas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
     (AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
+  have ⟨hT₁, hT₂⟩ := hasBoundedStrongType_Tstar f (hf.memℒp 2) hf.memℒp_top.eLpNorm_lt_top
+    hf.isBoundedSupport.measure_lt_top
   suffices ∀ (x : X), nontangentialMaximalFunction θ f x ≤ nontangentialOperator K f x +
       2 ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x by
     calc eLpNorm (fun x ↦ nontangentialMaximalFunction θ f x) 2 volume
@@ -40,18 +62,25 @@ lemma nontangential_operator_bound
             eLpNorm ((2 : ℝ≥0∞) ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
         simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm',
           enorm_eq_self, ENNReal.toReal_ofNat, ENNReal.rpow_ofNat]
-        have ae_meas := hasBoundedStrongType_Tstar f (hf.memℒp 2) hf.memℒp_top.eLpNorm_lt_top
-            hf.isBoundedSupport.measure_lt_top |>.1.aemeasurable
-        simpa using ENNReal.lintegral_Lp_add_le ae_meas (ae_meas_MB.const_mul _) one_le_two
+        simpa using ENNReal.lintegral_Lp_add_le hT₁.aemeasurable (aemeas_MB.const_mul _) one_le_two
       _ = eLpNorm (nontangentialOperator K f) 2 volume +
-            (2 : ℝ≥0∞) ^ (102 * (a : ℝ) ^ 3) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+            2 ^ (102 * (a : ℝ) ^ 3) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
         congr
         simp only [eLpNorm, eLpNorm', OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top]
-        convert ENNReal.lintegral_Lp_smul ae_meas_MB two_pos ((2 : ℝ≥0) ^ (102 * (a : ℝ) ^ 3))
+        convert ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (102 * (a : ℝ) ^ 3))
         · congr; norm_cast
         · ext; rw [ENNReal.smul_def, smul_eq_mul]; norm_cast
-      _ ≤ eLpNorm (nontangentialOperator K f) 2 volume + 2 ^ (102 * ↑a ^ 3) * eLpNorm (fun x ↦ MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
-        sorry
+      _ ≤ (C_Ts a) * eLpNorm f 2 volume +
+            2 ^ (102 * (a : ℝ) ^ 3) * ((CMB (defaultA a) 2) * eLpNorm f 2 volume) := by
+        gcongr
+        have : HasStrongType (fun (u : X → ℂ) (x : X) ↦ MB volume 𝓑 c𝓑 r𝓑 u x |>.toReal) 2 2 volume volume _ :=
+          hasStrongType_MB_finite 𝓑_finite one_lt_two
+        convert (this f <| hf.memℒp 2).2 using 1
+        congr
+        ext
+        rw [ENNReal.nnorm_toReal]
+        refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
+        exact lt_of_le_of_lt MB_le_eLpNormEssSup (hf.memℒp ⊤).2
       _ ≤ _ := by sorry
 
 --lintegral_Lp_smul
@@ -163,15 +192,6 @@ private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
   apply ((AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable.add ?_).const_mul
   exact MeasureTheory.Measurable.boundaryOperator.aemeasurable
 
-lemma _root_.CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
-  suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
-      ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
-    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
-  rw [← NNReal.rpow_mul, show (3 / 2 : ℝ) = 1 + (1 / 2 : ℝ) by norm_num]
-  repeat rw [NNReal.rpow_add two_ne_zero]
-  norm_num
-  ring
-
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
 private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     C7_1_3 a * CMB (defaultA a) 2 + C7_1_3 a * C7_2_3 a + C7_2_2 a ≤ (C7_2_1 a : ℝ≥0∞) := calc
@@ -232,14 +252,7 @@ private lemma eLpNorm_two_cS_bound_le (hu : u ∈ t) : eLpNorm (cS_bound t u f) 
     _ ≤ C7_1_3 a • ((CMB (defaultA a) 2) * eLpNorm aOC 2 μ + (C7_2_3 a) * eLpNorm aOC 2 μ) +
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
-      · have : HasStrongType (fun (u : X → ℝ) (x : X) ↦ MB μ 𝓑 c𝓑 r𝓑 u x |>.toReal) 2 2 μ μ _ :=
-          hasStrongType_MB_finite 𝓑_finite one_lt_two
-        convert (this aOC <| boundedCompactSupport_approxOnCube.memℒp 2).2 using 1
-        congr
-        ext
-        rw [ENNReal.nnorm_toReal]
-        refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
-        exact lt_of_le_of_lt MB_le_eLpNormEssSup (boundedCompactSupport_approxOnCube.memℒp ⊤).2
+      · exact eLpNorm_MB_le aOC boundedCompactSupport_approxOnCube
       · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube hu
         simp [eLpNorm, eLpNorm', aOC, approxOnCube_ofReal, enorm_eq_nnnorm, μ]
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
