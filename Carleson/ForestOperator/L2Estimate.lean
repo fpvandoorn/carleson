@@ -23,7 +23,7 @@ lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a : ℝ≥0) 2 = 2 ^ (a + (3
 
 namespace TileStructure.Forest
 
-lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (hf : BoundedCompactSupport f) :
+lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedCompactSupport f) :
     eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume := by
   have : HasStrongType (fun (u : X → 𝕜) ↦ (MB volume 𝓑 c𝓑 r𝓑 u · |>.toReal)) 2 2 _ _ _ :=
     hasStrongType_MB_finite 𝓑_finite one_lt_two
@@ -214,7 +214,7 @@ private lemma eLpNorm_two_cS_bound_le (hu : u ∈ t) : eLpNorm (cS_bound t u f) 
     _ ≤ C7_1_3 a • ((CMB (defaultA a) 2) * eLpNorm aOC 2 μ + (C7_2_3 a) * eLpNorm aOC 2 μ) +
           (C7_2_2 a) * eLpNorm aOC 2 μ := by
       gcongr
-      · exact eLpNorm_MB_le aOC boundedCompactSupport_approxOnCube
+      · exact eLpNorm_MB_le boundedCompactSupport_approxOnCube
       · apply le_of_le_of_eq <| boundary_operator_bound boundedCompactSupport_approxOnCube hu
         simp [eLpNorm, eLpNorm', aOC, approxOnCube_ofReal, enorm_eq_nnnorm, μ]
       · apply le_trans <| nontangential_operator_bound boundedCompactSupport_approxOnCube (𝒬 u)
