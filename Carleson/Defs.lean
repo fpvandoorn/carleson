@@ -301,7 +301,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   c : IsCancellative X (defaultτ a)
   hcz : IsOneSidedKernel a K
   hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (nontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a)
+    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
   measurable_σ₁ : Measurable σ₁
