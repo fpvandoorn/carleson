@@ -28,11 +28,11 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] (f : X → 𝕜) (hf : BoundedC
   have : HasStrongType (fun (u : X → 𝕜) ↦ (MB volume 𝓑 c𝓑 r𝓑 u · |>.toReal)) 2 2 _ _ _ :=
     hasStrongType_MB_finite 𝓑_finite one_lt_two
   convert this f (hf.memℒp 2) |>.2 using 1
-  · congr
-    ext
-    rw [ENNReal.nnorm_toReal]
-    refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
-    exact lt_of_le_of_lt MB_le_eLpNormEssSup (hf.memℒp ⊤).2
+  congr
+  ext
+  rw [ENNReal.nnorm_toReal]
+  refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
+  exact lt_of_le_of_lt MB_le_eLpNormEssSup (hf.memℒp ⊤).2
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
