@@ -26,7 +26,9 @@ lemma nontangential_operator_bound
     (hf : BoundedCompactSupport f)
     (θ : Θ X) :
     eLpNorm (nontangentialMaximalFunction θ f ·) 2 volume ≤ (C7_2_2 a) * eLpNorm f 2 volume := by
-  suffices ∀ x, (fun x ↦ nontangentialMaximalFunction θ f x) x ≤ nontangentialOperator K f x +
+  have ae_meas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
+    (AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
+  suffices ∀ (x : X), nontangentialMaximalFunction θ f x ≤ nontangentialOperator K f x +
       2 ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x by
     calc eLpNorm (fun x ↦ nontangentialMaximalFunction θ f x) 2 volume
       _ ≤ eLpNorm (fun x ↦ nontangentialOperator K f x +
@@ -38,19 +40,21 @@ lemma nontangential_operator_bound
             eLpNorm ((2 : ℝ≥0∞) ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
         simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm',
           enorm_eq_self, ENNReal.toReal_ofNat, ENNReal.rpow_ofNat]
-        have m1 : AEMeasurable (nontangentialOperator K f) := by
-          have ⟨h₁, h₂⟩ := hasBoundedStrongType_Tstar f (hf.memℒp 2) hf.memℒp_top.eLpNorm_lt_top
-            hf.isBoundedSupport.measure_lt_top
-          suffices ENNReal.ofReal ∘ (nontangentialOperator K f · |>.toReal) =ᶠ[ae volume]
-              nontangentialOperator K f from h₁.aemeasurable.ennreal_ofReal.congr this
-          suffices ∀ᵐ x, nontangentialOperator K f x ≠ ⊤ from this.mono (fun x hx ↦ by simp [hx])
-
-          sorry
-        have m2 : AEMeasurable (2 ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f ·) := by sorry
-        simpa using ENNReal.lintegral_Lp_add_le m1 m2 one_le_two
+        have ae_meas := hasBoundedStrongType_Tstar f (hf.memℒp 2) hf.memℒp_top.eLpNorm_lt_top
+            hf.isBoundedSupport.measure_lt_top |>.1.aemeasurable
+        simpa using ENNReal.lintegral_Lp_add_le ae_meas (ae_meas_MB.const_mul _) one_le_two
+      _ = eLpNorm (nontangentialOperator K f) 2 volume +
+            (2 : ℝ≥0∞) ^ (102 * (a : ℝ) ^ 3) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+        congr
+        simp only [eLpNorm, eLpNorm', OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top]
+        convert ENNReal.lintegral_Lp_smul ae_meas_MB two_pos ((2 : ℝ≥0) ^ (102 * (a : ℝ) ^ 3))
+        · congr; norm_cast
+        · ext; rw [ENNReal.smul_def, smul_eq_mul]; norm_cast
+      _ ≤ eLpNorm (nontangentialOperator K f) 2 volume + 2 ^ (102 * ↑a ^ 3) * eLpNorm (fun x ↦ MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
+        sorry
       _ ≤ _ := by sorry
-    --refine le_trans (ENNReal.lintegral_Lp_add_le ?_ ?_ ?_) ?_
 
+--lintegral_Lp_smul
   sorry
 
 /-- The set of cubes in Lemma 7.2.4. -/
