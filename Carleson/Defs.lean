@@ -193,6 +193,14 @@ def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ :=
   sSup { r : ℝ | dist_{x, r} θ (Q x) < 1 }
 
+lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x : X} {r : ℝ}
+    (hr : dist_{x, r} θ (Q x) < 1) : r ≤ upperRadius Q θ x := by
+  have bdd : BddAbove { r : ℝ | dist_{x, r} θ (Q x) < 1 } := by sorry
+  have : { r : ℝ | dist_{x, r} θ (Q x) < 1 }.Nonempty := ⟨r, hr⟩
+  rw [upperRadius, Real.le_sSup_iff bdd this]
+  intro ε hε
+  use r, hr, by linarith
+
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
