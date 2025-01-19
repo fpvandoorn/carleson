@@ -456,4 +456,10 @@ theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.
     mul_rpow_of_nonneg _ _ (one_div_nonneg.mpr hp.le), ← rpow_mul, mul_one_div_cancel hp.ne.symm,
     rpow_one]
 
+-- Analogous to `ENNReal.ofReal_pow` in Mathlib
+theorem ofReal_zpow {p : ℝ} (hp : 0 < p) (n : ℤ) :
+    ENNReal.ofReal (p ^ n) = ENNReal.ofReal p ^ n := by
+  rw [ofReal_eq_coe_nnreal hp.le, ← coe_zpow, ← ofReal_coe_nnreal, NNReal.coe_zpow, NNReal.coe_mk]
+  exact NNReal.coe_ne_zero.mp hp.ne.symm
+
 end ENNReal

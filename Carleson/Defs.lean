@@ -271,6 +271,41 @@ lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
 lemma measurable_K_left [IsOneSidedKernel a K] (y : X) : Measurable (K · y) :=
   measurable_K.of_uncurry_right
 
+lemma measurable_K_right [IsOneSidedKernel a K] (x : X) : Measurable (K x) :=
+  measurable_K.of_uncurry_left
+
+lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)] [ProperSpace X]
+    [Regular (volume : Measure X)] [IsOneSidedKernel a K] (x : X) (R₁ R₂ : ℝ) (hR₁ : R₁ > 0) :
+    IntegrableOn (K x) {y | dist x y ∈ Icc R₁ R₂} volume := by
+  use Measurable.aestronglyMeasurable (measurable_K_right x)
+  rw [hasFiniteIntegral_def]
+  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc R₁ R₂}, ‖K x y‖ₑ
+    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc R₁ R₂},
+          ENNReal.ofReal (C_K a / volume.real (ball x R₁)) := by
+      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
+      rw [← ENNReal.ofReal_norm]
+      refine ENNReal.ofReal_le_ofReal <| (norm_K_le_vol_inv x y).trans ?_
+      gcongr
+      · exact (C_K_pos a).le
+      · rw [measureReal_def]
+        apply ENNReal.toReal_pos (ne_of_gt <| measure_ball_pos volume x hR₁)
+        exact measure_ball_ne_top x R₁
+      · exact measureReal_mono (ball_subset_ball hy.1)
+    _ < _ := by
+      rw [lintegral_const]
+      apply ENNReal.mul_lt_top ENNReal.ofReal_lt_top
+      rw [Measure.restrict_apply MeasurableSet.univ, univ_inter]
+      refine (Ne.lt_top fun h ↦ ?_)
+      have : {y | dist x y ∈ Icc R₁ R₂} ⊆ closedBall x R₂ := by
+        intro y ⟨_, hy⟩
+        exact mem_closedBall_comm.mp hy
+      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
+
+lemma integrableOn_K_Ioc [IsOpenPosMeasure (volume : Measure X)] [ProperSpace X]
+    [Regular (volume : Measure X)] [IsOneSidedKernel a K] (x : X) (R₁ R₂ : ℝ) (hR₁ : R₁ > 0) :
+    IntegrableOn (K x) {y | dist x y ∈ Ioc R₁ R₂} volume :=
+  (integrableOn_K_Icc x R₁ R₂ hR₁).mono_set fun _ ⟨hy₁, hy₂⟩ ↦ ⟨hy₁.le, hy₂⟩
+
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
