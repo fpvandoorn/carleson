@@ -190,14 +190,19 @@ def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
-def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
-  sSup { r : ℝ≥0∞ | dist_{x, r.toReal} θ (Q x) < 1 }
+def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ :=
+  sSup { r : ℝ | dist_{x, r} θ (Q x) < 1 }
+
+lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x : X} {r : ℝ}
+    (hr : dist_{x, r} θ (Q x) < 1) : r ≤ upperRadius Q θ x := by
+  have bdd : BddAbove { r : ℝ | dist_{x, r} θ (Q x) < 1 } := by sorry
+  exact (Real.le_sSup_iff bdd ⟨r, hr⟩).mpr fun ε hε ↦ ⟨r, hr, add_lt_iff_neg_left.mpr hε⟩
 
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
-  ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioo (ENNReal.ofReal R₁) (upperRadius Q θ x')},
+  ‖∫ y in {y | dist x' y ∈ Ioo R₁ (upperRadius Q θ x')},
     K x' y * f y‖₊
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
