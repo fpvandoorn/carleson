@@ -83,18 +83,18 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
 
 /-- The smallest integer `n` so that `2^n t ≥ 1`. -/
 -- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
-private def n_8_0_7 {t : ℝ} : ℤ := Int.log 2 (1 / t) + 1
+private def n_8_0_7 (t : ℝ) : ℤ := Int.log 2 (1 / t) + 1
 
-private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
+private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (n_8_0_7 t) * t := calc
   1 = (1 / t) * t := by
     norm_num
     rw [mul_comm]
     exact (mul_inv_cancel₀ ht.ne').symm
-  _ < 2 ^ (@n_8_0_7 t) * t := by
+  _ < 2 ^ (n_8_0_7 t) * t := by
     gcongr
     exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
-private lemma n_pos (ht : t ∈ Ioc 0 1) : 0 < @n_8_0_7 t := sorry
+private lemma n_pos (ht : t ∈ Ioc 0 1) : 0 < n_8_0_7 t := sorry
 
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
@@ -128,13 +128,13 @@ lemma aux_8_0_8_inner (N : ℕ) (r : ℝ) :
   simp
 
 lemma aux_8_0_8 (hR : 0 < R) (ht : t ∈ Ioc 0 1) :
-    2 ^ ((-1 : ℤ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
+    2 ^ ((-1 : ℤ) - a* ((n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
   have inside_computation1 (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
     aux_8_0_8_inner N r
-  set Nn := @n_8_0_7 t with Nn_eq
+  set Nn := n_8_0_7 t with Nn_eq
   have h : 0 ≤ Nn := (@n_pos t ht).le
-  set N : ℤ := @n_8_0_7 t + 2 with N_eq
+  set N : ℤ := n_8_0_7 t + 2 with N_eq
   have : 0 ≤ N := by have := @n_pos t ht; positivity
   clear_value N; lift N to ℕ using this
   clear_value Nn; lift Nn to ℕ using h
