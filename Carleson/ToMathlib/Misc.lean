@@ -445,3 +445,15 @@ theorem average_smul_const {X : Type*} {E : Type*} [MeasurableSpace X]
   integral_smul_const f c
 
 end MeasureTheory
+
+namespace ENNReal
+
+theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.Measure α}
+    {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : p > 0) (c : NNReal) :
+    (∫⁻ x : α, (c • f) x ^ p ∂μ) ^ (1 / p) = c • (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) := by
+  simp_rw [smul_def, Pi.smul_apply, smul_eq_mul, mul_rpow_of_nonneg _ _ hp.le,
+    MeasureTheory.lintegral_const_mul'' _ (hf.pow_const p),
+    mul_rpow_of_nonneg _ _ (one_div_nonneg.mpr hp.le), ← rpow_mul, mul_one_div_cancel hp.ne.symm,
+    rpow_one]
+
+end ENNReal
