@@ -24,15 +24,8 @@ lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a : ℝ≥0) 2 = 2 ^ (a + (3
 namespace TileStructure.Forest
 
 lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedCompactSupport f) :
-    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume := by
-  have : HasStrongType (fun (u : X → 𝕜) ↦ (MB volume 𝓑 c𝓑 r𝓑 u · |>.toReal)) 2 2 _ _ _ :=
-    hasStrongType_MB_finite 𝓑_finite one_lt_two
-  convert this f (hf.memℒp 2) |>.2 using 1
-  congr
-  ext
-  rw [ENNReal.nnorm_toReal]
-  refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
-  exact lt_of_le_of_lt MB_le_eLpNormEssSup (hf.memℒp ⊤).2
+    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume :=
+  hasStrongType_MB_finite 𝓑_finite one_lt_two f (hf.memℒp 2) |>.2
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
