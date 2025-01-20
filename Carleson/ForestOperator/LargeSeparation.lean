@@ -115,13 +115,12 @@ lemma pairwiseDisjoint_𝓙₅ :
   exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)) ss
 
 lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B: Grid X} (le: A ≤ B) (sle: s A < s B) (A_in: A ∈ 𝓙 𝔖) : B ∉ 𝓙₀ 𝔖 := by
-  unfold 𝓙 Maximal at A_in
-  simp at A_in
-  cases' A_in with a b
+  apply And.right at A_in
+  simp only [Grid.le_def, and_imp] at A_in
   intro contr
-  have white := b contr le.1 (le_of_lt sle)
-  cases' white with _ wow
-  linarith
+  apply Lean.Omega.Int.le_lt_asymm (x:= s A) (y:= s B)
+  · exact (A_in contr le.1 (le_of_lt sle)).2
+  · exact sle
 
 lemma notMax {j W : Grid X} (h: s j < s W) : ¬IsMax j := by
   rw [Grid.isMax_iff]
