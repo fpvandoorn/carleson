@@ -287,6 +287,12 @@ lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
   have l := (lt_def.mpr ⟨hz₃.1, hz₁.symm ▸ h₀⟩).trans_le (h₂ z (lt_def.mpr ⟨hz₂.1, by omega⟩))
   rwa [lt_self_iff_false] at l
 
+lemma exists_scale_succ {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
+  use j.succ
+  constructor
+  · exact Grid.le_succ
+  · exact Grid.scale_succ (Grid.not_isMax_of_scale_lt h)
+
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   simp only [opSize, Int.lt_toNat]
   have : s i.succ ≤ S := (mem_Icc.mp scale_mem_Icc).2

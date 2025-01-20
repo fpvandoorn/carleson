@@ -124,12 +124,6 @@ lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B : Grid X}
   · exact (A_in contr le.1 (le_of_lt sle)).2
   · exact sle
 
-lemma existsScaleSuccessor {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
-  use j.succ
-  constructor
-  · exact Grid.le_succ
-  · exact Grid.scale_succ (Grid.not_isMax_of_scale_lt h)
-
 /-- Lemma 7.5.3 (stated somewhat differently). -/
 lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙₅ t u₁ u₂)
@@ -141,7 +135,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     have notMin : s J ≠ -S := by linarith [(scale_mem_Icc (i := J')).left]
     exact Jin𝓙₀.resolve_left notMin
   have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
-    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := existsScaleSuccessor (by linarith)
+    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := Grid.exists_scale_succ (by linarith)
     have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * ↑D^(s J' + 1 + 1)) := by
       have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous belongs (by linarith) hJ'.1
       simp only [𝓙₀, mem_setOf_eq, plusOne] at this
