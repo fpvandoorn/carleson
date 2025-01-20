@@ -239,6 +239,12 @@ lemma max_of_le_succ : i.succ ≤ i → IsMax i := fun h ↦ by
   contrapose! h; by_contra! k; have l := (succ_spec h).1.trans_le k
   rwa [lt_self_iff_false] at l
 
+lemma not_isMax_of_scale_lt {j W : Grid X} (h : s j < s W) : ¬IsMax j := by
+  rw [Grid.isMax_iff]
+  intro top
+  rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
+  linarith [(scale_mem_Icc (i := W)).2]
+
 lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
   by_cases k : IsMax i
   · simp only [k, succ, dite_true]; exact h.le

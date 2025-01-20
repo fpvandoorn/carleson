@@ -124,18 +124,11 @@ lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B : Grid X}
   · exact (A_in contr le.1 (le_of_lt sle)).2
   · exact sle
 
-lemma notMax {j W : Grid X} (h : s j < s W) : ¬IsMax j := by
-  rw [Grid.isMax_iff]
-  intro top
-  rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
-  have range := (scale_mem_Icc (i := W)).2
-  linarith
-
 lemma existsScaleSuccessor {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
   use j.succ
   constructor
   · exact Grid.le_succ
-  · exact Grid.scale_succ (notMax h)
+  · exact Grid.scale_succ (Grid.not_isMax_of_scale_lt h)
 
 /-- Lemma 7.5.3 (stated somewhat differently). -/
 lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
