@@ -94,8 +94,82 @@ private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
     gcongr
     exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
+private lemma n_pos (ht : t ∈ Ioc 0 1) : 0 < @n_8_0_7 t := sorry
+
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
+
+-- this lemma should be in mathlib: its converse is an easy `by gcongr`
+lemma missing' {I a b : ℝ≥0∞} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
+  have : 0 ≤ 1 / I := by positivity
+  have : (1 / I) * I = 1 := sorry
+  rw [← one_mul a, ← one_mul b, ← this, mul_assoc, mul_assoc]
+  exact mul_le_mul_left' h (1 / I)
+
+-- analogous to missing; unused
+lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
+  have : 0 ≤ 1 / I := by positivity
+  sorry
+
+omit [TileStructure Q D κ S o] in
+lemma aux_8_0_8_inner (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
+  have aux : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
+    convert measure_ball_le_pow_two' (x := x) (μ := volume)
+    rw [show defaultA a = 2 ^ a from rfl]
+    norm_cast
+    ring
+  set A : ℝ := (↑a * (↑N + 2))
+  apply missing' (I := 2 ^ A) (by positivity)
+  rw [← mul_assoc]; convert aux
+  nth_rw 2 [← one_mul (volume (ball x (2 ^ (N + 2) * r)))]; congr
+  rw [show -↑a * (↑N + 2) = -A by ring,
+    ← ENNReal.rpow_add A (-A) (by norm_num) (ENNReal.two_ne_top)]
+  simp
+
+lemma aux_8_0_8 (hR : 0 < R) (ht : t ∈ Ioc 0 1) :
+    2 ^ ((-1 : ℤ) - a* ((@n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
+  have inside_computation1 (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
+    aux_8_0_8_inner N r
+  set Nn := @n_8_0_7 t with Nn_eq
+  have h : 0 ≤ Nn := (@n_pos t ht).le
+  set N : ℤ := @n_8_0_7 t + 2 with N_eq
+  have : 0 ≤ N := by have := @n_pos t ht; positivity
+  clear_value N; lift N to ℕ using this
+  clear_value Nn; lift Nn to ℕ using h
+  calc (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 * R))
+    _ ≤ (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
+      gcongr
+      calc -- or: apply the right lemma...
+        2 ≤ (2 * 2 ^ Nn) * t := by
+          rw [mul_assoc]; nth_rw 1 [← mul_one 2]; gcongr
+          rw [← zpow_natCast]
+          apply Nn_eq ▸ (n_spec1 ht.1).le
+        _ = 2 ^ N * 2 ^ (-1 : ℤ) * t := by
+          congr 1
+          trans 2 ^ (Nn + 1)
+          · norm_cast
+            omega
+          · symm
+            rw [← zpow_natCast, ← zpow_add₀ (a := (2 :ℝ)) (by norm_num) (N : ℤ) (-1 : ℤ),
+              ← zpow_natCast]
+            congr
+            rw [N_eq, ← Nn_eq]
+            omega
+    _ = (2 ^ (-1 : ℤ)) * 2 ^ (-(a * N : ℤ)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
+      congr
+      exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-(a * N : ℤ))
+    _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
+      rw [mul_assoc]
+      gcongr
+      · apply le_of_eq
+        rw [← ENNReal.rpow_intCast]; congr; simp
+      --set R'' := (2 ^ (-1: ℝ) * t * R)
+      convert aux_8_0_8_inner N (2 ^ (-1: ℝ) * t * R) using 1
+      -- ring used to work; doesn't close the goal any more
+      sorry
+    _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 hR ht.1
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
