@@ -114,7 +114,7 @@ lemma pairwiseDisjoint_𝓙₅ :
   have ss : (𝓙 (t.𝔖₀ u₁ u₂) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t.𝔖₀ u₁ u₂) := inter_subset_left
   exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)) ss
 
-lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B : Grid X}
+lemma bigger_than_𝓙_is_not_in_𝓙₀ {𝔖 : Set (𝔓 X)} {A B : Grid X}
     (le : A ≤ B) (sle : s A < s B) (A_in : A ∈ 𝓙 𝔖) :
     B ∉ 𝓙₀ 𝔖 := by
   apply And.right at A_in
@@ -138,7 +138,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 :=
       Grid.exists_scale_succ (by linarith)
     have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100*D^(s J' + 1 + 1)) := by
-      have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous belongs (by linarith) hJ'.1
+      have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ belongs (by linarith) hJ'.1
       simp only [𝓙₀, mem_setOf_eq, plusOne] at this
       push_neg at this
       exact this.2
