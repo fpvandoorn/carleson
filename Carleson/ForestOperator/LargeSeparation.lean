@@ -168,9 +168,8 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
       unfold ball
       simp only [mem_setOf_eq]
       intro triangle_1
-
       have smaller : s J'' < s J := by linarith
-
+      have DisBig := twentyfive_le_realD X
       calc dist x (c J)
       _ ≤ dist x (c J'') + dist (c J'') (c J) := dist_triangle x (c J'') (c J)
       _ ≤ 100*D^(s J'' + 1) + dist (c J'') (c J) := by
@@ -190,15 +189,11 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
         exact relationship Grid.c_mem_Grid
       _ ≤ 100*D^(s J) + 4*D^(s J) := by
         gcongr
-        exact one_le_D
-        exact smaller
+        · linarith
+        · exact smaller
       _ < 100*D^(s J + 1) := by
         ring_nf
-        rw [zpow_one_add₀ (by linarith [one_le_D (a := a)])]
-        rw [mul_comm (a:=(D:ℝ))]
-        have pos : (D : ℝ) ^ s J > 0 := by exact defaultD_pow_pos a (s J)
-        have simple := twentyfive_le_realD X
-        rw [mul_assoc]
+        rw [zpow_one_add₀ (by linarith), mul_comm (a:=(D:ℝ)), mul_assoc]
         gcongr
         linarith
 
