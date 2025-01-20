@@ -4523,10 +4523,9 @@ In this subsection we prove the following estimate on $L^2$ for operators associ
     $$
     \begin{equation}
         \label{eq-tree-est}
-         \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|f|\|_{2}\|P_{\mathcal{L}(\fT(\fu))}|g|\|_{2}.
+         \le 2^{152a^3}\|P_{\mathcal{J}(\fT(\fu))}|f|\|_{2}\|P_{\mathcal{L}(\fT(\fu))}|g|\|_{2}.
     \end{equation}
 \end{lemma}
-%fixme: It seems like the constant is off, it should be 2^{255a^3} I think.
 
 Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estimate} and the following estimates for the operators in \Cref{pointwise-tree-estimate}.
 
@@ -4554,36 +4553,29 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{tree-projection-estimate}]
-    \proves{tree-projection-estimate}
+    \proves{tree-projection-estimate}\leanok
     Let $L \in \mathcal{L}(\fT(\fu))$.
-    We apply \Cref{pointwise-tree-estimate} to $e(\fcc(\fu)) f$ to obtain for all $y, x' \in L$
+    Let $b(x')$ denote the right-hand side of \Cref{pointwise-tree-estimate}. Apply this lemma to $e(\fcc(\fu)) f$, to obtain for all $y, x' \in L$
     $$
-        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg|
-    $$
-    $$
-        \le 2^{151a^3} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
+        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \le b(x').
     $$
     Hence, by taking an infimum, we have for $y \in L$
     $$
-        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg|
-    $$
-    $$
-        \le 2^{151a^3} \inf_{x' \in L} ((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| )\,.
+        \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \le \inf_{x' \in L} b(x').
     $$
     Integrating this estimate yields
     $$
         \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
     $$
     $$
-        \le 2^{151a^3} \int_L |g(y)| \inf_{x' \in L}((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(x')+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](x')| ) \, \mathrm{d}\mu(y)
+        \le \int_L |g(y)| \times \inf_{x' \in L} b(x') \, \mathrm{d}\mu(y)
     $$
-    \begin{multline*}
-        \le 2^{151a^3} \int_L |g(y)| \, \mathrm{d}\mu(y)\times\\
-         \int_L 2((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
-    \end{multline*}
-    \begin{multline*}
-        = 2^{151a^3 } \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
-    \end{multline*}
+    $$
+        =   \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times \inf_{x' \in L} b(x') \, \mathrm{d}\mu(y)
+    $$
+    $$
+        \le \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times  b(y) \, \mathrm{d}\mu(y)
+    $$
     By \eqref{definetp}, we have $T_{\fp} f = \mathbf{1}_{\scI(\fp)} T_{\fp} f$ for all $\fp \in \fP$, so
     $$
         \Bigg| \int \bar g(y) \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \, \mathrm{d}\mu(y) \Bigg| = \Bigg| \int_{\bigcup_{\fp \in \fT(\fu)} \scI(\fp)} \bar g(y) \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \, \mathrm{d}\mu(y) \Bigg|\,.
@@ -4594,23 +4586,20 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
         \le \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L |g(y)| \Bigg| \sum_{\fp \in \fT(\fu)} T_{\fp} f(y) \Bigg| \, \mathrm{d}\mu(y)
     $$
     which by the above computation is bounded by
-    \begin{multline*}
-        2^{151a^3} \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)
-    \end{multline*}
-    \begin{multline*}
-        = 2^{151a^3} \int_X P_{\mathcal{L}(\fT(\fu))}|g|(y)\times \\((M_{\mathcal{B},1}+S_{1,\fu})P_{\mathcal{J}(\fT(\fu))}|f|(y)+|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)| ) \, \mathrm{d}\mu(y)\,.
-    \end{multline*}
-    Applying Cauchy-Schwarz and Minkowski's inequality, this is bounded by
-    \begin{multline*}
-        2^{151a^3} \|P_{\mathcal{L}(\fT(\fu))}|g|\|_2 \times \\(\|M_{\mathcal{B},1}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|S_{1,\fu}P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + \|T_{\mathcal{N}}^{\fcc(\fu)}P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f](y)|\|_2)\,.
-    \end{multline*}
-    By \Cref{Hardy-Littlewood}, \Cref{nontangential-operator-bound} and \Cref{boundary-operator-bound}, the second factor is at most
     $$
-        (2^{2a+1} + 2^{12a})\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + 2^{103a^3} \|P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f]\|_2\,.
+        \sum_{L \in \mathcal{L}(\fT(\fu))} \int_L P_{\mathcal{L}(\fT(\fu))}|g|(y) \times  b(y) \, \mathrm{d}\mu(y)
+    $$
+    $$
+        = \int_X P_{\mathcal{L}(\fT(\fu))}|g|(y) \times  b(y) \, \mathrm{d}\mu(y)
+    $$
+    Applying Cauchy-Schwarz, this is bounded by $\|P_{\mathcal{L}(\fT(\fu))}|g|\|_2 \times \|b\|_2$.
+    By Minkowski's inequality, \Cref{Hardy-Littlewood}, \Cref{nontangential-operator-bound} and \Cref{boundary-operator-bound}, $\|b\|_2$ is at most
+    $$
+        2^{151a^3} (2^{2a+1} + 2^{12a})\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 + 2^{103a^3} \|P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f]\|_2\,.
     $$
     By the triangle inequality we have for all $x \in X$ that $|P_{\mathcal{J}(\fT(\fu))}[e(\fcc(\fu))f]|(x) \le P_{\mathcal{J}(\fT(\fu))}|f|(x)$, thus we can further estimate the above by
     $$
-        (2^{2a+1} + 2^{12a} + 2^{103a^3}) \|P_{\mathcal{J}(\fT(\fu))}|f|\|_2\,.
+        (2^{151a^3} (2^{2a+1} + 2^{12a}) + 2^{103a^3}) \|P_{\mathcal{J}(\fT(\fu))}|f|\|_2\,.
     $$
     This completes the proof since $a \ge 4$.
 \end{proof}
@@ -5297,14 +5286,14 @@ $$
     \end{proof}
 
     \begin{proof}[Proof of \Cref{moderate-scale-change}]
+        \leanok
         \proves{moderate-scale-change}
         Suppose that $s(J') < s(J) - 1$. Then $s(J) > -S$. Thus, by the definition of $\mathcal{J}'$ there exists no $\fp \in \mathfrak{S}$ with
       \begin{equation}
             \label{eq-tile-incl-1}
             \scI(\fp) \subset B(c(J), 100D^{s(J) + 1})\,.
         \end{equation}
-        Since $s(J') < s(J)$ and $J', J \subset \scI(\fu_1)$, we have $J' \subsetneq \scI(\fu_1)$.
-        By \eqref{coverdyadic}, \eqref{dyadicproperty} there exists a cube $J'' \in \mathcal{D}$ with $J \subset J''$ and $s(J'') = s(J') + 1$. By the definition of $\mathcal{J}'$, there exists a tile $\fp \in \mathfrak{S}$ with
+        Since $s(J') < s(J)$, there exists a cube $J'' \in \mathcal{D}$ with $J \subset J''$ and $s(J'') = s(J') + 1$. By the definition of $\mathcal{J}'$, there exists a tile $\fp \in \mathfrak{S}$ with
       \begin{equation}
             \label{tile-incl-2}
             \scI(\fp) \subset B(c(J''), 100 D^{s(J')+2})\,.
@@ -5782,7 +5771,7 @@ $$
         $$
     \end{lemma}
 
-    \begin{proof}
+    \begin{proof}\leanok
         By \Cref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\fT(\fu_1))$ with $J \cap \scI(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\scI(\fu_1) \subsetneq J$. Pick $\fp \in \fT(\fu_1)$. Then $\scI(\fp) \subsetneq J$. This contradicts the definition of $\mathcal{J}(\fT(\fu_1))$.
     \end{proof}
 
