@@ -152,10 +152,8 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     exact Jin𝓙₀.resolve_left (notMin)
 
   have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
-    have smaller1 : s J' < s J := by linarith
-    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := existsScaleSuccessor smaller1
-    have smaller2 : s J' < s J'' := by linarith
-    have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=smaller2) (A_in:=hJ'.1)
+    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := existsScaleSuccessor (by linarith)
+    have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=by linarith) (A_in:=hJ'.1)
     unfold 𝓙₀ at interesting
     simp only [mem_setOf_eq, not_or, Decidable.not_not] at interesting
     push_neg at interesting
@@ -164,7 +162,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     use r
     use rIn
     calc (𝓘 r : Set X)
-    _ ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := by exact rSubset
+    _ ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := rSubset
     _ ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
       intro x
       unfold ball
@@ -172,14 +170,10 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
       intro B
       rw [← plusOne] at B
 
-      have scale_lt : s J'' < s J := by
-        rw [plusOne]
-        calc s J' + 1
-        _ < s J - 1 + 1 := by exact add_lt_add_right contr 1
-        _ = s J := by ring
+      have smaller : s J'' < s J := by linarith
 
       have relationship : (J'' : Set X) ⊆ J := by
-        have h1 := fundamental_dyadic (le_of_lt scale_lt)
+        have h1 := fundamental_dyadic (le_of_lt smaller)
         rcases h1 with (subset | disj)
         · exact subset
         · have j'_subset_j'' : (J' : Set X) ⊆ J'' := by
@@ -207,7 +201,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
         _ ≤ 100*D^(s J) + 4*D^(s J) := by
           gcongr
           exact one_le_D
-          exact scale_lt
+          exact smaller
         _ < 100*D^(s J + 1) := by
           ring_nf
           rw [zpow_one_add₀ (by linarith [one_le_D (a := a)])]
