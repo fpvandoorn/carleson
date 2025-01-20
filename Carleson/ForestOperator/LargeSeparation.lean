@@ -130,13 +130,14 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     (h : ¬ Disjoint (J : Set X) J') :
     s J - 1 ≤ s J' := by
   by_contra! contr
-  have pNotSubset : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D^(s J + 1)) := by
+  have pNotSubset : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100*D^(s J + 1)) := by
     obtain ⟨⟨Jin𝓙₀, _⟩, _⟩ := hJ
     have notMin : s J ≠ -S := by linarith [(scale_mem_Icc (i := J')).left]
     exact Jin𝓙₀.resolve_left notMin
-  have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
-    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := Grid.exists_scale_succ (by linarith)
-    have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * ↑D^(s J' + 1 + 1)) := by
+  have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100*D^(s J + 1)) := by
+    have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 :=
+      Grid.exists_scale_succ (by linarith)
+    have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100*D^(s J' + 1 + 1)) := by
       have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous belongs (by linarith) hJ'.1
       simp only [𝓙₀, mem_setOf_eq, plusOne] at this
       push_neg at this
@@ -144,8 +145,8 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
     use r
     use rIn
     calc (𝓘 r : Set X)
-    _ ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := rSubset
-    _ ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
+    _ ⊆ ball (c J'') (100*D^(s J' + 1 + 1)) := rSubset
+    _ ⊆ ball (c J) (100*D^(s J + 1)) := by
       intro x
       unfold ball
       simp only [mem_setOf_eq]
