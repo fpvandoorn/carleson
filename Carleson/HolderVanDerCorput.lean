@@ -99,14 +99,7 @@ private lemma n_pos (ht : t ∈ Ioc 0 1) : 0 < n_8_0_7 t := sorry
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
--- this lemma should be in mathlib: its converse is an easy `by gcongr`
-lemma missing' {I a b : ℝ≥0∞} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
-  have : 0 ≤ 1 / I := by positivity
-  have : (1 / I) * I = 1 := sorry
-  rw [← one_mul a, ← one_mul b, ← this, mul_assoc, mul_assoc]
-  exact mul_le_mul_left' h (1 / I)
-
--- analogous to missing; unused
+-- analogous to ENNReal.mul_le_mul_left; unused. does mathlib have this already?
 lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
   have : 0 ≤ 1 / I := by positivity
   sorry
@@ -120,7 +113,9 @@ lemma aux_8_0_8_inner (N : ℕ) (r : ℝ) :
     norm_cast
     ring
   set A : ℝ := (↑a * (↑N + 2))
-  apply missing' (I := 2 ^ A) (by positivity)
+  have h1 : (2 : ℝ≥0∞) ^ A ≠ 0 := sorry
+  have h2 : (2 : ℝ≥0∞) ^ A ≠ ⊤ := sorry
+  rw [← ENNReal.mul_le_mul_left (a := 2 ^ A) h1 h2]
   rw [← mul_assoc]; convert aux
   nth_rw 2 [← one_mul (volume (ball x (2 ^ (N + 2) * r)))]; congr
   rw [show -↑a * (↑N + 2) = -A by ring,
