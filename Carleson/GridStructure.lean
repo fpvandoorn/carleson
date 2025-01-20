@@ -239,6 +239,12 @@ lemma max_of_le_succ : i.succ ≤ i → IsMax i := fun h ↦ by
   contrapose! h; by_contra! k; have l := (succ_spec h).1.trans_le k
   rwa [lt_self_iff_false] at l
 
+lemma not_isMax_of_scale_lt {j W : Grid X} (h : s j < s W) : ¬IsMax j := by
+  rw [Grid.isMax_iff]
+  intro top
+  rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
+  linarith [(scale_mem_Icc (i := W)).2]
+
 lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
   by_cases k : IsMax i
   · simp only [k, succ, dite_true]; exact h.le
@@ -280,6 +286,12 @@ lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
     exists_sandwiched (le_succ (i := i)) (s i + 1) (by rw [mem_Icc]; omega)
   have l := (lt_def.mpr ⟨hz₃.1, hz₁.symm ▸ h₀⟩).trans_le (h₂ z (lt_def.mpr ⟨hz₂.1, by omega⟩))
   rwa [lt_self_iff_false] at l
+
+lemma exists_scale_succ {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
+  use j.succ
+  constructor
+  · exact Grid.le_succ
+  · exact Grid.scale_succ (Grid.not_isMax_of_scale_lt h)
 
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   simp only [opSize, Int.lt_toNat]

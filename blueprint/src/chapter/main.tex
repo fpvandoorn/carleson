@@ -5286,14 +5286,14 @@ $$
     \end{proof}
 
     \begin{proof}[Proof of \Cref{moderate-scale-change}]
+        \leanok
         \proves{moderate-scale-change}
         Suppose that $s(J') < s(J) - 1$. Then $s(J) > -S$. Thus, by the definition of $\mathcal{J}'$ there exists no $\fp \in \mathfrak{S}$ with
       \begin{equation}
             \label{eq-tile-incl-1}
             \scI(\fp) \subset B(c(J), 100D^{s(J) + 1})\,.
         \end{equation}
-        Since $s(J') < s(J)$ and $J', J \subset \scI(\fu_1)$, we have $J' \subsetneq \scI(\fu_1)$.
-        By \eqref{coverdyadic}, \eqref{dyadicproperty} there exists a cube $J'' \in \mathcal{D}$ with $J \subset J''$ and $s(J'') = s(J') + 1$. By the definition of $\mathcal{J}'$, there exists a tile $\fp \in \mathfrak{S}$ with
+        Since $s(J') < s(J)$, there exists a cube $J'' \in \mathcal{D}$ with $J \subset J''$ and $s(J'') = s(J') + 1$. By the definition of $\mathcal{J}'$, there exists a tile $\fp \in \mathfrak{S}$ with
       \begin{equation}
             \label{tile-incl-2}
             \scI(\fp) \subset B(c(J''), 100 D^{s(J')+2})\,.
