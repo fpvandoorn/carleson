@@ -153,12 +153,11 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
 
   have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
     have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := existsScaleSuccessor (by linarith)
-    have interesting : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=by linarith) (A_in:=hJ'.1)
-    unfold 𝓙₀ at interesting
-    simp only [mem_setOf_eq, not_or, Decidable.not_not] at interesting
-    push_neg at interesting
-    rw [plusOne] at interesting
-    rcases interesting with ⟨_, r, rIn, rSubset⟩
+    have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := by
+      have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=by linarith) (A_in:=hJ'.1)
+      simp only [𝓙₀, mem_setOf_eq, plusOne] at this
+      push_neg at this
+      exact this.2
     use r
     use rIn
     calc (𝓘 r : Set X)
