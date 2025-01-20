@@ -114,46 +114,43 @@ lemma pairwiseDisjoint_𝓙₅ :
   have ss : (𝓙 (t.𝔖₀ u₁ u₂) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t.𝔖₀ u₁ u₂) := inter_subset_left
   exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)) ss
 
-lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B: Grid X} (le: A ≤ B) (sle: s A < s B) (A_in: A ∈ 𝓙 𝔖) : B ∉ 𝓙₀ 𝔖 := by
+lemma maximalIsJealous {𝔖 : Set (𝔓 X)} {A B : Grid X}
+    (le : A ≤ B) (sle : s A < s B) (A_in : A ∈ 𝓙 𝔖) :
+    B ∉ 𝓙₀ 𝔖 := by
   apply And.right at A_in
   simp only [Grid.le_def, and_imp] at A_in
   intro contr
-  apply Lean.Omega.Int.le_lt_asymm (x:= s A) (y:= s B)
+  apply Lean.Omega.Int.le_lt_asymm (x := s A) (y := s B)
   · exact (A_in contr le.1 (le_of_lt sle)).2
   · exact sle
 
-lemma notMax {j W : Grid X} (h: s j < s W) : ¬IsMax j := by
+lemma notMax {j W : Grid X} (h : s j < s W) : ¬IsMax j := by
   rw [Grid.isMax_iff]
   intro top
   rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
-  have range := (scale_mem_Icc (i:=W)).2
+  have range := (scale_mem_Icc (i := W)).2
   linarith
 
-lemma existsScaleSuccessor {j W : Grid X} (h: s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
+lemma existsScaleSuccessor {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
   use j.succ
   constructor
   · exact Grid.le_succ
   · exact Grid.scale_succ (notMax h)
 
-/-
-Lemma 7.5.3 (stated somewhat differently).
-Blueprint: https://florisvandoorn.com/carleson/blueprint/treesection.html#moderate-scale-change
--/
+/-- Lemma 7.5.3 (stated somewhat differently). -/
 lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (J : Set X) J') :
     s J - 1 ≤ s J' := by
   by_contra! contr
-
-  have pNotSubset :  ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D ^ (s J + 1)) := by
+  have pNotSubset : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * ↑D^(s J + 1)) := by
     obtain ⟨⟨Jin𝓙₀, _⟩, _⟩ := hJ
-    have notMin : s J ≠ -S := by linarith [(scale_mem_Icc (i:=J')).left]
-    exact Jin𝓙₀.resolve_left (notMin)
-
+    have notMin : s J ≠ -S := by linarith [(scale_mem_Icc (i := J')).left]
+    exact Jin𝓙₀.resolve_left notMin
   have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
     have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 := existsScaleSuccessor (by linarith)
-    have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * ↑D ^ (s J' + 1 + 1)) := by
-      have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous (le:=belongs) (sle:=by linarith) (A_in:=hJ'.1)
+    have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * ↑D^(s J' + 1 + 1)) := by
+      have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := maximalIsJealous belongs (by linarith) hJ'.1
       simp only [𝓙₀, mem_setOf_eq, plusOne] at this
       push_neg at this
       exact this.2
@@ -191,10 +188,9 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
         · exact smaller
       _ < 100*D^(s J + 1) := by
         ring_nf
-        rw [zpow_one_add₀ (by linarith), mul_comm (a:=(D:ℝ)), mul_assoc]
+        rw [zpow_one_add₀ (by linarith), mul_comm (a := (D : ℝ)), mul_assoc]
         gcongr
         linarith
-
   exact (pNotSubset p pIn) pSubset
 
 /-- The constant used in `dist_χ_χ_le`.
