@@ -167,12 +167,19 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
       intro x
       unfold ball
       simp only [mem_setOf_eq]
-      intro B
-      rw [← plusOne] at B
+      intro triangle_1
 
       have smaller : s J'' < s J := by linarith
 
-      have A : dist (c J'') (c J) < 4*D^(s J) := by
+      calc dist x (c J)
+      _ ≤ dist x (c J'') + dist (c J'') (c J) := dist_triangle x (c J'') (c J)
+      _ ≤ 100*D^(s J'' + 1) + dist (c J'') (c J) := by
+        rw [← plusOne] at triangle_1
+        gcongr
+      _ ≤ 100*D^(s J'' + 1) + 4*D^(s J) := by
+        gcongr
+        apply LT.lt.le
+        apply Grid_subset_ball (X := X) (i := J)
         have relationship : (J'' : Set X) ⊆ J := by
           cases (fundamental_dyadic (le_of_lt smaller)) with
           | inl subset => exact subset
@@ -180,32 +187,21 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
             have disjoint := Disjoint.mono_left belongs.1 disj
             rw [disjoint_comm] at disjoint
             contradiction
-        apply Grid_subset_ball (X := X) (i := J)
         exact relationship Grid.c_mem_Grid
+      _ ≤ 100*D^(s J) + 4*D^(s J) := by
+        gcongr
+        exact one_le_D
+        exact smaller
+      _ < 100*D^(s J + 1) := by
+        ring_nf
+        rw [zpow_one_add₀ (by linarith [one_le_D (a := a)])]
+        rw [mul_comm (a:=(D:ℝ))]
+        have pos : (D : ℝ) ^ s J > 0 := by exact defaultD_pow_pos a (s J)
+        have simple := twentyfive_le_realD X
+        rw [mul_assoc]
+        gcongr
+        linarith
 
-      have hey := calc dist x (c J)
-        _ ≤ 100*D^(s J'' + 1) + 4*D^(s J) := by
-          apply LT.lt.le at A
-          apply LT.lt.le at B
-          have := dist_triangle x (c J'') (c J)
-          have wow : dist x (c J) ≤ 100 * ↑D ^ (s J'' + 1) + dist (c J'') (c J) := by exact le_add_of_le_add_right this B
-          have woah : dist x (c J) ≤ 100 * ↑D ^ (s J'' + 1) + 4 * ↑D ^ s J := by exact le_add_of_le_add_left wow A
-          exact woah
-        _ ≤ 100*D^(s J) + 4*D^(s J) := by
-          gcongr
-          exact one_le_D
-          exact smaller
-        _ < 100*D^(s J + 1) := by
-          ring_nf
-          rw [zpow_one_add₀ (by linarith [one_le_D (a := a)])]
-          rw [mul_comm (a:=(D:ℝ))]
-          have pos : (D : ℝ) ^ s J > 0 := by exact defaultD_pow_pos a (s J)
-          have simple := twentyfive_le_realD X
-          rw [mul_assoc]
-          gcongr
-          linarith
-
-      exact hey
   exact (pNotSubset p pIn) pSubset
 
 /-- The constant used in `dist_χ_χ_le`.
