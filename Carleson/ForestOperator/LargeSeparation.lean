@@ -172,23 +172,16 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
 
       have smaller : s J'' < s J := by linarith
 
-      have relationship : (J'' : Set X) ⊆ J := by
-        have h1 := fundamental_dyadic (le_of_lt smaller)
-        rcases h1 with (subset | disj)
-        · exact subset
-        · have j'_subset_j'' : (J' : Set X) ⊆ J'' := by
-            cases' belongs with white blue
-            exact white
-          have j'_disj_j : Disjoint (J' : Set X) (J : Set X) := by
-            exact Disjoint.mono_left j'_subset_j'' disj
-          rw [disjoint_comm] at j'_disj_j
-          contradiction
-
       have A : dist (c J'') (c J) < 4*D^(s J) := by
-        have cool := Grid_subset_ball (X := X) (i := J)
-        have center : c J'' ∈ (J'' : Set X) := Grid.c_mem_Grid
-        have so : c J'' ∈  (J: Set X) := relationship center
-        exact cool so
+        have relationship : (J'' : Set X) ⊆ J := by
+          cases (fundamental_dyadic (le_of_lt smaller)) with
+          | inl subset => exact subset
+          | inr disj =>
+            have disjoint := Disjoint.mono_left belongs.1 disj
+            rw [disjoint_comm] at disjoint
+            contradiction
+        apply Grid_subset_ball (X := X) (i := J)
+        exact relationship Grid.c_mem_Grid
 
       have hey := calc dist x (c J)
         _ ≤ 100*D^(s J'' + 1) + 4*D^(s J) := by
