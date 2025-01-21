@@ -292,7 +292,6 @@ lemma wnorm_coe {p : ℝ≥0} : wnorm f p μ = wnorm' f p μ := by simp [wnorm]
 lemma wnorm_ofReal {p : ℝ} (hp : 0 ≤ p) : wnorm f (.ofReal p) μ = wnorm' f p μ := by
   simp [wnorm, hp]
 
-<<<<<<< HEAD
 -- todo: move
 lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
     eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
@@ -309,17 +308,6 @@ lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x 
   filter_upwards [hf] with x hx
   simp [hx]
 
-||||||| 7ae158a
--- todo: move
-lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
-    eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
-  simp_rw [eLpNormEssSup, enorm_eq_self]
-  apply essSup_mono_ae
-  apply Eventually.of_forall
-  simp [enorm_toReal_le, implies_true]
-
-=======
->>>>>>> origin/master
 lemma wnorm_toReal_le {f : α → ℝ≥0∞} {p : ℝ≥0∞} :
     wnorm (ENNReal.toReal ∘ f) p μ ≤ wnorm f p μ := by
   induction p
