@@ -99,11 +99,6 @@ private lemma n_pos (ht : t ∈ Ioc 0 1) : 0 < n_8_0_7 t := sorry
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
 
--- analogous to ENNReal.mul_le_mul_left; unused. does mathlib have this already?
-lemma missing {I a b : ℝ} (hI : 0 ≤ I) (h : I * a ≤ I * b) : a ≤ b := by
-  have : 0 ≤ 1 / I := by positivity
-  sorry
-
 omit [TileStructure Q D κ S o] in
 lemma aux_8_0_8_inner (N : ℕ) (r : ℝ) :
       2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
@@ -112,10 +107,15 @@ lemma aux_8_0_8_inner (N : ℕ) (r : ℝ) :
     rw [show defaultA a = 2 ^ a from rfl]
     norm_cast
     ring
-  set A : ℝ := (↑a * (↑N + 2))
-  have h1 : (2 : ℝ≥0∞) ^ A ≠ 0 := sorry
-  have h2 : (2 : ℝ≥0∞) ^ A ≠ ⊤ := sorry
-  rw [← ENNReal.mul_le_mul_left (a := 2 ^ A) h1 h2]
+  set A : ℝ := (a * (↑N + 2))
+  have : A ≠ 0 := by
+    simp only [A]
+    have : N + 2 ≠ 0:= by positivity
+    sorry -- almost what I want: apply (Real.rpow_ne_zero (by norm_num) this).mpr
+  have : (2 : ℝ) ^ A ≠ 0 := by rw [Real.rpow_ne_zero _ this]; norm_num; norm_num
+  have h₁ : (2 : ℝ≥0∞) ^ A ≠ 0 := sorry -- ENNReal version of `this`
+  have h₂ : (2 : ℝ≥0∞) ^ A ≠ ⊤ := ENNReal.rpow_ne_top_of_nonneg (by positivity) (by norm_num)
+  rw [← ENNReal.mul_le_mul_left (a := 2 ^ A) h₁ h₂]
   rw [← mul_assoc]; convert aux
   nth_rw 2 [← one_mul (volume (ball x (2 ^ (N + 2) * r)))]; congr
   rw [show -↑a * (↑N + 2) = -A by ring,
