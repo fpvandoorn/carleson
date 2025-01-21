@@ -203,10 +203,6 @@ lemma Set.Finite.exists_image_le {α β} [Nonempty β] [Preorder β] [IsDirected
     {s : Set α} (hs : s.Finite) (f : α → β) : ∃ b : β, ∀ a ∈ s, f a ≤ b := by
   simpa using hs.toFinset.exists_image_le f
 
-/- NOTE: This was changed to use `ℝ≥0∞` rather than `ℝ≥0` because that was more convenient for the
-proof of `first_exception'` in ExceptionalSet.lean. But everything involved there is finite, so
-you can prove this with `ℝ≥0` and deal with casting between `ℝ≥0` and `ℝ≥0∞` there, if that turns
-out to be easier. -/
 theorem Set.Countable.measure_biUnion_le_lintegral [OpensMeasurableSpace X] (h𝓑 : 𝓑.Countable)
     (l : ℝ≥0∞) (u : X → ℝ≥0∞) (R : ℝ) (hR : ∀ a ∈ 𝓑, r a ≤ R)
     (h2u : ∀ i ∈ 𝓑, l * μ (ball (c i) (r i)) ≤ ∫⁻ x in ball (c i) (r i), u x ∂μ) :
@@ -314,7 +310,7 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
 protected theorem HasWeakType.MB_one_toReal [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
     HasWeakType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) 1 1 μ μ (A ^ 2) :=
-  HasWeakType.MB_one h𝓑 hR |>.ennreal_toReal
+  HasWeakType.MB_one h𝓑 hR |>.toReal
 
 include A in
 theorem MB_ae_ne_top [BorelSpace X] (h𝓑 : 𝓑.Countable)
@@ -329,22 +325,12 @@ lemma MeasureTheory.Memℒp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ :
   exact hu.2
 
 include A in
-protected theorem MeasureTheory.AESublinearOn.maximalFunction
-    [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
-    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Countable)
-    {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
-    AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x)
-    (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
-  let P := fun g ↦ g ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ}
-  have hP : ∀ {g}, P g → LocallyIntegrable g μ := by
-    rintro _ ⟨f, hf, g, hg, rfl⟩
-    exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
-  simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
-  refine AESublinearOn.biSup2 (P := (Memℒp · ⊤ μ)) (Q := (Memℒp · 1 μ)) h𝓑 ?_ ?_ zero_memℒp zero_memℒp Memℒp.add Memℒp.add
-    ?_ ?_ ?_
-  · intro u hu
-    refine .of_forall fun x ↦ ?_
-    rw [← lt_top_iff_ne_top]
+theorem MB_ae_ne_top' [BorelSpace X] (h𝓑 : 𝓑.Countable)
+    {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
+    ⦃u : X → E⦄ (hu : Memℒp u ⊤ μ ∨ Memℒp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
+  obtain hu|hu := hu
+  · refine .of_forall fun x ↦ ?_
+    simp_rw [← lt_top_iff_ne_top, MB, maximalFunction, inv_one, rpow_one]
     calc
       _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator
         (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), eLpNormEssSup u μ ∂μ) x := by
@@ -355,8 +341,28 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
       _ ≤ ⨆ i : ι, eLpNormEssSup u μ := by gcongr; exact iSup_const_le
       _ ≤ eLpNormEssSup u μ := iSup_const_le
       _ < ⊤ := hu.eLpNormEssSup_lt_top
+  · exact MB_ae_ne_top h𝓑 hR hu
+
+include A in
+protected theorem MeasureTheory.AESublinearOn.maximalFunction
+    [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
+    [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Countable)
+    {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
+    AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x)
+    (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
+  let P := fun g ↦ g ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ}
+  have hP : ∀ {g}, P g → LocallyIntegrable g μ := by
+    rintro _ ⟨f, hf, g, hg, rfl⟩
+    exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
+  simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
+  refine AESublinearOn.biSup2 (P := (Memℒp · ⊤ μ)) (Q := (Memℒp · 1 μ)) h𝓑 ?_ ?_
+    zero_memℒp zero_memℒp Memℒp.add Memℒp.add ?_ ?_ ?_
   · intro u hu
-    have := MB_ae_ne_top (u := u) (μ := μ) (c := c) h𝓑 hR hu
+    have := MB_ae_ne_top' (c := c) h𝓑 hR (.inl hu)
+    filter_upwards [this] with x hx
+    simpa [MB, maximalFunction] using hx
+  · intro u hu
+    have := MB_ae_ne_top (c := c) h𝓑 hR hu
     filter_upwards [this] with x hx
     simpa [MB, maximalFunction] using hx
   · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
@@ -373,8 +379,9 @@ Use the real interpolation theorem instead of following the blueprint. -/
 lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) {p : ℝ≥0} (hp : 1 < p) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
+    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x)
       p p μ μ (CMB A p) := by
+  rw [← hasStrongType_toReal_iff sorry /- cleanup after RealInterpolation works for ENorm. -/]
   have h2p : 0 < p := by positivity
   rw [CMB]
   apply exists_hasStrongType_real_interpolation
@@ -384,14 +391,12 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑)
     _ (HasStrongType.MB_top h𝓑 |>.hasWeakType le_top)
     (HasWeakType.MB_one_toReal h𝓑 hR)
-  apply ((AESublinearOn.maximalFunction h𝓑 hR).toReal _).1
-  sorry -- already proven above, we will likely refactor this away
+  exact ((AESublinearOn.maximalFunction h𝓑 hR).toReal <| MB_ae_ne_top' h𝓑 hR).1
 
 lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     (h𝓑 : 𝓑.Finite) {p : ℝ≥0} (hp : 1 < p) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal)
-      p p μ μ (CMB A p) :=
+    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) p p μ μ (CMB A p) :=
   hasStrongType_MB h𝓑.countable (Finite.exists_image_le h𝓑 _).choose_spec hp
 
 
@@ -418,7 +423,7 @@ theorem hasStrongType_maximalFunction
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
-      convert (hasStrongType_MB h𝓑 hR (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
+      convert (hasStrongType_MB h𝓑 hR (μ := μ) _ |>.toReal (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
       · exact (ENNReal.coe_div p₁n).symm
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
       · rw [ENNReal.coe_div p₁n]; exact Memℒp.norm_rpow_div mlpv p₁

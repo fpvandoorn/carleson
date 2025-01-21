@@ -16,6 +16,7 @@ section move
 variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
   {μ : Measure α} [NontriviallyNormedField 𝕜]
   [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  {p : ℝ≥0∞}
 
 -- todo: move/rename/and perhaps reformulate in terms of ‖.‖ₑ
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
@@ -30,6 +31,51 @@ lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) :
   change μ {x | ¬ B x ≤ A x} = 0
   simp only [le_Prop_eq, Classical.not_imp]
   exact h
+
+
+lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
+    eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
+  simp_rw [eLpNormEssSup, enorm_eq_self]
+  apply essSup_mono_ae
+  apply Eventually.of_forall
+  simp [implies_true]
+
+lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNormEssSup (ENNReal.toReal ∘ f) μ = eLpNormEssSup f μ := by
+  simp_rw [eLpNormEssSup, enorm_eq_self]
+  apply essSup_congr_ae
+  filter_upwards [hf] with x hx
+  simp [hx]
+
+lemma eLpNorm'_toReal_le {f : α → ℝ≥0∞} {p : ℝ} (hp : 0 ≤ p) :
+    eLpNorm' (ENNReal.toReal ∘ f) p μ ≤ eLpNorm' f p μ := by
+  simp_rw [eLpNorm', enorm_eq_self]
+  gcongr
+  simp
+
+lemma eLpNorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNorm' (ENNReal.toReal ∘ f) p μ = eLpNorm' f p μ := by
+  simp_rw [eLpNorm', enorm_eq_self]
+  congr 1
+  apply lintegral_congr_ae
+  filter_upwards [hf] with x hx
+  simp [hx]
+
+lemma eLpNorm_toReal_le {f : α → ℝ≥0∞} :
+    eLpNorm (ENNReal.toReal ∘ f) p μ ≤ eLpNorm f p μ := by
+  simp_rw [eLpNorm]
+  split_ifs
+  · rfl
+  · exact eLpNormEssSup_toReal_le
+  · exact eLpNorm'_toReal_le toReal_nonneg
+
+lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNorm (ENNReal.toReal ∘ f) p μ = eLpNorm f p μ := by
+  simp_rw [eLpNorm]
+  split_ifs
+  · rfl
+  · exact eLpNormEssSup_toReal_eq hf
+  · exact eLpNorm'_toReal_eq hf
 
 end move
 
@@ -246,6 +292,7 @@ lemma wnorm_coe {p : ℝ≥0} : wnorm f p μ = wnorm' f p μ := by simp [wnorm]
 lemma wnorm_ofReal {p : ℝ} (hp : 0 ≤ p) : wnorm f (.ofReal p) μ = wnorm' f p μ := by
   simp [wnorm, hp]
 
+<<<<<<< HEAD
 -- todo: move
 lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
     eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
@@ -262,6 +309,17 @@ lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x 
   filter_upwards [hf] with x hx
   simp [hx]
 
+||||||| 7ae158a
+-- todo: move
+lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
+    eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
+  simp_rw [eLpNormEssSup, enorm_eq_self]
+  apply essSup_mono_ae
+  apply Eventually.of_forall
+  simp [enorm_toReal_le, implies_true]
+
+=======
+>>>>>>> origin/master
 lemma wnorm_toReal_le {f : α → ℝ≥0∞} {p : ℝ≥0∞} :
     wnorm (ENNReal.toReal ∘ f) p μ ≤ wnorm f p μ := by
   induction p
@@ -454,6 +512,21 @@ lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
   fun f hf ↦ ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
 
+lemma HasStrongType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasStrongType T p p' μ ν c) :
+    HasStrongType (T · · |>.toReal) p p' μ ν c :=
+  fun f hf ↦ ⟨(h f hf).1.ennreal_toReal, eLpNorm_toReal_le.trans (h f hf).2 ⟩
+
+lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
+    (hT : ∀ f, Memℒp f p μ → ∀ᵐ x ∂ν, T f x ≠ ⊤) :
+    HasStrongType (T · · |>.toReal) p p' μ ν c ↔ HasStrongType T p p' μ ν c := by
+  refine ⟨fun h ↦ ?_, (·.toReal)⟩
+  intro f hf
+  obtain ⟨h1, h2⟩ := h f hf
+  refine ⟨?_, by rwa [← eLpNorm_toReal_eq (hT f hf)]⟩
+  rwa [← aestronglyMeasurable_ennreal_toReal_iff]
+  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  filter_upwards [hT f hf] with x hx
+  simp [hx]
 
 lemma HasBoundedStrongType.memℒp [Zero ε₁] (h : HasBoundedStrongType T p p' μ ν c)
     (hf₁ : Memℒp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞) :

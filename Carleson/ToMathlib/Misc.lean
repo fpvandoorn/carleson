@@ -354,27 +354,26 @@ end Norm
 namespace MeasureTheory
 
 open Metric Bornology
+variable {𝕜: Type*}
+variable [RCLike 𝕜]
 
-variable {X 𝕜: Type*}
-variable [RCLike 𝕜] {f : X → 𝕜}
+variable {X α: Type*}
 
 namespace HasCompactSupport
 
-variable [PseudoMetricSpace X]
+variable [Zero α] {f : X → α}
 
--- mathlib? also `ball` variant, remove `Nonempty`
+variable [PseudoMetricSpace X] [ProperSpace X]
+
 theorem of_support_subset_closedBall {x : X}
- {r : ℝ} [ProperSpace X] [Nonempty X] (hf : support f ⊆ closedBall x r) :
-    HasCompactSupport f := by
-  apply HasCompactSupport.of_support_subset_isCompact ?_ hf
-  exact isCompact_closedBall ..
+    {r : ℝ} (hf : support f ⊆ closedBall x r) :
+    HasCompactSupport f :=
+  HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall ..) hf
 
 theorem of_support_subset_isBounded {s : Set X}
-    [ProperSpace X] [Nonempty X] (hs : IsBounded s) (hf : support f ⊆ s) :
-    HasCompactSupport f := by
-  let x₀ : X := Classical.choice (by infer_instance)
-  obtain ⟨r₀, hr₀⟩ := hs.subset_closedBall x₀
-  exact HasCompactSupport.of_support_subset_closedBall <| Trans.trans hf hr₀
+    (hs : IsBounded s) (hf : support f ⊆ s) :
+    HasCompactSupport f :=
+  IsCompact.closure_of_subset hs.isCompact_closure <| Trans.trans hf subset_closure
 
 end HasCompactSupport
 
@@ -445,3 +444,15 @@ theorem average_smul_const {X : Type*} {E : Type*} [MeasurableSpace X]
   integral_smul_const f c
 
 end MeasureTheory
+
+namespace ENNReal
+
+theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.Measure α}
+    {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : p > 0) (c : NNReal) :
+    (∫⁻ x : α, (c • f) x ^ p ∂μ) ^ (1 / p) = c • (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) := by
+  simp_rw [smul_def, Pi.smul_apply, smul_eq_mul, mul_rpow_of_nonneg _ _ hp.le,
+    MeasureTheory.lintegral_const_mul'' _ (hf.pow_const p),
+    mul_rpow_of_nonneg _ _ (one_div_nonneg.mpr hp.le), ← rpow_mul, mul_one_div_cancel hp.ne.symm,
+    rpow_one]
+
+end ENNReal
