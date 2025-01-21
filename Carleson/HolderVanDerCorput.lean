@@ -28,7 +28,7 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   apply LipschitzWith.const_max
   apply LipschitzWith.of_le_add_mul
   intro a b
-  simp only [one_div,  NNReal.coe_mk, tsub_le_iff_right, div_eq_inv_mul, mul_one]
+  simp only [one_div, NNReal.coe_mk, tsub_le_iff_right, div_eq_inv_mul, mul_one]
   have : (t * R) ⁻¹ * dist x b ≤ (t * R)⁻¹ * (dist x a + dist a b) := by
     gcongr
     exact dist_triangle _ _ _
@@ -53,14 +53,14 @@ lemma hasCompactSupport_cutoff [ProperSpace X] (hR : 0 < R) (ht : 0 < t) {x : X}
   exact hy.le
 
 lemma integrable_cutoff (hR : 0 < R) (ht : 0 < t) {x : X} :
-    Integrable (fun y ↦ cutoff R t x y) := by
-  apply Continuous.integrable_of_hasCompactSupport (cutoff_continuous hR ht)
+    Integrable (fun y ↦ cutoff R t x y) :=
+  (cutoff_continuous hR ht).integrable_of_hasCompactSupport
     (hasCompactSupport_cutoff hR ht)
 
 -- Is this useful for mathlib? neither exact? nor aesop can prove this. Same for the next lemma.
 lemma leq_of_max_neq_left {a b : ℝ} (h : max a b ≠ a) : a < b := by
   by_contra! h'
-  apply h (max_eq_left h')
+  exact h (max_eq_left h')
 
 lemma leq_of_max_neq_right {a b : ℝ} (h : max a b ≠ b) : b < a := by
   by_contra! h'
