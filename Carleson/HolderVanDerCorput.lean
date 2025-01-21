@@ -104,19 +104,19 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
 
 /-- The smallest integer `n` so that `2^n t ≥ 1`. -/
 -- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
-private def n_8_0_7 {t : ℝ} : ℤ := Int.log 2 (1 / t) + 1
+private def n_8_0_7 (t : ℝ) : ℤ := Int.log 2 (1 / t) + 1
 
-private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
+private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (n_8_0_7 t) * t := calc
   1 = (1 / t) * t := by
     norm_num
     rw [mul_comm]
     exact (mul_inv_cancel₀ ht.ne').symm
-  _ < 2 ^ (@n_8_0_7 t) * t := by
+  _ < 2 ^ (n_8_0_7 t) * t := by
     gcongr
     exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
 -- This lemma is probably not needed.
--- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
+-- private lemma n_spec2 : ∀ n' < n_8_0_7 t, 2 ^ n' * t < 1 := sorry
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
