@@ -292,22 +292,6 @@ lemma wnorm_coe {p : ℝ≥0} : wnorm f p μ = wnorm' f p μ := by simp [wnorm]
 lemma wnorm_ofReal {p : ℝ} (hp : 0 ≤ p) : wnorm f (.ofReal p) μ = wnorm' f p μ := by
   simp [wnorm, hp]
 
--- todo: move
-lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
-    eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
-  simp_rw [eLpNormEssSup, enorm_eq_self]
-  apply essSup_mono_ae
-  apply Eventually.of_forall
-  simp [enorm_toReal_le, implies_true]
-
--- todo: move
-lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
-    eLpNormEssSup (ENNReal.toReal ∘ f) μ = eLpNormEssSup f μ := by
-  simp_rw [eLpNormEssSup, enorm_eq_self]
-  apply essSup_congr_ae
-  filter_upwards [hf] with x hx
-  simp [hx]
-
 lemma wnorm_toReal_le {f : α → ℝ≥0∞} {p : ℝ≥0∞} :
     wnorm (ENNReal.toReal ∘ f) p μ ≤ wnorm f p μ := by
   induction p
@@ -462,6 +446,7 @@ lemma toReal_ofReal_preimage {s : Set ℝ≥0∞} : letI t := ENNReal.toReal ⁻
   s = if ∞ ∈ s ↔ 0 ∈ s then t else if 0 ∈ s then t \ {∞} else t ∪ {∞} := by
   split_ifs <;> ext (_|_) <;> simp_all
 
+-- move
 lemma aestronglyMeasurable_ennreal_toReal_iff {f : α → ℝ≥0∞}
     (hf : NullMeasurableSet (f ⁻¹' {∞}) μ) :
     AEStronglyMeasurable (ENNReal.toReal ∘ f) μ ↔ AEStronglyMeasurable f μ := by
@@ -485,12 +470,11 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   refine ⟨fun h ↦ ?_, (·.toReal)⟩
   intro f hf
   obtain ⟨h1, h2⟩ := h f hf
-  constructor
-  · rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-    refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
-    filter_upwards [hT f hf] with x hx
-    simp [hx]
-  · rwa [← wnorm_toReal_eq (hT f hf)]
+  refine ⟨?_, by rwa [← wnorm_toReal_eq (hT f hf)]⟩
+  rwa [← aestronglyMeasurable_ennreal_toReal_iff]
+  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  filter_upwards [hT f hf] with x hx
+  simp [hx]
 
 lemma HasStrongType.memℒp (h : HasStrongType T p p' μ ν c) (hf₁ : Memℒp f₁ p μ) :
     Memℒp (T f₁) p' ν :=
