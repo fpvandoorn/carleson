@@ -62,7 +62,7 @@ lemma spectral_projection_bound_sq_integral {N : ℕ} {T : ℝ} [hT : Fact (0 < 
   rw [← L2norm_sq_eq, ← L2norm_sq_eq]
   exact spectral_projection_bound_sq _ _
 
-lemma spectral_projection_bound {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
+lemma spectral_projection_bound_lp {N : ℕ} {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
     ‖partialFourierSumLp 2 N f‖ ≤ ‖f‖ := by
   rw [← abs_norm, ← abs_norm f, ← sq_le_sq]
   exact spectral_projection_bound_sq _ _
