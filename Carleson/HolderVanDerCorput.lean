@@ -83,19 +83,88 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
 
 /-- The smallest integer `n` so that `2^n t ≥ 1`. -/
 -- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
-private def n_8_0_7 {t : ℝ} : ℤ := Int.log 2 (1 / t) + 1
+private def n_8_0_7 (t : ℝ) : ℤ := Int.log 2 (1 / t) + 1
 
-private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (@n_8_0_7 t) * t := calc
+private lemma n_spec1 (ht : 0 < t) : 1 < 2 ^ (n_8_0_7 t) * t := calc
   1 = (1 / t) * t := by
     norm_num
     rw [mul_comm]
     exact (mul_inv_cancel₀ ht.ne').symm
-  _ < 2 ^ (@n_8_0_7 t) * t := by
+  _ < 2 ^ (n_8_0_7 t) * t := by
     gcongr
     exact Int.lt_zpow_succ_log_self (by norm_num) (1 / t)
 
+private lemma n_pos (ht : t ∈ Ioc 0 1) : 0 < n_8_0_7 t := sorry
+
 -- This lemma is probably not needed.
 -- private lemma n_spec2 : ∀ n' < n_8_0_7, 2 ^ n' * t < 1 := sorry
+
+omit [TileStructure Q D κ S o] in
+lemma aux_8_0_8_inner (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) := by
+  have aux : volume (ball x (2 ^ (N + 2) * r)) ≤ 2 ^ ((a : ℝ) * (N + 2)) * volume (ball x r) := by
+    convert measure_ball_le_pow_two' (x := x) (μ := volume)
+    rw [show defaultA a = 2 ^ a from rfl]
+    norm_cast
+    ring
+  set A : ℝ := (a * (↑N + 2))
+  have : A ≠ 0 := by
+    simp only [A]
+    have : N + 2 ≠ 0:= by positivity
+    sorry -- almost what I want: apply (Real.rpow_ne_zero (by norm_num) this).mpr
+  have : (2 : ℝ) ^ A ≠ 0 := by rw [Real.rpow_ne_zero _ this]; norm_num; norm_num
+  have h₁ : (2 : ℝ≥0∞) ^ A ≠ 0 := sorry -- ENNReal version of `this`
+  have h₂ : (2 : ℝ≥0∞) ^ A ≠ ⊤ := ENNReal.rpow_ne_top_of_nonneg (by positivity) (by norm_num)
+  rw [← ENNReal.mul_le_mul_left (a := 2 ^ A) h₁ h₂]
+  rw [← mul_assoc]; convert aux
+  nth_rw 2 [← one_mul (volume (ball x (2 ^ (N + 2) * r)))]; congr
+  rw [show -↑a * (↑N + 2) = -A by ring,
+    ← ENNReal.rpow_add A (-A) (by norm_num) (ENNReal.two_ne_top)]
+  simp
+
+lemma aux_8_0_8 (hR : 0 < R) (ht : t ∈ Ioc 0 1) :
+    2 ^ ((-1 : ℤ) - a* ((n_8_0_7 t) +2)) * volume (ball x (2*R)) ≤ ∫⁻ y, cutoff R t x y := by
+  have inside_computation1 (N : ℕ) (r : ℝ) :
+      2 ^ (- (a : ℝ) * (N + 2)) * volume (ball x (2 ^ (N + 2) * r)) ≤ volume (ball x r) :=
+    aux_8_0_8_inner N r
+  set Nn := n_8_0_7 t with Nn_eq
+  have h : 0 ≤ Nn := (@n_pos t ht).le
+  set N : ℤ := n_8_0_7 t + 2 with N_eq
+  have : 0 ≤ N := by have := @n_pos t ht; positivity
+  clear_value N; lift N to ℕ using this
+  clear_value Nn; lift Nn to ℕ using h
+  calc (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 * R))
+    _ ≤ (2 ^ ((-1:ℤ) - a * N)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
+      gcongr
+      calc -- or: apply the right lemma...
+        2 ≤ (2 * 2 ^ Nn) * t := by
+          rw [mul_assoc]; nth_rw 1 [← mul_one 2]; gcongr
+          rw [← zpow_natCast]
+          apply Nn_eq ▸ (n_spec1 ht.1).le
+        _ = 2 ^ N * 2 ^ (-1 : ℤ) * t := by
+          congr 1
+          trans 2 ^ (Nn + 1)
+          · norm_cast
+            omega
+          · symm
+            rw [← zpow_natCast, ← zpow_add₀ (a := (2 :ℝ)) (by norm_num) (N : ℤ) (-1 : ℤ),
+              ← zpow_natCast]
+            congr
+            rw [N_eq, ← Nn_eq]
+            omega
+    _ = (2 ^ (-1 : ℤ)) * 2 ^ (-(a * N : ℤ)) * volume (ball x (2 ^ N * 2 ^ (-1 : ℤ) * t * R)) := by
+      congr
+      exact ENNReal.zpow_add (by norm_num) (ENNReal.two_ne_top) (-1 :ℤ) (-(a * N : ℤ))
+    _ ≤ (2 ^ (-1 : ℝ)) * volume (ball x (2 ^ (-1: ℝ) * t * R)) := by
+      rw [mul_assoc]
+      gcongr
+      · apply le_of_eq
+        rw [← ENNReal.rpow_intCast]; congr; simp
+      --set R'' := (2 ^ (-1: ℝ) * t * R)
+      convert aux_8_0_8_inner N (2 ^ (-1: ℝ) * t * R) using 1
+      -- ring used to work; doesn't close the goal any more
+      sorry
+    _ ≤ ∫⁻ y, cutoff R t x y := aux_8_0_6 hR ht.1
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
@@ -108,22 +177,15 @@ def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
 omit [TileStructure Q D κ S o] in
 lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
   by_contra! h
-  apply hf
-  have : φ = 0 := by ext; apply h
-  rw [this]
-  simp
+  exact hf (by simp [h])
 
 omit [TileStructure Q D κ S o] in
 /-- Part of Lemma 8.0.1. -/
 lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
     support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
-  unfold support
   intro x hx
-  rw [mem_setOf] at hx
-  have hx'' := left_ne_zero_of_mul hx
-  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := foo hx''
-  choose y hy using this
+  choose y hy using foo (left_ne_zero_of_mul hx)
   have : x ∈ ball y (t * R) := by
     apply aux_8_0_4 hR ht.1
     rw [cutoff_comm]
