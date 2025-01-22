@@ -22,6 +22,7 @@ class ContinuousENorm (E : Type*) extends ENorm E, TopologicalSpace E where
   continuous_enorm : Continuous enorm
   -- the topology is somehow defined by the enorm.
 
+-- todo: maybe generalize to ENormedMonoid and use `to_additive` if necessary for Mathlib.
 /-- An enormed monoid is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedAddMonoid (E : Type*) extends ContinuousENorm E, AddMonoid E where

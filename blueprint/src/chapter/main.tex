@@ -8014,12 +8014,15 @@ across the following subsections.
 
 \begin{lemma}[mean zero oscillation]
 \label{mean-zero-oscillation}
+\leanok
+\lean{mean_zero_oscillation}
 Let $n\in \mathbb{Z}$ with $n\neq 0$, then
 \begin{equation}
 \int_0^{2\pi} e^{inx}\, dx=0\,.
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 We have
 \begin{equation*}
 \int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac 1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
@@ -8105,6 +8108,8 @@ The following lemma will be proved in \Cref{10projection}.
 
 \begin{lemma}[spectral projection bound]
 \label{spectral-projection-bound}
+\leanok
+\lean{spectral_projection_bound}
 \uses{partial-sum-projection,partial-sum-selfadjoint}
 %\lean{spectral_projection_bound}
     Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
@@ -8346,6 +8351,8 @@ This proves the first identity of the lemma. The second identity follows by subs
 
 
 \begin{lemma}[Young convolution]\label{Young-convolution}
+\leanok
+\lean{young_convolution}
 \uses{periodic-domain-shift}
     Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
     \begin{equation}\label{eqyoung}
@@ -8385,11 +8392,13 @@ Taking square roots, this proves the lemma.
 
 For $0<r<1$, Define the kernel $k_r$ to be the $2\pi$-periodic function
 \begin{equation}
-    |k_r(x)|:=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
+    k_r(x):=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
 \end{equation}
 where the minimum is understood to be $r^{-1}$ in case $1=e^{ix}$.
 \begin{lemma}[integrable bump convolution]
 \label{integrable-bump-convolution}
+\leanok
+\lean{integrable_bump_convolution}
 \uses{Young-convolution}
 Let $g,f$ be bounded measurable $2\pi$-periodic functions. Let $0<r<\pi$.
 Assume we have for all $0\le x\le 2\pi$
@@ -8430,6 +8439,8 @@ is equal to
 
 \begin{lemma}[Dirichlet approximation]\label{Dirichlet-approximation}
 \uses{Dirichlet-kernel,lower-secant-bound}
+\leanok
+\lean{dirichlet_approximation}
 Let $0<r<1$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
 There is a $2\pi$-periodic continuous function
@@ -8680,6 +8691,8 @@ This subsection proves \Cref{spectral-projection-bound}
 
 \begin{lemma}[partial sum projection]
 \label{partial-sum-projection}
+\leanok
+\lean{partial_sum_projection}
 \uses{mean-zero-oscillation}
   Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{projection}
@@ -8724,6 +8737,8 @@ This proves the lemma.
 \end{proof}
 \begin{lemma}[partial sum selfadjoint]
 \label{partial-sum-selfadjoint}
+\leanok
+\lean{partial-sum-selfadjoint}
 \uses{Dirichlet-kernel}
     We have for any $2\pi$-periodic bounded measurable $g,f$ that
     \begin{equation}
@@ -8754,6 +8769,9 @@ g(x)\, dx dy
 
 We turn to the proof of Lemma
 \ref{spectral-projection-bound}.
+
+\begin{proof}[Proof of \Cref{spectral-projection-bound}]
+\proves{spectral-projection-bound}
 
 We have with \Cref{partial-sum-selfadjoint}, then \Cref{partial-sum-projection} and the \Cref{partial-sum-selfadjoint} again
 \begin{equation*}
@@ -8788,7 +8806,7 @@ As \eqref{diffnorm} has nonnegative integrand and is thus nonnegative, we conclu
 \end{equation}
 As both sides are positive, we may take the square root of this inequality.
 This completes the proof of the lemma.
-
+\end{proof}
 
 
 
