@@ -100,7 +100,7 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
         exact aux_8_0_5 hy' (hR := hR) (ht := ht)
     _ ≤ ∫ y, cutoff R t x y := by
       apply setIntegral_le_integral (integrable_cutoff hR ht)
-      exact Filter.Eventually.of_forall (fun x ↦ by simp [cutoff])
+      filter_upwards with x using (by simp [cutoff])
 
 /-- The smallest integer `n` so that `2^n t ≥ 1`. -/
 -- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
@@ -150,6 +150,7 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     _ < R + R := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
     _ = 2 * R := by ring
 
+-- XXX: inlining this does not work
 lemma foobar (f : X → ℝ) : ∫ x, (f x : ℂ) = ((∫ x, f x : ℝ) : ℂ) := integral_ofReal
 
 open Filter
@@ -157,7 +158,7 @@ open Filter
 /-- Part of Lemma 8.0.1. -/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
-    (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) (x : X) :
+    (h2ϕ : HolderWith C nnτ ϕ) (hτ : 0 < nnτ) (ht : t ∈ Ioc (0 : ℝ) 1) (x : X) :
     dist (ϕ x) (holderApprox R t ϕ x) ≤ (t * R) ^ τ * C := by
   have ht0 : 0 < t := ht.1
   have P : 0 < ∫ y, cutoff R t x y := by
@@ -174,8 +175,7 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     · apply Continuous.mul
       · have := cutoff_continuous hR ht0 (x := x)
         fun_prop
-      · apply h2ϕ.continuous
-        exact nnτ_pos X
+      · exact h2ϕ.continuous hτ
     · apply HasCompactSupport.mul_left
       apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall z R)
       apply hϕ.trans ball_subset_closedBall
