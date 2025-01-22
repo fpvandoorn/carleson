@@ -5,11 +5,11 @@ open MeasureTheory Set
 noncomputable section
 
 /-- The constant used in `two_sided_metric_carleson`.
-Has value `2 ^ (450 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
+Has value `2 ^ (452 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
 def C10_0_1 (a : ℕ) (q : ℝ) : ℝ := (C_K a) ^ 2 * C1_0_2 a q
 
-lemma C10_0_1_pos {a : ℕ} {q : ℝ} (hq : 1 < q) : 0 < C10_0_1 a q := mul_pos (pow_two_pos_of_ne_zero (C_K_pos a).ne.symm) (C1_0_2_pos hq)
+lemma C10_0_1_pos {a : ℕ} {q : ℝ} (hq : 1 < q) : 0 < C10_0_1 a q :=
+  mul_pos (pow_two_pos_of_ne_zero (C_K_pos a).ne.symm) (C1_0_2_pos hq)
 
 variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : ℕ)]
 variable {τ q q' : ℝ} {C : ℝ}
