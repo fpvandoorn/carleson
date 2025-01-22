@@ -502,21 +502,8 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 
   by_contra! three
 
-  have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 := by
-    have notMax : ¬IsMax J := by
-      rw [Grid.isMax_iff]
-      intro top
-      have topScale : s J = (S : ℤ) := by
-        rw [top]
-        exact s_topCube (X := X)
-      rw [topScale] at three
-      have range := (scale_mem_Icc (i:=𝓘 p)).2
-      change 𝔰 p ≤ ↑S at range 
-      linarith
-    use J.succ
-    constructor
-    exact Grid.succ_def notMax |>.mp rfl |>.1
-    exact Grid.scale_succ notMax
+  have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 :=
+    Grid.exists_scale_succ (by change s J < 𝔰 p; linarith)
 
   rw [Grid.le_def] at belongs
 
