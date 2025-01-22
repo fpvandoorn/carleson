@@ -8440,7 +8440,7 @@ is equal to
 \begin{lemma}[Dirichlet approximation]\label{Dirichlet-approximation}
 \uses{Dirichlet-kernel,lower-secant-bound}
 \leanok
-\lean{dirichlet_approximation}
+\lean{continuous_dirichletApprox, periodic_dirichletApprox, approxHilbertTransform_eq_dirichletApprox, dist_dirichletApprox_le}
 Let $0<r<1$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
 There is a $2\pi$-periodic continuous function
@@ -8738,7 +8738,7 @@ This proves the lemma.
 \begin{lemma}[partial sum selfadjoint]
 \label{partial-sum-selfadjoint}
 \leanok
-\lean{partial-sum-selfadjoint}
+\lean{partial_sum_selfadjoint}
 \uses{Dirichlet-kernel}
     We have for any $2\pi$-periodic bounded measurable $g,f$ that
     \begin{equation}
