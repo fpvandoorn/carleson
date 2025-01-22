@@ -508,10 +508,9 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     _ = dist_{𝔠 p', D ^ 𝔰 p' / 4}       (𝒬 u₁) (𝒬 u₂) := by
       rfl
     _ ≤ dist_{c J', 100 * D^(s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
-      have subset : ball (𝔠 p') (D ^ 𝔰 p' / 4) ⊆ ball (c J') (100 * D^(s J + 2)) := by
-        have oneForth_subset_of_p : ball (𝔠 p') (↑D ^ 𝔰 p' / 4) ⊆ ↑(𝓘 p') := ball_subset_Grid (X := X) (i := 𝓘 p')
-        exact fun ⦃a_1⦄ a ↦ hundred (oneForth_subset_of_p a)
-      exact cdist_mono (h := subset)
+      apply cdist_mono
+      intros x hx
+      exact hundred (ball_subset_Grid hx)
     _ ≤ 2^((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
       have result := le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (x := c J') (r := 100 * D^(s J + 2)) (hr := by positivity)
       rw [neg_mul, Real.rpow_neg (x:=(2 : ℝ)) (y:=(100 * (a : ℝ))) (hx := by positivity)]
