@@ -534,9 +534,6 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       exact sentence_3 belongs.left plusOne three h
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
-      have cdist_theorem := cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
-      unfold defaultA at cdist_theorem
-
       have aIsBig : a ≥ 4 := four_le_a X
       have h_pos : 0 < (2 : ℝ)^((100 : ℝ) * a) := by positivity
       have := mul_le_mul_left h_pos (c:= 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂)) (b:= 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂))
@@ -548,15 +545,18 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       simp
       rw [← mul_assoc, ← Real.rpow_add]
       ring_nf
-      have easy : 10 * (D : ℝ)^(𝔰 p) ≤ 2 ^ 6 * (↑D ^ 𝔰 p / 4) := by
-        ring_nf
-        gcongr
-        linarith
-      have smaller : dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) ≤ dist_{𝔠 p, 2 ^ 6 * (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
-        have bll := ball_subset_ball easy (x:= 𝔠 p)
-        exact cdist_mono (h:=bll)
-      have yellow := Trans.trans smaller cdist_theorem
       rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
+
+      have yellow := calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
+        _ ≤ dist_{𝔠 p, 2 ^ 6 * (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+          apply cdist_mono
+          apply ball_subset_ball
+          ring_nf
+          linarith
+        _ ≤ ↑(defaultA a) ^ 6 * dist_{𝔠 p, (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+          exact cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
+
+
       exact_mod_cast yellow
       positivity
     _ ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * n / 2) := by
