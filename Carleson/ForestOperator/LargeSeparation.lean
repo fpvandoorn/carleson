@@ -530,8 +530,8 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       exact_mod_cast le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
     _ ≤ 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
-      have sentence_3_result : ball (c J') (100 * D^(s J + 3)) ⊆ ball (𝔠 p) (10 * D^(𝔰 p)) := sentence_3 belongs.left plusOne three h
-      exact cdist_mono (h := sentence_3_result)
+      apply cdist_mono
+      exact sentence_3 belongs.left plusOne three h
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
       have cdist_theorem := cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
