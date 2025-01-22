@@ -36,6 +36,18 @@ variable (t u₁ u₂) in
 We append a subscript 0 to distinguish it from the section variable. -/
 def 𝔖₀ : Set (𝔓 X) := { p ∈ t u₁ ∪ t u₂ | 2 ^ ((Z : ℝ) * n / 2) ≤ dist_(p) (𝒬 u₁) (𝒬 u₂) }
 
+lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarleson (hf : StronglyMeasurable f) :
+    StronglyMeasurable (adjointCarleson p f) := by
+  refine .integral_prod_right'
+    (f := fun z ↦ conj (Ks (𝔰 p) z.2 z.1) * exp (Complex.I * (Q z.2 z.2 - Q z.2 z.1)) * f z.2) ?_
+  refine .mul (.mul ?_ ?_) ?_
+  · exact Complex.continuous_conj.comp_stronglyMeasurable (stronglyMeasurable_Ks.prod_swap)
+  · refine Complex.continuous_exp.comp_stronglyMeasurable (.const_mul (.sub ?_ ?_) _)
+    · exact Measurable.stronglyMeasurable (by fun_prop)
+    · refine continuous_ofReal.comp_stronglyMeasurable ?_
+      exact stronglyMeasurable_Q₂ (X := X) |>.prod_swap
+  · exact hf.snd
+
 lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
     AEStronglyMeasurable (adjointCarleson p f) := by
   refine .integral_prod_right'
@@ -48,6 +60,11 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStrongly
     · refine continuous_ofReal.comp_aestronglyMeasurable ?_
       exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
   · exact hf.snd
+
+lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)}
+    (hf : StronglyMeasurable f) :
+    StronglyMeasurable (adjointCarlesonSum ℭ f) :=
+  Finset.stronglyMeasurable_sum _ fun _ _ ↦ hf.adjointCarleson
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : AEStronglyMeasurable f) :
@@ -88,13 +105,11 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
-  memℒp_top := by
-    obtain ⟨CKf, hCKf, hCKf⟩ := hf.2.isBounded.exists_bound_of_norm_Ks (𝔰 p)
+  stronglyMeasurable := hf.stronglyMeasurable.adjointCarleson
+  isBounded := by
+    obtain ⟨CKf, hCKf, hCKf⟩ := hf.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
     let C : ℝ := CKf * (eLpNorm f ⊤).toReal * volume.real (E p)
-    suffices ∀ᵐ x, ‖TileStructure.Forest.adjointCarleson p f x‖ ≤ C from
-      memℒp_top_of_bound hf.aestronglyMeasurable.adjointCarleson _ this
-    apply ae_of_all
-    intro x
+    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
     refine norm_setIntegral_le_of_norm_le_const_ae ?_ ?_
     · exact volume_E_lt_top
     · apply ae_restrict_of_ae
@@ -154,7 +169,7 @@ lemma adjointCarleson_adjoint
   let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
   have hH : Integrable (uncurry H) := by
     let H₀ := fun x y ↦ ‖g x‖ * ‖f y‖
-    obtain ⟨M₀, hM₀nn, hM₀⟩ := hg.2.isBounded.exists_bound_of_norm_Ks (𝔰 p)
+    obtain ⟨M₀, hM₀nn, hM₀⟩ := hg.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
     have hHleH₀ x y : ‖H x y‖ ≤ M₀ * ‖g x‖ * ‖f y‖ := by
       by_cases h : x ∈ tsupport g
       · specialize hM₀ x y h
@@ -205,7 +220,7 @@ lemma adjointCarleson_adjoint
     _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_mul_left, mul_assoc]
     _ = ∫ y, ∫ x, H x y := integral_integral_swap hH
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
-      simp_rw [integral_mul_right]
+      simp_rw [H, integral_mul_right]
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
       simp_rw [← integral_conj]; congrm (∫ _, (∫ _, ?_) * (f _))
       rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
@@ -270,13 +285,13 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
-  let g := adjointCarlesonSum (t u) f
+  set g := adjointCarlesonSum (t u) f
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
   have h := density_tree_bound1 hg hf hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
       (eLpNorm g 2 volume)^2 := by
-    simp_rw [mul_comm, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memℒp 2
+    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memℒp 2
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]
@@ -322,7 +337,7 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm f 2 volume := by
       gcongr
       · exact adjoint_tree_estimate hu hf
-      · exact hasStrongType_MB 𝓑_finite one_lt_two _ (hf.memℒp _) |>.2
+      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memℒp _) |>.2
   _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
     simp_rw [add_mul]
     gcongr

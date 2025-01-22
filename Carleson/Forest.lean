@@ -48,6 +48,9 @@ instance : CoeHead (Forest X n) (Set (𝔓 X)) := ⟨Forest.𝔘⟩
 instance : Membership (𝔓 X) (Forest X n) := ⟨fun t x ↦ x ∈ (t : Set (𝔓 X))⟩
 instance : CoeFun (Forest X n) (fun _ ↦ 𝔓 X → Set (𝔓 X)) := ⟨fun t x ↦ t.𝔗 x⟩
 
+@[simp] lemma mem_mk (n 𝔘 𝔗 a b c d e f g h) (p : 𝔓 X) :
+    p ∈ Forest.mk (n := n) 𝔘 𝔗 a b c d e f g h ↔ p ∈ 𝔘 := Iff.rfl
+
 @[simp] lemma mem_𝔘 : u ∈ t.𝔘 ↔ u ∈ t := .rfl
 @[simp] lemma mem_𝔗 : p ∈ t.𝔗 u ↔ p ∈ t u := .rfl
 
@@ -61,6 +64,19 @@ lemma lt_dist (hu : u ∈ t) (hu' : u' ∈ t) (huu' : u ≠ u') {p} (hp : p ∈ 
     2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u) := t.lt_dist' hu hu' huu' hp h
 lemma ball_subset (hu : u ∈ t) (hp : p ∈ t u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u :=
   t.ball_subset' hu hp
+
+-- Used in the proof of Lemma 7.1.4
+variable {t} in
+lemma ball_subset_of_mem_𝓘 (hu : u ∈ t) {p : 𝔓 X} (hp : p ∈ t u) {x : X} (hx : x ∈ 𝓘 p) :
+    ball x (4 * D ^ (𝔰 p)) ⊆ 𝓘 u := by
+  refine (ball_subset_ball' ?_).trans (t.ball_subset hu hp)
+  linarith [show dist x (𝔠 p) < 4 * D ^ (𝔰 p) from Grid_subset_ball hx]
+
+lemma if_descendant_then_subset (hu : u ∈ t) (hp : p ∈ t u) : (𝓘 p : Set X) ⊆ 𝓘 u := by
+  calc ↑(𝓘 p)
+    _ ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p) := by
+      exact GridStructure.Grid_subset_ball (i := 𝓘 p)
+    _ ⊆ ↑(𝓘 u) := ball_subset_of_mem_𝓘 hu hp Grid.c_mem_Grid
 
 end Forest
 

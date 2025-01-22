@@ -69,6 +69,11 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 -- @[simp] lemma Grid.subset_def : i ⊆ j ↔ (i : Set X) ⊆ (j : Set X) := .rfl
 -- @[simp] lemma Grid.ssubset_def : i ⊂ j ↔ (i : Set X) ⊂ (j : Set X) := .rfl
 
+/- not sure whether these should be simp lemmas, but that might be required if we want to
+  conveniently rewrite/simp with Set-lemmas -/
+@[simp] lemma Grid.mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
+@[simp] lemma Grid.le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
+
 lemma fundamental_dyadic :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
@@ -91,6 +96,18 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
+lemma subset_of_nmem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
+    (h : i ∉ Iic j)
+    (notDisjoint : ¬ Disjoint (i : Set X) j) :
+    (j : Set X) ⊆ i := by
+  rw [Iic, Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
+  have h_le_cases := le_or_ge_or_disjoint (i := i) (j := j)
+  rcases h_le_cases with i_le | j_le | disjoint
+  · exact (h.neg_resolve_left i_le.1 i_le.2).elim
+  · rw [disjoint_comm] at notDisjoint
+    exact (GridStructure.fundamental_dyadic' j_le.2).resolve_right notDisjoint
+  · exact (notDisjoint disjoint).elim
+
 lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
 
 lemma volume_coeGrid_pos (hD : 0 < D) : 0 < volume (i : Set X) := by
@@ -104,11 +121,6 @@ lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
   measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
 
 namespace Grid
-
-/- not sure whether these should be simp lemmas, but that might be required if we want to
-  conveniently rewrite/simp with Set-lemmas -/
-@[simp] lemma mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
-@[simp] lemma le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 
 protected lemma inj : Injective (fun i : Grid X ↦ ((i : Set X), s i)) := GridStructure.inj
 
@@ -227,6 +239,12 @@ lemma max_of_le_succ : i.succ ≤ i → IsMax i := fun h ↦ by
   contrapose! h; by_contra! k; have l := (succ_spec h).1.trans_le k
   rwa [lt_self_iff_false] at l
 
+lemma not_isMax_of_scale_lt {j W : Grid X} (h : s j < s W) : ¬IsMax j := by
+  rw [Grid.isMax_iff]
+  intro top
+  rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
+  linarith [(scale_mem_Icc (i := W)).2]
+
 lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
   by_cases k : IsMax i
   · simp only [k, succ, dite_true]; exact h.le
@@ -268,6 +286,12 @@ lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
     exists_sandwiched (le_succ (i := i)) (s i + 1) (by rw [mem_Icc]; omega)
   have l := (lt_def.mpr ⟨hz₃.1, hz₁.symm ▸ h₀⟩).trans_le (h₂ z (lt_def.mpr ⟨hz₂.1, by omega⟩))
   rwa [lt_self_iff_false] at l
+
+lemma exists_scale_succ {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
+  use j.succ
+  constructor
+  · exact Grid.le_succ
+  · exact Grid.scale_succ (Grid.not_isMax_of_scale_lt h)
 
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   simp only [opSize, Int.lt_toNat]
@@ -386,5 +410,11 @@ lemma dist_strictMono_iterate {I J : Grid X} {d : ℕ} (hij : I ≤ J) (hs : s I
         · rw [C2_1_2]; positivity
         · exact dist_strictMono KJ
       _ = _ := by ring
+
+-- Version of `dist_strictMono_iterate` with `d` in `ℤ`
+lemma dist_strictMono_iterate' {I J : Grid X} {d : ℤ} (hd : d ≥ 0) (hij : I ≤ J)
+    (hs : s I + d = s J) {f g : Θ X} : dist_{I} f g ≤ C2_1_2 a ^ d * dist_{J} f g := by
+  rw [← Int.toNat_of_nonneg hd] at hs ⊢
+  exact dist_strictMono_iterate hij hs
 
 end Grid

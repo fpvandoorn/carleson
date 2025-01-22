@@ -47,6 +47,14 @@ lemma measure_real_ball_two_le_same (x : X) (r : ℝ) :
   · exact ENNReal.mul_ne_top coe_ne_top measure_ball_lt_top.ne
   · exact measure_ball_two_le_same x r
 
+lemma measure_real_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
+    μ.real (ball x ((2 ^ n) * r)) ≤ A ^ n * μ.real (ball x r) := by
+  induction n with
+  | zero => simp
+  | succ m ih =>
+      simp_rw [add_comm m 1, pow_add, pow_one, mul_assoc]
+      exact le_trans (measure_real_ball_two_le_same x _) (by gcongr)
+
 lemma measure_real_ball_pos [μ.IsOpenPosMeasure] (x : X) {r : ℝ} (hr : 0 < r) :
     0 < μ.real (ball x r) :=
   toReal_pos ((measure_ball_pos μ x hr).ne.symm) (measure_ball_lt_top.ne)

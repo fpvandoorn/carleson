@@ -22,8 +22,8 @@ variable {𝕜 X : Type*} {A : ℕ} [_root_.RCLike 𝕜] [PseudoMetricSpace X]
 section localOscillation
 
 /-- The local oscillation of two functions w.r.t. a set `E`. This is `d_E` in the blueprint. -/
-def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ :=
-  ⨆ z ∈ E ×ˢ E, ‖f z.1 - g z.1 - f z.2 + g z.2‖
+def localOscillation (E : Set X) (f g : C(X, 𝕜)) : ℝ≥0∞ :=
+  ⨆ z ∈ E ×ˢ E, ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
 
 -- example (E : Set X) (hE : IsBounded E) (f : C(X, ℝ)) :
 --     BddAbove (range fun z : E ↦ f z) := by
@@ -39,7 +39,7 @@ variable {E : Set X} {f g : C(X, 𝕜)}
 /-- A ball w.r.t. the distance `localOscillation` -/
 def localOscillationBall (E : Set X) (f : C(X, 𝕜)) (r : ℝ) :
     Set C(X, 𝕜) :=
-  { g : C(X, 𝕜) | localOscillation E f g < r }
+  { g : C(X, 𝕜) | localOscillation E f g < ENNReal.ofReal r }
 
 end localOscillation
 
@@ -95,7 +95,7 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
   eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
   /-- The distance is bounded below by the local oscillation. (1.0.7) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
-    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ dist_{x, r} f g
+    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
   /-- The distance is monotone in the ball. (1.0.9) -/
   cdist_mono {x₁ x₂ : X} {r₁ r₂ : ℝ} {f g : Θ}
     (h : ball x₁ r₁ ⊆ ball x₂ r₂) : dist_{x₁, r₁} f g ≤ dist_{x₂, r₂} f g
@@ -116,6 +116,22 @@ instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
 
 instance inhabited_Space [CompatibleFunctions 𝕜 X A] : Inhabited X :=
   ⟨nonempty_Space.some⟩
+
+lemma le_localOscillation [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g : Θ X) {y z : X}
+    (hy : y ∈ ball x r) (hz : z ∈ ball x r) : ‖coeΘ f y - coeΘ g y - coeΘ f z + coeΘ g z‖ ≤
+    ENNReal.toReal (localOscillation (ball x r) (coeΘ f) (coeΘ g)) := by
+  rw [(ENNReal.toReal_ofReal (norm_nonneg _)).symm]
+  let f (z) := ⨆ (_ : z ∈ ball x r ×ˢ ball x r), ENNReal.ofReal ‖f z.1 - g z.1 - f z.2 + g z.2‖
+  apply ENNReal.toReal_mono
+  · exact lt_of_le_of_lt CompatibleFunctions.localOscillation_le_cdist ENNReal.ofReal_lt_top |>.ne
+  · exact le_of_eq_of_le (Eq.symm (iSup_pos ⟨hy, hz⟩)) (le_iSup f ⟨y, z⟩)
+
+lemma oscillation_le_cdist [CompatibleFunctions 𝕜 X A] (x : X) (r : ℝ) (f g : Θ X) {y z : X}
+    (hy : y ∈ ball x r) (hz : z ∈ ball x r) :
+    ‖coeΘ f y - coeΘ g y - coeΘ f z + coeΘ g z‖ ≤ dist_{x, r} f g := by
+  apply le_trans <| le_localOscillation x r f g hy hz
+  rw [← ENNReal.toReal_ofReal dist_nonneg]
+  exact ENNReal.toReal_mono ENNReal.ofReal_ne_top CompatibleFunctions.localOscillation_le_cdist
 
 export CompatibleFunctions (localOscillation_le_cdist cdist_mono cdist_le le_cdist)
 
@@ -214,6 +230,8 @@ and `CompatibleFunctions` -/
 
 lemma defaultD_pos (a : ℕ) : 0 < (defaultD a : ℝ) := by rw [defaultD]; positivity
 
+lemma defaultD_pos' (a : ℕ) : 0 < defaultD a := by exact_mod_cast defaultD_pos a
+
 lemma defaultD_pow_pos (a : ℕ) (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
   zpow_pos (defaultD_pos _) _
 
@@ -241,6 +259,10 @@ class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
     ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
+
+lemma MeasureTheory.stronglyMeasurable_K [IsOneSidedKernel a K] :
+    StronglyMeasurable (uncurry K) :=
+  measurable_K.stronglyMeasurable
 
 lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
     AEStronglyMeasurable (uncurry K) :=
@@ -279,7 +301,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   c : IsCancellative X (defaultτ a)
   hcz : IsOneSidedKernel a K
   hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (nontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a)
+    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
   measurable_σ₁ : Measurable σ₁
@@ -358,9 +380,18 @@ lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass �
   exact Q.range.measurableSet_biUnion fun θ _ ↦
     (Q.measurableSet_fiber θ).prod (meass.preimage (map_continuous θ).measurable)
 
+lemma stronglyMeasurable_Q₂ : StronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
+  measurable_Q₂.stronglyMeasurable
+
 @[fun_prop]
 lemma aestronglyMeasurable_Q₂ : AEStronglyMeasurable fun p : X × X ↦ Q p.1 p.2 :=
   measurable_Q₂.aestronglyMeasurable
+
+@[fun_prop]
+lemma measurable_Q₁ (x : X) : Measurable (Q x) :=
+  let Q' : X → X → ℝ := fun x' y ↦ Q x' y
+  have : (fun y ↦ Q' x y) = Q x := rfl
+  this ▸ measurable_Q₂.of_uncurry_left
 
 include a q K σ₁ σ₂ F G
 
@@ -466,12 +497,18 @@ lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
 /-- `τ` as an element of `ℝ≥0`. -/
 def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
 
-lemma q_pos : 0 < q := zero_lt_one.trans (q_mem_Ioc X).1
+lemma one_lt_q : 1 < q := (q_mem_Ioc X).1
+lemma q_le_two : q ≤ 2 := (q_mem_Ioc X).2
+lemma q_pos : 0 < q := zero_lt_one.trans (one_lt_q X)
 lemma q_nonneg : 0 ≤ q := (q_pos X).le
+lemma inv_q_sub_half_nonneg : 0 ≤ q⁻¹ - 2⁻¹ := by
+  simp [inv_le_inv₀ zero_lt_two (q_pos X), q_le_two X]
 
 /-- `q` as an element of `ℝ≥0`. -/
 def nnq : ℝ≥0 := ⟨q, q_nonneg X⟩
 
+lemma one_lt_nnq : 1 < nnq X := one_lt_q X
+lemma nnq_le_two : nnq X ≤ 2 := q_le_two X
 lemma nnq_pos : 0 < nnq X := q_pos X
 lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
   ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
@@ -560,7 +597,23 @@ scoped notation "nnD" => nnD a
 
 end ShortVariables
 
-variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable [PseudoMetricSpace X] [h : ProofData a q K σ₁ σ₂ F G]
+
+lemma volume_F_lt_top : volume F < ⊤ :=
+  lt_of_le_of_lt (measure_mono ProofData.F_subset) measure_ball_lt_top
+
+lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
+
+lemma volume_G_lt_top : volume G < ⊤ :=
+  lt_of_le_of_lt (measure_mono ProofData.G_subset) measure_ball_lt_top
+
+lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
+
+include h in
+lemma isBounded_F : IsBounded F := IsBounded.subset isBounded_ball ProofData.F_subset
+
+include h in
+lemma isBounded_G : IsBounded G := IsBounded.subset isBounded_ball ProofData.G_subset
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
 def hnorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=

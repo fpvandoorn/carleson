@@ -53,14 +53,10 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
   rw [Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
 
-#find_home! tsum_one_eq'
-
 lemma ENNReal.tsum_const_eq' {α : Type*} (s : Set α) (c : ℝ≥0∞) :
     ∑' (_:s), (c : ℝ≥0∞) = s.encard * c := by
   nth_rw 1 [← one_mul c]
   rw [ENNReal.tsum_mul_right,tsum_one_eq']
-
-#find_home! ENNReal.tsum_const_eq'
 
 /-! ## `ENNReal` manipulation lemmas -/
 
@@ -185,6 +181,7 @@ lemma laverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g 
     ⨍⁻ a, f a ∂μ ≤ ⨍⁻ a, g a ∂μ := by
   exact lintegral_mono_ae <| h.filter_mono <| Measure.ae_mono' Measure.smul_absolutelyContinuous
 
+@[gcongr]
 lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
     ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ := by
   refine laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
@@ -319,7 +316,7 @@ lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
   · exact h.trans (rpow_pos_of_pos zero_lt_two x)
   · calc
       _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
-      _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two _
+      _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two
       _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
 
 namespace Set
@@ -357,27 +354,26 @@ end Norm
 namespace MeasureTheory
 
 open Metric Bornology
+variable {𝕜: Type*}
+variable [RCLike 𝕜]
 
-variable {X 𝕜: Type*}
-variable [RCLike 𝕜] {f : X → 𝕜}
+variable {X α: Type*}
 
 namespace HasCompactSupport
 
-variable [PseudoMetricSpace X]
+variable [Zero α] {f : X → α}
 
--- mathlib? also `ball` variant, remove `Nonempty`
+variable [PseudoMetricSpace X] [ProperSpace X]
+
 theorem of_support_subset_closedBall {x : X}
- {r : ℝ} [ProperSpace X] [Nonempty X] (hf : support f ⊆ closedBall x r) :
-    HasCompactSupport f := by
-  apply HasCompactSupport.of_support_subset_isCompact ?_ hf
-  exact isCompact_closedBall ..
+    {r : ℝ} (hf : support f ⊆ closedBall x r) :
+    HasCompactSupport f :=
+  HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall ..) hf
 
 theorem of_support_subset_isBounded {s : Set X}
-    [ProperSpace X] [Nonempty X] (hs : IsBounded s) (hf : support f ⊆ s) :
-    HasCompactSupport f := by
-  let x₀ : X := Classical.choice (by infer_instance)
-  obtain ⟨r₀, hr₀⟩ := hs.subset_closedBall x₀
-  exact HasCompactSupport.of_support_subset_closedBall <| Trans.trans hf hr₀
+    (hs : IsBounded s) (hf : support f ⊆ s) :
+    HasCompactSupport f :=
+  IsCompact.closure_of_subset hs.isCompact_closure <| Trans.trans hf subset_closure
 
 end HasCompactSupport
 
@@ -392,4 +388,71 @@ theorem indicator_const {c : ℝ} {s: Set X}
 
 end Integrable
 
+-- Currently unused.
+-- The assumption `int_f` can likely be removed, as otherwise the integral is zero.
+open Classical in
+theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [MeasurableSpace X]
+    {f : X → ℝ} (s : Finset ι) {S : ι → Set X} {μ : Measure X}
+    (f_ae_nonneg : ∀ᵐ (x : X) ∂μ.restrict (⋃ i ∈ s, S i), 0 ≤ f x)
+    (int_f : IntegrableOn f (⋃ i ∈ s, S i) μ) :
+    ∫ x in (⋃ i ∈ s, S i), f x ∂μ ≤ ∑ i ∈ s, ∫ x in S i, f x ∂μ := by
+  have res_res : ∀ i ∈ s, (μ.restrict (⋃ i ∈ s, S i)).restrict (S i) = μ.restrict (S i) :=
+    fun i hi ↦ by rw [Measure.restrict_restrict_of_subset]; exact (subset_biUnion_of_mem hi)
+  -- Show that it suffices to prove the result in the case where the integrand is measurable
+  set g := AEMeasurable.mk f int_f.aemeasurable with hg
+  have g_ae_nonneg : ∀ᵐ (x : X) ∂μ.restrict (⋃ i ∈ s, S i), 0 ≤ g x := by
+    apply f_ae_nonneg.congr ∘ int_f.aemeasurable.ae_eq_mk.mp
+    exact Filter.Eventually.of_forall (fun _ h ↦ by rw [h])
+  have int_g : ∀ i ∈ s, Integrable g (μ.restrict (S i)) := by
+    intro i hi
+    have := (int_f.congr int_f.aemeasurable.ae_eq_mk).restrict (s := S i)
+    rwa [res_res i hi] at this
+  have : ∑ i ∈ s, ∫ (x : X) in S i, f x ∂μ = ∑ i ∈ s, ∫ (x : X) in S i, g x ∂μ := by
+    refine Finset.sum_congr rfl (fun i hi ↦ integral_congr_ae ?_)
+    convert int_f.aemeasurable.ae_eq_mk.restrict (s := S i) using 2
+    rw [Measure.restrict_restrict_of_subset]
+    exact (subset_biUnion_of_mem hi)
+  rw [this, integral_congr_ae int_f.aemeasurable.ae_eq_mk]
+  -- Now prove the result for the measurable integrand `g`
+  have meas : MeasurableSet {x | 0 ≤ g x} :=
+    have : {x | 0 ≤ g x} = g ⁻¹' (Ici 0) := by simp [preimage, mem_Ici]
+    this ▸ (AEMeasurable.measurable_mk int_f.aemeasurable) measurableSet_Ici
+  rw [← integral_finset_sum_measure int_g]
+  set μ₀ : ι → Measure X := fun i ↦ ite (i ∈ s) (μ.restrict (S i)) 0
+  refine integral_mono_measure ?_ ?_ (integrable_finset_sum_measure.mpr int_g)
+  · refine Measure.le_iff.mpr (fun T hT ↦ ?_)
+    simp_rw [μ.restrict_apply hT, Measure.coe_finset_sum, s.sum_apply, inter_iUnion]
+    apply le_trans <| measure_biUnion_finset_le s (T ∩ S ·)
+    exact s.sum_le_sum (fun _ _ ↦ ge_of_eq (μ.restrict_apply hT))
+  · have : ∑ i ∈ s, μ.restrict (S i) = Measure.sum μ₀ := by
+      ext T hT
+      simp only [Measure.sum_apply (hs := hT), Measure.coe_finset_sum, s.sum_apply, μ₀]
+      rw [tsum_eq_sum (s := s) (fun b hb ↦ by simp [hb])]
+      exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi, res_res])
+    rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]
+    intro i
+    by_cases hi : i ∈ s
+    · simp only [Pi.zero_apply, hi, reduceIte, μ₀, ← res_res i hi, ae_restrict_iff meas, ← hg]
+      exact g_ae_nonneg.mono (fun _ h _ ↦ h)
+    · simp [hi, μ₀]
+
+-- Analogous to `MeasureTheory.integral_smul_const` in Mathlib
+theorem average_smul_const {X : Type*} {E : Type*} [MeasurableSpace X]
+    {μ : MeasureTheory.Measure X} [NormedAddCommGroup E] [NormedSpace ℝ E] {𝕜 : Type*}
+    [RCLike 𝕜] [NormedSpace 𝕜 E] [CompleteSpace E] (f : X → 𝕜) (c : E) :
+    ⨍ (x : X), f x • c ∂μ = (⨍ (x : X), f x ∂μ) • c :=
+  integral_smul_const f c
+
 end MeasureTheory
+
+namespace ENNReal
+
+theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.Measure α}
+    {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : p > 0) (c : NNReal) :
+    (∫⁻ x : α, (c • f) x ^ p ∂μ) ^ (1 / p) = c • (∫⁻ x : α, f x ^ p ∂μ) ^ (1 / p) := by
+  simp_rw [smul_def, Pi.smul_apply, smul_eq_mul, mul_rpow_of_nonneg _ _ hp.le,
+    MeasureTheory.lintegral_const_mul'' _ (hf.pow_const p),
+    mul_rpow_of_nonneg _ _ (one_div_nonneg.mpr hp.le), ← rpow_mul, mul_one_div_cancel hp.ne.symm,
+    rpow_one]
+
+end ENNReal

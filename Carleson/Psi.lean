@@ -1,6 +1,5 @@
 import Carleson.Defs
 import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Topology.CompletelyRegular
 import Mathlib.Topology.EMetricSpace.Paracompact
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
@@ -332,13 +331,17 @@ lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < (D : 
 --     (hD : 1 < D) (h : x ≠ y) : ∑ i in t, Ks i x y = K x y := by
 --   sorry
 
-lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
-    dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+lemma dist_mem_Ioo_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
+    dist x y ∈ Ioo ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
   simp only [Ks, Nat.cast_pow, Nat.cast_ofNat, zpow_neg, ne_eq, mul_eq_zero, ofReal_eq_zero] at h
-  have dist_mem_Icc := Ioo_subset_Icc_self (support_ψ (D1 X) ▸ mem_support.2 (not_or.1 h).2)
-  rwa [mem_Icc, ← div_eq_inv_mul, le_div_iff₀ (D_pow0' (D1 X) s),
-    div_le_iff₀ (D_pow0' (D1 X) s), mul_inv, mul_assoc, inv_mul_eq_div (4 : ℝ), ← zpow_neg_one,
-    ← zpow_add₀ (D0' X).ne.symm, neg_add_eq_sub, ← div_eq_inv_mul] at dist_mem_Icc
+  have dist_mem_Ioo := support_ψ (D1 X) ▸ mem_support.2 (not_or.1 h).2
+  rwa [mem_Ioo, ← div_eq_inv_mul, lt_div_iff₀ (D_pow0' (D1 X) s),
+    div_lt_iff₀ (D_pow0' (D1 X) s), mul_inv, mul_assoc, inv_mul_eq_div (4 : ℝ), ← zpow_neg_one,
+    ← zpow_add₀ (D0' X).ne.symm, neg_add_eq_sub, ← div_eq_inv_mul] at dist_mem_Ioo
+
+lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
+    dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
+  Ioo_subset_Icc_self (dist_mem_Ioo_of_Ks_ne_zero h)
 
 /-- The constant appearing in part 2 of Lemma 2.1.3. -/
 def C2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
@@ -752,10 +755,18 @@ lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
         exact ⟨fun h ↦ absurd h h', fun _ ↦ ENNReal.coe_ne_top⟩
       exact absurd htop hnetop
 
-lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
+lemma stronglyMeasurable_Ks {s : ℤ} : StronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ
-  refine aestronglyMeasurable_K.mul ?_
+  refine stronglyMeasurable_K.mul ?_
+  apply Continuous.stronglyMeasurable
   fun_prop
+
+lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := by
+  unfold Ks _root_.ψ
+  exact measurable_K.mul (by fun_prop)
+
+lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X ↦ Ks s x.1 x.2) :=
+  measurable_Ks.aestronglyMeasurable
 
 /-- The function `y ↦ Ks s x y` is integrable. -/
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by

@@ -90,7 +90,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
   rw [k_of_abs_le_one, k_of_abs_le_one]
   · simp only [abs_neg, ofReal_neg, mul_neg, ge_iff_le]
     rw [_root_.abs_of_nonneg yy'nonneg.1, _root_.abs_of_nonneg yy'nonneg.2]
-    let f : ℝ → ℂ := fun t ↦ (1 - t) / (1 - exp (-(I * t)))
+    set f : ℝ → ℂ := fun t ↦ (1 - t) / (1 - exp (-(I * t))) with hf
     set f' : ℝ → ℂ := fun t ↦ (-1 + exp (-(I * t)) + I * (t - 1) * exp (-(I * t))) / (1 - exp (-(I * t))) ^ 2 with f'def
     set c : ℝ → ℂ := fun t ↦ (1 - t) with cdef
     set c' : ℝ → ℂ := fun t ↦ -1 with c'def
@@ -117,7 +117,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
         _ > 0 := Real.sin_pos_of_pos_of_lt_pi (by linarith) (by linarith [Real.two_le_pi])
     have f_deriv : ∀ t ∈ Set.uIcc y' y, HasDerivAt f (f' t) t := by
       intro t ht
-      have : f = fun t ↦ c t / d t := by simp
+      have : f = fun t ↦ c t / d t := rfl
       rw [this]
       have : f' = fun t ↦ ((c' t * d t - c t * d' t) / d t ^ 2) := by ext t; ring_nf
       rw [this]
@@ -139,7 +139,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
     have f'_cont : ContinuousOn (fun t ↦ f' t) (Set.uIcc y' y) :=
       ContinuousOn.div (by fun_prop) (by fun_prop) (by simpa using fun _ ht ↦ d_nonzero ht)
     calc ‖(1 - ↑y) / (1 - exp (-(I * ↑y))) - (1 - ↑y') / (1 - exp (-(I * ↑y')))‖
-      _ = ‖f y - f y'‖ := by simp
+      _ = ‖f y - f y'‖ := by simp [hf]
       _ = ‖∫ (t : ℝ) in y'..y, f' t‖ := by
         congr 1
         rw [intervalIntegral.integral_eq_sub_of_hasDerivAt]
