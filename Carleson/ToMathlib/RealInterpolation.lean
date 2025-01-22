@@ -1,4 +1,4 @@
-import Carleson.WeakType
+import Carleson.ToMathlib.WeakType
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 
 /-! This file contains a proof of the Marcinkiewisz real interpolation theorem.
