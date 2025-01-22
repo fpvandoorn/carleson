@@ -187,16 +187,18 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
   _ ≤ ∫ y, ‖cutoff R t x y * (ϕ x - ϕ y)‖ := norm_integral_le_integral_norm _
   _ ≤ ∫ y, cutoff R t x y * (C * (t * R) ^ τ) := by
     apply integral_mono_of_nonneg
-    · apply Eventually.of_forall (fun y ↦ by positivity)
+    · filter_upwards with y using (by positivity)
     · apply (integrable_cutoff hR ht0).mul_const
-    apply Eventually.of_forall (fun y ↦ ?_)
+    filter_upwards with y
     rcases le_total (dist x y) (t * R) with hy | hy
+    -- Case 1: |x - y| ≤ t * R, then cutoff is non-negative.
     · simp only [norm_mul, norm_real, Real.norm_eq_abs, norm_eq_abs, defaultτ, abs_ofReal,
         _root_.abs_of_nonneg cutoff_nonneg]
       gcongr
       · exact cutoff_nonneg
       rw [← Complex.norm_eq_abs, ← dist_eq_norm]
       exact h2ϕ.dist_le_of_le hy
+    -- Case 2: |x - y| > t * R, and cutoff is zero.
     · have : cutoff R t x y = 0 := by
         simp only [cutoff, sup_eq_left, tsub_le_iff_right, zero_add]
         rwa [one_le_div₀ (by positivity)]
@@ -204,7 +206,7 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
   _ = (t * R) ^τ * C * ∫ y, cutoff R t x y := by
     rw [integral_mul_right]
     ring
-  _ ≤ (t * R) ^ τ * ↑C * ‖∫ (x_1 : X), cutoff R t x x_1‖ := by
+  _ ≤ (t * R) ^ τ * C * ‖∫ (x_1 : X), cutoff R t x x_1‖ := by
     gcongr
     exact Real.le_norm_self _
 
