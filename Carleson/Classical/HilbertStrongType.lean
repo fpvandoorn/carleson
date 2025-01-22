@@ -1,5 +1,6 @@
 import Carleson.Classical.HilbertKernel
 import Carleson.Classical.DirichletKernel
+import Carleson.Classical.SpectralProjectionBound
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
 
@@ -47,20 +48,25 @@ lemma mean_zero_oscillation {n : ℤ} (hn : n ≠ 0) :
     mul_right_comm _ Complex.I]
 
 
-/-- Lemma 11.5.1 -/
+/-- Lemma 11.5.1
+Note: might not be used if we can use `spectral_projection_bound_lp` below.
+-/
 lemma partial_sum_projection {f : ℝ → ℂ} {n : ℕ}
     (hmf : Measurable f) (hf : IsBounded (range f)) (periodic_f : f.Periodic (2 * π)) {x : ℝ} :
     partialFourierSum n (partialFourierSum n f) x = partialFourierSum n f x := by
   sorry
 
-/-- Lemma 11.5.2 -/
+/-- Lemma 11.5.2.
+Note: might not be used if we can use `spectral_projection_bound_lp` below.
+-/
 lemma partial_sum_selfadjoint {f g : ℝ → ℂ} {n : ℕ}
     (hmf : Measurable f) (hf : IsBounded (range f)) (periodic_f : f.Periodic (2 * π))
     (hmg : Measurable g) (hg : IsBounded (range g)) (periodic_g : g.Periodic (2 * π)) :
     ∫ x in (0)..2 * π, conj (partialFourierSum n f x) * g x =
     ∫ x in (0)..2 * π, conj (f x) * partialFourierSum n g x := by
   sorry
-#check intervalIntegral
+
+open AddCircle in
 /-- Lemma 11.1.11.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
@@ -69,6 +75,12 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ}
     (hmf : Measurable f) (hf : IsBounded (range f)) (periodic_f : f.Periodic (2 * π)) :
     eLpNorm ((Ioc 0 (2 * π)).indicator (partialFourierSum n f)) ≤
     eLpNorm ((Ioc 0 (2 * π)).indicator f) := by
+  -- Note: easiest proof might be by massaging the statement of `spectral_projection_bound_lp`
+  -- into this
+  have : Fact (0 < 2 * π) := ⟨by positivity⟩
+  let F : Lp ℂ 2 haarAddCircle :=
+    Memℒp.toLp (AddCircle.liftIoc (2 * π) 0 f) sorry
+  have := spectral_projection_bound_lp (N := n) F
   sorry
 
 /-- Lemma 11.3.1.
@@ -85,7 +97,8 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ}
 /-- Lemma 11.3.3.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 
-Bonus points if you generalize to https://en.wikipedia.org/wiki/Young%27s_convolution_inequality first, using `MeasureTheory.convolution` from Mathlib.
+Bonus points if you generalize to https://en.wikipedia.org/wiki/Young%27s_convolution_inequality
+first, using `MeasureTheory.convolution` from Mathlib.
 To applying the general version, you have to apply it with functions with `AddCircle` as domain.
 -/
 lemma young_convolution {f g : ℝ → ℂ} {n : ℕ}
