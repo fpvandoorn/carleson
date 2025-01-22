@@ -147,6 +147,6 @@ Note: we might be able to simplify the proof in the blueprint by using real inte
 Note: In the blueprint we have the condition `r < 1`.
 Can we get rid of that condition or otherwise fix `two_sided_metric_carleson`?
 -/
-lemma Hilbert_strong_2_2 {r : ℝ} (hr : 0 < r) :
+lemma Hilbert_strong_2_2 ⦃r : ℝ⦄ (hr : 0 < r) :
     HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) :=
   sorry
