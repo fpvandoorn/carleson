@@ -570,13 +570,13 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
   have trio : (2 : ℝ)^(0 :ℝ) = 1 := by norm_num
   rw [← trio] at contr
   have tr :  1 < (2 : ℝ) := by linarith
-  have ff : (0 : ℝ) ≤ -94 * (a : ℝ) := (Real.rpow_le_rpow_left_iff tr).mp contr
-  simp at ff
-  have h2 : 94 * (a) ≥ 376 := by
+  have black : (0 : ℝ) ≤ -94 * (a : ℝ) := (Real.rpow_le_rpow_left_iff tr).mp contr
+  simp at black
+  have white : 94 * (a) ≥ 376 := by
     calc
       94 * a ≥ 94 * 4 := by exact Nat.mul_le_mul_left 94 aIsBig
       _ = 376 := by norm_num
-  norm_cast at ff
+  norm_cast at black
   linarith
 
 
