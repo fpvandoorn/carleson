@@ -177,22 +177,15 @@ def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
 omit [TileStructure Q D κ S o] in
 lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
   by_contra! h
-  apply hf
-  have : φ = 0 := by ext; apply h
-  rw [this]
-  simp
+  exact hf (by simp [h])
 
 omit [TileStructure Q D κ S o] in
 /-- Part of Lemma 8.0.1. -/
 lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
     support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
-  unfold support
   intro x hx
-  rw [mem_setOf] at hx
-  have hx'' := left_ne_zero_of_mul hx
-  have : ∃ y, (cutoff R t x y) * ϕ y ≠ 0 := foo hx''
-  choose y hy using this
+  choose y hy using foo (left_ne_zero_of_mul hx)
   have : x ∈ ball y (t * R) := by
     apply aux_8_0_4 hR ht.1
     rw [cutoff_comm]
