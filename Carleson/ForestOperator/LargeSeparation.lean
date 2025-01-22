@@ -364,13 +364,15 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
 lemma sentence_2
   (plusOne: s J' = s J + 1)
   (belongs: (J: Set X) ⊆ (J': Set X))
-  (j5right: ∀ ⦃y : Grid X⦄, y ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) → (J : Set X) ⊆ ↑y → s J ≤ s y → (y : Set X) ⊆ J ∧ s y ≤ s J)
+  (hJ: J ∈ t.𝓙₅ u₁ u₂)
   : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := by
   have J'TouchesChildren : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
     have bigger : s J' > s J := Int.lt.intro (id (Eq.symm plusOne))
     intro hJ'
     have smaller : ¬s J' > s J := by
       push_neg
+      obtain ⟨⟨_, j5right⟩, _, _⟩ := hJ
+      simp only [Grid.le_def, and_imp] at j5right
       exact (j5right hJ' belongs (Int.le.intro 1 (id (Eq.symm plusOne)))).right
     contradiction
 
@@ -494,12 +496,6 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)))
 
-  rcases hJ with ⟨J_is_maximal, J_size, (J_scale : s J ≤ 𝔰 u₁)⟩
-  simp at J_size
-
-  cases' J_is_maximal with left j5right
-  simp at left j5right
-
   by_contra! three
 
   have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 :=
@@ -507,7 +503,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 
   rw [Grid.le_def] at belongs
 
-  have sentence_2_result : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 (plusOne := plusOne) (belongs := belongs.left) (j5right := j5right)
+  have sentence_2_result : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 plusOne belongs.left hJ
 
   have sentence_3_result : ball (c J') (100 * D^(s J + 3)) ⊆ ball (𝔠 p) (10 * D^(𝔰 p)) := sentence_3 belongs plusOne three h
 
