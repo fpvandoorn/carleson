@@ -392,7 +392,7 @@ theorem dist_triangle5 (a b c d e : X) :
       add_le_add_right (add_le_add_right (dist_triangle a b c) _) _
 
 lemma sentence_3
-  (belongs : (J : Set X) ⊆ ↑J' ∧ s J ≤ s J')
+  (subset : (J : Set X) ⊆ ↑J')
   (plusOne : s J' = s J + 1)
   (three : s J + 3 < 𝔰 p)
   (h : ¬Disjoint (ball (𝔠 p) (8 * ↑D ^ 𝔰 p)) (ball (c J) (8⁻¹ * ↑D ^ s J)))
@@ -401,7 +401,6 @@ lemma sentence_3
   rcases h with ⟨middleX, xxx, yyy⟩
   intros x xIn
   simp only [mem_ball] at xxx yyy xIn ⊢
-  cases' belongs with subset smaller
   apply IF_subset_THEN_distance_between_centers at subset
 
   calc dist x (𝔠 p)
@@ -501,20 +500,12 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
   have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 :=
     Grid.exists_scale_succ (by change s J < 𝔰 p; linarith)
 
-  rw [Grid.le_def] at belongs
-
-  have sentence_2_result : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 plusOne belongs.left hJ
-
-  have sentence_3_result : ball (c J') (100 * D^(s J + 3)) ⊆ ball (𝔠 p) (10 * D^(𝔰 p)) := sentence_3 belongs plusOne three h
-
-  rcases sentence_2_result with ⟨ p', evilChildren, hundred ⟩
-  rcases evilChildren with ⟨ forest, distance ⟩
-  beta_reduce at forest
+  have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 plusOne belongs.left hJ
 
   have contradiction := calc 2^((Z : ℝ) * (n : ℝ) / 2)
-    _ ≤ dist_{𝓘 p'}                   (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ dist_{𝓘 p'}                    (𝒬 u₁) (𝒬 u₂) := by
       exact distance
-    _ = dist_{𝔠 p', D ^ 𝔰 p' / 4}      (𝒬 u₁) (𝒬 u₂) := by
+    _ = dist_{𝔠 p', D ^ 𝔰 p' / 4}       (𝒬 u₁) (𝒬 u₂) := by
       rfl
     _ ≤ dist_{c J', 100 * D^(s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
       have subset : ball (𝔠 p') (D ^ 𝔰 p' / 4) ⊆ ball (c J') (100 * D^(s J + 2)) := by
@@ -551,6 +542,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       exact_mod_cast result
     _ ≤ 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
+      have sentence_3_result : ball (c J') (100 * D^(s J + 3)) ⊆ ball (𝔠 p) (10 * D^(𝔰 p)) := sentence_3 belongs.left plusOne three h
       exact cdist_mono (h := sentence_3_result)
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       have DIsPos := defaultD_pos a
