@@ -502,6 +502,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 
   have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 plusOne belongs.left hJ
 
+  have DIsPos := defaultD_pos a
   have contradiction := calc 2^((Z : ℝ) * (n : ℝ) / 2)
     _ ≤ dist_{𝓘 p'}                    (𝒬 u₁) (𝒬 u₂) := by
       exact distance
@@ -512,39 +513,26 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       intros x hx
       exact hundred (ball_subset_Grid hx)
     _ ≤ 2^((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
-      have result := le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (x := c J') (r := 100 * D^(s J + 2)) (hr := by positivity)
-      rw [neg_mul, Real.rpow_neg (x:=(2 : ℝ)) (y:=(100 * (a : ℝ))) (hx := by positivity)]
-      rw [mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
-      have well := (le_mul_inv_iff₀ (c:=((2 : ℝ) ^ (100 * (a : ℝ)))) (b:= dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂)) (a:= dist_{c J', 100 * D^(s J + 2)} (𝒬 u₁) (𝒬 u₂)) (by positivity)).mpr
-      apply well
-      clear well
-      rw [mul_comm]
-
-      have useful : (D : ℝ) ^ (s J + 3) = (D : ℝ) ^ (s J + 2) * (D : ℝ) := by
-        rw [zpow_add₀ (by linarith [defaultD_pos a]) (s J) 3, zpow_add₀ (by linarith [defaultD_pos a]) (s J) 2, mul_assoc]
+      have calculation_1 : (D : ℝ) ^ (s J + 3) = (D : ℝ) ^ (s J + 2) * (D : ℝ) := by
+        rw [zpow_add₀ (by linarith) (s J) 3, zpow_add₀ (by linarith) (s J) 2, mul_assoc]
         congr
-      rw [useful]
-      have equality :
-        (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s J + 2)) =
-        100 * (D ^ (s J + 2) * D) := by
-        rw [← mul_assoc (a:= 100)]
-        rw [mul_comm]
+      have calculation_2 :
+        100 * (D ^ (s J + 2) * D) =
+        (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s J + 2)) := by
+        rw [← mul_assoc (a:= 100), mul_comm]
         congr
-        simp
-        have simple : ((2 : ℝ) ^ a) ^ (100 * a) = (2 : ℝ) ^ (a * (100 * a)) := by
-          exact Eq.symm (pow_mul 2 a (100 * a))
-        rw [simple, mul_comm (a:=a)]
-        simp
+        norm_cast
+        rw [← pow_mul 2 a (100 * a), mul_comm (a:=a), defaultD]
         ring
-      rw [← equality]
-      clear equality
-      exact_mod_cast result
+      rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
+      apply (le_mul_inv_iff₀ (by positivity)).mpr
+      rw [mul_comm, calculation_1, calculation_2]
+      exact_mod_cast le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
     _ ≤ 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
       have sentence_3_result : ball (c J') (100 * D^(s J + 3)) ⊆ ball (𝔠 p) (10 * D^(𝔰 p)) := sentence_3 belongs.left plusOne three h
       exact cdist_mono (h := sentence_3_result)
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
-      have DIsPos := defaultD_pos a
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
       have cdist_theorem := cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
       unfold defaultA at cdist_theorem
