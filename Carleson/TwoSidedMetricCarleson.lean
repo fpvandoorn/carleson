@@ -102,7 +102,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   sorry
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
-monotone convergence theorem. (measurability should be proven without any restriction on `r`. -/
+monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
 theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hmg : Measurable g) (hg : IsBounded (range g)) (h2g : volume (support g) < ∞)

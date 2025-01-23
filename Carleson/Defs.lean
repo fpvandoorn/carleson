@@ -196,8 +196,9 @@ def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) :
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ≥0) (x' : X) (_ : dist x x' ≤ R₁),
-  ‖∫ y in {y | (nndist x' y : ℝ≥0∞) ∈ Ioo (R₁ : ℝ≥0∞) (upperRadius Q θ x')}, K x' y * f y‖₊
+  ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
+  ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioo (ENNReal.ofReal R₁) (upperRadius Q θ x')},
+    K x' y * f y‖₊
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
