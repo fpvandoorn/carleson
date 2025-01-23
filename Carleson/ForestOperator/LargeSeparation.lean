@@ -533,32 +533,28 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       apply cdist_mono
       exact sentence_3 belongs.left plusOne three h
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
-      have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
-      have aIsBig : a ≥ 4 := four_le_a X
-      have h_pos : 0 < (2 : ℝ)^((100 : ℝ) * a) := by positivity
-      have := mul_le_mul_left h_pos (c:= 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂)) (b:= 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂))
-      apply this.mp
-      clear this
-      rw [← mul_assoc]
-      simp
-      rw [Real.rpow_neg (by positivity), LinearOrderedField.mul_inv_cancel (a:= (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity)]
-      simp
-      rw [← mul_assoc, ← Real.rpow_add]
+
+      apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (100 * (a : ℝ)) by positivity)).mp
+
+      rw [
+        ← mul_assoc,
+        neg_mul,
+        Real.rpow_neg (by positivity),
+        LinearOrderedField.mul_inv_cancel (a:= (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity),
+        ← mul_assoc,
+        ← Real.rpow_add (by positivity)
+      ]
       ring_nf
       rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
-
-      have yellow := calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
-        _ ≤ dist_{𝔠 p, 2 ^ 6 * (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
-          apply cdist_mono
-          apply ball_subset_ball
-          ring_nf
-          linarith
-        _ ≤ ↑(defaultA a) ^ 6 * dist_{𝔠 p, (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
-          exact cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
-
-
-      exact_mod_cast yellow
-      positivity
+      have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
+      calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
+      _ ≤ dist_{𝔠 p, 2 ^ 6 * (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+        apply cdist_mono
+        apply ball_subset_ball
+        ring_nf
+        linarith
+      _ ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_{𝔠 p, (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+        exact_mod_cast cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
     _ ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * n / 2) := by
       exact last_step hp
 
