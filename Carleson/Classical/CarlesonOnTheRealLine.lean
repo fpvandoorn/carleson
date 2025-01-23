@@ -566,6 +566,6 @@ lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     _ ≤ ∫⁻ x in G, carlesonOperator K f x :=
       lintegral_mono (carlesonOperatorReal_le_carlesonOperator _)
     _ ≤ ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
-      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 f hmf hf
+      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 hmf hf
 
 end section
