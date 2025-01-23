@@ -1,5 +1,5 @@
-import Carleson.DoublingMeasure
-import Carleson.WeakType
+import Carleson.ToMathlib.DoublingMeasure
+import Carleson.ToMathlib.WeakType
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star

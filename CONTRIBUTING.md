@@ -60,3 +60,6 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `𝔗ⱼ(u)`        | `rowDecomp t j u` |     |
 | `E`        | `E` |     |
 | `Eⱼ`        | `rowSupport t j` |     |
+| `M_n`        | `modulationOperator n` |     |
+| `L_N`        | `approxHilbertTransform N` |     |
+| `k_r`        | `niceKernel r` |     |

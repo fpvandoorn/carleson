@@ -13,7 +13,6 @@ open Complex ComplexConjugate MeasureTheory
 
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - exp (I * x))
 
-
 /- Basic properties of k. -/
 
 lemma k_of_neg_eq_conj_k {x : ℝ} : k (-x) = conj (k x) := by
