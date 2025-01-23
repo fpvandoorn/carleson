@@ -8,7 +8,7 @@ noncomputable section
 
 /-- The constant used in `two_sided_metric_carleson`.
 Has value `2 ^ (452 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
--- todo: C_K in NNReal
+-- todo: put C_K in NNReal?
 def C10_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := (⟨C_K a, C_K_pos _ |>.le⟩) ^ 2 * C1_0_2 a q
 
 lemma C10_0_1_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C10_0_1 a q :=
