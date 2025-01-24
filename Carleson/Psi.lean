@@ -277,6 +277,19 @@ lemma psi_eq_zero_iff {x : ℝ} (hx : 0 < x) : ψ D (D ^ (-s) * x) = 0 ↔ s ∉
 lemma support_ψS (hx : 0 < x) : support (fun (s : ℤ) ↦ ψ D (D ^ (-s) * x)) = nonzeroS D x := by
   ext; rw [mem_support]; exact psi_ne_zero_iff hD hx
 
+lemma support_ψS_subset_Icc {b c : ℤ} {x : ℝ}
+    (h : x ∈ Icc ((D : ℝ) ^ (b - 1) / 2) (D ^ c / 4)) :
+    support (fun (s : ℤ) ↦ ψ D (D ^ (-s) * x)) ⊆ Icc b c := by
+  intro i hi
+  have hx : x > 0 := lt_of_lt_of_le (by positivity) h.1
+  simp only [support_ψS hD hx, nonzeroS, Finset.coe_Icc, mem_Icc] at hi
+  simp only [toFinset_Icc, Finset.coe_Icc, mem_Icc]
+  refine ⟨le_trans ?_ hi.1, le_trans hi.2 ?_⟩
+  · rw [← Nat.cast_one, Int.floor_nat_add, Nat.cast_one, ← sub_le_iff_le_add', Int.le_floor,
+      Real.le_logb_iff_rpow_le hD (mul_pos two_pos hx), mul_comm]
+    exact_mod_cast (div_le_iff₀ two_pos).mp h.1
+  · rw [Int.ceil_le, Real.logb_le_iff_le_rpow hD (mul_pos four_pos hx), mul_comm]
+    exact_mod_cast (le_div_iff₀ four_pos).mp h.2
 
 lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
   refine Eq.trans ?_ (sum_ψ hD hx)
