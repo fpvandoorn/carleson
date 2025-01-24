@@ -200,7 +200,6 @@ protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ
     ext x; by_cases hx : x ∈ I <;> simp [hx]
   exact this ▸ (measurable_const.ite coeGrid_measurable measurable_const)
 
-
 -- Set used in definition of `boundaryOperator`
 variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
   { J | J ∈ 𝓙 (t u) ∧ (J : Set X) ⊆ ball x (16 * D ^ i) ∧ s J ≤ i }
