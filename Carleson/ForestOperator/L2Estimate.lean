@@ -1,5 +1,6 @@
 import Carleson.ForestOperator.PointwiseEstimate
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.ENorm
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -40,13 +41,72 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedC
 /-- The constant used in `nontangential_operator_bound`.
 Has value `2 ^ (103 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (103 * (a : ℝ) ^ 3)
+irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
+
+private def annulus_oo (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ioo r R}
+private def annulus_oc (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ioc r R}
+private def annulus_co (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ico r R}
+private def annulus_cc (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Icc r R}
+private def annulus_ci (x : X) (r : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ici r}
+private abbrev annulus_oo' (x : X) (r R : ℝ) := annulus_oo x (ENNReal.ofReal r) (ENNReal.ofReal R)
+private abbrev annulus_oc' (x : X) (r R : ℝ) := annulus_oc x (ENNReal.ofReal r) (ENNReal.ofReal R)
+private abbrev annulus_co' (x : X) (r R : ℝ) := annulus_co x (ENNReal.ofReal r) (ENNReal.ofReal R)
+private abbrev annulus_cc' (x : X) (r R : ℝ) := annulus_cc x (ENNReal.ofReal r) (ENNReal.ofReal R)
+
+--private lemma annulus_ci_top (x : X) : annulus_ci x ⊤ = ∅ := by simp [annulus_ci]
+
+private lemma annulus_oc_subset_cc_self (x : X) (r R : ℝ≥0∞) :
+    annulus_oc x r R ⊆ annulus_cc x r R := by
+  rw [annulus_oc, annulus_cc, setOf_subset_setOf]; intro; apply Ioc_subset_Icc_self
+
+private lemma annulus_co_subset_cc_self (x : X) (r R : ℝ≥0∞) :
+    annulus_co x r R ⊆ annulus_cc x r R := by
+  rw [annulus_co, annulus_cc, setOf_subset_setOf]; intro; apply Ico_subset_Icc_self
+
+private lemma annulus_oc_union_oo (x : X) {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' < R) :
+    annulus_oc x r r' ∪ annulus_oo x r' R = annulus_oo x r R := by
+  ext y
+  simp_rw [annulus_oc, annulus_oo, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioo_eq_Ioo h₁ h₂]
+
+private lemma annulus_oc_union_oc (x : X) {r r' R : ℝ≥0∞} (h₁ : r ≤ r') (h₂ : r' ≤ R) :
+    annulus_oc x r r' ∪ annulus_oc x r' R = annulus_oc x r R := by
+  ext y
+  simp_rw [annulus_oc, mem_union, mem_setOf_eq, ← mem_union, Ioc_union_Ioc_eq_Ioc h₁ h₂]
+
+/- private lemma annulus_oo_subset_union_oc_oc_oo (x : X) {r₀ r₁ r₂ r₃ : ℝ≥0∞} :
+    annulus_oo x r₀ r₃ ⊆ annulus_oc x r₀ r₁ ∪ annulus_oc x r₁ r₂ ∪ annulus_oo x r₂ r₃ := by
+  intro y hy
+  rw [annulus_oo, mem_setOf_eq, mem_Ioo] at hy
+  by_cases i1 : ENNReal.ofReal (dist x y) ≤ r₁
+  · left; left; exact ⟨hy.1, i1⟩
+  · by_cases i2 : ENNReal.ofReal (dist x y) ≤ r₂
+    · left; right; exact ⟨lt_of_not_ge i1, i2⟩
+    · right; exact ⟨lt_of_not_ge i2, hy.2⟩ -/
+
+private lemma annulus_oo'_eq (x : X) (r R : ℝ) (hr : r ≥ 0) :
+    annulus_oo' x r R = {y | dist x y ∈ Ioo r R} := by
+  simp [annulus_oo, ENNReal.ofReal_lt_ofReal_iff_of_nonneg hr,
+    ENNReal.ofReal_lt_ofReal_iff_of_nonneg dist_nonneg]
+
+-- The assumption `0 ≤ R` could be removed, but that's not necessary for now.
+private lemma annulus_oc'_eq (x : X) (r R : ℝ) (hr : 0 ≤ r) (hR : 0 ≤ R) :
+    annulus_oc' x r R = {y | dist x y ∈ Ioc r R} := by
+  simp [annulus_oc, ENNReal.ofReal_le_ofReal_iff hR,
+    ENNReal.ofReal_lt_ofReal_iff_of_nonneg hr]
+
+-- The assumption `0 ≤ R` could be removed, but that's not necessary for now.
+private lemma annulus_cc'_eq (x : X) (r R : ℝ) (hR : 0 ≤ R) :
+    annulus_cc' x r R = {y | dist x y ∈ Icc r R} := by
+  simp [annulus_cc, ENNReal.ofReal_le_ofReal_iff hR,
+    ENNReal.ofReal_le_ofReal_iff dist_nonneg]
 
 omit [TileStructure Q D κ S o] in
-lemma _root_.integrableOn_K_mul_f (hf : BoundedCompactSupport f) (r : ℝ) (hr : r > 0) :
-    IntegrableOn (fun y ↦ K x' y * f y) {y | dist x' y ∈ Ici r} volume := by
+lemma integrableOn_K_mul_f (x' : X) (hf : BoundedCompactSupport f) (r : ℝ≥0∞) (hr : 0 < r) :
+    IntegrableOn (fun y ↦ K x' y * f y) (annulus_ci x' r) := by
   by_cases supp_f : (support f).Nonempty; swap
   · simp [Function.support_eq_empty_iff.mp <| Set.not_nonempty_iff_eq_empty.mp supp_f]
+  by_cases r_inf : r = ⊤
+  · simp [r_inf, annulus_ci]
   have ⟨x'', hx''⟩ := supp_f
   have ⟨C, hC⟩ := Metric.isBounded_iff.mp hf.isBoundedSupport
   specialize hC hx''
@@ -61,22 +121,51 @@ lemma _root_.integrableOn_K_mul_f (hf : BoundedCompactSupport f) (r : ℝ) (hr :
   unfold IntegrableOn
   rw [Measure.restrict_restrict]
   · apply hf.integrable_mul
-    have := integrableOn_K_Icc (K := K) x' r (dist x' x'' + C) hr
+    have := integrableOn_K_Icc (K := K) x' (ENNReal.toReal r) (dist x' x'' + C)
+      (ENNReal.toReal_pos hr.ne.symm r_inf)
     unfold IntegrableOn at this
     convert this using 2
     ext y
-    simp [inter_comm (closedBall _ _), dist_comm y]
+    simp [inter_comm (closedBall _ _), dist_comm y, annulus_ci,
+      ENNReal.le_ofReal_iff_toReal_le r_inf dist_nonneg]
   · exact measurableSet_closedBall
 
-omit [TileStructure Q D κ S o] in
-lemma _root_.integrableOn_K_mul_f_ennreal (hf : BoundedCompactSupport f) (r : ℝ≥0∞) (hr₀ : r > 0)
-    (hr₁ : r ≠ ⊤) : IntegrableOn (fun y ↦ K x' y * f y)
-    {y | ENNReal.ofReal (dist x' y) ∈ Ici r} volume := by
-  convert integrableOn_K_mul_f hf (ENNReal.toReal r) <| ENNReal.toReal_pos hr₀.ne.symm hr₁
-  exact ENNReal.le_ofReal_iff_toReal_le hr₁ dist_nonneg
+-- Truncated version of `K` used in proof of `nontangential_pointwise_bound`
+private def K' (b : ℤ) (c : ℤ) (x y : X) := ∑ i ∈ (Icc b c).toFinset, Ks i x y
 
-private def annulus_oo (x : X) (R₁ R₂ : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ioo R₁ R₂}
---private def annulus_oc (x : X) (R₁ R₂ : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ioc R₁ R₂}
+omit [TileStructure Q D κ S o] in
+private lemma K'_eq_K (b : ℤ) (c : ℤ) (x y : X)
+    (h : dist x y ∈ Icc ((D : ℝ) ^ (b - 1) / 2) (D ^ c / 4)) : K' b c x y = K x y := by
+  have hxy : dist x y > 0 := lt_of_lt_of_le (div_pos (defaultD_pow_pos a (b - 1)) two_pos) h.1
+  simp_rw [K', Ks, ← Finset.mul_sum, ← Complex.ofReal_sum]
+  rw [← finsum_eq_sum_of_support_subset, finsum_ψ (one_lt_D (X := X)) hxy, ofReal_one, mul_one]
+  intro i hi
+  simp only [support_ψS (one_lt_D (X := X)) hxy, nonzeroS, Finset.coe_Icc, mem_Icc] at hi
+  simp only [toFinset_Icc, Finset.coe_Icc, mem_Icc]
+  refine ⟨le_trans ?_ hi.1, le_trans hi.2 ?_⟩
+  · rw [← Nat.cast_one, Int.floor_nat_add, Nat.cast_one, ← sub_le_iff_le_add', Int.le_floor,
+      Real.le_logb_iff_rpow_le (one_lt_D (X := X)) (mul_pos two_pos hxy), mul_comm]
+    exact_mod_cast (div_le_iff₀ two_pos).mp h.1
+  · rw [Int.ceil_le, Real.logb_le_iff_le_rpow (one_lt_D (X := X)) (mul_pos four_pos hxy), mul_comm]
+    exact_mod_cast (le_div_iff₀ four_pos).mp h.2
+
+omit [TileStructure Q D κ S o] in
+private lemma integrableOn_K'_mul_f (x' : X) (hf : BoundedCompactSupport f) (r : ℝ≥0∞) (hr : 0 < r)
+    (s₁ s₂ : ℤ) : IntegrableOn (fun y ↦ K' s₁ s₂ x' y * f y) (annulus_ci x' r) := by
+  unfold K' Ks
+  simp_rw [mul_comm (K x' _) (ψ _), ← Finset.sum_mul, mul_assoc]
+  apply Integrable.bdd_mul (integrableOn_K_mul_f x' hf r hr)
+  · refine (Finset.aestronglyMeasurable_sum _ (fun i hi ↦ ?_)).restrict
+    apply continuous_ofReal.comp_aestronglyMeasurable ∘ continuous_ψ.comp_aestronglyMeasurable
+    exact (continuous_const.dist continuous_id').aestronglyMeasurable.const_mul _
+  · refine ⟨(s₂ + 1 - s₁).toNat, fun _ ↦ le_trans (norm_sum_le ..) ?_⟩
+    simp_rw [norm_eq_abs, abs_ofReal]
+    exact le_of_le_of_eq (Finset.sum_le_sum fun _ _ ↦ abs_ψ_le_one _ _) (by simp)
+
+/- omit [TileStructure Q D κ S o] in
+private lemma _root_.integrableOn_K_mul_f_ennreal (hf : BoundedCompactSupport f) (r : ℝ≥0∞)
+    (hr : r > 0) : IntegrableOn (fun y ↦ K x' y * f y) (annulus_ci x' r) := by
+  exact integrableOn_K_mul_f hf r hr -/
 
 private lemma annulus_oo_eq_of_lt_top (x : X) {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
     annulus_oo x r R = ball x (ENNReal.toReal R) ∩ (closedBall x (ENNReal.toReal r))ᶜ := by
@@ -84,15 +173,102 @@ private lemma annulus_oo_eq_of_lt_top (x : X) {r R : ℝ≥0∞} (hr : r < ⊤) 
   simp [annulus_oo, dist_comm, and_comm, ENNReal.lt_ofReal_iff_toReal_lt hr.ne (b := dist x y),
     ENNReal.ofReal_lt_iff_lt_toReal dist_nonneg hR.ne]
 
+private lemma annulus_oc_eq_of_lt_top (x : X) {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
+    annulus_oc x r R = closedBall x (ENNReal.toReal R) ∩ (closedBall x (ENNReal.toReal r))ᶜ := by
+  ext y
+  simp [annulus_oc, dist_comm, and_comm, ENNReal.lt_ofReal_iff_toReal_lt hr.ne (b := dist x y),
+    ENNReal.ofReal_le_iff_le_toReal hR.ne]
+
+private lemma annulus_co_eq_of_lt_top (x : X) {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
+    annulus_co x r R = ball x (ENNReal.toReal R) ∩ (ball x (ENNReal.toReal r))ᶜ := by
+  ext y
+  simp [annulus_co, dist_comm, and_comm, ENNReal.le_ofReal_iff_toReal_le hr.ne dist_nonneg,
+    ENNReal.ofReal_lt_iff_lt_toReal dist_nonneg hR.ne]
+
+private lemma annulus_cc_eq_of_lt_top (x : X) {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
+    annulus_cc x r R = closedBall x (ENNReal.toReal R) ∩ (ball x (ENNReal.toReal r))ᶜ := by
+  ext y
+  simp [annulus_cc, dist_comm, and_comm, ENNReal.le_ofReal_iff_toReal_le hr.ne dist_nonneg,
+    ENNReal.ofReal_le_iff_le_toReal hR.ne]
+
 private lemma annulus_oo_eq_of_top (x : X) {r : ℝ≥0∞} (hr : r < ⊤) :
     annulus_oo x r ⊤ = (closedBall x (ENNReal.toReal r))ᶜ := by
-  ext y
-  simpa [annulus_oo, dist_comm] using ENNReal.lt_ofReal_iff_toReal_lt hr.ne
+  ext; simpa [annulus_oo, dist_comm] using ENNReal.lt_ofReal_iff_toReal_lt hr.ne
 
+private lemma annulus_oc_eq_of_top (x : X) {r : ℝ≥0∞} (hr : r < ⊤) :
+    annulus_oc x r ⊤ = (closedBall x (ENNReal.toReal r))ᶜ := by
+  ext; simpa [annulus_oc, dist_comm] using ENNReal.lt_ofReal_iff_toReal_lt hr.ne
+
+private lemma annulus_co_eq_of_top (x : X) {r : ℝ≥0∞} (hr : r < ⊤) :
+    annulus_co x r ⊤ = (ball x (ENNReal.toReal r))ᶜ := by
+  ext; simpa [annulus_co, dist_comm] using ENNReal.le_ofReal_iff_toReal_le hr.ne dist_nonneg
+
+private lemma annulus_cc_eq_of_top (x : X) {r : ℝ≥0∞} (hr : r < ⊤) :
+    annulus_cc x r ⊤ = (ball x (ENNReal.toReal r))ᶜ := by
+  ext; simpa [annulus_cc, dist_comm] using ENNReal.le_ofReal_iff_toReal_le hr.ne dist_nonneg
+
+-- Generalize these to `r ≥ R`?
 private lemma annulus_oo_empty (x : X) (R : ℝ≥0∞) : annulus_oo x ⊤ R = ∅ := by simp [annulus_oo]
+private lemma annulus_oc_empty (x : X) (R : ℝ≥0∞) : annulus_oc x ⊤ R = ∅ := by simp [annulus_oc]
+private lemma annulus_co_empty (x : X) (R : ℝ≥0∞) : annulus_co x ⊤ R = ∅ := by simp [annulus_co]
+private lemma annulus_cc_empty (x : X) (R : ℝ≥0∞) : annulus_cc x ⊤ R = ∅ := by simp [annulus_cc]
+
+private lemma annulus_oc_subset_oo (x : X) {r₁ r₂ r₃ r₄ : ℝ≥0∞} (h₁₃ : r₃ ≤ r₁) (h₂₄ : r₂ < r₄) :
+    annulus_oc x r₁ r₂ ⊆ annulus_oo x r₃ r₄ := by
+  intro
+  simp only [annulus_oc, mem_setOf_eq, annulus_oo]
+  apply subset_trans (Ioc_subset_Ioc h₁₃ (le_refl r₂)) (Ioc_subset_Ioo_right h₂₄)
+
+private lemma annulus_oo_subset_oo (x : X) {r₁ r₂ r₃ r₄ : ℝ≥0∞} (h₁₃ : r₃ ≤ r₁) (h₂₄ : r₂ ≤ r₄) :
+    annulus_oo x r₁ r₂ ⊆ annulus_oo x r₃ r₄ := by
+  intro
+  simp only [mem_setOf_eq, annulus_oo]
+  apply Ioo_subset_Ioo h₁₃ h₂₄
+
+private lemma annulus_oo_subset_cc (x : X) {r₁ r₂ r₃ r₄ : ℝ≥0∞} (h₁₃ : r₃ ≤ r₁) (h₂₄ : r₂ ≤ r₄) :
+    annulus_oo x r₁ r₂ ⊆ annulus_cc x r₃ r₄ := by
+  intro
+  simp only [mem_setOf_eq, annulus_oo, annulus_cc, mem_Ioo, mem_Icc]
+  intro ⟨hr₁, hr₂⟩
+  exact ⟨h₁₃.trans hr₁.le, hr₂.le.trans h₂₄⟩
+
+/- private lemma annulus_oo_subset_co (x : X) {r₁ r₂ r₃ r₄ : ℝ≥0∞} (h₁₃ : r₃ ≤ r₁) (h₂₄ : r₂ ≤ r₄) :
+    annulus_oo x r₁ r₂ ⊆ annulus_co x r₃ r₄ := by
+  apply (annulus_oo_subset_oo x h₁₃ h₂₄).trans
+  intro y
+  simp only [mem_setOf_eq, annulus_oo, annulus_co]
+  apply Ioo_subset_Ico_self -/
+
+private lemma annulus_co_subset_oo (x : X) {r₁ r₂ r₃ r₄ : ℝ≥0∞} (h₁₃ : r₃ < r₁) (h₂₄ : r₂ ≤ r₄) :
+    annulus_co x r₁ r₂ ⊆ annulus_oo x r₃ r₄ := by
+  intro y
+  simp only [mem_setOf_eq, annulus_oo, annulus_co]
+  apply subset_trans (Ico_subset_Ioo_left h₁₃) (Ioo_subset_Ioo_right h₂₄)
+
+private lemma annulus_oo_subset_ci (x : X) {r₁ R r₂ : ℝ≥0∞} (h : r₁ ≥ r₂) :
+    annulus_oo x r₁ R ⊆ annulus_ci x r₂ := by
+  intro
+  simp only [annulus_oo, mem_setOf_eq, annulus_ci, and_imp, mem_Ioo, mem_Ici]
+  intro hr₁ _
+  exact h.trans hr₁.le
+
+private lemma annulus_cc_subset_ci (x : X) {r₁ R r₂ : ℝ≥0∞} (h : r₁ ≥ r₂) :
+    annulus_cc x r₁ R ⊆ annulus_ci x r₂ := by
+  intro
+  simp only [annulus_cc, mem_setOf_eq, annulus_ci, and_imp, mem_Icc, mem_Ici]
+  intro hr₁ _
+  exact h.trans hr₁
+
+private lemma annulus_cc_subset_cc (x : X) {r₁ r₂ r₃ r₄ : ℝ≥0∞} (h₁₃ : r₁ ≥ r₃) (h₂₄ : r₂ ≤ r₄) :
+    annulus_cc x r₁ r₂ ⊆ annulus_cc x r₃ r₄ := by
+  intro
+  simp only [annulus_cc, mem_setOf_eq, and_imp, mem_Icc]
+  intro hr₁ hr₂
+  exact ⟨h₁₃.trans hr₁, hr₂.trans h₂₄⟩
 
 omit [TileStructure Q D κ S o] in
-private lemma measurableSet_annulus_oo (x : X) (r R : ℝ≥0∞) : MeasurableSet (annulus_oo x r R) := by
+@[measurability]
+private lemma measurableSet_annulus_oo {x : X} {r R : ℝ≥0∞} : MeasurableSet (annulus_oo x r R) := by
   by_cases hr : r = ⊤
   · simp [hr, annulus_oo_empty x R]
   replace hr : r < ⊤ := Ne.lt_top' fun h ↦ hr h.symm
@@ -101,83 +277,394 @@ private lemma measurableSet_annulus_oo (x : X) (r R : ℝ≥0∞) : MeasurableSe
   rw [annulus_oo_eq_of_lt_top x hr (Ne.lt_top' fun h ↦ hR h.symm)]
   measurability
 
--- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
-private lemma nontangential_integral_bound₁ (hf : BoundedCompactSupport f) (θ : Θ X) (x x' : X)
-    (I : Grid X) (hx : x ∈ I) (hx' : x' ∈ I) (s₂ : ℤ) (hs : s I ≤ s₂)
-    (hs₂ : (D : ℝ≥0∞) ^ (s₂ - 1) ≤ upperRadius Q θ x') :
-    ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioc (8 * (D : ℝ≥0∞) ^ s I) (D ^ (s₂ - 1) / 4)},
-      K x' y * f y‖ₑ ≤ 2 * linearizedNontangentialOperator Q θ K f x := by
-    by_cases R₁_le_R₂ : 8 * (D : ℝ≥0∞) ^ (s I) ≤ (D : ℝ≥0∞) ^ (s₂ - 1) / 4; swap
-    · simp [-defaultD, Set.Ioc_eq_empty (fun h ↦ R₁_le_R₂ h.le)]
-    have int_Kf : IntegrableOn (fun y ↦ K x' y * f y)
-        {y | ENNReal.ofReal (dist x' y) ∈ Ici (8 * (D : ℝ≥0∞) ^ s I)} volume := by
-      apply integrableOn_K_mul_f_ennreal hf (8 * (D : ℝ≥0∞) ^ s I)
-      · apply ENNReal.mul_pos (by norm_num)
-        refine (ENNReal.zpow_pos (by norm_num) (ENNReal.natCast_ne_top D) (s I)).ne.symm
-      · apply ENNReal.mul_ne_top ENNReal.ofNat_ne_top
-        exact (ENNReal.zpow_lt_top (by norm_num) (ENNReal.natCast_ne_top D) (s I)).ne
-    have D0 : (D : ℝ≥0∞) ≠ 0 := by norm_num
-    have R₂_lt_upperRadius : (D : ℝ≥0∞) ^ (s₂ - 1) / 4 < upperRadius Q θ x' := by
-      refine lt_of_lt_of_le (ENNReal.div_lt_of_lt_mul' ?_) hs₂
-      nth_rewrite 1 [← one_mul ((D : ℝ≥0∞) ^ _), mul_comm 1, mul_comm 4]
-      have : (D : ℝ≥0∞) ^ (s₂ - 1) > 0 := ENNReal.zpow_pos D0 (ENNReal.natCast_ne_top D) (s₂ - 1)
-      apply ENNReal.mul_left_strictMono this.ne.symm ?_ (by norm_num)
-      exact (ENNReal.zpow_lt_top D0 (ENNReal.natCast_ne_top D) _).ne
-    have dist_le : dist x x' ≤ 8 * (D : ℝ) ^ s I := by
-      apply le_trans (dist_triangle x (c I) x')
-      have h1 := mem_ball.mp (Grid_subset_ball hx)
-      have h2 := mem_ball'.mp (Grid_subset_ball hx')
-      convert (add_lt_add h1 h2).le using 1
-      unfold s
-      ring
-    calc
-      _ = ‖(∫ y in annulus_oo x' (8 * D ^ s I) (upperRadius Q θ x'), K x' y * f y) -
-            ∫ y in annulus_oo x' (D ^ (s₂ - 1) / 4) (upperRadius Q θ x'), K x' y * f y‖ₑ := by
-        congr
-        apply eq_sub_of_add_eq
-        rw [← setIntegral_union]
-        · congr
-          ext y
-          rw [annulus_oo, annulus_oo, mem_union, mem_setOf_eq, mem_setOf_eq, mem_setOf_eq]
-          rw [← mem_union, Set.Ioc_union_Ioo_eq_Ioo R₁_le_R₂ R₂_lt_upperRadius]
-        · rw [Set.disjoint_iff]
-          intro y ⟨⟨_, hy₁⟩, ⟨hy₂, _⟩⟩
-          exact (lt_self_iff_false _).mp (lt_of_lt_of_le hy₂ hy₁)
-        · apply measurableSet_annulus_oo
-        · apply int_Kf.mono_set
-          intro y hy
-          simp only [mem_Ioc, mem_setOf_eq, mem_Ici] at hy ⊢
-          exact hy.1.le
-        · apply int_Kf.mono_set
-          intro y hy
-          simp only [mem_Ioo, mem_setOf_eq, mem_Ici] at hy ⊢
-          exact R₁_le_R₂.trans hy.1.le
-      _ ≤ ‖∫ y in annulus_oo x' (8 * D ^ s I) (upperRadius Q θ x'), K x' y * f y‖ₑ +
-            ‖∫ y in annulus_oo x' (D ^ (s₂ - 1) / 4) (upperRadius Q θ x'), K x' y * f y‖ₑ := by
-        rw [enorm_eq_nnnorm, enorm_eq_nnnorm, enorm_eq_nnnorm, ← ENNReal.coe_add]
-        exact ENNReal.coe_mono (nnnorm_sub_le _ _)
-      _ ≤ 2 * linearizedNontangentialOperator Q θ K f x := by
-        rw [two_mul, annulus_oo, annulus_oo]
-        unfold linearizedNontangentialOperator
+omit [TileStructure Q D κ S o] in
+@[measurability]
+private lemma measurableSet_annulus_oc {x : X} {r R : ℝ≥0∞} : MeasurableSet (annulus_oc x r R) := by
+  by_cases hr : r = ⊤
+  · simp [hr, annulus_oc_empty x R]
+  replace hr : r < ⊤ := Ne.lt_top' fun h ↦ hr h.symm
+  by_cases hR : R = ⊤
+  · simp [hR, annulus_oc_eq_of_top x hr, measurableSet_closedBall]
+  rw [annulus_oc_eq_of_lt_top x hr (Ne.lt_top' fun h ↦ hR h.symm)]
+  measurability
+
+omit [TileStructure Q D κ S o] in
+@[measurability]
+private lemma measurableSet_annulus_co {x : X} {r R : ℝ≥0∞} : MeasurableSet (annulus_co x r R) := by
+  by_cases hr : r = ⊤
+  · simp [hr, annulus_co_empty x R]
+  replace hr : r < ⊤ := Ne.lt_top' fun h ↦ hr h.symm
+  by_cases hR : R = ⊤
+  · simp [hR, annulus_co_eq_of_top x hr, measurableSet_ball]
+  rw [annulus_co_eq_of_lt_top x hr (Ne.lt_top' fun h ↦ hR h.symm)]
+  measurability
+
+omit [TileStructure Q D κ S o] in
+@[measurability]
+private lemma measurableSet_annulus_cc {x : X} {r R : ℝ≥0∞} : MeasurableSet (annulus_cc x r R) := by
+  by_cases hr : r = ⊤
+  · simp [hr, annulus_cc_empty x R]
+  replace hr : r < ⊤ := Ne.lt_top' fun h ↦ hr h.symm
+  by_cases hR : R = ⊤
+  · simp [hR, annulus_cc_eq_of_top x hr, measurableSet_ball]
+  rw [annulus_cc_eq_of_lt_top x hr (Ne.lt_top' fun h ↦ hR h.symm)]
+  measurability
+
+-- Bound needed for proof of `nontangential_pointwise_bound`
+omit [TileStructure Q D κ S o] in
+private lemma annulus_integral_bound (x : X) (g : X → ℂ) {r₁ r₂ r₃ r₄ : ℝ≥0∞} (h₁₂ : r₁ < r₂)
+    (h₃₄ : r₃ < r₄) (hg : IntegrableOn g (annulus_cc x r₁ r₄)) :
+    ‖∫ y in annulus_cc x r₁ r₄, g y‖ₑ ≤ ‖∫ y in annulus_oo x r₂ r₃, g y‖ₑ +
+    ((∫⁻ y in annulus_cc x r₁ r₂, ‖g y‖ₑ) + ∫⁻ y in annulus_cc x r₃ r₄, ‖g y‖ₑ) := calc
+  _ = ‖(∫ y in annulus_cc x r₁ r₄ ∩ annulus_oo x r₂ r₃, g y) +
+        ∫ y in annulus_cc x r₁ r₄ ∩ (annulus_oo x r₂ r₃)ᶜ, g y‖ₑ := by
+    apply congrArg (‖·‖ₑ)
+    rw [← setIntegral_union (Set.disjoint_left.mpr (fun _ h₁ h₂ ↦ h₂.2 h₁.2)) (by measurability),
+        inter_union_compl] <;>
+      exact hg.mono_set inter_subset_left
+  _ ≤ ‖∫ y in annulus_cc x r₁ r₄ ∩ annulus_oo x r₂ r₃, g y‖ₑ +
+        ‖∫ y in annulus_cc x r₁ r₄ ∩ (annulus_oo x r₂ r₃)ᶜ, g y‖ₑ := by apply enorm_add_le
+  _ ≤ _ := by
+    gcongr
+    · rw [inter_eq_self_of_subset_right <| annulus_oo_subset_cc x h₁₂.le h₃₄.le]
+    · calc
+        _ ≤ _ := ennnorm_integral_le_lintegral_ennnorm _
+        _ ≤ ∫⁻ y in annulus_cc x r₁ r₂ ∪ annulus_cc x r₃ r₄, ‖g y‖ₑ := by
+          apply lintegral_mono_set
+          intro y
+          simp only [annulus_oo, annulus_cc, mem_Ioo, mem_Icc, mem_inter_iff,
+            mem_setOf_eq, mem_compl_iff, not_and, not_le, mem_union, and_imp]
+          intro hr₁ hr₄ hr₂₃
+          by_cases hr₂ : r₂ < ENNReal.ofReal (dist x y)
+          · exact Or.inr ⟨le_of_not_gt (hr₂₃ hr₂), hr₄⟩
+          · apply Or.inl ⟨hr₁, le_of_not_gt hr₂⟩
+        _ ≤ _ := lintegral_union_le _ _ _
+
+
+
+
+/- -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
+private lemma nontangential_integral_bound₁ (hf : BoundedCompactSupport f) (θ : Θ X) {x x' : X}
+    {I : Grid X} (hx : x ∈ I) (hx' : x' ∈ I) {s₂ : ℤ}
+    (hs₂ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x') :
+    ‖∫ y in annulus_oc' x' (8 * (D : ℝ) ^ s I) (D ^ (s₂ - 1) / 4), K x' y * f y‖ₑ ≤
+    2 * linearizedNontangentialOperator Q θ K f x := by
+  by_cases R₁_le_R₂ : ENNReal.ofReal (8 * (D : ℝ) ^ (s I)) ≤ ENNReal.ofReal (D ^ (s₂ - 1) / 4); swap
+  · simp [-defaultD, annulus_oc, Set.Ioc_eq_empty (fun h ↦ R₁_le_R₂ h.le)]
+  have int_Kf : IntegrableOn (K x' * f) (annulus_ci x' (ENNReal.ofReal (8 * D ^ s I))) volume := by
+    refine integrableOn_K_mul_f x' hf _ (ENNReal.ofReal_pos.mpr ?_)
+    exact mul_pos (by norm_num) (defaultD_pow_pos a (s I))
+  have D0 : (D : ℝ) ≠ 0 := (defaultD_pos a).ne.symm
+  have R₂_lt_upperRadius : ENNReal.ofReal ((D : ℝ) ^ (s₂ - 1) / 4) < upperRadius Q θ x' :=
+    have := defaultD_pow_pos a (s₂ - 1)
+    lt_of_lt_of_le ((ENNReal.ofReal_lt_ofReal_iff this).mpr (by linarith)) hs₂
+  have dist_le : dist x x' ≤ 8 * (D : ℝ) ^ s I := by
+    apply le_trans (dist_triangle x (c I) x')
+    replace hx := mem_ball.mp (Grid_subset_ball hx)
+    replace hx' := mem_ball'.mp (Grid_subset_ball hx')
+    convert (add_lt_add hx hx').le using 1
+    unfold s
+    ring
+  calc
+    _ = ‖(∫ y in annulus_oo x' (ENNReal.ofReal (8 * D ^ s I)) (upperRadius Q θ x'), K x' y * f y) -
+          ∫ y in annulus_oo x' (ENNReal.ofReal (D ^ (s₂ - 1) / 4)) (upperRadius Q θ x'),
+            K x' y * f y‖ₑ := by
+      congr
+      apply eq_sub_of_add_eq
+      rw [← setIntegral_union]
+      · congr
+        ext y
+        simp_rw [annulus_oo, annulus_oc', annulus_oc, mem_union, mem_setOf_eq]
+        rw [← mem_union, Set.Ioc_union_Ioo_eq_Ioo R₁_le_R₂ R₂_lt_upperRadius]
+      · rw [Set.disjoint_iff]
+        intro y ⟨⟨_, hy₁⟩, ⟨hy₂, _⟩⟩
+        exact (lt_self_iff_false _).mp (lt_of_lt_of_le hy₂ hy₁)
+      · apply measurableSet_annulus_oo
+      · apply int_Kf.mono_set
+        intro y hy
+        simp only [annulus_ci, mem_Ioc, mem_setOf_eq, mem_Ici] at hy ⊢
+        exact hy.1.le
+      · apply int_Kf.mono_set
+        intro y hy
+        simp only [annulus_ci, mem_Ioo, mem_setOf_eq, mem_Ici] at hy ⊢
+        exact R₁_le_R₂.trans hy.1.le
+    _ ≤ ‖∫ y in annulus_oo x' (ENNReal.ofReal (8 * D ^ s I)) (upperRadius Q θ x'), K x' y * f y‖ₑ +
+          ‖∫ y in annulus_oo x' (ENNReal.ofReal (D ^ (s₂ - 1) / 4)) (upperRadius Q θ x'),
+            K x' y * f y‖ₑ := by
+      rw [enorm_eq_nnnorm, enorm_eq_nnnorm, enorm_eq_nnnorm, ← ENNReal.coe_add]
+      apply ENNReal.coe_mono (nnnorm_sub_le _ _)
+    _ ≤ 2 * linearizedNontangentialOperator Q θ K f x := by
+      rw [two_mul, annulus_oo, annulus_oo]
+      gcongr
+      · refine le_trans ?_ <| le_iSup _ (8 * (D : ℝ) ^ s I)
+        refine le_trans ?_ <| le_iSup _ x'
+        simp [-defaultD, dist_le, enorm_eq_nnnorm]
+      · refine le_trans ?_ <| le_iSup _ ((D : ℝ) ^ (s₂ - 1) / 4)
+        refine le_trans ?_ <| le_iSup _ x'
+        simp [-defaultD, enorm_eq_nnnorm,
+          dist_le.trans <| (ENNReal.ofReal_le_ofReal_iff (by positivity)).mp R₁_le_R₂] -/
+
+-- Preliminary version of `nontangential_pointwise_bound₁` for `annulus_oo'`
+omit [TileStructure Q D κ S o] in
+private lemma nontangential_integral_bound₁ {x x' : X} {r : ℝ} (R : ℝ) (hr : dist x x' ≤ r) :
+    ‖∫ y in annulus_oo' x' r R, K x' y * f y‖ₑ ≤
+    nontangentialOperator K f x := by
+  by_cases R₁_lt_R₂ : ENNReal.ofReal r < ENNReal.ofReal R; swap
+  · simp [-defaultD, annulus_oo, Set.Ioo_eq_empty R₁_lt_R₂]
+  have : r ≥ 0 := le_trans dist_nonneg hr
+  refine le_trans ?_ <| le_iSup _ r
+  refine le_trans ?_ <| le_iSup _ R
+  rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)] at R₁_lt_R₂
+  rw [iSup_pos R₁_lt_R₂]
+  refine le_of_eq_of_le ?_ <| le_iSup _ x'
+  rw [iSup_pos hr, annulus_oo'_eq _ _ _ (by positivity)]
+  rfl
+
+/- -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
+private lemma nontangential_integral_bound₁ (hf : BoundedCompactSupport f) {x x' : X}
+    {I : Grid X} (hx : x ∈ I) (hx' : x' ∈ I) (s₂ : ℤ) :
+    ‖∫ y in annulus_co' x' (8 * (D : ℝ) ^ s I) (D ^ (s₂ - 1) / 4), K x' y * f y‖ₑ ≤
+    nontangentialOperator K f x := by
+  let t (n : ℕ) : Set X := annulus_oo' x' ((8 - 1 / (n + 1)) * (D : ℝ) ^ s I) (D ^ (s₂ - 1) / 4)
+  have lb_pos (n : ℕ) : 0 < 8 - 1 / ((n : ℝ) + 1) := calc
+    8 - 1 / ((n : ℝ) + 1) ≥ 8 - 1 / (0 + 1) := by gcongr; exact Nat.cast_nonneg' n
+    _                     > 0               := by norm_num
+  have t_inter : ⋂ (n : ℕ), t n = annulus_co' x' (8 * (D : ℝ) ^ s I) (D ^ (s₂ - 1) / 4) := by
+    refine subset_antisymm (fun y hy ↦ ?_) (Set.subset_iInter fun n ↦ ?_)
+    · refine ⟨ENNReal.le_of_forall_nnreal_lt fun r hr ↦ ?_, mem_iInter.mp hy 0 |>.2⟩
+      have lt : NNReal.toReal r < 8 * D ^ s I := by
+        have := (ENNReal.toReal_lt_toReal ENNReal.coe_ne_top ENNReal.ofReal_ne_top).mpr hr
+        rwa [ENNReal.toReal_ofReal (by positivity)] at this
+      have ⟨n, hn⟩ := exists_nat_one_div_lt (div_pos (sub_pos_of_lt lt) (defaultD_pow_pos a (s I)))
+      rw [lt_div_iff₀ (defaultD_pow_pos a (s I))] at hn
+      refine (lt_of_le_of_lt ?_ (mem_iInter.mp hy n).1).le
+      have r_le : (r : ℝ) ≤ (8 - 1 / (n + 1)) * D ^ (s I) := by nlinarith
+      rwa [ENNReal.ofReal_eq_coe_nnreal, ENNReal.coe_strictMono.le_iff_le]
+      exact mul_nonneg (lb_pos n).le (defaultD_pow_pos a (s I)).le
+    · apply annulus_co_subset_oo x' ?_ (le_refl _)
+      rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg]
+      · linarith [mul_pos (Nat.one_div_pos_of_nat (n := n)) (defaultD_pow_pos a (s I))]
+      · exact mul_nonneg (lb_pos n).le (defaultD_pow_pos a (s I)).le
+  have h_anti : Antitone t := fun _ _ _ ↦ annulus_oo_subset_oo x' (by gcongr) (le_refl _)
+  have meas_t : ∀ (n : ℕ), MeasurableSet (t n) := by intro n; measurability
+  have int : IntegrableOn (fun y ↦ K x' y * f y) (t 0) := by
+    refine (integrableOn_K_mul_f x' hf
+      (ENNReal.ofReal ((8 - 1 / ((0 : ℝ) + 1)) * (D : ℝ) ^ s I)) ?_).mono_set ?_
+    · exact ENNReal.ofReal_pos.mpr <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
+    · exact annulus_oo_subset_ci x' (by norm_num)
+  have : Tendsto (fun i ↦ ‖∫ (a : X) in t i, K x' a * f a‖ₑ) atTop
+      (nhds ‖∫ (a : X) in ⋂ n, t n, K x' a * f a‖ₑ) :=
+    Filter.Tendsto.comp (continuous_enorm.tendsto _) (h_anti.tendsto_setIntegral meas_t int)
+  rw [← t_inter]
+  have dist_lt : dist x x' < 8 * (D : ℝ) ^ (s I) := by
+    apply lt_of_le_of_lt (dist_triangle x (c I) x')
+    replace hx := mem_ball.mp (Grid_subset_ball hx)
+    replace hx' := mem_ball'.mp (Grid_subset_ball hx')
+    apply lt_of_lt_of_eq (add_lt_add hx hx')
+    unfold s
+    ring
+  have ⟨N, hN⟩ := exists_nat_one_div_lt (div_pos (sub_pos_of_lt dist_lt) (defaultD_pow_pos a (s I)))
+  refine le_of_tendsto this (Filter.eventually_atTop.mpr ⟨N, fun m hm ↦ ?_⟩)
+  apply nontangential_integral_bound₁_oo
+  rw [sub_mul]
+  rw [lt_div_iff₀ (defaultD_pow_pos a (s I))] at hN
+  have : dist x x' ≤ 8 * (D : ℝ) ^ s I - 1 / ((N : ℝ) + 1) * D ^ s I := by linarith
+  apply this.trans
+  gcongr -/
+
+-- Bound for (7.2.4) and (7.2.5) in the proof of `nontangential_pointwise_bound`
+private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x x' : X}
+    {I : Grid X} (hx : x ∈ I) (hx' : x' ∈ I) {R : ℝ} (h : R ≤ 8 * D ^ (s I)) :
+    ∫⁻ y in annulus_cc' x' ((D : ℝ) ^ (s I - 1) / 4) R, ‖K x' y * f y‖ₑ ≤
+    2 ^ (7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x := by
+  apply (lintegral_mono_set (annulus_cc_subset_cc _ (le_refl _) (ENNReal.ofReal_le_ofReal h))).trans
+  have ineq : ∀ y ∈ annulus_cc' x' ((D : ℝ) ^ (s I - 1) / 4) (8 * D ^ (s I)), ‖K x' y * f y‖ₑ ≤
+      2 ^ (7 * (a : ℝ) + 101 * a ^ 3) / volume (ball (c I) (16 * D ^ (s I))) * ‖f y‖ₑ := by
+    intro y hy
+    rw [enorm_mul]
+    gcongr
+    rw [annulus_cc'_eq _ _ _ (by positivity)] at hy
+    apply le_trans <| ennnorm_K_le 5 hy.1
+    gcongr
+    · norm_num
+    · norm_num
+    · suffices dist (c I) x' < 16 * D ^ (s I) from ball_subset_ball' (by linarith)
+      rw [← mem_ball', s]
+      refine ball_subset_ball ?_ (Grid_subset_ball hx')
+      linarith [defaultD_pow_pos a (GridStructure.s I)]
+  apply le_trans <| setLIntegral_mono (hf.stronglyMeasurable.measurable.ennnorm.const_mul _) ineq
+  simp_rw [ENNReal.mul_comm_div, div_eq_mul_inv]
+  have := hf.stronglyMeasurable.measurable.ennnorm
+  rw [lintegral_const_mul _ (this.mul_const _), lintegral_mul_const _ this, ← div_eq_mul_inv]
+  apply mul_left_mono
+  calc
+    _ ≤ (∫⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ) / volume (ball (c I) (16 * D ^ s I)) := by
+      gcongr
+      refine lintegral_mono' (Measure.le_iff.mpr (fun T hT ↦  ?_)) (le_refl _)
+      rw [Measure.restrict_apply hT, Measure.restrict_apply hT]
+      refine measure_mono (inter_subset_inter_right T (fun y ↦ ?_))
+      simp only [annulus_cc, mem_Icc, mem_setOf_eq, mem_ball, and_imp, dist_comm x']
+      intro _ h
+      calc dist y (c I)
+        _ ≤ dist y x' + dist x' (c I) := dist_triangle y x' (c I)
+        _ ≤ 8 * (D : ℝ) ^ s I + 4 * (D : ℝ) ^ s I :=
+          add_le_add ((ENNReal.ofReal_le_ofReal_iff (by positivity)).mp h)
+            (mem_ball.mp (Grid_subset_ball hx')).le
+        _ < 16 * (D : ℝ) ^ s I := by linarith [defaultD_pow_pos a (s I)]
+    _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLaverage_eq]
+    _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
+      unfold MB maximalFunction
+      rw [inv_one, ENNReal.rpow_one]
+      have : ⟨4, I⟩ ∈ 𝓑 := by simp [𝓑]
+      refine le_of_eq_of_le ?_ (le_biSup _ this)
+      have : x ∈ ball (c I) (2 ^ 4 * (D : ℝ) ^ s I) := by
+        refine (ball_subset_ball ?_) (Grid_subset_ball hx)
+        unfold s
+        linarith [defaultD_pow_pos a (GridStructure.s I)]
+      simp only [c𝓑, r𝓑, ENNReal.rpow_one, indicator_of_mem this, ge_iff_le]
+      norm_num
+      rfl
+
+omit [TileStructure Q D κ S o] in
+private lemma support_K'_subset (b : ℤ) (c : ℤ) (x : X) :
+    support (K' b c x) ⊆ annulus_cc' x (D ^ (b - 1) / 4) (D ^ c / 2) := by
+  refine subset_trans ?_ (annulus_oo_subset_cc x (le_refl _) (le_refl _))
+  intro y hy
+  rw [mem_support] at hy
+  simp only [annulus_oo, mem_Ioo, mem_setOf_eq]
+  contrapose! hy
+  apply Finset.sum_eq_zero (fun s hs ↦ ?_)
+  rw [toFinset_Icc] at hs
+  suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, nmem_support.mp this, -defaultD]
+  rw [support_ψ (one_lt_D (X := X)), mem_Ioo, not_and_or]
+  by_cases h : D ^ (b - 1) / 4 < dist x y
+  · exact Or.inr <| not_lt_of_ge <| calc
+      _ ≥ ((D : ℝ) ^ c)⁻¹ * (D ^ c / 2) := by
         gcongr
-        · refine le_trans ?_ <| le_iSup _ (8 * (D : ℝ) ^ s I)
-          refine le_trans ?_ <| le_iSup _ x'
-          simp only [dist_le, iSup_pos, enorm_eq_nnnorm]
-          suffices ENNReal.ofReal (8 * ↑D ^ s I) = 8 * (D : ℝ≥0∞) ^ s I by rw [this]
-          rw [ENNReal.ofReal_mul (by norm_num)]
-          rw [← ENNReal.ofReal_natCast D, ENNReal.ofReal_zpow (defaultD_pos a) (s I)]
-          norm_num
-        ·
-          refine le_trans ?_ <| le_iSup _ (8 * (D : ℝ) ^ s I)
-          sorry
+        · exact defaultD_pow_pos a s
+        · exact one_le_D
+        · exact (Finset.mem_Icc.mp hs).2
+        · exact (ENNReal.ofReal_le_ofReal_iff dist_nonneg).mp <| hy <|
+            (ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)).mpr h
+      _ = 2⁻¹ := by field_simp
+  · left
+    push_neg at h
+    apply not_lt_of_ge
+    calc ((D : ℝ) ^ s)⁻¹ * dist x y
+      _ ≤ ((D : ℝ) ^ b)⁻¹ * (D ^ (b - 1) / 4) := by
+        gcongr
+        · exact defaultD_pow_pos a b
+        · exact one_le_D
+        · exact (Finset.mem_Icc.mp hs).1
+      _ ≤ _ := by
+        apply le_of_eq
+        rw [zpow_sub₀ (defaultD_pos a).ne.symm]
+        field_simp
+        exact mul_comm _ _
+
+omit [TileStructure Q D κ S o] in
+private lemma enorm_K'_le_enorm_K (a : ℤ) (b : ℤ) (x y : X) : ‖K' a b x y‖ₑ ≤ ‖K x y‖ₑ := by
+  unfold K' Ks
+  by_cases hxy : 0 = dist x y
+  · simp [← hxy, psi_zero]
+  rw [← mul_one ‖K x y‖ₑ, ← Finset.mul_sum, enorm_mul]
+  apply mul_le_mul_left'
+  rw [enorm_eq_nnnorm]
+  norm_cast
+  apply le_trans <| nnnorm_sum_le _ _
+  simp_rw [← norm_toNNReal, Real.norm_eq_abs, ← Real.toNNReal_sum_of_nonneg fun _ _ ↦ abs_nonneg _,
+    Real.toNNReal_le_one, abs_eq_self.mpr <| zero_le_ψ _ _]
+  exact sum_ψ_le (one_lt_D (X := X)) _ <| lt_of_le_of_ne dist_nonneg hxy
 
 -- Pointwise bound needed for Lemma 7.2.2
 private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ : Θ X) (x : X) :
     nontangentialMaximalFunction θ f x ≤ nontangentialOperator K f x +
-      2 ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x := by
+      2 ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x := by
+  refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ hs₂ ↦ iSup_le fun ineq ↦ ?_
+  rw [← enorm_eq_nnnorm, ← integral_finset_sum]; swap
+  · intro i hi
+    simp_rw [mul_comm]
+    exact hf.integrable_mul (integrable_Ks_x <| one_lt_D (X := X))
+  simp_rw [← Finset.sum_mul]
+  have ineq₃ {n : ℕ} (hn : n > 0) : (D : ℝ) ^ (s I - 1) / n < 8 * D ^ s I := by
+    rw [zpow_sub₀ (defaultD_pos a).ne.symm, div_div, zpow_one]
+    calc (D : ℝ) ^ s I / ((D : ℝ) * n)
+      _ ≤ D ^ s I / 1 := by gcongr; exact_mod_cast (mul_pos (defaultD_pos' a) hn)
+      _ < 8 * D ^ s I := by linarith [defaultD_pow_pos a (s I)]
+  calc
+    _ = ‖∫ y in annulus_cc' x' (D ^ (s I - 1) / 4) (D ^ s₂ / 2), K' (s I) s₂ x' y * f y‖ₑ := by
+      rw [← integral_indicator measurableSet_annulus_cc]
+      congr
+      ext y
+      by_cases hy : y ∈ annulus_cc x' (ENNReal.ofReal (D ^ (s I - 1) / 4))
+          (ENNReal.ofReal (D ^ s₂ / 2))
+      · simp [-defaultD, -toFinset_Icc, hy, K']
+      · have := nmem_support.mp <| not_mem_subset (support_K'_subset (s I) s₂ x') hy
+        unfold K' at this
+        simp [-defaultD, -toFinset_Icc, hy, this]
+    _ ≤ ‖∫ y in annulus_oo' x' (8 * D ^ (s I)) (D ^ (s₂ - 1) / 4), K' (s I) s₂ x' y * f y‖ₑ +
+          ((∫⁻ y in annulus_cc' x' (D ^ (s I - 1) / 4) (8 * D ^ (s I)), ‖K' (s I) s₂ x' y * f y‖ₑ) +
+          ∫⁻ y in annulus_cc' x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K' (s I) s₂ x' y * f y‖ₑ) := by
+      apply annulus_integral_bound
+      · exact (ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)).mpr (ineq₃ four_pos)
+      · rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)]
+        gcongr
+        · exact one_lt_D (X := X)
+        · exact sub_one_lt s₂
+        · norm_num
+      · refine integrableOn_K'_mul_f x' hf (ENNReal.ofReal (D ^ (s I - 1) / 4)) ?_ (s I) s₂
+          |>.mono_set ?_
+        · exact ENNReal.ofReal_pos.mpr <| div_pos (defaultD_pow_pos a (s I - 1)) four_pos
+        · exact annulus_cc_subset_ci x' (le_refl _)
+    _ ≤ ‖∫ y in annulus_oo' x' (8 * D ^ (s I)) (D ^ (s₂ - 1) / 4), K x' y * f y‖ₑ +
+          ((∫⁻ y in annulus_cc' x' (D ^ (s I - 1) / 4) (8 * D ^ (s I)), ‖K x' y * f y‖ₑ) +
+          ∫⁻ y in annulus_cc' x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K x' y * f y‖ₑ) := by
+      have norm_K'_f_le : ∀ (y : X), ‖K' (s I) s₂ x' y * f y‖ₑ ≤ ‖K x' y * f y‖ₑ := by
+        simp_rw [enorm_mul]
+        exact fun y ↦ mul_le_mul_of_nonneg_right (enorm_K'_le_enorm_K _ _ _ _) (zero_le _)
+      gcongr
+      · refine le_of_eq (congrArg (‖·‖ₑ) ?_)
+        apply setIntegral_congr_fun measurableSet_annulus_oo
+        intro y hy
+        simp only [mul_eq_mul_right_iff]
+        apply Or.inl ∘ K'_eq_K (s I) s₂ x' y
+        simp only [annulus_oo, mem_Ioo, mem_setOf_eq] at hy
+        have i1 := (ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)).mp hy.1
+        have i2 := (ENNReal.ofReal_le_ofReal_iff (by positivity)).mp hy.2.le
+        refine mem_Icc.mpr ⟨(lt_trans (ineq₃ two_pos) i1).le, i2.trans ?_⟩
+        rw [zpow_sub₀ (defaultD_pos a).ne.symm, div_div, zpow_one]
+        have : (D : ℝ) * 4 > 0 := mul_pos (defaultD_pos a) four_pos
+        apply (div_le_div_iff_of_pos_left (defaultD_pow_pos a s₂) this four_pos).mpr
+        norm_cast
+        linarith [defaultD_pos' a]
+      · exact norm_K'_f_le _
+      · exact norm_K'_f_le _
+    _ ≤ nontangentialOperator K f x +
+          (2 ^ (7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x +
+          2 ^ (7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) := by
+      gcongr
+      · apply nontangential_integral_bound₁ (D ^ (s₂ - 1) / 4)
+        apply le_trans (dist_triangle x (c I) x')
+        replace hI := mem_ball.mp (Grid_subset_ball hI)
+        replace hx' := mem_ball'.mp (Grid_subset_ball hx')
+        apply le_of_le_of_eq (add_lt_add hI hx').le
+        unfold s
+        ring
+      · exact nontangential_integral_bound₂ hf hI hx' (le_refl _)
+      · let I₂ := cubeOf s₂ x
+        have hs₂' : s₂ ∈ Icc (-(S : ℤ)) (S : ℤ) :=
+          Icc_subset_Icc (Set.range_subset_iff.mp range_s_subset I |>.1) (le_refl (S : ℤ)) hs₂
+        have ⟨xI₂, hI₂⟩ := cubeOf_spec hs₂' I hI
+        have : (I : Set X) ⊆ (I₂ : Set X) :=
+          have : s I ≤ s I₂ := by rw [hI₂]; exact hs₂.1
+          (fundamental_dyadic this).resolve_right (Set.not_disjoint_iff.mpr ⟨x, ⟨hI, xI₂⟩⟩)
+        rw [← hI₂]
+        apply nontangential_integral_bound₂ hf xI₂ (this hx')
+        linarith [defaultD_pow_pos a (s (cubeOf s₂ x))]
+    _ = _ := by
+      rw [← two_mul, ← mul_assoc, add_assoc, ENNReal.rpow_add 1 _ two_ne_zero ENNReal.two_ne_top,
+        ENNReal.rpow_one]
 
-  sorry
-#exit
 /-- Lemma 7.2.2. -/
 lemma nontangential_operator_bound
     (hf : BoundedCompactSupport f)
@@ -190,27 +677,28 @@ lemma nontangential_operator_bound
     hf.isBoundedSupport.measure_lt_top
   calc eLpNorm (nontangentialMaximalFunction θ f) 2 volume
     _ ≤ eLpNorm (fun x ↦ nontangentialOperator K f x +
-          2 ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
+          2 ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
       simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm']
       gcongr
       exact nontangential_pointwise_bound hf θ _
     _ ≤ eLpNorm (nontangentialOperator K f) 2 volume +
-          eLpNorm ((2 : ℝ≥0∞) ^ (102 * (a : ℝ) ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+          eLpNorm ((2 : ℝ≥0∞) ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) *
+          MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
       simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm',
         enorm_eq_self, ENNReal.toReal_ofNat, ENNReal.rpow_ofNat]
       simpa using ENNReal.lintegral_Lp_add_le hT₁.aemeasurable (aemeas_MB.const_mul _) one_le_two
     _ = eLpNorm (nontangentialOperator K f) 2 volume +
-          2 ^ (102 * (a : ℝ) ^ 3) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
+          2 ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
       congr
       simp only [eLpNorm, eLpNorm', OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top]
-      convert ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (102 * (a : ℝ) ^ 3))
+      convert ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (1 + 7 * a + 101 * a ^ 3))
       · congr; norm_cast
       · ext; rw [ENNReal.smul_def, smul_eq_mul]; norm_cast
-    _ ≤ ((C_Ts a) + 2 ^ (102 * (a : ℝ) ^ 3) * (CMB (defaultA a) 2)) * eLpNorm f 2 volume := by
+    _ ≤ (C_Ts a + 2 ^ (1 + 7 * a + 101 * a ^ 3 : ℝ) * CMB (defaultA a) 2) * eLpNorm f 2 volume := by
       rw [add_mul, mul_assoc]
       gcongr
       exact eLpNorm_MB_le hf
-    _ ≤ ((2 ^ a ^ 3) + 2 ^ (102 * a ^ 3) * (2 ^ (2 * a))) * eLpNorm f 2 volume := by
+    _ ≤ ((2 ^ a ^ 3) + 2 ^ (1 + 7 * a + 101 * a ^ 3) * (2 ^ (2 * a))) * eLpNorm f 2 volume := by
       rw [C_Ts, CMB_defaultA_two_eq]
       gcongr
       · norm_cast
@@ -222,23 +710,22 @@ lemma nontangential_operator_bound
         linarith
     _ ≤ (C7_2_2 a) * eLpNorm f 2 volume := by
       rw [← ENNReal.rpow_natCast, Nat.cast_pow]
-      exact mul_right_mono <| calc
-        _ ≤ (2 : ℝ≥0∞) ^ ((102.5 : ℝ) * a ^ 3) + (2 : ℝ≥0∞) ^ ((102.5 : ℝ) * a ^ 3) := by
+      exact mul_right_mono <| calc 2 ^ (a : ℝ) ^ 3 + 2 ^ (1 + 7 * a + 101 * a ^ 3) * 2 ^ (2 * a)
+        _ ≤ (2 : ℝ≥0∞) ^ ((101.6 : ℝ) * a ^ 3) + (2 : ℝ≥0∞) ^ ((101.6 : ℝ) * a ^ 3) := by
           gcongr
           · exact one_le_two
-          · linarith [show (101.5 : ℝ) * (a : ℝ) ^ 3 ≥ 0 by positivity]
+          · linarith [pow_pos (cast_a_pos X) 3]
           · simp_rw [← pow_add, ← ENNReal.rpow_natCast, Nat.cast_add, Nat.cast_mul, Nat.cast_pow]
             apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
-            linarith [show 2 * a ≤ (0.5 : ℝ) * a ^ 2 * a by nlinarith]
-        _ ≤ C7_2_2 a := calc
-            _ = (2 : ℝ≥0∞) ^ (102.5 * (a : ℝ) ^ 3 + 1) := by
-              rw [← mul_two, ENNReal.rpow_add _ _ two_ne_zero ENNReal.two_ne_top, ENNReal.rpow_one]
-            _ ≤ C7_2_2 a := by
-              have := ENNReal.coe_rpow_def 2 (103 * a ^ 3)
-              simp only [ENNReal.coe_ofNat, OfNat.ofNat_ne_zero, false_and, reduceIte] at this
-              rw [C7_2_2, ← this]
-              apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
-              linarith [show 0.5 * 4 ^ 3 ≤ (0.5 : ℝ) * a ^ 3 by gcongr]
+            linarith [show 4 ^ 2 * (a : ℝ) ≤ a ^ 2 * a by gcongr]
+        _ = (2 : ℝ≥0∞) ^ (101.6 * (a : ℝ) ^ 3 + 1) := by
+          rw [← mul_two, ENNReal.rpow_add _ _ two_ne_zero ENNReal.two_ne_top, ENNReal.rpow_one]
+        _ ≤ C7_2_2 a := by
+          have := ENNReal.coe_rpow_def 2 (102 * a ^ 3)
+          simp only [ENNReal.coe_ofNat, OfNat.ofNat_ne_zero, false_and, reduceIte] at this
+          rw [C7_2_2, ← this]
+          apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
+          linarith [show 0.4 * 4 ^ 3 ≤ (0.4 : ℝ) * a ^ 3 by gcongr]
 
 /-- The set of cubes in Lemma 7.2.4. -/
 def kissing (I : Grid X) : Finset (Grid X) :=
