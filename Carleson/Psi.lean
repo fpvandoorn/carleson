@@ -285,6 +285,14 @@ lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
   ext
   rw [Finite.mem_toFinset, support_ψS hD hx, Finset.mem_coe]
 
+lemma sum_ψ_le (S : Finset ℤ) (hx : 0 < x) : ∑ s in S, ψ D (D ^ (-s) * x) ≤ 1 := calc
+  _ = ∑ s in S ∩ (nonzeroS D x), ψ D (D ^ (-s) * x) := by
+    refine (Finset.sum_subset Finset.inter_subset_left (fun s sS hs ↦ ?_)).symm
+    exact (psi_eq_zero_iff hD hx).mpr (fun h ↦ hs <| Finset.mem_inter.mpr ⟨sS, h⟩)
+  _ ≤ ∑ s in nonzeroS D x, ψ D (D ^ (-s) * x) :=
+    Finset.sum_le_sum_of_subset_of_nonneg Finset.inter_subset_right (fun _ _ _ ↦ zero_le_ψ ..)
+  _ = 1 := sum_ψ hD hx
+
 end include_hD
 
 end D
@@ -372,14 +380,14 @@ lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ)
   have A_cast: (defaultA a : ℝ≥0).toReal = (defaultA a : ℝ) := rfl
   rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_left (by positivity)]
 
--- The special case of `volume_ball_two_le_same_repeat` needed to prove `norm_Ks_le`
-private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) :
-    volume.real (ball x (D ^ s)) ≤
-    (defaultA a) ^ (2 + 100 * a ^ 2) * volume.real (ball x (D ^ (s - 1) / 4)) := by
-  convert volume_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + 100 * a ^ 2)
-  rw [defaultD, zpow_sub₀ (by positivity)]
+-- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
+private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) :
+    volume.real (ball x (2 ^ n * D ^ s)) ≤
+    (defaultA a) ^ (2 + n + 100 * a ^ 2) * volume.real (ball x (D ^ (s - 1) / 4)) := by
+  convert volume_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 100 * a ^ 2) using 3
+  rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
   field_simp
-  rw [mul_comm (2 ^ _) (_ ^ s), add_comm, pow_add, (by norm_num : (2 : ℝ) ^ 2 = 4)]
+  ring
 
 lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) : volume.nnreal (ball x r) > 0 :=
   ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) (measure_ball_ne_top x _)
@@ -404,43 +412,52 @@ lemma K_eq_zero_of_dist_eq_zero {x y : X} (hxy : dist x y = 0) :
 
 variable {s}
 
-private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) :
-    c / volume.real (ball x (dist x y)) ≤
-    (2 ^ (2 * a + 100 * a ^ 3)) * c / volume.real (ball x (D ^ s)) := by
-  have h : 0 ≠ dist x y := fun h0 ↦ by simp [Ks, K_eq_zero_of_dist_eq_zero h0.symm] at hK
+private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D ^ (s - 1) / 4)
+    (n : ℕ) : c / volume.real (ball x (dist x y)) ≤
+    (2 ^ ((2 + n) * a + 100 * a ^ 3)) * c / volume.real (ball x (2 ^ n * D ^ s)) := by
+  have h : 0 ≠ dist x y := (lt_of_lt_of_le (div_pos (defaultD_pow_pos a (s - 1)) four_pos) hxy).ne
   have v0₁ := measure_ball_pos_nnreal x (dist x y) <| lt_of_le_of_ne dist_nonneg h
   have v0₂ := measure_ball_pos_nnreal x (D ^ (s - 1) / 4) (by have := D0' X; positivity)
-  have v0₃ := measure_ball_pos_real x (D ^ s) (zpow_pos (D0' X) _)
-  have ball_subset := ball_subset_ball (x := x) (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
+  have v0₃ := measure_ball_pos_real x _ (mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s))
+  have ball_subset := ball_subset_ball (x := x) hxy
   apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
     ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
-  rw_mod_cast [measureNNReal_val, div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
+  rw [measureNNReal_val, div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
-    DoublingMeasure.volume_ball_two_le_same_repeat' s x
+    DoublingMeasure.volume_ball_two_le_same_repeat' s x n
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
   rw_mod_cast [← pow_mul]
   congr
   ring
 
-private lemma norm_K_le {s : ℤ} {x y : X} (hK : Ks s x y ≠ 0):
-    ‖K x y‖ ≤ C2_1_3 a / volume.real (ball x (D ^ s)) := by
+-- Useful special case of `div_vol_le`
+private lemma div_vol_le₀ {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 0) :
+    c / volume.real (ball x (dist x y)) ≤
+    (2 ^ (2 * a + 100 * a ^ 3)) * c / volume.real (ball x (D ^ s)) := by
+  simpa using div_vol_le hc (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1 0
+
+lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
+    ‖K x y‖ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume.real (ball x (2 ^ n * D ^ s)) := by
   by_cases h : dist x y = 0
-  · rw [K_eq_zero_of_dist_eq_zero h, norm_zero, C2_1_3]
-    positivity
-  have v0₃ := measure_ball_pos_real x (D ^ s) (zpow_pos (D0' X) _)
+  · rw [K_eq_zero_of_dist_eq_zero h, norm_zero]; positivity
   apply (norm_K_le_vol_inv x y).trans
-  unfold Real.vol C_K C2_1_3
-  apply le_trans (div_vol_le (by positivity) hK)
-  norm_cast
-  rw [← pow_add]
-  gcongr
-  --· norm_num
-  · rw [(by norm_num : 102 = 1 + 100 + 1), add_mul, add_mul, one_mul, (by rfl : a ^ 3 = a ^ 2 * a)]
-    norm_cast
-    gcongr
-    · exact one_le_two
-    · nlinarith [four_le_a X]
+  unfold C_K
+  apply le_trans (div_vol_le (by positivity) hxy n)
+  apply div_le_div_of_nonneg_right _ measureReal_nonneg
+  exact_mod_cast le_of_eq (by ring)
+
+lemma ennnorm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
+    ‖K x y‖ₑ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume (ball x (2 ^ n * D ^ s)) := by
+  rw [← ENNReal.ofReal_ofNat 2, ENNReal.ofReal_rpow_of_pos two_pos]
+  rw [← ENNReal.ofReal_toReal (measure_ball_ne_top _ _)]
+  rw [← ENNReal.ofReal_div_of_pos, ← Measure.real, ← ENNReal.ofReal_norm]; swap
+  · apply ENNReal.toReal_pos
+    · refine (measure_ball_pos volume x ?_).ne.symm
+      exact mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s)
+    · apply measure_ball_ne_top x (2 ^ n * D ^ s)
+  rw [ENNReal.ofReal_le_ofReal_iff (by positivity)]
+  exact norm_K_le n hxy
 
 -- 2.1.3
 lemma norm_Ks_le {s : ℤ} {x y : X} :
@@ -450,7 +467,11 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
   · rwa [hK, norm_zero]
   rw [Ks, norm_mul, norm_eq_abs (ofReal _), abs_ofReal, ← mul_one (_ / _)]
   gcongr
-  · exact norm_K_le hK
+  · apply le_trans <| norm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
+    rw [pow_zero, one_mul]
+    suffices 2 * (a : ℝ) + 101 * a ^ 3 ≤ 102 * a ^ 3 by gcongr; simpa [C2_1_3] using this
+    suffices 2 * (a : ℝ) ≤ a ^ 2 * a by linarith
+    nlinarith [show 4 ≤ (a : ℝ) by exact_mod_cast four_le_a X]
   · exact abs_ψ_le_one D (D ^ (-s) * dist x y)
 
 -- 2.1.3 (ENNReal version)
@@ -587,7 +608,7 @@ private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   have : (dist y y' / dist x y) ^ (a : ℝ)⁻¹ ≤ (dist y y' / D ^ s * (4 * D)) ^ (a : ℝ)⁻¹ := by
     apply Real.rpow_le_rpow (div_nonneg dist_nonneg dist_nonneg) this (by positivity)
   rw [Real.mul_rpow (div_nonneg dist_nonneg (Ds0 X s).le) (fourD0 D1).le] at this
-  apply le_trans <| mul_le_mul this (div_vol_le CKa0 hK) (by positivity) (by positivity)
+  apply le_trans <| mul_le_mul this (div_vol_le₀ CKa0 hK) (by positivity) (by positivity)
   rw [(by ring : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ * (4 * D) ^ (a : ℝ)⁻¹ *
       (2 ^ (2 * a + 100 * a ^ 3) * C_K a / volume.real (ball x (D ^ s))) =
       (4 * D) ^ (a : ℝ)⁻¹ * 2 ^ (2 * a + 100 * a ^ 3) * C_K a / volume.real (ball x (D ^ s)) *
@@ -616,7 +637,7 @@ private lemma norm_Ks_sub_Ks_le₀₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   refine mul_le_mul ?_ ψ_ineq (abs_nonneg _) (by positivity)
   apply le_trans <| norm_K_le_vol_inv x y
   unfold C_K
-  apply le_of_le_of_eq <| div_vol_le (by positivity) hK
+  apply le_of_le_of_eq <| div_vol_le₀ (by positivity) hK
   rw_mod_cast [← pow_add, (show 2 * a + 100 * a ^ 3 + a ^ 3 = 2 * a + 101 * a ^ 3 by ring)]
 
 -- Special case of `norm_Ks_sub_Ks_le`
