@@ -305,11 +305,6 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)] [ProperSpace X]
         exact mem_closedBall_comm.mp hy
       exact measure_closedBall_lt_top.ne (measure_mono_top this h)
 
-lemma integrableOn_K_Ioc [IsOpenPosMeasure (volume : Measure X)] [ProperSpace X]
-    [Regular (volume : Measure X)] [IsOneSidedKernel a K] (x : X) (R₁ R₂ : ℝ) (hR₁ : R₁ > 0) :
-    IntegrableOn (K x) {y | dist x y ∈ Ioc R₁ R₂} volume :=
-  (integrableOn_K_Icc x R₁ R₂ hR₁).mono_set fun _ ⟨hy₁, hy₂⟩ ↦ ⟨hy₁.le, hy₂⟩
-
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
