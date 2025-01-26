@@ -194,11 +194,11 @@ def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0�
 protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ X} {f : X → ℂ} :
     Measurable (nontangentialMaximalFunction θ f) := by
   refine Measurable.iSup (fun I ↦ ?_)
-  let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
+  let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
     (‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖₊ : ENNReal)
   have : (fun x ↦ ⨆ (_ : x ∈ I), c) = fun x ↦ ite (x ∈ I) c 0 := by
     ext x; by_cases hx : x ∈ I <;> simp [hx]
-  exact this ▸ (measurable_const.ite coeGrid_measurable measurable_const)
+  convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
 variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
