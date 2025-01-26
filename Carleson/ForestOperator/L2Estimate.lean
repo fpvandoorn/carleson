@@ -368,15 +368,14 @@ irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 omit [TileStructure Q D κ S o] in
 private lemma nontangential_integral_bound₁ {x x' : X} {r : ℝ} (R : ℝ) (hr : dist x x' ≤ r) :
     ‖∫ y in Annulus.oo' x' r R, K x' y * f y‖ₑ ≤ nontangentialOperator K f x := by
-  by_cases R₁_lt_R₂ : ENNReal.ofReal r < ENNReal.ofReal R; swap
-  · simp [-defaultD, Annulus.oo, Set.Ioo_eq_empty R₁_lt_R₂]
+  by_cases r_lt_R : ENNReal.ofReal r < ENNReal.ofReal R; swap
+  · simp [-defaultD, Annulus.oo, Set.Ioo_eq_empty r_lt_R]
   refine le_trans ?_ <| le_iSup _ r
   refine le_trans ?_ <| le_iSup _ R
-  rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (dist_nonneg.trans hr)] at R₁_lt_R₂
-  rw [iSup_pos R₁_lt_R₂]
+  rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (dist_nonneg.trans hr)] at r_lt_R
+  rw [iSup_pos r_lt_R]
   refine le_of_eq_of_le ?_ <| le_iSup _ x'
-  rw [iSup_pos hr, Annulus.oo'_eq _ _ _ (dist_nonneg.trans hr)]
-  rfl
+  rw [iSup_pos hr, Annulus.oo'_eq _ _ _ (dist_nonneg.trans hr), enorm_eq_nnnorm]
 
 -- Bound for (7.2.4) and (7.2.5) in the proof of `nontangential_pointwise_bound`
 private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x x' : X}
@@ -432,13 +431,13 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
 private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ : Θ X) (x : X) :
     nontangentialMaximalFunction θ f x ≤ nontangentialOperator K f x +
       2 ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x := by
-  refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ hs₂ ↦ iSup_le fun ineq ↦ ?_
+  refine iSup₂_le fun I hI ↦ iSup₂_le fun x' hx' ↦ iSup₂_le fun s₂ hs₂ ↦ iSup_le fun _ ↦ ?_
   rw [← enorm_eq_nnnorm, ← integral_finset_sum]; swap
   · intro i hi
     simp_rw [mul_comm]
     exact hf.integrable_mul (integrable_Ks_x <| one_lt_D (X := X))
   simp_rw [← Finset.sum_mul]
-  have ineq₃ {n : ℕ} (hn : n > 0) : (D : ℝ) ^ (s I - 1) / n < 8 * D ^ s I := by
+  have ineq {n : ℕ} (hn : n > 0) : (D : ℝ) ^ (s I - 1) / n < 8 * D ^ s I := by
     rw [zpow_sub₀ (defaultD_pos a).ne.symm, div_div, zpow_one]
     calc (D : ℝ) ^ s I / ((D : ℝ) * n)
       _ ≤ D ^ s I / 1 := by gcongr; exact_mod_cast (mul_pos (defaultD_pos' a) hn)
@@ -450,15 +449,14 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       ext y
       by_cases hy : y ∈ Annulus.cc x' (ENNReal.ofReal (D ^ (s I - 1) / 4))
           (ENNReal.ofReal (D ^ s₂ / 2))
-      · simp [-defaultD, -toFinset_Icc, hy, K']
-      · have := nmem_support.mp <| not_mem_subset (K'.support_subset (s I) s₂ x') hy
-        unfold K' at this
-        simp [-defaultD, -toFinset_Icc, hy, this]
+      · simp only [K', hy, indicator_of_mem]
+      · have K'_eq_zero := nmem_support.mp <| not_mem_subset (K'.support_subset (s I) s₂ x') hy
+        rw [← K', K'_eq_zero, zero_mul, indicator_of_not_mem hy]
     _ ≤ ‖∫ y in Annulus.oo' x' (8 * D ^ (s I)) (D ^ (s₂ - 1) / 4), K' (s I) s₂ x' y * f y‖ₑ +
           ((∫⁻ y in Annulus.cc' x' (D ^ (s I - 1) / 4) (8 * D ^ (s I)), ‖K' (s I) s₂ x' y * f y‖ₑ) +
           ∫⁻ y in Annulus.cc' x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K' (s I) s₂ x' y * f y‖ₑ) := by
       apply annulus_integral_bound
-      · exact (ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)).mpr (ineq₃ four_pos) |>.le
+      · exact (ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)).mpr (ineq four_pos) |>.le
       · rw [ENNReal.ofReal_le_ofReal_iff (by positivity)]
         gcongr
         · exact one_lt_D (X := X) |>.le
@@ -480,7 +478,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
         simp only [Annulus.oo, mem_Ioo, mem_setOf_eq] at hy
         have i1 := (ENNReal.ofReal_lt_ofReal_iff_of_nonneg (by positivity)).mp hy.1
         have i2 := (ENNReal.ofReal_le_ofReal_iff (by positivity)).mp hy.2.le
-        refine mem_Icc.mpr ⟨(lt_trans (ineq₃ two_pos) i1).le, i2.trans ?_⟩
+        refine mem_Icc.mpr ⟨(lt_trans (ineq two_pos) i1).le, i2.trans ?_⟩
         rw [zpow_sub₀ (defaultD_pos a).ne.symm, div_div, zpow_one]
         have : (D : ℝ) * 4 > 0 := mul_pos (defaultD_pos a) four_pos
         apply (div_le_div_iff_of_pos_left (defaultD_pow_pos a s₂) this four_pos).mpr
@@ -503,10 +501,9 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
         have hs₂' : s₂ ∈ Icc (-(S : ℤ)) (S : ℤ) :=
           Icc_subset_Icc (Set.range_subset_iff.mp range_s_subset I |>.1) (le_refl (S : ℤ)) hs₂
         have ⟨xI₂, hI₂⟩ := cubeOf_spec hs₂' I hI
-        have : (I : Set X) ⊆ (I₂ : Set X) :=
-          have : s I ≤ s I₂ := by rw [hI₂]; exact hs₂.1
-          (fundamental_dyadic this).resolve_right (Set.not_disjoint_iff.mpr ⟨x, ⟨hI, xI₂⟩⟩)
         rw [← hI₂]
+        have : s I ≤ s I₂ := by rw [hI₂]; exact hs₂.1
+        have := (fundamental_dyadic this).resolve_right (Set.not_disjoint_iff.mpr ⟨x, ⟨hI, xI₂⟩⟩)
         apply nontangential_integral_bound₂ hf xI₂ (this hx')
         linarith [defaultD_pow_pos a (s (cubeOf s₂ x))]
     _ = _ := by
@@ -532,20 +529,17 @@ lemma nontangential_operator_bound
     _ ≤ eLpNorm (nontangentialOperator K f) 2 volume +
           eLpNorm ((2 : ℝ≥0∞) ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) *
           MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
-      simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm',
-        enorm_eq_self, ENNReal.toReal_ofNat, ENNReal.rpow_ofNat]
-      simpa using ENNReal.lintegral_Lp_add_le hT₁.aemeasurable (aemeas_MB.const_mul _) one_le_two
+      simpa [eLpNorm, eLpNorm'] using
+        ENNReal.lintegral_Lp_add_le hT₁.aemeasurable (aemeas_MB.const_mul _) one_le_two
     _ = eLpNorm (nontangentialOperator K f) 2 volume +
           2 ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume := by
       congr
       simp only [eLpNorm, eLpNorm', OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top]
       convert ENNReal.lintegral_Lp_smul aemeas_MB two_pos ((2 : ℝ≥0) ^ (1 + 7 * a + 101 * a ^ 3))
       · congr; norm_cast
-      · ext; rw [ENNReal.smul_def, smul_eq_mul]; norm_cast
+      · ext; rw [ENNReal.smul_def]; norm_cast
     _ ≤ (C_Ts a + 2 ^ (1 + 7 * a + 101 * a ^ 3 : ℝ) * CMB (defaultA a) 2) * eLpNorm f 2 volume := by
-      rw [add_mul, mul_assoc]
-      gcongr
-      exact eLpNorm_MB_le hf
+      rw [add_mul, mul_assoc]; gcongr; exact eLpNorm_MB_le hf
     _ ≤ ((2 ^ a ^ 3) + 2 ^ (1 + 7 * a + 101 * a ^ 3) * (2 ^ (2 * a))) * eLpNorm f 2 volume := by
       rw [C_Ts, CMB_defaultA_two_eq]
       gcongr <;> norm_cast
