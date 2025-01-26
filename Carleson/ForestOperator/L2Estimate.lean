@@ -360,7 +360,7 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedC
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
 /-- The constant used in `nontangential_operator_bound`.
-Has value `2 ^ (103 * a ^ 3)` in the blueprint. -/
+Previously had value `2 ^ (103 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 
