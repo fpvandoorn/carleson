@@ -12,7 +12,7 @@
 %  \\begin\{proof\}.*\n(.*\n)? *\\leanok
 %
 % Regex to (hopefully) count the number of green borders:
-% \\leanok.*\n.*\\lean
+% \\leanok.*\n[^%\n]*\\lean
 
 \title{Carleson operators on doubling metric measure spaces}
 
@@ -3245,8 +3245,8 @@ geometric \Cref{antichain-tile-count} counting the relevant tile pairs.
 We begin with the following crucial disjointedness property of the sets $E(\fp)$ with $\fp \in \mathfrak{A}$.
 \begin{lemma}[tile disjointness]
 \label{tile-disjointness}
-\lean{E_disjoint}
 \leanok
+\lean{E_disjoint}
 Let $\fp,\fp'\in \mathfrak{A}$.
 If there exists an $x\in X$ with $x\in E(\fp)\cap E(\fp')$,
 then $\fp= \fp'$.
@@ -3274,8 +3274,8 @@ $M_{\mathcal{B}}$ from Definition \ref{def-hlm}.
 \begin{lemma}[maximal bound antichain]
     \label{maximal-bound-antichain}
     \uses{tile-disjointness}
-    \lean{MaximalBoundAntichain}
     \leanok
+    \lean{MaximalBoundAntichain}
     Let $x\in X$.
     Then
     \begin{equation}\label{hlmbound}
@@ -3338,8 +3338,8 @@ Since $1< q\le 2$, we have $1<\tilde{q}<q\le 2$.
 \begin{lemma}[dens2 antichain]
 \label{dens2-antichain}
 \uses{Hardy-Littlewood,maximal-bound-antichain}
-\lean{Dens2Antichain}
 \leanok
+\lean{Dens2Antichain}
 We have that
 \begin{equation}\label{eqttt9}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
@@ -5286,14 +5286,14 @@ $$
     \end{proof}
 
     \begin{proof}[Proof of \Cref{moderate-scale-change}]
+        \leanok
         \proves{moderate-scale-change}
         Suppose that $s(J') < s(J) - 1$. Then $s(J) > -S$. Thus, by the definition of $\mathcal{J}'$ there exists no $\fp \in \mathfrak{S}$ with
       \begin{equation}
             \label{eq-tile-incl-1}
             \scI(\fp) \subset B(c(J), 100D^{s(J) + 1})\,.
         \end{equation}
-        Since $s(J') < s(J)$ and $J', J \subset \scI(\fu_1)$, we have $J' \subsetneq \scI(\fu_1)$.
-        By \eqref{coverdyadic}, \eqref{dyadicproperty} there exists a cube $J'' \in \mathcal{D}$ with $J \subset J''$ and $s(J'') = s(J') + 1$. By the definition of $\mathcal{J}'$, there exists a tile $\fp \in \mathfrak{S}$ with
+        Since $s(J') < s(J)$, there exists a cube $J'' \in \mathcal{D}$ with $J \subset J''$ and $s(J'') = s(J') + 1$. By the definition of $\mathcal{J}'$, there exists a tile $\fp \in \mathfrak{S}$ with
       \begin{equation}
             \label{tile-incl-2}
             \scI(\fp) \subset B(c(J''), 100 D^{s(J')+2})\,.
@@ -5771,7 +5771,7 @@ $$
         $$
     \end{lemma}
 
-    \begin{proof}
+    \begin{proof}\leanok
         By \Cref{dyadic-partitions}, it remains only to show that each $J \in \mathcal{J}(\fT(\fu_1))$ with $J \cap \scI(\fu_1) \ne \emptyset$ is in $\mathcal{J}'$. But if $J \notin \mathcal{J}'$, then by \eqref{dyadicproperty} $\scI(\fu_1) \subsetneq J$. Pick $\fp \in \fT(\fu_1)$. Then $\scI(\fp) \subsetneq J$. This contradicts the definition of $\mathcal{J}(\fT(\fu_1))$.
     \end{proof}
 
@@ -6226,9 +6226,9 @@ Recall that $\tau = 1/a$.
 
 
 \begin{proof}
-   Define for $x,y\in X$ the Lipschitz and thus measurable function
-     \begin{equation}
-           L(x,y) := \max\{0, 1 - \frac{\rho(x,y)}{tR}\}\, .
+    Define for $x,y\in X$ the Lipschitz and thus measurable function
+    \begin{equation}
+        L(x,y) := \max\{0, 1 - \frac{\rho(x,y)}{tR}\}\, .
     \end{equation}
 We have that $L(x,y)\neq 0$ implies
 \begin{equation}\label{eql01}
@@ -6236,15 +6236,15 @@ We have that $L(x,y)\neq 0$ implies
 \end{equation}
 We have for $y\in B(x, 2^{-1}tR)$ that
 \begin{equation}\label{eql30}
-           |L(x,y)|\ge 2^{-1} \ .
-    \end{equation}
+    |L(x,y)|\ge 2^{-1} \ .
+\end{equation}
 Hence
 \begin{equation}
     \int L(x,y) \, \mathrm{d}\mu(y)\ge 2^{-1}\mu(B(x, 2^{-1}tR))\, .
 \end{equation}
  Let $n$ be the smallest integer so that
  \begin{equation}\label{2nt1}
-     2^nt\ge 1\, .
+    2^n t\ge 1\, .
  \end{equation}
  Iterating $n+2$ times the doubling condition \eqref{doublingx}, we obtain
  \begin{equation}\label{eql32}
@@ -7309,24 +7309,6 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
 \end{proof}
 
-%\begin{lemma}[Vitali covering]
-%    \label{Vitali-covering}
-%    \leanok
-%    Let $B_i$, $i\in I$, be a family of balls with center $x_i$ and radius $r_i$ such that $\sup_{i\in I} r_i < \infty$. Then there exists $J\subset I$ such that
-%    \begin{equation}
-%        \label{vitali-balls-disjoint}
-%        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j', \, j,j' \in J
-%    \end{equation}
-%    and
-%    \begin{equation}
-%        \label{vitali-enlarged-balls-covering}
-%        \forall i\in I, \exists j \in J, B_i \subset B (x_j, 6r_j) .
-%    \end{equation}
-%\end{lemma}
-%\begin{proof}
-%    This is almost part of mathlib (it is proven there for closed balls and constant $5$ instead of $6$).
-%\end{proof}
-
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
 \begin{lemma}[Ball covering]
     \label{ball-covering}
@@ -7885,7 +7867,8 @@ We prove in \Cref{10smooth}:
 \label{convergence-for-smooth}
 \uses{convergence-for-twice-contdiff}
 \leanok
-%\lean{fourierConv_ofTwiceDifferentiable}
+\lean{fourierConv_ofTwiceDifferentiable}
+% note: we don't formulate this result in Lean separately from \ref{convergence-for-twice-contdiff}
     There exists some $N_0 \in \N$ such that for all $N>N_0$ and $x\in [0,2\pi]$ we have
     \begin{equation}
         |S_N f_0 (x)- f_0(x)|\le \frac \epsilon 4\, .
@@ -8031,12 +8014,15 @@ across the following subsections.
 
 \begin{lemma}[mean zero oscillation]
 \label{mean-zero-oscillation}
+\leanok
+\lean{mean_zero_oscillation}
 Let $n\in \mathbb{Z}$ with $n\neq 0$, then
 \begin{equation}
 \int_0^{2\pi} e^{inx}\, dx=0\,.
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 We have
 \begin{equation*}
 \int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac 1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
@@ -8122,6 +8108,8 @@ The following lemma will be proved in \Cref{10projection}.
 
 \begin{lemma}[spectral projection bound]
 \label{spectral-projection-bound}
+\leanok
+\lean{spectral_projection_bound}
 \uses{partial-sum-projection,partial-sum-selfadjoint}
 %\lean{spectral_projection_bound}
     Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
@@ -8217,8 +8205,8 @@ This proves \eqref{eqcarl30} in the given case and completes the proof of the le
 \begin{lemma}
 \label{fourier-coeff-derivative}
 \leanok
-% \lean{}
-Let $f:\R \to \C$ be $2\pi$-periodic and differentiable, and let $n \in \Z \setminus \{0\}$. Then
+\lean{fourierCoeffOn_of_hasDerivAt}
+Let $f:\R \to \C$ be $2\pi$-periodic and continuously differentiable, and let $n \in \Z \setminus \{0\}$. Then
 \begin{equation}
     \widehat{f}_n = \frac{1}{i n} \widehat{f'}_n.
 \end{equation}
@@ -8270,7 +8258,7 @@ Applying \Cref{fourier-coeff-derivative} twice and using the fact that $f''$ is 
 \end{equation*}
 \end{proof}
 
-\begin{proof}
+\begin{proof}[Proof of \Cref{convergence-for-smooth}]
 \leanok
 \proves{convergence-for-smooth}
     \Cref{convergence-for-smooth} now follows directly from the previous \Cref{convergence-for-twice-contdiff}.
@@ -8299,6 +8287,8 @@ Define the approximate Hilbert transform by
 
 \begin{lemma}[modulated averaged projection]
 \label{modulated-averaged-projection}
+\leanok
+\lean{modulated_averaged_projection}
 \uses{spectral-projection-bound}
 We have for every bounded measurable $2\pi$-periodic function $g$
 \begin{equation}\label{lnbound}
@@ -8331,8 +8321,8 @@ This proves \eqref{mnbound} and completes the proof of the lemma.
 \end{proof}
 
 \begin{lemma}[periodic domain shift]\label{periodic-domain-shift}
-\lean{Function.Periodic.intervalIntegral_add_eq, intervalIntegral.integral_comp_sub_right}
 \leanok
+\lean{Function.Periodic.intervalIntegral_add_eq, intervalIntegral.integral_comp_sub_right}
 Let $f$ be a bounded $2\pi$-periodic function. We have for any
 $0 \le x\le 2\pi$ that
 \begin{equation}
@@ -8363,6 +8353,8 @@ This proves the first identity of the lemma. The second identity follows by subs
 
 
 \begin{lemma}[Young convolution]\label{Young-convolution}
+\leanok
+\lean{young_convolution}
 \uses{periodic-domain-shift}
     Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
     \begin{equation}\label{eqyoung}
@@ -8402,11 +8394,13 @@ Taking square roots, this proves the lemma.
 
 For $0<r<1$, Define the kernel $k_r$ to be the $2\pi$-periodic function
 \begin{equation}
-    |k_r(x)|:=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
+    k_r(x):=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
 \end{equation}
 where the minimum is understood to be $r^{-1}$ in case $1=e^{ix}$.
 \begin{lemma}[integrable bump convolution]
 \label{integrable-bump-convolution}
+\leanok
+\lean{integrable_bump_convolution}
 \uses{Young-convolution}
 Let $g,f$ be bounded measurable $2\pi$-periodic functions. Let $0<r<\pi$.
 Assume we have for all $0\le x\le 2\pi$
@@ -8447,6 +8441,8 @@ is equal to
 
 \begin{lemma}[Dirichlet approximation]\label{Dirichlet-approximation}
 \uses{Dirichlet-kernel,lower-secant-bound}
+\leanok
+\lean{continuous_dirichletApprox, periodic_dirichletApprox, approxHilbertTransform_eq_dirichletApprox, dist_dirichletApprox_le}
 Let $0<r<1$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
 There is a $2\pi$-periodic continuous function
@@ -8697,6 +8693,8 @@ This subsection proves \Cref{spectral-projection-bound}
 
 \begin{lemma}[partial sum projection]
 \label{partial-sum-projection}
+\leanok
+\lean{partial_sum_projection}
 \uses{mean-zero-oscillation}
   Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{projection}
@@ -8741,6 +8739,8 @@ This proves the lemma.
 \end{proof}
 \begin{lemma}[partial sum selfadjoint]
 \label{partial-sum-selfadjoint}
+\leanok
+\lean{partial_sum_selfadjoint}
 \uses{Dirichlet-kernel}
     We have for any $2\pi$-periodic bounded measurable $g,f$ that
     \begin{equation}
@@ -8771,6 +8771,9 @@ g(x)\, dx dy
 
 We turn to the proof of Lemma
 \ref{spectral-projection-bound}.
+
+\begin{proof}[Proof of \Cref{spectral-projection-bound}]
+\proves{spectral-projection-bound}
 
 We have with \Cref{partial-sum-selfadjoint}, then \Cref{partial-sum-projection} and the \Cref{partial-sum-selfadjoint} again
 \begin{equation*}
@@ -8805,7 +8808,7 @@ As \eqref{diffnorm} has nonnegative integrand and is thus nonnegative, we conclu
 \end{equation}
 As both sides are positive, we may take the square root of this inequality.
 This completes the proof of the lemma.
-
+\end{proof}
 
 
 
@@ -9019,8 +9022,8 @@ The space $(\R,\rho)$ is a complete locally compact metric space.
 \end{proof}
 \begin{lemma}[real line ball]
 \label{real-line-ball}
-    \lean{Real.ball_eq_Ioo}
     \leanok
+    \lean{Real.ball_eq_Ioo}
     For $x\in R$ and $R>0$, the ball $B(x,R)$ is the interval $(x-R,x+R)$
 \end{lemma}
 \begin{proof}
@@ -9050,8 +9053,8 @@ We consider the Lebesgue measure $\mu$ on $\R$.
 \begin{lemma}[real line ball measure]
 \label{real-line-ball-measure}
 \uses{real-line-ball}
-    \lean{Real.volume_ball}
     \leanok
+    \lean{Real.volume_ball}
     We have for every $x\in \R$ and $R>0$
     \begin{equation}
         \mu(B(x,R))=2R\, .
@@ -9107,8 +9110,8 @@ Define
 
 \begin{lemma}[frequency metric]
     \label{frequency-metric}
-    \lean{instFunctionDistancesReal}
     \leanok
+    \lean{instFunctionDistancesReal}
     For every $R > 0$ and $x \in X$, the function $d_{B(x,R)}$ is a metric on $\Mf$.
 \end{lemma}
 
@@ -9138,8 +9141,8 @@ Define
 
 \begin{lemma}[frequency monotone]
 \label{frequency-monotone}
-\lean{frequency_monotone}
 \leanok
+\lean{frequency_monotone}
 
     For any $x, x' \in X$ and $R, R' > 0$ with $B(x,R) \subset B(x, R')$, and for any $n, m \in \mathbb{Z}$
     $$
@@ -9154,8 +9157,8 @@ Define
 
 \begin{lemma}[frequency ball doubling]
 \label{frequency-ball-doubling}
-\lean{frequency_ball_doubling}
 \leanok
+\lean{frequency_ball_doubling}
 \uses{frequency-metric}
   For any $x,x'\in \R$ and $R>0$ with
    $x\in B(x',2R)$ and any $n,m\in \mathbb{Z}$, we have
@@ -9171,8 +9174,8 @@ With \eqref{eqcarl4}, both sides of \eqref{firstdb1} are equal to $4R|n-m|$. Thi
 
 \begin{lemma}[frequency ball growth]
 \label{frequency-ball-growth}
-\lean{frequency_ball_growth}
 \leanok
+\lean{frequency_ball_growth}
     For any $x,x'\in \R$ and $R>0$ with
    $B(x,R)\subset B(x',2R)$ and any $n,m\in \mathbb{Z}$, we have
 \begin{equation}\label{seconddb1}
@@ -9187,8 +9190,8 @@ With \eqref{eqcarl4}, both sides of \eqref{firstdb1} are equal to $4R|n-m|$. Thi
 
 \begin{lemma}[integer ball cover]
     \label{integer-ball-cover}
-    \lean{integer_ball_cover}
     \leanok
+    \lean{integer_ball_cover}
     For every $x\in \R$ and $R>0$ and every
     $n\in \mathbb{Z}$ and $R'>0$,
     there exist $m_1, m_2, m_3\in \mathbb{Z}$

@@ -14,7 +14,7 @@ theorem enorm_mul {α : Type*} [NormedDivisionRing α] (a b : α) : ‖a * b‖�
 lemma ENNReal.ofReal_norm [SeminormedAddGroup E] (x : E) : .ofReal ‖x‖ = ‖x‖ₑ := by
   simp_rw [enorm_eq_nnnorm, ofReal_norm_eq_coe_nnnorm]
 
-lemma enorm_toReal_le {x : ℝ≥0∞} : ‖x.toReal‖ₑ ≤ x := by simp [← ofReal_norm, ofReal_toReal_le]
+@[simp] lemma enorm_toReal_le {x : ℝ≥0∞} : ‖x.toReal‖ₑ ≤ x := by simp [← ofReal_norm, ofReal_toReal_le]
 
 @[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
   simp [enorm_eq_nnnorm, hx, ← ofReal_norm_eq_coe_nnnorm]
@@ -26,6 +26,7 @@ class ContinuousENorm (E : Type*) extends ENorm E, TopologicalSpace E where
   continuous_enorm : Continuous enorm
   -- the topology is somehow defined by the enorm.
 
+-- todo: maybe generalize to ENormedMonoid and use `to_additive` if necessary for Mathlib.
 /-- An enormed monoid is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedAddMonoid (E : Type*) extends ContinuousENorm E, AddMonoid E where
@@ -37,12 +38,21 @@ class ENormedAddMonoid (E : Type*) extends ContinuousENorm E, AddMonoid E where
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedAddCommMonoid (E : Type*) extends ENormedAddMonoid E, AddCommMonoid E where
 
+/-- An enormed monoid is an additive monoid endowed with a continuous enorm.
+Note: not sure if this is the "right" class to add to Mathlib. -/
+class ENormedAddCommSubMonoid (E : Type*) extends ENormedAddCommMonoid E, Sub E where
+  sub_add_cancel_of_enorm_le : ∀ ⦃x y : E⦄, ‖y‖ₑ ≤ ‖x‖ₑ → x - y + y = x
+  add_right_cancel_of_enorm_lt_top : ∀ ⦃x : E⦄, ‖x‖ₑ < ⊤ → ∀ {y z : E}, y + x = z + x → y = z
+  esub_self : ∀ x : E, x - x = 0
+
 /-- An enormed space is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedSpace (E : Type*) extends ENormedAddCommMonoid E, Module ℝ≥0 E where
   enorm_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
 
 export ENormedAddMonoid (enorm_eq_zero enorm_add_le)
+export ENormedAddCommSubMonoid
+  (sub_add_cancel_of_enorm_le add_right_cancel_of_enorm_lt_top esub_self)
 export ENormedSpace (enorm_smul)
 attribute [simp] enorm_eq_zero enorm_smul
 
@@ -81,22 +91,35 @@ variable {α E : Type*} {m : MeasurableSpace α} [ContinuousENorm E] {μ : Measu
 
 export ContinuousENorm (continuous_enorm)
 
+@[fun_prop]
 protected theorem Continuous.enorm {X : Type*} [TopologicalSpace X] {f : X → E}
     (hf : Continuous f) : Continuous (fun x => (‖f x‖ₑ)) :=
   continuous_enorm.comp hf
 
+@[fun_prop]
 theorem measurable_enorm [MeasurableSpace E] [OpensMeasurableSpace E] :
     Measurable (fun a : E => (‖a‖ₑ)) :=
   continuous_enorm.measurable
 
+@[fun_prop]
 protected theorem AEMeasurable.enorm [MeasurableSpace E] [OpensMeasurableSpace E] {f : α → E}
     (hf : AEMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   measurable_enorm.comp_aemeasurable hf
 
+@[fun_prop]
 protected theorem AEStronglyMeasurable.enorm {f : α → E}
     (hf : AEStronglyMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   continuous_enorm.comp_aestronglyMeasurable hf |>.aemeasurable
 
+protected theorem StronglyMeasurable.enorm {f : α → E}
+    (hf : StronglyMeasurable f) : StronglyMeasurable (fun a => (‖f a‖ₑ)) :=
+  continuous_enorm.comp_stronglyMeasurable hf
+
 end ContinuousENorm
+
+lemma esub_zero [ENormedAddCommSubMonoid E] {x : E} : x - 0 = x := by
+  rw [← add_zero (x - 0)]
+  apply sub_add_cancel_of_enorm_le
+  simp_rw [enorm_zero, zero_le]
 
 end MeasureTheory

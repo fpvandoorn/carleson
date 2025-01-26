@@ -354,27 +354,26 @@ end Norm
 namespace MeasureTheory
 
 open Metric Bornology
+variable {𝕜: Type*}
+variable [RCLike 𝕜]
 
-variable {X 𝕜: Type*}
-variable [RCLike 𝕜] {f : X → 𝕜}
+variable {X α: Type*}
 
 namespace HasCompactSupport
 
-variable [PseudoMetricSpace X]
+variable [Zero α] {f : X → α}
 
--- mathlib? also `ball` variant, remove `Nonempty`
+variable [PseudoMetricSpace X] [ProperSpace X]
+
 theorem of_support_subset_closedBall {x : X}
- {r : ℝ} [ProperSpace X] [Nonempty X] (hf : support f ⊆ closedBall x r) :
-    HasCompactSupport f := by
-  apply HasCompactSupport.of_support_subset_isCompact ?_ hf
-  exact isCompact_closedBall ..
+    {r : ℝ} (hf : support f ⊆ closedBall x r) :
+    HasCompactSupport f :=
+  HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall ..) hf
 
 theorem of_support_subset_isBounded {s : Set X}
-    [ProperSpace X] [Nonempty X] (hs : IsBounded s) (hf : support f ⊆ s) :
-    HasCompactSupport f := by
-  let x₀ : X := Classical.choice (by infer_instance)
-  obtain ⟨r₀, hr₀⟩ := hs.subset_closedBall x₀
-  exact HasCompactSupport.of_support_subset_closedBall <| Trans.trans hf hr₀
+    (hs : IsBounded s) (hf : support f ⊆ s) :
+    HasCompactSupport f :=
+  IsCompact.closure_of_subset hs.isCompact_closure <| Trans.trans hf subset_closure
 
 end HasCompactSupport
 

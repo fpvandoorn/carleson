@@ -337,7 +337,7 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     eLpNorm f 2 volume := by
       gcongr
       · exact adjoint_tree_estimate hu hf
-      · exact hasStrongType_MB_finite 𝓑_finite one_lt_two _ (hf.memℒp _) |>.2
+      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memℒp _) |>.2
   _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
     simp_rw [add_mul]
     gcongr

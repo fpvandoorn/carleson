@@ -1,4 +1,4 @@
-import Carleson.WeakType
+import Carleson.ToMathlib.WeakType
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 
 /-! This file contains a proof of the Marcinkiewisz real interpolation theorem.
@@ -3084,14 +3084,9 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   simp_rw [enorm_eq_self] at h ⊢
   filter_upwards [hT f hf, hT g hg, (ae_ball_iff h𝓑).mpr h, (ae_ball_iff h𝓑).mpr (hT' f hf),
     (ae_ball_iff h𝓑).mpr (hT' g hg), (ae_ball_iff h𝓑).mpr (hT' (f + g) (hP hf hg))] with x hTfx hTgx hx hT'fx hT'gx hT'fgx
-  -- rw [← toReal_add hTfx hTgx, ← toReal_ofReal A0, ← toReal_mul]
-  -- apply toReal_mono <| mul_ne_top ofReal_ne_top (add_ne_top.mpr ⟨hTfx, hTgx⟩)
   simp_rw [iSup_le_iff]
   intro i hi
   specialize hx i hi
-  -- rw [← toReal_add (hT'fx i hi) (hT'gx i hi), ← toReal_ofReal A0, ← toReal_mul,
-  --   toReal_le_toReal (hT'fgx i hi) <| mul_ne_top ofReal_ne_top <|
-  --   add_ne_top.mpr ⟨hT'fx i hi, hT'gx i hi⟩] at hx
   apply hx.trans
   gcongr <;> apply le_biSup _ hi
 
@@ -3202,7 +3197,6 @@ lemma const (T : (α → E₁) → ε) (P : (α → E₁) → Prop)
   refine ⟨AESubadditiveOn.const T P h_add, fun f c hf ↦ ae_of_all _ fun _ ↦ ?_⟩
   simpa using h_smul f hf
 
--- glue that we can probably remove
 lemma toReal {T : (α → E₁) → α' → ℝ≥0∞}
     {P : (α → E₁) → Prop}
     {A : ℝ≥0∞} (h : AESublinearOn T P A ν)

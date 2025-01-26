@@ -367,18 +367,20 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
   {f f₁ f₂ g g₁ g₂ : X → ℂ} {I J J' L : Grid X}
 variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
+lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a : ℝ≥0) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
+  suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
+      ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
+    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
+  rw [← NNReal.rpow_mul, show (3 / 2 : ℝ) = 1 + (1 / 2 : ℝ) by norm_num]
+  repeat rw [NNReal.rpow_add two_ne_zero]
+  norm_num
+  ring
+
 namespace TileStructure.Forest
 
 lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedCompactSupport f) :
-    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ (CMB (defaultA a) 2) * eLpNorm f 2 volume := by
-  have : HasStrongType (fun (u : X → 𝕜) ↦ (MB volume 𝓑 c𝓑 r𝓑 u · |>.toReal)) 2 2 _ _ _ :=
-    hasStrongType_MB_finite 𝓑_finite one_lt_two
-  convert this f (hf.memℒp 2) |>.2 using 1
-  congr
-  ext
-  rw [ENNReal.nnorm_toReal]
-  refine ENNReal.coe_toNNReal (ne_of_lt ?_) |>.symm
-  exact lt_of_le_of_lt MB_le_eLpNormEssSup (hf.memℒp ⊤).2
+    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume :=
+  hasStrongType_MB_finite 𝓑_finite one_lt_two f (hf.memℒp 2) |>.2
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
