@@ -387,10 +387,9 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
   have ineq : ∀ y ∈ Annulus.cc' x' ((D : ℝ) ^ (s I - 1) / 4) (8 * D ^ (s I)), ‖K x' y * f y‖ₑ ≤
       2 ^ (7 * (a : ℝ) + 101 * a ^ 3) / volume (ball (c I) (16 * D ^ (s I))) * ‖f y‖ₑ := by
     intro y hy
-    rw [enorm_mul]
-    gcongr
     rw [Annulus.cc'_eq _ _ _ (by positivity)] at hy
-    apply le_trans <| ennnorm_K_le 5 hy.1
+    rw [enorm_mul]
+    refine mul_le_mul_right' ((ennnorm_K_le 5 hy.1).trans ?_) ‖f y‖ₑ
     gcongr
     · norm_num
     · norm_num
