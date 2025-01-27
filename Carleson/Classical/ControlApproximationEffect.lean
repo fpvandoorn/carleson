@@ -9,9 +9,10 @@ noncomputable section
 local notation "T" => carlesonOperatorReal K
 local notation "S_" => partialFourierSum
 
-open scoped Real NNReal
+open scoped Real
 open MeasureTheory
 open Real (pi_pos)
+
 
 /- TODO: might be generalized. -/
 lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g : X → ENNReal}
@@ -466,32 +467,39 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
 end section
 
 set_option linter.flexible false in
-lemma rcarleson_exceptional_set_estimate {δ : ℝ≥0} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : Measurable f)
+lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : Measurable f)
     {F : Set ℝ} (measurableSetF : MeasurableSet F) (hf : ∀ x, ‖f x‖ ≤ δ * F.indicator 1 x)
     {E : Set ℝ} (measurableSetE : MeasurableSet E) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
-      ε * volume E ≤ δ * C10_0_1 4 2 * volume F ^ (2 : ℝ)⁻¹ * volume E ^ (2 : ℝ)⁻¹ := by
+      ε * volume E ≤ ENNReal.ofReal (δ * C10_0_1 4 2) * volume F ^ (2 : ℝ)⁻¹ * volume E ^ (2 : ℝ)⁻¹ := by
   calc ε * volume E
     _ = ∫⁻ _ in E, ε := by
       symm
       apply setLIntegral_const
     _ ≤ ∫⁻ x in E, T f x := by
       apply setLIntegral_mono' measurableSetE hE
-    _ = δ * ∫⁻ x in E, T (fun x ↦ (1 / δ) * f x) x := by
+    _ = ENNReal.ofReal δ * ∫⁻ x in E, T (fun x ↦ (1 / δ) * f x) x := by
       rw [← lintegral_const_mul']
-      swap; · exact ENNReal.coe_ne_top
+      swap; · exact ENNReal.ofReal_ne_top
       congr with x
       rw [carlesonOperatorReal_mul δpos]
-    _ ≤ δ * (C10_0_1 4 2 * (volume E) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹) := by
+      congr
+    _ ≤ ENNReal.ofReal δ * (C10_0_1 4 2 * (volume E) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹) := by
       gcongr
       apply rcarleson measurableSetF measurableSetE _ (by fun_prop)
       intro x
-      simpa [inv_mul_le_iff₀, δpos] using hf x
-    _ = δ * C10_0_1 4 2 * (volume F) ^ (2 : ℝ)⁻¹ * (volume E) ^ (2 : ℝ)⁻¹ := by
+      -- FIXME: simp? suggests output that doesn't work
+      simp
+      rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff₀ δpos]
+      exact hf x
+    _ = ENNReal.ofReal (δ * C10_0_1 4 2) * (volume F) ^ (2 : ℝ)⁻¹ * (volume E) ^ (2 : ℝ)⁻¹ := by
+      rw [ENNReal.ofReal_mul δpos.le, ENNReal.ofReal_coe_nnreal]
       ring
 
-lemma rcarleson_exceptional_set_estimate_specific' {δ : ℝ≥0} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ δ)
+lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ δ)
     {E : Set ℝ} (measurableSetE : MeasurableSet E) (E_subset : E ⊆ Set.Icc 0 (2 * π)) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
-      ε * volume E ≤ (δ * C10_0_1 4 2 * ENNReal.ofReal (2 * π + 2) ^ (2 : ℝ)⁻¹) * volume E ^ (2 : ℝ)⁻¹ := by
+      ε * volume E ≤ ENNReal.ofReal (δ * C10_0_1 4 2 * (2 * π + 2) ^ (2 : ℝ)⁻¹) * volume E ^ (2 : ℝ)⁻¹ := by
+  rw [ENNReal.ofReal_mul (by have := @C10_0_1_pos 4 2 one_lt_two; positivity),
+    ← ENNReal.ofReal_rpow_of_pos (by positivity)]
   set F := (Set.Ioo (0 - 1) (2 * π + 1))
   set h := F.indicator f with hdef
   have hh : ∀ x, ‖h x‖ ≤ δ * F.indicator 1 x := by
@@ -500,23 +508,12 @@ lemma rcarleson_exceptional_set_estimate_specific' {δ : ℝ≥0} (δpos : 0 < �
     split_ifs with hx
     · simp only [norm_eq_abs, Pi.one_apply, mul_one]; exact hf x
     · simp
-  convert rcarleson_exceptional_set_estimate δpos (hmf.indicator measurableSet_Ioo)
-    measurableSet_Ioo hh measurableSetE ?_
+  convert rcarleson_exceptional_set_estimate δpos (hmf.indicator measurableSet_Ioo) measurableSet_Ioo hh measurableSetE ?_
   · rw [Real.volume_Ioo]
     ring_nf
   · intro x hx
     rw [← carlesonOperatorReal_eq_of_restrict_interval (E_subset hx)]
     exact hE x hx
-
-set_option diagnostics true in
-lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ δ)
-    {E : Set ℝ} (measurableSetE : MeasurableSet E) (E_subset : E ⊆ Set.Icc 0 (2 * π)) {ε : ENNReal} (hE : ∀ x ∈ E, ε ≤ T f x) :
-      ε * volume E ≤ ENNReal.ofReal ((δ * C10_0_1 4 2 * 2 * π + 2) ^ (2 : ℝ)⁻¹) * volume E ^ (2 : ℝ)⁻¹ := by
-  convert rcarleson_exceptional_set_estimate_specific' (δ := (⟨δ, δpos.le⟩ : NNReal)) δpos hmf hf
-    measurableSetE E_subset hE
-  simp_rw [ENNReal.coe_nnreal_eq]
-  rw [← ENNReal.ofReal_mul, ← ENNReal.ofReal_mul]
-
 
 
 def C_control_approximation_effect (ε : ℝ) := (C10_0_1 4 2 * (8 / (π * ε)) ^ (2 : ℝ)⁻¹) + π
@@ -549,7 +546,7 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
 
 
 /- This is Lemma 11.6.4 (partial Fourier sums of small) in the blueprint.-/
-lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ≥0} (hδ : 0 < δ)
+lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ : 0 < δ)
     {h : ℝ → ℂ} (h_measurable : Measurable h)
     (h_periodic : h.Periodic (2 * π)) (h_bound : ∀ x, ‖h x‖ ≤ δ) :
     ∃ E ⊆ Set.Icc 0 (2 * π), MeasurableSet E ∧ volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * π) \ E,

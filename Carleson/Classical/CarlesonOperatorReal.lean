@@ -6,7 +6,6 @@ import Carleson.Classical.HilbertKernel
 noncomputable section
 
 open MeasureTheory
-open scoped NNReal
 
 --TODO: avoid this extra definition?
 def carlesonOperatorReal (K : ℝ → ℝ → ℂ) (f : ℝ → ℂ) (x : ℝ) : ENNReal :=
@@ -242,7 +241,7 @@ lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
 -/
 
 
-lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ≥0} (ha : 0 < a) : T f x = a * T (fun x ↦ 1 / a * f x) x := by
+lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a) : T f x = a.toNNReal * T (fun x ↦ 1 / a * f x) x := by
   rw [carlesonOperatorReal, carlesonOperatorReal, ENNReal.mul_iSup]
   congr with n
   rw [ENNReal.mul_iSup]
@@ -255,8 +254,8 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ≥0} (ha : 0
   norm_cast
   apply NNReal.eq
   simp only [coe_nnnorm, NNReal.coe_mul]
-  rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a), ← Complex.norm_real, ← norm_mul,
-    ← integral_mul_left]
+  rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
+    ← integral_mul_left, Real.coe_toNNReal a ha.le]
   congr with y
   field_simp
   rw [mul_div_cancel_left₀]
