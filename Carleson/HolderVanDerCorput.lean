@@ -212,6 +212,9 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
 
 lemma foobaz (f : X → ℝ) : ‖∫ x, (f x : ℂ)‖ = ‖∫ x, f x‖ := sorry
 
+-- one direction always holds; the other needs non-negativity
+lemma qux (f : X → ℝ) (hf : 0 ≤ f) : ‖∫ x, f x‖ = ∫ x, ‖f x‖ := sorry
+
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
@@ -232,17 +235,28 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
   -- equation 8.0.15
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
       ≤ ‖∫ y, cutoff R t x y‖ * ⨆ x' : X, ‖ϕ x'‖ := by
-    simp_rw [this, integral_mul_right, norm_mul]
-    gcongr
-    norm_cast
-    simp_rw [integral_ofReal]
-    simp_rw [← foobar]
-    simp
-    simp_rw [norm_eq_abs]
-    simp_rw [← norm_mul]
-    gcongr
-    set F := fun (x'' : X) ↦ ‖holderApprox R t ϕ x''‖
-    sorry -- apply le_iSup F x
+    rw [this]
+    calc ‖∫ (y : X), ↑(cutoff R t x y) * ϕ y‖
+      _ ≤ ∫ (y : X), ‖↑(cutoff R t x y) * ϕ y‖ := norm_integral_le_integral_norm _
+      _ = ∫ (y : X), ‖cutoff R t x y‖ * ‖ϕ y‖ := by
+        simp_rw [norm_mul]
+        congr with y
+        rw [norm_real]
+      _ ≤ ∫ (y : X), ‖↑(cutoff R t x y)‖ * ⨆ x' : X, ‖ϕ x'‖ := by
+        gcongr
+        · sorry -- integrability: cutoff integrable; product of int. fns?
+        · sorry -- integrability: cutoff integrable + mul by constant
+        intro a
+        dsimp
+        gcongr
+        sorry -- why does this fail? apply iSup_le
+      _ = (∫ (y : X), ‖↑(cutoff R t x y)‖) * ⨆ x' : X, ‖ϕ x'‖ := by rw [integral_mul_right]
+      _ = ‖∫ (y : X), ↑(cutoff R t x y)‖ * ⨆ x' : X, ‖ϕ x'‖ := by
+        congr
+        symm
+        apply qux
+        apply cutoff_nonneg
+    sorry
   -- part 1 of 8.0.16
   have (x : X) : ‖holderApprox R t ϕ x‖ ≤ ⨆ x' : X, ‖holderApprox R t ϕ x'‖ := sorry -- proven above
   -- part 2 of 8.0.16
