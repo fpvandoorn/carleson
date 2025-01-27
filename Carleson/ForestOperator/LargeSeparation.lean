@@ -361,23 +361,6 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
 
   exact_mod_cast calculation_1 (aIsBig := four_le_a X)
 
-lemma sentence_2
-  (plusOne: s J' = s J + 1)
-  (belongs: (J: Set X) ⊆ (J': Set X))
-  (hJ: J ∈ t.𝓙₅ u₁ u₂)
-  : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := by
-  have J'TouchesChildren : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
-    intro hJ'
-    have smaller : ¬s J' > s J := by
-      push_neg
-      have smaller : J ≤ J' := ⟨belongs, show s J ≤ s J' by linarith⟩
-      exact (hJ.1.2 hJ' smaller).right
-    linarith
-  rw [𝓙₀, Set.nmem_setOf_iff] at J'TouchesChildren
-  rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
-  push_neg at J'TouchesChildren
-  exact J'TouchesChildren.right
-
 theorem dist_triangle5 (a b c d e : X) :
   dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
   calc
@@ -485,7 +468,17 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
   have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 :=
     Grid.exists_scale_succ (by change s J < 𝔰 p; linarith)
 
-  have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 plusOne belongs.left hJ
+  have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := by
+    have J'TouchesChildren : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
+      intro hJ'
+      have smaller : ¬s J' > s J := by
+        push_neg
+        exact (hJ.1.2 hJ' belongs).right
+      linarith
+    rw [𝓙₀, Set.nmem_setOf_iff] at J'TouchesChildren
+    rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
+    push_neg at J'TouchesChildren
+    exact J'TouchesChildren.right
 
   apply (show 94*a ≥ 376 ∧ 94*a < 376 → False by intros h1; linarith)
   constructor
