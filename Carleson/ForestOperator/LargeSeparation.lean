@@ -502,8 +502,16 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 
   have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := sentence_2 plusOne belongs.left hJ
 
+  apply (show 94*a ≥ 376 ∧ 94*a < 376 → False by intros h1; linarith)
+  constructor
+  · exact Nat.mul_le_mul_left 94 (four_le_a X)
+  rify
+  suffices 0 ≤ -94 * (a : ℝ) by linarith
+  apply (Real.rpow_le_rpow_left_iff (x := 2) (by linarith)).mp
+  rw [show (2 : ℝ)^(0 :ℝ) = 1 by norm_num]
+  apply one_le_of_le_mul_right₀ (b:=2 ^ ((Z : ℝ) * ↑n / 2)) (by positivity)
   have DIsPos := defaultD_pos a
-  have contradiction := calc 2^((Z : ℝ) * (n : ℝ) / 2)
+  calc 2^((Z : ℝ) * (n : ℝ) / 2)
     _ ≤ dist_{𝓘 p'}                    (𝒬 u₁) (𝒬 u₂) := by
       exact distance
     _ = dist_{𝔠 p', D ^ 𝔰 p' / 4}       (𝒬 u₁) (𝒬 u₂) := by
@@ -533,9 +541,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       apply cdist_mono
       exact sentence_3 belongs.left plusOne three h
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
-
       apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (100 * (a : ℝ)) by positivity)).mp
-
       rw [
         ← mul_assoc,
         neg_mul,
@@ -558,22 +564,8 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     _ ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * n / 2) := by
       exact last_step hp
 
-  have zer : (2 : ℝ)^((Z : ℝ) * n / 2) > 0 := by positivity
-  have contr : (1 : ℝ) ≤ 2 ^ (-94 * (a : ℝ )) := by
-    exact one_le_of_le_mul_right₀ zer contradiction
 
-  have aIsBig : a ≥ 4 := four_le_a X
-  have trio : (2 : ℝ)^(0 :ℝ) = 1 := by norm_num
-  rw [← trio] at contr
-  have tr :  1 < (2 : ℝ) := by linarith
-  have black : (0 : ℝ) ≤ -94 * (a : ℝ) := (Real.rpow_le_rpow_left_iff tr).mp contr
-  simp at black
-  have white : 94 * (a) ≥ 376 := by
-    calc
-      94 * a ≥ 94 * 4 := by exact Nat.mul_le_mul_left 94 aIsBig
-      _ = 376 := by norm_num
-  norm_cast at black
-  linarith
+#exit
 
 
 /-- The constant used in `local_tree_control`.
