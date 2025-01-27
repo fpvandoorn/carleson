@@ -282,29 +282,39 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) : s J ≤ 𝔰 p := by
   by_contra! contr
+  apply Int.not_le.mpr contr
+  apply Int.sub_one_lt_iff.mp
+  apply Int.sub_lt_of_sub_lt
+  rify
+  apply lt_of_le_of_lt (b:=Real.logb D 64) (c:=1) (hbc:=by exact_mod_cast calculation_1 (aIsBig := four_le_a X))
 
-  rcases hJ with ⟨_, hJaaa : (J : Set X) ⊆ 𝓘 u₁, _⟩
-
-  have disjointness : Disjoint (𝓘 p : Set X) (𝓘 u₁ : Set X) := by
-    by_contra notDisjoint
-    apply hp.2
-    apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
-    right
-    exact hp.1
+  apply tsub_le_iff_left.mpr
+  have DIsOne := one_lt_D (X := X)
+  rw [
+    ← Real.logb_rpow (b:=D) (x:=𝔰 p) (by positivity) (by linarith),
+    ← Real.logb_mul (by positivity) (by positivity),
+    ← Real.logb_rpow (b:=D) (x:=s J) (by positivity) (by linarith)
+  ]
+  apply (Real.logb_le_logb DIsOne (by positivity) (by positivity)).mpr
 
   have onOneHand : dist (c J) (𝔠 p) ≥ (D ^ s J / 4) := by
-    rw [disjoint_comm] at disjointness
+    rcases hJ with ⟨_, hJaaa : (J : Set X) ⊆ 𝓘 u₁, _⟩
+    have disjointness : Disjoint (𝓘 u₁ : Set X) (𝓘 p : Set X) := by
+      rw [disjoint_comm]
+      by_contra notDisjoint
+      apply hp.2
+      apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
+      right
+      exact hp.1
     have pJDisjoint := Disjoint.inter_left (h := disjointness) (u := ↑(J))
     rw [inter_eq_self_of_subset_right hJaaa] at pJDisjoint
     have inter : (J : Set X) ∩ (ball (c J) (D ^ s J / 4) : Set X) = ball (c J) (D ^ s J / 4) := inter_eq_self_of_subset_right (ball_subset_Grid (X := X) (i := J))
     have pBallDisjoint : Disjoint (↑J ∩ ball (c J) (D ^ s J / 4)) ↑(𝓘 p) := Disjoint.inter_left (h := pJDisjoint) (s := J) (t := 𝓘 p) (u := ball (c J) (D ^ s J / 4))
     rw [inter] at pBallDisjoint
     exact disjoint (h := pBallDisjoint) (p := 𝔠 p) (belongs := Grid.c_mem_Grid)
-
   have onOtherHand : dist (c J) (𝔠 p) ≤ D ^ (s J) / 8 + 8 * D^(𝔰 p) := by
     simp only [not_disjoint_iff] at h
     rcases h with ⟨middleX, h1, h2⟩
-
     calc dist (c J) (𝔠 p)
       _ ≤ dist (𝔠 p) middleX + dist middleX (c J) := by
         nth_rw 1 [dist_comm]
@@ -326,35 +336,14 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
           exact h2
         nth_rw 2 [add_comm]
         exact add_le_add first second
+  rw [← ge_iff_le] at onOtherHand
+  have well := Trans.trans onOtherHand onOneHand
+  have white := sub_nonneg_of_le well
+  apply le_neg_add_iff_le.mp
+  have red := mul_le_mul_of_nonneg_left (a := 8) white (by positivity)
+  ring_nf at red
+  exact_mod_cast red
 
-  apply Int.not_le.mpr contr
-  apply Int.sub_one_lt_iff.mp
-  apply Int.sub_lt_of_sub_lt
-  rify
-  apply lt_of_le_of_lt (a:=(s J - 𝔰 p : ℝ)) (b:=Real.logb D 64) (c:=1)
-
-  apply tsub_le_iff_left.mpr
-
-  have DIsOne := one_lt_D (X := X)
-
-  rw [
-    ← Real.logb_rpow (b:=D) (x:=𝔰 p) (by positivity) (by linarith),
-    ← Real.logb_mul (by positivity) (by positivity),
-    ← Real.logb_rpow (b:=D) (x:=s J) (by positivity) (by linarith)
-  ]
-  apply (Real.logb_le_logb DIsOne (by positivity) (by positivity)).mpr
-
-  have thus : (D : ℝ) ^ 𝔰 p * 64 ≥ ↑D ^ s J := by
-    rw [← ge_iff_le] at onOtherHand
-    have well := Trans.trans onOtherHand onOneHand
-    have white := sub_nonneg_of_le well
-    apply le_neg_add_iff_le.mp
-    have red := mul_le_mul_of_nonneg_left (a := 8) white (by positivity)
-    ring_nf at red
-    exact red
-  exact_mod_cast thus
-
-  exact_mod_cast calculation_1 (aIsBig := four_le_a X)
 
 theorem dist_triangle5 (a b c d e : X) :
   dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
