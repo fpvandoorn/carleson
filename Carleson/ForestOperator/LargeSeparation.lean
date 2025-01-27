@@ -298,20 +298,19 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   apply (Real.logb_le_logb DIsOne (by positivity) (by positivity)).mpr
 
   have onOneHand : dist (c J) (𝔠 p) ≥ (D ^ s J / 4) := by
-    rcases hJ with ⟨_, hJaaa : (J : Set X) ⊆ 𝓘 u₁, _⟩
-    have disjointness : Disjoint (𝓘 u₁ : Set X) (𝓘 p : Set X) := by
-      rw [disjoint_comm]
-      by_contra notDisjoint
-      apply hp.2
-      apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
-      right
-      exact hp.1
-    have pJDisjoint := Disjoint.inter_left (h := disjointness) (u := ↑(J))
-    rw [inter_eq_self_of_subset_right hJaaa] at pJDisjoint
-    have inter : (J : Set X) ∩ (ball (c J) (D ^ s J / 4) : Set X) = ball (c J) (D ^ s J / 4) := inter_eq_self_of_subset_right (ball_subset_Grid (X := X) (i := J))
-    have pBallDisjoint : Disjoint (↑J ∩ ball (c J) (D ^ s J / 4)) ↑(𝓘 p) := Disjoint.inter_left (h := pJDisjoint) (s := J) (t := 𝓘 p) (u := ball (c J) (D ^ s J / 4))
-    rw [inter] at pBallDisjoint
-    exact disjoint (h := pBallDisjoint) (p := 𝔠 p) (belongs := Grid.c_mem_Grid)
+    apply Forest.disjoint (p := 𝔠 p) (belongs := Grid.c_mem_Grid)
+    have inter_1 : (J : Set X) ∩ ball (c J) (D ^ s J / 4) = ball (c J) (D ^ s J / 4) := inter_eq_self_of_subset_right ball_subset_Grid
+    have inter_2 : (𝓘 u₁ : Set X) ∩ ↑J = ↑J := inter_eq_self_of_subset_right hJ.2.1
+    rw [← inter_1, ← inter_2]
+    apply Disjoint.inter_left
+    apply Disjoint.inter_left
+    rw [disjoint_comm]
+    by_contra notDisjoint
+    apply hp.2
+    apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
+    right
+    exact hp.1
+
   have onOtherHand : dist (c J) (𝔠 p) ≤ D ^ (s J) / 8 + 8 * D^(𝔰 p) := by
     simp only [not_disjoint_iff] at h
     rcases h with ⟨middleX, h1, h2⟩
