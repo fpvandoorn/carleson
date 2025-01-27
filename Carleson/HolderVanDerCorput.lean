@@ -258,8 +258,9 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
         apply cutoff_nonneg
     sorry
   -- part 1 of 8.0.16
-  have (x : X) : ‖holderApprox R t ϕ x‖ ≤ ⨆ x' : X, ‖holderApprox R t ϕ x'‖ := sorry -- proven above
+  have (x : X) : ‖holderApprox R t ϕ x‖ ≤ ⨆ x' : X, ‖ϕ x'‖ := sorry -- proven above
   -- part 2 of 8.0.16
+  have (x : X) : ⨆ x' : X, ‖ϕ x'‖ ≤ C := sorry
   sorry
 
 
