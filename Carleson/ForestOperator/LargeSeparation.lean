@@ -283,19 +283,14 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) : s J ≤ 𝔰 p := by
   by_contra! contr
 
-  rcases hJ with ⟨hJLeft, hJaaa, hJbbb⟩
-  simp at hJaaa hJbbb
-  apply 𝓙_subset_𝓙₀ at hJLeft
-
-  cases' hp with hi _
+  rcases hJ with ⟨_, hJaaa : (J : Set X) ⊆ 𝓘 u₁, _⟩
 
   have disjointness : Disjoint (𝓘 p : Set X) (𝓘 u₁ : Set X) := by
     by_contra notDisjoint
-    have well : p ∈ t.𝔖₀ u₁ u₂ := by
-      apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
-      right
-      exact hi
-    contradiction
+    apply hp.2
+    apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
+    right
+    exact hp.1
 
   have onOneHand : dist (c J) (𝔠 p) ≥ (D ^ s J / 4) := by
     rw [disjoint_comm] at disjointness
