@@ -367,19 +367,14 @@ lemma sentence_2
   (hJ: J ∈ t.𝓙₅ u₁ u₂)
   : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := by
   have J'TouchesChildren : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
-    have bigger : s J' > s J := Int.lt.intro (id (Eq.symm plusOne))
     intro hJ'
     have smaller : ¬s J' > s J := by
       push_neg
-      obtain ⟨⟨_, j5right⟩, _, _⟩ := hJ
-      simp only [Grid.le_def, and_imp] at j5right
-      exact (j5right hJ' belongs (Int.le.intro 1 (id (Eq.symm plusOne)))).right
-    contradiction
-
+      have smaller : J ≤ J' := ⟨belongs, show s J ≤ s J' by linarith⟩
+      exact (hJ.1.2 hJ' smaller).right
+    linarith
+  rw [𝓙₀, Set.nmem_setOf_iff] at J'TouchesChildren
   rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
-
-  unfold 𝓙₀ at J'TouchesChildren
-  rw [Set.nmem_setOf_iff] at J'TouchesChildren
   push_neg at J'TouchesChildren
   exact J'TouchesChildren.right
 
