@@ -271,11 +271,11 @@ theorem calculation_1 (aIsBig: a ≥ 4) : Real.logb (2 ^ (100 * a ^ 2)) 64 < 1 :
       _ = 2^6 := by norm_num
       _ < 2 ^ (100 * a ^ 2) := by
         gcongr
-        exact one_lt_two
-        apply lt_of_lt_of_le (b:=1600) (by norm_num)
-        exact Nat.mul_le_mul_left 100 (Nat.pow_le_pow_of_le_left aIsBig 2)
+        · exact one_lt_two
+        · apply lt_of_lt_of_le (b:=1600) (by norm_num)
+          exact Nat.mul_le_mul_left 100 (Nat.pow_le_pow_of_le_left aIsBig 2)
   apply (Real.logb_lt_iff_lt_rpow (b := 2 ^ (100 * a ^ 2)) (x := 64) (y := 1) (by linarith) (by linarith)).mpr
-  simp
+  rw [Real.rpow_one]
   exact sixtyFourSmaller
 
 lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
