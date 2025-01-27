@@ -1,6 +1,8 @@
 Contributions are welcome!
 
-If you start formalizing any of the results mentioned in the blueprint, please announce this on Zulip first, in the (to be created) Carleson channel. Small fixes are always welcome, and need not be discussed in advance. Simply make a pull request with a change.
+If you start formalizing any of the results mentioned in the blueprint, please announce this on Zulip first, in the [Carleson channel](https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/). Small fixes are always welcome, and need not be discussed in advance. Simply make a pull request with a change.
+
+Note: the html blueprint has some rendering issues with certain equations and references. Consult the pdf if you see this on the html page.
 
 Some remarks:
 * Some statements will be missing hypotheses. Don't hesitate adding hypotheses to a result, especially if it is already assumed elsewhere. Assuming that functions are measurable is always fine.
