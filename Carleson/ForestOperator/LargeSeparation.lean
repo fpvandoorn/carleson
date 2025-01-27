@@ -310,31 +310,24 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     apply overlap_implies_distance hu₁ hu₂ hu h2u (hpu₁ := notDisjoint)
     right
     exact hp.1
-
   have onOtherHand : dist (c J) (𝔠 p) ≤ D ^ (s J) / 8 + 8 * D^(𝔰 p) := by
-    simp only [not_disjoint_iff] at h
+    rw [not_disjoint_iff] at h
     rcases h with ⟨middleX, h1, h2⟩
     calc dist (c J) (𝔠 p)
-      _ ≤ dist (𝔠 p) middleX + dist middleX (c J) := by
-        nth_rw 1 [dist_comm]
-        exact dist_triangle (y := middleX) (x := 𝔠 p) (z := c J)
-      _ ≤ D ^ (s J) / 8 + 8 * D^(𝔰 p) := by
-        have first : dist (𝔠 p) middleX ≤ 8 * D^(𝔰 p) := by
-          unfold ball at h1
-          rw [Set.mem_setOf_eq] at h1
-          rw [dist_comm]
-          apply le_of_lt
-          exact h1
-        have second : dist middleX (c J) ≤ ↑D ^ s J / 8 := by
-          unfold ball at h2
-          rw [Set.mem_setOf_eq] at h2
-          apply le_of_lt
-          have equal : 8⁻¹ * (D : ℝ) ^ s J = ↑D ^ s J / 8 := by
-            exact Eq.symm (div_eq_inv_mul ..)
-          rw [equal] at h2
-          exact h2
-        nth_rw 2 [add_comm]
-        exact add_le_add first second
+    _ ≤ dist (𝔠 p) middleX + dist middleX (c J) := by
+      rw [dist_comm]
+      exact dist_triangle ..
+    _ ≤ 8 * D^(𝔰 p) + dist middleX (c J) := by
+      gcongr
+      rw [mem_ball, dist_comm] at h1
+      apply le_of_lt
+      exact h1
+    _ ≤ D ^ (s J) / 8 + 8 * D^(𝔰 p) := by
+      rw [add_comm]
+      gcongr
+      rw [mem_ball, ← div_eq_inv_mul] at h2
+      apply le_of_lt
+      exact h2
   rw [← ge_iff_le] at onOtherHand
   have well := Trans.trans onOtherHand onOneHand
   have white := sub_nonneg_of_le well
@@ -529,10 +522,6 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       gcongr
       apply le_of_not_ge
       exact notIn𝔖₀.2 tile
-
-
-#exit
-
 
 /-- The constant used in `local_tree_control`.
 Has value `2 ^ (104 * a ^ 3)` in the blueprint. -/
