@@ -1,19 +1,9 @@
-import Carleson.MetricCarleson
-import Carleson.ToMathlib.HardyLittlewood
+import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
 
 noncomputable section
-
-/-- The constant used in `two_sided_metric_carleson`.
-Has value `2 ^ (452 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
--- todo: put C_K in NNReal?
-def C10_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := (⟨C_K a, C_K_pos _ |>.le⟩) ^ 2 * C1_0_2 a q
-
-lemma C10_0_1_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C10_0_1 a q :=
-  _root_.mul_pos (pow_two_pos_of_ne_zero
-    (by simp_rw [ne_eq, ← NNReal.coe_eq_zero, NNReal.coe_mk, C_K_pos _ |>.ne', not_false_eq_true])) (C1_0_2_pos hq)
 
 variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : ℕ)]
 variable {τ C r R : ℝ} {q q' : ℝ≥0}
@@ -144,44 +134,6 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
     HasStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
   have := simple_nontangential_operator_le ha hT hmg hg h2g le_rfl
   sorry
-
-/-! ## Section 10.2 and Lemma 10.0.3 -/
-
-/-- The constant used in `nontangential_from_simple`. -/
-irreducible_def C10_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a)
-
-/-- Lemma 10.2.1. -/
-theorem maximal_theorem (ha : 4 ≤ a)
-    {f : X → ℂ} (hmf : Measurable f) (hf : IsBounded (range f)) (h2f : volume (support f) < ∞)
-    {α : ℝ≥0} (hα : 0 < α):
-    α * distribution (globalMaximalFunction volume 1 f) α volume ≤ C10_2_1 a * eLpNorm f 1 := by
-  sorry
-
-/-- The constant used in `czoperator_weak_1_1`. -/
-irreducible_def C10_0_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 19 * a)
-
-/-- Lemma 10.0.3 -/
-theorem czoperator_weak_1_1 (ha : 4 ≤ a)
-    (hT : ∃ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hmf : Measurable f) (hf : IsBounded (range f)) (h2f : volume (support f) < ∞)
-    {α : ℝ≥0} (hα : 0 < α) :
-    distribution f α volume ≤ C10_0_3 a / α * ∫⁻ y, ‖f y‖ₑ := by
-  sorry
-
-/-! ## Theorem 10.0.1 -/
-
-/- Theorem 10.0.1 -/
-theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
-    (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (hT : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G, carlesonOperator K f x ≤
-    C10_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
-  sorry
-
-
-
-
 
 
 end
