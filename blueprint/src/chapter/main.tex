@@ -7267,6 +7267,8 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 %fixme: Incorporate this into Hardy-Littlewood?
 \begin{lemma} [Maximal theorem]
     \label{maximal-theorem}
+    \leanok
+    \lean{maximal_theorem}
     \uses{Hardy-Littlewood}
     Let $f: X \to \C$ be bounded, measurable, supported on a set of finite measure, and let $\alpha > 0$. Then
     \begin{equation}
@@ -7298,7 +7300,8 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 
 \begin{lemma}[Lebesgue differentiation]
     \label{Lebesgue-differentiation}
-    \lean{VitaliFamily.ae_tendsto_average}
+    \leanok
+    \lean{lebesgue_differentiation}
     Let $f$ be a bounded measurable function supported on a set of finite measure. Then for $\mu$ almost every $x$, we have
     $$\lim_{n\to \infty} \frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
     where $\{B_n\}_{n\geq 1}$ is a sequence of balls with radii $r_n>0$ such that $x\in B_n$ for each $n\geq 1$ and
@@ -7307,12 +7310,15 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     \end{equation*}
 \end{lemma}
 \begin{proof}
+    \leanok
     This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
     %fixme: Check that the Lean version really implies this version of Lebesgue differentiation.
 \end{proof}
 
-%fixme: The following is probably part of mathlib (for a second countable topology?)
+% This is in Mathlib.
 \begin{lemma}[Disjoint family countable]
+    \leanok
+    \lean{Pairwise.countable_of_isOpen_disjoint}
     \label{disjoint-family-countable}
     In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
 \end{lemma}
@@ -7333,6 +7339,8 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
 \begin{lemma}[Ball covering]
     \label{ball-covering}
+    \leanok
+    \lean{ball_covering}
     \uses{disjoint-family-countable}
     Given an open set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
     \begin{equation}
@@ -7406,6 +7414,8 @@ and conclude $N\le 2^{6a}$.
 Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
+    \leanok
+    \lean{calderon_zygmund_decomposition}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
     Let $f$ be a bounded, measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
     Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$) such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$

@@ -608,6 +608,21 @@ lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
   h.const_smul e
 
+
+lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
+    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c)
+    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
+    HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
+  sorry
+
+lemma HasWeakType.const_mul {E' α α' : Type*} [NormedRing E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : E') :
+    HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
+  h.const_smul e
+
+
 end
 
 lemma distribution_add_le [ENormedAddMonoid ε] :
