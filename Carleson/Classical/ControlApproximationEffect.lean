@@ -483,7 +483,7 @@ lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ �
       congr with x
       rw [carlesonOperatorReal_mul δpos]
       congr
-    _ ≤ ENNReal.ofReal δ * (ENNReal.ofReal (C10_0_1 4 2) * (volume E) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹) := by
+    _ ≤ ENNReal.ofReal δ * (C10_0_1 4 2 * (volume E) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹) := by
       gcongr
       apply rcarleson measurableSetF measurableSetE _ (by fun_prop)
       intro x
@@ -492,7 +492,7 @@ lemma rcarleson_exceptional_set_estimate {δ : ℝ} (δpos : 0 < δ) {f : ℝ �
       rw [_root_.abs_of_nonneg δpos.le, inv_mul_le_iff₀ δpos]
       exact hf x
     _ = ENNReal.ofReal (δ * C10_0_1 4 2) * (volume F) ^ (2 : ℝ)⁻¹ * (volume E) ^ (2 : ℝ)⁻¹ := by
-      rw [ENNReal.ofReal_mul δpos.le]
+      rw [ENNReal.ofReal_mul δpos.le, ENNReal.ofReal_coe_nnreal]
       ring
 
 lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f : ℝ → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ δ)
@@ -531,7 +531,7 @@ lemma C_control_approximation_effect_eq {ε : ℝ} {δ : ℝ} (ε_nonneg : 0 ≤
     C_control_approximation_effect ε * δ = ((δ * C10_0_1 4 2 * (4 * π) ^ (2 : ℝ)⁻¹ * (2 / ε) ^ (2 : ℝ)⁻¹) / π) + π * δ := by
   symm
   rw [C_control_approximation_effect, mul_comm, mul_div_right_comm, mul_comm δ, mul_assoc,
-    mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C10_0_1 4 2), mul_assoc]
+    mul_comm δ, ← mul_assoc, ← mul_assoc, ← add_mul, mul_comm _ (C10_0_1 4 2 : ℝ), mul_assoc]
   congr
   rw [Real.div_rpow, Real.div_rpow _ (mul_nonneg _ _), Real.mul_rpow, Real.mul_rpow]
   all_goals

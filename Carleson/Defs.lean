@@ -187,7 +187,7 @@ def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ 
 
 /-- The Calderon Zygmund operator `T_r` in chapter Two-sided Metric Space Carleson -/
 def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
-  ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
+  ∫ y in (ball x r)ᶜ, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
@@ -202,7 +202,7 @@ def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
+  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
 
 /-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
