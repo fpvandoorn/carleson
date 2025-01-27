@@ -210,6 +210,8 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     gcongr
     exact Real.le_norm_self _
 
+lemma foobaz (f : X → ℝ) : ‖∫ x, (f x : ℂ)‖ = ‖∫ x, f x‖ := sorry
+
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
@@ -218,10 +220,15 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
   -- equation 8.0.14, corrected
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
       = ‖∫ y, cutoff R t x y * ϕ y‖ := by
-    --simp
-    --rw [norm_eq_abs] -- second term is complex.abs, not the real norm... need to equate
-    --simp_rw [norm_mul]
-    sorry
+    -- uniformise: left integral on LHS should be about complex numbers also
+    rw [← foobaz]
+    simp only [holderApprox, norm_div]
+    nth_rw 1 [← foobar]
+    set RRR : ℂ := (∫ (y : X), cutoff R t x y)
+    set RRRR := ‖RRR‖
+    set TTTT := ‖∫ (y : X), ↑(cutoff R t x y) * ϕ y‖
+    sorry -- should be obvious: a * (b / a) = b for a, b real numbers
+    -- ring and field_simp both fail here!
   -- equation 8.0.15
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
       ≤ ‖∫ y, cutoff R t x y‖ * ⨆ x' : X, ‖ϕ x'‖ := by
