@@ -22,5 +22,9 @@
     "lean4.infoview.emphasizeFirstGoal": true,
     "lean4.infoview.showExpectedType": false,
     "search.useIgnoreFiles": true,
-    "editor.rulers": [100]
-}
+    "editor.rulers": [100],
+    "files.readonlyInclude": {
+        "**/.elan/**": true,
+        "**/.lake/**": true
+      }
+  }
