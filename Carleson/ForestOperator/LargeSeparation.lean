@@ -474,16 +474,6 @@ lemma sentence_3
           gcongr
           exact size_of_D (hundred_lt_realD X)
 
-theorem last_step (hp: p ∈ t.𝔗 u₂ \ t.𝔖₀ u₁ u₂) : 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * (n : ℝ) / 2) := by
-  cases' hp with l evil_children
-  unfold 𝔖₀ at evil_children
-  beta_reduce at evil_children
-  simp only [mem_setOf_eq, not_or, not_and, sep_union, mem_union] at evil_children
-  cases' evil_children with unimportant good
-  have hi := good l
-  push_neg at hi
-  gcongr
-
 /-- Lemma 7.5.6. -/
 -- BLUEPRINT: https://florisvandoorn.com/carleson/blueprint/treesection.html#limited-scale-impact
 lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -562,7 +552,12 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       _ ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_{𝔠 p, (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
         exact_mod_cast cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
     _ ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * n / 2) := by
-      exact last_step hp
+      rcases hp with ⟨tile, notIn𝔖₀⟩
+      unfold 𝔖₀ at notIn𝔖₀
+      simp only [mem_setOf_eq, not_or, not_and, sep_union, mem_union] at notIn𝔖₀
+      gcongr
+      apply le_of_not_ge
+      exact notIn𝔖₀.2 tile
 
 
 #exit
