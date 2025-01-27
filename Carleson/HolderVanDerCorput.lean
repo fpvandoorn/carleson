@@ -215,16 +215,16 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
     LipschitzWith (C8_0_1 a ⟨t, ht.1.le⟩) (holderApprox R t ϕ) := by
-  -- equation 8.0.14
+  -- equation 8.0.14, corrected
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
-      = ‖∫ y, cutoff R t x y * holderApprox R t ϕ x‖ := by
+      = ‖∫ y, cutoff R t x y * ϕ y‖ := by
     --simp
-    rw [norm_eq_abs] -- second term is complex.abs, not the real norm... need to equate
+    --rw [norm_eq_abs] -- second term is complex.abs, not the real norm... need to equate
     --simp_rw [norm_mul]
     sorry
   -- equation 8.0.15
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
-      ≤ ‖∫ y, cutoff R t x y‖ * ⨆ x' : X, ‖holderApprox R t ϕ x'‖ := by
+      ≤ ‖∫ y, cutoff R t x y‖ * ⨆ x' : X, ‖ϕ x'‖ := by
     simp_rw [this, integral_mul_right, norm_mul]
     gcongr
     norm_cast
