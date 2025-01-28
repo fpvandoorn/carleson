@@ -222,6 +222,7 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u)
     (nndist x x' / D ^ (𝔰 p : ℝ)) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ := by
   sorry
 
+-- TODO
 theorem size_of_D (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
   calc ((100 : ℝ) + 4 * ↑D ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (-1 : ℝ)
     _ = (100 : ℝ) * ↑D ^ (-1 : ℝ) + 4 * ↑D ^ (-2 : ℝ) * ↑D ^ (-1 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ) * ↑D ^ (-1 : ℝ) := by
@@ -249,6 +250,7 @@ theorem size_of_D (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8�
     _ < 2 := by
       norm_num
 
+-- TODO
 theorem disjoint
   {J: X} {d: ℝ} {pSet: Set X} {p: X}
   (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J d) pSet)
@@ -259,12 +261,14 @@ theorem disjoint
   rw [h] at belongsIntersection
   exact (Set.mem_empty_iff_false p).mp belongsIntersection
 
+-- TODO
 theorem IF_subset_THEN_distance_between_centers
   (subset : (J : Set X) ⊆ J')
   : dist (c J) (c J') < 4 * D ^ s J' := by
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
 
+-- REFACTORED
 lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) : s J ≤ 𝔰 p := by
@@ -322,6 +326,7 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   ring_nf at this
   norm_cast
 
+-- TODO
 theorem dist_triangle5 (a b c d e : X) :
   dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
   calc
@@ -330,6 +335,7 @@ theorem dist_triangle5 (a b c d e : X) :
     _ ≤ (dist a b + dist b c + dist c d) + dist d e :=
       add_le_add_right (add_le_add_right (dist_triangle a b c) _) _
 
+-- TODO
 lemma sentence_3
   (subset : (J : Set X) ⊆ ↑J')
   (plusOne : s J' = s J + 1)
@@ -413,8 +419,8 @@ lemma sentence_3
           gcongr
           exact size_of_D (hundred_lt_realD X)
 
+-- REFACTORED
 /-- Lemma 7.5.6. -/
--- BLUEPRINT: https://florisvandoorn.com/carleson/blueprint/treesection.html#limited-scale-impact
 lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) :
