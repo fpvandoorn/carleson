@@ -265,19 +265,6 @@ theorem IF_subset_THEN_distance_between_centers
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
 
-theorem calculation_1 (aIsBig: a ≥ 4) : Real.logb (2 ^ (100 * a ^ 2)) 64 < 1 := by
-  have sixtyFourSmaller : (64 : ℝ) < 2 ^ (100 * a ^ 2) := by
-    calc (64 : ℝ)
-      _ = 2^6 := by norm_num
-      _ < 2 ^ (100 * a ^ 2) := by
-        gcongr
-        · exact one_lt_two
-        · apply lt_of_lt_of_le (b:=1600) (by norm_num)
-          exact Nat.mul_le_mul_left 100 (Nat.pow_le_pow_of_le_left aIsBig 2)
-  apply (Real.logb_lt_iff_lt_rpow (b := 2 ^ (100 * a ^ 2)) (x := 64) (y := 1) (by linarith) (by linarith)).mpr
-  rw [Real.rpow_one]
-  exact sixtyFourSmaller
-
 lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) : s J ≤ 𝔰 p := by
@@ -286,8 +273,11 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   apply Int.sub_one_lt_iff.mp
   apply Int.sub_lt_of_sub_lt
   rify
-  apply lt_of_le_of_lt (b:=Real.logb D 64) (c:=1) (hbc:=by exact_mod_cast calculation_1 (aIsBig := four_le_a X))
-
+  have hbc : Real.logb D 64 < 1 := by
+    apply (Real.logb_lt_iff_lt_rpow (by linarith [hundred_lt_realD X]) (by linarith)).mpr
+    rw [Real.rpow_one]
+    linarith [hundred_lt_realD X]
+  apply lt_of_le_of_lt (b := Real.logb D 64) (hbc := hbc)
   apply tsub_le_iff_left.mpr
   have DIsOne := one_lt_D (X := X)
   rw [
