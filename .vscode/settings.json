@@ -1,19 +1,11 @@
 {
     "files.exclude": {
-        ".devcontainer": true,
-        ".docker": true,
         "**/.DS_Store": true,
         "**/.DS_yml": true,
         "**/.git": true,
-        "**/.gitpod.yml": true,
-        "**/.vscode": true,
         "**/*.olean": true,
         "build": true,
         "html": true,
-        "lake-packages": true,
-        "lean-tactics.tex": true,
-        "LICENSE": true,
-        "mathematics_in_lean.pdf": true
     },
     "editor.minimap.enabled": false,
     "editor.acceptSuggestionOnEnter": "off",
@@ -30,5 +22,9 @@
     "lean4.infoview.emphasizeFirstGoal": true,
     "lean4.infoview.showExpectedType": false,
     "search.useIgnoreFiles": true,
-    "editor.rulers": [100]
-}
+    "editor.rulers": [100],
+    "files.readonlyInclude": {
+        "**/.elan/**": true,
+        "**/.lake/**": true
+      }
+  }

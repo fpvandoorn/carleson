@@ -1,5 +1,5 @@
 import Carleson.ForestOperator.AlmostOrthogonality
-import Carleson.HardyLittlewood
+import Carleson.ToMathlib.HardyLittlewood
 import Carleson.Psi
 import Carleson.TileStructure
 
@@ -114,6 +114,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         rw [ENNReal.mul_le_mul_left, two_mul, ENNReal.add_le_add_iff_left]
         apply ENNReal.div_le_div_left
         rw [ENNReal.rpow_le_rpow_iff, ENNReal.coe_le_coe]
+        exact zpow_le_zpow_right₀ one_le_D hs₁.2
         exact zpow_le_zpow_right₀ one_le_D hs₁.2
         · exact hτ
         · -- I also used this in Psi.lean, with slightly different coercions.

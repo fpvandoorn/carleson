@@ -29,6 +29,11 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build Carleson
 
+      - name: Test carleson update in docbuild
+        working-directory: docbuild
+        run: |
+          MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update carleson || true
+
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:

@@ -3,22 +3,14 @@
    All smaller ones are done but the estimate for the truncated Hilbert transform is still missing.
 -/
 
-import Carleson.TwoSidedMetricCarleson
+import Carleson.TwoSidedCarleson.MainTheorem
 import Carleson.Classical.CarlesonOperatorReal
 import Carleson.Classical.VanDerCorput
+import Carleson.Classical.HilbertStrongType
 
 noncomputable section
 
 open MeasureTheory Function Metric Bornology Real
-
-section
-@[reducible]
-def DoublingMeasureR2 : DoublingMeasure ℝ 2 :=
-  InnerProductSpace.DoublingMeasure.mono (by simp)
-
-instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ 4 : ℕ) :=
-  DoublingMeasureR2.mono (by norm_num)
-end
 
 lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℝ)} :
     localOscillation ∅ f g = 0 := by simp [localOscillation]
@@ -164,29 +156,24 @@ lemma coeΘ_R (n : Θ ℝ) (x : ℝ) : n x = n * x := rfl
 lemma coeΘ_R_C (n : Θ ℝ) (x : ℝ) : (n x : ℂ) = n * x := by norm_cast
 
 lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
-    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ dist_{x, r} f g := by
+    localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g) := by
   by_cases r_pos : r ≤ 0
   · rw [ball_eq_empty.mpr r_pos]
-    unfold localOscillation
-    simp [dist_nonneg]
+    simp [localOscillation, norm_nonneg]
   push_neg at r_pos
-  rw [dist_integer_linear_eq]
-  calc ⨆ z ∈ ball x r ×ˢ ball x r, |↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2|
-    _ = ⨆ z ∈ ball x r ×ˢ ball x r, ‖(f - g) * (z.1 - x) - (f - g) * (z.2 - x)‖ := by
+  simp_rw [dist_integer_linear_eq]
+  calc ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal ‖↑f * z.1 - ↑g * z.1 - ↑f * z.2 + ↑g * z.2‖
+    _ = ⨆ z ∈ ball x r ×ˢ ball x r, ENNReal.ofReal |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)| := by
       congr with z
       congr with h
       rw [Real.norm_eq_abs]
       ring_nf
-    _ ≤ 2 * r * |↑f - ↑g| := by
-      apply Real.iSup_le
-      --TODO: investigate strange (delaborator) behavior - why is there still a sup?
-      on_goal 1 => intro z
-      on_goal 1 => apply Real.iSup_le
-      · intro hz
-        simp only [Set.mem_prod, mem_ball] at hz
-        rw [Real.dist_eq, Real.dist_eq] at hz
-        rw [Real.norm_eq_abs]
-        calc |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)|
+    _ ≤ ENNReal.ofReal (2 * r * |↑f - ↑g|) := by
+      refine iSup₂_le (fun z hz ↦ ?_)
+      apply ENNReal.ofReal_le_of_le_toReal
+      rw [ENNReal.toReal_ofReal (by positivity)]
+      simp_rw [Set.mem_prod, mem_ball, Real.dist_eq] at hz
+      calc |(f - g) * (z.1 - x) - (f - g) * (z.2 - x)|
         _ ≤ |(f - g) * (z.1 - x)| + |(f - g) * (z.2 - x)| := abs_sub ..
         _ = |↑f - ↑g| * |z.1 - x| + |↑f - ↑g| * |z.2 - x| := by congr <;> apply abs_mul
         _ ≤ |↑f - ↑g| * r + |↑f - ↑g| * r := by
@@ -194,12 +181,7 @@ lemma oscillation_control {x : ℝ} {r : ℝ} {f g : Θ ℝ} :
           · linarith [hz.1]
           · linarith [hz.2]
         _ = 2 * r * |↑f - ↑g| := by ring
-      all_goals
-      repeat
-        apply mul_nonneg
-        linarith
-        apply abs_nonneg
-    _ ≤ 2 * max r 0 * |↑f - ↑g| := by
+    _ ≤ ENNReal.ofReal (2 * max r 0 * |↑f - ↑g|) := by
       gcongr
       apply le_max_left
 
@@ -550,19 +532,7 @@ instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
     rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, Complex.norm_eq_abs, Complex.abs_conj, ← Complex.norm_eq_abs, dist_comm x y, Real.vol_real_symm]
     rw [dist_comm x y] at h
     exact isOneSidedKernelHilbert.norm_K_sub_le h
-
-
-/- This verifies the assumption on the operators T_r in two-sided metric space Carleson.
-   Its proof is done in Section 11.3 (The truncated Hilbert transform) and is yet to be formalized.
-
-   Note: we can simplify the proof in the blueprint by using real interpolation
-   `MeasureTheory.exists_hasStrongType_real_interpolation`.
--/
-lemma Hilbert_strong_2_2 :
-    ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) :=
-  sorry
-
-
+#synth DoublingMeasure ℝ _
 local notation "T" => carlesonOperatorReal K
 
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
@@ -588,14 +558,16 @@ lemma carlesonOperatorReal_le_carlesonOperator : T ≤ carlesonOperator K := by
 /- Lemma 11.1.4 -/
 lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G, T f x ≤
-    ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
-  have conj_exponents : Real.IsConjExponent 2 2 := by
-    rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
+    ∫⁻ x in G, T f x ≤ C10_0_1 4 2 * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
+  have conj_exponents : NNReal.IsConjExponent 2 2 := by
+    rw [NNReal.isConjExponent_iff_eq_conjExponent]
+    · ext; norm_num
+    norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, carlesonOperator K f x :=
       lintegral_mono (carlesonOperatorReal_le_carlesonOperator _)
-    _ ≤ ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
-      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 f hmf hf
+    _ ≤ C10_0_1 4 2 * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
+      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG
+        Hilbert_strong_2_2 hmf hf
 
 end section

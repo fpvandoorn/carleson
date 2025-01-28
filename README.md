@@ -14,11 +14,22 @@ The classical statement of [Carleson's theorem](https://en.wikipedia.org/wiki/Ca
 
 ## Contribute
 
-To get the repository, make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html). Then get the repository using `git clone https://github.com/fpvandoorn/carleson.git` and run `lake exe cache get!` inside the repository. Run `lake build` to build all files in this repository. See the README of [my course repository](https://github.com/fpvandoorn/LeanCourse23) for more detailed instructions.
+### Locally
 
-To make changes to this repository, please make a pull request. There are more tips in the file [Contributing.md](https://github.com/fpvandoorn/carleson/blob/master/CONTRIBUTING.md)
+1. Make sure you have [installed Lean](https://leanprover-community.github.io/get_started.html).
+2. Download the repository using `git clone https://github.com/fpvandoorn/carleson.git`.
+3. Run `lake exe cache get!` to download built dependencies (this speeds up the build process).
+4. Run `lake build` to build all files in this repository.
 
-To push your changes, the easiest method is to use the `Source Control` panel in VSCode.
+See the README of [my course repository](https://github.com/fpvandoorn/LeanCourse23) for more detailed instructions.
+
+### In github codespaces
+
+If you prefer, you can use online development environment:
+
+<a href="https://codespaces.new/fpvandoorn/carleson"><img src="https://github.com/codespaces/badge.svg"/></a>
+
+To make changes to this repository, please make a pull request. There are more tips in the file [Contributing.md](https://github.com/fpvandoorn/carleson/blob/master/CONTRIBUTING.md). To push your changes, the easiest method is to use the `Source Control` panel in VSCode.
 Feel free to make pull requests with code that is work in progress, but make sure that the file(s)
 you've worked have no errors (having `sorry`'s is fine of course).
 

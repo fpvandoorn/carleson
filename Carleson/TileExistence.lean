@@ -1,5 +1,5 @@
 import Carleson.TileStructure
-import Carleson.DoublingMeasure
+import Carleson.ToMathlib.DoublingMeasure
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.Data.Set.Subset
@@ -1919,17 +1919,18 @@ lemma disjoint_frequency_cubes {f g : 𝓩 I} (h : (Ω₁ ⟨I, f⟩ ∩ Ω₁ �
 
 /-- Equation (4.2.6), first inclusion -/
 lemma ball_subset_Ω₁ (p : 𝔓 X) : ball_(p) (𝒬 p) C𝓩 ⊆ Ω₁ p := by
-  rw [Ω₁, Ω₁_aux]; set I := p.1; set z := p.2
-  let k := (Finite.equivFin ↑(𝓩 I)) z
-  simp_rw [Fin.eta, Equiv.symm_apply_apply, k.2, dite_true]
-  change ball_{I} z.1 C𝓩 ⊆ _ \ ⋃ i < k.1, Ω₁_aux I i
+  rw [Ω₁, Ω₁_aux]; set z := p.2
+  simp_rw [Fin.eta, Equiv.symm_apply_apply]
+  set k := (Finite.equivFin ↑(𝓩 p.1)) z with h'k
+  simp_rw [k.2, dite_true]
+  change ball_{p.1} z.1 C𝓩 ⊆ _ \ ⋃ i < k.1, Ω₁_aux p.1 i
   refine subset_diff.mpr ⟨subset_diff.mpr ⟨ball_subset_ball (by norm_num), ?_⟩, ?_⟩
   · rw [disjoint_iUnion₂_right]; intro i hi; rw [mem_diff_singleton] at hi
     exact 𝓩_pairwiseDisjoint z.coe_prop hi.1 hi.2.symm
   · rw [disjoint_iUnion₂_right]; intro i hi
-    let z' := (Finite.equivFin ↑(𝓩 I)).symm ⟨i, by omega⟩
+    let z' := (Finite.equivFin ↑(𝓩 p.1)).symm ⟨i, by omega⟩
     have zn : z ≠ z' := by simp only [ne_eq, Equiv.eq_symm_apply, z']; exact Fin.ne_of_gt hi
-    simpa [z'] using disjoint_ball_Ω₁_aux I z'.2 z.2 (Subtype.coe_ne_coe.mpr zn.symm)
+    simpa [z'] using disjoint_ball_Ω₁_aux p.1 z'.2 z.2 (Subtype.coe_ne_coe.mpr zn.symm)
 
 /-- Equation (4.2.6), second inclusion -/
 lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := by
@@ -1944,7 +1945,7 @@ lemma Ω₁_subset_ball (p : 𝔓 X) : Ω₁ p ⊆ ball_(p) (𝒬 p) C4_2_1 := b
 /-- Equation (4.2.5) -/
 lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ ⋃ f : 𝓩 I, Ω₁ ⟨I, f⟩ := by
   rw [iUnion₂_subset_iff]; intro z mz (ϑ : Θ X) mϑ
-  let f := Finite.equivFin (𝓩 I)
+  set f := Finite.equivFin (𝓩 I) with hf
   by_cases h : ∃ y ∈ 𝓩 I, ϑ ∈ ball_{I} y C𝓩
   · obtain ⟨z', mz', hz'⟩ := h
     exact subset_iUnion_of_subset _ subset_rfl (ball_subset_Ω₁ ⟨I, ⟨z', mz'⟩⟩ hz')
@@ -1956,7 +1957,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
     have q : ∀ i < k, ϑ ∉ Ω₁_aux I i := by
       by_contra! h; obtain ⟨i, li, hi⟩ := h
       have := Ω₁_subset_ball ⟨I, f.symm i⟩
-      simp_rw [Ω₁, Equiv.apply_symm_apply] at this
+      simp_rw [Ω₁, ← hf, Equiv.apply_symm_apply] at this
       replace this : ϑ ∈ ball_{I} (f.symm i).1 C4_2_1 := this hi
       replace this : i ∈ L := by simp only [L, mem_setOf_eq, this]
       exact absurd (hk i this) (not_le.mpr li)

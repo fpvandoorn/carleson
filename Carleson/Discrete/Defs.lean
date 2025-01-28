@@ -70,6 +70,49 @@ lemma pairwiseDisjoint_ℭ :
     · rw [ne_eq, Prod.mk.injEq, not_and] at hn; exact hk ▸ disjoint_ℭ_of_ne (hn hk)
     · exact disjoint_of_subset ℭ_subset_TilesAt ℭ_subset_TilesAt (disjoint_TilesAt_of_ne hk)
 
+lemma exists_bound_ℭ : ∃ (n : ℕ × ℕ),
+    ∀ x ∈ {kn : ℕ × ℕ | (ℭ (X := X) kn.1 kn.2).Nonempty}, Prod.snd x ≤ Prod.snd n := by
+  apply exists_upper_bound_image
+  have : Set.Finite (⋃ kn : ℕ × ℕ, ℭ (X := X) kn.1 kn.2) := toFinite _
+  exact ((Set.finite_iUnion_iff (fun i j hij ↦ pairwiseDisjoint_ℭ (mem_univ i) (mem_univ j) hij)).1
+    this).2
+
+variable (X) in
+def maxℭ : ℕ := (exists_bound_ℭ (X := X)).choose.2
+
+lemma le_maxℭ_of_nonempty {k n : ℕ} (h : (ℭ (X := X) k n).Nonempty) : n ≤ maxℭ X :=
+  (exists_bound_ℭ (X := X)).choose_spec (k, n) h
+
+lemma eq_empty_of_maxℭ_lt {k n : ℕ} (hn : maxℭ X < n) : ℭ (X := X) k n = ∅ := by
+  contrapose! hn
+  exact (exists_bound_ℭ (X := X)).choose_spec (k, n) hn
+
+/-- Lemma 5.3.11 -/
+lemma dens1_le_dens' {k : ℕ} {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens₁ P ≤ dens' k P := by
+  rw [dens₁, dens']; gcongr with p' mp' l hl
+  simp_rw [ENNReal.mul_iSup, iSup_le_iff, mul_div_assoc]; intro p mp sl
+  suffices p ∈ TilesAt k by
+    exact le_iSup_of_le p (le_iSup₂_of_le this sl (mul_le_mul' (by norm_cast) le_rfl))
+  simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf]
+  constructor
+  · rw [mem_lowerClosure] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
+    have hp'' := mem_of_mem_of_subset mp'' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp''
+    obtain ⟨J, lJ, vJ⟩ := hp''.1; use J, lp''.1.trans lJ
+  · by_contra h; obtain ⟨J, lJ, vJ⟩ := h
+    have hp' := mem_of_mem_of_subset mp' hP
+    simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp'
+    apply absurd _ hp'.2; use J, sl.1.trans lJ
+
+/-- Lemma 5.3.12 -/
+lemma dens1_le {k n : ℕ} {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A ≤ 2 ^ (4 * (a : ℝ) - n + 1) :=
+  calc
+    _ ≤ dens' k A := dens1_le_dens' (hA.trans ℭ_subset_TilesAt)
+    _ ≤ dens' k (ℭ (X := X) k n) := iSup_le_iSup_of_subset hA
+    _ ≤ _ := by
+      rw [dens'_iSup, iSup₂_le_iff]; intro p mp
+      rw [ℭ, mem_setOf] at mp; exact_mod_cast mp.2.2
+
 /-- The subset `𝔅(p)` of `𝔐(k, n)`, given in (5.1.8). -/
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
   { m ∈ 𝔐 k n | smul 100 p ≤ smul 1 m }
@@ -90,10 +133,21 @@ lemma disjoint_ℭ₁_of_ne {k n j l : ℕ} (h : j ≠ l) : Disjoint (ℭ₁ (X 
   by_contra! h; rw [not_disjoint_iff] at h; obtain ⟨p, mp₁, mp₂⟩ := h
   simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, mp₁.1.1, true_and, not_le] at mp₁ mp₂
   have := mp₂.1.trans_lt mp₁.2
-  rw [pow_lt_pow_iff_right one_lt_two] at this; omega
+  rw [pow_lt_pow_iff_right₀ one_lt_two] at this; omega
 
 lemma pairwiseDisjoint_ℭ₁ {k n : ℕ} : univ.PairwiseDisjoint (ℭ₁ (X := X) k n) := fun _ _ _ _ ↦
   disjoint_ℭ₁_of_ne
+
+lemma pairwiseDisjoint_ℭ₁' :
+    (univ : Set (ℕ × ℕ × ℕ)).PairwiseDisjoint (fun knj ↦ ℭ₁ (X := X) knj.1 knj.2.1 knj.2.2) := by
+  rintro ⟨k, n, j⟩ - ⟨k', n', j'⟩ - h
+  rcases ne_or_eq k k' with hkk' | rfl
+  · have := pairwiseDisjoint_ℭ (X := X) (mem_univ (k, n)) (mem_univ (k', n')) (by simp [hkk'])
+    exact this.mono ℭ₁_subset_ℭ ℭ₁_subset_ℭ
+  rcases ne_or_eq n n' with hnn' | rfl
+  · have := pairwiseDisjoint_ℭ (X := X) (mem_univ (k, n)) (mem_univ (k, n')) (by simp [hnn'])
+    exact this.mono ℭ₁_subset_ℭ ℭ₁_subset_ℭ
+  exact disjoint_ℭ₁_of_ne (by simpa using h)
 
 lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n j) :
     (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
@@ -178,6 +232,13 @@ lemma ℭ₅_def {k n j : ℕ} {p : 𝔓 X} :
 lemma ℭ₅_subset_ℭ₄ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₄ (X := X) k n j := fun t mt ↦ by
   rw [ℭ₅, mem_diff] at mt; exact mt.1
 
+lemma ℭ₅_subset_ℭ₁ {k n j : ℕ} : ℭ₅ k n j ⊆ ℭ₁ (X := X) k n j :=
+  ℭ₅_subset_ℭ₄.trans <| ℭ₄_subset_ℭ₃.trans <| ℭ₃_subset_ℭ₂.trans ℭ₂_subset_ℭ₁
+
+lemma pairwiseDisjoint_ℭ₅ :
+    (univ : Set (ℕ × ℕ × ℕ)).PairwiseDisjoint (fun knj ↦ ℭ₅ (X := X) knj.1 knj.2.1 knj.2.2) :=
+  pairwiseDisjoint_ℭ₁'.mono (fun _ ↦ ℭ₅_subset_ℭ₁)
+
 -- These inclusion and disjointness lemmas are only used in `antichain_decomposition`
 section AntichainDecomp
 
@@ -203,8 +264,6 @@ lemma 𝔏₄_subset_ℭ₁ : 𝔏₄ k n j ⊆ ℭ₁ (X := X) k n j :=
   𝔏₄_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁
 lemma 𝔏₄_subset_ℭ : 𝔏₄ k n j ⊆ ℭ (X := X) k n := 𝔏₄_subset_ℭ₁.trans ℭ₁_subset_ℭ
 
-lemma ℭ₅_subset_ℭ₁ : ℭ₅ k n j ⊆ ℭ₁ (X := X) k n j :=
-  ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ |>.trans ℭ₂_subset_ℭ₁
 lemma ℭ₅_subset_ℭ : ℭ₅ k n j ⊆ ℭ (X := X) k n := ℭ₅_subset_ℭ₁.trans ℭ₁_subset_ℭ
 
 end AntichainDecomp

@@ -1,5 +1,6 @@
 import Carleson.GridStructure
 import Carleson.Psi
+import Carleson.ToMathlib.BoundedCompactSupport
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
@@ -82,6 +83,9 @@ notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 
 @[simp] lemma cball_subset {p : 𝔓 X} : ball_(p) (𝒬 p) 5⁻¹ ⊆ Ω p := TileStructure.cball_subset
 @[simp] lemma subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := TileStructure.subset_cball
 
+lemma ball_eq_of_grid_eq {p q : 𝔓 X} {ϑ : Θ X} {r : ℝ} (h : 𝓘 p = 𝓘 q) :
+    ball_(p) ϑ r = ball_(q) ϑ r := by rw [← ball_𝓘, h]
+
 lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
     Disjoint (ball_(p) (𝒬 p) 5⁻¹) (ball_(p') (𝒬 p') 5⁻¹) :=
   disjoint_of_subset cball_subset cball_subset (disjoint_Ω h hp)
@@ -89,6 +93,8 @@ lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
+
+lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
 
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
@@ -99,15 +105,18 @@ lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
     · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
     · exact measurable_σ₁.prod_mk measurable_σ₂
 
+lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
+
 section T
 
 /-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
 It is the map `T ∘ (1_F * ·) : f ↦ T (1_F * f)`, also denoted `T1_F`
-The operator `T` in Proposition 2.0.2 is therefore `applied to `(F := Set.univ)`. -/
+The operator `T` in Proposition 2.0.2 is therefore applied to `(F := Set.univ)`. -/
 def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
   indicator (E p)
     fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
 
+-- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonOn`
 lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonOn p f) := by
   refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
@@ -128,15 +137,154 @@ We will use this in other places of the formalization as well. -/
 def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
 
+-- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonSum`
 @[fun_prop]
 lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonSum ℭ f) :=
   Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
 
+lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X → ℂ}
+    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonOn p f) := by
+  refine .indicator ?_ measurableSet_E
+  refine .integral_prod_right'
+    (f := fun z ↦ exp (Complex.I * (Q z.1 z.2 - Q z.1 z.1)) * K z.1 z.2 *
+      ψ (D ^ (- 𝔰 p) * dist z.1 z.2) * f z.2) ?_
+  refine (((AEStronglyMeasurable.mul ?_ aestronglyMeasurable_K).mul ?_).mul ?_)
+  · apply Measurable.aestronglyMeasurable
+    have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
+    refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
+    · exact measurable_Q₂
+    · exact measurable_Q₂.comp this
+  · apply Measurable.aestronglyMeasurable
+    apply measurable_ofReal.comp
+    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
+    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
+    · exact measurable_dist.const_mul _
+  · exact hf.snd
+
+lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
+    {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=
+  Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.carlesonOn
+
 lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
     indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
   unfold carlesonOn Ks
   exact congr_arg _ (funext fun x ↦ (congr_arg _ (funext fun y ↦ by ring)))
+
+lemma support_carlesonOn_subset_E {f : X → ℂ} : support (carlesonOn p f) ⊆ E p :=
+  fun _ hx ↦ mem_of_indicator_ne_zero hx
+
+lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
+    support (carlesonSum ℭ f) ⊆ (⋃ p ∈ ℭ, 𝓘 p) := by
+  intro x hx
+  rw [mem_support] at hx
+  contrapose! hx
+  refine Finset.sum_eq_zero (fun p hp ↦ nmem_support.mp (fun hxp ↦ hx ?_))
+  simp only [Finset.mem_filter] at hp
+  exact Set.mem_biUnion hp.2 <| E_subset_𝓘 (support_carlesonOn_subset_E hxp)
+
+theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
+  stronglyMeasurable :=
+    (measurable_carlesonOn hf.stronglyMeasurable.measurable).stronglyMeasurable
+  isBounded := by
+    let x₀ : X := Classical.choice inferInstance
+    obtain ⟨r₀, hr₀, hfr₀⟩ := hf.isBoundedSupport.subset_closedBall_lt 0 x₀
+    let r₁ := (↑D ^ 𝔰 p / 2) + r₀
+    have hcf : support (_root_.carlesonOn p f) ⊆ closedBall x₀ r₁ := by
+      simp_rw [carlesonOn_def']
+      intro x hx
+      simp only [mem_support] at hx
+      apply indicator_apply_ne_zero.mp at hx
+      replace hx := hx.2
+      simp only [mem_support] at hx
+      have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x))) ≠ 0 := by
+        -- mathlib lemma: if integral ne zero, then integrand ne zero at a point
+        by_contra hc
+        simp only [not_exists, ne_eq, not_not] at hc
+        refine hx ?_
+        refine integral_eq_zero_of_ae ?_
+        simp_all only [support_subset_iff, ne_eq,
+          mem_closedBall, integral_zero, not_true_eq_false, x₀]
+      obtain ⟨y, hy⟩ := this
+      simp only [ne_eq, mul_eq_zero, exp_ne_zero, or_false, not_or] at hy
+      have := dist_mem_Icc_of_Ks_ne_zero hy.1
+      apply (dist_triangle _ y _).trans
+      unfold r₁
+      gcongr
+      · exact (dist_mem_Icc_of_Ks_ne_zero hy.1).2
+      · exact hfr₀ hy.2
+    obtain ⟨CK, hCK, hCK⟩ :=
+      IsBounded.exists_bound_of_norm_Ks (Metric.isBounded_closedBall (x := x₀) (r := r₁)) (𝔰 p)
+    let C := volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤).toReal)
+    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
+    wlog hx : x ∈ support (_root_.carlesonOn p f)
+    · simp only [mem_support, ne_eq, not_not] at hx
+      rw [hx, norm_zero]
+      positivity
+    · simp_rw [carlesonOn_def']
+      refine trans (norm_indicator_le_norm_self _ _) ?_
+      let g := (closedBall x₀ r₀).indicator (fun _ ↦ CK * (eLpNorm f ⊤).toReal)
+      have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ ≤ g y := by
+        filter_upwards [hf.ae_le] with y hy
+        by_cases hy' : y ∈ support f
+        · have := hfr₀ hy'
+          calc
+            _ ≤ ‖Ks (𝔰 p) x y * f y‖ * ‖cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ := norm_mul_le ..
+            _ = ‖Ks (𝔰 p) x y * f y‖ := by rw [norm_exp_I_mul_sub_ofReal, mul_one]
+            _ ≤ ‖Ks (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
+            _ ≤ CK * (eLpNorm f ⊤).toReal := by gcongr; exact hCK x y (hcf hx)
+            _ = g y := by simp_all only [indicator_of_mem, g]
+        · simp only [mem_support, ne_eq, not_not] at hy'
+          rw [hy']
+          simp only [mul_zero, zero_mul, norm_zero, g]
+          unfold indicator
+          split_ifs <;> positivity
+      calc
+        _ ≤ ∫ y, g y := by
+          refine norm_integral_le_of_norm_le ?_ hK
+          exact Integrable.indicator_const measurableSet_closedBall measure_closedBall_lt_top
+        _ = volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤ volume).toReal) :=
+          integral_indicator_const _ measurableSet_closedBall
+  hasCompactSupport := by
+    suffices support (_root_.carlesonOn p f) ⊆ 𝓘 p by
+      refine HasCompactSupport.of_support_subset_isBounded ?_ this
+      exact Metric.isBounded_ball.subset Grid_subset_ball
+    exact Trans.trans support_carlesonOn_subset_E E_subset_𝓘
+
+theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ}
+    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
+  .finset_sum (fun _ _ ↦ hf.carlesonOn)
+
+lemma carlesonSum_inter_add_inter_compl {f : X → ℂ} {x : X} (A B : Set (𝔓 X)) :
+    carlesonSum (A ∩ B) f x + carlesonSum (A ∩ Bᶜ) f x = carlesonSum A f x := by
+  classical
+  simp only [carlesonSum]
+  conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ (fun p ↦ p ∈ B)]
+  congr 2
+  · ext; simp
+  · ext; simp
+
+lemma sum_carlesonSum_of_pairwiseDisjoint {ι : Type*} {f : X → ℂ} {x : X} {A : ι → Set (𝔓 X)}
+    {s : Finset ι} (hs : (s : Set ι).PairwiseDisjoint A) :
+    ∑ i ∈ s, carlesonSum (A i) f x = carlesonSum (⋃ i ∈ s, A i) f x := by
+  classical
+  simp only [carlesonSum]
+  rw [← Finset.sum_biUnion]
+  · congr
+    ext p
+    simp
+  · convert hs
+    refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+    · intro i hi j hj hij
+      convert Finset.disjoint_coe.2 (h hi hj hij)
+      · ext; simp
+      · ext; simp
+    · intro i hi j hj hij
+      apply Finset.disjoint_coe.1
+      convert h hi hj hij
+      · ext; simp
+      · ext; simp
 
 end T
 
@@ -285,7 +433,7 @@ def TileLike.toTile (t : TileLike X) : Set (X × Θ X) :=
 
 /-- From a TileLike, we can construct a set. This is used in the definitions `E₁` and `E₂`. -/
 def TileLike.toSet (t : TileLike X) : Set X :=
-  t.1 ∩ G ∩ Q ⁻¹' t.2
+  t.fst ∩ G ∩ Q ⁻¹' t.snd
 
 def E₁ (p : 𝔓 X) : Set X :=
   (toTileLike p).toSet
@@ -311,10 +459,31 @@ def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ lowerClosure 𝔓') (_h2 : smul l p' ≤ smul l p),
   volume (E₂ l p) / volume (𝓘 p : Set X)
 
+lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
+    dens₁ 𝔓₁ ≤ dens₁ 𝔓₂ := by
+  simp only [dens₁, iSup_le_iff]
+  intro p hp r hr
+  refine le_iSup₂_of_le p (h hp) ?_
+  apply ENNReal.mul_le_of_le_div'
+  simp only [iSup_le_iff]
+  intro q hq hqr
+  rw [ENNReal.le_div_iff_mul_le (by left; simp)]
+  · refine le_iSup₂_of_le r hr ?_
+    rw [mul_comm]
+    gcongr
+    exact le_iSup₂_of_le q (lowerClosure_mono h hq) (le_iSup_iff.mpr fun b a ↦ a hqr)
+  · left
+    have hr0 : r ≠ 0 := by positivity
+    simp [hr0]
+
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (r ≥ 4 * (D ^ 𝔰 p : ℝ)),
   volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
+
+lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :
+    dens₂ (𝔓') = ⨆ (p ∈ 𝔓'), dens₂ ({p}) := by
+  simp [dens₂]
 
 -- a small characterization that might be useful
 lemma isAntichain_iff_disjoint (𝔄 : Set (𝔓 X)) :
@@ -360,7 +529,6 @@ def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
 
 lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
     stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
-  classical
   simp_rw [stackSize]
   conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
   simp_rw [Finset.filter_filter]
@@ -386,3 +554,156 @@ lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
 lemma stackSize_measurable : Measurable fun x ↦ (stackSize C x : ℝ≥0∞) := by
   simp_rw [stackSize, Nat.cast_sum, indicator, Nat.cast_ite]
   refine Finset.measurable_sum _ fun _ _ ↦ Measurable.ite coeGrid_measurable ?_ ?_ <;> simp
+
+lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
+    (h : C.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X))) : stackSize C x ≤ 1 := by
+  by_cases hx : ∃ p ∈ C, x ∈ (𝓘 p : Set X)
+  · rcases hx with ⟨p, pC, hp⟩
+    rw [stackSize, Finset.sum_eq_single_of_mem p]; rotate_left
+    · simp [pC]
+    · intro b hb hbp
+      simp only [indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false]
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hb
+      exact disjoint_left.1 (h pC hb hbp.symm) hp
+    simp [hp]
+  · have : stackSize C x = 0 := by
+      apply Finset.sum_eq_zero (fun p hp ↦ ?_)
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_exists, not_and,
+        indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at hp hx ⊢
+      exact hx _ hp
+    linarith
+
+/-! ### Decomposing a set of tiles into disjoint subfamilies -/
+
+/-- Given any family of tiles, one can extract a maximal disjoint subfamily, covering everything. -/
+lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
+    ∃ (B : Set (𝔓 X)), B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧
+      B ⊆ A ∧ (∀ a ∈ A, ∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) := by
+  -- consider the pairwise disjoint families in `A` such that any element of `A` is disjoint from
+  -- every member of the family, or contained in one of them.
+  let M : Set (Set (𝔓 X)) := {B | B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧ B ⊆ A ∧ ∀ a ∈ A,
+    (∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) ∨ (∀ b ∈ B, Disjoint (𝓘 a : Set X) (𝓘 b))}
+  -- let `B` be a maximal such family. It satisfies the properties of the lemma.
+  obtain ⟨B, BM, hB⟩ : ∃ B ∈ M, ∀ B' ∈ M, B ⊆ B' → B = B' :=
+    Finite.exists_maximal_wrt id _ (toFinite M) ⟨∅, by simp [M]⟩
+  refine ⟨B, BM.1, BM.2.1, fun a ha ↦ ?_⟩
+  rcases BM.2.2 a ha with h'a | h'a
+  · exact h'a
+  exfalso
+  let F := {a' ∈ A | (𝓘 a : Set X) ⊆ 𝓘 a' ∧ ∀ b ∈ B, Disjoint (𝓘 a' : Set X) (𝓘 b)}
+  obtain ⟨a', a'F, ha'⟩ : ∃ a' ∈ F, ∀ p ∈ F, (𝓘 a' : Set X) ⊆ 𝓘 p → (𝓘 a' : Set X) = 𝓘 p := by
+    apply Finite.exists_maximal_wrt _ _ (toFinite F)
+    exact ⟨a, by simpa [F, ha] using h'a⟩
+  have : insert a' B ∈ M := by
+    refine ⟨?_, ?_, fun p hp ↦ ?_⟩
+    · apply PairwiseDisjoint.insert BM.1 (fun b hb h'b ↦ a'F.2.2 b hb)
+    · apply insert_subset a'F.1 BM.2.1
+    rcases BM.2.2 p hp with ⟨b, hb⟩ | h'p
+    · exact Or.inl ⟨b, mem_insert_of_mem _ hb.1, hb.2⟩
+    by_cases Hp : Disjoint (𝓘 p : Set X) (𝓘 a')
+    · right
+      simpa [Hp] using h'p
+    refine Or.inl ⟨a', mem_insert a' B, ?_⟩
+    rcases le_or_ge_or_disjoint (i := 𝓘 p) (j := 𝓘 a') with hij | hij |hij
+    · exact (Grid.le_def.1 hij).1
+    · have : p ∈ F := ⟨hp, a'F.2.1.trans (Grid.le_def.1 hij).1, h'p⟩
+      rw [ha' p this (Grid.le_def.1 hij).1]
+    · exact (Hp hij).elim
+  have : B = insert a' B := hB _ this (subset_insert a' B)
+  have : a' ∈ B := by rw [this]; exact mem_insert a' B
+  have : Disjoint (𝓘 a' : Set X) (𝓘 a' : Set X) := a'F.2.2 _ this
+  exact disjoint_left.1 this Grid.c_mem_Grid Grid.c_mem_Grid
+
+/-- A disjoint subfamily of `A` covering everything. -/
+def maximalSubfamily (A : Set (𝔓 X)) : Set (𝔓 X) :=
+  (exists_maximal_disjoint_covering_subfamily A).choose
+
+/-- Iterating `maximalSubfamily` to obtain disjoint subfamilies of `A`. -/
+def iteratedMaximalSubfamily (A : Set (𝔓 X)) (n : ℕ) : Set (𝔓 X) :=
+  maximalSubfamily (A \ (⋃ (i : {i | i < n}), have : i < n := i.2; iteratedMaximalSubfamily A i))
+
+lemma pairwiseDisjoint_iteratedMaximalSubfamily_image (A : Set (𝔓 X)) (n : ℕ) :
+    (iteratedMaximalSubfamily A n).PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) := by
+  rw [iteratedMaximalSubfamily]
+  exact (exists_maximal_disjoint_covering_subfamily (X := X) _).choose_spec.1
+
+lemma iteratedMaximalSubfamily_subset (A : Set (𝔓 X)) (n : ℕ) :
+    iteratedMaximalSubfamily A n ⊆ A := by
+  rw [iteratedMaximalSubfamily]
+  exact (exists_maximal_disjoint_covering_subfamily (X := X) _).choose_spec.2.1.trans diff_subset
+
+lemma pairwiseDisjoint_iteratedMaximalSubfamily (A : Set (𝔓 X)) :
+    univ.PairwiseDisjoint (iteratedMaximalSubfamily A) := by
+  intro m hm n hn hmn
+  wlog h'mn : m < n generalizing m n with H
+  · exact (H (mem_univ n) (mem_univ m) hmn.symm (by omega)).symm
+  have : iteratedMaximalSubfamily A n
+      ⊆ A \ ⋃ (i : {i | i < n}), iteratedMaximalSubfamily A i := by
+    conv_lhs => rw [iteratedMaximalSubfamily]
+    apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.1
+  apply subset_compl_iff_disjoint_left.1
+  rw [compl_eq_univ_diff]
+  apply this.trans
+  apply diff_subset_diff (subset_univ _)
+  apply subset_iUnion_of_subset ⟨m, h'mn⟩
+  simp
+
+/-- Any set of tiles can be written as the union of disjoint subfamilies, their number being
+controlled by the maximal stack size. -/
+lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀ x, stackSize A x ≤ N) :
+    A = ⋃ n < N, iteratedMaximalSubfamily A n := by
+  apply Subset.antisymm; swap
+  · simp [iUnion_subset_iff, iteratedMaximalSubfamily_subset]
+  -- we show that after `N` steps the maximal subfamilies cover everything. Otherwise, say some
+  -- `p` is left. Then `𝓘 p` is contained in an element of each of the previous subfamilies.
+  -- This gives `N+1` different elements containing any element of `𝓘 p`, a contradiction with
+  -- the maximal stack size.
+  intro p hp
+  contrapose! hN
+  simp only [mem_iUnion, exists_prop, not_exists, not_and] at hN
+  have E n (hn : n < N) : ∃ u ∈ iteratedMaximalSubfamily A n, (𝓘 p : Set X) ⊆ (𝓘 u : Set X) := by
+    rw [iteratedMaximalSubfamily]
+    apply (exists_maximal_disjoint_covering_subfamily _).choose_spec.2.2
+    simp only [coe_setOf, mem_setOf_eq, mem_diff, hp,
+      mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, true_and]
+    intro i hi
+    exact hN i (hi.trans hn)
+  choose! u hu h'u using E
+  obtain ⟨x, hxp⟩ : ∃ x, x ∈ (𝓘 p : Set X) := ⟨_, Grid.c_mem_Grid⟩
+  use x
+  have : stackSize {q ∈ A | q = p} x + stackSize {q ∈ A | q ≠ p} x = stackSize A x :=
+    stackSize_setOf_add_stackSize_setOf_not
+  have : 1 = stackSize {q ∈ A | q = p} x := by
+    have : 1 = ∑ q ∈ {p}, (𝓘 q : Set X).indicator 1 x := by simp [hxp]
+    rw [this]
+    congr
+    ext
+    simp (config := {contextual := true}) [hp]
+  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
+      ≤ stackSize {q | q ∈ A ∧ q ≠ p} x := by
+    apply Finset.sum_le_sum_of_subset
+    rintro p hp
+    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    rcases hp with ⟨n, hn, rfl⟩
+    simp only [ne_eq, mem_setOf_eq, Finset.mem_filter,
+      Finset.mem_univ, iteratedMaximalSubfamily_subset _ _ (hu n hn), true_and]
+    rintro rfl
+    exact hN n hn (hu n hn)
+  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
+      = ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 := by
+    apply Finset.sum_congr rfl (fun p hp ↦ ?_)
+    simp only [mem_image, mem_Iio, Finset.mem_filter, Finset.mem_univ, true_and] at hp
+    rcases hp with ⟨n, hn, rfl⟩
+    have : x ∈ (𝓘 (u n) : Set X) := h'u n hn hxp
+    simp [this]
+  have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, 1 = N := by
+    have : Finset.filter (fun p ↦ p ∈ u '' Iio N) Finset.univ = Finset.image u (Finset.Iio N) := by
+      ext p; simp
+    simp only [Finset.sum_const, smul_eq_mul, mul_one, this]
+    rw [Finset.card_image_of_injOn, Nat.card_Iio N]
+    intro a ha b hb hab
+    contrapose! hab
+    simp only [Finset.coe_Iio, mem_Iio] at ha hb
+    have := pairwiseDisjoint_iteratedMaximalSubfamily A (mem_univ a) (mem_univ b) hab
+    exact disjoint_iff_forall_ne.1 this (hu a ha) (hu b hb)
+  omega

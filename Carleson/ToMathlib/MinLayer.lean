@@ -156,26 +156,37 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     · simp only [Nat.cast_inj, Nat.cast_le]
       exact ⟨fun h ↦ by contrapose! h; simp [h], fun h m hm ↦ by omega⟩
 
-/-- `A` equals the union of its `minLayer`s up to `n` iff
-all `LTSeries` in `A` have length at most `n`. -/
-lemma iUnion_minLayer_iff_bounded_series :
-    ⋃ (k ≤ n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length ≤ n := by
+lemma iUnion_lt_minLayer_iff_bounded_series :
+    ⋃ (k < n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length < n := by
   refine ⟨fun h p ↦ ?_, fun hlength ↦ ?_⟩
-  · have hx : p.last.1 ∈ ⋃ (k ≤ n), A.minLayer k := h.symm ▸ p.last.2
+  · have hx : p.last.1 ∈ ⋃ (k < n), A.minLayer k := h.symm ▸ p.last.2
     simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, Subtype.coe_eta,
       Subtype.coe_prop, exists_const, exists_prop] at hx
     obtain ⟨i, hix, hi⟩ := hx
     have hh := length_le_height_last (p := p)
     rw [hi, Nat.cast_le] at hh
-    exact hh.trans hix
+    exact hh.trans_lt hix
   · ext x
     simp only [minLayer_eq_setOf_height, mem_iUnion, mem_setOf_eq, exists_prop]
     wlog hxs : x ∈ A; · simp [hxs]
     simp only [hxs, exists_true_left, iff_true]
-    suffices height (⟨x, hxs⟩ : A) ≤ n by
+    suffices height (⟨x, hxs⟩ : A) < n by
       revert this
       cases height (⟨x, hxs⟩ : A) <;> simp
-    exact iSup_le fun _ ↦ by simp [hlength]
+    cases n with
+    | zero =>
+      specialize hlength (RelSeries.singleton _ ⟨x, hxs⟩)
+      simp at hlength
+    | succ n =>
+      simp only [Nat.lt_succ_iff] at hlength
+      apply lt_of_le_of_lt (b := ↑n) _ (mod_cast lt_add_one n)
+      exact iSup_le fun _ ↦ by simp [hlength]
+
+/-- `A` equals the union of its `minLayer`s up to `n` iff
+all `LTSeries` in `A` have length at most `n`. -/
+lemma iUnion_minLayer_iff_bounded_series :
+    ⋃ (k ≤ n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length ≤ n := by
+  simp [← lt_succ_iff, iUnion_lt_minLayer_iff_bounded_series]
 
 open Classical
 
