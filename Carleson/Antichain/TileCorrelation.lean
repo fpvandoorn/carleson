@@ -115,7 +115,6 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         apply ENNReal.div_le_div_left
         rw [ENNReal.rpow_le_rpow_iff, ENNReal.coe_le_coe]
         exact zpow_le_zpow_right₀ one_le_D hs₁.2
-        exact zpow_le_zpow_right₀ one_le_D hs₁.2
         · exact hτ
         · -- I also used this in Psi.lean, with slightly different coercions.
           have hnetop : (nndist y y' : ℝ≥0∞) / ((D ^ s₁  : ℝ≥0) : ℝ≥0∞) ≠ ⊤ := by
@@ -375,10 +374,10 @@ lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} 
   by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
   · -- We assume 6.2.23.
     -- Express (LHS of 6.1.43) = 6.2.24 -- 6.2.25.
-    have haux : ∀ (y : X), (starRingEnd ℂ) (∫ (y_1 : X) in E p, (starRingEnd ℂ) (Ks (𝔰 p) y_1 y) *
-        Complex.exp (Complex.I * (↑((Q y_1) y_1) - ↑((Q y_1) y))) * g y_1) =
-        (∫ (y_1 : X) in E p, (Ks (𝔰 p) y_1 y) *
-        Complex.exp (Complex.I * (- ((Q y_1) y_1) + ↑((Q y_1) y))) *  (starRingEnd ℂ) (g y_1)) := by
+    have haux : ∀ (y : X), (starRingEnd ℂ) (∫ (y1 : X) in E p, (starRingEnd ℂ) (Ks (𝔰 p) y1 y) *
+        Complex.exp (Complex.I * (↑((Q y1) y1) - ↑((Q y1) y))) * g y1) =
+        (∫ (y1 : X) in E p, (Ks (𝔰 p) y1 y) *
+        Complex.exp (Complex.I * (- ((Q y1) y1) + ↑((Q y1) y))) * (starRingEnd ℂ) (g y1)) := by
       intro y
       simp only [← integral_conj, map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
       congr
@@ -387,10 +386,46 @@ lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} 
       congr
       simp only [map_mul, Complex.conj_I, map_sub, Complex.conj_ofReal]
       ring
-    simp only [adjointCarleson, haux]
-    simp_rw [← MeasureTheory.setIntegral_prod_mul] --LHS is now 6.2.24 -- 6.2.25
-    -- Estimate the above by 6.2.26
+    -- Definition 6.2.27
+    set I12 := fun (x1 : X) (x2 : X) ↦
+      ‖(∫ y, (Complex.exp (Complex.I * (- ((Q x1) y) + ↑((Q x2) y))) *
+        (correlation (𝔰 p') (𝔰 p) x1 x2 y))) * (g x1) * (g x2)‖₊
 
+    -- Inequality 6.2.28
+    have hI12' : ∀ (x1 : E p') (x2 : E p), I12 x1 x2 ≤
+      (2^(254 * a^3 + 8 * a)) * ((1 + dist_(p') (Q x1) (Q x2))^(-(1 : ℝ)/(2*a^2 + a^3))) /
+        (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := sorry
+
+    -- Inequality 6.2.29
+    have hI12 : ∀ (x1 : E p') (x2 : E p), I12 x1 x2 ≤
+      (2^(254 * a^3 + 8 * a + 1)) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
+        (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := sorry
+
+    -- Inequality 6.2.32
+    have hvol : ∀ (x2 : E p), volume.nnreal (coeGrid (𝓘 p)) ≤
+        (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := by
+      intro x2
+      -- Inequality 6.2.30
+      have hdist : dist (x2 : X) (𝔠 p) ≤ 4 * ↑D ^𝔰 p := sorry
+      -- Inclusion 6.2.31
+      have hsub : (coeGrid (𝓘 p)) ⊆ (ball (x2 : X) (8 * ↑D ^𝔰 p)) := sorry
+      sorry
+    -- Bound 6.2.29 using 6.2.32.
+    have hle : ∀ (x2 : E p), (2^(254 * a^3 + 8 * a + 1)) *
+      ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
+        (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) ≤ (C_6_1_5 a) *
+          ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
+            (volume.nnreal (coeGrid (𝓘 p))) := sorry
+
+    -- Estimate 6.2.24 -- 6.2.25 by 6.2.26
+    have hbdd : ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
+        ‖ ∫ (z : X × X) in E p' ×ˢ E p, (I12 z.fst z.snd : ℂ) ‖₊ := by
+      simp only [adjointCarleson, haux] --LHS is now 6.2.24 -- 6.2.25. TODO: fix in blueprint
+      simp_rw [← MeasureTheory.setIntegral_prod_mul]
+      sorry
+    rw [← NNReal.coe_le_coe] at hbdd
+    apply le_trans hbdd
+    simp only [nnnorm_mul, NNReal.coe_mul, coe_nnnorm, Complex.ofReal_mul, I12]
     sorry
   · -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
     calc (‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ : ℝ)
