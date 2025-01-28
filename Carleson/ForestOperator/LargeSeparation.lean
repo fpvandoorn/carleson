@@ -345,79 +345,76 @@ lemma sentence_3
   simp only [not_disjoint_iff] at h
   rcases h with ⟨middleX, xxx, yyy⟩
   intros x xIn
-  simp only [mem_ball] at xxx yyy xIn ⊢
   apply IF_subset_THEN_distance_between_centers at subset
 
   calc dist x (𝔠 p)
-    _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
-      exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
-    _ ≤ 100 * D ^ (s J + 3) + 4 * D ^ (s J + 1) + 8⁻¹ * D ^ s J + 8 * D ^ 𝔰 p := by
-      have step1 : dist x (c J') < 100 * ↑D ^ (s J + 3) := xIn
-      have step2 : dist (c J') (c J) < 4 * ↑D ^ (s J + 1) := by
-        rw [plusOne] at subset
-        rw [dist_comm]
-        exact subset
-      have step3 : dist (c J) middleX < 8⁻¹ * ↑D ^ s J := by
-        rw [dist_comm]
-        exact yyy
-      calc dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) ≤
-        100 * ↑D ^ (s J + 3) + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) :=
-            by gcongr
-      _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + dist (c J) middleX + dist middleX (𝔠 p) :=
-            by gcongr
-      _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + dist middleX (𝔠 p) :=
-            by gcongr
-      _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p :=
-            by gcongr
-    _ < 10 * ↑D ^ 𝔰 p := by
-      have calc8plus2 : (2 : ℝ) + 8 = 10 := by norm_num
-      rw [← calc8plus2, right_distrib]
-      clear calc8plus2
+  _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
+    exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
+  _ ≤ 100 * D ^ (s J + 3) + 4 * D ^ (s J + 1) + 8⁻¹ * D ^ s J + 8 * D ^ 𝔰 p := by
+    have step1 : dist x (c J') < 100 * ↑D ^ (s J + 3) := xIn
+    have step2 : dist (c J') (c J) < 4 * ↑D ^ (s J + 1) := by
+      rw [plusOne] at subset
+      rw [dist_comm]
+      exact subset
+    have step3 : dist (c J) middleX < 8⁻¹ * ↑D ^ s J := by
+      rw [dist_comm]
+      exact yyy
+    calc dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p)
+    _ ≤ 100 * ↑D ^ (s J + 3) + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by gcongr
+    _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + dist (c J) middleX + dist middleX (𝔠 p) := by gcongr
+    _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + dist middleX (𝔠 p) := by gcongr
+    _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p := by
+      rw [mem_ball] at xxx
       gcongr
-      have D_big : (2 : ℝ) ≤ D := by linarith [twentyfive_le_realD X]
-      have D_pos : (0 : ℝ) < D := by linarith [twentyfive_le_realD X]
-      have second : (4 * D ^ (- 2 : ℝ)) * D ^ (s J + 3) = 4 * (D : ℝ) ^ (s J + 1) := by
-        calc 4 * (D : ℝ) ^ (-2 : ℝ) * ↑D ^ (s J + 3)
-          _ = 4 * (↑D ^ (-2 : ℝ) * ↑D ^ (s J + 3)) := by ring
-          _ = 4 * ↑D ^ (-2 + (s J + 3)) := by
-            congr
-            have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (-2)) (z:= (s J + 3)) D_pos
-            rw_mod_cast [pow_th]
-          _ = 4 * ↑D ^ (s J + 1) := by ring_nf
+  _ < 10 * ↑D ^ 𝔰 p := by
+    have calc8plus2 : (2 : ℝ) + 8 = 10 := by norm_num
+    rw [← calc8plus2, right_distrib]
+    clear calc8plus2
+    gcongr
+    have D_big : (2 : ℝ) ≤ D := by linarith [twentyfive_le_realD X]
+    have D_pos : (0 : ℝ) < D := by linarith [twentyfive_le_realD X]
+    have second : (4 * D ^ (- 2 : ℝ)) * D ^ (s J + 3) = 4 * (D : ℝ) ^ (s J + 1) := by
+      calc 4 * (D : ℝ) ^ (-2 : ℝ) * ↑D ^ (s J + 3)
+      _ = 4 * (↑D ^ (-2 : ℝ) * ↑D ^ (s J + 3)) := by ring
+      _ = 4 * ↑D ^ (-2 + (s J + 3)) := by
+        congr
+        have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (-2)) (z:= (s J + 3)) D_pos
+        rw_mod_cast [pow_th]
+      _ = 4 * ↑D ^ (s J + 1) := by ring_nf
 
-      have third : ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s J + 3) = 8⁻¹ * ↑D ^ s J := by
-        calc (8 : ℝ)⁻¹ * (D : ℝ) ^ (-3 : ℝ) * ↑D ^ (s J + 3)
-          _ = (8 : ℝ)⁻¹ * (↑D ^ (-3 : ℝ) * ↑D ^ (s J + 3)) := by ring
-          _ = (8 : ℝ)⁻¹ * ↑D ^ (-3 + (s J + 3)) := by
-            congr
-            have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (-3)) (z:= (s J + 3)) D_pos
-            rw_mod_cast [pow_th]
-          _ = (8 : ℝ)⁻¹* ↑D ^ (s J) := by
-            norm_num
+    have third : ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s J + 3) = 8⁻¹ * ↑D ^ s J := by
+      calc (8 : ℝ)⁻¹ * (D : ℝ) ^ (-3 : ℝ) * ↑D ^ (s J + 3)
+      _ = (8 : ℝ)⁻¹ * (↑D ^ (-3 : ℝ) * ↑D ^ (s J + 3)) := by ring
+      _ = (8 : ℝ)⁻¹ * ↑D ^ (-3 + (s J + 3)) := by
+        congr
+        have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (-3)) (z:= (s J + 3)) D_pos
+        rw_mod_cast [pow_th]
+      _ = (8 : ℝ)⁻¹* ↑D ^ (s J) := by
+        norm_num
 
-      rw [← second, ← third]
-      have sss := distrib_three_right (100 : ℝ) (4 * D ^ (-2 : ℝ)) (8⁻¹ * D ^ (-3 : ℝ) : ℝ) (↑D ^ (s J + 3))
-      rw [← sss]
-      clear second third sss
+    rw [← second, ← third]
+    have sss := distrib_three_right (100 : ℝ) (4 * D ^ (-2 : ℝ)) (8⁻¹ * D ^ (-3 : ℝ) : ℝ) (↑D ^ (s J + 3))
+    rw [← sss]
+    clear second third sss
 
-      have hi : s J + 3 ≤ 𝔰 p - 1 := by omega
-      calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (s J + 3)
-        _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (𝔰 p - 1) := by
-          gcongr
-          linarith [D_big]
-        _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * (↑D ^ (𝔰 p) * ↑D ^ (- 1 : ℝ)) := by
-          congr
-          have well : 𝔰 p - 1 = 𝔰 p + (- 1) := by rfl
-          rw [well]
-          have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (𝔰 p)) (z:= (- 1)) D_pos
-          norm_cast at pow_th
-          norm_cast
-        _ < 2 * ↑D ^ 𝔰 p := by
-          nth_rw 4 [mul_comm]
-          have well := mul_assoc (a:= (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ))) (b:= (D : ℝ) ^ (-1 : ℝ)) (c:= (D : ℝ) ^ 𝔰 p)
-          rw [← well]
-          gcongr
-          exact size_of_D (hundred_lt_realD X)
+    have hi : s J + 3 ≤ 𝔰 p - 1 := by omega
+    calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (s J + 3)
+    _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (𝔰 p - 1) := by
+      gcongr
+      linarith [D_big]
+    _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * (↑D ^ (𝔰 p) * ↑D ^ (- 1 : ℝ)) := by
+      congr
+      have well : 𝔰 p - 1 = 𝔰 p + (- 1) := by rfl
+      rw [well]
+      have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (𝔰 p)) (z:= (- 1)) D_pos
+      norm_cast at pow_th
+      norm_cast
+    _ < 2 * ↑D ^ 𝔰 p := by
+      nth_rw 4 [mul_comm]
+      have well := mul_assoc (a:= (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ))) (b:= (D : ℝ) ^ (-1 : ℝ)) (c:= (D : ℝ) ^ 𝔰 p)
+      rw [← well]
+      gcongr
+      exact size_of_D (hundred_lt_realD X)
 
 -- REFACTORED
 /-- Lemma 7.5.6. -/
