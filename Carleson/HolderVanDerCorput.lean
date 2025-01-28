@@ -225,6 +225,28 @@ lemma qux (f : X → ℝ) (hf : 0 ≤ f) : ‖∫ x, f x‖ = ∫ x, ‖f x‖ :
 -- need a linter: lemmas in the root namespace which exist at the same time in a sub-namespace
 -- need protected, or namespacing: depends
 
+-- general version: balls have positive measure (OpenPosMeasure should suffice)
+lemma Continuous.integral_pos_of_pos {f : X → ℝ} {x : X}
+    (hf : Continuous f) (hfpos : 0 ≤ f) (hfx : 0 < f x) : 0 < ∫ x, f x := by
+  -- know: integral is nonneg
+  -- is positive provides it's non-zero... if zero, function is a.e. zero
+  -- but that's false as a ball has positive measure
+
+--   x : X is given
+-- integral cutoff R t x y over all y is 0 <=> cutoff is zero a.e. (since non-neg)
+
+-- know: cutoff is supported inside a ball
+-- know: cutoff is continuous: so if non-zero, it stays non-zero on a ball => do balls have positive measure?
+--   yes, that is required in the definition!
+
+  sorry
+
+lemma integral_cutoff_positive {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (x : X) :
+    0 < ∫ (y : X), cutoff R t x y := by
+  have : 0 < cutoff R t x x := by simp [cutoff]
+  exact (cutoff_continuous hR ht).integral_pos_of_pos (fun y ↦ cutoff_nonneg (y := y)) this
+
+#exit
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
