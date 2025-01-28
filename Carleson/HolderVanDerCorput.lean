@@ -210,10 +210,20 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     gcongr
     exact Real.le_norm_self _
 
-lemma foobaz (f : X → ℝ) : ‖∫ x, (f x : ℂ)‖ = ‖∫ x, f x‖ := sorry
+lemma foobaz (f : X → ℝ) : ‖∫ x, (f x : ℂ)‖ = ‖∫ x, f x‖ := by
+  rw [foobar, norm_real]
 
 -- one direction always holds; the other needs non-negativity
-lemma qux (f : X → ℝ) (hf : 0 ≤ f) : ‖∫ x, f x‖ = ∫ x, ‖f x‖ := sorry
+lemma qux (f : X → ℝ) (hf : 0 ≤ f) : ‖∫ x, f x‖ = ∫ x, ‖f x‖ := by
+  trans ∫ x, f x
+  · rw [Real.norm_eq_abs, _root_.abs_of_nonneg]
+    exact integral_nonneg hf
+  · congr with x
+    rw [Real.norm_eq_abs, _root_.abs_of_nonneg]
+    exact hf x
+
+-- need a linter: lemmas in the root namespace which exist at the same time in a sub-namespace
+-- need protected, or namespacing: depends
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
@@ -227,11 +237,13 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     rw [← foobaz]
     simp only [holderApprox, norm_div]
     nth_rw 1 [← foobar]
+    -- can this be = 0, e.g. if an isolated point? if so, lemma should be false or easy otherwise... but later lemmas should have some fix-up
+    have aux : (∫ (y : X), cutoff R t x y) ≠ 0 := sorry
     set RRR : ℂ := (∫ (y : X), cutoff R t x y)
     set RRRR := ‖RRR‖
-    set TTTT := ‖∫ (y : X), ↑(cutoff R t x y) * ϕ y‖
-    sorry -- should be obvious: a * (b / a) = b for a, b real numbers
-    -- ring and field_simp both fail here!
+    have : ‖RRR‖ ≠ 0 := by -- using aux
+      simpa only [RRR, norm_eq_abs, map_eq_zero, foobar, abs_ofReal, abs_ne_zero]
+    field_simp
   -- equation 8.0.15
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
       ≤ ‖∫ y, cutoff R t x y‖ * ⨆ x' : X, ‖ϕ x'‖ := by
@@ -249,7 +261,11 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
         intro a
         dsimp
         gcongr
-        sorry -- why does this fail? apply iSup_le
+        apply le_ciSup (f := Complex.abs ∘ ϕ)
+        -- separate lemma; ϕ is bounded
+        -- as continue (since Hölder) and bounded support
+        -- or: prove that BoundedCompactSupport ϕ (as Holder + cpt support)
+        sorry
       _ = (∫ (y : X), ‖↑(cutoff R t x y)‖) * ⨆ x' : X, ‖ϕ x'‖ := by rw [integral_mul_right]
       _ = ‖∫ (y : X), ↑(cutoff R t x y)‖ * ⨆ x' : X, ‖ϕ x'‖ := by
         congr
