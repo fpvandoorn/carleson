@@ -6747,7 +6747,9 @@ For the remainder of this chapter, fix an integer $a\ge 4$, a doubling metric me
 
 The following lemma is proved in \Cref{subsec-cotlar}.
 \begin{lemma}[nontangential-from-simple]\label{nontangential-from-simple}
-    \uses{simple-nontangential-operator, tang-unm-op-ball-diff}
+    \leanok
+    \lean{nontangential_from_simple}
+    \uses{simple-nontangential-operator, nontangential-operator-boundary}
     Assume \eqref{two-sided-Hr-bound-assumption} holds.
     Then, for every bounded measurable function $g : X \to \C$ supported on a set of finite measure we have
     \begin{equation}\label{concretetstarbound}
@@ -6784,8 +6786,10 @@ The following lemma is proved in \Cref{subsec-cotlar}.
 \end{proof}
 
 The proof of \Cref{nontangential-from-simple} relies on the following auxiliary lemma which is proved in \Cref{subsec-CZD}.
-\begin{lemma}[Weak 1 1]
-    \label{weak-1-1}
+\begin{lemma}[Calderon-Zygmund Weak (1, 1)]
+    \label{calderon-zygmund-weak-1-1}
+    \leanok
+    \lean{czoperator_weak_1_1}
     \uses{Calderon-Zygmund-decomposition,estimate-bad,estimate-good}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that for every bounded measurable function $g:X\to\C$ supported on a set of finite measure,
     \begin{equation}
@@ -6798,16 +6802,18 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
         \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)\le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
-Throughout \Cref{subsec-CZD,subsec-cotlar}, for any measurable bounded function $w: X \to \C$, let $Mw: X \to [0, \infty)$ denote the corresponding Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood}.
-Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD,subsec-cotlar} have no dependencies in the previous chapters.
+Throughout \Cref{subsec-CZD} and \Cref{subsec-cotlar}, for any measurable bounded function $w: X \to \C$, let $Mw: X \to [0, \infty)$ denote the corresponding Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood}.
+Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD} and \Cref{subsec-cotlar} have no dependencies in the previous chapters.
 
 
 
 \section{Proof of Cotlar's Inequality}
 \label{subsec-cotlar}
 
-\begin{lemma}
+\begin{lemma}[geometric series estimate]
     \label{geometric-series-estimate}
+    \leanok
+    \lean{geometric_series_estimate}
     For all real numbers $x\ge 4$,
     \begin{equation*}
         \sum_{n=0}^\infty 2^{-\frac{n}{x}} \le 2^x.
@@ -6830,6 +6836,8 @@ Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD,subsec-cotlar} have no depe
 
 \begin{lemma}[estimate x shift]
 \label{estimate-x-shift}
+\leanok
+\lean{estimate_x_shift}
 \uses{geometric-series-estimate}
 Let $0<r$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure.
 Then for all $x'$ with $\rho(x,x')\le r$.
@@ -6934,6 +6942,8 @@ proves the lemma.
 
 \begin{lemma}[Cotlar control]
 \label{Cotlar-control}
+\leanok
+\lean{cotlar_control}
 \uses{estimate-x-shift}
 Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure.
 Then for all $x'\in X$ with $\rho(x,x')\le\frac {R}{4}$ we have
@@ -7000,7 +7010,9 @@ By the triangle inequality, \eqref{eq-cotlar-control} follows now from \eqref{eq
 
 \begin{lemma}[Cotlar sets]
 \label{Cotlar-sets}
-\uses{weak-1-1}
+\leanok
+\lean{cotlar_set_F₁, cotlar_set_F₂}
+\uses{calderon-zygmund-weak-1-1}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds. Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure.
 Then the measure $|F_1|$ of the set $F_1$ of all $x'\in B(x,\frac {R} 4)$ such that
 \begin{equation}
@@ -7036,7 +7048,7 @@ Dividing by $M(T_rg)(x)$ gives
 \end{equation}
 This gives the desired bound for the measure of $F_1$.
 We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
-The set $F_2$ is then estimated with \Cref{weak-1-1} by
+The set $F_2$ is then estimated with \Cref{calderon-zygmund-weak-1-1} by
 \begin{equation}
    \frac {2^{a^3+19a}}{2^{a^3 + 20a + 2}Mg(x)}\int |g\mathbf{1}_{B(x,\frac {R}2)}|(y)\, d\mu(y)
 \end{equation}
@@ -7048,6 +7060,8 @@ This gives the desired bound for the measure of $F_2$.
 
 \begin{lemma}[Cotlar estimate]
 \label{Cotlar-estimate}
+\leanok
+\lean{cotlar_estimate}
 \uses{Cotlar-control, Cotlar-sets}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Then
@@ -7074,6 +7088,8 @@ This proves the lemma.
 \end{proof}
 
 \begin{lemma}[simple nontangential operator]\label{simple-nontangential-operator}
+\leanok
+\lean{simple_nontangential_operator}
 \uses{Hardy-Littlewood,Cotlar-estimate}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 For every  $r>0$ and every bounded measurable function $g$ supported on a set of finite measure we have
@@ -7112,7 +7128,9 @@ This shows \eqref{trzerobound} and completes the proof of the lemma.
 \end{proof}
 %fixme: Change location of next argument?
 In order to pass from the one-sided truncation in $T_r$ and $T_{*}^r$ to the two-sided truncation in $T_*$, we show in the following two lemmas that the integral in \eqref{def-tang-unm-op} can be exchanged for an integral over the difference of two balls.
-\begin{lemma} \label{small-annulus}
+\begin{lemma}[small annulus] \label{small-annulus}
+    \leanok
+    \lean{small_annulus_right, small_annulus_left}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure.
     Let $x\in X$ and $R>0$.
     Then, for all $\epsilon>0$, there exists some $\delta>0$ such that
@@ -7134,7 +7152,10 @@ Note that the integrand is bounded in $X\setminus B(x,\frac{R}{2})$. So for $0<\
 By continuity from above of $\mu$, the right factor becomes arbitrarily small as $\delta\rightarrow 0$. Thus, for small enough $\delta$, the whole expression is $\le\epsilon$.
 \end{proof}
 
-\begin{lemma}\label{tang-unm-op-ball-diff}
+\begin{lemma}[nontangential operator boundary]
+    \label{nontangential-operator-boundary}
+    \leanok
+    \lean{nontangential_operator_boundary}
     \uses{small-annulus}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure.
     For all $x\in X$,
@@ -7191,7 +7212,7 @@ where
     T_*^{0} g(x):=\sup_{0<R}\sup_{x'\in B(x,R)} \left|\int_{X\setminus B(x',R)}
 K(x',y) g(y)\, d\mu(y)\right|\, .
 \end{equation}
-We now write using \Cref{tang-unm-op-ball-diff} and the triangle inequality,
+We now write using \Cref{nontangential-operator-boundary} and the triangle inequality,
 \begin{alignat*}{3}\label{concretetstartriangle}
     T_* g(x)\le&&&\sup_{0<R_1<R_2}\sup_{x'\in B(x,R_1)} \left|\int_{X\setminus B(x',R_1)}K(x',y) g(y)\, d\mu(y)\right| \\
 &+&&\sup_{0<R_1<R_2}\sup_{x'\in B(x,R_1)} \left|\int_{X\setminus B(x',R_2)} K(x',y) g(y)\, d\mu(y)\right|\, .
@@ -7486,7 +7507,7 @@ Finally, by \Cref{maximal-theorem},
 which shows \eqref{eq-bset-length-sum}.
 \end{proof}
 
-We use \Cref{Calderon-Zygmund-decomposition} to prove \Cref{weak-1-1}. For the remainder of this section, let $f:X\to\C$, $r>0$ and $\alpha>0$ as in the lemma.
+We use \Cref{Calderon-Zygmund-decomposition} to prove \Cref{calderon-zygmund-weak-1-1}. For the remainder of this section, let $f:X\to\C$, $r>0$ and $\alpha>0$ as in the lemma.
 We define the constant
 \begin{equation} \label{weak-1-1-proof-cz-const}
     c:= 2^{-a^3-12a-4}
@@ -7750,8 +7771,8 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     The claim now follows from \eqref{eq-set-dec-2}, \eqref{eq-set-dec-3} and \eqref{eq-F-X-minus-Omega}.
 \end{proof}
 
-\begin{proof}[Proof of \Cref{weak-1-1}]
-\proves{weak-1-1}
+\begin{proof}[Proof of \Cref{calderon-zygmund-weak-1-1}]
+\proves{calderon-zygmund-weak-1-1}
 It follows by the triangle inequality and subadditivity of $\mu$ that
 \begin{equation*}
     \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)

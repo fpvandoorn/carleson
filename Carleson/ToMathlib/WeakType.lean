@@ -409,6 +409,13 @@ def HasWeakType (T : (α → ε₁) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ
     (c : ℝ≥0) : Prop :=
   ∀ f : α → ε₁, Memℒp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
+/-- A weaker version of `HasWeakType`. -/
+def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
+    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
+  ∀ f : α → ε₁, Memℒp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
+  AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
+
 /-- An operator has strong type (p, q) if it is bounded as an operator on `L^p → L^q`.
 `HasStrongType T p p' μ ν c` means that `T` has strong type (p, p') w.r.t. measures `μ`, `ν`
 and constant `c`.  -/
@@ -425,6 +432,8 @@ def HasBoundedStrongType {α α' : Type*} [Zero ε₁]
   ∀ f : α → ε₁, Memℒp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
+
+/-! ### Lemmas about `HasWeakType` -/
 
 lemma HasWeakType.memWℒp (h : HasWeakType T p p' μ ν c) (hf₁ : Memℒp f₁ p μ) :
     MemWℒp (T f₁) p' ν :=
@@ -476,6 +485,25 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
+-- lemma comp_left [MeasurableSpace ε₂] {ν' : Measure ε₂} {f : ε₂ → ε₃} (h : HasWeakType T p p' μ ν c)
+--     (hf : Memℒp f p' ν') :
+--     HasWeakType (f ∘ T ·) p p' μ ν c := by
+--   intro u hu
+--   refine ⟨h u hu |>.1.comp_measurable hf.1, ?_⟩
+
+/-! ### Lemmas about `HasBoundedWeakType` -/
+
+lemma HasBoundedWeakType.memWℒp [Zero ε₁] (h : HasBoundedWeakType T p p' μ ν c)
+    (hf₁ : Memℒp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞) :
+    MemWℒp (T f₁) p' ν :=
+  ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top coe_lt_top hf₁.2⟩
+
+lemma HasWeakType.hasBoundedWeakType [Zero ε₁] (h : HasWeakType T p p' μ ν c) :
+    HasBoundedWeakType T p p' μ ν c :=
+  fun f hf _ _ ↦ h f hf
+
+/-! ### Lemmas about `HasStrongType` -/
+
 lemma HasStrongType.memℒp (h : HasStrongType T p p' μ ν c) (hf₁ : Memℒp f₁ p μ) :
     Memℒp (T f₁) p' ν :=
   ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top coe_lt_top hf₁.2⟩
@@ -500,6 +528,8 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
+/-! ### Lemmas about `HasBoundedStrongType` -/
+
 lemma HasBoundedStrongType.memℒp [Zero ε₁] (h : HasBoundedStrongType T p p' μ ν c)
     (hf₁ : Memℒp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞) :
     Memℒp (T f₁) p' ν :=
@@ -509,13 +539,10 @@ lemma HasStrongType.hasBoundedStrongType [Zero ε₁] (h : HasStrongType T p p' 
     HasBoundedStrongType T p p' μ ν c :=
   fun f hf _ _ ↦ h f hf
 
--- lemma comp_left [MeasurableSpace ε₂] {ν' : Measure ε₂} {f : ε₂ → ε₃} (h : HasWeakType T p p' μ ν c)
---     (hf : Memℒp f p' ν') :
---     HasWeakType (f ∘ T ·) p p' μ ν c := by
---   intro u hu
---   refine ⟨h u hu |>.1.comp_measurable hf.1, ?_⟩
-
-
+lemma HasBoundedStrongType.hasBoundedWeakType [Zero ε₁] (hp' : 1 ≤ p')
+    (h : HasBoundedStrongType T p p' μ ν c) : HasBoundedWeakType T p p' μ ν c :=
+  fun f hf h2f h3f ↦
+    ⟨(h f hf h2f h3f).1, wnorm_le_eLpNorm (h f hf h2f h3f).1 hp' |>.trans (h f hf h2f h3f).2⟩
 
 end ContinuousENorm
 

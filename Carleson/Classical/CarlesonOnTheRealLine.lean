@@ -3,7 +3,7 @@
    All smaller ones are done but the estimate for the truncated Hilbert transform is still missing.
 -/
 
-import Carleson.TwoSidedMetricCarleson
+import Carleson.TwoSidedCarleson.MainTheorem
 import Carleson.Classical.CarlesonOperatorReal
 import Carleson.Classical.VanDerCorput
 import Carleson.Classical.HilbertStrongType
@@ -558,14 +558,16 @@ lemma carlesonOperatorReal_le_carlesonOperator : T ≤ carlesonOperator K := by
 /- Lemma 11.1.4 -/
 lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G, T f x ≤
-    ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
-  have conj_exponents : Real.IsConjExponent 2 2 := by
-    rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
+    ∫⁻ x in G, T f x ≤ C10_0_1 4 2 * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
+  have conj_exponents : NNReal.IsConjExponent 2 2 := by
+    rw [NNReal.isConjExponent_iff_eq_conjExponent]
+    · ext; norm_num
+    norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, carlesonOperator K f x :=
       lintegral_mono (carlesonOperatorReal_le_carlesonOperator _)
-    _ ≤ ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
-      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 f hmf hf
+    _ ≤ C10_0_1 4 2 * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
+      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG
+        Hilbert_strong_2_2 hmf hf
 
 end section

@@ -1,23 +1,23 @@
 import Carleson.Defs
 
 open MeasureTheory Set
+open scoped NNReal
 
 noncomputable section
 
 /-- The constant used in `metric_carleson`.
 Has value `2 ^ (450 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-def C1_0_2 (a : ℕ) (q : ℝ) : ℝ := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
 
-lemma C1_0_2_pos {a : ℕ} {q : ℝ} (hq : 1 < q) : 0 < C1_0_2 a q := by
+lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]
   apply div_pos
   · positivity
-  · apply pow_pos
-    linarith [hq]
+  · exact pow_pos (tsub_pos_of_lt hq) _
 
 variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : ℕ)]
-variable {τ q q' : ℝ} {C : ℝ}
+variable {τ : ℝ} {q q' : ℝ≥0} {C : ℝ}
 variable {F G : Set X}
 variable {K : X → X → ℂ}
 
@@ -29,10 +29,7 @@ theorem metric_carleson [CompatibleFunctions ℝ X (defaultA a)]
     (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a))
     (f : X → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, carlesonOperator K f x ≤
-    ENNReal.ofReal (C1_0_2 a q) * (volume G) ^ q'⁻¹ * (volume F) ^ q⁻¹ := by
+    C1_0_2 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
   sorry
-
-/- maybe investigate: making `volume` implicit in both `hg` and `h3g` of `metric_carleson` causes slow
-elaboration. -/
 
 end
