@@ -15,6 +15,7 @@ private abbrev oo' (x : X) (r R : ℝ) := oo x (ENNReal.ofReal r) (ENNReal.ofRea
 private def cc (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Icc r R}
 private abbrev cc' (x : X) (r R : ℝ) := cc x (ENNReal.ofReal r) (ENNReal.ofReal R)
 private def ci (x : X) (r : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ici r}
+private abbrev ci' (x : X) (r : ℝ) := ci x (ENNReal.ofReal r)
 -- Currently unused
 /- private def oc (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ioc r R}
 private abbrev oc' (x : X) (r R : ℝ) := oc x (ENNReal.ofReal r) (ENNReal.ofReal R)
@@ -229,8 +230,7 @@ lemma integrableOn_K_mul_f (x' : X) (hf : BoundedCompactSupport f) (r : ℝ≥0�
   simp_rw [mul_comm (K x' _), IntegrableOn, ← integrableOn_iff_integrable_of_support_subset this]
   apply hf.integrable_mul
   rw [Measure.restrict_restrict measurableSet_closedBall, inter_comm, ← IntegrableOn]
-  convert integrableOn_K_Icc (K := K) x' (ENNReal.toReal r) (dist x' x'' + C)
-    (ENNReal.toReal_pos hr.ne.symm r_top) using 1
+  convert integrableOn_K_Icc (K := K) (R := dist x' x'' + C) (r.toReal_pos hr.ne.symm r_top) using 1
   ext y
   simp [dist_comm y, Annulus.ci, ENNReal.le_ofReal_iff_toReal_le r_top dist_nonneg]
 
