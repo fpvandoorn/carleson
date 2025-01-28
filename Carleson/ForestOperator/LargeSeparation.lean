@@ -366,10 +366,7 @@ lemma sentence_3
   _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p := by
     rw [mem_ball] at xxx
     gcongr
-  _ < 10 * ↑D ^ 𝔰 p := by
-    rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
-    gcongr
-    have D_big : (2 : ℝ) ≤ D := by linarith [twentyfive_le_realD X]
+  _ = 100 * ↑D ^ (s J + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s J + 3)) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p := by
     have D_pos : (0 : ℝ) < D := by linarith [twentyfive_le_realD X]
     have second : (4 * D ^ (- 2 : ℝ)) * D ^ (s J + 3) = 4 * (D : ℝ) ^ (s J + 1) := by
       calc 4 * (D : ℝ) ^ (-2 : ℝ) * ↑D ^ (s J + 3)
@@ -379,7 +376,12 @@ lemma sentence_3
         have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (-2)) (z:= (s J + 3)) D_pos
         rw_mod_cast [pow_th]
       _ = 4 * ↑D ^ (s J + 1) := by ring_nf
-
+    linarith
+  _ < 10 * ↑D ^ 𝔰 p := by
+    rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
+    gcongr
+    have D_big : (2 : ℝ) ≤ D := by linarith [twentyfive_le_realD X]
+    have D_pos : (0 : ℝ) < D := by linarith [twentyfive_le_realD X]
     have third : ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s J + 3) = 8⁻¹ * ↑D ^ s J := by
       calc (8 : ℝ)⁻¹ * (D : ℝ) ^ (-3 : ℝ) * ↑D ^ (s J + 3)
       _ = (8 : ℝ)⁻¹ * (↑D ^ (-3 : ℝ) * ↑D ^ (s J + 3)) := by ring
@@ -390,10 +392,10 @@ lemma sentence_3
       _ = (8 : ℝ)⁻¹* ↑D ^ (s J) := by
         norm_num
 
-    rw [← second, ← third]
+    rw [← third]
     have sss := distrib_three_right (100 : ℝ) (4 * D ^ (-2 : ℝ)) (8⁻¹ * D ^ (-3 : ℝ) : ℝ) (↑D ^ (s J + 3))
     rw [← sss]
-    clear second third sss
+
 
     calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (s J + 3)
     _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (𝔰 p - 1) := by
