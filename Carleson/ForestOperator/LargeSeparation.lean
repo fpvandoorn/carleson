@@ -222,33 +222,33 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u)
     (nndist x x' / D ^ (𝔰 p : ℝ)) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ := by
   sorry
 
--- TODO
+-- REFACTORED
 theorem size_of_D (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
   calc ((100 : ℝ) + 4 * ↑D ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (-1 : ℝ)
-    _ = (100 : ℝ) * ↑D ^ (-1 : ℝ) + 4 * ↑D ^ (-2 : ℝ) * ↑D ^ (-1 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ) * ↑D ^ (-1 : ℝ) := by
-      ring
-    _ = (100 : ℝ) * ↑D ^ (-1 : ℝ) + 4 * ↑D ^ (-3 : ℝ) + 8⁻¹ * ↑D ^ (-4 : ℝ) := by
-      rw [mul_assoc, mul_assoc, ← Real.rpow_add (by positivity), ← Real.rpow_add (by positivity)]
-      congr <;> norm_num
-    _ < (1 : ℝ) + 1 / 250 + 1 / 80000 := by
-      have h1 : 100 * (D : ℝ) ^ (-1 : ℝ) < 1 := by
-        nth_rw 2 [show (1 : ℝ) = 100 * 100 ^ (-1 : ℝ) by norm_num]
-        gcongr 100 * ?_
-        apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
-        all_goals linarith
-      have h2 : 4 * (D : ℝ) ^ (-3 : ℝ) < 1 / 250 := by
-        rw [show (1 / 250 : ℝ) = 4 * ((10 : ℝ) ^ (-3 : ℝ)) by norm_num]
-        gcongr 4 * ?_
-        apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
-        all_goals linarith
-      have h3 : 8⁻¹ * (D : ℝ) ^ (-4 : ℝ) < 1 / 80000 := by
-        rw [show (1 / 80000 : ℝ) = 8⁻¹ * ((10 : ℝ) ^ (-4 : ℝ)) by norm_num]
-        gcongr 8⁻¹ * ?_
-        apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
-        all_goals linarith
-      gcongr
-    _ < 2 := by
-      norm_num
+  _ = (100 : ℝ) * ↑D ^ (-1 : ℝ) + 4 * ↑D ^ (-2 : ℝ) * ↑D ^ (-1 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ) * ↑D ^ (-1 : ℝ) := by
+    ring
+  _ = (100 : ℝ) * ↑D ^ (-1 : ℝ) + 4 * ↑D ^ (-3 : ℝ) + 8⁻¹ * ↑D ^ (-4 : ℝ) := by
+    rw [mul_assoc, mul_assoc, ← Real.rpow_add (by positivity), ← Real.rpow_add (by positivity)]
+    congr <;> norm_num
+  _ < (1 : ℝ) + 1 / 250 + 1 / 80000 := by
+    have h1 : 100 * (D : ℝ) ^ (-1 : ℝ) < 1 := by
+      nth_rw 2 [show (1 : ℝ) = 100 * 100 ^ (-1 : ℝ) by norm_num]
+      gcongr 100 * ?_
+      apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
+      all_goals linarith
+    have h2 : 4 * (D : ℝ) ^ (-3 : ℝ) < 1 / 250 := by
+      rw [show (1 / 250 : ℝ) = 4 * ((10 : ℝ) ^ (-3 : ℝ)) by norm_num]
+      gcongr 4 * ?_
+      apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
+      all_goals linarith
+    have h3 : 8⁻¹ * (D : ℝ) ^ (-4 : ℝ) < 1 / 80000 := by
+      rw [show (1 / 80000 : ℝ) = 8⁻¹ * ((10 : ℝ) ^ (-4 : ℝ)) by norm_num]
+      gcongr 8⁻¹ * ?_
+      apply (Real.rpow_lt_rpow_iff_of_neg ..).mpr
+      all_goals linarith
+    linarith
+  _ < 2 := by
+    norm_num
 
 -- TODO
 theorem disjoint
