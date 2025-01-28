@@ -350,24 +350,22 @@ lemma sentence_3
   calc dist x (𝔠 p)
   _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
     exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
-  _ ≤ 100 * D ^ (s J + 3) + 4 * D ^ (s J + 1) + 8⁻¹ * D ^ s J + 8 * D ^ 𝔰 p := by
-    calc dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p)
-    _ ≤ 100 * ↑D ^ (s J + 3) + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
-      change dist x (c J') < 100 * ↑D ^ (s J + 3) at xIn
-      gcongr
-    _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + dist (c J) middleX + dist middleX (𝔠 p) := by
-      gcongr
-      apply le_of_lt
-      rw [← plusOne, dist_comm]
-      exact subset
-    _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + dist middleX (𝔠 p) := by
-      gcongr
-      apply le_of_lt
-      rw [dist_comm]
-      exact yyy
-    _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p := by
-      rw [mem_ball] at xxx
-      gcongr
+  _ ≤ 100 * ↑D ^ (s J + 3) + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
+    change dist x (c J') < 100 * ↑D ^ (s J + 3) at xIn
+    gcongr
+  _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + dist (c J) middleX + dist middleX (𝔠 p) := by
+    gcongr
+    apply le_of_lt
+    rw [← plusOne, dist_comm]
+    exact subset
+  _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + dist middleX (𝔠 p) := by
+    gcongr
+    apply le_of_lt
+    rw [dist_comm]
+    exact yyy
+  _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p := by
+    rw [mem_ball] at xxx
+    gcongr
   _ < 10 * ↑D ^ 𝔰 p := by
     have calc8plus2 : (2 : ℝ) + 8 = 10 := by norm_num
     rw [← calc8plus2, right_distrib]
