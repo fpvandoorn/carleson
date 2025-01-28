@@ -367,9 +367,7 @@ lemma sentence_3
     rw [mem_ball] at xxx
     gcongr
   _ < 10 * ↑D ^ 𝔰 p := by
-    have calc8plus2 : (2 : ℝ) + 8 = 10 := by norm_num
-    rw [← calc8plus2, right_distrib]
-    clear calc8plus2
+    rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
     gcongr
     have D_big : (2 : ℝ) ≤ D := by linarith [twentyfive_le_realD X]
     have D_pos : (0 : ℝ) < D := by linarith [twentyfive_le_realD X]
@@ -397,9 +395,9 @@ lemma sentence_3
     rw [← sss]
     clear second third sss
 
-    have hi : s J + 3 ≤ 𝔰 p - 1 := by omega
     calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (s J + 3)
     _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (𝔰 p - 1) := by
+      have hi : s J + 3 ≤ 𝔰 p - 1 := by omega
       gcongr
       linarith [D_big]
     _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * (↑D ^ (𝔰 p) * ↑D ^ (- 1 : ℝ)) := by
