@@ -365,16 +365,16 @@ irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 
 -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
 omit [TileStructure Q D κ S o] in
-private lemma nontangential_integral_bound₁ {x x' : X} {r : ℝ} (R : ℝ) (hr : dist x x' ≤ r) :
+private lemma nontangential_integral_bound₁ {x x' : X} {r : ℝ} (R : ℝ) (hr : dist x x' < r) :
     ‖∫ y in Annulus.oo' x' r R, K x' y * f y‖ₑ ≤ nontangentialOperator K f x := by
   by_cases r_lt_R : ENNReal.ofReal r < ENNReal.ofReal R; swap
   · simp [-defaultD, Annulus.oo, Set.Ioo_eq_empty r_lt_R]
   refine le_trans ?_ <| le_iSup _ r
   refine le_trans ?_ <| le_iSup _ R
-  rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (dist_nonneg.trans hr)] at r_lt_R
+  rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (dist_nonneg.trans hr.le)] at r_lt_R
   rw [iSup_pos r_lt_R]
   refine le_of_eq_of_le ?_ <| le_iSup _ x'
-  rw [iSup_pos hr, Annulus.oo'_eq _ _ _ (dist_nonneg.trans hr), enorm_eq_nnnorm]
+  rw [iSup_pos hr, Annulus.oo'_eq _ _ _ (dist_nonneg.trans hr.le), enorm_eq_nnnorm]
 
 -- Bound for (7.2.4) and (7.2.5) in the proof of `nontangential_pointwise_bound`
 private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x x' : X}
@@ -489,10 +489,10 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
           2 ^ (7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) := by
       gcongr
       · apply nontangential_integral_bound₁ (D ^ (s₂ - 1) / 4)
-        apply le_trans (dist_triangle x (c I) x')
+        apply lt_of_le_of_lt (dist_triangle x (c I) x')
         replace hI := mem_ball.mp (Grid_subset_ball hI)
         replace hx' := mem_ball'.mp (Grid_subset_ball hx')
-        apply le_of_le_of_eq (add_lt_add hI hx').le
+        apply lt_of_lt_of_eq (add_lt_add hI hx')
         unfold s
         ring
       · exact nontangential_integral_bound₂ hf hI hx' (le_refl _)
