@@ -15,7 +15,6 @@ private abbrev oo' (x : X) (r R : ℝ) := oo x (ENNReal.ofReal r) (ENNReal.ofRea
 private def cc (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Icc r R}
 private abbrev cc' (x : X) (r R : ℝ) := cc x (ENNReal.ofReal r) (ENNReal.ofReal R)
 private def ci (x : X) (r : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ici r}
-private abbrev ci' (x : X) (r : ℝ) := ci x (ENNReal.ofReal r)
 -- Currently unused
 /- private def oc (x : X) (r R : ℝ≥0∞) := {y | ENNReal.ofReal (dist x y) ∈ Ioc r R}
 private abbrev oc' (x : X) (r R : ℝ) := oc x (ENNReal.ofReal r) (ENNReal.ofReal R)
