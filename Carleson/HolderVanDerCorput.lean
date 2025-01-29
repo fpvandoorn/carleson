@@ -228,6 +228,9 @@ lemma qux (f : X → ℝ) (hf : 0 ≤ f) : ‖∫ x, f x‖ = ∫ x, ‖f x‖ :
 -- general version: balls have positive measure (OpenPosMeasure should suffice)
 lemma Continuous.integral_pos_of_pos {f : X → ℝ} {x : X}
     (hf : Continuous f) (hfpos : 0 ≤ f) (hfx : 0 < f x) : 0 < ∫ x, f x := by
+  have : 0 ≤ ∫ x, f x := integral_nonneg hfpos
+  by_contra! h
+  have : ∫ x, f x = 0 := by linarith only [this, h]
   -- know: integral is nonneg
   -- is positive provides it's non-zero... if zero, function is a.e. zero
   -- but that's false as a ball has positive measure
@@ -245,6 +248,9 @@ lemma integral_cutoff_positive {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (x : X) :
     0 < ∫ (y : X), cutoff R t x y := by
   have : 0 < cutoff R t x x := by simp [cutoff]
   exact (cutoff_continuous hR ht).integral_pos_of_pos (fun y ↦ cutoff_nonneg (y := y)) this
+
+lemma missing {a b B : ℝ} (hB : 0 < B) (h : B * a ≤ B * b) : a ≤ b := by
+  exact le_of_mul_le_mul_left h hB
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
@@ -271,7 +277,8 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     · gcongr
     · exact Metric.closure_ball_subset_closedBall
   have h' : HasCompactSupport (‖ϕ ·‖) := h₀.norm
-  have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
+  -- equation 8.0.15
+  have eqn8015 (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
       ≤ ‖∫ y, cutoff R t x y‖ * ⨆ x' : X, ‖ϕ x'‖ := by
     rw [this]
     calc ‖∫ (y : X), ↑(cutoff R t x y) * ϕ y‖
@@ -310,11 +317,25 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
         apply cutoff_nonneg
     sorry
   -- part 1 of 8.0.16
-  have (x : X) : ‖holderApprox R t ϕ x‖ ≤ ⨆ x' : X, ‖ϕ x'‖ := sorry -- proven above
-  -- part 2 of 8.0.16
-  have (x : X) : ⨆ x' : X, ‖ϕ x'‖ ≤ C := sorry
+  have (x : X) : ‖holderApprox R t ϕ x‖ ≤ ⨆ x' : ball z R, ‖ϕ x'‖ := by
+    have : ⨆ x' : X, ‖ϕ x'‖ = ⨆ x' : ball z R, ‖ϕ x'‖ := by
+      -- as ϕ is supported on B
+      sorry
+    rw [← this]
+    -- Divide equation 8.0.15 by L (which is positive).
+    apply le_of_mul_le_mul_left (eqn8015 x)
+    have aux {XXX : ℝ} (h: 0 < XXX) : 0 < ‖XXX‖ := sorry -- easy lemma, in mathlib
+    apply aux (integral_cutoff_positive hR ht.1 x)
+  -- part 2 of 8.0.16: TODO why does this work. C is the C^τ-norm (i.e., Holder norm)
+  -- in any case, abstract this result: if f is bounded by C, then C is at most the Holder norm
+  have (x : X) : ⨆ x' : ball z R, ‖ϕ x'‖ ≤ C := by
+    sorry
+
+  -- equation 8.0.17
+  have {x x' : X} (hxx' : dist x x' < R) : R * 1 ≤ 2 * isup := sorry
   sorry
 
+#exit
 
 /-- The constant occurring in Proposition 2.0.5. -/
 def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (8 * a)
