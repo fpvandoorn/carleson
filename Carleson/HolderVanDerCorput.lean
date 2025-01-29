@@ -246,11 +246,10 @@ lemma integral_cutoff_positive {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (x : X) :
   have : 0 < cutoff R t x x := by simp [cutoff]
   exact (cutoff_continuous hR ht).integral_pos_of_pos (fun y ↦ cutoff_nonneg (y := y)) this
 
-#exit
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
-    (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
+    (h2ϕ : HolderWith C nnτ ϕ) (hτ : 0 < nnτ) (ht : t ∈ Ioc (0 : ℝ) 1) :
     LipschitzWith (C8_0_1 a ⟨t, ht.1.le⟩) (holderApprox R t ϕ) := by
   -- equation 8.0.14, corrected
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
@@ -259,14 +258,19 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     rw [← foobaz]
     simp only [holderApprox, norm_div]
     nth_rw 1 [← foobar]
-    -- can this be = 0, e.g. if an isolated point? if so, lemma should be false or easy otherwise... but later lemmas should have some fix-up
-    have aux : (∫ (y : X), cutoff R t x y) ≠ 0 := sorry
     set RRR : ℂ := (∫ (y : X), cutoff R t x y)
     set RRRR := ‖RRR‖
-    have : ‖RRR‖ ≠ 0 := by -- using aux
+    have : ‖RRR‖ ≠ 0 := by
       simpa only [RRR, norm_eq_abs, map_eq_zero, foobar, abs_ofReal, abs_ne_zero]
+        using (integral_cutoff_positive hR ht.1 _).ne'
     field_simp
-  -- equation 8.0.15
+  -- equation 8.0.15: some preliminary results
+  have h₀ : HasCompactSupport ϕ := by
+    apply (isCompact_closedBall z R).of_isClosed_subset isClosed_closure
+    trans closure (Metric.ball z R)
+    · gcongr
+    · exact Metric.closure_ball_subset_closedBall
+  have h' : HasCompactSupport (‖ϕ ·‖) := h₀.norm
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
       ≤ ‖∫ y, cutoff R t x y‖ * ⨆ x' : X, ‖ϕ x'‖ := by
     rw [this]
@@ -278,15 +282,25 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
         rw [norm_real]
       _ ≤ ∫ (y : X), ‖↑(cutoff R t x y)‖ * ⨆ x' : X, ‖ϕ x'‖ := by
         gcongr
-        · sorry -- integrability: cutoff integrable; product of int. fns?
-        · sorry -- integrability: cutoff integrable + mul by constant
+        · apply Integrable.bdd_mul
+          · have : Continuous (‖ϕ ·‖) := (continuous_norm).comp (h2ϕ.continuous hτ)
+            exact this.integrable_of_hasCompactSupport h'
+          · exact (continuous_norm.comp (cutoff_continuous hR ht.1)).aestronglyMeasurable
+          · simp_rw [norm_norm]
+            apply (cutoff_continuous hR ht.1).bounded_above_of_compact_support
+            exact hasCompactSupport_cutoff hR ht.1
+        · apply Integrable.smul_const (f := fun a ↦ ‖cutoff R t x a‖) (c := ⨆ x', ‖ϕ x'‖)
+          have : (‖cutoff R t x ·‖) = (cutoff R t x ·) := by
+            ext a
+            rw [Real.norm_eq_abs, _root_.abs_of_nonneg cutoff_nonneg]
+          apply this ▸ integrable_cutoff hR ht.1
         intro a
         dsimp
         gcongr
         apply le_ciSup (f := Complex.abs ∘ ϕ)
-        -- separate lemma; ϕ is bounded
-        -- as continue (since Hölder) and bounded support
-        -- or: prove that BoundedCompactSupport ϕ (as Holder + cpt support)
+        have almost : ∃ C, ∀ x, ‖ϕ x‖ ≤ C :=
+          (h2ϕ.continuous hτ).bounded_above_of_compact_support h₀
+        -- 'almost' is almost what I want
         sorry
       _ = (∫ (y : X), ‖↑(cutoff R t x y)‖) * ⨆ x' : X, ‖ϕ x'‖ := by rw [integral_mul_right]
       _ = ‖∫ (y : X), ↑(cutoff R t x y)‖ * ⨆ x' : X, ‖ϕ x'‖ := by
