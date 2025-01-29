@@ -422,8 +422,8 @@ lemma hundred_lt_realD : (100 : ℝ) < defaultD a := by
     _ < 2 ^ (100 * a ^ 2) := by
       have : 4 ≤ a := four_le_a X
       gcongr
-      linarith
-      nlinarith
+      · linarith
+      · nlinarith
 
 -- used in 4.1.7 (`small_boundary`)
 lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
