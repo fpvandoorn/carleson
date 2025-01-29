@@ -88,3 +88,34 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     rw [← well]
     gcongr
     exact size_of_D (hundred_lt_realD X)
+
+lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  {s_1 s_2 s_3: ℤ}
+  {dist_a dist_b dist_c dist_d : ℝ}
+  (xIn : dist_a < 100 * ↑D ^ (s_1 + 3))
+  (xxx : dist_b < 8 * ↑D ^ s_3)
+  (yyy : dist_c < 8⁻¹ * ↑D ^ s_1)
+  (subset : dist_d < 4 * ↑D ^ s_2)
+  (three : s_1 + 3 < s_3)
+  (plusOne : s_2 = s_1 + 1)
+  :
+  dist_a + dist_d + dist_c + dist_b < 10 * ↑D ^ s_3 := by
+  calc dist_a + dist_d + dist_c + dist_b
+  _ ≤ 100 * ↑D ^ (s_1 + 3) + dist_d + dist_c + dist_b := by
+    change dist_a < 100 * ↑D ^ (s_1 + 3) at xIn
+    gcongr
+  _ ≤ 100 * ↑D ^ (s_1 + 3) + 4 * ↑D ^ (s_1 + 1) + dist_c + dist_b := by
+    gcongr
+    apply le_of_lt
+    rw [← plusOne]
+    exact subset
+  _ ≤ 100 * ↑D ^ (s_1 + 3) + 4 * ↑D ^ (s_1 + 1) + 8⁻¹ * ↑D ^ s_1 + dist_b := by
+    gcongr
+  _ ≤ 100 * ↑D ^ (s_1 + 3) + 4 * ↑D ^ (s_1 + 1) + 8⁻¹ * ↑D ^ s_1 + 8 * ↑D ^ s_3 := by
+    gcongr
+  _ = 100 * ↑D ^ (s_1 + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s_1 + 3)) + 8⁻¹ * ↑D ^ s_1 + 8 * ↑D ^ s_3 := by
+    rw [calculation_1 (s := s_1)]
+  _ = 100 * ↑D ^ (s_1 + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s_1 + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s_1 + 3)) + 8 * ↑D ^ s_3 := by
+    rw [calculation_2 (s := s_1)]
+  _ < 10 * ↑D ^ s_3 := by
+    exact calculation_3 (xxx := s_1) (yyy := s_3) (h := three) (X := X)

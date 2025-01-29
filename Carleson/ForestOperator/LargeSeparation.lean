@@ -323,32 +323,10 @@ lemma sentence_3
   calc dist x (𝔠 p)
   _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
     exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
-  _ ≤ 100 * ↑D ^ (s J + 3) + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
-    change dist x (c J') < 100 * ↑D ^ (s J + 3) at xIn
-    gcongr
-  _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + dist (c J) middleX + dist middleX (𝔠 p) := by
-    gcongr
-    apply le_of_lt
-    rw [← plusOne, dist_comm]
-    exact subset
-  _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + dist middleX (𝔠 p) := by
-    gcongr
-    apply le_of_lt
-    rw [dist_comm]
-    exact yyy
-  _ ≤ 100 * ↑D ^ (s J + 3) + 4 * ↑D ^ (s J + 1) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p := by
-    rw [mem_ball] at xxx
-    gcongr
-  _ = 100 * ↑D ^ (s J + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s J + 3)) + 8⁻¹ * ↑D ^ s J + 8 * ↑D ^ 𝔰 p := by
-    rw [calculation_1 (s := s J)]
-  _ = 100 * ↑D ^ (s J + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s J + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s J + 3)) + 8 * ↑D ^ 𝔰 p := by
-    rw [calculation_2 (s := s J)]
   _ < 10 * ↑D ^ 𝔰 p := by
-    exact calculation_3 (xxx := s J) (yyy := 𝔰 p) (h := three) (X := X)
-
-
-
-#exit
+    simp only [mem_ball] at yyy
+    rw [dist_comm] at yyy subset
+    exact calculation_4 (xIn:=xIn) (xxx:=xxx) (yyy:=yyy) (subset:=subset) (three:=three) (plusOne:=plusOne) (X:=X)
 
 -- REFACTORED
 /-- Lemma 7.5.6. -/
