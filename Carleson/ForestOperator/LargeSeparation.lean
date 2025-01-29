@@ -250,11 +250,7 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   apply Int.sub_one_lt_iff.mp
   apply Int.sub_lt_of_sub_lt
   rify
-  have hbc : Real.logb D 64 < 1 := by
-    apply (Real.logb_lt_iff_lt_rpow (by linarith [hundred_lt_realD X]) (by linarith)).mpr
-    rw [Real.rpow_one]
-    linarith [hundred_lt_realD X]
-  apply lt_of_le_of_lt (b := Real.logb D 64) (hbc := hbc)
+  apply lt_of_le_of_lt (hbc := calculation_logD_64 (X:=X))
   apply tsub_le_iff_left.mpr
   have DIsOne := one_lt_D (X := X)
   rw [
@@ -319,7 +315,6 @@ lemma sentence_3
   rcases h with ⟨middleX, xxx, yyy⟩
   intros x xIn
   apply IF_subset_THEN_distance_between_centers at subset
-
   calc dist x (𝔠 p)
   _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
     exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)

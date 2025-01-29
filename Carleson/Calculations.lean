@@ -89,6 +89,7 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     gcongr
     exact size_of_D (hundred_lt_realD X)
 
+-- REFACTORED (though variable names are left)
 lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   {s_1 s_2 s_3: ℤ}
   {dist_a dist_b dist_c dist_d : ℝ}
@@ -119,3 +120,8 @@ lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     rw [calculation_2 (s := s_1)]
   _ < 10 * ↑D ^ s_3 := by
     exact calculation_3 (xxx := s_1) (yyy := s_3) (h := three) (X := X)
+
+lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : Real.logb D 64 < 1 := by
+  apply (Real.logb_lt_iff_lt_rpow (by linarith [hundred_lt_realD X]) (by linarith)).mpr
+  rw [Real.rpow_one]
+  linarith [hundred_lt_realD X]
