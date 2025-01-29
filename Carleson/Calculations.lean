@@ -121,7 +121,25 @@ lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   _ < 10 * ↑D ^ s_3 := by
     exact calculation_3 (xxx := s_1) (yyy := s_3) (h := three) (X := X)
 
+-- REFACTORED
 lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : Real.logb D 64 < 1 := by
   apply (Real.logb_lt_iff_lt_rpow (by linarith [hundred_lt_realD X]) (by linarith)).mpr
   rw [Real.rpow_one]
   linarith [hundred_lt_realD X]
+
+-- REFACTORED
+lemma calculation_5 {dist_1 dist_2: ℝ}
+  (h : dist_1 ≤ (2^(a : ℝ))^(6 : ℝ) * dist_2)
+  : 2^((-100 : ℝ) * a) * dist_1 ≤ 2 ^ ((-94 : ℝ) * a) * dist_2 := by
+  apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (100 * (a : ℝ)) by positivity)).mp
+  rw [
+    ← mul_assoc,
+    neg_mul,
+    Real.rpow_neg (by positivity),
+    LinearOrderedField.mul_inv_cancel (a:= (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity),
+    ← mul_assoc,
+    ← Real.rpow_add (by positivity)
+  ]
+  ring_nf
+  rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
+  exact_mod_cast h

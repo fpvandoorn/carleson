@@ -390,17 +390,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       apply cdist_mono
       exact sentence_3 belongs.left plusOne three h
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
-      apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (100 * (a : ℝ)) by positivity)).mp
-      rw [
-        ← mul_assoc,
-        neg_mul,
-        Real.rpow_neg (by positivity),
-        LinearOrderedField.mul_inv_cancel (a:= (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity),
-        ← mul_assoc,
-        ← Real.rpow_add (by positivity)
-      ]
-      ring_nf
-      rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
+      apply calculation_5
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
       calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
       _ ≤ dist_{𝔠 p, 2 ^ 6 * (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
