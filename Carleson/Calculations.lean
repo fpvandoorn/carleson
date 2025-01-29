@@ -62,7 +62,7 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   (h: xxx + 3 < yyy) :
   100 * ↑D ^ (xxx + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (xxx + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (xxx + 3)) + 8 * ↑D ^ yyy
   < 10 * ↑D ^ yyy := by
-  have D_pos : (0 : ℝ) < D := by exact defaultD_pos a
+  have D_pos : (0 : ℝ) < D := defaultD_pos a
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
   have D_big : (2 : ℝ) ≤ D := by linarith [twentyfive_le_realD X]
@@ -143,3 +143,31 @@ lemma calculation_5 {dist_1 dist_2: ℝ}
   ring_nf
   rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
   exact_mod_cast h
+
+-- REFACTORED
+lemma calculation_6 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  (s : ℤ)
+  : (D : ℝ) ^ (s + 3) = (D : ℝ) ^ (s + 2) * (D : ℝ) := by
+  rw [
+    zpow_add₀ (by linarith [defaultD_pos a]) s 3,
+    zpow_add₀ (by linarith [defaultD_pos a]) s 2,
+    mul_assoc
+  ]
+  congr
+
+lemma calculation_7 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  (s : ℤ)
+  : 100 * (D ^ (s + 2) * D) = (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s + 2)) := by
+  rw [← mul_assoc (a:= 100), mul_comm]
+  congr
+  norm_cast
+  rw [← pow_mul 2 a (100 * a), mul_comm (a:=a), defaultD]
+  ring
+
+lemma calculation_8 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  {dist_1 dist_2 : ℝ}
+  (h : dist_1 * 2 ^ ((100 : ℝ) * ↑a) ≤ dist_2)
+  : dist_1 ≤ 2 ^ ((-100 : ℝ) * ↑a) * dist_2 := by
+  rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
+  apply (le_mul_inv_iff₀ (by positivity)).mpr
+  exact h

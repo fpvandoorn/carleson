@@ -363,27 +363,13 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
   calc 2^((Z : ℝ) * (n : ℝ) / 2)
     _ ≤ dist_{𝓘 p'}                    (𝒬 u₁) (𝒬 u₂) := by
       exact distance
-    _ = dist_{𝔠 p', D ^ 𝔰 p' / 4}       (𝒬 u₁) (𝒬 u₂) := by
-      rfl
     _ ≤ dist_{c J', 100 * D^(s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
       apply cdist_mono
       intros x hx
       exact hundred (ball_subset_Grid hx)
     _ ≤ 2^((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
-      have calculation_1 : (D : ℝ) ^ (s J + 3) = (D : ℝ) ^ (s J + 2) * (D : ℝ) := by
-        rw [zpow_add₀ (by linarith) (s J) 3, zpow_add₀ (by linarith) (s J) 2, mul_assoc]
-        congr
-      have calculation_2 :
-        100 * (D ^ (s J + 2) * D) =
-        (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s J + 2)) := by
-        rw [← mul_assoc (a:= 100), mul_comm]
-        congr
-        norm_cast
-        rw [← pow_mul 2 a (100 * a), mul_comm (a:=a), defaultD]
-        ring
-      rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
-      apply (le_mul_inv_iff₀ (by positivity)).mpr
-      rw [mul_comm, calculation_1, calculation_2]
+      apply calculation_8 (X := X)
+      rw [mul_comm, calculation_6 (s J) (X := X), calculation_7 (s J) (X := X)]
       exact_mod_cast le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
     _ ≤ 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
