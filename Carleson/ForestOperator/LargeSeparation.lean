@@ -44,6 +44,13 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
+-- Auxiliary lemma
+theorem IF_subset_THEN_distance_between_centers
+  (subset : (J : Set X) ⊆ J')
+  : dist (c J) (c J') < 4 * D ^ s J' := by
+  apply Grid_subset_ball
+  exact (subset (Grid.c_mem_Grid))
+
 -- Auxiliary lemma for Lemma 7.5.1.
 lemma 𝓘_subset_iUnion_𝓙_𝔖₀ : (𝓘 u₁ : Set X) ⊆ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := by
   rw [biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)]
@@ -161,17 +168,14 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
         rw [← plusOne] at triangle_1
         gcongr
       _ ≤ 100*D^(s J'' + 1) + 4*D^(s J) := by
-        gcongr
-        apply LT.lt.le
-        apply Grid_subset_ball (X := X) (i := J)
-        have relationship : (J'' : Set X) ⊆ J := by
+        have subset : (J'' : Set X) ⊆ J := by
           cases (fundamental_dyadic (le_of_lt smaller)) with
           | inl subset => exact subset
           | inr disj =>
             have disjoint := Disjoint.mono_left belongs.1 disj
             rw [disjoint_comm] at disjoint
             contradiction
-        exact relationship Grid.c_mem_Grid
+        linarith [IF_subset_THEN_distance_between_centers subset]
       _ ≤ 100*D^(s J) + 4*D^(s J) := by
         gcongr
         · linarith
@@ -233,13 +237,6 @@ theorem disjoint
   have belongsIntersection := (Set.mem_inter_iff ..).mpr ⟨belongs, (mem_ball_comm.mp contr)⟩
   rw [h] at belongsIntersection
   exact (Set.mem_empty_iff_false p).mp belongsIntersection
-
--- TODO
-theorem IF_subset_THEN_distance_between_centers
-  (subset : (J : Set X) ⊆ J')
-  : dist (c J) (c J') < 4 * D ^ s J' := by
-  apply Grid_subset_ball
-  exact (subset (Grid.c_mem_Grid))
 
 -- REFACTORED
 lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
