@@ -249,15 +249,12 @@ lemma integral_cutoff_positive {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (x : X) :
   have : 0 < cutoff R t x x := by simp [cutoff]
   exact (cutoff_continuous hR ht).integral_pos_of_pos (fun y ↦ cutoff_nonneg (y := y)) this
 
-lemma missing {a b B : ℝ} (hB : 0 < B) (h : B * a ≤ B * b) : a ≤ b := by
-  exact le_of_mul_le_mul_left h hB
-
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (hτ : 0 < nnτ) (ht : t ∈ Ioc (0 : ℝ) 1) :
     LipschitzWith (C8_0_1 a ⟨t, ht.1.le⟩) (holderApprox R t ϕ) := by
-  -- equation 8.0.14, corrected
+  -- equation 8.0.14
   have (x : X) : ‖∫ y, cutoff R t x y‖ * ‖holderApprox R t ϕ x‖
       = ‖∫ y, cutoff R t x y * ϕ y‖ := by
     -- uniformise: left integral on LHS should be about complex numbers also
@@ -319,20 +316,39 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
   -- part 1 of 8.0.16
   have (x : X) : ‖holderApprox R t ϕ x‖ ≤ ⨆ x' : ball z R, ‖ϕ x'‖ := by
     have : ⨆ x' : X, ‖ϕ x'‖ = ⨆ x' : ball z R, ‖ϕ x'‖ := by
-      -- as ϕ is supported on B
+      -- as ϕ is supported on B... should be a general lemma also
       sorry
     rw [← this]
     -- Divide equation 8.0.15 by L (which is positive).
     apply le_of_mul_le_mul_left (eqn8015 x)
     have aux {XXX : ℝ} (h: 0 < XXX) : 0 < ‖XXX‖ := sorry -- easy lemma, in mathlib
     apply aux (integral_cutoff_positive hR ht.1 x)
-  -- part 2 of 8.0.16: TODO why does this work. C is the C^τ-norm (i.e., Holder norm)
-  -- in any case, abstract this result: if f is bounded by C, then C is at most the Holder norm
-  have (x : X) : ⨆ x' : ball z R, ‖ϕ x'‖ ≤ C := by
-    sorry
+  -- part 2 of 8.0.16: TODO I don't think this works
+  -- if ϕ is bounded, it could still oscillate wildly (making its Hölder norm arbitrarily large)
+    -- in any case, abstract this result: if f is bounded by C, then C is at most the Holder norm
+  have eqn8016_2 : ⨆ x' : ball z R, ‖ϕ x'‖ ≤ C := sorry
 
+  have eqn8016 : ∀ x : ball z R, ‖holderApprox R t ϕ x‖ ≤ C := fun x ↦ (this x).trans eqn8016_2
   -- equation 8.0.17
-  have {x x' : X} (hxx' : dist x x' < R) : R * 1 ≤ 2 * isup := sorry
+  have {x x' : X} (hxx' : R ≤ dist x x') :
+      R * (‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖) / (dist x x')
+      ≤ 2 * C := by
+    calc R * (‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖) / (dist x x')
+      _ ≤ R * (‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖) / R := by gcongr
+      _ = ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ := by field_simp
+      _ ≤ ‖holderApprox R t ϕ x'‖ + ‖holderApprox R t ϕ x‖ := norm_sub_le _ _
+      _ ≤ (⨆ x'', ‖holderApprox R t ϕ x''‖) + ⨆ x'', ‖holderApprox R t ϕ x''‖ := by
+        gcongr
+        · apply le_ciSup (f := (‖holderApprox R t ϕ ·‖)) (c := x')
+          sorry -- proven above, TODO copy!
+        · apply le_ciSup (f := (‖holderApprox R t ϕ ·‖)) (c := x)
+          sorry -- proven above, likewise
+      _ = (⨆ x'' : ball z R, ‖holderApprox R t ϕ x''‖) + ⨆ x'' : ball z R, ‖holderApprox R t ϕ x''‖ :=
+        sorry -- also proven above, can copy (or rewrite the other steps accordingly)
+      _ = 2 * ⨆ x'' : ball z R, ‖holderApprox R t ϕ x''‖ := by rw [two_mul]
+      _ ≤ 2 * C := by
+        gcongr
+        exact Real.iSup_le eqn8016 NNReal.zero_le_coe
   sorry
 
 #exit
