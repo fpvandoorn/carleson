@@ -45,11 +45,21 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
 /-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
 -- Auxiliary lemma
-theorem IF_subset_THEN_distance_between_centers
+lemma IF_subset_THEN_distance_between_centers
   (subset : (J : Set X) ⊆ J')
   : dist (c J) (c J') < 4 * D ^ s J' := by
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
+
+-- Auxiliary lemma
+lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J: X} {r: ℝ} {pSet: Set X} {p: X} (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J r) pSet) : dist J p ≥ r := by
+  rw [disjoint_iff_inter_eq_empty, inter_comm] at h
+  by_contra! contr
+  apply (Set.mem_empty_iff_false p).mp
+  rw [← h]
+  apply (Set.mem_inter_iff ..).mpr
+  apply mem_ball_comm.mp at contr
+  exact ⟨belongs, contr⟩
 
 -- Auxiliary lemma for Lemma 7.5.1.
 lemma 𝓘_subset_iUnion_𝓙_𝔖₀ : (𝓘 u₁ : Set X) ⊆ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := by
@@ -227,17 +237,6 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u)
     (nndist x x' / D ^ (𝔰 p : ℝ)) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ := by
   sorry
 
--- TODO
-theorem disjoint
-  {J: X} {d: ℝ} {pSet: Set X} {p: X}
-  (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J d) pSet)
-  : dist J p ≥ d := by
-  rw [disjoint_iff_inter_eq_empty, inter_comm] at h
-  by_contra! contr
-  have belongsIntersection := (Set.mem_inter_iff ..).mpr ⟨belongs, (mem_ball_comm.mp contr)⟩
-  rw [h] at belongsIntersection
-  exact (Set.mem_empty_iff_false p).mp belongsIntersection
-
 -- REFACTORED
 lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
@@ -261,7 +260,7 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
     rcases h with ⟨middleX, h1, h2⟩
     calc (D ^ s J / (4 : ℝ))
     _ ≤ dist (c J) (𝔠 p) := by
-      apply Forest.disjoint (p := 𝔠 p) (belongs := Grid.c_mem_Grid)
+      apply IF_disjoint_with_ball_THEN_distance_bigger_than_radius (p := 𝔠 p) (belongs := Grid.c_mem_Grid)
       have inter_1 : (J : Set X) ∩ ball (c J) (D ^ s J / 4) = ball (c J) (D ^ s J / 4) := inter_eq_self_of_subset_right ball_subset_Grid
       have inter_2 : (𝓘 u₁ : Set X) ∩ ↑J = ↑J := inter_eq_self_of_subset_right hJ.2.1
       rw [← inter_1, ← inter_2]
