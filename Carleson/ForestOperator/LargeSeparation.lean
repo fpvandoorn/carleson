@@ -42,16 +42,13 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
   χ t u₁ u₂ J x * (exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f₁ x) *
   conj (exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)
 
-/-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
-
--- Auxiliary lemma
+/- AUXILIARY LEMMAS:START -/
 lemma IF_subset_THEN_distance_between_centers
   (subset : (J : Set X) ⊆ J')
   : dist (c J) (c J') < 4 * D ^ s J' := by
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
 
--- Auxiliary lemma
 lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J: X} {r: ℝ} {pSet: Set X} {p: X} (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J r) pSet) : dist J p ≥ r := by
   rw [disjoint_iff_inter_eq_empty, inter_comm] at h
   by_contra! contr
@@ -61,11 +58,21 @@ lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J: X} {r: ℝ} {pS
   apply mem_ball_comm.mp at contr
   exact ⟨belongs, contr⟩
 
--- Auxiliary lemma for Lemma 7.5.1.
+theorem dist_triangle5 (a b c d e : X) :
+  dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
+  calc
+    dist a e ≤ dist a d + dist d e := dist_triangle a d e
+    _ ≤ (dist a c + dist c d) + dist d e := add_le_add_right (dist_triangle a c d) _
+    _ ≤ (dist a b + dist b c + dist c d) + dist d e :=
+      add_le_add_right (add_le_add_right (dist_triangle a b c) _) _
+
 lemma 𝓘_subset_iUnion_𝓙_𝔖₀ : (𝓘 u₁ : Set X) ⊆ ⋃ J ∈ 𝓙 (t.𝔖₀ u₁ u₂), (J : Set X) := by
   rw [biUnion_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)]
   apply subset_iUnion_of_subset (𝓘 u₁)
   rfl
+/- AUXILIARY LEMMAS:END -/
+
+/-! ### Subsection 7.5.1 and Lemma 7.5.2 -/
 
 /-- Part of Lemma 7.5.1. -/
 lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -291,15 +298,6 @@ lemma first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
   ring_nf at this
   norm_cast
 
--- TODO
-theorem dist_triangle5 (a b c d e : X) :
-  dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
-  calc
-    dist a e ≤ dist a d + dist d e := dist_triangle a d e
-    _ ≤ (dist a c + dist c d) + dist d e := add_le_add_right (dist_triangle a c d) _
-    _ ≤ (dist a b + dist b c + dist c d) + dist d e :=
-      add_le_add_right (add_le_add_right (dist_triangle a b c) _) _
-
 -- REFACTORED
 /-- Lemma 7.5.6. -/
 lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -307,9 +305,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) :
     𝔰 p ∈ Icc (s J) (s J + 3) := by
   constructor
-  exact first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
-    (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)))
+  · exact first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)))
 
   by_contra! three
 
