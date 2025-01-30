@@ -1,6 +1,14 @@
+/-
+This is a file for arithmetical lemmas -
+lemmas that don't depend on any of Carleson's project definitions, or, really,
+on any fancy definitions period.
+
+Roughly speaking, if a lemma is in this file, it should be calculational/arithmetical,
+e.g. `lemma calculation_1 : 2 + 2 = 4`.
+All lemmas are prepended with a prefix `calculation_`.
+-/
 import Carleson.Defs
 import Mathlib.Tactic.Rify
-
 open ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
