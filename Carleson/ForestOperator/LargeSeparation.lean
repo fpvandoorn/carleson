@@ -307,16 +307,11 @@ lemma limited_scale_impact__second_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
   have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 :=
     Grid.exists_scale_succ (by change s J < 𝔰 p; linarith)
   have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := by
-    have J'TouchesChildren : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
-      intro hJ'
-      have smaller : ¬s J' > s J := by
-        push_neg
-        exact (hJ.1.2 hJ' belongs).right
-      linarith
-    rw [𝓙₀, Set.nmem_setOf_iff] at J'TouchesChildren
     rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
-    push_neg at J'TouchesChildren
-    exact J'TouchesChildren.right
+    have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le:=belongs) (sle:= by linarith [plusOne]) (A_in:=hJ.1)
+    rw [𝓙₀, Set.nmem_setOf_iff] at J'Touches𝔖₀
+    push_neg at J'Touches𝔖₀
+    exact J'Touches𝔖₀.right
   apply calculation_9 (X:=X)
   apply one_le_of_le_mul_right₀ (b:=2 ^ ((Z : ℝ) * ↑n / 2)) (by positivity)
   have DIsPos := defaultD_pos a
