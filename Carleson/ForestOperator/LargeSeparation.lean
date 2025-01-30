@@ -212,7 +212,7 @@ irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ (226 * (a : ℝ) ^ 3)
 /-- Part of Lemma 7.5.2. -/
 lemma sum_χ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (x : X) :
-    ∑ J ∈ { I | I ∈ 𝓙₅ t u₁ u₂   }, χ t u₁ u₂ J x = (𝓘 u₁ : Set X).indicator 1 x := by
+    ∑ J ∈ { I | I ∈ 𝓙₅ t u₁ u₂ }, χ t u₁ u₂ J x = (𝓘 u₁ : Set X).indicator 1 x := by
   sorry
 
 /-- Part of Lemma 7.5.2. -/
