@@ -301,25 +301,6 @@ theorem dist_triangle5 (a b c d e : X) :
     _ ≤ (dist a b + dist b c + dist c d) + dist d e :=
       add_le_add_right (add_le_add_right (dist_triangle a b c) _) _
 
--- TODO
-lemma sentence_3
-  (subset : (J : Set X) ⊆ ↑J')
-  (plusOne : s J' = s J + 1)
-  (three : s J + 3 < 𝔰 p)
-  (h : ¬Disjoint (ball (𝔠 p) (8 * ↑D ^ 𝔰 p)) (ball (c J) (8⁻¹ * ↑D ^ s J)))
-  : ball (c J') (100 * D^(s J + 3)) ⊆ ball (𝔠 p) (10 * D^𝔰 p) := by
-  simp only [not_disjoint_iff] at h
-  rcases h with ⟨middleX, xxx, yyy⟩
-  intros x xIn
-  apply IF_subset_THEN_distance_between_centers at subset
-  calc dist x (𝔠 p)
-  _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
-    exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
-  _ < 10 * ↑D ^ 𝔰 p := by
-    simp only [mem_ball] at yyy
-    rw [dist_comm] at yyy subset
-    exact calculation_4 (xIn:=xIn) (xxx:=xxx) (yyy:=yyy) (subset:=subset) (three:=three) (plusOne:=plusOne) (X:=X)
-
 -- REFACTORED
 /-- Lemma 7.5.6. -/
 lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -366,7 +347,17 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     _ ≤ 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
       apply cdist_mono
-      exact sentence_3 belongs.left plusOne three h
+      simp only [not_disjoint_iff] at h
+      rcases h with ⟨middleX, xxx, yyy⟩
+      have distance_between_centers := IF_subset_THEN_distance_between_centers belongs.left
+      intros x xIn
+      calc dist x (𝔠 p)
+      _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
+        exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
+      _ < 10 * ↑D ^ 𝔰 p := by
+        simp only [mem_ball] at yyy
+        rw [dist_comm] at yyy distance_between_centers
+        exact calculation_4 (xIn:=xIn) (xxx:=xxx) (yyy:=yyy) (subset:=distance_between_centers) (three:=three) (plusOne:=plusOne) (X:=X)
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_5
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
