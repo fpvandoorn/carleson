@@ -3,7 +3,7 @@ This is a file for arithmetical lemmas -
 lemmas that don't depend on any of Carleson's project definitions, or, really,
 on any fancy definitions period.
 
-Roughly speaking, if a lemma is in this file, it should be calculational/arithmetical,
+Roughly speaking, if a lemma is in this file, it should be purely calculational/arithmetical,
 e.g. `lemma calculation_1 : 2 + 2 = 4`.
 All lemmas are prepended with a prefix `calculation_`.
 -/
@@ -64,51 +64,51 @@ lemma calculation_10 (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 
   _ < 2 := by
     norm_num
 
--- REFACTORED (though variable names are left)
+-- REFACTORED
 lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  (xxx yyy : ℤ)
-  (h: xxx + 3 < yyy) :
-  100 * D ^ (xxx + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (xxx + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (xxx + 3)) + 8 * D ^ yyy
-  < 10 * D ^ yyy := by
+  {x y : ℤ}
+  (h: x + 3 < y) :
+  100 * D ^ (x + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y
+  < 10 * D ^ y := by
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
   rw [← distrib_three_right ..]
-  calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (xxx + 3)
-  _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (yyy - 1) := by
-    have h1 : xxx + 3 ≤ yyy - 1 := by omega
+  calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)
+  _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (y - 1) := by
+    have h1 : x + 3 ≤ y - 1 := by omega
     gcongr
     linarith [four_le_realD X]
-  _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (yyy) * D ^ (- 1 : ℝ)) := by
+  _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (y) * D ^ (- 1 : ℝ)) := by
     congr
-    exact_mod_cast Real.rpow_add (y := yyy) (z:= (- 1)) (hx:=defaultD_pos a)
-  _ < 2 * D ^ yyy := by
+    exact_mod_cast Real.rpow_add (y := y) (z:= (- 1)) (hx:=defaultD_pos a)
+  _ < 2 * D ^ y := by
     nth_rw 4 [mul_comm ..]
     rw [← mul_assoc ..]
     have D_pos : (0 : ℝ) < D := defaultD_pos a
     gcongr
     exact calculation_10 (hundred_lt_realD X)
 
--- REFACTORED (though variable names are left)
+-- REFACTORED
 lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   {s_1 s_2 s_3: ℤ}
   {dist_a dist_b dist_c dist_d : ℝ}
-  (xIn : dist_a < 100 * D ^ (s_1 + 3))
-  (xxx : dist_b < 8 * D ^ s_3)
-  (yyy : dist_c < 8⁻¹ * D ^ s_1)
-  (subset : dist_d < 4 * D ^ s_2)
+  (lt_1 : dist_a < 100 * D ^ (s_1 + 3))
+  (lt_2 : dist_b < 8 * D ^ s_3)
+  (lt_3 : dist_c < 8⁻¹ * D ^ s_1)
+  (lt_4 : dist_d < 4 * D ^ s_2)
   (three : s_1 + 3 < s_3)
   (plusOne : s_2 = s_1 + 1)
   :
   dist_a + dist_d + dist_c + dist_b < 10 * D ^ s_3 := by
   calc dist_a + dist_d + dist_c + dist_b
   _ ≤ 100 * D ^ (s_1 + 3) + dist_d + dist_c + dist_b := by
-    change dist_a < 100 * D ^ (s_1 + 3) at xIn
+    change dist_a < 100 * D ^ (s_1 + 3) at lt_1
     gcongr
   _ ≤ 100 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + dist_c + dist_b := by
     gcongr
     apply le_of_lt
     rw [← plusOne]
-    exact subset
+    exact lt_4
   _ ≤ 100 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + 8⁻¹ * D ^ s_1 + dist_b := by
     gcongr
   _ ≤ 100 * D ^ (s_1 + 3) + 4 * D ^ (s_1 + 1) + 8⁻¹ * D ^ s_1 + 8 * D ^ s_3 := by
@@ -118,7 +118,7 @@ lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   _ = 100 * D ^ (s_1 + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (s_1 + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s_1 + 3)) + 8 * D ^ s_3 := by
     rw [calculation_2 (s := s_1)]
   _ < 10 * D ^ s_3 := by
-    exact calculation_3 (xxx := s_1) (yyy := s_3) (h := three) (X := X)
+    exact calculation_3 (h := three) (X := X)
 
 -- REFACTORED
 lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : Real.logb D 64 < 1 := by

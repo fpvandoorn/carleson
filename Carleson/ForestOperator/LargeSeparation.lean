@@ -329,16 +329,16 @@ lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ 
       gcongr
       apply cdist_mono
       simp only [not_disjoint_iff] at h
-      rcases h with ⟨middleX, xxx, yyy⟩
-      have distance_between_centers := IF_subset_THEN_distance_between_centers belongs.left
-      intros x xIn
+      rcases h with ⟨middleX, lt_2, lt_3⟩
+      have lt_4 := IF_subset_THEN_distance_between_centers belongs.left
+      intros x lt_1
       calc dist x (𝔠 p)
       _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
         exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
       _ < 10 * D ^ 𝔰 p := by
-        simp only [mem_ball] at yyy
-        rw [dist_comm] at yyy distance_between_centers
-        exact calculation_4 (xIn:=xIn) (xxx:=xxx) (yyy:=yyy) (subset:=distance_between_centers) (three:=three) (plusOne:=plusOne) (X:=X)
+        simp only [mem_ball] at lt_3
+        rw [dist_comm] at lt_3 lt_4
+        exact calculation_4 (lt_1:=lt_1) (lt_2:=lt_2) (lt_3:=lt_3) (lt_4:=lt_4) (three:=three) (plusOne:=plusOne) (X:=X)
     _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_5
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
