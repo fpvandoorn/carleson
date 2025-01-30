@@ -56,36 +56,27 @@ theorem size_of_D (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8�
   _ < 2 := by
     norm_num
 
--- TODO
+-- REFACTORED
 lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   (xxx yyy : ℤ)
   (h: xxx + 3 < yyy) :
-  100 * ↑D ^ (xxx + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (xxx + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (xxx + 3)) + 8 * ↑D ^ yyy
-  < 10 * ↑D ^ yyy := by
-  have D_pos : (0 : ℝ) < D := defaultD_pos a
+  100 * D ^ (xxx + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (xxx + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (xxx + 3)) + 8 * D ^ yyy
+  < 10 * D ^ yyy := by
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
-  have D_big : (2 : ℝ) ≤ D := by linarith [twentyfive_le_realD X]
-
-  have sss := distrib_three_right (100 : ℝ) (4 * D ^ (-2 : ℝ)) (8⁻¹ * D ^ (-3 : ℝ) : ℝ) (↑D ^ (xxx + 3))
-  rw [← sss]
-
-  calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (xxx + 3)
-  _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * ↑D ^ (yyy - 1) := by
-    have hi : xxx + 3 ≤ yyy - 1 := by omega
+  rw [← distrib_three_right ..]
+  calc (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (xxx + 3)
+  _ ≤ (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (yyy - 1) := by
+    have h1 : xxx + 3 ≤ yyy - 1 := by omega
     gcongr
-    linarith [D_big]
-  _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ)) * (↑D ^ (yyy) * ↑D ^ (- 1 : ℝ)) := by
+    linarith [four_le_realD X]
+  _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (↑D ^ (yyy) * ↑D ^ (- 1 : ℝ)) := by
     congr
-    have well : yyy - 1 = yyy + (- 1) := by rfl
-    rw [well]
-    have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (yyy)) (z:= (- 1)) D_pos
-    norm_cast at pow_th
-    norm_cast
-  _ < 2 * ↑D ^ yyy := by
-    nth_rw 4 [mul_comm]
-    have well := mul_assoc (a:= (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * ↑D ^ (-3 : ℝ))) (b:= (D : ℝ) ^ (-1 : ℝ)) (c:= (D : ℝ) ^ yyy)
-    rw [← well]
+    exact_mod_cast Real.rpow_add (y := yyy) (z:= (- 1)) (hx:=defaultD_pos a)
+  _ < 2 * D ^ yyy := by
+    nth_rw 4 [mul_comm ..]
+    rw [← mul_assoc ..]
+    have D_pos : (0 : ℝ) < D := defaultD_pos a
     gcongr
     exact size_of_D (hundred_lt_realD X)
 
