@@ -249,6 +249,11 @@ lemma integral_cutoff_positive {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (x : X) :
   have : 0 < cutoff R t x x := by simp [cutoff]
   exact (cutoff_continuous hR ht).integral_pos_of_pos (fun y ↦ cutoff_nonneg (y := y)) this
 
+-- equation 8.0.18 in the blueprint: two-fold case distinction on the branches in the max
+lemma cutoff_norm_sub_left {x x' y : X} (hxx' : dist x x' < R) :
+    ‖cutoff R t x y - cutoff R t x' y‖ ≤ dist x x' / (t * R) := by
+  sorry
+
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
@@ -349,6 +354,42 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
       _ ≤ 2 * C := by
         gcongr
         exact Real.iSup_le eqn8016 NNReal.zero_le_coe
+
+  have computation (x x' y : X) := calc
+     (∫ y, cutoff R t x y) * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖
+    _ = ‖∫ y, (cutoff R t x y * (holderApprox R t ϕ x') - cutoff R t x y * (holderApprox R t ϕ x'))‖ := by
+      rw [← Real.norm_of_nonneg (integral_cutoff_positive hR ht.1 x).le]
+      -- convert integral to sth complex, then rw [norm_mul]
+      -- finally, multiply into the integral (mul_right)
+      sorry -- multiply into the integral
+    _ = ‖∫ y, (cutoff R t x y * (holderApprox R t ϕ x') - cutoff R t x' y * (holderApprox R t ϕ x') + cutoff R t x' y * (holderApprox R t ϕ x') - cutoff R t x y * (holderApprox R t ϕ x'))‖ := by
+      congr with y
+      ring -- add and subtract the same term (8.0.20), then swap order of terms
+    _ = ‖∫ y, (cutoff R t x y * (holderApprox R t ϕ x') - cutoff R t x' y * (holderApprox R t ϕ x')) + ∫ y, (cutoff R t x' y * (holderApprox R t ϕ x') - cutoff R t x y * (holderApprox R t ϕ x'))‖ := by
+      -- set F := fun y ↦ cutoff R t x y * (holderApprox R t ϕ x') - cutoff R t x' y * (holderApprox R t ϕ x')
+      -- congr with y
+      -- field_simp
+      -- ring
+      sorry -- integral is linear... somehow
+    _ ≤ ‖∫ y, (cutoff R t x y * (holderApprox R t ϕ x') - cutoff R t x' y * (holderApprox R t ϕ x'))‖
+      + ‖∫ y, (cutoff R t x' y * (holderApprox R t ϕ x') - cutoff R t x y * (holderApprox R t ϕ x'))‖ := by
+
+      set A := ∫ y, (cutoff R t x y * (holderApprox R t ϕ x') - cutoff R t x' y * (holderApprox R t ϕ x'))
+      set B := ∫ y, (cutoff R t x' y * (holderApprox R t ϕ x') - cutoff R t x y * (holderApprox R t ϕ x'))
+      convert norm_add_le (E := ℂ) A B
+      have : ∫ (y : X), ↑(cutoff R t x y) * holderApprox R t ϕ x' - ↑(cutoff R t x' y) * holderApprox R t ϕ x' = A :=
+        sorry
+      --rw [this]
+      --_ _
+      sorry --apply? -- triange inequality
+    -- next: pull out common factor on the left, and on the right
+
+
+
+
+
+
+    _ = 1 := sorry
   sorry
 
 #exit
