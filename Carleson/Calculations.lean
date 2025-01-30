@@ -171,3 +171,13 @@ lemma calculation_8 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
   apply (le_mul_inv_iff₀ (by positivity)).mpr
   exact h
+
+lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  (h: 1 ≤ (2 : ℝ) ^ (-(94 : ℝ) * ↑a)) : False := by
+  apply (show 94*a ≥ 376 ∧ 94*a < 376 → False by intros h1; linarith)
+  constructor
+  · exact Nat.mul_le_mul_left 94 (four_le_a X)
+  rify
+  suffices 0 ≤ -94 * (a : ℝ) by linarith
+  apply (Real.rpow_le_rpow_left_iff (x := 2) (by linarith)).mp
+  linarith

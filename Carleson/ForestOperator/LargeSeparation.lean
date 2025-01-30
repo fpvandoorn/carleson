@@ -351,14 +351,9 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     push_neg at J'TouchesChildren
     exact J'TouchesChildren.right
 
-  apply (show 94*a ≥ 376 ∧ 94*a < 376 → False by intros h1; linarith)
-  constructor
-  · exact Nat.mul_le_mul_left 94 (four_le_a X)
-  rify
-  suffices 0 ≤ -94 * (a : ℝ) by linarith
-  apply (Real.rpow_le_rpow_left_iff (x := 2) (by linarith)).mp
-  rw [show (2 : ℝ)^(0 :ℝ) = 1 by norm_num]
+  apply calculation_9 (X:=X)
   apply one_le_of_le_mul_right₀ (b:=2 ^ ((Z : ℝ) * ↑n / 2)) (by positivity)
+
   have DIsPos := defaultD_pos a
   calc 2^((Z : ℝ) * (n : ℝ) / 2)
     _ ≤ dist_{𝓘 p'}                    (𝒬 u₁) (𝒬 u₂) := by
