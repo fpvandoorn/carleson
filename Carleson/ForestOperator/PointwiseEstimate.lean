@@ -174,22 +174,31 @@ The cube of scale `s` that contains `x`. There is at most 1 such cube, if it exi
 def cubeOf (i : ℤ) (x : X) : Grid X :=
   Classical.epsilon (fun I ↦ x ∈ I ∧ s I = i)
 
+lemma cubeOf_spec {i : ℤ} (hi : i ∈ Icc (-S : ℤ) S) (I : Grid X) {x : X} (hx : x ∈ I) :
+    x ∈ cubeOf i x ∧ s (cubeOf i x) = i := by
+  apply epsilon_spec (p := fun I ↦ x ∈ I ∧ s I = i)
+  by_cases hiS : i = S
+  · use topCube, subset_topCube hx, hiS ▸ s_topCube
+  simpa [and_comm] using Set.mem_iUnion₂.mp <| Grid_subset_biUnion i
+    ⟨hi.1, s_topCube (X := X) ▸ lt_of_le_of_ne hi.2 hiS⟩ (subset_topCube hx)
+
 /-- The definition `T_𝓝^θ f(x)`, given in (7.1.3).
 For convenience, the suprema are written a bit differently than in the blueprint
 (avoiding `cubeOf`), but this should be equivalent.
 This is `0` if `x` doesn't lie in a cube. -/
 def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S) (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
+  ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S)
+  (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
   ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖₊
 
 protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ X} {f : X → ℂ} :
     Measurable (nontangentialMaximalFunction θ f) := by
   refine Measurable.iSup (fun I ↦ ?_)
-  let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
+  let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
     (‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖₊ : ENNReal)
   have : (fun x ↦ ⨆ (_ : x ∈ I), c) = fun x ↦ ite (x ∈ I) c 0 := by
     ext x; by_cases hx : x ∈ I <;> simp [hx]
-  exact this ▸ (measurable_const.ite coeGrid_measurable measurable_const)
+  convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
 variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
@@ -670,7 +679,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
     le_iSup₂_of_le (𝔰 p') ⟨s_ineq, scale_mem_Icc.2⟩ <| le_iSup_of_le ?_ ?_
   · have : ((D : ℝ≥0∞) ^ (𝔰 p' - 1)).toReal = D ^ (s₂ - 1) := by
       rw [sp', ← ENNReal.toReal_zpow]; simp
-    apply le_sSup; rwa [mem_setOf, dist_congr rfl this]
+    apply le_upperRadius; convert d1
   · convert le_rfl; change (Icc (𝔰 p) _).toFinset = _; rw [sp, sp']
     apply subset_antisymm
     · rw [← Finset.toFinset_coe (t.σ u x), toFinset_subset_toFinset]
