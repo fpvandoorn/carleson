@@ -116,9 +116,9 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
             rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
             exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
           · exact notDisjoint
-        _ ⊆ ball (c cube) (4 * ↑D ^ s cube) := by
+        _ ⊆ ball (c cube) (4 * D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
-        _ ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+        _ ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
           unfold ball
           intro y xy
           rw [mem_setOf_eq] at xy ⊢
@@ -128,7 +128,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
             exact one_lt_D (X := X)
             linarith
           exact gt_trans numbers xy
-      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * ↑D ^ (s cube + 1)) := by
+      have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
         have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
         rw [subset_def] at in_𝔖₀
         exact east p (in_𝔖₀ p belongs)
@@ -269,7 +269,7 @@ lemma limited_scale_impact__first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
     _ ≤ dist (c J) (𝔠 p) := by
       apply IF_disjoint_with_ball_THEN_distance_bigger_than_radius (p := 𝔠 p) (belongs := Grid.c_mem_Grid)
       have inter_1 : (J : Set X) ∩ ball (c J) (D ^ s J / 4) = ball (c J) (D ^ s J / 4) := inter_eq_self_of_subset_right ball_subset_Grid
-      have inter_2 : (𝓘 u₁ : Set X) ∩ ↑J = ↑J := inter_eq_self_of_subset_right hJ.2.1
+      have inter_2 : (𝓘 u₁ : Set X) ∩ J = J := inter_eq_self_of_subset_right hJ.2.1
       rw [← inter_1, ← inter_2]
       apply Disjoint.inter_left
       apply Disjoint.inter_left
@@ -305,14 +305,14 @@ lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ 
   by_contra! three
   have ⟨J', belongs, plusOne⟩ : ∃ J', J ≤ J' ∧ s J' = s J + 1 :=
     Grid.exists_scale_succ (by change s J < 𝔰 p; linarith)
-  have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * ↑D ^ (s J + 2)) := by
+  have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * D ^ (s J + 2)) := by
     rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
     have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le:=belongs) (sle:= by linarith [plusOne]) (A_in:=hJ.1)
     rw [𝓙₀, Set.nmem_setOf_iff] at J'Touches𝔖₀
     push_neg at J'Touches𝔖₀
     exact J'Touches𝔖₀.right
   apply calculation_9 (X:=X)
-  apply one_le_of_le_mul_right₀ (b:=2 ^ ((Z : ℝ) * ↑n / 2)) (by positivity)
+  apply one_le_of_le_mul_right₀ (b:=2 ^ ((Z : ℝ) * n / 2)) (by positivity)
   have DIsPos := defaultD_pos a
   calc 2^((Z : ℝ) * (n : ℝ) / 2)
     _ ≤ dist_{𝓘 p'}                    (𝒬 u₁) (𝒬 u₂) := by
@@ -335,7 +335,7 @@ lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ 
       calc dist x (𝔠 p)
       _ ≤ dist x (c J') + dist (c J') (c J) + dist (c J) middleX + dist middleX (𝔠 p) := by
         exact dist_triangle5 x (c J') (c J) middleX (𝔠 p)
-      _ < 10 * ↑D ^ 𝔰 p := by
+      _ < 10 * D ^ 𝔰 p := by
         simp only [mem_ball] at yyy
         rw [dist_comm] at yyy distance_between_centers
         exact calculation_4 (xIn:=xIn) (xxx:=xxx) (yyy:=yyy) (subset:=distance_between_centers) (three:=three) (plusOne:=plusOne) (X:=X)
@@ -343,12 +343,12 @@ lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ 
       apply calculation_5
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
       calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
-      _ ≤ dist_{𝔠 p, 2 ^ 6 * (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+      _ ≤ dist_{𝔠 p, 2 ^ 6 * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
         apply cdist_mono
         apply ball_subset_ball
         ring_nf
         linarith
-      _ ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_{𝔠 p, (↑D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+      _ ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_{𝔠 p, (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
         exact_mod_cast cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
     _ ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * n / 2) := by
       rcases hp with ⟨tile, notIn𝔖₀⟩
@@ -407,7 +407,7 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     _ = dist (x) (c J) := by
       apply dist_comm
     _ ≤ dist (x) (𝔠 p) + dist (𝔠 p) (c J) := dist_triangle ..
-    _ < dist (x) (𝔠 p) + 16 * ↑D ^ s J := by
+    _ < dist (x) (𝔠 p) + 16 * D ^ s J := by
       gcongr
       calc dist (𝔠 p) (c J)
         _ ≤ dist middleX (𝔠 p) + dist middleX (c J) := by
@@ -422,13 +422,13 @@ lemma scales_impacting_interval (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
           exact one_lt_D (X := X)
         _ = 16 * D ^ s J := by
           linarith
-    _ < 4 * ↑D ^ 𝔰 p + 16 * ↑D ^ s J := by
+    _ < 4 * D ^ 𝔰 p + 16 * D ^ s J := by
       gcongr
       rw [dist_comm]
       apply Metric.mem_ball'.mp
       apply Grid_subset_ball (X := X) (i := 𝓘 p)
       exact xInTile
-    _ < 100 * ↑D ^ (s J + 1) := by
+    _ < 100 * D ^ (s J + 1) := by
       apply (div_lt_div_iff_of_pos_right zero_lt_four).mp
       ring_nf
       rewrite (config := {occs := .pos [1]}) [add_comm]
