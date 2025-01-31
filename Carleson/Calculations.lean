@@ -12,7 +12,8 @@ import Mathlib.Tactic.Rify
 open ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
-lemma calculation_1 (s : ℤ) : 4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3) = 4 * D ^ (s + 1) := by
+lemma calculation_1 (s : ℤ) :
+    4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3) = 4 * D ^ (s + 1) := by
   have D_pos : (0 : ℝ) < D := defaultD_pos a
   calc 4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3)
   _ = 4 * (D ^ (-2 : ℝ) * D ^ (s + 3)) := by
@@ -24,7 +25,8 @@ lemma calculation_1 (s : ℤ) : 4 * (D : ℝ) ^ (-2 : ℝ) * D ^ (s + 3) = 4 * D
   _ = 4 * D ^ (s + 1) := by
     ring_nf
 
-lemma calculation_2 (s : ℤ) : ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s + 3) = 8⁻¹ * D ^ s := by
+lemma calculation_2 (s : ℤ) :
+    ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s + 3) = 8⁻¹ * D ^ s := by
   have D_pos : (0 : ℝ) < D := defaultD_pos a
   calc (8 : ℝ)⁻¹ * (D : ℝ) ^ (-3 : ℝ) * D ^ (s + 3)
   _ = (8 : ℝ)⁻¹ * (D ^ (-3 : ℝ) * D ^ (s + 3)) := by
@@ -36,7 +38,8 @@ lemma calculation_2 (s : ℤ) : ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s + 3)
   _ = (8 : ℝ)⁻¹* D ^ (s) := by
     norm_num
 
-lemma calculation_10 (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
+lemma calculation_10 (h: (100 : ℝ) < D) :
+    ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
   calc ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
   _ = (100 : ℝ) * D ^ (-1 : ℝ) + 4 * D ^ (-2 : ℝ) * D ^ (-1 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ) * D ^ (-1 : ℝ) := by
     ring
@@ -63,10 +66,8 @@ lemma calculation_10 (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 
   _ < 2 := by
     norm_num
 
-lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  {x y : ℤ}
-  (h: x + 3 < y) :
-  100 * D ^ (x + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y
+lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h: x + 3 < y) :
+    100 * D ^ (x + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y
   < 10 * D ^ y := by
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
@@ -87,16 +88,13 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     exact calculation_10 (hundred_lt_realD X)
 
 lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  {s_1 s_2 s_3: ℤ}
-  {dist_a dist_b dist_c dist_d : ℝ}
-  (lt_1 : dist_a < 100 * D ^ (s_1 + 3))
-  (lt_2 : dist_b < 8 * D ^ s_3)
-  (lt_3 : dist_c < 8⁻¹ * D ^ s_1)
-  (lt_4 : dist_d < 4 * D ^ s_2)
-  (three : s_1 + 3 < s_3)
-  (plusOne : s_2 = s_1 + 1)
-  :
-  dist_a + dist_d + dist_c + dist_b < 10 * D ^ s_3 := by
+    {s_1 s_2 s_3: ℤ} {dist_a dist_b dist_c dist_d : ℝ}
+    (lt_1 : dist_a < 100 * D ^ (s_1 + 3))
+    (lt_2 : dist_b < 8 * D ^ s_3)
+    (lt_3 : dist_c < 8⁻¹ * D ^ s_1)
+    (lt_4 : dist_d < 4 * D ^ s_2)
+    (three : s_1 + 3 < s_3) (plusOne : s_2 = s_1 + 1) :
+    dist_a + dist_d + dist_c + dist_b < 10 * D ^ s_3 := by
   calc dist_a + dist_d + dist_c + dist_b
   _ ≤ 100 * D ^ (s_1 + 3) + dist_d + dist_c + dist_b := by
     change dist_a < 100 * D ^ (s_1 + 3) at lt_1
@@ -117,14 +115,15 @@ lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   _ < 10 * D ^ s_3 := by
     exact calculation_3 (h := three) (X := X)
 
-lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : Real.logb D 64 < 1 := by
+lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
+    Real.logb D 64 < 1 := by
   apply (Real.logb_lt_iff_lt_rpow (by linarith [hundred_lt_realD X]) (by linarith)).mpr
   rw [Real.rpow_one]
   linarith [hundred_lt_realD X]
 
 lemma calculation_5 {dist_1 dist_2: ℝ}
-  (h : dist_1 ≤ (2^(a : ℝ))^(6 : ℝ) * dist_2)
-  : 2^((-100 : ℝ) * a) * dist_1 ≤ 2 ^ ((-94 : ℝ) * a) * dist_2 := by
+    (h : dist_1 ≤ (2^(a : ℝ))^(6 : ℝ) * dist_2) :
+    2^((-100 : ℝ) * a) * dist_1 ≤ 2 ^ ((-94 : ℝ) * a) * dist_2 := by
   apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (100 * (a : ℝ)) by positivity)).mp
   rw [
     ← mul_assoc,
@@ -138,9 +137,8 @@ lemma calculation_5 {dist_1 dist_2: ℝ}
   rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
   exact_mod_cast h
 
-lemma calculation_6 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  (s : ℤ)
-  : (D : ℝ) ^ (s + 3) = (D : ℝ) ^ (s + 2) * (D : ℝ) := by
+lemma calculation_6 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
+    (D : ℝ) ^ (s + 3) = (D : ℝ) ^ (s + 2) * (D : ℝ) := by
   rw [
     zpow_add₀ (by linarith [defaultD_pos a]) s 3,
     zpow_add₀ (by linarith [defaultD_pos a]) s 2,
@@ -148,25 +146,24 @@ lemma calculation_6 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   ]
   congr
 
-lemma calculation_7 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  (s : ℤ)
-  : 100 * (D ^ (s + 2) * D) = (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s + 2)) := by
+lemma calculation_7 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
+    100 * (D ^ (s + 2) * D) = (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s + 2)) := by
   rw [← mul_assoc (a:= 100), mul_comm]
   congr
   norm_cast
   rw [← pow_mul 2 a (100 * a), mul_comm (a:=a), defaultD]
   ring
 
-lemma calculation_8 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  {dist_1 dist_2 : ℝ}
-  (h : dist_1 * 2 ^ ((100 : ℝ) * a) ≤ dist_2)
-  : dist_1 ≤ 2 ^ ((-100 : ℝ) * a) * dist_2 := by
+lemma calculation_8 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {dist_1 dist_2 : ℝ}
+    (h : dist_1 * 2 ^ ((100 : ℝ) * a) ≤ dist_2) :
+    dist_1 ≤ 2 ^ ((-100 : ℝ) * a) * dist_2 := by
   rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
   apply (le_mul_inv_iff₀ (by positivity)).mpr
   exact h
 
 lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  (h: 1 ≤ (2 : ℝ) ^ (-(94 : ℝ) * a)) : False := by
+    (h: 1 ≤ (2 : ℝ) ^ (-(94 : ℝ) * a)) :
+    False := by
   apply (show 94*a ≥ 376 ∧ 94*a < 376 → False by intros h1; linarith)
   constructor
   · exact Nat.mul_le_mul_left 94 (four_le_a X)

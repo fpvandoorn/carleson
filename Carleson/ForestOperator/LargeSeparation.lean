@@ -43,13 +43,14 @@ def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
   conj (exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)
 
 /- AUXILIARY LEMMAS:START -/
-lemma IF_subset_THEN_distance_between_centers
-  (subset : (J : Set X) ⊆ J')
-  : dist (c J) (c J') < 4 * D ^ s J' := by
+lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
+    dist (c J) (c J') < 4 * D ^ s J' := by
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
 
-lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J: X} {r: ℝ} {pSet: Set X} {p: X} (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J r) pSet) : dist J p ≥ r := by
+lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J: X} {r: ℝ} {pSet: Set X} {p: X}
+    (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J r) pSet) :
+    dist J p ≥ r := by
   rw [disjoint_iff_inter_eq_empty, inter_comm] at h
   by_contra! contr
   apply (Set.mem_empty_iff_false p).mp
@@ -59,7 +60,7 @@ lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J: X} {r: ℝ} {pS
   exact ⟨belongs, contr⟩
 
 theorem dist_triangle5 (a b c d e : X) :
-  dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
+    dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
   calc
     dist a e ≤ dist a d + dist d e := dist_triangle a d e
     _ ≤ (dist a c + dist c d) + dist d e := add_le_add_right (dist_triangle a c d) _
