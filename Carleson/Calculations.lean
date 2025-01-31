@@ -36,7 +36,6 @@ lemma calculation_2 (s : ℤ) : ((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (s + 3)
   _ = (8 : ℝ)⁻¹* D ^ (s) := by
     norm_num
 
--- REFACTORED
 lemma calculation_10 (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ) < 2 := by
   calc ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * D ^ (-1 : ℝ)
   _ = (100 : ℝ) * D ^ (-1 : ℝ) + 4 * D ^ (-2 : ℝ) * D ^ (-1 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ) * D ^ (-1 : ℝ) := by
@@ -64,7 +63,6 @@ lemma calculation_10 (h: (100 : ℝ) < D) : ((100 : ℝ) + 4 * D ^ (-2 : ℝ) + 
   _ < 2 := by
     norm_num
 
--- REFACTORED
 lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   {x y : ℤ}
   (h: x + 3 < y) :
@@ -88,7 +86,6 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     gcongr
     exact calculation_10 (hundred_lt_realD X)
 
--- REFACTORED
 lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   {s_1 s_2 s_3: ℤ}
   {dist_a dist_b dist_c dist_d : ℝ}
@@ -120,13 +117,11 @@ lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   _ < 10 * D ^ s_3 := by
     exact calculation_3 (h := three) (X := X)
 
--- REFACTORED
 lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : Real.logb D 64 < 1 := by
   apply (Real.logb_lt_iff_lt_rpow (by linarith [hundred_lt_realD X]) (by linarith)).mpr
   rw [Real.rpow_one]
   linarith [hundred_lt_realD X]
 
--- REFACTORED
 lemma calculation_5 {dist_1 dist_2: ℝ}
   (h : dist_1 ≤ (2^(a : ℝ))^(6 : ℝ) * dist_2)
   : 2^((-100 : ℝ) * a) * dist_1 ≤ 2 ^ ((-94 : ℝ) * a) * dist_2 := by
@@ -143,7 +138,6 @@ lemma calculation_5 {dist_1 dist_2: ℝ}
   rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
   exact_mod_cast h
 
--- REFACTORED
 lemma calculation_6 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   (s : ℤ)
   : (D : ℝ) ^ (s + 3) = (D : ℝ) ^ (s + 2) * (D : ℝ) := by
