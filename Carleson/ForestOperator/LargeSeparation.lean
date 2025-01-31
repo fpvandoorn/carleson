@@ -58,7 +58,7 @@ lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J : X} {r : ℝ} {
   apply mem_ball_comm.mp at contr
   exact ⟨belongs, contr⟩
 
-theorem dist_triangle5 (a b c d e : X) :
+lemma dist_triangle5 (a b c d e : X) :
     dist a e ≤ dist a b + dist b c + dist c d + dist d e :=
   calc
     dist a e ≤ dist a d + dist d e := dist_triangle a d e
