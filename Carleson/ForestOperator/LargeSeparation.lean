@@ -48,8 +48,8 @@ lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
 
-lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J: X} {r: ℝ} {pSet: Set X} {p: X}
-    (belongs: p ∈ pSet) (h: Disjoint (Metric.ball J r) pSet) :
+lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J : X} {r : ℝ} {pSet : Set X} {p : X}
+    (belongs : p ∈ pSet) (h : Disjoint (Metric.ball J r) pSet) :
     dist J p ≥ r := by
   rw [disjoint_iff_inter_eq_empty, inter_comm] at h
   by_contra! contr
@@ -254,16 +254,16 @@ lemma limited_scale_impact__first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
   apply Int.sub_one_lt_iff.mp
   apply Int.sub_lt_of_sub_lt
   rify
-  apply lt_of_le_of_lt (hbc := calculation_logD_64 (X:=X))
+  apply lt_of_le_of_lt (hbc := calculation_logD_64 (X := X))
   apply tsub_le_iff_left.mpr
   have DIsOne := one_lt_D (X := X)
   rw [
-    ← Real.logb_rpow (b:=D) (x:=𝔰 p) (by positivity) (by linarith),
+    ← Real.logb_rpow (b := D) (x := 𝔰 p) (by positivity) (by linarith),
     ← Real.logb_mul (by positivity) (by positivity),
-    ← Real.logb_rpow (b:=D) (x:=s J) (by positivity) (by linarith)
+    ← Real.logb_rpow (b := D) (x := s J) (by positivity) (by linarith)
   ]
   apply (Real.logb_le_logb DIsOne (by positivity) (by positivity)).mpr
-  have bigger : D ^ (s J) / 8 + 8 * D^(𝔰 p) ≥ D ^ s J / (4 : ℝ) := by
+  have bigger : D ^ (s J) / 8 + 8 * D ^ (𝔰 p) ≥ D ^ s J / (4 : ℝ) := by
     rw [not_disjoint_iff] at h
     rcases h with ⟨middleX, h1, h2⟩
     calc (D ^ s J / (4 : ℝ))
@@ -283,17 +283,15 @@ lemma limited_scale_impact__first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
     _ ≤ dist (𝔠 p) middleX + dist middleX (c J) := by
       rw [dist_comm]
       exact dist_triangle ..
-    _ ≤ 8 * D^(𝔰 p) + dist middleX (c J) := by
+    _ ≤ 8 * D ^ (𝔰 p) + dist middleX (c J) := by
       gcongr
       rw [mem_ball, dist_comm] at h1
-      apply le_of_lt
-      exact h1
-    _ ≤ D ^ (s J) / 8 + 8 * D^(𝔰 p) := by
+      exact le_of_lt h1
+    _ ≤ D ^ (s J) / 8 + 8 * D ^ (𝔰 p) := by
       rw [add_comm]
       gcongr
       rw [mem_ball, ← div_eq_inv_mul] at h2
-      apply le_of_lt
-      exact h2
+      exact le_of_lt h2
   apply le_neg_add_iff_le.mp
   have := mul_le_mul_of_nonneg_left (a := 8) (sub_nonneg_of_le bigger) (by positivity)
   ring_nf at this
@@ -308,25 +306,25 @@ lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ 
     Grid.exists_scale_succ (by change s J < 𝔰 p; linarith)
   have ⟨p', ⟨_, distance⟩, hundred⟩ : ∃ p' ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p') ⊆ ball (c J') (100 * D ^ (s J + 2)) := by
     rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
-    have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le:=belongs) (sle:= by linarith [plusOne]) (A_in:=hJ.1)
+    have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le := belongs) (sle := by linarith [plusOne]) (A_in := hJ.1)
     rw [𝓙₀, Set.nmem_setOf_iff] at J'Touches𝔖₀
     push_neg at J'Touches𝔖₀
     exact J'Touches𝔖₀.right
-  apply calculation_9 (X:=X)
-  apply one_le_of_le_mul_right₀ (b:=2 ^ ((Z : ℝ) * n / 2)) (by positivity)
+  apply calculation_9 (X := X)
+  apply one_le_of_le_mul_right₀ (b := 2 ^ ((Z : ℝ) * n / 2)) (by positivity)
   have DIsPos := defaultD_pos a
-  calc 2^((Z : ℝ) * (n : ℝ) / 2)
-    _ ≤ dist_{𝓘 p'}                    (𝒬 u₁) (𝒬 u₂) := by
+  calc 2 ^ ((Z : ℝ) * (n : ℝ) / 2)
+    _ ≤ dist_{𝓘 p'} (𝒬 u₁) (𝒬 u₂) := by
       exact distance
-    _ ≤ dist_{c J', 100 * D^(s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ dist_{c J', 100 * D ^ (s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
       apply cdist_mono
       intros x hx
       exact hundred (ball_subset_Grid hx)
-    _ ≤ 2^((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_8 (X := X)
       rw [mul_comm, calculation_6 (s J) (X := X), calculation_7 (s J) (X := X)]
       exact_mod_cast le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
-    _ ≤ 2^((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
+    _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
       apply cdist_mono
       simp only [not_disjoint_iff] at h
@@ -339,8 +337,8 @@ lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ 
       _ < 10 * D ^ 𝔰 p := by
         simp only [mem_ball] at lt_3
         rw [dist_comm] at lt_3 lt_4
-        exact calculation_4 (lt_1:=lt_1) (lt_2:=lt_2) (lt_3:=lt_3) (lt_4:=lt_4) (three:=three) (plusOne:=plusOne) (X:=X)
-    _ ≤ 2^((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
+        exact calculation_4 (lt_1 := lt_1) (lt_2 := lt_2) (lt_3 := lt_3) (lt_4 := lt_4) (three := three) (plusOne := plusOne) (X := X)
+    _ ≤ 2 ^ ((-94 : ℝ) * a) * dist_{𝓘 p} (𝒬 u₁) (𝒬 u₂) := by
       apply calculation_5
       have bigger : 0 < (D : ℝ) ^ 𝔰 p / 4 := by positivity
       calc dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂)
@@ -350,7 +348,7 @@ lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ 
         ring_nf
         linarith
       _ ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_{𝔠 p, (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
-        exact_mod_cast cdist_le_iterate (f := (𝒬 u₁)) (g:= (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k:= 6) (x:= 𝔠 p) bigger
+        exact_mod_cast cdist_le_iterate (f := (𝒬 u₁)) (g := (𝒬 u₂)) (r := (D ^ (𝔰 p)) / 4) (k := 6) (x := 𝔠 p) bigger
     _ ≤ 2^((-94 : ℝ) * a) * 2^((Z : ℝ) * n / 2) := by
       rcases hp with ⟨tile, notIn𝔖₀⟩
       unfold 𝔖₀ at notIn𝔖₀

@@ -35,7 +35,7 @@ lemma calculation_2 (s : ℤ) :
     congr
     have pow_th := Real.rpow_add (x := (D : ℝ)) (y := (-3)) (z := (s + 3)) D_pos
     rw_mod_cast [pow_th]
-  _ = (8 : ℝ)⁻¹* D ^ (s) := by
+  _ = (8 : ℝ)⁻¹ * D ^ s := by
     norm_num
 
 lemma calculation_10 (h: (100 : ℝ) < D) :
@@ -67,8 +67,7 @@ lemma calculation_10 (h: (100 : ℝ) < D) :
     norm_num
 
 lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y : ℤ} (h: x + 3 < y) :
-    100 * D ^ (x + 3) + ((4 * D ^ (- 2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (- 3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y
-  < 10 * D ^ y := by
+    100 * D ^ (x + 3) + ((4 * D ^ (-2 : ℝ)) * D ^ (x + 3)) + (((8 : ℝ)⁻¹ * D ^ (-3 : ℝ)) * D ^ (x + 3)) + 8 * D ^ y < 10 * D ^ y := by
   rw [← show (2 : ℝ) + 8 = 10 by norm_num, right_distrib]
   gcongr
   rw [← distrib_three_right ..]
@@ -79,7 +78,7 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y
     linarith [four_le_realD X]
   _ = (100 + 4 * (D : ℝ) ^ (-2 : ℝ) + 8⁻¹ * D ^ (-3 : ℝ)) * (D ^ (y) * D ^ (- 1 : ℝ)) := by
     congr
-    exact_mod_cast Real.rpow_add (y := y) (z:= (- 1)) (hx:=defaultD_pos a)
+    exact_mod_cast Real.rpow_add (y := y) (z:= (-1)) (hx := defaultD_pos a)
   _ < 2 * D ^ y := by
     nth_rw 4 [mul_comm ..]
     rw [← mul_assoc ..]
@@ -88,7 +87,7 @@ lemma calculation_3 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {x y
     exact calculation_10 (hundred_lt_realD X)
 
 lemma calculation_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-    {s_1 s_2 s_3: ℤ} {dist_a dist_b dist_c dist_d : ℝ}
+    {s_1 s_2 s_3 : ℤ} {dist_a dist_b dist_c dist_d : ℝ}
     (lt_1 : dist_a < 100 * D ^ (s_1 + 3))
     (lt_2 : dist_b < 8 * D ^ s_3)
     (lt_3 : dist_c < 8⁻¹ * D ^ s_1)
@@ -122,19 +121,19 @@ lemma calculation_logD_64 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G
   linarith [hundred_lt_realD X]
 
 lemma calculation_5 {dist_1 dist_2: ℝ}
-    (h : dist_1 ≤ (2^(a : ℝ))^(6 : ℝ) * dist_2) :
-    2^((-100 : ℝ) * a) * dist_1 ≤ 2 ^ ((-94 : ℝ) * a) * dist_2 := by
+    (h : dist_1 ≤ (2 ^ (a : ℝ)) ^ (6 : ℝ) * dist_2) :
+    2 ^ ((-100 : ℝ) * a) * dist_1 ≤ 2 ^ ((-94 : ℝ) * a) * dist_2 := by
   apply (mul_le_mul_left (show 0 < (2 : ℝ) ^ (100 * (a : ℝ)) by positivity)).mp
   rw [
     ← mul_assoc,
     neg_mul,
     Real.rpow_neg (by positivity),
-    LinearOrderedField.mul_inv_cancel (a:= (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity),
+    LinearOrderedField.mul_inv_cancel (a := (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity),
     ← mul_assoc,
     ← Real.rpow_add (by positivity)
   ]
   ring_nf
-  rw [Real.rpow_mul (x:= (2 : ℝ)) (hx:=by positivity) (y:=a) (z:= 6)]
+  rw [Real.rpow_mul (x := (2 : ℝ)) (hx:=by positivity) (y := a) (z := 6)]
   exact_mod_cast h
 
 lemma calculation_6 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
@@ -148,23 +147,23 @@ lemma calculation_6 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s :
 
 lemma calculation_7 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
     100 * (D ^ (s + 2) * D) = (defaultA a) ^ (100 * a) * (100 * (D : ℝ) ^ (s + 2)) := by
-  rw [← mul_assoc (a:= 100), mul_comm]
+  rw [← mul_assoc (a := 100), mul_comm]
   congr
   norm_cast
-  rw [← pow_mul 2 a (100 * a), mul_comm (a:=a), defaultD]
+  rw [← pow_mul 2 a (100 * a), mul_comm (a := a), defaultD]
   ring
 
 lemma calculation_8 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {dist_1 dist_2 : ℝ}
     (h : dist_1 * 2 ^ ((100 : ℝ) * a) ≤ dist_2) :
     dist_1 ≤ 2 ^ ((-100 : ℝ) * a) * dist_2 := by
-  rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a:=(2 ^ (100 * (a : ℝ)))⁻¹)]
+  rw [neg_mul, Real.rpow_neg (by positivity), mul_comm (a := (2 ^ (100 * (a : ℝ)))⁻¹)]
   apply (le_mul_inv_iff₀ (by positivity)).mpr
   exact h
 
 lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     (h: 1 ≤ (2 : ℝ) ^ (-(94 : ℝ) * a)) :
     False := by
-  apply (show 94*a ≥ 376 ∧ 94*a < 376 → False by intros h1; linarith)
+  apply (show 94 * a ≥ 376 ∧ 94 * a < 376 → False by intros h1; linarith)
   constructor
   · exact Nat.mul_le_mul_left 94 (four_le_a X)
   rify
