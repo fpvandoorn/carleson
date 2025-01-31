@@ -1,7 +1,6 @@
 import Carleson.ForestOperator.AlmostOrthogonality
 import Mathlib.Tactic.Rify
 import Carleson.ToMathlib.BoundedCompactSupport
-
 import Carleson.Calculations
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -183,16 +182,16 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
       _ ≤ 100 * D^(s J'' + 1) + dist (c J'') (c J) := by
         rw [← plusOne] at triangle_1
         gcongr
-      _ ≤ 100*D^(s J'' + 1) + 4*D^(s J) := by
+      _ ≤ 100 * D^(s J'' + 1) + 4 * D^(s J) := by
         have subset : (J'' : Set X) ⊆ J := by
-          cases (fundamental_dyadic (le_of_lt smaller)) with
+          cases fundamental_dyadic smaller.le with
           | inl subset => exact subset
           | inr disj =>
             have disjoint := disj.mono_left belongs.1
             rw [disjoint_comm] at disjoint
             contradiction
         linarith [IF_subset_THEN_distance_between_centers subset]
-      _ ≤ 100*D^(s J) + 4*D^(s J) := by
+      _ ≤ 100 * D^(s J) + 4 * D^(s J) := by
         gcongr
         · linarith
         · exact smaller
