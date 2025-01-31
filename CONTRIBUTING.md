@@ -1,6 +1,8 @@
 Contributions are welcome!
 
-If you start formalizing any of the results mentioned in the blueprint, please announce this on Zulip first, in the (to be created) Carleson channel. Small fixes are always welcome, and need not be discussed in advance. Simply make a pull request with a change.
+If you start formalizing any of the results mentioned in the blueprint, please announce this on Zulip first, in the [Carleson channel](https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/). Small fixes are always welcome, and need not be discussed in advance. Simply make a pull request with a change.
+
+Note: the html blueprint has some rendering issues with certain equations and references. Consult the pdf if you see this on the html page.
 
 Some remarks:
 * Some statements will be missing hypotheses. Don't hesitate adding hypotheses to a result, especially if it is already assumed elsewhere. Assuming that functions are measurable is always fine.
@@ -40,6 +42,8 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `Tₚ f(x)`       | `carlesonOn p f x`       |         |
 | `T_ℭ f(x)`       | `carlesonSum ℭ f x`       | The sum of Tₚ f(x) for p ∈ ℭ. In the blueprint only used in chapter 7, but in the formalization we will use it more.        |
 | `Tₚ* f(x)`       | `adjointCarleson p f x`       |         |
+| `T_r g(x)` | `CZOperator K r g x` |
+| `T_*^r g(x)` | `simpleNontangentialOperator K r g x` |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
 | `𝔓(I)`       | `𝓘 ⁻¹' {I}` |         |
 | `I ⊆ J`         | `I ≤ J`      | We noticed recently that we cannot (easily) assume that the coercion `Grid X → Set X` is injective. Therefore, Lean introduces two orders on `Grid X`: `I ⊆ J` means that the underlying sets satisfy this relation, and `I ≤ J` means *additionally* that `s I ≤ s J`. The order is what you should use in (almost?) all cases. |
@@ -60,3 +64,6 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `𝔗ⱼ(u)`        | `rowDecomp t j u` |     |
 | `E`        | `E` |     |
 | `Eⱼ`        | `rowSupport t j` |     |
+| `M_n`        | `modulationOperator n` |     |
+| `L_N`        | `approxHilbertTransform N` |     |
+| `k_r`        | `niceKernel r` |     |

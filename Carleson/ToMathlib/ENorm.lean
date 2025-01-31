@@ -7,6 +7,10 @@ open ENNReal NNReal Function Set
 
 variable {α α' E E₁ E₂ F : Type*} [ENorm F]
 
+@[simp]
+theorem enorm_mul {α : Type*} [NormedDivisionRing α] (a b : α) : ‖a * b‖ₑ = ‖a‖ₑ * ‖b‖ₑ := by
+  simp [enorm_eq_nnnorm]
+
 lemma ENNReal.ofReal_norm [SeminormedAddGroup E] (x : E) : .ofReal ‖x‖ = ‖x‖ₑ := by
   simp_rw [enorm_eq_nnnorm, ofReal_norm_eq_coe_nnnorm]
 
@@ -22,6 +26,7 @@ class ContinuousENorm (E : Type*) extends ENorm E, TopologicalSpace E where
   continuous_enorm : Continuous enorm
   -- the topology is somehow defined by the enorm.
 
+-- todo: maybe generalize to ENormedMonoid and use `to_additive` if necessary for Mathlib.
 /-- An enormed monoid is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedAddMonoid (E : Type*) extends ContinuousENorm E, AddMonoid E where

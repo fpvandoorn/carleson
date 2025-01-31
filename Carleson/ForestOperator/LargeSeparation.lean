@@ -152,37 +152,35 @@ lemma bigger_than_𝓙_is_not_in_𝓙₀ {𝔖 : Set (𝔓 X)} {A B : Grid X}
   · exact sle
 
 /-- Lemma 7.5.3 (stated somewhat differently). -/
-lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙₅ t u₁ u₂)
+lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (J : Set X) J') :
     s J - 1 ≤ s J' := by
   by_contra! contr
-  have pNotSubset : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100*D^(s J + 1)) := by
+  have pNotSubset : ∀ p ∈ t.𝔖₀ u₁ u₂, ¬↑(𝓘 p) ⊆ ball (c J) (100 * D^(s J + 1)) := by
     obtain ⟨⟨Jin𝓙₀, _⟩, _⟩ := hJ
     have notMin : s J ≠ -S := by linarith [(scale_mem_Icc (i := J')).left]
     exact Jin𝓙₀.resolve_left notMin
-  have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100*D^(s J + 1)) := by
+  have ⟨p, pIn, pSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, (𝓘 p : Set X) ⊆ ball (c J) (100 * D^(s J + 1)) := by
     have ⟨J'', belongs, plusOne⟩ : ∃ J'', J' ≤ J'' ∧ s J'' = s J' + 1 :=
       Grid.exists_scale_succ (by linarith)
-    have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100*D^(s J' + 1 + 1)) := by
-      have : ¬J'' ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ belongs (by linarith) hJ'.1
+    have ⟨r, rIn, rSubset⟩ : ∃ p ∈ t.𝔖₀ u₁ u₂, ↑(𝓘 p) ⊆ ball (c J'') (100 * D^(s J' + 1 + 1)) := by
+      have : J'' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ belongs (by linarith) hJ'.1
       simp only [𝓙₀, mem_setOf_eq, plusOne] at this
       push_neg at this
       exact this.2
     use r
     use rIn
     calc (𝓘 r : Set X)
-    _ ⊆ ball (c J'') (100*D^(s J' + 1 + 1)) := rSubset
-    _ ⊆ ball (c J) (100*D^(s J + 1)) := by
+    _ ⊆ ball (c J'') (100 * D^(s J' + 1 + 1)) := rSubset
+    _ ⊆ ball (c J) (100 * D^(s J + 1)) := by
       intro x
-      unfold ball
-      simp only [mem_setOf_eq]
+      simp only [ball, mem_setOf_eq]
       intro triangle_1
       have smaller : s J'' < s J := by linarith
       have DisBig := twentyfive_le_realD X
       calc dist x (c J)
       _ ≤ dist x (c J'') + dist (c J'') (c J) := dist_triangle x (c J'') (c J)
-      _ ≤ 100*D^(s J'' + 1) + dist (c J'') (c J) := by
+      _ ≤ 100 * D^(s J'' + 1) + dist (c J'') (c J) := by
         rw [← plusOne] at triangle_1
         gcongr
       _ ≤ 100*D^(s J'' + 1) + 4*D^(s J) := by
@@ -190,7 +188,7 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
           cases (fundamental_dyadic (le_of_lt smaller)) with
           | inl subset => exact subset
           | inr disj =>
-            have disjoint := Disjoint.mono_left belongs.1 disj
+            have disjoint := disj.mono_left belongs.1
             rw [disjoint_comm] at disjoint
             contradiction
         linarith [IF_subset_THEN_distance_between_centers subset]
@@ -198,9 +196,9 @@ lemma moderate_scale_change (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
         gcongr
         · linarith
         · exact smaller
-      _ < 100*D^(s J + 1) := by
+      _ < 100 * D^(s J + 1) := by
         ring_nf
-        rw [zpow_one_add₀ (by linarith), mul_comm (a := (D : ℝ)), mul_assoc]
+        rw [zpow_one_add₀ (by linarith), mul_comm (D : ℝ), mul_assoc]
         gcongr
         linarith
   exact (pNotSubset p pIn) pSubset

@@ -1,5 +1,5 @@
-import Carleson.DoublingMeasure
-import Carleson.WeakType
+import Carleson.ToMathlib.DoublingMeasure
+import Carleson.ToMathlib.WeakType
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
@@ -187,11 +187,15 @@ def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ 
 
 /-- The Calderon Zygmund operator `T_r` in chapter Two-sided Metric Space Carleson -/
 def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
-  ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
+  ∫ y in (ball x r)ᶜ, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
-  sSup { r : ℝ≥0∞ | dist_{x, r.toReal} θ (Q x) < 1 }
+  ⨆ (r : ℝ) (_ : dist_{x, r} θ (Q x) < 1), ENNReal.ofReal r
+
+lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x : X} {r : ℝ}
+    (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
+  apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
@@ -202,7 +206,7 @@ def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
+  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
 
 /-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
@@ -270,6 +274,36 @@ lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
 
 lemma measurable_K_left [IsOneSidedKernel a K] (y : X) : Measurable (K · y) :=
   measurable_K.of_uncurry_right
+
+lemma measurable_K_right [IsOneSidedKernel a K] (x : X) : Measurable (K x) :=
+  measurable_K.of_uncurry_left
+
+lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)] [ProperSpace X]
+    [Regular (volume : Measure X)] [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
+    IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
+  use Measurable.aestronglyMeasurable (measurable_K_right x)
+  rw [hasFiniteIntegral_def]
+  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, ‖K x y‖ₑ
+    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R},
+          ENNReal.ofReal (C_K a / volume.real (ball x r)) := by
+      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
+      rw [← ENNReal.ofReal_norm]
+      refine ENNReal.ofReal_le_ofReal <| (norm_K_le_vol_inv x y).trans ?_
+      gcongr
+      · exact (C_K_pos a).le
+      · rw [measureReal_def]
+        apply ENNReal.toReal_pos (ne_of_gt <| measure_ball_pos volume x hr)
+        exact measure_ball_ne_top x r
+      · exact measureReal_mono (ball_subset_ball hy.1)
+    _ < _ := by
+      rw [lintegral_const]
+      apply ENNReal.mul_lt_top ENNReal.ofReal_lt_top
+      rw [Measure.restrict_apply MeasurableSet.univ, univ_inter]
+      refine (Ne.lt_top fun h ↦ ?_)
+      have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by
+        intro y ⟨_, hy⟩
+        exact mem_closedBall_comm.mp hy
+      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
 
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show

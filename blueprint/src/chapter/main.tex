@@ -4536,7 +4536,7 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
     \uses{Hardy-Littlewood}
     For all bounded $f$ with bounded supportand all $\mfa \in \Mf$
     $$
-        \|T_{\mathcal{N}}^{\mfa} f\|_2 \le 2^{103a^3} \|f\|_2\,.
+        \|T_{\mathcal{N}}^{\mfa} f\|_2 \le 2^{102a^3} \|f\|_2\,.
     $$
 \end{lemma}
 
@@ -4607,7 +4607,7 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 Now we prove the two auxiliary lemmas. We begin with the nontangential maximal operator $T_{\mathcal{N}}$.
 
 \begin{proof}[Proof of \Cref{nontangential-operator-bound}]
-    \proves{nontangential-operator-bound}
+    \proves{nontangential-operator-bound}\leanok
     Fix $s_1, s_2$. By \eqref{eq-psisum} we have for all $x \in (0, \infty)$
     $$
         \sum_{s = s_1}^{s_2} \psi(D^{-s}x) = 1 - \sum_{s < s_1} \psi(D^{-s}x) - \sum_{s > s_1} \psi(D^{-s}x)\,.
@@ -4633,7 +4633,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
     \begin{equation}
         \label{eq-sharp-trunc-term}
-        \le \Bigg| \int_{8D^{s_1} \le \rho(x',y) \le \frac{1}{4}D^{s_2-1}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
+        \le \Bigg| \int_{8D^{s_1} < \rho(x',y) < \frac{1}{4}D^{s_2-1}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
     \end{equation}
     \begin{equation}
         \label{eq-lower-bound-term}
@@ -4643,69 +4643,46 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
         \label{eq-upper-bound-term}
         + \int_{\frac{1}{4}D^{s_2-1} \le \rho(x',y) \le \frac{1}{2}D^{s_2}} |K(x', y)| |f(y)| \, \mathrm{d}\mu(y)\,.
     \end{equation}
-    The first term \eqref{eq-sharp-trunc-term} is at most
-     $2T_{\tQ}^\mfa f(x)$ ,
-    using with $R_1:=8D^{s_1}$ and
-    $R_2:=\frac{1}{4}D^{s_2-1}$
-    and
-    \begin{equation}
-        R_1 \le  R_2<R_{\tQ}(\mfa,x')
-    \end{equation}
-    the triangle inequality in the form
-    \begin{equation}
-    \sup_{\rho(x,x')<R_1}
-        \left|\int_{R_1< \rho(x',y) < R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
-    \end{equation}
-    \begin{equation}
-    \le \sup_{\rho(x,x')<R_1}
-        \left|\int_{R_1< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
-    \end{equation}
-    \begin{equation}
-        + \sup_{\rho(x,x')<R_1}
-        \left|\int_{R_2< \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
-    \end{equation}
-    and making the second term larger by replacing the
-    constraint $\rho(x,x')<R_1$ by the constraint $\rho(x,x')<R_2$.
-
-
-    The other two terms will be estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
-    For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
+    The first term \eqref{eq-sharp-trunc-term} is at most $T_*f(x)$. The other two terms will be
+    estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
+    For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that
+    for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
     $$
         |K(x', y)| \le \frac{2^{a^3}}{\mu(B(x', \frac{1}{4}D^{s_1 - 1}))}\,.
     $$
     Using $D=2^{100a^2}$
-    and the doubling property \eqref{doublingx} $6 +100a^2$ times estimates
+    and the doubling property \eqref{doublingx} $7 +100a^2$ times estimates
     the last display by
     \begin{equation}
     \label{pf-nontangential-operator-bound-imeq}
-        \le \frac{2^{6a+101a^3}}{\mu(B(x', 16D^{s_1}))}\, .
+        \le \frac{2^{7a+101a^3}}{\mu(B(x', 32D^{s_1}))}\, .
     \end{equation}
     By the triangle inequality and \eqref{eq-vol-sp-cube}, we have
     $$
-        B(x', 8D^{s_1}) \subset B(c(I_{s_1}(x)), 16D^{s(I_{s_1}(x))})\,.
+        B(x', 8D^{s_1}) \subset B(c(I_{s_1}(x)), 16D^{s(I_{s_1}(x))}) \subset B(x', 32D^{s_1})\,.
     $$
     Combining this with \eqref{pf-nontangential-operator-bound-imeq}, we conclude that \eqref{eq-lower-bound-term} is at most
     $$
-        2^{6a + 101a^3} M_{\mathcal{B},1} f(x)\,.
+        2^{7a + 101a^3} M_{\mathcal{B},1} f(x)\,.
     $$
 
-    For \eqref{eq-upper-bound-term} we argue similarly. We have for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_2}$
+    For \eqref{eq-upper-bound-term} we argue similarly. We have for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_2-1}$
     $$
-        |K(x', y)| \le \frac{2^{a^3}}{\mu(B(x', \frac{1}{4}D^{s_2}))}\,.
+        |K(x', y)| \le \frac{2^{a^3}}{\mu(B(x', \frac{1}{4}D^{s_2-1}))}\,.
     $$
-    Using the doubling property \eqref{doublingx} $6 + 100a^2$ times estimates
+    Using the doubling property \eqref{doublingx} $7 + 100a^2$ times estimates
     the last display by
     \begin{equation}
-        \le \frac{2^{6a + 101a^3}}{\mu(B(x', 16 D^{s_2}))}\, .
+        \le \frac{2^{7a + 101a^3}}{\mu(B(x', 32 D^{s_2}))}\, .
     \end{equation}
     Note that by \eqref{dyadicproperty} we have $I_{s_1}(x) \subset I_{s_2}(x)$, in particular $x' \in I_{s_2}(x)$.
     By the triangle inequality and \eqref{eq-vol-sp-cube}, we have
     $$
-        B(x', 8D^{s_2}) \subset B(c(I_{s_2}(x)), 16D^{s(I_{s_2}(x))})\,.
+        B(x', 8D^{s_2}) \subset B(c(I_{s_2}(x)), 16D^{s(I_{s_2}(x))}) \subset B(x', 32D^{s_2})\,.
     $$
     Combining this, \eqref{eq-upper-bound-term} is at most
     $$
-        2^{6a+101a^3} M_{\mathcal{B},1} f(x)\,.
+        2^{7a+101a^3} M_{\mathcal{B},1} f(x)\,.
     $$
 
     Using $a \ge 4$, taking a supremum over all $x' \in I_{s_1}(x)$ and then a supremum over all $-S \le s_1 < s_2 \le S$, we obtain
@@ -6227,9 +6204,9 @@ Recall that $\tau = 1/a$.
 
 
 \begin{proof}
-   Define for $x,y\in X$ the Lipschitz and thus measurable function
-     \begin{equation}
-           L(x,y) := \max\{0, 1 - \frac{\rho(x,y)}{tR}\}\, .
+    Define for $x,y\in X$ the Lipschitz and thus measurable function
+    \begin{equation}
+        L(x,y) := \max\{0, 1 - \frac{\rho(x,y)}{tR}\}\, .
     \end{equation}
 We have that $L(x,y)\neq 0$ implies
 \begin{equation}\label{eql01}
@@ -6237,15 +6214,15 @@ We have that $L(x,y)\neq 0$ implies
 \end{equation}
 We have for $y\in B(x, 2^{-1}tR)$ that
 \begin{equation}\label{eql30}
-           |L(x,y)|\ge 2^{-1} \ .
-    \end{equation}
+    |L(x,y)|\ge 2^{-1} \ .
+\end{equation}
 Hence
 \begin{equation}
     \int L(x,y) \, \mathrm{d}\mu(y)\ge 2^{-1}\mu(B(x, 2^{-1}tR))\, .
 \end{equation}
  Let $n$ be the smallest integer so that
  \begin{equation}\label{2nt1}
-     2^nt\ge 1\, .
+    2^n t\ge 1\, .
  \end{equation}
  Iterating $n+2$ times the doubling condition \eqref{doublingx}, we obtain
  \begin{equation}\label{eql32}
@@ -6771,7 +6748,9 @@ For the remainder of this chapter, fix an integer $a\ge 4$, a doubling metric me
 
 The following lemma is proved in \Cref{subsec-cotlar}.
 \begin{lemma}[nontangential-from-simple]\label{nontangential-from-simple}
-    \uses{simple-nontangential-operator, tang-unm-op-ball-diff}
+    \leanok
+    \lean{nontangential_from_simple}
+    \uses{simple-nontangential-operator, nontangential-operator-boundary}
     Assume \eqref{two-sided-Hr-bound-assumption} holds.
     Then, for every bounded measurable function $g : X \to \C$ supported on a set of finite measure we have
     \begin{equation}\label{concretetstarbound}
@@ -6808,8 +6787,10 @@ The following lemma is proved in \Cref{subsec-cotlar}.
 \end{proof}
 
 The proof of \Cref{nontangential-from-simple} relies on the following auxiliary lemma which is proved in \Cref{subsec-CZD}.
-\begin{lemma}[Weak 1 1]
-    \label{weak-1-1}
+\begin{lemma}[Calderon-Zygmund Weak (1, 1)]
+    \label{calderon-zygmund-weak-1-1}
+    \leanok
+    \lean{czoperator_weak_1_1}
     \uses{Calderon-Zygmund-decomposition,estimate-bad,estimate-good}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure and assume for some $r>0$ that for every bounded measurable function $g:X\to\C$ supported on a set of finite measure,
     \begin{equation}
@@ -6822,16 +6803,18 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
         \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)\le \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
     \end{equation}
 \end{lemma}
-Throughout \Cref{subsec-CZD,subsec-cotlar}, for any measurable bounded function $w: X \to \C$, let $Mw: X \to [0, \infty)$ denote the corresponding Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood}.
-Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD,subsec-cotlar} have no dependencies in the previous chapters.
+Throughout \Cref{subsec-CZD} and \Cref{subsec-cotlar}, for any measurable bounded function $w: X \to \C$, let $Mw: X \to [0, \infty)$ denote the corresponding Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood}.
+Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD} and \Cref{subsec-cotlar} have no dependencies in the previous chapters.
 
 
 
 \section{Proof of Cotlar's Inequality}
 \label{subsec-cotlar}
 
-\begin{lemma}
+\begin{lemma}[geometric series estimate]
     \label{geometric-series-estimate}
+    \leanok
+    \lean{geometric_series_estimate}
     For all real numbers $x\ge 4$,
     \begin{equation*}
         \sum_{n=0}^\infty 2^{-\frac{n}{x}} \le 2^x.
@@ -6854,6 +6837,8 @@ Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD,subsec-cotlar} have no depe
 
 \begin{lemma}[estimate x shift]
 \label{estimate-x-shift}
+\leanok
+\lean{estimate_x_shift}
 \uses{geometric-series-estimate}
 Let $0<r$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure.
 Then for all $x'$ with $\rho(x,x')\le r$.
@@ -6958,6 +6943,8 @@ proves the lemma.
 
 \begin{lemma}[Cotlar control]
 \label{Cotlar-control}
+\leanok
+\lean{cotlar_control}
 \uses{estimate-x-shift}
 Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure.
 Then for all $x'\in X$ with $\rho(x,x')\le\frac {R}{4}$ we have
@@ -7024,7 +7011,9 @@ By the triangle inequality, \eqref{eq-cotlar-control} follows now from \eqref{eq
 
 \begin{lemma}[Cotlar sets]
 \label{Cotlar-sets}
-\uses{weak-1-1}
+\leanok
+\lean{cotlar_set_F₁, cotlar_set_F₂}
+\uses{calderon-zygmund-weak-1-1}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds. Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure.
 Then the measure $|F_1|$ of the set $F_1$ of all $x'\in B(x,\frac {R} 4)$ such that
 \begin{equation}
@@ -7060,7 +7049,7 @@ Dividing by $M(T_rg)(x)$ gives
 \end{equation}
 This gives the desired bound for the measure of $F_1$.
 We turn to the set $F_2$. Similarly as above we may assume $Mg(x)>0$.
-The set $F_2$ is then estimated with \Cref{weak-1-1} by
+The set $F_2$ is then estimated with \Cref{calderon-zygmund-weak-1-1} by
 \begin{equation}
    \frac {2^{a^3+19a}}{2^{a^3 + 20a + 2}Mg(x)}\int |g\mathbf{1}_{B(x,\frac {R}2)}|(y)\, d\mu(y)
 \end{equation}
@@ -7072,6 +7061,8 @@ This gives the desired bound for the measure of $F_2$.
 
 \begin{lemma}[Cotlar estimate]
 \label{Cotlar-estimate}
+\leanok
+\lean{cotlar_estimate}
 \uses{Cotlar-control, Cotlar-sets}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function supported on a set of finite measure. Then
@@ -7098,6 +7089,8 @@ This proves the lemma.
 \end{proof}
 
 \begin{lemma}[simple nontangential operator]\label{simple-nontangential-operator}
+\leanok
+\lean{simple_nontangential_operator}
 \uses{Hardy-Littlewood,Cotlar-estimate}
 Assume that \eqref{two-sided-Hr-bound-assumption} holds.
 For every  $r>0$ and every bounded measurable function $g$ supported on a set of finite measure we have
@@ -7136,7 +7129,9 @@ This shows \eqref{trzerobound} and completes the proof of the lemma.
 \end{proof}
 %fixme: Change location of next argument?
 In order to pass from the one-sided truncation in $T_r$ and $T_{*}^r$ to the two-sided truncation in $T_*$, we show in the following two lemmas that the integral in \eqref{def-tang-unm-op} can be exchanged for an integral over the difference of two balls.
-\begin{lemma} \label{small-annulus}
+\begin{lemma}[small annulus] \label{small-annulus}
+    \leanok
+    \lean{small_annulus_right, small_annulus_left}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure.
     Let $x\in X$ and $R>0$.
     Then, for all $\epsilon>0$, there exists some $\delta>0$ such that
@@ -7158,7 +7153,10 @@ Note that the integrand is bounded in $X\setminus B(x,\frac{R}{2})$. So for $0<\
 By continuity from above of $\mu$, the right factor becomes arbitrarily small as $\delta\rightarrow 0$. Thus, for small enough $\delta$, the whole expression is $\le\epsilon$.
 \end{proof}
 
-\begin{lemma}\label{tang-unm-op-ball-diff}
+\begin{lemma}[nontangential operator boundary]
+    \label{nontangential-operator-boundary}
+    \leanok
+    \lean{nontangential_operator_boundary}
     \uses{small-annulus}
     Let $f:X\to\C$ be a bounded measurable function supported on a set of finite measure.
     For all $x\in X$,
@@ -7215,7 +7213,7 @@ where
     T_*^{0} g(x):=\sup_{0<R}\sup_{x'\in B(x,R)} \left|\int_{X\setminus B(x',R)}
 K(x',y) g(y)\, d\mu(y)\right|\, .
 \end{equation}
-We now write using \Cref{tang-unm-op-ball-diff} and the triangle inequality,
+We now write using \Cref{nontangential-operator-boundary} and the triangle inequality,
 \begin{alignat*}{3}\label{concretetstartriangle}
     T_* g(x)\le&&&\sup_{0<R_1<R_2}\sup_{x'\in B(x,R_1)} \left|\int_{X\setminus B(x',R_1)}K(x',y) g(y)\, d\mu(y)\right| \\
 &+&&\sup_{0<R_1<R_2}\sup_{x'\in B(x,R_1)} \left|\int_{X\setminus B(x',R_2)} K(x',y) g(y)\, d\mu(y)\right|\, .
@@ -7510,7 +7508,7 @@ Finally, by \Cref{maximal-theorem},
 which shows \eqref{eq-bset-length-sum}.
 \end{proof}
 
-We use \Cref{Calderon-Zygmund-decomposition} to prove \Cref{weak-1-1}. For the remainder of this section, let $f:X\to\C$, $r>0$ and $\alpha>0$ as in the lemma.
+We use \Cref{Calderon-Zygmund-decomposition} to prove \Cref{calderon-zygmund-weak-1-1}. For the remainder of this section, let $f:X\to\C$, $r>0$ and $\alpha>0$ as in the lemma.
 We define the constant
 \begin{equation} \label{weak-1-1-proof-cz-const}
     c:= 2^{-a^3-12a-4}
@@ -7774,8 +7772,8 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     The claim now follows from \eqref{eq-set-dec-2}, \eqref{eq-set-dec-3} and \eqref{eq-F-X-minus-Omega}.
 \end{proof}
 
-\begin{proof}[Proof of \Cref{weak-1-1}]
-\proves{weak-1-1}
+\begin{proof}[Proof of \Cref{calderon-zygmund-weak-1-1}]
+\proves{calderon-zygmund-weak-1-1}
 It follows by the triangle inequality and subadditivity of $\mu$ that
 \begin{equation*}
     \mu\left(\{x\in X: |T_r f(x)|>\alpha\}\right)
@@ -8015,12 +8013,15 @@ across the following subsections.
 
 \begin{lemma}[mean zero oscillation]
 \label{mean-zero-oscillation}
+\leanok
+\lean{mean_zero_oscillation}
 Let $n\in \mathbb{Z}$ with $n\neq 0$, then
 \begin{equation}
 \int_0^{2\pi} e^{inx}\, dx=0\,.
 \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 We have
 \begin{equation*}
 \int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac 1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
@@ -8106,6 +8107,8 @@ The following lemma will be proved in \Cref{10projection}.
 
 \begin{lemma}[spectral projection bound]
 \label{spectral-projection-bound}
+\leanok
+\lean{spectral_projection_bound}
 \uses{partial-sum-projection,partial-sum-selfadjoint}
 %\lean{spectral_projection_bound}
     Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
@@ -8283,6 +8286,8 @@ Define the approximate Hilbert transform by
 
 \begin{lemma}[modulated averaged projection]
 \label{modulated-averaged-projection}
+\leanok
+\lean{modulated_averaged_projection}
 \uses{spectral-projection-bound}
 We have for every bounded measurable $2\pi$-periodic function $g$
 \begin{equation}\label{lnbound}
@@ -8347,6 +8352,8 @@ This proves the first identity of the lemma. The second identity follows by subs
 
 
 \begin{lemma}[Young convolution]\label{Young-convolution}
+\leanok
+\lean{young_convolution}
 \uses{periodic-domain-shift}
     Let $f$ and $g$ be two bounded non-negative measurable $2\pi$-periodic functions on $\R$. Then
     \begin{equation}\label{eqyoung}
@@ -8386,11 +8393,13 @@ Taking square roots, this proves the lemma.
 
 For $0<r<1$, Define the kernel $k_r$ to be the $2\pi$-periodic function
 \begin{equation}
-    |k_r(x)|:=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
+    k_r(x):=\min \left(r^{-1}, 1+\frac r{|1-e^{ix}|^2}\right)\, ,
 \end{equation}
 where the minimum is understood to be $r^{-1}$ in case $1=e^{ix}$.
 \begin{lemma}[integrable bump convolution]
 \label{integrable-bump-convolution}
+\leanok
+\lean{integrable_bump_convolution}
 \uses{Young-convolution}
 Let $g,f$ be bounded measurable $2\pi$-periodic functions. Let $0<r<\pi$.
 Assume we have for all $0\le x\le 2\pi$
@@ -8431,6 +8440,8 @@ is equal to
 
 \begin{lemma}[Dirichlet approximation]\label{Dirichlet-approximation}
 \uses{Dirichlet-kernel,lower-secant-bound}
+\leanok
+\lean{continuous_dirichletApprox, periodic_dirichletApprox, approxHilbertTransform_eq_dirichletApprox, dist_dirichletApprox_le}
 Let $0<r<1$. Let $N$ be the smallest
 integer larger than $\frac 1r$.
 There is a $2\pi$-periodic continuous function
@@ -8681,6 +8692,8 @@ This subsection proves \Cref{spectral-projection-bound}
 
 \begin{lemma}[partial sum projection]
 \label{partial-sum-projection}
+\leanok
+\lean{partial_sum_projection}
 \uses{mean-zero-oscillation}
   Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{projection}
@@ -8725,6 +8738,8 @@ This proves the lemma.
 \end{proof}
 \begin{lemma}[partial sum selfadjoint]
 \label{partial-sum-selfadjoint}
+\leanok
+\lean{partial_sum_selfadjoint}
 \uses{Dirichlet-kernel}
     We have for any $2\pi$-periodic bounded measurable $g,f$ that
     \begin{equation}
@@ -8755,6 +8770,9 @@ g(x)\, dx dy
 
 We turn to the proof of Lemma
 \ref{spectral-projection-bound}.
+
+\begin{proof}[Proof of \Cref{spectral-projection-bound}]
+\proves{spectral-projection-bound}
 
 We have with \Cref{partial-sum-selfadjoint}, then \Cref{partial-sum-projection} and the \Cref{partial-sum-selfadjoint} again
 \begin{equation*}
@@ -8789,7 +8807,7 @@ As \eqref{diffnorm} has nonnegative integrand and is thus nonnegative, we conclu
 \end{equation}
 As both sides are positive, we may take the square root of this inequality.
 This completes the proof of the lemma.
-
+\end{proof}
 
 
 
