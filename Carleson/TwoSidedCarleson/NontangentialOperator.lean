@@ -1,4 +1,6 @@
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
+import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
+
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
@@ -18,10 +20,163 @@ variable (K) in
 def simpleNontangentialOperator (r : ℝ) (g : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R > r) (x' ∈ ball x R), ‖CZOperator K R g x'‖ₑ
 
+-- theorem Real.rpow_mul' {x : ℝ} (hx : 0 ≤ x) (y : ℝ) (n : ℕ) :
+--     x ^ (y * n) = (x ^ y) ^ n := by
+--   exact rpow_mul_natCast hx y n
+
+example (a b c : ℝ) (hc : 0 < c ) : a * c ≤ b * c ↔ a ≤ b := by
+  exact mul_le_mul_iff_of_pos_right hc
+
+example (a b : ℕ) (hc : a < b ) : (a : ℝ) < (b : ℝ) := by
+  exact Nat.cast_lt.mpr hc
+
+example (a b : ℕ) (hc : a < b ) : (a : ℝ) < (b : ℝ) := by
+  exact Nat.cast_lt.mpr hc
+
+theorem Real.two_mul_lt_two_pow (x : ℝ) (hx : 7 ≤ x) :
+    (2 : ℝ) * x ≤ 2 ^ x := by
+
+  calc
+    _ ≤ (x - 6 : ℝ) * 2 ^ 5 := by
+      norm_num
+      linarith
+    _ ≤ (⌊x - 5⌋₊ : ℕ) * 2 ^ 5 := by
+      have := Nat.sub_one_lt_floor (x - 5 : ℝ)
+      linarith
+    _ ≤ (2 : ℝ) ^ (⌊x - 5⌋₊) * 2 ^ 5 := by
+      rw [mul_le_mul_iff_of_pos_right (by linarith)]
+      apply le_of_lt
+      have := Nat.lt_two_pow_self (n := ⌊x - 5⌋₊)
+      rw [<-Nat.cast_lt (α := ℝ)] at this
+      push_cast at this
+      exact this
+    _ = 2 ^ (⌊x - 5⌋₊ + 5) := by
+      rw [<-pow_add]
+    _ = 2 ^ (((⌊x - 5⌋₊ + 5) : ℕ) : ℝ) := by
+      exact Eq.symm (rpow_natCast 2 (⌊x - 5⌋₊ + 5))
+    _ = 2 ^ (((⌊x - 5⌋₊ + 5)) : ℝ) := by
+      push_cast
+      congr
+    _ ≤ 2 ^ (x - 5 + 5) := by
+      have : (⌊x - 5⌋₊ + 5) ≤ (x - 5 + 5) := by
+        simp only [sub_add_cancel]
+        have h05 : 0 ≤ x - 5 := by linarith
+        have := Nat.floor_le (α := ℝ) h05
+        linarith
+      have two_pos : 1 ≤ (2 : ℝ) := by linarith
+      exact rpow_le_rpow_of_exponent_le two_pos this
+    _ = 2 ^ x := by
+      congr
+      ring
+
+lemma geom_estimate_constant_le_two :
+    (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ ≤ (2 : ℝ) := by
+  -- simp only [mul_inv_rev]
+  -- rw [mul_inv_le_iff₀]
+  -- norm_num
+  -- rw [inv_le_comm₀]
+  -- rw [le_sub_iff_add_le]
+  -- rw [add_comm]
+  -- rw [<-le_sub_iff_add_le]
+  -- norm_num
+  -- sorry
+  -- sorry
+  sorry
+
+theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
+    tsum (fun (n : ℕ) ↦ (2 : ℝ) ^ (-n / x)) ≤ 2 ^ x := by
+
+  have : ∑' (n : ℕ), (2 : ℝ) ^ (-n / x) = ∑' (n : ℕ), ((2 : ℝ) ^ (-1 / x)) ^ n := by
+    congr
+    ext n
+    -- simp only [NNReal.coe_rpow, NNReal.coe_ofNat, NNReal.coe_pow]
+    rw [<- Real.rpow_mul_natCast (by linarith)]
+    congr
+    ring
+  rw [this]
+
+  have zero_le_two_pow_neg_inv : 0 ≤ (2 : ℝ) ^ (-1 / x) := by
+    positivity
+
+  have two_pow_neg_inv_lt_one : (2 : ℝ) ^ (-1 / x) < 1 := by
+    apply Real.rpow_lt_one_of_one_lt_of_neg
+    · simp
+    · rw [neg_div]
+      simp only [one_div, Left.neg_neg_iff, inv_pos]
+      positivity
+
+  rw [tsum_geometric_of_lt_one (by assumption) (by assumption)]
+
+
+  -- By convexity, for all 0 ≤ λ ≤ 1, we have ...
+  have two_pow_convex := ConvexOn_rpow_left (2 : ℝ) (by linarith)
+  rcases two_pow_convex with ⟨_, two_pow_convex⟩
+  have h := two_pow_convex
+               (x := (-1/4 : ℝ)) (by simp)
+               (y := 0) (by simp)
+               (a := 4/x)
+               (b := 1 - 4/x)
+               (by positivity)
+               (by
+                 simp only [sub_nonneg]
+                 rw [div_le_iff₀]
+                 linarith
+                 positivity
+                )
+               (by ring)
+  simp only [smul_eq_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, div_mul_div_cancel₀',
+    mul_zero, add_zero, Real.rpow_zero, mul_one] at h
+
+  have : 4 / x * 2 ^ (-1 / 4 : ℝ) + (1 - 4 / x) = 1 - 4 / x * (1 - 2 ^ (-1 / 4 : ℝ)) := by
+    ring
+  rw [this] at h
+  clear this
+  have h2 : 4 / x * (1 - 2 ^ (-1 / 4 : ℝ)) ≤ 1 - 2 ^ (-1 / x) := by
+    linarith
+  have h3 : ((1 : ℝ) - 2 ^ (-1 / x))⁻¹ ≤ (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ := by
+    rw [inv_le_inv₀]
+    · exact h2
+    · linarith
+    · apply @_root_.mul_pos
+      positivity
+      norm_num
+      apply Real.rpow_lt_one_of_one_lt_of_neg
+      · simp
+      · linarith
+  simp only [ge_iff_le]
+  apply le_trans h3 _
+  have h4 : (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ = (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ * x := by
+    field_simp
+  rw [h4]
+
+  have h5' : (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ ≤ (2 : ℝ) := by
+    exact geom_estimate_constant_le_two
+
+  have h5 : (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ * x ≤ 2 * x := by
+    nlinarith
+
+  apply le_trans h5 _
+
+  by_cases h5_lt_x : 7 ≤ x
+  · exact Real.two_mul_lt_two_pow x h5_lt_x
+  ·
+    calc
+      _ ≤ (14 : ℝ) := by linarith
+      _ ≤ (16 : ℝ) := by linarith
+      _ = 2 ^ (4 : ℝ) := by norm_num
+      _ ≤ _ := by
+        apply Real.rpow_le_rpow_of_exponent_le
+        · linarith
+        · linarith
+
+
 /-- Lemma 10.1.1 -/
 theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
-    tsum (fun n ↦ (2 : ℝ≥0) ^ (-n / x)) ≤ 2 ^ x := by
-  sorry
+    tsum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) ≤ 2 ^ x := by
+  suffices this : ((tsum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) : ℝ≥0) : ℝ) ≤ (((2 ^ x) : ℝ≥0) : ℝ) by
+    exact this
+  push_cast
+  exact real_geometric_series_estimate hx
 
 /-- The constant used in `estimate_x_shift`. -/
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 1)
