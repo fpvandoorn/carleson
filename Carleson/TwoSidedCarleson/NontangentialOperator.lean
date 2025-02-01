@@ -20,19 +20,6 @@ variable (K) in
 def simpleNontangentialOperator (r : ℝ) (g : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R > r) (x' ∈ ball x R), ‖CZOperator K R g x'‖ₑ
 
--- theorem Real.rpow_mul' {x : ℝ} (hx : 0 ≤ x) (y : ℝ) (n : ℕ) :
---     x ^ (y * n) = (x ^ y) ^ n := by
---   exact rpow_mul_natCast hx y n
-
-example (a b c : ℝ) (hc : 0 < c ) : a * c ≤ b * c ↔ a ≤ b := by
-  exact mul_le_mul_iff_of_pos_right hc
-
-example (a b : ℕ) (hc : a < b ) : (a : ℝ) < (b : ℝ) := by
-  exact Nat.cast_lt.mpr hc
-
-example (a b : ℕ) (hc : a < b ) : (a : ℝ) < (b : ℝ) := by
-  exact Nat.cast_lt.mpr hc
-
 theorem Real.two_mul_lt_two_pow (x : ℝ) (hx : 7 ≤ x) :
     (2 : ℝ) * x ≤ 2 ^ x := by
 
