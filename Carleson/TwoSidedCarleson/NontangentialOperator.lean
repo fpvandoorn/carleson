@@ -60,39 +60,33 @@ lemma geom_estimate_constant_le_two :
     (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ ≤ (2 : ℝ) := by
   simp only [mul_inv_rev]
   rw [mul_inv_le_iff₀]
-  norm_num
-  rw [inv_le_comm₀]
-  rw [le_sub_iff_add_le]
-  rw [add_comm]
-  rw [<-le_sub_iff_add_le]
-  rw [neg_eq_neg_one_mul]
-  rw [mul_comm]
-  rw [Real.rpow_mul]
-  rw [Real.rpow_neg_one]
-  rw [inv_le_comm₀]
-  simp
-  norm_num
-  apply le_of_pow_le_pow_left₀ (n := 4)
-  norm_num
-  positivity
-  simp
-  have : ((2 : ℝ) ^ (4 : ℝ)⁻¹) ^ 4 = 2 := by
-    convert Real.rpow_inv_natCast_pow (x := 2) (n := 4) (by norm_num) (by norm_num)
-  rw [this]
-  clear this
-  norm_num
-  positivity
-  norm_num
-  norm_num
-  norm_num
-  -- norm_num
-  apply Real.rpow_lt_one_of_one_lt_of_neg
-  · simp
-  · linarith
-  norm_num
+  · norm_num
+    rw [inv_le_comm₀]
+    · rw [le_sub_iff_add_le, add_comm, <-le_sub_iff_add_le,
+          neg_eq_neg_one_mul, mul_comm, Real.rpow_mul]
+      · rw [Real.rpow_neg_one]
+        rw [inv_le_comm₀]
+        · simp only [one_div]
+          norm_num
+          apply le_of_pow_le_pow_left₀ (n := 4)
+          · norm_num
+          · positivity
+          · simp only [one_div]
+            have : ((2 : ℝ) ^ (4 : ℝ)⁻¹) ^ 4 = 2 := by
+              convert Real.rpow_inv_natCast_pow (x := 2) (n := 4) (by norm_num) (by norm_num)
+            rw [this]
+            clear this
+            norm_num
+        · positivity
+        norm_num
+      · norm_num
+    · norm_num
+      apply Real.rpow_lt_one_of_one_lt_of_neg
+      · simp
+      · linarith
+    · norm_num
   norm_num
 
-  done
 
 
 theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
