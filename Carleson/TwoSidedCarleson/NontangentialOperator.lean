@@ -24,7 +24,7 @@ theorem Real.two_mul_lt_two_pow (x : ℝ) (hx : 2 ≤ x) :
     (2 : ℝ) * x ≤ 2 ^ x := by
   calc
     _ ≤ (1 + (x - 1) * 1) * 2 := by linarith
-    _ ≤ (1 + 1 : ℝ) ^ (x - 1) * 2 := by 
+    _ ≤ (1 + 1 : ℝ) ^ (x - 1) * 2 := by
       gcongr
       apply one_add_mul_self_le_rpow_one_add (by norm_num) (by linarith)
     _ ≤ (2 : ℝ) ^ (x - 1) * (2 : ℝ) ^ (1 : ℝ) := by norm_num
@@ -120,7 +120,7 @@ theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
 
   apply le_trans h5 _
 
-  by_cases h5_lt_x : 7 ≤ x
+  by_cases h5_lt_x : 2 ≤ x
   · exact Real.two_mul_lt_two_pow x h5_lt_x
   ·
     calc
