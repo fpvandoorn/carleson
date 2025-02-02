@@ -20,41 +20,17 @@ variable (K) in
 def simpleNontangentialOperator (r : ℝ) (g : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R > r) (x' ∈ ball x R), ‖CZOperator K R g x'‖ₑ
 
-theorem Real.two_mul_lt_two_pow (x : ℝ) (hx : 7 ≤ x) :
+theorem Real.two_mul_lt_two_pow (x : ℝ) (hx : 2 ≤ x) :
     (2 : ℝ) * x ≤ 2 ^ x := by
-
   calc
-    _ ≤ (x - 6 : ℝ) * 2 ^ 5 := by
+    _ ≤ (1 + (x - 1) * 1) * 2 := by linarith
+    _ ≤ (1 + 1 : ℝ) ^ (x - 1) * 2 := by 
+      gcongr
+      apply one_add_mul_self_le_rpow_one_add (by norm_num) (by linarith)
+    _ ≤ (2 : ℝ) ^ (x - 1) * (2 : ℝ) ^ (1 : ℝ) := by norm_num
+    _ ≤ _ := by
+      rw [← rpow_add (by positivity)]
       norm_num
-      linarith
-    _ ≤ (⌊x - 5⌋₊ : ℕ) * 2 ^ 5 := by
-      have := Nat.sub_one_lt_floor (x - 5 : ℝ)
-      linarith
-    _ ≤ (2 : ℝ) ^ (⌊x - 5⌋₊) * 2 ^ 5 := by
-      rw [mul_le_mul_iff_of_pos_right (by linarith)]
-      apply le_of_lt
-      have := Nat.lt_two_pow_self (n := ⌊x - 5⌋₊)
-      rw [<-Nat.cast_lt (α := ℝ)] at this
-      push_cast at this
-      exact this
-    _ = 2 ^ (⌊x - 5⌋₊ + 5) := by
-      rw [<-pow_add]
-    _ = 2 ^ (((⌊x - 5⌋₊ + 5) : ℕ) : ℝ) := by
-      exact Eq.symm (rpow_natCast 2 (⌊x - 5⌋₊ + 5))
-    _ = 2 ^ (((⌊x - 5⌋₊ + 5)) : ℝ) := by
-      push_cast
-      congr
-    _ ≤ 2 ^ (x - 5 + 5) := by
-      have : (⌊x - 5⌋₊ + 5) ≤ (x - 5 + 5) := by
-        simp only [sub_add_cancel]
-        have h05 : 0 ≤ x - 5 := by linarith
-        have := Nat.floor_le (α := ℝ) h05
-        linarith
-      have two_pos : 1 ≤ (2 : ℝ) := by linarith
-      exact rpow_le_rpow_of_exponent_le two_pos this
-    _ = 2 ^ x := by
-      congr
-      ring
 
 lemma geom_estimate_constant_le_two :
     (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ ≤ (2 : ℝ) := by
