@@ -111,7 +111,7 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
   exact real_geometric_series_estimate hx
 
 /-- The constant used in `estimate_x_shift`. -/
-irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 1)
+irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
 
 /-- Lemma 10.1.2 -/
 theorem estimate_x_shift (ha : 4 ≤ a)
@@ -119,6 +119,33 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     nndist (czOperator K r g x) (czOperator K r g x') ≤
     C10_1_2 a * globalMaximalFunction volume 1 g x := by
   sorry
+/-! Breakdown from PDF
+  Split first domain in parts > set work
+    part 1 r < d x y < 2r
+    part 2 2r < d x y
+  Split 2nd domain in parts > set work
+    part 1 r < d x' y and r < d x y < 2r
+    part 2 r < d x' y and 2r < d x y which is 2r < d x y by triangle ineq
+  Split integrals accordingly (sum of disjoint) obtain 10.1.234
+
+  10.1.2 estimate
+    Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
+    Doubling measure, larger domain pos function 10.1.6, Mg + def of integral of unit 10.1.7
+
+  10.1.4 estimate
+    Use def CZ kernel 10.0.14, def V, estimate 1/V by 1/B(x',r)
+    Doubling measure twice, larger domain pos function, Mg + def integral of unit 10.1.8
+
+  10.1.3 estimate
+    Use def CZ kernel 10.0.1 (check hyp) 10.1.9
+    Split domain in infinite parts > set work 10.1.10
+    Estimate term 1/V by 1/B(x,2^j r), d xx'/d xy by 1/2^j 10.1.11
+    Doubling measure, larger domain pos function 10.1.12
+    Mg + def integral of unit + sum factor 10.1.13
+    Lemma 10.1.1 > 10.1.14
+
+  Total = sum of estimates ? 2(a3 + a) + 2(a3+2a) + 2(a3+2a) le 2(a3+2a+2)
+-/
 
 /-- The constant used in `cotlar_control`. -/
 irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
