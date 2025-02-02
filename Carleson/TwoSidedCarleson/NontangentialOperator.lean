@@ -44,22 +44,8 @@ lemma geom_estimate_constant_le_two :
     _ ≤ ((4 : ℝ) * (1 - 7 / 8))⁻¹ := by gcongr
     _ ≤ _ := by norm_num
 
-
-
 theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
     tsum (fun (n : ℕ) ↦ (2 : ℝ) ^ (-n / x)) ≤ 2 ^ x := by
-
-  have : ∑' (n : ℕ), (2 : ℝ) ^ (-n / x) = ∑' (n : ℕ), ((2 : ℝ) ^ (-1 / x)) ^ n := by
-    congr
-    ext n
-    -- simp only [NNReal.coe_rpow, NNReal.coe_ofNat, NNReal.coe_pow]
-    rw [<- Real.rpow_mul_natCast (by linarith)]
-    congr
-    ring
-  rw [this]
-
-  have zero_le_two_pow_neg_inv : 0 ≤ (2 : ℝ) ^ (-1 / x) := by
-    positivity
 
   have two_pow_neg_inv_lt_one : (2 : ℝ) ^ (-1 / x) < 1 := by
     apply Real.rpow_lt_one_of_one_lt_of_neg
@@ -68,70 +54,53 @@ theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
       simp only [one_div, Left.neg_neg_iff, inv_pos]
       positivity
 
-  rw [tsum_geometric_of_lt_one (by assumption) (by assumption)]
+  have zero_le_one_sub_four_div_x : 0 ≤ 1 - 4 / x := by
+    simp only [sub_nonneg]
+    rw [div_le_iff₀]
+    · simp only [one_mul]
+      exact hx
+    · positivity
 
+  have one_sub_two_pow_neg_one_div_four_pos : 0 < 1 - (2 : ℝ) ^ (-1 / 4 : ℝ) := by
+    norm_num
+    apply Real.rpow_lt_one_of_one_lt_of_neg
+    · simp
+    · norm_num
 
   -- By convexity, for all 0 ≤ λ ≤ 1, we have ...
-  have two_pow_convex := ConvexOn_rpow_left (2 : ℝ) (by linarith)
-  rcases two_pow_convex with ⟨_, two_pow_convex⟩
-  have h := two_pow_convex
+  have two_pow_convex := (ConvexOn_rpow_left (2 : ℝ) (by linarith only)).2
+  have two_pow_neg_one_div_bound := two_pow_convex
                (x := (-1/4 : ℝ)) (by simp)
                (y := 0) (by simp)
                (a := 4/x)
                (b := 1 - 4/x)
                (by positivity)
-               (by
-                 simp only [sub_nonneg]
-                 rw [div_le_iff₀]
-                 linarith
-                 positivity
-                )
+               (zero_le_one_sub_four_div_x)
                (by ring)
   simp only [smul_eq_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, div_mul_div_cancel₀',
-    mul_zero, add_zero, Real.rpow_zero, mul_one] at h
+    mul_zero, add_zero, Real.rpow_zero, mul_one] at two_pow_neg_one_div_bound
 
-  have : 4 / x * 2 ^ (-1 / 4 : ℝ) + (1 - 4 / x) = 1 - 4 / x * (1 - 2 ^ (-1 / 4 : ℝ)) := by
-    ring
-  rw [this] at h
-  clear this
-  have h2 : 4 / x * (1 - 2 ^ (-1 / 4 : ℝ)) ≤ 1 - 2 ^ (-1 / x) := by
-    linarith
-  have h3 : ((1 : ℝ) - 2 ^ (-1 / x))⁻¹ ≤ (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ := by
-    rw [inv_le_inv₀]
-    · exact h2
-    · linarith
-    · apply @_root_.mul_pos
-      positivity
-      norm_num
-      apply Real.rpow_lt_one_of_one_lt_of_neg
-      · simp
-      · linarith
-  simp only [ge_iff_le]
-  apply le_trans h3 _
-  have h4 : (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ = (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ * x := by
-    field_simp
-  rw [h4]
-
-  have h5' : (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ ≤ (2 : ℝ) := by
-    exact geom_estimate_constant_le_two
-
-  have h5 : (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ * x ≤ 2 * x := by
-    nlinarith
-
-  apply le_trans h5 _
-
-  by_cases h5_lt_x : 2 ≤ x
-  · exact Real.two_mul_lt_two_pow x h5_lt_x
-  ·
-    calc
-      _ ≤ (14 : ℝ) := by linarith
-      _ ≤ (16 : ℝ) := by linarith
-      _ = 2 ^ (4 : ℝ) := by norm_num
-      _ ≤ _ := by
-        apply Real.rpow_le_rpow_of_exponent_le
-        · linarith
-        · linarith
-
+  calc
+    _ = ∑' (n : ℕ), ((2 : ℝ) ^ (-1 / x)) ^ n := by
+      congr
+      ext n
+      rw [<- Real.rpow_mul_natCast (by norm_num)]
+      congr
+      ring
+    _ ≤ (1 - 2 ^ (-1 / x))⁻¹ := by
+      rw [tsum_geometric_of_lt_one (by positivity) (two_pow_neg_inv_lt_one)]
+    _ ≤ (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ := by
+      rw [inv_le_inv₀]
+      · linarith only [two_pow_neg_one_div_bound]
+      · linarith only [two_pow_neg_inv_lt_one]
+      · apply @_root_.mul_pos
+        · positivity
+        · exact one_sub_two_pow_neg_one_div_four_pos
+    _ ≤ (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ * x := by field_simp
+    _ ≤ 2 * x := mul_le_mul_of_nonneg_right geom_estimate_constant_le_two (by linarith only [hx])
+    _ ≤ 2 ^ x := by
+      apply Real.two_mul_lt_two_pow
+      linarith only [hx]
 
 /-- Lemma 10.1.1 -/
 theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
