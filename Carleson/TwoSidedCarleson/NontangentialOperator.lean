@@ -118,11 +118,30 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     nndist (czOperator K r g x) (czOperator K r g x') ≤
     C10_1_2 a * globalMaximalFunction volume 1 g x := by
+  let bxrc := (ball x r)ᶜ
+  let bx2r := ball x (2*r)
+  have dom_x : bxrc =  (bxrc ∩ bx2r) ∪ bx2rᶜ := by
+    have int1 : bx2rᶜ = bxrc ∩ bx2rᶜ := by
+      suffices bx2rᶜ ⊆ bxrc by
+        rw [Set.right_eq_inter]
+        exact this
+      suffices ball x r ⊆ bx2r by
+        rw [Set.compl_subset_compl]
+        exact this
+      apply Metric.ball_subset_ball
+      linarith
+
+
+    sorry
   sorry
 /-! Breakdown from PDF
+  Expand def
   Split first domain in parts > set work
     part 1 r < d x y < 2r
     part 2 2r < d x y
+-/
+
+/-!
   Split 2nd domain in parts > set work
     part 1 r < d x' y and r < d x y < 2r
     part 2 r < d x' y and 2r < d x y which is 2r < d x y by triangle ineq
