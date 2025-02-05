@@ -7,11 +7,12 @@ open ENNReal NNReal Function Set
 
 variable {α α' E E₁ E₂ F : Type*} [ENorm F]
 
-lemma ENNReal.ofReal_norm [SeminormedAddGroup E] (x : E) : .ofReal ‖x‖ = ‖x‖ₑ := by
-  simp_rw [ofReal_norm_eq_enorm]
+-- namespace changed! #check ofReal_norm
+-- lemma ENNReal.ofReal_norm [SeminormedAddGroup E] (x : E) : .ofReal ‖x‖ = ‖x‖ₑ := by
+--   simp_rw [ofReal_norm_eq_enorm]
 
 @[simp] lemma enorm_toReal_le {x : ℝ≥0∞} : ‖x.toReal‖ₑ ≤ x := by
-  simp [← _root_.ofReal_norm, ofReal_toReal_le]
+  simp [← ofReal_norm, ofReal_toReal_le]
 
 @[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
   simp [hx, ← ofReal_norm_eq_enorm]
@@ -51,9 +52,12 @@ export ENormedAddMonoid (enorm_eq_zero enorm_add_le)
 export ENormedAddCommSubMonoid
   (sub_add_cancel_of_enorm_le add_right_cancel_of_enorm_lt_top esub_self)
 export ENormedSpace (enorm_smul)
-attribute [simp] enorm_eq_zero enorm_smul
 
-@[simp] lemma enorm_zero {ε} [ENormedAddMonoid ε] : ‖(0 : ε)‖ₑ = 0 := by simp
+-- NB: the _root_ namespace has these lemmas also; generalise these!
+attribute [simp] ENormedAddMonoid.enorm_eq_zero ENormedSpace.enorm_smul
+
+-- XXX mathlib has this, for a SeminormedAddGroup E
+@[simp] lemma enorm_zeroCOPIED {ε} [ENormedAddMonoid ε] : ‖(0 : ε)‖ₑ = 0 := by simp
 
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
@@ -72,9 +76,6 @@ instance [NormedAddGroup E] : ENormedAddMonoid E where
   -- enorm_neg := by
   --   simp (config := {contextual := true}) [← eq_neg_iff_add_eq_zero, enorm_eq_nnnorm]
   enorm_add_le := by simp [enorm_eq_nnnorm, ← ENNReal.coe_add, nnnorm_add_le]
-
-@[simp] lemma enorm_neg [NormedAddGroup E] (x : E) : ‖-x‖ₑ = ‖x‖ₑ := by
-  simp_rw [enorm_eq_nnnorm, nnnorm_neg]
 
 instance [NormedAddCommGroup E] : ENormedAddCommMonoid E where
   add_comm := by simp [add_comm]
@@ -117,6 +118,6 @@ end ContinuousENorm
 lemma esub_zero [ENormedAddCommSubMonoid E] {x : E} : x - 0 = x := by
   rw [← add_zero (x - 0)]
   apply sub_add_cancel_of_enorm_le
-  simp_rw [enorm_zero, zero_le]
+  simp_rw [enorm_zeroCOPIED, zero_le]
 
 end MeasureTheory
