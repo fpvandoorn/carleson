@@ -113,9 +113,10 @@ protected theorem AEStronglyMeasurable.enormBETTER {f : α → E}
     (hf : AEStronglyMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   continuous_enorm.comp_aestronglyMeasurable hf |>.aemeasurable
 
-protected theorem StronglyMeasurable.enorm {f : α → E}
-    (hf : StronglyMeasurable f) : StronglyMeasurable (fun a => (‖f a‖ₑ)) :=
-  continuous_enorm.comp_stronglyMeasurable hf
+-- XXX: mathlib has this, for SeminormedAddCommGroup
+-- protected theorem StronglyMeasurable.enorm {f : α → E}
+--     (hf : StronglyMeasurable f) : StronglyMeasurable (fun a => (‖f a‖ₑ)) :=
+--   continuous_enorm.comp_stronglyMeasurable hf
 
 end ContinuousENorm
 
