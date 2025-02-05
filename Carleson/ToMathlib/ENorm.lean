@@ -7,17 +7,13 @@ open ENNReal NNReal Function Set
 
 variable {α α' E E₁ E₂ F : Type*} [ENorm F]
 
-@[simp]
-theorem enorm_mul {α : Type*} [NormedDivisionRing α] (a b : α) : ‖a * b‖ₑ = ‖a‖ₑ * ‖b‖ₑ := by
-  simp [enorm_eq_nnnorm]
-
 lemma ENNReal.ofReal_norm [SeminormedAddGroup E] (x : E) : .ofReal ‖x‖ = ‖x‖ₑ := by
-  simp_rw [enorm_eq_nnnorm, ofReal_norm_eq_coe_nnnorm]
+  simp_rw [enorm_eq_nnnorm, ofReal_norm_eq_enorm]
 
 @[simp] lemma enorm_toReal_le {x : ℝ≥0∞} : ‖x.toReal‖ₑ ≤ x := by simp [← ofReal_norm, ofReal_toReal_le]
 
 @[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
-  simp [enorm_eq_nnnorm, hx, ← ofReal_norm_eq_coe_nnnorm]
+  simp [enorm_eq_nnnorm, hx, ← ofReal_norm_eq_enorm]
 
 /-- A type `E` equipped with a continuous map `‖·‖ₑ : E → ℝ≥0∞`.
 Note: do we want to unbundle this (at least separate out `TopologicalSpace E`?)
