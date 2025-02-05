@@ -131,8 +131,11 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       apply Metric.ball_subset_ball
       linarith
 
-
-    sorry
+    calc
+      bxrc = bxrc ∩ univ        := by rw[Set.inter_univ bxrc]
+      _ = bxrc ∩ (bx2r ∪ bx2rᶜ) := by rw[Set.union_compl_self bx2r]
+      _ = (bxrc ∩ bx2r) ∪ bxrc ∩ bx2rᶜ := by rw[Set.inter_union_distrib_left bxrc bx2r bx2rᶜ]
+      _ = (bxrc ∩ bx2r) ∪ bx2rᶜ := by rw[← int1]
   sorry
 /-! Breakdown from PDF
   Expand def
