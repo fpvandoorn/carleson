@@ -206,7 +206,7 @@ private lemma endpoint_sub_one (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) < 1
 
 -- Special case of `sum_ψ`, for the case where `nonzeroS D x` has one element.
 private lemma sum_ψ₁ (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) ≥ 1 / (2 * D * x)) :
-    ∑ s in nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
+    ∑ s ∈ nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
   rw [nonzeroS, eq_endpoints hD hx h, Finset.Icc_self, Finset.sum_singleton]
   refine ψ_formula₂ hD ⟨le_of_eq_of_le (by field_simp) ((mul_le_mul_right hx).2 h), ?_⟩
   calc
@@ -223,7 +223,7 @@ private lemma sum_ψ₁ (hx : 0 < x) (h : D ^ (-⌈logb D (4 * x)⌉) ≥ 1 / (2
 -- Special case of `sum_ψ`, for the case where `nonzeroS D x` has two elements.
 private lemma sum_ψ₂ (hx : 0 < x)
     (h : D ^ (-⌈logb D (4 * x)⌉) < 1 / (2 * D * x)) :
-    ∑ s in nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
+    ∑ s ∈ nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
   -- Replace `nonzeroS D x` with `{s₀ - 1, s₀}`, where `s₀ := ⌈logb D (4 * x)⌉`
   have endpts := endpoint_sub_one hD hx h
   have ne : ⌈logb D (4 * x)⌉ - 1 ≠ ⌈logb D (4 * x)⌉ := pred_ne_self _
@@ -248,7 +248,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
   · rw [← le_div_iff₀' (D0 hD), div_div]; exact hs₀.2
 
 -- See `finsum_ψ` for the version that doesn't explicitly restrict to the support.
-lemma sum_ψ (hx : 0 < x) : ∑ s in nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
+lemma sum_ψ (hx : 0 < x) : ∑ s ∈ nonzeroS D x, ψ D (D ^ (-s) * x) = 1 := by
   by_cases h : D ^ (-⌈logb D (4 * x)⌉) ≥ 1 / (2 * D * x)
   · exact sum_ψ₁ hD hx h
   · exact sum_ψ₂ hD hx (lt_of_not_ge h)
@@ -298,11 +298,11 @@ lemma finsum_ψ (hx : 0 < x) : ∑ᶠ s : ℤ, ψ D (D ^ (-s) * x) = 1 := by
   ext
   rw [Finite.mem_toFinset, support_ψS hD hx, Finset.mem_coe]
 
-lemma sum_ψ_le (S : Finset ℤ) (hx : 0 < x) : ∑ s in S, ψ D (D ^ (-s) * x) ≤ 1 := calc
-  _ = ∑ s in S ∩ (nonzeroS D x), ψ D (D ^ (-s) * x) := by
+lemma sum_ψ_le (S : Finset ℤ) (hx : 0 < x) : ∑ s ∈ S, ψ D (D ^ (-s) * x) ≤ 1 := calc
+  _ = ∑ s ∈ S ∩ (nonzeroS D x), ψ D (D ^ (-s) * x) := by
     refine (Finset.sum_subset Finset.inter_subset_left (fun s sS hs ↦ ?_)).symm
     exact (psi_eq_zero_iff hD hx).mpr (fun h ↦ hs <| Finset.mem_inter.mpr ⟨sS, h⟩)
-  _ ≤ ∑ s in nonzeroS D x, ψ D (D ^ (-s) * x) :=
+  _ ≤ ∑ s ∈ nonzeroS D x, ψ D (D ^ (-s) * x) :=
     Finset.sum_le_sum_of_subset_of_nonneg Finset.inter_subset_right (fun _ _ _ ↦ zero_le_ψ ..)
   _ = 1 := sum_ψ hD hx
 
@@ -338,10 +338,10 @@ def Ks [ProofData a q K σ₁ σ₂ F G] (s : ℤ) (x y : X) : ℂ :=
 lemma Ks_def (s : ℤ) (x y : X) : Ks s x y = K x y * ψ (D ^ (-s) * dist x y) := rfl
 
 lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < (D : ℝ)) (h : 0 < dist x y) :
-    ∑ i in t, Ks i x y = K x y := by
+    ∑ i ∈ t, Ks i x y = K x y := by
   simp_rw [Ks, ← Finset.mul_sum]
   norm_cast
-  suffices ∑ i in t, ψ (D ^ (-i) * dist x y) = 1 by rw [this, ofReal_one, mul_one]
+  suffices ∑ i ∈ t, ψ (D ^ (-i) * dist x y) = 1 by rw [this, ofReal_one, mul_one]
   rw [← Finset.sum_subset hs, sum_ψ hD h]
   intros
   rwa [psi_eq_zero_iff hD h]

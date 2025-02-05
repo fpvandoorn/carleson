@@ -143,7 +143,7 @@ open Topology Filter
 
 /-TODO : Assumptions might be weakened-/
 lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
-    Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
+    Filter.Tendsto (fun N ↦ ∑ n ∈ Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
   have := Filter.Tendsto.add_const (- (f 0)) hfa.nat_add_neg.tendsto_sum_nat
   simp only [add_neg_cancel_right] at this
   /- Need to start at 1 instead of zero for the base case to be true. -/
