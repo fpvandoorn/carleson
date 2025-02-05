@@ -320,7 +320,7 @@ lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ 
   have : ofNNReal t = (ofNNReal t ^ p) ^ (1 / p) := by simp [p0.ne.symm]
   nth_rewrite 1 [inv_eq_one_div p, this, ← mul_rpow_of_nonneg _ _ p0', set_eq]
   refine rpow_le_rpow ?_ p0'
-  refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm.pow_const p) (ofNNReal t ^ p)
+  refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enormBETTER.pow_const p) (ofNNReal t ^ p)
   gcongr
   exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
 
@@ -617,7 +617,8 @@ lemma distribution_add_le [ENormedAddMonoid ε] :
       refine measure_mono fun x h ↦ ?_
       simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
       contrapose! h
-      exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
+      -- XXX: the ENormedAddMonoid will become superfluous once the mathlib lemma is generalised
+      exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
 
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :

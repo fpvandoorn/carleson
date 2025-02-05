@@ -1,5 +1,5 @@
 import Mathlib.Analysis.Normed.Group.Basic
-import Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
+import Mathlib.MeasureTheory.Function.StronglyMeasurable.Lemmas
 
 noncomputable section
 
@@ -94,18 +94,22 @@ protected theorem Continuous.enorm {X : Type*} [TopologicalSpace X] {f : X → E
     (hf : Continuous f) : Continuous (fun x => (‖f x‖ₑ)) :=
   continuous_enorm.comp hf
 
+-- XXX: mathlib already has this, but only for a NormedAddCommGroup
+
 @[fun_prop]
 theorem measurable_enorm [MeasurableSpace E] [OpensMeasurableSpace E] :
     Measurable (fun a : E => (‖a‖ₑ)) :=
   continuous_enorm.measurable
 
+-- XXX: mathlib already has this, but only for a NormedAddCommGroup
 @[fun_prop]
 protected theorem AEMeasurable.enorm [MeasurableSpace E] [OpensMeasurableSpace E] {f : α → E}
     (hf : AEMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   measurable_enorm.comp_aemeasurable hf
 
+-- TODO: generalise the mathlib version (without the BETTER suffix)
 @[fun_prop]
-protected theorem AEStronglyMeasurable.enorm {f : α → E}
+protected theorem AEStronglyMeasurable.enormBETTER {f : α → E}
     (hf : AEStronglyMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   continuous_enorm.comp_aestronglyMeasurable hf |>.aemeasurable
 
