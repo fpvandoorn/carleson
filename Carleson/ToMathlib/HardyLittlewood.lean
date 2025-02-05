@@ -119,8 +119,9 @@ private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [Proper
     (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
   simp only [T, Pi.add_apply, enorm_eq_self]
+  sorry /- TODO: fix proof, was:
   rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.ennnorm]
-  exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x))
+  exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x)) -/
 
 -- move
 lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl

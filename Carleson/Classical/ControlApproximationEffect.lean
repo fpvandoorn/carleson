@@ -435,7 +435,7 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
       norm_cast
       gcongr
       · apply nnnorm_add_le
-      · rw [← ofReal_norm_eq_coe_nnnorm, Real.norm_of_nonneg Real.two_pi_pos.le]
+      · rw [← enorm_eq_nnnorm, ← ofReal_norm_eq_enorm, Real.norm_of_nonneg Real.two_pi_pos.le]
     _ ≤ (T g x + T (⇑conj ∘ g) x + ENNReal.ofReal (π * δ * (2 * π))) / ENNReal.ofReal (2 * π) := by
       gcongr
       · apply le_CarlesonOperatorReal intervalIntegrable_g hx
@@ -589,8 +589,8 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
           have aux := @C10_0_1_pos 4 2 one_lt_two
           positivity
         · positivity
-      _ ≤ ENNReal.ofReal (2 * π) * ‖S_ N h x‖₊ := by
-        rw [← ofReal_norm_eq_coe_nnnorm]
+      _ ≤ ENNReal.ofReal (2 * π) * ‖S_ N h x‖ₑ := by
+        rw [← ofReal_norm_eq_enorm]
         gcongr
         exact hN.le
       _ ≤ ENNReal.ofReal (2 * π) * ((T h x + T (conj ∘ h) x) / (ENNReal.ofReal (2 * π)) + ENNReal.ofReal (π * δ)) := by
