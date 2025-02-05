@@ -356,14 +356,12 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
   simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
   refine AESublinearOn.biSup2 (P := (Memℒp · ⊤ μ)) (Q := (Memℒp · 1 μ)) h𝓑 ?_ ?_
-    zero_memℒp zero_memℒp Memℒp.add Memℒp.add ?_ ?_ ?_
+    Memℒp.zero Memℒp.zero Memℒp.add Memℒp.add ?_ ?_ ?_
   · intro u hu
-    have := MB_ae_ne_top' (c := c) h𝓑 hR (.inl hu)
-    filter_upwards [this] with x hx
+    filter_upwards [MB_ae_ne_top' h𝓑 hR (.inl hu)] with x hx
     simpa [MB, maximalFunction] using hx
   · intro u hu
-    have := MB_ae_ne_top (c := c) h𝓑 hR hu
-    filter_upwards [this] with x hx
+    filter_upwards [MB_ae_ne_top h𝓑 hR hu] with x hx
     simpa [MB, maximalFunction] using hx
   · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
   · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _

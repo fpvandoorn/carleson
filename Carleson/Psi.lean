@@ -464,7 +464,7 @@ lemma ennnorm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1)
     ‖K x y‖ₑ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume (ball x (2 ^ n * D ^ s)) := by
   rw [← ENNReal.ofReal_ofNat 2, ENNReal.ofReal_rpow_of_pos two_pos]
   rw [← ENNReal.ofReal_toReal (measure_ball_ne_top _ _)]
-  rw [← ENNReal.ofReal_div_of_pos, ← Measure.real, ← ENNReal.ofReal_norm]; swap
+  rw [← ENNReal.ofReal_div_of_pos, ← Measure.real, ← ofReal_norm]; swap
   · apply ENNReal.toReal_pos
     · refine (measure_ball_pos volume x ?_).ne.symm
       exact mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s)
