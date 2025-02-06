@@ -307,7 +307,10 @@ private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) :
   exact Real.toNNReal_one.le
 
 -- Used in the proof of Lemma 7.1.4
-private lemma exp_sub_one_le (t : ℝ) : ‖exp (.I * t) - 1‖ ≤ ‖t‖ := by simpa using exp_Lipschitz t 0
+private lemma exp_sub_one_le (t : ℝ) : ‖exp (.I * t) - 1‖ ≤ ‖t‖ := by
+  -- TODO: fix proof (now, simp normal-form is Complex.abs on LHS, Real.abs on RHS);
+  -- after rewriting RHS to Real.abs, it's ‖‖ₑ on the rhs
+  sorry -- was: simpa using exp_Lipschitz t 0
 
 -- Used in the proofs of Lemmas 7.1.4 and 7.1.5
 private lemma dist_lt_5 (hu : u ∈ t) (mp : p ∈ t.𝔗 u) (Qxp : Q x ∈ Ω p) :
@@ -784,7 +787,9 @@ private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
     apply exists_setAverage_le (volume_coeGrid_pos (defaultD_pos' a)).ne.symm
     · exact volume_coeGrid_lt_top.ne
     · refine (Integrable.sub ?_ ?_).norm
-      · exact integrable_const_iff.mpr (by simp [volume_coeGrid_lt_top])
+      · refine integrable_const_iff.mpr ?_
+        right
+        sorry -- TODO, proof was simp [volume_coeGrid_lt_top], doesn't fire any more
       · exact (integrable_Ks_x (one_lt_D (X := X))).restrict
   calc ‖⨍ z in J, Ks i x y - Ks i x z‖
   _ ≤ ⨍ z in J, ‖Ks i x y - Ks i x z‖  := norm_integral_le_integral_norm _
