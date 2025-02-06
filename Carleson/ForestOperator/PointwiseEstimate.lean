@@ -95,8 +95,7 @@ lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (ap
   refine integrable_finset_sum _ (fun i hi ↦ ?_)
   constructor
   · exact (aestronglyMeasurable_indicator_iff coeGrid_measurable).mpr aestronglyMeasurable_const
-  · simp_rw [hasFiniteIntegral_iff_nnnorm, nnnorm_indicator_eq_indicator_nnnorm,
-      ENNReal.coe_indicator]
+  · simp_rw [hasFiniteIntegral_iff_enorm, enorm_indicator_eq_indicator_enorm]
     apply lt_of_le_of_lt <| lintegral_indicator_const_le (i : Set X) _
     exact ENNReal.mul_lt_top ENNReal.coe_lt_top volume_coeGrid_lt_top
 
@@ -606,7 +605,8 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     · refine le_trans ?_ <| ENNReal.toReal_mono hMB <| L7_1_4_laverage_le_MB hL hx hx' g pₛu xpₛ
       rw [hpₛ, ENNReal.toReal_div]
       refine div_le_div_of_nonneg_right ?_ measureReal_nonneg
-      rw [← integral_norm_eq_lintegral_nnnorm]
+      simp_rw [← enorm_eq_nnnorm]
+      rw [← integral_norm_eq_lintegral_enorm]
       · exact hpₛ ▸ L7_1_4_integral_le_integral hu hf pₛu xpₛ
       · exact (stronglyMeasurable_approxOnCube (𝓙 (t u)) (‖f ·‖)).aestronglyMeasurable.restrict
 
