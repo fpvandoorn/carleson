@@ -487,10 +487,10 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
       refine ((subset_inter_iff.mpr ⟨h, subset_refl _⟩).trans (fun y hy ↦ ?_)).eventuallyLE
       have ⟨J, hJ, yJ⟩ := Set.mem_iUnion₂.mp hy.1
       exact ⟨J, ⟨⟨J, by simp [mem_Js.mpr ⟨hJ, ⟨y, mem_inter yJ hy.2⟩⟩]⟩, yJ⟩⟩
-    _ = ∑ J in Js, ∫ y in J, ‖f y‖ := by
+    _ = ∑ J ∈ Js, ∫ y in J, ‖f y‖ := by
       apply integral_finset_biUnion Js (fun _ _ ↦ coeGrid_measurable) Js_disj
       exact fun i hi ↦ hf.norm.integrable.integrableOn
-    _ = ∑ J in Js, ∫ y in J, (approxOnCube (𝓙 (t u)) (‖f ·‖)) y := by
+    _ = ∑ J ∈ Js, ∫ y in J, (approxOnCube (𝓙 (t u)) (‖f ·‖)) y := by
       refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
       have eq : EqOn (approxOnCube (𝓙 (t u)) (‖f ·‖)) (fun _ ↦ ⨍ y in J, ‖f y‖) J :=
         fun y hy ↦ approxOnCube_apply pairwiseDisjoint_𝓙 (‖f ·‖) (mem_Js.mp hJ).1 hy
@@ -531,7 +531,7 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
 /-- Lemma 7.1.4 -/
 lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : BoundedCompactSupport f) :
-    ‖∑ i in t.σ u x, ∫ y, (exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y * f y ‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, (exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y * f y ‖₊ ≤
     C7_1_4 a * MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
   set g := approxOnCube (𝓙 (t u)) (‖f ·‖)
   let q (y : X) := -𝒬 u y + Q x y + 𝒬 u x - Q x x
@@ -612,7 +612,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
 
 /-- Lemma 7.1.5 -/
 lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
-    ‖∑ i in t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
   let s₁ := Finset.min' (t.σ u x) hne
@@ -870,15 +870,15 @@ lemma sum_p_eq_sum_I_sum_p (f : X → ℤ → ℝ≥0) :
 /-- Lemma 7.1.6 -/
 lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : BoundedCompactSupport f) :
-    ‖∑ i in t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊ ≤
     C7_1_6 a * t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
   let I (i : ℤ) (x : X) := ‖∫ (y : X), Ks i x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊
   let Js (p : 𝔓 X) := Set.toFinset <| { J ∈ 𝓙 (t u) | ↑J ⊆ ball x (16 * D ^ 𝔰 p) ∧ s J ≤ 𝔰 p }
   let ps (I : Grid X) := Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ 𝓘 p = I)
   let 𝔗_fin := Finset.univ.filter (· ∈ t.𝔗 u)
   have A5_pos : (defaultA a : ℝ) ^ 5 > 0 := pow_pos (by norm_num) 5
-  calc ENNReal.ofNNReal (‖∑ i in t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊)
-    _ ≤ ENNReal.ofNNReal (∑ i in t.σ u x, ‖∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊) :=
+  calc ENNReal.ofNNReal (‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊)
+    _ ≤ ENNReal.ofNNReal (∑ i ∈ t.σ u x, ‖∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊) :=
       ENNReal.coe_strictMono.monotone <| nnnorm_sum_le (t.σ u x) _
     _ = ENNReal.ofNNReal (∑ p ∈ 𝔗_fin, (E p).indicator 1 x * (I (𝔰 p)) x) := by
       rw [← p_sum_eq_s_sum I]
