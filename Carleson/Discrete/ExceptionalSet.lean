@@ -71,7 +71,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     exact mul_pos_iff.2 ⟨ENNReal.pow_pos two_pos _, measure_pos_of_superset subset_rfl hF⟩
   have K_ne_top : K ≠ ⊤ := by
     simp only [K]
-    refine (div_lt_top (mul_ne_top (pow_ne_top two_ne_top) ?_) hG).ne
+    refine (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) ?_) hG).ne
     exact (measure_mono (ProofData.F_subset)).trans_lt measure_ball_lt_top |>.ne
   -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
@@ -118,7 +118,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   rw [ENNReal.div_eq_inv_mul, ← mul_one (_ * _), this]
   congr
   · have h : (2 : ℝ≥0∞) ^ (2 * a + 5) = (2 : ℝ≥0∞) ^ (2 * a + 5 : ℤ) := by norm_cast
-    rw [h, ← ENNReal.zpow_add (NeZero.ne 2) two_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
+    rw [h, ← ENNReal.zpow_add (NeZero.ne 2) ofNat_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
     norm_cast
   · exact ENNReal.inv_mul_cancel hG vol_G_ne_top |>.symm
 

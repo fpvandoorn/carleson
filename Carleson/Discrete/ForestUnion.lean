@@ -812,7 +812,7 @@ lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
     simp only [Finset.sum_sigma']
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.sum_sigma', carlesonSum_𝔓₁_eq_sum]
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
@@ -826,7 +826,7 @@ lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 
         ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ := by
     gcongr with n hn k hk j hj
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.mem_Iic] at hk
     rw [carlesonSum_ℭ₆_eq_sum hk]

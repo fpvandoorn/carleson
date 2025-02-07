@@ -1680,8 +1680,8 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
       · apply ae_of_all
         intro x (hx : a < ‖f x‖)
         rw [mul_comm]
-        have : ofNNReal ‖f x‖₊ = ENNReal.ofReal ‖f x‖ := (ofReal_norm_eq_coe_nnnorm (f x)).symm
-        rw [this, ENNReal.ofReal_rpow_of_nonneg, ENNReal.ofReal_rpow_of_nonneg]
+        rw [← enorm_eq_nnnorm, ← ofReal_norm_eq_enorm (f x), ENNReal.ofReal_rpow_of_nonneg,
+          ENNReal.ofReal_rpow_of_nonneg]
           <;> try positivity
         exact rpow_le_rpow_of_exponent_le_base_ge ha hx.le (toReal_mono hp hpq.2.le)
     _ ≤ ENNReal.ofReal (a ^ (q.toReal - p.toReal)) * ∫⁻ x : α,
@@ -1736,7 +1736,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · apply ae_of_all
           intro x hx
           rw [mul_comm]
-          rw [(ofReal_norm_eq_coe_nnnorm (f x)).symm, ENNReal.ofReal_rpow_of_nonneg,
+          rw [← enorm_eq_nnnorm, ← ofReal_norm_eq_enorm (f x), ENNReal.ofReal_rpow_of_nonneg,
             ENNReal.ofReal_rpow_of_nonneg] <;> try positivity
           apply rpow_le_rpow_of_exponent_le_base_le hx.1 hx.2
           exact toReal_mono hq hpq.2.le
@@ -2707,14 +2707,14 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     ext x
     rw [← ofReal_rpow_of_nonneg] <;> try positivity
     congr
-    exact ofReal_norm_eq_coe_nnnorm (f x)
+    exact ofReal_norm_eq_enorm (f x)
   _ = ENNReal.ofReal (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       ((eLpNorm f p μ) ^ p.toReal) ^
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     rw [← one_div]
-    refine (eLpNorm_eq_lintegral_rpow_nnnorm ?_ ?_).symm
+    refine (eLpNorm_eq_lintegral_rpow_enorm ?_ ?_).symm
     · exact (interpolated_pos' hp₀ hp₁ hp).ne'
     · exact interp_exp_ne_top hp₀p₁.ne ht hp
 
@@ -3578,7 +3578,7 @@ lemma support_sigma_finite_from_Memℒp
     unfold eLpNorm eLpNorm' at obs
     split_ifs at obs
     · contradiction
-    · exact lintegral_rpow_nnnorm_lt_top_of_eLpNorm'_lt_top (toReal_pos hp' hp) obs
+    · exact lintegral_rpow_enorm_lt_top_of_eLpNorm'_lt_top (toReal_pos hp' hp) obs
 
 -- lemma support_sfinite_from_Memℒp
 --     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (hf : Memℒp f p μ)

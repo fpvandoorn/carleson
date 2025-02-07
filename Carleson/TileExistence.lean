@@ -84,7 +84,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * ∑' (y : Y), volume (ball (y : X) (D^k)):= by
       rw [ENNReal.tsum_mul_left]
     _ = (As (2 ^ a) (2 ^ J' X)) * volume (⋃ y ∈ Y, ball y (D^k)) := by
-      rw [ENNReal.mul_eq_mul_left val_ne_zero ENNReal.coe_ne_top]
+      rw [ENNReal.mul_right_inj val_ne_zero ENNReal.coe_ne_top]
       · rw [measure_biUnion _ hYdisjoint (fun y _ => measurableSet_ball)]
         apply hYdisjoint.countable_of_isOpen (fun y _ => isOpen_ball)
         intro y _
@@ -1025,7 +1025,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     rw [← ENNReal.mul_le_mul_left]
     · exact this
     · exact Ne.symm (NeZero.ne' (2 ^ (4 * a)))
-    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.two_ne_top, mul_eq_zero,
+    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, mul_eq_zero,
       OfNat.ofNat_ne_zero, false_or, false_and, not_false_eq_true]
   letI : Countable (Yk X (k-K')) := (Yk_countable X (k-K')).to_subtype
   calc

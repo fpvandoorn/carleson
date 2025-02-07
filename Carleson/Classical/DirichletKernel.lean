@@ -12,7 +12,7 @@ open Finset Complex MeasureTheory
 noncomputable section
 
 def dirichletKernel (N : ℕ) : ℝ → ℂ :=
-  fun x ↦ ∑ n in Icc (-Int.ofNat N) N, fourier n (x : AddCircle (2 * π))
+  fun x ↦ ∑ n ∈ Icc (-Int.ofNat N) N, fourier n (x : AddCircle (2 * π))
 
 def dirichletKernel' (N : ℕ) : ℝ → ℂ :=
   fun x ↦ (exp (I * N * x) / (1 - exp (-I * x)) + exp (-I * N * x) / (1 - exp (I * x)))
@@ -64,7 +64,7 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
   have : (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
       = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
     calc (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
-      _ = ∑ n in Icc (-(N : ℤ)) N, (cexp ((n + 1 / 2) * I * ↑x) - cexp ((n - 1 / 2) * I * ↑x)) := by
+      _ = ∑ n ∈ Icc (-(N : ℤ)) N, (cexp ((n + 1 / 2) * I * ↑x) - cexp ((n - 1 / 2) * I * ↑x)) := by
         rw [dirichletKernel, mul_sum]
         congr with n
         simp [sub_mul, ← exp_add, ← exp_add]
@@ -75,8 +75,8 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
           congr
           rw_mod_cast [← mul_assoc, mul_comm, ← mul_assoc, inv_mul_cancel₀, one_mul]
           exact Real.pi_pos.ne.symm
-      _ = ∑ n in Icc (-(N : ℤ)) N, cexp ((n + 1 / 2) * I * ↑x)
-          - ∑ n in Icc (-(N : ℤ)) N, cexp ((n - 1 / 2) * I * ↑x) := by
+      _ = ∑ n ∈ Icc (-(N : ℤ)) N, cexp ((n + 1 / 2) * I * ↑x)
+          - ∑ n ∈ Icc (-(N : ℤ)) N, cexp ((n - 1 / 2) * I * ↑x) := by
         rw [sum_sub_distrib]
       _ = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
         rw [← sum_Ico_add_eq_sum_Icc, ← sum_Ioc_add_eq_sum_Icc, add_sub_add_comm,
@@ -177,21 +177,21 @@ lemma partialFourierSum_eq_conv_dirichletKernel {f : ℝ → ℂ} {x : ℝ}
     partialFourierSum N f x =
       (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * dirichletKernel N (x - y) := by
   calc partialFourierSum N f x
-    _ = ∑ n in Icc (-(N : ℤ)) N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x := by
+    _ = ∑ n ∈ Icc (-(N : ℤ)) N, fourierCoeffOn Real.two_pi_pos f n * (fourier n) ↑x := by
       rw [partialFourierSum]
-    _ = ∑ n in Icc (-(N : ℤ)) N, (1 / (2 * π - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
+    _ = ∑ n ∈ Icc (-(N : ℤ)) N, (1 / (2 * π - 0)) • ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       congr 1 with n
       rw [fourierCoeffOn_eq_integral, smul_mul_assoc]
-    _ = (1 / (2 * π)) * ∑ n in Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
+    _ = (1 / (2 * π)) * ∑ n ∈ Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y)) * (fourier n) ↑x) := by
       rw_mod_cast [← smul_sum, real_smul, sub_zero]
-    _ = (1 / (2 * π)) * ∑ n in Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y) * (fourier n) ↑x)) := by
+    _ = (1 / (2 * π)) * ∑ n ∈ Icc (-(N : ℤ)) N, ((∫ (y : ℝ) in (0 : ℝ)..2 * π, (fourier (-n) ↑y • f y) * (fourier n) ↑x)) := by
       congr with n
       exact (intervalIntegral.integral_mul_const _ _).symm
-    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), ∑ n in Icc (-(N : ℤ)) N, (fourier (-n)) y • f y * (fourier n) x := by
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y • f y * (fourier n) x := by
       rw [← intervalIntegral.integral_finset_sum]
       exact fun _ _ ↦ IntervalIntegrable.mul_const
         (h.continuousOn_mul fourier_uniformContinuous.continuous.continuousOn) _
-    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * ∑ n in Icc (-(N : ℤ)) N, (fourier (-n)) y * (fourier n) x := by
+    _ = (1 / (2 * π)) * ∫ (y : ℝ) in (0 : ℝ)..(2 * π), f y * ∑ n ∈ Icc (-(N : ℤ)) N, (fourier (-n)) y * (fourier n) x := by
       congr with y
       rw [mul_sum]
       congr with n
