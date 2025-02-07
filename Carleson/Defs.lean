@@ -287,7 +287,7 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)] [ProperSpace X]
     _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R},
           ENNReal.ofReal (C_K a / volume.real (ball x r)) := by
       refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
-      rw [← ENNReal.ofReal_norm]
+      rw [← ofReal_norm]
       refine ENNReal.ofReal_le_ofReal <| (norm_K_le_vol_inv x y).trans ?_
       gcongr
       · exact (C_K_pos a).le

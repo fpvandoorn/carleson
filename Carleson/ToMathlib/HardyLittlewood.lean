@@ -118,8 +118,8 @@ lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
 private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [ProperSpace X]
     (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
-  simp only [T, Pi.add_apply, enorm_eq_self]
-  rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.ennnorm]
+  simp only [T, Pi.add_apply, enorm_eq_self, ← enorm_eq_nnnorm]
+  rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.enorm]
   exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x))
 
 -- move
@@ -356,7 +356,7 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
   simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
   refine AESublinearOn.biSup2 (P := (Memℒp · ⊤ μ)) (Q := (Memℒp · 1 μ)) h𝓑 ?_ ?_
-    zero_memℒp zero_memℒp Memℒp.add Memℒp.add ?_ ?_ ?_
+    Memℒp.zero Memℒp.zero Memℒp.add Memℒp.add ?_ ?_ ?_
   · intro u hu
     have := MB_ae_ne_top' (c := c) h𝓑 hR (.inl hu)
     filter_upwards [this] with x hx
