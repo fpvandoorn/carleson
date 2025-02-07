@@ -486,14 +486,14 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
   _ ≤ (2 : ℝ≥0∞) ^ ((a : ℝ) ^ 3) * (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3) := by
     apply mul_right_mono
     norm_cast
-    calc
-      3 * 2 ^ (12 * a) ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num
-      _                = 2 ^ (2 + 12 * a)     := by rw [pow_add]
-      _                ≤ 2 ^ (a ^ 3)          := pow_le_pow_right₀ one_le_two <| calc
-                          2 + 12 * a ≤ a + 12 * a  := by apply add_le_add_right; linarith
-                          _          = 13 * a      := by ring
-                          _          ≤ a ^ 2 * a   := by rw [mul_le_mul_right] <;> nlinarith
-                          _          = a ^ 3       := rfl
+    calc 3 * 2 ^ (12 * a)
+      _ ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num
+      _ = 2 ^ (2 + 12 * a)     := by rw [pow_add]
+      _ ≤ 2 ^ (a ^ 3)          := pow_le_pow_right₀ one_le_two <| calc 2 + 12 * a
+          _ ≤ a + 12 * a := by apply add_le_add_right; linarith
+          _ = 13 * a     := by ring
+          _ ≤ a ^ 2 * a  := by rw [mul_le_mul_right] <;> nlinarith
+          _ = a ^ 3      := rfl
   _ = _ := by
     rw [C7_2_1_def, ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
     norm_cast
