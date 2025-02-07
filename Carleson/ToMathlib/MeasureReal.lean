@@ -103,6 +103,11 @@ theorem measureReal_eq_zero_iff (h : μ s ≠ ∞ := by finiteness) :
   rw [Measure.real, ENNReal.toReal_eq_zero_iff]
   exact or_iff_left h
 
+theorem measureNNReal_eq_zero_iff (h : μ s ≠ ∞ := by finiteness) :
+    μ.nnreal s = 0 ↔ μ s = 0 := by
+  rw [Measure.nnreal, ENNReal.toNNReal_eq_zero_iff]
+  exact or_iff_left h
+
 @[simp] theorem measureReal_zero (s : Set α) : (0 : Measure α).real s = 0 := rfl
 
 @[simp] theorem measureReal_nonneg : 0 ≤ μ.real s := ENNReal.toReal_nonneg
@@ -134,6 +139,10 @@ theorem map_measureReal_apply [MeasurableSpace β] {f : α → β} (hf : Measura
 @[gcongr] theorem measureReal_mono (h : s₁ ⊆ s₂) (h₂ : μ s₂ ≠ ∞ := by finiteness) :
     μ.real s₁ ≤ μ.real s₂ :=
   ENNReal.toReal_mono h₂ (measure_mono h)
+
+@[gcongr] theorem measureNNReal_mono (h : s₁ ⊆ s₂) (h₂ : μ s₂ ≠ ∞ := by finiteness) :
+    μ.nnreal s₁ ≤ μ.nnreal s₂ :=
+  ENNReal.toNNReal_mono h₂ (measure_mono h)
 
 theorem measureReal_mono_null (h : s₁ ⊆ s₂) (h₂ : μ.real s₂ = 0) (h'₂ : μ s₂ ≠ ∞ := by finiteness) :
     μ.real s₁ = 0 := by
