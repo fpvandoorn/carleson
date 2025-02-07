@@ -121,7 +121,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   let bxrc := (ball x r)ᶜ
   let bx2r := ball x (2*r)
   have dom_x : bxrc =  (bxrc ∩ bx2r) ∪ bx2rᶜ := by
-    have int1 : bx2rᶜ = bxrc ∩ bx2rᶜ := by
+    have tmp1 : bx2rᶜ = bxrc ∩ bx2rᶜ := by
       suffices bx2rᶜ ⊆ bxrc by
         rw [Set.right_eq_inter]
         exact this
@@ -131,21 +131,41 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       apply Metric.ball_subset_ball
       linarith
 
-    calc
-      bxrc = bxrc ∩ univ        := by rw[Set.inter_univ bxrc]
-      _ = bxrc ∩ (bx2r ∪ bx2rᶜ) := by rw[Set.union_compl_self bx2r]
+    calc bxrc
+      _ = bxrc ∩ univ                  := by rw[Set.inter_univ bxrc]
+      _ = bxrc ∩ (bx2r ∪ bx2rᶜ)        := by rw[Set.union_compl_self bx2r]
       _ = (bxrc ∩ bx2r) ∪ bxrc ∩ bx2rᶜ := by rw[Set.inter_union_distrib_left bxrc bx2r bx2rᶜ]
-      _ = (bxrc ∩ bx2r) ∪ bx2rᶜ := by rw[← int1]
+      _ = (bxrc ∩ bx2r) ∪ bx2rᶜ        := by rw[← tmp1]
+
+  have integral_x : CZOperator K r g x = (∫ y in bx2rᶜ, K x y * g y) + (∫ y in (bxrc ∩ bx2r), K x y * g y) := by
+    --MeasureTheory.setIntegral_union
+    sorry
+
+  let bxprc := (ball x' r)ᶜ
+  have dom_x_prime : bxprc = (bxprc ∩ bx2r) ∪ bx2rᶜ := by
+    have tmp2 : bx2rᶜ = bxprc ∩ bx2rᶜ := by
+      rw [Set.right_eq_inter, Set.compl_subset_compl]
+
+      apply ball_subset
+      calc dist x' x
+      _ = dist x x' := by apply dist_comm
+      _ ≤ r := hx
+      _ = 2 * r - r := by ring
+
+    rw [tmp2]
+    exact Eq.symm (inter_union_compl bxprc bx2r)
+
+  have integral_x_prime : CZOperator K r g x = (∫ y in bx2rᶜ, K x y * g y) + (∫ y in (bxprc ∩ bx2r), K x y * g y)  := by
+    --MeasureTheory.setIntegral_union
+    sorry
   sorry
-/-! Breakdown from PDF
+
+/- Breakdown from PDF
   Expand def
-  Split first domain in parts > set work
+x Split first domain in parts > set work
     part 1 r < d x y < 2r
     part 2 2r < d x y
--/
-
-/-!
-  Split 2nd domain in parts > set work
+x Split 2nd domain in parts > set work
     part 1 r < d x' y and r < d x y < 2r
     part 2 r < d x' y and 2r < d x y which is 2r < d x y by triangle ineq
   Split integrals accordingly (sum of disjoint) obtain 10.1.234
