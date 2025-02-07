@@ -137,10 +137,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       _ = (bxrc ∩ bx2r) ∪ bxrc ∩ bx2rᶜ := by rw[Set.inter_union_distrib_left bxrc bx2r bx2rᶜ]
       _ = (bxrc ∩ bx2r) ∪ bx2rᶜ        := by rw[← tmp1]
 
-  have integral_x : CZOperator K r g x = (∫ y in bx2rᶜ, K x y * g y) + (∫ y in (bxrc ∩ bx2r), K x y * g y) := by
-    --MeasureTheory.setIntegral_union
-    sorry
-
   let bxprc := (ball x' r)ᶜ
   have dom_x_prime : bxprc = (bxprc ∩ bx2r) ∪ bx2rᶜ := by
     have tmp2 : bx2rᶜ = bxprc ∩ bx2rᶜ := by
@@ -154,6 +150,20 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     rw [tmp2]
     exact Eq.symm (inter_union_compl bxprc bx2r)
+
+  have integral_x : CZOperator K r g x = (∫ y in (bxrc ∩ bx2r), K x y * g y) + (∫ y in bx2rᶜ, K x y * g y) := by
+    calc CZOperator K r g x
+      _ = (∫ y in bxrc, K x y * g y) := by rfl
+      _ = (∫ y in (bxrc ∩ bx2r) ∪ bx2rᶜ , K x y * g y) := by nth_rw 1 [dom_x]
+
+    apply MeasureTheory.setIntegral_union
+    . rw [disjoint_compl_right_iff_subset]
+      exact inter_subset_right
+    . apply MeasurableSet.compl
+      apply measurableSet_ball
+    --. apply IntegrableOn.mono_set (IntegrableOn (fun y → K x y * g y) bxrc volume) bxrc (bxrc ∩ bx2r)
+    . sorry
+    sorry
 
   have integral_x_prime : CZOperator K r g x = (∫ y in bx2rᶜ, K x y * g y) + (∫ y in (bxprc ∩ bx2r), K x y * g y)  := by
     --MeasureTheory.setIntegral_union
