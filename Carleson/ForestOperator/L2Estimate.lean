@@ -583,9 +583,11 @@ lemma tree_projection_estimate
       · exact ENNReal.measurable_ofReal.comp (stronglyMeasurable_approxOnCube _ _).measurable
       · exact hg.stronglyMeasurable.measurable.enorm
       simp_rw [eaOC, enorm_eq_nnnorm]
+      -- XXX: with Integrable.enorm, this could be simplified.
       simp_rw [lintegral_coe_eq_integral (‖g ·‖₊) hg.integrable.norm.restrict, coe_nnnorm]
       rw [integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓛 (mem_toFinset.mp hL) hg]
       simp_rw [← Real.enorm_eq_ofReal aOC_nonneg, approxOnCube_ofReal, nnnorm_real, aOC]
+      rfl
     _ ≤ ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, eaOC x * ‖cS_bound t u f x‖ₑ :=
       Finset.sum_le_sum fun L hL ↦
         setLIntegral_mono' coeGrid_measurable (fun x hx ↦ mul_left_mono (biInf_le _ hx))
