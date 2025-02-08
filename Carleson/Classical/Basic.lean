@@ -157,9 +157,9 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
           Complex.cos_ofReal_im, Complex.mul_im]
         rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
         apply (Real.sqrt_le_sqrt_iff _).mpr
-        · simp [pow_two_nonneg]
+        · simp only [mul_zero, mul_one, sub_self, add_zero, zero_add, zero_sub, even_two,
+          Even.neg_pow, le_add_iff_nonneg_right, pow_two_nonneg]
         · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
-
 
 lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * π - η) :
     (2 / π) * η ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by

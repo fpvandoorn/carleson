@@ -99,7 +99,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
   have integrand_continuous2 : Continuous (fun x ↦ cexp (I * ↑n * (↑x + ↑π / ↑n)) * ϕ x) :=
     Continuous.mul (by fun_prop) h1.continuous
   have integrand_continuous3 : Continuous (fun (x : ℝ) ↦ cexp (I * n * x) * ϕ (x - π / n)) :=
-    Continuous.mul (by fun_prop) (h1.continuous.comp (by continuity))
+    Continuous.mul (by fun_prop) (h1.continuous.comp (by fun_prop))
   calc _
     _ = ‖∫ (x : ℝ) in a..b, (1 / 2 * (I * n * x).exp - 1 / 2 * (I * ↑n * (↑x + ↑π / ↑n)).exp) * ϕ x‖ := by
       congr
