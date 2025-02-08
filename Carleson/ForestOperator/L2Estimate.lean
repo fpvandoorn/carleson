@@ -183,7 +183,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
     intro y hy
     rw [Annulus.cc] at hy
     rw [enorm_mul]
-    refine mul_le_mul_right' ((ennnorm_K_le 5 hy.1).trans ?_) ‖f y‖ₑ
+    refine mul_le_mul_right' ((enorm_K_le 5 hy.1).trans ?_) ‖f y‖ₑ
     gcongr
     · norm_num
     · norm_num
