@@ -2714,11 +2714,11 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     rw [← one_div]
-    refine (eLpNorm_eq_lintegral_rpow_enorm ?_ ?_).symm
+    refine (eLpNorm_eq_lintegral_rpow_enorm (ε := E₁) ?_ ?_).symm
     · exact (interpolated_pos' hp₀ hp₁ hp).ne'
     · exact interp_exp_ne_top hp₀p₁.ne ht hp
 
--- TODO: move this to Weaktype.lean?
+-- TODO: move this to WeakType.lean?
 lemma wnorm_eq_zero_iff {f : α → E₁} {p : ℝ≥0∞} [NormedAddCommGroup E₁] (hp : p ≠ 0) :
     wnorm f p μ = 0 ↔ f =ᵐ[μ] 0 := by
   unfold wnorm
