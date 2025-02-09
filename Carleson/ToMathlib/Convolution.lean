@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
 import Mathlib.Analysis.Convolution
-import Carleson.ToMathlib.Enorm
+import Carleson.ToMathlib.ENorm
 
 open MeasureTheory Measure
 open scoped Convolution ENNReal
@@ -150,7 +150,7 @@ instance (priority := 100) IsHaarMeasure.isInvInvariant_of_isMulRightInvariant (
     conv_rhs => rw [μeq]
     simp
   have : c ^ 2 = 1 ^ 2 :=
-    (ENNReal.mul_eq_mul_right (measure_pos_of_nonempty_interior _ K.interior_nonempty).ne'-- Change to `ENNReal.mul_left_inj` after Mathlib bump
+    (ENNReal.mul_left_inj (measure_pos_of_nonempty_interior _ K.interior_nonempty).ne'
           K.isCompact.measure_lt_top.ne).1 this
   have : c = 1 := (ENNReal.pow_right_strictMono two_ne_zero).injective this
   rw [hc, this, one_smul]
@@ -220,7 +220,7 @@ theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞}
     (hpq : 1 / p + 1 / q = 1) : eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
   rw [eLpNorm_exponent_top, eLpNormEssSup]
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
-  apply le_trans <| ennnorm_integral_le_lintegral_ennnorm _ -- Change to `enorm_integral_le_lintegral_enorm` after Mathlib bump
+  apply le_trans <|enorm_integral_le_lintegral_enorm _
   have hpq : 1 / 1 = 1 / p + 1 / q := by rw [hpq, one_div_one]
   have : AEStronglyMeasurable (g <| x - ·) μ :=
     hg.aestronglyMeasurable.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x
@@ -256,7 +256,7 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm {p q r : ℝ} (hp :
   have rq0 : r - q ≥ 0 := r_sub_p_nonneg q0 hp r0 <| add_comm (1 / p) (1 / q) ▸ hpqr
   calc
     _ ≤ ∫⁻ y, ‖(f y) * (g (x - y))‖ₑ ∂μ := by
-      exact ennnorm_integral_le_lintegral_ennnorm (fun y ↦ L (f y) (g (x - y))) -- Change to `enorm_integral_le_lintegral_enorm` after Mathlib bump
+      exact enorm_integral_le_lintegral_enorm (fun y ↦ L (f y) (g (x - y)))
     _ = ∫⁻ y, ‖f y‖ₑ ^ (p / r + (r - p) / r) * ‖g (x - y)‖ₑ ^ (q / r + (r - q) / r) ∂μ := by
       simp_rw [enorm_mul]
       refine lintegral_congr (fun y ↦ ?_)
@@ -495,8 +495,8 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ‖(f ⋆[L, μ] g) x₀‖ₑ ≤ eLpNorm f p μ * eLpNorm g q μ :=
-  (ennnorm_integral_le_lintegral_ennnorm _).trans -- Change to `enorm_integral_le_lintegral_enorm` after Mathlib bump
-    (lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm hpq hL hf hg x₀)
+  (enorm_integral_le_lintegral_enorm _).trans <|
+    lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm hpq hL hf hg x₀
 
 end MeasureTheory
 ---------------------------------------------------------------------------------------------------
