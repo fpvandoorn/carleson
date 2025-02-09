@@ -137,7 +137,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
             (measure_ball_ne_top x₂ (D ^ s₂))
         · simp only [ne_eq, ENNReal.div_eq_top,
           pow_eq_zero_iff', OfNat.ofNat_ne_zero, mul_eq_zero, not_false_eq_true, pow_eq_zero_iff,
-          false_or, false_and, true_and, ENNReal.pow_eq_top_iff, ENNReal.two_ne_top, or_false,
+          false_or, false_and, true_and, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, or_false,
           not_or]
           exact ⟨ne_of_gt (measure_ball_pos volume x₁ (defaultD_pow_pos a s₁)),
             ne_of_gt (measure_ball_pos volume x₂ (defaultD_pow_pos a s₂))⟩

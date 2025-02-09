@@ -115,12 +115,12 @@ private lemma annulus_integral_bound (x : X) (g : X → ℂ) {r₁ r₂ r₃ r�
         inter_union_compl] <;>
       exact hg.mono_set inter_subset_left
   _ ≤ ‖∫ y in Annulus.cc x r₁ r₄ ∩ Annulus.oo x r₂ r₃, g y‖ₑ +
-        ‖∫ y in Annulus.cc x r₁ r₄ ∩ (Annulus.oo x r₂ r₃)ᶜ, g y‖ₑ := by apply enorm_add_le
+        ‖∫ y in Annulus.cc x r₁ r₄ ∩ (Annulus.oo x r₂ r₃)ᶜ, g y‖ₑ := by apply ENormedAddMonoid.enorm_add_le
   _ ≤ _ := by
     gcongr
     · rw [inter_eq_self_of_subset_right <| Annulus.oo_subset_cc h₁₂ h₃₄]
     · calc
-        _ ≤ _ := ennnorm_integral_le_lintegral_ennnorm _
+        _ ≤ _ := enorm_integral_le_lintegral_enorm _
         _ ≤ ∫⁻ y in Annulus.cc x r₁ r₂ ∪ Annulus.cc x r₃ r₄, ‖g y‖ₑ := by
           refine lintegral_mono_set (fun y ↦ ?_)
           simp only [Annulus.oo, Annulus.cc, edist_dist, mem_Ioo, mem_Icc, mem_inter_iff,
@@ -191,9 +191,9 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
       rw [← mem_ball', s]
       refine ball_subset_ball ?_ (Grid_subset_ball hx')
       linarith [defaultD_pow_pos a (GridStructure.s I)]
-  apply le_trans <| setLIntegral_mono (hf.stronglyMeasurable.measurable.ennnorm.const_mul _) ineq
+  apply le_trans <| setLIntegral_mono (hf.stronglyMeasurable.measurable.enorm.const_mul _) ineq
   simp_rw [ENNReal.mul_comm_div, div_eq_mul_inv]
-  have := hf.stronglyMeasurable.measurable.ennnorm
+  have := hf.stronglyMeasurable.measurable.enorm
   rw [lintegral_const_mul _ (this.mul_const _), lintegral_mul_const _ this, ← div_eq_mul_inv]
   apply mul_left_mono
   calc
@@ -300,7 +300,7 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
         apply nontangential_integral_bound₂ hf xI₂ (this hx')
         linarith [defaultD_pow_pos a (s (cubeOf s₂ x))]
     _ = _ := by
-      rw [← two_mul, ← mul_assoc, add_assoc, ENNReal.rpow_add 1 _ two_ne_zero ENNReal.two_ne_top,
+      rw [← two_mul, ← mul_assoc, add_assoc, ENNReal.rpow_add 1 _ two_ne_zero ENNReal.ofNat_ne_top,
         ENNReal.rpow_one]
 
 /-- Lemma 7.2.2. -/
@@ -351,7 +351,7 @@ lemma nontangential_operator_bound
             apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
             linarith [show 4 ^ 2 * (a : ℝ) ≤ a ^ 2 * a by gcongr]
         _ = (2 : ℝ≥0∞) ^ (101.6 * (a : ℝ) ^ 3 + 1) := by
-          rw [← mul_two, ENNReal.rpow_add _ _ two_ne_zero ENNReal.two_ne_top, ENNReal.rpow_one]
+          rw [← mul_two, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, ENNReal.rpow_one]
         _ ≤ C7_2_2 a := by
           have := ENNReal.coe_rpow_def 2 (102 * a ^ 3)
           simp only [ENNReal.coe_ofNat, OfNat.ofNat_ne_zero, false_and, reduceIte] at this
@@ -482,7 +482,7 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
       norm_cast
       exact pow_right_mono₀ one_le_two <| (Nat.mul_le_mul_right _ (by norm_num)).trans le_self_add
   _ = 3 * 2 ^ (12 * (a : ℝ)) * (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3) := by
-    rw [add_comm, ENNReal.rpow_add _ _ two_ne_zero ENNReal.two_ne_top]; ring
+    rw [add_comm, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]; ring
   _ ≤ (2 : ℝ≥0∞) ^ ((a : ℝ) ^ 3) * (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3) := by
     apply mul_right_mono
     norm_cast
@@ -495,7 +495,7 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
                           _          ≤ a ^ 2 * a   := by rw [mul_le_mul_right] <;> nlinarith
                           _          = a ^ 3       := rfl
   _ = _ := by
-    rw [C7_2_1_def, ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.two_ne_top]
+    rw [C7_2_1_def, ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
     norm_cast
     ring
 
@@ -547,7 +547,7 @@ lemma tree_projection_estimate
   let eaOC (x : X) := ENNReal.ofReal (aOC x)
   have aOC_nonneg {x : X} : 0 ≤ aOC x := approxOnCube_nonneg (fun _ ↦ norm_nonneg _)
   calc ENNReal.ofNNReal ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊
-    _ ≤ ∫⁻ x, ‖conj (g x) * carlesonSum (t u) f x‖ₑ := ennnorm_integral_le_lintegral_ennnorm _
+    _ ≤ ∫⁻ x, ‖conj (g x) * carlesonSum (t u) f x‖ₑ := enorm_integral_le_lintegral_enorm _
     _ = ∫⁻ x in (⋃ p ∈ t u, 𝓘 p), ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       rw [← lintegral_indicator]; swap
       · exact MeasurableSet.biUnion (t u).to_countable (fun _ _ ↦ coeGrid_measurable)
@@ -561,13 +561,13 @@ lemma tree_projection_estimate
       refine lintegral_mono_set (fun x hx ↦ ?_)
       have ⟨p, hp⟩ : ∃ p ∈ t u, x ∈ 𝓘 p := by simpa using hx
       apply mem_iUnion.mpr ⟨𝓘 p, hp.2⟩
-    _ = ∑ L in 𝓛 (t u), ∫⁻ x in L, ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
+    _ = ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       simp only [← mem_toFinset]
       refine lintegral_biUnion_finset ?_ (fun _ _ ↦ coeGrid_measurable) _
       rw [coe_toFinset]
       exact pairwiseDisjoint_𝓛
-    _ ≤ ∑ L in 𝓛 (t u), ∫⁻ x in L, ‖g x‖ₑ * (⨅ x' ∈ L, ‖cS_bound t u f x'‖ₑ) := by
-      gcongr ∑ L in 𝓛 (t u), ?_ with L hL
+    _ ≤ ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, ‖g x‖ₑ * (⨅ x' ∈ L, ‖cS_bound t u f x'‖ₑ) := by
+      gcongr ∑ L ∈ 𝓛 (t u), ?_ with L hL
       refine setLIntegral_mono (Measurable.mul ?_ measurable_const) (fun x hx ↦ ?_)
       · exact measurable_coe_nnreal_ennreal_iff.mpr hg.stronglyMeasurable.measurable.nnnorm
       · gcongr
@@ -577,16 +577,16 @@ lemma tree_projection_estimate
         · congr
           simp_rw [mul_neg, eI𝒬u_mul, ← mul_assoc, ← exp_add, neg_add_cancel, exp_zero, one_mul]
         · simp only [cS_bound, enorm_eq_self, norm_eI𝒬u_mul_eq u f]
-    _ = ∑ L in 𝓛 (t u), ∫⁻ x in L, eaOC x * (⨅ x' ∈ L, ‖cS_bound t u f x'‖ₑ) := by
+    _ = ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, eaOC x * (⨅ x' ∈ L, ‖cS_bound t u f x'‖ₑ) := by
       refine Finset.sum_congr rfl (fun L hL ↦ ?_)
       rw [lintegral_mul_const, lintegral_mul_const]; rotate_left
       · exact ENNReal.measurable_ofReal.comp (stronglyMeasurable_approxOnCube _ _).measurable
-      · exact hg.stronglyMeasurable.measurable.ennnorm
+      · exact hg.stronglyMeasurable.measurable.enorm
       simp_rw [eaOC, enorm_eq_nnnorm]
       simp_rw [lintegral_coe_eq_integral (‖g ·‖₊) hg.integrable.norm.restrict, coe_nnnorm]
       rw [integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓛 (mem_toFinset.mp hL) hg]
-      simp_rw [← Real.ennnorm_eq_ofReal aOC_nonneg, approxOnCube_ofReal, nnnorm_real, aOC]
-    _ ≤ ∑ L in 𝓛 (t u), ∫⁻ x in L, eaOC x * ‖cS_bound t u f x‖ₑ :=
+      simp_rw [← Real.enorm_eq_ofReal aOC_nonneg, approxOnCube_ofReal, nnnorm_real, aOC, enorm_eq_nnnorm]
+    _ ≤ ∑ L ∈ 𝓛 (t u), ∫⁻ x in L, eaOC x * ‖cS_bound t u f x‖ₑ :=
       Finset.sum_le_sum fun L hL ↦
         setLIntegral_mono' coeGrid_measurable (fun x hx ↦ mul_left_mono (biInf_le _ hx))
     _ = ∫⁻ x in (⋃ L ∈ 𝓛 (t u), (L : Set X)), eaOC x * ‖cS_bound t u f x‖ₑ := by
@@ -602,7 +602,7 @@ lemma tree_projection_estimate
       convert ENNReal.lintegral_mul_le_Lp_mul_Lq volume isConj this aeMeasurable_cS_bound <;>
         simp [eLpNorm, eLpNorm']
     _ = eLpNorm (cS_bound t u f) 2 volume * eLpNorm aOC 2 volume := by
-      rw [mul_comm]; congr; ext; exact (Real.ennnorm_eq_ofReal aOC_nonneg).symm
+      rw [mul_comm]; congr; ext; exact (Real.enorm_eq_ofReal aOC_nonneg).symm
     _ ≤ _ := mul_right_mono (eLpNorm_two_cS_bound_le hu)
 
 end TileStructure.Forest

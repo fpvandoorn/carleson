@@ -50,7 +50,8 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         apply this
         · intro x y
           simp only [Function.comp_apply]
-          rw [edist_eq_coe_nnnorm_sub, ← map_sub, starRingEnd_apply, nnnorm_star, ← edist_eq_coe_nnnorm_sub]
+          rw [edist_eq_enorm_sub, ← map_sub, starRingEnd_apply, enorm_eq_nnnorm, nnnorm_star,
+            ← enorm_eq_nnnorm, ← edist_eq_enorm_sub]
           exact h1 _ _
         · intro x hx
           rw [Function.comp_apply, RCLike.norm_conj]

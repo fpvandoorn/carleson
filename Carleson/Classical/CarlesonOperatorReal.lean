@@ -38,7 +38,7 @@ lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.
 lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :
     ⨆ r ∈ S, f r = ⨆ r ∈ (S ∩ D), f r := by
   --Show two inequalities, one is trivial
-  refine le_antisymm (le_of_forall_ge_of_dense fun c hc ↦ ?_) (biSup_mono Set.inter_subset_left)
+  refine le_antisymm (le_of_forall_lt_imp_le_of_dense fun c hc ↦ ?_) (biSup_mono Set.inter_subset_left)
   rw [lt_iSup_iff] at hc
   rcases hc with ⟨x, hx⟩
   rw [lt_iSup_iff] at hx

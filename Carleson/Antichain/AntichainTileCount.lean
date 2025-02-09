@@ -149,7 +149,7 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
             simp only [𝔄'_def, Finset.mem_filter] at hp
             simp_rw [← hp.2]
           have h2a : ((2 : ℝ≥0∞) ^ a)⁻¹ = 2^(-(a : ℤ)) := by
-            rw [← zpow_natCast, ENNReal.zpow_neg two_ne_zero ENNReal.two_ne_top]
+            rw [← zpow_natCast, ENNReal.zpow_neg two_ne_zero ENNReal.ofNat_ne_top]
           rw [← ENNReal.div_le_iff, ← ENNReal.div_le_iff' (Ne.symm (NeZero.ne' (2 ^ a))),
             ENNReal.div_eq_inv_mul, h2a, dens₁]
           refine le_iSup₂_of_le p hp fun c ↦ ?_

@@ -269,8 +269,8 @@ lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
     refine integral_nonneg ?_
     refine Pi.le_def.mpr ?_
     exact fun _ ↦ normSq_nonneg _
-  rw [Real.ennnorm_eq_ofReal hnn]
-  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.two_ne_top]
+  rw [← enorm_eq_nnnorm, Real.enorm_eq_ofReal hnn]
+  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.ofNat_ne_top]
   rw [← ENNReal.rpow_natCast, ENNReal.ofReal_rpow_of_nonneg (by positivity) (by simp)]
   rw [ENNReal.toReal_ofNat, Nat.cast_ofNat]
   suffices ∫ x, normSq (f x) = ((∫ x, ‖f x‖ ^ 2) ^ ((2:ℝ)⁻¹)) ^ (2:ℝ) by

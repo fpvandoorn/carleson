@@ -320,7 +320,7 @@ lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ 
   have : ofNNReal t = (ofNNReal t ^ p) ^ (1 / p) := by simp [p0.ne.symm]
   nth_rewrite 1 [inv_eq_one_div p, this, ← mul_rpow_of_nonneg _ _ p0', set_eq]
   refine rpow_le_rpow ?_ p0'
-  refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm.pow_const p) (ofNNReal t ^ p)
+  refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm'.pow_const p) (ofNNReal t ^ p)
   gcongr
   exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
 
@@ -393,7 +393,7 @@ theorem MemWℒp.ae_ne_top {f : α → ε} {p : ℝ≥0∞} {μ : Measure α}
     nth_rw 1 [← mul_one C]
     rw [ENNReal.mul_div_mul_left _ _ hC_zero h2.ne_top, div_rpow_of_nonneg _ _ toReal_nonneg,
       ENNReal.rpow_inv_rpow hp_toReal_zero, ENNReal.one_rpow, one_div,
-        ENNReal.inv_div (Or.inr two_ne_top) (Or.inr (NeZero.ne' 2).symm)]
+        ENNReal.inv_div (Or.inr ofNat_ne_top) (Or.inr (NeZero.ne' 2).symm)]
   have h6 : μ A = 0 := by
     convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top (rpow_ne_top_of_nonneg
       toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_lt
@@ -617,7 +617,7 @@ lemma distribution_add_le [ENormedAddMonoid ε] :
       refine measure_mono fun x h ↦ ?_
       simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
       contrapose! h
-      exact (enorm_add_le _ _).trans (add_le_add h.1 h.2)
+      exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
 
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
@@ -652,9 +652,9 @@ lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ)
   have h2p : 0 ≤ p := hp.le
   have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
     (Eventually.of_forall fun x ↦ norm_nonneg _) hf.norm hp
-  simp only [enorm_eq_nnnorm, norm_nonneg, ← ofReal_rpow_of_nonneg, mul_comm (μ _), ne_eq,
+  simp only [← enorm_eq_nnnorm, norm_nonneg, ← ofReal_rpow_of_nonneg, mul_comm (μ _), ne_eq,
     ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul', ← mul_assoc,
-    ← ofReal_norm_eq_coe_nnnorm, ofReal_mul, distribution, h2p] at this ⊢
+    ← ofReal_norm_eq_enorm, ofReal_mul, distribution, h2p] at this ⊢
   convert this using 1
   refine setLIntegral_congr_fun measurableSet_Ioi (Eventually.of_forall fun x hx ↦ ?_)
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
