@@ -39,6 +39,7 @@ import Carleson.TileExistence
 import Carleson.TileStructure
 import Carleson.ToMathlib.Annulus
 import Carleson.ToMathlib.BoundedCompactSupport
+import Carleson.ToMathlib.Convolution
 import Carleson.ToMathlib.CoverByBalls
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.ENorm
