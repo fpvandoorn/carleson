@@ -196,7 +196,7 @@ private lemma eLpNorm_eq_eLpNorm_rpow (h : G → 𝕜) {r e : ℝ} (r0 : r > 0) 
     (re0 : r - e ≥ 0) (μ0 : μ ≠ 0) :
     eLpNorm (‖h ·‖ₑ ^ ((r - e) / r)) (ENNReal.ofReal (e * r) / ENNReal.ofReal (r - e)) μ =
     eLpNorm h (ENNReal.ofReal e) μ ^ ((r - e) / r) := by
-  have er_pos : 0 < e * r := mul_pos e0 r0
+  have er_pos : 0 < e * r := _root_.mul_pos e0 r0
   by_cases exp_zero : 0 = r - e
   · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_le, eLpNormEssSup_const' _ μ0] -- Replace with `eLpNormEssSup_const` after Mathlib bump
   have r_sub_e_pos : 0 < r - e := lt_of_le_of_ne re0 exp_zero
