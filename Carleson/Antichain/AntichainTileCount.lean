@@ -98,7 +98,7 @@ lemma tile_reach (ha : 4 ≤ a) {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist
           gcongr --uses h12
           have : (2 : ℝ)^a = 2^(a : ℤ) := by rw [@zpow_natCast]
           ring_nf
-          nlinarith
+          nlinarith only
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
       _ ≤ 4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a) * D ^ 𝔰 p' := by
         have h1D : 1 ≤ (D : ℝ) := one_le_D
