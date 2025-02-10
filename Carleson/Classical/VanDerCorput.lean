@@ -50,8 +50,8 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         apply this
         · intro x y
           simp only [Function.comp_apply]
-          rw [edist_eq_enorm_sub, ← map_sub, starRingEnd_apply, enorm_eq_nnnorm, nnnorm_star,
-            ← enorm_eq_nnnorm, ← edist_eq_enorm_sub]
+          rw [edist_eq_enorm_sub, ← map_sub, starRingEnd_apply,
+            enorm_eq_nnnorm, nnnorm_star]
           exact h1 _ _
         · intro x hx
           rw [Function.comp_apply, RCLike.norm_conj]
@@ -59,7 +59,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         · exact Int.neg_ne_zero.mpr n_nonzero
         · rw [Left.neg_pos_iff]; exact lt_of_le_of_ne n_pos n_nonzero
     rw [abs_neg]
-  --Case distinction such that splitting integrals in the second case works.
+  -- Case distinction such that splitting integrals in the second case works.
   by_cases h : b - a < π / n
   · have : 0 < 1 + ↑|n| * (b - a) := by
       apply add_pos_of_pos_of_nonneg zero_lt_one
@@ -99,7 +99,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
   have integrand_continuous2 : Continuous (fun x ↦ cexp (I * ↑n * (↑x + ↑π / ↑n)) * ϕ x) :=
     Continuous.mul (by fun_prop) h1.continuous
   have integrand_continuous3 : Continuous (fun (x : ℝ) ↦ cexp (I * n * x) * ϕ (x - π / n)) :=
-    Continuous.mul (by fun_prop) (h1.continuous.comp (by continuity))
+    Continuous.mul (by fun_prop) (h1.continuous.comp (by fun_prop))
   calc _
     _ = ‖∫ (x : ℝ) in a..b, (1 / 2 * (I * n * x).exp - 1 / 2 * (I * ↑n * (↑x + ↑π / ↑n)).exp) * ϕ x‖ := by
       congr
