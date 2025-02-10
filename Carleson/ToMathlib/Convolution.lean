@@ -216,11 +216,11 @@ include hf hg
 
 /-- Special case of Young's convolution inequality when `r = ∞`. -/
 theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞}
-    (hpq : 1 / p + 1 / q = 1) : eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
+    (hpq : p.IsConjExponent q) : eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
   rw [eLpNorm_exponent_top, eLpNormEssSup]
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
   apply le_trans <|enorm_integral_le_lintegral_enorm _
-  have hpq : 1 / 1 = 1 / p + 1 / q := by rw [hpq, one_div_one]
+  replace hpq : 1 / 1 = 1 / p + 1 /q := by simpa using hpq.inv_add_inv_conj.symm
   have : AEStronglyMeasurable (g <| x - ·) μ :=
     hg.aestronglyMeasurable.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x
   convert ← eLpNorm_smul_le_mul_eLpNorm this hf.aestronglyMeasurable hpq using 2
@@ -358,7 +358,8 @@ theorem eLpNorm_convolution_le {p q r : ℝ≥0∞} (hp : p ≥ 1) (hq : q ≥ 1
   -- First use `eLpNorm_top_convolution_le` to handle the cases where any exponent is `∞`
   by_cases r_top : r = ∞
   · rw [r_top, ENNReal.div_top, zero_add] at hpqr
-    exact r_top ▸ eLpNorm_top_convolution_le hf hg hpqr
+    have hpq : p.IsConjExponent q := by constructor; rwa [one_div, one_div] at hpqr
+    exact r_top ▸ eLpNorm_top_convolution_le hf hg hpq
   have hpq : 1 / p + 1 / q > 1 := by
     rw [hpqr, one_div]
     nth_rewrite 2 [← zero_add 1]
@@ -462,12 +463,12 @@ theorem aestronglyMeasurable_convolution [NormedSpace ℝ F] [AddGroup G] [Measu
 `enorm_convolution_le_eLpNorm_mul_eLpNorm`. -/
 lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
     [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] {p q : ℝ≥0∞} (hpq : 1 = 1 / p + 1 / q)
+    [μ.IsAddLeftInvariant] {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ∫⁻ (a : G), ‖(L (f a)) (g (x₀ - a))‖ₑ ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
   rw [eLpNorm_comp_measurePreserving (p := q) hg (measurePreserving_sub_left μ x₀) |>.symm]
-  replace hpq : 1 / 1 = 1 / p + 1 /q := by rwa [div_one]
+  replace hpq : 1 / 1 = 1 / p + 1 /q := by simpa using hpq.inv_add_inv_conj.symm
   have hg' : AEStronglyMeasurable (g <| x₀ - ·) μ :=
     hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x₀
   have hL' : ∀ᵐ (x : G) ∂μ, ‖L (f x) (g (x₀ - x))‖ ≤ ‖f x‖ * ‖g (x₀ - x)‖ :=
@@ -478,7 +479,7 @@ lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [NormedSpace 
 convolution of `f` and `g` exists everywhere. -/
 theorem convolutionExists_of_memℒp_memℒp [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
     [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant] [μ.IsAddLeftInvariant]
-    [μ.IsAddRightInvariant] {p q : ℝ≥0∞} (hpq : 1 = 1 / p + 1 / q)
+    [μ.IsAddRightInvariant] {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖) (hf : AEStronglyMeasurable f μ)
     (hg : AEStronglyMeasurable g μ) (hfp : Memℒp f p μ) (hgq : Memℒp g q μ) :
     ConvolutionExists f g L μ := by
@@ -490,7 +491,7 @@ theorem convolutionExists_of_memℒp_memℒp [NormedSpace ℝ F] [AddGroup G] [M
 by `eLpNorm f p μ * eLpNorm g q μ`. -/
 theorem enorm_convolution_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
     [MeasurableAdd₂ G] [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] [μ.IsAddRightInvariant] {p q : ℝ≥0∞} (hpq : 1 = 1 / p + 1 / q)
+    [μ.IsAddLeftInvariant] [μ.IsAddRightInvariant] {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ‖(f ⋆[L, μ] g) x₀‖ₑ ≤ eLpNorm f p μ * eLpNorm g q μ :=
