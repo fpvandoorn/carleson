@@ -185,9 +185,20 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       apply czoperator_welldefined hmg hg h2g hr
 
 
-  have integral_x_prime : CZOperator K r g x = (∫ y in bx2rᶜ, K x y * g y) + (∫ y in (bxprc ∩ bx2r), K x y * g y)  := by
-    --MeasureTheory.setIntegral_union
-    sorry
+  have integral_x_prime : CZOperator K r g x' = (∫ y in (bxprc ∩ bx2r), K x' y * g y) + (∫ y in bx2rᶜ, K x' y * g y) := by
+    calc CZOperator K r g x'
+      _ = (∫ y in bxprc, K x' y * g y) := by rfl
+      _ = (∫ y in (bxprc ∩ bx2r) ∪ bx2rᶜ , K x' y * g y) := by nth_rw 1 [dom_x_prime]
+
+    apply MeasureTheory.setIntegral_union_2
+    . rw [disjoint_compl_right_iff_subset]
+      exact inter_subset_right
+    . apply MeasurableSet.compl
+      apply measurableSet_ball
+    . rw [← dom_x_prime]
+      unfold bxprc
+      apply czoperator_welldefined hmg hg h2g hr
+
   sorry
 
 /- Breakdown from PDF
