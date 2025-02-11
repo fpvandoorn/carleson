@@ -113,6 +113,25 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
 /-- The constant used in `estimate_x_shift`. -/
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
 
+lemma czoperator_welldefined {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞)
+    (h2g : volume (support g) < ∞) (hr : 0 < r) :
+    IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
+  sorry
+
+/- This should go somewhere else
+
+But this version of setIntegral_union is easier to apply as it starts from the overall integral which
+is to be estimated.
+-/
+variable {α β E F : Type*} [MeasurableSpace α]
+variable {f : α → ℂ } {s t : Set α} {μ : Measure α}
+
+theorem MeasureTheory.setIntegral_union_2 (hst : Disjoint s t) (ht : MeasurableSet t) (hfst : IntegrableOn f (s ∪ t) μ) :
+    ∫ x in s ∪ t, f x ∂μ = ∫ x in s, f x ∂μ + ∫ x in t, f x ∂μ := by
+  let hfs : IntegrableOn f s μ := IntegrableOn.mono_set hfst subset_union_left
+  let hft : IntegrableOn f t μ := IntegrableOn.mono_set hfst subset_union_right
+  exact setIntegral_union hst ht hfs hft
+
 /-- Lemma 10.1.2 -/
 theorem estimate_x_shift (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
@@ -156,14 +175,15 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       _ = (∫ y in bxrc, K x y * g y) := by rfl
       _ = (∫ y in (bxrc ∩ bx2r) ∪ bx2rᶜ , K x y * g y) := by nth_rw 1 [dom_x]
 
-    apply MeasureTheory.setIntegral_union
+    apply MeasureTheory.setIntegral_union_2
     . rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
     . apply MeasurableSet.compl
       apply measurableSet_ball
-    --. apply IntegrableOn.mono_set (IntegrableOn (fun y → K x y * g y) bxrc volume) bxrc (bxrc ∩ bx2r)
-    . sorry
-    sorry
+    . rw [← dom_x]
+      unfold bxrc
+      apply czoperator_welldefined hmg hg h2g hr
+
 
   have integral_x_prime : CZOperator K r g x = (∫ y in bx2rᶜ, K x y * g y) + (∫ y in (bxprc ∩ bx2r), K x y * g y)  := by
     --MeasureTheory.setIntegral_union
