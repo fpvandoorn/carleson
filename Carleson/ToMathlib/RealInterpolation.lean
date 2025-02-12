@@ -1995,7 +1995,7 @@ lemma value_lintegral_res₀ {j : Bool} {β γ : ℝ} {tc : ToneCouple} (hβ : �
   · rw [h]
     simp only [↓reduceIte]
     rw [lintegral_rpow_of_gt_abs hβ hγ]
-  · have : xor j tc.mon = false := ((fun {a b} ↦ Bool.not_not_eq.mp) fun a ↦ h (a.symm)).symm
+  · have : xor j tc.mon = false := ((fun {a b} ↦ Bool.not_not_eq.mp) fun a ↦ h a.symm).symm
     rw [this]
     simp only [Bool.false_eq_true, ↓reduceIte]
     rw [lintegral_Ioi_rpow_of_lt_abs hβ hγ]
