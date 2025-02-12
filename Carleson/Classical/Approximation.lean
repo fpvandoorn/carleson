@@ -143,7 +143,7 @@ open Topology Filter
 
 /-TODO : Assumptions might be weakened-/
 lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [ContinuousAdd β] {f : ℤ → β} {a : β} (hfa : HasSum f a) :
-    Filter.Tendsto (fun N ↦ ∑ n in Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
+    Filter.Tendsto (fun N ↦ ∑ n ∈ Icc (-Int.ofNat ↑N) N, f n) Filter.atTop (𝓝 a) := by
   have := Filter.Tendsto.add_const (- (f 0)) hfa.nat_add_neg.tendsto_sum_nat
   simp only [add_neg_cancel_right] at this
   /- Need to start at 1 instead of zero for the base case to be true. -/
@@ -154,7 +154,7 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
   · simp
   · have : Icc (- Int.ofNat (N.succ)) (N.succ) = insert (↑(N.succ)) (insert (-Int.ofNat (N.succ)) (Icc (-Int.ofNat N) N)) := by
       rw [←Ico_insert_right, ←Ioo_insert_left]
-      · congr with n
+      · congr 2 with n
         simp only [Int.ofNat_eq_coe, mem_Ioo, mem_Icc]
         push_cast
         rw [Int.lt_add_one_iff, neg_add, ←sub_eq_add_neg, Int.sub_one_lt_iff]
@@ -170,7 +170,6 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
     · simp
     · norm_num
       linarith
-
 
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * π))
     (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :

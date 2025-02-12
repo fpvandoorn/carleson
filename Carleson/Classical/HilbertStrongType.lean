@@ -28,7 +28,7 @@ def modulationOperator (n : ℤ) (g : ℝ → ℂ) (x : ℝ) : ℂ :=
 /-- The approximate Hilbert transform `L_N g`, defined in (11.3.2).
 defined slightly differently. -/
 def approxHilbertTransform (n : ℕ) (g : ℝ → ℂ) (x : ℝ) : ℂ :=
-  (n : ℂ)⁻¹ * ∑ k in .Ico n (2 * n),
+  (n : ℂ)⁻¹ * ∑ k ∈ .Ico n (2 * n),
     modulationOperator (-k) (partialFourierSum k (modulationOperator k g)) x
 
 /-- The kernel `k_r(x)` defined in (11.3.11).
@@ -121,7 +121,7 @@ lemma integrable_bump_convolution {f g : ℝ → ℂ} {n : ℕ}
 
 /-- The function `L'`, defined in the Proof of Lemma 11.3.5. -/
 def dirichletApprox (n : ℕ) (x : ℝ) : ℂ :=
-  (n : ℂ)⁻¹ * ∑ k in .Ico n (2 * n), dirichletKernel k x * Complex.exp (- Complex.I * k * x)
+  (n : ℂ)⁻¹ * ∑ k ∈ .Ico n (2 * n), dirichletKernel k x * Complex.exp (- Complex.I * k * x)
 
 /-- Lemma 11.3.5, part 1. -/
 lemma continuous_dirichletApprox {n : ℕ} : Continuous (dirichletApprox n) := by
