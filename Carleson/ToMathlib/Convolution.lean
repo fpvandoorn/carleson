@@ -14,6 +14,47 @@ theorem MeasureTheory.eLpNormEssSup_const' {α : Type*} {ε : Type*} {m0 : Measu
   sorry
 ---------------------------------------------------------------------------------------------------
 
+
+---------------------------------------------------------------------------------------------------
+-- Add to `Mathlib.MeasureTheory.Function.LpSeminorm.Basic`
+
+variable {α ε E F G : Type*} {m m0 : MeasurableSpace α} {p : ℝ≥0∞} {q : ℝ} {μ ν : Measure α}
+  [NormedAddCommGroup E] [NormedAddCommGroup F] [NormedAddCommGroup G] [ENorm ε]
+
+namespace MeasureTheory
+
+section MapMeasure
+
+variable {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → E}
+
+theorem eLpNormEssSup_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
+    (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
+    eLpNormEssSup g (Measure.map f μ) = eLpNormEssSup (g ∘ f) μ :=
+  essSup_map_measure hg.enorm hf
+
+theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
+    (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
+    eLpNorm g p (Measure.map f μ) = eLpNorm (g ∘ f) p μ := by
+  by_cases hp_zero : p = 0
+  · simp only [hp_zero, eLpNorm_exponent_zero]
+  by_cases hp_top : p = ∞
+  · simp_rw [hp_top, eLpNorm_exponent_top]
+    exact eLpNormEssSup_map_measure' hg hf
+  simp_rw [eLpNorm_eq_lintegral_rpow_enorm hp_zero hp_top]
+  rw [lintegral_map' (hg.enorm.pow_const p.toReal) hf]
+  rfl
+
+theorem eLpNorm_comp_measurePreserving' {ν : MeasureTheory.Measure β} [MeasurableSpace E]
+    [OpensMeasurableSpace E]  (hg : AEMeasurable g ν) (hf : MeasurePreserving f μ ν) :
+    eLpNorm (g ∘ f) p μ = eLpNorm g p ν :=
+  Eq.symm <| hf.map_eq ▸ eLpNorm_map_measure' (hf.map_eq ▸ hg) hf.aemeasurable
+
+end MapMeasure
+
+end MeasureTheory
+---------------------------------------------------------------------------------------------------
+
+
 ---------------------------------------------------------------------------------------------------
 -- Add to `Mathlib.Data.Real.ConjExponents`
 
@@ -279,7 +320,7 @@ variable [AddCommGroup G] [TopologicalSpace G] [TopologicalAddGroup G] [BorelSpa
 
 
 /-- Special case of Young's convolution inequality when `r = ∞`. -/
-theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞} [SecondCountableTopology E']
+theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞}
     (hpq : p.IsConjExponent q) {f : G → E} {g : G → E'} (hf : AEMeasurable f μ)
     (hg : AEMeasurable g μ) {c : ℝ} (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
@@ -300,7 +341,7 @@ theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞} [SecondCountableTopology E
     exact hL y (x - y)
   _ ≤ _ := by
     have : eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ :=
-      eLpNorm_comp_measurePreserving hg.aestronglyMeasurable <| measurePreserving_sub_left μ x
+      eLpNorm_comp_measurePreserving' hg <| measurePreserving_sub_left μ x
     simp_rw [mul_assoc]
     rw [lintegral_const_mul' _ _ ofReal_ne_top]
     apply mul_left_mono
@@ -454,7 +495,7 @@ theorem eLpNorm_convolution_le_ofReal {p q r : ℝ}
 /-- A generalization of Young's convolution inequality that allows an arbitrary `L` as long as
 a bound on the size of `L` (on the ranges of `f` and `g`) is known. See also
 `eLpNorm_convolution_le''`, which is stated similarly in terms of `‖L‖ₑ`. -/
-theorem eLpNorm_convolution_le {p q r : ℝ≥0∞} [SecondCountableTopology E']
+theorem eLpNorm_convolution_le {p q r : ℝ≥0∞}
     (hp : p ≥ 1) (hq : q ≥ 1) (hr : r ≥ 1) (hpqr : 1 / p + 1 / q = 1 / r + 1)
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ)
     {c : ℝ} (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
@@ -485,7 +526,7 @@ theorem eLpNorm_convolution_le {p q r : ℝ≥0∞} [SecondCountableTopology E']
 /-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
 bounded by the product of the `ℒp` and `ℒq` seminorms, where `1 / p + 1 / q = 1 / r + 1` and
 `‖L‖ₑ ≤ 1`. This includes the standard form of the inequality, in which `L` is multiplication. -/
-theorem eLpNorm_convolution_le' {p q r : ℝ≥0∞} [SecondCountableTopology E']
+theorem eLpNorm_convolution_le' {p q r : ℝ≥0∞}
     (hp : p ≥ 1) (hq : q ≥ 1) (hr : r ≥ 1) (hpqr : 1 / p + 1 / q = 1 / r + 1)
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖) :
@@ -495,7 +536,7 @@ theorem eLpNorm_convolution_le' {p q r : ℝ≥0∞} [SecondCountableTopology E'
 
 /-- A generalization of Young's convolution inequality for the `ℒr` seminorm of a convolution
 `(f ⋆[L, μ] g)`, which applies for any `L`.  -/
-theorem eLpNorm_convolution_le'' {p q r : ℝ≥0∞} [SecondCountableTopology E']
+theorem eLpNorm_convolution_le'' {p q r : ℝ≥0∞}
     (hp : p ≥ 1) (hq : q ≥ 1) (hr : r ≥ 1) (hpqr : 1 / p + 1 / q = 1 / r + 1)
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ ‖L‖ₑ * eLpNorm f p μ * eLpNorm g q μ := by
