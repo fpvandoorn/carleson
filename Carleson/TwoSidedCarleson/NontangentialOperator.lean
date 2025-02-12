@@ -118,6 +118,11 @@ lemma czoperator_welldefined {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm 
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   sorry
 
+lemma czoperator_wd_2 {g : X → ℂ} {hmg : Measurable g} {hg : eLpNorm g ∞ < ∞}
+    {h2g : volume (support g) < ∞} {hr : 0 < r} (x : X):
+    IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
+  sorry
+
 /- This should go somewhere else
 
 But this version of setIntegral_union is easier to apply as it starts from the overall integral which
@@ -131,6 +136,7 @@ theorem MeasureTheory.setIntegral_union_2 (hst : Disjoint s t) (ht : MeasurableS
   let hfs : IntegrableOn f s μ := IntegrableOn.mono_set hfst subset_union_left
   let hft : IntegrableOn f t μ := IntegrableOn.mono_set hfst subset_union_right
   exact setIntegral_union hst ht hfs hft
+/- End of somewhere else -/
 
 /-- Lemma 10.1.2 -/
 theorem estimate_x_shift (ha : 4 ≤ a)
@@ -139,6 +145,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     C10_1_2 a * globalMaximalFunction volume 1 g x := by
   let bxrc := (ball x r)ᶜ
   let bx2r := ball x (2*r)
+  -- Domain split x integral
   have dom_x : bxrc =  (bxrc ∩ bx2r) ∪ bx2rᶜ := by
     have tmp1 : bx2rᶜ = bxrc ∩ bx2rᶜ := by
       suffices bx2rᶜ ⊆ bxrc by
@@ -156,20 +163,25 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       _ = (bxrc ∩ bx2r) ∪ bxrc ∩ bx2rᶜ := by rw[Set.inter_union_distrib_left bxrc bx2r bx2rᶜ]
       _ = (bxrc ∩ bx2r) ∪ bx2rᶜ        := by rw[← tmp1]
 
-  let bxprc := (ball x' r)ᶜ
+  set bxprc := (ball x' r)ᶜ
+  have tmp2 : bx2rᶜ ⊆ bxprc := by
+    rw [Set.compl_subset_compl]
+    apply ball_subset
+    calc dist x' x
+    _ = dist x x' := by apply dist_comm
+    _ ≤ r := hx
+    _ = 2 * r - r := by ring
+
+  -- Domain split x' integral
   have dom_x_prime : bxprc = (bxprc ∩ bx2r) ∪ bx2rᶜ := by
-    have tmp2 : bx2rᶜ = bxprc ∩ bx2rᶜ := by
-      rw [Set.right_eq_inter, Set.compl_subset_compl]
+    have tmp3 : bx2rᶜ = bxprc ∩ bx2rᶜ := by
+      rw [Set.right_eq_inter]
+      exact tmp2
 
-      apply ball_subset
-      calc dist x' x
-      _ = dist x x' := by apply dist_comm
-      _ ≤ r := hx
-      _ = 2 * r - r := by ring
-
-    rw [tmp2]
+    rw [tmp3]
     exact Eq.symm (inter_union_compl bxprc bx2r)
 
+  -- Integral split x
   have integral_x : CZOperator K r g x = (∫ y in (bxrc ∩ bx2r), K x y * g y) + (∫ y in bx2rᶜ, K x y * g y) := by
     calc CZOperator K r g x
       _ = (∫ y in bxrc, K x y * g y) := by rfl
@@ -184,7 +196,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       unfold bxrc
       apply czoperator_welldefined hmg hg h2g hr
 
-
+  -- Integral split x'
   have integral_x_prime : CZOperator K r g x' = (∫ y in (bxprc ∩ bx2r), K x' y * g y) + (∫ y in bx2rᶜ, K x' y * g y) := by
     calc CZOperator K r g x'
       _ = (∫ y in bxprc, K x' y * g y) := by rfl
@@ -199,6 +211,31 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       unfold bxprc
       apply czoperator_welldefined hmg hg h2g hr
 
+  let int10_1_2 := 0
+  let int10_1_3 := 0
+  let int10_1_4 := 0
+
+  -- Rewrite lhs according to 10.1.234 split
+  conv =>
+    lhs
+    rw [nndist_dist, Complex.dist_eq, integral_x, integral_x_prime]
+    arg 1; arg 1
+    conv =>
+      arg 2
+      calc _
+        _ = (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)
+                + ((∫ (y : X) in bx2rᶜ, K x y * g y) - (∫ (y : X) in bx2rᶜ, K x' y * g y))
+                - (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y) := by ring
+        _ = (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)
+                + (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y)
+                - (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y) := by
+                  rw[← integral_sub]
+                  apply czoperator_wd_2; exact hmg; exact hg; exact h2g; simp; exact hr
+                  have tmp4 : IntegrableOn (fun y ↦ K x' y * g y) bxprc := by
+                    apply czoperator_wd_2; exact hmg; exact hg; exact h2g; exact hr
+                  apply IntegrableOn.mono_set tmp4 tmp2
+
+
   sorry
 
 /- Breakdown from PDF
@@ -209,7 +246,7 @@ x Split first domain in parts > set work
 x Split 2nd domain in parts > set work
     part 1 r < d x' y and r < d x y < 2r
     part 2 r < d x' y and 2r < d x y which is 2r < d x y by triangle ineq
-  Split integrals accordingly (sum of disjoint) obtain 10.1.234
+x Split integrals accordingly (sum of disjoint) obtain 10.1.234
 
   10.1.2 estimate
     Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
