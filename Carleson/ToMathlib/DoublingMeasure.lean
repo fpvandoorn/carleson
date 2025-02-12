@@ -24,7 +24,7 @@ lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
     (hr : dist x x' + r' ≤ r) : ball x' r' ⊆ ball x r := by
   intro y h
   have h1 : dist x y < r := by
-    calc dist x y ≤ dist x x' + dist x' y := dist_triangle _ _ _
+    calc dist x y ≤ dist x x' + dist x' y := dist_triangle ..
         _ < dist x x' + r' := by gcongr; exact mem_ball'.mp h
         _ ≤ r := hr
   exact mem_ball'.mpr h1
@@ -95,9 +95,9 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
     μ.real (ball x (4 * r)) ≤ A ^ 2 * μ.real (ball x r) := by
   calc μ.real (ball x (4 * r))
       = μ.real (ball x (2 * (2 * r))) := by ring_nf
-    _ ≤ A * μ.real (ball x (2 * r)) := measure_real_ball_two_le_same _ _
+    _ ≤ A * μ.real (ball x (2 * r)) := measure_real_ball_two_le_same ..
     _ ≤ A * (A * μ.real (ball x r)) := mul_le_mul_of_nonneg_left
-      (measure_real_ball_two_le_same _ _) (zero_le_coe)
+      (measure_real_ball_two_le_same ..) (zero_le_coe)
     _ = A ^ 2 * μ.real (ball x r) := by ring_nf
 
 lemma measure_ball_ne_top (x : X) (r : ℝ) : μ (ball x r) ≠ ∞ := measure_ball_lt_top.ne
@@ -123,9 +123,8 @@ lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
       _ = μ.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
       _ = μ.real (ball x (2 * 2 ^ m * r)) := by ring_nf
       _ ≤ A * μ.real (ball x (2 ^ m * r)) := by
-        rw[mul_assoc]; norm_cast; exact measure_real_ball_two_le_same _ _
-      _ ≤ A * (↑(A ^ m) * μ.real (ball x r)) := by
-        exact mul_le_mul_of_nonneg_left hm zero_le_coe
+        rw [mul_assoc]; norm_cast; exact measure_real_ball_two_le_same ..
+      _ ≤ A * (↑(A ^ m) * μ.real (ball x r)) := by gcongr; assumption
       _ = A^(m.succ) * μ.real (ball x r) := by rw [NNReal.coe_pow,← mul_assoc, pow_succ']
 
 lemma measure_ball_le_pow_two' {x : X} {r : ℝ} {n : ℕ} :
@@ -206,8 +205,6 @@ lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
   simp only [Measure.nnreal,← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal
     (measure_ball_ne_top x r), ENNReal.coe_toNNReal (measure_ball_ne_top x' r')]
   exact measure_ball_le_of_dist_le' hs h
-
-
 section
 
 variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
@@ -266,44 +263,40 @@ variable {X : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
 
 instance : IsUnifLocDoublingMeasure (μ : Measure X) where
   exists_measure_closedBall_le_mul'' := by
-    use A^2
+    use A^2, Set.univ, by simp only [univ_mem]
+    simp only [mem_principal]
     use Set.univ
-    constructor
-    · simp only [univ_mem]
-    · simp only [mem_principal]
-      use Set.univ
-      simp only [Set.subset_univ, Set.inter_self, true_and]
-      ext r
-      simp only [ENNReal.coe_pow, Set.mem_setOf_eq, Set.mem_univ, iff_true]
-      intro x
-      letI : Nonempty X := ⟨x⟩
-      if hr : r ≤ 0 then
-        have cball_eq : closedBall x (2 * r) = closedBall x r:= by
-          if hr' : r < 0 then
-            have : 2 * r < 0 := by linarith
-            rw [closedBall_eq_empty.mpr hr',closedBall_eq_empty.mpr this]
-          else
-            push_neg at hr'
-            have : r = 0 := le_antisymm hr hr'
-            rw [this]
-            simp only [mul_zero, closedBall_zero]
-        rw [cball_eq]
-        nth_rw 1 [← one_mul (μ (closedBall x r))]
-        gcongr
-        have : 1 ≤ (A:ℝ≥0∞) := by rw [one_le_coe_iff]; exact one_le_A μ
-        rw [← one_mul 1, pow_two]
-        gcongr
-      else
-      calc
-        μ (closedBall x (2 * r))
-          ≤ μ (ball x (2 * (2 * r))) := μ.mono (closedBall_subset_ball (by linarith))
-        _ ≤ A * μ (ball x (2 * r)) := measure_ball_two_le_same x (2 * r)
-        _ ≤ A * (A * μ (ball x r)) := mul_le_mul_of_nonneg_left
-          (measure_ball_two_le_same x r) (zero_le _)
-        _ = ↑(A ^ 2) * μ (ball x r) := by
-          simp only [pow_two, coe_mul,mul_assoc]
-        _ ≤ ↑(A ^ 2) * μ (closedBall x r) := mul_le_mul_of_nonneg_left
-          (μ.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
+    simp only [Set.subset_univ, Set.inter_self, true_and]
+    ext r
+    simp only [ENNReal.coe_pow, Set.mem_setOf_eq, Set.mem_univ, iff_true]
+    intro x
+    letI : Nonempty X := ⟨x⟩
+    if hr : r ≤ 0 then
+      have cball_eq : closedBall x (2 * r) = closedBall x r:= by
+        if hr' : r < 0 then
+          have : 2 * r < 0 := by linarith
+          rw [closedBall_eq_empty.mpr hr',closedBall_eq_empty.mpr this]
+        else
+          push_neg at hr'
+          have : r = 0 := le_antisymm hr hr'
+          rw [this]
+          simp only [mul_zero, closedBall_zero]
+      rw [cball_eq]
+      nth_rw 1 [← one_mul (μ (closedBall x r))]
+      gcongr
+      have : 1 ≤ (A:ℝ≥0∞) := by rw [one_le_coe_iff]; exact one_le_A μ
+      rw [← one_mul 1, pow_two]
+      gcongr
+    else
+    calc
+      μ (closedBall x (2 * r))
+        ≤ μ (ball x (2 * (2 * r))) := μ.mono (closedBall_subset_ball (by linarith))
+      _ ≤ A * μ (ball x (2 * r)) := measure_ball_two_le_same x (2 * r)
+      _ ≤ A * (A * μ (ball x r)) := mul_le_mul_of_nonneg_left
+        (measure_ball_two_le_same x r) (zero_le _)
+      _ = ↑(A ^ 2) * μ (ball x r) := by simp only [pow_two, coe_mul,mul_assoc]
+      _ ≤ ↑(A ^ 2) * μ (closedBall x r) := mul_le_mul_of_nonneg_left
+        (μ.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
 end Metric
 
 section Normed
