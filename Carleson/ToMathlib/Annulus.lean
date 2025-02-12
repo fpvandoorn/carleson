@@ -69,7 +69,6 @@ lemma co_eq_empty {x : X} {r R : ℝ} (h : r ≥ R) : co x r R = ∅ := by
 lemma cc_eq_empty {x : X} {r R : ℝ} (h : r > R) : cc x r R = ∅ := by
   simp [cc, Icc_eq_empty_of_lt h]
 
-
 lemma oo_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     oo x r₁ R₁ ⊆ oo x r₂ R₂ :=
   fun _ ⟨hr₁, hR₁⟩ ↦ ⟨lt_of_le_of_lt hr hr₁, lt_of_lt_of_le hR₁ hR⟩
@@ -253,7 +252,6 @@ def cc (x : X) (r R : ℝ≥0∞) := {y | edist x y ∈ Icc r R}
 def oi (x : X) (r : ℝ≥0∞) := {y | edist x y ∈ Ioi r}
 def ci (x : X) (r : ℝ≥0∞) := {y | edist x y ∈ Ici r}
 
-
 lemma oo_eq_annulus {x : X} {r R : ℝ} (hr : r ≥ 0) :
     oo x (ENNReal.ofReal r) (ENNReal.ofReal R) = Annulus.oo x r R := by
   simp_rw [oo, Annulus.oo, edist_dist, mem_Ioo, ENNReal.ofReal_lt_ofReal_iff_of_nonneg hr,
@@ -291,7 +289,6 @@ lemma oi_eq_annulus {x : X} {r : ℝ} (hr : r ≥ 0) : oi x (ENNReal.ofReal r) =
 lemma ci_eq_annulus {x : X} {r : ℝ} : ci x (ENNReal.ofReal r) = Annulus.ci x r := by
   simp_rw [ci, Annulus.ci, edist_dist, mem_Ici, ENNReal.ofReal_le_ofReal_iff dist_nonneg]
 
-
 lemma oo_eq_of_lt_top {x : X} {r R : ℝ≥0∞} (hr : r < ⊤) (hR : R < ⊤) :
     oo x r R = ball x R.toReal ∩ (closedBall x r.toReal)ᶜ := by
   ext
@@ -322,7 +319,6 @@ lemma oi_eq_of_lt_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : oi x r = (closed
 lemma ci_eq_of_lt_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : ci x r = (ball x r.toReal)ᶜ := by
   ext; simp [ci, edist_dist, dist_comm, le_ofReal_iff_toReal_le hr.ne dist_nonneg]
 
-
 @[simp]
 lemma oo_eq_empty {x : X} {r R : ℝ≥0∞} (h : r ≥ R) : oo x r R = ∅ := by
   simp [oo, Ioo_eq_empty_of_le h]
@@ -349,7 +345,6 @@ lemma oi_eq_empty {x : X} : oi x ⊤ = ∅ := by simp [oi, edist_dist]
 @[simp]
 lemma ci_eq_empty {x : X} : ci x ⊤ = ∅ := by simp [ci, edist_dist]
 
-
 lemma oo_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) :
     oo x r ⊤ = (closedBall x r.toReal)ᶜ := by
   ext; simpa [oo, edist_dist, dist_comm] using lt_ofReal_iff_toReal_lt hr.ne
@@ -363,7 +358,6 @@ lemma co_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : co x r ⊤ = (ball 
 
 lemma cc_eq_of_top {x : X} {r : ℝ≥0∞} (hr : r < ⊤) : cc x r ⊤ = (ball x r.toReal)ᶜ := by
   ext; simpa [cc, edist_dist, dist_comm] using le_ofReal_iff_toReal_le hr.ne dist_nonneg
-
 
 lemma oo_subset_oo {x : X} {r₁ R₁ r₂ R₂ : ℝ≥0∞} (hr : r₂ ≤ r₁) (hR : R₁ ≤ R₂) :
     oo x r₁ R₁ ⊆ oo x r₂ R₂ :=

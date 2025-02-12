@@ -337,7 +337,7 @@ theorem MB_ae_ne_top' [BorelSpace X] (h𝓑 : 𝓑.Countable)
           gcongr; exact ENNReal.ae_le_essSup fun y ↦ ↑‖u y‖₊
       _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (fun x ↦ eLpNormEssSup u μ) x := by
           gcongr; exact setLaverage_const_le
-      _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; apply indicator_le_self
+      _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; exact indicator_le_self ..
       _ ≤ ⨆ i : ι, eLpNormEssSup u μ := by gcongr; exact iSup_const_le
       _ ≤ eLpNormEssSup u μ := iSup_const_le
       _ < ⊤ := hu.eLpNormEssSup_lt_top
@@ -396,8 +396,6 @@ lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpac
     (h𝓑 : 𝓑.Finite) {p : ℝ≥0} (hp : 1 < p) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) p p μ μ (CMB A p) :=
   hasStrongType_MB h𝓑.countable (Finite.exists_image_le h𝓑 _).choose_spec hp
-
-
 
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
