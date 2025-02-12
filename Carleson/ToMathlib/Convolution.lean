@@ -45,7 +45,7 @@ theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
   rfl
 
 theorem eLpNorm_comp_measurePreserving' {ν : MeasureTheory.Measure β} [MeasurableSpace E]
-    [OpensMeasurableSpace E]  (hg : AEMeasurable g ν) (hf : MeasurePreserving f μ ν) :
+    [OpensMeasurableSpace E] (hg : AEMeasurable g ν) (hf : MeasurePreserving f μ ν) :
     eLpNorm (g ∘ f) p μ = eLpNorm g p ν :=
   Eq.symm <| hf.map_eq ▸ eLpNorm_map_measure' (hf.map_eq ▸ hg) hf.aemeasurable
 
@@ -333,7 +333,7 @@ theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞}
   have hg' : AEMeasurable (g <| x - ·) μ :=
     hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
   calc ∫⁻ y, ‖(L (f y)) (g (x - y))‖ₑ ∂μ
-  _ ≤ ∫⁻ y, ENNReal.ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ  := by
+  _ ≤ ∫⁻ y, ENNReal.ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
     simp_rw [← ofReal_norm_eq_enorm, ← ENNReal.ofReal_mul hc.le]
     refine lintegral_mono (fun y ↦ ?_)
     rw [← ENNReal.ofReal_mul <| mul_nonneg hc.le (norm_nonneg _)]
@@ -489,7 +489,7 @@ theorem eLpNorm_convolution_le_ofReal {p q r : ℝ}
           simp_rw [lintegral_const_mul' _ _ this, ← lintegral_mul_const'' _ hf',
             lintegral_sub_right_eq_self (‖g ·‖ₑ ^ q) _]
         _ = eLpNorm f (ENNReal.ofReal p) μ ^ p * eLpNorm g (ENNReal.ofReal q) μ ^ q := by
-          simp [eLpNorm, eLpNorm',  ← ENNReal.rpow_mul, inv_mul_cancel₀,
+          simp [eLpNorm, eLpNorm', ← ENNReal.rpow_mul, inv_mul_cancel₀,
             p0.not_le, q0.not_le, p0.le, q0.le, p0.ne.symm, q0.ne.symm]
 
 /-- A generalization of Young's convolution inequality that allows an arbitrary `L` as long as
@@ -535,7 +535,7 @@ theorem eLpNorm_convolution_le' {p q r : ℝ≥0∞}
   simpa using eLpNorm_convolution_le hp hq hr hpqr hf hg hL
 
 /-- A generalization of Young's convolution inequality for the `ℒr` seminorm of a convolution
-`(f ⋆[L, μ] g)`, which applies for any `L`.  -/
+`(f ⋆[L, μ] g)`, which applies for any `L`. -/
 theorem eLpNorm_convolution_le'' {p q r : ℝ≥0∞}
     (hp : p ≥ 1) (hq : q ≥ 1) (hr : r ≥ 1) (hpqr : 1 / p + 1 / q = 1 / r + 1)
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
