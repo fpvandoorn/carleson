@@ -106,11 +106,7 @@ theorem indicator_of_isBounded_range {X : Type*} [MetricSpace X] [ProperSpace X]
     · exact Metric.isCompact_of_isClosed_isBounded isClosed_closure h's.closure
     · exact fun x hx ↦ by simp [not_mem_of_not_mem_closure hx]
 
-variable {f : X → 𝕜}
-variable {g : X → 𝕜}
-
-variable (hf : BoundedCompactSupport f)
-variable (hg : BoundedCompactSupport g)
+variable {f : X → 𝕜} {g : X → 𝕜} (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
 section Includehf
 
 include hf

@@ -277,9 +277,9 @@ lemma wnorm_zero : wnorm f 0 μ = ∞ := by
   simp [wnorm, wnorm'_zero]
 
 @[simp]
-lemma wnorm_top : wnorm f ⊤ μ = eLpNormEssSup f μ := rfl
+lemma wnorm_top : wnorm f ⊤ μ = eLpNormEssSup f μ := by simp [wnorm]
 
-lemma wnorm_coe {p : ℝ≥0} : wnorm f p μ = wnorm' f p μ := rfl
+lemma wnorm_coe {p : ℝ≥0} : wnorm f p μ = wnorm' f p μ := by simp [wnorm]
 
 lemma wnorm_ofReal {p : ℝ} (hp : 0 ≤ p) : wnorm f (.ofReal p) μ = wnorm' f p μ := by
   simp [wnorm, hp]
