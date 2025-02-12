@@ -534,6 +534,14 @@ lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
   simp_rw [Finset.filter_filter]
   congr
 
+lemma stackSize_inter_add_stackSize_sdiff :
+    stackSize (C ∩ C') x + stackSize (C \ C') x = stackSize C x :=
+  stackSize_setOf_add_stackSize_setOf_not
+
+lemma stackSize_sdiff_eq (x : X) :
+  stackSize (C \ C') x = stackSize C x - stackSize (C ∩ C') x := by
+  exact Nat.eq_sub_of_add_eq' stackSize_inter_add_stackSize_sdiff
+
 lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
     stackSize C x = stackSize C x' := by
   refine Finset.sum_congr rfl fun p hp ↦ ?_
