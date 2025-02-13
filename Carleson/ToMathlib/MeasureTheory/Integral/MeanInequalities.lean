@@ -365,11 +365,9 @@ theorem eLpNorm_convolution_le'' {p q r : ℝ≥0∞}
     (hp : p ≥ 1) (hq : q ≥ 1) (hr : r ≥ 1) (hpqr : 1 / p + 1 / q = 1 / r + 1)
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ ‖L‖ₑ * eLpNorm f p μ * eLpNorm g q μ := by
-  have hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖L‖ * ‖f x‖ * ‖g y‖ :=
-    fun x y ↦ ((L (f x)).le_opNorm _).trans <|
-      mul_le_mul_of_nonneg_right (L.le_opNorm (f x)) (norm_nonneg _)
-  convert eLpNorm_convolution_le hp hq hr hpqr hf hg hL
   rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg L)]
+  exact eLpNorm_convolution_le hp hq hr hpqr hf hg <| fun x y ↦
+    ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 end ENNReal
 
