@@ -1,156 +1,38 @@
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.Analysis.Convolution
+import Mathlib.MeasureTheory.Integral.MeanInequalities
+import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+import Mathlib.MeasureTheory.Group.Measure
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
+import Mathlib.Analysis.Convolution
+import Carleson.ToMathlib.Data.Real.ConjExponents
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
+import Carleson.ToMathlib.MeasureTheory.Group.LIntegral
+import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
+import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 
-open MeasureTheory Measure
-open scoped Convolution ENNReal
+open MeasureTheory
+open scoped ENNReal
+
+
+variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 
 ---------------------------------------------------------------------------------------------------
 -- NOT to be added to Mathlib
 
 -- Temporary stand-in for Mathlib's new version of `eLpNormEssSup_const` until next bump
-theorem MeasureTheory.eLpNormEssSup_const' {α : Type*} {ε : Type*} {m0 : MeasurableSpace α}
-    {μ : Measure α} [ENorm ε] (c : ε) (hμ : μ ≠ 0) : eLpNormEssSup (fun _ : α => c) μ = ‖c‖ₑ := by
+theorem MeasureTheory.eLpNormEssSup_const' {ε : Type*} [ENorm ε] (c : ε) (hμ : μ ≠ 0) :
+    eLpNormEssSup (fun _ : α => c) μ = ‖c‖ₑ := by
   sorry
 ---------------------------------------------------------------------------------------------------
 
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.MeasureTheory.Function.LpSeminorm.Basic`
-
-variable {α ε E F G : Type*} {m m0 : MeasurableSpace α} {p : ℝ≥0∞} {q : ℝ} {μ ν : Measure α}
-  [NormedAddCommGroup E] [NormedAddCommGroup F] [NormedAddCommGroup G] [ENorm ε]
-
-namespace MeasureTheory
-
-section MapMeasure
-
-variable {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → E}
-
-theorem eLpNormEssSup_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
-    (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
-    eLpNormEssSup g (Measure.map f μ) = eLpNormEssSup (g ∘ f) μ :=
-  essSup_map_measure hg.enorm hf
-
-theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
-    (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
-    eLpNorm g p (Measure.map f μ) = eLpNorm (g ∘ f) p μ := by
-  by_cases hp_zero : p = 0
-  · simp only [hp_zero, eLpNorm_exponent_zero]
-  by_cases hp_top : p = ∞
-  · simp_rw [hp_top, eLpNorm_exponent_top]
-    exact eLpNormEssSup_map_measure' hg hf
-  simp_rw [eLpNorm_eq_lintegral_rpow_enorm hp_zero hp_top]
-  rw [lintegral_map' (hg.enorm.pow_const p.toReal) hf]
-  rfl
-
-theorem eLpNorm_comp_measurePreserving' {ν : MeasureTheory.Measure β} [MeasurableSpace E]
-    [OpensMeasurableSpace E] (hg : AEMeasurable g ν) (hf : MeasurePreserving f μ ν) :
-    eLpNorm (g ∘ f) p μ = eLpNorm g p ν :=
-  Eq.symm <| hf.map_eq ▸ eLpNorm_map_measure' (hf.map_eq ▸ hg) hf.aemeasurable
-
-end MapMeasure
-
-end MeasureTheory
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.Data.Real.ConjExponents`
-
 namespace ENNReal
-namespace IsConjExponent
 
-variable {p q : ℝ≥0∞} (h : p.IsConjExponent q)
-
-section
-include h
-
-lemma conjExponent_toReal (hp : p ≠ ∞) (hq : q ≠ ∞) : p.toReal.IsConjExponent q.toReal := by
-  constructor
-  · rw [← ENNReal.ofReal_lt_iff_lt_toReal one_pos.le hp, ofReal_one]
-    exact h.one_le.lt_of_ne (fun p_eq_1 ↦ hq (by simpa [p_eq_1] using h.conj_eq))
-  · rw [← toReal_inv, ← toReal_inv, ← toReal_add, h.inv_add_inv_conj, ENNReal.toReal_eq_one_iff]
-    · exact ENNReal.inv_ne_top.mpr h.ne_zero
-    · exact ENNReal.inv_ne_top.mpr h.symm.ne_zero
-
-end
-end IsConjExponent
-end ENNReal
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.MeasureTheory.Measure.Prod`
-
-namespace MeasureTheory
-
-open Function
-
-variable {α β : Type*}
-
-variable [MeasurableSpace α] [MeasurableSpace β]
-variable {μ : Measure α} {ν : Measure β}
-
--- Proof copied from `MeasureTheory.AEStronglyMeasurable.integral_prod_right'`
--- Was it intentional that there's no left version?
-theorem AEMeasurable.lintegral_prod_right' [SFinite ν] ⦃f : α × β → ℝ≥0∞⦄
-    (hf : AEMeasurable f (μ.prod ν)) : AEMeasurable (fun (x : α) ↦ ∫⁻ (y : β), f (x, y) ∂ν) μ :=
-  ⟨fun x ↦ ∫⁻ y, hf.mk f (x, y) ∂ν, hf.measurable_mk.lintegral_prod_right', by
-    filter_upwards [ae_ae_of_ae_prod hf.ae_eq_mk] with _ hx using lintegral_congr_ae hx⟩
-
-theorem AEMeasurable.lintegral_prod_right [SFinite ν] {f : α → β → ℝ≥0∞}
-    (hf : Measurable (uncurry f)) : Measurable fun x => ∫⁻ y, f x y ∂ν :=
-  hf.lintegral_prod_right'
-
-end MeasureTheory
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.MeasureTheory.Group.LIntegral`
-
-namespace MeasureTheory
-
-variable {G : Type*} [MeasurableSpace G] {μ : Measure G}
-
-section MeasurableInv
-variable [Group G] [MeasurableInv G]
-
-/-- If `μ` is invariant under inversion, then `∫⁻ x, f x ∂μ` is unchanged by replacing
-`x` with `x⁻¹` -/
-@[to_additive
-  "If `μ` is invariant under negation, then `∫⁻ x, f x ∂μ` is unchanged by replacing `x` with `-x`"]
-theorem lintegral_inv_eq_self [μ.IsInvInvariant] (f : G → ℝ≥0∞) :
-    ∫⁻ (x : G), f x⁻¹ ∂μ = ∫⁻ (x : G), f x ∂μ := by
-  simpa using (lintegral_map_equiv f (μ := μ) <| MeasurableEquiv.inv G).symm
-
-end MeasurableInv
-
-section MeasurableMul
-
-variable [Group G] [MeasurableMul G]
-
-@[to_additive]
-theorem lintegral_div_left_eq_self [IsMulLeftInvariant μ] [MeasurableInv G] [IsInvInvariant μ]
-    (f : G → ℝ≥0∞) (g : G) : (∫⁻ x, f (g / x) ∂μ) = ∫⁻ x, f x ∂μ := by
-  simp_rw [div_eq_mul_inv, lintegral_inv_eq_self (f <| g * ·), lintegral_mul_left_eq_self]
-
-end MeasurableMul
-
-end MeasureTheory
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.MeasureTheory.Integral.MeanInequalities`
-
-open Classical in
+-- Add after `lintegral_prod_norm_pow_le`
 /-- A version of Hölder with multiple arguments, allowing `∞` as an exponent. -/
-theorem ENNReal.lintegral_prod_norm_pow_le' {α : Type*} {ι : Type*} [MeasurableSpace α]
-    {μ : Measure α} {s : Finset ι} {f : ι → α → ℝ≥0∞}
-    (hf : ∀ i ∈ s, AEMeasurable (f i) μ) {p : ι → ℝ≥0∞} (hp : ∑ i ∈ s, 1 / p i = 1) :
+theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : Measure α}
+    {s : Finset ι} {f : ι → α → ℝ≥0∞} (hf : ∀ i ∈ s, AEMeasurable (f i) μ)
+    {p : ι → ℝ≥0∞} (hp : ∑ i ∈ s, 1 / p i = 1) :
     ∫⁻ (a : α), ∏ i ∈ s, f i a ∂μ ≤ ∏ i ∈ s, eLpNorm (f i) (p i) μ := by
+  classical
   revert hp hf
   refine Finset.strongInduction (fun s hs hf hp ↦ ?_) s (p := fun s ↦
     (∀ i ∈ s, AEMeasurable (f i) μ) → (∑ i ∈ s, 1 / p i = 1) →
@@ -183,68 +65,8 @@ theorem ENNReal.lintegral_prod_norm_pow_le' {α : Type*} {ι : Type*} [Measurabl
   have p_ne_top : ∀ i ∈ s, p i ≠ ∞ := fun i hi h ↦ exists_top ⟨i, hi, h⟩
   convert ENNReal.lintegral_prod_norm_pow_le s hf' hp₁ hp₂ with a i₀ hi₀ i hi
   · rw [← ENNReal.rpow_mul, one_div, mul_inv_cancel₀, rpow_one]
-    exact ENNReal.toReal_ne_zero.mpr ⟨p_ne_0 i₀ hi₀, fun h ↦ exists_top ⟨i₀, hi₀, h⟩⟩
+    exact ENNReal.toReal_ne_zero.mpr ⟨p_ne_0 i₀ hi₀, (exists_top ⟨i₀, hi₀, ·⟩)⟩
   · simp [eLpNorm, eLpNorm', p_ne_0 i hi, p_ne_top i hi]
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.MeasureTheory.Measure.Haar.Unique`
-
-variable {G : Type*} [TopologicalSpace G] [Group G] [TopologicalGroup G]
-  [MeasurableSpace G] [BorelSpace G]
-
-namespace MeasureTheory.Measure
-
--- This is a generalization of `IsHaarMeasure.isInvInvariant_of_regular`, using the same proof.
--- Now `IsHaarMeasure.isInvInvariant_of_regular` can be proven as a special case.
-/-- Any regular bi-invariant Haar measure is invariant under inversion. -/
-@[to_additive "Any regular bi-invariant additive Haar measure is invariant under negation."]
-instance (priority := 100) IsHaarMeasure.isInvInvariant_of_isMulRightInvariant (μ : Measure G)
-    [μ.IsHaarMeasure] [LocallyCompactSpace G] [μ.IsMulRightInvariant] [μ.Regular] :
-    IsInvInvariant μ := by
-  constructor
-  let c : ℝ≥0∞ := haarScalarFactor μ.inv μ
-  have hc : μ.inv = c • μ := isMulLeftInvariant_eq_smul_of_regular μ.inv μ
-  have : map Inv.inv (map Inv.inv μ) = c ^ 2 • μ := by
-    rw [← inv_def μ, hc, Measure.map_smul, ← inv_def μ, hc, smul_smul, pow_two]
-  have μeq : μ = c ^ 2 • μ := by
-    simpa [map_map continuous_inv.measurable continuous_inv.measurable] using this
-  have K : TopologicalSpace.PositiveCompacts G := Classical.arbitrary _
-  have : c ^ 2 * μ K = 1 ^ 2 * μ K := by
-    conv_rhs => rw [μeq]
-    simp
-  have : c ^ 2 = 1 ^ 2 :=
-    (ENNReal.mul_left_inj (measure_pos_of_nonempty_interior _ K.interior_nonempty).ne'
-          K.isCompact.measure_lt_top.ne).1 this
-  have : c = 1 := (ENNReal.pow_right_strictMono two_ne_zero).injective this
-  rw [hc, this, one_smul]
-
-section CommGroup
-
-variable {G : Type*} [CommGroup G] [TopologicalSpace G] [TopologicalGroup G]
-  [MeasurableSpace G] [BorelSpace G] (μ : Measure G) [IsHaarMeasure μ]
-
--- This is the new proof of `IsHaarMeasure.isInvInvariant_of_regular`; the prime is only used on
--- the name temporarily to avoid a collision.
-/-- Any regular Haar measure is invariant under inversion in an abelian group. -/
-@[to_additive "Any regular additive Haar measure is invariant under negation in an abelian group."]
-instance (priority := 100) IsHaarMeasure.isInvInvariant_of_regular'
-    [LocallyCompactSpace G] [μ.Regular] : μ.IsInvInvariant :=
-  IsHaarMeasure.isInvInvariant_of_isMulRightInvariant μ
-
-end CommGroup
-
-end MeasureTheory.Measure
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.MeasureTheory.Integral.MeanInequalities`
-
-variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
-
-namespace ENNReal
 
 /-- Hölder's inequality for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞`-/
 theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
@@ -262,7 +84,10 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.IsConjE
 
 end ENNReal
 
-section Young
+
+section Convolution
+
+open scoped Convolution
 
 -- Used in the proof of Young's convolution inequality
 private lemma r_sub_p_nonneg {p q r : ℝ} (p0 : p > 0) (hq : q ≥ 1) (r0 : r > 0)
@@ -341,7 +166,7 @@ theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞}
     exact hL y (x - y)
   _ ≤ _ := by
     have : eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ :=
-      eLpNorm_comp_measurePreserving' hg <| measurePreserving_sub_left μ x
+      eLpNorm_comp_measurePreserving' hg (μ.measurePreserving_sub_left x)
     simp_rw [mul_assoc]
     rw [lintegral_const_mul' _ _ ofReal_ne_top]
     apply mul_left_mono
@@ -548,123 +373,4 @@ theorem eLpNorm_convolution_le'' {p q r : ℝ≥0∞}
 
 end ENNReal
 
-end Young
----------------------------------------------------------------------------------------------------
-
--- The remaining theorems below are not currently needed, but may be worth adding to Mathlib anyway
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.MeasureTheory.Integral.Lebesgue`
-
-namespace MeasureTheory
-
-open SimpleFunc
-
-/-- Generalization of `MeasureTheory.lintegral_eq_iSup_eapprox_lintegral` assuming a.e.
-measurability of `f` -/
-theorem lintegral_eq_iSup_eapprox_lintegral' {α : Type*} {m : MeasurableSpace α} {μ : Measure α}
-    {f : α → ENNReal} (hf : AEMeasurable f μ) :
-    ∫⁻ (a : α), f a ∂μ = ⨆ (n : ℕ), (eapprox (hf.mk f) n).lintegral μ := calc
-  _ = ∫⁻ a, hf.mk f a ∂μ                                    := lintegral_congr_ae hf.ae_eq_mk
-  _ = ∫⁻ a, ⨆ n, (eapprox (hf.mk f) n : α → ℝ≥0∞) a ∂μ      := by
-    congr; ext a; rw [iSup_eapprox_apply hf.measurable_mk]
-  _ = ⨆ n, ∫⁻ a, eapprox (hf.mk f) n a ∂μ                   :=
-    lintegral_iSup (fun _ ↦ SimpleFunc.measurable _) (fun _ _ h ↦ monotone_eapprox (hf.mk f) h)
-  _ = ⨆ n, (eapprox (hf.mk f) n).lintegral μ                := by simp_rw [lintegral_eq_lintegral]
-
-/-- Generalization of `MeasureTheory.lintegral_comp` assuming a.e. measurability of `f` and `g` -/
-theorem lintegral_comp' {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α}
-    [MeasurableSpace β] {f : β → ENNReal} {g : α → β} (hf : AEMeasurable f (map g μ))
-    (hg : AEMeasurable g μ) : lintegral μ (f ∘ g) = ∫⁻ a, f a ∂map g μ := by
-  rw [μ.map_congr hg.ae_eq_mk] at hf ⊢
-  calc  ∫⁻ a, (f ∘ g) a ∂μ
-    _ = ∫⁻ a, (hf.mk f ∘ hg.mk g) a ∂μ     := by
-      rw [lintegral_congr_ae (hg.ae_eq_mk.fun_comp f)]
-      exact lintegral_congr_ae (ae_of_ae_map hg.measurable_mk.aemeasurable hf.ae_eq_mk)
-    _ = ∫⁻ a, hf.mk f a ∂μ.map (hg.mk g)   := lintegral_comp hf.measurable_mk hg.measurable_mk
-    _ = ∫⁻ a, f a ∂μ.map (hg.mk g)         := lintegral_congr_ae hf.ae_eq_mk.symm
-
-end MeasureTheory
----------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
--- Add to `Mathlib.Analysis.Convolution`
-
-namespace MeasureTheory
-
-universe u𝕜 uG uE uE' uF
-
-variable {𝕜 : Type u𝕜} {G : Type uG} {E : Type uE} {E' : Type uE'} {F : Type uF}
-
-variable [NormedAddCommGroup E] [NormedAddCommGroup E'] [NormedAddCommGroup F]
-  {f : G → E} {g : G → E'}
-
-variable [NontriviallyNormedField 𝕜]
-
-variable [NormedSpace 𝕜 E] [NormedSpace 𝕜 E'] [NormedSpace 𝕜 F]
-variable {L : E →L[𝕜] E' →L[𝕜] F}
-
-variable [MeasurableSpace G]
-
-/-- Special case of ``convolution_flip` when `L` is symmetric. -/
-theorem convolution_symm {f : G → E} {g : G → E} (L : E →L[𝕜] E →L[𝕜] F)
-    (hL : ∀ (x y : E), L x y = L y x) [NormedSpace ℝ F] [AddCommGroup G]
-    {μ : Measure G} [μ.IsAddLeftInvariant] [μ.IsNegInvariant] [MeasurableNeg G] [MeasurableAdd G] :
-    f ⋆[L, μ] g = g ⋆[L, μ] f := by
-  suffices L.flip = L by rw [← convolution_flip, this]
-  ext x y
-  exact hL y x
-
-/-- The convolution of two a.e. strongly measurable functions is a.e. strongly measurable. -/
-theorem aestronglyMeasurable_convolution [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
-    [MeasurableNeg G] {μ : Measure G} [SigmaFinite μ] [μ.IsAddRightInvariant]
-    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
-    AEStronglyMeasurable (f ⋆[L, μ] g) μ := by
-  suffices AEStronglyMeasurable (fun ⟨x, t⟩ ↦ g (x - t)) (μ.prod μ) from
-    (L.aestronglyMeasurable_comp₂ hf.snd this).integral_prod_right'
-  refine hg.comp_quasiMeasurePreserving <| QuasiMeasurePreserving.prod_of_left measurable_sub ?_
-  apply Filter.Eventually.of_forall (fun x ↦ ?_)
-  exact ⟨measurable_sub_const x, by rw [map_sub_right_eq_self μ x]⟩
-
-/-- This implies both of the following theorems `convolutionExists_of_memℒp_memℒp` and
-`enorm_convolution_le_eLpNorm_mul_eLpNorm`. -/
-lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
-    [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
-    (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
-    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
-    ∫⁻ (a : G), ‖(L (f a)) (g (x₀ - a))‖ₑ ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
-  rw [eLpNorm_comp_measurePreserving (p := q) hg (measurePreserving_sub_left μ x₀) |>.symm]
-  replace hpq : 1 / 1 = 1 / p + 1 /q := by simpa using hpq.inv_add_inv_conj.symm
-  have hg' : AEStronglyMeasurable (g <| x₀ - ·) μ :=
-    hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x₀
-  have hL' : ∀ᵐ (x : G) ∂μ, ‖L (f x) (g (x₀ - x))‖ ≤ ‖f x‖ * ‖g (x₀ - x)‖ :=
-    Filter.Eventually.of_forall (fun x ↦ hL x (x₀ - x))
-  simpa [eLpNorm, eLpNorm'] using eLpNorm_le_eLpNorm_mul_eLpNorm'_of_norm hf hg' (L ·) hL' hpq
-
-/-- If `Memℒp f p μ` and `Memℒp g q μ`, where `p` and `q` are Hölder conjugates, then the
-convolution of `f` and `g` exists everywhere. -/
-theorem convolutionExists_of_memℒp_memℒp [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
-    [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant] [μ.IsAddLeftInvariant]
-    [μ.IsAddRightInvariant] {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
-    (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖) (hf : AEStronglyMeasurable f μ)
-    (hg : AEStronglyMeasurable g μ) (hfp : Memℒp f p μ) (hgq : Memℒp g q μ) :
-    ConvolutionExists f g L μ := by
-  refine fun x ↦ ⟨AEStronglyMeasurable.convolution_integrand_snd L hf hg x, ?_⟩
-  apply lt_of_le_of_lt (lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm hpq hL hf hg x)
-  exact ENNReal.mul_lt_top hfp.eLpNorm_lt_top hgq.eLpNorm_lt_top
-
-/-- If `p` and `q` are Hölder conjugates, then the convolution of `f` and `g` is bounded everywhere
-by `eLpNorm f p μ * eLpNorm g q μ`. -/
-theorem enorm_convolution_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
-    [MeasurableAdd₂ G] [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] [μ.IsAddRightInvariant] {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
-    (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
-    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
-    ‖(f ⋆[L, μ] g) x₀‖ₑ ≤ eLpNorm f p μ * eLpNorm g q μ :=
-  (enorm_integral_le_lintegral_enorm _).trans <|
-    lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm hpq hL hf hg x₀
-
-end MeasureTheory
----------------------------------------------------------------------------------------------------
+end Convolution
