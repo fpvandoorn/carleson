@@ -83,7 +83,7 @@ end Forest
 variable (X) in
 /-- An `n`-row -/
 structure Row (n : ℕ) extends Forest X n where
-  pairwiseDisjoint' : 𝔘.PairwiseDisjoint 𝔗
+  pairwiseDisjoint' : 𝔘.PairwiseDisjoint (fun u ↦ (𝓘 u : Set X))
 
 namespace Row
 
@@ -96,7 +96,8 @@ instance : CoeFun (Row X n) (fun _ ↦ 𝔓 X → Set (𝔓 X)) := ⟨fun t x �
 @[simp] lemma mem_𝔘 : u ∈ t.𝔘 ↔ u ∈ t := .rfl
 @[simp] lemma mem_𝔗 : p ∈ t.𝔗 u ↔ p ∈ t u := .rfl
 
-lemma pairwiseDisjoint : Set.PairwiseDisjoint t t := t.pairwiseDisjoint'
+lemma pairwiseDisjoint : Set.PairwiseDisjoint (t : Set (𝔓 X)) (fun u ↦ (𝓘 u : Set X)) :=
+  t.pairwiseDisjoint'
 
 end Row
 end TileStructure
