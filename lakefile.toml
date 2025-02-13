@@ -10,7 +10,7 @@ linter.style.longLine = false
 linter.oldObtain = true
 linter.refine = true
 linter.style.multiGoal = true
-linter.flexible = true
+weak.linter.flexible = true
 
 [[require]]
 name = "mathlib"
