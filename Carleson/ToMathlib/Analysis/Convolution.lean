@@ -45,7 +45,7 @@ lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [NormedSpace 
     [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
-    ∫⁻ (a : G), ‖(L (f a)) (g (x₀ - a))‖ₑ ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
+    ∫⁻ a, ‖L (f a) (g (x₀ - a))‖ₑ ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
   rw [eLpNorm_comp_measurePreserving (p := q) hg (μ.measurePreserving_sub_left x₀) |>.symm]
   replace hpq : 1 / 1 = 1 / p + 1 /q := by simpa using hpq.inv_add_inv_conj.symm
   have hg' : AEStronglyMeasurable (g <| x₀ - ·) μ :=
