@@ -79,7 +79,7 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.IsConjE
     apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_right_mono ha))
     simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg]
   push_neg at pq_top
-  convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.conjExponent_toReal pq_top.1 pq_top.2) hf hg
+  convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal pq_top.1 pq_top.2) hf hg
   all_goals simp [eLpNorm, eLpNorm', hpq.ne_zero, hpq.symm.ne_zero, pq_top]
 
 end ENNReal
