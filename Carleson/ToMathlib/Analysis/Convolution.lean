@@ -28,7 +28,7 @@ theorem convolution_symm {f : G → E} {g : G → E} (L : E →L[𝕜] E →L[�
   exact hL y x
 
 /-- The convolution of two a.e. strongly measurable functions is a.e. strongly measurable. -/
-theorem aestronglyMeasurable_convolution [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
+theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
     [MeasurableNeg G] {μ : Measure G} [SigmaFinite μ] [μ.IsAddRightInvariant]
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     AEStronglyMeasurable (f ⋆[L, μ] g) μ := by

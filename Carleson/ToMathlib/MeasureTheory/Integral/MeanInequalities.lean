@@ -68,7 +68,7 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
     exact ENNReal.toReal_ne_zero.mpr ⟨p_ne_0 i₀ hi₀, (exists_top ⟨i₀, hi₀, ·⟩)⟩
   · simp [eLpNorm, eLpNorm', p_ne_0 i hi, p_ne_top i hi]
 
-/-- Hölder's inequality for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞`-/
+/-- **Hölder's inequality** for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞`-/
 theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
     {f g : α → ENNReal} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     ∫⁻ (a : α), (f * g) a ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
@@ -144,7 +144,7 @@ variable [AddCommGroup G] [TopologicalSpace G] [TopologicalAddGroup G] [BorelSpa
   [MeasurableSpace E] [OpensMeasurableSpace E] [MeasurableSpace E'] [OpensMeasurableSpace E']
 
 
-/-- Special case of Young's convolution inequality when `r = ∞`. -/
+/-- Special case of **Young's convolution inequality** when `r = ∞`. -/
 theorem eLpNorm_top_convolution_le {p q : ℝ≥0∞}
     (hpq : p.IsConjExponent q) {f : G → E} {g : G → E'} (hf : AEMeasurable f μ)
     (hg : AEMeasurable g μ) {c : ℝ} (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
@@ -194,11 +194,8 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm {p q r : ℝ}
     | 0 => fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)
     | 1 => fun y ↦ ‖f y‖ₑ ^ ((r - p) / r)
     | 2 => fun y ↦ ‖g (x - y)‖ₑ ^ ((r - q) / r)
-  let P (i : Fin 3) : ℝ≥0∞ :=
-    match i with
-    | 0 => ENNReal.ofReal r
-    | 1 => ENNReal.ofReal (p * r) / ENNReal.ofReal (r - p)
-    | 2 => ENNReal.ofReal (q * r) / ENNReal.ofReal (r - q)
+  let P : Fin 3 → ℝ≥0∞ :=
+    ![.ofReal r, .ofReal (p * r) / .ofReal (r - p), .ofReal (q * r) / .ofReal (r - q)]
   have p0 : 0 < p := lt_of_lt_of_le one_pos hp
   have q0 : 0 < q := lt_of_lt_of_le one_pos hq
   have r0 : 0 < r := lt_of_lt_of_le one_pos hr

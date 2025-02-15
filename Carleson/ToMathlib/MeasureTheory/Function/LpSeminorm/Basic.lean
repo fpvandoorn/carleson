@@ -31,7 +31,7 @@ theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
   rw [lintegral_map' (hg.enorm.pow_const p.toReal) hf]
   rfl
 
-theorem eLpNorm_comp_measurePreserving' {ν : MeasureTheory.Measure β} [MeasurableSpace E]
+theorem eLpNorm_comp_measurePreserving' {ν : Measure β} [MeasurableSpace E]
     [OpensMeasurableSpace E] (hg : AEMeasurable g ν) (hf : MeasurePreserving f μ ν) :
     eLpNorm (g ∘ f) p μ = eLpNorm g p ν :=
   Eq.symm <| hf.map_eq ▸ eLpNorm_map_measure' (hf.map_eq ▸ hg) hf.aemeasurable
