@@ -21,7 +21,7 @@ theorem AEMeasurable.lintegral_prod_right' [SFinite ν] ⦃f : α × β → ℝ�
     filter_upwards [ae_ae_of_ae_prod hf.ae_eq_mk] with _ hx using lintegral_congr_ae hx⟩
 
 theorem AEMeasurable.lintegral_prod_right [SFinite ν] {f : α → β → ℝ≥0∞}
-    (hf : Measurable (uncurry f)) : Measurable fun x => ∫⁻ y, f x y ∂ν :=
+    (hf : AEMeasurable (uncurry f) (μ.prod ν)) : AEMeasurable (fun x ↦ ∫⁻ y, f x y ∂ν) μ :=
   hf.lintegral_prod_right'
 
 end MeasureTheory
