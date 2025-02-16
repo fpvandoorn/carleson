@@ -28,8 +28,8 @@ theorem convolution_symm {f : G → E} {g : G → E} (L : E →L[𝕜] E →L[�
   exact hL y x
 
 /-- The convolution of two a.e. strongly measurable functions is a.e. strongly measurable. -/
-theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
-    [MeasurableNeg G] {μ : Measure G} [SigmaFinite μ] [μ.IsAddRightInvariant]
+protected theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup G]
+    [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SigmaFinite μ] [μ.IsAddRightInvariant]
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     AEStronglyMeasurable (f ⋆[L, μ] g) μ := by
   suffices AEStronglyMeasurable (fun ⟨x, t⟩ ↦ g (x - t)) (μ.prod μ) from
@@ -56,7 +56,7 @@ lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [NormedSpace 
 
 /-- If `Memℒp f p μ` and `Memℒp g q μ`, where `p` and `q` are Hölder conjugates, then the
 convolution of `f` and `g` exists everywhere. -/
-theorem convolutionExists_of_memℒp_memℒp [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
+theorem ConvolutionExists.of_memℒp_memℒp [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
     [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant] [μ.IsAddLeftInvariant]
     [μ.IsAddRightInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖) (hf : AEStronglyMeasurable f μ)
