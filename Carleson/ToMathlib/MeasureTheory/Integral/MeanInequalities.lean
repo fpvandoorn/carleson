@@ -239,7 +239,8 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm {p q r : ℝ}
         simpa [Fin.prod_univ_succ] using lintegral_prod_norm_pow_le' ae_meas this
       -- It remains to check ∑ 1 / P i = 1, which is trivial, aside from technicalities in `ℝ≥0∞`
       simp_rw [Fin.sum_univ_succ, Fin.succ_zero_eq_one, Fin.succ_one_eq_two,
-        Finset.univ_eq_empty, Finset.sum_empty, add_zero, P, one_div]
+        Finset.univ_eq_empty, Finset.sum_empty, add_zero, P, one_div, Matrix.cons_val_zero,
+        Matrix.cons_val_one, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
       repeat rw [ENNReal.inv_div]
       · rw [ofReal_sub r p0.le, ofReal_sub r q0.le, ofReal_mul p0.le, ofReal_mul q0.le]
         repeat rw [ENNReal.sub_div (by simp [p0, q0, r0])]
@@ -258,7 +259,8 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm {p q r : ℝ}
     _ = _ := by
       congr
       · exact eLpNorm_eq_eLpNorm_rpow f r0 p0 rp0 μ0
-      · rw [eLpNorm_eq_eLpNorm_rpow (g <| x - ·) r0 q0 rq0 μ0]
+      · simp_rw [P, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
+        rw [eLpNorm_eq_eLpNorm_rpow (g <| x - ·) r0 q0 rq0 μ0]
         simp [eLpNorm, eLpNorm', lintegral_sub_left_eq_self (‖g ·‖ₑ ^ (ENNReal.ofReal q).toReal) x]
 
 theorem eLpNorm_convolution_le_ofReal {p q r : ℝ}
