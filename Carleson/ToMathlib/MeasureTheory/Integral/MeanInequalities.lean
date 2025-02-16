@@ -179,10 +179,10 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm {p q r : ℝ}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ)
     {c : ℝ} (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) (x : G) :
-    ‖(f ⋆[L, μ] g) x‖ₑ ≤ ENNReal.ofReal c *
-    eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (ENNReal.ofReal r) μ *
-    ((eLpNorm f (ENNReal.ofReal p) μ) ^ ((r - p) / r) *
-    (eLpNorm g (ENNReal.ofReal q) μ) ^ ((r - q) / r)) := by
+    ‖(f ⋆[L, μ] g) x‖ₑ ≤
+      .ofReal c * eLpNorm (fun y ↦ (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ (1 / r)) (.ofReal r) μ *
+      ((eLpNorm f (.ofReal p) μ) ^ ((r - p) / r) *
+      (eLpNorm g (.ofReal q) μ) ^ ((r - q) / r)) := by
   by_cases hc : c ≤ 0
   · simp [convolution_zero_of_c_nonpos hL hc]
   push_neg at hc
@@ -204,7 +204,7 @@ theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm {p q r : ℝ}
   calc
     _ ≤ ∫⁻ y, ‖L (f y) (g (x - y))‖ₑ ∂μ := by
       exact enorm_integral_le_lintegral_enorm (fun y ↦ L (f y) (g (x - y)))
-    _ ≤ ∫⁻ y, ENNReal.ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
+    _ ≤ ∫⁻ y, .ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
       refine lintegral_mono (fun y ↦ ?_)
       rw [← enorm_norm, ← enorm_norm (f y), ← enorm_norm (g (x - y)), mul_assoc, ← enorm_mul]
       rw [Real.enorm_of_nonneg (norm_nonneg _)]
