@@ -154,7 +154,7 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
   · simp
   · have : Icc (- Int.ofNat (N.succ)) (N.succ) = insert (↑(N.succ)) (insert (-Int.ofNat (N.succ)) (Icc (-Int.ofNat N) N)) := by
       rw [←Ico_insert_right, ←Ioo_insert_left]
-      · congr with n
+      · congr 2 with n
         simp only [Int.ofNat_eq_coe, mem_Ioo, mem_Icc]
         push_cast
         rw [Int.lt_add_one_iff, neg_add, ←sub_eq_add_neg, Int.sub_one_lt_iff]
@@ -170,7 +170,6 @@ lemma int_sum_nat {β : Type*} [AddCommGroup β] [TopologicalSpace β] [Continuo
     · simp
     · norm_num
       linarith
-
 
 lemma fourierConv_ofTwiceDifferentiable {f : ℝ → ℂ} (periodicf : f.Periodic (2 * π))
     (fdiff : ContDiff ℝ 2 f) {ε : ℝ} (εpos : ε > 0) :

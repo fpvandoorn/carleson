@@ -21,7 +21,8 @@ variable {N : ℕ}
 
 lemma dirichletKernel_periodic : Function.Periodic (dirichletKernel N) (2 * π) := by
   intro x
-  simp [dirichletKernel]
+  simp only [dirichletKernel, Int.ofNat_eq_coe, AddSubgroup.mem_zmultiples,
+    QuotientAddGroup.mk_add_of_mem, fourier_apply, fourier_coe_apply', ofReal_mul, ofReal_ofNat]
 
 lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π) := by
   intro x
@@ -30,7 +31,7 @@ lemma dirichletKernel'_periodic : Function.Periodic (dirichletKernel' N) (2 * π
   congr 2
   · rw [mul_add, exp_add]
     conv => rhs; rw [← mul_one (cexp _)]
-    congr
+    congr 1
     convert exp_int_mul_two_pi_mul_I N using 2
     norm_cast
     simp
@@ -66,9 +67,9 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
     calc (cexp (1 / 2 * I * x) - cexp (-1 / 2 * I * x)) * dirichletKernel N x
       _ = ∑ n ∈ Icc (-(N : ℤ)) N, (cexp ((n + 1 / 2) * I * ↑x) - cexp ((n - 1 / 2) * I * ↑x)) := by
         rw [dirichletKernel, mul_sum]
-        congr with n
+        congr 1 with n
         simp [sub_mul, ← exp_add, ← exp_add]
-        congr <;>
+        congr 2 <;>
         · ring_nf
           congr 1
           rw [mul_assoc, mul_assoc]
@@ -81,11 +82,11 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
       _ = cexp ((N + 1 / 2) * I * x) - cexp (-(N + 1 / 2) * I * x) := by
         rw [← sum_Ico_add_eq_sum_Icc, ← sum_Ioc_add_eq_sum_Icc, add_sub_add_comm,
           ← zero_add (cexp ((N + 1 / 2) * I * ↑x) - cexp (-(N + 1 / 2) * I * ↑x))]
-        congr
+        congr 2
         rw [sub_eq_zero]
         conv => lhs; rw [← Int.add_sub_cancel (-(N : ℤ)) 1, sub_eq_add_neg,
           ← Int.add_sub_cancel (Nat.cast N) 1, sub_eq_add_neg, ← sum_Ico_add']
-        congr with n
+        congr 2 with n
         · rw [mem_Ico, mem_Ioc, Int.lt_iff_add_one_le, add_le_add_iff_right,
             ← mem_Icc, Int.lt_iff_add_one_le, ← mem_Icc]
           simp
@@ -102,7 +103,7 @@ lemma dirichletKernel_eq {x : ℝ} (h : cexp (I * x) ≠ 1) :
       _ = cexp (1 / 2 * I * ↑x) * cexp (1 / 2 * I * ↑x) := by
         rw [← exp_add, mul_assoc, ← mul_add]
         ring_nf
-      _ = cexp (1 / 2 * I * ↑x) * cexp (-1 / 2 * I * ↑x) := by congr
+      _ = cexp (1 / 2 * I * ↑x) * cexp (-1 / 2 * I * ↑x) := by congr 2
       _ = 1 := by
         rw [← exp_add]
         ring_nf

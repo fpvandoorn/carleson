@@ -23,17 +23,20 @@ def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : Ad
 
 local notation "S_" => partialFourierSum
 
-
 @[simp]
 lemma fourierCoeffOn_mul {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {c : ℂ} {n : ℤ} :
   fourierCoeffOn hab (fun x ↦ c * f x) n = c * (fourierCoeffOn hab f n):= by
-  simp [fourierCoeffOn_eq_integral, mul_assoc, mul_comm]
+  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
+    fourier_coe_apply', mul_comm, Complex.ofReal_sub, smul_eq_mul, mul_assoc,
+    intervalIntegral.integral_const_mul, Complex.real_smul, Complex.ofReal_inv]
   ring
 
 @[simp]
 lemma fourierCoeffOn_neg {a b : ℝ} {hab : a < b} {f: ℝ → ℂ} {n : ℤ} :
   fourierCoeffOn hab (-f) n = - (fourierCoeffOn hab f n):= by
-  simp [fourierCoeffOn_eq_integral]
+  simp only [fourierCoeffOn_eq_integral, one_div, fourier_apply, neg_smul, fourier_neg',
+    fourier_coe_apply', Complex.ofReal_sub, Pi.neg_apply, smul_eq_mul, mul_neg,
+    intervalIntegral.integral_neg, smul_neg, Complex.real_smul, Complex.ofReal_inv]
 
 @[simp]
 lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
@@ -45,8 +48,10 @@ lemma fourierCoeffOn_add {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
     Complex.ofReal_inv]
   rw [← mul_add, ← intervalIntegral.integral_add]
   · ring_nf
-    apply hf.continuousOn_mul (Continuous.continuousOn _); continuity
-  · apply hg.continuousOn_mul (Continuous.continuousOn _); continuity
+    apply hf.continuousOn_mul (Continuous.continuousOn _)
+    exact Complex.continuous_conj.comp' (by fun_prop)
+  · apply hg.continuousOn_mul (Continuous.continuousOn _)
+    exact Complex.continuous_conj.comp' (by fun_prop)
 
 @[simp]
 lemma fourierCoeffOn_sub {a b : ℝ} {hab : a < b} {f g : ℝ → ℂ} {n : ℤ}
@@ -61,7 +66,8 @@ lemma partialFourierSum_add {f g : ℝ → ℂ} {N : ℕ}
     (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * π)) :
   S_ N (f + g) = S_ N f + S_ N g := by
   ext x
-  simp [partialFourierSum, sum_add_distrib, fourierCoeffOn_add hf hg, add_mul]
+  simp only [partialFourierSum, fourierCoeffOn_add hf hg, fourier_apply, fourier_coe_apply',
+    Complex.ofReal_mul, Complex.ofReal_ofNat, add_mul, sum_add_distrib, Pi.add_apply]
 
 @[simp]
 lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ}
@@ -69,13 +75,15 @@ lemma partialFourierSum_sub {f g : ℝ → ℂ} {N : ℕ}
     (hg : IntervalIntegrable g MeasureTheory.volume 0 (2 * π)) :
     S_ N (f - g) = S_ N f - S_ N g := by
   ext x
-  simp [partialFourierSum, fourierCoeffOn_sub hf hg, sub_mul]
+  simp only [partialFourierSum, fourierCoeffOn_sub hf hg, fourier_apply, fourier_coe_apply',
+    Complex.ofReal_mul, Complex.ofReal_ofNat, sub_mul, sum_sub_distrib, Pi.sub_apply]
 
 @[simp]
 lemma partialFourierSum_mul {f: ℝ → ℂ} {a : ℂ} {N : ℕ}:
   S_ N (fun x ↦ a * f x) = fun x ↦ a * S_ N f x := by
   ext x
-  simp [partialFourierSum, mul_sum, mul_assoc]
+  simp only [partialFourierSum, fourierCoeffOn_mul, fourier_apply, fourier_coe_apply', mul_assoc,
+    Complex.ofReal_mul, Complex.ofReal_ofNat, mul_sum]
 
 lemma fourier_periodic {n : ℤ} :
     (fun (x : ℝ) ↦ fourier n (x : AddCircle (2 * π))).Periodic (2 * π) := by
@@ -122,6 +130,37 @@ theorem strictConvexOn_cos_Icc : StrictConvexOn ℝ (Set.Icc (π / 2) (π + π /
   rw [interior_Icc] at hx
   simp [Real.cos_neg_of_pi_div_two_lt_of_lt hx.1 hx.2]
 
+lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : η ≤ x)
+    (abs_x_le : x ≤ 2 * π - η) (x_le_pi : x ≤ π) (h : π / 2 < x) :
+    2 / π * η ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
+  calc (2 / π) * η
+    _ ≤ (2 / π) * x := by gcongr
+    _ = 1 - ((1 - (2 / π) * (x - π / 2)) * Real.cos (π / 2) + ((2 / π) * (x - π / 2)) * Real.cos (π)) := by
+      field_simp -- a bit slow
+      ring
+    _ ≤ 1 - (Real.cos ((1 - (2 / π) * (x - π / 2)) * (π / 2) + (((2 / π) * (x - π / 2)) * (π)))) := by
+      gcongr
+      apply (strictConvexOn_cos_Icc.convexOn).2 (by simp [pi_nonneg])
+      · simp
+        constructor <;> linarith [pi_nonneg]
+      · rw [sub_nonneg, mul_comm]
+        exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
+      · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) (by linarith [h])
+      · simp
+    _ = 1 - Real.cos x := by congr; field_simp; ring -- slow
+    _ ≤ Real.sqrt ((1 - Real.cos x) ^ 2) := by
+      exact Real.sqrt_sq_eq_abs _ ▸ le_abs_self _
+    _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
+        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
+        simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.mul_re, Complex.I_re,
+          Complex.sin_ofReal_im, Complex.I_im, Complex.sub_im, Complex.one_im, Complex.add_im,
+          Complex.cos_ofReal_im, Complex.mul_im]
+        rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
+        apply (Real.sqrt_le_sqrt_iff _).mpr
+        · simp only [mul_zero, mul_one, sub_self, add_zero, zero_add, zero_sub, even_two,
+          Even.neg_pow, le_add_iff_nonneg_right, pow_two_nonneg]
+        · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
+
 lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_le : |x| ≤ 2 * π - η) :
     (2 / π) * η ≤ ‖1 - Complex.exp (Complex.I * x)‖ := by
   by_cases ηpos : η ≤ 0
@@ -167,34 +206,9 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
         · simp [pow_two_nonneg]
         · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
   · push_neg at h
-    calc (2 / π) * η
-    _ ≤ (2 / π) * x := by gcongr
-    _ = 1 - ((1 - (2 / π) * (x - π / 2)) * Real.cos (π / 2) + ((2 / π) * (x - π / 2)) * Real.cos (π)) := by
-      field_simp
-      ring
-    _ ≤ 1 - (Real.cos ((1 - (2 / π) * (x - π / 2)) * (π / 2) + (((2 / π) * (x - π / 2)) * (π)))) := by
-      gcongr
-      apply (strictConvexOn_cos_Icc.convexOn).2 (by simp [pi_nonneg])
-      · simp
-        constructor <;> linarith [pi_nonneg]
-      · rw [sub_nonneg, mul_comm]
-        exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
-      · exact mul_nonneg (div_nonneg (by norm_num) pi_nonneg) (by linarith [h])
-      · simp
-    _ = 1 - Real.cos x := by congr; field_simp; ring
-    _ ≤ Real.sqrt ((1 - Real.cos x) ^ 2) := by
-      exact Real.sqrt_sq_eq_abs _ ▸ le_abs_self _
-    _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
-        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
-        simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.mul_re, Complex.I_re,
-          Complex.sin_ofReal_im, Complex.I_im, Complex.sub_im, Complex.one_im, Complex.add_im,
-          Complex.cos_ofReal_im, Complex.mul_im]
-        rw [Complex.cos_ofReal_re, Complex.sin_ofReal_re]
-        apply (Real.sqrt_le_sqrt_iff _).mpr
-        · simp [pow_two_nonneg]
-        · linarith [pow_two_nonneg (1 - Real.cos x), pow_two_nonneg (Real.sin x)]
+    exact lower_secant_bound_aux ηpos le_abs_x abs_x_le x_le_pi h
 
-/-Slightly weaker version of Lemma 11..1.9 (lower secant bound) with simplified constant. -/
+/- Slightly weaker version of Lemma 11..1.9 (lower secant bound) with simplified constant. -/
 lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + η) (2 * π - η)) (xAbs : η ≤ |x|) :
     η / 2 ≤ Complex.abs (1 - Complex.exp (Complex.I * x)) := by
   by_cases ηpos : η < 0
