@@ -18,7 +18,7 @@ variable {L : E →L[𝕜] E' →L[𝕜] F}
 
 variable [MeasurableSpace G]
 
-/-- Special case of ``convolution_flip` when `L` is symmetric. -/
+/-- Special case of `convolution_flip` when `L` is symmetric. -/
 theorem convolution_symm {f : G → E} {g : G → E} (L : E →L[𝕜] E →L[𝕜] F)
     (hL : ∀ (x y : E), L x y = L y x) [NormedSpace ℝ F] [AddCommGroup G]
     {μ : Measure G} [μ.IsAddLeftInvariant] [μ.IsNegInvariant] [MeasurableNeg G] [MeasurableAdd G] :
