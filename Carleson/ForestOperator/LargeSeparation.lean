@@ -109,7 +109,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
       obtain ⟨p, belongs⟩ := t.nonempty' hu₁
       by_contra! contr
       have white := calc (𝓘 p : Set X)
-        _ ⊆ 𝓘 u₁ := if_descendant_then_subset t hu₁ belongs
+        _ ⊆ 𝓘 u₁ := (if_descendant_then_le t hu₁ belongs).1
         _ ⊆ cube := by
           apply subset_of_nmem_Iic_of_not_disjoint cube
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
