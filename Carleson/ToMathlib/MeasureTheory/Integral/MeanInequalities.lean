@@ -12,17 +12,7 @@ import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 open MeasureTheory
 open scoped ENNReal
 
-
 variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
-
----------------------------------------------------------------------------------------------------
--- NOT to be added to Mathlib
-
--- Temporary stand-in for Mathlib's new version of `eLpNormEssSup_const` until next bump
-theorem MeasureTheory.eLpNormEssSup_const' {ε : Type*} [ENorm ε] (c : ε) (hμ : μ ≠ 0) :
-    eLpNormEssSup (fun _ : α => c) μ = ‖c‖ₑ := by
-  sorry
----------------------------------------------------------------------------------------------------
 
 namespace ENNReal
 
@@ -113,7 +103,7 @@ private lemma eLpNorm_eq_eLpNorm_rpow (h : G → E) {r e : ℝ} (r0 : 0 < r) (e0
     eLpNorm h (ENNReal.ofReal e) μ ^ ((r - e) / r) := by
   have er_pos : 0 < e * r := _root_.mul_pos e0 r0
   by_cases exp_zero : 0 = r - e
-  · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_le, eLpNormEssSup_const' _ μ0] -- Replace with `eLpNormEssSup_const` after Mathlib bump
+  · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_le, eLpNormEssSup_const _ μ0]
   have r_sub_e_pos : 0 < r - e := lt_of_le_of_ne re0 exp_zero
   have lt_top : ENNReal.ofReal (e * r) / ENNReal.ofReal (r - e) < ∞ :=
     div_lt_top ofReal_ne_top <| (not_iff_not.mpr ofReal_eq_zero).mpr r_sub_e_pos.not_le
