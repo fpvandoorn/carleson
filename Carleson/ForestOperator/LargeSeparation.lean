@@ -119,15 +119,9 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
         _ ⊆ ball (c cube) (4 * D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
         _ ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
-          unfold ball
           intro y xy
-          rw [mem_setOf_eq] at xy ⊢
-          have numbers : 4 * (D : ℝ) ^ s cube < 100 * D ^ (s cube + 1) := by
-            gcongr
-            linarith
-            exact one_lt_D (X := X)
-            linarith
-          exact gt_trans numbers xy
+          rw [ball, mem_setOf_eq] at xy ⊢
+          exact gt_trans (calculation_16 (X := X) (s := s cube)) xy
       have black : ¬↑(𝓘 p) ⊆ ball (c cube) (100 * D ^ (s cube + 1)) := by
         have in_𝔖₀ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)
         rw [subset_def] at in_𝔖₀
@@ -510,13 +504,173 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 /-- The constant used in `lower_oscillation_bound`.
 Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - 201 * (a : ℝ) ^ 3)
+def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - 201 * (a : ℝ) ^ 3)
 
-/-- Lemma 7.5.11 -/
+lemma IF_subset_THEN_not_disjoint {A : Grid X} {B: Grid X} (h : (A : Set X) ⊆ B) : ¬ Disjoint (B : Set X) (A : Set X) := by
+  rw [disjoint_comm]
+  intro disjoint
+  have wow := (Set.disjoint_of_subset_iff_left_eq_empty h).mp disjoint
+  have black := Grid.nonempty A
+  rw [← Mathlib.Tactic.PushNeg.empty_ne_eq_nonempty] at black
+  exact black (Eq.symm wow)
+
+lemma IF_ssubset_THEN_ssmaller {A B: Grid X} (hhh: (A : Set X) ⊂ B) : s A < s B := by
+  by_contra! h
+  have notDisjoint : ¬ Disjoint (B : Set X) ↑A := by
+    apply IF_subset_THEN_not_disjoint
+    exact subset_of_ssubset hhh
+  have new := ((le_or_disjoint h).resolve_right notDisjoint).1
+  exact not_subset_of_ssubset hhh new
+  
+  
+/--
+Since `∅ ≠ t u₁` (by nonempty) and `t u₁ ⊆ 𝔖₀ t u₁ u₂` (by 𝔗_subset_𝔖₀),
+there exists at least one tile `p ∈ 𝔖₀ t u₁ u₂` with `𝓘 p ⊂ 𝓘 u₁`.
+
+Thus `𝓘 u₁ ∉ 𝓙₅`, so `J ⊂ 𝓘 u₁`.
+
+Thus there exists a cube `J'` with `J ⊆ J'` and `s J' = s J + 1`, by {coverdyadic} and {dyadicproperty}.
+-/
+lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
+  obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
+  
+  -- rw [𝓙₀, mem_setOf_eq] at Jin𝓙₀
+  obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+  
+  have pNotEqual := Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)
+  have pIsSubset := Forest.if_descendant_then_subset t hu₁ belongs
+  have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
+  
+  apply IF_ssubset_THEN_ssmaller
+  
+  have strict : s J ≠ s (𝓘 u₁) := by
+    by_contra! h
+    have notDisjoint := IF_subset_THEN_not_disjoint jIsSubset
+    rw [disjoint_comm] at notDisjoint
+    have equal := (eq_or_disjoint h).resolve_right notDisjoint
+    have setEqual : (J : Set X) = 𝓘 u₁ := congrArg GridStructure.coeGrid equal
+    have uIsSmalling : 𝓘 u₁ ∈  𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_eq_of_mem (id (Eq.symm equal)) Jin𝓙₀
+    -- obtain ⟨_, subset⟩ from conclusion
+    
+    sorry
+  
+
+
+lemma floris (hu : u ∈ t) (belongs: p ∈ t.𝔗 u) : s (𝓘 p) ≤ s (𝓘 u) := by
+  have ax := t.smul_four_le hu belongs
+  unfold smul at ax
+  cases' ax with one two
+  simp at one
+  exact one.2
+
+lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
+  obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
+  obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+
+  by_contra! hi
+
+  refine HasSSubset.SSubset.not_subset ?_ ((fundamental_dyadic hi).resolve_right (IF_subset_THEN_not_disjoint (h:=jIsSubset)))
+  apply Ne.ssubset_of_subset (h₂ := jIsSubset)
+
+  by_contra! sameSet
+  have sameScale : s J = s (𝓘 u₁) := Int.le_antisymm smaller hi
+  have same : J = 𝓘 u₁ := Grid.inj (Prod.ext sameSet sameScale)
+  apply not_ne_iff.mpr same
+
+  apply ne_of_mem_of_not_mem (h:=Jin𝓙₀)
+  intro fact
+  cases' fact with SMALL two
+  · have pNotEqual := Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)
+    have pIsSubset := Forest.if_descendant_then_subset t hu₁ belongs
+    have floris_result : s (𝓘 p) ≤ s (𝓘 u₁) := by exact floris hu₁ belongs
+    have sameScale2 : s (𝓘 p) = s (𝓘 u₁) := by
+      have nnn := (scale_mem_Icc (i := 𝓘 p)).left
+      linarith
+    have sss : (𝓘 p : Set X) ≠ (𝓘 u₁ : Set X) := by
+      by_contra! sameSet2
+      have thhen := Grid.inj (Prod.ext sameSet2 sameScale2)
+      contradiction
+    have therefore : (𝓘 p : Set X) ⊂ (𝓘 u₁) := by
+      exact HasSubset.Subset.ssubset_of_ne pIsSubset sss
+    have final : s (𝓘 u₁) > s (𝓘 p) := by
+      by_contra! smaller
+      apply fundamental_dyadic at smaller
+      have notDisjoint : ¬ Disjoint (𝓘 u₁ : Set X) ↑(𝓘 p) := by
+        exact IF_subset_THEN_not_disjoint pIsSubset
+      apply Or.resolve_right at smaller
+      have well := smaller notDisjoint
+      -- exact? using well therefore
+      apply HasSubset.Subset.not_ssubset at well
+      contradiction
+    linarith
+  have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
+  apply two p pIsEvil
+  calc (𝓘 p : Set X)
+  _ ⊆ ↑(𝓘 u₁) := by exact Forest.if_descendant_then_subset t hu₁ belongs
+  _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by exact Grid_subset_ball (i:= 𝓘 u₁)
+  _ ⊆ ball (c (𝓘 u₁)) (100 * ↑D ^ (s (𝓘 u₁) + 1)) := by
+    intro x hx
+    rw [mem_ball] at hx ⊢
+    exact gt_trans (calculation_16 (X:=X) (s:=s (𝓘 u₁))) hx
+    
+    
+
+
+/--
+Lemma 7.5.11
+Blueprint: https://florisvandoorn.com/carleson/blueprint/treesection.html#lower-oscillation-bound
+-/
 lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) :
     C7_5_11 a n ≤ dist_{c J, 8 * D ^ s J} (𝒬 u₁) (𝒬 u₂) := by
-  sorry
+
+  have first_sentence : ∃ (J' : Grid X), J ≤ J' ∧ s J' = s J + 1 := by
+    apply Grid.exists_scale_succ (W:= 𝓘 u₁)
+    exact helper hu₁ hu₂ hu h2u hJ
+  rcases first_sentence with ⟨J', JleJ', scaleSmaller⟩
+
+  have notInAvoidant : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
+    apply bigger_than_𝓙_is_not_in_𝓙₀ (sle:=by linarith) (le:=JleJ')
+    exact mem_of_mem_inter_left hJ
+
+  unfold 𝓙₀ at notInAvoidant
+  simp only [mem_setOf_eq, not_or, not_forall, Classical.not_imp, Decidable.not_not] at notInAvoidant
+  push_neg at notInAvoidant
+  obtain ⟨_, ⟨ p, pIn, pSubset ⟩⟩ := notInAvoidant
+
+  have thus :=
+    calc 2 ^ ((Z : ℝ) * n / 2)
+    _ ≤ dist_{𝔠 p, D ^ 𝔰 p / 4} (𝒬 u₁) (𝒬 u₂) := pIn.2
+    _ ≤ dist_{c J, 128 * D^(s J + 2)} (𝒬 u₁) (𝒬 u₂) := by
+      apply cdist_mono (f := 𝒬 u₁) (g := 𝒬 u₂)
+      intro point pointIn
+      calc dist point (c J)
+      _ ≤ dist point (c J') + dist (c J') (c J) := dist_triangle ..
+      _ ≤ 100 * D ^ (s J' + 1) + dist (c J') (c J) := by
+        rw [ball, Set.subset_def] at pSubset
+        have dist_1 := pSubset point (ball_subset_Grid pointIn)
+        rw [mem_setOf_eq] at dist_1
+        gcongr
+      _ ≤ 100 * D ^ (s J' + 1) + 4 * D ^ (s J') := by
+        have dist_2 : dist (c J) (c J') < 4 * D ^ (s J') := IF_subset_THEN_distance_between_centers (subset:=JleJ'.1)
+        rw [dist_comm] at dist_2
+        gcongr
+      _ = 100 * D ^ (s J + 2) + 4 * D ^ (s J + 1) := by
+        rw [scaleSmaller, add_assoc, show (1 : ℤ) + 1 = 2 by rfl]
+      _ < 128 * D^(s J + 2) := by
+        exact calculation_11 (s J) (X:=X)
+    _ ≤ 2 ^ (200 * (a^3) + 4 * a) * dist_{c J, 8 * D ^ s J} (𝒬 u₁) (𝒬 u₂) := by
+      rw [show 128 * (D : ℝ)^(s J + 2) = 2 ^ (200*a^2 + 4) * (8*D^(s J)) by exact_mod_cast calculation_12 (s := (s J : ℝ)) (X:=X)]
+      rw [calculation_13]
+      apply cdist_le_iterate
+      have DIsPos := defaultD_pos a
+      positivity
+
+  unfold C7_5_11
+  push_cast
+  linarith [calculation_14 (X:=X) (n:=n), calculation_15 (X:=X) (h:=thus)]
 
 /-- The constant used in `correlation_distant_tree_parts`.
 Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
