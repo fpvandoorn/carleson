@@ -541,27 +541,18 @@ lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   intro fact
   cases fact with
   | inl west =>
-    have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
     have sameScale2 : s (𝓘 p) = s (𝓘 u₁) := by
       have nnn := (scale_mem_Icc (i := 𝓘 p)).left
       have scale_le : s (𝓘 p) ≤ s (𝓘 u₁) := (𝓘_le_𝓘 t hu₁ belongs).2
       linarith
-
-    have therefore : (𝓘 p : Set X) ⊂ (𝓘 u₁) := by
-      have sss : (𝓘 p : Set X) ≠ (𝓘 u₁ : Set X) := by
-        by_contra! sameSet2
-        have equal := Grid.inj (Prod.ext sameSet2 sameScale2)
-        exact (Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)) equal
-      exact HasSubset.Subset.ssubset_of_ne pIsSubset sss
     have final : s (𝓘 u₁) > s (𝓘 p) := by
+      have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
       by_contra! smaller
-      apply fundamental_dyadic at smaller
-      have notDisjoint : ¬ Disjoint (𝓘 u₁ : Set X) ↑(𝓘 p) := by
-        exact IF_subset_THEN_not_disjoint pIsSubset
-      apply Or.resolve_right at smaller
-      have well := smaller notDisjoint
-      apply HasSubset.Subset.not_ssubset at well
-      contradiction
+      apply HasSubset.Subset.not_ssubset ((fundamental_dyadic smaller).resolve_right (IF_subset_THEN_not_disjoint pIsSubset))
+      apply HasSubset.Subset.ssubset_of_ne pIsSubset
+      by_contra! sameSet2
+      have equal := Grid.inj (Prod.ext sameSet2 sameScale2)
+      exact (Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)) equal
     linarith
   |inr two =>
     have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
