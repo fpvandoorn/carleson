@@ -539,18 +539,19 @@ lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
 
   apply ne_of_mem_of_not_mem (h:=Jin𝓙₀)
   intro fact
-  cases' fact with SMALL two
-  · have pNotEqual := Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)
+  cases fact with
+  | inl west =>
     have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
-    have floris_result : s (𝓘 p) ≤ s (𝓘 u₁) := (𝓘_le_𝓘 t hu₁ belongs).2
     have sameScale2 : s (𝓘 p) = s (𝓘 u₁) := by
       have nnn := (scale_mem_Icc (i := 𝓘 p)).left
+      have scale_le : s (𝓘 p) ≤ s (𝓘 u₁) := (𝓘_le_𝓘 t hu₁ belongs).2
       linarith
-    have sss : (𝓘 p : Set X) ≠ (𝓘 u₁ : Set X) := by
-      by_contra! sameSet2
-      have thhen := Grid.inj (Prod.ext sameSet2 sameScale2)
-      contradiction
+
     have therefore : (𝓘 p : Set X) ⊂ (𝓘 u₁) := by
+      have sss : (𝓘 p : Set X) ≠ (𝓘 u₁ : Set X) := by
+        by_contra! sameSet2
+        have equal := Grid.inj (Prod.ext sameSet2 sameScale2)
+        exact (Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)) equal
       exact HasSubset.Subset.ssubset_of_ne pIsSubset sss
     have final : s (𝓘 u₁) > s (𝓘 p) := by
       by_contra! smaller
@@ -559,19 +560,19 @@ lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
         exact IF_subset_THEN_not_disjoint pIsSubset
       apply Or.resolve_right at smaller
       have well := smaller notDisjoint
-      -- exact? using well therefore
       apply HasSubset.Subset.not_ssubset at well
       contradiction
     linarith
-  have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
-  apply two p pIsEvil
-  calc (𝓘 p : Set X)
-  _ ⊆ ↑(𝓘 u₁) := by exact (𝓘_le_𝓘 t hu₁ belongs).1
-  _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by exact Grid_subset_ball (i:= 𝓘 u₁)
-  _ ⊆ ball (c (𝓘 u₁)) (100 * ↑D ^ (s (𝓘 u₁) + 1)) := by
-    intro x hx
-    rw [mem_ball] at hx ⊢
-    exact gt_trans (calculation_16 (X:=X) (s:=s (𝓘 u₁))) hx
+  |inr two =>
+    have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
+    apply two p pIsEvil
+    calc (𝓘 p : Set X)
+    _ ⊆ ↑(𝓘 u₁) := by exact (𝓘_le_𝓘 t hu₁ belongs).1
+    _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by exact Grid_subset_ball (i:= 𝓘 u₁)
+    _ ⊆ ball (c (𝓘 u₁)) (100 * ↑D ^ (s (𝓘 u₁) + 1)) := by
+      intro x hx
+      rw [mem_ball] at hx ⊢
+      exact gt_trans (calculation_16 (X:=X) (s:=s (𝓘 u₁))) hx
     
     
 
