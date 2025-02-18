@@ -113,13 +113,9 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
 /-- The constant used in `estimate_x_shift`. -/
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
 
+-- Couldn't find this. Probably suboptimal formulation and location. Help appreciated.
 lemma czoperator_welldefined {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞)
     (h2g : volume (support g) < ∞) (hr : 0 < r) (x : X):
-    IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
-  sorry
-
-lemma czoperator_wd_2 {g : X → ℂ} {hmg : Measurable g} {hg : eLpNorm g ∞ < ∞}
-    {h2g : volume (support g) < ∞} {hr : 0 < r} (x : X) :
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   sorry
 
@@ -241,24 +237,33 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
   . refine add_le_add ?_ ?_
-    apply @_root_.enorm_add_le
-    rfl
-
+    . apply @_root_.enorm_add_le
+    . rfl
 
   trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ) + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
   . refine add_le_add_three ?_ ?_ ?_
-    apply enorm_integral_le_lintegral_enorm; rfl; rfl
+    . apply enorm_integral_le_lintegral_enorm
+    . rfl
+    . rfl
 
   trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ) + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ
   . refine add_le_add_three ?_ ?_ ?_
-    rfl; rfl; apply enorm_integral_le_lintegral_enorm
+    . rfl
+    . rfl
+    . apply enorm_integral_le_lintegral_enorm
 
   -- LHS is now 10.1.234
 
+/-
+  10.1.2 estimate
+    Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
+    Doubling measure, larger domain pos function 10.1.6, Mg + def of integral of unit 10.1.7
+-/
   have estimate_10_1_2 : (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
+
     sorry
 
   have estimate_10_1_3 : ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ
@@ -279,6 +284,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   conv =>
     lhs
     calc _
+      -- I can't seem to figure out how to do this in ENNReal...
       _ = (2 ^ (a ^ 3 + a) + 2 ^ (a ^ 3 + 2 * a) + 2 ^ (a ^ 3 + 2 * a)) * globalMaximalFunction volume 1 g x := by sorry
 
   refine mul_le_mul' ?_ ?_
@@ -292,7 +298,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   norm_cast
 
   -- Note: It is unclear to me which tactic can avoid this manual computation
-  have tmp3 : 2 ^ (a ^ 3 + a) ≤ 2 ^ (a ^ 3 + 2 * a + 1) := by
+  have tmp4 : 2 ^ (a ^ 3 + a) ≤ 2 ^ (a ^ 3 + 2 * a + 1) := by
     rw [Nat.pow_le_pow_iff_right]
     rw [Nat.add_assoc]
     rw [Nat.add_le_add_iff_left]
@@ -304,7 +310,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   trans 2 ^ (a ^ 3 + 2 * a + 1) + 2 ^ (a ^ 3 + 2 * a) + 2 ^ (a ^ 3 + 2 * a)
   . apply Nat.add_le_add_iff_right.mpr
     apply Nat.add_le_add_iff_right.mpr
-    apply tmp3
+    apply tmp4
 
   ring_nf
   rfl
