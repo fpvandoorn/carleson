@@ -1,8 +1,8 @@
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
+import Carleson.ToMathlib.ENorm
 
-
-open MeasureTheory Set Bornology Function ENNReal Metric
+open MeasureTheory Set Bornology Function ENNReal Metric Complex
 open scoped NNReal
 
 noncomputable section
@@ -114,12 +114,12 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
 
 lemma czoperator_welldefined {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞)
-    (h2g : volume (support g) < ∞) (hr : 0 < r) :
+    (h2g : volume (support g) < ∞) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   sorry
 
 lemma czoperator_wd_2 {g : X → ℂ} {hmg : Measurable g} {hg : eLpNorm g ∞ < ∞}
-    {h2g : volume (support g) < ∞} {hr : 0 < r} (x : X):
+    {h2g : volume (support g) < ∞} {hr : 0 < r} (x : X) :
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   sorry
 
@@ -145,6 +145,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     C10_1_2 a * globalMaximalFunction volume 1 g x := by
   let bxrc := (ball x r)ᶜ
   let bx2r := ball x (2*r)
+
   -- Domain split x integral
   have dom_x : bxrc =  (bxrc ∩ bx2r) ∪ bx2rᶜ := by
     have tmp1 : bx2rᶜ = bxrc ∩ bx2rᶜ := by
@@ -215,28 +216,79 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   let int10_1_3 := 0
   let int10_1_4 := 0
 
+  rw [← edist_nndist, edist_eq_enorm_sub, integral_x, integral_x_prime]
+
   -- Rewrite lhs according to 10.1.234 split
   conv =>
-    lhs
-    rw [nndist_dist, Complex.dist_eq, integral_x, integral_x_prime]
     arg 1; arg 1
-    conv =>
-      arg 2
-      calc _
-        _ = (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)
+    calc _
+      _ = (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)
                 + ((∫ (y : X) in bx2rᶜ, K x y * g y) - (∫ (y : X) in bx2rᶜ, K x' y * g y))
                 - (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y) := by ring
-        _ = (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)
+      _ = (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)
                 + (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y)
                 - (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y) := by
-                  rw[← integral_sub]
-                  apply czoperator_wd_2; exact hmg; exact hg; exact h2g; simp; exact hr
-                  have tmp4 : IntegrableOn (fun y ↦ K x' y * g y) bxprc := by
-                    apply czoperator_wd_2; exact hmg; exact hg; exact h2g; exact hr
-                  apply IntegrableOn.mono_set tmp4 tmp2
+          rw[← integral_sub]
+          apply czoperator_welldefined hmg hg h2g (by simp; exact hr)
+          apply IntegrableOn.mono_set
+          swap; exact tmp2
+          apply czoperator_welldefined hmg hg h2g hr
 
+  trans ‖(∫ (y : X) in bxrc ∩ bx2r, K x y * g y) + ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
+      ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
+  . apply enorm_sub_le
+
+  trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
+      ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
+  . refine add_le_add ?_ ?_
+    apply @_root_.enorm_add_le
+    rfl
+
+
+  trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ) + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
+      ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
+  . refine add_le_add_three ?_ ?_ ?_
+    apply enorm_integral_le_lintegral_enorm; rfl; rfl
+
+  trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ) + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
+      ∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ
+  . refine add_le_add_three ?_ ?_ ?_
+    rfl; rfl; apply enorm_integral_le_lintegral_enorm
+
+  -- LHS is now 10.1.234
 
   sorry
+/-
+
+  -- We could use globalMaximalFunction_lt_top here (HardyLittlewood commented out) but proof by cases works just as well
+  by_cases m_infinite : globalMaximalFunction volume 1 g x = ∞
+  . rw[m_infinite, ENNReal.mul_top]
+    apply OrderTop.le_top
+    simp only [ne_eq, coe_eq_zero]
+    with_unfolding_all simp only [C10_1_2]
+    simp
+
+  rw [← ne_eq] at m_infinite
+  conv =>
+    rhs
+    arg 2
+    calc globalMaximalFunction volume 1 g x
+      _ = ENNReal.toNNReal (globalMaximalFunction volume 1 g x) := by symm; apply ENNReal.coe_toNNReal; exact m_infinite
+
+  rw[← coe_mul]
+  norm_cast
+-/
+/-
+    trans (abs (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)) + (abs (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y)) +
+        (abs (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y))
+    apply -/
+  /-calc _
+    _ ≤ (Complex.abs (∫ (y : X) in bxrc ∩ bx2r, K x y * g y))
+          + (Complex.abs (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y))
+          + (Complex.abs (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y)) := by sorry
+    -/
+
+  --sorry
 
 /- Breakdown from PDF
   Expand def
