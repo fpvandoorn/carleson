@@ -522,6 +522,61 @@ lemma IF_ssubset_THEN_ssmaller {A B: Grid X} (hhh: (A : Set X) ⊂ B) : s A < s 
   have new := ((le_or_disjoint h).resolve_right notDisjoint).1
   exact not_subset_of_ssubset hhh new
 
+
+  
+/--
+Since `∅ ≠ t u₁` (by nonempty) and `t u₁ ⊆ 𝔖₀ t u₁ u₂` (by 𝔗_subset_𝔖₀),
+there exists at least one tile `p ∈ 𝔖₀ t u₁ u₂` with `𝓘 p ⊂ 𝓘 u₁`.
+
+Thus `𝓘 u₁ ∉ 𝓙₅`, so `J ⊂ 𝓘 u₁`.
+
+Thus there exists a cube `J'` with `J ⊆ J'` and `s J' = s J + 1`, by {coverdyadic} and {dyadicproperty}.
+-/
+lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
+  obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
+  obtain ⟨p, belongs⟩ := t.nonempty' hu₁
+  apply lt_of_le_of_ne smaller
+  by_contra! h
+  
+  have uIsSmalling : 𝓘 u₁ ∈  𝓙₀ (t.𝔖₀ u₁ u₂) := by
+    have equal := by
+      have notDisjoint := IF_subset_THEN_not_disjoint jIsSubset
+      rw [disjoint_comm] at notDisjoint
+      exact (eq_or_disjoint h).resolve_right notDisjoint
+    exact mem_of_eq_of_mem (id (Eq.symm equal)) Jin𝓙₀
+
+  cases uIsSmalling with
+  | inl MIN =>
+    -- restructuring
+    have pNotEqual := Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)
+    have pIsSmaller := (𝓘_le_𝓘 t hu₁ belongs)
+    have sameScale2 : s (𝓘 p) = s (𝓘 u₁) := by
+      linarith [(scale_mem_Icc (i := 𝓘 p)).left, show s (𝓘 p) ≤ s (𝓘 u₁) by exact (𝓘_le_𝓘 t hu₁ belongs).2]
+    have final : s (𝓘 u₁) > s (𝓘 p) := by
+      have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
+      by_contra! smaller
+      apply HasSubset.Subset.not_ssubset ((fundamental_dyadic smaller).resolve_right (IF_subset_THEN_not_disjoint pIsSubset))
+      apply HasSubset.Subset.ssubset_of_ne pIsSubset
+      by_contra! sameSet2
+      have equal := Grid.inj (Prod.ext sameSet2 sameScale2)
+      exact (Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)) equal
+    linarith
+  | inr avoidance =>
+    have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
+    apply avoidance p pIsEvil
+    calc (𝓘 p : Set X)
+    _ ⊆ ↑(𝓘 u₁) := by
+      exact (𝓘_le_𝓘 t hu₁ belongs).1
+    _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by
+      exact Grid_subset_ball (i:= 𝓘 u₁)
+    _ ⊆ ball (c (𝓘 u₁)) (100 * ↑D ^ (s (𝓘 u₁) + 1)) := by
+      intro x hx
+      exact gt_trans (calculation_16 (X:=X) (s:=s (𝓘 u₁))) hx
+  
+
+
+
 lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
   obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
