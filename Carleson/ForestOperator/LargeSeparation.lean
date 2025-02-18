@@ -539,7 +539,7 @@ lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂
   obtain ⟨p, belongs⟩ := t.nonempty' hu₁
   
   have pNotEqual := Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)
-  have pIsSubset := Forest.if_descendant_then_subset t hu₁ belongs
+  have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
   have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
   
   apply IF_ssubset_THEN_ssmaller
@@ -554,15 +554,6 @@ lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂
     -- obtain ⟨_, subset⟩ from conclusion
     
     sorry
-  
-
-
-lemma floris (hu : u ∈ t) (belongs: p ∈ t.𝔗 u) : s (𝓘 p) ≤ s (𝓘 u) := by
-  have ax := t.smul_four_le hu belongs
-  unfold smul at ax
-  cases' ax with one two
-  simp at one
-  exact one.2
 
 lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
@@ -583,8 +574,8 @@ lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   intro fact
   cases' fact with SMALL two
   · have pNotEqual := Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)
-    have pIsSubset := Forest.if_descendant_then_subset t hu₁ belongs
-    have floris_result : s (𝓘 p) ≤ s (𝓘 u₁) := by exact floris hu₁ belongs
+    have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
+    have floris_result : s (𝓘 p) ≤ s (𝓘 u₁) := (𝓘_le_𝓘 t hu₁ belongs).2
     have sameScale2 : s (𝓘 p) = s (𝓘 u₁) := by
       have nnn := (scale_mem_Icc (i := 𝓘 p)).left
       linarith
@@ -608,7 +599,7 @@ lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
   apply two p pIsEvil
   calc (𝓘 p : Set X)
-  _ ⊆ ↑(𝓘 u₁) := by exact Forest.if_descendant_then_subset t hu₁ belongs
+  _ ⊆ ↑(𝓘 u₁) := by exact (𝓘_le_𝓘 t hu₁ belongs).1
   _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by exact Grid_subset_ball (i:= 𝓘 u₁)
   _ ⊆ ball (c (𝓘 u₁)) (100 * ↑D ^ (s (𝓘 u₁) + 1)) := by
     intro x hx
