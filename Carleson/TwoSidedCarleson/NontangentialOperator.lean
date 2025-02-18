@@ -257,38 +257,57 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
   -- LHS is now 10.1.234
 
-  sorry
-/-
+  have estimate_10_1_2 : (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ)
+      ≤ 2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
+    sorry
 
-  -- We could use globalMaximalFunction_lt_top here (HardyLittlewood commented out) but proof by cases works just as well
-  by_cases m_infinite : globalMaximalFunction volume 1 g x = ∞
-  . rw[m_infinite, ENNReal.mul_top]
-    apply OrderTop.le_top
-    simp only [ne_eq, coe_eq_zero]
-    with_unfolding_all simp only [C10_1_2]
-    simp
+  have estimate_10_1_3 : ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ
+      ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
+    sorry
 
-  rw [← ne_eq] at m_infinite
+  have estimate_10_1_4 : (∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ)
+      ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
+    sorry
+
+  trans (2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x) + (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x) +
+      (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x)
+  . refine add_le_add_three ?_ ?_ ?_
+    . exact estimate_10_1_2
+    . exact estimate_10_1_3
+    . exact estimate_10_1_4
+
   conv =>
-    rhs
-    arg 2
-    calc globalMaximalFunction volume 1 g x
-      _ = ENNReal.toNNReal (globalMaximalFunction volume 1 g x) := by symm; apply ENNReal.coe_toNNReal; exact m_infinite
+    lhs
+    calc _
+      _ = (2 ^ (a ^ 3 + a) + 2 ^ (a ^ 3 + 2 * a) + 2 ^ (a ^ 3 + 2 * a)) * globalMaximalFunction volume 1 g x := by sorry
 
-  rw[← coe_mul]
+  refine mul_le_mul' ?_ ?_
+  swap
+  . unfold globalMaximalFunction
+    unfold defaultA
+    norm_cast
+
+  -- Now it is unavoidable to unfold C10_1_2
+  with_unfolding_all simp only [C10_1_2]
   norm_cast
--/
-/-
-    trans (abs (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)) + (abs (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y)) +
-        (abs (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y))
-    apply -/
-  /-calc _
-    _ ≤ (Complex.abs (∫ (y : X) in bxrc ∩ bx2r, K x y * g y))
-          + (Complex.abs (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y))
-          + (Complex.abs (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y)) := by sorry
-    -/
 
-  --sorry
+  -- Note: It is unclear to me which tactic can avoid this manual computation
+  have tmp3 : 2 ^ (a ^ 3 + a) ≤ 2 ^ (a ^ 3 + 2 * a + 1) := by
+    rw [Nat.pow_le_pow_iff_right]
+    rw [Nat.add_assoc]
+    rw [Nat.add_le_add_iff_left]
+    refine Nat.le_add_right_of_le ?_
+    refine Nat.le_mul_of_pos_left a ?_
+    exact Nat.zero_lt_two
+    exact Nat.one_lt_two
+
+  trans 2 ^ (a ^ 3 + 2 * a + 1) + 2 ^ (a ^ 3 + 2 * a) + 2 ^ (a ^ 3 + 2 * a)
+  . apply Nat.add_le_add_iff_right.mpr
+    apply Nat.add_le_add_iff_right.mpr
+    apply tmp3
+
+  ring_nf
+  rfl
 
 /- Breakdown from PDF
   Expand def
@@ -316,7 +335,7 @@ x Split integrals accordingly (sum of disjoint) obtain 10.1.234
     Mg + def integral of unit + sum factor 10.1.13
     Lemma 10.1.1 > 10.1.14
 
-  Total = sum of estimates ? 2(a3 + a) + 2(a3+2a) + 2(a3+2a) le 2(a3+2a+2)
+x Total = sum of estimates ? 2(a3 + a) + 2(a3+2a) + 2(a3+2a) le 2(a3+2a+2)
 -/
 
 /-- The constant used in `cotlar_control`. -/
