@@ -521,39 +521,6 @@ lemma IF_ssubset_THEN_ssmaller {A B: Grid X} (hhh: (A : Set X) ⊂ B) : s A < s 
     exact subset_of_ssubset hhh
   have new := ((le_or_disjoint h).resolve_right notDisjoint).1
   exact not_subset_of_ssubset hhh new
-  
-  
-/--
-Since `∅ ≠ t u₁` (by nonempty) and `t u₁ ⊆ 𝔖₀ t u₁ u₂` (by 𝔗_subset_𝔖₀),
-there exists at least one tile `p ∈ 𝔖₀ t u₁ u₂` with `𝓘 p ⊂ 𝓘 u₁`.
-
-Thus `𝓘 u₁ ∉ 𝓙₅`, so `J ⊂ 𝓘 u₁`.
-
-Thus there exists a cube `J'` with `J ⊆ J'` and `s J' = s J + 1`, by {coverdyadic} and {dyadicproperty}.
--/
-lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
-  obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
-  
-  -- rw [𝓙₀, mem_setOf_eq] at Jin𝓙₀
-  obtain ⟨p, belongs⟩ := t.nonempty' hu₁
-  
-  have pNotEqual := Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)
-  have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
-  have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
-  
-  apply IF_ssubset_THEN_ssmaller
-  
-  have strict : s J ≠ s (𝓘 u₁) := by
-    by_contra! h
-    have notDisjoint := IF_subset_THEN_not_disjoint jIsSubset
-    rw [disjoint_comm] at notDisjoint
-    have equal := (eq_or_disjoint h).resolve_right notDisjoint
-    have setEqual : (J : Set X) = 𝓘 u₁ := congrArg GridStructure.coeGrid equal
-    have uIsSmalling : 𝓘 u₁ ∈  𝓙₀ (t.𝔖₀ u₁ u₂) := mem_of_eq_of_mem (id (Eq.symm equal)) Jin𝓙₀
-    -- obtain ⟨_, subset⟩ from conclusion
-    
-    sorry
 
 lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
