@@ -542,9 +542,7 @@ lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   cases fact with
   | inl west =>
     have sameScale2 : s (𝓘 p) = s (𝓘 u₁) := by
-      have nnn := (scale_mem_Icc (i := 𝓘 p)).left
-      have scale_le : s (𝓘 p) ≤ s (𝓘 u₁) := (𝓘_le_𝓘 t hu₁ belongs).2
-      linarith
+      linarith [(scale_mem_Icc (i := 𝓘 p)).left, show s (𝓘 p) ≤ s (𝓘 u₁) by exact (𝓘_le_𝓘 t hu₁ belongs).2]
     have final : s (𝓘 u₁) > s (𝓘 p) := by
       have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
       by_contra! smaller
@@ -554,19 +552,17 @@ lemma helper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       have equal := Grid.inj (Prod.ext sameSet2 sameScale2)
       exact (Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)) equal
     linarith
-  |inr two =>
-    have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
-    apply two p pIsEvil
+  | inr avoidance =>
+    apply avoidance p
+    · exact ((𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u)) belongs)
     calc (𝓘 p : Set X)
-    _ ⊆ ↑(𝓘 u₁) := by exact (𝓘_le_𝓘 t hu₁ belongs).1
-    _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by exact Grid_subset_ball (i:= 𝓘 u₁)
+    _ ⊆ ↑(𝓘 u₁) := by
+      exact (𝓘_le_𝓘 t hu₁ belongs).1
+    _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by
+      exact Grid_subset_ball (i:= 𝓘 u₁)
     _ ⊆ ball (c (𝓘 u₁)) (100 * ↑D ^ (s (𝓘 u₁) + 1)) := by
       intro x hx
-      rw [mem_ball] at hx ⊢
       exact gt_trans (calculation_16 (X:=X) (s:=s (𝓘 u₁))) hx
-    
-    
-
 
 /--
 Lemma 7.5.11
