@@ -263,6 +263,46 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 -/
   have estimate_10_1_2 : (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
+    simp only [enorm_mul]
+    have pointwise_1 : ∀(y : X), y ∈ bxrc ∩ bx2r → ‖K x y‖ₑ * ‖g y‖ₑ ≤ ENNReal.ofReal (C_K a) / volume (ball x r) * ‖g y‖ₑ := by
+      intro y
+      intro h
+      refine mul_le_mul' ?_ ?_
+      swap
+      . rfl
+      rw [← ofReal_norm_eq_enorm]
+
+      trans ENNReal.ofReal (C_K a / Real.vol x y)
+      rw [ofReal_le_ofReal_iff]
+      apply IsOneSidedKernel.norm_K_le_vol_inv
+      refine div_nonneg ?_ ?_
+      . refine LT.lt.le ?_
+        apply C_K_pos
+      . unfold Real.vol
+        simp
+
+      rw [ENNReal.ofReal_div_of_pos]
+      apply ENNReal.div_le_div_left
+      unfold Real.vol Measure.real
+      refine (le_ofReal_iff_toReal_le ?_ ?_).mpr ?_
+      . sorry
+      . simp
+
+      refine toReal_mono ?_ ?_
+      . sorry
+      refine measure_mono ?_
+      refine ball_subset_ball ?_
+
+      suffices y ∈ bxrc by
+        unfold bxrc ball at this
+        rw [compl_setOf] at this
+        rw [mem_setOf_eq] at this
+        simp only [not_lt] at this
+        rw [dist_comm] at this
+        exact this
+
+      exact mem_of_mem_inter_left h
+
 
     sorry
 
