@@ -261,12 +261,20 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
     Doubling measure, larger domain pos function 10.1.6, Mg + def of integral of unit 10.1.7
 -/
+  have y_est : ∀(y : X), y ∈ bxrc → r ≤ dist x y := by
+    intro y h
+    unfold bxrc ball at h
+    rw [compl_setOf, mem_setOf_eq] at h
+    simp only [not_lt] at h
+    rw [dist_comm] at h
+    exact h
+
   have estimate_10_1_2 : (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
     simp only [enorm_mul]
-    have pointwise_1 : ∀(y : X), y ∈ bxrc ∩ bx2r → ‖K x y‖ₑ * ‖g y‖ₑ ≤ ENNReal.ofReal (C_K a) / volume (ball x r) * ‖g y‖ₑ := by
-      intro y
-      intro h
+    have pointwise_1 : ∀(y : X), y ∈ bxrc ∩ bx2r → ‖K x y‖ₑ * ‖g y‖ₑ ≤
+        ENNReal.ofReal (C_K a) / volume (ball x r) * ‖g y‖ₑ := by
+      intro y h
       refine mul_le_mul' ?_ ?_
       swap
       . rfl
@@ -274,10 +282,10 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
       trans ENNReal.ofReal (C_K a / Real.vol x y)
       rw [ofReal_le_ofReal_iff]
-      apply IsOneSidedKernel.norm_K_le_vol_inv
+      apply IsOneSidedKernel.norm_K_le_vol_inv -- Applying this is a pain, should it be reformulated?
       refine div_nonneg ?_ ?_
       . refine LT.lt.le ?_
-        apply C_K_pos
+        exact C_K_pos a
       . unfold Real.vol
         simp
 
@@ -285,23 +293,29 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       apply ENNReal.div_le_div_left
       unfold Real.vol Measure.real
       refine (le_ofReal_iff_toReal_le ?_ ?_).mpr ?_
-      . sorry
+      . rw [← lt_top_iff_ne_top]
+        exact measure_ball_lt_top
       . simp
 
       refine toReal_mono ?_ ?_
-      . sorry
+      . rw [← lt_top_iff_ne_top]
+        exact measure_ball_lt_top
       refine measure_mono ?_
       refine ball_subset_ball ?_
 
-      suffices y ∈ bxrc by
-        unfold bxrc ball at this
-        rw [compl_setOf] at this
-        rw [mem_setOf_eq] at this
-        simp only [not_lt] at this
-        rw [dist_comm] at this
-        exact this
+      apply y_est
+      exact h.left
 
-      exact mem_of_mem_inter_left h
+      unfold Real.vol Measure.real
+      apply toReal_pos
+      . have p : volume (ball x (dist x y)) > 0 := by
+          apply measure_ball_pos
+          calc 0
+            _ < r := hr
+            _ ≤ dist x y := by apply y_est; exact h.left
+        exact Ne.symm (ne_of_lt p)
+      . rw [← lt_top_iff_ne_top]
+        exact measure_ball_lt_top
 
 
     sorry
