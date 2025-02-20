@@ -23,9 +23,8 @@ theorem liftIoc_eq_liftIco_of_ne {x : AddCircle p} (x_ne_a : x ≠ a) :
     liftIoc p a f x = liftIco p a f x := by
   let b := QuotientAddGroup.equivIcoMod hp.out a x
   have x_eq_b : x = ↑b := (QuotientAddGroup.equivIcoMod hp.out a).apply_eq_iff_eq_symm_apply.mp rfl
-  have hb := mem_Ico.mp (Subtype.coe_prop b)
-  rw [x_eq_b, liftIco_coe_apply (Subtype.coe_prop b)]
-  exact liftIoc_coe_apply ⟨lt_of_le_of_ne hb.1 (x_ne_a <| · ▸ x_eq_b), hb.2.le⟩
+  rw [x_eq_b, liftIco_coe_apply b.coe_prop]
+  exact liftIoc_coe_apply ⟨lt_of_le_of_ne b.coe_prop.1 (x_ne_a <| · ▸ x_eq_b), b.coe_prop.2.le⟩
 
 theorem liftIoc_ae_eq_liftIco : liftIoc p a f =ᶠ[ae volume] liftIco p a f :=
   Filter.Eventually.mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
