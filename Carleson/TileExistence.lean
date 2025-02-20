@@ -84,7 +84,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * ∑' (y : Y), volume (ball (y : X) (D^k)):= by
       rw [ENNReal.tsum_mul_left]
     _ = (As (2 ^ a) (2 ^ J' X)) * volume (⋃ y ∈ Y, ball y (D^k)) := by
-      rw [ENNReal.mul_eq_mul_left val_ne_zero ENNReal.coe_ne_top]
+      rw [ENNReal.mul_right_inj val_ne_zero ENNReal.coe_ne_top]
       · rw [measure_biUnion _ hYdisjoint (fun y _ => measurableSet_ball)]
         apply hYdisjoint.countable_of_isOpen (fun y _ => isOpen_ball)
         intro y _
@@ -1025,7 +1025,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     rw [← ENNReal.mul_le_mul_left]
     · exact this
     · exact Ne.symm (NeZero.ne' (2 ^ (4 * a)))
-    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.two_ne_top, mul_eq_zero,
+    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, mul_eq_zero,
       OfNat.ofNat_ne_zero, false_or, false_and, not_false_eq_true]
   letI : Countable (Yk X (k-K')) := (Yk_countable X (k-K')).to_subtype
   calc
@@ -1427,6 +1427,7 @@ lemma const_n_prop_1 {t:ℝ} (ht:t∈Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹
 
 variable (X) in
 lemma const_n_prop_2 {t:ℝ} (ht:t∈ Ioo 0 1) (k:ℤ) : t * D^k ≤ D^(k-const_n a ht *K') := by
+  let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   rw [sub_eq_neg_add, zpow_add₀ (defaultD_pos a).ne.symm]
   rw [mul_le_mul_right (zpow_pos (defaultD_pos a) _)]
   rw [zpow_neg, le_inv_comm₀ ht.left (zpow_pos (defaultD_pos a) _)]

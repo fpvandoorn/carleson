@@ -28,8 +28,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
       simp only [mem_support, ne_eq, one_ne_zero, not_false_eq_true, mem_univ]
     have hsupfin: (Set.univ : Set s).Finite := finite_univ
     rw [← hsup] at hsupfin
-    rw [if_pos hsupfin]
-    rw [hfin.encard_eq_coe_toFinset_card]
+    rw [if_pos hsupfin, hfin.encard_eq_coe_toFinset_card]
     simp only [ENat.toENNReal_coe]
     rw [Finset.card_eq_sum_ones]
     rw [finsum_eq_sum (fun (_ : s) ↦ (1 :ℝ≥0∞)) hsupfin]
@@ -49,8 +48,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
         exists_const]
   else
   have : Infinite s := infinite_coe_iff.mpr hfin
-  rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num)]
-  rw [Set.encard_eq_top_iff.mpr hfin]
+  rw [ENNReal.tsum_const_eq_top_of_ne_zero (by norm_num), Set.encard_eq_top_iff.mpr hfin]
   simp only [ENat.toENNReal_top]
 
 lemma ENNReal.tsum_const_eq' {α : Type*} (s : Set α) (c : ℝ≥0∞) :
@@ -171,20 +169,19 @@ attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prod_mk
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 
-
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
     AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
   exact ENNReal.measurable_toReal.comp_aemeasurable hu.aemeasurable
 
 lemma laverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a, f a ∂μ ≤ ⨍⁻ a, g a ∂μ := by
-  exact lintegral_mono_ae <| h.filter_mono <| Measure.ae_mono' Measure.smul_absolutelyContinuous
+    ⨍⁻ a, f a ∂μ ≤ ⨍⁻ a, g a ∂μ :=
+  lintegral_mono_ae <| h.filter_mono <| Measure.ae_mono' Measure.smul_absolutelyContinuous
 
 @[gcongr]
 lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ := by
-  refine laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
+    ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ :=
+  laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
 
 lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
   simp_rw [setLaverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
@@ -231,7 +228,6 @@ structure EquivalenceOn {α : Type*} (r : α → α → Prop) (s : Set α) : Pro
   symm  : ∀ {x y}, x ∈ s → y ∈ s → r x y → r y x
   /-- An equivalence relation is transitive: `x ~ y` and `y ~ z` implies `x ~ z` -/
   trans : ∀ {x y z}, x ∈ s → y ∈ s → z ∈ s → r x y → r y z → r x z
-
 
 namespace EquivalenceOn
 
@@ -454,5 +450,12 @@ theorem lintegral_Lp_smul {α : Type*} [MeasurableSpace α] {μ : MeasureTheory.
     MeasureTheory.lintegral_const_mul'' _ (hf.pow_const p),
     mul_rpow_of_nonneg _ _ (one_div_nonneg.mpr hp.le), ← rpow_mul, mul_one_div_cancel hp.ne.symm,
     rpow_one]
+
+-- Analogous to `ENNReal.ofReal_pow` in Mathlib
+-- Currently unused
+theorem ofReal_zpow {p : ℝ} (hp : 0 < p) (n : ℤ) :
+    ENNReal.ofReal (p ^ n) = ENNReal.ofReal p ^ n := by
+  rw [ofReal_eq_coe_nnreal hp.le, ← coe_zpow, ← ofReal_coe_nnreal, NNReal.coe_zpow, NNReal.coe_mk]
+  exact NNReal.coe_ne_zero.mp hp.ne.symm
 
 end ENNReal

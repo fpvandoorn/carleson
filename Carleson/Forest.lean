@@ -72,18 +72,15 @@ lemma ball_subset_of_mem_𝓘 (hu : u ∈ t) {p : 𝔓 X} (hp : p ∈ t u) {x : 
   refine (ball_subset_ball' ?_).trans (t.ball_subset hu hp)
   linarith [show dist x (𝔠 p) < 4 * D ^ (𝔰 p) from Grid_subset_ball hx]
 
-lemma if_descendant_then_subset (hu : u ∈ t) (hp : p ∈ t u) : (𝓘 p : Set X) ⊆ 𝓘 u := by
-  calc ↑(𝓘 p)
-    _ ⊆ ball (𝔠 p) (4 * ↑D ^ 𝔰 p) := by
-      exact GridStructure.Grid_subset_ball (i := 𝓘 p)
-    _ ⊆ ↑(𝓘 u) := ball_subset_of_mem_𝓘 hu hp Grid.c_mem_Grid
+lemma 𝓘_le_𝓘 (hu : u ∈ t) (hp : p ∈ t u) : 𝓘 p ≤ 𝓘 u :=
+  (t.smul_four_le hu hp).1
 
 end Forest
 
 variable (X) in
 /-- An `n`-row -/
 structure Row (n : ℕ) extends Forest X n where
-  pairwiseDisjoint' : 𝔘.PairwiseDisjoint 𝔗
+  pairwiseDisjoint' : 𝔘.PairwiseDisjoint (fun u ↦ (𝓘 u : Set X))
 
 namespace Row
 
@@ -96,7 +93,8 @@ instance : CoeFun (Row X n) (fun _ ↦ 𝔓 X → Set (𝔓 X)) := ⟨fun t x �
 @[simp] lemma mem_𝔘 : u ∈ t.𝔘 ↔ u ∈ t := .rfl
 @[simp] lemma mem_𝔗 : p ∈ t.𝔗 u ↔ p ∈ t u := .rfl
 
-lemma pairwiseDisjoint : Set.PairwiseDisjoint t t := t.pairwiseDisjoint'
+lemma pairwiseDisjoint : Set.PairwiseDisjoint (t : Set (𝔓 X)) (fun u ↦ (𝓘 u : Set X)) :=
+  t.pairwiseDisjoint'
 
 end Row
 end TileStructure

@@ -118,8 +118,8 @@ lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
 private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [ProperSpace X]
     (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
-  simp only [T, Pi.add_apply, enorm_eq_self]
-  rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.ennnorm]
+  simp only [T, Pi.add_apply, enorm_eq_self, ← enorm_eq_nnnorm]
+  rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.enorm]
   exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x))
 
 -- move
@@ -337,7 +337,7 @@ theorem MB_ae_ne_top' [BorelSpace X] (h𝓑 : 𝓑.Countable)
           gcongr; exact ENNReal.ae_le_essSup fun y ↦ ↑‖u y‖₊
       _ ≤ ⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (fun x ↦ eLpNormEssSup u μ) x := by
           gcongr; exact setLaverage_const_le
-      _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; apply indicator_le_self
+      _ ≤ ⨆ i ∈ 𝓑, eLpNormEssSup u μ := by gcongr; exact indicator_le_self ..
       _ ≤ ⨆ i : ι, eLpNormEssSup u μ := by gcongr; exact iSup_const_le
       _ ≤ eLpNormEssSup u μ := iSup_const_le
       _ < ⊤ := hu.eLpNormEssSup_lt_top
@@ -356,14 +356,12 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
   simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
   refine AESublinearOn.biSup2 (P := (Memℒp · ⊤ μ)) (Q := (Memℒp · 1 μ)) h𝓑 ?_ ?_
-    zero_memℒp zero_memℒp Memℒp.add Memℒp.add ?_ ?_ ?_
+    Memℒp.zero Memℒp.zero Memℒp.add Memℒp.add ?_ ?_ ?_
   · intro u hu
-    have := MB_ae_ne_top' (c := c) h𝓑 hR (.inl hu)
-    filter_upwards [this] with x hx
+    filter_upwards [MB_ae_ne_top' h𝓑 hR (.inl hu)] with x hx
     simpa [MB, maximalFunction] using hx
   · intro u hu
-    have := MB_ae_ne_top (c := c) h𝓑 hR hu
-    filter_upwards [this] with x hx
+    filter_upwards [MB_ae_ne_top h𝓑 hR hu] with x hx
     simpa [MB, maximalFunction] using hx
   · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
   · intro f c hf; rw [NNReal.smul_def]; exact hf.const_smul _
@@ -397,8 +395,6 @@ lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpac
     (h𝓑 : 𝓑.Finite) {p : ℝ≥0} (hp : 1 < p) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) p p μ μ (CMB A p) :=
   hasStrongType_MB h𝓑.countable (Finite.exists_image_le h𝓑 _).choose_spec hp
-
-
 
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)

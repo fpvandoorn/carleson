@@ -191,7 +191,11 @@ def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
-  sSup { r : ℝ≥0∞ | dist_{x, r.toReal} θ (Q x) < 1 }
+  ⨆ (r : ℝ) (_ : dist_{x, r} θ (Q x) < 1), ENNReal.ofReal r
+
+lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x : X} {r : ℝ}
+    (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
+  apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
@@ -270,6 +274,36 @@ lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
 
 lemma measurable_K_left [IsOneSidedKernel a K] (y : X) : Measurable (K · y) :=
   measurable_K.of_uncurry_right
+
+lemma measurable_K_right [IsOneSidedKernel a K] (x : X) : Measurable (K x) :=
+  measurable_K.of_uncurry_left
+
+lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)] [ProperSpace X]
+    [Regular (volume : Measure X)] [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
+    IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
+  use Measurable.aestronglyMeasurable (measurable_K_right x)
+  rw [hasFiniteIntegral_def]
+  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, ‖K x y‖ₑ
+    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R},
+          ENNReal.ofReal (C_K a / volume.real (ball x r)) := by
+      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
+      rw [← ofReal_norm]
+      refine ENNReal.ofReal_le_ofReal <| (norm_K_le_vol_inv x y).trans ?_
+      gcongr
+      · exact (C_K_pos a).le
+      · rw [measureReal_def]
+        apply ENNReal.toReal_pos (ne_of_gt <| measure_ball_pos volume x hr)
+        exact measure_ball_ne_top x r
+      · exact measureReal_mono (ball_subset_ball hy.1)
+    _ < _ := by
+      rw [lintegral_const]
+      apply ENNReal.mul_lt_top ENNReal.ofReal_lt_top
+      rw [Measure.restrict_apply MeasurableSet.univ, univ_inter]
+      refine (Ne.lt_top fun h ↦ ?_)
+      have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by
+        intro y ⟨_, hy⟩
+        exact mem_closedBall_comm.mp hy
+      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
 
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
@@ -410,17 +444,24 @@ section DBounds
 
 variable (X)
 
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_realD : (100 : ℝ) < defaultD a := by
+  simp only [defaultD]
+  norm_cast
+  calc 100
+    _ < 128 := by
+      linarith
+    _ = 2 ^ 7 := by
+      rfl
+    _ < 2 ^ (100 * a ^ 2) := by
+      have : 4 ≤ a := four_le_a X
+      gcongr
+      · linarith
+      · nlinarith
+
 -- used in 4.1.7 (`small_boundary`)
 lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
-  simp only [defaultD, Nat.ofNat_le_cast]
-  have : 4 ≤ a := four_le_a X
-  calc
-    (25 : ℕ)
-      ≤ 32 := Nat.le_of_ble_eq_true rfl
-    _ = 2 ^ (5) := by rfl
-    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by norm_num)
-    _ ≤ 2 ^ (100 * a ^ 2) := Nat.pow_le_pow_right (by norm_num)
-      (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
+  linarith [hundred_lt_realD X]
 
 -- used in 4.1.3 (`I3_prop_3_1`)
 lemma eight_le_realD : (8 : ℝ) ≤ defaultD a := by

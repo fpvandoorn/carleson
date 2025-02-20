@@ -1,5 +1,6 @@
 import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
+import Mathlib.MeasureTheory.Function.StronglyMeasurable.AEStronglyMeasurable
 
 noncomputable section
 
@@ -7,13 +8,10 @@ open ENNReal NNReal Function Set
 
 variable {α α' E E₁ E₂ F : Type*} [ENorm F]
 
-lemma ENNReal.ofReal_norm [SeminormedAddGroup E] (x : E) : .ofReal ‖x‖ = ‖x‖ₑ := by
-  simp_rw [enorm_eq_nnnorm, ofReal_norm_eq_coe_nnnorm]
-
 @[simp] lemma enorm_toReal_le {x : ℝ≥0∞} : ‖x.toReal‖ₑ ≤ x := by simp [← ofReal_norm, ofReal_toReal_le]
 
 @[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
-  simp [enorm_eq_nnnorm, hx, ← ofReal_norm_eq_coe_nnnorm]
+  simp [hx, ← ofReal_norm_eq_enorm]
 
 /-- A type `E` equipped with a continuous map `‖·‖ₑ : E → ℝ≥0∞`.
 Note: do we want to unbundle this (at least separate out `TopologicalSpace E`?)
@@ -50,9 +48,12 @@ export ENormedAddMonoid (enorm_eq_zero enorm_add_le)
 export ENormedAddCommSubMonoid
   (sub_add_cancel_of_enorm_le add_right_cancel_of_enorm_lt_top esub_self)
 export ENormedSpace (enorm_smul)
-attribute [simp] enorm_eq_zero enorm_smul
 
-@[simp] lemma enorm_zero {ε} [ENormedAddMonoid ε] : ‖(0 : ε)‖ₑ = 0 := by simp
+-- mathlib has these (in the _root_ namespace), in a less general setting
+attribute [simp] ENormedAddMonoid.enorm_eq_zero ENormedSpace.enorm_smul
+
+-- mathlib has this (unprimed), for a SeminormedAddGroup E
+@[simp] lemma enorm_zero' {ε} [ENormedAddMonoid ε] : ‖(0 : ε)‖ₑ = 0 := by simp
 
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
@@ -72,9 +73,6 @@ instance [NormedAddGroup E] : ENormedAddMonoid E where
   --   simp (config := {contextual := true}) [← eq_neg_iff_add_eq_zero, enorm_eq_nnnorm]
   enorm_add_le := by simp [enorm_eq_nnnorm, ← ENNReal.coe_add, nnnorm_add_le]
 
-@[simp] lemma enorm_neg [NormedAddGroup E] (x : E) : ‖-x‖ₑ = ‖x‖ₑ := by
-  simp_rw [enorm_eq_nnnorm, nnnorm_neg]
-
 instance [NormedAddCommGroup E] : ENormedAddCommMonoid E where
   add_comm := by simp [add_comm]
 
@@ -92,30 +90,29 @@ protected theorem Continuous.enorm {X : Type*} [TopologicalSpace X] {f : X → E
     (hf : Continuous f) : Continuous (fun x => (‖f x‖ₑ)) :=
   continuous_enorm.comp hf
 
+-- mathlib has this, but only for a NormedAddCommGroup
 @[fun_prop]
 theorem measurable_enorm [MeasurableSpace E] [OpensMeasurableSpace E] :
     Measurable (fun a : E => (‖a‖ₑ)) :=
   continuous_enorm.measurable
 
+-- mathlib has this, but only for a NormedAddCommGroup
 @[fun_prop]
 protected theorem AEMeasurable.enorm [MeasurableSpace E] [OpensMeasurableSpace E] {f : α → E}
     (hf : AEMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   measurable_enorm.comp_aemeasurable hf
 
+-- TODO: generalise the mathlib version (unprimed), then replace by that one
 @[fun_prop]
-protected theorem AEStronglyMeasurable.enorm {f : α → E}
+protected theorem AEStronglyMeasurable.enorm' {f : α → E}
     (hf : AEStronglyMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   continuous_enorm.comp_aestronglyMeasurable hf |>.aemeasurable
-
-protected theorem StronglyMeasurable.enorm {f : α → E}
-    (hf : StronglyMeasurable f) : StronglyMeasurable (fun a => (‖f a‖ₑ)) :=
-  continuous_enorm.comp_stronglyMeasurable hf
 
 end ContinuousENorm
 
 lemma esub_zero [ENormedAddCommSubMonoid E] {x : E} : x - 0 = x := by
   rw [← add_zero (x - 0)]
   apply sub_add_cancel_of_enorm_le
-  simp_rw [enorm_zero, zero_le]
+  simp_rw [enorm_zero', zero_le]
 
 end MeasureTheory

@@ -95,8 +95,7 @@ lemma integrable_approxOnCube (C : Set (Grid X)) {f : X → E'} : Integrable (ap
   refine integrable_finset_sum _ (fun i hi ↦ ?_)
   constructor
   · exact (aestronglyMeasurable_indicator_iff coeGrid_measurable).mpr aestronglyMeasurable_const
-  · simp_rw [hasFiniteIntegral_iff_nnnorm, nnnorm_indicator_eq_indicator_nnnorm,
-      ENNReal.coe_indicator]
+  · simp_rw [hasFiniteIntegral_iff_enorm, enorm_indicator_eq_indicator_enorm]
     apply lt_of_le_of_lt <| lintegral_indicator_const_le (i : Set X) _
     exact ENNReal.mul_lt_top ENNReal.coe_lt_top volume_coeGrid_lt_top
 
@@ -174,22 +173,31 @@ The cube of scale `s` that contains `x`. There is at most 1 such cube, if it exi
 def cubeOf (i : ℤ) (x : X) : Grid X :=
   Classical.epsilon (fun I ↦ x ∈ I ∧ s I = i)
 
+lemma cubeOf_spec {i : ℤ} (hi : i ∈ Icc (-S : ℤ) S) (I : Grid X) {x : X} (hx : x ∈ I) :
+    x ∈ cubeOf i x ∧ s (cubeOf i x) = i := by
+  apply epsilon_spec (p := fun I ↦ x ∈ I ∧ s I = i)
+  by_cases hiS : i = S
+  · use topCube, subset_topCube hx, hiS ▸ s_topCube
+  simpa [and_comm] using Set.mem_iUnion₂.mp <| Grid_subset_biUnion i
+    ⟨hi.1, s_topCube (X := X) ▸ lt_of_le_of_ne hi.2 hiS⟩ (subset_topCube hx)
+
 /-- The definition `T_𝓝^θ f(x)`, given in (7.1.3).
 For convenience, the suprema are written a bit differently than in the blueprint
 (avoiding `cubeOf`), but this should be equivalent.
 This is `0` if `x` doesn't lie in a cube. -/
 def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S) (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
+  ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S)
+  (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
   ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖₊
 
 protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ X} {f : X → ℂ} :
     Measurable (nontangentialMaximalFunction θ f) := by
   refine Measurable.iSup (fun I ↦ ?_)
-  let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : D ^ (s₂ - 1) ≤ upperRadius Q θ x'),
+  let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
     (‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖₊ : ENNReal)
   have : (fun x ↦ ⨆ (_ : x ∈ I), c) = fun x ↦ ite (x ∈ I) c 0 := by
     ext x; by_cases hx : x ∈ I <;> simp [hx]
-  exact this ▸ (measurable_const.ite coeGrid_measurable measurable_const)
+  convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
 variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
@@ -299,7 +307,8 @@ private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) :
   exact Real.toNNReal_one.le
 
 -- Used in the proof of Lemma 7.1.4
-private lemma exp_sub_one_le (t : ℝ) : ‖exp (.I * t) - 1‖ ≤ ‖t‖ := by simpa using exp_Lipschitz t 0
+private lemma exp_sub_one_le (t : ℝ) : ‖exp (.I * t) - 1‖ ≤ ‖t‖ := by
+  simpa [enorm_eq_nnnorm] using exp_Lipschitz t 0
 
 -- Used in the proofs of Lemmas 7.1.4 and 7.1.5
 private lemma dist_lt_5 (hu : u ∈ t) (mp : p ∈ t.𝔗 u) (Qxp : Q x ∈ Ω p) :
@@ -478,10 +487,10 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
       refine ((subset_inter_iff.mpr ⟨h, subset_refl _⟩).trans (fun y hy ↦ ?_)).eventuallyLE
       have ⟨J, hJ, yJ⟩ := Set.mem_iUnion₂.mp hy.1
       exact ⟨J, ⟨⟨J, by simp [mem_Js.mpr ⟨hJ, ⟨y, mem_inter yJ hy.2⟩⟩]⟩, yJ⟩⟩
-    _ = ∑ J in Js, ∫ y in J, ‖f y‖ := by
+    _ = ∑ J ∈ Js, ∫ y in J, ‖f y‖ := by
       apply integral_finset_biUnion Js (fun _ _ ↦ coeGrid_measurable) Js_disj
       exact fun i hi ↦ hf.norm.integrable.integrableOn
-    _ = ∑ J in Js, ∫ y in J, (approxOnCube (𝓙 (t u)) (‖f ·‖)) y := by
+    _ = ∑ J ∈ Js, ∫ y in J, (approxOnCube (𝓙 (t u)) (‖f ·‖)) y := by
       refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
       have eq : EqOn (approxOnCube (𝓙 (t u)) (‖f ·‖)) (fun _ ↦ ⨍ y in J, ‖f y‖) J :=
         fun y hy ↦ approxOnCube_apply pairwiseDisjoint_𝓙 (‖f ·‖) (mem_Js.mp hJ).1 hy
@@ -522,8 +531,10 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
 /-- Lemma 7.1.4 -/
 lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : BoundedCompactSupport f) :
-    ‖∑ i in t.σ u x, ∫ y, (exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y * f y ‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, (exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y * f y ‖₊ ≤
     C7_1_4 a * MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
+  let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
+  let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   set g := approxOnCube (𝓙 (t u)) (‖f ·‖)
   let q (y : X) := -𝒬 u y + Q x y + 𝒬 u x - Q x x
   by_cases hσ : (t.σ u x).Nonempty; swap
@@ -597,13 +608,14 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     · refine le_trans ?_ <| ENNReal.toReal_mono hMB <| L7_1_4_laverage_le_MB hL hx hx' g pₛu xpₛ
       rw [hpₛ, ENNReal.toReal_div]
       refine div_le_div_of_nonneg_right ?_ measureReal_nonneg
-      rw [← integral_norm_eq_lintegral_nnnorm]
+      simp_rw [← enorm_eq_nnnorm]
+      rw [← integral_norm_eq_lintegral_enorm]
       · exact hpₛ ▸ L7_1_4_integral_le_integral hu hf pₛu xpₛ
       · exact (stronglyMeasurable_approxOnCube (𝓙 (t u)) (‖f ·‖)).aestronglyMeasurable.restrict
 
 /-- Lemma 7.1.5 -/
 lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
-    ‖∑ i in t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
   let s₁ := Finset.min' (t.σ u x) hne
@@ -670,7 +682,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
     le_iSup₂_of_le (𝔰 p') ⟨s_ineq, scale_mem_Icc.2⟩ <| le_iSup_of_le ?_ ?_
   · have : ((D : ℝ≥0∞) ^ (𝔰 p' - 1)).toReal = D ^ (s₂ - 1) := by
       rw [sp', ← ENNReal.toReal_zpow]; simp
-    apply le_sSup; rwa [mem_setOf, dist_congr rfl this]
+    apply le_upperRadius; convert d1
   · convert le_rfl; change (Icc (𝔰 p) _).toFinset = _; rw [sp, sp']
     apply subset_antisymm
     · rw [← Finset.toFinset_coe (t.σ u x), toFinset_subset_toFinset]
@@ -775,7 +787,7 @@ private lemma L7_1_6_integral_le {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
     apply exists_setAverage_le (volume_coeGrid_pos (defaultD_pos' a)).ne.symm
     · exact volume_coeGrid_lt_top.ne
     · refine (Integrable.sub ?_ ?_).norm
-      · exact integrable_const_iff.mpr (by simp [volume_coeGrid_lt_top])
+      · exact integrable_const_iff.mpr (by simp [volume_coeGrid_lt_top, isFiniteMeasure_iff])
       · exact (integrable_Ks_x (one_lt_D (X := X))).restrict
   calc ‖⨍ z in J, Ks i x y - Ks i x z‖
   _ ≤ ⨍ z in J, ‖Ks i x y - Ks i x z‖  := norm_integral_le_integral_norm _
@@ -861,15 +873,15 @@ lemma sum_p_eq_sum_I_sum_p (f : X → ℤ → ℝ≥0) :
 /-- Lemma 7.1.6 -/
 lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)
     (hf : BoundedCompactSupport f) :
-    ‖∑ i in t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊ ≤
     C7_1_6 a * t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
   let I (i : ℤ) (x : X) := ‖∫ (y : X), Ks i x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊
   let Js (p : 𝔓 X) := Set.toFinset <| { J ∈ 𝓙 (t u) | ↑J ⊆ ball x (16 * D ^ 𝔰 p) ∧ s J ≤ 𝔰 p }
   let ps (I : Grid X) := Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ 𝓘 p = I)
   let 𝔗_fin := Finset.univ.filter (· ∈ t.𝔗 u)
   have A5_pos : (defaultA a : ℝ) ^ 5 > 0 := pow_pos (by norm_num) 5
-  calc ENNReal.ofNNReal (‖∑ i in t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊)
-    _ ≤ ENNReal.ofNNReal (∑ i in t.σ u x, ‖∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊) :=
+  calc ENNReal.ofNNReal (‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊)
+    _ ≤ ENNReal.ofNNReal (∑ i ∈ t.σ u x, ‖∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊) :=
       ENNReal.coe_strictMono.monotone <| nnnorm_sum_le (t.σ u x) _
     _ = ENNReal.ofNNReal (∑ p ∈ 𝔗_fin, (E p).indicator 1 x * (I (𝔰 p)) x) := by
       rw [← p_sum_eq_s_sum I]
