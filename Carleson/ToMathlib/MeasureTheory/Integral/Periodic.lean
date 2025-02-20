@@ -36,31 +36,28 @@ section Measurability
 
 variable (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → B}
 
-theorem liftIoc_aestronglyMeasurable [TopologicalSpace B] (hf : AEStronglyMeasurable f) :
-    AEStronglyMeasurable (liftIoc p a f) := by
+lemma map_subtypeVal_map_equivIoc :
+    (volume.map (equivIoc p a)).map Subtype.val = volume.restrict (Ioc a (a + p)) := by
   have h : Measurable (equivIoc p a) := (AddCircle.measurableEquivIoc p a).measurable_toFun
-  refine AEStronglyMeasurable.comp_measurable ?_ measurable_subtype_coe |>.comp_measurable h
-  convert hf.restrict (s := Ioc a (a + p))
   rw [← (AddCircle.measurePreserving_mk p a).map_eq]
   rw [Measure.map_map measurable_subtype_coe h, Measure.map_map (measurable_subtype_coe.comp h)]
   · exact (Measure.map_congr <| Filter.Eventually.mono (self_mem_ae_restrict measurableSet_Ioc) <|
       fun x hx ↦ AddCircle.liftIoc_coe_apply hx).trans Measure.map_id
   · exact fun _ ↦ id
 
+theorem liftIoc_aestronglyMeasurable [TopologicalSpace B] (hf : AEStronglyMeasurable f) :
+    AEStronglyMeasurable (liftIoc p a f) :=
+  (map_subtypeVal_map_equivIoc p a ▸ hf.restrict).comp_measurable
+    measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
+
 theorem liftIco_aestronglyMeasurable [TopologicalSpace B] (hf : AEStronglyMeasurable f) :
     AEStronglyMeasurable (liftIco p a f) :=
   (liftIoc_aestronglyMeasurable p a hf).congr (liftIoc_ae_eq_liftIco f)
 
 theorem liftIoc_aemeasurable [MeasurableSpace B] (hf : AEMeasurable f) :
-    AEMeasurable (liftIoc p a f) := by
-  have h : Measurable (equivIoc p a) := (AddCircle.measurableEquivIoc p a).measurable_toFun
-  refine AEMeasurable.comp_measurable ?_ measurable_subtype_coe |>.comp_measurable h
-  convert hf.restrict (s := Ioc a (a + p))
-  rw [← (AddCircle.measurePreserving_mk p a).map_eq]
-  rw [Measure.map_map measurable_subtype_coe h, Measure.map_map (measurable_subtype_coe.comp h)]
-  · exact (Measure.map_congr <| Filter.Eventually.mono (self_mem_ae_restrict measurableSet_Ioc) <|
-      fun x hx ↦ AddCircle.liftIoc_coe_apply (f := id (α := ℝ)) hx).trans Measure.map_id
-  · exact fun _ ↦ id
+    AEMeasurable (liftIoc p a f) :=
+  (map_subtypeVal_map_equivIoc p a ▸ hf.restrict).comp_measurable
+    measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
 
 theorem liftIco_aemeasurable [MeasurableSpace B] (hf : AEMeasurable f) :
     AEMeasurable (liftIco p a f) :=
