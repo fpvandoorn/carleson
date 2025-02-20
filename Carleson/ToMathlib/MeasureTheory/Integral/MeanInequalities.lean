@@ -143,18 +143,14 @@ private theorem eLpNorm_top_convolution_le_aux [AddCommGroup G] {p q : ℝ≥0�
   refine essSup_le_of_ae_le _ (Filter.Eventually.of_forall fun x ↦ ?_)
   apply le_trans <| enorm_integral_le_lintegral_enorm _
   calc ∫⁻ y, ‖(L (f y)) (g (x - y))‖ₑ ∂μ
-  _ ≤ ∫⁻ y, ENNReal.ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
-    simp_rw [← ofReal_norm_eq_enorm, ← ENNReal.ofReal_mul hc.le]
-    refine lintegral_mono (fun y ↦ ?_)
-    rw [← ENNReal.ofReal_mul <| mul_nonneg hc.le (norm_nonneg _)]
-    apply ENNReal.ofReal_le_ofReal
-    exact hL y (x - y)
-  _ ≤ _ := by
-    have := hg' x
-    simp_rw [mul_assoc]
-    rw [lintegral_const_mul' _ _ ofReal_ne_top]
-    apply mul_left_mono
-    simpa [this] using ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x)
+    _ ≤ ∫⁻ y, ENNReal.ofReal c * ‖f y‖ₑ * ‖g (x - y)‖ₑ ∂μ := by
+      simp_rw [← ofReal_norm_eq_enorm, ← ENNReal.ofReal_mul hc.le]
+      refine lintegral_mono (fun y ↦ ?_)
+      rw [← ENNReal.ofReal_mul <| mul_nonneg hc.le (norm_nonneg _)]
+      exact ENNReal.ofReal_le_ofReal <| hL y (x - y)
+    _ ≤ _ := by
+      simp_rw [mul_assoc, lintegral_const_mul' _ _ ofReal_ne_top]
+      simpa [hg' x] using mul_left_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x))
 
 variable [AddCommGroup G] [TopologicalSpace G] [TopologicalAddGroup G] [BorelSpace G]
   [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
