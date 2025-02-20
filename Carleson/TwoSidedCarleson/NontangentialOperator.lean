@@ -187,7 +187,7 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     HasStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
-/-- Part of Lemma 10.1.7, reformulated -/
+/-- Part of Lemma 10.1.7, reformulated. -/
 theorem small_annulus_right (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts a))
     {f : X → ℂ} (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (h2f : volume (support f) < ∞)

@@ -71,6 +71,12 @@ variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
   {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}
   -- feel free to assume `A ≥ 16` or similar
 
+/-- Use the dominated convergence theorem [Folland, Lemma 3.16] -/
+lemma continuous_average_ball (hf : LocallyIntegrable f μ) :
+    ContinuousOn (fun x : X × ℝ ↦ ⨍⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
+  sorry
+
+
 /-- The Hardy-Littlewood maximal function w.r.t. a collection of balls 𝓑.
 M_{𝓑, p} in the blueprint. -/
 def maximalFunction (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ)
@@ -83,12 +89,17 @@ M_𝓑 in the blueprint. -/
 abbrev MB (μ : Measure X) (𝓑 : Set ι) (c : ι → X) (r : ι → ℝ) (u : X → E) (x : X) : ℝ≥0∞ :=
   maximalFunction μ 𝓑 c r 1 u x
 
+lemma MB_def : MB μ 𝓑 c r f x = (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator (x := x)
+    fun _ ↦ ⨍⁻ y in ball (c i) (r i), ‖f y‖₊ ∂μ) := by
+  unfold MB maximalFunction; simp_rw [inv_one, rpow_one]
+
 lemma maximalFunction_eq_MB
     {μ : Measure X} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ} {p : ℝ} {u : X → E} {x : X} (hp : 0 ≤ p) :
     maximalFunction μ 𝓑 c r p u x = (MB μ 𝓑 c r (‖u ·‖ ^ p) x) ^ p⁻¹ := by
-  unfold MB maximalFunction; rw [← ENNReal.rpow_mul, inv_one, one_mul]; congr! 8
-  rw [ENNReal.rpow_one, ← ENNReal.coe_rpow_of_nonneg _ hp, ENNReal.coe_inj,
-    Real.nnnorm_rpow_of_nonneg (by simp), nnnorm_norm]
+  rw [maximalFunction, MB_def]
+  congr!
+  rw [← ENNReal.coe_rpow_of_nonneg _ hp, ENNReal.coe_inj, Real.nnnorm_rpow_of_nonneg (by simp),
+    nnnorm_norm]
 
 -- We will replace the criterion `P` used in `MeasureTheory.AESublinearOn.maximalFunction` with the
 -- weaker criterion `LocallyIntegrable` that is closed under addition and scalar multiplication.
@@ -438,6 +449,11 @@ theorem hasStrongType_maximalFunction_todo
       p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
   sorry
 
+/-- Use `lowerSemicontinuous_iff_isOpen_preimage` and `continuous_average_ball` -/
+lemma lowerSemiContinuous_MB (hf : LocallyIntegrable f μ) :
+    LowerSemicontinuous (MB μ 𝓑 c r f) := by
+  sorry
+
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`, but where `p₁ = p₂` is possible and
 we only conclude a weak-type estimate.
 The proof of this should be basically the same as that of `hasStrongType_maximalFunction` +
@@ -528,6 +544,11 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
   · simp; ring
   rw [hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
   exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
+
+/-- Use `lowerSemiContinuous_MB` -/
+lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
+    LowerSemicontinuous (globalMaximalFunction μ 1 f) := by
+  sorry
 
 
 end GMF

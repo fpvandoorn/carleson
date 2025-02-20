@@ -101,9 +101,7 @@ Folland, Real Analysis. Modern Techniques and Their Applications, section 6.3. -
 /-! # The distribution function `d_f` -/
 
 /-- The distribution function of a function `f`.
-Note that unlike the notes, we also define this for `t = ∞`.
-Note: we also want to use this for functions with codomain `ℝ≥0∞`, but for those we just write
-`μ { x | t < f x }` -/
+Todo: rename to something more Mathlib-appropriate. -/
 def distribution (f : α → ε) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   μ { x | t < ‖f x‖ₑ }
 

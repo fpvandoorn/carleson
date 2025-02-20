@@ -11,8 +11,11 @@ variable {τ C r R : ℝ} {q q' : ℝ≥0}
 variable {F G : Set X}
 variable {K : X → X → ℂ} {x x' : X} [IsTwoSidedKernel a K]
 variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
+variable {f : X → ℂ}
 
-/-! ## Section 10.2 and Lemma 10.0.3 -/
+/-! ## Section 10.2 and Lemma 10.0.3
+
+Question: -/
 
 /-- The constant used in `nontangential_from_simple`.
 I(F) think the constant needs to be fixed in the blueprint. -/
@@ -39,7 +42,7 @@ Should be an easy consequence of `VitaliFamily.ae_tendsto_average`. -/
 theorem lebesgue_differentiation
     {f : X → ℂ} (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (h2f : volume (support f) < ∞) :
     ∀ᵐ x ∂volume, ∃ (c : ℕ → X) (r : ℕ → ℝ),
-    Tendsto (fun i => ⨍ y in ball (c i) (r i), f y ∂volume) atTop (𝓝 (f x)) ∧
+    Tendsto (fun i ↦ ⨍ y in ball (c i) (r i), f y ∂volume) atTop (𝓝 (f x)) ∧
     Tendsto r atTop (𝓝[>] 0) ∧
     ∀ i, x ∈ ball (c i) (r i) := by
   sorry
@@ -48,13 +51,50 @@ theorem lebesgue_differentiation
 /-! Lemma 10.2.3 is in Mathlib: `Pairwise.countable_of_isOpen_disjoint`. -/
 
 /-- Lemma 10.2.4
-Can we use `Vitali.exists_disjoint_subfamily_covering_enlargement` (or adapt it so that we
-can use it)?  -/
+This is very similar to `Vitali.exists_disjoint_subfamily_covering_enlargement`.
+Can we use that (or adapt it so that we can use it)?  -/
 theorem ball_covering {O : Set X} (hO : IsOpen O) :
-    ∃ (s : Set X) (r : X → ℝ), s.Countable ∧ (s.PairwiseDisjoint fun a => closedBall a (r a)) ∧
-      ⋃ x ∈ s, ball x (3 * r x) = O ∧ (∀ x ∈ s, ¬ Disjoint (ball x (7 * r x)) Oᶜ) ∧
-      ∀ x ∈ O, Cardinal.mk { y ∈ s | x ∈ ball y (3 * r y)} ≤ (2 ^ (6 * a) : ℕ) := by
+    ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ closedBall (c i) (r i)) ∧
+      ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬ Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
+      ∀ x ∈ O, Cardinal.mk { i | x ∈ ball (c i) (3 * r i)} ≤ (2 ^ (6 * a) : ℕ) := by
   sorry
+
+/-- An auxillary definition so that we don't have to write this every time.
+Can we use `BoundedCompactSupport` for this? -/
+def BdMeasurable (f : X → ℂ) : Prop :=
+  Measurable f ∧ eLpNorm f ∞ < ∞ ∧ volume (support f) < ∞
+
+/- Use `lowerSemiContinuous_globalMaximalFunction` -/
+lemma isOpen_MB_preimage_Ioi (hf : BdMeasurable f) (x : ℝ≥0∞) :
+    IsOpen (globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi x) := by
+  sorry
+
+/-- The center of B_j in the proof of 10.2.5. -/
+def czCenter (hf : BdMeasurable f) (x : ℝ≥0∞) (i : ℕ) : X :=
+  ball_covering (isOpen_MB_preimage_Ioi hf x) |>.choose i
+
+/-- The radius of B_j in the proof of 10.2.5. -/
+def czRadius (hf : BdMeasurable f) (x : ℝ≥0∞) (i : ℕ) : ℝ :=
+  ball_covering (isOpen_MB_preimage_Ioi hf x) |>.choose_spec.choose i
+
+lemma cz_pairwiseDisjoint {hf : BdMeasurable f} {x : ℝ≥0∞} :
+    univ.PairwiseDisjoint fun i ↦ closedBall (czCenter hf x i) (czRadius hf x i) :=
+  ball_covering (isOpen_MB_preimage_Ioi hf x) |>.choose_spec.choose_spec.1
+
+lemma biUnion_cz {hf : BdMeasurable f} {x : ℝ≥0∞} :
+    ⋃ i, ball (czCenter hf x i) (3 * czRadius hf x i) =
+    globalMaximalFunction volume 1 f ⁻¹' Ioi x :=
+  ball_covering (isOpen_MB_preimage_Ioi hf x) |>.choose_spec.choose_spec.2.1
+
+lemma not_disjoint_cz {hf : BdMeasurable f} {x : ℝ≥0∞} {i : ℕ} :
+    ¬ Disjoint (ball (czCenter hf x i) (7 * czRadius hf x i))
+    (globalMaximalFunction volume 1 f ⁻¹' Ioi x)ᶜ :=
+  ball_covering (isOpen_MB_preimage_Ioi hf x) |>.choose_spec.choose_spec.2.2.1 i
+
+lemma cardinalMk_cz_le {hf : BdMeasurable f} {x : ℝ≥0∞} {y : X}
+    (hy : x < globalMaximalFunction volume 1 f y) :
+    Cardinal.mk { i | y ∈ ball (czCenter hf x i) (3 * czRadius hf x i)} ≤ (2 ^ (6 * a) : ℕ) :=
+  ball_covering (isOpen_MB_preimage_Ioi hf x) |>.choose_spec.choose_spec.2.2.2 y hy
 
 
 /-- Lemma 10.2.5.
