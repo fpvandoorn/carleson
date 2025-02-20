@@ -373,13 +373,10 @@ theorem eLpNorm_convolution_le_ofReal' {p q r : ℝ}
   · intro x; exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x) |>.enorm
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const q
 
-variable (L)
-
 -- Auxiliary result to prove the following versions with simpler assumptions on `f` and `g`
 private theorem eLpNorm_convolution_le_of_norm_le_mul_aux {p q r : ℝ≥0∞}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
-    {f : G → E} {g : G → E'}
-    (hf : AEMeasurable (‖f ·‖ₑ) μ)
+    {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
     (hg : ∀ (x : G), AEMeasurable (‖g <| x - ·‖ₑ) μ)
     (hg' : ∀ (x : G), eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
     (hg'' : AEMeasurable (fun x ↦ ‖(g ∘ fun p ↦ p.1 - p.2) x‖ₑ ^ q.toReal) (μ.prod μ))
@@ -417,7 +414,7 @@ theorem eLpNorm_convolution_le_of_norm_le_mul [MeasurableSpace E] [OpensMeasurab
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_convolution_le_of_norm_le_mul_aux L hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
+  refine eLpNorm_convolution_le_of_norm_le_mul_aux hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
   · intro x; exact hg.enorm.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
   · intro x; exact eLpNorm_comp_measurePreserving' hg (μ.measurePreserving_sub_left x)
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
@@ -431,7 +428,7 @@ theorem eLpNorm_convolution_le_of_norm_le_mul' {p q r : ℝ≥0∞}
     {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
-  refine eLpNorm_convolution_le_of_norm_le_mul_aux L hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
+  refine eLpNorm_convolution_le_of_norm_le_mul_aux hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
   · intro x; exact hg.enorm.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
   · intro x; exact eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
@@ -445,7 +442,7 @@ theorem eLpNorm_convolution_le_enorm_mul [MeasurableSpace E] [OpensMeasurableSpa
     {f : G → E} {g : G → E'} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ ‖L‖ₑ * eLpNorm f p μ * eLpNorm g q μ := by
   rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg L)]
-  exact eLpNorm_convolution_le_of_norm_le_mul L hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
+  exact eLpNorm_convolution_le_of_norm_le_mul hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 /-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
@@ -456,7 +453,7 @@ theorem eLpNorm_convolution_le_enorm_mul' {p q r : ℝ≥0∞}
     {f : G → E} {g : G → E'} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     eLpNorm (f ⋆[L, μ] g) r μ ≤ ‖L‖ₑ * eLpNorm f p μ * eLpNorm g q μ := by
   rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg L)]
-  exact eLpNorm_convolution_le_of_norm_le_mul' L hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
+  exact eLpNorm_convolution_le_of_norm_le_mul' hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 open Set AddCircle in
@@ -484,7 +481,7 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
     _ = eLpNorm (liftIoc T a f ⋆[L] liftIoc T a g) r := by
       rw [← convolution_liftIoc L a hfT hgT]
     _ ≤ .ofReal c * eLpNorm (liftIoc T a f) p * eLpNorm (liftIoc T a g) q := by
-      apply eLpNorm_convolution_le_of_norm_le_mul' L hp hq hr hpqr
+      apply eLpNorm_convolution_le_of_norm_le_mul' hp hq hr hpqr
       · exact liftIoc_aestronglyMeasurable T a hf
       · exact liftIoc_aestronglyMeasurable T a hg
       · intros; apply hL
@@ -502,7 +499,7 @@ theorem eLpNorm_Ioc_convolution_le_enorm_mul (a : ℝ) {T : ℝ} [hT : Fact (0 <
     eLpNorm ((Ioc a (a + T)).indicator fun x ↦ ∫ y in a..a+T, L (f y) (g (x - y))) r ≤
     ‖L‖ₑ * eLpNorm ((Ioc a (a + T)).indicator f) p * eLpNorm ((Ioc a (a + T)).indicator g) q := by
   rw [← enorm_norm, Real.enorm_of_nonneg (norm_nonneg L)]
-  exact eLpNorm_Ioc_convolution_le_of_norm_le_mul L a hp hq hr hpqr hfT hgT hf hg ‖L‖ <| fun x y ↦
+  exact eLpNorm_Ioc_convolution_le_of_norm_le_mul a hp hq hr hpqr hfT hgT hf hg ‖L‖ <| fun x y ↦
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 end ENNReal
