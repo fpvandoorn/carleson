@@ -2,7 +2,6 @@ import Carleson.Discrete.Defs
 import Carleson.ForestOperator.Forests
 import Carleson.Discrete.SumEstimates
 
-set_option profiler true
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
 open Classical -- We use quite some `Finset.filter`
