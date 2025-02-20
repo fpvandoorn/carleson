@@ -642,6 +642,7 @@ lemma tree_count :
   -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
   apply le_trans (sum_le_sum indicator_le)
   simp_rw [← mul_sum, stackSize_real, mem_coe, filter_univ_mem, interchange, sum_const]
+  let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   -- Replace the cardinality of `𝔘` with the upper bound proven in `card_𝔘m_le`, and simplify.
   apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos two_pos _)).mpr <| sum_le_sum <|
     fun _ _ ↦ smul_le_smul_of_nonneg_right card_𝔘m_le <| Set.indicator_apply_nonneg (by simp)
