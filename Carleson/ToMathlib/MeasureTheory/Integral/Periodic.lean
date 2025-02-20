@@ -75,26 +75,7 @@ variable {𝕜 : Type*} {E : Type*} {E' : Type*} {F : Type*} [NormedAddCommGroup
   [NormedSpace 𝕜 E'] [NormedSpace 𝕜 F] [NormedSpace ℝ F] (L : E →L[𝕜] E' →L[𝕜] F)
   {f : ℝ → E} {g : ℝ → E'}
 
-variable {T : ℝ} [hT : Fact (0 < T)] (a b c d : ℝ)
-
-/- theorem convolution_liftIco (hf : f.Periodic T) (hg : g.Periodic T) :
-    liftIco T a f ⋆[L] liftIco T b g = liftIco T c fun x ↦ ∫ y in d..d+T, L (f y) (g (x - y)) := by
-  rw [liftIco_eq_liftIco a d hf, liftIco_eq_liftIco b d hg]
-  refine funext (fun q ↦ QuotientAddGroup.induction_on q (fun x ↦ ?_))
-  rw [convolution, ← AddCircle.intervalIntegral_preimage T d]
-  have : Periodic (fun x ↦ ∫ y in d..d+T, L (f y) (g (x-y))) T := by
-    intro; refine integral_congr (fun _ _ ↦ ?_); rw [add_sub_right_comm, hg]
-  rw [liftIco_eq_liftIco c d this, AddCircle.liftIco_coe_apply_of_periodic d this]
-  refine integral_congr (fun y _ ↦ ?_)
-  rw [AddCircle.liftIco_coe_apply_of_periodic d hf, ← AddCircle.liftIco_coe_apply_of_periodic d hg]
-  rfl
-
-theorem convolution_liftIoc (hf : f.Periodic T) (hg : g.Periodic T) :
-    liftIoc T a f ⋆[L] liftIoc T b g = liftIoc T c fun x ↦ ∫ y in d..d+T, L (f y) (g (x - y)) := by
-  have : Periodic (fun x ↦ ∫ y in d..d+T, L (f y) (g (x-y))) T := by
-    intro; refine integral_congr (fun _ _ ↦ ?_); rw [add_sub_right_comm, hg]
-  rw [← liftIco_eq_liftIoc a a hf, ← liftIco_eq_liftIoc b b hg, ← liftIco_eq_liftIoc c c this]
-  exact convolution_liftIco L a b c d hf hg -/
+variable {T : ℝ} [hT : Fact (0 < T)] (a : ℝ)
 
 theorem convolution_liftIco (hf : f.Periodic T) (hg : g.Periodic T) :
     liftIco T a f ⋆[L] liftIco T a g = liftIco T a fun x ↦ ∫ y in a..a+T, L (f y) (g (x - y)) := by
