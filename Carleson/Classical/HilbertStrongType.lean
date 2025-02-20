@@ -105,7 +105,7 @@ lemma young_convolution {f g : ℝ → ℂ} (hmf : AEMeasurable f) (periodic_f :
   have : Fact (0 < 2 * π) := ⟨mul_pos two_pos Real.pi_pos⟩
   have h2 : (1 : ℝ≥0∞) ≤ 2 := by exact one_le_two
   simpa [zero_add] using ENNReal.eLpNorm_Ioc_convolution_le_of_norm_le_mul
-    (ContinuousLinearMap.mul ℝ ℂ) 0 (2 * π) h2 (le_refl 1) h2 (by rw [inv_one])
+    (ContinuousLinearMap.mul ℝ ℂ) 0 h2 (le_refl 1) h2 (by rw [inv_one])
     periodic_f periodic_g hmf.aestronglyMeasurable hmg.aestronglyMeasurable 1 (by simp)
 
 /-- Lemma 11.3.4.
