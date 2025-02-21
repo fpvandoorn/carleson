@@ -224,6 +224,11 @@ theorem of_norm_le_const_mul {g : X → ℝ} {M : ℝ} (hg : BoundedCompactSuppo
     (hfg : ∀ x, ‖f x‖ ≤ M * g x) : BoundedCompactSupport f :=
   BoundedCompactSupport.mono (hg.const_mul M) hf hfg
 
+theorem toComplex {f : X → ℝ} (hf : BoundedCompactSupport f) :
+    BoundedCompactSupport (fun x ↦ (f x : ℂ)) :=
+  mono (g := (‖f ·‖)) hf.norm
+    (Complex.continuous_ofReal.comp_stronglyMeasurable hf.stronglyMeasurable) (by simp)
+
 section Sum
 
 variable {ι : Type*} {s : Finset ι} {F : ι → X → 𝕜}
