@@ -200,7 +200,7 @@ protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ
   convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
-variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
+variable (t) (u) in def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
   { J | J ∈ 𝓙 (t u) ∧ (J : Set X) ⊆ ball x (16 * D ^ i) ∧ s J ≤ i }
 
 private lemma mem_𝓙_of_mem_𝓙' {x : X} {i : ℤ} {J : Grid X} : J ∈ 𝓙' t u x i → J ∈ 𝓙 (t u) := by
@@ -208,26 +208,31 @@ private lemma mem_𝓙_of_mem_𝓙' {x : X} {i : ℤ} {J : Grid X} : J ∈ 𝓙'
   simp only [𝓙', Finset.mem_filter] at hJ
   exact hJ.2.1
 
+variable (f I J) in
+/-- Scaled integral appearing in the definition of `boundaryOperator`. -/
+def ijIntegral : ℝ≥0∞ :=
+  D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in J, ‖f y‖₊
+
+lemma ijIntegral_lt_top (hf : BoundedCompactSupport f) : ijIntegral f I J < ⊤ := by
+  refine ENNReal.mul_lt_top ?_ hf.integrable.integrableOn.2
+  apply ENNReal.div_lt_top (by simp)
+  exact (measure_ball_pos volume _ <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))).ne'
+
 variable (t) in
 /-- The operator `S_{1,𝔲} f(x)`, given in (7.1.4). -/
 def boundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ∑ I : Grid X, (I : Set X).indicator (x := x) fun _ ↦ ∑ J ∈ 𝓙' t u (c I) (s I),
-  D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in (J : Set X), ‖f y‖₊
+  ∑ I : Grid X, (I : Set X).indicator (fun _ ↦ ∑ J ∈ 𝓙' t u (c I) (s I), ijIntegral f I J) x
 
-protected theorem MeasureTheory.Measurable.boundaryOperator {u : 𝔓 X} {f : X → ℂ} :
-    Measurable (t.boundaryOperator u f) := by
+lemma measurable_boundaryOperator {u : 𝔓 X} {f : X → ℂ} : Measurable (t.boundaryOperator u f) := by
   refine Finset.measurable_sum _ (fun I _ ↦ ?_)
   exact (Finset.measurable_sum _ (fun J _ ↦ measurable_const)).indicator coeGrid_measurable
 
--- Currently unused; uncomment if needed.
-/- lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperator u f x < ⊤ := by
+lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperator u f x < ⊤ := by
   refine ENNReal.sum_lt_top.mpr (fun I _ ↦ ?_)
   by_cases hx : x ∈ (I : Set X)
   · rw [indicator_of_mem hx]
-    refine ENNReal.sum_lt_top.mpr (fun J hJ ↦ ENNReal.mul_lt_top ?_ hf.integrable.integrableOn.2)
-    apply ENNReal.div_lt_top (by simp)
-    exact ne_of_gt <| measure_ball_pos volume _ <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
-  · simp [hx] -/
+    exact ENNReal.sum_lt_top.mpr (fun _ _ ↦ ijIntegral_lt_top hf)
+  · simp [hx]
 
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
 def 𝓑 : Set (ℕ × Grid X) := Icc 0 (S + 5) ×ˢ univ

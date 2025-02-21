@@ -4723,6 +4723,7 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 Now we can bound the operators $S_{1, \fu}$.
 
 \begin{proof}[Proof of \Cref{boundary-operator-bound}]
+    \leanok
     \proves{boundary-operator-bound}
     Note that by definition, $S_{1,\fu}f$ is a finite sum of indicator functions of cubes $I \in \mathcal{D}$ for each locally integrable $f$, and hence is bounded, has bounded support and is integrable. Let $g$ be another function with the same three properties. Then $\bar g S_{1,\fu}f$ is integrable, and we have
     $$
@@ -4740,20 +4741,15 @@ Now we can bound the operators $S_{1, \fu}$.
     \label{eq-boundary-operator-bound-1}
         \le \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y) \sum_{\substack{I \in \mathcal{D} \, : \, J\subset B(c(I),16 D^{s(I)})\\ s(I) \ge s(J)}} D^{(s(J)-s(I))/a}.
     \end{align}
-    By \Cref{boundary-overlap}, there are at most $2^{9a}$ cubes $I$ at each scale with $J \subset B(c(I), D^{s(I)})$.
-    By convexity of $t \mapsto D^t$ and since $D \ge 2$, we have for all $-1 \le t \le 0$
+    By \Cref{boundary-overlap}, there are at most $2^{9a}$ cubes $I$ at each scale with $J \subset B(c(I),16D^{s(I)})$.
+    Since $D^{-1/a}\le\frac12$, $(1 - D^{-1/a})^{-1} \le 2$.
+    Using this estimate for the sum of the geometric series, we conclude that \eqref{eq-boundary-operator-bound-1} is at most
     $$
-        D^t \le 1 + t\left(1 - \frac{1}{D}\right) \le 1 + \frac{1}{2}t\,,
-    $$
-    so $(1 - D^{-1/a})^{-1} \le 2a \le 2^{a-1}$.
-    Using this estimate for the sum of the geometric series,
-    we conclude that \eqref{eq-boundary-operator-bound-1} is at most
-    $$
-        2^{10a-1} \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
+        2^{9a+1} \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
     The collection $\mathcal{J}$ is a partition of $\bigcup_{I \in \mathcal{D}} I$, so this equals
     $$
-        2^{11a-1} \int_X|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
+        2^{9a+1} \int_X|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
     Using Cauchy-Schwarz and \Cref{Hardy-Littlewood}, we conclude
     $$
