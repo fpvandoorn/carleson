@@ -234,7 +234,7 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux {p q r 
       have := (hf.pow_const p).mul (ae_meas_g.pow_const q)
       have ae_meas : ∀ i ∈ Finset.univ, AEMeasurable (F i) μ :=
         fun ⟨v, _⟩ _ ↦ by interval_cases v <;> exact AEMeasurable.pow_const (by assumption) _
-      suffices ∑ i ∈ Finset.univ, (P i)⁻¹ = 1 by
+      suffices ∑ i, (P i)⁻¹ = 1 by
         simpa [Fin.prod_univ_succ] using lintegral_prod_norm_pow_le' ae_meas this
       -- It remains to check ∑ (P i)⁻¹ = 1, which is trivial, aside from technicalities in `ℝ≥0∞`
       simp_rw [Fin.sum_univ_succ, Fin.succ_zero_eq_one, Fin.succ_one_eq_two,

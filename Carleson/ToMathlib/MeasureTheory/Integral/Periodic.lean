@@ -17,7 +17,7 @@ instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle p)) whe
   measure_singleton x := by simpa [hp.out.le] using AddCircle.volume_closedBall p (x := x) 0
 
 theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc p a f =ᶠ[ae volume] liftIco p a f :=
-  Filter.Eventually.mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
+  .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
 
 end AE
 
