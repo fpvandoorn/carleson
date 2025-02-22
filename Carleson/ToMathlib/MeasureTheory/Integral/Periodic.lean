@@ -11,12 +11,12 @@ open scoped Convolution
 
 section AE
 
-variable {B : Type*} {p a : ℝ} [hp : Fact (0 < p)] (f : ℝ → B)
+variable {B : Type*} {T a : ℝ} [hT : Fact (0 < T)] (f : ℝ → B)
 
-instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle p)) where
-  measure_singleton x := by simpa [hp.out.le] using AddCircle.volume_closedBall p (x := x) 0
+instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle T)) where
+  measure_singleton x := by simpa [hT.out.le] using AddCircle.volume_closedBall T (x := x) 0
 
-theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc p a f =ᶠ[ae volume] liftIco p a f :=
+theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc T a f =ᶠ[ae volume] liftIco T a f :=
   .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
 
 end AE
@@ -24,12 +24,12 @@ end AE
 
 section Measurability
 
-variable {E : Type*} (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → E}
+variable {E : Type*} (T a : ℝ) [hT : Fact (0 < T)] {f : ℝ → E}
 
 lemma AddCircle.map_subtypeVal_map_equivIoc_volume :
-    (volume.map (equivIoc p a)).map Subtype.val = volume.restrict (Ioc a (a + p)) := by
-  have h : Measurable (equivIoc p a) := (AddCircle.measurableEquivIoc p a).measurable_toFun
-  rw [← (AddCircle.measurePreserving_mk p a).map_eq]
+    (volume.map (equivIoc T a)).map Subtype.val = volume.restrict (Ioc a (a + T)) := by
+  have h : Measurable (equivIoc T a) := (AddCircle.measurableEquivIoc T a).measurable_toFun
+  rw [← (AddCircle.measurePreserving_mk T a).map_eq]
   rw [Measure.map_map measurable_subtype_coe h, Measure.map_map (measurable_subtype_coe.comp h)]
   · exact (Measure.map_congr <| Filter.Eventually.mono (self_mem_ae_restrict measurableSet_Ioc) <|
       fun x hx ↦ AddCircle.liftIoc_coe_apply hx).trans Measure.map_id
@@ -39,25 +39,25 @@ namespace MeasureTheory
 
 open AddCircle
 
-variable {E : Type*} (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → E}
+variable {E : Type*} (T a : ℝ) [hT : Fact (0 < T)] {f : ℝ → E}
 
 protected theorem AEStronglyMeasurable.liftIoc [TopologicalSpace E]
-    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIoc p a f) :=
-  (map_subtypeVal_map_equivIoc_volume p a ▸ hf.restrict).comp_measurable
-    measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
+    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIoc T a f) :=
+  (map_subtypeVal_map_equivIoc_volume T a ▸ hf.restrict).comp_measurable
+    measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc T a).measurable_toFun
 
 protected theorem AEStronglyMeasurable.liftIco [TopologicalSpace E]
-    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIco p a f) :=
-  (hf.liftIoc p a).congr (liftIoc_ae_eq_liftIco f)
+    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIco T a f) :=
+  (hf.liftIoc T a).congr (liftIoc_ae_eq_liftIco f)
 
 protected theorem AEMeasurable.liftIoc [MeasurableSpace E] (hf : AEMeasurable f) :
-    AEMeasurable (liftIoc p a f) :=
+    AEMeasurable (liftIoc T a f) :=
   (map_subtypeVal_map_equivIoc_volume p a ▸ hf.restrict).comp_measurable
     measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
 
 protected theorem AEMeasurable.liftIco [MeasurableSpace E] (hf : AEMeasurable f) :
-    AEMeasurable (liftIco p a f) :=
-  (hf.liftIoc p a).congr (liftIoc_ae_eq_liftIco f)
+    AEMeasurable (liftIco T a f) :=
+  (hf.liftIoc T a).congr (liftIoc_ae_eq_liftIco f)
 
 end MeasureTheory
 
