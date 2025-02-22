@@ -26,7 +26,7 @@ section Measurability
 
 variable {E : Type*} (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → E}
 
-lemma AddCircle.map_subtypeVal_map_equivIoc :
+lemma AddCircle.map_subtypeVal_map_equivIoc_volume :
     (volume.map (equivIoc p a)).map Subtype.val = volume.restrict (Ioc a (a + p)) := by
   have h : Measurable (equivIoc p a) := (AddCircle.measurableEquivIoc p a).measurable_toFun
   rw [← (AddCircle.measurePreserving_mk p a).map_eq]
@@ -43,7 +43,7 @@ variable {E : Type*} (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → E}
 
 protected theorem AEStronglyMeasurable.liftIoc [TopologicalSpace E]
     (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIoc p a f) :=
-  (map_subtypeVal_map_equivIoc p a ▸ hf.restrict).comp_measurable
+  (map_subtypeVal_map_equivIoc_volume p a ▸ hf.restrict).comp_measurable
     measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
 
 protected theorem AEStronglyMeasurable.liftIco [TopologicalSpace E]
@@ -52,7 +52,7 @@ protected theorem AEStronglyMeasurable.liftIco [TopologicalSpace E]
 
 protected theorem AEMeasurable.liftIoc [MeasurableSpace E] (hf : AEMeasurable f) :
     AEMeasurable (liftIoc p a f) :=
-  (map_subtypeVal_map_equivIoc p a ▸ hf.restrict).comp_measurable
+  (map_subtypeVal_map_equivIoc_volume p a ▸ hf.restrict).comp_measurable
     measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
 
 protected theorem AEMeasurable.liftIco [MeasurableSpace E] (hf : AEMeasurable f) :
