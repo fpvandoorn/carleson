@@ -11,6 +11,20 @@ variable {𝕜 B : Type*}
 
 namespace AddCircle
 
+section LinearOrderedAddCommGroup
+
+variable [LinearOrderedAddCommGroup 𝕜] {p : 𝕜} [hp : Fact (0 < p)] {a : 𝕜} [Archimedean 𝕜]
+
+-- Add after `liftIoc_coe_apply`
+theorem liftIoc_eq_liftIco_of_ne (f : 𝕜 → B) {x : AddCircle p}
+    (x_ne_a : x ≠ a) : liftIoc p a f x = liftIco p a f x := by
+  let b := QuotientAddGroup.equivIcoMod hp.out a x
+  have x_eq_b : x = ↑b := (QuotientAddGroup.equivIcoMod hp.out a).apply_eq_iff_eq_symm_apply.mp rfl
+  rw [x_eq_b, liftIco_coe_apply b.coe_prop]
+  exact liftIoc_coe_apply ⟨lt_of_le_of_ne b.coe_prop.1 (x_ne_a <| · ▸ x_eq_b), b.coe_prop.2.le⟩
+
+end LinearOrderedAddCommGroup
+
 section Periodic
 
 variable [LinearOrderedAddCommGroup 𝕜] [Archimedean 𝕜] {p : 𝕜} [hp : Fact (0 < p)] (a a' : 𝕜)
