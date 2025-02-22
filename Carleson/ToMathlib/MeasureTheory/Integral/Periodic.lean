@@ -66,7 +66,7 @@ variable {𝕜 : Type*} {E : Type*} {E' : Type*} {F : Type*} [NormedAddCommGroup
 
 variable {T : ℝ} [hT : Fact (0 < T)] (a : ℝ)
 
-theorem convolution_liftIco (hf : f.Periodic T) (hg : g.Periodic T) :
+theorem liftIco_convolution_liftIco (hf : f.Periodic T) (hg : g.Periodic T) :
     liftIco T a f ⋆[L] liftIco T a g = liftIco T a fun x ↦ ∫ y in a..a+T, L (f y) (g (x - y)) := by
   refine funext (fun q ↦ QuotientAddGroup.induction_on q (fun x ↦ ?_))
   have : Periodic (fun x ↦ ∫ y in a..a+T, L (f y) (g (x-y))) T := by
@@ -76,12 +76,12 @@ theorem convolution_liftIco (hf : f.Periodic T) (hg : g.Periodic T) :
   rw [AddCircle.liftIco_coe_apply_of_periodic a hf, ← AddCircle.liftIco_coe_apply_of_periodic a hg]
   rfl
 
-theorem convolution_liftIoc (hf : f.Periodic T) (hg : g.Periodic T) :
+theorem liftIoc_convolution_liftIoc (hf : f.Periodic T) (hg : g.Periodic T) :
     liftIoc T a f ⋆[L] liftIoc T a g = liftIoc T a fun x ↦ ∫ y in a..a+T, L (f y) (g (x - y)) := by
   have : Periodic (fun x ↦ ∫ y in a..a+T, L (f y) (g (x-y))) T := by
     intro; refine integral_congr (fun _ _ ↦ ?_); rw [add_sub_right_comm, hg]
   rw [← liftIco_eq_liftIoc a a hf, ← liftIco_eq_liftIoc a a hg, ← liftIco_eq_liftIoc a a this]
-  exact convolution_liftIco L a hf hg
+  exact liftIco_convolution_liftIco L a hf hg
 
 end Convolution
 

@@ -476,7 +476,7 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
         · have empty_interval := Set.Ioc_eq_empty_of_le ((le_add_iff_nonneg_right a).mpr hT.out.le)
           simpa [empty_interval] using aestronglyMeasurable_const
     _ = eLpNorm (liftIoc T a f ⋆[L] liftIoc T a g) r := by
-      rw [← convolution_liftIoc L a hfT hgT]
+      rw [← liftIoc_convolution_liftIoc L a hfT hgT]
     _ ≤ .ofReal c * eLpNorm (liftIoc T a f) p * eLpNorm (liftIoc T a g) q := by
       apply eLpNorm_convolution_le_of_norm_le_mul' L hp hq hr hpqr
       · exact liftIoc_aestronglyMeasurable T a hf
