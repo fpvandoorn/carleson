@@ -8,27 +8,25 @@ open scoped MeasureTheory NNReal ENNReal
 
 open scoped Convolution
 
-namespace AddCircle
-
-variable {B : Type*}
 
 section AE
 
-variable {p a : ℝ} [hp : Fact (0 < p)] (f : ℝ → B)
+variable {B : Type*} {p a : ℝ} [hp : Fact (0 < p)] (f : ℝ → B)
 
-instance noAtoms_volume : NoAtoms (volume : Measure (AddCircle p)) where
+instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle p)) where
   measure_singleton x := by simpa [hp.out.le] using AddCircle.volume_closedBall p (x := x) 0
 
-theorem liftIoc_ae_eq_liftIco : liftIoc p a f =ᶠ[ae volume] liftIco p a f :=
+theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc p a f =ᶠ[ae volume] liftIco p a f :=
   Filter.Eventually.mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
 
 end AE
 
+
 section Measurability
 
-variable (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → B}
+variable {E : Type*} (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → E}
 
-lemma map_subtypeVal_map_equivIoc :
+lemma AddCircle.map_subtypeVal_map_equivIoc :
     (volume.map (equivIoc p a)).map Subtype.val = volume.restrict (Ioc a (a + p)) := by
   have h : Measurable (equivIoc p a) := (AddCircle.measurableEquivIoc p a).measurable_toFun
   rw [← (AddCircle.measurePreserving_mk p a).map_eq]
@@ -37,25 +35,36 @@ lemma map_subtypeVal_map_equivIoc :
       fun x hx ↦ AddCircle.liftIoc_coe_apply hx).trans Measure.map_id
   · exact fun _ ↦ id
 
-theorem liftIoc_aestronglyMeasurable [TopologicalSpace B] (hf : AEStronglyMeasurable f) :
-    AEStronglyMeasurable (liftIoc p a f) :=
+namespace MeasureTheory
+
+open AddCircle
+
+variable {E : Type*} (p a : ℝ) [hp : Fact (0 < p)] {f : ℝ → E}
+
+protected theorem AEStronglyMeasurable.liftIoc [TopologicalSpace E]
+    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIoc p a f) :=
   (map_subtypeVal_map_equivIoc p a ▸ hf.restrict).comp_measurable
     measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
 
-theorem liftIco_aestronglyMeasurable [TopologicalSpace B] (hf : AEStronglyMeasurable f) :
-    AEStronglyMeasurable (liftIco p a f) :=
-  (liftIoc_aestronglyMeasurable p a hf).congr (liftIoc_ae_eq_liftIco f)
+protected theorem AEStronglyMeasurable.liftIco [TopologicalSpace E]
+    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (liftIco p a f) :=
+  (hf.liftIoc p a).congr (liftIoc_ae_eq_liftIco f)
 
-theorem liftIoc_aemeasurable [MeasurableSpace B] (hf : AEMeasurable f) :
+protected theorem AEMeasurable.liftIoc [MeasurableSpace E] (hf : AEMeasurable f) :
     AEMeasurable (liftIoc p a f) :=
   (map_subtypeVal_map_equivIoc p a ▸ hf.restrict).comp_measurable
     measurable_subtype_coe |>.comp_measurable (AddCircle.measurableEquivIoc p a).measurable_toFun
 
-theorem liftIco_aemeasurable [MeasurableSpace B] (hf : AEMeasurable f) :
+protected theorem AEMeasurable.liftIco [MeasurableSpace E] (hf : AEMeasurable f) :
     AEMeasurable (liftIco p a f) :=
-  (liftIoc_aemeasurable p a hf).congr (liftIoc_ae_eq_liftIco f)
+  (hf.liftIoc p a).congr (liftIoc_ae_eq_liftIco f)
+
+end MeasureTheory
 
 end Measurability
+
+
+namespace AddCircle
 
 section Convolution
 
@@ -102,8 +111,7 @@ theorem eLpNorm_liftIoc (p : ℝ≥0∞) :
     · simpa [hx] using (liftIoc_coe_apply hx).symm
     · simp [hx]
   rw [this, eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioc]
-  refine (eLpNorm_comp_measurePreserving (liftIoc_aestronglyMeasurable T a hf) ?_).symm
-  exact AddCircle.measurePreserving_mk T a
+  exact (eLpNorm_comp_measurePreserving (hf.liftIoc T a) (AddCircle.measurePreserving_mk T a)).symm
 
 /-- The norm of the lift of a function `f` is equal to the norm of `f` on that period. -/
 theorem eLpNorm_liftIco (p : ℝ≥0∞) :
