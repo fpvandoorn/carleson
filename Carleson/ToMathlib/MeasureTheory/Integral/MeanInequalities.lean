@@ -478,10 +478,8 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
     _ = eLpNorm (liftIoc T a f ⋆[L] liftIoc T a g) r := by
       rw [← liftIoc_convolution_liftIoc L a hfT hgT]
     _ ≤ .ofReal c * eLpNorm (liftIoc T a f) p * eLpNorm (liftIoc T a g) q := by
-      apply eLpNorm_convolution_le_of_norm_le_mul' L hp hq hr hpqr
-      · exact hf.liftIoc T a
-      · exact hg.liftIoc T a
-      · intros; apply hL
+      exact eLpNorm_convolution_le_of_norm_le_mul' L hp hq hr hpqr (hf.liftIoc T a) (hg.liftIoc T a)
+        c (by intros; apply hL)
     _ = _ := by
       rw [← eLpNorm_liftIoc T a hf, ← eLpNorm_liftIoc T a hg]
 
