@@ -317,6 +317,55 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       . rw [← lt_top_iff_ne_top]
         exact measure_ball_lt_top
 
+    trans ∫⁻ (y : X) in bxrc ∩ bx2r, ENNReal.ofReal (C_K ↑a) / volume (ball x r) * ‖g y‖ₑ
+    . apply lintegral_mono_fn
+      -- I think a general lemma is missing to make this work on bxrc ∩ bx2r instead of X
+      -- Then pointwise_1 proves it
+      sorry
+
+    rw [lintegral_const_mul] -- LHS = 10.1.5
+    case hf => apply Measurable.enorm; exact hmg
+
+    trans ENNReal.ofReal (C_K ↑a) / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume ( ball x (2 * r)))
+    . apply mul_le_mul
+      case h₁ => rfl
+      case b0 => simp
+      case c0 => simp
+
+      trans ∫⁻ (a : X) in bx2r, ‖g a‖ₑ
+      . apply lintegral_mono_set
+        exact inter_subset_right
+      have tmp5 : ∫⁻ (a : X) in bx2r, ‖g a‖ₑ = (⨍⁻ (a : X) in bx2r, ‖g a‖ₑ ∂volume)  * volume (ball x (2 * r)) := by
+        have h_meas_finite : IsFiniteMeasure (volume.restrict (ball x (2 * r))) := by
+          refine isFiniteMeasure_restrict.mpr ?_
+          exact ne_of_lt measure_ball_lt_top
+        rw [← measure_mul_laverage]
+        simp
+        apply mul_comm
+
+      rw [tmp5]
+      apply mul_le_mul
+      case h₂ => rfl
+      case c0 =>
+        apply le_of_lt
+        apply measure_ball_pos
+        exact mul_pos zero_lt_two hr
+      case b0 => simp
+
+      conv in ‖ _ ‖ₑ =>
+        rw [enorm_eq_nnnorm]
+      apply laverage_le_globalMaximalFunction -- Should this be rewritten to ‖ ‖ₑ instead?
+      rw [dist_self]
+      exact mul_pos zero_lt_two hr
+
+
+
+
+
+    trans ENNReal.ofReal (C_K ↑a) * (defaultA a) / volume (ball x (2 * r)) * ∫⁻ (a : X) in bxrc ∩ bx2r, ‖g a‖ₑ
+    . have double : volume (ball x (2 * r)) ≤ defaultA a * volume (ball x r) := by
+        sorry
+      sorry
 
     sorry
 
