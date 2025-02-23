@@ -31,6 +31,9 @@ variable [LinearOrderedAddCommGroup 𝕜] [Archimedean 𝕜] {p : 𝕜} [hp : Fa
   {f : 𝕜 → B} (hf : f.Periodic p)
 include hf
 
+-- TODO: Rename `liftIco_coe_apply_of_periodic` and `liftIoc_coe_apply_of_periodic` along with
+-- `liftIco_coe_apply` and `liftIoc_coe_apply` which are already in Mathlib
+
 theorem liftIco_coe_apply_of_periodic (x : 𝕜) : liftIco p a f ↑x = f x := by
   rw [liftIco, equivIco, comp_apply, restrict_apply, QuotientAddGroup.equivIcoMod_coe]
   simp_rw [← self_sub_toIcoDiv_zsmul, hf.sub_zsmul_eq]

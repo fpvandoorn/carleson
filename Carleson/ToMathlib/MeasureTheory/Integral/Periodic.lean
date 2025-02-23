@@ -8,7 +8,6 @@ open scoped MeasureTheory NNReal ENNReal
 
 open scoped Convolution
 
-
 section AE
 
 variable (T : ℝ) [hT : Fact (0 < T)]
@@ -18,7 +17,7 @@ instance AddCircle.noAtoms_volume : NoAtoms (volume : Measure (AddCircle T)) whe
 
 variable {B : Type*} {T a : ℝ} [hT : Fact (0 < T)] (f : ℝ → B)
 
-theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc T a f =ᶠ[ae volume] liftIco T a f :=
+theorem AddCircle.liftIoc_ae_eq_liftIco : liftIoc T a f =ᵐ[volume] liftIco T a f :=
   .mono (by simp [Filter.Eventually, ae]) (fun _ ↦ liftIoc_eq_liftIco_of_ne f)
 
 end AE
