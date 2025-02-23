@@ -47,12 +47,14 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) · |>.toReal) 2 volume := by
   sorry
 
-
 /-! ## Section 7.7 -/
 
 /-- The row-decomposition of a tree, defined in the proof of Lemma 7.7.1.
 The indexing is off-by-one compared to the blueprint. -/
 def rowDecomp (t : Forest X n) (j : ℕ) : Row X n := sorry
+
+lemma mem_forest_of_mem {t: Forest X n} {j : ℕ} {x : 𝔓 X} (hx : x ∈ t.rowDecomp j) : x ∈ t :=
+  sorry
 
 /-- Part of Lemma 7.7.1 -/
 @[simp]
@@ -110,7 +112,59 @@ def rowSupport (j : ℕ) : Set X := ⋃ (u ∈ rowDecomp t j) (p ∈ t u), E p
 /-- Lemma 7.7.4 -/
 lemma pairwiseDisjoint_rowSupport :
     (Iio (2 ^ n)).PairwiseDisjoint (rowSupport t) := by
-  sorry
+  intro i hi j hj hne
+  rw [onFun_apply]
+  have rowDecomp_disjoint : Disjoint (α := Set (𝔓 X)) (t.rowDecomp i) (t.rowDecomp j) := by
+    exact (pairwiseDisjoint_rowDecomp (t := t) hi hj hne)
+  rw [Set.disjoint_iff]
+  simp_rw [rowSupport,iUnion_inter_iUnion]
+  intro x
+  simp only [mem_𝔗, mem_iUnion, mem_inter_iff, exists_and_left, exists_prop]
+  rintro ⟨u, u', hu', hu,p,hxp,p',hp',hp,hxp'⟩
+  wlog hsle : 𝔰 p ≤ 𝔰 p'
+  · exact this hj hi hne.symm rowDecomp_disjoint.symm u' u hu hu'
+      p' hxp' p hp hp' hxp (Int.le_of_not_le hsle)
+  rw [← rowDecomp_apply (j := j)] at hp'
+  simp only at hp hp'
+  have hu_ne: u ≠ u' := by
+    rintro rfl
+    rw [Set.disjoint_iff] at rowDecomp_disjoint
+    apply rowDecomp_disjoint
+    exact ⟨hu,hu'⟩
+  have : x ∈ (𝓘 p ∩ 𝓘 p' : Set X) :=
+    Set.inter_subset_inter
+      (E_subset_𝓘)
+      (E_subset_𝓘)
+      ⟨hxp,hxp'⟩
+  have : 𝓘 p ≤ 𝓘 p' := by
+    refine ⟨?_, hsle⟩
+    apply (fundamental_dyadic hsle).elim id
+    exact fun d => (Set.Nonempty.not_disjoint (⟨x,this⟩ : Set.Nonempty _) d).elim
+  have : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u') := by
+    apply lt_dist t (mem_forest_of_mem hu') (mem_forest_of_mem hu) hu_ne.symm
+      hp
+    exact le_trans this (𝓘_le_𝓘 _ hu' hp')
+  have := calc 2 ^ (Z * (n + 1)) - 4
+    _ < 2 ^ (Z * (n + 1)) - dist_(p') (𝒬 p') (𝒬 u') := by
+      gcongr
+      exact dist_lt_four _ hu' hp'
+    _ < dist_(p) (𝒬 p) (𝒬 u') - dist_(p) (𝒬 p') (𝒬 u') := by
+      have : dist_(p) (𝒬 p') (𝒬 u') ≤ dist_(p') (𝒬 p') (𝒬 u') := by
+        refine Grid.dist_mono ‹𝓘 p ≤ 𝓘 p'›
+      linarith -- uses both local and previous this
+    _ ≤ dist_(p) (𝒬 p) (𝒬 p') := by
+      trans
+      · exact le_abs_self _
+      · apply abs_dist_sub_le (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4))
+  have : 𝒬 p' ∉ ball_(p) (𝒬 p) 1 := by
+    rw [mem_ball (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)),dist_comm]
+    contrapose! this
+    trans 1 ; exact this.le
+    exact calculation_7_7_4 (X := X)
+  have : ¬(Ω p' ⊆ Ω p) := (fun hx => this <| subset_cball <| hx 𝒬_mem_Ω)
+  exact Set.disjoint_iff.mp ((relative_fundamental_dyadic ‹𝓘 p ≤ 𝓘 p'›).resolve_right this)
+    ⟨Q_mem_Ω hxp,Q_mem_Ω hxp'⟩
+
 
 end TileStructure.Forest
 
