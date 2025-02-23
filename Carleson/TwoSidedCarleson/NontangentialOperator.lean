@@ -358,16 +358,41 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       rw [dist_self]
       exact mul_pos zero_lt_two hr
 
+    calc _
+      _ = ENNReal.ofReal (C_K ↑a) / volume (ball x r) * volume (ball x (2 * r)) * globalMaximalFunction volume 1 g x := by rw [mul_assoc]; nth_rw 2 [mul_comm]
 
+    apply mul_le_mul
+    case h₂ => rfl
+    case c0 => simp
+    case b0 => simp
 
+    trans ENNReal.ofReal (C_K ↑a) / volume (ball x r) * (defaultA a * volume (ball x r))
+    . apply mul_le_mul
+      . rfl
+      . apply measure_ball_two_le_same
+      . simp
+      . simp
 
+    -- Somehow simp doesn't do it
+    nth_rw 2 [mul_comm]
+    rw [← mul_assoc, div_eq_mul_inv]
+    nth_rw 2 [mul_assoc]
+    conv =>
+      lhs; arg 1; arg 2
+      rw [mul_comm]
+      apply ENNReal.mul_inv_cancel
+      . apply ne_of_gt
+        apply measure_ball_pos
+        exact hr
+      . apply ne_of_lt
+        apply measure_ball_lt_top
 
-    trans ENNReal.ofReal (C_K ↑a) * (defaultA a) / volume (ball x (2 * r)) * ∫⁻ (a : X) in bxrc ∩ bx2r, ‖g a‖ₑ
-    . have double : volume (ball x (2 * r)) ≤ defaultA a * volume (ball x r) := by
-        sorry
-      sorry
-
-    sorry
+    conv =>
+      lhs; arg 1; arg 1; arg 1; simp; norm_cast
+    rw [ENNReal.ofReal_natCast]
+    simp only [Nat.cast_pow, Nat.cast_ofNat, mul_one, defaultA]
+    norm_cast
+    rw [pow_add]
 
   have estimate_10_1_3 : ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ
       ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
