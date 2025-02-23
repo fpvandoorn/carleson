@@ -97,10 +97,9 @@ namespace AddCircle
 
 section Convolution
 
-variable {𝕜 : Type*} {E : Type*} {E' : Type*} {F : Type*} [NormedAddCommGroup E]
-  [NormedAddCommGroup E'] [NormedAddCommGroup F] [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E]
-  [NormedSpace 𝕜 E'] [NormedSpace 𝕜 F] [NormedSpace ℝ F] (L : E →L[𝕜] E' →L[𝕜] F)
-  {f : ℝ → E} {g : ℝ → E'}
+variable {𝕜 E E' F : Type*} [NormedAddCommGroup E] [NormedAddCommGroup E'] [NormedAddCommGroup F]
+  [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E] [NormedSpace 𝕜 E'] [NormedSpace 𝕜 F]
+  [NormedSpace ℝ F] (L : E →L[𝕜] E' →L[𝕜] F) {f : ℝ → E} {g : ℝ → E'}
 
 variable {T : ℝ} [hT : Fact (0 < T)] (a : ℝ)
 
