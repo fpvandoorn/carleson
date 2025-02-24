@@ -24,13 +24,13 @@ We use a different notation to distinguish it from the 𝓙' used in Section 7.6
 def 𝓙₅ : Set (Grid X) := 𝓙 (𝔖₀ t u₁ u₂) ∩ Iic (𝓘 u₁)
 
 /-- The definition of χ-tilde, defined in the proof of Lemma 7.5.2 -/
-def χtilde (J : Grid X) (x : X) : ℝ≥0 :=
-  8 - D ^ (- s J) * dist x (c J) |>.toNNReal
+def χtilde (J : Grid X) (u₁ : 𝔓 X) : X → ℝ≥0 :=
+  (𝓘 u₁ : Set X).indicator fun x ↦ (8 - D ^ (- s J) * dist x (c J)).toNNReal
 
 variable (t u₁ u₂) in
 /-- The definition of χ, defined in the proof of Lemma 7.5.2 -/
 def χ (J : Grid X) (x : X) : ℝ≥0 :=
-  χtilde J x / ∑ J' ∈ { I | I ∈ 𝓙₅ t u₁ u₂ }, χtilde J' x
+  χtilde J u₁ x / ∑ J' ∈ { I | I ∈ 𝓙₅ t u₁ u₂ }, χtilde J' u₁ x
 
 -- /-- The definition of `B`, defined in (7.5.1) -/
 -- protected def _root_.Grid.ball (I : Grid X) : Set X := ball (c I) (8 * D ^ s I)
