@@ -4790,7 +4790,7 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Then
     \begin{equation}
     \label{eq-1density-estimate-tree}
-        \mu(L \cap \bigcup_{\fp \in \fT(\fu)} E(\fp)) \le 2^{101a^3} \dens_1(\fT(\fu)) \mu(L)\,.
+        \mu(L \cap G \cap \bigcup_{\fp \in \fT(\fu)} E(\fp)) \le 2^{101a^3} \dens_1(\fT(\fu)) \mu(L)\,.
     \end{equation}
 \end{lemma}
 
@@ -5207,7 +5207,7 @@ $$
         \proves{Lipschitz-partition-unity}
         For each cube $J \in \mathcal{J}$ let
         $$
-            \tilde\chi_J(y) = \max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
+            \tilde\chi_J(y) = \mathbf{1}_{\scI(\fu_1)}(y)\max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
         $$
         and set
         $$
