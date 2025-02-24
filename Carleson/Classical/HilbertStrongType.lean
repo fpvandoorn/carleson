@@ -1,6 +1,7 @@
 import Carleson.Classical.HilbertKernel
 import Carleson.Classical.DirichletKernel
 import Carleson.Classical.SpectralProjectionBound
+import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 /- This file contains the proof that the Hilbert kernel is a bounded operator. -/
 
@@ -96,17 +97,16 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ}
 
 /-- Lemma 11.3.3.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
-
-Bonus points if you generalize to https://en.wikipedia.org/wiki/Young%27s_convolution_inequality
-first, using `MeasureTheory.convolution` from Mathlib.
-To applying the general version, you have to apply it with functions with `AddCircle` as domain.
 -/
-lemma young_convolution {f g : ℝ → ℂ} {n : ℕ}
-    (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (periodic_f : f.Periodic (2 * π))
-    (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (periodic_g : g.Periodic (2 * π)) :
+lemma young_convolution {f g : ℝ → ℂ} (hmf : AEMeasurable f) (periodic_f : f.Periodic (2 * π))
+    (hmg : AEMeasurable g) (periodic_g : g.Periodic (2 * π)) :
     eLpNorm ((Ioc 0 (2 * π)).indicator fun x ↦ ∫ y in (0)..2 * π, f y * g (x - y)) 2 ≤
     eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 * eLpNorm ((Ioc 0 (2 * π)).indicator g) 1  := by
-  sorry
+  have : Fact (0 < 2 * π) := ⟨mul_pos two_pos Real.pi_pos⟩
+  have h2 : (1 : ℝ≥0∞) ≤ 2 := by exact one_le_two
+  simpa [zero_add] using ENNReal.eLpNorm_Ioc_convolution_le_of_norm_le_mul
+    (ContinuousLinearMap.mul ℝ ℂ) 0 h2 (le_refl 1) h2 (by rw [inv_one])
+    periodic_f periodic_g hmf.aestronglyMeasurable hmg.aestronglyMeasurable 1 (by simp)
 
 /-- Lemma 11.3.4.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
