@@ -234,17 +234,21 @@ lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperato
     exact ENNReal.sum_lt_top.mpr (fun _ _ ↦ ijIntegral_lt_top hf)
   · simp [hx]
 
+
+/- Number of additional exponents we have to include in `𝓑`. Feel free to increase if needed. -/
+def 𝓑max : ℕ := 3
+
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
-def 𝓑 : Set (ℕ × Grid X) := Icc 0 (S + 5) ×ˢ univ
+def 𝓑 : Set (ℕ × ℕ × Grid X) := Iic (S + 5) ×ˢ Iic 𝓑max ×ˢ univ
 
 /-- The center function for the collection of balls 𝓑. -/
-def c𝓑 (z : ℕ × Grid X) : X := c z.2
+def c𝓑 (z : ℕ × ℕ × Grid X) : X := c z.2.2
 
 /-- The radius function for the collection of balls 𝓑. -/
-def r𝓑 (z : ℕ × Grid X) : ℝ := 2 ^ z.1 * D ^ s z.2
+def r𝓑 (z : ℕ × ℕ × Grid X) : ℝ := 2 ^ z.1 * D ^ (s z.2.2 + z.2.1)
 
 lemma 𝓑_finite : (𝓑 (X := X)).Finite :=
-  finite_Icc .. |>.prod finite_univ
+  finite_Iic _ |>.prod <| finite_Iic _ |>.prod finite_univ
 
 /-- Lemma 7.1.1, freely translated. -/
 lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
@@ -520,16 +524,16 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
     {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p) :
     (∫⁻ y in ball (𝔠 p) (16 * D ^ 𝔰 p), ‖g y‖₊) / volume (ball (𝔠 p) (16 * D ^ 𝔰 p)) ≤
     MB volume 𝓑 c𝓑 r𝓑 g x' := by
-  have mem_𝓑 : ⟨4, 𝓘 p⟩ ∈ 𝓑 := by simp [𝓑]
+  have mem_𝓑 : (4, 0, 𝓘 p) ∈ 𝓑 := by simp [𝓑]
   convert le_biSup (hi := mem_𝓑) <| fun i ↦ ((ball (c𝓑 i) (r𝓑 i)).indicator (x := x') <|
     fun _ ↦ ⨍⁻ y in ball (c𝓑 i) (r𝓑 i), ‖g y‖₊ ∂volume)
-  · have x'_in_ball : x' ∈ ball (c𝓑 (4, 𝓘 p)) (r𝓑 (4, 𝓘 p)) := by
-      simp only [c𝓑, r𝓑, _root_.s]
+  · have x'_in_ball : x' ∈ ball (c𝓑 (4, 0, 𝓘 p)) (r𝓑 (4, 0, 𝓘 p)) := by
+      simp_rw [c𝓑, r𝓑, _root_.s, Nat.cast_zero, add_zero]
       have : x' ∈ 𝓘 p := subset_of_mem_𝓛 hL pu (not_disjoint_iff.mpr ⟨x, xp.1, hx⟩) hx'
       refine Metric.ball_subset_ball ?_ <| Grid_subset_ball this
       linarith [defaultD_pow_pos a (GridStructure.s (𝓘 p))]
-    have hc𝓑 : 𝔠 p = c𝓑 (4, 𝓘 p) := by simp [c𝓑, 𝔠]
-    have hr𝓑 : 16 * D ^ 𝔰 p = r𝓑 (4, 𝓘 p) := by rw [r𝓑, 𝔰]; norm_num
+    have hc𝓑 : 𝔠 p = c𝓑 (4, 0, 𝓘 p) := by simp [c𝓑, 𝔠]
+    have hr𝓑 : 16 * D ^ 𝔰 p = r𝓑 (4, 0, 𝓘 p) := by rw [r𝓑, 𝔰]; norm_num
     simp [-defaultD, laverage, x'_in_ball, ENNReal.div_eq_inv_mul, hc𝓑, hr𝓑]
   · simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
 
