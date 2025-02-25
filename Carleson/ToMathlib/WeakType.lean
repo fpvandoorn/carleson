@@ -101,9 +101,7 @@ Folland, Real Analysis. Modern Techniques and Their Applications, section 6.3. -
 /-! # The distribution function `d_f` -/
 
 /-- The distribution function of a function `f`.
-Note that unlike the notes, we also define this for `t = ∞`.
-Note: we also want to use this for functions with codomain `ℝ≥0∞`, but for those we just write
-`μ { x | t < f x }` -/
+Todo: rename to something more Mathlib-appropriate. -/
 def distribution (f : α → ε) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   μ { x | t < ‖f x‖ₑ }
 
@@ -591,6 +589,21 @@ lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
   h.const_smul e
+
+
+lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
+    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c)
+    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
+    HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
+  sorry
+
+lemma HasWeakType.const_mul {E' α α' : Type*} [NormedRing E']
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : E') :
+    HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
+  h.const_smul e
+
 
 end
 
