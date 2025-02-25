@@ -534,24 +534,23 @@ lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂
         show s (𝓘 p) ≤ s (𝓘 u₁) by exact (𝓘_le_𝓘 t hu₁ belongs).2
       ]
     suffices s (𝓘 u₁) > s (𝓘 p) by linarith
-    have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
     by_contra! smaller
+    have pIsSubset := (𝓘_le_𝓘 t hu₁ belongs).1
     apply HasSubset.Subset.not_ssubset ((fundamental_dyadic smaller).resolve_right (IF_subset_THEN_not_disjoint pIsSubset))
     apply HasSubset.Subset.ssubset_of_ne pIsSubset
     by_contra! sameSet
-    have equal := Grid.inj (Prod.ext sameSet sameScale)
-    exact (Forest.𝓘_ne_𝓘 (hu:=hu₁) (hp:=belongs)) equal
+    apply Forest.𝓘_ne_𝓘 (hu := hu₁) (hp := belongs)
+    exact Grid.inj (Prod.ext sameSet sameScale)
   | inr avoidance =>
-    have pIsEvil : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
-    apply avoidance p pIsEvil
+    have pIn𝔖₀ : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
+    apply avoidance p pIn𝔖₀
     calc (𝓘 p : Set X)
-    _ ⊆ ↑(𝓘 u₁) := by
-      exact (𝓘_le_𝓘 t hu₁ belongs).1
-    _ ⊆ ball (c (𝓘 u₁)) (4 * ↑D ^ s (𝓘 u₁)) := by
-      exact Grid_subset_ball (i:= 𝓘 u₁)
-    _ ⊆ ball (c (𝓘 u₁)) (100 * ↑D ^ (s (𝓘 u₁) + 1)) := by
+    _ ⊆ ↑(𝓘 u₁) := (𝓘_le_𝓘 t hu₁ belongs).1
+    _ ⊆ ball (c (𝓘 u₁)) (4 * D ^ s (𝓘 u₁)) := by
+      exact Grid_subset_ball (i := 𝓘 u₁)
+    _ ⊆ ball (c (𝓘 u₁)) (100 * D ^ (s (𝓘 u₁) + 1)) := by
       intro x hx
-      exact gt_trans (calculation_16 (X:=X) (s:=s (𝓘 u₁))) hx
+      exact gt_trans (calculation_16 (X := X) (s := s (𝓘 u₁))) hx
 
 /--
 Lemma 7.5.11
