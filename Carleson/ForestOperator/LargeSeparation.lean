@@ -520,13 +520,14 @@ lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂
   obtain ⟨p, belongs⟩ := t.nonempty' hu₁
   apply lt_of_le_of_ne smaller
   by_contra! h
-  have uIsSmalling : 𝓘 u₁ ∈  𝓙₀ (t.𝔖₀ u₁ u₂) := by
-    have equal := by
-      have notDisjoint := IF_subset_THEN_not_disjoint jIsSubset
-      rw [disjoint_comm] at notDisjoint
-      exact (eq_or_disjoint h).resolve_right notDisjoint
-    exact mem_of_eq_of_mem (id (Eq.symm equal)) Jin𝓙₀
-  cases uIsSmalling with
+  have u₁In𝓙₀ : 𝓘 u₁ ∈ 𝓙₀ (t.𝔖₀ u₁ u₂) := by
+    apply mem_of_eq_of_mem (h := Jin𝓙₀)
+    rw [eq_comm]
+    apply (eq_or_disjoint h).resolve_right
+    have notDisjoint := IF_subset_THEN_not_disjoint jIsSubset
+    rw [disjoint_comm] at notDisjoint
+    exact notDisjoint
+  cases u₁In𝓙₀ with
   | inl MIN =>
     have sameScale : s (𝓘 p) = s (𝓘 u₁) := by
       linarith [
