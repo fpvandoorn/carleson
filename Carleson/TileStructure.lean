@@ -96,6 +96,8 @@ def E (p : 𝔓 X) : Set X :=
 
 lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
 
+-- indicator_of_isBounded_range
+
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
   · rw [← measurableSet_setOf]; exact coeGrid_measurable

@@ -471,6 +471,19 @@ theorem ext_iff_measureReal_singleton {S} [Fintype S] [MeasurableSpace S]
 
 end MeasureTheory
 
+namespace Metric
+
+variable {α : Type*} [PseudoMetricSpace α] [ProperSpace α] {_ : MeasurableSpace α} (μ : Measure α)
+    [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts μ]
+
+theorem measureNNReal_ball_pos (x : α) {r : ℝ} (hr : 0 < r) : 0 < μ.nnreal (ball x r) := by
+  have h : μ (ball x r) ≠ ⊤ := ne_of_lt measure_ball_lt_top
+  apply lt_of_le_of_ne (zero_le _)
+  rw [ne_eq, eq_comm, measureNNReal_eq_zero_iff]
+  exact ne_of_gt (measure_ball_pos μ x hr)
+
+end Metric
+
 namespace Mathlib.Meta.Positivity
 
 open Lean Meta Qq Function
