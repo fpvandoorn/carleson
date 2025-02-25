@@ -233,13 +233,219 @@ Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_5_5 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
+section OneInOneOut
+
+omit [ProofData a q K σ₁ σ₂ F G] in
+lemma ψ_le_max [ProofData a q K σ₁ σ₂ F G] {x : ℝ} : ψ x ≤ max 0 ((2 - 4 * x) ^ (a : ℝ)⁻¹) := by
+  by_cases h₁ : x ≤ 1 / 4
+  · exact (ψ_le_one ..).trans ((Real.one_le_rpow (by linarith) (by simp)).trans (le_max_right ..))
+  by_cases h₂ : 1 / 2 ≤ x
+  · rw [ψ_formula₄ h₂]; exact le_max_left ..
+  push_neg at h₁ h₂; rw [ψ_formula₃ (one_lt_D (X := X)) ⟨h₁.le, h₂.le⟩]
+  refine le_trans ?_ (le_max_right ..)
+  set y := 2 - 4 * x; apply Real.self_le_rpow_of_le_one
+  · unfold y; linarith
+  · unfold y; linarith
+  · exact Nat.cast_inv_le_one a
+
+lemma le_of_mem_E {y : X} (hy : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
+    2 - 4 * ((D : ℝ) ^ (-𝔰 p) * dist y x) ≤ dist x x' / D ^ (𝔰 p) * 4 := by
+  have := one_le_D (a := a)
+  calc
+    _ ≤ 2 - 4 * (D : ℝ) ^ (-𝔰 p) * (dist x (𝔠 p) - dist y (𝔠 p)) := by
+      rw [mul_assoc]; gcongr; rw [sub_le_iff_le_add]; exact dist_triangle_left ..
+    _ ≤ 2 - 4 * (D : ℝ) ^ (-𝔰 p) * dist x (𝔠 p) + 16 := by
+      rw [mul_sub, sub_add]; gcongr; rw [mul_rotate, show (16 : ℝ) = 4 * 4 by norm_num]; gcongr
+      rw [zpow_neg, inv_mul_le_iff₀' (by positivity)]
+      exact (mem_ball.mp ((E_subset_𝓘.trans Grid_subset_ball) hy)).le
+    _ = 4 * (D : ℝ) ^ (-𝔰 p) * (5 * D ^ 𝔰 p - dist x (𝔠 p)) - 2 := by
+      rw [mul_sub, show 4 * (D : ℝ) ^ (-𝔰 p) * (5 * D ^ 𝔰 p) = 20 * (D ^ 𝔰 p * D ^ (-𝔰 p)) by ring,
+        ← zpow_add₀ (by positivity), add_neg_cancel, zpow_zero, mul_one]; ring
+    _ ≤ 4 * (D : ℝ) ^ (-𝔰 p) * (dist x' (𝔠 p) - dist x (𝔠 p)) - 2 := by
+      gcongr; rwa [mem_ball, not_lt] at hx'
+    _ ≤ 4 * (D : ℝ) ^ (-𝔰 p) * dist x x' - 2 := by
+      gcongr; rw [sub_le_iff_le_add]; exact dist_triangle_left ..
+    _ ≤ _ := by rw [zpow_neg, mul_rotate, inv_mul_eq_div]; norm_num
+
+lemma enorm_ψ_le_edist {y : X} (my : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
+    ‖ψ (D ^ (-𝔰 p) * dist y x)‖ₑ ≤ 4 * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
+  by_cases h : 1 / 2 ≤ D ^ (-𝔰 p) * dist y x
+  · rw [ψ_formula₄ h, enorm_zero]; exact zero_le _
+  replace h : 0 ≤ 2 - 4 * (D ^ (-𝔰 p) * dist y x) := by linarith
+  calc
+    _ ≤ ‖max 0 ((2 - 4 * (D ^ (-𝔰 p) * dist y x)) ^ (a : ℝ)⁻¹)‖ₑ := by
+      have b₁ : 0 ≤ ψ (D ^ (-𝔰 p) * dist y x) := zero_le_ψ ..
+      have b₂ : ψ (D ^ (-𝔰 p) * dist y x) ≤ max 0 ((2 - 4 * (D ^ (-𝔰 p) * dist y x)) ^ (a : ℝ)⁻¹) :=
+        ψ_le_max (X := X)
+      rw [Real.enorm_of_nonneg b₁, Real.enorm_of_nonneg (b₁.trans b₂)]
+      exact ENNReal.ofReal_le_ofReal b₂
+    _ = ‖2 - 4 * (D ^ (-𝔰 p) * dist y x)‖ₑ ^ (a : ℝ)⁻¹ := by
+      rw [max_eq_right (Real.rpow_nonneg h _), Real.enorm_rpow_of_nonneg h (by positivity)]
+    _ ≤ ‖dist x x' / D ^ (𝔰 p) * 4‖ₑ ^ (a : ℝ)⁻¹ := by
+      gcongr; rw [Real.enorm_of_nonneg h, Real.enorm_of_nonneg (h.trans (le_of_mem_E my hx'))]
+      exact ENNReal.ofReal_le_ofReal (le_of_mem_E my hx')
+    _ = (edist x x' / D ^ (𝔰 p) * 4) ^ (a : ℝ)⁻¹ := by
+      rw [enorm_mul]; nth_rw 2 [enorm_eq_nnnorm]; rw [Real.nnnorm_ofNat, ENNReal.coe_ofNat]; congr
+      rw [enorm_eq_nnnorm, nnnorm_div, nnnorm_zpow]; norm_cast
+      rw [ENNReal.coe_div (by simp; positivity), ENNReal.coe_zpow (by simp)]; norm_cast; congr
+      rw [edist_dist, ← Real.enorm_of_nonneg dist_nonneg, enorm_eq_nnnorm]
+    _ ≤ _ := by
+      rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), mul_comm]; gcongr
+      nth_rw 2 [← ENNReal.rpow_one 4]
+      exact ENNReal.rpow_le_rpow_of_exponent_le (by norm_num) (Nat.cast_inv_le_one a)
+
+/-- This bound is used in both nontrivial cases of Lemma 7.5.5. -/
+lemma volume_xDsp_bound (hx : x ∈ 𝓘 p) :
+    volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
+  apply ENNReal.div_le_of_le_mul'
+  have h : dist x (𝔠 p) + 4 * D ^ 𝔰 p ≤ 8 * D ^ 𝔰 p := by
+    calc
+      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 4 * ↑D ^ 𝔰 p := by
+        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
+      _ = _ := by rw [← add_mul]; norm_num
+  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
+  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
+  rw [show (8 : ℝ) = 2 ^ 3 by norm_num, Real.logb_pow]; norm_num
+
+lemma holder_correlation_tile_one
+    (hf : BoundedCompactSupport f) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
+    ‖adjointCarleson p f x‖ₑ ≤ C7_5_5 a / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
+      (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ :=
+  calc
+    _ ≤ ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖exp (I * (Q y y - Q y x))‖ₑ * ‖f y‖ₑ := by
+      simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
+    _ = ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
+      congr 1 with y; norm_cast; nth_rw 1 [mul_comm I]; nth_rw 2 [← enorm_norm]
+      rw [norm_exp_ofReal_mul_I, enorm_one, mul_one, ← enorm_norm, RCLike.norm_conj, enorm_norm]
+    _ ≤ ∫⁻ y in E p, C2_1_3 a / volume (ball y (D ^ 𝔰 p)) *
+        ‖ψ (D ^ (-𝔰 p) * dist y x)‖ₑ * ‖f y‖ₑ := by gcongr; exact enorm_Ks_le
+    _ ≤ ∫⁻ y in E p, C2_1_3 a / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) *
+        (4 * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) * ‖f y‖ₑ := by
+      refine setLIntegral_mono ((Measurable.enorm hf.stronglyMeasurable.measurable).const_mul _)
+        fun y my ↦ ?_
+      gcongr with y
+      · exact volume_xDsp_bound (E_subset_𝓘 my)
+      · exact enorm_ψ_le_edist my hx'
+    _ = C2_1_3 a * 2 ^ (3 * a) * 4 / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
+        (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ y in E p, ‖f y‖ₑ := by
+      rw [lintegral_const_mul _ hf.stronglyMeasurable.measurable.enorm, ← mul_assoc]; congr 2
+      rw [ENNReal.div_eq_inv_mul, ENNReal.inv_div (by simp) (by simp), mul_assoc,
+        ENNReal.mul_comm_div, ← mul_div_assoc, ← mul_assoc, mul_comm (2 ^ (3 * a))]
+    _ ≤ _ := by
+      gcongr; rw [C2_1_3, C7_5_5]; norm_cast
+      simp_rw [Nat.cast_pow, NNReal.rpow_natCast, Nat.cast_ofNat,
+        show (4 : ℝ≥0) = 2 ^ 2 by norm_num, ← pow_add]
+      apply pow_le_pow_right' one_le_two
+      calc
+        _ = 102 * a ^ 3 + 3 * a * 1 * 1 + 2 * 1 * 1 * 1 := by norm_num
+        _ ≤ 102 * a ^ 3 + 3 * a * a * a + 2 * a * a * a := by gcongr <;> linarith [four_le_a X]
+        _ = 107 * a ^ 3 := by ring
+        _ ≤ _ := by gcongr; norm_num
+
+end OneInOneOut
+
+section BothIn
+
+lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
+    Integrable (fun y ↦ exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y))
+      (volume.restrict (E p)) := by
+  have fb := hf.isBounded
+  simp_rw [isBounded_iff_forall_norm_le, mem_range, forall_exists_index,
+    forall_apply_eq_imp_iff] at fb
+  obtain ⟨B, hB⟩ := fb
+  refine Integrable.const_mul ?_ _; simp_rw [mul_rotate]
+  refine Integrable.bdd_mul ?_ ?_ ⟨B, fun y ↦ ?_⟩
+  · have bep : IsBounded (E p) := by
+      rw [isBounded_iff_subset_ball (𝔠 p)]; use 4 * D ^ 𝔰 p
+      exact E_subset_𝓘.trans Grid_subset_ball
+    obtain ⟨C, nnC, hC⟩ := IsBounded.exists_bound_of_norm_Ks bep (𝔰 p)
+    apply Measure.integrableOn_of_bounded (M := C) volume_E_lt_top.ne ?_ ?_
+    · exact continuous_conj.comp_aestronglyMeasurable
+        (measurable_Ks.comp measurable_prod_mk_right).aestronglyMeasurable
+    · simp only [RCLike.norm_conj]
+      exact ae_restrict_of_forall_mem measurableSet_E fun y my ↦ hC y x my
+  · refine ((Measurable.const_mul ?_ I).cexp.mul
+      hf.stronglyMeasurable.measurable).aestronglyMeasurable
+    refine (measurable_ofReal.comp ?_).sub (measurable_ofReal.comp ?_)
+    · have pair : Measurable fun y : X ↦ (y, y) := by fun_prop
+      exact measurable_Q₂.comp pair
+    · exact measurable_Q₂.comp measurable_prod_mk_right
+  · rw [norm_mul, ← one_mul B]
+    refine mul_le_mul ?_ (hB y) (norm_nonneg _) zero_le_one
+    rw_mod_cast [mul_comm, norm_exp_ofReal_mul_I]
+
+/-- Sub-equations (7.5.10) and (7.5.11) in Lemma 7.5.5. -/
+lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
+    edist (exp (.I * 𝒬 u x) * adjointCarleson p f x) (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
+    (∫⁻ y in E p, ‖f y‖ₑ *
+      ‖conj (Ks (𝔰 p) y x) * (exp (.I * (- Q y x + Q y x' + 𝒬 u x - 𝒬 u x' : ℝ)) - 1)‖ₑ) +
+    ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ :=
+  calc
+    _ = ‖∫ y in E p,
+        exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y) -
+        exp (.I * 𝒬 u x') * (conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x')) * f y)‖ₑ := by
+      rw [edist_eq_enorm_sub, adjointCarleson, adjointCarleson, ← integral_mul_left,
+        ← integral_mul_left, ← integral_sub] <;> exact integrable_adjointCarleson_interior hf
+    _ = ‖∫ y in E p, f y *
+          (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x + 𝒬 u x)) -
+          conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x' + 𝒬 u x')))‖ₑ := by
+      congr! 3 with y
+      rw [← mul_assoc _ _ (f y), ← mul_assoc _ _ (f y), ← sub_mul, mul_comm (f y)]
+      congr 1
+      rw [mul_comm _ (_ * _), mul_comm _ (_ * _), mul_assoc, mul_assoc, ← exp_add, ← exp_add,
+        mul_add, mul_add]
+    _ = ‖∫ y in E p, f y *
+          exp (.I * (Q y y - Q y x' + 𝒬 u x')) * exp (-(.I * (Q y y - Q y x' + 𝒬 u x'))) *
+          (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x + 𝒬 u x)) -
+          conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x' + 𝒬 u x')))‖ₑ := by
+      congr! 3 with y
+      rw [mul_assoc _ (exp _) (exp _), ← exp_add, add_neg_cancel, exp_zero, mul_one]
+    _ ≤ ∫⁻ y in E p, ‖f y‖ₑ *
+          ‖exp (.I * (Q y y - Q y x' + 𝒬 u x'))‖ₑ * ‖exp (-(.I * (Q y y - Q y x' + 𝒬 u x'))) *
+          (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x + 𝒬 u x)) -
+          conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x' + 𝒬 u x')))‖ₑ := by
+      simp_rw [← enorm_mul, ← mul_assoc]; exact enorm_integral_le_lintegral_enorm _
+    _ = ∫⁻ y in E p, ‖f y‖ₑ *
+          ‖conj (Ks (𝔰 p) y x) * exp (.I * (- Q y x + Q y x' + 𝒬 u x - 𝒬 u x' : ℝ)) -
+          conj (Ks (𝔰 p) y x')‖ₑ := by
+      congr 1 with y; norm_cast; nth_rw 1 [mul_comm I]; nth_rw 2 [← enorm_norm]
+      rw [norm_exp_ofReal_mul_I, enorm_one, mul_one]; congr 2
+      rw [mul_sub, ← mul_assoc, mul_rotate, mul_assoc, ← exp_add, ← sub_eq_add_neg, ← mul_sub,
+        ← mul_assoc, mul_rotate, mul_assoc, ← exp_add, add_neg_cancel, exp_zero, mul_one]
+      congr; norm_cast; ring
+    _ ≤ ∫⁻ y in E p, ‖f y‖ₑ *
+          (‖conj (Ks (𝔰 p) y x) * (exp (.I * (- Q y x + Q y x' + 𝒬 u x - 𝒬 u x' : ℝ)) - 1)‖ₑ +
+          ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ) := by
+      gcongr with y
+      rw [← sub_add_cancel (conj (Ks (𝔰 p) y x) * _) (conj (Ks (𝔰 p) y x)), ← mul_sub_one,
+        add_sub_assoc]
+      exact _root_.enorm_add_le _ _
+    _ = _ := by
+      simp_rw [mul_add]; apply lintegral_add_right
+      apply hf.stronglyMeasurable.measurable.enorm.mul (Measurable.enorm (Measurable.sub ?_ ?_)) <;>
+        exact (continuous_conj.comp_stronglyMeasurable
+          (measurable_Ks.comp measurable_prod_mk_right).stronglyMeasurable).measurable
+
+end BothIn
+
 /-- Lemma 7.5.5. -/
-lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u)
-    (hf : BoundedCompactSupport f) :
-    nndist (exp (.I * 𝒬 u x) * adjointCarleson p f x)
-      (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
+lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompactSupport f) :
+    edist (exp (.I * 𝒬 u x) * adjointCarleson p f x) (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
     C7_5_5 a / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
-    (nndist x x' / D ^ (𝔰 p : ℝ)) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ := by
+      (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ := by
+  by_cases hxx : x ∉ ball (𝔠 p) (5 * D ^ 𝔰 p) ∧ x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
+  · rw [adjoint_tile_support1, indicator_of_not_mem hxx.1, indicator_of_not_mem hxx.2]; simp
+  rw [not_and_or, not_not_mem, not_not_mem] at hxx
+  wlog hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p) generalizing x x'
+  · rw [or_comm] at hxx; specialize this hxx (hxx.resolve_right hx)
+    rwa [edist_comm, edist_comm x' x] at this
+  clear hxx
+  by_cases hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
+  · nth_rw 2 [adjoint_tile_support1]
+    rw [indicator_of_not_mem hx', mul_zero, edist_zero_right, enorm_mul, mul_comm I, ← enorm_norm,
+      norm_exp_ofReal_mul_I, enorm_one, one_mul]
+    exact holder_correlation_tile_one hf hx'
+  push_neg at hx'
   sorry
 
 /-- Part of Lemma 7.5.6. -/
