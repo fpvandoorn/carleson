@@ -517,10 +517,21 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
       simp_rw [setLaverage_eq, ENNReal.div_eq_inv_mul]
     _ ≤ 2 ^ (103 * a ^ 3) *
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
-      gcongr with k mk
+      gcongr with k mk; rw [Finset.mem_Icc] at mk
       simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iInf_iff]
       intro y my
-      sorry
+      obtain ⟨b, mb, eb⟩ : ∃ i ∈ 𝓑, ball (c𝓑 i) (r𝓑 i) = ball (c J) (16 * D ^ k) := by
+        use ⟨4, (k - s J).toNat, J⟩
+        simp only [𝓑, c𝓑, r𝓑, mem_prod, mem_Iic, mem_univ, le_add_iff_nonneg_left, zero_le,
+          and_true, true_and]
+        rw [show s J + (k - s J).toNat = k by omega, Int.toNat_le, 𝓑max, Nat.cast_ofNat]
+        exact ⟨by omega, by norm_num⟩
+      replace my : y ∈ ball (c𝓑 b) (r𝓑 b) := by
+        rw [eb]; refine Grid_subset_ball.trans (ball_subset_ball ?_) my
+        calc
+          (4 : ℝ) * D ^ s J ≤ 16 * D ^ s J := by gcongr; norm_num
+          _ ≤ _ := by gcongr; exacts [one_le_D, mk.1]
+      exact le_iSup₂_of_le b mb (by rw [indicator_of_mem my, eb])
     _ = 2 ^ (103 * a ^ 3) * 2 ^ 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       rw [Finset.sum_const, Int.card_Icc, show s J + 3 + 1 - s J = 4 by omega, nsmul_eq_mul,
         show (Int.toNat 4 : ℝ≥0∞) = 2 ^ 2 by simp; norm_num, mul_assoc]
