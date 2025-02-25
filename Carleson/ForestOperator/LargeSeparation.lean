@@ -47,6 +47,13 @@ lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
 
+lemma IF_subset_THEN_not_disjoint {A : Grid X} {B: Grid X} (h : (A : Set X) ⊆ B) : ¬ Disjoint (B : Set X) (A : Set X) := by
+  rw [disjoint_comm]
+  intro disjoint
+  have nonempty := Grid.nonempty A
+  rw [← Mathlib.Tactic.PushNeg.empty_ne_eq_nonempty] at nonempty
+  exact nonempty (Eq.symm ((Set.disjoint_of_subset_iff_left_eq_empty h).mp disjoint))
+
 lemma IF_disjoint_with_ball_THEN_distance_bigger_than_radius {J : X} {r : ℝ} {pSet : Set X} {p : X}
     (belongs : p ∈ pSet) (h : Disjoint (Metric.ball J r) pSet) :
     dist J p ≥ r := by
@@ -506,14 +513,6 @@ Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - 201 * (a : ℝ) ^ 3)
 
-lemma IF_subset_THEN_not_disjoint {A : Grid X} {B: Grid X} (h : (A : Set X) ⊆ B) : ¬ Disjoint (B : Set X) (A : Set X) := by
-  rw [disjoint_comm]
-  intro disjoint
-  have wow := (Set.disjoint_of_subset_iff_left_eq_empty h).mp disjoint
-  have black := Grid.nonempty A
-  rw [← Mathlib.Tactic.PushNeg.empty_ne_eq_nonempty] at black
-  exact black (Eq.symm wow)
-
 lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) : s J < s (𝓘 u₁) := by
   obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
@@ -528,7 +527,7 @@ lemma betterHelper (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂
     rw [disjoint_comm] at notDisjoint
     exact notDisjoint
   cases u₁In𝓙₀ with
-  | inl MIN =>
+  | inl min =>
     have sameScale : s (𝓘 p) = s (𝓘 u₁) := by
       linarith [
         (scale_mem_Icc (i := 𝓘 p)).left,
