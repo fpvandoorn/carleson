@@ -235,16 +235,16 @@ lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n:
   exact_mod_cast four_le_a X
 
 lemma calculation_15 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  (dist: ℝ) (zon : ℝ)
-  (h : 2 ^ zon ≤ 2 ^ (200 * a ^ 3 + 4 * a) * dist) :
-  2 ^ (zon - (200 * a^3 + 4*a)) ≤ dist := by
+    (dist: ℝ) (zon : ℝ)
+    (h : 2 ^ zon ≤ 2 ^ (200 * a ^ 3 + 4 * a) * dist) :
+    2 ^ (zon - (200 * a^3 + 4*a)) ≤ dist := by
   rw [Real.rpow_sub (hx := by linarith)]
   rw [show dist = 2 ^ (200 * a ^ 3 + 4 * a) * dist / 2 ^ (200 * a ^ 3 + 4 * a) by simp]
   have := (div_le_div_iff_of_pos_right (c := 2 ^ (200 * a ^ 3 + 4 * a)) (hc := by have aIsBig := four_le_a X; positivity)).mpr h
   exact_mod_cast this
 
-lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-  (s: ℤ) : 4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
+lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s: ℤ) :
+    4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
   gcongr
   · linarith
   · exact one_lt_D (X := X)

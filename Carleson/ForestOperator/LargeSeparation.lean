@@ -47,7 +47,8 @@ lemma IF_subset_THEN_distance_between_centers (subset : (J : Set X) ⊆ J') :
   apply Grid_subset_ball
   exact (subset (Grid.c_mem_Grid))
 
-lemma IF_subset_THEN_not_disjoint {A : Grid X} {B: Grid X} (h : (A : Set X) ⊆ B) : ¬ Disjoint (B : Set X) (A : Set X) := by
+lemma IF_subset_THEN_not_disjoint {A : Grid X} {B: Grid X} (h : (A : Set X) ⊆ B) :
+    ¬ Disjoint (B : Set X) (A : Set X) := by
   rw [disjoint_comm]
   intro disjoint
   have nonempty := Grid.nonempty A
@@ -518,7 +519,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) :
     C7_5_11 a n ≤ dist_{c J, 8 * D ^ s J} (𝒬 u₁) (𝒬 u₂) := by
   have existsBiggerThanJ : ∃ (J' : Grid X), J ≤ J' ∧ s J' = s J + 1 := by
-    apply Grid.exists_scale_succ (W:= 𝓘 u₁)
+    apply Grid.exists_scale_succ
     obtain ⟨⟨Jin𝓙₀, _⟩, ⟨jIsSubset : (J : Set X) ⊆ 𝓘 u₁, smaller : s J ≤ s (𝓘 u₁)⟩⟩ := hJ
     obtain ⟨p, belongs⟩ := t.nonempty' hu₁
     apply lt_of_le_of_ne smaller
@@ -549,9 +550,9 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       have pIn𝔖₀ : p ∈ t.𝔖₀ u₁ u₂ := 𝔗_subset_𝔖₀ (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) belongs
       apply avoidance p pIn𝔖₀
       calc (𝓘 p : Set X)
-      _ ⊆ ↑(𝓘 u₁) := (𝓘_le_𝓘 t hu₁ belongs).1
+      _ ⊆ 𝓘 u₁ := (𝓘_le_𝓘 t hu₁ belongs).1
       _ ⊆ ball (c (𝓘 u₁)) (4 * D ^ s (𝓘 u₁)) := by
-        exact Grid_subset_ball (i := 𝓘 u₁)
+        exact Grid_subset_ball
       _ ⊆ ball (c (𝓘 u₁)) (100 * D ^ (s (𝓘 u₁) + 1)) := by
         intro x hx
         exact gt_trans (calculation_16 (X := X) (s := s (𝓘 u₁))) hx
@@ -583,7 +584,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       _ = 100 * D ^ (s J + 2) + 4 * D ^ (s J + 1) := by
         rw [scaleSmaller, add_assoc, show (1 : ℤ) + 1 = 2 by rfl]
       _ < 128 * D^(s J + 2) := by
-        exact calculation_11 (s J) (X:=X)
+        exact calculation_11 (s J) (X := X)
     _ ≤ 2 ^ (200 * (a^3) + 4 * a) * dist_{c J, 8 * D ^ s J} (𝒬 u₁) (𝒬 u₂) := by
       rw [show 128 * (D : ℝ)^(s J + 2) = 2^(200*a^2 + 4) * (8*D^(s J)) by exact_mod_cast calculation_12 (s := s J)]
       rw [calculation_13]
