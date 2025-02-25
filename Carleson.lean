@@ -51,12 +51,14 @@ import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Group.LIntegral
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
+import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.RealInterpolation
+import Carleson.ToMathlib.Topology.Instances.AddCircle
 import Carleson.ToMathlib.WeakType
 import Carleson.TwoSidedCarleson.MainTheorem
 import Carleson.TwoSidedCarleson.NontangentialOperator

@@ -213,13 +213,14 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
     _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLaverage_eq]
     _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
       rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
-      have : ⟨4, I⟩ ∈ 𝓑 := by simp [𝓑]
+      have : (4, 0, I) ∈ 𝓑 := by simp [𝓑]
       refine le_of_eq_of_le ?_ (le_biSup _ this)
       have : x ∈ ball (c I) (2 ^ 4 * (D : ℝ) ^ s I) := by
         refine (ball_subset_ball ?_) (Grid_subset_ball hx)
         unfold s
         linarith [defaultD_pow_pos a (GridStructure.s I)]
-      simp_rw [c𝓑, r𝓑, ENNReal.rpow_one, indicator_of_mem this, enorm_eq_nnnorm]
+      simp_rw [c𝓑, r𝓑, ENNReal.rpow_one, Nat.cast_zero, add_zero, indicator_of_mem this,
+        enorm_eq_nnnorm]
       norm_num
 
 -- Pointwise bound needed for Lemma 7.2.2
@@ -553,7 +554,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
         split_ifs with hIJ; swap; · rfl
         refine mul_le_mul_right' (mul_le_mul_right' ?_ _) _
         obtain ⟨b, mb, eb⟩ : ∃ i ∈ 𝓑, ball (c𝓑 i) (r𝓑 i) = ball (c I) (16 * D ^ s I) := by
-          use ⟨4, I⟩; norm_num [𝓑, c𝓑, r𝓑]
+          use (4, 0, I); norm_num [𝓑, c𝓑, r𝓑]
         rw [MB, maximalFunction]; simp_rw [inv_one, ENNReal.rpow_one]
         exact le_iSup₂_of_le b mb (by rw [indicator_of_mem (eb ▸ hIJ.1 my), eb])
     _ = _ := by
@@ -665,12 +666,15 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * (2 ^ (a + (3 / 2 : ℝ)) * eLpNorm g 2 volume) := by
       have ST : HasStrongType (α := X) (α' := X) (ε₁ := ℂ) (MB volume 𝓑 c𝓑 r𝓑) 2 2 volume volume
           (CMB (defaultA a) 2) := by
-        refine hasStrongType_MB 𝓑.to_countable (R := 2 ^ (S + 5) * D ^ S)
+        refine hasStrongType_MB 𝓑.to_countable (R := 2 ^ (S + 5) * D ^ (S + 𝓑max))
           (fun ⟨bs, bi⟩ mb ↦ ?_) (by norm_num)
-        simp_rw [𝓑, mem_prod, mem_Icc, zero_le, mem_univ, and_true, true_and] at mb
-        unfold r𝓑; gcongr
+        simp_rw [𝓑, mem_prod, mem_Iic, mem_univ, and_true] at mb
+        obtain ⟨mb1, mb2⟩ := mb
+        rw [r𝓑, ← zpow_natCast (n := S + 𝓑max), Nat.cast_add]
+        gcongr
         · exact one_le_two
-        · rw [← zpow_natCast]; exact zpow_le_zpow_right₀ one_le_D scale_mem_Icc.2
+        · exact one_le_D
+        · exact scale_mem_Icc.2
       specialize ST g (hg.memℒp 2)
       rw [CMB_defaultA_two_eq, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat] at ST
       exact mul_le_mul_left' ST.2 _
