@@ -5796,9 +5796,9 @@ $$
     \end{lemma}
 
     \begin{proof}
-        Suppose that $\ps(\fp) > s(J) + 2 -\frac{Zn}{202a^3} =: s(J) - s_1$. Then, we have
+        Suppose that $\ps(\fp) > s(J) + 2 -\frac{Zn}{202a^3} =: s(J) - s_1$. Then, we have $s_1 + 2 \ge 0$ so
         $$
-            \rho(\pc(\fp), c(J)) \le 8D^{s(J)}+8D^{\ps(\fp)} \le 16 D^{\ps(\fp) + s_1}\,.
+            \rho(\pc(\fp), c(J)) \le 8D^{s(J)}+8D^{\ps(\fp)} \le 16 D^{\ps(\fp) + s_1 + 2}\,.
         $$
         There exists a tile $\fq \in \fT(\fu_1)$. By \eqref{forest1}, it satisfies $\scI(\fq) \subsetneq \scI(\fu_1)$. Thus $\scI(\fu_1) \notin \mathcal{J}'$. It follows that $J \subsetneq \scI(\fu_1)$. By \eqref{coverdyadic} and \eqref{dyadicproperty}, there exists a cube $J' \in \mathcal{D}$ with $J \subset J'$ and $s(J') = s(J) + 1$. By definition of $\mathcal{J}'$, there exists a tile $\fp' \in \fT(\fu_1)$ with
         $$
@@ -5806,31 +5806,31 @@ $$
         $$
         By the triangle inequality, the definition \eqref{defineD} and $a \ge 4$, we have
         $$
-            B(c(J'), 100 D^{s(J')+1}) \subset B(\pc(\fp), 128 D^{\ps(\fp) + s_1 + 1})\,.
+            B(c(J'), 100 D^{s(J')+1}) \subset B(\pc(\fp), 128 D^{\ps(\fp) + s_1 + 3})\,.
         $$
         Since $\fp' \in \fT(\fu_1)$ and $\scI(\fu_1) \subset \scI(\fu_2)$, we have by \eqref{forest5}
         $$
             d_{\fp'}(\fcc(\fp'), \fcc(\fu_2)) > 2^{Z(n+1)}\,.
         $$
-        Hence, by \eqref{forest1}, the triangle inequality and using that by \eqref{defineZ} $Z \ge 2$
+        Hence, by \eqref{forest1}, the triangle inequality and using that by \eqref{defineZ} $Z(n+1) = 2^{12a}(n+1) \ge 3$
         $$
-            d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) > 2^{Z(n+1)} - 4 \ge 2^{Zn}\,.
+            d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) > 2^{Z(n+1)} - 4 \ge 2^{Z(n+1) - 1}\,.
         $$
         It follows that
         $$
-            2^{Zn} \le d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) \le d_{B(\pc(\fp), 128 D^{\ps(\fp) + s_1+ 1})}(\fcc(\fu_1), \fcc(\fu_2))\,.
+            2^{Z(n+1)-1} \le d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) \le d_{B(\pc(\fp), 128 D^{\ps(\fp) + s_1+ 3})}(\fcc(\fu_1), \fcc(\fu_2))\,.
         $$
         Using \eqref{firstdb}, we obtain
         $$
-            \le 2^{9a + 100a^3 (s_1+1)} d_{\fp}(\fcc(\fu_1), \fcc(\fu_2))\,.
+            \le 2^{9a + 100a^3 (s_1+3)} d_{\fp}(\fcc(\fu_1), \fcc(\fu_2))\,.
         $$
         Since $\fp' \notin \mathfrak{S}$ this is bounded by
         $$
-            \le 2^{9a + 100a^3 (s_1+1)} 2^{Zn/2}\,.
+            \le 2^{9a + 100a^3 (s_1+3)} 2^{Zn/2}\,.
         $$
         Thus
         $$
-            Z n/2 \le 9a + 100a^3(s_1 + 1)\,,
+            Z n/2 + Z - 1 \le 9a + 100a^3(s_1 + 3)\,,
         $$
         contradicting the definition of $s_1$.
     \end{proof}
