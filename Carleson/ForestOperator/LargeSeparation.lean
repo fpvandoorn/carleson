@@ -585,7 +585,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       _ < 128 * D^(s J + 2) := by
         exact calculation_11 (s J) (X:=X)
     _ ≤ 2 ^ (200 * (a^3) + 4 * a) * dist_{c J, 8 * D ^ s J} (𝒬 u₁) (𝒬 u₂) := by
-      rw [show 128 * (D : ℝ)^(s J + 2) = 2 ^ (200*a^2 + 4) * (8*D^(s J)) by exact_mod_cast calculation_12 (s := (s J : ℝ)) (X := X)]
+      rw [show 128 * (D : ℝ)^(s J + 2) = 2^(200*a^2 + 4) * (8*D^(s J)) by exact_mod_cast calculation_12 (s := s J)]
       rw [calculation_13]
       apply cdist_le_iterate
       have := defaultD_pos a
