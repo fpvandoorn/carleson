@@ -256,92 +256,86 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
   -- LHS is now 10.1.234
 
-/-
-  10.1.2 estimate
-    Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
-    Doubling measure, larger domain pos function 10.1.6, Mg + def of integral of unit 10.1.7
--/
-  have y_est : ∀(y : X), y ∈ bxrc → r ≤ dist x y := by
+  have y_est {x₀: X}: ∀(y : X), y ∈ (ball x₀ r)ᶜ → r ≤ dist x₀ y := by
     intro y h
-    unfold bxrc ball at h
+    unfold ball at h
     rw [compl_setOf, mem_setOf_eq] at h
     simp only [not_lt] at h
     rw [dist_comm] at h
     exact h
 
+  have pointwise_1 {x₀ : X}: ∀(y : X), y ∈ (ball x₀ r)ᶜ  → ‖K x₀ y‖ₑ * ‖g y‖ₑ ≤
+      ENNReal.ofReal (C_K a) / volume (ball x₀ r) * ‖g y‖ₑ := by
+    intro y h
+    refine mul_le_mul' ?_ ?_
+    swap
+    . rfl
+    rw [← ofReal_norm_eq_enorm]
+
+    trans ENNReal.ofReal (C_K a / Real.vol x₀ y)
+    rw [ofReal_le_ofReal_iff]
+    apply IsOneSidedKernel.norm_K_le_vol_inv -- Applying this is a pain, should it be reformulated?
+    refine div_nonneg ?_ ?_
+    . refine LT.lt.le ?_
+      exact C_K_pos a
+    . unfold Real.vol
+      simp
+
+    rw [ENNReal.ofReal_div_of_pos]
+    apply ENNReal.div_le_div_left
+    unfold Real.vol Measure.real
+    refine (le_ofReal_iff_toReal_le ?_ ?_).mpr ?_
+    . rw [← lt_top_iff_ne_top]
+      exact measure_ball_lt_top
+    . simp
+
+    refine toReal_mono ?_ ?_
+    . rw [← lt_top_iff_ne_top]
+      exact measure_ball_lt_top
+    refine measure_mono ?_
+    refine ball_subset_ball ?_
+    . apply y_est
+      exact h
+
+    unfold Real.vol Measure.real
+    apply toReal_pos
+    . have p : volume (ball x₀ (dist x₀ y)) > 0 := by
+        apply measure_ball_pos
+        calc 0
+          _ < r := hr
+          _ ≤ dist x₀ y := by apply y_est; exact h
+      exact Ne.symm (ne_of_lt p)
+    . rw [← lt_top_iff_ne_top]
+      exact measure_ball_lt_top
+
+  have tmp5 {n: ℝ} : ∫⁻ (a : X) in ball x (n * r), ‖g a‖ₑ = (⨍⁻ (a : X) in ball x (n * r), ‖g a‖ₑ ∂volume)  * volume (ball x (n * r)) := by
+    have h_meas_finite : IsFiniteMeasure (volume.restrict (ball x (n * r))) := by
+      refine isFiniteMeasure_restrict.mpr ?_
+      exact ne_of_lt measure_ball_lt_top
+    rw [← measure_mul_laverage]
+    simp only [defaultA, MeasurableSet.univ, Measure.restrict_apply, univ_inter, mul_comm]
+
   have estimate_10_1_2 : (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
     simp only [enorm_mul]
-    have pointwise_1 : ∀(y : X), y ∈ bxrc ∩ bx2r → ‖K x y‖ₑ * ‖g y‖ₑ ≤
-        ENNReal.ofReal (C_K a) / volume (ball x r) * ‖g y‖ₑ := by
-      intro y h
-      refine mul_le_mul' ?_ ?_
-      swap
-      . rfl
-      rw [← ofReal_norm_eq_enorm]
-
-      trans ENNReal.ofReal (C_K a / Real.vol x y)
-      rw [ofReal_le_ofReal_iff]
-      apply IsOneSidedKernel.norm_K_le_vol_inv -- Applying this is a pain, should it be reformulated?
-      refine div_nonneg ?_ ?_
-      . refine LT.lt.le ?_
-        exact C_K_pos a
-      . unfold Real.vol
-        simp
-
-      rw [ENNReal.ofReal_div_of_pos]
-      apply ENNReal.div_le_div_left
-      unfold Real.vol Measure.real
-      refine (le_ofReal_iff_toReal_le ?_ ?_).mpr ?_
-      . rw [← lt_top_iff_ne_top]
-        exact measure_ball_lt_top
-      . simp
-
-      refine toReal_mono ?_ ?_
-      . rw [← lt_top_iff_ne_top]
-        exact measure_ball_lt_top
-      refine measure_mono ?_
-      refine ball_subset_ball ?_
-
-      apply y_est
-      exact h.left
-
-      unfold Real.vol Measure.real
-      apply toReal_pos
-      . have p : volume (ball x (dist x y)) > 0 := by
-          apply measure_ball_pos
-          calc 0
-            _ < r := hr
-            _ ≤ dist x y := by apply y_est; exact h.left
-        exact Ne.symm (ne_of_lt p)
-      . rw [← lt_top_iff_ne_top]
-        exact measure_ball_lt_top
 
     trans ∫⁻ (y : X) in bxrc ∩ bx2r, ENNReal.ofReal (C_K ↑a) / volume (ball x r) * ‖g y‖ₑ
     . apply lintegral_mono_fn
       -- I think a general lemma is missing to make this work on bxrc ∩ bx2r instead of X
-      -- Then pointwise_1 proves it
+      -- Then pointwise_1 with x₀ = x proves it
       sorry
 
     rw [lintegral_const_mul] -- LHS = 10.1.5
     case hf => apply Measurable.enorm; exact hmg
 
-    trans ENNReal.ofReal (C_K ↑a) / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume ( ball x (2 * r)))
+    trans ENNReal.ofReal (C_K ↑a) / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume (ball x (2 * r)))
     . apply mul_le_mul
       case h₁ => rfl
-      case b0 => simp
-      case c0 => simp
+      case c0 | b0 => simp only [zero_le]
 
       trans ∫⁻ (a : X) in bx2r, ‖g a‖ₑ
       . apply lintegral_mono_set
         exact inter_subset_right
-      have tmp5 : ∫⁻ (a : X) in bx2r, ‖g a‖ₑ = (⨍⁻ (a : X) in bx2r, ‖g a‖ₑ ∂volume)  * volume (ball x (2 * r)) := by
-        have h_meas_finite : IsFiniteMeasure (volume.restrict (ball x (2 * r))) := by
-          refine isFiniteMeasure_restrict.mpr ?_
-          exact ne_of_lt measure_ball_lt_top
-        rw [← measure_mul_laverage]
-        simp
-        apply mul_comm
 
       rw [tmp5]
       apply mul_le_mul
@@ -350,7 +344,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
         apply le_of_lt
         apply measure_ball_pos
         exact mul_pos zero_lt_two hr
-      case b0 => simp
+      case b0 => simp only [zero_le]
 
       conv in ‖ _ ‖ₑ =>
         rw [enorm_eq_nnnorm]
@@ -363,15 +357,13 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     apply mul_le_mul
     case h₂ => rfl
-    case c0 => simp
-    case b0 => simp
+    case c0 | b0 => simp only [zero_le]
 
     trans ENNReal.ofReal (C_K ↑a) / volume (ball x r) * (defaultA a * volume (ball x r))
     . apply mul_le_mul
-      . rfl
-      . apply measure_ball_two_le_same
-      . simp
-      . simp
+      case h₁ => rfl
+      case h₂ => apply measure_ball_two_le_same
+      case c0 | b0 => simp only [zero_le]
 
     -- Somehow simp doesn't do it
     nth_rw 2 [mul_comm]
@@ -387,10 +379,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       . apply ne_of_lt
         apply measure_ball_lt_top
 
-    conv =>
-      lhs; arg 1; arg 1; arg 1; simp; norm_cast
-    rw [ENNReal.ofReal_natCast]
-    simp only [Nat.cast_pow, Nat.cast_ofNat, mul_one, defaultA]
+    simp only [mul_one, C_K]
     norm_cast
     rw [pow_add]
 
@@ -453,7 +442,7 @@ x Split 2nd domain in parts > set work
     part 2 r < d x' y and 2r < d x y which is 2r < d x y by triangle ineq
 x Split integrals accordingly (sum of disjoint) obtain 10.1.234
 
-  10.1.2 estimate
+x 10.1.2 estimate
     Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
     Doubling measure, larger domain pos function 10.1.6, Mg + def of integral of unit 10.1.7
 
