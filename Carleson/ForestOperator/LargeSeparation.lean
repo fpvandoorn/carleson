@@ -377,9 +377,8 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
 /-- Sub-equations (7.5.10) and (7.5.11) in Lemma 7.5.5. -/
 lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     edist (exp (.I * 𝒬 u x) * adjointCarleson p f x) (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
-    (∫⁻ y in E p, ‖f y‖ₑ *
-      ‖conj (Ks (𝔰 p) y x) * (exp (.I * (- Q y x + Q y x' + 𝒬 u x - 𝒬 u x' : ℝ)) - 1)‖ₑ) +
-    ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ :=
+    (∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
+      ∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x - Ks (𝔰 p) y x'‖ₑ :=
   calc
     _ = ‖∫ y in E p,
         exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y) -
@@ -420,11 +419,100 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
       rw [← sub_add_cancel (conj (Ks (𝔰 p) y x) * _) (conj (Ks (𝔰 p) y x)), ← mul_sub_one,
         add_sub_assoc]
       exact _root_.enorm_add_le _ _
-    _ = _ := by
+    _ = (∫⁻ y in E p, ‖f y‖ₑ *
+          ‖conj (Ks (𝔰 p) y x) * (exp (.I * (- Q y x + Q y x' + 𝒬 u x - 𝒬 u x' : ℝ)) - 1)‖ₑ) +
+        ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ := by
       simp_rw [mul_add]; apply lintegral_add_right
       apply hf.stronglyMeasurable.measurable.enorm.mul (Measurable.enorm (Measurable.sub ?_ ?_)) <;>
         exact (continuous_conj.comp_stronglyMeasurable
           (measurable_Ks.comp measurable_prod_mk_right).stronglyMeasurable).measurable
+    _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
+        ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ := by
+      simp_rw [mul_assoc]; gcongr with y; rw [enorm_mul]; gcongr
+      exact enorm_exp_I_mul_ofReal_sub_one_le
+    _ = _ := by
+      congr! 4
+      · congr 1; rw [← enorm_norm, RCLike.norm_conj, enorm_norm]
+      · rw [← map_sub, ← enorm_norm, RCLike.norm_conj, enorm_norm]
+
+/-- Multiplicative factor for the bound on `‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ`. -/
+irreducible_def Q7_5_5 (a : ℕ) : ℝ≥0 := 5 * 2 ^ (6 * a)
+
+lemma QQQQ_bound {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompactSupport f)
+    (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
+    ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ ≤ Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
+  sorry
+
+lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompactSupport f)
+    (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
+    edist (exp (.I * 𝒬 u x) * adjointCarleson p f x) (exp (.I * 𝒬 u x') * adjointCarleson p f x') ≤
+    C7_5_5 a / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
+      (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖₊ := by
+  calc
+    _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
+        ∫⁻ y in E p, ‖f y‖ₑ * ‖Ks (𝔰 p) y x - Ks (𝔰 p) y x'‖ₑ := holder_correlation_rearrange hf
+    _ ≤ (∫⁻ y in E p, ‖f y‖ₑ *
+          (C2_1_3 a / volume (ball y (D ^ 𝔰 p))) *
+            (Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹)) +
+        ∫⁻ y in E p, ‖f y‖ₑ *
+          (D2_1_3 a / volume (ball y (D ^ 𝔰 p)) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) := by
+      refine add_le_add (setLIntegral_mono' measurableSet_E fun y my ↦ ?_)
+        (lintegral_mono fun _ ↦ ?_)
+      · exact mul_le_mul' (mul_le_mul_left' nnnorm_Ks_le _) (QQQQ_bound my hu hp hf hx hx')
+      · gcongr; exact nnnorm_Ks_sub_Ks_le
+    _ = (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
+        ∫⁻ y in E p, ‖f y‖ₑ / volume (ball y (D ^ 𝔰 p)) := by
+      conv_lhs =>
+        enter [1, 2, y]
+        rw [← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
+      have nt₀ : (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ < ⊤ := by
+        apply ENNReal.rpow_lt_top_of_nonneg (by positivity); rw [← lt_top_iff_ne_top]
+        exact ENNReal.div_lt_top ENNReal.coe_ne_top (ENNReal.zpow_pos (by simp) (by simp) _).ne'
+      have nt₁ : Q7_5_5 a * (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ * C2_1_3 a ≠ ⊤ :=
+        ENNReal.mul_ne_top (ENNReal.mul_ne_top (by simp) nt₀.ne) (by simp)
+      rw [lintegral_const_mul' _ _ nt₁]
+      conv_lhs =>
+        enter [2, 2, y]
+        rw [← mul_assoc, ← mul_div_assoc, mul_comm ‖f y‖ₑ, mul_div_assoc, ← mul_rotate]
+      have nt₂ : (nndist x x' / (D : ℝ≥0∞) ^ 𝔰 p) ^ (a : ℝ)⁻¹ * D2_1_3 a ≠ ⊤ :=
+        ENNReal.mul_ne_top nt₀.ne (by simp)
+      rw [lintegral_const_mul' _ _ nt₂, ← add_mul]; congr 1
+      rw [← mul_rotate, mul_comm _ (D2_1_3 a : ℝ≥0∞), ← add_mul]
+    _ ≤ (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
+        ∫⁻ y in E p, ‖f y‖ₑ / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) := by
+      refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
+      exact ENNReal.div_le_div_left (volume_xDsp_bound (E_subset_𝓘 my)) _
+    _ = 2 ^ (3 * a) * (C2_1_3 a * Q7_5_5 a + D2_1_3 a) / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
+        (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ y in E p, ‖f y‖ₑ := by
+      conv_lhs =>
+        enter [2, 2, y]
+        rw [ENNReal.div_eq_inv_mul]
+      rw [lintegral_const_mul _ hf.stronglyMeasurable.measurable.enorm, ← mul_assoc]; congr 1
+      rw [ENNReal.inv_div (by simp) (by simp), ← mul_rotate, ENNReal.mul_div_right_comm]; congr
+      exact coe_nnreal_ennreal_nndist ..
+    _ ≤ _ := by
+      gcongr; rw [C2_1_3, D2_1_3, C7_5_5, Q7_5_5]; norm_cast
+      simp_rw [NNReal.rpow_natCast, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat]
+      calc
+        _ ≤ (2 : ℝ≥0) ^ (3 * a) *
+            (2 ^ (102 * a ^ 3) * (2 ^ 3 * 2 ^ (6 * a)) + 2 ^ (150 * a ^ 3)) := by gcongr; norm_num
+        _ ≤ (2 : ℝ≥0) ^ (3 * a) * (2 ^ (150 * a ^ 3) + 2 ^ (150 * a ^ 3)) := by
+          gcongr; rw [← pow_add, ← pow_add]; apply pow_le_pow_right' one_le_two
+          calc
+            _ = 102 * a ^ 3 + 3 * 1 * 1 * 1 + 6 * a * 1 * 1 := by ring
+            _ ≤ 102 * a ^ 3 + 3 * a * a * a + 6 * a * a * a := by gcongr <;> linarith [four_le_a X]
+            _ = 111 * a ^ 3 := by ring
+            _ ≤ _ := by gcongr; norm_num
+        _ = (2 : ℝ≥0) ^ (150 * a ^ 3 + (3 * a + 1)) := by
+          rw [← two_mul, ← pow_succ', ← pow_add]; ring
+        _ ≤ _ := by
+          apply pow_le_pow_right' one_le_two
+          rw [show 151 * a ^ 3 = 150 * a ^ 3 + a ^ 3 by ring]; gcongr
+          calc
+            _ = 3 * a * 1 + 1 * 1 * 1 := by ring
+            _ ≤ 3 * a * a + 1 * a * a := by gcongr <;> linarith [four_le_a X]
+            _ = 4 * a * a := by ring
+            _ ≤ _ := by rw [pow_succ, sq]; gcongr; exact four_le_a X
 
 end BothIn
 
@@ -446,7 +534,7 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompa
       norm_exp_ofReal_mul_I, enorm_one, one_mul]
     exact holder_correlation_tile_one hf hx'
   push_neg at hx'
-  sorry
+  exact holder_correlation_tile_two hu hp hf hx hx'
 
 /-- Part of Lemma 7.5.6. -/
 lemma limited_scale_impact__first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
