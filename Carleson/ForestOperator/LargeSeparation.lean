@@ -372,7 +372,8 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
       ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ :=
   calc
     _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ := by
-      rw [ENNReal.coe_iSup_NNReal]; · rfl
+      rw [ENNReal.coe_biSup]; · rfl
+      simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff]
       have bcs := hf.adjointCarlesonSum (ℭ := t u₂ \ 𝔖₀ t u₁ u₂)
       obtain ⟨C, hC⟩ := isBounded_range_iff_forall_norm_le.mp bcs.isBounded
       use ⟨C, (norm_nonneg _).trans (hC (c J))⟩; exact hC

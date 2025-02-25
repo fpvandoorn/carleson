@@ -9,8 +9,9 @@ variable {α ι : Type*} {s : Set ι} {t : Finset α}
 
 namespace ENNReal
 
-lemma coe_iSup_NNReal {f : ι → ℝ≥0} (hf : ∃ B, ∀ a, f a ≤ B) :
+lemma coe_biSup {f : ι → ℝ≥0} (hf : BddAbove (range f)) :
     ⨆ x ∈ s, f x = ⨆ x ∈ s, (f x : ℝ≥0∞) := by
+  simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hf
   rw [ENNReal.coe_iSup]
   · congr with x; rw [ENNReal.coe_iSup]
     apply Bornology.IsBounded.bddAbove
