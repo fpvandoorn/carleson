@@ -761,18 +761,17 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
     apply le_trans (hI12 ⟨z.1, hz.1⟩ ⟨z.2, hz.2⟩)
     gcongr ?_ *  ‖g ↑_‖ * ‖g ↑_‖
     exact (hle' ⟨z.2, hz.2⟩)
-
   have hprod : |∫ (a : X × X) in E p' ×ˢ E p, Complex.abs (g a.1) * Complex.abs (g a.2)| =
       ((∫ (y : X) in E p', Complex.abs (g y)) * ∫ (y : X) in E p, Complex.abs (g y)) := by
     rw [← setIntegral_prod_mul, abs_of_nonneg (setIntegral_nonneg
       (measurableSet_E.prod measurableSet_E) (fun _ _ ↦
         mul_nonneg (AbsoluteValue.nonneg _ _) (AbsoluteValue.nonneg _ _)))]; rfl
   apply le_trans h
+
   simp only [coe_nnnorm, Complex.norm_eq_abs, I12, mul_assoc]
   rw [integral_mul_left]
   simp only [abs_mul, abs_div, NNReal.abs_eq]
-  rw [abs_of_nonneg (Real.rpow_nonneg (add_nonneg zero_le_one dist_nonneg) _)]
-  gcongr
+  rw [abs_of_nonneg (Real.rpow_nonneg (add_nonneg zero_le_one dist_nonneg) _), hprod]
 
 
 -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
