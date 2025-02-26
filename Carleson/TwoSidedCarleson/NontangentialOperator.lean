@@ -393,7 +393,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     trans ∫⁻ (y : X) in bxprc ∩ bx2r, ENNReal.ofReal (C_K ↑a) / volume (ball x' r) * ‖g y‖ₑ
     . apply lintegral_mono_fn
-      -- I think a general lemma is missing to make this work on bxrc ∩ bx2r instead of X
+      -- I think a general lemma is missing to make this work on bxprc ∩ bx2r instead of X
       -- Then pointwise_1 with x₀ = x' proves it
       sorry
 
@@ -465,39 +465,23 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . exact estimate_10_1_3
     . exact estimate_10_1_4
 
-  conv =>
-    lhs
-    calc _
-      -- I can't seem to figure out how to do this in ENNReal...
-      _ = (2 ^ (a ^ 3 + a) + 2 ^ (a ^ 3 + 2 * a) + 2 ^ (a ^ 3 + 2 * a)) * globalMaximalFunction volume 1 g x := by sorry
+  rw [← distrib_three_right]
 
   refine mul_le_mul' ?_ ?_
-  swap
-  . unfold globalMaximalFunction
-    unfold defaultA
-    norm_cast
+  case refine_2 => rfl
 
   -- Now it is unavoidable to unfold C10_1_2
   with_unfolding_all simp only [C10_1_2]
   norm_cast
 
-  -- Note: It is unclear to me which tactic can avoid this manual computation
-  have tmp4 : 2 ^ (a ^ 3 + a) ≤ 2 ^ (a ^ 3 + 2 * a + 1) := by
-    rw [Nat.pow_le_pow_iff_right]
-    rw [Nat.add_assoc]
-    rw [Nat.add_le_add_iff_left]
-    refine Nat.le_add_right_of_le ?_
-    refine Nat.le_mul_of_pos_left a ?_
-    exact Nat.zero_lt_two
-    exact Nat.one_lt_two
-
   trans 2 ^ (a ^ 3 + 2 * a + 1) + 2 ^ (a ^ 3 + 2 * a) + 2 ^ (a ^ 3 + 2 * a)
   . apply Nat.add_le_add_iff_right.mpr
     apply Nat.add_le_add_iff_right.mpr
-    apply tmp4
+    rw [Nat.pow_le_pow_iff_right (h := Nat.one_lt_two)]
+    linarith
 
-  ring_nf
-  rfl
+  apply le_of_eq
+  ring
 
 /- Breakdown from PDF
   Expand def
@@ -513,7 +497,7 @@ x 10.1.2 estimate
     Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
     Doubling measure, larger domain pos function 10.1.6, Mg + def of integral of unit 10.1.7
 
-  10.1.4 estimate
+x 10.1.4 estimate
     Use def CZ kernel 10.0.14, def V, estimate 1/V by 1/B(x',r)
     Doubling measure twice, larger domain pos function, Mg + def integral of unit 10.1.8
 
