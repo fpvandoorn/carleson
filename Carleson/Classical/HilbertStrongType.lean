@@ -74,8 +74,8 @@ The blueprint states this on `[-π, π]`, but I think we can consistently change
 -- todo: add lemma that relates `eLpNorm ((Ioc a b).indicator f)` to `∫ x in a..b, _`
 lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ}
     (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (periodic_f : f.Periodic (2 * π)) :
-    eLpNorm ((Ioc 0 (2 * π)).indicator (partialFourierSum n f)) ≤
-    eLpNorm ((Ioc 0 (2 * π)).indicator f) := by
+    eLpNorm ((Ioc 0 (2 * π)).indicator (partialFourierSum n f)) 2 ≤
+    eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
   -- Note: easiest proof might be by massaging the statement of `spectral_projection_bound_lp`
   -- into this
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
