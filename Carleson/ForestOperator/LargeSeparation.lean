@@ -1038,6 +1038,24 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       gcongr
       have ltc := local_tree_control (hu₁ := hu₁) (hu₂ := hu₂) (hu := hu) (h2u := h2u) (hJ := hJ) (hf := hf)
       apply add_le_of_add_le_right (hle := ltc)
+      -- NOTE
+      -- 
+      -- rw [`right_distrib`] stopped working because the statement of `lemma local_tree_control` was changed.
+      -- 
+      -- The solution is to:
+      -- 1. change the statement of `lemma global_tree_control1_1` (from `(fun x ↦ ‖f x‖) x` to `f x`)
+      -- 2. change all expressions in this proof accordingly (from `(fun x ↦ ‖f x‖) x` to `f x`)
+      -- 
+      -- DETAILS
+      -- The goal before the statement of `lemma local_tree_control` was changed:
+      -- ⊢ (↑(C7_5_7 a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (fun x ↦ ‖f x‖) x) +
+      -- ↑(C7_5_9_1 a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (fun x ↦ ‖f x‖) x ≤
+      -- ↑(C7_5_10 a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (fun x ↦ ‖f x‖) x
+      -- 
+      -- The goal now:
+      -- ⊢ (↑(C7_5_7 a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x) +
+      -- ↑(C7_5_9_1 a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (fun x ↦ ‖f x‖) x ≤
+      -- ↑(C7_5_10 a) * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (fun x ↦ ‖f x‖) x
       rw [← right_distrib, C7_5_7, C7_5_9_1, C7_5_10]
       gcongr
       norm_cast
