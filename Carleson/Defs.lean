@@ -186,7 +186,7 @@ def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ 
 --   sInf { c | 0 ≤ c ∧ ∀ x, ‖T x‖ ≤ c * ‖x‖ }
 
 /-- The Calderon Zygmund operator `T_r` in chapter Two-sided Metric Space Carleson -/
-def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+def czOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in (ball x r)ᶜ, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
