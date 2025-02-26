@@ -7248,8 +7248,10 @@ It is classical and can be found in \cite{stein-book}.
 
 The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref{Hardy-Littlewood}.
 %fixme: Incorporate this into Hardy-Littlewood?
-\begin{lemma} [Maximal theorem]
+\begin{lemma}[Maximal theorem]
     \label{maximal-theorem}
+    \leanok
+    \lean{maximal_theorem}
     \uses{Hardy-Littlewood}
     Let $f: X \to \C$ be bounded, measurable, supported on a set of finite measure, and let $\alpha > 0$. Then
     \begin{equation}
@@ -7258,6 +7260,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     By definition, for each $x\in X$ with $Mf(x) > \alpha$, there exists a ball $B_x$ such that $x\in B_x$ and
     \begin{equation}
         \label{maximal-theorem-a}
@@ -7281,7 +7284,8 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 
 \begin{lemma}[Lebesgue differentiation]
     \label{Lebesgue-differentiation}
-    \lean{VitaliFamily.ae_tendsto_average}
+    \leanok
+    \lean{lebesgue_differentiation}
     Let $f$ be a bounded measurable function supported on a set of finite measure. Then for $\mu$ almost every $x$, we have
     $$\lim_{n\to \infty} \frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
     where $\{B_n\}_{n\geq 1}$ is a sequence of balls with radii $r_n>0$ such that $x\in B_n$ for each $n\geq 1$ and
@@ -7290,16 +7294,20 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     \end{equation*}
 \end{lemma}
 \begin{proof}
+    \leanok
     This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
     %fixme: Check that the Lean version really implies this version of Lebesgue differentiation.
 \end{proof}
 
-%fixme: The following is probably part of mathlib (for a second countable topology?)
+% This is in Mathlib.
 \begin{lemma}[Disjoint family countable]
+    \leanok
+    \lean{Pairwise.countable_of_isOpen_disjoint}
     \label{disjoint-family-countable}
     In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
 \end{lemma}
 \begin{proof}
+    \leanok
     Choose an arbitrary $x\in X$ as reference point. For $q, Q\in\Q_+$, let $J_{q,Q}$ denote the set of all $j\in J$ such that $B_j\subset B(x, Q)$ and $r_j \ge q$. It suffices to show that all the $J_{q,Q}$ are finite.
     Indeed, for all $j\in J_{q,Q}$,
     \begin{equation*}
@@ -7316,6 +7324,8 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
 \begin{lemma}[Ball covering]
     \label{ball-covering}
+    \leanok
+    \lean{ball_covering}
     \uses{disjoint-family-countable}
     Given an open set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
     \begin{equation}
@@ -7389,9 +7399,13 @@ and conclude $N\le 2^{6a}$.
 Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
+    \leanok
+    \lean{cardinalMk_czBall3_le, tsum_czRemainder', measurable_czApproximation, czApproximation_add_czRemainder, norm_czApproximation_le, norm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
     Let $f$ be a bounded, measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
-    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$) such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
+    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
+    % Do we actually need this parenthetical?
+    such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
        f(x)= g(x) + \sum_{j} b_j(x)
@@ -7554,6 +7568,8 @@ We deal with $T_rg$ and $T_rb$ separately in the following lemmas.
 
 \begin{lemma}[Estimate good]
     \label{estimate-good}
+    \leanok
+    \lean{estimate_good}
     \uses{Calderon-Zygmund-decomposition}
     \begin{equation*}
         \mu\left(\{x\in X: |T_r g(x)|>{\alpha}/2\}\right)
@@ -7574,8 +7590,10 @@ Using \eqref{eq-strong-2-2-assumption} followed by \eqref{eq-g-max} and \eqref{e
 \end{equation}
 \end{proof}
 
-\begin{lemma}
-    \label{estimate-Tr-bad-X-minus-Omega}
+\begin{lemma}[Estimate bad partial]
+    \label{estimate-bad-partial}
+    \leanok
+    \lean{estimate_bad_partial}
     \uses{Calderon-Zygmund-decomposition}
     Let $x\in X\setminus\Omega$. Then
     \begin{equation*}
@@ -7706,10 +7724,12 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
 \end{equation*}
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Estimate F set]
     \label{estimate-F-set}
+    \leanok
+    \lean{distribution_czOperatorBound}
     \uses{Calderon-Zygmund-decomposition,geometric-series-estimate}
-    For $F$ as defined in \Cref{estimate-Tr-bad-X-minus-Omega}, we have
+    For $F$ as defined in \Cref{estimate-bad-partial}, we have
     \begin{equation}
         \label{eq-F-X-minus-Omega}
         \mu(\{x\in X\setminus\Omega: F(x)>\alpha/8\}) \le \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
@@ -7747,7 +7767,9 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
 
 \begin{lemma}[Estimate bad]
     \label{estimate-bad}
-    \uses{Calderon-Zygmund-decomposition,estimate-Tr-bad-X-minus-Omega,estimate-F-set}
+    \leanok
+    \lean{estimate_bad}
+    \uses{Calderon-Zygmund-decomposition,estimate-bad-partial,estimate-F-set}
     We have
     \begin{equation*}
         \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le  \frac{\frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y) \,.
@@ -7769,7 +7791,7 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
         \mu(\Omega) \le \sum_{j} \mu (B_j')
         \le 2^{a} \sum_{j} \mu(B_j) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
     \end{equation}
-    It follows from \Cref{estimate-Tr-bad-X-minus-Omega} and the triangle inequality that
+    It follows from \Cref{estimate-bad-partial} and the triangle inequality that
     \begin{equation}
         \label{eq-set-dec-3}
         \mu({\{x\in X\setminus\Omega: |T_r b(x)|>\alpha/2\}}) \le \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\})\,.

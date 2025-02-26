@@ -42,7 +42,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | `Tₚ f(x)`       | `carlesonOn p f x`       |         |
 | `T_ℭ f(x)`       | `carlesonSum ℭ f x`       | The sum of Tₚ f(x) for p ∈ ℭ. In the blueprint only used in chapter 7, but in the formalization we will use it more.        |
 | `Tₚ* f(x)`       | `adjointCarleson p f x`       |         |
-| `T_r g(x)` | `CZOperator K r g x` |
+| `T_r g(x)` | `czOperator K r g x` |
 | `T_*^r g(x)` | `simpleNontangentialOperator K r g x` |
 | `e(x)`       | `Complex.exp (Complex.I * x)` |         |
 | `𝔓(I)`       | `𝓘 ⁻¹' {I}` |         |
