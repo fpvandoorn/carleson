@@ -275,17 +275,12 @@ lemma enorm_ψ_le_edist {y : X} (my : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 
   · rw [ψ_formula₄ h, enorm_zero]; exact zero_le _
   replace h : 0 ≤ 2 - 4 * (D ^ (-𝔰 p) * dist y x) := by linarith
   calc
-    _ ≤ ‖max 0 ((2 - 4 * (D ^ (-𝔰 p) * dist y x)) ^ (a : ℝ)⁻¹)‖ₑ := by
-      have b₁ : 0 ≤ ψ (D ^ (-𝔰 p) * dist y x) := zero_le_ψ ..
-      have b₂ : ψ (D ^ (-𝔰 p) * dist y x) ≤ max 0 ((2 - 4 * (D ^ (-𝔰 p) * dist y x)) ^ (a : ℝ)⁻¹) :=
-        ψ_le_max (X := X)
-      rw [Real.enorm_of_nonneg b₁, Real.enorm_of_nonneg (b₁.trans b₂)]
-      exact ENNReal.ofReal_le_ofReal b₂
+    _ ≤ ‖max 0 ((2 - 4 * (D ^ (-𝔰 p) * dist y x)) ^ (a : ℝ)⁻¹)‖ₑ :=
+      Real.enorm_le_enorm (zero_le_ψ ..) (ψ_le_max (X := X))
     _ = ‖2 - 4 * (D ^ (-𝔰 p) * dist y x)‖ₑ ^ (a : ℝ)⁻¹ := by
       rw [max_eq_right (Real.rpow_nonneg h _), Real.enorm_rpow_of_nonneg h (by positivity)]
     _ ≤ ‖dist x x' / D ^ (𝔰 p) * 4‖ₑ ^ (a : ℝ)⁻¹ := by
-      gcongr; rw [Real.enorm_of_nonneg h, Real.enorm_of_nonneg (h.trans (le_of_mem_E my hx'))]
-      exact ENNReal.ofReal_le_ofReal (le_of_mem_E my hx')
+      gcongr; exact Real.enorm_le_enorm h (le_of_mem_E my hx')
     _ = (edist x x' / D ^ (𝔰 p) * 4) ^ (a : ℝ)⁻¹ := by
       rw [enorm_mul]; nth_rw 2 [enorm_eq_nnnorm]; rw [Real.nnnorm_ofNat, ENNReal.coe_ofNat]; congr
       rw [enorm_eq_nnnorm, nnnorm_div, nnnorm_zpow]; norm_cast
@@ -438,12 +433,102 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
       · rw [← map_sub, ← enorm_norm, RCLike.norm_conj, enorm_norm]
 
 /-- Multiplicative factor for the bound on `‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ`. -/
-irreducible_def Q7_5_5 (a : ℕ) : ℝ≥0 := 5 * 2 ^ (6 * a)
+irreducible_def Q7_5_5 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (6 * a)
 
-lemma QQQQ_bound {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompactSupport f)
+lemma QQQQ_bound_real {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
     (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
-    ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ ≤ Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
-  sorry
+    ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ ≤ Q7_5_5 a * (dist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
+  rcases eq_or_ne x x' with rfl | hd
+  · have : (a : ℝ)⁻¹ ≠ 0 := by rw [ne_eq, inv_eq_zero, Nat.cast_eq_zero]; linarith [four_le_a X]
+    simp [this]
+  replace hd : 0 < dist x x' := dist_pos.mpr hd
+  have Dsppos : (0 : ℝ) < D ^ 𝔰 p := by simp only [defaultD]; positivity
+  have dxx' : dist x x' < 10 * D ^ 𝔰 p :=
+    calc
+      _ ≤ dist x (𝔠 p) + dist x' (𝔠 p) := dist_triangle_right ..
+      _ < 5 * D ^ 𝔰 p + 5 * D ^ 𝔰 p := by rw [mem_ball] at hx hx'; gcongr
+      _ = _ := by rw [← add_mul]; norm_num
+  let k : ℤ := ⌊Real.logb 2 (10 * D ^ 𝔰 p / dist x x') / a⌋
+  have knn : 0 ≤ k := by
+    calc
+      _ ≥ ⌊Real.logb 2 1 / a⌋ := by
+        simp_rw [k]; gcongr
+        · exact one_lt_two
+        · rw [one_le_div hd]; exact dxx'.le
+      _ = _ := by simp
+  calc
+    _ ≤ dist_{x, 16 / 10 * dist x x'} (Q y) (𝒬 u) := by
+      rw [show -Q y x + Q y x' + 𝒬 u x - 𝒬 u x' = Q y x' - 𝒬 u x' - Q y x + 𝒬 u x by ring]
+      apply oscillation_le_cdist <;> rw [mem_ball]
+      · rw [← one_mul (dist x' x), dist_comm]; exact mul_lt_mul_of_pos_right (by norm_num) hd
+      · simp [hd]
+    _ ≤ 2 ^ (-k) * dist_{x, (defaultA a) ^ k * (16 / 10 * dist x x')} (Q y) (𝒬 u) := by
+      rw [← div_le_iff₀' (by positivity), zpow_neg, div_inv_eq_mul, mul_comm]
+      have : ∀ r : ℝ, r ^ k = r ^ k.toNat := fun r ↦ by
+        rw [← zpow_natCast]; congr; exact (Int.toNat_of_nonneg knn).symm
+      rw [this, this]; exact le_cdist_iterate (by positivity) ..
+    _ ≤ 2 ^ (-k) * dist_{x, 16 * D ^ 𝔰 p} (Q y) (𝒬 u) := by
+      refine mul_le_mul_of_nonneg_left (cdist_mono (ball_subset_ball ?_)) (by positivity)
+      calc
+        _ ≤ ((2 : ℝ) ^ a) ^ (Real.logb 2 (10 * D ^ 𝔰 p / dist x x') / a) *
+            (16 / 10 * dist x x') := by
+          simp_rw [defaultA]; rw [Nat.cast_pow, Nat.cast_ofNat, ← Real.rpow_intCast]; gcongr
+          · norm_cast; exact Nat.one_le_two_pow
+          · exact Int.floor_le _
+        _ = _ := by
+          rw [← Real.rpow_natCast, ← Real.rpow_mul zero_le_two,
+            mul_div_cancel₀ _ (by norm_cast; linarith [four_le_a X]),
+            Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity), div_mul_comm,
+            mul_div_cancel_right₀ _ hd.ne', ← mul_assoc]
+          norm_num
+    _ ≤ 2 ^ (-k) * defaultA a * dist_{𝔠 p, 8 * D ^ 𝔰 p} (Q y) (𝒬 u) := by
+      rw [show (16 : ℝ) = 2 * 8 by norm_num, mul_assoc, mul_assoc]; gcongr; apply cdist_le
+      exact (mem_ball'.mp hx).trans_le (by rw [← mul_assoc]; gcongr; norm_num)
+    _ ≤ 2 ^ (-k) * defaultA a * (defaultA a ^ 5 * dist_(p) (Q y) (𝒬 u)) := by
+      gcongr; rw [show 8 * (D : ℝ) ^ 𝔰 p = 2 ^ 5 * (D ^ 𝔰 p / 4) by ring]
+      exact cdist_le_iterate (by positivity) ..
+    _ = 2 ^ (6 * a) * 2 ^ (-k) * dist_(p) (Q y) (𝒬 u) := by
+      simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← mul_assoc, mul_assoc _ _ (_ ^ 5)]
+      rw [← pow_succ', ← pow_mul', mul_comm (2 ^ _)]
+    _ ≤ 5 * 2 ^ (6 * a) * 2 ^ (-k) := by
+      rw [mul_rotate 5]; gcongr
+      calc
+        _ ≤ dist_(p) (Q y) (𝒬 p) + dist_(p) (𝒬 p) (𝒬 u) := dist_triangle ..
+        _ ≤ 1 + 4 := by
+          gcongr <;> apply le_of_lt
+          · rw [← mem_ball]; exact subset_cball my.2.1
+          · rw [← mem_ball']; convert (t.smul_four_le hu hp).2 (mem_ball_self zero_lt_one)
+        _ = _ := by norm_num
+    _ ≤ 2 * 5 * 2 ^ (6 * a) * (dist x x' / (10 * D ^ 𝔰 p)) ^ (a : ℝ)⁻¹ := by
+      rw [mul_rotate 2, mul_assoc _ 2]; gcongr
+      calc
+        _ ≤ (2 : ℝ) ^ (1 - Real.logb 2 (10 * D ^ 𝔰 p / dist x x') / a) := by
+          rw [← Real.rpow_intCast]; apply Real.rpow_le_rpow_of_exponent_le one_le_two
+          simp_rw [Int.cast_neg, k, neg_le_sub_iff_le_add']
+          exact (Int.lt_floor_add_one _).le
+        _ = _ := by
+          rw [sub_eq_add_neg, Real.rpow_add zero_lt_two, Real.rpow_one, div_eq_mul_inv, ← neg_mul,
+            Real.rpow_mul zero_le_two, ← Real.logb_inv, inv_div,
+            Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
+    _ ≤ _ := by
+      rw [show (2 : ℝ) * 5 = 10 by norm_num, Q7_5_5, NNReal.coe_mul, NNReal.coe_pow,
+        NNReal.coe_ofNat, NNReal.coe_ofNat]; gcongr
+      nth_rw 1 [← one_mul (_ ^ _)]; gcongr; norm_num
+
+lemma QQQQ_bound {y : X} (my : y ∈ E p) (hu : u ∈ t) (hp : p ∈ t u)
+    (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
+    ‖-Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ ≤ Q7_5_5 a * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ := by
+  calc
+    _ ≤ ‖Q7_5_5 a * (dist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹‖ₑ := by
+      rw [← enorm_norm]
+      apply Real.enorm_le_enorm (norm_nonneg _) (QQQQ_bound_real my hu hp hx hx')
+    _ = _ := by
+      rw [enorm_mul, Real.enorm_rpow_of_nonneg (by positivity) (by norm_cast; positivity),
+        NNReal.enorm_eq, div_eq_mul_inv, enorm_mul, enorm_inv (by unfold defaultD; positivity),
+        ← div_eq_mul_inv]; congr
+      · rw [Real.enorm_eq_ofReal dist_nonneg, dist_nndist]; exact ENNReal.ofReal_coe_nnreal
+      · rw [Real.enorm_eq_ofReal (by positivity), ← Real.rpow_intCast,
+          ← ENNReal.ofReal_rpow_of_pos (by simp), ENNReal.rpow_intCast]; norm_cast
 
 lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompactSupport f)
     (hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) (hx' : x' ∈ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
@@ -460,7 +545,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
           (D2_1_3 a / volume (ball y (D ^ 𝔰 p)) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) := by
       refine add_le_add (setLIntegral_mono' measurableSet_E fun y my ↦ ?_)
         (lintegral_mono fun _ ↦ ?_)
-      · exact mul_le_mul' (mul_le_mul_left' nnnorm_Ks_le _) (QQQQ_bound my hu hp hf hx hx')
+      · exact mul_le_mul' (mul_le_mul_left' nnnorm_Ks_le _) (QQQQ_bound my hu hp hx hx')
       · gcongr; exact nnnorm_Ks_sub_Ks_le
     _ = (C2_1_3 a * Q7_5_5 a + D2_1_3 a) * (nndist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ *
         ∫⁻ y in E p, ‖f y‖ₑ / volume (ball y (D ^ 𝔰 p)) := by
@@ -497,13 +582,13 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
       simp_rw [NNReal.rpow_natCast, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat]
       calc
         _ ≤ (2 : ℝ≥0) ^ (3 * a) *
-            (2 ^ (102 * a ^ 3) * (2 ^ 3 * 2 ^ (6 * a)) + 2 ^ (150 * a ^ 3)) := by gcongr; norm_num
+            (2 ^ (102 * a ^ 3) * (2 ^ 4 * 2 ^ (6 * a)) + 2 ^ (150 * a ^ 3)) := by gcongr; norm_num
         _ ≤ (2 : ℝ≥0) ^ (3 * a) * (2 ^ (150 * a ^ 3) + 2 ^ (150 * a ^ 3)) := by
           gcongr; rw [← pow_add, ← pow_add]; apply pow_le_pow_right' one_le_two
           calc
-            _ = 102 * a ^ 3 + 3 * 1 * 1 * 1 + 6 * a * 1 * 1 := by ring
-            _ ≤ 102 * a ^ 3 + 3 * a * a * a + 6 * a * a * a := by gcongr <;> linarith [four_le_a X]
-            _ = 111 * a ^ 3 := by ring
+            _ = 102 * a ^ 3 + 4 * 1 * 1 * 1 + 6 * a * 1 * 1 := by ring
+            _ ≤ 102 * a ^ 3 + 4 * a * a * a + 6 * a * a * a := by gcongr <;> linarith [four_le_a X]
+            _ = 112 * a ^ 3 := by ring
             _ ≤ _ := by gcongr; norm_num
         _ = (2 : ℝ≥0) ^ (150 * a ^ 3 + (3 * a + 1)) := by
           rw [← two_mul, ← pow_succ', ← pow_add]; ring
