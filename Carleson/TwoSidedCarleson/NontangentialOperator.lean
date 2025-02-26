@@ -308,8 +308,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . rw [← lt_top_iff_ne_top]
       exact measure_ball_lt_top
 
-  have tmp5 {n: ℝ} : ∫⁻ (a : X) in ball x (n * r), ‖g a‖ₑ = (⨍⁻ (a : X) in ball x (n * r), ‖g a‖ₑ ∂volume)  * volume (ball x (n * r)) := by
-    have h_meas_finite : IsFiniteMeasure (volume.restrict (ball x (n * r))) := by
+  have tmp5 {x₀ : X} {n : ℝ} : ∫⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ = (⨍⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ ∂volume)  * volume (ball x₀ (n * r)) := by
+    have h_meas_finite : IsFiniteMeasure (volume.restrict (ball x₀ (n * r))) := by
       refine isFiniteMeasure_restrict.mpr ?_
       exact ne_of_lt measure_ball_lt_top
     rw [← measure_mul_laverage]
@@ -379,7 +379,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       . apply ne_of_lt
         apply measure_ball_lt_top
 
-    simp only [mul_one, C_K]
+    simp only [mul_one, C_K, defaultA]
     norm_cast
     rw [pow_add]
 
@@ -389,7 +389,74 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
   have estimate_10_1_4 : (∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
-    sorry
+    simp only [enorm_mul]
+
+    trans ∫⁻ (y : X) in bxprc ∩ bx2r, ENNReal.ofReal (C_K ↑a) / volume (ball x' r) * ‖g y‖ₑ
+    . apply lintegral_mono_fn
+      -- I think a general lemma is missing to make this work on bxrc ∩ bx2r instead of X
+      -- Then pointwise_1 with x₀ = x' proves it
+      sorry
+
+    rw [lintegral_const_mul] -- LHS = 10.1.5 but for x'
+    case hf => apply Measurable.enorm; exact hmg
+
+    trans ENNReal.ofReal (C_K ↑a) / volume (ball x' r) * (globalMaximalFunction volume 1 g x * volume (ball x' (4 * r)))
+    . apply mul_le_mul
+      case h₁ => rfl
+      case c0 | b0 => simp only [zero_le]
+
+      trans ∫⁻ (a : X) in ball x' (4 * r), ‖g a‖ₑ
+      . apply lintegral_mono_set
+        trans bx2r
+        . exact inter_subset_right
+        . apply ball_subset
+          linarith
+
+      rw [tmp5]
+      apply mul_le_mul
+      case h₂ => rfl
+      case c0 =>
+        apply le_of_lt
+        apply measure_ball_pos
+        exact mul_pos zero_lt_four hr
+      case b0 => simp only [zero_le]
+
+      conv in ‖ _ ‖ₑ =>
+        rw [enorm_eq_nnnorm]
+      apply laverage_le_globalMaximalFunction -- Should this be rewritten to ‖ ‖ₑ instead?
+      linarith
+
+    calc _
+      _ = ENNReal.ofReal (C_K ↑a) / volume (ball x' r) * volume (ball x' (4 * r)) * globalMaximalFunction volume 1 g x := by rw [mul_assoc]; nth_rw 2 [mul_comm]
+
+    apply mul_le_mul
+    case h₂ => rfl
+    case c0 | b0 => simp only [zero_le]
+
+    trans ENNReal.ofReal (C_K ↑a) / volume (ball x' r) * ((defaultA a) ^ 2 * volume (ball x' r))
+    . apply mul_le_mul
+      case h₁ => rfl
+      case h₂ => apply measure_ball_four_le_same'
+      case c0 | b0 => simp only [zero_le]
+
+    -- Somehow simp doesn't do it
+    nth_rw 2 [mul_comm]
+    rw [← mul_assoc, div_eq_mul_inv]
+    nth_rw 2 [mul_assoc]
+    conv =>
+      lhs; arg 1; arg 2
+      rw [mul_comm]
+      apply ENNReal.mul_inv_cancel
+      . apply ne_of_gt
+        apply measure_ball_pos
+        exact hr
+      . apply ne_of_lt
+        apply measure_ball_lt_top
+
+    simp only [mul_one, C_K, defaultA]
+    norm_cast
+    apply le_of_eq
+    ring
 
   trans (2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x) + (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x) +
       (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x)
