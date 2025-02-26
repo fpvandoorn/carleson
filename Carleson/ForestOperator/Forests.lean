@@ -109,61 +109,51 @@ variable (t) in
 /-- The definition of `Eⱼ` defined above Lemma 7.7.4. -/
 def rowSupport (j : ℕ) : Set X := ⋃ (u ∈ rowDecomp t j) (p ∈ t u), E p
 
+lemma disjoint_impl {p p' : 𝔓 X} : Disjoint (Ω p) (Ω p') → Disjoint (E p) (E p') := by
+  simp_rw [Set.disjoint_iff,subset_def]
+  intro h x hx
+  exact h (Q x) ⟨Q_mem_Ω hx.left, Q_mem_Ω hx.right⟩
+
+lemma disjoint_of_ne_of_mem {i j : ℕ} {u u' : 𝔓 X} (hne : u ≠ u') (hu : u ∈ t.rowDecomp i) (hu' : u' ∈ t.rowDecomp j)
+  {p p' : 𝔓 X} (hp : p ∈ t u) (hp' : p' ∈ t u') : Disjoint (E p) (E p') := by
+  wlog hsle : 𝔰 p ≤ 𝔰 p'
+  · exact (this hne.symm hu' hu hp' hp (Int.le_of_not_le hsle)).symm
+  -- if x is in the inter, both `Disjoint (Ω p) (Ω p')` and `Q x ∈ Ω p ∩ Ω p'`
+  refine _root_.not_imp_self.mp (fun h => disjoint_impl ?_)
+  simp only [Set.disjoint_iff, subset_def, mem_inter_iff, mem_empty_iff_false, imp_false, not_and,
+    not_forall, Decidable.not_not] at h
+  obtain ⟨x,hxp, hxp'⟩ := h
+  rw [← rowDecomp_apply (j := j)] at hp'
+  have 𝓘_p_le : 𝓘 p ≤ 𝓘 p' := by
+    exact ⟨(fundamental_dyadic hsle).resolve_right <|
+      Set.Nonempty.not_disjoint <|
+      Set.nonempty_of_mem ⟨E_subset_𝓘 hxp,E_subset_𝓘 hxp'⟩, hsle⟩
+  have : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u') := lt_dist t
+    (mem_forest_of_mem hu') (mem_forest_of_mem hu) hne.symm hp
+    <| le_trans 𝓘_p_le (𝓘_le_𝓘 _ hu' hp')
+  have := calc 2 ^ (Z * (n + 1)) - 4
+    _ < dist_(p) (𝒬 p) (𝒬 u') - dist_(p) (𝒬 p') (𝒬 u') :=
+      sub_lt_sub this <| lt_of_le_of_lt (Grid.dist_mono 𝓘_p_le) <| dist_lt_four _ hu' hp'
+    _ ≤ dist_(p) (𝒬 p) (𝒬 p') := by
+      exact le_trans (le_abs_self _) <|
+        abs_dist_sub_le (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)) _ _ _
+  have : 𝒬 p' ∉ ball_(p) (𝒬 p) 1 := by
+    rw [mem_ball (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)),dist_comm]
+    exact not_lt_of_le <| le_trans (calculation_7_7_4 (X := X)) this.le
+  have : ¬(Ω p' ⊆ Ω p) := (fun hx => this <| subset_cball <| hx 𝒬_mem_Ω)
+  exact (relative_fundamental_dyadic 𝓘_p_le).resolve_right this
+
 /-- Lemma 7.7.4 -/
 lemma pairwiseDisjoint_rowSupport :
     (Iio (2 ^ n)).PairwiseDisjoint (rowSupport t) := by
   intro i hi j hj hne
-  rw [onFun_apply]
   have rowDecomp_disjoint : Disjoint (α := Set (𝔓 X)) (t.rowDecomp i) (t.rowDecomp j) := by
     exact (pairwiseDisjoint_rowDecomp (t := t) hi hj hne)
-  rw [Set.disjoint_iff]
-  simp_rw [rowSupport,iUnion_inter_iUnion]
-  intro x
-  simp only [mem_𝔗, mem_iUnion, mem_inter_iff, exists_and_left, exists_prop]
-  rintro ⟨u, u', hu', hu,p,hxp,p',hp',hp,hxp'⟩
-  wlog hsle : 𝔰 p ≤ 𝔰 p'
-  · exact this hj hi hne.symm rowDecomp_disjoint.symm u' u hu hu'
-      p' hxp' p hp hp' hxp (Int.le_of_not_le hsle)
-  rw [← rowDecomp_apply (j := j)] at hp'
-  simp only at hp hp'
-  have hu_ne: u ≠ u' := by
-    rintro rfl
-    rw [Set.disjoint_iff] at rowDecomp_disjoint
-    apply rowDecomp_disjoint
-    exact ⟨hu,hu'⟩
-  have : x ∈ (𝓘 p ∩ 𝓘 p' : Set X) :=
-    Set.inter_subset_inter
-      (E_subset_𝓘)
-      (E_subset_𝓘)
-      ⟨hxp,hxp'⟩
-  have : 𝓘 p ≤ 𝓘 p' := by
-    refine ⟨?_, hsle⟩
-    apply (fundamental_dyadic hsle).elim id
-    exact fun d => (Set.Nonempty.not_disjoint (⟨x,this⟩ : Set.Nonempty _) d).elim
-  have : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u') := by
-    apply lt_dist t (mem_forest_of_mem hu') (mem_forest_of_mem hu) hu_ne.symm
-      hp
-    exact le_trans this (𝓘_le_𝓘 _ hu' hp')
-  have := calc 2 ^ (Z * (n + 1)) - 4
-    _ < 2 ^ (Z * (n + 1)) - dist_(p') (𝒬 p') (𝒬 u') := by
-      gcongr
-      exact dist_lt_four _ hu' hp'
-    _ < dist_(p) (𝒬 p) (𝒬 u') - dist_(p) (𝒬 p') (𝒬 u') := by
-      have : dist_(p) (𝒬 p') (𝒬 u') ≤ dist_(p') (𝒬 p') (𝒬 u') := by
-        refine Grid.dist_mono ‹𝓘 p ≤ 𝓘 p'›
-      linarith -- uses both local and previous this
-    _ ≤ dist_(p) (𝒬 p) (𝒬 p') := by
-      trans
-      · exact le_abs_self _
-      · apply abs_dist_sub_le (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4))
-  have : 𝒬 p' ∉ ball_(p) (𝒬 p) 1 := by
-    rw [mem_ball (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)),dist_comm]
-    contrapose! this
-    trans 1 ; exact this.le
-    exact calculation_7_7_4 (X := X)
-  have : ¬(Ω p' ⊆ Ω p) := (fun hx => this <| subset_cball <| hx 𝒬_mem_Ω)
-  exact Set.disjoint_iff.mp ((relative_fundamental_dyadic ‹𝓘 p ≤ 𝓘 p'›).resolve_right this)
-    ⟨Q_mem_Ω hxp,Q_mem_Ω hxp'⟩
+  clear hi hj hne
+  dsimp [onFun, rowSupport]
+  simp only [disjoint_iUnion_right, disjoint_iUnion_left]
+  intro u hu p hp u' hu' p' hp'
+  exact disjoint_of_ne_of_mem (rowDecomp_disjoint.ne_of_mem hu' hu) hu' hu hp' hp
 
 
 end TileStructure.Forest
