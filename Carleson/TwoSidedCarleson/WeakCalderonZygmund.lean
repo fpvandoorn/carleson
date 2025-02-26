@@ -198,8 +198,8 @@ def czRemainder (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) (x : X) : ℂ :=
 
 /-- Part of Lemma 10.2.5, this is essentially (10.2.16) (both cases). -/
 def tsum_czRemainder' (hf : BoundedFiniteSupport f) (hX : GeneralCase f α) (x : X) :
-      ∑ᶠ i, czRemainder' hf hX i x = czRemainder hf α x := by
-    sorry
+    ∑ᶠ i, czRemainder' hf hX i x = czRemainder hf α x := by
+  sorry
 
 /-- Part of Lemma 10.2.5 (both cases). -/
 lemma measurable_czApproximation {hf : BoundedFiniteSupport f} :
