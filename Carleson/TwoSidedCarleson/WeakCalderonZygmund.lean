@@ -60,7 +60,7 @@ theorem ball_covering {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
       ∀ x ∈ O, Cardinal.mk { i | x ∈ ball (c i) (3 * r i)} ≤ (2 ^ (6 * a) : ℕ) := by
   sorry
 
-/-! ### Remarks about Lemma 10.2.5
+/-! ### Lemma 10.2.5
 
 Lemma 10.2.5 has an annoying case distinction between the case `E_α ≠ X` (general case) and
 `E_α = X` (finite case). It isn't easy to get rid of this case distinction.

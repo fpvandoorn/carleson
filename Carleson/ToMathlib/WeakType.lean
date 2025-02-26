@@ -596,6 +596,8 @@ lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c)
     [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [BoundedSMul 𝕜 E'] (k : 𝕜) :
     HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
+  intro f hf
+  refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
   sorry
 
 lemma HasWeakType.const_mul {E' α α' : Type*} [NormedRing E']

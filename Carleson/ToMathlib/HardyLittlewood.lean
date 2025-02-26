@@ -71,7 +71,8 @@ variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
   {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}
   -- feel free to assume `A ≥ 16` or similar
 
-/-- Use the dominated convergence theorem [Folland, Lemma 3.16] -/
+/-- Use the dominated convergence theorem
+e.g. [Folland, Real Analysis. Modern Techniques and Their Applications, Lemma 3.16] -/
 lemma continuous_average_ball (hf : LocallyIntegrable f μ) :
     ContinuousOn (fun x : X × ℝ ↦ ⨍⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
   sorry
