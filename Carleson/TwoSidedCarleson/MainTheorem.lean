@@ -26,10 +26,11 @@ variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a
 /- Theorem 10.0.1 -/
 theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (hT : ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts a))
+    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {f : X → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, carlesonOperator K f x ≤
     C10_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
+  -- note: you might need to case on whether `volume F` is `∞` or not.
   sorry
 
 

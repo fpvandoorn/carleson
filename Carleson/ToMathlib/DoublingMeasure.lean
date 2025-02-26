@@ -212,6 +212,7 @@ variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 -- #check (@measure_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
 
 end
+/-
 def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := As A s -- maybe wrong
 
 lemma measure_ball_le_of_subset {x' x : X} {r r' s : ℝ}
@@ -252,6 +253,7 @@ lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X
     (hf : LocallyIntegrable f μ) {x : X} :
     Tendsto (fun δ ↦ ⨍ y in ball x δ, f y ∂μ) (𝓝[>] 0) (𝓝 (f x)) :=
   sorry
+-/
 
 end PseudoMetric
 

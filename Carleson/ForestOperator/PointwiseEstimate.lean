@@ -200,7 +200,7 @@ protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ
   convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
-variable (t) (u) in private def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
+variable (t) (u) in def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
   { J | J ∈ 𝓙 (t u) ∧ (J : Set X) ⊆ ball x (16 * D ^ i) ∧ s J ≤ i }
 
 private lemma mem_𝓙_of_mem_𝓙' {x : X} {i : ℤ} {J : Grid X} : J ∈ 𝓙' t u x i → J ∈ 𝓙 (t u) := by
@@ -208,38 +208,47 @@ private lemma mem_𝓙_of_mem_𝓙' {x : X} {i : ℤ} {J : Grid X} : J ∈ 𝓙'
   simp only [𝓙', Finset.mem_filter] at hJ
   exact hJ.2.1
 
+variable (f I J) in
+/-- Scaled integral appearing in the definition of `boundaryOperator`. -/
+def ijIntegral : ℝ≥0∞ :=
+  D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in J, ‖f y‖₊
+
+lemma ijIntegral_lt_top (hf : BoundedCompactSupport f) : ijIntegral f I J < ⊤ := by
+  refine ENNReal.mul_lt_top ?_ hf.integrable.integrableOn.2
+  apply ENNReal.div_lt_top (by simp)
+  exact (measure_ball_pos volume _ <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))).ne'
+
 variable (t) in
 /-- The operator `S_{1,𝔲} f(x)`, given in (7.1.4). -/
 def boundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ∑ I : Grid X, (I : Set X).indicator (x := x) fun _ ↦ ∑ J ∈ 𝓙' t u (c I) (s I),
-  D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in (J : Set X), ‖f y‖₊
+  ∑ I : Grid X, (I : Set X).indicator (fun _ ↦ ∑ J ∈ 𝓙' t u (c I) (s I), ijIntegral f I J) x
 
-protected theorem MeasureTheory.Measurable.boundaryOperator {u : 𝔓 X} {f : X → ℂ} :
-    Measurable (t.boundaryOperator u f) := by
+lemma measurable_boundaryOperator {u : 𝔓 X} {f : X → ℂ} : Measurable (t.boundaryOperator u f) := by
   refine Finset.measurable_sum _ (fun I _ ↦ ?_)
   exact (Finset.measurable_sum _ (fun J _ ↦ measurable_const)).indicator coeGrid_measurable
 
--- Currently unused; uncomment if needed.
-/- lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperator u f x < ⊤ := by
+lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperator u f x < ⊤ := by
   refine ENNReal.sum_lt_top.mpr (fun I _ ↦ ?_)
   by_cases hx : x ∈ (I : Set X)
   · rw [indicator_of_mem hx]
-    refine ENNReal.sum_lt_top.mpr (fun J hJ ↦ ENNReal.mul_lt_top ?_ hf.integrable.integrableOn.2)
-    apply ENNReal.div_lt_top (by simp)
-    exact ne_of_gt <| measure_ball_pos volume _ <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
-  · simp [hx] -/
+    exact ENNReal.sum_lt_top.mpr (fun _ _ ↦ ijIntegral_lt_top hf)
+  · simp [hx]
+
+
+/- Number of additional exponents we have to include in `𝓑`. Feel free to increase if needed. -/
+def 𝓑max : ℕ := 3
 
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
-def 𝓑 : Set (ℕ × Grid X) := Icc 0 (S + 5) ×ˢ univ
+def 𝓑 : Set (ℕ × ℕ × Grid X) := Iic (S + 5) ×ˢ Iic 𝓑max ×ˢ univ
 
 /-- The center function for the collection of balls 𝓑. -/
-def c𝓑 (z : ℕ × Grid X) : X := c z.2
+def c𝓑 (z : ℕ × ℕ × Grid X) : X := c z.2.2
 
 /-- The radius function for the collection of balls 𝓑. -/
-def r𝓑 (z : ℕ × Grid X) : ℝ := 2 ^ z.1 * D ^ s z.2
+def r𝓑 (z : ℕ × ℕ × Grid X) : ℝ := 2 ^ z.1 * D ^ (s z.2.2 + z.2.1)
 
 lemma 𝓑_finite : (𝓑 (X := X)).Finite :=
-  finite_Icc .. |>.prod finite_univ
+  finite_Iic _ |>.prod <| finite_Iic _ |>.prod finite_univ
 
 /-- Lemma 7.1.1, freely translated. -/
 lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
@@ -515,16 +524,16 @@ private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' 
     {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p) :
     (∫⁻ y in ball (𝔠 p) (16 * D ^ 𝔰 p), ‖g y‖₊) / volume (ball (𝔠 p) (16 * D ^ 𝔰 p)) ≤
     MB volume 𝓑 c𝓑 r𝓑 g x' := by
-  have mem_𝓑 : ⟨4, 𝓘 p⟩ ∈ 𝓑 := by simp [𝓑]
+  have mem_𝓑 : (4, 0, 𝓘 p) ∈ 𝓑 := by simp [𝓑]
   convert le_biSup (hi := mem_𝓑) <| fun i ↦ ((ball (c𝓑 i) (r𝓑 i)).indicator (x := x') <|
     fun _ ↦ ⨍⁻ y in ball (c𝓑 i) (r𝓑 i), ‖g y‖₊ ∂volume)
-  · have x'_in_ball : x' ∈ ball (c𝓑 (4, 𝓘 p)) (r𝓑 (4, 𝓘 p)) := by
-      simp only [c𝓑, r𝓑, _root_.s]
+  · have x'_in_ball : x' ∈ ball (c𝓑 (4, 0, 𝓘 p)) (r𝓑 (4, 0, 𝓘 p)) := by
+      simp_rw [c𝓑, r𝓑, _root_.s, Nat.cast_zero, add_zero]
       have : x' ∈ 𝓘 p := subset_of_mem_𝓛 hL pu (not_disjoint_iff.mpr ⟨x, xp.1, hx⟩) hx'
       refine Metric.ball_subset_ball ?_ <| Grid_subset_ball this
       linarith [defaultD_pow_pos a (GridStructure.s (𝓘 p))]
-    have hc𝓑 : 𝔠 p = c𝓑 (4, 𝓘 p) := by simp [c𝓑, 𝔠]
-    have hr𝓑 : 16 * D ^ 𝔰 p = r𝓑 (4, 𝓘 p) := by rw [r𝓑, 𝔰]; norm_num
+    have hc𝓑 : 𝔠 p = c𝓑 (4, 0, 𝓘 p) := by simp [c𝓑, 𝔠]
+    have hr𝓑 : 16 * D ^ 𝔰 p = r𝓑 (4, 0, 𝓘 p) := by rw [r𝓑, 𝔰]; norm_num
     simp [-defaultD, laverage, x'_in_ball, ENNReal.div_eq_inv_mul, hc𝓑, hr𝓑]
   · simp only [MB, maximalFunction, ENNReal.rpow_one, inv_one]
 
@@ -533,6 +542,8 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     (hf : BoundedCompactSupport f) :
     ‖∑ i ∈ t.σ u x, ∫ y, (exp (.I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y * f y ‖₊ ≤
     C7_1_4 a * MB volume 𝓑 c𝓑 r𝓑 (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
+  let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
+  let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   set g := approxOnCube (𝓙 (t u)) (‖f ·‖)
   let q (y : X) := -𝒬 u y + Q x y + 𝒬 u x - Q x x
   by_cases hσ : (t.σ u x).Nonempty; swap

@@ -96,6 +96,8 @@ def E (p : 𝔓 X) : Set X :=
 
 lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
 
+lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
+
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
   · rw [← measurableSet_setOf]; exact coeGrid_measurable
@@ -534,6 +536,14 @@ lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
   simp_rw [Finset.filter_filter]
   congr
 
+lemma stackSize_inter_add_stackSize_sdiff :
+    stackSize (C ∩ C') x + stackSize (C \ C') x = stackSize C x :=
+  stackSize_setOf_add_stackSize_setOf_not
+
+lemma stackSize_sdiff_eq (x : X) :
+  stackSize (C \ C') x = stackSize C x - stackSize (C ∩ C') x := by
+  exact Nat.eq_sub_of_add_eq' stackSize_inter_add_stackSize_sdiff
+
 lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
     stackSize C x = stackSize C x' := by
   refine Finset.sum_congr rfl fun p hp ↦ ?_
@@ -572,6 +582,17 @@ lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
         indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at hp hx ⊢
       exact hx _ hp
     linarith
+
+lemma eq_empty_of_forall_stackSize_zero (s : Set (𝔓 X)) :
+  (∀ x, stackSize s x = 0) → s = ∅ := by
+  intro h
+  dsimp [stackSize] at h
+  simp only [Finset.sum_eq_zero_iff, Finset.mem_filter, Finset.mem_univ, true_and,
+    indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at h
+  ext 𝔲
+  simp only [mem_empty_iff_false, iff_false]
+  obtain ⟨x,hx⟩ := (𝓘 𝔲).nonempty
+  exact fun h𝔲 => h x 𝔲 h𝔲 hx
 
 /-! ### Decomposing a set of tiles into disjoint subfamilies -/
 

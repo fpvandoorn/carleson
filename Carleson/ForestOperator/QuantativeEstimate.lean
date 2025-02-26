@@ -24,7 +24,7 @@ irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ (101 * (a : ℝ) ^ 3)
 
 /-- Lemma 7.3.2. -/
 lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
-    volume (L ∩ ⋃ (p ∈ t u), E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
+    volume (L ∩ G ∩ ⋃ (p ∈ t u), E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
   sorry
 
 /-- The constant used in `local_dens2_tree_bound`.
@@ -47,6 +47,7 @@ irreducible_def C7_3_1_1 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
 /-- First part of Lemma 7.3.1. -/
 lemma density_tree_bound1
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
+    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_1 a *  dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
@@ -60,8 +61,9 @@ irreducible_def C7_3_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (256 * (a : ℝ) ^ 3)
 /-- Second part of Lemma 7.3.1. -/
 lemma density_tree_bound2 -- some assumptions on f are superfluous
     (hf : BoundedCompactSupport f)
-    (h4f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : BoundedCompactSupport g)
+    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hu : u ∈ t) :
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * dens₂ (t u) ^ (2 : ℝ)⁻¹ *

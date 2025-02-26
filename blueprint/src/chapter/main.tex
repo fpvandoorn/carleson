@@ -4308,12 +4308,12 @@ $$
     :=\sum_{I\in\mathcal{D}} \mathbf{1}_{I}(x) \sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\
     J\subset B(c(I), 16 D^{s(I)})\\ s(J) \le s(I)}} \frac{D^{(s(J) - s(I))/a}}{\mu(B(c(I), 16D^{s(I)}))}\int_J |f(y)| \, \mathrm{d}\mu(y)\,.
 \end{equation}
-%changed definition
+%changed definition (2x)
 Define also the collection of balls
 $$
-    \mathcal{B} = \{B(c(I), 2^s D^{s(I)}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\}\,.
+    \mathcal{B} = \{B(c(I), 2^s D^{s(I)+t}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\,, 0 \le t \le 3\}\,.
 $$
-%changed definition.
+%changed definition. (2x) We can increase the 3 further, if desired
 
 The following pointwise estimate for operators associated to sets $\fT(\fu)$ is the main result of this subsection.
 
@@ -4333,8 +4333,8 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
     \end{equation}
 \end{lemma}
 
-
 \begin{proof}
+    \leanok
     By \eqref{definetp}, if $T_{\fp}[ e(-\fcc(\fu))f](x) \ne 0$, then $x \in E(\fp)$. Combining this with $|e(\fcc(\fu)(x))| = 1$, we obtain
     $$
         |\sum_{\fp \in \fT(\fu)} T_{\fp}[ e(-\fcc(\fu))f](x)|
@@ -4723,6 +4723,7 @@ We need the following lemma to prepare the $L^2$-estimate for the auxiliary oper
 Now we can bound the operators $S_{1, \fu}$.
 
 \begin{proof}[Proof of \Cref{boundary-operator-bound}]
+    \leanok
     \proves{boundary-operator-bound}
     Note that by definition, $S_{1,\fu}f$ is a finite sum of indicator functions of cubes $I \in \mathcal{D}$ for each locally integrable $f$, and hence is bounded, has bounded support and is integrable. Let $g$ be another function with the same three properties. Then $\bar g S_{1,\fu}f$ is integrable, and we have
     $$
@@ -4740,20 +4741,15 @@ Now we can bound the operators $S_{1, \fu}$.
     \label{eq-boundary-operator-bound-1}
         \le \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y) \sum_{\substack{I \in \mathcal{D} \, : \, J\subset B(c(I),16 D^{s(I)})\\ s(I) \ge s(J)}} D^{(s(J)-s(I))/a}.
     \end{align}
-    By \Cref{boundary-overlap}, there are at most $2^{9a}$ cubes $I$ at each scale with $J \subset B(c(I), D^{s(I)})$.
-    By convexity of $t \mapsto D^t$ and since $D \ge 2$, we have for all $-1 \le t \le 0$
+    By \Cref{boundary-overlap}, there are at most $2^{9a}$ cubes $I$ at each scale with $J \subset B(c(I),16D^{s(I)})$.
+    Since $D^{-1/a}\le\frac12$, $(1 - D^{-1/a})^{-1} \le 2$.
+    Using this estimate for the sum of the geometric series, we conclude that \eqref{eq-boundary-operator-bound-1} is at most
     $$
-        D^t \le 1 + t\left(1 - \frac{1}{D}\right) \le 1 + \frac{1}{2}t\,,
-    $$
-    so $(1 - D^{-1/a})^{-1} \le 2a \le 2^{a-1}$.
-    Using this estimate for the sum of the geometric series,
-    we conclude that \eqref{eq-boundary-operator-bound-1} is at most
-    $$
-        2^{10a-1} \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
+        2^{9a+1} \sum_{J\in\mathcal{J}(\fT(\fu))}\int_J|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
     The collection $\mathcal{J}$ is a partition of $\bigcup_{I \in \mathcal{D}} I$, so this equals
     $$
-        2^{11a-1} \int_X|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
+        2^{9a+1} \int_X|f(y)| M_{\mathcal{B},1}|g|(y) \, \mathrm{d}\mu(y)\,.
     $$
     Using Cauchy-Schwarz and \Cref{Hardy-Littlewood}, we conclude
     $$
@@ -4771,12 +4767,13 @@ The main result of this subsection is the following quantitative bound for opera
     \leanok
     \lean{TileStructure.Forest.density_tree_bound1, TileStructure.Forest.density_tree_bound2}
     \uses{tree-projection-estimate,local-dens1-tree-bound,local-dens2-tree-bound}
-    Let $\fu \in \fU$. Then for all $f,g$ bounded with bounded support
+    Let $\fu \in \fU$. Then for all bounded $f$ with bounded support and $g$ with $|g| \le \mathbf{1}_G$
+    we have
     \begin{equation}
         \label{eq-cor-tree-est}
         \left|\int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f \, \mathrm{d}\mu \right| \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
     \end{equation}
-    If $|f| \le \mathbf{1}_F$, then we have
+    If additionally $|f| \le \mathbf{1}_F$, then we have
     \begin{equation}
         \label{eq-cor-tree-est-F}
         \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f\, \mathrm{d}\mu \right| \le 2^{256a^3} \dens_1(\fT(\fu))^{1/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
@@ -4793,7 +4790,7 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Then
     \begin{equation}
     \label{eq-1density-estimate-tree}
-        \mu(L \cap \bigcup_{\fp \in \fT(\fu)} E(\fp)) \le 2^{101a^3} \dens_1(\fT(\fu)) \mu(L)\,.
+        \mu(L \cap G \cap \bigcup_{\fp \in \fT(\fu)} E(\fp)) \le 2^{101a^3} \dens_1(\fT(\fu)) \mu(L)\,.
     \end{equation}
 \end{lemma}
 
@@ -5004,7 +5001,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_estimate}
     \uses{densities-tree-bound}
-    For all bounded $g$ with bounded support, we have that
+    For all $g$ with $|g| \le \mathbf{1}_G$, we have that
     $$
         \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
     $$
@@ -5012,7 +5009,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 
 \begin{proof}
     \leanok
-    By \Cref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
+    By \Cref{densities-tree-bound}, we have for all bounded $f$ and $g$ with $|g| \le \mathbf{1}_G$ that
     $$
         \left| \int_X \overline{\sum_{\fp\in \fT(\fu)} T_{\fp}^* g} f \,\mathrm{d}\mu \right| = \left| \int_X \overline{g} \sum_{\fp \in \fT(\fu)} T_{\fp} f \,\mathrm{d}\mu \right|
     $$
@@ -5020,7 +5017,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
         \label{eq-adjoint-bound}
         \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2 \|f\|_2\,.
     \end{equation}
-    Let $f = \sum_{\fp \in \fT(\fu)} T_{\fp}^* g$. If $g$ is bounded and has bounded support, then the same is true for $f$. In particular $\|f\|_2 < \infty$. Dividing \eqref{eq-adjoint-bound} by $\|f\|_2$ completes the proof.
+    Let $f = \sum_{\fp \in \fT(\fu)} T_{\fp}^* g$. Since $|g| \le \mathbf{1}_G$, $f$ is bounded and has bounded support. In particular $\|f\|_2 < \infty$. Dividing \eqref{eq-adjoint-bound} by $\|f\|_2$ completes the proof.
 \end{proof}
 
 We define
@@ -5032,7 +5029,7 @@ $$
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_control}
     \uses{adjoint-tree-estimate}
-    We have for all $\fu \in \fU$ and bounded $g$ with bounded support
+    We have for all $\fu \in \fU$ and $g$ with $|g| \le \mathbf{1}_G$
     $$
         \|S_{2, \fu} g\|_2 \le 2^{156a^3} \|g\|_2\,.
     $$
@@ -5210,7 +5207,7 @@ $$
         \proves{Lipschitz-partition-unity}
         For each cube $J \in \mathcal{J}$ let
         $$
-            \tilde\chi_J(y) = \max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
+            \tilde\chi_J(y) = \mathbf{1}_{\scI(\fu_1)}(y)\max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
         $$
         and set
         $$
@@ -5324,6 +5321,7 @@ $$
     \end{lemma}
 
     \begin{proof}
+        \leanok
         By \eqref{definetp*}, we have
         $$
             |e(\fcc(\fu)(y)) T_{\fp}^* g(y) - e(\fcc(\fu)(y')) T_{\fp}^* g(y')|
@@ -5349,11 +5347,13 @@ $$
         $$
       \begin{equation}
             \label{eq-lem-tile-Holder-comp}
-            \le d_{B(y, \rho(y,y'))}(\tQ(x), \fcc(\fu))\,.
+            \le d_{B(y, 1.6\rho(y,y'))}(\tQ(x), \fcc(\fu))\,.
         \end{equation}
-        Suppose that $y, y' \in B(\pc(\fp), 5D^{\ps(\fp)})$, so that $\rho(y,y') \le 10D^{\ps(\fp)}$. Let $k \in \mathbb{Z}$ be such that $2^{ak}\rho(y,y') \le 10D^{\ps(\fp)}$ but $2^{a(k+1)} \rho(y,y') > 10D^{\ps(\fp)}$. In particular, $k \ge 0$. Then, using \eqref{firstdb}, we can bound \eqref{eq-lem-tile-Holder-comp} from above by
+        Suppose that $y, y' \in B(\pc(\fp), 5D^{\ps(\fp)})$, so that $\rho(y,y') \le 10D^{\ps(\fp)}$.
+        Let $k \in \mathbb{Z}$ be such that $2^{ak}\rho(y,y') \le 10D^{\ps(\fp)}$ but $2^{a(k+1)} \rho(y,y') > 10D^{\ps(\fp)}$.
+        In particular, $k \ge 0$. Then, using \eqref{seconddb} followed by \eqref{firstdb}, we can bound \eqref{eq-lem-tile-Holder-comp} from above by
         $$
-            2^{-k} d_{B(\pc(\fp), 10 D^{\ps(\fp)})}(\tQ(x), \fcc(\fu)) \le 2^{6a - k} d_{\fp}(\tQ(x), \fcc(\fu))\,.
+            2^{-k} d_{B(\pc(\fp), 16 D^{\ps(\fp)})}(\tQ(x), \fcc(\fu)) \le 2^{6a - k} d_{\fp}(\tQ(x), \fcc(\fu))\,.
         $$
         Since $x \in E(\fp)$ we have $\tQ(x) \in \Omega(\fp) \subset B_{\fp}(\fcc(\fp), 1)$, and since $\fp \in \fT(\fu)$ we have $\fcc(\fu) \in B_{\fp}(\fcc(\fp), 4)$, so this is estimated by
         $$
@@ -5361,12 +5361,12 @@ $$
         $$
         By definition of $k$, we have
         $$
-            k \le \frac{1}{a} \log_2\left(\frac{10 D^{\ps(\fp)}}{\rho(y,y')}\right)\,,
+            -k < 1 - \frac{1}{a} \log_2\left(\frac{10 D^{\ps(\fp)}}{\rho(y,y')}\right)\,,
         $$
         which gives
       \begin{equation}
             \label{eq-lem-Tile-holder-im1}
-             |-\tQ(x)(y) + \tQ(x)(y') + \fcc(\fu)(y) - \fcc(\fu)(y')| \le 5 \cdot 2^{6a} \left(\frac{\rho(y,y')}{10 D^{\ps(\fp)}}\right)^{1/a}\,.
+             |-\tQ(x)(y) + \tQ(x)(y') + \fcc(\fu)(y) - \fcc(\fu)(y')| \le 10 \cdot 2^{6a} \left(\frac{\rho(y,y')}{10 D^{\ps(\fp)}}\right)^{1/a}\,.
         \end{equation}
         For all $x \in \scI(\fp)$, we have by \eqref{doublingx} that
         $$
@@ -5378,7 +5378,7 @@ $$
             \eqref{T*Holder1b}+\eqref{T*Holder1} \le \frac{2^{3a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)}|g(x)| \, \mathrm{d}\mu(x) \times
         $$
         $$
-            (2^{102a^3} \cdot 5 \cdot 2^{6a} \left(\frac{\rho(y,y')}{ D^{\ps(\fp)}}\right)^{1/a} + 2^{150a^3} \left(\frac{\rho(y,y')}{D^{\ps(\fp)}}\right)^{1/a})
+            (2^{102a^3} \cdot 10 \cdot 2^{6a} \left(\frac{\rho(y,y')}{ D^{\ps(\fp)}}\right)^{1/a} + 2^{150a^3} \left(\frac{\rho(y,y')}{D^{\ps(\fp)}}\right)^{1/a})
         $$
         Since $\rho(y,y') \le 10 D^{\ps(\fp)}$, we conclude
         $$
@@ -5413,7 +5413,7 @@ $$
         $$
         Further, we obtain from the doubling property \eqref{doublingx} and \eqref{eq-vol-sp-cube} that
         $$
-            \mu(B(x, D^s)) \ge 2^{-2a} \mu(\pc(\fp), 4D^s)\,.
+            \mu(B(x, D^{\ps(\fp)})) \ge 2^{-3a} \mu(B(\pc(\fp), 4D^{\ps(\fp)}))\,.
         $$
         Plugging this into \eqref{eq-lem-Tile-holder-im2} and using $a \ge 4$, we get
         $$
@@ -5495,6 +5495,7 @@ $$
     \end{lemma}
 
     \begin{proof}
+        \leanok
         By the triangle inequality and since $T_{\fp}^* g = \mathbf{1}_{B(\pc(\fp), 5D^{\ps(\fp)})} T_{\fp}^* g$, we have
         $$
             \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus\mathfrak{S}}^* g|
@@ -5517,9 +5518,10 @@ $$
         $$
             2^{103a^3}\sum_{s = s(J)}^{s(J) + 3} \sum_{\substack{\fp \in \fP, \ps(\fp) = s\\B(\scI(\fp)) \cap B^\circ(J) \ne \emptyset}} \frac{1}{\mu(B(c(J), 16 D^s)} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
         $$
-        For each $I \in \mathcal{D}$, the sets $E(\fp)$ for $\fp \in \fP$ with $\scI(\fp) = I$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}. Further, if $B(\scI(\fp)) \cap B^\circ(J) \ne \emptyset$ and $\ps(\fp) \ge s(J)$, then $E(\fp) \subset B(c(J), 32 D^{\ps(\fp)})$. Thus the last display is bounded by
+        For each $I \in \mathcal{D}$, the sets $E(\fp)$ for $\fp \in \fP$ with $\scI(\fp) = I$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}.
+        Further, if $B(\scI(\fp)) \cap B^\circ(J) \ne \emptyset$ and $\ps(\fp) \ge s(J)$, then $E(\fp) \subset B(c(J), 16 D^{\ps(\fp)})$. Thus the last display is bounded by
         $$
-            2^{103a^3}\sum_{s = s(J)}^{s(J) + 3} \frac{1}{\mu(B(c(J), 32 D^s))} \int_{B(c(J), 16 D^s)} |g| \, \mathrm{d}\mu\,.
+            2^{103a^3}\sum_{s = s(J)}^{s(J) + 3} \frac{1}{\mu(B(c(J), 16 D^s))} \int_{B(c(J), 16 D^s)} |g| \, \mathrm{d}\mu\,.
         $$
         $$
             \le \inf_{x' \in J} 2^{103a^3 +2} M_{\mathcal{B}, 1} |g|\,.
@@ -5800,9 +5802,9 @@ $$
     \end{lemma}
 
     \begin{proof}
-        Suppose that $\ps(\fp) > s(J) + 2 -\frac{Zn}{202a^3} =: s(J) - s_1$. Then, we have
+        Suppose that $\ps(\fp) > s(J) + 2 -\frac{Zn}{202a^3} =: s(J) - s_1$. Then, we have $s_1 + 2 \ge 0$ so
         $$
-            \rho(\pc(\fp), c(J)) \le 8D^{s(J)}+8D^{\ps(\fp)} \le 16 D^{\ps(\fp) + s_1}\,.
+            \rho(\pc(\fp), c(J)) \le 8D^{s(J)}+8D^{\ps(\fp)} \le 16 D^{\ps(\fp) + s_1 + 2}\,.
         $$
         There exists a tile $\fq \in \fT(\fu_1)$. By \eqref{forest1}, it satisfies $\scI(\fq) \subsetneq \scI(\fu_1)$. Thus $\scI(\fu_1) \notin \mathcal{J}'$. It follows that $J \subsetneq \scI(\fu_1)$. By \eqref{coverdyadic} and \eqref{dyadicproperty}, there exists a cube $J' \in \mathcal{D}$ with $J \subset J'$ and $s(J') = s(J) + 1$. By definition of $\mathcal{J}'$, there exists a tile $\fp' \in \fT(\fu_1)$ with
         $$
@@ -5810,31 +5812,31 @@ $$
         $$
         By the triangle inequality, the definition \eqref{defineD} and $a \ge 4$, we have
         $$
-            B(c(J'), 100 D^{s(J')+1}) \subset B(\pc(\fp), 128 D^{\ps(\fp) + s_1 + 1})\,.
+            B(c(J'), 100 D^{s(J')+1}) \subset B(\pc(\fp), 128 D^{\ps(\fp) + s_1 + 3})\,.
         $$
         Since $\fp' \in \fT(\fu_1)$ and $\scI(\fu_1) \subset \scI(\fu_2)$, we have by \eqref{forest5}
         $$
             d_{\fp'}(\fcc(\fp'), \fcc(\fu_2)) > 2^{Z(n+1)}\,.
         $$
-        Hence, by \eqref{forest1}, the triangle inequality and using that by \eqref{defineZ} $Z \ge 2$
+        Hence, by \eqref{forest1}, the triangle inequality and using that by \eqref{defineZ} $Z(n+1) = 2^{12a}(n+1) \ge 3$
         $$
-            d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) > 2^{Z(n+1)} - 4 \ge 2^{Zn}\,.
+            d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) > 2^{Z(n+1)} - 4 \ge 2^{Z(n+1) - 1}\,.
         $$
         It follows that
         $$
-            2^{Zn} \le d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) \le d_{B(\pc(\fp), 128 D^{\ps(\fp) + s_1+ 1})}(\fcc(\fu_1), \fcc(\fu_2))\,.
+            2^{Z(n+1)-1} \le d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) \le d_{B(\pc(\fp), 128 D^{\ps(\fp) + s_1+ 3})}(\fcc(\fu_1), \fcc(\fu_2))\,.
         $$
         Using \eqref{firstdb}, we obtain
         $$
-            \le 2^{9a + 100a^3 (s_1+1)} d_{\fp}(\fcc(\fu_1), \fcc(\fu_2))\,.
+            \le 2^{9a + 100a^3 (s_1+3)} d_{\fp}(\fcc(\fu_1), \fcc(\fu_2))\,.
         $$
         Since $\fp' \notin \mathfrak{S}$ this is bounded by
         $$
-            \le 2^{9a + 100a^3 (s_1+1)} 2^{Zn/2}\,.
+            \le 2^{9a + 100a^3 (s_1+3)} 2^{Zn/2}\,.
         $$
         Thus
         $$
-            Z n/2 \le 9a + 100a^3(s_1 + 1)\,,
+            Z n/2 + Z - 1 \le 9a + 100a^3(s_1 + 3)\,,
         $$
         contradicting the definition of $s_1$.
     \end{proof}
@@ -5985,6 +5987,7 @@ Define an $n$-row to be an $n$-forest $(\fU, \fT)$, i.e. satisfying conditions \
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Define recursively $\fU_j$ to be a maximal disjoint set of tiles $\fu$ in
     $$
         \fU \setminus \bigcup_{j' < j} \fU_{j'}
@@ -6005,7 +6008,8 @@ as in \Cref{forest-row-decomposition}.
     \leanok
     \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{densities-tree-bound,adjoint-tile-support}
-    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support, we have
+    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$,
+    we have
     \begin{equation}
         \label{eq-row-bound-1}
         \left\| \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
@@ -6053,7 +6057,7 @@ as in \Cref{forest-row-decomposition}.
     \leanok
     \lean{TileStructure.Forest.row_correlation}
     \uses{adjoint-tree-control,correlation-separated-trees}
-    For all $1 \le j < j' \le 2^n$ and for all bounded $g_1, g_2$ with bounded support, it holds that
+    For all $1 \le j < j' \le 2^n$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
     $$
         \left| \int \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \sum_{\fp \in \fT_j(\fu)} \sum_{\fp' \in \fT_{j'}(\fu')} T^*_{\fp} g_1 \overline{T^*_{\fp'} g_2} \, \mathrm{d}\mu \right| \le
         2^{862a^3-3n}\|g_1\|_2 \|g_2\|_2\,.
@@ -6822,6 +6826,7 @@ Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD} and \Cref{subsec-cotlar} h
     \end{equation*}
 \end{lemma}
 \begin{proof}
+    \leanok
     By convexity, for all $0\le\lambda\le1$
     \begin{equation*}
         2^{\lambda(-\frac{1}{4})} \le \lambda 2^{-\frac{1}{4}} + (1-\lambda)2^0.
@@ -7202,7 +7207,7 @@ The inequality still holds when taking the suprema over $R_1<R_2$ and $\rho(x,x'
 \end{proof}
 
 \begin{proof}[Proof of \Cref{nontangential-from-simple}]
-    \proves{nontangential-Hilbert}
+    \proves{nontangential-from-simple}
 Fix $g$ as in the Lemma.
 Applying \Cref{simple-nontangential-operator} with a
 sequence of $r$ tending to $0$ and using Lebesgue monotone convergence shows
@@ -7244,8 +7249,10 @@ It is classical and can be found in \cite{stein-book}.
 
 The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref{Hardy-Littlewood}.
 %fixme: Incorporate this into Hardy-Littlewood?
-\begin{lemma} [Maximal theorem]
+\begin{lemma}[Maximal theorem]
     \label{maximal-theorem}
+    \leanok
+    \lean{maximal_theorem}
     \uses{Hardy-Littlewood}
     Let $f: X \to \C$ be bounded, measurable, supported on a set of finite measure, and let $\alpha > 0$. Then
     \begin{equation}
@@ -7254,6 +7261,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     \end{equation}
 \end{lemma}
 \begin{proof}
+    \leanok
     By definition, for each $x\in X$ with $Mf(x) > \alpha$, there exists a ball $B_x$ such that $x\in B_x$ and
     \begin{equation}
         \label{maximal-theorem-a}
@@ -7277,7 +7285,8 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 
 \begin{lemma}[Lebesgue differentiation]
     \label{Lebesgue-differentiation}
-    \lean{VitaliFamily.ae_tendsto_average}
+    \leanok
+    \lean{lebesgue_differentiation}
     Let $f$ be a bounded measurable function supported on a set of finite measure. Then for $\mu$ almost every $x$, we have
     $$\lim_{n\to \infty} \frac{1}{\mu(B_n)}\int_{B_n} f(y)\, dy= f(x),$$
     where $\{B_n\}_{n\geq 1}$ is a sequence of balls with radii $r_n>0$ such that $x\in B_n$ for each $n\geq 1$ and
@@ -7286,16 +7295,20 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     \end{equation*}
 \end{lemma}
 \begin{proof}
+    \leanok
     This follows from the Lebesgue differentiation theorem, which is already formalized in Lean.
     %fixme: Check that the Lean version really implies this version of Lebesgue differentiation.
 \end{proof}
 
-%fixme: The following is probably part of mathlib (for a second countable topology?)
+% This is in Mathlib.
 \begin{lemma}[Disjoint family countable]
+    \leanok
+    \lean{Pairwise.countable_of_isOpen_disjoint}
     \label{disjoint-family-countable}
     In a doubling metric measure space $(X,\rho,\mu, a)$, every disjoint family of balls $B_j = B(x_j, r_j)$, $j\in J$, is countable.
 \end{lemma}
 \begin{proof}
+    \leanok
     Choose an arbitrary $x\in X$ as reference point. For $q, Q\in\Q_+$, let $J_{q,Q}$ denote the set of all $j\in J$ such that $B_j\subset B(x, Q)$ and $r_j \ge q$. It suffices to show that all the $J_{q,Q}$ are finite.
     Indeed, for all $j\in J_{q,Q}$,
     \begin{equation*}
@@ -7312,6 +7325,8 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
 \begin{lemma}[Ball covering]
     \label{ball-covering}
+    \leanok
+    \lean{ball_covering}
     \uses{disjoint-family-countable}
     Given an open set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
     \begin{equation}
@@ -7385,9 +7400,13 @@ and conclude $N\le 2^{6a}$.
 Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-book}.
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
+    \leanok
+    \lean{cardinalMk_czBall3_le, tsum_czRemainder', measurable_czApproximation, czApproximation_add_czRemainder, norm_czApproximation_le, norm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
     Let $f$ be a bounded, measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
-    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$) such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
+    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
+    % Do we actually need this parenthetical?
+    such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
        f(x)= g(x) + \sum_{j} b_j(x)
@@ -7550,6 +7569,8 @@ We deal with $T_rg$ and $T_rb$ separately in the following lemmas.
 
 \begin{lemma}[Estimate good]
     \label{estimate-good}
+    \leanok
+    \lean{estimate_good}
     \uses{Calderon-Zygmund-decomposition}
     \begin{equation*}
         \mu\left(\{x\in X: |T_r g(x)|>{\alpha}/2\}\right)
@@ -7570,8 +7591,10 @@ Using \eqref{eq-strong-2-2-assumption} followed by \eqref{eq-g-max} and \eqref{e
 \end{equation}
 \end{proof}
 
-\begin{lemma}
-    \label{estimate-Tr-bad-X-minus-Omega}
+\begin{lemma}[Estimate bad partial]
+    \label{estimate-bad-partial}
+    \leanok
+    \lean{estimate_bad_partial}
     \uses{Calderon-Zygmund-decomposition}
     Let $x\in X\setminus\Omega$. Then
     \begin{equation*}
@@ -7702,10 +7725,12 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
 \end{equation*}
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Estimate F set]
     \label{estimate-F-set}
+    \leanok
+    \lean{distribution_czOperatorBound}
     \uses{Calderon-Zygmund-decomposition,geometric-series-estimate}
-    For $F$ as defined in \Cref{estimate-Tr-bad-X-minus-Omega}, we have
+    For $F$ as defined in \Cref{estimate-bad-partial}, we have
     \begin{equation}
         \label{eq-F-X-minus-Omega}
         \mu(\{x\in X\setminus\Omega: F(x)>\alpha/8\}) \le \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
@@ -7743,7 +7768,9 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
 
 \begin{lemma}[Estimate bad]
     \label{estimate-bad}
-    \uses{Calderon-Zygmund-decomposition,estimate-Tr-bad-X-minus-Omega,estimate-F-set}
+    \leanok
+    \lean{estimate_bad}
+    \uses{Calderon-Zygmund-decomposition,estimate-bad-partial,estimate-F-set}
     We have
     \begin{equation*}
         \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le  \frac{\frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y) \,.
@@ -7765,7 +7792,7 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
         \mu(\Omega) \le \sum_{j} \mu (B_j')
         \le 2^{a} \sum_{j} \mu(B_j) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
     \end{equation}
-    It follows from \Cref{estimate-Tr-bad-X-minus-Omega} and the triangle inequality that
+    It follows from \Cref{estimate-bad-partial} and the triangle inequality that
     \begin{equation}
         \label{eq-set-dec-3}
         \mu({\{x\in X\setminus\Omega: |T_r b(x)|>\alpha/2\}}) \le \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\})\,.
@@ -8363,7 +8390,8 @@ This proves the first identity of the lemma. The second identity follows by subs
     \end{equation}
     \end{lemma}
 \begin{proof}
-Using Fubini and \Cref{periodic-domain-shift}, we observe
+\leanok
+    Using Fubini and \Cref{periodic-domain-shift}, we observe
 \begin{equation*}
   \int_{-\pi}^{\pi}\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy
     \, dx=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x-y)\, dx

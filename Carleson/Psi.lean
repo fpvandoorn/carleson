@@ -501,6 +501,20 @@ lemma nnnorm_Ks_le {s : ℤ} {x y : X} :
       mul_eq_zero, ENNReal.ofReal_ne_top, false_and, or_false, not_and, not_or]
     exact fun _ ↦ ne_of_gt (measure_ball_pos volume x (defaultD_pow_pos a s))
 
+/-- Needed for Lemma 7.5.5. -/
+lemma enorm_Ks_le {s : ℤ} {x y : X} :
+    ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) * ‖ψ (D ^ (-s) * dist x y)‖ₑ := by
+  have : 0 ≤ C2_1_3 a / volume (ball x (D ^ s)) := by unfold C2_1_3; positivity
+  by_cases hK : Ks s x y = 0
+  · rw [hK, enorm_zero]; exact zero_le _
+  rw [Ks, enorm_mul]; nth_rw 2 [← enorm_norm]; rw [norm_real, enorm_norm]
+  gcongr; apply le_trans <| enorm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
+  rw [pow_zero, one_mul]; norm_cast; rw [add_zero, C2_1_3]; gcongr; norm_cast
+  rw [Nat.cast_pow, Nat.cast_ofNat, NNReal.rpow_natCast,
+    show 102 * a ^ 3 = a ^ 2 * a + 101 * a ^ 3 by ring]; gcongr
+  · exact one_le_two
+  · nlinarith [four_le_a X]
+
 /-- `Ks` is bounded uniformly in `x`, `y` assuming `x` is in a fixed closed ball. -/
 lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx : dist x x₀ ≤ r₀) (s : ℤ) :
     ‖Ks s x y‖ ≤ C2_1_3 a * (As (defaultA a) (2*r₀/D^s)) / volume.real (ball x₀ r₀) := by
@@ -806,6 +820,7 @@ lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X �
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by
   /- Define a measurable, bounded function `K₀` that is equal to `K x` on the support of
   `y ↦ ψ (D ^ (-s) * dist x y)`, so that `Ks s x y = K₀ y * ψ (D ^ (-s) * dist x y)`. -/
+  let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   let K₀ (y : X) : ℂ := ite (dist x y ≤ D ^ s / (4 * D)) 0 (K x y)
   have : Ks s x = fun y ↦ K₀ y * (ψ (D ^ (-s) * dist x y) : ℂ) := by
     ext y
