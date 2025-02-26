@@ -1135,7 +1135,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       apply cdist_le_iterate
       have := defaultD_pos a
       positivity
-  unfold C7_5_11
+  rw [C7_5_11]
   push_cast
   linarith [calculation_14 (X := X) (n := n), calculation_15 (X := X) (h := thus)]
 
