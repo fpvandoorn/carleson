@@ -225,10 +225,10 @@ theorem estimate_x_shift (ha : 4 ≤ a)
                 + (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y)
                 - (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y) := by
           rw[← integral_sub]
-          apply czoperator_welldefined hmg hg h2g (by simp; exact hr)
-          apply IntegrableOn.mono_set
-          swap; exact tmp2
-          apply czoperator_welldefined hmg hg h2g hr
+          . apply czoperator_welldefined hmg hg h2g (mul_pos zero_lt_two hr)
+          . apply IntegrableOn.mono_set
+            swap; exact tmp2
+            apply czoperator_welldefined hmg hg h2g hr
 
   trans ‖(∫ (y : X) in bxrc ∩ bx2r, K x y * g y) + ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
@@ -308,6 +308,25 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . rw [← lt_top_iff_ne_top]
       exact measure_ball_lt_top
 
+  have pointwise_2 : ∀(y : X), y ∈ (ball x (2 * r))ᶜ → ‖K x y - K x' y‖ₑ * ‖g y‖ₑ ≤
+      ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * ENNReal.ofReal (C_K a / Real.vol x y)) * ‖g y‖ₑ := by
+    intro y h
+    apply mul_le_mul
+    case h₂ => rfl
+    case c0 | b0 => simp only [zero_le]
+    apply norm_K_sub_le'
+
+    trans 2 * ENNReal.ofReal r
+    . apply mul_le_mul
+      case h₁ => rfl
+      case c0 | b0 => simp only [zero_le]
+      exact (edist_le_ofReal (le_of_lt hr)).mpr hx
+    . rw [mem_compl_iff, mem_ball, dist_comm] at h
+      rw [edist_dist, ← ENNReal.ofReal_ofNat, ← ENNReal.ofReal_mul, ofReal_le_ofReal_iff]
+      . exact le_of_not_lt h
+      . exact dist_nonneg
+      . exact zero_le_two
+
   have tmp5 {x₀ : X} {n : ℝ} : ∫⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ = (⨍⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ ∂volume)  * volume (ball x₀ (n * r)) := by
     have h_meas_finite : IsFiniteMeasure (volume.restrict (ball x₀ (n * r))) := by
       refine isFiniteMeasure_restrict.mpr ?_
@@ -385,6 +404,21 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
   have estimate_10_1_3 : ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ
       ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
+    conv =>
+      arg 1; arg 1; arg 2
+      intro y
+      rw [← mul_sub_right_distrib]
+
+    trans ∫⁻ (y : X) in bx2rᶜ, ‖ (K x y - K x' y) * g y‖ₑ
+    . apply enorm_integral_le_lintegral_enorm
+    simp only [enorm_mul]
+
+    trans ∫⁻ (y : X) in bx2rᶜ, (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * ENNReal.ofReal (C_K a / Real.vol x y) * ‖ g y‖ₑ
+    . apply lintegral_mono_fn
+      -- I think a general lemma is missing to make this work on bx2rc instead of X
+      -- Then pointwise_2 proves it
+      sorry
+
     sorry
 
   have estimate_10_1_4 : (∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ)
