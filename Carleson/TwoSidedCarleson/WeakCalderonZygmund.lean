@@ -59,95 +59,96 @@ theorem ball_covering {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
       ∀ x ∈ O, Cardinal.mk { i | x ∈ ball (c i) (3 * r i)} ≤ (2 ^ (6 * a) : ℕ) := by
   sorry
 
-/-- An auxillary definition so that we don't have to write this every time.
+/-- An auxillary definition bundling the properties of Lemma 10.2.5
+so that we don't have to write this every time.
 Can we use `BoundedCompactSupport` for this? -/
-def BdMeasurable (f : X → ℂ) (α : ℝ≥0∞) : Prop :=
+def LemmaProps (f : X → ℂ) (α : ℝ≥0∞) : Prop :=
   Measurable f ∧ eLpNorm f ∞ < ∞ ∧ volume (support f) < ∞ ∧
   globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α ≠ univ
 
 /- Use `lowerSemiContinuous_globalMaximalFunction` -/
-lemma isOpen_MB_preimage_Ioi (hf : BdMeasurable f α) :
+lemma isOpen_MB_preimage_Ioi (hf : LemmaProps f α) :
     IsOpen (globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α) ∧
     globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α ≠ univ := by
   sorry
 
 /-- The center of B_j in the proof of Lemma 10.2.5. -/
-def czCenter (hf : BdMeasurable f α) (i : ℕ) : X :=
+def czCenter (hf : LemmaProps f α) (i : ℕ) : X :=
   ball_covering (isOpen_MB_preimage_Ioi hf) |>.choose i
 
 /-- The radius of B_j in the proof of Lemma 10.2.5. -/
-def czRadius (hf : BdMeasurable f α) (i : ℕ) : ℝ :=
+def czRadius (hf : LemmaProps f α) (i : ℕ) : ℝ :=
   ball_covering (isOpen_MB_preimage_Ioi hf) |>.choose_spec.choose i
 
 /-- The ball B_j in the proof of Lemma 10.2.5. -/
-abbrev czBall (hf : BdMeasurable f α) (i : ℕ) : Set X :=
+abbrev czBall (hf : LemmaProps f α) (i : ℕ) : Set X :=
   ball (czCenter hf i) (czRadius hf i)
 
 /-- The ball B_j* in Lemma 10.2.5. -/
-abbrev czBall3 (hf : BdMeasurable f α) (i : ℕ) : Set X :=
+abbrev czBall3 (hf : LemmaProps f α) (i : ℕ) : Set X :=
   ball (czCenter hf i) (3 * czRadius hf i)
 
 /-- The ball B_j** in the proof of Lemma 10.2.5. -/
-abbrev czBall7 (hf : BdMeasurable f α) (i : ℕ) : Set X :=
+abbrev czBall7 (hf : LemmaProps f α) (i : ℕ) : Set X :=
   ball (czCenter hf i) (7 * czRadius hf i)
 
-lemma czBall_pairwiseDisjoint {hf : BdMeasurable f α} :
+lemma czBall_pairwiseDisjoint {hf : LemmaProps f α} :
     univ.PairwiseDisjoint fun i ↦ closedBall (czCenter hf i) (czRadius hf i) :=
   ball_covering (isOpen_MB_preimage_Ioi hf) |>.choose_spec.choose_spec.1
 
-lemma iUnion_czBall3 {hf : BdMeasurable f α} :
+lemma iUnion_czBall3 {hf : LemmaProps f α} :
     ⋃ i, czBall3 hf i = globalMaximalFunction volume 1 f ⁻¹' Ioi α :=
   ball_covering (isOpen_MB_preimage_Ioi hf) |>.choose_spec.choose_spec.2.1
 
-lemma not_disjoint_czBall7 {hf : BdMeasurable f α} {i : ℕ} :
+lemma not_disjoint_czBall7 {hf : LemmaProps f α} {i : ℕ} :
     ¬ Disjoint (czBall7 hf i) (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ :=
   ball_covering (isOpen_MB_preimage_Ioi hf) |>.choose_spec.choose_spec.2.2.1 i
 
-lemma cardinalMk_czBall3_le {hf : BdMeasurable f α} {y : X}
+lemma cardinalMk_czBall3_le {hf : LemmaProps f α} {y : X}
     (hy : α < globalMaximalFunction volume 1 f y) :
     Cardinal.mk { i | y ∈ czBall3 hf i} ≤ (2 ^ (6 * a) : ℕ) :=
   ball_covering (isOpen_MB_preimage_Ioi hf) |>.choose_spec.choose_spec.2.2.2 y hy
 
 /-- `Q_i` in the proof of Lemma 10.2.5. -/
-def czPartition (hf : BdMeasurable f α) (i : ℕ) : Set X :=
+def czPartition (hf : LemmaProps f α) (i : ℕ) : Set X :=
   czBall3 hf i \ ((⋃ j < i, czPartition hf j) ∪ ⋃ j > i, czBall hf i)
 
-lemma czBall_subset_czPartition {hf : BdMeasurable f α} {i : ℕ} :
+lemma czBall_subset_czPartition {hf : LemmaProps f α} {i : ℕ} :
     czBall hf i ⊆ czPartition hf i := by
   sorry
 
-lemma czPartition_subset_czBall3 {hf : BdMeasurable f α} {i : ℕ} :
+lemma czPartition_subset_czBall3 {hf : LemmaProps f α} {i : ℕ} :
     czPartition hf i ⊆ czBall3 hf i := by
   rw [czPartition]; exact diff_subset
 
-lemma czPartition_pairwiseDisjoint {hf : BdMeasurable f α} :
+lemma czPartition_pairwiseDisjoint {hf : LemmaProps f α} :
     univ.PairwiseDisjoint fun i ↦ czPartition hf i :=
   sorry
 
-lemma iUnion_czPartition {hf : BdMeasurable f α} :
+lemma iUnion_czPartition {hf : LemmaProps f α} :
     ⋃ i, czPartition hf i = globalMaximalFunction volume 1 f ⁻¹' Ioi α :=
   sorry
 
 open Classical in
 /-- The function `g` in Lemma 10.2.5. -/
-def czApproximation (hf : BdMeasurable f α) (x : X) : ℂ :=
+def czApproximation (hf : LemmaProps f α) (x : X) : ℂ :=
   if hx : ∃ j, x ∈ czPartition hf j then ⨍ y in czPartition hf hx.choose, f y else f x
   -- alternative definition:
   -- (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ.indicator f x +
   -- ∑' i, (czPartition hf i).indicator (fun _ ↦ ⨍ y in czPartition hf i, f y) x
 
-lemma czApproximation_def_of_mem {hf : BdMeasurable f α} {x : X} {i : ℕ}
+lemma czApproximation_def_of_mem {hf : LemmaProps f α} {x : X} {i : ℕ}
     (hx : x ∈ czPartition hf i) :
     czApproximation hf x = ⨍ y in czPartition hf i, f y := by
   sorry
 
-lemma czApproximation_def_of_nmem {hf : BdMeasurable f α} {x : X} {i : ℕ}
+lemma czApproximation_def_of_nmem {hf : LemmaProps f α} {x : X} {i : ℕ}
     (hx : x ∉ globalMaximalFunction volume 1 f ⁻¹' Ioi α) :
     czApproximation hf x = f x := by
   sorry
 
 /-- The function `b_i` in Lemma 10.2.5 -/
-def czRemainder (hf : BdMeasurable f α) (i : ℕ) (x : X) : ℂ :=
+def czRemainder (hf : LemmaProps f α) (i : ℕ) (x : X) : ℂ :=
   (czPartition hf i).indicator (f - czApproximation hf) x
 
 /-- Lemma 10.2.5. -/
