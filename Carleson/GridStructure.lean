@@ -74,6 +74,12 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 @[simp] lemma Grid.mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
 @[simp] lemma Grid.le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 
+lemma Grid.mem_mono {x:X} : Monotone (x ∈ · : Grid X → Prop) := by
+  intro u u' hle hu
+  rw [Grid.mem_def] at hu ⊢
+  rw [Grid.le_def] at hle
+  exact hle.left hu
+
 lemma fundamental_dyadic :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'

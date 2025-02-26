@@ -281,13 +281,14 @@ lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
   · rw [← h]; exact hnn
 
 /-- Lemma 7.4.2. -/
-lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
+lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
+  (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
   set g := adjointCarlesonSum (t u) f
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
-  have h := density_tree_bound1 hg hf hu
+  have h := density_tree_bound1 hg hf h2f hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
       (eLpNorm g 2 volume)^2 := by
@@ -304,7 +305,8 @@ irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
   C7_4_2 a + CMB (defaultA a) 2 + 1
 
 /-- Lemma 7.4.3. -/
-lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f) :
+lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f)
+    (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume ≤
     C7_4_3 a * eLpNorm f 2 volume := by
   calc _ ≤ eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume := by rfl
@@ -336,7 +338,7 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     CMB (defaultA a) 2 * eLpNorm f 2 volume +
     eLpNorm f 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hu hf
+      · exact adjoint_tree_estimate hu hf h2f
       · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memℒp _) |>.2
   _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
     simp_rw [add_mul]

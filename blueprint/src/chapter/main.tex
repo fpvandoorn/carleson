@@ -4308,12 +4308,12 @@ $$
     :=\sum_{I\in\mathcal{D}} \mathbf{1}_{I}(x) \sum_{\substack{J\in \mathcal{J}(\fT(\fu))\\
     J\subset B(c(I), 16 D^{s(I)})\\ s(J) \le s(I)}} \frac{D^{(s(J) - s(I))/a}}{\mu(B(c(I), 16D^{s(I)}))}\int_J |f(y)| \, \mathrm{d}\mu(y)\,.
 \end{equation}
-%changed definition
+%changed definition (2x)
 Define also the collection of balls
 $$
-    \mathcal{B} = \{B(c(I), 2^s D^{s(I)}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\}\,.
+    \mathcal{B} = \{B(c(I), 2^s D^{s(I)+t}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\,, 0 \le t \le 3\}\,.
 $$
-%changed definition.
+%changed definition. (2x) We can increase the 3 further, if desired
 
 The following pointwise estimate for operators associated to sets $\fT(\fu)$ is the main result of this subsection.
 
@@ -4767,12 +4767,13 @@ The main result of this subsection is the following quantitative bound for opera
     \leanok
     \lean{TileStructure.Forest.density_tree_bound1, TileStructure.Forest.density_tree_bound2}
     \uses{tree-projection-estimate,local-dens1-tree-bound,local-dens2-tree-bound}
-    Let $\fu \in \fU$. Then for all $f,g$ bounded with bounded support
+    Let $\fu \in \fU$. Then for all bounded $f$ with bounded support and $g$ with $|g| \le \mathbf{1}_G$
+    we have
     \begin{equation}
         \label{eq-cor-tree-est}
         \left|\int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f \, \mathrm{d}\mu \right| \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
     \end{equation}
-    If $|f| \le \mathbf{1}_F$, then we have
+    If additionally $|f| \le \mathbf{1}_F$, then we have
     \begin{equation}
         \label{eq-cor-tree-est-F}
         \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f\, \mathrm{d}\mu \right| \le 2^{256a^3} \dens_1(\fT(\fu))^{1/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
@@ -4789,7 +4790,7 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     Let $\fu \in \fU$ and $L \in \mathcal{L}(\fT(\fu))$. Then
     \begin{equation}
     \label{eq-1density-estimate-tree}
-        \mu(L \cap \bigcup_{\fp \in \fT(\fu)} E(\fp)) \le 2^{101a^3} \dens_1(\fT(\fu)) \mu(L)\,.
+        \mu(L \cap G \cap \bigcup_{\fp \in \fT(\fu)} E(\fp)) \le 2^{101a^3} \dens_1(\fT(\fu)) \mu(L)\,.
     \end{equation}
 \end{lemma}
 
@@ -5000,7 +5001,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_estimate}
     \uses{densities-tree-bound}
-    For all bounded $g$ with bounded support, we have that
+    For all $g$ with $|g| \le \mathbf{1}_G$, we have that
     $$
         \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
     $$
@@ -5008,7 +5009,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 
 \begin{proof}
     \leanok
-    By \Cref{densities-tree-bound}, we have for all bounded $f,g$ with bounded support that
+    By \Cref{densities-tree-bound}, we have for all bounded $f$ and $g$ with $|g| \le \mathbf{1}_G$ that
     $$
         \left| \int_X \overline{\sum_{\fp\in \fT(\fu)} T_{\fp}^* g} f \,\mathrm{d}\mu \right| = \left| \int_X \overline{g} \sum_{\fp \in \fT(\fu)} T_{\fp} f \,\mathrm{d}\mu \right|
     $$
@@ -5016,7 +5017,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
         \label{eq-adjoint-bound}
         \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2 \|f\|_2\,.
     \end{equation}
-    Let $f = \sum_{\fp \in \fT(\fu)} T_{\fp}^* g$. If $g$ is bounded and has bounded support, then the same is true for $f$. In particular $\|f\|_2 < \infty$. Dividing \eqref{eq-adjoint-bound} by $\|f\|_2$ completes the proof.
+    Let $f = \sum_{\fp \in \fT(\fu)} T_{\fp}^* g$. Since $|g| \le \mathbf{1}_G$, $f$ is bounded and has bounded support. In particular $\|f\|_2 < \infty$. Dividing \eqref{eq-adjoint-bound} by $\|f\|_2$ completes the proof.
 \end{proof}
 
 We define
@@ -5028,7 +5029,7 @@ $$
     \leanok
     \lean{TileStructure.Forest.adjoint_tree_control}
     \uses{adjoint-tree-estimate}
-    We have for all $\fu \in \fU$ and bounded $g$ with bounded support
+    We have for all $\fu \in \fU$ and $g$ with $|g| \le \mathbf{1}_G$
     $$
         \|S_{2, \fu} g\|_2 \le 2^{156a^3} \|g\|_2\,.
     $$
@@ -5206,7 +5207,7 @@ $$
         \proves{Lipschitz-partition-unity}
         For each cube $J \in \mathcal{J}$ let
         $$
-            \tilde\chi_J(y) = \max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
+            \tilde\chi_J(y) = \mathbf{1}_{\scI(\fu_1)}(y)\max\{0, 8 - D^{-s(J)} \rho(y, c(J))\}\,,
         $$
         and set
         $$
@@ -6000,7 +6001,8 @@ as in \Cref{forest-row-decomposition}.
     \leanok
     \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{densities-tree-bound,adjoint-tile-support}
-    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support, we have
+    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$,
+    we have
     \begin{equation}
         \label{eq-row-bound-1}
         \left\| \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
@@ -6048,7 +6050,7 @@ as in \Cref{forest-row-decomposition}.
     \leanok
     \lean{TileStructure.Forest.row_correlation}
     \uses{adjoint-tree-control,correlation-separated-trees}
-    For all $1 \le j < j' \le 2^n$ and for all bounded $g_1, g_2$ with bounded support, it holds that
+    For all $1 \le j < j' \le 2^n$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
     $$
         \left| \int \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \sum_{\fp \in \fT_j(\fu)} \sum_{\fp' \in \fT_{j'}(\fu')} T^*_{\fp} g_1 \overline{T^*_{\fp'} g_2} \, \mathrm{d}\mu \right| \le
         2^{862a^3-3n}\|g_1\|_2 \|g_2\|_2\,.
@@ -8358,7 +8360,8 @@ This proves the first identity of the lemma. The second identity follows by subs
     \end{equation}
     \end{lemma}
 \begin{proof}
-Using Fubini and \Cref{periodic-domain-shift}, we observe
+\leanok
+    Using Fubini and \Cref{periodic-domain-shift}, we observe
 \begin{equation*}
   \int_{-\pi}^{\pi}\int_{-\pi}^{\pi}f(y)^2g(x-y)\, dy
     \, dx=\int_{-\pi}^{\pi}f(y)^2\int_{-\pi}^{\pi}g(x-y)\, dx
