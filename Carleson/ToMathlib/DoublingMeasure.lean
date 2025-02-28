@@ -29,6 +29,14 @@ lemma ball_subset_ball_of_le {x x' : X} {r r' : ℝ}
         _ ≤ r := hr
   exact mem_ball'.mpr h1
 
+lemma dist_lt_of_not_disjoint_ball {x x' : X} {r r' : ℝ} (hd : ¬Disjoint (ball x r) (ball x' r')) :
+    dist x x' < r + r' := by
+  obtain ⟨y, dy₁, dy₂⟩ := Set.not_disjoint_iff.mp hd
+  rw [mem_ball] at dy₁ dy₂
+  calc
+    _ ≤ dist y x + dist y x' := dist_triangle_left ..
+    _ < _ := by gcongr
+
 variable {A : ℝ≥0} [MeasurableSpace X] {μ : Measure X} [μ.IsDoubling A]
 
 lemma IsDoubling.mono {A'} (h : A ≤ A') : IsDoubling μ A' where
