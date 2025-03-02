@@ -1,6 +1,7 @@
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
 import Carleson.ToMathlib.ENorm
+import Carleson.ToMathlib.Annulus
 
 open MeasureTheory Set Bornology Function ENNReal Metric Complex
 open scoped NNReal
@@ -208,10 +209,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       unfold bxprc
       apply czoperator_welldefined hmg hg h2g hr
 
-  let int10_1_2 := 0
-  let int10_1_3 := 0
-  let int10_1_4 := 0
-
   rw [← edist_nndist, edist_eq_enorm_sub, integral_x, integral_x_prime]
 
   -- Rewrite lhs according to 10.1.234 split
@@ -339,10 +336,16 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     simp only [enorm_mul]
 
     trans ∫⁻ (y : X) in bxrc ∩ bx2r, ENNReal.ofReal (C_K ↑a) / volume (ball x r) * ‖g y‖ₑ
-    . apply lintegral_mono_fn
-      -- I think a general lemma is missing to make this work on bxrc ∩ bx2r instead of X
-      -- Then pointwise_1 with x₀ = x proves it
-      sorry
+    . apply setLIntegral_mono
+      . apply Measurable.comp
+        . apply measurable_const_mul
+        . apply Measurable.comp
+          exact MeasureTheory.measurable_enorm
+          exact hmg
+      intro x
+      trans x ∈ bxrc
+      . exact fun a ↦ mem_of_mem_inter_left a
+      apply pointwise_1
 
     rw [lintegral_const_mul] -- LHS = 10.1.5
     case hf => apply Measurable.enorm; exact hmg
@@ -413,11 +416,158 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . apply enorm_integral_le_lintegral_enorm
     simp only [enorm_mul]
 
-    trans ∫⁻ (y : X) in bx2rᶜ, (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * ENNReal.ofReal (C_K a / Real.vol x y) * ‖ g y‖ₑ
-    . apply lintegral_mono_fn
-      -- I think a general lemma is missing to make this work on bx2rc instead of X
-      -- Then pointwise_2 proves it
+    trans ∫⁻ (y : X) in bx2rᶜ, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * ENNReal.ofReal (C_K a / Real.vol x y)) * ‖g y‖ₑ
+    . apply setLIntegral_mono
+      . apply Measurable.mul -- Imagine there was a refine type 'measurability' tactic...
+        . apply Measurable.mul
+          . apply Measurable.pow_const
+            apply Measurable.const_div
+            exact Measurable.edist measurable_const measurable_id
+          . apply Measurable.comp (g := ENNReal.ofReal)
+            . exact ENNReal.measurable_ofReal
+            apply Measurable.const_div
+            sorry -- I hate Real.vol
+        . apply Measurable.comp
+          exact MeasureTheory.measurable_enorm
+          exact hmg
+      apply pointwise_2
+
+    let dom_i (i : ℕ) := Annulus.co x (2^(i+1) * r) (2^(i+2) * r)
+    have rw_dom : bx2rᶜ = ⋃ (i : ℕ) , dom_i i:= by
       sorry
+
+    trans ∑' (i : ℕ), ∫⁻ (y : X) in dom_i i, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * ENNReal.ofReal (C_K a / Real.vol x y)) * ‖g y‖ₑ
+    . rw [rw_dom]
+      apply lintegral_iUnion_le
+
+    -- Writing negative powers as positive powers of 1/2 to enable working with i : ℕ instead of -i : ℤ
+    trans ∑' (i : ℕ), 2 ^ (a ^ 3 + a) * (1 / (2 : ℝ≥0) ) ^ ((i + 1) * (a : ℝ)⁻¹) * globalMaximalFunction volume 1 g x
+    . apply tsum_le_tsum
+      case hf => sorry
+      case hg => sorry
+
+      intro i
+      have est_edist : ∀y ∈ dom_i i, (edist x x' / edist x y) ≤ (1 / (2 : ℝ≥0)) ^ (i + 1) := by
+        intro y
+        unfold dom_i Annulus.co
+        rw [mem_setOf, ← Ico_def, mem_setOf]
+        intro hdist
+        trans edist x x' / (2 ^ (i + 1) * r.toNNReal)
+        . apply ENNReal.div_le_div_left
+          rw [edist_dist, ENNReal.le_ofReal_iff_toReal_le]
+          case ha => norm_cast; apply coe_ne_top
+          case hb => exact dist_nonneg
+          simp only [toReal_mul, toReal_pow, toReal_ofNat, coe_toReal, Real.coe_toNNReal']
+          rw [(max_eq_left (le_of_lt hr))]
+          exact hdist.left
+        rw [ENNReal.div_le_iff_le_mul]
+        case hb0 => right; apply pow_ne_top; simp
+        case hbt => left; apply mul_ne_top; exact pow_ne_top ofNat_ne_top; exact coe_ne_top
+        rw [← mul_assoc]
+        rw [pow_mul_pow_eq_one]
+        case a =>
+          simp only [coe_ofNat, one_div]
+          apply ENNReal.inv_mul_cancel
+          . simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true]
+          . simp only [ne_eq, ofNat_ne_top, not_false_eq_true]
+        simp only [one_mul, edist_le_coe]
+        rw [nndist_dist]
+        exact Real.toNNReal_le_toNNReal hx
+
+      have est_vol : ∀y ∈ dom_i i, (Real.vol x y).toNNReal ≥ volume (ball x (2 ^ (i + 1) * r)) := by
+        intro y
+        unfold dom_i Annulus.co Real.vol
+        rw [mem_setOf, ← Ico_def, mem_setOf]
+        intro hdist
+        sorry -- I really hate Real.vol and it should be changed
+
+      trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * ((C_K a).toNNReal / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
+      . apply setLIntegral_mono
+        . apply Measurable.mul
+          . simp only [defaultA, coe_ofNat, one_div, C_K, measurable_const]
+          . exact Measurable.comp _root_.measurable_enorm hmg
+        intro y hy
+        apply mul_le_mul
+        case h₂ => rfl
+        case c0 | b0 => simp only [zero_le]
+        apply mul_le_mul
+        case c0 | b0 => simp only [zero_le]
+        . rw [rpow_mul]
+          apply rpow_le_rpow
+          . norm_cast
+            exact est_edist y hy
+          . simp only [inv_nonneg, Nat.cast_nonneg]
+        . rw [ofReal_div_of_pos]
+          swap; sorry --again Real.vol
+          rw [ENNReal.ofReal.eq_1]
+          apply ENNReal.div_le_div_left
+          apply est_vol
+          exact hy
+
+      rw [lintegral_const_mul]
+      case hf => apply Measurable.enorm; exact hmg
+
+      trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (↑(C_K ↑a).toNNReal / volume (ball x (2 ^ (i + 1) * r))) *
+          ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
+      . apply mul_le_mul
+        case h₁ => rfl
+        case b0 | c0 => simp only [zero_le]
+        apply lintegral_mono_set
+        unfold dom_i
+        rw [Set.Annulus.co_eq]
+        exact inter_subset_left
+
+      rw [tmp5]
+
+      nth_rw 5 [mul_comm]
+      rw [← mul_assoc]
+      trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (↑(C_K ↑a).toNNReal / volume (ball x (2 ^ (i + 1) * r))) *
+          volume (ball x (2 ^ (i + 2) * r)) * globalMaximalFunction volume 1 g x
+      . apply mul_le_mul
+        case h₁ => rfl
+        case b0 | c0 => simp only [zero_le]
+        apply laverage_le_globalMaximalFunction
+        simp only [dist_self, Nat.ofNat_pos, pow_pos, mul_pos_iff_of_pos_left, hr]
+
+      apply mul_le_mul
+      case h₂ => rfl
+      case b0 | c0 => simp only [zero_le]
+
+      rw [mul_assoc, mul_comm]
+      apply mul_le_mul
+      case h₂ => rfl
+      case b0 | c0 => simp only [zero_le]
+
+      trans ↑(C_K ↑a).toNNReal / volume (ball x (2 ^ (i + 1) * r)) * (defaultA a * volume (ball x (2 ^ (i + 1) * r)))
+      . apply mul_le_mul
+        case h₁ => rfl
+        case b0 | c0 => simp only [zero_le]
+        rw [pow_succ]
+        nth_rw 2 [mul_comm]
+        rw [mul_assoc]
+        apply measure_ball_two_le_same
+
+      apply le_of_eq
+      rw [div_eq_mul_inv]
+      nth_rw 4 [mul_comm]
+      rw [mul_assoc]
+      nth_rw 2 [← mul_assoc]
+      nth_rw 3 [mul_comm]
+      rw [ENNReal.mul_inv_cancel]
+      case h0 =>
+        apply ne_of_gt
+        apply measure_ball_pos
+        simp only [Nat.ofNat_pos, pow_pos, mul_pos_iff_of_pos_left, hr]
+      case ht =>
+        apply ne_of_lt
+        apply measure_ball_lt_top
+      simp only [C_K, defaultA, Nat.cast_pow, Nat.cast_ofNat, one_mul]
+      norm_cast
+      rw [NNReal.toNNReal_coe_nat, pow_add]
+      simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.cast_mul]
+
+
+    -- apply geometric_series_estimate
 
     sorry
 
@@ -426,10 +576,16 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     simp only [enorm_mul]
 
     trans ∫⁻ (y : X) in bxprc ∩ bx2r, ENNReal.ofReal (C_K ↑a) / volume (ball x' r) * ‖g y‖ₑ
-    . apply lintegral_mono_fn
-      -- I think a general lemma is missing to make this work on bxprc ∩ bx2r instead of X
-      -- Then pointwise_1 with x₀ = x' proves it
-      sorry
+    . apply setLIntegral_mono
+      . apply Measurable.comp
+        . apply measurable_const_mul
+        . apply Measurable.comp
+          exact MeasureTheory.measurable_enorm
+          exact hmg
+      intro x
+      trans x ∈ bxprc
+      . exact fun a ↦ mem_of_mem_inter_left a
+      apply pointwise_1
 
     rw [lintegral_const_mul] -- LHS = 10.1.5 but for x'
     case hf => apply Measurable.enorm; exact hmg
