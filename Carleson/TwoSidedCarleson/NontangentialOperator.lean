@@ -566,10 +566,45 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       rw [NNReal.toNNReal_coe_nat, pow_add]
       simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.cast_mul]
 
+    conv => lhs;arg 1;intro i; rw [← smul_eq_mul]; rw [← smul_eq_mul]
 
-    -- apply geometric_series_estimate
+    have : ContinuousSMul ℝ≥0∞ ℝ≥0∞ := by sorry -- This is surely an oversight somewhere? Not sure how to fix that...
+    rw [tsum_smul_const, smul_eq_mul]
 
-    sorry
+    apply mul_le_mul
+    case h₂ => rfl
+    case b0 | c0 => simp only [zero_le]
+
+    rw [tsum_const_smul, smul_eq_mul]
+
+    have : (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a) = 2 ^ (a ^ 3 + a) * 2 ^ a := by ring
+    rw [this]
+    apply mul_le_mul
+    case h₁ => rfl
+    case b0 | c0 => simp only [zero_le]
+
+    conv =>
+      lhs; arg 1; intro i
+      rw [coe_ofNat, one_div, inv_rpow, ← rpow_neg, ← div_eq_mul_inv]
+
+    trans ∑' (i : ℕ), 2 ^ (-i / (a : ℝ))
+    . apply tsum_le_tsum
+      intro i
+      apply rpow_le_rpow_of_exponent_le
+      . simp only [Nat.one_le_ofNat]
+      . rw [neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right]
+        . simp only [le_add_iff_nonneg_right, zero_le_one]
+        . calc (0 : ℝ)
+            _ < 4 := by simp only [Nat.ofNat_pos]
+            _ ≤ ↑a := by simp only [Nat.ofNat_le_cast, ha]
+
+    have : ∑' (i : ℕ), (2 : ℝ≥0∞) ^ (-i / (a : ℝ)) = ∑' (i : ℕ), (2 : ℝ≥0) ^ (-i / (a : ℝ)) := by sorry
+    rw [this]
+    rw [← coe_ofNat, ← coe_pow, coe_le_coe, ← NNReal.rpow_natCast]
+    apply geometric_series_estimate
+    . simp only [Nat.ofNat_le_cast, ha]
+
+
 
   have estimate_10_1_4 : (∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
