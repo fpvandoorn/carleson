@@ -67,6 +67,15 @@ lemma partial_sum_selfadjoint {f g : ℝ → ℂ} {n : ℕ}
     ∫ x in (0)..2 * π, conj (f x) * partialFourierSum n g x := by
   sorry
 
+
+--lemma eLpNorm_eq_norm {f : ℝ → ℂ} {p : ENNReal} (hf : Memℒp f p) :
+--    ‖Memℒp.toLp f hf‖ = eLpNorm f p := by
+--  sorry
+
+theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
+    (@haarAddCircle T _) = (ENNReal.ofReal T)⁻¹ • (volume : Measure (AddCircle T)) := by
+  rw [volume_eq_smul_haarAddCircle, ← smul_assoc, smul_eq_mul, ENNReal.inv_mul_cancel (by simp [hT.out]) ENNReal.ofReal_ne_top, one_smul]
+
 open AddCircle in
 /-- Lemma 11.1.11.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
@@ -78,11 +87,40 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ}
     eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
   -- Note: easiest proof might be by massaging the statement of `spectral_projection_bound_lp`
   -- into this
+  by_cases hf_L2 : eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 = ⊤
+  . rw [hf_L2]
+    exact OrderTop.le_top _
+  push_neg at hf_L2
+  rw [← lt_top_iff_ne_top] at hf_L2
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
+  have lift_memℒp : Memℒp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
+    --apply?
+    unfold Memℒp
+    constructor
+    . --rw [haarAddCircle_eq_smul_volume, aestronglyMeasurable_add_measure_iff]
+      --exact hmf.aestronglyMeasurable.liftIoc (2 * π) 0
+      sorry
+
+    . rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
+      apply ENNReal.mul_lt_top _ hf_L2
+      rw [← ENNReal.ofReal_inv_of_pos this.out]
+      apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
   let F : Lp ℂ 2 haarAddCircle :=
-    Memℒp.toLp (AddCircle.liftIoc (2 * π) 0 f) sorry
-  have := spectral_projection_bound_lp (N := n) F
-  sorry
+    Memℒp.toLp (AddCircle.liftIoc (2 * π) 0 f) lift_memℒp
+
+  have lp_version := spectral_projection_bound_lp (N := n) F
+  rw [Lp.norm_def, Lp.norm_def,
+    ENNReal.toReal_le_toReal (Lp.eLpNorm_ne_top (partialFourierSumLp 2 n F)) (Lp.eLpNorm_ne_top F)] at lp_version
+
+  rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable, volume_eq_smul_haarAddCircle,
+    eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_smul_measure_of_ne_top (by trivial),
+    smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_left (by simp [Real.pi_pos]) (by simp)]
+  have ae_eq_right : ↑↑F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := Memℒp.coeFn_toLp _
+  have ae_eq_left : ↑↑(partialFourierSumLp 2 n F) =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 (partialFourierSum n f) := by
+    exact Filter.EventuallyEq.symm (partialFourierSum_aeeq_partialFourierSumLp 2 n f lift_memℒp)
+  rw [← eLpNorm_congr_ae ae_eq_right, ← eLpNorm_congr_ae ae_eq_left]
+  exact lp_version
+  --unfold partialFourierSumLp fourierLp at this
 
 /-- Lemma 11.3.1.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
