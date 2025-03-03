@@ -41,14 +41,12 @@ lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (
       simp_rw [LinearMapClass.map_smul]
     _ = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ (2 : ℝ) := by
       rw [← coe_fourierBasis]
-      stop
-      simp only [LinearIsometryEquiv.apply_symm_apply, lp.coeFn_smul, Pi.smul_apply, ← lp.single_smul]
+      simp_rw [← fourierBasis.repr_symm_single, LinearIsometryEquiv.apply_symm_apply, ← lp.single_smul]
       have : 2 = (2 : ENNReal).toReal := by simp
       rw [this, ← lp.norm_sum_single (by simp), ← this]
       congr 2
       refine Finset.sum_congr (by simp) fun n ↦ ?_
-      simp only [smul_eq_mul, mul_one]
-      congr!
+      simp only [Int.ofNat_eq_coe, Finset.mem_Icc, smul_eq_mul, mul_one, implies_true]
     _ = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ 2 := by
       simp_rw [← Real.rpow_natCast]; rfl
 
