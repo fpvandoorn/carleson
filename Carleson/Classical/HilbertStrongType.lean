@@ -94,13 +94,11 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ}
   rw [← lt_top_iff_ne_top] at hf_L2
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
   have lift_memℒp : Memℒp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
-    --apply?
     unfold Memℒp
     constructor
-    . --rw [haarAddCircle_eq_smul_volume, aestronglyMeasurable_add_measure_iff]
-      --exact hmf.aestronglyMeasurable.liftIoc (2 * π) 0
-      sorry
-
+    . rw [haarAddCircle_eq_smul_volume]
+      apply AEStronglyMeasurable.smul_measure
+      exact hmf.aestronglyMeasurable.liftIoc (2 * π) 0
     . rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
       apply ENNReal.mul_lt_top _ hf_L2
       rw [← ENNReal.ofReal_inv_of_pos this.out]

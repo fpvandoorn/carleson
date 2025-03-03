@@ -93,20 +93,41 @@ lemma partialFourierSumLp_eq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (
   sorry
 -/
 
+--theorem test {T : ℝ} {n : ℤ} {f : AddCircle T → ℂ} : (fun a ↦ (fourier (-n)) a * f a) = ⇑(fourier (-n)) * f := rfl
+--set_option pp.all true
+--TODO: I think the measurability assumptions are unnecessary actually
 lemma fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
+    (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
     (h : f =ᶠ[ae haarAddCircle] g) : fourierCoeff f n = fourierCoeff g n := by
   unfold fourierCoeff
   apply integral_congr_ae
-  --rw [smul_eq_mul]
-  sorry
+  --conv in (_ • _) => rw [smul_eq_mul]
+  --conv in (_ • _) => rw [smul_eq_mul]
+
+  have : ((fun a ↦ ⇑(fourier (-n)) a • f a) : AddCircle T → ℂ) = ⇑(fourier (-n)) * f := by rfl
+  rw [this]
+  have : (fun a ↦ (fourier (-n)) a • g a) = ⇑(fourier (-n)) * g := by rfl
+  rw [this]
+  --rw [mk_smul_mk_aeeqFun]
+  --rw [test, test]
+  rw [← @AEEqFun.mk_eq_mk, ← AEEqFun.mk_mul_mk, ← AEEqFun.mk_mul_mk]
+  congr
+
+  . apply Measurable.aestronglyMeasurable
+    apply ContinuousMap.measurable
+  . exact hf
+
+
+#print axioms fourierCoeff_eq_fourierCoeff_of_aeeq
 
 lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {N : ℕ} {f g : AddCircle T → ℂ}
+    (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
     (h : f =ᶠ[ae haarAddCircle] g) : partialFourierSumLp p N f = partialFourierSumLp p N g := by
   unfold partialFourierSumLp
   congr
   ext n : 1
   congr 1
-  exact fourierCoeff_eq_fourierCoeff_of_aeeq h
+  exact fourierCoeff_eq_fourierCoeff_of_aeeq hf hg h
 
 --TODO: to mathlib
 lemma ContinuousMap.memℒp {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal} (μ : Measure α)
@@ -135,14 +156,18 @@ lemma Memℒp.toLp_sum {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : E
   simp
   conv in (∑ i ∈ s, f i) => rw [← Finset.sum_attach]
 
-  sorry
+  --sorry
   --rw [Memℒp.toLp_congr]
 
-  /-
+
   unfold Memℒp.toLp
   refine Lp.ext_iff.mpr ?_
   simp
-  -/
+
+  sorry
+
+  --rw [AEEqFun.cast]
+
   --rw [map_sum AEEqFun.mk _ s]
   --rw [cast_sum]
   --rw [AEEqFun.coeFn_mk]
@@ -162,6 +187,7 @@ lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p
   unfold partialFourierSumLp partialFourierSum'
   unfold fourierLp
   simp only [ContinuousMap.coe_sum, ContinuousMap.coe_smul]
+
   rw [Memℒp.toLp_sum _ (by intro n hn; apply Memℒp.const_smul (ContinuousMap.memℒp haarAddCircle ℂ (fourier n)))]
   simp only [Finset.univ_eq_attach]
   rw [← Finset.sum_attach]
@@ -172,11 +198,13 @@ lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (
     liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (Memℒp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_ℒp)) := by
   --unfold partialFourierSum partialFourierSumLp
   --apply lp_coe
-  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Memℒp.coeFn_toLp h_mem_ℒp)]
+  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq _ _ (Memℒp.coeFn_toLp h_mem_ℒp)]
   rw [partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
   --simp
   symm
   apply Memℒp.coeFn_toLp
+  . sorry
+  . sorry
   --rw [partialFourierSum_eq, partialFourierSupLp_eq_partialFourierSupLp_of_ae_eq (Memℒp.coeFn_toLp h_mem_ℒp)]
   --set F := (liftIoc T 0 f)
   --unfold partialFourierSumLp
