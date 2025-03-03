@@ -570,12 +570,14 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     have : ContinuousSMul ℝ≥0∞ ℝ≥0∞ := by sorry -- This is surely an oversight somewhere? Not sure how to fix that...
     rw [tsum_smul_const, smul_eq_mul]
+    case hf => sorry
 
     apply mul_le_mul
     case h₂ => rfl
     case b0 | c0 => simp only [zero_le]
 
     rw [tsum_const_smul, smul_eq_mul]
+    case hf => sorry
 
     have : (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a) = 2 ^ (a ^ 3 + a) * 2 ^ a := by ring
     rw [this]
@@ -589,6 +591,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     trans ∑' (i : ℕ), 2 ^ (-i / (a : ℝ))
     . apply tsum_le_tsum
+      case hf | hg => sorry
       intro i
       apply rpow_le_rpow_of_exponent_le
       . simp only [Nat.one_le_ofNat]
@@ -598,9 +601,18 @@ theorem estimate_x_shift (ha : 4 ≤ a)
             _ < 4 := by simp only [Nat.ofNat_pos]
             _ ≤ ↑a := by simp only [Nat.ofNat_le_cast, ha]
 
-    have : ∑' (i : ℕ), (2 : ℝ≥0∞) ^ (-i / (a : ℝ)) = ∑' (i : ℕ), (2 : ℝ≥0) ^ (-i / (a : ℝ)) := by sorry
+    have : ∑' (i : ℕ), (2 : ℝ≥0∞) ^ (-i / (a : ℝ)) = ∑' (i : ℕ), (2 : ℝ≥0) ^ (-i / (a : ℝ)) := by
+      rw [ENNReal.coe_tsum]
+      swap; sorry
+      conv =>
+        rhs; arg 1; intro i
+        rw [ENNReal.coe_rpow_of_ne_zero]
+        case h.h => apply OfNat.ofNat_ne_zero
+        rw [ENNReal.coe_ofNat]
+
     rw [this]
     rw [← coe_ofNat, ← coe_pow, coe_le_coe, ← NNReal.rpow_natCast]
+
     apply geometric_series_estimate
     . simp only [Nat.ofNat_le_cast, ha]
 
