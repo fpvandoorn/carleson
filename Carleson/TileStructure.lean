@@ -520,6 +520,16 @@ def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
     apply E₂_subset
   _ ≤ 1 := ENNReal.div_self_le_one
 
+lemma volume_E₂_le_dens₁_mul_volume {𝔓₁ : Set (𝔓 X)} (hp : p ∈ 𝔓₁) (l : ℝ≥0) (hl : 2 ≤ l) :
+    volume (E₂ l p) ≤ l ^ a * dens₁ 𝔓₁ * volume (𝓘 p : Set X) := by
+  have vpos : volume (𝓘 p : Set X) ≠ 0 := (volume_coeGrid_pos (defaultD_pos' a)).ne'
+  rw [← ENNReal.div_le_iff_le_mul (.inl vpos) (.inl volume_coeGrid_lt_top.ne),
+    ← ENNReal.rpow_natCast, ← neg_neg (a : ℝ), ENNReal.rpow_neg, ← ENNReal.div_eq_inv_mul]
+  have plt : (l : ℝ≥0∞) ^ (-(a : ℝ)) ≠ ⊤ := by aesop
+  rw [ENNReal.le_div_iff_mul_le (by simp) (.inl plt), mul_comm, dens₁]
+  refine le_iSup₂_of_le p hp (le_iSup₂_of_le l hl ?_); gcongr
+  exact le_iSup₂_of_le p (subset_lowerClosure hp) (le_iSup_of_le le_rfl le_rfl)
+
 /-! ### Stack sizes -/
 
 variable {C C' : Set (𝔓 X)} {x x' : X}

@@ -82,6 +82,10 @@ private lemma subset_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 
     (hp : p ∈ 𝔖) (hpL : ¬ Disjoint (𝓘 p : Set X) (L : Set X)) : (L : Set X) ⊆ (𝓘 p : Set X) :=
   GridStructure.fundamental_dyadic' (s_le_s_of_mem_𝓛 hL hp hpL) |>.resolve_right fun h ↦ hpL h.symm
 
+lemma le_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖) {p : 𝔓 X}
+    (hp : p ∈ 𝔖) (hpL : ¬Disjoint (𝓘 p : Set X) (L : Set X)) : L ≤ 𝓘 p :=
+  ⟨subset_of_mem_𝓛 hL hp hpL, s_le_s_of_mem_𝓛 hL hp hpL⟩
+
 /-- The projection operator `P_𝓒 f(x)`, given above Lemma 7.1.3.
 In lemmas the `c` will be pairwise disjoint on `C`. -/
 def approxOnCube (C : Set (Grid X)) (f : X → E') (x : X) : E' :=
