@@ -192,11 +192,11 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     filter_upwards with y
     rcases le_total (dist x y) (t * R) with hy | hy
     -- Case 1: |x - y| ≤ t * R, then cutoff is non-negative.
-    · simp only [norm_mul, norm_real, Real.norm_eq_abs, norm_eq_abs, defaultτ, abs_ofReal,
+    · simp only [norm_mul, norm_real, Real.norm_eq_abs, defaultτ, norm_real,
         _root_.abs_of_nonneg cutoff_nonneg]
       gcongr
       · exact cutoff_nonneg
-      rw [← Complex.norm_eq_abs, ← dist_eq_norm]
+      rw [← dist_eq_norm]
       exact h2ϕ.dist_le_of_le hy
     -- Case 2: |x - y| > t * R, and cutoff is zero.
     · have : cutoff R t x y = 0 := by

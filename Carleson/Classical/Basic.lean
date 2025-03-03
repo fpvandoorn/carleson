@@ -151,7 +151,7 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
     _ ≤ Real.sqrt ((1 - Real.cos x) ^ 2) := by
       exact Real.sqrt_sq_eq_abs _ ▸ le_abs_self _
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
-        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
+        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_sqrt_sq_add_sq]
         simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.mul_re, Complex.I_re,
           Complex.sin_ofReal_im, Complex.I_im, Complex.sub_im, Complex.one_im, Complex.add_im,
           Complex.cos_ofReal_im, Complex.mul_im]
@@ -170,14 +170,14 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
   push_neg at ηpos
   wlog x_nonneg : 0 ≤ x generalizing x
   · convert (@this (-x) _ (by simpa) (by linarith)) using 1
-    · rw [Complex.norm_eq_abs, ← Complex.abs_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg,
-        Complex.norm_eq_abs, ← Complex.exp_conj, map_mul, Complex.conj_I, neg_mul,
+    · rw [← Complex.norm_conj, map_sub, map_one, Complex.ofReal_neg, mul_neg,
+        ← Complex.exp_conj, map_mul, Complex.conj_I, neg_mul,
         Complex.conj_ofReal]
     · rwa [abs_neg]
   rw [abs_of_nonneg x_nonneg] at *
   wlog x_le_pi : x ≤ π generalizing x
   · convert (@this (2 * π - x) ..) using 1
-    · rw [Complex.norm_eq_abs, ← Complex.abs_conj]
+    · rw [← Complex.norm_conj]
       simp [← Complex.exp_conj, mul_sub, Complex.conj_ofReal, Complex.exp_sub,
         mul_comm Complex.I (2 * π), ← Complex.exp_neg]
     all_goals linarith
@@ -198,7 +198,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
       rw [Real.sqrt_sq_eq_abs]
       apply le_abs_self
     _ ≤ ‖1 - Complex.exp (Complex.I * ↑x)‖ := by
-        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_abs, Complex.abs_eq_sqrt_sq_add_sq]
+        rw [mul_comm, Complex.exp_mul_I, Complex.norm_eq_sqrt_sq_add_sq]
         simp only [Complex.sub_re, Complex.one_re, Complex.add_re, Complex.cos_ofReal_re,
           Complex.mul_re, Complex.sin_ofReal_re, Complex.I_re, Complex.sin_ofReal_im, Complex.I_im,
           Complex.sub_im, Complex.one_im, Complex.add_im, Complex.cos_ofReal_im, Complex.mul_im]
@@ -210,7 +210,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
 
 /- Slightly weaker version of Lemma 11..1.9 (lower secant bound) with simplified constant. -/
 lemma lower_secant_bound {η : ℝ} {x : ℝ} (xIcc : x ∈ Set.Icc (-2 * π + η) (2 * π - η)) (xAbs : η ≤ |x|) :
-    η / 2 ≤ Complex.abs (1 - Complex.exp (Complex.I * x)) := by
+    η / 2 ≤ ‖(1 - Complex.exp (Complex.I * x))‖ := by
   by_cases ηpos : η < 0
   · calc η / 2
     _ ≤ 0 := by linarith

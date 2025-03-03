@@ -327,19 +327,19 @@ protected theorem HasWeakType.MB_one_toReal [BorelSpace X] (h𝓑 : 𝓑.Countab
 include A in
 theorem MB_ae_ne_top [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
-    {u : X → E} (hu : Memℒp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
+    {u : X → E} (hu : MemLp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
   simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWℒp hu |>.ae_ne_top
 
 -- move
-lemma MeasureTheory.Memℒp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ : Measure α}
-    {u : α → E} (hu : Memℒp u ⊤ μ) : eLpNormEssSup u μ < ⊤ := by
-  simp_rw [Memℒp, eLpNorm_exponent_top] at hu
+lemma MeasureTheory.MemLp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ : Measure α}
+    {u : α → E} (hu : MemLp u ⊤ μ) : eLpNormEssSup u μ < ⊤ := by
+  simp_rw [MemLp, eLpNorm_exponent_top] at hu
   exact hu.2
 
 include A in
 theorem MB_ae_ne_top' [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
-    ⦃u : X → E⦄ (hu : Memℒp u ⊤ μ ∨ Memℒp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
+    ⦃u : X → E⦄ (hu : MemLp u ⊤ μ ∨ MemLp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
   obtain hu|hu := hu
   · refine .of_forall fun x ↦ ?_
     simp_rw [← lt_top_iff_ne_top, MB, maximalFunction, inv_one, rpow_one]
@@ -361,14 +361,14 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) :
     AESublinearOn (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x)
-    (fun f ↦ Memℒp f ∞ μ ∨ Memℒp f 1 μ) 1 μ := by
-  let P := fun g ↦ g ∈ {f : X → E | Memℒp f ∞ μ} + {f | Memℒp f 1 μ}
+    (fun f ↦ MemLp f ∞ μ ∨ MemLp f 1 μ) 1 μ := by
+  let P := fun g ↦ g ∈ {f : X → E | MemLp f ∞ μ} + {f | MemLp f 1 μ}
   have hP : ∀ {g}, P g → LocallyIntegrable g μ := by
     rintro _ ⟨f, hf, g, hg, rfl⟩
-    exact (Memℒp.locallyIntegrable hf le_top).add (Memℒp.locallyIntegrable hg le_rfl)
+    exact (MemLp.locallyIntegrable hf le_top).add (MemLp.locallyIntegrable hg le_rfl)
   simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
-  refine AESublinearOn.biSup2 (P := (Memℒp · ⊤ μ)) (Q := (Memℒp · 1 μ)) h𝓑 ?_ ?_
-    Memℒp.zero Memℒp.zero Memℒp.add Memℒp.add ?_ ?_ ?_
+  refine AESublinearOn.biSup2 (P := (MemLp · ⊤ μ)) (Q := (MemLp · 1 μ)) h𝓑 ?_ ?_
+    MemLp.zero MemLp.zero MemLp.add MemLp.add ?_ ?_ ?_
   · intro u hu
     filter_upwards [MB_ae_ne_top' h𝓑 hR (.inl hu)] with x hx
     simpa [MB, maximalFunction] using hx
@@ -433,7 +433,7 @@ theorem hasStrongType_maximalFunction
       convert (hasStrongType_MB h𝓑 hR (μ := μ) _ |>.toReal (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
       · exact (ENNReal.coe_div p₁n).symm
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
-      · rw [ENNReal.coe_div p₁n]; exact Memℒp.norm_rpow_div mlpv p₁
+      · rw [ENNReal.coe_div p₁n]; exact MemLp.norm_rpow_div mlpv p₁
     _ ≤ _ := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), eLpNorm_norm_rpow _ cp₁p,
         ENNReal.ofReal_coe_nnreal, ENNReal.div_mul_cancel (by positivity) (by simp),

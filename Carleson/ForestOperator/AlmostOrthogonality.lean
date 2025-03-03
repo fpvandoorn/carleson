@@ -124,7 +124,7 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
           _ ≤ _ := by convert this
       by_cases hy : y ∈ tsupport f
       · specialize hCKf y x hy; gcongr
-      · simp only [norm_eq_abs, image_eq_zero_of_nmem_tsupport hy,
+      · simp only [image_eq_zero_of_nmem_tsupport hy,
           norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
   hasCompactSupport := by
     obtain x₀ : X := Classical.choice (by infer_instance)
@@ -262,7 +262,7 @@ irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
 -- unfortunate technicality
 lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
-    (hf : Memℒp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
+    (hf : MemLp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
   rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
   rw [nnnorm_real]
   have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this
@@ -292,12 +292,12 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
       (eLpNorm g 2 volume)^2 := by
-    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memℒp 2
+    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memLp 2
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]
   · refine ENNReal.mul_le_mul_right hgz ?_ |>.mp h
-    exact (hg.memℒp 2).eLpNorm_ne_top
+    exact (hg.memLp 2).eLpNorm_ne_top
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
@@ -339,7 +339,7 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f)
     eLpNorm f 2 volume := by
       gcongr
       · exact adjoint_tree_estimate hu hf h2f
-      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memℒp _) |>.2
+      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memLp _) |>.2
   _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
     simp_rw [add_mul]
     gcongr

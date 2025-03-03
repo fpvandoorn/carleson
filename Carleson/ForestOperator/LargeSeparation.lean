@@ -302,7 +302,7 @@ lemma volume_xDsp_bound (hx : x ∈ 𝓘 p) :
       _ = _ := by rw [← add_mul]; norm_num
   convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
   unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
-  rw [show (8 : ℝ) = 2 ^ 3 by norm_num, Real.logb_pow]; norm_num
+  rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
 
 lemma holder_correlation_tile_one
     (hf : BoundedCompactSupport f) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)) :

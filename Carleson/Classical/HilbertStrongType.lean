@@ -80,7 +80,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ}
   -- into this
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
   let F : Lp ℂ 2 haarAddCircle :=
-    Memℒp.toLp (AddCircle.liftIoc (2 * π) 0 f) sorry
+    MemLp.toLp (AddCircle.liftIoc (2 * π) 0 f) sorry
   have := spectral_projection_bound_lp (N := n) F
   sorry
 

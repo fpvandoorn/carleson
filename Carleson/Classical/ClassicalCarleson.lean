@@ -34,9 +34,7 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
   have h_periodic : h.Periodic (2 * π) := periodic_f₀.sub periodic_f
   have h_bound : ∀ x, ‖h x‖ ≤ ε' := by
     intro x
-    simp only [hdef, Pi.sub_apply, Complex.norm_eq_abs]
-    rw [← Complex.dist_eq, dist_comm, Complex.dist_eq]
-    exact hf₀ x
+    simpa only [hdef, Pi.sub_apply, norm_sub_rev] using hf₀ x
 
   /- Control approximation effect: Get a bound on the partial Fourier sums of h. -/
   obtain ⟨E, Esubset, Emeasurable, Evolume, hE⟩ := control_approximation_effect εpos ε'pos

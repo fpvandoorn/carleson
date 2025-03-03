@@ -1,4 +1,5 @@
 import Mathlib.Analysis.Normed.Field.Basic
+import Mathlib.Topology.Instances.NNReal.Defs
 
 /-! ## `ENNReal` manipulation lemmas -/
 

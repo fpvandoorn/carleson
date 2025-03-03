@@ -152,7 +152,7 @@ private theorem eLpNorm_top_convolution_le_aux [AddCommGroup G] {p q : ℝ≥0�
       simp_rw [mul_assoc, lintegral_const_mul' _ _ ofReal_ne_top]
       simpa [hg' x] using mul_left_mono (ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm hpq hf (hg x))
 
-variable [AddCommGroup G] [TopologicalSpace G] [TopologicalAddGroup G] [BorelSpace G]
+variable [AddCommGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelSpace G]
   [μ.IsAddHaarMeasure] [LocallyCompactSpace G] [SecondCountableTopology G]
 
 /-- Special case of **Young's convolution inequality** when `r = ∞`. -/
