@@ -4798,7 +4798,7 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     \label{local-dens2-tree-bound}
     \leanok
     \lean{TileStructure.Forest.local_dens2_tree_bound}
-    Let $J \in \mathcal{J}(\fT(\fu))$ be such that there exist $\fq \in \fT(\fu)$ with $J \cap \scI(\fq) \ne \emptyset$. Then
+    Let $J \in \mathcal{J}(\fT(\fu))$ be such that $J \cap \scI(\fu) \ne \emptyset$. Then
     $$
         \mu(F \cap J) \le 2^{200a^3 + 19} \dens_2(\fT(\fu)) \mu(J)\,.
     $$
@@ -4806,18 +4806,33 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
 \begin{proof}[Proof of \Cref{densities-tree-bound}]
     \proves{densities-tree-bound}
+    First, we claim that for every tile $\fp \in \fT(\fu)$
+    we have
+    \[
+        T_{\fp} f = \mathbf{1}_{E(\fp)}(x) \int K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y)
+    \]
+    \[
+        = \mathbf{1}_{E(\fp)} T_{\fp}(\mathbf{1}_{\scI(\fu)} f).
+    \]
+    Indeed, if the expression in the middle is not zero,
+    then $x \in E(\fp) \subset \scI(\fp) \subset B(\pc(\fp), 4D^{\ps(\fp)})$.
+    By \eqref{supp-Ks}, it follows that $K_{\ps(\fp)}(x,y)$ is zero
+    unless $y \in B(\pc(\fp), 4.5D^{\ps(\fp)}) \subset \scI(\fu)$,
+    where the last inclusion follows from \eqref{forest6}.
+    Thus, the expression does not change upon replacing $f$ by $f \mathbf{1}_{\scI(\fu)}$.
+
     Denote
     $$
         \mathcal{E}(\fu) = \bigcup_{\fp \in \fT(\fu)} E(\fp)\,.
     $$
     Then we have
     $$
-        \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right| = \left| \int_X \overline{ g\mathbf{1}_{\mathcal{E}(\fu)}} \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right|\,.
+        \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right| = \left| \int_X \overline{ g\mathbf{1}_{\mathcal{E}(\fu)}} \sum_{\fp \in \fT(\fu)} T_{\fp} (\mathbf{1}_{\scI(\fu)}f) \, \mathrm{d}\mu \right|\,.
     $$
     By \Cref{tree-projection-estimate}, this is bounded by
     \begin{equation}
         \label{eq-both-factors-tree}
-        \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2\,.
+        \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|\mathbf{1}_{\scI(\fu)}f|\|_2 \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2\,.
     \end{equation}
     We bound the two factors separately.
     We have
@@ -4836,13 +4851,13 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     Similarly, we have
     \begin{equation}
         \label{eq-cor-tree-proof}
-        \|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_J |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
+        \|P_{\mathcal{J}(\fT(\fu))}|\mathbf{1}_{\scI(\fu)}f|\|_2 = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_{J \cap \scI(\fu)} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     \end{equation}
     By Cauchy-Schwarz, this is
     $$
         \le \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_J |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
     $$
-    Since cubes in $\mathcal{J}(\fT(\fu))$ are pairwise disjoint by \Cref{dyadic-partitions}, this at most
+    Since cubes in $\mathcal{J}(\fT(\fu))$ are pairwise disjoint by \Cref{dyadic-partitions}, this is at most
     \begin{equation}
         \label{eq-factor-J-tree}
         \|f\|_2\,.
@@ -4851,7 +4866,10 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
     If $f \le \mathbf{1}_F$ then $f = f\mathbf{1}_F$, so
     $$
-        \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_J |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2} = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_{J \cap F} |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
+        \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_{J \cap \scI(\fu)} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}
+    $$
+    $$
+        \le \left( \sum_{J \in \mathcal{J}(\fT(\fu)), J \cap \scI(\fu) \ne \emptyset} \frac{1}{\mu(J)} \left(\int_{J \cap F} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     $$
     We estimate as before, using now \Cref{local-dens2-tree-bound} and Cauchy-Schwarz, and obtain that this is
     $$
@@ -4919,7 +4937,14 @@ Now we prove the two auxiliary estimates.
     $$
     completing the proof in this case.
 
-    Now suppose that there does not exist a tile $\fp \in \fT(\fu)$ with $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. If we had $\ps(\fq) \le s(J)$, then by \eqref{dyadicproperty} and \eqref{eq-vol-sp-cube} $\scI(\fq) \subset J \subset B(c(J), 100 D^{s(J) + 1})$, contradicting our assumption. Thus $\ps(\fq) > s(J)$. Then, by \eqref{coverdyadic} and \eqref{dyadicproperty}, there exists some cube $J' \in \mathcal{D}$ with $s(J') = s(J) + 1$ and $J \subset J'$. By definition of $\mathcal{J}(\fT(\fu))$ there exists some $\fp \in \fT(\fu)$ such that $\scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})$. From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
+    Now suppose that there does not exist a tile $\fp \in \fT(\fu)$ with $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$.
+    If we had $s(J) \ge \ps(\fu)$, then by \eqref{dyadicproperty}
+    and \eqref{eq-vol-sp-cube} $\scI(u) \subset J \subset B(c(J), 100 D^{s(J) + 1})$,
+    contradicting our assumption.
+    Thus $s(J) < \ps(\fu) \le S$.
+    Then, by \eqref{coverdyadic} and \eqref{dyadicproperty}, there exists some cube $J' \in \mathcal{D}$ with $s(J') = s(J) + 1$ and $J \subset J'$.
+    By definition of $\mathcal{J}(\fT(\fu))$ there exists some $\fp \in \fT(\fu)$ such that $\scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})$.
+    From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
     \begin{equation}
         \label{eq-measure-comparison-1}
         \mu(B(\pc(\fp), 4D^{\ps(\fp)})) \le 2^{4a} \mu(\scI(\fp)) \le 2^{200a^3 + 14} \mu(J)\,.
