@@ -316,6 +316,10 @@ lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
       _ ≤ 2 ^ (⌊x⌋₊ : ℝ) := by exact_mod_cast Nat.lt_pow_self one_lt_two
       _ ≤ _ := rpow_le_rpow_of_exponent_le one_le_two (Nat.floor_le h)
 
+lemma Nat.ceil_lt_add_one_of_nonneg {x : ℝ} (hx : 0 ≤ x) : ⌈x⌉₊ < x + 1 := by
+  rw [show (⌈x⌉₊ : ℝ) = (⌈x⌉₊ : ℤ) by rfl, Int.natCast_ceil_eq_ceil hx]
+  exact Int.ceil_lt_add_one x
+
 namespace Set
 
 open ComplexConjugate
