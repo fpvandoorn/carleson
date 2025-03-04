@@ -5676,6 +5676,7 @@ $$
     \end{lemma}
 
     \begin{proof}
+    \leanok
     Since $\emptyset \ne \fT(\fu_1) \subset \mathfrak{S}$ by \Cref{overlap-implies-distance}, there exists at least one tile $\fp \in \mathcal{S}$ with $\scI(\fp) \subsetneq \scI(\fu_1)$. Thus $\scI(\fu_1) \notin \mathcal{J}'$, so $J \subsetneq \scI(\fu_1)$. Thus there exists a cube $J' \in \mathcal{D}$ with $J \subset J'$ and $s(J') = s(J) + 1$, by \eqref{coverdyadic} and \eqref{dyadicproperty}. By definition of $\mathcal{J'}$ and the triangle inequality, there exists $\fp \in \mathfrak{S}$ such that
     $$
         \scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1}) \subset B(c(J), 128 D^{s(J)+2})\,.
