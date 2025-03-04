@@ -54,7 +54,7 @@ private lemma integrableOn_mul_f (x' : X) (hf : BoundedCompactSupport f) (r : �
     apply continuous_ofReal.comp_aestronglyMeasurable ∘ continuous_ψ.comp_aestronglyMeasurable
     exact (continuous_const.dist continuous_id').aestronglyMeasurable.const_mul _
   · refine ⟨(s₂ + 1 - s₁).toNat, fun _ ↦ le_trans (norm_sum_le ..) ?_⟩
-    simp_rw [norm_eq_abs, abs_ofReal]
+    simp_rw [norm_real]
     exact le_of_le_of_eq (Finset.sum_le_sum fun _ _ ↦ abs_ψ_le_one _ _) (by simp)
 
 private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
@@ -152,7 +152,7 @@ namespace TileStructure.Forest
 
 lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedCompactSupport f) :
     eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume ≤ CMB (defaultA a : ℝ≥0) 2 * eLpNorm f 2 volume :=
-  hasStrongType_MB_finite 𝓑_finite one_lt_two f (hf.memℒp 2) |>.2
+  hasStrongType_MB_finite 𝓑_finite one_lt_two f (hf.memLp 2) |>.2
 
 /-! ## Section 7.2 and Lemma 7.2.1 -/
 
@@ -313,7 +313,7 @@ lemma nontangential_operator_bound
   have ha : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
   have aemeas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
     (AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
-  have ⟨hT₁, hT₂⟩ := hasBoundedStrongType_Tstar f (hf.memℒp 2) hf.memℒp_top.eLpNorm_lt_top
+  have ⟨hT₁, hT₂⟩ := hasBoundedStrongType_Tstar f (hf.memLp 2) hf.memLp_top.eLpNorm_lt_top
     hf.isBoundedSupport.measure_lt_top
   calc eLpNorm (nontangentialMaximalFunction θ f) 2 volume
     _ ≤ eLpNorm (fun x ↦ nontangentialOperator K f x +
@@ -675,7 +675,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
         · exact one_le_two
         · exact one_le_D
         · exact scale_mem_Icc.2
-      specialize ST g (hg.memℒp 2)
+      specialize ST g (hg.memLp 2)
       rw [CMB_defaultA_two_eq, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat] at ST
       exact mul_le_mul_left' ST.2 _
     _ = 2 ^ (9 * a + 1) * 2 ^ (a + (3 / 2 : ℝ)) * eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
@@ -703,7 +703,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
       eLpNorm (t.boundaryOperator u f) 2 volume :=
     eLpNorm_toReal_eq (Eventually.of_forall fun _ ↦ (boundaryOperator_lt_top hf).ne)
   by_cases hv : eLpNorm (t.boundaryOperator u f) 2 volume = 0; · simp [hv]
-  have hv' : eLpNorm (t.boundaryOperator u f) 2 volume < ⊤ := elpn_eq ▸ (bcs.memℒp 2).2
+  have hv' : eLpNorm (t.boundaryOperator u f) 2 volume < ⊤ := elpn_eq ▸ (bcs.memLp 2).2
   rw [← ENNReal.mul_le_mul_right hv hv'.ne, ← sq, ← ENNReal.rpow_natCast]
   nth_rw 1 [show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
     eLpNorm_nnreal_pow_eq_lintegral two_ne_zero]
