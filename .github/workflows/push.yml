@@ -59,16 +59,12 @@ jobs:
       - name: Cache API docs
         uses: actions/cache@v4
         with:
-          path: |
-            docbuild/.lake/build/doc
-          key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
+          path: docbuild/.lake/build/doc
+          key: LakeBuildDoc-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
           restore-keys: LakeBuildDoc-
 
-      - name: Build project documentation
-        working-directory: docbuild
-        run: |
-          MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update carleson || true
-          ~/.elan/bin/lake build Carleson:docs
+      - name: Build project API documentation
+        run: scripts/build_docs.sh
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
@@ -92,16 +88,6 @@ jobs:
 
       - name: Check declarations
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
-
-      - name: Copy documentation to `docs/docs`
-        run: |
-          sudo chown -R runner docs
-          cp -r docbuild/.lake/build/doc docs/docs
-
-      # - name: Remove lake files from documentation in `docs/docs`
-      #   run: |
-      #     find docs/docs -name "*.trace" -delete
-      #     find docs/docs -name "*.hash" -delete
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1

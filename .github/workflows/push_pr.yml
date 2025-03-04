@@ -29,10 +29,15 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build Carleson
 
-      - name: Test carleson update in docbuild
-        working-directory: docbuild
-        run: |
-          MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update carleson || true
+      - name: Cache API docs
+        uses: actions/cache@v4
+        with:
+          path: docbuild/.lake/build/doc
+          key: LakeBuildDoc-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: LakeBuildDoc-
+
+      - name: Build project API documentation
+        run: scripts/build_docs.sh
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
