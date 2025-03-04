@@ -68,8 +68,8 @@ lemma partial_sum_selfadjoint {f g : ℝ → ℂ} {n : ℕ}
   sorry
 
 
---lemma eLpNorm_eq_norm {f : ℝ → ℂ} {p : ENNReal} (hf : Memℒp f p) :
---    ‖Memℒp.toLp f hf‖ = eLpNorm f p := by
+--lemma eLpNorm_eq_norm {f : ℝ → ℂ} {p : ENNReal} (hf : MemLp f p) :
+--    ‖MemLp.toLp f hf‖ = eLpNorm f p := by
 --  sorry
 
 theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
@@ -91,8 +91,8 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
   push_neg at hf_L2
   rw [← lt_top_iff_ne_top] at hf_L2
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
-  have lift_memℒp : Memℒp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
-    unfold Memℒp
+  have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
+    unfold MemLp
     constructor
     . rw [haarAddCircle_eq_smul_volume]
       apply AEStronglyMeasurable.smul_measure
@@ -102,7 +102,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
       rw [← ENNReal.ofReal_inv_of_pos this.out]
       apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
   let F : Lp ℂ 2 haarAddCircle :=
-    Memℒp.toLp (AddCircle.liftIoc (2 * π) 0 f) lift_memℒp
+    MemLp.toLp (AddCircle.liftIoc (2 * π) 0 f) lift_MemLp
 
   have lp_version := spectral_projection_bound_lp (N := n) F
   rw [Lp.norm_def, Lp.norm_def,
@@ -111,9 +111,9 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
   rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable, volume_eq_smul_haarAddCircle,
     eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_smul_measure_of_ne_top (by trivial),
     smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_left (by simp [Real.pi_pos]) (by simp)]
-  have ae_eq_right : ↑↑F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := Memℒp.coeFn_toLp _
+  have ae_eq_right : ↑↑F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := MemLp.coeFn_toLp _
   have ae_eq_left : ↑↑(partialFourierSumLp 2 n F) =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 (partialFourierSum n f) := by
-    exact Filter.EventuallyEq.symm (partialFourierSum_aeeq_partialFourierSumLp 2 n f lift_memℒp)
+    exact Filter.EventuallyEq.symm (partialFourierSum_aeeq_partialFourierSumLp 2 n f lift_MemLp)
   rw [← eLpNorm_congr_ae ae_eq_right, ← eLpNorm_congr_ae ae_eq_left]
   exact lp_version
 

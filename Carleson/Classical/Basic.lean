@@ -34,21 +34,21 @@ theorem AEEqFun.mk_sum.{u_3, u_2, u_1} {α : Type u_1} {E : Type u_2} {m0 : Meas
       implies_true, Finset.sum_image]
 
 --TODO: to mathlib
-lemma ContinuousMap.memℒp {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal} (μ : Measure α)
+lemma ContinuousMap.MemLp {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal} (μ : Measure α)
     [NormedAddCommGroup E] [TopologicalSpace α] [BorelSpace α] [SecondCountableTopologyEither α E] [CompactSpace α]
-    [IsFiniteMeasure μ] (𝕜 : Type*) [Fact (1 ≤ p)] [NormedField 𝕜] [NormedSpace 𝕜 E] (f : C(α, E)) : Memℒp f p μ := by
+    [IsFiniteMeasure μ] (𝕜 : Type*) [Fact (1 ≤ p)] [NormedField 𝕜] [NormedSpace 𝕜 E] (f : C(α, E)) : MemLp f p μ := by
   have := Subtype.val_prop (ContinuousMap.toLp p μ 𝕜 f)
-  have := Lp.mem_Lp_iff_memℒp.mp this
-  rw [ContinuousMap.coe_toLp, memℒp_congr_ae (ContinuousMap.coeFn_toAEEqFun _ _)] at this
+  have := Lp.mem_Lp_iff_memLp.mp this
+  rw [ContinuousMap.coe_toLp, memLp_congr_ae (ContinuousMap.coeFn_toAEEqFun _ _)] at this
   exact this
 
 --TODO: to mathlib
-lemma Memℒp.toLp_sum {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal}
-    {μ : Measure α} [NormedAddCommGroup E] {ι : Type*} [DecidableEq ι] (s : Finset ι) {f : ι → α → E} (hf : ∀ i ∈ s, Memℒp (f i) p μ) :
-    Memℒp.toLp (∑ i ∈ s, f i) (memℒp_finset_sum' s hf) = ∑ i : ↑s, (Memℒp.toLp (f i) (hf i (Finset.coe_mem i))) := by
+lemma MemLp.toLp_sum {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal}
+    {μ : Measure α} [NormedAddCommGroup E] {ι : Type*} [DecidableEq ι] (s : Finset ι) {f : ι → α → E} (hf : ∀ i ∈ s, MemLp (f i) p μ) :
+    MemLp.toLp (∑ i ∈ s, f i) (memLp_finset_sum' s hf) = ∑ i : ↑s, (MemLp.toLp (f i) (hf i (Finset.coe_mem i))) := by
   rw [Finset.univ_eq_attach]
   refine Lp.ext_iff.mpr ?_
-  unfold Memℒp.toLp
+  unfold MemLp.toLp
   rw [Subtype.val]
   rw [AddSubgroup.val_finset_sum]
   refine AEEqFun.ext_iff.mp ?_
@@ -134,22 +134,22 @@ lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0
 
 
 lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) :
-    partialFourierSumLp p N f = Memℒp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).memℒp haarAddCircle ℂ)  := by
+    partialFourierSumLp p N f = MemLp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).MemLp haarAddCircle ℂ)  := by
   unfold partialFourierSumLp partialFourierSum'
   unfold fourierLp
   simp_rw [ContinuousMap.coe_sum, ContinuousMap.coe_smul]
-  rw [Memℒp.toLp_sum _ (by intro n hn; apply Memℒp.const_smul (ContinuousMap.memℒp haarAddCircle ℂ (fourier n)))]
+  rw [MemLp.toLp_sum _ (by intro n hn; apply MemLp.const_smul (ContinuousMap.MemLp haarAddCircle ℂ (fourier n)))]
   rw [Finset.univ_eq_attach]
   rw [← Finset.sum_attach]
   rfl
 
 
-lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_ℒp :  Memℒp (liftIoc (2 * Real.pi) 0 f) 2 haarAddCircle):
-    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (Memℒp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_ℒp)) := by
-  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _) h_mem_ℒp.aestronglyMeasurable (Memℒp.coeFn_toLp h_mem_ℒp)]
+lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_ℒp :  MemLp (liftIoc (2 * Real.pi) 0 f) 2 haarAddCircle):
+    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (MemLp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_ℒp)) := by
+  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _) h_mem_ℒp.aestronglyMeasurable (MemLp.coeFn_toLp h_mem_ℒp)]
   rw [partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
   symm
-  apply Memℒp.coeFn_toLp
+  apply MemLp.coeFn_toLp
 
 
 
