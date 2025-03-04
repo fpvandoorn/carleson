@@ -5547,14 +5547,14 @@ $$
         \leanok
         \lean{TileStructure.Forest.global_tree_control1_1, TileStructure.Forest.global_tree_control1_2}
         \uses{Holder-correlation-tile,scales-impacting-interval}
-        Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
+        Let $\fC_1 = \fT(\fu_1)$ and $\fC_2 = \fT(\fu_2) \cap \mathfrak{S}$. Then for $i = 1,2$ and each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
             \label{TreeUB}
-            \sup_{B(J)} |T_{\fC}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC} g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
         \end{align}
         and for all $y,y' \in B(J)$
         $$
-            |e(\fcc(\fu)(y)) T_{\fC}^* g(y) - e(\fcc(\fu)(y')) T_{\fC}^* g(y')|
+            |e(\fcc(\fu_i)(y)) T_{\fC_i}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fC_i}^* g(y')|
         $$
         \begin{equation}
             \label{TreeHolder}
@@ -5569,13 +5569,13 @@ $$
         By the triangle inequality, \Cref{adjoint-tile-support} and \Cref{Holder-correlation-tile}, we have for all $y, y' \in B(J)$
         \begin{equation}
             \label{eq-C-Lip}
-            |e(\fcc(\fu)(y)) T_{\fC}^* g(y) - e(\fcc(\fu)(y')) T_{\fC}^* g(y')|
+            |e(\fcc(\fu_i)(y)) T_{\fC_i}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fC_i}^* g(y')|
         \end{equation}
         $$
-            \leq \sum_{\substack{\fp \in \fC\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} |e(\fcc(\fu)(y)) T_{\fp}^* g(y) - e(\fcc(\fu)(y')) T_{\fp}^* g(y')|
+            \leq \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} |e(\fcc(\fu_i)(y)) T_{\fp}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fp}^* g(y')|
         $$
         $$
-            \le 2^{151a^3}\rho(y,y')^{1/a} \sum_{\substack{\fp \in \fC\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
+            \le 2^{151a^3}\rho(y,y')^{1/a} \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
         $$
         By \Cref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
         $$
