@@ -118,7 +118,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ}
     exact Filter.EventuallyEq.symm (partialFourierSum_aeeq_partialFourierSumLp 2 n f lift_memℒp)
   rw [← eLpNorm_congr_ae ae_eq_right, ← eLpNorm_congr_ae ae_eq_left]
   exact lp_version
-  --unfold partialFourierSumLp fourierLp at this
+
 
 /-- Lemma 11.3.1.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.

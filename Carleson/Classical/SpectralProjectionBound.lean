@@ -71,27 +71,19 @@ lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N :
     rw [Function.comp_apply, Set.restrict_apply] at this
     exact this
 
-
-
---TODO: I think the measurability assumptions are unnecessary actually
+--TODO: I think the measurability assumptions might be unnecessary
 theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
     (h : f =ᶠ[ae haarAddCircle] g) : fourierCoeff f n = fourierCoeff g n := by
-  sorry
-  /-
   unfold fourierCoeff
   apply integral_congr_ae
   change @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * f =ᶠ[ae haarAddCircle] @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * g
+  have fourier_measurable : AEStronglyMeasurable (⇑(@fourier T (-n))) haarAddCircle := (ContinuousMap.measurable _).aestronglyMeasurable
 
-  rw [← @AEEqFun.mk_eq_mk, ← AEEqFun.mk_mul_mk, ← AEEqFun.mk_mul_mk]
-  congr
-
-  . apply Measurable.aestronglyMeasurable
-    apply ContinuousMap.measurable
-  . exact hf
-  -/
-
-
+  rw [← @AEEqFun.mk_eq_mk _ _ _ _ _ _ _ (fourier_measurable.mul hf) (fourier_measurable.mul hg),
+      ← AEEqFun.mk_mul_mk _ _ fourier_measurable hf, ← AEEqFun.mk_mul_mk _ _ fourier_measurable hg]
+  congr 1
+  rwa [AEEqFun.mk_eq_mk]
 
 lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {N : ℕ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
