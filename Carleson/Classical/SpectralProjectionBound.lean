@@ -63,62 +63,35 @@ lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N :
   rw [← liftIoc, fourierCoeff_liftIoc_eq]
   congr 2
   . rw [zero_add (2 * Real.pi)]
-  .
-    rcases (eq_coe_Ioc x) with ⟨b, hb, rfl⟩
+  . rcases (eq_coe_Ioc x) with ⟨b, hb, rfl⟩
     rw [← zero_add (2 * Real.pi)] at hb
     rw [coe_eq_coe_iff_of_mem_Ioc (Subtype.coe_prop _) hb]
     have : (liftIoc (2 * Real.pi) 0 (fun x ↦ x)) b = (fun x ↦ x) b := liftIoc_coe_apply hb
     unfold liftIoc at this
-    simp at this
+    rw [Function.comp_apply, Set.restrict_apply] at this
     exact this
 
 
-/-
-def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) : Lp ℂ p (@haarAddCircle T hT) :=
-    ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeffOn hT.out f n • fourierLp p n
--/
---#print partialFourierSumLp
---
 
---TODO: add some lemma relating partialFourierSum and partialFourierSumLp
-/-
-lemma partialFourierSum_eq {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : ℝ → ℂ) :
-    liftIoc T 0 (partialFourierSum N f) = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff (liftIoc T 0 f) n • ⇑(fourier n) := by
-  sorry
--/
-
-/-
-lemma partialFourierSumLp_eq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) :
-    ↑↑(partialFourierSumLp p N f) = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • ⇑(fourier n) := by
-  sorry
--/
-
---theorem test {T : ℝ} {n : ℤ} {f : AddCircle T → ℂ} : (fun a ↦ (fourier (-n)) a * f a) = ⇑(fourier (-n)) * f := rfl
---set_option pp.all true
 --TODO: I think the measurability assumptions are unnecessary actually
-lemma fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
+theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
     (h : f =ᶠ[ae haarAddCircle] g) : fourierCoeff f n = fourierCoeff g n := by
+  sorry
+  /-
   unfold fourierCoeff
   apply integral_congr_ae
-  --conv in (_ • _) => rw [smul_eq_mul]
-  --conv in (_ • _) => rw [smul_eq_mul]
+  change @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * f =ᶠ[ae haarAddCircle] @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * g
 
-  have : ((fun a ↦ ⇑(fourier (-n)) a • f a) : AddCircle T → ℂ) = ⇑(fourier (-n)) * f := by rfl
-  rw [this]
-  have : (fun a ↦ (fourier (-n)) a • g a) = ⇑(fourier (-n)) * g := by rfl
-  rw [this]
-  --rw [mk_smul_mk_aeeqFun]
-  --rw [test, test]
   rw [← @AEEqFun.mk_eq_mk, ← AEEqFun.mk_mul_mk, ← AEEqFun.mk_mul_mk]
   congr
 
   . apply Measurable.aestronglyMeasurable
     apply ContinuousMap.measurable
   . exact hf
+  -/
 
 
-#print axioms fourierCoeff_eq_fourierCoeff_of_aeeq
 
 lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {N : ℕ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
@@ -138,108 +111,57 @@ lemma ContinuousMap.memℒp {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {
   rw [ContinuousMap.coe_toLp, memℒp_congr_ae (ContinuousMap.coeFn_toAEEqFun _ _)] at this
   exact this
 
-/-
-lemma partialFourierSum'_memℒp {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) {p : ENNReal} [Fact (1 ≤ p)] : Memℒp (partialFourierSum' N f) p haarAddCircle := by
-  have := Subtype.val_prop (ContinuousMap.toLp p haarAddCircle ℂ (partialFourierSum' N f))
-  have := Lp.mem_Lp_iff_memℒp.mp this
-  rw [ContinuousMap.coe_toLp, memℒp_congr_ae (ContinuousMap.coeFn_toAEEqFun _ _)] at this
-  exact this
--/
+--TODO: to mathlib
+theorem AEEqFun.mk_sum.{u_3, u_2, u_1} {α : Type u_1} {E : Type u_2} {m0 : MeasurableSpace α}
+    {μ : Measure α} [inst : NormedAddCommGroup E] {ι : Type u_3} [DecidableEq ι] {s : Finset ι} {f : ι → α → E}
+    (hf : ∀ i ∈ s, AEStronglyMeasurable (f i) μ) :
+      AEEqFun.mk (∑ i ∈ s, f i) (Finset.aestronglyMeasurable_sum' s hf) = ∑ i ∈ s.attach, AEEqFun.mk (f ↑i) (hf i (Finset.coe_mem i)) := by
+  induction' s using Finset.induction_on with i s hi h
+  . simp_rw [Finset.attach_empty, Finset.sum_empty]
+    exact rfl
+  . simp_rw [Finset.attach_insert]
+    simp_rw [Finset.sum_insert hi]
+    have hi' : @Subtype.mk ι (fun x ↦ x ∈ insert i s) i (Finset.mem_insert_self i s) ∉ @Finset.image { x // x ∈ s } { x // x ∈ insert i s } (fun a b ↦ a.instDecidableEq b) (fun x ↦ ⟨↑x, Finset.mem_insert_of_mem x.property⟩) s.attach := by
+      simp [hi]
+    simp_rw [Finset.sum_insert hi']
+    rw [← AEEqFun.mk_add_mk _ _ (hf _ (Finset.mem_insert_self i s)) (Finset.aestronglyMeasurable_sum' s (fun j hj ↦ hf j (Finset.mem_insert_of_mem hj)))]
+    congr
+    -- use induction hypothesis here
+    rw [h (fun j hj ↦ hf j (Finset.mem_insert_of_mem hj))]
+
+    simp only [Finset.mem_attach, Subtype.mk.injEq, forall_const, Subtype.forall, imp_self,
+      implies_true, Finset.sum_image]
 
 --TODO: to mathlib
 lemma Memℒp.toLp_sum {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal}
-    {μ : Measure α} [NormedAddCommGroup E] {ι : Type*} (s : Finset ι) {f : ι → α → E} (hf : ∀ i ∈ s, Memℒp (f i) p μ) :
-    Memℒp.toLp (∑ i ∈ s, f i) (memℒp_finset_sum' s hf) = ∑ i : ↑s, (Memℒp.toLp (f i) (hf i (by simp only [Finset.coe_mem]))) := by
-  --apply Finset.induction_on
-  --induction s
-
-  simp
-  conv in (∑ i ∈ s, f i) => rw [← Finset.sum_attach]
-
-  --sorry
-  --rw [Memℒp.toLp_congr]
-
-
-  unfold Memℒp.toLp
+    {μ : Measure α} [NormedAddCommGroup E] {ι : Type*} [DecidableEq ι] (s : Finset ι) {f : ι → α → E} (hf : ∀ i ∈ s, Memℒp (f i) p μ) :
+    Memℒp.toLp (∑ i ∈ s, f i) (memℒp_finset_sum' s hf) = ∑ i : ↑s, (Memℒp.toLp (f i) (hf i (Finset.coe_mem i))) := by
+  rw [Finset.univ_eq_attach]
   refine Lp.ext_iff.mpr ?_
-  simp
+  unfold Memℒp.toLp
+  rw [Subtype.val]
+  rw [AddSubgroup.val_finset_sum]
+  refine AEEqFun.ext_iff.mp ?_
+  apply AEEqFun.mk_sum (fun i hi ↦ (hf i hi).aestronglyMeasurable)
 
-  sorry
-
-  --rw [AEEqFun.cast]
-
-  --rw [map_sum AEEqFun.mk _ s]
-  --rw [cast_sum]
-  --rw [AEEqFun.coeFn_mk]
-  --apply Finset.induction_on
-  --induction s generalizing f
-  --simp
-
-  --apply Finset.induction_on s _ _ _
-  --refine Finset.induction_on s ?_ ?_
-  --. intro h g
-
-
-  --have := map_sum Memℒp.toLp f s
 
 lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) :
     partialFourierSumLp p N f = Memℒp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).memℒp haarAddCircle ℂ)  := by
   unfold partialFourierSumLp partialFourierSum'
   unfold fourierLp
-  simp only [ContinuousMap.coe_sum, ContinuousMap.coe_smul]
-
+  simp_rw [ContinuousMap.coe_sum, ContinuousMap.coe_smul]
   rw [Memℒp.toLp_sum _ (by intro n hn; apply Memℒp.const_smul (ContinuousMap.memℒp haarAddCircle ℂ (fourier n)))]
-  simp only [Finset.univ_eq_attach]
+  rw [Finset.univ_eq_attach]
   rw [← Finset.sum_attach]
   rfl
 
 
 lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_ℒp :  Memℒp (liftIoc (2 * Real.pi) 0 f) 2 haarAddCircle):
     liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (Memℒp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_ℒp)) := by
-  --unfold partialFourierSum partialFourierSumLp
-  --apply lp_coe
-  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq _ _ (Memℒp.coeFn_toLp h_mem_ℒp)]
+  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _) h_mem_ℒp.aestronglyMeasurable (Memℒp.coeFn_toLp h_mem_ℒp)]
   rw [partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
-  --simp
   symm
   apply Memℒp.coeFn_toLp
-  . sorry
-  . sorry
-  --rw [partialFourierSum_eq, partialFourierSupLp_eq_partialFourierSupLp_of_ae_eq (Memℒp.coeFn_toLp h_mem_ℒp)]
-  --set F := (liftIoc T 0 f)
-  --unfold partialFourierSumLp
-  --push_cast
-
-  --symm
-  --convert Memℒp.coeFn_toLp this
-  --unfold partialFourierSumLp partialFourierSum fourierCoeffOn fourierLp
-  --sorry
-  --rw [fourier]
-  --rw [fourierCoeff_eq_intervalIntegral _ _]
-  --norm_cast
-
-  --apply?
-
-  --simp
-  --push_cast
-  --norm_cast
-  --unfold AEEqFun.cast
-  --rw [sum_coe]
-  --rw [AEEqFun.coeFn_mk]
-  --ext x
-  --simp
-  --rw [coe_apply]
-
-
-/-
-lemma partialFourierSum_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_ℒp :  Memℒp (liftIoc T 0 f) 2 haarAddCircle):
-    partialFourierSum N f = fun (x : ℝ) ↦ (partialFourierSumLp p N (Memℒp.toLp (AddCircle.liftIoc T 0 f) h_mem_ℒp)) (x : AddCircle T) := by
-  unfold partialFourierSum partialFourierSumLp fourierCoeffOn
-  ext x
-  simp
-  --rw [coeFn]
--/
-  --rw [lp.coeFn_sum]
 
 
 lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (2 : ENNReal))] {f : ↥(Lp ℂ 2 haarAddCircle)} {N : ℕ} :
