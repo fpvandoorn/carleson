@@ -86,22 +86,139 @@ lemma pairwiseDisjoint_𝓙₆ :
   have ss : (𝓙 (t u₁) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t u₁) := inter_subset_left
   exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := t u₁)) ss
 
-
 /-- The constant used in `thin_scale_impact`. This is denoted `s₁` in the proof of Lemma 7.6.3.
 Has value `Z * n / (202 * a ^ 3) - 2` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_6_3 (a n : ℕ) : ℝ := Z * n / (202 * a ^ 3) - 2
 
--- if needed
-lemma C7_6_3_pos [ProofData a q K σ₁ σ₂ F G] (h : 1 ≤ n) : 0 < C7_6_3 a n := by
-  sorry
+lemma nonneg_C7_6_3_add_two : 0 ≤ C7_6_3 a n + 2 := by
+  simp_rw [C7_6_3, sub_add_cancel]; positivity
+
+/-- Some preliminary relations for Lemma 7.6.3. -/
+lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
+    (hd : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)))
+    (h : s J - C7_6_3 a n < 𝔰 p) :
+    dist (𝔠 p) (c J) < 16 * D ^ (𝔰 p + C7_6_3 a n + 2) ∧
+    ∃ J', J < J' ∧ s J' = s J + 1 ∧
+      ∃ p ∈ t u₁, ↑(𝓘 p) ⊆ ball (c J') (100 * D ^ (s J' + 1)) := by
+  have b1 : dist (𝔠 p) (c J) < 16 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
+    calc
+      _ < 8 * (D : ℝ) ^ 𝔰 p + 8 * D ^ s J := dist_lt_of_not_disjoint_ball hd
+      _ ≤ 8 * D ^ (𝔰 p + C7_6_3 a n + 2) + 8 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
+        simp_rw [← Real.rpow_intCast]; gcongr (8 : ℝ) * D ^ ?_ + 8 * D ^ ?_
+        · exact one_le_D
+        · rw [add_assoc, le_add_iff_nonneg_right]; exact nonneg_C7_6_3_add_two
+        · exact one_le_D
+        · linarith
+      _ ≤ _ := by rw [← two_mul, ← mul_assoc]; norm_num
+  obtain ⟨q, mq⟩ := t.nonempty hu₁
+  have qlt : 𝓘 q < 𝓘 u₁ := lt_of_le_of_ne (t.smul_four_le hu₁ mq).1 (t.𝓘_ne_𝓘 hu₁ mq)
+  have u₁nm : 𝓘 u₁ ∉ 𝓙₆ t u₁ := by
+    simp_rw [𝓙₆, mem_inter_iff, mem_Iic, le_rfl, and_true, 𝓙, mem_setOf, Maximal, not_and_or]; left
+    rw [𝓙₀, mem_setOf]; push_neg; rw [Grid.lt_def] at qlt
+    refine ⟨(scale_mem_Icc.1.trans_lt qlt.2).ne',
+      ⟨q, mq, qlt.1.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩⟩
+    change 4 * (D : ℝ) ^ (𝔰 u₁) ≤ 100 * D ^ (𝔰 u₁ + 1); gcongr
+    exacts [by norm_num, one_le_D, by omega]
+  have Jlt : J < 𝓘 u₁ := by apply lt_of_le_of_ne hJ.2; by_contra hh; subst hh; exact u₁nm hJ
+  rw [Grid.lt_def] at Jlt; obtain ⟨J', lJ', sJ'⟩ := Grid.exists_scale_succ Jlt.2
+  replace lJ' : J < J' := Grid.lt_def.mpr ⟨lJ'.1, by omega⟩
+  have J'nm : J' ∉ 𝓙₀ (t u₁) := by
+    by_contra hh; apply absurd hJ.1.2; push_neg; use J', hh, lJ'.le, not_le_of_lt lJ'
+  rw [𝓙₀, mem_setOf] at J'nm; push_neg at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
+  exact ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩
+
+/-- The key relation of Lemma 7.6.3, which will eventually be shown to lead to a contradiction. -/
+lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₆ t u₁)
+    (hd : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)))
+    (h : s J - C7_6_3 a n < 𝔰 p) :
+    (2 : ℝ) ^ (Z * (n + 1) - 1) <
+    2 ^ (a * (100 * a ^ 2 * (C7_6_3 a n + 2 + 1) + 9)) * 2 ^ ((Z : ℝ) * n / 2) := by
+  obtain ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩ := thin_scale_impact_prelims hu₁ hJ hd h
+  have bZn : 4 ≤ Z * (n + 1) := by
+    rw [← mul_one 4]; gcongr
+    · exact four_le_Z (X := X)
+    · exact Nat.le_add_left ..
+  calc
+    _ ≤ (2 : ℝ) ^ (Z * (n + 1)) - 4 := by
+      nth_rw 2 [← Nat.sub_add_cancel (show 1 ≤ Z * (n + 1) by omega)]
+      rw [pow_succ, mul_two, add_sub_assoc, ← neg_add_le_iff_le_add, neg_add_cancel, sub_nonneg,
+        show (4 : ℝ) = 2 ^ 2 by norm_num]
+      apply pow_le_pow_right₀ one_le_two; omega
+    _ < dist_(p') (𝒬 u₁) (𝒬 u₂) := by
+      refine (sub_lt_sub (t.lt_dist hu₂ hu₁ hu.symm mp' ((t.𝓘_le_𝓘 hu₁ mp').trans h2u))
+        (t.dist_lt_four hu₁ mp')).trans_le ((le_abs_self _).trans ?_)
+      simp_rw [dist_comm, abs_sub_comm]; exact abs_dist_sub_le ..
+    _ ≤ dist_{𝔠 p, 128 * D ^ (𝔰 p + C7_6_3 a n + 2)} (𝒬 u₁) (𝒬 u₂) := by
+      refine cdist_mono (ball_subset_Grid.trans sp' |>.trans (ball_subset_ball' ?_))
+      calc
+        _ ≤ (100 : ℝ) * D ^ (s J' + 1) + dist (c J') (c J) + dist (𝔠 p) (c J) := by
+          rw [add_assoc]; gcongr; exact dist_triangle_right ..
+        _ ≤ (100 : ℝ) * D ^ (s J' + 1) + 4 * D ^ s J' + 16 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
+          gcongr; · exact (mem_ball'.mp (Grid_subset_ball (lJ'.1.1 Grid.c_mem_Grid))).le
+        _ ≤ (100 : ℝ) * D ^ (𝔰 p + C7_6_3 a n + 2) + 4 * D ^ (𝔰 p + C7_6_3 a n + 2) +
+            16 * D ^ (𝔰 p + C7_6_3 a n + 2) := by
+          rw [← sub_eq_iff_eq_add] at sJ'
+          rw [← sJ', Int.cast_sub, Int.cast_one, sub_lt_iff_lt_add, sub_lt_iff_lt_add] at h
+          simp_rw [← Real.rpow_intCast, Int.cast_add, Int.cast_one]
+          gcongr 100 * (D : ℝ) ^ ?_ + 4 * D ^ ?_ + _
+          exacts [one_le_D, by linarith only [h], one_le_D, by linarith only [h]]
+        _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
+    _ ≤ dist_{𝔠 p, 2 ^ (100 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * (D ^ 𝔰 p / 4)} (𝒬 u₁) (𝒬 u₂) := by
+      refine cdist_mono (ball_subset_ball ?_)
+      rw [add_assoc, Real.rpow_add (by simp), Real.rpow_intCast,
+        show (128 : ℝ) * (D ^ 𝔰 p * D ^ (C7_6_3 a n + 2)) =
+          D ^ (C7_6_3 a n + 2) * 2 ^ 9 * (D ^ 𝔰 p / 4) by ring]
+      refine mul_le_mul_of_nonneg_right ?_ (by positivity)
+      rw [pow_add, pow_mul _ (100 * a ^ 2), defaultD, ← Real.rpow_natCast _ ⌈_⌉₊, Nat.cast_pow,
+        Nat.cast_ofNat]; gcongr
+      · exact_mod_cast Nat.one_le_two_pow
+      · exact Nat.le_ceil _
+    _ ≤ (defaultA a) ^ (100 * a ^ 2 * ⌈C7_6_3 a n + 2⌉₊ + 9) * dist_(p) (𝒬 u₁) (𝒬 u₂) :=
+      cdist_le_iterate (by unfold defaultD; positivity) ..
+    _ ≤ _ := by
+      obtain ⟨hp₁, hp₂⟩ := hp
+      simp_rw [𝔖₀, mem_setOf, not_and_or, mem_union, hp₁, or_true, not_true_eq_false,
+        false_or, not_le] at hp₂
+      simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, ← Real.rpow_natCast 2]
+      push_cast; gcongr
+      · exact one_le_two
+      · exact (Nat.ceil_lt_add_one_of_nonneg nonneg_C7_6_3_add_two).le
 
 /-- Lemma 7.6.3. -/
 lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₆ t u₁)
-    (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J))) :
+    (hd : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J))) :
     𝔰 p ≤ s J - C7_6_3 a n := by
-  sorry
+  by_contra! h
+  have bZn : 4 ≤ Z * (n + 1) := by
+    rw [← mul_one 4]; gcongr
+    · exact four_le_Z (X := X)
+    · exact Nat.le_add_left ..
+  have key := thin_scale_impact_key hu₁ hu₂ hu h2u hp hJ hd h
+  rw [← Real.rpow_natCast, ← Real.rpow_add zero_lt_two,
+    Real.rpow_lt_rpow_left_iff one_lt_two, Nat.cast_sub (by omega), Nat.cast_mul, Nat.cast_add,
+    Nat.cast_one, mul_add_one] at key
+  nth_rw 1 [← add_halves ((Z : ℝ) * n)] at key
+  rw [add_rotate, ← sub_add_eq_add_sub, add_lt_add_iff_right, C7_6_3, sub_add_cancel] at key
+  have rearr : (a : ℝ) * (100 * a ^ 2 * (Z * n / (202 * a ^ 3) + 1) + 9) =
+      Z * n / 2 * (100 / 101) * a ^ 3 / a ^ 3 + 100 * a ^ 3 + 9 * a := by ring
+  have fla := four_le_a X
+  rw [rearr, mul_div_cancel_right₀ _ (by norm_cast; positivity), add_assoc,
+    ← sub_lt_iff_lt_add', sub_right_comm, add_sub_right_comm, ← mul_one_sub, div_mul_comm,
+    show (1 - 100 / 101) / (2 : ℝ) = 202⁻¹ by norm_num, sub_lt_iff_lt_add] at key
+  apply absurd key; rw [not_lt]
+  suffices 100 * a ^ 3 + 9 * a + 1 ≤ (Z : ℝ) by
+    apply this.trans; nth_rw 1 [← zero_add (Z : ℝ)]; gcongr; positivity
+  norm_cast; rw [defaultZ]
+  calc
+    _ = 100 * a ^ 3 + 9 * a * 1 * 1 + 1 * 1 * 1 * 1 := by norm_num
+    _ ≤ 100 * a ^ 3 + 9 * a * a * a + 1 * a * a * a := by gcongr <;> omega
+    _ = 110 * a ^ 3 := by ring
+    _ ≤ 2 ^ (7 + 3 * a) := by
+      rw [pow_add, pow_mul']; gcongr; exacts [by norm_num, Nat.lt_two_pow_self.le]
+    _ ≤ _ := by gcongr <;> omega
 
 /-- The constant used in `square_function_count`. -/
 irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (14 * (a : ℝ) + 1) * (8 * D ^ (- s)) ^ κ
