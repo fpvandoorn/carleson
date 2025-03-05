@@ -170,6 +170,20 @@ lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
 
 lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
 
+lemma scale_eq_scale_topCube_iff (i : Grid X) : s i = s (topCube : Grid X) ↔ i = topCube := by
+  refine ⟨(eq_or_disjoint · |>.resolve_right ?_), (· ▸ rfl)⟩
+  exact Set.not_disjoint_iff.mpr ⟨c i, c_mem_Grid, subset_topCube c_mem_Grid⟩
+
+lemma scale_lt_scale_topCube {i : Grid X} (hi : i ≠ topCube) : s i < s (topCube : Grid X) := by
+  have : s i ≤ s topCube (X := X) := by rw [s, s_topCube]; exact scale_mem_Icc.2
+  apply this.lt_of_ne
+  rwa [ne_eq, scale_eq_scale_topCube_iff]
+
+lemma eq_topCube_of_S_eq_zero (i : Grid X) (hS : S = 0) : i = topCube := by
+  have hsi : s i = 0                  := by simpa [hS] using scale_mem_Icc (i := i)
+  have hst : s (topCube : Grid X) = 0 := by simpa [hS] using scale_mem_Icc (i := (topCube : Grid X))
+  rw [← scale_eq_scale_topCube_iff, hsi, hst]
+
 lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j) : i ≤ j := by
   obtain ⟨c, mc⟩ := k.nonempty
   exact le_of_mem_of_mem h (mem_of_mem_of_subset mc li.1) (mem_of_mem_of_subset mc lj.1)

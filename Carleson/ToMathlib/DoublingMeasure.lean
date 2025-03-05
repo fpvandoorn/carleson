@@ -38,6 +38,14 @@ lemma IsDoubling.mono {A'} (h : A ≤ A') : IsDoubling μ A' where
       _ ≤ A * μ (Metric.ball x r) := measure_ball_two_le_same _ _
       _ ≤ A' * μ (Metric.ball x r) := by gcongr
 
+lemma measure_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
+    μ (ball x ((2 ^ n) * r)) ≤ A ^ n * μ (ball x r) := by
+  induction n with
+  | zero => simp
+  | succ m ih =>
+      simp_rw [add_comm m 1, pow_add, pow_one, mul_assoc]
+      exact le_trans (measure_ball_two_le_same x _) (mul_le_mul_left' ih A)
+
 variable [ProperSpace X] [IsFiniteMeasureOnCompacts μ]
 
 lemma measure_real_ball_two_le_same (x : X) (r : ℝ) :
