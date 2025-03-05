@@ -13,10 +13,6 @@ noncomputable section
 open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
 open scoped NNReal ENNReal ComplexConjugate
 
--- This theorem is a recent addition to Mathlib; delete this after the next Mathlib bump
-theorem ENNReal.rpow_ofNNReal {M : ℝ≥0} {P : ℝ} (hP : 0 ≤ P) : (M : ℝ≥0∞) ^ P = ↑(M ^ P) := by
-  rw [ENNReal.coe_rpow_of_nonneg _ hP, ← ENNReal.rpow_eq_pow]
-
 namespace TileStructure.Forest
 
 /-! ## Section 7.3 and Lemma 7.3.1 -/
