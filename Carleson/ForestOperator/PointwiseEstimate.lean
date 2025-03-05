@@ -268,10 +268,8 @@ lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
   obtain ⟨(p' : 𝔓 X), (𝓘p' : 𝓘 p' = K), Qxp'⟩ := this
   rw [← 𝓘p'] at lK Kl sK; refine ⟨p', ?_, sK⟩
-  have l₁ : p ≤ p' := ⟨lK,
-    (relative_fundamental_dyadic lK).resolve_left (not_disjoint_iff.mpr ⟨_, Qxp, Qxp'⟩)⟩
-  have l₂ : p' ≤ p'' := ⟨Kl,
-    (relative_fundamental_dyadic Kl).resolve_left (not_disjoint_iff.mpr ⟨_, Qxp', Qxp''⟩)⟩
+  have l₁ : p ≤ p' := tile_le_of_cube_le_and_not_disjoint lK Qxp Qxp'
+  have l₂ : p' ≤ p'' := tile_le_of_cube_le_and_not_disjoint Kl Qxp' Qxp''
   refine ⟨(t.ordConnected hu).out mp mp'' ⟨l₁, l₂⟩, ⟨(Grid.le_def.mp lK).1 xp, Qxp', ?_⟩⟩
   exact Icc_subset_Icc sxp.1 sxp''.2 ⟨(Grid.le_def.mp lK).2, (Grid.le_def.mp Kl).2⟩
 

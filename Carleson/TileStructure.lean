@@ -345,6 +345,12 @@ instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_inje
 lemma 𝔓.le_def {p q : 𝔓 X} : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
 lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
 
+/-- Deduce an inclusion of tiles from an inclusion of their cubes and
+non-disjointness of their `Ω`s. -/
+lemma tile_le_of_cube_le_and_not_disjoint {p q : 𝔓 X} (hi : 𝓘 p ≤ 𝓘 q)
+    {x : Θ X} (mxp : x ∈ Ω p) (mxq : x ∈ Ω q) : p ≤ q :=
+  ⟨hi, (relative_fundamental_dyadic hi).resolve_left (not_disjoint_iff.mpr ⟨x, mxp, mxq⟩)⟩
+
 lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (𝒬 p) < 1 :=
   ((cball_subset.trans h.2).trans subset_cball) (mem_ball_self (by norm_num))
 

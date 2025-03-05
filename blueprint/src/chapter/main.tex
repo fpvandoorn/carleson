@@ -4905,15 +4905,15 @@ Now we prove the two auxiliary estimates.
 
     Now suppose that for each $\fp \in \fT(\fu)$ with $L \cap E(\fp) \ne \emptyset$, we have $\ps(\fp) > s(L)$. Since there exists at least one such $\fp$, there exists in particular at least one cube $L'' \in \mathcal{D}$ with $L \subset L''$ and $s(L'') > s(L)$. By \eqref{coverdyadic}, there exists $L' \in \mathcal{D}$ with $L \subset L'$ and $s(L') = s(L) + 1$. By the definition of $\mathcal{L}(\fT(\fu))$ there exists a tile $\fp'' \in \fT(\fu)$ with $\scI(\fp'') \subset L'$. Let $\fp'$ be the unique tile such that $\scI(\fp') = L'$ and such that $\Omega(\fu) \cap \Omega(\fp') \ne \emptyset$. Since by \eqref{forest1} $\ps(\fp') = s(L') \le \ps(\fp) < \ps(\fu)$, we have by \eqref{dyadicproperty} and \eqref{eq-freq-dyadic} that $\Omega(\fu) \subset \Omega(\fp')$. Let $\fq \in \fT(\fu)$ with $L \cap E(\fq) \ne \emptyset$. As shown above, this implies $\ps(\fq) \ge s(L')$, so by \eqref{dyadicproperty} $L' \subset \scI(\fq)$. If $q \in B_{\fq}(\fcc(\fq), 1)$, then by a similar calculation as above, using the triangle inequality, \Cref{monotone-cube-metrics} and \eqref{forest1}, we obtain
     $$
-        d_{\fp'}(\fcc(\fp'), q) \le d_{\fp'}(\fcc(\fp'), \fcc(\fq)) + d_{\fq}(\fcc(\fq), q) \le 6\,.
+        d_{\fp'}(\fcc(\fp'), q) \le d_{\fp'}(\fcc(\fp'), \fcc(\fq)) + d_{\fq}(\fcc(\fq), q) \le 9\,.
     $$
-    Thus $L \cap E(\fq) \subset E_2(6, \fp')$. Since $\scI(\fp'') \subset \scI(\fp') \subset \scI(\fp)$ and $\fp'', \fp \in \fT(\fu)$, we have $\fp' \in \fP(\fT(\fu))$. We deduce using the definition \eqref{definedens1} of $\dens_1$
+    Thus $L \cap E(\fq) \subset E_2(9, \fp')$. Since $\scI(\fp'') \subset \scI(\fp') \subset \scI(\fp)$ and $\fp'', \fp \in \fT(\fu)$, we have $\fp' \in \fP(\fT(\fu))$. We deduce using the definition \eqref{definedens1} of $\dens_1$
     $$
-        \mu(L \cap \bigcup_{\fq \in \fT(\fu)} E(\fq)) \le \mu(E_2(6, \fq')) \le 6^a \dens_1(\fT(\fu)) \mu(L')\,.
+        \mu(L \cap \bigcup_{\fq \in \fT(\fu)} E(\fq)) \le \mu(E_2(9, \fp')) \le 9^a \dens_1(\fT(\fu)) \mu(L')\,.
     $$
     Using the doubling property \eqref{doublingx}, \eqref{eq-vol-sp-cube}, and $a \ge 4$ this is estimated by
     $$
-        6^a 2^{100a^3 + 5}\dens_1(\fT(\fu)) \mu(L) \le 2^{101 a^3} \dens_1(\fT(\fu))\mu(L)\,.
+        9^a 2^{100a^3 + 5a}\dens_1(\fT(\fu)) \mu(L) \le 2^{101 a^3} \dens_1(\fT(\fu))\mu(L)\,.
     $$
     This completes the proof.
 \end{proof}
