@@ -166,7 +166,7 @@ lemma norm_dirichletKernel_le {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 
 
 lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by
   by_cases h : cexp (I * x) ≠ 1
-  · simp only [ne_eq, h, not_false_eq_true, ← dirichletKernel_eq, norm_eq_abs]
+  · simp only [ne_eq, h, not_false_eq_true, ← dirichletKernel_eq]
     exact norm_dirichletKernel_le
   · push_neg at h
     rw [dirichletKernel'_eq_zero h, norm_zero]

@@ -1,3 +1,4 @@
+import Mathlib.Analysis.Normed.Field.Basic
 import Mathlib.Topology.Instances.NNReal.Defs
 
 /-! ## `ENNReal` manipulation lemmas -/
@@ -56,3 +57,8 @@ lemma biSup_finsetSum_le_finsetSum_biSup {f : α → ι → ℝ≥0∞} :
     exact biSup_add_le_add_biSup.trans (add_le_add_left ihs _)
 
 end ENNReal
+
+/-- Transfer an inequality over `ℝ` to one of `ENorm`s over `ℝ≥0∞`. -/
+lemma Real.enorm_le_enorm {x y : ℝ} (hx : 0 ≤ x) (hy : x ≤ y) : ‖x‖ₑ ≤ ‖y‖ₑ := by
+  rw [Real.enorm_of_nonneg hx, Real.enorm_of_nonneg (hx.trans hy)]
+  exact ENNReal.ofReal_le_ofReal hy

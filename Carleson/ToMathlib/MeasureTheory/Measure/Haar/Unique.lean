@@ -3,7 +3,7 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 open MeasureTheory Measure
 open scoped ENNReal
 
-variable {G : Type*} [TopologicalSpace G] [Group G] [TopologicalGroup G]
+variable {G : Type*} [TopologicalSpace G] [Group G] [IsTopologicalGroup G]
   [MeasurableSpace G] [BorelSpace G]
 
 namespace MeasureTheory
@@ -35,7 +35,7 @@ instance (priority := 100) IsHaarMeasure.isInvInvariant_of_isMulRightInvariant (
 
 section CommGroup
 
-variable {G : Type*} [CommGroup G] [TopologicalSpace G] [TopologicalGroup G]
+variable {G : Type*} [CommGroup G] [TopologicalSpace G] [IsTopologicalGroup G]
   [MeasurableSpace G] [BorelSpace G] (μ : Measure G) [IsHaarMeasure μ]
 
 -- This is the new proof of `IsHaarMeasure.isInvInvariant_of_regular`; the prime is only used on

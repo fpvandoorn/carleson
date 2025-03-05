@@ -105,8 +105,8 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
       apply ne_of_gt
       calc ‖1 - exp (-(I * ↑t))‖
         _ ≥ |(1 - exp (-(I * ↑t))).im| := by
-          simp only [norm_eq_abs, ge_iff_le]
-          apply abs_im_le_abs
+          simp only [ge_iff_le]
+          apply abs_im_le_norm
         _ = Real.sin t := by
           simp only [sub_im, one_im, exp_im, neg_re, mul_re,
             I_re, ofReal_re, zero_mul, I_im, ofReal_im, mul_zero,
@@ -159,31 +159,31 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
           have ht' : 0 < t ∧ t ≤ 1 := by
             rcases ht with ht | ht <;> (constructor <;> linarith)
           rw [f'def]
-          simp only [norm_div, norm_eq_abs, norm_pow]
+          simp only [norm_div, norm_pow]
           gcongr
-          · calc abs (-1 + exp (-(I * ↑t)) +
-              I * (↑t - 1) * exp (-(I * ↑t)))
-              _ ≤ abs (-1 + exp (-(I * ↑t))) +
-                abs (I * (↑t - 1) * exp (-(I * ↑t))) :=
-                  abs.isAbsoluteValue.abv_add ..
-              _ ≤ abs (-1 : ℂ) + abs (exp (-(I * ↑t))) +
-                abs (I * (↑t - 1) * exp (-(I * ↑t))) := by
+          · calc ‖(-1 + exp (-(I * ↑t)) +
+              I * (↑t - 1) * exp (-(I * ↑t)))‖
+              _ ≤ ‖(-1 + exp (-(I * ↑t)))‖ +
+                ‖(I * (↑t - 1) * exp (-(I * ↑t)))‖ :=
+                  norm_add_le ..
+              _ ≤ ‖(-1 : ℂ)‖ + ‖(exp (-(I * ↑t)))‖ +
+                ‖(I * (↑t - 1) * exp (-(I * ↑t)))‖ := by
                 gcongr
-                exact abs.isAbsoluteValue.abv_add ..
+                exact norm_add_le ..
               _ ≤ 1 + 1 + 1 := by
                 gcongr
                 · simp
                 · rw [mul_comm, ←neg_mul]
                   norm_cast
-                  exact le_of_eq (abs_exp_ofReal_mul_I _)
-                · simp only [map_mul, abs_I, one_mul]
+                  exact le_of_eq (norm_exp_ofReal_mul_I _)
+                · simp only [Complex.norm_mul, norm_I, one_mul]
                   apply mul_le_one₀
                   on_goal 1 => norm_cast
-                  rw [abs_of_nonpos] <;> linarith
-                  · simp only [apply_nonneg]
+                  rw [Real.norm_of_nonpos] <;> linarith
+                  · exact norm_nonneg _
                   rw [mul_comm, ←neg_mul]
                   norm_cast
-                  exact le_of_eq (abs_exp_ofReal_mul_I _)
+                  exact le_of_eq (norm_exp_ofReal_mul_I _)
               _ = 3 := by norm_num
           · rw_mod_cast [mul_comm, ←neg_mul, mul_comm]
             apply lower_secant_bound
@@ -313,7 +313,7 @@ lemma Hilbert_kernel_regularity {x y y' : ℝ} :
     · rw [abs_neg, _root_.abs_of_nonneg] <;> linarith
   · calc ‖k (-y) - k (-y')‖
       _ = 0 := by
-        rw [norm_eq_abs, AbsoluteValue.map_sub_eq_zero_iff, k_of_one_le_abs,
+        rw [norm_sub_eq_zero_iff, k_of_one_le_abs,
           k_of_one_le_abs] <;> (rw [abs_neg, _root_.abs_of_nonneg] <;> linarith)
       _ ≤ 2 ^ 8 * (1 / |y|) * (|y - y'| / |y|) := mul_nonneg (mul_nonneg (by norm_num) (by simp))
         (mul_nonneg (by norm_num) (by simp))

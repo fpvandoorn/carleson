@@ -80,7 +80,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ}
   -- into this
   have : Fact (0 < 2 * π) := ⟨by positivity⟩
   let F : Lp ℂ 2 haarAddCircle :=
-    Memℒp.toLp (AddCircle.liftIoc (2 * π) 0 f) sorry
+    MemLp.toLp (AddCircle.liftIoc (2 * π) 0 f) sorry
   have := spectral_projection_bound_lp (N := n) F
   sorry
 
@@ -161,5 +161,5 @@ Note: In the blueprint we have the condition `r < 1`.
 Can we get rid of that condition or otherwise fix `two_sided_metric_carleson`?
 -/
 lemma Hilbert_strong_2_2 ⦃r : ℝ⦄ (hr : 0 < r) :
-    HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) :=
+    HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts 4) :=
   sorry

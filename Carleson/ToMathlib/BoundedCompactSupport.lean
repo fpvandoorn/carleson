@@ -122,19 +122,19 @@ include hf
 theorem aestronglyMeasurable : AEStronglyMeasurable f μ :=
   hf.stronglyMeasurable.aestronglyMeasurable
 
-theorem memℒp_top : Memℒp f ⊤ μ :=
+theorem memLp_top : MemLp f ⊤ μ :=
   ⟨hf.aestronglyMeasurable, hf.isBounded.eLpNorm_top_lt_top⟩
 
 theorem ae_le : ∀ᵐ x ∂μ, ‖f x‖ ≤ ENNReal.toReal (eLpNorm f ⊤ μ) :=
-  ae_le_of_eLpNorm_top_lt_top hf.memℒp_top.2
+  ae_le_of_eLpNorm_top_lt_top hf.memLp_top.2
 
 /-- Bounded compactly supported functions are in all `Lᵖ` spaces. -/
-theorem memℒp [IsFiniteMeasureOnCompacts μ] (p : ENNReal) : Memℒp f p μ :=
-  hf.hasCompactSupport.memℒp_of_bound hf.aestronglyMeasurable _ hf.ae_le
+theorem memLp [IsFiniteMeasureOnCompacts μ] (p : ENNReal) : MemLp f p μ :=
+  hf.hasCompactSupport.memLp_of_bound hf.aestronglyMeasurable _ hf.ae_le
 
 /-- Bounded compactly supported functions are integrable. -/
 theorem integrable [IsFiniteMeasureOnCompacts μ] : Integrable f μ :=
-  memℒp_one_iff_integrable.mp <| memℒp hf 1
+  memLp_one_iff_integrable.mp <| memLp hf 1
 
 theorem mul_bdd_right (hg : IsBounded (range g)) (h2g : StronglyMeasurable g) :
     BoundedCompactSupport (f * g) where

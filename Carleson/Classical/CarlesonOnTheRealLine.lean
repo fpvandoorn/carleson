@@ -496,8 +496,8 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
   norm_K_le_vol_inv := by
     intro x y
-    rw [Complex.norm_eq_abs, Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
-    calc Complex.abs (K x y)
+    rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+    calc ‖K x y‖
     _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
   /- uses Hilbert_kernel_regularity -/
@@ -529,7 +529,8 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
 instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
   norm_K_sub_le' := by
     intro x x' y h
-    rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, Complex.norm_eq_abs, Complex.abs_conj, ← Complex.norm_eq_abs, dist_comm x y, Real.vol_real_symm]
+    rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, Complex.norm_conj,
+      dist_comm x y, Real.vol_real_symm]
     rw [dist_comm x y] at h
     exact isOneSidedKernelHilbert.norm_K_sub_le h
 #synth DoublingMeasure ℝ _
