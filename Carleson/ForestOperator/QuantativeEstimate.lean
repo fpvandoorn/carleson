@@ -84,30 +84,16 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
       contrapose! hp; exact (hp.mono_left E_subset_𝓘).symm
     obtain ⟨L', lL', sL'⟩ := Grid.exists_scale_succ sLp
     replace lL' : L < L' := Grid.lt_def.mpr ⟨lL'.1, by omega⟩
-    obtain ⟨p'', mp'', lp''⟩ : ∃ p'' ∈ t u, 𝓘 p'' ≤ L' := by
-      have L'nm : L' ∉ 𝓛₀ (t u) := by
-        by_contra h
-        simp_rw [𝓛, mem_setOf, maximal_iff] at hL
-        exact absurd (hL.2 h lL'.le) lL'.ne
-      rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push_neg at L'nm
-      have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
-        push_neg; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; omega
-      simp_rw [nfa, false_or] at L'nm; exact L'nm.2
-    obtain ⟨p', mp', ip', dp'⟩ : ∃ p' ∈ t u, 𝓘 p' = L' ∧ Ω u ⊆ Ω p' := by
+    obtain ⟨p', ip', dp'⟩ : ∃ p', 𝓘 p' = L' ∧ Ω u ⊆ Ω p' := by
       have m₁ := biUnion_Ω (i := L') (range_𝒬 (mem_range_self u))
       rw [mem_iUnion₂] at m₁; obtain ⟨p', mp', hp'⟩ := m₁
       rw [mem_preimage, mem_singleton_iff] at mp'; change 𝓘 p' = L' at mp'
       have ip'lp : 𝓘 p' ≤ 𝓘 p := by
         rw [mp']; exact Grid.le_dyadic (by change s L' ≤ 𝔰 p; omega) lL'.le lip.le
       have p'lu := tile_le_of_cube_le_and_not_disjoint (ip'lp.trans (t.𝓘_le_𝓘 hu mp)) hp' 𝒬_mem_Ω
-      use p', ?_, mp', p'lu.2
-      refine (t.ordConnected hu).out mp'' mp ⟨?_, ?_⟩
-      · refine tile_le_of_cube_le_and_not_disjoint (mp' ▸ lp'') ?_ hp'
-        sorry
-      · refine tile_le_of_cube_le_and_not_disjoint ip'lp hp' ?_
-        sorry
+      use p', mp', p'lu.2
     calc
-      _ ≤ volume (E₂ 9 p') := by
+      _ ≤ volume (E₂ 6 p') := by
         refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ?_
         have mxp' : x ∈ L' := lL'.le.1 mxL
         rw [← ip'] at mxp'; refine ⟨⟨mxp', mxG⟩, ?_⟩
@@ -122,9 +108,10 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
             dist_triangle4 ..
           _ ≤ dist_(p') (𝒬 p') (𝒬 u) + dist_(q) (𝒬 u) (𝒬 q) + dist_(q) (𝒬 q) (Q x) := by
             gcongr <;> exact Grid.dist_mono p'lq
-          _ < 4 + 4 + 1 := by
+          _ < 1 + 4 + 1 := by
             gcongr
-            · rw [← mem_ball']; convert (t.smul_four_le hu mp').2 (mem_ball_self zero_lt_one)
+            · rw [← mem_ball'] 
+              apply subset_cball <| dp' 𝒬_mem_Ω
             · rw [← mem_ball]; convert (t.smul_four_le hu mq).2 (mem_ball_self zero_lt_one)
             · rw [← mem_ball']; exact subset_cball hq.2.1
           _ = _ := by norm_num
