@@ -102,8 +102,10 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
       have p'lu := tile_le_of_cube_le_and_not_disjoint (ip'lp.trans (t.𝓘_le_𝓘 hu mp)) hp' 𝒬_mem_Ω
       use p', ?_, mp', p'lu.2
       refine (t.ordConnected hu).out mp'' mp ⟨?_, ?_⟩
-      · sorry
-      · sorry
+      · refine tile_le_of_cube_le_and_not_disjoint (mp' ▸ lp'') ?_ hp'
+        sorry
+      · refine tile_le_of_cube_le_and_not_disjoint ip'lp hp' ?_
+        sorry
     calc
       _ ≤ volume (E₂ 9 p') := by
         refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ?_
