@@ -549,7 +549,7 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
   calc
   _ ≤ eLpNorm (G.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    simp only [indicator, Complex.norm_eq_abs, coe_algebraMap, Real.norm_eq_abs]
+    simp only [indicator, coe_algebraMap, Real.norm_eq_abs]
     split_ifs
     · simpa using I _
     · simp

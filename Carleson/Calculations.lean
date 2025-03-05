@@ -171,6 +171,84 @@ lemma calculation_9 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
   apply (Real.rpow_le_rpow_left_iff (x := 2) (by linarith)).mp
   linarith
 
+lemma calculation_11 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s : ℤ) :
+    100 * (D : ℝ) ^ (s + 2) + 4 * D ^ (s + 1) < 128 * D^(s + 2) := by
+  rw [show (128 : ℝ) = 100 + 28 by norm_num]
+  rw [right_distrib]
+  gcongr
+  · linarith
+  · exact one_lt_D (X := X)
+  · linarith
+
+lemma calculation_12 (s : ℝ) :
+    128 * (D : ℝ)^(s + 2) = 2^(200 * a ^ 2 + 4) * (8 * D ^ s) := by
+  simp only [defaultD]
+  have leftSide := calc 128 * ((2 : ℝ) ^ (100 * a ^ 2)) ^ (s + 2)
+    _ = 128 * 2^(100 * a^2 * (s + 2)) := by
+      congrm 128 * ?_
+      have fact := Real.rpow_mul (x := 2) (y := 100 * a ^ 2) (z := s + 2) (by positivity)
+      rw_mod_cast [fact]
+    _ = 128 * 2^((100 * a^2 * s) + (100 * a^2 * 2)) := by
+      congrm 128 * (2 ^ ?_)
+      ring
+    _ = (2 ^ 7) * 2^((100 * a^2 * s) + (100 * a^2 * 2)) := by
+      norm_num
+    _ = 2 ^ (7 + ((100 * a^2 * s) + (100 * a^2 * 2))) := by
+      have fact := Real.rpow_add (x := 2) (y := 7) (z := 100 * a^2 * s + 100 * a^2 * 2) (by positivity)
+      rw_mod_cast [fact]
+  have rightSide := calc 2 ^ (200 * a ^ 2 + 4) * (8 * ((2 : ℝ) ^ (100 * a ^ 2)) ^ s)
+    _ = 2 ^ (200*a^2 + 4) * ((2^3)*((2 ^ (100 * a ^ 2)) ^ s)) := by
+      norm_num
+    _ = 2 ^ (200*a^2 + 4) * (  2^3   *   2 ^ (100 * a ^ 2 * s)  ) := by
+      rw [Real.rpow_mul (x:=2) (by positivity)]
+      norm_cast
+    _ = 2 ^ (200*a^2 + 4) * 2 ^ (3    +   100 * a ^ 2 * s) := by
+      have fact := Real.rpow_add (x:=2) (y:= 3) (z:= 100 * a ^ 2 * s) (by positivity)
+      rw_mod_cast [fact]
+    _ = 2^(     200*a^2 + 4           +      (3    +   100 * a ^ 2 * s)  ) := by
+      have fact := Real.rpow_add (x:=2) (y:= 200*a^2 + 4) (z:= 3    +   100 * a ^ 2 * s) (by positivity)
+      nth_rw 2 [Real.rpow_add]
+      norm_cast
+      positivity
+    _ = 2^(7 + ((100 * a^2 * s) + (100 * a^2 * 2))) := by
+      congrm 2 ^ ?_
+      linarith
+  rw_mod_cast [leftSide]
+  rw_mod_cast [rightSide]
+
+lemma calculation_13 : (2 : ℝ) ^ (200 * (a^3) + 4*a) = (defaultA a) ^ (200*a^2 + 4) := by
+  simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat]
+  have fact := Real.rpow_mul (x := 2) (y := a) (z := 200 * a ^ 2 + 4) (by positivity)
+  rw_mod_cast [← fact]
+  ring
+
+lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n: ℕ) : 
+    (2 : ℝ) ^ ((Z : ℝ) * n / 2 - 201 * a ^ 3) ≤ 2 ^ ((Z : ℝ) * n / 2 - (200 * a ^ 3 + 4 * a)) := by
+  gcongr
+  · linarith
+  rw [show 201 * (a : ℝ) ^ 3 = 200 * (a : ℝ) ^ 3 + a ^ 3 by ring]
+  gcongr 200 * (a : ℝ) ^ 3 + ?_
+  rw [show (a : ℝ) ^ 3 = a ^ 2 * a by ring]
+  gcongr
+  suffices 4 ^ 2 ≤ (a : ℝ) ^ 2 by linarith
+  apply pow_le_pow_left₀ (ha := by linarith)
+  exact_mod_cast four_le_a X
+
+lemma calculation_15 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+    (dist: ℝ) (zon : ℝ)
+    (h : 2 ^ zon ≤ 2 ^ (200 * a ^ 3 + 4 * a) * dist) :
+    2 ^ (zon - (200 * a^3 + 4*a)) ≤ dist := by
+  rw [Real.rpow_sub (hx := by linarith)]
+  rw [show dist = 2 ^ (200 * a ^ 3 + 4 * a) * dist / 2 ^ (200 * a ^ 3 + 4 * a) by simp]
+  have := (div_le_div_iff_of_pos_right (c := 2 ^ (200 * a ^ 3 + 4 * a)) (hc := by have aIsBig := four_le_a X; positivity)).mpr h
+  exact_mod_cast this
+
+lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s: ℤ) :
+    4 * (D : ℝ) ^ s < 100 * D ^ (s + 1) := by
+  gcongr
+  · linarith
+  · exact one_lt_D (X := X)
+  · linarith
 
 lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ}:
   (1:ℝ) ≤ 2 ^ (Z * (n + 1)) - 4 := by
@@ -188,3 +266,4 @@ lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] 
     · norm_num
     omega
   exact Nat.mul_le_mul this (Nat.le_add_left 1 n)
+

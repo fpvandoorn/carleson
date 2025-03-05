@@ -380,7 +380,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
   calc
   _ ≤ eLpNorm (A.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    simp only [indicator, norm_eq_abs, coe_algebraMap, Pi.one_apply, Real.norm_eq_abs]
+    simp only [indicator, coe_algebraMap, Pi.one_apply, Real.norm_eq_abs]
     split_ifs
     · have A (x : ℝ) : x / x ≤ 1 := by
         rcases eq_or_ne x 0 with rfl | hx

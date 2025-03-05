@@ -4798,7 +4798,7 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     \label{local-dens2-tree-bound}
     \leanok
     \lean{TileStructure.Forest.local_dens2_tree_bound}
-    Let $J \in \mathcal{J}(\fT(\fu))$ be such that there exist $\fq \in \fT(\fu)$ with $J \cap \scI(\fq) \ne \emptyset$. Then
+    Let $J \in \mathcal{J}(\fT(\fu))$ be such that $J \cap \scI(\fu) \ne \emptyset$. Then
     $$
         \mu(F \cap J) \le 2^{200a^3 + 19} \dens_2(\fT(\fu)) \mu(J)\,.
     $$
@@ -4806,18 +4806,33 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
 \begin{proof}[Proof of \Cref{densities-tree-bound}]
     \proves{densities-tree-bound}
+    First, we claim that for every tile $\fp \in \fT(\fu)$
+    we have
+    \[
+        T_{\fp} f = \mathbf{1}_{E(\fp)}(x) \int K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y)
+    \]
+    \[
+        = \mathbf{1}_{E(\fp)} T_{\fp}(\mathbf{1}_{\scI(\fu)} f).
+    \]
+    Indeed, if the expression in the middle is not zero,
+    then $x \in E(\fp) \subset \scI(\fp) \subset B(\pc(\fp), 4D^{\ps(\fp)})$.
+    By \eqref{supp-Ks}, it follows that $K_{\ps(\fp)}(x,y)$ is zero
+    unless $y \in B(\pc(\fp), 4.5D^{\ps(\fp)}) \subset \scI(\fu)$,
+    where the last inclusion follows from \eqref{forest6}.
+    Thus, the expression does not change upon replacing $f$ by $f \mathbf{1}_{\scI(\fu)}$.
+
     Denote
     $$
         \mathcal{E}(\fu) = \bigcup_{\fp \in \fT(\fu)} E(\fp)\,.
     $$
     Then we have
     $$
-        \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right| = \left| \int_X \overline{ g\mathbf{1}_{\mathcal{E}(\fu)}} \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right|\,.
+        \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp} f \, \mathrm{d}\mu \right| = \left| \int_X \overline{ g\mathbf{1}_{\mathcal{E}(\fu)}} \sum_{\fp \in \fT(\fu)} T_{\fp} (\mathbf{1}_{\scI(\fu)}f) \, \mathrm{d}\mu \right|\,.
     $$
     By \Cref{tree-projection-estimate}, this is bounded by
     \begin{equation}
         \label{eq-both-factors-tree}
-        \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2\,.
+        \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|\mathbf{1}_{\scI(\fu)}f|\|_2 \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2\,.
     \end{equation}
     We bound the two factors separately.
     We have
@@ -4836,13 +4851,13 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     Similarly, we have
     \begin{equation}
         \label{eq-cor-tree-proof}
-        \|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_J |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
+        \|P_{\mathcal{J}(\fT(\fu))}|\mathbf{1}_{\scI(\fu)}f|\|_2 = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_{J \cap \scI(\fu)} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     \end{equation}
     By Cauchy-Schwarz, this is
     $$
         \le \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_J |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
     $$
-    Since cubes in $\mathcal{J}(\fT(\fu))$ are pairwise disjoint by \Cref{dyadic-partitions}, this at most
+    Since cubes in $\mathcal{J}(\fT(\fu))$ are pairwise disjoint by \Cref{dyadic-partitions}, this is at most
     \begin{equation}
         \label{eq-factor-J-tree}
         \|f\|_2\,.
@@ -4851,7 +4866,10 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
 
     If $f \le \mathbf{1}_F$ then $f = f\mathbf{1}_F$, so
     $$
-        \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_J |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2} = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \int_{J \cap F} |f(y)|^2 \, \mathrm{d}\mu(y) \right)^{1/2}\,.
+        \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_{J \cap \scI(\fu)} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}
+    $$
+    $$
+        \le \left( \sum_{J \in \mathcal{J}(\fT(\fu)), J \cap \scI(\fu) \ne \emptyset} \frac{1}{\mu(J)} \left(\int_{J \cap F} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     $$
     We estimate as before, using now \Cref{local-dens2-tree-bound} and Cauchy-Schwarz, and obtain that this is
     $$
@@ -4919,7 +4937,14 @@ Now we prove the two auxiliary estimates.
     $$
     completing the proof in this case.
 
-    Now suppose that there does not exist a tile $\fp \in \fT(\fu)$ with $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. If we had $\ps(\fq) \le s(J)$, then by \eqref{dyadicproperty} and \eqref{eq-vol-sp-cube} $\scI(\fq) \subset J \subset B(c(J), 100 D^{s(J) + 1})$, contradicting our assumption. Thus $\ps(\fq) > s(J)$. Then, by \eqref{coverdyadic} and \eqref{dyadicproperty}, there exists some cube $J' \in \mathcal{D}$ with $s(J') = s(J) + 1$ and $J \subset J'$. By definition of $\mathcal{J}(\fT(\fu))$ there exists some $\fp \in \fT(\fu)$ such that $\scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})$. From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
+    Now suppose that there does not exist a tile $\fp \in \fT(\fu)$ with $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$.
+    If we had $s(J) \ge \ps(\fu)$, then by \eqref{dyadicproperty}
+    and \eqref{eq-vol-sp-cube} $\scI(u) \subset J \subset B(c(J), 100 D^{s(J) + 1})$,
+    contradicting our assumption.
+    Thus $s(J) < \ps(\fu) \le S$.
+    Then, by \eqref{coverdyadic} and \eqref{dyadicproperty}, there exists some cube $J' \in \mathcal{D}$ with $s(J') = s(J) + 1$ and $J \subset J'$.
+    By definition of $\mathcal{J}(\fT(\fu))$ there exists some $\fp \in \fT(\fu)$ such that $\scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})$.
+    From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
     \begin{equation}
         \label{eq-measure-comparison-1}
         \mu(B(\pc(\fp), 4D^{\ps(\fp)})) \le 2^{4a} \mu(\scI(\fp)) \le 2^{200a^3 + 14} \mu(J)\,.
@@ -5171,8 +5196,8 @@ $$
     \begin{lemma}[Lipschitz partition unity]
         \label{Lipschitz-partition-unity}
         \leanok
-        \lean{TileStructure.Forest.sum_χ, TileStructure.Forest.χ_mem_Icc,
-          TileStructure.Forest.dist_χ_χ_le}
+        \lean{TileStructure.Forest.sum_χ, TileStructure.Forest.χ_le_indicator,
+          TileStructure.Forest.dist_χ_le}
         \uses{dyadic-partition-1,moderate-scale-change}
         There exists a family of functions $\chi_J$, $J \in \mathcal{J}'$ such that \begin{equation}
             \label{eq-pao-1}
@@ -5204,6 +5229,7 @@ $$
     \end{lemma}
 
     \begin{proof}[Proof of \Cref{Lipschitz-partition-unity}]
+        \leanok
         \proves{Lipschitz-partition-unity}
         For each cube $J \in \mathcal{J}$ let
         $$
@@ -5221,15 +5247,15 @@ $$
         $$
             |\chi_J(y) - \chi_J(y')| \le \frac{|\tilde \chi_J(y) - \tilde \chi_J(y')|}{a(y)} + \frac{\tilde \chi_J(y')|a(y) - a(y')|}{a(y)a(y')}
         $$
-        Since $\tilde \chi_J(z) \ge 4$ for all $z \in B(c(J), 4) \supset J$ and by \Cref{dyadic-partition-1}, we have that $a(z) \ge 4$ for all $z \in \scI(\fu_1)$. So we can estimate the above further by
+        Since $\tilde \chi_J(z) \ge 4$ for all $z \in B(c(J),4D^{s(J)}) \supset J$ and by \Cref{dyadic-partition-1}, we have that $a(z) \ge 4$ for all $z \in \scI(\fu_1)$. So we can estimate the above further by
         $$
             \le 2^{-2}(|\tilde \chi_J(y) - \tilde \chi_J(y')| + \tilde \chi_J(y')|a(y) - a(y')|)\,.
         $$
         If $y' \notin B(\pc(\fp), 8D^{\ps(\fp)})$ then the second summand vanishes. Else, we can estimate the above, using also that $|\tilde \chi_J(y')| \le 8$, by
         $$
-            \le 2^{-2} |\tilde \chi_J(y) - \tilde \chi_J(y')| + 2 \sum_{\substack{J' \in \mathcal{J}'\\ B(c(J'), 8D^{s(J')}) \cap B(c(J), 8D^{s(J)}) \ne \emptyset}}|\tilde \chi_{J'}(y) - \tilde \chi_{J'} (y')|\,.
+            \le 2^{-2} |\tilde \chi_J(y) - \tilde \chi_J(y')| + 2 \sum_{\substack{J' \in \mathcal{J}'\\ B(J') \cap B(J) \ne \emptyset}}|\tilde \chi_{J'}(y) - \tilde \chi_{J'} (y')|\,.
         $$
-        By the triangle inequality, we have for all dyadic cubes $I \in \mathcal{J}'$
+        By the triangle inequality, we have for all dyadic cubes $I$
         $$
             |\tilde \chi_I(y) - \tilde \chi_I(y')| \le \rho(y, y') D^{-s(I)}\,.
         $$
@@ -5241,21 +5267,21 @@ $$
         $$
              \frac{\rho(y,y')}{D^{s(J)}} \left( \frac{1}{4} + 2D |\{J' \in \mathcal{J}' \ : \ B(J') \cap B(J) \ne \emptyset\}|\right)\,.
         $$
-        By \eqref{eq-vol-sp-cube} and \Cref{dyadic-partition-1}, the balls $B(c(J'), \frac{1}{4} D^{s(J')})$ are pairwise disjoint, so by \Cref{moderate-scale-change} the balls $B(c(J'), \frac{1}{4} D^{s(J) - 1})$ are also disjoint. By the triangle inequality and \Cref{moderate-scale-change}, each such ball for $J'$ in the set of the last display is contained in
+        By \eqref{eq-vol-sp-cube} and \Cref{dyadic-partition-1}, the balls $B(c(J'), \frac{1}{4} D^{s(J')})$ are pairwise disjoint. By the triangle inequality and \Cref{moderate-scale-change}, each such ball for $J'$ in the set of the last display is contained in
         $$
             B(c(J), 9 D^{s(J) + 1})\,.
         $$
         By the doubling property \eqref{doublingx}, we further have
         $$
-            \mu\Big(B(c(J'), \frac{1}{4}D^{s(J')})\Big) \ge 2^{-200a^3 - 6} \mu(B(c(J), 9 D^{s(J) + 1}))
+            \mu(B(c(J), 9 D^{s(J) + 1})) \le 2^{200a^3 + 7a} \mu\Big(B(c(J'), \frac{1}{4}D^{s(J')})\Big)
         $$
         for each such ball.
         Thus
         $$
-            |\{J' \in \mathcal{J}' \ : \ B(J') \cap B(J) \ne \emptyset\}| \le 2^{200a^3 + 6}\,.
+            |\{J' \in \mathcal{J}' \ : \ B(J') \cap B(J) \ne \emptyset\}| \le 2^{200a^3 + 7a}\,.
         $$
         Recalling that $D=2^{100a^2}$, we obtain
-        $$\frac{1}{4} + 2D |\{J' \in \mathcal{J}' \ : \ B(J') \cap B(J) \ne \emptyset\}|\leq 2^{200a^3 + 100a^2+ 8}.$$
+        $$\frac{1}{4} + 2D |\{J' \in \mathcal{J}' \ : \ B(J') \cap B(J) \ne \emptyset\}|\leq 2^{200a^3 + 100a^2 + 7a + 2}.$$
         Since $a\ge 4$, \eqref{eq-pao-3} follows.
     \end{proof}
 
@@ -5545,16 +5571,16 @@ $$
     \begin{lemma}[global tree control 1]
         \label{global-tree-control-1}
         \leanok
-        \lean{TileStructure.Forest.global_tree_control1_1, TileStructure.Forest.global_tree_control1_2}
+        \lean{TileStructure.Forest.global_tree_control1_1, TileStructure.Forest.global_tree_control1_2, TileStructure.Forest.global_tree_control1_3}
         \uses{Holder-correlation-tile,scales-impacting-interval}
-        Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
+        Let $\fC_1 = \fT(\fu_1)$ and $\fC_2 = \fT(\fu_2) \cap \mathfrak{S}$. Then for $i = 1,2$ and each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
             \label{TreeUB}
-            \sup_{B(J)} |T_{\fC}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC} g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
         \end{align}
         and for all $y,y' \in B(J)$
         $$
-            |e(\fcc(\fu)(y)) T_{\fC}^* g(y) - e(\fcc(\fu)(y')) T_{\fC}^* g(y')|
+            |e(\fcc(\fu_i)(y)) T_{\fC_i}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fC_i}^* g(y')|
         $$
         \begin{equation}
             \label{TreeHolder}
@@ -5569,13 +5595,13 @@ $$
         By the triangle inequality, \Cref{adjoint-tile-support} and \Cref{Holder-correlation-tile}, we have for all $y, y' \in B(J)$
         \begin{equation}
             \label{eq-C-Lip}
-            |e(\fcc(\fu)(y)) T_{\fC}^* g(y) - e(\fcc(\fu)(y')) T_{\fC}^* g(y')|
+            |e(\fcc(\fu_i)(y)) T_{\fC_i}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fC_i}^* g(y')|
         \end{equation}
         $$
-            \leq \sum_{\substack{\fp \in \fC\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} |e(\fcc(\fu)(y)) T_{\fp}^* g(y) - e(\fcc(\fu)(y')) T_{\fp}^* g(y')|
+            \leq \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} |e(\fcc(\fu_i)(y)) T_{\fp}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fp}^* g(y')|
         $$
         $$
-            \le 2^{151a^3}\rho(y,y')^{1/a} \sum_{\substack{\fp \in \fC\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
+            \le 2^{151a^3}\rho(y,y')^{1/a} \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
         $$
         By \Cref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
         $$
@@ -5676,6 +5702,7 @@ $$
     \end{lemma}
 
     \begin{proof}
+    \leanok
     Since $\emptyset \ne \fT(\fu_1) \subset \mathfrak{S}$ by \Cref{overlap-implies-distance}, there exists at least one tile $\fp \in \mathcal{S}$ with $\scI(\fp) \subsetneq \scI(\fu_1)$. Thus $\scI(\fu_1) \notin \mathcal{J}'$, so $J \subsetneq \scI(\fu_1)$. Thus there exists a cube $J' \in \mathcal{D}$ with $J \subset J'$ and $s(J') = s(J) + 1$, by \eqref{coverdyadic} and \eqref{dyadicproperty}. By definition of $\mathcal{J'}$ and the triangle inequality, there exists $\fp \in \mathfrak{S}$ such that
     $$
         \scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1}) \subset B(c(J), 128 D^{s(J)+2})\,.
@@ -5801,6 +5828,7 @@ $$
     \end{lemma}
 
     \begin{proof}
+        \leanok
         Suppose that $\ps(\fp) > s(J) + 2 -\frac{Zn}{202a^3} =: s(J) - s_1$. Then, we have $s_1 + 2 \ge 0$ so
         $$
             \rho(\pc(\fp), c(J)) \le 8D^{s(J)}+8D^{\ps(\fp)} \le 16 D^{\ps(\fp) + s_1 + 2}\,.
@@ -5811,7 +5839,7 @@ $$
         $$
         By the triangle inequality, the definition \eqref{defineD} and $a \ge 4$, we have
         $$
-            B(c(J'), 100 D^{s(J')+1}) \subset B(\pc(\fp), 128 D^{\ps(\fp) + s_1 + 3})\,.
+            B(c(J'), 100 D^{s(J')+1}) \subset B(\pc(\fp), 128 D^{\ps(\fp) + s_1 + 2})\,.
         $$
         Since $\fp' \in \fT(\fu_1)$ and $\scI(\fu_1) \subset \scI(\fu_2)$, we have by \eqref{forest5}
         $$
@@ -5823,7 +5851,7 @@ $$
         $$
         It follows that
         $$
-            2^{Z(n+1)-1} \le d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) \le d_{B(\pc(\fp), 128 D^{\ps(\fp) + s_1+ 3})}(\fcc(\fu_1), \fcc(\fu_2))\,.
+            2^{Z(n+1)-1} \le d_{\fp'}(\fcc(\fu_1), \fcc(\fu_2)) \le d_{B(\pc(\fp), 128 D^{\ps(\fp) + s_1+ 2})}(\fcc(\fu_1), \fcc(\fu_2))\,.
         $$
         Using \eqref{firstdb}, we obtain
         $$
@@ -6118,6 +6146,7 @@ $$
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Suppose that $\fp \in \fT(\fu)$ and $\fp' \in \fT(\fu')$ with $\fu \ne \fu'$ and $x \in E(\fp) \cap E(\fp')$. Suppose without loss of generality that $\ps(\fp) \le \ps(\fp')$. Then $x \in \scI(\fp) \cap \scI(\fp') \subset \scI(\fu')$. By \eqref{dyadicproperty} it follows that $\scI(\fp) \subset \scI(\fu')$. By \eqref{forest5}, it follows that
     $$
         d_{\fp}(\fcc(\fp), \fcc(\fu')) > 2^{Z(n+1)}\,.

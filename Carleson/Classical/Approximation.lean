@@ -17,7 +17,7 @@ open scoped ContDiff
 lemma close_smooth_approx_periodic {f : ℝ → ℂ} (unicontf : UniformContinuous f)
   (periodicf : f.Periodic (2 * π)) {ε : ℝ} (εpos : ε > 0):
     ∃ (f₀ : ℝ → ℂ), ContDiff ℝ ∞ f₀ ∧ f₀.Periodic (2 * π) ∧
-      ∀ x, Complex.abs (f x - f₀ x) ≤ ε := by
+      ∀ x, ‖f x - f₀ x‖ ≤ ε := by
   obtain ⟨δ, δpos, hδ⟩ := (Metric.uniformContinuous_iff.mp unicontf) ε εpos
   let φ : ContDiffBump (0 : ℝ) := ⟨δ/2, δ, by linarith, by linarith⟩
   set f₀ := MeasureTheory.convolution (φ.normed MeasureTheory.volume) f
@@ -51,21 +51,23 @@ lemma summable_of_le_on_nonzero {f g : ℤ → ℝ} (hgpos : 0 ≤ g) (hgf : ∀
   rw [mem_singleton] at hb
   exact if_neg hb
 
-lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * π))) : ∃ C, ∀ x ∈ Set.Icc 0 (2 * π), Complex.abs (f x) ≤ C := by
+lemma continuous_bounded {f : ℝ → ℂ} (hf : ContinuousOn f (Set.Icc 0 (2 * π))) :
+    ∃ C, ∀ x ∈ Set.Icc 0 (2 * π), ‖f x‖ ≤ C := by
   have interval_compact := (isCompact_Icc (a := 0) (b := 2 * π))
   obtain ⟨a, _, ha⟩ := interval_compact.exists_isMaxOn (Set.nonempty_Icc.mpr Real.two_pi_pos.le)
-    (Complex.continuous_abs.comp_continuousOn hf)
-  refine ⟨Complex.abs (f a), fun x hx ↦ ?_⟩
+    (continuous_norm.comp_continuousOn hf)
+  refine ⟨‖f a‖, fun x hx ↦ ?_⟩
   rw [isMaxOn_iff] at ha
   exact ha x hx
 
 /-TODO: might be generalized assumptions might be weakened, and constant given explicitely -/
-lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃ C, ∀ n, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C := by
+lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) :
+    ∃ C, ∀ n, ‖fourierCoeffOn Real.two_pi_pos f n‖ ≤ C := by
   obtain ⟨C, f_bounded⟩ := continuous_bounded f_continuous.continuousOn
   refine ⟨C, fun n ↦ ?_⟩
   simp only [fourierCoeffOn_eq_integral, sub_zero, one_div, mul_inv_rev]
   field_simp
-  rw [abs_of_nonneg pi_pos.le, mul_comm π, div_le_iff₀ Real.two_pi_pos, ←Complex.norm_eq_abs]
+  rw [abs_of_nonneg pi_pos.le, mul_comm π, div_le_iff₀ Real.two_pi_pos]
   calc ‖∫ (x : ℝ) in (0 : ℝ)..(2 * π), (starRingEnd ℂ) (Complex.exp (2 * π * Complex.I * n * x / (2 * π))) * f x‖
     _ = ‖∫ (x : ℝ) in (0 : ℝ)..(2 * π), (starRingEnd ℂ) (Complex.exp (Complex.I * n * x)) * f x‖ := by
       congr with x
@@ -79,8 +81,8 @@ lemma fourierCoeffOn_bound {f : ℝ → ℂ} (f_continuous : Continuous f) : ∃
     _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * π), ‖(Complex.exp (Complex.I * n * x)) * f x‖ := by simp
     _ = ∫ (x : ℝ) in (0 : ℝ)..(2 * π), ‖f x‖ := by
       congr with x
-      simp only [norm_mul, Complex.norm_eq_abs]
-      rw_mod_cast [mul_assoc, mul_comm Complex.I, Complex.abs_exp_ofReal_mul_I]
+      simp only [norm_mul]
+      rw_mod_cast [mul_assoc, mul_comm Complex.I, Complex.norm_exp_ofReal_mul_I]
       ring
     _ ≤ ∫ (_ : ℝ) in (0 : ℝ)..(2 * π), C := by
       refine intervalIntegral.integral_mono_on Real.two_pi_pos.le ?_ intervalIntegrable_const
@@ -109,7 +111,7 @@ lemma periodic_deriv {𝕜 : Type} [NontriviallyNormedField 𝕜] {F : Type} [No
 /-TODO: might be generalized. -/
 /-TODO: The assumption periodicf is probably not needed actually. -/
 lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodic (2 * π)) (fdiff : ContDiff ℝ 2 f) :
-    ∃ C, ∀ n ≠ 0, Complex.abs (fourierCoeffOn Real.two_pi_pos f n) ≤ C / n ^ 2 := by
+    ∃ C, ∀ n ≠ 0, ‖fourierCoeffOn Real.two_pi_pos f n‖ ≤ C / n ^ 2 := by
   have h : ∀ x ∈ Set.uIcc 0 (2 * π), HasDerivAt f (deriv f x) x := by
     intro x _
     rw [hasDerivAt_deriv_iff]
@@ -134,8 +136,8 @@ lemma fourierCoeffOn_ContDiff_two_bound {f : ℝ → ℂ} (periodicf : f.Periodi
   obtain ⟨C, hC⟩ := fourierCoeffOn_bound (contDiff_one_iff_deriv.mp
     ((contDiff_succ_iff_deriv (n := 1)).mp fdiff).2.2).2
   refine ⟨C, fun n hn ↦ ?_⟩
-  simp only [fourierCoeffOn_eq hn, Nat.cast_one, Int.cast_pow, map_mul, map_div₀, map_neg_eq_map,
-  map_one, map_pow, Complex.abs_intCast, sq_abs, one_div, div_eq_mul_inv C, mul_comm _ (Complex.abs _)]
+  simp only [fourierCoeffOn_eq hn, Complex.norm_mul, Complex.norm_div, norm_neg, norm_one, norm_pow,
+    Complex.norm_intCast, sq_abs, one_div, div_eq_mul_inv C, mul_comm C]
   gcongr
   exact hC n
 
