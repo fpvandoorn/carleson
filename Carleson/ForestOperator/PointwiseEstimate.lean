@@ -389,7 +389,7 @@ private lemma L7_1_4_integrand_bound (hu : u ∈ t) {s : ℤ} (hs : s ∈ t.σ u
     gcongr
     norm_cast
     rw_mod_cast [← pow_add]
-    refine Nat.pow_le_pow_of_le_right two_pos <| Nat.add_le_of_le_sub ?_ ?_
+    refine Nat.pow_le_pow_right two_pos <| Nat.add_le_of_le_sub ?_ ?_
     · exact Nat.mul_le_mul_right _ (by norm_num)
     · rw [← Nat.sub_mul, (show a ^ 3 = a ^ 2 * a from rfl)]; nlinarith [four_le_a X]
 
