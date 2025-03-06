@@ -340,12 +340,12 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
             apply add_le_add_right
             norm_cast
             nth_rewrite 1 [← pow_one 2]
-            exact Nat.pow_le_pow_of_le_right zero_lt_two (by omega)
+            exact Nat.pow_le_pow_right zero_lt_two (by omega)
           _ = 2 * (2 : ℝ)^ (6 * a) := by ring
           _ ≤ 2 ^ (a * 8) := by
             nth_rewrite 1 [← pow_one 2, ← pow_add]
             norm_cast
-            exact Nat.pow_le_pow_of_le_right zero_lt_two (by omega)
+            exact Nat.pow_le_pow_right zero_lt_two (by omega)
       have h38 : 3 ≤ 8 := by omega
       have h12 : (1 : ℝ) ≤ 2 := by linarith
       rw [C_6_2_3]

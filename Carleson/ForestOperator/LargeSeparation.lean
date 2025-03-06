@@ -482,7 +482,8 @@ lemma enorm_ψ_le_edist {y : X} (my : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 
     _ = (edist x x' / D ^ (𝔰 p) * 4) ^ (a : ℝ)⁻¹ := by
       rw [enorm_mul]; nth_rw 2 [enorm_eq_nnnorm]; rw [Real.nnnorm_ofNat, ENNReal.coe_ofNat]; congr
       rw [enorm_eq_nnnorm, nnnorm_div, nnnorm_zpow]; norm_cast
-      rw [ENNReal.coe_div (by simp; positivity), ENNReal.coe_zpow (by simp)]; norm_cast; congr
+      rw [ENNReal.coe_div (by simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
+        defaultκ.eq_1, ne_eq]; positivity), ENNReal.coe_zpow (by simp)]; norm_cast; congr
       rw [edist_dist, ← Real.enorm_of_nonneg dist_nonneg, enorm_eq_nnnorm]
     _ ≤ _ := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), mul_comm]; gcongr
@@ -822,7 +823,7 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompa
   exact holder_correlation_tile_two hu hp hf hx hx'
 
 /-- Part of Lemma 7.5.6. -/
-lemma limited_scale_impact__first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+lemma limited_scale_impact_first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) : s J ≤ 𝔰 p := by
   by_contra! contr
@@ -874,7 +875,7 @@ lemma limited_scale_impact__first_estimate (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
   norm_cast
 
 /-- Part of Lemma 7.5.6. -/
-lemma limited_scale_impact__second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
+lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) :
     𝔰 p ≤ s J + 3 := by
   by_contra! three
@@ -938,8 +939,8 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
     (h : ¬ Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))) :
     𝔰 p ∈ Icc (s J) (s J + 3) :=
-  ⟨limited_scale_impact__first_estimate hu₁ hu₂ hu h2u hp hJ h,
-    limited_scale_impact__second_estimate hp hJ h⟩
+  ⟨limited_scale_impact_first_estimate hu₁ hu₂ hu h2u hp hJ h,
+    limited_scale_impact_second_estimate hp hJ h⟩
 
 lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :

@@ -1,5 +1,6 @@
 import Mathlib.Analysis.Normed.Field.Basic
-import Mathlib.Topology.Instances.NNReal.Defs
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.Topology.Order.Real
 
 /-! ## `ENNReal` manipulation lemmas -/
 
