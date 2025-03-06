@@ -347,6 +347,9 @@ lemma norm_indicator_one_le {α E}
 lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ = 1 := by
   rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
 
+lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ₑ = 1 := by
+  rw [← enorm_norm, mul_comm, Complex.norm_exp_ofReal_mul_I, enorm_one]
+
 lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (.I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
 

@@ -1,10 +1,10 @@
 import Mathlib.Analysis.Normed.Field.Basic
-import Mathlib.Topology.Instances.NNReal.Defs
+import Mathlib.Analysis.Normed.Group.Uniform
 
 /-! ## `ENNReal` manipulation lemmas -/
 
 open Function Set
-open scoped NNReal
+open scoped NNReal Complex
 
 variable {α ι : Type*} {s : Set ι} {t : Finset α}
 
@@ -55,6 +55,29 @@ lemma biSup_finsetSum_le_finsetSum_biSup {f : α → ι → ℝ≥0∞} :
   | cons a t ha ihs =>
     simp only [Finset.sum_cons]
     exact biSup_add_le_add_biSup.trans (add_le_add_left ihs _)
+
+variable {E : Type*} [SeminormedAddCommGroup E]
+
+lemma edist_sum_le_sum_edist {f g : α → E} : edist (∑ i ∈ t, f i) (∑ i ∈ t, g i) ≤
+    ∑ i ∈ t, edist (f i) (g i) := by
+  induction t using Finset.cons_induction with
+  | empty => simp
+  | cons a t ha ihs =>
+    simp only [Finset.sum_cons]
+    exact (edist_add_add_le _ _ _ _).trans (add_le_add_left ihs _)
+
+/-- The reverse triangle inequality for `enorm`. -/
+lemma enorm_enorm_sub_enorm_le {x y : E} : ‖‖x‖ₑ - ‖y‖ₑ‖ₑ ≤ ‖x - y‖ₑ := by
+  rw [enorm_eq_self, tsub_le_iff_right]; nth_rw 1 [← sub_add_cancel x y]
+  exact enorm_add_le (x - y) y
+
+variable (s) in
+lemma exists_biSup_eq_enorm (f : ι → E) : ∃ x ∈ s, ⨆ z ∈ s, ‖f z‖ₑ = ‖f x‖ₑ := by
+  sorry
+
+variable (s) in
+lemma exists_biInf_eq_enorm (f : ι → E) : ∃ x ∈ s, ⨅ z ∈ s, ‖f z‖ₑ = ‖f x‖ₑ := by
+  sorry
 
 end ENNReal
 
