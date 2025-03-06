@@ -73,7 +73,7 @@ omit [TopologicalSpace X] in
 -- maybe in mathlib, but couldn't find it
 theorem ae_le_of_eLpNorm_top_lt_top (hf : eLpNorm f ⊤ μ < ⊤) :
     ∀ᵐ x ∂μ, ‖f x‖ ≤ ENNReal.toReal (eLpNorm f ⊤ μ) := by
-  have := coe_nnnorm_ae_le_eLpNormEssSup f μ
+  have := enorm_ae_le_eLpNormEssSup f μ
   filter_upwards [this] with x hx
   have : ENNReal.ofReal ‖f x‖₊ ≠ ⊤ := ENNReal.ofReal_ne_top
   convert (ENNReal.toReal_le_toReal this ?_).mpr ?_
