@@ -67,8 +67,8 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
             gcongr <;> exact Grid.dist_mono plq
           _ < 4 + 4 + 1 := by
             gcongr
-            · rw [← mem_ball']; convert (t.smul_four_le hu mp).2 (mem_ball_self zero_lt_one)
-            · rw [← mem_ball]; convert (t.smul_four_le hu mq).2 (mem_ball_self zero_lt_one)
+            · exact t.dist_lt_four hu mp
+            · exact t.dist_lt_four' hu mq
             · rw [← mem_ball']; exact subset_cball hq.2.1
           _ = _ := by norm_num
       _ ≤ 9 ^ a * dens₁ (t u) * volume (L : Set X) := by
@@ -110,8 +110,8 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
             gcongr <;> exact Grid.dist_mono p'lq
           _ < 1 + 4 + 1 := by
             gcongr
-            · rw [← mem_ball']; apply subset_cball <| dp' 𝒬_mem_Ω
-            · rw [← mem_ball]; convert (t.smul_four_le hu mq).2 (mem_ball_self zero_lt_one)
+            · rw [← mem_ball']; exact subset_cball (dp' 𝒬_mem_Ω)
+            · exact t.dist_lt_four' hu mq
             · rw [← mem_ball']; exact subset_cball hq.2.1
           _ = _ := by norm_num
       _ ≤ 6 ^ a * dens₁ (t u) * volume (L' : Set X) := by

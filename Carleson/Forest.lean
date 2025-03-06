@@ -75,13 +75,17 @@ lemma ball_subset_of_mem_𝓘 (hu : u ∈ t) {p : 𝔓 X} (hp : p ∈ t u) {x : 
 lemma 𝓘_le_𝓘 (hu : u ∈ t) (hp : p ∈ t u) : 𝓘 p ≤ 𝓘 u :=
   (t.smul_four_le hu hp).1
 
-lemma dist_lt_four (hu : u ∈ t) (hp : p ∈ t u) :
-    dist_(p) (𝒬 p) (𝒬 u) < 4 := by
-  rw [dist_comm]
-  have := smul_four_le t hu hp
-  rw [TileLike.le_def,smul_snd,smul_snd] at this
-  apply this.right
-  simp only [mem_ball, dist_self, zero_lt_one]
+lemma cball_subset_cball (hu : u ∈ t) (hp : p ∈ t u) : ball_(u) (𝒬 u) 1 ⊆ ball_(p) (𝒬 p) 4 :=
+  (t.smul_four_le hu hp).2
+
+lemma 𝒬_mem_cball (hu : u ∈ t) (hp : p ∈ t u) : 𝒬 u ∈ ball_(p) (𝒬 p) 4 :=
+  (t.cball_subset_cball hu hp) (mem_ball_self zero_lt_one)
+
+lemma dist_lt_four (hu : u ∈ t) (hp : p ∈ t u) : dist_(p) (𝒬 p) (𝒬 u) < 4 :=
+  mem_ball'.mp (t.𝒬_mem_cball hu hp)
+
+lemma dist_lt_four' (hu : u ∈ t) (hp : p ∈ t u) : dist_(p) (𝒬 u) (𝒬 p) < 4 :=
+  mem_ball.mp (t.𝒬_mem_cball hu hp)
 
 end Forest
 
