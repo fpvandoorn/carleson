@@ -110,22 +110,22 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
             gcongr <;> exact Grid.dist_mono p'lq
           _ < 1 + 4 + 1 := by
             gcongr
-            · rw [← mem_ball'] 
-              apply subset_cball <| dp' 𝒬_mem_Ω
+            · rw [← mem_ball']; apply subset_cball <| dp' 𝒬_mem_Ω
             · rw [← mem_ball]; convert (t.smul_four_le hu mq).2 (mem_ball_self zero_lt_one)
             · rw [← mem_ball']; exact subset_cball hq.2.1
           _ = _ := by norm_num
-      _ ≤ 9 ^ a * dens₁ (t u) * volume (L' : Set X) := by
-        rw [← ip']; exact volume_E₂_le_dens₁_mul_volume mp' 9 (by norm_num)
-      _ ≤ 2 ^ (4 * a) * 2 ^ (100 * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
-        rw [show 2 ^ (4 * a) * _ * dens₁ (t u) * volume (L : Set X) =
-          2 ^ (4 * a) * dens₁ (t u) * (2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
+      _ ≤ 6 ^ a * dens₁ (t u) * volume (L' : Set X) := by
+        rw [← ip']; refine volume_E₂_le_dens₁_mul_volume ?_ 6 (by norm_num)
+        sorry
+      _ ≤ 2 ^ (3 * a) * 2 ^ (100 * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
+        rw [show 2 ^ (3 * a) * _ * dens₁ (t u) * volume (L : Set X) =
+          2 ^ (3 * a) * dens₁ (t u) * (2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
         gcongr ?_ * _ * ?_
         · norm_cast; rw [pow_mul]; exact pow_le_pow_left' (by norm_num) a
         · exact volume_bound_of_Grid_lt lL'.le sL'
       _ ≤ _ := by
         gcongr; rw [C7_3_2]; norm_cast; rw [← pow_add]; apply Nat.pow_le_pow_right zero_lt_two
-        rw [← add_assoc, ← add_rotate, ← add_mul, show 4 + 5 = 9 by norm_num]
+        rw [← add_assoc, ← add_rotate, ← add_mul, show 3 + 5 = 8 by norm_num]
         calc
           _ ≤ 4 * 4 * a + 100 * a ^ 3 := by gcongr; norm_num
           _ ≤ a * a * a + 100 * a ^ 3 := by gcongr <;> exact four_le_a X
