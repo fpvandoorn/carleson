@@ -235,11 +235,8 @@ lemma boundaryOperator_lt_top (hf : BoundedCompactSupport f) : t.boundaryOperato
   · simp [hx]
 
 
-/- Number of additional exponents we have to include in `𝓑`. Feel free to increase if needed. -/
-def 𝓑max : ℕ := 3
-
 /-- The indexing set for the collection of balls 𝓑, defined above Lemma 7.1.3. -/
-def 𝓑 : Set (ℕ × ℕ × Grid X) := Iic (S + 5) ×ˢ Iic 𝓑max ×ˢ univ
+def 𝓑 : Set (ℕ × ℕ × Grid X) := Iic (S + 5) ×ˢ Iic (2 * S + 3) ×ˢ univ
 
 /-- The center function for the collection of balls 𝓑. -/
 def c𝓑 (z : ℕ × ℕ × Grid X) : X := c z.2.2

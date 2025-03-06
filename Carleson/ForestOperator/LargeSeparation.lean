@@ -1102,7 +1102,8 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
       · use ⟨4, (k - s J).toNat, J⟩
         simp only [𝓑, c𝓑, r𝓑, mem_prod, mem_Iic, mem_univ, le_add_iff_nonneg_left, zero_le,
           and_true, true_and]
-        rw [show s J + (k - s J).toNat = k by omega, Int.toNat_le, 𝓑max, Nat.cast_ofNat]
+        rw [show s J + (k - s J).toNat = k by omega, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
+          Nat.cast_ofNat]
         exact ⟨by omega, by norm_num⟩
     _ = 2 ^ (103 * a ^ 3) * 2 ^ 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       rw [Finset.sum_const, Int.card_Icc, show s J + 3 + 1 - s J = 4 by omega, nsmul_eq_mul,
@@ -1335,7 +1336,13 @@ lemma global_tree_control1_edist_part2
       gcongr with k mk; rw [Finset.mem_Icc] at mk
       apply laverage_le_biInf_MB
       · gcongr; exacts [by norm_num, one_le_D, mk.1]
-      · sorry
+      · use ⟨5, (k - s J).toNat, J⟩
+        simp only [𝓑, c𝓑, r𝓑, mem_prod, mem_Iic, mem_univ, le_add_iff_nonneg_left, zero_le,
+          and_true, true_and]
+        rw [show s J + (k - s J).toNat = k by omega, Int.toNat_le, Nat.cast_add, Nat.cast_mul,
+          Nat.cast_ofNat]
+        have : -S ≤ s J := scale_mem_Icc.1
+        exact ⟨by omega, by norm_num⟩
     _ = C7_5_5 a * 2 ^ (4 * a) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ *
         (∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - k) / (a : ℝ))) *
         ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
