@@ -250,6 +250,21 @@ def r𝓑 (z : ℕ × ℕ × Grid X) : ℝ := 2 ^ z.1 * D ^ (s z.2.2 + z.2.1)
 lemma 𝓑_finite : (𝓑 (X := X)).Finite :=
   finite_Iic _ |>.prod <| finite_Iic _ |>.prod finite_univ
 
+lemma laverage_le_biInf_MB' {c₀ : X} {r₀ : ℝ} (hr : 4 * D ^ s J + dist (c J) c₀ ≤ r₀)
+    (h : ∃ i ∈ 𝓑, c𝓑 i = c₀ ∧ r𝓑 i = r₀) :
+    ⨍⁻ x in ball c₀ r₀, ‖f x‖₊ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+  simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iInf_iff]
+  intro y my; obtain ⟨b, mb, cb, rb⟩ := h
+  replace my : y ∈ ball (c𝓑 b) (r𝓑 b) := by
+    rw [cb, rb]; refine Grid_subset_ball.trans (ball_subset_ball' hr) my
+  exact le_iSup₂_of_le b mb (by rw [indicator_of_mem my, cb, rb])
+
+lemma laverage_le_biInf_MB {r₀ : ℝ} (hr : 4 * D ^ s J ≤ r₀)
+    (h : ∃ i ∈ 𝓑, c𝓑 i = c J ∧ r𝓑 i = r₀) :
+    ⨍⁻ x in ball (c J) r₀, ‖f x‖₊ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+  refine laverage_le_biInf_MB' ?_ h; rwa [dist_self, add_zero]
+
+
 /-- Lemma 7.1.1, freely translated. -/
 lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
   rw [ordConnected_def]; intro i mi j mj k mk
