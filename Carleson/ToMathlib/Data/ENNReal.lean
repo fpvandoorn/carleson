@@ -79,14 +79,12 @@ lemma exists_biSup_le_enorm_add_eps
   by_contra! H
   have M : ⨆ z ∈ s, ‖f z‖ₑ + ε ≤ ⨆ z ∈ s, ‖f z‖ₑ := by
     simpa only [iSup_le_iff] using fun i hi ↦ (H i hi).le
-  have Ant : ⨆ z ∈ s, ‖f z‖ₑ ≠ ⊤ := by -- boundedness of `f` used here
-    obtain ⟨i₀, mi₀⟩ := hs
-    by_contra! h; simp_rw [iSup₂_eq_top] at h; apply absurd h; push_neg
-    rw [isBounded_iff_forall_norm_le] at hf; obtain ⟨C, hC⟩ := hf
-    simp only [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hC
-    lift C to ℝ≥0 using (norm_nonneg _).trans (hC i₀ mi₀)
-    use C, by simp, fun i mi ↦ by exact_mod_cast hC i mi
-  obtain ⟨B, eB⟩ : ∃ B : ℝ≥0, ⨆ z ∈ s, ‖f z‖ₑ = B := Option.ne_none_iff_exists'.mp Ant
+  have nt : ⨆ z ∈ s, ‖f z‖ₑ ≠ ⊤ := by -- boundedness of `f` used here
+    rw [ne_eq, iSup₂_eq_top]; push_neg
+    obtain ⟨C, pC, hC⟩ := hf.exists_pos_norm_le; lift C to ℝ≥0 using pC.le
+    simp_rw [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hC
+    use C, coe_lt_top, by exact_mod_cast hC
+  obtain ⟨B, eB⟩ : ∃ B : ℝ≥0, ⨆ z ∈ s, ‖f z‖ₑ = B := Option.ne_none_iff_exists'.mp nt
   rw [← biSup_add hs, eB] at M
   norm_cast at M
   exact lt_irrefl _ (M.trans_lt (lt_add_of_pos_right B εpos))
