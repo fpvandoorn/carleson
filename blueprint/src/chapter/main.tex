@@ -4311,7 +4311,7 @@ $$
 %changed definition (2x)
 Define also the collection of balls
 $$
-    \mathcal{B} = \{B(c(I), 2^s D^{s(I)+t}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\,, 0 \le t \le 3\}\,.
+    \mathcal{B} = \{B(c(I), 2^s D^{s(I)+t}) \ : \ I \in \mathcal{D}\,, 0 \le s \le S + 5\,, 0 \le t \le 2S+3\}\,.
 $$
 %changed definition. (2x) We can increase the 3 further, if desired
 
@@ -5571,12 +5571,12 @@ $$
     \begin{lemma}[global tree control 1]
         \label{global-tree-control-1}
         \leanok
-        \lean{TileStructure.Forest.global_tree_control1_1, TileStructure.Forest.global_tree_control1_2, TileStructure.Forest.global_tree_control1_3}
+        \lean{TileStructure.Forest.global_tree_control1_edist_left, TileStructure.Forest.global_tree_control1_edist_right, TileStructure.Forest.global_tree_control1_supbound}
         \uses{Holder-correlation-tile,scales-impacting-interval}
         Let $\fC_1 = \fT(\fu_1)$ and $\fC_2 = \fT(\fu_2) \cap \mathfrak{S}$. Then for $i = 1,2$ and each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
             \label{TreeUB}
-            \sup_{B(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|
         \end{align}
         and for all $y,y' \in B(J)$
         $$
@@ -5584,13 +5584,14 @@ $$
         $$
         \begin{equation}
             \label{TreeHolder}
-             \le 2^{153a^3} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} \inf_J M_{\mathcal{B},1} |g|\,.
+             \le 2^{151a^3+4a+1} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} \inf_J M_{\mathcal{B},1} |g|\,.
         \end{equation}
     \end{lemma}
 
     \begin{proof}
+        \leanok
         Note that \eqref{TreeUB} follows from \eqref{TreeHolder}, since for $y'\in B^\circ{}(J)$, by the triangle inequality,
-        $$\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}\le \Big(8 + \frac{1}8\Big)^{1/a}\le 2^{a^3}.$$
+        $$\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}\le \Big(8 + \frac{1}8\Big)^{1/a}\le 2.$$
 
         By the triangle inequality, \Cref{adjoint-tile-support} and \Cref{Holder-correlation-tile}, we have for all $y, y' \in B(J)$
         \begin{equation}
@@ -5605,18 +5606,14 @@ $$
         $$
         By \Cref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
         $$
-            2^{151a^3}\rho(y,y')^{1/a} \sum_{S \ge s \ge s(J)} D^{-s/a} \frac{2^{3a}}{\mu(B(c(J), 32D^{s}))} \int_{B(c(J), 32D^{s})} |g| \, \mathrm{d}\mu
+            2^{151a^3}\rho(y,y')^{1/a} \sum_{S \ge s \ge s(J)} D^{-s/a} \frac{2^{4a}}{\mu(B(c(J), 32D^{s}))} \int_{B(c(J), 32D^{s})} |g| \, \mathrm{d}\mu
         $$
         $$
-            \le 2^{152a^3} \left(\frac{\rho(y,y')}{D^s}\right)^{1/a} \sum_{S \ge s \ge s(J)} D^{(s(J) - s)/a} \inf_J M_{\mathcal{B},1} |g|\,.
+            \le 2^{151a^3+4a} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} \sum_{S \ge s \ge s(J)} D^{(s(J) - s)/a} \inf_J M_{\mathcal{B},1} |g|\,.
         $$
-        By convexity of $t \mapsto D^t$ and since $D \ge 2$, we have for all $-1 \le t \le 0$
+        Since $D^{-1/a}\le\frac12$, we have
         $$
-            D^t \le 1 + t(1 - \frac{1}{D}) \le 1 + \frac{1}{2}t\,.
-        $$
-        Since $-1 \le -1/a <0$, it follows that
-        $$
-            \sum_{S \ge s \ge s(J)} D^{(s(J) - s)/a} \le \frac{1}{1 - D^{-1/a}} \le 2a \le 2^a\,.
+            \sum_{S \ge s \ge s(J)} D^{(s(J) - s)/a} \le 2.
         $$
         Estimate \eqref{TreeHolder}, and therefore the lemma, follow.
     \end{proof}
