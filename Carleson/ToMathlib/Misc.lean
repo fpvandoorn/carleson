@@ -119,7 +119,7 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
   | succ b h ih =>
     have li : a * c ≤ b * c := by gcongr
     rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
-      lintegral_union measurableSet_Ioc Ioc_disjoint_Ioc_same,
+      lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
       Nat.Ico_succ_right_eq_insert_Ico h, Finset.sum_insert Finset.right_not_mem_Ico,
       add_comm (lintegral ..), ih]
 
@@ -346,6 +346,9 @@ lemma norm_indicator_one_le {α E}
 
 lemma norm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ = 1 := by
   rw [mul_comm, Complex.norm_exp_ofReal_mul_I]
+
+lemma enorm_exp_I_mul_ofReal (x : ℝ) : ‖exp (.I * x)‖ₑ = 1 := by
+  rw [← enorm_norm, mul_comm, Complex.norm_exp_ofReal_mul_I, enorm_one]
 
 lemma norm_exp_I_mul_sub_ofReal (x y: ℝ) : ‖exp (.I * (x - y))‖ = 1 := by
   rw [mul_comm, ← ofReal_sub, Complex.norm_exp_ofReal_mul_I]
