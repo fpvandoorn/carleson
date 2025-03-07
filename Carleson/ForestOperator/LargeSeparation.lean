@@ -1395,27 +1395,31 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
     ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ ≤
     (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ) +
     C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
-  rw [← tsub_le_iff_left]
-  obtain ⟨x, hx, ex⟩ :=
-    ENNReal.exists_biSup_eq_enorm (ball (c J) (8 * D ^ s J)) (adjointCarlesonSum ℭ f)
-  obtain ⟨x', hx', ex'⟩ :=
-    ENNReal.exists_biInf_eq_enorm (ball (c J) (8 * D ^ s J)) (adjointCarlesonSum ℭ f)
+  rw [← tsub_le_iff_left]; refine ENNReal.le_of_forall_pos_le_add fun ε εpos blt ↦ ?_
+  obtain ⟨x, hx, ex⟩ : ∃ x₀ ∈ ball (c J) (8 * D ^ s J),
+      ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ ≤
+      ‖adjointCarlesonSum ℭ f x₀‖ₑ + (ε / 2 : ℝ≥0) :=
+    ENNReal.exists_biSup_le_enorm_add_eps (by positivity)
+      ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩ hf.adjointCarlesonSum.isBounded
+  obtain ⟨x', hx', ex'⟩ : ∃ x₀ ∈ ball (c J) (8⁻¹ * D ^ s J),
+      ‖adjointCarlesonSum ℭ f x₀‖ₑ - (ε / 2 : ℝ≥0) ≤
+      ⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ :=
+    ENNReal.exists_enorm_sub_eps_le_biInf (by positivity)
+      ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩
   calc
-    _ ≤ (⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ) -
-        ⨅ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ := by
-      rw [ENNReal.sub_le_sub_iff_left]
-      · exact biInf_mono (ball_subset_ball (by gcongr; norm_num))
-      · exact biInf_le_biSup ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩
-      · rw [← lt_top_iff_ne_top]
-        have bn := (hf.adjointCarlesonSum (ℭ := ℭ)).isBounded
-        rw [isBounded_iff_forall_norm_le] at bn; obtain ⟨C, hC⟩ := bn
-        simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
-        lift C to ℝ≥0 using (norm_nonneg _).trans (hC x)
-        apply (iSup₂_le fun y my ↦ ?_).trans_lt (show (C : ℝ≥0∞) < ⊤ by simp)
-        rw [enorm_le_coe]; exact hC y
-    _ = ‖‖adjointCarlesonSum ℭ f x‖ₑ - ‖adjointCarlesonSum ℭ f x'‖ₑ‖ₑ := by
-      rw [← ex, ← ex']; rfl
-    _ ≤ C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    _ ≤ (‖adjointCarlesonSum ℭ f x‖ₑ + (ε / 2 : ℝ≥0)) -
+        (‖adjointCarlesonSum ℭ f x'‖ₑ - (ε / 2 : ℝ≥0)) := tsub_le_tsub ex ex'
+    _ ≤ (ε / 2 : ℝ≥0) + ‖adjointCarlesonSum ℭ f x‖ₑ -
+        ‖adjointCarlesonSum ℭ f x'‖ₑ + (ε / 2 : ℝ≥0) := by
+      rw [add_comm]; exact tsub_tsub_le_tsub_add
+    _ ≤ (ε / 2 : ℝ≥0) + (‖adjointCarlesonSum ℭ f x‖ₑ - ‖adjointCarlesonSum ℭ f x'‖ₑ) +
+        (ε / 2 : ℝ≥0) := add_le_add_right add_tsub_le_assoc _
+    _ = ‖‖adjointCarlesonSum ℭ f x‖ₑ - ‖adjointCarlesonSum ℭ f x'‖ₑ‖ₑ + ε := by
+      rw [add_rotate, add_assoc]; simp
+    _ ≤ (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x) + ε := by
+      refine add_le_add_right ?_ _
+      replace hx' : x' ∈ ball (c J) (8 * D ^ s J) := by
+        exact (ball_subset_ball (by gcongr; norm_num)) hx'
       rcases hℭ with rfl | rfl
       · nth_rw 2 [← one_mul ‖_‖ₑ]; rw [← enorm_exp_I_mul_ofReal (𝒬 u₁ x), ← enorm_mul]
         nth_rw 3 [← one_mul ‖_‖ₑ]; rw [← enorm_exp_I_mul_ofReal (𝒬 u₁ x'), ← enorm_mul]
@@ -1425,19 +1429,19 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
         nth_rw 3 [← one_mul ‖_‖ₑ]; rw [← enorm_exp_I_mul_ofReal (𝒬 u₂ x'), ← enorm_mul]
         exact ENNReal.enorm_enorm_sub_enorm_le.trans
           (global_tree_control1_edist_right hu₁ hu₂ hu h2u hJ hf hx hx')
-    _ ≤ C7_5_9d a * 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    _ ≤ (C7_5_9d a * 2 * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x) + ε := by
       gcongr; rw [mem_ball] at hx hx'; rw [edist_dist]
       calc
-        _ ≤ (ENNReal.ofReal (16 * D ^ s J) / ↑D ^ s J) ^ (a : ℝ)⁻¹ := by
-          gcongr; rw [show (16 : ℝ) = 8 + 8 by norm_num, add_mul]
-          exact ((dist_triangle_right ..).trans_lt (add_lt_add hx hx')).le
-        _ = 16 ^ (a : ℝ)⁻¹ := by
-          rw [ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat, ← Real.rpow_intCast,
+        _ ≤ (ENNReal.ofReal ((8 + 8⁻¹) * D ^ s J) / ↑D ^ s J) ^ (a : ℝ)⁻¹ := by
+          gcongr; rw [add_mul]; exact ((dist_triangle_right ..).trans_lt (add_lt_add hx hx')).le
+        _ ≤ 16 ^ (a : ℝ)⁻¹ := by
+          have Dpos : 0 < (D : ℝ≥0∞) ^ s J := ENNReal.zpow_pos (by simp) (by simp) _
+          have Dlt : (D : ℝ≥0∞) ^ s J < ⊤ := ENNReal.zpow_lt_top (by simp) (by simp) _
+          rw [ENNReal.ofReal_mul (by norm_num), ← Real.rpow_intCast,
             ← ENNReal.ofReal_rpow_of_pos (by unfold defaultD; positivity),
             show ENNReal.ofReal D = D by norm_cast, ENNReal.rpow_intCast,
-            ENNReal.mul_div_cancel_right]
-          · exact (ENNReal.zpow_pos (by simp) (by simp) _).ne'
-          · exact (ENNReal.zpow_lt_top (by simp) (by simp) _).ne
+            ENNReal.mul_div_cancel_right Dpos.ne' Dlt.ne]
+          exact ENNReal.rpow_le_rpow (by norm_num) (by positivity)
         _ ≤ 16 ^ (4 : ℝ)⁻¹ := by
           gcongr; exacts [by norm_num, by norm_cast; linarith [four_le_a X]]
         _ = _ := by
