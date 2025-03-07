@@ -1400,7 +1400,8 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ ≤
       ‖adjointCarlesonSum ℭ f x₀‖ₑ + (ε / 2 : ℝ≥0) :=
     ENNReal.exists_biSup_le_enorm_add_eps (by positivity)
-      ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩ hf.adjointCarlesonSum.isBounded
+      ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩
+      (hf.adjointCarlesonSum.isBounded.subset (image_subset_range ..))
   obtain ⟨x', hx', ex'⟩ : ∃ x₀ ∈ ball (c J) (8⁻¹ * D ^ s J),
       ‖adjointCarlesonSum ℭ f x₀‖ₑ - (ε / 2 : ℝ≥0) ≤
       ⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ :=
