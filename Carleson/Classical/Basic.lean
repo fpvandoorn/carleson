@@ -6,78 +6,17 @@ import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 import Mathlib.Analysis.Convolution
 
 import Carleson.Classical.Helper
+import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.Topology.Instances.AddCircle
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+
 
 open Finset Real MeasureTheory AddCircle
 
 noncomputable section
 
 
---TODO: to mathlib
-theorem AEEqFun.mk_sum {α E ι : Type*} {m0 : MeasurableSpace α}
-    {μ : Measure α} [inst : NormedAddCommGroup E] [DecidableEq ι] {s : Finset ι} {f : ι → α → E}
-    (hf : ∀ i ∈ s, AEStronglyMeasurable (f i) μ) :
-      AEEqFun.mk (∑ i ∈ s, f i) (Finset.aestronglyMeasurable_sum' s hf) = ∑ i ∈ s.attach, AEEqFun.mk (f ↑i) (hf i (Finset.coe_mem i)) := by
-  induction' s using Finset.induction_on with i s hi h
-  . simp_rw [Finset.attach_empty, Finset.sum_empty]
-    exact rfl
-  . simp_rw [Finset.attach_insert]
-    simp_rw [Finset.sum_insert hi]
-    have hi' : @Subtype.mk ι (fun x ↦ x ∈ insert i s) i (Finset.mem_insert_self i s) ∉ @Finset.image { x // x ∈ s } { x // x ∈ insert i s } (fun a b ↦ a.instDecidableEq b) (fun x ↦ ⟨↑x, Finset.mem_insert_of_mem x.property⟩) s.attach := by
-      simp [hi]
-    simp_rw [Finset.sum_insert hi']
-    rw [← AEEqFun.mk_add_mk _ _ (hf _ (Finset.mem_insert_self i s)) (Finset.aestronglyMeasurable_sum' s (fun j hj ↦ hf j (Finset.mem_insert_of_mem hj)))]
-    congr
-    -- use induction hypothesis here
-    rw [h (fun j hj ↦ hf j (Finset.mem_insert_of_mem hj))]
-
-    simp only [Finset.mem_attach, Subtype.mk.injEq, forall_const, Subtype.forall, imp_self,
-      implies_true, Finset.sum_image]
-
---TODO: to mathlib
-lemma ContinuousMap.MemLp {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal} (μ : Measure α)
-    [NormedAddCommGroup E] [TopologicalSpace α] [BorelSpace α] [SecondCountableTopologyEither α E] [CompactSpace α]
-    [IsFiniteMeasure μ] (𝕜 : Type*) [Fact (1 ≤ p)] [NormedField 𝕜] [NormedSpace 𝕜 E] (f : C(α, E)) : MemLp f p μ := by
-  have := Subtype.val_prop (ContinuousMap.toLp p μ 𝕜 f)
-  have := Lp.mem_Lp_iff_memLp.mp this
-  rw [ContinuousMap.coe_toLp, memLp_congr_ae (ContinuousMap.coeFn_toAEEqFun _ _)] at this
-  exact this
-
---TODO: to mathlib
-lemma MemLp.toLp_sum {α : Type*} {E : Type*} {m0 : MeasurableSpace α} {p : ENNReal}
-    {μ : Measure α} [NormedAddCommGroup E] {ι : Type*} [DecidableEq ι] (s : Finset ι) {f : ι → α → E} (hf : ∀ i ∈ s, MemLp (f i) p μ) :
-    MemLp.toLp (∑ i ∈ s, f i) (memLp_finset_sum' s hf) = ∑ i : ↑s, (MemLp.toLp (f i) (hf i (Finset.coe_mem i))) := by
-  rw [Finset.univ_eq_attach]
-  refine Lp.ext_iff.mpr ?_
-  unfold MemLp.toLp
-  rw [Subtype.val]
-  rw [AddSubgroup.val_finset_sum]
-  refine AEEqFun.ext_iff.mp ?_
-  apply AEEqFun.mk_sum (fun i hi ↦ (hf i hi).aestronglyMeasurable)
-
-/-
---TODO: move to AddCircle
-lemma AddCircle.coe_liftIoc_apply.{u_1, u_2} {𝕜 : Type u_1} {B : Type u_2} [LinearOrderedAddCommGroup 𝕜] {p : 𝕜}
-    [hp : Fact (0 < p)] {a : 𝕜} [Archimedean 𝕜] {f : 𝕜 → B} {x : AddCircle p} : liftIoc p a f x = f (x : 𝕜) := by
-  sorry
--/
-
---TODO: move to AddCircle
-lemma AddCircle.coe_eq_coe_iff_of_mem_Ioc.{u_1} {𝕜 : Type u_1} [LinearOrderedAddCommGroup 𝕜] {p : 𝕜} [hp : Fact (0 < p)]
-    {a : 𝕜} [Archimedean 𝕜] {x y : 𝕜} (hx : x ∈ Set.Ioc a (a + p)) (hy : y ∈ Set.Ioc a (a + p)) : (x : AddCircle p) = y ↔ x = y := by
-  refine ⟨fun h => ?_, by tauto⟩
-  suffices (⟨x, hx⟩ : Set.Ioc a (a + p)) = ⟨y, hy⟩ by exact Subtype.mk.inj this
-  apply_fun equivIoc p a at h
-  rw [← (equivIoc p a).right_inv ⟨x, hx⟩, ← (equivIoc p a).right_inv ⟨y, hy⟩]
-  exact h
-
---TODO: move to AddCircle
-lemma AddCircle.eq_coe_Ioc.{u_1} {𝕜 : Type u_1} [LinearOrderedAddCommGroup 𝕜] {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜]
-    (a : AddCircle p) : ∃ b ∈ Set.Ioc 0 p, ↑b = a := by
-  let b := QuotientAddGroup.equivIocMod hp.out 0 a
-  exact ⟨b.1, by simpa only [zero_add] using b.2,
-    (QuotientAddGroup.equivIocMod hp.out 0).symm_apply_apply a⟩
-
---TODO: move to fourier file
 --TODO: I think the measurability assumptions might be unnecessary
 theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
