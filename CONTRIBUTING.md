@@ -27,7 +27,7 @@ Below, I will try to give a translation of some notation/conventions. We use mat
 | --------- | ---------- | ------- |
 | `⊂`       | `⊆`       |         |
 | `\dot{\bigcup}` |  `⋃ ...` and `PairwiseDisjoint` separately | notation for disjoint union
-| `𝔓(𝔓')`   | `lowerClosure 𝔓'` |         |
+| `𝔓(𝔓')`   | `lowerCubes 𝔓'` |         |
 | `λp ≲ λ'p'`   | `smul l p ≤ smul l' p' ` |         |
 | `p ≲ p'`   | `smul 1 p ≤ smul 1 p' ` | Beware that this is not the same as `p ≤ p'`. |
 | `d_B(f,g)`   | `dist_{x, r} f g` | Assuming `B = B(x,r)` is the ball with center `x` and radius `r`. Lean also has the variants `nndist_` and `ball_`. |
