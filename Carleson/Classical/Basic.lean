@@ -81,7 +81,7 @@ lemma AddCircle.eq_coe_Ioc.{u_1} {𝕜 : Type u_1} [LinearOrderedAddCommGroup �
 --TODO: I think the measurability assumptions might be unnecessary
 theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
     (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
-    (h : f =ᶠ[ae haarAddCircle] g) : fourierCoeff f n = fourierCoeff g n := by
+    (h : f =ᵐ[haarAddCircle] g) : fourierCoeff f n = fourierCoeff g n := by
   unfold fourierCoeff
   apply integral_congr_ae
   change @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * f =ᶠ[ae haarAddCircle] @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * g
