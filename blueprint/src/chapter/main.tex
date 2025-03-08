@@ -4771,12 +4771,12 @@ The main result of this subsection is the following quantitative bound for opera
     we have
     \begin{equation}
         \label{eq-cor-tree-est}
-        \left|\int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f \, \mathrm{d}\mu \right| \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
+        \left|\int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f \, \mathrm{d}\mu \right| \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
     \end{equation}
     If additionally $|f| \le \mathbf{1}_F$, then we have
     \begin{equation}
         \label{eq-cor-tree-est-F}
-        \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f\, \mathrm{d}\mu \right| \le 2^{256a^3} \dens_1(\fT(\fu))^{1/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
+        \left| \int_X \bar g \sum_{\fp \in \fT(\fu)} T_{\fp }f\, \mathrm{d}\mu \right| \le 2^{303a^3} \dens_1(\fT(\fu))^{1/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\|g\|_2\,.
     \end{equation}
 \end{lemma}
 
@@ -4798,28 +4798,29 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     \label{local-dens2-tree-bound}
     \leanok
     \lean{TileStructure.Forest.local_dens2_tree_bound}
-    Let $J \in \mathcal{J}(\fT(\fu))$ be such that $J \cap \scI(\fu) \ne \emptyset$. Then
+    Let $\fu \in \fU$ and $J \in \mathcal{J}(\fT(\fu))$. Then
     $$
-        \mu(F \cap J) \le 2^{200a^3 + 19} \dens_2(\fT(\fu)) \mu(J)\,.
+        \mu(F \cap J) \le 2^{201a^3} \dens_2(\fT(\fu)) \mu(J)\,.
     $$
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{densities-tree-bound}]
     \proves{densities-tree-bound}
-    First, we claim that for every tile $\fp \in \fT(\fu)$
-    we have
-    \[
-        T_{\fp} f = \mathbf{1}_{E(\fp)}(x) \int K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y)
-    \]
-    \[
-        = \mathbf{1}_{E(\fp)} T_{\fp}(\mathbf{1}_{\scI(\fu)} f).
-    \]
-    Indeed, if the expression in the middle is not zero,
-    then $x \in E(\fp) \subset \scI(\fp) \subset B(\pc(\fp), 4D^{\ps(\fp)})$.
-    By \eqref{supp-Ks}, it follows that $K_{\ps(\fp)}(x,y)$ is zero
-    unless $y \in B(\pc(\fp), 4.5D^{\ps(\fp)}) \subset \scI(\fu)$,
-    where the last inclusion follows from \eqref{forest6}.
-    Thus, the expression does not change upon replacing $f$ by $f \mathbf{1}_{\scI(\fu)}$.
+    \leanok
+    % First, we claim that for every tile $\fp \in \fT(\fu)$
+    % we have
+    % \[
+    %     T_{\fp} f = \mathbf{1}_{E(\fp)}(x) \int K_{\ps(\fp)}(x,y) f(y) e(\tQ(x)(y)-\tQ(x)(x))\, d\mu(y)
+    % \]
+    % \[
+    %     = \mathbf{1}_{E(\fp)} T_{\fp}(\mathbf{1}_{\scI(\fu)} f).
+    % \]
+    % Indeed, if the expression in the middle is not zero,
+    % then $x \in E(\fp) \subset \scI(\fp) \subset B(\pc(\fp), 4D^{\ps(\fp)})$.
+    % By \eqref{supp-Ks}, it follows that $K_{\ps(\fp)}(x,y)$ is zero
+    % unless $y \in B(\pc(\fp), 4.5D^{\ps(\fp)}) \subset \scI(\fu)$,
+    % where the last inclusion follows from \eqref{forest6}.
+    % Thus, the expression does not change upon replacing $f$ by $f \mathbf{1}_{\scI(\fu)}$.
 
     Denote
     $$
@@ -4832,7 +4833,7 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     By \Cref{tree-projection-estimate}, this is bounded by
     \begin{equation}
         \label{eq-both-factors-tree}
-        \le 2^{104a^3}\|P_{\mathcal{J}(\fT(\fu))}|\mathbf{1}_{\scI(\fu)}f|\|_2 \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2\,.
+        \le 2^{152a^3}\|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 \|P_{\mathcal{L}(\fT(\fu))} |\mathbf{1}_{\mathcal{E}(\fu)}g|\|_2\,.
     \end{equation}
     We bound the two factors separately.
     We have
@@ -4846,12 +4847,12 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
     Since cubes $L \in \mathcal{L}(\fT(\fu))$ are pairwise disjoint by \Cref{dyadic-partitions}, this is
     \begin{equation}
         \label{eq-factor-L-tree}
-         \le 2^{51 a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
+         \le 2^{50.5 a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
     \end{equation}
     Similarly, we have
     \begin{equation}
         \label{eq-cor-tree-proof}
-        \|P_{\mathcal{J}(\fT(\fu))}|\mathbf{1}_{\scI(\fu)}f|\|_2 = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_{J \cap \scI(\fu)} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
+        \|P_{\mathcal{J}(\fT(\fu))}|f|\|_2 = \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_J |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     \end{equation}
     By Cauchy-Schwarz, this is
     $$
@@ -4862,20 +4863,20 @@ Below, we deduce this lemma from \Cref{tree-projection-estimate} and the followi
         \label{eq-factor-J-tree}
         \|f\|_2\,.
     \end{equation}
-    Combining \eqref{eq-both-factors-tree}, \eqref{eq-factor-L-tree} and \eqref{eq-factor-J-tree} and using $a \ge 4$ gives \eqref{eq-cor-tree-est}.
+    Combining \eqref{eq-both-factors-tree}, \eqref{eq-factor-L-tree} and \eqref{eq-factor-J-tree} gives \eqref{eq-cor-tree-est}.
 
     If $f \le \mathbf{1}_F$ then $f = f\mathbf{1}_F$, so
     $$
-        \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_{J \cap \scI(\fu)} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}
+        \left( \sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_J |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}
     $$
     $$
-        \le \left( \sum_{J \in \mathcal{J}(\fT(\fu)), J \cap \scI(\fu) \ne \emptyset} \frac{1}{\mu(J)} \left(\int_{J \cap F} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
+        =\left(\sum_{J \in \mathcal{J}(\fT(\fu))} \frac{1}{\mu(J)} \left(\int_{J \cap F} |f(y)| \, \mathrm{d}\mu(y)\right)^2 \right)^{1/2}\,.
     $$
     We estimate as before, using now \Cref{local-dens2-tree-bound} and Cauchy-Schwarz, and obtain that this is
     $$
-        \le 2^{100a^3 + 10} \dens_2(\fT(\fu))^{1/2} \|f\|_2\,.
+        \le 2^{100.5a^3} \dens_2(\fT(\fu))^{1/2} \|f\|_2\,.
     $$
-    Combining this with \eqref{eq-both-factors-tree}, \eqref{eq-cor-tree-proof} and $a \ge 4$ gives \eqref{eq-cor-tree-est-F}.
+    Combining this with \eqref{eq-both-factors-tree} and \eqref{eq-factor-L-tree} gives \eqref{eq-cor-tree-est-F}.
 \end{proof}
 
 Now we prove the two auxiliary estimates.
@@ -4920,61 +4921,77 @@ Now we prove the two auxiliary estimates.
 
 \begin{proof}[Proof of \Cref{local-dens2-tree-bound}]
     \proves{local-dens2-tree-bound}
-    Suppose first that there exists a tile $\fp \in \fT(\fu)$ with $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. By the definition of $\mathcal{J}(\fT(\fu))$, this implies that $s(J) = -S$, and in particular $\ps(\fp) \ge s(J)$. Using the triangle inequality and \eqref{eq-vol-sp-cube} it follows that $J \subset B(\pc(\fp), 200 D^{\ps(\fp) + 1})$. From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
+    \leanok
+    We prove the inequality with the constant $2^{201a^3}$ replaced by $2 ^ {200a^3 + 14a}$; this
+    is stronger because $a \geq 4$. It suffices to show the existence of a tile $\fp \in \fT(\fu)$
+    and an $r \geq 4 D ^ {\ps(\fp)}$ such that $J \subset B(\pc(\fp), r)$ and
+    $\mu(B(\pc(\fp), r)) ≤ 2 ^ {200a^3 + 14a} \mu(J)$, because then it follows from the definition
+    \eqref{definedens2} of $\dens_2$ that
     $$
-        \mu(\scI(\fp)) \le 2^{100a^3 + 9} \mu(J)
-    $$
-    and hence
-    $$
-        \mu( B(\pc(\fp), 200 D^{\ps(\fp) + 1})) \le 2^{200a^3 +19} \mu(J)\,.
-    $$
-    With the definition \eqref{definedens2} of $\dens_2$ it follows that
-    $$
-        \mu(J \cap F) \le \mu( B(\pc(\fp), 200 D^{\ps(\fp) + 1}) \cap F)
+        \mu(F \cap J) \le \mu(F \cap B(\pc(\fp), r))
     $$
     $$
-        \le \dens_2(\fT(\fu)) \mu( B(\pc(\fp), 200 D^{\ps(\fp) + 1})) \le 2^{200a^3 +19} \dens_2(\fT(\fu))\mu(J)\,,
+        \le \dens_2(\fT(\fu)) \mu(B(\pc(\fp), r)) \le 2^{200a^3 + 14a} \dens_2(\fT(\fu))\mu(J)\,.
     $$
-    completing the proof in this case.
 
-    Now suppose that there does not exist a tile $\fp \in \fT(\fu)$ with $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$.
-    If we had $s(J) \ge \ps(\fu)$, then by \eqref{dyadicproperty}
-    and \eqref{eq-vol-sp-cube} $\scI(u) \subset J \subset B(c(J), 100 D^{s(J) + 1})$,
-    contradicting our assumption.
-    Thus $s(J) < \ps(\fu) \le S$.
-    Then, by \eqref{coverdyadic} and \eqref{dyadicproperty}, there exists some cube $J' \in \mathcal{D}$ with $s(J') = s(J) + 1$ and $J \subset J'$.
-    By definition of $\mathcal{J}(\fT(\fu))$ there exists some $\fp \in \fT(\fu)$ such that $\scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})$.
-    From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we obtain
+    In particular, these criteria are satisfied, with $r = 4 D ^ {\ps(\fp)}$, by any
+    $\fp \in \fT(\fu)$ such that $J \subseteq B(\pc(\fp, 4 D ^ {\ps(\fp)}))$ and
+    $\mu(\scI(\fp)) \le 2^{100a^3 + 10a} \mu(J)$, because then by the doubling property
+    \eqref{doublingx},
+    $$
+        \mu(B(\pc(\fp), 4 D ^ {\ps(\fp)})) \le 2^{4a} \mu(B(\pc(\fp), D ^ {\ps(\fp)} / 4))
+    $$
+    $$
+        \le 2^{4a} \mu(\scI(\fp)) \le 2^{100a^3 + 14a} \mu(J)\,.
+    $$
+
+    Suppose first that $s(J) = S$. Then $J = I_0$, so \eqref{subsetmaxcube} and the fact that
+    $J \in \mathcal{J}(\fT(\fu)) \subseteq \mathcal{J}_0(\fT(\fu))$ imply that $s(J) = -S$. Thus
+    $S = 0$. It follows that $J$ is the only dyadic cube, so any $\fp \in \fT(\fu)$ has
+    $\scI(\fp) = J$, and therefore satisfies $J \subseteq B(\pc(\fp, 4 D ^ {\ps(\fp)}))$ and
+    $\mu(\scI(\fp)) \le 2^{100a^3 + 10a} \mu(J)$.
+
+    It remains to consider the case $s(J) < S$. Then, by \eqref{coverdyadic} and
+    \eqref{dyadicproperty}, there exists some cube $J' \in \mathcal{D}$ with $s(J') = s(J) + 1$ and
+    $J \subset J'$. By definition of $\mathcal{J}(\fT(\fu))$ there exists some $\fp \in \fT(\fu)$
+    such that $\scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})$.
+
+    Since $c(J) \in J \subset J' \subset B(c(J'), 4D^{s(J')})$, the triangle inequality,
+    $s(J') = s(J) + 1$ and $D=2^{100a^2}$ imply
+    $$
+        B(c(J'), 204D^{s(J')+1}) \subset B(c(J), 204D^{s(J') + 1} + 4D^{s(J')})
+                                 \subset B(c(J), 2^8 D^{s(J) + 2})\,.
+    $$
+    From the doubling property \eqref{doublingx}, $D=2^{100a^2}$ and \eqref{eq-vol-sp-cube}, we
+    obtain
     \begin{equation}
-        \label{eq-measure-comparison-1}
-        \mu(B(\pc(\fp), 4D^{\ps(\fp)})) \le 2^{4a} \mu(\scI(\fp)) \le 2^{200a^3 + 14} \mu(J)\,.
+        \label{measure-comparison}
+        \mu(B(c(J'), 204D^{s(J') + 1})) \leq 2 ^ {200a^3 + 10a} \mu(J)\,.
     \end{equation}
-    If $J \subset B(\pc(\fp), 4 D^{\ps(\fp)})$, then we bound
-    $$
-        \mu(J \cap F) \le \mu(B(\pc(\fp), 4D^{\ps(\fp)}) \cap F)
-    $$
-    and use the definition \eqref{definedens2}
-    $$
-        \le \dens_2(\fT(\fu)) \mu(B(\pc(\fp), 4D^{\ps(\fp)})) \le 2^{200a^3 + 14} \mu(J)\,.
-    $$
-    From now on we assume $J \not \subset B(\pc(\fp), 4 D^{\ps(\fp)})$.
-    Since
+
+    If $J \subset B(\pc(\fp), 4 D^{\ps(\fp)})$, then we need only check that
+    $\mu(\scI(\fp)) \le 2^{100a^3 + 10a} \mu(J)$. This follows immediately from
+    $\scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})$ and \eqref{measure-comparison}.
+
+    From now on we assume $J \not \subset B(\pc(\fp), 4 D^{\ps(\fp)})$. Since
     \begin{equation*}
         \pc(\fp) \in \scI(\fp) \subset B(c(J'), 100 D^{s(J') + 1})\, ,
     \end{equation*}
     we have by \eqref{eq-vol-sp-cube} and the triangle inequality
     $$
-        J \subset J' \subset B(c(J'), 4D^{s(J')}) \subset B(\pc(\fp), 104 D^{s(J') + 1})\,.
+        J \subset J' \subset B(c(J'), 4D^{s(J')}) \subset B(\pc(\fp), 104 D^{s(J') + 1})\,,
     $$
-    In particular this implies $104 D^{s(J') + 1} > 4D^{\ps(\fp)}$. By the triangle inequality we also have
+    In particular this implies $104 D^{s(J') + 1} > 4D^{\ps(\fp)}$. By the triangle inequality
+    we also have
     $$
         B(\pc(\fp), 104 D^{s(J') + 1}) \subset B(c(J), 204 D^{s(J') + 1})\,,
     $$
-    so from the doubling property \eqref{doublingx}
+    so from \eqref{measure-comparison},
     $$
-        \mu( B(\pc(\fp), 104 D^{s(J') + 1})) \le 2^{200a^3 + 10} \mu(J)\,.
+        \mu( B(\pc(\fp), 104 D^{s(J') + 1})) \le 2^{200a^3 + 10a} \mu(J)\,,
     $$
-    From here one completes the proof as in the other cases.
+    sp $\fp$ satisfies the needed criteria with $r=104 D^{s(J') + 1}$.
+
 \end{proof}
 
 \section{Almost orthogonality of separated trees}
