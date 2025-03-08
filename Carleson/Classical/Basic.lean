@@ -87,7 +87,7 @@ theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : 
   change @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * f =ᶠ[ae haarAddCircle] @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * g
   have fourier_measurable : AEStronglyMeasurable (⇑(@fourier T (-n))) haarAddCircle := (ContinuousMap.measurable _).aestronglyMeasurable
 
-  rw [← @AEEqFun.mk_eq_mk _ _ _ _ _ _ _ (fourier_measurable.mul hf) (fourier_measurable.mul hg),
+  rw [← AEEqFun.mk_eq_mk (hf := fourier_measurable.mul hf) (hg := fourier_measurable.mul hg),
       ← AEEqFun.mk_mul_mk _ _ fourier_measurable hf, ← AEEqFun.mk_mul_mk _ _ fourier_measurable hg]
   congr 1
   rwa [AEEqFun.mk_eq_mk]
