@@ -56,7 +56,7 @@ private lemma local_dens2_tree_bound_aux' {p : 𝔓 X} (hpu : p ∈ t u)
     volume (F ∩ J) ≤ C7_3_3 a * dens₂ (t u) * volume (J : Set X) := by
   apply local_dens2_tree_bound_aux hpu (le_refl _) h₁
   rw [show 4 * (D : ℝ) ^ 𝔰 p = 2 ^ 4 * (D ^ 𝔰 p / 4) by ring]
-  apply le_trans measure_ball_two_le_same_iterate
+  apply le_trans (measure_ball_two_le_same_iterate (𝔠 p) (D ^ 𝔰 p / 4) 4)
   apply le_trans <| mul_le_mul_left' ((measure_mono ball_subset_Grid).trans h₂) _
   simp_rw [defaultA, C7_3_3, ← mul_assoc]
   apply mul_le_mul_right'
@@ -94,7 +94,7 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
           _ = 2 ^ (200 * a ^ 2 + 8) := by norm_cast; rw [pow_add, defaultD, ← pow_mul]; ring_nf
     _ ≤ (defaultA a) ^ (200 * a ^ 2 + 10) * volume (ball (c J) (D ^ (s J) / 4)) := by
         rw [show 2 ^ (200 * a^2 + 8) * (D : ℝ) ^ s J = 2 ^ (200 * a^2 + 10) * (D ^ s J / 4) by ring]
-        exact measure_ball_two_le_same_iterate
+        apply measure_ball_two_le_same_iterate
     _ ≤ 2 ^ (200 * a ^ 3 + 10 * a) * volume (J : Set X) := by
       apply le_of_le_of_eq <| mul_le_mul_left' (measure_mono ball_subset_Grid) _
       simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat]

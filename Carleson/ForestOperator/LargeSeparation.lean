@@ -1025,7 +1025,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
           _ < 16 * D ^ (𝔰 p) + (8⁻¹ + 8) * D ^ (𝔰 p) + 4 * D ^ (𝔰 p) := by
             gcongr; rw [dist_comm, ← mem_ball]; exact Grid_subset_ball mx.1
           _ ≤ _ := by rw [← add_mul, ← add_mul]; gcongr; norm_num
-      have dbl := measure_ball_two_le_same_iterate (μ := volume) (x := x) (r := D ^ 𝔰 p) (n := 5)
+      have dbl := measure_ball_two_le_same_iterate (μ := volume)x (D ^ 𝔰 p) 5
       simp_rw [show (2 : ℝ) ^ 5 = 32 by norm_num, defaultA, ← ENNReal.coe_pow,
         Nat.cast_pow, Nat.cast_ofNat, ← pow_mul', ENNReal.coe_pow, ENNReal.coe_ofNat] at dbl
       exact ENNReal.div_le_of_le_mul' ((measure_mono inc).trans dbl)
