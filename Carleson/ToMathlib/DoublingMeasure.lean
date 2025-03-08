@@ -46,7 +46,7 @@ lemma IsDoubling.mono {A'} (h : A ≤ A') : IsDoubling μ A' where
       _ ≤ A * μ (Metric.ball x r) := measure_ball_two_le_same _ _
       _ ≤ A' * μ (Metric.ball x r) := by gcongr
 
-lemma measure_ball_two_le_same_iterate (x : X) (r : ℝ) (n : ℕ) :
+lemma measure_ball_two_le_same_iterate {x : X} {r : ℝ} {n : ℕ} :
     μ (ball x ((2 ^ n) * r)) ≤ A ^ n * μ (ball x r) := by
   induction n with
   | zero => simp
@@ -129,30 +129,6 @@ lemma measure_ball_four_le_same' (x : X) (r : ℝ) :
 
 attribute [aesop (rule_sets := [finiteness]) safe apply] measure_ball_ne_top
 
-lemma measure_ball_le_pow_two {x : X} {r : ℝ} {n : ℕ} :
-    μ.real (ball x (2 ^ n * r)) ≤ A ^ n * μ.real (ball x r) := by
-  induction n
-  case zero => simp
-  case succ m hm =>
-    calc μ.real (ball x (2 ^ (m.succ) * r))
-        = μ.real (ball x (2 ^ (m+1) * r)) := rfl
-      _ = μ.real (ball x ((2 ^ m*2^1) * r)) := by norm_cast
-      _ = μ.real (ball x (2 * 2 ^ m * r)) := by ring_nf
-      _ ≤ A * μ.real (ball x (2 ^ m * r)) := by
-        rw [mul_assoc]; norm_cast; exact measure_real_ball_two_le_same ..
-      _ ≤ A * (↑(A ^ m) * μ.real (ball x r)) := by gcongr; assumption
-      _ = A^(m.succ) * μ.real (ball x r) := by rw [NNReal.coe_pow,← mul_assoc, pow_succ']
-
-lemma measure_ball_le_pow_two' {x : X} {r : ℝ} {n : ℕ} :
-    μ (ball x (2 ^ n * r)) ≤ A ^ n * μ (ball x r) := by
-  have hleft : μ (ball x (2 ^ n * r)) ≠ ⊤ := measure_ball_ne_top x (2 ^ n * r)
-  have hright : μ (ball x r) ≠ ⊤ := measure_ball_ne_top x r
-  have hfactor : (A ^n : ℝ≥0∞) ≠ ⊤ := Ne.symm (ne_of_beq_false rfl)
-  rw [← ENNReal.ofReal_toReal hleft,← ENNReal.ofReal_toReal hright,← ENNReal.ofReal_toReal hfactor,
-    ← ENNReal.ofReal_mul]
-  · exact ENNReal.ofReal_le_ofReal measure_ball_le_pow_two
-  simp only [toReal_pow, coe_toReal, ge_iff_le, zero_le_coe, pow_nonneg]
-
 /-- The blow-up factor of repeatedly increasing the size of balls. -/
 def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
 
@@ -165,6 +141,7 @@ lemma As_pos' [Nonempty X] [μ.IsOpenPosMeasure] (s : ℝ) : 0 < (As A s : ℝ�
   rw [ENNReal.coe_pos]; exact As_pos μ s
 
 /- Proof sketch: First do for powers of 2 by induction, then use monotonicity. -/
+omit [ProperSpace X] [IsFiniteMeasureOnCompacts μ] in
 lemma measure_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ (ball x r') ≤ As A s * μ (ball x r) := by
   /-If the large ball is empty, then they all are-/
@@ -190,7 +167,7 @@ lemma measure_ball_le_same' (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s *
   /- Apply result for power of two to slightly larger ball -/
   calc μ (ball x r')
       ≤ μ (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr
-    _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * μ (ball x r) := measure_ball_le_pow_two'
+    _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * μ (ball x r) := measure_ball_two_le_same_iterate
     _ = As A s * μ (ball x r) := rfl
 
 lemma measure_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
@@ -207,6 +184,7 @@ lemma measure_ball_le_same (x : X) {r s r': ℝ} (hsp : 0 < s) (hs : r' ≤ s * 
     positivity
   · simp only [coe_toReal, zero_le_coe]
 
+omit [ProperSpace X] [IsFiniteMeasureOnCompacts μ] in
 lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     (h : dist x x' + r' ≤ s * r) :
     μ (ball x' r') ≤ As A s * μ (ball x r) := by
