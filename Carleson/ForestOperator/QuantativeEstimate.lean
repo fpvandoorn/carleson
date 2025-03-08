@@ -88,14 +88,13 @@ lemma local_dens2_tree_bound (hu : u ∈ t) (hJ : J ∈ 𝓙 (t u)) :
       apply add_le_add_left (mem_ball'.mp <| Grid_subset_ball <| hJJ'.1 J.c_mem_Grid).le
     _ ≤ volume (ball (c J) (2 ^ (200 * a ^ 2 + 8) * D ^ (s J))) := by
       rw [hsJ', zpow_add₀ d0.ne.symm, mul_comm ((D : ℝ) ^ (s J)), ← mul_assoc, zpow_one]
-      refine measure_mono (ball_subset_ball ?_)
-      exact mul_le_mul_of_nonneg_right (a0 := (zpow_pos d0 (s J)).le) <| calc
+      refine measure_mono (ball_subset_ball <| mul_le_mul_of_nonneg_right ?_ (zpow_pos d0 (s J)).le)
+      calc
           _ ≤ 2 ^ 8 * (D : ℝ) ^ 2   := by nlinarith [one_lt_D (X := X)]
           _ = 2 ^ (200 * a ^ 2 + 8) := by norm_cast; rw [pow_add, defaultD, ← pow_mul]; ring_nf
     _ ≤ (defaultA a) ^ (200 * a ^ 2 + 10) * volume (ball (c J) (D ^ (s J) / 4)) := by
-        convert measure_ball_two_le_same_iterate (c J) (D ^ s J / 4) (200 * a ^ 2 + 10) using 3
-        · ring
-        · exact DoublingMeasure.toIsDoubling
+        rw [show 2 ^ (200 * a^2 + 8) * (D : ℝ) ^ s J = 2 ^ (200 * a^2 + 10) * (D ^ s J / 4) by ring]
+        exact measure_ball_two_le_same_iterate
     _ ≤ 2 ^ (200 * a ^ 3 + 10 * a) * volume (J : Set X) := by
       apply le_of_le_of_eq <| mul_le_mul_left' (measure_mono ball_subset_Grid) _
       simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat]
@@ -144,7 +143,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     refine Finset.sum_nonneg (fun J hJ ↦ ?_)
     by_cases hx : x ∈ (J : Set X)
     · rw [indicator_of_mem hx]; exact integral_nonneg (fun _ ↦ by simp)
-    · simp [hx]
+    · rw [indicator_of_not_mem hx]
   simp_rw [Real.enorm_eq_ofReal (this _)]
   calc
     _ = ∫⁻ x, (∑ J ∈ Finset.univ.filter (· ∈ C),
@@ -157,69 +156,63 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       · exact integral_nonneg (fun _ ↦ norm_nonneg _)
       · exact le_refl 0
     _ = ∫⁻ x, (∑ J ∈ Finset.univ.filter (· ∈ C),
-          (J : Set X).indicator (fun x ↦ ENNReal.ofReal (⨍ y in J, ‖f y‖)) x) ^ 2 := by
+          (J : Set X).indicator (fun _ ↦ ENNReal.ofReal (⨍ y in J, ‖f y‖)) x) ^ 2 := by
       congr with x
       congr with J
       by_cases hx : x ∈ (J : Set X) <;> simp [hx]
     _ = ∫⁻ x, ∑ J ∈ Finset.univ.filter (· ∈ C),
-          (J : Set X).indicator (fun x ↦ (ENNReal.ofReal (⨍ y in J, ‖f y‖)) ^ 2) x := by
+          (J : Set X).indicator (fun _ ↦ (ENNReal.ofReal (⨍ y in J, ‖f y‖)) ^ 2) x := by
       congr with x
-      by_cases h : ∃ J₀ ∈ Finset.univ.filter (· ∈ C), x ∈ (J₀ : Set X)
-      · obtain ⟨J₀, hJ₀, hx⟩ := h
+      by_cases ex : ∃ J₀ ∈ Finset.univ.filter (· ∈ C), x ∈ (J₀ : Set X)
+      · obtain ⟨J₀, hJ₀, hx⟩ := ex
         calc
-          _ = ((J₀ : Set X).indicator (fun x ↦ ENNReal.ofReal (⨍ y in J₀, ‖f y‖)) x) ^ 2 := by
+          _ = ((J₀ : Set X).indicator (fun _ ↦ ENNReal.ofReal (⨍ y in J₀, ‖f y‖)) x) ^ 2 := by
             rw [Finset.sum_eq_single_of_mem _ hJ₀]
             intro J hJ J_ne_J₀
             have := disj_C (Finset.mem_filter.mp hJ).2 (Finset.mem_filter.mp hJ₀).2 J_ne_J₀
-            simp [Set.disjoint_right.mp this hx]
-          _ = (J₀ : Set X).indicator (fun x ↦ ENNReal.ofReal (⨍ (y : X) in ↑J₀, ‖f y‖) ^ 2) x := by
+            exact indicator_of_not_mem (disjoint_right.mp this hx) _
+          _ = (J₀ : Set X).indicator (fun _ ↦ ENNReal.ofReal (⨍ (y : X) in ↑J₀, ‖f y‖) ^ 2) x := by
             rw [indicator]
             split_ifs
-            simp [hx]
+            apply (indicator_of_mem hx _).symm
           _ = _ := by
             rw [Finset.sum_eq_single_of_mem _ hJ₀]
             intro J hJ J_ne_J₀
             have := disj_C (Finset.mem_filter.mp hJ).2 (Finset.mem_filter.mp hJ₀).2 J_ne_J₀
-            simp [Set.disjoint_right.mp this hx]
-      · push_neg at h
-        rw [Finset.sum_eq_zero (fun J₀ hJ₀ ↦ by simp [h J₀ hJ₀]), zero_pow two_pos.ne.symm]
-        rw [Finset.sum_eq_zero (fun J₀ hJ₀ ↦ by simp [h J₀ hJ₀])]
+            apply indicator_of_not_mem (disjoint_right.mp this hx)
+      · push_neg at ex
+        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_not_mem (ex J h) _, zero_pow two_pos.ne.symm]
+        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_not_mem (ex J h) _]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C),
           ENNReal.ofReal (⨍ y in J, ‖f y‖) ^ 2 * volume (J : Set X) := by
       rw [lintegral_finset_sum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]
       simp_rw [lintegral_indicator coeGrid_measurable, setLIntegral_const]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J, ‖f y‖ₑ) ^ 2 / volume (J : Set X) := by
       congr with J
-      rw [ofReal_setAverage hf.norm.integrable.integrableOn (Filter.Eventually.of_forall (by simp)),
+      rw [ofReal_setAverage hf.norm.integrable.integrableOn (Eventually.of_forall (by simp)),
         div_eq_mul_inv, mul_pow, div_eq_mul_inv, mul_assoc]
       simp_rw [ofReal_norm_eq_enorm]
       by_cases hJ : volume (J : Set X) = 0
       · simp [setLIntegral_measure_zero _ _ hJ]
       congr
       rw [sq, mul_assoc, ENNReal.inv_mul_cancel hJ volume_coeGrid_lt_top.ne, mul_one]
-    _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ) ^ 2 / volume (J : Set X) := by
+    _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ * 1) ^ 2 / volume (J : Set X) := by
       congr with J
       congr 2
       rw [← lintegral_inter_add_diff _ (J : Set X) hs]
-      suffices ∫⁻ x in J \ s, ‖f x‖ₑ = 0 by rw [this, add_zero]
+      suffices ∫⁻ x in J \ s, ‖f x‖ₑ = 0 by rw [this, add_zero]; simp_rw [mul_one]
       rw [setLIntegral_eq_zero_iff (coeGrid_measurable.diff hs) hf.stronglyMeasurable.enorm]
-      exact Filter.Eventually.of_forall (fun x hx ↦ by simp [h2f x hx.2])
-    _ ≤ ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ * 1) ^ 2 / volume (J : Set X) := by
-      simp_rw [mul_one]; rfl
+      exact Eventually.of_forall (fun x hx ↦ by rw [h2f x hx.2, enorm_zero])
     _ ≤ ∑ J ∈ Finset.univ.filter (· ∈ C),
           ((∫⁻ y in J ∩ s, ‖f y‖ₑ ^ 2) ^ (1 / 2 : ℝ) * (∫⁻ y in J ∩ s, 1) ^ (1 / 2 : ℝ)) ^ 2 /
           volume (J : Set X) := by
       refine Finset.sum_le_sum fun J hJ ↦ ENNReal.div_le_div_right (pow_le_pow_left' ?_ 2) _
-      have h2 : (2 : ℝ).IsConjExponent 2 := by rw [Real.isConjExponent_iff]; norm_num
-      convert ENNReal.lintegral_mul_le_Lp_mul_Lq (f := (‖f ·‖ₑ)) (g := 1)
-        (volume.restrict (J ∩ s)) h2 hf.stronglyMeasurable.aemeasurable.enorm
-        measurable_const.aemeasurable
-      · norm_cast
-      · simp
+      simpa using ENNReal.lintegral_mul_le_Lp_mul_Lq (f := (‖f ·‖ₑ)) (g := 1)
+        (volume.restrict (J ∩ s)) ((Real.isConjExponent_iff 2 2).mpr (by norm_num))
+        hf.stronglyMeasurable.aemeasurable.enorm measurable_const.aemeasurable
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ ^ 2) ^ (1 / (2 : ℝ) * 2) *
           volume (J ∩ s) ^ (1 / (2 : ℝ) * 2) / volume (J : Set X) := by
-      simp_rw [setLIntegral_one, mul_pow, ENNReal.rpow_mul]
-      norm_cast
+      simp_rw [setLIntegral_one, mul_pow, ENNReal.rpow_mul]; norm_cast
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C),
           (∫⁻ y in J ∩ s, ‖f y‖ₑ ^ 2) * volume (J ∩ s) / volume (J : Set X) := by
       simp_rw [div_mul_cancel_of_invertible, ENNReal.rpow_one]
@@ -233,10 +226,10 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       rw [mul_one, ← Finset.sum_mul, mul_comm]
     _ ≤ _ := by
       rw [← setLIntegral_univ]
-      have h : (GridStructure.coeGrid · ∩ s) ≤ GridStructure.coeGrid := by intro; simp
+      have h : (GridStructure.coeGrid · ∩ s) ≤ GridStructure.coeGrid := fun _ ↦ inter_subset_left
       have hC : C = (Finset.univ.filter (· ∈ C) : Set (Grid X)) := by simp
       rw [← lintegral_biUnion_finset (hC ▸ disj_C.mono h) (fun _ _ ↦ coeGrid_measurable.inter hs)]
-      exact mul_left_mono <| lintegral_mono_set (Set.subset_univ _)
+      exact mul_left_mono <| lintegral_mono_set (subset_univ _)
 
 -- Generalization that implies both parts of Lemma 7.3.1
 private lemma density_tree_bound_aux
@@ -254,7 +247,7 @@ private lemma density_tree_bound_aux
     _ = ‖∫ x, conj (ℰ.indicator g x) * carlesonSum (t u) f x‖ₑ := by
       congr with x
       by_cases hx : x ∈ ℰ
-      · simp [hx]
+      · rw [indicator_of_mem hx]
       suffices carlesonSum (t u) f x = 0 by simp [hx, this]
       refine Finset.sum_eq_zero (fun p hp ↦ indicator_of_not_mem (fun hxp ↦ ?_) _)
       exact hx ⟨E p, ⟨p, by simp [Finset.mem_filter.mp hp]⟩, hxp⟩
@@ -264,12 +257,12 @@ private lemma density_tree_bound_aux
       refine mul_le_mul' (mul_le_mul_left' hc (C7_2_1 a)) ?_
       have hgℰ' : ∀ x ∉ G ∩ ℰ, ℰ.indicator g x = 0 := by
         intro x hx
-        rw [Set.mem_inter_iff] at hx
+        rw [mem_inter_iff] at hx
         push_neg at hx
         by_cases xG : x ∈ G
-        · simp [hx xG]
-        · have : ‖g x‖ ≤ 0 := by simpa [xG] using h2g x
-          simp [norm_le_zero_iff.mp this]
+        · apply indicator_of_not_mem (hx xG)
+        · have : g x = 0 := by rw [← norm_le_zero_iff]; simpa [xG] using h2g x
+          exact indicator_apply_eq_zero.mpr (fun _ ↦ this)
       have hℰ : MeasurableSet (G ∩ ℰ) :=
         measurableSet_G.inter <| .biUnion (to_countable (t u)) (fun _ _ ↦ measurableSet_E)
       have : ∀ L ∈ 𝓛 (t u), volume (L ∩ (G ∩ ℰ)) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) :=
@@ -301,7 +294,7 @@ lemma density_tree_bound1
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖₊ ≤
     C7_3_1_1 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hc : eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume ≤ 1 * eLpNorm f 2 volume := by
-    have : ∀ L ∈ 𝓙 (t u), volume ((L : Set X) ∩ Set.univ) ≤ 1 * volume (L : Set X) := by
+    have : ∀ L ∈ 𝓙 (t u), volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by
       intros; simp
     apply le_of_le_of_eq <| eLpNorm_approxOnCube_two_le pairwiseDisjoint_𝓙 .univ this hf (by tauto)
     rw [ENNReal.one_rpow, one_mul]
