@@ -82,6 +82,10 @@ private lemma subset_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 
     (hp : p ∈ 𝔖) (hpL : ¬ Disjoint (𝓘 p : Set X) (L : Set X)) : (L : Set X) ⊆ (𝓘 p : Set X) :=
   GridStructure.fundamental_dyadic' (s_le_s_of_mem_𝓛 hL hp hpL) |>.resolve_right fun h ↦ hpL h.symm
 
+lemma le_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖) {p : 𝔓 X}
+    (hp : p ∈ 𝔖) (hpL : ¬Disjoint (𝓘 p : Set X) (L : Set X)) : L ≤ 𝓘 p :=
+  ⟨subset_of_mem_𝓛 hL hp hpL, s_le_s_of_mem_𝓛 hL hp hpL⟩
+
 /-- The projection operator `P_𝓒 f(x)`, given above Lemma 7.1.3.
 In lemmas the `c` will be pairwise disjoint on `C`. -/
 def approxOnCube (C : Set (Grid X)) (f : X → E') (x : X) : E' :=
@@ -276,10 +280,8 @@ lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
   obtain ⟨(p' : 𝔓 X), (𝓘p' : 𝓘 p' = K), Qxp'⟩ := this
   rw [← 𝓘p'] at lK Kl sK; refine ⟨p', ?_, sK⟩
-  have l₁ : p ≤ p' := ⟨lK,
-    (relative_fundamental_dyadic lK).resolve_left (not_disjoint_iff.mpr ⟨_, Qxp, Qxp'⟩)⟩
-  have l₂ : p' ≤ p'' := ⟨Kl,
-    (relative_fundamental_dyadic Kl).resolve_left (not_disjoint_iff.mpr ⟨_, Qxp', Qxp''⟩)⟩
+  have l₁ : p ≤ p' := tile_le_of_cube_le_and_not_disjoint lK Qxp Qxp'
+  have l₂ : p' ≤ p'' := tile_le_of_cube_le_and_not_disjoint Kl Qxp' Qxp''
   refine ⟨(t.ordConnected hu).out mp mp'' ⟨l₁, l₂⟩, ⟨(Grid.le_def.mp lK).1 xp, Qxp', ?_⟩⟩
   exact Icc_subset_Icc sxp.1 sxp''.2 ⟨(Grid.le_def.mp lK).2, (Grid.le_def.mp Kl).2⟩
 
