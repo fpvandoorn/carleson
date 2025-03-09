@@ -398,7 +398,7 @@ lemma volume_le_of_kissing (h : J ∈ kissing I) :
       _ ≤ _ := by
         rw [h.1, ← distrib_three_right]
         gcongr; norm_num
-  have double := measure_ball_le_pow_two' (μ := volume) (x := c J) (r := D ^ s J / 4) (n := 9)
+  have double := @measure_ball_two_le_same_iterate X _ _ _ volume _ (c J) (D ^ s J / 4) 9
   have A9 : (defaultA a : ℝ≥0) ^ 9 = (2 : ℝ≥0∞) ^ (9 * a) := by
     simp only [defaultA]; norm_cast; ring
   rw [show (2 : ℝ) ^ 9 * (D ^ s J / 4) = 128 * D ^ s J by ring, A9] at double

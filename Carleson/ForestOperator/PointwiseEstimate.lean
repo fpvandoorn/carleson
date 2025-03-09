@@ -60,6 +60,17 @@ lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
   have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
+lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonempty) (h : topCube ∈ 𝓙₀ 𝔖) :
+    S = 0 := by
+  suffices (S : ℤ) = -(S : ℤ) by exact_mod_cast eq_zero_of_neg_eq this.symm
+  rw [𝓙₀, mem_setOf_eq, s, s_topCube] at h
+  apply h.resolve_right
+  push_neg
+  have ⟨p, hp⟩ := h𝔖
+  refine ⟨p, hp, subset_topCube.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩
+  apply mul_le_mul (by norm_num) (c0 := by positivity) (b0 := by norm_num)
+  exact zpow_le_zpow_right₀ one_le_D (scale_mem_Icc.2.trans (Int.le.intro 1 rfl))
+
 /-- The definition of `𝓛₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓛₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
   {L : Grid X | s L = -S ∨ (∃ p ∈ 𝔖, L ≤ 𝓘 p) ∧ ∀ p ∈ 𝔖, ¬𝓘 p ≤ L}
