@@ -2251,7 +2251,7 @@ lemma aemeasurability_prod₁ {α : Type u_1} {β : Type u_3}
     ∀ᵐ x : α ∂μ, AEMeasurable (f ∘ (Prod.mk x)) ν := by
   rcases hf with ⟨g, hg⟩
   filter_upwards [Measure.ae_ae_of_ae_prod hg.2] with x h
-  exact ⟨g ∘ Prod.mk x, hg.1.comp (measurable_prod_mk_left), h⟩
+  exact ⟨g ∘ Prod.mk x, hg.1.comp (measurable_prodMk_left), h⟩
 
 lemma aemeasurability_prod₂ {α : Type u_1} {β : Type u_3}
     [MeasurableSpace α] [MeasurableSpace β]
@@ -2763,7 +2763,7 @@ variable [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
 lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} {a : ℝ} :
     eLpNorm (trnc j f a) p μ ≤ eLpNorm f p μ := eLpNorm_mono fun _x ↦ trnc_le_func
 
-variable [ContinuousENorm ε] {T : (α → E₁) → (α' → ε)} in
+variable [TopologicalSpace ε] [ContinuousENorm ε] {T : (α → E₁) → (α' → ε)} in
 -- TODO: remove the subindex 0 here
 lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : α → E₁}
       (hq : 0 < q) (hq' : q < ⊤) (hf : MemLp f p μ)
@@ -2786,7 +2786,7 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
       Real.rpow_rpow_inv] <;> try positivity
   rwa [← coe_coe_eq_ofReal]
 
-variable [ContinuousENorm ε] {T : (α → E₁) → (α' → ε)} in
+variable [TopologicalSpace ε] [ContinuousENorm ε] {T : (α → E₁) → (α' → ε)} in
 lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
     (hq' : q = ⊤) {f : α → E₁} (hf : MemLp f p μ)
     (hT : HasWeakType T p q μ ν C) {t : ℝ} (ht : C * eLpNorm f p μ ≤ ENNReal.ofReal t) :
@@ -3037,7 +3037,7 @@ def AESubadditiveOn [ENorm ε] (T : (α → E₁) → α' → ε) (P : (α → E
 
 namespace AESubadditiveOn
 
-variable [ENormedAddMonoid ε] {ν : Measure α'}
+variable [TopologicalSpace ε] [ENormedAddMonoid ε] {ν : Measure α'}
 
 lemma antitone {T : (α → E₁) → α' → ε} {P P' : (α → E₁) → Prop}
     (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ≥0∞} (sa : AESubadditiveOn T P' A ν) :
@@ -3104,7 +3104,7 @@ lemma const (T : (α → E₁) → ε) (P : (α → E₁) → Prop)
 
 end AESubadditiveOn
 
-variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂] [ENormedSpace ε]
+variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂] [TopologicalSpace ε] [ENormedSpace ε]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
 def AESublinearOn (T : (α → E₁) → α' → ε) (P : (α → E₁) → Prop) (A : ℝ≥0∞) (ν : Measure α') :
