@@ -312,7 +312,7 @@ variable {F : X × Y → 𝕜}
 --     rcases isBounded_range_iff_forall_norm_le.1 hF.isBounded with ⟨C, hC⟩
 --     apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
 --     exact hC (x, y)
---   stronglyMeasurable := hF.stronglyMeasurable.comp_measurable measurable_prod_mk_right
+--   stronglyMeasurable := hF.stronglyMeasurable.comp_measurable measurable_prodMk_right
 --   hasCompactSupport := sorry
 --   -- by
 --   --   apply HasCompactSupport.intro
