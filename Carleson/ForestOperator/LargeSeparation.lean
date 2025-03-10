@@ -557,7 +557,7 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
     obtain ⟨C, nnC, hC⟩ := IsBounded.exists_bound_of_norm_Ks bep (𝔰 p)
     apply Measure.integrableOn_of_bounded (M := C) volume_E_lt_top.ne ?_ ?_
     · exact continuous_conj.comp_aestronglyMeasurable
-        (measurable_Ks.comp measurable_prod_mk_right).aestronglyMeasurable
+        (measurable_Ks.comp measurable_prodMk_right).aestronglyMeasurable
     · simp only [RCLike.norm_conj]
       exact ae_restrict_of_forall_mem measurableSet_E fun y my ↦ hC y x my
   · refine ((Measurable.const_mul ?_ I).cexp.mul
@@ -565,7 +565,7 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
     refine (measurable_ofReal.comp ?_).sub (measurable_ofReal.comp ?_)
     · have pair : Measurable fun y : X ↦ (y, y) := by fun_prop
       exact measurable_Q₂.comp pair
-    · exact measurable_Q₂.comp measurable_prod_mk_right
+    · exact measurable_Q₂.comp measurable_prodMk_right
   · rw [norm_mul, ← one_mul B]
     refine mul_le_mul ?_ (hB y) (norm_nonneg _) zero_le_one
     rw_mod_cast [mul_comm, norm_exp_ofReal_mul_I]

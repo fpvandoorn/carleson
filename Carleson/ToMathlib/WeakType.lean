@@ -296,7 +296,8 @@ end ENorm
 
 section ContinuousENorm
 
-variable [ContinuousENorm ε] [ContinuousENorm ε₁] [ContinuousENorm ε₂] [ContinuousENorm ε₃]
+variable [TopologicalSpace ε] [ContinuousENorm ε] [TopologicalSpace ε₁] [ContinuousENorm ε₁]
+    [TopologicalSpace ε₂] [ContinuousENorm ε₂] [TopologicalSpace ε₃] [ContinuousENorm ε₃]
     {f : α → ε} {f₁ : α → ε₁}
 
 lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
@@ -535,7 +536,7 @@ section NormedGroup
 
 variable {f g : α → ε}
 section
-variable [ContinuousENorm ε]
+variable [TopologicalSpace ε] [ContinuousENorm ε]
 
 lemma distribution_eq_nnnorm {f : α → E} : distribution f t μ =  μ { x | t < ‖f x‖₊ } := rfl
 
@@ -609,7 +610,7 @@ lemma HasWeakType.const_mul {E' α α' : Type*} [NormedRing E']
 
 end
 
-lemma distribution_add_le [ENormedAddMonoid ε] :
+lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
     _ ≤ μ ({x | t < ↑‖f x‖ₑ} ∪ {x | s < ↑‖g x‖ₑ}) := by
@@ -642,7 +643,7 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
 
 section BorelSpace
 
-variable [ContinuousENorm ε] [MeasurableSpace E] [BorelSpace E]
+variable [TopologicalSpace ε] [ContinuousENorm ε] [MeasurableSpace E] [BorelSpace E]
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
 lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :

@@ -203,7 +203,7 @@ lemma adjointCarleson_adjoint
         refine .mul ?_ aestronglyMeasurable_Ks
         apply Measurable.aestronglyMeasurable
         have : Measurable fun (p : X × X) ↦ (p.1, p.1) :=
-          .prod_mk (.fst measurable_id') (.fst measurable_id')
+          .prodMk (.fst measurable_id') (.fst measurable_id')
         refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
         · exact measurable_Q₂
         · exact measurable_Q₂.comp this

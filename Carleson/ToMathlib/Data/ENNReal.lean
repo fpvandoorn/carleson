@@ -69,7 +69,8 @@ lemma edist_sum_le_sum_edist {f g : α → E} : edist (∑ i ∈ t, f i) (∑ i 
     exact (edist_add_add_le _ _ _ _).trans (add_le_add_left ihs _)
 
 /-- The reverse triangle inequality for `enorm`. -/
-lemma enorm_enorm_sub_enorm_le {x y : E} : ‖‖x‖ₑ - ‖y‖ₑ‖ₑ ≤ ‖x - y‖ₑ := by
+-- TODO: does a seminormed abelian additive group also have an ENormedAddMonoid structure?
+lemma enorm_enorm_sub_enorm_le {E} [NormedAddCommGroup E] {x y : E} : ‖‖x‖ₑ - ‖y‖ₑ‖ₑ ≤ ‖x - y‖ₑ := by
   rw [enorm_eq_self, tsub_le_iff_right]; nth_rw 1 [← sub_add_cancel x y]
   exact enorm_add_le (x - y) y
 
