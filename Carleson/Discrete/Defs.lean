@@ -95,10 +95,10 @@ lemma dens1_le_dens' {k : ℕ} {P : Set (𝔓 X)} (hP : P ⊆ TilesAt k) : dens�
     exact le_iSup_of_le p (le_iSup₂_of_le this sl (mul_le_mul' (by norm_cast) le_rfl))
   simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf]
   constructor
-  · rw [mem_lowerClosure] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
+  · rw [mem_lowerCubes] at mp; obtain ⟨p'', mp'', lp''⟩ := mp
     have hp'' := mem_of_mem_of_subset mp'' hP
     simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp''
-    obtain ⟨J, lJ, vJ⟩ := hp''.1; use J, lp''.1.trans lJ
+    obtain ⟨J, lJ, vJ⟩ := hp''.1; use J, lp''.trans lJ
   · by_contra h; obtain ⟨J, lJ, vJ⟩ := h
     have hp' := mem_of_mem_of_subset mp' hP
     simp_rw [TilesAt, mem_preimage, 𝓒, mem_diff, aux𝓒, mem_setOf] at hp'
