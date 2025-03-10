@@ -6,20 +6,91 @@ import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 import Mathlib.Analysis.Convolution
 
 import Carleson.Classical.Helper
+import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.Topology.Instances.AddCircle
+import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
+import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 
-open Finset Real
+
+open Finset Real MeasureTheory AddCircle
 
 noncomputable section
+
+
+--TODO: I think the measurability assumptions might be unnecessary
+theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}
+    (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
+    (h : f =ᵐ[haarAddCircle] g) : fourierCoeff f n = fourierCoeff g n := by
+  unfold fourierCoeff
+  apply integral_congr_ae
+  change @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * f =ᶠ[ae haarAddCircle] @DFunLike.coe C(AddCircle T, ℂ) (AddCircle T) (fun x ↦ ℂ) ContinuousMap.instFunLike (fourier (-n)) * g
+  have fourier_measurable : AEStronglyMeasurable (⇑(@fourier T (-n))) haarAddCircle := (ContinuousMap.measurable _).aestronglyMeasurable
+
+  rw [← AEEqFun.mk_eq_mk (hf := fourier_measurable.mul hf) (hg := fourier_measurable.mul hg),
+      ← AEEqFun.mk_mul_mk _ _ fourier_measurable hf, ← AEEqFun.mk_mul_mk _ _ fourier_measurable hg]
+  congr 1
+  rwa [AEEqFun.mk_eq_mk]
 
 
 def partialFourierSum (N : ℕ) (f : ℝ → ℂ) (x : ℝ) : ℂ := ∑ n ∈ Icc (-(N : ℤ)) N,
     fourierCoeffOn Real.two_pi_pos f n * fourier n (x : AddCircle (2 * π))
 
---TODO: Add an AddCircle version?
-/-
-def AddCircle.partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) (x : AddCircle T) : ℂ :=
-    ∑ n in Icc (-Int.ofNat ↑N) N, fourierCoeff f n * fourier n x
--/
+def partialFourierSum' {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : AddCircle T → ℂ) : C(AddCircle T, ℂ) :=
+    ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourier n
+
+def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) : Lp ℂ p (@haarAddCircle T hT) :=
+    ∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
+
+
+lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N : ℕ) (f : ℝ → ℂ) :
+    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) = partialFourierSum' N (liftIoc (2 * Real.pi) 0 f) := by
+  ext x
+  unfold partialFourierSum partialFourierSum' liftIoc
+  simp only [
+    Function.comp_apply, Set.restrict_apply, Int.ofNat_eq_coe, ContinuousMap.coe_sum,
+    ContinuousMap.coe_smul, Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
+  congr
+  ext n
+  rw [← liftIoc, fourierCoeff_liftIoc_eq]
+  congr 2
+  . rw [zero_add (2 * Real.pi)]
+  . rcases (eq_coe_Ioc x) with ⟨b, hb, rfl⟩
+    rw [← zero_add (2 * Real.pi)] at hb
+    rw [coe_eq_coe_iff_of_mem_Ioc (Subtype.coe_prop _) hb]
+    have : (liftIoc (2 * Real.pi) 0 (fun x ↦ x)) b = (fun x ↦ x) b := liftIoc_coe_apply hb
+    unfold liftIoc at this
+    rw [Function.comp_apply, Set.restrict_apply] at this
+    exact this
+
+lemma partialFourierSupLp_eq_partialFourierSupLp_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {p : ENNReal} [Fact (1 ≤ p)] {N : ℕ} {f g : AddCircle T → ℂ}
+    (hf : AEStronglyMeasurable f haarAddCircle) (hg : AEStronglyMeasurable g haarAddCircle)
+    (h : f =ᶠ[ae haarAddCircle] g) : partialFourierSumLp p N f = partialFourierSumLp p N g := by
+  unfold partialFourierSumLp
+  congr
+  ext n : 1
+  congr 1
+  exact fourierCoeff_eq_fourierCoeff_of_aeeq hf hg h
+
+
+lemma partialFourierSum'_eq_partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : AddCircle T → ℂ) :
+    partialFourierSumLp p N f = MemLp.toLp (partialFourierSum' N f) ((partialFourierSum' N f).MemLp haarAddCircle ℂ)  := by
+  unfold partialFourierSumLp partialFourierSum'
+  unfold fourierLp
+  simp_rw [ContinuousMap.coe_sum, ContinuousMap.coe_smul]
+  rw [MemLp.toLp_sum _ (by intro n hn; apply MemLp.const_smul (ContinuousMap.MemLp haarAddCircle ℂ (fourier n)))]
+  rw [Finset.univ_eq_attach]
+  rw [← Finset.sum_attach]
+  rfl
+
+
+lemma partialFourierSum_aeeq_partialFourierSumLp [hT : Fact (0 < 2 * Real.pi)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ℝ → ℂ) (h_mem_ℒp :  MemLp (liftIoc (2 * Real.pi) 0 f) 2 haarAddCircle):
+    liftIoc (2 * Real.pi) 0 (partialFourierSum N f) =ᶠ[ae haarAddCircle] ↑↑(partialFourierSumLp p N (MemLp.toLp (liftIoc (2 * Real.pi) 0 f) h_mem_ℒp)) := by
+  rw [partialFourierSupLp_eq_partialFourierSupLp_of_aeeq (Lp.aestronglyMeasurable _) h_mem_ℒp.aestronglyMeasurable (MemLp.coeFn_toLp h_mem_ℒp)]
+  rw [partialFourierSum'_eq_partialFourierSumLp, partialFourierSum_eq_partialFourierSum']
+  symm
+  apply MemLp.coeFn_toLp
+
+
 
 local notation "S_" => partialFourierSum
 

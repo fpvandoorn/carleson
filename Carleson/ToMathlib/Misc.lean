@@ -167,7 +167,7 @@ variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
   {F : Type*} [NormedAddCommGroup F]
 
 attribute [fun_prop] Continuous.comp_aestronglyMeasurable
-  AEStronglyMeasurable.mul AEStronglyMeasurable.prod_mk
+  AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
@@ -487,3 +487,16 @@ theorem ofReal_zpow {p : ℝ} (hp : 0 < p) (n : ℤ) :
   exact NNReal.coe_ne_zero.mp hp.ne.symm
 
 end ENNReal
+
+
+--TODO: to mathlib
+@[to_additive (attr := simp)]
+theorem prod_attach_insert {α β : Type*} {s : Finset α} {a : α} [DecidableEq α] [CommMonoid β]
+    {f : { i // i ∈ insert a s } → β} (ha : a ∉ s) :
+    ∏ x ∈ (insert a s).attach, f x =
+    f ⟨a, Finset.mem_insert_self a s⟩ * ∏ x ∈ s.attach, f ⟨x, Finset.mem_insert_of_mem x.2⟩ := by
+  rw [Finset.attach_insert, Finset.prod_insert, Finset.prod_image]
+  · intros x hx y hy h
+    ext
+    simpa using h
+  · simp [ha]
