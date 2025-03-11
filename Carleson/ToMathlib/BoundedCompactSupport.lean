@@ -106,6 +106,14 @@ theorem indicator_of_isBounded_range {X : Type*} [MetricSpace X] [ProperSpace X]
     · exact Metric.isCompact_of_isClosed_isBounded isClosed_closure h's.closure
     · exact fun x hx ↦ by simp [not_mem_of_not_mem_closure hx]
 
+protected theorem indicator {X : Type*} [MetricSpace X] [ProperSpace X]
+    [MeasurableSpace X] [BorelSpace X] {f : X → 𝕜} (hf : BoundedCompactSupport f) {s : Set X}
+    (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) := by
+  rw [← Set.indicator_eq_self.mpr (subset_tsupport f), Set.indicator_indicator]
+  apply indicator_of_isBounded_range hf.isBounded hf.stronglyMeasurable
+  · exact hf.hasCompactSupport.isBounded.subset inter_subset_right
+  · exact hs.inter (isClosed_tsupport f).measurableSet
+
 variable {f : X → 𝕜} {g : X → 𝕜} (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
 section Includehf
 
