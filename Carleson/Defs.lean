@@ -174,11 +174,12 @@ class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
 
 export IsCancellative (norm_integral_exp_le)
 
-/-- The "volume function" `V`. Note that we will need to assume
-`IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
+/-- The "volume function" `V`. Preferably use `vol` instead. -/
 protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
 
+/-- The "volume function" `V`. We will need to assume
+`IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
 def vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ≥0∞ :=
   volume (ball x (dist x y))
 
