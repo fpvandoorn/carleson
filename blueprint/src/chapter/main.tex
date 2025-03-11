@@ -6049,20 +6049,20 @@ as in \Cref{forest-row-decomposition}.
     By \Cref{densities-tree-bound} and the density assumption \eqref{forest4}, we have for each $\fu \in \fU$ and all bounded $f$ of bounded support that
     \begin{equation}
         \label{eq-explicit-tree-bound-1}
-        \left\|\sum_{\fp \in \fT(\fu)} T_{\fp} f \right\|_{2} \le 2^{155a^3} 2^{(4a+1-n)/2} \|f\|_2\,
+        \left\|\mathbf{1}_G\sum_{\fp \in \fT(\fu)} T_{\fp} f \right\|_{2} \le 2^{155a^3} 2^{(4a+1-n)/2} \|f\|_2\,
     \end{equation}
     and
     \begin{equation}
         \label{eq-explicit-tree-bound-2}
-        \left\|\sum_{\fp \in \fT(\fu)} T_{\fp} \mathbf{1}_F f \right\|_{2} \le 2^{256a^3} 2^{(4a + 1-n)/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\,.
+        \left\|\mathbf{1}_G \sum_{\fp \in \fT(\fu)} T_{\fp} \mathbf{1}_F f \right\|_{2} \le 2^{256a^3} 2^{(4a + 1-n)/2} \dens_2(\fT(\fu))^{1/2} \|f\|_2\,.
     \end{equation}
-    Since for each $j$ the top cubes $\scI(\fu)$, $\fu \in \fU_j$ are disjoint, we further have for all bounded $g$ of bounded support by \Cref{adjoint-tile-support}
+    Since for each $j$ the top cubes $\scI(\fu)$, $\fu \in \fU_j$ are disjoint, we further have for all bounded $g$ of bounded support and $|g| \le \mathbf{1}_G$ by \Cref{adjoint-tile-support}
     $$
         \left\|\mathbf{1}_F \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2^2 = \left\|\mathbf{1}_F \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} \mathbf{1}_{\scI(\fu)} T_{\fp}^* \mathbf{1}_{\scI(\fu)} g\right\|_2^2
     $$
     $$
         = \sum_{\fu \in \fU_j} \int_{\scI(\fu)} \left| \mathbf{1}_F \sum_{\fp \in \fT(\fu)} T_{\fp}^* \mathbf{1}_{\scI(\fu)} g\right|^2 \, \mathrm{d}\mu
-        \le \sum_{\fu \in \fU_j} \left\|\sum_{\fp \in \fT(\fu)} \mathbf{1}_F T_{\fp}^* \mathbf{1}_{\scI(\fu)} g\right\|_2^2\,.
+        \le \sum_{\fu \in \fU_j} \left\|\sum_{\fp \in \fT(\fu)} \mathbf{1}_F T_{\fp}^* \mathbf{1}_G \mathbf{1}_{\scI(\fu)}  g\right\|_2^2\,.
     $$
     Applying the estimate for the adjoint operator following from equation \eqref{eq-explicit-tree-bound-2}, we obtain
     $$
