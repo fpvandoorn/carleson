@@ -369,8 +369,8 @@ def C2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 /-- The constant appearing in part 3 of Lemma 2.1.3. -/
 def D2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (150 * (a : ℝ) ^ 3)
 
---1.0.14.
-lemma kernel_bound {s : ℤ} {x y : X} :
+/-- preferably use `kernel_bound` instead. -/
+lemma kernel_bound_old {s : ℤ} {x y : X} :
     ‖Ks s x y‖₊ ≤ 2 ^ a ^ 3 / volume.nnreal (ball x (dist x y)) := by
   change ‖K x y * ψ (D ^ (-s) * dist x y)‖ ≤ 2 ^ a ^ 3 / volume.real (ball x (dist x y))
   apply le_trans <| calc
@@ -381,6 +381,17 @@ lemma kernel_bound {s : ℤ} {x y : X} :
   convert norm_K_le_vol_inv (K := K) x y
   unfold C_K
   norm_cast
+
+-- 1.0.14.
+lemma kernel_bound {s : ℤ} {x y : X} : ‖Ks s x y‖ₑ ≤ C_K a / vol x y := by
+  change ‖K x y * ψ (D ^ (-s) * dist x y)‖ₑ ≤ C_K a / volume (ball x (dist x y))
+  calc
+    ‖K x y * ψ (D ^ (-s) * dist x y)‖ₑ
+      = ‖K x y‖ₑ * ‖(ψ (D ^ (-s) * dist x y) : ℂ)‖ₑ := enorm_mul ..
+    _ ≤ ‖K x y‖ₑ * 1               := by
+        gcongr; rw [← ofReal_norm, norm_real]; norm_cast; exact abs_ψ_le_one D _
+    _ ≤ ‖K x y‖ₑ                   := by rw [mul_one]
+    _ ≤ _ := enorm_K_le_vol_inv x y
 
 variable (s)
 
@@ -411,17 +422,20 @@ lemma Metric.measure_ball_pos_real (x : X) (r : ℝ) (hr : r > 0) : volume.real 
 include a q K σ₁ σ₂ F G in
 lemma K_eq_K_of_dist_eq_zero {x y y' : X} (hyy' : dist y y' = 0) :
     K x y = K x y' := by
-  suffices ‖K x y - K x y'‖ = 0 by rwa [norm_sub_eq_zero_iff] at this
-  suffices ‖K x y - K x y'‖ ≤ 0 from le_antisymm this (norm_nonneg (K x y - K x y'))
-  convert norm_K_sub_le (K := K) (x := x) (y := y) (y' := y')
+  suffices ‖K x y - K x y'‖ₑ = 0 by rwa [enorm_eq_zero, sub_eq_zero] at this
+  suffices ‖K x y - K x y'‖ₑ ≤ 0 from le_antisymm this (zero_le _)
+  convert enorm_K_sub_le (K := K) (x := x) (y := y) (y' := y')
     (by simp only [hyy', mul_zero, dist_nonneg])
-  suffices (0 : ℝ) ^ (a : ℝ)⁻¹ = 0 by simp [hyy', this]
-  simp [inv_ne_zero (show (a : ℝ) ≠ 0 by norm_cast; linarith [four_le_a X])]
+  replace hyy' : edist y y' = 0 := by rw [edist_dist, hyy', ENNReal.ofReal_zero]
+  suffices (0 : ℝ≥0∞) ^ (a : ℝ)⁻¹ = 0 by simp [hyy', this]
+  have : 0 < a := by linarith [four_le_a X]
+  simp [this]
 
 include a q K σ₁ σ₂ F G in
 lemma K_eq_zero_of_dist_eq_zero {x y : X} (hxy : dist x y = 0) :
     K x y = 0 :=
-  norm_le_zero_iff.1 (by simpa [hxy, Real.vol] using norm_K_le_vol_inv x y)
+  norm_le_zero_iff.1 <| by
+    simpa [hxy, Real.vol, ENNReal.div_zero] using norm_K_le_vol_inv (K := K) x y
 
 variable {s}
 
@@ -450,13 +464,14 @@ private lemma div_vol_le₀ {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 
     (2 ^ (2 * a + 100 * a ^ 3)) * c / volume.real (ball x (D ^ s)) := by
   simpa using div_vol_le hc (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1 0
 
+-- preferably use `enorm_K_le`
 lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
     ‖K x y‖ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume.real (ball x (2 ^ n * D ^ s)) := by
   by_cases h : dist x y = 0
   · rw [K_eq_zero_of_dist_eq_zero h, norm_zero]; positivity
   apply (norm_K_le_vol_inv x y).trans
   unfold C_K
-  apply le_trans (div_vol_le (by positivity) hxy n)
+  apply le_trans (div_vol_le (by norm_cast; positivity) hxy n)
   apply div_le_div_of_nonneg_right _ measureReal_nonneg
   exact_mod_cast le_of_eq (by ring)
 
@@ -616,7 +631,6 @@ private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
      (hyy' : 2 * dist y y' ≤ dist x y) : ‖K x y - K x y'‖ * |ψ (D ^ (-s) * dist x y')| ≤
     (2 : ℝ) ^ (1 + 102 * a + 101 * a ^ 3) / volume.real (ball x (D ^ s)) *
     (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
-  have CKa0 : C_K a > 0 := by unfold C_K; positivity
   have D1 := D1 X
   have d0 : dist x y > 0 :=
     lt_of_lt_of_le (by positivity) (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
@@ -635,7 +649,7 @@ private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   have : (dist y y' / dist x y) ^ (a : ℝ)⁻¹ ≤ (dist y y' / D ^ s * (4 * D)) ^ (a : ℝ)⁻¹ := by
     apply Real.rpow_le_rpow (div_nonneg dist_nonneg dist_nonneg) this (by positivity)
   rw [Real.mul_rpow (div_nonneg dist_nonneg (Ds0 X s).le) (fourD0 D1).le] at this
-  apply le_trans <| mul_le_mul this (div_vol_le₀ CKa0 hK) (by positivity) (by positivity)
+  apply le_trans <| mul_le_mul this (div_vol_le₀ C_K_pos_real hK) (by simp; positivity) (by positivity)
   rw [(by ring : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ * (4 * D) ^ (a : ℝ)⁻¹ *
       (2 ^ (2 * a + 100 * a ^ 3) * C_K a / volume.real (ball x (D ^ s))) =
       (4 * D) ^ (a : ℝ)⁻¹ * 2 ^ (2 * a + 100 * a ^ 3) * C_K a / volume.real (ball x (D ^ s)) *
@@ -663,9 +677,8 @@ private lemma norm_Ks_sub_Ks_le₀₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   rw [this]
   refine mul_le_mul ?_ ψ_ineq (abs_nonneg _) (by positivity)
   apply le_trans <| norm_K_le_vol_inv x y
-  unfold C_K
-  apply le_of_le_of_eq <| div_vol_le₀ (by positivity) hK
-  rw_mod_cast [← pow_add, (show 2 * a + 100 * a ^ 3 + a ^ 3 = 2 * a + 101 * a ^ 3 by ring)]
+  apply le_of_le_of_eq <| div_vol_le₀ C_K_pos_real hK
+  rw_mod_cast [C_K, ← pow_add, (show 2 * a + 100 * a ^ 3 + a ^ 3 = 2 * a + 101 * a ^ 3 by ring)]
 
 -- Special case of `norm_Ks_sub_Ks_le`
 private lemma norm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
@@ -848,8 +861,8 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       positivity
     · simp only [hy, reduceIte, K₀]
       apply (norm_K_le_vol_inv x y).trans
+      rw [Real.vol]
       gcongr
-      · exact (C_K_pos a).le
       · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
-      · exact ENNReal.toReal_mono (measure_ball_ne_top x (dist x y)) <|
-          measure_mono <| ball_subset_ball (lt_of_not_ge hy).le
+      · exact measure_ball_ne_top x (dist x y)
+      · exact le_of_not_le hy

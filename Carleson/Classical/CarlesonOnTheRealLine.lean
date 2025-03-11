@@ -486,11 +486,23 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
     norm_cast
 
 
+-- remove?
 lemma Real.vol_real_eq {x y : ℝ} : Real.vol x y = 2 * |x - y| := by
-  rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+  rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball,
+    ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
 
+-- proof can be simplified with enorm lemma
+lemma Real.vol_eq {x y : ℝ} : vol x y = 2 * ‖x - y‖ₑ := by
+  rw [vol, Real.volume_ball, ofReal_mul (by positivity), ← edist_dist, edist_eq_enorm_sub,
+    ofReal_ofNat]
+
+-- remove?
 lemma Real.vol_real_symm {x y : ℝ} : Real.vol x y = Real.vol y x := by
   rw [Real.vol_real_eq, Real.vol_real_eq, abs_sub_comm]
+
+-- proof can be simplified with enorm lemma
+lemma Real.vol_symm {x y : ℝ} : vol x y = vol y x := by
+  simp_rw [Real.vol_eq, ← ofReal_norm, norm_sub_rev]
 
 instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
@@ -529,11 +541,11 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
 instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
   norm_K_sub_le' := by
     intro x x' y h
-    rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, Complex.norm_conj,
-      dist_comm x y, Real.vol_real_symm]
     rw [dist_comm x y] at h
-    exact isOneSidedKernelHilbert.norm_K_sub_le h
-#synth DoublingMeasure ℝ _
+    rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, ← ofReal_norm,
+      Complex.norm_conj, edist_comm x y, Real.vol_symm, ofReal_norm_eq_enorm]
+    exact enorm_K_sub_le (K := K) h
+
 local notation "T" => carlesonOperatorReal K
 
 --TODO : change name to reflect that this only holds for a specific instance of CarlesonOperaterReal?
