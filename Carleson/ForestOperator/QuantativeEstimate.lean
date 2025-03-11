@@ -22,6 +22,39 @@ Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ (101 * (a : ℝ) ^ 3)
 
+/-- Part 1 of Lemma 7.3.2. -/
+lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
+    (hp₂ : ∃ p ∈ t u, ¬Disjoint ↑L (E p) ∧ 𝔰 p ≤ s L) :
+    volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
+  obtain ⟨p, mp, dp, sp⟩ := hp₂; rw [disjoint_comm] at dp
+  replace dp : ¬Disjoint (𝓘 p : Set X) L := by contrapose! dp; exact dp.mono_left E_subset_𝓘
+  have lip := le_antisymm (le_of_mem_𝓛 hL mp dp) ((le_or_disjoint sp).resolve_right dp)
+  calc
+    _ ≤ volume (E₂ 9 p) := by
+      refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ⟨⟨by apply lip ▸ mxL, mxG⟩, ?_⟩
+      rw [mem_iUnion₂] at mxU; obtain ⟨q, mq, hq⟩ := mxU; rw [smul_snd, mem_preimage]
+      have plq := lip ▸ le_of_mem_𝓛 hL mq (not_disjoint_iff.mpr ⟨x, E_subset_𝓘 hq, mxL⟩)
+      simp_rw [mem_ball']
+      calc
+        _ ≤ dist_(p) (𝒬 p) (𝒬 u) + dist_(p) (𝒬 u) (𝒬 q) + dist_(p) (𝒬 q) (Q x) :=
+          dist_triangle4 ..
+        _ ≤ dist_(p) (𝒬 p) (𝒬 u) + dist_(q) (𝒬 u) (𝒬 q) + dist_(q) (𝒬 q) (Q x) := by
+          gcongr <;> exact Grid.dist_mono plq
+        _ < 4 + 4 + 1 := by
+          gcongr
+          · exact t.dist_lt_four hu mp
+          · exact t.dist_lt_four' hu mq
+          · rw [← mem_ball']; exact subset_cball hq.2.1
+        _ = _ := by norm_num
+    _ ≤ 9 ^ a * dens₁ (t u) * volume (L : Set X) := by
+      rw [lip]
+      exact volume_E₂_le_dens₁_mul_volume (subset_lowerCubes mp) mp (by norm_num) le_rfl
+    _ ≤ _ := by
+      gcongr; rw [C7_3_2]; norm_cast
+      calc
+        _ ≤ 2 ^ (4 * a) := by rw [pow_mul]; gcongr; norm_num
+        _ ≤ _ := by gcongr; exacts [one_le_two, by norm_num, Nat.le_self_pow three_ne_zero a]
+
 lemma volume_bound_of_Grid_lt {L L' : Grid X} (lL : L ≤ L') (sL : s L' = s L + 1) :
     volume (L' : Set X) ≤ 2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X) := by
   suffices volume (ball (c L') (4 * D ^ s L')) ≤
@@ -44,6 +77,123 @@ lemma volume_bound_of_Grid_lt {L L' : Grid X} (lL : L ≤ L') (sL : s L' = s L +
     Real.logb_self_eq_one one_lt_two, mul_one, Nat.ceil_natCast, ENNReal.coe_pow, ENNReal.coe_ofNat]
   ring
 
+/-- Part 2 of Lemma 7.3.2. -/
+lemma local_dens1_tree_bound_forall_lt
+    (hu : u ∈ t) (hp₂ : ∀ p ∈ t u, ¬Disjoint ↑L (E p) → s L < 𝔰 p)
+    {p : 𝔓 X} (mp : p ∈ t u) (lip : L < 𝓘 p)
+    {L' : Grid X} (sL' : s L' = s L + 1) (lL' : L < L')
+    {p'' : 𝔓 X} (mp'' : p'' ∈ t u) (lp'' : 𝓘 p'' < L') :
+    volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
+  obtain ⟨p', lcp', ip', dp'⟩ : ∃ p' ∈ lowerCubes (t u), 𝓘 p' = L' ∧ Ω u ⊆ Ω p' := by
+    have m₁ := biUnion_Ω (i := L') (range_𝒬 (mem_range_self u))
+    rw [mem_iUnion₂] at m₁; obtain ⟨p', mp', hp'⟩ := m₁
+    rw [mem_preimage, mem_singleton_iff] at mp'; change 𝓘 p' = L' at mp'
+    have ip'lp : 𝓘 p' ≤ 𝓘 p := by
+      rw [mp']; refine Grid.le_dyadic ?_ lL'.le lip.le
+      have : s L < s (𝓘 p) := (Grid.lt_def.mp lip).2; omega
+    have p'lu := tile_le_of_cube_le_and_not_disjoint (ip'lp.trans (t.𝓘_le_𝓘 hu mp)) hp' 𝒬_mem_Ω
+    use p', mem_lowerCubes.mp ⟨p, mp, ip'lp⟩, mp', p'lu.2
+  rw [← ip'] at lp''
+  have sls : smul 6 p'' ≤ smul 6 p' := by
+    refine ⟨lp''.le, fun x mx ↦ ?_⟩
+    calc
+      _ ≤ dist_(p'') x (𝒬 p') + dist_(p'') (𝒬 p') (𝒬 u) + dist_(p'') (𝒬 u) (𝒬 p'') :=
+        dist_triangle4 ..
+      _ ≤ C2_1_2 a * (dist_(p') x (𝒬 p') + dist_(p') (𝒬 p') (𝒬 u)) + dist_(p'') (𝒬 u) (𝒬 p'') := by
+        rw [mul_add]; gcongr <;> exact Grid.dist_strictMono lp''
+      _ < C2_1_2 a * (6 + 1) + 4 := by
+        gcongr
+        · unfold C2_1_2; positivity
+        · exact mx
+        · rw [← mem_ball']; exact (dp'.trans subset_cball) 𝒬_mem_Ω
+        · exact t.dist_lt_four' hu mp''
+      _ ≤ 1 / 512 * 7 + 4 := by
+        rw [show (6 : ℝ) + 1 = 7 by norm_num]; gcongr; exact C2_1_2_le_inv_512 X
+      _ < _ := by norm_num
+  calc
+    _ ≤ volume (E₂ 6 p') := by
+      refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ?_
+      have mxp' : x ∈ L' := lL'.le.1 mxL
+      rw [← ip'] at mxp'; refine ⟨⟨mxp', mxG⟩, ?_⟩
+      rw [mem_iUnion₂] at mxU; obtain ⟨q, mq, hq⟩ := mxU; rw [smul_snd, mem_preimage]
+      have p'lq : 𝓘 p' ≤ 𝓘 q := by
+        refine le_of_mem_of_mem ?_ mxp' (E_subset_𝓘 hq)
+        change s (𝓘 p') ≤ 𝔰 q; rw [ip']; suffices s L < 𝔰 q by omega
+        exact hp₂ q mq (not_disjoint_iff.mpr ⟨x, mxL, hq⟩)
+      simp_rw [mem_ball']
+      calc
+        _ ≤ dist_(p') (𝒬 p') (𝒬 u) + dist_(p') (𝒬 u) (𝒬 q) + dist_(p') (𝒬 q) (Q x) :=
+          dist_triangle4 ..
+        _ ≤ dist_(p') (𝒬 p') (𝒬 u) + dist_(q) (𝒬 u) (𝒬 q) + dist_(q) (𝒬 q) (Q x) := by
+          gcongr <;> exact Grid.dist_mono p'lq
+        _ < 1 + 4 + 1 := by
+          gcongr
+          · rw [← mem_ball']; exact subset_cball (dp' 𝒬_mem_Ω)
+          · exact t.dist_lt_four' hu mq
+          · rw [← mem_ball']; exact subset_cball hq.2.1
+        _ = _ := by norm_num
+    _ ≤ 6 ^ a * dens₁ (t u) * volume (L' : Set X) := by
+      rw [← ip']
+      exact volume_E₂_le_dens₁_mul_volume lcp' mp'' (by norm_num) (by simpa using sls)
+    _ ≤ 2 ^ (3 * a) * 2 ^ (100 * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
+      rw [show 2 ^ (3 * a) * _ * dens₁ (t u) * volume (L : Set X) =
+        2 ^ (3 * a) * dens₁ (t u) * (2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
+      gcongr ?_ * _ * ?_
+      · norm_cast; rw [pow_mul]; exact pow_le_pow_left' (by norm_num) a
+      · exact volume_bound_of_Grid_lt lL'.le sL'
+    _ ≤ _ := by
+      gcongr; rw [C7_3_2]; norm_cast; rw [← pow_add]; apply Nat.pow_le_pow_right zero_lt_two
+      rw [← add_assoc, ← add_rotate, ← add_mul, show 3 + 5 = 8 by norm_num]
+      calc
+        _ ≤ 4 * 4 * a + 100 * a ^ 3 := by gcongr; norm_num
+        _ ≤ a * a * a + 100 * a ^ 3 := by gcongr <;> exact four_le_a X
+        _ = _ := by ring
+
+/-- Part 3 of Lemma 7.3.2. -/
+lemma local_dens1_tree_bound_forall_eq
+    (hu : u ∈ t) (hp₂ : ∀ p ∈ t u, ¬Disjoint ↑L (E p) → s L < 𝔰 p)
+    {L' : Grid X} (sL' : s L' = s L + 1) (lL' : L < L')
+    {p'' : 𝔓 X} (mp'' : p'' ∈ t u) (lp'' : 𝓘 p'' = L') :
+    volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
+  calc
+    _ ≤ volume (E₂ 9 p'') := by
+      refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ?_
+      have mxp' : x ∈ L' := lL'.le.1 mxL
+      rw [← lp''] at mxp'; refine ⟨⟨mxp', mxG⟩, ?_⟩
+      rw [mem_iUnion₂] at mxU; obtain ⟨q, mq, hq⟩ := mxU; rw [smul_snd, mem_preimage]
+      have p''lq : 𝓘 p'' ≤ 𝓘 q := by
+        refine le_of_mem_of_mem ?_ mxp' (E_subset_𝓘 hq)
+        change s (𝓘 p'') ≤ 𝔰 q; rw [lp'']; suffices s L < 𝔰 q by omega
+        exact hp₂ q mq (not_disjoint_iff.mpr ⟨x, mxL, hq⟩)
+      simp_rw [mem_ball']
+      calc
+        _ ≤ dist_(p'') (𝒬 p'') (𝒬 u) + dist_(p'') (𝒬 u) (𝒬 q) + dist_(p'') (𝒬 q) (Q x) :=
+          dist_triangle4 ..
+        _ ≤ dist_(p'') (𝒬 p'') (𝒬 u) + dist_(q) (𝒬 u) (𝒬 q) + dist_(q) (𝒬 q) (Q x) := by
+          gcongr <;> exact Grid.dist_mono p''lq
+        _ < 4 + 4 + 1 := by
+          gcongr
+          · exact t.dist_lt_four hu mp''
+          · exact t.dist_lt_four' hu mq
+          · rw [← mem_ball']; exact subset_cball hq.2.1
+        _ = _ := by norm_num
+    _ ≤ 9 ^ a * dens₁ (t u) * volume (L' : Set X) := by
+      rw [← lp'']
+      exact volume_E₂_le_dens₁_mul_volume (subset_lowerCubes mp'') mp'' (by norm_num) le_rfl
+    _ ≤ 2 ^ (4 * a) * 2 ^ (100 * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
+      rw [show 2 ^ (4 * a) * _ * dens₁ (t u) * volume (L : Set X) =
+        2 ^ (4 * a) * dens₁ (t u) * (2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
+      gcongr ?_ * _ * ?_
+      · norm_cast; rw [pow_mul]; exact pow_le_pow_left' (by norm_num) a
+      · exact volume_bound_of_Grid_lt lL'.le sL'
+    _ ≤ _ := by
+      gcongr; rw [C7_3_2]; norm_cast; rw [← pow_add]; apply Nat.pow_le_pow_right zero_lt_two
+      rw [← add_assoc, ← add_rotate, ← add_mul, show 4 + 5 = 9 by norm_num]
+      calc
+        _ ≤ 4 * 4 * a + 100 * a ^ 3 := by gcongr; norm_num
+        _ ≤ a * a * a + 100 * a ^ 3 := by gcongr <;> exact four_le_a X
+        _ = _ := by ring
+
 /-- Lemma 7.3.2. -/
 lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
     volume (L ∩ G ∩ ⋃ p ∈ t u, E p) ≤ C7_3_2 a * dens₁ (t u) * volume (L : Set X) := by
@@ -51,98 +201,25 @@ lemma local_dens1_tree_bound (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) :
   · rw [inter_comm (L : Set X), inter_assoc, hq, inter_empty, measure_empty]; exact zero_le _
   rw [← disjoint_iff_inter_eq_empty, disjoint_iUnion₂_right] at hq; push_neg at hq
   by_cases hp₂ : ∃ p ∈ t u, ¬Disjoint (L : Set X) (E p) ∧ 𝔰 p ≤ s L
-  · obtain ⟨p, mp, dp, sp⟩ := hp₂; rw [disjoint_comm] at dp
-    replace dp : ¬Disjoint (𝓘 p : Set X) L := by contrapose! dp; exact dp.mono_left E_subset_𝓘
-    have lip := le_antisymm (le_of_mem_𝓛 hL mp dp) ((le_or_disjoint sp).resolve_right dp)
-    calc
-      _ ≤ volume (E₂ 9 p) := by
-        refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ⟨⟨by apply lip ▸ mxL, mxG⟩, ?_⟩
-        rw [mem_iUnion₂] at mxU; obtain ⟨q, mq, hq⟩ := mxU; rw [smul_snd, mem_preimage]
-        have plq := lip ▸ le_of_mem_𝓛 hL mq (not_disjoint_iff.mpr ⟨x, E_subset_𝓘 hq, mxL⟩)
-        simp_rw [mem_ball']
-        calc
-          _ ≤ dist_(p) (𝒬 p) (𝒬 u) + dist_(p) (𝒬 u) (𝒬 q) + dist_(p) (𝒬 q) (Q x) :=
-            dist_triangle4 ..
-          _ ≤ dist_(p) (𝒬 p) (𝒬 u) + dist_(q) (𝒬 u) (𝒬 q) + dist_(q) (𝒬 q) (Q x) := by
-            gcongr <;> exact Grid.dist_mono plq
-          _ < 4 + 4 + 1 := by
-            gcongr
-            · exact t.dist_lt_four hu mp
-            · exact t.dist_lt_four' hu mq
-            · rw [← mem_ball']; exact subset_cball hq.2.1
-          _ = _ := by norm_num
-      _ ≤ 9 ^ a * dens₁ (t u) * volume (L : Set X) := by
-        rw [lip]
-        exact volume_E₂_le_dens₁_mul_volume (subset_lowerCubes mp) mp (by norm_num) le_rfl
-      _ ≤ _ := by
-        gcongr; rw [C7_3_2]; norm_cast
-        calc
-          _ ≤ 2 ^ (4 * a) := by rw [pow_mul]; gcongr; norm_num
-          _ ≤ _ := by gcongr; exacts [one_le_two, by norm_num, Nat.le_self_pow three_ne_zero a]
-  · push_neg at hp₂; obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
-    have lip : L < 𝓘 p := by
-      refine Grid.lt_def.mpr ⟨(le_of_mem_𝓛 hL mp ?_).1, sLp⟩
-      contrapose! hp; exact (hp.mono_left E_subset_𝓘).symm
-    obtain ⟨L', lL', sL'⟩ := Grid.exists_scale_succ sLp
-    replace lL' : L < L' := Grid.lt_def.mpr ⟨lL'.1, by omega⟩
-    obtain ⟨p', lcp', ip', dp'⟩ : ∃ p' ∈ lowerCubes (t u), 𝓘 p' = L' ∧ Ω u ⊆ Ω p' := by
-      have m₁ := biUnion_Ω (i := L') (range_𝒬 (mem_range_self u))
-      rw [mem_iUnion₂] at m₁; obtain ⟨p', mp', hp'⟩ := m₁
-      rw [mem_preimage, mem_singleton_iff] at mp'; change 𝓘 p' = L' at mp'
-      have ip'lp : 𝓘 p' ≤ 𝓘 p := by
-        rw [mp']; exact Grid.le_dyadic (by change s L' ≤ 𝔰 p; omega) lL'.le lip.le
-      have p'lu := tile_le_of_cube_le_and_not_disjoint (ip'lp.trans (t.𝓘_le_𝓘 hu mp)) hp' 𝒬_mem_Ω
-      use p', mem_lowerCubes.mp ⟨p, mp, ip'lp⟩, mp', p'lu.2
-    obtain ⟨p'', mp'', lp''⟩ : ∃ p'' ∈ t u, 𝓘 p'' ≤ 𝓘 p' := by
-      have L'nm : L' ∉ 𝓛₀ (t u) := by
-        by_contra h
-        simp_rw [𝓛, mem_setOf, maximal_iff] at hL
-        exact lL'.ne (hL.2 h lL'.le)
-      rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push_neg at L'nm
-      have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
-        push_neg; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; omega
-      simp_rw [nfa, false_or] at L'nm; exact ip' ▸ L'nm.2
-    calc
-      _ ≤ volume (E₂ 6 p') := by
-        refine measure_mono fun x ⟨⟨mxL, mxG⟩, mxU⟩ ↦ ?_
-        have mxp' : x ∈ L' := lL'.le.1 mxL
-        rw [← ip'] at mxp'; refine ⟨⟨mxp', mxG⟩, ?_⟩
-        rw [mem_iUnion₂] at mxU; obtain ⟨q, mq, hq⟩ := mxU; rw [smul_snd, mem_preimage]
-        have p'lq : 𝓘 p' ≤ 𝓘 q := by
-          refine le_of_mem_of_mem ?_ mxp' (E_subset_𝓘 hq)
-          change s (𝓘 p') ≤ 𝔰 q; rw [ip']; suffices s L < 𝔰 q by omega
-          exact hp₂ q mq (not_disjoint_iff.mpr ⟨x, mxL, hq⟩)
-        simp_rw [mem_ball']
-        calc
-          _ ≤ dist_(p') (𝒬 p') (𝒬 u) + dist_(p') (𝒬 u) (𝒬 q) + dist_(p') (𝒬 q) (Q x) :=
-            dist_triangle4 ..
-          _ ≤ dist_(p') (𝒬 p') (𝒬 u) + dist_(q) (𝒬 u) (𝒬 q) + dist_(q) (𝒬 q) (Q x) := by
-            gcongr <;> exact Grid.dist_mono p'lq
-          _ < 1 + 4 + 1 := by
-            gcongr
-            · rw [← mem_ball']; exact subset_cball (dp' 𝒬_mem_Ω)
-            · exact t.dist_lt_four' hu mq
-            · rw [← mem_ball']; exact subset_cball hq.2.1
-          _ = _ := by norm_num
-      _ ≤ 6 ^ a * dens₁ (t u) * volume (L' : Set X) := by
-        rw [← ip']
-        refine volume_E₂_le_dens₁_mul_volume lcp' mp'' (by norm_num) ⟨lp'', ?_⟩
-        simp only [Nat.cast_ofNat, NNReal.coe_ofNat, le_eq_subset]
-        change ball_(p') (𝒬 p') 6 ⊆ ball_(p'') (𝒬 p'') 6
-        sorry
-      _ ≤ 2 ^ (3 * a) * 2 ^ (100 * a ^ 3 + 5 * a) * dens₁ (t u) * volume (L : Set X) := by
-        rw [show 2 ^ (3 * a) * _ * dens₁ (t u) * volume (L : Set X) =
-          2 ^ (3 * a) * dens₁ (t u) * (2 ^ (100 * a ^ 3 + 5 * a) * volume (L : Set X)) by ring]
-        gcongr ?_ * _ * ?_
-        · norm_cast; rw [pow_mul]; exact pow_le_pow_left' (by norm_num) a
-        · exact volume_bound_of_Grid_lt lL'.le sL'
-      _ ≤ _ := by
-        gcongr; rw [C7_3_2]; norm_cast; rw [← pow_add]; apply Nat.pow_le_pow_right zero_lt_two
-        rw [← add_assoc, ← add_rotate, ← add_mul, show 3 + 5 = 8 by norm_num]
-        calc
-          _ ≤ 4 * 4 * a + 100 * a ^ 3 := by gcongr; norm_num
-          _ ≤ a * a * a + 100 * a ^ 3 := by gcongr <;> exact four_le_a X
-          _ = _ := by ring
+  · exact local_dens1_tree_bound_exists hu hL hp₂
+  push_neg at hp₂; obtain ⟨p, mp, hp⟩ := hq; have sLp := hp₂ p mp hp
+  have lip : L < 𝓘 p := by
+    refine Grid.lt_def.mpr ⟨(le_of_mem_𝓛 hL mp ?_).1, sLp⟩
+    contrapose! hp; exact (hp.mono_left E_subset_𝓘).symm
+  obtain ⟨L', lL', sL'⟩ := Grid.exists_scale_succ sLp
+  replace lL' : L < L' := Grid.lt_def.mpr ⟨lL'.1, by omega⟩
+  obtain ⟨p'', mp'', lp''⟩ : ∃ p'' ∈ t u, 𝓘 p'' ≤ L' := by
+    have L'nm : L' ∉ 𝓛₀ (t u) := by
+      by_contra h
+      simp_rw [𝓛, mem_setOf, maximal_iff] at hL
+      exact lL'.ne (hL.2 h lL'.le)
+    rw [𝓛₀, mem_setOf, not_or, not_and_or] at L'nm; push_neg at L'nm
+    have nfa : ¬∀ p ∈ t u, ¬L' ≤ 𝓘 p := by
+      push_neg; refine ⟨p, mp, Grid.le_dyadic ?_ lL'.le lip.le⟩; change s L' ≤ 𝔰 p; omega
+    simp_rw [nfa, false_or] at L'nm; exact L'nm.2
+  rcases lp''.eq_or_lt with lp'' | lp''
+  · exact local_dens1_tree_bound_forall_eq hu hp₂ sL' lL' mp'' lp''
+  · exact local_dens1_tree_bound_forall_lt hu hp₂ mp lip sL' lL' mp'' lp''
 
 /-- The constant used in `local_dens2_tree_bound`.
 Has value `2 ^ (200 * a ^ 3 + 19)` in the blueprint. -/

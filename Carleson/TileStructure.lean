@@ -459,6 +459,11 @@ lemma E₂_subset (l : ℝ) (p : 𝔓 X) : E₂ l p ⊆ 𝓘 p := by
   rw [inter_assoc]
   exact inter_subset_left
 
+lemma E₂_mono {p : 𝔓 X} : Monotone fun l ↦ E₂ l p := fun l l' hl ↦ by
+  simp_rw [E₂, TileLike.toSet, inter_assoc]
+  refine inter_subset_inter_right _ (inter_subset_inter_right _ (preimage_mono ?_))
+  rw [smul_snd]; exact ball_subset_ball hl
+
 /-- `𝔓(𝔓')` in the blueprint.
 The set of all tiles whose cubes are less than the cube of some tile in the given set. -/
 def lowerCubes (𝔓' : Set (𝔓 X)) : Set (𝔓 X) :=
