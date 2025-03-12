@@ -12,6 +12,18 @@ variable {α ι : Type*} {s : Set ι} {t : Finset α}
 
 namespace ENNReal
 
+attribute [simp] ofReal_of_nonpos
+-- protect ENNReal.mul_le_mul_left
+
+theorem ofReal_inv_le {x : ℝ} : ENNReal.ofReal x⁻¹ ≤ (ENNReal.ofReal x)⁻¹ := by
+  obtain hx|hx := lt_or_le 0 x <;> simp [ofReal_inv_of_pos, hx]
+
+theorem ofReal_div_le {x y : ℝ} (hy : 0 ≤ y) :
+    ENNReal.ofReal (x / y) ≤ ENNReal.ofReal x / ENNReal.ofReal y := by
+  simp_rw [div_eq_mul_inv, ofReal_mul' (inv_nonneg.2 hy)]
+  gcongr
+  apply ofReal_inv_le
+
 lemma coe_biSup {f : ι → ℝ≥0} (hf : BddAbove (range f)) :
     ⨆ x ∈ s, f x = ⨆ x ∈ s, (f x : ℝ≥0∞) := by
   simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hf
