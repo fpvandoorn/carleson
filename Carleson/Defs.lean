@@ -391,10 +391,10 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
-  norm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
+  enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
     ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
-export IsTwoSidedKernel (norm_K_sub_le')
+export IsTwoSidedKernel (enorm_K_sub_le')
 
 -- maybe show: `K` is a 2-sided kernel iff `K` and `fun x y ↦ K y x` are one-sided kernels.
 
