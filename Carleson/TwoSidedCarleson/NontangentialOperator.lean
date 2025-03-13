@@ -113,6 +113,7 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
 
 /-- The constant used in `estimate_x_shift`. -/
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
+-- exact estimate from proof: C_K * (defaultA + 2 * defaultA²) ≤ C10_1_2
 
 -- Couldn't find this. Probably suboptimal formulation and location. Help appreciated.
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
@@ -166,16 +167,16 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     apply ball_subset
     calc dist x' x
     _ = dist x x' := by apply dist_comm
-    _ ≤ r := hx
-    _ = 2 * r - r := by ring
+    _ ≤ r         := hx
+    _ = 2 * r - r := by linarith
 
   -- Domain split x' integral
   have dom_x_prime : bxprc = (bxprc ∩ bx2r) ∪ bx2rᶜ := by
-    have tmp3 : bx2rᶜ = bxprc ∩ bx2rᶜ := by
-      rw [Set.right_eq_inter]
+    have : bx2rᶜ = bxprc ∩ bx2rᶜ := by
+      rw [right_eq_inter]
       exact tmp2
 
-    rw [tmp3]
+    rw [this]
     exact Eq.symm (inter_union_compl bxprc bx2r)
 
   -- Integral split x
@@ -212,7 +213,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
   -- Rewrite lhs according to 10.1.234 split
   conv =>
-    arg 1; arg 1
+    lhs; arg 1
     calc _
       _ = (∫ (y : X) in bxrc ∩ bx2r, K x y * g y)
                 + ((∫ (y : X) in bx2rᶜ, K x y * g y) - (∫ (y : X) in bx2rᶜ, K x' y * g y))
@@ -230,21 +231,21 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
   . apply enorm_sub_le
 
-  trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
+  trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
   . refine add_le_add ?_ ?_
-    . apply @_root_.enorm_add_le
+    . apply enorm_add_le
     . rfl
 
-  trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ) + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
+  trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖K x y * g y‖ₑ) + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
   . refine add_le_add_three ?_ ?_ ?_
     . apply enorm_integral_le_lintegral_enorm
     . rfl
     . rfl
 
-  trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ) + ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
-      ∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ
+  trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖K x y * g y‖ₑ) + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
+      ∫⁻ (y : X) in bxprc ∩ bx2r, ‖K x' y * g y‖ₑ
   . refine add_le_add_three ?_ ?_ ?_
     . rfl
     . rfl
@@ -531,14 +532,14 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     have : ContinuousSMul ℝ≥0∞ ℝ≥0∞ := by sorry -- This is surely an oversight somewhere? Not sure how to fix that...
     rw [tsum_smul_const, smul_eq_mul]
-    case hf => sorry
+    case hf => apply ENNReal.summable
 
     apply mul_le_mul
     case h₂ => rfl
     case b0 | c0 => simp only [zero_le]
 
     rw [tsum_const_smul, smul_eq_mul]
-    case hf => sorry
+    case hf => apply ENNReal.summable
 
     have : (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a) = 2 ^ (a ^ 3 + a) * 2 ^ a := by ring
     rw [this]
@@ -552,7 +553,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     trans ∑' (i : ℕ), 2 ^ (-i / (a : ℝ))
     . apply tsum_le_tsum
-      case hf | hg => sorry
+      case hf | hg => apply ENNReal.summable
       intro i
       apply rpow_le_rpow_of_exponent_le
       . simp only [Nat.one_le_ofNat]
@@ -579,7 +580,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
 
 
-  have estimate_10_1_4 : (∫⁻ (y : X) in bxprc ∩ bx2r, ‖ K x' y * g y‖ₑ)
+  have estimate_10_1_4 : (∫⁻ (y : X) in bxprc ∩ bx2r, ‖K x' y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
     simp only [enorm_mul]
 
@@ -680,35 +681,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
   apply le_of_eq
   ring
-
-/- Breakdown from PDF
-  Expand def
-x Split first domain in parts > set work
-    part 1 r < d x y < 2r
-    part 2 2r < d x y
-x Split 2nd domain in parts > set work
-    part 1 r < d x' y and r < d x y < 2r
-    part 2 r < d x' y and 2r < d x y which is 2r < d x y by triangle ineq
-x Split integrals accordingly (sum of disjoint) obtain 10.1.234
-
-x 10.1.2 estimate
-    Use def CZ kernel 1.0.14, def V, estimate 1/V by 1/B(x,r) 10.1.5
-    Doubling measure, larger domain pos function 10.1.6, Mg + def of integral of unit 10.1.7
-
-x 10.1.4 estimate
-    Use def CZ kernel 10.0.14, def V, estimate 1/V by 1/B(x',r)
-    Doubling measure twice, larger domain pos function, Mg + def integral of unit 10.1.8
-
-  10.1.3 estimate
-    Use def CZ kernel 10.0.1 (check hyp) 10.1.9
-    Split domain in infinite parts > set work 10.1.10
-    Estimate term 1/V by 1/B(x,2^j r), d xx'/d xy by 1/2^j 10.1.11
-    Doubling measure, larger domain pos function 10.1.12
-    Mg + def integral of unit + sum factor 10.1.13
-    Lemma 10.1.1 > 10.1.14
-
-x Total = sum of estimates ? 2(a3 + a) + 2(a3+2a) + 2(a3+2a) le 2(a3+2a+2)
--/
 
 /-- The constant used in `cotlar_control`. -/
 irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
