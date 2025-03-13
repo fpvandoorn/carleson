@@ -3,7 +3,7 @@ import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Annulus
 
-open MeasureTheory Set Bornology Function ENNReal Metric Complex
+open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
 
 noncomputable section
@@ -277,9 +277,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   have pointwise_2 : ∀(y : X), y ∈ (ball x (2 * r))ᶜ → ‖K x y - K x' y‖ₑ * ‖g y‖ₑ ≤
       ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ := by
     intro y h
-    apply mul_le_mul
+    apply mul_le_mul'
     case h₂ => rfl
-    case c0 | b0 => simp only [zero_le]
 
     apply enorm_K_sub_le'
 
@@ -318,22 +317,16 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     case hf => apply Measurable.enorm; exact hg.measurable
 
     trans C_K ↑a / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume (ball x (2 * r)))
-    . apply mul_le_mul
+    . apply mul_le_mul'
       case h₁ => rfl
-      case c0 | b0 => simp only [zero_le]
 
       trans ∫⁻ (a : X) in bx2r, ‖g a‖ₑ
       . apply lintegral_mono_set
         exact inter_subset_right
 
       rw [tmp5]
-      apply mul_le_mul
+      apply mul_le_mul'
       case h₂ => rfl
-      case c0 =>
-        apply le_of_lt
-        apply measure_ball_pos
-        exact mul_pos zero_lt_two hr
-      case b0 => simp only [zero_le]
 
       conv in ‖ _ ‖ₑ =>
         rw [enorm_eq_nnnorm]
@@ -344,15 +337,13 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     calc _
       _ = C_K ↑a / volume (ball x r) * volume (ball x (2 * r)) * globalMaximalFunction volume 1 g x := by rw [mul_assoc]; nth_rw 2 [mul_comm]
 
-    apply mul_le_mul
+    apply mul_le_mul'
     case h₂ => rfl
-    case c0 | b0 => simp only [zero_le]
 
     trans C_K ↑a / volume (ball x r) * (defaultA a * volume (ball x r))
-    . apply mul_le_mul
+    . apply mul_le_mul'
       case h₁ => rfl
       case h₂ => apply measure_ball_two_le_same
-      case c0 | b0 => simp only [zero_le]
 
     -- Somehow simp doesn't do it
     nth_rw 2 [mul_comm]
@@ -453,11 +444,9 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           . simp only [defaultA, coe_ofNat, one_div, C_K, measurable_const]
           . exact Measurable.comp _root_.measurable_enorm hg.measurable
         intro y hy
-        apply mul_le_mul
+        apply mul_le_mul'
         case h₂ => rfl
-        case c0 | b0 => simp only [zero_le]
-        apply mul_le_mul
-        case c0 | b0 => simp only [zero_le]
+        apply mul_le_mul'
         . rw [rpow_mul]
           apply rpow_le_rpow
           . norm_cast
@@ -472,9 +461,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
       trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
           ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
-      . apply mul_le_mul
+      . apply mul_le_mul'
         case h₁ => rfl
-        case b0 | c0 => simp only [zero_le]
         apply lintegral_mono_set
         unfold dom_i
         rw [Set.Annulus.co_eq]
@@ -486,25 +474,21 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       rw [← mul_assoc]
       trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
           volume (ball x (2 ^ (i + 2) * r)) * globalMaximalFunction volume 1 g x
-      . apply mul_le_mul
+      . apply mul_le_mul'
         case h₁ => rfl
-        case b0 | c0 => simp only [zero_le]
         apply laverage_le_globalMaximalFunction
         simp only [dist_self, Nat.ofNat_pos, pow_pos, mul_pos_iff_of_pos_left, hr]
 
-      apply mul_le_mul
+      apply mul_le_mul'
       case h₂ => rfl
-      case b0 | c0 => simp only [zero_le]
 
       rw [mul_assoc, mul_comm]
-      apply mul_le_mul
+      apply mul_le_mul'
       case h₂ => rfl
-      case b0 | c0 => simp only [zero_le]
 
       trans C_K ↑a / volume (ball x (2 ^ (i + 1) * r)) * (defaultA a * volume (ball x (2 ^ (i + 1) * r)))
-      . apply mul_le_mul
+      . apply mul_le_mul'
         case h₁ => rfl
-        case b0 | c0 => simp only [zero_le]
         rw [pow_succ]
         nth_rw 2 [mul_comm]
         rw [mul_assoc]
@@ -534,18 +518,16 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     rw [tsum_smul_const, smul_eq_mul]
     case hf => apply ENNReal.summable
 
-    apply mul_le_mul
+    apply mul_le_mul'
     case h₂ => rfl
-    case b0 | c0 => simp only [zero_le]
 
     rw [tsum_const_smul, smul_eq_mul]
     case hf => apply ENNReal.summable
 
     have : (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a) = 2 ^ (a ^ 3 + a) * 2 ^ a := by ring
     rw [this]
-    apply mul_le_mul
+    apply mul_le_mul'
     case h₁ => rfl
-    case b0 | c0 => simp only [zero_le]
 
     conv =>
       lhs; arg 1; intro i
@@ -600,9 +582,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     case hf => apply Measurable.enorm; exact hg.measurable
 
     trans C_K ↑a / volume (ball x' r) * (globalMaximalFunction volume 1 g x * volume (ball x' (4 * r)))
-    . apply mul_le_mul
+    . apply mul_le_mul'
       case h₁ => rfl
-      case c0 | b0 => simp only [zero_le]
 
       trans ∫⁻ (a : X) in ball x' (4 * r), ‖g a‖ₑ
       . apply lintegral_mono_set
@@ -612,13 +593,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           linarith
 
       rw [tmp5]
-      apply mul_le_mul
+      apply mul_le_mul'
       case h₂ => rfl
-      case c0 =>
-        apply le_of_lt
-        apply measure_ball_pos
-        exact mul_pos zero_lt_four hr
-      case b0 => simp only [zero_le]
 
       conv in ‖ _ ‖ₑ =>
         rw [enorm_eq_nnnorm]
@@ -628,15 +604,13 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     calc _
       _ = C_K ↑a / volume (ball x' r) * volume (ball x' (4 * r)) * globalMaximalFunction volume 1 g x := by rw [mul_assoc]; nth_rw 2 [mul_comm]
 
-    apply mul_le_mul
+    apply mul_le_mul'
     case h₂ => rfl
-    case c0 | b0 => simp only [zero_le]
 
     trans C_K ↑a / volume (ball x' r) * ((defaultA a) ^ 2 * volume (ball x' r))
-    . apply mul_le_mul
+    . apply mul_le_mul'
       case h₁ => rfl
       case h₂ => apply measure_ball_four_le_same'
-      case c0 | b0 => simp only [zero_le]
 
     -- Somehow simp doesn't do it
     nth_rw 2 [mul_comm]
