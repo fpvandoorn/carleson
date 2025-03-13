@@ -489,7 +489,7 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
   measurable_K := Hilbert_kernel_measurable
 
 instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
-  norm_K_sub_le' := by
+  enorm_K_sub_le' := by
     intro x x' y h
     rw [dist_comm x y] at h
     rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, ← ofReal_norm,
