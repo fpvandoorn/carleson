@@ -42,7 +42,7 @@ theorem maximal_theorem (ha : 4 ≤ a) :
 /-- Lemma 10.2.2.
 Should be an easy consequence of `VitaliFamily.ae_tendsto_average`. -/
 theorem lebesgue_differentiation
-    {f : X → ℂ} (hmf : Measurable f) (hf : MemLp f ∞ volume) (h2f : volume (support f) < ∞) :
+    {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     ∀ᵐ x ∂volume, ∃ (c : ℕ → X) (r : ℕ → ℝ),
     Tendsto (fun i ↦ ⨍ y in ball (c i) (r i), f y ∂volume) atTop (𝓝 (f x)) ∧
     Tendsto r atTop (𝓝[>] 0) ∧
