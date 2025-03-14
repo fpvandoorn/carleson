@@ -621,7 +621,7 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
       simp_rw [mul_add]; apply lintegral_add_right
       apply hf.stronglyMeasurable.measurable.enorm.mul (Measurable.enorm (Measurable.sub ?_ ?_)) <;>
         exact (continuous_conj.comp_stronglyMeasurable
-          (measurable_Ks.comp measurable_prod_mk_right).stronglyMeasurable).measurable
+          (measurable_Ks.comp measurable_prodMk_right).stronglyMeasurable).measurable
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
         ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ := by
       simp_rw [mul_assoc]; gcongr with y; rw [enorm_mul]; gcongr

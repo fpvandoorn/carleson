@@ -194,7 +194,7 @@ lemma mem_iUnion_iff_mem_of_mem_ℭ {f : ℕ → ℕ → Set (𝔓 X)} (hp : p �
   · obtain ⟨n', k', _, mp⟩ := h
     have e := pairwiseDisjoint_ℭ (X := X).elim (mem_univ (k, n)) (mem_univ (k', n'))
       (not_disjoint_iff.mpr ⟨p, hp.1, hf k' n' mp⟩)
-    rw [Prod.mk.inj_iff] at e
+    rw [Prod.mk_inj] at e
     exact e.1 ▸ e.2 ▸ mp
   · use n, k, hp.2
 
