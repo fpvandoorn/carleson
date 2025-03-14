@@ -1,4 +1,5 @@
 import Carleson.Defs
+import Carleson.ToMathlib.BoundedFiniteSupport
 import Carleson.ToMathlib.HardyLittlewood
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
@@ -41,7 +42,7 @@ theorem maximal_theorem (ha : 4 ≤ a) :
 /-- Lemma 10.2.2.
 Should be an easy consequence of `VitaliFamily.ae_tendsto_average`. -/
 theorem lebesgue_differentiation
-    {f : X → ℂ} (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (h2f : volume (support f) < ∞) :
+    {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     ∀ᵐ x ∂volume, ∃ (c : ℕ → X) (r : ℕ → ℝ),
     Tendsto (fun i ↦ ⨍ y in ball (c i) (r i), f y ∂volume) atTop (𝓝 (f x)) ∧
     Tendsto r atTop (𝓝[>] 0) ∧
@@ -71,12 +72,6 @@ In the formalization we state most properties of Lemma 10.2.5 twice, once for ea
 We could have tried harder to uniformize the cases, but in the finite case there is really only set
 `B*_j`, and in the general case it is convenient to index `B*_j` by the natural numbers.
 -/
-
-/-- An auxillary definition bundling the properties of Lemma 10.2.5
-so that we don't have to write this every time.
-Slightly weaker than `BoundedCompactSupport`. -/
-def BoundedFiniteSupport (f : X → ℂ) : Prop :=
-  Measurable f ∧ eLpNorm f ∞ < ∞ ∧ volume (support f) < ∞
 
 /-- The property specifying whether we are in the "general case". -/
 def GeneralCase (f : X → ℂ) (α : ℝ≥0∞) : Prop :=
