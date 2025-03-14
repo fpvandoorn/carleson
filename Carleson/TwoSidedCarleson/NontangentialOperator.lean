@@ -328,9 +328,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       apply mul_le_mul'
       case h₂ => rfl
 
-      conv in ‖ _ ‖ₑ =>
-        rw [enorm_eq_nnnorm]
-      apply laverage_le_globalMaximalFunction -- Should this be rewritten to ‖ ‖ₑ instead?
+      apply laverage_le_globalMaximalFunction
       rw [dist_self]
       exact mul_pos zero_lt_two hr
 
@@ -596,9 +594,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       apply mul_le_mul'
       case h₂ => rfl
 
-      conv in ‖ _ ‖ₑ =>
-        rw [enorm_eq_nnnorm]
-      apply laverage_le_globalMaximalFunction -- Should this be rewritten to ‖ ‖ₑ instead?
+      apply laverage_le_globalMaximalFunction
       linarith
 
     calc _
