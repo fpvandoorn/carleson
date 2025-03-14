@@ -172,7 +172,7 @@ theorem eLpNorm_top_convolution_le' {p q : ℝ≥0∞} (hpq : p.IsConjExponent q
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
   refine eLpNorm_top_convolution_le_aux hpq hf.enorm ?_ ?_ c hL
   · intro x; exact (hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)).enorm
-  · intro x; exact eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
+  · intro x; apply eLpNorm_comp_measurePreserving hg (Measure.measurePreserving_sub_left μ x)
 
 -- Auxiliary inequality used to prove versions with simpler conditions on `f` and `g`
 open ENNReal in
@@ -427,7 +427,7 @@ theorem eLpNorm_convolution_le_of_norm_le_mul' {p q r : ℝ≥0∞}
     eLpNorm (f ⋆[L, μ] g) r μ ≤ .ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
   refine eLpNorm_convolution_le_of_norm_le_mul_aux hp hq hr hpqr hf.enorm ?_ ?_ ?_ c hL
   · intro x; exact hg.enorm.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub_left μ x)
-  · intro x; exact eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
+  · intro x; apply eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
 
 /-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is

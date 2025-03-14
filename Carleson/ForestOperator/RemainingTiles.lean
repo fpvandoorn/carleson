@@ -349,7 +349,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
   gcongr
   rw [Real.toNNReal_mul (by positivity), Real.toNNReal_rpow_of_nonneg (by positivity),
     Real.toNNReal_mul (by positivity), ← Real.rpow_intCast,
-    Real.toNNReal_rpow_of_nonneg (by positivity), NNReal.toNNReal_coe_nat]
+    Real.toNNReal_rpow_of_nonneg (by positivity), Real.toNNReal_coe_nat]
   simp only [Nat.cast_pow, Nat.cast_ofNat, Real.toNNReal_ofNat, Int.cast_neg, ← pow_mul]
   rw [← mul_assoc, ← pow_succ, C7_6_4, ← NNReal.rpow_natCast, ← NNReal.rpow_intCast, Int.cast_neg]
   congr!
