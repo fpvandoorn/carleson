@@ -1,4 +1,5 @@
 import Carleson.Defs
+import Carleson.ToMathlib.BoundedFiniteSupport
 import Carleson.ToMathlib.HardyLittlewood
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
@@ -71,12 +72,6 @@ In the formalization we state most properties of Lemma 10.2.5 twice, once for ea
 We could have tried harder to uniformize the cases, but in the finite case there is really only set
 `B*_j`, and in the general case it is convenient to index `B*_j` by the natural numbers.
 -/
-
-/-- An auxillary definition bundling the properties of Lemma 10.2.5
-so that we don't have to write this every time.
-Slightly weaker than `BoundedCompactSupport`. -/
-def BoundedFiniteSupport (f : X → ℂ) : Prop :=
-  Measurable f ∧ MemLp f ∞ volume ∧ volume (support f) < ∞
 
 /-- The property specifying whether we are in the "general case". -/
 def GeneralCase (f : X → ℂ) (α : ℝ≥0∞) : Prop :=
