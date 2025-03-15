@@ -566,22 +566,20 @@ end ContinuousENorm
 
 section NormedGroup
 
--- todo: generalize various results to ENorm.
-
 variable {f g : α → ε}
 section
 variable [TopologicalSpace ε] [ContinuousENorm ε]
 
-lemma distribution_eq_nnnorm {f : α → E} : distribution f t μ =  μ { x | t < ‖f x‖₊ } := rfl
+-- TODO: generalise this to the ENorm context: requires generalising the HasSMul context for •
 
 lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
-    distribution (c • f) t μ = distribution f (t / ‖c‖₊) μ := by
-  simp_rw [distribution_eq_nnnorm]
-  have h₀ : ofNNReal ‖c‖₊ ≠ 0 := ENNReal.coe_ne_zero.mpr (nnnorm_ne_zero_iff.mpr hc)
+    distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
+  have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
+  unfold distribution
   congr with x
   simp only [Pi.smul_apply, mem_setOf_eq]
-  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ coe_ne_top,
-    ENNNorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+    enorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
 lemma HasStrongType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
@@ -619,7 +617,7 @@ end
 lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
-    _ ≤ μ ({x | t < ↑‖f x‖ₑ} ∪ {x | s < ↑‖g x‖ₑ}) := by
+    _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := by
       refine measure_mono fun x h ↦ ?_
       simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
       contrapose! h
