@@ -530,17 +530,9 @@ lemma HasBoundedStrongType.hasBoundedWeakType [Zero ε₁] (hp' : 1 ≤ p')
   fun f hf h2f h3f ↦
     ⟨(h f hf h2f h3f).1, wnorm_le_eLpNorm (h f hf h2f h3f).1 hp' |>.trans (h f hf h2f h3f).2⟩
 
-end ContinuousENorm
-
-section NormedGroup
-
--- todo: generalize various results to ENorm.
+section distribution
 
 variable {f g : α → ε}
-section
-variable [TopologicalSpace ε] [ContinuousENorm ε]
-
-lemma distribution_eq_nnnorm {f : α → E} : distribution f t μ =  μ { x | t < ‖f x‖₊ } := rfl
 
 @[gcongr]
 lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
@@ -562,6 +554,26 @@ lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (
 lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
   meas_essSup_lt -- meas_eLpNormEssSup_lt
 
+lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
+    (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ A * (‖g₁ x‖ₑ + ‖g₂ x‖ₑ)) :
+    distribution f (A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
+  apply distribution_add_le_of_enorm
+  simp (discharger := positivity) [← ofReal_mul, ← ofReal_add, h]
+
+end distribution
+
+end ContinuousENorm
+
+section NormedGroup
+
+-- todo: generalize various results to ENorm.
+
+variable {f g : α → ε}
+section
+variable [TopologicalSpace ε] [ContinuousENorm ε]
+
+lemma distribution_eq_nnnorm {f : α → E} : distribution f t μ =  μ { x | t < ‖f x‖₊ } := rfl
+
 lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖₊) μ := by
   simp_rw [distribution_eq_nnnorm]
@@ -570,12 +582,6 @@ lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ coe_ne_top,
     ENNNorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
-
-lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
-    (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ A * (‖g₁ x‖ₑ + ‖g₂ x‖ₑ)) :
-    distribution f (A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
-  apply distribution_add_le_of_enorm
-  simp (discharger := positivity) [← ofReal_mul, ← ofReal_add, h]
 
 lemma HasStrongType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
