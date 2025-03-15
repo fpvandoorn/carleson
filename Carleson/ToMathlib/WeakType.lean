@@ -580,7 +580,6 @@ variable [TopologicalSpace ε] [ContinuousENorm ε]
 
 variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
 
--- unused so far
 lemma distribution_smul_left [SMul 𝕜 ε] [ContinuousSMul 𝕜 ε] {f : α → ε} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
   have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
@@ -613,6 +612,26 @@ lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
+  have asefd : wnorm ((k • T) f) p' ν = ‖k‖ₑ * wnorm (T f) p' ν := by
+    unfold wnorm
+    by_cases p' = ⊤
+    · simp_all only [Pi.smul_apply, top_toReal, ite_true]
+      sorry -- lemma needing generalisation
+    · simp_all only [ite_false]
+      unfold wnorm'
+      have : ENormedSpace E' := sorry
+      -- is this actually true?
+      have (t : ℝ≥0) : distribution ((k • T) f) (t) ν = distribution (T f) (t / ‖k‖ₑ) ν := by
+        -- 1. rewrite k⬝T)f as k⬝ (T f)
+        -- 2. handle k=0
+        -- 3. rewrite by distribution_smul_left, hopefully done
+        sorry -- rw [← distribution_smul_left (f := T f) (c := k)]
+      simp_rw [this]
+      -- change of variables, then use congr or so
+      sorry
+  rw [asefd]
+  have almost : wnorm (T f) p' ν ≤ c * eLpNorm f p μ := (h f hf).2
+  -- put almost and some monotonicity lemma together
   sorry
 
 lemma HasWeakType.const_mul {E' α α' : Type*} [NormedRing E']
