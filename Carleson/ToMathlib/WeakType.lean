@@ -21,8 +21,14 @@ variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
-lemma enorm_absolute_homogeneous {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
-  (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
+-- use ENormedSpace.enorm_smul, or so
+-- TODO: can we generalise even further?
+lemma enorm_absolute_homogeneous {ε : Type*} [TopologicalSpace ε] [ENormedAddMonoid ε]
+    [SMul 𝕜 ε] [ContinuousSMul 𝕜 ε]
+  {c : 𝕜} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ := by
+  -- have aux := ENormedSpace.enorm_smul c z
+  --rw [ENormedSpace.enorm_smul c z]
+  sorry
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
   (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
@@ -572,7 +578,10 @@ variable [TopologicalSpace ε] [ContinuousENorm ε]
 
 -- TODO: generalise this to the ENorm context: requires generalising the HasSMul context for •
 
-lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
+variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
+
+-- unused so far
+lemma distribution_smul_left [SMul 𝕜 ε] [ContinuousSMul 𝕜 ε] {f : α → ε} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
   have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
   unfold distribution
