@@ -397,13 +397,13 @@ theorem MemWℒp.ae_ne_top {f : α → ε} {p : ℝ≥0∞} {μ : Measure α}
 `HasWeakType T p p' μ ν c` means that `T` has weak type (p, p') w.r.t. measures `μ`, `ν`
 and constant `c`.  -/
 def HasWeakType (T : (α → ε₁) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
-    (c : ℝ≥0) : Prop :=
+    (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- A weaker version of `HasWeakType`. -/
 def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
-    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
+    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
@@ -412,14 +412,14 @@ def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
 and constant `c`.  -/
 def HasStrongType {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
-    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
+    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- A weaker version of `HasStrongType`. This is the same as `HasStrongType` if `T` is continuous
 w.r.t. the L^2 norm, but weaker in general. -/
 def HasBoundedStrongType {α α' : Type*} [Zero ε₁]
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
-    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
+    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
