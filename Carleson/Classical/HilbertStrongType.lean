@@ -53,7 +53,7 @@ lemma mean_zero_oscillation {n : ℤ} (hn : n ≠ 0) :
 Note: might not be used if we can use `spectral_projection_bound_lp` below.
 -/
 lemma partial_sum_projection {f : ℝ → ℂ} {n : ℕ}
-    (hmf : Measurable f) (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π)) {x : ℝ} :
+    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π)) {x : ℝ} :
     partialFourierSum n (partialFourierSum n f) x = partialFourierSum n f x := by
   sorry
 
@@ -61,8 +61,8 @@ lemma partial_sum_projection {f : ℝ → ℂ} {n : ℕ}
 Note: might not be used if we can use `spectral_projection_bound_lp` below.
 -/
 lemma partial_sum_selfadjoint {f g : ℝ → ℂ} {n : ℕ}
-    (hmf : Measurable f) (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
-    (hmg : Measurable g) (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π)) :
+    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
+    (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π)) :
     ∫ x in (0)..2 * π, conj (partialFourierSum n f x) * g x =
     ∫ x in (0)..2 * π, conj (f x) * partialFourierSum n g x := by
   sorry
@@ -146,8 +146,8 @@ lemma young_convolution {f g : ℝ → ℂ} (hmf : AEMeasurable f) (periodic_f :
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
 lemma integrable_bump_convolution {f g : ℝ → ℂ} {n : ℕ}
-    (hmf : Measurable f) (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
-    (hmg : Measurable g) (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π))
+    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
+    (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π))
     {r : ℝ} (hr : r ∈ Ioo 0 π) (hg : ∀ x, ‖g x‖ ≤ niceKernel r x) :
     eLpNorm ((Ioc 0 (2 * π)).indicator fun x ↦ ∫ y in (0)..2 * π, f y * g (x - y)) 2 ≤
     2 ^ (5 : ℝ) * eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
@@ -169,7 +169,7 @@ lemma periodic_dirichletApprox (n : ℕ) : (dirichletApprox n).Periodic (2 * π)
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
 lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} {n : ℕ}
-    (hmf : Measurable f) (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
+    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
     {n : ℕ} {x : ℝ} :
     approxHilbertTransform n f x =
     (2 * π)⁻¹ * ∫ y in (0)..2 * π, f y * dirichletApprox n (x - y) := by
@@ -179,7 +179,7 @@ lemma approxHilbertTransform_eq_dirichletApprox {f : ℝ → ℂ} {n : ℕ}
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
 lemma dist_dirichletApprox_le {f : ℝ → ℂ} {n : ℕ}
-    (hmf : Measurable f) (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
+    (hf : MemLp f ∞ volume) (periodic_f : f.Periodic (2 * π))
     {r : ℝ} (hr : r ∈ Ioo 0 1) {n : ℕ} (hn : n = ⌈r⁻¹⌉₊) {x : ℝ} :
     dist (dirichletApprox n x) ({y : ℂ | ‖y‖ ∈ Ioo r 1}.indicator 1 x) ≤
     2 ^ (5 : ℝ) * niceKernel r x := by
