@@ -172,40 +172,32 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     C10_1_2 a * globalMaximalFunction volume 1 g x := by
   let bxrc := (ball x r)ᶜ
   let bx2r := ball x (2*r)
+  let bxprc := (ball x' r)ᶜ
 
   -- Domain split x integral
   have dom_x : bxrc =  (bxrc ∩ bx2r) ∪ bx2rᶜ := by
     have tmp1 : bx2rᶜ = bxrc ∩ bx2rᶜ := by
-      suffices bx2rᶜ ⊆ bxrc by
-        rw [right_eq_inter]
-        exact this
-      suffices ball x r ⊆ bx2r by
-        rw [compl_subset_compl]
-        exact this
+      rw [right_eq_inter, compl_subset_compl]
       apply ball_subset_ball
       linarith
 
     calc bxrc
-      _ = bxrc ∩ univ                  := by rw[inter_univ bxrc]
-      _ = bxrc ∩ (bx2r ∪ bx2rᶜ)        := by rw[union_compl_self bx2r]
-      _ = (bxrc ∩ bx2r) ∪ bxrc ∩ bx2rᶜ := by rw[inter_union_distrib_left bxrc bx2r bx2rᶜ]
+      _ = bxrc ∩ univ                  := by rw[inter_univ]
+      _ = bxrc ∩ (bx2r ∪ bx2rᶜ)        := by rw[union_compl_self]
+      _ = (bxrc ∩ bx2r) ∪ bxrc ∩ bx2rᶜ := by rw[inter_union_distrib_left]
       _ = (bxrc ∩ bx2r) ∪ bx2rᶜ        := by rw[← tmp1]
 
-  let bxprc := (ball x' r)ᶜ
   have tmp2 : bx2rᶜ ⊆ bxprc := by
     rw [compl_subset_compl]
     apply ball_subset
     calc dist x' x
-    _ = dist x x' := by apply dist_comm
+    _ = dist x x' := dist_comm x' x
     _ ≤ r         := hx
     _ = 2 * r - r := by linarith
 
   -- Domain split x' integral
   have dom_x_prime : bxprc = (bxprc ∩ bx2r) ∪ bx2rᶜ := by
-    have : bx2rᶜ = bxprc ∩ bx2rᶜ := by
-      rw [right_eq_inter]
-      exact tmp2
-
+    have : bx2rᶜ = bxprc ∩ bx2rᶜ := right_eq_inter.mpr tmp2
     rw [this]
     exact Eq.symm (inter_union_compl bxprc bx2r)
 
@@ -540,17 +532,11 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       norm_cast
       rw [pow_add]
 
-    conv => lhs;arg 1;intro i; rw [← smul_eq_mul]; rw [← smul_eq_mul]
-
-    have : ContinuousSMul ℝ≥0∞ ℝ≥0∞ := by sorry -- This is surely an oversight somewhere? Not sure how to fix that...
-    rw [tsum_smul_const, smul_eq_mul]
-    case hf => apply ENNReal.summable
-
+    rw [ENNReal.tsum_mul_right]
     apply mul_le_mul'
     case h₂ => rfl
 
-    rw [tsum_const_smul, smul_eq_mul]
-    case hf => apply ENNReal.summable
+    rw [ENNReal.tsum_mul_left]
 
     have : (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a) = 2 ^ (a ^ 3 + a) * 2 ^ a := by ring
     rw [this]
@@ -569,9 +555,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       . simp only [Nat.one_le_ofNat]
       . rw [neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right]
         . simp only [le_add_iff_nonneg_right, zero_le_one]
-        . calc (0 : ℝ)
-            _ < 4 := by simp only [Nat.ofNat_pos]
-            _ ≤ ↑a := by simp only [Nat.ofNat_le_cast, ha]
+        . positivity
 
     rw [← rpow_natCast]
     apply geometric_series_estimate
