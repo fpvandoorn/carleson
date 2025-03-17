@@ -560,6 +560,16 @@ lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
   apply distribution_add_le_of_enorm
   simp (discharger := positivity) [← ofReal_mul, ← ofReal_add, h]
 
+lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε} :
+    distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
+  calc
+    _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := by
+      refine measure_mono fun x h ↦ ?_
+      simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
+      contrapose! h
+      exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
+    _ ≤ _ := measure_union_le _ _
+
 end distribution
 
 end ContinuousENorm
@@ -615,16 +625,6 @@ lemma HasWeakType.const_mul {E' α α' : Type*} [NormedRing E']
 
 
 end
-
-lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] :
-    distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
-  calc
-    _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := by
-      refine measure_mono fun x h ↦ ?_
-      simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
-      contrapose! h
-      exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
-    _ ≤ _ := measure_union_le _ _
 
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
     distribution (fun x ↦ L (f x) (g x)) (‖L‖ₑ * t * s) μ ≤
