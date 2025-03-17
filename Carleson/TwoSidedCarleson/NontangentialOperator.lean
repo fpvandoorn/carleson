@@ -230,7 +230,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . apply MeasurableSet.compl
       apply measurableSet_ball
     . rw [← dom_x_prime]
-      unfold bxprc
       apply czoperator_welldefined hg hr
 
   rw [edist_eq_enorm_sub, integral_x, integral_x_prime]
@@ -248,7 +247,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           rw[← integral_sub]
           . apply czoperator_welldefined hg (mul_pos zero_lt_two hr)
           . apply IntegrableOn.mono_set
-            swap; exact tmp2
+            case hg.hst => exact tmp2
             apply czoperator_welldefined hg hr
 
   trans ‖(∫ (y : X) in bxrc ∩ bx2r, K x y * g y) + ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
@@ -262,16 +261,9 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . rfl
 
   trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖K x y * g y‖ₑ) + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
-      ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
-  . refine add_le_add_three ?_ ?_ ?_
-    . apply enorm_integral_le_lintegral_enorm
-    . rfl
-    . rfl
-
-  trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖K x y * g y‖ₑ) + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ∫⁻ (y : X) in bxprc ∩ bx2r, ‖K x' y * g y‖ₑ
   . refine add_le_add_three ?_ ?_ ?_
-    . rfl
+    . apply enorm_integral_le_lintegral_enorm
     . rfl
     . apply enorm_integral_le_lintegral_enorm
 
@@ -285,7 +277,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     rw [dist_comm] at h
     exact h
 
-  have pointwise_1 {x₀ : X}: ∀(y : X), y ∈ (ball x₀ r)ᶜ  → ‖K x₀ y‖ₑ * ‖g y‖ₑ ≤
+  have pointwise_1 {x₀ : X}: ∀(y : X), y ∈ (ball x₀ r)ᶜ → ‖K x₀ y‖ₑ * ‖g y‖ₑ ≤
       C_K a / volume (ball x₀ r) * ‖g y‖ₑ := by
     intro y h
     refine mul_le_mul' ?_ ?_
@@ -294,7 +286,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     trans C_K a / vol x₀ y
     . apply enorm_K_le_vol_inv
 
-    refine ENNReal.div_le_div_left ?_ ?_
+    apply ENNReal.div_le_div_left
     apply measure_mono
     exact ball_subset_ball (y_est y h)
 
@@ -311,17 +303,18 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       case h₁ => rfl
       case c0 | b0 => simp only [Nat.ofNat_nonneg, dist_nonneg]
       exact hx
-    . rw [mem_compl_iff, mem_ball, dist_comm] at h
-      exact le_of_not_gt h
 
-  have tmp5 {x₀ : X} {n : ℝ} : ∫⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ = (⨍⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ ∂volume)  * volume (ball x₀ (n * r)) := by
-    have h_meas_finite : IsFiniteMeasure (volume.restrict (ball x₀ (n * r))) := by
+    rw [mem_compl_iff, mem_ball, dist_comm] at h
+    exact le_of_not_gt h
+
+  have tmp5 {x₀ : X} {n : ℝ} : ∫⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ = (⨍⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ ∂volume) * volume (ball x₀ (n * r)) := by
+    have : IsFiniteMeasure (volume.restrict (ball x₀ (n * r))) := by
       refine isFiniteMeasure_restrict.mpr ?_
       exact ne_of_lt measure_ball_lt_top
     rw [← measure_mul_laverage]
-    simp only [defaultA, MeasurableSet.univ, Measure.restrict_apply, univ_inter, mul_comm]
+    simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter, mul_comm]
 
-  have estimate_10_1_2 : (∫⁻ (y : X) in bxrc ∩ bx2r, ‖ K x y * g y‖ₑ)
+  have estimate_10_1_2 : (∫⁻ (y : X) in bxrc ∩ bx2r, ‖K x y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
     simp only [enorm_mul]
 
@@ -352,8 +345,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       rw [dist_self]
       exact mul_pos zero_lt_two hr
 
-    calc _
-      _ = C_K ↑a / volume (ball x r) * volume (ball x (2 * r)) * globalMaximalFunction volume 1 g x := by rw [mul_assoc]; nth_rw 2 [mul_comm]
+    nth_rw 2 [mul_comm]
+    rw [← mul_assoc]
 
     apply mul_le_mul'
     case h₂ => rfl
@@ -381,14 +374,14 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     norm_cast
     rw [pow_add]
 
-  have estimate_10_1_3 : ‖ ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ
+  have estimate_10_1_3 : ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ
       ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
     conv =>
       arg 1; arg 1; arg 2
       intro y
       rw [← mul_sub_right_distrib]
 
-    trans ∫⁻ (y : X) in bx2rᶜ, ‖ (K x y - K x' y) * g y‖ₑ
+    trans ∫⁻ (y : X) in bx2rᶜ, ‖(K x y - K x' y) * g y‖ₑ
     . apply enorm_integral_le_lintegral_enorm
     simp only [enorm_mul]
 
@@ -435,8 +428,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           apply ENNReal.inv_mul_cancel
           . simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true]
           . simp only [ne_eq, ofNat_ne_top, not_false_eq_true]
-        simp only [one_mul, edist_le_coe]
-        rw [nndist_dist]
+        simp only [one_mul, edist_le_coe, nndist_dist]
         exact Real.toNNReal_le_toNNReal hx
 
       have est_vol : ∀y ∈ dom_i i, vol x y ≥ volume (ball x (2 ^ (i + 1) * r)) := by
@@ -550,7 +542,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . simp only [Nat.ofNat_le_cast, ha]
 
 
-
   have estimate_10_1_4 : (∫⁻ (y : X) in bxprc ∩ bx2r, ‖K x' y * g y‖ₑ)
       ≤ 2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
     simp only [enorm_mul]
@@ -584,8 +575,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       apply laverage_le_globalMaximalFunction
       linarith
 
-    calc _
-      _ = C_K ↑a / volume (ball x' r) * volume (ball x' (4 * r)) * globalMaximalFunction volume 1 g x := by rw [mul_assoc]; nth_rw 2 [mul_comm]
+    nth_rw 2 [mul_comm]
+    rw [← mul_assoc]
 
     apply mul_le_mul'
     case h₂ => rfl
