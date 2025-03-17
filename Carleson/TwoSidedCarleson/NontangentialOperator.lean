@@ -45,15 +45,56 @@ lemma geom_estimate_constant_le_two :
     _ ≤ ((4 : ℝ) * (1 - 7 / 8))⁻¹ := by gcongr
     _ ≤ _ := by norm_num
 
-theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
-    tsum (fun (n : ℕ) ↦ (2 : ℝ) ^ (-n / x)) ≤ 2 ^ x := by
+lemma hasSum_geometric_series {x : ℝ} (hx : 4 ≤ x) :
+    HasSum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) (1 - 2 ^ (-1 / x))⁻¹ := by
 
-  have two_pow_neg_inv_lt_one : (2 : ℝ) ^ (-1 / x) < 1 := by
+  have two_pow_neg_inv_lt_one {x : ℝ} (hx : 4 ≤ x) :
+      (2 : ℝ≥0) ^ (-1 / x) < 1 := by
     apply Real.rpow_lt_one_of_one_lt_of_neg
-    · simp
+    · simp only [NNReal.coe_ofNat, Nat.one_lt_ofNat]
     · rw [neg_div]
       simp only [one_div, Left.neg_neg_iff, inv_pos]
       positivity
+
+  -- Bring it to the form of hasSum_geometric_of_lt_one
+  rw [← NNReal.hasSum_coe]
+  conv =>
+    arg 1; intro n;
+    rw [NNReal.coe_rpow, NNReal.coe_ofNat, div_eq_mul_inv, neg_mul, mul_comm, ← neg_mul, Real.rpow_mul_natCast, inv_eq_one_div, ← neg_div]
+    case h.hx => exact zero_le_two
+  rw [NNReal.coe_inv, NNReal.coe_sub, NNReal.coe_rpow, NNReal.coe_one, NNReal.coe_ofNat]
+  swap
+  . exact le_of_lt (two_pow_neg_inv_lt_one hx)
+
+  apply hasSum_geometric_of_lt_one
+  . positivity
+  . exact two_pow_neg_inv_lt_one hx
+
+/-- Lemma 10.1.1 -/
+theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
+    tsum (fun (n : ℕ) ↦ (2 : ℝ≥0∞) ^ (-n / x)) ≤ 2 ^ x := by
+  rw [← ENNReal.coe_ofNat]
+  conv_lhs =>
+    arg 1; intro n
+    rw [← ENNReal.coe_rpow_of_ne_zero]
+    case h.h => apply OfNat.ofNat_ne_zero
+  rw [← ENNReal.coe_tsum, ← ENNReal.coe_rpow_of_ne_zero, coe_le_coe]
+  case h => apply OfNat.ofNat_ne_zero
+  swap --Summable from coe_tsum first
+  . exact HasSum.summable (hasSum_geometric_series hx)
+
+  rw [HasSum.tsum_eq (hasSum_geometric_series hx)]
+
+  -- TODO the rest of this proof can surely be optimized
+  suffices (1 - (2 : ℝ) ^ (-1 / x))⁻¹ ≤ 2 ^ x by
+    rw [← NNReal.coe_le_coe, NNReal.coe_inv, NNReal.coe_rpow, NNReal.coe_ofNat, NNReal.coe_sub]
+    swap
+    . apply NNReal.rpow_le_one_of_one_le_of_nonpos
+      . exact Nat.one_le_ofNat
+      . apply div_nonpos_of_nonpos_of_nonneg
+        . simp only [Left.neg_nonpos_iff, zero_le_one]
+        . positivity
+    apply this
 
   have zero_le_one_sub_four_div_x : 0 ≤ 1 - 4 / x := by
     simp only [sub_nonneg]
@@ -82,19 +123,16 @@ theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
     mul_zero, add_zero, Real.rpow_zero, mul_one] at two_pow_neg_one_div_bound
 
   calc
-    _ = ∑' (n : ℕ), ((2 : ℝ) ^ (-1 / x)) ^ n := by
-      congr
-      ext n
-      rw [<- Real.rpow_mul_natCast (by norm_num)]
-      congr
-      ring
-    _ ≤ (1 - 2 ^ (-1 / x))⁻¹ := by
-      rw [tsum_geometric_of_lt_one (by positivity) (two_pow_neg_inv_lt_one)]
     _ ≤ (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ := by
       rw [inv_le_inv₀]
       · linarith only [two_pow_neg_one_div_bound]
-      · linarith only [two_pow_neg_inv_lt_one]
-      · apply @_root_.mul_pos
+      · rw [sub_pos]
+        apply Real.rpow_lt_one_of_one_lt_of_neg
+        · simp only [NNReal.coe_ofNat, Nat.one_lt_ofNat]
+        · rw [neg_div]
+          simp only [one_div, Left.neg_neg_iff, inv_pos]
+          positivity
+      · apply _root_.mul_pos
         · positivity
         · exact one_sub_two_pow_neg_one_div_four_pos
     _ ≤ (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ * x := by field_simp
@@ -102,14 +140,6 @@ theorem real_geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
     _ ≤ 2 ^ x := by
       apply Real.two_mul_lt_two_pow
       linarith only [hx]
-
-/-- Lemma 10.1.1 -/
-theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
-    tsum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) ≤ 2 ^ x := by
-  suffices this : ((tsum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) : ℝ≥0) : ℝ) ≤ (((2 ^ x) : ℝ≥0) : ℝ) by
-    exact this
-  push_cast
-  exact real_geometric_series_estimate hx
 
 /-- The constant used in `estimate_x_shift`. -/
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
@@ -125,7 +155,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
 But this version of setIntegral_union is easier to apply as it starts from the overall integral which
 is to be estimated.
 -/
-variable {α β E F : Type*} [MeasurableSpace α]
+variable {α : Type*} [MeasurableSpace α]
 variable {f : α → ℂ } {s t : Set α} {μ : Measure α}
 
 theorem MeasureTheory.setIntegral_union_2 (hst : Disjoint s t) (ht : MeasurableSet t) (hfst : IntegrableOn f (s ∪ t) μ) :
@@ -543,18 +573,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
             _ < 4 := by simp only [Nat.ofNat_pos]
             _ ≤ ↑a := by simp only [Nat.ofNat_le_cast, ha]
 
-    have : ∑' (i : ℕ), (2 : ℝ≥0∞) ^ (-i / (a : ℝ)) = ∑' (i : ℕ), (2 : ℝ≥0) ^ (-i / (a : ℝ)) := by
-      rw [ENNReal.coe_tsum]
-      swap; sorry
-      conv =>
-        rhs; arg 1; intro i
-        rw [ENNReal.coe_rpow_of_ne_zero]
-        case h.h => apply OfNat.ofNat_ne_zero
-        rw [ENNReal.coe_ofNat]
-
-    rw [this]
-    rw [← coe_ofNat, ← coe_pow, coe_le_coe, ← NNReal.rpow_natCast]
-
+    rw [← rpow_natCast]
     apply geometric_series_estimate
     . simp only [Nat.ofNat_le_cast, ha]
 
