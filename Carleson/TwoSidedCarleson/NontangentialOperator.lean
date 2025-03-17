@@ -174,6 +174,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   let bx2r := ball x (2*r)
   let bxprc := (ball x' r)ᶜ
 
+  have hmg : Measurable g := hg.measurable -- for fun_prop
+
   -- Domain split x integral
   have dom_x : bxrc =  (bxrc ∩ bx2r) ∪ bx2rᶜ := by
     have tmp1 : bx2rᶜ = bxrc ∩ bx2rᶜ := by
@@ -325,18 +327,14 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     trans ∫⁻ (y : X) in bxrc ∩ bx2r, C_K ↑a / volume (ball x r) * ‖g y‖ₑ
     . apply setLIntegral_mono
-      . apply Measurable.comp
-        . apply measurable_const_mul
-        . apply Measurable.comp
-          exact MeasureTheory.measurable_enorm
-          exact hg.measurable
+      . fun_prop
       intro x
       trans x ∈ bxrc
       . exact fun a ↦ mem_of_mem_inter_left a
       apply pointwise_1
 
     rw [lintegral_const_mul] -- LHS = 10.1.5
-    case hf => apply Measurable.enorm; exact hg.measurable
+    case hf => exact Measurable.enorm hmg
 
     trans C_K ↑a / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume (ball x (2 * r)))
     . apply mul_le_mul'
@@ -396,16 +394,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     trans ∫⁻ (y : X) in bx2rᶜ, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
     . apply setLIntegral_mono
-      . apply Measurable.mul -- Imagine there was a refine type 'measurability' tactic...
-        . apply Measurable.mul
-          . apply Measurable.pow_const
-            apply Measurable.const_div
-            exact Measurable.edist measurable_const measurable_id
-          . apply Measurable.const_div
-            sorry -- Measurable (vol x)
-        . apply Measurable.comp
-          exact MeasureTheory.measurable_enorm
-          exact hg.measurable
+      . have : Measurable fun y ↦ vol x y := by sorry
+        fun_prop
       apply pointwise_2
 
     let dom_i (i : ℕ) := Annulus.co x (2^(i+1) * r) (2^(i+2) * r)
@@ -460,9 +450,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
       trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K a / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
       . apply setLIntegral_mono
-        . apply Measurable.mul
-          . simp only [defaultA, coe_ofNat, one_div, C_K, measurable_const]
-          . exact Measurable.comp _root_.measurable_enorm hg.measurable
+        . fun_prop
         intro y hy
         apply mul_le_mul'
         case h₂ => rfl
@@ -477,7 +465,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           exact hy
 
       rw [lintegral_const_mul]
-      case hf => apply Measurable.enorm; exact hg.measurable
+      case hf => exact Measurable.enorm hmg
 
       trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
           ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
@@ -569,18 +557,14 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     trans ∫⁻ (y : X) in bxprc ∩ bx2r, C_K ↑a / volume (ball x' r) * ‖g y‖ₑ
     . apply setLIntegral_mono
-      . apply Measurable.comp
-        . apply measurable_const_mul
-        . apply Measurable.comp
-          exact MeasureTheory.measurable_enorm
-          exact hg.measurable
+      . fun_prop
       intro x
       trans x ∈ bxprc
       . exact fun a ↦ mem_of_mem_inter_left a
       apply pointwise_1
 
     rw [lintegral_const_mul] -- LHS = 10.1.5 but for x'
-    case hf => apply Measurable.enorm; exact hg.measurable
+    case hf => exact Measurable.enorm hmg
 
     trans C_K ↑a / volume (ball x' r) * (globalMaximalFunction volume 1 g x * volume (ball x' (4 * r)))
     . apply mul_le_mul'
