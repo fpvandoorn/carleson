@@ -580,7 +580,7 @@ variable {f g : α → ε}
 section
 variable [TopologicalSpace ε] [ContinuousENorm ε]
 
--- TODO: generalise this to the ENorm context: requires generalising the HasSMul context for •
+-- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
 
 lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
