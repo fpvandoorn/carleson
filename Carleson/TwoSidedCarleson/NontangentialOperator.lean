@@ -152,9 +152,8 @@ theorem integrableOn_of_integrableOn_inter_support {f : X → ℂ} {μ : Measure
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   let Kxg := fun y ↦ K x y * g y
-  have mKxg : Measurable Kxg := by
+  have mKxg : AEMeasurable Kxg := by
     have : Measurable (K x) := measurable_K_right x
-    have : Measurable g := hg.measurable
     fun_prop
 
   have bdd_Kxg : ∃ (M : ℝ), ∀ y ∈ (ball x r)ᶜ ∩ support Kxg, ‖Kxg y‖ ≤ M := by
@@ -176,7 +175,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
   . exact MeasurableSet.compl measurableSet_ball
   apply Measure.integrableOn_of_bounded
   . apply ne_top_of_le_ne_top
-    . sorry --exact ne_of_lt hg.finiteSupport
+    . exact ne_of_lt hg.measure_support_lt
     . apply measure_mono
       trans support Kxg
       . exact inter_subset_right
@@ -192,7 +191,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       . exact measure_empty
     . apply MeasurableSet.inter --somehow not used by simp despite the tag
       . simp [MeasurableSet.compl_iff, measurableSet_ball] --should measurableSet_ball have @[simp]?
-      . exact measurableSet_support mKxg --should measureSet_support have @[simp]?
+      . sorry --exact measurableSet_support mKxg --should measureSet_support have @[simp]?
 
 /- This should go somewhere else
 
@@ -221,8 +220,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   let bxrc := (ball x r)ᶜ
   let bx2r := ball x (2*r)
   let bxprc := (ball x' r)ᶜ
-
-  have hmg : Measurable g := hg.measurable -- for fun_prop
 
   -- Domain split x integral
   have dom_x : bxrc =  (bxrc ∩ bx2r) ∪ bx2rᶜ := by
@@ -366,15 +363,13 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     simp only [enorm_mul]
 
     trans ∫⁻ (y : X) in bxrc ∩ bx2r, C_K ↑a / volume (ball x r) * ‖g y‖ₑ
-    . apply setLIntegral_mono
-      . fun_prop
+    . apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
       intro x
       trans x ∈ bxrc
       . exact fun a ↦ mem_of_mem_inter_left a
       apply pointwise_1
 
-    rw [lintegral_const_mul] -- LHS = 10.1.5
-    case hf => exact Measurable.enorm hmg
+    rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm] -- LHS = 10.1.5
 
     trans C_K ↑a / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume (ball x (2 * r)))
     . apply mul_le_mul'
@@ -433,7 +428,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     simp only [enorm_mul]
 
     trans ∫⁻ (y : X) in bx2rᶜ, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
-    . apply setLIntegral_mono
+    . apply setLIntegral_mono_ae _ (.of_forall _)
       . have : Measurable fun y ↦ vol x y := by sorry
         fun_prop
       apply pointwise_2
@@ -488,8 +483,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
         exact hdist.left
 
       trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K a / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
-      . apply setLIntegral_mono
-        . fun_prop
+      . apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
         intro y hy
         apply mul_le_mul'
         case h₂ => rfl
@@ -503,8 +497,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           apply est_vol
           exact hy
 
-      rw [lintegral_const_mul]
-      case hf => exact Measurable.enorm hmg
+      rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm]
 
       trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
           ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
@@ -594,15 +587,13 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     simp only [enorm_mul]
 
     trans ∫⁻ (y : X) in bxprc ∩ bx2r, C_K ↑a / volume (ball x' r) * ‖g y‖ₑ
-    . apply setLIntegral_mono
-      . fun_prop
+    . apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
       intro x
       trans x ∈ bxprc
       . exact fun a ↦ mem_of_mem_inter_left a
       apply pointwise_1
 
-    rw [lintegral_const_mul] -- LHS = 10.1.5 but for x'
-    case hf => exact Measurable.enorm hmg
+    rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm] -- LHS = 10.1.5 but for x'
 
     trans C_K ↑a / volume (ball x' r) * (globalMaximalFunction volume 1 g x * volume (ball x' (4 * r)))
     . apply mul_le_mul'
