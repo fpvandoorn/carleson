@@ -74,10 +74,11 @@ lemma partial_sum_selfadjoint {f g : ℝ → ℂ} {n : ℕ}
 
 theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
     (@haarAddCircle T _) = (ENNReal.ofReal T)⁻¹ • (volume : Measure (AddCircle T)) := by
-  rw [volume_eq_smul_haarAddCircle, ← smul_assoc, smul_eq_mul, ENNReal.inv_mul_cancel (by simp [hT.out]) ENNReal.ofReal_ne_top, one_smul]
+  rw [volume_eq_smul_haarAddCircle, ← smul_assoc, smul_eq_mul,
+    ENNReal.inv_mul_cancel (by simp [hT.out]) ENNReal.ofReal_ne_top, one_smul]
 
 open AddCircle in
-/-- Lemma 11.1.11.
+/-- Lemma 11.1.10.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
 -- todo: add lemma that relates `eLpNorm ((Ioc a b).indicator f)` to `∫ x in a..b, _`
@@ -97,7 +98,8 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
     . rw [haarAddCircle_eq_smul_volume]
       apply AEStronglyMeasurable.smul_measure
       exact hmf.aestronglyMeasurable.liftIoc (2 * π) 0
-    . rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
+    . rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial),
+        eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
       apply ENNReal.mul_lt_top _ hf_L2
       rw [← ENNReal.ofReal_inv_of_pos this.out]
       apply ENNReal.rpow_lt_top_of_nonneg ENNReal.toReal_nonneg ENNReal.ofReal_ne_top
@@ -106,14 +108,18 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
 
   have lp_version := spectral_projection_bound_lp (N := n) F
   rw [Lp.norm_def, Lp.norm_def,
-    ENNReal.toReal_le_toReal (Lp.eLpNorm_ne_top (partialFourierSumLp 2 n F)) (Lp.eLpNorm_ne_top F)] at lp_version
+    ENNReal.toReal_le_toReal (Lp.eLpNorm_ne_top (partialFourierSumLp 2 n F)) (Lp.eLpNorm_ne_top F)]
+    at lp_version
 
-  rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable, volume_eq_smul_haarAddCircle,
+  rw [← zero_add (2 * π), ← eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable,
+    ← eLpNorm_liftIoc _ _ partialFourierSum_uniformContinuous.continuous.aestronglyMeasurable,
+    volume_eq_smul_haarAddCircle,
     eLpNorm_smul_measure_of_ne_top (by trivial), eLpNorm_smul_measure_of_ne_top (by trivial),
     smul_eq_mul, smul_eq_mul, ENNReal.mul_le_mul_left (by simp [Real.pi_pos]) (by simp)]
-  have ae_eq_right : ↑↑F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := MemLp.coeFn_toLp _
-  have ae_eq_left : ↑↑(partialFourierSumLp 2 n F) =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 (partialFourierSum n f) := by
-    exact Filter.EventuallyEq.symm (partialFourierSum_aeeq_partialFourierSumLp 2 n f lift_MemLp)
+  have ae_eq_right : F =ᶠ[ae haarAddCircle] liftIoc (2 * π) 0 f := MemLp.coeFn_toLp _
+  have ae_eq_left : partialFourierSumLp 2 n F =ᶠ[ae haarAddCircle]
+      liftIoc (2 * π) 0 (partialFourierSum n f) :=
+    Filter.EventuallyEq.symm (partialFourierSum_aeeq_partialFourierSumLp 2 n f lift_MemLp)
   rw [← eLpNorm_congr_ae ae_eq_right, ← eLpNorm_congr_ae ae_eq_left]
   exact lp_version
 

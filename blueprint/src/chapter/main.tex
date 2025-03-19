@@ -8091,26 +8091,8 @@ It is proved in \Cref{10vandercorput}.
 \end{lemma}
 
 
-We close this section with six lemmas that are used
+We close this section with five lemmas that are used
 across the following subsections.
-
-\begin{lemma}[mean zero oscillation]
-\label{mean-zero-oscillation}
-\leanok
-\lean{mean_zero_oscillation}
-Let $n\in \mathbb{Z}$ with $n\neq 0$, then
-\begin{equation}
-\int_0^{2\pi} e^{inx}\, dx=0\,.
-\end{equation}
-\end{lemma}
-\begin{proof}
-\leanok
-We have
-\begin{equation*}
-\int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac 1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
-\end{equation*}
-
-\end{proof}
 
 \begin{lemma}[Dirichlet kernel]
 \label{Dirichlet-kernel}
@@ -8193,7 +8175,6 @@ The following lemma will be proved in \Cref{10projection}.
 \leanok
 \lean{spectral_projection_bound}
 \uses{partial-sum-projection,partial-sum-selfadjoint}
-%\lean{spectral_projection_bound}
     Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
    \begin{equation}\label{snbound}
    \|S_Nf\|_{L^2[-\pi, \pi]} \le \|f\|_{L^2[-\pi, \pi]}.
@@ -8762,139 +8743,28 @@ $$
 \end{proof}
 
 
-
-
 \section{Partial sums as orthogonal projections}
 \label{10projection}
 
 This subsection proves \Cref{spectral-projection-bound}
 
-
-
-
-
-
-\begin{lemma}[partial sum projection]
-\label{partial-sum-projection}
-\leanok
-\lean{partial_sum_projection}
-\uses{mean-zero-oscillation}
-  Let $f$ be a bounded $2\pi$-periodic measurable function. Then, for all $N\ge 0$
-   \begin{equation}\label{projection}
-   S_N(S_N f)=S_Nf\, .
-   \end{equation}
-   \end{lemma}
-\begin{proof}
-Let $N>0$ be given. With $K_N$ as in \Cref{Dirichlet-kernel},
-\begin{equation*}
-S_N (S_Nf) (x)=
-\frac{1}{2\pi} \int_0^{2\pi} S_Nf(y)K_N(x-y)\, dy
-\end{equation*}
-\begin{equation}\label{eqhil1}
-=
-\frac{1}{(2\pi)^2}\int_0^{2\pi} \int_0^{2\pi} f(y')K_N(y-y') K_N(x-y)\, \, dy' dy\, .
-\end{equation}
-We have by \Cref{Dirichlet-kernel}
-\begin{equation*}
-\frac{1}{2\pi}\int_0^{2\pi} K_N(y-y') K_N(x-y)\, dy
-\end{equation*}
-\begin{equation*}
-=\frac{1}{2\pi}\sum_{n=-N}^N\sum_{n'=-N}^N
-\int_0^{2\pi} e^{in(y-y')}e^{in'(x-y)}\, dy
-\end{equation*}
-\begin{equation}\label{eqhil6}
-=\frac{1}{2\pi}\sum_{n=-N}^N\sum_{n'=-N}^N
-e^{i(n'x-ny')}\int_0^{2\pi} e^{i(n-n')y}\, dy\, .
-\end{equation}
-By \Cref{mean-zero-oscillation}, the summands for $n\neq n'$ vanish.
-We obtain for \eqref{eqhil6}
-\begin{equation}\label{eqhil2}
-=\frac{1}{2\pi}\sum_{n=-N}^N
-e^{in(x-y')}\int_0^{2\pi} \, dy=K_N(x-y')\, .
-\end{equation}
-Applying Fubini in \eqref{eqhil1} and using
-\eqref{eqhil2} gives
-\begin{equation}
-S_N(S_Nf)(x)=
-\frac{1}{2\pi} \int_0^{2\pi} f(y')K(x-y') \, dy'=S_N f(x)
-\end{equation}
-This proves the lemma.
-\end{proof}
-\begin{lemma}[partial sum selfadjoint]
-\label{partial-sum-selfadjoint}
-\leanok
-\lean{partial_sum_selfadjoint}
-\uses{Dirichlet-kernel}
-    We have for any $2\pi$-periodic bounded measurable $g,f$ that
-    \begin{equation}
-       \int_0^{2\pi} \overline{S_Nf(x)} g(x)=\int_0^{2\pi} \overline{f(x)} S_Ng(x)\, dx\, .
-    \end{equation}
-\end{lemma}
-\begin{proof}
-  We have with $K_N$ as in \Cref{Dirichlet-kernel} for every $x$
-  \begin{equation}
-      \overline{K_N(x)}=\sum_{n=-N}^N\overline{ e^{in x}}=
-      {\sum_{n=-N}^N e^{-in x}}=K_N(-x)\, .
-  \end{equation}
- Further, with \Cref{Dirichlet-kernel} and Fubini
-\begin{equation*}
-\int_0^{2\pi} \overline{S_Nf(x)} g(x)
-= \frac 1{2\pi} \int_0^{2\pi} \int_{-\pi}^{\pi}\overline{f(y) K_N(x-y)} g(x)\, dy dx
- \end{equation*}
- \begin{equation}
-=
-\frac 1{2\pi} \int_0^{2\pi} \int_{-\pi}^{\pi}\overline{f(y)} K_N(y-x)
-g(x)\, dx dy
-=\int_0^{2\pi} \overline{f(x)} S_Ng(x)\, dx
-\, .
-\end{equation}
- This proves the lemma.
-\end{proof}
-
-
-We turn to the proof of Lemma
-\ref{spectral-projection-bound}.
-
 \begin{proof}[Proof of \Cref{spectral-projection-bound}]
 \proves{spectral-projection-bound}
+\leanok
 
-We have with \Cref{partial-sum-selfadjoint}, then \Cref{partial-sum-projection} and the \Cref{partial-sum-selfadjoint} again
-\begin{equation*}
- \int_0^{2\pi} S_Nf(x)\overline{S_Nf(x)}\, dx
- \int_0^{2\pi} f(x)\overline{S_N(S_Nf)(x)}\, dx
-\end{equation*}
-\begin{equation}\label{eqhil7}
- =\int_0^{2\pi} f(x)\overline{S_Nf(x)}\, dx=
- \int_0^{2\pi} S_N f(x)\overline{f(x)}\, dx\, .
-\end{equation}
+The functions $e_n:x\mapsto e^{inx}$ form an orthonormal basis in $L^2[-\pi, \pi]$
+(this is already in Mathlib).
+Therefore we have
+\begin{align*}
+    \|S_Nf\|^2_{L^2[-\pi, \pi]}
+    &= \|\sum_{n=-N}^N \langle\widehat{f}_n, e_n\rangle_{L^2[-\pi, \pi]}\|^2_{L^2[-\pi, \pi]} \\
+    &= \sum_{n=-N}^N |\widehat{f}_n| \\
+    &\le \sum_{n\in \mathbb{Z}} |\widehat{f}_n| \\
+    &= \|f\|_{L^2[-\pi, \pi]}.
+\end{align*}
 
-We have by the distributive law
-\begin{equation}\label{diffnorm}
-    \int_0^{2\pi} (f(x)-S_Nf(x))(\overline{f(x)-S_Nf(x)})\, dx=
-\end{equation}
-\begin{equation*}
- \int_0^{2\pi} f(x)\overline{f(x)}
-    -S_Nf(x)\overline{f(x)}
-   -f(x)\overline{S_Nf(x)}
-     + S_Nf(x)\overline{S_Nf(x)}\, dx
-\end{equation*}
-Using the various identities expressed in \eqref{eqhil7}, this becomes
-\begin{equation}
- =\int_0^{2\pi} f(x)\overline{f(x)}\, dx
-    -
-   \int_0^{2\pi} S_Nf(x)\overline{S_Nf(x)}\, dx\, .
-\end{equation}
-As \eqref{diffnorm} has nonnegative integrand and is thus nonnegative, we conclude
-\begin{equation}
-  \int_0^{2\pi} S_Nf(x)\overline{S_Nf(x)}\, dx\le
- \int_0^{2\pi} f(x)\overline{f(x)})\, dx\, .
-\end{equation}
-As both sides are positive, we may take the square root of this inequality.
 This completes the proof of the lemma.
 \end{proof}
-
-
-
 
 \section{The error bound}
 \label{10difference}
