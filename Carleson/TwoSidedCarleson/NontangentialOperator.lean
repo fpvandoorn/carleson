@@ -141,14 +141,58 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
       apply Real.two_mul_lt_two_pow
       linarith only [hx]
 
-/-- The constant used in `estimate_x_shift`. -/
-irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
--- exact estimate from proof: C_K * (defaultA + 2 * defaultA²) ≤ C10_1_2
+-- TODO move to ToMathlib, properly generalise
+theorem integrableOn_of_integrableOn_inter_support {f : X → ℂ} {μ : Measure X} {s : Set X}
+    (hs : MeasurableSet s) (hf : IntegrableOn f (s ∩ support f) μ) :
+    IntegrableOn f s μ := by
+  apply IntegrableOn.of_forall_diff_eq_zero hf hs
+  simp
 
--- Couldn't find this. Probably suboptimal formulation and location. Help appreciated.
+-- TODO move to sensible place
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
-  sorry
+  let Kxg := fun y ↦ K x y * g y
+  have mKxg : Measurable Kxg := by
+    have : Measurable (K x) := measurable_K_right x
+    have : Measurable g := hg.measurable
+    fun_prop
+
+  have bdd_Kxg : ∃ (M : ℝ), ∀ y ∈ (ball x r)ᶜ ∩ support Kxg, ‖Kxg y‖ ≤ M := by
+    use (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
+    intro y hy
+    rw [toNNReal_mul, norm_mul]
+    apply mul_le_mul
+    case b0 => apply NNReal.zero_le_coe
+    case c0 => simp only [norm_nonneg]
+    . suffices ‖K x y‖ₑ ≤ (C_K a : ℝ≥0) / volume (ball x r) by
+        rw [enorm_eq_nnnorm] at this
+        sorry
+      sorry
+    sorry
+
+  obtain ⟨M, hM⟩ := bdd_Kxg
+
+  apply integrableOn_of_integrableOn_inter_support
+  . exact MeasurableSet.compl measurableSet_ball
+  apply Measure.integrableOn_of_bounded
+  . apply ne_top_of_le_ne_top
+    . sorry --exact ne_of_lt hg.finiteSupport
+    . apply measure_mono
+      trans support Kxg
+      . exact inter_subset_right
+      . exact support_mul_subset_right (K x) g
+  . exact mKxg.aestronglyMeasurable
+  . rw [MeasureTheory.ae_iff, Measure.restrict_apply']
+    . trans (volume (∅ : Set X))
+      . congr
+        rw [← disjoint_iff_inter_eq_empty, disjoint_right]
+        . intro y hy
+          rw [mem_setOf, not_not]
+          exact hM y hy
+      . exact measure_empty
+    . apply MeasurableSet.inter --somehow not used by simp despite the tag
+      . simp [MeasurableSet.compl_iff, measurableSet_ball] --should measurableSet_ball have @[simp]?
+      . exact measurableSet_support mKxg --should measureSet_support have @[simp]?
 
 /- This should go somewhere else
 
@@ -160,10 +204,14 @@ variable {f : α → ℂ } {s t : Set α} {μ : Measure α}
 
 theorem MeasureTheory.setIntegral_union_2 (hst : Disjoint s t) (ht : MeasurableSet t) (hfst : IntegrableOn f (s ∪ t) μ) :
     ∫ x in s ∪ t, f x ∂μ = ∫ x in s, f x ∂μ + ∫ x in t, f x ∂μ := by
-  let hfs : IntegrableOn f s μ := IntegrableOn.mono_set hfst subset_union_left
-  let hft : IntegrableOn f t μ := IntegrableOn.mono_set hfst subset_union_right
+  let hfs : IntegrableOn f s μ := IntegrableOn.left_of_union hfst
+  let hft : IntegrableOn f t μ := IntegrableOn.right_of_union hfst
   exact setIntegral_union hst ht hfs hft
 /- End of somewhere else -/
+
+/-- The constant used in `estimate_x_shift`. -/
+irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
+-- exact estimate from proof: C_K * (defaultA + 2 * defaultA²) ≤ C10_1_2
 
 /-- Lemma 10.1.2 -/
 theorem estimate_x_shift (ha : 4 ≤ a)
@@ -215,7 +263,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     . apply MeasurableSet.compl
       apply measurableSet_ball
     . rw [← dom_x]
-      unfold bxrc
       apply czoperator_welldefined hg hr
 
   -- Integral split x'
