@@ -182,6 +182,9 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       let hby := hy.left
       rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hby
       exact hby
+    . apply le_toNNReal_of_coe_le
+      . sorry -- have to refactor to a.e.
+      . exact ne_of_lt hg.eLpNorm_lt_top
 
   obtain ⟨M, hM⟩ := bdd_Kxg
 

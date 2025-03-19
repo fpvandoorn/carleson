@@ -24,23 +24,32 @@ TODO prove suitable lemmas e.g. BFS f implies AEMeasurable f
 -/
 namespace BoundedFiniteSupport
 
+variable (bfs : BoundedFiniteSupport f μ)
+section Includebfs
+include bfs
+
 @[fun_prop]
-theorem aestronglyMeasurable (bfs : BoundedFiniteSupport f μ) : AEStronglyMeasurable f μ :=
+theorem aestronglyMeasurable : AEStronglyMeasurable f μ :=
   bfs.memLp.aestronglyMeasurable
 
 @[fun_prop]
 theorem aemeasurable [MeasurableSpace E] [PseudoMetrizableSpace E]
-    [BorelSpace E]
-    (bfs : BoundedFiniteSupport f μ) : AEMeasurable f μ :=
+    [BorelSpace E] : AEMeasurable f μ :=
   bfs.aestronglyMeasurable.aemeasurable
 
 @[fun_prop]
-theorem aestronglyMeasurable_restrict {s : Set X} (bfs : BoundedFiniteSupport f μ) :
+theorem aestronglyMeasurable_restrict {s : Set X} :
     AEStronglyMeasurable f (μ.restrict s) :=
   bfs.aestronglyMeasurable.restrict
 
 @[fun_prop]
 theorem aemeasurable_restrict [MeasurableSpace E] [PseudoMetrizableSpace E]
-    [BorelSpace E] {s : Set X} (bfs : BoundedFiniteSupport f μ) :
+    [BorelSpace E] {s : Set X} :
     AEMeasurable f (μ.restrict s) :=
   bfs.aemeasurable.restrict
+
+theorem eLpNorm_lt_top :
+    eLpNorm f ∞ μ < ∞ :=
+  bfs.memLp.eLpNorm_lt_top
+
+end Includebfs
