@@ -20,14 +20,13 @@ structure BoundedFiniteSupport (f : X → E) (μ : Measure X := by volume_tac) :
   measure_support_lt : μ (support f) < ∞
 
 /-
-TODO prove suitable lemmas e.g. BFS f implies Measurable f
+TODO prove suitable lemmas e.g. BFS f implies AEMeasurable f
 -/
 namespace BoundedFiniteSupport
 
 @[fun_prop]
-lemma aestronglyMeasurable {f : X → E} {μ : Measure X} (hf : BoundedFiniteSupport f μ) :
-    AEStronglyMeasurable f μ :=
-  hf.memLp.1
+theorem aestronglyMeasurable (bfs : BoundedFiniteSupport f μ) : AEStronglyMeasurable f μ :=
+  bfs.memLp.aestronglyMeasurable
 
 @[fun_prop]
 theorem aemeasurable [MeasurableSpace E] [PseudoMetrizableSpace E]
@@ -45,6 +44,3 @@ theorem aemeasurable_restrict [MeasurableSpace E] [PseudoMetrizableSpace E]
     [BorelSpace E] {s : Set X} (bfs : BoundedFiniteSupport f μ) :
     AEMeasurable f (μ.restrict s) :=
   bfs.aemeasurable.restrict
-
-theorem measurable [MeasurableSpace E] (bfs : BoundedFiniteSupport f μ) : Measurable f := by
-  sorry -- not true, but we keep it temporarily to not break code
