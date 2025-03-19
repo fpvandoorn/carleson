@@ -165,9 +165,23 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     case c0 => simp only [norm_nonneg]
     . suffices ‖K x y‖ₑ ≤ (C_K a : ℝ≥0) / volume (ball x r) by
         rw [enorm_eq_nnnorm] at this
-        sorry
-      sorry
-    sorry
+        apply le_toNNReal_of_coe_le
+        . exact this
+        . -- no ENNReal.div_ne_top??
+          rw [div_eq_mul_inv]
+          apply mul_ne_top coe_ne_top
+          rw [inv_ne_top]
+          apply ne_of_gt
+          apply measure_ball_pos
+          exact hr
+
+      apply le_trans (enorm_K_le_vol_inv x y)
+      apply ENNReal.div_le_div_left
+      apply measure_mono
+      apply ball_subset_ball
+      let hby := hy.left
+      rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hby
+      exact hby
 
   obtain ⟨M, hM⟩ := bdd_Kxg
 
@@ -181,7 +195,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       . exact inter_subset_right
       . exact support_mul_subset_right (K x) g
   . exact mKxg.aestronglyMeasurable
-  . rw [MeasureTheory.ae_iff, Measure.restrict_apply']
+  . rw [MeasureTheory.ae_iff, Measure.restrict_apply_eq_zero']
     . trans (volume (∅ : Set X))
       . congr
         rw [← disjoint_iff_inter_eq_empty, disjoint_right]
