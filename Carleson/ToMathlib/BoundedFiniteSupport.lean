@@ -5,12 +5,12 @@ This file defines BoundedFiniteSupport.
 TODO It should be suitably generalized in analogy to `BoundedCompactSupport`.
 -/
 
-open MeasureTheory Function ENNReal
+open MeasureTheory Function ENNReal TopologicalSpace
 
 noncomputable section
 
 variable {X E : Type*} [MeasurableSpace X]
-variable {f : X → E} [TopologicalSpace E] [ContinuousENorm E] [Zero E] {μ : Measure X}
+variable {f : X → E} [TopologicalSpace E] [ENorm E] [Zero E] {μ : Measure X}
 
 /-- Definition to avoid repeating ourselves.
 Blueprint states: *bounded measurable function $g$ on $X$ supported on a set of finite measure*.
@@ -30,7 +30,7 @@ TODO prove suitable lemmas e.g. BFS f implies Measurable f
 namespace BoundedFiniteSupport
 
 @[fun_prop]
-theorem aemeasurable [MeasurableSpace E] [TopologicalSpace.PseudoMetrizableSpace E]
+theorem aemeasurable [MeasurableSpace E] [PseudoMetrizableSpace E]
     [BorelSpace E]
     (bfs : BoundedFiniteSupport f μ) : AEMeasurable f μ :=
   bfs.aestronglyMeasurable.aemeasurable
@@ -41,7 +41,7 @@ theorem aestronglyMeasurable_restrict {s : Set X} (bfs : BoundedFiniteSupport f 
   bfs.aestronglyMeasurable.restrict
 
 @[fun_prop]
-theorem aemeasurable_restrict [MeasurableSpace E] [TopologicalSpace.PseudoMetrizableSpace E]
+theorem aemeasurable_restrict [MeasurableSpace E] [PseudoMetrizableSpace E]
     [BorelSpace E] {s : Set X} (bfs : BoundedFiniteSupport f μ) :
     AEMeasurable f (μ.restrict s) :=
   bfs.aemeasurable.restrict
