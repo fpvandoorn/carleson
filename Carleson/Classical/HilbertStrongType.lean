@@ -78,7 +78,7 @@ theorem AddCircle.haarAddCircle_eq_smul_volume {T : ℝ} [hT : Fact (0 < T)] :
     ENNReal.inv_mul_cancel (by simp [hT.out]) ENNReal.ofReal_ne_top, one_smul]
 
 open AddCircle in
-/-- Lemma 11.1.11.
+/-- Lemma 11.1.10.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
 -- todo: add lemma that relates `eLpNorm ((Ioc a b).indicator f)` to `∫ x in a..b, _`

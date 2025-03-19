@@ -8091,26 +8091,8 @@ It is proved in \Cref{10vandercorput}.
 \end{lemma}
 
 
-We close this section with six lemmas that are used
+We close this section with five lemmas that are used
 across the following subsections.
-
-\begin{lemma}[mean zero oscillation]
-\label{mean-zero-oscillation}
-\leanok
-\lean{mean_zero_oscillation}
-Let $n\in \mathbb{Z}$ with $n\neq 0$, then
-\begin{equation}
-\int_0^{2\pi} e^{inx}\, dx=0\,.
-\end{equation}
-\end{lemma}
-\begin{proof}
-\leanok
-We have
-\begin{equation*}
-\int_0^{2\pi} e^{inx}\, dx=\left[ \frac 1{in}e^{inx}\right]_0^{2\pi}=\frac 1{in}(e^{2\pi i n}-e^{2\pi i 0})=\frac 1{in}(1-1)=0\, . \qedhere
-\end{equation*}
-
-\end{proof}
 
 \begin{lemma}[Dirichlet kernel]
 \label{Dirichlet-kernel}
