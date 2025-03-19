@@ -13,9 +13,7 @@ variable {X E : Type*} [MeasurableSpace X]
 variable {f : X → E} [TopologicalSpace E] [ENorm E] [Zero E] {μ : Measure X}
 
 /-- Definition to avoid repeating ourselves.
-Blueprint states: *bounded measurable function $g$ on $X$ supported on a set of finite measure*.
-Slightly weaker than `BoundedCompactSupport`.
-TODO probably want this as a `structure` instead of an explicit conjunction. -/
+Blueprint states: *bounded measurable function $g$ on $X$ supported on a set of finite measure*. -/
 @[fun_prop]
 structure BoundedFiniteSupport (f : X → E) (μ : Measure X := by volume_tac) : Prop where
   memLp : MemLp f ∞ μ
