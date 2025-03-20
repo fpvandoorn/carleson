@@ -8,6 +8,7 @@ autoImplicit = false
 # This has lots of false positives currently.
 linter.style.longLine = false
 linter.oldObtain = true
+linter.style.cases = true
 linter.style.refine = true
 linter.style.multiGoal = true
 weak.linter.flexible = true
