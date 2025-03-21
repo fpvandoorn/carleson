@@ -714,9 +714,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
   refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp <|
     le_iSup₂_of_le (𝔰 p') ⟨s_ineq, scale_mem_Icc.2⟩ <| le_iSup_of_le ?_ ?_
-  · have : ((D : ℝ≥0∞) ^ (𝔰 p' - 1)).toReal = D ^ (s₂ - 1) := by
-      rw [sp', ← ENNReal.toReal_zpow]; simp
-    apply le_upperRadius; convert d1
+  · apply le_upperRadius; convert d1
   · convert le_rfl; change (Icc (𝔰 p) _).toFinset = _; rw [sp, sp']
     apply subset_antisymm
     · rw [← Finset.toFinset_coe (t.σ u x), toFinset_subset_toFinset]

@@ -199,18 +199,17 @@ lemma calculation_12 (s : ℝ) :
   have rightSide := calc 2 ^ (200 * a ^ 2 + 4) * (8 * ((2 : ℝ) ^ (100 * a ^ 2)) ^ s)
     _ = 2 ^ (200*a^2 + 4) * ((2^3)*((2 ^ (100 * a ^ 2)) ^ s)) := by
       norm_num
-    _ = 2 ^ (200*a^2 + 4) * (  2^3   *   2 ^ (100 * a ^ 2 * s)  ) := by
+    _ = 2 ^ (200*a^2 + 4) * (  2^3 * 2 ^ (100 * a ^ 2 * s)  ) := by
       rw [Real.rpow_mul (x:=2) (by positivity)]
       norm_cast
-    _ = 2 ^ (200*a^2 + 4) * 2 ^ (3    +   100 * a ^ 2 * s) := by
+    _ = 2 ^ (200*a^2 + 4) * 2 ^ (3 + 100 * a ^ 2 * s) := by
       have fact := Real.rpow_add (x:=2) (y:= 3) (z:= 100 * a ^ 2 * s) (by positivity)
       rw_mod_cast [fact]
-    _ = 2^(     200*a^2 + 4           +      (3    +   100 * a ^ 2 * s)  ) := by
-      have fact := Real.rpow_add (x:=2) (y:= 200*a^2 + 4) (z:= 3    +   100 * a ^ 2 * s) (by positivity)
+    _ = 2 ^ (200*a^2 + 4  + (3 + 100 * a ^ 2 * s)) := by
       nth_rw 2 [Real.rpow_add]
       norm_cast
       positivity
-    _ = 2^(7 + ((100 * a^2 * s) + (100 * a^2 * 2))) := by
+    _ = 2 ^ (7 + ((100 * a^2 * s) + (100 * a^2 * 2))) := by
       congrm 2 ^ ?_
       linarith
   rw_mod_cast [leftSide]
@@ -222,7 +221,7 @@ lemma calculation_13 : (2 : ℝ) ^ (200 * (a^3) + 4*a) = (defaultA a) ^ (200*a^2
   rw_mod_cast [← fact]
   ring
 
-lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n: ℕ) : 
+lemma calculation_14 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (n: ℕ) :
     (2 : ℝ) ^ ((Z : ℝ) * n / 2 - 201 * a ^ 3) ≤ 2 ^ ((Z : ℝ) * n / 2 - (200 * a ^ 3 + 4 * a)) := by
   gcongr
   · linarith
@@ -240,7 +239,7 @@ lemma calculation_15 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
     2 ^ (zon - (200 * a^3 + 4*a)) ≤ dist := by
   rw [Real.rpow_sub (hx := by linarith)]
   rw [show dist = 2 ^ (200 * a ^ 3 + 4 * a) * dist / 2 ^ (200 * a ^ 3 + 4 * a) by simp]
-  have := (div_le_div_iff_of_pos_right (c := 2 ^ (200 * a ^ 3 + 4 * a)) (hc := by have aIsBig := four_le_a X; positivity)).mpr h
+  have := (div_le_div_iff_of_pos_right (c := 2 ^ (200 * a ^ 3 + 4 * a)) (hc := by positivity)).mpr h
   exact_mod_cast this
 
 lemma calculation_16 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] (s: ℤ) :
@@ -266,4 +265,3 @@ lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] 
     · norm_num
     omega
   exact Nat.mul_le_mul this (Nat.le_add_left 1 n)
-

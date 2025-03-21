@@ -96,7 +96,6 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
             ← zpow_zero (2 : ℝ)]
           rw [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow]
           gcongr --uses h12
-          have : (2 : ℝ)^a = 2^(a : ℤ) := by rw [@zpow_natCast]
           ring_nf
           nlinarith only
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring

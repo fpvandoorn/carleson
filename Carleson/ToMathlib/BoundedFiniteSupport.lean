@@ -18,14 +18,16 @@ Blueprint states: *bounded measurable function $g$ on $X$ supported on a set of 
 structure BoundedFiniteSupport (f : X → E) (μ : Measure X := by volume_tac) : Prop where
   memLp : MemLp f ∞ μ
   measure_support_lt : μ (support f) < ∞
-  aestronglyMeasurable : AEStronglyMeasurable f μ
-
-attribute [fun_prop] BoundedFiniteSupport.aestronglyMeasurable
 
 /-
 TODO prove suitable lemmas e.g. BFS f implies Measurable f
 -/
 namespace BoundedFiniteSupport
+
+@[fun_prop]
+lemma aestronglyMeasurable {f : X → E} {μ : Measure X} (hf : BoundedFiniteSupport f μ) :
+    AEStronglyMeasurable f μ :=
+  hf.memLp.1
 
 @[fun_prop]
 theorem aemeasurable [MeasurableSpace E] [PseudoMetrizableSpace E]

@@ -26,10 +26,12 @@ private lemma D_pow0' (r : ℤ) : 0 < (D : ℝ) ^ r := by positivity
 private lemma cDx0 {c x : ℝ} (hc : c > 0) (hx : 0 < x) : c * D * x > 0 := by positivity
 end
 
+/-- The function `ψ` used as a basis for a dyadic partition of unity. -/
 def ψ (D : ℕ) (x : ℝ) : ℝ :=
   max 0 <| min 1 <| min (4 * D * x - 1) (2 - 4 * x)
 
-set_option hygiene false
+set_option hygiene false in
+@[inherit_doc]
 scoped[ShortVariables] notation "ψ" => ψ (defaultD a)
 
 lemma zero_le_ψ (D : ℕ) (x : ℝ) : 0 ≤ ψ D x :=
@@ -140,8 +142,9 @@ lemma lipschitzWith_ψ' (hD : 1 ≤ D) (a b : ℝ) : ‖ψ D a - ψ D b‖ ≤ 4
   repeat rw [ENNReal.toReal_ofReal (by positivity)] at lipschitz
   norm_cast
 
-/- the one or two numbers `s` where `ψ (D ^ (-s) * x)` is possibly nonzero -/
-variable (D) in def nonzeroS (x : ℝ) : Finset ℤ :=
+variable (D) in
+/-- the one or two numbers `s` where `ψ (D ^ (-s) * x)` is possibly nonzero -/
+def nonzeroS (x : ℝ) : Finset ℤ :=
   Finset.Icc ⌊(1 + logb D (2 * x))⌋ ⌈logb D (4 * x)⌉
 
 ---------------------------------------------
@@ -519,7 +522,6 @@ lemma nnnorm_Ks_le {s : ℤ} {x y : X} :
 /-- Needed for Lemma 7.5.5. -/
 lemma enorm_Ks_le {s : ℤ} {x y : X} :
     ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) * ‖ψ (D ^ (-s) * dist x y)‖ₑ := by
-  have : 0 ≤ C2_1_3 a / volume (ball x (D ^ s)) := by unfold C2_1_3; positivity
   by_cases hK : Ks s x y = 0
   · rw [hK, enorm_zero]; exact zero_le _
   rw [Ks, enorm_mul]; nth_rw 2 [← enorm_norm]; rw [norm_real, enorm_norm]
@@ -649,7 +651,8 @@ private lemma norm_Ks_sub_Ks_le₀₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 
   have : (dist y y' / dist x y) ^ (a : ℝ)⁻¹ ≤ (dist y y' / D ^ s * (4 * D)) ^ (a : ℝ)⁻¹ := by
     apply Real.rpow_le_rpow (div_nonneg dist_nonneg dist_nonneg) this (by positivity)
   rw [Real.mul_rpow (div_nonneg dist_nonneg (Ds0 X s).le) (fourD0 D1).le] at this
-  apply le_trans <| mul_le_mul this (div_vol_le₀ C_K_pos_real hK) (by simp; positivity) (by positivity)
+  apply le_trans <| mul_le_mul this (div_vol_le₀ C_K_pos_real hK)
+    (by simp only [C_K, coe_rpow, NNReal.coe_ofNat, defaultA]; positivity) (by positivity)
   rw [(by ring : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ * (4 * D) ^ (a : ℝ)⁻¹ *
       (2 ^ (2 * a + 100 * a ^ 3) * C_K a / volume.real (ball x (D ^ s))) =
       (4 * D) ^ (a : ℝ)⁻¹ * 2 ^ (2 * a + 100 * a ^ 3) * C_K a / volume.real (ball x (D ^ s)) *

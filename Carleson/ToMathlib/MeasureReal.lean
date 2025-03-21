@@ -452,7 +452,6 @@ theorem measureReal_prod_prod [MeasurableSpace β] {μ : Measure α} {ν : Measu
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
 theorem ext_iff_measureReal_singleton {S} [Fintype S] [MeasurableSpace S]
-    [MeasurableSingletonClass S]
     {μ1 μ2 : Measure S} [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
     μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
   rw [Measure.ext_iff_singleton]

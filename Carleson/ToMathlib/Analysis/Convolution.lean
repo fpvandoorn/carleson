@@ -40,7 +40,7 @@ protected theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup
 
 /-- This implies both of the following theorems `convolutionExists_of_memLp_memLp` and
 `enorm_convolution_le_eLpNorm_mul_eLpNorm`. -/
-lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
+lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [AddGroup G]
     [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SFinite μ] [μ.IsNegInvariant]
     [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
@@ -57,7 +57,7 @@ lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [NormedSpace 
 
 /-- If `MemLp f p μ` and `MemLp g q μ`, where `p` and `q` are Hölder conjugates, then the
 convolution of `f` and `g` exists everywhere. -/
-theorem ConvolutionExists.of_memLp_memLp [NormedSpace ℝ F] [AddGroup G] [MeasurableAdd₂ G]
+theorem ConvolutionExists.of_memLp_memLp [AddGroup G] [MeasurableAdd₂ G]
     [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant] [μ.IsAddLeftInvariant]
     [μ.IsAddRightInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖) (hf : AEStronglyMeasurable f μ)
@@ -71,7 +71,7 @@ theorem ConvolutionExists.of_memLp_memLp [NormedSpace ℝ F] [AddGroup G] [Measu
 by `eLpNorm f p μ * eLpNorm g q μ`. -/
 theorem enorm_convolution_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
     [MeasurableAdd₂ G] [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] [μ.IsAddRightInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
+    [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ‖(f ⋆[L, μ] g) x₀‖ₑ ≤ eLpNorm f p μ * eLpNorm g q μ :=

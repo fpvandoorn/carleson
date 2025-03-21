@@ -89,7 +89,7 @@ protected theorem zero : BoundedCompactSupport (fun (_ : X) ↦ (0 : 𝕜)) wher
   hasCompactSupport := HasCompactSupport.zero
 
 theorem indicator_of_isBounded_range {X : Type*} [MetricSpace X] [ProperSpace X]
-    [MeasurableSpace X] [BorelSpace X] {f : X → 𝕜} (hf : IsBounded (range f))
+    [MeasurableSpace X] {f : X → 𝕜} (hf : IsBounded (range f))
     (h'f : StronglyMeasurable f) {s : Set X} (h's : IsBounded s) (hs : MeasurableSet s) :
     BoundedCompactSupport (s.indicator f) where
   stronglyMeasurable := h'f.indicator hs
@@ -259,8 +259,8 @@ end Sum
 section Prod
 
 variable {Y: Type*} [MeasureSpace Y] {g : Y → 𝕜}
-variable [TopologicalSpace Y] [IsFiniteMeasureOnCompacts (volume : Measure Y)]
-variable [SigmaFinite (volume : Measure Y)] [R1Space (X × Y)]
+variable [TopologicalSpace Y]
+variable [R1Space (X × Y)]
 
 /-- An elementary tensor of bounded compactly supported functions is
   bounded compactly supported. -/
@@ -304,7 +304,7 @@ namespace BoundedCompactSupport
 section Metric
 
 variable {X Y 𝕜: Type*} [RCLike 𝕜]
-variable [MeasureSpace X] {f : X → 𝕜} [PseudoMetricSpace X] [SigmaFinite (volume : Measure X)]
+variable [MeasureSpace X] {f : X → 𝕜} [PseudoMetricSpace X]
 variable [MeasureSpace Y] {g : Y → 𝕜} [PseudoMetricSpace Y] [SigmaFinite (volume : Measure Y)]
 
 variable (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
