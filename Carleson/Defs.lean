@@ -320,7 +320,7 @@ lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measur
 
 lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
-    [Regular (volume : Measure X)] [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
+    [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
     IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
   use Measurable.aestronglyMeasurable (measurable_K_right x)
   rw [hasFiniteIntegral_def]

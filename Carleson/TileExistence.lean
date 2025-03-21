@@ -186,7 +186,7 @@ lemma chain_property_set_has_bound (k : ℤ):
   · exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
 
 variable (X) in
-def zorn_apply_maximal_set (k : ℤ):
+lemma zorn_apply_maximal_set (k : ℤ):
     ∃ s ∈ property_set X k, ∀ s' ∈ property_set X k, s ⊆ s' → s' = s := by
   have := zorn_subset (property_set X k) (chain_property_set_has_bound X k)
   simp_rw [maximal_iff] at this; convert this using 6; exact eq_comm
@@ -300,12 +300,12 @@ lemma I_induction_proof {k:ℤ} (hk:-S ≤ k) (hneq : ¬ k = -S) : -S ≤ k - 1 
   linarith [lt_of_le_of_ne hk fun a_1 ↦ hneq (id a_1.symm)]
 
 mutual
-  def I1 {k:ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
+  def I1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
     if hk': k = -S then
       ball y (D^(-S:ℤ))
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
-      have h1: 0 ≤ S + (k - 1) := by linarith
+      have h1 : 0 ≤ S + (k - 1) := by linarith
       have : (S + (k-1)).toNat < (S + k).toNat := by
         rw [Int.lt_toNat,Int.toNat_of_nonneg h1]
         linarith
@@ -313,7 +313,7 @@ mutual
         ⋃ (_ : y' ∈ Yk X (k-1) ↓∩ ball (y:X) (D^k)), I3 (I_induction_proof hk hk') y'
   termination_by (3 * (S+k).toNat, sizeOf y)
 
-  def I2 {k:ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
+  def I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
     if hk': k = -S then
       ball y (2 * D^(-S:ℤ))
     else
@@ -344,25 +344,22 @@ lemma I1_subset_I3 {k : ℤ} (hk : -S ≤ k) (y:Yk X k) :
   left
   exact hi
 
-lemma I1_subset_I2 {k:ℤ} (hk : -S ≤ k) (y:Yk X k) :
+@[nolint unusedHavesSuffices]
+lemma I1_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I1 hk y ⊆ I2 hk y := by
-  rw [I1,I2]
-  if hk_s : k = -S then
-    intro y'
-    rw [dif_pos hk_s,dif_pos hk_s]
+  rw [I1, I2]
+  split_ifs with hk_s
+  · intro y'
     apply ball_subset_ball
     nth_rw 1 [← one_mul (D^(-S:ℤ):ℝ)]
     gcongr
     norm_num
-  else
-    rw [dif_neg hk_s, dif_neg hk_s]
-    simp only [iUnion_subset_iff]
+  · simp only [iUnion_subset_iff]
     intro y' hy' z hz
     simp only [mem_iUnion, exists_prop, exists_and_left]
     use y'
     rw [and_iff_left hz]
-    revert hy'
-    apply ball_subset_ball
+    apply ball_subset_ball _ hy'
     nth_rw 1 [← one_mul (D^k : ℝ)]
     gcongr
     norm_num
