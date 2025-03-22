@@ -57,9 +57,10 @@ theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : Monotone f) (h2f : ¬BddAbove (
       rw [← hi]
       exact this i
     intro i
-    induction' i with i hind
-    . exact ha
-    . let this := hcontra i
+    induction i
+    case zero => exact ha
+    case succ i hind =>
+      let this := hcontra i
       rw [mem_Ico, not_and, not_lt] at this
       exact this hind
 
@@ -86,9 +87,10 @@ theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : Monotone f) (h2f : ¬BddAbove (
       rw [← hi]
       exact le_of_lt (this i)
     intro i
-    induction' i with i hind
-    . exact ha
-    . let this := hcontra i
+    induction i
+    case zero => exact ha
+    case succ i hind =>
+      let this := hcontra i
       rw [mem_Ioc, not_and, not_le] at this
       exact this hind
 
