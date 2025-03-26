@@ -761,6 +761,7 @@ lemma stronglyMeasurable_Ks {s : ℤ} : StronglyMeasurable (fun x : X × X ↦ K
   apply Continuous.stronglyMeasurable
   fun_prop
 
+@[fun_prop]
 lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ
   exact measurable_K.mul (by fun_prop)

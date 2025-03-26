@@ -22,6 +22,22 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 -- Def 6.2.1 (Lemma 6.2.1)
 def correlation (s₁ s₂ : ℤ) (x₁ x₂ y : X) : ℂ := (conj (Ks s₁ x₁ y)) * (Ks s₂ x₂ y)
 
+section FunProp
+
+attribute [fun_prop] Complex.measurable_exp Complex.measurable_ofReal
+
+@[fun_prop]
+lemma Complex.measurable_starRingEnd : Measurable (starRingEnd ℂ) :=
+   Complex.continuous_conj.measurable
+
+@[fun_prop]
+lemma measurable_correlation :
+    Measurable (fun (s₁ s₂ : ℤ) (x y z : X) ↦ correlation s₁ s₂ x y z) := by
+  unfold correlation
+  fun_prop
+
+end FunProp
+
 -- Eq. 6.2.2 (Lemma 6.2.1)
 lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
     (hy : correlation s₁ s₂ x₁ x₂ y ≠ 0) : y ∈ (ball x₁ (↑D ^s₁)) := by
@@ -761,18 +777,13 @@ lemma integrableOn_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
       (E p' ×ˢ E p) volume :=
   (boundedCompactSupport_bound p p' hg hg1).integrable.integrableOn
 
-lemma stronglyMeasurable_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
-    (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+-- NOTE: `unfold correlation` is still needed after adding the measurability lemma.
+lemma stronglyMeasurable_I12 (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g) :
     StronglyMeasurable (fun (x : X × X) ↦ (I12 p p' g x.1 x.2 : ℝ)) := by
-  simp only [I12, nnnorm_mul, NNReal.coe_mul, coe_nnnorm]
-  rw [stronglyMeasurable_iff_measurable_separable]
-  constructor
-  · simp only [mul_assoc, coe_nnnorm]
-    apply Measurable.mul
-    · apply Measurable.norm
-      sorry
-    · exact ((hg.comp measurable_fst).norm).mul (hg.comp measurable_snd).norm
-  · exact TopologicalSpace.IsSeparable.of_separableSpace _
+  simp only [I12, nnnorm_mul, NNReal.coe_mul, coe_nnnorm, mul_assoc]
+  exact (Measurable.stronglyMeasurable
+      (by unfold correlation; fun_prop)).integral_prod_left.norm.mul
+    (((hg.comp measurable_fst).norm).mul (hg.comp measurable_snd).norm).stronglyMeasurable
 
 lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
@@ -785,7 +796,7 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
     apply BoundedCompactSupport.integrable
     apply BoundedCompactSupport.mono (boundedCompactSupport_bound p p' hg hg1)
     · exact StronglyMeasurable.ite (measurableSet_E.prod measurableSet_E)
-        (stronglyMeasurable_I12 ha hle hg hg1) stronglyMeasurable_const
+        (stronglyMeasurable_I12 p p' hg) stronglyMeasurable_const
     · intro z
       by_cases hz : z ∈ (E p') ×ˢ (E p)
       · have ha1 : 1 < a := by omega
@@ -827,10 +838,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
             (volume.nnreal (coeGrid (𝓘 p))) := bound_6_2_29 ha p p'
   -- Estimate 6.2.24 -- 6.2.25 by 6.2.26
   have hbdd : ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
-      ‖ ∫ (z : X × X) in E p' ×ˢ E p, (I12 z.fst z.snd : ℂ) ‖₊ := by
-    simp only [adjointCarleson, haux] --LHS is now 6.2.24 -- 6.2.25. TODO: fix in blueprint
-    simp_rw [← MeasureTheory.setIntegral_prod_mul]
-    sorry
+      ‖ ∫ (z : X × X) in E p' ×ˢ E p, (I12 z.fst z.snd : ℂ) ‖₊ := bound_6_2_26 ha hle hg hg1 hinter
   rw [← NNReal.coe_le_coe] at hbdd
   apply le_trans hbdd
   have hcoe : ∫ (z : X × X) in E p' ×ˢ E p, (I12 z.fst z.snd : ℂ) =
@@ -846,34 +854,14 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
   rw [hcoe]
   simp only [defaultA, Complex.nnnorm_real, coe_nnnorm, Real.norm_eq_abs, defaultD, defaultκ.eq_1,
     Complex.norm_eq_abs, ge_iff_le]
-  /- have h : |∫ (z : X × X) in E p' ×ˢ E p, (I12 z.1 z.2 : ℝ)| ≤
-      |∫ (z : X × X) in E p' ×ˢ E p,  (2^(254 * a^3 + 8 * a + 1) /
-        (volume.nnreal (ball (z.2 : X) (↑D ^𝔰 p')))) *
-        ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) * ‖g z.1‖₊ * ‖g z.2‖₊| := by
-    apply abs_le_abs_of_nonneg (setIntegral_nonneg (measurableSet_E.prod measurableSet_E)
-        (fun _ _ ↦ NNReal.zero_le_coe))
-    apply setIntegral_mono_on _ _ (measurableSet_E.prod measurableSet_E) _
-    -- Do I have these integrability conditions?
-    · sorry
-    · sorry
-    exact fun z hz ↦ hI12 ⟨z.1, hz.1⟩ ⟨z.2, hz.2⟩ -/
-
-    /-2 ^ (254 * a^3 + 8 * a + 1) *
-      ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
-        (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) ≤ (C_6_1_5 a) *
-          ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
-            (volume.nnreal (coeGrid (𝓘 p)))-/
-
   have h : |∫ (z : X × X) in E p' ×ˢ E p, (I12 z.1 z.2 : ℝ)| ≤
       |∫ (z : X × X) in E p' ×ˢ E p, ((C_6_1_5 a) *
           ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
             (volume.nnreal (coeGrid (𝓘 p)))) * ‖g z.1‖₊ * ‖g z.2‖₊| := by
     apply abs_le_abs_of_nonneg (setIntegral_nonneg (measurableSet_E.prod measurableSet_E)
         (fun _ _ ↦ NNReal.zero_le_coe))
-    apply setIntegral_mono_on _ _ (measurableSet_E.prod measurableSet_E) _
-    -- Do I have these integrability conditions?
-    · exact integrableOn_I12 ha hle hg hg1 hinter
-    · exact integrableOn_bound p p' hg hg1
+    apply setIntegral_mono_on (integrableOn_I12 ha hle hg hg1 hinter)
+      (integrableOn_bound p p' hg hg1) (measurableSet_E.prod measurableSet_E)
     intro z hz
     apply le_trans (hI12 ⟨z.1, hz.1⟩ ⟨z.2, hz.2⟩)
     gcongr ?_ *  ‖g ↑_‖ * ‖g ↑_‖
@@ -888,7 +876,6 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
   rw [integral_mul_left]
   simp only [abs_mul, abs_div, NNReal.abs_eq]
   rw [abs_of_nonneg (Real.rpow_nonneg (add_nonneg zero_le_one dist_nonneg) _), hprod]
-
 
 -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
 lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
