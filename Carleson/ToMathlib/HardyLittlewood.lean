@@ -293,7 +293,7 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
   intro f _
   use AEStronglyMeasurable.maximalFunction h𝓑
   let Bₗ (ℓ : ℝ≥0∞) := { i ∈ 𝓑 | ∫⁻ y in (ball (c i) (r i)), ‖f y‖₊ ∂μ ≥ ℓ * μ (ball (c i) (r i)) }
-  simp only [wnorm, one_ne_top, wnorm', one_toReal, inv_one, ENNReal.rpow_one, reduceIte,
+  simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte,
     ENNReal.coe_pow, eLpNorm, one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self,
     iSup_le_iff]
   intro t
