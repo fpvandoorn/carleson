@@ -215,14 +215,6 @@ lemma cc_union_oi {x : X} {r R : ℝ} (h : r ≤ R) : cc x r R ∪ oi x R = ci x
 lemma co_union_ci {x : X} {r R : ℝ} (h : r ≤ R) : co x r R ∪ ci x R = ci x r := by
   ext; simp_rw [co, ci, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Ici_eq_Ici h]
 
-lemma co_disjoint_co {x : X} {r₁ r₂ R₁ R₂ : ℝ} (h : Disjoint (Ico r₁ R₁) (Ico r₂ R₂)) :
-    Disjoint (co x r₁ R₁) (co x r₂ R₂) := by
-  sorry
-
-lemma oc_disjoint_oc {x : X} {r₁ r₂ R₁ R₂ : ℝ} (h : Disjoint (Ioc r₁ R₁) (Ioc r₂ R₂)) :
-    Disjoint (oc x r₁ R₁) (oc x r₂ R₂) := by
-  sorry
-
 theorem iUnion_co_eq_ci {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), co x (f i) (f (i+1)) = ci x (f 0) := by
   unfold co ci
@@ -242,7 +234,7 @@ theorem pairwise_disjoint_co_monotone {x : X} {f : ι → ℝ} (hf : Monotone f)
   unfold Function.onFun
   simp only
   intro i j hij
-  apply co_disjoint_co
+  apply Disjoint.preimage
   exact pairwise_disjoint_Ico_monotone hf hij
 
 theorem pairwise_disjoint_oc_monotone {x : X} {f : ι → ℝ} (hf : Monotone f) :
@@ -250,7 +242,7 @@ theorem pairwise_disjoint_oc_monotone {x : X} {f : ι → ℝ} (hf : Monotone f)
   unfold Function.onFun
   simp only
   intro i j hij
-  apply oc_disjoint_oc
+  apply Disjoint.preimage
   exact pairwise_disjoint_Ioc_monotone hf hij
 
 variable [MeasurableSpace X] [OpensMeasurableSpace X]
