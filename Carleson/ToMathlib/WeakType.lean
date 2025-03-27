@@ -12,7 +12,6 @@ open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 
 section move
 
-
 variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
   {μ : Measure α} [NontriviallyNormedField 𝕜]
   [NormedAddCommGroup E] [NormedSpace 𝕜 E]
@@ -20,6 +19,9 @@ variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
 
 -- todo: move/rename/and perhaps reformulate in terms of ‖.‖ₑ
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
+  (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
+
+lemma enorm_absolute_homogeneous {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
@@ -665,24 +667,22 @@ variable [NormedSpace 𝕜 E] [NormedSpace 𝕜 E₁] [NormedSpace 𝕜 E₂] [N
 
 -- TODO: reorganize variables so that everything makes sense
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
-    distribution (fun x ↦ L (f x) (g x)) (‖L‖₊ * t * s) μ ≤
+    distribution (fun x ↦ L (f x) (g x)) (‖L‖ₑ * t * s) μ ≤
     distribution f t μ + distribution g s μ := by
   unfold distribution
-  have h₀ : {x | ↑‖L‖₊ * t * s < ↑‖(fun x ↦ (L (f x)) (g x)) x‖₊} ⊆
-      {x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊} := fun z hz ↦ by
+  have h₀ : {x | ‖L‖ₑ * t * s < ‖(fun x ↦ (L (f x)) (g x)) x‖ₑ} ⊆
+      {x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ} := fun z hz ↦ by
     simp only [mem_union, mem_setOf_eq, Pi.add_apply] at hz ⊢
     contrapose! hz
     calc
-      (‖(L (f z)) (g z)‖₊ : ℝ≥0∞) ≤ ‖L‖₊ * ‖f z‖₊ * ‖g z‖₊ := by
-        refine (toNNReal_le_toNNReal coe_ne_top coe_ne_top).mp ?_
-        simp only [toNNReal_coe, coe_mul, toNNReal_mul]
+      ‖(L (f z)) (g z)‖ₑ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ := by
         calc
-          _ ≤ ↑‖L (f z)‖₊ * ↑‖g z‖₊ := ContinuousLinearMap.le_opNNNorm (L (f z)) (g z)
-          _ ≤ ‖L‖₊ * ‖f z‖₊ * ‖g z‖₊ :=
-            mul_le_mul' (ContinuousLinearMap.le_opNNNorm L (f z)) (by rfl)
-      _ ≤ _ := mul_le_mul' (mul_le_mul_left' hz.1 ↑‖L‖₊) hz.2
+          _ ≤ ‖L (f z)‖ₑ * ‖g z‖ₑ := ContinuousLinearMap.le_opENorm (L (f z)) (g z)
+          _ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ :=
+            mul_le_mul' (ContinuousLinearMap.le_opENorm L (f z)) (by rfl)
+      _ ≤ _ := mul_le_mul' (mul_le_mul_left' hz.1 ‖L‖ₑ) hz.2
   calc
-    _ ≤ μ ({x | t < ↑‖f x‖₊} ∪ {x | s < ↑‖g x‖₊}) := measure_mono h₀
+    _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := measure_mono h₀
     _ ≤ _ := measure_union_le _ _
 
 section BorelSpace
