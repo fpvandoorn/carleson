@@ -23,9 +23,9 @@ theorem eLpNorm_map_measure' [MeasurableSpace E] [OpensMeasurableSpace E]
     (hg : AEMeasurable g (Measure.map f μ)) (hf : AEMeasurable f μ) :
     eLpNorm g p (Measure.map f μ) = eLpNorm (g ∘ f) p μ := by
   by_cases hp_zero : p = 0
-  · simp only [hp_zero, eLpNorm_exponent_zero]
+  · aesop
   by_cases hp_top : p = ∞
-  · simp_rw [hp_top, eLpNorm_exponent_top]
+  · rw [hp_top, eLpNorm_exponent_top]
     exact eLpNormEssSup_map_measure' hg hf
   simp_rw [eLpNorm_eq_lintegral_rpow_enorm hp_zero hp_top]
   rw [lintegral_map' (hg.enorm.pow_const p.toReal) hf]

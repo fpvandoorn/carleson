@@ -11,7 +11,5 @@ theorem ConvexOn_rpow_left (b : ℝ) (hb : 0 < b) :
     ConvexOn ℝ Set.univ (fun (x : ℝ) => b ^ x) := by
   have : (fun x => b ^ x) = (Real.exp ∘ (Real.log b * ·)) := by
     ext x
-    simp only [comp_apply]
-    rw [<-Real.rpow_def_of_pos hb]
-  rw [this]
-  exact ConvexOn.comp_linearMap convexOn_exp (LinearMap.mul ℝ ℝ (Real.log b))
+    simp [Real.rpow_def_of_pos hb]
+  exact this ▸ ConvexOn.comp_linearMap convexOn_exp (LinearMap.mul ℝ ℝ (Real.log b))

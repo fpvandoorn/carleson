@@ -24,8 +24,7 @@ theorem convolution_symm {f : G → E} {g : G → E} (L : E →L[𝕜] E →L[�
     {μ : Measure G} [μ.IsAddLeftInvariant] [μ.IsNegInvariant] [MeasurableNeg G] [MeasurableAdd G] :
     f ⋆[L, μ] g = g ⋆[L, μ] f := by
   suffices L.flip = L by rw [← convolution_flip, this]
-  ext x y
-  exact hL y x
+  aesop
 
 /-- The convolution of two a.e. strongly measurable functions is a.e. strongly measurable. -/
 protected theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup G]
