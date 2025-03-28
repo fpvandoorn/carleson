@@ -452,7 +452,16 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
     let dom_i (i : ℕ) := Annulus.co x (2^(i+1) * r) (2^(i+2) * r)
     have rw_dom : bx2rᶜ = ⋃ (i : ℕ) , dom_i i:= by
-      sorry
+      rw [Annulus.iUnion_co_eq_ci]
+      . have : 2 * r = 2 ^ (0 + 1) * r := by ring
+        unfold bx2r
+        rw [this, Annulus.ci_eq]
+      . intro n
+        rw [mul_le_mul_iff_of_pos_right hr]
+        apply pow_le_pow_right₀ Nat.one_le_ofNat
+        simp only [zero_add, le_add_iff_nonneg_left, zero_le]
+      . rw [BddAbove, not_nonempty_iff_eq_empty]
+        sorry
 
     trans ∑' (i : ℕ), ∫⁻ (y : X) in dom_i i, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
     . rw [rw_dom]
