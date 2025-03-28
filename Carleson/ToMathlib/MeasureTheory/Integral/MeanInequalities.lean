@@ -65,7 +65,7 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.IsConjE
   by_cases pq_top : p = ∞ ∨ q = ∞
   · wlog hp : p = ∞
     · have hq := pq_top.resolve_left hp
-      simpa only [mul_comm] using this hpq.symm hg hf (Or.inl hq) hq
+      simpa only [mul_comm] using this hpq.symm hg hf (Or.inl (pq_top.resolve_left hp)) hq
     apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_right_mono ha))
     simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg]
   push_neg at pq_top
