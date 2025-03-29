@@ -150,16 +150,18 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     _ < R + R := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
     _ = 2 * R := by ring
 
--- XXX: inlining this does not work
-lemma foobar (f : X → ℝ) : ∫ x, (f x : ℂ) = ((∫ x, f x : ℝ) : ℂ) := integral_ofReal
-
 open Filter
 
-/-- Part of Lemma 8.0.1. -/
+/-- Part of Lemma 8.0.1: Equation (8.0.1).
+Note that the norm `||ϕ||_C^τ` is normalized by definition, i.e., it is `R ^ τ` times the best
+Hölder constant of `ϕ`, so the Lean statement corresponds to the blueprint statement.
+We assume that `ϕ` is globally Hölder for simplicity, but this is equivalent to being
+Hölder on `ball z R` as `ϕ` is supported there.
+-/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
     (h2ϕ : HolderWith C nnτ ϕ) (hτ : 0 < nnτ) (ht : t ∈ Ioc (0 : ℝ) 1) (x : X) :
-    dist (ϕ x) (holderApprox R t ϕ x) ≤ (t * R) ^ τ * C := by
+    dist (ϕ x) (holderApprox R t ϕ x) ≤ t ^ τ  * (R ^ τ * C) := by
   have ht0 : 0 < t := ht.1
   have P : 0 < ∫ y, cutoff R t x y := by
     apply lt_of_lt_of_le _ (aux_8_0_6 hR ht.1)
@@ -168,8 +170,9 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     positivity
   have : (∫ y, cutoff R t x y * ϕ x) / (∫ y, (cutoff R t x y : ℂ)) = ϕ x := by
     rw [integral_mul_right, mul_div_cancel_left₀]
-    simpa only [ne_eq, ofReal_eq_zero, foobar] using P.ne'
-  rw [dist_eq_norm, ← this, holderApprox, foobar, ← sub_div, ← integral_sub]; rotate_left
+    simpa only [ne_eq, ofReal_eq_zero, integral_complex_ofReal] using P.ne'
+  rw [dist_eq_norm, ← this, holderApprox, integral_complex_ofReal, ← sub_div,
+    ← integral_sub]; rotate_left
   · apply (integrable_cutoff hR ht0).ofReal.mul_const
   · apply Continuous.integrable_of_hasCompactSupport
     · apply Continuous.mul
@@ -209,12 +212,44 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
   _ ≤ (t * R) ^ τ * C * ‖∫ (x_1 : X), cutoff R t x x_1‖ := by
     gcongr
     exact Real.le_norm_self _
+  _ = t ^ τ * (R ^ τ * C) * ‖∫ (x_1 : X), cutoff R t x x_1‖ := by
+    rw [Real.mul_rpow ht0.le hR.le]
+    ring
+
+lemma holderApprox_le {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 0 < t)
+    (ϕ : X → ℂ) (hC : ∀ x, ‖ϕ x‖ ≤ C) (x : X) :
+    ‖holderApprox R t ϕ x‖ ≤ C := by
+  rw [holderApprox, norm_div, norm_real, Real.norm_eq_abs]
+  apply div_le_of_le_mul₀ (by positivity) (by positivity)
+  apply (norm_integral_le_integral_norm _).trans
+  rw [abs_of_nonneg, ← integral_mul_left]; swap
+  · apply integral_nonneg
+    apply cutoff_nonneg
+  apply integral_mono_of_nonneg
+  · apply Eventually.of_forall (fun x ↦ by positivity)
+  · apply (integrable_cutoff hR ht).const_mul
+  apply Eventually.of_forall (fun y ↦ ?_)
+  simp only [Complex.norm_mul, norm_real, Real.norm_eq_abs, cutoff_nonneg, abs_of_nonneg,
+    mul_comm (C : ℝ)]
+  gcongr
+  · apply cutoff_nonneg
+  · exact hC y
 
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
-    (h2ϕ : HolderWith C nnτ ϕ) (ht : t ∈ Ioc (0 : ℝ) 1) :
-    LipschitzWith (C8_0_1 a ⟨t, ht.1.le⟩) (holderApprox R t ϕ) := by
+    (hC : ∀ x, ‖ϕ x‖ ≤ C) (ht : t ∈ Ioc (0 : ℝ) 1) :
+    LipschitzWith ((C8_0_1 a ⟨t, ht.1.le⟩) * ⟨R ^ τ, by positivity⟩ * C) (holderApprox R t ϕ) := by
+  have M (x x' : X) :
+      ∫ (y : X), cutoff R t x y * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
+        2 * C *∫ y, |cutoff R t x' y - cutoff R t x y| :=
+    calc
+      ∫ (y : X), cutoff R t x y * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖
+    _ = ‖(∫ (y : X), cutoff R t x y) * (holderApprox R t ϕ x' - holderApprox R t ϕ x')‖ := sorry
+    _ = ‖(∫ (y : X), cutoff R t x y - cutoff R t x' y) * holderApprox R t ϕ x'
+          + (∫ (y : X), cutoff R t x' y) * holderApprox R t ϕ x' ‖ := sorry
+    _ = ‖∫ (y : X), (cutoff R t x y - cutoff R t x' y) * holderApprox R t ϕ x'
+             + holderApprox R t ϕ x')‖ := sorry
   sorry
 
 
