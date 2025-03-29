@@ -3,22 +3,14 @@
    All smaller ones are done but the estimate for the truncated Hilbert transform is still missing.
 -/
 
-import Carleson.TwoSidedMetricCarleson
+import Carleson.TwoSidedCarleson.MainTheorem
 import Carleson.Classical.CarlesonOperatorReal
 import Carleson.Classical.VanDerCorput
+import Carleson.Classical.HilbertStrongType
 
 noncomputable section
 
 open MeasureTheory Function Metric Bornology Real
-
-section
-@[reducible]
-def DoublingMeasureR2 : DoublingMeasure ℝ 2 :=
-  InnerProductSpace.DoublingMeasure.mono (by simp)
-
-instance DoublingMeasureR4 : DoublingMeasure ℝ (2 ^ 4 : ℕ) :=
-  DoublingMeasureR2.mono (by norm_num)
-end
 
 lemma localOscillation_on_emptyset {X : Type} [PseudoMetricSpace X] {f g : C(X, ℝ)} :
     localOscillation ∅ f g = 0 := by simp [localOscillation]
@@ -494,18 +486,30 @@ instance real_van_der_Corput : IsCancellative ℝ (defaultτ 4) where
     norm_cast
 
 
+-- remove?
 lemma Real.vol_real_eq {x y : ℝ} : Real.vol x y = 2 * |x - y| := by
-  rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+  rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball,
+    ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
 
+-- proof can be simplified with enorm lemma
+lemma Real.vol_eq {x y : ℝ} : vol x y = 2 * ‖x - y‖ₑ := by
+  rw [vol, Real.volume_ball, ofReal_mul (by positivity), ← edist_dist, edist_eq_enorm_sub,
+    ofReal_ofNat]
+
+-- remove?
 lemma Real.vol_real_symm {x y : ℝ} : Real.vol x y = Real.vol y x := by
   rw [Real.vol_real_eq, Real.vol_real_eq, abs_sub_comm]
+
+-- proof can be simplified with enorm lemma
+lemma Real.vol_symm {x y : ℝ} : vol x y = vol y x := by
+  simp_rw [Real.vol_eq, ← ofReal_norm, norm_sub_rev]
 
 instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
   /- uses Hilbert_kernel_bound -/
   norm_K_le_vol_inv := by
     intro x y
-    rw [Complex.norm_eq_abs, Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
-    calc Complex.abs (K x y)
+    rw [Real.vol, measureReal_def, Real.dist_eq, Real.volume_ball, ENNReal.toReal_ofReal (by linarith [abs_nonneg (x-y)])]
+    calc ‖K x y‖
     _ ≤ 2 ^ (2 : ℝ) / (2 * |x - y|) := Hilbert_kernel_bound
     _ ≤ 2 ^ (4 : ℝ) ^ 3 / (2 * |x - y|) := by gcongr <;> norm_num
   /- uses Hilbert_kernel_regularity -/
@@ -537,21 +541,10 @@ instance isOneSidedKernelHilbert : IsOneSidedKernel 4 K where
 instance isTwoSidedKernelHilbert : IsTwoSidedKernel 4 K where
   norm_K_sub_le' := by
     intro x x' y h
-    rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, Complex.norm_eq_abs, Complex.abs_conj, ← Complex.norm_eq_abs, dist_comm x y, Real.vol_real_symm]
     rw [dist_comm x y] at h
-    exact isOneSidedKernelHilbert.norm_K_sub_le h
-
-
-/- This verifies the assumption on the operators T_r in two-sided metric space Carleson.
-   Its proof is done in Section 11.3 (The truncated Hilbert transform) and is yet to be formalized.
-
-   Note: we can simplify the proof in the blueprint by using real interpolation
-   `MeasureTheory.exists_hasStrongType_real_interpolation`.
--/
-lemma Hilbert_strong_2_2 :
-    ∀ r > 0, HasBoundedStrongType (CZOperator K r) 2 2 volume volume (C_Ts 4) :=
-  sorry
-
+    rw [Hilbert_kernel_conj_symm, @Hilbert_kernel_conj_symm y x', ← map_sub, ← ofReal_norm,
+      Complex.norm_conj, edist_comm x y, Real.vol_symm, ofReal_norm_eq_enorm]
+    exact enorm_K_sub_le (K := K) h
 
 local notation "T" => carlesonOperatorReal K
 
@@ -578,14 +571,16 @@ lemma carlesonOperatorReal_le_carlesonOperator : T ≤ carlesonOperator K := by
 /- Lemma 11.1.4 -/
 lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G, T f x ≤
-    ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
-  have conj_exponents : Real.IsConjExponent 2 2 := by
-    rw [Real.isConjExponent_iff_eq_conjExponent] <;> norm_num
+    ∫⁻ x in G, T f x ≤ C10_0_1 4 2 * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
+  have conj_exponents : NNReal.IsConjExponent 2 2 := by
+    rw [NNReal.isConjExponent_iff_eq_conjExponent]
+    · ext; norm_num
+    norm_num
   calc ∫⁻ x in G, T f x
     _ ≤ ∫⁻ x in G, carlesonOperator K f x :=
       lintegral_mono (carlesonOperatorReal_le_carlesonOperator _)
-    _ ≤ ENNReal.ofReal (C10_0_1 4 2) * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
-      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG Hilbert_strong_2_2 f hmf hf
+    _ ≤ C10_0_1 4 2 * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ :=
+      two_sided_metric_carleson (a := 4) (by norm_num) (by simp) conj_exponents hF hG
+        Hilbert_strong_2_2 hmf hf
 
 end section

@@ -1,5 +1,5 @@
 import Carleson.ForestOperator.AlmostOrthogonality
-import Carleson.HardyLittlewood
+import Carleson.ToMathlib.HardyLittlewood
 import Carleson.Psi
 import Carleson.TileStructure
 
@@ -137,7 +137,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
             (measure_ball_ne_top x₂ (D ^ s₂))
         · simp only [ne_eq, ENNReal.div_eq_top,
           pow_eq_zero_iff', OfNat.ofNat_ne_zero, mul_eq_zero, not_false_eq_true, pow_eq_zero_iff,
-          false_or, false_and, true_and, ENNReal.pow_eq_top_iff, ENNReal.two_ne_top, or_false,
+          false_or, false_and, true_and, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, or_false,
           not_or]
           exact ⟨ne_of_gt (measure_ball_pos volume x₁ (defaultD_pow_pos a s₁)),
             ne_of_gt (measure_ball_pos volume x₂ (defaultD_pow_pos a s₂))⟩
@@ -340,12 +340,12 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
             apply add_le_add_right
             norm_cast
             nth_rewrite 1 [← pow_one 2]
-            exact Nat.pow_le_pow_of_le_right zero_lt_two (by omega)
+            exact Nat.pow_le_pow_right zero_lt_two (by omega)
           _ = 2 * (2 : ℝ)^ (6 * a) := by ring
           _ ≤ 2 ^ (a * 8) := by
             nth_rewrite 1 [← pow_one 2, ← pow_add]
             norm_cast
-            exact Nat.pow_le_pow_of_le_right zero_lt_two (by omega)
+            exact Nat.pow_le_pow_right zero_lt_two (by omega)
       have h38 : 3 ≤ 8 := by omega
       have h12 : (1 : ℝ) ≤ 2 := by linarith
       rw [C_6_2_3]

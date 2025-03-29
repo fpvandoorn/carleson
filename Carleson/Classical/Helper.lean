@@ -10,12 +10,13 @@ theorem Real.volume_uIoc {a b : ℝ} : volume (Set.uIoc a b) = ENNReal.ofReal |b
   /- Cf. proof of Real.volume_interval-/
   rw [Set.uIoc, volume_Ioc, max_sub_min_eq_abs]
 
-lemma intervalIntegral.integral_conj' {μ : Measure ℝ} {𝕜 : Type} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ}:
+lemma intervalIntegral.integral_conj' {μ : Measure ℝ} {𝕜 : Type*} [RCLike 𝕜] {f : ℝ → 𝕜} {a b : ℝ} :
     ∫ x in a..b, (starRingEnd 𝕜) (f x) ∂μ = (starRingEnd 𝕜) (∫ x in a..b, f x ∂μ) := by
   rw [intervalIntegral_eq_integral_uIoc, integral_conj, intervalIntegral_eq_integral_uIoc,
       RCLike.real_smul_eq_coe_mul, RCLike.real_smul_eq_coe_mul, map_mul, RCLike.conj_ofReal]
 
-lemma intervalIntegrable_of_bdd {a b : ℝ} {δ : ℝ} {g : ℝ → ℂ} (measurable_g : Measurable g) (bddg : ∀ x, ‖g x‖ ≤ δ) : IntervalIntegrable g volume a b := by
+lemma intervalIntegrable_of_bdd {a b : ℝ} {δ : ℝ} {g : ℝ → ℂ} (measurable_g : Measurable g)
+    (bddg : ∀ x, ‖g x‖ ≤ δ) : IntervalIntegrable g volume a b := by
   apply @IntervalIntegrable.mono_fun' _ _ _ _ _ _ (fun _ ↦ δ)
   · exact intervalIntegrable_const
   · exact measurable_g.aestronglyMeasurable
@@ -24,24 +25,26 @@ lemma intervalIntegrable_of_bdd {a b : ℝ} {δ : ℝ} {g : ℝ → ℂ} (measur
     rw [Subtype.forall]
     exact fun x _ ↦ bddg x
 
-lemma IntervalIntegrable.bdd_mul {F : Type} [NormedDivisionRing F] {f g : ℝ → F} {a b : ℝ} {μ : Measure ℝ}
-    (hg : IntervalIntegrable g μ a b) (hm : AEStronglyMeasurable f μ) (hfbdd : ∃ C, ∀ x, ‖f x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
+lemma IntervalIntegrable.bdd_mul {F : Type*} [NormedDivisionRing F] {f g : ℝ → F} {a b : ℝ}
+    {μ : Measure ℝ} (hg : IntervalIntegrable g μ a b) (hm : AEStronglyMeasurable f μ)
+    (hfbdd : ∃ C, ∀ x, ‖f x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
   rw [intervalIntegrable_iff, IntegrableOn]
   apply Integrable.bdd_mul _ hm.restrict hfbdd
   rwa [← IntegrableOn, ← intervalIntegrable_iff]
 
-lemma IntervalIntegrable.mul_bdd {F : Type} [NormedField F] {f g : ℝ → F} {a b : ℝ} {μ : Measure ℝ}
-    (hf : IntervalIntegrable f μ a b) (hm : AEStronglyMeasurable g μ) (hgbdd : ∃ C, ∀ x, ‖g x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
+lemma IntervalIntegrable.mul_bdd {F : Type*} [NormedField F] {f g : ℝ → F} {a b : ℝ}
+    {μ : Measure ℝ} (hf : IntervalIntegrable f μ a b) (hm : AEStronglyMeasurable g μ)
+    (hgbdd : ∃ C, ∀ x, ‖g x‖ ≤ C) : IntervalIntegrable (fun x ↦ f x * g x) μ a b := by
   conv => pattern (fun x ↦ f x * g x); ext x; rw [mul_comm]
   exact hf.bdd_mul hm hgbdd
 
-lemma IntegrableOn.sub {α : Type} {β : Type} {m : MeasurableSpace α}
-    {μ : Measure α} [NormedAddCommGroup β] {s : Set α} {f g : α → β} (hf : IntegrableOn f s μ) (hg : IntegrableOn g s μ) : IntegrableOn (f - g) s μ := by
+lemma IntegrableOn.sub {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α}
+    [NormedAddCommGroup β] {s : Set α} {f g : α → β}
+    (hf : IntegrableOn f s μ) (hg : IntegrableOn g s μ) : IntegrableOn (f - g) s μ := by
   apply Integrable.sub <;> rwa [← IntegrableOn]
 
-
-lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLinearOrder α] {ι : Type} [Nonempty ι]
-    {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
+lemma ConditionallyCompleteLattice.le_biSup {α : Type*} [ConditionallyCompleteLinearOrder α]
+    {ι : Type*} {f : ι → α} {s : Set ι} {a : α} (hfs : BddAbove (f '' s)) (ha : ∃ i ∈ s, f i = a) :
     a ≤ ⨆ i ∈ s, f i := by
   apply ConditionallyCompleteLattice.le_csSup
   · --TODO: improve this
@@ -75,15 +78,16 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type} [ConditionallyCompleteLi
   simp only [Set.mem_range, exists_prop] at hx
   rwa [hx.2] at fia
 
-
-/-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
-theorem Function.Periodic.exists_mem_Ico₀' {α : Type} {β : Type} {f : α → β} {c : α}
-  [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x : α) : ∃ (n : ℤ), (x - n • c) ∈ Set.Ico 0 c ∧ f x = f (x - n • c) :=
+/- Adapted from mathlib Function.Periodic.exists_mem_Ico₀ -/
+theorem Function.Periodic.exists_mem_Ico₀' {α β : Type*} {f : α → β} {c : α}
+    [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x : α) :
+    ∃ (n : ℤ), (x - n • c) ∈ Set.Ico 0 c ∧ f x = f (x - n • c) :=
   let ⟨n, H, _⟩ := existsUnique_zsmul_near_of_pos' hc x
   ⟨n, H, (h.sub_zsmul_eq n).symm⟩
 
-/-Adapted from mathlib Function.Periodic.exists_mem_Ico₀-/
-theorem Function.Periodic.exists_mem_Ico' {α : Type} {β : Type} {f : α → β} {c : α}
-  [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x a: α) : ∃ (n : ℤ), (x - n • c) ∈ Set.Ico a (a + c) ∧ f x = f (x - n • c) :=
+/- Adapted from mathlib Function.Periodic.exists_mem_Ico₀ -/
+theorem Function.Periodic.exists_mem_Ico' {α β : Type*} {f : α → β} {c : α}
+    [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x a: α) :
+    ∃ (n : ℤ), (x - n • c) ∈ Set.Ico a (a + c) ∧ f x = f (x - n • c) :=
   let ⟨n, H, _⟩ := existsUnique_sub_zsmul_mem_Ico hc x a
   ⟨n, H, (h.sub_zsmul_eq n).symm⟩

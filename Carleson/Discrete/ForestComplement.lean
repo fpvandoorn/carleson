@@ -194,7 +194,7 @@ lemma mem_iUnion_iff_mem_of_mem_ℭ {f : ℕ → ℕ → Set (𝔓 X)} (hp : p �
   · obtain ⟨n', k', _, mp⟩ := h
     have e := pairwiseDisjoint_ℭ (X := X).elim (mem_univ (k, n)) (mem_univ (k', n'))
       (not_disjoint_iff.mpr ⟨p, hp.1, hf k' n' mp⟩)
-    rw [Prod.mk.inj_iff] at e
+    rw [Prod.mk_inj] at e
     exact e.1 ▸ e.2 ▸ mp
   · use n, k, hp.2
 
@@ -374,7 +374,7 @@ lemma lt_quotient_rearrange :
     neg_neg, ENNReal.coe_mul, mul_rotate, mul_assoc, ENNReal.coe_pow, zpow_natCast]
   congr 1
   rw [ENNReal.coe_pow, ENNReal.coe_ofNat, ← zpow_natCast,
-    ← ENNReal.zpow_add two_ne_zero ENNReal.two_ne_top]
+    ← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top]
   congr 1; omega
 
 lemma l_upper_bound : l < 2 ^ n := by
@@ -382,7 +382,7 @@ lemma l_upper_bound : l < 2 ^ n := by
     apply ENNReal.div_le_of_le_mul; rw [one_mul]; exact measure_mono (E₂_subset ..)
   replace qp' := (lt_quotient_rearrange hl qp').trans_le ql1
   rw [← ENNReal.mul_lt_mul_right (c := 2 ^ (n : ℤ)) (by simp) (by simp), one_mul, mul_assoc,
-    ← ENNReal.zpow_add two_ne_zero ENNReal.two_ne_top, neg_add_cancel, zpow_zero, mul_one,
+    ← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top, neg_add_cancel, zpow_zero, mul_one,
     show (2 ^ (n : ℤ) : ℝ≥0∞) = (2 ^ (n : ℤ) : ℝ≥0) by simp, ENNReal.coe_lt_coe,
     zpow_natCast] at qp'
   calc
@@ -755,7 +755,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ k n) f x‖₊ := by
     simp only [Finset.sum_sigma']
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.sum_sigma', carlesonSum_𝔓pos_eq_sum]
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
@@ -764,9 +764,9 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
     gcongr with n hn k hkn
     simp only [Finset.mem_Iic] at hkn
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     rw [← lintegral_add_left']; swap
-    · exact h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     rw [carlesonSum_𝔓pos_inter_ℭ_eq_add_sum hkn]
     norm_cast
@@ -783,7 +783,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
         ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x‖₊ := by
     gcongr with n hn k hk
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     rw [carlesonSum_𝔓pos_inter_𝔏₀_eq_sum]
     norm_cast
@@ -795,9 +795,9 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
         + ∑ l ≤ Z * (n + 1), ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x‖₊) := by
     gcongr with n hn k hk j hj
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     rw [← lintegral_add_left']; swap
-    · exact h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     rw [carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum]
     norm_cast
@@ -821,9 +821,9 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
     gcongr with n hn k hkn j hj
     simp only [Finset.mem_Iic] at hkn hj
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     rw [← lintegral_add_left']; swap
-    · exact h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     rw [carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum hkn hj]
     norm_cast
@@ -884,7 +884,7 @@ lemma lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ
       * ((volume F ^ (1 / 2 : ℝ) * volume G ^ (1 / 2 : ℝ)))) := by
     rw [ENNReal.div_rpow_of_nonneg _ _ J, ENNReal.mul_rpow_of_nonneg _ _ J,
       ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, ← ENNReal.rpow_mul,
-      ← ENNReal.rpow_add _ _ (NeZero.ne 2) ENNReal.two_ne_top]
+      ← ENNReal.rpow_add _ _ (NeZero.ne 2) ENNReal.ofNat_ne_top]
     congr
     · ring
     · simp
@@ -901,7 +901,7 @@ lemma lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ
     ring_nf
   _ ≤ 2 ^ ((2 : ℝ)⁻¹ + (a + 5/2)) *
       (volume G ^ (1 - q⁻¹) * (volume F ^ q⁻¹ * 2 ^ (- ((q - 1) / (8 * ↑a ^ 4) * n)))) := by
-    rw [← ENNReal.rpow_add _ _ (NeZero.ne 2) ENNReal.two_ne_top]
+    rw [← ENNReal.rpow_add _ _ (NeZero.ne 2) ENNReal.ofNat_ne_top]
     have : (4 : ℝ) ≤ a := mod_cast (four_le_a X)
     gcongr
     · exact one_le_two
@@ -942,7 +942,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
   have : q ≤ 2 := q_le_two X
   have : (4 : ℝ) ≤ a := mod_cast (four_le_a X)
   have P : 0 < (q - 1) / (8 * ↑a ^ 4) := by positivity
-  have : 0.6931471803 ≤ Real.log 2 := Real.log_two_gt_d9.le
+  have : 0.69 ≤ Real.log 2 := le_trans (by norm_num) Real.log_two_gt_d9.le
   have : (1 : ℝ) ≤ Z / 2 ^ 48 := by
     rw [one_le_div (by positivity)]
     simp only [defaultZ, Nat.cast_pow, Nat.cast_ofNat]
@@ -995,15 +995,15 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
     field_simp only
     ring
   _ ≤ ((8 * a ^ 4) / (q - 1)) ^ 4 *
-     (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.6931471803
-      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (Z / 2 ^ 48) + 40 * ↑Z)  / 0.6931471803 ^ 2
-      + ((2 - 1) / (8 * 4 ^ 4)) * (28 * (Z / 2 ^ 48) + 64 * ↑Z) / 0.6931471803 ^ 3
-      + (48 * ↑Z) / 0.6931471803 ^ 4) := by gcongr
+     (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (Z / 2 ^ 48) + 16 * ↑Z) / 0.69
+      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (Z / 2 ^ 48) + 40 * ↑Z)  / 0.69 ^ 2
+      + ((2 - 1) / (8 * 4 ^ 4)) * (28 * (Z / 2 ^ 48) + 64 * ↑Z) / 0.69 ^ 3
+      + (48 * ↑Z) / 0.69 ^ 4) := by gcongr
   _ = a ^ 16 / (q - 1) ^ 4 * Z * (8 ^ 4 *
-      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (1 / 2 ^ 48) + 16) / 0.6931471803
-      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (1 / 2 ^ 48) + 40)  / 0.6931471803 ^ 2
-      + ((2 - 1) / (8 * 4 ^ 4)) * (28 * (1 / 2 ^ 48) + 64) / 0.6931471803 ^ 3
-      + 48 / 0.6931471803 ^ 4)) := by
+      (((2 - 1) / (8 * 4 ^ 4)) ^ 3 * (24 * (1 / 2 ^ 48) + 16) / 0.69
+      + ((2 - 1) / (8 * 4 ^ 4)) ^ 2 * (38 * (1 / 2 ^ 48) + 40)  / 0.69 ^ 2
+      + ((2 - 1) / (8 * 4 ^ 4)) * (28 * (1 / 2 ^ 48) + 64) / 0.69 ^ 3
+      + 48 / 0.69 ^ 4)) := by
     rw [div_pow]; ring
   _ ≤ a ^ 16 / (q - 1) ^ 4 * Z * 2 ^ 20 := by gcongr; norm_num
   _ ≤ (2 ^ a) ^ 16 / (q - 1) ^ 4 * Z * 2 ^ 20 := by

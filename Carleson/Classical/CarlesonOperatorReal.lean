@@ -37,17 +37,15 @@ lemma annulus_measurableSet {x r R : ℝ} : MeasurableSet {y | dist x y ∈ Set.
 
 lemma sup_eq_sup_dense_of_continuous {f : ℝ → ENNReal} {S : Set ℝ} (D : Set ℝ) (hS : IsOpen S) (hD: Dense D) (hf : ContinuousOn f S) :
     ⨆ r ∈ S, f r = ⨆ r ∈ (S ∩ D), f r := by
-  --Show two inequalities, one is trivial
-  refine le_antisymm (le_of_forall_ge_of_dense fun c hc ↦ ?_) (biSup_mono Set.inter_subset_left)
+  -- Show two inequalities, one is trivial
+  refine le_antisymm (le_of_forall_lt_imp_le_of_dense fun c hc ↦ ?_) (biSup_mono Set.inter_subset_left)
   rw [lt_iSup_iff] at hc
   rcases hc with ⟨x, hx⟩
   rw [lt_iSup_iff] at hx
   rcases hx with ⟨xS, hx⟩
   have : IsOpen (S ∩ f ⁻¹' (Set.Ioi c)) := hf.isOpen_inter_preimage hS isOpen_Ioi
-  have : Set.Nonempty ((S ∩ f ⁻¹' (Set.Ioi c)) ∩ D) := by
-    apply hD.inter_open_nonempty _ this _
-    use x, xS
-    simpa
+  have : Set.Nonempty ((S ∩ f ⁻¹' (Set.Ioi c)) ∩ D) :=
+    hD.inter_open_nonempty _ this ⟨x, xS, by simpa⟩
   rcases this with ⟨y, hy⟩
   rw [Set.mem_inter_iff, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ioi] at hy
   exact hy.1.2.le.trans (le_biSup _ ⟨hy.1.1, hy.2⟩)

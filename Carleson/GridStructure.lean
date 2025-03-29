@@ -74,6 +74,12 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 @[simp] lemma Grid.mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
 @[simp] lemma Grid.le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 
+lemma Grid.mem_mono {x:X} : Monotone (x ∈ · : Grid X → Prop) := by
+  intro u u' hle hu
+  rw [Grid.mem_def] at hu ⊢
+  rw [Grid.le_def] at hle
+  exact hle.left hu
+
 lemma fundamental_dyadic :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
@@ -164,6 +170,20 @@ lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
 
 lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
 
+lemma scale_eq_scale_topCube_iff (i : Grid X) : s i = s (topCube : Grid X) ↔ i = topCube := by
+  refine ⟨(eq_or_disjoint · |>.resolve_right ?_), (· ▸ rfl)⟩
+  exact Set.not_disjoint_iff.mpr ⟨c i, c_mem_Grid, subset_topCube c_mem_Grid⟩
+
+lemma scale_lt_scale_topCube {i : Grid X} (hi : i ≠ topCube) : s i < s (topCube : Grid X) := by
+  have : s i ≤ s topCube (X := X) := by rw [s, s_topCube]; exact scale_mem_Icc.2
+  apply this.lt_of_ne
+  rwa [ne_eq, scale_eq_scale_topCube_iff]
+
+lemma eq_topCube_of_S_eq_zero (i : Grid X) (hS : S = 0) : i = topCube := by
+  have hsi : s i = 0                  := by simpa [hS] using scale_mem_Icc (i := i)
+  have hst : s (topCube : Grid X) = 0 := by simpa [hS] using scale_mem_Icc (i := (topCube : Grid X))
+  rw [← scale_eq_scale_topCube_iff, hsi, hst]
+
 lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j) : i ≤ j := by
   obtain ⟨c, mc⟩ := k.nonempty
   exact le_of_mem_of_mem h (mem_of_mem_of_subset mc li.1) (mem_of_mem_of_subset mc lj.1)
@@ -239,6 +259,12 @@ lemma max_of_le_succ : i.succ ≤ i → IsMax i := fun h ↦ by
   contrapose! h; by_contra! k; have l := (succ_spec h).1.trans_le k
   rwa [lt_self_iff_false] at l
 
+lemma not_isMax_of_scale_lt {j W : Grid X} (h : s j < s W) : ¬IsMax j := by
+  rw [Grid.isMax_iff]
+  intro top
+  rw [top, show s topCube = ↑S by exact s_topCube (X := X)] at h
+  linarith [(scale_mem_Icc (i := W)).2]
+
 lemma succ_le_of_lt (h : i < j) : i.succ ≤ j := by
   by_cases k : IsMax i
   · simp only [k, succ, dite_true]; exact h.le
@@ -280,6 +306,12 @@ lemma scale_succ (h : ¬IsMax i) : s i.succ = s i + 1 := by
     exists_sandwiched (le_succ (i := i)) (s i + 1) (by rw [mem_Icc]; omega)
   have l := (lt_def.mpr ⟨hz₃.1, hz₁.symm ▸ h₀⟩).trans_le (h₂ z (lt_def.mpr ⟨hz₂.1, by omega⟩))
   rwa [lt_self_iff_false] at l
+
+lemma exists_scale_succ {j W : Grid X} (h : s j < s W) : ∃ J, j ≤ J ∧ s J = s j + 1 := by
+  use j.succ
+  constructor
+  · exact Grid.le_succ
+  · exact Grid.scale_succ (Grid.not_isMax_of_scale_lt h)
 
 lemma opSize_succ_lt (h : ¬IsMax i) : i.succ.opSize < i.opSize := by
   simp only [opSize, Int.lt_toNat]

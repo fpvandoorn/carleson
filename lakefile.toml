@@ -8,9 +8,10 @@ autoImplicit = false
 # This has lots of false positives currently.
 linter.style.longLine = false
 linter.oldObtain = true
-linter.refine = true
+linter.style.cases = true
+linter.style.refine = true
 linter.style.multiGoal = true
-linter.flexible = true
+weak.linter.flexible = true
 
 [[require]]
 name = "mathlib"

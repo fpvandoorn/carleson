@@ -557,7 +557,8 @@ def 𝔘₄ (k n j l : ℕ) : Set (𝔓 X) :=
   ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), iteratedMaximalSubfamily (𝔘₃ k n j) i
 
 lemma 𝔘₄_subset_𝔘₃ {k n j l} : 𝔘₄ (X := X) k n j l ⊆ 𝔘₃ k n j := by
-  simp [𝔘₄, iteratedMaximalSubfamily_subset]
+  -- perf: squeeze
+  simp only [𝔘₄, mem_Ico, iUnion_subset_iff, iteratedMaximalSubfamily_subset, implies_true]
 
 /-- The sets `(𝔘₄(k, n, j, l))_l` form a partition of `𝔘₃ k n j`. -/
 lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X := X) k n j l = 𝔘₃ k n j := by
@@ -592,7 +593,7 @@ lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X :=
 lemma C6_forest' (hkn : k ≤ n) :
     ℭ₆ (X := X) k n j = ⋃ l ∈ Iio (4 * n + 12), ⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u := by
   rw [C6_forest, ← iUnion_𝔘₄ hkn]
-  simp
+  simp only [mem_Iio, mem_iUnion, exists_prop, iUnion_exists, biUnion_and'] -- perf: squeeze
 
 lemma pairwiseDisjoint_𝔘₄ : univ.PairwiseDisjoint (𝔘₄ (X := X) k n j) := by
   intro l hl m hm hml
@@ -622,7 +623,8 @@ lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 
       exact disjoint_iff_forall_ne.1 this hp hq
     congr
     ext p
-    simp
+    simp only [mem_Ico, mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and,
+      Finset.mem_biUnion, Finset.mem_Ico] -- perf: squeezed
   _ ≤ ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), 1 := by
     gcongr with i hi
     apply stackSize_le_one_of_pairwiseDisjoint
@@ -719,7 +721,7 @@ lemma carlesonSum_ℭ₆_eq_sum {f : X → ℂ} {x : X} {k n j : ℕ} (hkn : k �
     exact disjoint_iff_forall_ne.1 this hq hq'
   congr
   ext p
-  simp [C6_forest' hkn]
+  simp only [C6_forest' hkn, mem_Iio, mem_iUnion, exists_prop, Finset.mem_Iio] -- perf: squeezed
 
 /-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
 the forest theorem and to the density control coming from the fact we are away from `G₁`. -/
@@ -812,21 +814,19 @@ lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
     simp only [Finset.sum_sigma']
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.sum_sigma', carlesonSum_𝔓₁_eq_sum]
     exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
   _ = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ := by
-    congr with n
-    congr with k
-    congr with j
+    congr! 3
     apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
     exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ := by
     gcongr with n hn k hk j hj
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.mem_Iic] at hk
     rw [carlesonSum_ℭ₆_eq_sum hk]

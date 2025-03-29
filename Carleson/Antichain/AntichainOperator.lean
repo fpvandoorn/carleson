@@ -1,5 +1,5 @@
 import Carleson.TileStructure
-import Carleson.HardyLittlewood
+import Carleson.ToMathlib.HardyLittlewood
 import Carleson.Psi
 import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
 
@@ -146,7 +146,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
   have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_defaultD_pow_pos _ (by linarith) _
   have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
   have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume.nnreal (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
-    apply le_trans (NNReal.coe_le_coe.mpr kernel_bound)
+    apply le_trans (NNReal.coe_le_coe.mpr kernel_bound_old)
     rw [NNReal.coe_div, NNReal.coe_pow, NNReal.coe_ofNat, ← NNReal.val_eq_coe, measureNNReal_val]
     exact div_le_div_of_nonneg_left (pow_nonneg zero_le_two _)
       (measure_ball_pos_real x _ (div_pos (zpow_pos (defaultD_pos _) _) zero_lt_four))
@@ -214,9 +214,9 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       = ↑‖carlesonOn p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
     _ ≤ ∫⁻ (y : X), ‖cexp (I * (↑((Q x) y) - ↑((Q x) x))) * Ks (𝔰 p.1) x y * f y‖₊ := by
         rw [carlesonOn, indicator, if_pos hxE]
-        refine le_trans (ennnorm_integral_le_lintegral_ennnorm _) (lintegral_mono fun z w h ↦ ?_)
+        refine le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z w h ↦ ?_)
         simp only [nnnorm_mul, coe_mul, some_eq_coe', Nat.cast_pow, Nat.cast_ofNat,
-          zpow_neg, mul_ite, mul_zero, Ks, mul_assoc] at h ⊢
+          zpow_neg, mul_ite, mul_zero, Ks, mul_assoc, enorm_eq_nnnorm] at h ⊢
         use w
     _ ≤ ∫⁻ (y : X), ‖Ks (𝔰 p.1) x y * f y‖₊ := by
       simp only [nnnorm_mul]
@@ -348,9 +348,9 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
     rw [hf_top, mul_top]
     · exact le_top
     simp only [ne_eq, ENNReal.div_eq_zero_iff, mul_eq_zero, pow_eq_zero_iff',
-    OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, two_ne_top, not_false_eq_true,
+    OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, ofNat_ne_top, not_false_eq_true,
     and_true, not_or]
-    refine ⟨?_, mul_ne_top two_ne_top (mul_ne_top (mul_ne_top two_ne_top coe_ne_top)
+    refine ⟨?_, mul_ne_top ofNat_ne_top (mul_ne_top (mul_ne_top ofNat_ne_top coe_ne_top)
       (inv_ne_top.mpr (by simp)))⟩
     rw [tsub_eq_zero_iff_le]
     exact not_le.mpr (lt_trans (by norm_cast)
@@ -401,8 +401,8 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     have heq : (2^2 : ℝ≥0∞) / (nnq' - 1) = 8 / (2 * nnq' - 2) := by
       have h8 : (8 : ℝ≥0∞) =  2 * 4 := by norm_cast
       have h2 : ((2 : ℝ≥0∞) * nnq' - 2) = 2 * (nnq' - 1) := by
-        rw [ENNReal.mul_sub (fun _ _ ↦ two_ne_top), mul_one]
-      rw [h8, h2, ENNReal.mul_div_mul_left _ _ two_ne_zero two_ne_top]
+        rw [ENNReal.mul_sub (fun _ _ ↦ ofNat_ne_top), mul_one]
+      rw [h8, h2, ENNReal.mul_div_mul_left _ _ two_ne_zero ofNat_ne_top]
       ring_nf
     rw [heq]
     apply ENNReal.div_le_div_right
@@ -436,7 +436,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
       gcongr
       have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
         simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
-      rw [h2, ← eLpNorm_const_smul]
+      rw [h2, ← enorm_eq_nnnorm, ← eLpNorm_const_smul]
       apply eLpNorm_mono_nnnorm
       intro z
       have MB_top : MB volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) f z ≠ ⊤ := by
@@ -549,7 +549,7 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
   calc
   _ ≤ eLpNorm (G.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    simp only [indicator, Complex.norm_eq_abs, coe_algebraMap, Real.norm_eq_abs]
+    simp only [indicator, coe_algebraMap, Real.norm_eq_abs]
     split_ifs
     · simpa using I _
     · simp

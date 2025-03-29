@@ -1,11 +1,12 @@
-import Carleson.DoublingMeasure
-import Carleson.WeakType
+import Carleson.ToMathlib.DoublingMeasure
+import Carleson.ToMathlib.WeakType
+import Carleson.ToMathlib.Data.ENNReal
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
 
-open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
-open scoped ENNReal
+open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
+open scoped NNReal
 noncomputable section
 
 -- todo: rename and protect `Real.RCLike`
@@ -173,10 +174,23 @@ class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
 
 export IsCancellative (norm_integral_exp_le)
 
-/-- The "volume function" `V`. Note that we will need to assume
-`IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
-def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
+/-- The "volume function" `V`. Preferably use `vol` instead. -/
+protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
+
+/-- The "volume function" `V`. We will need to assume
+`IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
+def vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ≥0∞ :=
+  volume (ball x (dist x y))
+
+lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
+  Real.vol x y = (vol x y).toReal := rfl
+
+lemma ofReal_vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] [ProperSpace X]
+  [IsFiniteMeasureOnCompacts (volume : Measure X)] {x y : X} :
+    ENNReal.ofReal (Real.vol x y) = vol x y := by
+  simp_rw [Real.vol_def, ENNReal.ofReal_toReal_eq_iff, vol]
+  apply measure_ball_ne_top
 
 -- /-- In Mathlib we only have the operator norm for continuous linear maps,
 -- and `T_*` is not linear.
@@ -186,12 +200,16 @@ def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ 
 --   sInf { c | 0 ≤ c ∧ ∀ x, ‖T x‖ ≤ c * ‖x‖ }
 
 /-- The Calderon Zygmund operator `T_r` in chapter Two-sided Metric Space Carleson -/
-def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
-  ∫ y in {y | dist x y ∈ Ici r}, K x y * f y
+def czOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+  ∫ y in (ball x r)ᶜ, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
-  sSup { r : ℝ≥0∞ | dist_{x, r.toReal} θ (Q x) < 1 }
+  ⨆ (r : ℝ) (_ : dist_{x, r} θ (Q x) < 1), ENNReal.ofReal r
+
+lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x : X} {r : ℝ}
+    (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
+  apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
@@ -202,7 +220,7 @@ def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
+  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
 
 /-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
@@ -241,22 +259,24 @@ lemma mul_defaultD_pow_pos (a : ℕ) {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * 
 section Kernel
 
 variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X] [MeasureSpace X]
-open Real (vol)
 open Function
 
 /-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
-@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
+@[simp] def C_K (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
-lemma C_K_pos (a : ℝ) : 0 < C_K a := by unfold C_K; positivity
+lemma C_K_pos {a : ℝ} : 0 < C_K a := NNReal.rpow_pos (by norm_num)
+lemma C_K_pos_real {a : ℝ} : 0 < (C_K a : ℝ) := C_K_pos
 
 /-- `K` is a one-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
+that `K x x = 0`.
+
+Todo: maybe make enorm_K_le_vol_inv + enorm_K_sub_le + K_eq_zero_of_dist_eq_zero the axioms. -/
 class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
   measurable_K : Measurable (uncurry K)
-  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
+  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / Real.vol x y
   norm_K_sub_le {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
@@ -271,12 +291,62 @@ lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
 lemma measurable_K_left [IsOneSidedKernel a K] (y : X) : Measurable (K · y) :=
   measurable_K.of_uncurry_right
 
+lemma measurable_K_right [IsOneSidedKernel a K] (x : X) : Measurable (K x) :=
+  measurable_K.of_uncurry_left
+
+lemma enorm_K_le_vol_inv [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOneSidedKernel a K] (x y : X) : ‖K x y‖ₑ ≤ (C_K a : ℝ≥0∞) / vol x y := by
+  rw [← ofReal_norm, ← ofReal_vol, ← ofReal_coe_nnreal]
+  refine le_trans ?_ (ofReal_div_le measureReal_nonneg)
+  gcongr
+  apply norm_K_le_vol_inv
+
+
+lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOneSidedKernel a K] {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
+    ‖K x y - K x y'‖ₑ ≤ (edist y y' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y) := by
+  simp_rw [← ofReal_norm, ← ofReal_vol, ← ofReal_coe_nnreal, edist_dist]
+  calc
+    _ ≤ ENNReal.ofReal ((dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)) := by
+      gcongr; apply norm_K_sub_le h
+    _ ≤ _ := by
+      rw [ENNReal.ofReal_mul']; swap
+      · exact div_nonneg NNReal.zero_le_coe measureReal_nonneg
+      gcongr
+      · rw [← ENNReal.ofReal_rpow_of_nonneg (by positivity) (by positivity)]
+        gcongr
+        apply ofReal_div_le (by positivity)
+      · exact ofReal_div_le measureReal_nonneg
+
+lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
+    [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
+    [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
+    IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
+  use Measurable.aestronglyMeasurable (measurable_K_right x)
+  rw [hasFiniteIntegral_def]
+  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, ‖K x y‖ₑ
+    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, C_K a / volume (ball x r) := by
+      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
+      refine (enorm_K_le_vol_inv x y).trans ?_
+      rw [vol]
+      gcongr
+      exact hy.1
+    _ < _ := by
+      rw [setLIntegral_const]
+      apply ENNReal.mul_lt_top (ENNReal.div_lt_top ENNReal.coe_ne_top _); swap
+      · simp_rw [← pos_iff_ne_zero, measure_ball_pos _ _ hr]
+      refine (Ne.lt_top fun h ↦ ?_)
+      have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by
+        intro y ⟨_, hy⟩
+        exact mem_closedBall_comm.mp hy
+      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
+
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
   norm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
-    ‖K x y - K x' y‖ ≤ (dist x x' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+    ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
 export IsTwoSidedKernel (norm_K_sub_le')
 
@@ -301,7 +371,7 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   c : IsCancellative X (defaultτ a)
   hcz : IsOneSidedKernel a K
   hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (nontangentialOperator K · · |>.toReal) 2 2 volume volume (C_Ts a)
+    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
   measurable_σ₁ : Measurable σ₁
@@ -330,7 +400,7 @@ lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
   | succ k ih =>
     trans 2 * dist_{x, (defaultA a) ^ k * r} f g
     · rw [pow_succ', mul_assoc]
-      exact (mul_le_mul_left zero_lt_two).mpr ih
+      exact (_root_.mul_le_mul_left zero_lt_two).mpr ih
     · convert le_cdist (ball_subset_ball _) using 1
       · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
       · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
@@ -410,17 +480,24 @@ section DBounds
 
 variable (X)
 
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_realD : (100 : ℝ) < defaultD a := by
+  simp only [defaultD]
+  norm_cast
+  calc 100
+    _ < 128 := by
+      linarith
+    _ = 2 ^ 7 := by
+      rfl
+    _ < 2 ^ (100 * a ^ 2) := by
+      have : 4 ≤ a := four_le_a X
+      gcongr
+      · linarith
+      · nlinarith
+
 -- used in 4.1.7 (`small_boundary`)
 lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
-  simp only [defaultD, Nat.ofNat_le_cast]
-  have : 4 ≤ a := four_le_a X
-  calc
-    (25 : ℕ)
-      ≤ 32 := Nat.le_of_ble_eq_true rfl
-    _ = 2 ^ (5) := by rfl
-    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by norm_num)
-    _ ≤ 2 ^ (100 * a ^ 2) := Nat.pow_le_pow_right (by norm_num)
-      (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
+  linarith [hundred_lt_realD X]
 
 -- used in 4.1.3 (`I3_prop_3_1`)
 lemma eight_le_realD : (8 : ℝ) ≤ defaultD a := by
