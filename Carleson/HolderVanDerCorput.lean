@@ -102,6 +102,12 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
       apply setIntegral_le_integral (integrable_cutoff hR ht)
       filter_upwards with x using (by simp [cutoff])
 
+lemma integral_cutoff_pos {R t : ℝ} (hR : 0 < R) (ht : 0 < t) : 0 < ∫ y, cutoff R t x y := by
+  apply lt_of_lt_of_le _ (aux_8_0_6 hR ht)
+  apply mul_pos (by positivity)
+  apply measure_real_ball_pos
+  positivity
+
 /-- The smallest integer `n` so that `2^n t ≥ 1`. -/
 -- i.e., the real logarithm log₂ 1/t, rounded *up* to the nearest integer
 private def n_8_0_7 (t : ℝ) : ℤ := Int.log 2 (1 / t) + 1
@@ -124,6 +130,13 @@ def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1))
 /-- `ϕ ↦ \tilde{ϕ}` in the proof of Lemma 8.0.1. -/
 def holderApprox (R t : ℝ) (ϕ : X → ℂ) (x : X) : ℂ :=
   (∫ y, cutoff R t x y * ϕ y) / (∫ y, cutoff R t x y)
+
+lemma integral_mul_holderApprox {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (ϕ : X → ℂ) :
+    (∫ y, cutoff R t x y) * holderApprox R t ϕ x = ∫ y, cutoff R t x y * ϕ y := by
+  rw [holderApprox, mul_div_cancel₀]
+  simp only [ne_eq, ofReal_eq_zero]
+  apply ne_of_gt
+  exact integral_cutoff_pos hR ht
 
 -- This surely exists in mathlib; how is it named?
 lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
@@ -160,30 +173,24 @@ Hölder on `ball z R` as `ϕ` is supported there.
 -/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
-    (h2ϕ : HolderWith C nnτ ϕ) (hτ : 0 < nnτ) (ht : t ∈ Ioc (0 : ℝ) 1) (x : X) :
+    (h2ϕ : HolderWith C nnτ ϕ) (hτ : 0 < nnτ) (ht : 0 < t) (x : X) :
     dist (ϕ x) (holderApprox R t ϕ x) ≤ t ^ τ  * (R ^ τ * C) := by
-  have ht0 : 0 < t := ht.1
-  have P : 0 < ∫ y, cutoff R t x y := by
-    apply lt_of_lt_of_le _ (aux_8_0_6 hR ht.1)
-    apply mul_pos (by positivity)
-    apply measure_real_ball_pos
-    positivity
   have : (∫ y, cutoff R t x y * ϕ x) / (∫ y, (cutoff R t x y : ℂ)) = ϕ x := by
     rw [integral_mul_right, mul_div_cancel_left₀]
-    simpa only [ne_eq, ofReal_eq_zero, integral_complex_ofReal] using P.ne'
+    simpa only [ne_eq, ofReal_eq_zero, integral_complex_ofReal] using (integral_cutoff_pos hR ht).ne'
   rw [dist_eq_norm, ← this, holderApprox, integral_complex_ofReal, ← sub_div,
     ← integral_sub]; rotate_left
-  · apply (integrable_cutoff hR ht0).ofReal.mul_const
+  · apply (integrable_cutoff hR ht).ofReal.mul_const
   · apply Continuous.integrable_of_hasCompactSupport
     · apply Continuous.mul
-      · have := cutoff_continuous hR ht0 (x := x)
+      · have := cutoff_continuous hR ht (x := x)
         fun_prop
       · exact h2ϕ.continuous hτ
     · apply HasCompactSupport.mul_left
       apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall z R)
       apply hϕ.trans ball_subset_closedBall
   rw [norm_div, norm_real, div_le_iff₀]; swap
-  · exact P.trans_le (le_abs_self _)
+  · exact ((integral_cutoff_pos hR ht)).trans_le (le_abs_self _)
   calc
     ‖∫ y, cutoff R t x y * ϕ x - cutoff R t x y * ϕ y‖
   _ = ‖∫ y, cutoff R t x y * (ϕ x - ϕ y)‖ := by simp only [mul_sub]
@@ -191,7 +198,7 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
   _ ≤ ∫ y, cutoff R t x y * (C * (t * R) ^ τ) := by
     apply integral_mono_of_nonneg
     · filter_upwards with y using (by positivity)
-    · apply (integrable_cutoff hR ht0).mul_const
+    · apply (integrable_cutoff hR ht).mul_const
     filter_upwards with y
     rcases le_total (dist x y) (t * R) with hy | hy
     -- Case 1: |x - y| ≤ t * R, then cutoff is non-negative.
@@ -213,7 +220,7 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     gcongr
     exact Real.le_norm_self _
   _ = t ^ τ * (R ^ τ * C) * ‖∫ (x_1 : X), cutoff R t x x_1‖ := by
-    rw [Real.mul_rpow ht0.le hR.le]
+    rw [Real.mul_rpow ht.le hR.le]
     ring
 
 lemma holderApprox_le {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 0 < t)
@@ -222,9 +229,7 @@ lemma holderApprox_le {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 0 < t)
   rw [holderApprox, norm_div, norm_real, Real.norm_eq_abs]
   apply div_le_of_le_mul₀ (by positivity) (by positivity)
   apply (norm_integral_le_integral_norm _).trans
-  rw [abs_of_nonneg, ← integral_mul_left]; swap
-  · apply integral_nonneg
-    apply cutoff_nonneg
+  rw [abs_of_pos (integral_cutoff_pos hR ht), ← integral_mul_left]
   apply integral_mono_of_nonneg
   · apply Eventually.of_forall (fun x ↦ by positivity)
   · apply (integrable_cutoff hR ht).const_mul
@@ -238,18 +243,28 @@ lemma holderApprox_le {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 0 < t)
 /-- Part of Lemma 8.0.1. -/
 lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0}
     (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
-    (hC : ∀ x, ‖ϕ x‖ ≤ C) (ht : t ∈ Ioc (0 : ℝ) 1) :
-    LipschitzWith ((C8_0_1 a ⟨t, ht.1.le⟩) * ⟨R ^ τ, by positivity⟩ * C) (holderApprox R t ϕ) := by
+    (hC : ∀ x, ‖ϕ x‖ ≤ C) (ht : 0 < t) :
+    LipschitzWith ((C8_0_1 a ⟨t, ht.le⟩) * ⟨R ^ τ, by positivity⟩ * C) (holderApprox R t ϕ) := by
   have M (x x' : X) :
-      ∫ (y : X), cutoff R t x y * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
+      (∫ y, cutoff R t x y) * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
         2 * C *∫ y, |cutoff R t x' y - cutoff R t x y| :=
     calc
-      ∫ (y : X), cutoff R t x y * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖
-    _ = ‖(∫ (y : X), cutoff R t x y) * (holderApprox R t ϕ x' - holderApprox R t ϕ x')‖ := sorry
-    _ = ‖(∫ (y : X), cutoff R t x y - cutoff R t x' y) * holderApprox R t ϕ x'
-          + (∫ (y : X), cutoff R t x' y) * holderApprox R t ϕ x' ‖ := sorry
-    _ = ‖∫ (y : X), (cutoff R t x y - cutoff R t x' y) * holderApprox R t ϕ x'
-             + holderApprox R t ϕ x')‖ := sorry
+      (∫ y, cutoff R t x y) * ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖
+    _ = ‖(∫ y, cutoff R t x y) * (holderApprox R t ϕ x' - holderApprox R t ϕ x)‖ := by
+      rw [norm_mul, norm_real, Real.norm_eq_abs,
+        abs_of_pos (integral_cutoff_pos hR ht)]
+    _ = ‖((∫ y, cutoff R t x y)  - (∫ y, cutoff R t x' y)) * holderApprox R t ϕ x'
+          + ((∫ y, cutoff R t x' y) * holderApprox R t ϕ x'
+          - (∫ y, cutoff R t x y) * holderApprox R t ϕ x)‖ := by congr 1; ring
+    _ ≤ ‖(∫ y, cutoff R t x y - cutoff R t x' y) * holderApprox R t ϕ x'‖
+        + ‖(∫ y, cutoff R t x' y) * holderApprox R t ϕ x'
+          - (∫ y, cutoff R t x y) * holderApprox R t ϕ x‖ := by
+        rw [integral_sub (integrable_cutoff hR ht) (integrable_cutoff hR ht), ofReal_sub]
+        exact norm_add_le _ _
+    _ = ‖∫ y, cutoff R t x y - cutoff R t x' y‖ * ‖holderApprox R t ϕ x'‖ +
+          ‖(∫ y, cutoff R t x' y * ϕ y) - (∫ y, cutoff R t x y * ϕ y)‖ := by
+        simp [norm_mul, integral_mul_holderApprox hR ht]
+    _ ≤ _ := sorry
   sorry
 
 
