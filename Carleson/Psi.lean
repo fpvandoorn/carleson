@@ -506,8 +506,9 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
   · exact abs_ψ_le_one D (D ^ (-s) * dist x y)
 
 -- 2.1.3 (ENNReal version)
-lemma nnnorm_Ks_le {s : ℤ} {x y : X} :
-    ‖Ks s x y‖₊ ≤ C2_1_3 a / volume (ball x (D ^ s)) := by
+lemma enorm_Ks_le {s : ℤ} {x y : X} :
+    ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) := by
+  rw [enorm_eq_nnnorm]
   have h := norm_Ks_le (s := s) (x := x) (y := y)
   simp only [measureReal_def, ← ENNReal.toReal_mul, ← coe_nnnorm] at h
   have : (0 : ℝ) ≤ ↑(C2_1_3 a) := by simp only [zero_le_coe]
@@ -520,7 +521,7 @@ lemma nnnorm_Ks_le {s : ℤ} {x y : X} :
     exact fun _ ↦ ne_of_gt (measure_ball_pos volume x (defaultD_pow_pos a s))
 
 /-- Needed for Lemma 7.5.5. -/
-lemma enorm_Ks_le {s : ℤ} {x y : X} :
+lemma enorm_Ks_le' {s : ℤ} {x y : X} :
     ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) * ‖ψ (D ^ (-s) * dist x y)‖ₑ := by
   by_cases hK : Ks s x y = 0
   · rw [hK, enorm_zero]; exact zero_le _

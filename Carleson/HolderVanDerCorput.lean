@@ -235,11 +235,11 @@ lemma holderApprox_le {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 0 < t)
 
 /-- Auxiliary lemma: part of the Lipschitz control in Equation (8.0.2), when the distance between
 the points is at most `R`. -/
-lemma lipschitzWith_holderApprox_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h't : t ≤ 1)
+lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h't : t ≤ 1)
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
     (hC : ∀ x, ‖ϕ x‖ ≤ C) {x x' : X} (h : dist x x' < R) :
     ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
-      2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
+      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / R := by
   have M : (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) *
       ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
         2 * C * ∫ y, |cutoff R t x y - cutoff R t x' y| :=
@@ -328,48 +328,50 @@ lemma lipschitzWith_holderApprox_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < 
     gcongr
     exact measure_ball_le_same'' (μ := (volume : Measure X)) (t := 4⁻¹ * t) (r := 2 * R) x
       (by positivity) (by linarith)
-  _ = 4 * C * (defaultA a) * t⁻¹ * (4 ⁻¹ * t) ^ (- Real.logb 2 (defaultA a)) * (dist x x' / R) *
+  _ = 2⁻¹ * 8 * C * (defaultA a) * t⁻¹ * (4 ⁻¹ * t) ^ (- Real.logb 2 (defaultA a)) * (dist x x' / R) *
         (volume.real (ball x ((4⁻¹ * t) * (2 * R))) / volume.real (ball x (2⁻¹ * t * R))) := by
     ring
-  _ = 4 * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / R) := by
+  _ = 2⁻¹ * 8 * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / R) := by
     have : volume.real (ball x ((4⁻¹ * t) * (2 * R))) / volume.real (ball x (2⁻¹ * t * R)) = 1 := by
       rw [show (4⁻¹ * t) * (2 * R) = 2⁻¹ * t * R by ring, div_self]
       apply ne_of_gt
       apply measure_real_ball_pos
       positivity
     simp [defaultA, ← Real.rpow_natCast, this]
-  _ ≤ 2 ^ a * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / R) := by
+  _ ≤ 2⁻¹ * 2 ^ a * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / R) := by
     gcongr
-    rw [show (4 : ℝ) = 2 ^ 2 by norm_num]
+    rw [show (8 : ℝ) = 2 ^ 3 by norm_num]
     apply pow_le_pow_right₀ (by norm_num)
     apply le_trans (by norm_num) (four_le_a X)
-  _ = 2 ^ (a + a + 2 * a) * t ^ (- (1+a) : ℝ) * C * (dist x x' / R) := by
+  _ = 2⁻¹ * 2 ^ (a + a + 2 * a) * t ^ (- (1+a) : ℝ) * C * (dist x x' / R) := by
     simp only [pow_add, neg_add_rev]
     rw [Real.mul_rpow (by norm_num) ht.le,
       Real.rpow_neg (by norm_num), Real.inv_rpow (by norm_num), inv_inv, Real.rpow_add ht,
       Real.rpow_neg_one, Real.rpow_natCast, pow_mul, show (2 : ℝ) ^ 2 = 4 by norm_num]
     ring
-  _ = 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
+  _ = 2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
     congr <;> ring
+  _ = _ := by ring
 
 /-- Part of Lemma 8.0.1: Lipschitz norm control in Equation (8.0.2). Note that it only uses the sup
 norm of `ϕ`, no need for a Hölder control. -/
-lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h't : t ≤ 1)
+lemma norm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h't : t ≤ 1)
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
     (hC : ∀ x, ‖ϕ x‖ ≤ C) {x x' : X} :
-    ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
-      2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
+    ‖holderApprox R t ϕ x - holderApprox R t ϕ x'‖ ≤
+      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / R := by
   rcases lt_or_le (dist x x') R with hx | hx
-  · exact lipschitzWith_holderApprox_aux hR ht h't hc hϕ hC hx
+  · rw [norm_sub_rev]
+    exact norm_holderApprox_sub_le_aux hR ht h't hc hϕ hC hx
   calc
-    ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖
-  _ ≤ ‖holderApprox R t ϕ x'‖ + ‖holderApprox R t ϕ x‖ := norm_sub_le _ _
+    ‖holderApprox R t ϕ x - holderApprox R t ϕ x'‖
+  _ ≤ ‖holderApprox R t ϕ x‖ + ‖holderApprox R t ϕ x'‖ := norm_sub_le _ _
   _ ≤ C + C := by
     gcongr
-    · exact holderApprox_le hR ht hC x'
     · exact holderApprox_le hR ht hC x
-  _ = 2 ^ 1 * 1 * C * 1 := by ring
-  _ ≤ 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
+    · exact holderApprox_le hR ht hC x'
+  _ = 2⁻¹ * 2 ^ 2 * 1 * C * 1 := by ring
+  _ ≤ 2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
     gcongr
     · exact one_le_two
     · have : 4 ≤ a := four_le_a X
@@ -378,13 +380,64 @@ lemma lipschitzWith_holderApprox {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (
       have : (4 : ℝ) ≤ a := mod_cast (four_le_a X)
       linarith
     · exact (one_le_div₀ hR).mpr hx
+  _ = _ := by ring
+
+lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
+    {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
+    (hC : ∀ x, ‖ϕ x‖ ≤ C) :
+    iLipENorm (holderApprox R t ϕ) z R ≤
+      2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C := by
+  let C' : ℝ≥0 := 2 ^ (4 * a) * (t.toNNReal) ^ (-1 - a : ℝ) * C
+  have : 2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C = C' := by
+    simp only [ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_ofNat, C', ENNReal.ofReal]
+    congr
+    rw [ENNReal.coe_rpow_of_ne_zero]
+    simpa using ht
+  rw [this]
+  apply iLipENorm_le
+  · intro x hx
+    have hR : 0 < R := pos_of_mem_ball hx
+    apply (holderApprox_le hR ht hC x).trans
+    simp only [NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat, NNReal.coe_rpow, C', ← mul_assoc]
+    have : (C : ℝ) = 1 * 1 * C := by simp
+    conv_lhs => rw [this]
+    gcongr
+    · calc
+        (1 : ℝ)
+      _ = 2⁻¹ * (2 ^ 1) := by norm_num
+      _ ≤ 2⁻¹ * (2 ^ (4 * a)) := by
+        gcongr
+        · norm_num
+        · have := four_le_a X
+          linarith
+    · apply Real.one_le_rpow_of_pos_of_le_one_of_nonpos (by simp [ht]) (by simp [h't])
+      linarith
+  · intro x hx x' hx' hne
+    have hR : 0 < R := pos_of_mem_ball hx
+    simp only [NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat, NNReal.coe_rpow,
+      Real.coe_toNNReal', ht.le, sup_of_le_left, ← mul_assoc, C']
+    exact norm_holderApprox_sub_le hR ht h't hc hϕ hC
+
+lemma iLipENorm_holderApprox {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
+    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) :
+    iLipENorm (holderApprox R t ϕ) z R ≤
+      2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z R := by
+  rcases eq_or_ne (iHolENorm ϕ z R) ∞ with h'ϕ | h'ϕ
+  · apply le_top.trans_eq
+    rw [eq_comm]
+    simp [h'ϕ, ENNReal.mul_eq_top, ht]
+  rw [← ENNReal.coe_toNNReal h'ϕ]
+  apply iLipENorm_holderApprox' ht h't
+  · apply continuous_of_iHolENorm_ne_top hϕ h'ϕ
+  · apply (subset_tsupport ϕ).trans hϕ
+  · exact fun x ↦ norm_le_iHolNNNorm_of_subset h'ϕ ((subset_tsupport ϕ).trans hϕ)
 
 /-- The constant occurring in Proposition 2.0.5. -/
 def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (8 * a)
 
 /-- Proposition 2.0.5. -/
 theorem holder_van_der_corput {z : X} {R : ℝ≥0} (hR : 0 < R) {ϕ : X → ℂ}
-    (hϕ : support ϕ ⊆ ball z R) (h2ϕ : hnorm (a := a) ϕ z R < ∞) {f g : Θ X} :
+    (hϕ : support ϕ ⊆ ball z R) (h2ϕ : iHolENorm ϕ z R < ∞) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖₊ ≤
-    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * hnorm (a := a) ϕ z R *
+    (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * (iHolENorm ϕ z R).toNNReal *
     (1 + nndist_{z, R} f g) ^ (2 * a^2 + a^3 : ℝ)⁻¹ := sorry
