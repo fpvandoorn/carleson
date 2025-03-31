@@ -10,13 +10,14 @@ open SimpleFunc
 measurability of `f` -/
 theorem lintegral_eq_iSup_eapprox_lintegral' {α : Type*} {m : MeasurableSpace α} {μ : Measure α}
     {f : α → ENNReal} (hf : AEMeasurable f μ) :
-    ∫⁻ (a : α), f a ∂μ = ⨆ (n : ℕ), (eapprox (hf.mk f) n).lintegral μ := calc
-  _ = ∫⁻ a, hf.mk f a ∂μ                               := lintegral_congr_ae hf.ae_eq_mk
-  _ = ∫⁻ a, ⨆ n, (eapprox (hf.mk f) n : α → ℝ≥0∞) a ∂μ := by
-    congr; ext a; rw [iSup_eapprox_apply hf.measurable_mk]
-  _ = ⨆ n, ∫⁻ a, eapprox (hf.mk f) n a ∂μ              :=
-    lintegral_iSup (fun _ ↦ SimpleFunc.measurable _) (fun _ _ h ↦ monotone_eapprox (hf.mk f) h)
-  _ = ⨆ n, (eapprox (hf.mk f) n).lintegral μ           := by simp_rw [lintegral_eq_lintegral]
+    ∫⁻ (a : α), f a ∂μ = ⨆ (n : ℕ), (eapprox (hf.mk f) n).lintegral μ :=
+  calc
+    _ = ∫⁻ a, hf.mk f a ∂μ                               := lintegral_congr_ae hf.ae_eq_mk
+    _ = ∫⁻ a, ⨆ n, (eapprox (hf.mk f) n : α → ℝ≥0∞) a ∂μ := by
+      simp [iSup_eapprox_apply hf.measurable_mk]
+    _ = ⨆ n, ∫⁻ a, eapprox (hf.mk f) n a ∂μ              :=
+      lintegral_iSup (fun _ ↦ SimpleFunc.measurable _) (fun _ _ h ↦ monotone_eapprox (hf.mk f) h)
+    _ = ⨆ n, (eapprox (hf.mk f) n).lintegral μ           := by simp [lintegral_eq_lintegral]
 
 /-- Generalization of `MeasureTheory.lintegral_comp` assuming a.e. measurability of `f` and `g` -/
 theorem lintegral_comp' {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ : Measure α}
