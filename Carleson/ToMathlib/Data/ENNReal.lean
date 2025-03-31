@@ -55,7 +55,7 @@ lemma finsetSum_biSup {f : α → ι → ℝ≥0∞}
   induction t using Finset.cons_induction with
   | empty => simp
   | cons a t ha ihs =>
-    simp only [Finset.sum_cons, ihs]
+    simp_rw [Finset.sum_cons, ihs]
     exact biSup_add_biSup fun i hi j hj ↦ (hf i hi j hj).imp fun k hk ↦
       ⟨hk.1, add_le_add (hk.2 a).1 (Finset.sum_le_sum fun i a ↦ (hk.2 _).2)⟩
 
@@ -97,7 +97,7 @@ lemma exists_biSup_le_enorm_add_eps
   have nt : ⨆ z ∈ s, ‖f z‖ₑ ≠ ⊤ := by -- boundedness of `f` used here
     rw [ne_eq, iSup₂_eq_top]; push_neg
     obtain ⟨C, pC, hC⟩ := hf.exists_pos_norm_le; lift C to ℝ≥0 using pC.le
-    simp only [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hC
+    simp_rw [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hC
     exact ⟨C, coe_lt_top, mod_cast hC⟩
   obtain ⟨B, eB⟩ : ∃ B : ℝ≥0, ⨆ z ∈ s, ‖f z‖ₑ = B := Option.ne_none_iff_exists'.mp nt
   rw [← biSup_add hs, eB] at M
