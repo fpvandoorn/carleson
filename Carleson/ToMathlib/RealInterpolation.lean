@@ -2100,7 +2100,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
     ∫⁻ x : α, (f x) * g x ∂μ := by
   let A := spanningSets μ
   let g := trunc_cut f μ
-  have hpq' : p.IsConjExponent q := Real.IsConjExponent.mk hp hpq
+  have hpq' : p.HolderConjugate q := Real.holderConjugate_iff.mpr ⟨hp, hpq⟩
   have f_mul : ∀ n : ℕ, (g n) ^ p ≤ f * (g n) ^ (p - 1) := by
     intro n x
     simp only [g, Pi.pow_apply, Pi.mul_apply, trunc_cut, indicator]
@@ -2167,8 +2167,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
         ext x
         rw [← ENNReal.rpow_mul]
         congr
-        refine Real.IsConjExponent.sub_one_mul_conj ?_
-        exact Real.IsConjExponent.mk hp hpq
+        refine Real.HolderConjugate.sub_one_mul_conj hpq'
       _ = (∫⁻ x : α, (g n x) ^ p ∂μ) ^ p⁻¹ := by
         rw [← ENNReal.rpow_neg]
         nth_rw 1 [← ENNReal.rpow_one (x := (∫⁻ x : α, (g n x) ^ (p) ∂μ))]
@@ -2222,7 +2221,7 @@ lemma representationLp {μ : Measure α} [SigmaFinite μ] {f : α → ℝ≥0∞
             ext z
             rw [← ENNReal.rpow_mul]
             congr
-            exact Real.IsConjExponent.sub_one_mul_conj hpq'
+            exact Real.HolderConjugate.sub_one_mul_conj hpq'
           _ < ⊤ := g_fin n
         · linarith
   apply eq_of_le_of_le
@@ -2287,8 +2286,8 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
     ∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν := by
   rcases Decidable.lt_or_eq_of_le hp with one_lt_p | one_eq_p
   · let q := Real.conjExponent p
-    have hpq' : p.IsConjExponent q := Real.IsConjExponent.conjExponent one_lt_p
-    have one_lt_q : 1 < q := (Real.IsConjExponent.symm hpq').one_lt
+    have hpq' : p.HolderConjugate q := Real.HolderConjugate.conjExponent one_lt_p
+    have one_lt_q : 1 < q := (Real.HolderConjugate.symm hpq').lt
     have ineq : ∀ g ∈ {g' : α → ℝ≥0∞ | AEMeasurable g' μ ∧ ∫⁻ (z : α), (g' z) ^ q ∂μ ≤ 1},
         ∫⁻ x : α, (∫⁻ y : β, f x y ∂ν) * g x ∂μ ≤
         ∫⁻ (y : β), (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ ∂ν := by
@@ -2311,7 +2310,7 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
         _ = (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ := by
           simp [one_div]
     nth_rw 1 [← one_div]
-    rw [representationLp (hp := one_lt_p) (hq := one_lt_q.le) (hpq := hpq'.inv_add_inv_conj)]
+    rw [representationLp (hp := one_lt_p) (hq := one_lt_q.le) (hpq := hpq'.inv_add_inv_eq_one)]
     · exact (iSup_le fun g ↦ iSup_le fun hg ↦ ineq g hg)
     · exact (aemeasurability_integral_component hf)
   · rw [← one_eq_p]

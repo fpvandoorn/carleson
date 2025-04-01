@@ -436,7 +436,8 @@ private lemma sum_pow_two_le (a b : ℤ) : ∑ s ∈ Finset.Icc a b, (2 : ℝ≥
     linarith
   · intro n hn m hm hnm
     rw [Finset.mem_Icc] at hn hm
-    simpa [Int.sub_nonneg.mpr hn.1, Int.sub_nonneg.mpr hm.1] using congrArg Int.ofNat hnm
+    have := congrArg Int.ofNat hnm
+    simpa [max_eq_left (Int.sub_nonneg.mpr hn.1), max_eq_left (Int.sub_nonneg.mpr hm.1)] using this
   · exact fun n hn ↦ by use a + n, by simp [Nat.le_of_lt_succ (Finset.mem_range.mp hn)], by simp
   · intro n hn
     rw [← zpow_natCast, Int.ofNat_toNat, ← zpow_add' (Or.inl two_ne_zero),

@@ -5,7 +5,7 @@ import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 import Mathlib.Analysis.Convolution
 import Carleson.ToMathlib.Data.Real.ConjExponents
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Carleson.ToMathlib.MeasureTheory.Group.LIntegral
+import Mathlib.MeasureTheory.Group.LIntegral
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
@@ -59,7 +59,7 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
   · simp [eLpNorm, eLpNorm', p_ne_0 i hi, p_ne_top i hi]
 
 /-- **Hölder's inequality** for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞`-/
-theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.IsConjExponent q)
+theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderConjugate q)
     {f g : α → ENNReal} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     ∫⁻ (a : α), (f * g) a ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
   by_cases pq_top : p = ∞ ∨ q = ∞
@@ -69,8 +69,10 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.IsConjE
     apply le_of_le_of_eq <| lintegral_mono_ae ((ae_le_essSup f).mono (fun a ha ↦ mul_right_mono ha))
     simp [eLpNorm, eLpNorm', eLpNormEssSup, hp, hpq.conj_eq, lintegral_const_mul'' _ hg]
   push_neg at pq_top
-  convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal pq_top.1 pq_top.2) hf hg
-  all_goals simp [eLpNorm, eLpNorm', hpq.ne_zero, hpq.symm.ne_zero, pq_top]
+  have hp : p ≠ 0 := HolderConjugate.ne_zero p q
+  have hq : q ≠ 0 := HolderConjugate.ne_zero q p
+  convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal_of_ne_top pq_top.1 pq_top.2) hf hg
+  all_goals simp [eLpNorm, eLpNorm', pq_top, hp, hq]
 
 end ENNReal
 
@@ -131,7 +133,7 @@ private theorem convolution_zero_of_c_nonpos [AddGroup G] {f : G → E} {g : G �
 
 -- Auxiliary inequality used to prove inequalities with simpler conditions on f and g.
 private theorem eLpNorm_top_convolution_le_aux [AddCommGroup G] {p q : ℝ≥0∞}
-    (hpq : p.IsConjExponent q) {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
+    (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'} (hf : AEMeasurable (‖f ·‖ₑ) μ)
     (hg : ∀ x : G, AEMeasurable (‖g <| x - ·‖ₑ) μ)
     (hg' : ∀ x : G, eLpNorm (‖g <| x - ·‖ₑ) q μ = eLpNorm (‖g ·‖ₑ) q μ)
     (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
@@ -158,7 +160,7 @@ variable [AddCommGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G] [BorelS
 /-- Special case of **Young's convolution inequality** when `r = ∞`. -/
 theorem eLpNorm_top_convolution_le [MeasurableSpace E] [OpensMeasurableSpace E]
     [MeasurableSpace E'] [OpensMeasurableSpace E'] {p q : ℝ≥0∞}
-    (hpq : p.IsConjExponent q) {f : G → E} {g : G → E'} (hf : AEMeasurable f μ)
+    (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'} (hf : AEMeasurable f μ)
     (hg : AEMeasurable g μ) (c : ℝ) (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
   refine eLpNorm_top_convolution_le_aux hpq hf.enorm ?_ ?_ c hL
@@ -166,7 +168,7 @@ theorem eLpNorm_top_convolution_le [MeasurableSpace E] [OpensMeasurableSpace E]
   · intro x; exact eLpNorm_comp_measurePreserving' hg (μ.measurePreserving_sub_left x)
 
 /-- Special case of **Young's convolution inequality** when `r = ∞`. -/
-theorem eLpNorm_top_convolution_le' {p q : ℝ≥0∞} (hpq : p.IsConjExponent q) {f : G → E} {g : G → E'}
+theorem eLpNorm_top_convolution_le' {p q : ℝ≥0∞} (hpq : p.HolderConjugate q) {f : G → E} {g : G → E'}
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (c : ℝ)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ c * ‖f x‖ * ‖g y‖) :
     eLpNorm (f ⋆[L, μ] g) ∞ μ ≤ ENNReal.ofReal c * eLpNorm f p μ * eLpNorm g q μ := by
@@ -380,7 +382,7 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux {p q r : ℝ≥0∞}
   -- First use `eLpNorm_top_convolution_le` to handle the cases where any exponent is `∞`
   by_cases r_top : r = ∞
   · rw [r_top, ENNReal.inv_top, zero_add] at hpqr
-    have hpq : p.IsConjExponent q := by exact ⟨hpqr⟩
+    have hpq : p.HolderConjugate q := holderConjugate_iff.mpr hpqr
     rw [r_top]
     refine eLpNorm_top_convolution_le_aux hpq hf hg hg' c hL
   have hpq : 1 < p⁻¹ + q⁻¹ := by

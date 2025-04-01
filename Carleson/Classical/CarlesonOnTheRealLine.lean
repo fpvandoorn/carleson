@@ -525,8 +525,8 @@ lemma carlesonOperatorReal_le_carlesonOperator : T ≤ carlesonOperator K := by
 lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     (f : ℝ → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, T f x ≤ C10_0_1 4 2 * (volume G) ^ (2 : ℝ)⁻¹ * (volume F) ^ (2 : ℝ)⁻¹ := by
-  have conj_exponents : NNReal.IsConjExponent 2 2 := by
-    rw [NNReal.isConjExponent_iff_eq_conjExponent]
+  have conj_exponents : NNReal.HolderConjugate 2 2 := by
+    rw [NNReal.holderConjugate_iff_eq_conjExponent]
     · ext; norm_num
     norm_num
   calc ∫⁻ x in G, T f x
