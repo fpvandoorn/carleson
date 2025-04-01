@@ -13,7 +13,3 @@ protected lemma ENNReal.HolderConjugate.toReal_of_ne_top (hp : p ≠ ∞) (hq : 
     rw [← toReal_inv, ← toReal_inv, ← toReal_add, h.inv_add_inv_eq_one, inv_one, toReal_one]
     · exact ENNReal.inv_ne_top.mpr (HolderConjugate.ne_zero p q)
     · exact ENNReal.inv_ne_top.mpr (HolderConjugate.ne_zero q p)
-
-
-@[deprecated ENNReal.HolderConjugate.toReal_of_ne_top]
-protected alias ENNReal.IsConjExponent.toReal := ENNReal.HolderConjugate.toReal_of_ne_top
