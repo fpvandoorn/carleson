@@ -103,7 +103,9 @@ theorem measureReal_eq_zero_iff (h : μ s ≠ ∞ := by finiteness) :
   rw [Measure.real, ENNReal.toReal_eq_zero_iff]
   exact or_iff_left h
 
-@[simp] theorem measureReal_zero (s : Set α) : (0 : Measure α).real s = 0 := rfl
+@[simp] theorem measureReal_zero : (0 : Measure α).real = 0 := rfl
+
+theorem measureReal_zero_apply (s : Set α) : (0 : Measure α).real s = 0 := rfl
 
 @[simp] theorem measureReal_nonneg : 0 ≤ μ.real s := ENNReal.toReal_nonneg
 
