@@ -71,7 +71,7 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderC
   push_neg at pq_top
   have hp : p ≠ 0 := HolderConjugate.ne_zero p q
   have hq : q ≠ 0 := HolderConjugate.ne_zero q p
-  convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal sorry) hf hg
+  convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal_of_ne_top pq_top.1 pq_top.2) hf hg
   all_goals simp [eLpNorm, eLpNorm', pq_top, hp, hq]
 
 end ENNReal
