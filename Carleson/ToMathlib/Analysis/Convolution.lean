@@ -41,12 +41,13 @@ protected theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup
 `enorm_convolution_le_eLpNorm_mul_eLpNorm`. -/
 lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [AddGroup G]
     [MeasurableAdd₂ G] [MeasurableNeg G] {μ : Measure G} [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
+    [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ∫⁻ a, ‖L (f a) (g (x₀ - a))‖ₑ ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
   rw [eLpNorm_comp_measurePreserving (p := q) hg (μ.measurePreserving_sub_left x₀) |>.symm]
-  replace hpq : 1 / 1 = 1 / p + 1 /q := by simpa using hpq.inv_add_inv_conj.symm
+  replace hpq : 1 / 1 = 1 / p + 1 /q := by
+    simpa using (ENNReal.HolderConjugate.inv_add_inv_eq_one p q).symm
   replace hpq : ENNReal.HolderTriple p q 1 := ⟨by simpa [eq_comm] using hpq⟩
   have hg' : AEStronglyMeasurable (g <| x₀ - ·) μ :=
     hg.comp_quasiMeasurePreserving <| quasiMeasurePreserving_sub_left μ x₀
@@ -58,7 +59,7 @@ lemma lintegral_enorm_convolution_integrand_le_eLpNorm_mul_eLpNorm [AddGroup G]
 convolution of `f` and `g` exists everywhere. -/
 theorem ConvolutionExists.of_memLp_memLp [AddGroup G] [MeasurableAdd₂ G]
     [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant] [μ.IsAddLeftInvariant]
-    [μ.IsAddRightInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
+    [μ.IsAddRightInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖) (hf : AEStronglyMeasurable f μ)
     (hg : AEStronglyMeasurable g μ) (hfp : MemLp f p μ) (hgq : MemLp g q μ) :
     ConvolutionExists f g L μ := by
@@ -70,7 +71,7 @@ theorem ConvolutionExists.of_memLp_memLp [AddGroup G] [MeasurableAdd₂ G]
 by `eLpNorm f p μ * eLpNorm g q μ`. -/
 theorem enorm_convolution_le_eLpNorm_mul_eLpNorm [NormedSpace ℝ F] [AddGroup G]
     [MeasurableAdd₂ G] [MeasurableNeg G] (μ : Measure G) [SFinite μ] [μ.IsNegInvariant]
-    [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.IsConjExponent q)
+    [μ.IsAddLeftInvariant] {p q : ENNReal} (hpq : p.HolderConjugate q)
     (hL : ∀ (x y : G), ‖L (f x) (g y)‖ ≤ ‖f x‖ * ‖g y‖)
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) (x₀ : G) :
     ‖(f ⋆[L, μ] g) x₀‖ₑ ≤ eLpNorm f p μ * eLpNorm g q μ :=

@@ -660,7 +660,7 @@ lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCo
       gcongr; exact setLIntegral_le_lintegral _ _
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * eLpNorm (MB volume 𝓑 c𝓑 r𝓑 g) 2 volume := by
       rw [mul_assoc]; gcongr
-      exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm ⟨ENNReal.inv_two_add_inv_two⟩
+      exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm ⟨by simpa using ENNReal.inv_two_add_inv_two⟩
         hf.aestronglyMeasurable.aemeasurable.enorm
         (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
     _ ≤ 2 ^ (9 * a + 1) * eLpNorm f 2 volume * (2 ^ (a + (3 / 2 : ℝ)) * eLpNorm g 2 volume) := by
@@ -890,7 +890,7 @@ lemma tree_projection_estimate
       nth_rewrite 2 [← setLIntegral_univ]
       exact lintegral_mono_set (fun _ _ ↦ trivial)
     _ ≤ eLpNorm eaOC 2 volume * eLpNorm (cS_bound t u f) 2 volume := by
-      have isConj : Real.IsConjExponent 2 2 := by constructor <;> norm_num
+      have isConj : Real.HolderConjugate 2 2 := by constructor <;> norm_num
       have : AEMeasurable eaOC := (stronglyMeasurable_approxOnCube _ _).aemeasurable.ennreal_ofReal
       convert ENNReal.lintegral_mul_le_Lp_mul_Lq volume isConj this aeMeasurable_cS_bound <;>
         simp [eLpNorm, eLpNorm']

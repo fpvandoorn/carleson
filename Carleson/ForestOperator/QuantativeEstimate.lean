@@ -347,7 +347,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
           volume (J : Set X) := by
       refine Finset.sum_le_sum fun J hJ ↦ ENNReal.div_le_div_right (pow_le_pow_left' ?_ 2) _
       simpa using ENNReal.lintegral_mul_le_Lp_mul_Lq (f := (‖f ·‖ₑ)) (g := 1)
-        (volume.restrict (J ∩ s)) ((Real.isConjExponent_iff 2 2).mpr (by norm_num))
+        (volume.restrict (J ∩ s)) ((Real.holderConjugate_iff (p := 2) (q := 2)).mpr (by norm_num))
         hf.stronglyMeasurable.aemeasurable.enorm measurable_const.aemeasurable
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ ^ 2) ^ (1 / (2 : ℝ) * 2) *
           volume (J ∩ s) ^ (1 / (2 : ℝ) * 2) / volume (J : Set X) := by
