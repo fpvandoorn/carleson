@@ -229,7 +229,7 @@ For the proof of \Cref{metric-space-Carleson}, we largely follow \cite{zk-polyno
 \noindent \textit{Acknowledgement.}
 L.B., F.v.D., R.S., and C.T. were funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC-2047/1 -- 390685813.
 L.B. , R.S., and C.T. were also supported by SFB 1060.
-A.J. is funded by the TÜBITAK (Scientific and Technological Research Council of Türkiye) under Grant Number 123F122.
+A.J. is funded by the T\"UBITAK (Scientific and Technological Research Council of T\"urkiye) under Grant Number 123F122.
 
 \chapter{Proof of Metric Space Carleson, overview}
 \label{overviewsection}
@@ -490,7 +490,7 @@ all $\fp \in \fP$ such that there exist $\fp' \in \fP'$ with $\scI(\fp)\subset \
 
 
 An antichain is a subset $\mathfrak{A}$
-of $\fP$ such that for any distinct $\fp,\fq\in \mathfrak{A}$ we do not have have $\fp\le \fq$.
+of $\fP$ such that for any distinct $\fp,\fq\in \mathfrak{A}$ we do not have $\fp\le \fq$.
 
 The following proposition is proved in \Cref{antichainboundary}.
 
@@ -805,7 +805,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \chapter{Proof of Metric Space Carleson}
 \label{thmfromproplinear}
 
-\textit{This section is currently under construction, to incoroporate the proof of \Cref{linearised-metric-Carleson}}\\
+\textit{This section is currently under construction, to incorporate the proof of \Cref{linearised-metric-Carleson}}\\
 
 Let Borel sets $F$, $G$ in $X$ be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 We have that
@@ -3656,7 +3656,8 @@ Adding the estimates \eqref{suppart} and \eqref{holderpart} gives \eqref{eqt11}.
 This proves the lemma.
 \end{proof}
 
-The following auxilliary statement about the support of $T_\fp^*g$ will be used repeatedly.
+The following auxiliary statement about the support of $T_\fp^*g$ will be
+used repeatedly.
 
 \begin{lemma}[tile range support]\label{tile-range-support}
     \leanok
@@ -4534,7 +4535,7 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
     \leanok
     \lean{TileStructure.Forest.nontangential_operator_bound}
     \uses{Hardy-Littlewood}
-    For all bounded $f$ with bounded supportand all $\mfa \in \Mf$
+    For all bounded $f$ with bounded support and all $\mfa \in \Mf$
     $$
         \|T_{\mathcal{N}}^{\mfa} f\|_2 \le 2^{102a^3} \|f\|_2\,.
     $$
@@ -6251,7 +6252,7 @@ Recall that $\tau = 1/a$.
 \begin{lemma}[Lipschitz Holder approximation]
     \label{Lipschitz-Holder-approximation}
     \leanok
-    \lean{support_holderApprox_subset, dist_holderApprox_le, lipschitzWith_holderApprox}
+    \lean{support_holderApprox_subset, dist_holderApprox_le, iLipENorm_holderApprox}
     Let $z\in X$ and $R>0$. Let $\varphi: X \to \mathbb{C}$ be a function supported in the ball
     $B:=B(z,R)$ with finite norm $\|\varphi\|_{C^\tau(B)}$. Let $0<t \leq 1$. There exists a function $\tilde \varphi : X \to \mathbb{C}$, supported in $B(z,2R)$, such that for every $x\in X$
     \begin{equation}\label{eq-firstt}
@@ -6263,7 +6264,7 @@ Recall that $\tau = 1/a$.
 \end{lemma}
 
 
-\begin{proof}
+\begin{proof}\leanok
     Define for $x,y\in X$ the Lipschitz and thus measurable function
     \begin{equation}
         L(x,y) := \max\{0, 1 - \frac{\rho(x,y)}{tR}\}\, .
@@ -6742,7 +6743,7 @@ This proves \eqref{eq-hlm} in general.
 
 Now we construct the operator $M$ satisfying \eqref{eq-ball-av} and \eqref{eq-hlm-2}.
 For each $k \in \mathbb{Z}$ we choose a countable set $C(2^k)$ as in \Cref{covering-separable-space}.
-% Note: Sébastien Gouëzel commented that $k$ should live in $\mathbb{Z}$ instead of $\mathbb{N}$
+% Note: S\'ebastien Gou\"ezel commented that $k$ should live in $\mathbb{Z}$ instead of $\mathbb{N}$
 Define
 $$
     \mathcal{B}_\infty = \{B(c, 2^k) \ : \ c \in C(2^k), k \in \mathbb{Z}\}\,.
@@ -7205,7 +7206,7 @@ In order to pass from the one-sided truncation in $T_r$ and $T_{*}^r$ to the two
     \end{equation}
 \end{lemma}
 \begin{proof}
-We only prove the second inquality, the first one is analogous.
+We only prove the second inequality, the first one is analogous.
 Note that the integrand is bounded in $X\setminus B(x,\frac{R}{2})$. So for $0<\delta\le\frac{R}{2}$,
 \begin{align*}
     &\left| \int_{R-\delta<\rho(x,y)<R} K(x,y) f(y) \, d\mu(y) \right| \\
@@ -8714,7 +8715,7 @@ $$
     \int_\alpha^\beta g(x) e^{inx} \, \mathrm{d}x
     = \frac{1}{2} \int_\alpha^\beta g(x) e^{inx} \, \mathrm{d}x - \frac{1}{2} \int_\alpha^\beta g(x) e^{in(x + \pi/n)}) \, \mathrm{d}x\,.
 $$
-We split the the first integral at $\alpha + \frac{\pi}{n}$ and the second one at $\beta - \frac{\pi}{n}$, and make a change of variables in the second part of the first integral to obtain
+We split the first integral at $\alpha + \frac{\pi}{n}$ and the second one at $\beta - \frac{\pi}{n}$, and make a change of variables in the second part of the first integral to obtain
 $$
     = \frac{1}{2} \int_{\alpha}^{\alpha + \frac{\pi}{n}} g(x) e^{inx} \, \mathrm{d}x - \frac{1}{2} \int_{\beta - \frac{\pi}{n}}^{\beta} g(x) e^{in(x + \pi/n)} \, \mathrm{d}x
 $$
