@@ -630,7 +630,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α}
       intro _
       right
       exact toReal_pos hp ptop
-    simp [distribution_smul_left k_zero]
+    simp [distribution_smul_left k_zero] -- change: this lemma doesn't fire any more, right?
     intro t
     rw [ENNReal.mul_iSup]
     have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
@@ -640,10 +640,18 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α}
       simp [mul_assoc]
       congr
       exact coe_div knorm_ne_zero
+    have : t * distribution (k • f) (t) μ ^ p.toReal⁻¹ =
+        ↑‖k‖₊ * ((↑t / ↑‖k‖₊) * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹) := by
+      rw [← this]
+      congr 1
+      apply distribution_smul_left k_zero
+      sorry
     rw [this]
     apply le_iSup_of_le (↑t / ↑‖k‖₊)
     apply le_of_eq
     congr <;> exact (coe_div knorm_ne_zero).symm
+
+#exit
 
 lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
