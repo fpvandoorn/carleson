@@ -13,18 +13,6 @@ lemma aux {α 𝕜 : Type*} [RCLike 𝕜] {f : α → 𝕜} (x : α) :
   · simp [hx]
   · rw [pow_two, inv_mul_cancel_left₀ hx]
 
-lemma ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm
-    {𝕜 : Type*} [RCLike 𝕜] {α : Type*} [MeasurableSpace α] {μ : Measure α} {f : α → 𝕜}
-    (hf : Integrable f μ) :
-    ‖∫ x, starRingEnd 𝕜 (f x / ‖f x‖) * f x ∂μ‖₊ = ∫⁻ x, ‖f x‖₊ ∂μ := by
-  simp_rw [aux, integral_ofReal, nnnorm_algebraMap']
-  rw [lintegral_coe_eq_integral]; swap
-  · simpa only [coe_nnnorm] using hf.norm
-  simp only [coe_nnnorm, ENNReal.ofReal, ENNReal.coe_inj]
-  have : |∫ (a : α), ‖f a‖ ∂μ| = ∫ (a : α), ‖f a‖ ∂μ :=
-    abs_eq_self.2 (integral_nonneg (fun _ ↦ by positivity))
-  aesop
-
 -- move to Mathlib.Analysis.Normed.Module.Basic, next to nnnorm_algebraMap'
 lemma enorm_algebraMap' {𝕜 : Type*} (𝕜' : Type*) [NormedField 𝕜] [SeminormedRing 𝕜'] [NormedAlgebra 𝕜 𝕜']
     [NormOneClass 𝕜'] (x : 𝕜) : ‖(algebraMap 𝕜 𝕜') x‖ₑ = ‖x‖ₑ := by

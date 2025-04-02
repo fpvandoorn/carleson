@@ -184,7 +184,7 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
       simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, ← Real.rpow_natCast 2]
       push_cast; gcongr
       · exact one_le_two
-      · exact (Nat.ceil_lt_add_one_of_nonneg nonneg_C7_6_3_add_two).le
+      · exact (Nat.ceil_lt_add_one nonneg_C7_6_3_add_two).le
 
 /-- Lemma 7.6.3. -/
 lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
