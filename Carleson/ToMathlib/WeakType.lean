@@ -534,17 +534,9 @@ lemma HasBoundedStrongType.hasBoundedWeakType [Zero ε₁] (hp' : 1 ≤ p')
   fun f hf h2f h3f ↦
     ⟨(h f hf h2f h3f).1, wnorm_le_eLpNorm (h f hf h2f h3f).1 hp' |>.trans (h f hf h2f h3f).2⟩
 
-end ContinuousENorm
-
-section NormedGroup
-
--- todo: generalize various results to ENorm.
+section distribution
 
 variable {f g : α → ε}
-section
-variable [TopologicalSpace ε] [ContinuousENorm ε]
-
-lemma distribution_eq_nnnorm {f : α → E} : distribution f t μ =  μ { x | t < ‖f x‖₊ } := rfl
 
 @[gcongr]
 lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
@@ -566,21 +558,42 @@ lemma distribution_mono (h₁ : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) (
 lemma distribution_snormEssSup : distribution f (eLpNormEssSup f μ) μ = 0 :=
   meas_essSup_lt -- meas_eLpNormEssSup_lt
 
-lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
-    distribution (c • f) t μ = distribution f (t / ‖c‖₊) μ := by
-  simp_rw [distribution_eq_nnnorm]
-  have h₀ : ofNNReal ‖c‖₊ ≠ 0 := ENNReal.coe_ne_zero.mpr (nnnorm_ne_zero_iff.mpr hc)
-  congr with x
-  simp only [Pi.smul_apply, mem_setOf_eq]
-  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖₊) _ (‖c‖₊) h₀ coe_ne_top, nnnorm_smul, mul_comm,
-   ENNReal.div_mul_cancel h₀ coe_ne_top]
-  simp
-
 lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
     (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ A * (‖g₁ x‖ₑ + ‖g₂ x‖ₑ)) :
     distribution f (A * (t + s)) μ ≤ distribution g₁ t μ + distribution g₂ s μ := by
   apply distribution_add_le_of_enorm
   simp (discharger := positivity) [← ofReal_mul, ← ofReal_add, h]
+
+lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] :
+    distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
+  calc
+    _ ≤ μ ({x | t < ↑‖f x‖ₑ} ∪ {x | s < ↑‖g x‖ₑ}) := by
+      refine measure_mono fun x h ↦ ?_
+      simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
+      contrapose! h
+      exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
+    _ ≤ _ := measure_union_le _ _
+
+end distribution
+
+end ContinuousENorm
+
+section NormedGroup
+
+variable {f g : α → ε}
+section
+variable [TopologicalSpace ε] [ContinuousENorm ε]
+
+-- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
+
+lemma distribution_smul_left [NormedSpace 𝕜 E] {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
+    distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
+  have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
+  unfold distribution
+  congr with x
+  simp only [Pi.smul_apply, mem_setOf_eq]
+  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+    enorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
 lemma HasStrongType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
@@ -652,15 +665,7 @@ lemma HasWeakType.const_mul {E' α α' : Type*} [NontriviallyNormedField E']
 
 end
 
-lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] :
-    distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
-  calc
-    _ ≤ μ ({x | t < ↑‖f x‖ₑ} ∪ {x | s < ↑‖g x‖ₑ}) := by
-      refine measure_mono fun x h ↦ ?_
-      simp only [mem_union, mem_setOf_eq, Pi.add_apply] at h ⊢
-      contrapose! h
-      exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
-    _ ≤ _ := measure_union_le _ _
+
 
 variable [NormedSpace 𝕜 E] [NormedSpace 𝕜 E₁] [NormedSpace 𝕜 E₂] [NormedSpace 𝕜 E₃]
   (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
