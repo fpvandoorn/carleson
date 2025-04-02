@@ -31,12 +31,6 @@ lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
 
 def C_6_2_1 (a : ℕ) : ℝ≥0 := 2^(254 * a^3)
 
---TODO: PR
-lemma ENNReal.mul_div_mul_comm {a b c d : ℝ≥0∞} (hc : c ≠ ⊤) (hd : d ≠ ⊤) :
-    a * b / (c * d) = a / c * (b / d) := by
-  simp only [div_eq_mul_inv, ENNReal.mul_inv (Or.inr hd) (Or.inl hc)]
-  ring
-
 lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X)  :
   ‖Ks s₂ x₂ y‖ₑ * ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ ≤
   ↑(C2_1_3 ↑a) / volume (ball x₂ (↑D ^ s₂)) *
@@ -50,19 +44,6 @@ lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X)  :
   rw [ENNReal.coe_zpow (by simp)]
   rfl
 
-/- TODO: PR-/
-@[simp, rclike_simps] lemma _root_.RCLike.enorm_conj {𝕜 : Type*} [RCLike 𝕜] (z : 𝕜) :
-    ‖conj z‖ₑ = ‖z‖ₑ := by simp [enorm]
-
-namespace Real
-
-/- TODO: PR-/
-theorem toNNReal_zpow {x : ℝ} (hx : 0 ≤ x) (n : ℤ) : (x ^ n).toNNReal = x.toNNReal ^ n := by
-  rw [← NNReal.coe_inj, NNReal.coe_zpow, Real.coe_toNNReal _ (zpow_nonneg hx _),
-    Real.coe_toNNReal x hx]
-
-end Real
-
 -- Eq. 6.2.3 (Lemma 6.2.1)
 lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ Icc (- (S : ℤ)) s₂)
    {x₁ x₂ : X} :
@@ -72,7 +53,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a)^2 / ((volume (ball x₁ (D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))) := by
     simp only [correlation, enorm_mul, RCLike.enorm_conj, pow_two,
-      ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _) (measure_ball_ne_top _ _)]
+      ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _)) (.inl (measure_ball_ne_top _ _))]
     exact mul_le_mul enorm_Ks_le enorm_Ks_le (zero_le _) (zero_le _)
   -- 6.2.6 + 6.2.7
   have hsimp : ∀ (y y' : X),
@@ -107,13 +88,13 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
           norm_cast
           ring
         rw [mul_comm, mul_add, h2, mul_comm (volume _)]
-        simp only [ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _) (measure_ball_ne_top _ _),
-          mul_assoc]
+        simp only [ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _))
+          (.inl (measure_ball_ne_top _ _)), mul_assoc]
         apply add_le_add (aux_6_2_3 s₁ s₂ x₁ x₂ y y')
         rw [← neg_sub, enorm_neg]
         convert aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
-        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _)
-          (measure_ball_ne_top _ _)]
+        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _))
+          (.inl (measure_ball_ne_top _ _))]
         rw [mul_comm (volume _), nndist_comm]
       _ ≤ 2 ^ (252 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) *
         (2 * (↑(nndist y y') ^ τ / ((D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ)) := by

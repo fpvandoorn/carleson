@@ -83,18 +83,6 @@ lemma C_6_1_2_ne_zero (a : ℕ) : (C_6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C_6_1
 
 open MeasureTheory Metric Bornology Set
 
---TODO: PR
-lemma _root_.ENNReal.div_mul (a : ℝ≥0∞) {b c : ℝ≥0∞} (hb0 : b ≠ 0) (hb_top : b ≠ ⊤)
-    (hc0 : c ≠ 0) (hc_top : c ≠ ⊤) :
-    a / b * c = a / (b / c) := by
-  rw [← ENNReal.mul_div_right_comm, ENNReal.div_eq_div_iff (ENNReal.div_ne_zero.mpr ⟨hb0, hc_top⟩)
-    _ hb0 hb_top]
-  · rw [ENNReal.div_eq_inv_mul, mul_comm a, mul_assoc]
-    simp only [mul_comm b, ← mul_assoc, ENNReal.inv_mul_cancel hc0 hc_top]
-    ring
-  · simp only [ne_eq, div_eq_top]
-    tauto
-
 private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
       2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by
@@ -181,7 +169,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hfm : Measurable f) (x : X) :
-    ‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
+    ‖∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
   by_cases hx : ∃ (p : 𝔄), carlesonOn p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
     have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos ..
@@ -212,14 +200,14 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       norm_Ks_le' _ hxE hy
     calc (‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ : ℝ≥0∞)
       = ↑‖carlesonOn p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
-    _ ≤ ∫⁻ (y : X), ‖cexp (I * (↑((Q x) y) - ↑((Q x) x))) * Ks (𝔰 p.1) x y * f y‖₊ := by
+    _ ≤ ∫⁻ (y : X), ‖cexp (I * (↑((Q x) y) - ↑((Q x) x))) * Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [carlesonOn, indicator, if_pos hxE]
         refine le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z w h ↦ ?_)
         simp only [nnnorm_mul, coe_mul, some_eq_coe', Nat.cast_pow, Nat.cast_ofNat,
           zpow_neg, mul_ite, mul_zero, Ks, mul_assoc, enorm_eq_nnnorm] at h ⊢
         use w
-    _ ≤ ∫⁻ (y : X), ‖Ks (𝔰 p.1) x y * f y‖₊ := by
-      simp only [nnnorm_mul]
+    _ ≤ ∫⁻ (y : X), ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
+      simp only [enorm_mul]
       refine lintegral_mono_nnreal fun y ↦ ?_
       rw [mul_assoc]
       conv_rhs => rw [← one_mul (‖Ks (𝔰 p.1) x y‖₊ * ‖f y‖₊)]
@@ -227,11 +215,11 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       · apply le_of_eq
         rw [mul_comm, ← Complex.ofReal_sub, NNReal.eq_iff,
           coe_nnnorm, NNReal.coe_one, Complex.norm_exp_ofReal_mul_I]
-    _ = ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1), ‖Ks (𝔰 p.1) x y * f y‖₊ := by
+    _ = ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1), ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [MeasureTheory.setLIntegral_eq_of_support_subset]
         intro y hy
-        simp only [nnnorm_mul, coe_mul, Function.support_mul, mem_inter_iff, Function.mem_support,
-          ne_eq, ENNReal.coe_eq_zero, nnnorm_eq_zero] at hy
+        simp only [enorm_mul, coe_mul, Function.support_mul, mem_inter_iff, Function.mem_support,
+          ne_eq, ENNReal.coe_eq_zero, enorm_eq_zero] at hy
         rw [mem_ball, dist_comm]
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1),
@@ -244,15 +232,15 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       · simp [hy]
       · exact hKs y hy
     _ = (2 : ℝ≥0)^(5*a + 101*a^3 + a) *
-        ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
+        ⨍⁻ y, ‖f y‖ₑ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       rw [laverage_eq, Measure.restrict_apply MeasurableSet.univ, univ_inter]
-      simp_rw [div_eq_mul_inv, coe_mul]
+      simp_rw [div_eq_mul_inv, coe_mul, enorm_eq_nnnorm]
       rw [lintegral_const_mul _ hfm.nnnorm.coe_nnreal_ennreal, ENNReal.coe_pow, coe_inv
         (ne_of_gt (measure_ball_pos_nnreal _ _ h8Dpow_pos)), measureNNReal_def,
         ENNReal.coe_toNNReal (measure_ball_ne_top _ _)]
       ring
     _ ≤ (C_6_1_2 a) * (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)).indicator (x := x)
-        (fun _ ↦ ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
+        (fun _ ↦ ⨍⁻ y, ‖f y‖ₑ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
       simp only [coe_ofNat, indicator, mem_ball, mul_ite, mul_zero]
       rw [if_pos]
       · gcongr
@@ -276,7 +264,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
     have h0 : (∑ (p ∈ 𝔄), carlesonOn p f x) = (∑ (p ∈ 𝔄), 0) :=
       Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
-    simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
+    simp only [h0, Finset.sum_const_zero, enorm_zero, zero_le]
 
 -- TODO: PR to Mathlib
 omit [MetricSpace X] in
@@ -361,7 +349,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
 lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ha : 4 ≤ a)
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
-    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤
+    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
@@ -506,7 +494,7 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (hf : Measurable f) (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
-    ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖₊ ≤
+    ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
     (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := sorry
 
@@ -515,7 +503,7 @@ the integral of the function multiplied by another function. -/
 theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
-    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖₊ ≤
+    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
   have I (x : ℝ) : x / x ≤ 1 := by
@@ -525,7 +513,7 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
   apply (lintegral_mono_set hA).trans
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  rw [← ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm]; swap
+  rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
   · apply BoundedCompactSupport.integrable
     apply BoundedCompactSupport.carlesonSum
     have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
@@ -566,7 +554,7 @@ of `volume F` and `volume G`. -/
 theorem antichain_operator_le_volume {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
-    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖₊ ≤
+    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume G) ^ (1/2 : ℝ) := by
   apply (antichain_operator' hf h2f hA h𝔄).trans

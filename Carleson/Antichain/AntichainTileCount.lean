@@ -68,6 +68,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
         simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← zpow_natCast, ← zpow_mul]
         rw [← zpow_add₀ two_ne_zero]
         ring_nf
+        norm_num
       rw [← heq, mul_assoc]
       exact le_cdist_iterate (by positivity) (𝒬 p') o' (5*a + 2)
     rw [← le_div_iff₀' (by positivity), div_eq_mul_inv, ← zpow_neg, neg_add, ← neg_mul,
