@@ -85,14 +85,14 @@ namespace MeasureTheory
 variable {α α' ε ε₁ ε₂ ε₃ 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField 𝕜]
-  [NormedAddCommGroup E] --[NormedSpace 𝕜 E]
-  [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
-  [NormedAddCommGroup E₁] --[NormedSpace 𝕜 E₁]
-  [MulActionWithZero 𝕜 E₁] [IsBoundedSMul 𝕜 E₁]
-  [NormedAddCommGroup E₂] --[NormedSpace 𝕜 E₂]
-  [MulActionWithZero 𝕜 E₂] [IsBoundedSMul 𝕜 E₂]
-  [NormedAddCommGroup E₃] --[NormedSpace 𝕜 E₃]
-  [MulActionWithZero 𝕜 E₃] [IsBoundedSMul 𝕜 E₃]
+  [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  --[MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
+  [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁]
+ -- [MulActionWithZero 𝕜 E₁] [IsBoundedSMul 𝕜 E₁]
+  [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂]
+  --[MulActionWithZero 𝕜 E₂] [IsBoundedSMul 𝕜 E₂]
+  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃]
+  --[MulActionWithZero 𝕜 E₃] [IsBoundedSMul 𝕜 E₃]
   --(L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
   {t s x y : ℝ≥0∞}
   {T : (α → ε₁) → (α' → ε₂)}
@@ -586,7 +586,7 @@ variable [TopologicalSpace ε] [ContinuousENorm ε]
 
 -- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
 
-lemma distribution_smul_left [NormedSpace 𝕜 E] {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
+lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
   have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
   unfold distribution
@@ -611,7 +611,10 @@ lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
   h.const_smul e
 
-lemma wnorm_const_smul_le {𝕜 E α : Type*} [NormedAddCommGroup E] {_x : MeasurableSpace α}
+variable [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
+  -- [MulActionWithZero 𝕜 E₁] [IsBoundedSMul 𝕜 E₁] [MulActionWithZero 𝕜 E₂] [IsBoundedSMul 𝕜 E₂]
+
+lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α}
     {p : ℝ≥0∞} (hp : p ≠ 0) {μ : Measure α} {f : α → E}
     [NontriviallyNormedField 𝕜] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E] (k : 𝕜) :
     wnorm (k • f) p μ ≤ ‖k‖₊ * wnorm f p μ := by
