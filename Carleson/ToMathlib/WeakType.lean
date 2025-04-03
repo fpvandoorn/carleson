@@ -659,20 +659,15 @@ lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : M
       apply (h f hf).2
     _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
-
-lemma HasWeakType.const_mul {E' α α' : Type*} [NontriviallyNormedField E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
-    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : E') :
+lemma HasWeakType.const_mul {α α' : Type*}
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞}
+    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
     HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
   h.const_smul hp' e
 
 end
 
-
-
-variable (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
-
-lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
+lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃) :
     distribution (fun x ↦ L (f x) (g x)) (‖L‖ₑ * t * s) μ ≤
     distribution f t μ + distribution g s μ := by
   unfold distribution
@@ -681,8 +676,7 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     simp only [mem_union, mem_setOf_eq, Pi.add_apply] at hz ⊢
     contrapose! hz
     calc
-      ‖(L (f z)) (g z)‖ₑ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ := by
-        calc
+      ‖(L (f z)) (g z)‖ₑ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ := by calc
           _ ≤ ‖L (f z)‖ₑ * ‖g z‖ₑ := ContinuousLinearMap.le_opENorm (L (f z)) (g z)
           _ ≤ ‖L‖ₑ * ‖f z‖ₑ * ‖g z‖ₑ :=
             mul_le_mul' (ContinuousLinearMap.le_opENorm L (f z)) (by rfl)
