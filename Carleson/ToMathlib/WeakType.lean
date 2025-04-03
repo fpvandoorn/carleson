@@ -623,8 +623,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
   by_cases ptop : p = ⊤
   · simp [ptop]
     apply eLpNormEssSup_const_smul_le
-  simp [wnorm, ptop]
-  unfold wnorm'
+  simp [wnorm, ptop, wnorm']
   by_cases k_zero : k = 0
   · unfold distribution
     simp [k_zero]
@@ -670,7 +669,6 @@ end
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃) :
     distribution (fun x ↦ L (f x) (g x)) (‖L‖ₑ * t * s) μ ≤
     distribution f t μ + distribution g s μ := by
-  unfold distribution
   have h₀ : {x | ‖L‖ₑ * t * s < ‖(fun x ↦ (L (f x)) (g x)) x‖ₑ} ⊆
       {x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ} := fun z hz ↦ by
     simp only [mem_union, mem_setOf_eq, Pi.add_apply] at hz ⊢
