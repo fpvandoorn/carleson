@@ -85,17 +85,7 @@ namespace MeasureTheory
 variable {α α' ε ε₁ ε₂ ε₃ 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
   {p p' q : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField 𝕜]
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E]
-  --[MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
-  [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁]
- -- [MulActionWithZero 𝕜 E₁] [IsBoundedSMul 𝕜 E₁]
-  [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂]
-  --[MulActionWithZero 𝕜 E₂] [IsBoundedSMul 𝕜 E₂]
-  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃]
-  --[MulActionWithZero 𝕜 E₃] [IsBoundedSMul 𝕜 E₃]
-  --(L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
-  {t s x y : ℝ≥0∞}
-  {T : (α → ε₁) → (α' → ε₂)}
+  {t s x y : ℝ≥0∞} {T : (α → ε₁) → (α' → ε₂)}
 
 section ENorm
 
@@ -586,8 +576,7 @@ section
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
 
-omit [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E]
-variable [NontriviallyNormedField 𝕜] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
+variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
 
 -- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
@@ -665,6 +654,9 @@ lemma HasWeakType.const_mul {α α' : Type*}
 
 end
 
+variable [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁] [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂]
+  [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃]
+
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃) :
     distribution (fun x ↦ L (f x) (g x)) (‖L‖ₑ * t * s) μ ≤
     distribution f t μ + distribution g s μ := by
@@ -684,7 +676,8 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
 
 section BorelSpace
 
-variable [TopologicalSpace ε] [ContinuousENorm ε] [MeasurableSpace E] [BorelSpace E]
+variable [TopologicalSpace ε] [ContinuousENorm ε]
+  [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
 lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
