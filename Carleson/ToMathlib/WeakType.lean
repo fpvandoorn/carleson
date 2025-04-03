@@ -571,6 +571,29 @@ variable {f g : α → ε}
 
 section
 
+section temp
+
+-- TODO: remove the other version, as the wrong generality?
+variable [TopologicalSpace ε] [ENormedSpace ε]
+
+lemma enorm_absolute_homogeneous' {c : ℝ≥0} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+  ENormedSpace.enorm_smul _ _
+
+-- TODO: replace the unprimed version by this one!
+lemma distribution_smul_left' {f : α → ε} {c : ℝ≥0} (hc : c ≠ 0) :
+    distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
+  have h₀ : ‖c‖ₑ ≠ 0 := by
+    have : ‖c‖ₑ = ‖(c : ℝ≥0∞)‖ₑ := rfl
+    rw [this, enorm_ne_zero]
+    exact ENNReal.coe_ne_zero.mpr hc
+  unfold distribution
+  congr with x
+  simp only [Pi.smul_apply, mem_setOf_eq]
+  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+    enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+
+end temp
+
 variable [TopologicalSpace ε] [ContinuousENorm ε]
 
 variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
