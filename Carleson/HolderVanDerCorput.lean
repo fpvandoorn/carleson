@@ -1,4 +1,5 @@
 import Carleson.TileStructure
+import Mathlib.Topology.MetricSpace.ProperSpace.Lemmas
 
 /-! This should roughly contain the contents of chapter 8. -/
 
@@ -141,10 +142,20 @@ lemma foo {φ : X → ℂ} (hf : ∫ x, φ x ≠ 0) : ∃ z, φ z ≠ 0 := by
   by_contra! h
   exact hf (by simp [h])
 
-/-- Part of Lemma 8.0.1. -/
-lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
-    (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
-    support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
+theorem exists_pos_forall_lt_dist {X : Type*} [PseudoMetricSpace X] {s t : Set X}
+      (hs : IsCompact s) (ht : IsClosed t) (hst : Disjoint s t) :
+    ∃ r : ℝ, 0 < r ∧ ∀ x ∈ s, ∀ y ∈ t, r < dist x y := by
+  rcases EMetric.exists_pos_forall_lt_edist hs ht hst with ⟨r, r_pos, hr⟩
+  refine ⟨r, r_pos, fun x hx y hy ↦ ?_⟩
+  specialize hr x hx y hy
+  rw [← ENNReal.ofReal_lt_ofReal_iff_of_nonneg NNReal.zero_le_coe]
+  convert hr
+  · simp
+  · simp [edist_dist]
+
+lemma support_holderApprox_subset_aux {z : X} {R R' t : ℝ} (hR : 0 < R)
+    {ϕ : X → ℂ} (hϕ : ϕ.support ⊆ ball z R') (ht : t ∈ Ioc (0 : ℝ) 1) :
+    support (holderApprox R t ϕ) ⊆ ball z (R + R') := by
   intro x hx
   choose y hy using foo (left_ne_zero_of_mul hx)
   have : x ∈ ball y (t * R) := by
@@ -158,8 +169,26 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     exact ht.2
   calc dist x z
     _ ≤ dist x y + dist y z := dist_triangle x y z
-    _ < R + R := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
-    _ = 2 * R := by ring
+    _ < R + R' := add_lt_add h (hϕ (right_ne_zero_of_mul hy))
+
+/-- Part of Lemma 8.0.1. -/
+lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
+    (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
+    support (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
+  convert support_holderApprox_subset_aux hR hϕ ht using 2
+  ring
+
+/-- Part of Lemma 8.0.1. -/
+lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
+    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
+    tsupport (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
+  rcases exists_pos_lt_subset_ball hR (isClosed_tsupport ϕ) hϕ with ⟨R', R'_pos, hR'⟩
+  have A : support (holderApprox R t ϕ) ⊆ ball z (R + R') :=
+    support_holderApprox_subset_aux hR ((subset_tsupport _).trans hR') ht
+  have : tsupport (holderApprox R t ϕ) ⊆ closedBall z (R + R') :=
+    (closure_mono A).trans closure_ball_subset_closedBall
+  apply this.trans (closedBall_subset_ball ?_)
+  linarith [R'_pos.2]
 
 open Filter
 
@@ -170,8 +199,7 @@ We assume that `ϕ` is globally Hölder for simplicity, but this is equivalent t
 Hölder on `ball z R` as `ϕ` is supported there.
 -/
 lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 0 < t)
-    (ϕ : X → ℂ) (hϕ : ϕ.support ⊆ ball z R)
-    (h2ϕ : HolderWith C nnτ ϕ) (hτ : 0 < nnτ)  (x : X) :
+    (ϕ : X → ℂ) (hϕ : tsupport ϕ ⊆ ball z R) (h2ϕ : HolderOnWith C nnτ ϕ (ball z R)) (x : X) :
     dist (ϕ x) (holderApprox R t ϕ x) ≤ t ^ τ * (R ^ τ * C) := by
   have : (∫ y, cutoff R t x y * ϕ x) / (∫ y, (cutoff R t x y : ℂ)) = ϕ x := by
     rw [integral_mul_right, mul_div_cancel_left₀]
@@ -179,7 +207,7 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
   rw [dist_eq_norm, ← this, holderApprox, integral_complex_ofReal, ← sub_div,
     ← integral_sub]; rotate_left
   · apply (integrable_cutoff hR ht).ofReal.mul_const
-  · apply integrable_cutoff_mul hR ht (h2ϕ.continuous hτ) hϕ
+  · apply integrable_cutoff_mul hR ht (h2ϕ.continuous (nnτ_pos X)) hϕ
   rw [norm_div, norm_real, div_le_iff₀]; swap
   · exact ((integral_cutoff_pos hR ht)).trans_le (le_abs_self _)
   calc
@@ -239,7 +267,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
     (hC : ∀ x, ‖ϕ x‖ ≤ C) {x x' : X} (h : dist x x' < R) :
     ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
-      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / R := by
+      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
   have M : (2⁻¹ * volume.real (ball x (2⁻¹ * t * R))) *
       ‖holderApprox R t ϕ x' - holderApprox R t ϕ x‖ ≤
         2 * C * ∫ y, |cutoff R t x y - cutoff R t x' y| :=
@@ -328,28 +356,28 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
     gcongr
     exact measure_ball_le_same'' (μ := (volume : Measure X)) (t := 4⁻¹ * t) (r := 2 * R) x
       (by positivity) (by linarith)
-  _ = 2⁻¹ * 8 * C * (defaultA a) * t⁻¹ * (4 ⁻¹ * t) ^ (- Real.logb 2 (defaultA a)) * (dist x x' / R) *
+  _ = 2⁻¹ * 16 * C * (defaultA a) * t⁻¹ * (4 ⁻¹ * t) ^ (- Real.logb 2 (defaultA a)) * (dist x x' / (2 * R)) *
         (volume.real (ball x ((4⁻¹ * t) * (2 * R))) / volume.real (ball x (2⁻¹ * t * R))) := by
     ring
-  _ = 2⁻¹ * 8 * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / R) := by
+  _ = 2⁻¹ * 16 * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / (2 * R)) := by
     have : volume.real (ball x ((4⁻¹ * t) * (2 * R))) / volume.real (ball x (2⁻¹ * t * R)) = 1 := by
       rw [show (4⁻¹ * t) * (2 * R) = 2⁻¹ * t * R by ring, div_self]
       apply ne_of_gt
       apply measure_real_ball_pos
       positivity
     simp [defaultA, ← Real.rpow_natCast, this]
-  _ ≤ 2⁻¹ * 2 ^ a * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / R) := by
+  _ ≤ 2⁻¹ * 2 ^ a * C * 2 ^ a * t⁻¹ * (4 ⁻¹ * t) ^ (- a : ℝ) * (dist x x' / (2 * R)) := by
     gcongr
-    rw [show (8 : ℝ) = 2 ^ 3 by norm_num]
+    rw [show (16 : ℝ) = 2 ^ 4 by norm_num]
     apply pow_le_pow_right₀ (by norm_num)
     apply le_trans (by norm_num) (four_le_a X)
-  _ = 2⁻¹ * 2 ^ (a + a + 2 * a) * t ^ (- (1+a) : ℝ) * C * (dist x x' / R) := by
+  _ = 2⁻¹ * 2 ^ (a + a + 2 * a) * t ^ (- (1+a) : ℝ) * C * (dist x x' / (2 * R)) := by
     simp only [pow_add, neg_add_rev]
     rw [Real.mul_rpow (by norm_num) ht.le,
       Real.rpow_neg (by norm_num), Real.inv_rpow (by norm_num), inv_inv, Real.rpow_add ht,
       Real.rpow_neg_one, Real.rpow_natCast, pow_mul, show (2 : ℝ) ^ 2 = 4 by norm_num]
     ring
-  _ = 2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
+  _ = 2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / (2 * R)) := by
     congr <;> ring
   _ = _ := by ring
 
@@ -359,7 +387,7 @@ lemma norm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h'
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
     (hC : ∀ x, ‖ϕ x‖ ≤ C) {x x' : X} :
     ‖holderApprox R t ϕ x - holderApprox R t ϕ x'‖ ≤
-      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / R := by
+      2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
   rcases lt_or_le (dist x x') R with hx | hx
   · rw [norm_sub_rev]
     exact norm_holderApprox_sub_le_aux hR ht h't hc hϕ hC hx
@@ -370,8 +398,8 @@ lemma norm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h'
     gcongr
     · exact holderApprox_le hR ht hC x
     · exact holderApprox_le hR ht hC x'
-  _ = 2⁻¹ * 2 ^ 2 * 1 * C * 1 := by ring
-  _ ≤ 2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / R) := by
+  _ = 2⁻¹ * 2 ^ 3 * 1 * C * 2⁻¹ := by ring
+  _ ≤ 2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * (dist x x' / (2 * R)) := by
     gcongr
     · exact one_le_two
     · have : 4 ≤ a := four_le_a X
@@ -379,13 +407,15 @@ lemma norm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h'
     · apply Real.one_le_rpow_of_pos_of_le_one_of_nonpos ht h't
       have : (4 : ℝ) ≤ a := mod_cast (four_le_a X)
       linarith
-    · exact (one_le_div₀ hR).mpr hx
+    · simp only [inv_eq_one_div]
+      apply (div_le_div_iff₀ (by norm_num) (by positivity)).2
+      linarith
   _ = _ := by ring
 
 lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
     {C : ℝ≥0} {ϕ : X → ℂ} (hc : Continuous ϕ) (hϕ : ϕ.support ⊆ ball z R)
     (hC : ∀ x, ‖ϕ x‖ ≤ C) :
-    iLipENorm (holderApprox R t ϕ) z R ≤
+    iLipENorm (holderApprox R t ϕ) z (2 * R) ≤
       2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C := by
   let C' : ℝ≥0 := 2 ^ (4 * a) * (t.toNNReal) ^ (-1 - a : ℝ) * C
   have : 2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * C = C' := by
@@ -396,7 +426,8 @@ lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
   rw [this]
   apply iLipENorm_le
   · intro x hx
-    have hR : 0 < R := pos_of_mem_ball hx
+    have h'R : 0 < 2 * R := pos_of_mem_ball hx
+    have hR : 0 < R := by linarith
     apply (holderApprox_le hR ht hC x).trans
     simp only [NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat, NNReal.coe_rpow, C', ← mul_assoc]
     have : (C : ℝ) = 1 * 1 * C := by simp
@@ -413,14 +444,15 @@ lemma iLipENorm_holderApprox' {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
     · apply Real.one_le_rpow_of_pos_of_le_one_of_nonpos (by simp [ht]) (by simp [h't])
       linarith
   · intro x hx x' hx' hne
-    have hR : 0 < R := pos_of_mem_ball hx
+    have h'R : 0 < 2 * R := pos_of_mem_ball hx
+    have hR : 0 < R := by linarith
     simp only [NNReal.coe_mul, NNReal.coe_pow, NNReal.coe_ofNat, NNReal.coe_rpow,
       Real.coe_toNNReal', ht.le, sup_of_le_left, ← mul_assoc, C']
     exact norm_holderApprox_sub_le hR ht h't hc hϕ hC
 
 lemma iLipENorm_holderApprox {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
     {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) :
-    iLipENorm (holderApprox R t ϕ) z R ≤
+    iLipENorm (holderApprox R t ϕ) z (2 * R) ≤
       2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z R := by
   rcases eq_or_ne (iHolENorm ϕ z R) ∞ with h'ϕ | h'ϕ
   · apply le_top.trans_eq
@@ -435,9 +467,62 @@ lemma iLipENorm_holderApprox {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
 /-- The constant occurring in Proposition 2.0.5. -/
 def C2_0_5 (a : ℝ) : ℝ≥0 := 2 ^ (8 * a)
 
+section DivisionMonoid
+
+variable {α β : Type*} [TopologicalSpace α] [DivisionMonoid β]
+variable {f f' : α → β}
+
+/- PR after HasCompactMulSupport.inv' -/
+
+@[to_additive]
+theorem HasCompactMulSupport.div (hf : HasCompactMulSupport f) (hf' : HasCompactMulSupport f') :
+    HasCompactMulSupport (f / f') := hf.comp₂_left hf' (div_one 1)
+
+end DivisionMonoid
+
+
 /-- Proposition 2.0.5. -/
-theorem holder_van_der_corput {z : X} {R : ℝ≥0} (hR : 0 < R) {ϕ : X → ℂ}
-    (hϕ : support ϕ ⊆ ball z R) (h2ϕ : iHolENorm ϕ z R < ∞) {f g : Θ X} :
-    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖₊ ≤
+theorem holder_van_der_corput {z : X} {R : ℝ} (hR : 0 < R) {ϕ : X → ℂ}
+    (hϕ : tsupport ϕ ⊆ ball z R) (h2ϕ : iHolENorm ϕ z R ≠ ∞) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
     (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z R *
-    (1 + nndist_{z, R} f g) ^ (2 * a^2 + a^3 : ℝ)⁻¹ := sorry
+    (1 + nndist_{z, R} f g) ^ (2 * a^2 + a^3 : ℝ)⁻¹ := by
+  let t : ℝ := (1 + nndist_{z, R} f g) ^ (- (τ / (2 + a)))
+  have t_pos : 0 < t := Real.rpow_pos_of_pos (by positivity) _
+  have t_one : t ≤ 1 := by
+    apply Real.rpow_le_one_of_one_le_of_nonpos
+    · simp only [le_add_iff_nonneg_right,  NNReal.zero_le_coe]
+    · simp only [defaultτ, Left.neg_nonpos_iff]
+      positivity
+  have ϕ_cont : Continuous ϕ :=
+    ContinuousOn.continuous_of_tsupport_subset
+      ((HolderOnWith.of_iHolENorm_ne_top h2ϕ).continuousOn (nnτ_pos X)) isOpen_ball hϕ
+  have ϕ_comp : HasCompactSupport ϕ := by
+    apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall z R)
+    exact (subset_tsupport ϕ).trans (hϕ.trans ball_subset_closedBall)
+  let ϕ' := holderApprox R t ϕ
+  have ϕ'_norm : iLipENorm (holderApprox R t ϕ) z (2 * R) < ∞ := by
+    apply (iLipENorm_holderApprox t_pos t_one hϕ).trans_lt (Ne.lt_top ?_)
+    simp [ENNReal.mul_eq_top, h2ϕ, t_pos]
+  have ϕ'_supp : tsupport ϕ' ⊆ ball z (2 * R) := tsupport_holderApprox_subset hR hϕ ⟨t_pos, t_one⟩
+  have ϕ'_cont : Continuous ϕ' :=
+    ContinuousOn.continuous_of_tsupport_subset
+      (LipschitzOnWith.of_iLipENorm_ne_top ϕ'_norm.ne).continuousOn isOpen_ball ϕ'_supp
+  have ϕ'_comp : HasCompactSupport ϕ' := by
+    apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall z (2 * R))
+    exact (subset_tsupport ϕ').trans (ϕ'_supp.trans ball_subset_closedBall)
+  have : ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ
+      ≤ ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ + ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ := calc
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ
+    _ = ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x) + exp (I * (f x - g x)) * ϕ' x‖ₑ := by
+      congr with x
+      ring
+    _ = ‖(∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)) + ∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ := by
+      rw [integral_add]
+      · apply Continuous.integrable_of_hasCompactSupport (by fun_prop)
+        exact (ϕ_comp.sub ϕ'_comp).mul_left
+      · apply Continuous.integrable_of_hasCompactSupport (by fun_prop)
+        exact ϕ'_comp.mul_left
+    _ ≤ ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ + ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ :=
+      enorm_add_le _ _
+  sorry
