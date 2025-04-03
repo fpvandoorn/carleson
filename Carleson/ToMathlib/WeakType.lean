@@ -660,12 +660,12 @@ lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     [IsBoundedSMul 𝕜 E'] (k : 𝕜) : HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
-  calc
-    wnorm ((k • T) f) p' ν ≤ ↑‖k‖₊ * wnorm (T f) p' ν := by simp[wnorm_const_smul_le hp']
-    _                      ≤ ↑‖k‖₊ * (c * eLpNorm f p μ) := by
+  calc wnorm ((k • T) f) p' ν
+    _ ≤ ↑‖k‖₊ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
+    _ ≤ ↑‖k‖₊ * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
-    _                      = ↑(‖k‖₊ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
+    _ = ↑(‖k‖₊ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
 
 lemma HasWeakType.const_mul {E' α α' : Type*} [NontriviallyNormedField E']
