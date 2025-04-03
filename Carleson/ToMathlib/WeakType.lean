@@ -611,12 +611,13 @@ lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
   h.const_smul e
 
-variable [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
+--variable [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   -- [MulActionWithZero 𝕜 E₁] [IsBoundedSMul 𝕜 E₁] [MulActionWithZero 𝕜 E₂] [IsBoundedSMul 𝕜 E₂]
 
+omit [NontriviallyNormedField 𝕜] in
 lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α}
     {p : ℝ≥0∞} (hp : p ≠ 0) {μ : Measure α} {f : α → E}
-    [NontriviallyNormedField 𝕜] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E] (k : 𝕜) :
+    [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E]  (k : 𝕜) :
     wnorm (k • f) p μ ≤ ‖k‖₊ * wnorm f p μ := by
     unfold wnorm
     by_cases ptop : p = ⊤
@@ -630,7 +631,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α}
       intro _
       right
       exact toReal_pos hp ptop
-    simp [distribution_smul_left k_zero] -- change: this lemma doesn't fire any more, right?
+    simp [distribution_smul_left k_zero]
     intro t
     rw [ENNReal.mul_iSup]
     have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
@@ -640,24 +641,16 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α}
       simp [mul_assoc]
       congr
       exact coe_div knorm_ne_zero
-    have : t * distribution (k • f) (t) μ ^ p.toReal⁻¹ =
-        ↑‖k‖₊ * ((↑t / ↑‖k‖₊) * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹) := by
-      rw [← this]
-      congr 1
-      apply distribution_smul_left k_zero
-      sorry
-    rw [this]
+    erw [this]
     apply le_iSup_of_le (↑t / ↑‖k‖₊)
     apply le_of_eq
     congr <;> exact (coe_div knorm_ne_zero).symm
 
-#exit
-
 lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
     {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0}
-    (h : HasWeakType T p p' μ ν c) [NontriviallyNormedField 𝕜] [MulActionWithZero 𝕜 E']
-    [IsBoundedSMul 𝕜 E'] (k : 𝕜) : HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
+    (h : HasWeakType T p p' μ ν c) [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E'] (k : 𝕜) :
+    HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
   calc wnorm ((k • T) f) p' ν
@@ -678,10 +671,8 @@ end
 
 
 
-variable [NormedSpace 𝕜 E] [NormedSpace 𝕜 E₁] [NormedSpace 𝕜 E₂] [NormedSpace 𝕜 E₃]
-  (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
+variable (L : E₁ →L[𝕜] E₂ →L[𝕜] E₃)
 
--- TODO: reorganize variables so that everything makes sense
 lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E₂} :
     distribution (fun x ↦ L (f x) (g x)) (‖L‖ₑ * t * s) μ ≤
     distribution f t μ + distribution g s μ := by
