@@ -21,7 +21,8 @@ variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
-lemma enorm_absolute_homogeneous {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+
+lemma enorm_absolute_homogeneous {𝕜 : Type*} [NontriviallyNormedField 𝕜] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E] {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
@@ -581,9 +582,14 @@ end ContinuousENorm
 section NormedGroup
 
 variable {f g : α → ε}
+
 section
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
+
+omit [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E]
+variable [NontriviallyNormedField 𝕜] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
+  {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
 
 -- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
 
@@ -596,10 +602,10 @@ lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
-lemma HasStrongType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
-    {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c)
-    [NormedRing 𝕜] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] (k : 𝕜) :
+variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
+lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
+    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0}
+    (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
@@ -640,10 +646,9 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
   apply le_of_eq
   congr <;> exact (coe_div knorm_ne_zero).symm
 
-lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
-    {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0}
-    (h : HasWeakType T p p' μ ν c) [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E'] (k : 𝕜) :
+lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
+    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
+    {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
     HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
