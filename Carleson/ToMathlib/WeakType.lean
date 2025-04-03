@@ -611,40 +611,33 @@ lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
   h.const_smul e
 
---variable [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
-  -- [MulActionWithZero 𝕜 E₁] [IsBoundedSMul 𝕜 E₁] [MulActionWithZero 𝕜 E₂] [IsBoundedSMul 𝕜 E₂]
-
-omit [NontriviallyNormedField 𝕜] in
-lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α}
-    {p : ℝ≥0∞} (hp : p ≠ 0) {μ : Measure α} {f : α → E}
-    [NontriviallyNormedField 𝕜] [NormedSpace 𝕜 E]  (k : 𝕜) :
-    wnorm (k • f) p μ ≤ ‖k‖₊ * wnorm f p μ := by
-    unfold wnorm
-    by_cases ptop : p = ⊤
-    · simp [ptop]
-      apply eLpNormEssSup_const_smul_le
-    simp [ptop]
-    unfold wnorm'
-    by_cases k_zero : k = 0
-    · unfold distribution
-      simp [k_zero]
-      intro _
-      right
-      exact toReal_pos hp ptop
-    simp [distribution_smul_left k_zero]
-    intro t
-    rw [ENNReal.mul_iSup]
-    have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
-    have : ↑t * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹ =
-      ↑‖k‖₊ * ((↑t / ↑‖k‖₊) * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹) := by
-      nth_rewrite 1 [← mul_div_cancel₀ t knorm_ne_zero]
-      simp [mul_assoc]
-      congr
-      exact coe_div knorm_ne_zero
-    erw [this]
-    apply le_iSup_of_le (↑t / ↑‖k‖₊)
-    apply le_of_eq
-    congr <;> exact (coe_div knorm_ne_zero).symm
+lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞} (hp : p ≠ 0)
+    {μ : Measure α} {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖₊ * wnorm f p μ := by
+  by_cases ptop : p = ⊤
+  · simp [ptop]
+    apply eLpNormEssSup_const_smul_le
+  simp [wnorm, ptop]
+  unfold wnorm'
+  by_cases k_zero : k = 0
+  · unfold distribution
+    simp [k_zero]
+    intro _
+    right
+    exact toReal_pos hp ptop
+  simp [distribution_smul_left k_zero]
+  intro t
+  rw [ENNReal.mul_iSup]
+  have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
+  have : ↑t * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹ =
+    ↑‖k‖₊ * ((↑t / ↑‖k‖₊) * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹) := by
+    nth_rewrite 1 [← mul_div_cancel₀ t knorm_ne_zero]
+    simp [mul_assoc]
+    congr
+    exact coe_div knorm_ne_zero
+  erw [this]
+  apply le_iSup_of_le (↑t / ↑‖k‖₊)
+  apply le_of_eq
+  congr <;> exact (coe_div knorm_ne_zero).symm
 
 lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')}
