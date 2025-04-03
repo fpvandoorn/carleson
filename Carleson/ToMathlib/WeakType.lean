@@ -564,7 +564,7 @@ lemma distribution_add_le' {A : ℝ≥0∞} {g₁ g₂ : α → ε}
   apply distribution_add_le_of_enorm
   simp (discharger := positivity) [← ofReal_mul, ← ofReal_add, h]
 
-lemma distribution_add_le [TopologicalSpace ε] [ENormedAddMonoid ε] :
+lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g : α → ε} :
     distribution (f + g) (t + s) μ ≤ distribution f t μ + distribution g s μ :=
   calc
     _ ≤ μ ({x | t < ↑‖f x‖ₑ} ∪ {x | s < ↑‖g x‖ₑ}) := by
