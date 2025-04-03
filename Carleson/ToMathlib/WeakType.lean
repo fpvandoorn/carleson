@@ -14,15 +14,14 @@ section move
 
 variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
   {μ : Measure α} [NontriviallyNormedField 𝕜]
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+  [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   {p : ℝ≥0∞}
 
 -- todo: move/rename/and perhaps reformulate in terms of ‖.‖ₑ
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
-
-lemma enorm_absolute_homogeneous {𝕜 : Type*} [NontriviallyNormedField 𝕜] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E] {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+lemma enorm_absolute_homogeneous {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
