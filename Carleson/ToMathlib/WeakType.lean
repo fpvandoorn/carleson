@@ -582,6 +582,7 @@ section NormedGroup
 
 variable {f g : α → ε}
 section
+
 variable [TopologicalSpace ε] [ContinuousENorm ε]
 
 -- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
@@ -612,7 +613,7 @@ lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
   h.const_smul e
 
 lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞} (hp : p ≠ 0)
-    {μ : Measure α} {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖₊ * wnorm f p μ := by
+    {μ : Measure α} {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
   · simp [ptop]
     apply eLpNormEssSup_const_smul_le
@@ -628,8 +629,8 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
   intro t
   rw [ENNReal.mul_iSup]
   have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
-  have : ↑t * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹ =
-    ↑‖k‖₊ * ((↑t / ↑‖k‖₊) * distribution f (↑t / ↑‖k‖₊) μ ^ p.toReal⁻¹) := by
+  have : t * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹ =
+    ‖k‖ₑ * ((t / ‖k‖ₑ) * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹) := by
     nth_rewrite 1 [← mul_div_cancel₀ t knorm_ne_zero]
     simp [mul_assoc]
     congr
@@ -647,11 +648,11 @@ lemma HasWeakType.const_smul {𝕜 E' α α' : Type*} [NormedAddCommGroup E']
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ ↑‖k‖₊ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
-    _ ≤ ↑‖k‖₊ * (c * eLpNorm f p μ) := by
+    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
+    _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
-    _ = ↑(‖k‖₊ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
+    _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
 
 lemma HasWeakType.const_mul {E' α α' : Type*} [NontriviallyNormedField E']
