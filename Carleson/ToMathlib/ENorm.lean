@@ -33,6 +33,19 @@ export ENormedSpace (enorm_smul)
 -- mathlib has this (in the _root_ namespace), in a less general setting
 attribute [simp] ENormedSpace.enorm_smul
 
+instance : ENormedSpace ℝ≥0 where
+  enorm := ofNNReal
+  add_smul r s x := by
+    simp only [id_eq, smul_eq_mul]
+    ring
+  zero_smul := by simp
+  enorm_eq_zero := by simp
+  -- enorm_neg := by simp
+  enorm_add_le := by simp
+  add_comm := by simp [add_comm]
+  continuous_enorm := by dsimp; fun_prop
+  enorm_smul c x := by simp [ENNReal.smul_def]
+
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
   enorm_eq_zero := by simp

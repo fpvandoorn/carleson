@@ -604,6 +604,13 @@ lemma HasStrongType.const_smul' {α α' : Type*} {_x : MeasurableSpace α} {_x' 
   gcongr
   exact (h f hf).2
 
+-- XXX: is this the statement we want?
+lemma HasStrongType.const_mul' {α α' : Type*}
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞}
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : ℝ≥0) :
+    HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
+  h.const_smul' e
+
 end temp
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
