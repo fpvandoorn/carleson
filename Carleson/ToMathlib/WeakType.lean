@@ -391,13 +391,13 @@ theorem MemWℒp.ae_ne_top {f : α → ε} {p : ℝ≥0∞} {μ : Measure α}
 `HasWeakType T p p' μ ν c` means that `T` has weak type (p, p') w.r.t. measures `μ`, `ν`
 and constant `c`.  -/
 def HasWeakType (T : (α → ε₁) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
-    (c : ℝ≥0) : Prop :=
+    (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- A weaker version of `HasWeakType`. -/
 def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
-    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
+    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
@@ -406,14 +406,14 @@ def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
 and constant `c`.  -/
 def HasStrongType {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
-    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
+    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- A weaker version of `HasStrongType`. This is the same as `HasStrongType` if `T` is continuous
 w.r.t. the L^2 norm, but weaker in general. -/
 def HasBoundedStrongType {α α' : Type*} [Zero ε₁]
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
-    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0) : Prop :=
+    (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
@@ -594,7 +594,7 @@ variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionW
 lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
     {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0}
     (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
-    HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
+    HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
   gcongr
@@ -603,7 +603,7 @@ lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' :
 lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
     {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
-    HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
+    HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
 lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞} (hp : p ≠ 0)
@@ -636,7 +636,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
 lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
     {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
     {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
-    HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
+    HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
   calc wnorm ((k • T) f) p' ν
@@ -649,7 +649,7 @@ lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : M
 lemma HasWeakType.const_mul {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞}
     (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
-    HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
+    HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
 
 end
