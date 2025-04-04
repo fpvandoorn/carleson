@@ -1,6 +1,7 @@
 import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.AEStronglyMeasurable
+import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 
 noncomputable section
 
@@ -99,6 +100,35 @@ instance : ContinuousConstSMul ℝ≥0 ε where
     -- preimage of an open set U ⊆ ε is precisely t⁻¹ ⬝ U => suffices to show this map is open
     -- which it is, I presume? haven't thought it through
     sorry
+
+open MeasureTheory
+
+-- TODO: generalise the Monotonicity section of that file!
+
+-- TODO: generalise this lemma/make an enorm copy
+-- #check eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul
+
+-- TODO: generalise this lemma/make an enorm copy with enorm bounds
+-- #check eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul
+
+-- this could be a generalisation of its unprimed version, if I want
+theorem eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' {α : Type*} {m0 : MeasurableSpace α}
+    {μ : Measure α} {c : ℝ≥0} {f g : α → ε} (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) (p : ℝ≥0∞) :
+    eLpNorm f p μ ≤ c • eLpNorm g p μ := by
+  by_cases h0 : p = 0
+  · simp [h0]
+  by_cases h_top : p = ∞
+  · rw [h_top]
+    sorry -- exact eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul h
+  simp_rw [eLpNorm_eq_eLpNorm' h0 h_top]
+  -- exact eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul h (ENNReal.toReal_pos h0 h_top)
+  sorry
+
+-- TODO: put next to MeasureTheory.eLpNorm_const_smul_le (which perhaps can stay)
+theorem eLpNorm_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+  {μ : Measure α} {c : ℝ≥0} {f : α → ε}: eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ := by
+  apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (p := p) ?_
+  filter_upwards with x using by simp [ENNReal.smul_def]
 
 end ENormedSpace
 
