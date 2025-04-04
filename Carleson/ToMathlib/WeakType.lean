@@ -592,6 +592,18 @@ lemma distribution_smul_left' {f : α → ε} {c : ℝ≥0} (hc : c ≠ 0) :
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
+variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
+
+-- TODO: eventually, remove the unprimed version
+lemma HasStrongType.const_smul' {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
+    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+    (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :
+    HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
+  refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul2 (h f hf).1 k, eLpNorm_const_smul_le'.trans ?_⟩
+  simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
+  gcongr
+  exact (h f hf).2
+
 end temp
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
