@@ -541,10 +541,18 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
       p₂ p₂ μ μ (A ^ 4) := by
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul]
-  convert HasWeakType.const_mul (c := A ^ 2) _ _
-  · simp; ring
-  rw [hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
-  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
+  have : ofNNReal p₂ ≠ 0 := by -- surely, there is a simpler proof
+    refine coe_ne_zero.mpr ?_
+    have : 1 ≤ p₂ := by
+      trans p₁
+      exacts [hp₁, hp₁₂]
+    positivity
+  convert HasWeakType.const_mul (c := A ^ 2) (e := A ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂) (ε := E) this _ _
+  repeat sorry
+  -- TODO: this proof used to work (now, some metavariables cannot be inferred), was
+  -- · simp; ring
+  -- rw [hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
+  -- exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
 
 /-- Use `lowerSemiContinuous_MB` -/
 lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
