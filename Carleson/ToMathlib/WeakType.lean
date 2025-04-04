@@ -589,7 +589,7 @@ lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
 
 variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
 lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0}
+    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
     (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
@@ -599,7 +599,7 @@ lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' :
 
 lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
-    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : E') :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
@@ -633,7 +633,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
 
 lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
     {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
-    {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
+    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
@@ -646,7 +646,7 @@ lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : M
 
 lemma HasWeakType.const_mul {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞}
-    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
+    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
     HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
 
