@@ -594,7 +594,7 @@ variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionW
 lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
     {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0}
     (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
-    HasStrongType (k • T) p p' μ ν (‖k‖₊ * c) := by
+    HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
   gcongr
@@ -636,7 +636,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
 lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
     {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
     {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
-    HasWeakType (k • T) p p' μ ν (‖k‖₊ * c) := by
+    HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
   calc wnorm ((k • T) f) p' ν
@@ -649,7 +649,7 @@ lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : M
 lemma HasWeakType.const_mul {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞}
     (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
-    HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖₊ * c) :=
+    HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
 
 end
