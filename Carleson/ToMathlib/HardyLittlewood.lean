@@ -327,7 +327,7 @@ include A in
 theorem MB_ae_ne_top [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
     {u : X → E} (hu : MemLp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
-  simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWℒp hu |>.ae_ne_top
+  simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWℒp hu coe_lt_top |>.ae_ne_top
 
 -- move
 lemma MeasureTheory.MemLp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ : Measure α}

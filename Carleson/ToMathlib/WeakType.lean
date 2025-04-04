@@ -81,7 +81,7 @@ end move
 namespace MeasureTheory
 
 variable {α α' ε ε₁ ε₂ ε₃ 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
-  {p p' q : ℝ≥0∞} {c : ℝ≥0}
+  {p p' q : ℝ≥0∞} {c : ℝ≥0∞}
   {μ : Measure α} {ν : Measure α'} [NontriviallyNormedField 𝕜]
   {t s x y : ℝ≥0∞} {T : (α → ε₁) → (α' → ε₂)}
 
@@ -415,9 +415,9 @@ def HasBoundedStrongType {α α' : Type*} [Zero ε₁]
 
 /-! ### Lemmas about `HasWeakType` -/
 
-lemma HasWeakType.memWℒp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ) :
-    MemWℒp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top coe_lt_top hf₁.2⟩
+lemma HasWeakType.memWℒp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
+    (hc : c < ⊤ := by finiteness) : MemWℒp (T f₁) p' ν :=
+  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
 lemma HasWeakType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasWeakType T p p' μ ν c) :
     HasWeakType (T · · |>.toReal) p p' μ ν c :=
@@ -471,9 +471,10 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
 /-! ### Lemmas about `HasBoundedWeakType` -/
 
 lemma HasBoundedWeakType.memWℒp [Zero ε₁] (h : HasBoundedWeakType T p p' μ ν c)
-    (hf₁ : MemLp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞) :
+    (hf₁ : MemLp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞)
+    (hc : c < ⊤ := by finiteness) :
     MemWℒp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top coe_lt_top hf₁.2⟩
+  ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
 lemma HasWeakType.hasBoundedWeakType [Zero ε₁] (h : HasWeakType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
@@ -481,9 +482,9 @@ lemma HasWeakType.hasBoundedWeakType [Zero ε₁] (h : HasWeakType T p p' μ ν 
 
 /-! ### Lemmas about `HasStrongType` -/
 
-lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁ p μ) :
-    MemLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top coe_lt_top hf₁.2⟩
+lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
+    (hc : c < ⊤ := by finiteness) : MemLp (T f₁) p' ν :=
+  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
 lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
@@ -507,9 +508,9 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
 /-! ### Lemmas about `HasBoundedStrongType` -/
 
 lemma HasBoundedStrongType.memLp [Zero ε₁] (h : HasBoundedStrongType T p p' μ ν c)
-    (hf₁ : MemLp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞) :
-    MemLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top coe_lt_top hf₁.2⟩
+    (hf₁ : MemLp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞)
+    (hc : c < ⊤ := by finiteness) : MemLp (T f₁) p' ν :=
+  ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
 lemma HasStrongType.hasBoundedStrongType [Zero ε₁] (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
@@ -588,7 +589,7 @@ lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
 
 variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
 lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0}
+    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
     (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
@@ -598,7 +599,7 @@ lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' :
 
 lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
-    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasStrongType T p p' μ ν c) (e : E') :
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : E') :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
@@ -632,7 +633,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
 
 lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
     {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
-    {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
+    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
   refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
@@ -645,7 +646,7 @@ lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : M
 
 lemma HasWeakType.const_mul {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞}
-    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
+    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
     HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
 
