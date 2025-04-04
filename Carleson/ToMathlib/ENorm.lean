@@ -74,4 +74,32 @@ lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0
   apply sub_add_cancel_of_enorm_le
   simp_rw [enorm_zero, zero_le]
 
+-- generalises AEStrongMeasurable.const_smul, TODO update mathlib accordingly
+lemma AEStronglyMeasurable.const_smul2 {α β : Type*} [TopologicalSpace β]
+  {m : MeasurableSpace α} {μ : Measure α} {f : α → β} [SMul ℝ≥0 β] [ContinuousConstSMul ℝ≥0 β]
+  (hf : AEStronglyMeasurable f μ) (c : ℝ≥0) : AEStronglyMeasurable (c • f) μ :=
+  ⟨c • hf.mk f, hf.stronglyMeasurable_mk.const_smul c, hf.ae_eq_mk.const_smul c⟩
+
+section ENormedSpace
+
+variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
+
+instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
+  continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
+
+instance : ContinuousConstSMul ℝ≥0 ε where
+  continuous_const_smul t := by
+    by_cases ht : t = 0
+    · simp [ht]
+      fun_prop
+    have : Continuous fun (x : ε) ↦ ‖t • x‖ₑ := by
+      simp_rw [ENormedSpace.enorm_smul]
+      fun_prop
+    -- careful: ε need not be a metric space
+    -- preimage of an open set U ⊆ ε is precisely t⁻¹ ⬝ U => suffices to show this map is open
+    -- which it is, I presume? haven't thought it through
+    sorry
+
+end ENormedSpace
+
 end MeasureTheory
