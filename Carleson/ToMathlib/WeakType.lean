@@ -31,15 +31,13 @@ lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) :
     μ B ≤ μ A := by
   apply measure_mono_ae
   change μ {x | ¬ B x ≤ A x} = 0
-  simp only [le_Prop_eq, Classical.not_imp]
-  exact h
+  simpa only [le_Prop_eq, Classical.not_imp]
 
 lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
     eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
   simp_rw [eLpNormEssSup, enorm_eq_self]
   apply essSup_mono_ae _
-  apply Eventually.of_forall
-  simp [implies_true]
+  apply Eventually.of_forall (by simp)
 
 lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
     eLpNormEssSup (ENNReal.toReal ∘ f) μ = eLpNormEssSup f μ := by
@@ -158,8 +156,7 @@ lemma approx_above_superset (t₀ : ℝ≥0∞) :
     have h₂ := ENNReal.tendsto_inv_nat_nhds_zero h₁
     simp only [mem_map, mem_atTop_sets, mem_preimage, mem_Iio] at h₂
     rcases h₂ with ⟨n, wn⟩
-    simp only [mem_iUnion, mem_setOf_eq]
-    exact ⟨n, lt_tsub_iff_left.mp (wn n (Nat.le_refl n))⟩
+    simpa using ⟨n, lt_tsub_iff_left.mp (wn n (Nat.le_refl n))⟩
 
 lemma tendsto_measure_iUnion_distribution (t₀ : ℝ≥0∞) :
     Filter.Tendsto (⇑μ ∘ (fun n : ℕ ↦ {x | t₀ + (↑n)⁻¹ < ‖f x‖ₑ}))
@@ -204,11 +201,11 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
       · use Ico 0 (t₀ + 1)
         constructor
         · refine IsOpen.mem_nhds isOpen_Ico_zero ?_
-          simp only [mem_Ico, zero_le, lt_add_right t₀nottop.ne_top one_ne_zero, and_self]
+          simp [lt_add_right t₀nottop.ne_top one_ne_zero]
         · use Ioi t₀
           refine ⟨by simp, fun z hz ↦ ?_⟩
           rw [db_zero]
-          simp only [ge_iff_le, zero_le, tsub_eq_zero_of_le, zero_add]
+          simp only [zero_le, tsub_eq_zero_of_le, zero_add]
           have h₂ : distribution f z μ ≤ distribution f t₀ μ :=
             distribution_mono_right (le_of_lt hz.2)
           rw [db_zero] at h₂
@@ -346,8 +343,7 @@ theorem MemWℒp.ae_ne_top {f : α → ε} {p : ℝ≥0∞} {μ : Measure α}
   by_cases hp_zero : p = 0
   · exact (MemWℒp_zero <| hp_zero ▸ hf).elim
   set A := {x | ‖f x‖ₑ = ∞} with hA
-  unfold MemWℒp wnorm wnorm' at hf
-  simp only [hp_inf] at hf
+  simp only [MemWℒp, wnorm, wnorm', hp_inf] at hf
   rw [Filter.eventually_iff, mem_ae_iff]
   simp only [ne_eq, compl_def, mem_setOf_eq, Decidable.not_not, ← hA]
   have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩
@@ -609,23 +605,24 @@ lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
 lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞} (hp : p ≠ 0)
     {μ : Measure α} {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
-  · simp [ptop]
+  · simp only [ptop, wnorm_top]
     apply eLpNormEssSup_const_smul_le
-  simp [wnorm, ptop, wnorm']
+  simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
-  · unfold distribution
-    simp [k_zero]
+  · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero', setOf_false,
+      measure_empty, coe_lt_enorm, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
+      ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
     intro _
     right
     exact toReal_pos hp ptop
-  simp [distribution_smul_left k_zero]
+  simp only [distribution_smul_left k_zero]
   intro t
   rw [ENNReal.mul_iSup]
   have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
   have : t * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹ =
-    ‖k‖ₑ * ((t / ‖k‖ₑ) * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹) := by
+      ‖k‖ₑ * ((t / ‖k‖ₑ) * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹) := by
     nth_rewrite 1 [← mul_div_cancel₀ t knorm_ne_zero]
-    simp [mul_assoc]
+    simp only [coe_mul, mul_assoc]
     congr
     exact coe_div knorm_ne_zero
   erw [this]
