@@ -60,6 +60,17 @@ lemma pairwiseDisjoint_𝓙 : (𝓙 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
   have : IsAntichain (· ≤ ·) (𝓙 𝔖) := setOf_maximal_antichain _
   exact (le_or_ge_or_disjoint.resolve_left (this mI mJ hn)).resolve_left (this mJ mI hn.symm)
 
+lemma S_eq_zero_of_topCube_mem_𝓙₀ {𝔖 : Set (𝔓 X)} (h𝔖 : 𝔖.Nonempty) (h : topCube ∈ 𝓙₀ 𝔖) :
+    S = 0 := by
+  suffices (S : ℤ) = -(S : ℤ) by exact_mod_cast eq_zero_of_neg_eq this.symm
+  rw [𝓙₀, mem_setOf_eq, s, s_topCube] at h
+  apply h.resolve_right
+  push_neg
+  have ⟨p, hp⟩ := h𝔖
+  refine ⟨p, hp, subset_topCube.trans <| Grid_subset_ball.trans <| ball_subset_ball ?_⟩
+  apply mul_le_mul (by norm_num) (c0 := by positivity) (b0 := by norm_num)
+  exact zpow_le_zpow_right₀ one_le_D (scale_mem_Icc.2.trans (Int.le.intro 1 rfl))
+
 /-- The definition of `𝓛₀(𝔖), defined above Lemma 7.1.2 -/
 def 𝓛₀ (𝔖 : Set (𝔓 X)) : Set (Grid X) :=
   {L : Grid X | s L = -S ∨ (∃ p ∈ 𝔖, L ≤ 𝓘 p) ∧ ∀ p ∈ 𝔖, ¬𝓘 p ≤ L}
@@ -81,6 +92,10 @@ private lemma s_le_s_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 
 private lemma subset_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖) {p : 𝔓 X}
     (hp : p ∈ 𝔖) (hpL : ¬ Disjoint (𝓘 p : Set X) (L : Set X)) : (L : Set X) ⊆ (𝓘 p : Set X) :=
   GridStructure.fundamental_dyadic' (s_le_s_of_mem_𝓛 hL hp hpL) |>.resolve_right fun h ↦ hpL h.symm
+
+lemma le_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖) {p : 𝔓 X}
+    (hp : p ∈ 𝔖) (hpL : ¬Disjoint (𝓘 p : Set X) (L : Set X)) : L ≤ 𝓘 p :=
+  ⟨subset_of_mem_𝓛 hL hp hpL, s_le_s_of_mem_𝓛 hL hp hpL⟩
 
 /-- The projection operator `P_𝓒 f(x)`, given above Lemma 7.1.3.
 In lemmas the `c` will be pairwise disjoint on `C`. -/
@@ -132,18 +147,19 @@ lemma boundedCompactSupport_approxOnCube {𝕜 : Type*} [RCLike 𝕜] {C : Set (
 lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
     (hC : C.PairwiseDisjoint fun I ↦ (I : Set X)) {J : Grid X} (hJ : J ∈ C) {f : X → ℂ}
     (hf : BoundedCompactSupport f) : ENNReal.ofReal (∫ y in J, ‖f y‖) =
-    ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖₊ := by
+    ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ := by
   have nonneg : 0 ≤ᶠ[ae (volume.restrict J)] fun y ↦ ‖f y‖ := Filter.Eventually.of_forall (by simp)
   have vol_J_ne_zero := (volume_coeGrid_pos (X := X) (i := J) (defaultD_pos' a)).ne.symm
-  have eq : ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖₊ =
+  have eq : ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ =
       ∫⁻ y in (J : Set X), ENNReal.ofReal (⨍ z in J, ‖f z‖) := by
     refine setLIntegral_congr_fun coeGrid_measurable (Filter.Eventually.of_forall fun y hy ↦ ?_)
-    rw [approxOnCube_apply hC _ hJ hy, ENNReal.ofReal]
-    · apply congrArg
-      have : ‖⨍ y in J, (‖f y‖ : ℂ)‖₊ = ‖⨍ y in J, ‖f y‖‖₊ := by
-        convert congrArg (‖·‖₊) <| integral_ofReal (f := (‖f ·‖)) using 1
-        simp [average]
-      exact this ▸ (Real.toNNReal_eq_nnnorm_of_nonneg <| integral_nonneg (fun y ↦ by simp)).symm
+    rw [approxOnCube_apply hC _ hJ hy, ← ofReal_norm_eq_enorm]
+    apply congrArg
+    have : ‖⨍ y in J, (‖f y‖ : ℂ)‖ = ‖⨍ y in J, ‖f y‖‖ := by
+      convert congrArg (‖·‖) <| integral_ofReal (f := (‖f ·‖)) using 1
+      simp [average]
+    rw [this, Real.norm_eq_abs, abs_eq_self]
+    apply integral_nonneg (fun y ↦ by simp)
   rw [ofReal_integral_eq_lintegral_ofReal hf.integrable.norm.restrict nonneg,
     eq, lintegral_const, average_eq, smul_eq_mul, ENNReal.ofReal_mul, ENNReal.ofReal_inv_of_pos,
     ENNReal.ofReal_toReal, ofReal_integral_eq_lintegral_ofReal hf.norm.integrable nonneg, mul_comm,
@@ -211,7 +227,7 @@ private lemma mem_𝓙_of_mem_𝓙' {x : X} {i : ℤ} {J : Grid X} : J ∈ 𝓙'
 variable (f I J) in
 /-- Scaled integral appearing in the definition of `boundaryOperator`. -/
 def ijIntegral : ℝ≥0∞ :=
-  D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in J, ‖f y‖₊
+  D ^ ((s J - s I) / (a : ℝ)) / volume (ball (c I) (16 * D ^ (s I))) * ∫⁻ y in J, ‖f y‖ₑ
 
 lemma ijIntegral_lt_top (hf : BoundedCompactSupport f) : ijIntegral f I J < ⊤ := by
   refine ENNReal.mul_lt_top ?_ hf.integrable.integrableOn.2
@@ -249,7 +265,7 @@ lemma 𝓑_finite : (𝓑 (X := X)).Finite :=
 
 lemma laverage_le_biInf_MB' {c₀ : X} {r₀ : ℝ} (hr : 4 * D ^ s J + dist (c J) c₀ ≤ r₀)
     (h : ∃ i ∈ 𝓑, c𝓑 i = c₀ ∧ r𝓑 i = r₀) :
-    ⨍⁻ x in ball c₀ r₀, ‖f x‖₊ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    ⨍⁻ x in ball c₀ r₀, ‖f x‖ₑ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
   simp_rw [MB, maximalFunction, inv_one, ENNReal.rpow_one, le_iInf_iff]
   intro y my; obtain ⟨b, mb, cb, rb⟩ := h
   replace my : y ∈ ball (c𝓑 b) (r𝓑 b) := by
@@ -258,7 +274,7 @@ lemma laverage_le_biInf_MB' {c₀ : X} {r₀ : ℝ} (hr : 4 * D ^ s J + dist (c 
 
 lemma laverage_le_biInf_MB {r₀ : ℝ} (hr : 4 * D ^ s J ≤ r₀)
     (h : ∃ i ∈ 𝓑, c𝓑 i = c J ∧ r𝓑 i = r₀) :
-    ⨍⁻ x in ball (c J) r₀, ‖f x‖₊ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+    ⨍⁻ x in ball (c J) r₀, ‖f x‖ₑ ∂volume ≤ ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
   refine laverage_le_biInf_MB' ?_ h; rwa [dist_self, add_zero]
 
 
@@ -276,10 +292,8 @@ lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
   simp_rw [mem_preimage, mem_singleton_iff, mem_iUnion, exists_prop] at this
   obtain ⟨(p' : 𝔓 X), (𝓘p' : 𝓘 p' = K), Qxp'⟩ := this
   rw [← 𝓘p'] at lK Kl sK; refine ⟨p', ?_, sK⟩
-  have l₁ : p ≤ p' := ⟨lK,
-    (relative_fundamental_dyadic lK).resolve_left (not_disjoint_iff.mpr ⟨_, Qxp, Qxp'⟩)⟩
-  have l₂ : p' ≤ p'' := ⟨Kl,
-    (relative_fundamental_dyadic Kl).resolve_left (not_disjoint_iff.mpr ⟨_, Qxp', Qxp''⟩)⟩
+  have l₁ : p ≤ p' := tile_le_of_cube_le_and_not_disjoint lK Qxp Qxp'
+  have l₂ : p' ≤ p'' := tile_le_of_cube_le_and_not_disjoint Kl Qxp' Qxp''
   refine ⟨(t.ordConnected hu).out mp mp'' ⟨l₁, l₂⟩, ⟨(Grid.le_def.mp lK).1 xp, Qxp', ?_⟩⟩
   exact Icc_subset_Icc sxp.1 sxp''.2 ⟨(Grid.le_def.mp lK).2, (Grid.le_def.mp Kl).2⟩
 
@@ -423,7 +437,8 @@ private lemma sum_pow_two_le (a b : ℤ) : ∑ s ∈ Finset.Icc a b, (2 : ℝ≥
     linarith
   · intro n hn m hm hnm
     rw [Finset.mem_Icc] at hn hm
-    simpa [Int.sub_nonneg.mpr hn.1, Int.sub_nonneg.mpr hm.1] using congrArg Int.ofNat hnm
+    have := congrArg Int.ofNat hnm
+    simpa [max_eq_left (Int.sub_nonneg.mpr hn.1), max_eq_left (Int.sub_nonneg.mpr hm.1)] using this
   · exact fun n hn ↦ by use a + n, by simp [Nat.le_of_lt_succ (Finset.mem_range.mp hn)], by simp
   · intro n hn
     rw [← zpow_natCast, Int.ofNat_toNat, ← zpow_add' (Or.inl two_ne_zero),
@@ -534,11 +549,11 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
 -- An average over `ball (𝔠 p) (16 * D ^ 𝔰 p)` is bounded by `MB`; needed for Lemma 7.1.4
 private lemma L7_1_4_laverage_le_MB (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) (g : X → ℝ)
     {p : 𝔓 X} (pu : p ∈ t.𝔗 u) (xp : x ∈ E p) :
-    (∫⁻ y in ball (𝔠 p) (16 * D ^ 𝔰 p), ‖g y‖₊) / volume (ball (𝔠 p) (16 * D ^ 𝔰 p)) ≤
+    (∫⁻ y in ball (𝔠 p) (16 * D ^ 𝔰 p), ‖g y‖ₑ) / volume (ball (𝔠 p) (16 * D ^ 𝔰 p)) ≤
     MB volume 𝓑 c𝓑 r𝓑 g x' := by
   have mem_𝓑 : (4, 0, 𝓘 p) ∈ 𝓑 := by simp [𝓑]
   convert le_biSup (hi := mem_𝓑) <| fun i ↦ ((ball (c𝓑 i) (r𝓑 i)).indicator (x := x') <|
-    fun _ ↦ ⨍⁻ y in ball (c𝓑 i) (r𝓑 i), ‖g y‖₊ ∂volume)
+    fun _ ↦ ⨍⁻ y in ball (c𝓑 i) (r𝓑 i), ‖g y‖ₑ ∂volume)
   · have x'_in_ball : x' ∈ ball (c𝓑 (4, 0, 𝓘 p)) (r𝓑 (4, 0, 𝓘 p)) := by
       simp_rw [c𝓑, r𝓑, _root_.s, Nat.cast_zero, add_zero]
       have : x' ∈ 𝓘 p := subset_of_mem_𝓛 hL pu (not_disjoint_iff.mpr ⟨x, xp.1, hx⟩) hx'
@@ -629,7 +644,6 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     · refine le_trans ?_ <| ENNReal.toReal_mono hMB <| L7_1_4_laverage_le_MB hL hx hx' g pₛu xpₛ
       rw [hpₛ, ENNReal.toReal_div]
       refine div_le_div_of_nonneg_right ?_ measureReal_nonneg
-      simp_rw [← enorm_eq_nnnorm]
       rw [← integral_norm_eq_lintegral_enorm]
       · exact hpₛ ▸ L7_1_4_integral_le_integral hu hf pₛu xpₛ
       · exact (stronglyMeasurable_approxOnCube (𝓙 (t u)) (‖f ·‖)).aestronglyMeasurable.restrict
@@ -701,9 +715,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
   have x'p : x' ∈ 𝓘 p := (Grid.le_def.mp Lle).1 hx'
   refine le_iSup₂_of_le (𝓘 p) x'p <| le_iSup₂_of_le x xp <|
     le_iSup₂_of_le (𝔰 p') ⟨s_ineq, scale_mem_Icc.2⟩ <| le_iSup_of_le ?_ ?_
-  · have : ((D : ℝ≥0∞) ^ (𝔰 p' - 1)).toReal = D ^ (s₂ - 1) := by
-      rw [sp', ← ENNReal.toReal_zpow]; simp
-    apply le_upperRadius; convert d1
+  · apply le_upperRadius; convert d1
   · convert le_rfl; change (Icc (𝔰 p) _).toFinset = _; rw [sp, sp']
     apply subset_antisymm
     · rw [← Finset.toFinset_coe (t.σ u x), toFinset_subset_toFinset]

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: James Sundstrom
 -/
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
+import Carleson.ToMathlib.Interval
 
 /-!
 # Annulus
@@ -214,6 +215,35 @@ lemma cc_union_oi {x : X} {r R : ℝ} (h : r ≤ R) : cc x r R ∪ oi x R = ci x
 lemma co_union_ci {x : X} {r R : ℝ} (h : r ≤ R) : co x r R ∪ ci x R = ci x r := by
   ext; simp_rw [co, ci, mem_union, mem_setOf_eq, ← mem_union, Ico_union_Ici_eq_Ici h]
 
+theorem iUnion_co_eq_ci {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
+    ⋃ (i : Nat), co x (f i) (f (i+1)) = ci x (f 0) := by
+  unfold co ci
+  rw [iUnion_setOf, ← iUnion_Ico_eq_Ici hf h2f]
+  simp only [mem_Ico, mem_iUnion]
+
+theorem iUnion_oc_eq_oi {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
+    ⋃ (i : Nat), oc x (f i) (f (i+1)) = oi x (f 0) := by
+  unfold oc oi
+  rw [iUnion_setOf, ← iUnion_Ioc_eq_Ioi hf h2f]
+  simp only [mem_Ico, mem_iUnion]
+
+variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
+
+theorem pairwise_disjoint_co_monotone {x : X} {f : ι → ℝ} (hf : Monotone f) :
+    Pairwise (Function.onFun Disjoint fun (i : ι) => co x (f i) (f (Order.succ i))) := by
+  unfold Function.onFun
+  simp only
+  intro i j hij
+  apply Disjoint.preimage
+  exact pairwise_disjoint_Ico_monotone hf hij
+
+theorem pairwise_disjoint_oc_monotone {x : X} {f : ι → ℝ} (hf : Monotone f) :
+    Pairwise (Function.onFun Disjoint fun (i : ι) => oc x (f i) (f (Order.succ i))) := by
+  unfold Function.onFun
+  simp only
+  intro i j hij
+  apply Disjoint.preimage
+  exact pairwise_disjoint_Ioc_monotone hf hij
 
 variable [MeasurableSpace X] [OpensMeasurableSpace X]
 

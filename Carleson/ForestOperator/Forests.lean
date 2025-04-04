@@ -350,12 +350,12 @@ the integral of the function multiplied by another function. -/
 theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
     (h'A : IsBounded A) :
-    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ ≤
+    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * (volume A) ^ (1/2 : ℝ) := by
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  rw [← ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm]; swap
+  rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
   · apply BoundedCompactSupport.integrable
     apply BoundedCompactSupport.finset_sum (fun i hi ↦ ?_)
     apply BoundedCompactSupport.carlesonSum
@@ -373,8 +373,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     fun_prop
   · apply h'A.subset support_indicator_subset
   gcongr
-  · have := (q_mem_Ioc (X := X)).2
-    simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
+  · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
     exact (q_mem_Ioc (X := X)).2
   · exact le_rfl
   calc
@@ -401,7 +400,7 @@ of `volume F` and `volume G`.  -/
 theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
     (h'A : IsBounded A) :
-    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ ≤
+    ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume A) ^ (1/2 : ℝ) := by
   apply (forest_operator' 𝔉 hf h2f hA h'A).trans
