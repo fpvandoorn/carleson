@@ -1546,7 +1546,7 @@ lemma eLpNorm_trunc_measurable [NormedAddCommGroup E₁] :
 lemma eLpNorm_truncCompl_measurable [NormedAddCommGroup E₁] :
     Measurable (fun s ↦ eLpNorm (f - trunc f s) p μ) :=
   eLpNorm_truncCompl_anti.measurable
-#exit
+
 lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
     ‖trnc j f a x‖ ≤ ‖f x‖ := by
   unfold trnc trunc
