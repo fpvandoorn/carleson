@@ -1507,7 +1507,7 @@ lemma trunc_mono {f : α → E₁} {a b : ℝ} [NormedAddCommGroup E₁]
   · exact le_refl _
 
 /-- The norm of the truncation is monotone in the truncation parameter -/
-lemma norm_trunc_mono {f : α → E₁} [NormedAddCommGroup E₁] :
+lemma eLpNorm_trunc_mono {f : α → E₁} [NormedAddCommGroup E₁] :
     Monotone fun s ↦ eLpNorm (trunc f s) p μ :=
   fun _a _b hab ↦ eLpNorm_mono fun _x ↦ trunc_mono hab
 
@@ -1531,22 +1531,22 @@ lemma truncCompl_anti {f : α → E₁} {a b : ℝ} {x : α} [NormedAddCommGroup
   linarith
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
-lemma norm_truncCompl_anti {f : α → E₁} [NormedAddCommGroup E₁] :
+lemma eLpNorm_truncCompl_anti {f : α → E₁} [NormedAddCommGroup E₁] :
     Antitone (fun s ↦ eLpNorm (f - trunc f s) p μ) :=
   fun _a _b hab ↦ eLpNorm_mono (fun _ ↦ truncCompl_anti hab)
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
 @[measurability, fun_prop]
-lemma norm_trunc_measurable [NormedAddCommGroup E₁] :
+lemma eLpNorm_trunc_measurable [NormedAddCommGroup E₁] :
     Measurable (fun s ↦ eLpNorm (trunc f s) p μ) :=
-  norm_trunc_mono.measurable
+  eLpNorm_trunc_mono.measurable
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
 @[measurability, fun_prop]
-lemma norm_truncCompl_measurable [NormedAddCommGroup E₁] :
+lemma eLpNorm_truncCompl_measurable [NormedAddCommGroup E₁] :
     Measurable (fun s ↦ eLpNorm (f - trunc f s) p μ) :=
-  norm_truncCompl_anti.measurable
-
+  eLpNorm_truncCompl_anti.measurable
+#exit
 lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
     ‖trnc j f a x‖ ≤ ‖f x‖ := by
   unfold trnc trunc
@@ -1616,14 +1616,13 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : γ > 0) (htγ 
     exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
 
 lemma trunc_preserves_Lp {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁]
-    (hf : MemLp f p μ) :
-    MemLp (trunc f a) p μ := by
+    (hf : MemLp f p μ) : MemLp (trunc f a) p μ := by
   refine ⟨aestronglyMeasurable_trunc hf.1, lt_of_le_of_lt (eLpNorm_mono_ae (ae_of_all _ ?_)) hf.2⟩
   intro x
   unfold trunc
   split_ifs with is_fx_le_a <;> simp
 
--- lemma snorm_truncCompl_le {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] :
+-- lemma eLpNorm_truncCompl_le {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] :
 --     eLpNorm (f - trunc f a) p μ ≤ eLpNorm f p μ :=
 --   eLpNorm_mono (fun _ ↦ truncCompl_le_func)
 
@@ -3284,9 +3283,9 @@ theorem ton_aeMeasurable_eLpNorm_trunc [NormedAddCommGroup E₁] (tc : ToneCoupl
   have tone := tc.ton_is_ton
   split_ifs at tone
   · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-    exact norm_trunc_mono.comp_monotoneOn tone.monotoneOn
+    exact eLpNorm_trunc_mono.comp_monotoneOn tone.monotoneOn
   · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-    exact norm_trunc_mono.comp_antitoneOn tone.antitoneOn
+    exact eLpNorm_trunc_mono.comp_antitoneOn tone.antitoneOn
 
 lemma estimate_norm_rpow_range_operator'
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
