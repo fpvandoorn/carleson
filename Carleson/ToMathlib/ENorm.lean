@@ -118,11 +118,18 @@ open MeasureTheory
 
 -- TODO: generalise the Monotonicity section of that file!
 
--- TODO: generalise this lemma/make an enorm copy
--- #check eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul
+variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
 
--- TODO: generalise this lemma/make an enorm copy with enorm bounds
--- #check eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul
+-- TODO: prove this lemma; perhaps this should stay next to its unprimed cousin
+lemma eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul' {α : Type*} {m0 : MeasurableSpace α}
+    {μ : Measure α} {f : α → ε} {g : α → ε'} {c : ℝ≥0}
+    (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) {p : ℝ} (hp : 0 < p) :
+    eLpNorm' f p μ ≤ c • eLpNorm' g p μ := sorry
+
+-- TODO: prove this lemma; perhaps this should stay next to its unprimed cousin
+lemma eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul' {α : Type*}
+  {m0 : MeasurableSpace α} {μ : Measure α} {f : α → ε} {g : α → ε'} {c : ℝ≥0}
+  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) : eLpNormEssSup f μ ≤ c • eLpNormEssSup g μ := sorry
 
 -- this could be a generalisation of its unprimed version, if I want
 theorem eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' {α : Type*} {m0 : MeasurableSpace α}
@@ -132,15 +139,20 @@ theorem eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' {α : Type*} {m0 : Measurab
   · simp [h0]
   by_cases h_top : p = ∞
   · rw [h_top]
-    sorry -- exact eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul h
+    exact eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul' h
   simp_rw [eLpNorm_eq_eLpNorm' h0 h_top]
-  -- exact eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul h (ENNReal.toReal_pos h0 h_top)
-  sorry
+  exact eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul' h (ENNReal.toReal_pos h0 h_top)
 
 -- TODO: put next to MeasureTheory.eLpNorm_const_smul_le (which perhaps can stay)
 theorem eLpNorm_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
   {μ : Measure α} {c : ℝ≥0} {f : α → ε}: eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ := by
   apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (p := p) ?_
+  filter_upwards with x using by simp [ENNReal.smul_def]
+
+-- TODO: put next to the unprimed version; perhaps both should stay
+lemma eLpNormEssSup_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
+    {c : ℝ≥0} {f : α → ε} : eLpNormEssSup (c • f) μ ≤ ‖c‖ₑ * eLpNormEssSup f μ := by
+  apply eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul'
   filter_upwards with x using by simp [ENNReal.smul_def]
 
 end ENormedSpace
