@@ -143,7 +143,7 @@ lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q �
 lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : a > 0) : ENNReal.ofReal a ^ q > 0 :=
   ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
 
-lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤)  : a ^ q ≠ ⊤ := by
+lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) : a ^ q ≠ ⊤ := by
   intro h
   rcases ENNReal.rpow_eq_top_iff.mp h with ⟨a_zero, _⟩ | ⟨a_top, _⟩
   · exact (ha a_zero).elim
@@ -233,8 +233,7 @@ lemma inv_toReal_ne_zero_of_ne_top (hp₀ : p₀ > 0) (hp' : p₀ ≠ ⊤) : p�
   (inv_toReal_pos_of_ne_top hp₀ hp').ne'
 
 lemma interp_exp_toReal_pos (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
-    : 0 < p.toReal :=
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : 0 < p.toReal :=
   toReal_pos (interpolated_pos' hp₀ hp₁ hp).ne' (interp_exp_ne_top hp₀p₁ ht hp)
 
 lemma interp_exp_toReal_pos' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hp₁ : p₁ > 0)
@@ -429,8 +428,7 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) :
-    ζ p₀ q₀ p₁ q₁ t = (p₀.toReal * (q₀.toReal - q.toReal))  / (q₀.toReal * (p₀.toReal - p.toReal))
-    := by
+    ζ p₀ q₀ p₁ q₁ t = (p₀.toReal * (q₀.toReal - q.toReal))  / (q₀.toReal * (p₀.toReal - p.toReal)) := by
   rw [ζ_equality₁ ht, ← preservation_interpolation, ← preservation_interpolation]
   have q_pos : 0 < q := interpolated_pos' hq₀ hq₁ hq
   have p_pos : 0 < p := interpolated_pos' hp₀ hp₁ hp
@@ -487,8 +485,7 @@ lemma ζ_equality₅ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) :
-    p₀.toReal + (ζ p₀ q₀ p₁ q₁ t)⁻¹ * (q.toReal - q₀.toReal) * (p₀.toReal / q₀.toReal) = p.toReal
-    := by
+    p₀.toReal + (ζ p₀ q₀ p₁ q₁ t)⁻¹ * (q.toReal - q₀.toReal) * (p₀.toReal / q₀.toReal) = p.toReal := by
   rw [ζ_equality₃ ht] <;> try assumption
   simp only [inv_div]
   rw [div_eq_mul_inv, div_eq_mul_inv, mul_inv]
@@ -507,8 +504,7 @@ lemma ζ_equality₆ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) 
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ ≠ ⊤) :
-    p₁.toReal + (ζ p₀ q₀ p₁ q₁ t)⁻¹ * (q.toReal - q₁.toReal) * (p₁.toReal / q₁.toReal) = p.toReal
-    := by
+    p₁.toReal + (ζ p₀ q₀ p₁ q₁ t)⁻¹ * (q.toReal - q₁.toReal) * (p₁.toReal / q₁.toReal) = p.toReal := by
   rw [ζ_symm]
   exact ζ_equality₅ (Ioo.one_sub_mem ht) hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm
     (switch_exponents ht hp) (switch_exponents ht hq) hp₁' hq₁'
@@ -1248,8 +1244,7 @@ lemma lintegral_scale_constant (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0):
 
 lemma lintegral_scale_constant_preimage (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0)
     {s : Set ℝ}:
-    ∫⁻ x : ℝ in (fun z : ℝ ↦ a * z)⁻¹' s, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in s, f x
-    := by
+    ∫⁻ x : ℝ in (fun z : ℝ ↦ a * z)⁻¹' s, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in s, f x := by
   rw [← lintegral_smul_measure,
     (measure_preserving_scaling h).setLIntegral_comp_preimage_emb (measurableEmbedding_mulLeft₀ h),
     Measure.restrict_smul]
@@ -1354,7 +1349,7 @@ lemma truncCompl_eq [NormedAddCommGroup E₁] {a : ℝ} {f : α → E₁} :
   simp_rw [Pi.sub_apply, trunc, ← not_lt, ite_not, apply_ite (f x - ·), sub_zero, sub_self]
 
 /-- A function to deal with truncations and complement of truncations in one go. -/
-def trnc [NormedAddCommGroup E₁] (j : Bool) (f : α → E₁) (t : ℝ)  : α → E₁ :=
+def trnc [NormedAddCommGroup E₁] (j : Bool) (f : α → E₁) (t : ℝ) : α → E₁ :=
   match j with
   | false => f - trunc f t
   | true => trunc f t
@@ -2497,8 +2492,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       rw [mul_comm]
     _ = ∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹) ^ (p₀⁻¹ * q₀) *
-        (∫⁻ (a : α) in Function.support f, ↑‖trnc j f (tc.ton s) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀)
-        := by
+        (∫⁻ (a : α) in Function.support f, ↑‖trnc j f (tc.ton s) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       apply setLIntegral_congr_fun measurableSet_Ioi
       filter_upwards with s _
       rw [ENNReal.rpow_inv_rpow]
@@ -2507,8 +2501,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     _ = ∫⁻ (s : ℝ) in Ioi 0,
         (∫⁻ (a : α) in Function.support f,
         ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
-        ↑‖trnc j f (tc.ton s) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀)
-        := by
+        ‖trnc j f (tc.ton s) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       apply setLIntegral_congr_fun measurableSet_Ioi
       filter_upwards with s _
       rw [lintegral_const_mul', ENNReal.mul_rpow_of_nonneg]
