@@ -611,6 +611,34 @@ lemma HasStrongType.const_mul' {α α' : Type*}
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul' e
 
+-- TODO: remove the unprimed version
+lemma wnorm_const_smul_le' {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞} (hp : p ≠ 0)
+    {μ : Measure α} {f : α → ε} (k : ℝ≥0) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+  by_cases ptop : p = ⊤
+  · simp only [ptop, wnorm_top]
+    apply eLpNormEssSup_const_smul_le'
+  simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
+  by_cases k_zero : k = 0
+  · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero', setOf_false,
+      measure_empty, coe_lt_enorm, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, ENNReal.coe_eq_zero,
+      ENNReal.rpow_eq_zero_iff, inv_pos, true_and, zero_ne_top, inv_neg'', false_and, or_false]
+    intro _
+    right
+    exact toReal_pos hp ptop
+  simp only [distribution_smul_left' k_zero]
+  intro t
+  rw [ENNReal.mul_iSup]
+  have : t * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹ =
+      ‖k‖ₑ * ((t / ‖k‖ₑ) * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹) := by
+    nth_rewrite 1 [← mul_div_cancel₀ t k_zero]
+    simp only [coe_mul, mul_assoc]
+    congr
+    exact coe_div k_zero
+  rw [this]
+  apply le_iSup_of_le (↑t / ↑‖k‖₊)
+  apply le_of_eq
+  congr <;> exact (coe_div k_zero).symm
+
 end temp
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
