@@ -376,7 +376,7 @@ noncomputable section
 /-! ## Results about the particular choice of exponent
 
     The proof of the real interpolation theorem will estimate
-    `distribution (trunc f A(t)) t` and `distribution (trunc_compl f A(t)) t` for a
+    `distribution (trunc f A(t)) t` and `distribution (truncCompl f A(t)) t` for a
     function `A`. The function `A` can be given a closed-form expression that works for
     _all_ cases in the real interpolation theorem, because of the computation rules available
     for elements in `ℝ≥0∞` that avoid the need for a limiting procedure, e.g. `⊤⁻¹ = 0`.
@@ -1051,7 +1051,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 /-! ## Results about the particular choice of scale
 
     The proof of the real interpolation theorem will estimate
-    `distribution (trunc f A(t)) t` and `distribution (trunc_compl f A(t)) t` for a
+    `distribution (trunc f A(t)) t` and `distribution (truncCompl f A(t)) t` for a
     function `A`. The function `A` can be given a closed-form expression that works for
     _all_ cases in the real interpolation theorem, because of the computation rules available
     for elements in `ℝ≥0∞` that avoid the need for a limiting procedure, e.g. `⊤⁻¹ = 0`.
@@ -1346,9 +1346,9 @@ namespace MeasureTheory
 def trunc [NormedAddCommGroup E₁] (f : α → E₁) (t : ℝ) (x : α) : E₁ := if ‖f x‖ ≤ t then f x else 0
 
 /-- The complement of a `t`-truncation of a function `f`. -/
-def trunc_compl [NormedAddCommGroup E₁] (f : α → E₁) (t : ℝ) : α → E₁ := f - trunc f t
+def truncCompl [NormedAddCommGroup E₁] (f : α → E₁) (t : ℝ) : α → E₁ := f - trunc f t
 
-lemma trunc_compl_eq [NormedAddCommGroup E₁] {a : ℝ} {f : α → E₁} :
+lemma truncCompl_eq [NormedAddCommGroup E₁] {a : ℝ} {f : α → E₁} :
     f - trunc f a = fun x ↦ if a < ‖f x‖ then f x else 0 := by
   ext x
   simp_rw [Pi.sub_apply, trunc, ← not_lt, ite_not, apply_ite (f x - ·), sub_zero, sub_self]
@@ -1360,8 +1360,8 @@ def trnc [NormedAddCommGroup E₁] (j : Bool) (f : α → E₁) (t : ℝ)  : α 
   | true => trunc f t
 
 /-- A function is the complement if its truncation and the complement of the truncation. -/
-lemma trunc_buildup [NormedAddCommGroup E₁] : f = trunc f t + trunc_compl f t := by
-  ext x; simp [trunc, trunc_compl]
+lemma trunc_buildup [NormedAddCommGroup E₁] : f = trunc f t + truncCompl f t := by
+  ext x; simp [trunc, truncCompl]
 
 /-- If the truncation parameter is non-positive, the truncation vanishes. -/
 lemma trunc_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (ha : a ≤ 0) :
@@ -1377,10 +1377,10 @@ lemma trunc_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (ha 
 
 /-- If the truncation parameter is non-positive, the complement of the truncation is the
     function itself. -/
-lemma trunc_compl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (ha : a ≤ 0) :
-    trunc_compl f a = f := by
-  unfold trunc_compl
-  rw [trunc_compl_eq]
+lemma truncCompl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (ha : a ≤ 0) :
+    truncCompl f a = f := by
+  unfold truncCompl
+  rw [truncCompl_eq]
   ext x
   dsimp only [Pi.zero_apply]
   split_ifs
@@ -1397,10 +1397,10 @@ lemma trunc_compl_of_nonpos {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁
 --   refine hf.ite (measurableSet_le ?_ ?_) measurable_const <;> fun_prop
 
 -- @[measurability, fun_prop]
--- lemma _root_.Measurable.trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+-- lemma _root_.Measurable.truncCompl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
 --     (hf : Measurable f) :
 --     Measurable (f - trunc f t) := by
---   rw [trunc_compl_eq]
+--   rw [truncCompl_eq]
 --   apply Measurable.ite ?_ hf measurable_const
 --   exact measurableSet_lt measurable_const hf.norm
 
@@ -1411,9 +1411,9 @@ protected lemma StronglyMeasurable.trunc [NormedAddCommGroup E₁]
     stronglyMeasurable_const
 
 @[measurability]
-protected lemma StronglyMeasurable.trunc_compl [NormedAddCommGroup E₁]
+protected lemma StronglyMeasurable.truncCompl [NormedAddCommGroup E₁]
     (hf : StronglyMeasurable f) : StronglyMeasurable (f - trunc f t) := by
-  rw [trunc_compl_eq]
+  rw [truncCompl_eq]
   exact hf.ite (measurableSet_lt stronglyMeasurable_const hf.norm) stronglyMeasurable_const
 
 -- @[measurability, fun_prop]
@@ -1434,20 +1434,20 @@ protected lemma StronglyMeasurable.trunc_compl [NormedAddCommGroup E₁]
 --   rfl
 
 -- @[measurability, fun_prop]
--- lemma aeMeasurable_trunc_compl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+-- lemma aeMeasurable_truncCompl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
 --     (hf : AEMeasurable f μ) :
---     AEMeasurable (trunc_compl f t) μ := by
+--     AEMeasurable (truncCompl f t) μ := by
 --   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
---   exists (trunc_compl g t)
+--   exists (truncCompl g t)
 --   constructor
---   · unfold trunc_compl
---     rw [trunc_compl_eq]
+--   · unfold truncCompl
+--     rw [truncCompl_eq]
 --     exact wg1.indicator (s := {x | t < ‖g x‖}) (measurableSet_lt measurable_const wg1.norm)
 --   · apply measure_mono_null ?_ wg2
 --     intro x
 --     contrapose
 --     simp only [mem_compl_iff, mem_setOf_eq, not_not]
---     intro f_eq_g; unfold trunc_compl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
+--     intro f_eq_g; unfold truncCompl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
 
 @[measurability]
 lemma aestronglyMeasurable_trunc [NormedAddCommGroup E₁]
@@ -1465,20 +1465,20 @@ lemma aestronglyMeasurable_trunc [NormedAddCommGroup E₁]
     rw [h₂]
 
 @[measurability]
-lemma aestronglyMeasurable_trunc_compl [NormedAddCommGroup E₁]
+lemma aestronglyMeasurable_truncCompl [NormedAddCommGroup E₁]
     (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (f - trunc f t) μ := by
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
   exists (g - trunc g t)
   constructor
-  · rw [trunc_compl_eq]
+  · rw [truncCompl_eq]
     exact wg1.indicator (s := {x | t < ‖g x‖}) (stronglyMeasurable_const.measurableSet_lt wg1.norm)
   · apply measure_mono_null ?_ wg2
     intro x
     contrapose
     simp only [mem_compl_iff, mem_setOf_eq, not_not]
     intro h₂
-    rw [trunc_compl_eq, trunc_compl_eq]
+    rw [truncCompl_eq, truncCompl_eq]
     simp only
     rw [h₂]
 
@@ -1487,7 +1487,7 @@ lemma aestronglyMeasurable_trnc {j : Bool} [NormedAddCommGroup E₁]
     (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (trnc j f t) μ := by
   rcases j
-  · exact aestronglyMeasurable_trunc_compl hf
+  · exact aestronglyMeasurable_truncCompl hf
   · exact aestronglyMeasurable_trunc hf
 
 lemma trunc_le {f : α → E₁} {a : ℝ} [NormedAddCommGroup E₁] (x : α) :
@@ -1530,11 +1530,11 @@ lemma trunc_le_func {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E�
     ‖trunc f a x‖ ≤ ‖f x‖ := by
   unfold trunc; split_ifs <;> simp
 
-lemma trunc_compl_le_func {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
+lemma truncCompl_le_func {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
     ‖(f - trunc f a) x‖ ≤ ‖f x‖ := by
-  rw [trunc_compl_eq]; dsimp only; split_ifs <;> simp
+  rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
-lemma trunc_compl_anti {f : α → E₁} {a b : ℝ} {x : α} [NormedAddCommGroup E₁] (hab : a ≤ b) :
+lemma truncCompl_anti {f : α → E₁} {a b : ℝ} {x : α} [NormedAddCommGroup E₁] (hab : a ≤ b) :
     ‖(f - trunc f b) x‖ ≤ ‖(f - trunc f a) x‖ := by
   have obs : ‖trunc f a x‖ + ‖(f - trunc f a) x‖ = ‖trunc f b x‖ + ‖(f - trunc f b) x‖ := by
     rw [trunc_buildup_norm, trunc_buildup_norm]
@@ -1542,9 +1542,9 @@ lemma trunc_compl_anti {f : α → E₁} {a b : ℝ} {x : α} [NormedAddCommGrou
   linarith
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
-lemma norm_trunc_compl_anti {f : α → E₁} [NormedAddCommGroup E₁] :
+lemma norm_truncCompl_anti {f : α → E₁} [NormedAddCommGroup E₁] :
     Antitone (fun s ↦ eLpNorm (f - trunc f s) p μ) :=
-  fun _a _b hab ↦ eLpNorm_mono (fun _ ↦ trunc_compl_anti hab)
+  fun _a _b hab ↦ eLpNorm_mono (fun _ ↦ truncCompl_anti hab)
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
 @[measurability, fun_prop]
@@ -1554,9 +1554,9 @@ lemma norm_trunc_measurable [NormedAddCommGroup E₁] :
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
 @[measurability, fun_prop]
-lemma norm_trunc_compl_measurable [NormedAddCommGroup E₁] :
+lemma norm_truncCompl_measurable [NormedAddCommGroup E₁] :
     Measurable (fun s ↦ eLpNorm (f - trunc f s) p μ) :=
-  norm_trunc_compl_anti.measurable
+  norm_truncCompl_anti.measurable
 
 lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α} [NormedAddCommGroup E₁] :
     ‖trnc j f a x‖ ≤ ‖f x‖ := by
@@ -1634,15 +1634,15 @@ lemma trunc_preserves_Lp {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁]
   unfold trunc
   split_ifs with is_fx_le_a <;> simp
 
--- lemma snorm_trunc_compl_le {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] :
+-- lemma snorm_truncCompl_le {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] :
 --     eLpNorm (f - trunc f a) p μ ≤ eLpNorm f p μ :=
---   eLpNorm_mono (fun _ ↦ trunc_compl_le_func)
+--   eLpNorm_mono (fun _ ↦ truncCompl_le_func)
 
-lemma trunc_compl_preserves_Lp {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] (hf : MemLp f p μ) :
+lemma truncCompl_preserves_Lp {p : ℝ≥0∞} {a : ℝ} [NormedAddCommGroup E₁] (hf : MemLp f p μ) :
     MemLp (f - trunc f a) p μ :=
   MemLp.sub hf (trunc_preserves_Lp hf)
 
-lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
+lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] (hp : p ≠ ⊤) (hpq : q ∈ Ioo 0 p) (hf : AEMeasurable f μ) (ha : a > 0) :
     eLpNorm ((f - trunc f a)) q μ ^ q.toReal ≤
     ENNReal.ofReal (a ^ (q.toReal - p.toReal)) *
@@ -1660,7 +1660,7 @@ lemma estimate_eLpNorm_trunc_compl {p q : ℝ≥0∞} [MeasurableSpace E₁] [No
       · apply (setLIntegral_eq_of_support_subset _).symm
         unfold Function.support
         intro x
-        rw [trunc_compl_eq]
+        rw [truncCompl_eq]
         dsimp only [Pi.sub_apply, mem_setOf_eq]
         split_ifs with is_a_lt_fx
         · exact fun _ => is_a_lt_fx
@@ -1763,7 +1763,7 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [NormedAddCommGroup E₁] [Borel
     exact toReal_pos hpq.1.ne' hpq.2.ne_top
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q < p`. -/
-lemma trunc_compl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     (hp : p ≠ ⊤)
     (hpq : q ∈ Ioo 0 p) (ha : a > 0) (hf : MemLp f p μ) :
     MemLp (trnc ⊥ f a) q μ := by
@@ -1771,7 +1771,7 @@ lemma trunc_compl_Lp_Lq_lower [MeasurableSpace E₁] [NormedAddCommGroup E₁] [
   have : q.toReal > 0 := toReal_pos hpq.left.ne' hpq.right.ne_top
   refine (rpow_lt_top_iff_of_pos this).mp ?_
   refine lt_of_le_of_lt
-    (estimate_eLpNorm_trunc_compl hp hpq hf.1.aemeasurable ha) ?_
+    (estimate_eLpNorm_truncCompl hp hpq hf.1.aemeasurable ha) ?_
   apply mul_lt_top coe_lt_top
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (lt_trans hpq.left hpq.right).ne' hp
@@ -2377,7 +2377,7 @@ lemma truncation_compl_ton_measurable {f : α → E₁}
     ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f) )) := by
   let A := {(s, x) : ℝ × α | tc.ton s < ‖f x‖₊}
   have : (fun z : ℝ × α ↦ (f - trunc f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
-    ext z; rw [trunc_compl_eq]; simp [A, indicator]
+    ext z; rw [truncCompl_eq]; simp [A, indicator]
   rw [this]
   refine (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
     hf.restrict.snd.restrict
@@ -2392,7 +2392,7 @@ lemma restrict_to_support {a : ℝ} {p : ℝ} (hp : p > 0) [NormedAddCommGroup E
   intro f_zero
   simp_rw [f_zero]; simp [hp]
 
-lemma restrict_to_support_trunc_compl {a : ℝ} {p : ℝ} [NormedAddCommGroup E₁] (hp : p > 0)
+lemma restrict_to_support_truncCompl {a : ℝ} {p : ℝ} [NormedAddCommGroup E₁] (hp : p > 0)
     (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖(f - trunc f a) x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖(f - trunc f a) x‖ₑ ^ p ∂μ := by
@@ -2429,7 +2429,7 @@ theorem aeMeasurable_trunc_restrict
   · exact truncation_compl_ton_measurable hf _
   · exact truncation_ton_measurable hf _
 
-lemma lintegral_lintegral_pow_swap_trunc_compl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
+lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
     [BorelSpace E₁] {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
     (hp₀ : p₀ > 0) (hp₀q₀ : p₀ ≤ q₀)
@@ -2519,7 +2519,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ‖trnc j f (tc.ton s) a‖ₑ ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       -- This is a consequence of Minkowski's integral inequality
-      apply lintegral_lintegral_pow_swap_trunc_compl hp₀ hp₀q₀ hf tc; assumption
+      apply lintegral_lintegral_pow_swap_truncCompl hp₀ hp₀q₀ hf tc; assumption
     _ = (∫⁻ a : α in Function.support f,
         (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) *
@@ -2819,14 +2819,14 @@ lemma weaktype_aux₀ {p₀ q₀ p q : ℝ≥0∞}
 
 variable [MeasurableSpace E₁] [BorelSpace E₁]
 
-lemma weaktype_estimate_trunc_compl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α → E₁}
+lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α → E₁}
     (hp₀ : 0 < p₀) {q₀ : ℝ≥0∞} (hp : p ≠ ⊤) (hq₀ : 0 < q₀) (hq₀' : q₀ < ⊤)
     (hp₀p : p₀ < p) (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) {t : ℝ} (ht : t > 0) {a : ℝ} (ha : a > 0) :
     distribution (T (f - trunc f a)) (ENNReal.ofReal t) ν ≤ C₀ ^ q₀.toReal *
         eLpNorm (f - trunc f a) p₀ μ ^ q₀.toReal * (ENNReal.ofReal (t ^ (-q₀.toReal))) := by
   apply weaktype_estimate hq₀ hq₀' ?_ h₀T ht
-  exact trunc_compl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ ha hf
+  exact truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ ha hf
 
 lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α → E₁}
     (hp : 0 < p)
@@ -2865,7 +2865,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
       distribution_mono_right ineq
   _ = 0 := distribution_snormEssSup
 
-lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p₀ q₀ : ℝ≥0∞}
+lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p₀ q₀ : ℝ≥0∞}
     (hp₀ : 0 < p₀) (hq₀ : q₀ = ⊤) (hp₀p : p₀ < p) (hp : p ≠ ⊤) {f : α → E₁} (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) {t : ℝ} (ht : t > 0) {a : ℝ} {d : ℝ} -- (hd : d > 0)
     (ha : a = (t / d) ^ (p₀.toReal / (p₀.toReal - p.toReal)))
@@ -2879,7 +2879,7 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
       exact eLpNorm_trnc_est (p := ⊤)
     have obs : eLpNorm (T (trnc ⊥ f a)) ⊤ ν = 0 :=
       weaktype_aux₀ hp₀ (hq₀ ▸ zero_lt_top) zero_lt_top zero_lt_top h₀T
-        (aestronglyMeasurable_trunc_compl hf.1) this
+        (aestronglyMeasurable_truncCompl hf.1) this
     exact nonpos_iff_eq_zero.mp (Trans.trans (distribution_mono_right (Trans.trans obs
       (zero_le (ENNReal.ofReal t)))) meas_eLpNormEssSup_lt)
   · have p_pos : p > 0 := lt_trans hp₀ hp₀p
@@ -2893,7 +2893,7 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
     have d_pos : d > 0 := hdeq ▸ Real.rpow_pos_of_pos (toReal_zero ▸
       toReal_strict_mono term_ne_top term_pos) _
     have a_pos : a > 0 := by rw [ha]; positivity
-    have obs : MemLp (f - trunc f a) p₀ μ := trunc_compl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ a_pos hf
+    have obs : MemLp (f - trunc f a) p₀ μ := truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ a_pos hf
     have wt_est := (h₀T (f - trunc f a) obs).2
     unfold wnorm at wt_est
     split_ifs at wt_est
@@ -2905,7 +2905,7 @@ lemma weaktype_estimate_trunc_compl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p
           eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg _ _ toReal_nonneg]
         gcongr
-        exact estimate_eLpNorm_trunc_compl hp ⟨hp₀, hp₀p⟩ hf.1.aemeasurable a_pos
+        exact estimate_eLpNorm_truncCompl hp ⟨hp₀, hp₀p⟩ hf.1.aemeasurable a_pos
       _ = (↑C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal *
           (ENNReal.ofReal (d ^ p₀.toReal))⁻¹ * ENNReal.ofReal (t ^ p₀.toReal) := by
         rw [ha, ← Real.rpow_mul, div_mul_cancel₀]
@@ -3023,7 +3023,7 @@ def Subadditive [ENorm ε] (T : (α → E₁) → α' → ε) : Prop :=
 def Subadditive_trunc [ENorm ε] (T : (α → E₁) → α' → ε) (A : ℝ≥0∞) (f : α → E₁) (ν : Measure α') :
     Prop :=
   ∀ a : ℝ, a > 0 → ∀ᵐ y ∂ν,
-  ‖T (trunc f a + trunc_compl f a) y‖ₑ ≤ A * (‖T (trunc f a) y‖ₑ + ‖T (trunc_compl f a) y‖ₑ)
+  ‖T (trunc f a + truncCompl f a) y‖ₑ ≤ A * (‖T (trunc f a) y‖ₑ + ‖T (truncCompl f a) y‖ₑ)
 
 /-- The operator is subadditive on functions satisfying `P` with constant `A`
 (this is almost vacuous if `A = ⊤`). -/
@@ -3335,7 +3335,7 @@ lemma estimate_norm_rpow_range_operator'
       intro s (s_pos : s > 0)
       gcongr
       · apply weaktype_estimate_trunc p_pos hq₁ <;> assumption
-      · apply weaktype_estimate_trunc_compl (p₀ := p₀) hp₀ <;> try assumption
+      · apply weaktype_estimate_truncCompl (p₀ := p₀) hp₀ <;> try assumption
         · exact hp₁p.ne_top
         · exact tc.ran_ton s s_pos
     exact ((((ton_aeMeasurable_eLpNorm_trunc tc).pow_const _).const_mul _).mul
@@ -3355,7 +3355,7 @@ lemma estimate_norm_rpow_range_operator'
     have : q₁ = ⊤ := not_lt_top.mp is_q₁top
     rw [hq₁' this s s_pos, zero_mul, zero_add]
     gcongr
-    apply weaktype_estimate_trunc_compl (p₀ := p₀) <;> try assumption
+    apply weaktype_estimate_truncCompl (p₀ := p₀) <;> try assumption
     · exact hp₁p.ne_top
     · exact tc.ran_ton s s_pos
   · simp only [zero_mul, add_zero, nonpos_iff_eq_zero]
@@ -3630,7 +3630,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : A > 0)
     · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
     · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).1
     · intro q₀top s (hs : s > 0)
-      apply weaktype_estimate_trunc_compl_top (d := spf.d) hC₀ hp₀.1 q₀top _ _ hf h₀T hs _
+      apply weaktype_estimate_truncCompl_top (d := spf.d) hC₀ hp₀.1 q₀top _ _ hf h₀T hs _
       · rw [hspf]
         exact d_eq_top₀ one_le_p₀ q₁pos hp₀p₁.ne_top q₀top hq₀q₁
       · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).1
@@ -4303,10 +4303,10 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
       exact ⟨interpolated_pos' hp₀ hp₁ hp,
         (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).2⟩
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
-    · refine Or.inl (trunc_compl_Lp_Lq_lower (p := p) (interp_exp_ne_top p₀lt_p₁.ne ht hp)
+    · refine Or.inl (truncCompl_Lp_Lq_lower (p := p) (interp_exp_ne_top p₀lt_p₁.ne ht hp)
         ⟨hp₀, (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩ a_pos hf)
-    · exact Or.inl <| interp_exp_eq p₀eq_p₁ ht hp ▸ trunc_compl_preserves_Lp hf
-    · refine Or.inr <| trunc_compl_Lp_Lq_lower (p := p) ?_ ?_ a_pos hf
+    · exact Or.inl <| interp_exp_eq p₀eq_p₁ ht hp ▸ truncCompl_preserves_Lp hf
+    · refine Or.inr <| truncCompl_Lp_Lq_lower (p := p) ?_ ?_ a_pos hf
       · exact interp_exp_ne_top p₁lt_p₀.ne (Ioo.one_sub_mem ht) (switch_exponents ht hp)
       · exact ⟨hp₁,
           (interp_exp_between hp₁ hp₀ p₁lt_p₀ (Ioo.one_sub_mem ht) (switch_exponents ht hp)).1⟩
