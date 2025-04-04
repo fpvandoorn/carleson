@@ -639,6 +639,26 @@ lemma wnorm_const_smul_le' {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞
   apply le_of_eq
   congr <;> exact (coe_div k_zero).symm
 
+lemma HasWeakType.const_smul' {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
+    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
+    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
+    HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
+  intro f hf
+  refine ⟨aestronglyMeasurable_const.smul2 (h f hf).1, ?_⟩
+  calc wnorm ((k • T) f) p' ν
+    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le' hp']
+    _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
+      gcongr
+      apply (h f hf).2
+    _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
+
+-- XXX: is this the statement we want?
+lemma HasWeakType.const_mul' {α α' : Type*}
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞}
+    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (e : ℝ≥0) :
+    HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
+  h.const_smul' hp' e
+
 end temp
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
