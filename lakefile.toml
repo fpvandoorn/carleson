@@ -24,4 +24,3 @@ rev = "master"
 
 [[lean_lib]]
 name = "Carleson"
-moreLeanArgs = ["-Dpp.unicode.fun=true", "-DautoImplicit=false", "-DrelaxedAutoImplicit=false"]
