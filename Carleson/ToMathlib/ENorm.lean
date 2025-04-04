@@ -94,7 +94,9 @@ lemma AEStronglyMeasurable.const_smul2 {α β : Type*} [TopologicalSpace β]
   (hf : AEStronglyMeasurable f μ) (c : ℝ≥0) : AEStronglyMeasurable (c • f) μ :=
   ⟨c • hf.mk f, hf.stronglyMeasurable_mk.const_smul c, hf.ae_eq_mk.const_smul c⟩
 
--- generalise mathlib lemma, or put next to its un-two'ed version
+-- NB. The corresponding `smul` statement would also generalise, but that is not helpful in our
+-- context, as scalar multiplication ℝ≥0 • ℝ≥0∞ is not continuous at (0, ∞).
+-- unused
 protected theorem AEStronglyMeasurable.smul2
     {β : Type*} [TopologicalSpace β] [SMul ℝ≥0 β] [ContinuousSMul ℝ≥0 β] {f : α → ℝ≥0}
      {m m₀ : MeasurableSpace α} {μ : Measure α} {g : α → β} (hf : AEStronglyMeasurable[m] f μ)
@@ -120,9 +122,6 @@ instance : ContinuousConstSMul ℝ≥0 ε where
     -- preimage of an open set U ⊆ ε is precisely t⁻¹ ⬝ U => suffices to show this map is open
     -- which it is, I presume? haven't thought it through
     sorry
-
-instance : ContinuousSMul ℝ≥0 ε where
-  continuous_smul := sorry -- TODO: is this true?
 
 open MeasureTheory
 
