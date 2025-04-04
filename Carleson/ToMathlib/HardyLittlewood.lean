@@ -530,10 +530,11 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul, C2_0_6']
+  sorry /-- TODO: the next line times out, some "small" change under the hood!
   convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
   · simp
   rw [hasStrongType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
-  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
+  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂ -/
 
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
