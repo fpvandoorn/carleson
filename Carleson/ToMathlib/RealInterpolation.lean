@@ -655,8 +655,7 @@ lemma ζ_pos_iff' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
     (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) :
-    (0 < ζ p₀ q₀ p₁ q₁ t) ↔
-    ((q < q₀) ∧ (p < p₀)) ∨ ((q₀ < q) ∧ (p₀ < p)) := by
+    0 < ζ p₀ q₀ p₁ q₁ t ↔ (q < q₀ ∧ p < p₀) ∨ (q₀ < q ∧ p₀ < p) := by
   rw [ζ_pos_iff ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁,
     ← exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_lt_iff ht hq₀ hq₁ hq₀q₁ hq,
     ← exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
@@ -664,9 +663,8 @@ lemma ζ_pos_iff' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
 lemma ζ_pos_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0)
     (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁)  :
-    (0 < ζ p₀ q₀ p₁ q₁ t) ↔
-    (q₀ < q) := by
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    0 < ζ p₀ q₀ p₁ q₁ t ↔ q₀ < q := by
   rw [ζ_pos_iff' ht hp₀ hq₀ hp₁ hq₁ hp₀p₁'.ne hq₀q₁ hp hq]
   rw [← exp_gt_iff (p := p) ht hp₀ hp₁ hp₀p₁'.ne hp] at hp₀p₁'
   have : ¬ (p < p₀) := not_lt_of_gt hp₀p₁'
@@ -676,16 +674,15 @@ lemma ζ_pos_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ 
   (hp₁ : p₁ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
-    (0 < ζ p₀ q₀ p₁ q₁ t) ↔
-    (q < q₁) := by
+    0 < ζ p₀ q₀ p₁ q₁ t ↔ q < q₁ := by
   rw [← exp_gt_exp_lt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_pos_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
 
 lemma ζ_neg_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
     (ζ p₀ q₀ p₁ q₁ t) < 0 ↔
-    q₀⁻¹.toReal < q₁⁻¹.toReal ∧ p₁⁻¹.toReal < p₀⁻¹.toReal ∨
-    q₁⁻¹.toReal < q₀⁻¹.toReal ∧ p₀⁻¹.toReal < p₁⁻¹.toReal := by
+      q₀⁻¹.toReal < q₁⁻¹.toReal ∧ p₁⁻¹.toReal < p₀⁻¹.toReal ∨
+      q₁⁻¹.toReal < q₀⁻¹.toReal ∧ p₀⁻¹.toReal < p₁⁻¹.toReal := by
   unfold ζ
   rw [div_neg_iff, ← Left.neg_pos_iff, ← Left.neg_pos_iff, neg_mul_eq_mul_neg, neg_mul_eq_mul_neg]
   rw [mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left,
@@ -698,8 +695,7 @@ lemma ζ_neg_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 
 
 lemma ζ_neg_iff (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
-    (ζ p₀ q₀ p₁ q₁ t) < 0 ↔
-    q₁ < q₀ ∧ p₀ < p₁ ∨ q₀ < q₁ ∧ p₁ < p₀ := by
+    ζ p₀ q₀ p₁ q₁ t < 0 ↔ q₁ < q₀ ∧ p₀ < p₁ ∨ q₀ < q₁ ∧ p₁ < p₀ := by
   rw [ζ_neg_iff_aux₀ ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁, inv_toReal_iff hq₀ hq₁, inv_toReal_iff hp₀ hp₁,
     inv_toReal_iff hq₁ hq₀, inv_toReal_iff hp₁ hp₀]
 
@@ -707,8 +703,7 @@ lemma ζ_neg_iff' (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) :
-    (ζ p₀ q₀ p₁ q₁ t) < 0 ↔
-    ((q < q₀) ∧ (p₀ < p)) ∨ ((q₀ < q) ∧ (p < p₀)) := by
+    ζ p₀ q₀ p₁ q₁ t < 0 ↔ (q < q₀ ∧ p₀ < p) ∨ (q₀ < q ∧ p < p₀) := by
   rw [ζ_neg_iff ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁, ← exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp,
     ← exp_lt_iff ht hq₀ hq₁ hq₀q₁ hq, ← exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp,
     ← exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
@@ -717,7 +712,7 @@ lemma ζ_neg_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ 
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
-    (ζ p₀ q₀ p₁ q₁ t) < 0 ↔ q < q₀ := by
+    ζ p₀ q₀ p₁ q₁ t < 0 ↔ q < q₀ := by
   rw [ζ_neg_iff' ht hp₀ hq₀ hp₁ hq₁ hp₀p₁'.ne hq₀q₁ hp hq]
   rw [← exp_gt_iff (p := p) ht hp₀ hp₁ hp₀p₁'.ne hp] at hp₀p₁'
   have : ¬ (p < p₀) := not_lt_of_gt hp₀p₁'
@@ -727,15 +722,15 @@ lemma ζ_neg_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ 
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
-    (ζ p₀ q₀ p₁ q₁ t) < 0 ↔ q₁ < q := by
+    ζ p₀ q₀ p₁ q₁ t < 0 ↔ q₁ < q := by
   rw [← exp_lt_exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_neg_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
 
 lemma ζ_neg_iff_aux (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) :
     (p₀.toReal * (q₀.toReal - q.toReal) / (q₀.toReal * (p₀.toReal - p.toReal)) < 0) ↔
-    ((q.toReal < q₀.toReal) ∧ (p₀.toReal < p.toReal)) ∨
-    ((q₀.toReal < q.toReal) ∧ (p.toReal < p₀.toReal)) := by
+    (q.toReal < q₀.toReal) ∧ (p₀.toReal < p.toReal) ∨
+    (q₀.toReal < q.toReal) ∧ (p.toReal < p₀.toReal) := by
   rw [div_neg_iff, ← Left.neg_pos_iff, ← Left.neg_pos_iff, neg_mul_eq_mul_neg, neg_mul_eq_mul_neg,
     mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left,
     mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, neg_sub, neg_sub]
@@ -750,9 +745,9 @@ lemma ζ_neg_toReal_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
     (hq₀' : q₀ ≠ ⊤) :
-    (ζ p₀ q₀ p₁ q₁ t < 0) ↔
-    ((q.toReal < q₀.toReal) ∧ (p₀.toReal < p.toReal)) ∨
-    ((q₀.toReal < q.toReal) ∧ (p.toReal < p₀.toReal)) := by
+    ζ p₀ q₀ p₁ q₁ t < 0 ↔
+      (q.toReal < q₀.toReal ∧ p₀.toReal < p.toReal) ∨
+      (q₀.toReal < q.toReal ∧ p.toReal < p₀.toReal) := by
   rw [ζ_equality₃ ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁ hp hq hp₀' hq₀']
   exact ζ_neg_iff_aux hp₀ hq₀ hp₀' hq₀'
 
@@ -761,9 +756,9 @@ lemma ζ_neg_toReal_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ ≠ ⊤) :
-    (ζ p₀ q₀ p₁ q₁ t < 0) ↔
-    ((q.toReal < q₁.toReal) ∧ (p₁.toReal < p.toReal)) ∨ ((q₁.toReal < q.toReal) ∧
-    (p.toReal < p₁.toReal)) := by
+    ζ p₀ q₀ p₁ q₁ t < 0 ↔
+      (q.toReal < q₁.toReal ∧ p₁.toReal < p.toReal) ∨
+      (q₁.toReal < q.toReal ∧ p.toReal < p₁.toReal) := by
   rw [ζ_equality₄ ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁ hp hq hp₁' hq₁']
   exact ζ_neg_iff_aux hp₁ hq₁ hp₁' hq₁'
 
@@ -771,15 +766,15 @@ lemma ζ_neg_iff₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀' : p₀ ≠ ⊤)
-    (hq₀' : q₀ ≠ ⊤) : (ζ p₀ q₀ p₁ q₁ t < 0) ↔
-    ((q < q₀) ∧ (p₀ < p)) ∨ ((q₀ < q) ∧ (p < p₀)) := by
+    (hq₀' : q₀ ≠ ⊤) :
+    ζ p₀ q₀ p₁ q₁ t < 0 ↔ (q < q₀ ∧ p₀ < p) ∨ (q₀ < q ∧ p < p₀) := by
   rw [ζ_neg_toReal_iff₀ ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁ hp hq hp₀' hq₀',
     preservation_inequality ht hq₀q₁ hq hq₀', preservation_inequality ht hp₀p₁ hp hp₀',
     preservation_inequality' ht hq₀q₁ hq hq₀', preservation_inequality' ht hp₀p₁ hp hp₀']
 
 lemma ζ_ne_zero (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hq₁ : q₁ > 0)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
-    (ζ p₀ q₀ p₁ q₁ t ≠ 0) := by
+    ζ p₀ q₀ p₁ q₁ t ≠ 0 := by
   refine div_ne_zero ?_ ?_
   · apply mul_ne_zero (preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁).ne'
     refine sub_ne_zero_of_ne (Ne.symm fun h ↦ hq₀q₁ ?_)
@@ -794,7 +789,7 @@ lemma ζ_le_zero_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
-    (ζ p₀ q₀ p₁ q₁ t ≤ 0) ↔ q < q₀ := by
+    ζ p₀ q₀ p₁ q₁ t ≤ 0 ↔ q < q₀ := by
   constructor <;> intro h
   · rcases (Decidable.lt_or_eq_of_le h) with ζ_lt_0 | ζ_eq_0
     · exact (ζ_neg_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁').mp ζ_lt_0
@@ -805,14 +800,14 @@ lemma ζ_le_zero_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : p₀ > 0) (hq₀ : q
     (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
-    (ζ p₀ q₀ p₁ q₁ t) ≤ 0 ↔ q₁ < q := by
+    ζ p₀ q₀ p₁ q₁ t ≤ 0 ↔ q₁ < q := by
   rw [← exp_lt_exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_le_zero_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
 
 lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (q₀.toReal + q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) *
-    (q.toReal - q₀.toReal)) = (1 - t) * q.toReal := by
+      (q.toReal - q₀.toReal)) = (1 - t) * q.toReal := by
   rw [mul_comm_div, ← mul_div_assoc, add_div']
   · have : q₀.toReal * (q₁⁻¹.toReal - q₀⁻¹.toReal) + q₁⁻¹.toReal * (q.toReal - q₀.toReal) =
         q.toReal * ((1 - t) * (q₁⁻¹.toReal - q₀⁻¹.toReal)) := by
@@ -838,7 +833,7 @@ lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
 lemma eq_exponents₂ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (q₀.toReal / p₀.toReal + p₀⁻¹.toReal * q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) *
-    (q.toReal - q₀.toReal)) = (1 - t) * p₀⁻¹.toReal * q.toReal := by
+      (q.toReal - q₀.toReal)) = (1 - t) * p₀⁻¹.toReal * q.toReal := by
   rw [div_eq_inv_mul, mul_div_assoc, mul_assoc, toReal_inv, ← mul_add, mul_comm_div,
     ← mul_div_assoc, add_div']
   · have : q₀.toReal * (q₁⁻¹.toReal - q₀⁻¹.toReal) + q₁⁻¹.toReal * (q.toReal - q₀.toReal) =
@@ -886,7 +881,7 @@ lemma eq_exponents₁ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
 lemma eq_exponents₃ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (p₁⁻¹.toReal * q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (q.toReal - q₀.toReal) =
-    - t * p₁⁻¹.toReal * q.toReal := by
+      - t * p₁⁻¹.toReal * q.toReal := by
   rw [mul_comm_div, ← mul_div_assoc]
   have : (p₁⁻¹.toReal * q₀⁻¹.toReal) * (q.toReal - q₀.toReal) =
       - t * p₁⁻¹.toReal * q.toReal * (q₁⁻¹.toReal - q₀⁻¹.toReal) := by
@@ -905,17 +900,16 @@ lemma eq_exponents₃ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0)
   rw [this, mul_div_cancel_right₀]
   exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
-lemma eq_exponents₄  :
-    (q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) =
-    - (q₀⁻¹.toReal / (q₀⁻¹.toReal - q₁⁻¹.toReal)) := calc
+lemma eq_exponents₄ :
+    q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) = - (q₀⁻¹.toReal / (q₀⁻¹.toReal - q₁⁻¹.toReal)) := calc
   _ = - (q₀⁻¹.toReal * (-(q₁⁻¹.toReal - q₀⁻¹.toReal)⁻¹)) := by
     rw [div_eq_mul_inv]; ring
   _ = _ := by congr; rw [neg_inv, neg_sub]
 
 lemma eq_exponents₅ (ht : t ∈ Ioo 0 1) (hq₀ : q₀ > 0) (hq₁ : q₁ > 0) (hq₀q₁ : q₀ ≠ q₁)
-    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤):
+    (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
     (q₁.toReal + -(q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal)))
-    = t * q.toReal := by
+      = t * q.toReal := by
   rw [eq_exponents₄, neg_mul, neg_neg, eq_exponents₀ (Ioo.one_sub_mem ht) hq₁ hq₀ (Ne.symm hq₀q₁)
     (switch_exponents ht hq) hq₁']
   ring
@@ -2485,7 +2479,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
   · rw [toReal_ofReal hp₀.le]
     calc
     _ = ∫⁻ s : ℝ in Ioi 0, ENNReal.ofReal (s ^ (q - q₀ - 1)) *
-    ((∫⁻ (a : α), ↑‖trnc j f ((spf_to_tc spf).ton s) a‖ₑ ^ p₀ ∂μ) ^ (1 / p₀)) ^ q₀  := by
+    ((∫⁻ (a : α), ↑‖trnc j f ((spf_to_tc spf).ton s) a‖ₑ ^ p₀ ∂μ) ^ (1 / p₀)) ^ q₀ := by
       simp only [enorm_eq_nnnorm]
       congr 1
       ext x
@@ -2880,8 +2874,8 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p�
       eLpNormEssSup_eq_zero_iff.mpr <| (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp snorm_0
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
       apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
-    have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤
-        := mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
+    have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
+        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
     have d_pos : d > 0 := hdeq ▸ Real.rpow_pos_of_pos (toReal_zero ▸
       toReal_strict_mono term_ne_top term_pos) _
@@ -2934,8 +2928,8 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
   unfold wnorm at wt_est
   split_ifs at wt_est
   have : p₁.toReal ≠ 0 := exp_toReal_ne_zero' (lt_trans hp hp₁p) hp₁.ne_top
-  have : eLpNormEssSup (T (trunc f a)) ν ^ p₁.toReal ≤ (↑C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal
-      := by gcongr
+  have : eLpNormEssSup (T (trunc f a)) ν ^ p₁.toReal ≤
+      (C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal := by gcongr
   have snorm_est : eLpNormEssSup (T (trunc f a)) ν ≤ ENNReal.ofReal t := by
     apply le_of_rpow_le (exp_toReal_pos (lt_trans hp hp₁p) hp₁.ne_top)
     refine le_trans this ?_
