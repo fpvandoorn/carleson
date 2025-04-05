@@ -2347,7 +2347,7 @@ lemma truncation_ton_measurable {f : α → E₁}
     hf.restrict.snd.restrict
 
 @[measurability]
-lemma truncation_compl_ton_measurable {f : α → E₁}
+lemma aeMeasurable_truncCompl_ton {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
@@ -2404,7 +2404,7 @@ theorem aeMeasurable_trunc_restrict
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
   rcases j
-  · exact truncation_compl_ton_measurable hf _
+  · exact aeMeasurable_truncCompl_ton hf _
   · exact truncation_ton_measurable hf _
 
 lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
