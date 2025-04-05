@@ -571,43 +571,48 @@ variable {f g : α → ε}
 
 section
 
-variable [TopologicalSpace ε] [ContinuousENorm ε]
+variable [TopologicalSpace ε] [ENormedSpace ε]
 
-variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
-  {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
+-- TODO: remove the other version, as the wrong generality?
+lemma enorm_absolute_homogeneous' {c : ℝ≥0} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+  ENormedSpace.enorm_smul _ _
 
--- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
-
-lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
+-- TODO: replace the unprimed version by this one!
+lemma distribution_smul_left {f : α → ε} {c : ℝ≥0} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
-  have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
+  have h₀ : ‖c‖ₑ ≠ 0 := by
+    have : ‖c‖ₑ = ‖(c : ℝ≥0∞)‖ₑ := rfl
+    rw [this, enorm_ne_zero]
+    exact ENNReal.coe_ne_zero.mpr hc
   unfold distribution
   congr with x
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
-    enorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+    enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
-variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
+variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
+
 lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
-    (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
+    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+    (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
-  refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
+  refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le'.trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
   gcongr
   exact (h f hf).2
 
-lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
-    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : E') :
+-- XXX: is this the statement we want?
+lemma HasStrongType.const_mul {α α' : Type*}
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞}
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : ℝ≥0) :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
 lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞} (hp : p ≠ 0)
-    {μ : Measure α} {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+    {μ : Measure α} {f : α → ε} (k : ℝ≥0) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top]
-    apply eLpNormEssSup_const_smul_le
+    apply eLpNormEssSup_const_smul_le'
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
   · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero', setOf_false,
@@ -619,24 +624,23 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
   simp only [distribution_smul_left k_zero]
   intro t
   rw [ENNReal.mul_iSup]
-  have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
   have : t * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹ =
       ‖k‖ₑ * ((t / ‖k‖ₑ) * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹) := by
-    nth_rewrite 1 [← mul_div_cancel₀ t knorm_ne_zero]
+    nth_rewrite 1 [← mul_div_cancel₀ t k_zero]
     simp only [coe_mul, mul_assoc]
     congr
-    exact coe_div knorm_ne_zero
-  erw [this]
+    exact coe_div k_zero
+  rw [this]
   apply le_iSup_of_le (↑t / ↑‖k‖₊)
   apply le_of_eq
-  congr <;> exact (coe_div knorm_ne_zero).symm
+  congr <;> exact (coe_div k_zero).symm
 
 lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
-    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
+    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
+    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
-  refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
+  refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
     _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
     _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
@@ -644,9 +648,10 @@ lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : M
       apply (h f hf).2
     _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
+-- XXX: is this the statement we want?
 lemma HasWeakType.const_mul {α α' : Type*}
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞}
-    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
+    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞}
+    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (e : ℝ≥0) :
     HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
 
