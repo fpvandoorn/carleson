@@ -1673,7 +1673,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
       exact exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hp
 
 lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁] {a : ℝ≥0∞}
-    {p q : ℝ≥0∞} (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEMeasurable f μ) :
+    (ha : a ≠ ⊤) {p q : ℝ≥0∞} (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEMeasurable f μ) :
     eLpNorm (trunc f a) q μ ^ q.toReal ≤
     (a ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   unfold eLpNorm eLpNorm'
@@ -1717,7 +1717,13 @@ lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁] {a : ℝ�
             ENNReal.ofReal_rpow_of_nonneg] <;> try positivity
           sorry /- TODO: was apply rpow_le_rpow_of_exponent_le_base_le hx.1 hx.2
           exact toReal_mono hq hpq.2.le -/
-      · sorry -- TODO: was exact coe_ne_top
+      · -- XXX: is this lemma useful more broadly?
+        have : a ^ (q.toReal - p.toReal) ≠ ⊤ := by
+          simp only [ne_eq, rpow_eq_top_iff, sub_neg, sub_pos, not_or, not_and, not_lt]
+          refine ⟨fun _ ↦ ?_, fun _falsen ↦ by simp_all only [ne_eq, not_true_eq_false]⟩
+          rw [toReal_le_toReal p_ne_top hq]
+          exact hpq.2.le
+        exact this
     _ ≤ _ := by
       gcongr
       rw [one_div, ENNReal.rpow_inv_rpow]
