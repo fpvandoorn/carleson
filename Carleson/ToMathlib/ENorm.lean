@@ -40,6 +40,8 @@ instance : ENormedSpace ℝ≥0∞ where
   add_comm := by simp [add_comm]
   continuous_enorm := continuous_id
   enorm_smul := by simp
+  add_smul := fun _ _ _ ↦ Module.add_smul ..
+  zero_smul := by simp
 
 instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
   enorm_smul := by simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
