@@ -2825,12 +2825,9 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
       gcongr
       exact trunc_eLpNormEssSup_le
     _ ≤ _ := by
-      let C := C₁.toReal
-      have coe_C : C.toNNReal = C₁ := Real.toNNReal_coe
-      rw [← coe_C, coe_coe_eq_ofReal, ← ENNReal.ofReal_mul, max_eq_right, congrArg toReal coe_C,
-        mul_div_cancel₀]
-      · exact Ne.symm (ne_of_lt hC₁)
+      rw [max_eq_right, ← ENNReal.mul_comm_div, ENNReal.div_self, one_mul]
       · positivity
+      · finiteness
       · positivity
   calc
   _ ≤ distribution (T (trunc f (t / C₁))) (eLpNormEssSup (T (trunc f (t / C₁))) ν) ν :=
@@ -2851,7 +2848,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p�
       exact eLpNorm_trnc_est (p := ⊤)
     have obs : eLpNorm (T (trnc ⊥ f a)) ⊤ ν = 0 :=
       weaktype_aux₀ hp₀ (hq₀ ▸ zero_lt_top) zero_lt_top zero_lt_top h₀T
-        (aestronglyMeasurable_truncCompl hf.1) this
+        (.truncCompl hf.1) this
     exact nonpos_iff_eq_zero.mp (Trans.trans (distribution_mono_right (Trans.trans obs
       (zero_le (ENNReal.ofReal t)))) meas_eLpNormEssSup_lt)
   · have p_pos : p > 0 := lt_trans hp₀ hp₀p
