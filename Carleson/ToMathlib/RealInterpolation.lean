@@ -1330,6 +1330,9 @@ namespace MeasureTheory
 /-- The `t`-truncation of a function `f`. -/
 def trunc (f : α → E₁) (t : ℝ≥0∞) (x : α) : E₁ := if ‖f x‖ₑ ≤ t then f x else 0
 
+lemma trunc_eq_indicator : trunc f t = {x | ‖f x‖ₑ ≤ t}.indicator f := by
+  ext x; simp_rw [trunc, Set.indicator, mem_setOf_eq, ite_eq_ite]
+
 /-- The complement of a `t`-truncation of a function `f`. -/
 def truncCompl (f : α → E₁) (t : ℝ≥0∞) : α → E₁ := f - trunc f t
 
@@ -1389,17 +1392,22 @@ lemma truncCompl_of_nonpos {f : α → E₁} {a : ℝ≥0∞} (ha : a ≤ 0) :
 --   apply Measurable.ite ?_ hf measurable_const
 --   exact measurableSet_lt measurable_const hf.norm
 
+-- TODO: move to ENorm, then upstream to mathlib
+-- XXX: this is slightly stronger than the mathlib statement
+lemma StronglyMeasurable.enorm' {α β : Type*} {x : MeasurableSpace α} [SeminormedAddCommGroup β]
+    {f : α → β} (hf : StronglyMeasurable f) : StronglyMeasurable fun x ↦ ‖f x‖ₑ := sorry
+
 @[measurability]
 protected lemma StronglyMeasurable.trunc
     (hf : StronglyMeasurable f) : StronglyMeasurable (trunc f t) :=
-  sorry -- StronglyMeasurable.ite (measurableSet_le hf.enorm stronglyMeasurable_const) hf
-    -- stronglyMeasurable_const
+  StronglyMeasurable.ite (measurableSet_le hf.enorm' stronglyMeasurable_const) hf
+    stronglyMeasurable_const
 
 @[measurability]
 protected lemma StronglyMeasurable.truncCompl
     (hf : StronglyMeasurable f) : StronglyMeasurable (truncCompl f t) := by
   rw [truncCompl_eq]
-  exact hf.ite (measurableSet_lt stronglyMeasurable_const sorry /-hf.enorm-/) stronglyMeasurable_const
+  exact hf.ite (measurableSet_lt stronglyMeasurable_const hf.enorm') stronglyMeasurable_const
 
 -- @[measurability, fun_prop]
 -- lemma aemeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
@@ -1434,14 +1442,18 @@ protected lemma StronglyMeasurable.truncCompl
 --     simp only [mem_compl_iff, mem_setOf_eq, not_not]
 --     intro f_eq_g; unfold truncCompl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
 
+-- todo: prove next lemma using a new lemma AEMeasurable.nullMeasurableSet_le
 @[measurability]
-lemma aestronglyMeasurable_trunc
-    (hf : AEStronglyMeasurable f μ) :
+nonrec lemma AEStronglyMeasurable.trunc (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (trunc f t) μ := by
+
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
   exists (trunc g t)
   constructor
-  · sorry -- TODO! exact wg1.indicator (s := {x | ‖g x‖ₑ ≤ t}) (wg1.norm.measurableSet_le stronglyMeasurable_const)
+  · rw [trunc_eq_indicator]
+    exact wg1.indicator (s := {x | ‖g x‖ₑ ≤ t})
+      -- TODO: adapt measurableSet_le to enorms
+      sorry -- TODO: FvD's fix was (wg1.enorm.measurableSet_le stronglyMeasurable_const)
   · refine measure_mono_null (fun x ↦ ?_) wg2
     contrapose
     simp only [mem_compl_iff, mem_setOf_eq, not_not]
@@ -1450,30 +1462,16 @@ lemma aestronglyMeasurable_trunc
     rw [h₂]
 
 @[measurability]
-lemma aestronglyMeasurable_truncCompl
+nonrec lemma AEStronglyMeasurable.truncCompl
     (hf : AEStronglyMeasurable f μ) :
     AEStronglyMeasurable (truncCompl f t) μ := by
-  rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
-  use truncCompl g t
-  constructor
-  · rw [truncCompl_eq]
-    sorry -- TODO! exact wg1.indicator (s := {x | t < ‖g x‖}) (stronglyMeasurable_const.measurableSet_lt wg1.norm)
-  · apply measure_mono_null ?_ wg2
-    intro x
-    contrapose
-    simp only [mem_compl_iff, mem_setOf_eq, not_not]
-    intro h₂
-    rw [truncCompl_eq, truncCompl_eq]
-    simp only
-    rw [h₂]
+  simp_rw [truncCompl]; exact hf.sub hf.trunc
 
 @[measurability]
 lemma aestronglyMeasurable_trnc {j : Bool}
     (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (trnc j f t) μ := by
-  rcases j
-  · exact aestronglyMeasurable_truncCompl hf
-  · exact aestronglyMeasurable_trunc hf
+    AEStronglyMeasurable (trnc j f t) μ :=
+  j.rec (.truncCompl hf) (.trunc hf)
 
 lemma trunc_le {f : α → E₁} {a : ℝ≥0∞} (x : α) :
     ‖trunc f a x‖ₑ ≤ max 0 a := by
@@ -1609,7 +1607,7 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : γ > 0) (htγ 
     exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
 
 lemma trunc_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ := by
-  refine ⟨aestronglyMeasurable_trunc hf.1, lt_of_le_of_lt (eLpNorm_mono_ae (ae_of_all _ ?_)) hf.2⟩
+  refine ⟨hf.1.trunc, lt_of_le_of_lt (eLpNorm_mono_ae (ae_of_all _ ?_)) hf.2⟩
   intro x
   unfold trunc
   split_ifs with is_fx_le_a <;> simp
