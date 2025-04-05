@@ -327,7 +327,7 @@ include A in
 theorem MB_ae_ne_top [BorelSpace X] (h𝓑 : 𝓑.Countable)
     {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R)
     {u : X → E} (hu : MemLp u 1 μ) : ∀ᵐ x : X ∂μ, MB μ 𝓑 c r u x ≠ ∞ := by
-  simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWℒp hu |>.ae_ne_top
+  simpa only [enorm_eq_self] using HasWeakType.MB_one h𝓑 hR |>.memWℒp hu coe_lt_top |>.ae_ne_top
 
 -- move
 lemma MeasureTheory.MemLp.eLpNormEssSup_lt_top {α} [MeasurableSpace α] {μ : Measure α}
@@ -530,7 +530,7 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul, C2_0_6']
-  convert HasStrongType.const_mul _ _
+  convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
   · simp
   rw [hasStrongType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
   exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
@@ -541,10 +541,18 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
       p₂ p₂ μ μ (A ^ 4) := by
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul]
-  convert HasWeakType.const_mul (c := A ^ 2) _ _
-  · simp; ring
-  rw [hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
-  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
+  have : ofNNReal p₂ ≠ 0 := by -- surely, there is a simpler proof
+    refine coe_ne_zero.mpr ?_
+    have : 1 ≤ p₂ := by
+      trans p₁
+      exacts [hp₁, hp₁₂]
+    positivity
+  convert HasWeakType.const_mul (c := A ^ 2) (e := A ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂) (ε := E) this _ _
+  repeat sorry
+  -- TODO: this proof used to work (now, some metavariables cannot be inferred), was
+  -- · simp; ring
+  -- rw [hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
+  -- exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
 
 /-- Use `lowerSemiContinuous_MB` -/
 lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
