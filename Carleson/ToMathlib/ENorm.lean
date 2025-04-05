@@ -88,21 +88,6 @@ lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0
   apply sub_add_cancel_of_enorm_le
   simp_rw [enorm_zero, zero_le]
 
--- generalises AEStrongMeasurable.const_smul, TODO update mathlib accordingly
-lemma AEStronglyMeasurable.const_smul2 {α β : Type*} [TopologicalSpace β]
-  {m : MeasurableSpace α} {μ : Measure α} {f : α → β} [SMul ℝ≥0 β] [ContinuousConstSMul ℝ≥0 β]
-  (hf : AEStronglyMeasurable f μ) (c : ℝ≥0) : AEStronglyMeasurable (c • f) μ :=
-  ⟨c • hf.mk f, hf.stronglyMeasurable_mk.const_smul c, hf.ae_eq_mk.const_smul c⟩
-
--- NB. The corresponding `smul` statement would also generalise, but that is not helpful in our
--- context, as scalar multiplication ℝ≥0 • ℝ≥0∞ is not continuous at (0, ∞).
--- unused
-protected theorem AEStronglyMeasurable.smul2
-    {β : Type*} [TopologicalSpace β] [SMul ℝ≥0 β] [ContinuousSMul ℝ≥0 β] {f : α → ℝ≥0}
-     {m m₀ : MeasurableSpace α} {μ : Measure α} {g : α → β} (hf : AEStronglyMeasurable[m] f μ)
-     (hg : AEStronglyMeasurable[m] g μ) : AEStronglyMeasurable[m] (fun x => f x • g x) μ :=
-  continuous_smul.comp_aestronglyMeasurable (hf.prodMk hg)
-
 section ENormedSpace
 
 variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
