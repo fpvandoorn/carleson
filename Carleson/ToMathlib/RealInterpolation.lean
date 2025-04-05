@@ -1401,9 +1401,8 @@ protected lemma StronglyMeasurable.truncCompl
   exact hf.ite (measurableSet_lt stronglyMeasurable_const hf.norm) stronglyMeasurable_const
 
 -- @[measurability, fun_prop]
--- lemma aemeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
---     (hf : AEMeasurable f μ) :
---     AEMeasurable (trunc f t) μ := by
+-- lemma AEMeasurable.trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : AEMeasurable f μ) : AEMeasurable (trunc f t) μ := by
 --   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
 --   exists (trunc g t)
 --   constructor
@@ -1418,9 +1417,8 @@ protected lemma StronglyMeasurable.truncCompl
 --   rfl
 
 -- @[measurability, fun_prop]
--- lemma aeMeasurable_truncCompl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
---     (hf : AEMeasurable f μ) :
---     AEMeasurable (truncCompl f t) μ := by
+-- lemma AEMeasurable.truncCompl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : AEMeasurable f μ) : AEMeasurable (truncCompl f t) μ := by
 --   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
 --   exists (truncCompl g t)
 --   constructor
@@ -2315,7 +2313,7 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [Norm
   nullMeasurableSet_lt (ton_aeMeasurable tc).fst hg.snd.norm
 
 @[measurability]
-lemma truncation_ton_measurable {f : α → E₁}
+lemma AEMeasurable.trunc_ton {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
@@ -2330,7 +2328,7 @@ lemma truncation_ton_measurable {f : α → E₁}
     hf.restrict.snd.restrict
 
 @[measurability]
-lemma aeMeasurable_truncCompl_ton {f : α → E₁}
+lemma AEMeasurable.truncCompl_ton {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
@@ -2380,14 +2378,12 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [NormedAddCommGroup E₁] (h
   · simp_rw [f_zero]; simp [hp]
 
 @[fun_prop]
-theorem aeMeasurable_trunc_restrict
+theorem AEMeasurable.trunc_restrict
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] {j : Bool}
     {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
-      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
-  rcases j
-  · exact aeMeasurable_truncCompl_ton hf _
-  · exact truncation_ton_measurable hf _
+      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) :=
+  j.rec (hf.truncCompl_ton _) (hf.trunc_ton _)
 
 lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
