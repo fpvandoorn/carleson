@@ -593,7 +593,8 @@ lemma distribution_smul_left {f : α → ε} {c : ℝ≥0} (hc : c ≠ 0) :
 variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
 
 lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+    [ContinuousConstSMul ℝ≥0 ε'] {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} {μ : Measure α}
+    {ν : Measure α'} {c : ℝ≥0∞}
     (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le'.trans ?_⟩
@@ -636,8 +637,8 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
   congr <;> exact (coe_div k_zero).symm
 
 lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
-    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
+    [ContinuousConstSMul ℝ≥0 ε'] {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0)
+    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩

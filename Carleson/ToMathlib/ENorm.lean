@@ -107,18 +107,18 @@ variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
 instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
   continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
 
-instance : ContinuousConstSMul ℝ≥0 ε where
-  continuous_const_smul t := by
-    by_cases ht : t = 0
-    · simp [ht]
-      fun_prop
-    have : Continuous fun (x : ε) ↦ ‖t • x‖ₑ := by
-      simp_rw [ENormedSpace.enorm_smul]
-      fun_prop
-    -- careful: ε need not be a metric space
-    -- preimage of an open set U ⊆ ε is precisely t⁻¹ ⬝ U => suffices to show this map is open
-    -- which it is, I presume? haven't thought it through
-    sorry
+-- instance : ContinuousConstSMul ℝ≥0 ε where
+--   continuous_const_smul t := by
+--     by_cases ht : t = 0
+--     · simp [ht]
+--       fun_prop
+--     have : Continuous fun (x : ε) ↦ ‖t • x‖ₑ := by
+--       simp_rw [ENormedSpace.enorm_smul]
+--       fun_prop
+--     -- careful: ε need not be a metric space
+--     -- preimage of an open set U ⊆ ε is precisely t⁻¹ ⬝ U => suffices to show this map is open
+--     -- which it is, I presume? haven't thought it through
+--     sorry
 
 open MeasureTheory
 
