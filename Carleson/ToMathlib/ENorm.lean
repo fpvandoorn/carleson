@@ -63,11 +63,35 @@ namespace MeasureTheory
 section ContinuousENorm
 variable {α E : Type*} {m : MeasurableSpace α} [TopologicalSpace E] [ContinuousENorm E] {μ : Measure α}
 
--- TODO: generalise the unprimed version in mathlib
+-- mathlib PR #23707 generalises `AEStrongMeasurable.enorm` to this lemma,
+-- and proves the following three lemmas
 @[fun_prop]
 protected theorem AEStronglyMeasurable.enorm' {f : α → E}
     (hf : AEStronglyMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
   continuous_enorm.comp_aestronglyMeasurable hf |>.aemeasurable
+
+variable {ε ε' : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
+  [TopologicalSpace ε'] [ContinuousENorm ε']
+
+lemma eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul' {α : Type*} {m0 : MeasurableSpace α}
+    {μ : Measure α} {f : α → ε} {g : α → ε'} {c : ℝ≥0}
+    (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) {p : ℝ} (hp : 0 < p) :
+    eLpNorm' f p μ ≤ c • eLpNorm' g p μ := sorry
+
+lemma eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul' {α : Type*}
+  {m0 : MeasurableSpace α} {μ : Measure α} {f : α → ε} {g : α → ε'} {c : ℝ≥0}
+  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) : eLpNormEssSup f μ ≤ c • eLpNormEssSup g μ := sorry
+
+theorem eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' {α : Type*} {m0 : MeasurableSpace α}
+    {μ : Measure α} {c : ℝ≥0} {f g : α → ε} (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) (p : ℝ≥0∞) :
+    eLpNorm f p μ ≤ c • eLpNorm g p μ := by
+  by_cases h0 : p = 0
+  · simp [h0]
+  by_cases h_top : p = ∞
+  · rw [h_top]
+    exact eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul' h
+  simp_rw [eLpNorm_eq_eLpNorm' h0 h_top]
+  exact eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul' h (ENNReal.toReal_pos h0 h_top)
 
 end ContinuousENorm
 
@@ -98,32 +122,7 @@ instance : ContinuousConstSMul ℝ≥0 ε where
 
 open MeasureTheory
 
--- TODO: generalise the Monotonicity section of that file!
-
 variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
-
--- TODO: prove this lemma; perhaps this should stay next to its unprimed cousin
-lemma eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul' {α : Type*} {m0 : MeasurableSpace α}
-    {μ : Measure α} {f : α → ε} {g : α → ε'} {c : ℝ≥0}
-    (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) {p : ℝ} (hp : 0 < p) :
-    eLpNorm' f p μ ≤ c • eLpNorm' g p μ := sorry
-
--- TODO: prove this lemma; perhaps this should stay next to its unprimed cousin
-lemma eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul' {α : Type*}
-  {m0 : MeasurableSpace α} {μ : Measure α} {f : α → ε} {g : α → ε'} {c : ℝ≥0}
-  (h : ∀ᵐ (x : α) ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) : eLpNormEssSup f μ ≤ c • eLpNormEssSup g μ := sorry
-
--- this could be a generalisation of its unprimed version, if I want
-theorem eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' {α : Type*} {m0 : MeasurableSpace α}
-    {μ : Measure α} {c : ℝ≥0} {f g : α → ε} (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ c * ‖g x‖ₑ) (p : ℝ≥0∞) :
-    eLpNorm f p μ ≤ c • eLpNorm g p μ := by
-  by_cases h0 : p = 0
-  · simp [h0]
-  by_cases h_top : p = ∞
-  · rw [h_top]
-    exact eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul' h
-  simp_rw [eLpNorm_eq_eLpNorm' h0 h_top]
-  exact eLpNorm'_le_nnreal_smul_eLpNorm'_of_ae_le_mul' h (ENNReal.toReal_pos h0 h_top)
 
 -- TODO: put next to MeasureTheory.eLpNorm_const_smul_le (which perhaps can stay)
 theorem eLpNorm_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
