@@ -589,13 +589,13 @@ Define for any open ball $B$ of radius $R$ in $X$ the $L^\infty$-normalized $\ta
     \lean{holder_van_der_corput}
     \uses{Lipschitz-Holder-approximation}
      Let $z\in X$ and $R>0$ and set $B=B(z,R)$.
-     Let $\varphi: X \to \mathbb{C}$ by
-     supported on $B$ and satisfy $\|{\varphi}\|_{C^\tau(B)}<\infty$.
+     Let $\varphi: X \to \mathbb{C}$ be
+     supported on $B$ and satisfy $\|{\varphi}\|_{C^\tau(B(z, 2R))}<\infty$.
      Let $\mfa, \mfb \in \Mf$. Then
     \begin{equation}
         \label{eq-vdc-cond-tau-2}
         |\int e(\mfa(x)-{\mfb(x)})\varphi(x) dx|\le
-         2^{8a} \mu(B) \|{\varphi}\|_{C^\tau(B)}
+         2^{7a} \mu(B) \|{\varphi}\|_{C^\tau(B(z, 2R))}
        (1 + d_{B}(\mfa,\mfb))^{-\frac{1}{2a^2+a^3}}
     \,.
     \end{equation}
@@ -6254,12 +6254,13 @@ Recall that $\tau = 1/a$.
     \leanok
     \lean{support_holderApprox_subset, dist_holderApprox_le, iLipENorm_holderApprox}
     Let $z\in X$ and $R>0$. Let $\varphi: X \to \mathbb{C}$ be a function supported in the ball
-    $B:=B(z,R)$ with finite norm $\|\varphi\|_{C^\tau(B)}$. Let $0<t \leq 1$. There exists a function $\tilde \varphi : X \to \mathbb{C}$, supported in $B(z,2R)$, such that for every $x\in X$
+    $B:=B(z,R)$ with finite norm $\|\varphi\|_{C^\tau(B(z, 2R))}$.
+    Let $0<t \leq 1$. There exists a function $\tilde \varphi : X \to \mathbb{C}$, supported in $B(z,2R)$, such that for every $x\in X$
     \begin{equation}\label{eq-firstt}
-        |\varphi(x) - \tilde \varphi(x)| \leq t^{\tau} \|\varphi\|_{C^\tau(B)}
+        |\varphi(x) - \tilde \varphi(x)| \leq (t/2)^{\tau} \|\varphi\|_{C^\tau(B(z,2R))}
     \end{equation}and
    \begin{equation}\label{eq-secondt}
-       \|\tilde \varphi\|_{\Lip(B(z,2R))} \leq 2^{4a}t^{-1-a} \|\varphi\|_{C^{\tau}(B)}\, .
+       \|\tilde \varphi\|_{\Lip(B(z,2R))} \leq 2^{4a}t^{-1-a} \|\varphi\|_{C^{\tau}(B(z,2R))}\, .
    \end{equation}
 \end{lemma}
 
@@ -6309,16 +6310,22 @@ We prove \eqref{eq-firstt}.
 Using \eqref{eql01}, we estimate the last display by
  \begin{equation}\label{eql3}
          \le \int_{B(x, tR)} L(x,y)|\varphi(x) - \varphi(y)| \, \mathrm{d}\mu(y)\, .\end{equation}
-  Using the definition of $\|\varphi\|_{C^\tau(B)}$, we estimate the last display further by
+We claim that in this integral, $|\varphi(x) - \varphi(y)|\le \rho(x,y)^\tau \|\varphi\|_{C^\tau(B(z, 2R))}(2R)^{-\tau}$.
+Indeed, if $x$ or $y$ does not belong to $B(z, 2R)$, then the other point is not in $B(z,R)$ as $\rho(x,y)\le tR \le R$. Therefore,
+$\varphi(x)=\varphi(y)=0$ since $\varphi$ is supported in $B (z, R)$. Otherwise, both points are in $B(z, 2R)$, and the inequality
+follows from the definition of $\|\varphi\|_{C^\tau(B(z, 2R))}$.
+
+Therefore, we can estimate the last display further by
        \begin{equation}\label{eql4}
          \le \left(\int_{B(x, tR)} L(x,y)
-          \rho(x,y)^\tau \, \mathrm{d}\mu(y) \right)\|\varphi\|_{C^\tau(B)}R^{-\tau}\, .
+          \rho(x,y)^\tau \, \mathrm{d}\mu(y) \right)\|\varphi\|_{C^\tau(B(z, 2R))}(2R)^{-\tau}\, .
     \end{equation}
+
   Using the condition on the domain of integration to estimate $\rho(x,y)$ by $tR$ and then expanding the domain by positivity of the integrand, we estimate this further by
 
    \begin{equation}\label{eql5}
          \le \left(\int L(x,y) \, \mathrm{d}\mu(y)\right)
-         \|\varphi\|_{C^\tau(B)} t^{\tau} \, .
+         \|\varphi\|_{C^\tau(B(z, 2R))} (t/2)^{\tau} \, .
     \end{equation}
  Dividing the string of inequalities from \eqref{eql1} to
 \eqref{eql5} by the positive integral of $L$ proves \eqref{eq-firstt}.
@@ -6336,12 +6343,12 @@ We turn to \eqref{eq-secondt}. For every $x\in X$, we have
 As $\varphi$ is supported on $B$, dividing by the integral of $L$, we obtain
 \begin{equation}\label{eql42}
  |\tilde{\varphi}(x)|\le \sup_{x'\in B}
-    |{\varphi}(x')|\le \|\varphi\|_{C^\tau(B)}\ .
+    |{\varphi}(x')|\le \|\varphi\|_{C^\tau(B(z, 2R))}\ .
 \end{equation}
 If $\rho(x,x')\ge R$, then we have by the triangle inequality
   \begin{equation}\label{eql52}
  R\frac{|\tilde{\varphi}(x') - \tilde \varphi(x)|}{\rho(x,x')} \le
- 2\sup_{x''\in X} |\tilde{\varphi}(x'')|\le 2\|\varphi\|_{C^\tau(B)}\, .
+ 2\sup_{x''\in X} |\tilde{\varphi}(x'')|\le 2\|\varphi\|_{C^\tau(B(z, 2R))}\, .
 \end{equation}
 Now assume $\rho(x,x')< R$. For $y\in X$ we have by the triangle inequality and a two fold case distinction
 for the maximum in the definition of $L$,
@@ -6369,24 +6376,24 @@ Grouping the second and third and the first and fourth term, we obtain using the
 \end{equation}
 \begin{equation}\label{eql23}
     \le 2 \int |L(x,y) -L(x',y)| \, \mathrm{d}\mu(y)
-    \|\varphi\|_{C^\tau(B)}\, ,
+    \|\varphi\|_{C^\tau(B(z, 2R))}\, ,
 \end{equation}
 where in the last inequality we have used \eqref{eql42}.
 Using further \eqref{eql10} and the support of $L$, we estimate the last display by
 \begin{equation}\label{eql224}\le 2 \frac{\rho(x,x')} {tR}\mu(B(x,tR)\cup B(x',tR))
-\|\varphi\|_{C^\tau(B)}\, .
+\|\varphi\|_{C^\tau(B(z, 2R))}\, .
     \end{equation}
   Using $\rho(x,x')<R$ and the triangle inequality, we estimate the last display by
 \begin{equation}\label{eql225}\le 2
 \frac{\rho(x,x')} {tR}
 \mu(B(x,2R))
-\|\varphi\|_{C^\tau(B)}\, .
+\|\varphi\|_{C^\tau(B(z, 2R))}\, .
     \end{equation}
 Dividing by the integral over $L$ and using \eqref{eql32} and \eqref{2nt1}, we obtain
 \begin{equation}\label{eql226}
  \frac {R |\tilde{\varphi}(x') - \tilde \varphi(x)|}{\rho(x,x')}
- \le 2^{2+a(n+2)}t^{-1}\|\varphi\|_{C^\tau(B)} \le
- 2^{2+3a} t^{-1-a} \|\varphi\|_{C^\tau(B)}\, .
+ \le 2^{2+a(n+2)}t^{-1}\|\varphi\|_{C^\tau(B(z, 2R))} \le
+ 2^{2+3a} t^{-1-a} \|\varphi\|_{C^\tau(B(z, 2R))}\, .
 \end{equation}
 Combining \eqref{eql52} and \eqref{eql226} using $a\ge 4$ and $t\le 1$ and
 adding \eqref{eql42} proves \eqref{eq-secondt} and completes the proof
@@ -6396,7 +6403,7 @@ of \Cref{Lipschitz-Holder-approximation}.
 
 We turn to the proof of \Cref{Holder-van-der-Corput}.
 \begin{proof}[Proof of \Cref{Holder-van-der-Corput}]
-    \proves{Holder-van-der-Corput}
+    \proves{Holder-van-der-Corput}\leanok
 Let $z\in X$ and $R>0$ and set $B=B(z,R)$. Let $\varphi$
 be given as in \Cref{Holder-van-der-Corput}.
 Set
@@ -6437,7 +6444,7 @@ $e(\mfb)$ bounded in absolute value by $1$.
 We obtain for \eqref{eql62} with \eqref{doublingx}
 the upper bound
   \begin{equation}\label{eql65}
-      \mu(B(z,2R)) t^{\tau} \|\varphi\|_{C^\tau(B)}
+      \mu(B(z,2R)) (t/2)^{\tau} \|\varphi\|_{C^\tau(B)}
       \le 2^a \mu(B) t^{\tau} \|\varphi\|_{C^\tau(B)}
       \,.
  \end{equation}
