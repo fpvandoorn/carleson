@@ -3484,7 +3484,6 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
   set_mem := fun _ ↦ trivial
   finite := by
     intro n
-    dsimp only [Pi.sub_apply]
     split_ifs
     · rw [Measure.restrict_apply₀']
       · rw [measure_mono_null _ measure_empty]
