@@ -1739,7 +1739,7 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁] {a : ℝ≥0�
   · rw [q_eq_top, eLpNorm_exponent_top]
     sorry -- TODO: was exact Trans.trans trunc_eLpNormEssSup_le coe_lt_top
   · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
-    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1.aemeasurable)
+    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top ha hpq hf.1.aemeasurable)
     sorry /- TODO: was apply mul_lt_top coe_lt_top
     refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
     exact toReal_pos hpq.1.ne' hpq.2.ne_top -/
@@ -2947,7 +2947,10 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
       _ ≤ ↑C₁ ^ p₁.toReal * (((a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg]
         gcongr
-        · exact estimate_eLpNorm_trunc hp₁.ne_top ⟨hp, hp₁p⟩ hf.1.aemeasurable
+        · have : a ≠ ⊤ := sorry
+          have h' : p₁ ∈ Ioo 0 p := sorry--q)-- ⟨hp, hp₁p⟩
+          apply estimate_eLpNorm_trunc hp₁.ne_top this h' hf.1.aemeasurable
+          sorry
         · exact toReal_nonneg
       _ = ↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal * (ENNReal.ofReal (d ^ p₁.toReal))⁻¹ *
           ENNReal.ofReal (t ^ p₁.toReal) := by
@@ -2968,7 +2971,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q�
   calc
   _ ≤ distribution (T (trunc f a)) (eLpNormEssSup (T (trunc f a)) ν) ν := by gcongr
   _ = _ := meas_eLpNormEssSup_lt
-
+#exit
 end MeasureTheory
 
 end
