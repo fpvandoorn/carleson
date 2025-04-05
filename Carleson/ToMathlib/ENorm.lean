@@ -60,22 +60,10 @@ instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
 
 namespace MeasureTheory
 
--- PRed in #22798
 section ContinuousENorm
 variable {α E : Type*} {m : MeasurableSpace α} [TopologicalSpace E] [ContinuousENorm E] {μ : Measure α}
 
-@[fun_prop]
-theorem measurable_enorm [MeasurableSpace E] [OpensMeasurableSpace E] :
-    Measurable (fun a : E => (‖a‖ₑ)) :=
-  continuous_enorm.measurable
-
-@[fun_prop]
-protected theorem AEMeasurable.enorm [MeasurableSpace E] [OpensMeasurableSpace E] {f : α → E}
-    (hf : AEMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
-  measurable_enorm.comp_aemeasurable hf
-
--- TODO: when updating mathlib, replace this by the unprimed version
--- (in mathlib, which is generalised in PR 22798)
+-- TODO: generalise the unprimed version in mathlib
 @[fun_prop]
 protected theorem AEStronglyMeasurable.enorm' {f : α → E}
     (hf : AEStronglyMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
