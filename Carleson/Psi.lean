@@ -288,7 +288,7 @@ lemma support_ψS_subset_Icc {b c : ℤ} {x : ℝ}
   simp only [support_ψS hD hx, nonzeroS, Finset.coe_Icc, mem_Icc] at hi
   simp only [toFinset_Icc, Finset.coe_Icc, mem_Icc]
   refine ⟨le_trans ?_ hi.1, le_trans hi.2 ?_⟩
-  · rw [← Nat.cast_one, Int.floor_natCast_add, Nat.cast_one, ← sub_le_iff_le_add', Int.le_floor,
+  · rw [← Nat.cast_one, Int.floor_nat_add, Nat.cast_one, ← sub_le_iff_le_add', Int.le_floor,
       Real.le_logb_iff_rpow_le hD (mul_pos two_pos hx), mul_comm]
     exact_mod_cast (div_le_iff₀ two_pos).mp h.1
   · rw [Int.ceil_le, Real.logb_le_iff_le_rpow hD (mul_pos four_pos hx), mul_comm]
