@@ -1465,17 +1465,15 @@ nonrec lemma AEStronglyMeasurable.truncCompl
 
 @[measurability]
 lemma aestronglyMeasurable_trnc {j : Bool}
-    (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (trnc j f t) μ :=
+    (hf : AEStronglyMeasurable f μ) : AEStronglyMeasurable (trnc j f t) μ :=
   j.rec (.truncCompl hf) (.trunc hf)
 
-lemma trunc_le {f : α → E₁} {a : ℝ≥0∞} (x : α) :
-    ‖trunc f a x‖ₑ ≤ max 0 a := by
+lemma trunc_le {f : α → E₁} (x : α) : ‖trunc f t x‖ₑ ≤ max 0 t := by
   unfold trunc
   split_ifs with h
-  · rcases (lt_or_le a 0) with a_lt_0 | _
-    · exact Trans.trans (Trans.trans h a_lt_0.le) (le_max_left 0 a)
-    · exact Trans.trans h (le_max_right 0 a)
+  · rcases (lt_or_le t 0) with t_lt_0 | _
+    · exact Trans.trans (Trans.trans h t_lt_0.le) (le_max_left 0 t)
+    · exact Trans.trans h (le_max_right 0 t)
   · simp
 
 /-- A small lemma that is helpful for rewriting -/
@@ -1507,8 +1505,7 @@ lemma trunc_buildup_enorm {f : α → E₁} {x : α} :
 lemma trunc_le_func {f : α → E₁} {x : α} : ‖trunc f s x‖ ≤ ‖f x‖ := by
   unfold trunc; split_ifs <;> simp
 
-lemma truncCompl_le_func {f : α → E₁} {x : α} :
-    ‖(truncCompl f t) x‖ ≤ ‖f x‖ := by
+lemma truncCompl_le_func {f : α → E₁} {x : α} : ‖(truncCompl f t) x‖ ≤ ‖f x‖ := by
   rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
 lemma truncCompl_anti {f : α → E₁} {x : α} (hts : t ≤ s) :
