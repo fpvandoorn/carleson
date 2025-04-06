@@ -1823,7 +1823,7 @@ lemma res'subset_Ioi {j : Bool} {β : ℝ} (hβ : β > 0) : res' j β ⊆ Ioi 0 
 lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ} (hp : p > 0)
     (hfx : ‖f x‖₊ > 0) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p =
-    ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p := by
+    ∫⁻ s : ℝ≥0 in res' (xor j tc.mon) (tc.inv ‖f x‖), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p := by
   rw [lintegral_double_restrict_set (B := res' (xor j tc.mon) (tc.inv ‖f x‖))
       measurableSet_Ioi measurableSet_res']
   · have : Ioi 0 ∩ res' (xor j tc.mon) (tc.inv ‖f x‖) = res' (xor j tc.mon) (tc.inv ‖f x‖) :=
@@ -1876,10 +1876,10 @@ lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
   split_ifs
   · exact Ioo_ae_eq_Ioc.symm
   · exact Ioi_ae_eq_Ici.symm
-#exit
+
 lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple}
     (hfx : ‖f x‖ > 0) :
-    ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p =
+    ∫⁻ s : ℝ≥0 in res (xor j tc.mon) (tc.inv ‖f x‖), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖), (g s) * ‖f x‖ₑ ^ p := by
   apply setLIntegral_congr_fun measurableSet_res
   · apply ae_of_all
@@ -1945,10 +1945,11 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : β > 0) (hσ : σ < -1):
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
 
-lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ}
+lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ≥0}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : t > 0) :
   ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
     ENNReal.ofReal ((tc.inv t) ^ (γ + 1) / |γ + 1|) := by
+  sorry /- was:
   rw [← lintegral_congr_ae (Filter.mp_mem (self_mem_ae_restrict measurableSet_res)
       (Filter.univ_mem'
       (fun s hs ↦ (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)).symm)))]
@@ -1959,7 +1960,7 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ}
     rw [lintegral_rpow_of_gt_abs (tc.ran_inv t ht) hγ]
   · rw [eq_false_of_ne_true xor_split]
     simp only [Bool.false_eq_true, ↓reduceIte]
-    rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ]
+    rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ] -/
 
 lemma value_lintegral_res₀ {j : Bool} {β γ : ℝ} {tc : ToneCouple} (hβ : β > 0)
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
@@ -1975,7 +1976,7 @@ lemma value_lintegral_res₀ {j : Bool} {β γ : ℝ} {tc : ToneCouple} (hβ : �
     simp only [Bool.false_eq_true, ↓reduceIte]
     rw [lintegral_Ioi_rpow_of_lt_abs hβ hγ]
 
-lemma value_lintegral_res₁ {t γ p': ℝ} {spf : ScaledPowerFunction} (ht : t > 0) :
+lemma value_lintegral_res₁ {t : ℝ≥0} {γ p': ℝ} {spf : ScaledPowerFunction} (ht : t > 0) :
     ENNReal.ofReal (((spf_to_tc spf).inv t) ^ (γ + 1) / |γ + 1| ) * ENNReal.ofReal (t ^ p') =
     ENNReal.ofReal (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / |γ + 1|) := by
   have := spf.hd
