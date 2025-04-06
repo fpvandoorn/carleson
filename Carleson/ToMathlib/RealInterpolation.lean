@@ -1018,7 +1018,7 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
             ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
         · rw [← NNReal.lt_rpow_inv_iff_of_neg (div_pos hs spf.hd) ht σ_neg,
             ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-#exit
+
 end
 
 noncomputable section
@@ -1046,7 +1046,7 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 -/
 namespace ChoiceScale
 
-def d := ENNReal.toReal
+def d := ENNReal.toNNReal
     (C₀ ^ (q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (eLpNorm f p μ ^ p.toReal) ^
       (p₀⁻¹.toReal * q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) /
     (C₁ ^ (q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)) * (eLpNorm f p μ ^ p.toReal) ^
@@ -1114,7 +1114,7 @@ lemma d_eq_top₀ (hp₀ : p₀ > 0) (hq₁ : q₁ > 0) (hp₀' : p₀ ≠ ⊤) 
   rw [mul_div_cancel_right₀]
   · rw [div_eq_mul_inv, mul_inv_cancel₀, ENNReal.rpow_one]
     · rw [toReal_rpow, ENNReal.mul_rpow_of_nonneg]
-      · rw [ENNReal.rpow_rpow_inv, toReal_inv]
+      · rw [ENNReal.rpow_rpow_inv, toReal_inv, coe_toNNReal_eq_toReal]
         exact (exp_toReal_pos hp₀ hp₀').ne'
       · positivity
     · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
@@ -1133,8 +1133,8 @@ lemma d_eq_top₁ (hq₀ : q₀ > 0) (hp₁ : p₁ > 0) (hp₁' : p₁ ≠ ⊤) 
   · rw [div_eq_mul_inv, mul_inv_cancel₀, ENNReal.rpow_neg_one]
     · rw [toReal_rpow, ENNReal.mul_rpow_of_nonneg]
       · rw [ENNReal.rpow_rpow_inv, ← toReal_inv, ENNReal.mul_inv, inv_inv]
-        · rw [← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, toReal_inv, mul_neg, mul_one, neg_neg,
-            toReal_mul, coe_toReal]
+        · rw [coe_toNNReal_eq_toReal, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, toReal_inv,
+            mul_neg, mul_one, neg_neg, toReal_mul, coe_toReal]
         · left; exact ENNReal.inv_ne_zero.mpr coe_ne_top
         · left; exact inv_ne_top.mpr <| (ENNReal.coe_pos.mpr hC₁).ne'
         · exact (exp_toReal_pos hp₁ hp₁').ne'
@@ -1160,7 +1160,7 @@ lemma d_eq_top_top (hq₀ : q₀ > 0) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁
   simp only [inv_top, toReal_zero, zero_sub, zero_div, ENNReal.rpow_zero, mul_zero, mul_one,
     zero_mul, one_div]
   rw [div_neg, div_eq_mul_inv, mul_inv_cancel₀]
-  · rw [ENNReal.rpow_neg, ENNReal.rpow_one, inv_inv, coe_toReal]
+  · rw [ENNReal.rpow_neg, ENNReal.rpow_one, inv_inv, toNNReal_coe]
   · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁)) (ENNReal.inv_ne_top.mpr hq₀.ne')).ne'
 
 /-- The particular choice of scaled power function that works in the proof of the
@@ -1177,7 +1177,7 @@ def spf_ch (ht : t ∈ Ioo 0 1) (hq₀q₁ : q₀ ≠ q₁) (hp₀ : 0 < p₀) (
 end ChoiceScale
 
 end
-
+#exit
 noncomputable section
 
 open NNReal ENNReal MeasureTheory Set
