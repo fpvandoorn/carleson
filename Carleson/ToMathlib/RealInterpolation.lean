@@ -951,7 +951,7 @@ end
 -/
 noncomputable section
 
-open ENNReal NNReal Real Set
+open NNReal Real Set
 
 /-- A ScaledPowerFunction is meant to represent a function of the form `t ↦ (t / d)^σ`,
     where `d` is strictly positive and either `σ > 0` or `σ < 0`. -/
@@ -965,16 +965,16 @@ structure ScaledPowerFunction where
     other. It is used in the proof of the real interpolation theorem.
 
     Note: originally it seemed useful to make the possible choice of this function general
-    in the proof of the real interpolation theorem. However, in the end really only one
+    in the proof of the real inteprolation theorem. However, in the end really only one
     function works for all the different cases. This infrastructure, however, could potentially
     still be useful, if one would like to try to improve the constant. -/
 structure ToneCouple where
-  ton : ℝ≥0∞ → ℝ≥0∞
-  inv : ℝ≥0∞ → ℝ≥0∞
+  ton : ℝ≥0 → ℝ≥0
+  inv : ℝ≥0 → ℝ≥0
   mon : Bool
   ton_is_ton : if mon then StrictMonoOn ton (Ioi 0) else StrictAntiOn ton (Ioi 0)
-  ran_ton : ∀ t > 0, ton t > 0
-  ran_inv : ∀ t > 0, inv t > 0
+  ran_ton : ∀ t > 0, ton t ∈ Ioi 0
+  ran_inv : ∀ t > 0, inv t ∈ Ioi 0
   inv_pf : if mon
       then ∀ s > 0, ∀ t > 0, (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
       else ∀ s > 0, ∀ t > 0, (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
@@ -984,13 +984,7 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
   ton := fun s ↦ (s / spf.d) ^ spf.σ
   inv := fun t ↦ spf.d * t ^ spf.σ⁻¹
   mon := if spf.σ > 0 then true else false
-  ran_ton := fun t ht ↦ by
-    cases t
-    | top => simp
-    | coe t => by
-      simp
-      rw?
-      rpow_pos_of_pos (div_pos ht spf.hd) _
+  ran_ton := fun t ht ↦ rpow_pos_of_pos (div_pos ht spf.hd) _
   ran_inv := fun t ht ↦ mul_pos spf.hd (rpow_pos_of_pos ht spf.σ⁻¹)
   ton_is_ton := by
     split <;> rename_i sgn_σ
