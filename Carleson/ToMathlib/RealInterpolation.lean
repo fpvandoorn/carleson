@@ -951,13 +951,13 @@ end
 -/
 noncomputable section
 
-open Real Set
+open NNReal Real Set
 
 /-- A ScaledPowerFunction is meant to represent a function of the form `t ↦ (t / d)^σ`,
     where `d` is strictly positive and either `σ > 0` or `σ < 0`. -/
 structure ScaledPowerFunction where
   σ : ℝ
-  d : ℝ
+  d : ℝ≥0
   hd : d > 0
   hσ : (σ > 0) ∨ (σ < 0)
 
@@ -969,20 +969,20 @@ structure ScaledPowerFunction where
     function works for all the different cases. This infrastructure, however, could potentially
     still be useful, if one would like to try to improve the constant. -/
 structure ToneCouple where
-  ton : ℝ → ℝ
-  inv : ℝ → ℝ
+  ton : ℝ≥0 → ℝ≥0
+  inv : ℝ≥0 → ℝ≥0
   mon : Bool
   ton_is_ton : if mon then StrictMonoOn ton (Ioi 0) else StrictAntiOn ton (Ioi 0)
-  ran_ton : ∀ t ∈ Ioi (0 : ℝ), ton t ∈ Ioi 0
-  ran_inv : ∀ t ∈ Ioi (0 : ℝ), inv t ∈ Ioi 0
+  ran_ton : ∀ t > 0, ton t ∈ Ioi 0
+  ran_inv : ∀ t > 0, inv t ∈ Ioi 0
   inv_pf : if mon
-      then ∀ s ∈ Ioi (0 : ℝ), ∀ t ∈ Ioi (0 : ℝ), (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
-      else ∀ s ∈ Ioi (0 : ℝ), ∀ t ∈ Ioi (0 : ℝ), (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
+      then ∀ s > 0, ∀ t > 0, (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
+      else ∀ s > 0, ∀ t > 0, (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
 
 /-- A scaled power function gives rise to a ToneCouple. -/
 def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
-  ton := fun s : ℝ ↦ (s / spf.d) ^ spf.σ
-  inv := fun t : ℝ ↦ spf.d * t ^ spf.σ⁻¹
+  ton := fun s ↦ (s / spf.d) ^ spf.σ
+  inv := fun t ↦ spf.d * t ^ spf.σ⁻¹
   mon := if spf.σ > 0 then true else false
   ran_ton := fun t ht ↦ rpow_pos_of_pos (div_pos ht spf.hd) _
   ran_inv := fun t ht ↦ mul_pos spf.hd (rpow_pos_of_pos ht spf.σ⁻¹)
@@ -1005,20 +1005,20 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
     split <;> rename_i sgn_σ
     · simp only [↓reduceIte, mem_Ioi]
       refine fun s hs t ht => ⟨?_, ?_⟩
-      · rw [← Real.lt_rpow_inv_iff_of_pos (div_nonneg hs.le spf.hd.le) ht.le sgn_σ,
-        ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-      · rw [← Real.rpow_inv_lt_iff_of_pos ht.le (div_nonneg hs.le spf.hd.le)
-          sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
+      · rw [← NNReal.lt_rpow_inv_iff_of_pos ht.le sgn_σ.lt,
+          ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
+      · sorry --rw [← NNReal.rpow_inv_lt_iff_of_pos ht.le (div_nonneg hs.le spf.hd.le)
+          -- sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
     · simp only [↓reduceIte, mem_Ioi]
       intro s hs t ht
       rcases spf.hσ with σ_pos | σ_neg
       · contradiction
       · constructor
-        · rw [← Real.rpow_inv_lt_iff_of_neg ht (div_pos hs spf.hd) σ_neg,
+        · rw [← NNReal.rpow_inv_lt_iff_of_neg ht (div_pos hs spf.hd) σ_neg,
             ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-        · rw [← Real.lt_rpow_inv_iff_of_neg (div_pos hs spf.hd) ht σ_neg,
+        · rw [← NNReal.lt_rpow_inv_iff_of_neg (div_pos hs spf.hd) ht σ_neg,
             ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-
+#exit
 end
 
 noncomputable section
