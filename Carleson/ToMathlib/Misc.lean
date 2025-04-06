@@ -496,3 +496,24 @@ theorem prod_attach_insert {α β : Type*} {s : Finset α} {a : α} [DecidableEq
     ext
     simpa using h
   · simp [ha]
+
+theorem Nat.le_pow_self {n : ℕ} (hn : 2 ≤ n) (a : ℕ) : a ≤ n ^ a := by
+  induction a
+  case zero => simp only [pow_zero, zero_le]
+  case succ i hi =>
+    rw [Nat.pow_add_one]
+    trans n ^ i + 1
+    . exact add_le_add hi (le_refl 1)
+    . by_cases hzero : i = 0
+      . simp [hzero, hn]
+      . nth_rw 3 [← Nat.succ_pred (a := n)]
+        . rw [mul_succ, add_comm]
+          apply add_le_add_right
+          rw [one_le_iff_ne_zero, ← pos_iff_ne_zero]
+          apply mul_pos
+          . rw [← Ne, ← pos_iff_ne_zero] at hzero
+            exact lt_of_lt_of_le hzero hi
+          . simp only [pred_eq_sub_one, tsub_pos_iff_lt]
+            exact Nat.lt_of_succ_le hn
+        . rw [← one_le_iff_ne_zero]
+          exact le_of_succ_le hn

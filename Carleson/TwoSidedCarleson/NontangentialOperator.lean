@@ -460,8 +460,19 @@ theorem estimate_x_shift (ha : 4 ≤ a)
         rw [mul_le_mul_iff_of_pos_right hr]
         apply pow_le_pow_right₀ Nat.one_le_ofNat
         simp only [zero_add, le_add_iff_nonneg_left, zero_le]
-      . rw [BddAbove, not_nonempty_iff_eq_empty]
-        sorry
+      . apply Filter.unbounded_of_tendsto_atTop
+        apply Filter.tendsto_atTop_atTop_of_monotone
+        . refine Monotone.mul_const ?_ (le_of_lt hr)
+          exact Monotone.comp (pow_right_mono₀ Nat.one_le_ofNat) Order.succ_mono
+        intro b
+        use Nat.ceil (b / r)
+        rw [← div_le_iff₀ hr]
+        trans (Nat.ceil (b / r) : ℝ)
+        . apply Nat.le_ceil
+        . norm_cast
+          trans Nat.ceil (b / r) + 1
+          . exact Nat.le_add_right ⌈b / r⌉₊ 1
+          . apply Nat.le_pow_self (le_refl 2)
 
     trans ∑' (i : ℕ), ∫⁻ (y : X) in dom_i i, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
     . rw [rw_dom]
