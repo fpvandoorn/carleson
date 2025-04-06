@@ -156,35 +156,52 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     have : Measurable (K x) := measurable_K_right x
     fun_prop
 
-  have bdd_Kxg : ∃ (M : ℝ), ∀ y ∈ (ball x r)ᶜ ∩ support Kxg, ‖Kxg y‖ ≤ M := by
-    use (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
-    intro y hy
-    rw [toNNReal_mul, norm_mul]
-    apply mul_le_mul
-    case b0 => apply NNReal.zero_le_coe
-    case c0 => simp only [norm_nonneg]
-    . suffices ‖K x y‖ₑ ≤ (C_K a : ℝ≥0) / volume (ball x r) by
-        rw [enorm_eq_nnnorm] at this
-        apply le_toNNReal_of_coe_le
-        . exact this
-        . -- no ENNReal.div_ne_top??
-          rw [div_eq_mul_inv]
-          apply mul_ne_top coe_ne_top
-          rw [inv_ne_top]
-          apply ne_of_gt
-          apply measure_ball_pos
-          exact hr
+  have tmp_Kxg {M : ℝ≥0} : ∀ y, ¬‖Kxg y‖ ≤ M → y ∈ support Kxg := by
+    sorry
 
-      apply le_trans (enorm_K_le_vol_inv x y)
-      apply ENNReal.div_le_div_left
-      apply measure_mono
-      apply ball_subset_ball
-      let hby := hy.left
-      rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hby
-      exact hby
-    . apply le_toNNReal_of_coe_le
-      . sorry -- have to refactor to a.e.
-      . exact ne_of_lt hg.eLpNorm_lt_top
+  have bdd_Kxg : ∃ (M : ℝ), ∀ᵐ y ∂(volume.restrict ((ball x r)ᶜ ∩ support Kxg)), ‖Kxg y‖ ≤ M := by
+    use (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
+    rw [MeasureTheory.ae_iff, Measure.restrict_apply₀']
+    . conv =>
+        arg 1; arg 2;
+        rw [← inter_assoc]
+        refine Eq.symm (left_eq_inter.mpr ?_)
+        . apply inter_subset_left.trans
+          apply setOf_subset.mpr
+          apply tmp_Kxg
+
+      sorry
+    . apply NullMeasurableSet.inter --somehow not used by simp despite the tag
+      . simp [measurableSet_ball] --should measurableSet_ball have @[simp]?
+      . exact AEStronglyMeasurable.nullMeasurableSet_support mKxg.aestronglyMeasurable
+
+    -- intro y hy
+    -- rw [toNNReal_mul, norm_mul]
+    -- apply mul_le_mul
+    -- case b0 => apply NNReal.zero_le_coe
+    -- case c0 => simp only [norm_nonneg]
+    -- . suffices ‖K x y‖ₑ ≤ (C_K a : ℝ≥0) / volume (ball x r) by
+    --     rw [enorm_eq_nnnorm] at this
+    --     apply le_toNNReal_of_coe_le
+    --     . exact this
+    --     . -- no ENNReal.div_ne_top??
+    --       rw [div_eq_mul_inv]
+    --       apply mul_ne_top coe_ne_top
+    --       rw [inv_ne_top]
+    --       apply ne_of_gt
+    --       apply measure_ball_pos
+    --       exact hr
+
+    --   apply le_trans (enorm_K_le_vol_inv x y)
+    --   apply ENNReal.div_le_div_left
+    --   apply measure_mono
+    --   apply ball_subset_ball
+    --   let hby := hy.left
+    --   rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hby
+    --   exact hby
+    -- . apply le_toNNReal_of_coe_le
+    --   . sorry -- have to refactor to a.e.
+    --   . exact ne_of_lt hg.eLpNorm_lt_top
 
   obtain ⟨M, hM⟩ := bdd_Kxg
 
@@ -198,17 +215,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       . exact inter_subset_right
       . exact support_mul_subset_right (K x) g
   . exact mKxg.aestronglyMeasurable
-  . rw [MeasureTheory.ae_iff, Measure.restrict_apply_eq_zero']
-    . trans (volume (∅ : Set X))
-      . congr
-        rw [← disjoint_iff_inter_eq_empty, disjoint_right]
-        . intro y hy
-          rw [mem_setOf, not_not]
-          exact hM y hy
-      . exact measure_empty
-    . apply MeasurableSet.inter --somehow not used by simp despite the tag
-      . simp [MeasurableSet.compl_iff, measurableSet_ball] --should measurableSet_ball have @[simp]?
-      . sorry --exact measurableSet_support mKxg --should measureSet_support have @[simp]?
+  . exact hM
 
 /- This should go somewhere else
 
