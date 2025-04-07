@@ -94,7 +94,7 @@ notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
-  eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
+  eq_zero : ∃ o : X, ∀ f : Θ, coeΘ f o = 0
   /-- The distance is bounded below by the local oscillation. (1.0.7) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
