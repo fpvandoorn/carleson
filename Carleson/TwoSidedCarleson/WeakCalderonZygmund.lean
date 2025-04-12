@@ -265,7 +265,7 @@ lemma volume_univ_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : ¬ Gener
   sorry
 
 /-- Part of Lemma 10.2.5, equation (10.2.23) (general case). -/
-lemma tsum_eLpNorm_czRemainder'_le (ha : 4 ≤ a) (ha : 4 ≤ a){hf : BoundedFiniteSupport f} (hX : GeneralCase f α)
+lemma tsum_eLpNorm_czRemainder'_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : GeneralCase f α)
     (hα : 0 < α) :
     ∑' i, eLpNorm (czRemainder' ha hf hX i) 1 volume ≤ 2 * eLpNorm f 1 volume := by
   sorry
