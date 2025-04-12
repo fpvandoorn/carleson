@@ -2,7 +2,7 @@
    one or they might be candidates to go there, possibly in a generalized form. -/
 
 import Carleson.ToMathlib.Misc
-import Mathlib.MeasureTheory.Integral.IntervalIntegral
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 
 open MeasureTheory
 
