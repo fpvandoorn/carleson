@@ -144,6 +144,7 @@ lemma dirichletKernel_eq_ae : ∀ᵐ (x : ℝ), dirichletKernel N x = dirichletK
     rw [ne_eq, mul_assoc, mul_assoc, mul_eq_mul_left_iff]
     simp only [I_ne_zero, or_false]
     norm_cast
+    ring_nf
     exact (h n).symm
   rw [ae_iff]
   apply measure_mono_null this

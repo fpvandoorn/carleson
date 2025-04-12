@@ -32,10 +32,15 @@ variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure
 
 variable (X) in
 def 𝔓 := PreTileStructure.𝔓 𝕜 X
+
 instance : Fintype (𝔓 X) := PreTileStructure.fintype_𝔓
+
 def 𝓘 : 𝔓 X → Grid X := PreTileStructure.𝓘
+
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → Grid X) := PreTileStructure.surjective_𝓘
+
 instance : Inhabited (𝔓 X) := ⟨(surjective_𝓘 default).choose⟩
+
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
 
@@ -52,15 +57,17 @@ class TileStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasur
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : -- 2.0.13, union is disjoint
     Disjoint (Ω p) (Ω p')
-  relative_fundamental_dyadic {p p'} (h : 𝓘 p ≤ 𝓘 p') : -- 2.0.14
+  relative_fundamental_dyadic {p p'} (h :
+    -- why is the next line needed?!!
+    letI : PartialOrder (Grid) := @instPartialOrderGrid X A _ _ D κ S o _
+    𝓘 p ≤ 𝓘 p') : -- 2.0.14
     Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
-  cball_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
-  subset_cball {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
+  cball_subset {p : _root_.𝔓 X} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
+  subset_cball {p : _root_.𝔓 X} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
 
 export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic)
 
 end Generic
-
 
 open scoped ShortVariables
 variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
@@ -74,7 +81,6 @@ variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 notation "dist_(" 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "nndist_(" 𝔭 ")" => @nndist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
-
 
 @[simp] lemma dist_𝓘 (p : 𝔓 X) : dist_{𝓘 p} f g = dist_(p) f g := rfl
 @[simp] lemma nndist_𝓘 (p : 𝔓 X) : nndist_{𝓘 p} f g = nndist_(p) f g := rfl

@@ -118,24 +118,24 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     _ = 2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by ring_nf
 
 private lemma ineq_6_1_7' (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
-    (2 : ℝ≥0) ^ a ^ 3 / volume.nnreal (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
-      2 ^ (5 * a + 101 * a ^ 3) / volume.nnreal (ball x (8 * ↑D ^ 𝔰 p.1)) := by
+    (2 : ℝ≥0) ^ a ^ 3 / (volume (ball x (↑D ^ 𝔰 p.1 / (↑D * 4)))).toNNReal ≤
+      2 ^ (5 * a + 101 * a ^ 3) / (volume (ball x (8 * ↑D ^ 𝔰 p.1))).toNNReal := by
   suffices (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
       2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) by
-    simp only [← NNReal.coe_le_coe, NNReal.coe_div, ← NNReal.val_eq_coe, measureNNReal_val]
+    simp only [← NNReal.coe_le_coe, NNReal.coe_div, ← NNReal.val_eq_coe]
     exact this
   exact ineq_6_1_7 x p
 
 -- Composition of inequalities 6.1.6, 6.1.7, 6.1.8.
 lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p) (hy : Ks (𝔰 p.1) x y ≠ 0)  :
     ‖Ks (𝔰 p.1) x y‖₊ ≤
-      (2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
+      (2 : ℝ≥0) ^ (6*a + 101*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal := by
   have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos ..
   have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_defaultD_pow_pos _ (by linarith) _
   have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
-  have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume.nnreal (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
+  have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / (volume (ball x (D ^ (𝔰 p.1 - 1)/4))).toNNReal := by
     apply le_trans (NNReal.coe_le_coe.mpr kernel_bound_old)
-    rw [NNReal.coe_div, NNReal.coe_pow, NNReal.coe_ofNat, ← NNReal.val_eq_coe, measureNNReal_val]
+    rw [NNReal.coe_div, NNReal.coe_pow, NNReal.coe_ofNat, ← NNReal.val_eq_coe]
     exact div_le_div_of_nonneg_left (pow_nonneg zero_le_two _)
       (measure_ball_pos_real x _ (div_pos (zpow_pos (defaultD_pos _) _) zero_lt_four))
       (measureReal_mono (Metric.ball_subset_ball (dist_mem_Icc_of_Ks_ne_zero hy).1)
@@ -149,8 +149,8 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
     ge_iff_le]
   rw [ha, pow_add _ (5 * a + 101 * a ^ 3) a, mul_assoc]
   apply mul_le_mul_of_nonneg_left _ (zero_le _)
-  suffices (volume.nnreal (ball (𝔠 p.1) (8 * ↑D ^ 𝔰 p.1))) ≤
-      2 ^ a * (volume.nnreal (ball x (8 * ↑D ^ 𝔰 p.1))) by
+  suffices (volume (ball (𝔠 p.1) (8 * ↑D ^ 𝔰 p.1))).toNNReal ≤
+      2 ^ a * (volume (ball x (8 * ↑D ^ 𝔰 p.1))).toNNReal by
     rw [le_mul_inv_iff₀, ← le_inv_mul_iff₀ , mul_comm _ (_^a), inv_inv]
     exact this
     · exact inv_pos.mpr (measure_ball_pos_nnreal _ _ h8Dpow_pos)
@@ -196,8 +196,8 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         exact mul_lt_mul_of_pos_right (by norm_num) (defaultD_pow_pos ..)
     -- 6.1.6, 6.1.7, 6.1.8
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
-        (2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := fun y hy ↦
-      norm_Ks_le' _ hxE hy
+        (2 : ℝ≥0) ^ (6*a + 101*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal :=
+      fun y hy ↦ norm_Ks_le' _ hxE hy
     calc (‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ : ℝ≥0∞)
       = ↑‖carlesonOn p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
     _ ≤ ∫⁻ (y : X), ‖cexp (I * (↑((Q x) y) - ↑((Q x) x))) * Ks (𝔰 p.1) x y * f y‖ₑ := by
@@ -224,7 +224,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1),
         (((2 : ℝ≥0) ^ (6*a + 101*a^3) /
-          volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) * ‖f y‖₊ : ℝ≥0) := by
+          (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal) * ‖f y‖₊ : ℝ≥0) := by
       refine lintegral_mono_nnreal fun y ↦ ?_
       rw [nnnorm_mul]
       gcongr
@@ -236,7 +236,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       rw [laverage_eq, Measure.restrict_apply MeasurableSet.univ, univ_inter]
       simp_rw [div_eq_mul_inv, coe_mul, enorm_eq_nnnorm]
       rw [lintegral_const_mul _ hfm.nnnorm.coe_nnreal_ennreal, ENNReal.coe_pow, coe_inv
-        (ne_of_gt (measure_ball_pos_nnreal _ _ h8Dpow_pos)), measureNNReal_def,
+        (ne_of_gt (measure_ball_pos_nnreal _ _ h8Dpow_pos)),
         ENNReal.coe_toNNReal (measure_ball_ne_top _ _)]
       ring
     _ ≤ (C_6_1_2 a) * (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)).indicator (x := x)
