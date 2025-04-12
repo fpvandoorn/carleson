@@ -369,6 +369,7 @@ instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
   eq_zero := by
     use 0
     intro f
+    change f 0 = 0
     rw [coeΘ_R, mul_zero]
   localOscillation_le_cdist := oscillation_control
   cdist_mono := frequency_monotone
