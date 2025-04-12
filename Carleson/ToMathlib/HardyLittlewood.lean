@@ -439,6 +439,25 @@ theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
+lemma eLpNorm_eq_if_ae_finite [BorelSpace X] {μ : Measure X} (f : X → ℝ≥0∞)
+    (hf : ∀ᵐ x ∂μ, f x ≠ ⊤) (p : ℝ≥0∞) :
+    eLpNorm (fun x ↦ (f x).toReal) p μ = eLpNorm f p μ := by
+  unfold eLpNorm
+  split_ifs
+  · rfl
+  · unfold eLpNormEssSup
+    apply essSup_congr_ae
+    filter_upwards [hf]
+    intro a hf
+    exact enorm_toReal hf
+  · unfold eLpNorm'
+    congr 1
+    apply lintegral_congr_ae
+    filter_upwards [hf]
+    intro a hf
+    congr 1
+    exact enorm_toReal hf
+
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`.
 A proof for basically this result is given in Chapter 9, everything following after equation
 (9.0.36). -/
@@ -446,8 +465,190 @@ theorem hasStrongType_maximalFunction_todo
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
-      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
-  sorry
+      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
+  intro v mlpv
+  dsimp only
+  constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
+  have hp₂pos : (ofNNReal p₂).toReal > 0 :=
+    toReal_pos (coe_ne_zero.mpr (ne_zero_of_lt hp₁₂)) coe_ne_top
+  have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := Ne.symm (ne_of_lt hp₂pos)
+  have hp₂inv_pos : (ofNNReal p₂).toReal⁻¹ > 0 := inv_pos_of_pos hp₂pos
+  obtain ⟨g, hg⟩ := h𝓑
+  let new𝓑' (k : ℕ) := g ⁻¹' {x : ℕ | x ≤ k}
+  have new𝓑'_fin : ∀ k : ℕ, Set.Finite (new𝓑' k) := by
+    intro k
+    apply Set.Finite.preimage
+    · apply Function.Injective.injOn hg
+    · exact finite_le_nat k
+  let 𝓑' (k : ℕ) := Subtype.val '' (new𝓑' k)
+  have h𝓑' : ∀ k : ℕ, Set.Finite (𝓑' k) := by
+    exact fun k ↦ Finite.image Subtype.val (new𝓑'_fin k)
+  let 𝓑_fin (k : ℕ) := Set.Finite.toFinset (h𝓑' k)
+  -- have _ : ∀ f : ι → ENNReal, ∀ k : ℕ, ∃ B ∈ 𝓑' k, ∀ i ∈ 𝓑' k, f i ≤ f B := by
+  --  apply Finset.exists_max_image
+  have hμ : ∀ x : X, ∀ ρ ∈ Ioi 0, 0 < μ (ball x ρ) := by
+    intro x ρ hρ
+    exact measure_ball_pos μ x hρ
+  have av_ball_lt_sup : ∀ x z : X, ∀ ρ : ℝ,
+      (ball z ρ).indicator
+      (fun x ↦ ⨍⁻ (y : X) in ball z ρ, ↑‖v y‖₊ ^ p₁.toReal ∂μ) x < ⊤ := by
+    intro x z ρ
+    calc
+    _ ≤ ⨍⁻ (y : X) in ball z ρ, ↑‖v y‖₊ ^ p₁.toReal ∂μ := by
+        exact indicator_le
+          (fun a ha ↦ le_refl (⨍⁻ (y : X) in ball z ρ, ↑‖v y‖₊ ^ p₁.toReal ∂μ)) x
+    _ < ⊤ := by
+        rw [setLaverage_eq]
+        rcases eq_zero_or_pos (μ (ball z ρ)) with μzero | μpos
+        · have int_zero : ∫⁻ (x : X) in ball z ρ, ↑‖v x‖₊ ^ p₁.toReal ∂μ = 0 := by
+            apply setLIntegral_measure_zero
+            exact μzero
+          rw [int_zero]; simp
+        · refine div_lt_top ?_ ?_
+          · sorry
+          · exact Ne.symm (ne_of_lt μpos)
+  have hmf_lt_top : ∀ k : ℕ, ∀ x : X, maximalFunction μ (𝓑' k) c r (↑p₁) v x < ⊤ := by
+    intro k x
+    unfold maximalFunction
+    refine rpow_lt_top_of_nonneg (by positivity) ?_
+    rcases (Set.eq_empty_or_nonempty (𝓑' k)) with hb | hb
+    · have hsup :
+          (⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ ↑p₁.toReal ∂μ) x)
+          = 0 := by
+        apply nonpos_iff_eq_zero.mp
+        apply iSup₂_le_iff.mpr
+        intro i Hi
+        rw [hb] at Hi
+        simp at Hi
+      rw [hsup]
+      exact zero_ne_top
+    · have hj : ∃ j ∈ 𝓑' k, ∀ i ∈ 𝓑' k,
+          (ball (c i) (r i)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ ↑p₁.toReal ∂μ) x ≤
+          (ball (c j) (r j)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ ↑p₁.toReal ∂μ) x := by
+        exact exists_max_image (𝓑' k) _ (h𝓑' k) hb
+      obtain ⟨j, ⟨hj1, hj2⟩⟩ := hj
+      have hjsup : ⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ ↑p₁.toReal ∂μ) x ≤
+          (ball (c j) (r j)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ ↑p₁.toReal ∂μ) x := by
+        apply iSup₂_le_iff.mpr
+        intro i Hi
+        apply hj2
+        exact Hi
+      apply LT.lt.ne_top (b := ⊤)
+      calc
+      ⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x
+        ≤ (ball (c j) (r j)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x := by
+        exact hjsup
+      _ < ⊤ := by
+          apply av_ball_lt_sup
+  let f (k : ℕ) := fun x ↦ maximalFunction μ (𝓑' k) c r (↑p₁) v x
+  have f_mon : Monotone f := by
+    unfold Monotone
+    intro a b hab x
+    unfold f
+    unfold maximalFunction
+    apply rpow_le_rpow _ (by positivity)
+    apply iSup₂_le
+    intro i Hi
+    apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ (ofNNReal p₁).toReal ∂μ) x)
+    obtain ⟨w, hw⟩ := Hi; use w; exact ⟨id (Nat.le_trans hw.left hab), hw.right⟩
+  have hestfin : ∀ k : ℕ, eLpNorm
+      (fun x ↦ maximalFunction μ (𝓑' k) c r (↑p₁) v x) (↑p₂) μ ≤
+      ↑(C2_0_6 A p₁ p₂) * eLpNorm v (↑p₂) μ := by
+    intro k
+    obtain ⟨R, hR⟩ := Finite.exists_image_le (h𝓑' k) r
+    rw [← eLpNorm_eq_if_ae_finite]
+    · exact (hasStrongType_maximalFunction (c := c)
+        (Finite.countable (h𝓑' k)) hR hp₁ hp₁₂ v mlpv).2
+    · apply ae_of_all
+      intro x
+      exact LT.lt.ne_top (hmf_lt_top k x)
+  have hmf : ∀ x : X, maximalFunction μ 𝓑 c r (↑p₁) v x ≤
+      ⨆ k : ℕ, maximalFunction μ (𝓑' k) c r (↑p₁) v x := by
+    intro x
+    unfold maximalFunction
+    have p₁pos : p₁.toReal > 0 := by positivity
+    refine (rpow_le_rpow_iff p₁pos).mp ?_
+    rw [ENNReal.rpow_inv_rpow (by positivity)]
+    apply iSup₂_le_iff.mpr
+    intro i Hi
+    let k₀ := g ⟨i, Hi⟩
+    have k₀large : i ∈ 𝓑' k₀ := by
+      unfold 𝓑'
+      unfold new𝓑'
+      simp only [preimage_setOf_eq, mem_image, mem_setOf_eq, Subtype.exists, exists_and_right,
+        exists_eq_right]
+      use Hi
+    calc
+    (ball (c i) (r i)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x
+      ≤ (⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x) := by
+      apply le_iSup₂ (i := i)
+          (f := fun j _ ↦ (ball (c j) (r j)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x) k₀large
+    _ = ((⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j),
+            ↑‖v y‖₊ ^ p₁.toReal ∂μ) x)^p₁.toReal⁻¹ ) ^p₁.toReal := by
+      rw [ENNReal.rpow_inv_rpow]; positivity
+    _ ≤ _ := by
+      gcongr
+      apply le_iSup (f := fun k ↦ (⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x) ^ (p₁.toReal)⁻¹)
+  unfold eLpNorm
+  split_ifs with h₀
+  · simp
+  · have h : ENNReal.ofNNReal p₂ = ⊤ := by assumption
+    simp at h
+  · unfold eLpNorm'
+    calc
+    _ ≤ (∫⁻ (a : X), (⨆ k, maximalFunction μ (𝓑' k) c r (↑p₁) v a) ^ (ofNNReal p₂).toReal ∂μ)
+        ^ (1 / (ofNNReal p₂).toReal) := by
+      gcongr
+      apply hmf
+    _ ≤ (∫⁻ (a : X), ⨆ k, (maximalFunction μ (𝓑' k) c r (↑p₁) v a) ^ (ofNNReal p₂).toReal ∂μ)
+        ^ (1 / (ofNNReal p₂).toReal) := by
+      gcongr
+      -- The last argument of the maximalfunction becomes anonymous, so need to revive it...
+      rename_i a
+      apply (rpow_le_rpow_iff (z := ((ofNNReal p₂).toReal)⁻¹) (by positivity)).mp
+      rw [rpow_rpow_inv (hp₂neq_zero)]
+      apply iSup_le
+      intro i
+
+      rw [← ENNReal.rpow_rpow_inv (x := maximalFunction _ _ _ _ _ _ _) hp₂neq_zero]
+      gcongr
+      apply le_iSup
+          (f := fun j ↦ (maximalFunction μ (𝓑' j) c r (↑p₁) v a) ^ (ofNNReal p₂).toReal)
+    _ = (⨆ k, ∫⁻ (a : X), maximalFunction μ (𝓑' k) c r (↑p₁) v a ^ (ofNNReal p₂).toReal ∂μ)
+        ^ (1 / (ofNNReal p₂).toReal) := by
+      congr 1
+      apply lintegral_iSup'
+      · exact fun k ↦
+        AEMeasurable.pow_const
+          (AEStronglyMeasurable.aemeasurable
+            (AEStronglyMeasurable.maximalFunction (Finite.countable (h𝓑' k))))
+          (ofNNReal p₂).toReal
+      · exact ae_of_all μ fun a ⦃k l⦄ hkl ↦ id (rpow_le_rpow (f_mon hkl a) (le_of_lt hp₂pos))
+    _ ≤ _ := by
+      apply (rpow_le_rpow_iff hp₂pos).mp
+      rw [one_div, ENNReal.rpow_inv_rpow hp₂neq_zero]
+      apply iSup_le
+      intro k
+      apply (rpow_le_rpow_iff hp₂inv_pos).mp
+      rw [ENNReal.rpow_rpow_inv hp₂neq_zero]
+      unfold eLpNorm at hestfin
+      split_ifs at hestfin
+      unfold eLpNorm' at hestfin
+      rw [one_div] at hestfin
+      exact hestfin k
 
 /-- Use `lowerSemicontinuous_iff_isOpen_preimage` and `continuous_average_ball` -/
 lemma lowerSemiContinuous_MB (hf : LocallyIntegrable f μ) :
