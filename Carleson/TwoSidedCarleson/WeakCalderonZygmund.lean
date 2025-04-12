@@ -55,7 +55,7 @@ theorem lebesgue_differentiation
 /-- Lemma 10.2.4
 This is very similar to `Vitali.exists_disjoint_subfamily_covering_enlargement`.
 Can we use that (or adapt it so that we can use it)?  -/
-theorem ball_covering (ha : 4 ≤ a) {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
+theorem ball_covering {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
     ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ closedBall (c i) (r i)) ∧
       ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬ Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
       ∀ x ∈ O, Cardinal.mk { i | x ∈ ball (c i) (3 * r i)} ≤ (2 ^ (6 * a) : ℕ) := by
@@ -124,8 +124,8 @@ lemma not_disjoint_czBall7 {hf : BoundedFiniteSupport f} {hX : GeneralCase f α}
   ball_covering (isOpen_MB_preimage_Ioi hf hX) |>.choose_spec.choose_spec.2.2.1 i
 
 /-- Part of Lemma 10.2.5 (general case). -/
-lemma cardinalMk_czBall3_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α}
-    {y : X} (hy : α < globalMaximalFunction volume 1 f y) :
+lemma cardinalMk_czBall3_le {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} {y : X}
+    (hy : α < globalMaximalFunction volume 1 f y) :
     Cardinal.mk { i | y ∈ czBall3 hf hX i} ≤ (2 ^ (6 * a) : ℕ) :=
   ball_covering (isOpen_MB_preimage_Ioi hf hX) |>.choose_spec.choose_spec.2.2.2 y hy
 
@@ -208,13 +208,13 @@ lemma czApproximation_add_czRemainder {hf : BoundedFiniteSupport f} {x : X} :
   simp [czApproximation, czRemainder]
 
 /-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
-lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
+lemma norm_czApproximation_le {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     ∀ᵐ x, ‖czApproximation hf α x‖ₑ ≤ 2 ^ (3 * a) * α := by
   sorry
 
 /-- Equation (10.2.17) specialized to the general case. -/
-lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
-    (hX : GeneralCase f α) (hα : 0 < α) :
+lemma norm_czApproximation_le_infinite {hf : BoundedFiniteSupport f} (hX : GeneralCase f α)
+    (hα : 0 < α) :
     ∀ᵐ x, ‖czApproximation hf α x‖ₑ ≤ 2 ^ (3 * a) * α := by
   sorry
 
@@ -241,26 +241,23 @@ lemma integral_czRemainder {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f 
   sorry
 
 /-- Part of Lemma 10.2.5, equation (10.2.21) (general case). -/
-lemma eLpNorm_czRemainder'_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α}
-    (hα : 0 < α) {i : ℕ} :
+lemma eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} (hα : 0 < α)
+    {i : ℕ} :
     eLpNorm (czRemainder' hf hX i) 1 volume ≤ 2 ^ (2 * a + 1) * α * volume (czBall3 hf hX i) := by
   sorry
 
 /-- Part of Lemma 10.2.5, equation (10.2.21) (finite case). -/
-lemma eLpNorm_czRemainder_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α)
-    (hα : 0 < α) :
+lemma eLpNorm_czRemainder_le {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α) (hα : 0 < α) :
     eLpNorm (czRemainder hf α) 1 volume ≤ 2 ^ (2 * a + 1) * α * volume (univ : Set X) := by
   sorry
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (general case). -/
-lemma tsum_volume_czBall3_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : GeneralCase f α)
-    (hα : 0 < α) :
+lemma tsum_volume_czBall3_le {hf : BoundedFiniteSupport f} (hX : GeneralCase f α) (hα : 0 < α) :
     ∑' i, volume (czBall3 hf hX i) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
   sorry
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (finite case). -/
-lemma volume_univ_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α)
-    (hα : 0 < α) :
+lemma volume_univ_le {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α) (hα : 0 < α) :
     volume (univ : Set X) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
   sorry
 
@@ -289,7 +286,7 @@ def Ω (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) : Set X :=
 irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10_0_3 a
 
 /-- Lemma 10.2.6 -/
-lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
+lemma estimate_good {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
     distribution (czOperator K r (czApproximation hf α)) (α / 2) volume ≤
     C10_2_6 a / α * eLpNorm f 1 volume := by
   sorry
@@ -304,8 +301,7 @@ def czOperatorBound (hf : BoundedFiniteSupport f) (hX : GeneralCase f α) (x : X
 
 /-- Lemma 10.2.7.
 Note that `hx` implies `hX`, but we keep the superfluous hypothesis to shorten the statement. -/
-lemma estimate_bad_partial (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
-    (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
+lemma estimate_bad_partial {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hx : x ∈ (Ω hf α)ᶜ) (hX : GeneralCase f α) :
     ‖czOperator K r (czRemainder hf α) x‖ₑ ≤ 3 * czOperatorBound hf hX x + α / 8 := by
   sorry
@@ -314,7 +310,7 @@ lemma estimate_bad_partial (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
 irreducible_def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 9 * a + 4)
 
 /-- Lemma 10.2.8 -/
-lemma distribution_czOperatorBound (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
+lemma distribution_czOperatorBound {hf : BoundedFiniteSupport f}
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
     volume ((Ω hf α)ᶜ ∩ czOperatorBound hf hX ⁻¹' Ioi (α / 8)) ≤
     C10_2_8 a / α * eLpNorm f 1 volume := by
@@ -325,7 +321,7 @@ irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a) / c10_0_3 a + 2 ^ (a 
 
 /-- Lemma 10.2.9 -/
 -- In the proof, case on `GeneralCase f α`, noting in the finite case that `Ω = univ`
-lemma estimate_bad (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
+lemma estimate_bad {hf : BoundedFiniteSupport f}
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
     distribution (czOperator K r (czRemainder hf α)) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
