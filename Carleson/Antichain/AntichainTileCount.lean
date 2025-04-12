@@ -17,7 +17,7 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 -- Lemma 6.3.1
 -- hp is eq. 6.3.1, hp' is eq. 6.3.2.
-lemma tile_reach (ha : 4 ≤ a) {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) ϑ ≤ 2^N)
+lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) ϑ ≤ 2^N)
     (hp' : dist_(p') (𝒬 p') ϑ ≤ 2^N) (hI : 𝓘 p ≤ 𝓘 p') (hs : 𝔰 p < 𝔰 p') :
     smul (2^(N + 2)) p ≤ smul (2^(N + 2)) p' := by
   -- 6.3.4
@@ -68,6 +68,7 @@ lemma tile_reach (ha : 4 ≤ a) {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist
         simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← zpow_natCast, ← zpow_mul]
         rw [← zpow_add₀ two_ne_zero]
         ring_nf
+        norm_num
       rw [← heq, mul_assoc]
       exact le_cdist_iterate (by positivity) (𝒬 p') o' (5*a + 2)
     rw [← le_div_iff₀' (by positivity), div_eq_mul_inv, ← zpow_neg, neg_add, ← neg_mul,
@@ -96,7 +97,6 @@ lemma tile_reach (ha : 4 ≤ a) {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist
             ← zpow_zero (2 : ℝ)]
           rw [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow]
           gcongr --uses h12
-          have : (2 : ℝ)^a = 2^(a : ℤ) := by rw [@zpow_natCast]
           ring_nf
           nlinarith only
       _ = (4 * 2 ^ (2 - 5 * (a : ℤ)  ^ 2 - 2 * ↑a)) * (D * D ^ 𝔰 p) := by ring
@@ -164,7 +164,7 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
                 rw [← hd]
                 gcongr
                 · norm_cast
-                · refine le_iSup₂_of_le p (mem_lowerClosure.mpr ⟨p, hp, le_refl _⟩) fun r hr ↦ ?_
+                · refine le_iSup₂_of_le p (mem_lowerCubes.mpr ⟨p, hp, le_refl _⟩) fun r hr ↦ ?_
                   have h2r : (volume (E₂ 2 p) / volume (L : Set X)) ≤ (r : WithTop ℝ≥0)  := by
                     rw [← hr]
                     refine le_iSup_of_le (le_refl _) ?_
@@ -264,7 +264,7 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
 -- We prove inclusion 6.3.25 for every `p ∈ (𝔄_aux 𝔄 ϑ N)` with `𝔰 p' < 𝔰 p` such that
 -- `(𝓘 p : Set X) ∩ (𝓘 p') ≠ ∅`.
 -- p' is 𝔭_ϑ in the blueprint
-lemma Ep_inter_G_inter_Ip'_subset_E2 (ha : 4 ≤ a) {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : ℕ)
+lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : ℕ)
     {p p' : 𝔓 X} (hpin : p ∈ (𝔄_aux 𝔄 ϑ N)) (hp' : ϑ ∈ Ω p') (hs : 𝔰 p' < 𝔰 p)
     (h𝓘 : ((𝓘 p' : Set X) ∩ (𝓘 p)).Nonempty) :
     E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
@@ -285,7 +285,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 (ha : 4 ≤ a) {𝔄 : Finset (𝔓 X)} (ϑ
     exact lt_of_lt_of_le (lt_one_add (dist_(p) (𝒬 p) ϑ)) hpin.2.2
   -- 6.3.24
   have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
-    tile_reach ha (le_of_lt hϑin') (le_of_lt hϑin) hle hs
+    tile_reach (le_of_lt hϑin') (le_of_lt hϑin) hle hs
   -- NOTE: TileLike.toSet is not a mono.
   -- 6.3.25
   have hss : E p ∩ G ∩ ↑(𝓘 p') ⊆ E₂ (2^(N + 3)) p' := by
@@ -303,7 +303,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 (ha : 4 ≤ a) {𝔄 : Finset (𝔓 X)} (ϑ
 
 -- Lemma 6.3.3
 -- p' is 𝔭_ϑ in the blueprint
-lemma local_antichain_density (ha : 4 ≤ a) {𝔄 : Finset (𝔓 X)}
+lemma local_antichain_density {𝔄 : Finset (𝔓 X)}
     (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ϑ : Θ X) (N : ℕ) {p' : 𝔓 X} (hp' : ϑ ∈ Ω p') :
     ∑ (p ∈ {p ∈ (𝔄_aux 𝔄 ϑ N) | 𝔰 p' < 𝔰 p}), volume (E p ∩ G ∩ 𝓘 p') ≤
       volume (E₂ (2 ^ (N + 3)) p') := by
@@ -313,7 +313,7 @@ lemma local_antichain_density (ha : 4 ≤ a) {𝔄 : Finset (𝔓 X)}
     simp only [ Finset.mem_filter, iUnion_subset_iff, and_imp]
     intro p hp hs
     by_cases h𝓘 : ((𝓘 p' : Set X) ∩ ↑(𝓘 p)).Nonempty
-    · exact Ep_inter_G_inter_Ip'_subset_E2 ha ϑ N hp hp' hs h𝓘
+    · exact Ep_inter_G_inter_Ip'_subset_E2 ϑ N hp hp' hs h𝓘
     · rw [not_nonempty_iff_eq_empty] at h𝓘
       have hemp : (𝓘 p' : Set X) ∩ E p = ∅ :=
         eq_empty_of_subset_empty (h𝓘 ▸ inter_subset_inter_right _

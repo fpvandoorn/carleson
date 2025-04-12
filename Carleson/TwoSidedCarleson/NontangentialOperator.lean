@@ -115,8 +115,7 @@ irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 1)
 
 /-- Lemma 10.1.2 -/
 theorem estimate_x_shift (ha : 4 ≤ a)
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞)
-    (hr : 0 < r) (hx : dist x x' ≤ r) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     nndist (czOperator K r g x) (czOperator K r g x') ≤
     C10_1_2 a * globalMaximalFunction volume 1 g x := by
   sorry
@@ -126,8 +125,7 @@ irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
 
 /-- Lemma 10.1.3 -/
 theorem cotlar_control (ha : 4 ≤ a)
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞)
-    (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
     ‖czOperator K R g x‖ₑ ≤ ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ +
     C10_1_3 a * globalMaximalFunction volume 1 g x := by
   sorry
@@ -138,7 +136,7 @@ irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 /-- Part 1 of Lemma 10.1.4 about `F₁`. -/
 theorem cotlar_set_F₁ (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     volume {x' ∈ ball x (R / 4) |
       4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
@@ -147,7 +145,7 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a)
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
 theorem cotlar_set_F₂ (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     volume {x' ∈ ball x (R / 4) |
       C10_1_4 a * globalMaximalFunction volume 1 g x <
       ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ } ≤
@@ -160,8 +158,7 @@ irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 /-- Lemma 10.1.5 -/
 theorem cotlar_estimate (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞)
-    (hr : r ∈ Ioc 0 R) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R) :
     ‖czOperator K R g x‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x +
       C10_1_5 a * globalMaximalFunction volume 1 g x := by
   sorry
@@ -173,8 +170,7 @@ irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)
 See also `simple_nontangential_operator_le` -/
 theorem simple_nontangential_operator (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞)
-    (hr : 0 < r) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) :
     HasStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
@@ -182,30 +178,27 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
 theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞)
-    (hr : 0 ≤ r) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 ≤ r) :
     HasStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
 /-- Part of Lemma 10.1.7, reformulated. -/
 theorem small_annulus_right (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (h2f : volume (support f) < ∞)
-    {R₁ : ℝ} :
+    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₁ : ℝ} :
     Continuous (fun R₂ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
   sorry
 
 /-- Part of Lemma 10.1.7, reformulated -/
 theorem small_annulus_left (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (h2f : volume (support f) < ∞)
-    {R₂ : ℝ} :
+    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₂ : ℝ} :
     Continuous (fun R₁ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
   sorry
 
 /-- Lemma 10.1.8. -/
 theorem nontangential_operator_boundary (ha : 4 ≤ a)
-    {f : X → ℂ} (hmf : Measurable f) (hf : eLpNorm f ∞ < ∞) (h2f : volume (support f) < ∞) :
+    {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
     ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
@@ -217,9 +210,9 @@ irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
 /-- Lemma 10.0.2. The formal statement includes the measurability of the operator. -/
 theorem nontangential_from_simple (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hmg : Measurable g) (hg : eLpNorm g ∞ < ∞) (h2g : volume (support g) < ∞) :
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     HasStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
-  have := simple_nontangential_operator_le ha hT hmg hg h2g le_rfl
+  have := simple_nontangential_operator_le ha hT hg le_rfl
   sorry
 
 

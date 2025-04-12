@@ -103,7 +103,9 @@ theorem measureReal_eq_zero_iff (h : μ s ≠ ∞ := by finiteness) :
   rw [Measure.real, ENNReal.toReal_eq_zero_iff]
   exact or_iff_left h
 
-@[simp] theorem measureReal_zero (s : Set α) : (0 : Measure α).real s = 0 := rfl
+@[simp] theorem measureReal_zero : (0 : Measure α).real = 0 := rfl
+
+theorem measureReal_zero_apply (s : Set α) : (0 : Measure α).real s = 0 := rfl
 
 @[simp] theorem measureReal_nonneg : 0 ≤ μ.real s := ENNReal.toReal_nonneg
 
@@ -153,7 +155,7 @@ theorem measureReal_le_measureReal_union_right (h : μ s ≠ ∞ := by finitenes
 
 theorem measureReal_union_le (s₁ s₂ : Set α) : μ.real (s₁ ∪ s₂) ≤ μ.real s₁ + μ.real s₂ := by
   rcases eq_top_or_lt_top (μ (s₁ ∪ s₂)) with h|h
-  · simp only [Measure.real, h, ENNReal.top_toReal]
+  · simp only [Measure.real, h, ENNReal.toReal_top]
     exact add_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
   · have A : μ s₁ ≠ ∞ := measure_ne_top_of_subset subset_union_left h.ne
     have B : μ s₂ ≠ ∞ := measure_ne_top_of_subset subset_union_right h.ne
@@ -279,7 +281,7 @@ lemma measureReal_symmDiff_le (s t u : Set α)
     (h₁ : μ s ≠ ∞ := by finiteness) (h₂ : μ t ≠ ∞ := by finiteness) :
     μ.real (s ∆ u) ≤ μ.real (s ∆ t) + μ.real (t ∆ u) := by
   rcases eq_top_or_lt_top (μ u) with hu|hu
-  · simp only [measureReal_def, measure_symmDiff_eq_top h₁ hu, ENNReal.top_toReal]
+  · simp only [measureReal_def, measure_symmDiff_eq_top h₁ hu, ENNReal.toReal_top]
     exact add_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg
   · exact le_trans (measureReal_mono (symmDiff_triangle s t u) (measure_union_ne_top
       (measure_symmDiff_ne_top h₁ h₂) (measure_symmDiff_ne_top h₂ hu.ne)))
@@ -452,7 +454,6 @@ theorem measureReal_prod_prod [MeasurableSpace β] {μ : Measure α} {ν : Measu
   simp only [measureReal_def, prod_prod, ENNReal.toReal_mul]
 
 theorem ext_iff_measureReal_singleton {S} [Fintype S] [MeasurableSpace S]
-    [MeasurableSingletonClass S]
     {μ1 μ2 : Measure S} [IsFiniteMeasure μ1] [IsFiniteMeasure μ2] :
     μ1 = μ2 ↔ ∀ x, μ1.real {x} = μ2.real {x} := by
   rw [Measure.ext_iff_singleton]

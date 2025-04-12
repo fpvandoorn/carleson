@@ -20,19 +20,18 @@ variable (X) in
 theorem discrete_carleson :
     ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
-    ∫⁻ x in G \ G', ‖carlesonSum univ f x‖₊ ≤
+    ∫⁻ x in G \ G', ‖carlesonSum univ f x‖ₑ ≤
     C2_0_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by
   have exc := exceptional_set (X := X)
   rw [zpow_neg_one, ← ENNReal.div_eq_inv_mul] at exc
   use G', measurable_G', ENNReal.mul_le_of_le_div' exc; intro f measf hf
   calc
-    _ ≤ ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ + ‖carlesonSum 𝔓₁ᶜ f x‖₊ := by
+    _ ≤ ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖ₑ + ‖carlesonSum 𝔓₁ᶜ f x‖ₑ := by
       refine setLIntegral_mono (by fun_prop) fun x _ ↦ ?_
-      norm_cast
       rw [carlesonSum, ← Finset.sum_filter_add_sum_filter_not _ (· ∈ 𝔓₁ (X := X))]
       simp_rw [Finset.filter_filter, mem_univ, true_and, carlesonSum, mem_compl_iff]
-      exact nnnorm_add_le ..
-    _ = (∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊) + ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖₊ :=
+      apply enorm_add_le
+    _ = (∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖ₑ) + ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ᶜ f x‖ₑ :=
       lintegral_add_left (by fun_prop) _
     _ ≤ C5_1_2 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ +
         C5_1_3 a nnq * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ :=

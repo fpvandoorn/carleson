@@ -184,7 +184,7 @@ lemma thin_scale_impact_key (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁
       simp_rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, ← Real.rpow_natCast 2]
       push_cast; gcongr
       · exact one_le_two
-      · exact (Nat.ceil_lt_add_one_of_nonneg nonneg_C7_6_3_add_two).le
+      · exact (Nat.ceil_lt_add_one nonneg_C7_6_3_add_two).le
 
 /-- Lemma 7.6.3. -/
 lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
@@ -229,7 +229,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     ⨍⁻ x in J, (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
     ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
     (ball (c I) (8 * D ^ s I)).indicator 1 x) ^ 2 ∂volume ≤ C7_6_4 a s' := by
-  cases' lt_or_ge (↑S + s J) s' with hs' hs'
+  rcases lt_or_ge (↑S + s J) s' with hs' | hs'
   · suffices ({I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
         ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
       rw [this]
@@ -283,7 +283,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]
       refine Finset.sum_le_sum fun I hI ↦ ?_
       simp only [mem_toFinset] at hI
-      apply le_trans _ (measure_ball_le_pow_two (μ := volume) (x := c I) (r := D ^ s I / 4))
+      apply le_trans _ (measure_real_ball_two_le_same_iterate (μ := volume) (c I) (D ^ s I / 4) 7)
       refine measureReal_mono ?_ (by finiteness)
       apply ball_subset_ball'
       refine (add_le_add le_rfl hI.1.le).trans ?_
@@ -349,7 +349,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
   gcongr
   rw [Real.toNNReal_mul (by positivity), Real.toNNReal_rpow_of_nonneg (by positivity),
     Real.toNNReal_mul (by positivity), ← Real.rpow_intCast,
-    Real.toNNReal_rpow_of_nonneg (by positivity), NNReal.toNNReal_coe_nat]
+    Real.toNNReal_rpow_of_nonneg (by positivity), Real.toNNReal_coe_nat]
   simp only [Nat.cast_pow, Nat.cast_ofNat, Real.toNNReal_ofNat, Int.cast_neg, ← pow_mul]
   rw [← mul_assoc, ← pow_succ, C7_6_4, ← NNReal.rpow_natCast, ← NNReal.rpow_intCast, Int.cast_neg]
   congr!

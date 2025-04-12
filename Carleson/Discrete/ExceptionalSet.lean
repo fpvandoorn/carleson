@@ -287,10 +287,10 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
         simp_rw [stackSize, Q₁, mem_setOf_eq]
         congr
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
-        rw [toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
+        rw [Real.toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =
           (((∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℕ) x) : ℕ) : ℝ).toNNReal := by
-        rw [toNNReal_coe_nat, ENNReal.coe_natCast, Nat.cast_sum]; congr!; simp [indicator]
+        rw [Real.toNNReal_coe_nat, ENNReal.coe_natCast, Nat.cast_sum]; congr!; simp [indicator]
       rw [lcast, rcast, ENNReal.coe_le_coe]
       exact Real.toNNReal_le_toNNReal (Nat.cast_le.mpr this)
     _ ≤ ∫⁻ x, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := setLIntegral_le_lintegral _ _
@@ -841,7 +841,7 @@ lemma third_exception_aux :
       refine lintegral_mono fun x ↦ ?_
       simp_rw [← ENNReal.coe_natCast, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
         ← ENNReal.coe_zpow two_ne_zero, ← ENNReal.coe_mul, ENNReal.coe_le_coe,
-        ← toNNReal_coe_nat]
+        ← Real.toNNReal_coe_nat]
       have c2 : (2 : ℝ≥0) ^ (9 * a - j : ℤ) = ((2 : ℝ) ^ (9 * a - j : ℤ)).toNNReal := by
         refine ((fun h ↦ (Real.toNNReal_eq_iff_eq_coe h).mpr) ?_ rfl).symm
         positivity

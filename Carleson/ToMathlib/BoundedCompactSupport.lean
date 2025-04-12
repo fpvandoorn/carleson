@@ -89,7 +89,7 @@ protected theorem zero : BoundedCompactSupport (fun (_ : X) ↦ (0 : 𝕜)) wher
   hasCompactSupport := HasCompactSupport.zero
 
 theorem indicator_of_isBounded_range {X : Type*} [MetricSpace X] [ProperSpace X]
-    [MeasurableSpace X] [BorelSpace X] {f : X → 𝕜} (hf : IsBounded (range f))
+    [MeasurableSpace X] {f : X → 𝕜} (hf : IsBounded (range f))
     (h'f : StronglyMeasurable f) {s : Set X} (h's : IsBounded s) (hs : MeasurableSet s) :
     BoundedCompactSupport (s.indicator f) where
   stronglyMeasurable := h'f.indicator hs
@@ -105,6 +105,14 @@ theorem indicator_of_isBounded_range {X : Type*} [MetricSpace X] [ProperSpace X]
     apply HasCompactSupport.intro (K := closure s)
     · exact Metric.isCompact_of_isClosed_isBounded isClosed_closure h's.closure
     · exact fun x hx ↦ by simp [not_mem_of_not_mem_closure hx]
+
+protected theorem indicator {X : Type*} [MetricSpace X] [ProperSpace X]
+    [MeasurableSpace X] [BorelSpace X] {f : X → 𝕜} (hf : BoundedCompactSupport f) {s : Set X}
+    (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) := by
+  rw [← Set.indicator_eq_self.mpr (subset_tsupport f), Set.indicator_indicator]
+  apply indicator_of_isBounded_range hf.isBounded hf.stronglyMeasurable
+  · exact hf.hasCompactSupport.isBounded.subset inter_subset_right
+  · exact hs.inter (isClosed_tsupport f).measurableSet
 
 variable {f : X → 𝕜} {g : X → 𝕜} (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
 section Includehf
@@ -251,8 +259,8 @@ end Sum
 section Prod
 
 variable {Y: Type*} [MeasureSpace Y] {g : Y → 𝕜}
-variable [TopologicalSpace Y] [IsFiniteMeasureOnCompacts (volume : Measure Y)]
-variable [SigmaFinite (volume : Measure Y)] [R1Space (X × Y)]
+variable [TopologicalSpace Y]
+variable [R1Space (X × Y)]
 
 /-- An elementary tensor of bounded compactly supported functions is
   bounded compactly supported. -/
@@ -296,7 +304,7 @@ namespace BoundedCompactSupport
 section Metric
 
 variable {X Y 𝕜: Type*} [RCLike 𝕜]
-variable [MeasureSpace X] {f : X → 𝕜} [PseudoMetricSpace X] [SigmaFinite (volume : Measure X)]
+variable [MeasureSpace X] {f : X → 𝕜} [PseudoMetricSpace X]
 variable [MeasureSpace Y] {g : Y → 𝕜} [PseudoMetricSpace Y] [SigmaFinite (volume : Measure Y)]
 
 variable (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
