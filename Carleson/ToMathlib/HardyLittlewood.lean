@@ -475,19 +475,17 @@ theorem hasStrongType_maximalFunction_todo
   have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := Ne.symm (ne_of_lt hp₂pos)
   have hp₂inv_pos : (ofNNReal p₂).toReal⁻¹ > 0 := inv_pos_of_pos hp₂pos
   obtain ⟨g, hg⟩ := h𝓑
-  let new𝓑' (k : ℕ) := g ⁻¹' {x : ℕ | x ≤ k}
-  have new𝓑'_fin : ∀ k : ℕ, Set.Finite (new𝓑' k) := by
+  let 𝓑' (k : ℕ) := Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
+  have h𝓑' : ∀ k : ℕ, Set.Finite (𝓑' k) := by
     intro k
+    refine Finite.image Subtype.val ?_
     apply Set.Finite.preimage
     · apply Function.Injective.injOn hg
     · exact finite_le_nat k
-  let 𝓑' (k : ℕ) := Subtype.val '' (new𝓑' k)
-  have h𝓑' : ∀ k : ℕ, Set.Finite (𝓑' k) := by
-    exact fun k ↦ Finite.image Subtype.val (new𝓑'_fin k)
-  let 𝓑_fin (k : ℕ) := Set.Finite.toFinset (h𝓑' k)
-  have hμ : ∀ x : X, ∀ ρ ∈ Ioi 0, 0 < μ (ball x ρ) := by
-    intro x ρ hρ
-    exact measure_ball_pos μ x hρ
+  -- This and the next have-statements are there so that one can deal with the fact that
+  -- `hasStrongType_maximalFunction` contains the |>.toReal applied to the maximal function
+  -- If that is gone, the have-statements can likely be removed. I have included this
+  -- because it may be useful.
   have av_ball_lt_sup : ∀ x z : X, ∀ ρ : ℝ,
       (ball z ρ).indicator
       (fun x ↦ ⨍⁻ (y : X) in ball z ρ, ↑‖v y‖₊ ^ p₁.toReal ∂μ) x < ⊤ := by
@@ -558,8 +556,7 @@ theorem hasStrongType_maximalFunction_todo
                   · exact coe_ne_top
                 _ < ⊤ := by
                   refine (rpow_lt_top_iff_of_pos ?_).mpr ?_
-                  · refine one_div_pos.mpr ?_
-                    exact Trans.trans Real.zero_lt_one p_gt_1
+                  · exact one_div_pos.mpr (Trans.trans Real.zero_lt_one p_gt_1)
                   · calc
                     _ ≤ ∫⁻ (x : X), ‖v x‖ₑ ^ (ofNNReal p₂).toReal ∂μ := by
                       apply setLIntegral_le_lintegral
@@ -616,10 +613,7 @@ theorem hasStrongType_maximalFunction_todo
           apply av_ball_lt_sup
   let f (k : ℕ) := fun x ↦ maximalFunction μ (𝓑' k) c r (↑p₁) v x
   have f_mon : Monotone f := by
-    unfold Monotone
     intro a b hab x
-    unfold f
-    unfold maximalFunction
     apply rpow_le_rpow _ (by positivity)
     apply iSup₂_le
     intro i Hi
@@ -649,9 +643,8 @@ theorem hasStrongType_maximalFunction_todo
     let k₀ := g ⟨i, Hi⟩
     have k₀large : i ∈ 𝓑' k₀ := by
       unfold 𝓑'
-      unfold new𝓑'
       simp only [preimage_setOf_eq, mem_image, mem_setOf_eq, Subtype.exists, exists_and_right,
-        exists_eq_right]
+          exists_eq_right]
       use Hi
     calc
     (ball (c i) (r i)).indicator
