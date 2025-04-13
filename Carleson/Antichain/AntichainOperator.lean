@@ -344,6 +344,12 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
     exact not_le.mpr (lt_trans (by norm_cast)
       (ENNReal.mul_lt_mul_left' three_ne_zero ofNat_ne_top one_lt_nnq'_coe))
 
+-- TODO: add to Normed.Group.Basic
+lemma enorm_two : ‖(2 : ℝ)‖ₑ = 2 := by simp [enorm]
+
+-- TODO: add to Data.Complex.Norm
+@[simp, norm_cast]
+lemma Complex.enorm_real (r : ℝ) : ‖(r : ℂ)‖ₑ = ‖r‖ₑ := by simp [enorm]
 
 -- lemma 6.1.3, inequality 6.1.10
 lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ha : 4 ≤ a)
