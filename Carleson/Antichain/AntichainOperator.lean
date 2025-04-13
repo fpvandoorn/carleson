@@ -419,7 +419,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
         rw [pow_add, mul_div_assoc (2 ^ (2 * a)), mul_div_assoc (2 ^ (2 * a))]
         exact mul_le_mul_left' h_div_le_div _
 
-  calc ↑‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖₊
+  calc ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ
     _ ≤ (eLpNorm (∑ (p ∈ 𝔄), carlesonOn p f) 2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.18. Use Cauchy-Schwarz
       rw [mul_comm]
@@ -428,9 +428,9 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
           2 volume) * (eLpNorm g 2 volume) := by
       -- 6.1.19. Use Lemma 6.1.2.
       gcongr
-      have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
-        simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
-      rw [h2, ← enorm_eq_nnnorm, ← eLpNorm_const_smul]
+      have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖ₑ := by
+        simp only [enorm_pow, enorm_two, ENNReal.coe_pow, coe_ofNat]
+      rw [h2, ← eLpNorm_const_smul]
       apply eLpNorm_mono_nnnorm
       intro z
       have MB_top : MB volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) f z ≠ ⊤ := by
@@ -440,9 +440,8 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
         sorry
       rw [← ENNReal.coe_le_coe, Finset.sum_apply]
       convert (MaximalBoundAntichain h𝔄 hfm z)
-      · simp only [Pi.smul_apply, real_smul, nnnorm_mul, nnnorm_eq, nnnorm_mul,
-         nnnorm_real, nnnorm_pow, nnnorm_two,
-        nnnorm_eq, coe_mul, C_6_1_2, ENNReal.coe_toNNReal MB_top]
+      · simp_rw [Pi.smul_apply, real_smul, ← enorm_eq_nnnorm, enorm_mul, enorm_real, enorm_pow,
+          enorm_two, enorm_eq, ENNReal.coe_toNNReal MB_top]
         norm_cast
     _ ≤ 2 ^ (107*a^3 + 2*a + 2) * (nnq' - 1)⁻¹ * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
