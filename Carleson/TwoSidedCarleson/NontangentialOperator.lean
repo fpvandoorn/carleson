@@ -157,7 +157,12 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     fun_prop
 
   have tmp_Kxg {M : ℝ≥0} : ∀ y, ¬‖Kxg y‖ ≤ M → y ∈ support Kxg := by
-    sorry
+    intro y
+    contrapose!
+    rw [nmem_support]
+    intro hy
+    rw [hy, norm_zero]
+    simp only [NNReal.zero_le_coe]
 
   have bdd_Kxg : ∃ (M : ℝ), ∀ᵐ y ∂(volume.restrict ((ball x r)ᶜ ∩ support Kxg)), ‖Kxg y‖ ≤ M := by
     use (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
@@ -170,6 +175,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
           apply setOf_subset.mpr
           apply tmp_Kxg
 
+      rw [setOf_inter_eq_sep]
       sorry
     . apply NullMeasurableSet.inter --somehow not used by simp despite the tag
       . simp [measurableSet_ball] --should measurableSet_ball have @[simp]?
