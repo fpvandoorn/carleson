@@ -485,8 +485,6 @@ theorem hasStrongType_maximalFunction_todo
   have h𝓑' : ∀ k : ℕ, Set.Finite (𝓑' k) := by
     exact fun k ↦ Finite.image Subtype.val (new𝓑'_fin k)
   let 𝓑_fin (k : ℕ) := Set.Finite.toFinset (h𝓑' k)
-  -- have _ : ∀ f : ι → ENNReal, ∀ k : ℕ, ∃ B ∈ 𝓑' k, ∀ i ∈ 𝓑' k, f i ≤ f B := by
-  --  apply Finset.exists_max_image
   have hμ : ∀ x : X, ∀ ρ ∈ Ioi 0, 0 < μ (ball x ρ) := by
     intro x ρ hρ
     exact measure_ball_pos μ x hρ
@@ -506,7 +504,75 @@ theorem hasStrongType_maximalFunction_todo
             exact μzero
           rw [int_zero]; simp
         · refine div_lt_top ?_ ?_
-          · sorry
+          · apply ne_of_lt
+            let p := (ofNNReal p₂).toReal / (ofNNReal p₁).toReal
+            let q := Real.conjExponent p
+            have p_gt_1 : p > 1 := by
+              refine (one_lt_div ?_).mpr hp₁₂
+              refine toReal_pos ?_ ?_
+              · exact ne_of_gt <| coe_pos.mpr (Trans.trans (zero_lt_one' ℝ≥0) hp₁)
+              · exact coe_ne_top
+            let f : X → ℝ≥0∞ := fun a ↦ ‖v a‖ₑ ^ (ofNNReal p₁).toReal
+            let g : X → ℝ≥0∞ := fun a ↦ 1
+            calc
+            ∫⁻ (x : X) in ball z ρ, ↑‖v x‖₊ ^ (ofNNReal p₁).toReal ∂μ
+              = ∫⁻ (x : X) in ball z ρ,
+                ↑‖v x‖₊ ^ (ofNNReal p₁).toReal * 1 ∂μ := by
+              simp_rw [mul_one]
+            _ = ∫⁻ (x : X) in ball z ρ,
+                (f * g) x ∂μ := by
+                rfl
+            _ ≤ (∫⁻ (x : X) in ball z ρ, f x ^ p ∂μ) ^ (1 / p)
+                * (∫⁻ (x : X) in ball z ρ, g x ^ q ∂μ) ^ (1 / q) := by
+              apply lintegral_mul_le_Lp_mul_Lq
+              · exact Real.HolderConjugate.conjExponent p_gt_1
+              · apply AEMeasurable.restrict
+                apply AEMeasurable.pow_const
+                apply AEStronglyMeasurable.enorm
+                exact MeasureTheory.MemLp.aestronglyMeasurable mlpv
+              · exact id (AEMeasurable.restrict aemeasurable_const)
+            _ = (∫⁻ (x : X) in ball z ρ, f x ^ p ∂μ) ^ (1 / p)
+                * (∫⁻ (x : X) in ball z ρ, 1 ∂μ) ^ (1 / q) := by
+              congr
+              ext x
+              unfold g
+              exact one_rpow q
+            _ = (∫⁻ (x : X) in ball z ρ, f x ^ p ∂μ) ^ (1 / p)
+                * (μ (ball z ρ)) ^ (1 / q) := by
+              congr
+              exact setLIntegral_one (ball z ρ)
+            _ < _ := by
+              refine mul_lt_top ?_ ?_
+              · calc
+                _ = (∫⁻ (x : X) in ball z ρ, ‖v x‖ₑ ^ (ofNNReal p₂).toReal ∂μ) ^ (1 / p) := by
+                  congr
+                  ext x
+                  unfold f
+                  rw [← ENNReal.rpow_mul]
+                  congr
+                  unfold p
+                  rw [← toReal_div, ← toReal_mul]
+                  congr
+                  rw [← @ENNReal.mul_comm_div, ENNReal.div_self, one_mul]
+                  · exact ne_of_gt <| coe_pos.mpr (Trans.trans (zero_lt_one' ℝ≥0) hp₁)
+                  · exact coe_ne_top
+                _ < ⊤ := by
+                  refine (rpow_lt_top_iff_of_pos ?_).mpr ?_
+                  · refine one_div_pos.mpr ?_
+                    exact Trans.trans Real.zero_lt_one p_gt_1
+                  · calc
+                    _ ≤ ∫⁻ (x : X), ‖v x‖ₑ ^ (ofNNReal p₂).toReal ∂μ := by
+                      apply setLIntegral_le_lintegral
+                    _ < ⊤ := by
+                      refine (eLpNorm_lt_top_iff_lintegral_rpow_enorm_lt_top ?_ ?_).mp ?_
+                      · apply ne_of_gt (coe_pos.mpr hp₂pos)
+                      · exact coe_ne_top
+                      · exact mlpv.2
+              · refine (rpow_lt_top_iff_of_pos ?_).mpr ?_
+                · have : q.HolderConjugate p := by
+                    refine Real.HolderConjugate.symm (Real.HolderConjugate.conjExponent p_gt_1)
+                  apply Real.HolderTriple.one_div_pos this
+                · exact measure_ball_lt_top
           · exact Ne.symm (ne_of_lt μpos)
   have hmf_lt_top : ∀ k : ℕ, ∀ x : X, maximalFunction μ (𝓑' k) c r (↑p₁) v x < ⊤ := by
     intro k x
