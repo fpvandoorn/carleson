@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Integral.Lebesgue
+import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 
 open ENNReal
 

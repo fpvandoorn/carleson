@@ -1227,14 +1227,13 @@ lemma lintegral_add_right_Ioi (f : ℝ → ENNReal) {a b : ℝ} :
 
 lemma lintegral_scale_constant (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0):
     ∫⁻ x : ℝ, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x, f x := by
-  rw [← @lintegral_smul_measure, MeasurePreserving.lintegral_comp_emb]
+  rw [← smul_eq_mul, ← @lintegral_smul_measure, MeasurePreserving.lintegral_comp_emb]
   · exact measure_preserving_scaling h
   · exact measurableEmbedding_mulLeft₀ h
 
-lemma lintegral_scale_constant_preimage (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0)
-    {s : Set ℝ}:
+lemma lintegral_scale_constant_preimage (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0) {s : Set ℝ} :
     ∫⁻ x : ℝ in (fun z : ℝ ↦ a * z)⁻¹' s, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in s, f x := by
-  rw [← lintegral_smul_measure,
+  rw [← smul_eq_mul, ← lintegral_smul_measure,
     (measure_preserving_scaling h).setLIntegral_comp_preimage_emb (measurableEmbedding_mulLeft₀ h),
     Measure.restrict_smul]
 
@@ -3467,7 +3466,6 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
   set_mem := fun _ ↦ trivial
   finite := by
     intro n
-    dsimp only [Pi.sub_apply]
     split_ifs
     · rw [Measure.restrict_apply₀']
       · rw [measure_mono_null _ measure_empty]

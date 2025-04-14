@@ -502,7 +502,7 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
   calc
     _ ≤ (μ (ball z r))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖ₑ ∂μ := by
       simp only [laverage, MeasurableSet.univ, Measure.restrict_apply, univ_inter,
-        lintegral_smul_measure]
+        lintegral_smul_measure, smul_eq_mul]
       gcongr
       exact lintegral_mono_set h_subset
     _ ≤ A ^ 2 * (μ (ball c (2 ^ m)))⁻¹ * ∫⁻ y in ball c (2 ^ m), ‖u y‖ₑ ∂μ := by

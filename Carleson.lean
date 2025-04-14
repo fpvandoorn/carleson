@@ -46,7 +46,6 @@ import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureReal
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
