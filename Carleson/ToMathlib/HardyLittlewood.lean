@@ -530,7 +530,7 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
   · simp
   exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
 
-theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
+theorem hasWeakType_globalMaximalFunction [ENormedSpace E] [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
     HasWeakType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (A ^ 4) := by
@@ -543,7 +543,7 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
       trans p₁
       exacts [hp₁, hp₁₂]
     positivity
-  convert HasWeakType.const_mul (c := A ^ 2) (e := (A : ℝ) ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
+  apply HasWeakType.const_mul (c := A ^ 2) (e := A ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
     (ε := E) this _
   · simp; ring
   exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
