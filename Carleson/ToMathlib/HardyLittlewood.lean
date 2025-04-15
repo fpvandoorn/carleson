@@ -277,13 +277,11 @@ theorem MB_le_eLpNormEssSup {u : X → E} {x : X} : MB μ 𝓑 c r u x ≤ eLpNo
       simp_rw [iSup_le_iff, le_refl, implies_true]
 
 protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) ⊤ ⊤ μ μ 1 := by
+    HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) ⊤ ⊤ μ μ 1 := by
   intro f _
-  use AEStronglyMeasurable.maximalFunction_toReal h𝓑
+  use AEStronglyMeasurable.maximalFunction h𝓑
   simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
-  refine essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ ?_)
-  simp_rw [enorm_eq_nnnorm, ENNReal.nnorm_toReal]
-  exact ENNReal.coe_toNNReal_le_self |>.trans MB_le_eLpNormEssSup
+  exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ MB_le_eLpNormEssSup)
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
 protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
@@ -398,7 +396,7 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑)
-    _ (HasStrongType.MB_top h𝓑 |>.hasWeakType le_top)
+    _ (HasStrongType.MB_top h𝓑 |>.toReal.hasWeakType le_top)
     (HasWeakType.MB_one_toReal h𝓑 hR)
   exact ((AESublinearOn.maximalFunction h𝓑 hR).toReal <| MB_ae_ne_top' h𝓑 hR).1
 
@@ -415,8 +413,10 @@ irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) 
 theorem hasStrongType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x |>.toReal)
-      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
+    HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
+      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
+  rw [← hasStrongType_toReal_iff sorry /- cleanup (task 117) -/]
+  intro v mlpv
   dsimp only
   constructor; · exact AEStronglyMeasurable.maximalFunction_toReal h𝓑
   have cp₁p : 0 < (p₁ : ℝ) := by positivity
@@ -526,19 +526,20 @@ Easy from `hasStrongType_maximalFunction`. Ideally prove separately
 `HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
-    HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
+    HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
+  rw [← hasStrongType_toReal_iff sorry /- todo: cleanup (task 117). -/]
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul, C2_0_6']
   convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
   · simp
-  rw [hasStrongType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
-  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
+  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
 
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
-    HasWeakType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x |>.toReal)
+    HasWeakType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (A ^ 4) := by
+  rw [← hasWeakType_toReal_iff sorry /- todo: cleanup (task 117). -/]
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul]
   have : ofNNReal p₂ ≠ 0 := by -- surely, there is a simpler proof
@@ -547,12 +548,10 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
       trans p₁
       exacts [hp₁, hp₁₂]
     positivity
-  convert HasWeakType.const_mul (c := A ^ 2) (e := A ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂) (ε := E) this _ _
-  repeat sorry
-  -- TODO: this proof used to work (now, some metavariables cannot be inferred), was
-  -- · simp; ring
-  -- rw [hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from this statement. -/]
-  -- exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
+  convert HasWeakType.const_mul (c := A ^ 2) (e := (A : ℝ) ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
+    (ε := E) this _
+  · simp; ring
+  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
 
 /-- Use `lowerSemiContinuous_MB` -/
 lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :

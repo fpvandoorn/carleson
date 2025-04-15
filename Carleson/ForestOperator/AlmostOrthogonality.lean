@@ -307,8 +307,9 @@ irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
 /-- Lemma 7.4.3. -/
 lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f)
     (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
-    eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume ≤
+    eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤
     C7_4_3 a * eLpNorm f 2 volume := by
+  rw [← eLpNorm_toReal_eq sorry] -- todo: fix this proof (task 117)
   calc _ ≤ eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume := by rfl
   _ ≤ eLpNorm
     ((‖adjointCarlesonSum (t u) f ·‖) + (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) + (‖f ·‖))
