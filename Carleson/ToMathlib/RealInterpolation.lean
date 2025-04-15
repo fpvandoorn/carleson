@@ -133,14 +133,14 @@ lemma one_le_interp_toReal (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : 1 ≤ p.toReal :=
   one_le_toReal (one_le_interp hp₀ hp₁ hp₀p₁ ht hp) (Ne.lt_top (interp_exp_ne_top hp₀p₁ ht hp))
 
-lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : q ≥ 0): ENNReal.ofReal a ^ q ≠ ⊤ :=
+lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : 0 ≤ q): ENNReal.ofReal a ^ q ≠ ⊤ :=
   rpow_ne_top_of_nonneg hq coe_ne_top
 
 -- Note this lemma can directly be applied to elements of `ℝ≥0` as well
 lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ :=
   coe_rpow_ne_top hq.le
 
-lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : a > 0) : ENNReal.ofReal a ^ q > 0 :=
+lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : 0 < a) : 0 < ENNReal.ofReal a ^ q :=
   ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
 
 lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) : a ^ q ≠ ⊤ := by
@@ -1604,7 +1604,7 @@ lemma truncCompl_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) :
   MemLp.sub hf (trunc_preserves_Lp hf)
 
 lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [BorelSpace E₁]
-    (hp : p ≠ ⊤) (hpq : q ∈ Ioo 0 p) (hf : AEMeasurable f μ) (ha : a > 0) :
+    (hp : p ≠ ⊤) (hpq : q ∈ Ioo 0 p) (hf : AEMeasurable f μ) (ha : 0 < a) :
     eLpNorm (truncCompl f a) q μ ^ q.toReal ≤
     ENNReal.ofReal (a ^ (q.toReal - p.toReal)) *
     eLpNorm f p μ ^ p.toReal := by
@@ -1612,7 +1612,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
   have q_ne_top: q ≠ ⊤ := hpq.2.ne_top
   have p_ne_zero : p ≠ 0 := (lt_trans hpq.1 hpq.2).ne'
   have q_ne_zero : q ≠ 0 := hpq.1.ne'
-  have q_toReal_pos : q.toReal > 0 := exp_toReal_pos hpq.1 q_ne_top
+  have q_toReal_pos : 0 < q.toReal := exp_toReal_pos hpq.1 q_ne_top
   split_ifs
   · contradiction
   · calc
@@ -1723,10 +1723,10 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q < p`. -/
 lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [BorelSpace E₁]
-    (hp : p ≠ ⊤) (hpq : q ∈ Ioo 0 p) (ha : a > 0) (hf : MemLp f p μ) :
+    (hp : p ≠ ⊤) (hpq : q ∈ Ioo 0 p) (ha : 0 < a) (hf : MemLp f p μ) :
     MemLp (trnc ⊥ f a) q μ := by
   refine ⟨aestronglyMeasurable_trnc hf.1, ?_⟩
-  have : q.toReal > 0 := toReal_pos hpq.left.ne' hpq.right.ne_top
+  have : 0 < q.toReal := toReal_pos hpq.left.ne' hpq.right.ne_top
   refine (rpow_lt_top_iff_of_pos this).mp ?_
   refine lt_of_le_of_lt
     (estimate_eLpNorm_truncCompl hp hpq hf.1.aemeasurable ha) ?_
@@ -2775,7 +2775,7 @@ variable [MeasurableSpace E₁] [BorelSpace E₁]
 lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α → E₁}
     (hp₀ : 0 < p₀) {q₀ : ℝ≥0∞} (hp : p ≠ ⊤) (hq₀ : 0 < q₀) (hq₀' : q₀ < ⊤)
     (hp₀p : p₀ < p) (hf : MemLp f p μ)
-    (h₀T : HasWeakType T p₀ q₀ μ ν C₀) {t : ℝ} (ht : t > 0) {a : ℝ} (ha : a > 0) :
+    (h₀T : HasWeakType T p₀ q₀ μ ν C₀) {t : ℝ} (ht : 0 < t) {a : ℝ} (ha : 0 < a) :
     distribution (T (truncCompl f a)) (ENNReal.ofReal t) ν ≤ C₀ ^ q₀.toReal *
         eLpNorm (truncCompl f a) p₀ μ ^ q₀.toReal * (ENNReal.ofReal (t ^ (-q₀.toReal))) := by
   apply weaktype_estimate hq₀ hq₀' ?_ h₀T ht
@@ -2785,7 +2785,7 @@ lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α
     (hp : 0 < p)
     (hq₁ : 0 < q₁) (hq₁' : q₁ < ⊤) (hp₁p : p < p₁)
     (hf : MemLp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ} (ht : t > 0) {a : ℝ} :
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ} (ht : 0 < t) {a : ℝ} :
     distribution (T (trunc f a)) (ENNReal.ofReal t) ν ≤ C₁ ^ q₁.toReal *
       eLpNorm (trunc f a) p₁ μ ^ q₁.toReal * ENNReal.ofReal (t ^ (-q₁.toReal)) :=
   weaktype_estimate hq₁ hq₁' (trunc_Lp_Lq_higher (p := p) ⟨hp, hp₁p⟩ hf) h₁T ht
@@ -2793,7 +2793,7 @@ lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α
 lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
     (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞} (hp : 0 < p)
     (hp₁ : p₁ = ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ} (ht : t > 0) (ha : a = t / C₁) :
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ} (ht : 0 < t) (ha : a = t / C₁) :
     distribution (T (trunc f a)) (ENNReal.ofReal t) ν = 0 := by
   rw [ha]
   have obs : MemLp (trunc f (t / C₁)) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf
@@ -2842,9 +2842,9 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
         mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
-    have d_pos : d > 0 := hdeq ▸ Real.rpow_pos_of_pos (toReal_zero ▸
+    have d_pos : 0 < d := hdeq ▸ Real.rpow_pos_of_pos (toReal_zero ▸
       toReal_strict_mono term_ne_top term_pos) _
-    have a_pos : a > 0 := by rw [ha]; positivity
+    have a_pos : 0 < a := by rw [ha]; positivity
     have obs : MemLp (truncCompl f a) p₀ μ := truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ a_pos hf
     have wt_est := (h₀T (truncCompl f a) obs).2
     unfold wnorm at wt_est
