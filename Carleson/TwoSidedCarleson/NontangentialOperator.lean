@@ -51,9 +51,8 @@ lemma hasSum_geometric_series {x : ℝ} (hx : 4 ≤ x) :
   have two_pow_neg_inv_lt_one {x : ℝ} (hx : 4 ≤ x) :
       (2 : ℝ≥0) ^ (-1 / x) < 1 := by
     apply Real.rpow_lt_one_of_one_lt_of_neg
-    · simp only [NNReal.coe_ofNat, Nat.one_lt_ofNat]
-    · rw [neg_div]
-      simp only [one_div, Left.neg_neg_iff, inv_pos]
+    · norm_num
+    · simp_rw [neg_div, Left.neg_neg_iff]
       positivity
 
   -- Bring it to the form of hasSum_geometric_of_lt_one
@@ -73,17 +72,9 @@ lemma hasSum_geometric_series {x : ℝ} (hx : 4 ≤ x) :
 /-- Lemma 10.1.1 -/
 theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
     tsum (fun (n : ℕ) ↦ (2 : ℝ≥0∞) ^ (-n / x)) ≤ 2 ^ x := by
-  rw [← ENNReal.coe_ofNat]
-  conv_lhs =>
-    arg 1; intro n
-    rw [← ENNReal.coe_rpow_of_ne_zero]
-    case h.h => apply OfNat.ofNat_ne_zero
-  rw [← ENNReal.coe_tsum, ← ENNReal.coe_rpow_of_ne_zero, coe_le_coe]
-  case h => apply OfNat.ofNat_ne_zero
-  swap --Summable from coe_tsum first
-  . exact HasSum.summable (hasSum_geometric_series hx)
-
-  rw [HasSum.tsum_eq (hasSum_geometric_series hx)]
+  simp_rw [← ENNReal.coe_ofNat, ← ENNReal.coe_rpow_of_ne_zero two_ne_zero,
+    ← ENNReal.coe_tsum (hasSum_geometric_series hx).summable, coe_le_coe,
+    (hasSum_geometric_series hx).tsum_eq]
 
   -- TODO the rest of this proof can surely be optimized
   suffices (1 - (2 : ℝ) ^ (-1 / x))⁻¹ ≤ 2 ^ x by
@@ -249,7 +240,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
           apply ae_restrict_of_ae
           apply ae_le_eLpNormEssSup
       . simp [measurableSet_ball]
-    . apply NullMeasurableSet.inter --somehow not used by simp despite the tag
+    . apply NullMeasurableSet.inter
       . simp [measurableSet_ball] --should measurableSet_ball have @[simp]?
       . exact AEStronglyMeasurable.nullMeasurableSet_support mKxg.aestronglyMeasurable
 
@@ -297,10 +288,8 @@ variable {α : Type*} [MeasurableSpace α]
 variable {f : α → ℂ } {s t : Set α} {μ : Measure α}
 
 theorem MeasureTheory.setIntegral_union_2 (hst : Disjoint s t) (ht : MeasurableSet t) (hfst : IntegrableOn f (s ∪ t) μ) :
-    ∫ x in s ∪ t, f x ∂μ = ∫ x in s, f x ∂μ + ∫ x in t, f x ∂μ := by
-  let hfs : IntegrableOn f s μ := IntegrableOn.left_of_union hfst
-  let hft : IntegrableOn f t μ := IntegrableOn.right_of_union hfst
-  exact setIntegral_union hst ht hfs hft
+    ∫ x in s ∪ t, f x ∂μ = ∫ x in s, f x ∂μ + ∫ x in t, f x ∂μ :=
+  setIntegral_union hst ht hfst.left_of_union hfst.right_of_union
 /- End of somewhere else -/
 
 /-- The constant used in `estimate_x_shift`. -/
@@ -545,7 +534,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
         . norm_cast
           trans Nat.ceil (b / r) + 1
           . exact Nat.le_add_right ⌈b / r⌉₊ 1
-          . apply Nat.le_pow_self (le_refl 2)
+          . apply le_of_lt (Nat.lt_pow_self (le_refl 2))
 
     trans ∑' (i : ℕ), ∫⁻ (y : X) in dom_i i, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
     . rw [rw_dom]
