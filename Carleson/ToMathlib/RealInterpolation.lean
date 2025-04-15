@@ -1085,14 +1085,14 @@ lemma d_ne_top_aux₃ {C : ℝ≥0} {b c : ℝ} (hC : C > 0)
     C ^ c * (eLpNorm f p μ ^ p.toReal) ^ b ≠ ⊤ :=
   mul_ne_top (d_ne_top_aux₁ hC) (d_ne_top_aux₂ hF)
 
-lemma d_ne_zero_aux₃ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : C₀ > 0) (hC₁ : C₁ > 0) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
+lemma d_ne_zero_aux₃ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (C₀ ^ c₀ * (eLpNorm f p μ ^ p.toReal) ^ b₀) /
     (C₁ ^ c₁ * (eLpNorm f p μ ^ p.toReal) ^ b₁) ≠ 0 := by
   refine ENNReal.div_ne_zero.mpr ⟨?_, ?_⟩
   · apply d_ne_zero_aux₂ <;> try assumption
   · apply d_ne_top_aux₃ <;> try assumption
 
-lemma d_ne_top_aux₄ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : C₀ > 0) (hC₁ : C₁ > 0) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
+lemma d_ne_top_aux₄ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (C₀ ^ c₀ * (eLpNorm f p μ ^ p.toReal) ^ b₀) /
     (C₁ ^ c₁ * (eLpNorm f p μ ^ p.toReal) ^ b₁) ≠ ⊤ := by
   refine (div_lt_top ?_ ?_).ne
@@ -1100,7 +1100,7 @@ lemma d_ne_top_aux₄ {b₀ c₀ b₁ c₁ : ℝ} (hC₀ : C₀ > 0) (hC₁ : C�
   · apply d_ne_zero_aux₂ <;> assumption
 
 -- If the `p`-norm of `f` is positive and finite, then `d` is positive
-lemma d_pos (hC₀ : C₀ > 0) (hC₁ : C₁ > 0) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
+lemma d_pos (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
   @d α E₁ m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f > 0 :=
 toReal_pos (d_ne_zero_aux₃ hC₀ hC₁ hF) (d_ne_top_aux₄ hC₀ hC₁ hF)
 
@@ -1121,7 +1121,7 @@ lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) 
   · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
 
 lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) (hq₁' : q₁ = ⊤)
-    (hq₀q₁ : q₀ ≠ q₁) (hC₁ : C₁ > 0) :
+    (hq₀q₁ : q₀ ≠ q₁) (hC₁ : 0 < C₁) :
     @d α E₁ m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f =
     (↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal).toReal ^ p₁.toReal⁻¹ := by
   unfold d
@@ -1142,7 +1142,7 @@ lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) 
     · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne'
   · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne'
 
-lemma d_eq_top_of_eq (hC₁ : C₁ > 0) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₀' : q₀ ≠ ⊤)
+lemma d_eq_top_of_eq (hC₁ : 0 < C₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₀' : q₀ ≠ ⊤)
 (hp₀': p₀ ≠ ⊤) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ = p₁) (hpp₀: p = p₀) (hq₁' : q₁ = ⊤) :
     @d α E₁ m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f = (C₁ * eLpNorm f p μ).toReal := by
   rw [d_eq_top₁, ← hp₀p₁, hpp₀] <;> try assumption
@@ -1166,7 +1166,7 @@ lemma d_eq_top_top (hq₀ : 0 < q₀) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁
 /-- The particular choice of scaled power function that works in the proof of the
     real interpolation theorem. -/
 def spf_ch (ht : t ∈ Ioo 0 1) (hq₀q₁ : q₀ ≠ q₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
-    (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hp₀p₁ : p₀ ≠ p₁) (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
+    (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hp₀p₁ : p₀ ≠ p₁) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     ScaledPowerFunction where
   σ := ζ p₀ q₀ p₁ q₁ t
@@ -2791,7 +2791,7 @@ lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α
   weaktype_estimate hq₁ hq₁' (trunc_Lp_Lq_higher (p := p) ⟨hp, hp₁p⟩ hf) h₁T ht
 
 lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
-    (hC₁ : C₁ > 0) {p p₁ q₁ : ℝ≥0∞} (hp : 0 < p)
+    (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞} (hp : 0 < p)
     (hp₁ : p₁ = ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ} (ht : t > 0) (ha : a = t / C₁) :
     distribution (T (trunc f a)) (ENNReal.ofReal t) ν = 0 := by
@@ -2818,7 +2818,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ} {C₁ : ℝ≥0}
       distribution_mono_right ineq
   _ = 0 := distribution_snormEssSup
 
-lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p₀ q₀ : ℝ≥0∞}
+lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p₀ q₀ : ℝ≥0∞}
     (hp₀ : 0 < p₀) (hq₀ : q₀ = ⊤) (hp₀p : p₀ < p) (hp : p ≠ ⊤) {f : α → E₁} (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) {t : ℝ} (ht : t > 0) {a : ℝ} {d : ℝ} -- (hd : d > 0)
     (ha : a = (t / d) ^ (p₀.toReal / (p₀.toReal - p.toReal)))
@@ -2880,7 +2880,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p�
       distribution_mono_right snorm_est
     _ = _ := meas_eLpNormEssSup_lt
 
-lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : C₁ > 0) {p p₁ q₁ : ℝ≥0∞}
+lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞}
     (hp : 0 < p)
     (hp₁ : p₁ < ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ} (ht : t > 0) {a : ℝ} {d : ℝ} -- (hd : d > 0)
@@ -3331,7 +3331,7 @@ lemma simplify_factor₀ {D : ℝ}
     (ht : t ∈ Ioo 0 1)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
-    (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
+    (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
     C₀ ^ q₀.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₀.toReal / p₀.toReal) *
@@ -3390,7 +3390,7 @@ lemma simplify_factor₁ {D : ℝ}
     (ht : t ∈ Ioo 0 1)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
-    (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
+    (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
     C₁ ^ q₁.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₁.toReal / p₁.toReal) *
@@ -3538,7 +3538,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
   (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
   (hf : MemLp f p μ) (hT : Subadditive_trunc T A f ν)
-  (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
+  (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
   (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
   (hspf : spf = spf_ch ht hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
       (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF)
@@ -3688,7 +3688,7 @@ lemma combine_estimates₁ {A : ℝ≥0} [MeasurableSpace E₁] [NormedAddCommGr
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ))
-    (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
+    (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hspf : spf = spf_ch ht hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
         (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF) :
@@ -3755,7 +3755,7 @@ lemma simplify_factor₄ {D : ℝ} [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ 
     (hp₀p₁ : p₀ = p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
-    (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
+    (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
     (↑C₀ * eLpNorm f p μ) ^ q₀.toReal * ENNReal.ofReal (D ^ (q.toReal - q₀.toReal)) =
@@ -3772,7 +3772,7 @@ lemma simplify_factor₅ {D : ℝ} [NormedAddCommGroup E₁] (hq₁' : q₁ ≠ 
     (hp₀p₁ : p₀ = p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹)
-    (hC₀ : C₀ > 0) (hC₁ : C₁ > 0)
+    (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
     (hD : D = @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f) :
     (↑C₁ * eLpNorm f p μ) ^ q₁.toReal * ENNReal.ofReal (D ^ (q.toReal - q₁.toReal)) =
