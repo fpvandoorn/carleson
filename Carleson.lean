@@ -46,11 +46,11 @@ import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
+import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
-import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 import Carleson.ToMathlib.MinLayer

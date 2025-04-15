@@ -1,7 +1,7 @@
 import Carleson.TileStructure
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.Psi
-import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
+import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 
 open scoped ShortVariables

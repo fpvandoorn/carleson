@@ -74,10 +74,10 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
     (Y.encard).toENNReal * volume (ball o (4 * D ^ S))
       = ∑' (y : Y), volume (ball o (4 * D^S)) := by rw [ENNReal.tsum_const_eq']
     _ ≤ ∑' (y : Y), volume (ball (y : X) (8 * D ^ (2 * S) * D^k)) :=
-      tsum_le_tsum (fun ⟨y, hy⟩ ↦ volume.mono (ball_bound k hk_lower hY y hy))
-        ENNReal.summable ENNReal.summable
+      ENNReal.summable.tsum_le_tsum (fun ⟨y, hy⟩ ↦ volume.mono (ball_bound k hk_lower hY y hy))
+        ENNReal.summable
     _ ≤ ∑' (y : Y), (As (2 ^ a) (2 ^ J' X)) * volume (ball (y : X) (D^k)) := by
-      apply tsum_le_tsum _ ENNReal.summable ENNReal.summable
+      apply ENNReal.summable.tsum_le_tsum _ ENNReal.summable
       intro y hy
       rw_mod_cast [← twopow_J]
       apply measure_ball_le_same' _ (by positivity) (le_refl _)
@@ -1104,7 +1104,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
       apply Finset.sum_le_sum
       intro k'
       simp only [Finset.mem_univ, true_implies]
-      apply tsum_le_tsum _ (ENNReal.summable) (ENNReal.summable)
+      apply ENNReal.summable.tsum_le_tsum _ (ENNReal.summable)
       intro z
       letI : Decidable (clProp(le_s hk_mK k',z|hk,y)) := Classical.propDecidable _
       simp_rw [iUnion_eq_if,apply_ite volume,measure_empty]
@@ -1368,7 +1368,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       congr! 8
     _ ≤ ∑'(y':Yk X (k-K')),∑ᶠ (_:clProp(le_s_2' n hk_mnK,y'|hk,y)),
         2⁻¹ ^n * volume (I3 (le_s_2' n hk_mnK) y') := by
-      apply tsum_le_tsum _ (ENNReal.summable) (ENNReal.summable)
+      apply ENNReal.summable.tsum_le_tsum _ (ENNReal.summable)
       intro y'
       letI : Decidable clProp(le_s_2' n hk_mnK,y'|hk,y) := Classical.propDecidable _
       rw [finsum_eq_if,finsum_eq_if]
