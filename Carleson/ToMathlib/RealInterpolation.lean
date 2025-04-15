@@ -54,7 +54,7 @@ lemma ENNReal_preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
   cases (lt_or_gt_of_ne hpq) <;> exact Ne.ne_or_ne ⊤ hpq
 
 lemma ENNReal_preservation_positivity' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
-    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p > 0 := by
+    (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : 0 < p := by
   rw [← inv_inv p, hp]
   simp [ENNReal.mul_eq_top, sub_eq_zero, hp₀.ne', hp₁.ne']
 
@@ -180,9 +180,9 @@ lemma pos_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q > 0 := pos_of_gt 
 
 lemma ne_zero_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ 0 := (pos_of_gt hq.1).ne'
 
-lemma pos_of_Icc_1 {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : p > 0 := lt_of_lt_of_le zero_lt_one hp.1
+lemma pos_of_Icc_1 {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : 0 < p := lt_of_lt_of_le zero_lt_one hp.1
 
-lemma pos_of_ge_1 {p : ℝ≥0∞} (hp : 1 ≤ p) : p > 0 := lt_of_lt_of_le zero_lt_one hp
+lemma pos_of_ge_1 {p : ℝ≥0∞} (hp : 1 ≤ p) : 0 < p := lt_of_lt_of_le zero_lt_one hp
 
 lemma pos_rb_of_Icc_1_inh {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : q > 0 :=
   lt_of_lt_of_le zero_lt_one (le_trans hp.1 hp.2)
@@ -1804,7 +1804,7 @@ lemma res'subset_Ioi {j : Bool} {β : ℝ} (hβ : β > 0) : res' j β ⊆ Ioi 0 
   · exact Ioc_subset_Ioi_self
   · exact Ici_subset_Ioi.mpr hβ
 
-lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ} (hp : p > 0)
+lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ} (hp : 0 < p)
     (hfx : ‖f x‖₊ > 0) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p := by
@@ -1901,7 +1901,7 @@ lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
         · linarith
 
 lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ}
-    (hp : p > 0) (hfx : ‖f x‖₊ > 0) :
+    (hp : 0 < p) (hfx : ‖f x‖₊ > 0) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p =
     (∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖), (g s)) * ‖f x‖ₑ ^ p := by
   rw [lintegral_trunc_mul₀ hp hfx, lintegral_trunc_mul₁, lintegral_trunc_mul₂ hfx,
@@ -2281,7 +2281,7 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
     (hf : AEMeasurable (Function.uncurry f) (μ.prod ν)) :
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ≤
     (∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν) ^ p := by
-  have p_pos : p > 0 := lt_of_lt_of_le zero_lt_one hp
+  have p_pos : 0 < p := lt_of_lt_of_le zero_lt_one hp
   refine le_of_rpow_le (inv_pos_of_pos p_pos) ?_
   rw [ENNReal.rpow_rpow_inv p_pos.ne']
   exact lintegral_lintegral_pow_swap hp hf
@@ -2340,7 +2340,7 @@ lemma AEMeasurable.truncCompl_ton {f : α → E₁}
   refine (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
     hf.restrict.snd.restrict
 
-lemma restrict_to_support {p : ℝ} (hp : p > 0) [NormedAddCommGroup E₁] (f : α → E₁) :
+lemma restrict_to_support {p : ℝ} (hp : 0 < p) [NormedAddCommGroup E₁] (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖trunc f t x‖ₑ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f t x‖ₑ ^ p ∂μ := by
   apply setLIntegral_eq_of_support_subset
   unfold Function.support trunc
@@ -2350,7 +2350,7 @@ lemma restrict_to_support {p : ℝ} (hp : p > 0) [NormedAddCommGroup E₁] (f : 
   intro f_zero
   simp_rw [f_zero]; simp [hp]
 
-lemma restrict_to_support_truncCompl {p : ℝ} [NormedAddCommGroup E₁] (hp : p > 0)
+lemma restrict_to_support_truncCompl {p : ℝ} [NormedAddCommGroup E₁] (hp : 0 < p)
     (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖(truncCompl f t) x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖(truncCompl f t) x‖ₑ ^ p ∂μ := by
@@ -2362,7 +2362,7 @@ lemma restrict_to_support_truncCompl {p : ℝ} [NormedAddCommGroup E₁] (hp : p
   intro f_zero
   simp [hp, f_zero]
 
-lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [NormedAddCommGroup E₁] (hp : p > 0)
+lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [NormedAddCommGroup E₁] (hp : 0 < p)
     (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖trnc j f t x‖ₑ ^ p ∂μ =
     ∫⁻ x : α, ‖trnc j f t x‖ₑ ^ p ∂μ := by
@@ -2756,7 +2756,7 @@ variable {T : (α → E₁) → (α' → E₂)}
     vanishes, then the `q`-norm of `T f` vanishes.
     -/
 lemma weaktype_aux₀ {p₀ q₀ p q : ℝ≥0∞}
-    (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp : p > 0) (hq : q > 0)
+    (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp : 0 < p) (hq : q > 0)
     {C₀ : ℝ≥0}
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (hf : AEStronglyMeasurable f μ)
     (hF : eLpNorm f p μ = 0) :
@@ -2834,7 +2834,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       weaktype_aux₀ hp₀ (hq₀ ▸ zero_lt_top) zero_lt_top zero_lt_top h₀T hf.1.truncCompl this
     exact nonpos_iff_eq_zero.mp (Trans.trans (distribution_mono_right (Trans.trans obs
       (zero_le (ENNReal.ofReal t)))) meas_eLpNormEssSup_lt)
-  · have p_pos : p > 0 := lt_trans hp₀ hp₀p
+  · have p_pos : 0 < p := lt_trans hp₀ hp₀p
     have snorm_p_pos : eLpNorm f p μ ≠ 0 := fun snorm_0 ↦ snorm_pos.ne' <|
       eLpNormEssSup_eq_zero_iff.mpr <| (eLpNorm_eq_zero_iff hf.1 p_pos.ne').mp snorm_0
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
@@ -3275,7 +3275,7 @@ lemma estimate_norm_rpow_range_operator'
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1))) := by
   have : ∀ q' q : ℝ, -q' + (q - 1) = q - q' - 1 := by intro q' q; group
   repeat rw [← this]
-  have p_pos : p > 0 := lt_trans hp₀ hp₀p
+  have p_pos : 0 < p := lt_trans hp₀ hp₀p
   -- TODO: is there a way to use lintegral_rw₂ conveniently?
   rw [lintegral_rw_aux power_aux_2, lintegral_rw_aux power_aux_2]
   nth_rw 2 [← lintegral_const_mul']; swap; · exact rpow_ne_top_of_nonneg toReal_nonneg coe_ne_top
@@ -3556,7 +3556,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   have q₀pos : 0 < q₀ := lt_of_lt_of_le hp₀.1 hp₀.2
   have p₁pos : 0 < p₁ := hp₁.1
   have q₁pos : 0 < q₁ := lt_of_lt_of_le hp₁.1 hp₁.2
-  have p_pos : p > 0 := interpolated_pos' one_le_p₀ one_le_p1 hp
+  have p_pos : 0 < p := interpolated_pos' one_le_p₀ one_le_p1 hp
   have : SigmaFinite (μ.restrict (Function.support f)) :=
     support_sigma_finite_from_MemLp hf (interp_exp_ne_top hp₀p₁.ne ht hp) p_pos.ne'
   let tc := spf_to_tc spf
