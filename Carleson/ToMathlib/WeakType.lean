@@ -12,7 +12,7 @@ open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 
 section move
 
-variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
+variable {α 𝕜 ε E : Type*} {m : MeasurableSpace α}
   {μ : Measure α} [NontriviallyNormedField 𝕜]
   [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   {p : ℝ≥0∞}
@@ -20,6 +20,13 @@ variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
 -- todo: move/rename/and perhaps reformulate in terms of ‖.‖ₑ
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
+
+-- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
+-- (which includes NNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
+-- Investigate if this is worthwhile when upstreaming this to mathlib.
+lemma enorm_absolute_homogeneous [TopologicalSpace ε] [ENormedSpace ε] {c : ℝ≥0} (z : ε) :
+    ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+  ENormedSpace.enorm_smul _ _
 
 lemma enorm_absolute_homogeneous' {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
@@ -576,7 +583,20 @@ variable [TopologicalSpace ε] [ContinuousENorm ε]
 variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
 
--- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
+-- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
+-- (which includes NNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
+-- Investigate if this is worthwhile when upstreaming this to mathlib.
+lemma distribution_smul_left {ε} [TopologicalSpace ε] [ENormedSpace ε] {f : α → ε} {c : ℝ≥0} (hc : c ≠ 0) :
+    distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
+  have h₀ : ‖c‖ₑ ≠ 0 := by
+    have : ‖c‖ₑ = ‖(c : ℝ≥0∞)‖ₑ := rfl
+    rw [this, enorm_ne_zero]
+    exact ENNReal.coe_ne_zero.mpr hc
+  unfold distribution
+  congr with x
+  simp only [Pi.smul_apply, mem_setOf_eq]
+  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+    enorm_absolute_homogeneous (c := c) _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
 
 lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
