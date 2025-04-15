@@ -43,7 +43,7 @@ instance : ENormedSpace ℝ≥0 where
   -- enorm_neg := by simp
   enorm_add_le := by simp
   add_comm := by simp [add_comm]
-  continuous_enorm := by dsimp; fun_prop
+  continuous_enorm := by fun_prop
   enorm_smul c x := by simp [ENNReal.smul_def]
 
 instance : ENormedSpace ℝ≥0∞ where
