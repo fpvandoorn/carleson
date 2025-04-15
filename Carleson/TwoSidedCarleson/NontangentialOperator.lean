@@ -141,12 +141,51 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
       apply Real.two_mul_lt_two_pow
       linarith only [hx]
 
+lemma norm_le_coe_iff_enorm_le {r : ℂ} {c : ℝ≥0} :
+    ‖r‖ ≤ c ↔ ‖r‖ₑ ≤ c := by
+  sorry
+
+lemma norm_le_toNNReal_iff_enorm_le {r : ℂ} {c : ℝ≥0∞} (hc : c < ⊤) :
+    ‖r‖ ≤ c.toNNReal ↔ ‖r‖ₑ ≤ c := by
+  nth_rw 2 [← coe_toNNReal (ne_of_lt hc)]
+  apply norm_le_coe_iff_enorm_le
+
 -- TODO move to ToMathlib, properly generalise
 theorem integrableOn_of_integrableOn_inter_support {f : X → ℂ} {μ : Measure X} {s : Set X}
     (hs : MeasurableSet s) (hf : IntegrableOn f (s ∩ support f) μ) :
     IntegrableOn f s μ := by
   apply IntegrableOn.of_forall_diff_eq_zero hf hs
   simp
+
+-- TODO move to general place about K, decide on good name
+lemma enorm_K_le_ball_complement' {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    ‖K x y‖ₑ ≤ C_K a / volume (ball x r) := by
+  apply le_trans (enorm_K_le_vol_inv x y)
+  apply ENNReal.div_le_div_left
+  apply measure_mono
+  apply ball_subset_ball
+  rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hy
+  exact hy
+
+lemma enorm_K_le_ball_complement (hr : 0 < r) {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    ‖K x y‖ₑ ≤ (C_K a / volume (ball x r)).toNNReal := by
+  rw [ENNReal.coe_toNNReal ?ne_top]
+  case ne_top =>
+    rw [Ne, ENNReal.div_eq_top]
+    push_neg
+    simp [ne_of_gt (measure_ball_pos volume x hr)]
+  exact enorm_K_le_ball_complement' hy
+
+lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
+    MemLp (K x) ∞ (volume.restrict (ball x r)ᶜ) := by
+  constructor
+  . exact (measurable_K_right x).aestronglyMeasurable
+  . simp only [eLpNorm_exponent_top]
+    apply eLpNormEssSup_lt_top_of_ae_enorm_bound
+    . apply ae_restrict_of_forall_mem
+      . measurability
+      . intro y hy
+        apply enorm_K_le_ball_complement hr hy
 
 -- TODO move to sensible place
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
@@ -165,8 +204,9 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     simp only [NNReal.zero_le_coe]
 
   have bdd_Kxg : ∃ (M : ℝ), ∀ᵐ y ∂(volume.restrict ((ball x r)ᶜ ∩ support Kxg)), ‖Kxg y‖ ≤ M := by
-    use (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
-    rw [MeasureTheory.ae_iff, Measure.restrict_apply₀']
+    let (M : ℝ≥0) := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
+    use M
+    rw [ae_iff, Measure.restrict_apply₀']
     . conv =>
         arg 1; arg 2;
         rw [← inter_assoc]
@@ -175,8 +215,40 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
           apply setOf_subset.mpr
           apply tmp_Kxg
 
-      rw [setOf_inter_eq_sep]
-      sorry
+      let M1 := (C_K a / volume (ball x r)).toNNReal
+      let M2 := (eLpNorm g ∞).toNNReal
+      have : { y | ¬‖Kxg y‖ ≤ M} ⊆ { y | ¬‖K x y‖ ≤ M1 ∨ ¬‖g y‖ ≤ M2} := by
+        rw [setOf_subset_setOf]
+        intro y
+        contrapose!
+        intro hy
+        rw [norm_mul]
+        trans M1 * M2
+        . apply mul_le_mul hy.left hy.right
+          case b0 | c0 => simp only [norm_nonneg, NNReal.zero_le_coe]
+
+        sorry
+      rw [← Measure.restrict_apply₀']
+      . apply measure_mono_null_ae
+        . apply HasSubset.Subset.eventuallyLE
+          exact this
+        rw [setOf_or]
+        apply measure_union_null
+        . rw [← ae_iff]
+          apply ae_restrict_of_forall_mem
+          . simp [measurableSet_ball]
+          intro y hy
+          rw [norm_le_toNNReal_iff_enorm_le]
+          . apply enorm_K_le_ball_complement' hy
+          . sorry
+        . rw [← ae_iff]
+          conv =>
+            arg 1; intro y
+            unfold M2
+            rw [norm_le_toNNReal_iff_enorm_le (hg.eLpNorm_lt_top), eLpNorm_exponent_top]
+          apply ae_restrict_of_ae
+          apply ae_le_eLpNormEssSup
+      . simp [measurableSet_ball]
     . apply NullMeasurableSet.inter --somehow not used by simp despite the tag
       . simp [measurableSet_ball] --should measurableSet_ball have @[simp]?
       . exact AEStronglyMeasurable.nullMeasurableSet_support mKxg.aestronglyMeasurable
@@ -198,13 +270,6 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     --       apply measure_ball_pos
     --       exact hr
 
-    --   apply le_trans (enorm_K_le_vol_inv x y)
-    --   apply ENNReal.div_le_div_left
-    --   apply measure_mono
-    --   apply ball_subset_ball
-    --   let hby := hy.left
-    --   rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hby
-    --   exact hby
     -- . apply le_toNNReal_of_coe_le
     --   . sorry -- have to refactor to a.e.
     --   . exact ne_of_lt hg.eLpNorm_lt_top
@@ -357,12 +422,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     refine mul_le_mul' ?_ ?_
     case refine_2 => rfl
 
-    trans C_K a / vol x₀ y
-    . apply enorm_K_le_vol_inv
-
-    apply ENNReal.div_le_div_left
-    apply measure_mono
-    exact ball_subset_ball (y_est y h)
+    exact enorm_K_le_ball_complement' h
 
   have pointwise_2 : ∀(y : X), y ∈ (ball x (2 * r))ᶜ → ‖K x y - K x' y‖ₑ * ‖g y‖ₑ ≤
       ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ := by
