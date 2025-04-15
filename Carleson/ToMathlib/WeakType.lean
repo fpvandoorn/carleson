@@ -578,7 +578,7 @@ variable {f g : α → ε}
 
 section
 
--- variable [TopologicalSpace ε] [ContinuousENorm ε] -- XXX: revisit this
+variable {ε ε' : Type*} [TopologicalSpace ε] [ENormedSpace ε] [TopologicalSpace ε'] [ENormedSpace ε']
 
 -- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
 -- (which includes NNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
@@ -607,10 +607,6 @@ lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
-variable [TopologicalSpace ε] [ContinuousENorm ε]
-
-variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
-
 lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
@@ -625,11 +621,11 @@ lemma HasStrongType.const_mul
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
-lemma wnorm_const_smul_le {p : ℝ≥0∞} (hp : p ≠ 0)
-    {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+lemma wnorm_const_smul_le {p : ℝ≥0∞} (hp : p ≠ 0) {f : α → ε} (k : ℝ≥0) :
+    wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top]
-    apply eLpNormEssSup_const_smul_le
+    apply eLpNormEssSup_const_smul_le'
   simp only [wnorm, ptop, ↓reduceIte, wnorm', iSup_le_iff]
   by_cases k_zero : k = 0
   · simp only [distribution, k_zero, Pi.smul_apply, zero_smul, enorm_zero, not_lt_zero', setOf_false,
@@ -638,27 +634,26 @@ lemma wnorm_const_smul_le {p : ℝ≥0∞} (hp : p ≠ 0)
     intro _
     right
     exact toReal_pos hp ptop
-  simp only [distribution_smul_left' k_zero]
+  simp only [distribution_smul_left k_zero]
   intro t
   rw [ENNReal.mul_iSup]
-  have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
   have : t * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹ =
       ‖k‖ₑ * ((t / ‖k‖ₑ) * distribution f (t / ‖k‖ₑ) μ ^ p.toReal⁻¹) := by
-    nth_rewrite 1 [← mul_div_cancel₀ t knorm_ne_zero]
+    nth_rewrite 1 [← mul_div_cancel₀ t k_zero]
     simp only [coe_mul, mul_assoc]
     congr
-    exact coe_div knorm_ne_zero
-  erw [this]
+    exact coe_div k_zero
+  rw [this]
   apply le_iSup_of_le (↑t / ↑‖k‖₊)
   apply le_of_eq
-  congr <;> exact (coe_div knorm_ne_zero).symm
+  congr <;> exact (coe_div k_zero).symm
 
-lemma HasWeakType.const_smul
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {ν : Measure α'}
-    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
+lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
+    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {ν : Measure α'}
+    {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
-  refine ⟨aestronglyMeasurable_const.smul (h f hf).1, ?_⟩
+  refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
     _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
     _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
@@ -666,8 +661,9 @@ lemma HasWeakType.const_smul
       apply (h f hf).2
     _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
-lemma HasWeakType.const_mul {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {c : ℝ≥0∞}
-    (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
+-- XXX: is this the statement we want?
+lemma HasWeakType.const_mul {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {c : ℝ≥0∞}
+    (h : HasWeakType T p p' μ ν c) (e : ℝ≥0) :
     HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
 
