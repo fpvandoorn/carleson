@@ -1009,7 +1009,7 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
           ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
       · sorry --rw [← NNReal.rpow_inv_lt_iff_of_pos ht.le (div_nonneg hs.le spf.hd.le)
           -- sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-    · simp only [↓reduceIte, mem_Ioi]
+    · simp only [Bool.false_eq_true, ↓reduceIte, gt_iff_lt]
       intro s hs t ht
       rcases spf.hσ with σ_pos | σ_neg
       · contradiction
@@ -1731,8 +1731,9 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁] {a : ℝ≥0�
   · rw [q_eq_top, eLpNorm_exponent_top]
     sorry -- TODO: was exact Trans.trans trunc_eLpNormEssSup_le coe_lt_top
   · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
-    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top ha hpq hf.1.aemeasurable)
-    sorry /- TODO: was apply mul_lt_top coe_lt_top
+    sorry
+    /- TODO: was apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top ha hpq hf.1.aemeasurable)
+    apply mul_lt_top coe_lt_top
     refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
     exact toReal_pos hpq.1.ne' hpq.2.ne_top -/
 
