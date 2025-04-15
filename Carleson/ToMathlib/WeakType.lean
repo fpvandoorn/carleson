@@ -578,10 +578,7 @@ variable {f g : α → ε}
 
 section
 
-variable [TopologicalSpace ε] [ContinuousENorm ε]
-
-variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
-  {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
+-- variable [TopologicalSpace ε] [ContinuousENorm ε] -- XXX: revisit this
 
 -- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
 -- (which includes NNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
@@ -598,6 +595,9 @@ lemma distribution_smul_left {ε} [TopologicalSpace ε] [ENormedSpace ε] {f : �
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_absolute_homogeneous (c := c) _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
 
+variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
+  {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
+
 lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
   have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
@@ -607,18 +607,21 @@ lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
     enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
-variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
-lemma HasStrongType.const_smul
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {c : ℝ≥0∞}
-    (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
+variable [TopologicalSpace ε] [ContinuousENorm ε]
+
+variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
+
+lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
+    {T : (α → ε) → (α' → ε')} {p p' : ℝ≥0∞} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
-  refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
+  refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le'.trans ?_⟩
   simp only [ENNReal.smul_def, smul_eq_mul, coe_mul, mul_assoc]
   gcongr
   exact (h f hf).2
 
-lemma HasStrongType.const_mul {E' : Type*} [NormedRing E']
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : E') :
+-- XXX: is this the statement we want?
+lemma HasStrongType.const_mul
+    {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : ℝ≥0) :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
