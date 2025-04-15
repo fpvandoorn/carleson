@@ -308,10 +308,10 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
   by_cases hf_top : eLpNorm f 2 volume < ⊤
   · --have hf2 :  Memℒp f 2 volume := ⟨hf1, hf_top⟩
     have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠
-        (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x |>.toReal) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
+        (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
       sorry
       --hasStrongType_maximalFunction (X := X) hp₁_ge hp₁_lt (u := f) (r := fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) hf1
-    have hh := (this f ⟨hf1, hf_top⟩).2
+    have hh := (this.toReal f ⟨hf1, hf_top⟩).2
     simp only [hp₁, Nat.cast_pow, Nat.cast_ofNat, C2_0_6] at hh
 
     convert hh
