@@ -21,7 +21,7 @@ variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
-lemma enorm_absolute_homogeneous {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+lemma enorm_absolute_homogeneous' {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
@@ -578,14 +578,14 @@ variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E
 
 -- TODO: add an analogue for the ENorm context, using scalar multiplication w.r.t. `NNReal` on an `ENormedSpace`
 
-lemma distribution_smul_left {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
+lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
   have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
   unfold distribution
   congr with x
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
-    enorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+    enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
 variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
 lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
@@ -616,7 +616,7 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
     intro _
     right
     exact toReal_pos hp ptop
-  simp only [distribution_smul_left k_zero]
+  simp only [distribution_smul_left' k_zero]
   intro t
   rw [ENNReal.mul_iSup]
   have knorm_ne_zero : ‖k‖₊ ≠ 0 := nnnorm_ne_zero_iff.mpr k_zero
