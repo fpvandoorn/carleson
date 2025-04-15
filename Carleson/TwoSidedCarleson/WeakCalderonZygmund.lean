@@ -12,7 +12,6 @@ variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : 
 variable {τ C r R : ℝ} {q q' : ℝ≥0}
 variable {F G : Set X}
 variable {K : X → X → ℂ} {x x' : X} [IsTwoSidedKernel a K]
-variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
 variable {f : X → ℂ} {α : ℝ≥0∞}
 
 /-! ## Section 10.2 and Lemma 10.0.3
@@ -26,18 +25,16 @@ irreducible_def C10_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (4 * a)
 /-- Lemma 10.2.1, formulated differently.
 The blueprint version is basically this after unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`.
 -/
-theorem maximal_theorem (ha : 4 ≤ a) :
+theorem maximal_theorem [Nonempty X] :
     HasBoundedWeakType (globalMaximalFunction volume 1 : (X → ℂ) → X → ℝ≥0∞) 1 1 volume volume
       (C10_2_1 a) := by
   apply HasWeakType.hasBoundedWeakType
   have : C10_2_1 a = (defaultA a) ^ 4 := by
     simp_rw [C10_2_1_def, defaultA, pow_mul', Nat.cast_pow, Nat.cast_ofNat]
   rw [this]
-  rw [← hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from
-    `hasWeakType_globalMaximalFunction`. -/]
-  -- for some reason `exact` goes on a wild goose chase on the next line
   apply hasWeakType_globalMaximalFunction le_rfl le_rfl
 
+variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
 
 /-- Lemma 10.2.2.
 Should be an easy consequence of `VitaliFamily.ae_tendsto_average`. -/
