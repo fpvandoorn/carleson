@@ -195,8 +195,8 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     simp only [NNReal.zero_le_coe]
 
   have bdd_Kxg : ∃ (M : ℝ), ∀ᵐ y ∂(volume.restrict ((ball x r)ᶜ ∩ support Kxg)), ‖Kxg y‖ ≤ M := by
-    let (M : ℝ≥0) := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
-    use M
+    let M0 := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
+    use M0
     rw [ae_iff, Measure.restrict_apply₀']
     . conv =>
         arg 1; arg 2;
@@ -208,7 +208,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
 
       let M1 := (C_K a / volume (ball x r)).toNNReal
       let M2 := (eLpNorm g ∞).toNNReal
-      have : { y | ¬‖Kxg y‖ ≤ M} ⊆ { y | ¬‖K x y‖ ≤ M1 ∨ ¬‖g y‖ ≤ M2} := by
+      have : { y | ¬‖Kxg y‖ ≤ M0} ⊆ { y | ¬‖K x y‖ ≤ M1 ∨ ¬‖g y‖ ≤ M2} := by
         rw [setOf_subset_setOf]
         intro y
         contrapose!
@@ -218,7 +218,9 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
         . apply mul_le_mul hy.left hy.right
           case b0 | c0 => simp only [norm_nonneg, NNReal.zero_le_coe]
 
-        sorry
+        apply le_of_eq
+        norm_cast
+        rw [← toNNReal_mul]
       rw [← Measure.restrict_apply₀']
       . apply measure_mono_null_ae
         . apply HasSubset.Subset.eventuallyLE
@@ -231,7 +233,8 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
           intro y hy
           rw [norm_le_toNNReal_iff_enorm_le]
           . apply enorm_K_le_ball_complement' hy
-          . sorry
+          . apply div_lt_top coe_ne_top
+            exact ne_of_gt (measure_ball_pos volume x hr)
         . rw [← ae_iff]
           conv =>
             arg 1; intro y
@@ -243,27 +246,6 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     . apply NullMeasurableSet.inter
       . simp [measurableSet_ball] --should measurableSet_ball have @[simp]?
       . exact AEStronglyMeasurable.nullMeasurableSet_support mKxg.aestronglyMeasurable
-
-    -- intro y hy
-    -- rw [toNNReal_mul, norm_mul]
-    -- apply mul_le_mul
-    -- case b0 => apply NNReal.zero_le_coe
-    -- case c0 => simp only [norm_nonneg]
-    -- . suffices ‖K x y‖ₑ ≤ (C_K a : ℝ≥0) / volume (ball x r) by
-    --     rw [enorm_eq_nnnorm] at this
-    --     apply le_toNNReal_of_coe_le
-    --     . exact this
-    --     . -- no ENNReal.div_ne_top??
-    --       rw [div_eq_mul_inv]
-    --       apply mul_ne_top coe_ne_top
-    --       rw [inv_ne_top]
-    --       apply ne_of_gt
-    --       apply measure_ball_pos
-    --       exact hr
-
-    -- . apply le_toNNReal_of_coe_le
-    --   . sorry -- have to refactor to a.e.
-    --   . exact ne_of_lt hg.eLpNorm_lt_top
 
   obtain ⟨M, hM⟩ := bdd_Kxg
 
