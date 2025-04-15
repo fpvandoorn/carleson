@@ -1283,13 +1283,13 @@ lemma boundary_sum_eq {k:ℤ} (hk:-S ≤ k) {k':ℤ} (hk':-S ≤ k')(y:Yk X k) :
   exact MeasurableSet.iUnion (fun _ => I3_measurableSet hk' y')
 
 lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -S ≤ k - n * K') → ∀(y:Yk X k),
-    ∑'(y':Yk X (k-n*K')),∑ᶠ (_:clProp(hk_mnK,y'|hk,y)),volume (I3 hk_mnK y') ≤
+    ∑' (y' : Yk X (k - n * K')), ∑ᶠ (_ : clProp(hk_mnK,y'|hk,y)), volume (I3 hk_mnK y') ≤
       2⁻¹^n * volume (I3 hk y) := by
   intro n
   induction n
   · intro k hk hk_mnK y
     rw [boundary_sum_eq hk hk_mnK y]
-    simp only [Int.Nat.cast_ofNat_Int, defaultA, pow_zero, one_mul]
+    simp only [Int.cast_ofNat_Int, defaultA, pow_zero, one_mul]
     gcongr
     simp only [iUnion_subset_iff]
     exact fun _ hy' => hy'.I3_subset
@@ -1302,10 +1302,10 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       ≤ volume (⋃ (y':Yk X (k-K')),⋃(_:clProp(le_s_2' n hk_mnK,y'|hk,y)),
         ⋃ (y'':Yk X (k-(n+1:ℕ)*K')),⋃(_:clProp(hk_mnK,y''|le_s_2' n hk_mnK,y')), I3 hk_mnK y'') := by
       apply volume.mono
-      simp only [Nat.cast_add, Nat.cast_one, Int.Nat.cast_ofNat_Int,
+      simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int,
         iUnion_subset_iff]
       intro y'' hy'' x hx
-      simp only [Nat.cast_add, Nat.cast_one, Int.Nat.cast_ofNat_Int, mem_iUnion,
+      simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int, mem_iUnion,
         exists_prop]
       have hx_y: x ∈ I3 hk y := hy''.I3_subset hx
       have : x ∈ ⋃ (y':Yk X (k-K')),I3 (le_s_2' n hk_mnK) y' :=
@@ -1337,7 +1337,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
         else
           simp_rw [if_neg h,measure_empty]
       · intro i i' hneq
-        simp only [Nat.cast_add, Nat.cast_one, Int.Nat.cast_ofNat_Int,
+        simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int,
           disjoint_iUnion_right, disjoint_iUnion_left]
         intro _ y1 hy1i _ y2 hy2i'
         apply Disjoint.mono_left hy2i'.I3_subset
@@ -1750,7 +1750,6 @@ def grid_existence : GridStructure X D κ S o where
   c_topCube := rfl
   subset_topCube := by
     intro i
-    simp only
     exact i.hsub
   Grid_subset_biUnion := by
     intro i l hl
@@ -1772,9 +1771,7 @@ def grid_existence : GridStructure X D κ S o where
     simp only [true_and]
     exact hy'
   fundamental_dyadic' := by
-    intro i j
-    simp only
-    intro hk
+    intro i j hk
     if h : Disjoint i.coe j.coe then
       exact Or.inr h
     else
@@ -1787,7 +1784,6 @@ def grid_existence : GridStructure X D κ S o where
     norm_num
   Grid_subset_ball {i} := I3_prop_3_2 i.hk i.y
   small_boundary := by
-    simp only
     intro i t ht
     if ht' : t < 1 then
       apply boundary_measure' i.hk i.y

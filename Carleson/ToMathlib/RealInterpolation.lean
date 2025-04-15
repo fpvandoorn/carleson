@@ -1227,14 +1227,13 @@ lemma lintegral_add_right_Ioi (f : ℝ → ENNReal) {a b : ℝ} :
 
 lemma lintegral_scale_constant (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0):
     ∫⁻ x : ℝ, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x, f x := by
-  rw [← @lintegral_smul_measure, MeasurePreserving.lintegral_comp_emb]
+  rw [← smul_eq_mul, ← @lintegral_smul_measure, MeasurePreserving.lintegral_comp_emb]
   · exact measure_preserving_scaling h
   · exact measurableEmbedding_mulLeft₀ h
 
-lemma lintegral_scale_constant_preimage (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0)
-    {s : Set ℝ}:
+lemma lintegral_scale_constant_preimage (f: ℝ → ENNReal) {a : ℝ} (h : a ≠ 0) {s : Set ℝ} :
     ∫⁻ x : ℝ in (fun z : ℝ ↦ a * z)⁻¹' s, f (a*x) = ENNReal.ofReal |a⁻¹| * ∫⁻ x : ℝ in s, f x := by
-  rw [← lintegral_smul_measure,
+  rw [← smul_eq_mul, ← lintegral_smul_measure,
     (measure_preserving_scaling h).setLIntegral_comp_preimage_emb (measurableEmbedding_mulLeft₀ h),
     Measure.restrict_smul]
 
@@ -1401,9 +1400,8 @@ protected lemma StronglyMeasurable.truncCompl
   exact hf.ite (measurableSet_lt stronglyMeasurable_const hf.norm) stronglyMeasurable_const
 
 -- @[measurability, fun_prop]
--- lemma aemeasurable_trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
---     (hf : AEMeasurable f μ) :
---     AEMeasurable (trunc f t) μ := by
+-- lemma AEMeasurable.trunc [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : AEMeasurable f μ) : AEMeasurable (trunc f t) μ := by
 --   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
 --   exists (trunc g t)
 --   constructor
@@ -1418,9 +1416,8 @@ protected lemma StronglyMeasurable.truncCompl
 --   rfl
 
 -- @[measurability, fun_prop]
--- lemma aeMeasurable_truncCompl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
---     (hf : AEMeasurable f μ) :
---     AEMeasurable (truncCompl f t) μ := by
+-- lemma AEMeasurable.truncCompl [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+--     (hf : AEMeasurable f μ) : AEMeasurable (truncCompl f t) μ := by
 --   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
 --   exists (truncCompl g t)
 --   constructor
@@ -1434,9 +1431,8 @@ protected lemma StronglyMeasurable.truncCompl
 --     intro f_eq_g; unfold truncCompl; unfold trunc; dsimp only [Pi.sub_apply]; rw [f_eq_g]
 
 @[measurability]
-lemma aestronglyMeasurable_trunc
-    (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (trunc f t) μ := by
+nonrec lemma AEStronglyMeasurable.trunc
+    (hf : AEStronglyMeasurable f μ) : AEStronglyMeasurable (trunc f t) μ := by
   rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
   exists (trunc g t)
   constructor
@@ -1449,30 +1445,15 @@ lemma aestronglyMeasurable_trunc
     rw [h₂]
 
 @[measurability]
-lemma aestronglyMeasurable_truncCompl
-    (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (truncCompl f t) μ := by
-  rcases hf with ⟨g, ⟨wg1, wg2⟩⟩
-  use truncCompl g t
-  constructor
-  · rw [truncCompl_eq]
-    exact wg1.indicator (s := {x | t < ‖g x‖}) (stronglyMeasurable_const.measurableSet_lt wg1.norm)
-  · apply measure_mono_null ?_ wg2
-    intro x
-    contrapose
-    simp only [mem_compl_iff, mem_setOf_eq, not_not]
-    intro h₂
-    rw [truncCompl_eq, truncCompl_eq]
-    simp only
-    rw [h₂]
+nonrec lemma AEStronglyMeasurable.truncCompl
+    (hf : AEStronglyMeasurable f μ) : AEStronglyMeasurable (truncCompl f t) μ := by
+  simp_rw [truncCompl]; exact hf.sub hf.trunc
 
 @[measurability]
 lemma aestronglyMeasurable_trnc {j : Bool}
     (hf : AEStronglyMeasurable f μ) :
-    AEStronglyMeasurable (trnc j f t) μ := by
-  rcases j
-  · exact aestronglyMeasurable_truncCompl hf
-  · exact aestronglyMeasurable_trunc hf
+    AEStronglyMeasurable (trnc j f t) μ :=
+  j.rec (.truncCompl hf) (.trunc hf)
 
 lemma trunc_le {f : α → E₁} {a : ℝ} (x : α) :
     ‖trunc f a x‖ ≤ max 0 a := by
@@ -1553,7 +1534,7 @@ lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ} {x : α} :
 
 -- /-- The `t`-truncation of `f : α →ₘ[μ] E`. -/
 -- def AEEqFun.trunc (f : α →ₘ[μ] E) (t : ℝ) : α →ₘ[μ] E :=
---   AEEqFun.mk (trunc f t) (aestronglyMeasurable_trunc f.aestronglyMeasurable)
+--   AEEqFun.mk (trunc f t) (.trunc f.aestronglyMeasurable)
 
 -- /-- A set of measurable functions is closed under truncation. -/
 -- class IsClosedUnderTruncation (U : Set (α →ₘ[μ] E)) : Prop where
@@ -1609,7 +1590,7 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : γ > 0) (htγ 
     exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
 
 lemma trunc_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) : MemLp (trunc f t) p μ := by
-  refine ⟨aestronglyMeasurable_trunc hf.1, lt_of_le_of_lt (eLpNorm_mono_ae (ae_of_all _ ?_)) hf.2⟩
+  refine ⟨hf.1.trunc, lt_of_le_of_lt (eLpNorm_mono_ae (ae_of_all _ ?_)) hf.2⟩
   intro x
   unfold trunc
   split_ifs with is_fx_le_a <;> simp
@@ -2331,7 +2312,7 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [Norm
   nullMeasurableSet_lt (ton_aeMeasurable tc).fst hg.snd.norm
 
 @[measurability]
-lemma truncation_ton_measurable {f : α → E₁}
+lemma AEMeasurable.trunc_ton {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
@@ -2346,7 +2327,7 @@ lemma truncation_ton_measurable {f : α → E₁}
     hf.restrict.snd.restrict
 
 @[measurability]
-lemma aeMeasurable_truncCompl_ton {f : α → E₁}
+lemma AEMeasurable.truncCompl_ton {f : α → E₁}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [SigmaFinite (μ.restrict (Function.support f))] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
@@ -2396,14 +2377,12 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [NormedAddCommGroup E₁] (h
   · simp_rw [f_zero]; simp [hp]
 
 @[fun_prop]
-theorem aeMeasurable_trunc_restrict
+theorem AEMeasurable.trunc_restrict
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] {j : Bool}
     {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
-      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
-  rcases j
-  · exact aeMeasurable_truncCompl_ton hf _
-  · exact truncation_ton_measurable hf _
+      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) :=
+  j.rec (hf.truncCompl_ton _) (hf.trunc_ton _)
 
 lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
@@ -2852,8 +2831,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : C₀ > 0) {p p�
       rw [← snorm_zero]
       exact eLpNorm_trnc_est (p := ⊤)
     have obs : eLpNorm (T (trnc ⊥ f a)) ⊤ ν = 0 :=
-      weaktype_aux₀ hp₀ (hq₀ ▸ zero_lt_top) zero_lt_top zero_lt_top h₀T
-        (aestronglyMeasurable_truncCompl hf.1) this
+      weaktype_aux₀ hp₀ (hq₀ ▸ zero_lt_top) zero_lt_top zero_lt_top h₀T hf.1.truncCompl this
     exact nonpos_iff_eq_zero.mp (Trans.trans (distribution_mono_right (Trans.trans obs
       (zero_le (ENNReal.ofReal t)))) meas_eLpNormEssSup_lt)
   · have p_pos : p > 0 := lt_trans hp₀ hp₀p
@@ -3472,7 +3450,6 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
   set_mem := fun _ ↦ trivial
   finite := by
     intro n
-    dsimp only [Pi.sub_apply]
     split_ifs
     · rw [Measure.restrict_apply₀']
       · rw [measure_mono_null _ measure_empty]

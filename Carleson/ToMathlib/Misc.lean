@@ -2,12 +2,12 @@ import Mathlib.Analysis.Convex.PartitionOfUnity
 import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.MeasureTheory.Integral.Bochner
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 import Mathlib.Topology.MetricSpace.Holder
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
-import Carleson.ToMathlib.MeasureReal
+import Mathlib.MeasureTheory.Measure.Real
 
 /-
 * This file can import all ToMathlib files.

@@ -1,7 +1,7 @@
 import Mathlib.MeasureTheory.Measure.Prod
 import Mathlib.MeasureTheory.MeasurableSpace.Defs
 import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
-import Mathlib.MeasureTheory.Integral.Lebesgue
+import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 
 namespace MeasureTheory
 

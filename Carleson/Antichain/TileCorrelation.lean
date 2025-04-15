@@ -353,16 +353,16 @@ open GridStructure
 -- Lemma 6.1.5 (part I)
 lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
-      (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
-        (volume.nnreal (coeGrid (𝓘 p))) * ∫ y in E p', ‖ g y‖ * ∫ y in E p, ‖ g y‖ := by
+    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
+      (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
+        (volume (coeGrid (𝓘 p))) * ∫⁻ y in E p', ‖g y‖ₑ * ∫⁻ y in E p, ‖g y‖ₑ := by
   sorry
 
 -- Lemma 6.1.5 (part II)
 lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hpp' : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p) ) :
-    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ = 0 := by
+    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ = 0 := by
   by_contra h0
   apply hpp'
   have hy : ∃ y : X, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ≠ 0 := sorry

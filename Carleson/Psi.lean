@@ -288,7 +288,7 @@ lemma support_ψS_subset_Icc {b c : ℤ} {x : ℝ}
   simp only [support_ψS hD hx, nonzeroS, Finset.coe_Icc, mem_Icc] at hi
   simp only [toFinset_Icc, Finset.coe_Icc, mem_Icc]
   refine ⟨le_trans ?_ hi.1, le_trans hi.2 ?_⟩
-  · rw [← Nat.cast_one, Int.floor_nat_add, Nat.cast_one, ← sub_le_iff_le_add', Int.le_floor,
+  · rw [← Nat.cast_one, Int.floor_natCast_add, Nat.cast_one, ← sub_le_iff_le_add', Int.le_floor,
       Real.le_logb_iff_rpow_le hD (mul_pos two_pos hx), mul_comm]
     exact_mod_cast (div_le_iff₀ two_pos).mp h.1
   · rw [Int.ceil_le, Real.logb_le_iff_le_rpow hD (mul_pos four_pos hx), mul_comm]
@@ -374,7 +374,7 @@ def D2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (150 * (a : ℝ) ^ 3)
 
 /-- preferably use `kernel_bound` instead. -/
 lemma kernel_bound_old {s : ℤ} {x y : X} :
-    ‖Ks s x y‖₊ ≤ 2 ^ a ^ 3 / volume.nnreal (ball x (dist x y)) := by
+    ‖Ks s x y‖₊ ≤ 2 ^ a ^ 3 / (volume (ball x (dist x y))).toNNReal := by
   change ‖K x y * ψ (D ^ (-s) * dist x y)‖ ≤ 2 ^ a ^ 3 / volume.real (ball x (dist x y))
   apply le_trans <| calc
     ‖K x y * ψ (D ^ (-s) * dist x y)‖
@@ -416,7 +416,8 @@ private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) 
   field_simp
   ring
 
-lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) : volume.nnreal (ball x r) > 0 :=
+lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) :
+    (volume (ball x r)).toNNReal > 0 :=
   ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) (measure_ball_ne_top x _)
 
 lemma Metric.measure_ball_pos_real (x : X) (r : ℝ) (hr : r > 0) : volume.real (ball x r) > 0 :=
@@ -453,7 +454,7 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
   apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
     ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
-  rw [measureNNReal_val, div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
+  rw [div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
     DoublingMeasure.volume_ball_two_le_same_repeat' s x n
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
