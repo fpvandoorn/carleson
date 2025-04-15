@@ -608,8 +608,8 @@ lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
 variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
-lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
+lemma HasStrongType.const_smul
+    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {c : ℝ≥0∞}
     (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
@@ -617,14 +617,13 @@ lemma HasStrongType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' :
   gcongr
   exact (h f hf).2
 
-lemma HasStrongType.const_mul {E' α α' : Type*} [NormedRing E']
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞}
-    {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : E') :
+lemma HasStrongType.const_mul {E' : Type*} [NormedRing E']
+    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : E') :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
-lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞} (hp : p ≠ 0)
-    {μ : Measure α} {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
+lemma wnorm_const_smul_le {p : ℝ≥0∞} (hp : p ≠ 0)
+    {f : α → E} (k : 𝕜) : wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top]
     apply eLpNormEssSup_const_smul_le
@@ -651,8 +650,8 @@ lemma wnorm_const_smul_le {α : Type*} {_ : MeasurableSpace α} {p : ℝ≥0∞}
   apply le_of_eq
   congr <;> exact (coe_div knorm_ne_zero).symm
 
-lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : MeasurableSpace α'}
-    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'}
+lemma HasWeakType.const_smul
+    {T : (α → ε) → (α' → E')} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {ν : Measure α'}
     {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
@@ -664,9 +663,8 @@ lemma HasWeakType.const_smul {α α' : Type*} {_x : MeasurableSpace α} {_x' : M
       apply (h f hf).2
     _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
-lemma HasWeakType.const_mul {α α' : Type*}
-    {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞}
-    (hp' : p' ≠ 0) {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
+lemma HasWeakType.const_mul {T : (α → ε) → (α' → 𝕜)} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {c : ℝ≥0∞}
+    (h : HasWeakType T p p' μ ν c) (e : 𝕜) :
     HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
 
