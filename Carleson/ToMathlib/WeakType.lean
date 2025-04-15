@@ -12,7 +12,7 @@ open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 
 section move
 
-variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
+variable {α 𝕜 E ε : Type*} {m : MeasurableSpace α}
   {μ : Measure α} [NontriviallyNormedField 𝕜]
   [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   {p : ℝ≥0∞}
@@ -21,8 +21,12 @@ variable {α 𝕜 E : Type*} {m : MeasurableSpace α}
 lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
 
-lemma enorm_absolute_homogeneous {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+lemma enorm_absolute_homogeneous' {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
   (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
+
+lemma enorm_absolute_homogeneous [TopologicalSpace ε] [ENormedSpace ε] {c : ℝ≥0} (z : ε) :
+    ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+  ENormedSpace.enorm_smul _ _
 
 lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
   (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
@@ -573,11 +577,9 @@ section
 
 variable [TopologicalSpace ε] [ENormedSpace ε]
 
--- TODO: remove the other version, as the wrong generality?
-lemma enorm_absolute_homogeneous' {c : ℝ≥0} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
-  ENormedSpace.enorm_smul _ _
+-- TODO: investigate if these version should be unified: define a new class `NormedSemifield`
+-- (which includes `NNReal` and normed fields, and assume `𝕜` is a NormedSemifield instead.
 
--- TODO: replace the unprimed version by this one!
 lemma distribution_smul_left {f : α → ε} {c : ℝ≥0} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
   have h₀ : ‖c‖ₑ ≠ 0 := by
@@ -588,7 +590,18 @@ lemma distribution_smul_left {f : α → ε} {c : ℝ≥0} (hc : c ≠ 0) :
   congr with x
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
-    enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+    enorm_absolute_homogeneous _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+
+lemma distribution_smul_left' {𝕜 E} [NontriviallyNormedField 𝕜] [NormedAddCommGroup E] [NormedSpace 𝕜 E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E] {f : α → E} {c : 𝕜} (hc : c ≠ 0) (hc : c ≠ 0) :
+    distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
+  have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
+  unfold distribution
+  congr with x
+  simp only [Pi.smul_apply, mem_setOf_eq]
+  rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
+    enorm_absolute_homogeneous' (c := c) (z := f x), mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+
+#exit
 
 variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
 
