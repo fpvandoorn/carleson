@@ -1,6 +1,6 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
-import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
+import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
 
 open ShortVariables TileStructure
