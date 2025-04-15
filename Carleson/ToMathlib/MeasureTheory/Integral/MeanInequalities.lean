@@ -1,11 +1,6 @@
 import Mathlib.MeasureTheory.Integral.MeanInequalities
-import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Mathlib.MeasureTheory.Group.Measure
-import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
-import Mathlib.Analysis.Convolution
 import Carleson.ToMathlib.Data.Real.ConjExponents
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Mathlib.MeasureTheory.Group.LIntegral
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
@@ -247,15 +242,18 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux {p q r 
         repeat rw [ENNReal.sub_div (by simp [p0, q0, r0])]
         nth_rewrite 2 5 [← one_mul (ENNReal.ofReal r)]
         nth_rewrite 2 [← mul_one (ENNReal.ofReal p), ← mul_one (ENNReal.ofReal q)]
-        repeat rw [ENNReal.mul_div_mul_right _ _ (by simp [r0]) (by simp), one_div]
-        repeat rw [ENNReal.mul_div_mul_left _ _ (by simp [p0, q0]) (by simp), one_div]
+        -- adaptation note(2025-04-15): these two lines stopped applying at all
+        --repeat rw [ENNReal.mul_div_mul_right _ _ (by simp [r0]) (by simp), one_div]
+        --repeat rw [ENNReal.mul_div_mul_left _ _ (by simp [p0, q0]) (by simp), one_div]
         rw [← ENNReal.ofReal_one, ← congr_arg ENNReal.ofReal (sub_eq_iff_eq_add'.mpr hpqr)]
         rw [ofReal_sub _ (inv_pos.mpr r0).le, ← add_assoc]
         rw [ofReal_add (inv_pos.mpr p0).le (inv_pos.mpr q0).le]
         have : AddLECancellable (ENNReal.ofReal r)⁻¹ := ENNReal.cancel_of_ne (by simp [r0])
+        -- adaptation note(2025-04-15): the following lines completed the proof
+        sorry /-
         rw [← this.add_tsub_assoc_of_le, ← this.add_tsub_assoc_of_le, this.add_tsub_cancel_left]
         · rw [ofReal_inv_of_pos p0, ofReal_inv_of_pos q0, ofReal_inv_of_pos r0]
-        all_goals exact ENNReal.inv_le_inv.mpr <| ofReal_le_ofReal (sub_nonneg.mp (by assumption))
+        all_goals exact ENNReal.inv_le_inv.mpr <| ofReal_le_ofReal (sub_nonneg.mp (by assumption)) -/
       all_goals simp [ENNReal.mul_pos, p0, q0, r0]
     _ = _ := by
       congr
