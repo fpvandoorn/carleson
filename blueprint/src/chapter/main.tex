@@ -724,7 +724,6 @@ We also record the following basic estimates for the kernels $K_s$.
 \begin{lemma}[kernel summand]
 \label{kernel-summand}
 \leanok
-% \uses{} % does this use anything?
 \lean{dist_mem_Icc_of_Ks_ne_zero, norm_Ks_le, norm_Ks_sub_Ks_le}
     Let $-S\le s\le S$ and $x,y,y'\in X$.
     If $K_s(x,y)\neq 0$, then we have
@@ -4424,8 +4423,8 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \begin{lemma}[first tree pointwise]
     \label{first-tree-pointwise}
     \leanok
-    \lean{TileStructure.Forest.first_tree_pointwise, kernel-summand}
-    \uses{convex-scales}
+    \lean{TileStructure.Forest.first_tree_pointwise}
+    \uses{convex-scales, kernel-summand}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
         \eqref{eq-term-A} \le 10 \cdot 2^{104a^3} M_{\mathcal{B}, 1}P_{\mathcal{J}(\fT(\fu))}|f|(x')\,.
@@ -5079,7 +5078,8 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 \end{equation}
 
 \begin{lemma}[adjoint tile support]
-    \label{adjoint-tile-support, kernel-summand}
+    \label{adjoint-tile-support}
+    \uses{kernel-summand}
     \leanok
     \lean{TileStructure.Forest.adjoint_tile_support1, TileStructure.Forest.adjoint_tile_support2}
     For each $\fp \in \fP$, we have
