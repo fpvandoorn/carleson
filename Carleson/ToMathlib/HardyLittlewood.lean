@@ -675,9 +675,7 @@ theorem hasStrongType_maximalFunction_todo
       apply hmf
     _ ≤ (∫⁻ (a : X), ⨆ k, (maximalFunction μ (𝓑' k) c r (↑p₁) v a) ^ (ofNNReal p₂).toReal ∂μ)
         ^ (1 / (ofNNReal p₂).toReal) := by
-      gcongr
-      -- The last argument of the maximalfunction becomes anonymous, so need to revive it...
-      rename_i a
+      gcongr with a
       apply (rpow_le_rpow_iff (z := ((ofNNReal p₂).toReal)⁻¹) (by positivity)).mp
       rw [rpow_rpow_inv (hp₂neq_zero)]
       apply iSup_le
