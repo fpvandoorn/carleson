@@ -147,9 +147,9 @@ Our main result is the following restricted weak type estimate for $T$ in the ra
 $1<q<2$.
 \begin{theorem}[metric space Carleson]
 \label{metric-space-Carleson}
+\uses{linearised-metric-Carleson,int-continuous}
 \leanok
 \lean{metric_carleson}
-\uses{R-truncation}
     For all integers $a \ge 4$ and real numbers $1<q\le 2$
     the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
@@ -187,9 +187,9 @@ where again $e(r)=e^{ir}$.
 
 \begin{theorem}[linearised metric Carleson]
 \label{linearised-metric-Carleson}
+\uses{R-truncation,int-continuous}
 \leanok
 \lean{linearized_metric_carleson}
-%\uses{R-truncation} % todo
     For all integers $a \ge 4$ and real numbers $1<q\le 2$
     the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
@@ -724,6 +724,7 @@ We also record the following basic estimates for the kernels $K_s$.
 \begin{lemma}[kernel summand]
 \label{kernel-summand}
 \leanok
+% \uses{} % does this use anything?
 \lean{dist_mem_Icc_of_Ks_ne_zero, norm_Ks_le, norm_Ks_sub_Ks_le}
     Let $-S\le s\le S$ and $x,y,y'\in X$.
     If $K_s(x,y)\neq 0$, then we have
@@ -867,7 +868,7 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
 
 We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-metric-Carleson}.
 
-\begin{proof}    %\uses{linearised_metric_Carleson,int_continuous}
+\begin{proof}[Proof of \Cref{metric-space-Carleson}]
     Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
     Let $\Mf' \subset \Mf$ be a countable dense set. By Lemma \ref{int-continuous} we have
@@ -903,7 +904,7 @@ We continue with the proof of Theorem \ref{linearised-metric-Carleson}, via a se
 
 Let a measurable function $Q$ with finite range be given.
 
-\begin{proof}[Proof of \Cref{linearised-metric-Carleson}] %\uses{R_truncation,int_continuous}
+\begin{proof}[Proof of \Cref{linearised-metric-Carleson}]
 
 Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
@@ -919,7 +920,7 @@ For each $x$ and all $f$, the functions $\sup_{2^{-n} < R_1 < R_2 < 2^n} T_{R_1,
 
 \begin{lemma}[R truncation]
     \label{R-truncation}
-    %\uses{S-truncation}
+    \uses{S-truncation}
 
     Let $F$, $G$ be Borel sets in $X$ with finite measure.
     Let $f:X\to \C$ be a Borel function with
@@ -1004,7 +1005,7 @@ Summing the contributions from the summands in \eqref{middles} and \eqref{bounda
 
 \begin{lemma}[S truncation]
     \label{S-truncation}
-    %\uses{Hardy-Littlewood,kernel-summand,finitary-S-truncation}
+    \uses{Hardy-Littlewood, kernel-summand, linearized-truncation}
 
 
     Let $F$, $G$ be bounded Borel sets in $X$.
@@ -1051,7 +1052,7 @@ T_{s_1,s_2} f(x)=
 
 \begin{lemma}[linearized truncation]
     \label{linearized-truncation}
-    %\uses{finitary-Carleson}
+    \uses{finitary-Carleson}
     Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range
     $[-S,S]$ and $\sigma_1\leq \sigma_2$.
     Then we have
