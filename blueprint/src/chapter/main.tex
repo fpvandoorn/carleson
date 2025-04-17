@@ -1005,7 +1005,7 @@ Summing the contributions from the summands in \eqref{middles} and \eqref{bounda
 
 \begin{lemma}[S truncation]
     \label{S-truncation}
-    \uses{Hardy-Littlewood, kernel-summand, linearized-truncation}
+    \uses{Hardy-Littlewood, linearized-truncation}
 
 
     Let $F$, $G$ be bounded Borel sets in $X$.
@@ -4424,7 +4424,7 @@ The following pointwise estimate for operators associated to sets $\fT(\fu)$ is 
 \begin{lemma}[first tree pointwise]
     \label{first-tree-pointwise}
     \leanok
-    \lean{TileStructure.Forest.first_tree_pointwise}
+    \lean{TileStructure.Forest.first_tree_pointwise, kernel-summand}
     \uses{convex-scales}
     For all $\fu \in \fU$, all $L \in \mathcal{L}(\fT(\fu))$, all $x, x' \in L$ and all bounded $f$ with bounded support, we have
     $$
@@ -5079,7 +5079,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
 \end{equation}
 
 \begin{lemma}[adjoint tile support]
-    \label{adjoint-tile-support}
+    \label{adjoint-tile-support, kernel-summand}
     \leanok
     \lean{TileStructure.Forest.adjoint_tile_support1, TileStructure.Forest.adjoint_tile_support2}
     For each $\fp \in \fP$, we have
