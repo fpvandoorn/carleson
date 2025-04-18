@@ -521,8 +521,6 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  unfold globalMaximalFunction
-  simp_rw [C2_0_6']
   convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
   · sorry -- how to prevent this diamond?
   · sorry -- missing instance, right?
