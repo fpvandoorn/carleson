@@ -516,19 +516,20 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
-/-- Equation (2.0.46).
-Easy from `hasStrongType_maximalFunction`. Ideally prove separately
-`HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
+/-- Equation (2.0.46). Easy from `hasStrongType_maximalFunction` -/
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  rw [← hasStrongType_toReal_iff sorry /- todo: cleanup (task 117). -/]
   unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul, C2_0_6']
+  simp_rw [C2_0_6']
   convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
-  · simp
-  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
+  · sorry -- how to prevent this diamond?
+  · sorry -- missing instance, right?
+  convert hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
+  -- TODO: all these goals are "obvious", there is always a matching instance in context
+  -- figure out what's going wrong here!
+  all_goals sorry
 
 theorem hasWeakType_globalMaximalFunction [ENormedSpace E] [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
