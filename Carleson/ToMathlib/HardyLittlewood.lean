@@ -516,37 +516,38 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
-/-- Equation (2.0.46).
-Easy from `hasStrongType_maximalFunction`. Ideally prove separately
-`HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
+/-- Equation (2.0.46). Easy from `hasStrongType_maximalFunction` -/
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  rw [← hasStrongType_toReal_iff sorry /- todo: cleanup (task 117). -/]
-  unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul, C2_0_6']
   convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
-  · simp
-  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
+  · sorry -- how to prevent this diamond?
+  · sorry -- missing instance, right?
+  convert hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
+  -- TODO: all these goals are "obvious", there is always a matching instance in context
+  -- figure out what's going wrong here!
+  all_goals sorry
 
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
     HasWeakType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (A ^ 4) := by
-  rw [← hasWeakType_toReal_iff sorry /- todo: cleanup (task 117). -/]
-  unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul]
+  -- rw [← hasWeakType_toReal_iff sorry /- todo: cleanup (task 117). -/]
+  -- unfold globalMaximalFunction
+  -- simp_rw [ENNReal.toReal_mul]
   have : ofNNReal p₂ ≠ 0 := by -- surely, there is a simpler proof
     refine coe_ne_zero.mpr ?_
     have : 1 ≤ p₂ := by
       trans p₁
       exacts [hp₁, hp₁₂]
     positivity
-  convert HasWeakType.const_mul (c := A ^ 2) (e := (A : ℝ) ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
-    (ε := E) this _
+  sorry
+  /- TODO: fix this proof (currently times out), was:
+  apply HasWeakType.const_mul (c := A ^ 2) (e := A ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂) this _
+  -- perhaps specify (ε := E) also
   · simp; ring
-  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
+  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂ -/
 
 /-- Use `lowerSemiContinuous_MB` -/
 lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
