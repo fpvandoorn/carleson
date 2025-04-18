@@ -617,7 +617,7 @@ lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
 
 -- XXX: is this the statement we want?
 lemma HasStrongType.const_mul
-    {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : ℝ≥0) :
+    {T : (α → ε) → (α' → ℝ≥0∞)} {p p' : ℝ≥0∞} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : ℝ≥0) :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul e
 
@@ -662,7 +662,7 @@ lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
 -- XXX: is this the statement we want?
-lemma HasWeakType.const_mul {T : (α → ε) → (α' → ℝ≥0)} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {c : ℝ≥0∞}
+lemma HasWeakType.const_mul {T : (α → ε) → (α' → ℝ≥0∞)} {p p' : ℝ≥0∞} (hp' : p' ≠ 0) {c : ℝ≥0∞}
     (h : HasWeakType T p p' μ ν c) (e : ℝ≥0) :
     HasWeakType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul hp' e
