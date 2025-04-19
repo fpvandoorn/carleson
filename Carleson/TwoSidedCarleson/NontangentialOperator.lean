@@ -46,28 +46,18 @@ lemma geom_estimate_constant_le_two :
     _ ≤ _ := by norm_num
 
 lemma hasSum_geometric_series {x : ℝ} (hx : 4 ≤ x) :
-    HasSum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) (1 - 2 ^ (-1 / x))⁻¹ := by
-
-  have two_pow_neg_inv_lt_one {x : ℝ} (hx : 4 ≤ x) :
-      (2 : ℝ≥0) ^ (-1 / x) < 1 := by
+    HasSum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) (1 - 2 ^ (-x⁻¹))⁻¹ := by
+  have h2x : (2 : ℝ≥0) ^ (-x⁻¹) < 1 := by
     apply Real.rpow_lt_one_of_one_lt_of_neg
     · norm_num
-    · simp_rw [neg_div, Left.neg_neg_iff]
+    · simp_rw [Left.neg_neg_iff]
       positivity
 
   -- Bring it to the form of hasSum_geometric_of_lt_one
-  rw [← NNReal.hasSum_coe]
-  conv =>
-    arg 1; intro n;
-    rw [NNReal.coe_rpow, NNReal.coe_ofNat, div_eq_mul_inv, neg_mul, mul_comm, ← neg_mul, Real.rpow_mul_natCast, inv_eq_one_div, ← neg_div]
-    case h.hx => exact zero_le_two
-  rw [NNReal.coe_inv, NNReal.coe_sub, NNReal.coe_rpow, NNReal.coe_one, NNReal.coe_ofNat]
-  swap
-  . exact le_of_lt (two_pow_neg_inv_lt_one hx)
-
-  apply hasSum_geometric_of_lt_one
-  . positivity
-  . exact two_pow_neg_inv_lt_one hx
+  simp_rw [← NNReal.hasSum_coe, NNReal.coe_rpow, NNReal.coe_ofNat, neg_div,
+    div_eq_inv_mul (b := x), ← neg_mul, Real.rpow_mul_natCast zero_le_two]
+  push_cast [h2x.le]
+  exact hasSum_geometric_of_lt_one (by positivity) h2x
 
 /-- Lemma 10.1.1 -/
 theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
@@ -77,14 +67,14 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
     (hasSum_geometric_series hx).tsum_eq]
 
   -- TODO the rest of this proof can surely be optimized
-  suffices (1 - (2 : ℝ) ^ (-1 / x))⁻¹ ≤ 2 ^ x by
+  -- Floris suggests using `trans 2`
+  suffices (1 - (2 : ℝ) ^ (-x⁻¹))⁻¹ ≤ 2 ^ x by
     rw [← NNReal.coe_le_coe, NNReal.coe_inv, NNReal.coe_rpow, NNReal.coe_ofNat, NNReal.coe_sub]
     swap
     . apply NNReal.rpow_le_one_of_one_le_of_nonpos
       . exact Nat.one_le_ofNat
-      . apply div_nonpos_of_nonpos_of_nonneg
-        . simp only [Left.neg_nonpos_iff, zero_le_one]
-        . positivity
+      . simp_rw [Left.neg_nonpos_iff]
+        positivity
     apply this
 
   have zero_le_one_sub_four_div_x : 0 ≤ 1 - 4 / x := by
@@ -97,7 +87,7 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
   have one_sub_two_pow_neg_one_div_four_pos : 0 < 1 - (2 : ℝ) ^ (-1 / 4 : ℝ) := by
     norm_num
     apply Real.rpow_lt_one_of_one_lt_of_neg
-    · simp
+    · exact one_lt_two
     · norm_num
 
   -- By convexity, for all 0 ≤ λ ≤ 1, we have ...
@@ -116,12 +106,12 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
   calc
     _ ≤ (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ := by
       rw [inv_le_inv₀]
-      · linarith only [two_pow_neg_one_div_bound]
+      · simp_rw [inv_eq_one_div, ← neg_div]
+        linarith only [two_pow_neg_one_div_bound]
       · rw [sub_pos]
         apply Real.rpow_lt_one_of_one_lt_of_neg
         · simp only [NNReal.coe_ofNat, Nat.one_lt_ofNat]
-        · rw [neg_div]
-          simp only [one_div, Left.neg_neg_iff, inv_pos]
+        · simp only [Left.neg_neg_iff, inv_pos]
           positivity
       · apply _root_.mul_pos
         · positivity
