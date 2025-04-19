@@ -172,7 +172,7 @@ lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   let Kxg := fun y ↦ K x y * g y
-  have mKxg : AEMeasurable Kxg := by
+  have mKxg : AEStronglyMeasurable Kxg := by
     have : Measurable (K x) := measurable_K_right x
     fun_prop
 
@@ -212,35 +212,25 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
         norm_cast
         rw [← toNNReal_mul]
       rw [← Measure.restrict_apply₀']
-      . apply measure_mono_null_ae
-        . apply HasSubset.Subset.eventuallyLE
-          exact this
+      . apply measure_mono_null_ae this.eventuallyLE
         rw [setOf_or]
         apply measure_union_null
         . rw [← ae_iff]
-          apply ae_restrict_of_forall_mem
-          . simp [measurableSet_ball]
+          apply ae_restrict_of_forall_mem measurableSet_ball.compl
           intro y hy
           rw [norm_le_toNNReal_iff_enorm_le]
           . apply enorm_K_le_ball_complement' hy
-          . apply div_lt_top coe_ne_top
-            exact ne_of_gt (measure_ball_pos volume x hr)
-        . rw [← ae_iff]
-          conv =>
-            arg 1; intro y
-            unfold M2
-            rw [norm_le_toNNReal_iff_enorm_le (hg.eLpNorm_lt_top), eLpNorm_exponent_top]
-          apply ae_restrict_of_ae
-          apply ae_le_eLpNormEssSup
-      . simp [measurableSet_ball]
+          . exact div_lt_top coe_ne_top (measure_ball_pos volume x hr).ne.symm
+        . simp_rw [← ae_iff, M2, norm_le_toNNReal_iff_enorm_le (hg.eLpNorm_lt_top), eLpNorm_exponent_top]
+          apply ae_restrict_of_ae ae_le_eLpNormEssSup
+      . exact measurableSet_ball.compl.nullMeasurableSet
     . apply NullMeasurableSet.inter
-      . simp [measurableSet_ball] --should measurableSet_ball have @[simp]?
-      . exact AEStronglyMeasurable.nullMeasurableSet_support mKxg.aestronglyMeasurable
+      . exact measurableSet_ball.compl.nullMeasurableSet
+      . exact mKxg.nullMeasurableSet_support
 
   obtain ⟨M, hM⟩ := bdd_Kxg
 
-  apply integrableOn_of_integrableOn_inter_support
-  . exact MeasurableSet.compl measurableSet_ball
+  apply integrableOn_of_integrableOn_inter_support measurableSet_ball.compl
   apply Measure.integrableOn_of_bounded
   . apply ne_top_of_le_ne_top
     . exact ne_of_lt hg.measure_support_lt
@@ -248,7 +238,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       trans support Kxg
       . exact inter_subset_right
       . exact support_mul_subset_right (K x) g
-  . exact mKxg.aestronglyMeasurable
+  . exact mKxg
   . exact hM
 
 /- This should go somewhere else
