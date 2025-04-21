@@ -121,126 +121,6 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
     _ ≤ 2 ^ x := by
       apply Real.two_mul_lt_two_pow
       linarith only [hx]
-
-lemma norm_le_coe_iff_enorm_le {r : ℂ} {c : ℝ≥0} :
-    ‖r‖ ≤ c ↔ ‖r‖ₑ ≤ c := by
-  sorry
-
-lemma norm_le_toNNReal_iff_enorm_le {r : ℂ} {c : ℝ≥0∞} (hc : c < ⊤) :
-    ‖r‖ ≤ c.toNNReal ↔ ‖r‖ₑ ≤ c := by
-  nth_rw 2 [← coe_toNNReal (ne_of_lt hc)]
-  apply norm_le_coe_iff_enorm_le
-
--- TODO move to ToMathlib, properly generalise
-theorem integrableOn_of_integrableOn_inter_support {f : X → ℂ} {μ : Measure X} {s : Set X}
-    (hs : MeasurableSet s) (hf : IntegrableOn f (s ∩ support f) μ) :
-    IntegrableOn f s μ := by
-  apply IntegrableOn.of_forall_diff_eq_zero hf hs
-  simp
-
--- TODO move to general place about K, decide on good name
-lemma enorm_K_le_ball_complement' {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
-    ‖K x y‖ₑ ≤ C_K a / volume (ball x r) := by
-  apply le_trans (enorm_K_le_vol_inv x y)
-  apply ENNReal.div_le_div_left
-  apply measure_mono
-  apply ball_subset_ball
-  rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hy
-  exact hy
-
-lemma enorm_K_le_ball_complement (hr : 0 < r) {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
-    ‖K x y‖ₑ ≤ (C_K a / volume (ball x r)).toNNReal := by
-  rw [ENNReal.coe_toNNReal ?ne_top]
-  case ne_top =>
-    rw [Ne, ENNReal.div_eq_top]
-    push_neg
-    simp [ne_of_gt (measure_ball_pos volume x hr)]
-  exact enorm_K_le_ball_complement' hy
-
-lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
-    MemLp (K x) ∞ (volume.restrict (ball x r)ᶜ) := by
-  constructor
-  . exact (measurable_K_right x).aestronglyMeasurable
-  . simp only [eLpNorm_exponent_top]
-    apply eLpNormEssSup_lt_top_of_ae_enorm_bound
-    . apply ae_restrict_of_forall_mem
-      . measurability
-      . intro y hy
-        apply enorm_K_le_ball_complement hr hy
-
--- TODO move to sensible place
-lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
-    IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
-  let Kxg := fun y ↦ K x y * g y
-  have mKxg : AEStronglyMeasurable Kxg := by
-    have : Measurable (K x) := measurable_K_right x
-    fun_prop
-
-  have tmp_Kxg {M : ℝ≥0} : ∀ y, ¬‖Kxg y‖ ≤ M → y ∈ support Kxg := by
-    intro y
-    contrapose!
-    rw [nmem_support]
-    intro hy
-    rw [hy, norm_zero]
-    simp only [NNReal.zero_le_coe]
-
-  have bdd_Kxg : ∃ (M : ℝ), ∀ᵐ y ∂(volume.restrict ((ball x r)ᶜ ∩ support Kxg)), ‖Kxg y‖ ≤ M := by
-    let M0 := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
-    use M0
-    rw [ae_iff, Measure.restrict_apply₀']
-    . conv =>
-        arg 1; arg 2;
-        rw [← inter_assoc]
-        refine Eq.symm (left_eq_inter.mpr ?_)
-        . apply inter_subset_left.trans
-          apply setOf_subset.mpr
-          apply tmp_Kxg
-
-      let M1 := (C_K a / volume (ball x r)).toNNReal
-      let M2 := (eLpNorm g ∞).toNNReal
-      have : { y | ¬‖Kxg y‖ ≤ M0} ⊆ { y | ¬‖K x y‖ ≤ M1 ∨ ¬‖g y‖ ≤ M2} := by
-        rw [setOf_subset_setOf]
-        intro y
-        contrapose!
-        intro hy
-        rw [norm_mul]
-        trans M1 * M2
-        . apply mul_le_mul hy.left hy.right
-          case b0 | c0 => simp only [norm_nonneg, NNReal.zero_le_coe]
-
-        apply le_of_eq
-        norm_cast
-        rw [← toNNReal_mul]
-      rw [← Measure.restrict_apply₀']
-      . apply measure_mono_null_ae this.eventuallyLE
-        rw [setOf_or]
-        apply measure_union_null
-        . rw [← ae_iff]
-          apply ae_restrict_of_forall_mem measurableSet_ball.compl
-          intro y hy
-          rw [norm_le_toNNReal_iff_enorm_le]
-          . apply enorm_K_le_ball_complement' hy
-          . exact div_lt_top coe_ne_top (measure_ball_pos volume x hr).ne.symm
-        . simp_rw [← ae_iff, M2, norm_le_toNNReal_iff_enorm_le (hg.eLpNorm_lt_top), eLpNorm_exponent_top]
-          apply ae_restrict_of_ae ae_le_eLpNormEssSup
-      . exact measurableSet_ball.compl.nullMeasurableSet
-    . apply NullMeasurableSet.inter
-      . exact measurableSet_ball.compl.nullMeasurableSet
-      . exact mKxg.nullMeasurableSet_support
-
-  obtain ⟨M, hM⟩ := bdd_Kxg
-
-  apply integrableOn_of_integrableOn_inter_support measurableSet_ball.compl
-  apply Measure.integrableOn_of_bounded
-  . apply ne_top_of_le_ne_top
-    . exact ne_of_lt hg.measure_support_lt
-    . apply measure_mono
-      trans support Kxg
-      . exact inter_subset_right
-      . exact support_mul_subset_right (K x) g
-  . exact mKxg
-  . exact hM
-
 /- This should go somewhere else
 
 But this version of setIntegral_union is easier to apply as it starts from the overall integral which
@@ -373,7 +253,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
     refine mul_le_mul' ?_ ?_
     case refine_2 => rfl
 
-    exact enorm_K_le_ball_complement' h
+    exact enorm_K_le_ball_complement h
 
   have pointwise_2 : ∀(y : X), y ∈ (ball x (2 * r))ᶜ → ‖K x y - K x' y‖ₑ * ‖g y‖ₑ ≤
       ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ := by

@@ -347,6 +347,27 @@ lemma enorm_K_le_vol_inv [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Me
   gcongr
   apply norm_K_le_vol_inv
 
+--TODO good name
+lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    ‖K x y‖ₑ ≤ C_K a / volume (ball x r) := by
+  apply le_trans (enorm_K_le_vol_inv x y)
+  apply ENNReal.div_le_div_left
+  apply measure_mono
+  apply ball_subset_ball
+  rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hy
+  exact hy
+
+lemma enorm_K_le_ball_complement' [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOpenPosMeasure (volume : Measure X)] [IsOneSidedKernel a K] {r : ℝ} (hr : 0 < r)
+    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    ‖K x y‖ₑ ≤ (C_K a / volume (ball x r)).toNNReal := by
+  rw [ENNReal.coe_toNNReal ?ne_top]
+  case ne_top =>
+    rw [Ne, ENNReal.div_eq_top]
+    push_neg
+    simp [ne_of_gt (measure_ball_pos volume x hr)]
+  exact enorm_K_le_ball_complement hy
 
 lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
     [IsOneSidedKernel a K] {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
