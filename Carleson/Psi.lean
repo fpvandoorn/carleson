@@ -343,6 +343,22 @@ lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
   Ioo_subset_Icc_self (dist_mem_Ioo_of_Ks_ne_zero h)
 
+lemma dist_mem_Icc_of_mem_tsupport_Ks {s : ℤ} {x : X × X}
+    (h : x ∈ tsupport fun x ↦ (Ks s x.1 x.2)) :
+    dist x.1 x.2 ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+  set C := support fun (x : X × X) ↦ Ks s x.1 x.2
+  have hcont : Continuous (fun (x : X × X) ↦ dist x.1 x.2) := by continuity
+  have hC : (fun (x : X × X) ↦ dist x.1 x.2) '' C ⊆ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+    intro r hr
+    simp only [mem_image, mem_support, C] at hr
+    obtain ⟨x, hx, rfl⟩ := hr
+    exact dist_mem_Icc_of_Ks_ne_zero hx
+  have hC' : (fun (x : X × X) ↦ dist x.1 x.2) '' (tsupport fun x ↦ Ks s x.1 x.2) ⊆
+      Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
+    subset_trans (image_closure_subset_closure_image hcont)
+      ((isClosed_Icc.closure_subset_iff).mpr hC)
+  exact hC' (mem_image_of_mem (fun x ↦ dist x.1 x.2) h)
+
 /-- The constant appearing in part 2 of Lemma 2.1.3. -/
 def C2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 /-- The constant appearing in part 3 of Lemma 2.1.3. -/
@@ -500,7 +516,6 @@ lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
   · intro x y hx
     convert norm_Ks_le_of_dist_le hr₀ (h hx) s
   · positivity
-
 
 -- Needed to prove `ψ_ineq`
 private lemma norm_ψ_sub_ψ_le_two {r s : ℝ} : ‖ψ r - ψ s‖ ≤ 2 :=

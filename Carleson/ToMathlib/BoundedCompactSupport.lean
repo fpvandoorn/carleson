@@ -356,3 +356,24 @@ end Metric
 end BoundedCompactSupport
 
 end MeasureTheory
+
+section
+
+open MeasureTheory ENNReal Bornology
+
+variable {X 𝕜 E : Type*} [MeasurableSpace X] [SeminormedAddCommGroup X]
+variable [RCLike 𝕜] {f : X → E}
+variable {Y Z : Type*} [MeasurableSpace Y] [TopologicalSpace Y]
+variable [MeasurableSpace Z] [TopologicalSpace Z]
+variable {f : X → 𝕜} {g : X → 𝕜}
+-- variable {F : Type*} [NormedAddCommGroup F] [NormedSpace 𝕜 F]
+-- variable [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+
+lemma BoundedCompactSupport.mul_bdd_right' (hf : BoundedCompactSupport f) {e : Z → X} {g : Z → 𝕜}
+    (hg : StronglyMeasurable g)
+    (he : Continuous e)
+    (hg1 : ∀ x : X, IsCompact (e ⁻¹' {x} ∩ tsupport g))
+    (hg2 : ∀ (A : Set X) (hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
+    BoundedCompactSupport fun x ↦ f (e x) * g x := by sorry
+
+end
