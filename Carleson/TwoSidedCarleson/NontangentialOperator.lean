@@ -2,6 +2,7 @@ import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
@@ -121,18 +122,6 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
     _ ≤ 2 ^ x := by
       apply Real.two_mul_lt_two_pow
       linarith only [hx]
-/- This should go somewhere else
-
-But this version of setIntegral_union is easier to apply as it starts from the overall integral which
-is to be estimated.
--/
-variable {α : Type*} [MeasurableSpace α]
-variable {f : α → ℂ } {s t : Set α} {μ : Measure α}
-
-theorem MeasureTheory.setIntegral_union_2 (hst : Disjoint s t) (ht : MeasurableSet t) (hfst : IntegrableOn f (s ∪ t) μ) :
-    ∫ x in s ∪ t, f x ∂μ = ∫ x in s, f x ∂μ + ∫ x in t, f x ∂μ :=
-  setIntegral_union hst ht hfst.left_of_union hfst.right_of_union
-/- End of somewhere else -/
 
 /-- The constant used in `estimate_x_shift`. -/
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
