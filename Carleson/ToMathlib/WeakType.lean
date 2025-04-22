@@ -619,7 +619,7 @@ lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
 -- TODO: do we want to unify this lemma with its unprimed version, perhaps using an
 -- `ENormedSemiring` class?
 variable {𝕜 E' : Type*} [NormedRing 𝕜] [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
-lemma HasStrongType.const_smul' [ContinuousENorm ε]
+lemma HasStrongType.const_smul'
     {T : (α → ε) → (α' → E')} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (k : 𝕜) :
     HasStrongType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   refine fun f hf ↦ ⟨AEStronglyMeasurable.const_smul (h f hf).1 k, eLpNorm_const_smul_le.trans ?_⟩
@@ -635,12 +635,12 @@ lemma HasStrongType.const_mul
 -- TODO: do we want to unify this lemma with its unprimed version, perhaps using an
 -- `ENormedSemiring` class?
 variable {E' : Type*} [NormedRing E'] in
-lemma HasStrongType.const_mul' [ContinuousENorm ε]
+lemma HasStrongType.const_mul'
     {T : (α → ε) → (α' → E')} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (e : E') :
     HasStrongType (fun f x ↦ e * T f x) p p' μ ν (‖e‖ₑ * c) :=
   h.const_smul' e
 
-lemma wnorm_const_smul_le [ENormedSpace ε] (hp : p ≠ 0) {f : α → ε} (k : ℝ≥0) :
+lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top]
