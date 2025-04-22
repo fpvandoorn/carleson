@@ -521,33 +521,20 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
-  · sorry -- how to prevent this diamond?
-  · sorry -- missing instance, right?
-  convert hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
-  -- TODO: all these goals are "obvious", there is always a matching instance in context
-  -- figure out what's going wrong here!
-  all_goals sorry
+  apply HasStrongType.const_mul (c := C2_0_6 A p₁ p₂)
+  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
 
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
     HasWeakType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (A ^ 4) := by
-  -- rw [← hasWeakType_toReal_iff sorry /- todo: cleanup (task 117). -/]
-  -- unfold globalMaximalFunction
-  -- simp_rw [ENNReal.toReal_mul]
-  have : ofNNReal p₂ ≠ 0 := by -- surely, there is a simpler proof
+  have : (p₂ : ℝ≥0∞) ≠ 0 := by
     refine coe_ne_zero.mpr ?_
-    have : 1 ≤ p₂ := by
-      trans p₁
-      exacts [hp₁, hp₁₂]
-    positivity
-  sorry
-  /- TODO: fix this proof (currently times out), was:
-  apply HasWeakType.const_mul (c := A ^ 2) (e := A ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂) this _
-  -- perhaps specify (ε := E) also
-  · simp; ring
-  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂ -/
+    have := zero_lt_one (α := ℝ≥0)
+    order
+  convert HasWeakType.const_mul (c := A ^ 2) (e := A ^ 2) this _
+  · rw [ENNReal.coe_pow, ← pow_add]
+  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
 
 /-- Use `lowerSemiContinuous_MB` -/
 lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
