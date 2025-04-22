@@ -11,7 +11,6 @@ import Carleson.ToMathlib.Misc
 
 /-
 This file defines BoundedFiniteSupport.
-TODO It should be suitably generalized in analogy to `BoundedFiniteSupport`.
 -/
 
 open MeasureTheory Function ENNReal TopologicalSpace
