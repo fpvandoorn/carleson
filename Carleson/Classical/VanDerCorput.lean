@@ -60,7 +60,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
         linarith
       _ ≤ B * (volume (Set.Ioo a b)).toReal := by
-        apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+        apply norm_setIntegral_le_of_norm_le_const _
         · exact fun x hx ↦ (h2 x hx)
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
       _ = B * (b - a) := by rw [Real.volume_Ioo, ENNReal.toReal_ofReal (by linarith)]
@@ -110,7 +110,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
         rw [intervalIntegral.integral_of_le, ← integral_Ioc_eq_integral_Ioo]
         linarith
       _ ≤ B * (volume (Set.Ioo a b)).toReal := by
-        apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+        apply norm_setIntegral_le_of_norm_le_const _
         · intro x hx
           rw_mod_cast [norm_mul, mul_assoc, mul_comm I, Complex.norm_exp_ofReal_mul_I, one_mul]
           exact h2 x hx
@@ -220,14 +220,14 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
                  + (K * π / n) * (volume (Set.Ioo (a + π / n) b)).toReal
                  + B * (volume (Set.Ioo (b - π / n) b)).toReal) := by
       gcongr
-      · apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      · apply norm_setIntegral_le_of_norm_le_const _
         · intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul]
           apply h2
           constructor <;> linarith [hx.1, hx.2]
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
-      · apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      · apply norm_setIntegral_le_of_norm_le_const _
         · intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul, ← dist_eq_norm]
@@ -239,7 +239,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
           · exact ⟨by linarith [hx.1, hx.2], by linarith [hx.1, hx.2]⟩
           · exact ⟨by linarith [hx.1, hx.2], by linarith [hx.1, hx.2]⟩
         · exact Real.volume_Ioo ▸ ENNReal.ofReal_lt_top
-      · apply norm_setIntegral_le_of_norm_le_const' _ measurableSet_Ioo
+      · apply norm_setIntegral_le_of_norm_le_const _
         · intro x hx
           rw [norm_mul, mul_assoc, mul_comm I]
           rw_mod_cast [Complex.norm_exp_ofReal_mul_I, one_mul]

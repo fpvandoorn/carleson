@@ -162,10 +162,9 @@ lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
     apply integral_nonneg (fun y ↦ by simp)
   rw [ofReal_integral_eq_lintegral_ofReal hf.integrable.norm.restrict nonneg,
     eq, lintegral_const, average_eq, smul_eq_mul, ENNReal.ofReal_mul, ENNReal.ofReal_inv_of_pos,
-    ENNReal.ofReal_toReal, ofReal_integral_eq_lintegral_ofReal hf.norm.integrable nonneg, mul_comm,
-    ← mul_assoc, Measure.restrict_apply MeasurableSet.univ, univ_inter,
-    ENNReal.mul_inv_cancel vol_J_ne_zero volume_coeGrid_lt_top.ne, one_mul]
-  · simp [volume_coeGrid_lt_top.ne]
+    ofReal_integral_eq_lintegral_ofReal hf.norm.integrable nonneg, mul_comm,
+    ← mul_assoc, Measure.restrict_apply MeasurableSet.univ, univ_inter]
+  · simp [volume_coeGrid_lt_top.ne, ENNReal.mul_inv_cancel vol_J_ne_zero]
   · simpa using ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
   · exact inv_nonneg.mpr ENNReal.toReal_nonneg
 
@@ -531,8 +530,12 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
       have eq : EqOn (approxOnCube (𝓙 (t u)) (‖f ·‖)) (fun _ ↦ ⨍ y in J, ‖f y‖) J :=
         fun y hy ↦ approxOnCube_apply pairwiseDisjoint_𝓙 (‖f ·‖) (mem_Js.mp hJ).1 hy
       rw [setIntegral_congr_fun coeGrid_measurable eq, setIntegral_const, average]
-      simp [← mul_assoc, CommGroupWithZero.mul_inv_cancel (volume (J : Set X)).toReal <|
-        ENNReal.toReal_ne_zero.mpr ⟨(volume_coeGrid_pos _).ne.symm, volume_coeGrid_lt_top.ne⟩]
+      simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, MeasurableSet.univ, Measure.restrict_apply,
+        univ_inter, integral_smul_measure, ENNReal.toReal_inv, smul_eq_mul, ← mul_assoc]
+      have : volume.real ((J : Set X)) * (volume (J : Set X)).toReal⁻¹ = 1 :=
+        CommGroupWithZero.mul_inv_cancel _ <| ENNReal.toReal_ne_zero.mpr
+          ⟨(volume_coeGrid_pos (defaultD_pos' a)).ne.symm, volume_coeGrid_lt_top.ne⟩
+      rw [this, one_mul]
     _ = ∫ y in (⋃ J ∈ Js, (J : Set X)), (approxOnCube (𝓙 (t u)) (‖f ·‖)) y := by
       refine integral_finset_biUnion Js (fun _ _ ↦ coeGrid_measurable) Js_disj ?_ |>.symm
       exact fun i hi ↦ And.intro (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
