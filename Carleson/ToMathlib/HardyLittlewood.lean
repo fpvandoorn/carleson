@@ -541,5 +541,4 @@ lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
     LowerSemicontinuous (globalMaximalFunction μ 1 f) := by
   sorry
 
-
 end GMF
