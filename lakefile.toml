@@ -11,7 +11,7 @@ linter.oldObtain = true
 linter.style.cases = true
 linter.style.refine = true
 linter.style.multiGoal = true
-weak.linter.flexible = true
+linter.flexible = true
 
 [[require]]
 name = "mathlib"
