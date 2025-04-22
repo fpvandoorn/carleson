@@ -2,7 +2,7 @@
    one or they might be candidates to go there, possibly in a generalized form. -/
 
 import Carleson.ToMathlib.Misc
-import Mathlib.MeasureTheory.Integral.IntervalIntegral
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 
 open MeasureTheory
 
@@ -80,14 +80,16 @@ lemma ConditionallyCompleteLattice.le_biSup {α : Type*} [ConditionallyCompleteL
 
 /- Adapted from mathlib Function.Periodic.exists_mem_Ico₀ -/
 theorem Function.Periodic.exists_mem_Ico₀' {α β : Type*} {f : α → β} {c : α}
-    [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x : α) :
+    [AddCommGroup α] [LinearOrder α] [IsOrderedAddMonoid α] [Archimedean α]
+    (h : Periodic f c) (hc : 0 < c) (x : α) :
     ∃ (n : ℤ), (x - n • c) ∈ Set.Ico 0 c ∧ f x = f (x - n • c) :=
   let ⟨n, H, _⟩ := existsUnique_zsmul_near_of_pos' hc x
   ⟨n, H, (h.sub_zsmul_eq n).symm⟩
 
 /- Adapted from mathlib Function.Periodic.exists_mem_Ico₀ -/
 theorem Function.Periodic.exists_mem_Ico' {α β : Type*} {f : α → β} {c : α}
-    [LinearOrderedAddCommGroup α] [Archimedean α] (h : Periodic f c) (hc : 0 < c) (x a: α) :
+    [AddCommGroup α] [LinearOrder α] [IsOrderedAddMonoid α] [Archimedean α]
+    (h : Periodic f c) (hc : 0 < c) (x a: α) :
     ∃ (n : ℤ), (x - n • c) ∈ Set.Ico a (a + c) ∧ f x = f (x - n • c) :=
   let ⟨n, H, _⟩ := existsUnique_sub_zsmul_mem_Ico hc x a
   ⟨n, H, (h.sub_zsmul_eq n).symm⟩

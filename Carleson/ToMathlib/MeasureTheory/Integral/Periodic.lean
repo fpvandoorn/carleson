@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Integral.Periodic
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 import Mathlib.Analysis.Convolution
 import Carleson.ToMathlib.Topology.Instances.AddCircle
 

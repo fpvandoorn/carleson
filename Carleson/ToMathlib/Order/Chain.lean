@@ -1,4 +1,4 @@
-import Mathlib.Order.Chain
+import Mathlib.Order.Preorder.Chain
 import Mathlib.Data.Set.Lattice
 
 lemma IsChain.pairwiseDisjoint_iUnion₂ {α β : Type*} [PartialOrder β] [OrderBot β]
