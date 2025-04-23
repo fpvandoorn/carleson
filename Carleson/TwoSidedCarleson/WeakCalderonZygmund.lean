@@ -3,7 +3,6 @@ import Carleson.ToMathlib.BoundedFiniteSupport
 import Carleson.ToMathlib.HardyLittlewood
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
-open Classical
 open scoped NNReal
 
 noncomputable section
@@ -156,6 +155,7 @@ lemma iUnion_czPartition (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : Gene
     ⋃ i, czPartition ha hf hX i = globalMaximalFunction volume 1 f ⁻¹' Ioi α :=
   sorry
 
+open scoped Classical in
 /-- The function `g` in Lemma 10.2.5. (both cases) -/
 def czApproximation (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) (x : X) : ℂ :=
   if hX : GeneralCase f α then
@@ -278,6 +278,7 @@ lemma tsum_eLpNorm_czRemainder_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (
 /-- The constant `c` introduced below Lemma 10.2.5. -/
 irreducible_def c10_0_3 (a : ℕ) : ℝ≥0 := (2 ^ (a ^ 3 + 12 * a + 4))⁻¹
 
+open scoped Classical in
 /-- The set `Ω` introduced below Lemma 10.2.5. -/
 def Ω (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) : Set X :=
   if hX : GeneralCase f α then ⋃ i, czBall2 ha hf hX i else univ

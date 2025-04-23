@@ -9,7 +9,7 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
@@ -223,6 +223,7 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
 /-- The constant used in `square_function_count`. -/
 irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (14 * (a : ℝ) + 1) * (8 * D ^ (- s)) ^ κ
 
+open scoped Classical in
 set_option linter.flexible false in -- Addressing the linter makes the code less readable.
 /-- Lemma 7.6.4. -/
 lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
@@ -277,7 +278,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
   have est₁ (s₀ x) : (𝒟 s₀ x).toFinset.card ≤ (defaultA a) ^ 7 := by
     apply Nat.cast_le (α := ℝ).mp
     have : 0 < volume.real (ball x (9 * ↑D ^ s₀)) :=
-      ENNReal.toReal_pos (measure_ball_pos _ _ (by simp; positivity)).ne' (by finiteness)
+      ENNReal.toReal_pos (measure_ball_pos _ _ (by simpa using by positivity)).ne' (by finiteness)
     refine le_of_mul_le_mul_right (a := volume.real (ball x (9 * D ^ s₀))) ?_ this
     transitivity (defaultA a) ^ 7 * ∑ I ∈ 𝒟 s₀ x, volume.real (ball (c I) (D ^ s I / 4))
     · rw [Finset.mul_sum, ← nsmul_eq_mul, ← Finset.sum_const]

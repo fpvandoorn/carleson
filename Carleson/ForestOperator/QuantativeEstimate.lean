@@ -10,7 +10,7 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
@@ -272,6 +272,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     (hc : ∀ J ∈ C, volume (J ∩ s) ≤ c * volume (J : Set X))
     {f : X → ℂ} (hf : BoundedCompactSupport f) (h2f : ∀ x ∉ s, f x = 0) :
     eLpNorm (approxOnCube C (‖f ·‖)) 2 volume ≤ c ^ (2 : ℝ)⁻¹ * eLpNorm f 2 := by
+  classical
   simp only [eLpNorm, OfNat.ofNat_ne_zero, reduceIte, ENNReal.ofNat_ne_top, eLpNorm',
     ENNReal.toReal_ofNat, ENNReal.rpow_ofNat, one_div, approxOnCube]
   rw [← ENNReal.mul_rpow_of_nonneg _ _ (inv_nonneg_of_nonneg two_pos.le)]
@@ -384,6 +385,7 @@ private lemma density_tree_bound_aux
     hg.indicator ((t u).toFinite.measurableSet_biUnion (fun _ _ ↦ measurableSet_E))
   calc
     _ = ‖∫ x, conj (ℰ.indicator g x) * carlesonSum (t u) f x‖ₑ := by
+      classical
       congr with x
       by_cases hx : x ∈ ℰ
       · rw [indicator_of_mem hx]

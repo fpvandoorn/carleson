@@ -6,7 +6,6 @@ import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
-open Classical -- We use quite some `Finset.filter`
 noncomputable section
 
 open scoped ShortVariables
@@ -143,6 +142,7 @@ private lemma two_mul_n_add_six_lt : 2 * n + 6 < 2 ^ (n + 3) := by
 
 lemma exists_j_of_mem_𝔓pos_ℭ (h : p ∈ 𝔓pos (X := X)) (mp : p ∈ ℭ k n) (hkn : k ≤ n) :
     p ∈ 𝔏₀ k n ∨ ∃ j ≤ 2 * n + 3, p ∈ ℭ₁ k n j := by
+  classical
   rw [𝔓pos, mem_setOf, inter_comm _ G'ᶜ, ← inter_assoc] at h
   replace h : 0 < volume (G'ᶜ ∩ (𝓘 p : Set X)) := h.trans_le (measure_mono inter_subset_left)
   rw [inter_comm, G', compl_union, compl_union, inter_comm G₁ᶜ, ← inter_assoc, ← inter_assoc] at h
@@ -309,6 +309,7 @@ lemma ceil_log2_le_floor_four_add_log2 {l : ℝ} (hl : 2 ≤ l) :
         norm_num
   · exact (zero_lt_one.trans_le (Nat.one_le_ceil_iff.mpr (zero_lt_two.trans_le this))).ne'
 
+open scoped Classical in
 /-- The set `𝔒` in the proof of Lemma 5.5.2. -/
 def 𝔒 (p' : 𝔓 X) (l : ℝ≥0) : Finset (𝔓 X) :=
   {p'' | 𝓘 p'' = 𝓘 p' ∧ ¬Disjoint (ball_(p') (𝒬 p') l) (Ω p'')}
@@ -394,6 +395,7 @@ lemma l_upper_bound : l < 2 ^ n := by
 
 lemma exists_𝔒_with_le_quotient :
     ∃ b ∈ 𝔒 p' l, 2 ^ (-n : ℤ) < volume (E₁ b) / volume (𝓘 b : Set X) := by
+  classical
   have cO : (𝔒 p' l).card ≤ ⌊2 ^ (4 * a) * l ^ a⌋₊ := card_𝔒 _ hl
   have ltq : (2 ^ (4 * a) * l ^ a : ℝ≥0) * 2 ^ (-n : ℤ) <
       ∑ p'' ∈ 𝔒 p' l, volume (E₁ p'') / volume (𝓘 p'' : Set X) :=
@@ -433,6 +435,7 @@ end
 
 /-- Main part of Lemma 5.5.2. -/
 lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
+  classical
   refine iUnion_lt_minLayer_iff_bounded_series.mpr fun p ↦ ?_
   suffices ¬∃ s : LTSeries (𝔏₀ (X := X) k n), s.length = n by
     rcases lt_or_le p.length n with c | c
@@ -518,6 +521,7 @@ section L2Antichain
 /-- Type synonym of `ℭ₁` to apply the `Preorder` of the proof of Lemma 5.5.3 on. -/
 private def ℭ₁' (k n j : ℕ) : Type _ := ℭ₁ (X := X) k n j
 
+open scoped Classical in
 private instance : Fintype (ℭ₁' (X := X) k n j) := inferInstanceAs (Fintype (ℭ₁ k n j))
 
 private instance : Preorder (ℭ₁' (X := X) k n j) where
@@ -529,6 +533,7 @@ private instance : Preorder (ℭ₁' (X := X) k n j) where
 
 /-- Lemma 5.5.3 -/
 lemma antichain_L2 : IsAntichain (· ≤ ·) (𝔏₂ (X := X) k n j) := by
+  classical
   by_contra h; rw [isAntichain_iff_forall_not_lt] at h; push_neg at h
   obtain ⟨p', mp', p, mp, l⟩ := h
   have p200 : smul 2 p' ≤ smul 200 p := by
@@ -682,6 +687,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₁_eq_add_sum {f : X → ℂ} {x : X} :
     carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₁ k n j) f x =
       carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ ℭ₂ k n j) f x
       + ∑ l ≤ Z * (n + 1), carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₁ k n j l) f x := by
+  classical
   conv_lhs => rw [← carlesonSum_inter_add_inter_compl _ (ℭ₂ k n j)]
   rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
   · apply PairwiseDisjoint.subset _ (subset_univ _)

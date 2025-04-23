@@ -1809,7 +1809,6 @@ def grid_existence : GridStructure X D κ S o where
 
 /-! ## Proof that there exists a tile structure on a grid structure. -/
 
-open Classical
 variable [GridStructure X D κ S o] {I : Grid X}
 
 /-- The constant appearing in 4.2.2 (3 / 10). -/
@@ -1818,6 +1817,7 @@ variable [GridStructure X D κ S o] {I : Grid X}
 section
 variable (I)
 
+open scoped Classical in
 def 𝓩_cands : Finset (Finset (Θ X)) :=
   Q.range.powerset.filter fun z ↦ z.toSet.PairwiseDisjoint (ball_{I} · C𝓩)
 
@@ -1831,6 +1831,7 @@ end
 
 lemma 𝓩_spec : 𝓩 I ⊆ Q.range ∧ (𝓩 I).toSet.PairwiseDisjoint (ball_{I} · C𝓩) ∧
     ∀ z ∈ 𝓩_cands I, z.card ≤ (𝓩 I).card := by
+  classical
   rw [← and_assoc]; convert (exists_𝓩_max_card I).choose_spec; change _ ↔ 𝓩 I ∈ _
   rw [𝓩_cands, Finset.mem_filter, Finset.mem_powerset]
 
@@ -1852,7 +1853,9 @@ instance : Inhabited (𝓩 I) := ⟨⟨_, 𝓩_nonempty.choose_spec⟩⟩
 @[simp] def C4_2_1 : ℝ := 7 / 10 /- 0.6 also works? -/
 
 /-- Equation (4.2.3), Lemma 4.2.1 -/
-lemma frequency_ball_cover : Q.range.toSet ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := fun θ hθ ↦ by
+lemma frequency_ball_cover : Q.range.toSet ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 := by
+  intro θ hθ
+  classical
   obtain ⟨z, hz, hz'⟩ : ∃ z, z ∈ 𝓩 I ∧ ¬Disjoint (ball_{I} z C𝓩) (ball_{I} θ C𝓩) := by
     by_contra! h
     have hθ' : θ ∉ (𝓩 I : Set (Θ X)) := fun hθ' ↦ by
@@ -1964,6 +1967,7 @@ lemma iUnion_ball_subset_iUnion_Ω₁ : ⋃ z ∈ 𝓩 I, ball_{I} z C4_2_1 ⊆ 
 /-- 1 / 5 -/
 @[simp] def CΩ : ℝ := 1 / 5
 
+open scoped Classical in
 def Ω (p : 𝔓 X) : Set (Θ X) :=
   if h : IsMax p.1 then Ω₁ p else
   have := Grid.opSize_succ_lt h
