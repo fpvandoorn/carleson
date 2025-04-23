@@ -155,6 +155,19 @@ theorem mul_bdd_left (hg : IsBounded (range g)) (h2g : StronglyMeasurable g) :
     BoundedCompactSupport (g * f) := by
   rw [mul_comm]; exact mul_bdd_right hf hg h2g
 
+theorem comp_left {𝕝 : Type*} [RCLike 𝕝] {g : 𝕜 → 𝕝} (hf1 : Measurable f) (hg : g 0 = 0)
+    (hg1 : Measurable g) (hg2 : (∀ (a : 𝕜), ‖g a‖ = ‖a‖)) :
+    BoundedCompactSupport (g ∘ f) := by
+  refine ⟨?_, ?_, hf.hasCompactSupport.comp_left hg⟩
+  · refine isBounded_range_iff_forall_norm_le.mpr ?_
+    obtain ⟨C, hC⟩ := isBounded_range_iff_forall_norm_le.mp hf.isBounded
+    use C
+    intro x
+    rw [Function.comp_apply, hg2]
+    exact hC x
+  · apply Measurable.stronglyMeasurable
+    fun_prop
+
 -- doesn't use compact support but is convenient to have here
 theorem integrable_mul (hg : Integrable g μ) : Integrable (f * g) μ :=
   Integrable.bdd_mul' hg hf.aestronglyMeasurable hf.ae_le
@@ -359,21 +372,47 @@ end MeasureTheory
 
 section
 
-open MeasureTheory ENNReal Bornology
+open Bornology ENNReal MeasureTheory Set
 
-variable {X 𝕜 E : Type*} [MeasurableSpace X] [SeminormedAddCommGroup X]
+variable {X 𝕜 E : Type*} [MeasurableSpace X] [MetricSpace X]
 variable [RCLike 𝕜] {f : X → E}
-variable {Y Z : Type*} [MeasurableSpace Y] [TopologicalSpace Y]
-variable [MeasurableSpace Z] [TopologicalSpace Z]
+variable {Y W : Type*} [MeasurableSpace Y] [TopologicalSpace Y]
+variable [MeasurableSpace W] [TopologicalSpace W]
 variable {f : X → 𝕜} {g : X → 𝕜}
--- variable {F : Type*} [NormedAddCommGroup F] [NormedSpace 𝕜 F]
--- variable [NormedAddCommGroup E] [NormedSpace 𝕜 E]
 
-lemma BoundedCompactSupport.mul_bdd_right' (hf : BoundedCompactSupport f) {e : Z → X} {g : Z → 𝕜}
+lemma BoundedCompactSupport.mul_bdd_right'' (hf : BoundedCompactSupport f) {e : W → X}
+    {g : W → 𝕜} (he : Continuous e) (he1 : Measurable e) (hg : StronglyMeasurable g)
+    (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
+    (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
+    BoundedCompactSupport fun x ↦ f (e x) * g x where
+  isBounded := by
+    obtain ⟨B, hB⟩ := isBounded_range_iff_forall_norm_le.1 hf.isBounded
+    obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1
+      (hg2 (tsupport f) hf.hasCompactSupport.isBounded)
+    refine isBounded_range_iff_forall_norm_le.mpr ?_
+    use (max 0 B) * (max 0 C)
+    intro z
+    rw [norm_mul]
+    by_cases hz : z ∈ e ⁻¹' tsupport f
+    · exact mul_le_mul (le_max_of_le_right (hB (e z))) (le_max_of_le_right
+        (hC _ (mem_image_of_mem g hz))) (norm_nonneg _) (le_max_left 0 B)
+    · simp only [image_eq_zero_of_nmem_tsupport hz, norm_zero, zero_mul,
+        mul_nonneg (le_max_left 0 B) (le_max_left 0 C)]
+  stronglyMeasurable := (hf.stronglyMeasurable.comp_measurable he1).mul hg
+  hasCompactSupport := by
+    refine IsCompact.of_isClosed_subset (hg1 _ hf.hasCompactSupport)
+      (isClosed_tsupport fun x ↦ f (e x) * g x) ?_
+    apply subset_inter ?_ tsupport_mul_subset_right
+    apply subset_trans (tsupport_mul_subset_left)
+    rw [tsupport, ((isClosed_tsupport f).preimage he ).closure_subset_iff]
+    exact fun _ hx ↦ subset_closure hx
+
+lemma BoundedCompactSupport.mul_bdd_left' (hf : BoundedCompactSupport f) {e : W → X} {g : W → 𝕜}
+    (he : Continuous e) (he1 : Measurable e) -- Changed from Continuous e
     (hg : StronglyMeasurable g)
-    (he : Continuous e)
-    (hg1 : ∀ x : X, IsCompact (e ⁻¹' {x} ∩ tsupport g))
-    (hg2 : ∀ (A : Set X) (hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
-    BoundedCompactSupport fun x ↦ f (e x) * g x := by sorry
+    (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
+    (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
+    BoundedCompactSupport fun x ↦ g x * f (e x) := by
+  simp_rw [mul_comm]; exact mul_bdd_right'' hf he he1 hg hg1 hg2
 
 end

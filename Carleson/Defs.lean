@@ -238,6 +238,10 @@ lemma defaultD_pow_pos (a : ℕ) (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
 lemma mul_defaultD_pow_pos (a : ℕ) {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * (defaultD a : ℝ) ^ z :=
   mul_pos hr (defaultD_pow_pos a z)
 
+lemma one_le_defaultD (a : ℕ) : 1 ≤ (defaultD a : ℝ) := by
+  rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
+  exact pow_le_pow_right₀ (one_le_two) (by omega)
+
 section Kernel
 
 variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X] [MeasureSpace X]

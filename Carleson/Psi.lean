@@ -293,6 +293,9 @@ end D
 open Complex
 
 open scoped ShortVariables
+
+section PseudoMetricSpace
+
 variable (X : Type*) {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 variable {s : ℤ} {x y : X}
@@ -820,3 +823,49 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
       · exact ENNReal.toReal_mono (measure_ball_ne_top x (dist x y)) <|
           measure_mono <| ball_subset_ball (lt_of_not_ge hy).le
+
+end PseudoMetricSpace
+
+section MetricSpace
+
+variable (X : Type*) {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable {s : ℤ} {x y : X}
+
+-- TODO: move to Psi.lean
+lemma Ks_eq_zero_of_dist_le {s : ℤ} {x y : X} (hxy : x ≠ y)
+    (h : dist x y ≤ defaultD a ^ (s - 1) / 4) :
+    Ks s x y = 0 := by
+  rw [Ks_def]
+  simp only [mul_eq_zero, ofReal_eq_zero]
+  right
+  rw [psi_eq_zero_iff (one_lt_D (X := X)) (dist_pos.mpr hxy),
+    mem_nonzeroS_iff (one_lt_D (X := X)) (dist_pos.mpr hxy)]
+  simp only [mem_Ioo, not_and_or, not_lt]
+  left
+  rw [mul_comm]
+  apply mul_le_of_le_mul_inv₀ (by positivity) (by positivity)
+  simp only [Nat.cast_pow, Nat.cast_ofNat, mul_inv_rev, zpow_neg, inv_inv]
+  have heq : (D : ℝ)⁻¹ * 4⁻¹ * ↑D ^ s = defaultD a ^ (s - 1) / 4 := by
+    ring_nf
+    rw [← zpow_neg_one, zpow_add₀ (by simp)]
+  exact heq ▸ h
+
+lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : (D : ℝ)^(s)/2 ≤ dist x y) :
+    Ks s x y = 0 := by
+  have hxy : x ≠ y := by
+    rw [← dist_pos]
+    apply lt_of_lt_of_le _ h
+    simp only [Nat.cast_pow, Nat.ofNat_pos, div_pos_iff_of_pos_right]
+    exact defaultD_pow_pos a s
+  rw [Ks_def]
+  simp only [mul_eq_zero, ofReal_eq_zero]
+  right
+  rw [psi_eq_zero_iff (one_lt_D (X := X)) (dist_pos.mpr hxy),
+    mem_nonzeroS_iff (one_lt_D (X := X)) (dist_pos.mpr hxy)]
+  simp only [mem_Ioo, not_and_or, not_lt]
+  right
+  rw [zpow_neg, le_inv_mul_iff₀ (defaultD_pow_pos a s)]
+  exact h
+
+end MetricSpace
