@@ -1792,10 +1792,10 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 -/
 namespace MeasureTheory
 
-def res (j : Bool) (β : ℝ) : Set ℝ :=
+def res (j : Bool) (β : ℝ≥0∞) : Set ℝ :=
   if j then Ioo (0 : ℝ) β else Ioi β
 
-lemma measurableSet_res {j : Bool} {β : ℝ} : MeasurableSet (res j β) := by
+lemma measurableSet_res {j : Bool} {β : ℝ≥0∞} : MeasurableSet (res j β) := by
   unfold res
   split
   · exact measurableSet_Ioo
@@ -1812,10 +1812,10 @@ lemma res_subset_Ioi {j : Bool} {β : ℝ} (hβ : β > 0) : res j β ⊆ Ioi 0 :
 instance decidableMemRes {j : Bool} {β : ℝ} : Decidable (t ∈ res j β) := by
   exact Classical.propDecidable (t ∈ res j β)
 
-def res' (j : Bool) (β : ℝ) : Set ℝ :=
+def res' (j : Bool) (β : ℝ≥0∞) : Set ℝ :=
   if j then Ioc (0 : ℝ) β else Ici β
 
-lemma res'comp (j : Bool) (β : ℝ) (hβ : β > 0) :
+lemma res'comp (j : Bool) (β : ℝ≥0∞) (hβ : β > 0) :
     Ioi (0 : ℝ) \ res' j β = res (¬j) β := by
   unfold res' res
   split_ifs with h₀ h₁ h₂
