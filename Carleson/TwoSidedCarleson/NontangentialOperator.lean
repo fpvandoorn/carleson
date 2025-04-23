@@ -167,21 +167,14 @@ lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   trans C_K a / volume (ball x r) * (defaultA a * volume (ball x r))
   . gcongr
     apply measure_ball_two_le_same
-
   -- Somehow simp doesn't do it
+  apply le_of_eq
   nth_rw 2 [mul_comm]
   rw [← mul_assoc, div_eq_mul_inv]
   nth_rw 2 [mul_assoc]
-  conv =>
-    lhs; arg 1; arg 2
-    rw [mul_comm]
-    apply ENNReal.mul_inv_cancel
-    . exact (measure_ball_pos volume x hr).ne.symm
-    . exact measure_ball_lt_top.ne
-
-  simp only [mul_one, C_K, defaultA]
+  simp_rw [mul_comm, ENNReal.mul_inv_cancel (measure_ball_pos volume x hr).ne.symm measure_ball_lt_top.ne, C_K]
   norm_cast
-  rw [pow_add]
+  ring
 
 lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     ‖∫ (y : X) in (ball x (2*r))ᶜ, K x y * g y - K x' y * g y‖ₑ ≤
@@ -372,22 +365,12 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
     case h₂ => apply measure_ball_four_le_same'
 
   -- Somehow simp doesn't do it
+  apply le_of_eq
   nth_rw 2 [mul_comm]
   rw [← mul_assoc, div_eq_mul_inv]
   nth_rw 2 [mul_assoc]
-  conv =>
-    lhs; arg 1; arg 2
-    rw [mul_comm]
-    apply ENNReal.mul_inv_cancel
-    . apply ne_of_gt
-      apply measure_ball_pos
-      exact hr
-    . apply ne_of_lt
-      apply measure_ball_lt_top
-
-  simp only [mul_one, C_K, defaultA]
+  simp_rw [mul_comm, ENNReal.mul_inv_cancel (measure_ball_pos volume x' hr).ne.symm measure_ball_lt_top.ne, C_K]
   norm_cast
-  apply le_of_eq
   ring
 
 /-- Lemma 10.1.2 -/
@@ -463,30 +446,21 @@ theorem estimate_x_shift (ha : 4 ≤ a)
           . apply IntegrableOn.mono_set (hst := ball2_sub_ballprime)
             apply czoperator_welldefined hg hr
 
-  trans ‖(∫ (y : X) in bxrc ∩ bx2r, K x y * g y) + ∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
-      ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
-  . apply enorm_sub_le
-
+  apply enorm_sub_le.trans
   trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
   . gcongr
     apply enorm_add_le
-
   trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖K x y * g y‖ₑ) + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ∫⁻ (y : X) in bxprc ∩ bx2r, ‖K x' y * g y‖ₑ
-  . refine add_le_add_three ?_ (by rfl) ?_
-    . apply enorm_integral_le_lintegral_enorm
-    . apply enorm_integral_le_lintegral_enorm
-
-  -- LHS is now 10.1.234
-
+  . refine add_le_add_three ?_ (by rfl) ?_ <;> apply enorm_integral_le_lintegral_enorm
+  -- LHS is now 10.1.234, apply respective estimates
   trans (2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x) + (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x) +
       (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x)
-  . refine add_le_add_three ?_ ?_ ?_
+  . apply add_le_add_three
     . exact estimate_10_1_2 hg hr
     . exact estimate_10_1_3 ha hg hr hx
     . exact estimate_10_1_4 hg hr hx
-
   rw [← distrib_three_right]
   gcongr
   -- Now it is unavoidable to unfold C10_1_2
