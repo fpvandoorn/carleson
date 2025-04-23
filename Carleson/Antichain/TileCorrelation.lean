@@ -76,13 +76,13 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a)^2 / ((volume (ball x₁ (D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))):= by
     simp only [correlation, enorm_mul, RCLike.enorm_conj, pow_two,
-      ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _)) (.inl (measure_ball_ne_top _ _))]
+      ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _) (measure_ball_ne_top _ _)]
     exact mul_le_mul enorm_Ks_le enorm_Ks_le (zero_le _) (zero_le _)
   -- 6.2.6 + 6.2.7
   have hsimp : ∀ (y y' : X),
       ‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ ≤
-        ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y‖ₑ +
-          ‖Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖ₑ := by
+        ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ * ‖Ks s₂ x₂ y‖ₑ +
+          ‖Ks s₁ x₁ y'‖ₑ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖ₑ := by
     intro y y'
     calc ‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ
       _ = ‖conj (Ks s₁ x₁ y) * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * Ks s₂ x₂ y +
@@ -111,13 +111,13 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
           norm_cast
           ring
         rw [mul_comm, mul_add, h2, mul_comm (volume _)]
-        simp only [ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _))
-          (.inl (measure_ball_ne_top _ _)), mul_assoc]
+        simp only [ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _)
+          (measure_ball_ne_top _ _), mul_assoc]
         apply add_le_add (aux_6_2_3 s₁ s₂ x₁ x₂ y y')
         rw [← neg_sub, enorm_neg]
         convert aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
-        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _))
-          (.inl (measure_ball_ne_top _ _))]
+        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _)
+          (measure_ball_ne_top _ _)]
         rw [mul_comm (volume _), nndist_comm]
       _ ≤ 2 ^ (252 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) *
         (2 * (↑(nndist y y') ^ τ / ((D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ)) := by
@@ -400,33 +400,34 @@ lemma complex_exp_lintegral {p : 𝔓 X} {g : X → ℂ} (y : X) :
 /-- Definition 6.2.27 -/
 def I12 (p p' : 𝔓 X) (g : X → ℂ) := fun (x1 : X) (x2 : X) ↦
   ‖(∫ y, (Complex.exp (Complex.I * (- ((Q x1) y) + ↑((Q x2) y))) *
-    (correlation (𝔰 p') (𝔰 p) x1 x2 y))) * (g x1) * (g x2)‖₊
+    (correlation (𝔰 p') (𝔰 p) x1 x2 y))) * (g x1) * (g x2)‖ₑ
 
-/-- Inequality 6.2.28 -/ -- TODO: add ‖g ↑x1‖₊ * ‖g ↑x2‖₊ in blueprint's RHS
+/-- Inequality 6.2.28 -/ -- TODO: add ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ in blueprint's RHS
 lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ) (x1 : E p') (x2 : E p) :
     I12 p p' g x1 x2 ≤ (2^(254 * a^3 + 8 * a)) *
       ((1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-      (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖₊ * ‖g ↑x2‖₊ := by
+      (volume (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ := by
   have hD : 0 < (D : ℝ) ^ 𝔰 p := defaultD_pow_pos a (𝔰 p)
   have hD' : 0 < (D : ℝ) ^ 𝔰 p' := defaultD_pow_pos a (𝔰 p')
   have hsupp : Function.support (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆
       ball x1 (D ^ 𝔰 p') := fun _ hx ↦ mem_ball_of_correlation_ne_zero hx
   have hs : 𝔰 p' ∈ Icc (- (S : ℤ)) (𝔰 p) := ⟨scale_mem_Icc.1, hle⟩
-  have hnrm : hnorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (↑D ^ 𝔰 p') < ⊤ :=
+  have hnrm : iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (↑D ^ 𝔰 p') < ⊤ :=
     lt_of_le_of_lt (correlation_kernel_bound ha hs) (ENNReal.mul_lt_top
       ENNReal.coe_lt_top (ENNReal.inv_lt_top.mpr (ENNReal.mul_pos_iff.mpr
         ⟨measure_ball_pos volume (x1 : X) hD', measure_ball_pos volume (x2 : X) hD⟩)))
   -- For compatibility with holder_van_der_corput
   have heq : (2^(254 * a^3 + 8 * a)) *
       ((1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-      (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) =
-      (2^(254 * a^3 + 8 * a)) / (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) *
+      (volume (ball (x2 : X) (↑D ^𝔰 p))) =
+      (2^(254 * a^3 + 8 * a)) / (volume (ball (x2 : X) (↑D ^𝔰 p))) *
       ((1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) := by
-    rw [div_mul_comm, mul_comm _ (2 ^ _), mul_div_assoc]
+    sorry --rw [div_mul_comm, mul_comm _ (2 ^ _), mul_div_assoc]
   rw [I12]
   -- TODO: fix s₁ in blueprint
-  simp only [nnnorm_mul, NNReal.coe_mul]
-  gcongr
+  --simp only [nnnorm_mul, NNReal.coe_mul]
+  sorry
+  /- gcongr
   rw [← ENNReal.coe_le_coe]
   simp_rw [← sub_eq_neg_add]
   apply le_trans (holder_van_der_corput hD' hsupp hnrm)
@@ -462,7 +463,7 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
       rw [this, ENNReal.coe_rpow_of_ne_zero (ne_of_gt (lt_of_lt_of_le zero_lt_one le_self_add)),
         ENNReal.coe_add, ENNReal.coe_one]
     congr
-    rw [coe_nnreal_ennreal_nndist]
+    rw [coe_nnreal_ennreal_nndist] -/
 
 lemma exp_ineq (ha : 1 < a) : 0 ≤ 1 + ((8 * a  : ℕ) : ℝ) * -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ := by
   have hpos : 0 < (a : ℝ) ^ 2 * 2 + a ^ 3 := by norm_cast; nlinarith
@@ -471,14 +472,15 @@ lemma exp_ineq (ha : 1 < a) : 0 ≤ 1 + ((8 * a  : ℕ) : ℝ) * -(2 * (a : ℝ)
   norm_cast
   nlinarith
 
-/-- Inequality 6.2.29. -/ -- TODO: add ‖g ↑x1‖₊ * ‖g ↑x2‖₊ in blueprint's RHS
+/-- Inequality 6.2.29. -/ -- TODO: add ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ in blueprint's RHS
 lemma I12_le (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ)
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty)
     (x1 : E p') (x2 : E p) :
     I12 p p' g x1 x2 ≤
-    (2^(254 * a^3 + 8 * a + 1) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹))) /
-      (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖₊ * ‖g ↑x2‖₊ := by
-  apply le_trans (NNReal.coe_le_coe.mpr (I12_le' ha p p' hle g x1 x2))
+    (2^(254 * a^3 + 8 * a + 1) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹))) /
+      (volume (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ := by
+  sorry
+  /- apply le_trans (NNReal.coe_le_coe.mpr (I12_le' ha p p' hle g x1 x2))
   simp only [Nat.cast_pow, Nat.cast_ofNat, NNReal.coe_mul, NNReal.coe_div, NNReal.coe_pow,
     NNReal.coe_ofNat, NNReal.coe_rpow, NNReal.coe_add, NNReal.coe_one, coe_nndist, coe_nnnorm]
   gcongr ?_ *  ‖g ↑x1‖ * ‖g ↑x2‖
@@ -507,11 +509,11 @@ lemma I12_le (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → 
   conv_rhs => rw [← Real.rpow_one (2 : ℝ)]
   rw [inv_le_iff_one_le_mul₀ hpos, ← Real.rpow_natCast 2, ← Real.rpow_mul zero_le_two,
     ← Real.rpow_add zero_lt_two]
-  exact Real.one_le_rpow one_le_two hexp
+  exact Real.one_le_rpow one_le_two hexp -/
 
 /-- Inequality 6.2.32 -/
 lemma volume_nnreal_coeGrid_le (p : 𝔓 X) (x2 : E p) :
-    volume.nnreal (coeGrid (𝓘 p)) ≤ 2 ^ (3*a) * (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := by
+    volume (coeGrid (𝓘 p)) ≤ 2 ^ (3*a) * (volume (ball (x2 : X) (↑D ^𝔰 p))) := by
   -- Inequality 6.2.30
   have hdist : dist (𝔠 p) (x2 : X) < 4 * ↑D ^𝔰 p := --TODO: < in blueprint
     dist_comm (𝔠 p) (x2 : X) ▸ Grid_subset_ball (mem_of_subset_of_mem (fun _ ha ↦ ha.1) x2.prop)
@@ -523,48 +525,50 @@ lemma volume_nnreal_coeGrid_le (p : 𝔓 X) (x2 : E p) :
       _ ≤ dist x (𝔠 p) + dist (𝔠 p) x2 := dist_triangle _ _ _
       _ < 4 * ↑D ^ 𝔰 p + 4 * ↑D ^ 𝔰 p := add_lt_add hx hdist
       _ = 8 * ↑D ^ 𝔰 p := by ring
-  have h : volume.nnreal (coeGrid (𝓘 p)) ≤ volume.nnreal (ball (x2 : X) (8 * ↑D ^𝔰 p)) :=
-    measureNNReal_mono hsub
+  have h : volume (coeGrid (𝓘 p)) ≤ volume (ball (x2 : X) (8 * ↑D ^𝔰 p)) :=
+    measure_mono hsub
   have h8 : (8 : ℝ) = 2 ^ 3 := by norm_num
   apply le_trans h
-  simp only [NNReal.coe_mul, ← NNReal.coe_le_coe, measureNNReal_toReal, h8]
+  simp only [NNReal.coe_mul, ← NNReal.coe_le_coe, h8]
   convert DoublingMeasure.volume_ball_two_le_same_repeat (x2 : X) (↑D ^𝔰 p) 3 using 1
   rw [mul_comm 3, pow_mul]
   simp [NNReal.coe_pow, NNReal.coe_ofNat, Nat.cast_pow, Nat.cast_ofNat]
+  sorry
 
 -- Bound 6.2.29 using 6.2.32 and `4 ≤ a`.
 lemma bound_6_2_29 (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 + 8 * a + 1) *
-      ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-        (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) ≤ (C_6_1_5 a) *
-          ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-            (volume.nnreal (coeGrid (𝓘 p))) := by
-  have h1 : 0 < volume.nnreal (𝓘 p : Set X) := volumeNNReal_coeGrid_pos (defaultD_pos' a)
+      ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+        (volume (ball (x2 : X) (↑D ^𝔰 p))) ≤ (C_6_1_5 a) *
+          ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+            (volume (coeGrid (𝓘 p))) := by
+  have h1 : 0 < volume (𝓘 p : Set X) := volume_coeGrid_pos (defaultD_pos' a)
   have h2 : (2 : ℝ) ≠ 0 := by norm_num
   have h4 : 2 ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C_6_1_5 a := C_6_1_5_bound ha
   -- Inequality 6.2.32
-  have hvol : ∀ (x2 : E p), volume.nnreal (coeGrid (𝓘 p)) ≤
-      2 ^ (3*a) * (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := volume_nnreal_coeGrid_le p
+  have hvol : ∀ (x2 : E p), volume (coeGrid (𝓘 p)) ≤
+      2 ^ (3*a) * (volume (ball (x2 : X) (↑D ^𝔰 p))) := volume_nnreal_coeGrid_le p --TODO: rename
   calc 2 ^ (254 * a^3 + 8 * a + 1) *
-    ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-      (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p)))
+    ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+      (volume (ball (x2 : X) (↑D ^𝔰 p)))
     _ = 2^ (254 * a^3 + 1) * 2 ^ (11 * a) * 2 ^ (- (3 : ℤ) * a) *
-        ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-          (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := by
+        ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+          (volume (ball (x2 : X) (↑D ^𝔰 p))) := by
       simp only [← zpow_natCast, ← zpow_add₀ h2]
       congr
       push_cast
-      ring
+      ring_nf
+      sorry
     _ = 2 ^ (254 * a^3 + 1) * 2 ^ (11 * a) *
-        ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-          (2 ^ (3 * a) * volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := by
+        ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+          (2 ^ (3 * a) * volume (ball (x2 : X) (↑D ^𝔰 p))) := by
       simp only [mul_div_assoc, mul_assoc, neg_mul, zpow_neg]
-      rw [inv_mul_eq_div, div_div, mul_comm (2 ^ (3 * a))]
+      sorry/- rw [inv_mul_eq_div, div_div, mul_comm (2 ^ (3 * a))]
       simp only [mul_div]
-      rfl
-    _ ≤ (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-          (2 ^ (3 * a) * volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) := by gcongr; exact h4
-    _ ≤ (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-          (volume.nnreal (coeGrid (𝓘 p))) := by gcongr; exact hvol x2
+      rfl -/
+    _ ≤ (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+          (2 ^ (3 * a) * volume (ball (x2 : X) (↑D ^𝔰 p))) := by gcongr;  sorry --exact h4
+    _ ≤ (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+          (volume (coeGrid (𝓘 p))) := by gcongr; exact hvol x2
 
 -- TODO: PR to Mathlib
 omit [MetricSpace X] in
@@ -573,20 +577,20 @@ lemma _root_.Set.indicator_one_le_one (x : X) : G.indicator (1 : X → ℝ) x �
   exact le_trans (ite_le_sup _ _ _) (by simp)
 
 omit [TileStructure Q D κ S o] in
-lemma nnnorm_eq_zero_of_not_mem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+lemma enorm_eq_zero_of_not_mem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     {x : X} (hx : x ∉ (closedBall (cancelPt X) (defaultD a ^ defaultS X / 4))) :
-    (‖g x‖₊ : ℝ) = 0 := by
-  simp only [coe_nnnorm]
-  apply le_antisymm _ (norm_nonneg _)
+    ‖g x‖ₑ = 0 := by
+  sorry
+  /- apply le_antisymm _ (norm_nonneg _)
   apply le_trans (hg1 _)
   rw [Set.indicator_of_not_mem (Set.not_mem_subset ProofData.G_subset
-    (Set.not_mem_subset ball_subset_closedBall hx))]
+    (Set.not_mem_subset ball_subset_closedBall hx))] -/
 
 omit [TileStructure Q D κ S o] in
 lemma eq_zero_of_not_mem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     {x : X} (hx : x ∉ (closedBall (cancelPt X) (defaultD a ^ defaultS X / 4))) :
     g x = 0 := by
-  simpa [coe_nnnorm, norm_eq_zero] using nnnorm_eq_zero_of_not_mem_closedBall hg1 hx
+  simpa [coe_nnnorm, norm_eq_zero] using enorm_eq_zero_of_not_mem_closedBall hg1 hx
 
 omit [TileStructure Q D κ S o] in
 lemma boundedCompactSupport_g {g : X → ℂ} (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
@@ -773,8 +777,8 @@ lemma Complex.abs_re_eq_norm {z : ℂ} : |z.re| = ‖z‖ ↔ z.im = 0 := sorry
 
 lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    BoundedCompactSupport (fun (x : X × X) ↦ (C_6_1_5 a) * (1 + dist_(p') (𝒬 p') (𝒬 p)) ^
-      (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) / (volume.nnreal (𝓘 p : Set X)) * ‖g x.1‖₊ * ‖g x.2‖₊) := by
+    BoundedCompactSupport (fun (x : X × X) ↦ (C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^
+      (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) / (volume (𝓘 p : Set X)) * ‖g x.1‖ₑ * ‖g x.2‖ₑ) := by
   constructor
   · -- Bounded
     rw [isBounded_iff_forall_norm_le]
@@ -783,9 +787,9 @@ lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurab
     rintro r ⟨x, rfl⟩
     simp only
     calc ‖↑(C_6_1_5 a) * (1 + dist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
-          (volume.nnreal (𝓘 p : Set X)) * ↑‖g x.1‖₊ * ↑‖g x.2‖₊‖
+          (volume.nnreal (𝓘 p : Set X)) * ↑‖g x.1‖ₑ * ↑‖g x.2‖ₑ‖
       _ = ↑(C_6_1_5 a) * (1 + dist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
-          (volume.nnreal (𝓘 p : Set X)) * ↑‖g x.1‖₊ * ↑‖g x.2‖₊  := by
+          (volume.nnreal (𝓘 p : Set X)) * ↑‖g x.1‖ₑ * ↑‖g x.2‖ₑ  := by
         simp only [norm_mul, norm_mul, Real.norm_eq_abs, NNReal.abs_eq, coe_nnnorm,
           _root_.abs_of_nonneg (norm_nonneg _), _root_.abs_of_nonneg
           (div_nonneg (mul_nonneg NNReal.zero_le_coe
@@ -814,18 +818,19 @@ lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurab
 
 lemma integrableOn_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    IntegrableOn (fun x ↦ ↑(C_6_1_5 a) * (1 + dist_(p') (𝒬 p') (𝒬 p)) ^
-      (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) / (volume.nnreal (𝓘 p : Set X)) * ‖g x.1‖₊ * ‖g x.2‖₊)
+    IntegrableOn (fun x ↦ ↑(C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^
+      (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) / (volume (𝓘 p : Set X)) * ‖g x.1‖ₑ * ‖g x.2‖ₑ)
       (E p' ×ˢ E p) volume :=
-  (boundedCompactSupport_bound p p' hg hg1).integrable.integrableOn
+  sorry --(boundedCompactSupport_bound p p' hg hg1).integrable.integrableOn
 
 -- NOTE: `unfold correlation` is still needed after adding the measurability lemma.
 lemma stronglyMeasurable_I12 (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g) :
-    StronglyMeasurable (fun (x : X × X) ↦ (I12 p p' g x.1 x.2 : ℝ)) := by
+    StronglyMeasurable (fun (x : X × X) ↦ (I12 p p' g x.1 x.2)) := by
   simp only [I12, nnnorm_mul, NNReal.coe_mul, coe_nnnorm, mul_assoc]
-  exact (Measurable.stronglyMeasurable
+  sorry
+  /- exact (Measurable.stronglyMeasurable
       (by unfold correlation; fun_prop)).integral_prod_left.norm.mul
-    (((hg.comp measurable_fst).norm).mul (hg.comp measurable_snd).norm).stronglyMeasurable
+    (((hg.comp measurable_fst).norm).mul (hg.comp measurable_snd).norm).stronglyMeasurable -/
 
 lemma stronglyMeasurable_I12' (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g) :
     StronglyMeasurable (fun (x : X × X) ↦ ((I12 p p' g x.1 x.2 : ℝ) : ℂ)) :=
@@ -835,7 +840,8 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     IntegrableOn (fun x ↦ (I12 p p' g x.1 x.2 : ℝ)) (E p' ×ˢ E p) volume := by
-  classical
+  sorry
+  /- classical
   set f : X × X → ℝ := fun x ↦ if x ∈ E p' ×ˢ E p then (I12 p p' g x.1 x.2 : ℝ) else 0
   have hf : IntegrableOn f (E p' ×ˢ E p) volume := by
     apply Integrable.integrableOn
@@ -853,14 +859,15 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
       · simp only [f, if_neg hz, norm_zero]
         positivity
   exact MeasureTheory.IntegrableOn.congr_fun hf (fun _ hx ↦ by simp only [f, if_pos hx])
-    (measurableSet_E.prod measurableSet_E)
+    (measurableSet_E.prod measurableSet_E) -/
 
 /- TODO: it should be way easier to deduce this from `integrableOn_I12`, right? -/
 lemma integrableOn_I12' (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     IntegrableOn (fun x ↦ ((I12 p p' g x.1 x.2 : ℝ) : ℂ)) (E p' ×ˢ E p) volume := by
-  classical
+  sorry
+  /- classical
   set f : X × X → ℂ := fun x ↦ if x ∈ E p' ×ˢ E p then ((I12 p p' g x.1 x.2 : ℝ) : ℂ) else 0
   have hf : IntegrableOn f (E p' ×ˢ E p) volume := by
     apply Integrable.integrableOn
@@ -879,7 +886,7 @@ lemma integrableOn_I12' (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p
       · simp only [f, if_neg hz, norm_zero]
         positivity
   exact MeasureTheory.IntegrableOn.congr_fun hf (fun _ hx ↦ by simp only [f, if_pos hx])
-    (measurableSet_E.prod measurableSet_E)
+    (measurableSet_E.prod measurableSet_E) -/
 
 lemma bound_6_2_26_aux (p p' : 𝔓 X)  (g : X → ℂ) :
     let f := fun (x, z1, z2) ↦ (starRingEnd ℂ) (Ks (𝔰 p') z1 x) *
@@ -901,7 +908,8 @@ lemma bound_6_2_26_aux (p p' : 𝔓 X)  (g : X → ℂ) :
       ext y
       simp_rw [mul_add I, mul_sub I, sub_eq_add_neg, exp_add]
       ring_nf
-  have hx1 : abs (exp (I * ↑((Q x.1) x.1))) = 1 := by
+  sorry
+  /- have hx1 : abs (exp (I * ↑((Q x.1) x.1))) = 1 := by
     simp only [abs_exp, mul_re, I_re, ofReal_re, zero_mul, I_im, ofReal_im,
       mul_zero, sub_self, Real.exp_zero]
   have hx2 : abs (exp (I * -↑((Q x.2) x.2))) = 1 := by
@@ -918,13 +926,13 @@ lemma bound_6_2_26_aux (p p' : 𝔓 X)  (g : X → ℂ) :
   ext y
   rw [mul_add I, exp_add]
   ring_nf
-
+ -/
 -- Estimate 6.2.24 -- 6.2.25 by 6.2.26
 lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
-    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
-      ‖ ∫ (z : X × X) in E p' ×ˢ E p, (I12 p p' g z.fst z.snd : ℂ) ‖₊ := by
+    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
+      ‖ ∫ (z : X × X) in E p' ×ˢ E p, (I12 p p' g z.fst z.snd : ℂ) ‖ₑ := by
   have haux : ∀ (y : X), (starRingEnd ℂ) (∫ (y1 : X) in E p, (starRingEnd ℂ) (Ks (𝔰 p) y1 y) *
       exp (I * (↑((Q y1) y1) - ↑((Q y1) y))) * g y1) =
       (∫ (y1 : X) in E p, (Ks (𝔰 p) y1 y) * exp (I * (- ((Q y1) y1) + ↑((Q y1) y))) *
@@ -959,15 +967,16 @@ lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g 
 lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
-    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
-      (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-        (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * (∫ y in E p, ‖ g y‖) := by
-  -- Definition 6.2.27
+    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
+      (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+        (volume (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * (∫ y in E p, ‖ g y‖) := by
+  sorry
+  /- -- Definition 6.2.27
   set I12 := I12 p p' g
   -- Inequality 6.2.29
   have hI12 : ∀ (x1 : E p') (x2 : E p), I12 x1 x2 ≤
       (2^(254 * a^3 + 8 * a + 1) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹))) /
-      (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖₊ * ‖g ↑x2‖₊ :=
+      (volume.nnreal (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ :=
     I12_le (by omega) p p' hle g hinter
   -- Bound 6.2.29 using 6.2.32 and `4 ≤ a`.
   have hle' : ∀ (x2 : E p), 2 ^ (254 * a^3 + 8 * a + 1) *
@@ -976,8 +985,8 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
           ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
             (volume.nnreal (coeGrid (𝓘 p))) := bound_6_2_29 ha p p'
   -- Estimate 6.2.24 -- 6.2.25 by 6.2.26
-  have hbdd : ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
-      ‖ ∫ (z : X × X) in E p' ×ˢ E p, (I12 z.fst z.snd : ℂ) ‖₊ :=
+  have hbdd : ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
+      ‖ ∫ (z : X × X) in E p' ×ˢ E p, (I12 z.fst z.snd : ℂ) ‖ₑ :=
     bound_6_2_26 ha hle hg hg1 hinter
   rw [← NNReal.coe_le_coe] at hbdd
   apply le_trans hbdd
@@ -994,7 +1003,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
   have h : |∫ (z : X × X) in E p' ×ˢ E p, (I12 z.1 z.2 : ℝ)| ≤
       |∫ (z : X × X) in E p' ×ˢ E p, ((C_6_1_5 a) *
           ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-            (volume.nnreal (coeGrid (𝓘 p)))) * ‖g z.1‖₊ * ‖g z.2‖₊| := by
+            (volume.nnreal (coeGrid (𝓘 p)))) * ‖g z.1‖ₑ * ‖g z.2‖ₑ| := by
     apply abs_le_abs_of_nonneg (setIntegral_nonneg (measurableSet_E.prod measurableSet_E)
         (fun _ _ ↦ NNReal.zero_le_coe))
     apply setIntegral_mono_on (integrableOn_I12 ha hle hg hg1 hinter)
@@ -1012,15 +1021,15 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
   simp only [coe_nnnorm, norm_eq_abs, I12, mul_assoc]
   rw [integral_mul_left]
   simp only [abs_mul, abs_div, NNReal.abs_eq]
-  rw [_root_.abs_of_nonneg (Real.rpow_nonneg (add_nonneg zero_le_one dist_nonneg) _), hprod]
+  rw [_root_.abs_of_nonneg (Real.rpow_nonneg (add_nonneg zero_le_one dist_nonneg) _), hprod] -/
 
 -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
 lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
     (hinter : ¬ (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
-    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
-      (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-        (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * (∫ y in E p, ‖ g y‖) := by
-    calc (‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ : ℝ)
+    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
+      (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+        (volume (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * (∫ y in E p, ‖ g y‖) := by
+    sorry/- calc (‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ : ℝ)
       _ = 0 := by
         simp only [inter_nonempty, not_exists, not_and_or] at hinter
         simp only [defaultA, coe_nnnorm, Complex.norm_eq_abs, map_eq_zero]
@@ -1037,11 +1046,11 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
           simp only [hp'0, map_zero, mul_zero, Pi.zero_apply]
       _ ≤ (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
           (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * ∫ y in E p, ‖ g y‖ := by
-        positivity
+        positivity -/
 
 lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
+    ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
       (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
         (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * (∫ y in E p, ‖ g y‖) := by
   by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
