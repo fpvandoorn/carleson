@@ -2,7 +2,7 @@ import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
+import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
