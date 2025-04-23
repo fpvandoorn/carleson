@@ -4,7 +4,7 @@ import Mathlib.MeasureTheory.Integral.SetIntegral
 
 namespace MeasureTheory
 
--- [Mathlib.MeasureTheory.Integral.Prod]
+/- -- [Mathlib.MeasureTheory.Integral.Prod]
 theorem setIntegral_prod_swap {α β E : Type*} [MeasurableSpace α]
     [MeasurableSpace β] {μ : Measure α} {ν : Measure β} [NormedAddCommGroup E] [SFinite ν]
     [NormedSpace ℝ E] [SFinite μ] (s : Set α) (t : Set β) (f : α × β → E) :
@@ -17,7 +17,7 @@ theorem IntegrableOn.swap {α β E : Type*} [MeasurableSpace α] [MeasurableSpac
     {s : Set α} {t : Set β} (hf : IntegrableOn f (s ×ˢ t) (μ.prod ν)) :
     IntegrableOn (f ∘ Prod.swap) (t ×ˢ s) (ν.prod μ) := by
   rw [IntegrableOn, ← Measure.prod_restrict] at hf ⊢
-  exact hf.swap
+  exact hf.swap -/
 
 
 end MeasureTheory

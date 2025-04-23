@@ -888,7 +888,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       rw [Real.vol]
       gcongr
       · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
-       · exact measure_ball_ne_top x (dist x y)
+      · exact measure_ball_ne_top x (dist x y)
       · exact le_of_not_le hy
 
 end PseudoMetricSpace

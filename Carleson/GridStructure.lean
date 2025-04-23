@@ -126,11 +126,11 @@ lemma volume_coeGrid_pos (hD : 0 < D) : 0 < volume (i : Set X) := by
 lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
   measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
 
-lemma volumeNNReal_coeGrid_pos (hD : 0 < D) : 0 < volume.nnreal (i : Set X) := by
+/- lemma volumeNNReal_coeGrid_pos (hD : 0 < D) : 0 < volume.nnreal (i : Set X) := by
   rw [lt_iff_le_and_ne]
   refine ⟨zero_le _, ?_⟩
   rw [ne_eq, eq_comm, measureNNReal_eq_zero_iff]
-  exact ne_of_gt (volume_coeGrid_pos hD)
+  exact ne_of_gt (volume_coeGrid_pos hD) -/
 
 namespace Grid
 
