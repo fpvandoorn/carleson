@@ -1,6 +1,7 @@
 import Carleson.Discrete.Defs
 import Carleson.ForestOperator.Forests
 import Carleson.Discrete.SumEstimates
+import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -557,7 +558,8 @@ def 𝔘₄ (k n j l : ℕ) : Set (𝔓 X) :=
   ⋃ i ∈ Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), iteratedMaximalSubfamily (𝔘₃ k n j) i
 
 lemma 𝔘₄_subset_𝔘₃ {k n j l} : 𝔘₄ (X := X) k n j l ⊆ 𝔘₃ k n j := by
-  simp [𝔘₄, iteratedMaximalSubfamily_subset]
+  -- perf: squeeze
+  simp only [𝔘₄, mem_Ico, iUnion_subset_iff, iteratedMaximalSubfamily_subset, implies_true]
 
 /-- The sets `(𝔘₄(k, n, j, l))_l` form a partition of `𝔘₃ k n j`. -/
 lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X := X) k n j l = 𝔘₃ k n j := by
@@ -592,7 +594,7 @@ lemma iUnion_𝔘₄ (hkn : k ≤ n) : ⋃ l ∈ Iio (4 * n + 12), 𝔘₄ (X :=
 lemma C6_forest' (hkn : k ≤ n) :
     ℭ₆ (X := X) k n j = ⋃ l ∈ Iio (4 * n + 12), ⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u := by
   rw [C6_forest, ← iUnion_𝔘₄ hkn]
-  simp
+  simp only [mem_Iio, mem_iUnion, exists_prop, iUnion_exists, biUnion_and'] -- perf: squeeze
 
 lemma pairwiseDisjoint_𝔘₄ : univ.PairwiseDisjoint (𝔘₄ (X := X) k n j) := by
   intro l hl m hm hml
@@ -622,7 +624,8 @@ lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 
       exact disjoint_iff_forall_ne.1 this hp hq
     congr
     ext p
-    simp
+    simp only [mem_Ico, mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and,
+      Finset.mem_biUnion, Finset.mem_Ico] -- perf: squeezed
   _ ≤ ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n), 1 := by
     gcongr with i hi
     apply stackSize_le_one_of_pairwiseDisjoint
@@ -719,18 +722,18 @@ lemma carlesonSum_ℭ₆_eq_sum {f : X → ℂ} {x : X} {k n j : ℕ} (hkn : k �
     exact disjoint_iff_forall_ne.1 this hq hq'
   congr
   ext p
-  simp [C6_forest' hkn]
+  simp only [C6_forest' hkn, mem_Iio, mem_iUnion, exists_prop, Finset.mem_Iio] -- perf: squeezed
 
 /-- For each forest, the integral of the norm of the Carleson sum can be controlled thanks to
 the forest theorem and to the density control coming from the fact we are away from `G₁`. -/
 lemma lintegral_carlesonSum_forest
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
+    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ ≤
     C2_0_4 a q n * (2 ^ (2 * a + 5) * volume F / volume G) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume G) ^ (1/2 : ℝ) := by
   let 𝔉 := forest (X := X) k n j l
-  have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ =
-      ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖₊ := by
+  have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ =
+      ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ := by
     congr with x
     congr
     rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
@@ -770,7 +773,7 @@ the forest theorem and to the density control coming from the fact we are away f
 version, with the volume of `F`. -/
 lemma lintegral_carlesonSum_forest'
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ ≤
+    ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ ≤
     C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
   apply (lintegral_carlesonSum_forest hf h2f).trans
   simp only [mul_assoc]
@@ -804,33 +807,31 @@ lemma lintegral_carlesonSum_forest'
 /-- Putting all the above decompositions together, one obtains a control of the integral of the
 full Carleson sum over `𝔓₁`, as a sum over all the forests. -/
 lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
-    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤ C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) *
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖ₑ ≤ C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) *
          (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) *
         ∑ n ≤ maxℭ X, ∑ _k ≤ n, ∑ _j ≤ 2 * n + 3, ∑ _l < 4 * n + 12,
           (2 : ℝ≥0∞) ^ (- (q - 1) / q * n : ℝ) := calc
-  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊
-  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖₊ := by
+  ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖ₑ
+  _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₅ k n j) f x‖ₑ := by
     simp only [Finset.sum_sigma']
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.sum_sigma', carlesonSum_𝔓₁_eq_sum]
-    exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
-  _ = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖₊ := by
-    congr with n
-    congr with k
-    congr with j
+    apply enorm_sum_le
+  _ = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖ₑ := by
+    congr! 3
     apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
     exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
-        ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖₊ := by
+        ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ := by
     gcongr with n hn k hk j hj
     rw [← lintegral_finset_sum']; swap
-    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.ennnorm
+    · exact fun b hb ↦ h'f.aestronglyMeasurable.carlesonSum.restrict.enorm
     apply lintegral_mono (fun x ↦ ?_)
     simp only [Finset.mem_Iic] at hk
     rw [carlesonSum_ℭ₆_eq_sum hk]
-    exact (ENNReal.coe_le_coe.2 (nnnorm_sum_le _ _)).trans_eq (by simp)
+    apply enorm_sum_le
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∑ l < 4 * n + 12, C2_0_4 a q n * 2 ^ (a + 5/2 : ℝ) *
           (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
@@ -942,7 +943,7 @@ def C5_1_2_optimized (a : ℝ) (q : ℝ≥0) : ℝ≥0 :=
 
 /-- Version of the forest union result with a better constant. -/
 lemma forest_union_optimized {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
-    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖ₑ ≤
     C5_1_2_optimized a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
   apply (forest_union_aux hf h'f).trans
   calc
@@ -1016,7 +1017,7 @@ lemma C5_1_2_optimized_le : C5_1_2_optimized a nnq ≤ C5_1_2 a nnq := by
 naturally be decomposed as a union of forests can be controlled, thanks to the estimate for
 a single forest. -/
 lemma forest_union {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
-    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖₊ ≤
+    ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖ₑ ≤
     C5_1_2 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ (q⁻¹) := by
   apply (forest_union_optimized hf h'f).trans
   gcongr

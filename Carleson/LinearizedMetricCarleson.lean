@@ -19,10 +19,10 @@ variable {K : X → X → ℂ}
 /- Theorem 1.0.3 -/
 theorem linearized_metric_carleson [CompatibleFunctions ℝ X (defaultA a)]
   [IsCancellative X (defaultτ a)] [IsOneSidedKernel a K]
-    (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.IsConjExponent q')
+    (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (Q : SimpleFunc X (Θ X)) {θ : Θ X}
     (hF : MeasurableSet F) (hG : MeasurableSet G)
-    (hT : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · · |>.toReal)
+    (hT : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
       2 2 volume volume (C_Ts a))
     (f : X → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤

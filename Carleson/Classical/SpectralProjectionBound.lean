@@ -21,16 +21,8 @@ lemma fourierCoeff_eq_innerProduct {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 �
   rw [← coe_fourierBasis, ← fourierBasis_repr]
   exact HilbertBasis.repr_apply_apply fourierBasis f n
 
-
-noncomputable section
-def partialFourierSumLp {T : ℝ} [hT : Fact (0 < T)] (p : ENNReal) [Fact (1 ≤ p)] (N : ℕ) (f : ↥(Lp ℂ 2 (@haarAddCircle T hT))) : Lp ℂ p (@haarAddCircle T hT) :=
-    ∑ n in Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • fourierLp p n
-
---TODO: add some lemma relating partialFourierSum and partialFourierSumLp
-
-
 lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (2 : ENNReal))] {f : ↥(Lp ℂ 2 haarAddCircle)} {N : ℕ} :
-    ‖partialFourierSumLp 2 N f‖ ^ 2 = ∑ n in Finset.Icc (-Int.ofNat N) N, ‖@fourierCoeff T hT _ _ _ f n‖ ^ 2 := by
+    ‖partialFourierSumLp 2 N f‖ ^ 2 = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, ‖@fourierCoeff T hT _ _ _ f n‖ ^ 2 := by
   calc ‖partialFourierSumLp 2 N f‖ ^ 2
     _ = ‖partialFourierSumLp 2 N f‖ ^ (2 : ℝ) := by
       rw [← Real.rpow_natCast]; rfl
@@ -39,16 +31,15 @@ lemma partialFourierSumL2_norm {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ (
     _ = ‖∑ n ∈ Finset.Icc (-Int.ofNat N) N, fourierCoeff f n • (fourierBasis.repr (@fourierLp T hT 2 h2 n))‖ ^ (2 : ℝ) := by
       rw [partialFourierSumLp, map_sum]
       simp_rw [LinearMapClass.map_smul]
-    _ = ∑ n in Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ (2 : ℝ) := by
+    _ = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ (2 : ℝ) := by
       rw [← coe_fourierBasis]
-      simp only [LinearIsometryEquiv.apply_symm_apply, lp.coeFn_smul, Pi.smul_apply, ← lp.single_smul]
+      simp_rw [← fourierBasis.repr_symm_single, LinearIsometryEquiv.apply_symm_apply, ← lp.single_smul]
       have : 2 = (2 : ENNReal).toReal := by simp
       rw [this, ← lp.norm_sum_single (by simp), ← this]
       congr 2
       refine Finset.sum_congr (by simp) fun n ↦ ?_
-      simp only [smul_eq_mul, mul_one]
-      congr!
-    _ = ∑ n in Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ 2 := by
+      simp only [Int.ofNat_eq_coe, Finset.mem_Icc, smul_eq_mul, mul_one, implies_true]
+    _ = ∑ n ∈ Finset.Icc (-Int.ofNat N) N, ‖fourierCoeff f n‖ ^ 2 := by
       simp_rw [← Real.rpow_natCast]; rfl
 
 lemma spectral_projection_bound_sq {T : ℝ} [hT : Fact (0 < T)] (N : ℕ) (f : Lp ℂ 2 <| @haarAddCircle T hT) :

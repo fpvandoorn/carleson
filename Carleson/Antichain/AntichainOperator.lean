@@ -1,7 +1,7 @@
 import Carleson.TileStructure
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.Psi
-import Carleson.ToMathlib.MeasureTheory.Integral.SetIntegral
+import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 
 
 open scoped ShortVariables
@@ -83,18 +83,6 @@ lemma C_6_1_2_ne_zero (a : ℕ) : (C_6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C_6_1
 
 open MeasureTheory Metric Bornology Set
 
---TODO: PR
-lemma _root_.ENNReal.div_mul (a : ℝ≥0∞) {b c : ℝ≥0∞} (hb0 : b ≠ 0) (hb_top : b ≠ ⊤)
-    (hc0 : c ≠ 0) (hc_top : c ≠ ⊤) :
-    a / b * c = a / (b / c) := by
-  rw [← ENNReal.mul_div_right_comm, ENNReal.div_eq_div_iff (ENNReal.div_ne_zero.mpr ⟨hb0, hc_top⟩)
-    _ hb0 hb_top]
-  · rw [ENNReal.div_eq_inv_mul, mul_comm a, mul_assoc]
-    simp only [mul_comm b, ← mul_assoc, ENNReal.inv_mul_cancel hc0 hc_top]
-    ring
-  · simp only [ne_eq, div_eq_top]
-    tauto
-
 private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
       2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by
@@ -130,24 +118,24 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
     _ = 2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) := by ring_nf
 
 private lemma ineq_6_1_7' (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
-    (2 : ℝ≥0) ^ a ^ 3 / volume.nnreal (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
-      2 ^ (5 * a + 101 * a ^ 3) / volume.nnreal (ball x (8 * ↑D ^ 𝔰 p.1)) := by
+    (2 : ℝ≥0) ^ a ^ 3 / (volume (ball x (↑D ^ 𝔰 p.1 / (↑D * 4)))).toNNReal ≤
+      2 ^ (5 * a + 101 * a ^ 3) / (volume (ball x (8 * ↑D ^ 𝔰 p.1))).toNNReal := by
   suffices (2 : ℝ≥0) ^ a ^ 3 / volume.real (ball x (↑D ^ 𝔰 p.1 / (↑D * 4))) ≤
       2 ^ (5 * a + 101 * a ^ 3) / volume.real (ball x (8 * ↑D ^ 𝔰 p.1)) by
-    simp only [← NNReal.coe_le_coe, NNReal.coe_div, ← NNReal.val_eq_coe, measureNNReal_val]
+    simp only [← NNReal.coe_le_coe, NNReal.coe_div, ← NNReal.val_eq_coe]
     exact this
   exact ineq_6_1_7 x p
 
 -- Composition of inequalities 6.1.6, 6.1.7, 6.1.8.
 lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p) (hy : Ks (𝔰 p.1) x y ≠ 0)  :
     ‖Ks (𝔰 p.1) x y‖₊ ≤
-      (2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
+      (2 : ℝ≥0) ^ (6*a + 101*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal := by
   have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos ..
   have h8Dpow_pos : 0 < 8 * (D : ℝ) ^ 𝔰 p.1 := mul_defaultD_pow_pos _ (by linarith) _
   have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
-  have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / volume.nnreal (ball x (D ^ (𝔰 p.1 - 1)/4)) := by
-    apply le_trans (NNReal.coe_le_coe.mpr kernel_bound)
-    rw [NNReal.coe_div, NNReal.coe_pow, NNReal.coe_ofNat, ← NNReal.val_eq_coe, measureNNReal_val]
+  have h : ‖Ks (𝔰 p.1) x y‖₊ ≤ (2 : ℝ≥0)^(a^3) / (volume (ball x (D ^ (𝔰 p.1 - 1)/4))).toNNReal := by
+    apply le_trans (NNReal.coe_le_coe.mpr kernel_bound_old)
+    rw [NNReal.coe_div, NNReal.coe_pow, NNReal.coe_ofNat, ← NNReal.val_eq_coe]
     exact div_le_div_of_nonneg_left (pow_nonneg zero_le_two _)
       (measure_ball_pos_real x _ (div_pos (zpow_pos (defaultD_pos _) _) zero_lt_four))
       (measureReal_mono (Metric.ball_subset_ball (dist_mem_Icc_of_Ks_ne_zero hy).1)
@@ -161,8 +149,8 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
     ge_iff_le]
   rw [ha, pow_add _ (5 * a + 101 * a ^ 3) a, mul_assoc]
   apply mul_le_mul_of_nonneg_left _ (zero_le _)
-  suffices (volume.nnreal (ball (𝔠 p.1) (8 * ↑D ^ 𝔰 p.1))) ≤
-      2 ^ a * (volume.nnreal (ball x (8 * ↑D ^ 𝔰 p.1))) by
+  suffices (volume (ball (𝔠 p.1) (8 * ↑D ^ 𝔰 p.1))).toNNReal ≤
+      2 ^ a * (volume (ball x (8 * ↑D ^ 𝔰 p.1))).toNNReal by
     rw [le_mul_inv_iff₀, ← le_inv_mul_iff₀ , mul_comm _ (_^a), inv_inv]
     exact this
     · exact inv_pos.mpr (measure_ball_pos_nnreal _ _ h8Dpow_pos)
@@ -181,7 +169,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hfm : Measurable f) (x : X) :
-    ‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
+    ‖∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
   by_cases hx : ∃ (p : 𝔄), carlesonOn p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
     have hDpow_pos : 0 < (D : ℝ) ^ 𝔰 p.1 := defaultD_pow_pos ..
@@ -208,18 +196,18 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
         exact mul_lt_mul_of_pos_right (by norm_num) (defaultD_pow_pos ..)
     -- 6.1.6, 6.1.7, 6.1.8
     have hKs : ∀ (y : X) (hy : Ks (𝔰 p.1) x y ≠ 0), ‖Ks (𝔰 p.1) x y‖₊ ≤
-        (2 : ℝ≥0) ^ (6*a + 101*a^3) / volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := fun y hy ↦
-      norm_Ks_le' _ hxE hy
+        (2 : ℝ≥0) ^ (6*a + 101*a^3) / (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal :=
+      fun y hy ↦ norm_Ks_le' _ hxE hy
     calc (‖∑ (p ∈ 𝔄), carlesonOn p f x‖₊ : ℝ≥0∞)
       = ↑‖carlesonOn p f x‖₊:= by rw [Finset.sum_eq_single_of_mem p.1 p.2 hne_p]
-    _ ≤ ∫⁻ (y : X), ‖cexp (I * (↑((Q x) y) - ↑((Q x) x))) * Ks (𝔰 p.1) x y * f y‖₊ := by
+    _ ≤ ∫⁻ (y : X), ‖cexp (I * (↑((Q x) y) - ↑((Q x) x))) * Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [carlesonOn, indicator, if_pos hxE]
-        refine le_trans (ennnorm_integral_le_lintegral_ennnorm _) (lintegral_mono fun z w h ↦ ?_)
+        refine le_trans (enorm_integral_le_lintegral_enorm _) (lintegral_mono fun z w h ↦ ?_)
         simp only [nnnorm_mul, coe_mul, some_eq_coe', Nat.cast_pow, Nat.cast_ofNat,
-          zpow_neg, mul_ite, mul_zero, Ks, mul_assoc] at h ⊢
+          zpow_neg, mul_ite, mul_zero, Ks, mul_assoc, enorm_eq_nnnorm] at h ⊢
         use w
-    _ ≤ ∫⁻ (y : X), ‖Ks (𝔰 p.1) x y * f y‖₊ := by
-      simp only [nnnorm_mul]
+    _ ≤ ∫⁻ (y : X), ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
+      simp only [enorm_mul]
       refine lintegral_mono_nnreal fun y ↦ ?_
       rw [mul_assoc]
       conv_rhs => rw [← one_mul (‖Ks (𝔰 p.1) x y‖₊ * ‖f y‖₊)]
@@ -227,16 +215,16 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       · apply le_of_eq
         rw [mul_comm, ← Complex.ofReal_sub, NNReal.eq_iff,
           coe_nnnorm, NNReal.coe_one, Complex.norm_exp_ofReal_mul_I]
-    _ = ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1), ‖Ks (𝔰 p.1) x y * f y‖₊ := by
+    _ = ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1), ‖Ks (𝔰 p.1) x y * f y‖ₑ := by
         rw [MeasureTheory.setLIntegral_eq_of_support_subset]
         intro y hy
-        simp only [nnnorm_mul, coe_mul, Function.support_mul, mem_inter_iff, Function.mem_support,
-          ne_eq, ENNReal.coe_eq_zero, nnnorm_eq_zero] at hy
+        simp only [enorm_mul, coe_mul, Function.support_mul, mem_inter_iff, Function.mem_support,
+          ne_eq, ENNReal.coe_eq_zero, enorm_eq_zero] at hy
         rw [mem_ball, dist_comm]
         exact hdist_cpy y hy.1
     _ ≤ ∫⁻ (y : X) in ball (𝔠 ↑p) (8 * ↑D ^ 𝔰 p.1),
         (((2 : ℝ≥0) ^ (6*a + 101*a^3) /
-          volume.nnreal (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) * ‖f y‖₊ : ℝ≥0) := by
+          (volume (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))).toNNReal) * ‖f y‖₊ : ℝ≥0) := by
       refine lintegral_mono_nnreal fun y ↦ ?_
       rw [nnnorm_mul]
       gcongr
@@ -244,15 +232,15 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
       · simp [hy]
       · exact hKs y hy
     _ = (2 : ℝ≥0)^(5*a + 101*a^3 + a) *
-        ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
+        ⨍⁻ y, ‖f y‖ₑ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)) := by
       rw [laverage_eq, Measure.restrict_apply MeasurableSet.univ, univ_inter]
-      simp_rw [div_eq_mul_inv, coe_mul]
+      simp_rw [div_eq_mul_inv, coe_mul, enorm_eq_nnnorm]
       rw [lintegral_const_mul _ hfm.nnnorm.coe_nnreal_ennreal, ENNReal.coe_pow, coe_inv
-        (ne_of_gt (measure_ball_pos_nnreal _ _ h8Dpow_pos)), measureNNReal_def,
+        (ne_of_gt (measure_ball_pos_nnreal _ _ h8Dpow_pos)),
         ENNReal.coe_toNNReal (measure_ball_ne_top _ _)]
       ring
     _ ≤ (C_6_1_2 a) * (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)).indicator (x := x)
-        (fun _ ↦ ⨍⁻ y, ‖f y‖₊ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
+        (fun _ ↦ ⨍⁻ y, ‖f y‖ₑ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
       simp only [coe_ofNat, indicator, mem_ball, mul_ite, mul_zero]
       rw [if_pos]
       · gcongr
@@ -276,7 +264,7 @@ lemma MaximalBoundAntichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤
   · simp only [ne_eq, Subtype.exists, exists_prop, not_exists, not_and, Decidable.not_not] at hx
     have h0 : (∑ (p ∈ 𝔄), carlesonOn p f x) = (∑ (p ∈ 𝔄), 0) :=
       Finset.sum_congr rfl (fun  p hp ↦ hx p hp)
-    simp only [h0, Finset.sum_const_zero, nnnorm_zero, ENNReal.coe_zero, zero_le]
+    simp only [h0, Finset.sum_const_zero, enorm_zero, zero_le]
 
 -- TODO: PR to Mathlib
 omit [MetricSpace X] in
@@ -320,10 +308,10 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
   by_cases hf_top : eLpNorm f 2 volume < ⊤
   · --have hf2 :  Memℒp f 2 volume := ⟨hf1, hf_top⟩
     have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠
-        (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x |>.toReal) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
+        (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
       sorry
       --hasStrongType_maximalFunction (X := X) hp₁_ge hp₁_lt (u := f) (r := fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) hf1
-    have hh := (this f ⟨hf1, hf_top⟩).2
+    have hh := (this.toReal f ⟨hf1, hf_top⟩).2
     simp only [hp₁, Nat.cast_pow, Nat.cast_ofNat, C2_0_6] at hh
 
     convert hh
@@ -348,9 +336,9 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
     rw [hf_top, mul_top]
     · exact le_top
     simp only [ne_eq, ENNReal.div_eq_zero_iff, mul_eq_zero, pow_eq_zero_iff',
-    OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, two_ne_top, not_false_eq_true,
+    OfNat.ofNat_ne_zero, false_or, false_and, sub_eq_top_iff, ofNat_ne_top, not_false_eq_true,
     and_true, not_or]
-    refine ⟨?_, mul_ne_top two_ne_top (mul_ne_top (mul_ne_top two_ne_top coe_ne_top)
+    refine ⟨?_, mul_ne_top ofNat_ne_top (mul_ne_top (mul_ne_top ofNat_ne_top coe_ne_top)
       (inv_ne_top.mpr (by simp)))⟩
     rw [tsub_eq_zero_iff_le]
     exact not_le.mpr (lt_trans (by norm_cast)
@@ -361,7 +349,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
 lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ha : 4 ≤ a)
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
-    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖₊ ≤
+    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
@@ -401,8 +389,8 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
     have heq : (2^2 : ℝ≥0∞) / (nnq' - 1) = 8 / (2 * nnq' - 2) := by
       have h8 : (8 : ℝ≥0∞) =  2 * 4 := by norm_cast
       have h2 : ((2 : ℝ≥0∞) * nnq' - 2) = 2 * (nnq' - 1) := by
-        rw [ENNReal.mul_sub (fun _ _ ↦ two_ne_top), mul_one]
-      rw [h8, h2, ENNReal.mul_div_mul_left _ _ two_ne_zero two_ne_top]
+        rw [ENNReal.mul_sub (fun _ _ ↦ ofNat_ne_top), mul_one]
+      rw [h8, h2, ENNReal.mul_div_mul_left _ _ two_ne_zero ofNat_ne_top]
       ring_nf
     rw [heq]
     apply ENNReal.div_le_div_right
@@ -436,7 +424,7 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
       gcongr
       have h2 : (2 : ℝ≥0∞) ^ (107 * a ^ 3) = ‖(2 : ℝ) ^ (107 * a ^ 3)‖₊ := by
         simp only [nnnorm_pow, nnnorm_two, ENNReal.coe_pow, coe_ofNat]
-      rw [h2, ← eLpNorm_const_smul]
+      rw [h2, ← enorm_eq_nnnorm, ← eLpNorm_const_smul]
       apply eLpNorm_mono_nnnorm
       intro z
       have MB_top : MB volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭) f z ≠ ⊤ := by
@@ -506,7 +494,7 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (hf : Measurable f) (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
-    ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖₊ ≤
+    ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
     (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := sorry
 
@@ -515,7 +503,7 @@ the integral of the function multiplied by another function. -/
 theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
-    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖₊ ≤
+    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
   have I (x : ℝ) : x / x ≤ 1 := by
@@ -525,7 +513,7 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
   apply (lintegral_mono_set hA).trans
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  rw [← ennnorm_integral_starRingEnd_mul_eq_lintegral_ennnorm]; swap
+  rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
   · apply BoundedCompactSupport.integrable
     apply BoundedCompactSupport.carlesonSum
     have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
@@ -549,7 +537,7 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
   calc
   _ ≤ eLpNorm (G.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    simp only [indicator, Complex.norm_eq_abs, coe_algebraMap, Real.norm_eq_abs]
+    simp only [indicator, coe_algebraMap, Real.norm_eq_abs]
     split_ifs
     · simpa using I _
     · simp
@@ -566,7 +554,7 @@ of `volume F` and `volume G`. -/
 theorem antichain_operator_le_volume {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
-    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖₊ ≤
+    ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume G) ^ (1/2 : ℝ) := by
   apply (antichain_operator' hf h2f hA h𝔄).trans

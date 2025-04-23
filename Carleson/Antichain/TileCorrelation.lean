@@ -47,18 +47,21 @@ lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
 
 def C_6_2_1 (a : ℕ) : ℝ≥0 := 2^(254 * a^3)
 
+<<<<<<< HEAD
 --TODO: PR to Mathlib
 lemma ENNReal.mul_div_mul_comm {a b c d : ℝ≥0∞} (hc : c ≠ ⊤) (hd : d ≠ ⊤) :
     a * b / (c * d) = a / c * (b / d) := by
   simp only [div_eq_mul_inv, ENNReal.mul_inv (Or.inr hd) (Or.inl hc)]
   ring
 
+=======
+>>>>>>> master
 lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X)  :
-  (‖Ks s₂ x₂ y‖₊ : ℝ≥0∞) * (‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖₊ : ℝ≥0∞) ≤
+  ‖Ks s₂ x₂ y‖ₑ * ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ ≤
   ↑(C2_1_3 ↑a) / volume (ball x₂ (↑D ^ s₂)) *
     (↑(D2_1_3 ↑a) / volume (ball x₁ (↑D ^ s₁)) * (↑(nndist y y') ^ τ / ↑((D : ℝ≥0) ^ s₁) ^ τ)) := by
   have hτ : 0 ≤ τ := by simp only [defaultτ, inv_nonneg, Nat.cast_nonneg]
-  apply mul_le_mul nnnorm_Ks_le _ (zero_le _) (zero_le _)
+  apply mul_le_mul enorm_Ks_le _ (zero_le _) (zero_le _)
   convert nnnorm_Ks_sub_Ks_le
   rw [← ENNReal.div_rpow_of_nonneg _ _ hτ]
   simp only [defaultτ]
@@ -69,42 +72,46 @@ lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X)  :
 -- Eq. 6.2.3 (Lemma 6.2.1)
 lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ Icc (- (S : ℤ)) s₂)
    {x₁ x₂ : X} :
-    hnorm (a := a) (correlation s₁ s₂ x₁ x₂) x₁ (↑D ^s₁) ≤
+    iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (↑D ^s₁) ≤
       (C_6_2_1 a : ℝ≥0∞) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂))) := by
   -- 6.2.4
-  have hφ' : ∀ y : X, ‖correlation s₁ s₂ x₁ x₂ y‖₊ ≤
+  have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a)^2 / ((volume (ball x₁ (D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))) := by
+<<<<<<< HEAD
     intro y
     simp only [correlation, nnnorm_mul, RCLike.nnnorm_conj, ENNReal.coe_mul, pow_two,
       ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _) (measure_ball_ne_top _ _)]
     exact mul_le_mul nnnorm_Ks_le nnnorm_Ks_le (zero_le _) (zero_le _)
+=======
+    simp only [correlation, enorm_mul, RCLike.enorm_conj, pow_two,
+      ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _)) (.inl (measure_ball_ne_top _ _))]
+    exact mul_le_mul enorm_Ks_le enorm_Ks_le (zero_le _) (zero_le _)
+>>>>>>> master
   -- 6.2.6 + 6.2.7
-  have hsimp :  ∀ (y y' : X),
-      (‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖₊ : ℝ≥0∞) ≤
-        ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y‖₊ +
-          ‖Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖₊ := by
+  have hsimp : ∀ (y y' : X),
+      ‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ ≤
+        ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y‖ₑ +
+          ‖Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖ₑ := by
     intro y y'
-    calc (‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖₊ : ℝ≥0∞)
+    calc ‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ
       _ = ‖conj (Ks s₁ x₁ y) * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * Ks s₂ x₂ y +
-          (conj (Ks s₁ x₁ y') * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * (Ks s₂ x₂ y'))‖₊ := by
+          (conj (Ks s₁ x₁ y') * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * (Ks s₂ x₂ y'))‖ₑ := by
         simp only [correlation, sub_add_sub_cancel]
-      _ ≤ ‖conj (Ks s₁ x₁ y) * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * Ks s₂ x₂ y ‖₊ +
-          ‖conj (Ks s₁ x₁ y') * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * (Ks s₂ x₂ y')‖₊ := by
-            norm_cast
-            exact nnnorm_add_le _ _
-      _ = ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y‖₊ +
-          ‖Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖₊ := by
-          norm_cast
-          simp only [← sub_mul, ← mul_sub, nnnorm_mul, RCLike.nnnorm_conj, ← map_sub]
+      _ ≤ ‖conj (Ks s₁ x₁ y) * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * Ks s₂ x₂ y ‖ₑ +
+          ‖conj (Ks s₁ x₁ y') * Ks s₂ x₂ y - conj (Ks s₁ x₁ y') * (Ks s₂ x₂ y')‖ₑ :=
+            enorm_add_le _ _
+      _ = ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ * ‖Ks s₂ x₂ y‖ₑ +
+          ‖Ks s₁ x₁ y'‖ₑ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖ₑ := by
+          simp only [← sub_mul, ← mul_sub, enorm_mul, RCLike.enorm_conj, ← map_sub]
   -- 6.2.5
   have hyy' : ∀ (y y' : X) (hy' : y ≠ y'), (((D  ^ s₁ : ℝ≥0)) ^ τ)  *
-    (‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖₊ / (nndist y y')^τ) ≤
+    (‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ / (nndist y y')^τ) ≤
       (2^(253*a^3) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂)))) := by
     intros y y' hy'
     rw [mul_comm, ← ENNReal.le_div_iff_mul_le, ENNReal.div_le_iff_le_mul]
-    calc (‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖₊ : ℝ≥0∞)
-      _ ≤ ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y‖₊ +
-          ‖Ks s₁ x₁ y'‖₊ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖₊ := hsimp y y' -- 6.2.6 + 6.2.7
+    calc ‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ
+      _ ≤ ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ * ‖Ks s₂ x₂ y‖ₑ +
+          ‖Ks s₁ x₁ y'‖ₑ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖ₑ := hsimp y y' -- 6.2.6 + 6.2.7
       _ ≤ 2 ^ (252 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) *
         (↑(nndist y y') ^ τ / ((D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ +
           ↑(nndist y y') ^ τ / ((D ^ s₂ : ℝ≥0) : ℝ≥0∞) ^ τ) := by
@@ -113,13 +120,13 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
           norm_cast
           ring
         rw [mul_comm, mul_add, h2, mul_comm (volume _)]
-        simp only [ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _) (measure_ball_ne_top _ _),
-          mul_assoc]
+        simp only [ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _))
+          (.inl (measure_ball_ne_top _ _)), mul_assoc]
         apply add_le_add (aux_6_2_3 s₁ s₂ x₁ x₂ y y')
-        rw [← neg_sub, nnnorm_neg]
+        rw [← neg_sub, enorm_neg]
         convert aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
-        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _)
-          (measure_ball_ne_top _ _)]
+        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _))
+          (.inl (measure_ball_ne_top _ _))]
         rw [mul_comm (volume _), nndist_comm]
       _ ≤ 2 ^ (252 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) *
         (2 * (↑(nndist y y') ^ τ / ((D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ)) := by
@@ -152,7 +159,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
             (measure_ball_ne_top x₂ (D ^ s₂))
         · simp only [ne_eq, ENNReal.div_eq_top,
           pow_eq_zero_iff', OfNat.ofNat_ne_zero, mul_eq_zero, not_false_eq_true, pow_eq_zero_iff,
-          false_or, false_and, true_and, ENNReal.pow_eq_top_iff, ENNReal.two_ne_top, or_false,
+          false_or, false_and, true_and, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, or_false,
           not_or]
           exact ⟨ne_of_gt (measure_ball_pos volume x₁ (defaultD_pow_pos a s₁)),
             ne_of_gt (measure_ball_pos volume x₂ (defaultD_pow_pos a s₂))⟩
@@ -190,15 +197,17 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
     · left
       refine ENNReal.rpow_ne_top_of_nonneg ?ht.h.hy0 ENNReal.coe_ne_top
       simp only [defaultτ, inv_nonneg, Nat.cast_nonneg]
-  calc hnorm (a := a) (correlation s₁ s₂ x₁ x₂) x₁ (↑D ^s₁)
+  calc iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (↑D ^s₁)
     _ ≤ (C2_1_3 a)^2 / ((volume (ball x₁ (D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))) +
         (2^(253*a^3) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂)))) := by
-        simp only [hnorm]
-        refine iSup₂_le ?h
-        intro y _
-        apply add_le_add (hφ' y)
+        simp only [iHolENorm]
+        apply add_le_add
+        · simp only [iSup_le_iff, hφ', implies_true]
         simp only [ENNReal.mul_iSup, iSup_le_iff]
-        exact fun z _ z' _ hzz' ↦ hyy' z z' hzz'
+        intro z hz z' hz' hzz'
+        convert hyy' z z' hzz'
+        · rw [ENNReal.ofReal, Real.toNNReal_zpow D_nonneg, Real.toNNReal_coe_nat]
+        · exact edist_nndist z z'
     _ ≤ (C_6_2_1 a : ℝ≥0∞) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂))) := by
       have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
       have h204 : 204 ≤ 253 := by omega
@@ -356,12 +365,12 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
             apply add_le_add_right
             norm_cast
             nth_rewrite 1 [← pow_one 2]
-            exact Nat.pow_le_pow_of_le_right zero_lt_two (by omega)
+            exact Nat.pow_le_pow_right zero_lt_two (by omega)
           _ = 2 * (2 : ℝ)^ (6 * a) := by ring
           _ ≤ 2 ^ (a * 8) := by
             nth_rewrite 1 [← pow_one 2, ← pow_add]
             norm_cast
-            exact Nat.pow_le_pow_of_le_right zero_lt_two (by omega)
+            exact Nat.pow_le_pow_right zero_lt_two (by omega)
       have h38 : 3 ≤ 8 := by omega
       have h12 : (1 : ℝ) ≤ 2 := by linarith
       rw [C_6_2_3]
@@ -598,6 +607,7 @@ lemma boundedCompactSupport_g {g : X → ℂ} (hg : Measurable g) (hg1 : ∀ x, 
 
 lemma boundedCompactSupport_star_Ks_mul_g (p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+<<<<<<< HEAD
     BoundedCompactSupport (fun (x : X × X) ↦ ((starRingEnd ℂ) (Ks (𝔰 p') x.1 x.2) *  g x.1)) := by
   apply BoundedCompactSupport.mul_bdd_left' (boundedCompactSupport_g hg hg1) continuous_fst
     measurable_fst ?_ ?_ ?_
@@ -954,10 +964,17 @@ lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g 
         RCLike.im_to_complex, ofReal_im, integral_zero, ofReal_zero, RCLike.I_to_complex,
         zero_mul, add_zero]
       rw [Real.norm_of_nonneg (integral_nonneg (fun x ↦ by simp))]
+=======
+    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
+      (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
+        (volume (coeGrid (𝓘 p))) * ∫⁻ y in E p', ‖g y‖ₑ * ∫⁻ y in E p, ‖g y‖ₑ := by
+  sorry
+>>>>>>> master
 
 -- We assume 6.2.23.
 lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+<<<<<<< HEAD
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
       (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
@@ -1047,3 +1064,14 @@ lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {
   by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
   · exact correlation_le_of_nonempty_inter ha hle hg hg1 hinter
   · exact correlation_le_of_empty_inter hinter
+=======
+    (hpp' : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p) ) :
+    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ = 0 := by
+  by_contra h0
+  apply hpp'
+  have hy : ∃ y : X, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ≠ 0 := sorry
+  obtain ⟨y, hy⟩ := hy
+  sorry
+
+end Tile
+>>>>>>> master

@@ -107,21 +107,20 @@ lemma Dirichlet_Hilbert_diff {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc (-π) π) :
         + ‖(min |x| 1) * (exp (-I * N * x) / (1 - exp (I * x)))‖ := by
       apply norm_add_le
     _ ≤ |x| * (1 / ‖1 - exp (I * x)‖) + |x| * (1 / ‖1 - exp (I * x)‖) := by
-      simp only [neg_mul, norm_mul, norm_eq_abs, abs_ofReal, norm_div]
-      rw [_root_.abs_of_nonneg (by simp)]
+      simp only [neg_mul, norm_mul, norm_real, norm_div]
+      rw [Real.norm_of_nonneg (by simp)]
       gcongr
       · apply min_le_left
-      · simpa
       · rw [mul_assoc I, mul_comm I]
         norm_cast
-        rw [abs_exp_ofReal_mul_I]
-      · rw [←abs_conj, map_sub, map_one, ←exp_conj, ← neg_mul, map_mul, conj_I, conj_ofReal]
+        rw [norm_exp_ofReal_mul_I]
+      · rw [← norm_conj, map_sub, map_one, ←exp_conj, ← neg_mul, map_mul, conj_I, conj_ofReal]
       · apply min_le_left
       · /-Duplicate from above:
         TODO: how to remove duplicate goals? -/
         rw [mul_assoc I, mul_comm I, ← neg_mul]
         norm_cast
-        rw [abs_exp_ofReal_mul_I]
+        rw [norm_exp_ofReal_mul_I]
     _ = 2 * (|x| / ‖1 - exp (I * x)‖) := by ring
     _ ≤ 2 * (π / 2) := by
       gcongr 2 * ?_
@@ -179,8 +178,8 @@ lemma intervalIntegrable_mul_dirichletKernel'_max {x : ℝ} (hx : x ∈ Set.Icc 
         (measurable_id.const_sub _)) _).max measurable_const)).aestronglyMeasurable _)
   use 1
   intro y
-  simp only [id_eq, Function.comp_apply, norm_eq_abs, abs_ofReal]
-  rw [_root_.abs_of_nonneg (le_max_right _ _)]
+  simp only [id_eq, Function.comp_apply, norm_real]
+  rw [Real.norm_of_nonneg (le_max_right _ _)]
   simp
 
 lemma intervalIntegrable_mul_dirichletKernel'_max' {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) {f : ℝ → ℂ}
@@ -338,13 +337,13 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
                 rw [norm_mul, norm_mul]
               _ ≤ 1 * (2 ^ (2 : ℝ) / (2 * |x - y|)) * 1 := by
                 gcongr
-                · rw [norm_eq_abs, mul_comm]
+                · rw [mul_comm]
                   norm_cast
-                  rw [abs_exp_ofReal_mul_I]
+                  rw [norm_exp_ofReal_mul_I]
                 · exact Hilbert_kernel_bound
-                · rw [norm_eq_abs, mul_assoc, mul_comm]
+                · rw [mul_assoc, mul_comm]
                   norm_cast
-                  rw [abs_exp_ofReal_mul_I]
+                  rw [norm_exp_ofReal_mul_I]
               _ ≤ (2 ^ (2 : ℝ) / (2 * r)) := by
                 rw [one_mul, mul_one, ← Real.dist_eq]
                 gcongr
@@ -383,7 +382,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
           push_cast
           norm_cast
           congr 1 <;>
-          · rw [integral_mul_left, norm_mul, norm_eq_abs, mul_comm I, abs_exp_ofReal_mul_I, one_mul]
+          · rw [integral_mul_left, norm_mul, mul_comm I, norm_exp_ofReal_mul_I, one_mul]
     _ ≤ T g x + T (conj ∘ g) x := by
       simp_rw [carlesonOperatorReal]
       apply iSup₂_le
@@ -435,7 +434,7 @@ lemma partialFourierSum_bound {δ : ℝ} (hδ : 0 < δ) {g : ℝ → ℂ} (measu
       norm_cast
       gcongr
       · apply nnnorm_add_le
-      · rw [← ofReal_norm_eq_coe_nnnorm, Real.norm_of_nonneg Real.two_pi_pos.le]
+      · rw [← enorm_eq_nnnorm, ← ofReal_norm_eq_enorm, Real.norm_of_nonneg Real.two_pi_pos.le]
     _ ≤ (T g x + T (⇑conj ∘ g) x + ENNReal.ofReal (π * δ * (2 * π))) / ENNReal.ofReal (2 * π) := by
       gcongr
       · apply le_CarlesonOperatorReal intervalIntegrable_g hx
@@ -506,7 +505,7 @@ lemma rcarleson_exceptional_set_estimate_specific {δ : ℝ} (δpos : 0 < δ) {f
     intro x
     rw [hdef, norm_indicator_eq_indicator_norm, Set.indicator, Set.indicator]
     split_ifs with hx
-    · simp only [norm_eq_abs, Pi.one_apply, mul_one]; exact hf x
+    · simp only [Pi.one_apply, mul_one]; exact hf x
     · simp
   convert rcarleson_exceptional_set_estimate δpos (hmf.indicator measurableSet_Ioo) measurableSet_Ioo hh measurableSetE ?_
   · rw [Real.volume_Ioo]
@@ -552,7 +551,7 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
     ∃ E ⊆ Set.Icc 0 (2 * π), MeasurableSet E ∧ volume.real E ≤ ε ∧ ∀ x ∈ Set.Icc 0 (2 * π) \ E,
       ∀ N, ‖S_ N h x‖ ≤ C_control_approximation_effect ε * δ := by
   set ε' := C_control_approximation_effect ε * δ with ε'def
-  set E := {x ∈ Set.Icc 0 (2 * π) | ∃ N, ε' < abs (S_ N h x)} with Edef
+  set E := {x ∈ Set.Icc 0 (2 * π) | ∃ N, ε' < ‖S_ N h x‖} with Edef
   have E_eq: E = Set.Icc 0 (2 * π) ∩ ⋃ N : ℕ, {x | ε' < ‖S_ N h x‖} := by
       rw [Edef]
       ext x
@@ -590,9 +589,8 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
           positivity
         · positivity
       _ ≤ ENNReal.ofReal (2 * π) * ‖S_ N h x‖₊ := by
-        rw [← ofReal_norm_eq_coe_nnnorm]
+        rw [← enorm_eq_nnnorm, ← ofReal_norm_eq_enorm]
         gcongr
-        exact hN.le
       _ ≤ ENNReal.ofReal (2 * π) * ((T h x + T (conj ∘ h) x) / (ENNReal.ofReal (2 * π)) + ENNReal.ofReal (π * δ)) := by
         gcongr
         apply partialFourierSum_bound hδ h_measurable h_periodic h_bound xIcc

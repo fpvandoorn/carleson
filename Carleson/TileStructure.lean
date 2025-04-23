@@ -32,10 +32,15 @@ variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure
 
 variable (X) in
 def 𝔓 := PreTileStructure.𝔓 𝕜 X
+
 instance : Fintype (𝔓 X) := PreTileStructure.fintype_𝔓
+
 def 𝓘 : 𝔓 X → Grid X := PreTileStructure.𝓘
+
 lemma surjective_𝓘 : Surjective (𝓘 : 𝔓 X → Grid X) := PreTileStructure.surjective_𝓘
+
 instance : Inhabited (𝔓 X) := ⟨(surjective_𝓘 default).choose⟩
+
 def 𝔠 (p : 𝔓 X) : X := c (𝓘 p)
 def 𝔰 (p : 𝔓 X) : ℤ := s (𝓘 p)
 
@@ -52,15 +57,17 @@ class TileStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasur
   biUnion_Ω {i} : range Q ⊆ ⋃ p ∈ 𝓘 ⁻¹' {i}, Ω p -- 2.0.13, union contains `Q`
   disjoint_Ω {p p'} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : -- 2.0.13, union is disjoint
     Disjoint (Ω p) (Ω p')
-  relative_fundamental_dyadic {p p'} (h : 𝓘 p ≤ 𝓘 p') : -- 2.0.14
+  relative_fundamental_dyadic {p p'} (h :
+    -- why is the next line needed?!!
+    letI : PartialOrder (Grid) := @instPartialOrderGrid X A _ _ D κ S o _
+    𝓘 p ≤ 𝓘 p') : -- 2.0.14
     Disjoint (Ω p) (Ω p') ∨ Ω p' ⊆ Ω p
-  cball_subset {p} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
-  subset_cball {p} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
+  cball_subset {p : _root_.𝔓 X} : ball_(D, p) (𝒬 p) 5⁻¹ ⊆ Ω p -- 2.0.15, first inclusion
+  subset_cball {p : _root_.𝔓 X} : Ω p ⊆ ball_(D, p) (𝒬 p) 1 -- 2.0.15, second inclusion
 
 export TileStructure (Ω biUnion_Ω disjoint_Ω relative_fundamental_dyadic)
 
 end Generic
-
 
 open scoped ShortVariables
 variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → ℂ}
@@ -74,7 +81,6 @@ variable [TileStructure Q D κ S o] {p p' : 𝔓 X} {f g : Θ X}
 notation "dist_(" 𝔭 ")" => @dist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "nndist_(" 𝔭 ")" => @nndist (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
 notation "ball_(" 𝔭 ")" => @ball (WithFunctionDistance (𝔠 𝔭) (D ^ 𝔰 𝔭 / 4)) _
-
 
 @[simp] lemma dist_𝓘 (p : 𝔓 X) : dist_{𝓘 p} f g = dist_(p) f g := rfl
 @[simp] lemma nndist_𝓘 (p : 𝔓 X) : nndist_{𝓘 p} f g = nndist_(p) f g := rfl
@@ -96,7 +102,7 @@ def E (p : 𝔓 X) : Set X :=
 
 lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
 
--- indicator_of_isBounded_range
+lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
 
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
@@ -105,7 +111,7 @@ lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   · apply (measurable_set_mem _).comp
     apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
     · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
-    · exact measurable_σ₁.prod_mk measurable_σ₂
+    · exact measurable_σ₁.prodMk measurable_σ₂
 
 lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
 
@@ -345,6 +351,12 @@ instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_inje
 lemma 𝔓.le_def {p q : 𝔓 X} : p ≤ q ↔ toTileLike p ≤ toTileLike q := by rfl
 lemma 𝔓.le_def' {p q : 𝔓 X} : p ≤ q ↔ 𝓘 p ≤ 𝓘 q ∧ Ω q ⊆ Ω p := by rfl
 
+/-- Deduce an inclusion of tiles from an inclusion of their cubes and
+non-disjointness of their `Ω`s. -/
+lemma tile_le_of_cube_le_and_not_disjoint {p q : 𝔓 X} (hi : 𝓘 p ≤ 𝓘 q)
+    {x : Θ X} (mxp : x ∈ Ω p) (mxq : x ∈ Ω q) : p ≤ q :=
+  ⟨hi, (relative_fundamental_dyadic hi).resolve_left (not_disjoint_iff.mpr ⟨x, mxp, mxq⟩)⟩
+
 lemma dist_𝒬_lt_one_of_le {p q : 𝔓 X} (h : p ≤ q) : dist_(p) (𝒬 q) (𝒬 p) < 1 :=
   ((cball_subset.trans h.2).trans subset_cball) (mem_ball_self (by norm_num))
 
@@ -453,12 +465,28 @@ lemma E₂_subset (l : ℝ) (p : 𝔓 X) : E₂ l p ⊆ 𝓘 p := by
   rw [inter_assoc]
   exact inter_subset_left
 
-/-! `𝔓(𝔓')` in the blueprint is `lowerClosure 𝔓'` in Lean. -/
+lemma E₂_mono {p : 𝔓 X} : Monotone fun l ↦ E₂ l p := fun l l' hl ↦ by
+  simp_rw [E₂, TileLike.toSet, inter_assoc]
+  refine inter_subset_inter_right _ (inter_subset_inter_right _ (preimage_mono ?_))
+  rw [smul_snd]; exact ball_subset_ball hl
+
+/-- `𝔓(𝔓')` in the blueprint.
+The set of all tiles whose cubes are less than the cube of some tile in the given set. -/
+def lowerCubes (𝔓' : Set (𝔓 X)) : Set (𝔓 X) :=
+  {p | ∃ p' ∈ 𝔓', 𝓘 p ≤ 𝓘 p'}
+
+lemma mem_lowerCubes {𝔓' : Set (𝔓 X)} : p ∈ lowerCubes 𝔓' ↔ ∃ p' ∈ 𝔓', 𝓘 p ≤ 𝓘 p' := by rfl
+
+lemma lowerCubes_mono : Monotone (lowerCubes (X := X)) := fun 𝔓₁ 𝔓₂ hs p mp ↦ by
+  rw [lowerCubes, mem_setOf] at mp ⊢; obtain ⟨p', mp', hp'⟩ := mp; use p', hs mp'
+
+lemma subset_lowerCubes {𝔓' : Set (𝔓 X)} : 𝔓' ⊆ lowerCubes 𝔓' := fun p mp ↦ by
+  rw [lowerCubes, mem_setOf]; use p
 
 /-- This density is defined to live in `ℝ≥0∞`. Use `ENNReal.toReal` to get a real number. -/
 def dens₁ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p' ∈ 𝔓') (l ≥ (2 : ℝ≥0)), l ^ (-a : ℝ) *
-  ⨆ (p ∈ lowerClosure 𝔓') (_h2 : smul l p' ≤ smul l p),
+  ⨆ (p ∈ lowerCubes 𝔓') (_h2 : smul l p' ≤ smul l p),
   volume (E₂ l p) / volume (𝓘 p : Set X)
 
 lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
@@ -473,7 +501,7 @@ lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
   · refine le_iSup₂_of_le r hr ?_
     rw [mul_comm]
     gcongr
-    exact le_iSup₂_of_le q (lowerClosure_mono h hq) (le_iSup_iff.mpr fun b a ↦ a hqr)
+    exact le_iSup₂_of_le q (lowerCubes_mono h hq) (le_iSup_iff.mpr fun b a ↦ a hqr)
   · left
     have hr0 : r ≠ 0 := by positivity
     simp [hr0]
@@ -482,6 +510,10 @@ lemma dens₁_mono {𝔓₁ 𝔓₂ : Set (𝔓 X)} (h : 𝔓₁ ⊆ 𝔓₂) :
 def dens₂ (𝔓' : Set (𝔓 X)) : ℝ≥0∞ :=
   ⨆ (p ∈ 𝔓') (r ≥ 4 * (D ^ 𝔰 p : ℝ)),
   volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r)
+
+lemma le_dens₂ (𝔓' : Set (𝔓 X)) {p : 𝔓 X} (hp : p ∈ 𝔓') {r : ℝ} (hr : r ≥ 4 * (D ^ 𝔰 p : ℝ)) :
+    volume (F ∩ ball (𝔠 p) r) / volume (ball (𝔠 p) r) ≤ dens₂ 𝔓' :=
+  le_trans (le_iSup₂ (α := ℝ≥0∞) r hr) (le_iSup₂ p hp)
 
 lemma dens₂_eq_biSup_dens₂ (𝔓' : Set (𝔓 X)) :
     dens₂ (𝔓') = ⨆ (p ∈ 𝔓'), dens₂ ({p}) := by
@@ -501,7 +533,7 @@ lemma ENNReal.rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0)
 /- A rough estimate. It's also less than 2 ^ (-a) -/
 def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
   conv_rhs => rw [← mul_one 1]
-  simp only [dens₁, mem_lowerClosure, iSup_exists, iSup_le_iff]
+  simp only [dens₁, mem_lowerCubes, iSup_exists, iSup_le_iff]
   intros i _ j hj
   gcongr
   · calc
@@ -520,6 +552,17 @@ def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
     apply E₂_subset
   _ ≤ 1 := ENNReal.div_self_le_one
 
+lemma volume_E₂_le_dens₁_mul_volume {𝔓' : Set (𝔓 X)} (mp : p ∈ lowerCubes 𝔓') (mp' : p' ∈ 𝔓')
+    {l : ℝ≥0} (hl : 2 ≤ l) (sp : smul l p' ≤ smul l p) :
+    volume (E₂ l p) ≤ l ^ a * dens₁ 𝔓' * volume (𝓘 p : Set X) := by
+  have vpos : volume (𝓘 p : Set X) ≠ 0 := (volume_coeGrid_pos (defaultD_pos' a)).ne'
+  rw [← ENNReal.div_le_iff_le_mul (.inl vpos) (.inl volume_coeGrid_lt_top.ne),
+    ← ENNReal.rpow_natCast, ← neg_neg (a : ℝ), ENNReal.rpow_neg, ← ENNReal.div_eq_inv_mul]
+  have plt : (l : ℝ≥0∞) ^ (-(a : ℝ)) ≠ ⊤ := by aesop
+  rw [ENNReal.le_div_iff_mul_le (by simp) (.inl plt), mul_comm, dens₁]
+  refine le_iSup₂_of_le p' mp' (le_iSup₂_of_le l hl ?_); gcongr
+  exact le_iSup₂_of_le p mp (le_iSup_of_le sp le_rfl)
+
 /-! ### Stack sizes -/
 
 variable {C C' : Set (𝔓 X)} {x x' : X}
@@ -535,6 +578,14 @@ lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
   conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
   simp_rw [Finset.filter_filter]
   congr
+
+lemma stackSize_inter_add_stackSize_sdiff :
+    stackSize (C ∩ C') x + stackSize (C \ C') x = stackSize C x :=
+  stackSize_setOf_add_stackSize_setOf_not
+
+lemma stackSize_sdiff_eq (x : X) :
+  stackSize (C \ C') x = stackSize C x - stackSize (C ∩ C') x := by
+  exact Nat.eq_sub_of_add_eq' stackSize_inter_add_stackSize_sdiff
 
 lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
     stackSize C x = stackSize C x' := by
@@ -574,6 +625,17 @@ lemma stackSize_le_one_of_pairwiseDisjoint {C : Set (𝔓 X)} {x : X}
         indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at hp hx ⊢
       exact hx _ hp
     linarith
+
+lemma eq_empty_of_forall_stackSize_zero (s : Set (𝔓 X)) :
+  (∀ x, stackSize s x = 0) → s = ∅ := by
+  intro h
+  dsimp [stackSize] at h
+  simp only [Finset.sum_eq_zero_iff, Finset.mem_filter, Finset.mem_univ, true_and,
+    indicator_apply_eq_zero, Pi.one_apply, one_ne_zero, imp_false] at h
+  ext 𝔲
+  simp only [mem_empty_iff_false, iff_false]
+  obtain ⟨x,hx⟩ := (𝓘 𝔲).nonempty
+  exact fun h𝔲 => h x 𝔲 h𝔲 hx
 
 /-! ### Decomposing a set of tiles into disjoint subfamilies -/
 

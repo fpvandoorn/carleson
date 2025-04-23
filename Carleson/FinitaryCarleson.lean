@@ -19,7 +19,7 @@ theorem integrable_tile_sum_operator
   · rw [norm_mul, ← one_mul 1]
     gcongr
     · exact le_trans (h2f y) (F.indicator_le_self' (by simp) y)
-    · rw_mod_cast [mul_comm, norm_eq_abs, abs_exp_ofReal_mul_I]
+    · rw_mod_cast [mul_comm, norm_exp_ofReal_mul_I]
 
 section
 
@@ -64,7 +64,7 @@ lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (�
 /-- Lemma 4.0.3 -/
 theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
     {x : X} (hx : x ∈ G \ G') : ∑ (p : 𝔓 X), carlesonOn p f x =
-    ∑ s in Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
+    ∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   rw [𝔓_biUnion, Finset.sum_biUnion]; swap
   · exact fun s _ s' _ hss' A hAs hAs' p pA ↦ False.elim <| hss' (𝔰_eq (hAs pA) ▸ 𝔰_eq (hAs' pA))
   rw [← (Icc (-S : ℤ) S).toFinset.sum_filter_add_sum_filter_not (fun s ↦ s ∈ Icc (σ₁ x) (σ₂ x))]
@@ -101,7 +101,7 @@ lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
 variable (X) in
 theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
-    ∫⁻ x in G \ G', ‖∑ s in Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖₊ ≤
+    ∫⁻ x in G \ G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
     C2_0_1 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ q⁻¹ := by
   have g : GridStructure X D κ S o := grid_existence X
   have t : TileStructure Q D κ S o := tile_existence X
@@ -111,6 +111,6 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
   refine setLIntegral_congr_fun (measurableSet_G.diff hG') (ae_of_all volume fun x hx ↦ ?_)
   simp_rw [carlesonSum, mem_univ, Finset.filter_True, tile_sum_operator hx, mul_sub, exp_sub,
     mul_div, div_eq_mul_inv,
-    ← smul_eq_mul (a' := _⁻¹), integral_smul_const, ← Finset.sum_smul, nnnorm_smul]
-  suffices ‖(cexp (I * ((Q x) x : ℂ)))⁻¹‖₊ = 1 by rw [this, mul_one]
-  simp [← coe_eq_one, mul_comm I]
+    ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]
+  suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by rw [this, mul_one]
+  simp [← coe_eq_one, mul_comm I, enorm_eq_nnnorm]

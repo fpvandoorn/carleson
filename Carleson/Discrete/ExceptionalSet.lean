@@ -71,7 +71,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     exact mul_pos_iff.2 ⟨ENNReal.pow_pos two_pos _, measure_pos_of_superset subset_rfl hF⟩
   have K_ne_top : K ≠ ⊤ := by
     simp only [K]
-    refine (div_lt_top (mul_ne_top (pow_ne_top two_ne_top) ?_) hG).ne
+    refine (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) ?_) hG).ne
     exact (measure_mono (ProofData.F_subset)).trans_lt measure_ball_lt_top |>.ne
   -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
@@ -118,7 +118,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   rw [ENNReal.div_eq_inv_mul, ← mul_one (_ * _), this]
   congr
   · have h : (2 : ℝ≥0∞) ^ (2 * a + 5) = (2 : ℝ≥0∞) ^ (2 * a + 5 : ℤ) := by norm_cast
-    rw [h, ← ENNReal.zpow_add (NeZero.ne 2) two_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
+    rw [h, ← ENNReal.zpow_add (NeZero.ne 2) ofNat_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
     norm_cast
   · exact ENNReal.inv_mul_cancel hG vol_G_ne_top |>.symm
 
@@ -287,10 +287,10 @@ lemma john_nirenberg_aux2 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n)) 
         simp_rw [stackSize, Q₁, mem_setOf_eq]
         congr
       have lcast : (2 : ℝ≥0∞) ^ (n + 1) = ((2 ^ (n + 1) : ℕ) : ℝ).toNNReal := by
-        rw [toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
+        rw [Real.toNNReal_coe_nat, ENNReal.coe_natCast]; norm_cast
       have rcast : ∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℝ≥0∞) x =
           (((∑ q ∈ Q₁, (𝓘 q : Set X).indicator (1 : X → ℕ) x) : ℕ) : ℝ).toNNReal := by
-        rw [toNNReal_coe_nat, ENNReal.coe_natCast, Nat.cast_sum]; congr!; simp [indicator]
+        rw [Real.toNNReal_coe_nat, ENNReal.coe_natCast, Nat.cast_sum]; congr!; simp [indicator]
       rw [lcast, rcast, ENNReal.coe_le_coe]
       exact Real.toNNReal_le_toNNReal (Nat.cast_le.mpr this)
     _ ≤ ∫⁻ x, ∑ q ∈ Q₁, (𝓘 q : Set X).indicator 1 x := setLIntegral_le_lintegral _ _
@@ -642,6 +642,7 @@ lemma tree_count :
   -- Use inequality (5.2.20) to bound the LHS by a double sum, then interchange the sums.
   apply le_trans (sum_le_sum indicator_le)
   simp_rw [← mul_sum, stackSize_real, mem_coe, filter_univ_mem, interchange, sum_const]
+  let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   -- Replace the cardinality of `𝔘` with the upper bound proven in `card_𝔘m_le`, and simplify.
   apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos two_pos _)).mpr <| sum_le_sum <|
     fun _ _ ↦ smul_le_smul_of_nonneg_right card_𝔘m_le <| Set.indicator_apply_nonneg (by simp)
@@ -840,7 +841,7 @@ lemma third_exception_aux :
       refine lintegral_mono fun x ↦ ?_
       simp_rw [← ENNReal.coe_natCast, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
         ← ENNReal.coe_zpow two_ne_zero, ← ENNReal.coe_mul, ENNReal.coe_le_coe,
-        ← toNNReal_coe_nat]
+        ← Real.toNNReal_coe_nat]
       have c2 : (2 : ℝ≥0) ^ (9 * a - j : ℤ) = ((2 : ℝ) ^ (9 * a - j : ℤ)).toNNReal := by
         refine ((fun h ↦ (Real.toNNReal_eq_iff_eq_coe h).mpr) ?_ rfl).symm
         positivity

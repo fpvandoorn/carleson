@@ -74,6 +74,12 @@ so that we don't accidentally use it. We can put it back if useful after all. -/
 @[simp] lemma Grid.mem_def {x : X} : x ∈ i ↔ x ∈ (i : Set X) := .rfl
 @[simp] lemma Grid.le_def : i ≤ j ↔ (i : Set X) ⊆ (j : Set X) ∧ s i ≤ s j := .rfl
 
+lemma Grid.mem_mono {x:X} : Monotone (x ∈ · : Grid X → Prop) := by
+  intro u u' hle hu
+  rw [Grid.mem_def] at hu ⊢
+  rw [Grid.le_def] at hle
+  exact hle.left hu
+
 lemma fundamental_dyadic :
     s i ≤ s j → (i : Set X) ⊆ (j : Set X) ∨ Disjoint (i : Set X) (j : Set X) :=
   GridStructure.fundamental_dyadic'
@@ -169,6 +175,20 @@ lemma c_mem_Grid {i : Grid X} : c i ∈ (i : Set X) := by
   exact mem_of_mem_of_subset (Metric.mem_ball_self (by positivity)) ball_subset_Grid
 
 lemma nonempty (i : Grid X) : (i : Set X).Nonempty := ⟨c i, c_mem_Grid⟩
+
+lemma scale_eq_scale_topCube_iff (i : Grid X) : s i = s (topCube : Grid X) ↔ i = topCube := by
+  refine ⟨(eq_or_disjoint · |>.resolve_right ?_), (· ▸ rfl)⟩
+  exact Set.not_disjoint_iff.mpr ⟨c i, c_mem_Grid, subset_topCube c_mem_Grid⟩
+
+lemma scale_lt_scale_topCube {i : Grid X} (hi : i ≠ topCube) : s i < s (topCube : Grid X) := by
+  have : s i ≤ s topCube (X := X) := by rw [s, s_topCube]; exact scale_mem_Icc.2
+  apply this.lt_of_ne
+  rwa [ne_eq, scale_eq_scale_topCube_iff]
+
+lemma eq_topCube_of_S_eq_zero (i : Grid X) (hS : S = 0) : i = topCube := by
+  have hsi : s i = 0                  := by simpa [hS] using scale_mem_Icc (i := i)
+  have hst : s (topCube : Grid X) = 0 := by simpa [hS] using scale_mem_Icc (i := (topCube : Grid X))
+  rw [← scale_eq_scale_topCube_iff, hsi, hst]
 
 lemma le_dyadic {i j k : Grid X} (h : s i ≤ s j) (li : k ≤ i) (lj : k ≤ j) : i ≤ j := by
   obtain ⟨c, mc⟩ := k.nonempty

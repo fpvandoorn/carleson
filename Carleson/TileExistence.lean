@@ -74,17 +74,17 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
     (Y.encard).toENNReal * volume (ball o (4 * D ^ S))
       = ∑' (y : Y), volume (ball o (4 * D^S)) := by rw [ENNReal.tsum_const_eq']
     _ ≤ ∑' (y : Y), volume (ball (y : X) (8 * D ^ (2 * S) * D^k)) :=
-      tsum_le_tsum (fun ⟨y, hy⟩ ↦ volume.mono (ball_bound k hk_lower hY y hy))
-        ENNReal.summable ENNReal.summable
+      ENNReal.summable.tsum_le_tsum (fun ⟨y, hy⟩ ↦ volume.mono (ball_bound k hk_lower hY y hy))
+        ENNReal.summable
     _ ≤ ∑' (y : Y), (As (2 ^ a) (2 ^ J' X)) * volume (ball (y : X) (D^k)) := by
-      apply tsum_le_tsum _ ENNReal.summable ENNReal.summable
+      apply ENNReal.summable.tsum_le_tsum _ ENNReal.summable
       intro y hy
       rw_mod_cast [← twopow_J]
       apply measure_ball_le_same' _ (by positivity) (le_refl _)
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * ∑' (y : Y), volume (ball (y : X) (D^k)):= by
       rw [ENNReal.tsum_mul_left]
     _ = (As (2 ^ a) (2 ^ J' X)) * volume (⋃ y ∈ Y, ball y (D^k)) := by
-      rw [ENNReal.mul_eq_mul_left val_ne_zero ENNReal.coe_ne_top]
+      rw [ENNReal.mul_right_inj val_ne_zero ENNReal.coe_ne_top]
       · rw [measure_biUnion _ hYdisjoint (fun y _ => measurableSet_ball)]
         apply hYdisjoint.countable_of_isOpen (fun y _ => isOpen_ball)
         intro y _
@@ -186,7 +186,7 @@ lemma chain_property_set_has_bound (k : ℤ):
   · exact fun s a ↦ subset_iUnion₂_of_subset s a fun ⦃a⦄ a ↦ a
 
 variable (X) in
-def zorn_apply_maximal_set (k : ℤ):
+lemma zorn_apply_maximal_set (k : ℤ):
     ∃ s ∈ property_set X k, ∀ s' ∈ property_set X k, s ⊆ s' → s' = s := by
   have := zorn_subset (property_set X k) (chain_property_set_has_bound X k)
   simp_rw [maximal_iff] at this; convert this using 6; exact eq_comm
@@ -300,12 +300,12 @@ lemma I_induction_proof {k:ℤ} (hk:-S ≤ k) (hneq : ¬ k = -S) : -S ≤ k - 1 
   linarith [lt_of_le_of_ne hk fun a_1 ↦ hneq (id a_1.symm)]
 
 mutual
-  def I1 {k:ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
+  def I1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
     if hk': k = -S then
       ball y (D^(-S:ℤ))
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
-      have h1: 0 ≤ S + (k - 1) := by linarith
+      have h1 : 0 ≤ S + (k - 1) := by linarith
       have : (S + (k-1)).toNat < (S + k).toNat := by
         rw [Int.lt_toNat,Int.toNat_of_nonneg h1]
         linarith
@@ -313,7 +313,7 @@ mutual
         ⋃ (_ : y' ∈ Yk X (k-1) ↓∩ ball (y:X) (D^k)), I3 (I_induction_proof hk hk') y'
   termination_by (3 * (S+k).toNat, sizeOf y)
 
-  def I2 {k:ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
+  def I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
     if hk': k = -S then
       ball y (2 * D^(-S:ℤ))
     else
@@ -344,25 +344,22 @@ lemma I1_subset_I3 {k : ℤ} (hk : -S ≤ k) (y:Yk X k) :
   left
   exact hi
 
-lemma I1_subset_I2 {k:ℤ} (hk : -S ≤ k) (y:Yk X k) :
+@[nolint unusedHavesSuffices]
+lemma I1_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I1 hk y ⊆ I2 hk y := by
-  rw [I1,I2]
-  if hk_s : k = -S then
-    intro y'
-    rw [dif_pos hk_s,dif_pos hk_s]
+  rw [I1, I2]
+  split_ifs with hk_s
+  · intro y'
     apply ball_subset_ball
     nth_rw 1 [← one_mul (D^(-S:ℤ):ℝ)]
     gcongr
     norm_num
-  else
-    rw [dif_neg hk_s, dif_neg hk_s]
-    simp only [iUnion_subset_iff]
+  · simp only [iUnion_subset_iff]
     intro y' hy' z hz
     simp only [mem_iUnion, exists_prop, exists_and_left]
     use y'
     rw [and_iff_left hz]
-    revert hy'
-    apply ball_subset_ball
+    apply ball_subset_ball _ hy'
     nth_rw 1 [← one_mul (D^k : ℝ)]
     gcongr
     norm_num
@@ -1025,7 +1022,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     rw [← ENNReal.mul_le_mul_left]
     · exact this
     · exact Ne.symm (NeZero.ne' (2 ^ (4 * a)))
-    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.two_ne_top, mul_eq_zero,
+    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, mul_eq_zero,
       OfNat.ofNat_ne_zero, false_or, false_and, not_false_eq_true]
   letI : Countable (Yk X (k-K')) := (Yk_countable X (k-K')).to_subtype
   calc
@@ -1107,7 +1104,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
       apply Finset.sum_le_sum
       intro k'
       simp only [Finset.mem_univ, true_implies]
-      apply tsum_le_tsum _ (ENNReal.summable) (ENNReal.summable)
+      apply ENNReal.summable.tsum_le_tsum _ (ENNReal.summable)
       intro z
       letI : Decidable (clProp(le_s hk_mK k',z|hk,y)) := Classical.propDecidable _
       simp_rw [iUnion_eq_if,apply_ite volume,measure_empty]
@@ -1286,13 +1283,13 @@ lemma boundary_sum_eq {k:ℤ} (hk:-S ≤ k) {k':ℤ} (hk':-S ≤ k')(y:Yk X k) :
   exact MeasurableSet.iUnion (fun _ => I3_measurableSet hk' y')
 
 lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -S ≤ k - n * K') → ∀(y:Yk X k),
-    ∑'(y':Yk X (k-n*K')),∑ᶠ (_:clProp(hk_mnK,y'|hk,y)),volume (I3 hk_mnK y') ≤
+    ∑' (y' : Yk X (k - n * K')), ∑ᶠ (_ : clProp(hk_mnK,y'|hk,y)), volume (I3 hk_mnK y') ≤
       2⁻¹^n * volume (I3 hk y) := by
   intro n
   induction n
   · intro k hk hk_mnK y
     rw [boundary_sum_eq hk hk_mnK y]
-    simp only [Int.Nat.cast_ofNat_Int, defaultA, pow_zero, one_mul]
+    simp only [Int.cast_ofNat_Int, defaultA, pow_zero, one_mul]
     gcongr
     simp only [iUnion_subset_iff]
     exact fun _ hy' => hy'.I3_subset
@@ -1305,10 +1302,10 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       ≤ volume (⋃ (y':Yk X (k-K')),⋃(_:clProp(le_s_2' n hk_mnK,y'|hk,y)),
         ⋃ (y'':Yk X (k-(n+1:ℕ)*K')),⋃(_:clProp(hk_mnK,y''|le_s_2' n hk_mnK,y')), I3 hk_mnK y'') := by
       apply volume.mono
-      simp only [Nat.cast_add, Nat.cast_one, Int.Nat.cast_ofNat_Int,
+      simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int,
         iUnion_subset_iff]
       intro y'' hy'' x hx
-      simp only [Nat.cast_add, Nat.cast_one, Int.Nat.cast_ofNat_Int, mem_iUnion,
+      simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int, mem_iUnion,
         exists_prop]
       have hx_y: x ∈ I3 hk y := hy''.I3_subset hx
       have : x ∈ ⋃ (y':Yk X (k-K')),I3 (le_s_2' n hk_mnK) y' :=
@@ -1340,7 +1337,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
         else
           simp_rw [if_neg h,measure_empty]
       · intro i i' hneq
-        simp only [Nat.cast_add, Nat.cast_one, Int.Nat.cast_ofNat_Int,
+        simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int,
           disjoint_iUnion_right, disjoint_iUnion_left]
         intro _ y1 hy1i _ y2 hy2i'
         apply Disjoint.mono_left hy2i'.I3_subset
@@ -1371,7 +1368,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       congr! 8
     _ ≤ ∑'(y':Yk X (k-K')),∑ᶠ (_:clProp(le_s_2' n hk_mnK,y'|hk,y)),
         2⁻¹ ^n * volume (I3 (le_s_2' n hk_mnK) y') := by
-      apply tsum_le_tsum _ (ENNReal.summable) (ENNReal.summable)
+      apply ENNReal.summable.tsum_le_tsum _ (ENNReal.summable)
       intro y'
       letI : Decidable clProp(le_s_2' n hk_mnK,y'|hk,y) := Classical.propDecidable _
       rw [finsum_eq_if,finsum_eq_if]
@@ -1427,6 +1424,7 @@ lemma const_n_prop_1 {t:ℝ} (ht:t∈Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹
 
 variable (X) in
 lemma const_n_prop_2 {t:ℝ} (ht:t∈ Ioo 0 1) (k:ℤ) : t * D^k ≤ D^(k-const_n a ht *K') := by
+  let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   rw [sub_eq_neg_add, zpow_add₀ (defaultD_pos a).ne.symm]
   rw [mul_le_mul_right (zpow_pos (defaultD_pos a) _)]
   rw [zpow_neg, le_inv_comm₀ ht.left (zpow_pos (defaultD_pos a) _)]
@@ -1752,7 +1750,6 @@ def grid_existence : GridStructure X D κ S o where
   c_topCube := rfl
   subset_topCube := by
     intro i
-    simp only
     exact i.hsub
   Grid_subset_biUnion := by
     intro i l hl
@@ -1774,9 +1771,7 @@ def grid_existence : GridStructure X D κ S o where
     simp only [true_and]
     exact hy'
   fundamental_dyadic' := by
-    intro i j
-    simp only
-    intro hk
+    intro i j hk
     if h : Disjoint i.coe j.coe then
       exact Or.inr h
     else
@@ -1789,7 +1784,6 @@ def grid_existence : GridStructure X D κ S o where
     norm_num
   Grid_subset_ball {i} := I3_prop_3_2 i.hk i.y
   small_boundary := by
-    simp only
     intro i t ht
     if ht' : t < 1 then
       apply boundary_measure' i.hk i.y

@@ -124,7 +124,7 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
           _ ≤ _ := by convert this
       by_cases hy : y ∈ tsupport f
       · specialize hCKf y x hy; gcongr
-      · simp only [norm_eq_abs, image_eq_zero_of_nmem_tsupport hy,
+      · simp only [image_eq_zero_of_nmem_tsupport hy,
           norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
   hasCompactSupport := by
     obtain x₀ : X := Classical.choice (by infer_instance)
@@ -203,7 +203,7 @@ lemma adjointCarleson_adjoint
         refine .mul ?_ aestronglyMeasurable_Ks
         apply Measurable.aestronglyMeasurable
         have : Measurable fun (p : X × X) ↦ (p.1, p.1) :=
-          .prod_mk (.fst measurable_id') (.fst measurable_id')
+          .prodMk (.fst measurable_id') (.fst measurable_id')
         refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
         · exact measurable_Q₂
         · exact measurable_Q₂.comp this
@@ -262,15 +262,15 @@ irreducible_def C7_4_2 (a : ℕ) : ℝ≥0 := C7_3_1_1 a
 
 -- unfortunate technicality
 lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
-    (hf : Memℒp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
+    (hf : MemLp f 2): ↑‖∫ x, ofReal (normSq (f x))‖₊ = (eLpNorm f 2)^2 := by
   rw [show ∫ x, ofReal (normSq (f x)) = ofReal (∫ x, normSq (f x)) by exact integral_ofReal]
   rw [nnnorm_real]
   have hnn: 0 ≤ ∫ x, normSq (f x) := by-- todo: adjust `positivity` to handle this
     refine integral_nonneg ?_
     refine Pi.le_def.mpr ?_
     exact fun _ ↦ normSq_nonneg _
-  rw [Real.ennnorm_eq_ofReal hnn]
-  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.two_ne_top]
+  rw [← enorm_eq_nnnorm, Real.enorm_eq_ofReal hnn]
+  rw [hf.eLpNorm_eq_integral_rpow_norm (NeZero.ne 2) ENNReal.ofNat_ne_top]
   rw [← ENNReal.rpow_natCast, ENNReal.ofReal_rpow_of_nonneg (by positivity) (by simp)]
   rw [ENNReal.toReal_ofNat, Nat.cast_ofNat]
   suffices ∫ x, normSq (f x) = ((∫ x, ‖f x‖ ^ 2) ^ ((2:ℝ)⁻¹)) ^ (2:ℝ) by
@@ -281,22 +281,23 @@ lemma _root_._aux_L2NormSq {X : Type*} [MeasureSpace X] {f : X → ℂ}
   · rw [← h]; exact hnn
 
 /-- Lemma 7.4.2. -/
-lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f) :
+lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
+  (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointCarlesonSum (t u) f) 2 volume ≤
     C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   rw [C7_4_2_def]
   set g := adjointCarlesonSum (t u) f
   have hg : BoundedCompactSupport g := hf.adjointCarlesonSum
-  have h := density_tree_bound1 hg hf hu
+  have h := density_tree_bound1 hg hf h2f hu
   simp_rw [adjointCarlesonSum_adjoint hg hf] at h
   have : ‖∫ x, conj (adjointCarlesonSum (t u) f x) * g x‖₊ =
       (eLpNorm g 2 volume)^2 := by
-    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memℒp 2
+    simp_rw [mul_comm, g, Complex.mul_conj]; exact _aux_L2NormSq <| hg.memLp 2
   rw [this, pow_two, mul_assoc, mul_comm _ (eLpNorm f _ _), ← mul_assoc] at h
   by_cases hgz : eLpNorm g 2 volume = 0
   · simp [hgz]
   · refine ENNReal.mul_le_mul_right hgz ?_ |>.mp h
-    exact (hg.memℒp 2).eLpNorm_ne_top
+    exact (hg.memLp 2).eLpNorm_ne_top
 
 /-- The constant used in `adjoint_tree_control`.
 Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
@@ -304,9 +305,11 @@ irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
   C7_4_2 a + CMB (defaultA a) 2 + 1
 
 /-- Lemma 7.4.3. -/
-lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f) :
-    eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume ≤
+lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f)
+    (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+    eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤
     C7_4_3 a * eLpNorm f 2 volume := by
+  rw [← eLpNorm_toReal_eq sorry] -- todo: fix this proof (task 117)
   calc _ ≤ eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume := by rfl
   _ ≤ eLpNorm
     ((‖adjointCarlesonSum (t u) f ·‖) + (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) + (‖f ·‖))
@@ -336,8 +339,8 @@ lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f) :
     CMB (defaultA a) 2 * eLpNorm f 2 volume +
     eLpNorm f 2 volume := by
       gcongr
-      · exact adjoint_tree_estimate hu hf
-      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memℒp _) |>.2
+      · exact adjoint_tree_estimate hu hf h2f
+      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memLp _) |>.2
   _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
     simp_rw [add_mul]
     gcongr

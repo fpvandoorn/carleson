@@ -1,11 +1,13 @@
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
+import Carleson.ToMathlib.Data.ENNReal
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
+import Mathlib.Topology.Algebra.Support
 
-open MeasureTheory Measure NNReal Metric Complex Set TopologicalSpace Bornology Function
-open scoped ENNReal
+open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
+open scoped NNReal
 noncomputable section
 
 -- todo: rename and protect `Real.RCLike`
@@ -92,7 +94,7 @@ notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
-  eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
+  eq_zero : ∃ o : X, ∀ f : Θ, coeΘ f o = 0
   /-- The distance is bounded below by the local oscillation. (1.0.7) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
@@ -150,33 +152,91 @@ lemma cancelPt_eq_zero [CompatibleFunctions 𝕜 X A] {f : Θ X} : f (cancelPt X
 --   IsSeparable (range (coeΘ (X := X))) :=
 --   sorry
 
-set_option linter.unusedVariables false in
 /-- The inhomogeneous Lipschitz norm on a ball. -/
-def iLipNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ :=
-  (⨆ x ∈ ball x₀ R, ‖ϕ x‖) + R * ⨆ (x : X) (y : X) (h : x ≠ y), ‖ϕ x - ϕ y‖ / dist x y
+def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
+  (⨆ x ∈ ball x₀ R, ‖ϕ x‖ₑ) +
+  ENNReal.ofReal R * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), ‖ϕ x - ϕ y‖ₑ / edist x y
 
-lemma iLipNorm_nonneg {𝕜} [NormedField 𝕜] {ϕ : X → 𝕜} {x₀ : X} {R : ℝ} (hR : 0 ≤ R) :
-    0 ≤ iLipNorm ϕ x₀ R :=
-  add_nonneg (Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg fun _ ↦ norm_nonneg _)
-    (mul_nonneg hR (Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg fun _ ↦ Real.iSup_nonneg
-    fun _ ↦ div_nonneg (norm_nonneg _) dist_nonneg))
+def iLipNNNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0 :=
+  (iLipENorm ϕ x₀ R).toNNReal
 
-variable [DoublingMeasure X A]
+variable [hXA : DoublingMeasure X A]
 
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
 class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
-  norm_integral_exp_le {x : X} {r : ℝ} {ϕ : X → ℂ} {K : ℝ≥0} (h1 : LipschitzWith K ϕ)
+  /- We register a definition with strong assumptions, which makes them easier to prove.
+  However, `enorm_integral_exp_le` removes them for easier application. -/
+  enorm_integral_exp_le' {x : X} {r : ℝ} {ϕ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm ϕ x r ≠ ∞)
     (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
-    ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-    A * volume.real (ball x r) * iLipNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ)
 
-export IsCancellative (norm_integral_exp_le)
+lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
+    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ) := by
+  rcases le_or_lt r 0 with hr | hr
+  · simp only [ball_eq_empty.2 hr, subset_empty_iff, tsupport_eq_empty_iff] at h2
+    simp [h2]
+  rcases eq_or_ne A 0 with rfl | hA
+  · have : (volume : Measure X) = 0 := by
+      have := hXA.toIsDoubling
+      simp at this
+      apply eq_zero_of_isDoubling_zero
+    simp [this]
+  rcases eq_or_ne (iLipENorm ϕ x r) ∞ with h1 | h1
+  · apply le_top.trans_eq
+    symm
+    simp [h1, ENNReal.mul_eq_top, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
+  exact IsCancellative.enorm_integral_exp_le' hr h1 h2
 
-/-- The "volume function" `V`. Note that we will need to assume
-`IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
-def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
+/-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
+lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ X A]
+    (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
+    (_h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X},
+      ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
+      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)) :
+    IsCancellative X τ := by
+  constructor
+  intro x r ϕ hr h1 h2 f g
+  convert ENNReal.ofReal_le_ofReal (h (x := x) (r := r) (ϕ := ϕ) hr h1 h2 (f := f) (g := g))
+  · rw [ofReal_norm_eq_enorm]
+    congr 1
+    rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
+    have : ϕ y = 0 := by
+      apply nmem_support.1
+      contrapose! hy
+      exact (subset_tsupport _).trans h2 hy
+    simp [this]
+  · rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_mul (by positivity),
+      ENNReal.ofReal_mul (by positivity)]
+    congr
+    · simp
+    · simp only [Measure.real, ofReal_toReal (measure_ball_ne_top _ _)]
+    · simp [iLipNNNorm, coe_toNNReal h1]
+    · rw [← ENNReal.ofReal_rpow_of_pos (by positivity)]
+      congr
+      rw [ENNReal.ofReal_add zero_le_one dist_nonneg]
+      simp [edist_dist]
+
+/-- The "volume function" `V`. Preferably use `vol` instead. -/
+protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
   volume.real (ball x (dist x y))
+
+/-- The "volume function" `V`. We will need to assume
+`IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
+def vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ≥0∞ :=
+  volume (ball x (dist x y))
+
+lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
+  Real.vol x y = (vol x y).toReal := rfl
+
+lemma ofReal_vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] [ProperSpace X]
+  [IsFiniteMeasureOnCompacts (volume : Measure X)] {x y : X} :
+    ENNReal.ofReal (Real.vol x y) = vol x y := by
+  simp_rw [Real.vol_def, ENNReal.ofReal_toReal_eq_iff, vol]
+  apply measure_ball_ne_top
 
 -- /-- In Mathlib we only have the operator norm for continuous linear maps,
 -- and `T_*` is not linear.
@@ -186,12 +246,16 @@ def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ 
 --   sInf { c | 0 ≤ c ∧ ∀ x, ‖T x‖ ≤ c * ‖x‖ }
 
 /-- The Calderon Zygmund operator `T_r` in chapter Two-sided Metric Space Carleson -/
-def CZOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+def czOperator (K : X → X → ℂ) (r : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in (ball x r)ᶜ, K x y * f y
 
 /-- `R_Q(θ, x)` defined in (1.0.20). -/
 def upperRadius [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X) (x : X) : ℝ≥0∞ :=
-  sSup { r : ℝ≥0∞ | dist_{x, r.toReal} θ (Q x) < 1 }
+  ⨆ (r : ℝ) (_ : dist_{x, r} θ (Q x) < 1), ENNReal.ofReal r
+
+lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x : X} {r : ℝ}
+    (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
+  apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
 /-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
@@ -245,22 +309,24 @@ lemma one_le_defaultD (a : ℕ) : 1 ≤ (defaultD a : ℝ) := by
 section Kernel
 
 variable {X : Type*} {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X] [MeasureSpace X]
-open Real (vol)
 open Function
 
 /-- The constant used twice in the definition of the Calderon-Zygmund kernel. -/
-@[simp] def C_K (a : ℝ) : ℝ := 2 ^ a ^ 3
+@[simp] def C_K (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
-lemma C_K_pos (a : ℝ) : 0 < C_K a := by unfold C_K; positivity
+lemma C_K_pos {a : ℝ} : 0 < C_K a := NNReal.rpow_pos (by norm_num)
+lemma C_K_pos_real {a : ℝ} : 0 < (C_K a : ℝ) := C_K_pos
 
 /-- `K` is a one-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
+that `K x x = 0`.
+
+Todo: maybe make enorm_K_le_vol_inv + enorm_K_sub_le + K_eq_zero_of_dist_eq_zero the axioms. -/
 class IsOneSidedKernel (a : outParam ℕ) (K : X → X → ℂ) : Prop where
   measurable_K : Measurable (uncurry K)
-  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / vol x y
+  norm_K_le_vol_inv (x y : X) : ‖K x y‖ ≤ C_K a / Real.vol x y
   norm_K_sub_le {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
-    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+    ‖K x y - K x y'‖ ≤ (dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)
 
 export IsOneSidedKernel (measurable_K norm_K_le_vol_inv norm_K_sub_le)
 
@@ -275,12 +341,62 @@ lemma MeasureTheory.aestronglyMeasurable_K [IsOneSidedKernel a K] :
 lemma measurable_K_left [IsOneSidedKernel a K] (y : X) : Measurable (K · y) :=
   measurable_K.of_uncurry_right
 
+lemma measurable_K_right [IsOneSidedKernel a K] (x : X) : Measurable (K x) :=
+  measurable_K.of_uncurry_left
+
+lemma enorm_K_le_vol_inv [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOneSidedKernel a K] (x y : X) : ‖K x y‖ₑ ≤ (C_K a : ℝ≥0∞) / vol x y := by
+  rw [← ofReal_norm, ← ofReal_vol, ← ofReal_coe_nnreal]
+  refine le_trans ?_ (ofReal_div_le measureReal_nonneg)
+  gcongr
+  apply norm_K_le_vol_inv
+
+
+lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOneSidedKernel a K] {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
+    ‖K x y - K x y'‖ₑ ≤ (edist y y' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y) := by
+  simp_rw [← ofReal_norm, ← ofReal_vol, ← ofReal_coe_nnreal, edist_dist]
+  calc
+    _ ≤ ENNReal.ofReal ((dist y y' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / Real.vol x y)) := by
+      gcongr; apply norm_K_sub_le h
+    _ ≤ _ := by
+      rw [ENNReal.ofReal_mul']; swap
+      · exact div_nonneg NNReal.zero_le_coe measureReal_nonneg
+      gcongr
+      · rw [← ENNReal.ofReal_rpow_of_nonneg (by positivity) (by positivity)]
+        gcongr
+        apply ofReal_div_le (by positivity)
+      · exact ofReal_div_le measureReal_nonneg
+
+lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
+    [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
+    [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
+    IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
+  use Measurable.aestronglyMeasurable (measurable_K_right x)
+  rw [hasFiniteIntegral_def]
+  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, ‖K x y‖ₑ
+    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, C_K a / volume (ball x r) := by
+      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
+      refine (enorm_K_le_vol_inv x y).trans ?_
+      rw [vol]
+      gcongr
+      exact hy.1
+    _ < _ := by
+      rw [setLIntegral_const]
+      apply ENNReal.mul_lt_top (ENNReal.div_lt_top ENNReal.coe_ne_top _); swap
+      · simp_rw [← pos_iff_ne_zero, measure_ball_pos _ _ hr]
+      refine (Ne.lt_top fun h ↦ ?_)
+      have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by
+        intro y ⟨_, hy⟩
+        exact mem_closedBall_comm.mp hy
+      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
+
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
   norm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
-    ‖K x y - K x' y‖ ≤ (dist x x' / dist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
+    ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
 export IsTwoSidedKernel (norm_K_sub_le')
 
@@ -334,7 +450,7 @@ lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
   | succ k ih =>
     trans 2 * dist_{x, (defaultA a) ^ k * r} f g
     · rw [pow_succ', mul_assoc]
-      exact (mul_le_mul_left zero_lt_two).mpr ih
+      exact (_root_.mul_le_mul_left zero_lt_two).mpr ih
     · convert le_cdist (ball_subset_ball _) using 1
       · exact dist_congr rfl (by rw [← mul_assoc, pow_succ'])
       · nth_rw 1 [← one_mul ((defaultA a) ^ k * r)]; gcongr
@@ -414,17 +530,24 @@ section DBounds
 
 variable (X)
 
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_realD : (100 : ℝ) < defaultD a := by
+  simp only [defaultD]
+  norm_cast
+  calc 100
+    _ < 128 := by
+      linarith
+    _ = 2 ^ 7 := by
+      rfl
+    _ < 2 ^ (100 * a ^ 2) := by
+      have : 4 ≤ a := four_le_a X
+      gcongr
+      · linarith
+      · nlinarith
+
 -- used in 4.1.7 (`small_boundary`)
 lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
-  simp only [defaultD, Nat.ofNat_le_cast]
-  have : 4 ≤ a := four_le_a X
-  calc
-    (25 : ℕ)
-      ≤ 32 := Nat.le_of_ble_eq_true rfl
-    _ = 2 ^ (5) := by rfl
-    _ ≤ 2 ^ (100 * 4 ^ 2) := Nat.le_of_ble_eq_true (by norm_num)
-    _ ≤ 2 ^ (100 * a ^ 2) := Nat.pow_le_pow_right (by norm_num)
-      (mul_le_mul_of_nonneg_left (Nat.pow_le_pow_of_le_left this 2) (by norm_num))
+  linarith [hundred_lt_realD X]
 
 -- used in 4.1.3 (`I3_prop_3_1`)
 lemma eight_le_realD : (8 : ℝ) ≤ defaultD a := by
@@ -493,6 +616,8 @@ lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
 
 /-- `τ` as an element of `ℝ≥0`. -/
 def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
+
+lemma nnτ_pos : 0 < nnτ X := τ_pos X
 
 lemma one_lt_q : 1 < q := (q_mem_Ioc X).1
 lemma q_le_two : q ≤ 2 := (q_mem_Ioc X).2
@@ -594,6 +719,8 @@ scoped notation "nnD" => nnD a
 
 end ShortVariables
 
+section PseudoMetricSpace
+
 variable [PseudoMetricSpace X] [h : ProofData a q K σ₁ σ₂ F G]
 
 lemma volume_F_lt_top : volume F < ⊤ :=
@@ -612,10 +739,15 @@ lemma isBounded_F : IsBounded F := IsBounded.subset isBounded_ball ProofData.F_s
 include h in
 lemma isBounded_G : IsBounded G := IsBounded.subset isBounded_ball ProofData.G_subset
 
-/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? -/
-def hnorm (ϕ : X → ℂ) (x₀ : X) (R : ℝ≥0) : ℝ≥0∞ :=
-  ⨆ (x ∈ ball x₀ R), (‖ϕ x‖₊ : ℝ≥0∞) +
-  R ^ τ * ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖₊ / (nndist x y) ^ τ : ℝ≥0∞)
+/-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? Defined in ℝ≥0∞ to
+avoid sup-related issues. -/
+@[nolint unusedArguments]
+def iHolENorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0∞ :=
+  (⨆ (x ∈ ball x₀ R), ‖ϕ x‖ₑ) + (ENNReal.ofReal R) ^ τ *
+    ⨆ (x ∈ ball x₀ R) (y ∈ ball x₀ R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
+
+def iHolNNNorm [ProofData a q K σ₁ σ₂ F G] (ϕ : X → ℂ) (x₀ : X) (R : ℝ) : ℝ≥0 :=
+  (iHolENorm ϕ x₀ R).toNNReal
 
 /-! Lemma 2.1.1 -/
 
@@ -672,3 +804,157 @@ lemma Θ.card_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
   obtain ⟨f𝓩, c𝓩⟩ := finite_and_mk_le_of_le_dist h𝓩 h2𝓩
   lift 𝓩 to Finset (Θ X) using f𝓩
   simpa using c𝓩
+
+end PseudoMetricSpace
+
+section MetricSpace
+
+variable [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+lemma iLipENorm_le_add {z : X} {R : ℝ} {C C' : ℝ≥0} {ϕ : X → ℂ}
+    (h : ∀ x ∈ ball z R, ‖ϕ x‖ ≤ C)
+    (h' : ∀ x ∈ ball z R, ∀ x' ∈ ball z R, x ≠ x' → ‖ϕ x - ϕ x'‖ ≤ C' * dist x x' / R) :
+    iLipENorm ϕ z R ≤ C + C' := by
+  apply add_le_add
+  · simp only [iSup_le_iff, enorm_le_coe]
+    exact h
+  · apply ENNReal.mul_le_of_le_div'
+    simp only [ne_eq, iSup_le_iff]
+    intro x hx x' hx' hne
+    have hR : 0 < R := pos_of_mem_ball hx
+    have W := h' x hx x' hx' hne
+    rw [ENNReal.div_le_iff (by simpa only [ne_eq, edist_eq_zero] using hne) (edist_ne_top x x')]
+    convert ENNReal.ofReal_le_ofReal W
+    · exact (ofReal_norm_eq_enorm (ϕ x - ϕ x')).symm
+    · rw [ENNReal.ofReal_div_of_pos hR, ENNReal.ofReal_mul NNReal.zero_le_coe, edist_dist,
+        ENNReal.mul_div_right_comm, ENNReal.ofReal_coe_nnreal]
+
+lemma iLipENorm_le {z : X} {R : ℝ} {C : ℝ≥0} {ϕ : X → ℂ}
+    (h : ∀ x ∈ ball z R, ‖ϕ x‖ ≤ 2⁻¹ * C)
+    (h' : ∀ x ∈ ball z R, ∀ x' ∈ ball z R, x ≠ x' → ‖ϕ x - ϕ x'‖ ≤ 2⁻¹ * C * dist x x' / R) :
+    iLipENorm ϕ z R ≤ C := by
+  apply (iLipENorm_le_add (C := 2⁻¹ * C) (C' := 2⁻¹ * C) ?_ ?_).trans_eq
+  · simp [← add_mul, ENNReal.inv_two_add_inv_two]
+  · exact h
+  · exact h'
+
+lemma enorm_le_iLipENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
+    ‖ϕ x‖ₑ ≤ iLipENorm ϕ z R := by
+  apply le_trans _ le_self_add
+  simp only [le_iSup_iff, iSup_le_iff]
+  tauto
+
+lemma norm_le_iLipNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤)
+    {x : X} (hx : x ∈ ball z R) :
+    ‖ϕ x‖ ≤ iLipNNNorm ϕ z R :=
+  (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iLipENorm_of_mem ϕ hx)
+
+lemma norm_le_iLipNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤)
+    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iLipNNNorm ϕ z R := by
+  by_cases hx : x ∈ ball z R
+  · apply norm_le_iLipNNNorm_of_mem hϕ hx
+  · have : x ∉ support ϕ := fun a ↦ hx (h a)
+    simp [nmem_support.mp this]
+
+lemma LipschitzOnWith.of_iLipENorm_ne_top
+    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤) :
+    LipschitzOnWith (iLipNNNorm ϕ z R / R.toNNReal) ϕ (ball z R) := by
+  intro x hx y hy
+  have hR : 0 < R := by
+    simp only [mem_ball] at hx
+    apply dist_nonneg.trans_lt hx
+  rcases eq_or_ne x y with rfl | hne
+  · simp
+  have : (ENNReal.ofReal R) * (‖ϕ x - ϕ y‖ₑ / edist x y) ≤ iLipENorm ϕ z R := calc
+      (ENNReal.ofReal R) * (‖ϕ x - ϕ y‖ₑ / (edist x y))
+    _ ≤ (ENNReal.ofReal R) *
+        ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / edist x y) := by
+      gcongr
+      simp only [ne_eq, le_iSup_iff, iSup_le_iff]
+      tauto
+    _ ≤ _ := le_add_self
+  rw [edist_eq_enorm_sub, ENNReal.coe_div (by simp [hR]), iLipNNNorm, coe_toNNReal hϕ]
+  rw [← ENNReal.div_le_iff_le_mul]; rotate_left
+  · have : edist x y ≠ 0 := by simp [hne]
+    simp [this]
+  · simp [edist_ne_top]
+  rw [ENNReal.le_div_iff_mul_le]; rotate_left
+  · simp [hR]
+  · simp
+  convert this using 1
+  simp only [ENNReal.ofReal, mul_comm]
+
+lemma continuous_of_iLipENorm_ne_top {z : X} {R : ℝ}
+    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iLipENorm ϕ z R ≠ ⊤) :
+    Continuous ϕ :=
+  (LipschitzOnWith.of_iLipENorm_ne_top h'ϕ).continuousOn.continuous_of_tsupport_subset
+    isOpen_ball hϕ
+
+lemma enorm_le_iHolENorm_of_mem {z : X} {R : ℝ} (ϕ : X → ℂ) {x : X} (hx : x ∈ ball z R) :
+    ‖ϕ x‖ₑ ≤ iHolENorm ϕ z R := by
+  apply le_trans _ le_self_add
+  simp only [le_iSup_iff, iSup_le_iff]
+  tauto
+
+lemma norm_le_iHolNNNorm_of_mem {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
+    {x : X} (hx : x ∈ ball z R) :
+    ‖ϕ x‖ ≤ iHolNNNorm ϕ z R :=
+  (ENNReal.toReal_le_toReal (by simp) hϕ).2 (enorm_le_iHolENorm_of_mem ϕ hx)
+
+lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤)
+    {x : X} (h : support ϕ ⊆ ball z R) : ‖ϕ x‖ ≤ iHolNNNorm ϕ z R := by
+  by_cases hx : x ∈ ball z R
+  · apply norm_le_iHolNNNorm_of_mem hϕ hx
+  · have : x ∉ support ϕ := fun a ↦ hx (h a)
+    simp [nmem_support.mp this]
+
+lemma HolderOnWith.of_iHolENorm_ne_top
+    {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤) :
+    HolderOnWith (iHolNNNorm ϕ z R / R.toNNReal ^ τ) nnτ ϕ (ball z R) := by
+  intro x hx y hy
+  have hR : 0 < R := by
+    simp only [mem_ball] at hx
+    apply dist_nonneg.trans_lt hx
+  rcases eq_or_ne x y with rfl | hne
+  · simp
+  have : (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) ≤ iHolENorm ϕ z R := calc
+      (ENNReal.ofReal R) ^ τ * (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ)
+    _ ≤ (ENNReal.ofReal R) ^ τ *
+        ⨆ (x ∈ ball z R) (y ∈ ball z R) (_ : x ≠ y), (‖ϕ x - ϕ y‖ₑ / (edist x y) ^ τ) := by
+      gcongr
+      simp only [ne_eq, le_iSup_iff, iSup_le_iff]
+      tauto
+    _ ≤ _ := le_add_self
+  rw [edist_eq_enorm_sub, ENNReal.coe_div (by simp [hR]), iHolNNNorm, coe_toNNReal hϕ]
+  rw [← ENNReal.div_le_iff_le_mul]; rotate_left
+  · have : edist x y ≠ 0 := by simp [hne]
+    simp [this]
+  · simp [edist_ne_top]
+  rw [ENNReal.le_div_iff_mul_le]; rotate_left
+  · simp [hR]
+  · simp
+  convert this using 1
+  rw [ENNReal.coe_rpow_of_ne_zero (by simp [hR])]
+  simp only [ENNReal.ofReal, mul_comm]
+  rfl
+
+lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
+    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R ≠ ∞) :
+    Continuous ϕ :=
+  ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
+    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball hϕ
+
+lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
+    {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) ≠ ∞) :
+    Continuous ϕ := by
+  rcases le_or_lt R 0 with hR | hR
+  · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
+    simp only [subset_empty_iff, support_eq_empty_iff] at this
+    simp only [this]
+    exact continuous_const
+  apply ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
+    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball
+  apply (closure_mono hϕ).trans (closure_ball_subset_closedBall.trans ?_)
+  exact closedBall_subset_ball (by linarith)
+
+end MetricSpace
