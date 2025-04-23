@@ -395,21 +395,21 @@ class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] e
 variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 -- the following classes hold
-#synth ProperSpace X
-#synth LocallyCompactSpace X
-#synth CompleteSpace X
-#synth SigmaCompactSpace X
-#synth SigmaFinite (volume : Measure X)
-#synth SecondCountableTopology X
-#synth SeparableSpace X
+-- #synth ProperSpace X
+-- #synth LocallyCompactSpace X
+-- #synth CompleteSpace X
+-- #synth SigmaCompactSpace X
+-- #synth SigmaFinite (volume : Measure X)
+-- #synth SecondCountableTopology X
+-- #synth SeparableSpace X
 
 
 section MetricSpace
 variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
 -- Moreover, the following classes hold if we assume that `Y` is a metric space
-#synth T4Space Y
-#synth PolishSpace Y
-#synth MeasurableSingletonClass Y
+-- #synth T4Space Y
+-- #synth PolishSpace Y
+-- #synth MeasurableSingletonClass Y
 end MetricSpace
 
 
