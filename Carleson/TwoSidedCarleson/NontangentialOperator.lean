@@ -199,9 +199,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     intro y h
     refine mul_le_mul' (enorm_K_sub_le' ?_) (by rfl)
     trans 2 * r
-    . apply mul_le_mul (by rfl)
-      case c0 | b0 => simp only [Nat.ofNat_nonneg, dist_nonneg]
-      exact hx
+    . gcongr
     rw [mem_compl_iff, mem_ball, dist_comm] at h
     exact le_of_not_gt h
 
@@ -211,9 +209,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     . have : 2 * r = 2 ^ (0 + 1) * r := by ring
       rw [this, Annulus.ci_eq]
     . intro n
-      rw [mul_le_mul_iff_of_pos_right hr]
-      apply pow_le_pow_right₀ Nat.one_le_ofNat
-      simp only [zero_add, le_add_iff_nonneg_left, zero_le]
+      gcongr <;> simp
     . apply Filter.unbounded_of_tendsto_atTop
       apply Filter.tendsto_atTop_atTop_of_monotone
       . refine Monotone.mul_const ?_ (le_of_lt hr)
@@ -234,71 +230,56 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
 
   -- Writing negative powers as positive powers of 1/2 to enable working with i : ℕ instead of -i : ℤ
   trans ∑' (i : ℕ), 2 ^ (a ^ 3 + a) * (1 / (2 : ℝ≥0) ) ^ ((i + 1) * (a : ℝ)⁻¹) * globalMaximalFunction volume 1 g x
-  . apply tsum_le_tsum
+  . apply Summable.tsum_le_tsum
     case hf | hg => apply ENNReal.summable
 
     intro i
     have est_edist : ∀y ∈ dom_i i, (edist x x' / edist x y) ≤ (1 / (2 : ℝ≥0)) ^ (i + 1) := by
-      intro y
       unfold dom_i Annulus.co
-      rw [mem_setOf, ← Ico_def, mem_setOf]
-      intro hdist
+      simp_rw [← Ico_def, mem_setOf]
+      intro y hdist
       trans edist x x' / (2 ^ (i + 1) * r.toNNReal)
-      . apply ENNReal.div_le_div_left
+      . gcongr
         rw [edist_dist, ENNReal.le_ofReal_iff_toReal_le]
         case ha => norm_cast; apply coe_ne_top
         case hb => exact dist_nonneg
         simp_rw [toReal_mul, toReal_pow, toReal_ofNat, coe_toReal, Real.coe_toNNReal', max_eq_left hr.le, hdist.left]
       rw [ENNReal.div_le_iff_le_mul]
       case hb0 => right; apply pow_ne_top; simp
-      case hbt => left; apply mul_ne_top; exact pow_ne_top ofNat_ne_top; exact coe_ne_top
-      rw [← mul_assoc]
-      rw [pow_mul_pow_eq_one]
+      case hbt => left; exact (mul_ne_top (pow_ne_top ofNat_ne_top) coe_ne_top)
+      rw [← mul_assoc, pow_mul_pow_eq_one]
       case a =>
         simp only [coe_ofNat, one_div]
-        apply ENNReal.inv_mul_cancel
-        . simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true]
-        . simp only [ne_eq, ofNat_ne_top, not_false_eq_true]
+        apply ENNReal.inv_mul_cancel <;> simp
       simp only [one_mul, edist_le_coe, nndist_dist]
       exact Real.toNNReal_le_toNNReal hx
 
     have est_vol : ∀y ∈ dom_i i, vol x y ≥ volume (ball x (2 ^ (i + 1) * r)) := by
-      intro y
       unfold dom_i Annulus.co
-      rw [mem_setOf, ← Ico_def, mem_setOf]
-      intro hdist
-      apply measure_mono
-      refine ball_subset_ball ?_
-      exact hdist.left
+      simp_rw [← Ico_def, mem_setOf]
+      apply fun y h ↦ measure_mono (ball_subset_ball h.left)
 
     trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K a / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
     . apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
       intro y hy
-      apply mul_le_mul'
-      case h₂ => rfl
-      apply mul_le_mul'
+      gcongr
       . rw [rpow_mul]
-        apply rpow_le_rpow
+        apply rpow_le_rpow _ (by positivity)
         . norm_cast
           exact est_edist y hy
-        . simp only [inv_nonneg, Nat.cast_nonneg]
-      . apply ENNReal.div_le_div_left
-        apply est_vol
-        exact hy
+      . exact est_vol y hy
 
     rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm]
 
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
         ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
-    . apply mul_le_mul'
-      case h₁ => rfl
+    . gcongr
       apply lintegral_mono_set
       unfold dom_i
-      rw [Set.Annulus.co_eq]
+      rw [Annulus.co_eq]
       exact inter_subset_left
 
     rw [_laverage_mul_measure_ball]
-
     nth_rw 5 [mul_comm]
     rw [← mul_assoc]
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
@@ -308,16 +289,12 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       apply laverage_le_globalMaximalFunction
       simp only [dist_self, Nat.ofNat_pos, pow_pos, mul_pos_iff_of_pos_left, hr]
 
-    apply mul_le_mul'
-    case h₂ => rfl
-
+    apply mul_le_mul' _ (by rfl)
     rw [mul_assoc, mul_comm]
-    apply mul_le_mul'
-    case h₂ => rfl
+    apply mul_le_mul' _ (by rfl)
 
-    trans C_K ↑a / volume (ball x (2 ^ (i + 1) * r)) * (defaultA a * volume (ball x (2 ^ (i + 1) * r)))
-    . apply mul_le_mul'
-      case h₁ => rfl
+    trans C_K a / volume (ball x (2 ^ (i + 1) * r)) * (defaultA a * volume (ball x (2 ^ (i + 1) * r)))
+    . gcongr
       rw [pow_succ]
       nth_rw 2 [mul_comm]
       rw [mul_assoc]
@@ -329,42 +306,22 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     rw [mul_assoc]
     nth_rw 2 [← mul_assoc]
     nth_rw 3 [mul_comm]
-    rw [ENNReal.mul_inv_cancel]
-    case h0 =>
-      apply ne_of_gt
-      apply measure_ball_pos
-      simp only [Nat.ofNat_pos, pow_pos, mul_pos_iff_of_pos_left, hr]
-    case ht =>
-      apply ne_of_lt
-      apply measure_ball_lt_top
-    simp only [C_K, defaultA, Nat.cast_pow, Nat.cast_ofNat, one_mul]
+    rw [ENNReal.mul_inv_cancel (measure_ball_pos volume x (by positivity)).ne.symm measure_ball_lt_top.ne]
+    simp_rw [C_K, defaultA, one_mul, pow_add]
     norm_cast
-    rw [pow_add]
-
-  rw [ENNReal.tsum_mul_right]
-  apply mul_le_mul'
-  case h₂ => rfl
-
-  rw [ENNReal.tsum_mul_left]
 
   have : (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a) = 2 ^ (a ^ 3 + a) * 2 ^ a := by ring
-  rw [this]
-  apply mul_le_mul'
-  case h₁ => rfl
-
-  conv =>
-    lhs; arg 1; intro i
-    rw [coe_ofNat, one_div, inv_rpow, ← rpow_neg, ← div_eq_mul_inv]
+  rw [ENNReal.tsum_mul_right, ENNReal.tsum_mul_left, this]
+  gcongr
+  simp_rw [coe_ofNat, one_div, inv_rpow, ← rpow_neg, ← div_eq_mul_inv]
 
   trans ∑' (i : ℕ), 2 ^ (-i / (a : ℝ))
-  . apply tsum_le_tsum
+  . apply Summable.tsum_le_tsum
     case hf | hg => apply ENNReal.summable
     intro i
-    apply rpow_le_rpow_of_exponent_le
-    . simp only [Nat.one_le_ofNat]
-    . rw [neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right]
-      . simp only [le_add_iff_nonneg_right, zero_le_one]
-      . positivity
+    apply rpow_le_rpow_of_exponent_le Nat.one_le_ofNat
+    rw [neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right (by positivity)]
+    simp only [le_add_iff_nonneg_right, zero_le_one]
 
   rw [← rpow_natCast]
   apply geometric_series_estimate
