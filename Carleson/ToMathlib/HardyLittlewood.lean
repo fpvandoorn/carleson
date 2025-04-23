@@ -435,25 +435,6 @@ theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
-lemma eLpNorm_eq_if_ae_finite [BorelSpace X] {μ : Measure X} (f : X → ℝ≥0∞)
-    (hf : ∀ᵐ x ∂μ, f x ≠ ⊤) (p : ℝ≥0∞) :
-    eLpNorm (fun x ↦ (f x).toReal) p μ = eLpNorm f p μ := by
-  unfold eLpNorm
-  split_ifs
-  · rfl
-  · unfold eLpNormEssSup
-    apply essSup_congr_ae
-    filter_upwards [hf]
-    intro a hf
-    exact enorm_toReal hf
-  · unfold eLpNorm'
-    congr 1
-    apply lintegral_congr_ae
-    filter_upwards [hf]
-    intro a hf
-    congr 1
-    exact enorm_toReal hf
-
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`.
 A proof for basically this result is given in Chapter 9, everything following after equation
 (9.0.36). -/
