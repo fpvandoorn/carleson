@@ -47,15 +47,12 @@ lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
 
 def C_6_2_1 (a : ℕ) : ℝ≥0 := 2^(254 * a^3)
 
-<<<<<<< HEAD
 --TODO: PR to Mathlib
 lemma ENNReal.mul_div_mul_comm {a b c d : ℝ≥0∞} (hc : c ≠ ⊤) (hd : d ≠ ⊤) :
     a * b / (c * d) = a / c * (b / d) := by
   simp only [div_eq_mul_inv, ENNReal.mul_inv (Or.inr hd) (Or.inl hc)]
   ring
 
-=======
->>>>>>> master
 lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X)  :
   ‖Ks s₂ x₂ y‖ₑ * ‖Ks s₁ x₁ y - Ks s₁ x₁ y'‖ₑ ≤
   ↑(C2_1_3 ↑a) / volume (ball x₂ (↑D ^ s₂)) *
@@ -77,16 +74,13 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
   -- 6.2.4
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a)^2 / ((volume (ball x₁ (D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))) := by
-<<<<<<< HEAD
     intro y
     simp only [correlation, nnnorm_mul, RCLike.nnnorm_conj, ENNReal.coe_mul, pow_two,
       ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _) (measure_ball_ne_top _ _)]
     exact mul_le_mul nnnorm_Ks_le nnnorm_Ks_le (zero_le _) (zero_le _)
-=======
     simp only [correlation, enorm_mul, RCLike.enorm_conj, pow_two,
       ENNReal.mul_div_mul_comm (.inr (measure_ball_ne_top _ _)) (.inl (measure_ball_ne_top _ _))]
     exact mul_le_mul enorm_Ks_le enorm_Ks_le (zero_le _) (zero_le _)
->>>>>>> master
   -- 6.2.6 + 6.2.7
   have hsimp : ∀ (y y' : X),
       ‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ ≤
@@ -607,7 +601,6 @@ lemma boundedCompactSupport_g {g : X → ℂ} (hg : Measurable g) (hg1 : ∀ x, 
 
 lemma boundedCompactSupport_star_Ks_mul_g (p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-<<<<<<< HEAD
     BoundedCompactSupport (fun (x : X × X) ↦ ((starRingEnd ℂ) (Ks (𝔰 p') x.1 x.2) *  g x.1)) := by
   apply BoundedCompactSupport.mul_bdd_left' (boundedCompactSupport_g hg hg1) continuous_fst
     measurable_fst ?_ ?_ ?_
@@ -964,17 +957,10 @@ lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g 
         RCLike.im_to_complex, ofReal_im, integral_zero, ofReal_zero, RCLike.I_to_complex,
         zero_mul, add_zero]
       rw [Real.norm_of_nonneg (integral_nonneg (fun x ↦ by simp))]
-=======
-    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
-      (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(1 : ℝ)/(2*a^2 + a^3))) /
-        (volume (coeGrid (𝓘 p))) * ∫⁻ y in E p', ‖g y‖ₑ * ∫⁻ y in E p, ‖g y‖ₑ := by
-  sorry
->>>>>>> master
 
 -- We assume 6.2.23.
 lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-<<<<<<< HEAD
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖₊ ≤
       (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
@@ -1064,14 +1050,3 @@ lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {
   by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
   · exact correlation_le_of_nonempty_inter ha hle hg hg1 hinter
   · exact correlation_le_of_empty_inter hinter
-=======
-    (hpp' : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p) ) :
-    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ = 0 := by
-  by_contra h0
-  apply hpp'
-  have hy : ∃ y : X, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ≠ 0 := sorry
-  obtain ⟨y, hy⟩ := hy
-  sorry
-
-end Tile
->>>>>>> master
