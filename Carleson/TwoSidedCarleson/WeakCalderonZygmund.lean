@@ -51,7 +51,7 @@ theorem lebesgue_differentiation
 
 /-- Lemma 10.2.4
 This is very similar to `Vitali.exists_disjoint_subfamily_covering_enlargement`.
-Can we use that (or adapt it so that we can use it)?  -/
+Can we use that (or adapt it so that we can use it)? -/
 theorem ball_covering (ha : 4 ≤ a) {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
     ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ closedBall (c i) (r i)) ∧
       ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬ Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧

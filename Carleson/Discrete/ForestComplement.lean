@@ -240,7 +240,7 @@ the union is disjoint. This is easier to formalize by decomposing into successiv
 advantage of disjointess at each step, instead of doing everything in one go. Still, we keep this
 lemma as it corresponds to the blueprint, and the key steps of its proof will also be the key steps
 when doing the successive decompositions.
- -/
+-/
 lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ₁ ∪ ℜ₂ ∪ ℜ₃ := by
   unfold ℜ₀ ℜ₁ ℜ₂ ℜ₃ 𝔓₁; simp_rw [← inter_union_distrib_left]; ext p
   simp_rw [mem_inter_iff, and_congr_right_iff, mem_compl_iff, mem_union]; intro h

@@ -396,7 +396,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
 
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function, and with the upper bound in terms
-of `volume F` and `volume G`.  -/
+of `volume F` and `volume G`. -/
 theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
     (h'A : IsBounded A) :

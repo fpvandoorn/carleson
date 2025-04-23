@@ -189,7 +189,7 @@ lemma adjointCarleson_adjoint
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
         unfold H; simp [image_eq_zero_of_nmem_tsupport h]
     have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
-      Integrable.prod_mul (hg.norm.const_mul _).integrable hf.norm.integrable
+      (hg.norm.const_mul _).integrable.mul_prod hf.norm.integrable
     refine this.mono ?_ ?_
     · refine .mul ?_ <| .snd hf.aestronglyMeasurable
       refine .mul ?_ ?_

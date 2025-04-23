@@ -486,7 +486,7 @@ protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
   AEStronglyMeasurable.maximalFunction countable_globalMaximalFunction
     |>.aemeasurable.const_mul _ |>.aestronglyMeasurable
 
-/-- Equation (2.0.45).-/
+/-- Equation (2.0.45) -/
 theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
     {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
     ⨍⁻ y, ‖u y‖ₑ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
