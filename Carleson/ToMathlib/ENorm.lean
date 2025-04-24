@@ -24,14 +24,14 @@ class ENormedAddCommSubMonoid (E : Type*) [TopologicalSpace E] extends ENormedAd
 /-- An enormed space is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedSpace (E : Type*) [TopologicalSpace E] extends ENormedAddCommMonoid E, Module ℝ≥0 E where
-  enorm_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
+  enorm_smul_eq_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
 
 export ENormedAddCommSubMonoid
   (sub_add_cancel_of_enorm_le add_right_cancel_of_enorm_lt_top esub_self)
-export ENormedSpace (enorm_smul)
+export ENormedSpace (enorm_smul_eq_smul)
 
 -- mathlib has this (in the _root_ namespace), in a less general setting
-attribute [simp] ENormedSpace.enorm_smul
+attribute [simp] ENormedSpace.enorm_smul_eq_smul
 
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
@@ -40,7 +40,7 @@ instance : ENormedSpace ℝ≥0∞ where
   enorm_add_le := by simp
   add_comm := by simp [add_comm]
   continuous_enorm := continuous_id
-  enorm_smul := by simp
+  enorm_smul_eq_smul := by simp
   add_smul := fun _ _ _ ↦ Module.add_smul ..
   zero_smul := by simp
 
@@ -54,10 +54,11 @@ instance : ENormedSpace ℝ≥0 where
   enorm_add_le := by simp
   add_comm := by simp [add_comm]
   continuous_enorm := by fun_prop
-  enorm_smul c x := by simp [ENNReal.smul_def]
+  enorm_smul_eq_smul c x := by simp [ENNReal.smul_def]
 
 instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
-  enorm_smul := by simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
+  enorm_smul_eq_smul := by
+    simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
 
 namespace MeasureTheory
 
@@ -77,6 +78,13 @@ lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0
 section ENormedSpace
 
 variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
+
+-- TODO: this lemma and Mathlib's `enorm_smul` could be unified using a `ENormedDivisionSemiring`
+-- typeclass
+-- (which includes ENNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
+-- Investigate if this is worthwhile when upstreaming this to mathlib.
+lemma enorm_smul_eq_mul {c : ℝ≥0} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+  ENormedSpace.enorm_smul_eq_smul _ _
 
 instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
   continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
