@@ -19,8 +19,8 @@ import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
     - (in `Minkowski.lean`) Minkowski's integral inequality
     - (in `Minkowski.lean`) Apply Minkowski's integral inequality to truncations
     - (in `Minkowski.lean`) Weaktype estimates applied to truncations
-    - (in `Minkowski.lean`) Definitions
-    - (in `Minkowski.lean`) Proof of the real interpolation theorem
+    - (in `Final.lean`) Definitions for the main proof
+    - (in `Final.lean`) Proof of the real interpolation theorem
 -/
 
 noncomputable section
