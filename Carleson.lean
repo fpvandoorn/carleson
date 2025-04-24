@@ -66,7 +66,7 @@ import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Order.Chain
-import Carleson.ToMathlib.RealInterpolation
+import Carleson.ToMathlib.RealInterpolation.Basic
 import Carleson.ToMathlib.Topology.Instances.AddCircle
 import Carleson.ToMathlib.WeakType
 import Carleson.TwoSidedCarleson.MainTheorem
