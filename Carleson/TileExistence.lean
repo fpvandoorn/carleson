@@ -1403,17 +1403,19 @@ lemma one_lt_realD : 1 < (D : ℝ) := by
   linarith [four_le_realD X]
 
 variable (a) in
-def const_n {t:ℝ} (_:t∈Ioo 0 1): ℕ := ⌊-Real.logb D t / K'⌋₊
+def const_n {t : ℝ} (_ht : t ∈ Ioo 0 1): ℕ := ⌊-Real.logb D t / K'⌋₊
+
+variable {t : ℝ}
 
 variable (X) in
-theorem prefloor_nonneg {t : ℝ} (ht : t ∈ Ioo 0 1) :
+theorem prefloor_nonneg (ht : t ∈ Ioo 0 1) :
     0 ≤ -Real.logb (↑D) t / K' := by
   apply div_nonneg _ (K_pos).le
   simp only [Left.nonneg_neg_iff]
   rw [Real.logb_nonpos_iff (one_lt_realD X) ht.left]
   exact ht.right.le
 
-lemma const_n_prop_1 {t:ℝ} (ht:t∈Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹ := by
+lemma const_n_prop_1 (ht : t ∈ Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹ := by
   simp only [mem_Ioo] at ht
   rw [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (inv_pos.mpr ht.left)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
@@ -1423,7 +1425,7 @@ lemma const_n_prop_1 {t:ℝ} (ht:t∈Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹
   exact Nat.floor_le (prefloor_nonneg X ht)
 
 variable (X) in
-lemma const_n_prop_2 {t:ℝ} (ht:t∈ Ioo 0 1) (k:ℤ) : t * D^k ≤ D^(k-const_n a ht *K') := by
+lemma const_n_prop_2 (ht : t ∈ Ioo 0 1) (k:ℤ) : t * D^k ≤ D^(k-const_n a ht *K') := by
   let _ : MulPosReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
   rw [sub_eq_neg_add, zpow_add₀ (defaultD_pos a).ne.symm]
   rw [mul_le_mul_right (zpow_pos (defaultD_pos a) _)]
@@ -1431,7 +1433,7 @@ lemma const_n_prop_2 {t:ℝ} (ht:t∈ Ioo 0 1) (k:ℤ) : t * D^k ≤ D^(k-const_
   exact (@const_n_prop_1 X) ht
 
 variable (X) in
-lemma const_n_is_max {t:ℝ} (ht:t∈Ioo 0 1) (n:ℕ) : D^(n * K') ≤ t⁻¹ → n ≤ const_n a ht := by
+lemma const_n_is_max (ht : t ∈ Ioo 0 1) (n:ℕ) : D^(n * K') ≤ t⁻¹ → n ≤ const_n a ht := by
   simp only [mem_Ioo] at ht
   rw [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (inv_pos.mpr ht.left)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
@@ -1441,7 +1443,7 @@ lemma const_n_is_max {t:ℝ} (ht:t∈Ioo 0 1) (n:ℕ) : D^(n * K') ≤ t⁻¹ �
   exact Nat.le_floor h
 
 variable (X) in
-lemma const_n_prop_3 {t:ℝ} (ht:t ∈ Ioo 0 1) :
+lemma const_n_prop_3 (ht : t ∈ Ioo 0 1) :
     (t * D ^ K' : ℝ)⁻¹ ≤ ↑D ^ (const_n a ht * K') := by
   dsimp only [const_n]
   rw [mul_inv, ← div_eq_mul_inv, div_le_iff₀ (pow_pos (defaultD_pos a) _), ← pow_add]
@@ -1455,7 +1457,7 @@ lemma const_n_prop_3 {t:ℝ} (ht:t ∈ Ioo 0 1) :
   exact (Nat.lt_floor_add_one (-Real.logb (↑D) t / ↑const_K)).le
 
 variable (X) in
-lemma const_n_nonneg {t:ℝ} (ht:t∈Ioo 0 1) : 0 ≤ const_n a ht := by
+lemma const_n_nonneg (ht : t ∈ Ioo 0 1) : 0 ≤ const_n a ht := by
   apply const_n_is_max X ht 0
   simp only [Nat.cast_pow, Nat.cast_ofNat, zero_mul, pow_zero]
   rw [one_le_inv_iff₀]
@@ -1498,7 +1500,7 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
 
 end PreProofData
 
-lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set.Ioo 0 1)
+lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht : t ∈ Set.Ioo 0 1)
     (htD : (D^(-S:ℤ):ℝ) ≤ t * D^k):
     volume ({x|x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)}) ≤ 2 * t^κ * volume (I3 hk y) := by
   have hconst_n : -S ≤ k-const_n a ht * K' := by
@@ -1643,7 +1645,7 @@ lemma boundary_measure {k:ℤ} (hk:-S ≤ k) (y:Yk X k) {t:ℝ≥0} (ht:t∈ Set
           positivity
         _ ≤ (2 * t ^ κ:ℝ) := by
           rw [mul_le_mul_left (by linarith)]
-          have : (t:ℝ) ∈ Ioo 0 1 := ht
+          have : (t : ℝ) ∈ Ioo 0 1 := ht
           rw [mem_Ioo] at this
           rw [Real.rpow_le_rpow_left_iff_of_base_lt_one (this.left) (this.right)]
           exact kappa_le_log2D_inv_mul_K_inv X
