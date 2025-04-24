@@ -1053,5 +1053,3 @@ lemma value_lintegral_res₁ {t γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 
 end MeasureTheory
 
 end
-
-#min_imports
