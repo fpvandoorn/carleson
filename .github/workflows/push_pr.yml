@@ -32,6 +32,9 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build Carleson
 
+      - name: Lint project
+        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter Carleson
+
       - name: Cache API docs
         uses: actions/cache@v4
         with:
