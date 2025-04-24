@@ -531,7 +531,7 @@ lemma ENNReal.rpow_le_rpow_of_nonpos {x y : ℝ≥0∞} {z : ℝ} (hz : z ≤ 0)
   exact rpow_le_rpow (ENNReal.inv_le_inv.mpr h) (neg_nonneg.mpr hz)
 
 /- A rough estimate. It's also less than 2 ^ (-a) -/
-def dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
+lemma dens₁_le_one {𝔓' : Set (𝔓 X)} : dens₁ 𝔓' ≤ 1 := by
   conv_rhs => rw [← mul_one 1]
   simp only [dens₁, mem_lowerCubes, iSup_exists, iSup_le_iff]
   intros i _ j hj

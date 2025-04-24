@@ -154,7 +154,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
         _ ⊆ 𝓘 u₁ := (𝓘_le_𝓘 t hu₁ belongs).1
         _ ⊆ cube := by
           apply subset_of_nmem_Iic_of_not_disjoint cube
-          · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
+          · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := fun a ↦ contr cube a xInCube
             rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
             exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
           · exact notDisjoint
