@@ -2753,8 +2753,7 @@ lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
 variable {T : (α → E₁) → (α' → E₂)}
 
 /-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
-    vanishes, then the `q`-norm of `T f` vanishes.
-    -/
+    vanishes, then the `q`-norm of `T f` vanishes. -/
 lemma weaktype_aux₀ {p₀ q₀ p q : ℝ≥0∞} (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp : 0 < p) (hq : 0 < q)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (hf : AEStronglyMeasurable f μ) (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by

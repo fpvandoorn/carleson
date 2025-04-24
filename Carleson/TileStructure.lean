@@ -566,14 +566,15 @@ lemma volume_E₂_le_dens₁_mul_volume {𝔓' : Set (𝔓 X)} (mp : p ∈ lower
 /-! ### Stack sizes -/
 
 variable {C C' : Set (𝔓 X)} {x x' : X}
-open scoped Classical
 
+open scoped Classical in
 /-- The number of tiles `p` in `s` whose underlying cube `𝓘 p` contains `x`. -/
 def stackSize (C : Set (𝔓 X)) (x : X) : ℕ :=
   ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator 1 x
 
 lemma stackSize_setOf_add_stackSize_setOf_not {P : 𝔓 X → Prop} :
     stackSize {p ∈ C | P p} x + stackSize {p ∈ C | ¬ P p} x = stackSize C x := by
+  classical
   simp_rw [stackSize]
   conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ P]
   simp_rw [Finset.filter_filter]
@@ -589,6 +590,7 @@ lemma stackSize_sdiff_eq (x : X) :
 
 lemma stackSize_congr (h : ∀ p ∈ C, x ∈ (𝓘 p : Set X) ↔ x' ∈ (𝓘 p : Set X)) :
     stackSize C x = stackSize C x' := by
+  classical
   refine Finset.sum_congr rfl fun p hp ↦ ?_
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp_rw [indicator, h p hp, Pi.one_apply]
@@ -597,6 +599,7 @@ lemma stackSize_mono (h : C ⊆ C') : stackSize C x ≤ stackSize C' x := by
   apply Finset.sum_le_sum_of_subset (fun x ↦ ?_)
   simp [iff_true_intro (@h x)]
 
+open scoped Classical in
 -- Simplify the cast of `stackSize C x` from `ℕ` to `ℝ`
 lemma stackSize_real (C : Set (𝔓 X)) (x : X) : (stackSize C x : ℝ) =
     ∑ p ∈ { p | p ∈ C }, (𝓘 p : Set X).indicator (1 : X → ℝ) x := by
@@ -743,6 +746,7 @@ lemma eq_biUnion_iteratedMaximalSubfamily (A : Set (𝔓 X)) {N : ℕ} (hN : ∀
     congr
     ext
     simp (config := {contextual := true}) [hp]
+  classical
   have : ∑ p ∈ {p | p ∈ u '' (Iio N)}, (𝓘 p : Set X).indicator 1 x
       ≤ stackSize {q | q ∈ A ∧ q ≠ p} x := by
     apply Finset.sum_le_sum_of_subset

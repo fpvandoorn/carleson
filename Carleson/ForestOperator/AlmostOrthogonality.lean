@@ -10,7 +10,7 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
@@ -22,6 +22,7 @@ def adjointCarleson (p : 𝔓 X) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in E p, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y
   -- todo: consider changing to `(E p).indicator 1 y`
 
+open scoped Classical in
 /-- The definition of `T_ℭ*g(x)`, defined at the bottom of Section 7.4 -/
 def adjointCarlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, adjointCarleson p f x
@@ -189,7 +190,7 @@ lemma adjointCarleson_adjoint
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
         unfold H; simp [image_eq_zero_of_nmem_tsupport h]
     have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
-      Integrable.prod_mul (hg.norm.const_mul _).integrable hf.norm.integrable
+      (hg.norm.const_mul _).integrable.mul_prod hf.norm.integrable
     refine this.mono ?_ ?_
     · refine .mul ?_ <| .snd hf.aestronglyMeasurable
       refine .mul ?_ ?_
@@ -242,7 +243,7 @@ lemma adjointCarleson_adjoint
 lemma adjointCarlesonSum_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (ℭ : Set (𝔓 X)) :
     ∫ x, conj (g x) * carlesonSum ℭ f x = ∫ x, conj (adjointCarlesonSum ℭ g x) * f x := by
-  calc
+  classical calc
     _ = ∫ x, ∑ p ∈ {p | p ∈ ℭ}, conj (g x) * carlesonOn p f x := by
       unfold carlesonSum; simp_rw [Finset.mul_sum]
     _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ x, conj (g x) * carlesonOn p f x := by

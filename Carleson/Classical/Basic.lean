@@ -53,8 +53,8 @@ lemma partialFourierSum_eq_partialFourierSum' [hT : Fact (0 < 2 * Real.pi)] (N :
   ext n
   rw [← liftIoc, fourierCoeff_liftIoc_eq]
   congr 2
-  . rw [zero_add (2 * Real.pi)]
-  . rcases (eq_coe_Ioc x) with ⟨b, hb, rfl⟩
+  · rw [zero_add (2 * Real.pi)]
+  · rcases (eq_coe_Ioc x) with ⟨b, hb, rfl⟩
     rw [← zero_add (2 * Real.pi)] at hb
     rw [coe_eq_coe_iff_of_mem_Ioc (Subtype.coe_prop _) hb]
     have : (liftIoc (2 * Real.pi) 0 (fun x ↦ x)) b = (fun x ↦ x) b := liftIoc_coe_apply hb

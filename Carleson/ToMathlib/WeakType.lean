@@ -340,7 +340,7 @@ lemma MemWℒp.ennreal_toReal {f : α → ℝ≥0∞} (hf : MemWℒp f p μ) :
     MemWℒp (ENNReal.toReal ∘ f) p μ :=
   ⟨hf.aeStronglyMeasurable.ennreal_toReal, wnorm_toReal_le.trans_lt hf.2⟩
 
-/-- If a function `f` is `MemWℒp`, then its norm is almost everywhere finite.-/
+/-- If a function `f` is `MemWℒp`, then its norm is almost everywhere finite. -/
 theorem MemWℒp.ae_ne_top {f : α → ε} {μ : Measure α} (hf : MemWℒp f p μ) :
     ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
   by_cases hp_inf : p = ∞
@@ -390,9 +390,9 @@ theorem MemWℒp.ae_ne_top {f : α → ε} {μ : Measure α} (hf : MemWℒp f p 
 
 /- Todo: define `MeasureTheory.WLp` as a subgroup, similar to `MeasureTheory.Lp` -/
 
-/-- An operator has weak type `(p, q)` if it is bounded as a map from L^p to weak-L^q.
+/-- An operator has weak type `(p, q)` if it is bounded as a map from `L^p` to weak `L^q`.
 `HasWeakType T p p' μ ν c` means that `T` has weak type (p, p') w.r.t. measures `μ`, `ν`
-and constant `c`.  -/
+and constant `c`. -/
 def HasWeakType (T : (α → ε₁) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
@@ -404,9 +404,9 @@ def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
   ∀ f : α → ε₁, MemLp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
   AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
-/-- An operator has strong type (p, q) if it is bounded as an operator on `L^p → L^q`.
+/-- An operator has strong type `(p, q)` if it is bounded as an operator on `L^p → L^q`.
 `HasStrongType T p p' μ ν c` means that `T` has strong type (p, p') w.r.t. measures `μ`, `ν`
-and constant `c`.  -/
+and constant `c`. -/
 def HasStrongType {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
