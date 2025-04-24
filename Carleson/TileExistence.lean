@@ -1713,7 +1713,7 @@ lemma forget_map_inj : Function.Injective (forget_map X) := by
   exact 𝓓.ext_iff.mpr h
 
 variable (X) in
-def 𝓓_finite : Finite (𝓓 X) := by
+lemma 𝓓_finite : Finite (𝓓 X) := by
   have foo (k : Set.Icc (-S : ℤ) S): Finite (Yk X k) :=
     Set.Finite.to_subtype (Yk_finite k.property.left)
   apply Finite.of_injective (forget_map X) forget_map_inj
