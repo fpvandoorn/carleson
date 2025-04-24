@@ -6,7 +6,7 @@ import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 open ShortVariables
@@ -361,6 +361,7 @@ lemma nontangential_operator_bound
           apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
           linarith [show 0.4 * 4 ^ 3 ≤ (0.4 : ℝ) * a ^ 3 by gcongr]
 
+open scoped Classical in
 /-- The set of cubes in Lemma 7.2.4. -/
 def kissing (I : Grid X) : Finset (Grid X) :=
   {J | s J = s I ∧ ¬Disjoint (ball (c I) (16 * D ^ s I)) (ball (c J) (16 * D ^ s J))}
@@ -488,6 +489,7 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
       congr with J; rw [mul_comm, ofReal_mul]
     _ = _ := by simp_rw [integral_mul_right, mul_assoc]
 
+open scoped Classical in
 /-- Equation (7.2.8) in the proof of Lemma 7.2.3. -/
 lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
     ‖∫ x, conj (g x) * (t.boundaryOperator u f x).toReal‖ₑ ≤
@@ -561,6 +563,7 @@ lemma e728 (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
       congr! with J - y -; rw [Finset.mul_sum]
       congr with I; rw [mul_ite, mul_zero, ← mul_rotate]
 
+open scoped Classical in
 /-- Bound for the inner sum in Equation (7.2.8). -/
 lemma boundary_geometric_series :
     (∑ I : Grid X, if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
@@ -643,6 +646,7 @@ irreducible_def C7_2_3 (a : ℕ) : ℝ≥0 := 2 ^ (12 * (a : ℝ))
 lemma boundary_operator_bound_aux (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
     ‖∫ x, conj (g x) * (t.boundaryOperator u f x).toReal‖ₑ ≤
       C7_2_3 a * eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  classical
   calc
     _ ≤ ∑ J ∈ 𝓙 (t u), ∫⁻ y in J, ‖f y‖ₑ * MB volume 𝓑 c𝓑 r𝓑 g y *
         ∑ I : Grid X, if (J : Set X) ⊆ ball (c I) (16 * D ^ s I) ∧ s J ≤ s I then
@@ -840,6 +844,7 @@ lemma tree_projection_estimate
     ‖∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ ≤
     C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t u)) (‖f ·‖)) 2 volume *
     eLpNorm (approxOnCube (𝓛 (t u)) (‖g ·‖)) 2 volume := by
+  classical
   set aOC := approxOnCube (𝓛 (t u)) (‖g ·‖)
   let eaOC (x : X) := ENNReal.ofReal (aOC x)
   have aOC_nonneg {x : X} : 0 ≤ aOC x := approxOnCube_nonneg (fun _ ↦ norm_nonneg _)

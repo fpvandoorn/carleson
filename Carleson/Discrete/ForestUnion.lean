@@ -5,7 +5,6 @@ import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
-open Classical -- We use quite some `Finset.filter`
 noncomputable section
 
 open scoped ShortVariables
@@ -145,6 +144,7 @@ nonrec lemma URel.rfl : URel k n j u u := Or.inl rfl
 /-- Lemma 5.4.1, part 2. -/
 lemma URel.not_disjoint (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : URel k n j u u') :
     ¬Disjoint (ball_(u) (𝒬 u) 100) (ball_(u') (𝒬 u') 100) := by
+  classical
   by_cases e : u = u'; · rw [e]; simp
   simp_rw [URel, e, false_or, 𝔗₁, mem_setOf] at huu'; obtain ⟨p, ⟨mp, np, sl₁⟩, sl₂⟩ := huu'
   by_cases e' : 𝓘 p = 𝓘 u'
@@ -463,6 +463,7 @@ lemma forest_inner (hu : u ∈ 𝔘₃ k n j) (hp : p ∈ 𝔗₂ k n j u) :
 def C5_4_8 (n : ℕ) : ℕ := (4 * n + 12) * 2 ^ n
 
 lemma exists_smul_le_of_𝔘₃ (u : 𝔘₃ k n j) : ∃ m : 𝔐 (X := X) k n, smul 100 u.1 ≤ smul 1 m.1 := by
+  classical
   obtain ⟨u, mu⟩ := u
   replace mu := (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁ |>.trans 𝔘₁_subset_ℭ₁) mu
   rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, filter_mem_univ_eq_toFinset] at mu
@@ -499,6 +500,7 @@ lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ 
     exact (u'₁.2 u ((𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁ |>.trans 𝔘₁_subset_ℭ₁) u.2) hu).symm
 
 lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackSize (𝔐 k n) x := by
+  classical
   let mf' : 𝔓 X → 𝔓 X := fun u ↦ if mu : u ∈ 𝔘₃ k n j then mf k n j ⟨u, mu⟩ else default
   simp_rw [stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id]
   refine Finset.card_le_card_of_injOn mf' (fun u mu ↦ ?_) (fun u mu u' mu' e ↦ ?_)
@@ -512,6 +514,7 @@ lemma stackSize_𝔘₃_le_𝔐 (x : X) : stackSize (𝔘₃ k n j) x ≤ stackS
 
 /-- Lemma 5.4.8, used to verify that 𝔘₄ satisfies 2.0.34. -/
 lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n j) x ≤ C5_4_8 n := by
+  classical
   by_contra! h
   let C : Finset (𝔓 X) := { u | u ∈ 𝔘₃ (X := X) k n j ∧ x ∈ 𝓘 u }
   have Cc : C.card = stackSize (𝔘₃ k n j) x := by
@@ -609,7 +612,7 @@ lemma pairwiseDisjoint_𝔘₄ : univ.PairwiseDisjoint (𝔘₄ (X := X) k n j) 
   have := pairwiseDisjoint_iteratedMaximalSubfamily (𝔘₃ (X := X) k n j) (mem_univ a) (mem_univ b) h
   exact disjoint_iff_forall_ne.1 this xa yb
 
-lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 2 ^ n := calc
+lemma stackSize_𝔘₄_le (x : X) : stackSize (𝔘₄ (X := X) k n j l) x ≤ 2 ^ n := by classical calc
   stackSize (𝔘₄ (X := X) k n j l) x
   _ = ∑ i ∈ Finset.Ico (l * 2 ^ n) ((l + 1) * 2 ^ n),
         stackSize (iteratedMaximalSubfamily (𝔘₃ k n j) i) x := by
@@ -690,6 +693,7 @@ lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
 /-- The Carleson sum over `ℭ₅` and `ℭ₆` coincide, for points in `G \ G'`. -/
 lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {k n j : ℕ} :
     carlesonSum (ℭ₅ k n j) f x = carlesonSum (ℭ₆ k n j) f x := by
+  classical
   simp only [carlesonSum]
   symm
   apply Finset.sum_subset
@@ -731,6 +735,7 @@ lemma lintegral_carlesonSum_forest
     ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ ≤
     C2_0_4 a q n * (2 ^ (2 * a + 5) * volume F / volume G) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume G) ^ (1/2 : ℝ) := by
+  classical
   let 𝔉 := forest (X := X) k n j l
   have : ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ =
       ∫⁻ x in G \ G', ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ := by

@@ -5,13 +5,17 @@ defaultTargets = ["Carleson"]
 relaxedAutoImplicit = false
 pp.unicode.fun = true
 autoImplicit = false
-# This has lots of false positives currently.
 linter.style.longLine = false
 linter.oldObtain = true
 linter.style.cases = true
-linter.style.refine = true
+linter.style.cdot = true
+linter.style.docString = true
+linter.style.dollarSyntax = true
+linter.style.lambdaSyntax = true
 linter.style.multiGoal = true
-weak.linter.flexible = true
+linter.style.openClassical = true
+linter.style.refine = true
+linter.flexible = true
 
 [[require]]
 name = "mathlib"

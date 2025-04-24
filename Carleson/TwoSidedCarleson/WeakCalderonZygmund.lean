@@ -3,7 +3,6 @@ import Carleson.ToMathlib.BoundedFiniteSupport
 import Carleson.ToMathlib.HardyLittlewood
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
-open Classical
 open scoped NNReal
 
 noncomputable section
@@ -12,7 +11,6 @@ variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : 
 variable {τ C r R : ℝ} {q q' : ℝ≥0}
 variable {F G : Set X}
 variable {K : X → X → ℂ} {x x' : X} [IsTwoSidedKernel a K]
-variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
 variable {f : X → ℂ} {α : ℝ≥0∞}
 
 /-! ## Section 10.2 and Lemma 10.0.3
@@ -26,18 +24,16 @@ irreducible_def C10_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (4 * a)
 /-- Lemma 10.2.1, formulated differently.
 The blueprint version is basically this after unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`.
 -/
-theorem maximal_theorem (ha : 4 ≤ a) :
+theorem maximal_theorem [Nonempty X] :
     HasBoundedWeakType (globalMaximalFunction volume 1 : (X → ℂ) → X → ℝ≥0∞) 1 1 volume volume
       (C10_2_1 a) := by
   apply HasWeakType.hasBoundedWeakType
   have : C10_2_1 a = (defaultA a) ^ 4 := by
     simp_rw [C10_2_1_def, defaultA, pow_mul', Nat.cast_pow, Nat.cast_ofNat]
   rw [this]
-  rw [← hasWeakType_toReal_iff sorry /- remove if we remove the `toReal` from
-    `hasWeakType_globalMaximalFunction`. -/]
-  -- for some reason `exact` goes on a wild goose chase on the next line
   apply hasWeakType_globalMaximalFunction le_rfl le_rfl
 
+variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
 
 /-- Lemma 10.2.2.
 Should be an easy consequence of `VitaliFamily.ae_tendsto_average`. -/
@@ -54,7 +50,7 @@ theorem lebesgue_differentiation
 
 /-- Lemma 10.2.4
 This is very similar to `Vitali.exists_disjoint_subfamily_covering_enlargement`.
-Can we use that (or adapt it so that we can use it)?  -/
+Can we use that (or adapt it so that we can use it)? -/
 theorem ball_covering (ha : 4 ≤ a) {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
     ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ closedBall (c i) (r i)) ∧
       ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬ Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
@@ -159,6 +155,7 @@ lemma iUnion_czPartition (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : Gene
     ⋃ i, czPartition ha hf hX i = globalMaximalFunction volume 1 f ⁻¹' Ioi α :=
   sorry
 
+open scoped Classical in
 /-- The function `g` in Lemma 10.2.5. (both cases) -/
 def czApproximation (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) (x : X) : ℂ :=
   if hX : GeneralCase f α then
@@ -281,6 +278,7 @@ lemma tsum_eLpNorm_czRemainder_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (
 /-- The constant `c` introduced below Lemma 10.2.5. -/
 irreducible_def c10_0_3 (a : ℕ) : ℝ≥0 := (2 ^ (a ^ 3 + 12 * a + 4))⁻¹
 
+open scoped Classical in
 /-- The set `Ω` introduced below Lemma 10.2.5. -/
 def Ω (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) : Set X :=
   if hX : GeneralCase f α then ⋃ i, czBall2 ha hf hX i else univ
