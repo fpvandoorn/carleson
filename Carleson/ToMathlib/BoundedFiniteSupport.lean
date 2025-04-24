@@ -1,36 +1,41 @@
-import Carleson.ToMathlib.BoundedCompactSupport
+import Mathlib.Analysis.Convex.PartitionOfUnity
+import Mathlib.Analysis.Calculus.ContDiff.Basic
+import Mathlib.MeasureTheory.Integral.Average
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.MeasureTheory.Integral.Prod
+import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+import Mathlib.Topology.MetricSpace.Holder
+import Mathlib.Data.Set.Card
+import Mathlib.Data.Real.ENatENNReal
+import Carleson.ToMathlib.Misc
 
 /-
 This file defines BoundedFiniteSupport.
-TODO It should be suitably generalized in analogy to `BoundedCompactSupport`.
 -/
 
 open MeasureTheory Function ENNReal TopologicalSpace
 
 noncomputable section
 
-variable {X E : Type*} [MeasurableSpace X]
-variable {f : X → E} [TopologicalSpace E] [ENorm E] [Zero E] {μ : Measure X}
+variable {X E : Type*} [MeasurableSpace X] {f : X → E} {μ : Measure X}
 
+variable [TopologicalSpace E] [ENorm E] [Zero E] in
 /-- Definition to avoid repeating ourselves.
 Blueprint states: *bounded measurable function $g$ on $X$ supported on a set of finite measure*. -/
 @[fun_prop]
 structure BoundedFiniteSupport (f : X → E) (μ : Measure X := by volume_tac) : Prop where
-  memLp : MemLp f ∞ μ
+  memLp_top : MemLp f ∞ μ
   measure_support_lt : μ (support f) < ∞
 
-/-
-TODO prove suitable lemmas e.g. BFS f implies AEMeasurable f
--/
 namespace BoundedFiniteSupport
 
-variable (bfs : BoundedFiniteSupport f μ)
 section Includebfs
+variable [TopologicalSpace E] [ENorm E] [Zero E] (bfs : BoundedFiniteSupport f μ)
 include bfs
 
 @[fun_prop]
 theorem aestronglyMeasurable : AEStronglyMeasurable f μ :=
-  bfs.memLp.aestronglyMeasurable
+  bfs.memLp_top.aestronglyMeasurable
 
 @[fun_prop]
 theorem aemeasurable [MeasurableSpace E] [PseudoMetrizableSpace E]
@@ -50,6 +55,24 @@ theorem aemeasurable_restrict [MeasurableSpace E] [PseudoMetrizableSpace E]
 
 theorem eLpNorm_lt_top :
     eLpNorm f ∞ μ < ∞ :=
-  bfs.memLp.eLpNorm_lt_top
+  bfs.memLp_top.eLpNorm_lt_top
 
 end Includebfs
+
+section NormedAddCommGroup
+
+variable [NormedAddCommGroup E]
+
+/-- Bounded finitely supported functions are in all `Lᵖ` spaces. -/
+theorem memLp (hf : BoundedFiniteSupport f μ) (p : ℝ≥0∞) :
+    MemLp f p μ :=
+  hf.memLp_top.mono_exponent_of_measure_support_ne_top
+    (fun _ ↦ nmem_support.mp) hf.measure_support_lt.ne le_top
+
+/-- Bounded finitely supported functions are integrable. -/
+theorem integrable (hf : BoundedFiniteSupport f μ) : Integrable f μ :=
+  memLp_one_iff_integrable.mp <| memLp hf 1
+
+end NormedAddCommGroup
+
+end BoundedFiniteSupport

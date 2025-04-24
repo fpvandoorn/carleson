@@ -1,6 +1,6 @@
 import Carleson.TileStructure
 
-open Set MeasureTheory Metric Function Complex Bornology Classical
+open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
 

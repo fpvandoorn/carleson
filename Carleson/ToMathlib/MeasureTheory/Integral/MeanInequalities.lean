@@ -53,7 +53,7 @@ theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : M
     exact ENNReal.toReal_ne_zero.mpr ⟨p_ne_0 i₀ hi₀, (exists_top ⟨i₀, hi₀, ·⟩)⟩
   · simp [eLpNorm, eLpNorm', p_ne_0 i hi, p_ne_top i hi]
 
-/-- **Hölder's inequality** for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞`-/
+/-- **Hölder's inequality** for functions `α → ℝ≥0∞`, using exponents in `ℝ≥0∞` -/
 theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderConjugate q)
     {f g : α → ENNReal} (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
     ∫⁻ (a : α), (f * g) a ∂μ ≤ eLpNorm f p μ * eLpNorm g q μ := by
