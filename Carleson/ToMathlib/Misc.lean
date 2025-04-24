@@ -201,6 +201,15 @@ lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := 
 theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
   fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
 
+namespace MemLp
+
+variable {f : α → F} {p : ℝ≥0∞}
+theorem enorm (hf : MemLp f p μ) : MemLp (‖f ·‖ₑ) p μ :=
+  ⟨hf.aestronglyMeasurable.enorm.aestronglyMeasurable,
+  by simp_rw [MeasureTheory.eLpNorm_enorm, hf.eLpNorm_lt_top]⟩
+
+end MemLp
+
 end MeasureTheory
 
 section
