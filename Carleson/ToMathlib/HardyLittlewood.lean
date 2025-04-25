@@ -132,7 +132,7 @@ private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [Proper
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
   simp only [T, Pi.add_apply, enorm_eq_self, ← enorm_eq_nnnorm]
   rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.enorm]
-  exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x))
+  exact laverage_mono (fun x ↦ enorm_add_le (f x) (g x))
 
 -- move
 lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl

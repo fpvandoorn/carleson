@@ -8,6 +8,7 @@ import Mathlib.Topology.MetricSpace.Holder
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.MeasureTheory.Measure.Real
+import Carleson.ToMathlib.ENorm
 
 /-
 * This file can import all ToMathlib files.
@@ -101,6 +102,14 @@ section Indicator
 attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
 end Indicator
 
+section NNReal
+
+
+@[simp]
+lemma _root_.ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
+  ext; simp [ENNReal.toReal]
+
+end NNReal
 
 namespace MeasureTheory
 
@@ -170,6 +179,11 @@ attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 
+lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
+  apply measure_mono_ae
+  change μ {x | ¬ B x ≤ A x} = 0
+  simpa only [le_Prop_eq, Classical.not_imp]
+
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
     AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
@@ -194,12 +208,86 @@ lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := b
 theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
     (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
-@[simp]
-lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
-  ext; simp [ENNReal.toReal]
-
 theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
   fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
+
+section eLpNorm
+
+variable {p : ℝ≥0∞}
+
+open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
+
+lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
+    eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
+  simp_rw [eLpNormEssSup, enorm_eq_self]
+  apply essSup_mono_ae _
+  apply Eventually.of_forall (by simp)
+
+lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNormEssSup (ENNReal.toReal ∘ f) μ = eLpNormEssSup f μ := by
+  simp_rw [eLpNormEssSup, enorm_eq_self]
+  apply essSup_congr_ae
+  filter_upwards [hf] with x hx
+  simp [hx]
+
+lemma eLpNorm'_toReal_le {f : α → ℝ≥0∞} {p : ℝ} (hp : 0 ≤ p) :
+    eLpNorm' (ENNReal.toReal ∘ f) p μ ≤ eLpNorm' f p μ := by
+  simp_rw [eLpNorm', enorm_eq_self]
+  gcongr
+  simp
+
+lemma eLpNorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNorm' (ENNReal.toReal ∘ f) p μ = eLpNorm' f p μ := by
+  simp_rw [eLpNorm', enorm_eq_self]
+  congr 1
+  apply lintegral_congr_ae
+  filter_upwards [hf] with x hx
+  simp [hx]
+
+lemma eLpNorm_toReal_le {f : α → ℝ≥0∞} :
+    eLpNorm (ENNReal.toReal ∘ f) p μ ≤ eLpNorm f p μ := by
+  simp_rw [eLpNorm]
+  split_ifs
+  · rfl
+  · exact eLpNormEssSup_toReal_le
+  · exact eLpNorm'_toReal_le toReal_nonneg
+
+lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNorm (ENNReal.toReal ∘ f) p μ = eLpNorm f p μ := by
+  simp_rw [eLpNorm]
+  split_ifs
+  · rfl
+  · exact eLpNormEssSup_toReal_eq hf
+  · exact eLpNorm'_toReal_eq hf
+
+end eLpNorm
+
+namespace MemLp
+
+variable {f : α → F} {p : ℝ≥0∞}
+theorem enorm (hf : MemLp f p μ) : MemLp (‖f ·‖ₑ) p μ :=
+  ⟨hf.aestronglyMeasurable.enorm.aestronglyMeasurable,
+    by simp_rw [MeasureTheory.eLpNorm_enorm, hf.eLpNorm_lt_top]⟩
+
+theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toReal) p μ :=
+  ⟨hf.aestronglyMeasurable.aemeasurable.ennreal_toReal.aestronglyMeasurable,
+    eLpNorm_toReal_le.trans_lt hf.eLpNorm_lt_top⟩
+
+end MemLp
+
+-- remove if the Mathlib-lemma is generalized
+theorem hasFiniteIntegral_iff_enorm' {ε} [TopologicalSpace ε] [ENorm ε]
+  {f : α → ε} : HasFiniteIntegral f μ ↔ ∫⁻ a, ‖f a‖ₑ ∂μ < ∞ := by
+  simp only [HasFiniteIntegral, ofReal_norm_eq_enorm, enorm_eq_nnnorm]
+
+-- remove if the Mathlib-lemma is generalized
+theorem memLp_one_iff_integrable' {ε} [TopologicalSpace ε] [ENorm ε]
+  {f : α → ε} : MemLp f 1 μ ↔ Integrable f μ := by
+  simp_rw [Integrable, hasFiniteIntegral_iff_enorm', MemLp, eLpNorm_one_eq_lintegral_enorm]
+
+
+theorem Integrable.toReal {f : α → ℝ≥0∞} (hf : Integrable f μ) : Integrable (f · |>.toReal) μ := by
+  rw [← memLp_one_iff_integrable'] at hf ⊢; exact hf.toReal
 
 end MeasureTheory
 
