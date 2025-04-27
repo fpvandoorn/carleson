@@ -435,11 +435,24 @@ theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
-noncomputable def maximalFunction_seq (μ : Measure X) {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (c : ι → X) (r : ι → ℝ)
-    (q : ℝ) (v : X → E) (k : ℕ) (z : X) :
-    ℝ≥0∞ := by
+def tr {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (k : ℕ) : Set ι := by
   choose g hg using (Set.countable_iff_exists_injective.mp h𝓑)
-  exact maximalFunction μ (Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})) c r q v z
+  exact Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
+
+lemma tr_finite {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (k : ℕ) :
+    (tr h𝓑 k).Finite := by
+  refine Finite.image Subtype.val
+    (Finite.preimage (Function.Injective.injOn ?_) (finite_le_nat k))
+  exact Classical.choose_spec (Set.countable_iff_exists_injective.mp h𝓑)
+
+lemma tr_radius_bound {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (k : ℕ) :
+    ∃ R, ∀ i ∈ (tr h𝓑 k), r i ≤ R :=
+  Finite.exists_image_le (tr_finite h𝓑 k) r
+
+def maximalFunction_seq (μ : Measure X) {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (c : ι → X) (r : ι → ℝ)
+    (q : ℝ) (v : X → E) (k : ℕ) (z : X) :
+    ℝ≥0∞ :=
+  maximalFunction μ (tr h𝓑 k) c r q v z
 
 lemma maximalFunction_seq_mono {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (hp : p ≥ 1) (u : X → E) :
   Monotone (maximalFunction_seq μ h𝓑 c r p u : ℕ → (X → ℝ≥0∞)) := by
@@ -459,7 +472,7 @@ lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ�
   let g := Classical.choose (Set.countable_iff_exists_injective.mp h𝓑)
   let 𝓑' (k : ℕ) := Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
   apply ge_antisymm
-  · exact iSup_le <| fun k ↦
+  · exact iSup_le fun k ↦
         rpow_le_rpow (iSup_le_iSup_of_subset (Subtype.coe_image_subset 𝓑 _)) (by positivity)
   · unfold maximalFunction_seq maximalFunction
     have p_pos : p.toReal > 0 := by positivity
@@ -505,57 +518,13 @@ theorem hasStrongType_maximalFunction_todo
     toReal_pos (coe_ne_zero.mpr (ne_zero_of_lt hp₁₂)) coe_ne_top
   have hp₂neq_zero : (ofNNReal p₂).toReal ≠ 0 := Ne.symm (ne_of_lt hp₂pos)
   have hp₂inv_pos : (ofNNReal p₂).toReal⁻¹ > 0 := inv_pos_of_pos hp₂pos
-  obtain ⟨g, hg⟩ := h𝓑
-  let 𝓑' (k : ℕ) := Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
-  have h𝓑' (k : ℕ) : Set.Finite (𝓑' k) := Finite.image Subtype.val
-    (Finite.preimage (Function.Injective.injOn hg) (finite_le_nat k))
-  let f (k : ℕ) := fun x ↦ maximalFunction μ (𝓑' k) c r (↑p₁) v x
-  have f_mon : Monotone f := by
-    intro a b hab x
-    apply rpow_le_rpow _ (by positivity)
-    apply iSup₂_le
-    intro i Hi
-    apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ (ofNNReal p₁).toReal ∂μ) x)
-    obtain ⟨w, hw⟩ := Hi; use w; exact ⟨id (Nat.le_trans hw.left hab), hw.right⟩
   have hestfin : ∀ k : ℕ, eLpNorm
-      (fun x ↦ maximalFunction μ (𝓑' k) c r (↑p₁) v x) (↑p₂) μ ≤
+      (fun x ↦ maximalFunction_seq μ h𝓑 c r (↑p₁) v k x) (↑p₂) μ ≤
       ↑(C2_0_6 A p₁ p₂) * eLpNorm v (↑p₂) μ := by
     intro k
-    obtain ⟨R, hR⟩ := Finite.exists_image_le (h𝓑' k) r
+    obtain ⟨R, hR⟩ := Finite.exists_image_le (tr_finite h𝓑 k) r
     exact (hasStrongType_maximalFunction (c := c)
-        (Finite.countable (h𝓑' k)) hR hp₁ hp₁₂ v mlpv).2
-  have hmf : ∀ x : X, maximalFunction μ 𝓑 c r (↑p₁) v x ≤
-      ⨆ k : ℕ, maximalFunction μ (𝓑' k) c r (↑p₁) v x := by
-    intro x
-    unfold maximalFunction
-    have p₁pos : p₁.toReal > 0 := by positivity
-    refine (rpow_le_rpow_iff p₁pos).mp ?_
-    rw [ENNReal.rpow_inv_rpow (by positivity)]
-    apply iSup₂_le_iff.mpr
-    intro i Hi
-    let k₀ := g ⟨i, Hi⟩
-    have k₀large : i ∈ 𝓑' k₀ := by
-      unfold 𝓑'
-      simp only [preimage_setOf_eq, mem_image, mem_setOf_eq, Subtype.exists, exists_and_right,
-          exists_eq_right]
-      use Hi
-    calc
-    (ball (c i) (r i)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x
-      ≤ (⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x) := by
-      apply le_iSup₂ (i := i)
-          (f := fun j _ ↦ (ball (c j) (r j)).indicator
-          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x) k₀large
-    _ = ((⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j),
-            ↑‖v y‖₊ ^ p₁.toReal ∂μ) x)^p₁.toReal⁻¹ ) ^p₁.toReal := by
-      rw [ENNReal.rpow_inv_rpow]; positivity
-    _ ≤ _ := by
-      gcongr
-      apply le_iSup (f := fun k ↦ (⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
-          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ p₁.toReal ∂μ) x) ^ (p₁.toReal)⁻¹)
+        (Finite.countable (tr_finite h𝓑 k)) hR hp₁ hp₁₂ v mlpv).2
   unfold eLpNorm
   split_ifs with h₀
   · simp
@@ -563,31 +532,31 @@ theorem hasStrongType_maximalFunction_todo
     simp at h
   · unfold eLpNorm'
     calc
-    _ ≤ (∫⁻ (a : X), (⨆ k, maximalFunction μ (𝓑' k) c r (↑p₁) v a) ^ (ofNNReal p₂).toReal ∂μ)
+    _ = (∫⁻ (a : X), (⨆ k, maximalFunction_seq μ h𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
         ^ (1 / (ofNNReal p₂).toReal) := by
-      gcongr
-      apply hmf
-    _ ≤ (∫⁻ (a : X), ⨆ k, (maximalFunction μ (𝓑' k) c r (↑p₁) v a) ^ (ofNNReal p₂).toReal ∂μ)
+      congr; ext x; congr; exact maximalFunction_seq_eq h𝓑 hp₁ v x
+    _ ≤ (∫⁻ (a : X), ⨆ k, (maximalFunction_seq μ h𝓑 c r (↑p₁) v k a) ^ (ofNNReal p₂).toReal ∂μ)
         ^ (1 / (ofNNReal p₂).toReal) := by
       gcongr with a
       apply (rpow_le_rpow_iff (z := ((ofNNReal p₂).toReal)⁻¹) (by positivity)).mp
       rw [rpow_rpow_inv (hp₂neq_zero)]
       apply iSup_le
       intro i
-      rw [← ENNReal.rpow_rpow_inv (x := maximalFunction _ _ _ _ _ _ _) hp₂neq_zero]
+      rw [← ENNReal.rpow_rpow_inv (x := maximalFunction_seq _ _ _ _ _ _ _ _) hp₂neq_zero]
       gcongr
       apply le_iSup
-          (f := fun j ↦ (maximalFunction μ (𝓑' j) c r (↑p₁) v a) ^ (ofNNReal p₂).toReal)
-    _ = (⨆ k, ∫⁻ (a : X), maximalFunction μ (𝓑' k) c r (↑p₁) v a ^ (ofNNReal p₂).toReal ∂μ)
+          (f := fun j ↦ (maximalFunction_seq μ h𝓑 c r (↑p₁) v j a) ^ (ofNNReal p₂).toReal)
+    _ = (⨆ k, ∫⁻ (a : X), maximalFunction_seq μ h𝓑 c r (↑p₁) v k a ^ (ofNNReal p₂).toReal ∂μ)
         ^ (1 / (ofNNReal p₂).toReal) := by
       congr 1
       apply lintegral_iSup'
       · exact fun k ↦
         AEMeasurable.pow_const
           (AEStronglyMeasurable.aemeasurable
-            (AEStronglyMeasurable.maximalFunction (Finite.countable (h𝓑' k))))
+            (AEStronglyMeasurable.maximalFunction (Finite.countable (tr_finite h𝓑 k))))
           (ofNNReal p₂).toReal
-      · exact ae_of_all μ fun a ⦃k l⦄ hkl ↦ id (rpow_le_rpow (f_mon hkl a) (le_of_lt hp₂pos))
+      · refine ae_of_all μ fun a ⦃k l⦄ hkl ↦ id (rpow_le_rpow ?_ (le_of_lt hp₂pos))
+        exact maximalFunction_seq_mono h𝓑 hp₁ v hkl a
     _ ≤ _ := by
       apply (rpow_le_rpow_iff hp₂pos).mp
       rw [one_div, ENNReal.rpow_inv_rpow hp₂neq_zero]
@@ -649,62 +618,26 @@ theorem hasWeakType_maximalFunction_equal_exponents
   dsimp only
   constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
   have p_pos : (p : ℝ) > 0 := NNReal.coe_pos.mpr (Trans.trans zero_lt_one hp)
-  obtain ⟨g, hg⟩ := h𝓑
-  let 𝓑' (k : ℕ) := Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
-  have h𝓑' (k : ℕ) : Set.Finite (𝓑' k) := Finite.image Subtype.val
-    (Finite.preimage (Function.Injective.injOn hg) (finite_le_nat k))
-  let f (k : ℕ) := fun x ↦ maximalFunction μ (𝓑' k) c r p v x
   have hestfin (k : ℕ) : wnorm
-      (fun x ↦ maximalFunction μ (𝓑' k) c r p v x) p μ ≤
+      (fun x ↦ maximalFunction_seq μ h𝓑 c r p v k x) p μ ≤
       (A ^ (2 / p : ℝ)) * eLpNorm v p μ := by
-    obtain ⟨R, hR⟩ := Finite.exists_image_le (h𝓑' k) r
+    obtain ⟨R, hR⟩ := Finite.exists_image_le (tr_finite h𝓑 k) r
     exact (hasWeakType_maximalFunction_equal_exponents₀ (c := c)
-        (Finite.countable (h𝓑' k)) hR hp v mlpv).2
+        (Finite.countable (tr_finite h𝓑 k)) hR hp v mlpv).2
   unfold wnorm wnorm' at hestfin ⊢
   simp only [coe_ne_top, ↓reduceIte, coe_toReal, iSup_le_iff] at hestfin ⊢
   unfold distribution at hestfin ⊢
-  -- note: code duplication
-  have hmf : ∀ x : X, maximalFunction μ 𝓑 c r p v x ≤
-      ⨆ k : ℕ, maximalFunction μ (𝓑' k) c r p v x := by
-    intro x
-    unfold maximalFunction
-    have p_pos : p.toReal > 0 := by positivity
-    refine (rpow_le_rpow_iff p_pos).mp ?_
-    rw [ENNReal.rpow_inv_rpow (by positivity)]
-    apply iSup₂_le_iff.mpr
-    intro i Hi
-    let k₀ := g ⟨i, Hi⟩
-    have k₀large : i ∈ 𝓑' k₀ := by
-      unfold 𝓑'
-      simp only [preimage_setOf_eq, mem_image, mem_setOf_eq, Subtype.exists, exists_and_right,
-          exists_eq_right]
-      use Hi
-    calc
-    (ball (c i) (r i)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ p.toReal ∂μ) x
-      ≤ (⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ p.toReal ∂μ) x) := by
-      apply le_iSup₂ (i := i)
-          (f := fun j _ ↦ (ball (c j) (r j)).indicator
-          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖v y‖₊ ^ p.toReal ∂μ) x) k₀large
-    _ = ((⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
-        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j),
-            ↑‖v y‖₊ ^ p.toReal ∂μ) x)^p.toReal⁻¹ ) ^p.toReal := by
-      rw [ENNReal.rpow_inv_rpow]; positivity
-    _ ≤ _ := by
-      gcongr
-      apply le_iSup (f := fun k ↦ (⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
-          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖v y‖₊ ^ p.toReal ∂μ) x) ^ (p.toReal)⁻¹)
-  -- `use MeasureTheory.tendsto_measure_iUnion_atTop`
   have hunion (t : ℝ≥0) :
       {x | (t : ℝ≥0∞) < ‖ maximalFunction μ 𝓑 c r (↑p) v x‖ₑ } ⊆
-      ⋃ k : ℕ, {x | (t : ℝ≥0∞) < ‖ maximalFunction μ (𝓑' k) c r (↑p) v x‖ₑ } := by
+      ⋃ k : ℕ, {x | (t : ℝ≥0∞) < ‖ maximalFunction μ (tr h𝓑 k) c r (↑p) v x‖ₑ } := by
     intro x
     simp only [enorm_eq_self, mem_setOf_eq, mem_iUnion]
     intro hx
     by_contra! h₀
-    exact (not_le_of_lt (gt_of_ge_of_gt (hmf x) hx)) (iSup_le h₀)
-  let f (k : ℕ) := fun x ↦ maximalFunction μ (𝓑' k) c r (↑p) v x
+    refine (not_le_of_lt (gt_of_ge_of_gt ?_ hx)) (iSup_le h₀)
+    rw [maximalFunction_seq_eq _ hp]
+    rfl
+  let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x
   have f_mon : Monotone f := by
     intro a b hab x
     apply rpow_le_rpow _ (by positivity)
@@ -715,14 +648,13 @@ theorem hasWeakType_maximalFunction_equal_exponents
     obtain ⟨w, hw⟩ := Hi; use w; exact ⟨id (Nat.le_trans hw.left hab), hw.right⟩
   intro t
   have hm :
-      Monotone (fun k ↦ {x | (t : ℝ≥0∞) < ‖ maximalFunction μ (𝓑' k) c r (↑p) v x‖ₑ }) := by
+      Monotone (fun k ↦ {x | (t : ℝ≥0∞) < ‖ maximalFunction μ (tr h𝓑 k) c r (↑p) v x‖ₑ }) := by
     unfold f at f_mon
     intro m n hmn
     intro x
     simp only [enorm_eq_self, mem_setOf_eq]
     intro ht
     exact Trans.trans ht (f_mon hmn x)
-  have := MeasureTheory.tendsto_measure_iUnion_atTop (μ := μ) hm
   apply (rpow_le_rpow_iff p_pos).mp
   rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
   rw [rpow_inv_rpow (ne_of_gt p_pos)]
@@ -733,38 +665,15 @@ theorem hasWeakType_maximalFunction_equal_exponents
     ne_of_lt ((rpow_lt_top_iff_of_pos p_pos).mpr coe_lt_top)
   refine (mul_le_iff_le_inv htp htp').mpr ?_
   calc
-  _ ≤ μ (⋃ n, {x | ↑t < ‖maximalFunction μ (𝓑' n) c r (↑p) v x‖ₑ}) := by
-    apply measure_mono
-    apply hunion
+  _ ≤_  := measure_mono (hunion t)
   _ ≤ _ := by
-    apply le_of_tendsto_of_frequently this
-    refine Frequently.of_forall ?_
-    intro x
-    simp only [Function.comp_apply]
+    have := MeasureTheory.tendsto_measure_iUnion_atTop (μ := μ) hm
+    refine le_of_tendsto_of_frequently this (Frequently.of_forall (fun x ↦ ?_))
+    dsimp only [Function.comp_apply]
     refine (mul_le_iff_le_inv htp htp').mp ?_
-    rw [← rpow_inv_rpow (x := μ _) (ne_of_gt p_pos)]
-    rw [← ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
-    apply (rpow_le_rpow_iff p_pos).mpr
-    apply hestfin
-
-theorem hasWeakType_maximalFunction_equal_exponents_relaxed
-    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
-    {p : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp : 1 ≤ p) (hA : 1 ≤ A) :
-    HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
-      p p μ μ (A ^ 2) := by
-  intro v mlpv
-  dsimp only
-  constructor; · exact AEStronglyMeasurable.maximalFunction h𝓑
-  calc
-  _ ≤ (A : ℝ≥0∞) ^ (2 / p : ℝ) * eLpNorm v (↑p) μ := by
-    convert (hasWeakType_maximalFunction_equal_exponents h𝓑 hp v mlpv).2
-  _ ≤ _ := by
-    rw [← rpow_two]
-    gcongr
-    · exact one_le_coe_iff.mpr hA
-    · apply div_le_self
-      · exact zero_le_two
-      · exact hp
+    rw [← rpow_inv_rpow (x := μ _) (ne_of_gt p_pos),
+        ← ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
+    exact (rpow_le_rpow_iff p_pos).mpr (hestfin x t)
 
 def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
   if p₁ = p₂ then (ofNNReal A) ^ (2 / p₁ : ℝ) else C2_0_6 A p₁ p₂
@@ -871,14 +780,11 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
       trans p₁
       exacts [hp₁, hp₁₂]
     positivity
-  -- convert HasWeakType.const_mul (c := A ^ 2) (e := (A : ℝ) ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
-  --   (ε := E) this _
   convert HasWeakType.const_mul (c := C_weakType_maximalFunction A p₁ p₂) (e := (A : ℝ) ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
     (ε := E) this _
   · unfold C_weakType_globalMaximalFunction; simp
-  rw [hasWeakType_toReal_iff sorry]
   exact hasWeakType_maximalFunction (μ := μ) (A := A) countable_globalMaximalFunction hp₁
-     hp₁₂
+     hp₁₂ |> .toReal
 
 
 /-- Use `lowerSemiContinuous_MB` -/
