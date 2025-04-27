@@ -1,6 +1,6 @@
 import Carleson.TileStructure
 
-open Set MeasureTheory Metric Function Complex Bornology Classical
+open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
 noncomputable section
 
@@ -30,15 +30,15 @@ structure Forest (n : ℕ) where
   𝔘 : Set (𝔓 X)
   /-- The value of `𝔗 u` only matters when `u ∈ 𝔘`. -/
   𝔗 : 𝔓 X → Set (𝔓 X)
-  nonempty' {u} (hu : u ∈ 𝔘) : (𝔗 u).Nonempty
-  ordConnected' {u} (hu : u ∈ 𝔘) : OrdConnected (𝔗 u) -- (2.0.33)
-  𝓘_ne_𝓘' {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : 𝓘 p ≠ 𝓘 u
-  smul_four_le' {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : smul 4 p ≤ smul 1 u -- (2.0.32)
-  stackSize_le' {x} : stackSize 𝔘 x ≤ 2 ^ n -- (2.0.34), we formulate this a bit differently.
-  dens₁_𝔗_le' {u} (hu : u ∈ 𝔘) : dens₁ (𝔗 u) ≤ 2 ^ (4 * (a : ℝ) - n + 1) -- (2.0.35)
-  lt_dist' {u u'} (hu : u ∈ 𝔘) (hu' : u' ∈ 𝔘) (huu' : u ≠ u') {p} (hp : p ∈ 𝔗 u')
+  nonempty' {u : _} (hu : u ∈ 𝔘) : (𝔗 u).Nonempty
+  ordConnected' {u : _} (hu : u ∈ 𝔘) : OrdConnected (𝔗 u) -- (2.0.33)
+  𝓘_ne_𝓘' {u : _} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : 𝓘 p ≠ 𝓘 u
+  smul_four_le' {u : _} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : smul 4 p ≤ smul 1 u -- (2.0.32)
+  stackSize_le' {x : _} : stackSize 𝔘 x ≤ 2 ^ n -- (2.0.34), we formulate this a bit differently.
+  dens₁_𝔗_le' {u : _} (hu : u ∈ 𝔘) : dens₁ (𝔗 u) ≤ 2 ^ (4 * (a : ℝ) - n + 1) -- (2.0.35)
+  lt_dist' {u u' : _} (hu : u ∈ 𝔘) (hu' : u' ∈ 𝔘) (huu' : u ≠ u') {p} (hp : p ∈ 𝔗 u')
     (h : 𝓘 p ≤ 𝓘 u) : 2 ^ (Z * (n + 1)) < dist_(p) (𝒬 p) (𝒬 u) -- (2.0.36)
-  ball_subset' {u} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u -- (2.0.37)
+  ball_subset' {u : _} (hu : u ∈ 𝔘) {p} (hp : p ∈ 𝔗 u) : ball (𝔠 p) (8 * D ^ 𝔰 p) ⊆ 𝓘 u -- (2.0.37)
 
 namespace Forest
 

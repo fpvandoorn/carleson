@@ -88,13 +88,15 @@ instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistanc
 end FunctionDistances
 
 notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+/-- preferably use `edist` -/
 notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
+notation3 "edist_{" x " ," r "}" => @edist (WithFunctionDistance x r) _
 notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)
   [RCLike 𝕜] [PseudoMetricSpace X] extends FunctionDistances 𝕜 X where
-  eq_zero : ∃ o : X, ∀ f : Θ, f o = 0
+  eq_zero : ∃ o : X, ∀ f : Θ, coeΘ f o = 0
   /-- The distance is bounded below by the local oscillation. (1.0.7) -/
   localOscillation_le_cdist {x : X} {r : ℝ} {f g : Θ} :
     localOscillation (ball x r) (coeΘ f) (coeΘ g) ≤ ENNReal.ofReal (dist_{x, r} f g)
@@ -160,17 +162,65 @@ def iLipENorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) :
 def iLipNNNorm {𝕜} [NormedField 𝕜] (ϕ : X → 𝕜) (x₀ : X) (R : ℝ) : ℝ≥0 :=
   (iLipENorm ϕ x₀ R).toNNReal
 
-variable [DoublingMeasure X A]
+variable [hXA : DoublingMeasure X A]
 
 variable (X) in
 /-- Θ is τ-cancellative. `τ` will usually be `1 / a` -/
 class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
-  norm_integral_exp_le {x : X} {r : ℝ} {ϕ : X → ℂ} (h1 : iLipENorm ϕ x r ≠ ∞)
+  /- We register a definition with strong assumptions, which makes them easier to prove.
+  However, `enorm_integral_exp_le` removes them for easier application. -/
+  enorm_integral_exp_le' {x : X} {r : ℝ} {ϕ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm ϕ x r ≠ ∞)
     (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
-    ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
-    A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ)
 
-export IsCancellative (norm_integral_exp_le)
+lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
+    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
+    ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ) := by
+  rcases le_or_lt r 0 with hr | hr
+  · simp only [ball_eq_empty.2 hr, subset_empty_iff, tsupport_eq_empty_iff] at h2
+    simp [h2]
+  rcases eq_or_ne A 0 with rfl | hA
+  · have : (volume : Measure X) = 0 := by
+      have := hXA.toIsDoubling
+      simp at this
+      apply eq_zero_of_isDoubling_zero
+    simp [this]
+  rcases eq_or_ne (iLipENorm ϕ x r) ∞ with h1 | h1
+  · apply le_top.trans_eq
+    symm
+    simp [h1, ENNReal.mul_eq_top, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
+  exact IsCancellative.enorm_integral_exp_le' hr h1 h2
+
+/-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
+lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ X A]
+    (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
+    (_h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X},
+      ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
+      A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)) :
+    IsCancellative X τ := by
+  constructor
+  intro x r ϕ hr h1 h2 f g
+  convert ENNReal.ofReal_le_ofReal (h (x := x) (r := r) (ϕ := ϕ) hr h1 h2 (f := f) (g := g))
+  · rw [ofReal_norm_eq_enorm]
+    congr 1
+    rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
+    have : ϕ y = 0 := by
+      apply nmem_support.1
+      contrapose! hy
+      exact (subset_tsupport _).trans h2 hy
+    simp [this]
+  · rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_mul (by positivity),
+      ENNReal.ofReal_mul (by positivity)]
+    congr
+    · simp
+    · simp only [Measure.real, ofReal_toReal (measure_ball_ne_top _ _)]
+    · simp [iLipNNNorm, coe_toNNReal h1]
+    · rw [← ENNReal.ofReal_rpow_of_pos (by positivity)]
+      congr
+      rw [ENNReal.ofReal_add zero_le_one dist_nonneg]
+      simp [edist_dist]
 
 /-- The "volume function" `V`. Preferably use `vol` instead. -/
 protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ :=
@@ -887,9 +937,22 @@ lemma HolderOnWith.of_iHolENorm_ne_top
   rfl
 
 lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
-    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R ≠ ⊤) :
+    {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z R ≠ ∞) :
     Continuous ϕ :=
   ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
     (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball hϕ
+
+lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
+    {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) ≠ ∞) :
+    Continuous ϕ := by
+  rcases le_or_lt R 0 with hR | hR
+  · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
+    simp only [subset_empty_iff, support_eq_empty_iff] at this
+    simp only [this]
+    exact continuous_const
+  apply ((HolderOnWith.of_iHolENorm_ne_top h'ϕ).continuousOn
+    (nnτ_pos X)).continuous_of_tsupport_subset isOpen_ball
+  apply (closure_mono hϕ).trans (closure_ball_subset_closedBall.trans ?_)
+  exact closedBall_subset_ball (by linarith)
 
 end MetricSpace

@@ -14,7 +14,7 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
@@ -61,6 +61,7 @@ lemma dist_χtilde_le (mx : x ∈ 𝓘 u₁) (mx' : x' ∈ 𝓘 u₁) :
     _ ≤ _ := by gcongr; rw [Real.norm_eq_abs, dist_comm x x']; exact abs_dist_sub_le ..
 
 variable (t u₁ u₂) in
+open scoped Classical in
 /-- The definition of χ, defined in the proof of Lemma 7.5.2 -/
 def χ (J : Grid X) (x : X) : ℝ≥0 :=
   χtilde J u₁ x / ∑ J' ∈ 𝓙₅ t u₁ u₂, χtilde J' u₁ x
@@ -153,7 +154,7 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
         _ ⊆ 𝓘 u₁ := (𝓘_le_𝓘 t hu₁ belongs).1
         _ ⊆ cube := by
           apply subset_of_nmem_Iic_of_not_disjoint cube
-          · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := λ a => contr cube a xInCube
+          · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := fun a ↦ contr cube a xInCube
             rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
             exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
           · exact notDisjoint
@@ -174,6 +175,7 @@ lemma pairwiseDisjoint_𝓙₅ : (𝓙₅ t u₁ u₂).PairwiseDisjoint (fun I �
   have ss : (𝓙 (t.𝔖₀ u₁ u₂) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t.𝔖₀ u₁ u₂) := inter_subset_left
   exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := 𝔖₀ t u₁ u₂)) ss
 
+open scoped Classical in
 lemma four_lt_sum_χtilde
     (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hx : x ∈ 𝓘 u₁) :
     4 < ∑ J' ∈ 𝓙₅ t u₁ u₂, χtilde J' u₁ x := by
@@ -223,6 +225,7 @@ lemma moderate_scale_change (hJ : J ∈ 𝓙₅ t u₁ u₂) (hJ' : J' ∈ 𝓙�
       · norm_num
       · gcongr; exact four_le_realD X
 
+open scoped Classical in
 /-- Part of Lemma 7.5.2. -/
 lemma sum_χ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (x : X) :
     ∑ J ∈ 𝓙₅ t u₁ u₂, χ t u₁ u₂ J x = (𝓘 u₁ : Set X).indicator 1 x := by
@@ -238,6 +241,7 @@ lemma sum_χ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u
 /-- Part of Lemma 7.5.2. -/
 lemma χ_le_indicator (hJ : J ∈ 𝓙₅ t u₁ u₂) :
     χ t u₁ u₂ J x ≤ (ball (c J) (8 * D ^ s J)).indicator 1 x := by
+  classical
   simp_rw [χ, indicator, Pi.one_apply]
   split_ifs with h
   · apply NNReal.div_le_of_le_mul; rw [one_mul]
@@ -251,6 +255,7 @@ lemma χ_le_indicator (hJ : J ∈ 𝓙₅ t u₁ u₂) :
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_5_2 (a : ℕ) : ℝ≥0 := 2 ^ (226 * (a : ℝ) ^ 3)
 
+open scoped Classical in
 lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
     1 / 4 + 2 * (D : ℝ) * {J' ∈ (𝓙₅ t u₁ u₂).toFinset |
       ¬Disjoint (ball (c J) (8 * D ^ s J)) (ball (c J') (8 * D ^ s J'))}.card ≤ C7_5_2 a := by
@@ -342,6 +347,7 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
 lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (mx : x ∈ 𝓘 u₁) (mx' : x' ∈ 𝓘 u₁) :
     dist (χ t u₁ u₂ J x) (χ t u₁ u₂ J x') ≤ C7_5_2 a * dist x x' / D ^ s J := by
+  classical
   by_cases hxx : x ∉ ball (c J) (8 * D ^ s J) ∧ x' ∉ ball (c J) (8 * D ^ s J)
   · have n₁ := χ_le_indicator hJ (x := x)
     rw [indicator_of_not_mem hxx.1, nonpos_iff_eq_zero] at n₁
@@ -946,6 +952,7 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
   ⟨limited_scale_impact_first_estimate hu₁ hu₂ hu h2u hp hJ h,
     limited_scale_impact_second_estimate hp hJ h⟩
 
+open scoped Classical in
 lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖₊ ≤
@@ -1053,6 +1060,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖₊ ≤
     C7_5_7 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+  classical
   calc
     _ ≤ ∑ k ∈ Finset.Icc (s J) (s J + 3),
         ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
@@ -1198,6 +1206,7 @@ lemma volume_cpDsp_bound {J : Grid X}
   unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
   rw [show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow _ _ one_lt_two]
 
+open scoped Classical in
 lemma gtc_integral_bound {k : ℤ} {ℭ : Set (𝔓 X)}
     (hs : ∀ p ∈ ℭ, ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)) → s J ≤ 𝔰 p) :
     ∑ p ∈ ℭ with ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)) ∧ 𝔰 p = k,
@@ -1237,7 +1246,7 @@ lemma global_tree_control1_edist_part1
       (exp (.I * 𝒬 u x') * adjointCarlesonSum ℭ f x') ≤
     C7_5_5 a * 2 ^ (4 * a) * edist x x' ^ (a : ℝ)⁻¹ * ∑ k ∈ Finset.Icc (s J) S,
         D ^ (-k / (a : ℝ)) * ⨍⁻ x in ball (c J) (32 * D ^ k), ‖f x‖ₑ ∂volume := by
-  calc
+  classical calc
     _ ≤ ∑ p ∈ ℭ, edist (exp (.I * 𝒬 u x) * adjointCarleson p f x)
         (exp (.I * 𝒬 u x') * adjointCarleson p f x') := by
       simp_rw [adjointCarlesonSum, Finset.mul_sum, toFinset_ofFinset]
@@ -1593,8 +1602,8 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
     (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x)‖ₑ ≤
     C7_4_5 a n *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) · |>.toReal) 2 volume *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) · |>.toReal) 2 volume := by
+    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
   sorry
 
 end TileStructure.Forest

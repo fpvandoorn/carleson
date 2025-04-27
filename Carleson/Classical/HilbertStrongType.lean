@@ -87,7 +87,7 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
     eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 := by
   -- Proof by massaging the statement of `spectral_projection_bound_lp` into this.
   by_cases hf_L2 : eLpNorm ((Ioc 0 (2 * π)).indicator f) 2 = ⊤
-  . rw [hf_L2]
+  · rw [hf_L2]
     exact OrderTop.le_top _
   push_neg at hf_L2
   rw [← lt_top_iff_ne_top] at hf_L2
@@ -95,10 +95,10 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
   have lift_MemLp : MemLp (liftIoc (2 * π) 0 f) 2 haarAddCircle := by
     unfold MemLp
     constructor
-    . rw [haarAddCircle_eq_smul_volume]
+    · rw [haarAddCircle_eq_smul_volume]
       apply AEStronglyMeasurable.smul_measure
       exact hmf.aestronglyMeasurable.liftIoc (2 * π) 0
-    . rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial),
+    · rw [haarAddCircle_eq_smul_volume, eLpNorm_smul_measure_of_ne_top (by trivial),
         eLpNorm_liftIoc _ _ hmf.aestronglyMeasurable, smul_eq_mul, zero_add]
       apply ENNReal.mul_lt_top _ hf_L2
       rw [← ENNReal.ofReal_inv_of_pos this.out]

@@ -128,7 +128,7 @@ lemma calculation_5 {dist_1 dist_2: ℝ}
     ← mul_assoc,
     neg_mul,
     Real.rpow_neg (by positivity),
-    LinearOrderedField.mul_inv_cancel (a := (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity),
+    mul_inv_cancel₀ (a := (2 : ℝ) ^ (100 * (a : ℝ))) (by positivity),
     ← mul_assoc,
     ← Real.rpow_add (by positivity)
   ]

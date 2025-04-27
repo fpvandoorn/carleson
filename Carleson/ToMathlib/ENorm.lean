@@ -1,4 +1,5 @@
 import Mathlib.Analysis.Normed.Group.Basic
+import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.AEStronglyMeasurable
 
@@ -23,14 +24,14 @@ class ENormedAddCommSubMonoid (E : Type*) [TopologicalSpace E] extends ENormedAd
 /-- An enormed space is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedSpace (E : Type*) [TopologicalSpace E] extends ENormedAddCommMonoid E, Module ℝ≥0 E where
-  enorm_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
+  enorm_smul_eq_smul : ∀ (c : ℝ≥0) (x : E), ‖c • x‖ₑ = c • ‖x‖ₑ
 
 export ENormedAddCommSubMonoid
   (sub_add_cancel_of_enorm_le add_right_cancel_of_enorm_lt_top esub_self)
-export ENormedSpace (enorm_smul)
+export ENormedSpace (enorm_smul_eq_smul)
 
 -- mathlib has this (in the _root_ namespace), in a less general setting
-attribute [simp] ENormedSpace.enorm_smul
+attribute [simp] ENormedSpace.enorm_smul_eq_smul
 
 instance : ENormedSpace ℝ≥0∞ where
   enorm := id
@@ -39,33 +40,33 @@ instance : ENormedSpace ℝ≥0∞ where
   enorm_add_le := by simp
   add_comm := by simp [add_comm]
   continuous_enorm := continuous_id
-  enorm_smul := by simp
+  enorm_smul_eq_smul := by simp
+  add_smul := fun _ _ _ ↦ Module.add_smul ..
+  zero_smul := by simp
+
+instance : ENormedSpace ℝ≥0 where
+  enorm := ofNNReal
+  add_smul r s x := by
+    simp only [id_eq, smul_eq_mul]
+    ring
+  zero_smul := by simp
+  enorm_eq_zero := by simp
+  enorm_add_le := by simp
+  add_comm := by simp [add_comm]
+  continuous_enorm := by fun_prop
+  enorm_smul_eq_smul c x := by simp [ENNReal.smul_def]
 
 instance [NormedAddCommGroup E] [NormedSpace ℝ E] : ENormedSpace E where
-  enorm_smul := by simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
+  enorm_smul_eq_smul := by
+    simp_rw [enorm_eq_nnnorm, ENNReal.smul_def, NNReal.smul_def, nnnorm_smul]; simp
 
 namespace MeasureTheory
 
--- PRed in #22798
 section ContinuousENorm
 variable {α E : Type*} {m : MeasurableSpace α} [TopologicalSpace E] [ContinuousENorm E] {μ : Measure α}
 
-@[fun_prop]
-theorem measurable_enorm [MeasurableSpace E] [OpensMeasurableSpace E] :
-    Measurable (fun a : E => (‖a‖ₑ)) :=
-  continuous_enorm.measurable
-
-@[fun_prop]
-protected theorem AEMeasurable.enorm [MeasurableSpace E] [OpensMeasurableSpace E] {f : α → E}
-    (hf : AEMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
-  measurable_enorm.comp_aemeasurable hf
-
--- TODO: when updating mathlib, replace this by the unprimed version
--- (in mathlib, which is generalised in PR 22798)
-@[fun_prop]
-protected theorem AEStronglyMeasurable.enorm' {f : α → E}
-    (hf : AEStronglyMeasurable f μ) : AEMeasurable (fun a => (‖f a‖ₑ)) μ :=
-  continuous_enorm.comp_aestronglyMeasurable hf |>.aemeasurable
+variable {ε ε' : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
+  [TopologicalSpace ε'] [ContinuousENorm ε']
 
 end ContinuousENorm
 
@@ -73,5 +74,38 @@ lemma esub_zero [TopologicalSpace E] [ENormedAddCommSubMonoid E] {x : E} : x - 0
   rw [← add_zero (x - 0)]
   apply sub_add_cancel_of_enorm_le
   simp_rw [enorm_zero, zero_le]
+
+section ENormedSpace
+
+variable {ε : Type*} [TopologicalSpace ε] [ENormedSpace ε]
+
+-- TODO: this lemma and Mathlib's `enorm_smul` could be unified using a `ENormedDivisionSemiring`
+-- typeclass
+-- (which includes ENNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
+-- Investigate if this is worthwhile when upstreaming this to mathlib.
+lemma enorm_smul_eq_mul {c : ℝ≥0} (z : ε) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
+  ENormedSpace.enorm_smul_eq_smul _ _
+
+instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
+  continuous_const_smul t := ENNReal.continuous_const_mul (by simp)
+
+open MeasureTheory
+
+variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
+
+-- TODO: put next to MeasureTheory.eLpNorm_const_smul_le (which perhaps can stay)
+theorem eLpNorm_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+  {μ : Measure α} {c : ℝ≥0} {f : α → ε}: eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ := by
+  apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (p := p) ?_
+  filter_upwards with x using by simp [ENNReal.smul_def]
+
+-- TODO: put next to the unprimed version; perhaps both should stay
+lemma eLpNormEssSup_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
+    {c : ℝ≥0} {f : α → ε} : eLpNormEssSup (c • f) μ ≤ ‖c‖ₑ * eLpNormEssSup f μ := by
+  have (x : α) : ‖(c • f) x‖ₑ ≤ ↑c * ‖f x‖ₑ := by simp [ENNReal.smul_def]
+  apply eLpNormEssSup_le_nnreal_smul_eLpNormEssSup_of_ae_le_mul'
+  filter_upwards with x using this x
+
+end ENormedSpace
 
 end MeasureTheory

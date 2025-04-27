@@ -253,10 +253,11 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
 
 lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     (h : dist x x' + r' ≤ s * r) :
-    μ.nnreal (ball x' r') ≤ As A s * μ.nnreal (ball x r) := by
-  simp only [Measure.nnreal,← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal
+    (μ (ball x' r')).toNNReal ≤ As A s * (μ (ball x r)).toNNReal := by
+  simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal
     (measure_ball_ne_top x r), ENNReal.coe_toNNReal (measure_ball_ne_top x' r')]
   exact measure_ball_le_of_dist_le' hs h
+
 section
 
 variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
@@ -394,21 +395,21 @@ class DoublingMeasure (X : Type*) (A : outParam ℝ≥0) [PseudoMetricSpace X] e
 variable {X : Type*} {A : ℝ≥0} [PseudoMetricSpace X] [DoublingMeasure X A]
 
 -- the following classes hold
-#synth ProperSpace X
-#synth LocallyCompactSpace X
-#synth CompleteSpace X
-#synth SigmaCompactSpace X
-#synth SigmaFinite (volume : Measure X)
-#synth SecondCountableTopology X
-#synth SeparableSpace X
+-- #synth ProperSpace X
+-- #synth LocallyCompactSpace X
+-- #synth CompleteSpace X
+-- #synth SigmaCompactSpace X
+-- #synth SigmaFinite (volume : Measure X)
+-- #synth SecondCountableTopology X
+-- #synth SeparableSpace X
 
 
 section MetricSpace
 variable {Y : Type*} [MetricSpace Y] [DoublingMeasure Y A]
 -- Moreover, the following classes hold if we assume that `Y` is a metric space
-#synth T4Space Y
-#synth PolishSpace Y
-#synth MeasurableSingletonClass Y
+-- #synth T4Space Y
+-- #synth PolishSpace Y
+-- #synth MeasurableSingletonClass Y
 end MetricSpace
 
 

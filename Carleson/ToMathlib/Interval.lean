@@ -33,19 +33,14 @@ variable [LinearOrder α]
 theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ico (f i) (f (i+1)) = Ici (f 0) := by
   apply subset_antisymm
-  . apply iUnion_subset
-    intro i
-    apply Ico_subset_Ici
-    apply hf
-  . intro a ha
-    rw [mem_Ici] at ha
+  · exact iUnion_subset fun i ↦ Ico_subset_Ici (hf i)
+  · intro a ha
     rw [mem_iUnion]
     by_contra! hcontra
     apply h2f
     rw [bddAbove_def]
     use a
-    suffices ∀ i, f i ≤ a by
-      simp [this]
+    suffices ∀ i, f i ≤ a by simp [this]
     intro i
     induction i
     case zero => exact ha
@@ -57,12 +52,8 @@ theorem iUnion_Ico_eq_Ici {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬Bd
 theorem iUnion_Ioc_eq_Ioi {f : ℕ → α} (hf : ∀ n, f 0 ≤ f n) (h2f : ¬BddAbove (range f)) :
     ⋃ (i : Nat), Ioc (f i) (f (i+1)) = Ioi (f 0) := by
   apply subset_antisymm
-  . apply iUnion_subset
-    intro i
-    apply Ioc_subset_Ioi
-    apply hf
-  . intro a ha
-    rw [Ioi, mem_setOf] at ha
+  · exact iUnion_subset fun i ↦ Ioc_subset_Ioi (hf i)
+  · intro a ha
     rw [mem_iUnion]
     by_contra! hcontra
     apply h2f
@@ -89,7 +80,7 @@ theorem pairwise_disjoint_Ico_monotone {f : ι → α} (hf : Monotone f) :
   simp_rw [Set.disjoint_iff]
   intro i j hinej
   wlog hij : i < j generalizing i j
-  . rw [not_lt] at hij
+  · rw [not_lt] at hij
     have := this hinej.symm (hij.lt_of_ne hinej.symm)
     rwa [inter_comm]
   intro a
@@ -104,7 +95,7 @@ theorem pairwise_disjoint_Ioc_monotone {f : ι → α} (hf : Monotone f) :
   simp_rw [Set.disjoint_iff]
   intro i j hinej
   wlog hij : i < j generalizing i j
-  . rw [not_lt] at hij
+  · rw [not_lt] at hij
     have := this hinej.symm (hij.lt_of_ne hinej.symm)
     rwa [inter_comm]
   intro a

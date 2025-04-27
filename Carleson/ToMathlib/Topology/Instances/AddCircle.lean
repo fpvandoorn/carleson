@@ -7,13 +7,14 @@ open AddCommGroup Set Function AddSubgroup TopologicalSpace
 
 open Topology
 
-variable {𝕜 B : Type*}
+variable {𝕜 B : Type*} [AddCommGroup 𝕜] [LinearOrder 𝕜] [IsOrderedAddMonoid 𝕜]
 
 namespace AddCircle
 
 section LinearOrderedAddCommGroup
 
-variable [LinearOrderedAddCommGroup 𝕜] {p : 𝕜} [hp : Fact (0 < p)] {a : 𝕜} [Archimedean 𝕜]
+variable [Archimedean 𝕜]
+{p : 𝕜} [hp : Fact (0 < p)] {a : 𝕜}
 
 -- Add after `liftIoc_coe_apply`
 theorem liftIoc_eq_liftIco_of_ne (f : 𝕜 → B) {x : AddCircle p}
@@ -27,8 +28,7 @@ end LinearOrderedAddCommGroup
 
 section Periodic
 
-variable [LinearOrderedAddCommGroup 𝕜] [Archimedean 𝕜] {p : 𝕜} [hp : Fact (0 < p)] (a a' : 𝕜)
-  {f : 𝕜 → B} (hf : f.Periodic p)
+variable [Archimedean 𝕜] {p : 𝕜} [hp : Fact (0 < p)] (a a' : 𝕜) {f : 𝕜 → B} (hf : f.Periodic p)
 include hf
 
 -- TODO: Rename `liftIco_coe_apply_of_periodic` and `liftIoc_coe_apply_of_periodic` along with
@@ -67,7 +67,7 @@ end Periodic
 
 
 /-- Ioc version of mathlib `coe_eq_coe_iff_of_mem_Ico` -/
-lemma coe_eq_coe_iff_of_mem_Ioc {𝕜 : Type*} [LinearOrderedAddCommGroup 𝕜] {p : 𝕜} [hp : Fact (0 < p)]
+lemma coe_eq_coe_iff_of_mem_Ioc {p : 𝕜} [hp : Fact (0 < p)]
     {a : 𝕜} [Archimedean 𝕜] {x y : 𝕜} (hx : x ∈ Set.Ioc a (a + p)) (hy : y ∈ Set.Ioc a (a + p)) : (x : AddCircle p) = y ↔ x = y := by
   refine ⟨fun h => ?_, by tauto⟩
   suffices (⟨x, hx⟩ : Set.Ioc a (a + p)) = ⟨y, hy⟩ by exact Subtype.mk.inj this
@@ -76,7 +76,7 @@ lemma coe_eq_coe_iff_of_mem_Ioc {𝕜 : Type*} [LinearOrderedAddCommGroup 𝕜] 
   exact h
 
 /-- Ioc version of mathlib `eq_coe_Ico` -/
-lemma eq_coe_Ioc {𝕜 : Type*} [LinearOrderedAddCommGroup 𝕜] {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜]
+lemma eq_coe_Ioc {p : 𝕜} [hp : Fact (0 < p)] [Archimedean 𝕜]
     (a : AddCircle p) : ∃ b ∈ Set.Ioc 0 p, ↑b = a := by
   let b := QuotientAddGroup.equivIocMod hp.out 0 a
   exact ⟨b.1, by simpa only [zero_add] using b.2,

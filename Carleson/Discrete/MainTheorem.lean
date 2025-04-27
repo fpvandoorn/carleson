@@ -2,7 +2,7 @@ import Carleson.Discrete.ExceptionalSet
 import Carleson.Discrete.ForestComplement
 import Carleson.Discrete.ForestUnion
 
-open MeasureTheory NNReal Set Classical
+open MeasureTheory NNReal Set
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
@@ -25,6 +25,7 @@ theorem discrete_carleson :
   have exc := exceptional_set (X := X)
   rw [zpow_neg_one, ← ENNReal.div_eq_inv_mul] at exc
   use G', measurable_G', ENNReal.mul_le_of_le_div' exc; intro f measf hf
+  classical
   calc
     _ ≤ ∫⁻ x in G \ G', ‖carlesonSum 𝔓₁ f x‖ₑ + ‖carlesonSum 𝔓₁ᶜ f x‖ₑ := by
       refine setLIntegral_mono (by fun_prop) fun x _ ↦ ?_

@@ -2,7 +2,6 @@ import Carleson.MinLayerTiles
 
 open MeasureTheory Measure NNReal Metric Set
 open scoped ENNReal
-open Classical -- We use quite some `Finset.filter`
 noncomputable section
 
 open scoped ShortVariables
@@ -117,6 +116,7 @@ lemma dens1_le {k n : ℕ} {A : Set (𝔓 X)} (hA : A ⊆ ℭ k n) : dens₁ A �
 def 𝔅 (k n : ℕ) (p : 𝔓 X) : Set (𝔓 X) :=
   { m ∈ 𝔐 k n | smul 100 p ≤ smul 1 m }
 
+open scoped Classical in
 def preℭ₁ (k n j : ℕ) : Set (𝔓 X) :=
   { p ∈ ℭ k n | 2 ^ j ≤ Finset.card { q | q ∈ 𝔅 k n p } }
 
@@ -149,7 +149,7 @@ lemma pairwiseDisjoint_ℭ₁' :
     exact this.mono ℭ₁_subset_ℭ ℭ₁_subset_ℭ
   exact disjoint_ℭ₁_of_ne (by simpa using h)
 
-lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n j) :
+lemma card_𝔅_of_mem_ℭ₁ {k n j : ℕ} {p : 𝔓 X} (hp : p ∈ ℭ₁ k n j) [Fintype (𝔅 k n p)] :
     (𝔅 k n p).toFinset.card ∈ Ico (2 ^ j) (2 ^ (j + 1)) := by
   simp_rw [ℭ₁, mem_diff, preℭ₁, mem_setOf, hp.1.1, true_and, not_le] at hp
   constructor
@@ -301,7 +301,9 @@ def setA (l k n : ℕ) : Set X :=
   {x : X | l * 2 ^ (n + 1) < stackSize (𝔐 (X := X) k n) x }
 
 lemma setA_subset_iUnion_𝓒 {l k n : ℕ} :
-    setA (X := X) l k n ⊆ ⋃ i ∈ 𝓒 (X := X) k, ↑i := fun x mx ↦ by
+    setA (X := X) l k n ⊆ ⋃ i ∈ 𝓒 (X := X) k, i := by
+  classical
+  intro x mx
   simp_rw [setA, mem_setOf, stackSize, indicator_apply, Pi.one_apply, Finset.sum_boole, Nat.cast_id,
     Finset.filter_filter] at mx
   replace mx := (zero_le _).trans_lt mx
@@ -320,6 +322,7 @@ lemma setA_subset_setA {l k n : ℕ} : setA (X := X) (l + 1) k n ⊆ setA l k n 
 lemma measurable_setA {l k n : ℕ} : MeasurableSet (setA (X := X) l k n) :=
   measurableSet_lt measurable_const (Finset.measurable_sum _ fun _ _ ↦ measurable_one.indicator coeGrid_measurable)
 
+open scoped Classical in
 /-- Finset of cubes in `setA`. Appears in the proof of Lemma 5.2.5. -/
 def MsetA (l k n : ℕ) : Finset (Grid X) := { j | (j : Set X) ⊆ setA l k n }
 
