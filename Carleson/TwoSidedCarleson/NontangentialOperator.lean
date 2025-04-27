@@ -129,9 +129,9 @@ lemma Set.indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α}
   ext x
   unfold indicator
   split
-  . rename_i hxs
+  · rename_i hxs
     exact h x hxs
-  . rfl
+  · rfl
 
 lemma MeasureTheory.lintegral_set_mono_fn {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
     (hs : MeasurableSet s) ⦃f g : α → ℝ≥0∞⦄ (hfg : ∀ x ∈ s, f x ≤ g x) :
@@ -141,9 +141,9 @@ lemma MeasureTheory.lintegral_set_mono_fn {α : Type*} {m : MeasurableSpace α} 
   intro x
   unfold indicator
   split
-  . rename_i hxs
+  · rename_i hxs
     exact hfg x hxs
-  . rfl
+  · rfl
 
 
 /-- Stolen from PR for Lemma 10.1.2 -/
@@ -161,11 +161,11 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
   unfold czOperator
   rw [← integral_indicator (by measurability), ← integral_indicator (by measurability), ← integral_sub]
   rotate_left
-  . rw [integrable_indicator_iff (by measurability)]
+  · rw [integrable_indicator_iff (by measurability)]
     apply czoperator_welldefined
-    . apply BoundedFiniteSupport.indicator hg (by measurability)
-    . rw [mem_Ioc] at hr; exact hr.1
-  . rw [integrable_indicator_iff (by measurability)]
+    · apply BoundedFiniteSupport.indicator hg (by measurability)
+    · rw [mem_Ioc] at hr; exact hr.1
+  · rw [integrable_indicator_iff (by measurability)]
     apply czoperator_welldefined _ R_pos
     apply BoundedFiniteSupport.indicator hg (by measurability)
   calc _
@@ -174,34 +174,37 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
       ext y
       unfold indicator
       split <;> split <;> split <;> rename_i yx'r yx'R hy
-      . exfalso
+      · exfalso
         exact yx'R hy.1
-      . simp
-      . simp
+      · simp
+      · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, sub_zero, ite_eq_left_iff,
+        not_le, zero_eq_mul]
         intro h
         exfalso
         simp at yx'r yx'R hy
         linarith
-      . simp
+      · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, sub_zero, ite_eq_right_iff,
+        mul_eq_zero]
         intro h
         exfalso
         simp at yx'r yx'R hy
         linarith [hy yx'R yx'r]
-      . simp at yx'r yx'R hy
+      · simp at yx'r yx'R hy
         linarith
-      . simp
+      · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, zero_sub, neg_eq_zero,
+        ite_eq_right_iff, mul_eq_zero]
         intro h
         exfalso
         simp at yx'r yx'R hy hr
         linarith
-      . simp at yx'r yx'R hy
+      · simp at yx'r yx'R hy
         linarith
-      . ring
+      · ring
     _ ≤ ∫⁻ (y : X), ‖((ball x' R) \ (ball x' r ∪ ball x (R / 2))).indicator (fun y ↦ K x' y * g y) y‖ₑ := by
       apply enorm_integral_le_lintegral_enorm
     _ = ∫⁻ (y : X) in ((ball x' R) \ (ball x' r ∪ ball x (R / 2))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
       rw [← lintegral_indicator]
-      . congr with y
+      · congr with y
         rw[enorm_indicator_eq_indicator_enorm]
         congr with y
         apply enorm_mul
@@ -209,11 +212,11 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
     _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
       apply lintegral_mono_set
       intro y
-      simp
+      simp only [mem_diff, mem_ball, mem_union, not_or, not_lt, and_imp]
       intro h1 h2 h3
       simp at hr
       constructor <;>
-      . rw [dist_comm] at hx
+      · rw [dist_comm] at hx
         linarith [dist_triangle y x' x]
     _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), (C_K a : ℝ≥0∞) / vol x' y * ‖g y‖ₑ := by
       gcongr with y
@@ -225,7 +228,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
       unfold vol
       apply measure_mono
       intro z hz
-      simp at *
+      simp only [mem_Ioc, mem_diff, mem_ball, not_lt] at *
       rw [dist_comm x' y]
       linarith
     _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
@@ -269,12 +272,12 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
     _= 2 ^ (a ^ 3 + 4 * a) := by
       unfold C_K
       rw [← ENNReal.div_mul, mul_assoc, mul_comm (2 ^ (4 * a)), ← mul_assoc, ENNReal.div_mul_cancel]
-      . norm_cast
+      · norm_cast
         ring
-      . apply (measure_ball_pos volume x (by linarith)).ne.symm
-      . apply measure_ball_ne_top
-      . simp
-      . simp
+      · apply (measure_ball_pos volume x (by linarith)).ne.symm
+      · apply measure_ball_ne_top
+      · simp
+      · simp
 
 omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 
@@ -286,7 +289,7 @@ lemma cut_out_ball {g : X → ℂ}
     linarith
   unfold czOperator
   rw [← integral_indicator, ← integral_indicator]
-  . congr
+  · congr
     apply indicator_eq_indicator'
     intro y hy
     rw [indicator_apply_eq_self.mpr]
@@ -296,8 +299,8 @@ lemma cut_out_ball {g : X → ℂ}
     have : dist y x' ≤ dist y x + dist x x' := by
       apply dist_triangle
     linarith
-  . measurability
-  . measurability
+  · measurability
+  · measurability
 
 /-- Lemma 10.1.3 -/
 theorem cotlar_control (ha : 4 ≤ a)
@@ -317,9 +320,9 @@ theorem cotlar_control (ha : 4 ≤ a)
     _ = nndist (czOperator K R g x) (czOperator K R g x') + ‖czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by congr 2; exact cut_out_ball hr hx
     _ ≤ C10_1_2 a * globalMaximalFunction volume 1 g x + (‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ + ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ) := by
       gcongr
-      . apply estimate_x_shift ha hg R_pos
+      · apply estimate_x_shift ha hg R_pos
         linarith
-      . --triangle inequality as above
+      · --triangle inequality as above
         rw [← edist_eq_enorm_sub, edist_comm, edist_eq_enorm_sub]
         apply le_trans _ (enorm_add_le _ _)
         apply le_of_eq
@@ -341,8 +344,8 @@ theorem cotlar_control (ha : 4 ≤ a)
           congr 1
         _ ≤ 2 ^ (a ^ 3 + 4 * a) + 2 ^ (a ^ 3 + 4 * a) := by
           gcongr
-          . exact one_le_two
-          . linarith
+          · exact one_le_two
+          · linarith
         _ = 2 * 2 ^ (a ^ 3 + 4 * a) := (two_mul (2 ^ (a ^ 3 + 4 * a))).symm
         _ = 2 ^ (a ^ 3 + 4 * a + 1) := (pow_succ' 2 (a ^ 3 + 4 * a)).symm
 
