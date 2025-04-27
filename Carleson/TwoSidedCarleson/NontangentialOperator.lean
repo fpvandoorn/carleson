@@ -1,5 +1,7 @@
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
+import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+import Carleson.ToMathlib.Misc
 
 
 open MeasureTheory Set Bornology Function ENNReal Metric
@@ -122,29 +124,6 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 
 /-- The constant used in `cotlar_control`. -/
 irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
-
---TODO: to mathlib
-lemma Set.indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
-    s.indicator f = s.indicator g := by
-  ext x
-  unfold indicator
-  split
-  · rename_i hxs
-    exact h x hxs
-  · rfl
-
-lemma MeasureTheory.lintegral_set_mono_fn {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
-    (hs : MeasurableSet s) ⦃f g : α → ℝ≥0∞⦄ (hfg : ∀ x ∈ s, f x ≤ g x) :
-    ∫⁻ (a : α) in s, f a ∂μ ≤ ∫⁻ (a : α) in s, g a ∂μ := by
-  rw [← lintegral_indicator hs, ← lintegral_indicator hs]
-  apply lintegral_mono_fn
-  intro x
-  unfold indicator
-  split
-  · rename_i hxs
-    exact hfg x hxs
-  · rfl
-
 
 /-- Stolen from PR for Lemma 10.1.2 -/
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):

@@ -100,6 +100,16 @@ end ENNReal
 
 section Indicator
 attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
+
+lemma Set.indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
+    s.indicator f = s.indicator g := by
+  ext x
+  unfold indicator
+  split
+  · rename_i hxs
+    exact h x hxs
+  · rfl
+
 end Indicator
 
 section NNReal
@@ -495,6 +505,8 @@ theorem indicator_const {c : ℝ} {s: Set X}
   (integrable_indicator_iff hs).mpr <| integrableOn_const.mpr <| Or.inr h2s
 
 end Integrable
+
+
 
 -- Currently unused.
 -- The assumption `int_f` can likely be removed, as otherwise the integral is zero.
