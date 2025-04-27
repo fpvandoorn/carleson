@@ -435,6 +435,61 @@ theorem hasStrongType_maximalFunction
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),
         C2_0_6]
 
+noncomputable def maximalFunction_seq (μ : Measure X) {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) (c : ι → X) (r : ι → ℝ)
+    (q : ℝ) (v : X → E) (k : ℕ) (z : X) :
+    ℝ≥0∞ := by
+  choose g hg using (Set.countable_iff_exists_injective.mp h𝓑)
+  exact maximalFunction μ (Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})) c r q v z
+
+lemma maximalFunction_seq_mono {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (hp : p ≥ 1) (u : X → E) :
+  Monotone (maximalFunction_seq μ h𝓑 c r p u : ℕ → (X → ℝ≥0∞)) := by
+  intro m n hmn x
+  unfold maximalFunction_seq maximalFunction
+  dsimp only
+  apply rpow_le_rpow _ (by positivity)
+  apply iSup₂_le
+  intro i Hi
+  apply le_iSup₂ (f := fun j _ ↦ (ball (c j) (r j)).indicator
+      (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖u y‖₊ ^ (ofNNReal p).toReal ∂μ) x)
+  obtain ⟨w, hw⟩ := Hi; use w; exact ⟨id (Nat.le_trans hw.left hmn), hw.right⟩
+
+lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ≥0} (hp : p ≥ 1) (u : X → E) (x : X) :
+    maximalFunction μ 𝓑 c r (↑p) u x =
+      ⨆ k : ℕ, maximalFunction_seq μ h𝓑 c r (↑p) u k x := by
+  let g := Classical.choose (Set.countable_iff_exists_injective.mp h𝓑)
+  let 𝓑' (k : ℕ) := Subtype.val '' (g ⁻¹' {x : ℕ | x ≤ k})
+  apply ge_antisymm
+  · exact iSup_le <| fun k ↦
+        rpow_le_rpow (iSup_le_iSup_of_subset (Subtype.coe_image_subset 𝓑 _)) (by positivity)
+  · unfold maximalFunction_seq maximalFunction
+    have p_pos : p.toReal > 0 := by positivity
+    refine (rpow_le_rpow_iff p_pos).mp ?_
+    rw [ENNReal.rpow_inv_rpow (by positivity)]
+    apply iSup₂_le_iff.mpr
+    intro i Hi
+    let k₀ := g ⟨i, Hi⟩
+    have k₀large : i ∈ 𝓑' k₀ := by
+      unfold 𝓑'
+      simp only [preimage_setOf_eq, mem_image, mem_setOf_eq, Subtype.exists, exists_and_right,
+          exists_eq_right]
+      use Hi
+    calc
+    (ball (c i) (r i)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖u y‖₊ ^ p.toReal ∂μ) x
+      ≤ (⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖u y‖₊ ^ p.toReal ∂μ) x) := by
+      apply le_iSup₂ (i := i)
+          (f := fun j _ ↦ (ball (c j) (r j)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j), ↑‖u y‖₊ ^ p.toReal ∂μ) x) k₀large
+    _ = ((⨆ j ∈ 𝓑' k₀, (ball (c j) (r j)).indicator
+        (fun x ↦ ⨍⁻ (y : X) in ball (c j) (r j),
+            ↑‖u y‖₊ ^ p.toReal ∂μ) x)^p.toReal⁻¹ ) ^ p.toReal := by
+      rw [ENNReal.rpow_inv_rpow]; positivity
+    _ ≤ _ := by
+      gcongr
+      apply le_iSup (f := fun k ↦ (⨆ i ∈ 𝓑' k, (ball (c i) (r i)).indicator
+          (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ↑‖u y‖₊ ^ p.toReal ∂μ) x) ^ (p.toReal)⁻¹)
+
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`.
 A proof for basically this result is given in Chapter 9, everything following after equation
 (9.0.36). -/
@@ -799,14 +854,14 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
   · simp
   exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
 
-def C_weakType_maximalFunction' (A p₁ p₂ : ℝ≥0) :=
+def C_weakType_globalMaximalFunction (A p₁ p₂ : ℝ≥0) :=
   A ^ 2 * C_weakType_maximalFunction A p₁ p₂
 
 -- the constant here `A ^ 4` can be improved
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
     HasWeakType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
-      p₂ p₂ μ μ (C_weakType_maximalFunction' A p₁ p₂) := by
+      p₂ p₂ μ μ (C_weakType_globalMaximalFunction A p₁ p₂) := by
   rw [← hasWeakType_toReal_iff sorry /- todo: cleanup (task 117). -/]
   unfold globalMaximalFunction
   simp_rw [ENNReal.toReal_mul]
@@ -820,7 +875,7 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
   --   (ε := E) this _
   convert HasWeakType.const_mul (c := C_weakType_maximalFunction A p₁ p₂) (e := (A : ℝ) ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
     (ε := E) this _
-  · unfold C_weakType_maximalFunction'; simp
+  · unfold C_weakType_globalMaximalFunction; simp
   rw [hasWeakType_toReal_iff sorry]
   exact hasWeakType_maximalFunction (μ := μ) (A := A) countable_globalMaximalFunction hp₁
      hp₁₂
