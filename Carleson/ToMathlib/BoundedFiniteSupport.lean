@@ -48,3 +48,14 @@ theorem aemeasurable_restrict [MeasurableSpace E] [PseudoMetrizableSpace E]
 
 theorem measurable [MeasurableSpace E] (bfs : BoundedFiniteSupport f μ) : Measurable f := by
   sorry -- not true, but we keep it temporarily to not break code
+
+
+theorem indicator {F : Type*} [TopologicalSpace F] [hF : ENormedAddMonoid F] {g : X → F}
+  (bgs : BoundedFiniteSupport g μ) {s : Set X} (hs : MeasurableSet s) :
+    BoundedFiniteSupport (s.indicator g) μ := by
+  constructor
+  . exact MemLp.indicator hs bgs.memLp
+  . rw[Set.support_indicator]
+    apply measure_inter_lt_top_of_right_ne_top
+    rw [← lt_top_iff_ne_top]
+    exact bgs.measure_support_lt

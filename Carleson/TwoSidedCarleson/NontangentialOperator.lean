@@ -150,9 +150,8 @@ lemma MeasureTheory.lintegral_set_mono_fn {α : Type*} {m : MeasurableSpace α} 
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := sorry
 
---set_option maxHeartbeats 300000 in
 
-lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
+lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
   (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
     ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ ≤
       2 ^ (a ^ 3 + 4 * a) * globalMaximalFunction volume 1 g x := by
@@ -160,9 +159,15 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
     rw [mem_Ioc] at hr
     linarith
   unfold czOperator
-  --rw [MeasureTheory.setIntegral_diff]
-  rw [← integral_indicator, ← integral_indicator, ← integral_sub]
-  --rw [eLpNorm_indicator_sub_indicator]
+  rw [← integral_indicator (by measurability), ← integral_indicator (by measurability), ← integral_sub]
+  rotate_left
+  . rw [integrable_indicator_iff (by measurability)]
+    apply czoperator_welldefined
+    . apply BoundedFiniteSupport.indicator hg (by measurability)
+    . rw [mem_Ioc] at hr; exact hr.1
+  . rw [integrable_indicator_iff (by measurability)]
+    apply czoperator_welldefined _ R_pos
+    apply BoundedFiniteSupport.indicator hg (by measurability)
   calc _
     _ = ‖∫ (y : X), ((ball x' R) \ (ball x' r ∪ ball x (R / 2))).indicator (fun y ↦ K x' y * g y) y‖ₑ := by
       congr
@@ -182,8 +187,7 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
         exfalso
         simp at yx'r yx'R hy
         linarith [hy yx'R yx'r]
-      . --simp
-        simp at yx'r yx'R hy
+      . simp at yx'r yx'R hy
         linarith
       . simp
         intro h
@@ -195,7 +199,6 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
       . ring
     _ ≤ ∫⁻ (y : X), ‖((ball x' R) \ (ball x' r ∪ ball x (R / 2))).indicator (fun y ↦ K x' y * g y) y‖ₑ := by
       apply enorm_integral_le_lintegral_enorm
-    --_ = ∫⁻ (y : X) in ((ball x' R) \ (ball x' r ∪ ball x (R / 2))), ‖K x' y * g y‖ₑ := by
     _ = ∫⁻ (y : X) in ((ball x' R) \ (ball x' r ∪ ball x (R / 2))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
       rw [← lintegral_indicator]
       . congr with y
@@ -215,7 +218,6 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
     _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), (C_K a : ℝ≥0∞) / vol x' y * ‖g y‖ₑ := by
       gcongr with y
       apply enorm_K_le_vol_inv
-      --norm_K_le_vol_inv
     _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ‖g y‖ₑ := by
       apply lintegral_set_mono_fn (by measurability)
       intro y hy
@@ -228,7 +230,6 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
       linarith
     _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
       apply lintegral_const_mul
-      -- maybe use different version of lintegral_const_mul
       apply Measurable.enorm
       exact BoundedFiniteSupport.measurable hg
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
@@ -265,10 +266,8 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
           unfold defaultA
           push_cast
           ring_nf
-    --TODO: calculate with volumes
     _= 2 ^ (a ^ 3 + 4 * a) := by
       unfold C_K
-      --push_cast
       rw [← ENNReal.div_mul, mul_assoc, mul_comm (2 ^ (4 * a)), ← mul_assoc, ENNReal.div_mul_cancel]
       . norm_cast
         ring
@@ -276,18 +275,8 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
       . apply measure_ball_ne_top
       . simp
       . simp
-  . rw [integrable_indicator_iff (by measurability)]
-    apply czoperator_welldefined
-    . sorry
-    . rw [mem_Ioc] at hr; exact hr.1
-  . rw [integrable_indicator_iff (by measurability)]
-    apply czoperator_welldefined _ R_pos
-    . sorry
-  . measurability
-  . measurability
-  --calc _
-  --  _ = ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ
 
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 
 lemma cut_out_ball {g : X → ℂ}
   (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
@@ -339,7 +328,7 @@ theorem cotlar_control (ha : 4 ≤ a)
     _ ≤ C10_1_2 a * globalMaximalFunction volume 1 g x + 2 ^ (a ^ 3 + 4 * a) * globalMaximalFunction volume 1 g x + ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by
       rw [add_assoc]
       gcongr
-      exact radius_change ha hg hr hx
+      exact radius_change hg hr hx
     _ ≤ ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ + C10_1_3 a * globalMaximalFunction volume 1 g x := by
       rw [add_comm]
       gcongr
