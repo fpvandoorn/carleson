@@ -29,10 +29,14 @@ theorem maximal_theorem [Nonempty X] :
     HasBoundedWeakType (globalMaximalFunction volume 1 : (X → ℂ) → X → ℝ≥0∞) 1 1 volume volume
       (C10_2_1 a) := by
   apply HasWeakType.hasBoundedWeakType
-  have : C10_2_1 a = (defaultA a) ^ 4 := by
-    simp_rw [C10_2_1_def, defaultA, pow_mul', Nat.cast_pow, Nat.cast_ofNat]
+  have : C10_2_1 a = C_weakType_maximalFunction' (defaultA a) 1 1 := by
+    unfold C_weakType_maximalFunction' C_weakType_maximalFunction
+    split_ifs with h; swap; simp at h
+    simp_rw [C10_2_1_def, defaultA, coe_pow, coe_ofNat, Nat.cast_pow, Nat.cast_ofNat,
+        NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← npow_add,
+        two_add_two_eq_four]; rfl
   rw [this]
-  apply hasWeakType_globalMaximalFunction le_rfl le_rfl
+  apply hasWeakType_globalMaximalFunction (μ := volume) le_rfl le_rfl
 
 variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
 
