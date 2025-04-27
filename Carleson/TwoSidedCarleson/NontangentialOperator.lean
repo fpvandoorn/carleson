@@ -198,10 +198,10 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
     --_ = ∫⁻ (y : X) in ((ball x' R) \ (ball x' r ∪ ball x (R / 2))), ‖K x' y * g y‖ₑ := by
     _ = ∫⁻ (y : X) in ((ball x' R) \ (ball x' r ∪ ball x (R / 2))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
       rw [← lintegral_indicator]
-      congr with y
-      rw[enorm_indicator_eq_indicator_enorm]
-      congr with y
-      apply enorm_mul
+      . congr with y
+        rw[enorm_indicator_eq_indicator_enorm]
+        congr with y
+        apply enorm_mul
       measurability
     _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
       apply lintegral_mono_set
@@ -227,9 +227,10 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
       rw [dist_comm x' y]
       linarith
     _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
-      apply lintegral_const_mul''
+      apply lintegral_const_mul
       -- maybe use different version of lintegral_const_mul
-      sorry
+      apply Measurable.enorm
+      exact BoundedFiniteSupport.measurable hg
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
       gcongr
       apply lintegral_mono_set
@@ -275,8 +276,13 @@ lemma radius_change (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g 
       . apply measure_ball_ne_top
       . simp
       . simp
-  . sorry
-  . sorry
+  . rw [integrable_indicator_iff (by measurability)]
+    apply czoperator_welldefined
+    . sorry
+    . rw [mem_Ioc] at hr; exact hr.1
+  . rw [integrable_indicator_iff (by measurability)]
+    apply czoperator_welldefined _ R_pos
+    . sorry
   . measurability
   . measurability
   --calc _
