@@ -1,5 +1,5 @@
 import Carleson.ToMathlib.DoublingMeasure
-import Carleson.ToMathlib.RealInterpolation
+import Carleson.ToMathlib.RealInterpolation.Final
 import Mathlib.MeasureTheory.Covering.Vitali
 
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter ENNReal Pointwise
@@ -132,7 +132,7 @@ private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [Proper
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
   simp only [T, Pi.add_apply, enorm_eq_self, ← enorm_eq_nnnorm]
   rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.enorm]
-  exact laverage_mono (fun x ↦ ENNNorm_add_le (f x) (g x))
+  exact laverage_mono (fun x ↦ enorm_add_le (f x) (g x))
 
 -- move
 lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl
@@ -719,7 +719,7 @@ protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
   AEStronglyMeasurable.maximalFunction countable_globalMaximalFunction
     |>.aemeasurable.const_mul _ |>.aestronglyMeasurable
 
-/-- Equation (2.0.45).-/
+/-- Equation (2.0.45) -/
 theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
     {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
     ⨍⁻ y, ‖u y‖ₑ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
@@ -749,19 +749,13 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
-/-- Equation (2.0.46).
-Easy from `hasStrongType_maximalFunction`. Ideally prove separately
-`HasStrongType.const_smul` and `HasStrongType.const_mul`. -/
+/-- Equation (2.0.46). Easy from `hasStrongType_maximalFunction` -/
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
-  rw [← hasStrongType_toReal_iff sorry /- todo: cleanup (task 117). -/]
-  unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul, C2_0_6']
-  convert HasStrongType.const_mul (c := C2_0_6 A p₁ p₂) _ _
-  · simp
-  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂ |>.toReal
+  apply HasStrongType.const_mul (c := C2_0_6 A p₁ p₂)
+  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
 
 def C_weakType_globalMaximalFunction (A p₁ p₂ : ℝ≥0) :=
   A ^ 2 * C_weakType_maximalFunction A p₁ p₂
@@ -771,26 +765,16 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
     HasWeakType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C_weakType_globalMaximalFunction A p₁ p₂) := by
-  rw [← hasWeakType_toReal_iff sorry /- todo: cleanup (task 117). -/]
-  unfold globalMaximalFunction
-  simp_rw [ENNReal.toReal_mul]
-  have : ofNNReal p₂ ≠ 0 := by -- surely, there is a simpler proof
+  have : (p₂ : ℝ≥0∞) ≠ 0 := by
     refine coe_ne_zero.mpr ?_
-    have : 1 ≤ p₂ := by
-      trans p₁
-      exacts [hp₁, hp₁₂]
-    positivity
-  convert HasWeakType.const_mul (c := C_weakType_maximalFunction A p₁ p₂) (e := (A : ℝ) ^ 2) (p' := p₂) (μ := μ) (ν := μ) (p := p₂)
-    (ε := E) this _
-  · unfold C_weakType_globalMaximalFunction; simp
-  exact hasWeakType_maximalFunction (μ := μ) (A := A) countable_globalMaximalFunction hp₁
-     hp₁₂ |> .toReal
-
+    have := zero_lt_one (α := ℝ≥0)
+    order
+  convert HasWeakType.const_mul (c := C_weakType_maximalFunction A p₁ p₂) (e := A ^ 2) this _
+  exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
 
 /-- Use `lowerSemiContinuous_MB` -/
 lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
     LowerSemicontinuous (globalMaximalFunction μ 1 f) := by
   sorry
-
 
 end GMF

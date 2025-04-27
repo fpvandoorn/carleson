@@ -13,13 +13,14 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
 
 /-! ## Section 7.1 and Lemma 7.1.3 -/
 
+open scoped Classical in
 variable (t) in
 /-- The definition `σ(u, x)` given in Section 7.1.
 We may assume `u ∈ t` whenever proving things about this definition. -/
@@ -97,6 +98,7 @@ lemma le_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖) {
     (hp : p ∈ 𝔖) (hpL : ¬Disjoint (𝓘 p : Set X) (L : Set X)) : L ≤ 𝓘 p :=
   ⟨subset_of_mem_𝓛 hL hp hpL, s_le_s_of_mem_𝓛 hL hp hpL⟩
 
+open scoped Classical in
 /-- The projection operator `P_𝓒 f(x)`, given above Lemma 7.1.3.
 In lemmas the `c` will be pairwise disjoint on `C`. -/
 def approxOnCube (C : Set (Grid X)) (f : X → E') (x : X) : E' :=
@@ -118,6 +120,7 @@ lemma approxOnCube_nonneg {C : Set (Grid X)} {f : X → ℝ} (hf : ∀ (y : X), 
     approxOnCube C f x ≥ 0 :=
   Finset.sum_nonneg' (fun _ ↦ Set.indicator_nonneg (fun _ _ ↦ integral_nonneg hf) _)
 
+open scoped Classical in
 lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ (I : Set X)))
     (f : X → E') {x : X} {J : Grid X} (hJ : J ∈ C) (xJ : x ∈ J) :
     (approxOnCube C f) x = ⨍ y in J, f y := by
@@ -162,10 +165,9 @@ lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
     apply integral_nonneg (fun y ↦ by simp)
   rw [ofReal_integral_eq_lintegral_ofReal hf.integrable.norm.restrict nonneg,
     eq, lintegral_const, average_eq, smul_eq_mul, ENNReal.ofReal_mul, ENNReal.ofReal_inv_of_pos,
-    ENNReal.ofReal_toReal, ofReal_integral_eq_lintegral_ofReal hf.norm.integrable nonneg, mul_comm,
-    ← mul_assoc, Measure.restrict_apply MeasurableSet.univ, univ_inter,
-    ENNReal.mul_inv_cancel vol_J_ne_zero volume_coeGrid_lt_top.ne, one_mul]
-  · simp [volume_coeGrid_lt_top.ne]
+    ofReal_integral_eq_lintegral_ofReal hf.norm.integrable nonneg, mul_comm,
+    ← mul_assoc, Measure.restrict_apply MeasurableSet.univ, univ_inter]
+  · simp [volume_coeGrid_lt_top.ne, ENNReal.mul_inv_cancel vol_J_ne_zero]
   · simpa using ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
   · exact inv_nonneg.mpr ENNReal.toReal_nonneg
 
@@ -191,7 +193,7 @@ def cubeOf (i : ℤ) (x : X) : Grid X :=
 
 lemma cubeOf_spec {i : ℤ} (hi : i ∈ Icc (-S : ℤ) S) (I : Grid X) {x : X} (hx : x ∈ I) :
     x ∈ cubeOf i x ∧ s (cubeOf i x) = i := by
-  apply epsilon_spec (p := fun I ↦ x ∈ I ∧ s I = i)
+  apply Classical.epsilon_spec (p := fun I ↦ x ∈ I ∧ s I = i)
   by_cases hiS : i = S
   · use topCube, subset_topCube hx, hiS ▸ s_topCube
   simpa [and_comm] using Set.mem_iUnion₂.mp <| Grid_subset_biUnion i
@@ -208,6 +210,7 @@ def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0�
 
 protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ X} {f : X → ℂ} :
     Measurable (nontangentialMaximalFunction θ f) := by
+  classical
   refine Measurable.iSup (fun I ↦ ?_)
   let c := ⨆ x' ∈ I, ⨆ s₂ ∈ Icc (s I) S, ⨆ (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
     (‖∑ i ∈ (Icc (s I) s₂), ∫ (y : X), Ks i x' y * f y‖₊ : ENNReal)
@@ -216,6 +219,7 @@ protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ
   convert (measurable_const.ite coeGrid_measurable measurable_const) using 1
 
 -- Set used in definition of `boundaryOperator`
+open scoped Classical in
 variable (t) (u) in def 𝓙' (x : X) (i : ℤ) : Finset (Grid X) :=
   { J | J ∈ 𝓙 (t u) ∧ (J : Set X) ⊆ ball x (16 * D ^ i) ∧ s J ≤ i }
 
@@ -300,6 +304,7 @@ lemma convex_scales (hu : u ∈ t) : OrdConnected (t.σ u x : Set ℤ) := by
 /-- Part of Lemma 7.1.2 -/
 @[simp]
 lemma biUnion_𝓙 : ⋃ J ∈ 𝓙 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
+  classical
   refine subset_antisymm (iUnion₂_subset_iUnion ..) fun x mx ↦ ?_
   simp_rw [mem_iUnion] at mx ⊢; obtain ⟨I, mI⟩ := mx
   obtain ⟨J, sJ, mJ⟩ :=
@@ -312,6 +317,7 @@ lemma biUnion_𝓙 : ⋃ J ∈ 𝓙 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
 /-- Part of Lemma 7.1.2 -/
 @[simp]
 lemma biUnion_𝓛 : ⋃ J ∈ 𝓛 𝔖, J = ⋃ I : Grid X, (I : Set X) := by
+  classical
   refine subset_antisymm (iUnion₂_subset_iUnion ..) fun x mx ↦ ?_
   simp_rw [mem_iUnion] at mx ⊢; obtain ⟨I, mI⟩ := mx
   obtain ⟨J, sJ, mJ⟩ :=
@@ -511,6 +517,7 @@ private lemma Grid_subset_ball' {J : Grid X} {p : 𝔓 X} (pu : p ∈ t.𝔗 u) 
 private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : 𝔓 X}
     (pu : p ∈ t.𝔗 u) (xp : x ∈ E p) : ∫ y in ball x ((D : ℝ) ^ (𝔰 p) / 2), ‖f y‖ ≤
     ∫ y in ball (𝔠 p) (16 * (D : ℝ) ^ (𝔰 p)), ‖approxOnCube (𝓙 (t u)) (‖f ·‖) y‖ := by
+  classical
   let Js := Set.toFinset { J ∈ 𝓙 (t u) | ((J : Set X) ∩ ball x (D ^ (𝔰 p) / 2)).Nonempty }
   have mem_Js {J : Grid X} : J ∈ Js ↔ J ∈ 𝓙 (t.𝔗 u) ∧ (↑J ∩ ball x (D ^ 𝔰 p / 2)).Nonempty := by
     simp [Js]
@@ -531,8 +538,12 @@ private lemma L7_1_4_integral_le_integral (hu : u ∈ t) (hf : BoundedCompactSup
       have eq : EqOn (approxOnCube (𝓙 (t u)) (‖f ·‖)) (fun _ ↦ ⨍ y in J, ‖f y‖) J :=
         fun y hy ↦ approxOnCube_apply pairwiseDisjoint_𝓙 (‖f ·‖) (mem_Js.mp hJ).1 hy
       rw [setIntegral_congr_fun coeGrid_measurable eq, setIntegral_const, average]
-      simp [← mul_assoc, CommGroupWithZero.mul_inv_cancel (volume (J : Set X)).toReal <|
-        ENNReal.toReal_ne_zero.mpr ⟨(volume_coeGrid_pos _).ne.symm, volume_coeGrid_lt_top.ne⟩]
+      simp only [defaultA, defaultD.eq_1, defaultκ.eq_1, MeasurableSet.univ, Measure.restrict_apply,
+        univ_inter, integral_smul_measure, ENNReal.toReal_inv, smul_eq_mul, ← mul_assoc]
+      have : volume.real ((J : Set X)) * (volume (J : Set X)).toReal⁻¹ = 1 :=
+        CommGroupWithZero.mul_inv_cancel _ <| ENNReal.toReal_ne_zero.mpr
+          ⟨(volume_coeGrid_pos (defaultD_pos' a)).ne.symm, volume_coeGrid_lt_top.ne⟩
+      rw [this, one_mul]
     _ = ∫ y in (⋃ J ∈ Js, (J : Set X)), (approxOnCube (𝓙 (t u)) (‖f ·‖)) y := by
       refine integral_finset_biUnion Js (fun _ _ ↦ coeGrid_measurable) Js_disj ?_ |>.symm
       exact fun i hi ↦ And.intro (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
@@ -729,6 +740,7 @@ Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
 
 -- Used in the proof of Lemmas 7.1.3 and 7.1.6 to translate between `∑ p` into `∑ s`
+open scoped Classical in
 private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → α) :
     ∑ p ∈ Finset.univ.filter (· ∈ t.𝔗 u), (E p).indicator (I (𝔰 p)) x =
     ∑ s ∈ t.σ u x, I s x := by
@@ -882,6 +894,7 @@ private lemma L7_1_6_I_le (hu : u ∈ t) (hf : BoundedCompactSupport f) {p : �
 
 -- Translate `∑ p` into `∑ I, ∑ p` in the proof of Lemma 7.1.6
 variable (t) (u) (x) in
+open scoped Classical in
 lemma sum_p_eq_sum_I_sum_p (f : X → ℤ → ℝ≥0) :
     ∑ p ∈ Finset.univ.filter (· ∈ t.𝔗 u), (E p).indicator 1 x * f (𝔠 p) (𝔰 p) =
     ∑ I : Grid X, ∑ p ∈ Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ 𝓘 p = I),
@@ -908,6 +921,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     (hf : BoundedCompactSupport f) :
     ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * (f y - approxOnCube (𝓙 (t u)) f y)‖₊ ≤
     C7_1_6 a * t.boundaryOperator u (approxOnCube (𝓙 (t u)) (‖f ·‖)) x' := by
+  classical
   let I (i : ℤ) (x : X) := ‖∫ (y : X), Ks i x y * (f y - approxOnCube (𝓙 (t.𝔗 u)) f y)‖₊
   let Js (p : 𝔓 X) := Set.toFinset <| { J ∈ 𝓙 (t u) | ↑J ⊆ ball x (16 * D ^ 𝔰 p) ∧ s J ≤ 𝔰 p }
   let ps (I : Grid X) := Finset.univ.filter (fun p ↦ p ∈ t.𝔗 u ∧ 𝓘 p = I)
@@ -1107,7 +1121,8 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
   have h1 {i : ℤ} : Integrable (fun y ↦ approxOnCube (𝓙 (t.𝔗 u)) f y * Ks i x y) := by
     apply (integrable_Ks_x <| one_lt_D (K := K)).bdd_mul
     · exact (stronglyMeasurable_approxOnCube _ _).aestronglyMeasurable
-    · use ∑ J ∈ { p | p ∈ 𝓙 (t.𝔗 u) }, ‖⨍ y in J, f y‖
+    · classical
+      use ∑ J ∈ { p | p ∈ 𝓙 (t.𝔗 u) }, ‖⨍ y in J, f y‖
       refine fun x ↦ (norm_sum_le _ _).trans <| Finset.sum_le_sum (fun J hJ ↦ ?_)
       by_cases h : x ∈ (J : Set X) <;> simp [h]
   have : ∃ C, ∀ (y : X), ‖cexp (I * (-𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1‖ ≤ C := by

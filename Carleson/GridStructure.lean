@@ -158,6 +158,7 @@ variable {X : Type*} [PseudoMetricSpace X] {a : ℕ} {q : ℝ} {K : X → X → 
 
 notation "dist_{" I "}" => @dist (WithFunctionDistance (c I) (D ^ s I / 4)) _
 notation "nndist_{" I "}" => @nndist (WithFunctionDistance (c I) (D ^ s I / 4)) _
+notation "edist_{" I "}" => @edist (WithFunctionDistance (c I) (D ^ s I / 4)) _
 notation "ball_{" I "}" => @ball (WithFunctionDistance (c I) (D ^ s I / 4)) _
 
 section GridManipulation
