@@ -1,9 +1,9 @@
-import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
-import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
-import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+import Carleson.TwoSidedCarleson.Basic
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
@@ -478,11 +478,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 /-- The constant used in `cotlar_control`. -/
 irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
 
-/-- Stolen from PR for Lemma 10.1.2 -/
-lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
-    IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := sorry
-
-
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
   (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
     ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ ≤
@@ -564,9 +560,9 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
       rw [dist_comm x' y]
       linarith
     _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
-      apply lintegral_const_mul
-      apply Measurable.enorm
-      exact BoundedFiniteSupport.measurable hg
+      apply lintegral_const_mul''
+      apply AEMeasurable.enorm
+      exact hg.aemeasurable.restrict
     _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
       gcongr
       apply lintegral_mono_set
@@ -671,8 +667,8 @@ theorem cotlar_control (ha : 4 ≤ a)
       gcongr
       rw [C10_1_2_def, C10_1_3_def]
       norm_num
-      calc (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a + 1) + 2 ^ (a ^ 3 + 4 * a)
-        _ = (2 : ℝ≥0∞) ^ (a ^ 3 + (2 * a + 1)) + 2 ^ (a ^ 3 + 4 * a) := by
+      calc (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a + 2) + 2 ^ (a ^ 3 + 4 * a)
+        _ = (2 : ℝ≥0∞) ^ (a ^ 3 + (2 * a + 2)) + 2 ^ (a ^ 3 + 4 * a) := by
           congr 1
         _ ≤ 2 ^ (a ^ 3 + 4 * a) + 2 ^ (a ^ 3 + 4 * a) := by
           gcongr
