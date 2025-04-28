@@ -746,6 +746,15 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
       refine (le_iSup₂ (c, m) hc).trans_eq' ?_
       simp [laverage, indicator_of_mem (h_subset h)]
 
+theorem lintegral_ball_le_volume_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
+    {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
+    ∫⁻ y in (ball z r), ‖u y‖ₑ ∂μ  ≤ μ (ball z r) * globalMaximalFunction μ 1 u x := by
+  have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr (measure_ball_ne_top z r)
+  rw [← measure_mul_laverage]
+  simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
+  gcongr
+  exact laverage_le_globalMaximalFunction h
+
 /-- The constant factor in the statement that `M` has strong type. -/
 def C2_0_6' (A p₁ p₂ : ℝ≥0) : ℝ≥0 := A ^ 2 * C2_0_6 A p₁ p₂
 
