@@ -906,8 +906,8 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
       intros x hx
       exact hundred (ball_subset_Grid hx)
     _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
-      apply calculation_8 (X := X)
-      rw [mul_comm, calculation_6 (s J) (X := X), calculation_7 (s J) (X := X)]
+      apply calculation_8
+      rw [mul_comm, calculation_6 a (s J), calculation_7 a (s J)]
       exact_mod_cast le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
     _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
@@ -1588,7 +1588,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       positivity
   rw [C7_5_11]
   push_cast
-  linarith [calculation_14 (X := X) (n := n), calculation_15 (X := X) (h := thus)]
+  linarith [calculation_14 (X := X) (n := n), calculation_15 thus]
 
 /-- The constant used in `correlation_distant_tree_parts`.
 Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
