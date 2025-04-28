@@ -18,12 +18,12 @@ theorem integrableOn_of_integrableOn_inter_support {f : X → ℂ} {μ : Measure
 lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
     MemLp (K x) ∞ (volume.restrict (ball x r)ᶜ) := by
   constructor
-  . exact (measurable_K_right x).aestronglyMeasurable
-  . simp only [eLpNorm_exponent_top]
+  · exact (measurable_K_right x).aestronglyMeasurable
+  · simp only [eLpNorm_exponent_top]
     apply eLpNormEssSup_lt_top_of_ae_enorm_bound
-    . apply ae_restrict_of_forall_mem
-      . measurability
-      . intro y hy
+    · apply ae_restrict_of_forall_mem
+      · measurability
+      · intro y hy
         apply enorm_K_le_ball_complement' hr hy
 
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
@@ -45,11 +45,11 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
     let M0 := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
     use M0
     rw [ae_iff, Measure.restrict_apply₀']
-    . conv =>
+    · conv =>
         arg 1; arg 2;
         rw [← inter_assoc]
         refine Eq.symm (left_eq_inter.mpr ?_)
-        . apply inter_subset_left.trans
+        · apply inter_subset_left.trans
           apply setOf_subset.mpr
           apply tmp_Kxg
 
@@ -62,40 +62,40 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
         intro hy
         rw [norm_mul]
         trans M1 * M2
-        . apply mul_le_mul hy.left hy.right
+        · apply mul_le_mul hy.left hy.right
           case b0 | c0 => simp only [norm_nonneg, NNReal.zero_le_coe]
 
         apply le_of_eq
         norm_cast
         rw [← toNNReal_mul]
       rw [← Measure.restrict_apply₀']
-      . apply measure_mono_null_ae this.eventuallyLE
+      · apply measure_mono_null_ae this.eventuallyLE
         rw [setOf_or]
         apply measure_union_null
-        . rw [← ae_iff]
+        · rw [← ae_iff]
           apply ae_restrict_of_forall_mem measurableSet_ball.compl
           intro y hy
           simp_rw [M1, ← ENNReal.toReal.eq_1, ← toReal_enorm]
           apply (ENNReal.toReal_le_toReal enorm_lt_top.ne ?_).mpr
-          . apply enorm_K_le_ball_complement hy
-          . exact (div_lt_top coe_ne_top ((measure_ball_pos volume x hr).ne.symm)).ne
-        . simp_rw [← ae_iff, M2, ← ENNReal.toReal.eq_1, ← toReal_enorm,
+          · apply enorm_K_le_ball_complement hy
+          · exact (div_lt_top coe_ne_top ((measure_ball_pos volume x hr).ne.symm)).ne
+        · simp_rw [← ae_iff, M2, ← ENNReal.toReal.eq_1, ← toReal_enorm,
             (ENNReal.toReal_le_toReal enorm_lt_top.ne (hg.eLpNorm_lt_top).ne), eLpNorm_exponent_top]
           apply ae_restrict_of_ae ae_le_eLpNormEssSup
-      . exact measurableSet_ball.compl.nullMeasurableSet
-    . apply NullMeasurableSet.inter
-      . exact measurableSet_ball.compl.nullMeasurableSet
-      . exact mKxg.nullMeasurableSet_support
+      · exact measurableSet_ball.compl.nullMeasurableSet
+    · apply NullMeasurableSet.inter
+      · exact measurableSet_ball.compl.nullMeasurableSet
+      · exact mKxg.nullMeasurableSet_support
 
   obtain ⟨M, hM⟩ := bdd_Kxg
 
   apply integrableOn_of_integrableOn_inter_support measurableSet_ball.compl
   apply Measure.integrableOn_of_bounded
-  . apply ne_top_of_le_ne_top
-    . exact ne_of_lt hg.measure_support_lt
-    . apply measure_mono
+  · apply ne_top_of_le_ne_top
+    · exact ne_of_lt hg.measure_support_lt
+    · apply measure_mono
       trans support Kxg
-      . exact inter_subset_right
-      . exact support_mul_subset_right (K x) g
-  . exact mKxg
-  . exact hM
+      · exact inter_subset_right
+      · exact support_mul_subset_right (K x) g
+  · exact mKxg
+  · exact hM

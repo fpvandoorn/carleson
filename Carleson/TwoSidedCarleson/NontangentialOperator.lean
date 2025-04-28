@@ -72,9 +72,9 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
   suffices (1 - (2 : ℝ) ^ (-x⁻¹))⁻¹ ≤ 2 ^ x by
     rw [← NNReal.coe_le_coe, NNReal.coe_inv, NNReal.coe_rpow, NNReal.coe_ofNat, NNReal.coe_sub]
     swap
-    . apply NNReal.rpow_le_one_of_one_le_of_nonpos
-      . exact Nat.one_le_ofNat
-      . simp_rw [Left.neg_nonpos_iff]
+    · apply NNReal.rpow_le_one_of_one_le_of_nonpos
+      · exact Nat.one_le_ofNat
+      · simp_rw [Left.neg_nonpos_iff]
         positivity
     apply this
 
@@ -142,18 +142,18 @@ lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   simp only [enorm_mul]
 
   trans ∫⁻ (y : X) in (ball x r)ᶜ ∩ ball x (2*r), C_K ↑a / volume (ball x r) * ‖g y‖ₑ
-  . apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
+  · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
     intro y
     trans y ∈ (ball x r)ᶜ
-    . exact fun a ↦ mem_of_mem_inter_left a
+    · exact fun a ↦ mem_of_mem_inter_left a
     exact fun h ↦ mul_le_mul' (enorm_K_le_ball_complement h) (by rfl)
 
   rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm] -- LHS = 10.1.5
 
   trans C_K a / volume (ball x r) * (globalMaximalFunction volume 1 g x * volume (ball x (2 * r)))
-  . gcongr
+  · gcongr
     trans ∫⁻ (a : X) in ball x (2*r), ‖g a‖ₑ
-    . exact lintegral_mono_set inter_subset_right
+    · exact lintegral_mono_set inter_subset_right
     rw [_laverage_mul_measure_ball]
     gcongr
     apply laverage_le_globalMaximalFunction
@@ -165,7 +165,7 @@ lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   gcongr
 
   trans C_K a / volume (ball x r) * (defaultA a * volume (ball x r))
-  . gcongr
+  · gcongr
     apply measure_ball_two_le_same
   -- Somehow simp doesn't do it
   apply le_of_eq
@@ -182,48 +182,48 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
   simp_rw [← mul_sub_right_distrib]
 
   trans ∫⁻ (y : X) in (ball x (2*r))ᶜ, ‖(K x y - K x' y) * g y‖ₑ
-  . apply enorm_integral_le_lintegral_enorm
+  · apply enorm_integral_le_lintegral_enorm
   simp only [enorm_mul]
 
   trans ∫⁻ (y : X) in (ball x (2*r))ᶜ, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
-  . apply setLIntegral_mono_ae _ (.of_forall _)
-    . have : Measurable fun y ↦ vol x y := by sorry
+  · apply setLIntegral_mono_ae _ (.of_forall _)
+    · have : Measurable fun y ↦ vol x y := by sorry
       fun_prop
     intro y h
     refine mul_le_mul' (enorm_K_sub_le' ?_) (by rfl)
     trans 2 * r
-    . gcongr
+    · gcongr
     rw [mem_compl_iff, mem_ball, dist_comm] at h
     exact le_of_not_gt h
 
   let dom_i (i : ℕ) := Annulus.co x (2^(i+1) * r) (2^(i+2) * r)
   have rw_dom : (ball x (2*r))ᶜ = ⋃ (i : ℕ) , dom_i i:= by
     rw [Annulus.iUnion_co_eq_ci]
-    . have : 2 * r = 2 ^ (0 + 1) * r := by ring
+    · have : 2 * r = 2 ^ (0 + 1) * r := by ring
       rw [this, Annulus.ci_eq]
-    . intro n
+    · intro n
       gcongr <;> simp
-    . apply Filter.unbounded_of_tendsto_atTop
+    · apply Filter.unbounded_of_tendsto_atTop
       apply Filter.tendsto_atTop_atTop_of_monotone
-      . refine Monotone.mul_const ?_ (le_of_lt hr)
+      · refine Monotone.mul_const ?_ (le_of_lt hr)
         exact Monotone.comp (pow_right_mono₀ Nat.one_le_ofNat) Order.succ_mono
       intro b
       use Nat.ceil (b / r)
       rw [← div_le_iff₀ hr]
       trans (Nat.ceil (b / r) : ℝ)
-      . apply Nat.le_ceil
-      . norm_cast
+      · apply Nat.le_ceil
+      · norm_cast
         trans Nat.ceil (b / r) + 1
-        . exact Nat.le_add_right ⌈b / r⌉₊ 1
-        . apply le_of_lt (Nat.lt_pow_self (le_refl 2))
+        · exact Nat.le_add_right ⌈b / r⌉₊ 1
+        · apply le_of_lt (Nat.lt_pow_self (le_refl 2))
 
   trans ∑' (i : ℕ), ∫⁻ (y : X) in dom_i i, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
-  . rw [rw_dom]
+  · rw [rw_dom]
     apply lintegral_iUnion_le
 
   -- Writing negative powers as positive powers of 1/2 to enable working with i : ℕ instead of -i : ℤ
   trans ∑' (i : ℕ), 2 ^ (a ^ 3 + a) * (1 / (2 : ℝ≥0) ) ^ ((i + 1) * (a : ℝ)⁻¹) * globalMaximalFunction volume 1 g x
-  . apply Summable.tsum_le_tsum
+  · apply Summable.tsum_le_tsum
     case hf | hg => apply ENNReal.summable
 
     intro i
@@ -232,7 +232,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       simp_rw [← Ico_def, mem_setOf]
       intro y hdist
       trans edist x x' / (2 ^ (i + 1) * r.toNNReal)
-      . gcongr
+      · gcongr
         rw [edist_dist, ENNReal.le_ofReal_iff_toReal_le]
         case ha => norm_cast; apply coe_ne_top
         case hb => exact dist_nonneg
@@ -253,20 +253,20 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       apply fun y h ↦ measure_mono (ball_subset_ball h.left)
 
     trans ∫⁻ (y : X) in dom_i i, (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K a / volume (ball x (2 ^ (i + 1) * r))) * ‖g y‖ₑ
-    . apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
+    · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
       intro y hy
       gcongr
-      . rw [rpow_mul]
+      · rw [rpow_mul]
         apply rpow_le_rpow _ (by positivity)
-        . norm_cast
+        · norm_cast
           exact est_edist y hy
-      . exact est_vol y hy
+      · exact est_vol y hy
 
     rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm]
 
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
         ∫⁻ (y : X) in ball x (2 ^ (i + 2) * r), ‖g y‖ₑ
-    . gcongr
+    · gcongr
       apply lintegral_mono_set
       unfold dom_i
       rw [Annulus.co_eq]
@@ -277,7 +277,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     rw [← mul_assoc]
     trans (1 / (2 : ℝ≥0)) ^ ((i + 1) * (a : ℝ)⁻¹) * (C_K ↑a / volume (ball x (2 ^ (i + 1) * r))) *
         volume (ball x (2 ^ (i + 2) * r)) * globalMaximalFunction volume 1 g x
-    . apply mul_le_mul'
+    · apply mul_le_mul'
       case h₁ => rfl
       apply laverage_le_globalMaximalFunction
       simp only [dist_self, Nat.ofNat_pos, pow_pos, mul_pos_iff_of_pos_left, hr]
@@ -287,7 +287,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     apply mul_le_mul' _ (by rfl)
 
     trans C_K a / volume (ball x (2 ^ (i + 1) * r)) * (defaultA a * volume (ball x (2 ^ (i + 1) * r)))
-    . gcongr
+    · gcongr
       rw [pow_succ]
       nth_rw 2 [mul_comm]
       rw [mul_assoc]
@@ -309,7 +309,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
   simp_rw [coe_ofNat, one_div, inv_rpow, ← rpow_neg, ← div_eq_mul_inv]
 
   trans ∑' (i : ℕ), 2 ^ (-i / (a : ℝ))
-  . apply Summable.tsum_le_tsum
+  · apply Summable.tsum_le_tsum
     case hf | hg => apply ENNReal.summable
     intro i
     apply rpow_le_rpow_of_exponent_le Nat.one_le_ofNat
@@ -318,7 +318,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
 
   rw [← rpow_natCast]
   apply geometric_series_estimate
-  . simp only [Nat.ofNat_le_cast, ha]
+  · simp only [Nat.ofNat_le_cast, ha]
 
 omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
@@ -327,23 +327,23 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   simp only [enorm_mul]
 
   trans ∫⁻ (y : X) in (ball x' r)ᶜ ∩ ball x (2*r), C_K ↑a / volume (ball x' r) * ‖g y‖ₑ
-  . apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
+  · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
     intro x
     trans x ∈ (ball x' r)ᶜ
-    . exact fun a ↦ mem_of_mem_inter_left a
+    · exact fun a ↦ mem_of_mem_inter_left a
     exact fun h ↦ mul_le_mul' (enorm_K_le_ball_complement h) (by rfl)
 
   rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm] -- LHS = 10.1.5 but for x'
 
   trans C_K ↑a / volume (ball x' r) * (globalMaximalFunction volume 1 g x * volume (ball x' (4 * r)))
-  . apply mul_le_mul'
+  · apply mul_le_mul'
     case h₁ => rfl
 
     trans ∫⁻ (a : X) in ball x' (4 * r), ‖g a‖ₑ
-    . apply lintegral_mono_set
+    · apply lintegral_mono_set
       trans ball x (2*r)
-      . exact inter_subset_right
-      . apply ball_subset
+      · exact inter_subset_right
+      · apply ball_subset
         linarith
 
     rw [_laverage_mul_measure_ball]
@@ -360,7 +360,7 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   case h₂ => rfl
 
   trans C_K ↑a / volume (ball x' r) * ((defaultA a) ^ 2 * volume (ball x' r))
-  . apply mul_le_mul'
+  · apply mul_le_mul'
     case h₁ => rfl
     case h₂ => apply measure_ball_four_le_same'
 
@@ -410,10 +410,10 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       _ = (∫ y in (bxrc ∩ bx2r) ∪ bx2rᶜ , K x y * g y) := by nth_rw 1 [dom_x]
 
     apply setIntegral_union_2
-    . rw [disjoint_compl_right_iff_subset]
+    · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
-    . exact measurableSet_ball.compl
-    . rw [← dom_x]
+    · exact measurableSet_ball.compl
+    · rw [← dom_x]
       apply czoperator_welldefined hg hr
 
   -- Integral split x'
@@ -423,10 +423,10 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       _ = (∫ y in (bxprc ∩ bx2r) ∪ bx2rᶜ , K x' y * g y) := by nth_rw 1 [dom_x_prime]
 
     apply setIntegral_union_2
-    . rw [disjoint_compl_right_iff_subset]
+    · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
-    . exact measurableSet_ball.compl
-    . rw [← dom_x_prime]
+    · exact measurableSet_ball.compl
+    · rw [← dom_x_prime]
       apply czoperator_welldefined hg hr
 
   rw [edist_eq_enorm_sub, integral_x, integral_x_prime]
@@ -442,32 +442,32 @@ theorem estimate_x_shift (ha : 4 ≤ a)
                 + (∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y)
                 - (∫ (y : X) in bxprc ∩ bx2r, K x' y * g y) := by
           rw[← integral_sub]
-          . apply czoperator_welldefined hg (mul_pos zero_lt_two hr)
-          . apply IntegrableOn.mono_set (hst := ball2_sub_ballprime)
+          · apply czoperator_welldefined hg (mul_pos zero_lt_two hr)
+          · apply IntegrableOn.mono_set (hst := ball2_sub_ballprime)
             apply czoperator_welldefined hg hr
 
   apply enorm_sub_le.trans
   trans ‖∫ (y : X) in bxrc ∩ bx2r, K x y * g y‖ₑ + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ‖∫ (y : X) in bxprc ∩ bx2r, K x' y * g y‖ₑ
-  . gcongr
+  · gcongr
     apply enorm_add_le
   trans (∫⁻ (y : X) in bxrc ∩ bx2r, ‖K x y * g y‖ₑ) + ‖∫ (y : X) in bx2rᶜ, K x y * g y - K x' y * g y‖ₑ +
       ∫⁻ (y : X) in bxprc ∩ bx2r, ‖K x' y * g y‖ₑ
-  . refine add_le_add_three ?_ (by rfl) ?_ <;> apply enorm_integral_le_lintegral_enorm
+  · refine add_le_add_three ?_ (by rfl) ?_ <;> apply enorm_integral_le_lintegral_enorm
   -- LHS is now 10.1.234, apply respective estimates
   trans (2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x) + (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x) +
       (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x)
-  . apply add_le_add_three
-    . exact estimate_10_1_2 hg hr
-    . exact estimate_10_1_3 ha hg hr hx
-    . exact estimate_10_1_4 hg hr hx
+  · apply add_le_add_three
+    · exact estimate_10_1_2 hg hr
+    · exact estimate_10_1_3 ha hg hr hx
+    · exact estimate_10_1_4 hg hr hx
   rw [← distrib_three_right]
   gcongr
   -- Now it is unavoidable to unfold C10_1_2
   with_unfolding_all simp only [C10_1_2]
   norm_cast
   trans 2 ^ (a ^ 3 + 2 * a + 1) + 2 ^ (a ^ 3 + 2 * a) + 2 ^ (a ^ 3 + 2 * a)
-  . apply Nat.add_le_add_iff_right.mpr
+  · apply Nat.add_le_add_iff_right.mpr
     apply Nat.add_le_add_iff_right.mpr
     rw [Nat.pow_le_pow_iff_right (h := Nat.one_lt_two)]
     linarith
