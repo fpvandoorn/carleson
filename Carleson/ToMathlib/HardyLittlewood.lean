@@ -404,8 +404,10 @@ lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpac
 /-- The constant factor in the statement that `M_{𝓑, p}` has strong type. -/
 irreducible_def C2_0_6 (A p₁ p₂ : ℝ≥0) : ℝ≥0 := CMB A (p₂ / p₁) ^ (p₁⁻¹ : ℝ)
 
-/-- Equation (2.0.44). The proof is given between (9.0.34) and (9.0.36). -/
-theorem hasStrongType_maximalFunction
+/-- Equation (2.0.44). The proof is given between (9.0.34) and (9.0.36).
+This is a special case of `hasStrongType_maximalFunction` below, which doesn't have the assumption
+`hR` (but uses this result in its proof). -/
+theorem hasStrongType_maximalFunction_aux
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
@@ -506,7 +508,7 @@ lemma maximalFunction_seq_eq {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {p : ℝ�
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`.
 A proof for basically this result is given in Chapter 9, everything following after equation
 (9.0.36). -/
-theorem hasStrongType_maximalFunction_todo
+theorem hasStrongType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
@@ -523,7 +525,7 @@ theorem hasStrongType_maximalFunction_todo
       ↑(C2_0_6 A p₁ p₂) * eLpNorm v (↑p₂) μ := by
     intro k
     obtain ⟨R, hR⟩ := Finite.exists_image_le (tr_finite h𝓑 k) r
-    exact (hasStrongType_maximalFunction (c := c)
+    exact (hasStrongType_maximalFunction_aux (c := c)
         (Finite.countable (tr_finite h𝓑 k)) hR hp₁ hp₁₂ v mlpv).2
   unfold eLpNorm
   split_ifs with h₀
@@ -679,11 +681,7 @@ def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
   if p₁ = p₂ then (ofNNReal A) ^ (2 / p₁ : ℝ) else C2_0_6 A p₁ p₂
 
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`, but where `p₁ = p₂` is possible and
-we only conclude a weak-type estimate.
-The proof of this should be basically the same as that of `hasStrongType_maximalFunction` +
-`hasStrongType_maximalFunction_todo`, but starting with `HasWeakType.MB_one` instead of
-`hasStrongType_MB`. (For `p₂ > p₁` you can also derive this from
-`hasStrongType_maximalFunction_todo`) -/
+we only conclude a weak-type estimate. -/
 theorem hasWeakType_maximalFunction
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
@@ -694,7 +692,7 @@ theorem hasWeakType_maximalFunction
   · rw [← hps]
     exact hasWeakType_maximalFunction_equal_exponents (A := A) h𝓑 hp₁
   · apply HasStrongType.hasWeakType (one_le_coe_iff.mpr (le_trans hp₁ hp₁₂))
-    exact hasStrongType_maximalFunction_todo h𝓑 hp₁ (lt_of_le_of_ne hp₁₂ hps)
+    exact hasStrongType_maximalFunction h𝓑 hp₁ (lt_of_le_of_ne hp₁₂ hps)
 
 section GMF
 
@@ -764,7 +762,7 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
     HasStrongType (fun (u : X → E) (x : X) ↦ globalMaximalFunction μ p₁ u x)
       p₂ p₂ μ μ (C2_0_6' A p₁ p₂) := by
   apply HasStrongType.const_mul (c := C2_0_6 A p₁ p₂)
-  exact hasStrongType_maximalFunction_todo countable_globalMaximalFunction hp₁ hp₁₂
+  exact hasStrongType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
 
 def C_weakType_globalMaximalFunction (A p₁ p₂ : ℝ≥0) :=
   A ^ 2 * C_weakType_maximalFunction A p₁ p₂
