@@ -1,8 +1,9 @@
-import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
-import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
+import Carleson.TwoSidedCarleson.Basic
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
@@ -477,12 +478,205 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 /-- The constant used in `cotlar_control`. -/
 irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
+  (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
+    ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ ≤
+      2 ^ (a ^ 3 + 4 * a) * globalMaximalFunction volume 1 g x := by
+  have R_pos : 0 < R := by
+    rw [mem_Ioc] at hr
+    linarith
+  unfold czOperator
+  rw [← integral_indicator (by measurability), ← integral_indicator (by measurability), ← integral_sub]
+  rotate_left
+  · rw [integrable_indicator_iff (by measurability)]
+    apply czoperator_welldefined
+    · apply BoundedFiniteSupport.indicator hg (by measurability)
+    · rw [mem_Ioc] at hr; exact hr.1
+  · rw [integrable_indicator_iff (by measurability)]
+    apply czoperator_welldefined _ R_pos
+    apply BoundedFiniteSupport.indicator hg (by measurability)
+  calc _
+    _ = ‖∫ (y : X), ((ball x' R) \ (ball x' r ∪ ball x (R / 2))).indicator (fun y ↦ K x' y * g y) y‖ₑ := by
+      congr
+      ext y
+      unfold indicator
+      split <;> split <;> split <;> rename_i yx'r yx'R hy
+      · exfalso
+        exact yx'R hy.1
+      · simp
+      · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, sub_zero, ite_eq_left_iff,
+        not_le, zero_eq_mul]
+        intro h
+        exfalso
+        simp at yx'r yx'R hy
+        linarith
+      · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, sub_zero, ite_eq_right_iff,
+        mul_eq_zero]
+        intro h
+        exfalso
+        simp at yx'r yx'R hy
+        linarith [hy yx'R yx'r]
+      · simp at yx'r yx'R hy
+        linarith
+      · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, zero_sub, neg_eq_zero,
+        ite_eq_right_iff, mul_eq_zero]
+        intro h
+        exfalso
+        simp at yx'r yx'R hy hr
+        linarith
+      · simp at yx'r yx'R hy
+        linarith
+      · ring
+    _ ≤ ∫⁻ (y : X), ‖((ball x' R) \ (ball x' r ∪ ball x (R / 2))).indicator (fun y ↦ K x' y * g y) y‖ₑ := by
+      apply enorm_integral_le_lintegral_enorm
+    _ = ∫⁻ (y : X) in ((ball x' R) \ (ball x' r ∪ ball x (R / 2))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
+      rw [← lintegral_indicator]
+      · congr with y
+        rw[enorm_indicator_eq_indicator_enorm]
+        congr with y
+        apply enorm_mul
+      measurability
+    _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖K x' y‖ₑ * ‖g y‖ₑ := by
+      apply lintegral_mono_set
+      intro y
+      simp only [mem_diff, mem_ball, mem_union, not_or, not_lt, and_imp]
+      intro h1 h2 h3
+      simp at hr
+      constructor <;>
+      · rw [dist_comm] at hx
+        linarith [dist_triangle y x' x]
+    _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), (C_K a : ℝ≥0∞) / vol x' y * ‖g y‖ₑ := by
+      gcongr with y
+      apply enorm_K_le_vol_inv
+    _ ≤ ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ‖g y‖ₑ := by
+      apply lintegral_set_mono_fn (by measurability)
+      intro y hy
+      gcongr
+      unfold vol
+      apply measure_mono
+      intro z hz
+      simp only [mem_Ioc, mem_diff, mem_ball, not_lt] at *
+      rw [dist_comm x' y]
+      linarith
+    _ = (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in ((ball x (2 * R)) \ (ball x' (R / 4))), ‖g y‖ₑ := by
+      apply lintegral_const_mul''
+      apply AEMeasurable.enorm
+      exact hg.aemeasurable.restrict
+    _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * ∫⁻ (y : X) in (ball x (2 * R)), ‖g y‖ₑ := by
+      gcongr
+      apply lintegral_mono_set
+      exact diff_subset
+    _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x' (R / 4))) * (volume (ball x (2 * R)) * globalMaximalFunction volume 1 g x) := by
+      gcongr
+      apply lintegral_ball_le_volume_globalMaximalFunction
+      simpa
+
+  rw [← mul_assoc]
+  gcongr
+
+  calc _
+    _ ≤ (C_K a : ℝ≥0∞) / (volume (ball x (2 * R)) / 2 ^ (4 * a)) * (volume (ball x (2 * R))) := by
+      gcongr
+      rw [ENNReal.div_le_iff' (by simp) (by simp)]
+      calc _
+        _ = volume (ball x (2 ^ 3 * (R / 4))) := by
+          congr
+          ring_nf
+        _ ≤ (defaultA a) ^ 3 * volume (ball x (R / 4)) := by
+          apply measure_ball_two_le_same_iterate
+        _ ≤ (defaultA a) ^ 3 * volume (ball x' (R / 2)) := by
+          gcongr
+          refine ball_subset ?_
+          linarith
+        _ = (defaultA a) ^ 3 * volume (ball x' (2 * (R / 4))) := by congr; ring_nf
+        _ ≤ (defaultA a) ^ 3 * ((defaultA a) * volume (ball x' (R / 4))) := by
+          gcongr
+          apply measure_ball_two_le_same
+        _ = 2 ^ (4 * a) * volume (ball x' (R / 4)) := by
+          unfold defaultA
+          push_cast
+          ring_nf
+    _= 2 ^ (a ^ 3 + 4 * a) := by
+      unfold C_K
+      rw [← ENNReal.div_mul, mul_assoc, mul_comm (2 ^ (4 * a)), ← mul_assoc, ENNReal.div_mul_cancel]
+      · norm_cast
+        ring
+      · apply (measure_ball_pos volume x (by linarith)).ne.symm
+      · apply measure_ball_ne_top
+      · simp
+      · simp
+
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+
+lemma cut_out_ball {g : X → ℂ}
+  (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
+    czOperator K R g x' = czOperator K R ((ball x (R / 2))ᶜ.indicator g) x' := by
+  have R_pos : 0 < R := by
+    rw [mem_Ioc] at hr
+    linarith
+  unfold czOperator
+  rw [← integral_indicator, ← integral_indicator]
+  · congr
+    apply indicator_eq_indicator'
+    intro y hy
+    rw [indicator_apply_eq_self.mpr]
+    intro hy'
+    exfalso
+    simp at hy hy'
+    have : dist y x' ≤ dist y x + dist x x' := by
+      apply dist_triangle
+    linarith
+  · measurability
+  · measurability
+
 /-- Lemma 10.1.3 -/
 theorem cotlar_control (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
     ‖czOperator K R g x‖ₑ ≤ ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ +
     C10_1_3 a * globalMaximalFunction volume 1 g x := by
-  sorry
+  have R_pos : 0 < R := by
+    rw [mem_Ioc] at hr
+    linarith
+
+  calc ‖czOperator K R g x‖ₑ
+    _ = ‖(czOperator K R g x - czOperator K R g x') + czOperator K R g x'‖ₑ := by
+      congr
+      ring
+    _ ≤ ‖czOperator K R g x - czOperator K R g x'‖ₑ + ‖czOperator K R g x'‖ₑ := by
+      apply enorm_add_le
+    _ = nndist (czOperator K R g x) (czOperator K R g x') + ‖czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by congr 2; exact cut_out_ball hr hx
+    _ ≤ C10_1_2 a * globalMaximalFunction volume 1 g x + (‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ + ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ) := by
+      gcongr
+      · apply estimate_x_shift ha hg R_pos
+        linarith
+      · --triangle inequality as above
+        rw [← edist_eq_enorm_sub, edist_comm, edist_eq_enorm_sub]
+        apply le_trans _ (enorm_add_le _ _)
+        apply le_of_eq
+        congr
+        ring
+    _ ≤ C10_1_2 a * globalMaximalFunction volume 1 g x + 2 ^ (a ^ 3 + 4 * a) * globalMaximalFunction volume 1 g x + ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ := by
+      rw [add_assoc]
+      gcongr
+      exact radius_change hg hr hx
+    _ ≤ ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ + C10_1_3 a * globalMaximalFunction volume 1 g x := by
+      rw [add_comm]
+      gcongr
+      rw [← add_mul]
+      gcongr
+      rw [C10_1_2_def, C10_1_3_def]
+      norm_num
+      calc (2 : ℝ≥0∞) ^ (a ^ 3 + 2 * a + 2) + 2 ^ (a ^ 3 + 4 * a)
+        _ = (2 : ℝ≥0∞) ^ (a ^ 3 + (2 * a + 2)) + 2 ^ (a ^ 3 + 4 * a) := by
+          congr 1
+        _ ≤ 2 ^ (a ^ 3 + 4 * a) + 2 ^ (a ^ 3 + 4 * a) := by
+          gcongr
+          · exact one_le_two
+          · linarith
+        _ = 2 * 2 ^ (a ^ 3 + 4 * a) := (two_mul (2 ^ (a ^ 3 + 4 * a))).symm
+        _ = 2 ^ (a ^ 3 + 4 * a + 1) := (pow_succ' 2 (a ^ 3 + 4 * a)).symm
+
 
 /-- The constant used in `cotlar_set_F₂`. -/
 irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)

@@ -31,4 +31,16 @@ theorem lintegral_comp' {α : Type*} {β : Type*} {m : MeasurableSpace α} {μ :
     _ = ∫⁻ a, hf.mk f a ∂μ.map (hg.mk g) := lintegral_comp hf.measurable_mk hg.measurable_mk
     _ = ∫⁻ a, f a ∂μ.map (hg.mk g)       := lintegral_congr_ae hf.ae_eq_mk.symm
 
+lemma lintegral_set_mono_fn {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
+    (hs : MeasurableSet s) ⦃f g : α → ℝ≥0∞⦄ (hfg : ∀ x ∈ s, f x ≤ g x) :
+    ∫⁻ (a : α) in s, f a ∂μ ≤ ∫⁻ (a : α) in s, g a ∂μ := by
+  rw [← lintegral_indicator hs, ← lintegral_indicator hs]
+  apply lintegral_mono_fn
+  intro x
+  unfold Set.indicator
+  split
+  · rename_i hxs
+    exact hfg x hxs
+  · rfl
+
 end MeasureTheory
