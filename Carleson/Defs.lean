@@ -238,7 +238,6 @@ lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology 
     Measurable (uncurry vol : X × X → ℝ≥0∞) := by
   let f : X × X → X × ℝ := fun (x, y) ↦ (x, dist x y)
   let g : X × ℝ → ℝ≥0∞ := fun (x, a) ↦ volume (ball x a)
-  have : uncurry vol = g ∘ f := by rfl
   apply Measurable.comp (f := f) (g := g)
   · apply measurable_measure_ball
   · fun_prop
