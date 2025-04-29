@@ -1,9 +1,31 @@
 import Carleson.ToMathlib.RealInterpolation.Minkowski
 
 /-!
-# Proof of the real interpolation theorem
+# The Marcinkiewisz real interpolation theorem
 
-TODO: extend this doc-string
+This file contains a proof of the Marcinkiewisz real interpolation theorem.
+The proof roughly follows Folland, Real Analysis. Modern Techniques and Their Applications,
+section 6.4, theorem 6.28, but a different truncation is used, and some estimates instead
+follow the technique as e.g. described in [Duoandikoetxea, Fourier Analysis, 2000].
+
+This file has the definitions for the main proof, and the final proof of the theorem.
+A few other files contain the necessary pre-requisites:
+- (in `InterpolateExponents.lean`) Convenience results for working with (interpolated) exponents
+- (in `InterpolateExponents.lean`) Results about the particular choice of exponent
+- (in `Misc.lean`) Interface for using cutoff functions
+- (in `Misc.lean`) Results about the particular choice of scale
+- (in `Misc.lean`) Some tools for measure theory computations
+- (in `Misc.lean`) Results about truncations of a function
+- (in `Misc.lean`) Measurability properties of truncations
+- (in `Misc.lean`) Truncations and Lp spaces
+- (in `Misc.lean`) Some results about the integrals of truncations
+- (in `Minkowski.lean`) Minkowski's integral inequality
+- (in `Minkowski.lean`) Apply Minkowski's integral inequality to truncations
+- (in `Minkowski.lean`) Weaktype estimates applied to truncations
+
+## TODO
+Generalise this to functions taking values in ℝ≥0∞, instead of ℝ. This entails generalising
+most intermediate lemmas from normed spaces to the appropriate `enorm` classes.
 
 -/
 
