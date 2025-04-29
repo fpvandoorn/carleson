@@ -1,5 +1,5 @@
 import Carleson.ToMathlib.WeakType
-import Carleson.ToMathlib.RealInterpolation.Basic
+import Carleson.ToMathlib.RealInterpolation.Misc
 
 /-!
 # Minkowski's integral inequality
