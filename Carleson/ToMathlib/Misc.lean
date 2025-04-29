@@ -599,10 +599,15 @@ theorem prod_attach_insert {α β : Type*} {s : Finset α} {a : α} [DecidableEq
 
 namespace MeasureTheory
 
-theorem measurable_measure_ball {α : Type*} [MetricSpace α] [MeasurableSpace α] {μ : Measure α} [SFinite μ] : Measurable fun (a, r) ↦ μ (Metric.ball a r) := by
+theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
+    [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :
+    Measurable fun (a, r) ↦ μ (Metric.ball a r) := by
   let s : Set (α × α × ℝ) := fun (b, a, r) ↦ b ∈ Metric.ball a r
   apply measurable_measure_prodMk_right (s := s)
-  --apply measurableSet_graph, apply measurable_dist
-  sorry
+  unfold s Metric.ball
+  simp_rw [mem_setOf]
+  apply measurableSet_lt
+  · fun_prop
+  · fun_prop
 
 end MeasureTheory

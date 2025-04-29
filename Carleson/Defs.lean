@@ -1,6 +1,7 @@
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.Data.ENNReal
+import Carleson.ToMathlib.Misc
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
@@ -230,6 +231,17 @@ protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y :
 `IsFiniteMeasureOnCompacts` and `ProperSpace` to actually know that this volume is finite. -/
 def vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ≥0∞ :=
   volume (ball x (dist x y))
+
+@[fun_prop]
+lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
+    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] :
+    Measurable (uncurry vol : X × X → ℝ≥0∞) := by
+  let f : X × X → X × ℝ := fun (x, y) ↦ (x, dist x y)
+  let g : X × ℝ → ℝ≥0∞ := fun (x, a) ↦ volume (ball x a)
+  have : uncurry vol = g ∘ f := by rfl
+  apply Measurable.comp (f := f) (g := g)
+  · apply measurable_measure_ball
+  · fun_prop
 
 lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
   Real.vol x y = (vol x y).toReal := rfl

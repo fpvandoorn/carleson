@@ -187,9 +187,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
   simp only [enorm_mul]
 
   trans ∫⁻ (y : X) in (ball x (2*r))ᶜ, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
-  · apply setLIntegral_mono_ae _ (.of_forall _)
-    · have : Measurable fun y ↦ vol x y := by sorry
-      fun_prop
+  · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
     intro y h
     refine mul_le_mul' (enorm_K_sub_le' ?_) (by rfl)
     trans 2 * r
