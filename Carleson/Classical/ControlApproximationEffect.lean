@@ -382,7 +382,7 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
           push_cast
           norm_cast
           congr 1 <;>
-          · rw [integral_mul_left, norm_mul, mul_comm I, norm_exp_ofReal_mul_I, one_mul]
+          · rw [integral_const_mul, norm_mul, mul_comm I, norm_exp_ofReal_mul_I, one_mul]
     _ ≤ T g x + T (conj ∘ g) x := by
       simp_rw [carlesonOperatorReal]
       apply iSup₂_le

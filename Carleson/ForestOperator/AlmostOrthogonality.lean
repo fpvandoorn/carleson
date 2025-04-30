@@ -216,12 +216,12 @@ lemma adjointCarleson_adjoint
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
       conv =>
         enter [1, 2, x, 2]; unfold carlesonOn
-        rw [indicator_eq_indicator_one_mul, ← integral_mul_left]
+        rw [indicator_eq_indicator_one_mul, ← integral_const_mul]
         enter [2, y]; rw [← mul_assoc]
-    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_mul_left, mul_assoc]
+    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
     _ = ∫ y, ∫ x, H x y := integral_integral_swap hH
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
-      simp_rw [H, integral_mul_right]
+      simp_rw [H, integral_mul_const]
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
       simp_rw [← integral_conj]; congrm (∫ _, (∫ _, ?_) * (f _))
       rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]

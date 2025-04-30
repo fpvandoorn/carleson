@@ -252,8 +252,8 @@ lemma carlesonOperatorReal_mul {f : ℝ → ℂ} {x : ℝ} {a : ℝ} (ha : 0 < a
   norm_cast
   apply NNReal.eq
   simp only [coe_nnnorm, NNReal.coe_mul]
-  rw [← Real.norm_of_nonneg (@NNReal.zero_le_coe a.toNNReal), ← Complex.norm_real, ← norm_mul,
-    ← integral_mul_left, Real.coe_toNNReal a ha.le]
+  rw [← Real.norm_of_nonneg NNReal.zero_le_coe, ← Complex.norm_real, ← norm_mul,
+    ← integral_const_mul, Real.coe_toNNReal a ha.le]
   congr with y
   field_simp
   rw [mul_div_cancel_left₀]
