@@ -721,17 +721,14 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     simp_rw [enorm_eq_nnnorm, coe_algebraMap, nnnorm_real, ← enorm_eq_nnnorm,
       ← ENNReal.rpow_natCast, Nat.cast_ofNat]
     refine (enorm_toReal ?_).symm
-    replace hv' := by
-      apply ENNReal.pow_lt_top
-      · exact 2
-      · exact hv'
+    replace hv' := ENNReal.pow_lt_top (n := 2) hv'
     rw [← ENNReal.rpow_natCast, show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl,
       show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, eLpNorm_nnreal_pow_eq_lintegral two_ne_zero,
       show ((2 : ℝ≥0) : ℝ) = (2 : ℕ) by rfl] at hv'
     simp_rw [enorm_eq_self] at hv'; exact hv'.ne
   · rw [← elpn_eq, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl]
     simp_rw [eLpNorm_nnreal_eq_lintegral two_ne_zero]; congr!
-    simp only [enorm_eq_nnnorm, nnnorm_real]
+    simp [enorm_eq_nnnorm, nnnorm_real]
 
 /-- The constant used in `tree_projection_estimate`.
 Originally had value `2 ^ (104 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/
