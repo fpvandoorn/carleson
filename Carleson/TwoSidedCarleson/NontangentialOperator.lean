@@ -202,7 +202,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       rw [this, Annulus.ci_eq]
     · intro n
       gcongr <;> simp
-    · apply Filter.unbounded_of_tendsto_atTop
+    · apply Filter.not_bddAbove_of_tendsto_atTop
       apply Filter.tendsto_atTop_atTop_of_monotone
       · refine Monotone.mul_const ?_ (le_of_lt hr)
         exact Monotone.comp (pow_right_mono₀ Nat.one_le_ofNat) Order.succ_mono
