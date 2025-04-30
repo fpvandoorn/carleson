@@ -285,16 +285,10 @@ theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toRe
 
 end MemLp
 
--- remove if the Mathlib-lemma is generalized
-theorem hasFiniteIntegral_iff_enorm' {ε} [TopologicalSpace ε] [ENorm ε]
-  {f : α → ε} : HasFiniteIntegral f μ ↔ ∫⁻ a, ‖f a‖ₑ ∂μ < ∞ := by
-  simp only [HasFiniteIntegral, ofReal_norm_eq_enorm, enorm_eq_nnnorm]
-
--- remove if the Mathlib-lemma is generalized
+-- remove once the Mathlib-lemma is generalized
 theorem memLp_one_iff_integrable' {ε} [TopologicalSpace ε] [ENorm ε]
   {f : α → ε} : MemLp f 1 μ ↔ Integrable f μ := by
-  simp_rw [Integrable, hasFiniteIntegral_iff_enorm', MemLp, eLpNorm_one_eq_lintegral_enorm]
-
+  simp_rw [Integrable, hasFiniteIntegral_iff_enorm, MemLp, eLpNorm_one_eq_lintegral_enorm]
 
 theorem Integrable.toReal {f : α → ℝ≥0∞} (hf : Integrable f μ) : Integrable (f · |>.toReal) μ := by
   rw [← memLp_one_iff_integrable'] at hf ⊢; exact hf.toReal
