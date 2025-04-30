@@ -195,7 +195,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     rw [mem_compl_iff, mem_ball, dist_comm] at h
     exact le_of_not_gt h
 
-  let dom_i (i : ℕ) := Annulus.co x (2^(i+1) * r) (2^(i+2) * r)
+  let dom_i (i : ℕ) := Annulus.co x (2 ^ (i + 1) * r) (2 ^ (i + 2) * r)
   have rw_dom : (ball x (2*r))ᶜ = ⋃ (i : ℕ) , dom_i i:= by
     rw [Annulus.iUnion_co_eq_ci]
     · have : 2 * r = 2 ^ (0 + 1) * r := by ring
@@ -204,8 +204,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       gcongr <;> simp
     · apply Filter.not_bddAbove_of_tendsto_atTop (l := Filter.atTop)
       apply Filter.tendsto_atTop_atTop_of_monotone
-      · refine Monotone.mul_const ?_ (le_of_lt hr)
-        exact Monotone.comp (pow_right_mono₀ Nat.one_le_ofNat) Order.succ_mono
+      · exact (pow_right_mono₀ Nat.one_le_ofNat).comp Order.succ_mono|>.mul_const (le_of_lt hr)
       intro b
       use Nat.ceil (b / r)
       rw [← div_le_iff₀ hr]
@@ -214,7 +213,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
       · norm_cast
         trans Nat.ceil (b / r) + 1
         · exact Nat.le_add_right ⌈b / r⌉₊ 1
-        · apply le_of_lt (Nat.lt_pow_self (le_refl 2))
+        · exact le_of_lt (Nat.lt_pow_self (le_refl 2))
 
   trans ∑' (i : ℕ), ∫⁻ (y : X) in dom_i i, ((edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)) * ‖g y‖ₑ
   · rw [rw_dom]
@@ -325,7 +324,7 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
     2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
   simp only [enorm_mul]
 
-  trans ∫⁻ (y : X) in (ball x' r)ᶜ ∩ ball x (2*r), C_K ↑a / volume (ball x' r) * ‖g y‖ₑ
+  trans ∫⁻ (y : X) in (ball x' r)ᶜ ∩ ball x (2 * r), C_K a / volume (ball x' r) * ‖g y‖ₑ
   · apply setLIntegral_mono_ae (by fun_prop) (.of_forall _)
     intro x
     trans x ∈ (ball x' r)ᶜ
@@ -335,33 +334,22 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   rw [lintegral_const_mul'' _ hg.aemeasurable.restrict.enorm] -- LHS = 10.1.5 but for x'
 
   trans C_K ↑a / volume (ball x' r) * (globalMaximalFunction volume 1 g x * volume (ball x' (4 * r)))
-  · apply mul_le_mul'
-    case h₁ => rfl
-
+  · apply mul_le_mul' le_rfl
     trans ∫⁻ (a : X) in ball x' (4 * r), ‖g a‖ₑ
     · apply lintegral_mono_set
-      trans ball x (2*r)
+      trans ball x (2 * r)
       · exact inter_subset_right
-      · apply ball_subset
-        linarith
-
+      · exact ball_subset (by linarith)
     rw [_laverage_mul_measure_ball]
-    apply mul_le_mul'
-    case h₂ => rfl
-
-    apply laverage_le_globalMaximalFunction
-    linarith
+    apply mul_le_mul' ?_ le_rfl
+    exact laverage_le_globalMaximalFunction (by linarith)
 
   nth_rw 2 [mul_comm]
   rw [← mul_assoc]
 
-  apply mul_le_mul'
-  case h₂ => rfl
-
+  apply mul_le_mul' ?_ le_rfl
   trans C_K ↑a / volume (ball x' r) * ((defaultA a) ^ 2 * volume (ball x' r))
-  · apply mul_le_mul'
-    case h₁ => rfl
-    case h₂ => apply measure_ball_four_le_same'
+  · exact mul_le_mul' le_rfl (measure_ball_four_le_same' _ _)
 
   -- Somehow simp doesn't do it
   apply le_of_eq
@@ -421,12 +409,11 @@ theorem estimate_x_shift (ha : 4 ≤ a)
       _ = (∫ y in bxprc, K x' y * g y) := by rfl
       _ = (∫ y in (bxprc ∩ bx2r) ∪ bx2rᶜ , K x' y * g y) := by nth_rw 1 [dom_x_prime]
 
-    apply setIntegral_union_2
+    refine setIntegral_union_2 ?_ measurableSet_ball.compl ?_
     · rw [disjoint_compl_right_iff_subset]
       exact inter_subset_right
-    · exact measurableSet_ball.compl
     · rw [← dom_x_prime]
-      apply czoperator_welldefined hg hr
+      exact czoperator_welldefined hg hr ..
 
   rw [edist_eq_enorm_sub, integral_x, integral_x_prime]
 
@@ -456,10 +443,8 @@ theorem estimate_x_shift (ha : 4 ≤ a)
   -- LHS is now 10.1.234, apply respective estimates
   trans (2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x) + (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x) +
       (2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x)
-  · apply add_le_add_three
-    · exact estimate_10_1_2 hg hr
-    · exact estimate_10_1_3 ha hg hr hx
-    · exact estimate_10_1_4 hg hr hx
+  · exact add_le_add_three (estimate_10_1_2 hg hr) (estimate_10_1_3 ha hg hr hx)
+      (estimate_10_1_4 hg hr hx)
   rw [← distrib_three_right]
   gcongr
   -- Now it is unavoidable to unfold C10_1_2
