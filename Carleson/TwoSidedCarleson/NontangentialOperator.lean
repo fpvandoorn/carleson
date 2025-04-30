@@ -177,6 +177,7 @@ lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   norm_cast
   ring
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     ‖∫ (y : X) in (ball x (2*r))ᶜ, K x y * g y - K x' y * g y‖ₑ ≤
     2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
@@ -360,6 +361,7 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   norm_cast
   ring
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Lemma 10.1.2 -/
 theorem estimate_x_shift (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
@@ -613,6 +615,7 @@ lemma cut_out_ball {g : X → ℂ}
   · measurability
   · measurability
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Lemma 10.1.3 -/
 theorem cotlar_control (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
