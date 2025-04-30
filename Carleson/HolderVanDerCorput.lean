@@ -194,7 +194,7 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
     apply (closure_mono hϕ).trans (closure_ball_subset_closedBall.trans ?_)
     exact closedBall_subset_ball (by linarith)
   have : (∫ y, cutoff R t x y * ϕ x) / (∫ y, (cutoff R t x y : ℂ)) = ϕ x := by
-    rw [integral_mul_right, mul_div_cancel_left₀]
+    rw [integral_mul_const, mul_div_cancel_left₀]
     simpa only [ne_eq, ofReal_eq_zero, integral_complex_ofReal] using (integral_cutoff_pos hR ht).ne'
   rw [dist_eq_norm, ← this, holderApprox, integral_complex_ofReal, ← sub_div,
     ← integral_sub]; rotate_left
@@ -239,7 +239,7 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
         rwa [one_le_div₀ (by positivity)]
       simp [this]
   _ = ((t / 2) * (2 * R)) ^τ * C * ∫ y, cutoff R t x y := by
-    rw [integral_mul_right, show (t / 2) * (2 * R) = t * R by ring]
+    rw [integral_mul_const, show (t / 2) * (2 * R) = t * R by ring]
     ring
   _ ≤ ((t / 2) * (2 * R)) ^ τ * C * ‖∫ (x_1 : X), cutoff R t x x_1‖ := by
     gcongr
@@ -273,7 +273,7 @@ lemma holderApprox_le {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 0 < t)
   rw [holderApprox, norm_div, norm_real, Real.norm_eq_abs]
   apply div_le_of_le_mul₀ (by positivity) (by positivity)
   apply (norm_integral_le_integral_norm _).trans
-  rw [abs_of_pos (integral_cutoff_pos hR ht), ← integral_mul_left]
+  rw [abs_of_pos (integral_cutoff_pos hR ht), ← integral_const_mul]
   apply integral_mono_of_nonneg
   · apply Eventually.of_forall (fun x ↦ by positivity)
   · apply (integrable_cutoff hR ht).const_mul
@@ -335,7 +335,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
         gcongr
         apply hC
     _ = 2 * C * ∫ y, |cutoff R t x y - cutoff R t x' y| := by
-      simp only [Real.norm_eq_abs, integral_mul_right, abs_sub_comm (cutoff R t x' _)]
+      simp only [Real.norm_eq_abs, integral_mul_const, abs_sub_comm (cutoff R t x' _)]
       ring
   have N : ∫ y, |cutoff R t x y - cutoff R t x' y| ≤
       volume.real (ball x (2 * R)) * dist x x' / (t * R) := calc
