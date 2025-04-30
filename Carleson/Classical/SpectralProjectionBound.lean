@@ -13,8 +13,8 @@ open scoped InnerProductSpace
 lemma L2norm_sq_eq {T : ℝ} [hT : Fact (0 < T)] (f : Lp ℂ 2 <| @haarAddCircle T hT) :
     ‖f‖ ^ 2 = ∫ (x : AddCircle T), ‖f x‖ ^ 2 ∂haarAddCircle := by
   /- The proof is inspired by parts of the proof of tsum_sq_fourierCoeff. -/
-  rw [@norm_sq_eq_inner ℂ, @L2.inner_def (AddCircle T) ℂ ℂ _ _ _ _ _ f f, ← integral_re (L2.integrable_inner f f)]
-  simp only [← norm_sq_eq_inner]
+  rw [@norm_sq_eq_re_inner ℂ, @L2.inner_def (AddCircle T) ℂ ℂ _ _ _ _ _ f f, ← integral_re (L2.integrable_inner f f)]
+  simp only [← norm_sq_eq_re_inner]
 
 lemma fourierCoeff_eq_innerProduct {T : ℝ} [hT : Fact (0 < T)] [h2 : Fact (1 ≤ 2)] {f : ↥(Lp ℂ 2 haarAddCircle)} {n : ℤ} :
     fourierCoeff f n = ⟪@fourierLp T hT 2 h2 n, f⟫_ℂ := by

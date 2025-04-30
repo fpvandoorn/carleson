@@ -210,7 +210,7 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
         _ ≤ 8 * (D : ℝ) ^ s I + 4 * (D : ℝ) ^ s I :=
           add_le_add h (mem_ball.mp (Grid_subset_ball hx')).le
         _ < 16 * (D : ℝ) ^ s I := by linarith [defaultD_pow_pos a (s I)]
-    _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLaverage_eq]
+    _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLAverage_eq]
     _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
       rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
       have : (4, 0, I) ∈ 𝓑 := by simp [𝓑]
@@ -483,11 +483,11 @@ lemma e728_rearrange (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport 
     _ = ∑ I : Grid X, (volume (ball (c I) (16 * D ^ s I)))⁻¹.toReal *
         ∫ x in I, (conj (g x) * ∑ J ∈ 𝓙' t u (c I) (s I),
           (D ^ ((s J - s I) / (a : ℝ)) * ∫⁻ y in J, ‖f y‖ₑ).toReal) := by
-      congr with I; rw [← integral_mul_left]
+      congr with I; rw [← integral_const_mul]
       congr with x; rw [← mul_assoc, mul_comm _ (conj _), mul_assoc]
       congr 1; rw [ofReal_sum, ofReal_sum, Finset.mul_sum]
       congr with J; rw [mul_comm, ofReal_mul]
-    _ = _ := by simp_rw [integral_mul_right, mul_assoc]
+    _ = _ := by simp_rw [integral_mul_const, mul_assoc]
 
 open scoped Classical in
 /-- Equation (7.2.8) in the proof of Lemma 7.2.3. -/
@@ -721,14 +721,14 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
     simp_rw [enorm_eq_nnnorm, coe_algebraMap, nnnorm_real, ← enorm_eq_nnnorm,
       ← ENNReal.rpow_natCast, Nat.cast_ofNat]
     refine (enorm_toReal ?_).symm
-    replace hv' := ENNReal.pow_lt_top hv' 2
+    replace hv' := ENNReal.pow_lt_top (n := 2) hv'
     rw [← ENNReal.rpow_natCast, show ((2 : ℕ) : ℝ) = (2 : ℝ≥0) by rfl,
       show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, eLpNorm_nnreal_pow_eq_lintegral two_ne_zero,
       show ((2 : ℝ≥0) : ℝ) = (2 : ℕ) by rfl] at hv'
     simp_rw [enorm_eq_self] at hv'; exact hv'.ne
   · rw [← elpn_eq, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl]
     simp_rw [eLpNorm_nnreal_eq_lintegral two_ne_zero]; congr!
-    simp only [enorm_eq_nnnorm, nnnorm_real]
+    simp [enorm_eq_nnnorm, nnnorm_real]
 
 /-- The constant used in `tree_projection_estimate`.
 Originally had value `2 ^ (104 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/

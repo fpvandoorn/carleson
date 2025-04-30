@@ -170,13 +170,13 @@ lemma laverage_const_mul {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α
 lemma setLaverage_add_left' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} {f g : α → ENNReal} (hf : AEMeasurable f μ) :
     ⨍⁻ x in s, (f x + g x) ∂μ = ⨍⁻ x in s, f x ∂μ + ⨍⁻ x in s, g x ∂μ := by
-  simp_rw [setLaverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf.restrict]
+  simp_rw [setLAverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf.restrict]
 
 -- Named for consistency with `setLintegral_mono'`
 lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} (hs : MeasurableSet s) {f g : α → ENNReal} (h : ∀ x ∈ s, f x ≤ g x) :
     ⨍⁻ x in s, f x ∂μ ≤ ⨍⁻ x in s, g x ∂μ := by
-  simp_rw [setLaverage_eq]
+  simp_rw [setLAverage_eq]
   exact ENNReal.div_le_div_right (setLIntegral_mono' hs h) (μ s)
 
 end MeasureTheory
@@ -209,7 +209,7 @@ lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤
   laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
 
 lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
-  simp_rw [setLaverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
+  simp_rw [setLAverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
     univ_inter, div_eq_mul_inv, mul_assoc]
   conv_rhs => rw [← mul_one c]
   gcongr
@@ -285,16 +285,10 @@ theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toRe
 
 end MemLp
 
--- remove if the Mathlib-lemma is generalized
-theorem hasFiniteIntegral_iff_enorm' {ε} [TopologicalSpace ε] [ENorm ε]
-  {f : α → ε} : HasFiniteIntegral f μ ↔ ∫⁻ a, ‖f a‖ₑ ∂μ < ∞ := by
-  simp only [HasFiniteIntegral, ofReal_norm_eq_enorm, enorm_eq_nnnorm]
-
--- remove if the Mathlib-lemma is generalized
+-- remove once the Mathlib-lemma is generalized
 theorem memLp_one_iff_integrable' {ε} [TopologicalSpace ε] [ENorm ε]
   {f : α → ε} : MemLp f 1 μ ↔ Integrable f μ := by
-  simp_rw [Integrable, hasFiniteIntegral_iff_enorm', MemLp, eLpNorm_one_eq_lintegral_enorm]
-
+  simp_rw [Integrable, hasFiniteIntegral_iff_enorm, MemLp, eLpNorm_one_eq_lintegral_enorm]
 
 theorem Integrable.toReal {f : α → ℝ≥0∞} (hf : Integrable f μ) : Integrable (f · |>.toReal) μ := by
   rw [← memLp_one_iff_integrable'] at hf ⊢; exact hf.toReal

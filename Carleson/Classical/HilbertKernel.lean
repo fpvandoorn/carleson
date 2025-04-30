@@ -8,7 +8,7 @@ import Mathlib.Tactic.FunProp
 
 noncomputable section
 
-open scoped Real
+open scoped Real Interval
 open Complex ComplexConjugate MeasureTheory
 
 def k (x : ℝ) : ℂ := max (1 - |x|) 0 / (1 - exp (I * x))

@@ -312,7 +312,7 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
     simp only [ge_iff_le, mem_setOf_eq, Bₗ]
     have hi : i ∈ 𝓑 :=
       by_contradiction <| fun h ↦ not_lt_of_ge (zero_le t) (ENNReal.coe_lt_coe.mp <| by simp [h] at ht)
-    exact ⟨hi, mul_le_of_le_div <| le_of_lt (by simpa [setLaverage_eq, hi, hx] using ht)⟩
+    exact ⟨hi, mul_le_of_le_div <| le_of_lt (by simpa [setLAverage_eq, hi, hx] using ht)⟩
   · exact fun i hi ↦ hR i (mem_of_mem_inter_left hi)
   · exact fun i hi ↦ hi.2.trans (setLIntegral_mono' measurableSet_ball fun x _ ↦ by simp)
 
