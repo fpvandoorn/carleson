@@ -692,7 +692,6 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
       {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
-  nth_rw 2 [div_eq_mul_inv]
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
     rw [measure_zero_iff_ae_nmem]
@@ -700,33 +699,33 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     filter_upwards [czzero]
     intro x' hx'
     simp [hx']
-  · rw [← lintegral_indicator_one₀ ?hs]
-    case hs =>
-      apply nullMeasurableSet_lt (by fun_prop)
-      exact AEMeasurable.restrict (by fun_prop) -- TODO tag with `fun_prop`?
-    rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) ?ne_t (c := 4 * MTrgx)]
-    case ne_t => apply mul_ne_top (by simp); sorry --globalMaximalFunction_lt_top
-    rw [← lintegral_mul_const']
-    case neg.hr => apply mul_ne_top (by simp); sorry --globalMaximalFunction_lt_top
-    simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
-    trans ∫⁻ (y : X) in ball x (R / 4),
-    {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ}.indicator
-      (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
-    · apply lintegral_mono_fn
-      intro y
-      apply indicator_le_indicator'
-      rw [mem_setOf_eq]
-      exact le_of_lt
-    trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
-    · apply lintegral_mono_fn
-      intro y -- otherwise runs into deterministic timeout, don't ask me why
-      apply indicator_le_self
-    rw [mul_assoc]
-    nth_rw 2 [← mul_assoc]
-    rw [ENNReal.inv_mul_cancel (by simp) (by simp)]
-    simp only [one_mul, MTrgx]
-    apply lintegral_ball_le_volume_globalMaximalFunction
-    simp [(lt_of_lt_of_le hr hR)]
+  rw [← lintegral_indicator_one₀ ?hs]
+  case hs =>
+    apply nullMeasurableSet_lt (by fun_prop)
+    exact AEMeasurable.restrict (by fun_prop) -- TODO tag with `fun_prop`?
+  rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) ?ne_t (c := 4 * MTrgx)]
+  case ne_t => apply mul_ne_top (by simp); sorry --globalMaximalFunction_lt_top
+  rw [← lintegral_mul_const' _ _ ?hr]
+  case hr => apply mul_ne_top (by simp); sorry --globalMaximalFunction_lt_top
+  simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
+  trans ∫⁻ (y : X) in ball x (R / 4),
+      {x' | 4 * MTrgx < ‖czOperator K r g x'‖ₑ}.indicator (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
+  · apply lintegral_mono_fn
+    intro y
+    apply indicator_le_indicator'
+    rw [mem_setOf_eq]
+    exact le_of_lt
+  trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
+  · apply lintegral_mono_fn
+    intro y -- otherwise runs into deterministic timeout, don't ask me why
+    apply indicator_le_self
+  nth_rw 2 [div_eq_mul_inv]
+  rw [mul_assoc]
+  nth_rw 2 [← mul_assoc]
+  rw [ENNReal.inv_mul_cancel (by simp) (by simp)]
+  simp only [one_mul, MTrgx]
+  apply lintegral_ball_le_volume_globalMaximalFunction
+  simp [(lt_of_lt_of_le hr hR)]
 
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
 theorem cotlar_set_F₂ (ha : 4 ≤ a)
