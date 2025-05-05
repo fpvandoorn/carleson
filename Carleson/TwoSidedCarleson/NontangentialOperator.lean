@@ -669,7 +669,7 @@ irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 
 @[fun_prop]
 lemma czOperator_aemeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
-    AEMeasurable (fun x ↦ czOperator K r g x) (μ := (volume.restrict (ball x (R/4)))) := by
+    AEMeasurable (fun x ↦ czOperator K r g x) := by
   sorry
 
 lemma globalMaximalFunction_zero_enorm_czoperator_ae_zero (hR : 0 < R) {g : X → ℂ} (hg : BoundedFiniteSupport g)
@@ -677,9 +677,7 @@ lemma globalMaximalFunction_zero_enorm_czoperator_ae_zero (hR : 0 < R) {g : X �
     ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r g x'‖ₑ = 0 := by
   change (fun x' ↦ ‖czOperator K r g x'‖ₑ) =ᶠ[ae (volume.restrict (ball x (R / 4)))] 0
   rw [← lintegral_eq_zero_iff' ?hf]
-  case hf =>
-    have : AEMeasurable (fun x ↦ czOperator K r g x) (μ := (volume.restrict (ball x (R/4)))) := by sorry
-    fun_prop
+  case hf => exact AEMeasurable.restrict (by fun_prop) -- TODO tag with `fun_prop`?
   rw [← bot_eq_zero, ← le_bot_iff, bot_eq_zero]
   apply le_of_le_of_eq (lintegral_ball_le_volume_globalMaximalFunction _)
   · rw [hMzero]
@@ -702,13 +700,14 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     filter_upwards [czzero]
     intro x' hx'
     simp [hx']
-  · rw [← lintegral_indicator_one ?hs]
-    case hs => sorry
-    rw [← ENNReal.mul_le_mul_right ?ne_z ?ne_t (c := 4 * MTrgx)]
-    case ne_z => sorry
-    case ne_t => sorry
-    rw [← lintegral_mul_const]
-    case neg.hf => sorry
+  · rw [← lintegral_indicator_one₀ ?hs]
+    case hs =>
+      apply nullMeasurableSet_lt (by fun_prop)
+      exact AEMeasurable.restrict (by fun_prop) -- TODO tag with `fun_prop`?
+    rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) ?ne_t (c := 4 * MTrgx)]
+    case ne_t => apply mul_ne_top (by simp); sorry --globalMaximalFunction_lt_top
+    rw [← lintegral_mul_const']
+    case neg.hr => apply mul_ne_top (by simp); sorry --globalMaximalFunction_lt_top
     simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
     trans ∫⁻ (y : X) in ball x (R / 4),
     {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ}.indicator
