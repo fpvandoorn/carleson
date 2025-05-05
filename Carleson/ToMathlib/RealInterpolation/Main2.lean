@@ -48,7 +48,7 @@ variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Mea
 ## Definitions -/
 namespace MeasureTheory
 
-variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedSpace ε₁] [TopologicalSpace ε₂] [ENormedSpace ε₂]
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
 
 def Subadditive [ENorm ε] (T : (α → ε₁) → α' → ε) : Prop :=
   ∃ A ≠ ⊤, ∀ (f g : α → ε₁) (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
@@ -135,6 +135,8 @@ lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
 end AESubadditiveOn
 
 variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂] [TopologicalSpace ε] [ENormedSpace ε]
+
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedSpace ε₁]
 
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
 def AESublinearOn (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) (ν : Measure α') :
