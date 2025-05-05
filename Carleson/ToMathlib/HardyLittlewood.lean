@@ -577,8 +577,7 @@ lemma lowerSemiContinuous_MB (hf : LocallyIntegrable f μ) :
     LowerSemicontinuous (MB μ 𝓑 c r f) := by
   sorry
 
-theorem hasWeakType_maximalFunction_equal_exponents₀
-    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
+theorem hasWeakType_maximalFunction_equal_exponents₀ [BorelSpace X]
     {p : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp : 1 ≤ p) :
     HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
       p p μ μ (A ^ ((2 / p : ℝ))) := by
@@ -601,8 +600,7 @@ theorem hasWeakType_maximalFunction_equal_exponents₀
   intro t
   by_cases ht : t = 0
   · rw [ht]; simp
-  · have tpos : t > 0 := by exact pos_of_ne_zero ht
-    apply (rpow_le_rpow_iff cp).mp
+  · apply (rpow_le_rpow_iff cp).mp
     rw [ENNReal.mul_rpow_of_nonneg _ _ NNReal.zero_le_coe]
     convert hmb_one (t ^ (p : ℝ))
     · exact Eq.symm (coe_rpow_of_ne_zero ht ↑p)
@@ -612,8 +610,7 @@ theorem hasWeakType_maximalFunction_equal_exponents₀
           div_eq_mul_inv, rpow_mul, rpow_inv_rpow (NNReal.coe_ne_zero.mpr p₁n), rpow_two]; simp
 
 theorem hasWeakType_maximalFunction_equal_exponents
-    [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
-    {p : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp : 1 ≤ p) :
+    [BorelSpace X] {p : ℝ≥0} (h𝓑 : 𝓑.Countable) (hp : 1 ≤ p) :
     HasWeakType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p u x)
       p p μ μ (A ^ ((2 / p : ℝ))) := by
   intro v mlpv
