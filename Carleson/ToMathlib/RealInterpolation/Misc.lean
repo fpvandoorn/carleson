@@ -884,52 +884,57 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 -/
 namespace MeasureTheory
 
-def res (j : Bool) (β : ℝ) : Set ℝ :=
-  if j then Ioo (0 : ℝ) β else Ioi β
+def res (j : Bool) (β : ℝ≥0∞) : Set ℝ :=
+  if β = ∞ then if j then Ioi (0 : ℝ) else ∅
+  else if j then Ioo (0 : ℝ) β.toReal else Ioi β.toReal
 
-lemma measurableSet_res {j : Bool} {β : ℝ} : MeasurableSet (res j β) := by
+lemma measurableSet_res {j : Bool} {β : ℝ≥0∞} : MeasurableSet (res j β) := by
   unfold res
-  split
+  split_ifs
+  · exact measurableSet_Ioi
+  · exact MeasurableSet.empty
   · exact measurableSet_Ioo
   · exact measurableSet_Ioi
 
-lemma res_subset_Ioi {j : Bool} {β : ℝ} (hβ : 0 < β) : res j β ⊆ Ioi 0 := by
+lemma res_subset_Ioi {j : Bool} {β : ℝ≥0∞} : res j β ⊆ Ioi 0 := by
   unfold res
-  split
-  · exact Ioo_subset_Ioi_self
+  split_ifs
+  · exact fun ⦃a⦄ a ↦ a
+  · simp
   · simp only [Ioi, setOf_subset_setOf]
     intro s hs
-    linarith
+    rw [mem_setOf]
+    exact hs.1
+  · exact Ioi_subset_Ioi toReal_nonneg
 
-instance decidableMemRes {j : Bool} {β : ℝ} : Decidable (t ∈ res j β) := by
+instance decidableMemRes {j : Bool} {β : ℝ≥0∞} : Decidable (t ∈ res j β) := by
   exact Classical.propDecidable (t ∈ res j β)
 
-def res' (j : Bool) (β : ℝ) : Set ℝ :=
-  if j then Ioc (0 : ℝ) β else Ici β
+def res' (j : Bool) (β : ℝ≥0∞) : Set ℝ :=
+  if β = ∞ then if j then Ioi (0 : ℝ) else ∅
+  else if j then Ioc (0 : ℝ) β.toReal else Ici β.toReal
 
-lemma res'comp (j : Bool) (β : ℝ) (hβ : 0 < β) :
+lemma res'comp (j : Bool) (β : ℝ≥0∞) (hβ : 0 < β) :
     Ioi (0 : ℝ) \ res' j β = res (¬j) β := by
   unfold res' res
   split_ifs with h₀ h₁ h₂
-  · rw [h₀] at h₁; simp at h₁
-  · ext x
+  on_goal 6 =>
+    ext x
     simp only [mem_diff, mem_Ioi, mem_Ioc, not_and, not_le]
-    refine ⟨by tauto, fun h ↦ ⟨lt_trans hβ h, fun _ ↦ h⟩⟩
-  · ext x
-    simp only [Ioi_diff_Ici, mem_Ioo]
-  · have : j = false := eq_false_of_ne_true h₀
-    rw [this] at h₂
-    simp at h₂
+    exact ⟨by tauto, fun h ↦ ⟨(toReal_pos (hβ.ne') h₀).trans h, fun x ↦ h⟩⟩
+  all_goals simp_all
 
-lemma measurableSet_res' {j : Bool} {β : ℝ} : MeasurableSet (res' j β) := by
+lemma measurableSet_res' {j : Bool} {β : ℝ≥0∞} : MeasurableSet (res' j β) := by
   unfold res'
   measurability
 
-lemma res'subset_Ioi {j : Bool} {β : ℝ} (hβ : 0 < β) : res' j β ⊆ Ioi 0 := by
+lemma res'subset_Ioi {j : Bool} {β : ℝ≥0∞} (hβ : 0 < β) : res' j β ⊆ Ioi 0 := by
   unfold res'
-  split
+  split_ifs with h h'
+  · simp
+  · simp
   · exact Ioc_subset_Ioi_self
-  · exact Ici_subset_Ioi.mpr hβ
+  · exact Ici_subset_Ioi.mpr (toReal_pos hβ.ne' h)
 
 lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ} (hp : 0 < p)
     (hfx : 0 < ‖f x‖ₑ) :
