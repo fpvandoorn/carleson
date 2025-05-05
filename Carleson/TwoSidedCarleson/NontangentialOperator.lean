@@ -667,14 +667,66 @@ theorem cotlar_control (ha : 4 ≤ a)
 /-- The constant used in `cotlar_set_F₂`. -/
 irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 
+@[fun_prop]
+lemma czOperator_aemeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    AEMeasurable (fun x ↦ czOperator K r g x) (μ := (volume.restrict (ball x (R/4)))) := by
+  sorry
+
+lemma globalMaximalFunction_zero_enorm_czoperator_ae_zero (hR : 0 < R) {g : X → ℂ} (hg : BoundedFiniteSupport g)
+    (hMzero : globalMaximalFunction volume 1 (czOperator K r g) x = 0) :
+    ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r g x'‖ₑ = 0 := by
+  change (fun x' ↦ ‖czOperator K r g x'‖ₑ) =ᶠ[ae (volume.restrict (ball x (R / 4)))] 0
+  rw [← lintegral_eq_zero_iff' ?hf]
+  case hf =>
+    have : AEMeasurable (fun x ↦ czOperator K r g x) (μ := (volume.restrict (ball x (R/4)))) := by sorry
+    fun_prop
+  rw [← bot_eq_zero, ← le_bot_iff, bot_eq_zero]
+  apply le_of_le_of_eq (lintegral_ball_le_volume_globalMaximalFunction _)
+  · rw [hMzero]
+    simp
+  · simp [hR]
+
 /-- Part 1 of Lemma 10.1.4 about `F₁`. -/
-theorem cotlar_set_F₁ (ha : 4 ≤ a)
+theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hg : BoundedFiniteSupport g) :
-    volume {x' ∈ ball x (R / 4) |
-      4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ } ≤
+    volume.restrict (ball x (R / 4))
+      {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
-  sorry
+  let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
+  nth_rw 2 [div_eq_mul_inv]
+  by_cases hMzero : MTrgx = 0
+  · apply le_of_eq_of_le _ (zero_le _)
+    rw [measure_zero_iff_ae_nmem]
+    have czzero := globalMaximalFunction_zero_enorm_czoperator_ae_zero (r := r) (lt_of_lt_of_le hr hR) hg hMzero
+    filter_upwards [czzero]
+    intro x' hx'
+    simp [hx']
+  · rw [← lintegral_indicator_one ?hs]
+    case hs => sorry
+    rw [← ENNReal.mul_le_mul_right ?ne_z ?ne_t (c := 4 * MTrgx)]
+    case ne_z => sorry
+    case ne_t => sorry
+    rw [← lintegral_mul_const]
+    case neg.hf => sorry
+    simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
+    trans ∫⁻ (y : X) in ball x (R / 4),
+    {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ}.indicator
+      (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
+    · apply lintegral_mono_fn
+      intro y
+      apply indicator_le_indicator'
+      rw [mem_setOf_eq]
+      exact le_of_lt
+    trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
+    · apply lintegral_mono_fn
+      apply indicator_le_self
+    rw [mul_assoc]
+    nth_rw 2 [← mul_assoc]
+    rw [ENNReal.inv_mul_cancel (by simp) (by simp)]
+    simp only [one_mul, MTrgx]
+    apply lintegral_ball_le_volume_globalMaximalFunction
+    simp [(lt_of_lt_of_le hr hR)]
 
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
 theorem cotlar_set_F₂ (ha : 4 ≤ a)
