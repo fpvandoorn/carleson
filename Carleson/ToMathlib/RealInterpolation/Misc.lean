@@ -683,40 +683,48 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ 
 lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
     t ^ a ≤ (t ^ b) * (γ ^ (a - b)) := by
   by_cases ht' : t = ∞
-  · simp_all
-    rw [ENNReal.top_rpow_def, ENNReal.top_rpow_def]
-    split_ifs
+  · simp_all only [le_top, top_rpow_def, ite_mul, sub_zero, one_mul, zero_mul]
+    split_ifs with ha hb hb' ha'
     · simp_all
+      rw [ENNReal.top_mul]
+      apply LT.lt.ne'
+      -- TODO: if γ = ⊤ and a < b, this is wrong... as the RHS becomes 0
+      -- #check ENNReal.top_rpow_def
       sorry
-    · sorry -- contradictory hypotheses
-    · sorry -- same
+    · exact False.elim (by linarith [hb, hb'])
+    · exact False.elim (by linarith [hb, hb'])
     · simp_all
-      sorry -- true
+      rw [ENNReal.top_mul]
+      · exact OrderTop.le_top 1 -- finiteness fails; aesop poisoned by bad local hypotheses?
+      · simp_all -- TODO: is this true for γ = ⊤? otherwise, simp_all does it
+        sorry
     · simp_all
-    · sorry -- contadictory hypotheses
-    · sorry
-    · sorry
+    · rw [ha'] at hab
+      --exfalso
+      expose_names
+      -- contradiction: 0 ≤ b, but neither b = 0 nor 0 < b holds!
+      sorry --order [hab, h, h_1]
+      --apply False.elim (by linarith [ha, ha'])
+    · rw [ENNReal.top_mul]
+      · exact zero_le ⊤
+      have : γ ≠ ⊤ := sorry -- let's assume this
+      simp_all
+    · positivity
     · simp
   have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
+  have hγ' : γ ≠ ⊤ := fun _ ↦ by simp_all
   rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
     ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
   · gcongr
     linarith
   · positivity
-  · finiteness
+  · assumption
   · simp_all only [ne_eq, ENNReal.rpow_eq_zero_iff, false_and, or_false, not_and, not_lt]
     contrapose
     exact fun _ ↦ t_pos.ne'
+  · simpa [ht'] using fun hfalse ↦ by simp_all
   · simp_all
-    sorry -- same sorry
-  · simp_all only [ne_eq, ENNReal.rpow_eq_zero_iff, sub_pos, sub_neg, not_or, not_and, not_lt,
-    implies_true, true_and]
-    intro h
-    exfalso
-    have : γ ≠ ⊤ := by sorry -- obvious
-    exact this h
-  · simp_all
-    sorry -- same sorry
+  · simpa using ⟨fun h ↦ by simp_all, fun h ↦ by simp_all⟩
 
 lemma trunc_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) {t : ℝ≥0∞} : MemLp (trunc f t) p μ := by
   refine ⟨hf.1.trunc, lt_of_le_of_lt (eLpNorm_mono_ae (ae_of_all _ ?_)) hf.2⟩
@@ -783,11 +791,12 @@ lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   by_cases ht : t = ⊤
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
-    · -- then f must be a.e. zero, thus the LHS vanishes (some lemmas in this should prove this)
+    · -- then f must be a.e. zero, thus the LHS vanishes (some lemmas in this file should prove this)
       sorry
-    · -- the RHS is top, so the statement is always true
-      simp_all
-      sorry
+    · -- The right hand side is ⊤, hence the statement is always true.
+      suffices t ^ (q.toReal - p.toReal) * eLpNorm f p μ ^ p.toReal = ⊤ by simp [this]
+      rw [ht, mul_comm, ENNReal.mul_eq_top]
+      simp [hf', toReal_strict_mono hq hpq.2]
   unfold eLpNorm eLpNorm'
   have p_ne_top : p ≠ ⊤ := hpq.2.ne_top
   have : p ≠ 0 := hpq.1.ne'
@@ -840,7 +849,9 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
     trans max 0 t
     · -- apply le_of_lt <| (trunc_eLpNormEssSup_le (E₁ := E₁) (f := f) (a := t) (μ := μ))
       sorry
-    · sorry -- obvious
+    · -- XXX: should finiteness be able to prove this
+      rw [max_lt_iff]
+      constructor <;> finiteness
   · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
     apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1.aemeasurable)
     apply mul_lt_top ?_ ?_
@@ -985,7 +996,7 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
           split_ifs with h
           · linarith
           · simp [hp]
-    · exact tc.ran_inv ‖f x‖ₑ hfx
+    · sorry -- TODO: same fix as above! exact tc.ran_inv ‖f x‖ₑ hfx
 
 lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple} :
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p =
