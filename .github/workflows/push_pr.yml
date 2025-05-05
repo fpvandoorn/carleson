@@ -32,9 +32,16 @@ jobs:
       - name: Cache API docs
         uses: actions/cache@v4
         with:
-          path: docbuild/.lake/build/doc
-          key: LakeBuildDoc-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: LakeBuildDoc-
+          path: |
+            docbuild/.lake/build/doc/Aesop
+            docbuild/.lake/build/doc/Batteries
+            docbuild/.lake/build/doc/find
+            docbuild/.lake/build/doc/Init
+            docbuild/.lake/build/doc/Lake
+            docbuild/.lake/build/doc/Lean
+            docbuild/.lake/build/doc/Mathlib
+            docbuild/.lake/build/doc/Std
+          key: Docs-${{ hashFiles('lake-manifest.json') }}
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
