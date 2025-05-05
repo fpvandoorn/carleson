@@ -48,9 +48,13 @@ variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Mea
 ## Definitions -/
 namespace MeasureTheory
 
-def Subadditive [ENorm ε] (T : (α → E₁) → α' → ε) : Prop :=
-  ∃ A ≠ ⊤, ∀ (f g : α → E₁) (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
 
+def Subadditive [ENorm ε] (T : (α → ε₁) → α' → ε) : Prop :=
+  ∃ A ≠ ⊤, ∀ (f g : α → ε₁) (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
+
+-- TODO: generalise `trunc` and `truncCompl` take allow an ENormedAddMonoid as codomain,
+-- then generalise this definition also
 def Subadditive_trunc [ENorm ε] (T : (α → E₁) → α' → ε) (A : ℝ≥0∞) (f : α → E₁) (ν : Measure α') :
     Prop :=
   ∀ a : ℝ, 0 < a → ∀ᵐ y ∂ν,
@@ -58,38 +62,39 @@ def Subadditive_trunc [ENorm ε] (T : (α → E₁) → α' → ε) (A : ℝ≥0
 
 /-- The operator is subadditive on functions satisfying `P` with constant `A`
 (this is almost vacuous if `A = ⊤`). -/
-def AESubadditiveOn [ENorm ε] (T : (α → E₁) → α' → ε) (P : (α → E₁) → Prop) (A : ℝ≥0∞)
+def AESubadditiveOn [ENorm ε] (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞)
     (ν : Measure α') : Prop :=
-  ∀ (f g : α → E₁), P f → P g → ∀ᵐ x ∂ν, ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
+  ∀ (f g : α → ε₁), P f → P g → ∀ᵐ x ∂ν, ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
 
 namespace AESubadditiveOn
 
 variable [TopologicalSpace ε] [ENormedAddMonoid ε] {ν : Measure α'}
+  {u : α → ε₁} {T : (α → ε₁) → α' → ε₂}
 
-lemma antitone {T : (α → E₁) → α' → ε} {P P' : (α → E₁) → Prop}
-    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ≥0∞} (sa : AESubadditiveOn T P' A ν) :
+lemma antitone {T : (α → ε₁) → α' → ε} {P P' : (α → ε₁) → Prop}
+    (h : ∀ {u : α → ε₁}, P u → P' u) {A : ℝ≥0∞} (sa : AESubadditiveOn T P' A ν) :
     AESubadditiveOn T P A ν :=
   fun f g hf hg ↦ sa f g (h hf) (h hg)
 
-lemma zero {P : (α → E₁) → Prop} (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
+lemma zero {P : (α → ε₁) → Prop} (hP : ∀ {f g : α → ε₁}, P f → P g → P (f + g))
     (A : ℝ≥0∞) (h : ∀ u, P u → T u =ᵐ[ν] 0) : AESubadditiveOn T P A ν := by
   intro f g hf hg
   filter_upwards [h f hf, h g hg, h (f + g) (hP hf hg)] with x hx1 hx2 hx3
   simp [hx1, hx2, hx3]
 
-lemma forall_le {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ε}
-    {P : (α → E₁) → Prop} {A : ℝ≥0∞}
+lemma forall_le {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → ε₁) → α' → ε}
+    {P : (α → ε₁) → Prop} {A : ℝ≥0∞}
     (h : ∀ i ∈ 𝓑, AESubadditiveOn (T i) P A ν)
-    {f g : α → E₁} (hf : P f) (hg : P g) :
+    {f g : α → ε₁} (hf : P f) (hg : P g) :
     ∀ᵐ x ∂ν, ∀ i ∈ 𝓑, ‖T i (f + g) x‖ₑ ≤ A * (‖T i f x‖ₑ + ‖T i g x‖ₑ) :=
   eventually_countable_ball h𝓑 |>.mpr fun i hi ↦ h i hi f g hf hg
 
-lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ℝ≥0∞}
-    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
-    (hP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
+lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → ε₁) → α' → ℝ≥0∞}
+    {P : (α → ε₁) → Prop} (hT : ∀ (u : α → ε₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+    (hP : ∀ {f g : α → ε₁}, P f → P g → P (f + g))
     {A : ℝ≥0∞} (h : ∀ i ∈ 𝓑, AESubadditiveOn (T i) P A ν) :
     AESubadditiveOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A ν := by
-  have hT' : ∀ i ∈ 𝓑, ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
+  have hT' : ∀ i ∈ 𝓑, ∀ (u : α → ε₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
     intro i hi f hf
     filter_upwards [hT f hf] with x hx
     rw [ne_eq, eq_top_iff] at hx ⊢
@@ -115,7 +120,7 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   apply hx.trans
   gcongr <;> apply le_biSup _ hi
 
-lemma indicator {T : (α → E₁) → α' → ε} {P : (α → E₁) → Prop} {A : ℝ≥0∞}
+lemma indicator {T : (α → ε₁) → α' → ε} {P : (α → ε₁) → Prop} {A : ℝ≥0∞}
     (sa : AESubadditiveOn T P A ν) (S : Set α') :
     AESubadditiveOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
   intro f g hf hg
@@ -124,7 +129,7 @@ lemma indicator {T : (α → E₁) → α' → ε} {P : (α → E₁) → Prop} 
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
 -- a subadditivity criterion, then `AESubadditiveOn T P 1`
-lemma const (T : (α → E₁) → ε) (P : (α → E₁) → Prop)
+lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ₑ ≤ ‖T f‖ₑ + ‖T g‖ₑ) :
     AESubadditiveOn (fun u (_ : α') ↦ T u) P 1 ν :=
   fun f g hf hg ↦ ae_of_all _ fun _ ↦ (by simpa using h_add hf hg)
@@ -133,27 +138,29 @@ end AESubadditiveOn
 
 variable [NormedSpace ℝ E₁] [NormedSpace ℝ E₂] [TopologicalSpace ε] [ENormedSpace ε]
 
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedSpace ε₁]
+
 /-- The operator is sublinear on functions satisfying `P` with constant `A`. -/
-def AESublinearOn (T : (α → E₁) → α' → ε) (P : (α → E₁) → Prop) (A : ℝ≥0∞) (ν : Measure α') :
+def AESublinearOn (T : (α → ε₁) → α' → ε) (P : (α → ε₁) → Prop) (A : ℝ≥0∞) (ν : Measure α') :
     Prop :=
-  AESubadditiveOn T P A ν ∧ ∀ (f : α → E₁) (c : ℝ≥0), P f → T (c • f) =ᵐ[ν] c • T f
+  AESubadditiveOn T P A ν ∧ ∀ (f : α → ε₁) (c : ℝ≥0), P f → T (c • f) =ᵐ[ν] c • T f
 
 namespace AESublinearOn
 
 variable {ν : Measure α'}
 
-lemma antitone {T : (α → E₁) → α' → ε} {P P' : (α → E₁) → Prop}
-    (h : ∀ {u : α → E₁}, P u → P' u) {A : ℝ≥0∞} (sl : AESublinearOn T P' A ν) :
+lemma antitone {T : (α → ε₁) → α' → ε} {P P' : (α → ε₁) → Prop}
+    (h : ∀ {u : α → ε₁}, P u → P' u) {A : ℝ≥0∞} (sl : AESublinearOn T P' A ν) :
     AESublinearOn T P A ν :=
   ⟨sl.1.antitone (fun hu ↦ h hu), fun u c hu ↦ sl.2 u c (h hu)⟩
 
-lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ℝ≥0∞}
-    {P : (α → E₁) → Prop} (hT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
-    (h_add : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (h_smul : ∀ {f : α → E₁} {c : ℝ≥0}, P f → P (c • f))
+lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → ε₁) → α' → ℝ≥0∞}
+    {P : (α → ε₁) → Prop} (hT : ∀ (u : α → ε₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+    (h_add : ∀ {f g : α → ε₁}, P f → P g → P (f + g))
+    (h_smul : ∀ {f : α → ε₁} {c : ℝ≥0}, P f → P (c • f))
     {A : ℝ≥0∞} (h : ∀ i ∈ 𝓑, AESublinearOn (T i) P A ν) :
     AESublinearOn (fun u x ↦ ⨆ i ∈ 𝓑, T i u x) P A ν := by
-  have hT' : ∀ i ∈ 𝓑, ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
+  have hT' : ∀ i ∈ 𝓑, ∀ (u : α → ε₁), P u → ∀ᵐ x ∂ν, T i u x ≠ ∞ := by
     intro i hi f hf
     filter_upwards [hT f hf] with x hx
     rw [ne_eq, eq_top_iff] at hx ⊢
@@ -167,16 +174,16 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   specialize hx i hi
   simpa only [Pi.smul_apply, smul_eq_mul] using hx
 
-lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → E₁) → α' → ℝ≥0∞}
-    {P : (α → E₁) → Prop} {Q : (α → E₁) → Prop}
-    (hPT : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
-    (hQT : ∀ (u : α → E₁), Q u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (α → ε₁) → α' → ℝ≥0∞}
+    {P : (α → ε₁) → Prop} {Q : (α → ε₁) → Prop}
+    (hPT : ∀ (u : α → ε₁), P u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
+    (hQT : ∀ (u : α → ε₁), Q u → ∀ᵐ x ∂ν, ⨆ i ∈ 𝓑, T i u x ≠ ∞)
     (P0 : P 0)
     (Q0 : Q 0)
-    (haP : ∀ {f g : α → E₁}, P f → P g → P (f + g))
-    (haQ : ∀ {f g : α → E₁}, Q f → Q g → Q (f + g))
-    (hsP : ∀ {f : α → E₁} {c : ℝ≥0}, P f → P (c • f))
-    (hsQ : ∀ {f : α → E₁} {c : ℝ≥0}, Q f → Q (c • f))
+    (haP : ∀ {f g : α → ε₁}, P f → P g → P (f + g))
+    (haQ : ∀ {f g : α → ε₁}, Q f → Q g → Q (f + g))
+    (hsP : ∀ {f : α → ε₁} {c : ℝ≥0}, P f → P (c • f))
+    (hsQ : ∀ {f : α → ε₁} {c : ℝ≥0}, Q f → Q (c • f))
     {A : ℝ≥0} -- todo, here and elsewhere: probably better to have {A : ℝ≥0∞} (hA : A ≠ ⊤)
     (hAP : ∀ i ∈ 𝓑,
       AESublinearOn (T i) (fun g ↦ g ∈ {f | P f} + {f | Q f}) A ν) :
@@ -206,7 +213,7 @@ lemma biSup2 {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (
   · rintro _ c ⟨f, hf, g, hg, rfl⟩
     exact ⟨c • f, hsP hf, c • g, hsQ hg, by module⟩
 
-lemma indicator {T : (α → E₁) → α' → ε} {P : (α → E₁) → Prop} {A : ℝ≥0∞} (S : Set α')
+lemma indicator {T : (α → ε₁) → α' → ε} {P : (α → ε₁) → Prop} {A : ℝ≥0∞} (S : Set α')
     (sl : AESublinearOn T P A ν) :
     AESublinearOn (fun u x ↦ (S.indicator (fun y ↦ T u y) x)) P A ν := by
   refine ⟨AESubadditiveOn.indicator sl.1 S, fun f c hf ↦ ?_⟩
@@ -215,17 +222,17 @@ lemma indicator {T : (α → E₁) → α' → ε} {P : (α → E₁) → Prop} 
 
 -- If `T` is constant in the second argument (but not necessarily the first) and satisfies
 -- certain requirements, then `AESublinearOn T P 1`
-lemma const (T : (α → E₁) → ε) (P : (α → E₁) → Prop)
+lemma const (T : (α → ε₁) → ε) (P : (α → ε₁) → Prop)
     (h_add : ∀ {f g}, P f → P g → ‖T (f + g)‖ₑ ≤ ‖T f‖ₑ + ‖T g‖ₑ)
     (h_smul : ∀ f {c : ℝ≥0}, P f → T (c • f) = c • T f) :
     AESublinearOn (fun u (_ : α') ↦ T u) P 1 ν := by
   refine ⟨AESubadditiveOn.const T P h_add, fun f c hf ↦ ae_of_all _ fun _ ↦ ?_⟩
   simpa using h_smul f hf
 
-lemma toReal {T : (α → E₁) → α' → ℝ≥0∞}
-    {P : (α → E₁) → Prop}
+lemma toReal {T : (α → ε₁) → α' → ℝ≥0∞}
+    {P : (α → ε₁) → Prop}
     {A : ℝ≥0∞} (h : AESublinearOn T P A ν)
-    (hP : ∀ (u : α → E₁), P u → ∀ᵐ x ∂ν, T u x ≠ ∞) :
+    (hP : ∀ (u : α → ε₁), P u → ∀ᵐ x ∂ν, T u x ≠ ∞) :
     AESublinearOn (T · · |>.toReal) P A ν := by
   refine ⟨fun f g hf hg ↦ ?_, fun f c hf ↦ ?_⟩
   · filter_upwards [h.1 f g hf hg, hP f hf, hP g hg] with x hx hfx hgx
@@ -260,15 +267,16 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 -/
 namespace MeasureTheory
 
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
+
 /-- Proposition that expresses that the map `T` map between function spaces preserves
     AE strong measurability on L^p. -/
-def PreservesAEStrongMeasurability
-    [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
-    (T : (α → E₁) → α' → E₂) (p : ℝ≥0∞) : Prop :=
-    ∀ ⦃f : α → E₁⦄, MemLp f p μ → AEStronglyMeasurable (T f) ν
+def PreservesAEStrongMeasurability (T : (α → ε₁) → α' → ε₂) (p : ℝ≥0∞) : Prop :=
+    ∀ ⦃f : α → ε₁⦄, MemLp f p μ → AEStronglyMeasurable (T f) ν
 
-lemma estimate_distribution_Subadditive_trunc {f : α → E₁} {t : ℝ≥0}
-    [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
+omit [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] in
+lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {t : ℝ≥0} {T : (α → ε₁) → (α' → ε₂)}
+    [NormedAddCommGroup ε₁]
     {a : ℝ} (ha : 0 < a) {A : ℝ≥0∞} (h : Subadditive_trunc T A f ν) :
     distribution (T f) (2 * A * t) ν ≤
     distribution (T (trunc f a)) t ν +
