@@ -53,6 +53,8 @@ variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁]
 def Subadditive [ENorm ε] (T : (α → ε₁) → α' → ε) : Prop :=
   ∃ A ≠ ⊤, ∀ (f g : α → ε₁) (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
 
+-- TODO: generalise `trunc` and `truncCompl` take allow an ENormedAddMonoid as codomain,
+-- then generalise this definition also
 def Subadditive_trunc [ENorm ε] (T : (α → E₁) → α' → ε) (A : ℝ≥0∞) (f : α → E₁) (ν : Measure α') :
     Prop :=
   ∀ a : ℝ, 0 < a → ∀ᵐ y ∂ν,
@@ -265,15 +267,16 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 -/
 namespace MeasureTheory
 
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
+
 /-- Proposition that expresses that the map `T` map between function spaces preserves
     AE strong measurability on L^p. -/
-def PreservesAEStrongMeasurability
-    [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
-    (T : (α → E₁) → α' → E₂) (p : ℝ≥0∞) : Prop :=
-    ∀ ⦃f : α → E₁⦄, MemLp f p μ → AEStronglyMeasurable (T f) ν
+def PreservesAEStrongMeasurability (T : (α → ε₁) → α' → ε₂) (p : ℝ≥0∞) : Prop :=
+    ∀ ⦃f : α → ε₁⦄, MemLp f p μ → AEStronglyMeasurable (T f) ν
 
-lemma estimate_distribution_Subadditive_trunc {f : α → E₁} {t : ℝ≥0}
-    [NormedAddCommGroup E₁] [NormedAddCommGroup E₂]
+omit [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] in
+lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {t : ℝ≥0} {T : (α → ε₁) → (α' → ε₂)}
+    [NormedAddCommGroup ε₁]
     {a : ℝ} (ha : 0 < a) {A : ℝ≥0∞} (h : Subadditive_trunc T A f ν) :
     distribution (T f) (2 * A * t) ν ≤
     distribution (T (trunc f a)) t ν +
