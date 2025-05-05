@@ -786,6 +786,7 @@ lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
     · -- then f must be a.e. zero, thus the LHS vanishes (some lemmas in this should prove this)
       sorry
     · -- the RHS is top, so the statement is always true
+      simp_all
       sorry
   unfold eLpNorm eLpNorm'
   have p_ne_top : p ≠ ⊤ := hpq.2.ne_top
@@ -942,8 +943,10 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p := by
   rw [lintegral_double_restrict_set (B := res' (xor j tc.mon) (tc.inv ‖f x‖ₑ))
       measurableSet_Ioi measurableSet_res']
-  · have : Ioi 0 ∩ res' (xor j tc.mon) (tc.inv ‖f x‖ₑ) = res' (xor j tc.mon) (tc.inv ‖f x‖ₑ) :=
-      inter_eq_self_of_subset_right (res'subset_Ioi (tc.ran_inv (‖f x‖ₑ) hfx))
+  · have : Ioi 0 ∩ res' (xor j tc.mon) (tc.inv ‖f x‖ₑ) = res' (xor j tc.mon) (tc.inv ‖f x‖ₑ) := by
+      refine inter_eq_self_of_subset_right (res'subset_Ioi ?_)--(tc.ran_inv (‖f x‖ₑ) hfx))
+      -- One possible fix: change the conclusion to a.e. equality instead
+      sorry
     rw [this]
   · apply ae_of_all
     rw [res'comp]
