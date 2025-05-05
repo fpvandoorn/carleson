@@ -999,16 +999,18 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
     · sorry -- TODO: same fix as above! exact tc.ran_inv ‖f x‖ₑ hfx
 
 lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple} :
-    ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p =
-    ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton s) x‖ₑ ^ p := by
+    ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
+    ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p := by
   apply setLIntegral_congr
   unfold res res'
   split_ifs
+  · simp
+  · simp
   · exact Ioo_ae_eq_Ioc.symm
   · exact Ioi_ae_eq_Ici.symm
 
 lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple}
-    (hfx : 0 < ‖f x‖) :
+    (hfx : 0 < ‖f x‖ₑ) :
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖f x‖ₑ ^ p := by
   apply setLIntegral_congr_fun measurableSet_res
@@ -1021,7 +1023,7 @@ lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
       · simp only [Bool.bne_true, Bool.not_false, ↓reduceIte, Pi.sub_apply]
         intro s hs
         split_ifs with h
-        · have := (mon_pf s hs.1 (‖f x‖) hfx).1.mpr hs.2
+        · have := (mon_pf s hs.1 (‖f x‖ₑ) hfx).1.mpr hs.2
           contrapose! h; linarith
         · simp
       · simp only [bne_self_eq_false, Bool.false_eq_true, ↓reduceIte]
@@ -1044,10 +1046,12 @@ lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
         have := (mon_pf s hs.1 (‖f x‖ₑ) hfx).2.mpr hs.2
         split_ifs with h
         · rfl
-        · linarith
+        · simp only [enorm_zero]
+          -- if p <= 0, does this become false? rw [zero_rpow_def]
+          sorry -- linarith
 
 lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ}
-    (hp : 0 < p) (hfx : ‖f x‖₊ > 0) :
+    (hp : 0 < p) (hfx : 0 < ‖f x‖ₑ) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     (∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s)) * ‖f x‖ₑ ^ p := by
   rw [lintegral_trunc_mul₀ hp hfx, lintegral_trunc_mul₁, lintegral_trunc_mul₂ hfx,
@@ -1075,7 +1079,7 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1):
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
 
-lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ}
+lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ≥0∞}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : 0 < t) :
   ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
     ENNReal.ofReal ((tc.inv t) ^ (γ + 1) / |γ + 1|) := by
