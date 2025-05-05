@@ -698,7 +698,7 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
     rw [measure_zero_iff_ae_nmem]
-    have czzero := globalMaximalFunction_zero_enorm_czoperator_ae_zero (r := r) (lt_of_lt_of_le hr hR) hg hMzero
+    have czzero := globalMaximalFunction_zero_enorm_czoperator_ae_zero (lt_of_lt_of_le hr hR) hg hMzero
     filter_upwards [czzero]
     intro x' hx'
     simp [hx']
@@ -720,6 +720,7 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
       exact le_of_lt
     trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
     · apply lintegral_mono_fn
+      intro y -- otherwise runs into deterministic timeout, don't ask me why
       apply indicator_le_self
     rw [mul_assoc]
     nth_rw 2 [← mul_assoc]
