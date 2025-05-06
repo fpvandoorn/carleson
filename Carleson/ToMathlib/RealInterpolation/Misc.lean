@@ -768,22 +768,29 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
       rw [one_div, ENNReal.rpow_inv_rpow]
       exact exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hp
 
-lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁] [SecondCountableTopology E₁]
-    {p q : ℝ≥0∞} (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEMeasurable f μ) {t : ℝ≥0∞} :
+lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
+    {p q : ℝ≥0∞} (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} :
     eLpNorm (trunc f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   by_cases ht : t = ⊤
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
-    · have : f =ᵐ[μ] 0 := by
-        rw [← eLpNorm_eq_zero_iff (p := p)]
+    · have hq' : 0 < q := (pos_of_Ioo hpq).trans hpq.2
+      have : f =ᵐ[μ] 0 := by
+        rw [← eLpNorm_eq_zero_iff hf]
         · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos_of_Ioo hpq)]
-        apply hf.aestronglyMeasurable -- bad move?
         exact ne_zero_of_Ioo hpq
-
-
-      -- then f must be a.e. zero, thus the LHS vanishes (some lemmas in this file should prove this)
-      sorry
-    · -- The right hand side is ⊤, hence the statement is always true.
+      -- Thus, the left hand side vanishes and conclusion is trivially true.
+      refine le_of_eq_of_le ?_ (zero_le _)
+      rw [rpow_eq_zero_iff_of_pos]
+      · rw [eLpNorm_eq_zero_iff _ hq'.ne']
+        · -- missing API lemma
+          rw [trunc_eq_indicator]
+          exact Filter.EventuallyEq.indicator_zero this
+        · --fun_prop
+          measurability
+      · rw [toReal_pos_iff]
+        exact ⟨hq', hq.lt_top⟩
+    · -- The right hand side is `∞`, hence the statement is always true.
       suffices t ^ (q.toReal - p.toReal) * eLpNorm f p μ ^ p.toReal = ⊤ by simp [this]
       rw [ht, mul_comm, ENNReal.mul_eq_top]
       simp [hf', toReal_strict_mono hq hpq.2]
@@ -843,11 +850,11 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
       rw [max_lt_iff]
       constructor <;> finiteness
   · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
-    sorry /-apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1.aemeasurable)
+    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1)
     apply mul_lt_top ?_ ?_
     · sorry -- finiteness should solve this!
     · refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
-      exact toReal_pos hpq.1.ne' hpq.2.ne_top -/
+      exact toReal_pos hpq.1.ne' hpq.2.ne_top
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q < p`. -/
 lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [BorelSpace E₁]
