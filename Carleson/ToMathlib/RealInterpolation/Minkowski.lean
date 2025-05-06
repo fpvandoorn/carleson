@@ -418,8 +418,7 @@ theorem AEMeasurable.trunc_restrict
     {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) :=
-  j.rec (hf.truncCompl_ton _) (hf.trunc_ton _)
--/
+  sorry -- TODO: was j.rec (hf.truncCompl_ton _) (hf.trunc_ton _)
 
 lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
