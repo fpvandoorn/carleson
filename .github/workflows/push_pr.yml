@@ -26,8 +26,14 @@ jobs:
       - name: Get cache
         run: ~/.elan/bin/lake exe cache get || true
 
+      - name: check that Carleson.lean is up to date
+        run: ~/.elan/bin/lake exe mk_all --check
+
       - name: Build project
         run: ~/.elan/bin/lake build Carleson
+
+      - name: Lint project
+        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter Carleson
 
       - name: Cache API docs
         uses: actions/cache@v4
