@@ -685,7 +685,73 @@ section BorelSpace
 variable [TopologicalSpace ε] [ContinuousENorm ε]
   [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
 
-/-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
+-- TODO! gneeralise the mathlib statement!
+variable (μ) in
+/-- An application of the layer cake formula / Cavalieri's principle / tail probability formula:
+
+For a nonnegative function `f` on a measure space, the Lebesgue integral of `f` can
+be written (roughly speaking) as: `∫⁻ f^p ∂μ = p * ∫⁻ t in 0..∞, t^(p-1) * μ {ω | f(ω) ≥ t}`.
+
+See `MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul` for a version with sets of the form
+`{ω | f(ω) > t}` instead. -/
+theorem lintegral_rpow_eq_lintegral_meas_le_mul_enorm {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+    ∫⁻ ω, (f ω ^ p) ∂μ =
+      ENNReal.ofReal p * ∫⁻ t in Ioi (0 : ℝ), μ {a : α | ENNReal.ofReal t ≤ f a} * ENNReal.ofReal (t ^ (p - 1)) := by
+  have one_lt_p : -1 < p - 1 := by linarith
+  have obs : ∀ x : ℝ, ∫ t : ℝ in (0)..x, t ^ (p - 1) = x ^ p / p := by
+    intro x
+    rw [integral_rpow (Or.inl one_lt_p)]
+    sorry -- simp [Real.zero_rpow p_pos.ne.symm]
+  set g := fun t : ℝ => t ^ (p - 1)
+  have g_nn : ∀ᵐ t ∂volume.restrict (Ioi (0 : ℝ)), 0 ≤ g t := by
+    filter_upwards [self_mem_ae_restrict (measurableSet_Ioi : MeasurableSet (Ioi (0 : ℝ)))]
+    intro t t_pos
+    exact Real.rpow_nonneg (mem_Ioi.mp t_pos).le (p - 1)
+  have g_intble : ∀ t > 0, IntervalIntegrable g volume 0 t := fun _ _ =>
+    intervalIntegral.intervalIntegrable_rpow' one_lt_p
+  -- TODO: generalise this mathlib lemma!
+  sorry /- have key := lintegral_comp_eq_lintegral_meas_le_mul μ f_nn f_mble g_intble g_nn
+  rw [← key, ← lintegral_const_mul'' (ENNReal.ofReal p)] <;> simp_rw [obs]
+  · congr with ω
+    rw [← ENNReal.ofReal_mul p_pos.le, mul_div_cancel₀ (f ω ^ p) p_pos.ne.symm]
+  · have aux := (@measurable_const ℝ α (by infer_instance) (by infer_instance) p).aemeasurable
+                  (μ := μ)
+    exact (Measurable.ennreal_ofReal (hf := measurable_id)).comp_aemeasurable
+      ((f_mble.pow aux).div_const p) -/
+
+-- TODO: generalise the mathlib statement!
+variable (μ) in
+/-- An application of the layer cake formula / Cavalieri's principle / tail probability formula:
+
+For a nonnegative function `f` on a measure space, the Lebesgue integral of `f` can
+be written (roughly speaking) as: `∫⁻ f^p ∂μ = p * ∫⁻ t in 0..∞, t^(p-1) * μ {ω | f(ω) > t}`.
+
+See `MeasureTheory.lintegral_rpow_eq_lintegral_meas_le_mul` for a version with sets of the form
+`{ω | f(ω) ≥ t}` instead. -/
+theorem lintegral_rpow_eq_lintegral_meas_lt_mul_enorm {f : α → ℝ≥0∞} (f_mble : AEMeasurable f μ) {p : ℝ} (p_pos : 0 < p) :
+    ∫⁻ ω, (f ω ^ p) ∂μ =
+      (ENNReal.ofReal p) * ∫⁻ (t : ℝ) in Ioi 0, μ {a : α | ENNReal.ofReal t < f a} * ENNReal.ofReal (t ^ (p - 1)) := by
+  rw [lintegral_rpow_eq_lintegral_meas_le_mul_enorm μ f_mble p_pos]
+  apply congr_arg fun z => ENNReal.ofReal p * z
+  apply lintegral_congr_ae
+  sorry /- TODO: was; a NoAtoms assumption needs to be imposed?
+  filter_upwards [meas_le_ae_eq_meas_lt μ (volume.restrict (Ioi 0)) f]
+    with t ht
+  rw [ht] -/
+
+/-- The layer-cake theorem, or Cavalieri's principle for functions into a space with a continuous
+enorm -/
+lemma lintegral_norm_pow_eq_distribution_enorm {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+    ∫⁻ x, ‖f x‖ₑ ^ p ∂μ =
+    ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
+  have h2p : 0 ≤ p := hp.le
+  have := lintegral_rpow_eq_lintegral_meas_lt_mul_enorm μ (f := fun x ↦ ‖f x‖ₑ) hf.enorm hp
+  simp only [← enorm_eq_nnnorm, norm_nonneg, ← ofReal_rpow_of_nonneg, mul_comm (μ _), ne_eq,
+    ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul', ← mul_assoc,
+    ← ofReal_norm_eq_enorm, ofReal_mul, distribution, h2p] at this ⊢
+  exact this
+
+/-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group -/
 lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖ₑ ^ p ∂μ =
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
@@ -699,18 +765,18 @@ lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ)
   refine setLIntegral_congr_fun measurableSet_Ioi (Eventually.of_forall fun x hx ↦ ?_)
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
-/-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
-lemma eLpNorm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
+/-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm` -/
+lemma eLpNorm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
     eLpNorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 < (p : ℝ) := hp
   simp_rw [eLpNorm_nnreal_eq_eLpNorm' hp.ne', eLpNorm', one_div, ← ENNReal.rpow_mul,
-    inv_mul_cancel₀ h2p.ne', ENNReal.rpow_one, lintegral_norm_pow_eq_distribution hf h2p,
+    inv_mul_cancel₀ h2p.ne', ENNReal.rpow_one, lintegral_norm_pow_eq_distribution_enorm hf h2p,
     ENNReal.ofReal_mul zero_le_coe, ofReal_coe_nnreal]
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
-    taking powers. -/
-lemma eLpNorm_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+taking powers -/
+lemma eLpNorm_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     eLpNorm f (.ofReal p) μ =
     (ENNReal.ofReal p  * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
         ENNReal.ofReal (t ^ (p - 1)) ) ^ p⁻¹ := by
@@ -723,16 +789,16 @@ lemma eLpNorm_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} 
     congr 1
     rw [← lintegral_const_mul']
     on_goal 2 => exact coe_ne_top
-    rw [lintegral_norm_pow_eq_distribution hf hp]
+    rw [lintegral_norm_pow_eq_distribution_enorm hf hp]
     congr 1 with x; rw [ofReal_mul] <;> [ring; positivity]
 
-lemma lintegral_pow_mul_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : -1 < p) :
+lemma lintegral_pow_mul_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
     ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖ₑ ^ (p + 1) ∂μ := by
   have h2p : 0 < p + 1 := by linarith
   have h3p : 0 ≤ p + 1 := by linarith
   have h4p : p + 1 ≠ 0 := by linarith
-  simp [*, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul', ← ofReal_mul, ← mul_assoc]
+  simp [*, lintegral_norm_pow_eq_distribution_enorm, ← lintegral_const_mul', ← ofReal_mul, ← mul_assoc]
 
 end BorelSpace
 
