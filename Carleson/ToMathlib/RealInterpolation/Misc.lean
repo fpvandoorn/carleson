@@ -680,39 +680,23 @@ lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ 
     rw [Real.rpow_mul, Real.rpow_neg_one, ← Real.mul_rpow, ← div_eq_mul_inv] <;> try positivity
     exact ofReal_le_ofReal (Real.rpow_le_rpow_of_exponent_le ((one_le_div hγ).mpr htγ) hab)
 
-lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
+lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} (hγ : 0 < γ) (hγ' : γ ≠ ∞) (htγ : γ ≤ t) (hab : a ≤ b) :
     t ^ a ≤ (t ^ b) * (γ ^ (a - b)) := by
   by_cases ht' : t = ∞
   · simp_all only [le_top, top_rpow_def, ite_mul, sub_zero, one_mul, zero_mul]
     split_ifs with ha hb hb' ha'
     · simp_all
-      rw [ENNReal.top_mul]
-      apply LT.lt.ne'
-      -- TODO: if γ = ⊤ and a < b, this is wrong... as the RHS becomes 0
-      -- #check ENNReal.top_rpow_def
-      sorry
     · exact False.elim (by linarith [hb, hb'])
     · exact False.elim (by linarith [hb, hb'])
     · simp_all
-      rw [ENNReal.top_mul]
-      · exact OrderTop.le_top 1 -- finiteness fails; aesop poisoned by bad local hypotheses?
-      · simp_all -- TODO: is this true for γ = ⊤? otherwise, simp_all does it
-        sorry
     · simp_all
-    · rw [ha'] at hab
-      --exfalso
-      expose_names
-      -- contradiction: 0 ≤ b, but neither b = 0 nor 0 < b holds!
-      sorry --order [hab, h, h_1]
-      --apply False.elim (by linarith [ha, ha'])
+    · simpa using by order
     · rw [ENNReal.top_mul]
       · exact zero_le ⊤
-      have : γ ≠ ⊤ := sorry -- let's assume this
       simp_all
     · positivity
     · simp
   have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
-  have hγ' : γ ≠ ⊤ := fun _ ↦ by simp_all
   rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
     ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
   · gcongr
@@ -770,10 +754,9 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
         ‖f x‖ₑ ^ p.toReal ∂μ := by
       rw [← lintegral_const_mul']
       · apply setLIntegral_mono_ae (AEMeasurable.restrict (by fun_prop))
-        apply ae_of_all
-        intro x (hx : t < ‖f x‖ₑ)
+        filter_upwards with x hx
         rw [mul_comm]
-        exact rpow_le_rpow_of_exponent_le_base_ge_enorm ht hx.le (toReal_mono hp hpq.2.le)
+        exact rpow_le_rpow_of_exponent_le_base_ge_enorm ht hx.ne_top hx.le (toReal_mono hp hpq.2.le)
       · by_cases ht' : t = ⊤
         · simp_all
         · sorry -- finiteness should be able to do this!
@@ -785,13 +768,20 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
       rw [one_div, ENNReal.rpow_inv_rpow]
       exact exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hp
 
-lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
+lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁] [SecondCountableTopology E₁]
     {p q : ℝ≥0∞} (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEMeasurable f μ) {t : ℝ≥0∞} :
     eLpNorm (trunc f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   by_cases ht : t = ⊤
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
-    · -- then f must be a.e. zero, thus the LHS vanishes (some lemmas in this file should prove this)
+    · have : f =ᵐ[μ] 0 := by
+        rw [← eLpNorm_eq_zero_iff (p := p)]
+        · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos_of_Ioo hpq)]
+        apply hf.aestronglyMeasurable -- bad move?
+        exact ne_zero_of_Ioo hpq
+
+
+      -- then f must be a.e. zero, thus the LHS vanishes (some lemmas in this file should prove this)
       sorry
     · -- The right hand side is ⊤, hence the statement is always true.
       suffices t ^ (q.toReal - p.toReal) * eLpNorm f p μ ^ p.toReal = ⊤ by simp [this]
@@ -853,11 +843,11 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
       rw [max_lt_iff]
       constructor <;> finiteness
   · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
-    apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1.aemeasurable)
+    sorry /-apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1.aemeasurable)
     apply mul_lt_top ?_ ?_
     · sorry -- finiteness should solve this!
     · refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
-      exact toReal_pos hpq.1.ne' hpq.2.ne_top
+      exact toReal_pos hpq.1.ne' hpq.2.ne_top -/
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q < p`. -/
 lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [BorelSpace E₁]
@@ -952,7 +942,7 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
     (hfx : 0 < ‖f x‖ₑ) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p := by
-  rw [lintegral_double_restrict_set (B := res' (xor j tc.mon) (tc.inv ‖f x‖ₑ))
+  sorry /- rw [lintegral_double_restrict_set (B := res' (xor j tc.mon) (tc.inv ‖f x‖ₑ))
       measurableSet_Ioi measurableSet_res']
   · have : Ioi 0 ∩ res' (xor j tc.mon) (tc.inv ‖f x‖ₑ) = res' (xor j tc.mon) (tc.inv ‖f x‖ₑ) := by
       refine inter_eq_self_of_subset_right (res'subset_Ioi ?_)--(tc.ran_inv (‖f x‖ₑ) hfx))
@@ -996,7 +986,7 @@ lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : 
           split_ifs with h
           · linarith
           · simp [hp]
-    · sorry -- TODO: same fix as above! exact tc.ran_inv ‖f x‖ₑ hfx
+    · sorry -- TODO: same fix as above! exact tc.ran_inv ‖f x‖ₑ hfx -/
 
 lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple} :
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
@@ -1013,6 +1003,7 @@ lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
     (hfx : 0 < ‖f x‖ₑ) :
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖f x‖ₑ ^ p := by
+  sorry /-
   apply setLIntegral_congr_fun measurableSet_res
   · apply ae_of_all
     unfold res trnc trunc
@@ -1048,7 +1039,7 @@ lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
         · rfl
         · simp only [enorm_zero]
           -- if p <= 0, does this become false? rw [zero_rpow_def]
-          sorry -- linarith
+          sorry -- linarith -/
 
 lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ}
     (hp : 0 < p) (hfx : 0 < ‖f x‖ₑ) :
@@ -1079,7 +1070,7 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1):
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
 
-lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ≥0∞}
+/-lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ≥0∞}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : 0 < t) :
   ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
     ENNReal.ofReal ((tc.inv t) ^ (γ + 1) / |γ + 1|) := by
@@ -1093,9 +1084,9 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ≥0∞
     rw [lintegral_rpow_of_gt_abs (tc.ran_inv t ht) hγ]
   · rw [eq_false_of_ne_true xor_split]
     simp only [Bool.false_eq_true, ↓reduceIte]
-    rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ]
+    rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ] -/
 
-lemma value_lintegral_res₀ {j : Bool} {β γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
+/-lemma value_lintegral_res₀ {j : Bool} {β γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
     ENNReal.ofReal (β ^ (γ + 1) / |γ + 1|) := by
@@ -1107,16 +1098,16 @@ lemma value_lintegral_res₀ {j : Bool} {β γ : ℝ} {tc : ToneCouple} (hβ : 0
   · have : xor j tc.mon = false := ((fun {a b} ↦ Bool.not_not_eq.mp) fun a ↦ h a.symm).symm
     rw [this]
     simp only [Bool.false_eq_true, ↓reduceIte]
-    rw [lintegral_Ioi_rpow_of_lt_abs hβ hγ]
+    rw [lintegral_Ioi_rpow_of_lt_abs hβ hγ] -/
 
-lemma value_lintegral_res₁ {t γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) :
+/-lemma value_lintegral_res₁ {t γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) :
     ENNReal.ofReal (((spf_to_tc spf).inv t) ^ (γ + 1) / |γ + 1| ) * ENNReal.ofReal (t ^ p') =
     ENNReal.ofReal (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / |γ + 1|) := by
   have := spf.hd
   unfold spf_to_tc
   dsimp only
   rw [← ENNReal.ofReal_mul, ← mul_div_right_comm, Real.mul_rpow, mul_assoc, ← Real.rpow_mul,
-      ← Real.rpow_add] <;> positivity
+      ← Real.rpow_add] <;> positivity -/
 
 end MeasureTheory
 
