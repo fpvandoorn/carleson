@@ -318,9 +318,19 @@ theorem MemWℒp.ae_ne_top {f : α → ε} {μ : Measure α} (hf : MemWℒp f p 
 /-- An operator has weak type `(p, q)` if it is bounded as a map from `L^p` to weak `L^q`.
 `HasWeakType T p p' μ ν c` means that `T` has weak type (p, p') w.r.t. measures `μ`, `ν`
 and constant `c`. -/
+def BoundedOperator (T : (α → ε₁) → (α' → ε₂)) (e1 : (α → ε₁) → ℝ≥0∞) (e2 : (α' → ε₂) → ℝ≥0∞)
+    (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
+  ∀ f : α → ε₁, AEStronglyMeasurable f μ ∧ e1 f < ∞ →
+    AEStronglyMeasurable (T f) ν ∧ e2 (T f) ≤ c * e1 f
+
+
+/-- An operator has weak type `(p, q)` if it is bounded as a map from `L^p` to weak `L^q`.
+`HasWeakType T p p' μ ν c` means that `T` has weak type (p, p') w.r.t. measures `μ`, `ν`
+and constant `c`. -/
 def HasWeakType (T : (α → ε₁) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
-  ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
+  BoundedOperator T (eLpNorm · p μ) (wnorm · p' ν) μ ν c
+  -- ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- A weaker version of `HasWeakType`. -/
 def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
@@ -335,7 +345,7 @@ and constant `c`. -/
 def HasStrongType {α α' : Type*}
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
-  ∀ f : α → ε₁, MemLp f p μ → AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
+  BoundedOperator T (eLpNorm · p μ) (eLpNorm · p' ν) μ ν c
 
 /-- A weaker version of `HasStrongType`. This is the same as `HasStrongType` if `T` is continuous
 w.r.t. the L^2 norm, but weaker in general. -/
@@ -388,7 +398,7 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
     HasWeakType (T · · |>.toReal) p p' μ ν c ↔ HasWeakType T p p' μ ν c := by
   refine ⟨fun h ↦ fun f hf ↦ ?_, (·.toReal)⟩
   obtain ⟨h1, h2⟩ := h f hf
-  refine ⟨?_, by rwa [← wnorm_toReal_eq (hT f hf)]⟩
+  refine ⟨?_, by dsimp only; rwa [← wnorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
   refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
   filter_upwards [hT f hf] with x hx
@@ -431,7 +441,7 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
     HasStrongType (T · · |>.toReal) p p' μ ν c ↔ HasStrongType T p p' μ ν c := by
   refine ⟨fun h ↦ fun f hf ↦ ?_, (·.toReal)⟩
   obtain ⟨h1, h2⟩ := h f hf
-  refine ⟨?_, by rwa [← eLpNorm_toReal_eq (hT f hf)]⟩
+  refine ⟨?_, by dsimp only; rwa [← eLpNorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
   refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
   filter_upwards [hT f hf] with x hx

@@ -593,7 +593,7 @@ theorem hasWeakType_maximalFunction_equal_exponents₀
   have hmb_one : wnorm (MB μ 𝓑 c r fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ ≤ ↑A ^ 2 * eLpNorm (fun x ↦ ‖v x‖ ^ (p : ℝ)) 1 μ := by
     apply (HasWeakType.MB_one h𝓑 hR
       (fun x : X ↦ ‖v x‖ ^ (p : ℝ)) _).2
-    convert MemLp.norm_rpow_div mlpv p
+    dsimp only; convert MemLp.norm_rpow_div mlpv p
     exact Eq.symm (ENNReal.div_self (coe_ne_zero.mpr p₁n) coe_ne_top)
   unfold wnorm wnorm' distribution at hmb_one ⊢
   simp only [one_ne_top, ↓reduceIte, enorm_eq_self, toReal_one, inv_one, rpow_one, iSup_le_iff,
