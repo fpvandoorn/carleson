@@ -139,8 +139,9 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
     have li : a * c ≤ b * c := by gcongr
     rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
       lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
-      Nat.Ico_succ_right_eq_insert_Ico h, Finset.sum_insert Finset.right_not_mem_Ico,
-      add_comm (lintegral ..), ih]
+      ← Order.succ_eq_add_one, ← Finset.insert_Ico_right_eq_Ico_succ h,
+      Finset.sum_insert Finset.right_not_mem_Ico,
+      add_comm (lintegral ..), ih, Order.succ_eq_add_one]
 
 /-! ## Averaging -/
 
@@ -274,11 +275,7 @@ end eLpNorm
 
 namespace MemLp
 
-variable {f : α → F} {p : ℝ≥0∞}
-theorem enorm (hf : MemLp f p μ) : MemLp (‖f ·‖ₑ) p μ :=
-  ⟨hf.aestronglyMeasurable.enorm.aestronglyMeasurable,
-    by simp_rw [MeasureTheory.eLpNorm_enorm, hf.eLpNorm_lt_top]⟩
-
+variable {p : ℝ≥0∞}
 theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toReal) p μ :=
   ⟨hf.aestronglyMeasurable.aemeasurable.ennreal_toReal.aestronglyMeasurable,
     eLpNorm_toReal_le.trans_lt hf.eLpNorm_lt_top⟩
