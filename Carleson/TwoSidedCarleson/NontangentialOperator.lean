@@ -699,10 +699,7 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     filter_upwards [czzero]
     intro x' hx'
     simp [hx']
-  rw [← lintegral_indicator_one₀ ?hs]
-  case hs =>
-    apply nullMeasurableSet_lt (by fun_prop)
-    exact AEMeasurable.restrict (by fun_prop) -- TODO tag with `fun_prop`?
+  rw [← lintegral_indicator_one₀ (nullMeasurableSet_lt (by fun_prop) (by fun_prop))]
   rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) ?ne_t (c := 4 * MTrgx)]
   case ne_t => apply mul_ne_top (by simp); sorry --globalMaximalFunction_lt_top
   rw [← lintegral_mul_const' _ _ ?hr]

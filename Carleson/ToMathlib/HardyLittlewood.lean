@@ -704,10 +704,18 @@ def globalMaximalFunction [μ.IsDoubling A] (p : ℝ) (u : X → E) (x : X) : �
     (·.1) (fun x ↦ 2 ^ (x.2)) p u x
 
 -- prove only if needed. Use `MB_le_eLpNormEssSup`
--- theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
---     {u : X → E} (hu : AEStronglyMeasurable u μ) (hu : IsBounded (range u)) {x : X} :
---     globalMaximalFunction μ p u x < ∞ := by
---   sorry
+theorem globalMaximalFunction_lt_top {p : ℝ≥0} (hp₁ : 1 ≤ p)
+    {u : X → E} (hu : MemLp u ⊤ μ) {x : X} :
+    globalMaximalFunction μ p u x < ∞ := by
+  unfold globalMaximalFunction
+  rw [maximalFunction_eq_MB (by simp)]
+  apply mul_lt_top (by simp) (rpow_lt_top_of_nonneg (by simp) (lt_top_iff_ne_top.mp _))
+  have : MemLp (fun x ↦ ‖u x‖ ^ p.toReal) ⊤ μ := by
+    have rw1 : p.toReal = (p : ℝ≥0∞).toReal := by simp
+    have rw2 : (⊤ : ℝ≥0∞) = ⊤ / p := by simp
+    rw [rw1, rw2, memLp_norm_rpow_iff hu.aestronglyMeasurable (by positivity) (by simp)]
+    exact hu
+  exact lt_of_le_of_lt MB_le_eLpNormEssSup (this.eLpNormEssSup_lt_top)
 
 protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
     [BorelSpace X] {p : ℝ} {u : X → E} : AEStronglyMeasurable (globalMaximalFunction μ p u) μ :=
