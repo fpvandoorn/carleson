@@ -123,6 +123,26 @@ end NNReal
 
 namespace MeasureTheory
 
+set_option linter.style.refine false in
+variable  {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
+  {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
+@[measurability, fun_prop]
+protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (hs : MeasurableSet s)
+    (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) : AEMeasurable (piecewise s f g) μ := by
+  refine' ⟨_, hf.measurable_mk.piecewise hs hg.measurable_mk, ?_⟩
+  · assumption
+  filter_upwards [hf.ae_eq_mk, hg.ae_eq_mk] with x hfx hgx
+  simp_rw [Set.piecewise, ← hfx, ← hgx]
+
+variable  {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
+  {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
+@[measurability, fun_prop]
+protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : MeasurableSet {a | p a})
+    (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
+    AEMeasurable (fun x => ite (p x) (f x) (g x)) μ :=
+  hf.piecewise hp hg
+
+
 /-! ## Partitioning an interval -/
 
 
@@ -180,6 +200,12 @@ lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
   simp_rw [setLAverage_eq]
   exact ENNReal.div_le_div_right (setLIntegral_mono' hs h) (μ s)
 
+lemma AEStronglyMeasurable_continuousMap_coe {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+    [MeasurableSpace X] [OpensMeasurableSpace X] [TopologicalSpace.PseudoMetrizableSpace Y]
+    [SecondCountableTopologyEither X Y]
+    (f : C(X, Y)) : StronglyMeasurable f :=
+  (map_continuous _).stronglyMeasurable
+
 end MeasureTheory
 
 namespace MeasureTheory
@@ -189,6 +215,7 @@ variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
 attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
+attribute [fun_prop] AEStronglyMeasurable.comp_measurable
 
 lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
   apply measure_mono_ae

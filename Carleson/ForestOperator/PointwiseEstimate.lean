@@ -142,9 +142,10 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
 
 lemma boundedCompactSupport_approxOnCube {𝕜 : Type*} [RCLike 𝕜] {C : Set (Grid X)} {f : X → 𝕜} :
     BoundedCompactSupport (approxOnCube C f) :=
-  BoundedCompactSupport.finset_sum fun J hJ ↦
-    BoundedCompactSupport.indicator_of_isBounded_range (by simp) stronglyMeasurable_const
-    ((isBounded_iff_subset_ball (c J)).mpr ⟨4 * D ^ s J, Grid_subset_ball⟩) coeGrid_measurable
+  BoundedCompactSupport.finset_sum fun J _ ↦
+    BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
+    ((isBounded_iff_subset_ball (c J)).mpr ⟨4 * D ^ s J, Grid_subset_ball⟩).isCompact_closure
+    coeGrid_measurable
 
 -- Used in the proof of Lemma 7.1.6
 lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
@@ -165,7 +166,7 @@ lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
     apply integral_nonneg (fun y ↦ by simp)
   rw [ofReal_integral_eq_lintegral_ofReal hf.integrable.norm.restrict nonneg,
     eq, lintegral_const, average_eq, smul_eq_mul, ENNReal.ofReal_mul, ENNReal.ofReal_inv_of_pos,
-    ofReal_integral_eq_lintegral_ofReal hf.norm.integrable nonneg, mul_comm,
+    ofReal_integral_eq_lintegral_ofReal hf.norm.integrable.restrict nonneg, mul_comm,
     ← mul_assoc, Measure.restrict_apply MeasurableSet.univ, univ_inter]
   · simp [volume_coeGrid_lt_top.ne, ENNReal.mul_inv_cancel vol_J_ne_zero]
   · simpa using ENNReal.toReal_pos vol_J_ne_zero volume_coeGrid_lt_top.ne
@@ -618,7 +619,6 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       (Eventually.of_forall <| L7_1_4_integrand_bound f hu hs)) ?_
     · norm_cast
     · simp only [Pi.zero_apply, norm_nonneg, implies_true]
-    · exact isFiniteMeasureOnCompacts_of_isLocallyFiniteMeasure
     · rw [integral_const_mul]; gcongr; simp
   apply le_of_eq_of_le (congrArg Real.toNNReal eq1) ∘ eq2.trans
   simp only [Real.coe_toNNReal', NNReal.val_eq_coe, NNReal.coe_mul, NNReal.coe_ofNat,

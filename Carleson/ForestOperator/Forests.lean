@@ -365,13 +365,13 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
   rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
   · apply BoundedCompactSupport.integrable
     apply BoundedCompactSupport.finset_sum (fun i hi ↦ ?_)
+    apply BoundedCompactSupport.restrict
     apply BoundedCompactSupport.carlesonSum
     have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
-      apply BoundedCompactSupport.indicator_of_isBounded_range _ stronglyMeasurable_one _
+      apply BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _) _
         measurableSet_F
-      · exact isBounded_range_iff_forall_norm_le.2 ⟨1, fun x ↦ by simp⟩
-      · exact isBounded_F
-    apply BoundedCompactSupport.mono this hf.stronglyMeasurable h2f
+      · exact isBounded_F.isCompact_closure
+    apply BoundedCompactSupport.mono_norm this hf.aestronglyMeasurable h2f
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]

@@ -341,7 +341,8 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       congr 2
       rw [← lintegral_inter_add_diff _ (J : Set X) hs]
       suffices ∫⁻ x in J \ s, ‖f x‖ₑ = 0 by rw [this, add_zero]; simp_rw [mul_one]
-      rw [setLIntegral_eq_zero_iff (coeGrid_measurable.diff hs) hf.stronglyMeasurable.enorm]
+      rw [setLIntegral_eq_zero_iff' (coeGrid_measurable.diff hs)
+        hf.restrict.aestronglyMeasurable.enorm]
       exact Eventually.of_forall (fun x hx ↦ by rw [h2f x hx.2, enorm_zero])
     _ ≤ ∑ J ∈ Finset.univ.filter (· ∈ C),
           ((∫⁻ y in J ∩ s, ‖f y‖ₑ ^ 2) ^ (1 / 2 : ℝ) * (∫⁻ y in J ∩ s, 1) ^ (1 / 2 : ℝ)) ^ 2 /
@@ -349,7 +350,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       refine Finset.sum_le_sum fun J hJ ↦ ENNReal.div_le_div_right (pow_le_pow_left' ?_ 2) _
       simpa using ENNReal.lintegral_mul_le_Lp_mul_Lq (f := (‖f ·‖ₑ)) (g := 1)
         (volume.restrict (J ∩ s)) ((Real.holderConjugate_iff (p := 2) (q := 2)).mpr (by norm_num))
-        hf.stronglyMeasurable.aemeasurable.enorm measurable_const.aemeasurable
+        hf.restrict.aestronglyMeasurable.enorm aemeasurable_const
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C), (∫⁻ y in J ∩ s, ‖f y‖ₑ ^ 2) ^ (1 / (2 : ℝ) * 2) *
           volume (J ∩ s) ^ (1 / (2 : ℝ) * 2) / volume (J : Set X) := by
       simp_rw [setLIntegral_one, mul_pow, ENNReal.rpow_mul]; norm_cast

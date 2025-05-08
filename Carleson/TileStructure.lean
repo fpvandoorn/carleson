@@ -194,11 +194,9 @@ lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
-  stronglyMeasurable :=
-    (measurable_carlesonOn hf.stronglyMeasurable.measurable).stronglyMeasurable
-  isBounded := by
+  memLp_top := by
     let x₀ : X := Classical.choice inferInstance
-    obtain ⟨r₀, hr₀, hfr₀⟩ := hf.isBoundedSupport.subset_closedBall_lt 0 x₀
+    obtain ⟨r₀, hr₀, hfr₀⟩ := hf.hasCompactSupport.isBounded.subset_closedBall_lt 0 x₀
     let r₁ := (↑D ^ 𝔰 p / 2) + r₀
     have hcf : support (_root_.carlesonOn p f) ⊆ closedBall x₀ r₁ := by
       simp_rw [carlesonOn_def']
@@ -210,11 +208,9 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
       have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x))) ≠ 0 := by
         -- mathlib lemma: if integral ne zero, then integrand ne zero at a point
         by_contra hc
-        simp only [not_exists, ne_eq, not_not] at hc
-        refine hx ?_
-        refine integral_eq_zero_of_ae ?_
-        simp_all only [support_subset_iff, ne_eq,
-          mem_closedBall, integral_zero, not_true_eq_false, x₀]
+        push_neg at hc
+        apply hx
+        simp [hc]
       obtain ⟨y, hy⟩ := this
       simp only [ne_eq, mul_eq_zero, exp_ne_zero, or_false, not_or] at hy
       have := dist_mem_Icc_of_Ks_ne_zero hy.1
@@ -222,22 +218,23 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
       unfold r₁
       gcongr
       · exact (dist_mem_Icc_of_Ks_ne_zero hy.1).2
-      · exact hfr₀ hy.2
+      · exact hfr₀ (subset_tsupport _ hy.2)
     obtain ⟨CK, hCK, hCK⟩ :=
       IsBounded.exists_bound_of_norm_Ks (Metric.isBounded_closedBall (x := x₀) (r := r₁)) (𝔰 p)
     let C := volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤).toReal)
-    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
-    wlog hx : x ∈ support (_root_.carlesonOn p f)
+    apply memLp_top_of_bound hf.aestronglyMeasurable.carlesonOn C
+      (.of_forall fun x ↦ ?_)
+    by_cases hx : x ∈ support (_root_.carlesonOn p f); swap
     · simp only [mem_support, ne_eq, not_not] at hx
       rw [hx, norm_zero]
       positivity
     · simp_rw [carlesonOn_def']
-      refine trans (norm_indicator_le_norm_self _ _) ?_
+      refine (norm_indicator_le_norm_self _ _).trans ?_
       let g := (closedBall x₀ r₀).indicator (fun _ ↦ CK * (eLpNorm f ⊤).toReal)
       have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ ≤ g y := by
-        filter_upwards [hf.ae_le] with y hy
+        filter_upwards [hf.memLp_top.ae_norm_le] with y hy
         by_cases hy' : y ∈ support f
-        · have := hfr₀ hy'
+        · have := hfr₀ (subset_tsupport _ hy')
           calc
             _ ≤ ‖Ks (𝔰 p) x y * f y‖ * ‖cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ := norm_mul_le ..
             _ = ‖Ks (𝔰 p) x y * f y‖ := by rw [norm_exp_I_mul_sub_ofReal, mul_one]
