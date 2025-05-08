@@ -8,6 +8,7 @@ import Mathlib.Topology.MetricSpace.Holder
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.ENorm
 
 /-
 This file defines BoundedFiniteSupport.
@@ -59,9 +60,8 @@ theorem eLpNorm_lt_top :
 
 end Includebfs
 
-section NormedAddCommGroup
-
-variable [NormedAddCommGroup E]
+section  ENormedAddCommMonoid
+variable [TopologicalSpace E] [ENormedAddCommMonoid E]
 
 /-- Bounded finitely supported functions are in all `Lᵖ` spaces. -/
 theorem memLp (hf : BoundedFiniteSupport f μ) (p : ℝ≥0∞) :
@@ -69,9 +69,15 @@ theorem memLp (hf : BoundedFiniteSupport f μ) (p : ℝ≥0∞) :
   hf.memLp_top.mono_exponent_of_measure_support_ne_top
     (fun _ ↦ nmem_support.mp) hf.measure_support_lt.ne le_top
 
+end ENormedAddCommMonoid
+
+section NormedAddCommGroup
+
+variable [NormedAddCommGroup E]
+
 /-- Bounded finitely supported functions are integrable. -/
 theorem integrable (hf : BoundedFiniteSupport f μ) : Integrable f μ :=
-  memLp_one_iff_integrable.mp <| memLp hf 1
+  memLp_one_iff_integrable.mp <| hf.memLp 1
 
 theorem indicator (bfs : BoundedFiniteSupport f μ) {s : Set X} (hs : MeasurableSet s) :
     BoundedFiniteSupport (s.indicator f) μ := by

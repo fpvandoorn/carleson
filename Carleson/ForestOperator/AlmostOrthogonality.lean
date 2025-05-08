@@ -106,15 +106,15 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
-  stronglyMeasurable := hf.stronglyMeasurable.adjointCarleson
-  isBounded := by
+  memLp_top := by
     obtain ⟨CKf, hCKf, hCKf⟩ := hf.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
     let C : ℝ := CKf * (eLpNorm f ⊤).toReal * volume.real (E p)
-    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
+    apply MeasureTheory.memLp_top_of_bound hf.aestronglyMeasurable.adjointCarleson C
+      (.of_forall fun x ↦ ?_)
     refine norm_setIntegral_le_of_norm_le_const_ae ?_ ?_
     · exact volume_E_lt_top
     · apply ae_restrict_of_ae
-      filter_upwards [hf.ae_le] with y hy
+      filter_upwards [hf.memLp_top.ae_norm_le] with y hy
       suffices ‖Ks (𝔰 p) y x‖ * ‖f y‖ ≤ ?C by
         calc
           _ ≤ ‖conj (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x)))‖ * ‖f y‖ :=

@@ -523,14 +523,14 @@ lemma holder_correlation_tile_one
         ‖ψ (D ^ (-𝔰 p) * dist y x)‖ₑ * ‖f y‖ₑ := by gcongr; exact enorm_Ks_le'
     _ ≤ ∫⁻ y in E p, C2_1_3 a / (volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a)) *
         (4 * (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹) * ‖f y‖ₑ := by
-      refine setLIntegral_mono ((Measurable.enorm hf.stronglyMeasurable.measurable).const_mul _)
-        fun y my ↦ ?_
+      refine setLIntegral_mono_ae (hf.restrict.aestronglyMeasurable.enorm.const_mul _)
+        (.of_forall fun y my ↦ ?_)
       gcongr with y
       · exact volume_xDsp_bound (E_subset_𝓘 my)
       · exact enorm_ψ_le_edist my hx'
     _ = C2_1_3 a * 2 ^ (3 * a) * 4 / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
         (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ y in E p, ‖f y‖ₑ := by
-      rw [lintegral_const_mul _ hf.stronglyMeasurable.measurable.enorm, ← mul_assoc]; congr 2
+      rw [lintegral_const_mul'' _ hf.restrict.aestronglyMeasurable.enorm, ← mul_assoc]; congr 2
       rw [ENNReal.div_eq_inv_mul, ENNReal.inv_div (by simp) (by simp), mul_assoc,
         ENNReal.mul_comm_div, ← mul_div_assoc, ← mul_assoc, mul_comm (2 ^ (3 * a))]
     _ ≤ _ := by
@@ -551,12 +551,10 @@ section BothIn
 lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
     Integrable (fun y ↦ exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y))
       (volume.restrict (E p)) := by
-  have fb := hf.isBounded
-  simp_rw [isBounded_iff_forall_norm_le, mem_range, forall_exists_index,
-    forall_apply_eq_imp_iff] at fb
-  obtain ⟨B, hB⟩ := fb
+  have h2f := hf.memLp_top.ae_norm_le
+  set B := eLpNorm f ∞ volume |>.toReal
   refine Integrable.const_mul ?_ _; simp_rw [mul_rotate]
-  refine Integrable.bdd_mul ?_ ?_ ⟨B, fun y ↦ ?_⟩
+  refine Integrable.bdd_mul' (c := B) ?_ ?_ ?_
   · have bep : IsBounded (E p) := by
       rw [isBounded_iff_subset_ball (𝔠 p)]; use 4 * D ^ 𝔰 p
       exact E_subset_𝓘.trans Grid_subset_ball
@@ -566,15 +564,18 @@ lemma integrable_adjointCarleson_interior (hf : BoundedCompactSupport f) :
         (measurable_Ks.comp measurable_prodMk_right).aestronglyMeasurable
     · simp only [RCLike.norm_conj]
       exact ae_restrict_of_forall_mem measurableSet_E fun y my ↦ hC y x my
-  · refine ((Measurable.const_mul ?_ I).cexp.mul
-      hf.stronglyMeasurable.measurable).aestronglyMeasurable
-    refine (measurable_ofReal.comp ?_).sub (measurable_ofReal.comp ?_)
+  · refine (AEMeasurable.const_mul ?_ I).cexp.mul
+      hf.restrict.aestronglyMeasurable.aemeasurable |>.aestronglyMeasurable
+    refine (measurable_ofReal.comp ?_).sub (measurable_ofReal.comp ?_) |>.aemeasurable
     · have pair : Measurable fun y : X ↦ (y, y) := by fun_prop
       exact measurable_Q₂.comp pair
     · exact measurable_Q₂.comp measurable_prodMk_right
-  · rw [norm_mul, ← one_mul B]
-    refine mul_le_mul ?_ (hB y) (norm_nonneg _) zero_le_one
+  · filter_upwards [ae_restrict_of_ae h2f] with x hB
+    rw [norm_mul, ← one_mul B]
+    refine mul_le_mul ?_ hB (norm_nonneg _) zero_le_one
     rw_mod_cast [mul_comm, norm_exp_ofReal_mul_I]
+
+attribute [fun_prop] continuous_conj Continuous.comp_aestronglyMeasurable
 
 /-- Sub-equations (7.5.10) and (7.5.11) in Lemma 7.5.5. -/
 lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
@@ -624,10 +625,10 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     _ = (∫⁻ y in E p, ‖f y‖ₑ *
           ‖conj (Ks (𝔰 p) y x) * (exp (.I * (- Q y x + Q y x' + 𝒬 u x - 𝒬 u x' : ℝ)) - 1)‖ₑ) +
         ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ := by
-      simp_rw [mul_add]; apply lintegral_add_right
-      apply hf.stronglyMeasurable.measurable.enorm.mul (Measurable.enorm (Measurable.sub ?_ ?_)) <;>
-        exact (continuous_conj.comp_stronglyMeasurable
-          (measurable_Ks.comp measurable_prodMk_right).stronglyMeasurable).measurable
+      simp_rw [mul_add]; apply lintegral_add_right'
+      apply hf.restrict.aestronglyMeasurable.enorm.mul (AEMeasurable.enorm (AEMeasurable.sub ?_ ?_)) <;>
+        exact continuous_conj.comp_aestronglyMeasurable
+          (measurable_Ks.comp measurable_prodMk_right).aestronglyMeasurable |>.aemeasurable
     _ ≤ (∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x)‖ₑ * ‖- Q y x + Q y x' + 𝒬 u x - 𝒬 u x'‖ₑ) +
         ∫⁻ y in E p, ‖f y‖ₑ * ‖conj (Ks (𝔰 p) y x) - conj (Ks (𝔰 p) y x')‖ₑ := by
       simp_rw [mul_assoc]; gcongr with y; rw [enorm_mul]; gcongr
@@ -779,7 +780,7 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
       conv_lhs =>
         enter [2, 2, y]
         rw [ENNReal.div_eq_inv_mul]
-      rw [lintegral_const_mul _ hf.stronglyMeasurable.measurable.enorm, ← mul_assoc]; congr 1
+      rw [lintegral_const_mul'' _ hf.restrict.aestronglyMeasurable.enorm, ← mul_assoc]; congr 1
       rw [ENNReal.inv_div (by simp) (by simp), ← mul_rotate, ENNReal.mul_div_right_comm]; congr
       exact coe_nnreal_ennreal_nndist ..
     _ ≤ _ := by
@@ -964,8 +965,10 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
       rw [ENNReal.coe_biSup]; · rfl
       simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff]
       have bcs := hf.adjointCarlesonSum (ℭ := t u₂ \ 𝔖₀ t u₁ u₂)
-      obtain ⟨C, hC⟩ := isBounded_range_iff_forall_norm_le.mp bcs.isBounded
-      use ⟨C, (norm_nonneg _).trans (hC (c J))⟩; exact hC
+      have hf := bcs.memLp_top.ae_norm_le
+      set C := eLpNorm f ∞ volume |>.toReal
+      sorry -- todo, mismatch between a.e. bound and everywhere bound (which also holds here).
+      -- use ⟨C, (norm_nonneg _).trans (hC (c J))⟩; exact hC
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset, ‖adjointCarleson p f x‖ₑ := by
       apply iSup₂_mono fun x mx ↦ ?_
@@ -1002,7 +1005,7 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
 
 lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J + 3))
     (mp : 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * ↑D ^ 𝔰 p)) (ball (c J) (8⁻¹ * ↑D ^ s J)))
-    (nfm : Measurable fun x ↦ ‖f x‖ₑ) :
+    (nfm : AEMeasurable fun x ↦ ‖f x‖ₑ) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ ≤
     2 ^ (103 * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ :=
   calc
@@ -1020,7 +1023,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
       exact biSup_const (nonempty_ball.mpr (by positivity))
     _ ≤ ∫⁻ x in E p,
         C2_1_3 a / (volume (ball (c J) (16 * D ^ 𝔰 p)) / 2 ^ (5 * a)) * ‖f x‖ₑ := by
-      apply setLIntegral_mono (nfm.const_mul _) fun x mx ↦ ?_
+      apply setLIntegral_mono_ae (nfm.restrict.const_mul _) (.of_forall fun x mx ↦ ?_)
       gcongr
       have dpJ : dist (c J) (𝔠 p) < (8⁻¹ + 8) * D ^ 𝔰 p := by
         obtain ⟨y, my₁, my₂⟩ := not_disjoint_iff.mp mp.2
@@ -1042,7 +1045,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
         Nat.cast_pow, Nat.cast_ofNat, ← pow_mul', ENNReal.coe_pow, ENNReal.coe_ofNat] at dbl
       exact ENNReal.div_le_of_le_mul' ((measure_mono inc).trans dbl)
     _ ≤ _ := by
-      rw [lintegral_const_mul _ nfm]; gcongr
+      rw [lintegral_const_mul'' _ nfm.restrict]; gcongr
       rw [ENNReal.div_eq_inv_mul, ENNReal.inv_div (by left; norm_num) (by left; positivity),
         ← ENNReal.mul_div_right_comm, mp.1, ENNReal.div_eq_inv_mul, mul_comm]
       gcongr; unfold C2_1_3; norm_cast
@@ -1071,7 +1074,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
           2 ^ (103 * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ := by
       gcongr with k mk p mp
       simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
-      exact local_tree_control_sup_bound mk mp hf.stronglyMeasurable.measurable.enorm
+      exact local_tree_control_sup_bound mk mp hf.aestronglyMeasurable.enorm
     _ = 2 ^ (103 * a ^ 3) * ∑ k ∈ Finset.Icc (s J) (s J + 3),
         (volume (ball (c J) (16 * D ^ k)))⁻¹ *
           ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
@@ -1414,7 +1417,7 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       ‖adjointCarlesonSum ℭ f x₀‖ₑ + (ε / 2 : ℝ≥0) :=
     ENNReal.exists_biSup_le_enorm_add_eps (by positivity)
       ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩
-      (hf.adjointCarlesonSum.isBounded.subset (image_subset_range ..))
+      (sorry) -- todo; was: hf.adjointCarlesonSum.IsBounded.subset (image_subset_range ..)
   obtain ⟨x', hx', ex'⟩ : ∃ x₀ ∈ ball (c J) (8⁻¹ * D ^ s J),
       ‖adjointCarlesonSum ℭ f x₀‖ₑ - (ε / 2 : ℝ≥0) ≤
       ⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ :=
