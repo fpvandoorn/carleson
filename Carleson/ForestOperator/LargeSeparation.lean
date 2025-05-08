@@ -585,8 +585,8 @@ lemma holder_correlation_rearrange (hf : BoundedCompactSupport f) :
     _ = ‖∫ y in E p,
         exp (.I * 𝒬 u x) * (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y) -
         exp (.I * 𝒬 u x') * (conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x')) * f y)‖ₑ := by
-      rw [edist_eq_enorm_sub, adjointCarleson, adjointCarleson, ← integral_mul_left,
-        ← integral_mul_left, ← integral_sub] <;> exact integrable_adjointCarleson_interior hf
+      rw [edist_eq_enorm_sub, adjointCarleson, adjointCarleson, ← integral_const_mul,
+        ← integral_const_mul, ← integral_sub] <;> exact integrable_adjointCarleson_interior hf
     _ = ‖∫ y in E p, f y *
           (conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x + 𝒬 u x)) -
           conj (Ks (𝔰 p) y x') * exp (.I * (Q y y - Q y x' + 𝒬 u x')))‖ₑ := by
@@ -906,8 +906,8 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
       intros x hx
       exact hundred (ball_subset_Grid hx)
     _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{c J', 100 * D^(s J + 3)} (𝒬 u₁) (𝒬 u₂) := by
-      apply calculation_8 (X := X)
-      rw [mul_comm, calculation_6 (s J) (X := X), calculation_7 (s J) (X := X)]
+      apply calculation_8
+      rw [mul_comm, calculation_6 a (s J), calculation_7 a (s J)]
       exact_mod_cast le_cdist_iterate (k := 100 * a) (f := 𝒬 u₁) (g := 𝒬 u₂) (hr := by positivity)
     _ ≤ 2 ^ ((-100 : ℝ) * a) * dist_{𝔠 p, 10 * D^(𝔰 p)} (𝒬 u₁) (𝒬 u₂) := by
       gcongr
@@ -1105,7 +1105,7 @@ lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ �
         _ ≤ _ := by gcongr; norm_num
     _ = 2 ^ (103 * a ^ 3) *
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨍⁻ x in ball (c J) (16 * D ^ k), ‖f x‖ₑ ∂volume := by
-      simp_rw [setLaverage_eq, ENNReal.div_eq_inv_mul]
+      simp_rw [setLAverage_eq, ENNReal.div_eq_inv_mul]
     _ ≤ 2 ^ (103 * a ^ 3) *
         ∑ k ∈ Finset.Icc (s J) (s J + 3), ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
       gcongr with k mk; rw [Finset.mem_Icc] at mk
@@ -1305,7 +1305,7 @@ lemma global_tree_control1_edist_part1
         D ^ (-k / (a : ℝ)) * (volume (ball (c J) (32 * D ^ k)))⁻¹ *
         ∫⁻ x in ball (c J) (32 * D ^ k), ‖f x‖ₑ := by
       gcongr with k mk; exact gtc_integral_bound hs
-    _ = _ := by congr! 2 with k mk; rw [mul_assoc, setLaverage_eq, ENNReal.div_eq_inv_mul]
+    _ = _ := by congr! 2 with k mk; rw [mul_assoc, setLAverage_eq, ENNReal.div_eq_inv_mul]
 
 lemma gtc_sum_Icc_le_two : ∑ k ∈ Finset.Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - k) / (a : ℝ)) ≤ 2 := by
   calc
@@ -1588,7 +1588,7 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       positivity
   rw [C7_5_11]
   push_cast
-  linarith [calculation_14 (X := X) (n := n), calculation_15 (X := X) (h := thus)]
+  linarith [calculation_14 (X := X) (n := n), calculation_15 thus]
 
 /-- The constant used in `correlation_distant_tree_parts`.
 Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/

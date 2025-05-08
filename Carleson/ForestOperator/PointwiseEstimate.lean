@@ -619,7 +619,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     · norm_cast
     · simp only [Pi.zero_apply, norm_nonneg, implies_true]
     · exact isFiniteMeasureOnCompacts_of_isLocallyFiniteMeasure
-    · rw [integral_mul_left]; gcongr; simp
+    · rw [integral_const_mul]; gcongr; simp
   apply le_of_eq_of_le (congrArg Real.toNNReal eq1) ∘ eq2.trans
   simp only [Real.coe_toNNReal', NNReal.val_eq_coe, NNReal.coe_mul, NNReal.coe_ofNat,
     NNReal.coe_pow, NNReal.coe_zpow]
@@ -1094,7 +1094,7 @@ lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈
           ∑ i ∈ t.σ u x, ∫ (y : X),
             (f y * ((exp (I * (- 𝒬 u y + Q x y + 𝒬 u x - Q x x)) - 1) * Ks i x y) +
             (f y - g y) * Ks i x y + g y * Ks i x y) := by
-    simp_rw [← integral_mul_left, Ks, mul_sub, mul_add, sub_eq_add_neg, exp_add]
+    simp_rw [← integral_const_mul, Ks, mul_sub, mul_add, sub_eq_add_neg, exp_add]
     exact Finset.fold_congr (fun s hs ↦ integral_congr_ae (funext fun y ↦ by ring).eventuallyEq)
   rw [this]
   -- It suffices to show that the integral splits into the three terms bounded by Lemmas 7.1.4-6

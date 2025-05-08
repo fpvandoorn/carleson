@@ -10,81 +10,6 @@ noncomputable section
 
 open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
 
-section move
-
-variable {α 𝕜 ε E : Type*} {m : MeasurableSpace α}
-  {μ : Measure α} [NontriviallyNormedField 𝕜]
-  [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
-  {p : ℝ≥0∞}
-
--- todo: move/rename/and perhaps reformulate in terms of ‖.‖ₑ
-lemma ENNNorm_absolute_homogeneous {c : 𝕜} (z : E) : ofNNReal ‖c • z‖₊ = ↑‖c‖₊ * ↑‖z‖₊ :=
-  (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
-
--- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
--- (which includes NNReal and normed fields like ℝ and ℂ), i.e. assuming 𝕜 is a normed semifield.
--- Investigate if this is worthwhile when upstreaming this to mathlib.
-lemma enorm_absolute_homogeneous [TopologicalSpace ε] [ENormedSpace ε] {c : ℝ≥0} (z : ε) :
-    ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
-  ENormedSpace.enorm_smul _ _
-
-lemma enorm_absolute_homogeneous' {c : 𝕜} (z : E) : ‖c • z‖ₑ = ‖c‖ₑ * ‖z‖ₑ :=
-  (toReal_eq_toReal_iff' coe_ne_top coe_ne_top).mp (norm_smul c z)
-
-lemma ENNNorm_add_le (y z : E) : ofNNReal ‖y + z‖₊ ≤ ↑‖y‖₊ + ↑‖z‖₊ :=
-  (toReal_le_toReal coe_ne_top coe_ne_top).mp (nnnorm_add_le ..)
-
-lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) :
-    μ B ≤ μ A := by
-  apply measure_mono_ae
-  change μ {x | ¬ B x ≤ A x} = 0
-  simpa only [le_Prop_eq, Classical.not_imp]
-
-lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
-    eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
-  simp_rw [eLpNormEssSup, enorm_eq_self]
-  apply essSup_mono_ae _
-  apply Eventually.of_forall (by simp)
-
-lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
-    eLpNormEssSup (ENNReal.toReal ∘ f) μ = eLpNormEssSup f μ := by
-  simp_rw [eLpNormEssSup, enorm_eq_self]
-  apply essSup_congr_ae
-  filter_upwards [hf] with x hx
-  simp [hx]
-
-lemma eLpNorm'_toReal_le {f : α → ℝ≥0∞} {p : ℝ} (hp : 0 ≤ p) :
-    eLpNorm' (ENNReal.toReal ∘ f) p μ ≤ eLpNorm' f p μ := by
-  simp_rw [eLpNorm', enorm_eq_self]
-  gcongr
-  simp
-
-lemma eLpNorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
-    eLpNorm' (ENNReal.toReal ∘ f) p μ = eLpNorm' f p μ := by
-  simp_rw [eLpNorm', enorm_eq_self]
-  congr 1
-  apply lintegral_congr_ae
-  filter_upwards [hf] with x hx
-  simp [hx]
-
-lemma eLpNorm_toReal_le {f : α → ℝ≥0∞} :
-    eLpNorm (ENNReal.toReal ∘ f) p μ ≤ eLpNorm f p μ := by
-  simp_rw [eLpNorm]
-  split_ifs
-  · rfl
-  · exact eLpNormEssSup_toReal_le
-  · exact eLpNorm'_toReal_le toReal_nonneg
-
-lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
-    eLpNorm (ENNReal.toReal ∘ f) p μ = eLpNorm f p μ := by
-  simp_rw [eLpNorm]
-  split_ifs
-  · rfl
-  · exact eLpNormEssSup_toReal_eq hf
-  · exact eLpNorm'_toReal_eq hf
-
-end move
-
 namespace MeasureTheory
 
 variable {α α' ε ε₁ ε₂ ε₃ 𝕜 E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m : MeasurableSpace α'}
@@ -594,7 +519,7 @@ lemma distribution_smul_left {f : α → ε'} {c : ℝ≥0} (hc : c ≠ 0) :
   congr with x
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
-    enorm_absolute_homogeneous (c := c) _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
+    enorm_smul_eq_mul (c := c) _, ENNReal.div_mul_cancel h₀ coe_ne_top, mul_comm]
 
 variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
@@ -606,7 +531,7 @@ lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
   congr with x
   simp only [Pi.smul_apply, mem_setOf_eq]
   rw [← @ENNReal.mul_lt_mul_right (t / ‖c‖ₑ) _ (‖c‖ₑ) h₀ coe_ne_top,
-    enorm_absolute_homogeneous' _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
+    enorm_smul _, mul_comm, ENNReal.div_mul_cancel h₀ coe_ne_top]
 
 lemma HasStrongType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} {c : ℝ≥0∞} (h : HasStrongType T p p' μ ν c) (k : ℝ≥0) :

@@ -1032,7 +1032,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
         -- have : K' = (Ioc (k-K') k).card := by sorry
         rw [Finset.sum_const]
         simp only [Finset.card_univ, Fintype.card_ofFinset, Int.card_Ioc, sub_sub_cancel,
-          Int.toNat_ofNat, nsmul_eq_mul]
+          Int.toNat_natCast, nsmul_eq_mul]
     _ = ∑ (_:Ioc (k-K') k), volume (
         ⋃ (z:Yk X (k-K')),⋃ (_:clProp(hk_mK,z|hk,y)),I3 hk_mK z) := by
       apply Finset.sum_congr (rfl)

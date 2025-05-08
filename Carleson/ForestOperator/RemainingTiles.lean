@@ -242,7 +242,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     linarith
   have : NeZero (volume.restrict (J : Set X) univ) := ⟨by
     rw [Measure.restrict_apply_univ]
-    exact ((measure_ball_pos _ _ (by simp; positivity)).trans_le
+    exact ((measure_ball_pos _ _ (by simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
+      defaultD.eq_1, defaultκ.eq_1, Nat.ofNat_pos, div_pos_iff_of_pos_right]; positivity)).trans_le
       (measure_mono (μ := volume) (ball_subset_Grid (i := J)))).ne'⟩
   have : IsFiniteMeasure (volume.restrict (J : Set X)) := ⟨by
     rw [Measure.restrict_apply_univ]
