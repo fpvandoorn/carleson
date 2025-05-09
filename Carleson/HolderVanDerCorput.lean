@@ -518,6 +518,7 @@ theorem HasCompactMulSupport.div (hf : HasCompactMulSupport f) (hf' : HasCompact
 
 end DivisionMonoid
 
+--NOTE (MI) : there was a missing minus sign in the exponent.
 /-- Proposition 2.0.5. -/
 theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     (ϕ_tsupp : tsupport ϕ ⊆ ball z R) {f g : Θ X} :
