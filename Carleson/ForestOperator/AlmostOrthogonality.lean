@@ -10,7 +10,7 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
@@ -22,6 +22,7 @@ def adjointCarleson (p : 𝔓 X) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in E p, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y
   -- todo: consider changing to `(E p).indicator 1 y`
 
+open scoped Classical in
 /-- The definition of `T_ℭ*g(x)`, defined at the bottom of Section 7.4 -/
 def adjointCarlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, adjointCarleson p f x
@@ -105,15 +106,15 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
-  stronglyMeasurable := hf.stronglyMeasurable.adjointCarleson
-  isBounded := by
+  memLp_top := by
     obtain ⟨CKf, hCKf, hCKf⟩ := hf.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
     let C : ℝ := CKf * (eLpNorm f ⊤).toReal * volume.real (E p)
-    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
+    apply MeasureTheory.memLp_top_of_bound hf.aestronglyMeasurable.adjointCarleson C
+      (.of_forall fun x ↦ ?_)
     refine norm_setIntegral_le_of_norm_le_const_ae ?_ ?_
     · exact volume_E_lt_top
     · apply ae_restrict_of_ae
-      filter_upwards [hf.ae_le] with y hy
+      filter_upwards [hf.memLp_top.ae_norm_le] with y hy
       suffices ‖Ks (𝔰 p) y x‖ * ‖f y‖ ≤ ?C by
         calc
           _ ≤ ‖conj (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x)))‖ * ‖f y‖ :=
@@ -189,7 +190,7 @@ lemma adjointCarleson_adjoint
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
         unfold H; simp [image_eq_zero_of_nmem_tsupport h]
     have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
-      Integrable.prod_mul (hg.norm.const_mul _).integrable hf.norm.integrable
+      (hg.norm.const_mul _).integrable.mul_prod hf.norm.integrable
     refine this.mono ?_ ?_
     · refine .mul ?_ <| .snd hf.aestronglyMeasurable
       refine .mul ?_ ?_
@@ -215,12 +216,12 @@ lemma adjointCarleson_adjoint
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
       conv =>
         enter [1, 2, x, 2]; unfold carlesonOn
-        rw [indicator_eq_indicator_one_mul, ← integral_mul_left]
+        rw [indicator_eq_indicator_one_mul, ← integral_const_mul]
         enter [2, y]; rw [← mul_assoc]
-    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_mul_left, mul_assoc]
+    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
     _ = ∫ y, ∫ x, H x y := integral_integral_swap hH
     _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
-      simp_rw [H, integral_mul_right]
+      simp_rw [H, integral_mul_const]
     _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
       simp_rw [← integral_conj]; congrm (∫ _, (∫ _, ?_) * (f _))
       rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
@@ -242,7 +243,7 @@ lemma adjointCarleson_adjoint
 lemma adjointCarlesonSum_adjoint
     (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (ℭ : Set (𝔓 X)) :
     ∫ x, conj (g x) * carlesonSum ℭ f x = ∫ x, conj (adjointCarlesonSum ℭ g x) * f x := by
-  calc
+  classical calc
     _ = ∫ x, ∑ p ∈ {p | p ∈ ℭ}, conj (g x) * carlesonOn p f x := by
       unfold carlesonSum; simp_rw [Finset.mul_sum]
     _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ x, conj (g x) * carlesonOn p f x := by

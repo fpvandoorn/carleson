@@ -1,6 +1,7 @@
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.Data.ENNReal
+import Carleson.ToMathlib.Misc
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
@@ -88,7 +89,9 @@ instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistanc
 end FunctionDistances
 
 notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+/-- preferably use `edist` -/
 notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
+notation3 "edist_{" x " ," r "}" => @edist (WithFunctionDistance x r) _
 notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
@@ -229,6 +232,16 @@ protected def Real.vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y :
 def vol {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] (x y : X) : ℝ≥0∞ :=
   volume (ball x (dist x y))
 
+@[fun_prop]
+lemma measurable_vol {X : Type*} [PseudoMetricSpace X] [SecondCountableTopology X]
+    [MeasureSpace X] [OpensMeasurableSpace X] [SFinite (volume : Measure X)] :
+    Measurable (uncurry vol : X × X → ℝ≥0∞) := by
+  let f : X × X → X × ℝ := fun (x, y) ↦ (x, dist x y)
+  let g : X × ℝ → ℝ≥0∞ := fun (x, a) ↦ volume (ball x a)
+  apply Measurable.comp (f := f) (g := g)
+  · apply measurable_measure_ball
+  · fun_prop
+
 lemma Real.vol_def {X : Type*} [PseudoMetricSpace X] [MeasureSpace X] {x y : X} :
   Real.vol x y = (vol x y).toReal := rfl
 
@@ -351,6 +364,27 @@ lemma enorm_K_le_vol_inv [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Me
   gcongr
   apply norm_K_le_vol_inv
 
+--TODO good name
+lemma enorm_K_le_ball_complement [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOneSidedKernel a K] {r : ℝ} {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    ‖K x y‖ₑ ≤ C_K a / volume (ball x r) := by
+  apply le_trans (enorm_K_le_vol_inv x y)
+  apply ENNReal.div_le_div_left
+  apply measure_mono
+  apply ball_subset_ball
+  rw [mem_compl_iff, ball, mem_setOf, not_lt, dist_comm] at hy
+  exact hy
+
+lemma enorm_K_le_ball_complement' [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
+    [IsOpenPosMeasure (volume : Measure X)] [IsOneSidedKernel a K] {r : ℝ} (hr : 0 < r)
+    {x : X} {y : X} (hy : y ∈ (ball x r)ᶜ):
+    ‖K x y‖ₑ ≤ (C_K a / volume (ball x r)).toNNReal := by
+  rw [ENNReal.coe_toNNReal ?ne_top]
+  case ne_top =>
+    rw [Ne, ENNReal.div_eq_top]
+    push_neg
+    simp [ne_of_gt (measure_ball_pos volume x hr)]
+  exact enorm_K_le_ball_complement hy
 
 lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measure X)]
     [IsOneSidedKernel a K] {x y y' : X} (h : 2 * dist y y' ≤ dist x y) :
@@ -395,10 +429,10 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
 that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
-  norm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
+  enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
     ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
 
-export IsTwoSidedKernel (norm_K_sub_le')
+export IsTwoSidedKernel (enorm_K_sub_le')
 
 -- maybe show: `K` is a 2-sided kernel iff `K` and `fun x y ↦ K y x` are one-sided kernels.
 

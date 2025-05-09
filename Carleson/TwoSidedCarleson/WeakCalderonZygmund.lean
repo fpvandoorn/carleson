@@ -1,9 +1,7 @@
-import Carleson.Defs
-import Carleson.ToMathlib.BoundedFiniteSupport
+import Carleson.TwoSidedCarleson.Basic
 import Carleson.ToMathlib.HardyLittlewood
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
-open Classical
 open scoped NNReal
 
 noncomputable section
@@ -29,10 +27,14 @@ theorem maximal_theorem [Nonempty X] :
     HasBoundedWeakType (globalMaximalFunction volume 1 : (X → ℂ) → X → ℝ≥0∞) 1 1 volume volume
       (C10_2_1 a) := by
   apply HasWeakType.hasBoundedWeakType
-  have : C10_2_1 a = (defaultA a) ^ 4 := by
-    simp_rw [C10_2_1_def, defaultA, pow_mul', Nat.cast_pow, Nat.cast_ofNat]
+  have : C10_2_1 a = C_weakType_globalMaximalFunction (defaultA a) 1 1 := by
+    unfold C_weakType_globalMaximalFunction C_weakType_maximalFunction
+    split_ifs with h; swap; simp at h
+    simp_rw [C10_2_1_def, defaultA, coe_pow, coe_ofNat, Nat.cast_pow, Nat.cast_ofNat,
+        NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← npow_add,
+        two_add_two_eq_four]; rfl
   rw [this]
-  apply hasWeakType_globalMaximalFunction le_rfl le_rfl
+  apply hasWeakType_globalMaximalFunction (μ := volume) le_rfl le_rfl
 
 variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
 
@@ -51,7 +53,7 @@ theorem lebesgue_differentiation
 
 /-- Lemma 10.2.4
 This is very similar to `Vitali.exists_disjoint_subfamily_covering_enlargement`.
-Can we use that (or adapt it so that we can use it)?  -/
+Can we use that (or adapt it so that we can use it)? -/
 theorem ball_covering (ha : 4 ≤ a) {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
     ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ closedBall (c i) (r i)) ∧
       ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬ Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
@@ -156,6 +158,7 @@ lemma iUnion_czPartition (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : Gene
     ⋃ i, czPartition ha hf hX i = globalMaximalFunction volume 1 f ⁻¹' Ioi α :=
   sorry
 
+open scoped Classical in
 /-- The function `g` in Lemma 10.2.5. (both cases) -/
 def czApproximation (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) (x : X) : ℂ :=
   if hX : GeneralCase f α then
@@ -278,6 +281,7 @@ lemma tsum_eLpNorm_czRemainder_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (
 /-- The constant `c` introduced below Lemma 10.2.5. -/
 irreducible_def c10_0_3 (a : ℕ) : ℝ≥0 := (2 ^ (a ^ 3 + 12 * a + 4))⁻¹
 
+open scoped Classical in
 /-- The set `Ω` introduced below Lemma 10.2.5. -/
 def Ω (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) : Set X :=
   if hX : GeneralCase f α then ⋃ i, czBall2 ha hf hX i else univ

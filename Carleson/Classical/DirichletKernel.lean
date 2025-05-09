@@ -1,10 +1,7 @@
 /- This file contains definitions and lemmas regarding the Dirichlet kernel. -/
 
-import Carleson.MetricCarleson
 import Carleson.Classical.Basic
-import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
-import Mathlib.Analysis.Convolution
+import Mathlib.Algebra.Order.BigOperators.Group.LocallyFinite
 
 open scoped Real
 open Finset Complex MeasureTheory
@@ -162,7 +159,7 @@ lemma norm_dirichletKernel_le {x : ℝ} : ‖dirichletKernel N x‖ ≤ 2 * N + 
       exact fun n _ ↦ le_trans (ContinuousMap.norm_coe_le_norm (fourier n) x) (fourier_norm n).le
     _ = 2 * N + 1 := by
       rw_mod_cast [sum_const, Int.card_Icc, sub_neg_eq_add, nsmul_eq_mul, mul_one,
-        Int.toNat_ofNat]
+        Int.toNat_natCast]
       ring
 
 lemma norm_dirichletKernel'_le {x : ℝ} : ‖dirichletKernel' N x‖ ≤ 2 * N + 1 := by

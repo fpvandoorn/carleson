@@ -8,6 +8,7 @@ import Mathlib.Topology.MetricSpace.Holder
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.MeasureTheory.Measure.Real
+import Carleson.ToMathlib.ENorm
 
 /-
 * This file can import all ToMathlib files.
@@ -99,10 +100,48 @@ end ENNReal
 
 section Indicator
 attribute [gcongr] Set.indicator_le_indicator mulIndicator_le_mulIndicator_of_subset
+
+lemma Set.indicator_eq_indicator' {α : Type*} {M : Type*} [Zero M] {s : Set α} {f g : α → M} (h : ∀ x ∈ s, f x = g x) :
+    s.indicator f = s.indicator g := by
+  ext x
+  unfold indicator
+  split
+  · rename_i hxs
+    exact h x hxs
+  · rfl
+
 end Indicator
 
+section NNReal
+
+
+@[simp]
+lemma _root_.ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
+  ext; simp [ENNReal.toReal]
+
+end NNReal
 
 namespace MeasureTheory
+
+set_option linter.style.refine false in
+variable  {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
+  {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
+@[measurability, fun_prop]
+protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (hs : MeasurableSet s)
+    (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) : AEMeasurable (piecewise s f g) μ := by
+  refine' ⟨_, hf.measurable_mk.piecewise hs hg.measurable_mk, ?_⟩
+  · assumption
+  filter_upwards [hf.ae_eq_mk, hg.ae_eq_mk] with x hfx hgx
+  simp_rw [Set.piecewise, ← hfx, ← hgx]
+
+variable  {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
+  {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
+@[measurability, fun_prop]
+protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : MeasurableSet {a | p a})
+    (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
+    AEMeasurable (fun x => ite (p x) (f x) (g x)) μ :=
+  hf.piecewise hp hg
+
 
 /-! ## Partitioning an interval -/
 
@@ -120,8 +159,9 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
     have li : a * c ≤ b * c := by gcongr
     rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
       lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
-      Nat.Ico_succ_right_eq_insert_Ico h, Finset.sum_insert Finset.right_not_mem_Ico,
-      add_comm (lintegral ..), ih]
+      ← Order.succ_eq_add_one, ← Finset.insert_Ico_right_eq_Ico_succ h,
+      Finset.sum_insert Finset.right_not_mem_Ico,
+      add_comm (lintegral ..), ih, Order.succ_eq_add_one]
 
 /-! ## Averaging -/
 
@@ -151,14 +191,20 @@ lemma laverage_const_mul {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α
 lemma setLaverage_add_left' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} {f g : α → ENNReal} (hf : AEMeasurable f μ) :
     ⨍⁻ x in s, (f x + g x) ∂μ = ⨍⁻ x in s, f x ∂μ + ⨍⁻ x in s, g x ∂μ := by
-  simp_rw [setLaverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf.restrict]
+  simp_rw [setLAverage_eq, ENNReal.div_add_div_same, lintegral_add_left' hf.restrict]
 
 -- Named for consistency with `setLintegral_mono'`
 lemma setLaverage_mono' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
     {s : Set α} (hs : MeasurableSet s) {f g : α → ENNReal} (h : ∀ x ∈ s, f x ≤ g x) :
     ⨍⁻ x in s, f x ∂μ ≤ ⨍⁻ x in s, g x ∂μ := by
-  simp_rw [setLaverage_eq]
+  simp_rw [setLAverage_eq]
   exact ENNReal.div_le_div_right (setLIntegral_mono' hs h) (μ s)
+
+lemma AEStronglyMeasurable_continuousMap_coe {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]
+    [MeasurableSpace X] [OpensMeasurableSpace X] [TopologicalSpace.PseudoMetrizableSpace Y]
+    [SecondCountableTopologyEither X Y]
+    (f : C(X, Y)) : StronglyMeasurable f :=
+  (map_continuous _).stronglyMeasurable
 
 end MeasureTheory
 
@@ -169,6 +215,12 @@ variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
 attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
+attribute [fun_prop] AEStronglyMeasurable.comp_measurable
+
+lemma measure_mono_ae' {A B : Set α} (h : μ (B \ A) = 0) : μ B ≤ μ A := by
+  apply measure_mono_ae
+  change μ {x | ¬ B x ≤ A x} = 0
+  simpa only [le_Prop_eq, Classical.not_imp]
 
 theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStronglyMeasurable u μ) :
     AEStronglyMeasurable (fun x ↦ (u x).toReal) μ := by
@@ -185,7 +237,7 @@ lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤
   laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
 
 lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
-  simp_rw [setLaverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
+  simp_rw [setLAverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
     univ_inter, div_eq_mul_inv, mul_assoc]
   conv_rhs => rw [← mul_one c]
   gcongr
@@ -194,12 +246,76 @@ lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := b
 theorem eLpNormEssSup_lt_top_of_ae_ennnorm_bound {f : α → F} {C : ℝ≥0∞}
     (hfC : ∀ᵐ x ∂μ, ‖f x‖₊ ≤ C) : eLpNormEssSup f μ ≤ C := essSup_le_of_ae_le C hfC
 
-@[simp]
-lemma ENNReal.nnorm_toReal {x : ℝ≥0∞} : ‖x.toReal‖₊ = x.toNNReal := by
-  ext; simp [ENNReal.toReal]
-
 theorem restrict_absolutelyContinuous : μ.restrict s ≪ μ :=
   fun s hs ↦ Measure.restrict_le_self s |>.trans hs.le |>.antisymm <| zero_le _
+
+section eLpNorm
+
+variable {p : ℝ≥0∞}
+
+open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
+
+lemma eLpNormEssSup_toReal_le {f : α → ℝ≥0∞} :
+    eLpNormEssSup (ENNReal.toReal ∘ f) μ ≤ eLpNormEssSup f μ := by
+  simp_rw [eLpNormEssSup, enorm_eq_self]
+  apply essSup_mono_ae _
+  apply Eventually.of_forall (by simp)
+
+lemma eLpNormEssSup_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNormEssSup (ENNReal.toReal ∘ f) μ = eLpNormEssSup f μ := by
+  simp_rw [eLpNormEssSup, enorm_eq_self]
+  apply essSup_congr_ae
+  filter_upwards [hf] with x hx
+  simp [hx]
+
+lemma eLpNorm'_toReal_le {f : α → ℝ≥0∞} {p : ℝ} (hp : 0 ≤ p) :
+    eLpNorm' (ENNReal.toReal ∘ f) p μ ≤ eLpNorm' f p μ := by
+  simp_rw [eLpNorm', enorm_eq_self]
+  gcongr
+  simp
+
+lemma eLpNorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNorm' (ENNReal.toReal ∘ f) p μ = eLpNorm' f p μ := by
+  simp_rw [eLpNorm', enorm_eq_self]
+  congr 1
+  apply lintegral_congr_ae
+  filter_upwards [hf] with x hx
+  simp [hx]
+
+lemma eLpNorm_toReal_le {f : α → ℝ≥0∞} :
+    eLpNorm (ENNReal.toReal ∘ f) p μ ≤ eLpNorm f p μ := by
+  simp_rw [eLpNorm]
+  split_ifs
+  · rfl
+  · exact eLpNormEssSup_toReal_le
+  · exact eLpNorm'_toReal_le toReal_nonneg
+
+lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ ∞) :
+    eLpNorm (ENNReal.toReal ∘ f) p μ = eLpNorm f p μ := by
+  simp_rw [eLpNorm]
+  split_ifs
+  · rfl
+  · exact eLpNormEssSup_toReal_eq hf
+  · exact eLpNorm'_toReal_eq hf
+
+end eLpNorm
+
+namespace MemLp
+
+variable {p : ℝ≥0∞}
+theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toReal) p μ :=
+  ⟨hf.aestronglyMeasurable.aemeasurable.ennreal_toReal.aestronglyMeasurable,
+    eLpNorm_toReal_le.trans_lt hf.eLpNorm_lt_top⟩
+
+end MemLp
+
+-- remove once the Mathlib-lemma is generalized
+theorem memLp_one_iff_integrable' {ε} [TopologicalSpace ε] [ENorm ε]
+  {f : α → ε} : MemLp f 1 μ ↔ Integrable f μ := by
+  simp_rw [Integrable, hasFiniteIntegral_iff_enorm, MemLp, eLpNorm_one_eq_lintegral_enorm]
+
+theorem Integrable.toReal {f : α → ℝ≥0∞} (hf : Integrable f μ) : Integrable (f · |>.toReal) μ := by
+  rw [← memLp_one_iff_integrable'] at hf ⊢; exact hf.toReal
 
 end MeasureTheory
 
@@ -408,6 +524,8 @@ theorem indicator_const {c : ℝ} {s: Set X}
 
 end Integrable
 
+
+
 -- Currently unused.
 -- The assumption `int_f` can likely be removed, as otherwise the integral is zero.
 open Classical in
@@ -496,3 +614,18 @@ theorem prod_attach_insert {α β : Type*} {s : Finset α} {a : α} [DecidableEq
     ext
     simpa using h
   · simp [ha]
+
+namespace MeasureTheory
+
+theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
+    [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :
+    Measurable fun (a, r) ↦ μ (Metric.ball a r) := by
+  let s : Set (α × α × ℝ) := setOf fun (b, a, r) ↦ b ∈ Metric.ball a r
+  apply measurable_measure_prodMk_right (s := s)
+  unfold s Metric.ball
+  simp_rw [mem_setOf]
+  apply measurableSet_lt
+  · fun_prop
+  · fun_prop
+
+end MeasureTheory

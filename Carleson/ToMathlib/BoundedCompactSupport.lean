@@ -4,16 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joris Roos, Sébastien Gouëzel
 -/
 
-import Mathlib.Analysis.Convex.PartitionOfUnity
-import Mathlib.Analysis.Calculus.ContDiff.Basic
-import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.MeasureTheory.Integral.Bochner.Basic
-import Mathlib.MeasureTheory.Integral.Prod
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-import Mathlib.Topology.MetricSpace.Holder
-import Mathlib.Data.Set.Card
-import Mathlib.Data.Real.ENatENNReal
-import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.BoundedFiniteSupport
 
 /-!
 
@@ -34,126 +25,117 @@ This can be expanded as needed
 
 -/
 
-set_option linter.unusedSectionVars false -- remove for mathlib
-
-namespace MeasureTheory
-
 open Bornology Function Set HasCompactSupport
 open scoped ENNReal
 
+namespace MeasureTheory
+
 section
 
--- This setting should be enough for this project, but
--- for mathlib should generalize to vector-valued, and use `MeasurableSpace X`, `Measure μ`
-variable {X 𝕜} [MeasurableSpace X] [RCLike 𝕜] {f : X → 𝕜} {μ : Measure X}
-variable [TopologicalSpace X]
--- variable [T2Space X] -- for mathlib should remove this
--- variable [IsFiniteMeasureOnCompacts μ]
--- variable [SigmaFinite (volume : Measure X)]
+variable {X E : Type*} [TopologicalSpace X] [MeasurableSpace X] {μ ν : Measure X} {f : X → E}
 
+-- move near the MeasurePreserving/mono_measure analogues
+variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
+  {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} in
+theorem eLpNorm_mono_ac (hμν : ν ≪ μ) : eLpNorm f ∞ ν ≤ eLpNorm f ∞ μ := by
+  simp_rw [eLpNorm_exponent_top, MeasureTheory.eLpNormEssSup_mono_measure _ hμν]
+
+variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
+  {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} in
+theorem MemLp.mono_ac (hf : MemLp f ∞ μ) (hμν : ν ≪ μ) :
+    MemLp f ∞ ν :=
+⟨hf.1.mono_ac hμν, eLpNorm_mono_ac hμν |>.trans_lt hf.2⟩
+
+variable {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}
+  {ε : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
+  {β : Type*} {mβ : MeasurableSpace β} {f : α → β} {g : β → ε} {ν : Measure β} in
+theorem MemLp.comp_quasiMeasurePreserving
+    (hg : MemLp g ∞ ν) (hf : Measure.QuasiMeasurePreserving f μ ν) : MemLp (g ∘ f) ∞ μ :=
+  .comp_of_map (hg.mono_ac hf.absolutelyContinuous) hf.aemeasurable
+
+-- maybe don't upstream
+variable {α : Type*} {m0 : MeasurableSpace α} {μ ν : Measure α}
+  {E : Type*} [NormedAddCommGroup E] {f : α → E} in
+theorem MemLp.ae_norm_le (hf : MemLp f ∞ μ) : ∀ᵐ x ∂μ, ‖f x‖ ≤ (eLpNorm f ⊤ μ).toReal := by
+  filter_upwards [ae_le_eLpNormEssSup (f := f)] with x hx
+  simp_rw [← toReal_enorm]
+  apply ENNReal.toReal_mono hf.2.ne
+  simp [hx]
+
+variable [TopologicalSpace E] [ENorm E] [Zero E] in
 /-- Bounded compactly supported measurable functions -/
--- There are various alternative definitions one could use here
--- After all it does seem to be better to use `IsBounded (range f)`
--- Todo: Refactor accordingly
-structure BoundedCompactSupport (f : X → 𝕜) : Prop where
-  isBounded : IsBounded (range f)
-  stronglyMeasurable : StronglyMeasurable f
+structure BoundedCompactSupport (f : X → E) (μ : Measure X := by volume_tac) :
+    Prop where
+  memLp_top : MemLp f ∞ μ
   hasCompactSupport : HasCompactSupport f
-
-lemma isBounded_range_iff_forall_norm_le {α β} [SeminormedAddCommGroup α] {f : β → α} :
-    IsBounded (range f) ↔ ∃ C, ∀ x, ‖f x‖ ≤ C := by convert isBounded_iff_forall_norm_le; simp
-
-omit [TopologicalSpace X] in
-lemma _root_.Bornology.IsBounded.eLpNorm_top_lt_top (hf : IsBounded (range f)) :
-    eLpNorm f ⊤ μ < ⊤ := by
-  obtain ⟨C, hC⟩ := isBounded_range_iff_forall_norm_le.mp hf
-  exact eLpNormEssSup_lt_top_of_ae_bound (C := C) (ae_of_all μ hC)
-
-omit [TopologicalSpace X] in
--- maybe in mathlib, but couldn't find it
-theorem ae_le_of_eLpNorm_top_lt_top (hf : eLpNorm f ⊤ μ < ⊤) :
-    ∀ᵐ x ∂μ, ‖f x‖ ≤ ENNReal.toReal (eLpNorm f ⊤ μ) := by
-  have := enorm_ae_le_eLpNormEssSup f μ
-  filter_upwards [this] with x hx
-  have : ENNReal.ofReal ‖f x‖₊ ≠ ⊤ := ENNReal.ofReal_ne_top
-  convert (ENNReal.toReal_le_toReal this ?_).mpr ?_
-  · simp
-  · exact hf.ne_top
-  · exact trans ENNReal.ofReal_coe_nnreal hx
 
 namespace BoundedCompactSupport
 
-protected theorem zero : BoundedCompactSupport (fun (_ : X) ↦ (0 : 𝕜)) where
-  isBounded := isBounded_range_iff_forall_norm_le.2 ⟨0, by simp⟩
-  stronglyMeasurable := stronglyMeasurable_const
-  hasCompactSupport := HasCompactSupport.zero
+section General
 
-theorem indicator_of_isBounded_range {X : Type*} [MetricSpace X] [ProperSpace X]
-    [MeasurableSpace X] {f : X → 𝕜} (hf : IsBounded (range f))
-    (h'f : StronglyMeasurable f) {s : Set X} (h's : IsBounded s) (hs : MeasurableSet s) :
-    BoundedCompactSupport (s.indicator f) where
-  stronglyMeasurable := h'f.indicator hs
-  isBounded := by
-    rcases isBounded_range_iff_forall_norm_le.1 hf with ⟨C, hC⟩
-    apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
-    simp only [indicator]
-    split_ifs
-    · exact hC x
-    · simp only [norm_zero]
-      exact (norm_nonneg _).trans (hC x)
-  hasCompactSupport := by
-    apply HasCompactSupport.intro (K := closure s)
-    · exact Metric.isCompact_of_isClosed_isBounded isClosed_closure h's.closure
-    · exact fun x hx ↦ by simp [not_mem_of_not_mem_closure hx]
+variable [TopologicalSpace E] [ENorm E] [Zero E]
 
-protected theorem indicator {X : Type*} [MetricSpace X] [ProperSpace X]
-    [MeasurableSpace X] [BorelSpace X] {f : X → 𝕜} (hf : BoundedCompactSupport f) {s : Set X}
-    (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) := by
-  rw [← Set.indicator_eq_self.mpr (subset_tsupport f), Set.indicator_indicator]
-  apply indicator_of_isBounded_range hf.isBounded hf.stronglyMeasurable
-  · exact hf.hasCompactSupport.isBounded.subset inter_subset_right
-  · exact hs.inter (isClosed_tsupport f).measurableSet
+theorem aestronglyMeasurable (hf : BoundedCompactSupport f μ) : AEStronglyMeasurable f μ :=
+  hf.memLp_top.aestronglyMeasurable
 
-variable {f : X → 𝕜} {g : X → 𝕜} (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
-section Includehf
+theorem boundedFiniteSupport [IsFiniteMeasureOnCompacts μ] (hf : BoundedCompactSupport f μ) :
+    BoundedFiniteSupport f μ where
+  memLp_top := hf.memLp_top
+  measure_support_lt :=
+    measure_mono (subset_tsupport _) |>.trans_lt hf.hasCompactSupport.isCompact.measure_lt_top
 
-include hf
+end General
 
-theorem aestronglyMeasurable : AEStronglyMeasurable f μ :=
-  hf.stronglyMeasurable.aestronglyMeasurable
+section ContinuousENorm
 
-theorem memLp_top : MemLp f ⊤ μ :=
-  ⟨hf.aestronglyMeasurable, hf.isBounded.eLpNorm_top_lt_top⟩
+variable [TopologicalSpace E] [ContinuousENorm E] [Zero E]
 
-theorem ae_le : ∀ᵐ x ∂μ, ‖f x‖ ≤ ENNReal.toReal (eLpNorm f ⊤ μ) :=
-  ae_le_of_eLpNorm_top_lt_top hf.memLp_top.2
+theorem mono_ac (hf : BoundedCompactSupport f μ) (h : ν ≪ μ) :
+    BoundedCompactSupport f ν where
+  memLp_top := hf.memLp_top.mono_ac h
+  hasCompactSupport := hf.hasCompactSupport
+
+theorem mono_measure (hf : BoundedCompactSupport f μ) (h : ν ≤ μ) : BoundedCompactSupport f ν :=
+  hf.mono_ac h.absolutelyContinuous
+
+theorem restrict {s : Set X} (hf : BoundedCompactSupport f μ) :
+    BoundedCompactSupport f (μ.restrict s) :=
+  hf.mono_measure Measure.restrict_le_self
+
+
+end ContinuousENorm
+
+
+section  ENormedAddCommMonoid
+variable [TopologicalSpace E] [ENormedAddCommMonoid E]
 
 /-- Bounded compactly supported functions are in all `Lᵖ` spaces. -/
-theorem memLp [IsFiniteMeasureOnCompacts μ] (p : ENNReal) : MemLp f p μ :=
-  hf.hasCompactSupport.memLp_of_bound hf.aestronglyMeasurable _ hf.ae_le
+theorem memLp [IsFiniteMeasureOnCompacts μ] (hf : BoundedCompactSupport f μ) (p : ℝ≥0∞) :
+    MemLp f p μ :=
+  hf.boundedFiniteSupport.memLp p
+
+end ENormedAddCommMonoid
+
+section NormedAddCommGroup
+
+variable [NormedAddCommGroup E]
+
+-- todo: prove more results for ENorm-classes (awaiting-mathlib)
 
 /-- Bounded compactly supported functions are integrable. -/
-theorem integrable [IsFiniteMeasureOnCompacts μ] : Integrable f μ :=
-  memLp_one_iff_integrable.mp <| memLp hf 1
+theorem integrable [IsFiniteMeasureOnCompacts μ] (hf : BoundedCompactSupport f μ) :
+    Integrable f μ :=
+  hf.boundedFiniteSupport.integrable
 
-theorem mul_bdd_right (hg : IsBounded (range g)) (h2g : StronglyMeasurable g) :
-    BoundedCompactSupport (f * g) where
-  isBounded := by
-    rcases isBounded_range_iff_forall_norm_le.1 hf.isBounded with ⟨C, hC⟩
-    rcases isBounded_range_iff_forall_norm_le.1 hg with ⟨D, hD⟩
-    apply isBounded_range_iff_forall_norm_le.2 ⟨C * D, fun x ↦ ?_⟩
-    simp only [Pi.mul_apply, norm_mul]
-    gcongr
-    · exact (norm_nonneg _).trans (hC x)
-    · exact hC x
-    · exact hD x
-  stronglyMeasurable := hf.stronglyMeasurable.mul h2g
-  hasCompactSupport := hf.hasCompactSupport.mul_right
+protected theorem zero : BoundedCompactSupport (fun (_ : X) ↦ (0 : E)) μ where
+  memLp_top := memLp_top_const 0
+  hasCompactSupport := HasCompactSupport.zero
 
-theorem mul_bdd_left (hg : IsBounded (range g)) (h2g : StronglyMeasurable g) :
-    BoundedCompactSupport (g * f) := by
-  rw [mul_comm]; exact mul_bdd_right hf hg h2g
+theorem enorm (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (‖f ·‖ₑ) μ where
+  memLp_top := hf.memLp_top.enorm
+  hasCompactSupport := hasCompactSupport_comp_left enorm_eq_zero |>.mpr hf.hasCompactSupport
 
+-- to fix
 theorem comp_left {𝕝 : Type*} [RCLike 𝕝] {g : 𝕜 → 𝕝} (hf1 : Measurable f) (hg : g 0 = 0)
     (hg1 : Measurable g) (hg2 : (∀ (a : 𝕜), ‖g a‖ = ‖a‖)) :
     BoundedCompactSupport (g ∘ f) := by
@@ -167,68 +149,76 @@ theorem comp_left {𝕝 : Type*} [RCLike 𝕝] {g : 𝕜 → 𝕝} (hf1 : Measur
   · apply Measurable.stronglyMeasurable
     fun_prop
 
--- doesn't use compact support but is convenient to have here
-theorem integrable_mul (hg : Integrable g μ) : Integrable (f * g) μ :=
-  Integrable.bdd_mul' hg hf.aestronglyMeasurable hf.ae_le
+-- preferably use `enorm`
+theorem norm (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (‖f ·‖) μ where
+  memLp_top := hf.memLp_top.norm
+  hasCompactSupport := hasCompactSupport_comp_left norm_eq_zero |>.mpr hf.hasCompactSupport
 
-theorem conj : BoundedCompactSupport (star f) where
-  isBounded := by simpa [star, isBounded_range_iff_forall_norm_le] using hf.isBounded
-  stronglyMeasurable := RCLike.continuous_conj.comp_stronglyMeasurable hf.stronglyMeasurable
-  hasCompactSupport := by -- mathlib should have a lemma `HasCompactSupport.conj`?
-    simp only [star, RCLike.star_def]
-    exact (hasCompactSupport_comp_left (by simp)).2 hf.hasCompactSupport
+protected theorem neg (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (- f) μ where
+  memLp_top := hf.memLp_top.neg
+  hasCompactSupport := hf.hasCompactSupport.neg'
 
-theorem norm : BoundedCompactSupport (‖f ·‖) where
-  isBounded := by simpa [isBounded_range_iff_forall_norm_le] using hf.isBounded
-  stronglyMeasurable := hf.stronglyMeasurable.norm
-  hasCompactSupport := hf.hasCompactSupport.norm
+variable {𝕜 : Type*} [RCLike 𝕜] {g : X → E}
 
-theorem const_mul (c : 𝕜) : BoundedCompactSupport (fun x ↦ c * (f x)) where
-  isBounded := by
-    rcases isBounded_range_iff_forall_norm_le.1 hf.isBounded with ⟨C, hC⟩
-    refine isBounded_range_iff_forall_norm_le.2 ⟨‖c‖ * C, fun x ↦ ?_⟩
-    rw [norm_mul]
-    gcongr
-    exact hC x
-  stronglyMeasurable := hf.stronglyMeasurable.const_mul _
-  hasCompactSupport := by
-    suffices support (fun x ↦ c * (f x)) ⊆ support f from hf.hasCompactSupport.mono this
-    exact support_mul_subset_right ..
-
-theorem mul_const (c : 𝕜) : BoundedCompactSupport (fun x ↦ (f x) * c) := by
-  simp_rw [mul_comm]; exact hf.const_mul _
-
-end Includehf
-
-section Includehfhg
-
-include hf hg
-
-theorem mul : BoundedCompactSupport (f * g) := mul_bdd_right hf hg.isBounded hg.stronglyMeasurable
-
-protected theorem add : BoundedCompactSupport (f + g) where
-  isBounded := by
-    rcases isBounded_range_iff_forall_norm_le.1 hf.isBounded with ⟨C, hC⟩
-    rcases isBounded_range_iff_forall_norm_le.1 hg.isBounded with ⟨D, hD⟩
-    refine isBounded_range_iff_forall_norm_le.2 ⟨C + D, fun x ↦ (norm_add_le _ _).trans ?_⟩
-    gcongr
-    exacts [hC x, hD x]
-  stronglyMeasurable := hf.stronglyMeasurable.add hg.stronglyMeasurable
+protected theorem add (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g μ) :
+    BoundedCompactSupport (f + g) μ where
+  memLp_top := hf.memLp_top.add hg.memLp_top
   hasCompactSupport := hf.hasCompactSupport.add hg.hasCompactSupport
 
-protected theorem sub : BoundedCompactSupport (f - g) := by
-  rw [sub_eq_add_neg, neg_eq_neg_one_mul]
-  exact hf.add (hg.const_mul (-1))
+protected theorem sub (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g μ) :
+    BoundedCompactSupport (f - g) μ := by
+  rw [sub_eq_add_neg]
+  exact hf.add hg.neg
 
-end Includehfhg
+section Mul
+
+variable {f g : X → 𝕜}
+
+theorem mul_bdd_right (hf : BoundedCompactSupport f μ) (hg : MemLp g ∞ μ) :
+    BoundedCompactSupport (f * g) μ where
+  memLp_top := hg.mul hf.memLp_top
+  hasCompactSupport := hf.hasCompactSupport.mul_right
+
+theorem mul_bdd_left (hf : BoundedCompactSupport f μ) (hg : MemLp g ∞ μ) :
+    BoundedCompactSupport (g * f) μ := by
+  rw [mul_comm]; exact mul_bdd_right hf hg
+
+theorem mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g μ) :
+    BoundedCompactSupport (f * g) μ :=
+  hf.mul_bdd_right hg.memLp_top
+
+-- doesn't use compact support but is convenient to have here
+theorem integrable_mul (hf : BoundedCompactSupport f μ) (hg : Integrable g μ) :
+    Integrable (f * g) μ := by
+  rw [← memLp_one_iff_integrable] at hg ⊢
+  exact hg.mul hf.memLp_top
+
+-- todo: extract 3-4 lemmas from this proof
+theorem conj (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (star f) μ where
+  memLp_top := by
+    refine ⟨RCLike.continuous_conj.comp_aestronglyMeasurable hf.aestronglyMeasurable, ?_⟩
+    simp_rw [star]
+    rw [MeasureTheory.eLpNorm_congr_enorm_ae (g := f)]
+    · exact hf.memLp_top.eLpNorm_lt_top
+    simp
+  hasCompactSupport := by
+    simp_rw [star]
+    exact (hasCompactSupport_comp_left (by simp)).2 hf.hasCompactSupport
+
+theorem const_mul (hf : BoundedCompactSupport f μ) (c : 𝕜) :
+    BoundedCompactSupport (fun x ↦ c * f x) μ :=
+  hf.mul_bdd_left <| memLp_top_const _
+
+theorem mul_const (hf : BoundedCompactSupport f μ) (c : 𝕜) :
+    BoundedCompactSupport (fun x ↦ f x * c) μ :=
+  hf.mul_bdd_right <| memLp_top_const _
+
+end Mul
 
 /-- If `‖f‖` is bounded by `g` and `g` is bounded compactly supported, then so is `f`. -/
-theorem mono {g : X → ℝ} (hg : BoundedCompactSupport g) (hf : StronglyMeasurable f)
-    (hfg : ∀ x, ‖f x‖ ≤ g x) : BoundedCompactSupport f where
-  isBounded := by
-    rcases isBounded_range_iff_forall_norm_le.1 hg.isBounded with ⟨C, hC⟩
-    refine isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
-    exact (hfg x).trans ((le_abs_self _).trans (hC x))
+theorem mono {g : X → ℝ≥0∞} (hg : BoundedCompactSupport g μ) (hf : AEStronglyMeasurable f μ)
+    (hfg : ∀ x, ‖f x‖ₑ ≤ g x) : BoundedCompactSupport f μ where
+  memLp_top := ⟨hf, eLpNorm_mono_enorm hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top⟩
   hasCompactSupport := by
     refine hg.hasCompactSupport.mono ?_
     by_contra h
@@ -236,28 +226,35 @@ theorem mono {g : X → ℝ} (hg : BoundedCompactSupport g) (hf : StronglyMeasur
       Decidable.not_not] at h
     obtain ⟨x, hfx, hgx⟩ := h
     specialize hfg x
-    rw [hgx] at hfg
-    exact hfx <| norm_le_zero_iff.mp hfg
-  stronglyMeasurable := hf
+    simp_rw [hgx, nonpos_iff_eq_zero, enorm_eq_zero, hfx] at hfg
 
-theorem of_norm_le_const_mul {g : X → ℝ} {M : ℝ} (hg : BoundedCompactSupport g)
-    (hf : StronglyMeasurable f)
-    (hfg : ∀ x, ‖f x‖ ≤ M * g x) : BoundedCompactSupport f :=
-  BoundedCompactSupport.mono (hg.const_mul M) hf hfg
+-- use `mono` preferably
+theorem mono_norm {g : X → ℝ} (hg : BoundedCompactSupport g μ) (hf : AEStronglyMeasurable f μ)
+    (hfg : ∀ x, ‖f x‖ ≤ g x) : BoundedCompactSupport f μ where
+  memLp_top := ⟨hf, eLpNorm_mono_real hfg |>.trans_lt hg.memLp_top.eLpNorm_lt_top⟩
+  hasCompactSupport := by
+    refine hg.hasCompactSupport.mono ?_
+    by_contra h
+    simp only [support_subset_iff, ne_eq, mem_support, not_forall, Classical.not_imp,
+      Decidable.not_not] at h
+    obtain ⟨x, hfx, hgx⟩ := h
+    specialize hfg x
+    simp_rw [hgx, norm_le_zero_iff, hfx] at hfg
 
-theorem toComplex {f : X → ℝ} (hf : BoundedCompactSupport f) :
-    BoundedCompactSupport (fun x ↦ (f x : ℂ)) :=
-  mono (g := (‖f ·‖)) hf.norm
-    (Complex.continuous_ofReal.comp_stronglyMeasurable hf.stronglyMeasurable) (by simp)
+theorem toComplex {f : X → ℝ} (hf : BoundedCompactSupport f μ) :
+    BoundedCompactSupport (fun x ↦ (f x : ℂ)) μ :=
+  mono (g := (‖f ·‖ₑ)) hf.enorm
+    (Complex.continuous_ofReal.comp_aestronglyMeasurable hf.aestronglyMeasurable)
+    (by simp [← ofReal_norm])
 
 section Sum
 
-variable {ι : Type*} {s : Finset ι} {F : ι → X → 𝕜}
+variable {ι : Type*} {s : Finset ι} {F : ι → X → E}
 
 /-- A finite sum of bounded compactly supported functions is bounded compactly supported. -/
 theorem finset_sum
-    (hF : ∀ i ∈ s, BoundedCompactSupport (F i)) :
-    BoundedCompactSupport (fun x ↦ ∑ i ∈ s, F i x) := by
+    (hF : ∀ i ∈ s, BoundedCompactSupport (F i) μ) :
+    BoundedCompactSupport (fun x ↦ ∑ i ∈ s, F i x) μ := by
   classical
   induction s using Finset.induction with
   | empty => simp [BoundedCompactSupport.zero]
@@ -271,26 +268,25 @@ end Sum
 
 section Prod
 
-variable {Y: Type*} [MeasureSpace Y] {g : Y → 𝕜}
+variable {Y : Type*} [MeasureSpace Y] {f : X → 𝕜} {g : Y → 𝕜} {ν : Measure Y}
 variable [TopologicalSpace Y]
 variable [R1Space (X × Y)]
 
 /-- An elementary tensor of bounded compactly supported functions is
   bounded compactly supported. -/
-theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
-    BoundedCompactSupport (uncurry fun x y ↦ (f x) * (g y)) where
-  isBounded := by
-    rcases isBounded_range_iff_forall_norm_le.1 hf.isBounded with ⟨C₁, hC₁⟩
-    rcases isBounded_range_iff_forall_norm_le.1 hg.isBounded with ⟨C₂, hC₂⟩
-    refine isBounded_range_iff_forall_norm_le.2 ⟨C₁ * C₂, fun x ↦ ?_⟩
-    rw [uncurry, norm_mul]
-    gcongr
-    · exact (norm_nonneg _).trans (hC₁ x.1)
-    · exact hC₁ x.1
-    · exact hC₂ x.2
-  stronglyMeasurable := .mul (.fst hf.stronglyMeasurable) (.snd hg.stronglyMeasurable)
+theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g ν) :
+    BoundedCompactSupport (uncurry fun x y ↦ f x * g y) (μ.prod ν) where
+  memLp_top := by
+    -- todo: maybe separate out as lemmas
+    have h2f : MemLp (fun z : X × Y ↦ f z.1) ∞ (μ.prod ν) :=
+      hf.memLp_top.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_fst
+    have h2g : MemLp (fun z : X × Y ↦ g z.2) ∞ (μ.prod ν) :=
+      hg.memLp_top.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_snd
+    -- todo: reorder arguments of `mul`
+    exact h2g.mul (r := ∞) h2f
   hasCompactSupport := by
-    apply HasCompactSupport.intro <| IsCompact.prod hf.hasCompactSupport hg.hasCompactSupport
+    -- todo: separate out as lemmas
+    apply HasCompactSupport.intro <| hf.hasCompactSupport.prod hg.hasCompactSupport
     intro ⟨x,y⟩ hxy
     simp only [uncurry_apply_pair, mul_eq_zero]
     simp only [mem_prod, not_and] at hxy
@@ -298,38 +294,34 @@ theorem prod_mul (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) :
     · exact Or.inr (image_eq_zero_of_nmem_tsupport (hxy hx))
     · exact Or.inl (image_eq_zero_of_nmem_tsupport hx)
 
-variable {F : X × Y → 𝕜}
+variable [R1Space X] in
+theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
+    {s : Set X} (h's : IsCompact (closure s)) (hs : MeasurableSet s) :
+    BoundedCompactSupport (s.indicator f) μ where
+  memLp_top := hf.indicator hs
+  hasCompactSupport := by
+    apply HasCompactSupport.intro h's
+    exact fun x hx ↦ by simp [not_mem_of_not_mem_closure hx]
+
+protected theorem indicator {f : X → E} (hf : BoundedCompactSupport f μ) {s : Set X}
+    (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) μ where
+  memLp_top := hf.memLp_top.indicator hs
+  hasCompactSupport := hf.hasCompactSupport.mono (by simp)
+
+variable {F : X × Y → E}
 
 -- -- prove when needed
--- theorem swap (hF : BoundedCompactSupport F) : BoundedCompactSupport (F ∘ Prod.swap) where
---   isBounded := sorry
+-- theorem swap (hF : BoundedCompactSupport f μ) : BoundedCompactSupport (F ∘ Prod.swap) where
+--   memLp_top := sorry
 --   stronglyMeasurable := sorry
 --   hasCompactSupport := sorry
 
-end Prod
-
-end BoundedCompactSupport
-
-end
-
-namespace BoundedCompactSupport
-
-section Metric
-
-variable {X Y 𝕜: Type*} [RCLike 𝕜]
-variable [MeasureSpace X] {f : X → 𝕜} [PseudoMetricSpace X]
-variable [MeasureSpace Y] {g : Y → 𝕜} [PseudoMetricSpace Y] [SigmaFinite (volume : Measure Y)]
-
-variable (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g)
-
-section Prod
-
-variable {F : X × Y → 𝕜}
+variable {F : X × Y → E}
 
 -- ---- adapt and prove below when needed
--- theorem prod_left (hF : BoundedCompactSupport F) :
+-- theorem prod_left (hF : BoundedCompactSupport f μ) :
 --     ∀ y, BoundedCompactSupport (fun x ↦ F (x, y)) := fun y ↦ {
---   isBounded := by
+--   memLp_top := by
 --     rcases isBounded_range_iff_forall_norm_le.1 hF.isBounded with ⟨C, hC⟩
 --     apply isBounded_range_iff_forall_norm_le.2 ⟨C, fun x ↦ ?_⟩
 --     exact hC (x, y)
@@ -341,33 +333,42 @@ variable {F : X × Y → 𝕜}
 -- }
 
 
--- theorem prod_right_ae (hF : BoundedCompactSupport F) :
+-- theorem prod_right_ae (hF : BoundedCompactSupport f μ) :
 --     ∀ᵐ x, BoundedCompactSupport (fun y ↦ F (x, y)) := hF.swap.prod_left_ae
 
--- theorem integral_prod_left (hF : BoundedCompactSupport F) :
+-- theorem integral_prod_left (hF : BoundedCompactSupport f μ) :
 --     BoundedCompactSupport (fun x ↦ ∫ y, F (x, y)) := sorry
 -- --   have := hF.integrable.integrable_prod_left
 
--- theorem integral_prod_right (hF : BoundedCompactSupport F) :
+-- theorem integral_prod_right (hF : BoundedCompactSupport f μ) :
 --     BoundedCompactSupport (fun y ↦ ∫ x, F (x, y)) := hF.swap.integral_prod_left
 
 end Prod
 
-section
-include hf
-
-theorem isBoundedSupport' : IsBounded (tsupport f) :=
-  hf.hasCompactSupport.isBounded
-
-theorem isBoundedSupport : IsBounded (support f) :=
-  hf.isBoundedSupport'.subset <| subset_tsupport f
-
-end
-
-end Metric
+end NormedAddCommGroup
 
 
 end BoundedCompactSupport
+
+end
+
+section Metric
+namespace BoundedCompactSupport
+
+variable {X E : Type*} [MetricSpace X] [MeasurableSpace X] {μ : Measure X}
+  [TopologicalSpace E] [ENorm E] [Zero E]
+  {f : X → E}
+
+theorem isBoundedTSupport (hf : BoundedCompactSupport f μ) : IsBounded (tsupport f) :=
+  hf.hasCompactSupport.isBounded
+
+theorem isBoundedSupport (hf : BoundedCompactSupport f μ) : IsBounded (support f) :=
+  hf.isBoundedTSupport.subset <| subset_tsupport f
+
+
+end BoundedCompactSupport
+
+end Metric
 
 end MeasureTheory
 

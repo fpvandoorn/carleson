@@ -12,7 +12,7 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
 
 noncomputable section
 
-open Set MeasureTheory Metric Function Complex Bornology TileStructure Classical Filter
+open Set MeasureTheory Metric Function Complex Bornology TileStructure Filter
 open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
@@ -133,6 +133,7 @@ lemma rowDecomp_𝔘_eq (t : Forest X n) (j : ℕ) :
 lemma stackSize_remainder_ge_one_of_exists (t : Forest X n) (j : ℕ) (x:X)
     (this : ∃ 𝔲' ∈ (t.rowDecomp j).𝔘, x ∈ 𝓘 𝔲') :
     1 ≤ stackSize ((t \ ⋃ i < j, t.rowDecomp i) ∩ t.rowDecomp j: Set _) x := by
+  classical
   obtain ⟨𝔲',h𝔲'⟩ := this
   dsimp [stackSize]
   rw [← Finset.sum_erase_add _ (a := 𝔲')]
@@ -247,6 +248,7 @@ Has value `2 ^ (257 * a ^ 3 - n / 2)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (257 * (a : ℝ) ^ 3 - n / 2)
 
+open scoped Classical in
 /-- Part of Lemma 7.7.2. -/
 lemma row_bound (hj : j < 2 ^ n) (hg : BoundedCompactSupport f)
     (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
@@ -254,6 +256,7 @@ lemma row_bound (hj : j < 2 ^ n) (hg : BoundedCompactSupport f)
     C7_7_2_1 a n * eLpNorm f 2 volume := by
   sorry
 
+open scoped Classical in
 /-- Part of Lemma 7.7.2. -/
 lemma indicator_row_bound (hj : j < 2 ^ n) (hf : BoundedCompactSupport f)
     (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
@@ -266,6 +269,7 @@ Has value `2 ^ (862 * a ^ 3 - 3 * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := 2 ^ (862 * (a : ℝ) ^ 3 - 2 * n)
 
+open scoped Classical in
 /-- Lemma 7.7.3. -/
 lemma row_correlation (hjj' : j < j') (hj' : j' < 2 ^ n)
     (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁) (h3f₁ : ∀ x, ‖f₁ x‖ ≤ G.indicator 1 x)
@@ -286,6 +290,7 @@ lemma disjoint_impl {p p' : 𝔓 X} : Disjoint (Ω p) (Ω p') → Disjoint (E p)
 
 lemma disjoint_of_ne_of_mem {i j : ℕ} {u u' : 𝔓 X} (hne : u ≠ u') (hu : u ∈ t.rowDecomp i) (hu' : u' ∈ t.rowDecomp j)
   {p p' : 𝔓 X} (hp : p ∈ t u) (hp' : p' ∈ t u') : Disjoint (E p) (E p') := by
+  classical
   wlog hsle : 𝔰 p ≤ 𝔰 p'
   · exact (this hne.symm hu' hu hp' hp (Int.le_of_not_le hsle)).symm
   -- if x is in the inter, both `Disjoint (Ω p) (Ω p')` and `Q x ∈ Ω p ∩ Ω p'`
@@ -337,6 +342,7 @@ Has value `2 ^ (432 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (- (q - 1) / q * n)
 
+open scoped Classical in
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : Measurable g)
     (h2g : IsBounded (support g)) :
@@ -345,6 +351,7 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry
 
+open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/
 theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
@@ -358,13 +365,13 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
   rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
   · apply BoundedCompactSupport.integrable
     apply BoundedCompactSupport.finset_sum (fun i hi ↦ ?_)
+    apply BoundedCompactSupport.restrict
     apply BoundedCompactSupport.carlesonSum
     have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
-      apply BoundedCompactSupport.indicator_of_isBounded_range _ stronglyMeasurable_one _
+      apply BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _) _
         measurableSet_F
-      · exact isBounded_range_iff_forall_norm_le.2 ⟨1, fun x ↦ by simp⟩
-      · exact isBounded_F
-    apply BoundedCompactSupport.mono this hf.stronglyMeasurable h2f
+      · exact isBounded_F.isCompact_closure
+    apply BoundedCompactSupport.mono_norm this hf.aestronglyMeasurable h2f
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
@@ -394,9 +401,10 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     · norm_num
     · norm_num
 
+open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function, and with the upper bound in terms
-of `volume F` and `volume G`.  -/
+of `volume F` and `volume G`. -/
 theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
     (h'A : IsBounded A) :

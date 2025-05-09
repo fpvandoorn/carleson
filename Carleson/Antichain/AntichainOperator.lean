@@ -515,13 +515,13 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
   the sum to be controlled. -/
   rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
   · apply BoundedCompactSupport.integrable
+    apply BoundedCompactSupport.restrict ?_
     apply BoundedCompactSupport.carlesonSum
     have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
-      apply BoundedCompactSupport.indicator_of_isBounded_range _ stronglyMeasurable_one _
+      apply BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _) _
         measurableSet_F
-      · exact isBounded_range_iff_forall_norm_le.2 ⟨1, fun x ↦ by simp⟩
-      · exact isBounded_F
-    apply BoundedCompactSupport.mono this hf.stronglyMeasurable h2f
+      · exact isBounded_F.isCompact_closure
+    apply BoundedCompactSupport.mono_norm this hf.aestronglyMeasurable h2f
   rw [← integral_indicator measurableSet_G]
   simp_rw [indicator_mul_left, ← Function.comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]

@@ -26,15 +26,28 @@ jobs:
       - name: Get cache
         run: ~/.elan/bin/lake exe cache get || true
 
+      - name: check that Carleson.lean is up to date
+        run: ~/.elan/bin/lake exe mk_all --check
+
       - name: Build project
         run: ~/.elan/bin/lake build Carleson
+
+      - name: Lint project
+        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter Carleson
 
       - name: Cache API docs
         uses: actions/cache@v4
         with:
-          path: docbuild/.lake/build/doc
-          key: LakeBuildDoc-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: LakeBuildDoc-
+          path: |
+            docbuild/.lake/build/doc/Aesop
+            docbuild/.lake/build/doc/Batteries
+            docbuild/.lake/build/doc/find
+            docbuild/.lake/build/doc/Init
+            docbuild/.lake/build/doc/Lake
+            docbuild/.lake/build/doc/Lean
+            docbuild/.lake/build/doc/Mathlib
+            docbuild/.lake/build/doc/Std
+          key: Docs-${{ hashFiles('lake-manifest.json') }}
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2

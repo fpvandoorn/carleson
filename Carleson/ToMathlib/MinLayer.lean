@@ -188,12 +188,11 @@ lemma iUnion_minLayer_iff_bounded_series :
     ⋃ (k ≤ n), A.minLayer k = A ↔ ∀ p : LTSeries A, p.length ≤ n := by
   simp [← lt_succ_iff, iUnion_lt_minLayer_iff_bounded_series]
 
-open Classical
-
 variable [Fintype α]
 
 lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n) :
     ∃ c ∈ A.minLayer m, c ≤ a := by
+  classical
   have ma : a ∈ A \ ⋃ (l' < n), A.minLayer l' := by
     refine mem_of_mem_of_subset ha (diff_subset_diff_right ?_)
     refine biUnion_subset_biUnion_left fun k hk ↦ ?_
