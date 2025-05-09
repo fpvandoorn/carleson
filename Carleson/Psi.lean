@@ -418,7 +418,7 @@ lemma kernel_bound {s : ℤ} {x y : X} : ‖Ks s x y‖ₑ ≤ C_K a / vol x y :
 variable (s)
 
 /-- Apply `volume_ball_two_le_same` `n` times. -/
-lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
+lemma DoublingMeasure.volume_real_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
     volume.real (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume.real (ball x r) := by
   induction' n with d ih; · simp
   rw [add_comm, pow_add, pow_one, mul_assoc]
@@ -427,9 +427,28 @@ lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ)
   rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_left (by positivity)]
 
 -- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
-private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) :
+private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat' (x : X) (n : ℕ) :
     volume.real (ball x (2 ^ n * D ^ s)) ≤
     (defaultA a) ^ (2 + n + 100 * a ^ 2) * volume.real (ball x (D ^ (s - 1) / 4)) := by
+  convert volume_real_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 100 * a ^ 2) using 3
+  rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
+  field_simp
+  ring
+
+/-- Apply `volume_ball_two_le_same` `n` times. -/
+lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
+    volume (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume (ball x r) := by
+  induction' n with d ih; · simp
+  rw [add_comm, pow_add, pow_one, mul_assoc]
+  apply (measure_ball_two_le_same x _).trans
+  have A_cast: ((defaultA a : ℝ≥0) : ℝ≥0∞) = (defaultA a : ℝ≥0∞) := rfl
+  rw [A_cast, pow_add, mul_assoc, pow_one]
+  gcongr
+
+-- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
+private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) :
+    volume (ball x (2 ^ n * D ^ s)) ≤
+    (defaultA a) ^ (2 + n + 100 * a ^ 2) * volume (ball x (D ^ (s - 1) / 4)) := by
   convert volume_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 100 * a ^ 2) using 3
   rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
   field_simp
@@ -475,7 +494,7 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
   dsimp only
   rw [div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
-    DoublingMeasure.volume_ball_two_le_same_repeat' s x n
+    DoublingMeasure.volume_real_ball_two_le_same_repeat' s x n
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
   rw_mod_cast [← pow_mul]
   congr
