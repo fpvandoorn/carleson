@@ -667,43 +667,7 @@ theorem cotlar_control (ha : 4 ≤ a)
 /-- The constant used in `cotlar_set_F₂`. -/
 irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 
-@[fun_prop]
-lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
-    AEStronglyMeasurable (fun x ↦ czOperator K r g x) := by
-  unfold czOperator
-  conv => arg 1; intro x; rw [← integral_indicator (by measurability)]
-  let f := fun (x,z) ↦ (ball x r)ᶜ.indicator (fun y ↦ K x y * g y) z
-  apply AEStronglyMeasurable.integral_prod_right' (f := f)
-  unfold f
-  apply AEStronglyMeasurable.indicator
-  · apply Continuous.comp_aestronglyMeasurable₂ (by fun_prop) aestronglyMeasurable_K
-    exact AEStronglyMeasurable.snd (hg.aestronglyMeasurable)
-  · conv => arg 1; change {x : (X × X) | x.2 ∈ (ball x.1 r)ᶜ}
-    simp_rw [mem_compl_iff, mem_ball, not_lt]
-    apply measurableSet_le <;> fun_prop
-
-lemma memLp_top_czOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) :
-    MemLp (czOperator K r g) ⊤ volume := by
-  -- constructor
-  -- · exact czOperator_aestronglyMeasurable hg
-  -- · rw [eLpNorm_exponent_top]
-  --   apply eLpNormEssSup_lt_top_of_ae_enorm_bound
-  --     (C := 0) --fix for build while proof is sorry'd
-  --   unfold czOperator
-  --   apply Filter.Eventually.mono _ (fun x ↦ (enorm_integral_le_lintegral_enorm _).trans)
-  --   -- rotate_left
-  --   apply Filter.Eventually.mono _ (fun x ↦ (lintegral_mono_ae ?ae).trans)
-  --   case ae =>
-  --     change ∀ᵐ y ∂volume.restrict (ball x r)ᶜ, ‖K x y * g y‖ₑ
-  --         ≤ eLpNormEssSup (K x) (volume.restrict (ball x r)ᶜ) * ‖g y‖ₑ
-  --     simp_rw [enorm_mul]
-  --     filter_upwards [enorm_ae_le_eLpNormEssSup (K x) (volume.restrict (ball x r)ᶜ)]
-  --     intro y hy
-  --     gcongr
-  --   sorry
-  sorry
-
-
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 lemma globalMaximalFunction_zero_enorm_czoperator_ae_zero (hR : 0 < R) {g : X → ℂ} (hg : BoundedFiniteSupport g)
     (hMzero : globalMaximalFunction volume 1 (czOperator K r g) x = 0) :
     ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r g x'‖ₑ = 0 := by
@@ -716,6 +680,7 @@ lemma globalMaximalFunction_zero_enorm_czoperator_ae_zero (hR : 0 < R) {g : X �
     simp
   · simp [hR]
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part 1 of Lemma 10.1.4 about `F₁`. -/
 theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
@@ -736,12 +701,12 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   case ne_t =>
     apply mul_ne_top (by simp)
     unfold MTrgx
-    exact (globalMaximalFunction_lt_top (p := 1) (by simp) (memLp_top_czOperator hg)).ne
+    exact (globalMaximalFunction_lt_top (p := 1) (by simp) (memLp_top_czOperator hg hr)).ne
   rw [← lintegral_mul_const' _ _ ?hr]
   case hr =>
     apply mul_ne_top (by simp)
     unfold MTrgx
-    exact (globalMaximalFunction_lt_top (p := 1) (by simp) (memLp_top_czOperator hg)).ne
+    exact (globalMaximalFunction_lt_top (p := 1) (by simp) (memLp_top_czOperator hg hr)).ne
   simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
   trans ∫⁻ (y : X) in ball x (R / 4),
       {x' | 4 * MTrgx < ‖czOperator K r g x'‖ₑ}.indicator (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y

@@ -26,6 +26,48 @@ lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
       · intro y hy
         apply enorm_K_le_ball_complement' hr hy
 
+@[fun_prop]
+lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    AEStronglyMeasurable (fun x ↦ czOperator K r g x) := by
+  unfold czOperator
+  conv => arg 1; intro x; rw [← integral_indicator (by measurability)]
+  let f := fun (x,z) ↦ (ball x r)ᶜ.indicator (fun y ↦ K x y * g y) z
+  apply AEStronglyMeasurable.integral_prod_right' (f := f)
+  unfold f
+  apply AEStronglyMeasurable.indicator
+  · apply Continuous.comp_aestronglyMeasurable₂ (by fun_prop) aestronglyMeasurable_K
+    exact AEStronglyMeasurable.snd (hg.aestronglyMeasurable)
+  · conv => arg 1; change {x : (X × X) | x.2 ∈ (ball x.1 r)ᶜ}
+    simp_rw [mem_compl_iff, mem_ball, not_lt]
+    apply measurableSet_le <;> fun_prop
+
+lemma memLp_top_czOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) :
+    MemLp (czOperator K r g) ⊤ volume := by
+  constructor
+  · exact czOperator_aestronglyMeasurable hg
+  rw [eLpNorm_exponent_top]
+  let C := (C_K a * eLpNorm g ⊤ volume).toNNReal
+  apply eLpNormEssSup_lt_top_of_ae_enorm_bound (C := C)
+  unfold C czOperator
+  rw [ENNReal.coe_toNNReal (mul_lt_top (by simp) (hg.eLpNorm_lt_top)).ne]
+  apply Filter.Eventually.mono _ (fun x ↦ (enorm_integral_le_lintegral_enorm _).trans)
+  apply Filter.Eventually.mono _ (fun x ↦ (lintegral_mono_ae ?ae).trans)
+  case ae =>
+    change ∀ᵐ y ∂volume.restrict (ball x r)ᶜ, ‖K x y * g y‖ₑ
+        ≤ (fun a ↦ ‖K x a‖ₑ * eLpNorm g ⊤ volume) y
+    filter_upwards [enorm_ae_le_eLpNormEssSup g (volume.restrict (ball x r)ᶜ)]
+    intro y hy
+    simp_rw [enorm_mul]
+    rw [← eLpNorm_exponent_top] at hy
+    gcongr
+    apply hy.trans
+    apply eLpNorm_restrict_le
+  simp_rw [lintegral_mul_const' _ _ hg.eLpNorm_lt_top.ne]
+  filter_upwards
+  intro x
+  gcongr
+  sorry
+
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   let Kxg := fun y ↦ K x y * g y
