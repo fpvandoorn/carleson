@@ -306,7 +306,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
   -- Could this be deduced from hF1?
   have hf1 : AEStronglyMeasurable f volume := hfm.aestronglyMeasurable
   by_cases hf_top : eLpNorm f 2 volume < ⊤
-  · --have hf2 :  Memℒp f 2 volume := ⟨hf1, hf_top⟩
+  · --have hf2 :  MemLp f 2 volume := ⟨hf1, hf_top⟩
     have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠
         (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
       sorry
