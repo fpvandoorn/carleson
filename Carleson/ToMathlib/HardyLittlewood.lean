@@ -677,6 +677,13 @@ theorem hasWeakType_maximalFunction_equal_exponents
 def C_weakType_maximalFunction (A p₁ p₂ : ℝ≥0) :=
   if p₁ = p₂ then (ofNNReal A) ^ (2 / p₁ : ℝ) else C2_0_6 A p₁ p₂
 
+lemma C_weakType_maximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
+    C_weakType_maximalFunction A p₁ p₂ < ∞ := by
+  unfold C_weakType_maximalFunction
+  split_ifs with hps
+  · apply rpow_lt_top_of_nonneg (by positivity) (by simp)
+  · simp
+
 /-- `hasStrongType_maximalFunction` minus the assumption `hR`, but where `p₁ = p₂` is possible and
 we only conclude a weak-type estimate. -/
 theorem hasWeakType_maximalFunction
@@ -772,6 +779,10 @@ theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCom
 def C_weakType_globalMaximalFunction (A p₁ p₂ : ℝ≥0) :=
   A ^ 2 * C_weakType_maximalFunction A p₁ p₂
 
+lemma C_weakType_globalMaximalFunction_lt_top {A p₁ p₂ : ℝ≥0} :
+    C_weakType_globalMaximalFunction A p₁ p₂ < ∞ :=
+  mul_lt_top (by simp) C_weakType_maximalFunction_lt_top
+
 -- the constant here `A ^ 4` can be improved
 theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ ≤ p₂) :
@@ -788,5 +799,14 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
 lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
     LowerSemicontinuous (globalMaximalFunction μ 1 f) := by
   sorry
+
+theorem globalMaximalFunction_ae_lt_top [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
+    [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
+    {u : X → E} (hu : MemLp u p₂ μ):
+    ∀ᵐ x ∂μ, globalMaximalFunction μ p₁ u x < ∞ := by
+  simp_rw [lt_top_iff_ne_top]
+  conv => arg 1; intro x; rw [← enorm_eq_self (x := globalMaximalFunction μ p₁ u x)]
+  exact MemWℒp.ae_ne_top (HasWeakType.memWℒp (hasWeakType_globalMaximalFunction hp₁ hp₁₂.le) hu
+    C_weakType_globalMaximalFunction_lt_top)
 
 end GMF

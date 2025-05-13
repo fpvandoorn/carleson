@@ -682,9 +682,7 @@ lemma globalMaximalFunction_zero_enorm_czoperator_ae_zero (hR : 0 < R) {g : X �
 
 omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part 1 of Lemma 10.1.4 about `F₁`. -/
-theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     volume.restrict (ball x (R / 4))
       {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
@@ -697,16 +695,12 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     intro x' hx'
     simp [hx']
   rw [← lintegral_indicator_one₀ (nullMeasurableSet_lt (by fun_prop) (by fun_prop))]
-  rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) ?ne_t (c := 4 * MTrgx)]
-  case ne_t =>
-    apply mul_ne_top (by simp)
-    unfold MTrgx
-    exact (globalMaximalFunction_lt_top (p := 1) (by simp) (memLp_top_czOperator hg hr)).ne
-  rw [← lintegral_mul_const' _ _ ?hr]
-  case hr =>
-    apply mul_ne_top (by simp)
-    unfold MTrgx
-    exact (globalMaximalFunction_lt_top (p := 1) (by simp) (memLp_top_czOperator hg hr)).ne
+  by_cases hMinfty : MTrgx = ∞
+  · unfold MTrgx at hMinfty
+    simp_rw [hMinfty]
+    simp
+  rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) (by finiteness) (c := 4 * MTrgx)]
+  rw [← lintegral_mul_const' _ _ (by finiteness)]
   simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
   trans ∫⁻ (y : X) in ball x (R / 4),
       {x' | 4 * MTrgx < ‖czOperator K r g x'‖ₑ}.indicator (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
@@ -717,7 +711,7 @@ theorem cotlar_set_F₁ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     exact le_of_lt
   trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
   · apply lintegral_mono_fn
-    intro y -- otherwise runs into deterministic timeout, don't ask me why
+    intro y
     apply indicator_le_self
   nth_rw 2 [div_eq_mul_inv]
   rw [mul_assoc]
