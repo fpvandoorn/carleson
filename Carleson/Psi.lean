@@ -386,6 +386,21 @@ lemma dist_mem_Icc_of_mem_tsupport_Ks {s : ℤ} {x : X × X}
       ((isClosed_Icc.closure_subset_iff).mpr hC)
   exact hC' (mem_image_of_mem (fun x ↦ dist x.1 x.2) h)
 
+lemma dist_mem_Icc_of_mem_tsupport_Ks' {s : ℤ} {x y : X} (h : y ∈ tsupport fun z ↦ (Ks s x z)) :
+    dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+  set C := support fun (z : X) ↦ Ks s x z
+  have hcont : Continuous (fun (z : X) ↦ dist x z) := continuous_const.dist continuous_id'
+  have hC : (fun (z : X) ↦ dist x z) '' C ⊆ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+    intro r hr
+    simp only [mem_image, mem_support, C] at hr
+    obtain ⟨x, hx, rfl⟩ := hr
+    exact dist_mem_Icc_of_Ks_ne_zero hx
+  have hC' : (fun z : X ↦ dist x z) '' (tsupport fun z ↦ Ks s x z) ⊆
+      Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
+   subset_trans (image_closure_subset_closure_image hcont)
+      ((isClosed_Icc.closure_subset_iff).mpr hC)
+  exact hC' (mem_image_of_mem (fun y ↦ dist x y) h)
+
 /-- The constant appearing in part 2 of Lemma 2.1.3. -/
 def C2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 /-- The constant appearing in part 3 of Lemma 2.1.3. -/

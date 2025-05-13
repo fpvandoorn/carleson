@@ -1,4 +1,5 @@
 import Carleson.ForestOperator.AlmostOrthogonality
+import Carleson.HolderVanDerCorput
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.Psi
 import Carleson.TileStructure
@@ -44,6 +45,23 @@ lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
     exact hy.1
   rw [mem_ball, dist_comm]
   exact lt_of_le_of_lt (dist_mem_Icc_of_Ks_ne_zero hKs).2
+    (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
+
+lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
+    (hy : y ∈ tsupport (correlation s₁ s₂ x₁ x₂)) : y ∈ (ball x₁ (↑D ^s₁)) := by
+  have hy' : y ∈ tsupport fun y ↦ (Ks s₁ x₁ y) := by
+    simp only [tsupport] at hy ⊢
+    apply closure_mono (s := Function.support (correlation s₁ s₂ x₁ x₂))
+    · intro x hx
+      simp only [Function.mem_support] at hx ⊢
+      simp only [correlation, ne_eq, mul_eq_zero, map_eq_zero, not_or] at hx
+      exact hx.1
+    · exact hy
+  /- have hKs : (x₁, y) ∈ tsupport fun x ↦ (Ks s₁ x.1 x.2) := by
+    sorry -/
+  rw [mem_ball, dist_comm]
+  have := dist_mem_Icc_of_mem_tsupport_Ks' hy'
+  exact lt_of_le_of_lt (dist_mem_Icc_of_mem_tsupport_Ks' hy').2
     (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
 
 def C_6_2_1 (a : ℕ) : ℝ≥0 := 2^(254 * a^3)
@@ -226,15 +244,13 @@ open TileStructure.Forest
 -- TODO: PR both versions to Mathlib
 theorem MeasureTheory.exists_ne_zero_of_setIntegral_ne_zero {α E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E} {U : Set α}
-    (hU : ∫ (u : α) in U, f u ∂μ ≠ 0) :
-    ∃ u : α, u ∈ U ∧ f u ≠ 0 := by
+    (hU : ∫ (u : α) in U, f u ∂μ ≠ 0) : ∃ u : α, u ∈ U ∧ f u ≠ 0 := by
   contrapose! hU
   exact setIntegral_eq_zero_of_forall_eq_zero hU
 
 theorem MeasureTheory.exists_ne_zero_of_integral_ne_zero {α E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] [MeasurableSpace α] {μ : MeasureTheory.Measure α} {f : α → E}
-    (h : ∫ (u : α), f u ∂μ ≠ 0) :
-    ∃ u : α, f u ≠ 0 := by
+    (h : ∫ (u : α), f u ∂μ ≠ 0) : ∃ u : α, f u ≠ 0 := by
   contrapose! h
   exact integral_eq_zero_of_ae ((eqOn_univ f 0).mp fun ⦃x⦄ a ↦ h x).eventuallyEq
 
@@ -405,12 +421,12 @@ def I12 (p p' : 𝔓 X) (g : X → ℂ) := fun (x1 : X) (x2 : X) ↦
 /-- Inequality 6.2.28 -/ -- TODO: add ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ in blueprint's RHS
 lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ) (x1 : E p') (x2 : E p) :
     I12 p p' g x1 x2 ≤ (2^(254 * a^3 + 8 * a)) *
-      ((1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+      ((1 + edist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
       (volume (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ := by
   have hD : 0 < (D : ℝ) ^ 𝔰 p := defaultD_pow_pos a (𝔰 p)
   have hD' : 0 < (D : ℝ) ^ 𝔰 p' := defaultD_pow_pos a (𝔰 p')
-  have hsupp : Function.support (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆
-      ball x1 (D ^ 𝔰 p') := fun _ hx ↦ mem_ball_of_correlation_ne_zero hx
+  have hsupp : tsupport (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆
+      ball x1 (D ^ 𝔰 p') := fun _ hx ↦  mem_ball_of_mem_tsupport_correlation hx
   have hs : 𝔰 p' ∈ Icc (- (S : ℤ)) (𝔰 p) := ⟨scale_mem_Icc.1, hle⟩
   have hnrm : iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (↑D ^ 𝔰 p') < ⊤ :=
     lt_of_le_of_lt (correlation_kernel_bound ha hs) (ENNReal.mul_lt_top
@@ -418,28 +434,28 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
         ⟨measure_ball_pos volume (x1 : X) hD', measure_ball_pos volume (x2 : X) hD⟩)))
   -- For compatibility with holder_van_der_corput
   have heq : (2^(254 * a^3 + 8 * a)) *
-      ((1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+      ((1 + edist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
       (volume (ball (x2 : X) (↑D ^𝔰 p))) =
       (2^(254 * a^3 + 8 * a)) / (volume (ball (x2 : X) (↑D ^𝔰 p))) *
-      ((1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) := by
+      ((1 + edist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) := by
     sorry --rw [div_mul_comm, mul_comm _ (2 ^ _), mul_div_assoc]
   rw [I12]
   -- TODO: fix s₁ in blueprint
-  --simp only [nnnorm_mul, NNReal.coe_mul]
-  sorry
-  /- gcongr
-  rw [← ENNReal.coe_le_coe]
+  simp only [enorm_mul]
+  gcongr
+  --rw [← ENNReal.coe_le_coe]
   simp_rw [← sub_eq_neg_add]
-  apply le_trans (holder_van_der_corput hD' hsupp hnrm)
-  rw [nndist_comm, heq]
-  push_cast
+  apply le_trans (holder_van_der_corput hsupp)
+  rw [heq, edist_comm]
+  --push_cast
   gcongr
   · have hbdd := correlation_kernel_bound ha hs (x₁ := x1) (x₂ := x2)
-    have : (C2_0_5 ↑a : ℝ≥0∞) * volume (ball (x1 : X) (↑D ^ 𝔰 p')) *
-        hnorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) ↑x2) (↑x1) (↑D ^ 𝔰 p') ≤
+    have foo : (C2_0_5 ↑a : ℝ≥0∞) * volume (ball (x1 : X) (↑D ^ 𝔰 p')) *
+        iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) ↑x2) (↑x1) (2 * ↑D ^ 𝔰 p') ≤
         ↑(C2_0_5 ↑a) * volume (ball ((x1 : X)) (↑D ^ 𝔰 p')) * (↑(C_6_2_1 a) /
           (volume (ball (x1 : X) (↑D ^ 𝔰 p')) * volume (ball (x2 : X) (↑D ^ 𝔰 p)))) := by
       gcongr
+      sorry
     -- simp, ring_nf, field_simp did not help.
     have heq : ↑(C2_0_5 a) * volume (ball (x1 : X) (↑D ^ 𝔰 p')) *
       (↑(C_6_2_1 a) / (volume (ball (x1 : X) (↑D ^ 𝔰 p')) * volume (ball (x2 : X) (↑D ^ 𝔰 p)))) =
@@ -450,20 +466,16 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
         (Or.inl (measure_ball_ne_top _ _)), ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel
         (ne_of_gt (measure_ball_pos volume _ hD')) (measure_ball_ne_top _ _), one_mul,
         ENNReal.div_eq_inv_mul]
-    apply le_trans this
-    rw [heq, ENNReal.coe_div (ne_of_gt (measure_ball_pos_nnreal _ _ hD)), measureNNReal_def,
-      ENNReal.coe_toNNReal (measure_ball_ne_top _ _), mul_div]
+    apply le_trans foo
+    rw [heq]
+    rw [mul_div]
     apply ENNReal.div_le_div _ (le_refl _)
     simp only [C2_0_5, C_6_2_1, ENNReal.coe_pow, ENNReal.coe_ofNat]
     rw [pow_add, mul_comm]
-  · norm_cast
-    apply le_of_eq
-    suffices 1 + @edist (WithFunctionDistance (x1 : X) (D ^ 𝔰 p')) _ (Q ↑x1) (Q ↑x2) =
-        1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2) by
-      rw [this, ENNReal.coe_rpow_of_ne_zero (ne_of_gt (lt_of_lt_of_le zero_lt_one le_self_add)),
-        ENNReal.coe_add, ENNReal.coe_one]
-    congr
-    rw [coe_nnreal_ennreal_nndist] -/
+    norm_cast
+    gcongr
+    · exact one_le_two
+    · omega
 
 lemma exp_ineq (ha : 1 < a) : 0 ≤ 1 + ((8 * a  : ℕ) : ℝ) * -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ := by
   have hpos : 0 < (a : ℝ) ^ 2 * 2 + a ^ 3 := by norm_cast; nlinarith
@@ -1028,8 +1040,46 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
   simp only [abs_mul, abs_div, NNReal.abs_eq]
   rw [_root_.abs_of_nonneg (Real.rpow_nonneg (add_nonneg zero_le_one dist_nonneg) _), hprod] -/
 
+
+
 -- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
 lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
+    (hinter : ¬ (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
+    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
+      C_6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+        volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
+  calc ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ
+      _ = 0 := by
+        simp only [inter_nonempty, not_exists, not_and_or] at hinter
+        rw [enorm_eq_zero]
+        apply MeasureTheory.integral_eq_zero_of_ae (Eq.eventuallyEq _)
+        ext y
+        rcases hinter y with hp'y | hpy
+        · have hp'0 : adjointCarleson p' g y = 0 := by
+            by_contra hy
+            exact hp'y (range_support hy)
+          simp [hp'0, zero_mul, Pi.zero_apply]
+        · have hp'0 : adjointCarleson p g y = 0 := by
+            by_contra hy
+            exact hpy (range_support hy)
+          simp [hp'0, map_zero, mul_zero, Pi.zero_apply]
+      _ ≤ C_6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+        volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
+        positivity
+
+lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
+    (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
+      C_6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+        volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
+  sorry
+
+
+#exit -- Old version
+
+
+-- If 6.2.23 does not hold, then the LHS equals zero and the result follows trivially.
+lemma correlation_le_of_empty_inter' {p p' : 𝔓 X} {g : X → ℂ}
     (hinter : ¬ (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
       (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
@@ -1054,7 +1104,7 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
           (volume.nnreal (coeGrid (𝓘 p))) * (∫ y in E p', ‖ g y‖) * ∫ y in E p, ‖ g y‖ := by
         positivity -/
 
-lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
+lemma correlation_le' (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖ ∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y) ‖ₑ ≤
       (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
@@ -1062,4 +1112,4 @@ lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {
         (∫ y in E p, ‖ g y‖).toNNReal := by
   by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
   · exact correlation_le_of_nonempty_inter ha hle hg hg1 hinter
-  · exact correlation_le_of_empty_inter hinter
+  · exact correlation_le_of_empty_inter' hinter
