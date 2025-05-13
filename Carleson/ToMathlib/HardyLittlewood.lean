@@ -806,7 +806,7 @@ theorem globalMaximalFunction_ae_lt_top [BorelSpace X] [IsFiniteMeasureOnCompact
     ∀ᵐ x ∂μ, globalMaximalFunction μ p₁ u x < ∞ := by
   simp_rw [lt_top_iff_ne_top]
   conv => arg 1; intro x; rw [← enorm_eq_self (x := globalMaximalFunction μ p₁ u x)]
-  exact MemWℒp.ae_ne_top (HasWeakType.memWℒp (hasWeakType_globalMaximalFunction hp₁ hp₁₂.le) hu
+  exact MemWLp.ae_ne_top (HasWeakType.memWLp (hasWeakType_globalMaximalFunction hp₁ hp₁₂.le) hu
     C_weakType_globalMaximalFunction_lt_top)
 
 end GMF
