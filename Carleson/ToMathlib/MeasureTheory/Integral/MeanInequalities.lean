@@ -401,8 +401,8 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux {p q r : ℝ≥0∞}
 
 variable (L)
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ` is replaced with a bound for `L` restricted to the ranges
 of `f` and `g`; see `eLpNorm_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
 theorem eLpNorm_convolution_le_of_norm_le_mul [MeasurableSpace E] [OpensMeasurableSpace E]
@@ -416,8 +416,8 @@ theorem eLpNorm_convolution_le_of_norm_le_mul [MeasurableSpace E] [OpensMeasurab
   · intro x; exact eLpNorm_comp_measurePreserving' hg (μ.measurePreserving_sub_left x)
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ` is replaced with a bound for `L` restricted to the ranges
 of `f` and `g`; see `eLpNorm_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
 theorem eLpNorm_convolution_le_of_norm_le_mul' {p q r : ℝ≥0∞}
@@ -430,8 +430,8 @@ theorem eLpNorm_convolution_le_of_norm_le_mul' {p q r : ℝ≥0∞}
   · intro x; apply eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. -/
 theorem eLpNorm_convolution_le_enorm_mul [MeasurableSpace E] [OpensMeasurableSpace E]
     [MeasurableSpace E'] [OpensMeasurableSpace E'] {p q r : ℝ≥0∞}
@@ -442,8 +442,8 @@ theorem eLpNorm_convolution_le_enorm_mul [MeasurableSpace E] [OpensMeasurableSpa
   exact eLpNorm_convolution_le_of_norm_le_mul L hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. -/
 theorem eLpNorm_convolution_le_enorm_mul' {p q r : ℝ≥0∞}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
@@ -454,9 +454,9 @@ theorem eLpNorm_convolution_le_enorm_mul' {p q r : ℝ≥0∞}
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 open Set AddCircle in
-/-- **Young's convolution inequality** on (a, a + T]: the `ℒr` seminorm of the convolution
+/-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution
 of `T`-periodic functions over (a, a + T] is bounded by `‖L‖ₑ` times the product of
-the `ℒp` and `ℒq` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ`
+the `L^p` and `L^q` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ`
 is replaced with a  bound for `L` restricted to the ranges of `f` and `g`; see
 `eLpNorm_Ioc_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
 theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact (0 < T)]
@@ -484,9 +484,9 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
       rw [← eLpNorm_liftIoc T a hf, ← eLpNorm_liftIoc T a hg]
 
 open Set in
-/-- **Young's convolution inequality** on (a, a + T]: the `ℒr` seminorm of the convolution
+/-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution
 of `T`-periodic functions over (a, a + T] is bounded by `‖L‖ₑ` times the product of
-the `ℒp` and `ℒq` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. -/
+the `L^p` and `L^q` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. -/
 theorem eLpNorm_Ioc_convolution_le_enorm_mul (a : ℝ) {T : ℝ} [hT : Fact (0 < T)]
     {p q r : ℝ≥0∞} (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
     {f : ℝ → E} {g : ℝ → E'} (hfT : f.Periodic T) (hgT : g.Periodic T)

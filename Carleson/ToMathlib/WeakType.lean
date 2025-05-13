@@ -248,34 +248,34 @@ lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1
     simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_mono h hp)
 
 /-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
-def MemWℒp (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
+def MemWLp (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
   AEStronglyMeasurable f μ ∧ wnorm f p μ < ∞
 
-lemma MemLp.memWℒp (hp : 1 ≤ p) (hf : MemLp f p μ) : MemWℒp f p μ :=
+lemma MemLp.memWLp (hp : 1 ≤ p) (hf : MemLp f p μ) : MemWLp f p μ :=
   ⟨hf.1, wnorm_le_eLpNorm hf.1 hp |>.trans_lt hf.2⟩
 
-lemma MemWℒp_zero : ¬ MemWℒp f 0 μ := by
-  simp [MemWℒp, wnorm_zero]
+lemma MemWLp_zero : ¬ MemWLp f 0 μ := by
+  simp [MemWLp, wnorm_zero]
 
-lemma MemWℒp.aeStronglyMeasurable (hf : MemWℒp f p μ) : AEStronglyMeasurable f μ := hf.1
+lemma MemWLp.aeStronglyMeasurable (hf : MemWLp f p μ) : AEStronglyMeasurable f μ := hf.1
 
-lemma MemWℒp.wnorm_lt_top (hf : MemWℒp f p μ) : wnorm f p μ < ⊤ := hf.2
+lemma MemWLp.wnorm_lt_top (hf : MemWLp f p μ) : wnorm f p μ < ⊤ := hf.2
 
-lemma MemWℒp.ennreal_toReal {f : α → ℝ≥0∞} (hf : MemWℒp f p μ) :
-    MemWℒp (ENNReal.toReal ∘ f) p μ :=
+lemma MemWLp.ennreal_toReal {f : α → ℝ≥0∞} (hf : MemWLp f p μ) :
+    MemWLp (ENNReal.toReal ∘ f) p μ :=
   ⟨hf.aeStronglyMeasurable.ennreal_toReal, wnorm_toReal_le.trans_lt hf.2⟩
 
-/-- If a function `f` is `MemWℒp`, then its norm is almost everywhere finite. -/
-theorem MemWℒp.ae_ne_top {f : α → ε} {μ : Measure α} (hf : MemWℒp f p μ) :
+/-- If a function `f` is `MemWLp`, then its norm is almost everywhere finite. -/
+theorem MemWLp.ae_ne_top {f : α → ε} {μ : Measure α} (hf : MemWLp f p μ) :
     ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
   by_cases hp_inf : p = ∞
   · rw [hp_inf] at hf
     simp_rw [← lt_top_iff_ne_top]
     exact ae_lt_of_essSup_lt hf.2
   by_cases hp_zero : p = 0
-  · exact (MemWℒp_zero <| hp_zero ▸ hf).elim
+  · exact (MemWLp_zero <| hp_zero ▸ hf).elim
   set A := {x | ‖f x‖ₑ = ∞} with hA
-  simp only [MemWℒp, wnorm, wnorm', hp_inf] at hf
+  simp only [MemWLp, wnorm, wnorm', hp_inf] at hf
   rw [Filter.eventually_iff, mem_ae_iff]
   simp only [ne_eq, compl_def, mem_setOf_eq, Decidable.not_not, ← hA]
   have hp_toReal_zero := toReal_ne_zero.mpr ⟨hp_zero, hp_inf⟩
@@ -347,8 +347,8 @@ def HasBoundedStrongType {α α' : Type*} [Zero ε₁]
 
 /-! ### Lemmas about `HasWeakType` -/
 
-lemma HasWeakType.memWℒp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
-    (hc : c < ⊤ := by finiteness) : MemWℒp (T f₁) p' ν :=
+lemma HasWeakType.memWLp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
+    (hc : c < ⊤ := by finiteness) : MemWLp (T f₁) p' ν :=
   ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
 lemma HasWeakType.toReal {T : (α → ε₁) → (α' → ℝ≥0∞)} (h : HasWeakType T p p' μ ν c) :
@@ -402,10 +402,10 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
 
 /-! ### Lemmas about `HasBoundedWeakType` -/
 
-lemma HasBoundedWeakType.memWℒp [Zero ε₁] (h : HasBoundedWeakType T p p' μ ν c)
+lemma HasBoundedWeakType.memWLp [Zero ε₁] (h : HasBoundedWeakType T p p' μ ν c)
     (hf₁ : MemLp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞)
     (hc : c < ⊤ := by finiteness) :
-    MemWℒp (T f₁) p' ν :=
+    MemWLp (T f₁) p' ν :=
   ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
 lemma HasWeakType.hasBoundedWeakType [Zero ε₁] (h : HasWeakType T p p' μ ν c) :
