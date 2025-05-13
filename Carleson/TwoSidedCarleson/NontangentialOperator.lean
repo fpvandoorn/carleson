@@ -670,10 +670,9 @@ irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 lemma globalMaximalFunction_zero_enorm_ae_zero (hR : 0 < R) {f : X → ℂ} (hf : AEStronglyMeasurable f)
     (hMzero : globalMaximalFunction volume 1 f x = 0) :
-    ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖f x'‖ₑ = 0 := by
-  change (fun x' ↦ ‖f x'‖ₑ) =ᶠ[ae (volume.restrict (ball x (R / 4)))] 0
-  rw [← lintegral_eq_zero_iff' ?hf]
-  case hf => exact AEMeasurable.restrict (by fun_prop) -- TODO tag with `fun_prop`?
+    ∀ᵐ x' ∂(volume.restrict (ball x R)), ‖f x'‖ₑ = 0 := by
+  change (fun x' ↦ ‖f x'‖ₑ) =ᶠ[ae (volume.restrict (ball x R))] 0
+  rw [← lintegral_eq_zero_iff' (by fun_prop)]
   rw [← bot_eq_zero, ← le_bot_iff, bot_eq_zero]
   apply le_of_le_of_eq (lintegral_ball_le_volume_globalMaximalFunction _)
   · rw [hMzero]
@@ -690,7 +689,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
     rw [measure_zero_iff_ae_nmem]
-    have czzero := globalMaximalFunction_zero_enorm_ae_zero (lt_of_lt_of_le hr hR) (by fun_prop) hMzero
+    have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero]
     intro x' hx'
     simp [hx']
@@ -722,20 +721,35 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   simp [(lt_of_lt_of_le hr hR)]
 
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
-theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
+theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R) [IsOneSidedKernel a K]
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     volume.restrict (ball x (R / 4))
       {x' | C10_1_4 a * globalMaximalFunction volume 1 g x <
       ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
-  let Trgi := czOperator K r ((ball x (R / 2)).indicator g)
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
   · apply le_of_eq_of_le _ (zero_le _)
     rw [measure_zero_iff_ae_nmem]
-    have gzero := globalMaximalFunction_zero_enorm_ae_zero (lt_of_lt_of_le hr hR) (by fun_prop) hMzero
+    have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     have czzero : ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ = 0 := by
-      sorry
+      simp_rw [← bot_eq_zero, ← le_bot_iff]
+      apply Filter.Eventually.mono (.of_forall _) (fun x ↦ (enorm_integral_le_lintegral_enorm _).trans)
+      intro x'
+      rw [le_bot_iff, bot_eq_zero, lintegral_eq_zero_iff' ?hf.aemeasurable]
+      case hf =>
+        apply (AEMeasurable.enorm _).restrict
+        apply AEMeasurable.mul (measurable_K_right x').aemeasurable
+        exact AEMeasurable.indicator (hg.aemeasurable) (by measurability)
+      simp_rw [← indicator_mul_right, enorm_indicator_eq_indicator_enorm]
+      rw [indicator_ae_eq_zero, inter_comm, ← Measure.restrict_apply' measurableSet_ball,
+        Measure.restrict_restrict measurableSet_ball, ← bot_eq_zero, ← le_bot_iff]
+      apply le_trans (Measure.restrict_mono_set (t := ball x (R / 2)) volume inter_subset_left _)
+      rw [le_bot_iff, bot_eq_zero]
+      filter_upwards [gzero]
+      intro y hy
+      change ‖K x' y * g y‖ₑ = 0
+      simp [enorm_eq_zero.mp hy]
     filter_upwards [czzero]
     intro x' hx'
     simp [hx']
