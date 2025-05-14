@@ -338,6 +338,52 @@ lemma local_antichain_density {𝔄 : Finset (𝔓 X)}
 
 def C_6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
 
+variable (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ)
+
+-- Def 6.3.15
+def 𝔄' : Finset (𝔓 X) := by
+  classical
+  exact {p ∈ 𝔄_aux 𝔄 ϑ N | ((𝓘 p : Set X) ∩ G) ≠ ∅ }
+
+-- Q: I think I should use ≤ instead of ⊆ despite the blueprint.
+def 𝓛 : Set (Grid X) :=
+  {I : Grid X | (∃ (p : 𝔄' 𝔄 ϑ N), (I : Set X) ⊆ 𝓘 (p : 𝔓 X)) ∧
+    (∀ (p : 𝔄' 𝔄 ϑ N), (𝓘 (p : 𝔓 X) : Set X) ⊆ (I : Set X) → 𝔰 (p : 𝔓 X) = - S)}
+
+-- Ineq 6.3.27
+lemma I_p_le_union_L (p : 𝔄' 𝔄 ϑ N) :
+    (𝓘 (p : 𝔓 X) : Set X) ⊆ ⋃ (L : 𝓛 𝔄 ϑ N), L := by
+  calc (𝓘 (p : 𝔓 X) : Set X)
+    _ ⊆ ⋃ (I ∈ {I : Grid X | s I = -S ∧ (I : Set X) ⊆ 𝓘 (p : 𝔓 X)}), I := by
+
+      sorry
+    _ ⊆ ⋃ (L : 𝓛 𝔄 ϑ N), L := by
+      intro x hx
+      simp only [mem_setOf_eq, mem_iUnion, 𝓛, Subtype.exists, exists_prop, Subtype.forall,] at hx ⊢
+      obtain ⟨I, ⟨hsI, hI⟩, hxI⟩ := hx
+      refine ⟨I, ?_, hxI⟩
+      constructor
+      · exact ⟨p, p.2, hI⟩
+      intro q hq hqI
+      rw [← hsI]
+
+      sorry
+
+
+-- Ineq 6.3.28
+lemma union_L_eq_union_I_p : ⋃ (L : 𝓛 𝔄 ϑ N), L = ⋃ (p : 𝔄' 𝔄 ϑ N),  (𝓘 (p : 𝔓 X) : Set X) := by
+  apply le_antisymm
+  · intro _ hx
+    simp only [iUnion_coe_set, mem_iUnion, exists_prop] at hx ⊢
+    obtain ⟨L, hL, hLx⟩ := hx
+    simp only [𝓛, Subtype.forall, mem_setOf_eq] at hL
+    obtain ⟨q, hqL⟩ := hL.1
+    exact ⟨q, hqL hLx⟩
+  · intro _ hx
+    simp only [iUnion_coe_set, mem_iUnion, exists_prop] at hx
+    obtain ⟨q, hq⟩ := hx
+    exact I_p_le_union_L 𝔄 ϑ N q hq
+
 -- Lemma 6.3.4
 lemma global_antichain_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) :
     ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) ≤
