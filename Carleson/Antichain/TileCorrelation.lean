@@ -49,19 +49,23 @@ lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
 
 lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
     (hy : y ∈ tsupport (correlation s₁ s₂ x₁ x₂)) : y ∈ (ball x₁ (↑D ^s₁)) := by
-  have hy' : y ∈ tsupport fun y ↦ (Ks s₁ x₁ y) := by
-    simp only [tsupport] at hy ⊢
-    apply closure_mono (s := Function.support (correlation s₁ s₂ x₁ x₂))
-    · intro x hx
-      simp only [Function.mem_support] at hx ⊢
-      simp only [correlation, ne_eq, mul_eq_zero, map_eq_zero, not_or] at hx
-      exact hx.1
-    · exact hy
-  /- have hKs : (x₁, y) ∈ tsupport fun x ↦ (Ks s₁ x.1 x.2) := by
-    sorry -/
+  have hKs : (x₁, y) ∈ tsupport fun x ↦ (Ks s₁ x.1 x.2) := by
+    simp only [tsupport, closure, Function.support_subset_iff, ne_eq, Prod.forall, mem_sInter,
+      mem_setOf_eq, and_imp] at hy ⊢
+    intro C hC h
+    let f : X → X × X := fun x ↦ (x₁, x)
+    have hf : Continuous f := by continuity
+    set C' : Set X := f ⁻¹' C
+    specialize hy C' (hC.preimage hf)
+    have hfC : f '' C' ⊆ C := by simp [image_subset_iff, subset_refl, C']
+    apply hfC
+    refine ⟨y, ?_, by simp [f, C']⟩
+    apply hy
+    intro z hz
+    simp only [correlation, ne_eq, mul_eq_zero, map_eq_zero, not_or] at hz
+    exact h x₁ z hz.1
   rw [mem_ball, dist_comm]
-  have := dist_mem_Icc_of_mem_tsupport_Ks' hy'
-  exact lt_of_le_of_lt (dist_mem_Icc_of_mem_tsupport_Ks' hy').2
+  exact lt_of_le_of_lt (dist_mem_Icc_of_mem_tsupport_Ks hKs).2
     (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
 
 def C_6_2_1 (a : ℕ) : ℝ≥0 := 2^(254 * a^3)
@@ -717,6 +721,8 @@ lemma boundedCompactSupport_Ks_mul_star_g (p : 𝔓 X)  {g : X → ℂ}
       _ ≤ C + C := by gcongr; exact hC x.1 x.2 hx
       _ = 2 * C := by ring
  -/
+
+-- memLp_top_of_bound
 lemma boundedCompactSupport_aux_6_2_26 (p p' : 𝔓 X) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     BoundedCompactSupport (fun (x, z1, z2) ↦ (starRingEnd ℂ) (Ks (𝔰 p') z1 x) *
