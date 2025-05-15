@@ -84,13 +84,14 @@ def HasLorentzType (T : (α → ε₁) → (α' → ε₂))
 --TODO: define the standard enorm on EReal
 instance : ContinuousENorm EReal := sorry
 
---TODO: define this more generally (not only for EReal) ?
-def HasRestrictedWeakType (T : (α → EReal) → (α' → EReal)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
+--TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
+variable {𝕂 : Type*} [TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
+def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (μ F < ∞) → (MeasurableSet G) → (ν G < ∞) →
     AEStronglyMeasurable (T (F.indicator (fun _ ↦ 1))) ν ∧ eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G) ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
-lemma HasRestrictedWeakType.HasLorentzType {T : (α → EReal) → (α' → EReal)} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'}
+lemma HasRestrictedWeakType.HasLorentzType {T : (α → 𝕂) → (α' → ε₂)} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'}
   {c : ℝ≥0∞} (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') :
     --TODO: might have to adjust the constant
     HasLorentzType T p 1 p ∞ μ ν c := sorry

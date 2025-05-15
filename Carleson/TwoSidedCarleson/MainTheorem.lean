@@ -33,6 +33,10 @@ theorem two_sided_metric_carleson (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.
   -- note: you might need to case on whether `volume F` is `∞` or not.
   sorry
 
-
+/- Theorem 10.0.1, reformulation -/
+theorem two_sided_metric_carleson_restricted_weak_type (ha : 4 ≤ a) (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
+  (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
+    {f : X → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+      HasRestrictedWeakType (carlesonOperator K) q q' volume volume (C10_0_1 a q) := sorry
 
 end
