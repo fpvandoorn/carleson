@@ -116,7 +116,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
     _ < 2^(N + 2) := by ring_nf; gcongr -- uses h34
   -- 6.3.14 -- Not needed
 
--- Def 6.3.15
+/-- Def 6.3.15. -/
 def 𝔄_aux (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Finset (𝔓 X) :=
   {p ∈ 𝔄 | 1 + dist_(p) (𝒬 p) ϑ ∈ Icc (2^N) (2^(N+1))}
 
@@ -336,16 +336,18 @@ lemma local_antichain_density {𝔄 : Finset (𝔓 X)}
     · rw [inter_comm]
       simp only [inter_assoc, inter_subset_left]
 
+/-- The constant appearing in Lemma 6.3.4. -/
 def C_6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
 
 variable (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ)
 
--- Def 6.3.15
+/-- The set `𝔄'` defined in Lemma 6.3.4. -/
 def 𝔄' : Finset (𝔓 X) := by
   classical
   exact {p ∈ 𝔄_aux 𝔄 ϑ N | ((𝓘 p : Set X) ∩ G) ≠ ∅ }
 
--- TODO: change ⊆ to ≤ in the blueprint.
+-- TODO: change ⊆ to ≤ in the blueprint
+/-- The set `𝓛` defined in Lemma 6.3.4. -/
 def 𝓛 : Finset (Grid X) := by
   classical
   exact {I : Grid X | (∃ (p : 𝔄' 𝔄 ϑ N), I ≤ 𝓘 (p : 𝔓 X)) ∧
@@ -385,7 +387,7 @@ lemma union_L_eq_union_I_p : ⋃ (L ∈ 𝓛 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' �
     obtain ⟨q, hq, hq'⟩ := hx
     exact I_p_subset_union_L 𝔄 ϑ N ⟨q, hq⟩ hq'
 
-/- 𝓛* in the blueprint. -/
+/-- The set `𝓛*` defined in Lemma 6.3.4. -/
 def 𝓛' : Finset (Grid X) := by
   classical
   exact {I : Grid X | Maximal (· ∈ 𝓛 𝔄 ϑ N) I}
@@ -418,13 +420,13 @@ lemma global_antichain_density_aux {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
       (C_6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
   sorry
 
-lemma volume_union_I_p_eq_sum :
+private lemma volume_union_I_p_eq_sum :
     volume (⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 p : Set X)) = ∑ (L ∈ 𝓛' 𝔄 ϑ N), volume (L : Set X) := by
   rw [← union_L'_eq_union_I_p 𝔄 ϑ N]
   exact MeasureTheory.measure_biUnion_finset (pairwiseDisjoint_𝓛' 𝔄 ϑ N)
     (fun _ _ ↦ coeGrid_measurable)
 
-lemma lhs : ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) =
+private lemma lhs : ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) =
     ∑ (L ∈ 𝓛' 𝔄 ϑ N), ∑ (p ∈ 𝔄' 𝔄 ϑ N), volume (E p ∩ G ∩ L) := by
   calc ∑ p ∈ 𝔄_aux 𝔄 ϑ N, volume (E p ∩ G)
     _ = ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G) := by
@@ -482,6 +484,7 @@ lemma global_antichain_density :
 -- p in Lemma 6.1.6
 private def p (a : ℕ) := 4 * a^2
 
+/-- The constant appearing in Lemma 6.1.6. -/
 def C_6_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (104 * a)
 
 -- Lemma 6.1.6
