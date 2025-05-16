@@ -488,6 +488,35 @@ lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤
 
 end Norm
 
+section BddAbove
+-- move near BddAbove.range_add if that imports Finset.sum
+
+variable {ι ι' α M : Type*} [Preorder M]
+
+@[simp]
+theorem BddAbove.range_const {c : M} : BddAbove (range (fun _ : ι ↦ c)) :=
+  bddAbove_singleton.mono Set.range_const_subset
+
+variable [One M] in
+@[to_additive (attr := simp)]
+theorem BddAbove.range_one : BddAbove (range (1 : ι → M)) :=
+  .range_const
+
+variable [AddCommMonoid M] [AddLeftMono M] [AddRightMono M] in
+theorem BddAbove.range_finsetSum {s : Finset ι} {f : ι → ι' → M}
+    (hf : ∀ i ∈ s, BddAbove (range (f i))) :
+    BddAbove (range (∑ i ∈ s, f i)) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp
+  | insert j s hjs IH =>
+    simp_rw [Finset.sum_insert hjs]
+    apply BddAbove.range_add
+    · exact hf _ (Finset.mem_insert_self j s)
+    · exact IH fun _ hi ↦ hf _ (Finset.mem_insert_of_mem hi)
+
+end BddAbove
+
 namespace MeasureTheory
 
 open Metric Bornology

@@ -104,29 +104,39 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
     adjoint_tile_support1, indicator_indicator, ← right_eq_inter.mpr]
   exact (ball_subset_ball (by gcongr; norm_num)).trans (t.ball_subset hu hp)
 
+variable (p) in
+theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarleson
+    (hf : BoundedCompactSupport f) :
+    BddAbove (range (‖adjointCarleson p f ·‖)) := by
+  obtain ⟨CKf, hCKf, hCKf⟩ := hf.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
+  let C : ℝ := CKf * (eLpNorm f ⊤).toReal * volume.real (E p)
+  use C
+  simp only [mem_upperBounds, mem_range, forall_exists_index, forall_apply_eq_imp_iff]
+  intro x
+  refine norm_setIntegral_le_of_norm_le_const_ae ?_ ?_
+  · exact volume_E_lt_top
+  · apply ae_restrict_of_ae
+    filter_upwards [hf.memLp_top.ae_norm_le] with y hy
+    suffices ‖Ks (𝔰 p) y x‖ * ‖f y‖ ≤ ?C by
+      calc
+        _ ≤ ‖conj (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x)))‖ * ‖f y‖ :=
+          norm_mul_le ..
+        _ ≤ ‖conj (Ks (𝔰 p) y x)‖ * 1 * ‖f y‖ := by
+          gcongr; convert norm_mul_le _ _; exact (norm_exp_I_mul_sub_ofReal ..).symm
+        _ = ‖Ks (𝔰 p) y x‖ * ‖f y‖ := by rw [mul_one, RCLike.norm_conj]
+        _ ≤ _ := by convert this
+    by_cases hy : y ∈ tsupport f
+    · specialize hCKf y x hy; gcongr
+    · simp only [image_eq_zero_of_nmem_tsupport hy,
+        norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
+
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
   memLp_top := by
-    obtain ⟨CKf, hCKf, hCKf⟩ := hf.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
-    let C : ℝ := CKf * (eLpNorm f ⊤).toReal * volume.real (E p)
+    obtain ⟨C, hC⟩ := hf.bddAbove_norm_adjointCarleson p
+    simp only [mem_upperBounds, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
     apply MeasureTheory.memLp_top_of_bound hf.aestronglyMeasurable.adjointCarleson C
-      (.of_forall fun x ↦ ?_)
-    refine norm_setIntegral_le_of_norm_le_const_ae ?_ ?_
-    · exact volume_E_lt_top
-    · apply ae_restrict_of_ae
-      filter_upwards [hf.memLp_top.ae_norm_le] with y hy
-      suffices ‖Ks (𝔰 p) y x‖ * ‖f y‖ ≤ ?C by
-        calc
-          _ ≤ ‖conj (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x)))‖ * ‖f y‖ :=
-            norm_mul_le ..
-          _ ≤ ‖conj (Ks (𝔰 p) y x)‖ * 1 * ‖f y‖ := by
-            gcongr; convert norm_mul_le _ _; exact (norm_exp_I_mul_sub_ofReal ..).symm
-          _ = ‖Ks (𝔰 p) y x‖ * ‖f y‖ := by rw [mul_one, RCLike.norm_conj]
-          _ ≤ _ := by convert this
-      by_cases hy : y ∈ tsupport f
-      · specialize hCKf y x hy; gcongr
-      · simp only [image_eq_zero_of_nmem_tsupport hy,
-          norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
+      (.of_forall hC)
   hasCompactSupport := by
     obtain x₀ : X := Classical.choice (by infer_instance)
     obtain ⟨r₀, h⟩ := hf.isBoundedSupport.subset_ball x₀
@@ -148,6 +158,12 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     gcongr
     · rw [dist_comm]; exact (dist_mem_Icc_of_Ks_ne_zero hKy).2
     · exact le_of_lt <| h hfy
+
+variable (p) in
+theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarlesonSum {ℭ : Set (𝔓 X)}
+    (hf : BoundedCompactSupport f) :
+    BddAbove (range (‖adjointCarlesonSum ℭ f ·‖)) := by
+  BddAbove.range_finsetSum fun _ _ ↦ hf.bddAbove_norm_adjointCarleson
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
