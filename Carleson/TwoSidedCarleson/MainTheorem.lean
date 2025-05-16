@@ -39,4 +39,15 @@ theorem two_sided_metric_carleson_restricted_weak_type (ha : 4 ≤ a) (hq : q �
     {f : X → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
       HasRestrictedWeakType (carlesonOperator K) q q' volume volume (C10_0_1 a q) := sorry
 
+/- Theorem 10.0.1, reformulation -/
+theorem two_sided_metric_carleson_strong_type (ha : 4 ≤ a) (hq : q ∈ Ioo 1 2) (hqq' : q.HolderConjugate q')
+  (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
+    {f : X → ℂ} (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+      HasStrongType (carlesonOperator K) q q' volume volume (C10_0_1 a q) := by
+  have := (two_sided_metric_carleson_restricted_weak_type ha (mem_Ioc_of_Ioo hq) hqq' hT hmf hf).HasLorentzType
+  /- Apply `exists_hasLorentzType_real_interpolation` and `MemLorentz_nested` here,
+  or just directly write another version of real interpolation that directly gives strong type.
+  -/
+  sorry
+
 end
