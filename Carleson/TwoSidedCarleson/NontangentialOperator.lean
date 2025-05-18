@@ -721,7 +721,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   simp [(lt_of_lt_of_le hr hR)]
 
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
-theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R) [IsOneSidedKernel a K]
+theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     volume.restrict (ball x (R / 4))
@@ -798,7 +798,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R) [IsOneSidedKe
   rw [mul_comm, ← mul_assoc, ENNReal.mul_inv_cancel (by simp) (by simp), one_mul]
 
 /-- The constant used in `cotlar_estimate`. -/
-irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
+irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 3)
 
 /-- Lemma 10.1.5 -/
 theorem cotlar_estimate (ha : 4 ≤ a)
@@ -806,6 +806,33 @@ theorem cotlar_estimate (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R) :
     ‖czOperator K R g x‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x +
       C10_1_5 a * globalMaximalFunction volume 1 g x := by
+  let F1 : Set X := {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ}
+  let F2 : Set X := {x' | ↑(C10_1_4 a) * globalMaximalFunction volume 1 g x < ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ}
+  let noF : Set X := (F1 ∪ F2)ᶜ ∩ ball x (R / 4)
+  have vF1F2 : volume.restrict (ball x (R / 4)) (F1 ∪ F2) ≤ volume (ball x (R / 4)) / 2 := by
+    apply le_trans (measure_union_le F1 F2)
+    have vF1 := cotlar_set_F₁ (K := K) (x := x) hr.1 hr.2 hg
+    have vF2 := cotlar_set_F₂ (K := K) (x := x) ha hr.1 hr.2 hT hg
+    unfold F1 F2
+    apply le_of_le_of_eq (add_le_add vF1 vF2)
+    rw [← mul_two, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, mul_assoc]
+    congr
+    apply ENNReal.eq_inv_of_mul_eq_one_left
+    have : (2 : ℝ≥0∞) * 2 = 4 := by ring
+    rw [mul_assoc, this, ENNReal.inv_mul_cancel (by simp) (by simp)]
+  have : noF.Nonempty := by
+    apply nonempty_of_measure_ne_zero (μ := volume)
+    intro hnoF
+    have : (2 : ℝ≥0∞) ≤ 1 := by
+      rw [← ENNReal.mul_le_mul_left (a := volume (ball x (R / 4))) ?ne_z (by finiteness), mul_one]
+      case ne_z => apply ne_of_gt; apply measure_ball_pos; linarith [lt_of_lt_of_le hr.1 hr.2]
+      have := measure_univ_le_add_compl (μ := volume.restrict (ball x (R / 4))) (s := F1 ∪ F2)
+      nth_rw 3 [Measure.restrict_apply' measurableSet_ball] at this
+      rw [hnoF, add_zero, Measure.restrict_apply_univ] at this
+      exact (ENNReal.le_div_iff_mul_le (by simp) (by simp)).mp (this.trans vF1F2)
+    exact Nat.not_ofNat_le_one this
+  obtain ⟨x', hx'⟩ := this
+
   sorry
 
 /-- The constant used in `simple_nontangential_operator`. -/
