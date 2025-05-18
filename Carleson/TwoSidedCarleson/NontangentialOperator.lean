@@ -746,10 +746,9 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R) [IsOneSidedKe
       rw [indicator_ae_eq_zero, inter_comm, ← Measure.restrict_apply' measurableSet_ball,
         Measure.restrict_restrict measurableSet_ball, ← bot_eq_zero, ← le_bot_iff]
       apply le_trans (Measure.restrict_mono_set (t := ball x (R / 2)) volume inter_subset_left _)
-      rw [le_bot_iff, bot_eq_zero]
+      rw [le_bot_iff, bot_eq_zero, ← compl_compl (support _), ← mem_ae_iff]
       filter_upwards [gzero]
       intro y hy
-      change ‖K x' y * g y‖ₑ = 0
       simp [hy]
     filter_upwards [czzero]
     intro x' hx'
