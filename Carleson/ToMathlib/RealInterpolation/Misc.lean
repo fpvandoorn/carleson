@@ -1080,7 +1080,8 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1):
 lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ≥0∞}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : 0 < t) :
   ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
-    ENNReal.ofReal ((tc.inv t) ^ (γ + 1) / |γ + 1|) := by
+    (tc.inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
+  sorry /-- proof was:
   rw [← lintegral_congr_ae (Filter.mp_mem (self_mem_ae_restrict measurableSet_res)
       (Filter.univ_mem'
       (fun s hs ↦ (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)).symm)))]
@@ -1091,30 +1092,31 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ} {t : ℝ≥0∞
     rw [lintegral_rpow_of_gt_abs (tc.ran_inv t ht) hγ]
   · rw [eq_false_of_ne_true xor_split]
     simp only [Bool.false_eq_true, ↓reduceIte]
-    rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ]
+    rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ] -/
 
 lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
-    ENNReal.ofReal (β ^ (γ + 1) / |γ + 1|) := by
+    β ^ (γ + 1) / ENNReal.ofReal (|γ + 1|) := by
   unfold res
   split_ifs at hγ with h
   · rw [h]
     simp only [↓reduceIte]
-    rw [lintegral_rpow_of_gt_abs hβ hγ]
+    sorry -- rw [lintegral_rpow_of_gt_abs hβ hγ]
   · have : xor j tc.mon = false := ((fun {a b} ↦ Bool.not_not_eq.mp) fun a ↦ h a.symm).symm
     rw [this]
     simp only [Bool.false_eq_true, ↓reduceIte]
-    rw [lintegral_Ioi_rpow_of_lt_abs hβ hγ]
+    sorry -- rw [lintegral_Ioi_rpow_of_lt_abs hβ hγ]
 
 lemma value_lintegral_res₁ {t : ℝ≥0∞} {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) :
-    (((spf_to_tc spf).inv t) ^ (γ + 1) / |γ + 1| ) * (t ^ p') =
-    (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / |γ + 1|) := by
+    (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
+    (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
   have := spf.hd
   unfold spf_to_tc
   dsimp only
-  rw [← ENNReal.ofReal_mul, ← mul_div_right_comm, Real.mul_rpow, mul_assoc, ← Real.rpow_mul,
-      ← Real.rpow_add] <;> positivity
+  sorry
+  -- rw [← ENNReal.ofReal_mul, ← mul_div_right_comm, Real.mul_rpow, mul_assoc, ← Real.rpow_mul,
+  --     ← Real.rpow_add] <;> positivity
 
 end MeasureTheory
 
