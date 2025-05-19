@@ -317,12 +317,12 @@ end D
 open Complex
 
 open scoped ShortVariables
-variable (X : Type*) {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable (X : Type*) {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X]
 variable {s : ℤ} {x y : X}
 
 section -- Again, we start by recording some trivial inequalities that will be needed repeatedly.
-include q K σ₁ σ₂ F G
+variable [KernelProofData a K]
+include K
 private lemma a0' : a > 0 := by linarith [four_le_a X]
 private lemma a0 : (a : ℝ) > 0 := by exact_mod_cast (a0' X)
 private lemma D1 : (D : ℝ) > 1 := by norm_cast; norm_num; exact (a0' X).ne.symm
@@ -331,11 +331,11 @@ private lemma D0'' : D > 0 := by exact_mod_cast (D0' X)
 private lemma Ds0 (s : ℤ) : (D : ℝ) ^ s > 0 := have := D0' X; by positivity
 end
 
-variable {X}
+variable {X} [KernelProofData a K]
 
 /-- K_s in the blueprint -/
 @[nolint unusedArguments]
-def Ks [ProofData a q K σ₁ σ₂ F G] (s : ℤ) (x y : X) : ℂ :=
+def Ks [KernelProofData a K] (s : ℤ) (x y : X) : ℂ :=
   K x y * ψ (D ^ (-s) * dist x y)
 
 lemma Ks_def (s : ℤ) (x y : X) : Ks s x y = K x y * ψ (D ^ (-s) * dist x y) := rfl
@@ -423,7 +423,7 @@ lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) :
 lemma Metric.measure_ball_pos_real (x : X) (r : ℝ) (hr : r > 0) : volume.real (ball x r) > 0 :=
   measure_ball_pos_nnreal x r hr
 
-include a q K σ₁ σ₂ F G in
+include a in
 lemma K_eq_K_of_dist_eq_zero {x y y' : X} (hyy' : dist y y' = 0) :
     K x y = K x y' := by
   suffices ‖K x y - K x y'‖ₑ = 0 by rwa [enorm_eq_zero, sub_eq_zero] at this
@@ -435,7 +435,7 @@ lemma K_eq_K_of_dist_eq_zero {x y y' : X} (hyy' : dist y y' = 0) :
   have : 0 < a := by linarith [four_le_a X]
   simp [this]
 
-include a q K σ₁ σ₂ F G in
+include a in
 lemma K_eq_zero_of_dist_eq_zero {x y : X} (hxy : dist x y = 0) :
     K x y = 0 :=
   norm_le_zero_iff.1 <| by
@@ -579,7 +579,7 @@ private lemma Ks_eq_Ks (x : X) {y y' : X} (hyy' : dist y y' = 0) :
   simp_rw [Ks, PseudoMetricSpace.dist_eq_of_dist_zero x hyy', K_eq_K_of_dist_eq_zero hyy']
 
 -- Needed to prove `norm_Ks_sub_Ks_le`
-include q K σ₁ σ₂ F G in
+include K in
 private lemma ψ_ineq {x y y' : X} :
     |ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')| ≤
     4 * D * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -610,7 +610,7 @@ private lemma D_pow_a_inv : (D : ℝ) ^ (a : ℝ)⁻¹ = 2 ^ (100 * a) :=
     _ = 2 ^ (100 * (a * a * (a : ℝ)⁻¹)) := by rw [mul_assoc, sq]
     _ = _ := by rw [mul_self_mul_inv]; norm_cast
 
-include q K σ₁ σ₂ F G in
+include K in
 private lemma four_D_rpow_a_inv : (4 * D : ℝ) ^ (a : ℝ)⁻¹ ≤ 2 ^ (1 + 100 * a) := by
   rw [pow_add, Real.mul_rpow four_pos.le (Nat.cast_nonneg D)]
   gcongr

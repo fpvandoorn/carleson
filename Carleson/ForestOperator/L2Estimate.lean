@@ -607,7 +607,7 @@ lemma boundary_geometric_series :
       change (4 : ℝ) * D ^ s J' ≤ 16 * D ^ s J'; gcongr; norm_num
     _ = ∑ kh : Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - kh.1) / (a : ℝ)) *
         (kissing (Grid.exists_supercube kh.1 kh.2).choose).card := by
-      simp_rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul, mul_comm,
+      simp_rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul, mul_comm (Nat.cast _),
         Finset.filter_univ_mem]
     _ ≤ 2 ^ (9 * a) * ∑ kh : Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - kh.1) / (a : ℝ)) := by
       conv_rhs => rw [Finset.mul_sum]; enter [2, kh]; rw [mul_comm]
