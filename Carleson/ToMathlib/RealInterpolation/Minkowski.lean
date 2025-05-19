@@ -610,8 +610,8 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α) in Function.support f,
-      ENNReal.ofReal (‖f a‖ ^ ((sel j p₀ p₁).toReal + spf.σ⁻¹ * (q.toReal - (sel j q₀ q₁).toReal) *
-      ((sel j p₀ p₁).toReal / (sel j q₀ q₁).toReal))) ∂μ) ^
+      ‖f a‖ₑ ^ ((sel j p₀ p₁).toReal + spf.σ⁻¹ * (q.toReal - (sel j q₀ q₁).toReal) *
+      ((sel j p₀ p₁).toReal / (sel j q₀ q₁).toReal)) ∂μ) ^
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     have coe_p' : ENNReal.ofReal (sel j p₀ p₁).toReal = (sel j p₀ p₁) := ofReal_toReal_eq_iff.mpr hp'
     nth_rw 1 [← coe_p']
@@ -657,8 +657,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
         ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
         (∫⁻ (a : α) in Function.support f,
-        ENNReal.ofReal (‖f a‖ ^ p.toReal) ∂μ) ^
-        ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
+        (‖f a‖ₑ ^ p.toReal) ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     ext x
     congr
@@ -671,9 +670,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> sorry -- was: assumption
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
-      (∫⁻ (a : α),
-      ENNReal.ofReal (‖f a‖ ^ p.toReal) ∂μ) ^
-      ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
+      (∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     gcongr
     exact setLIntegral_le_lintegral _ _
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
@@ -682,11 +679,11 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
     rw [ENNReal.rpow_inv_rpow] <;> try positivity
-    congr
-    ext x
-    rw [← ofReal_rpow_of_nonneg] <;> try positivity
-    congr
-    exact ofReal_norm_eq_enorm (f x)
+    -- congr
+    -- ext x
+    -- rw [← ofReal_rpow_of_nonneg] <;> try positivity
+    -- congr
+    -- exact ofReal_norm_eq_enorm (f x)
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       ((eLpNorm f p μ) ^ p.toReal) ^
