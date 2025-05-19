@@ -3,7 +3,7 @@ import Carleson.ToMathlib.Annulus
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
-import Carleson.TwoSidedCarleson.Basic
+import Carleson.TwoSidedCarleson.WeakCalderonZygmund
 
 open MeasureTheory Set Bornology Function ENNReal Metric
 open scoped NNReal
@@ -667,24 +667,131 @@ theorem cotlar_control (ha : 4 ≤ a)
 /-- The constant used in `cotlar_set_F₂`. -/
 irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+lemma globalMaximalFunction_zero_enorm_ae_zero (hR : 0 < R) {f : X → ℂ} (hf : AEStronglyMeasurable f)
+    (hMzero : globalMaximalFunction volume 1 f x = 0) :
+    ∀ᵐ x' ∂(volume.restrict (ball x R)), ‖f x'‖ₑ = 0 := by
+  change (fun x' ↦ ‖f x'‖ₑ) =ᶠ[ae (volume.restrict (ball x R))] 0
+  rw [← lintegral_eq_zero_iff' (by fun_prop)]
+  rw [← bot_eq_zero, ← le_bot_iff, bot_eq_zero]
+  apply le_of_le_of_eq (lintegral_ball_le_volume_globalMaximalFunction _)
+  · rw [hMzero]
+    simp
+  · simp [hR]
+
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part 1 of Lemma 10.1.4 about `F₁`. -/
-theorem cotlar_set_F₁ (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) :
-    volume {x' ∈ ball x (R / 4) |
-      4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ } ≤
+theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    volume.restrict (ball x (R / 4))
+      {x' | 4 * globalMaximalFunction volume 1 (czOperator K r g) x < ‖czOperator K r g x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
-  sorry
+  let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
+  by_cases hMzero : MTrgx = 0
+  · apply le_of_eq_of_le _ (zero_le _)
+    rw [measure_zero_iff_ae_nmem]
+    have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
+    filter_upwards [czzero] with x' hx'
+    simp [hx']
+  rw [← lintegral_indicator_one₀ (nullMeasurableSet_lt (by fun_prop) (by fun_prop))]
+  by_cases hMinfty : MTrgx = ∞
+  · unfold MTrgx at hMinfty
+    simp_rw [hMinfty]
+    simp
+  rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) (by finiteness) (c := 4 * MTrgx)]
+  rw [← lintegral_mul_const' _ _ (by finiteness)]
+  simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
+  trans ∫⁻ (y : X) in ball x (R / 4),
+      {x' | 4 * MTrgx < ‖czOperator K r g x'‖ₑ}.indicator (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
+  · apply lintegral_mono_fn
+    intro y
+    apply indicator_le_indicator'
+    rw [mem_setOf_eq]
+    exact le_of_lt
+  trans ∫⁻ (y : X) in ball x (R / 4), ‖czOperator K r g y‖ₑ
+  · apply lintegral_mono_fn
+    intro y
+    apply indicator_le_self
+  nth_rw 2 [div_eq_mul_inv]
+  rw [mul_assoc]
+  nth_rw 2 [← mul_assoc]
+  rw [ENNReal.inv_mul_cancel (by simp) (by simp)]
+  simp only [one_mul, MTrgx]
+  apply lintegral_ball_le_volume_globalMaximalFunction
+  simp [(lt_of_lt_of_le hr hR)]
 
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
-theorem cotlar_set_F₂ (ha : 4 ≤ a)
+theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R) [IsOneSidedKernel a K]
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hg : BoundedFiniteSupport g) :
-    volume {x' ∈ ball x (R / 4) |
-      C10_1_4 a * globalMaximalFunction volume 1 g x <
+    volume.restrict (ball x (R / 4))
+      {x' | C10_1_4 a * globalMaximalFunction volume 1 g x <
       ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ } ≤
     volume (ball x (R / 4)) / 4 := by
-  sorry
+  by_cases hMzero : globalMaximalFunction volume 1 g x = 0
+  · apply le_of_eq_of_le _ (zero_le _)
+    rw [measure_zero_iff_ae_nmem]
+    have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
+        (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
+    have czzero : ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ = 0 := by
+      simp_rw [← bot_eq_zero, ← le_bot_iff]
+      apply Filter.Eventually.mono (.of_forall _) (fun x ↦ (enorm_integral_le_lintegral_enorm _).trans)
+      intro x'
+      rw [le_bot_iff, bot_eq_zero, lintegral_eq_zero_iff' ?hf_ae]
+      case hf_ae =>
+        apply (AEMeasurable.enorm _).restrict
+        apply AEMeasurable.mul (measurable_K_right x').aemeasurable
+        exact AEMeasurable.indicator (hg.aemeasurable) measurableSet_ball
+      simp_rw [← indicator_mul_right, enorm_indicator_eq_indicator_enorm]
+      rw [indicator_ae_eq_zero, inter_comm, ← Measure.restrict_apply' measurableSet_ball,
+        Measure.restrict_restrict measurableSet_ball, ← bot_eq_zero, ← le_bot_iff]
+      apply le_trans (Measure.restrict_mono_set (t := ball x (R / 2)) volume inter_subset_left _)
+      rw [le_bot_iff, bot_eq_zero, ← compl_compl (support _), ← mem_ae_iff]
+      filter_upwards [gzero] with y hy
+      simp [hy]
+    filter_upwards [czzero] with x' hx'
+    simp [hx']
+  by_cases hMinfty : globalMaximalFunction volume 1 g x = ∞
+  · simp_rw [hMinfty, C10_1_4_def]
+    simp
+  apply (Measure.restrict_le_self _).trans
+  let g1 := (ball x (R / 2)).indicator g
+  have bfs_g1 : BoundedFiniteSupport g1 := hg.indicator measurableSet_ball
+  have czw11 := czoperator_weak_1_1 ha hr (hT r hr)
+  unfold HasBoundedWeakType at czw11
+  have := (czw11 (f := g1) (bfs_g1.memLp _) bfs_g1.eLpNorm_lt_top bfs_g1.measure_support_lt).2
+  unfold wnorm wnorm' distribution at this
+  simp_rw [one_ne_top, reduceIte, toReal_one, inv_one, rpow_one,
+    iSup_le_iff] at this
+  have := this (C10_1_4 a * (globalMaximalFunction volume 1 g x).toNNReal)
+  have constants : C10_1_4 a = C10_0_3 a * (2 ^ (a + 2)) := by rw [C10_1_4_def, C10_0_3_def]; ring
+  nth_rw 1 [constants] at this
+  rw [coe_mul, coe_mul, coe_mul] at this --push_cast unfolds defaultA which is cumbersome
+  rw [mul_assoc, mul_assoc, ENNReal.mul_le_mul_left (by rw [C10_0_3_def]; positivity) coe_ne_top,
+    ← mul_assoc, mul_comm, ENNReal.coe_toNNReal hMinfty,
+    ← ENNReal.le_div_iff_mul_le ?ne_z ?ne_t] at this
+  case ne_z => left; exact mul_ne_zero (by simp) hMzero --again due to defaultA behaviour
+  case ne_t => left; exact mul_ne_top coe_ne_top hMinfty
+  apply this.trans
+  rw [ENNReal.div_le_iff_le_mul ?ne_z ?ne_t]
+  case ne_z => left; exact mul_ne_zero (by simp) hMzero --defaultA behaviour
+  case ne_t => left; exact mul_ne_top coe_ne_top hMinfty
+  unfold g1
+  simp_rw [eLpNorm_one_eq_lintegral_enorm, enorm_indicator_eq_indicator_enorm,
+    lintegral_indicator measurableSet_ball]
+  apply (lintegral_ball_le_volume_globalMaximalFunction (z := x) (x := x) (by simp [lt_of_lt_of_le hr hR])).trans
+  rw [← mul_assoc]
+  gcongr
+  have : volume (ball x (R / 2)) ≤ defaultA a * volume (ball x (R / 4)) := by
+    let tmp : R / 2 = 2 * (R / 4) := by ring
+    rw [tmp]
+    apply measure_ball_two_le_same
+  apply this.trans (le_of_eq _)
+  push_cast
+  nth_rw 2 [div_eq_mul_inv]
+  rw [mul_assoc, mul_comm]
+  congr
+  ring_nf
+  rw [mul_comm, ← mul_assoc, ENNReal.mul_inv_cancel (by simp) (by simp), one_mul]
 
 /-- The constant used in `cotlar_estimate`. -/
 irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)

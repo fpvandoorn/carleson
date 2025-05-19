@@ -214,6 +214,7 @@ variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
 
 attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
+  AEMeasurable.restrict AEStronglyMeasurable.restrict
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
 
