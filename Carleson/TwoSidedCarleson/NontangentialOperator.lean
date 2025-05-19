@@ -832,8 +832,29 @@ theorem cotlar_estimate (ha : 4 ≤ a)
       exact (ENNReal.le_div_iff_mul_le (by simp) (by simp)).mp (this.trans vF1F2)
     exact Nat.not_ofNat_le_one this
   obtain ⟨x', hx'⟩ := this
-
-  sorry
+  have hxx' := mem_ball.mp hx'.2
+  rw [dist_comm] at hxx'
+  apply cotlar_control ha hg hr hxx'.le |> le_trans
+  rw [indicator_compl, czoperator_sub hg (hg.indicator measurableSet_ball) hr.1, Pi.sub_apply]
+  have h1x' : ‖czOperator K r g x'‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x := by
+    suffices x' ∉ F1 by
+      rw [nmem_setOf_iff, not_lt] at this
+      exact this
+    exact not_mem_subset subset_union_left ((mem_compl_iff _ _).mp hx'.1)
+  have h2x' : ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ ≤ C10_1_4 a * globalMaximalFunction volume 1 g x := by
+    suffices x' ∉ F2 by
+      rw [nmem_setOf_iff, not_lt] at this
+      exact this
+    exact not_mem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
+  apply add_le_add (add_le_add h1x' h2x' |> enorm_sub_le.trans) (by rfl) |> le_trans
+  rw [add_assoc, C10_1_3_def, C10_1_4_def, C10_1_5_def]
+  gcongr
+  rw [← add_mul]
+  gcongr
+  push_cast
+  nth_rw 5 [pow_succ]
+  rw [mul_two]
+  gcongr <;> simp
 
 /-- The constant used in `simple_nontangential_operator`. -/
 irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)

@@ -114,3 +114,11 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       · exact support_mul_subset_right (K x) g
   · exact mKxg
   · exact hM
+
+-- This could be adapted to state T_r is a linear operator but maybe it's not worth the effort
+lemma czoperator_sub {f g : X → ℂ} (hf : BoundedFiniteSupport f) (hg : BoundedFiniteSupport g) (hr : 0 < r) :
+    czOperator K r (f - g) = czOperator K r f - czOperator K r g := by
+  ext x
+  unfold czOperator
+  simp_rw [Pi.sub_apply, mul_sub_left_distrib,
+    integral_sub (czoperator_welldefined hf hr x) (czoperator_welldefined hg hr x)]
