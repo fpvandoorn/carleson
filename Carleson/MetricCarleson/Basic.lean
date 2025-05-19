@@ -68,8 +68,7 @@ lemma measurable_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ ≤ 1) :
     Measurable (carlesonOperatorIntegrand K θ R₁ R₂ f) := by
   sorry
 
-/-- The constant used in the proof of `int-continuous`.
-Has value `2 ^ (a ^ 3)` in the blueprint. -/
+/-- The constant used in the proof of `int-continuous`. -/
 irreducible_def C3_0_1 (a : ℕ) (R₁ R₂ : ℝ≥0) : ℝ≥0 := 2 ^ ((a : ℝ) ^ 3) * (2 * R₂ / R₁) ^ a
 
 -- not sure if this is the best phrasing
