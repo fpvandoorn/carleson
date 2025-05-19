@@ -7,7 +7,7 @@ open MeasureTheory Set ENNReal Filter Topology ShortVariables Metric Complex
 noncomputable section
 
 variable {X : Type*} {a : ℕ} [MetricSpace X]
-variable {q q' : ℝ≥0} {C : ℝ}
+variable {C : ℝ}
 variable {F G : Set X}
 variable {K : X → X → ℂ}
 variable {f : X → ℂ}
@@ -15,11 +15,6 @@ variable {f : X → ℂ}
 variable [CompatibleFunctions ℝ X (defaultA a)]
     (ha : 4 ≤ a)
     {x : X} {θ : Θ X} {R₁ R₂ : ℝ}
-    -- (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
-    -- (hF : MeasurableSet F) (hG : MeasurableSet G)
-    -- (hT : HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a))
-    -- (f : X → ℂ) (hmf : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-
 
 namespace MetricΘ
 scoped instance : PseudoMetricSpace (Θ X) :=
