@@ -558,11 +558,11 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       congr 1
       apply lintegral_congr_support hf
       intro x _
-      sorry -- proof was:
-      -- rw [div_eq_mul_inv, ENNReal.ofReal_mul, sub_add_cancel, ENNReal.ofReal_mul,
-      --     ENNReal.mul_rpow_of_nonneg, ENNReal.mul_rpow_of_nonneg] <;> try positivity
-      -- nth_rw 2 [ENNReal.ofReal_rpow_of_nonneg] <;> try positivity
-      -- rw [← Real.rpow_mul] ; try positivity
+      rw [div_eq_mul_inv, sub_add_cancel, ENNReal.mul_rpow_of_nonneg,
+        ENNReal.mul_rpow_of_nonneg] <;> try positivity
+      rw [ENNReal.rpow_mul, ofReal_inv_of_pos]
+      have : q ≠ q₀ := by split_ifs at hpowers <;> order
+      exact abs_sub_pos.mpr this
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
         ‖f a‖ₑ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹) ∂μ) ^ (p₀⁻¹ * q₀) *
