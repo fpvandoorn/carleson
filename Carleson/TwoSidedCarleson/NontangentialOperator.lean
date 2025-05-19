@@ -690,8 +690,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   · apply le_of_eq_of_le _ (zero_le _)
     rw [measure_zero_iff_ae_nmem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
-    filter_upwards [czzero]
-    intro x' hx'
+    filter_upwards [czzero] with x' hx'
     simp [hx']
   rw [← lintegral_indicator_one₀ (nullMeasurableSet_lt (by fun_prop) (by fun_prop))]
   by_cases hMinfty : MTrgx = ∞
@@ -747,11 +746,9 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R) [IsOneSidedKe
         Measure.restrict_restrict measurableSet_ball, ← bot_eq_zero, ← le_bot_iff]
       apply le_trans (Measure.restrict_mono_set (t := ball x (R / 2)) volume inter_subset_left _)
       rw [le_bot_iff, bot_eq_zero, ← compl_compl (support _), ← mem_ae_iff]
-      filter_upwards [gzero]
-      intro y hy
+      filter_upwards [gzero] with y hy
       simp [hy]
-    filter_upwards [czzero]
-    intro x' hx'
+    filter_upwards [czzero] with x' hx'
     simp [hx']
   by_cases hMinfty : globalMaximalFunction volume 1 g x = ∞
   · simp_rw [hMinfty, C10_1_4_def]
