@@ -340,7 +340,7 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton (ENNReal.ofReal s) }
         ((volume.restrict (Ioi 0)).prod μ) :=
-  nullMeasurableSet_le hg.snd.norm (ton_aeMeasurable tc).fst
+  sorry -- proof was: nullMeasurableSet_le hg.snd.norm (ton_aeMeasurable tc).fst
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
@@ -488,7 +488,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       rw [mul_comm]
     _ = ∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹) ^ (p₀⁻¹ * q₀) *
-        (∫⁻ (a : α) in Function.support f, ↑‖trnc j f (tc.ton s) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        (∫⁻ (a : α) in Function.support f, ↑‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       apply setLIntegral_congr_fun measurableSet_Ioi
       filter_upwards with s _
       rw [ENNReal.rpow_inv_rpow]
@@ -497,7 +497,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     _ = ∫⁻ (s : ℝ) in Ioi 0,
         (∫⁻ (a : α) in Function.support f,
         ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
-        ‖trnc j f (tc.ton s) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
       apply setLIntegral_congr_fun measurableSet_Ioi
       filter_upwards with s _
       rw [lintegral_const_mul', ENNReal.mul_rpow_of_nonneg]
@@ -506,13 +506,13 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     _ ≤ (∫⁻ a : α in Function.support f,
         (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
-        ‖trnc j f (tc.ton s) a‖ₑ ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀) ^ (p₀⁻¹ * q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       -- This is a consequence of Minkowski's integral inequality
       apply lintegral_lintegral_pow_swap_truncCompl hp₀ hp₀q₀ hf tc; assumption
     _ = (∫⁻ a : α in Function.support f,
         (∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) *
-        ↑‖trnc j f (tc.ton s) a‖ₑ ^ q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        ↑‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x _
@@ -523,38 +523,39 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       congr
       field_simp
     _ = (∫⁻ a : α in Function.support f,
-        ((∫⁻ (s : ℝ) in res (xor j tc.mon) (tc.inv ‖f a‖),
+        ((∫⁻ (s : ℝ) in res (xor j tc.mon) (tc.inv ‖f a‖ₑ),
         (ENNReal.ofReal (s ^ (q - q₀ - 1))))*
         ‖f a‖ₑ ^ q₀) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x hfx
       congr 1
-      apply lintegral_trunc_mul hq₀ (nnnorm_pos.mpr hfx)
+      apply lintegral_trunc_mul hq₀ sorry -- (nnnorm_pos.mpr hfx)
     _ = (∫⁻ a : α in Function.support f,
-        ((ENNReal.ofReal (tc.inv ‖f a‖ ^ (q - q₀ - 1 + 1) / |q - q₀ - 1 + 1|)) *
+        (((tc.inv ‖f a‖ₑ ^ (q - q₀ - 1 + 1) / ENNReal.ofReal |q - q₀ - 1 + 1|)) *
         ENNReal.ofReal (‖f a‖ ^ q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x hfx
       congr 2
       · apply value_lintegral_res₀
-        · apply tc.ran_inv
-          exact norm_pos_iff.mpr hfx
+        · sorry -- proof was: apply tc.ran_inv
+          -- exact norm_pos_iff.mpr hfx
         · split_ifs with h
           · simp only [h, ↓reduceIte] at hpowers; linarith
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
       · rw [← ofReal_rpow_of_nonneg, ofReal_norm_eq_enorm] <;> positivity
     _ = (∫⁻ a : α in Function.support f,
         ((
-        (spf.d ^ (q - q₀ - 1 + 1) * ‖f a‖ ^ (spf.σ⁻¹ * (q - q₀ - 1 + 1) + q₀) /
-      |q - q₀ - 1 + 1|))) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        (spf.d ^ (q - q₀ - 1 + 1) * ‖f a‖ₑ ^ (spf.σ⁻¹ * (q - q₀ - 1 + 1) + q₀) /
+        ENNReal.ofReal |q - q₀ - 1 + 1|))) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x hfx
       congr 1
-      apply value_lintegral_res₁
-      exact norm_pos_iff.mpr hfx
+      sorry -- proof was:
+      -- apply value_lintegral_res₁
+      -- exact norm_pos_iff.mpr hfx
     _ = (∫⁻ a : α in Function.support f,
         (((spf.d ^ (q - q₀)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ENNReal.ofReal (‖f a‖ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) *
@@ -562,10 +563,11 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       congr 1
       apply lintegral_congr_support hf
       intro x _
-      rw [div_eq_mul_inv, ENNReal.ofReal_mul, sub_add_cancel, ENNReal.ofReal_mul,
-          ENNReal.mul_rpow_of_nonneg, ENNReal.mul_rpow_of_nonneg] <;> try positivity
-      nth_rw 2 [ENNReal.ofReal_rpow_of_nonneg] <;> try positivity
-      rw [← Real.rpow_mul] ; try positivity
+      sorry -- proof was:
+      -- rw [div_eq_mul_inv, ENNReal.ofReal_mul, sub_add_cancel, ENNReal.ofReal_mul,
+      --     ENNReal.mul_rpow_of_nonneg, ENNReal.mul_rpow_of_nonneg] <;> try positivity
+      -- nth_rw 2 [ENNReal.ofReal_rpow_of_nonneg] <;> try positivity
+      -- rw [← Real.rpow_mul] ; try positivity
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
         ENNReal.ofReal (‖f a‖ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) ∂μ) ^
@@ -574,7 +576,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       rw [lintegral_mul_const', lintegral_const_mul', ENNReal.mul_rpow_of_nonneg,
           ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ENNReal.rpow_inv_rpow] <;>
           try positivity
-      · exact rpow_ne_top_of_nonneg (by positivity) coe_ne_top
+      · exact rpow_ne_top_of_nonneg (by positivity) sorry -- was: coe_ne_top
       · exact rpow_ne_top_of_nonneg (by positivity) coe_ne_top
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
@@ -669,10 +671,10 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     rcases j
     · dsimp only [sel]
       rw [hspf]
-      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> assumption
+      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> sorry -- was: assumption
     · dsimp only [sel]
       rw [hspf]
-      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> assumption
+      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> sorry -- was: assumption
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α),
