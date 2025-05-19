@@ -847,13 +847,9 @@ theorem cotlar_estimate (ha : 4 ≤ a)
       exact this
     exact not_mem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
   apply add_le_add (add_le_add h1x' h2x' |> enorm_sub_le.trans) (by rfl) |> le_trans
-  rw [add_assoc, C10_1_3_def, C10_1_4_def, C10_1_5_def]
-  gcongr
-  rw [← add_mul]
-  gcongr
+  rw [add_assoc, C10_1_3_def, C10_1_4_def, C10_1_5_def, ← add_mul]
+  conv_rhs => rw [pow_succ, mul_two]
   push_cast
-  nth_rw 5 [pow_succ]
-  rw [mul_two]
   gcongr <;> simp
 
 /-- The constant used in `simple_nontangential_operator`. -/
