@@ -109,7 +109,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           rw [← hD]
           ring_nf
           rw [mul_inv_cancel₀ (defaultD_pos _).ne', one_mul]
-        convert (DoublingMeasure.volume_ball_two_le_same_repeat x
+        convert (DoublingMeasure.volume_real_ball_two_le_same_repeat x
           ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)) (100*a^2 + 5)) using 1
         · conv_lhs => rw [← heq, ← pow_add]
         · congr 1
