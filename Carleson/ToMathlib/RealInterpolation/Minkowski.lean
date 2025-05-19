@@ -469,8 +469,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     ENNReal.ofReal (s ^ (q - q₀ - 1)) ≤
     (spf.d ^ (q - q₀)) * ENNReal.ofReal |q - q₀|⁻¹ *
     (∫⁻ (a : α) in Function.support f,
-    ENNReal.ofReal (‖f a‖ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀))) ∂μ) ^
-    (p₀⁻¹ * q₀) := by
+    ‖f a‖ₑ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀)) ∂μ) ^ (p₀⁻¹ * q₀) := by
   have := spf.hd
   unfold eLpNorm eLpNorm'
   set tc := spf_to_tc spf
@@ -524,16 +523,15 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       field_simp
     _ = (∫⁻ a : α in Function.support f,
         ((∫⁻ (s : ℝ) in res (xor j tc.mon) (tc.inv ‖f a‖ₑ),
-        (ENNReal.ofReal (s ^ (q - q₀ - 1))))*
-        ‖f a‖ₑ ^ q₀) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        (ENNReal.ofReal (s ^ (q - q₀ - 1)))) * ‖f a‖ₑ ^ q₀) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x hfx
       congr 1
-      apply lintegral_trunc_mul hq₀ sorry -- (nnnorm_pos.mpr hfx)
+      exact lintegral_trunc_mul hq₀ (enorm_pos.mpr hfx)
     _ = (∫⁻ a : α in Function.support f,
         (((tc.inv ‖f a‖ₑ ^ (q - q₀ - 1 + 1) / ENNReal.ofReal |q - q₀ - 1 + 1|)) *
-        ENNReal.ofReal (‖f a‖ ^ q₀)) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
+        ‖f a‖ₑ ^ q₀) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
       intro x hfx
@@ -544,7 +542,6 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         · split_ifs with h
           · simp only [h, ↓reduceIte] at hpowers; linarith
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
-      · rw [← ofReal_rpow_of_nonneg, ofReal_norm_eq_enorm] <;> positivity
     _ = (∫⁻ a : α in Function.support f,
         ((
         (spf.d ^ (q - q₀ - 1 + 1) * ‖f a‖ₑ ^ (spf.σ⁻¹ * (q - q₀ - 1 + 1) + q₀) /
@@ -553,12 +550,10 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       apply lintegral_congr_support hf
       intro x hfx
       congr 1
-      sorry -- proof was:
-      -- apply value_lintegral_res₁
-      -- exact norm_pos_iff.mpr hfx
+      exact value_lintegral_res₁ (enorm_pos.mpr hfx)
     _ = (∫⁻ a : α in Function.support f,
         (((spf.d ^ (q - q₀)) ^ (p₀⁻¹ * q₀)⁻¹ *
-        ENNReal.ofReal (‖f a‖ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) *
+        (‖f a‖ₑ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) *
     ENNReal.ofReal |q - q₀|⁻¹ ^ (p₀⁻¹ * q₀)⁻¹))  ∂μ) ^ (p₀⁻¹ * q₀) := by
       congr 1
       apply lintegral_congr_support hf
@@ -570,18 +565,17 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       -- rw [← Real.rpow_mul] ; try positivity
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
-        ENNReal.ofReal (‖f a‖ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) ∂μ) ^
-        (p₀⁻¹ * q₀) *
+        ‖f a‖ₑ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹) ∂μ) ^ (p₀⁻¹ * q₀) *
         ENNReal.ofReal |q - q₀|⁻¹ := by
       rw [lintegral_mul_const', lintegral_const_mul', ENNReal.mul_rpow_of_nonneg,
           ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ENNReal.rpow_inv_rpow] <;>
           try positivity
-      · exact rpow_ne_top_of_nonneg (by positivity) sorry -- was: coe_ne_top
+      · apply rpow_ne_top_of_nonneg (by positivity)
+        sorry -- TODO: need spf.d being finite, then finiteness
       · exact rpow_ne_top_of_nonneg (by positivity) coe_ne_top
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
-        ENNReal.ofReal (‖f a‖ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀))) ∂μ) ^
-        (p₀⁻¹ * q₀) *
+        ‖f a‖ₑ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀)) ∂μ) ^ (p₀⁻¹ * q₀) *
         ENNReal.ofReal |q - q₀|⁻¹ := by
       congr
       ext x
