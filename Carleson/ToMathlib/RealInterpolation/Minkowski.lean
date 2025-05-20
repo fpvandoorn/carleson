@@ -771,8 +771,8 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
 variable [ContinuousENorm ε₁] [ContinuousENorm ε₂] {T : (α → ε₁) → (α' → ε₂)} in
 lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
     (hq' : q = ⊤) {f : α → ε₁} (hf : MemLp f p μ)
-    (hT : HasWeakType T p q μ ν C) {t : ℝ} (ht : C * eLpNorm f p μ ≤ ENNReal.ofReal t) :
-    distribution (T f) (ENNReal.ofReal t) ν = 0 := by
+    (hT : HasWeakType T p q μ ν C) (ht : C * eLpNorm f p μ ≤ t) :
+    distribution (T f) t ν = 0 := by
   have wt_est := (hT f hf).2
   unfold wnorm at wt_est
   split_ifs at wt_est
@@ -832,7 +832,7 @@ lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α
 lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
     (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞} (hp : 0 < p)
     (hp₁ : p₁ = ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ≥0∞} (ht : 0 < t) (ha : a = t / C₁) :
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) (ha : a = t / C₁) :
     distribution (T (trunc f a)) t ν = 0 := by
   by_cases ht : t = ⊤
   · simp [ht]
