@@ -611,6 +611,8 @@ lemma support_sigma_finite_from_MemLp
 --   have : SigmaFinite (μ.restrict (Function.support f)) := support_sigma_finite_from_MemLp hf hp hp'
 --   exact instSFiniteOfSigmaFinite
 
+lemma foobarbaz (ht : t ∈ Ioo (0 : ℝ≥0∞) 1) : t.toReal ∈ Ioo (0 : ℝ) 1 := sorry
+
 lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
   [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
@@ -622,7 +624,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   (hf : MemLp f p μ) (hT : Subadditive_trunc T A f ν)
   (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
   (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-  (hspf : spf = spf_ch ht hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
+  (hspf : spf = spf_ch (foobarbaz ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
       (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF)
   (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
   (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
@@ -650,7 +652,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       distribution (T (truncCompl f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
       ENNReal.ofReal (s^(q.toReal - 1)) :=
     estimate_norm_rpow_range_operator
-      (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT (h₂T hf).aemeasurable
+      (interp_exp_toReal_pos2 ht q₀pos q₁pos hq₀q₁ hq) _ hA hT (h₂T hf).aemeasurable
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
       ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (trunc f (tc.ton (ENNReal.ofReal s))) p₁ μ ^ q₁.toReal *
@@ -660,19 +662,19 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1)))) := by
     gcongr
     apply estimate_norm_rpow_range_operator' (p := p) p₀pos q₀pos q₁pos <;> try assumption
-    · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
-    · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).1
+    · exact (interp_exp_between2 p₀pos p₁pos hp₀p₁ ht hp).2
+    · exact (interp_exp_between2 p₀pos p₁pos hp₀p₁ ht hp).1
     · intro q₀top s (hs : 0 < s)
       apply weaktype_estimate_truncCompl_top (d := spf.d) hC₀ hp₀.1 q₀top _ _ hf h₀T hs _
       · rw [hspf]
         exact d_eq_top₀ one_le_p₀ q₁pos hp₀p₁.ne_top q₀top hq₀q₁
-      · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).1
-      · exact interp_exp_ne_top hp₀p₁.ne ht hp
+      · exact (interp_exp_between2 p₀pos p₁pos hp₀p₁ ht hp).1
+      · exact interp_exp_ne_top2 hp₀p₁.ne ht hp
       · dsimp only [tc, spf_to_tc]
         congr
         rw [hspf]
         dsimp only [spf_ch]
-        exact ζ_equality₇ ht one_le_p₀ q₀pos one_le_p1 q₁pos hp₀p₁.ne hq₀q₁ hp hq hp₀p₁.ne_top q₀top
+        exact ζ_equality₇2 ht one_le_p₀ q₀pos one_le_p1 q₁pos hp₀p₁.ne hq₀q₁ hp hq hp₀p₁.ne_top q₀top
 
     · intro q₁top s (hs : 0 < s)
       rcases (eq_or_ne p₁ ⊤) with p₁eq_top | p₁ne_top
@@ -681,21 +683,21 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           rw [hspf]
           dsimp only [spf_ch]
           rw [d_eq_top_top] <;> try assumption
-          rw [ζ_eq_top_top, ENNReal.rpow_one] <;> try assumption
+          rw [ζ_eq_top_top2, ENNReal.rpow_one] <;> try assumption
           exact hp₀p₁.ne
         · exact p_pos
-        · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
+        · exact (interp_exp_between2 p₀pos p₁pos hp₀p₁ ht hp).2
       · apply weaktype_estimate_trunc_top (p₁ := p₁) (p := p) (d := spf.d) hC₁ <;> try assumption
         · unfold tc
           rw [hspf]
           dsimp only [spf_to_tc, spf_ch]
           congr
-          apply ζ_equality₈ ht (hp₀p₁ := hp₀p₁.ne) <;> assumption
+          apply ζ_equality₈2 ht (hp₀p₁ := hp₀p₁.ne) <;> assumption
         · rw [hspf]
           dsimp only [spf_ch]
           apply d_eq_top₁ <;> assumption
         · exact p₁ne_top.lt_top
-        · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
+        · exact (interp_exp_between2 p₀pos p₁pos hp₀p₁ ht hp).2
   _ ≤ ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) *
       ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal *
       ((spf.d ^ (q.toReal - q₁.toReal)) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ *
@@ -737,11 +739,11 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
     dsimp only [sel]
     ring_nf
   _ = (if q₁ < ⊤ then 1 else 0) *
-      (↑C₀ ^ ((1 - t) * q.toReal) * ↑C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal *
+      (↑C₀ ^ ((1 - t).toReal * q.toReal) * ↑C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal *
           ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) *
         ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹) +
     (if q₀ < ⊤ then 1 else 0) *
-      (↑C₀ ^ ((1 - t) * q.toReal) * ↑C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal *
+      (↑C₀ ^ ((1 - t).toReal * q.toReal) * ↑C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal *
           ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) *
         ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹) := by
     congr 1
@@ -757,7 +759,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
         · rw [hspf]; rfl
         · exact is_q₀top.ne_top
       · simp
-  _ = _ := by ring
+  _ = _ := by sorry -- ring
 
 lemma combine_estimates₁ {A : ℝ≥0} [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂] (hA : 0 < A)
@@ -772,7 +774,7 @@ lemma combine_estimates₁ {A : ℝ≥0} [MeasurableSpace E₁] [NormedAddCommGr
     (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ))
     (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-    (hspf : spf = spf_ch ht hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
+    (hspf : spf = spf_ch (foobarbaz ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
         (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF) :
     eLpNorm (T f) q ν ≤
     ENNReal.ofReal (2 * A) * q ^ q⁻¹.toReal *
@@ -782,7 +784,7 @@ lemma combine_estimates₁ {A : ℝ≥0} [MeasurableSpace E₁] [NormedAddCommGr
   have q_ne_zero : q ≠ 0 := (interpolated_pos'2 (lt_of_lt_of_le hp₀.1 hp₀.2) (lt_of_lt_of_le hp₁.1 hp₁.2) hq).ne'
   have q_ne_top : q ≠ ⊤ := interp_exp_ne_top2 hq₀q₁ ht hq
   have q'pos : 0 < q.toReal := toReal_pos q_ne_zero q_ne_top
-  refine le_of_rpow_le q'pos ?_
+  refine le_of_rpow_le2 q'pos ?_
   calc
   _ = ∫⁻ x , ‖T f x‖ₑ ^ q.toReal ∂ν := by
     unfold eLpNorm eLpNorm'
@@ -914,7 +916,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | hF
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
-  · let spf := spf_ch ht hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
+  · let spf := spf_ch (foobarbaz ht) hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
     apply combine_estimates₁ <;> try assumption
     on_goal 1 => unfold spf
     rfl
