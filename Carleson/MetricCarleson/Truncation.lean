@@ -13,7 +13,7 @@ variable {F G : Set X}
 variable {K : X → X → ℂ}
 
 variable [KernelProofData a K]
-    {x : X} {θ : Θ X} {R₁ R₂ : ℝ}
+  {x : X} {θ : Θ X} {R₁ R₂ : ℝ}
 
 variable {Q : SimpleFunc X (Θ X)}
 variable {F G : Set X} {f : X → ℂ} {s : ℤ} {σ₁ σ₂ : X → ℤ}
@@ -34,10 +34,9 @@ def T_S (Q : SimpleFunc X (Θ X)) (s₁ s₂ : ℤ) (f : X → ℂ) (x : X) : �
 def T_lin (Q : SimpleFunc X (Θ X)) (σ₁ σ₂ : X → ℤ) (f : X → ℂ) (x : X) : ℂ :=
   ∑ s ∈ Finset.Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * (Q x y - Q x x))
 
-/-- The constant used in `S_truncation`.
+/-- The constant used in `linearized_truncation`.
 Has value `2 ^ (445 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
-def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
-
+def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (445 * a ^ 3) / (q - 1) ^ 6
 
 /- `S'` is `S` in the blueprint. -/
 lemma linearized_truncation {S' : ℤ}
@@ -48,13 +47,13 @@ lemma linearized_truncation {S' : ℤ}
     (h2σ₁ : range σ₁ ⊆ Icc (- S') S') (h2σ₂ : range σ₂ ⊆ Icc (- S') S')
     (hσ : σ₁ ≤ σ₂) :
     ∫⁻ x in G, ‖T_lin Q σ₁ σ₂ f x‖ₑ ≤
-    C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ) := by
+    C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   sorry
 
 
 /-- The constant used in `S_truncation`.
 Has value `2 ^ (446 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
-def C3_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
+def C3_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (446 * a ^ 3) / (q - 1) ^ 6
 
 /- `S'` is `S` in the blueprint. -/
 lemma S_truncation {S' : ℤ}
@@ -62,7 +61,7 @@ lemma S_truncation {S' : ℤ}
     (hF : IsBounded F) (hG : IsBounded G)
     (hf : Measurable f) (h2f : (‖f ·‖) ≤ F.indicator 1) :
     ∫⁻ x in G, ⨆ (s₁ : ℤ) (s₂ : ℤ) (_ : - S' < s₁) (_ : s₁ < s₂) (_ : s₂ < S'), ‖T_S Q s₁ s₂ f x‖ₑ ≤
-    C3_0_3 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ) := by
+    C3_0_3 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   sorry
 
 
@@ -83,5 +82,5 @@ lemma R_truncation
     (hf : Measurable f) (h2f : (‖f ·‖) ≤ F.indicator 1)
     {n : ℤ} {R : ℝ} (hR : R = 2 ^ n) :
     ∫⁻ x in G, ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R⁻¹ < R₁) (_ : R₁ < R₂) (_ : R₂ < R), ‖T_R K Q R₁ R₂ R f x‖ₑ ≤
-    C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ) := by
+    C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   sorry

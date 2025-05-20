@@ -13,8 +13,8 @@ variable {K : X → X → ℂ}
 variable {f : X → ℂ}
 
 variable [CompatibleFunctions ℝ X (defaultA a)]
-    (ha : 4 ≤ a)
-    {x : X} {θ : Θ X} {R₁ R₂ : ℝ}
+  (ha : 4 ≤ a)
+  {x : X} {θ : Θ X} {R₁ R₂ : ℝ}
 
 namespace MetricΘ
 scoped instance : PseudoMetricSpace (Θ X) :=
@@ -42,32 +42,33 @@ end MetricΘ
 open MetricΘ
 
 variable
-    [DoublingMeasure X (defaultA a : ℕ)]
-    [IsCancellative X (defaultτ a)]
-    [IsOneSidedKernel a K]
+  [DoublingMeasure X (defaultA a : ℕ)]
+  [IsCancellative X (defaultτ a)]
+  [IsOneSidedKernel a K]
 
 
-lemma continuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ ≤ 1) :
+lemma continuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
     Continuous (carlesonOperatorIntegrand K · R₁ R₂ f x) := by
   sorry
 
-lemma rightContinuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ ≤ 1) :
+lemma rightContinuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
     ContinuousWithinAt (carlesonOperatorIntegrand K θ · R₂ f x) (Ici R₁) R₁ := by
   sorry
 
-lemma leftContinuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ ≤ 1) :
+lemma leftContinuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
     ContinuousWithinAt (carlesonOperatorIntegrand K θ R₁ · f x) (Iic R₂) R₂ := by
   sorry
 
-lemma measurable_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ ≤ 1) :
+lemma measurable_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
     Measurable (carlesonOperatorIntegrand K θ R₁ R₂ f) := by
   sorry
 
 /-- The constant used in the proof of `int-continuous`. -/
-irreducible_def C3_0_1 (a : ℕ) (R₁ R₂ : ℝ≥0) : ℝ≥0 := 2 ^ ((a : ℝ) ^ 3) * (2 * R₂ / R₁) ^ a
+irreducible_def C3_0_1 (a : ℕ) (R₁ R₂ : ℝ≥0) : ℝ≥0 :=
+  2 ^ ((a : ℝ) ^ 3) * (2 * R₂ / R₁) ^ a
 
 -- not sure if this is the best phrasing
 lemma isBounded_carlesonOperatorIntegrand {R₁ R₂ : ℝ≥0}
-    (hf : ∀ x, ‖f x‖ ≤ 1) :
-    ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖₊ ≤ C3_0_1 a R₁ R₂ := by
+    (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
+    ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
   sorry
