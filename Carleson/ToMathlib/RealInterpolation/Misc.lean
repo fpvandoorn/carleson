@@ -445,11 +445,12 @@ lemma trunc_of_nonpos {f : α → E₁} {a : ℝ≥0} (ha : a ≤ 0) :
     trunc f a = 0 := by
   unfold trunc
   ext x
-  split_ifs
+  split_ifs with h
   · dsimp only [Pi.zero_apply]
     apply enorm_eq_zero.mp
-    · have : ‖f x‖ₑ ≥ 0 := by positivity
-      sorry -- linarith []
+    · have : 0 ≤ ‖f x‖ₑ := by positivity
+      -- TODO: this was just `linarith`
+      exact le_antisymm (h.trans (by norm_cast)) this
   · rfl
 
 /-- If the truncation parameter is non-positive, the complement of the truncation is the
@@ -463,10 +464,8 @@ lemma truncCompl_of_nonpos {f : α → E₁} {a : ℝ≥0∞} (ha : a ≤ 0) :
   · rfl
   · apply (enorm_eq_zero.mp ?_).symm
     have : ‖f x‖ₑ ≥ 0 := by positivity
-    apply le_antisymm ?_ this
-    · trans a
-      · simp_all
-      · assumption
+    -- was just `linarith`
+    exact le_antisymm (by order) this
 
 /-! ## Measurability properties of truncations -/
 
@@ -587,12 +586,19 @@ lemma truncCompl_le_func {f : α → E₁} {x : α} {t : ℝ≥0∞} :
     ‖(truncCompl f t) x‖ ≤ ‖f x‖ := by
   rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
+lemma foo {A B C D : ℝ≥0∞} (hA : A ≠ ∞) (h : A ≤ C) (h' : A + B = C + D) : D ≤ B := by
+  obtain (done | contra) := le_or_lt D B
+  · assumption
+  · have : A + B < C + D := ENNReal.add_lt_add_of_le_of_lt hA h contra
+    exact False.elim (by order)
+
 lemma truncCompl_anti {f : α → E₁} {x : α} {s t : ℝ≥0∞} (hab : t ≤ s) :
     ‖truncCompl f s x‖ₑ ≤ ‖truncCompl f t x‖ₑ := by
   have obs : ‖trunc f t x‖ₑ + ‖(truncCompl f t) x‖ₑ = ‖trunc f s x‖ₑ + ‖(truncCompl f s) x‖ₑ := by
     simp_rw [trunc_buildup_enorm]
-  have : ‖trunc f t x‖ₑ ≤ ‖trunc f s x‖ₑ := trunc_mono hab
-  sorry -- linarith
+  refine foo ?_ (trunc_mono hab) obs
+  -- TODO: need to prove that `trunc f t x` has finite enorm!
+  sorry
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
 lemma eLpNorm_truncCompl_anti {f : α → E₁} :
