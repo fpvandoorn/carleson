@@ -45,6 +45,9 @@ lemma interp_exp_ne_top (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p ≠ ⊤ :=
   ENNReal.inv_ne_zero.mp <| hp ▸ (ENNReal_preservation_positivity ht hp₀p₁).ne'
 
+lemma interp_exp_ne_top2 {t : ℝ≥0∞} (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : p ≠ ⊤ := sorry
+
 lemma interp_exp_ne_top' (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹) : p ≠ ⊤ :=
   ENNReal.inv_ne_zero.mp (hp ▸ (ENNReal_preservation_positivity₀ ht hp₀p₁).ne')
@@ -201,6 +204,9 @@ lemma interpolated_pos' (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹): 0 < p :=
   ENNReal_preservation_positivity' hp₀ hp₁ hp
 
+lemma interpolated_pos'2 {t : ℝ≥0∞} (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹): 0 < p := sorry
+
 lemma exp_toReal_pos (hp₀ : 0 < p₀) (hp₀' : p₀ ≠ ⊤) : 0 < p₀.toReal :=
   toReal_pos hp₀.ne' hp₀'
 
@@ -223,6 +229,11 @@ lemma interp_exp_toReal_pos' (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
     (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤) : 0 < p.toReal :=
   toReal_pos (interpolated_pos' hp₀ hp₁ hp).ne' (interp_exp_ne_top' hp₀p₁ ht hp)
+
+lemma interp_exp_toReal_pos'2 {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
+    (hp₀p₁ : p₀ ≠ ⊤ ∨ p₁ ≠ ⊤) : 0 < p.toReal :=
+  sorry
 
 lemma interp_exp_inv_pos (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀)
     (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
@@ -649,6 +660,13 @@ lemma ζ_pos_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q
   have : ¬ (p < p₀) := not_lt_of_gt hp₀p₁'
   tauto
 
+lemma ζ_pos_iff_of_lt₀2 {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
+    (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    0 < ζ p₀ q₀ p₁ q₁ t.toReal ↔ q₀ < q := by
+  sorry
+
 lemma ζ_pos_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
   (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
@@ -656,6 +674,12 @@ lemma ζ_pos_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q
     0 < ζ p₀ q₀ p₁ q₁ t ↔ q < q₁ := by
   rw [← exp_gt_exp_lt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_pos_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
+
+lemma ζ_pos_iff_of_lt₁2 {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
+  (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    0 < ζ p₀ q₀ p₁ q₁ t.toReal ↔ q < q₁ := by sorry
 
 lemma ζ_neg_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁) :
@@ -775,6 +799,13 @@ lemma ζ_le_zero_iff_of_lt₀ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0
     · exact False.elim <| (ζ_ne_zero ht hp₀ hq₀ hp₁ hq₁ hp₀p₁'.ne hq₀q₁) ζ_eq_0
   · exact ((ζ_neg_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁').mpr h).le
 
+lemma ζ_le_zero_iff_of_lt₀2 {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁)
+    (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    ζ p₀ q₀ p₁ q₁ t.toReal ≤ 0 ↔ q < q₀ := by
+  sorry
+
 lemma ζ_le_zero_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁)
     (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - ENNReal.ofReal t) * p₀⁻¹ + ENNReal.ofReal t * p₁⁻¹)
@@ -782,6 +813,13 @@ lemma ζ_le_zero_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0
     ζ p₀ q₀ p₁ q₁ t ≤ 0 ↔ q₁ < q := by
   rw [← exp_lt_exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_le_zero_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
+
+lemma ζ_le_zero_iff_of_lt₁2 {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁)
+    (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
+    (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hp₀p₁' : p₀ < p₁) :
+    ζ p₀ q₀ p₁ q₁ t.toReal ≤ 0 ↔ q₁ < q := by
+  sorry
 
 lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - ENNReal.ofReal t) * q₀⁻¹ + ENNReal.ofReal t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :

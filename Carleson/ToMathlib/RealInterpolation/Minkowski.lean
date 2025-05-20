@@ -327,6 +327,10 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
 /-! ## Apply Minkowski's integral inequality to truncations
 -/
 
+-- TODO: prove this!
+#synth MeasurableSpace ℝ≥0∞
+#check ENNReal.measurableSpace -- should this become a measure space instead?
+
 @[measurability, fun_prop]
 theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
   -- ton is either increasing or decreasing
@@ -606,7 +610,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
     ((eLpNorm f p μ) ^ p.toReal) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
   have p_toReal_pos : 0 < p.toReal :=
-    sorry -- TODO fix! interp_exp_toReal_pos' ht hp₀ hp₁ hp (Or.inl hp₀p₁.ne_top)
+    interp_exp_toReal_pos'2 ht hp₀ hp₁ hp (Or.inl hp₀p₁.ne_top)
   calc
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
@@ -638,10 +642,10 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
         simp only [Bool.if_false_right, Bool.and_true, Bool.false_bne, decide_eq_true_eq]
         split_ifs with is_ζ_pos
         · apply toReal_strict_mono
-          · exact interp_exp_ne_top hq₀q₁ ht hq
-          · exact (ζ_pos_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
+          · exact interp_exp_ne_top2 hq₀q₁ ht hq
+          · exact (ζ_pos_iff_of_lt₀2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
         · apply toReal_strict_mono hq'
-          exact (ζ_le_zero_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
+          exact (ζ_le_zero_iff_of_lt₀2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
             (le_of_not_lt is_ζ_pos)
       · unfold sel
         dsimp only
@@ -650,10 +654,10 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
             decide_eq_false_iff_not]
         split_ifs with is_ζ_pos
         · apply toReal_strict_mono hq'
-          exact (ζ_pos_iff_of_lt₁ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
+          exact (ζ_pos_iff_of_lt₁2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
         · apply toReal_strict_mono
-          · exact interp_exp_ne_top hq₀q₁ ht hq
-          · exact (ζ_le_zero_iff_of_lt₁ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
+          · exact interp_exp_ne_top2 hq₀q₁ ht hq
+          · exact (ζ_le_zero_iff_of_lt₁2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
                 (le_of_not_lt is_ζ_pos)
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
         ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
@@ -679,12 +683,8 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
       (((∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ p.toReal⁻¹ ) ^ p.toReal) ^
       ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
     congr
-    rw [ENNReal.rpow_inv_rpow] <;> try positivity
-    -- congr
-    -- ext x
-    -- rw [← ofReal_rpow_of_nonneg] <;> try positivity
-    -- congr
-    -- exact ofReal_norm_eq_enorm (f x)
+    rw [ENNReal.rpow_inv_rpow]
+    positivity
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       ((eLpNorm f p μ) ^ p.toReal) ^
@@ -692,8 +692,8 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     congr
     rw [← one_div]
     refine (eLpNorm_eq_lintegral_rpow_enorm (ε := E₁) ?_ ?_).symm
-    · exact (interpolated_pos' hp₀ hp₁ hp).ne'
-    · exact interp_exp_ne_top hp₀p₁.ne ht hp
+    · exact (interpolated_pos'2 hp₀ hp₁ hp).ne'
+    · exact interp_exp_ne_top2 hp₀p₁.ne ht hp
 
 -- TODO: move this to WeakType.lean?
 lemma wnorm_eq_zero_iff [ENormedAddMonoid ε] {f : α → ε} {p : ℝ≥0∞} (hp : p ≠ 0) :
@@ -929,7 +929,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
     (hdeq : d = ((ENNReal.ofNNReal C₁) ^ p₁.toReal *
         eLpNorm f p μ ^ p.toReal).toReal ^ p₁.toReal⁻¹) :
     distribution (T (trunc f a)) (ENNReal.ofReal t) ν = 0 := by
-  have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf
+  have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf sorry -- TODO: prove sorry
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
   split_ifs at wt_est
