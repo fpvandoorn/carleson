@@ -653,10 +653,10 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT (h₂T hf).aemeasurable
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
       ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
-        eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
+        eLpNorm (trunc f (tc.ton (ENNReal.ofReal s))) p₁ μ ^ q₁.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
       (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
-        eLpNorm (truncCompl f (tc.ton s)) p₀ μ ^ q₀.toReal *
+        eLpNorm (truncCompl f (tc.ton (ENNReal.ofReal s))) p₀ μ ^ q₀.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1)))) := by
     gcongr
     apply estimate_norm_rpow_range_operator' (p := p) p₀pos q₀pos q₁pos <;> try assumption
@@ -681,7 +681,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           rw [hspf]
           dsimp only [spf_ch]
           rw [d_eq_top_top] <;> try assumption
-          rw [ζ_eq_top_top, Real.rpow_one] <;> try assumption
+          rw [ζ_eq_top_top, ENNReal.rpow_one] <;> try assumption
           exact hp₀p₁.ne
         · exact p_pos
         · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
@@ -708,21 +708,23 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       apply add_le_add
       · split_ifs with is_q₁top
         · gcongr
-          apply estimate_trnc₁ (j := ⊤) ht <;> try assumption
+          -- type mismatch: get t : ℝ, want ℝ≥0∞ instead
+          sorry /- proof was: apply estimate_trnc₁ (j := ⊤) ht <;> try assumption
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
           · exact is_q₁top.ne_top
           · exact hf.1.aemeasurable
-          · rw [hspf]; rfl
+          · rw [hspf]; rfl -/
         · simp
       · split_ifs with is_q₀top
         · gcongr
-          apply estimate_trnc₁ (j := ⊥) ht <;> try assumption
+          -- type mismatch: get t : ℝ, want ℝ≥0∞ instead
+          sorry /- proof was: apply estimate_trnc₁ (j := ⊥) ht <;> try assumption
           · exact hp₀.2
           · exact ne_top_of_Ioc hp₀ is_q₀top
           · exact is_q₀top.ne_top
           · exact hf.1.aemeasurable
-          · rw [hspf]; rfl
+          · rw [hspf]; rfl -/
         · simp
   _ = (if q₁ < ⊤ then 1 else 0) *
       (↑C₁ ^ q₁.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₁.toReal / p₁.toReal) *
