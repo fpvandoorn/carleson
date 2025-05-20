@@ -697,8 +697,9 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   · unfold MTrgx at hMinfty
     simp_rw [hMinfty]
     simp
-  rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) (by finiteness) (c := 4 * MTrgx)]
-  rw [← lintegral_mul_const' _ _ (by finiteness)]
+  -- TODO: both `sorry`s were `by finiteness`
+  rw [← ENNReal.mul_le_mul_right (by simp [hMzero]) (sorry) (c := 4 * MTrgx)]
+  rw [← lintegral_mul_const' _ _ (by sorry)]
   simp_rw [← indicator_mul_const, Pi.one_apply, one_mul]
   trans ∫⁻ (y : X) in ball x (R / 4),
       {x' | 4 * MTrgx < ‖czOperator K r g x'‖ₑ}.indicator (fun x_1 ↦ ‖czOperator K r g y‖ₑ ) y
