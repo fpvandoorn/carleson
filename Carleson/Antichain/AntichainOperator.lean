@@ -346,12 +346,13 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
 
 
 -- lemma 6.1.3, inequality 6.1.10
-lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ha : 4 ≤ a)
+lemma dens2_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  have ha : 4 ≤ a := four_le_a X
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   have hq0 : 0 < nnq := nnq_pos X
   have h1q' : 1 ≤ nnq' := by -- Better proof?
@@ -483,6 +484,17 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
                   ring_nf
           _ = 2 ^ (111 * a ^ 3) := by ring
       · norm_cast -- uses hq'_inv
+
+/-- Constant appearing in Lemma 6.1.4. -/
+irreducible_def C6_1_4 (a : ℝ) : ℝ≥0 :=  2 ^ (150 * a ^ 3)
+
+lemma dens1_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) (𝔄 : Set (𝔓 X)))
+    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
+    {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
+    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤
+    C6_1_4 a * (dens₁ (𝔄 : Set (𝔓 X))) ^ (8 * a ^ 4 : ℝ)⁻¹ *
+    eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  sorry
 
 /-- The constant appearing in Proposition 2.0.3.
 Has value `2 ^ (150 * a ^ 3) / (q - 1)` in the blueprint. -/
