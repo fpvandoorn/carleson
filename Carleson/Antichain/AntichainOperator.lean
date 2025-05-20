@@ -18,8 +18,6 @@ scoped notation "nnq'" => 2*nnq/(nnq + 1)
 
 end ShortVariables
 
-lemma nnq'_coe : (nnq' : ℝ≥0∞) = 2*nnq/(nnq + 1) := rfl
-
 lemma one_lt_nnq' : 1 < nnq' := by
   rw [one_lt_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, _root_.add_lt_add_iff_left]
   exact (q_mem_Ioc X).1
@@ -283,6 +281,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
 
 -- Inequality 6.1.16
+@[nolint unusedHavesSuffices]
 lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) :
     eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭)
@@ -346,6 +345,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
 
 
 -- lemma 6.1.3, inequality 6.1.10
+@[nolint unusedHavesSuffices]
 lemma dens2_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
