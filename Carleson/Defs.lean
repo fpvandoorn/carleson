@@ -111,7 +111,7 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
   le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r)) :
     /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
-  /-- The distance of a ball with large radius is bounded below. (1.0.11) -/
+  /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.0.11) -/
   ballsCoverBalls {x : X} {r R : ℝ} :
     BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R A
 
