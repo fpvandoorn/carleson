@@ -671,10 +671,10 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     rcases j
     · dsimp only [sel]
       rw [hspf]
-      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> sorry -- was: assumption
+      apply ζ_equality₅2 (hp₀p₁ := hp₀p₁.ne) <;> assumption
     · dsimp only [sel]
       rw [hspf]
-      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> sorry -- was: assumption
+      apply ζ_equality₆2 (hp₀p₁ := hp₀p₁.ne) <;> assumption
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
@@ -865,6 +865,8 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     (ha : a = (t / d) ^ (p₀.toReal / (p₀.toReal - p.toReal)))
     (hdeq : d = ((ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal) ^ p₀.toReal⁻¹) :
     distribution (T (truncCompl f a)) t ν = 0 := by
+  by_cases ht' : t = ∞
+  · simp [ht']
   rcases (eq_zero_or_pos (eLpNormEssSup f μ)) with snorm_zero | snorm_pos
   · have : eLpNorm (trnc ⊥ f a) ⊤ μ = 0 := by
       apply nonpos_iff_eq_zero.mp
@@ -882,9 +884,9 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
         mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
-    have d_pos : 0 < d := sorry -- was: hdeq ▸ Real.rpow_pos_of_pos (toReal_zero ▸
-      -- toReal_strict_mono term_ne_top term_pos) _
-    have a_pos : 0 < a := by rw [ha]; sorry -- was: positivity
+    have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
+    have d_ne_top  : d ≠ ⊤ := hdeq ▸ ENNReal.rpow_ne_top_of_pos term_pos.ne' term_ne_top
+    have a_pos : 0 < a := ha ▸ ENNReal.rpow_pos (ENNReal.div_pos ht.ne' d_ne_top) (by finiteness)
     have obs : MemLp (truncCompl f a) p₀ μ := truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ a_pos hf
     have wt_est := (h₀T (truncCompl f a) obs).2
     unfold wnorm at wt_est
@@ -950,13 +952,13 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         apply Ne.symm (ne_of_lt snorm_pos)
         apply eLpNormEssSup_eq_zero_iff.mpr
         exact (eLpNorm_eq_zero_iff hf.1 hp.ne').mp snorm_0
+      -- XXX: these lines are the same as above
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
         apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
       have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
         mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
-      have d_pos : 0 < d  := sorry -- copy from above hdeq ▸ Real.rpow_pos_of_pos (toReal_zero ▸
-        -- toReal_strict_mono term_ne_top term_pos) _
+      have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
       calc
       _ ≤ ↑C₁ ^ p₁.toReal * (((a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg]
