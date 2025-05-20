@@ -346,15 +346,13 @@ lemma estimate_norm_rpow_range_operator'
     [NormedAddCommGroup E₂]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hp₁p : p < p₁) (hp₀p : p₀ < p)
     (tc : ToneCouple)
-    (hq₀' : q₀ = ⊤ → ∀ s ∈ Ioi (0 : ℝ), distribution (T (truncCompl f (tc.ton (ENNReal.ofReal s))))
-        (ENNReal.ofReal s) ν = 0)
-    (hq₁' : q₁ = ⊤ → ∀ s ∈ Ioi (0 : ℝ), distribution (T (trunc f (tc.ton (ENNReal.ofReal s))))
-        (ENNReal.ofReal s) ν = 0)
+    (hq₀' : q₀ = ⊤ → ∀ s > 0, distribution (T (truncCompl f (tc.ton s))) s ν = 0)
+    (hq₁' : q₁ = ⊤ → ∀ s > 0, distribution (T (trunc f (tc.ton s))) s ν = 0)
     (hf : MemLp f p μ) (hT₁ : HasWeakType T p₁ q₁ μ ν C₁) (hT₀ : HasWeakType T p₀ q₀ μ ν C₀) :
     ∫⁻ s in Ioi (0 : ℝ), distribution (T (trunc f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
-    ENNReal.ofReal (s^(q.toReal - 1)) +
+    ENNReal.ofReal (s ^ (q.toReal - 1)) +
     distribution (T (truncCompl f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
-    ENNReal.ofReal (s^(q.toReal - 1)) ≤
+    ENNReal.ofReal (s ^ (q.toReal - 1)) ≤
     (if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
         eLpNorm (trunc f (tc.ton (ENNReal.ofReal s))) p₁ μ ^ q₁.toReal *
         ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
