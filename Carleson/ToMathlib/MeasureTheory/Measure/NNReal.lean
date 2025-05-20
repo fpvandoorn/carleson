@@ -6,7 +6,6 @@ open scoped NNReal ENNReal
 noncomputable section
 
 instance : MeasureSpace ℝ≥0 where
-  __ := NNReal.measurableSpace
   volume := (volume : Measure ℝ).map Real.toNNReal
 
 lemma NNReal.volume_apply_measurableSet {s : Set ℝ≥0} (hs : MeasurableSet s) :
@@ -22,7 +21,6 @@ example : volume (Set.Ioo (3 : ℝ≥0) 5) = 2 := by
 -- integral over a function over NNReal equals the integral over the right set of real numbers
 
 instance : MeasureSpace ℝ≥0∞ where
-  __ := ENNReal.measurableSpace
   volume := (volume : Measure ℝ≥0).map ENNReal.ofNNReal
 
 lemma ENNReal.volume_apply_measurableSet {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
