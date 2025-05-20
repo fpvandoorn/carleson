@@ -562,7 +562,7 @@ lemma trunc_le {f : α → E₁} {a : ℝ≥0∞} (x : α) :
 /-- A small lemma that is helpful for rewriting -/
 lemma coe_coe_eq_ofReal (a : ℝ) : ofNNReal a.toNNReal = ENNReal.ofReal a := by rfl
 
-lemma trunc_eLpNormEssSup_le {f : α → E₁} {a : ℝ≥0∞} :
+lemma trunc_eLpNormEssSup_le {f : α → E₁} (a : ℝ≥0∞) :
     eLpNormEssSup (trunc f a) μ ≤ (max 0 a) :=
   essSup_le_of_ae_le _ (ae_of_all _ fun x ↦ trunc_le x)
 
@@ -596,18 +596,17 @@ lemma foo {A B C D : ℝ≥0∞} (hA : A ≠ ∞) (h : A ≤ C) (h' : A + B = C 
   · have : A + B < C + D := ENNReal.add_lt_add_of_le_of_lt hA h contra
     exact False.elim (by order)
 
-lemma truncCompl_anti {f : α → E₁} {x : α} {s t : ℝ≥0∞} (hab : t ≤ s) :
+lemma truncCompl_anti {f : α → E₁} {x : α} {s t : ℝ≥0∞} (hab : t ≤ s) (hf : ‖trunc f t x‖ₑ ≠ ⊤) :
     ‖truncCompl f s x‖ₑ ≤ ‖truncCompl f t x‖ₑ := by
   have obs : ‖trunc f t x‖ₑ + ‖(truncCompl f t) x‖ₑ = ‖trunc f s x‖ₑ + ‖(truncCompl f s) x‖ₑ := by
     simp_rw [trunc_buildup_enorm]
-  refine foo ?_ (trunc_mono hab) obs
-  -- TODO: need to prove that `trunc f t x` has finite enorm!
-  sorry
+  exact foo hf (trunc_mono hab) obs
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
-lemma eLpNorm_truncCompl_anti {f : α → E₁} :
-    Antitone (fun s ↦ eLpNorm (truncCompl f s) p μ) :=
-  fun _a _b hab ↦ eLpNorm_mono_enorm (fun _ ↦ truncCompl_anti hab)
+lemma eLpNorm_truncCompl_anti {f : α → E₁} (hf : eLpNorm f 1 μ ≠ ⊤) :
+    Antitone (fun s ↦ eLpNorm (truncCompl f s) p μ) := by
+  refine fun _a _b hab ↦ eLpNorm_mono_enorm (fun _x ↦ truncCompl_anti hab ?_)
+  sorry -- follows from hf
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
 @[measurability, fun_prop]
@@ -617,9 +616,9 @@ lemma eLpNorm_trunc_measurable :
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
 @[measurability, fun_prop]
-lemma eLpNorm_truncCompl_measurable :
+lemma eLpNorm_truncCompl_measurable (hf : eLpNorm f 1 μ ≠ ⊤) :
     Measurable (fun s ↦ eLpNorm (truncCompl f s) p μ) :=
-  eLpNorm_truncCompl_anti.measurable
+  eLpNorm_truncCompl_anti hf|>.measurable
 
 lemma trnc_le_func {j : Bool} {f : α → E₁} {a : ℝ≥0∞} {x : α} :
     ‖trnc j f a x‖ₑ ≤ ‖f x‖ₑ := by
