@@ -141,10 +141,10 @@ def d := --ENNReal.toReal
 
 lemma d_pos_aux₀ (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     0 < eLpNorm f p μ ^ p.toReal :=
-  ENNReal.rpow_pos (pos_of_Ioo hF) (ne_top_of_Ioo hF)
+  ENNReal.rpow_pos (pos_of_Ioo2 hF) (ne_top_of_Ioo2 hF)
 
 lemma d_ne_top_aux₀ {b : ℝ} {F : ℝ≥0∞} (hF : F ∈ Ioo 0 ⊤) : F ^ b ≠ ⊤ :=
-  rpow_ne_top' hF.1.ne' hF.2.ne
+  rpow_ne_top'2 hF.1.ne' hF.2.ne
 
 lemma d_ne_zero_aux₀ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (eLpNorm f p μ ^ p.toReal) ^ b ≠ 0 :=
@@ -161,11 +161,11 @@ lemma d_ne_zero_aux₂ {C : ℝ≥0} {b c : ℝ} (hC : 0 < C)
 
 lemma d_ne_top_aux₁ {C : ℝ≥0} {c : ℝ} (hC : 0 < C) :
     (ENNReal.ofNNReal C) ^ c ≠ ⊤ :=
-  rpow_ne_top' (ENNReal.coe_pos.mpr hC).ne' coe_ne_top
+  rpow_ne_top'2 (ENNReal.coe_pos.mpr hC).ne' coe_ne_top
 
 lemma d_ne_top_aux₂ {b : ℝ} (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     (eLpNorm f p μ ^ p.toReal) ^ b ≠ ⊤ :=
-  rpow_ne_top' (d_pos_aux₀ hF).ne' (d_ne_top_aux₀ hF)
+  rpow_ne_top'2 (d_pos_aux₀ hF).ne' (d_ne_top_aux₀ hF)
 
 lemma d_ne_top_aux₃ {C : ℝ≥0} {b c : ℝ} (hC : 0 < C)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
@@ -202,10 +202,10 @@ lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) 
   · rw [div_eq_mul_inv, mul_inv_cancel₀, ENNReal.rpow_one]
     · rw [ENNReal.mul_rpow_of_nonneg]
       · rw [ENNReal.rpow_rpow_inv, toReal_inv]
-        exact (exp_toReal_pos hp₀ hp₀').ne'
+        exact (exp_toReal_pos2 hp₀ hp₀').ne'
       · positivity
-    · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
-  · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
+    · exact (inv_toReal_pos_of_ne_top2 hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
+  · exact (inv_toReal_pos_of_ne_top2 hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
 
 lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) (hq₁' : q₁ = ⊤)
     (hq₀q₁ : q₀ ≠ q₁) (hC₁ : 0 < C₁) :
@@ -223,18 +223,18 @@ lemma d_eq_top₁ (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hp₁' : p₁ ≠ ⊤) 
         · rw [← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, toReal_inv, mul_neg, mul_one, neg_neg]
         · left; exact ENNReal.inv_ne_zero.mpr coe_ne_top
         · left; exact inv_ne_top.mpr <| (ENNReal.coe_pos.mpr hC₁).ne'
-        · exact (exp_toReal_pos hp₁ hp₁').ne'
+        · exact (exp_toReal_pos2 hp₁ hp₁').ne'
       · positivity
-    · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne'
-  · exact (inv_toReal_pos_of_ne_top hq₀ (hq₁' ▸ hq₀q₁)).ne'
+    · exact (inv_toReal_pos_of_ne_top2 hq₀ (hq₁' ▸ hq₀q₁)).ne'
+  · exact (inv_toReal_pos_of_ne_top2 hq₀ (hq₁' ▸ hq₀q₁)).ne'
 
 lemma d_eq_top_of_eq (hC₁ : 0 < C₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₀' : q₀ ≠ ⊤)
 (hp₀': p₀ ≠ ⊤) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ = p₁) (hpp₀: p = p₀) (hq₁' : q₁ = ⊤) :
     @d α E₁ m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f = C₁ * eLpNorm f p μ := by
   rw [d_eq_top₁, ← hp₀p₁, hpp₀] <;> try assumption
   on_goal 1 => rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_rpow_inv, ENNReal.rpow_rpow_inv]
-  · exact exp_toReal_ne_zero' hp₀ hp₀'
-  · exact exp_toReal_ne_zero' hp₀ hp₀'
+  · exact exp_toReal_ne_zero'2 hp₀ hp₀'
+  · exact exp_toReal_ne_zero'2 hp₀ hp₀'
   · positivity
   · exact hp₀p₁ ▸ hp₀'
   · exact hq₁' ▸ hq₀'
@@ -257,7 +257,7 @@ def spf_ch (ht : t ∈ Ioo 0 1) (hq₀q₁ : q₀ ≠ q₁) (hp₀ : 0 < p₀) (
     ScaledPowerFunction where
   σ := ζ p₀ q₀ p₁ q₁ t
   d := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f
-  hσ := lt_or_gt_of_ne <| Ne.symm <| (ζ_ne_zero ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
+  hσ := lt_or_gt_of_ne <| Ne.symm <| sorry -- TODO! (ζ_ne_zero2 ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
   hd := d_pos hC₀ hC₁ hF
   hd' := d_ne_top_aux₄ hC₀ hC₁ hF
 
@@ -745,7 +745,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
   have q_ne_top: q ≠ ⊤ := hpq.2.ne_top
   have p_ne_zero : p ≠ 0 := (lt_trans hpq.1 hpq.2).ne'
   have q_ne_zero : q ≠ 0 := hpq.1.ne'
-  have q_toReal_pos : 0 < q.toReal := exp_toReal_pos hpq.1 q_ne_top
+  have q_toReal_pos : 0 < q.toReal := exp_toReal_pos2 hpq.1 q_ne_top
   split_ifs
   · contradiction
   · calc
@@ -759,7 +759,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
         split_ifs with is_a_lt_fx
         · exact fun _ => is_a_lt_fx
         · contrapose; intro _; simpa [enorm_eq_nnnorm]
-      · exact exp_toReal_ne_zero' hpq.1 q_ne_top
+      · exact exp_toReal_ne_zero'2 hpq.1 q_ne_top
     _ ≤ ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
       gcongr with x
       exact trnc_le_func (j := ⊥)
@@ -780,7 +780,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
       exact setLIntegral_le_lintegral _ _
     _ = _ := by
       rw [one_div, ENNReal.rpow_inv_rpow]
-      exact exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hp
+      exact exp_toReal_ne_zero'2 (lt_trans hpq.1 hpq.2) hp
 
 lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
     {p q : ℝ≥0∞} (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEStronglyMeasurable f μ) {t : ℝ≥0∞} :
@@ -788,11 +788,11 @@ lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   by_cases ht : t = ⊤
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
-    · have hq' : 0 < q := (pos_of_Ioo hpq).trans hpq.2
+    · have hq' : 0 < q := (pos_of_Ioo2 hpq).trans hpq.2
       have : f =ᵐ[μ] 0 := by
         rw [← eLpNorm_eq_zero_iff hf]
-        · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos_of_Ioo hpq)]
-        exact ne_zero_of_Ioo hpq
+        · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos_of_Ioo2 hpq)]
+        exact ne_zero_of_Ioo2 hpq
       -- Thus, the left hand side vanishes and conclusion is trivially true.
       refine le_of_eq_of_le ?_ (zero_le _)
       rw [rpow_eq_zero_iff_of_pos]
@@ -830,7 +830,7 @@ lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
           have : ‖f x‖ₑ = 0 := nonpos_iff_eq_zero.mp fx_rpow_ne_zero
           simpa [this] using toReal_pos hq' hq
         · contrapose; intro _; simpa using toReal_pos hq' hq
-      · exact exp_toReal_ne_zero' (lt_trans hpq.1 hpq.2) hq
+      · exact exp_toReal_ne_zero'2 (lt_trans hpq.1 hpq.2) hq
     _ ≤ ∫⁻ (x : α) in {x | 0 < ‖f x‖ₑ ∧ ‖f x‖ₑ ≤ t}, ‖f x‖ₑ ^ q.toReal ∂ μ := by
       gcongr with x
       exact trnc_le_func (j := ⊤)
@@ -847,7 +847,7 @@ lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
       gcongr
       rw [one_div, ENNReal.rpow_inv_rpow]
       · exact setLIntegral_le_lintegral _ _
-      · exact exp_toReal_ne_zero' hpq.1 p_ne_top
+      · exact exp_toReal_ne_zero'2 hpq.1 p_ne_top
 
 /-- If `f` is in `Lp`, the truncation is element of `Lq` for `q > p`. -/
 lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
