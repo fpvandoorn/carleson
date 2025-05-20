@@ -575,8 +575,10 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
           ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ENNReal.rpow_inv_rpow] <;>
           try positivity
       · apply rpow_ne_top_of_nonneg (by positivity)
-        have := spf.hd'
-        sorry -- TODO: finiteness should prove this
+        -- TODO: can finiteness prove this?
+        by_contra h
+        simp only [rpow_eq_top_iff, sub_neg, spf.hd', sub_pos, false_and, or_false] at h
+        exact this.ne h.1.symm
       · exact rpow_ne_top_of_nonneg (by positivity) coe_ne_top
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
@@ -602,7 +604,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹)
     (hf : AEMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
-    (hspf : spf.σ = ζ p₀ q₀ p₁ q₁ (t.toReal)) : -- TODO: is .toReal fine, or should t : ℝ instead?
+    (hspf : spf.σ = ζ p₀ q₀ p₁ q₁ t.toReal) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s))) (sel j p₀ p₁) μ ^ (sel j q₀ q₁).toReal *
     ENNReal.ofReal (s ^ (q.toReal - (sel j q₀ q₁).toReal - 1)) ≤
@@ -777,7 +779,7 @@ lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
   apply nonpos_iff_eq_zero.mp
   calc
   _ ≤ distribution (T f) (eLpNormEssSup (T f) ν) ν := distribution_mono_right (le_trans wt_est ht)
-  _ = _ := meas_essSup_lt -- meas_eLpNormEssSup_lt
+  _ = _ := meas_essSup_lt
 
 -- TODO: generalise this lemma in Mathlib/.../LpSeminorm/Basic.lean
 theorem eLpNorm_eq_zero_iff_enorm {p : ℝ≥0∞} {μ : Measure α} [ENormedAddMonoid ε] {f : α → ε}
@@ -821,9 +823,7 @@ lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α
 
 -- TODO: can we remove the hypothesis on a?
 lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α → E₁}
-    (hp : 0 < p)
-    (hq₁ : 0 < q₁) (hq₁' : q₁ < ⊤) (hp₁p : p < p₁)
-    (hf : MemLp f p μ)
+    (hp : 0 < p) (hq₁ : 0 < q₁) (hq₁' : q₁ < ⊤) (hp₁p : p < p₁) (hf : MemLp f p μ)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} (ha : a ≠ ⊤) :
     distribution (T (trunc f a)) t ν ≤ C₁ ^ q₁.toReal *
       eLpNorm (trunc f a) p₁ μ ^ q₁.toReal * (t ^ (-q₁.toReal)) :=
@@ -837,10 +837,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
   by_cases ht : t = ⊤
   · simp [ht]
   rw [ha]
-  have obs : MemLp (trunc f (t / C₁)) p₁ μ := by
-    refine trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf ?_
-    -- use ht and C₁ being finite... finiteness should do this!
-    sorry
+  have obs : MemLp (trunc f (t / C₁)) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf (by finiteness)
   have wt_est := (h₁T (trunc f (t / C₁)) obs).2
   simp only [wnorm, eLpNorm, hq₁, ↓reduceIte, hp₁, top_ne_zero] at wt_est
   apply nonpos_iff_eq_zero.mp
