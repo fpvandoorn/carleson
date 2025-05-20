@@ -419,6 +419,9 @@ def trunc (f : α → E₁) (t : ℝ≥0∞) (x : α) : E₁ := if ‖f x‖ₑ 
 lemma trunc_eq_indicator {t : ℝ≥0∞} : trunc f t = {x | ‖f x‖ₑ ≤ t}.indicator f := by
   ext x; simp_rw [trunc, Set.indicator, mem_setOf_eq, ite_eq_ite]
 
+@[simp]
+lemma trunc_top : trunc f ∞ = f := by simp [trunc_eq_indicator]
+
 /-- The complement of a `t`-truncation of a function `f`. -/
 def truncCompl (f : α → E₁) (t : ℝ≥0∞) : α → E₁ := f - trunc f t
 
@@ -860,13 +863,16 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
 lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [BorelSpace E₁]
     (hp : p ≠ ⊤) (hpq : q ∈ Ioo 0 p) {t : ℝ≥0∞} (ht : 0 < t) (hf : MemLp f p μ) :
     MemLp (trnc ⊥ f t) q μ := by
+  by_cases ht' : t = ∞
+  · simp [trnc, ht']
   refine ⟨aestronglyMeasurable_trnc hf.1, ?_⟩
   have : 0 < q.toReal := toReal_pos hpq.left.ne' hpq.right.ne_top
   refine (rpow_lt_top_iff_of_pos this).mp ?_
   refine lt_of_le_of_lt
     (estimate_eLpNorm_truncCompl hp hpq hf.1.aemeasurable ht) ?_
   apply mul_lt_top
-  · sorry -- finiteness should prove this
+  · push_neg at ht'
+    sorry -- finiteness should prove this
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (lt_trans hpq.left hpq.right).ne' hp
 

@@ -571,7 +571,8 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
           ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ENNReal.rpow_inv_rpow] <;>
           try positivity
       · apply rpow_ne_top_of_nonneg (by positivity)
-        sorry -- TODO: need spf.d being finite, then finiteness
+        have := spf.hd'
+        sorry -- TODO: finiteness should prove this
       · exact rpow_ne_top_of_nonneg (by positivity) coe_ne_top
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
