@@ -32,8 +32,10 @@ import Carleson.ForestOperator.QuantativeEstimate
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.GridStructure
 import Carleson.HolderVanDerCorput
-import Carleson.LinearizedMetricCarleson
-import Carleson.MetricCarleson
+import Carleson.MetricCarleson.Basic
+import Carleson.MetricCarleson.Linearized
+import Carleson.MetricCarleson.Main
+import Carleson.MetricCarleson.Truncation
 import Carleson.MinLayerTiles
 import Carleson.Psi
 import Carleson.TileExistence

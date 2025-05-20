@@ -282,12 +282,17 @@ def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥
   ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
 
+/-- The integrand in the (linearized) Carleson operator.
+This is `G` in Lemma 3.0.1. -/
+def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+  ∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * θ y)
+
 /-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/
 def linearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X) (K : X → X → ℂ)
     (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
-  ‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q x y)‖₊
+  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂), ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ
 
 /-- The generalized Carleson operator `T`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/

@@ -811,8 +811,10 @@ Let $(X, \rho, \mu, a)$ be a doubling metric measure space and $\Theta$ a cancel
 
 We begin by proving some continuity properties of the integrand in \eqref{def-main-op}.
 
-\begin{lemma}
+\begin{lemma}[int continuous]
     \label{int-continuous}
+    \leanok
+    \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, isBounded_carlesonOperatorIntegrand}
      Let $f$ be a measurable function with $|f| \le 1$. Then the function
     \[
         G: X \times \Theta \times (0,\infty) \times (0, \infty) \to [0, \infty)
@@ -919,6 +921,8 @@ For each $x$ and all $f$, the functions $\sup_{2^{-n} < R_1 < R_2 < 2^n} T_{R_1,
 
 \begin{lemma}[R truncation]
     \label{R-truncation}
+    \leanok
+    \lean{R_truncation}
     \uses{S-truncation}
 
     Let $F$, $G$ be Borel sets in $X$ with finite measure.
@@ -1004,6 +1008,8 @@ Summing the contributions from the summands in \eqref{middles} and \eqref{bounda
 
 \begin{lemma}[S truncation]
     \label{S-truncation}
+    \leanok
+    \lean{S_truncation}
     \uses{Hardy-Littlewood, linearized-truncation}
 
 
@@ -1051,6 +1057,8 @@ T_{s_1,s_2} f(x)=
 
 \begin{lemma}[linearized truncation]
     \label{linearized-truncation}
+    \leanok
+    \lean{linearized_truncation}
     \uses{finitary-Carleson}
     Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range
     $[-S,S]$ and $\sigma_1\leq \sigma_2$.

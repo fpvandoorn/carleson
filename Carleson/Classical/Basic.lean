@@ -1,6 +1,6 @@
 /- This file contains basic definitions and lemmas. -/
 
-import Carleson.MetricCarleson
+import Carleson.MetricCarleson.Main
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
 import Mathlib.Analysis.Convolution
