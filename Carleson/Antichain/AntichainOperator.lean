@@ -488,6 +488,7 @@ lemma dens2_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
 /-- Constant appearing in Lemma 6.1.4. -/
 irreducible_def C6_1_4 (a : ℝ) : ℝ≥0 :=  2 ^ (150 * a ^ 3)
 
+/-- Lemma 6.1.4 -/
 lemma dens1_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
