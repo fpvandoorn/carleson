@@ -857,16 +857,18 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
   rcases (eq_or_ne q ⊤) with q_eq_top | q_ne_top
   · rw [q_eq_top, eLpNorm_exponent_top]
     simp only [trnc]
-    trans max 0 t
-    · -- apply le_of_lt <| (trunc_eLpNormEssSup_le (E₁ := E₁) (f := f) (a := t) (μ := μ))
-      sorry
-    · finiteness
+    calc _
+      _ ≤ max 0 t := trunc_eLpNormEssSup_le t
+      _ < ∞ := by finiteness
   · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
     apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1)
     apply mul_lt_top ?_ ?_
-    · -- TODO: teach finiteness about this
-      have ht'' : t ≠ 0 := sorry -- TODO: what if t = 0?
-      exact (ENNReal.rpow_ne_top_of_pos ht'' ht).lt_top
+    · by_cases ht'' : t = 0
+      · rw [ht'', ENNReal.zero_rpow_of_pos]
+        · finiteness
+        · rw [sub_pos]
+          exact toReal_strict_mono q_ne_top hpq.2
+      · exact (ENNReal.rpow_ne_top_of_pos ht'' ht).lt_top
     · refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
       exact toReal_pos hpq.1.ne' hpq.2.ne_top
 
@@ -1117,14 +1119,22 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneC
     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
     β ^ (γ + 1) / ENNReal.ofReal (|γ + 1|) := by
   unfold res
-  split_ifs at hγ with h
-  · rw [h]
-    simp only [↓reduceIte]
-    sorry -- rw [lintegral_rpow_of_gt_abs hβ hγ]
-  · have : xor j tc.mon = false := ((fun {a b} ↦ Bool.not_not_eq.mp) fun a ↦ h a.symm).symm
-    rw [this]
-    simp only [Bool.false_eq_true, ↓reduceIte]
-    sorry -- rw [lintegral_Ioi_rpow_of_lt_abs hβ hγ]
+  by_cases hβ : β = ⊤
+  · rw [hβ, ENNReal.top_rpow_def]
+    split_ifs at hγ with h
+    · have : 0 < γ + 1 := by linarith
+      have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
+      simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2]
+      sorry -- easy computation
+    · have : γ + 1 < 0 := by linarith
+      have h1 : ¬(0 < γ + 1) := by order
+      have h2 : ¬(γ + 1 = 0) := by order
+      simp [res, h, h1, h2]
+  split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ]
+  · have : 0 < β.toReal := sorry --ComputationsInterpolatedExponents.exp_toReal_pos2 hβ h'
+    rw [lintegral_rpow_of_gt_abs this hγ]
+    sorry -- sth coercions
+  · sorry -- should be a standard result, except for the ofReal
 
 lemma value_lintegral_res₁ {t : ℝ≥0∞} {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) :
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
