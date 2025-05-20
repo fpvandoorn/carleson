@@ -372,22 +372,26 @@ lemma estimate_norm_rpow_range_operator'
     · apply setLIntegral_mono' measurableSet_Ioi
       intro s (s_pos : 0 < s)
       gcongr
-      · apply weaktype_estimate_trunc p_pos hq₁ <;> assumption
-      · apply weaktype_estimate_truncCompl (p₀ := p₀) hp₀ <;> try assumption
+      -- type mismatch ahead: weaktype_estimate_trunc expects a truncation parameter in ENNReal,
+      -- while the integral takes s in ℝ
+      · sorry -- apply weaktype_estimate_trunc p_pos hq₁ <;> assumption
+      · sorry /- proof was: apply weaktype_estimate_truncCompl (p₀ := p₀) hp₀ <;> try assumption
         · exact hp₁p.ne_top
-        · exact tc.ran_ton s s_pos
-    exact ((((ton_aeMeasurable_eLpNorm_trunc tc).pow_const _).const_mul _).mul
-      (by fun_prop)).mul (by fun_prop)
+        · exact tc.ran_ton s s_pos -/
+    sorry -- proof was: exact ((((ton_aeMeasurable_eLpNorm_trunc tc).pow_const _).const_mul _).mul
+    --   (by fun_prop)).mul (by fun_prop)
   · rw [one_mul, zero_mul, add_zero]
     apply setLIntegral_mono' measurableSet_Ioi
-    intro s (s_pos : 0 < s)
+    -- type mismatch: was s in ℝ≥0∞, but get a real number
+    sorry /- proof was: intro s (s_pos : 0 < s)
     simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
     have : q₀ = ⊤ := not_lt_top.mp is_q₀top
     rw [hq₀' this s s_pos, zero_mul, add_zero]
     gcongr
-    apply weaktype_estimate_trunc p_pos <;> try assumption
+    apply weaktype_estimate_trunc p_pos <;> try assumption -/
   · rw [one_mul, zero_mul, zero_add]
     apply setLIntegral_mono' measurableSet_Ioi
+    sorry /- type mismatch: was s in ℝ≥0∞, but get a real number/
     intro s (s_pos : 0 < s)
     simp only [is_q₁top, mem_Ioi, false_or] at hq₁'
     have : q₁ = ⊤ := not_lt_top.mp is_q₁top
@@ -395,16 +399,16 @@ lemma estimate_norm_rpow_range_operator'
     gcongr
     apply weaktype_estimate_truncCompl (p₀ := p₀) <;> try assumption
     · exact hp₁p.ne_top
-    · exact tc.ran_ton s s_pos
+    · exact tc.ran_ton s s_pos -/
   · simp only [zero_mul, add_zero, nonpos_iff_eq_zero]
     have : ∫⁻ (_ : ℝ) in Ioi 0, 0 = 0 := lintegral_zero
     rw [← this]
     apply lintegral_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (s_pos)
     have is_q₀top : ¬ q₀ < ⊤ := by assumption
-    simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
+    sorry /- same type mismatch as above; proof was: simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
     simp only [is_q₁top, mem_Ioi, false_or] at hq₁'
-    rw [hq₀' (not_lt_top.mp is_q₀top) s s_pos, hq₁' (not_lt_top.mp is_q₁top) s s_pos, zero_mul, add_zero]
+    rw [hq₀' (not_lt_top.mp is_q₀top) s s_pos, hq₁' (not_lt_top.mp is_q₁top) s s_pos, zero_mul, add_zero] -/
 
 lemma simplify_factor_rw_aux₀ (a b c d e f : ℝ≥0∞) :
     a * b * c * d * e * f = a * c * e * (b * d * f) := by ring
