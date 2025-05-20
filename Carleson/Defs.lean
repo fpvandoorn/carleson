@@ -482,9 +482,10 @@ attribute [instance] KernelProofData.d KernelProofData.cf PreProofData.c KernelP
 section ProofData
 
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
+  [PseudoMetricSpace X]
 
 section Iterate
+variable [CompatibleFunctions ℝ X (defaultA a)]
 
 lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
     2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
@@ -511,6 +512,20 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
 
+lemma cdist_le_mul_cdist {x x' : X} {r r' : ℝ} (hr : 0 < r) (hr' : 0 < r') (f g : Θ X) :
+    dist_{x', r'} f g ≤ As (defaultA a) ((r' + dist x' x) / r) * dist_{x, r} f g := by
+  calc
+    dist_{x', r'} f g ≤ dist_{x, 2 ^ _ * r} f g := ?e
+    _ ≤ _ := cdist_le_iterate hr f g _
+  case e =>
+    apply cdist_mono
+    apply ball_subset_ball'
+    calc
+      r' + dist x' x = (r' + dist x' x) / r * r := div_mul_cancel₀ _ hr.ne' |>.symm
+      _ ≤ 2 ^ ⌈Real.logb 2 ((r' + dist x' x) / r)⌉₊ * r := by
+        gcongr
+        apply le_pow_natCeil_logb (by norm_num) (by positivity)
+
 lemma ballsCoverBalls_iterate_nat {x : X} {d r : ℝ} {n : ℕ} :
     BallsCoverBalls (WithFunctionDistance x d) (2 ^ n * r) r (defaultA a ^ n) := by
   have double := fun s ↦ CompatibleFunctions.ballsCoverBalls (x := x) (r := d) (R := s)
@@ -529,6 +544,8 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
       exact Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil _)
 
 end Iterate
+
+variable [PreProofData a q K σ₁ σ₂ F G]
 
 @[fun_prop]
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
