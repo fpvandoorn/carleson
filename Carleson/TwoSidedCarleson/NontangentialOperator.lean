@@ -856,7 +856,7 @@ See also `simple_nontangential_operator_le` -/
 theorem simple_nontangential_operator (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) :
-    HasStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
+    HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
@@ -864,7 +864,7 @@ monotone convergence theorem. (measurability should be proven without any restri
 theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 ≤ r) :
-    HasStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
+    HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
 /-- Part of Lemma 10.1.7, reformulated. -/
@@ -896,7 +896,7 @@ irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
 theorem nontangential_from_simple (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {g : X → ℂ} (hg : BoundedFiniteSupport g) :
-    HasStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
+    HasBoundedStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
   have := simple_nontangential_operator_le ha hT hg le_rfl
   sorry
 
