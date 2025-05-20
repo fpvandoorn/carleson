@@ -37,7 +37,8 @@ lemma cdist_le_dist {f g : Θ X} {x : X} {r : ℝ≥0} :
   sorry
 
 -- why do we know this?
-instance : SecondCountableTopology (Θ X) := sorry
+instance : SecondCountableTopology (Θ X) :=
+  sorry
 
 end MetricΘ
 
