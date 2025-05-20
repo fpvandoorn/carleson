@@ -160,10 +160,11 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     · exact le_of_lt <| h hfy
 
 variable (p) in
-theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarlesonSum {ℭ : Set (𝔓 X)}
-    (hf : BoundedCompactSupport f) :
+theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarlesonSum
+    {ℭ : Set (𝔓 X)} (hf : BoundedCompactSupport f) :
     BddAbove (range (‖adjointCarlesonSum ℭ f ·‖)) := by
-  BddAbove.range_finsetSum fun _ _ ↦ hf.bddAbove_norm_adjointCarleson
+  apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
+  exact .range_finsetSum fun _ _ ↦ hf.bddAbove_norm_adjointCarleson _
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=

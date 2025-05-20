@@ -505,7 +505,7 @@ theorem BddAbove.range_one : BddAbove (range (1 : ι → M)) :=
 variable [AddCommMonoid M] [AddLeftMono M] [AddRightMono M] in
 theorem BddAbove.range_finsetSum {s : Finset ι} {f : ι → ι' → M}
     (hf : ∀ i ∈ s, BddAbove (range (f i))) :
-    BddAbove (range (∑ i ∈ s, f i)) := by
+    BddAbove (range (fun x ↦ ∑ i ∈ s, f i x)) := by
   classical
   induction s using Finset.induction with
   | empty => simp
@@ -514,6 +514,22 @@ theorem BddAbove.range_finsetSum {s : Finset ι} {f : ι → ι' → M}
     apply BddAbove.range_add
     · exact hf _ (Finset.mem_insert_self j s)
     · exact IH fun _ hi ↦ hf _ (Finset.mem_insert_of_mem hi)
+
+open Bornology
+@[to_additive isBounded_iff_bddAbove_norm]
+lemma isBounded_iff_bddAbove_norm' {E} [SeminormedCommGroup E] {s : Set E} :
+    IsBounded s ↔ BddAbove (Norm.norm '' s) := by
+  simp [isBounded_iff_forall_norm_le', bddAbove_def]
+
+@[to_additive isBounded_range_iff_bddAbove_norm]
+lemma isBounded_range_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} :
+    IsBounded (range f) ↔ BddAbove (range (‖f ·‖)) := by
+  rw [isBounded_iff_bddAbove_norm, ← range_comp, Function.comp_def]
+
+@[to_additive isBounded_image_iff_bddAbove_norm]
+lemma isBounded_image_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} {s : Set ι} :
+    IsBounded (f '' s) ↔ BddAbove ((‖f ·‖) '' s) := by
+  rw [isBounded_iff_bddAbove_norm, ← image_comp, Function.comp_def]
 
 end BddAbove
 

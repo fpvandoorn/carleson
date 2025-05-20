@@ -965,11 +965,10 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
     _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ := by
       rw [ENNReal.coe_biSup]; · rfl
       simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff]
-      have bcs := hf.adjointCarlesonSum (ℭ := t u₂ \ 𝔖₀ t u₁ u₂)
-      have hf := bcs.memLp_top.ae_norm_le
-      set C := eLpNorm f ∞ volume |>.toReal
-      sorry -- todo, mismatch between a.e. bound and everywhere bound (which also holds here).
-      -- use ⟨C, (norm_nonneg _).trans (hC (c J))⟩; exact hC
+      obtain ⟨C, hC⟩ := hf.bddAbove_norm_adjointCarlesonSum (ℭ := t u₂ \ 𝔖₀ t u₁ u₂)
+      refine ⟨C.toNNReal, fun x ↦ ?_⟩
+      simp only [mem_upperBounds, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
+      exact NNReal.le_toNNReal_of_coe_le (hC x)
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset, ‖adjointCarleson p f x‖ₑ := by
       apply iSup₂_mono fun x mx ↦ ?_
@@ -1415,10 +1414,11 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
   rw [← tsub_le_iff_left]; refine ENNReal.le_of_forall_pos_le_add fun ε εpos blt ↦ ?_
   obtain ⟨x, hx, ex⟩ : ∃ x₀ ∈ ball (c J) (8 * D ^ s J),
       ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ ≤
-      ‖adjointCarlesonSum ℭ f x₀‖ₑ + (ε / 2 : ℝ≥0) :=
-    ENNReal.exists_biSup_le_enorm_add_eps (by positivity)
+      ‖adjointCarlesonSum ℭ f x₀‖ₑ + (ε / 2 : ℝ≥0) := by
+    apply ENNReal.exists_biSup_le_enorm_add_eps (by positivity)
       ⟨c J, mem_ball_self (by unfold defaultD; positivity)⟩
-      (sorry) -- todo; was: hf.adjointCarlesonSum.IsBounded.subset (image_subset_range ..)
+    rw [isBounded_image_iff_bddAbove_norm]
+    exact hf.bddAbove_norm_adjointCarlesonSum |>.mono (image_subset_range ..)
   obtain ⟨x', hx', ex'⟩ : ∃ x₀ ∈ ball (c J) (8⁻¹ * D ^ s J),
       ‖adjointCarlesonSum ℭ f x₀‖ₑ - (ε / 2 : ℝ≥0) ≤
       ⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum ℭ f x‖ₑ :=
