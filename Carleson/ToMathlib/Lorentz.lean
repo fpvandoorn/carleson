@@ -6,8 +6,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.WeakType
-
---open NNReal ENNReal NormedSpace MeasureTheory Set Filter Topology Function
+import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
 
 noncomputable section
@@ -30,36 +29,42 @@ lemma decreasing_rearrangement_antitone {f : α → ε} {μ : Measure α} :
 
 
 lemma distribution_decreasing_rearrangement (f : α → ε) (μ : Measure α) (t : ℝ≥0):
-  distribution f t μ = distribution (decreasing_rearrangement f μ) t Measure.Subtype.measureSpace.volume := sorry
+  distribution f t μ = distribution (decreasing_rearrangement f μ) t volume := sorry
 
 section Lorentz
 
+/-
 /-- The Lorentz norm of a function, for `r < ∞` -/
 def eLorentzNorm' (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0) (μ : Measure α) : ℝ≥0∞ :=
-  (∫⁻ (t : ℝ≥0), t ^ (p⁻¹ - 1).toReal * decreasing_rearrangement f μ t ^ r.toReal ∂Measure.Subtype.measureSpace.volume) ^ r⁻¹.toReal
+  eLpNorm (fun t ↦ t ^ p⁻¹.toReal * decreasing_rearrangement f μ t) r
+    (Measure.Subtype.measureSpace.volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
 
 /-- The Lorentz norm of a function, for `r = ∞` -/
 def eLorentzNormSup (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) :=
   ⨆ t : ℝ≥0, t ^ p⁻¹.toReal * decreasing_rearrangement f μ t
+-/
+
 
 /-- The Lorentz norm of a function -/
+/-
 def eLorentzNorm (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   if r = 0 then 0 else if r = ∞ then eLorentzNormSup f p μ else eLorentzNorm' f p r.toNNReal μ
+-/
+def eLorentzNorm (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
+  p ^ r⁻¹.toReal * eLpNorm (fun (t : ℝ≥0) ↦ t * distribution f t μ) r
+    (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
 
---attribute [local instance] Measure.Subtype.measureSpace in
-/- Alternative definitions, TODO: check which should be the correct definition -/
+/- Alternative definition. Not used at the moment. -/
 lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} :
     eLorentzNorm f p r μ
-      = p ^ r⁻¹.toReal * eLpNorm (fun (t : ℝ≥0) ↦ t * distribution f t μ) r
-        (Measure.Subtype.measureSpace.volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := sorry
+      = eLpNorm (fun t ↦ t ^ p⁻¹.toReal * decreasing_rearrangement f μ t) r
+          (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := sorry
 
 lemma eLorentzNorm_eq_Lp {f : α → ε} {p : ℝ≥0∞} {μ : Measure α} :
   eLorentzNorm f p p μ = eLpNorm f p μ := sorry
 
 lemma eLorentzNorm_eq_wnorm {f : α → ε} {p : ℝ≥0∞} {μ : Measure α} :
   eLorentzNorm f p ∞ μ = wnorm f p μ := sorry
-
-
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
 /-- A function is in the Lorentz space L_{pr} if it is (strongly a.e.)-measurable and has finite Lorentz norm. -/
@@ -81,17 +86,24 @@ def HasLorentzType (T : (α → ε₁) → (α' → ε₂))
     (p r q s : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLorentz f p r μ → AEStronglyMeasurable (T f) ν ∧ eLorentzNorm (T f) q s ν ≤ c * eLorentzNorm f p r μ
 
---TODO: define the standard enorm on EReal
-instance : ContinuousENorm EReal := sorry
 
 --TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
+--TODO: This could be more general, it currently assumes T f ≥ 0
 variable {𝕂 : Type*} [TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
 def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (μ F < ∞) → (MeasurableSet G) → (ν G < ∞) →
-    AEStronglyMeasurable (T (F.indicator (fun _ ↦ 1))) ν ∧ eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G) ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
+    AEStronglyMeasurable (T (F.indicator (fun _ ↦ 1))) ν ∧
+      eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G) ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
 lemma HasRestrictedWeakType.HasLorentzType {T : (α → 𝕂) → (α' → ε₂)} {p p' : ℝ≥0∞} {μ : Measure α} {ν : Measure α'}
   {c : ℝ≥0∞} (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') :
     --TODO: might have to adjust the constant
-    HasLorentzType T p 1 p ∞ μ ν c := sorry
+    HasLorentzType T p 1 p ∞ μ ν c := by
+  intro f hf
+  have claim : ∀ (G : Set α'), (MeasurableSet G) → (ν G < ∞) → eLpNorm (T f) 1 (ν.restrict G)
+    ≤ c * eLorentzNorm f p 1 μ * (ν G) ^ p'⁻¹.toReal := by
+      -- Get this for simple functions first?
+      sorry
+  -- Apply claim to a special G
+  sorry
