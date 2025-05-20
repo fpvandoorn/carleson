@@ -17,6 +17,49 @@ noncomputable section
 
 open ENNReal Real Set MeasureTheory
 
+section finiteness
+
+open ENNReal
+
+-- XXX: are coe_ne_top lemmas tagged with finiteness? for NNReal and Real, for instance
+
+-- Tag some additional lemmas for finiteness.
+attribute [aesop (rule_sets := [finiteness]) safe apply] enorm_ne_top
+
+attribute [aesop (rule_sets := [finiteness]) safe forward] ENNReal.pow_ne_top
+
+attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.rpow_ne_top_of_nonneg
+
+-- -- experimental
+lemma ENNReal.rpow_ne_top {x : ℝ≥0∞} {y : ℝ} : ¬(x = 0 ∧ y < 0 ∨ x = ⊤ ∧ 0 < y) → x ^ y ≠ ⊤ := by
+  contrapose
+  rw [← rpow_eq_top_iff (x := x) (y := y)]
+  simp
+
+lemma ENNReal.rpow_ne_top_of_pos {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) : x ^ y ≠ ⊤ := by
+  apply ENNReal.rpow_ne_top
+  simp [hx, hx']
+
+attribute [aesop (rule_sets := [finiteness]) unsafe apply] rpow_ne_top_of_pos
+
+-- should ENNReal.rpow_lt_top_iff_of_pos be tagged? or a custom version?
+
+-- move next to max_eq_top; proof can probably be golfed
+lemma max_ne_top {α : Type*} [LinearOrder α] [OrderTop α] {a b : α} (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
+    max a b ≠ ⊤ := by
+  by_contra h
+  obtain (h | h) := max_eq_top.mp h
+  all_goals simp_all
+
+attribute [aesop (rule_sets := [finiteness]) safe apply] max_ne_top
+
+-- Just created for finiteness.
+@[aesop (rule_sets := [finiteness]) safe apply]
+theorem ENNReal.div_ne_top {x y : ℝ≥0∞} (h1 : x ≠ ∞) (h2 : y ≠ 0) : x / y ≠ ∞ :=
+  (ENNReal.div_lt_top h1 h2).ne
+
+end finiteness
+
 -- Note (F): can we make `t : ℝ≥0∞` for a large part of the proof?
 variable {p₀ q₀ p₁ q₁ p q : ℝ≥0∞} {t : ℝ}
 
@@ -855,9 +898,7 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
     trans max 0 t
     · -- apply le_of_lt <| (trunc_eLpNormEssSup_le (E₁ := E₁) (f := f) (a := t) (μ := μ))
       sorry
-    · -- XXX: should finiteness be able to prove this
-      rw [max_lt_iff]
-      constructor <;> finiteness
+    · finiteness
   · rw [← rpow_lt_top_iff_of_pos (toReal_pos (lt_trans hpq.1 hpq.2).ne' q_ne_top)]
     apply lt_of_le_of_lt (estimate_eLpNorm_trunc q_ne_top hpq hf.1)
     apply mul_lt_top ?_ ?_
