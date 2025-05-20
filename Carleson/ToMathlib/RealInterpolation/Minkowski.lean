@@ -783,12 +783,12 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
     (h₀T : HasWeakType T p q μ ν C₀) (ht : 0 < t) :
     distribution (T f) t ν ≤ C₀ ^ q.toReal *
         eLpNorm f p μ ^ q.toReal * (t ^ (-q.toReal)) := by
+  by_cases ht' : t = ⊤
+  · simp [ht']
   have wt_est := (h₀T f hf).2 -- the weaktype estimate
   have q_pos : 0 < q.toReal := toReal_pos hq.ne' hq'.ne_top
   have tq_pos : 0 < t ^ q.toReal := ENNReal.rpow_pos_of_nonneg ht q_pos.le
-  have tq_ne_top : t ^ q.toReal ≠ ⊤ := by
-    refine rpow_ne_top_of_nonneg q_pos.le ?_
-    sorry -- TODO: this requires t to be not top, I think!
+  have tq_ne_top : t ^ q.toReal ≠ ⊤ := rpow_ne_top_of_nonneg q_pos.le ht'
   -- have hq₁ : q.toReal = q := by exact toReal_ofReal q_nonneg
   simp only [wnorm, wnorm', hq'.ne_top, ↓reduceIte, iSup_le_iff] at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t
@@ -854,24 +854,27 @@ lemma weaktype_estimate_truncCompl {C₀ : ℝ≥0} {p p₀: ℝ≥0∞} {f : α
   apply weaktype_estimate hq₀ hq₀' ?_ h₀T ht
   exact truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ ha hf
 
+-- TODO: can we remove the hypothesis on a?
 lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α → E₁}
     (hp : 0 < p)
     (hq₁ : 0 < q₁) (hq₁' : q₁ < ⊤) (hp₁p : p < p₁)
     (hf : MemLp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} :
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} (ha : a ≠ ⊤) :
     distribution (T (trunc f a)) t ν ≤ C₁ ^ q₁.toReal *
-      eLpNorm (trunc f a) p₁ μ ^ q₁.toReal * (t ^ (-q₁.toReal)) := by
-  refine weaktype_estimate hq₁ hq₁' (trunc_Lp_Lq_higher (p := p) ⟨hp, hp₁p⟩ hf ?_) h₁T ht
-  sorry -- TODO: need a ≠ ⊤
+      eLpNorm (trunc f a) p₁ μ ^ q₁.toReal * (t ^ (-q₁.toReal)) :=
+  weaktype_estimate hq₁ hq₁' (trunc_Lp_Lq_higher (p := p) ⟨hp, hp₁p⟩ hf ha) h₁T ht
 
 lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
     (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞} (hp : 0 < p)
     (hp₁ : p₁ = ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
     (h₁T : HasWeakType T p₁ q₁ μ ν C₁) {t : ℝ≥0∞} (ht : 0 < t) (ha : a = t / C₁) :
     distribution (T (trunc f a)) t ν = 0 := by
+  by_cases ht : t = ⊤
+  · simp [ht]
   rw [ha]
   have obs : MemLp (trunc f (t / C₁)) p₁ μ := by
     refine trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf ?_
+    -- use ht and C₁ being finite... finiteness should do this!
     sorry
   have wt_est := (h₁T (trunc f (t / C₁)) obs).2
   simp only [wnorm, eLpNorm, hq₁, ↓reduceIte, hp₁, top_ne_zero] at wt_est
