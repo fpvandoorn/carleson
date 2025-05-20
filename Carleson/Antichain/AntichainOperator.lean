@@ -377,7 +377,8 @@ lemma dens2_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
   -- I am not sure if this is correctly stated
   have hMB_le : MB volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) (fun x ↦ ‖f x‖) ≤
     ((maximalFunction volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2))
-      (fun x ↦ ‖f x‖ * (dens₂ (𝔄 : Set (𝔓 X))).toReal ^ ((nnq' : ℝ)⁻¹ - 2⁻¹)))) := by sorry
+      (fun x ↦ ‖f x‖ * (dens₂ (𝔄 : Set (𝔓 X))).toReal ^ ((nnq' : ℝ)⁻¹ - 2⁻¹)))) := by
+    sorry
 
   -- 6.1.14' : it seems what is actually used is the following:
   have hMB_le' : (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
@@ -509,7 +510,8 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
     ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
-    (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := sorry
+    (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  sorry
 
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/

@@ -38,7 +38,8 @@ lemma cdist_le_dist {f g : Θ X} {x : X} {r : ℝ} (hr : 0 < r) :
   exact cdist_le_mul_cdist (by norm_num) hr f g
 
 -- why do we know this?
-instance : SecondCountableTopology (Θ X) := sorry
+instance : SecondCountableTopology (Θ X) :=
+  sorry
 
 end MetricΘ
 
