@@ -24,17 +24,18 @@ scoped instance : PseudoMetricSpace (Θ X) :=
 
 lemma dist_eq_cdist {f g : Θ X} : dist f g = dist_{o, 1} f g := rfl
 
+/-!
+The following two lemmas state that the distance could be equivalently given by any other cdist.
+-/
 
-/- Use le_cdist_iterate & cdist_le_iterate to prove the next two results
-(feel free to change the constant). -/
+lemma dist_le_cdist {f g : Θ X} {x : X} {r : ℝ} (hr : 0 < r) :
+    dist f g ≤ As (defaultA a) ((1 + dist o x) / r) * dist_{x, r} f g :=
+  cdist_le_mul_cdist hr (by norm_num) f g
 
-lemma dist_le_cdist {f g : Θ X} {x : X} {r : ℝ≥0} :
-    dist f g ≤ As (nndist x o + r) a * dist_{x, r} f g :=
-  sorry
-
-lemma cdist_le_dist {f g : Θ X} {x : X} {r : ℝ≥0} :
-    dist_{x, r} f g ≤ As (nndist x o + r⁻¹) a * dist f g :=
-  sorry
+lemma cdist_le_dist {f g : Θ X} {x : X} {r : ℝ} (hr : 0 < r) :
+    dist_{x, r} f g ≤ As (defaultA a) (r + dist o x) * dist f g := by
+  rw [← div_one (_ + _), dist_comm o]
+  exact cdist_le_mul_cdist (by norm_num) hr f g
 
 -- why do we know this?
 instance : SecondCountableTopology (Θ X) := sorry
