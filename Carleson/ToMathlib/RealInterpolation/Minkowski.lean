@@ -377,16 +377,19 @@ theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restric
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton (ENNReal.ofReal s) }
-        ((volume.restrict (Ioi 0)).prod μ) :=
+    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖ₑ ≤ tc.ton (ENNReal.ofReal s) }
+        ((volume.restrict (Ioi 0)).prod μ) := by
+  apply nullMeasurableSet_le
+  · sorry
+  have : AEMeasurable ENNReal.ofReal := by fun_prop
   sorry -- proof was: nullMeasurableSet_le hg.snd.norm (ton_aeMeasurable tc).fst
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖g x‖₊ }
+    NullMeasurableSet {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖g x‖ₑ }
         ((volume.restrict (Ioi 0)).prod μ) :=
-  nullMeasurableSet_lt (ton_aeMeasurable tc).fst hg.snd.norm
+  nullMeasurableSet_lt sorry /- was: (ton_aeMeasurable tc).fst -/ sorry -- was: hg.snd.norm
 
 @[measurability]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
@@ -457,7 +460,7 @@ theorem AEMeasurable.trunc_restrict
     {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) :=
-  sorry -- TODO: was j.rec (hf.truncCompl_ton _) (hf.trunc_ton _)
+  sorry -- was: j.rec (hf.truncCompl_ton _) (hf.trunc_ton _)
 
 lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
