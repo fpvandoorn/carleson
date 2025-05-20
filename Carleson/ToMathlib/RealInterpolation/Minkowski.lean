@@ -321,7 +321,7 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ≤
     (∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν) ^ p := by
   have p_pos : 0 < p := lt_of_lt_of_le zero_lt_one hp
-  refine le_of_rpow_le2 (inv_pos_of_pos p_pos) ?_
+  refine le_of_rpow_le (inv_pos_of_pos p_pos) ?_
   rw [ENNReal.rpow_rpow_inv p_pos.ne']
   exact lintegral_lintegral_pow_swap hp hf
 
@@ -612,7 +612,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
     ((eLpNorm f p μ) ^ p.toReal) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
   have p_toReal_pos : 0 < p.toReal :=
-    interp_exp_toReal_pos'2 ht hp₀ hp₁ hp (Or.inl hp₀p₁.ne_top)
+    interp_exp_toReal_pos' ht hp₀ hp₁ hp (Or.inl hp₀p₁.ne_top)
   calc
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
@@ -644,7 +644,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
         simp only [Bool.if_false_right, Bool.and_true, Bool.false_bne, decide_eq_true_eq]
         split_ifs with is_ζ_pos
         · apply toReal_strict_mono
-          · exact interp_exp_ne_top2 hq₀q₁ ht hq
+          · exact interp_exp_ne_top hq₀q₁ ht hq
           · exact (ζ_pos_iff_of_lt₀2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
         · apply toReal_strict_mono hq'
           exact (ζ_le_zero_iff_of_lt₀2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
@@ -658,7 +658,7 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
         · apply toReal_strict_mono hq'
           exact (ζ_pos_iff_of_lt₁2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
         · apply toReal_strict_mono
-          · exact interp_exp_ne_top2 hq₀q₁ ht hq
+          · exact interp_exp_ne_top hq₀q₁ ht hq
           · exact (ζ_le_zero_iff_of_lt₁2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
                 (le_of_not_lt is_ζ_pos)
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
@@ -671,10 +671,10 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     rcases j
     · dsimp only [sel]
       rw [hspf]
-      apply ζ_equality₅2 (hp₀p₁ := hp₀p₁.ne) <;> assumption
+      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> assumption
     · dsimp only [sel]
       rw [hspf]
-      apply ζ_equality₆2 (hp₀p₁ := hp₀p₁.ne) <;> assumption
+      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> assumption
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
@@ -694,8 +694,8 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     congr
     rw [← one_div]
     refine (eLpNorm_eq_lintegral_rpow_enorm (ε := E₁) ?_ ?_).symm
-    · exact (interpolated_pos'2 hp₀ hp₁ hp).ne'
-    · exact interp_exp_ne_top2 hp₀p₁.ne ht hp
+    · exact (interpolated_pos' hp₀ hp₁ hp).ne'
+    · exact interp_exp_ne_top hp₀p₁.ne ht hp
 
 -- TODO: move this to WeakType.lean?
 lemma wnorm_eq_zero_iff [ENormedAddMonoid ε] {f : α → ε} {p : ℝ≥0∞} (hp : p ≠ 0) :
@@ -877,8 +877,8 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
       apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
     have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
-        mul_ne_top (rpow_ne_top'2 (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
-          (rpow_ne_top'2 snorm_p_pos (MemLp.eLpNorm_ne_top hf))
+        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
+          (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
     have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
     have d_ne_top  : d ≠ ⊤ := hdeq ▸ ENNReal.rpow_ne_top_of_pos term_pos.ne' term_ne_top
     have a_pos : 0 < a := ha ▸ ENNReal.rpow_pos (ENNReal.div_pos ht.ne' d_ne_top) (by finiteness)
@@ -887,7 +887,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     unfold wnorm at wt_est
     split_ifs at wt_est
     have snorm_est : eLpNormEssSup (T (truncCompl f a)) ν ≤ t := by
-      apply le_of_rpow_le2 (exp_toReal_pos2 hp₀ hp₀p.ne_top)
+      apply le_of_rpow_le (eexp_toReal_poshp₀ hp₀p.ne_top)
       calc
       _ ≤ (↑C₀ * eLpNorm (truncCompl f a) p₀ μ) ^ p₀.toReal := by gcongr
       _ ≤ (↑C₀) ^ p₀.toReal * ((a ^ (p₀.toReal - p.toReal)) *
@@ -926,11 +926,11 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
   split_ifs at wt_est
-  have hp₁' : p₁.toReal ≠ 0 := exp_toReal_ne_zero'2 (lt_trans hp hp₁p) hp₁.ne_top
+  have hp₁' : p₁.toReal ≠ 0 := exp_toReal_ne_zero' (lt_trans hp hp₁p) hp₁.ne_top
   have : eLpNormEssSup (T (trunc f a)) ν ^ p₁.toReal ≤
       (C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal := by gcongr
   have snorm_est : eLpNormEssSup (T (trunc f a)) ν ≤ t := by
-    apply le_of_rpow_le2 (exp_toReal_pos2 (lt_trans hp hp₁p) hp₁.ne_top)
+    apply le_of_rpow_le (eexp_toReal_pos(lt_trans hp hp₁p) hp₁.ne_top)
     refine le_trans this ?_
     rcases (eq_zero_or_pos (eLpNormEssSup f μ)) with snorm_zero | snorm_pos
     · gcongr
@@ -951,8 +951,8 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
         apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
       have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
-        mul_ne_top (rpow_ne_top'2 (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
-          (rpow_ne_top'2 snorm_p_pos (MemLp.eLpNorm_ne_top hf))
+        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
+          (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
       have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
       calc
       _ ≤ ↑C₁ ^ p₁.toReal * (((a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
