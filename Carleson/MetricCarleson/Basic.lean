@@ -17,7 +17,7 @@ variable [CompatibleFunctions ℝ X (defaultA a)]
   {x : X} {θ : Θ X} {R₁ R₂ : ℝ}
 
 namespace MetricΘ
-/-- We choose as metric space instance on `Θ` that given by an arbitrary ball.
+/-- We choose as metric space instance on `Θ` that is given by an arbitrary ball.
 The metric given by all other balls are equivalent. -/
 scoped instance : PseudoMetricSpace (Θ X) :=
   inferInstanceAs <| PseudoMetricSpace <| WithFunctionDistance o 1
