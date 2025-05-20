@@ -321,7 +321,7 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
     (∫⁻ (x : α), (∫⁻ (y : β), f x y ∂ν) ^ p ∂μ) ≤
     (∫⁻ (y : β), (∫⁻ (x : α), (f x y) ^ p ∂μ) ^ p⁻¹ ∂ν) ^ p := by
   have p_pos : 0 < p := lt_of_lt_of_le zero_lt_one hp
-  refine le_of_rpow_le (inv_pos_of_pos p_pos) ?_
+  refine le_of_rpow_le2 (inv_pos_of_pos p_pos) ?_
   rw [ENNReal.rpow_rpow_inv p_pos.ne']
   exact lintegral_lintegral_pow_swap hp hf
 
@@ -882,8 +882,8 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     have term_pos : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
       apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
     have term_ne_top : (ENNReal.ofNNReal C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
-        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
-          (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
+        mul_ne_top (rpow_ne_top'2 (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
+          (rpow_ne_top'2 snorm_p_pos (MemLp.eLpNorm_ne_top hf))
     have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
     have d_ne_top  : d ≠ ⊤ := hdeq ▸ ENNReal.rpow_ne_top_of_pos term_pos.ne' term_ne_top
     have a_pos : 0 < a := ha ▸ ENNReal.rpow_pos (ENNReal.div_pos ht.ne' d_ne_top) (by finiteness)
@@ -892,7 +892,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
     unfold wnorm at wt_est
     split_ifs at wt_est
     have snorm_est : eLpNormEssSup (T (truncCompl f a)) ν ≤ t := by
-      apply le_of_rpow_le (exp_toReal_pos hp₀ hp₀p.ne_top)
+      apply le_of_rpow_le2 (exp_toReal_pos2 hp₀ hp₀p.ne_top)
       calc
       _ ≤ (↑C₀ * eLpNorm (truncCompl f a) p₀ μ) ^ p₀.toReal := by gcongr
       _ ≤ (↑C₀) ^ p₀.toReal * ((a ^ (p₀.toReal - p.toReal)) *
@@ -931,11 +931,11 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
   split_ifs at wt_est
-  have : p₁.toReal ≠ 0 := exp_toReal_ne_zero' (lt_trans hp hp₁p) hp₁.ne_top
+  have : p₁.toReal ≠ 0 := exp_toReal_ne_zero'2 (lt_trans hp hp₁p) hp₁.ne_top
   have : eLpNormEssSup (T (trunc f a)) ν ^ p₁.toReal ≤
       (C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal := by gcongr
   have snorm_est : eLpNormEssSup (T (trunc f a)) ν ≤ t := by
-    apply le_of_rpow_le (exp_toReal_pos (lt_trans hp hp₁p) hp₁.ne_top)
+    apply le_of_rpow_le2 (exp_toReal_pos2 (lt_trans hp hp₁p) hp₁.ne_top)
     refine le_trans this ?_
     rcases (eq_zero_or_pos (eLpNormEssSup f μ)) with snorm_zero | snorm_pos
     · gcongr
@@ -956,8 +956,8 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
         apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
       have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
-        mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
-          (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
+        mul_ne_top (rpow_ne_top'2 (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
+          (rpow_ne_top'2 snorm_p_pos (MemLp.eLpNorm_ne_top hf))
       have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
       calc
       _ ≤ ↑C₁ ^ p₁.toReal * (((a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
