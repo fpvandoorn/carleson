@@ -870,6 +870,7 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
 We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-metric-Carleson}.
 
 \begin{proof}[Proof of \Cref{metric-space-Carleson}]
+    \proves{metric-space-Carleson}
     Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
     Let $\Mf' \subset \Mf$ be a countable dense set. By Lemma \ref{int-continuous} we have
@@ -906,7 +907,7 @@ We continue with the proof of Theorem \ref{linearised-metric-Carleson}, via a se
 Let a measurable function $Q$ with finite range be given.
 
 \begin{proof}[Proof of \Cref{linearised-metric-Carleson}]
-
+\proves{linearised-metric-Carleson}
 Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
 For each $0 < R_1,R_2,R$, we define $T_{R_1,R_2,R}f$ as in \eqref{TRR}.
@@ -3406,7 +3407,7 @@ Since $1< q\le 2$, we have $1<\tilde{q}<q\le 2$.
 \label{dens2-antichain}
 \uses{Hardy-Littlewood,maximal-bound-antichain}
 \leanok
-\lean{Dens2Antichain}
+\lean{dens2_antichain}
 We have that
 \begin{equation}\label{eqttt9}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
@@ -3465,7 +3466,9 @@ proves the lemma.
 
 
 \begin{lemma}[dens1 antichain]\label{dens1-antichain}
-\uses{Hardy-Littlewood, tile-correlation,antichain-tile-count}
+    % \leanok
+    \lean{dens1_antichain}
+    \uses{Hardy-Littlewood, tile-correlation,antichain-tile-count}
 Set $p:=4a^4$. We have
     \begin{equation}\label{eqttt3}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
