@@ -832,7 +832,7 @@ lemma weaktype_estimate_trunc {C₁ : ℝ≥0} {p p₁ q₁: ℝ≥0∞} {f : α
 lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
     (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞} (hp : 0 < p)
     (hp₁ : p₁ = ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) (ha : a = t / C₁) :
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ha : a = t / C₁) :
     distribution (T (trunc f a)) t ν = 0 := by
   by_cases ht : t = ⊤
   · simp [ht]
@@ -845,15 +845,10 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
     _ ≤ C₁ * eLpNormEssSup (trunc f (t / C₁)) μ := wt_est
     _ ≤ C₁ * (max 0 (t / C₁)) := by
       gcongr
-      exact trunc_eLpNormEssSup_le
+      exact trunc_eLpNormEssSup_le _
     _ ≤ _ := by
-      sorry /- TODO: this should have a much simpler proof now! let C := C₁.toReal
-      have coe_C : C.toNNReal = C₁ := Real.toNNReal_coe
-      rw [← coe_C, coe_coe_eq_ofReal, max_eq_right, --congrArg toReal coe_C,
-        mul_div_cancel₀]
-      · exact Ne.symm (ne_of_lt hC₁)
-      · positivity
-      · positivity -/
+      rw [max_eq_right (zero_le _),
+        ENNReal.mul_div_cancel (ENNReal.coe_ne_zero.mpr hC₁.ne') (by finiteness)]
   calc
   _ ≤ distribution (T (trunc f (t / C₁))) (eLpNormEssSup (T (trunc f (t / C₁))) ν) ν :=
       distribution_mono_right ineq
@@ -931,7 +926,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
   split_ifs at wt_est
-  have : p₁.toReal ≠ 0 := exp_toReal_ne_zero'2 (lt_trans hp hp₁p) hp₁.ne_top
+  have hp₁' : p₁.toReal ≠ 0 := exp_toReal_ne_zero'2 (lt_trans hp hp₁p) hp₁.ne_top
   have : eLpNormEssSup (T (trunc f a)) ν ^ p₁.toReal ≤
       (C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal := by gcongr
   have snorm_est : eLpNormEssSup (T (trunc f a)) ν ≤ t := by
@@ -977,9 +972,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         --rw [ofReal_rpow_of_pos ht]
         nth_rw 2 [← one_mul (t ^ p₁.toReal)]
         congr
-        sorry /- proof was; also need hdeq
-        rw [Real.rpow_inv_rpow] <;> try positivity
-        rw [ofReal_toReal term_ne_top, ENNReal.mul_inv_cancel (by positivity) term_ne_top] -/
+        rw [hdeq, ENNReal.rpow_inv_rpow hp₁'  _, ENNReal.mul_inv_cancel term_pos.ne' term_ne_top]
   apply nonpos_iff_eq_zero.mp
   calc
   _ ≤ distribution (T (trunc f a)) (eLpNormEssSup (T (trunc f a)) ν) ν := by gcongr

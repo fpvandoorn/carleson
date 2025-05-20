@@ -678,7 +678,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
 
     · intro q₁top s (hs : 0 < s)
       rcases (eq_or_ne p₁ ⊤) with p₁eq_top | p₁ne_top
-      · apply weaktype_estimate_trunc_top_top hC₁ _ p₁eq_top q₁top _ hf h₁T hs
+      · apply weaktype_estimate_trunc_top_top hC₁ _ p₁eq_top q₁top _ hf h₁T
         · dsimp only [tc, spf_to_tc]
           rw [hspf]
           dsimp only [spf_ch]
@@ -710,23 +710,21 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       apply add_le_add
       · split_ifs with is_q₁top
         · gcongr
-          -- type mismatch: get t : ℝ, want ℝ≥0∞ instead
-          sorry /- proof was: apply estimate_trnc₁ (j := ⊤) ht <;> try assumption
+          apply estimate_trnc₁ (j := ⊤) ht <;> try assumption
           · exact hp₁.2
-          · exact ne_top_of_Ioc hp₁ is_q₁top
+          · exact ne_top_of_Ioc2 hp₁ is_q₁top
           · exact is_q₁top.ne_top
           · exact hf.1.aemeasurable
-          · rw [hspf]; rfl -/
+          · rw [hspf]; rfl
         · simp
       · split_ifs with is_q₀top
         · gcongr
-          -- type mismatch: get t : ℝ, want ℝ≥0∞ instead
-          sorry /- proof was: apply estimate_trnc₁ (j := ⊥) ht <;> try assumption
+          apply estimate_trnc₁ (j := ⊥) ht <;> try assumption
           · exact hp₀.2
-          · exact ne_top_of_Ioc hp₀ is_q₀top
+          · exact ne_top_of_Ioc2 hp₀ is_q₀top
           · exact is_q₀top.ne_top
           · exact hf.1.aemeasurable
-          · rw [hspf]; rfl -/
+          · rw [hspf]; rfl
         · simp
   _ = (if q₁ < ⊤ then 1 else 0) *
       (↑C₁ ^ q₁.toReal * (eLpNorm f p μ ^ p.toReal) ^ (q₁.toReal / p₁.toReal) *
@@ -829,7 +827,12 @@ lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     rw [toReal_inv]
     ring_nf
     field_simp
-    sorry
+    have : (1 - t + t).toReal = 1 := by
+      rw [toReal_eq_one_iff]
+      sorry -- 1 - t + t = 1 in ENNReal
+    rw [mul_comm, ← mul_add, ← toReal_add, this, mul_one]
+    · finiteness
+    · have := ht.2; finiteness
   · rw [hp']
     exact d_pos_aux₀ hF |>.ne'
   · rw [hp']
