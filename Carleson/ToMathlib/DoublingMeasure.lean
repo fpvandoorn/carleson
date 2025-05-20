@@ -6,8 +6,24 @@ import Mathlib.Order.CompletePartialOrder
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
 
-namespace MeasureTheory
+section Doubling
 
+/-- The blow-up factor of repeatedly increasing the size of balls. -/
+def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
+
+lemma le_pow_natCeil_logb {b x : ℝ} (hb : 1 < b) (hx : 0 < x) :
+    x ≤ b ^ ⌈Real.logb b x⌉₊ := by
+  calc
+    x = b ^ Real.logb b x := by rw [Real.rpow_logb (by linarith) hb.ne' hx]
+    _ ≤ b ^ ⌈Real.logb b x⌉₊ := by
+      rw [← Real.rpow_natCast]
+      gcongr
+      · exact hb.le
+      apply Nat.le_ceil
+
+end Doubling
+
+namespace MeasureTheory
 
 /-- A doubling measure is a measure on a metric space with the condition that doubling
 the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
@@ -157,9 +173,6 @@ lemma measure_ball_four_le_same' (x : X) (r : ℝ) :
 
 attribute [aesop (rule_sets := [finiteness]) safe apply] measure_ball_ne_top
 
-/-- The blow-up factor of repeatedly increasing the size of balls. -/
-def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
-
 variable (μ) in
 lemma As_pos [Nonempty X] [μ.IsOpenPosMeasure] (s : ℝ) : 0 < As A s :=
   pow_pos (A_pos μ) ⌈Real.logb 2 s⌉₊
@@ -182,21 +195,15 @@ lemma measure_ball_le_same' (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s 
   else
   push_neg at hr
   /- Show inclusion in larger ball -/
-  have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by
+  have haux : s * r ≤ 2 ^ ⌈Real.logb 2 s⌉₊ * r := by
     gcongr
-    calc s
-      = 2 ^ (Real.logb 2 s) := (Real.rpow_logb (by linarith) (by linarith) hsp ).symm
-    _ ≤ 2 ^ (⌈Real.logb 2 s⌉₊ : ℝ) := Real.rpow_le_rpow_of_exponent_le
-      (by linarith) (Nat.le_ceil (Real.logb 2 s))
-    _ = 2 ^ ⌈Real.logb 2 s⌉₊ := Real.rpow_natCast 2 ⌈Real.logb 2 s⌉₊
-  have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by
-    calc ball x r' ⊆ ball x (s * r) := ball_subset_ball hs
-        _ ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := ball_subset_ball haux
+    apply le_pow_natCeil_logb (by norm_num) hsp
+  have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r) :=
+    ball_subset_ball <| hs.trans haux
   /- Apply result for power of two to slightly larger ball -/
   calc μ (ball x r')
-      ≤ μ (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr
-    _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * μ (ball x r) := measure_ball_two_le_same_iterate x r _
-    _ = As A s * μ (ball x r) := rfl
+      ≤ μ (ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r)) := by gcongr
+    _ ≤ As A s * μ (ball x r) := measure_ball_two_le_same_iterate x r _
 
 lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ.real (ball x r') ≤ As A s * μ.real (ball x r) := by
