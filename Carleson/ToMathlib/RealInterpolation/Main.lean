@@ -1327,8 +1327,18 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
   intro a a_pos
   by_cases ha : a = ∞
   · rw [ha]
-    simp only [trunc_top, truncCompl_top]
-    sorry
+    simp only [trunc_top, truncCompl_top, add_zero]
+    -- XXX: *if* I assume A is at least one, this follows
+    have : 1 ≤ A := sorry
+    filter_upwards with x
+    calc _
+      _ = 1 * ‖T f x‖ₑ := by rw [one_mul]
+      _ ≤ A * ‖T f x‖ₑ := by gcongr; exact one_le_coe_iff.mpr this
+      _ ≤ _ := by
+        gcongr
+        apply le_trans (add_zero _).symm.le
+        gcongr; positivity
+
   apply hT
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
     · refine Or.inr (trunc_Lp_Lq_higher (p := p) ?_ hf ha)

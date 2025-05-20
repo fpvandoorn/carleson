@@ -468,6 +468,9 @@ lemma trunc_top : trunc f ∞ = f := by simp [trunc_eq_indicator]
 /-- The complement of a `t`-truncation of a function `f`. -/
 def truncCompl (f : α → E₁) (t : ℝ≥0∞) : α → E₁ := f - trunc f t
 
+@[simp]
+lemma truncCompl_top : truncCompl f ∞ = 0 := by simp [truncCompl]
+
 lemma truncCompl_eq {f : α → E₁}  {t : ℝ≥0∞} :
     truncCompl f t = fun x ↦ if t < ‖f x‖ₑ then f x else 0 := by
   ext x
