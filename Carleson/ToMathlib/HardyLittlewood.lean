@@ -387,13 +387,13 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
   refine exists_hasStrongType_real_interpolation
     (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) (p := p) (q := p) (A := 1)
     ⟨ENNReal.zero_lt_top, le_rfl⟩
-    ⟨zero_lt_one, le_rfl⟩ (by norm_num) zero_lt_one ?_--(by simp [inv_lt_one_iff₀, hp, h2p] : p⁻¹ ∈ _)
+    ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_--(by simp [inv_lt_one_iff₀, hp, h2p] : p⁻¹ ∈ _)
     zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑)
     ?_ (HasStrongType.MB_top h𝓑 |>.toReal.hasWeakType le_top)
     (HasWeakType.MB_one h𝓑 hR).toReal
-  · sorry
+  · exact ⟨ENNReal.inv_pos.mpr coe_ne_top, ENNReal.inv_lt_one.mpr <| one_lt_coe_iff.mpr hp⟩
   exact ((AESublinearOn.maximalFunction h𝓑 hR).toReal <| MB_ae_ne_top' h𝓑 hR).1
 
 lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]

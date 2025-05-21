@@ -1321,7 +1321,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [NormedAddCommGroup E₂]
     (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
-    {A : ℝ≥0} (ht : t ∈ Ioo 0 1)
+    {A : ℝ≥0} (hA : 1 ≤ A) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
     (hT : AESubadditiveOn T (fun f ↦ MemLp f p₀ μ ∨ MemLp f p₁ μ) A ν)
     (hf : MemLp f p μ) :
@@ -1330,17 +1330,12 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
   by_cases ha : a = ∞
   · rw [ha]
     simp only [trunc_top, truncCompl_top, add_zero]
-    -- XXX: *if* I assume A is at least one, this follows
-    have : 1 ≤ A := sorry
     filter_upwards with x
-    calc _
-      _ = 1 * ‖T f x‖ₑ := by rw [one_mul]
-      _ ≤ A * ‖T f x‖ₑ := by gcongr; exact one_le_coe_iff.mpr this
-      _ ≤ _ := by
-        gcongr
-        apply le_trans (add_zero _).symm.le
-        gcongr; positivity
-
+    nth_rw 1 [← one_mul ‖T f x‖ₑ]
+    gcongr
+    · exact one_le_coe_iff.mpr hA
+    · apply le_trans (add_zero _).symm.le
+      gcongr; positivity
   apply hT
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
     · refine Or.inr (trunc_Lp_Lq_higher (p := p) ?_ hf ha)
@@ -1362,7 +1357,7 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
-    {C₀ C₁ A : ℝ≥0} (hA : 0 < A) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
+    {C₀ C₁ A : ℝ≥0} (hA : 1 ≤ A) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
     (hmT : ∀ f, MemLp f p μ → AEStronglyMeasurable (T f) ν)
     (hT : AESubadditiveOn T (fun f ↦ MemLp f p₀ μ ∨ MemLp f p₁ μ) A ν)
@@ -1373,8 +1368,9 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
   have hp' : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹ := by rw [hp]; congr
   have hq' : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹ := by rw [hq]; congr
   have obs : Subadditive_trunc T A f ν :=
-    Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ hp₀.1 hp₁.1 ht hp' hT hf
+    Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ hp₀.1 hp₁.1 hA ht hp' hT hf
   rw [coe_C_realInterpolation hp₀ hp₁ hq₀q₁] <;> try assumption
+  have : 0 < A := lt_of_lt_of_le (by norm_num) hA
   apply exists_hasStrongType_real_interpolation_aux₄ <;> assumption
 
 /- State and prove Remark 1.2.7 -/
