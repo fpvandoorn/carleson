@@ -446,11 +446,11 @@ lemma simplify_factor₀ {D : ℝ≥0∞}
       repeat rw [← ENNReal.rpow_add] <;> try positivity
       · congr 1
         · congr 1
-          · rw [eq_exponents₀2] <;> try assumption
-          · rw [neg_mul, eq_exponents₁2 (t := t)] <;> try assumption
+          · rw [eq_exponents₀] <;> try assumption
+          · rw [neg_mul, eq_exponents₁ (t := t)] <;> try assumption
             ring_nf
         · congr 1
-          rw [mul_assoc, ← mul_add, eq_exponents₂2 (t := t)] <;> try assumption
+          rw [mul_assoc, ← mul_add, eq_exponents₂ (t := t)] <;> try assumption
           rw [mul_assoc, mul_assoc, ← mul_add, neg_mul, eq_exponents₃ (t := t)] <;> try assumption
           simp only [neg_mul, neg_neg]
           rw [← mul_assoc, ← add_mul, ← preservation_interpolation ht hp₀.1 hp₁.1 hp, toReal_inv]
@@ -681,7 +681,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           rw [hspf]
           dsimp only [spf_ch]
           rw [d_eq_top_top] <;> try assumption
-          rw [ζ_eq_top_top2, ENNReal.rpow_one] <;> try assumption
+          rw [ζ_eq_top_top, ENNReal.rpow_one] <;> try assumption
           exact hp₀p₁.ne
         · exact p_pos
         · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
@@ -946,7 +946,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [NormedAd
     have q₀pos : 0 < q₀ := pos_of_rb_Ioc hp₀
     have q₁pos : 0 < q₁ := pos_of_rb_Ioc hp₁
     have q₀lt_q_toReal : q₀.toReal < q.toReal :=
-      preservation_inequality_of_lt₀2 ht q₀pos q₁pos hq hq₀q₁
+      preservation_inequality_of_lt₀ ht q₀pos q₁pos hq hq₀q₁
     have q_toReal_ne_zero : q.toReal ≠ 0 :=
       (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
     -- lemma below proves the same, but for M.toReal
@@ -1233,12 +1233,12 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
           · rw [one_mul, one_mul]
             apply ne_of_gt
             apply add_pos'
-            · exact ofReal_inv_interp_sub_exp_pos₁2 ht q₀pos q₁pos hq₀q₁ hq
-            · exact ofReal_inv_interp_sub_exp_pos₀2 ht q₀pos q₁pos hq₀q₁ hq
+            · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
+            · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
           · rw [one_mul, zero_mul, add_zero]
-            exact ofReal_inv_interp_sub_exp_pos₁2 ht q₀pos q₁pos hq₀q₁ hq |>.ne'
+            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
           · rw [zero_mul, one_mul, zero_add]
-            exact ofReal_inv_interp_sub_exp_pos₀2 ht q₀pos q₁pos hq₀q₁ hq |>.ne'
+            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
           · have q₀top : q₀ = ⊤ := not_lt_top.mp (by assumption)
             have q₁top : q₁ = ⊤ := not_lt_top.mp (by assumption)
             rw [q₀top, q₁top] at hq₀q₁
@@ -1272,12 +1272,12 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
         · split_ifs
           · rw [one_mul, one_mul]
             apply add_pos'
-            · exact ofReal_inv_interp_sub_exp_pos₁2 ht q₀pos q₁pos hq₀q₁ hq
-            · exact ofReal_inv_interp_sub_exp_pos₀2 ht q₀pos q₁pos hq₀q₁ hq
+            · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
+            · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
           · rw [one_mul, zero_mul, add_zero]
-            exact ofReal_inv_interp_sub_exp_pos₁2 ht q₀pos q₁pos hq₀q₁ hq
+            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
           · rw [zero_mul, one_mul, zero_add]
-            exact ofReal_inv_interp_sub_exp_pos₀2 ht q₀pos q₁pos hq₀q₁ hq
+            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
           · have q₀top : q₀ = ⊤ := not_lt_top.mp (by assumption)
             have q₁top : q₁ = ⊤ := not_lt_top.mp (by assumption)
             rw [q₀top, q₁top] at hq₀q₁

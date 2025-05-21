@@ -263,7 +263,7 @@ def spf_ch (ht : t ∈ Ioo 0 1) (hq₀q₁ : q₀ ≠ q₁) (hp₀ : 0 < p₀) (
   σ := ζ p₀ q₀ p₁ q₁ t
   d := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f
   hσ := lt_or_gt_of_ne <| Ne.symm <|
-    (toReal_ofReal ht.1.le) ▸ (ζ_ne_zero2 (ofReal_mem_Ioo_0_1 t ht) hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
+    (toReal_ofReal ht.1.le) ▸ (ζ_ne_zero (ofReal_mem_Ioo_0_1 t ht) hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
   hd := d_pos hC₀ hC₁ hF
   hd' := d_ne_top_aux₄ hC₀ hC₁ hF
 

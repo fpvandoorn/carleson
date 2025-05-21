@@ -645,9 +645,9 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
         split_ifs with is_ζ_pos
         · apply toReal_strict_mono
           · exact interp_exp_ne_top hq₀q₁ ht hq
-          · exact (ζ_pos_iff_of_lt₀2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
+          · exact (ζ_pos_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
         · apply toReal_strict_mono hq'
-          exact (ζ_le_zero_iff_of_lt₀2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
+          exact (ζ_le_zero_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
             (le_of_not_lt is_ζ_pos)
       · unfold sel
         dsimp only
@@ -656,10 +656,10 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
             decide_eq_false_iff_not]
         split_ifs with is_ζ_pos
         · apply toReal_strict_mono hq'
-          exact (ζ_pos_iff_of_lt₁2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
+          exact (ζ_pos_iff_of_lt₁ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp is_ζ_pos
         · apply toReal_strict_mono
           · exact interp_exp_ne_top hq₀q₁ ht hq
-          · exact (ζ_le_zero_iff_of_lt₁2 ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
+          · exact (ζ_le_zero_iff_of_lt₁ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
                 (le_of_not_lt is_ζ_pos)
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
         ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
