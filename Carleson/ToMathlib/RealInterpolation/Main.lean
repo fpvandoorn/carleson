@@ -753,7 +753,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
         · rw [hspf]; rfl
         · exact is_q₀top.ne_top
       · simp
-  _ = _ := by sorry -- ring
+  _ = _ := by split_ifs <;> ring
 
 lemma combine_estimates₁ {A : ℝ≥0} [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂] (hA : 0 < A)
