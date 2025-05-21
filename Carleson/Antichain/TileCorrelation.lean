@@ -241,6 +241,14 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
       have ha1 : 1 < a ^ 3 := Nat.one_lt_pow three_ne_zero ha
       gcongr <;> omega
 
+
+-- Eq. 6.2.3 (Lemma 6.2.1)
+lemma correlation_kernel_bound' (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ Icc (- (S : ℤ)) s₂)
+    {x₁ x₂ : X} :
+    iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (2 * ↑D ^s₁) ≤
+      (C_6_2_1 a : ℝ≥0∞) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂))) := by
+  sorry
+
 variable [TileStructure Q D κ S o]
 
 open TileStructure.Forest
@@ -432,8 +440,12 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
   have hsupp : tsupport (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆
       ball x1 (D ^ 𝔰 p') := fun _ hx ↦  mem_ball_of_mem_tsupport_correlation hx
   have hs : 𝔰 p' ∈ Icc (- (S : ℤ)) (𝔰 p) := ⟨scale_mem_Icc.1, hle⟩
-  have hnrm : iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (↑D ^ 𝔰 p') < ⊤ :=
+  /- have hnrm : iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (↑D ^ 𝔰 p') < ⊤ :=
     lt_of_le_of_lt (correlation_kernel_bound ha hs) (ENNReal.mul_lt_top
+      ENNReal.coe_lt_top (ENNReal.inv_lt_top.mpr (ENNReal.mul_pos_iff.mpr
+        ⟨measure_ball_pos volume (x1 : X) hD', measure_ball_pos volume (x2 : X) hD⟩))) -/
+  have hnrm : iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (2 * ↑D ^ 𝔰 p') < ⊤ :=
+    lt_of_le_of_lt (correlation_kernel_bound' ha hs) (ENNReal.mul_lt_top
       ENNReal.coe_lt_top (ENNReal.inv_lt_top.mpr (ENNReal.mul_pos_iff.mpr
         ⟨measure_ball_pos volume (x1 : X) hD', measure_ball_pos volume (x2 : X) hD⟩)))
   -- For compatibility with holder_van_der_corput
@@ -442,7 +454,7 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
       (volume (ball (x2 : X) (↑D ^𝔰 p))) =
       (2^(254 * a^3 + 8 * a)) / (volume (ball (x2 : X) (↑D ^𝔰 p))) *
       ((1 + edist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) := by
-    sorry --rw [div_mul_comm, mul_comm _ (2 ^ _), mul_div_assoc]
+    rw [ENNReal.mul_comm_div, mul_comm, mul_comm _ (2 ^ _), mul_div_assoc]
   rw [I12]
   -- TODO: fix s₁ in blueprint
   simp only [enorm_mul]
@@ -453,13 +465,12 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
   rw [heq, edist_comm]
   --push_cast
   gcongr
-  · have hbdd := correlation_kernel_bound ha hs (x₁ := x1) (x₂ := x2)
+  · have hbdd := correlation_kernel_bound' ha hs (x₁ := x1) (x₂ := x2)
     have foo : (C2_0_5 ↑a : ℝ≥0∞) * volume (ball (x1 : X) (↑D ^ 𝔰 p')) *
         iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) ↑x2) (↑x1) (2 * ↑D ^ 𝔰 p') ≤
         ↑(C2_0_5 ↑a) * volume (ball ((x1 : X)) (↑D ^ 𝔰 p')) * (↑(C_6_2_1 a) /
           (volume (ball (x1 : X) (↑D ^ 𝔰 p')) * volume (ball (x2 : X) (↑D ^ 𝔰 p)))) := by
       gcongr
-      sorry
     -- simp, ring_nf, field_simp did not help.
     have heq : ↑(C2_0_5 a) * volume (ball (x1 : X) (↑D ^ 𝔰 p')) *
       (↑(C_6_2_1 a) / (volume (ball (x1 : X) (↑D ^ 𝔰 p')) * volume (ball (x2 : X) (↑D ^ 𝔰 p)))) =
@@ -495,11 +506,8 @@ lemma I12_le (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → 
     I12 p p' g x1 x2 ≤
     (2^(254 * a^3 + 8 * a + 1) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹))) /
       (volume (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ := by
-  sorry
-  /- apply le_trans (NNReal.coe_le_coe.mpr (I12_le' ha p p' hle g x1 x2))
-  simp only [Nat.cast_pow, Nat.cast_ofNat, NNReal.coe_mul, NNReal.coe_div, NNReal.coe_pow,
-    NNReal.coe_ofNat, NNReal.coe_rpow, NNReal.coe_add, NNReal.coe_one, coe_nndist, coe_nnnorm]
-  gcongr ?_ *  ‖g ↑x1‖ * ‖g ↑x2‖
+  apply le_trans (I12_le' ha p p' hle g x1 x2)
+  gcongr ?_ *  ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ
   rw [pow_add 2 _ 1, pow_one, mul_comm _ 2, mul_assoc, mul_comm 2 (_ * _), mul_assoc]
   gcongr
   -- Now we need to use Lemma 6.2.3. to conclude this inequality.
@@ -519,7 +527,8 @@ lemma I12_le (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → 
     add_nonneg zero_le_one dist_nonneg
   rw [← Real.rpow_le_rpow_iff_of_neg hmul_pos hdist hneg] at h623
   rw [Real.mul_rpow (le_of_lt h28a) h1dist, mul_comm, ← le_div_iff₀ hpos] at h623
-  apply le_trans h623
+  sorry
+  /- apply le_trans h623
   rw [div_eq_inv_mul, mul_comm _ 2]
   gcongr
   conv_rhs => rw [← Real.rpow_one (2 : ℝ)]
