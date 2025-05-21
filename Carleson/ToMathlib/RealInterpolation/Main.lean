@@ -824,15 +824,13 @@ lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     ring_nf
     field_simp
     have : (1 - t + t).toReal = 1 := by
-      rw [toReal_eq_one_iff]
-      sorry -- 1 - t + t = 1 in ENNReal
+      rw [toReal_eq_one_iff, add_comm, add_tsub_cancel_iff_le]
+      exact ht.2.le
     rw [mul_comm, ← mul_add, ← toReal_add, this, mul_one]
     · finiteness
     · have := ht.2; finiteness
-  · rw [hp']
-    exact d_pos_aux₀ hF |>.ne'
-  · rw [hp']
-    exact d_ne_top_aux₀ hF
+  · exact hp' ▸ d_pos_aux₀ hF |>.ne'
+  · exact hp' ▸ d_ne_top_aux₀ hF
 
 lemma simplify_factor₄ {D : ℝ≥0∞} [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)

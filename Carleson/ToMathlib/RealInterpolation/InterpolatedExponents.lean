@@ -21,9 +21,6 @@ theorem mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r
   · apply False.elim (by simp at hq)
   exact ⟨tsub_pos_of_lt hq.2, (ENNReal.sub_lt_self_iff hr).mpr ⟨hr', hq.1⟩⟩
 
-lemma one_sub_add_same {t : ℝ≥0∞} : 1 - (1 - t) = t := by
-  sorry  -- "should be easy"
-
 lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
   toReal_mono ha₂.ne_top ha₁
 
@@ -464,8 +461,8 @@ lemma ζ_equality₄ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
   rw [ζ_symm, ζ_equality₃ (ENNReal.mem_sub_Ioo one_ne_top ht)] <;> try assumption
   · exact hp₀p₁.symm
   · exact hq₀q₁.symm
-  · rw [hp, add_comm, ENNReal.one_sub_add_same]
-  · rw [hq, add_comm, ENNReal.one_sub_add_same]
+  · rw [hp, add_comm, ENNReal.sub_sub_cancel one_ne_top ht.2.le]
+  · rw [hq, add_comm, ENNReal.sub_sub_cancel one_ne_top ht.2.le]
 
 lemma ζ_equality₅ {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -493,7 +490,7 @@ lemma ζ_equality₆ {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (h
     (hq₁' : q₁ ≠ ⊤) :
     p₁.toReal + (ζ p₀ q₀ p₁ q₁ t.toReal)⁻¹ * (q.toReal - q₁.toReal) * (p₁.toReal / q₁.toReal) = p.toReal := by
   rw [ζ_symm]
-  have ht' : 1 - t ∈ Ioo 0 1 := sorry -- Ioo.one_sub_mem ht
+  have ht' : 1 - t ∈ Ioo 0 1 := mem_sub_Ioo one_ne_top ht
   apply ζ_equality₅ ht' hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm _ _ hp₁' hq₁'
   exacts [sorry, sorry] -- proofs were: (switch_exponents2 ht hp) (switch_exponents2 ht hq) hp₁' hq₁'
 
