@@ -24,6 +24,79 @@ theorem mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r
 lemma one_sub_add_same {t : ℝ≥0∞} : 1 - (1 - t) = t := by
   sorry  -- "should be easy"
 
+lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
+  toReal_mono ha₂.ne_top ha₁
+
+lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : 0 ≤ q): ENNReal.ofReal a ^ q ≠ ⊤ :=
+  rpow_ne_top_of_nonneg hq coe_ne_top
+
+-- Note this lemma can directly be applied to elements of `ℝ≥0` as well
+lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ :=
+  coe_rpow_ne_top hq.le
+
+lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : 0 < a) : 0 < ENNReal.ofReal a ^ q :=
+  ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
+
+lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) : a ^ q ≠ ⊤ := by
+  intro h
+  rcases ENNReal.rpow_eq_top_iff.mp h with ⟨a_zero, _⟩ | ⟨a_top, _⟩
+  · exact (ha a_zero).elim
+  · exact (ha' a_top).elim
+
+lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : 1 ≤ q) (hq' : q < ⊤) : 0 < q.toReal :=
+  toReal_pos (lt_of_lt_of_le zero_lt_one hq).ne' hq'.ne_top
+
+lemma ne_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q ≠ ⊤ := hq.2.ne_top
+
+lemma lt_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q < ⊤ := (ne_top_of_Ico hq).lt_top
+
+lemma ne_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ ⊤ := hq.2.ne_top
+
+lemma lt_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q < ⊤ := (ne_top_of_Ioo hq).lt_top
+
+-- XXX: generalise interval bounds!
+lemma toReal_mem_Ioo {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) : t.toReal ∈ Ioo 0 1 :=
+  ⟨toReal_pos ht.1.ne' (ne_top_of_Ioo ht), toReal_lt_of_lt_ofReal (by simp [ht.2])⟩
+
+-- XXX: generalise interval bounds!
+lemma ofReal_mem_Ioo_0_1 (t : ℝ) (h : t ∈ Ioo 0 1) : ENNReal.ofReal t ∈ Ioo 0 1 :=
+  ⟨ofReal_pos.mpr h.1, ofReal_lt_one.mpr h.2⟩
+
+lemma ne_top_of_Ioc {p q r : ℝ≥0∞} (hq : q ∈ Ioc p r) (hr : r < ⊤) : q ≠ ⊤ :=
+  hq.2.trans_lt hr |>.ne_top
+
+lemma pos_of_rb_Ioc {p q r : ℝ≥0∞} (hr : q ∈ Ioc p r) : 0 < r :=
+  zero_le p |>.trans_lt hr.1 |>.trans_le hr.2
+
+lemma pos_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : 0 < q := pos_of_gt hq.1
+
+lemma ne_zero_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ 0 := (pos_of_gt hq.1).ne'
+
+lemma pos_of_Icc_1 {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : 0 < p := lt_of_lt_of_le zero_lt_one hp.1
+
+lemma pos_of_ge_1 {p : ℝ≥0∞} (hp : 1 ≤ p) : 0 < p := lt_of_lt_of_le zero_lt_one hp
+
+lemma pos_rb_of_Icc_1_inh {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : 0 < q :=
+  lt_of_lt_of_le zero_lt_one (le_trans hp.1 hp.2)
+
+lemma toReal_pos_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : 0 < p.toReal :=
+  toReal_pos (ne_zero_of_lt hp.1) hp.2.ne_top
+
+lemma toReal_ne_zero_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : p.toReal ≠ 0 :=
+  toReal_ne_zero.mpr ⟨ne_zero_of_lt hp.1, hp.2.ne_top⟩
+
+-- TODO: check which ones are actually used
+lemma eq_of_rpow_eq (a b: ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ c) : a = b := by
+  rw [← ENNReal.rpow_rpow_inv hc a, ← ENNReal.rpow_rpow_inv hc b]
+  exact congrFun (congrArg HPow.hPow h) c⁻¹
+
+lemma le_of_rpow_le {a b: ℝ≥0∞} {c : ℝ} (hc : 0 < c) (h : a ^ c ≤ b ^ c) : a ≤ b := by
+  rw [← ENNReal.rpow_rpow_inv hc.ne' a, ← ENNReal.rpow_rpow_inv hc.ne' b]
+  exact (ENNReal.rpow_le_rpow_iff (inv_pos_of_pos hc)).mpr h
+
+lemma coe_inv_exponent (hp₀ : 0 < p₀) : ENNReal.ofReal (p₀⁻¹.toReal) = p₀⁻¹ :=
+  ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne')
+
 end ENNReal
 
 /-! ## Convenience results for working with (interpolated) exponents -/
@@ -112,9 +185,6 @@ lemma switch_exponents (ht : t ∈ Ioo 0 1)
   · exact hp
   · exact (Ioo.one_sub_mem ht).1.le -/
 
-lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
-  toReal_mono ha₂.ne_top ha₁
-
 lemma one_le_interp (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 1 ≤ p := by
@@ -127,47 +197,6 @@ lemma one_le_interp_toReal (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 1 ≤ p.toReal :=
   one_le_toReal (one_le_interp hp₀ hp₁ hp₀p₁ ht hp) (interp_exp_ne_top hp₀p₁ ht hp).lt_top
 
-lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : 0 ≤ q): ENNReal.ofReal a ^ q ≠ ⊤ :=
-  rpow_ne_top_of_nonneg hq coe_ne_top
-
--- Note this lemma can directly be applied to elements of `ℝ≥0` as well
-lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ :=
-  coe_rpow_ne_top hq.le
-
-lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : 0 < a) : 0 < ENNReal.ofReal a ^ q :=
-  ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
-
-lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) : a ^ q ≠ ⊤ := by
-  intro h
-  rcases ENNReal.rpow_eq_top_iff.mp h with ⟨a_zero, _⟩ | ⟨a_top, _⟩
-  · exact (ha a_zero).elim
-  · exact (ha' a_top).elim
-
-lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : 1 ≤ q) (hq' : q < ⊤) : 0 < q.toReal :=
-  toReal_pos (lt_of_lt_of_le zero_lt_one hq).ne' hq'.ne_top
-
-lemma ne_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q ≠ ⊤ := hq.2.ne_top
-
-lemma lt_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q < ⊤ := (ne_top_of_Ico hq).lt_top
-
-lemma ne_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ ⊤ := hq.2.ne_top
-
-lemma lt_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q < ⊤ := (ne_top_of_Ioo hq).lt_top
-
--- XXX: generalise interval bounds!
-lemma toReal_mem_Ioo {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) : t.toReal ∈ Ioo 0 1 :=
-  ⟨toReal_pos ht.1.ne' (ne_top_of_Ioo ht), toReal_lt_of_lt_ofReal (by simp [ht.2])⟩
-
--- XXX: generalise interval bounds!
-lemma ofReal_mem_Ioo_0_1 (t : ℝ) (h : t ∈ Ioo 0 1) : ENNReal.ofReal t ∈ Ioo 0 1 :=
-  ⟨ofReal_pos.mpr h.1, ofReal_lt_one.mpr h.2⟩
-
-lemma ne_top_of_Ioc {p q r : ℝ≥0∞} (hq : q ∈ Ioc p r) (hr : r < ⊤) : q ≠ ⊤ :=
-  hq.2.trans_lt hr |>.ne_top
-
-lemma pos_of_rb_Ioc {p q r : ℝ≥0∞} (hr : q ∈ Ioc p r) : 0 < r :=
-  zero_le p |>.trans_lt hr.1 |>.trans_le hr.2
-
 lemma exp_toReal_ne_zero {q : ℝ≥0∞} (hq : q ≥ 1) (hq' : q < ⊤) : q.toReal ≠ 0 :=
   (exp_toReal_pos' hq hq').ne'
 
@@ -178,38 +207,9 @@ lemma exp_toReal_ne_zero' {q : ℝ≥0∞} (hq : 0 < q) (hq' : q ≠ ⊤) : q.to
 lemma exp_toReal_ne_zero_of_Ico {q p : ℝ≥0∞} (hq : q ∈ Ico 1 p) : q.toReal ≠ 0 :=
   exp_toReal_ne_zero hq.1 (lt_top_of_Ico hq)
 
-lemma pos_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : 0 < q := pos_of_gt hq.1
-
-lemma ne_zero_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ 0 := (pos_of_gt hq.1).ne'
-
-lemma pos_of_Icc_1 {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : 0 < p := lt_of_lt_of_le zero_lt_one hp.1
-
-lemma pos_of_ge_1 {p : ℝ≥0∞} (hp : 1 ≤ p) : 0 < p := lt_of_lt_of_le zero_lt_one hp
-
-lemma pos_rb_of_Icc_1_inh {p q : ℝ≥0∞} (hp : p ∈ Icc 1 q) : 0 < q :=
-  lt_of_lt_of_le zero_lt_one (le_trans hp.1 hp.2)
-
-lemma toReal_pos_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : 0 < p.toReal :=
-  toReal_pos (ne_zero_of_lt hp.1) hp.2.ne_top
-
-lemma toReal_ne_zero_of_Ioo {q p r : ℝ≥0∞} (hp : p ∈ Ioo q r) : p.toReal ≠ 0 :=
-  toReal_ne_zero.mpr ⟨ne_zero_of_lt hp.1, hp.2.ne_top⟩
-
--- TODO: check which ones are actually used
-lemma eq_of_rpow_eq (a b: ℝ≥0∞) (c : ℝ) (hc : c ≠ 0) (h : a ^ c = b ^ c) : a = b := by
-  rw [← ENNReal.rpow_rpow_inv hc a, ← ENNReal.rpow_rpow_inv hc b]
-  exact congrFun (congrArg HPow.hPow h) c⁻¹
-
-lemma le_of_rpow_le {a b: ℝ≥0∞} {c : ℝ} (hc : 0 < c) (h : a ^ c ≤ b ^ c) : a ≤ b := by
-  rw [← ENNReal.rpow_rpow_inv hc.ne' a, ← ENNReal.rpow_rpow_inv hc.ne' b]
-  exact (ENNReal.rpow_le_rpow_iff (inv_pos_of_pos hc)).mpr h
-
 -- TODO : decide if this is wanted
 -- local instance : Coe ℝ ℝ≥0∞ where
 --   coe x := ENNReal.ofReal x
-
-lemma coe_inv_exponent (hp₀ : 0 < p₀) : ENNReal.ofReal (p₀⁻¹.toReal) = p₀⁻¹ :=
-  ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₀.ne')
 
 lemma inv_of_interpolated_pos' (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 0 < p⁻¹ :=
