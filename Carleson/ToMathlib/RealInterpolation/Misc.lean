@@ -1124,8 +1124,8 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneC
     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
     β ^ (γ + 1) / ENNReal.ofReal (|γ + 1|) := by
   unfold res
-  by_cases hβ : β = ⊤
-  · rw [hβ, ENNReal.top_rpow_def]
+  by_cases hβ' : β = ⊤
+  · rw [hβ', ENNReal.top_rpow_def]
     split_ifs at hγ with h
     · have : 0 < γ + 1 := by linarith
       have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
@@ -1135,8 +1135,8 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneC
       have h1 : ¬(0 < γ + 1) := by order
       have h2 : ¬(γ + 1 = 0) := by order
       simp [res, h, h1, h2]
-  split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ]
-  · have : 0 < β.toReal := sorry --ComputationsInterpolatedExponents.exp_toReal_pos2 hβ h'
+  split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ']
+  · have : 0 < β.toReal := ComputationsInterpolatedExponents.exp_toReal_pos hβ hβ'
     rw [lintegral_rpow_of_gt_abs this hγ]
     sorry -- sth coercions
   · sorry -- should be a standard result, except for the ofReal
