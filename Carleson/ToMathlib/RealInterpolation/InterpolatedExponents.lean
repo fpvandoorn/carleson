@@ -21,7 +21,7 @@ lemma ENNReal_preservation_positivity₀ (ht : t ∈ Ioo 0 1) (hpq : p ≠ ⊤ �
   obtain dir|dir := hpq
   · exact Left.add_pos_of_pos_of_nonneg (mul_pos ((tsub_pos_of_lt ht.2).ne')
       (ENNReal.inv_ne_zero.mpr dir)) (zero_le _)
-  · apply Right.add_pos_of_nonneg_of_pos (zero_le _)
+  · exact Right.add_pos_of_nonneg_of_pos (zero_le _)
       <| ENNReal.mul_pos ht.1.ne' (ENNReal.inv_ne_zero.mpr dir)
 
 lemma ENNReal_preservation_positivity (ht : t ∈ Ioo 0 1) (hpq : p ≠ q) :
@@ -428,10 +428,10 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
   rw [ζ_equality₁ ht, ← preservation_interpolation, ← preservation_interpolation]
   have q_pos : 0 < q := interpolated_pos' hq₀ hq₁ (ne_top_of_Ioo ht) hq
   have p_pos : 0 < p := interpolated_pos' hp₀ hp₁ (ne_top_of_Ioo ht) hp
+  have aux := mul_pos (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp)
+    (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq)
   have hne : 0 < p.toReal * q.toReal * p₀.toReal * q₀.toReal :=
-    sorry -- was: mul_pos (mul_pos (mul_pos (interp_exp_toReal_pos2 ht hp₀ hp₁ hp₀p₁ hp)
-    -- (interp_exp_toReal_pos2 ht hq₀ hq₁ hq₀q₁ hq)) (exp_toReal_pos hp₀ hp₀'))
-    -- (exp_toReal_pos hq₀ hq₀')
+    mul_pos (mul_pos aux (exp_toReal_pos hp₀ hp₀')) (exp_toReal_pos hq₀ hq₀')
   rw [← mul_div_mul_right _ _ hne.ne']
   have eq₁ : p⁻¹.toReal * (q⁻¹.toReal - q₀⁻¹.toReal) *
       (p.toReal * q.toReal * p₀.toReal * q₀.toReal) =
@@ -450,6 +450,15 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
   · apply interp_exp_ne_top hq₀q₁ ht hq
   · apply interp_exp_ne_top hp₀p₁ ht hp
 
+-- the Ioc version is true for r = ∞ also
+theorem ENNReal.mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r - q ∈ Ioo 0 r := by
+  obtain (rfl | hr') := eq_zero_or_pos r
+  · apply False.elim (by simp at hq)
+  exact ⟨tsub_pos_of_lt hq.2, (ENNReal.sub_lt_self_iff hr).mpr ⟨hr', hq.1⟩⟩
+
+lemma ENNReal.one_sub_add_same {t : ℝ≥0∞} : 1 - (1 - t) = t := by
+  sorry  -- "should be easy"
+
 lemma ζ_equality₄ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
@@ -457,15 +466,11 @@ lemma ζ_equality₄ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
     (hq₁' : q₁ ≠ ⊤) :
     ζ p₀ q₀ p₁ q₁ t.toReal =
     (p₁.toReal * (q₁.toReal - q.toReal)) / (q₁.toReal * (p₁.toReal - p.toReal)) := by
-  rw [ζ_symm]
-  -- TODO: proven above, extract as a separate lemma
-  -- mathlib has this as Ioo.one_sub_mem ht; can I generalise this beyond ordered rings?
-  have one_sub_mem : 1 - t ∈ Ioo 0 1 := sorry -- proven above, TODO extract!
-  rw [ζ_equality₃ one_sub_mem] <;> try assumption
+  rw [ζ_symm, ζ_equality₃ (ENNReal.mem_sub_Ioo one_ne_top ht)] <;> try assumption
   · exact hp₀p₁.symm
   · exact hq₀q₁.symm
-  · sorry -- TODO
-  · sorry -- TODO
+  · rw [hp, add_comm, ENNReal.one_sub_add_same]
+  · rw [hq, add_comm, ENNReal.one_sub_add_same]
 
 lemma ζ_equality₅ {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -506,9 +511,9 @@ lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
   rw [ζ_equality₁ ht, ← preservation_interpolation ht hp₀ hp₁ hp,
     ← preservation_interpolation ht hq₀ hq₁ hq, hq₀']
   simp only [inv_top, toReal_zero, sub_zero, mul_zero, zero_add]
-  have obs : p₀.toReal * p.toReal * q.toReal > 0 :=
-    sorry -- mul_pos (mul_pos (toReal_pos hp₀.ne' hp₀') (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp))
-    -- (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq)
+  have obs : 0 < p₀.toReal * p.toReal * q.toReal :=
+    mul_pos (mul_pos (toReal_pos hp₀.ne' hp₀') (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp))
+      (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq)
   rw [← mul_div_mul_right _ _ obs.ne']
   congr
   · calc
@@ -537,7 +542,8 @@ lemma ζ_equality₈ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
     (hq₁' : q₁ = ⊤) :
     ζ p₀ q₀ p₁ q₁ t.toReal = p₁.toReal / (p₁.toReal - p.toReal) := by
     rw [ζ_symm]
-    --apply ζ_equality₇2 (Ioo.one_sub_mem ht) hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm
+    refine ζ_equality₇ (ENNReal.mem_sub_Ioo one_ne_top ht) hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm
+      ?_ ?_ hp₁' hq₁' (q₀ := q₁) (p := p) (q := q)
     --  ?_ ?_ /- (switch_exponents2 ht hp) (switch_exponents2 ht hq)-/ hp₁' hq₁'
     all_goals sorry
 
@@ -551,8 +557,8 @@ lemma ζ_eq_top_top (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
     ← preservation_interpolation ht hq₀ hq₁ hq, hp₁', hq₁']
   simp only [inv_top, toReal_zero, sub_zero]
   rw [mul_comm, div_eq_mul_inv, mul_inv_cancel₀]
-  sorry /- exact (mul_pos (interp_exp_inv_pos2 ht hq₀ hq₁ hq₀q₁ hq)
-    (interp_exp_inv_pos2 ht hp₀ hp₁ hp₀p₁ hp)).ne' -/
+  exact (mul_pos (interp_exp_inv_pos ht hq₀ hq₁ hq₀q₁ hq)
+    (interp_exp_inv_pos ht hp₀ hp₁ hp₀p₁ hp)).ne'
 
 lemma ζ_pos_iff_aux (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ ≠ ⊤) :
     ( 0 < p₀.toReal * (q₀.toReal - q.toReal) / (q₀.toReal * (p₀.toReal - p.toReal))) ↔
