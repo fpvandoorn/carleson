@@ -1,4 +1,5 @@
 import Carleson.ToMathlib.ENorm
+import Mathlib.Tactic.Finiteness
 
 /-!
 # Results about working with (interpolated) exponents
@@ -40,13 +41,16 @@ lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) :
   · exact (ha a_zero).elim
   · exact (ha' a_top).elim
 
+-- unused (one reference in an also-unused lemma)
 lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : 1 ≤ q) (hq' : q < ⊤) : 0 < q.toReal :=
   toReal_pos (lt_of_lt_of_le zero_lt_one hq).ne' hq'.ne_top
 
+@[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma ne_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q ≠ ⊤ := hq.2.ne_top
 
 lemma lt_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q < ⊤ := (ne_top_of_Ico hq).lt_top
 
+@[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma ne_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ ⊤ := hq.2.ne_top
 
 lemma lt_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q < ⊤ := (ne_top_of_Ioo hq).lt_top
@@ -247,13 +251,7 @@ lemma interp_exp_inv_ne_zero (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀)
 lemma preservation_interpolation (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀)
     (hp₁ : 0 < p₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
     p⁻¹.toReal = (1 - t).toReal * (p₀⁻¹).toReal + t.toReal * (p₁⁻¹).toReal := by
-  sorry /- proof was: rw [← toReal_one, ← toReal_ofReal ht.1.le, ← ENNReal.toReal_sub_of_le]
-  · rw [← toReal_mul, ← toReal_mul, ← toReal_add]
-    · exact congrArg ENNReal.toReal hp
-    · exact mul_ne_top (sub_ne_top (top_ne_one.symm)) (inv_ne_top.mpr hp₀.ne')
-    · exact mul_ne_top coe_ne_top (inv_ne_top.mpr hp₁.ne')
-  · exact ofReal_le_one.mpr ht.2.le
-  · exact top_ne_one.symm -/
+  rw [hp, ← toReal_mul, ← toReal_mul, toReal_add (by finiteness) (by finiteness)]
 
 lemma preservation_positivity_inv_toReal (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     (hp₀p₁ : p₀ ≠ p₁) :
