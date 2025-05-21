@@ -191,6 +191,11 @@ lemma d_pos (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0
     @d α E₁ m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f > 0 :=
   pos_of_ne_zero <| d_ne_zero_aux₃ hC₀ hC₁ hF
 
+lemma d_ne_top (hC₀ : 0 < C₀) (hC₁ : 0 < C₁) (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
+    @d α E₁ m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f ≠ ⊤ := by
+  rw [d]
+  exact d_ne_top_aux₄ hC₀ hC₁ hF
+
 lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) (hq₀' : q₀ = ⊤) (hq₀q₁ : q₀ ≠ q₁):
     @d α E₁ m p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f =
     (↑C₀ ^ p₀.toReal * eLpNorm f p μ ^ p.toReal) ^ p₀.toReal⁻¹ := by
@@ -250,14 +255,15 @@ lemma d_eq_top_top (hq₀ : 0 < q₀) (hq₀q₁ : q₀ ≠ q₁) (hp₁' : p₁
   · exact (toReal_pos (ENNReal.inv_ne_zero.mpr (hq₁' ▸ hq₀q₁)) (ENNReal.inv_ne_top.mpr hq₀.ne')).ne'
 
 /-- The particular choice of scaled power function that works in the proof of the
-    real interpolation theorem. -/
+real interpolation theorem. -/
 def spf_ch (ht : t ∈ Ioo 0 1) (hq₀q₁ : q₀ ≠ q₁) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
     (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hp₀p₁ : p₀ ≠ p₁) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤) :
     ScaledPowerFunction where
   σ := ζ p₀ q₀ p₁ q₁ t
   d := @d _ E₁ _ p p₀ q₀ p₁ q₁ C₀ C₁ μ _ _ f
-  hσ := lt_or_gt_of_ne <| Ne.symm <| sorry -- TODO! (ζ_ne_zero2 ht hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
+  hσ := lt_or_gt_of_ne <| Ne.symm <|
+    (toReal_ofReal ht.1.le) ▸ (ζ_ne_zero2 (ofReal_mem_Ioo_0_1 t ht) hp₀ hq₀ hp₁ hq₁ hp₀p₁ hq₀q₁)
   hd := d_pos hC₀ hC₁ hF
   hd' := d_ne_top_aux₄ hC₀ hC₁ hF
 

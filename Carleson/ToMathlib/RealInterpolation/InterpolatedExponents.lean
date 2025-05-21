@@ -133,7 +133,7 @@ lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) :
   · exact (ha a_zero).elim
   · exact (ha' a_top).elim
 
-lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : q ≥ 1) (hq' : q < ⊤) : 0 < q.toReal :=
+lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : 1 ≤ q) (hq' : q < ⊤) : 0 < q.toReal :=
   toReal_pos (lt_of_lt_of_le zero_lt_one hq).ne' hq'.ne_top
 
 lemma ne_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q ≠ ⊤ := hq.2.ne_top
@@ -143,6 +143,14 @@ lemma lt_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q < ⊤ := (ne_t
 lemma ne_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ ⊤ := hq.2.ne_top
 
 lemma lt_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q < ⊤ := (ne_top_of_Ioo hq).lt_top
+
+-- XXX: generalise interval bounds!
+lemma toReal_mem_Ioo {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) : t.toReal ∈ Ioo 0 1 :=
+  ⟨toReal_pos ht.1.ne' (ne_top_of_Ioo ht), toReal_lt_of_lt_ofReal (by simp [ht.2])⟩
+
+-- XXX: generalise interval bounds!
+lemma ofReal_mem_Ioo_0_1 (t : ℝ) (h : t ∈ Ioo 0 1) : ENNReal.ofReal t ∈ Ioo 0 1 :=
+  ⟨ofReal_pos.mpr h.1, ofReal_lt_one.mpr h.2⟩
 
 lemma ne_top_of_Ioc {p q r : ℝ≥0∞} (hq : q ∈ Ioc p r) (hr : r < ⊤) : q ≠ ⊤ :=
   hq.2.trans_lt hr |>.ne_top
@@ -249,22 +257,21 @@ lemma preservation_interpolation (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀)
 lemma preservation_positivity_inv_toReal (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     (hp₀p₁ : p₀ ≠ p₁) :
     0 < (1 - t.toReal) * (p₀⁻¹).toReal + t.toReal * (p₁⁻¹).toReal := by
-  -- TODO: extract as general lemmas!
-  have aux : 0 < t.toReal := toReal_pos ht.1.ne' (ne_top_of_Ioo ht)
-  have aux' : 0 < (1 - t).toReal :=
-    toReal_pos (tsub_pos_iff_lt.mpr ht.2).ne' (sub_ne_top top_ne_one.symm)
+  -- TODO: do we need aux' ever? if so, extract as general lemma!
+  -- have aux' : 0 < (1 - t).toReal :=
+  --   toReal_pos (tsub_pos_iff_lt.mpr ht.2).ne' (sub_ne_top top_ne_one.symm)
+  have aux : 0 < 1 - t.toReal := by simpa using (toReal_mem_Ioo ht).2
   rcases (eq_or_ne p₀ ⊤) with p₀eq_top | p₀ne_top
   · rw [p₀eq_top]
     simp only [inv_top, toReal_zero, mul_zero, zero_add]
-    apply mul_pos aux
+    apply mul_pos (toReal_mem_Ioo ht).1
     rw [toReal_inv]
     refine inv_pos_of_pos (exp_toReal_pos hp₁ ?_)
     rw [p₀eq_top] at hp₀p₁
     exact hp₀p₁.symm
-  · apply add_pos_of_pos_of_nonneg --(mul_pos aux' (toReal_inv _ ▸ inv_pos_of_pos
-      --(exp_toReal_pos2 hp₀ p₀ne_top))) (mul_nonneg aux.le toReal_nonneg)
-    · sorry
-    · sorry
+  · exact add_pos_of_pos_of_nonneg
+      (mul_pos aux <| toReal_inv _ ▸ inv_pos_of_pos (exp_toReal_pos hp₀ p₀ne_top))
+      (mul_nonneg (toReal_mem_Ioo ht).1.le toReal_nonneg)
 
 lemma ne_inv_toReal_exponents (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁) :
     (p₀⁻¹.toReal ≠ p₁⁻¹.toReal) := by

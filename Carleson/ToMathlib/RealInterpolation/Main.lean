@@ -611,8 +611,6 @@ lemma support_sigma_finite_from_MemLp
 --   have : SigmaFinite (μ.restrict (Function.support f)) := support_sigma_finite_from_MemLp hf hp hp'
 --   exact instSFiniteOfSigmaFinite
 
-lemma foobarbaz (ht : t ∈ Ioo (0 : ℝ≥0∞) 1) : t.toReal ∈ Ioo (0 : ℝ) 1 := sorry
-
 lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
   [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
@@ -624,7 +622,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   (hf : MemLp f p μ) (hT : Subadditive_trunc T A f ν)
   (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
   (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-  (hspf : spf = spf_ch (foobarbaz ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
+  (hspf : spf = spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
       (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF)
   (h₁T : HasWeakType T p₁ q₁ μ ν C₁)
   (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
@@ -772,7 +770,7 @@ lemma combine_estimates₁ {A : ℝ≥0} [MeasurableSpace E₁] [NormedAddCommGr
     (h₂T : PreservesAEStrongMeasurability T p (ν := ν) (μ := μ))
     (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hF : eLpNorm f p μ ∈ Ioo 0 ⊤)
-    (hspf : spf = spf_ch (foobarbaz ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
+    (hspf : spf = spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 (lt_of_lt_of_le hp₀.1 hp₀.2) hp₁.1
         (lt_of_lt_of_le hp₁.1 hp₁.2) hp₀p₁.ne hC₀ hC₁ hF) :
     eLpNorm (T f) q ν ≤
     ENNReal.ofReal (2 * A) * q ^ q⁻¹.toReal *
@@ -919,7 +917,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
   rcases (eq_zero_or_pos (eLpNorm f p μ)) with hF | hF
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
-  · let spf := spf_ch (foobarbaz ht) hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
+  · let spf := spf_ch (toReal_mem_Ioo ht) hq₀q₁ hp₀.1 hq₀ hp₁.1 hq₁ hp₀p₁.ne hC₀ hC₁ ⟨hF, hf.2⟩
     apply combine_estimates₁ <;> try assumption
     on_goal 1 => unfold spf
     rfl
@@ -951,6 +949,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [NormedAd
       preservation_inequality_of_lt₀2 ht q₀pos q₁pos hq hq₀q₁
     have q_toReal_ne_zero : q.toReal ≠ 0 :=
       (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
+    -- lemma below proves the same, but for M.toReal
     have M_pos : 0 < M := by
       apply d_pos <;> try assumption
     have coe_q : ENNReal.ofReal q.toReal = q :=
@@ -1027,8 +1026,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
   · refine le_of_eq_of_le ?_ (zero_le _)
     apply exists_hasStrongType_real_interpolation_aux₀ (hp := hp) (hq := hq) <;> try assumption
   · have hF : eLpNorm f p μ ∈ Ioo 0 ⊤ := ⟨snorm_pos, hf.2⟩
-    have M_pos : 0 < M := by
-      sorry -- was: apply d_pos <;> assumption
+    have M_pos : 0 < M := toReal_pos (d_pos hC₀ hC₁ hF).ne' (d_ne_top hC₀ hC₁ hF)
     have coe_q : ENNReal.ofReal q.toReal = q :=
     ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     nth_rw 1 [← coe_q]
