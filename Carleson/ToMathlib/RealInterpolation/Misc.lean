@@ -59,7 +59,10 @@ lemma ENNReal.rpow_apply_coe {x : ℝ≥0} {y : ℝ} :
 
 lemma ENNReal.rpow_apply_coe' {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ ⊤) :
     x ^ y = if x = 0 ∧ y < 0 then ∞ else (x.toNNReal ^ y : ℝ≥0) := by
-  sorry -- rfl
+  convert ENNReal.rpow_apply_coe
+  · exact Eq.symm (coe_toNNReal hx)
+  · rw [ENNReal.toNNReal_eq_zero_iff]
+    simp [hx]
 
 lemma ENNReal.rpow_lt_rpow_iff_neg {x y : ℝ≥0∞} (hx : x ≠ 0) (hy : y ≠ ∞) (hxy : x < y) {z : ℝ} (hz : z < 0) :
     y ^ z < x ^ z := by
