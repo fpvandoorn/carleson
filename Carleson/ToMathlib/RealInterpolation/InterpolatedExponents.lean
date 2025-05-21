@@ -13,6 +13,19 @@ open ENNReal Real Set MeasureTheory
 
 variable {p₀ q₀ p₁ q₁ p q t : ℝ≥0∞}
 
+namespace ENNReal
+
+-- the Ioc version is true for r = ∞ also
+theorem mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r - q ∈ Ioo 0 r := by
+  obtain (rfl | hr') := eq_zero_or_pos r
+  · apply False.elim (by simp at hq)
+  exact ⟨tsub_pos_of_lt hq.2, (ENNReal.sub_lt_self_iff hr).mpr ⟨hr', hq.1⟩⟩
+
+lemma one_sub_add_same {t : ℝ≥0∞} : 1 - (1 - t) = t := by
+  sorry  -- "should be easy"
+
+end ENNReal
+
 /-! ## Convenience results for working with (interpolated) exponents -/
 namespace ComputationsInterpolatedExponents
 
@@ -84,10 +97,7 @@ lemma interp_exp_between (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     gcongr
     · exact mul_ne_top ht' (inv_ne_top.mpr hp₁.ne')
     · exact (tsub_pos_iff_lt.mpr ht.2).ne'
-    · apply ne_of_lt
-      trans 1
-      · sorry -- easy; 1 - t < 1
-      · exact one_lt_top
+    · exact (mem_sub_Ioo (one_ne_top) ht).2.trans one_lt_top |>.ne
 
 lemma one_le_interp_exp_aux (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hp₀p₁ : p₀ < p₁) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 1 ≤ p :=
@@ -449,15 +459,6 @@ lemma ζ_equality₃ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
   all_goals simp <;> try assumption
   · apply interp_exp_ne_top hq₀q₁ ht hq
   · apply interp_exp_ne_top hp₀p₁ ht hp
-
--- the Ioc version is true for r = ∞ also
-theorem ENNReal.mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r - q ∈ Ioo 0 r := by
-  obtain (rfl | hr') := eq_zero_or_pos r
-  · apply False.elim (by simp at hq)
-  exact ⟨tsub_pos_of_lt hq.2, (ENNReal.sub_lt_self_iff hr).mpr ⟨hr', hq.1⟩⟩
-
-lemma ENNReal.one_sub_add_same {t : ℝ≥0∞} : 1 - (1 - t) = t := by
-  sorry  -- "should be easy"
 
 lemma ζ_equality₄ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
