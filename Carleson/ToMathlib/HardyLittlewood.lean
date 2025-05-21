@@ -387,7 +387,7 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
   refine exists_hasStrongType_real_interpolation
     (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) (p := p) (q := p) (A := 1)
     ⟨ENNReal.zero_lt_top, le_rfl⟩
-    ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_--(by simp [inv_lt_one_iff₀, hp, h2p] : p⁻¹ ∈ _)
+    ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑)

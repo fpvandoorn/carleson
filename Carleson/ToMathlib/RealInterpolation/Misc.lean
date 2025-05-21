@@ -52,6 +52,24 @@ structure ToneCouple where
       then ∀ s ∈ Ioi (0 : ℝ≥0∞), ∀ t ∈ Ioi (0 : ℝ≥0∞), (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
       else ∀ s ∈ Ioi (0 : ℝ≥0∞), ∀ t ∈ Ioi (0 : ℝ≥0∞), (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
 
+open scoped NNReal
+
+lemma ENNReal.rpow_apply_coe {x : ℝ≥0} {y : ℝ} :
+    ENNReal.ofNNReal x ^ y = if x = 0 ∧ y < 0 then ∞ else (x ^ y : ℝ≥0) := rfl
+
+lemma ENNReal.rpow_apply_coe' {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ ⊤) :
+    x ^ y = if x = 0 ∧ y < 0 then ∞ else (x.toNNReal ^ y : ℝ≥0) := by
+  sorry -- rfl
+
+lemma ENNReal.rpow_lt_rpow_iff_neg {x y : ℝ≥0∞} (hx : x ≠ 0) (hy : y ≠ ∞) (hxy : x < y) {z : ℝ} (hz : z < 0) :
+    y ^ z < x ^ z := by
+  rw [ENNReal.rpow_apply_coe' hy, ENNReal.rpow_apply_coe' hxy.ne_top]
+  simpa [(pos_of_gt hxy).ne', hx] using
+    NNReal.rpow_lt_rpow_of_neg (toNNReal_pos hx hxy.ne_top) (toNNReal_strict_mono hy hxy) hz
+
+lemma ENNReal.div_lt_div {a b c : ℝ≥0∞} (hc : 0 < c) (hc' : c ≠ ∞) : a / c < b / c ↔ a < b := by
+  rw [ENNReal.div_lt_iff (Or.inl hc.ne') (Or.inl hc'), ENNReal.div_mul_cancel hc.ne' hc']
+
 /-- A scaled power function gives rise to a ToneCouple. -/
 def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
   ton s := (s / spf.d) ^ spf.σ
@@ -76,17 +94,15 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
       intro s (hs : 0 < s) t (ht : 0 < t) hst
       rcases spf.hσ with σ_pos | σ_neg
       · exact (sgn_σ σ_pos).elim
-      · simp only
-        sorry
-        /- apply (ENNReal.rpow_lt_rpow_iff ?_).mpr is not the one; our exponent is negative
-        rw [ENNReal.div_lt_iff]
-        rw [ENNReal.div_mul_cancel spf.hd.ne' spf.hd']
-
-        --gcon
-
-        --apply spf.hσ
-        --refine (Real.rpow_lt_rpow_iff_of_neg (ENNReal.div_pos ht.ne spf.hd)
-        --  ?_)--(ENNReal.div_pos hs.ne spf.hd') σ_neg).mpr (div_lt_div_of_pos_right ?_ ?_)--spf.hd) -/
+      · by_cases ht' : t = ⊤
+        · beta_reduce; rw [ht', top_div]
+          simp only [spf.hd', ↓reduceIte, gt_iff_lt, top_rpow_of_neg σ_neg]
+          by_cases hs' : s = ⊤
+          · simp_all [spf.hd']
+          exact rpow_pos (ENNReal.div_pos hs.ne' spf.hd') (div_ne_top hs' spf.hd.ne')
+        apply rpow_lt_rpow_iff_neg ?_ ?_ ((ENNReal.div_lt_div spf.hd spf.hd').mpr hst) σ_neg
+        · exact ENNReal.div_ne_zero.mpr ⟨hs.ne', spf.hd'⟩
+        · exact div_ne_top ht' spf.hd.ne'
   inv_pf := by
     split <;> rename_i sgn_σ
     · simp only [↓reduceIte, mem_Ioi]
