@@ -926,7 +926,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
   split_ifs at wt_est
-  have hp₁' : p₁.toReal ≠ 0 := exp_toReal_ne_zero' (lt_trans hp hp₁p) hp₁.ne_top
+  have hp₁' : p₁.toReal ≠ 0 := (toReal_pos (lt_trans hp hp₁p).ne' hp₁.ne_top).ne'
   have : eLpNormEssSup (T (trunc f a)) ν ^ p₁.toReal ≤
       (C₁ * eLpNorm (trunc f a) p₁ μ) ^ p₁.toReal := by gcongr
   have snorm_est : eLpNormEssSup (T (trunc f a)) ν ≤ t := by

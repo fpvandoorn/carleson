@@ -197,15 +197,9 @@ lemma one_le_interp_toReal (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 1 ≤ p.toReal :=
   one_le_toReal (one_le_interp hp₀ hp₁ hp₀p₁ ht hp) (interp_exp_ne_top hp₀p₁ ht hp).lt_top
 
-lemma exp_toReal_ne_zero {q : ℝ≥0∞} (hq : q ≥ 1) (hq' : q < ⊤) : q.toReal ≠ 0 :=
-  (exp_toReal_pos' hq hq').ne'
-
--- TODO: remove the top one?
-lemma exp_toReal_ne_zero' {q : ℝ≥0∞} (hq : 0 < q) (hq' : q ≠ ⊤) : q.toReal ≠ 0 :=
-  (toReal_pos hq.ne' hq').ne'
-
+-- unused
 lemma exp_toReal_ne_zero_of_Ico {q p : ℝ≥0∞} (hq : q ∈ Ico 1 p) : q.toReal ≠ 0 :=
-  exp_toReal_ne_zero hq.1 (lt_top_of_Ico hq)
+  (exp_toReal_pos' hq.1 (lt_top_of_Ico hq)).ne'
 
 -- TODO : decide if this is wanted
 -- local instance : Coe ℝ ℝ≥0∞ where
