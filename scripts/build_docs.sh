@@ -39,7 +39,7 @@ sed -i s/TOOLCHAIN/`grep -oP 'v4\..*' lean-toolchain`/ docbuild/lakefile.toml
 cd docbuild
 
 # Disable an error message due to a non-blocking bug. See Zulip
-MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update carleson
+MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update
 
 # Build the docs
 ~/.elan/bin/lake build Carleson:docs
