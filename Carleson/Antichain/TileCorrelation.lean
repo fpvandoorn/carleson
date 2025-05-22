@@ -88,7 +88,7 @@ lemma aux_6_2_3 (s₁ s₂ : ℤ) (x₁ x₂ y y' : X)  :
 -- Eq. 6.2.3 (Lemma 6.2.1)
 lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ Icc (- (S : ℤ)) s₂)
    {x₁ x₂ : X} :
-    iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (↑D ^s₁) ≤
+    iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (2 * ↑D ^s₁) ≤
       (C_6_2_1 a : ℝ≥0∞) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂))) := by
   -- 6.2.4
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
@@ -113,7 +113,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
           ‖Ks s₁ x₁ y'‖ₑ * ‖Ks s₂ x₂ y - Ks s₂ x₂ y'‖ₑ := by
           simp only [← sub_mul, ← mul_sub, enorm_mul, RCLike.enorm_conj, ← map_sub]
   -- 6.2.5
-  have hyy' : ∀ (y y' : X) (hy' : y ≠ y'), (((D  ^ s₁ : ℝ≥0)) ^ τ)  *
+  have hyy' : ∀ (y y' : X) (hy' : y ≠ y'), (((2 * D  ^ s₁ : ℝ≥0)) ^ τ)  *
     (‖correlation s₁ s₂ x₁ x₂ y - correlation s₁ s₂ x₁ x₂ y'‖ₑ / (nndist y y')^τ) ≤
       (2^(253*a^3) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂)))) := by
     intros y y' hy'
@@ -178,7 +178,9 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         congr 1
         rw [← mul_div_assoc, mul_comm]
       _ ≤ 2 ^ (253 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) *
-        (↑(nndist y y') ^ τ / ((D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ) := by
+        (↑(nndist y y') ^ τ / ((2 * D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ) := by
+        -- todo: modify the proof so that we extract the factor 2 from 2D^s₁.
+        -- Then we will need to use 252a^3 + 2 ≤ 253a^3
         have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
         have : 252 * a ^ 3 + 1 ≤ 253 * a ^ 3 := by --used by the second gcongr below
           rw [Nat.succ_mul 252 (a ^ 3)]
@@ -187,8 +189,9 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         nth_rewrite 2 [← pow_one 2]
         rw [← pow_add]
         gcongr --uses h12
+        all_goals {sorry} -- fix the proof earlier
       _ = 2 ^ (253 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) /
-        ((D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ * ↑(nndist y y') ^ τ := by rw [← ENNReal.mul_comm_div]
+        ((2 * D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ * ↑(nndist y y') ^ τ := by rw [← ENNReal.mul_comm_div]
     · left
       simp only [ne_eq, ENNReal.rpow_eq_zero_iff, not_or, not_and_or]
       refine ⟨?_, Or.inl ENNReal.coe_ne_top⟩
@@ -202,12 +205,13 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
       refine ⟨?_, Or.inr <| not_lt.mpr (by simp only [defaultτ, inv_nonneg, Nat.cast_nonneg])⟩
       · left
         norm_cast
-        exact ne_of_gt (defaultD_pow_pos a _)
+        apply ne_of_gt
+        exact mul_pos (by norm_num) <| defaultD_pow_pos a _
     · left
       refine ENNReal.rpow_ne_top_of_nonneg ?ht.h.hy0 ENNReal.coe_ne_top
       simp only [defaultτ, inv_nonneg, Nat.cast_nonneg]
-  calc iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (↑D ^s₁)
-    _ ≤ (C2_1_3 a)^2 / ((volume (ball x₁ (D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))) +
+  calc iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (2 * ↑D ^s₁)
+    _ ≤ (C2_1_3 a)^2 / ((volume (ball x₁ (↑D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))) +
         (2^(253*a^3) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂)))) := by
         simp only [iHolENorm]
         apply add_le_add
@@ -215,7 +219,8 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         simp only [ENNReal.mul_iSup, iSup_le_iff]
         intro z hz z' hz' hzz'
         convert hyy' z z' hzz'
-        · rw [ENNReal.ofReal, Real.toNNReal_zpow D_nonneg, Real.toNNReal_coe_nat]
+        · rw [ENNReal.ofReal, Real.toNNReal_mul zero_le_two, Real.toNNReal_zpow D_nonneg,
+            Real.toNNReal_coe_nat, Real.toNNReal_ofNat]
         · exact edist_nndist z z'
     _ ≤ (C_6_2_1 a : ℝ≥0∞) / (volume (ball x₁ (↑D ^s₁)) * volume (ball x₂ (↑D ^s₂))) := by
       have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
