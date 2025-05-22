@@ -1,5 +1,6 @@
 import Carleson.TileStructure
 import Carleson.ToMathlib.DoublingMeasure
+import Carleson.ToMathlib.Data.ENNReal -- for finiteness tagging
 import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.Data.Set.Subset
@@ -1657,21 +1658,17 @@ lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht
   calc
     (volume ({x|x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)})).toReal
     _ ≤ ((2:ℝ≥0∞) * t ^ κ:ℝ≥0∞).toReal * (volume (I3 hk y)).toReal := by
-        rw [← ENNReal.toReal_mul]
-        rw [ENNReal.toReal_le_toReal]
+        rw [← ENNReal.toReal_mul, ENNReal.toReal_le_toReal]
         · exact boundary_measure hk y ht htD
         · apply LT.lt.ne
+          apply lt_of_le_of_lt ( volume.mono inter_subset_left)
           apply lt_of_le_of_lt
-          · apply volume.mono
-            exact inter_subset_left
-          apply lt_of_le_of_lt
-          · apply volume.mono (I3_prop_3_2 hk y)
+          · exact volume.mono (I3_prop_3_2 hk y)
           · simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
             exact measure_ball_lt_top
         apply ENNReal.mul_ne_top
-        · apply ENNReal.mul_ne_top
-          · finiteness
-          · apply ENNReal.rpow_ne_top_of_nonneg (κ_nonneg) (ENNReal.coe_ne_top)
+        · have :  0 ≤ κ := κ_nonneg
+          finiteness
         apply LT.lt.ne
         apply lt_of_le_of_lt
         · apply volume.mono (I3_prop_3_2 hk y)
