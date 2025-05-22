@@ -362,8 +362,8 @@ lemma estimate_norm_rpow_range_operator'
   have p_pos : 0 < p := lt_trans hp₀ hp₀p
   -- TODO: is there a way to use lintegral_rw₂ conveniently?
   rw [lintegral_rw_aux power_aux_2, lintegral_rw_aux power_aux_2]
-  nth_rw 2 [← lintegral_const_mul']; swap; · exact rpow_ne_top_of_nonneg toReal_nonneg coe_ne_top
-  nth_rw 1 [← lintegral_const_mul']; swap; · exact rpow_ne_top_of_nonneg toReal_nonneg coe_ne_top
+  nth_rw 2 [← lintegral_const_mul']; swap; · finiteness
+  nth_rw 1 [← lintegral_const_mul']; swap; · finiteness
   simp_rw [← mul_assoc]
   split_ifs with is_q₁top is_q₀top
   · rw [one_mul, one_mul, ← lintegral_add_left']

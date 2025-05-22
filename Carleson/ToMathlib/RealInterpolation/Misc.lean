@@ -800,8 +800,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
         exact rpow_le_rpow_of_exponent_le_base_ge_enorm ht hx.ne_top hx.le (toReal_mono hp hpq.2.le)
       · by_cases ht' : t = ⊤
         · simp_all
-        · -- TODO: teach finiteness to solve this!
-          exact ENNReal.rpow_ne_top_of_pos ht.ne' ht'
+        · finiteness
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α,
         ‖f x‖ₑ ^ p.toReal ∂μ := by
       gcongr
@@ -896,7 +895,7 @@ lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
         · finiteness
         · rw [sub_pos]
           exact toReal_strict_mono q_ne_top hpq.2
-      · exact (ENNReal.rpow_ne_top_of_pos ht'' ht).lt_top
+      · finiteness
     · refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
       exact toReal_pos hpq.1.ne' hpq.2.ne_top
 
@@ -913,8 +912,7 @@ lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [BorelSpace E₁]
     (estimate_eLpNorm_truncCompl hp hpq hf.1.aemeasurable ht) ?_
   apply mul_lt_top
   · push_neg at ht'
-    -- TODO: finiteness should prove this
-    exact (ENNReal.rpow_ne_top_of_pos ht.ne' ht').lt_top
+    finiteness
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (lt_trans hpq.left hpq.right).ne' hp
 

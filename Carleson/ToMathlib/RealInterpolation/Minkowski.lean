@@ -573,12 +573,8 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       rw [lintegral_mul_const', lintegral_const_mul', ENNReal.mul_rpow_of_nonneg,
           ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ENNReal.rpow_inv_rpow] <;>
           try positivity
-      · apply rpow_ne_top_of_nonneg (by positivity)
-        -- TODO: can finiteness prove this?
-        by_contra h
-        simp only [rpow_eq_top_iff, sub_neg, spf.hd', sub_pos, false_and, or_false] at h
-        exact this.ne h.1.symm
-      · exact rpow_ne_top_of_nonneg (by positivity) coe_ne_top
+      · exact rpow_ne_top_of_nonneg (by positivity) <| ENNReal.rpow_ne_top_of_pos spf.hd.ne' spf.hd'
+      · finiteness
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
         ‖f a‖ₑ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀)) ∂μ) ^ (p₀⁻¹ * q₀) *
@@ -754,7 +750,7 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
   have wt_est := (h₀T f hf).2 -- the weaktype estimate
   have q_pos : 0 < q.toReal := toReal_pos hq.ne' hq'.ne_top
   have tq_pos : 0 < t ^ q.toReal := ENNReal.rpow_pos_of_nonneg ht q_pos.le
-  have tq_ne_top : t ^ q.toReal ≠ ⊤ := rpow_ne_top_of_nonneg q_pos.le ht'
+  have tq_ne_top : t ^ q.toReal ≠ ⊤ := by finiteness
   -- have hq₁ : q.toReal = q := by exact toReal_ofReal q_nonneg
   simp only [wnorm, wnorm', hq'.ne_top, ↓reduceIte, iSup_le_iff] at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t

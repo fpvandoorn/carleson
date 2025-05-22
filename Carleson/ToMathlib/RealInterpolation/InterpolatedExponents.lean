@@ -1,5 +1,6 @@
 import Carleson.ToMathlib.ENorm
 import Mathlib.Tactic.Finiteness
+import Carleson.ToMathlib.Data.ENNReal
 
 /-!
 # Results about working with (interpolated) exponents
@@ -25,21 +26,15 @@ theorem mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r
 lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
   toReal_mono ha₂.ne_top ha₁
 
-lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : 0 ≤ q): ENNReal.ofReal a ^ q ≠ ⊤ :=
-  rpow_ne_top_of_nonneg hq coe_ne_top
+lemma coe_rpow_ne_top {a : ℝ} {q : ℝ} (hq : 0 ≤ q): ENNReal.ofReal a ^ q ≠ ⊤ := by finiteness
 
 -- Note this lemma can directly be applied to elements of `ℝ≥0` as well
-lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ :=
-  coe_rpow_ne_top hq.le
+lemma coe_rpow_ne_top' {a : ℝ} {q : ℝ} (hq : 0 < q): ENNReal.ofReal a ^ q ≠ ⊤ := by finiteness
 
 lemma coe_pow_pos {a : ℝ} {q : ℝ} (ha : 0 < a) : 0 < ENNReal.ofReal a ^ q :=
   ENNReal.rpow_pos (ofReal_pos.mpr ha) coe_ne_top
 
-lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) : a ^ q ≠ ⊤ := by
-  intro h
-  rcases ENNReal.rpow_eq_top_iff.mp h with ⟨a_zero, _⟩ | ⟨a_top, _⟩
-  · exact (ha a_zero).elim
-  · exact (ha' a_top).elim
+lemma rpow_ne_top' {a : ℝ≥0∞} {q : ℝ} (ha : a ≠ 0) (ha' : a ≠ ⊤) : a ^ q ≠ ⊤ := by finiteness
 
 -- unused (one reference in an also-unused lemma)
 lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : 1 ≤ q) (hq' : q < ⊤) : 0 < q.toReal :=
@@ -48,7 +43,7 @@ lemma exp_toReal_pos' {q : ℝ≥0∞} (hq : 1 ≤ q) (hq' : q < ⊤) : 0 < q.to
 @[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma ne_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q ≠ ⊤ := hq.2.ne_top
 
-lemma lt_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q < ⊤ := (ne_top_of_Ico hq).lt_top
+lemma lt_top_of_Ico {p q r : ℝ≥0∞} (hq : q ∈ Ico p r) : q < ⊤ := by finiteness
 
 @[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma ne_top_of_Ioo {p q r : ℝ≥0∞} (hq : q ∈ Ioo p r) : q ≠ ⊤ := hq.2.ne_top
