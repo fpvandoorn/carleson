@@ -136,7 +136,8 @@ attribute [aesop (rule_sets := [finiteness]) safe apply] enorm_ne_top
 
 attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.pow_ne_top
 
-attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.rpow_ne_top_of_nonneg
+-- This is an unsafe rule since we want to try `rpow_pos` if x = 0.
+attribute [aesop (rule_sets := [finiteness]) unsafe apply] ENNReal.rpow_ne_top_of_nonneg
 
 -- -- experimental
 lemma ENNReal.rpow_ne_top {x : ℝ≥0∞} {y : ℝ} : ¬(x = 0 ∧ y < 0 ∨ x = ⊤ ∧ 0 < y) → x ^ y ≠ ⊤ := by
@@ -144,11 +145,10 @@ lemma ENNReal.rpow_ne_top {x : ℝ≥0∞} {y : ℝ} : ¬(x = 0 ∧ y < 0 ∨ x 
   rw [← rpow_eq_top_iff (x := x) (y := y)]
   simp
 
+@[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma ENNReal.rpow_ne_top_of_pos {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) : x ^ y ≠ ⊤ := by
   apply ENNReal.rpow_ne_top
   simp [hx, hx']
-
-attribute [aesop (rule_sets := [finiteness]) unsafe apply] ENNReal.rpow_ne_top_of_pos
 
 -- should ENNReal.rpow_lt_top_iff_of_pos be tagged? or a custom version?
 
