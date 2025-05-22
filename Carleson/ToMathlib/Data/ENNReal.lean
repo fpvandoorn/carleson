@@ -136,6 +136,10 @@ attribute [aesop (rule_sets := [finiteness]) safe apply] enorm_ne_top
 
 attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.pow_ne_top
 
+@[aesop (rule_sets := [finiteness]) safe apply]
+lemma ENNReal.zpow_ne_top {a : ℝ≥0∞} (ha : a ≠ 0) (h'a : a ≠ ∞) (n : ℤ) : a ^ n ≠ ∞ :=
+  (ENNReal.zpow_lt_top ha h'a n).ne
+
 -- This is an unsafe rule since we want to try `rpow_pos` if x = 0.
 attribute [aesop (rule_sets := [finiteness]) unsafe apply] ENNReal.rpow_ne_top_of_nonneg
 
