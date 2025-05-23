@@ -11,16 +11,6 @@ section Doubling
 /-- The blow-up factor of repeatedly increasing the size of balls. -/
 def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
 
-lemma le_pow_natCeil_logb {b x : ℝ} (hb : 1 < b) (hx : 0 < x) :
-    x ≤ b ^ ⌈Real.logb b x⌉₊ := by
-  calc
-    x = b ^ Real.logb b x := by rw [Real.rpow_logb (by linarith) hb.ne' hx]
-    _ ≤ b ^ ⌈Real.logb b x⌉₊ := by
-      rw [← Real.rpow_natCast]
-      gcongr
-      · exact hb.le
-      apply Nat.le_ceil
-
 end Doubling
 
 namespace MeasureTheory
@@ -197,7 +187,7 @@ lemma measure_ball_le_same' (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s 
   /- Show inclusion in larger ball -/
   have haux : s * r ≤ 2 ^ ⌈Real.logb 2 s⌉₊ * r := by
     gcongr
-    apply le_pow_natCeil_logb (by norm_num) hsp
+    apply Real.le_pow_natCeil_logb (by norm_num) hsp
   have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r) :=
     ball_subset_ball <| hs.trans haux
   /- Apply result for power of two to slightly larger ball -/

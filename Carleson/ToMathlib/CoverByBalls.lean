@@ -1,4 +1,5 @@
 import Carleson.ToMathlib.Misc
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 open Metric Finset
 open scoped NNReal
@@ -48,8 +49,14 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
       exact Set.subset_empty_iff.mpr hs
     use ∅, tsub_add_cancel_iff_le.mp rfl, h22
 
+lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
+  let a : Finset X := singleton x
+  have h : a.card ≤ 1 := by rfl
+  have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by simp [a]
+  exact ⟨a, h, h2⟩
+
 variable (X) in
-/-- Balls of radius `r` in are covered by `n` balls of radius `r'` -/
+/-- Balls of radius `r` in `X` are covered by `n` balls of radius `r'` -/
 def BallsCoverBalls (r r' : ℝ) (n : ℕ) : Prop := ∀ x : X, CoveredByBalls (ball x r) n r'
 
 lemma CoveredByBalls.trans (h : CoveredByBalls s n r)
@@ -78,14 +85,21 @@ lemma BallsCoverBalls.mono (h : BallsCoverBalls X r₂ r₃ n) (h2 : r₁ ≤ r�
 lemma BallsCoverBalls.trans (h1 : BallsCoverBalls X r₁ r₂ n) (h2 : BallsCoverBalls X r₂ r₃ m) :
     BallsCoverBalls X r₁ r₃ (n * m) := fun x ↦ (h1 x).trans h2
 
-lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
-  let a : Finset X := singleton x
-  have h : a.card ≤ 1 := by rfl
-  have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by simp [a]
-  exact ⟨a, h, h2⟩
+lemma BallsCoverBalls.zero : BallsCoverBalls X 0 r n := by
+  intro x
+  convert CoveredByBalls.empty
+  simp
 
-lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
-    BallsCoverBalls X (a^k * r) r (n^k) := by
+lemma BallsCoverBalls.nonpos (hr' : r' ≤ 0) : BallsCoverBalls X r' r n :=
+  BallsCoverBalls.zero.mono hr'
+
+variable (X) in
+/-- For all `r`, balls of radius `r` in `X` are covered by `n` balls of radius `a * r` -/
+def AllBallsCoverBalls (a : ℝ) (n : ℕ) : Prop := ∀ r : ℝ, BallsCoverBalls X (a * r) r n
+
+lemma AllBallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
+    AllBallsCoverBalls X (a ^ k) (n ^ k) := by
+  intro r
   induction k with
   | zero => simpa using fun x ↦ BallCoversSelf x r
   | succ m h2 =>
@@ -95,7 +109,73 @@ lemma BallsCoverBalls.pow_mul {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X 
     rw [mul_comm] at h2
     exact h.trans h2
 
-lemma BallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : ∀ r, BallsCoverBalls X (a * r) r n) :
-    BallsCoverBalls X (a^k) 1 (n^k) := by
-  convert BallsCoverBalls.pow_mul h using 1
-  exact (MulOneClass.mul_one (a ^ k)).symm
+lemma AllBallsCoverBalls.ballsCoverBalls_pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) :
+    BallsCoverBalls X (a ^ k) 1 (n ^ k) := by
+  apply h.pow _ |>.mono
+  rw [mul_one]
+
+lemma AllBallsCoverBalls.ballsCoverBalls {a : ℝ} (h : AllBallsCoverBalls X a n)
+    (h2 : 1 < a) (hr : 0 < r) :
+    BallsCoverBalls X r' r (n ^ ⌈Real.logb a (r' / r)⌉₊) := by
+  obtain hr'|hr' := le_or_lt r' 0
+  · exact .nonpos hr'
+  refine h.pow _ |>.mono ?_
+  calc
+    r' = r' / r * r := by rw [div_mul_cancel₀]; exact hr.ne'
+    _ ≤ a ^ ⌈Real.logb a (r' / r)⌉₊ * r := by
+      gcongr
+      apply Real.le_pow_natCeil_logb h2
+      positivity
+
+/-- A pseudometric space is second countable if, for every `ε > 0` and every ball `B`
+with natural number radius, there is a countable set which is `ε`-dense in `B`. -/
+theorem Metric.secondCountableTopology_of_almost_dense_set_balls_nat
+    {α} [PseudoMetricSpace α] (x₀ : α)
+    (H : ∀ ε > (0 : ℝ), ∀ (n : ℕ),
+    ∃ s : Set α, s.Countable ∧ ∀ x ∈ ball x₀ n, ∃ y ∈ s, dist x y ≤ ε) :
+    SecondCountableTopology α := by
+  apply secondCountable_of_almost_dense_set
+  intro ε hε
+  specialize H ε hε
+  choose s h1s y h1y h2y using H
+  use ⋃ n, s n, by simp [*]
+  intro x
+  use y (⌊dist x x₀⌋₊ + 1) x (by simp [Nat.lt_floor_add_one])
+  simp only [Set.mem_iUnion, and_true, h2y]
+  exact ⟨_, h1y ..⟩
+
+/-- A pseudometric space is second countable if, for every `ε > 0` and every ball `B`,
+there is a countable set which is `ε`-dense in `B`. -/
+theorem Metric.secondCountableTopology_of_almost_dense_set_balls
+    {α} [PseudoMetricSpace α]
+    (H : ∀ (x₀ : α), ∀ ε > (0 : ℝ), ∀ r,
+    ∃ s : Set α, s.Countable ∧ ∀ x ∈ ball x₀ r, ∃ y ∈ s, dist x y ≤ ε) :
+    SecondCountableTopology α := by
+  obtain hX|hX := isEmpty_or_nonempty α
+  · exact Finite.toSecondCountableTopology
+  inhabit α
+  apply secondCountableTopology_of_almost_dense_set_balls_nat default
+  intro ε hε n
+  obtain ⟨s, hs, h2⟩ := H default ε hε n
+  use s
+
+
+/-- A pseudometric space is second countable if, for every `ε > 0` and every ball `B` is covered
+by finitely many balls of radius `ε`. -/
+theorem BallsCoverBalls.secondCountableTopology
+    (H : ∀ ε > (0 : ℝ), ∀ r, ∃ n, BallsCoverBalls X r ε n) :
+    SecondCountableTopology X := by
+  refine Metric.secondCountableTopology_of_almost_dense_set_balls fun x₀ ε hε r ↦ ?_
+  obtain ⟨n, hn⟩ := H ε hε r
+  obtain ⟨s, hs, h2⟩ := hn x₀
+  use s, countable_toSet s, fun x hx ↦ ?_
+  have := h2 hx
+  simp only [Set.mem_iUnion, mem_ball, exists_prop] at this
+  obtain ⟨y, hy, h2y⟩ := this
+  use y, hy, h2y.le
+
+/-- A pseudometric space is second countable if every ball of radius `a * r` is covered by
+`b` many balls of radius `r`. -/
+lemma AllBallsCoverBalls.secondCountableTopology {a : ℝ} (h : AllBallsCoverBalls X a n)
+    (h2 : 1 < a) : SecondCountableTopology X :=
+  BallsCoverBalls.secondCountableTopology fun _ hε _ ↦ ⟨_, h.ballsCoverBalls h2 hε⟩
