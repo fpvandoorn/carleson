@@ -573,9 +573,35 @@ theorem hasStrongType_maximalFunction
       exact hestfin k
 
 /-- Use `lowerSemicontinuous_iff_isOpen_preimage` and `continuous_average_ball` -/
-lemma lowerSemiContinuous_MB (hf : LocallyIntegrable f μ) :
+lemma lowerSemiContinuous_MB :
     LowerSemicontinuous (MB μ 𝓑 c r f) := by
-  sorry
+  apply lowerSemicontinuous_iff_isOpen_preimage.mpr
+  intro y
+  unfold MB maximalFunction
+  simp only [rpow_one, inv_one]
+  have : ((fun x ↦ (⨆ i ∈ 𝓑, (ball (c i) (r i)).indicator
+      (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖f y‖ₑ ∂μ) x)) ⁻¹' Ioi y) =
+      ⋃ i ∈ 𝓑, (ball (c i) (r i)).indicator
+      (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖f y‖ₑ ∂μ) ⁻¹' Ioi y := by
+    ext x
+    simp only [pow_one, mem_preimage, mem_Ioi, mem_iUnion, exists_prop]
+    constructor
+    · intro h
+      by_contra h₀
+      simp only [not_exists, not_and, not_lt] at h₀
+      have := iSup₂_le_iff.mpr h₀
+      order
+    · intro h
+      obtain ⟨i, ⟨hi₀, hi₁⟩⟩ := h
+      exact lt_iSup_iff.mpr (by use i; refine lt_iSup_iff.mpr (by use hi₀))
+  rw [this]
+  refine isOpen_biUnion (fun i hi ↦ ?_)
+  rw [@indicator_const_preimage_eq_union]
+  split_ifs with h₀ h₁
+  · simp
+  · simp
+  · simp_all
+  · simp
 
 theorem hasWeakType_maximalFunction_equal_exponents₀ [BorelSpace X]
     {p : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp : 1 ≤ p) :
