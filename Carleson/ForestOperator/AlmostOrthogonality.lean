@@ -27,6 +27,18 @@ open scoped Classical in
 def adjointCarlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, adjointCarleson p f x
 
+/-- A helper lemma used in Lemma 7.5.10. -/
+lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
+    adjointCarlesonSum (A ∩ B) f x = adjointCarlesonSum A f x - adjointCarlesonSum (A \ B) f x := by
+  unfold adjointCarlesonSum; symm
+  classical rw [sub_eq_iff_eq_add, ← Finset.sum_union]; swap
+  · simp only [Finset.disjoint_filter, mem_diff, not_and, not_not]
+    exact fun x _ ⟨xA, xB⟩ _ ↦ xB
+  congr; ext x
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and, mem_inter_iff, mem_diff,
+    Finset.mem_union]
+  tauto
+
 variable (t) in
 /-- The operator `S_{2,𝔲} f(x)`, given above Lemma 7.4.3. -/
 def adjointBoundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=

@@ -955,19 +955,12 @@ lemma limited_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
 
 open scoped Classical in
 lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
-    ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖₊ ≤
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) :
+    ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ ≤
     ∑ k ∈ Finset.Icc (s J) (s J + 3),
     ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
       ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ :=
   calc
-    _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ := by
-      rw [ENNReal.coe_biSup]; · rfl
-      simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff]
-      obtain ⟨C, hC⟩ := hf.bddAbove_norm_adjointCarlesonSum (ℭ := t u₂ \ 𝔖₀ t u₁ u₂)
-      refine ⟨C.toNNReal, fun x ↦ ?_⟩
-      simp only [mem_upperBounds, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
-      exact NNReal.le_toNNReal_of_coe_le (hC x)
     _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset, ‖adjointCarleson p f x‖ₑ := by
       apply iSup₂_mono fun x mx ↦ ?_
@@ -1060,14 +1053,14 @@ irreducible_def C7_5_7 (a : ℕ) : ℝ≥0 := 2 ^ (104 * (a : ℝ) ^ 3)
 /-- Lemma 7.5.7. -/
 lemma local_tree_control (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
-    ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖₊ ≤
+    ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ ≤
     C7_5_7 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
   classical
   calc
     _ ≤ ∑ k ∈ Finset.Icc (s J) (s J + 3),
         ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
           ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ :=
-      local_tree_control_sumsumsup hu₁ hu₂ hu h2u hJ hf
+      local_tree_control_sumsumsup hu₁ hu₂ hu h2u hJ
     _ ≤ ∑ k ∈ Finset.Icc (s J) (s J + 3),
         ∑ p ∈ {p | 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J))},
           2 ^ (103 * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ := by
@@ -1468,19 +1461,28 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
       congr; rw [C7_5_9d, C7_5_9s, ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_ofNat, mul_assoc,
         ← pow_succ, add_assoc]; rfl
 
-/-- The constant used in `global_tree_control2`.
-Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := 2 ^ (155 * (a : ℝ) ^ 3)
+/-- The constant used in `global_tree_control2`. -/
+irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := C7_5_7 a + C7_5_9s a
 
 /-- Lemma 7.5.10 -/
 lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
-    (hf : BoundedCompactSupport f) :
-    ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f x‖₊ ≤
-    ⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖₊ +
-    C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) x := by
-  sorry
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
+    ⨆ x ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f x‖ₑ ≤
+    (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖ₑ) +
+    C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x :=
+  calc
+    _ ≤ _ := global_tree_control1_supbound hu₁ hu₂ hu h2u _ (.inr rfl) hJ hf
+    _ = (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J),
+        ‖adjointCarlesonSum (t u₂) f x - adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ) +
+        C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+      congr! with x mx; exact adjointCarlesonSum_inter
+    _ ≤ (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f x‖ₑ) +
+        (⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f x‖ₑ) +
+        C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x := by
+      gcongr; exact ENNReal.biInf_enorm_sub_le
+    _ ≤ _ := by
+      rw [C7_5_10, ENNReal.coe_add, add_mul, add_assoc]
+      gcongr; exact local_tree_control hu₁ hu₂ hu h2u hJ hf
 
 /-- The constant used in `holder_correlation_tree`.
 Has value `2 ^ (535 * a ^ 3)` in the blueprint. -/
