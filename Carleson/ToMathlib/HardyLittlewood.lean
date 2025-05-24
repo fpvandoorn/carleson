@@ -596,12 +596,8 @@ lemma lowerSemiContinuous_MB :
       exact lt_iSup_iff.mpr (by use i; refine lt_iSup_iff.mpr (by use hi₀))
   rw [this]
   refine isOpen_biUnion (fun i hi ↦ ?_)
-  rw [@indicator_const_preimage_eq_union]
-  split_ifs with h₀ h₁
-  · simp
-  · simp
-  · simp_all
-  · simp
+  refine LowerSemicontinuous.isOpen_preimage ?_ y
+  refine IsOpen.lowerSemicontinuous_indicator isOpen_ball (zero_le _)
 
 theorem hasWeakType_maximalFunction_equal_exponents₀ [BorelSpace X]
     {p : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp : 1 ≤ p) :
@@ -808,9 +804,27 @@ theorem hasWeakType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompa
   exact hasWeakType_maximalFunction countable_globalMaximalFunction hp₁ hp₁₂
 
 /-- Use `lowerSemiContinuous_MB` -/
-lemma lowerSemiContinuous_globalMaximalFunction (hf : LocallyIntegrable f μ) :
+lemma lowerSemiContinuous_globalMaximalFunction :
     LowerSemicontinuous (globalMaximalFunction μ 1 f) := by
-  sorry
+  by_cases h : A = 0; · unfold globalMaximalFunction; simp_rw [h]; simp [lowerSemicontinuous_const]
+  have : globalMaximalFunction μ 1 f = fun x : X ↦
+      ofNNReal A ^ 2 * MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
+      (fun x ↦ x.1) (fun x ↦ 2 ^ x.2) (fun x ↦ ‖f x‖ ^ (1 : ℝ)) x ^ (1 : ℝ)⁻¹ :=
+    funext fun x ↦ congr_arg (HMul.hMul ((A : ℝ≥0∞) ^ 2)) (maximalFunction_eq_MB (zero_le_one' ℝ))
+  rw [this]
+  simp only [gt_iff_lt, Real.rpow_one, inv_one, rpow_one]
+  refine lowerSemicontinuous_iff_isOpen_preimage.mpr fun y ↦ ?_
+  by_cases hy : y = ∞; · rw [hy]; simp
+  have : (fun x : X ↦ ofNNReal A ^ 2 * MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ))
+      (fun x ↦ x.1) (fun x ↦ 2 ^ x.2) (fun x ↦ ‖f x‖) x)⁻¹' Ioi y =
+      (fun x : X ↦ MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ)) (fun x ↦ x.1)
+      (fun x ↦ 2 ^ x.2) (fun x ↦ ‖f x‖ ) x)⁻¹' Ioi (y / A ^ 2) := by
+    ext x
+    simp only [gt_iff_lt, Real.rpow_one, mem_preimage, mem_Ioi]
+    refine ⟨fun h₀ ↦ div_lt_of_lt_mul' h₀, fun h₀ ↦ ?_⟩; rw [mul_comm]; exact
+        (ENNReal.div_lt_iff (Or.inl (ENNReal.pow_ne_zero (coe_ne_zero.mpr h) 2)) (Or.inr hy)).mp h₀
+  rw [this]
+  exact LowerSemicontinuous.isOpen_preimage lowerSemiContinuous_MB _
 
 theorem globalMaximalFunction_ae_lt_top [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [Nonempty X] [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂)
