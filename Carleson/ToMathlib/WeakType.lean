@@ -31,6 +31,9 @@ Todo: rename to something more Mathlib-appropriate. -/
 def distribution (f : α → ε) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   μ { x | t < ‖f x‖ₑ }
 
+@[simp]
+lemma distibution_top (f : α → ε) (μ : Measure α) : distribution f ∞ μ = 0 := by simp [distribution]
+
 @[gcongr]
 lemma distribution_mono_right (h : t ≤ s) : distribution f s μ ≤ distribution f t μ :=
   measure_mono fun _ a ↦ lt_of_le_of_lt h a
