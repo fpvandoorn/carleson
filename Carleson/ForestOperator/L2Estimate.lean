@@ -315,8 +315,7 @@ lemma nontangential_operator_bound
   have ha : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
   have aemeas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
     (AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
-  have ⟨hT₁, hT₂⟩ := hasBoundedStrongType_Tstar f (hf.memLp 2) hf.memLp_top.eLpNorm_lt_top
-    hf.isBoundedSupport.measure_lt_top
+  have ⟨hT₁, hT₂⟩ := hasBoundedStrongType_Tstar f hf.boundedFiniteSupport
   calc eLpNorm (nontangentialMaximalFunction θ f) 2 volume
     _ ≤ eLpNorm (fun x ↦ nontangentialOperator K f x +
           2 ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
