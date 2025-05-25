@@ -5426,7 +5426,7 @@ $$
         We have for all $J \in \mathcal{J}'$ that
       \begin{equation}
             \label{hHolder}
-            \|h_J\|_{C^{\tau}(B(c(J), 8D^{s(J)}))} \le 2^{535a^3} \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
+            \|h_J\|_{C^{\tau}(B(c(J), 8D^{s(J)}))} \le 2^{529a^3} \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
         \end{equation}
     \end{lemma}
 
@@ -5748,13 +5748,14 @@ $$
     \end{proof}
 
     \begin{proof}[Proof of \Cref{Holder-correlation-tree}]
+        \leanok
         \proves{Holder-correlation-tree}
         Let $P$ be the product on the right hand side of \eqref{hHolder}, and $h_J$ be as defined in \eqref{def-hj}.
-        %By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \scI(\fu_1)$.
-        %By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have for all $y \in B(J)$:
-        %$$
-        %    |h_J(y)| \le 2^{308a^3} P\,.
-        %$$
+        By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \scI(\fu_1)$.
+        By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have for all $y \in B(J)$:
+        $$
+            |h_J(y)| \le 2^{302a^3+8a+5} P\,.
+        $$
         We have by the triangle inequality
         \begin{align}
             &|h_J(y) - h_J(y')|\nonumber\\
