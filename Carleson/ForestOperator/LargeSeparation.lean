@@ -1396,6 +1396,10 @@ lemma global_tree_control1_edist_right (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t)
 /-- The constant used in `global_tree_control1_supbound`. -/
 irreducible_def C7_5_9s (a : ℕ) : ℝ≥0 := C7_5_5 a * 2 ^ (4 * a + 2)
 
+lemma one_le_C7_5_9s : 1 ≤ C7_5_9s a := by
+  simp only [C7_5_9s, C7_5_5]; norm_cast
+  rw [← pow_add]; exact Nat.one_le_two_pow
+
 /-- Equation (7.5.17) of Lemma 7.5.9. -/
 lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (ℭ : Set (𝔓 X)) (hℭ : ℭ = t u₁ ∨ ℭ = t u₂ ∩ 𝔖₀ t u₁ u₂)
@@ -1464,6 +1468,9 @@ lemma global_tree_control1_supbound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (h
 /-- The constant used in `global_tree_control2`. -/
 irreducible_def C7_5_10 (a : ℕ) : ℝ≥0 := C7_5_7 a + C7_5_9s a
 
+lemma one_le_C7_5_10 : 1 ≤ C7_5_10 a := by
+  rw [C7_5_10, ← zero_add 1]; exact add_le_add (by positivity) one_le_C7_5_9s
+
 /-- Lemma 7.5.10 -/
 lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf : BoundedCompactSupport f) :
@@ -1484,24 +1491,205 @@ lemma global_tree_control2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ 
       rw [C7_5_10, ENNReal.coe_add, add_mul, add_assoc]
       gcongr; exact local_tree_control hu₁ hu₂ hu h2u hJ hf
 
+/-- The product on the right-hand side of Lemma 7.5.4. -/
+def P7_5_4 (t : Forest X n) (u₁ u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Grid X) : ℝ≥0∞ :=
+  ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
+    ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+  ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
+    ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x)
+
+/-- The support of `holderFunction` is in `𝓘 u₁`. -/
+lemma support_holderFunction_subset (u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Grid X) (hu₁ : u₁ ∈ t) :
+    support (holderFunction t u₁ u₂ f₁ f₂ J) ⊆ 𝓘 u₁ := by
+  rw [support_subset_iff']; intro x nx
+  have : adjointCarlesonSum (t u₁) f₁ x = 0 := by
+    refine Finset.sum_eq_zero fun p mp ↦ ?_
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+    rw [adjoint_tile_support2 hu₁ mp]
+    exact indicator_of_not_mem nx _
+  rw [holderFunction, this, mul_zero, mul_zero, zero_mul]
+
+lemma enorm_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
+    (mx : x ∈ ball (c J) (8 * D ^ s J)) :
+    ‖holderFunction t u₁ u₂ f₁ f₂ J x‖ₑ ≤ C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J := by
+  simp_rw [holderFunction, enorm_mul, RCLike.enorm_conj, enorm_mul, enorm_exp_I_mul_ofReal, one_mul,
+    Complex.enorm_real, NNReal.enorm_eq]
+  calc
+    _ ≤ 1 * (⨆ z ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ z‖ₑ) *
+        ⨆ z ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ z‖ₑ := by
+      gcongr
+      · rw [ENNReal.coe_le_one_iff]
+        exact (χ_le_indicator hJ).trans ((indicator_le fun _ _ ↦ le_refl _) _)
+      · apply le_biSup _ mx
+      · apply le_biSup _ mx
+    _ ≤ ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
+          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
+          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+      rw [one_mul]; gcongr
+      · exact global_tree_control1_supbound hu₁ hu₂ hu h2u _ (.inl rfl) hJ hf₁
+      · exact global_tree_control2 hu₁ hu₂ hu h2u hJ hf₂
+    _ ≤ _ := by
+      rw [P7_5_4, mul_mul_mul_comm]
+      conv_rhs => rw [mul_add, mul_add]
+      gcongr <;> (nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff])
+      · exact one_le_C7_5_9s
+      · exact one_le_C7_5_10
+
+lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
+    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ 𝓘 u₁) :
+    edist (χ t u₁ u₂ J x) (χ t u₁ u₂ J x') *
+    ‖exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f₁ x‖ₑ *
+    ‖exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x‖ₑ ≤
+    C7_5_2 a * C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) := by
+  simp_rw [enorm_mul, enorm_exp_I_mul_ofReal, one_mul]
+  by_cases mu₁ : x ∉ 𝓘 u₁
+  · have : adjointCarlesonSum (t u₁) f₁ x = 0 := by
+      refine Finset.sum_eq_zero fun p mp ↦ ?_
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      rw [adjoint_tile_support2 hu₁ mp]
+      exact indicator_of_not_mem mu₁ _
+    rw [this, enorm_zero, mul_zero, zero_mul]; exact zero_le _
+  rw [not_not] at mu₁; rw [edist_dist]
+  calc
+    _ ≤ ENNReal.ofReal (C7_5_2 a * dist x x' / D ^ s J) *
+        ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
+          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
+          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+      gcongr
+      · exact dist_χ_le hu₁ hu₂ hu h2u hJ mu₁ mx'
+      · exact (le_biSup _ mx).trans <|
+          global_tree_control1_supbound hu₁ hu₂ hu h2u _ (.inl rfl) hJ hf₁
+      · exact (le_biSup _ mx).trans <| global_tree_control2 hu₁ hu₂ hu h2u hJ hf₂
+    _ ≤ ENNReal.ofReal (C7_5_2 a * dist x x' / D ^ s J) *
+        (C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J) := by
+      rw [mul_assoc (ENNReal.ofReal _)]; gcongr _ * ?_
+      rw [P7_5_4, mul_mul_mul_comm]
+      conv_rhs => rw [mul_add, mul_add]
+      gcongr <;> (nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff])
+      · exact one_le_C7_5_9s
+      · exact one_le_C7_5_10
+    _ = _ := by
+      rw [mul_div_assoc, ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_coe_nnreal,
+        ENNReal.ofReal_div_of_pos (by unfold defaultD; positivity), ← edist_dist x x',
+        ← Real.rpow_intCast, ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.rpow_intCast,
+        ENNReal.ofReal_natCast]
+      ring
+
+lemma holder_correlation_tree_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
+    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ ball (c J) (8 * D ^ s J)) :
+    χ t u₁ u₂ J x' * edist (exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f₁ x)
+      (exp (.I * 𝒬 u₁ x') * adjointCarlesonSum (t u₁) f₁ x') *
+    ‖exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x‖ₑ ≤
+    C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ :=
+  calc
+    _ ≤ 1 * (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
+          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+      gcongr
+      · rw [ENNReal.coe_le_one_iff]
+        exact (χ_le_indicator hJ).trans ((indicator_le fun _ _ ↦ le_refl _) _)
+      · exact global_tree_control1_edist_left hu₁ hu₂ hu h2u hJ hf₁ mx mx'
+      · rw [enorm_mul, enorm_exp_I_mul_ofReal, one_mul]
+        exact (le_biSup _ mx).trans <| global_tree_control2 hu₁ hu₂ hu h2u hJ hf₂
+    _ = (C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
+          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+      ring
+    _ ≤ (C7_5_9d a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
+          C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        (C7_5_10 a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
+          C7_5_10 a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+      gcongr
+      · exact le_add_self
+      · nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff]
+        exact one_le_C7_5_10
+    _ = _ := by rw [← mul_add, ← mul_add, mul_mul_mul_comm, P7_5_4]
+
+lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
+    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ ball (c J) (8 * D ^ s J)) :
+    χ t u₁ u₂ J x' * ‖exp (.I * 𝒬 u₁ x') * adjointCarlesonSum (t u₁) f₁ x'‖ₑ *
+    edist (exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)
+      (exp (.I * 𝒬 u₂ x') * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x') ≤
+    C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ :=
+  calc
+    _ ≤ 1 * ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
+          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        (C7_5_9d a * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) := by
+      gcongr
+      · rw [ENNReal.coe_le_one_iff]
+        exact (χ_le_indicator hJ).trans ((indicator_le fun _ _ ↦ le_refl _) _)
+      · rw [enorm_mul, enorm_exp_I_mul_ofReal, one_mul]
+        exact (le_biSup _ mx').trans <|
+          global_tree_control1_supbound hu₁ hu₂ hu h2u _ (.inl rfl) hJ hf₁
+      · exact global_tree_control1_edist_right hu₁ hu₂ hu h2u hJ hf₂ mx mx'
+    _ = ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
+          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        (C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+      ring
+    _ ≤ (C7_5_9s a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖ₑ) +
+          C7_5_9s a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₁ x) *
+        (C7_5_9d a * (⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
+          C7_5_9d a * ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x) * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+      gcongr
+      · nth_rw 1 [← one_mul (⨅ x ∈ _, _)]; gcongr; rw [ENNReal.one_le_coe_iff]
+        exact one_le_C7_5_9s
+      · exact le_add_self
+    _ = _ := by rw [← mul_add, ← mul_add, mul_mul_mul_comm, P7_5_4]
+
 /-- The constant used in `holder_correlation_tree`.
 Has value `2 ^ (535 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ (535 * (a : ℝ) ^ 3)
 
-/-- Lemma 7.5.4. -/
-lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂)
-    (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
-    (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
-    HolderOnWith (C7_5_4 a *
-    ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ x‖₊) +
-    (⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f₁ ·‖) x).toNNReal) *
-    ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖₊) +
-    (⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 (‖f₂ ·‖) x).toNNReal))
-    nnτ (holderFunction t u₁ u₂ f₁ f₂ J) (ball (c J) (8 * D ^ s J)) := by
+lemma inf_MB_lt_top_of_memLp (hf : MemLp f ⊤ volume) : ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f x < ⊤ :=
+  ((biInf_le _ Grid.c_mem_Grid).trans MB_le_eLpNormEssSup).trans_lt hf.eLpNormEssSup_lt_top
+
+lemma holder_correlation_tree_final (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
+    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ ball (c J) (8 * D ^ s J)) :
+    C7_5_2 a * C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) +
+    C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ +
+    C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ ≤
+    (C7_5_4 a * (P7_5_4 t u₁ u₂ f₁ f₂ J).toNNReal : ℝ≥0) * edist x x' ^ (nnτ : ℝ) := by
   sorry
 
+/-- Lemma 7.5.4. -/
+lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
+    HolderOnWith (C7_5_4 a * (P7_5_4 t u₁ u₂ f₁ f₂ J).toNNReal)
+      nnτ (holderFunction t u₁ u₂ f₁ f₂ J) (ball (c J) (8 * D ^ s J)) := fun x mx x' mx' ↦ by
+  by_cases mu₁ : x ∉ 𝓘 u₁ ∧ x' ∉ 𝓘 u₁
+  · have h0 := support_subset_iff'.mp (support_holderFunction_subset u₂ f₁ f₂ J hu₁)
+    rw [h0 _ mu₁.1, h0 _ mu₁.2, edist_self]; exact zero_le _
+  rw [not_and_or, not_not, not_not] at mu₁
+  wlog mu₁' : x' ∈ 𝓘 u₁ generalizing x x'
+  · specialize this _ mx' _ mx mu₁.symm (mu₁.resolve_right mu₁')
+    rwa [edist_comm, edist_comm x'] at this
+  let CH := χ t u₁ u₂ J
+  let T₁ := fun z ↦ exp (.I * 𝒬 u₁ z) * adjointCarlesonSum (t u₁) f₁ z
+  let T₂ := fun z ↦ exp (.I * 𝒬 u₂ z) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ z
+  change ‖CH x * T₁ x * conj (T₂ x) - CH x' * T₁ x' * conj (T₂ x')‖ₑ ≤ _
+  calc
+    _ ≤ _ := edist_triangle4 _ (CH x' * T₁ x * conj (T₂ x)) (CH x' * T₁ x' * conj (T₂ x)) _
+    _ = edist (CH x) (CH x') * ‖T₁ x‖ₑ * ‖T₂ x‖ₑ + CH x' * edist (T₁ x) (T₁ x') * ‖T₂ x‖ₑ +
+        CH x' * ‖T₁ x'‖ₑ * edist (T₂ x) (T₂ x') := by
+      simp_rw [edist_eq_enorm_sub, ← sub_mul, ← mul_sub, enorm_mul, ← RingHom.map_sub,
+        RCLike.enorm_conj, ← ofReal_sub, Complex.enorm_real, NNReal.enorm_eq]
+      rfl
+    _ ≤ C7_5_2 a * C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) +
+        C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ +
+        C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
+      gcongr ?_ + ?_ + ?_
+      · exact holder_correlation_tree_1 hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mu₁'
+      · exact holder_correlation_tree_2 hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx'
+      · exact holder_correlation_tree_3 hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx'
+    _ ≤ _ := holder_correlation_tree_final hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx'
 
 /-! ### Subsection 7.5.3 and Lemma 7.4.5 -/
 

@@ -5727,7 +5727,7 @@ $$
         \uses{global-tree-control-1, local-tree-control}
         We have for all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{155a^3} \inf_{J} M_{\mathcal{B},1}|g|\,.
+            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B},1}|g|\,.
         $$
     \end{lemma}
 
@@ -5735,55 +5735,61 @@ $$
         \leanok
         By \Cref{global-tree-control-1}
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|
         $$
         $$
-            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
+            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
         $$
         and by \Cref{local-tree-control}
         $$
-            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + (2^{104a^3} + 2^{154a^3}) \inf_{J} M_{\mathcal{B}, 1} |g|\,.
+            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + (2^{104a^3} + 2^{151a^3+4a+2}) \inf_{J} M_{\mathcal{B}, 1} |g|\,.
         $$
         This completes the proof.
     \end{proof}
 
-
-
     \begin{proof}[Proof of \Cref{Holder-correlation-tree}]
         \proves{Holder-correlation-tree}
-        Let $P$ be the product on the right hand side of \eqref{hHolder}, and $h_J$ as defined in \eqref{def-hj}.
-
-        By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \scI(\fu_1)$.
-        By \eqref{eq-pao-2} and \Cref{global-tree-control-1}, we have for all $y \in B(J)$:
-        $$
-            |h_J(y)| \le 2^{308a^3} P\,.
-        $$
+        Let $P$ be the product on the right hand side of \eqref{hHolder}, and $h_J$ be as defined in \eqref{def-hj}.
+        %By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \scI(\fu_1)$.
+        %By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have for all $y \in B(J)$:
+        %$$
+        %    |h_J(y)| \le 2^{308a^3} P\,.
+        %$$
         We have by the triangle inequality
         \begin{align}
             &|h_J(y) - h_J(y')|\nonumber\\
             \label{eq-h-Lip-1}
             &\le |\chi_J(y) - \chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y)| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y)|\\
             \label{eq-h-Lip-2}
-            & + |\chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y) - T_{\fT(\fu_1)}^* g_1(y')| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y)|\\
+            & + |\chi_J(y')| |e(\fcc(\fu_1)(y)) T_{\fT(\fu_1)}^* g_1(y) - e(\fcc(\fu_1)(y')) T_{\fT(\fu_1)}^* g_1(y')| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y)|\\
             \label{eq-h-Lip-3}
-            & + |\chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y')| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y) - T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y')|\,.
+            & + |\chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y')| |e(\fcc(\fu_2)(y)) T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y) - e(\fcc(\fu_2)(y')) T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y')|\,.
         \end{align}
 
         As $h_J$ is supported in $\scI(\fu_1)$, we can assume without loss of generality that $y' \in \scI(\fu_1)$.
         If $y \notin \scI(\fu_1)$, then \eqref{eq-h-Lip-1} vanishes. If $y \in \scI(\fu_1)$ then we have by \eqref{eq-pao-3}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}
+        % C7_5_2       C7_5_9s           C7_5_10
+        % 2^{226a^3} * 2^{151a^3+4a+2} * 2^{151a^3+4a+3}
+        % 2^{528a^3+8a+5}
         $$
-            \eqref{eq-h-Lip-1} \le 2^{534a^3} \frac{\rho(y,y')}{D^{s(J)}} P\,,
+            \eqref{eq-h-Lip-1} \le 2^{528a^3+8a+5} \frac{\rho(y,y')}{D^{s(J)}} P\,,
         $$
         where $P$ denotes the product on the right hand side of \eqref{hHolder}.
 
         By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have
+        % C7_5_9d           C7_5_10
+        % 2^{151a^3+4a+1} * 2^{151a^3+4a+3}
+        % 2^{302a^3+8a+4}
         $$
-            \eqref{eq-h-Lip-2} \le 2^{310a^3} P\,.
-         $$
+            \eqref{eq-h-Lip-2} \le 2^{302a^3+8a+4} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
+        $$
 
         By \eqref{eq-pao-2}, and twice \Cref{global-tree-control-1}, we have
+        % C7_5_9s           C7_5_9d
+        % 2^{151a^3+4a+2} * 2^{151a^3+4a+1}
+        % 2^{302a^3+8a+3}
         $$
-            \eqref{eq-h-Lip-3} \le 2^{308a^3} P\,.
+            \eqref{eq-h-Lip-3} \le 2^{302a^3+8a+3} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
         $$
         Using that $\rho(y,y') \le 16D^{s(J)}$ and $a \ge 4$, the lemma follows.
     \end{proof}
