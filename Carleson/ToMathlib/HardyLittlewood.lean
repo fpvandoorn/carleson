@@ -265,8 +265,7 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
 
 /-- Use the dominated convergence theorem
 e.g. [Folland, Real Analysis. Modern Techniques and Their Applications, Lemma 3.16] -/
-lemma continuous_average_ball [μ.IsOpenPosMeasure] [μ.IsOpenPosMeasure]
-    [IsFiniteMeasureOnCompacts μ] [OpensMeasurableSpace X]
+lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts μ] [OpensMeasurableSpace X]
     [ProperSpace X] (hf : LocallyIntegrable f μ)
     (hμ : ∀ z : X, ∀ r > (0 : ℝ), μ (sphere z r) = 0) :
     ContinuousOn (fun x : X × ℝ ↦ ⨍⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
