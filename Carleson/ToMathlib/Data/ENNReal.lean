@@ -119,6 +119,18 @@ lemma exists_enorm_sub_eps_le_biInf
     add_le_iff_nonpos_right] at key
   rw [← NNReal.coe_pos] at εpos; linarith only [εpos, key]
 
+lemma biInf_enorm_sub_le {f g : ι → E} :
+    ⨅ x ∈ s, ‖f x - g x‖ₑ ≤ (⨅ x ∈ s, ‖f x‖ₑ) + (⨆ x ∈ s, ‖g x‖ₑ) := by
+  rcases s.eq_empty_or_nonempty with rfl | hs; · simp
+  refine ENNReal.le_of_forall_pos_le_add fun ε εpos _ ↦ ?_
+  obtain ⟨x, mx, hx⟩ := exists_enorm_sub_eps_le_biInf (f := f) εpos hs
+  calc
+    _ ≤ ‖f x - g x‖ₑ := biInf_le (fun i ↦ ‖f i - g i‖ₑ) mx
+    _ ≤ ‖f x‖ₑ + ‖g x‖ₑ := enorm_sub_le
+    _ ≤ ε + (⨅ x ∈ s, ‖f x‖ₑ) + ⨆ x ∈ s, ‖g x‖ₑ :=
+      add_le_add (by rwa [← tsub_le_iff_left]) (le_biSup (‖g ·‖ₑ) mx)
+    _ = _ := by rw [add_rotate]
+
 end ENNReal
 
 /-- Transfer an inequality over `ℝ` to one of `ENorm`s over `ℝ≥0∞`. -/
