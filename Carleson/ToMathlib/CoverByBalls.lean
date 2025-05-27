@@ -49,7 +49,7 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
       exact Set.subset_empty_iff.mpr hs
     use ∅, tsub_add_cancel_iff_le.mp rfl, h22
 
-lemma BallCoversSelf (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
+protected lemma CoveredByBalls.ball (x : X) (r : ℝ) : CoveredByBalls (ball x r) 1 r := by
   let a : Finset X := singleton x
   have h : a.card ≤ 1 := by rfl
   have h2 : ball x r ⊆ ⋃ x ∈ a, ball x r := by simp [a]
@@ -101,7 +101,7 @@ lemma AllBallsCoverBalls.pow {a : ℝ} {k : ℕ} (h : AllBallsCoverBalls X a n) 
     AllBallsCoverBalls X (a ^ k) (n ^ k) := by
   intro r
   induction k with
-  | zero => simpa using fun x ↦ BallCoversSelf x r
+  | zero => simpa using fun x ↦ .ball x r
   | succ m h2 =>
     specialize h (r * a^m)
     rw [← mul_assoc, mul_comm, ← mul_assoc] at h
@@ -127,8 +127,11 @@ lemma AllBallsCoverBalls.ballsCoverBalls {a : ℝ} (h : AllBallsCoverBalls X a n
       apply Real.le_pow_natCeil_logb h2
       positivity
 
+
+-- todo: move near `secondCountable_of_almost_dense_set`
 /-- A pseudometric space is second countable if, for every `ε > 0` and every ball `B`
-with natural number radius, there is a countable set which is `ε`-dense in `B`. -/
+with natural number radius around a fiven point `x₀`,
+there is a countable set which is `ε`-dense in `B`. -/
 theorem Metric.secondCountableTopology_of_almost_dense_set_balls_nat
     {α} [PseudoMetricSpace α] (x₀ : α)
     (H : ∀ ε > (0 : ℝ), ∀ (n : ℕ),
@@ -144,6 +147,7 @@ theorem Metric.secondCountableTopology_of_almost_dense_set_balls_nat
   simp only [Set.mem_iUnion, and_true, h2y]
   exact ⟨_, h1y ..⟩
 
+-- todo: move near `secondCountable_of_almost_dense_set`
 /-- A pseudometric space is second countable if, for every `ε > 0` and every ball `B`,
 there is a countable set which is `ε`-dense in `B`. -/
 theorem Metric.secondCountableTopology_of_almost_dense_set_balls
