@@ -144,7 +144,7 @@ section finiteness
 open ENNReal
 
 -- Tag some additional lemmas for finiteness.
--- attribute [aesop (rule_sets := [finiteness]) safe apply] enorm_ne_top
+attribute [aesop (rule_sets := [finiteness]) safe apply] enorm_ne_top
 
 attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.pow_ne_top
 
