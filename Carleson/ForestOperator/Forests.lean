@@ -49,20 +49,13 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
   · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hf₁ h2f₁ hf₂ h2f₂
   by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
-  · calc ↑‖∫ (x : X),
-        adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₁) g₁ x *
-          (starRingEnd ℂ) (adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₂) g₂ x)‖₊
-      _ = ↑‖∫ (x : X),
-        adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₂) g₂ x *
+  · have : ‖∫ (x : X), adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₁) g₁ x *
+          (starRingEnd ℂ) (adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₂) g₂ x)‖₊ =
+        ‖∫ (x : X), adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₂) g₂ x *
           (starRingEnd ℂ) (adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₁) g₁ x)‖₊ := by
-        sorry -- TODO!
-      _ ≤ (↑(C7_4_4 a n) * eLpNorm (fun x ↦ (𝓘 u₂ ∩ 𝓘 u₁ : Set X).indicator (t.adjointBoundaryOperator u₂ g₂) x) 2 volume *
-           eLpNorm (fun x ↦ ((𝓘 u₂ ∩ 𝓘 u₁ : Set X)).indicator (t.adjointBoundaryOperator u₁ g₁) x) 2 volume) :=
-        correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hf₂ h2f₂ hf₁ h2f₁
-      _ = ↑(C7_4_4 a n) * eLpNorm (fun x ↦ (𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (t.adjointBoundaryOperator u₁ g₁) x) 2 volume *
-        eLpNorm (fun x ↦ (𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (t.adjointBoundaryOperator u₂ g₂) x) 2 volume := by
-        rw [inter_comm, mul_right_comm]
-
+      sorry -- TODO!
+    rw [inter_comm, mul_right_comm, this]
+    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hf₂ h2f₂ hf₁ h2f₁
   push_neg at h h'
   -- Remaining case.
   have : ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ = 0 := by
