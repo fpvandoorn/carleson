@@ -24,6 +24,21 @@ Has value `2 ^ (550 * a ^ 3 - 3 * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (550 * (a : ℝ) ^ 3 - 3 * n)
 
+lemma aux {A B C : ℂ} : A * conj (B + C) = A * conj B + A * conj C := by
+  simp only [map_add]
+  ring
+
+-- Should be really basic, and in mathlib already.
+open Classical in
+lemma missing {X : Type*} [Fintype X] {g : X → ℂ} {s t : Set (X)} (hst : Disjoint s t) :
+    ∑ p ∈ {p | p ∈ s ∪ t}, g p = ∑ p ∈ {p | p ∈ s}, g p + ∑ p ∈ {p | p ∈ t}, g p := by sorry
+
+lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (𝔓 X)} (hst : Disjoint s t) :
+    adjointCarlesonSum (s ∪ t) g x = adjointCarlesonSum s g x + adjointCarlesonSum t g x := by
+  classical
+  simp_rw [adjointCarlesonSum]
+  convert missing hst (g := fun p ↦ adjointCarleson p g x)
+
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
@@ -34,7 +49,24 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
     eLpNorm
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
-  sorry
+  calc (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ : ℝ≥0∞)
+    _ = (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x) +
+        adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) := by
+      congr
+      ext x
+      rw [← aux, ← adjointCarlesonSum_union_of_disjoint]
+      · congr
+        exact (inter_union_diff (t.𝔗 u₂) (t.𝔖₀ u₁ u₂)).symm
+      · exact disjoint_sdiff_inter.symm
+    _ ≤ C7_4_5 a n *
+      eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+      eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
+        -- first summand
+        have aux := correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂ (g₁ := g₁) (g₂ := g₂)
+        sorry
+    _ ≤ _ := sorry
+
+#exit
 
 -- perhaps, with as many extra hypotheses as I need
 lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (x : X) :
@@ -69,8 +101,6 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   push_neg at h h'
   -- Remaining case.
   simp [foo h h']
-
-#exit
 
 /-! ## Section 7.7 -/
 
