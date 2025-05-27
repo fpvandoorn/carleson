@@ -160,7 +160,7 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
     rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
       lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
       ← Order.succ_eq_add_one, ← Finset.insert_Ico_right_eq_Ico_succ h,
-      Finset.sum_insert Finset.right_not_mem_Ico,
+      Finset.sum_insert Finset.right_notMem_Ico,
       add_comm (lintegral ..), ih, Order.succ_eq_add_one]
 
 /-! ## Averaging -/
