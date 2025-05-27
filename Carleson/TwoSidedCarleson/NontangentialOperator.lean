@@ -758,7 +758,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   have bfs_g1 : BoundedFiniteSupport g1 := hg.indicator measurableSet_ball
   have czw11 := czoperator_weak_1_1 ha hr (hT r hr)
   unfold HasBoundedWeakType at czw11
-  have := (czw11 (f := g1) (bfs_g1.memLp _) bfs_g1.eLpNorm_lt_top bfs_g1.measure_support_lt).2
+  have := (czw11 (f := g1) bfs_g1).2
   unfold wnorm wnorm' distribution at this
   simp_rw [one_ne_top, reduceIte, toReal_one, inv_one, rpow_one,
     iSup_le_iff] at this

@@ -5,6 +5,7 @@ import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.BoundedFiniteSupport
 
 noncomputable section
 
@@ -217,56 +218,23 @@ lemma wnorm_toReal_eq {f : α → ℝ≥0∞} {p : ℝ≥0∞} (hf : ∀ᵐ x �
     wnorm (ENNReal.toReal ∘ f) p μ = wnorm f p μ := by
   simp_rw [wnorm, eLpNormEssSup_toReal_eq hf, wnorm'_toReal_eq hf]
 
-end ENorm
-
-section ContinuousENorm
-
-variable [TopologicalSpace ε] [ContinuousENorm ε] [TopologicalSpace ε₁] [ContinuousENorm ε₁]
-    [TopologicalSpace ε₂] [ContinuousENorm ε₂] [TopologicalSpace ε₃] [ContinuousENorm ε₃]
-    {f : α → ε} {f₁ : α → ε₁}
-
-lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
-    wnorm' f p μ ≤ eLpNorm' f p μ := by
-  refine iSup_le (fun t ↦ ?_)
-  simp_rw [distribution, eLpNorm']
-  have p0 : 0 < p := lt_of_lt_of_le one_pos hp
-  have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
-  have set_eq : {x | ofNNReal t < ‖f x‖ₑ} = {x | ofNNReal t ^ p < ‖f x‖ₑ ^ p} := by
-    simp [ENNReal.rpow_lt_rpow_iff p0]
-  have : ofNNReal t = (ofNNReal t ^ p) ^ (1 / p) := by simp [p0.ne.symm]
-  nth_rewrite 1 [inv_eq_one_div p, this, ← mul_rpow_of_nonneg _ _ p0', set_eq]
-  refine rpow_le_rpow ?_ p0'
-  refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm.pow_const p) (ofNNReal t ^ p)
-  gcongr
-  exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
-
-lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
-    wnorm f p μ ≤ eLpNorm f p μ := by
-  by_cases h : p = ⊤
-  · simp [h, wnorm, eLpNorm]
-  · have p0 : p ≠ 0 := (lt_of_lt_of_le one_pos hp).ne.symm
-    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_mono h hp)
-
 /-- A function is in weak-L^p if it is (strongly a.e.)-measurable and has finite weak L^p norm. -/
-def MemWLp (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
+def MemWLp [TopologicalSpace ε] (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : Prop :=
   AEStronglyMeasurable f μ ∧ wnorm f p μ < ∞
 
-lemma MemLp.memWLp (hp : 1 ≤ p) (hf : MemLp f p μ) : MemWLp f p μ :=
-  ⟨hf.1, wnorm_le_eLpNorm hf.1 hp |>.trans_lt hf.2⟩
-
-lemma MemWLp_zero : ¬ MemWLp f 0 μ := by
+lemma MemWLp_zero [TopologicalSpace ε] : ¬ MemWLp f 0 μ := by
   simp [MemWLp, wnorm_zero]
 
-lemma MemWLp.aeStronglyMeasurable (hf : MemWLp f p μ) : AEStronglyMeasurable f μ := hf.1
+lemma MemWLp.aeStronglyMeasurable [TopologicalSpace ε] (hf : MemWLp f p μ) : AEStronglyMeasurable f μ := hf.1
 
-lemma MemWLp.wnorm_lt_top (hf : MemWLp f p μ) : wnorm f p μ < ⊤ := hf.2
+lemma MemWLp.wnorm_lt_top [TopologicalSpace ε] (hf : MemWLp f p μ) : wnorm f p μ < ⊤ := hf.2
 
 lemma MemWLp.ennreal_toReal {f : α → ℝ≥0∞} (hf : MemWLp f p μ) :
     MemWLp (ENNReal.toReal ∘ f) p μ :=
   ⟨hf.aeStronglyMeasurable.ennreal_toReal, wnorm_toReal_le.trans_lt hf.2⟩
 
 /-- If a function `f` is `MemWLp`, then its norm is almost everywhere finite. -/
-theorem MemWLp.ae_ne_top {f : α → ε} {μ : Measure α} (hf : MemWLp f p μ) :
+theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) :
     ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ∞ := by
   by_cases hp_inf : p = ∞
   · rw [hp_inf] at hf
@@ -313,6 +281,42 @@ theorem MemWLp.ae_ne_top {f : α → ε} {μ : Measure α} (hf : MemWLp f p μ) 
     tauto
   exact h h6
 
+end ENorm
+
+section ContinuousENorm
+
+variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
+
+lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
+    wnorm' f p μ ≤ eLpNorm' f p μ := by
+  refine iSup_le (fun t ↦ ?_)
+  simp_rw [distribution, eLpNorm']
+  have p0 : 0 < p := lt_of_lt_of_le one_pos hp
+  have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
+  have set_eq : {x | ofNNReal t < ‖f x‖ₑ} = {x | ofNNReal t ^ p < ‖f x‖ₑ ^ p} := by
+    simp [ENNReal.rpow_lt_rpow_iff p0]
+  have : ofNNReal t = (ofNNReal t ^ p) ^ (1 / p) := by simp [p0.ne.symm]
+  nth_rewrite 1 [inv_eq_one_div p, this, ← mul_rpow_of_nonneg _ _ p0', set_eq]
+  refine rpow_le_rpow ?_ p0'
+  refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm.pow_const p) (ofNNReal t ^ p)
+  gcongr
+  exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
+
+lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
+    wnorm f p μ ≤ eLpNorm f p μ := by
+  by_cases h : p = ⊤
+  · simp [h, wnorm, eLpNorm]
+  · have p0 : p ≠ 0 := (lt_of_lt_of_le one_pos hp).ne.symm
+    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_mono h hp)
+
+lemma MemLp.memWLp (hp : 1 ≤ p) (hf : MemLp f p μ) : MemWLp f p μ :=
+  ⟨hf.1, wnorm_le_eLpNorm hf.1 hp |>.trans_lt hf.2⟩
+
+end ContinuousENorm
+
+section Defs
+
+variable [ENorm ε₁] [ENorm ε₂] [TopologicalSpace ε₁] [TopologicalSpace ε₂]
 /- Todo: define `MeasureTheory.WLp` as a subgroup, similar to `MeasureTheory.Lp` -/
 
 /-- An operator has weak type `(p, q)` if it is bounded as a map from `L^p` to weak `L^q`.
@@ -326,7 +330,7 @@ def HasWeakType (T : (α → ε₁) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ
 def HasBoundedWeakType {α α' : Type*} [Zero ε₁]
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
-  ∀ f : α → ε₁, MemLp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
+  ∀ f : α → ε₁, BoundedFiniteSupport f μ →
   AEStronglyMeasurable (T f) ν ∧ wnorm (T f) p' ν ≤ c * eLpNorm f p μ
 
 /-- An operator has strong type `(p, q)` if it is bounded as an operator on `L^p → L^q`.
@@ -342,10 +346,17 @@ w.r.t. the L^2 norm, but weaker in general. -/
 def HasBoundedStrongType {α α' : Type*} [Zero ε₁]
     {_x : MeasurableSpace α} {_x' : MeasurableSpace α'} (T : (α → ε₁) → (α' → ε₂))
     (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
-  ∀ f : α → ε₁, MemLp f p μ → eLpNorm f ∞ μ < ∞ → μ (support f) < ∞ →
+  ∀ f : α → ε₁, BoundedFiniteSupport f μ →
   AEStronglyMeasurable (T f) ν ∧ eLpNorm (T f) p' ν ≤ c * eLpNorm f p μ
 
+end Defs
+
 /-! ### Lemmas about `HasWeakType` -/
+
+section HasWeakType
+
+variable [TopologicalSpace ε₁] [ContinuousENorm ε₁] [TopologicalSpace ε₂] [ContinuousENorm ε₂]
+    {f₁ : α → ε₁}
 
 lemma HasWeakType.memWLp (h : HasWeakType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
     (hc : c < ⊤ := by finiteness) : MemWLp (T f₁) p' ν :=
@@ -400,19 +411,32 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
 --   intro u hu
 --   refine ⟨h u hu |>.1.comp_measurable hf.1, ?_⟩
 
+end HasWeakType
+
 /-! ### Lemmas about `HasBoundedWeakType` -/
 
-lemma HasBoundedWeakType.memWLp [Zero ε₁] (h : HasBoundedWeakType T p p' μ ν c)
-    (hf₁ : MemLp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞)
-    (hc : c < ⊤ := by finiteness) :
-    MemWLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
+section HasBoundedWeakType
 
-lemma HasWeakType.hasBoundedWeakType [Zero ε₁] (h : HasWeakType T p p' μ ν c) :
+variable [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENorm ε₂]
+    {f₁ : α → ε₁}
+
+lemma HasBoundedWeakType.memWLp (h : HasBoundedWeakType T p p' μ ν c)
+    (hf₁ : BoundedFiniteSupport f₁ μ) (hc : c < ⊤ := by finiteness) :
+    MemWLp (T f₁) p' ν :=
+  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp p).2⟩
+
+lemma HasWeakType.hasBoundedWeakType (h : HasWeakType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
-  fun f hf _ _ ↦ h f hf
+  fun f hf ↦ h f (hf.memLp _)
+
+end HasBoundedWeakType
 
 /-! ### Lemmas about `HasStrongType` -/
+
+section HasStrongType
+
+variable [TopologicalSpace ε₁] [ContinuousENorm ε₁] [TopologicalSpace ε₂] [ContinuousENorm ε₂]
+    {f₁ : α → ε₁}
 
 lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁ p μ)
     (hc : c < ⊤ := by finiteness) : MemLp (T f₁) p' ν :=
@@ -437,25 +461,35 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
+end HasStrongType
+
 /-! ### Lemmas about `HasBoundedStrongType` -/
 
-lemma HasBoundedStrongType.memLp [Zero ε₁] (h : HasBoundedStrongType T p p' μ ν c)
-    (hf₁ : MemLp f₁ p μ) (h2f₁ : eLpNorm f₁ ∞ μ < ∞) (h3f₁ : μ (support f₁) < ∞)
-    (hc : c < ⊤ := by finiteness) : MemLp (T f₁) p' ν :=
-  ⟨(h f₁ hf₁ h2f₁ h3f₁).1, h f₁ hf₁ h2f₁ h3f₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
+section HasBoundedStrongType
 
-lemma HasStrongType.hasBoundedStrongType [Zero ε₁] (h : HasStrongType T p p' μ ν c) :
+variable [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ContinuousENorm ε₂]
+    {f₁ : α → ε₁}
+
+lemma HasBoundedStrongType.memLp (h : HasBoundedStrongType T p p' μ ν c)
+    (hf₁ : BoundedFiniteSupport f₁ μ) (hc : c < ⊤ := by finiteness) :
+    MemLp (T f₁) p' ν :=
+  ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc (hf₁.memLp _).2⟩
+
+lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
-  fun f hf _ _ ↦ h f hf
+  fun f hf ↦ h f (hf.memLp _)
 
-lemma HasBoundedStrongType.hasBoundedWeakType [Zero ε₁] (hp' : 1 ≤ p')
-    (h : HasBoundedStrongType T p p' μ ν c) : HasBoundedWeakType T p p' μ ν c :=
-  fun f hf h2f h3f ↦
-    ⟨(h f hf h2f h3f).1, wnorm_le_eLpNorm (h f hf h2f h3f).1 hp' |>.trans (h f hf h2f h3f).2⟩
+lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 1 ≤ p')
+    (h : HasBoundedStrongType T p p' μ ν c) :
+    HasBoundedWeakType T p p' μ ν c :=
+  fun f hf ↦
+    ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
+
+end HasBoundedStrongType
 
 section distribution
 
-variable {f g : α → ε}
+variable {f g : α → ε} [ENorm ε]
 
 @[gcongr]
 lemma distribution_mono_left (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
@@ -494,8 +528,6 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g 
     _ ≤ _ := measure_union_le _ _
 
 end distribution
-
-end ContinuousENorm
 
 section NormedGroup
 
