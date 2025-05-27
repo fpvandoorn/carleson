@@ -62,9 +62,17 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       · congr
         exact (inter_union_diff (t.𝔗 u₂) (t.𝔖₀ u₁ u₂)).symm
       · exact disjoint_sdiff_inter.symm
+    _ = (‖(∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x)) +
+        ∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
+      congr
+      beta_reduce
+      sorry -- want `rw [← MeasureTheory.lintegral_add_left]` or so
     _ ≤ (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) +
         (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
-        sorry
+      set A := ‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊
+      set B := ‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x))‖₊
+      -- use the triangle inequality
+      sorry
     _ ≤ C7_4_5 a n *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume
@@ -78,17 +86,23 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by ring
     _ ≤ _ := by
+      have : (𝓘 u₁ : Set X) ⊆ (𝓘 u₁ ∩ 𝓘 u₂ : Set X) := by
+        apply subset_inter
+        · exact fun ⦃a_1⦄ a ↦ a
+        simp
+        sorry -- help! convert h2u
       gcongr
-      · --apply le_of_eq
-        simp only [C7_4_4, C7_4_5, C7_4_6]
-        -- now, need the definition of Z
-        sorry -- ring_nf
-      · apply le_of_eq
-        congr
-        sorry -- use inclusion
-      · sorry -- use inclusion and monotonicity
-
-#exit
+      · simp only [C7_4_4, C7_4_5, C7_4_6, defaultZ]
+        -- The remaining goal is a menial estimate of powers of two (and n), using 4 ≤ a.
+        ring_nf
+        field_simp
+        sorry
+      · apply eLpNorm_mono_enorm fun x ↦ ?_
+        rw [enorm_eq_self]
+        exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
+      · apply eLpNorm_mono_enorm fun x ↦ ?_
+        rw [enorm_eq_self, enorm_eq_self]
+        exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
 
 -- perhaps, with as many extra hypotheses as I need
 lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (x : X) :
@@ -133,7 +147,7 @@ def rowDecomp_zornset (s : Set (𝔓 X)) :=
 lemma mem_rowDecomp_zornset_iff (s s' : Set (𝔓 X)) :
     s' ∈ rowDecomp_zornset s ↔ (s' ⊆ s ∧ s'.PairwiseDisjoint (𝓘 ·: _ → Set X) ∧
       ∀ u ∈ s', Maximal (· ∈ 𝓘 '' s) (𝓘 u)) := by
-  rw [rowDecomp_zornset,mem_inter_iff,mem_inter_iff,mem_setOf,mem_setOf,mem_setOf,and_assoc]
+  simp_rw [rowDecomp_zornset, mem_inter_iff, mem_setOf, and_assoc]
   nth_rw 2 [subset_def]
   simp_rw [mem_setOf]
 
