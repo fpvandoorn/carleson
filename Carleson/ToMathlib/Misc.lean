@@ -9,6 +9,7 @@ import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.MeasureTheory.Measure.Real
 import Carleson.ToMathlib.ENorm
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 /-
 * This file can import all ToMathlib files.
@@ -17,6 +18,21 @@ import Carleson.ToMathlib.ENorm
 
 open Function Set
 open scoped ENNReal
+
+
+namespace Real
+-- to Mathlib.Analysis.SpecialFunctions.Log.Base
+lemma le_pow_natCeil_logb {b x : ℝ} (hb : 1 < b) (hx : 0 < x) :
+    x ≤ b ^ ⌈Real.logb b x⌉₊ := by
+  calc
+    x = b ^ Real.logb b x := by rw [Real.rpow_logb (by linarith) hb.ne' hx]
+    _ ≤ b ^ ⌈Real.logb b x⌉₊ := by
+      rw [← Real.rpow_natCast]
+      gcongr
+      · exact hb.le
+      apply Nat.le_ceil
+
+end Real
 
 section ENNReal
 

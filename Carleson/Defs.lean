@@ -112,8 +112,8 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
     /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
   /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.0.11) -/
-  ballsCoverBalls {x : X} {r R : ℝ} :
-    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R A
+  allBallsCoverBalls {x : X} {r : ℝ} :
+    AllBallsCoverBalls (WithFunctionDistance x r) 2 A
 
 instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
@@ -524,24 +524,15 @@ lemma cdist_le_mul_cdist {x x' : X} {r r' : ℝ} (hr : 0 < r) (hr' : 0 < r') (f 
       r' + dist x' x = (r' + dist x' x) / r * r := div_mul_cancel₀ _ hr.ne' |>.symm
       _ ≤ 2 ^ ⌈Real.logb 2 ((r' + dist x' x) / r)⌉₊ * r := by
         gcongr
-        apply le_pow_natCeil_logb (by norm_num) (by positivity)
+        apply Real.le_pow_natCeil_logb (by norm_num) (by positivity)
 
 lemma ballsCoverBalls_iterate_nat {x : X} {d r : ℝ} {n : ℕ} :
-    BallsCoverBalls (WithFunctionDistance x d) (2 ^ n * r) r (defaultA a ^ n) := by
-  have double := fun s ↦ CompatibleFunctions.ballsCoverBalls (x := x) (r := d) (R := s)
-  apply BallsCoverBalls.pow_mul double
+    BallsCoverBalls (WithFunctionDistance x d) (2 ^ n * r) r (defaultA a ^ n) :=
+  CompatibleFunctions.allBallsCoverBalls.pow r
 
-lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
-    BallsCoverBalls (WithFunctionDistance x d) R r (defaultA a ^ ⌈Real.logb 2 (R / r)⌉₊) := by
-  apply ballsCoverBalls_iterate_nat.mono
-  calc
-    _ = R / r * r := by rw [div_mul_cancel₀ R hr.ne']
-    _ = 2 ^ Real.logb 2 (R / r) * r := by
-      rw [Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
-    _ ≤ _ := by
-      gcongr
-      rw [← Real.rpow_natCast]
-      exact Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil _)
+lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hr : 0 < r) :
+    BallsCoverBalls (WithFunctionDistance x d) R r (defaultA a ^ ⌈Real.logb 2 (R / r)⌉₊) :=
+  CompatibleFunctions.allBallsCoverBalls.ballsCoverBalls one_lt_two hr
 
 end Iterate
 
@@ -818,10 +809,8 @@ lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
     (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
     𝓩.Finite ∧ Cardinal.mk 𝓩 ≤ C2_1_1 k a := by
-  have pmul := (BallsCoverBalls.pow_mul (k := k) (r := r) fun r ↦
-    CompatibleFunctions.ballsCoverBalls (x := x₀) (r := R) (R := r)) f
-  rw [mul_comm, coveredByBalls_iff] at pmul
-  obtain ⟨𝓩', c𝓩', u𝓩'⟩ := pmul
+  obtain ⟨𝓩', c𝓩', u𝓩'⟩ := ballsCoverBalls_iterate_nat (x := x₀) (n := k) (r := r) (d := R) f
+  rw [mul_comm] at u𝓩'
   classical
     let g : Θ X → Finset (Θ X) := fun z ↦ 𝓩'.filter (z ∈ ball_{x₀, R} · r)
     have g_pd : 𝓩.PairwiseDisjoint g := fun z hz z' hz' hne ↦ by
