@@ -5979,7 +5979,7 @@ $$
         \label{square-function-count}
         \leanok
         \lean{TileStructure.Forest.square_function_count}
-        For each $J \in \mathcal{J}'$ and all $s \ge 0$, we have
+        For each $J \in \mathcal{J}'$ and all $s$, we have
         $$
             \frac{1}{\mu(J)} \int_J \Bigg(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
         J \cap B(I) \ne \emptyset}} \mathbf{1}_{B(I)}\bigg)^2 \, \mathrm{d}\mu \le 2^{14a+1} (8 D^{-s})^\kappa\,.
@@ -6019,17 +6019,20 @@ $$
         \|P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2
     $$
     $$
-        = \left(\sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left|\int_J \sum_{\fp \in \fT(\fu_2) \setminus \mathfrak{S}} T_{\fp}^* g_2 \, \mathrm{d}\mu(y) \right|^2 \right)^{1/2}\,.
+        = \left(\sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left(\int_J \left| \sum_{\fp \in \fT(\fu_2) \setminus \mathfrak{S}} T_{\fp}^* g_2(y) \right| \, \mathrm{d}\mu(y) \right)^2 \right)^{1/2}\,.
     $$
-    We split the innermost sum according to the scale of the tile $\fp$, and then apply the triangle inequality and Minkowski's inequality:
+    By \Cref{adjoint-tile-support}, the innermost sum in the last display is $0$ if $J \cap B(\scI(\fp)) = \emptyset$.
+    Then we split that sum according to the scale of $\fp$ relative to the scale of $J$.
+    By \Cref{thin-scale-impact}, $s_1 \le s(J) - \ps(\fp) \le 2S$ with $s_1 := \lfloor\frac{Zn}{202a^3} - 2\rfloor$:
     $$
-        \le \sum_{s = -S}^S \left( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left|\int_J \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \ps(\fp) = s}} T_{\fp}^* g_2 \, \mathrm{d}\mu(y) \right|^2\right)^{1/2}\,.
+        = \left(\sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left(\int_J \left| \sum_{s=s_1}^{2S} \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \ps(\fp) = s(J) - s\\
+        J \cap B(\scI(\fp)) \ne \emptyset}} T_{\fp}^* g_2(y) \right| \, \mathrm{d}\mu(y) \right)^2 \right)^{1/2}\,.
     $$
-    By \Cref{adjoint-tile-support}, the integral in the last display is $0$ if $J \cap B(\scI(\fp)) = \emptyset$. By \Cref{thin-scale-impact}, it follows with $s_1 := \frac{Zn}{202a^3} - 2$:
+    Then we apply the triangle inequality and Minkowski's inequality to get
     \begin{equation}
     \label{eq-sep-tree-small-1}
-        = \sum_{s = s_1}^{s_1 + 2S} \Bigg( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \Bigg|\int_J \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \ps(\fp) = s(J) - s\\
-        J \cap B(\scI(\fp)) \ne \emptyset}} T_{\fp}^* g_2 \, \mathrm{d}\mu(y) \Bigg|^2\Bigg)^{1/2}\,.
+        \le \sum_{s=s_1}^{2S} \left( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left(\int_J \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \ps(\fp) = s(J) - s\\
+        J \cap B(\scI(\fp)) \ne \emptyset}} |T_{\fp}^* g_2(y)| \, \mathrm{d}\mu(y) \right)^2\right)^{1/2}\,.
     \end{equation}
     We have by \Cref{adjoint-tile-support} and \eqref{eq-Ks-size}
     $$
@@ -6067,22 +6070,22 @@ $$
     By \Cref{overlap-implies-distance}, we have $\scI(\fp) \cap \scI(\fu_1) = \emptyset$ for all $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$.
     Thus we can estimate \eqref{eq-sep-tree-small-1} by
     $$
-        2^{103a^3} \sum_{s = s_1}^{s_1 + 2S} \Bigg( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \Bigg|\int_J \sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
+        2^{103a^3} \sum_{s=s_1}^{2S} \Bigg( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \Bigg|\int_J \sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
         J \cap B(I) \ne \emptyset}} M_{\mathcal{B},1} |g_2| \mathbf{1}_{B(I)} \, \mathrm{d}\mu \Bigg|^2\Bigg)^{\frac 1 2}\,,
     $$
     which is by Cauchy-Schwarz at most
     \begin{equation}
     \label{eq-sep-tree-small-2}
-        2^{103a^3} \sum_{s = s_1}^{s_1 + 2S} \Bigg( \sum_{J \in \mathcal{J}'} \int_J ( M_{\mathcal{B},1} |g_2|)^2 \frac{1}{\mu(J)} \int_J \Bigg(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
+        2^{103a^3} \sum_{s=s_1}^{2S} \Bigg( \sum_{J \in \mathcal{J}'} \int_J ( M_{\mathcal{B},1} |g_2|)^2 \frac{1}{\mu(J)} \int_J \Bigg(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
         J \cap B(I) \ne \emptyset}} \mathbf{1}_{B(I)}\bigg)^2 \, \mathrm{d}\mu \Bigg)^{\frac 12}\,.
     \end{equation}
     Using \Cref{square-function-count}, we bound \eqref{eq-sep-tree-small-2} by
     $$
-        2^{103a^3} \sum_{s = s_1}^{s_1 + 2S} \left(\sum_{J \in \mathcal{J}'} \int_J (M_{\mathcal{B},1} |g_2|)^2 2^{104a^2} (8 D^{-s})^\kappa\right)^{\frac 1 2}\,,
+        2^{103a^3} \sum_{s=s_1}^{2S} \left(\sum_{J \in \mathcal{J}'} \int_J (M_{\mathcal{B},1} |g_2|)^2 2^{104a^2} (8 D^{-s})^\kappa\right)^{\frac 1 2}\,,
     $$
     and, since dyadic cubes in $\mathcal{J}'$ form a partition of $\scI(\fu_1)$ by \Cref{dyadic-partition-2}, $\kappa \le 1$ by \eqref{definekappa}, and $a \ge 4$
     $$
-        \le 2^{116a^3} \sum_{s = s_1}^{s_1 + 2S} D^{-s\kappa/2} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
+        \le 2^{116a^3} \sum_{s=s_1}^{2S} D^{-s\kappa/2} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
     $$
     $$
         \le 2^{116a^3} D^{-s_1 \kappa /2} \frac{1}{1 - D^{-\kappa/2}} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2\,.

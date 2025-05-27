@@ -79,6 +79,18 @@ lemma edist_sum_le_sum_edist {f g : α → E} : edist (∑ i ∈ t, f i) (∑ i 
     simp only [Finset.sum_cons]
     exact (edist_add_add_le _ _ _ _).trans (add_le_add_left ihs _)
 
+lemma enorm_sum_eq_sum_enorm {f : α → ℝ} (hf : ∀ i ∈ t, 0 ≤ f i) :
+    ‖∑ i ∈ t, f i‖ₑ = ∑ i ∈ t, ‖f i‖ₑ := by
+  induction t using Finset.cons_induction with
+  | empty => simp
+  | cons a t ha ihs =>
+    simp only [Finset.sum_cons]
+    simp only [Finset.mem_cons, forall_eq_or_imp] at hf
+    have n₁ := hf.1
+    have n₂ := Finset.sum_nonneg hf.2
+    rw [Real.enorm_of_nonneg (add_nonneg n₁ n₂), ENNReal.ofReal_add n₁ n₂,
+      ← Real.enorm_of_nonneg n₁, ← Real.enorm_of_nonneg n₂, ihs hf.2]
+
 /-- The reverse triangle inequality for `enorm`. -/
 -- TODO: does a seminormed abelian additive group also have an ENormedAddMonoid structure?
 lemma enorm_enorm_sub_enorm_le {E} [NormedAddCommGroup E] {x y : E} : ‖‖x‖ₑ - ‖y‖ₑ‖ₑ ≤ ‖x - y‖ₑ := by

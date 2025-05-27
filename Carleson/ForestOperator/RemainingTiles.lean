@@ -1,4 +1,5 @@
 import Carleson.ForestOperator.AlmostOrthogonality
+import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -81,8 +82,7 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
       contradiction
 
 /-- Part of Lemma 7.6.1. -/
-lemma pairwiseDisjoint_𝓙₆ :
-    (𝓙₆ t u₁).PairwiseDisjoint (fun I ↦ (I : Set X)) := by
+lemma pairwiseDisjoint_𝓙₆ : (𝓙₆ t u₁).PairwiseDisjoint (fun I ↦ (I : Set X)) := by
   have ss : (𝓙 (t u₁) ∩ Iic (𝓘 u₁)) ⊆ 𝓙 (t u₁) := inter_subset_left
   exact PairwiseDisjoint.subset (pairwiseDisjoint_𝓙 (𝔖 := t u₁)) ss
 
@@ -220,15 +220,22 @@ lemma thin_scale_impact (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
       rw [pow_add, pow_mul']; gcongr; exacts [by norm_num, Nat.lt_two_pow_self.le]
     _ ≤ _ := by gcongr <;> omega
 
+/-- Lemma 7.6.3 with a floor on the constant to avoid casting. -/
+lemma thin_scale_impact' (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u₂) (hJ : J ∈ 𝓙₆ t u₁)
+    (hd : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J))) :
+    𝔰 p ≤ s J - ⌊C7_6_3 a n⌋ := by
+  rw [← Int.cast_le (R := ℝ), Int.cast_sub]
+  apply (thin_scale_impact hu₁ hu₂ hu h2u hp hJ hd).trans; gcongr; exact Int.floor_le _
+
 /-- The constant used in `square_function_count`. -/
 irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (14 * (a : ℝ) + 1) * (8 * D ^ (- s)) ^ κ
 
-open scoped Classical in
-set_option linter.flexible false in -- Addressing the linter makes the code less readable.
+open Classical in
 /-- Lemma 7.6.4. -/
 lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
     ⨍⁻ x in J, (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
-    ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
+    ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
     (ball (c I) (8 * D ^ s I)).indicator 1 x) ^ 2 ∂volume ≤ C7_6_4 a s' := by
   rcases lt_or_ge (↑S + s J) s' with hs' | hs'
   · suffices ({I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
@@ -362,13 +369,141 @@ Has value `2 ^ (118 * a ^ 3 - 100 / (202 * a) * Z * n * κ)` in the blueprint. -
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_6_2 (a n : ℕ) : ℝ≥0 := 2 ^ (118 * (a : ℝ) ^ 3 - 100 / (202 * a) * Z * n * κ)
 
-/-- Lemma 7.6.2. Todo: add needed hypothesis to LaTeX -/
-lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf : IsBounded (range f)) (h2f : HasCompactSupport f)
-    (h3f : AEStronglyMeasurable f) :
+open Classical in
+lemma sum_𝓙₆_indicator_sq_eq {f : Grid X → X → ℝ≥0∞} :
+    (∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J) x) ^ 2 =
+    ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J · ^ 2) x := by
+  rw [sq, Finset.sum_mul_sum, ← Finset.sum_product']
+  have dsub : (𝓙₆ t u₁).toFinset.diag ⊆ (𝓙₆ t u₁).toFinset ×ˢ (𝓙₆ t u₁).toFinset :=
+    Finset.filter_subset ..
+  rw [← Finset.sum_subset dsub]; swap
+  · intro p mp np
+    simp_rw [Finset.mem_product, Finset.mem_diag, mem_toFinset, not_and] at mp np
+    specialize np mp.1
+    rw [← inter_indicator_mul, (pairwiseDisjoint_𝓙₆ mp.1 mp.2 np).inter_eq]
+    simp
+  simp_rw [Finset.sum_diag, ← inter_indicator_mul, inter_self, ← sq]
+
+open Classical in
+lemma btp_expansion (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume =
+    (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+    (∫⁻ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+  have Vpos {J : Grid X} : 0 < volume (J : Set X) := volume_coeGrid_pos (defaultD_pos' a)
+  have Vlt {J : Grid X} : volume (J : Set X) < ⊤ := volume_coeGrid_lt_top
+  calc
+    _ = (∫⁻ x, ∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (fun _ ↦
+        ‖⨍ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖‖ₑ ^ 2) x) ^ (2 : ℝ)⁻¹ := by
+      unfold approxOnCube
+      simp_rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top,
+        ENNReal.toReal_ofNat, one_div]
+      congr! with x; rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
+      · refine fun J mJ ↦ indicator_nonneg (fun y my ↦ ?_) _
+        rw [average_eq, smul_eq_mul]
+        exact mul_nonneg (by positivity) (integral_nonneg fun _ ↦ norm_nonneg _)
+      rw [show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast, filter_mem_univ_eq_toFinset]
+      simp_rw [enorm_indicator_eq_indicator_enorm, sum_𝓙₆_indicator_sq_eq]
+    _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, ∫⁻ x in (J : Set X), (fun _ ↦
+        ‖⨍ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖‖ₑ ^ 2) x) ^ (2 : ℝ)⁻¹ := by
+      congr 1; simp_rw [← lintegral_indicator coeGrid_measurable]
+      exact lintegral_finset_sum _ fun J mJ ↦ measurable_const.indicator coeGrid_measurable
+    _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, ∫⁻ x in (J : Set X),
+        (⨍⁻ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖ₑ ∂volume) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      simp only [lintegral_const]; congr! with J mJ
+      have vn0 : volume.real (J : Set X) ≠ 0 := by
+        rw [measureReal_def, ENNReal.toReal_ne_zero]; exact ⟨Vpos.ne', Vlt.ne⟩
+      rw [setLAverage_eq, setAverage_eq, smul_eq_mul, enorm_mul, enorm_inv vn0,
+        ← ENNReal.div_eq_inv_mul, measureReal_def, Real.enorm_of_nonneg ENNReal.toReal_nonneg,
+        ENNReal.ofReal_toReal Vlt.ne]; congr
+      rw [integral_norm_eq_lintegral_enorm mf.adjointCarlesonSum.restrict]; apply enorm_toReal
+      rw [← lt_top_iff_ne_top, ← eLpNorm_one_eq_lintegral_enorm]
+      exact (hf.adjointCarlesonSum.restrict.memLp 1).2
+    _ = _ := by
+      congr! with J mJ
+      rw [setLIntegral_const, setLAverage_eq, ENNReal.div_eq_inv_mul, mul_pow, ← mul_rotate, sq,
+        ← mul_assoc, ENNReal.mul_inv_cancel Vpos.ne' Vlt.ne, one_mul]
+
+open Classical in
+/-- Equation (7.6.3) of Lemma 7.6.2. -/
+lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
-    C7_6_2 a n *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 (‖f ·‖) ·)) 2 volume := by
+    ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+    (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+    (∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+      ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝔰 p = s J - k,
+    ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+  calc
+    _ = _ := btp_expansion hf mf
+    _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ * (∫⁻ y in J,
+        ‖∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)),
+          adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      congr! 4 with J mJ
+      refine setLIntegral_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
+      unfold adjointCarlesonSum; congr 1
+      rw [filter_mem_univ_eq_toFinset]; refine (Finset.sum_filter_of_ne fun p mp hd ↦ ?_).symm
+      rw [adjoint_tile_support1] at hd
+      exact not_disjoint_iff.mpr ⟨_, my,
+        ball_subset_ball (by gcongr; norm_num) (mem_of_indicator_ne_zero hd)⟩
+    _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ * (∫⁻ y in J,
+        ‖∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ s J - 𝔰 p = k,
+        adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      congr! with J mJ y; simp_rw [← Finset.filter_filter]
+      refine (Finset.sum_fiberwise_of_maps_to (fun p mp ↦ ?_) _).symm
+      rw [Finset.mem_filter] at mp; rw [mem_toFinset] at mp mJ; obtain ⟨mp, dp⟩ := mp
+      have dpJ : ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)) := by
+        contrapose! dp; refine dp.symm.mono_left (Grid_subset_ball.trans (ball_subset_ball ?_))
+        change (4 : ℝ) * D ^ s J ≤ _; gcongr; norm_num
+      rw [Finset.mem_Icc]
+      constructor
+      · have tsi := thin_scale_impact' hu₁ hu₂ hu h2u mp mJ dpJ
+        omega
+      · have : s J ≤ S := scale_mem_Icc.2
+        have : -S ≤ 𝔰 p := scale_mem_Icc.1
+        omega
+    _ ≤ (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+        (∫⁻ y in J, ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ s J - 𝔰 p = k,
+        ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by -- Triangle inequality
+      gcongr with J mJ y
+      exact (enorm_sum_le _ _).trans (Finset.sum_le_sum fun k mk ↦ enorm_sum_le _ _)
+    _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+        (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S), ∫⁻ y in J,
+        ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ s J - 𝔰 p = k,
+        ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      congr! with J mJ
+      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
+        mf.adjointCarleson.aemeasurable.enorm.restrict
+    _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        volume (J : Set X) ^ (-2 : ℝ)⁻¹ * ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝔰 p = s J - k,
+        ‖adjointCarleson p f y‖ₑ) ^ (2 : ℝ)) ^ (1 / 2 : ℝ) := by
+      rw [one_div]; congr! with J mJ
+      rw [← ENNReal.rpow_neg_one, show (-1 : ℝ) = (-2)⁻¹ * (2 : ℕ) by norm_num, ENNReal.rpow_mul,
+        ENNReal.rpow_natCast, ← mul_pow, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
+        Finset.mul_sum]
+      congr! 9 with k mk y p; omega
+    _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X) ^ (-2 : ℝ)⁻¹ *
+        ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝔰 p = s J - k,
+        ‖adjointCarleson p f y‖ₑ) ^ (2 : ℝ)) ^ (1 / 2 : ℝ) := -- Minkowski inequality
+      ENNReal.Lp_add_le_sum one_le_two
+    _ = _ := by
+      rw [one_div]; congr! with k mk J mJ
+      nth_rw 2 [show (2 : ℝ) = (2 : ℕ) by rfl]
+      rw [ENNReal.rpow_natCast, mul_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul,
+        show (-2)⁻¹ * (2 : ℕ) = (-1 : ℝ) by norm_num, ENNReal.rpow_neg_one]
+
+/-- Lemma 7.6.2. Todo: add needed hypothesis to LaTeX -/
+lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
+    C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume := by
   sorry
 
 /-- The constant used in `correlation_near_tree_parts`.

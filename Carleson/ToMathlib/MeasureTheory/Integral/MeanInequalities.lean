@@ -11,6 +11,23 @@ variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 
 namespace ENNReal
 
+/-- **Minkowski inequality** for finite sums of `ENNReal`s. -/
+theorem Lp_add_le_sum
+    {ι κ : Type*} {s : Finset ι} {t : Finset κ} {f : ι → κ → ℝ≥0∞} {p : ℝ} (hp : 1 ≤ p) :
+    (∑ i ∈ s, (∑ j ∈ t, f i j) ^ p) ^ (1 / p) ≤ ∑ j ∈ t, (∑ i ∈ s, f i j ^ p) ^ (1 / p) := by
+  have ppos : 0 < p := by positivity
+  have pinvpos : 0 < 1 / p := by positivity
+  induction t using Finset.cons_induction with
+  | empty =>
+    simp_rw [sum_empty, ENNReal.zero_rpow_of_pos ppos, sum_const_zero, nonpos_iff_eq_zero,
+      ENNReal.zero_rpow_of_pos pinvpos]
+  | cons a t h ih =>
+    simp_rw [sum_cons]
+    calc
+      _ ≤ (∑ x ∈ s, f x a ^ p) ^ (1 / p) + (∑ i ∈ s, (∑ j ∈ t, f i j) ^ p) ^ (1 / p) :=
+        Lp_add_le _ _ _ hp
+      _ ≤ _ := by gcongr
+
 -- Add after `lintegral_prod_norm_pow_le`
 /-- A version of Hölder with multiple arguments, allowing `∞` as an exponent. -/
 theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : Measure α}
