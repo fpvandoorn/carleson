@@ -14,6 +14,8 @@ variable {α α' E E₁ E₂ F : Type*} [ENorm F]
 @[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
   simp [hx, ← ofReal_norm_eq_enorm]
 
+lemma enorm_NNReal {x : ℝ≥0} : ‖x‖ₑ = x := by rfl
+
 /-- An enormed monoid is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
 class ENormedAddCommSubMonoid (E : Type*) [TopologicalSpace E] extends ENormedAddCommMonoid E, Sub E where
