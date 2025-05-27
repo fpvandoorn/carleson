@@ -24,6 +24,22 @@ Has value `2 ^ (550 * a ^ 3 - 3 * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (550 * (a : ℝ) ^ 3 - 3 * n)
 
+lemma estimate_C7_4_4 (a n : ℕ) : (C7_4_5 a n) + (C7_4_6 a n) ≤ C7_4_4 a n := by
+  simp only [C7_4_4, C7_4_5, C7_4_6, defaultZ]
+  push_cast
+  --nlinarith
+  --simp only [defaultA]
+  --norm_num
+
+  sorry
+
+lemma estimate_C7_4_4' (a n : ℕ) : ENNReal.ofNNReal (C7_4_5 a n) + ENNReal.ofNNReal (C7_4_6 a n)
+    ≤ ENNReal.ofNNReal (C7_4_4 a n) := by
+  rw [← ENNReal.coe_add, ENNReal.coe_le_coe]
+  exact estimate_C7_4_4 a n
+
+#exit
+
 lemma aux {A B C : ℂ} : A * conj (B + C) = A * conj B + A * conj C := by
   simp only [map_add]
   ring
@@ -78,8 +94,10 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       congr
       beta_reduce
       rw [integral_add]
-      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁) hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
-      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁) hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
+      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁)
+          hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
+      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁)
+          hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
     _ ≤ (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) +
         (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
       set A := ‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊
@@ -99,17 +117,9 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by ring
     _ ≤ _ := by
-      have : (𝓘 u₁ : Set X) ⊆ (𝓘 u₁ ∩ 𝓘 u₂ : Set X) := by
-        apply subset_inter
-        · exact fun ⦃a_1⦄ a ↦ a
-        simp
-        sorry -- help! convert h2u
+      have : (𝓘 u₁ : Set X) ⊆ (𝓘 u₁ ∩ 𝓘 u₂ : Set X) := subset_inter (by simp) h2u.1
       gcongr
-      · simp only [C7_4_4, C7_4_5, C7_4_6, defaultZ]
-        -- The remaining goal is a menial estimate of powers of two (and n), using 4 ≤ a.
-        ring_nf
-        field_simp
-        sorry
+      · exact estimate_C7_4_4' a n
       · apply eLpNorm_mono_enorm fun x ↦ ?_
         rw [enorm_eq_self]
         exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
@@ -140,16 +150,14 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
   · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂ hf₁ h2f₁ hf₂ h2f₂
   by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
-  · have : ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x *
-          conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
-        ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₁) g₁ x *
-          conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x)‖₊ := by
+  · have :
+        ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x * conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
+        ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x)‖₊ := by
       rw [← RCLike.nnnorm_conj _, ← integral_conj]
       simp [mul_comm]
     rw [inter_comm, mul_right_comm, ← this]
     exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁ hf₂ h2f₂ hf₁ h2f₁
   push_neg at h h'
-  -- Remaining case.
   simp [foo h h']
 
 /-! ## Section 7.7 -/
