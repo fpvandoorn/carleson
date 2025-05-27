@@ -58,13 +58,31 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       · congr
         exact (inter_union_diff (t.𝔗 u₂) (t.𝔖₀ u₁ u₂)).symm
       · exact disjoint_sdiff_inter.symm
-    _ ≤ C7_4_5 a n *
-      eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
-      eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
-        -- first summand
-        have aux := correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂ (g₁ := g₁) (g₂ := g₂)
+    _ ≤ (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) +
+        (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
         sorry
-    _ ≤ _ := sorry
+    _ ≤ C7_4_5 a n *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume
+        + C7_4_6 a n *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
+      gcongr
+      · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂
+      · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂
+    _ = (C7_4_5 a n + C7_4_6 a n) *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by ring
+    _ ≤ _ := by
+      gcongr
+      · --apply le_of_eq
+        simp only [C7_4_4, C7_4_5, C7_4_6]
+        -- now, need the definition of Z
+        sorry -- ring_nf
+      · apply le_of_eq
+        congr
+        sorry -- use inclusion
+      · sorry -- use inclusion and monotonicity
 
 #exit
 
