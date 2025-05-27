@@ -36,6 +36,15 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
   sorry
 
+-- perhaps, with as many extra hypotheses as I need
+lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (x : X) :
+    adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x) = 0 := by
+  simp_rw [adjointCarlesonSum]
+  -- commute sum and product
+  -- rewrite by (7.4.1), using adjoint_tile_support2
+  -- then observe these have disjoint support (for each summand), hence each summand is zero
+  sorry
+
 /-- Lemma 7.4.4. -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
@@ -59,9 +68,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
     exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hf₂ h2f₂ hf₁ h2f₁
   push_neg at h h'
   -- Remaining case.
-  have : ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ = 0 := by
-    sorry
-  simp [this]
+  simp [foo h h']
 
 #exit
 
