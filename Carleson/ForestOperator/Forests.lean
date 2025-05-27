@@ -28,16 +28,20 @@ lemma aux {A B C : ℂ} : A * conj (B + C) = A * conj B + A * conj C := by
   simp only [map_add]
   ring
 
--- Should be really basic, and in mathlib already.
+-- TODO: `adjointCarlesonSum` should be rewritten to use Finsets,
+-- and this lemma replaced by `Finset.sum_union`.
 open Classical in
-lemma missing {X : Type*} [Fintype X] {g : X → ℂ} {s t : Set (X)} (hst : Disjoint s t) :
-    ∑ p ∈ {p | p ∈ s ∪ t}, g p = ∑ p ∈ {p | p ∈ s}, g p + ∑ p ∈ {p | p ∈ t}, g p := by sorry
+private lemma sum_union_dontuse {X : Type*} [Fintype X] {g : X → ℂ} {s t : Set X} (hst : Disjoint s t) :
+    ∑ p ∈ {p | p ∈ s ∪ t}, g p = ∑ p ∈ {p | p ∈ s}, g p + ∑ p ∈ {p | p ∈ t}, g p := by
+  convert_to ∑ p ∈ (s.toFinset ∪ t.toFinset), g p = ∑ p ∈ s.toFinset, g p + ∑ p ∈ t.toFinset, g p
+  any_goals congr <;> (ext x; simp)
+  exact Finset.sum_union (by simpa)
 
 lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (𝔓 X)} (hst : Disjoint s t) :
     adjointCarlesonSum (s ∪ t) g x = adjointCarlesonSum s g x + adjointCarlesonSum t g x := by
   classical
   simp_rw [adjointCarlesonSum]
-  convert missing hst (g := fun p ↦ adjointCarleson p g x)
+  convert sum_union_dontuse hst (g := fun p ↦ adjointCarleson p g x)
 
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
