@@ -556,7 +556,8 @@ lemma distribution_smul_left {f : α → ε'} {c : ℝ≥0} (hc : c ≠ 0) :
 variable [NormedAddCommGroup E] [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E]
   {E' : Type*} [NormedAddCommGroup E'] [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E']
 
-lemma distribution_smul_left' {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
+omit [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E] in
+lemma distribution_smul_left' [NormedSpace 𝕜 E] {f : α → E} {c : 𝕜} (hc : c ≠ 0) :
     distribution (c • f) t μ = distribution f (t / ‖c‖ₑ) μ := by
   have h₀ : ‖c‖ₑ ≠ 0 := enorm_ne_zero.mpr hc
   unfold distribution
@@ -624,7 +625,8 @@ lemma wnorm_const_smul_le (hp : p ≠ 0) {f : α → ε'} (k : ℝ≥0) :
   apply le_of_eq
   congr <;> exact (coe_div k_zero).symm
 
-lemma wnorm_const_smul_le' (hp : p ≠ 0) {f : α → E} (k : 𝕜) :
+omit [MulActionWithZero 𝕜 E] [IsBoundedSMul 𝕜 E] in
+lemma wnorm_const_smul_le' [NormedSpace 𝕜 E] (hp : p ≠ 0) {f : α → E} (k : 𝕜) :
     wnorm (k • f) p μ ≤ ‖k‖ₑ * wnorm f p μ := by
   by_cases ptop : p = ⊤
   · simp only [ptop, wnorm_top]
@@ -666,7 +668,8 @@ lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
 
 -- TODO: do we want to unify this lemma with its unprimed version, perhaps using an
 -- `ENormedSemiring` class?
-lemma HasWeakType.const_smul' {T : (α → ε) → (α' → E')} (hp' : p' ≠ 0)
+omit [MulActionWithZero 𝕜 E'] [IsBoundedSMul 𝕜 E'] in
+lemma HasWeakType.const_smul' [NormedSpace 𝕜 E'] {T : (α → ε) → (α' → E')} (hp' : p' ≠ 0)
     {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : 𝕜) :
     HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
   intro f hf
