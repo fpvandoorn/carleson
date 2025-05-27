@@ -24,21 +24,103 @@ Has value `2 ^ (550 * a ^ 3 - 3 * n)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (550 * (a : ℝ) ^ 3 - 3 * n)
 
-lemma estimate_C7_4_4 (a n : ℕ) : (C7_4_5 a n) + (C7_4_6 a n) ≤ C7_4_4 a n := by
-  simp only [C7_4_4, C7_4_5, C7_4_6, defaultZ]
-  push_cast
-  --nlinarith
-  --simp only [defaultA]
-  --norm_num
+section estimate
 
+-- surely mathlib has this already
+lemma missing_mono {a : ℝ≥0} (ha : 0 < a) {x y : ℝ} (hxy : x < y) : a ^ x < a ^ y := sorry
+
+lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^ 2 + 2 * ↑a ^ 3) := by
+  let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) / (4 * x ^ 2 + 2 * x ^ 3)
+  have hf : Differentiable ℝ f := by
+    -- fun_prop cannot do this yet...
+    sorry
+  let f' : ℝ → ℝ := fun x ↦ ((12 * Real.log 2) - 3 * x⁻¹) * f x
+  have (x) : deriv f x = f' x := sorry -- TODO, compute
+  have : MonotoneOn f (Set.Ici 4) := by
+    apply monotoneOn_of_deriv_nonneg (convex_Ici 4) hf.continuous.continuousOn (by fun_prop)
+    intro x hx
+    rw [interior_Ici, mem_Ioi] at hx
+    rw [this]
+    unfold f'
+    apply mul_nonneg
+    · simp only [sub_nonneg]
+      trans 3 * 4⁻¹
+      · gcongr
+      · -- have : 0.68 < Real.log 2 := sorry
+        norm_num
+        sorry -- why can't norm_num do this?
+    · unfold f
+      positivity
+  calc 4
+    _ < f 4 := by norm_num
+    _ ≤ f a := this (by norm_num) (by norm_num; exact ha) ha
+
+lemma estimate_a2 {a : ℝ} (ha : 4 ≤ a) : 4 < ((2 ^ (12 * a) : ℝ)) / (2 ^ (10 * ↑a)) := by
+  let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) / (2 ^ (10 * x))
+  let g: ℝ → ℝ := fun x ↦ 4 ^ x
+  have : Monotone g := by
+    sorry -- exponential function is always monotone
+  have : Monotone f := by
+    convert this
+    ext x
+    unfold f g
+    trans 2 ^ (2 * x)
+    · ring_nf; sorry -- should be easy
+    · ring_nf -- should be easy
+      sorry
+  calc 4
+    _ < f 4 := by norm_num
+    _ ≤ f a := this (a := 4) (b := a) ha
+
+lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
+    C7_4_5 a n < 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
+  simp only [C7_4_5, defaultZ]
+  apply missing_mono (by norm_num)
+  gcongr
+  -- estimate_a1 plus ring, or so
   sorry
 
-lemma estimate_C7_4_4' (a n : ℕ) : ENNReal.ofNNReal (C7_4_5 a n) + ENNReal.ofNNReal (C7_4_6 a n)
+lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
+    C7_4_6 a n < 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
+  simp only [C7_4_6, defaultZ]
+  apply missing_mono (by norm_num)
+  by_cases hn: n = 0
+  · simp only [Nat.cast_pow, Nat.cast_ofNat, hn, CharP.cast_eq_zero, mul_zero, neg_mul, zero_mul,
+      sub_zero]
+    gcongr; norm_num
+  gcongr ?_ - ?_
+  · gcongr; norm_num
+  · calc 4 * ↑n
+      _ < ↑(2 ^ (12 * a)) * (2 : ℝ) ^ ((-10 : ℝ) * ↑a) * n := by
+        have : 4 ≤ (a : ℝ) := Nat.ofNat_le_cast.mpr ha
+        gcongr
+        sorry -- almost there: convert (estimate_a2 this).le
+      _ = _ := by
+        ring_nf
+        congr
+        norm_cast
+
+lemma estimate_C7_4_4 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) : (C7_4_5 a n) + (C7_4_6 a n) ≤ C7_4_4 a n := by
+  calc
+    _ ≤ (2 : ℝ≥0) ^ (541 * (a : ℝ) ^ 3 - 4 * n) + (2 : ℝ≥0) ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
+      gcongr
+      · exact (estimate_C7_4_5 n ha).le
+      · exact (estimate_C7_4_6 n ha).le
+    _ ≤ 2 ^ (542 * ↑a ^ 3 - 3 * ↑n) := by
+      sorry -- should be easy. exponents add up easily; need to fudge a bit with the extra n's
+    _ ≤ C7_4_4 a n := by
+      simp only [C7_4_4]
+      have : (542 * a ^ 3 - 3 * n) ≤ (550 * a ^ 3 - 3 * n) := by gcongr; norm_num
+      -- final lemma: 2 ^ x is strictly monotone...
+      -- gcongr
+      sorry
+
+lemma estimate_C7_4_4' {a : ℕ} (n : ℕ) (ha : 4 ≤ a) : ENNReal.ofNNReal (C7_4_5 a n) + ENNReal.ofNNReal (C7_4_6 a n)
     ≤ ENNReal.ofNNReal (C7_4_4 a n) := by
   rw [← ENNReal.coe_add, ENNReal.coe_le_coe]
-  exact estimate_C7_4_4 a n
+  exact estimate_C7_4_4 n ha
 
-#exit
+end estimate
 
 lemma aux {A B C : ℂ} : A * conj (B + C) = A * conj B + A * conj C := by
   simp only [map_add]
@@ -119,7 +201,8 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
     _ ≤ _ := by
       have : (𝓘 u₁ : Set X) ⊆ (𝓘 u₁ ∩ 𝓘 u₂ : Set X) := subset_inter (by simp) h2u.1
       gcongr
-      · exact estimate_C7_4_4' a n
+      · refine estimate_C7_4_4' n ?_
+        sorry
       · apply eLpNorm_mono_enorm fun x ↦ ?_
         rw [enorm_eq_self]
         exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
