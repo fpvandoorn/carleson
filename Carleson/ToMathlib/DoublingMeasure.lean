@@ -161,8 +161,6 @@ lemma measure_ball_four_le_same' (x : X) (r : ℝ) :
   · exact ENNReal.ofReal_le_ofReal <| measure_ball_four_le_same x r
   · simp
 
-attribute [aesop (rule_sets := [finiteness]) safe apply] measure_ball_ne_top
-
 variable (μ) in
 lemma As_pos [Nonempty X] [μ.IsOpenPosMeasure] (s : ℝ) : 0 < As A s :=
   pow_pos (A_pos μ) ⌈Real.logb 2 s⌉₊
