@@ -49,12 +49,13 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
   by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
   · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hf₁ h2f₁ hf₂ h2f₂
   by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
-  · have : ‖∫ (x : X), adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₁) g₁ x *
-          (starRingEnd ℂ) (adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₂) g₂ x)‖₊ =
-        ‖∫ (x : X), adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₂) g₂ x *
-          (starRingEnd ℂ) (adjointCarlesonSum ((fun x ↦ t.𝔗 x) u₁) g₁ x)‖₊ := by
-      sorry -- TODO!
-    rw [inter_comm, mul_right_comm, this]
+  · have : ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x *
+          conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
+        ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₁) g₁ x *
+          conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x)‖₊ := by
+      rw [← RCLike.nnnorm_conj _, ← integral_conj]
+      simp [mul_comm]
+    rw [inter_comm, mul_right_comm, ← this]
     exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hf₂ h2f₂ hf₁ h2f₁
   push_neg at h h'
   -- Remaining case.
