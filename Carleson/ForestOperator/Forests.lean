@@ -43,8 +43,19 @@ lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (�
   simp_rw [adjointCarlesonSum]
   convert sum_union_dontuse hst (g := fun p ↦ adjointCarleson p g x)
 
+lemma auxsfdsfsd {f g : X → ℂ} (hf : Integrable f) (hf' : BoundedCompactSupport f) (hg : Integrable g) :
+    Integrable (fun x ↦ f x * conj (g x)) := by
+  have : Integrable (fun x ↦ conj (g x)) := sorry -- missing lemma in mathlib
+  have aux : IsBounded (range f) := by
+    have := hf'.1
+    refine isBounded_range_iff_bddAbove_norm.mpr ?_
+    sorry -- should be easy
+  obtain ⟨M, hM⟩ := aux.exists_norm_le
+  exact Integrable.bdd_mul' this hf.1 (ae_of_all _ fun a ↦ hM _ (mem_range_self a))
+
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) -- XXX: are these assumptions fine to add?
     (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
     (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
@@ -66,7 +77,9 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         ∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
       congr
       beta_reduce
-      sorry -- want `rw [← MeasureTheory.lintegral_add_left]` or so
+      rw [integral_add]
+      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁) hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
+      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁) hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
     _ ≤ (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) +
         (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
       set A := ‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊
@@ -115,6 +128,7 @@ lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (x : 
 
 /-- Lemma 7.4.4. -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) -- XXX: are these assumptions fine to add?
     (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
     (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
@@ -124,7 +138,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
     eLpNorm
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
   by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
-  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hf₁ h2f₁ hf₂ h2f₂
+  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂ hf₁ h2f₁ hf₂ h2f₂
   by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
   · have : ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x *
           conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
@@ -133,7 +147,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       rw [← RCLike.nnnorm_conj _, ← integral_conj]
       simp [mul_comm]
     rw [inter_comm, mul_right_comm, ← this]
-    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hf₂ h2f₂ hf₁ h2f₁
+    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁ hf₂ h2f₂ hf₁ h2f₁
   push_neg at h h'
   -- Remaining case.
   simp [foo h h']
