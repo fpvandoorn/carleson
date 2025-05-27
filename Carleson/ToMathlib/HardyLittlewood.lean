@@ -14,14 +14,17 @@ variable {X : Type*} [PseudoMetricSpace X] [SeparableSpace X]
 
 variable (X) in
 /-- Lemma 9.0.2 -/
+-- maybe not suited for Mathlib in this form
 lemma covering_separable_space :
     ∃ C : Set X, C.Countable ∧ ∀ r > 0, ⋃ c ∈ C, ball c r = univ := by
   simp_rw [← Metric.dense_iff_iUnion_ball, exists_countable_dense]
 
+-- maybe not suited for Mathlib in this form
 lemma countable_globalMaximalFunction :
     (covering_separable_space X).choose ×ˢ (univ : Set ℤ) |>.Countable :=
   (covering_separable_space X).choose_spec.1.prod countable_univ
 
+-- probably not suited for Mathlib in this form
 lemma exists_ball_subset_ball_two (c : X) {r : ℝ} (hr : 0 < r) :
     ∃ c' ∈ (covering_separable_space X).choose,
       ∃ m : ℤ, ball c r ⊆ ball c' (2 ^ m) ∧ 2 ^ m ≤ 2 * r ∧ ball c' (2 ^ m) ⊆ ball c (4 * r) := by
@@ -71,7 +74,9 @@ variable {X E : Type*} {A : ℝ≥0} [MetricSpace X] [MeasurableSpace X]
   {f : X → E} {x : X} {ι : Type*} {𝓑 : Set ι} {c : ι → X} {r : ι → ℝ}
   -- feel free to assume `A ≥ 16` or similar
 
-lemma lowerSemiContinuous_integral_ball [OpensMeasurableSpace X] (hf2 : AEStronglyMeasurable f μ) :
+-- unused in Carleson
+-- move to separate file (not sure where)
+lemma lowerSemiContinuousOn_integral_ball [OpensMeasurableSpace X] (hf2 : AEStronglyMeasurable f μ) :
     LowerSemicontinuousOn (fun x : X × ℝ ↦ ∫⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) (univ ×ˢ Ioi 0) := by
   refine lowerSemicontinuousOn_iff_le_liminf.mpr fun x hx ↦ _root_.le_of_forall_pos_le_add ?_
   intro δ hδ
@@ -263,8 +268,8 @@ lemma continuous_integral_ball [OpensMeasurableSpace X]
       have : ¬ (dist y (z n).1 < (z n).2) := by linarith
       split_ifs; rfl
 
-/-- Use the dominated convergence theorem
-e.g. [Folland, Real Analysis. Modern Techniques and Their Applications, Lemma 3.16] -/
+-- unused in Carleson
+-- move to separate file (not sure where)
 lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts μ] [OpensMeasurableSpace X]
     [ProperSpace X] (hf : LocallyIntegrable f μ)
     (hμ : ∀ z : X, ∀ r > (0 : ℝ), μ (sphere z r) = 0) :
@@ -295,7 +300,7 @@ lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts �
     rw [IsOpen.continuousOn_iff hopen] at this; exact this hx
   · exact Or.inr (inv_ne_top.mpr (ne_of_gt (measure_ball_pos μ x.1 hx_pos)))
 
--- move
+-- probably unsuitable for Mathlib
 lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
     {f : X → E} (hf : LocallyIntegrable f μ)
     {x₀ : X} {r : ℝ} :
@@ -309,7 +314,7 @@ private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [Proper
   rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.enorm]
   exact laverage_mono (fun x ↦ enorm_add_le (f x) (g x))
 
--- move
+-- move to `ENNReal.Basic` or similar
 lemma NNReal.smul_ennreal_eq_mul (x : ℝ≥0) (y : ℝ≥0∞) : x • y = x * y := rfl
 
 private lemma T.smul [NormedSpace ℝ E] (i : ι) {f : X → E} {d : ℝ≥0} :
@@ -318,7 +323,7 @@ private lemma T.smul [NormedSpace ℝ E] (i : ι) {f : X → E} {d : ℝ≥0} :
     laverage_const_mul ENNReal.coe_ne_top]
   simp [_root_.enorm_smul]
 
--- todo: move
+-- move near `exists_disjoint_subfamily_covering_enlargement_closedBall`
 -- slightly more general than the Mathlib version
 -- the extra conclusion says that if there is a nonnegative radius, then we can choose `r b` to be
 -- larger than `r a` (up to a constant)
@@ -747,7 +752,6 @@ theorem hasStrongType_maximalFunction
       rw [one_div] at hestfin
       exact hestfin k
 
-/-- Use `lowerSemicontinuous_iff_isOpen_preimage` and `continuous_average_ball` -/
 lemma lowerSemiContinuous_MB :
     LowerSemicontinuous (MB μ 𝓑 c r f) := by
   apply lowerSemicontinuous_iff_isOpen_preimage.mpr
