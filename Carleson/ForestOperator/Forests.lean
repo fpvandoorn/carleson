@@ -26,9 +26,6 @@ irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (550 * (a : ℝ) ^ 3 - 3 * n
 
 section estimate
 
--- surely mathlib has this already
-lemma missing_mono {a : ℝ≥0} (ha : 0 < a) {x y : ℝ} (hxy : x < y) : a ^ x < a ^ y := sorry
-
 lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^ 2 + 2 * ↑a ^ 3) := by
   let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) / (4 * x ^ 2 + 2 * x ^ 3)
   have hf : Differentiable ℝ f := by
@@ -55,65 +52,85 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
     _ < f 4 := by norm_num
     _ ≤ f a := this (by norm_num) (by norm_num; exact ha) ha
 
-lemma estimate_a2 {a : ℝ} (ha : 4 ≤ a) : 4 < ((2 ^ (12 * a) : ℝ)) / (2 ^ (10 * ↑a)) := by
-  let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) / (2 ^ (10 * x))
+lemma estimate_a2 {a : ℝ} (ha : 4 ≤ a) : 4 < ((2 ^ (12 * a) : ℝ)) * (2 ^ ((-10 : ℝ) * (a : ℝ))) := by
+  let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) * (2 ^ ((-10 : ℝ) * x))
   let g: ℝ → ℝ := fun x ↦ 4 ^ x
   have : Monotone g := by
-    sorry -- exponential function is always monotone
+    unfold g
+    exact Real.monotone_rpow_of_base_ge_one (by norm_num)
   have : Monotone f := by
     convert this
     ext x
     unfold f g
     trans 2 ^ (2 * x)
-    · ring_nf; sorry -- should be easy
-    · ring_nf -- should be easy
-      sorry
+    · rw [← Real.rpow_add (by norm_num)]
+      congr; ring
+    · rw [Real.rpow_mul (by norm_num)]
+      congr; norm_num
   calc 4
     _ < f 4 := by norm_num
     _ ≤ f a := this (a := 4) (b := a) ha
 
+-- We only have equality for n = 0.
 lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
-    C7_4_5 a n < 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
+    C7_4_5 a n ≤ 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
   simp only [C7_4_5, defaultZ]
-  apply missing_mono (by norm_num)
-  gcongr
-  -- estimate_a1 plus ring, or so
-  sorry
+  gcongr; · norm_num
+  by_cases hn: n = 0
+  · simp [hn]
+  -- reorder to put `n`, then use gcongr and `estimate_a1`
+  calc
+    _ = (n : ℝ) * 4 := by ring
+    _ ≤ (n : ℝ) * (2 ^ (12 * (a : ℝ))) / (4 * (a : ℝ) ^ 2 + 2 * (a : ℝ) ^ 3) := by
+      rw [mul_div_assoc]
+      gcongr
+      exact (estimate_a1 (Nat.ofNat_le_cast.mpr ha)).le
+    _ = _ := by
+      congr 1
+      rw [mul_comm _ (n : ℝ)]
+      norm_cast
 
 lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
     C7_4_6 a n < 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
-  simp only [C7_4_6, defaultZ]
-  apply missing_mono (by norm_num)
+  have defaultZ' : Z = (2 : ℝ) ^ (12 * (a : ℝ)) := by norm_cast
+  simp only [C7_4_6, defaultZ']
+  gcongr 2 ^ ?_--?_ - ?_
+  · norm_num
   by_cases hn: n = 0
-  · simp only [Nat.cast_pow, Nat.cast_ofNat, hn, CharP.cast_eq_zero, mul_zero, neg_mul, zero_mul,
-      sub_zero]
-    gcongr; norm_num
+  · simp only [hn, CharP.cast_eq_zero, mul_zero, neg_mul, zero_mul, sub_zero]; gcongr; norm_num
   gcongr ?_ - ?_
   · gcongr; norm_num
-  · calc 4 * ↑n
-      _ < ↑(2 ^ (12 * a)) * (2 : ℝ) ^ ((-10 : ℝ) * ↑a) * n := by
-        have : 4 ≤ (a : ℝ) := Nat.ofNat_le_cast.mpr ha
+  · calc (4 : ℝ) * ↑n
+      _ < ((2 : ℝ≥0) ^ (12 * (a : ℝ))) * (2 : ℝ≥0) ^ ((-10 : ℝ) * (a : ℝ)) * n := by
         gcongr
-        sorry -- almost there: convert (estimate_a2 this).le
-      _ = _ := by
-        ring_nf
-        congr
-        norm_cast
+        exact estimate_a2 (Nat.ofNat_le_cast.mpr ha)
+      _ = _ := by push_cast; ring
 
 lemma estimate_C7_4_4 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) : (C7_4_5 a n) + (C7_4_6 a n) ≤ C7_4_4 a n := by
   calc
     _ ≤ (2 : ℝ≥0) ^ (541 * (a : ℝ) ^ 3 - 4 * n) + (2 : ℝ≥0) ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
       gcongr
-      · exact (estimate_C7_4_5 n ha).le
+      · exact estimate_C7_4_5 n ha
       · exact (estimate_C7_4_6 n ha).le
-    _ ≤ 2 ^ (542 * ↑a ^ 3 - 3 * ↑n) := by
-      sorry -- should be easy. exponents add up easily; need to fudge a bit with the extra n's
+    _ = 2 * ((2 : ℝ≥0) ^ (541 * (a : ℝ) ^ 3 - 4 * ↑n)) := (two_mul _).symm
+    _ = (2 : ℝ≥0) ^ (541 * (a : ℝ) ^ 3 - 4 * ↑n + 1) := by
+      rw [mul_comm, NNReal.rpow_add (by norm_num)]
+      congr; norm_num
+    _ ≤ 2 ^ (542 * (a : ℝ) ^ 3 - 4 * ↑n) := by
+      gcongr; · norm_num
+      calc
+        _ ≤ 541 * ↑a ^ 3 - 4 * ↑n + (a : ℝ) ^ 3 := by
+          gcongr
+          -- Is there a better tactic: deduce 1 < a ^ 3 from a ≤ a...
+          trans (4 : ℝ) ^3; · norm_num
+          gcongr
+          exact Nat.ofNat_le_cast.mpr ha
+        _ = (541 * ↑a ^ 3 + (a : ℝ) ^ 3) - 4 * ↑n := by rw [sub_add_eq_add_sub]
+        _ = _ := by ring
     _ ≤ C7_4_4 a n := by
       simp only [C7_4_4]
-      have : (542 * a ^ 3 - 3 * n) ≤ (550 * a ^ 3 - 3 * n) := by gcongr; norm_num
-      -- final lemma: 2 ^ x is strictly monotone...
-      -- gcongr
-      sorry
+      have : (542 * a ^ 3 - 4 * n) ≤ (550 * a ^ 3 - 4 * n) := by gcongr; norm_num
+      gcongr <;> norm_num
 
 lemma estimate_C7_4_4' {a : ℕ} (n : ℕ) (ha : 4 ≤ a) : ENNReal.ofNNReal (C7_4_5 a n) + ENNReal.ofNNReal (C7_4_6 a n)
     ≤ ENNReal.ofNNReal (C7_4_4 a n) := by
