@@ -72,10 +72,14 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
       · simp only [sub_nonneg]
         trans 3 * 4⁻¹
         · gcongr
-        · -- have : 0.68 < Real.log 2 := sorry
-          norm_num
-          sorry -- why can't norm_num do this?
-        --· positivity
+        · -- Why can't `norm_num` do this directly?
+          have : 68/100 < Real.log 2 := by
+            rw [Real.lt_log_iff_exp_lt (by norm_num)]
+            -- Real.exp (68/100) ≈ 1.97 < 2
+            sorry
+          trans 12 * (68/100)
+          · norm_num
+          · gcongr
       · unfold f
         positivity
     · rw [interior_Ici]
