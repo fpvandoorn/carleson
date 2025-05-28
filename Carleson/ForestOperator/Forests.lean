@@ -41,18 +41,44 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
   let f₁ : ℝ → ℝ := fun x ↦ (2 : ℝ) ^ ((12 : ℝ) * x)
   let f₂ : ℝ → ℝ := fun x ↦ 3 * x ^ 3
   have hf₁ : Differentiable ℝ f₁ := by
-    -- have : Differentiable ℝ fun (x : ℝ) ↦ (12 : ℝ) * x := by fun_prop
-    -- #check Real.differentiable_exp
-    sorry -- power function is differentiable
+    unfold f₁
+    apply Differentiable.comp ?_ (by fun_prop)
+    exact Differentiable.rpow (by fun_prop) (by fun_prop) (fun _ ↦ by norm_num)
   have hf₂ : Differentiable ℝ f₂ := by fun_prop
   have hf : DifferentiableOn ℝ f (Set.Ioi 0) := by
     intro x hx
-    apply DifferentiableAt.differentiableWithinAt
     have : 0 < x := hx
-    exact (hf₁ x).mul <| (hf₂ x).inv (by positivity)
+    exact DifferentiableAt.differentiableWithinAt <| (hf₁ x).mul <| (hf₂ x).inv (by positivity)
   let f' : ℝ → ℝ := fun x ↦ ((12 * Real.log 2) - 3 * x⁻¹) * f x
-  have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := sorry
-  have hf'₂ {x} (hx : x ≠ 0) : deriv f₂ x = 3 * x⁻¹ * f₂ x := sorry
+  have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := by
+    let f₂ : ℝ → ℝ := fun x ↦ 12 * x
+    let f₃ : ℝ → ℝ := fun x ↦ 2 ^ x
+    have : f₁ = f₃ ∘ f₂ := by ext; simp [f₁, f₂, f₃]
+    rw [this, deriv_comp]
+    calc
+      _ = deriv f₃ (f₂ x) * (12 * 1) := by
+        congr
+        simp only [f₂]
+        exact (hasDerivAt_id' x).const_mul (c := 12) |>.deriv
+      _ = _ := by
+        simp only [f₃]
+        rw [mul_one]
+        sorry
+    · simp only [f₃]
+      exact DifferentiableAt.rpow (by fun_prop) (by fun_prop) (by norm_num)
+    · dsimp; fun_prop
+  have hf'₂ {x} (hx : x ≠ 0) : deriv f₂ x = 3 * x⁻¹ * f₂ x := by
+    symm
+    calc 3 * x⁻¹ * f₂ x
+      _ = 9 * x ^ 2 := by
+        unfold f₂
+        calc 3 * x⁻¹ * (3 * x ^ 3)
+          _ = 9 * x ^ 2 * x * x⁻¹ := by ring
+          _ = 9 * x ^ 2 := by rw [mul_assoc, CommGroupWithZero.mul_inv_cancel x hx, mul_one]
+      _ = 3 * (3 * x ^ 2) := by ring
+      _ = _ := by
+        unfold f₂; rw [HasDerivAt.deriv]
+        exact (hasDerivAt_pow 3 x).const_mul 3
   have {x} (hx : 0 < x) : deriv f x = f' x := by
     calc deriv f x
       _ = deriv (fun x ↦ f₁ x / f₂ x) x := rfl
@@ -87,6 +113,7 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
     _ < f 4 := by norm_num
     _ ≤ f a := this (by norm_num) (by norm_num; exact ha) ha
 
+#exit
 lemma estimate_a2 {a : ℝ} (ha : 4 ≤ a) : 4 < ((2 ^ (12 * a) : ℝ)) * (2 ^ ((-10 : ℝ) * (a : ℝ))) := by
   let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) * (2 ^ ((-10 : ℝ) * x))
   let g: ℝ → ℝ := fun x ↦ 4 ^ x
