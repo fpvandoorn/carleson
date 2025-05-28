@@ -675,8 +675,7 @@ lemma boundedCompactSupport_star_Ks_mul_g (p' : 𝔓 X) {g : X → ℂ} (hg : Me
     BoundedCompactSupport (fun (x : X × X) ↦ ((starRingEnd ℂ) (Ks (𝔰 p') x.1 x.2) *  g x.1)) := by
   apply BoundedCompactSupport.mul_bdd_left' (boundedCompactSupport_g hg hg1) continuous_fst
     ?_ ?_ ?_ ?_
-  · refine { measurable := measurable_fst, absolutelyContinuous := ?_ }
-    sorry -- TODO: ASK
+  · exact MeasureTheory.Measure.quasiMeasurePreserving_fst
   · apply MeasureTheory.StronglyMeasurable.aestronglyMeasurable
     apply Measurable.stronglyMeasurable
     fun_prop
@@ -961,32 +960,13 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
   exact MeasureTheory.IntegrableOn.congr_fun hf (fun _ hx ↦ by simp only [f, if_pos hx])
     (measurableSet_E.prod measurableSet_E) -/
 
-/- TODO: ASK it should be way easier to deduce this from `integrableOn_I12`, right? -/
+/- TODO: it should be way easier to deduce this from `integrableOn_I12`, right? -/
 lemma integrableOn_I12' (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     IntegrableOn (fun x ↦ ((I12 p p' g x.1 x.2).toReal : ℂ)) (E p' ×ˢ E p) volume := by
-  sorry
-  /- classical
-  set f : X × X → ℂ := fun x ↦ if x ∈ E p' ×ˢ E p then ((I12 p p' g x.1 x.2 : ℝ) : ℂ) else 0
-  have hf : IntegrableOn f (E p' ×ˢ E p) volume := by
-    apply Integrable.integrableOn
-    apply BoundedCompactSupport.integrable
-    apply BoundedCompactSupport.mono (boundedCompactSupport_bound p p' hg hg1)
-    · exact StronglyMeasurable.ite (measurableSet_E.prod measurableSet_E)
-        (stronglyMeasurable_I12' p p' hg) stronglyMeasurable_const
-    · intro z
-      by_cases hz : z ∈ (E p') ×ˢ (E p)
-      · have ha1 : 1 < a := by omega
-        simp only [f, if_pos hz, Real.norm_eq_abs, NNReal.abs_eq]
-        simp only [Complex.norm_real, NNReal.norm_eq]
-        apply le_trans (I12_le ha1 p p' hle g hinter ⟨z.1, hz.1⟩ ⟨z.2, hz.2⟩)
-        gcongr ?_ *  ‖g ↑_‖ * ‖g ↑_‖
-        exact (bound_6_2_29 ha p p' ⟨z.2, hz.2⟩)
-      · simp only [f, if_neg hz, norm_zero]
-        positivity
-  exact MeasureTheory.IntegrableOn.congr_fun hf (fun _ hx ↦ by simp only [f, if_pos hx])
-    (measurableSet_E.prod measurableSet_E) -/
+  apply ContinuousLinearMap.integrable_comp (Complex.ofRealCLM)
+  apply integrableOn_I12 ha hle hg hg1 hinter
 
 lemma bound_6_2_26_aux (p p' : 𝔓 X)  (g : X → ℂ) :
     let f := fun (x, z1, z2) ↦ (starRingEnd ℂ) (Ks (𝔰 p') z1 x) *
