@@ -28,6 +28,12 @@ irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (542 * (a : ℝ) ^ 3 - 4 * n
 
 section estimate
 
+theorem deriv_const_rpow {a f' x : ℝ} {f : ℝ → ℝ} (hf : HasDerivAt f f' x) (ha : 0 < a) :
+    deriv (fun x => a ^ f x) x = (Real.log a) * f' * (a ^ f x) := by
+  apply HasDerivAt.deriv
+  --have aux := HasDerivAt.rpow (f := fun x ↦ a) (x := x) (g := f) (g' := f')
+  sorry--exact hf.rpow hg h
+
 lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^ 2 + 2 * ↑a ^ 3) := by
   have : 4 * ↑a ^ 2 + 2 * ↑a ^ 3 ≤ 3 * ↑a ^ 3 := calc
       _ ≤ (a : ℝ) * (a : ℝ) ^ 2 + 2 * a ^ 3 := by gcongr
@@ -63,7 +69,12 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
       _ = _ := by
         simp only [f₃]
         rw [mul_one]
+        let f₄ : ℝ → ℝ := fun x ↦ (2 : ℝ) ^ x
+        rw [deriv_const_rpow] -- XXX
         sorry
+        sorry
+        norm_num
+        exact x
     · simp only [f₃]
       exact DifferentiableAt.rpow (by fun_prop) (by fun_prop) (by norm_num)
     · dsimp; fun_prop
@@ -113,7 +124,6 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
     _ < f 4 := by norm_num
     _ ≤ f a := this (by norm_num) (by norm_num; exact ha) ha
 
-#exit
 lemma estimate_a2 {a : ℝ} (ha : 4 ≤ a) : 4 < ((2 ^ (12 * a) : ℝ)) * (2 ^ ((-10 : ℝ) * (a : ℝ))) := by
   let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) * (2 ^ ((-10 : ℝ) * x))
   let g: ℝ → ℝ := fun x ↦ 4 ^ x
