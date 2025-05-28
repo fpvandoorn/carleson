@@ -212,10 +212,20 @@ lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (�
   simp_rw [adjointCarlesonSum]
   convert sum_union_dontuse hst (g := fun p ↦ adjointCarleson p g x)
 
-lemma auxsfdsfsd {f g : X → ℂ} (hf : Integrable f) (hf' : BoundedCompactSupport f) (hg : Integrable g) :
-    Integrable (fun x ↦ f x * conj (g x)) := by
-  have : Integrable (fun x ↦ conj (g x)) := sorry -- missing lemma in mathlib
-  apply Integrable.bdd_mul' this hf.1 (c := (eLpNormEssSup f volume).toReal)
+omit [TileStructure Q D κ S o] in
+@[fun_prop]
+lemma _root_.MeasureTheory.Integrable.conj {f : X → ℂ} (hf : Integrable f) :
+    Integrable (fun x ↦ conj (f x)) := by
+  have := hf.1
+  apply Integrable.congr' hf (by fun_prop)
+  filter_upwards with x
+  exact (norm_conj (f x)).symm
+
+omit [TileStructure Q D κ S o] in
+@[fun_prop]
+lemma _root_.MeasureTheory.Integrable.prod_conj {f g : X → ℂ} (hf : Integrable f)
+    (hf' : BoundedCompactSupport f) (hg : Integrable g) : Integrable (fun x ↦ f x * conj (g x)) := by
+  apply Integrable.bdd_mul' hg.conj hf.1 (c := (eLpNormEssSup f volume).toReal)
   apply (ae_le_eLpNormEssSup (f := f) (μ := volume)).mono fun x hx ↦ ?_
   rw [← ofReal_norm] at hx
   exact (ENNReal.ofReal_le_iff_le_toReal hf'.1.eLpNorm_ne_top).mp hx
@@ -245,16 +255,14 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       congr
       beta_reduce
       rw [integral_add]
-      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁)
+      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).prod_conj
           hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
-      · exact auxsfdsfsd (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁)
+      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).prod_conj
           hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
     _ ≤ (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) +
         (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
-      set A := ‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊
-      set B := ‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x))‖₊
-      -- use the triangle inequality
-      sorry
+      rw [← ENNReal.coe_add, ENNReal.coe_le_coe]
+      apply nnnorm_add_le
     _ ≤ C7_4_5 a n *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume
@@ -270,8 +278,7 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
     _ ≤ _ := by
       have : (𝓘 u₁ : Set X) ⊆ (𝓘 u₁ ∩ 𝓘 u₂ : Set X) := subset_inter (by simp) h2u.1
       gcongr
-      · refine estimate_C7_4_4' n ?_
-        sorry
+      · exact estimate_C7_4_4' n (four_le_a X)
       · apply eLpNorm_mono_enorm fun x ↦ ?_
         rw [enorm_eq_self]
         exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
