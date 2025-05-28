@@ -274,12 +274,12 @@ lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu�
   simp_rw [adjointCarlesonSum]
   -- commute sum and product
   -- Basically, use this lemma for each summand. TODO: complete the sum manipulation
-  have {p} (hp : p ∈ t.𝔗 u₁) (hp' : p ∈ t.𝔗 u₂) :
+  /- have {p} (hp : p ∈ t.𝔗 u₁) (hp' : p ∈ t.𝔗 u₂) :
       adjointCarleson p g₁ x * conj (adjointCarleson p g₂ x) = 0 := by
     -- rewrite by (7.4.1), using adjoint_tile_support2
     rw [adjoint_tile_support2 hu₁ hp, adjoint_tile_support2 hu₂ hp']
     -- observe these have disjoint support (for each summand), hence each summand is zero
-    sorry
+    sorry -/
   sorry
 
 /-- Lemma 7.4.4. -/
@@ -674,10 +674,7 @@ theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} 
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    apply (h2f x).trans (le_abs_self _)
+    exact (h2f x).trans (le_abs_self _)
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const]
-    · simp
-    · exact measurableSet_F
-    · norm_num
-    · norm_num
+    rw [eLpNorm_indicator_const measurableSet_F (by norm_num) (by norm_num)]
+    simp
