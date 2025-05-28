@@ -1,7 +1,12 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
+import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Data.Complex.ExponentialBounds
+import Mathlib.Tactic.NormNum.BigOperators
+import Mathlib.Tactic.NormNum.NatFactorial
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -38,28 +43,50 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
   let f₁ : ℝ → ℝ := fun x ↦ (2 : ℝ) ^ ((12 : ℝ) * x)
   let f₂ : ℝ → ℝ := fun x ↦ 3 * x ^ 3
   have hf₁ : Differentiable ℝ f₁ := by
-    -- have : Differentiable ℝ fun (x : ℝ) ↦ (12 : ℝ) * x := by fun_prop
-    -- #check Real.differentiable_exp
-    sorry -- power function is differentiable
+    unfold f₁
+    apply Differentiable.comp ?_ (by fun_prop)
+    exact Differentiable.rpow (by fun_prop) (by fun_prop) (fun _ ↦ by norm_num)
   have hf₂ : Differentiable ℝ f₂ := by fun_prop
   have hf : DifferentiableOn ℝ f (Set.Ioi 0) := by
     intro x hx
-    apply DifferentiableAt.differentiableWithinAt
     have : 0 < x := hx
-    exact (hf₁ x).mul <| (hf₂ x).inv (by positivity)
+    exact DifferentiableAt.differentiableWithinAt <| (hf₁ x).mul <| (hf₂ x).inv (by positivity)
   let f' : ℝ → ℝ := fun x ↦ ((12 * Real.log 2) - 3 * x⁻¹) * f x
-  have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := sorry
-  have hf'₂ {x} (hx : x ≠ 0) : deriv f₂ x = 3 * x⁻¹ * f₂ x := sorry
+  have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := by
+    let f₃ : ℝ → ℝ := fun x ↦ 12 * x
+    have hf₃ : HasDerivAt f₃ 12 x := by
+      convert (hasDerivAt_id' x).const_mul (c := 12)
+      rw [mul_one]
+    let f₄ : ℝ → ℝ := fun x ↦ 2 ^ x
+    have : f₁ = f₄ ∘ f₃ := by ext; simp [f₁, f₃, f₄]
+    rw [deriv_const_rpow (a := 2) hf₃ (by norm_num), this]
+    ring_nf
+    congr
+  have hf'₂ {x} (hx : x ≠ 0) : deriv f₂ x = 3 * x⁻¹ * f₂ x := by
+    symm
+    calc 3 * x⁻¹ * f₂ x
+      _ = 9 * x ^ 2 := by
+        unfold f₂
+        calc 3 * x⁻¹ * (3 * x ^ 3)
+          _ = 9 * x ^ 2 * x * x⁻¹ := by ring
+          _ = 9 * x ^ 2 := by rw [mul_assoc, CommGroupWithZero.mul_inv_cancel x hx, mul_one]
+      _ = 3 * (3 * x ^ 2) := by ring
+      _ = _ := by
+        unfold f₂; rw [HasDerivAt.deriv]
+        exact (hasDerivAt_pow 3 x).const_mul 3
   have {x} (hx : 0 < x) : deriv f x = f' x := by
     calc deriv f x
       _ = deriv (fun x ↦ f₁ x / f₂ x) x := rfl
       _ = (deriv f₁ x * f₂ x - f₁ x * deriv f₂ x) / (f₂ x) ^ 2 := by
         apply deriv_div (hf₁ x) (hf₂ x)
         positivity
+      _ = ((deriv f₁ x - f₁ x * 3 * x⁻¹) * f₂ x) / (f₂ x) ^ 2 := by rw [hf'₂ hx.ne']; ring
       _ = (deriv f₁ x - f₁ x * 3 * x⁻¹) / (f₂ x) := by
-        rw [hf'₂ hx.ne']
-        sorry -- cancel f₂ x and use `ring`
-        -- have (a b : ℝ) : (a * b) / b ^2 = a := sorry
+        have (a d : ℝ) (hd : d ≠ 0) : a * d / d ^ 2 = a / d := by
+          rw [← IsUnit.mul_div_mul_right hd.isUnit a d]
+          ring
+        rw [this]
+        positivity
       _ = _ := by simp only [hf'₁, f']; ring
   have : MonotoneOn f (Set.Ici 4) := by
     apply monotoneOn_of_deriv_nonneg (convex_Ici 4)
@@ -72,14 +99,7 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
       · simp only [sub_nonneg]
         trans 3 * 4⁻¹
         · gcongr
-        · -- Why can't `norm_num` do this directly?
-          have : 68/100 < Real.log 2 := by
-            rw [Real.lt_log_iff_exp_lt (by norm_num)]
-            -- Real.exp (68/100) ≈ 1.97 < 2
-            sorry
-          trans 12 * (68/100)
-          · norm_num
-          · gcongr
+        · linarith [Real.log_two_gt_d9]
       · unfold f
         positivity
     · rw [interior_Ici]
