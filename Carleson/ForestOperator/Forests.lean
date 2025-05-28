@@ -215,12 +215,10 @@ lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (�
 lemma auxsfdsfsd {f g : X → ℂ} (hf : Integrable f) (hf' : BoundedCompactSupport f) (hg : Integrable g) :
     Integrable (fun x ↦ f x * conj (g x)) := by
   have : Integrable (fun x ↦ conj (g x)) := sorry -- missing lemma in mathlib
-  have aux : IsBounded (range f) := by
-    have := hf'.1
-    refine isBounded_range_iff_bddAbove_norm.mpr ?_
-    sorry -- should be easy
-  obtain ⟨M, hM⟩ := aux.exists_norm_le
-  exact Integrable.bdd_mul' this hf.1 (ae_of_all _ fun a ↦ hM _ (mem_range_self a))
+  apply Integrable.bdd_mul' this hf.1 (c := (eLpNormEssSup f volume).toReal)
+  apply (ae_le_eLpNormEssSup (f := f) (μ := volume)).mono fun x hx ↦ ?_
+  rw [← ofReal_norm] at hx
+  exact (ENNReal.ofReal_le_iff_le_toReal hf'.1.eLpNorm_ne_top).mp hx
 
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
