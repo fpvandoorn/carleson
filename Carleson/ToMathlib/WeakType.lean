@@ -202,6 +202,8 @@ lemma wnorm_zero : wnorm f 0 μ = ∞ := by
 @[simp]
 lemma wnorm_top : wnorm f ⊤ μ = eLpNormEssSup f μ := by simp [wnorm]
 
+lemma wnorm_ne_top (h : p ≠ ⊤) : wnorm f p μ = wnorm' f p.toReal μ := by simp [wnorm, h]
+
 lemma wnorm_coe {p : ℝ≥0} : wnorm f p μ = wnorm' f p μ := by simp [wnorm]
 
 lemma wnorm_ofReal {p : ℝ} (hp : 0 ≤ p) : wnorm f (.ofReal p) μ = wnorm' f p μ := by
@@ -492,6 +494,27 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g 
       contrapose! h
       exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
+
+--TODO: make this an iff?
+lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+    distribution f t μ = 0 := by
+  unfold distribution
+  rw[← le_zero_iff]
+  calc _
+    _ ≤ μ {x | 0 < ‖f x‖ₑ} := by
+      apply measure_mono
+      intro x hx
+      simp only [Set.mem_setOf_eq] at hx
+      exact pos_of_gt hx
+    _ = μ {x | ‖f x‖ₑ ≠ 0} := by
+      congr
+      ext x
+      simp
+    _ = 0 := by
+      refine ae_iff.mp ?_
+      change enorm ∘ f =ᶠ[ae μ] 0
+      unfold Filter.EventuallyEq
+      simpa only [comp_apply, Pi.zero_apply, enorm_eq_zero]
 
 end distribution
 
