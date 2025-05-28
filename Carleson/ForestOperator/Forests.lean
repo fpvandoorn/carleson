@@ -1,6 +1,7 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
+import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -134,7 +135,7 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
   gcongr; · norm_num
   by_cases hn: n = 0
   · simp [hn]
-  -- reorder to put `n`, then use gcongr and `estimate_a1`
+  -- reorder to put `n` first, then use gcongr and `estimate_a1`
   calc
     _ = (n : ℝ) * 4 := by ring
     _ ≤ (n : ℝ) * (2 ^ (12 * (a : ℝ))) / (4 * (a : ℝ) ^ 2 + 2 * (a : ℝ) ^ 3) := by
@@ -193,8 +194,27 @@ lemma estimate_C7_4_4' {a : ℕ} (n : ℕ) (ha : 4 ≤ a) : ENNReal.ofNNReal (C7
 
 end estimate
 
+lemma aux {A B C : ℂ} : A * conj (B + C) = A * conj B + A * conj C := by
+  simp only [map_add]
+  ring
+
+-- TODO: `adjointCarlesonSum` should be rewritten to use Finsets,
+-- and this lemma replaced by `Finset.sum_union`.
+open Classical in
+private lemma sum_union_dontuse {X : Type*} [Fintype X] {g : X → ℂ} {s t : Set X} (hst : Disjoint s t) :
+    ∑ p ∈ {p | p ∈ s ∪ t}, g p = ∑ p ∈ {p | p ∈ s}, g p + ∑ p ∈ {p | p ∈ t}, g p := by
+  convert_to ∑ p ∈ (s.toFinset ∪ t.toFinset), g p = ∑ p ∈ s.toFinset, g p + ∑ p ∈ t.toFinset, g p
+  any_goals congr <;> (ext x; simp)
+  exact Finset.sum_union (by simpa)
+
+lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (𝔓 X)} (hst : Disjoint s t) :
+    adjointCarlesonSum (s ∪ t) g x = adjointCarlesonSum s g x + adjointCarlesonSum t g x := by
+  classical
+  simp_rw [adjointCarlesonSum]
+  convert sum_union_dontuse hst (g := fun p ↦ adjointCarleson p g x)
+
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂)
     (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
     (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
@@ -203,10 +223,68 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
     eLpNorm
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
+  calc (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ : ℝ≥0∞)
+    _ = (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x) +
+        adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) := by
+      congr
+      ext x
+      rw [← aux, ← adjointCarlesonSum_union_of_disjoint]
+      · congr
+        exact (inter_union_diff (t.𝔗 u₂) (t.𝔖₀ u₁ u₂)).symm
+      · exact disjoint_sdiff_inter.symm
+    _ = (‖(∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x)) +
+        ∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
+      congr
+      beta_reduce
+      rw [integral_add]
+      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).mul_conj
+          hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
+      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).mul_conj
+          hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
+    _ ≤ (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) +
+        (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
+      rw [← ENNReal.coe_add, ENNReal.coe_le_coe]
+      apply nnnorm_add_le
+    _ ≤ C7_4_5 a n *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume
+        + C7_4_6 a n *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
+      gcongr
+      · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂
+      · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂
+    _ = (C7_4_5 a n + C7_4_6 a n) *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
+        eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by ring
+    _ ≤ _ := by
+      have : (𝓘 u₁ : Set X) ⊆ (𝓘 u₁ ∩ 𝓘 u₂ : Set X) := subset_inter (by simp) h2u.1
+      gcongr
+      · exact estimate_C7_4_4' n (four_le_a X)
+      · apply eLpNorm_mono_enorm fun x ↦ ?_
+        rw [enorm_eq_self]
+        exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
+      · apply eLpNorm_mono_enorm fun x ↦ ?_
+        rw [enorm_eq_self, enorm_eq_self]
+        exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
+
+-- perhaps, with as many extra hypotheses as I need
+lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
+    adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x) = 0 := by
+  simp_rw [adjointCarlesonSum]
+  -- commute sum and product
+  -- Basically, use this lemma for each summand. TODO: complete the sum manipulation
+  /- have {p} (hp : p ∈ t.𝔗 u₁) (hp' : p ∈ t.𝔗 u₂) :
+      adjointCarleson p g₁ x * conj (adjointCarleson p g₂ x) = 0 := by
+    -- rewrite by (7.4.1), using adjoint_tile_support2
+    rw [adjoint_tile_support2 hu₁ hp, adjoint_tile_support2 hu₂ hp']
+    -- observe these have disjoint support (for each summand), hence each summand is zero
+    sorry -/
   sorry
 
 /-- Lemma 7.4.4. -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂)
     (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
     (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
@@ -215,7 +293,18 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
     eLpNorm
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
-  sorry
+  by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
+  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂ hf₁ h2f₁ hf₂ h2f₂
+  by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
+  · have :
+        ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x * conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
+        ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x)‖₊ := by
+      rw [← RCLike.nnnorm_conj _, ← integral_conj]
+      simp [mul_comm]
+    rw [inter_comm, mul_right_comm, ← this]
+    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁ hf₂ h2f₂ hf₁ h2f₁
+  push_neg at h h'
+  simp [foo h h' hu₁ hu₂]
 
 /-! ## Section 7.7 -/
 
@@ -226,7 +315,7 @@ def rowDecomp_zornset (s : Set (𝔓 X)) :=
 lemma mem_rowDecomp_zornset_iff (s s' : Set (𝔓 X)) :
     s' ∈ rowDecomp_zornset s ↔ (s' ⊆ s ∧ s'.PairwiseDisjoint (𝓘 ·: _ → Set X) ∧
       ∀ u ∈ s', Maximal (· ∈ 𝓘 '' s) (𝓘 u)) := by
-  rw [rowDecomp_zornset,mem_inter_iff,mem_inter_iff,mem_setOf,mem_setOf,mem_setOf,and_assoc]
+  simp_rw [rowDecomp_zornset, mem_inter_iff, mem_setOf, and_assoc]
   nth_rw 2 [subset_def]
   simp_rw [mem_setOf]
 
@@ -536,11 +625,10 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     apply BoundedCompactSupport.finset_sum (fun i hi ↦ ?_)
     apply BoundedCompactSupport.restrict
     apply BoundedCompactSupport.carlesonSum
-    have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
-      apply BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _) _
-        measurableSet_F
-      · exact isBounded_F.isCompact_closure
-    apply BoundedCompactSupport.mono_norm this hf.aestronglyMeasurable h2f
+    have : BoundedCompactSupport (F.indicator 1 : X → ℝ) :=
+      BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
+        isBounded_F.isCompact_closure measurableSet_F
+    exact BoundedCompactSupport.mono_norm this hf.aestronglyMeasurable h2f
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
@@ -564,11 +652,8 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
       simpa using A _
     · simp
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const]
-    · simp
-    · exact hA
-    · norm_num
-    · norm_num
+    rw [eLpNorm_indicator_const hA (by norm_num) (by norm_num)]
+    simp
 
 open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
@@ -585,10 +670,7 @@ theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} 
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    apply (h2f x).trans (le_abs_self _)
+    exact (h2f x).trans (le_abs_self _)
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const]
-    · simp
-    · exact measurableSet_F
-    · norm_num
-    · norm_num
+    rw [eLpNorm_indicator_const measurableSet_F (by norm_num) (by norm_num)]
+    simp
