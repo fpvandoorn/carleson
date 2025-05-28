@@ -38,7 +38,7 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
   let f₁ : ℝ → ℝ := fun x ↦ (2 : ℝ) ^ ((12 : ℝ) * x)
   let f₂ : ℝ → ℝ := fun x ↦ 3 * x ^ 3
   have hf₁ : Differentiable ℝ f₁ := by
-    have : Differentiable ℝ fun (x : ℝ) ↦ (12 : ℝ) * x := by fun_prop
+    -- have : Differentiable ℝ fun (x : ℝ) ↦ (12 : ℝ) * x := by fun_prop
     -- #check Real.differentiable_exp
     sorry -- power function is differentiable
   have hf₂ : Differentiable ℝ f₂ := by fun_prop
