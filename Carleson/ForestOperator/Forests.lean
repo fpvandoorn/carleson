@@ -3,6 +3,7 @@ import Carleson.ForestOperator.RemainingTiles
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Data.Complex.ExponentialBounds
 import Mathlib.Tactic.NormNum.BigOperators
 import Mathlib.Tactic.NormNum.NatFactorial
 
@@ -28,11 +29,12 @@ irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (542 * (a : ℝ) ^ 3 - 4 * n
 
 section estimate
 
+-- move to Mathlib.Analysis.SpecialFunctions.Pow.Deriv, next to HasDerivAt.rpow
 theorem deriv_const_rpow {a f' x : ℝ} {f : ℝ → ℝ} (hf : HasDerivAt f f' x) (ha : 0 < a) :
-    deriv (fun x => a ^ f x) x = (Real.log a) * f' * (a ^ f x) := by
+    deriv (a ^ f ·) x = (Real.log a) * f' * (a ^ f x) := by
   apply HasDerivAt.deriv
-  --have aux := HasDerivAt.rpow (f := fun x ↦ a) (x := x) (g := f) (g' := f')
-  sorry--exact hf.rpow hg h
+  convert HasDerivAt.rpow (hasDerivAt_const x a) hf ha using 1
+  ring
 
 lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^ 2 + 2 * ↑a ^ 3) := by
   have : 4 * ↑a ^ 2 + 2 * ↑a ^ 3 ≤ 3 * ↑a ^ 3 := calc
@@ -57,27 +59,17 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
     exact DifferentiableAt.differentiableWithinAt <| (hf₁ x).mul <| (hf₂ x).inv (by positivity)
   let f' : ℝ → ℝ := fun x ↦ ((12 * Real.log 2) - 3 * x⁻¹) * f x
   have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := by
-    let f₂ : ℝ → ℝ := fun x ↦ 12 * x
-    let f₃ : ℝ → ℝ := fun x ↦ 2 ^ x
-    have : f₁ = f₃ ∘ f₂ := by ext; simp [f₁, f₂, f₃]
-    rw [this, deriv_comp]
-    calc
-      _ = deriv f₃ (f₂ x) * (12 * 1) := by
-        congr
-        simp only [f₂]
-        exact (hasDerivAt_id' x).const_mul (c := 12) |>.deriv
-      _ = _ := by
-        simp only [f₃]
-        rw [mul_one]
-        let f₄ : ℝ → ℝ := fun x ↦ (2 : ℝ) ^ x
-        rw [deriv_const_rpow] -- XXX
-        sorry
-        sorry
-        norm_num
-        exact x
-    · simp only [f₃]
-      exact DifferentiableAt.rpow (by fun_prop) (by fun_prop) (by norm_num)
-    · dsimp; fun_prop
+    let f₃ : ℝ → ℝ := fun x ↦ 12 * x
+    have hf₃ : HasDerivAt f₃ 12 x := by
+      unfold f₃
+      let aux := (hasDerivAt_id' x).const_mul (c := 12)
+      rw [mul_one] at aux
+      exact aux
+    let f₄ : ℝ → ℝ := fun x ↦ 2 ^ x
+    have : f₁ = f₄ ∘ f₃ := by ext; simp [f₁, f₃, f₄]
+    rw [deriv_const_rpow (a := 2) hf₃ (by norm_num), this]
+    ring_nf
+    congr
   have hf'₂ {x} (hx : x ≠ 0) : deriv f₂ x = 3 * x⁻¹ * f₂ x := by
     symm
     calc 3 * x⁻¹ * f₂ x
@@ -112,10 +104,7 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
       · simp only [sub_nonneg]
         trans 3 * 4⁻¹
         · gcongr
-        · have : 68/100 < Real.log 2 := by
-            rw [Real.lt_log_iff_exp_lt (by norm_num)]
-            exact (Real.exp_bound' (by norm_num) (by norm_num) (by norm_num : 0 < 10)).trans_lt (by norm_num)
-          linarith
+        · linarith [Real.log_two_gt_d9]
       · unfold f
         positivity
     · rw [interior_Ici]
