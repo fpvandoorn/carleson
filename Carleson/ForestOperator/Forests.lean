@@ -1,5 +1,6 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
+import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -29,13 +30,6 @@ irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (542 * (a : ℝ) ^ 3 - 4 * n
 
 section estimate
 
--- move to Mathlib.Analysis.SpecialFunctions.Pow.Deriv, next to HasDerivAt.rpow
-theorem deriv_const_rpow {a f' x : ℝ} {f : ℝ → ℝ} (hf : HasDerivAt f f' x) (ha : 0 < a) :
-    deriv (a ^ f ·) x = (Real.log a) * f' * (a ^ f x) := by
-  apply HasDerivAt.deriv
-  convert HasDerivAt.rpow (hasDerivAt_const x a) hf ha using 1
-  ring
-
 lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^ 2 + 2 * ↑a ^ 3) := by
   have : 4 * ↑a ^ 2 + 2 * ↑a ^ 3 ≤ 3 * ↑a ^ 3 := calc
       _ ≤ (a : ℝ) * (a : ℝ) ^ 2 + 2 * a ^ 3 := by gcongr
@@ -61,10 +55,8 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
   have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := by
     let f₃ : ℝ → ℝ := fun x ↦ 12 * x
     have hf₃ : HasDerivAt f₃ 12 x := by
-      unfold f₃
-      let aux := (hasDerivAt_id' x).const_mul (c := 12)
-      rw [mul_one] at aux
-      exact aux
+      convert (hasDerivAt_id' x).const_mul (c := 12)
+      rw [mul_one]
     let f₄ : ℝ → ℝ := fun x ↦ 2 ^ x
     have : f₁ = f₄ ∘ f₃ := by ext; simp [f₁, f₃, f₄]
     rw [deriv_const_rpow (a := 2) hf₃ (by norm_num), this]
