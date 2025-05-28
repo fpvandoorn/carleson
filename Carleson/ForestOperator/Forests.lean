@@ -88,10 +88,13 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
       _ = (deriv f₁ x * f₂ x - f₁ x * deriv f₂ x) / (f₂ x) ^ 2 := by
         apply deriv_div (hf₁ x) (hf₂ x)
         positivity
+      _ = ((deriv f₁ x - f₁ x * 3 * x⁻¹) * f₂ x) / (f₂ x) ^ 2 := by rw [hf'₂ hx.ne']; ring
       _ = (deriv f₁ x - f₁ x * 3 * x⁻¹) / (f₂ x) := by
-        rw [hf'₂ hx.ne']
-        sorry -- cancel f₂ x and use `ring`
-        -- have (a b : ℝ) : (a * b) / b ^2 = a := sorry
+        have (a d : ℝ) (hd : d ≠ 0) : a * d / d ^ 2 = a / d := by
+          rw [← IsUnit.mul_div_mul_right hd.isUnit a d]
+          ring
+        rw [this]
+        positivity
       _ = _ := by simp only [hf'₁, f']; ring
   have : MonotoneOn f (Set.Ici 4) := by
     apply monotoneOn_of_deriv_nonneg (convex_Ici 4)
