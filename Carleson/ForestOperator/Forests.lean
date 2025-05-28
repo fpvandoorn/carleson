@@ -27,27 +27,61 @@ irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (550 * (a : ℝ) ^ 3 - 3 * n
 section estimate
 
 lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^ 2 + 2 * ↑a ^ 3) := by
-  let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) / (4 * x ^ 2 + 2 * x ^ 3)
-  have hf : Differentiable ℝ f := by
-    -- fun_prop cannot do this yet...
-    sorry
-  let f' : ℝ → ℝ := fun x ↦ ((12 * Real.log 2) - 3 * x⁻¹) * f x
-  have (x) : deriv f x = f' x := sorry -- TODO, compute
-  have : MonotoneOn f (Set.Ici 4) := by
-    apply monotoneOn_of_deriv_nonneg (convex_Ici 4) hf.continuous.continuousOn (by fun_prop)
+  have : 4 * ↑a ^ 2 + 2 * ↑a ^ 3 ≤ 3 * ↑a ^ 3 := calc
+      _ ≤ (a : ℝ) * (a : ℝ) ^ 2 + 2 * a ^ 3 := by gcongr
+      _ = (a : ℝ) ^ 3 + 2 * a ^ 3 := by congr 1; ring
+      _ = 3 * (a : ℝ) ^ 3 := by ring
+  have : 2 ^ (12 * a) / (3 * a ^ 3) ≤ 2 ^ (12 * a) / (4 * a ^ 2 + 2 * a ^ 3) := by gcongr
+  calc
+    _ < 2 ^ (12 * a) / (3 * a ^ 3) := ?_
+    _ ≤ _ := this
+
+  let f : ℝ → ℝ := fun x ↦ 2 ^ (12 * x) / (3 * x ^ 3)
+  let f₁ : ℝ → ℝ := fun x ↦ (2 : ℝ) ^ ((12 : ℝ) * x)
+  let f₂ : ℝ → ℝ := fun x ↦ 3 * x ^ 3
+  have hf₁ : Differentiable ℝ f₁ := by
+    have : Differentiable ℝ fun (x : ℝ) ↦ (12 : ℝ) * x := by fun_prop
+    -- #check Real.differentiable_exp
+    sorry -- power function is differentiable
+  have hf₂ : Differentiable ℝ f₂ := by fun_prop
+  have hf : DifferentiableOn ℝ f (Set.Ioi 0) := by
     intro x hx
-    rw [interior_Ici, mem_Ioi] at hx
-    rw [this]
-    unfold f'
-    apply mul_nonneg
-    · simp only [sub_nonneg]
-      trans 3 * 4⁻¹
-      · gcongr
-      · -- have : 0.68 < Real.log 2 := sorry
-        norm_num
-        sorry -- why can't norm_num do this?
-    · unfold f
-      positivity
+    apply DifferentiableAt.differentiableWithinAt
+    have : 0 < x := hx
+    exact (hf₁ x).mul <| (hf₂ x).inv (by positivity)
+  let f' : ℝ → ℝ := fun x ↦ ((12 * Real.log 2) - 3 * x⁻¹) * f x
+  have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := sorry
+  have hf'₂ {x} (hx : x ≠ 0) : deriv f₂ x = 3 * x⁻¹ * f₂ x := sorry
+  have {x} (hx : 0 < x) : deriv f x = f' x := by
+    calc deriv f x
+      _ = deriv (fun x ↦ f₁ x / f₂ x) x := rfl
+      _ = (deriv f₁ x * f₂ x - f₁ x * deriv f₂ x) / (f₂ x) ^ 2 := by
+        apply deriv_div (hf₁ x) (hf₂ x)
+        positivity
+      _ = (deriv f₁ x - f₁ x * 3 * x⁻¹) / (f₂ x) := by
+        rw [hf'₂ hx.ne']
+        sorry -- basically, ring and cancelling once
+        -- have (a b : ℝ) : (a * b) / b ^2 = a := sorry
+      _ = _ := by simp only [hf'₁, f']; ring
+  have : MonotoneOn f (Set.Ici 4) := by
+    apply monotoneOn_of_deriv_nonneg (convex_Ici 4)
+      (hf.continuousOn.mono <| Ici_subset_Ioi.mpr (by norm_num)) ?_
+    · intro x hx
+      rw [interior_Ici, mem_Ioi] at hx
+      rw [this (by positivity)]
+      unfold f'
+      apply mul_nonneg
+      · simp only [sub_nonneg]
+        trans 3 * 4⁻¹
+        · gcongr
+        · -- have : 0.68 < Real.log 2 := sorry
+          norm_num
+          sorry -- why can't norm_num do this?
+        --· positivity
+      · unfold f
+        positivity
+    · rw [interior_Ici]
+      exact hf.mono <| Ioi_subset_Ioi (by norm_num)
   calc 4
     _ < f 4 := by norm_num
     _ ≤ f a := this (by norm_num) (by norm_num; exact ha) ha
