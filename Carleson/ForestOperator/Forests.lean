@@ -2,6 +2,9 @@ import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Tactic.NormNum.BigOperators
+import Mathlib.Tactic.NormNum.NatFactorial
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -72,14 +75,10 @@ lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^
       · simp only [sub_nonneg]
         trans 3 * 4⁻¹
         · gcongr
-        · -- Why can't `norm_num` do this directly?
-          have : 68/100 < Real.log 2 := by
+        · have : 68/100 < Real.log 2 := by
             rw [Real.lt_log_iff_exp_lt (by norm_num)]
-            -- Real.exp (68/100) ≈ 1.97 < 2
-            sorry
-          trans 12 * (68/100)
-          · norm_num
-          · gcongr
+            exact (Real.exp_bound' (by norm_num) (by norm_num) (by norm_num : 0 < 10)).trans_lt (by norm_num)
+          linarith
       · unfold f
         positivity
     · rw [interior_Ici]
