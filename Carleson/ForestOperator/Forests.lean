@@ -1,6 +1,7 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
+import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -212,24 +213,6 @@ lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (�
   simp_rw [adjointCarlesonSum]
   convert sum_union_dontuse hst (g := fun p ↦ adjointCarleson p g x)
 
-omit [TileStructure Q D κ S o] in
-@[fun_prop]
-lemma _root_.MeasureTheory.Integrable.conj {f : X → ℂ} (hf : Integrable f) :
-    Integrable (fun x ↦ conj (f x)) := by
-  have := hf.1
-  apply Integrable.congr' hf (by fun_prop)
-  filter_upwards with x
-  exact (norm_conj (f x)).symm
-
-omit [TileStructure Q D κ S o] in
-@[fun_prop]
-lemma _root_.MeasureTheory.Integrable.prod_conj {f g : X → ℂ} (hf : Integrable f)
-    (hf' : BoundedCompactSupport f) (hg : Integrable g) : Integrable (fun x ↦ f x * conj (g x)) := by
-  apply Integrable.bdd_mul' hg.conj hf.1 (c := (eLpNormEssSup f volume).toReal)
-  apply (ae_le_eLpNormEssSup (f := f) (μ := volume)).mono fun x hx ↦ ?_
-  rw [← ofReal_norm] at hx
-  exact (ENNReal.ofReal_le_iff_le_toReal hf'.1.eLpNorm_ne_top).mp hx
-
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) -- XXX: are these assumptions fine to add?
@@ -255,9 +238,9 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
       congr
       beta_reduce
       rw [integral_add]
-      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).prod_conj
+      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).mul_conj
           hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
-      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).prod_conj
+      · exact (integrable_adjointCarlesonSum (t.𝔗 u₁) hg₁).mul_conj
           hg₁.adjointCarlesonSum (integrable_adjointCarlesonSum _ hg₂)
     _ ≤ (‖∫ x, (adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x))‖₊ : ℝ≥0∞) +
         (‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ : ℝ≥0∞) := by
