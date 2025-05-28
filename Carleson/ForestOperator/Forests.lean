@@ -625,11 +625,10 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     apply BoundedCompactSupport.finset_sum (fun i hi ↦ ?_)
     apply BoundedCompactSupport.restrict
     apply BoundedCompactSupport.carlesonSum
-    have : BoundedCompactSupport (F.indicator 1 : X → ℝ) := by
-      apply BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _) _
-        measurableSet_F
-      · exact isBounded_F.isCompact_closure
-    apply BoundedCompactSupport.mono_norm this hf.aestronglyMeasurable h2f
+    have : BoundedCompactSupport (F.indicator 1 : X → ℝ) :=
+      BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
+        isBounded_F.isCompact_closure measurableSet_F
+    exact BoundedCompactSupport.mono_norm this hf.aestronglyMeasurable h2f
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
@@ -653,11 +652,8 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
       simpa using A _
     · simp
   _ ≤ _ := by
-    rw [eLpNorm_indicator_const]
-    · simp
-    · exact hA
-    · norm_num
-    · norm_num
+    rw [eLpNorm_indicator_const hA (by norm_num) (by norm_num)]
+    simp
 
 open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
