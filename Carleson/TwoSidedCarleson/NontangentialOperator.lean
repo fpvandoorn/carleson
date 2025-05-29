@@ -688,7 +688,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_nmem]
+    rw [measure_zero_iff_ae_notMem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero] with x' hx'
     simp [hx']
@@ -729,7 +729,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_nmem]
+    rw [measure_zero_iff_ae_notMem]
     have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
         (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
     have czzero : ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ = 0 := by
@@ -834,14 +834,14 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   rw [indicator_compl, czoperator_sub hg (hg.indicator measurableSet_ball) hr.1, Pi.sub_apply]
   have h1x' : ‖czOperator K r g x'‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x := by
     suffices x' ∉ F1 by
-      rw [nmem_setOf_iff, not_lt] at this
+      rw [notMem_setOf_iff, not_lt] at this
       exact this
-    exact not_mem_subset subset_union_left ((mem_compl_iff _ _).mp hx'.1)
+    exact notMem_subset subset_union_left ((mem_compl_iff _ _).mp hx'.1)
   have h2x' : ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ ≤ C10_1_4 a * globalMaximalFunction volume 1 g x := by
     suffices x' ∉ F2 by
-      rw [nmem_setOf_iff, not_lt] at this
+      rw [notMem_setOf_iff, not_lt] at this
       exact this
-    exact not_mem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
+    exact notMem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
   apply add_le_add (add_le_add h1x' h2x' |> enorm_sub_le.trans) (by rfl) |> le_trans
   rw [add_assoc, C10_1_3_def, C10_1_4_def, C10_1_5_def, ← add_mul]
   conv_rhs => rw [pow_succ, mul_two]

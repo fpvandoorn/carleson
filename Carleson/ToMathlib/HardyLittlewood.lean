@@ -934,8 +934,8 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
       gcongr
       rw [mul_comm, ← ENNReal.mul_le_iff_le_inv
         ((measure_ball_pos _ (zpow_pos zero_lt_two _) (μ := μ)).ne')
-          (measure_ball_ne_top c _), ENNReal.mul_inv_le_iff
-            ((measure_ball_pos _ hr (μ := μ)).ne') (measure_ball_ne_top z r)]
+          measure_ball_ne_top, ENNReal.mul_inv_le_iff
+            ((measure_ball_pos _ hr (μ := μ)).ne') measure_ball_ne_top]
       exact (μ.mono h_subset').trans <| measure_ball_four_le_same' z r
     _ ≤ _ := by
       rw [mul_assoc]
@@ -946,7 +946,7 @@ theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsO
 theorem lintegral_ball_le_volume_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
     {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
     ∫⁻ y in (ball z r), ‖u y‖ₑ ∂μ  ≤ μ (ball z r) * globalMaximalFunction μ 1 u x := by
-  have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr (measure_ball_ne_top z r)
+  have : IsFiniteMeasure (μ.restrict (ball z r)) := isFiniteMeasure_restrict.mpr measure_ball_ne_top
   rw [← measure_mul_laverage]
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
   gcongr

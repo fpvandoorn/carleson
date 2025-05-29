@@ -139,7 +139,7 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarleson
         _ ≤ _ := by convert this
     by_cases hy : y ∈ tsupport f
     · specialize hCKf y x hy; gcongr
-    · simp only [image_eq_zero_of_nmem_tsupport hy,
+    · simp only [image_eq_zero_of_notMem_tsupport hy,
         norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
@@ -230,7 +230,7 @@ lemma adjointCarleson_adjoint
           _ ≤ M₀ *  (‖g x‖ * ‖f y‖) := by gcongr; exact norm_MKD_le_norm_Ks.trans hM₀
           _ = M₀ *  ‖g x‖ * ‖f y‖ := by rw [mul_assoc]
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
-        unfold H; simp [image_eq_zero_of_nmem_tsupport h]
+        unfold H; simp [image_eq_zero_of_notMem_tsupport h]
     have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
       (hg.norm.const_mul _).integrable.mul_prod hf.norm.integrable
     refine this.mono ?_ ?_
@@ -252,7 +252,7 @@ lemma adjointCarleson_adjoint
         · exact measurable_Q₂.comp this
     · apply ae_of_all
       intro z
-      refine trans (hHleH₀ z.1 z.2) ?_
+      refine _root_.trans (hHleH₀ z.1 z.2) ?_
       exact Real.le_norm_self _
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by

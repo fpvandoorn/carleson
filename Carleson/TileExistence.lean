@@ -1865,9 +1865,9 @@ lemma frequency_ball_cover : Q.range.toSet ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2
     let 𝓩' := insert θ (𝓩 I)
     apply absurd (𝓩_max_card (I := I)) _; push_neg; refine ⟨𝓩', ?_, ?_⟩
     · simp_rw [𝓩', 𝓩_cands, Finset.mem_filter, Finset.mem_powerset, Finset.insert_subset_iff,
-        Finset.coe_insert, pairwiseDisjoint_insert_of_not_mem hθ', Finset.mem_coe]
+        Finset.coe_insert, pairwiseDisjoint_insert_of_notMem hθ', Finset.mem_coe]
       exact ⟨⟨hθ, 𝓩_subset⟩, 𝓩_pairwiseDisjoint, fun y hy ↦ (h y hy).symm⟩
-    · rw [Finset.card_insert_of_not_mem hθ']; exact lt_add_one _
+    · rw [Finset.card_insert_of_notMem hθ']; exact lt_add_one _
   rw [not_disjoint_iff] at hz'; obtain ⟨z', h₁z', h₂z'⟩ := hz'
   simp only [mem_iUnion, mem_ball, exists_prop, C𝓩, C4_2_1] at h₁z' h₂z' ⊢
   use z, hz; linarith [dist_triangle_left (α := (WithFunctionDistance (c I) (D ^ s I / 4))) θ z z']

@@ -45,7 +45,7 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
   refine ⟨fun ⟨_, _, hs⟩ ↦ ?_, fun hs ↦ ?_⟩
   · simpa using hs
   · have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
-      simp only [not_mem_empty, ball_zero, Set.iUnion_of_empty, Set.iUnion_empty]
+      simp only [notMem_empty, ball_zero, Set.iUnion_of_empty, Set.iUnion_empty]
       exact Set.subset_empty_iff.mpr hs
     use ∅, tsub_add_cancel_iff_le.mp rfl, h22
 

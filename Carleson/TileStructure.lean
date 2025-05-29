@@ -188,7 +188,7 @@ lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
   intro x hx
   rw [mem_support] at hx
   contrapose! hx
-  refine Finset.sum_eq_zero (fun p hp ↦ nmem_support.mp (fun hxp ↦ hx ?_))
+  refine Finset.sum_eq_zero (fun p hp ↦ notMem_support.mp (fun hxp ↦ hx ?_))
   simp only [Finset.mem_filter] at hp
   exact Set.mem_biUnion hp.2 <| E_subset_𝓘 (support_carlesonOn_subset_E hxp)
 
@@ -342,7 +342,7 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   by_contra h2
   have : Disjoint (Ω p) (Ω p') := disjoint_Ω h2 h.1
   have : Ω p = ∅ := by simpa [← h.2]
-  exact not_mem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
+  exact notMem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 

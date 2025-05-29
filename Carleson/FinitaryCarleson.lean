@@ -45,7 +45,7 @@ private lemma sum_eq_zero_of_nmem_Icc {f : X → ℂ} {x : X} (s : ℤ)
   refine Finset.sum_eq_zero (fun p hp ↦ ?_)
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
-  rw [carlesonOn, Set.indicator_of_not_mem]
+  rw [carlesonOn, Set.indicator_of_notMem]
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
@@ -82,7 +82,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
     have p𝔓Xs : p ∈ 𝔓X_s s := by simpa [𝔰, 𝓘pI]
     have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → carlesonOn p' f x = 0 := by
       intro p' p'𝔓Xs p'p
-      apply indicator_of_not_mem
+      apply indicator_of_notMem
       simp only [E, mem_setOf_eq, not_and]
       refine fun x_in_𝓘p' Qp' ↦ False.elim ?_
       have s_eq := 𝔰_eq p𝔓Xs ▸ 𝔰_eq p'𝔓Xs

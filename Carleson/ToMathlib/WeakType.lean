@@ -112,7 +112,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
     ContinuousWithinAt (distribution f · μ) (Ioi t₀) t₀ := by
   rcases (eq_top_or_lt_top t₀) with t₀top | t₀nottop
   · rw [t₀top]
-    apply continuousWithinAt_of_not_mem_closure
+    apply continuousWithinAt_of_notMem_closure
     simp
   · unfold ContinuousWithinAt
     rcases (eq_top_or_lt_top (distribution f t₀ μ)) with db_top | db_not_top
@@ -401,7 +401,7 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← wnorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
@@ -457,7 +457,7 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← eLpNorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 

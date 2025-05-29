@@ -369,7 +369,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
   specialize np'u p' mpt
   have 𝓘p'u : 𝓘 p' ≤ 𝓘 u := lp'.1.trans h
   simp_rw [TileLike.le_def, smul_fst, smul_snd, 𝓘p'u, true_and,
-    not_subset_iff_exists_mem_not_mem] at np'u
+    not_subset_iff_exists_mem_notMem] at np'u
   obtain ⟨(q : Θ X), mq, nq⟩ := np'u
   simp_rw [mem_ball, not_lt] at mq nq
   have d8 : 8 < dist_(p') (𝒬 p) (𝒬 u) :=

@@ -51,7 +51,7 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
   have tmp_Kxg {M : ℝ≥0} : ∀ y, ¬‖Kxg y‖ ≤ M → y ∈ support Kxg := by
     intro y
     contrapose!
-    rw [nmem_support]
+    rw [notMem_support]
     intro hy
     rw [hy, norm_zero]
     simp only [NNReal.zero_le_coe]
