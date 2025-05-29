@@ -196,6 +196,7 @@ lemma wnorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f
 def wnorm (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   if p = ∞ then eLpNormEssSup f μ else wnorm' f (ENNReal.toReal p) μ
 
+@[simp]
 lemma wnorm_zero : wnorm f 0 μ = ∞ := by
   simp [wnorm, wnorm'_zero]
 

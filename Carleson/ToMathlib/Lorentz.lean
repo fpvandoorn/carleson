@@ -89,6 +89,13 @@ lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Me
           (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := sorry
 -/
 
+@[simp]
+lemma eLorentzNorm_top_top {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
+    {μ : Measure α} {f : α → E} :
+    eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
+  unfold eLorentzNorm
+  simp
+
 lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
     {μ : Measure α} {f : α → E} (hf : AEMeasurable f μ) {p : ℝ≥0∞}  :
   eLorentzNorm f p p μ = eLpNorm f p μ := by
@@ -144,8 +151,20 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] 
 
 
 
-lemma eLorentzNorm_eq_wnorm {f : α → ε} {p : ℝ≥0∞} {μ : Measure α} :
-  eLorentzNorm f p ∞ μ = wnorm f p μ := sorry
+lemma eLorentzNorm_eq_wnorm {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
+    {f : α → E} {p : ℝ≥0∞} (hp : p ≠ 0) {μ : Measure α} : eLorentzNorm f p ∞ μ = wnorm f p μ := by
+  by_cases p_eq_top : p = ∞
+  · rw [p_eq_top]
+    simp
+  rw [eLorentzNorm_eq_eLorentzNorm' hp p_eq_top, wnorm_ne_top p_eq_top]
+  unfold eLorentzNorm' wnorm'
+  simp only [ENNReal.inv_top, ENNReal.toReal_zero, ENNReal.rpow_zero, ENNReal.toReal_inv,
+    eLpNorm_exponent_top, one_mul]
+  unfold eLpNormEssSup
+  --rw [Continuous.essSup]
+  simp only [enorm_eq_self]
+  --TODO: somehow use continuity properties of the distribution function here
+  sorry
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
 /-- A function is in the Lorentz space L_{pr} if it is (strongly a.e.)-measurable and has finite Lorentz norm. -/
@@ -207,7 +226,7 @@ lemma HasRestrictedWeakType.HasLorentzType {E : Type*} [MeasurableSpace E] [Norm
       by_cases h' : f =ᵐ[μ] 0
       · sorry
       · sorry
-    · rw [eLorentzNorm_eq_wnorm, wnorm_ne_top h]
+    · rw [eLorentzNorm_eq_wnorm sorry, wnorm_ne_top h]
       unfold wnorm'
       apply iSup_le
       intro l
