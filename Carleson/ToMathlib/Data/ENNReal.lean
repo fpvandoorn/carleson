@@ -138,17 +138,20 @@ lemma Real.enorm_le_enorm {x y : ℝ} (hx : 0 ≤ x) (hy : x ≤ y) : ‖x‖ₑ
   rw [Real.enorm_of_nonneg hx, Real.enorm_of_nonneg (hx.trans hy)]
   exact ENNReal.ofReal_le_ofReal hy
 
--- Additional lemmas for the finiteness tactic.
+-- Additional lemmas for the finiteness tactic, PRed to mathlib in #25086
 section finiteness
 
 open ENNReal
 
 -- Tag some additional lemmas for finiteness.
-attribute [aesop (rule_sets := [finiteness]) safe apply] enorm_ne_top
-
 attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.pow_ne_top
 
-attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.rpow_ne_top_of_nonneg
+@[aesop (rule_sets := [finiteness]) safe apply]
+lemma ENNReal.zpow_ne_top {a : ℝ≥0∞} (ha : a ≠ 0) (h'a : a ≠ ∞) (n : ℤ) : a ^ n ≠ ∞ :=
+  (ENNReal.zpow_lt_top ha h'a n).ne
+
+-- This is an unsafe rule since we want to try `rpow_pos` if x = 0.
+attribute [aesop (rule_sets := [finiteness]) unsafe apply] ENNReal.rpow_ne_top_of_nonneg
 
 -- -- experimental
 lemma ENNReal.rpow_ne_top {x : ℝ≥0∞} {y : ℝ} : ¬(x = 0 ∧ y < 0 ∨ x = ⊤ ∧ 0 < y) → x ^ y ≠ ⊤ := by
@@ -156,22 +159,19 @@ lemma ENNReal.rpow_ne_top {x : ℝ≥0∞} {y : ℝ} : ¬(x = 0 ∧ y < 0 ∨ x 
   rw [← rpow_eq_top_iff (x := x) (y := y)]
   simp
 
+@[aesop (rule_sets := [finiteness]) unsafe apply]
 lemma ENNReal.rpow_ne_top_of_pos {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) : x ^ y ≠ ⊤ := by
   apply ENNReal.rpow_ne_top
   simp [hx, hx']
 
-attribute [aesop (rule_sets := [finiteness]) unsafe apply] ENNReal.rpow_ne_top_of_pos
-
--- should ENNReal.rpow_lt_top_iff_of_pos be tagged? or a custom version?
-
 -- move next to max_eq_top; proof can probably be golfed
+
+@[aesop (rule_sets := [finiteness]) safe apply]
 lemma max_ne_top {α : Type*} [LinearOrder α] [OrderTop α] {a b : α} (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
     max a b ≠ ⊤ := by
   by_contra h
   obtain (h | h) := max_eq_top.mp h
   all_goals simp_all
-
-attribute [aesop (rule_sets := [finiteness]) safe apply] max_ne_top
 
 -- Just created for finiteness.
 @[aesop (rule_sets := [finiteness]) safe apply]
