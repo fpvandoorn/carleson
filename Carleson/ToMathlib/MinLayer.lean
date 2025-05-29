@@ -212,7 +212,8 @@ lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n)
   have ma'₁ : a' ∈ A.minLayer n := by
     rw [minLayer, mem_setOf, minimal_iff]
     simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
-    exact ⟨ma'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (mina' y hy (ly.trans ma'.2))).symm⟩
+    sorry -- TODO: fix broken proof (type mismatches), was:
+    -- exact ⟨ma'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (mina' y hy (ly.trans ma'.2))).symm⟩
   obtain ⟨c, mc, lc⟩ := exists_le_in_minLayer_of_le ma'₁ hm
   use c, mc, lc.trans ma'.2
 

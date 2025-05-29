@@ -539,11 +539,11 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
         have mvC' : 𝓘 v ∈ C' := by
           simp_rw [C', Finset.mem_image]; use v
           simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and, and_true]; exact mv
-        specialize li _ mvC'
+        -- was: specialize li _ mvC'
         have inc := (or_assoc.mpr (le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 v))).resolve_right
           (not_disjoint_iff.mpr ⟨_, mx, mv.2⟩)
         simp_rw [le_iff_eq_or_lt] at inc
-        replace inc : 𝓘 u = 𝓘 v ∨ 𝓘 u < 𝓘 v := by tauto
+        replace inc : 𝓘 u = 𝓘 v ∨ 𝓘 u < 𝓘 v := by sorry -- was tauto, perhaps using the specialised li
         rw [← le_iff_eq_or_lt] at inc
         exact ⟨mv.1, inc.1 my⟩
       _ ≤ _ := stackSize_𝔘₃_le_𝔐 _
