@@ -39,7 +39,7 @@ private lemma 𝔓_biUnion : @Finset.univ (𝔓 X) _ = (Icc (-S : ℤ) S).toFins
   rw [toFinset_Icc, Finset.mem_Icc]
   exact range_s_subset ⟨𝓘 p, rfl⟩
 
-private lemma sum_eq_zero_of_nmem_Icc {f : X → ℂ} {x : X} (s : ℤ)
+private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
     (hs : s ∈ (Icc (-S : ℤ) S).toFinset.filter (fun t ↦ t ∉ Icc (σ₁ x) (σ₂ x))) :
     ∑ i ∈ Finset.univ.filter (fun p ↦ 𝔰 p = s), carlesonOn i f x = 0 := by
   refine Finset.sum_eq_zero (fun p hp ↦ ?_)
@@ -70,7 +70,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
   rw [𝔓_biUnion, Finset.sum_biUnion]; swap
   · exact fun s _ s' _ hss' A hAs hAs' p pA ↦ False.elim <| hss' (𝔰_eq (hAs pA) ▸ 𝔰_eq (hAs' pA))
   rw [← (Icc (-S : ℤ) S).toFinset.sum_filter_add_sum_filter_not (fun s ↦ s ∈ Icc (σ₁ x) (σ₂ x))]
-  rw [Finset.sum_eq_zero sum_eq_zero_of_nmem_Icc, add_zero]
+  rw [Finset.sum_eq_zero sum_eq_zero_of_notMem_Icc, add_zero]
   refine Finset.sum_congr (Finset.ext fun s ↦ ⟨fun hs ↦ ?_, fun hs ↦ ?_⟩) (fun s hs ↦ ?_)
   · rw [Finset.mem_filter, ← mem_toFinset] at hs
     exact hs.2

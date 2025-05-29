@@ -103,7 +103,7 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
-lemma subset_of_nmem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
+lemma subset_of_notMem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
     (h : i ∉ Iic j)
     (notDisjoint : ¬ Disjoint (i : Set X) j) :
     (j : Set X) ⊆ i := by

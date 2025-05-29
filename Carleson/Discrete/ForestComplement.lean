@@ -209,7 +209,7 @@ lemma mem_iUnion_iff_mem_of_mem_ℭ₁ {f : ℕ → Set (𝔓 X)} (hp : p ∈ �
     exact e ▸ mp
   · use j, hp.2
 
-lemma nmem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
+lemma notMem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
     (h : p ∈ 𝔓pos) (mc2 : p ∈ ℭ₂ k n j) (ml2 : p ∉ 𝔏₂ k n j) :
     p ∉ ℭ₅ k n j ↔ p ∈ ⋃ l, ⋃ (_ : l ≤ Z * (n + 1)), 𝔏₃ k n j l := by
   have mc3 : p ∈ ℭ₃ k n j := ⟨mc2, ml2⟩
@@ -277,7 +277,7 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   · simp_rw [ml2, true_or, iff_true]
     exact fun a ↦ disjoint_left.mp 𝔏₂_disjoint_ℭ₃ ml2 (ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ a)
   simp_rw [ml2, false_or]
-  exact nmem_ℭ₅_iff_mem_𝔏₃ hkn hj h mc2 ml2
+  exact notMem_ℭ₅_iff_mem_𝔏₃ hkn hj h mc2 ml2
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. -/
@@ -734,7 +734,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum {f : X → ℂ} {x : X} (hkn :
     · refine ⟨h.1.1, ?_⟩
       simp only [𝔓₁, mem_iUnion, exists_prop, not_exists, not_and] at h
       have : p ∉ ℭ₅ k n j := h.1.1.2 n k hkn j hj
-      simpa using (nmem_ℭ₅_iff_mem_𝔏₃ (X := X) hkn hj h.1.1.1 h.1.2 h.2).1 this
+      simpa using (notMem_ℭ₅_iff_mem_𝔏₃ (X := X) hkn hj h.1.1.1 h.1.2 h.2).1 this
     · rcases h.2 with ⟨l, lZ, hl⟩
       exact ⟨⟨h.1, ℭ₃_subset_ℭ₂ (maxLayer_subset hl)⟩,
         disjoint_right.1 𝔏₂_disjoint_ℭ₃ (maxLayer_subset hl)⟩
