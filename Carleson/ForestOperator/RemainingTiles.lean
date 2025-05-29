@@ -458,7 +458,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
         change (4 : ℝ) * D ^ s J ≤ _; gcongr; norm_num
       rw [Finset.mem_Icc]
       constructor
-      · have tsi := thin_scale_impact' hu₁ hu₂ hu h2u mp mJ dpJ
+      · have := thin_scale_impact' hu₁ hu₂ hu h2u mp mJ dpJ
         omega
       · have : s J ≤ S := scale_mem_Icc.2
         have : -S ≤ 𝔰 p := scale_mem_Icc.1
@@ -498,6 +498,128 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
       nth_rw 2 [show (2 : ℝ) = (2 : ℕ) by rfl]
       rw [ENNReal.rpow_natCast, mul_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul,
         show (-2)⁻¹ * (2 : ℕ) = (-1 : ℝ) by norm_num, ENNReal.rpow_neg_one]
+
+open Classical in
+/-- The critical bound on the integral in Equation (7.6.3). It holds for _any_ cubes `I, J`. -/
+lemma btp_integral_bound :
+    ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+      ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I, ‖adjointCarleson p f y‖ₑ ≤
+    C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
+      MB volume 𝓑 c𝓑 r𝓑 f y := by
+  calc
+    _ ≤ ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+        ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
+          C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * (∫⁻ y in E p, ‖f y‖ₑ) *
+          (ball (𝔠 p) (8 * D ^ 𝔰 p)).indicator 1 y := by
+      gcongr with y p mp; exact enorm_adjointCarleson_le_mul_indicator
+    _ = ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+        ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)) ∧ 𝓘 p = I,
+          C2_1_3 a * 2 ^ (4 * a) * (volume (ball (c I) (8 * D ^ s I)))⁻¹ * (∫⁻ y in E p, ‖f y‖ₑ) *
+          (ball (c I) (8 * D ^ s I)).indicator 1 y := by
+      congr! 3 with y p mp
+      · ext p; simp_rw [Finset.mem_filter, and_congr_right_iff, and_congr_left_iff]
+        intro _ he; rw [← he]; rfl
+      · simp_rw [Finset.mem_filter] at mp
+        simp_rw [← mp.2.2]; rfl
+    _ = C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J,
+        (ball (c I) (8 * D ^ s I)).indicator 1 y * ((volume (ball (c I) (8 * D ^ s I)))⁻¹ *
+        ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)) ∧ 𝓘 p = I,
+          ∫⁻ y in E p, ‖f y‖ₑ) := by
+      rw [← lintegral_const_mul' _ _ (by finiteness)]; congr! with y
+      simp_rw [Finset.mul_sum]; congr! 1 with p mp; ring
+    _ = C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J,
+        (ball (c I) (8 * D ^ s I)).indicator 1 y * ((volume (ball (c I) (8 * D ^ s I)))⁻¹ *
+        ∫⁻ y in ⋃ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset.filter
+          (¬Disjoint ↑J (ball (c I) (8 * D ^ s I)) ∧ 𝓘 · = I), E p, ‖f y‖ₑ) := by
+      congr! with y
+      refine (lintegral_biUnion_finset (fun p₁ mp₁ p₂ mp₂ hn ↦ ?_)
+        (fun p mp ↦ measurableSet_E) _).symm
+      rw [Finset.coe_filter, mem_setOf_eq] at mp₁ mp₂
+      exact disjoint_E hn (mp₂.2.2.symm ▸ mp₁.2.2)
+    _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
+        ⨍⁻ y in ball (c I) (8 * D ^ s I), ‖f y‖ₑ ∂volume := by
+      gcongr with y; rw [setLAverage_eq, ENNReal.div_eq_inv_mul]
+      refine mul_le_mul_left' (lintegral_mono_set (iUnion₂_subset fun p mp ↦ ?_)) _
+      rw [Finset.mem_filter] at mp
+      convert (E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball _)
+      · exact mp.2.2.symm
+      · change (4 : ℝ) * D ^ s (𝓘 p) ≤ _
+        rw [mp.2.2]; gcongr; norm_num
+    _ ≤ _ := by
+      refine mul_le_mul_left' (lintegral_mono_fn fun y ↦ ?_) _
+      by_cases my : y ∈ ball (c I) (8 * D ^ s I)
+      · refine mul_le_mul_left' ?_ _; rw [MB_def]
+        have : (3, 0, I) ∈ 𝓑 := by simp [𝓑]
+        refine le_of_eq_of_le ?_ (le_biSup _ this)
+        have : y ∈ ball (c I) (2 ^ 3 * (D : ℝ) ^ s I) := by rwa [show (2 : ℝ) ^ 3 = 8 by norm_num]
+        simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
+        norm_num
+      · rw [indicator_of_not_mem my, zero_mul]; exact zero_le _
+
+open Classical in
+/-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
+lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
+    C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+    (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+    (∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+      ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
+    ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
+      MB volume 𝓑 c𝓑 r𝓑 f y) ^ 2) ^ (2 : ℝ)⁻¹ := by
+  calc
+    _ ≤ _ := e763 hu₁ hu₂ hu h2u hf mf
+    _ = ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+        (∫⁻ y in J, ∑ I, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝔰 p = s J - k ∧ 𝓘 p = I,
+        ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      congr! with k mk J mJ y
+      conv_rhs => enter [2, I, 1, 1, p]; rw [← and_assoc]
+      conv_rhs => enter [2, I]; rw [← Finset.filter_filter]
+      exact (Finset.sum_fiberwise _ _ _).symm
+    _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+        (∫⁻ y in J, ∑ I with
+          s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧ ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
+        ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
+        ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      gcongr with k mk J mJ y
+      nth_rw 1 [← Finset.filter_True (@Finset.univ (Grid X) _) (h := fun _ ↦ instDecidableTrue)]
+      simp_rw [Finset.sum_finset_product_filter_right]
+      refine Finset.sum_le_sum_of_subset fun r hr ↦ ?_
+      obtain ⟨I, p⟩ := r
+      simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and] at hr ⊢
+      obtain ⟨mp, h₁, h₂, h₃⟩ := hr; dsimp only [𝔠, 𝔰] at h₁ h₂ h₃ ⊢; rw [h₃] at h₁ h₂ ⊢
+      refine ⟨mp, ⟨h₂, ?_, h₁⟩, ⟨h₁, rfl⟩⟩
+      rw [mem_toFinset, mem_diff] at mp; obtain ⟨mp₁, mp₂⟩ := mp; contrapose! mp₂
+      exact overlap_implies_distance hu₁ hu₂ hu h2u (.inr mp₁) (h₃.symm ▸ mp₂)
+    _ = ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+        (∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+          ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
+        ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
+          ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝓘 p = I,
+        ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      congr! with k mk J mJ
+      exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
+        mf.adjointCarleson.aemeasurable.enorm.restrict
+    _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+        (∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+          ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
+        C2_1_3 a * 2 ^ (4 * a) * ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
+          MB volume 𝓑 c𝓑 r𝓑 f y) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      gcongr with k mk J mJ; exact btp_integral_bound
+    _ = _ := by
+      nth_rw 2 [← ENNReal.rpow_one (C2_1_3 a * 2 ^ (4 * a))]
+      rw [show (1 : ℝ) = (2 : ℕ) * 2⁻¹ by norm_num, ENNReal.rpow_mul, Finset.mul_sum]
+      congr! with k mk
+      rw [← ENNReal.mul_rpow_of_nonneg _ _ (by positivity), Finset.mul_sum]
+      congr! 2 with J mJ
+      rw [← mul_assoc, mul_comm _ (volume (J : Set X))⁻¹, ENNReal.rpow_natCast, mul_assoc,
+        ← mul_pow, Finset.mul_sum]
 
 /-- Lemma 7.6.2. Todo: add needed hypothesis to LaTeX -/
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)

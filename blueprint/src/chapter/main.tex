@@ -6036,42 +6036,32 @@ $$
     \end{equation}
     We have by \Cref{adjoint-tile-support} and \eqref{eq-Ks-size}
     $$
-        \int |T_{\fp}^* g_2|(y) \, \mathrm{d}\mu(y)
-    $$
-    $$
-        \le 2^{102a^3} \int_{B(\scI(\fp))} \int \frac{1}{\mu(B(x, D^{\ps(\fp)}))} \mathbf{1}_{E(\fp)}(x) |g_2|(x) \, \mathrm{d}\mu(x) \, \mathrm{d}\mu(y)\,.
-    $$
-    If $x \in E(\fp) \subset \scI(\fp)$, then we have by \eqref{eq-vol-sp-cube} that
-    $$
-        B(\pc(\fp), 4D^{\ps(\fp)}) \subset B(\scI(\fp))\,.
+        |T_{\fp}^* g_2(y)| \le 2^{102a^3} \mathbf{1}_{B(\pc(\fp), 8D^{\ps(\fp)})}(y) \int_{E(\fp)} \frac{1}{\mu(B(x, D^{\ps(\fp)}))} |g_2(x)| \, \mathrm{d}\mu(x)\,.
     $$
     Using the doubling property \eqref{doublingx}, it follows that
     $$
-        \mu(B(\pc(\fp), 4D^{\ps(\fp)})) \le 2^{3a} \mu(B(x, D^s))\,.
+        \mu(B(\pc(\fp), 8D^{\ps(\fp)})) \le 2^{4a} \mu(B(x, D^{\ps(\fp)}))\,.
     $$
     Thus, using also $a \ge 4$
     $$
-        \int |T_{\fp}^* g_2|(y) \, \mathrm{d}\mu(y)
-    $$
-    $$
-        \le 2^{103 a^3} \int_{B(\scI(\fp))} \int \frac{1}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \mathbf{1}_{E(\fp)}(x) |g_2|(x) \, \mathrm{d}\mu(x) \, \mathrm{d}\mu(y)\,.
+        |T_{\fp}^* g_2(y)| \le 2^{102a^3+4a} \mathbf{1}_{B(\pc(\fp), 8D^{\ps(\fp)})}(y) \frac{1}{\mu(B(\pc(\fp), 8D^{\ps(\fp)}))} \int_{E(\fp)} |g_2(x)| \, \mathrm{d}\mu(x)\,.
     $$
     Since for each $I \in \mathcal{D}$ the sets $E(\fp), \fp \in \fP(I)$ are disjoint, it follows that
     $$
-        \bigg| \int_J \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \scI(\fp) = I\\
-        J \cap B(\scI(\fp)) \ne \emptyset}} T_{\fp}^* g_2 \, \mathrm{d}\mu \bigg|
+        \int_J \sum_{\substack{\fp \in \fT(\fu_2) \setminus \mathfrak{S}\\ \scI(\fp) = I\\
+        J \cap B(\scI(\fp)) \ne \emptyset}} |T_{\fp}^* g_2(y)| \, \mathrm{d}\mu
     $$
     $$
-        \le 2^{103a^3} \int_J \mathbf{1}_{B(I)} \frac{1}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{B(\pc(\fp), 4D^{\ps(\fp)})} |g_2|(x) \, \mathrm{d}\mu(x)
+        \le 2^{102a^3+4a} \int_J \mathbf{1}_{B(I)} \frac{1}{\mu(B(\pc(\fp), 8D^{\ps(\fp)}))} \int_{B(\pc(\fp), 8D^{\ps(\fp)})} |g_2(x)| \, \mathrm{d}\mu(x)
     $$
     $$
-        \le 2^{103a^3} \int_J M_{\mathcal{B},1} |g_2|(y) \mathbf{1}_{B(I)}(y) \, \mathrm{d}\mu(y)\,.
+        \le 2^{102a^3+4a} \int_J M_{\mathcal{B},1} |g_2|(y) \mathbf{1}_{B(I)}(y) \, \mathrm{d}\mu(y)\,.
     $$
     By \Cref{overlap-implies-distance}, we have $\scI(\fp) \cap \scI(\fu_1) = \emptyset$ for all $\fp \in \fT(\fu_2) \setminus \mathfrak{S}$.
     Thus we can estimate \eqref{eq-sep-tree-small-1} by
     $$
-        2^{103a^3} \sum_{s=s_1}^{2S} \Bigg( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \Bigg|\int_J \sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
-        J \cap B(I) \ne \emptyset}} M_{\mathcal{B},1} |g_2| \mathbf{1}_{B(I)} \, \mathrm{d}\mu \Bigg|^2\Bigg)^{\frac 1 2}\,,
+        2^{102a^3+4a} \sum_{s=s_1}^{2S} \left( \sum_{J \in \mathcal{J}'} \frac{1}{\mu(J)} \left(\int_J \sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
+        J \cap B(I) \ne \emptyset}} M_{\mathcal{B},1} |g_2| \mathbf{1}_{B(I)} \, \mathrm{d}\mu \right)^2\right)^{1/2}\,,
     $$
     which is by Cauchy-Schwarz at most
     \begin{equation}
