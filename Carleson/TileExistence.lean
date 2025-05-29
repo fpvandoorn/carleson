@@ -297,6 +297,12 @@ local instance {k : ℤ} : SizeOf (Yk X k) where
 lemma I_induction_proof {k:ℤ} (hk:-S ≤ k) (hneq : ¬ k = -S) : -S ≤ k - 1 := by
   linarith [lt_of_le_of_ne hk fun a_1 ↦ hneq (id a_1.symm)]
 
+-- Auxiliary lemma used in subsequent mutual blocks.
+theorem aux {s k : ℤ} (h1 : 0 ≤ s + (k - 1)) :
+    (s + (k - 1)).toNat < (s + k).toNat := by
+  rw [Int.lt_toNat, Int.toNat_of_nonneg h1]
+  linarith
+
 mutual
   def I1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
     if hk': k = -S then
@@ -304,9 +310,6 @@ mutual
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
       have h1 : 0 ≤ S + (k - 1) := by linarith
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat, Int.toNat_of_nonneg h1]
-        linarith
       ⋃ (y': Yk X (k-1)),
         ⋃ (_ : y' ∈ Yk X (k-1) ↓∩ ball (y:X) (D^k)), I3 (I_induction_proof hk hk') y'
   termination_by (3 * (S+k).toNat, sizeOf y)
@@ -315,10 +318,6 @@ mutual
     if hk': k = -S then
       ball y (2 * D^(-S:ℤ))
     else
-      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat, Int.toNat_of_nonneg (by linarith)]
-        linarith
       ⋃ (y':Yk X (k-1)),
         ⋃ (_ : y' ∈ Yk X (k-1) ↓∩ ball y (2 * D^k)), I3 (I_induction_proof hk hk') y'
   termination_by (3 * (S+k).toNat, sizeOf y)
@@ -375,32 +374,26 @@ lemma I3_subset_I2 {k:ℤ} (hk : -S ≤ k) (y:Yk X k):
 mutual
   lemma I1_measurableSet {k:ℤ} (hk:-S ≤ k) (y: Yk X k) : MeasurableSet (I1 hk y) := by
     if hk_s : k = -S then
-      rw [I1,dif_pos hk_s]
+      rw [I1, dif_pos hk_s]
       exact measurableSet_ball
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have h1: 0 ≤ S + (k - 1) := by linarith
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat, Int.toNat_of_nonneg h1]
-        linarith
-      rw [I1,dif_neg hk_s]
-      letI := (Yk_countable X (k-1)).to_subtype
-      refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball (↑y) (D ^ k))) ?_
+      rw [I1, dif_neg hk_s]
+      letI := (Yk_countable X (k - 1)).to_subtype
+      refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball y (D ^ k))) ?_
       simp only [mem_preimage]
       exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
   termination_by (3 * (S+k).toNat, sizeOf y)
 
   lemma I2_measurableSet {k : ℤ} (hk : -S ≤ k) (y: Yk X k) : MeasurableSet (I2 hk y) := by
     if hk_s : k = -S then
-      rw [I2,dif_pos hk_s]
+      rw [I2, dif_pos hk_s]
       exact measurableSet_ball
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat, Int.toNat_of_nonneg (by linarith)]
-        linarith
-      rw [I2,dif_neg hk_s]
-      letI := (Yk_countable X (k-1)).to_subtype
+      rw [I2, dif_neg hk_s]
+      letI := (Yk_countable X (k - 1)).to_subtype
       refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball (↑y) (2 * D ^ k))) ?_
       · simp only [mem_preimage]
         exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
@@ -419,7 +412,7 @@ mutual
       (MeasurableSet.union (Xk_measurableSet hk) ?_)
     letI := (Yk_countable X k).to_subtype
     exact (MeasurableSet.iUnion fun b ↦ MeasurableSet.iUnion fun _ ↦ I3_measurableSet hk b)
-  termination_by (3 * (S+k).toNat+2, sizeOf y)
+  termination_by (3 * (S + k).toNat + 2, sizeOf y)
 end
 
 section basic_grid_structure
@@ -441,13 +434,12 @@ mutual
       have : ((2 * (S + (k - 1))).toNat : ℤ) + 1 < 2 * (S + k) := by
         rw [Int.toNat_of_nonneg (by linarith)]
         linarith
-
-      rw [dif_neg hk_s,dif_neg hk_s]
+      rw [dif_neg hk_s, dif_neg hk_s]
       intro hx
       simp only [mem_preimage, mem_inter_iff, mem_iUnion,
         exists_prop, exists_and_left] at hx
-      obtain ⟨⟨z1,hz1,hz1'⟩,⟨z2,hz2,hz2'⟩⟩ := hx
-      have hz_eq : z1 = z2 := I3_prop_1 (I_induction_proof hk hk_s) (And.intro hz1' hz2')
+      obtain ⟨⟨z1, hz1, hz1'⟩, ⟨z2, hz2, hz2'⟩⟩ := hx
+      have hz_eq : z1 = z2 := I3_prop_1 (I_induction_proof hk hk_s) ⟨hz1', hz2'⟩
       subst hz_eq
       ext
       apply (Yk_pairwise k).elim (y1.property) (y2.property)
@@ -495,9 +487,6 @@ lemma I3_prop_3_2 {k:ℤ} (hk : -S ≤ k) (y : Yk X k):
       exists_and_left] at this
     obtain ⟨y',hy',hyi3⟩ := this
     have : -S ≤ k - 1 := I_induction_proof hk hk_s
-    have : (S + (k - 1)).toNat < (S + k) := by
-      rw [Int.toNat_of_nonneg (by linarith)]
-      linarith
     have : x ∈ ball (y' : X) (4 * D^(k-1)) := I3_prop_3_2 _ y' hyi3
     rw [mem_ball] at this hy' ⊢
     calc
@@ -1243,11 +1232,11 @@ lemma small_boundary (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
         rw [measure_empty]
     _ ≤ 2⁻¹ * volume (I3 hk y) := small_boundary' k hk hk_mK y
 
-lemma le_s_1' (n:ℕ) {k:ℤ} (hk_mn1K:-S ≤ k - (n+1:ℕ) * K') : (-S ≤ (k - K') - n * K') := by
+lemma le_s_1' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-S ≤ (k - K') - n * K') := by
   simp only [Nat.cast_add, Nat.cast_one] at hk_mn1K
   linarith
 
-lemma le_s_2' (n:ℕ) {k:ℤ} (hk_mn1K:-S ≤ k - (n+1:ℕ) * K') : (-S ≤ k - K') := by
+lemma le_s_2' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n+1:ℕ) * K') : (-S ≤ k - K') := by
   simp only [Nat.cast_add, Nat.cast_one] at hk_mn1K
   rw [right_distrib] at hk_mn1K
   apply hk_mn1K.trans
