@@ -43,6 +43,7 @@ import Carleson.TileStructure
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
 import Carleson.ToMathlib.Analysis.Convolution
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
+import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
 import Carleson.ToMathlib.Annulus
 import Carleson.ToMathlib.BoundedCompactSupport
 import Carleson.ToMathlib.BoundedFiniteSupport
@@ -55,6 +56,7 @@ import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.Interval
 import Carleson.ToMathlib.MeasureTheory.Function.AEEqFun
+import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
