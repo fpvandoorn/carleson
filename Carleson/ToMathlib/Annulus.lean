@@ -294,7 +294,7 @@ lemma oc_eq_annulus {x : X} {r R : ℝ} (hr : r ≥ 0) :
       ENNReal.ofReal_le_ofReal_iff hR]
   · have R_le_r := (lt_of_lt_of_le (lt_of_not_ge hR) hr).le
     rw [Annulus.oc_eq_empty R_le_r]
-    refine eq_empty_of_forall_not_mem (fun y hy ↦ ?_)
+    refine eq_empty_of_forall_notMem (fun y hy ↦ ?_)
     exact not_le_of_gt (lt_of_le_of_lt (ENNReal.ofReal_le_ofReal R_le_r) hy.1) hy.2
 
 lemma co_eq_annulus {x : X} {r R : ℝ} :
@@ -310,7 +310,7 @@ lemma cc_eq_annulus {x : X} {r R : ℝ} (h : r > 0 ∨ R ≥ 0) :
   have r0 := h.resolve_right hR
   have R_lt_r := (lt_of_not_ge hR).trans r0
   rw [Annulus.cc_eq_empty R_lt_r]
-  refine eq_empty_of_forall_not_mem (fun y hy ↦ ?_)
+  refine eq_empty_of_forall_notMem (fun y hy ↦ ?_)
   exact not_le_of_gt ((ENNReal.ofReal_lt_ofReal_iff r0).mpr R_lt_r) (hy.1.trans hy.2)
 
 lemma oi_eq_annulus {x : X} {r : ℝ} (hr : r ≥ 0) : oi x (ENNReal.ofReal r) = Annulus.oi x r := by
@@ -367,7 +367,7 @@ lemma cc_eq_empty {x : X} {r R : ℝ≥0∞} (h : r > R) : cc x r R = ∅ := by
 
 @[simp]
 lemma cc_top_eq_empty {x : X} {R : ℝ≥0∞} : cc x ⊤ R = ∅ :=
-  eq_empty_of_forall_not_mem (fun y hy ↦ (edist_ne_top x y) (top_le_iff.mp hy.1))
+  eq_empty_of_forall_notMem (fun y hy ↦ (edist_ne_top x y) (top_le_iff.mp hy.1))
 
 @[simp]
 lemma oi_eq_empty {x : X} : oi x ⊤ = ∅ := by simp [oi, edist_dist]

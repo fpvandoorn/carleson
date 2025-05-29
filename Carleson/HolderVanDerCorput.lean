@@ -106,10 +106,8 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
       rfl
     _ ≤ ∫ y in (ball x (2⁻¹ * t * R)), cutoff R t x y := by
       apply setIntegral_mono_on
-      · apply integrableOn_const.2
-        right
-        exact measure_ball_lt_top
-      · apply (integrable_cutoff hR ht).integrableOn
+      · exact integrableOn_const (by finiteness)
+      · exact (integrable_cutoff hR ht).integrableOn
       · exact measurableSet_ball
       · intro y' hy'
         exact aux_8_0_5 hy' (hR := hR) (ht := ht)
@@ -120,8 +118,7 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
 lemma integral_cutoff_pos {R t : ℝ} (hR : 0 < R) (ht : 0 < t) : 0 < ∫ y, cutoff R t x y := by
   apply lt_of_lt_of_le _ (aux_8_0_6 hR ht)
   apply mul_pos (by positivity)
-  apply measure_real_ball_pos
-  positivity
+  exact measure_real_ball_pos _ (by positivity)
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
@@ -222,14 +219,14 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
         have : dist x z ≤ dist x y + dist y z := dist_triangle _ _ _
         have xm : x ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
         have ym : y ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
-        simp only [nmem_support.mp xm, nmem_support.mp ym, sub_self, norm_zero, ge_iff_le]
+        simp only [notMem_support.mp xm, notMem_support.mp ym, sub_self, norm_zero, ge_iff_le]
         positivity
       rcases le_or_lt (2 * R) (dist y z) with hy | hy
       · have : dist x y ≤ R := by nlinarith
         have : dist y z ≤ dist x y + dist x z := dist_triangle_left y z x
         have xm : x ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
         have ym : y ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
-        simp only [nmem_support.mp xm, nmem_support.mp ym, sub_self, norm_zero, ge_iff_le]
+        simp only [notMem_support.mp xm, notMem_support.mp ym, sub_self, norm_zero, ge_iff_le]
         positivity
       rw [← dist_eq_norm]
       apply h2ϕ.dist_le_of_le hx hy hxy
@@ -346,7 +343,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
       simp [cutoff_eq_zero hR ht hy.1, cutoff_eq_zero hR ht hy.2]
     _ ≤ ∫ y in ball x (t * R) ∪ ball x' (t * R), dist x x' / (t * R) := by
       apply integral_mono_of_nonneg (Eventually.of_forall (fun y ↦ by positivity))
-      · apply integrableOn_const.2
+      · apply (integrableOn_const_iff).2
         simp [measure_union_lt_top_iff, measure_ball_lt_top]
       apply Eventually.of_forall (fun y ↦ ?_)
       simp only [cutoff_comm (y := y)]
@@ -626,11 +623,11 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       rw [setIntegral_eq_integral_of_forall_compl_eq_zero]
       intro x hx
       have A : ϕ x = 0 := by
-        apply nmem_support.1
+        apply notMem_support.1
         contrapose! hx
         apply (ϕ_supp.trans (ball_subset_ball (by linarith))) hx
       have A' : ϕ' x = 0 := by
-        apply nmem_support.1
+        apply notMem_support.1
         contrapose! hx
         apply ϕ'_supp hx
       simp [A, A']

@@ -131,7 +131,7 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = 0 by simp [Finset.sum_congr rfl this]
     intro i hi
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi
-    apply indicator_of_not_mem <|
+    apply indicator_of_notMem <|
       Set.disjoint_left.mp ((hC.eq_or_disjoint hJ hi.1).resolve_left hi.2) xJ
   have eq_ave : ∑ i ∈ (Finset.univ.filter (· ∈ C)).filter (J = ·),
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = ⨍ y in J, f y := by
@@ -178,7 +178,7 @@ lemma approxOnCube_ofReal (C : Set (Grid X)) (f : X → ℝ) (x : X) :
   refine Finset.sum_congr rfl (fun J _ ↦ ?_)
   by_cases hx : x ∈ (J : Set X)
   · simpa only [indicator_of_mem hx] using integral_ofReal
-  · simp only [indicator_of_not_mem hx, ofReal_zero]
+  · simp only [indicator_of_notMem hx, ofReal_zero]
 
 lemma norm_approxOnCube_le_approxOnCube_norm {C : Set (Grid X)} {f : X → E'} {x : X} :
     ‖approxOnCube C f x‖ ≤ approxOnCube C (‖f ·‖) x := by
@@ -643,7 +643,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     · exact div_pos (hb := pow_pos two_pos (5 * a)) <|
         measure_ball_pos_real (𝔠 pₛ) (16 * D ^ s) (mul_pos (by norm_num) <| defaultD_pow_pos a s)
     · apply (div_le_iff₀' (pow_pos two_pos (5 * a))).mpr
-      apply le_trans <| ENNReal.toReal_mono (measure_ball_ne_top x _) <|
+      apply le_trans <| ENNReal.toReal_mono measure_ball_ne_top <|
         OuterMeasureClass.measure_mono volume ball_subset
       apply le_of_le_of_eq <| measure_real_ball_two_le_same_iterate x (D ^ s) 5
       simp [mul_comm 5 a, pow_mul]
@@ -751,7 +751,7 @@ private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → 
     apply Finset.sum_subset (fun p hp ↦ by simp [(Finset.mem_filter.mp hp).2.1])
     intro p p𝔗 p𝔗'
     simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_and, 𝔗'] at p𝔗 p𝔗'
-    exact indicator_of_not_mem (p𝔗' p𝔗) (I (𝔰 p))
+    exact indicator_of_notMem (p𝔗' p𝔗) (I (𝔰 p))
   rw [← this]
   -- Now the relevant values of `p` and `s` are in bijection.
   apply Finset.sum_bij (fun p _ ↦ 𝔰 p)
@@ -784,7 +784,7 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
     fun y hy ↦ by rw [approxOnCube_apply pairwiseDisjoint_𝓙 _ hJ hy]
   have eq2 : ∀ y ∈ (J : Set X), ⨍ z in (J : Set X), Ks i x y • f y - Ks i x z • f y =
       (⨍ z in (J : Set X), Ks i x y • f y) - ⨍ z in (J : Set X), Ks i x z • f y :=
-    fun y hy ↦ integral_sub (integrableOn_const.mpr (Or.inr volume_coeGrid_lt_top)).to_average
+    fun y hy ↦ integral_sub ((integrableOn_const_iff).mpr (Or.inr volume_coeGrid_lt_top)).to_average
       ((integrable_Ks_x (one_lt_D (X := X))).smul_const _).restrict.to_average
   have μJ_neq_0 : NeZero (volume.restrict (J : Set X)) :=
     NeZero.mk fun h ↦ (volume_coeGrid_pos (defaultD_pos' a) (i := J)).ne <|
@@ -940,7 +940,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       by_cases xJ : x ∈ E J
       · rw [indicator_of_mem xJ, Pi.one_apply, one_mul, one_mul]
         exact L7_1_6_I_le hu hf (Finset.mem_filter.mp hJ).2 xJ
-      · simp only [indicator_of_not_mem xJ, zero_mul, le_refl]
+      · simp only [indicator_of_notMem xJ, zero_mul, le_refl]
     _ = ENNReal.ofNNReal (∑ I : Grid X, ∑ p ∈ ps I, (E p).indicator 1 x *
           Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ s I))) * 2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
@@ -955,7 +955,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       apply ENNReal.coe_strictMono.monotone
       refine Finset.sum_le_sum (fun I _ ↦ Finset.sum_le_sum (fun p hp ↦ ?_))
       by_cases xEp : x ∈ E p; swap
-      · simp only [indicator_of_not_mem xEp, zero_mul, le_refl]
+      · simp only [indicator_of_notMem xEp, zero_mul, le_refl]
       rw [mul_le_mul_left (by simp [indicator_of_mem xEp])]
       apply Real.toNNReal_mono
       gcongr
@@ -987,11 +987,11 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
         · exact le_of_eq <| (indicator_eq_one_iff_mem ℝ≥0).mpr xEp
         · intro p' hp' p'_ne_p
           simp only [ps, Finset.mem_filter] at hp hp'
-          exact (indicator_eq_zero_iff_not_mem ℝ≥0).mpr fun xEp' ↦
+          exact (indicator_eq_zero_iff_notMem ℝ≥0).mpr fun xEp' ↦
             disjoint_left.mp (disjoint_Ω p'_ne_p (hp'.2.2.trans hp.2.2.symm)) xEp'.2.1 xEp.2.1
       · push_neg at ex
         suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0) x = 0 by rw [this]; exact zero_le _
-        exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_not_mem (ex p hp) _)
+        exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_notMem (ex p hp) _)
     _ = ENNReal.ofNNReal (∑ I : Grid X, ((I : Set X).indicator 1 x') *
           Real.toNNReal (((D2_1_3 a) * (defaultA a) ^ 5 * 2 ^ (3 / (a : ℝ))) /
           (volume.real (ball (c I) (16 * D ^ s I))) *
@@ -1053,7 +1053,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
         congr
         · rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a)]
           norm_cast
-        · rw [Measure.real, ENNReal.ofReal_toReal (measure_ball_ne_top (c I) _)]
+        · rw [Measure.real, ENNReal.ofReal_toReal measure_ball_ne_top]
         · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
 
 

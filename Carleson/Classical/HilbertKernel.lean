@@ -149,7 +149,7 @@ lemma Hilbert_kernel_regularity_main_part {y y' : ℝ} (yy'nonneg : 0 ≤ y ∧ 
       _ ≤ ∫ (t : ℝ) in Ι y' y, 3 / ((y / 2) / 2) ^ 2 := by
         apply setIntegral_mono_on
         · exact f'_cont.norm.integrableOn_uIcc.mono_set Set.Ioc_subset_Icc_self
-        · apply integrableOn_const.mpr
+        · apply (integrableOn_const_iff).mpr
           rw [Real.volume_uIoc]
           right
           exact ENNReal.ofReal_lt_top

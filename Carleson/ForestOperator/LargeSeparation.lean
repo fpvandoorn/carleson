@@ -35,7 +35,7 @@ lemma χtilde_pos_iff : 0 < χtilde J u₁ x ↔ x ∈ 𝓘 u₁ ∧ x ∈ ball 
   by_cases h : x ∈ 𝓘 u₁
   · rw [indicator_of_mem h, Real.toNNReal_pos, sub_pos, zpow_neg, inv_mul_lt_iff₀' (by positivity)]
     simp [h]
-  · rw [indicator_of_not_mem h]; simp [h]
+  · rw [indicator_of_notMem h]; simp [h]
 
 lemma χtilde_le_eight : χtilde J u₁ x ≤ 8 := by
   unfold χtilde; apply indicator_le fun _ _ ↦ ?_
@@ -153,10 +153,10 @@ lemma union_𝓙₅ (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u�
       have white := calc (𝓘 p : Set X)
         _ ⊆ 𝓘 u₁ := (𝓘_le_𝓘 t hu₁ belongs).1
         _ ⊆ cube := by
-          apply subset_of_nmem_Iic_of_not_disjoint cube
+          apply subset_of_notMem_Iic_of_not_disjoint cube
           · have notIn : cube ∉ t.𝓙₅ u₁ u₂ := fun a ↦ contr cube a xInCube
             rw [𝓙₅, inter_def, Set.mem_setOf_eq, not_and_or] at notIn
-            exact Or.resolve_left notIn (Set.not_not_mem.mpr cube_in_𝓙)
+            exact Or.resolve_left notIn (Set.not_notMem.mpr cube_in_𝓙)
           · exact notDisjoint
         _ ⊆ ball (c cube) (4 * D ^ s cube) := by
           exact Grid_subset_ball (i := cube)
@@ -353,11 +353,11 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
   classical
   by_cases hxx : x ∉ ball (c J) (8 * D ^ s J) ∧ x' ∉ ball (c J) (8 * D ^ s J)
   · have n₁ := χ_le_indicator hJ (x := x)
-    rw [indicator_of_not_mem hxx.1, nonpos_iff_eq_zero] at n₁
+    rw [indicator_of_notMem hxx.1, nonpos_iff_eq_zero] at n₁
     have n₂ := χ_le_indicator hJ (x := x')
-    rw [indicator_of_not_mem hxx.2, nonpos_iff_eq_zero] at n₂
+    rw [indicator_of_notMem hxx.2, nonpos_iff_eq_zero] at n₂
     rw [n₁, n₂, dist_self]; positivity
-  rw [not_and_or, not_not_mem, not_not_mem] at hxx
+  rw [not_and_or, not_notMem, not_notMem] at hxx
   wlog hx : x ∈ ball (c J) (8 * D ^ s J) generalizing x x'
   · rw [or_comm] at hxx; specialize this mx' mx hxx (hxx.resolve_right hx)
     rwa [dist_comm, dist_comm x' x] at this
@@ -396,7 +396,7 @@ lemma dist_χ_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     rw [show 4⁻¹ = (2 : ℝ) ^ (-2 : ℝ) by norm_num, C7_5_2, NNReal.coe_rpow, NNReal.coe_ofNat,
       Real.rpow_le_rpow_left_iff one_lt_two]
     norm_cast; omega
-  rw [not_not_mem] at hx'
+  rw [not_notMem] at hx'
   calc
     _ ≤ (dist x x' / D ^ s J +
         8 * ∑ J' ∈ 𝓙₅ t u₁ u₂, dist (χtilde J' u₁ x) (χtilde J' u₁ x')) / 4 := by
@@ -818,15 +818,15 @@ lemma holder_correlation_tile (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedCompa
     C7_5_5 a / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
       (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ := by
   by_cases hxx : x ∉ ball (𝔠 p) (5 * D ^ 𝔰 p) ∧ x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
-  · rw [adjoint_tile_support1, indicator_of_not_mem hxx.1, indicator_of_not_mem hxx.2]; simp
-  rw [not_and_or, not_not_mem, not_not_mem] at hxx
+  · rw [adjoint_tile_support1, indicator_of_notMem hxx.1, indicator_of_notMem hxx.2]; simp
+  rw [not_and_or, not_notMem, not_notMem] at hxx
   wlog hx : x ∈ ball (𝔠 p) (5 * D ^ 𝔰 p) generalizing x x'
   · rw [or_comm] at hxx; specialize this hxx (hxx.resolve_right hx)
     rwa [edist_comm, edist_comm x' x] at this
   clear hxx
   by_cases hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)
   · nth_rw 2 [adjoint_tile_support1]
-    rw [indicator_of_not_mem hx', mul_zero, edist_zero_right, enorm_mul, mul_comm I, ← enorm_norm,
+    rw [indicator_of_notMem hx', mul_zero, edist_zero_right, enorm_mul, mul_comm I, ← enorm_norm,
       norm_exp_ofReal_mul_I, enorm_one, one_mul]
     exact holder_correlation_tile_one hf hx'
   push_neg at hx'
@@ -896,7 +896,7 @@ lemma limited_scale_impact_second_estimate (hp : p ∈ t u₂ \ 𝔖₀ t u₁ u
     rw [← one_add_one_eq_two, ← add_assoc, ← plusOne]
     have J'Touches𝔖₀ : J' ∉ 𝓙₀ (t.𝔖₀ u₁ u₂) := bigger_than_𝓙_is_not_in_𝓙₀ (le := belongs)
       (sle := by linarith [plusOne]) (A_in := hJ.1)
-    rw [𝓙₀, Set.nmem_setOf_iff] at J'Touches𝔖₀
+    rw [𝓙₀, Set.notMem_setOf_iff] at J'Touches𝔖₀
     push_neg at J'Touches𝔖₀
     exact J'Touches𝔖₀.right
   apply calculation_9 (X := X)
@@ -1255,8 +1255,8 @@ lemma global_tree_control1_edist_part1
       refine (Finset.sum_filter_of_ne fun p mp hp ↦ ?_).symm; contrapose! hp
       replace hp : Disjoint (ball (𝔠 p) (5 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)) :=
         hp.mono_left (ball_subset_ball (by gcongr; norm_num))
-      rw [adjoint_tile_support1, indicator_of_not_mem (disjoint_right.mp hp hx), mul_zero,
-        indicator_of_not_mem (disjoint_right.mp hp hx'), mul_zero, edist_self]
+      rw [adjoint_tile_support1, indicator_of_notMem (disjoint_right.mp hp hx), mul_zero,
+        indicator_of_notMem (disjoint_right.mp hp hx'), mul_zero, edist_self]
     _ ≤ ∑ p ∈ ℭ with ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8 * D ^ s J)),
         C7_5_5 a / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
           (edist x x' / D ^ 𝔰 p) ^ (a : ℝ)⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ := by
@@ -1515,7 +1515,7 @@ lemma support_holderFunction_subset (u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J :
     refine Finset.sum_eq_zero fun p mp ↦ ?_
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
     rw [adjoint_tile_support2 hu₁ mp]
-    exact indicator_of_not_mem nx _
+    exact indicator_of_notMem nx _
   rw [holderFunction, this, mul_zero, mul_zero, zero_mul]
 
 lemma enorm_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
@@ -1559,7 +1559,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
       refine Finset.sum_eq_zero fun p mp ↦ ?_
       simp only [Finset.mem_filter, Finset.mem_univ, true_and] at mp
       rw [adjoint_tile_support2 hu₁ mp]
-      exact indicator_of_not_mem mu₁ _
+      exact indicator_of_notMem mu₁ _
     rw [this, enorm_zero, mul_zero, zero_mul]; exact zero_le _
   rw [not_not] at mu₁; rw [edist_dist]
   calc

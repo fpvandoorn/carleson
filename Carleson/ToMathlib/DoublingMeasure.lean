@@ -150,18 +150,14 @@ lemma measure_ball_four_le_same (x : X) (r : ℝ) :
       (measure_real_ball_two_le_same ..) (zero_le_coe)
     _ = A ^ 2 * μ.real (ball x r) := by ring_nf
 
-lemma measure_ball_ne_top (x : X) (r : ℝ) : μ (ball x r) ≠ ∞ := measure_ball_lt_top.ne
-
 lemma measure_ball_four_le_same' (x : X) (r : ℝ) :
     μ (ball x (4 * r)) ≤ A ^ 2 * μ (ball x r) := by
   have hfactor : (A ^ 2 : ℝ≥0∞) ≠ ⊤ := ne_of_beq_false rfl
-  rw [← ENNReal.ofReal_toReal (measure_ball_ne_top x (4 * r)),
-    ← ENNReal.ofReal_toReal (measure_ball_ne_top x r), ← ENNReal.ofReal_toReal hfactor,
+  rw [← ENNReal.ofReal_toReal (measure_ball_ne_top (x := x) (r := 4 * r)),
+    ← ENNReal.ofReal_toReal (measure_ball_ne_top (x := x) (r := r)), ← ENNReal.ofReal_toReal hfactor,
     ← ENNReal.ofReal_mul]
   · exact ENNReal.ofReal_le_ofReal <| measure_ball_four_le_same x r
   · simp
-
-attribute [aesop (rule_sets := [finiteness]) safe apply] measure_ball_ne_top
 
 variable (μ) in
 lemma As_pos [Nonempty X] [μ.IsOpenPosMeasure] (s : ℝ) : 0 < As A s :=
@@ -198,8 +194,8 @@ lemma measure_ball_le_same' (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s 
 lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ.real (ball x r') ≤ As A s * μ.real (ball x r) := by
   have hz := measure_ball_le_same' (μ := μ) x hsp hs
-  have hbr': μ (ball x r') ≠ ⊤ := measure_ball_ne_top x r'
-  have hbr: μ (ball x r) ≠ ⊤ := measure_ball_ne_top x r
+  have hbr': μ (ball x r') ≠ ⊤ := measure_ball_ne_top
+  have hbr: μ (ball x r) ≠ ⊤ := measure_ball_ne_top
   have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := coe_ne_top
   rw [← ENNReal.ofReal_toReal hbr,← ENNReal.ofReal_toReal hbr',
     ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul] at hz
@@ -251,8 +247,8 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
 lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     (h : dist x x' + r' ≤ s * r) :
     (μ (ball x' r')).toNNReal ≤ As A s * (μ (ball x r)).toNNReal := by
-  simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal
-    (measure_ball_ne_top x r), ENNReal.coe_toNNReal (measure_ball_ne_top x' r')]
+  simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal measure_ball_ne_top,
+    ENNReal.coe_toNNReal measure_ball_ne_top]
   exact measure_ball_le_of_dist_le' hs h
 
 section
