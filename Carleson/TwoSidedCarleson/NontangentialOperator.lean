@@ -897,36 +897,25 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) (by rfl) one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)
+  have aesm_gmf_g := hst_gmf_g.1 -- for fun_prop
   have hst_gmf_czg := hst_gmf (czOperator K r g) ((hT r hr).memLp hg)
-  apply le_trans <| eLpNorm_add_le'' ?hf1 (hst_gmf_g.1.const_smul _) one_le_two
-  case hf1 =>
-    apply AEStronglyMeasurable.add _ <| hst_gmf_g.1.const_smul _
-    sorry
-  apply le_trans <| add_le_add (eLpNorm_add_le'' ?hf1 (hst_gmf_g.1.const_smul _) one_le_two) (by rfl)
-  case hf1 => sorry
-  have : eLpNorm (4 * globalMaximalFunction volume 1 (czOperator K r g)) 2 volume =
-      4 * eLpNorm (globalMaximalFunction volume 1 (czOperator K r g)) 2 volume := by sorry
-      -- There seems to be something still missing in the eLpNorm / ENorm handling
-      -- And/or in the handling of scalar multiplication of functions
-      -- (definition of pointwise variable uses SMul instead of HMul)
-  simp_rw [eLpNorm_const_smul' (f := globalMaximalFunction volume 1 g), this, add_assoc, ← add_mul]
-  have est_1 : eLpNorm (globalMaximalFunction volume 1 (czOperator K r g)) 2 volume ≤
-      C2_0_6' (defaultA a) 1 2 * eLpNorm (czOperator K r g) 2 volume:= by
-    exact hst_gmf (czOperator K r g) ((hT r hr).memLp hg) |> And.right
-  have est_2 : eLpNorm (czOperator K r g) 2 volume ≤ C_Ts a * eLpNorm g 2 volume := by
-    exact hT r hr g hg |> And.right
-  have est_3 : eLpNorm (globalMaximalFunction volume 1 g) 2 volume ≤
-      C2_0_6' (defaultA a) 1 2 * eLpNorm g 2 volume := by
-    exact hst_gmf g (hg.memLp 2) |> And.right
+  have aesm_gmf_czg := hst_gmf_czg.1 -- for fun_prop
+  rw [show 4 * globalMaximalFunction volume 1 (czOperator K r g) =
+      (4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g) by rfl]
+  apply le_trans <| eLpNorm_add_le'' (by fun_prop) (by fun_prop) one_le_two
+  apply le_trans <| add_le_add (eLpNorm_add_le'' (by fun_prop) (by fun_prop) one_le_two) (by rfl)
+  simp_rw [eLpNorm_const_smul' (f := globalMaximalFunction volume 1 g),
+      eLpNorm_const_smul' (f := globalMaximalFunction volume 1 (czOperator K r g)),
+      enorm_NNReal, add_assoc, ← add_mul]
   apply le_trans <| add_le_add
-    (mul_le_mul_left' (est_1.trans <| mul_le_mul_left' est_2 _) _)
-    (mul_le_mul_left' est_3 _)
-  nth_rw 3 [← mul_assoc]; nth_rw 2 [← mul_assoc]; nth_rw 1 [← mul_assoc]; rw [← add_mul]
+    (mul_le_mul_left' (hst_gmf_czg.2.trans <| mul_le_mul_left' (hT r hr g hg).2 _) _)
+    (mul_le_mul_left' hst_gmf_g.2 _)
+  nth_rw 3 [← mul_assoc]; nth_rw 2 [← mul_assoc]; rw [← mul_assoc, ← add_mul]
   gcongr
   -- what remains is constant manipulation
   nth_rw 2 [mul_comm]; rw [← mul_assoc, ← add_mul]
   have : C2_0_6' (defaultA a) 1 2 = 2 ^ (4 * a + 1) := by sorry -- not sure how this should be shown
-  rw [C10_1_6_def, this, C_Ts, C10_1_5, C10_1_2, enorm_NNReal, enorm_NNReal]
+  rw [C10_1_6_def, this, C_Ts, C10_1_5, C10_1_2]
   norm_cast
   rw [show a ^ 3 + 24 * a + 6 = (a ^ 3 + 20 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
   gcongr
