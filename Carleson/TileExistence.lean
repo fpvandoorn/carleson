@@ -65,8 +65,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
       apply measure_ball_pos volume o
       simp only [defaultD, gt_iff_lt, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
       exact zpow_pos (by positivity) S
-    have volume_finite : volume (ball o (4 * D^S)) < ⊤ := measure_ball_lt_top
-    rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne, mul_comm,mul_comm (volume _)]
+    rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm (by finiteness), mul_comm,mul_comm (volume _)]
     exact this
   have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := by
     exact_mod_cast (As_pos' (volume : Measure X) (2 ^J' X)).ne.symm
@@ -270,7 +269,7 @@ lemma Yk_finite {k:ℤ} (hk_lower : -S ≤ k): (Yk X k).Finite := by
   calc
     ((Yk X k).encard : ℝ≥0∞)
       ≤ C4_1_1 X := counting_balls hk_lower (Yk_subset k) (Yk_pairwise k)
-    _ < ⊤ := ENNReal.coe_lt_top
+    _ < ⊤ := by finiteness
 
 variable (X) in
 lemma Yk_countable (k:ℤ) : (Yk X k).Countable := by
@@ -881,19 +880,16 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
     rw [not_disjoint_iff]
     exact ⟨x, hx.left.right, hx.right⟩
   -- simp only [mem_inter_iff, mem_compl_iff] at hx' ⊢
-  have hx_4k2 : x ∈ ball (y2:X) (4 * D^k2) := I3_prop_3_2 hk2 y2 hx.left.right
-  have hx_4k2' : x ∈ ball (y1:X) (4 * D^k1) := I3_prop_3_2 hk1 y1 hx.left.left
-  have hd_nzero : (D:ℝ≥0∞) ≠ 0 := by
-    rw [ne_comm]
-    apply LT.lt.ne
-    rw [← ENNReal.ofReal_natCast,ENNReal.ofReal_pos]
+  have hx_4k2 : x ∈ ball (y2 : X) (4 * D ^ k2) := I3_prop_3_2 hk2 y2 hx.left.right
+  have hx_4k2' : x ∈ ball (y1 : X) (4 * D ^ k1) := I3_prop_3_2 hk1 y1 hx.left.left
+  have hd_nzero : (D : ℝ≥0∞) ≠ 0 := by
+    apply LT.lt.ne'
+    rw [← ENNReal.ofReal_natCast, ENNReal.ofReal_pos]
     exact defaultD_pos a
   have hdp_nzero : ∀ (z:ℤ),(D ^ z :ℝ≥0∞) ≠ 0 := by
     intro z
-    rw [ne_comm]
-    exact LT.lt.ne (ENNReal.zpow_pos hd_nzero (ENNReal.natCast_ne_top D) _)
-  have hdp_finit : ∀ (z:ℤ),(D ^z : ℝ≥0∞) ≠ ⊤ :=
-    fun z ↦ LT.lt.ne (ENNReal.zpow_lt_top (hd_nzero) (ENNReal.natCast_ne_top D) _)
+    exact (ENNReal.zpow_pos hd_nzero (by finiteness) _).ne'
+  have hdp_finit42 : (D ^ 42 : ℝ≥0∞) ≠ ⊤ := by finiteness
   refine ⟨⟨hi3_1_2, ?_⟩, ⟨hi3_2_3, ?_⟩⟩
   · apply lt_of_le_of_lt (EMetric.infEdist_anti _) hx'
     rw [compl_subset_compl]
@@ -919,7 +915,7 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
       _ < 6 * D^k1 + 4 * D^k1 + 4 * D^k2 := by
         rw [ENNReal.add_lt_add_iff_right]
         · apply ENNReal.add_lt_add hx' hx_4k2'
-        · exact ENNReal.mul_ne_top (by finiteness) (hdp_finit k2)
+        · finiteness
       _ ≤ 2 * D^k2 + 4 * D^k2 := by
         rw [← right_distrib 6 4 (D^k1:ℝ≥0∞)]
         have hz : (6 + 4 : ℝ≥0∞) = 2 * 5 := by norm_num
@@ -935,14 +931,14 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
             _ ≤ D ^ k2 := by
               nth_rw 1 [← zpow_one (D:ℝ≥0∞)]
               simp_rw [← ENNReal.rpow_intCast]
-              rw [← ENNReal.rpow_add _ _ hd_nzero (ENNReal.natCast_ne_top D),← Int.cast_add]
+              rw [← ENNReal.rpow_add _ _ hd_nzero (by finiteness),← Int.cast_add]
               apply ENNReal.rpow_le_rpow_of_exponent_le
               · rw [← ENNReal.ofReal_one,← ENNReal.ofReal_natCast]
                 rw [ENNReal.ofReal_le_ofReal_iff realD_nonneg]
                 exact one_le_realD X
               simp only [Int.cast_le]
               linarith
-        · exact ENNReal.mul_ne_top ENNReal.ofNat_ne_top (hdp_finit k2)
+        · finiteness
       _ = 6 * D ^ k2 := by
         rw [← right_distrib]
         norm_num
@@ -1021,9 +1017,8 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     simp only [Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, ENNReal.coe_ofNat] at this
     rw [← ENNReal.mul_le_mul_left]
     · exact this
-    · exact Ne.symm (NeZero.ne' (2 ^ (4 * a)))
-    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, mul_eq_zero,
-      OfNat.ofNat_ne_zero, false_or, false_and, not_false_eq_true]
+    · exact (NeZero.ne (2 ^ (4 * a)))
+    · finiteness
   letI : Countable (Yk X (k-K')) := (Yk_countable X (k-K')).to_subtype
   calc
     K' * ∑' (z : ↑(Yk X (k - K'))), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), I3 hk_mK z)
@@ -1183,7 +1178,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
                 apply add_lt_add _ hx'.left
                 rw [dist_edist]
                 rw [← @ENNReal.toReal_ofReal (6 * D ^ (l':ℤ)), ← Real.rpow_intCast]
-                · rw [ENNReal.toReal_lt_toReal (edist_ne_top x ↑u') (ENNReal.ofReal_ne_top)]
+                · rw [ENNReal.toReal_lt_toReal (by finiteness) (by finiteness)]
                   rw [ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat]
                   rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.ofReal_natCast]
                   rw [edist_comm, ENNReal.rpow_intCast]
@@ -1539,6 +1534,10 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
       rw [← emetric_ball, EMetric.mem_ball,ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat,
         ← Real.rpow_intCast, ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),
         ENNReal.ofReal_natCast,ENNReal.rpow_intCast,edist_comm] at hxy'
+      have hD : (Nat.cast D : ℝ≥0∞) ≠ 0 := by
+        apply LT.lt.ne'
+        rw [← ENNReal.ofReal_natCast, ENNReal.ofReal_pos]
+        exact defaultD_pos a
       calc
         EMetric.infEdist (y':X) (I3 hk y)ᶜ
           ≤ EMetric.infEdist (x:X) (I3 hk y)ᶜ + edist (y':X) x:=
@@ -1547,12 +1546,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
           apply ENNReal.add_lt_add_of_le_of_lt _ hxb' hxy'
           apply LT.lt.ne
           apply lt_of_le_of_lt hxb'
-          apply ENNReal.mul_lt_top ENNReal.coe_lt_top
-          apply ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D) _
-          rw [ne_comm]
-          apply LT.lt.ne
-          rw [← ENNReal.ofReal_natCast, ENNReal.ofReal_pos]
-          exact defaultD_pos a
+          finiteness
           -- add_lt_add_of_le_of_lt hxb' hxy'
         _ ≤ D^(k-const_n a ht * K') + 4 * D^(k-const_n a ht * K') := by
           rw [ENNReal.add_le_add_iff_right]
@@ -1560,42 +1554,32 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
             simp only at this
             nth_rw 1 [NNReal.val_eq_coe] at this
             simp_rw [← Real.rpow_intCast] at this
-            rw [← ENNReal.ofReal_le_ofReal_iff (Real.rpow_nonneg (realD_nonneg) _),
+            rw [← ENNReal.ofReal_le_ofReal_iff (by positivity),
               ENNReal.ofReal_mul (by exact ht.left.le), ENNReal.ofReal_coe_nnreal,
               ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),
               ENNReal.ofReal_natCast, ENNReal.rpow_intCast, ENNReal.rpow_intCast] at this
             exact this
-          apply ENNReal.mul_ne_top (by finiteness)
-          apply (ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D) _).ne
-          rw [ne_comm]
-          apply LT.lt.ne
-          rw [← ENNReal.ofReal_natCast, ENNReal.ofReal_pos]
-          exact defaultD_pos a
+          finiteness
         _ ≤ 6 * ↑D ^ (k - const_n a ht * ↑const_K) := by
-          nth_rw 1 [← one_mul (D^(k-const_n a ht * K'):ℝ≥0∞),← right_distrib]
-          have : 0 < (D:ℝ≥0∞) := by
+          nth_rw 1 [← one_mul (D ^ (k - const_n a ht * K') : ℝ≥0∞), ← right_distrib]
+          have : 0 < (D : ℝ≥0∞) := by
             rw [← ENNReal.ofReal_natCast,ENNReal.ofReal_pos]
             exact defaultD_pos a
           rw [ENNReal.mul_le_mul_right]
           · norm_num
-          · rw [ne_comm]
-            apply LT.lt.ne
+          · apply LT.lt.ne'
             rw [← ENNReal.rpow_intCast]
-            apply ENNReal.rpow_pos _ (ENNReal.natCast_ne_top D)
-            exact this
-          apply LT.lt.ne
-          apply ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D)
-          exact this.ne.symm
-    _ = ∑' (y':Yk X (k-const_n a ht *K')),∑ᶠ(_:clProp(hconst_n,y'|hk,y)),
+            exact ENNReal.rpow_pos this (by finiteness)
+          finiteness
+    _ = ∑' (y' : Yk X (k - const_n a ht * K')), ∑ᶠ(_ :clProp(hconst_n, y'|hk, y)),
       volume (I3 hconst_n y') := by rw [boundary_sum_eq hk hconst_n y]
-    _ ≤ 2⁻¹^(const_n a ht) * volume (I3 hk y) := by
-      apply smaller_boundary
+    _ ≤ 2⁻¹^(const_n a ht) * volume (I3 hk y) := by apply smaller_boundary
     _ ≤ 2 * ↑t ^ κ * volume (I3 hk y) := by
       refine mul_le_mul' ?h₁ (le_refl _)
-      suffices hsuf: ((2⁻¹^(const_n a ht):ℝ≥0) : ℝ≥0∞) ≤ (2 * t ^ κ:ℝ≥0) by
+      suffices hsuf : ((2⁻¹ ^ (const_n a ht) : ℝ≥0) : ℝ≥0∞) ≤ (2 * t ^ κ : ℝ≥0) by
         push_cast at hsuf
         rw [ENNReal.coe_rpow_def]
-        have : ¬ (t = 0 ∧ κ < 0) := by
+        have : ¬(t = 0 ∧ κ < 0) := by
           push_neg
           intro h
           by_contra
@@ -1661,17 +1645,14 @@ lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht
         rw [ENNReal.toReal_le_toReal]
         · exact boundary_measure hk y ht htD
         · apply LT.lt.ne
-          apply lt_of_le_of_lt
-          · apply volume.mono
-            exact inter_subset_left
+          apply lt_of_le_of_lt (volume.mono inter_subset_left)
           apply lt_of_le_of_lt
           · apply volume.mono (I3_prop_3_2 hk y)
           · simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
-            exact measure_ball_lt_top
+            finiteness
         apply ENNReal.mul_ne_top
-        · apply ENNReal.mul_ne_top
-          · finiteness
-          · apply ENNReal.rpow_ne_top_of_nonneg (κ_nonneg) (ENNReal.coe_ne_top)
+        · have : 0 ≤ κ := κ_nonneg
+          finiteness
         apply LT.lt.ne
         apply lt_of_le_of_lt
         · apply volume.mono (I3_prop_3_2 hk y)
@@ -1795,8 +1776,7 @@ def grid_existence : GridStructure X D κ S o where
       rw [zpow_sub₀, div_le_iff₀] at ht
       · exact ht
       · exact zpow_pos (defaultD_pos a) _
-      rw [ne_comm]
-      apply LT.lt.ne
+      apply LT.lt.ne'
       exact defaultD_pos a
     else
       trans volume.real i.coe
