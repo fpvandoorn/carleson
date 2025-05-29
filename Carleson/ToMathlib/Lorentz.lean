@@ -17,7 +17,7 @@ variable {α ε ε' : Type*} {m m0 : MeasurableSpace α}
 
 namespace MeasureTheory
 
-
+/-
 section decreasing_rearrangement
 variable [ENorm ε] [ENorm ε']
 
@@ -31,51 +31,118 @@ lemma distribution_decreasing_rearrangement (f : α → ε) (μ : Measure α) (t
   distribution f t μ = distribution (decreasing_rearrangement f μ) t volume := sorry
 
 end decreasing_rearrangement
-
+-/
 
 section Lorentz
 variable [ENorm ε] [ENorm ε'] {p : ℝ≥0∞} {q : ℝ}
 
-/-
-/-- The Lorentz norm of a function, for `r < ∞` -/
-def eLorentzNorm' (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0) (μ : Measure α) : ℝ≥0∞ :=
-  eLpNorm (fun t ↦ t ^ p⁻¹.toReal * decreasing_rearrangement f μ t) r
-    (Measure.Subtype.measureSpace.volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
 
-/-- The Lorentz norm of a function, for `r = ∞` -/
-def eLorentzNormSup (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) :=
-  ⨆ t : ℝ≥0, t ^ p⁻¹.toReal * decreasing_rearrangement f μ t
--/
-
-
-/-- The Lorentz norm of a function -/
-/-
-def eLorentzNorm (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
-  if r = 0 then 0 else if r = ∞ then eLorentzNormSup f p μ else eLorentzNorm' f p r.toNNReal μ
--/
-def eLorentzNorm (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
-  p ^ r⁻¹.toReal * eLpNorm (fun (t : ℝ≥0) ↦ t * distribution f t μ) r
+/-- The Lorentz norm of a function, for `p < ∞` -/
+def eLorentzNorm' (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
+  p ^ r⁻¹.toReal * eLpNorm (fun (t : ℝ≥0) ↦ t * distribution f t μ ^ p⁻¹.toReal) r
     (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹))
 
---TODO: make this an iff?
-lemma eLorentzNorm_zero {E : Type*} [TopologicalSpace E] [ENormedAddMonoid E] {p r : ℝ≥0∞} {μ : Measure α} {f : α → E} (h : f =ᵐ[μ] 0) : eLorentzNorm f p r μ = 0 := by
+/-- The Lorentz norm of a function -/
+def eLorentzNorm (f : α → ε) (p : ℝ≥0∞) (r : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
+  if p = 0 then 0 else if p = ∞ then (if r = 0 then 0 else if r = ∞ then eLpNormEssSup f μ else ∞ * eLpNormEssSup f μ)
+  else eLorentzNorm' f p r μ
+
+@[simp]
+lemma eLorentzNorm_eq_eLorentzNorm' {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} (hp_ne_zero : p ≠ 0) (hp_ne_top : p ≠ ∞) :
+    eLorentzNorm f p r μ = eLorentzNorm' f p r μ := by
   unfold eLorentzNorm
-  simp only [ENNReal.toReal_inv, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_pos, inv_neg'']
-  right
-  convert eLpNorm_zero with t
-  simp only [Pi.zero_apply, mul_eq_zero, ENNReal.coe_eq_zero]
-  right
-  exact distribution_zero h
+  simp [hp_ne_zero, hp_ne_top]
+
+@[simp]
+lemma eLorentzNorm_zero {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} (hp : p = 0) :
+    eLorentzNorm f p r μ = 0 := by
+  unfold eLorentzNorm
+  simp [hp]
+
+@[simp]
+lemma eLorentzNorm_zero' {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} (hr : r = 0) :
+    eLorentzNorm f p r μ = 0 := by
+  unfold eLorentzNorm eLorentzNorm'
+  simp [hr]
 
 
+--TODO: make this an iff, for p, r ≠ 0?
+lemma eLorentzNorm_zero_of_ae_zero {E : Type*} [TopologicalSpace E] [ENormedAddMonoid E] {p r : ℝ≥0∞} {μ : Measure α} {f : α → E} (h : f =ᵐ[μ] 0) : eLorentzNorm f p r μ = 0 := by
+  unfold eLorentzNorm
+  simp only [ite_eq_left_iff]
+  intro p_ne_zero
+  rw [eLpNormEssSup_eq_zero_iff.mpr h]
+  simp only [mul_zero, ite_self, ite_eq_left_iff]
+  intro p_ne_top
+  unfold eLorentzNorm'
+  conv in ↑t * distribution f _ μ ^ p⁻¹.toReal =>
+    rw [distribution_zero h,
+    ENNReal.zero_rpow_of_pos (by simp only [ENNReal.toReal_inv, inv_pos]; apply ENNReal.toReal_pos p_ne_zero p_ne_top),
+    mul_zero]
+  simp
+
+/-
 /- Alternative definition. Not used at the moment. -/
 lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Measure α} :
     eLorentzNorm f p r μ
       = eLpNorm (fun t ↦ t ^ p⁻¹.toReal * decreasing_rearrangement f μ t) r
           (volume.withDensity (fun (t : ℝ≥0) ↦ t⁻¹)) := sorry
+-/
 
-lemma eLorentzNorm_eq_Lp {f : α → ε} {p : ℝ≥0∞} {μ : Measure α} :
-  eLorentzNorm f p p μ = eLpNorm f p μ := sorry
+lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
+    {μ : Measure α} {f : α → E} (hf : AEMeasurable f μ) {p : ℝ≥0∞}  :
+  eLorentzNorm f p p μ = eLpNorm f p μ := by
+  unfold eLorentzNorm
+  by_cases p_zero : p = 0
+  · simp [p_zero]
+  by_cases p_eq_top : p = ∞
+  · simp [p_eq_top]
+  have p_eq : p = .ofReal p.toReal := by simp [p_eq_top]
+  simp only [p_zero, ↓reduceIte, p_eq_top]
+  unfold eLorentzNorm'
+  calc _
+    _ = (ENNReal.ofReal p.toReal  * ∫⁻ t in Set.Ioi (0 : ℝ), distribution f (.ofReal t) μ *
+      ENNReal.ofReal t ^ (p.toReal - 1) ) ^ p⁻¹.toReal := by
+        rw [← p_eq, eLpNorm_eq_eLpNorm' p_zero p_eq_top, eLpNorm'_eq_lintegral_enorm,
+          ENNReal.mul_rpow_of_nonneg, lintegral_withDensity_eq_lintegral_mul_non_measurable]
+        · simp only [ENNReal.toReal_inv, enorm_eq_self, one_div]
+          congr 2
+          simp only [Pi.mul_apply]
+          rw [@integral_nnreal' (fun x ↦ x⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
+          apply setLIntegral_congr_fun measurableSet_Ioi
+          apply ae_of_all
+          intro t ht
+          rw [Set.mem_Ioi] at ht
+          rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← mul_assoc, ← ENNReal.rpow_neg_one,
+              ← ENNReal.rpow_add _ _ (by simpa) (by simp), mul_comm]
+          congr 2
+          · rw [← ENNReal.rpow_mul, inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨p_zero,p_eq_top⟩), ENNReal.rpow_one]
+          · exact neg_add_eq_sub 1 p.toReal
+        · exact Measurable.inv measurable_coe_nnreal_ennreal
+        · rw[Filter.eventually_iff_exists_mem]
+          use {x | x ≠ 0}
+          constructor
+          · refine mem_ae_iff.mpr ?_
+            rw [volume_val]
+            simp
+          · intro x hx
+            rw[ENNReal.inv_lt_top, ENNReal.coe_pos]
+            exact pos_of_ne_zero hx
+        · simp
+    _ = (ENNReal.ofReal p.toReal  * ∫⁻ t in Set.Ioi (0 : ℝ), distribution f (.ofReal t) μ *
+      ENNReal.ofReal (t ^ (p.toReal - 1)) ) ^ p.toReal⁻¹ := by
+        rw [ENNReal.toReal_inv]
+        congr 2
+        apply setLIntegral_congr_fun measurableSet_Ioi
+        apply ae_of_all
+        intro t ht
+        congr
+        exact ENNReal.ofReal_rpow_of_pos ht
+    _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
+    _ = eLpNorm f p μ := by congr; exact p_eq.symm
+
+
+
 
 lemma eLorentzNorm_eq_wnorm {f : α → ε} {p : ℝ≥0∞} {μ : Measure α} :
   eLorentzNorm f p ∞ μ = wnorm f p μ := sorry
@@ -119,7 +186,8 @@ def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥
       eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
-lemma HasRestrictedWeakType.HasLorentzType {T : (α → 𝕂) → (α' → ε₂)} {p p' : ℝ≥0∞}
+lemma HasRestrictedWeakType.HasLorentzType {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E]
+  [BorelSpace E] {T : (α → 𝕂) → (α' → E)} {p p' : ℝ≥0∞}
   {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') :
     --TODO: might have to adjust the constant
@@ -135,7 +203,7 @@ lemma HasRestrictedWeakType.HasLorentzType {T : (α → 𝕂) → (α' → ε₂
   · sorry
   · by_cases h : p = ⊤
     · rw [h]
-      rw [eLorentzNorm_eq_Lp]
+      rw [eLorentzNorm_eq_Lp sorry]
       by_cases h' : f =ᵐ[μ] 0
       · sorry
       · sorry
@@ -169,8 +237,8 @@ lemma HasRestrictedWeakType.HasLorentzType {T : (α → 𝕂) → (α' → ε₂
               gcongr
               intro x hx
               unfold G at hx
-              simp at hx
-              exact hx.le
+              simp only [coe_lt_enorm, Set.mem_setOf_eq] at hx
+              simp only [coe_le_enorm, Set.mem_setOf_eq, hx.le]
           apply mul_meas_ge_le_lintegral₀
           sorry
         _ = eLpNorm (T f) 1 (ν.restrict G) / ν G ^ p'⁻¹.toReal := by
