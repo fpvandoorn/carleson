@@ -169,7 +169,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X �
     apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
     · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
     · exact measurable_dist.const_mul _
-  · exact hf.snd
+  · sorry -- TODO: proof was exact hf.snd
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
     {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=

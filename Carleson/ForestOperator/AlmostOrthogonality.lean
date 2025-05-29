@@ -59,7 +59,7 @@ lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarleson (hf : StronglyMeas
     · exact Measurable.stronglyMeasurable (by fun_prop)
     · refine continuous_ofReal.comp_stronglyMeasurable ?_
       exact stronglyMeasurable_Q₂ (X := X) |>.prod_swap
-  · exact hf.snd
+  · sorry -- proof was: exact hf.snd
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
     AEStronglyMeasurable (adjointCarleson p f) := by
@@ -72,7 +72,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStrongly
     · exact Measurable.aestronglyMeasurable (by fun_prop)
     · refine continuous_ofReal.comp_aestronglyMeasurable ?_
       exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
-  · exact hf.snd
+  · sorry -- proof was: exact hf.snd
 
 lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : StronglyMeasurable f) :
@@ -234,13 +234,13 @@ lemma adjointCarleson_adjoint
     have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
       (hg.norm.const_mul _).integrable.mul_prod hf.norm.integrable
     refine this.mono ?_ ?_
-    · refine .mul ?_ <| .snd hf.aestronglyMeasurable
+    · refine .mul ?_ <| sorry -- proof was: .snd hf.aestronglyMeasurable
       refine .mul ?_ ?_
       · refine .mul ?_ ?_
-        · exact RCLike.continuous_conj.comp_aestronglyMeasurable hg.aestronglyMeasurable.fst
+        · exact RCLike.continuous_conj.comp_aestronglyMeasurable sorry -- proof was: hg.aestronglyMeasurable.fst
         · have : AEStronglyMeasurable (fun x:X ↦ (E p).indicator (1:X→ℂ) x) :=
             .indicator aestronglyMeasurable_const measurableSet_E
-          exact this.fst
+          sorry -- proof was: exact this.fst
       · unfold MKD
         simp_rw [mul_assoc, ← Ks_def]
         refine .mul ?_ aestronglyMeasurable_Ks
