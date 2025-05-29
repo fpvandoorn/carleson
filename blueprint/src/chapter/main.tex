@@ -6066,19 +6066,20 @@ $$
     which is by Cauchy-Schwarz at most
     \begin{equation}
     \label{eq-sep-tree-small-2}
-        2^{103a^3} \sum_{s=s_1}^{2S} \Bigg( \sum_{J \in \mathcal{J}'} \int_J ( M_{\mathcal{B},1} |g_2|)^2 \frac{1}{\mu(J)} \int_J \Bigg(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
-        J \cap B(I) \ne \emptyset}} \mathbf{1}_{B(I)}\bigg)^2 \, \mathrm{d}\mu \Bigg)^{\frac 12}\,.
+        2^{102a^3+4a} \sum_{s=s_1}^{2S} \left( \sum_{J \in \mathcal{J}'} \int_J ( M_{\mathcal{B},1} |g_2|)^2 \, \mathrm{d}\mu \times
+        \frac{1}{\mu(J)} \int_J \left(\sum_{\substack{I \in \mathcal{D}, s(I) = s(J) - s\\ I \cap \scI(\fu_1) = \emptyset\\
+        J \cap B(I) \ne \emptyset}} \mathbf{1}_{B(I)}\right)^2 \, \mathrm{d}\mu \right)^{1/2}\,.
     \end{equation}
     Using \Cref{square-function-count}, we bound \eqref{eq-sep-tree-small-2} by
     $$
-        2^{103a^3} \sum_{s=s_1}^{2S} \left(\sum_{J \in \mathcal{J}'} \int_J (M_{\mathcal{B},1} |g_2|)^2 2^{104a^2} (8 D^{-s})^\kappa\right)^{\frac 1 2}\,,
+        2^{102a^3+4a} \sum_{s=s_1}^{2S} \left(2^{14a+1} (8 D^{-s})^\kappa \sum_{J \in \mathcal{J}'} \int_J (M_{\mathcal{B},1} |g_2|)^2\right)^{1/2}\,,
     $$
-    and, since dyadic cubes in $\mathcal{J}'$ form a partition of $\scI(\fu_1)$ by \Cref{dyadic-partition-2}, $\kappa \le 1$ by \eqref{definekappa}, and $a \ge 4$
+    and since dyadic cubes in $\mathcal{J}'$ form a partition of $\scI(\fu_1)$ by \Cref{dyadic-partition-2}, $\kappa \le 1$ by \eqref{definekappa}, and $a \ge 4$
     $$
-        \le 2^{116a^3} \sum_{s=s_1}^{2S} D^{-s\kappa/2} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
+        \le 2^{102a^3+11a+2} \sum_{s=s_1}^{2S} D^{-s\kappa/2} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
     $$
     $$
-        \le 2^{116a^3} D^{-s_1 \kappa /2} \frac{1}{1 - D^{-\kappa/2}} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2\,.
+        \le 2^{102a^3+11a+2} D^{-s_1 \kappa /2} \frac{1}{1 - D^{-\kappa/2}} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2\,.
     $$
     By convexity of $t \mapsto D^t$ and since $D \ge 2$, we have for all $-1 \le t \le 0$
     $$

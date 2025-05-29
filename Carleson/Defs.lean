@@ -736,9 +736,11 @@ lemma one_le_D : 1 ≤ (D : ℝ) := by
 
 lemma D_nonneg : 0 ≤ (D : ℝ) := zero_le_one.trans one_le_D
 
-lemma κ_nonneg : 0 ≤ κ := by
-  rw [defaultκ]
-  exact Real.rpow_nonneg (by norm_num) _
+lemma κ_nonneg : 0 ≤ κ :=
+  Real.rpow_nonneg (by norm_num) _
+
+lemma κ_le_one : κ ≤ 1 :=
+  Real.rpow_le_one_of_one_le_of_nonpos one_le_two (by linarith)
 
 /-- Used in `third_exception` (Lemma 5.2.10). -/
 lemma two_le_κZ [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 2 ≤ κ * Z := by

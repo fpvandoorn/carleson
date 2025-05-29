@@ -233,13 +233,13 @@ irreducible_def C7_6_4 (a : ℕ) (s : ℤ) : ℝ≥0 := 2 ^ (14 * (a : ℝ) + 1)
 
 open Classical in
 /-- Lemma 7.6.4. -/
-lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) (s' : ℤ) :
-    ⨍⁻ x in J, (∑ I ∈ {I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
-    ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) },
+lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
+    ⨍⁻ x in J, (∑ I with s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+    ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)),
     (ball (c I) (8 * D ^ s I)).indicator 1 x) ^ 2 ∂volume ≤ C7_6_4 a s' := by
   rcases lt_or_ge (↑S + s J) s' with hs' | hs'
   · suffices ({I : Grid X | s I = s J - s' ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
-        ¬ Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
+        ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
       rw [this]
       simp
     simp only [Nat.cast_pow, Nat.cast_ofNat, Finset.filter_eq_empty_iff, Finset.mem_univ,
@@ -620,6 +620,78 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
       congr! 2 with J mJ
       rw [← mul_assoc, mul_comm _ (volume (J : Set X))⁻¹, ENNReal.rpow_natCast, mul_assoc,
         ← mul_pow, Finset.mul_sum]
+
+/-- Equation (7.6.4) of Lemma 7.6.2 (after applying Cauchy–Schwarz and simplification). -/
+lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
+    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
+    C2_1_3 a * 2 ^ (11 * a + 2) *
+    (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S), (D : ℝ≥0∞) ^ (-k * κ / 2)) *
+    eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume := by
+  have aem_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f) volume :=
+    (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+  classical
+  calc
+    _ ≤ _ := e764_preCS hu₁ hu₂ hu h2u hf mf
+    _ = C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
+        (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y *
+        ∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+          ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
+        (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      congr! with k mk J mJ
+      rw [← lintegral_finset_sum']; swap
+      · exact fun I mI ↦
+          ((measurable_const.aemeasurable.indicator measurableSet_ball).mul aem_MB).restrict
+      congr with y; rw [mul_comm, Finset.sum_mul]
+    _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset, (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) *
+        (⨍⁻ y in J, (∑ I : Grid X with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
+          ¬Disjoint ↑J (ball (c I) (8 * D ^ s I)),
+        (ball (c I) (8 * D ^ s I)).indicator 1 y) ^ 2 ∂volume)) ^ (2 : ℝ)⁻¹ := by
+      gcongr _ * ∑ k ∈ _, (∑ J ∈ _, ?_) ^ _ with k mk J mJ
+      rw [setLAverage_eq, ENNReal.div_eq_inv_mul, ← mul_assoc, mul_comm _ _⁻¹, mul_assoc]
+      gcongr; apply ENNReal.sq_lintegral_mul_le_mul_lintegral_sq aem_MB.restrict -- Cauchy–Schwarz
+      exact Finset.aemeasurable_sum _ fun I mI ↦
+        measurable_const.aemeasurable.indicator measurableSet_ball
+    _ ≤ C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        (∑ J ∈ (𝓙₆ t u₁).toFinset,
+        (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) * C7_6_4 a k) ^ (2 : ℝ)⁻¹ := by
+      gcongr with k mk J mJ; rw [mem_toFinset] at mJ; exact square_function_count mJ
+    _ ≤ C2_1_3 a * 2 ^ (4 * a) *
+        ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
+        2 ^ (7 * a + 2) * D ^ (-k * κ / 2) * (∑ J ∈ (𝓙₆ t u₁).toFinset,
+        ∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y ^ 2) ^ (2 : ℝ)⁻¹ := by
+      gcongr with k mk
+      rw [← Finset.sum_mul, mul_comm _ (C7_6_4 a k : ℝ≥0∞),
+        ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
+      gcongr
+      rw [C7_6_4, NNReal.mul_rpow, show (8 : ℝ≥0) = 2 ^ (3 : ℝ) by norm_num, ← NNReal.rpow_mul,
+        ← mul_assoc, ← NNReal.rpow_intCast, ← NNReal.rpow_mul,
+        ENNReal.rpow_ofNNReal (by positivity), NNReal.mul_rpow, ← NNReal.rpow_mul,
+        ← NNReal.rpow_add two_ne_zero, ← NNReal.rpow_mul, ENNReal.coe_mul,
+        ENNReal.coe_rpow_of_ne_zero two_ne_zero, ← show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl,
+        ENNReal.coe_rpow_of_ne_zero (by norm_cast; unfold defaultD; positivity),
+        show ((D : ℝ≥0) : ℝ≥0∞) = (D : ℝ≥0∞) by rfl, Int.cast_neg, div_eq_mul_inv,
+        ← ENNReal.rpow_natCast]
+      gcongr
+      · exact one_le_two
+      · rw [add_assoc, add_mul, Nat.cast_add, Nat.cast_mul, show (14 * a * 2⁻¹ : ℝ) = 7 * a by ring,
+          Nat.cast_ofNat]
+        gcongr
+        calc
+          _ ≤ (1 + 3 * 1) * (2 : ℝ)⁻¹ := by gcongr; exact κ_le_one
+          _ = _ := by norm_num
+    _ = _ := by
+      rw [← Finset.sum_mul, ← Finset.mul_sum, ← mul_assoc, ← mul_assoc, mul_assoc _ (_ ^ _) (_ ^ _),
+        ← pow_add, show 4 * a + (7 * a + 2) = 11 * a + 2 by omega]
+      congr; rw [← lintegral_biUnion_finset _ fun _ _ ↦ coeGrid_measurable]; swap
+      · rw [coe_toFinset]; exact pairwiseDisjoint_𝓙₆
+      simp_rw [mem_toFinset, union_𝓙₆ hu₁, ← lintegral_indicator coeGrid_measurable,
+        eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
+        one_div, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast, enorm_eq_self]
+      congr! with x
+      simp_rw [sq, ← inter_indicator_mul, inter_self]
 
 /-- Lemma 7.6.2. Todo: add needed hypothesis to LaTeX -/
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
