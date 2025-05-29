@@ -23,6 +23,13 @@ theorem mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r
   · apply False.elim (by simp at hq)
   exact ⟨tsub_pos_of_lt hq.2, (ENNReal.sub_lt_self_iff hr).mpr ⟨hr', hq.1⟩⟩
 
+lemma sub_toReal_of_le {t : ℝ≥0∞} (ht : t ≤ 1) : 1 - t.toReal = (1 - t).toReal := sorry
+
+lemma sub_sub_toReal_of_le {t : ℝ≥0∞} (ht : t ≤ 1) : t.toReal = 1 - (1 - t).toReal := by
+  rw [← sub_toReal_of_le ht, _root_.sub_sub_cancel]
+
+lemma bar {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) : 1 - (1 - t) = t := sorry
+
 lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
   toReal_mono ha₂.ne_top ha₁
 
@@ -268,7 +275,7 @@ lemma preservation_positivity_inv_toReal (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀)
       (mul_nonneg (toReal_mem_Ioo ht).1.le toReal_nonneg)
 
 lemma ne_inv_toReal_exponents (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁) :
-    (p₀⁻¹.toReal ≠ p₁⁻¹.toReal) := by
+    p₀⁻¹.toReal ≠ p₁⁻¹.toReal := by
   refine fun h ↦ hp₀p₁ ?_
   rw [← inv_inv p₀, ← inv_inv p₁]
   apply congrArg Inv.inv
@@ -276,23 +283,27 @@ lemma ne_inv_toReal_exponents (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ :
     ← ofReal_toReal_eq_iff.mpr (inv_ne_top.mpr hp₁.ne')]
   exact congrArg ENNReal.ofReal h
 
-lemma ne_inv_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀)
-  (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
-    (p₀⁻¹.toReal ≠ p⁻¹.toReal) := by
-  rw [preservation_interpolation ht hp₀ hp₁ hp,
-    ← sub_ne_zero]
-  sorry /- proof was: ENNReal.sub_mul, one_mul, add_comm_sub, sub_add_eq_sub_sub, sub_self, zero_sub,
-    neg_sub, ← _root_.mul_sub]
-  exact mul_ne_zero ht.1.ne' (sub_ne_zero_of_ne (ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁)) -/
+lemma ne_inv_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : p₀⁻¹.toReal ≠ p⁻¹.toReal := by
+  rw [preservation_interpolation ht hp₀ hp₁ hp, ← sub_ne_zero]
+  convert mul_ne_zero (toReal_ne_zero_of_Ioo ht)
+    (sub_ne_zero_of_ne (ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁)) using 1
+  -- These lines used to be
+  -- rw [ENNReal.sub_mul, one_mul, add_comm_sub, sub_add_eq_sub_sub, sub_self, zero_sub,
+  -- neg_sub, ← _root_.mul_sub]
+  rw [mul_sub, tsub_add_eq_tsub_tsub]
+  nth_rw 1 [← one_mul p₀⁻¹.toReal]
+  have : (1 - t) + t = 1 := by rw [tsub_add_cancel_iff_le]; exact ht.2.le
+  rw [← sub_mul]
+  congr
+  rw [sub_eq_iff_eq_add', ← toReal_add (by finiteness) (by finiteness), this, ← ENNReal.toReal_one]
 
 lemma ne_sub_toReal_exp (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁) :
     p₁⁻¹.toReal - p₀⁻¹.toReal ≠ 0 :=
   sub_ne_zero_of_ne (ne_inv_toReal_exponents hp₀ hp₁ hp₀p₁).symm
 
 lemma ne_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
-    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
-    p₀.toReal ≠ p.toReal := by
+    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : p₀.toReal ≠ p.toReal := by
   refine fun h ↦ ne_inv_toReal_exp_interp_exp ht hp₀ hp₁ hp₀p₁ hp ?_
   repeat rw [toReal_inv _]
   exact congrArg Inv.inv h
@@ -386,7 +397,7 @@ lemma ζ_equality₁ (ht : t ∈ Ioo 0 1) :
     (((1 - t).toReal * q₀⁻¹.toReal + t.toReal * q₁⁻¹.toReal) *
     ((1 - t).toReal * p₀⁻¹.toReal + t.toReal * p₁⁻¹.toReal - p₀⁻¹.toReal)) := by
   unfold ζ
-  have aux : t.toReal ≠ 0 := sorry -- ht.1.ne'
+  have aux : t.toReal ≠ 0 := toReal_ne_zero_of_Ioo ht
   rw [← mul_div_mul_right _ _ aux, mul_assoc _ _ t.toReal, mul_assoc _ _ t.toReal]
   congr <;> ring
   all_goals sorry -- TODO: proof used to be done now
@@ -403,13 +414,14 @@ lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
   rw [← mul_div_mul_right _ _ this.ne, mul_assoc _ _ (-(1 - t)), mul_assoc _ _ (-(1 - t))]
   congr <;> ring -/
 
-lemma ζ_symm :
-    ζ p₀ q₀ p₁ q₁ t.toReal = ζ p₁ q₁ p₀ q₀ (1 - t).toReal := by
+lemma ζ_symm (ht : t ∈ Ioo 0 1) : ζ p₀ q₀ p₁ q₁ t.toReal = ζ p₁ q₁ p₀ q₀ (1 - t).toReal := by
   unfold ζ
   rw [← mul_div_mul_right (c := - 1), mul_assoc _ _ (-1), mul_assoc _ _ (-1)]; on_goal 2 => positivity
   simp only [mul_neg, mul_one, neg_sub, _root_.sub_sub_cancel]
   nth_rewrite 1 [add_comm]; nth_rw 2 [add_comm]
-  sorry -- proof was done now
+  rw [sub_toReal_of_le, sub_sub_toReal_of_le ht.2.le,
+    sub_sub_toReal_of_le (mem_sub_Ioo (by finiteness) ht).2.le]
+  exact ht.2.le
 
 set_option linter.style.multiGoal false in
 set_option linter.flexible false in
@@ -482,10 +494,10 @@ lemma ζ_equality₆ {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (h
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ ≠ ⊤) :
     p₁.toReal + (ζ p₀ q₀ p₁ q₁ t.toReal)⁻¹ * (q.toReal - q₁.toReal) * (p₁.toReal / q₁.toReal) = p.toReal := by
-  rw [ζ_symm]
-  have ht' : 1 - t ∈ Ioo 0 1 := mem_sub_Ioo one_ne_top ht
-  apply ζ_equality₅ ht' hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm _ _ hp₁' hq₁'
-  exacts [sorry, sorry] -- proofs were: (switch_exponents2 ht hp) (switch_exponents2 ht hq) hp₁' hq₁'
+  rw [ζ_symm ht]
+  apply ζ_equality₅ (mem_sub_Ioo one_ne_top ht) hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm _ _ hp₁' hq₁'
+  · rw [add_comm, bar ht]; apply hp
+  · rw [add_comm, bar ht]; exact hq
 
 lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -526,11 +538,11 @@ lemma ζ_equality₈ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hp₁' : p₁ ≠ ⊤)
     (hq₁' : q₁ = ⊤) :
     ζ p₀ q₀ p₁ q₁ t.toReal = p₁.toReal / (p₁.toReal - p.toReal) := by
-    rw [ζ_symm]
+    rw [ζ_symm ht]
     refine ζ_equality₇ (ENNReal.mem_sub_Ioo one_ne_top ht) hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm
       ?_ ?_ hp₁' hq₁' (q₀ := q₁) (p := p) (q := q)
-    --  ?_ ?_ /- (switch_exponents2 ht hp) (switch_exponents2 ht hq)-/ hp₁' hq₁'
-    all_goals sorry
+    · rw [bar ht, add_comm]; exact hp
+    · rw [bar ht, add_comm]; exact hq
 
 lemma ζ_eq_top_top (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
     (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
