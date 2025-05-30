@@ -381,7 +381,7 @@ lemma sum_𝓙₆_indicator_sq_eq {f : Grid X → X → ℝ≥0∞} :
   simp_rw [Finset.sum_diag, ← inter_indicator_mul, inter_self, ← sq]
 
 open Classical in
-lemma btp_expansion (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+lemma btp_expansion (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume =
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
     (∫⁻ y in J, ‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
@@ -411,7 +411,8 @@ lemma btp_expansion (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f)
       rw [setLAverage_eq, setAverage_eq, smul_eq_mul, enorm_mul, enorm_inv vn0,
         ← ENNReal.div_eq_inv_mul, measureReal_def, Real.enorm_of_nonneg ENNReal.toReal_nonneg,
         ENNReal.ofReal_toReal Vlt.ne]; congr
-      rw [integral_norm_eq_lintegral_enorm mf.adjointCarlesonSum.restrict]; apply enorm_toReal
+      rw [integral_norm_eq_lintegral_enorm hf.aestronglyMeasurable.adjointCarlesonSum.restrict]
+      apply enorm_toReal
       rw [← lt_top_iff_ne_top, ← eLpNorm_one_eq_lintegral_enorm]
       exact (hf.adjointCarlesonSum.restrict.memLp 1).2
     _ = _ := by
@@ -422,7 +423,7 @@ lemma btp_expansion (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f)
 open Classical in
 /-- Equation (7.6.3) of Lemma 7.6.2. -/
 lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
-    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -430,7 +431,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
       ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝔰 p = s J - k,
     ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
   calc
-    _ = _ := btp_expansion hf mf
+    _ = _ := btp_expansion hf
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ * (∫⁻ y in J,
         ‖∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)),
           adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
@@ -473,7 +474,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with J mJ
       exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
-        mf.adjointCarleson.aemeasurable.enorm.restrict
+        hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ = (∑ J ∈ (𝓙₆ t u₁).toFinset, (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         volume (J : Set X) ^ (-2 : ℝ)⁻¹ * ∫⁻ y in J, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
           ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)) ∧ 𝔰 p = s J - k,
@@ -555,7 +556,7 @@ lemma btp_integral_bound :
 open Classical in
 /-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
 lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
-    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
@@ -564,7 +565,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
     ∫⁻ y in J, (ball (c I) (8 * D ^ s I)).indicator 1 y *
       MB volume 𝓑 c𝓑 r𝓑 f y) ^ 2) ^ (2 : ℝ)⁻¹ := by
   calc
-    _ ≤ _ := e763 hu₁ hu₂ hu h2u hf mf
+    _ ≤ _ := e763 hu₁ hu₂ hu h2u hf
     _ = ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
         (∫⁻ y in J, ∑ I, ∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with
@@ -600,7 +601,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
         ‖adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! with k mk J mJ
       exact lintegral_finset_sum' _ fun k mk ↦ Finset.aemeasurable_sum _ fun p mp ↦
-        mf.adjointCarleson.aemeasurable.enorm.restrict
+        hf.aestronglyMeasurable.adjointCarleson.aemeasurable.enorm.restrict
     _ ≤ ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
         (∑ I with s I = s J - k ∧ Disjoint (I : Set X) (𝓘 u₁) ∧
@@ -619,7 +620,7 @@ lemma e764_preCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) 
 
 /-- Equation (7.6.4) of Lemma 7.6.2 (after applying Cauchy–Schwarz and simplification). -/
 lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
-    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C2_1_3 a * 2 ^ (11 * a + 2) *
     (∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S), (D : ℝ≥0∞) ^ (-k * κ / 2)) *
@@ -628,7 +629,7 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
   classical
   calc
-    _ ≤ _ := e764_preCS hu₁ hu₂ hu h2u hf mf
+    _ ≤ _ := e764_preCS hu₁ hu₂ hu h2u hf
     _ = C2_1_3 a * 2 ^ (4 * a) * ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S),
         (∑ J ∈ (𝓙₆ t u₁).toFinset, (volume (J : Set X))⁻¹ *
         (∫⁻ y in J, MB volume 𝓑 c𝓑 r𝓑 f y *
@@ -759,10 +760,10 @@ lemma btp_constant_bound :
 
 /-- Lemma 7.6.2. -/
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
-    (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
+    (hf : BoundedCompactSupport f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
     C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume :=
-  (e764_postCS hu₁ hu₂ hu h2u hf mf).trans (mul_le_mul_right' btp_constant_bound _)
+  (e764_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_right' btp_constant_bound _)
 
 /-- The constant used in `correlation_near_tree_parts`.
 Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
