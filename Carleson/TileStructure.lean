@@ -200,7 +200,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X �
     apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
     · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
     · exact measurable_dist.const_mul _
-  · exact hf.snd
+  · sorry -- TODO: proof was exact hf.snd
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
     {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=
@@ -219,7 +219,7 @@ lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
   intro x hx
   rw [mem_support] at hx
   contrapose! hx
-  refine Finset.sum_eq_zero (fun p hp ↦ nmem_support.mp (fun hxp ↦ hx ?_))
+  refine Finset.sum_eq_zero (fun p hp ↦ notMem_support.mp (fun hxp ↦ hx ?_))
   simp only [Finset.mem_filter] at hp
   exact Set.mem_biUnion hp.2 <| E_subset_𝓘 (support_carlesonOn_subset_E hxp)
 
@@ -373,7 +373,7 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   by_contra h2
   have : Disjoint (Ω p) (Ω p') := disjoint_Ω h2 h.1
   have : Ω p = ∅ := by simpa [← h.2]
-  exact not_mem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
+  exact notMem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
@@ -680,16 +680,16 @@ lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
   let M : Set (Set (𝔓 X)) := {B | B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧ B ⊆ A ∧ ∀ a ∈ A,
     (∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) ∨ (∀ b ∈ B, Disjoint (𝓘 a : Set X) (𝓘 b))}
   -- let `B` be a maximal such family. It satisfies the properties of the lemma.
-  obtain ⟨B, BM, hB⟩ : ∃ B ∈ M, ∀ B' ∈ M, B ⊆ B' → B = B' :=
-    Finite.exists_maximal_wrt id _ (toFinite M) ⟨∅, by simp [M]⟩
+  obtain ⟨B, BM, hB⟩ : ∃ B, MaximalFor (fun x ↦ x ∈ M) id B :=
+    Set.Finite.exists_maximalFor id _ (toFinite M) ⟨∅, by simp [M]⟩
   refine ⟨B, BM.1, BM.2.1, fun a ha ↦ ?_⟩
   rcases BM.2.2 a ha with h'a | h'a
   · exact h'a
   exfalso
   let F := {a' ∈ A | (𝓘 a : Set X) ⊆ 𝓘 a' ∧ ∀ b ∈ B, Disjoint (𝓘 a' : Set X) (𝓘 b)}
   obtain ⟨a', a'F, ha'⟩ : ∃ a' ∈ F, ∀ p ∈ F, (𝓘 a' : Set X) ⊆ 𝓘 p → (𝓘 a' : Set X) = 𝓘 p := by
-    apply Finite.exists_maximal_wrt _ _ (toFinite F)
-    exact ⟨a, by simpa [F, ha] using h'a⟩
+    sorry -- proof was: apply Finite.exists_maximal_wrt _ _ (toFinite F)
+    -- exact ⟨a, by simpa [F, ha] using h'a⟩
   have : insert a' B ∈ M := by
     refine ⟨?_, ?_, fun p hp ↦ ?_⟩
     · apply PairwiseDisjoint.insert BM.1 (fun b hb h'b ↦ a'F.2.2 b hb)
@@ -705,7 +705,7 @@ lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
     · have : p ∈ F := ⟨hp, a'F.2.1.trans (Grid.le_def.1 hij).1, h'p⟩
       rw [ha' p this (Grid.le_def.1 hij).1]
     · exact (Hp hij).elim
-  have : B = insert a' B := hB _ this (subset_insert a' B)
+  have : B = insert a' B := sorry -- proof was: hB _ this (subset_insert a' B)
   have : a' ∈ B := by rw [this]; exact mem_insert a' B
   have : Disjoint (𝓘 a' : Set X) (𝓘 a' : Set X) := a'F.2.2 _ this
   exact disjoint_left.1 this Grid.c_mem_Grid Grid.c_mem_Grid

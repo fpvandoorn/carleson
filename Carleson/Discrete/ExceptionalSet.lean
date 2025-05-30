@@ -81,7 +81,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     simp_rw [highDensityTiles, mem_setOf_eq, dens₂, lt_iSup_iff, mem_singleton_iff] at hp
     rcases hp with ⟨p, rfl, r, hr, h⟩
     use r, hr
-    refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl (measure_ball_ne_top (𝔠 p) r)) |>.mp h |>.le
+    refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl measure_ball_ne_top) |>.mp h |>.le
     have r0 : r > 0 := lt_of_lt_of_le (by have := defaultD_pos a; positivity) hr
     exact Or.inl <| (measure_ball_pos volume (𝔠 p) r0).ne.symm
   let r (p : 𝔓 X) := dite (p ∈ highDensityTiles) (fun hp ↦ Classical.choose (this p hp)) (fun _ ↦ 0)
@@ -228,7 +228,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     by_cases h : IsMax L
     · rw [Grid.isMax_iff] at h
       have : Q₂ = ∅ := by
-        ext y; simp_rw [Q₂, mem_setOf_eq, Set.not_mem_empty, iff_false, not_and, h, Grid.lt_def,
+        ext y; simp_rw [Q₂, mem_setOf_eq, Set.notMem_empty, iff_false, not_and, h, Grid.lt_def,
           not_and_or, not_lt]
         exact fun _ ↦ Or.inr (Grid.le_topCube).2
       simp [stackSize, this]
@@ -239,7 +239,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
       apply absurd _ h
       exact Grid.max_of_le_succ
         (mL.2 L.succ (Finset.mem_filter.mpr ⟨Finset.mem_univ _, hs⟩) Grid.le_succ).symm.le
-    rw [not_subset_iff_exists_mem_not_mem] at Lout
+    rw [not_subset_iff_exists_mem_notMem] at Lout
     obtain ⟨x', mx', nx'⟩ := Lout
     calc
       _ = stackSize Q₂ x' := by
@@ -399,7 +399,7 @@ lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
 open scoped Classical in
 lemma layervol_eq_zero_of_lt {t : ℝ} (ht : (𝔐 (X := X) k n).toFinset.card < t) :
     layervol (X := X) k n t = 0 := by
-  rw [layervol, measure_zero_iff_ae_nmem]
+  rw [layervol, measure_zero_iff_ae_notMem]
   refine ae_of_all volume fun x ↦ ?_; rw [mem_setOf, not_le]
   calc
     _ ≤ ((𝔐 (X := X) k n).toFinset.card : ℝ) := by

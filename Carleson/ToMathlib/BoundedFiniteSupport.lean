@@ -67,7 +67,7 @@ variable [TopologicalSpace E] [ENormedAddMonoid E]
 theorem memLp (hf : BoundedFiniteSupport f μ) (p : ℝ≥0∞) :
     MemLp f p μ :=
   hf.memLp_top.mono_exponent_of_measure_support_ne_top
-    (fun _ ↦ nmem_support.mp) hf.measure_support_lt.ne le_top
+    (fun _ ↦ notMem_support.mp) hf.measure_support_lt.ne le_top
 
 end ENormedAddMonoid
 

@@ -208,7 +208,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     congr 1
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
     have : ϕ y = 0 := by
-      apply nmem_support.1
+      apply notMem_support.1
       contrapose! hy
       exact (subset_tsupport _).trans h2 hy
     simp [this]
@@ -216,7 +216,7 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
       ENNReal.ofReal_mul (by positivity)]
     congr
     · simp
-    · simp only [Measure.real, ofReal_toReal (measure_ball_ne_top _ _)]
+    · simp only [Measure.real, ofReal_toReal measure_ball_ne_top]
     · simp [iLipNNNorm, coe_toNNReal h1]
     · rw [← ENNReal.ofReal_rpow_of_pos (by positivity)]
       congr
@@ -906,7 +906,7 @@ lemma norm_le_iLipNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLi
   by_cases hx : x ∈ ball z R
   · apply norm_le_iLipNNNorm_of_mem hϕ hx
   · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [nmem_support.mp this]
+    simp [notMem_support.mp this]
 
 lemma LipschitzOnWith.of_iLipENorm_ne_top
     {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤) :
@@ -958,7 +958,7 @@ lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHo
   by_cases hx : x ∈ ball z R
   · apply norm_le_iHolNNNorm_of_mem hϕ hx
   · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [nmem_support.mp this]
+    simp [notMem_support.mp this]
 
 lemma HolderOnWith.of_iHolENorm_ne_top
     {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤) :

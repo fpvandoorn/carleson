@@ -470,10 +470,10 @@ mutual
       simp_rw [false_and,and_false,or_false] at hx
       exact I1_prop_1 hk hx
     else
-    have hx_not_mem_i1 (y' : Yk X k): x ∉ I1 hk y' := by
+    have hx_notMem_i1 (y' : Yk X k): x ∉ I1 hk y' := by
       simp only [Xk, mem_iUnion, not_exists] at hx_mem_Xk
       exact hx_mem_Xk _
-    rw [iff_false_intro (hx_not_mem_i1 y1), iff_false_intro (hx_not_mem_i1 y2)] at hx
+    rw [iff_false_intro (hx_notMem_i1 y1), iff_false_intro (hx_notMem_i1 y2)] at hx
     rw [false_or,false_or,iff_true_intro hx_mem_Xk,true_and,true_and] at hx
     apply Linarith.eq_of_not_lt_of_not_gt
     · exact fun h ↦ hx.right.right y1 h hl
@@ -602,7 +602,7 @@ mutual
       generalize y = y
       intro hy_i2 hy_min
       rw [I3]
-      have hx_not_mem_i1 : ∀ y',x ∉ I1 hk y' := by
+      have hx_notMem_i1 : ∀ y',x ∉ I1 hk y' := by
         simp only [Xk,mem_iUnion,not_exists] at hx_mem_Xk
         exact hx_mem_Xk
       simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
@@ -611,7 +611,7 @@ mutual
       refine ⟨hy_i2,hx_mem_Xk, fun y' hy' ↦ ?_⟩
       rw [I3]
       simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists, not_and]
-      exact ⟨hx_not_mem_i1 y', fun hy_i2' _ _ ↦ hy_min y' hy_i2' hy'⟩
+      exact ⟨hx_notMem_i1 y', fun hy_i2' _ _ ↦ hy_min y' hy_i2' hy'⟩
   termination_by (2 * (S + k)).toNat + 1
 end
 
@@ -768,7 +768,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
       simp only [mem_preimage, mem_iUnion, exists_prop, exists_and_left]
       use y''
     else
-      have hx_not_mem_i1 (y_1 : Yk X k) : x ∉ I1 hk y_1 := by
+      have hx_notMem_i1 (y_1 : Yk X k) : x ∉ I1 hk y_1 := by
         rw [Xk] at hx_mem_Xk
         simp only [mem_iUnion, not_exists] at hx_mem_Xk
         exact hx_mem_Xk y_1
@@ -776,21 +776,21 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
         rw [I3] at hxk
         simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
           not_and] at hxk
-        rw [iff_false_intro (hx_not_mem_i1 y),iff_true_intro hx_mem_Xk] at hxk
+        rw [iff_false_intro (hx_notMem_i1 y),iff_true_intro hx_mem_Xk] at hxk
         rw [false_or,true_and] at hxk
         exact hxk
       have hx_mem_i2 := hx_mem_i2_and.left
-      have hx_not_mem_i3_u := hx_mem_i2_and.right
-      have hx_not_mem_i2_u: ∀ u < y, x ∉ I2 hk u := by
+      have hx_notMem_i3_u := hx_mem_i2_and.right
+      have hx_notMem_i2_u: ∀ u < y, x ∉ I2 hk u := by
         intro u hu
-        specialize hx_not_mem_i3_u u hu
-        rw [I3] at hx_not_mem_i3_u
+        specialize hx_notMem_i3_u u hu
+        rw [I3] at hx_notMem_i3_u
         simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-          not_and, not_forall, Classical.not_imp, not_not] at hx_not_mem_i3_u
-        rw [iff_true_intro (hx_not_mem_i1 u),iff_true_intro hx_mem_Xk] at hx_not_mem_i3_u
-        rw [true_and,true_implies] at hx_not_mem_i3_u
+          not_and, not_forall, Classical.not_imp, not_not] at hx_notMem_i3_u
+        rw [iff_true_intro (hx_notMem_i1 u),iff_true_intro hx_mem_Xk] at hx_notMem_i3_u
+        rw [true_and,true_implies] at hx_notMem_i3_u
         intro h
-        obtain ⟨v,hv,hv'⟩ := hx_not_mem_i3_u h
+        obtain ⟨v,hv,hv'⟩ := hx_notMem_i3_u h
 
         exact hx_mem_i2_and.right v (hv.trans hu) hv'
 
@@ -846,7 +846,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
       rw [iff_true_intro hx_not_xk,iff_true_intro hx_not_i1',true_and,true_implies]
       intro hx_i2'
       by_contra
-      apply hx_not_mem_i2_u u hu
+      apply hx_notMem_i2_u u hu
       rw [I2, dif_neg hk_not_neg_s] at hx_i2' ⊢
       simp only [mem_preimage, mem_iUnion] at hx_i2' ⊢
       obtain ⟨z,hz,hz'⟩ := hx_i2'
@@ -1865,9 +1865,9 @@ lemma frequency_ball_cover : Q.range.toSet ⊆ ⋃ z ∈ 𝓩 I, ball_{I} z C4_2
     let 𝓩' := insert θ (𝓩 I)
     apply absurd (𝓩_max_card (I := I)) _; push_neg; refine ⟨𝓩', ?_, ?_⟩
     · simp_rw [𝓩', 𝓩_cands, Finset.mem_filter, Finset.mem_powerset, Finset.insert_subset_iff,
-        Finset.coe_insert, pairwiseDisjoint_insert_of_not_mem hθ', Finset.mem_coe]
+        Finset.coe_insert, pairwiseDisjoint_insert_of_notMem hθ', Finset.mem_coe]
       exact ⟨⟨hθ, 𝓩_subset⟩, 𝓩_pairwiseDisjoint, fun y hy ↦ (h y hy).symm⟩
-    · rw [Finset.card_insert_of_not_mem hθ']; exact lt_add_one _
+    · rw [Finset.card_insert_of_notMem hθ']; exact lt_add_one _
   rw [not_disjoint_iff] at hz'; obtain ⟨z', h₁z', h₂z'⟩ := hz'
   simp only [mem_iUnion, mem_ball, exists_prop, C𝓩, C4_2_1] at h₁z' h₂z' ⊢
   use z, hz; linarith [dist_triangle_left (α := (WithFunctionDistance (c I) (D ^ s I / 4))) θ z z']

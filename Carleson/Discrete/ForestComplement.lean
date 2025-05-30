@@ -209,19 +209,19 @@ lemma mem_iUnion_iff_mem_of_mem_ℭ₁ {f : ℕ → Set (𝔓 X)} (hp : p ∈ �
     exact e ▸ mp
   · use j, hp.2
 
-lemma nmem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
+lemma notMem_ℭ₅_iff_mem_𝔏₃ (hkn : k ≤ n) (hj : j ≤ 2 * n + 3)
     (h : p ∈ 𝔓pos) (mc2 : p ∈ ℭ₂ k n j) (ml2 : p ∉ 𝔏₂ k n j) :
     p ∉ ℭ₅ k n j ↔ p ∈ ⋃ l, ⋃ (_ : l ≤ Z * (n + 1)), 𝔏₃ k n j l := by
   have mc3 : p ∈ ℭ₃ k n j := ⟨mc2, ml2⟩
   by_cases mc4 : p ∉ ℭ₄ k n j
   all_goals
     have mc4' := mc4
-    simp_rw [ℭ₄, layersBelow, mem_diff, not_and, mc3, true_implies, not_not_mem] at mc4'
+    simp_rw [ℭ₄, layersBelow, mem_diff, not_and, mc3, true_implies, not_notMem] at mc4'
   · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
     simp_rw [mc4', iff_true]; contrapose! mc4
     exact ℭ₅_subset_ℭ₄ mc4
   change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₃ k n j l at mc4'
-  simp_rw [mc4', iff_false, ℭ₅]; rw [not_not_mem] at mc4 ⊢; simp_rw [mem_diff, mc4, true_and]
+  simp_rw [mc4', iff_false, ℭ₅]; rw [not_notMem] at mc4 ⊢; simp_rw [mem_diff, mc4, true_and]
   have nG₃ : ¬(𝓘 p : Set X) ⊆ G₃ := by
     suffices ¬(𝓘 p : Set X) ⊆ G' by contrapose! this; exact subset_union_of_subset_right this _
     by_contra hv
@@ -268,16 +268,16 @@ lemma antichain_decomposition : 𝔓pos (X := X) ∩ 𝔓₁ᶜ = ℜ₀ ∪ ℜ
   by_cases mc2 : p ∉ ℭ₂ k n j
   all_goals
     have mc2' := mc2
-    simp_rw [ℭ₂, layersAbove, mem_diff, not_and, mc1, true_implies, not_not_mem] at mc2'
+    simp_rw [ℭ₂, layersAbove, mem_diff, not_and, mc1, true_implies, not_notMem] at mc2'
   · change p ∈ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l at mc2'
     simp_rw [mc2', true_or, iff_true]; contrapose! mc2
     exact ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ |>.trans ℭ₃_subset_ℭ₂ mc2
   change p ∉ ⋃ (l ≤ Z * (n + 1)), 𝔏₁ k n j l at mc2'; simp_rw [mc2', false_or]
-  rw [not_not_mem] at mc2; by_cases ml2 : p ∈ 𝔏₂ k n j
+  rw [not_notMem] at mc2; by_cases ml2 : p ∈ 𝔏₂ k n j
   · simp_rw [ml2, true_or, iff_true]
     exact fun a ↦ disjoint_left.mp 𝔏₂_disjoint_ℭ₃ ml2 (ℭ₅_subset_ℭ₄.trans ℭ₄_subset_ℭ₃ a)
   simp_rw [ml2, false_or]
-  exact nmem_ℭ₅_iff_mem_𝔏₃ hkn hj h mc2 ml2
+  exact notMem_ℭ₅_iff_mem_𝔏₃ hkn hj h mc2 ml2
 
 /-- The subset `𝔏₀(k, n, l)` of `𝔏₀(k, n)`, given in Lemma 5.5.3.
   We use the name `𝔏₀'` in Lean. -/
@@ -599,7 +599,7 @@ lemma carlesonSum_𝔓₁_compl_eq_𝔓pos_inter (f : X → ℂ) :
     ∀ᵐ x, x ∈ G \ G' → carlesonSum 𝔓₁ᶜ f x = carlesonSum (𝔓pos (X := X) ∩ 𝔓₁ᶜ) f x := by
   have A p (hp : p ∈ (𝔓pos (X := X))ᶜ) : ∀ᵐ x, x ∈ G \ G' → x ∉ 𝓘 p := by
     simp only [𝔓pos, mem_compl_iff, mem_setOf_eq, not_lt, nonpos_iff_eq_zero] at hp
-    filter_upwards [measure_zero_iff_ae_nmem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
+    filter_upwards [measure_zero_iff_ae_notMem.mp hp] with x hx h'x (h''x : x ∈ (𝓘 p : Set X))
     simp [h''x, h'x.1, h'x.2] at hx
   rw [← ae_ball_iff (to_countable 𝔓posᶜ)] at A
   filter_upwards [A] with x hx h'x
@@ -734,7 +734,7 @@ lemma carlesonSum_𝔓pos_inter_ℭ₂_eq_add_sum {f : X → ℂ} {x : X} (hkn :
     · refine ⟨h.1.1, ?_⟩
       simp only [𝔓₁, mem_iUnion, exists_prop, not_exists, not_and] at h
       have : p ∉ ℭ₅ k n j := h.1.1.2 n k hkn j hj
-      simpa using (nmem_ℭ₅_iff_mem_𝔏₃ (X := X) hkn hj h.1.1.1 h.1.2 h.2).1 this
+      simpa using (notMem_ℭ₅_iff_mem_𝔏₃ (X := X) hkn hj h.1.1.1 h.1.2 h.2).1 this
     · rcases h.2 with ⟨l, lZ, hl⟩
       exact ⟨⟨h.1, ℭ₃_subset_ℭ₂ (maxLayer_subset hl)⟩,
         disjoint_right.1 𝔏₂_disjoint_ℭ₃ (maxLayer_subset hl)⟩
