@@ -90,7 +90,7 @@ lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Me
 -/
 
 @[simp]
-lemma eLorentzNorm_top_top {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E]
+lemma eLorentzNorm_top_top {E : Type*} [NormedAddCommGroup E]
     {μ : Measure α} {f : α → E} :
     eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
   unfold eLorentzNorm
@@ -201,7 +201,7 @@ lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s 
 --TODO: This could be more general, it currently assumes T f ≥ 0
 variable {𝕂 : Type*} [TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
 
-/- Defines when an operator "has restricted weak type". This is an even weaker version
+/-- Defines when an operator "has restricted weak type". This is an even weaker version
 of `HasBoundedWeakType`. -/
 def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
