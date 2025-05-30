@@ -11,7 +11,7 @@ variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 
 namespace ENNReal
 
-/-- **Minkowski inequality** for finite sums of `ENNReal`s. -/
+/-- **Minkowski inequality** for finite sums of `ENNReal`-valued functions. -/
 theorem Lp_add_le_sum
     {ι κ : Type*} {s : Finset ι} {t : Finset κ} {f : ι → κ → ℝ≥0∞} {p : ℝ} (hp : 1 ≤ p) :
     (∑ i ∈ s, (∑ j ∈ t, f i j) ^ p) ^ (1 / p) ≤ ∑ j ∈ t, (∑ i ∈ s, f i j ^ p) ^ (1 / p) := by
