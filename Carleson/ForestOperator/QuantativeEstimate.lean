@@ -372,6 +372,13 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       rw [← lintegral_biUnion_finset (hC ▸ disj_C.mono h) (fun _ _ ↦ coeGrid_measurable.inter hs)]
       exact mul_left_mono <| lintegral_mono_set (subset_univ _)
 
+lemma eLpNorm_approxOnCube_two_le_self (hf : BoundedCompactSupport f)
+    {C : Set (Grid X)} (pdC : C.PairwiseDisjoint (fun I ↦ (I : Set X))) :
+    eLpNorm (approxOnCube C (‖f ·‖)) 2 volume ≤ eLpNorm f 2 volume := by
+  have hv : ∀ L ∈ C, volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by intros; simp
+  have key := eLpNorm_approxOnCube_two_le pdC .univ hv hf (by tauto)
+  rwa [ENNReal.one_rpow, one_mul] at key
+
 -- Generalization that implies both parts of Lemma 7.3.1
 private lemma density_tree_bound_aux
     (hf : BoundedCompactSupport f)

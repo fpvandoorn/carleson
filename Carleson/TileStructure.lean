@@ -97,6 +97,32 @@ lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
     Disjoint (ball_(p) (𝒬 p) 5⁻¹) (ball_(p') (𝒬 p') 5⁻¹) :=
   disjoint_of_subset cball_subset cball_subset (disjoint_Ω h hp)
 
+/-- A bound used in both nontrivial cases of Lemma 7.5.5. -/
+lemma volume_xDsp_bound {x : X} (hx : x ∈ 𝓘 p) :
+    volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
+  apply ENNReal.div_le_of_le_mul'
+  have h : dist x (𝔠 p) + 4 * D ^ 𝔰 p ≤ 8 * D ^ 𝔰 p := by
+    calc
+      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 4 * ↑D ^ 𝔰 p := by
+        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
+      _ = _ := by rw [← add_mul]; norm_num
+  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
+  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
+  rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
+
+/-- A bound used in Lemma 7.6.2. -/
+lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
+    volume (ball (𝔠 p) (8 * D ^ 𝔰 p)) / 2 ^ (4 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
+  apply ENNReal.div_le_of_le_mul'
+  have h : dist x (𝔠 p) + 8 * D ^ 𝔰 p ≤ 16 * D ^ 𝔰 p := by
+    calc
+      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 8 * ↑D ^ 𝔰 p := by
+        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
+      _ ≤ _ := by rw [← add_mul]; gcongr; norm_num
+  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
+  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
+  rw [show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow]; norm_num
+
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
@@ -104,6 +130,11 @@ def E (p : 𝔓 X) : Set X :=
 lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
 
 lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
+
+lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (E p) (E p') := by
+  have := disjoint_Ω h hp; contrapose! this
+  rw [not_disjoint_iff] at this ⊢; obtain ⟨x, mx, mx'⟩ := this
+  use Q x, Q_mem_Ω mx, Q_mem_Ω mx'
 
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf

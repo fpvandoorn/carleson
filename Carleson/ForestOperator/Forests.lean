@@ -149,19 +149,37 @@ lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
 
 lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
     C7_4_6 a n < 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
-  have defaultZ' : Z = (2 : ℝ) ^ (12 * (a : ℝ)) := by norm_cast
-  simp only [C7_4_6, defaultZ']
-  gcongr 2 ^ ?_--?_ - ?_
-  · norm_num
-  by_cases hn: n = 0
-  · simp only [hn, CharP.cast_eq_zero, mul_zero, neg_mul, zero_mul, sub_zero]; gcongr; norm_num
-  gcongr ?_ - ?_
-  · gcongr; norm_num
-  · calc (4 : ℝ) * ↑n
-      _ < ((2 : ℝ≥0) ^ (12 * (a : ℝ))) * (2 : ℝ≥0) ^ ((-10 : ℝ) * (a : ℝ)) * n := by
-        gcongr
-        exact estimate_a2 (Nat.ofNat_le_cast.mpr ha)
-      _ = _ := by push_cast; ring
+  simp_rw [C7_4_6, C7_2_1, C7_6_2, C2_1_3, ← mul_assoc]
+  conv_lhs => enter [1, 1, 1, 2]; norm_cast
+  conv_lhs => enter [1, 1, 2, 2]; norm_cast
+  rw [NNReal.rpow_natCast, NNReal.rpow_natCast, ← pow_add, ← pow_add,
+    show 152 * a ^ 3 + 102 * a ^ 3 + (21 * a + 5) = 254 * a ^ 3 + 21 * a + 5 by ring,
+    NNReal.rpow_sub two_ne_zero, NNReal.rpow_neg, ← div_eq_mul_inv]
+  conv_rhs => enter [1, 2]; norm_cast
+  rw [NNReal.rpow_natCast]
+  gcongr 2 ^ ?_ / 2 ^ ?_
+  · norm_cast; positivity
+  · exact one_lt_two
+  · calc
+      _ < 254 * a ^ 3 + 2 * 4 * 4 * a + 2 * 1 * 1 * 4 := by gcongr <;> norm_num
+      _ ≤ 254 * a ^ 3 + 2 * a * a * a + 2 * a * a * a := by gcongr <;> omega
+      _ = 258 * a ^ 3 := by ring
+      _ < _ := by gcongr; norm_num
+  · exact one_le_two
+  · rw [← mul_rotate]; gcongr
+    rw [← mul_assoc, ← mul_rotate, ← mul_div_assoc, le_div_iff₀ (by positivity),
+      defaultκ, defaultZ, Nat.cast_pow, ← Real.rpow_natCast, Nat.cast_ofNat,
+      ← Real.rpow_add zero_lt_two, Nat.cast_mul, Nat.cast_ofNat, ← add_mul,
+      show 12 + -10 = (2 : ℝ) by norm_num]; norm_cast
+    induction a, ha using Nat.le_induction with
+    | base => norm_num -- 1616 ≤ 6400
+    | succ k lk ih =>
+      rw [mul_add_one, mul_add, mul_add_one, pow_add, show 2 ^ 2 = 3 + 1 by norm_num, mul_add_one,
+        add_mul, add_comm]
+      gcongr ?_ + ?_
+      calc
+        _ ≤ 2 ^ (2 * 4) * 3 * 25 := by norm_num
+        _ ≤ _ := by gcongr; exact one_le_two
 
 lemma estimate_C7_4_4 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) : (C7_4_5 a n) + (C7_4_6 a n) ≤ C7_4_4 a n := by
   simp only [C7_4_4]
@@ -253,7 +271,7 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
       gcongr
       · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂
-      · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂
+      · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hg₁ hg₂
     _ = (C7_4_5 a n + C7_4_6 a n) *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by ring
