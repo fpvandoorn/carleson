@@ -215,6 +215,19 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
     · rw [dist_comm]; exact (dist_mem_Icc_of_Ks_ne_zero hKy).2
     · exact le_of_lt <| h hfy
 
+-- XXX: this version is not used, and may not be useful in general
+lemma integrable_adjointCarlesonSum' (u : 𝔓 X) {f : X → ℂ} (hf : AEStronglyMeasurable f volume)
+    (hf' : IsBounded (range f)) (hf'' : HasCompactSupport f) :
+    Integrable (adjointCarlesonSum (t.𝔗 u) f ·) := by
+  obtain ⟨M, hM⟩ := hf'.exists_norm_le
+  have : BoundedCompactSupport f :=
+    ⟨memLp_top_of_bound hf M <| by filter_upwards with x using hM _ (mem_range_self x), hf''⟩
+  exact integrable_finset_sum _ fun i hi ↦ this.adjointCarleson (p := i).integrable
+
+lemma integrable_adjointCarlesonSum (s: Set (𝔓 X)) {f : X → ℂ} (hf : BoundedCompactSupport f) :
+    Integrable (adjointCarlesonSum s f ·) :=
+  integrable_finset_sum _ fun i _ ↦ hf.adjointCarleson (p := i).integrable
+
 variable (p) in
 theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarlesonSum
     {ℭ : Set (𝔓 X)} (hf : BoundedCompactSupport f) :
