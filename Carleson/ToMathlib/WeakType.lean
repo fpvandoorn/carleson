@@ -197,11 +197,14 @@ lemma wnorm'_toReal_eq {f : α → ℝ≥0∞} {p : ℝ} (hf : ∀ᵐ x ∂μ, f
 def wnorm (f : α → ε) (p : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   if p = ∞ then eLpNormEssSup f μ else wnorm' f (ENNReal.toReal p) μ
 
+@[simp]
 lemma wnorm_zero : wnorm f 0 μ = ∞ := by
   simp [wnorm, wnorm'_zero]
 
 @[simp]
 lemma wnorm_top : wnorm f ⊤ μ = eLpNormEssSup f μ := by simp [wnorm]
+
+lemma wnorm_ne_top (h : p ≠ ⊤) : wnorm f p μ = wnorm' f p.toReal μ := by simp [wnorm, h]
 
 lemma wnorm_coe {p : ℝ≥0} : wnorm f p μ = wnorm' f p μ := by simp [wnorm]
 
@@ -320,7 +323,7 @@ variable [ENorm ε₁] [ENorm ε₂] [TopologicalSpace ε₁] [TopologicalSpace 
 /- Todo: define `MeasureTheory.WLp` as a subgroup, similar to `MeasureTheory.Lp` -/
 
 /-- An operator has weak type `(p, q)` if it is bounded as a map from `L^p` to weak `L^q`.
-`HasWeakType T p p' μ ν c` means that `T` has weak type (p, p') w.r.t. measures `μ`, `ν`
+`HasWeakType T p p' μ ν c` means that `T` has weak type `(p, p')` w.r.t. measures `μ`, `ν`
 and constant `c`. -/
 def HasWeakType (T : (α → ε₁) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
@@ -526,6 +529,27 @@ lemma distribution_add_le {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f g 
       contrapose! h
       exact (ENormedAddMonoid.enorm_add_le _ _).trans (add_le_add h.1 h.2)
     _ ≤ _ := measure_union_le _ _
+
+--TODO: make this an iff?
+lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α → ε} (h : f =ᵐ[μ] 0) :
+    distribution f t μ = 0 := by
+  unfold distribution
+  rw[← le_zero_iff]
+  calc _
+    _ ≤ μ {x | 0 < ‖f x‖ₑ} := by
+      apply measure_mono
+      intro x hx
+      simp only [Set.mem_setOf_eq] at hx
+      exact pos_of_gt hx
+    _ = μ {x | ‖f x‖ₑ ≠ 0} := by
+      congr
+      ext x
+      simp
+    _ = 0 := by
+      refine ae_iff.mp ?_
+      change enorm ∘ f =ᶠ[ae μ] 0
+      unfold Filter.EventuallyEq
+      simpa only [comp_apply, Pi.zero_apply, enorm_eq_zero]
 
 end distribution
 
