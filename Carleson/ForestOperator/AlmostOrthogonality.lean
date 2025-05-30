@@ -66,7 +66,7 @@ lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
 variable (t) in
 /-- The operator `S_{2,𝔲} f(x)`, given above Lemma 7.4.3. -/
 def adjointBoundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ‖adjointCarlesonSum (t u) f x‖₊ + MB volume 𝓑 c𝓑 r𝓑 f x + ‖f x‖₊
+  ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x + ‖f x‖ₑ
 
 variable (t u₁ u₂) in
 /-- The set `𝔖` defined in the proof of Lemma 7.4.4.
@@ -139,6 +139,19 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
   rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu hp).1.1),
     adjoint_tile_support1, indicator_indicator, ← right_eq_inter.mpr]
   exact (ball_subset_ball (by gcongr; norm_num)).trans (t.ball_subset hu hp)
+
+lemma adjoint_tile_support2_sum (hu : u ∈ t) :
+    adjointCarlesonSum (t u) f =
+    (𝓘 u : Set X).indicator (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f)) := by
+  unfold adjointCarlesonSum
+  classical
+  calc
+    _ = ∑ p ∈ {p | p ∈ t u},
+        (𝓘 u : Set X).indicator (adjointCarleson p ((𝓘 u : Set X).indicator f)) := by
+      ext x; simp only [Finset.sum_apply]; congr! 1 with p mp
+      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      rw [adjoint_tile_support2 hu mp]
+    _ = _ := by simp_rw [← Finset.indicator_sum, ← Finset.sum_apply]
 
 lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
     ‖adjointCarleson p f x‖ₑ ≤

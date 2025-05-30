@@ -5225,7 +5225,7 @@ Now we are ready to state the main result of this subsection.
         \end{equation}
       \begin{equation}
             \label{eq-rhs-small-sep-tree}
-            \le 2^{222a^3} 2^{-Zn 2^{-10a}} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
+            \le 2^{254a^3+21a+5} 2^{-\frac{25}{101a}Zn\kappa} \prod_{j=1}^2 \|S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
         \end{equation}
     \end{lemma}
 
@@ -5906,18 +5906,19 @@ $$
     We prove this lemma below. First, we deduce \Cref{correlation-near-tree-parts}.
 
     \begin{proof}[Proof of \Cref{correlation-near-tree-parts}]
+        \leanok
         \proves{correlation-near-tree-parts}
         By \Cref{tree-projection-estimate} and \Cref{adjoint-tile-support}, we have
         \begin{align*}
-            \eqref{eq-lhs-small-sep-tree} \le 2^{104a^3} \|P_{\mathcal{L}(\fT(\fu_1))} |g_1\mathbf{1}_{\scI(\fu_1)}| \|_2 \|\mathbf{1}_{\scI(\fu_1)} P_{\mathcal{J}(\fT(\fu_1) )}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2\,.
+            \eqref{eq-lhs-small-sep-tree} \le 2^{152a^3} \|P_{\mathcal{L}(\fT(\fu_1))} |\mathbf{1}_{\scI(\fu_1)}g_1| \|_2 \|P_{\mathcal{J}(\fT(\fu_1) )}|\mathbf{1}_{\scI(\fu_1)} T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2\,.
         \end{align*}
         It follows from the definition of the projection operator $P$ and Jensen's inequality that
         $$
             \|P_{\mathcal{L}(\fT(\fu_1))} |g_1\mathbf{1}_{\scI(\fu_1)}| \|_2 \le \|g_1 \mathbf{1}_{\scI(\fu_1)}\|_2\,.
         $$
-        Since cubes in $\mathcal{J}'$ are pairwise disjoint and by \Cref{dyadic-partition-2}, a cube $J \in \mathcal{J}'$ intersect $\scI(\fu_1)$ if and only if $J \in \mathcal{J}'$. Thus
+        By \Cref{dyadic-partition-2}, a cube $J \in \mathcal{J}(\fT(\fu_1))$ intersects $\scI(\fu_1)$ if and only if $J \in \mathcal{J}'$. Thus
         $$
-            \mathbf{1}_{\scI(\fu_1)} P_{\mathcal{J}(\fT(\fu_1) )}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2| = P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\,.
+            P_{\mathcal{J}(\fT(\fu_1) )}|\mathbf{1}_{\scI(\fu_1)} T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2| = P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\,.
         $$
         Combining this with \Cref{bound-for-tree-projection}, the definition \eqref{definekappa} and $a \ge 4$ proves the lemma.
     \end{proof}

@@ -453,7 +453,7 @@ namespace Set
 
 open ComplexConjugate
 
-lemma indicator_eq_indicator_one_mul {ι M:Type*} [MulZeroOneClass M]
+lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
   simp only [indicator]; split_ifs <;> simp
 

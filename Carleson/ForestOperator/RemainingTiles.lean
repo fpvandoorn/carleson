@@ -765,19 +765,92 @@ lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
     C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume :=
   (e764_postCS hu₁ hu₂ hu h2u hf).trans (mul_le_mul_right' btp_constant_bound _)
 
-/-- The constant used in `correlation_near_tree_parts`.
-Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_4_6 (a n : ℕ) : ℝ≥0 := 2 ^ (222 * (a : ℝ) ^ 3 - Z * n * 2 ^ (-10 * (a : ℝ)))
+lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
+    approxOnCube (𝓙 (t u₁))
+      (‖(𝓘 u₁ : Set X).indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) ·‖) =
+    approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ ·‖) := by
+  set U := (𝓘 u₁ : Set X)
+  ext x; simp only [approxOnCube]
+  classical
+  calc
+    _ = ∑ p ∈ {b | b ∈ 𝓙₆ t u₁}, (p : Set X).indicator (fun x ↦ ⨍ y in p,
+        ‖U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) y‖) x := by
+      apply (Finset.sum_subset (fun p mp ↦ ?_) (fun p mp np ↦ ?_)).symm
+      · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝓙₆] at mp ⊢
+        exact mp.1
+      · simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp np
+        rw [indicator_apply_eq_zero]; intro mx
+        rw [show (0 : ℝ) = ⨍ y in (p : Set X), 0 by simp]
+        refine setAverage_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
+        suffices Disjoint (p : Set X) U by
+          rw [indicator_of_not_mem (this.not_mem_of_mem_left my), norm_zero]
+        -- There has to be a cube `I ∈ 𝓙₆` (the one containing `c (𝓘 u₁)`)
+        have cm : c (𝓘 u₁) ∈ (𝓘 u₁ : Set X) := Grid.c_mem_Grid
+        rw [← union_𝓙₆ hu₁, mem_iUnion₂] at cm; obtain ⟨I, mI, hI⟩ := cm
+        -- Obviously `I ≠ p`
+        have nIp : I ≠ p := ne_of_mem_of_not_mem mI np
+        -- If `U` intersected `p`, `U ≤ p` since `p ∉ 𝓙₆`
+        by_contra! h
+        rw [𝓙₆, mem_inter_iff, not_and, mem_Iic] at np; specialize np mp
+        have Ulp := le_or_ge_or_disjoint.resolve_left np |>.resolve_right h
+        -- `I`, being in `𝓙₆`, should be a maximal cube in `𝓙₀ 𝔖`,
+        -- but `p` is above it and also in `𝓙₀ 𝔖`; contradiction
+        rw [𝓙₆, mem_inter_iff, mem_Iic] at mI
+        rw [𝓙, mem_setOf] at mp mI
+        exact nIp <| le_antisymm (mI.2.trans Ulp) (mI.1.2 mp.1 (mI.2.trans Ulp))
+    _ = _ := by
+      congr! 3 with p mp
+      refine setAverage_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
+      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and, 𝓙₆, mem_inter_iff, mem_Iic] at mp
+      rw [indicator_of_mem (mp.2.1 my)]
+
+/-- The constant used in `correlation_near_tree_parts`. -/
+irreducible_def C7_4_6 (a n : ℕ) : ℝ≥0 := C7_2_1 a * C7_6_2 a n
 
 /-- Lemma 7.4.6 -/
 lemma correlation_near_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
-    (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
-    (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
-    ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) g₂ x)‖₊ ≤
+    (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
+    ‖∫ x, adjointCarlesonSum (t u₁) f₁ x * conj (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x)‖ₑ ≤
     C7_4_6 a n *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
-  sorry
+    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ f₁) ·) 2 volume *
+    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ f₂) ·) 2 volume := by
+  set U := (𝓘 u₁ : Set X)
+  calc
+    _ = ‖∫ x, conj (adjointCarlesonSum (t u₁) f₁ x) *
+        adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by
+      rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3 with x
+      rw [map_mul, RingHomCompTriple.comp_apply, RingHom.id_apply]
+    _ = ‖∫ x, conj (U.indicator (adjointCarlesonSum (t u₁) (U.indicator f₁)) x) *
+        adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂ x‖ₑ := by
+      congr! 5 with x; rw [adjoint_tile_support2_sum hu₁]
+    _ = ‖∫ x, conj (adjointCarlesonSum (t u₁) (U.indicator f₁) x) *
+        (U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) x)‖ₑ := by
+      congr! 3 with x
+      rw [indicator_eq_indicator_one_mul, map_mul, conj_indicator, map_one, mul_comm _ (conj _),
+        mul_assoc, ← indicator_eq_indicator_one_mul]
+    _ = ‖∫ x, conj (U.indicator f₁ x) *
+        carlesonSum (t u₁) (U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂)) x‖ₑ := by
+      rw [← adjointCarlesonSum_adjoint (hf₂.adjointCarlesonSum.indicator coeGrid_measurable)
+        (hf₁.indicator coeGrid_measurable)]
+    _ ≤ C7_2_1 a * eLpNorm (approxOnCube (𝓙 (t u₁))
+          (‖U.indicator (adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f₂) ·‖)) 2 volume *
+        eLpNorm (approxOnCube (𝓛 (t u₁)) (‖U.indicator f₁ ·‖)) 2 volume :=
+      tree_projection_estimate (hf₂.adjointCarlesonSum.indicator coeGrid_measurable)
+        (hf₁.indicator coeGrid_measurable) hu₁
+    _ ≤ C7_2_1 a *
+        (C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f₂ ·)) 2 volume) *
+        eLpNorm (U.indicator f₁ ·) 2 volume := by
+      rw [cntp_approxOnCube_eq hu₁]; gcongr
+      · exact bound_for_tree_projection hu₁ hu₂ hu h2u hf₂
+      · exact eLpNorm_approxOnCube_two_le_self (hf₁.indicator coeGrid_measurable) pairwiseDisjoint_𝓛
+    _ ≤ _ := by
+      conv_rhs => rw [mul_comm (C7_4_6 a n : ℝ≥0∞), mul_rotate]
+      rw [C7_4_6, ENNReal.coe_mul, ← mul_assoc]; gcongr
+      all_goals
+        refine eLpNorm_mono_enorm fun x ↦ ?_
+        simp only [enorm_eq_self, enorm_indicator_eq_indicator_enorm, adjointBoundaryOperator]
+        apply indicator_le_indicator
+      · rw [← add_rotate]; exact le_add_self
+      · exact le_add_self
 
 end TileStructure.Forest
