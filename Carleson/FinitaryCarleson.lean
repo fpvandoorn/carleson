@@ -101,10 +101,12 @@ def C2_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
 
 variable (X) in
-theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
+theorem finitary_carleson [PreProofData a q K σ₁ σ₂ F G] :
+    ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
     C2_0_1 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ q⁻¹ := by
+  sorry
   have g : GridStructure X D κ S o := grid_existence X
   have t : TileStructure Q D κ S o := tile_existence X
   clear g
@@ -116,3 +118,27 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
     ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]
   suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by rw [this, mul_one]
   simp [← coe_eq_one, mul_comm I, enorm_eq_nnnorm]
+
+def ProofData.G' (h : ProofData a q K σ₁ σ₂ F G) : Set X :=
+  G ∩ (finitary_carleson X |>.choose)
+
+def ProofData.proofData_G' (h : ProofData a q K σ₁ σ₂ F G) : ProofData a q K σ₁ σ₂ F h.G' where
+  d := inferInstance
+  four_le_a := four_le_a X
+  cf := inferInstance
+  hcz := inferInstance
+  c := inferInstance
+  hasBoundedStrongType_Tstar
+  measurableSet_F
+  measurableSet_G := measurableSet_G.inter <| finitary_carleson X |>.choose_spec.1
+  measurable_σ₁
+  measurable_σ₂
+  finite_range_σ₁
+  finite_range_σ₂
+  σ₁_le_σ₂
+  Q
+  q_mem_Ioc := q_mem_Ioc X
+  F_subset
+  G_subset := inter_subset_left.trans G_subset
+  volume_F_pos
+  volume_G_pos := _

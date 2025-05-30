@@ -1,6 +1,6 @@
 import Carleson.MetricCarleson.Basic
 import Carleson.Psi
--- import Carleson.FinitaryCarleson
+import Carleson.FinitaryCarleson
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Bornology Metric Complex
