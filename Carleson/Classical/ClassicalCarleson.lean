@@ -215,6 +215,6 @@ theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f
   -- Show a.e. convergence on [0,2π]
   exact carleson_interval cont_f periodic_f
 
-/- Carleson's theorem asserting a.e. convergence of the partial Fourier sums for L^p functions for p>1. -/
-theorem classical_carleson' {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p) (hf : MemLp f p AddCircle.haarAddCircle) :
+/- Classical theorem of Carleson and Hunt asserting a.e. convergence of the partial Fourier sums for L^p functions for p>1. -/
+theorem carleson_hunt {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p) (hf : MemLp f p AddCircle.haarAddCircle) :
     ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) := sorry
