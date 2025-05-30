@@ -270,7 +270,7 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
       gcongr
       · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ hf₂
-      · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hf₁ hf₂
+      · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hg₁ hg₂
     _ = (C7_4_5 a n + C7_4_6 a n) *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by ring
