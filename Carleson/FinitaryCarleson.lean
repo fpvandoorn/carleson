@@ -7,9 +7,9 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  [MetricSpace X]
 
-theorem integrable_tile_sum_operator
+theorem integrable_tile_sum_operator [ProofData a q K σ₁ σ₂ F G]
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {x : X} {s : ℤ} :
     Integrable fun y ↦ Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   simp_rw [mul_assoc, mul_comm (Ks s x _)]
@@ -23,7 +23,7 @@ theorem integrable_tile_sum_operator
 
 section
 
-variable [TileStructure Q D κ S o]
+variable [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
 @[reducible] -- Used to simplify notation in the proof of `tile_sum_operator`
 private def 𝔓X_s (s : ℤ) := (@Finset.univ (𝔓 X) _).filter (fun p ↦ 𝔰 p = s)
@@ -98,13 +98,72 @@ end
 /- The constant used in Proposition 2.0.1 -/
 def C2_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 
-lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
+lemma C2_0_1_pos [ProofData a q K σ₁ σ₂ F G] :
+  C2_0_1 a nnq > 0 := C2_0_2_pos
 
-variable (X) in
-theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
+/-- ProofData without G -/
+class FinitaryData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
+    (σ₁ σ₂ : outParam (X → ℤ)) (F : outParam (Set X)) [PseudoMetricSpace X] extends
+    KernelProofData a K where
+  c : IsCancellative X (defaultτ a)
+  hasBoundedStrongType_Tstar :
+    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
+  measurableSet_F : MeasurableSet F
+  measurable_σ₁ : Measurable σ₁
+  measurable_σ₂ : Measurable σ₂
+  finite_range_σ₁ : Finite (range σ₁)
+  finite_range_σ₂ : Finite (range σ₂)
+  σ₁_le_σ₂ : σ₁ ≤ σ₂
+  Q : SimpleFunc X (Θ X)
+  q_mem_Ioc : q ∈ Ioc 1 2
+  isBounded_F : Bornology.IsBounded F
+
+/-- The assumptions on G in ProofData -/
+class GData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
+    (σ₁ σ₂ : outParam (X → ℤ)) (F : outParam (Set X)) [PseudoMetricSpace X]
+    [FinitaryData a q K σ₁ σ₂ F] where
+  G : Set X
+  measurableSet_G : MeasurableSet G
+  isBounded_G : Bornology.IsBounded G
+
+variable [h1 : FinitaryData a q K σ₁ σ₂ F]
+
+instance [h2 : GData a q K σ₁ σ₂ F] : PreProofData a q K σ₁ σ₂ F h2.G :=
+  { h1, h2 with }
+
+theorem finitary_carleson (h : GData a q K σ₁ σ₂ F) : let G := h.G
+    ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
     C2_0_1 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ q⁻¹ := by
+  intro G
+  obtain hG|hG := eq_zero_or_pos (volume G)
+  · use ∅, .empty, by simp
+    intro f hf h2f
+    simp [setLIntegral_measure_zero, *]
+  obtain hF|hF := eq_zero_or_pos (volume F)
+  · use ∅, .empty, by simp
+    intro f hf h2f
+    have : f =ᵐ[volume] 0 := by
+      rw [Filter.EventuallyEq, ae_iff]
+      refine measure_mono_null (fun x hx ↦ ?_) hF
+      by_contra h2x
+      specialize h2f x
+      simp_all
+    calc ∫⁻ (x : X) in G \ ∅,
+      ‖∑ s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset, ∫ (y : X), Ks s x y * f y * cexp (I * ↑((Q x) y))‖ₑ =
+      ∫⁻ (x : X) in G \ ∅,
+      ‖∑ s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset, ∫ (y : X), Ks s x y * 0 * cexp (I * ↑((Q x) y))‖ₑ := by
+          apply lintegral_congr
+          congr! 2 with x s hs
+          apply integral_congr_ae
+          filter_upwards [this] with y hy using by simp [hy]
+      _ ≤ ↑(C2_0_1 a nnq) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by simp
+  -- fixme(?) the blueprint only assumes F/G are bounded...
+  have h2G : G ⊆ ball o (D ^ S / 4) := by sorry -- blueprint clarification needed
+  have h2F : F ⊆ ball o (D ^ S / 4) := by sorry -- blueprint clarification needed
+  let _ : ProofData a q K σ₁ σ₂ F G :=
+    { F_subset := h2F, G_subset := h2G, volume_F_pos := hF, volume_G_pos := hG }
   have g : GridStructure X D κ S o := grid_existence X
   have t : TileStructure Q D κ S o := tile_existence X
   clear g
@@ -116,3 +175,30 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
     ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]
   suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by rw [this, mul_one]
   simp [← coe_eq_one, mul_comm I, enorm_eq_nnnorm]
+
+namespace GData
+protected def G' (h : GData a q K σ₁ σ₂ F) : Set X :=
+  h.G ∩ (finitary_carleson h).choose
+
+protected lemma measurable_G' (h : GData a q K σ₁ σ₂ F) : MeasurableSet h.G' :=
+  measurableSet_G.inter <| finitary_carleson h |>.choose_spec.1
+
+protected lemma volume_G'_le (h : GData a q K σ₁ σ₂ F) :
+    volume h.G' ≤ volume h.G / 2 := by
+  refine measure_mono inter_subset_right |>.trans ?_
+  rw [ENNReal.le_div_iff_mul_le (by norm_num) (by simp), mul_comm]
+  exact finitary_carleson h |>.choose_spec.2.1
+
+protected lemma lintegral_sdiff_le (h : GData a q K σ₁ σ₂ F)
+    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ∫⁻ x in h.G \ h.G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
+    C2_0_1 a nnq * (volume h.G) ^ (1 - q⁻¹) * (volume F) ^ q⁻¹ := by
+  simp_rw [GData.G', diff_self_inter, finitary_carleson h |>.choose_spec.2.2 f hf h2f]
+
+protected def next (h : GData a q K σ₁ σ₂ F) :
+    GData a q K σ₁ σ₂ F where
+  G := h.G'
+  measurableSet_G := h.measurable_G'
+  isBounded_G := h.isBounded_G.subset inter_subset_left
+
+end GData

@@ -718,7 +718,7 @@ end ShortVariables
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
 
-lemma one_lt_D [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 1 < (D : ℝ) := by
+lemma one_lt_D [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G] : 1 < (D : ℝ) := by
   exact_mod_cast one_lt_pow₀ Nat.one_lt_two (by nlinarith [four_le_a X])
 
 lemma one_le_D : 1 ≤ (D : ℝ) := by
