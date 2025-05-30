@@ -63,6 +63,9 @@ theorem MemLp.ae_norm_le (hf : MemLp f ∞ μ) : ∀ᵐ x ∂μ, ‖f x‖ ≤ (
   simp [hx]
 
 variable [TopologicalSpace E] [ENorm E] [Zero E] in
+/- currently we assume that the functions are a.e.-bounded, since that plays better with mathlib.
+Since it might be nicer to work with suprema instead of essential suprema, we need to prove
+everywhere-boundedness in one place. -/
 /-- Bounded compactly supported measurable functions -/
 structure BoundedCompactSupport (f : X → E) (μ : Measure X := by volume_tac) :
     Prop where

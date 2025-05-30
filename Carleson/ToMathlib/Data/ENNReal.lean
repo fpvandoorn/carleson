@@ -1,6 +1,4 @@
-import Mathlib.Analysis.Normed.Field.Basic
-import Mathlib.Analysis.Normed.Group.Bounded
-import Mathlib.Analysis.Normed.Group.Uniform
+import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Order.CompletePartialOrder
 
 /-! ## `ENNReal` manipulation lemmas -/
@@ -121,9 +119,63 @@ lemma exists_enorm_sub_eps_le_biInf
     add_le_iff_nonpos_right] at key
   rw [← NNReal.coe_pos] at εpos; linarith only [εpos, key]
 
+lemma biInf_enorm_sub_le {f g : ι → E} :
+    ⨅ x ∈ s, ‖f x - g x‖ₑ ≤ (⨅ x ∈ s, ‖f x‖ₑ) + (⨆ x ∈ s, ‖g x‖ₑ) := by
+  rcases s.eq_empty_or_nonempty with rfl | hs; · simp
+  refine ENNReal.le_of_forall_pos_le_add fun ε εpos _ ↦ ?_
+  obtain ⟨x, mx, hx⟩ := exists_enorm_sub_eps_le_biInf (f := f) εpos hs
+  calc
+    _ ≤ ‖f x - g x‖ₑ := biInf_le (fun i ↦ ‖f i - g i‖ₑ) mx
+    _ ≤ ‖f x‖ₑ + ‖g x‖ₑ := enorm_sub_le
+    _ ≤ ε + (⨅ x ∈ s, ‖f x‖ₑ) + ⨆ x ∈ s, ‖g x‖ₑ :=
+      add_le_add (by rwa [← tsub_le_iff_left]) (le_biSup (‖g ·‖ₑ) mx)
+    _ = _ := by rw [add_rotate]
+
 end ENNReal
 
 /-- Transfer an inequality over `ℝ` to one of `ENorm`s over `ℝ≥0∞`. -/
 lemma Real.enorm_le_enorm {x y : ℝ} (hx : 0 ≤ x) (hy : x ≤ y) : ‖x‖ₑ ≤ ‖y‖ₑ := by
   rw [Real.enorm_of_nonneg hx, Real.enorm_of_nonneg (hx.trans hy)]
   exact ENNReal.ofReal_le_ofReal hy
+
+-- Additional lemmas for the finiteness tactic.
+section finiteness
+
+open ENNReal
+
+-- Tag some additional lemmas for finiteness.
+attribute [aesop (rule_sets := [finiteness]) safe apply] enorm_ne_top
+
+attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.pow_ne_top
+
+attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.rpow_ne_top_of_nonneg
+
+-- -- experimental
+lemma ENNReal.rpow_ne_top {x : ℝ≥0∞} {y : ℝ} : ¬(x = 0 ∧ y < 0 ∨ x = ⊤ ∧ 0 < y) → x ^ y ≠ ⊤ := by
+  contrapose
+  rw [← rpow_eq_top_iff (x := x) (y := y)]
+  simp
+
+lemma ENNReal.rpow_ne_top_of_pos {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) : x ^ y ≠ ⊤ := by
+  apply ENNReal.rpow_ne_top
+  simp [hx, hx']
+
+attribute [aesop (rule_sets := [finiteness]) unsafe apply] ENNReal.rpow_ne_top_of_pos
+
+-- should ENNReal.rpow_lt_top_iff_of_pos be tagged? or a custom version?
+
+-- move next to max_eq_top; proof can probably be golfed
+lemma max_ne_top {α : Type*} [LinearOrder α] [OrderTop α] {a b : α} (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
+    max a b ≠ ⊤ := by
+  by_contra h
+  obtain (h | h) := max_eq_top.mp h
+  all_goals simp_all
+
+attribute [aesop (rule_sets := [finiteness]) safe apply] max_ne_top
+
+-- Just created for finiteness.
+@[aesop (rule_sets := [finiteness]) safe apply]
+theorem ENNReal.div_ne_top {x y : ℝ≥0∞} (h1 : x ≠ ∞) (h2 : y ≠ 0) : x / y ≠ ∞ :=
+  (ENNReal.div_lt_top h1 h2).ne
+
+end finiteness

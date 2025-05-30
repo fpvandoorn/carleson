@@ -18,8 +18,6 @@ scoped notation "nnq'" => 2*nnq/(nnq + 1)
 
 end ShortVariables
 
-lemma nnq'_coe : (nnq' : ℝ≥0∞) = 2*nnq/(nnq + 1) := rfl
-
 lemma one_lt_nnq' : 1 < nnq' := by
   rw [one_lt_div (add_pos_iff.mpr (Or.inr zero_lt_one)), two_mul, _root_.add_lt_add_iff_left]
   exact (q_mem_Ioc X).1
@@ -283,6 +281,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
 noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
 
 -- Inequality 6.1.16
+@[nolint unusedHavesSuffices]
 lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f) :
     eLpNorm (fun x ↦ (maximalFunction volume (↑𝔄) 𝔠 (fun 𝔭 ↦ 8 * ↑D ^ 𝔰 𝔭)
@@ -306,7 +305,7 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
   -- Could this be deduced from hF1?
   have hf1 : AEStronglyMeasurable f volume := hfm.aestronglyMeasurable
   by_cases hf_top : eLpNorm f 2 volume < ⊤
-  · --have hf2 :  Memℒp f 2 volume := ⟨hf1, hf_top⟩
+  · --have hf2 :  MemLp f 2 volume := ⟨hf1, hf_top⟩
     have : HasStrongType (fun (f : X → ℂ) (x : X) ↦ maximalFunction volume 𝔄 𝔠
         (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) p₁ f x) 2 2 volume volume (C2_0_6 (2^a) p₁ 2) :=
       sorry
@@ -346,12 +345,14 @@ lemma eLpNorm_maximal_function_le' {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain
 
 
 -- lemma 6.1.3, inequality 6.1.10
-lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X))) (ha : 4 ≤ a)
+@[nolint unusedHavesSuffices]
+lemma dens2_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤
       (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  have ha : 4 ≤ a := four_le_a X
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
   have hq0 : 0 < nnq := nnq_pos X
   have h1q' : 1 ≤ nnq' := by -- Better proof?
@@ -376,7 +377,8 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
   -- I am not sure if this is correctly stated
   have hMB_le : MB volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) (fun x ↦ ‖f x‖) ≤
     ((maximalFunction volume (𝔄 : Set (𝔓 X)) 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) ((2*nnq')/(3*nnq' - 2))
-      (fun x ↦ ‖f x‖ * (dens₂ (𝔄 : Set (𝔓 X))).toReal ^ ((nnq' : ℝ)⁻¹ - 2⁻¹)))) := by sorry
+      (fun x ↦ ‖f x‖ * (dens₂ (𝔄 : Set (𝔓 X))).toReal ^ ((nnq' : ℝ)⁻¹ - 2⁻¹)))) := by
+    sorry
 
   -- 6.1.14' : it seems what is actually used is the following:
   have hMB_le' : (eLpNorm (fun x ↦ ((MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x).toNNReal : ℂ))
@@ -484,6 +486,18 @@ lemma Dens2Antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (�
           _ = 2 ^ (111 * a ^ 3) := by ring
       · norm_cast -- uses hq'_inv
 
+/-- Constant appearing in Lemma 6.1.4. -/
+irreducible_def C6_1_4 (a : ℝ) : ℝ≥0 :=  2 ^ (150 * a ^ 3)
+
+/-- Lemma 6.1.4 -/
+lemma dens1_antichain {𝔄 : Finset (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) (𝔄 : Set (𝔓 X)))
+    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
+    {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) (x : X) :
+    ‖∫ x, ((starRingEnd ℂ) (g x)) * ∑ (p ∈ 𝔄), carlesonOn p f x‖ₑ ≤
+    C6_1_4 a * (dens₁ (𝔄 : Set (𝔓 X))) ^ (8 * a ^ 4 : ℝ)⁻¹ *
+    eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  sorry
+
 /-- The constant appearing in Proposition 2.0.3.
 Has value `2 ^ (150 * a ^ 3) / (q - 1)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
@@ -496,7 +510,8 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
     (h𝔄 : IsAntichain (·≤·) 𝔄) :
     ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
     C_2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
-    (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := sorry
+    (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
+  sorry
 
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/

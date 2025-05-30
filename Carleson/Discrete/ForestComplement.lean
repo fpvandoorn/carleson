@@ -335,8 +335,7 @@ lemma card_𝔒 (p' : 𝔓 X) {l : ℝ≥0} (hl : 2 ≤ l) : (𝔒 p' l).card �
       _ ≤ 5⁻¹ + (1 + l) := by gcongr; rw [← mp''.1]; exact mx₂.le
       _ = _ := by rw [inv_eq_one_div, ← add_assoc, add_comm _ l.toReal]; norm_num
   have vO : CoveredByBalls (ball_(p') (𝒬 p') (l + 6 / 5)) ⌊2 ^ (4 * a) * l ^ a⌋₊ 5⁻¹ := by
-    apply (ballsCoverBalls_iterate (show 0 < l.toReal + 6 / 5 by positivity)
-      (show 0 < 5⁻¹ by positivity) (𝒬 p')).mono_nat
+    apply (ballsCoverBalls_iterate (show 0 < 5⁻¹ by positivity) (𝒬 p')).mono_nat
     calc
       _ ≤ (defaultA a) ^ ⌊4 + Real.logb 2 l⌋₊ :=
         pow_le_pow_right₀ Nat.one_le_two_pow (ceil_log2_le_floor_four_add_log2 hl)

@@ -9,6 +9,7 @@ import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.MeasureTheory.Measure.Real
 import Carleson.ToMathlib.ENorm
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 /-
 * This file can import all ToMathlib files.
@@ -17,6 +18,21 @@ import Carleson.ToMathlib.ENorm
 
 open Function Set
 open scoped ENNReal
+
+
+namespace Real
+-- to Mathlib.Analysis.SpecialFunctions.Log.Base
+lemma le_pow_natCeil_logb {b x : ℝ} (hb : 1 < b) (hx : 0 < x) :
+    x ≤ b ^ ⌈Real.logb b x⌉₊ := by
+  calc
+    x = b ^ Real.logb b x := by rw [Real.rpow_logb (by linarith) hb.ne' hx]
+    _ ≤ b ^ ⌈Real.logb b x⌉₊ := by
+      rw [← Real.rpow_natCast]
+      gcongr
+      · exact hb.le
+      apply Nat.le_ceil
+
+end Real
 
 section ENNReal
 
@@ -214,6 +230,7 @@ variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
 
 attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
+  AEMeasurable.restrict AEStronglyMeasurable.restrict
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
 
@@ -325,13 +342,13 @@ open MeasureTheory Bornology
 variable {E X : Type*} {p : ℝ≥0∞} [NormedAddCommGroup E] [TopologicalSpace X] [MeasurableSpace X]
   {μ : Measure X} [IsFiniteMeasureOnCompacts μ] {f : X → E}
 
----- now obsolete -> `BoundedCompactSupport.memℒp`
--- lemma _root_.HasCompactSupport.memℒp_of_isBounded (hf : HasCompactSupport f)
+---- now obsolete -> `BoundedCompactSupport.memLp`
+-- lemma _root_.HasCompactSupport.memLp_of_isBounded (hf : HasCompactSupport f)
 --     (h2f : IsBounded (range f))
---     (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : Memℒp f p μ := by
+--     (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : MemLp f p μ := by
 --   obtain ⟨C, hC⟩ := h2f.exists_norm_le
 --   simp only [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
---   exact hf.memℒp_of_bound h3f C <| .of_forall hC
+--   exact hf.memLp_of_bound h3f C <| .of_forall hC
 
 end
 
@@ -486,6 +503,51 @@ lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤
   exact ENNReal.ofReal_le_ofReal norm_exp_I_mul_ofReal_sub_one_le
 
 end Norm
+
+section BddAbove
+-- move near BddAbove.range_add if that imports Finset.sum
+
+variable {ι ι' α M : Type*} [Preorder M]
+
+@[simp]
+theorem BddAbove.range_const {c : M} : BddAbove (range (fun _ : ι ↦ c)) :=
+  bddAbove_singleton.mono Set.range_const_subset
+
+variable [One M] in
+@[to_additive (attr := simp)]
+theorem BddAbove.range_one : BddAbove (range (1 : ι → M)) :=
+  .range_const
+
+variable [AddCommMonoid M] [AddLeftMono M] [AddRightMono M] in
+theorem BddAbove.range_finsetSum {s : Finset ι} {f : ι → ι' → M}
+    (hf : ∀ i ∈ s, BddAbove (range (f i))) :
+    BddAbove (range (fun x ↦ ∑ i ∈ s, f i x)) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp
+  | insert j s hjs IH =>
+    simp_rw [Finset.sum_insert hjs]
+    apply BddAbove.range_add
+    · exact hf _ (Finset.mem_insert_self j s)
+    · exact IH fun _ hi ↦ hf _ (Finset.mem_insert_of_mem hi)
+
+open Bornology
+@[to_additive isBounded_iff_bddAbove_norm]
+lemma isBounded_iff_bddAbove_norm' {E} [SeminormedCommGroup E] {s : Set E} :
+    IsBounded s ↔ BddAbove (Norm.norm '' s) := by
+  simp [isBounded_iff_forall_norm_le', bddAbove_def]
+
+@[to_additive isBounded_range_iff_bddAbove_norm]
+lemma isBounded_range_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} :
+    IsBounded (range f) ↔ BddAbove (range (‖f ·‖)) := by
+  rw [isBounded_iff_bddAbove_norm, ← range_comp, Function.comp_def]
+
+@[to_additive isBounded_image_iff_bddAbove_norm]
+lemma isBounded_image_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} {s : Set ι} :
+    IsBounded (f '' s) ↔ BddAbove ((‖f ·‖) '' s) := by
+  rw [isBounded_iff_bddAbove_norm, ← image_comp, Function.comp_def]
+
+end BddAbove
 
 namespace MeasureTheory
 

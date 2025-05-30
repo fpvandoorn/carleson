@@ -6,8 +6,14 @@ import Mathlib.Order.CompletePartialOrder
 open MeasureTheory Measure NNReal ENNReal Metric Filter Topology TopologicalSpace
 noncomputable section
 
-namespace MeasureTheory
+section Doubling
 
+/-- The blow-up factor of repeatedly increasing the size of balls. -/
+def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
+
+end Doubling
+
+namespace MeasureTheory
 
 /-- A doubling measure is a measure on a metric space with the condition that doubling
 the radius of a ball only increases the volume by a constant factor, independent of the ball. -/
@@ -157,9 +163,6 @@ lemma measure_ball_four_le_same' (x : X) (r : ℝ) :
 
 attribute [aesop (rule_sets := [finiteness]) safe apply] measure_ball_ne_top
 
-/-- The blow-up factor of repeatedly increasing the size of balls. -/
-def As (A : ℝ≥0) (s : ℝ) : ℝ≥0 := A ^ ⌈Real.logb 2 s⌉₊
-
 variable (μ) in
 lemma As_pos [Nonempty X] [μ.IsOpenPosMeasure] (s : ℝ) : 0 < As A s :=
   pow_pos (A_pos μ) ⌈Real.logb 2 s⌉₊
@@ -182,21 +185,15 @@ lemma measure_ball_le_same' (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s 
   else
   push_neg at hr
   /- Show inclusion in larger ball -/
-  have haux : s * r ≤ 2 ^ ⌈Real.log s / Real.log 2⌉₊ * r := by
+  have haux : s * r ≤ 2 ^ ⌈Real.logb 2 s⌉₊ * r := by
     gcongr
-    calc s
-      = 2 ^ (Real.logb 2 s) := (Real.rpow_logb (by linarith) (by linarith) hsp ).symm
-    _ ≤ 2 ^ (⌈Real.logb 2 s⌉₊ : ℝ) := Real.rpow_le_rpow_of_exponent_le
-      (by linarith) (Nat.le_ceil (Real.logb 2 s))
-    _ = 2 ^ ⌈Real.logb 2 s⌉₊ := Real.rpow_natCast 2 ⌈Real.logb 2 s⌉₊
-  have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := by
-    calc ball x r' ⊆ ball x (s * r) := ball_subset_ball hs
-        _ ⊆ ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r) := ball_subset_ball haux
+    apply Real.le_pow_natCeil_logb (by norm_num) hsp
+  have h1 : ball x r' ⊆ ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r) :=
+    ball_subset_ball <| hs.trans haux
   /- Apply result for power of two to slightly larger ball -/
   calc μ (ball x r')
-      ≤ μ (ball x (2 ^ ⌈Real.log s / Real.log 2⌉₊ * r)) := by gcongr
-    _ ≤ A^(⌈Real.log s / Real.log 2⌉₊) * μ (ball x r) := measure_ball_two_le_same_iterate x r _
-    _ = As A s * μ (ball x r) := rfl
+      ≤ μ (ball x (2 ^ ⌈Real.logb 2 s⌉₊ * r)) := by gcongr
+    _ ≤ As A s * μ (ball x r) := measure_ball_two_le_same_iterate x r _
 
 lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s * r) :
     μ.real (ball x r') ≤ As A s * μ.real (ball x r) := by
@@ -266,46 +263,46 @@ variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
 
 end
 /-
-def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := As A s -- maybe wrong
+-- def Ai (A : ℝ≥0) (s : ℝ) : ℝ≥0 := As A s -- maybe wrong
 
-lemma measure_ball_le_of_subset {x' x : X} {r r' s : ℝ}
-    (hs : r' ≤ s * r) (hr : ball x' r ⊆ ball x r') :
-    μ.real (ball x (2 * r)) ≤ Ai A s * μ.real (ball x' r) := by sorry
+-- lemma measure_ball_le_of_subset {x' x : X} {r r' s : ℝ}
+--     (hs : r' ≤ s * r) (hr : ball x' r ⊆ ball x r') :
+--     μ.real (ball x (2 * r)) ≤ Ai A s * μ.real (ball x' r) := by sorry
 
-def Ai2 (A : ℝ≥0) : ℝ≥0 := Ai A 2
+-- def Ai2 (A : ℝ≥0) : ℝ≥0 := Ai A 2
 
-lemma measure_ball_two_le_of_subset {x' x : X} {r : ℝ} (hr : ball x' r ⊆ ball x (2 * r)) :
-    μ.real (ball x (2 * r)) ≤ Ai2 A * μ.real (ball x' r) :=
-  measure_ball_le_of_subset le_rfl hr
+-- lemma measure_ball_two_le_of_subset {x' x : X} {r : ℝ} (hr : ball x' r ⊆ ball x (2 * r)) :
+--     μ.real (ball x (2 * r)) ≤ Ai2 A * μ.real (ball x' r) :=
+--   measure_ball_le_of_subset le_rfl hr
 
-def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊As A (s * A + 2⁻¹)⌋₊ -- probably wrong
+-- def Np (A : ℝ≥0) (s : ℝ) : ℕ := ⌊As A (s * A + 2⁻¹)⌋₊ -- probably wrong
 
-/- Proof sketch: take a ball of radius `r / (2 * A)` around each point in `s`.
-These are disjoint, and are subsets of `ball x (r * (2 * A + 2⁻¹))`. -/
-lemma card_le_of_le_dist (x : X) {r r' s : ℝ} (P : Set X) (hs : r' ≤ s * r) (hP : P ⊆ ball x r')
-  (h2P : ∀ x y, x ∈ P → y ∈ P → x ≠ y → r ≤ dist x y) : P.Finite ∧ Nat.card P ≤ Np A s := by sorry
+-- /- Proof sketch: take a ball of radius `r / (2 * A)` around each point in `s`.
+-- These are disjoint, and are subsets of `ball x (r * (2 * A + 2⁻¹))`. -/
+-- lemma card_le_of_le_dist (x : X) {r r' s : ℝ} (P : Set X) (hs : r' ≤ s * r) (hP : P ⊆ ball x r')
+--   (h2P : ∀ x y, x ∈ P → y ∈ P → x ≠ y → r ≤ dist x y) : P.Finite ∧ Nat.card P ≤ Np A s := by sorry
 
-/- Proof sketch: take any maximal set `s` of points that are at least distance `r` apart.
-By the previous lemma, you only need a bounded number of points.
--/
-lemma ballsCoverBalls {r r' s : ℝ} (hs : r' ≤ s * r) : BallsCoverBalls X r' r (Np A s) := by
-  sorry
+-- /- Proof sketch: take any maximal set `s` of points that are at least distance `r` apart.
+-- By the previous lemma, you only need a bounded number of points.
+-- -/
+-- lemma ballsCoverBalls {r r' s : ℝ} (hs : r' ≤ s * r) : BallsCoverBalls X r' r (Np A s) := by
+--   sorry
 
-/- [Stein, 1.1.3(iv)] -/
-lemma continuous_measure_ball_inter {U : Set X} (hU : IsOpen U) {δ} (hδ : 0 < δ) :
-  Continuous fun x ↦ μ.real (ball x δ ∩ U) := sorry
+-- /- [Stein, 1.1.3(iv)] -/
+-- lemma continuous_measure_ball_inter {U : Set X} (hU : IsOpen U) {δ} (hδ : 0 < δ) :
+--   Continuous fun x ↦ μ.real (ball x δ ∩ U) := sorry
 
-/- [Stein, 1.1.4] -/
-lemma continuous_average {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
-    (hf : LocallyIntegrable f μ) {δ : ℝ} (hδ : 0 < δ) :
-    Continuous (fun x ↦ ⨍ y in ball x δ, f y ∂μ) :=
-  sorry
+-- /- [Stein, 1.1.4] -/
+-- lemma continuous_average {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
+--     (hf : LocallyIntegrable f μ) {δ : ℝ} (hδ : 0 < δ) :
+--     Continuous (fun x ↦ ⨍ y in ball x δ, f y ∂μ) :=
+--   sorry
 
-/- [Stein, 1.3.1], cor -/
-lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
-    (hf : LocallyIntegrable f μ) {x : X} :
-    Tendsto (fun δ ↦ ⨍ y in ball x δ, f y ∂μ) (𝓝[>] 0) (𝓝 (f x)) :=
-  sorry
+-- /- [Stein, 1.3.1], cor -/
+-- lemma tendsto_average_zero {E} [NormedAddCommGroup E] [NormedSpace ℝ E] {f : X → E}
+--     (hf : LocallyIntegrable f μ) {x : X} :
+--     Tendsto (fun δ ↦ ⨍ y in ball x δ, f y ∂μ) (𝓝[>] 0) (𝓝 (f x)) :=
+--   sorry
 -/
 
 end PseudoMetric

@@ -111,9 +111,9 @@ class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ
   le_cdist {x₁ x₂ : X} {r : ℝ} {f g : Θ} (h1 : ball x₁ r ⊆ ball x₂ (A * r)) :
     /-(h2 : A * r ≤ Metric.diam (univ : Set X))-/
     2 * dist_{x₁, r} f g ≤ dist_{x₂, A * r} f g
-  /-- The distance of a ball with large radius is bounded below. (1.0.11) -/
-  ballsCoverBalls {x : X} {r R : ℝ} :
-    BallsCoverBalls (X := WithFunctionDistance x r) (2 * R) R A
+  /-- Every ball of radius `2R` can be covered by `A` balls of radius `R`. (1.0.11) -/
+  allBallsCoverBalls {x : X} {r : ℝ} :
+    AllBallsCoverBalls (WithFunctionDistance x r) 2 A
 
 instance nonempty_Space [CompatibleFunctions 𝕜 X A] : Nonempty X := by
   obtain ⟨x,_⟩ := ‹CompatibleFunctions 𝕜 X A›.eq_zero
@@ -282,12 +282,17 @@ def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥
   ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
   ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
 
+/-- The integrand in the (linearized) Carleson operator.
+This is `G` in Lemma 3.0.1. -/
+def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
+    (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
+  ∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * θ y)
+
 /-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/
 def linearizedCarlesonOperator [FunctionDistances ℝ X] (Q : X → Θ X) (K : X → X → ℂ)
     (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂),
-  ‖∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * Q x y)‖₊
+  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : 0 < R₁) (_ : R₁ < R₂), ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ
 
 /-- The generalized Carleson operator `T`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/
@@ -442,14 +447,21 @@ end Kernel
 throughout this formalization. -/
 def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
-/-- Data common through most of chapters 2-9. -/
-class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
-  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] where
+
+/-- Data common through most of chapters 2-7. These contain the minimal axioms for the proof of
+`kernel-summand`. This is used in chapter 3 when we don't have all other fields from `ProofData` -/
+class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
+    [PseudoMetricSpace X] where
   d : DoublingMeasure X (defaultA a)
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
-  c : IsCancellative X (defaultτ a)
   hcz : IsOneSidedKernel a K
+
+/-- Data common through most of chapters 2, 4-7. -/
+class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
+  (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
+    KernelProofData a K where
+  c : IsCancellative X (defaultτ a)
   hasBoundedStrongType_Tstar :
     HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
   measurableSet_F : MeasurableSet F
@@ -462,16 +474,18 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   Q : SimpleFunc X (Θ X)
   q_mem_Ioc : q ∈ Ioc 1 2
 
-export PreProofData (four_le_a hasBoundedStrongType_Tstar measurableSet_F measurableSet_G
+export KernelProofData (four_le_a)
+export PreProofData (hasBoundedStrongType_Tstar measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] PreProofData.d PreProofData.cf PreProofData.c PreProofData.hcz
+attribute [instance] KernelProofData.d KernelProofData.cf PreProofData.c KernelProofData.hcz
 
 section ProofData
 
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [PreProofData a q K σ₁ σ₂ F G]
+  [PseudoMetricSpace X]
 
 section Iterate
+variable [CompatibleFunctions ℝ X (defaultA a)]
 
 lemma le_cdist_iterate {x : X} {r : ℝ} (hr : 0 ≤ r) (f g : Θ X) (k : ℕ) :
     2 ^ k * dist_{x, r} f g ≤ dist_{x, (defaultA a) ^ k * r} f g := by
@@ -498,24 +512,31 @@ lemma cdist_le_iterate {x : X} {r : ℝ} (hr : 0 < r) (f g : Θ X) (k : ℕ) :
     · replace ih := (mul_le_mul_left (show 0 < (defaultA a : ℝ) by positivity)).mpr ih
       rwa [← mul_assoc, ← pow_succ'] at ih
 
-lemma ballsCoverBalls_iterate_nat {x : X} {d r : ℝ} {n : ℕ} :
-    BallsCoverBalls (WithFunctionDistance x d) (2 ^ n * r) r (defaultA a ^ n) := by
-  have double := fun s ↦ PreProofData.cf.ballsCoverBalls (x := x) (r := d) (R := s)
-  apply BallsCoverBalls.pow_mul double
-
-lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hR : 0 < R) (hr : 0 < r) :
-    BallsCoverBalls (WithFunctionDistance x d) R r (defaultA a ^ ⌈Real.logb 2 (R / r)⌉₊) := by
-  apply ballsCoverBalls_iterate_nat.mono
+lemma cdist_le_mul_cdist {x x' : X} {r r' : ℝ} (hr : 0 < r) (hr' : 0 < r') (f g : Θ X) :
+    dist_{x', r'} f g ≤ As (defaultA a) ((r' + dist x' x) / r) * dist_{x, r} f g := by
   calc
-    _ = R / r * r := by rw [div_mul_cancel₀ R hr.ne']
-    _ = 2 ^ Real.logb 2 (R / r) * r := by
-      rw [Real.rpow_logb zero_lt_two one_lt_two.ne' (by positivity)]
-    _ ≤ _ := by
-      gcongr
-      rw [← Real.rpow_natCast]
-      exact Real.rpow_le_rpow_of_exponent_le one_le_two (Nat.le_ceil _)
+    dist_{x', r'} f g ≤ dist_{x, 2 ^ _ * r} f g := ?e
+    _ ≤ _ := cdist_le_iterate hr f g _
+  case e =>
+    apply cdist_mono
+    apply ball_subset_ball'
+    calc
+      r' + dist x' x = (r' + dist x' x) / r * r := div_mul_cancel₀ _ hr.ne' |>.symm
+      _ ≤ 2 ^ ⌈Real.logb 2 ((r' + dist x' x) / r)⌉₊ * r := by
+        gcongr
+        apply Real.le_pow_natCeil_logb (by norm_num) (by positivity)
+
+lemma ballsCoverBalls_iterate_nat {x : X} {d r : ℝ} {n : ℕ} :
+    BallsCoverBalls (WithFunctionDistance x d) (2 ^ n * r) r (defaultA a ^ n) :=
+  CompatibleFunctions.allBallsCoverBalls.pow r
+
+lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hr : 0 < r) :
+    BallsCoverBalls (WithFunctionDistance x d) R r (defaultA a ^ ⌈Real.logb 2 (R / r)⌉₊) :=
+  CompatibleFunctions.allBallsCoverBalls.ballsCoverBalls one_lt_two hr
 
 end Iterate
+
+variable [PreProofData a q K σ₁ σ₂ F G]
 
 @[fun_prop]
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
@@ -667,6 +688,7 @@ lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
 
 end ProofData
 
+/-- The hypotheses common in chapters 4-7. -/
 class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
     (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X]
     extends PreProofData a q K σ₁ σ₂ F G where
@@ -787,10 +809,8 @@ lemma Θ.finite_and_mk_le_of_le_dist {x₀ : X} {r R : ℝ} {f : Θ X} {k : ℕ}
     {𝓩 : Set (Θ X)} (h𝓩 : 𝓩 ⊆ ball_{x₀, R} f (r * 2 ^ k))
     (h2𝓩 : 𝓩.PairwiseDisjoint (ball_{x₀, R} · r)) :
     𝓩.Finite ∧ Cardinal.mk 𝓩 ≤ C2_1_1 k a := by
-  have pmul := (BallsCoverBalls.pow_mul (k := k) (r := r) fun r ↦
-    CompatibleFunctions.ballsCoverBalls (x := x₀) (r := R) (R := r)) f
-  rw [mul_comm, coveredByBalls_iff] at pmul
-  obtain ⟨𝓩', c𝓩', u𝓩'⟩ := pmul
+  obtain ⟨𝓩', c𝓩', u𝓩'⟩ := ballsCoverBalls_iterate_nat (x := x₀) (n := k) (r := r) (d := R) f
+  rw [mul_comm] at u𝓩'
   classical
     let g : Θ X → Finset (Θ X) := fun z ↦ 𝓩'.filter (z ∈ ball_{x₀, R} · r)
     have g_pd : 𝓩.PairwiseDisjoint g := fun z hz z' hz' hne ↦ by

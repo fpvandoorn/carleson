@@ -315,8 +315,7 @@ lemma nontangential_operator_bound
   have ha : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
   have aemeas_MB : AEMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) :=
     (AEStronglyMeasurable.maximalFunction (to_countable 𝓑)).aemeasurable
-  have ⟨hT₁, hT₂⟩ := hasBoundedStrongType_Tstar f (hf.memLp 2) hf.memLp_top.eLpNorm_lt_top
-    hf.isBoundedSupport.measure_lt_top
+  have ⟨hT₁, hT₂⟩ := hasBoundedStrongType_Tstar f hf.boundedFiniteSupport
   calc eLpNorm (nontangentialMaximalFunction θ f) 2 volume
     _ ≤ eLpNorm (fun x ↦ nontangentialOperator K f x +
           2 ^ (1 + 7 * (a : ℝ) + 101 * a ^ 3) * MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume := by
@@ -607,7 +606,7 @@ lemma boundary_geometric_series :
       change (4 : ℝ) * D ^ s J' ≤ 16 * D ^ s J'; gcongr; norm_num
     _ = ∑ kh : Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - kh.1) / (a : ℝ)) *
         (kissing (Grid.exists_supercube kh.1 kh.2).choose).card := by
-      simp_rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul, mul_comm,
+      simp_rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul, mul_comm (Nat.cast _),
         Finset.filter_univ_mem]
     _ ≤ 2 ^ (9 * a) * ∑ kh : Icc (s J) S, (D : ℝ≥0∞) ^ ((s J - kh.1) / (a : ℝ)) := by
       conv_rhs => rw [Finset.mul_sum]; enter [2, kh]; rw [mul_comm]

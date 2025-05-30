@@ -26,6 +26,21 @@ lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
       · intro y hy
         apply enorm_K_le_ball_complement' hr hy
 
+@[fun_prop]
+lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    AEStronglyMeasurable (fun x ↦ czOperator K r g x) := by
+  unfold czOperator
+  conv => arg 1; intro x; rw [← integral_indicator (by measurability)]
+  let f := fun (x,z) ↦ (ball x r)ᶜ.indicator (fun y ↦ K x y * g y) z
+  apply AEStronglyMeasurable.integral_prod_right' (f := f)
+  unfold f
+  apply AEStronglyMeasurable.indicator
+  · apply Continuous.comp_aestronglyMeasurable₂ (by fun_prop) aestronglyMeasurable_K
+    exact AEStronglyMeasurable.snd (hg.aestronglyMeasurable)
+  · conv => arg 1; change {x : (X × X) | x.2 ∈ (ball x.1 r)ᶜ}
+    simp_rw [mem_compl_iff, mem_ball, not_lt]
+    apply measurableSet_le <;> fun_prop
+
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by
   let Kxg := fun y ↦ K x y * g y
@@ -99,3 +114,11 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
       · exact support_mul_subset_right (K x) g
   · exact mKxg
   · exact hM
+
+-- This could be adapted to state T_r is a linear operator but maybe it's not worth the effort
+lemma czoperator_sub {f g : X → ℂ} (hf : BoundedFiniteSupport f) (hg : BoundedFiniteSupport g) (hr : 0 < r) :
+    czOperator K r (f - g) = czOperator K r f - czOperator K r g := by
+  ext x
+  unfold czOperator
+  simp_rw [Pi.sub_apply, mul_sub_left_distrib,
+    integral_sub (czoperator_welldefined hf hr x) (czoperator_welldefined hg hr x)]

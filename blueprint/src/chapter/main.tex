@@ -616,7 +616,7 @@ Define further $M_{\mathcal{B}}:=M_{\mathcal{B},1}$.
 \label{Hardy-Littlewood}
 \leanok
 \lean{Finset.measure_biUnion_le_lintegral, hasStrongType_maximalFunction,
-MeasureTheory.AEStronglyMeasurable.globalMaximalFunction, laverage_le_globalMaximalFunction}
+MeasureTheory.AEStronglyMeasurable.globalMaximalFunction, laverage_le_globalMaximalFunction, hasStrongType_globalMaximalFunction}
 \uses{layer-cake-representation,covering-separable-space}
    Let $\mathcal{B}$ be a finite collection of balls in $X$.
 If for some $\lambda>0$ and some measurable function $u:X\to [0,\infty)$ we have
@@ -811,8 +811,10 @@ Let $(X, \rho, \mu, a)$ be a doubling metric measure space and $\Theta$ a cancel
 
 We begin by proving some continuity properties of the integrand in \eqref{def-main-op}.
 
-\begin{lemma}
+\begin{lemma}[int continuous]
     \label{int-continuous}
+    \leanok
+    \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, isBounded_carlesonOperatorIntegrand}
      Let $f$ be a measurable function with $|f| \le 1$. Then the function
     \[
         G: X \times \Theta \times (0,\infty) \times (0, \infty) \to [0, \infty)
@@ -868,6 +870,7 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
 We now prove Theorem \ref{metric-space-Carleson} using Theorem \ref{linearised-metric-Carleson}.
 
 \begin{proof}[Proof of \Cref{metric-space-Carleson}]
+    \proves{metric-space-Carleson}
     Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
     Let $\Mf' \subset \Mf$ be a countable dense set. By Lemma \ref{int-continuous} we have
@@ -904,7 +907,7 @@ We continue with the proof of Theorem \ref{linearised-metric-Carleson}, via a se
 Let a measurable function $Q$ with finite range be given.
 
 \begin{proof}[Proof of \Cref{linearised-metric-Carleson}]
-
+\proves{linearised-metric-Carleson}
 Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
 For each $0 < R_1,R_2,R$, we define $T_{R_1,R_2,R}f$ as in \eqref{TRR}.
@@ -919,6 +922,8 @@ For each $x$ and all $f$, the functions $\sup_{2^{-n} < R_1 < R_2 < 2^n} T_{R_1,
 
 \begin{lemma}[R truncation]
     \label{R-truncation}
+    \leanok
+    \lean{R_truncation}
     \uses{S-truncation}
 
     Let $F$, $G$ be Borel sets in $X$ with finite measure.
@@ -1004,6 +1009,8 @@ Summing the contributions from the summands in \eqref{middles} and \eqref{bounda
 
 \begin{lemma}[S truncation]
     \label{S-truncation}
+    \leanok
+    \lean{S_truncation}
     \uses{Hardy-Littlewood, linearized-truncation}
 
 
@@ -1051,6 +1058,8 @@ T_{s_1,s_2} f(x)=
 
 \begin{lemma}[linearized truncation]
     \label{linearized-truncation}
+    \leanok
+    \lean{linearized_truncation}
     \uses{finitary-Carleson}
     Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range
     $[-S,S]$ and $\sigma_1\leq \sigma_2$.
@@ -3398,7 +3407,7 @@ Since $1< q\le 2$, we have $1<\tilde{q}<q\le 2$.
 \label{dens2-antichain}
 \uses{Hardy-Littlewood,maximal-bound-antichain}
 \leanok
-\lean{Dens2Antichain}
+\lean{dens2_antichain}
 We have that
 \begin{equation}\label{eqttt9}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
@@ -3457,7 +3466,9 @@ proves the lemma.
 
 
 \begin{lemma}[dens1 antichain]\label{dens1-antichain}
-\uses{Hardy-Littlewood, tile-correlation,antichain-tile-count}
+    \leanok
+    \lean{dens1_antichain}
+    \uses{Hardy-Littlewood, tile-correlation,antichain-tile-count}
 Set $p:=4a^4$. We have
     \begin{equation}\label{eqttt3}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
@@ -5171,7 +5182,7 @@ Now we are ready to state the main result of this subsection.
     \end{equation}
     \begin{equation}
         \label{eq-rhs-sep-tree}
-        \le 2^{550a^3-3n} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1) \cap \scI(\fu_2))}\,.
+        \le 2^{542a^3-4n} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1) \cap \scI(\fu_2))}\,.
     \end{equation}
 \end{lemma}
 
@@ -5415,7 +5426,7 @@ $$
         We have for all $J \in \mathcal{J}'$ that
       \begin{equation}
             \label{hHolder}
-            \|h_J\|_{C^{\tau}(B(c(J), 8D^{s(J)}))} \le 2^{535a^3} \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
+            \|h_J\|_{C^{\tau}(B(c(J), 8D^{s(J)}))} \le 2^{529a^3} \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
         \end{equation}
     \end{lemma}
 
@@ -5716,35 +5727,34 @@ $$
         \uses{global-tree-control-1, local-tree-control}
         We have for all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{155a^3} \inf_{J} M_{\mathcal{B},1}|g|\,.
+            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B},1}|g|\,.
         $$
     \end{lemma}
 
     \begin{proof}
+        \leanok
         By \Cref{global-tree-control-1}
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|
         $$
         $$
-            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| + 2^{154a^3} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
+            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
         $$
         and by \Cref{local-tree-control}
         $$
-            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + (2^{104a^3} + 2^{154a^3}) \inf_{J} M_{\mathcal{B}, 1} |g|\,.
+            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + (2^{104a^3} + 2^{151a^3+4a+2}) \inf_{J} M_{\mathcal{B}, 1} |g|\,.
         $$
         This completes the proof.
     \end{proof}
 
-
-
     \begin{proof}[Proof of \Cref{Holder-correlation-tree}]
+        \leanok
         \proves{Holder-correlation-tree}
-        Let $P$ be the product on the right hand side of \eqref{hHolder}, and $h_J$ as defined in \eqref{def-hj}.
-
+        Let $P$ be the product on the right hand side of \eqref{hHolder}, and $h_J$ be as defined in \eqref{def-hj}.
         By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \scI(\fu_1)$.
-        By \eqref{eq-pao-2} and \Cref{global-tree-control-1}, we have for all $y \in B(J)$:
+        By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have for all $y \in B(J)$:
         $$
-            |h_J(y)| \le 2^{308a^3} P\,.
+            |h_J(y)| \le 2^{302a^3+8a+5} P\,.
         $$
         We have by the triangle inequality
         \begin{align}
@@ -5752,26 +5762,35 @@ $$
             \label{eq-h-Lip-1}
             &\le |\chi_J(y) - \chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y)| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y)|\\
             \label{eq-h-Lip-2}
-            & + |\chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y) - T_{\fT(\fu_1)}^* g_1(y')| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y)|\\
+            & + |\chi_J(y')| |e(\fcc(\fu_1)(y)) T_{\fT(\fu_1)}^* g_1(y) - e(\fcc(\fu_1)(y')) T_{\fT(\fu_1)}^* g_1(y')| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y)|\\
             \label{eq-h-Lip-3}
-            & + |\chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y')| |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y) - T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y')|\,.
+            & + |\chi_J(y')| |T_{\fT(\fu_1)}^* g_1(y')| |e(\fcc(\fu_2)(y)) T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y) - e(\fcc(\fu_2)(y')) T_{\fT(\fu_2) \cap \mathfrak{S}}^* g_2(y')|\,.
         \end{align}
 
         As $h_J$ is supported in $\scI(\fu_1)$, we can assume without loss of generality that $y' \in \scI(\fu_1)$.
         If $y \notin \scI(\fu_1)$, then \eqref{eq-h-Lip-1} vanishes. If $y \in \scI(\fu_1)$ then we have by \eqref{eq-pao-3}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}
+        % C7_5_2       C7_5_9s           C7_5_10
+        % 2^{226a^3} * 2^{151a^3+4a+2} * 2^{151a^3+4a+3}
+        % 2^{528a^3+8a+5}
         $$
-            \eqref{eq-h-Lip-1} \le 2^{534a^3} \frac{\rho(y,y')}{D^{s(J)}} P\,,
+            \eqref{eq-h-Lip-1} \le 2^{528a^3+8a+5} \frac{\rho(y,y')}{D^{s(J)}} P\,,
         $$
         where $P$ denotes the product on the right hand side of \eqref{hHolder}.
 
         By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have
+        % C7_5_9d           C7_5_10
+        % 2^{151a^3+4a+1} * 2^{151a^3+4a+3}
+        % 2^{302a^3+8a+4}
         $$
-            \eqref{eq-h-Lip-2} \le 2^{310a^3} P\,.
-         $$
+            \eqref{eq-h-Lip-2} \le 2^{302a^3+8a+4} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
+        $$
 
         By \eqref{eq-pao-2}, and twice \Cref{global-tree-control-1}, we have
+        % C7_5_9s           C7_5_9d
+        % 2^{151a^3+4a+2} * 2^{151a^3+4a+1}
+        % 2^{302a^3+8a+3}
         $$
-            \eqref{eq-h-Lip-3} \le 2^{308a^3} P\,.
+            \eqref{eq-h-Lip-3} \le 2^{302a^3+8a+3} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
         $$
         Using that $\rho(y,y') \le 16D^{s(J)}$ and $a \ge 4$, the lemma follows.
     \end{proof}
@@ -6932,6 +6951,7 @@ The proof of \Cref{nontangential-from-simple} relies on the following auxiliary 
     \end{equation}
 \end{lemma}
 Throughout \Cref{subsec-CZD} and \Cref{subsec-cotlar}, for any measurable bounded function $w: X \to \C$, let $Mw: X \to [0, \infty)$ denote the corresponding Hardy--Littlewood maximal function defined in \Cref{Hardy-Littlewood}.
+Note: In some cases, a stronger formalization of \Cref{Hardy-Littlewood} is used, where $w$ is not necessarily bounded. In particular it is applied to $T_rg$.
 Apart from \Cref{Hardy-Littlewood}, \Cref{subsec-CZD} and \Cref{subsec-cotlar} have no dependencies in the previous chapters.
 
 
@@ -7087,6 +7107,7 @@ Then for all $x'\in X$ with $\rho(x,x')\le\frac {R}{4}$ we have
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $x$ and $x'$ be given with $\rho(x,x')\le\frac {R}{4}$.
 By an application of \Cref{estimate-x-shift}, we estimate
 the left-hand-side of
@@ -7161,6 +7182,7 @@ is less than or equal to  $\mu(B(x,\frac{R}{4}))/4$.
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $r$, $R$, $x$ and $g$ be given.
 If $M(T_rg)(x)=0$, then $T_rg$ is zero almost everywhere and the estimate on $|F_1|$ is trivial.
 Assume $M(T_rg)(x)>0$.
@@ -7204,6 +7226,7 @@ Let $0<r\le R$ and  $x\in X$. Let $g:X\to\C$ be a bounded measurable function su
 
 
 \begin{proof}
+\leanok
 By \Cref{Cotlar-sets}, the set of all $x'\in B(x,\frac {R} 4)$
 such that at least one of the conditions
 \eqref{first-cotlar-exception} and
