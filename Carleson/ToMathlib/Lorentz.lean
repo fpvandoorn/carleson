@@ -90,7 +90,7 @@ lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Me
 -/
 
 @[simp]
-lemma eLorentzNorm_top_top {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
+lemma eLorentzNorm_top_top {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E]
     {μ : Measure α} {f : α → E} :
     eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
   unfold eLorentzNorm
@@ -181,7 +181,9 @@ variable {α' ε₁ ε₂ : Type*} {m : MeasurableSpace α'} [TopologicalSpace �
     [TopologicalSpace ε₂] [ContinuousENorm ε₂] --[TopologicalSpace ε₃] [ContinuousENorm ε₃]
     {f : α → ε} {f₁ : α → ε₁}
 
-
+/-- An operator has Lorentz type `(p, r, q, s)` if it is bounded as a map
+from `L^{q, s}` to `L^{p, r}`. `HasLorentzType T p r q s μ ν c` means that
+`T` has Lorentz type `(p, r, q, s)` w.r.t. measures `μ`, `ν` and constant `c`. -/
 def HasLorentzType (T : (α → ε₁) → (α' → ε₂))
     (p r q s : ℝ≥0∞) (μ : Measure α) (ν : Measure α') (c : ℝ≥0∞) : Prop :=
   ∀ f : α → ε₁, MemLorentz f p r μ → AEStronglyMeasurable (T f) ν ∧
@@ -198,6 +200,9 @@ lemma HasLorentzType_p_infty_qs {T : (α → ε₁) → (α' → ε₂)} {p q s 
 --TODO: what exactly should be the requirements on 𝕂? Actually, we only need a 1 here.
 --TODO: This could be more general, it currently assumes T f ≥ 0
 variable {𝕂 : Type*} [TopologicalSpace 𝕂] [ContinuousENorm 𝕂] [NormedField 𝕂]
+
+/- Defines when an operator "has restricted weak type". This is an even weaker version
+of `HasBoundedWeakType`. -/
 def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥0∞) (μ : Measure α) (ν : Measure α')
     (c : ℝ≥0∞) : Prop :=
   ∀ (F : Set α) (G : Set α'), (MeasurableSet F) → (μ F < ∞) → (MeasurableSet G) → (ν G < ∞) →
