@@ -499,19 +499,6 @@ lemma enorm_ψ_le_edist {y : X} (my : y ∈ E p) (hx' : x' ∉ ball (𝔠 p) (5 
       nth_rw 2 [← ENNReal.rpow_one 4]
       exact ENNReal.rpow_le_rpow_of_exponent_le (by norm_num) (Nat.cast_inv_le_one a)
 
-/-- This bound is used in both nontrivial cases of Lemma 7.5.5. -/
-lemma volume_xDsp_bound (hx : x ∈ 𝓘 p) :
-    volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
-  apply ENNReal.div_le_of_le_mul'
-  have h : dist x (𝔠 p) + 4 * D ^ 𝔰 p ≤ 8 * D ^ 𝔰 p := by
-    calc
-      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 4 * ↑D ^ 𝔰 p := by
-        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
-      _ = _ := by rw [← add_mul]; norm_num
-  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
-  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
-  rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
-
 lemma holder_correlation_tile_one
     (hf : BoundedCompactSupport f) (hx' : x' ∉ ball (𝔠 p) (5 * D ^ 𝔰 p)) :
     ‖adjointCarleson p f x‖ₑ ≤ C7_5_5 a / volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) *
