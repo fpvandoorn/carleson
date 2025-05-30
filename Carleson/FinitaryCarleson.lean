@@ -101,17 +101,37 @@ def C2_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 lemma C2_0_1_pos [ProofData a q K σ₁ σ₂ F G] :
   C2_0_1 a nnq > 0 := C2_0_2_pos
 
+/-- ProofData without G -/
 class FinitaryData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
-  (σ₁ σ₂ : outParam (X → ℤ)) (F : outParam (Set X)) [PseudoMetricSpace X] where
-  G : Set X
-  p : PreProofData a q K σ₁ σ₂ F G
+    (σ₁ σ₂ : outParam (X → ℤ)) (F : outParam (Set X)) [PseudoMetricSpace X] extends
+    KernelProofData a K where
+  c : IsCancellative X (defaultτ a)
+  hasBoundedStrongType_Tstar :
+    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
+  measurableSet_F : MeasurableSet F
+  measurable_σ₁ : Measurable σ₁
+  measurable_σ₂ : Measurable σ₂
+  finite_range_σ₁ : Finite (range σ₁)
+  finite_range_σ₂ : Finite (range σ₂)
+  σ₁_le_σ₂ : σ₁ ≤ σ₂
+  Q : SimpleFunc X (Θ X)
+  q_mem_Ioc : q ∈ Ioc 1 2
   isBounded_F : Bornology.IsBounded F
+
+/-- The assumptions on G in ProofData -/
+class GData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
+    (σ₁ σ₂ : outParam (X → ℤ)) (F : outParam (Set X)) [PseudoMetricSpace X]
+    [FinitaryData a q K σ₁ σ₂ F] where
+  G : Set X
+  measurableSet_G : MeasurableSet G
   isBounded_G : Bornology.IsBounded G
 
-instance [h : FinitaryData a q K σ₁ σ₂ F] : PreProofData a q K σ₁ σ₂ F h.G :=
-  FinitaryData.p
+variable [h1 : FinitaryData a q K σ₁ σ₂ F]
 
-theorem finitary_carleson (h : FinitaryData a q K σ₁ σ₂ F) : let G := h.G
+instance [h2 : GData a q K σ₁ σ₂ F] : PreProofData a q K σ₁ σ₂ F h2.G :=
+  { h1, h2 with }
+
+theorem finitary_carleson (h : GData a q K σ₁ σ₂ F) : let G := h.G
     ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
@@ -156,32 +176,29 @@ theorem finitary_carleson (h : FinitaryData a q K σ₁ σ₂ F) : let G := h.G
   suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by rw [this, mul_one]
   simp [← coe_eq_one, mul_comm I, enorm_eq_nnnorm]
 
-def FinitaryData.G' (h : FinitaryData a q K σ₁ σ₂ F) : Set X :=
+namespace GData
+protected def G' (h : GData a q K σ₁ σ₂ F) : Set X :=
   h.G ∩ (finitary_carleson h).choose
 
--- variable {hF : F ⊆ ball o (D ^ S / 4)} {hG : G ⊆ ball o (D ^ S / 4)}
+protected lemma measurable_G' (h : GData a q K σ₁ σ₂ F) : MeasurableSet h.G' :=
+  measurableSet_G.inter <| finitary_carleson h |>.choose_spec.1
 
-def FinitaryData.preProofData_G' (h : FinitaryData a q K σ₁ σ₂ F) :
-    PreProofData a q K σ₁ σ₂ F h.G' where
-  d := inferInstance
-  four_le_a := four_le_a X
-  cf := inferInstance
-  hcz := inferInstance
-  c := inferInstance
-  hasBoundedStrongType_Tstar
-  measurableSet_F
-  measurableSet_G := measurableSet_G.inter <| finitary_carleson h |>.choose_spec.1
-  measurable_σ₁
-  measurable_σ₂
-  finite_range_σ₁
-  finite_range_σ₂
-  σ₁_le_σ₂
-  Q
-  q_mem_Ioc := q_mem_Ioc X
+protected lemma volume_G'_le (h : GData a q K σ₁ σ₂ F) :
+    volume h.G' ≤ volume h.G / 2 := by
+  refine measure_mono inter_subset_right |>.trans ?_
+  rw [ENNReal.le_div_iff_mul_le (by norm_num) (by simp), mul_comm]
+  exact finitary_carleson h |>.choose_spec.2.1
 
-def FinitaryData.finitaryData_G' (h : FinitaryData a q K σ₁ σ₂ F) :
-    FinitaryData a q K σ₁ σ₂ F where
+protected lemma lintegral_sdiff_le (h : GData a q K σ₁ σ₂ F)
+    {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    ∫⁻ x in h.G \ h.G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
+    C2_0_1 a nnq * (volume h.G) ^ (1 - q⁻¹) * (volume F) ^ q⁻¹ := by
+  simp_rw [GData.G', diff_self_inter, finitary_carleson h |>.choose_spec.2.2 f hf h2f]
+
+protected def next (h : GData a q K σ₁ σ₂ F) :
+    GData a q K σ₁ σ₂ F where
   G := h.G'
-  p := h.preProofData_G'
-  isBounded_F
+  measurableSet_G := h.measurable_G'
   isBounded_G := h.isBounded_G.subset inter_subset_left
+
+end GData
