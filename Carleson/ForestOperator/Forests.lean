@@ -310,7 +310,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
     eLpNorm
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
   by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
-  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂ hf₁ h2f₁ hf₂ h2f₂
+  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂ hf₁ hf₂
   by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
   · have :
         ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x * conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
