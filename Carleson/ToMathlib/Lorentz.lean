@@ -130,7 +130,7 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] 
           use {x | x ≠ 0}
           constructor
           · refine mem_ae_iff.mpr ?_
-            rw [volume_val]
+            rw [NNReal.volume_val]
             simp
           · intro x hx
             rw[ENNReal.inv_lt_top, ENNReal.coe_pos]
