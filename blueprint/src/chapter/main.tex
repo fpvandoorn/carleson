@@ -5896,10 +5896,10 @@ $$
         \leanok
         \lean{TileStructure.Forest.bound_for_tree_projection}
         \uses{adjoint-tile-support,overlap-implies-distance,dyadic-partition-2,thin-scale-impact,square-function-count}
-        We have
+        We have for all bounded $f$ with bounded support
         $$
             \|P_{\mathcal{J}'}|T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g_2|\|_2
-            \le 2^{118a^3} 2^{-\frac{100}{202a}Zn\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
+            \le 2^{102a^3+21a+5} 2^{-\frac{25}{101a}Zn\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
         $$
     \end{lemma}
 
@@ -6013,6 +6013,7 @@ $$
 
 
 \begin{proof}[Proof of \Cref{bound-for-tree-projection}]
+    \leanok
     \proves{bound-for-tree-projection}
     Expanding the definition of $P_{\mathcal{J}'}$, we have
     $$
@@ -6081,16 +6082,16 @@ $$
     $$
         \le 2^{102a^3+11a+2} D^{-s_1 \kappa /2} \frac{1}{1 - D^{-\kappa/2}} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2\,.
     $$
-    By convexity of $t \mapsto D^t$ and since $D \ge 2$, we have for all $-1 \le t \le 0$
+    By convexity of $t \mapsto D^{-t}$ and since $D \ge 2$, we have for all $0 \le t \le 1$
     $$
-        D^t \le 1 + t(1 - \frac{1}{D}) \le 1 + \frac{1}{2}t\,.
+        D^{-t} \le 1 - t(1 - 1/D) \le 1 - \frac{1}{2}t\,.
     $$
-    Using this for $t = -\kappa/2$ and using that $s_1 = \frac{Zn}{202a^3} - 2$ and the definitions \eqref{defineD} and \eqref{definekappa} of $\kappa$ and $D$
+    Using this for $t = \kappa/2$ and using that $s_1 = \frac{Zn}{202a^3} - 2$ and the definitions \eqref{defineD} and \eqref{definekappa} of $\kappa$ and $D$
     $$
-        \le 2^{116a^3} 2^{-100a^2(\frac{Zn}{202a^3} - 2) \frac{\kappa}{2}} \frac{2}{\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
+        \le 2^{102a^3+11a+2} 2^{-100a^2(\frac{Zn}{202a^3} - 3) \frac{\kappa}{2}} \frac{2}{\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2
     $$
     $$
-        \le \frac{2^{117a^3 + 1}}{\kappa} 2^{-\frac{100}{202a}Zn\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2\,.
+        = 2^{102a^3+21a+4} 2^{150a^2\kappa} 2^{-\frac{100}{404a}Zn\kappa} \|\mathbf{1}_{\scI(\fu_1)} M_{\mathcal{B},1} |g_2|\|_2\,.
     $$
     Using the definition \eqref{definekappa} of $\kappa$ and $a \ge 4$, the lemma follows.
 \end{proof}

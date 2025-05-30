@@ -1,3 +1,4 @@
+import Carleson.Calculations
 import Carleson.ForestOperator.AlmostOrthogonality
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 
@@ -364,11 +365,6 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
   congr!
   simp [mul_assoc, mul_comm (G := ℝ) 14]
 
-/-- The constant used in `bound_for_tree_projection`.
-Has value `2 ^ (118 * a ^ 3 - 100 / (202 * a) * Z * n * κ)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_6_2 (a n : ℕ) : ℝ≥0 := 2 ^ (118 * (a : ℝ) ^ 3 - 100 / (202 * a) * Z * n * κ)
-
 open Classical in
 lemma sum_𝓙₆_indicator_sq_eq {f : Grid X → X → ℝ≥0∞} :
     (∑ J ∈ (𝓙₆ t u₁).toFinset, (J : Set X).indicator (f J) x) ^ 2 =
@@ -693,12 +689,80 @@ lemma e764_postCS (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
       congr! with x
       simp_rw [sq, ← inter_indicator_mul, inter_self]
 
-/-- Lemma 7.6.2. Todo: add needed hypothesis to LaTeX -/
+/-- The constant used in `bound_for_tree_projection`. -/
+irreducible_def C7_6_2 (a n : ℕ) : ℝ≥0 :=
+  C2_1_3 a * 2 ^ (21 * a + 5) * 2 ^ (-(25 / (101 * a) * Z * n * κ))
+
+omit [TileStructure Q D κ S o] in
+lemma btp_constant_bound :
+    C2_1_3 a * 2 ^ (11 * a + 2) *
+    ∑ k ∈ Finset.Icc ⌊C7_6_3 a n⌋ (2 * S), (D : ℝ≥0∞) ^ (-k * κ / 2) ≤ C7_6_2 a n := by
+  calc
+    _ = C2_1_3 a * 2 ^ (11 * a + 2) * D ^ (-⌊C7_6_3 a n⌋ * κ / 2) *
+        ∑ k ∈ Finset.range (2 * S + 1 - ⌊C7_6_3 a n⌋).toNat, ((D : ℝ≥0∞) ^ (-(κ / 2))) ^ k := by
+      conv_rhs => rw [mul_assoc, Finset.mul_sum]
+      congr 1; change ∑ k ∈ Finset.Ico _ _, _ = _
+      rcases le_or_gt (2 * S + 1 : ℤ) ⌊C7_6_3 a n⌋ with hb | hb
+      · rw [Finset.Ico_eq_empty (not_lt.mpr hb)]; rw [← sub_nonpos] at hb
+        rw [Int.toNat_of_nonpos hb]; simp
+      refine Finset.sum_bij
+        (fun (k : ℤ) (_ : k ∈ Finset.Ico ⌊C7_6_3 a n⌋ (2 * S + 1)) ↦ (k - ⌊C7_6_3 a n⌋).toNat)
+        (fun k mk ↦ ?_) (fun k₁ mk₁ k₂ mk₂ he ↦ ?_) (fun k mk ↦ ?_) (fun k mk ↦ ?_)
+      · rw [Finset.mem_Ico] at mk; simp [mk]
+      · rw [Finset.mem_Ico] at mk₁ mk₂
+        simp_rw [← Int.ofNat_inj, Int.toNat_sub_of_le mk₁.1, Int.toNat_sub_of_le mk₂.1] at he
+        simpa using he
+      · use k + ⌊C7_6_3 a n⌋, ?_, by simp
+        rw [Finset.mem_range, ← Nat.cast_lt (α := ℤ), Int.toNat_sub_of_le hb.le] at mk
+        rw [Finset.mem_Ico]; omega
+      · rw [Finset.mem_Ico] at mk
+        simp_rw [← ENNReal.rpow_natCast,
+          show ((k - ⌊C7_6_3 a n⌋).toNat : ℝ) = ((k - ⌊C7_6_3 a n⌋).toNat : ℤ) by rfl,
+          Int.toNat_sub_of_le mk.1, ← ENNReal.rpow_mul, Int.cast_sub]
+        rw [← ENNReal.rpow_add _ _ (by norm_cast; unfold defaultD; positivity)
+          (ENNReal.natCast_ne_top D)]
+        congr; ring
+    _ ≤ C2_1_3 a * 2 ^ (11 * a + 2) * 2 ^ (-100 * a ^ 2 * (Z * n / (202 * a ^ 3) - 3) * κ / 2) *
+        2 ^ (10 * a + 2) := by
+      gcongr with k
+      · rw [defaultD, Nat.cast_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, neg_mul, neg_div,
+          ← neg_mul_comm, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Nat.cast_ofNat, ← neg_mul,
+          ← mul_div_assoc, ← mul_assoc]
+        gcongr _ ^ (?_ * _ / _)
+        · exact one_le_two
+        · exact κ_nonneg
+        · apply mul_le_mul_of_nonpos_left
+          · rw [show (3 : ℝ) = 2 + 1 by norm_num, ← sub_sub, ← C7_6_3_def, sub_le_iff_le_add]
+            exact (Int.lt_floor_add_one _).le
+          · rw [neg_mul, Left.neg_nonpos_iff, mul_nonneg_iff_of_pos_left (by norm_num)]
+            positivity
+      · exact calculation_7_6_2 (X := X)
+    _ = C2_1_3 a * 2 ^ (21 * a + 4) * 2 ^ (150 * a ^ 2 * κ - 100 / (404 * a) * Z * n * κ) := by
+      rw [← mul_rotate]; congr 1
+      · rw [← mul_assoc, ← mul_rotate, ← pow_add, mul_comm]
+        congr 2; omega
+      · congr 1
+        rw [mul_sub, neg_mul, neg_mul, neg_mul, sub_neg_eq_add, ← sub_eq_neg_add, sub_mul, sub_div]
+        congr
+        · ring
+        · have a4 := four_le_a X
+          rw [← mul_comm_div, pow_succ' _ 2, ← mul_assoc 202, mul_div_mul_right _ _ (by positivity),
+            mul_assoc, ← div_mul_eq_mul_div, div_div, ← mul_assoc, ← mul_assoc,
+            show 202 * (a : ℝ) * 2 = 404 * a by ring]
+    _ ≤ C2_1_3 a * 2 ^ (21 * a + 4) * 2 ^ (1 - 100 / (404 * a) * Z * n * κ) := by
+      gcongr; exacts [one_le_two, calculation_150 (X := X)]
+    _ = _ := by
+      rw [sub_eq_add_neg, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, ENNReal.rpow_one,
+        ← mul_assoc, mul_assoc _ _ 2, ← pow_succ, C7_6_2, ENNReal.coe_mul, ← div_div, ← div_div,
+        ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_mul, ENNReal.coe_pow]
+      congr 7; norm_num
+
+/-- Lemma 7.6.2. -/
 lemma bound_for_tree_projection (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hf : BoundedCompactSupport f) (mf : AEStronglyMeasurable f) :
     eLpNorm (approxOnCube (𝓙₆ t u₁) (‖adjointCarlesonSum (t u₂ \ 𝔖₀ t u₁ u₂) f ·‖)) 2 volume ≤
-    C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume := by
-  sorry
+    C7_6_2 a n * eLpNorm ((𝓘 u₁ : Set X).indicator (MB volume 𝓑 c𝓑 r𝓑 f ·)) 2 volume :=
+  (e764_postCS hu₁ hu₂ hu h2u hf mf).trans (mul_le_mul_right' btp_constant_bound _)
 
 /-- The constant used in `correlation_near_tree_parts`.
 Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
