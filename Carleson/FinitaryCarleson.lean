@@ -7,9 +7,9 @@ noncomputable section
 
 open scoped ShortVariables
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+  [MetricSpace X]
 
-theorem integrable_tile_sum_operator
+theorem integrable_tile_sum_operator [ProofData a q K σ₁ σ₂ F G]
     {f : X → ℂ} (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) {x : X} {s : ℤ} :
     Integrable fun y ↦ Ks s x y * f y * exp (I * (Q x y - Q x x)) := by
   simp_rw [mul_assoc, mul_comm (Ks s x _)]
@@ -23,7 +23,7 @@ theorem integrable_tile_sum_operator
 
 section
 
-variable [TileStructure Q D κ S o]
+variable [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
 @[reducible] -- Used to simplify notation in the proof of `tile_sum_operator`
 private def 𝔓X_s (s : ℤ) := (@Finset.univ (𝔓 X) _).filter (fun p ↦ 𝔰 p = s)
@@ -98,15 +98,52 @@ end
 /- The constant used in Proposition 2.0.1 -/
 def C2_0_1 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := C2_0_2 a q
 
-lemma C2_0_1_pos [TileStructure Q D κ S o] : C2_0_1 a nnq > 0 := C2_0_2_pos
+lemma C2_0_1_pos [ProofData a q K σ₁ σ₂ F G] :
+  C2_0_1 a nnq > 0 := C2_0_2_pos
 
-variable (X) in
-theorem finitary_carleson [PreProofData a q K σ₁ σ₂ F G] :
+class FinitaryData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
+  (σ₁ σ₂ : outParam (X → ℤ)) (F : outParam (Set X)) [PseudoMetricSpace X] where
+  G : Set X
+  p : PreProofData a q K σ₁ σ₂ F G
+  isBounded_F : Bornology.IsBounded F
+  isBounded_G : Bornology.IsBounded G
+
+instance [h : FinitaryData a q K σ₁ σ₂ F] : PreProofData a q K σ₁ σ₂ F h.G :=
+  FinitaryData.p
+
+theorem finitary_carleson (h : FinitaryData a q K σ₁ σ₂ F) : let G := h.G
     ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∀ f : X → ℂ, Measurable f → (∀ x, ‖f x‖ ≤ F.indicator 1 x) →
     ∫⁻ x in G \ G', ‖∑ s ∈ Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
     C2_0_1 a nnq * (volume G) ^ (1 - q⁻¹) * (volume F) ^ q⁻¹ := by
-  sorry
+  intro G
+  obtain hG|hG := eq_zero_or_pos (volume G)
+  · use ∅, .empty, by simp
+    intro f hf h2f
+    simp [setLIntegral_measure_zero, *]
+  obtain hF|hF := eq_zero_or_pos (volume F)
+  · use ∅, .empty, by simp
+    intro f hf h2f
+    have : f =ᵐ[volume] 0 := by
+      rw [Filter.EventuallyEq, ae_iff]
+      refine measure_mono_null (fun x hx ↦ ?_) hF
+      by_contra h2x
+      specialize h2f x
+      simp_all
+    calc ∫⁻ (x : X) in G \ ∅,
+      ‖∑ s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset, ∫ (y : X), Ks s x y * f y * cexp (I * ↑((Q x) y))‖ₑ =
+      ∫⁻ (x : X) in G \ ∅,
+      ‖∑ s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset, ∫ (y : X), Ks s x y * 0 * cexp (I * ↑((Q x) y))‖ₑ := by
+          apply lintegral_congr
+          congr! 2 with x s hs
+          apply integral_congr_ae
+          filter_upwards [this] with y hy using by simp [hy]
+      _ ≤ ↑(C2_0_1 a nnq) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by simp
+  -- fixme(?) the blueprint only assumes F/G are bounded...
+  have h2G : G ⊆ ball o (D ^ S / 4) := by sorry -- blueprint clarification needed
+  have h2F : F ⊆ ball o (D ^ S / 4) := by sorry -- blueprint clarification needed
+  let _ : ProofData a q K σ₁ σ₂ F G :=
+    { F_subset := h2F, G_subset := h2G, volume_F_pos := hF, volume_G_pos := hG }
   have g : GridStructure X D κ S o := grid_existence X
   have t : TileStructure Q D κ S o := tile_existence X
   clear g
@@ -119,10 +156,13 @@ theorem finitary_carleson [PreProofData a q K σ₁ σ₂ F G] :
   suffices ‖(cexp (I • ((Q x) x : ℂ)))⁻¹‖ₑ = 1 by rw [this, mul_one]
   simp [← coe_eq_one, mul_comm I, enorm_eq_nnnorm]
 
-def ProofData.G' (h : ProofData a q K σ₁ σ₂ F G) : Set X :=
-  G ∩ (finitary_carleson X |>.choose)
+def FinitaryData.G' (h : FinitaryData a q K σ₁ σ₂ F) : Set X :=
+  h.G ∩ (finitary_carleson h).choose
 
-def ProofData.proofData_G' (h : ProofData a q K σ₁ σ₂ F G) : ProofData a q K σ₁ σ₂ F h.G' where
+-- variable {hF : F ⊆ ball o (D ^ S / 4)} {hG : G ⊆ ball o (D ^ S / 4)}
+
+def FinitaryData.preProofData_G' (h : FinitaryData a q K σ₁ σ₂ F) :
+    PreProofData a q K σ₁ σ₂ F h.G' where
   d := inferInstance
   four_le_a := four_le_a X
   cf := inferInstance
@@ -130,7 +170,7 @@ def ProofData.proofData_G' (h : ProofData a q K σ₁ σ₂ F G) : ProofData a q
   c := inferInstance
   hasBoundedStrongType_Tstar
   measurableSet_F
-  measurableSet_G := measurableSet_G.inter <| finitary_carleson X |>.choose_spec.1
+  measurableSet_G := measurableSet_G.inter <| finitary_carleson h |>.choose_spec.1
   measurable_σ₁
   measurable_σ₂
   finite_range_σ₁
@@ -138,7 +178,10 @@ def ProofData.proofData_G' (h : ProofData a q K σ₁ σ₂ F G) : ProofData a q
   σ₁_le_σ₂
   Q
   q_mem_Ioc := q_mem_Ioc X
-  F_subset
-  G_subset := inter_subset_left.trans G_subset
-  volume_F_pos
-  volume_G_pos := _
+
+def FinitaryData.finitaryData_G' (h : FinitaryData a q K σ₁ σ₂ F) :
+    FinitaryData a q K σ₁ σ₂ F where
+  G := h.G'
+  p := h.preProofData_G'
+  isBounded_F
+  isBounded_G := h.isBounded_G.subset inter_subset_left

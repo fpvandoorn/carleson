@@ -41,13 +41,15 @@ def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (445 * a ^ 3) / (q - 1) ^ 6
 /- `S'` is `S` in the blueprint. -/
 lemma linearized_truncation {S' : ℤ}
     (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
-    (hF : IsBounded F) (hG : IsBounded G)
+    (hF : IsBounded F) (h2F : MeasurableSet F) (hG : IsBounded G) (h2G : MeasurableSet G)
     (hf : Measurable f) (h2f : (‖f ·‖) ≤ F.indicator 1)
     (hσ₁ : Measurable σ₁) (hσ₂ : Measurable σ₂)
     (h2σ₁ : range σ₁ ⊆ Icc (- S') S') (h2σ₂ : range σ₂ ⊆ Icc (- S') S')
     (hσ : σ₁ ≤ σ₂) :
     ∫⁻ x in G, ‖T_lin Q σ₁ σ₂ f x‖ₑ ≤
     C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+  let _ : PreProofData a q K σ₁ σ₂ F G :=
+    { }
   sorry
 
 
@@ -58,7 +60,7 @@ def C3_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (446 * a ^ 3) / (q - 1) ^ 6
 /- `S'` is `S` in the blueprint. -/
 lemma S_truncation {S' : ℤ}
     (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
-    (hF : IsBounded F) (hG : IsBounded G)
+    (hF : IsBounded F) (h2F : MeasurableSet F) (hG : IsBounded G) (h2G : MeasurableSet G)
     (hf : Measurable f) (h2f : (‖f ·‖) ≤ F.indicator 1) :
     ∫⁻ x in G, ⨆ (s₁ : ℤ) (s₂ : ℤ) (_ : - S' < s₁) (_ : s₁ < s₂) (_ : s₂ < S'), ‖T_S Q s₁ s₂ f x‖ₑ ≤
     C3_0_3 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
