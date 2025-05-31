@@ -1,13 +1,10 @@
-import Carleson.ForestOperator.LargeSeparation
+import Carleson.ForestOperator.LargeSeparation.MainLemma
 import Carleson.ForestOperator.RemainingTiles
 import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
 import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Data.Complex.ExponentialBounds
-import Mathlib.Tactic.NormNum.BigOperators
-import Mathlib.Tactic.NormNum.NatFactorial
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}

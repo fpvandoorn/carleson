@@ -26,7 +26,11 @@ import Carleson.Forest
 import Carleson.ForestOperator.AlmostOrthogonality
 import Carleson.ForestOperator.Forests
 import Carleson.ForestOperator.L2Estimate
-import Carleson.ForestOperator.LargeSeparation
+import Carleson.ForestOperator.LargeSeparation.Defs
+import Carleson.ForestOperator.LargeSeparation.HolderCorrelationTile
+import Carleson.ForestOperator.LargeSeparation.LipschitzPartition
+import Carleson.ForestOperator.LargeSeparation.MainLemma
+import Carleson.ForestOperator.LargeSeparation.TreeControl
 import Carleson.ForestOperator.PointwiseEstimate
 import Carleson.ForestOperator.QuantativeEstimate
 import Carleson.ForestOperator.RemainingTiles
