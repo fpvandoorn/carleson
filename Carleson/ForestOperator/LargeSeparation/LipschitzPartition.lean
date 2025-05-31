@@ -16,7 +16,7 @@ open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
 
-/-! ## Section 7.5.1 (Lipschitz partition of unity, Lemmas 7.5.1 to 7.5.3 -/
+/-! ## Section 7.5.1 (Lipschitz partition of unity, Lemmas 7.5.1 to 7.5.3) -/
 
 /-- The definition of χ-tilde, defined in the proof of Lemma 7.5.2 -/
 def χtilde (J : Grid X) (u₁ : 𝔓 X) : X → ℝ≥0 :=

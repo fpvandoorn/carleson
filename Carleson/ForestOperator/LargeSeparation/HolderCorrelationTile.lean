@@ -14,9 +14,7 @@ open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
 
-/-! ### Lemma 7.5.5
-
-This file does **not** depend on the blueprint's `B(J) := ball (c J) (16 * D ^ s J)`. -/
+/-! ## Lemma 7.5.5 -/
 
 /-- The constant used in `holder_correlation_tile`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/

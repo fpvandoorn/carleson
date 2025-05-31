@@ -1,4 +1,4 @@
-import Carleson.ForestOperator.LargeSeparation.LipschitzPartitionUnity
+import Carleson.ForestOperator.LargeSeparation.LipschitzPartition
 import Carleson.ForestOperator.LargeSeparation.TreeControl
 
 open ShortVariables TileStructure
@@ -43,13 +43,13 @@ lemma support_holderFunction_subset (u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J :
 
 lemma enorm_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
-    (mx : x ∈ ball (c J) (8 * D ^ s J)) :
+    (mx : x ∈ ball (c J) (16 * D ^ s J)) :
     ‖holderFunction t u₁ u₂ f₁ f₂ J x‖ₑ ≤ C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J := by
   simp_rw [holderFunction, enorm_mul, RCLike.enorm_conj, enorm_mul, enorm_exp_I_mul_ofReal, one_mul,
     Complex.enorm_real, NNReal.enorm_eq]
   calc
-    _ ≤ 1 * (⨆ z ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ z‖ₑ) *
-        ⨆ z ∈ ball (c J) (8 * D ^ s J), ‖adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ z‖ₑ := by
+    _ ≤ 1 * (⨆ z ∈ ball (c J) (16 * D ^ s J), ‖adjointCarlesonSum (t u₁) f₁ z‖ₑ) *
+        ⨆ z ∈ ball (c J) (16 * D ^ s J), ‖adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ z‖ₑ := by
       gcongr
       · rw [ENNReal.coe_le_one_iff]
         exact (χ_le_indicator hJ).trans ((indicator_le fun _ _ ↦ le_refl _) _)
@@ -71,7 +71,7 @@ lemma enorm_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
 
 lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
-    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ 𝓘 u₁) :
+    (mx : x ∈ ball (c J) (16 * D ^ s J)) (mx' : x' ∈ 𝓘 u₁) :
     edist (χ t u₁ u₂ J x) (χ t u₁ u₂ J x') *
     ‖exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f₁ x‖ₑ *
     ‖exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x‖ₑ ≤
@@ -113,7 +113,7 @@ lemma holder_correlation_tree_1 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 
 lemma holder_correlation_tree_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
-    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ ball (c J) (8 * D ^ s J)) :
+    (mx : x ∈ ball (c J) (16 * D ^ s J)) (mx' : x' ∈ ball (c J) (16 * D ^ s J)) :
     χ t u₁ u₂ J x' * edist (exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f₁ x)
       (exp (.I * 𝒬 u₁ x') * adjointCarlesonSum (t u₁) f₁ x') *
     ‖exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x‖ₑ ≤
@@ -144,7 +144,7 @@ lemma holder_correlation_tree_2 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 
 lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
-    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ ball (c J) (8 * D ^ s J)) :
+    (mx : x ∈ ball (c J) (16 * D ^ s J)) (mx' : x' ∈ ball (c J) (16 * D ^ s J)) :
     χ t u₁ u₂ J x' * ‖exp (.I * 𝒬 u₁ x') * adjointCarlesonSum (t u₁) f₁ x'‖ₑ *
     edist (exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)
       (exp (.I * 𝒬 u₂ x') * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x') ≤
@@ -176,11 +176,11 @@ lemma holder_correlation_tree_3 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : 
 
 /-- An intermediate constant in Lemma 7.5.4. -/
 def I7_5_4 (a : ℕ) : ℝ≥0 :=
-  16 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a
+  32 * C7_5_2 a * C7_5_9s a * C7_5_10 a + C7_5_9d a * C7_5_10 a + C7_5_9s a * C7_5_9d a
 
 lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂)
-    (mx : x ∈ ball (c J) (8 * D ^ s J)) (mx' : x' ∈ ball (c J) (8 * D ^ s J)) :
+    (mx : x ∈ ball (c J) (16 * D ^ s J)) (mx' : x' ∈ ball (c J) (16 * D ^ s J)) :
     edist (holderFunction t u₁ u₂ f₁ f₂ J x) (holderFunction t u₁ u₂ f₁ f₂ J x') ≤
     I7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
   by_cases mu₁ : x ∉ 𝓘 u₁ ∧ x' ∉ 𝓘 u₁
@@ -209,7 +209,7 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
       · exact holder_correlation_tree_2 hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx'
       · exact holder_correlation_tree_3 hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx mx'
     _ ≤ C7_5_2 a * C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J *
-          (16 * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹) +
+          (32 * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹) +
         C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ +
         C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
       gcongr
@@ -219,17 +219,17 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         rw [inv_le_one_iff₀]; right; exact_mod_cast a_pos X
       · nth_rw 1 [← mul_one (_ / _), ← ENNReal.one_rpow (a : ℝ)⁻¹]
         refine mul_le_mul' (ENNReal.div_le_of_le_mul ?_) (ENNReal.rpow_le_rpow h.le (by positivity))
-        have hc : 16 * (D : ℝ≥0∞) ^ s J = ENNReal.ofReal (16 * D ^ s J) := by
+        have hc : 32 * (D : ℝ≥0∞) ^ s J = ENNReal.ofReal (32 * D ^ s J) := by
           rw [ENNReal.ofReal_mul (by norm_num), ← Real.rpow_intCast,
             ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.rpow_intCast,
             ENNReal.ofReal_natCast, ENNReal.ofReal_ofNat]
         rw [edist_dist, hc]; apply ENNReal.ofReal_le_ofReal
         calc
           _ ≤ dist x (c J) + dist x' (c J) := dist_triangle_right ..
-          _ ≤ 8 * ↑D ^ s J + 8 * ↑D ^ s J := add_le_add (mem_ball.mp mx).le (mem_ball.mp mx').le
+          _ ≤ 16 * D ^ s J + 16 * D ^ s J := add_le_add (mem_ball.mp mx).le (mem_ball.mp mx').le
           _ = _ := by ring
     _ = _ := by
-      rw [← mul_assoc, mul_comm _ 16]; simp_rw [← mul_assoc]
+      rw [← mul_assoc, mul_comm _ 32]; simp_rw [← mul_assoc]
       rw [← add_mul, ← add_mul]; congr
       rw [← add_mul, ← add_mul]; congr
 
@@ -238,17 +238,17 @@ Has value `2 ^ (529 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_5_4 (a : ℕ) : ℝ≥0 := 2 ^ (529 * (a : ℝ) ^ 3)
 
-lemma le_C7_5_4 (a4 : 4 ≤ a) : C7_5_9s a * C7_5_10 a + 8 ^ τ * I7_5_4 a ≤ C7_5_4 a :=
+lemma le_C7_5_4 (a4 : 4 ≤ a) : C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a ≤ C7_5_4 a :=
   calc
     _ ≤ C7_5_9s a * C7_5_10 a + 2 * I7_5_4 a := by
       gcongr
-      rw [defaultτ, show (8 : ℝ≥0) = 2 ^ (3 : ℝ) by norm_num, ← NNReal.rpow_mul, ← div_eq_mul_inv]
+      rw [defaultτ, show (16 : ℝ≥0) = 2 ^ (4 : ℝ) by norm_num, ← NNReal.rpow_mul, ← div_eq_mul_inv]
       nth_rw 2 [← NNReal.rpow_one 2]; apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
       rw [div_le_one_iff]; norm_cast; omega
-    _ ≤ 16 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
-        2 * (16 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
-        4 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
-        4 * C7_5_2 a * C7_5_9s a * C7_5_10 a) := by
+    _ ≤ 32 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
+        2 * (32 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
+        8 * C7_5_2 a * C7_5_9s a * C7_5_10 a +
+        8 * C7_5_2 a * C7_5_9s a * C7_5_10 a) := by
       unfold I7_5_4; gcongr ?_ + 2 * (_ + ?_ + ?_)
       · nth_rw 1 [← one_mul (_ * _), mul_assoc]; gcongr
         exact one_le_mul (by norm_num) one_le_C7_5_2
@@ -261,12 +261,12 @@ lemma le_C7_5_4 (a4 : 4 ≤ a) : C7_5_9s a * C7_5_10 a + 8 ^ τ * I7_5_4 a ≤ C
         · exact one_le_C7_5_2
         · exact C7_5_9d_le_C7_5_9s
         · exact C7_5_9s_le_C7_5_10
-    _ = 2 ^ 6 * C7_5_2 a * C7_5_9s a * C7_5_10 a := by ring
-    _ ≤ 2 ^ 6 * C7_5_2 a * C7_5_9s a * (2 * C7_5_9s a) := by
+    _ = 2 ^ 7 * C7_5_2 a * C7_5_9s a * C7_5_10 a := by ring
+    _ ≤ 2 ^ 7 * C7_5_2 a * C7_5_9s a * (2 * C7_5_9s a) := by
       rw [C7_5_10, C7_5_9s, two_mul, C7_5_7, C7_5_5]; gcongr; norm_cast
       rw [← pow_add]; apply pow_le_pow_right' one_le_two; omega
-    _ = 2 ^ 7 * C7_5_2 a * C7_5_9s a ^ 2 := by ring
-    _ = 2 ^ (528 * a ^ 3 + 8 * a + 11) := by
+    _ = 2 ^ 8 * C7_5_2 a * C7_5_9s a ^ 2 := by ring
+    _ = 2 ^ (528 * a ^ 3 + 8 * a + 14) := by
       rw [C7_5_2, ← Nat.cast_pow, show (226 : ℝ) = (226 : ℕ) by rfl, ← Nat.cast_mul,
         NNReal.rpow_natCast, ← pow_add, C7_5_9s, C7_5_5, ← Nat.cast_pow,
         show (151 : ℝ) = (151 : ℕ) by rfl, ← Nat.cast_mul, NNReal.rpow_natCast]
@@ -276,21 +276,21 @@ lemma le_C7_5_4 (a4 : 4 ≤ a) : C7_5_9s a * C7_5_10 a + 8 ^ τ * I7_5_4 a ≤ C
         NNReal.rpow_natCast, add_assoc, show 529 * a ^ 3 = 528 * a ^ 3 + a ^ 3 by ring]
       refine pow_le_pow_right' one_le_two (add_le_add_left ?_ _)
       calc
-        _ ≤ 2 * 4 * a + 1 * 3 * 4 := by omega
-        _ ≤ 2 * a * a + 2 * a * a := by gcongr <;> omega
+        _ ≤ 2 * 4 * a + 1 * 4 * 4 := by omega
+        _ ≤ 2 * a * a + 2 * a * a := by gcongr; omega
         _ = 4 * a ^ 2 := by ring
         _ ≤ _ := by rw [pow_succ' _ 2]; gcongr
 
 /-- Lemma 7.5.4. -/
 lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
     (hJ : J ∈ 𝓙₅ t u₁ u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
-    iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (8 * D ^ s J) ≤
+    iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (16 * D ^ s J) ≤
     C7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J := by
   unfold iHolENorm
   calc
     _ ≤ C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J +
-        ENNReal.ofReal (8 * ↑D ^ s J) ^ τ *
-        ⨆ x ∈ ball (c J) (8 * ↑D ^ s J), ⨆ y ∈ ball (c J) (8 * ↑D ^ s J), ⨆ (_ : x ≠ y),
+        ENNReal.ofReal (16 * D ^ s J) ^ τ *
+        ⨆ x ∈ ball (c J) (16 * D ^ s J), ⨆ y ∈ ball (c J) (16 * D ^ s J), ⨆ (_ : x ≠ y),
           (I7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J * ((D : ℝ≥0∞) ^ s J)⁻¹ ^ (a : ℝ)⁻¹) := by
       gcongr with x mx x' mx' hn
       · exact iSup₂_le_iff.mpr fun x mx ↦ enorm_holderFunction_le hu₁ hu₂ hu h2u hJ hf₁ hf₂ mx
@@ -304,10 +304,10 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
               div_eq_mul_inv, div_eq_mul_inv, ← mul_rotate _ (edist x x'),
               ENNReal.inv_mul_cancel dn0 (edist_ne_top x x'), one_mul]
     _ ≤ C7_5_9s a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J +
-        ENNReal.ofReal (8 * ↑D ^ s J) ^ τ *
+        ENNReal.ofReal (16 * D ^ s J) ^ τ *
         (I7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J * ((D : ℝ≥0∞) ^ s J)⁻¹ ^ (a : ℝ)⁻¹) := by
       gcongr; exact iSup₂_le fun _ _ ↦ iSup₂_le fun _ _ ↦ iSup_le fun _ ↦ le_rfl
-    _ = (C7_5_9s a * C7_5_10 a + 8 ^ τ * I7_5_4 a) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
+    _ = (C7_5_9s a * C7_5_10 a + 16 ^ τ * I7_5_4 a) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
       have dn0 : ((D : ℝ≥0∞) ^ s J) ^ (a : ℝ)⁻¹ ≠ 0 := by
         rw [← pos_iff_ne_zero]; refine ENNReal.rpow_pos_of_nonneg ?_ (by positivity)
         exact ENNReal.zpow_pos (by unfold defaultD; positivity) (ENNReal.natCast_ne_top _) _
@@ -322,7 +322,7 @@ lemma holder_correlation_tree (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         ENNReal.mul_inv_cancel dn0 dnt, mul_one, mul_rotate (_ ^ _)]
     _ ≤ _ := by
       gcongr
-      rw [show (8 : ℝ≥0∞) = (8 : ℝ≥0) by rfl, ← ENNReal.coe_rpow_of_nonneg _ (τ_nonneg X),
+      rw [show (16 : ℝ≥0∞) = (16 : ℝ≥0) by rfl, ← ENNReal.coe_rpow_of_nonneg _ (τ_nonneg X),
         ← ENNReal.coe_mul, ← ENNReal.coe_mul, ← ENNReal.coe_add, ENNReal.coe_le_coe]
       exact le_C7_5_4 (four_le_a X)
 
