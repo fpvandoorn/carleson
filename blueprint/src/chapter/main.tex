@@ -5838,7 +5838,7 @@ $$
     $$
     Using \Cref{Holder-van-der-Corput} with the ball $B(J)$, we bound this by
     $$
-        \le 2^{8a} \sum_{J \in \mathcal{J}'} \mu(B(J)) \|h_J\|_{C^{\tau}(B(J))} (1 + d_{B(J)}(\fcc(\fu_1), \fcc(\fu_1)))^{-1/(2a^2+a^3)}\,.
+        \le 2^{8a} \sum_{J \in \mathcal{J}'} \mu(B(J)) \|h_J\|_{C^{\tau}(B(J))} (1 + d_{B(J)}(\fcc(\fu_2), \fcc(\fu_1)))^{-1/(2a^2+a^3)}\,.
     $$
     Using \Cref{Holder-correlation-tree}, \Cref{lower-oscillation-bound} and $a \ge 4$, we have that the above is bounded from above by
     \begin{multline}
@@ -6327,7 +6327,7 @@ Recall that $\tau = 1/a$.
 \begin{lemma}[Lipschitz Holder approximation]
     \label{Lipschitz-Holder-approximation}
     \leanok
-    \lean{tsupport_holderApprox_subset, enorm_holderApprox_sub_le, iLipENorm_holderApprox_le}
+    \lean{support_holderApprox_subset, enorm_holderApprox_sub_le, iLipENorm_holderApprox_le}
     Let $z\in X$ and $R>0$. Let $\varphi: X \to \mathbb{C}$ be a function supported in the ball
     $B:=B(z,R)$ with finite norm $\|\varphi\|_{C^\tau(B(z, 2R))}$.
     Let $0<t \leq 1$. There exists a function $\tilde \varphi : X \to \mathbb{C}$, supported in $B(z,2R)$, such that for every $x\in X$

@@ -232,9 +232,7 @@ lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (�
   convert sum_union_dontuse hst (g := fun p ↦ adjointCarleson p g x)
 
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂)
-    (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
-    (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
     C7_4_4 a n *
     eLpNorm
@@ -270,7 +268,7 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
       gcongr
-      · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ h2f₁ hf₂ h2f₂
+      · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hg₁ hg₂
       · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hg₁ hg₂
     _ = (C7_4_5 a n + C7_4_6 a n) *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
@@ -302,9 +300,7 @@ lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu�
 
 /-- Lemma 7.4.4. -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂)
-    (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
-    (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
+    (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
     C7_4_4 a n *
     eLpNorm
@@ -312,7 +308,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
     eLpNorm
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
   by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
-  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂ hf₁ h2f₁ hf₂ h2f₂
+  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂
   by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
   · have :
         ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x * conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
@@ -320,7 +316,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       rw [← RCLike.nnnorm_conj _, ← integral_conj]
       simp [mul_comm]
     rw [inter_comm, mul_right_comm, ← this]
-    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁ hf₂ h2f₂ hf₁ h2f₁
+    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁
   push_neg at h h'
   simp [foo h h' hu₁ hu₂]
 
