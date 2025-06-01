@@ -14,7 +14,7 @@ variable {α α' E E₁ E₂ : Type*}
 @[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
   simp [hx, ← ofReal_norm_eq_enorm]
 
-lemma enorm_NNReal {x : ℝ≥0} : ‖x‖ₑ = x := by rfl
+@[simp] lemma enorm_NNReal {x : ℝ≥0} : ‖x‖ₑ = x := by rfl
 
 -- TODO appropriate generality (ENormedDivisionSemiring?)
 @[simp] lemma enorm_inv'' {a : ℝ≥0} (ha : a ≠ 0): ‖a⁻¹‖ₑ = ‖a‖ₑ⁻¹ := by
