@@ -205,15 +205,14 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
         _ < 16 * (D : ℝ) ^ s I := by linarith [defaultD_pow_pos a (s I)]
     _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLAverage_eq]
     _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
-      rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
+      rw [MB_def]
       have : (4, 0, I) ∈ 𝓑 := by simp [𝓑]
       refine le_of_eq_of_le ?_ (le_biSup _ this)
       have : x ∈ ball (c I) (2 ^ 4 * (D : ℝ) ^ s I) := by
         refine (ball_subset_ball ?_) (Grid_subset_ball hx)
         unfold s
         linarith [defaultD_pow_pos a (GridStructure.s I)]
-      simp_rw [c𝓑, r𝓑, ENNReal.rpow_one, Nat.cast_zero, add_zero, indicator_of_mem this,
-        enorm_eq_nnnorm]
+      simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
       norm_num
 
 -- Pointwise bound needed for Lemma 7.2.2

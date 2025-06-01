@@ -458,7 +458,7 @@ namespace Set
 
 open ComplexConjugate
 
-lemma indicator_eq_indicator_one_mul {ι M:Type*} [MulZeroOneClass M]
+lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
   simp only [indicator]; split_ifs <;> simp
 
@@ -681,6 +681,18 @@ theorem prod_attach_insert {α β : Type*} {s : Finset α} {a : α} [DecidableEq
     ext
     simpa using h
   · simp [ha]
+
+@[to_additive]
+lemma Finset.prod_finset_product_filter_right {α β γ : Type*} {s : Finset α} {t : Finset β}
+    {p : α → Prop} {q : α → β → Prop} [DecidablePred p] [DecidableRel q]
+    [DecidablePred fun r : α × β ↦ p r.1 ∧ q r.1 r.2] {f : α → β → γ} [CommMonoid γ] :
+    ∏ x ∈ s with p x, ∏ y ∈ t with q x y, f x y =
+    ∏ r ∈ s ×ˢ t with p r.1 ∧ q r.1 r.2, f r.1 r.2 := by
+  convert (prod_finset_product_right' ((t ×ˢ s).filter fun r ↦ p r.2 ∧ q r.2 r.1) _ _ _).symm
+  · refine Finset.prod_equiv (Equiv.prodComm α β) (fun r ↦ ?_) (by simp)
+    simp_rw [mem_filter, mem_product, Equiv.prodComm_apply, Prod.fst_swap, Prod.snd_swap]
+    tauto
+  · intro r; simp only [mem_filter, mem_product]; tauto
 
 namespace MeasureTheory
 

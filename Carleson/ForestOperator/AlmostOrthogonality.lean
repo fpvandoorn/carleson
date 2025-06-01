@@ -22,6 +22,30 @@ def adjointCarleson (p : 𝔓 X) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y in E p, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y
   -- todo: consider changing to `(E p).indicator 1 y`
 
+lemma enorm_adjointCarleson_le {x : X} :
+    ‖adjointCarleson p f x‖ₑ ≤
+    C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * ∫⁻ y in E p, ‖f y‖ₑ := by
+  calc
+    _ ≤ ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y‖ₑ := by
+      apply enorm_integral_le_lintegral_enorm
+    _ = ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
+      congr! with y
+      rw [enorm_mul, enorm_mul, ← ofReal_sub, enorm_exp_I_mul_ofReal, RCLike.enorm_conj, mul_one]
+    _ ≤ C2_1_3 a * ∫⁻ y in E p, (volume (ball y (D ^ 𝔰 p)))⁻¹ * ‖f y‖ₑ := by
+      rw [← lintegral_const_mul' _ _ (by simp)]
+      refine lintegral_mono_fn fun y ↦ ?_
+      rw [← mul_assoc, mul_comm _ _⁻¹, ← ENNReal.div_eq_inv_mul]
+      exact mul_le_mul_right' enorm_Ks_le _
+    _ ≤ _ := by
+      rw [mul_assoc _ (_ ^ _), mul_comm (_ ^ _), ← ENNReal.div_eq_inv_mul,
+        ← ENNReal.inv_div (.inl (by simp)) (.inl (by simp)), mul_assoc, ← lintegral_const_mul' _⁻¹]
+      swap
+      · simp_rw [ne_eq, ENNReal.inv_eq_top, ENNReal.div_eq_zero_iff, ENNReal.pow_eq_top_iff,
+          ENNReal.ofNat_ne_top, false_and, or_false]
+        exact (measure_ball_pos _ _ (by unfold defaultD; positivity)).ne'
+      refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
+      exact mul_le_mul_right' (ENNReal.inv_le_inv' (volume_xDsp_bound_4 (E_subset_𝓘 my))) _
+
 open scoped Classical in
 /-- The definition of `T_ℭ*g(x)`, defined at the bottom of Section 7.4 -/
 def adjointCarlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
@@ -42,7 +66,7 @@ lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
 variable (t) in
 /-- The operator `S_{2,𝔲} f(x)`, given above Lemma 7.4.3. -/
 def adjointBoundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ‖adjointCarlesonSum (t u) f x‖₊ + MB volume 𝓑 c𝓑 r𝓑 f x + ‖f x‖₊
+  ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x + ‖f x‖ₑ
 
 variable (t u₁ u₂) in
 /-- The set `𝔖` defined in the proof of Lemma 7.4.4.
@@ -115,6 +139,39 @@ lemma adjoint_tile_support2 (hu : u ∈ t) (hp : p ∈ t u) : adjointCarleson p 
   rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu hp).1.1),
     adjoint_tile_support1, indicator_indicator, ← right_eq_inter.mpr]
   exact (ball_subset_ball (by gcongr; norm_num)).trans (t.ball_subset hu hp)
+
+lemma adjoint_tile_support2_sum (hu : u ∈ t) :
+    adjointCarlesonSum (t u) f =
+    (𝓘 u : Set X).indicator (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f)) := by
+  unfold adjointCarlesonSum
+  classical
+  calc
+    _ = ∑ p ∈ {p | p ∈ t u},
+        (𝓘 u : Set X).indicator (adjointCarleson p ((𝓘 u : Set X).indicator f)) := by
+      ext x; simp only [Finset.sum_apply]; congr! 1 with p mp
+      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+      rw [adjoint_tile_support2 hu mp]
+    _ = _ := by simp_rw [← Finset.indicator_sum, ← Finset.sum_apply]
+
+lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
+    ‖adjointCarleson p f x‖ₑ ≤
+    C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * (∫⁻ y in E p, ‖f y‖ₑ) *
+      (ball (𝔠 p) (8 * D ^ 𝔰 p)).indicator 1 x := by
+  rw [adjoint_tile_support1, enorm_indicator_eq_indicator_enorm]
+  calc
+    _ ≤ (ball (𝔠 p) (5 * D ^ 𝔰 p)).indicator (fun _ ↦
+        C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ *
+          ∫⁻ y in E p, ‖(𝓘 p : Set X).indicator f y‖ₑ) x := by
+      gcongr; exact enorm_adjointCarleson_le
+    _ = C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * (∫⁻ y in E p, ‖f y‖ₑ) *
+        (ball (𝔠 p) (5 * D ^ 𝔰 p)).indicator 1 x := by
+      conv_lhs => enter [2, z]; rw [← mul_one (_ * _ * _ * _)]
+      rw [indicator_const_mul]; congr 2
+      refine setLIntegral_congr_fun measurableSet_E (.of_forall fun y my ↦ ?_)
+      rw [indicator_of_mem (E_subset_𝓘 my)]
+    _ ≤ _ := by
+      gcongr; refine indicator_le_indicator_apply_of_subset (ball_subset_ball ?_) (zero_le _)
+      gcongr; norm_num
 
 variable (p) in
 theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarleson

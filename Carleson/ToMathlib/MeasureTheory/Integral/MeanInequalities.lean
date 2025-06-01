@@ -11,6 +11,23 @@ variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 
 namespace ENNReal
 
+/-- **Minkowski inequality** for finite sums of `ENNReal`-valued functions. -/
+theorem Lp_add_le_sum
+    {ι κ : Type*} {s : Finset ι} {t : Finset κ} {f : ι → κ → ℝ≥0∞} {p : ℝ} (hp : 1 ≤ p) :
+    (∑ i ∈ s, (∑ j ∈ t, f i j) ^ p) ^ (1 / p) ≤ ∑ j ∈ t, (∑ i ∈ s, f i j ^ p) ^ (1 / p) := by
+  have ppos : 0 < p := by positivity
+  have pinvpos : 0 < 1 / p := by positivity
+  induction t using Finset.cons_induction with
+  | empty =>
+    simp_rw [sum_empty, ENNReal.zero_rpow_of_pos ppos, sum_const_zero, nonpos_iff_eq_zero,
+      ENNReal.zero_rpow_of_pos pinvpos]
+  | cons a t h ih =>
+    simp_rw [sum_cons]
+    calc
+      _ ≤ (∑ x ∈ s, f x a ^ p) ^ (1 / p) + (∑ i ∈ s, (∑ j ∈ t, f i j) ^ p) ^ (1 / p) :=
+        Lp_add_le _ _ _ hp
+      _ ≤ _ := by gcongr
+
 -- Add after `lintegral_prod_norm_pow_le`
 /-- A version of Hölder with multiple arguments, allowing `∞` as an exponent. -/
 theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : Measure α}
@@ -68,6 +85,17 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderC
   have hq : q ≠ 0 := HolderConjugate.ne_zero q p
   convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal_of_ne_top pq_top.1 pq_top.2) hf hg
   all_goals simp [eLpNorm, eLpNorm', pq_top, hp, hq]
+
+/-- **Cauchy–Schwarz inequality** for functions `α → ℝ≥0∞` (Hölder's inequality squared). -/
+theorem sq_lintegral_mul_le_mul_lintegral_sq {f g : α → ℝ≥0∞}
+    (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
+    (∫⁻ a, f a * g a ∂μ) ^ 2 ≤ (∫⁻ a, f a ^ 2 ∂μ) * ∫⁻ a, g a ^ 2 ∂μ := by
+  convert pow_le_pow_left₀ (zero_le _)
+    (lintegral_mul_le_Lp_mul_Lq μ Real.HolderConjugate.two_two hf hg) 2
+  rw [mul_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, ← ENNReal.rpow_natCast,
+    ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num, ENNReal.rpow_one,
+    ENNReal.rpow_one]
+  simp_rw [show (2 : ℝ) = (2 : ℕ) by rfl, ← ENNReal.rpow_natCast]
 
 end ENNReal
 
