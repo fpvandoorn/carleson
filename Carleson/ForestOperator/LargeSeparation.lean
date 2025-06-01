@@ -338,7 +338,7 @@ lemma quarter_add_two_mul_D_mul_card_le (hJ : J ∈ 𝓙₅ t u₁ u₂) :
             rw [show 8 * (D : ℝ) / 25 * D ^ s J = 8 / 25 * (D ^ s J * D) by ring,
               ← zpow_add_one₀ (by simp), ← add_mul, div_eq_inv_mul, ← add_mul]
             gcongr; norm_num
-  have vpos : 0 < volume (ball (c J) (9 * ↑D ^ (s J + 1))) := by
+  have vpos : 0 < volume (ball (c J) (9 * D ^ (s J + 1))) := by
     apply measure_ball_pos volume; unfold defaultD; positivity
   rw [ENNReal.mul_le_mul_right vpos.ne' measure_ball_lt_top.ne] at dbl
   exact_mod_cast dbl
@@ -983,19 +983,19 @@ lemma local_tree_control_sumsumsup (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu
     _ ≤ _ := by gcongr; exact Finset.subset_univ _
 
 lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J + 3))
-    (mp : 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * ↑D ^ 𝔰 p)) (ball (c J) (8⁻¹ * ↑D ^ s J)))
+    (mp : 𝔰 p = k ∧ ¬Disjoint (ball (𝔠 p) (8 * D ^ 𝔰 p)) (ball (c J) (8⁻¹ * D ^ s J)))
     (nfm : AEMeasurable fun x ↦ ‖f x‖ₑ) :
     ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarleson p f x‖ₑ ≤
     2 ^ (103 * a ^ 3) * (volume (ball (c J) (16 * D ^ k)))⁻¹ * ∫⁻ x in E p, ‖f x‖ₑ :=
   calc
-    _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * ↑D ^ s J),
+    _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J),
         ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y‖ₑ :=
       iSup₂_mono fun x mx ↦ enorm_integral_le_lintegral_enorm _
-    _ = ⨆ x ∈ ball (c J) (8⁻¹ * ↑D ^ s J), ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
+    _ = ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
       congr! with x mx y
       rw [enorm_mul, enorm_mul, enorm_eq_nnnorm, RCLike.nnnorm_conj]
       nth_rw 1 [← enorm_norm, norm_exp_I_mul_sub_ofReal, enorm_one, mul_one, ← enorm_eq_nnnorm]
-    _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * ↑D ^ s J), ∫⁻ y in E p,
+    _ ≤ ⨆ x ∈ ball (c J) (8⁻¹ * D ^ s J), ∫⁻ y in E p,
         C2_1_3 a / volume (ball y (D ^ 𝔰 p)) * ‖f y‖ₑ := by gcongr; exact enorm_Ks_le
     _ = ∫⁻ x in E p, C2_1_3 a / volume (ball x (D ^ 𝔰 p)) * ‖f x‖ₑ := by
       have := one_le_D (a := a)
