@@ -167,7 +167,7 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
   convert support_holderApprox_subset_aux hR hϕ ht using 2
   ring
 
--- unused
+/- unused
 lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
     tsupport (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
@@ -178,6 +178,7 @@ lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     (closure_mono A).trans closure_ball_subset_closedBall
   apply this.trans (closedBall_subset_ball ?_)
   linarith [R'_pos.2]
+-/
 
 open Filter
 
