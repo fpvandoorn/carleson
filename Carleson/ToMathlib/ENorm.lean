@@ -16,9 +16,9 @@ variable {α α' E E₁ E₂ : Type*}
 
 @[simp] lemma enorm_NNReal {x : ℝ≥0} : ‖x‖ₑ = x := by rfl
 
--- TODO appropriate generality (ENormedDivisionSemiring?)
-@[simp] lemma enorm_inv'' {a : ℝ≥0} (ha : a ≠ 0): ‖a⁻¹‖ₑ = ‖a‖ₑ⁻¹ := by
-  simp_rw [enorm_NNReal, coe_inv ha]
+-- TODO appropriate generality (ENormedDivisionSemiring?), for ℝ≥0 it is already there
+-- @[simp] lemma enorm_inv'' {a : ℝ≥0} (ha : a ≠ 0): ‖a⁻¹‖ₑ = ‖a‖ₑ⁻¹ := by
+--   simp_rw [enorm_NNReal, coe_inv ha]
 
 /-- An enormed monoid is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
