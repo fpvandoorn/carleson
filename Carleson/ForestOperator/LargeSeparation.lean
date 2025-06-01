@@ -1,5 +1,7 @@
 import Carleson.Calculations
 import Carleson.ForestOperator.AlmostOrthogonality
+import Carleson.HolderVanDerCorput
+import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 import Carleson.ToMathlib.Data.NNReal
 
 open ShortVariables TileStructure
@@ -57,11 +59,19 @@ lemma dist_χtilde_le (mx : x ∈ 𝓘 u₁) (mx' : x' ∈ 𝓘 u₁) :
       rw [sub_sub_sub_cancel_left, ← mul_sub, zpow_neg, ← div_eq_inv_mul, norm_div]; simp
     _ ≤ _ := by gcongr; rw [Real.norm_eq_abs, dist_comm x x']; exact abs_dist_sub_le ..
 
+lemma stronglyMeasurable_χtilde : StronglyMeasurable (χtilde J u₁) :=
+  measurable_id.dist measurable_const |>.const_mul _ |>.const_sub _
+    |>.real_toNNReal.indicator coeGrid_measurable |>.stronglyMeasurable
+
 variable (t u₁ u₂) in
 open scoped Classical in
 /-- The definition of χ, defined in the proof of Lemma 7.5.2 -/
 def χ (J : Grid X) (x : X) : ℝ≥0 :=
   χtilde J u₁ x / ∑ J' ∈ 𝓙₅ t u₁ u₂, χtilde J' u₁ x
+
+lemma stronglyMeasurable_χ : StronglyMeasurable (χ t u₁ u₂ J) :=
+  stronglyMeasurable_χtilde.measurable.div
+    (Finset.measurable_sum _ fun _ _ ↦ stronglyMeasurable_χtilde.measurable) |>.stronglyMeasurable
 
 -- /-- The definition of `B`, defined in (7.5.1) -/
 -- protected def _root_.Grid.ball (I : Grid X) : Set X := ball (c I) (8 * D ^ s I)
@@ -247,6 +257,27 @@ lemma χ_le_indicator (hJ : J ∈ 𝓙₅ t u₁ u₂) :
   · have : χtilde J u₁ x = 0 := by
       contrapose! h; rw [← zero_lt_iff, χtilde_pos_iff] at h; exact h.2
     simp [this]
+
+lemma χ_eq_zero_of_notMem_ball (hJ : J ∈ 𝓙₅ t u₁ u₂) (nx : x ∉ ball (c J) (8 * D ^ s J)) :
+    χ t u₁ u₂ J x = 0 := by
+  have := χ_le_indicator hJ (x := x)
+  rwa [indicator_of_not_mem nx, le_zero_iff] at this
+
+lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
+    BoundedCompactSupport fun x ↦ (χ t u₁ u₂ J x : ℝ) := by
+  apply BoundedCompactSupport.mono_norm (g := fun x ↦ (ball (c J) (8 * D ^ s J)).indicator 1 x)
+    ?_ ?_ (fun x ↦ ?_)
+  · constructor
+    · refine memLp_top_of_bound (aestronglyMeasurable_one.indicator measurableSet_ball) 1
+        (.of_forall fun x ↦ ?_)
+      unfold indicator; split_ifs <;> simp
+    · refine HasCompactSupport.intro (isCompact_closedBall (c J) (8 * D ^ s J)) fun x mx ↦ ?_
+      apply indicator_of_not_mem; contrapose! mx; exact ball_subset_closedBall mx
+  · exact stronglyMeasurable_χ.measurable.coe_nnreal_real.aestronglyMeasurable
+  · simp_rw [show (1 : X → ℝ) = (↑) ∘ (1 : X → ℝ≥0) by rfl]
+    rw [indicator_comp_of_zero (by simp), Function.comp_apply, Real.norm_eq_abs, NNReal.abs_eq,
+      NNReal.coe_le_coe]
+    exact χ_le_indicator hJ
 
 /-- The constant used in `dist_χ_le`. Has value `2 ^ (226 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
@@ -1456,6 +1487,18 @@ def P7_5_4 (t : Forest X n) (u₁ u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Gr
   ((⨅ x ∈ ball (c J) (8⁻¹ * D ^ s J), ‖adjointCarlesonSum (t u₂) f₂ x‖ₑ) +
     ⨅ x ∈ J, MB volume 𝓑 c𝓑 r𝓑 f₂ x)
 
+lemma P7_5_4_le_adjointBoundaryOperator_mul (mx : x ∈ ball (c J) (8⁻¹ * D ^ s J)) :
+    P7_5_4 t u₁ u₂ f₁ f₂ J ≤
+    adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by
+  have mx' : x ∈ J := by
+    refine ((ball_subset_ball ?_).trans ball_subset_Grid) mx
+    change _ ≤ (D : ℝ) ^ s J / 4; rw [div_eq_inv_mul]; gcongr; norm_num
+  unfold P7_5_4 adjointBoundaryOperator
+  conv_lhs => enter [1]; rw [← add_zero (_ + _)]
+  conv_lhs => enter [2]; rw [← add_zero (_ + _)]
+  gcongr
+  exacts [biInf_le _ mx, biInf_le _ mx', zero_le _, biInf_le _ mx, biInf_le _ mx', zero_le _]
+
 /-- The support of `holderFunction` is in `𝓘 u₁`. -/
 lemma support_holderFunction_subset (u₂ : 𝔓 X) (f₁ f₂ : X → ℂ) (J : Grid X) (hu₁ : u₁ ∈ t) :
     support (holderFunction t u₁ u₂ f₁ f₂ J) ⊆ 𝓘 u₁ := by
@@ -1759,6 +1802,33 @@ Has value `2 ^ (Z * n / 2 - 201 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
 irreducible_def C7_5_11 (a n : ℕ) : ℝ≥0 := 2 ^ (Z * n / 2 - 201 * (a : ℝ) ^ 3)
 
+/-- A binomial bound used in Lemma 7.4.5. -/
+lemma C7_5_11_binomial_bound (a4 : 4 ≤ a) :
+    (1 + C7_5_11 a n : ℝ≥0∞) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) ≤
+    2 ^ (3 * a ^ 3 + 3 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) :=
+  calc
+    _ ≤ (2 : ℝ≥0∞) ^ ((Z * n / 2 - 201 * a ^ 3) * -(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) := by
+      rw [ENNReal.rpow_mul]
+      apply ENNReal.rpow_le_rpow_of_nonpos (by rw [Left.neg_nonpos_iff]; positivity)
+      rw [C7_5_11, ENNReal.coe_rpow_of_ne_zero two_ne_zero]
+      exact le_add_self
+    _ = 2 ^ (201 * (a : ℝ) / (2 + a)) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) := by
+      rw [← neg_mul_comm, neg_sub, ← div_eq_mul_inv, sub_div, sub_eq_add_neg,
+        ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
+      congr 2
+      · rw [pow_succ' _ 2, ← add_mul, ← mul_assoc, mul_div_mul_right _ _ (by positivity)]
+      · rw [div_div, ← neg_div]; congr; ring
+    _ ≤ 2 ^ 201 * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) := by
+      rw [← ENNReal.rpow_natCast]; gcongr
+      · exact one_le_two
+      · rw [div_le_iff₀ (by positivity)]; gcongr; linarith
+    _ ≤ _ := by
+      gcongr
+      · exact one_le_two
+      · calc
+          _ ≤ 3 * 4 ^ 3 + 3 * 4 := by norm_num
+          _ ≤ _ := by gcongr
+
 /-- Lemma 7.5.11 -/
 lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hJ : J ∈ 𝓙₅ t u₁ u₂) :
@@ -1844,20 +1914,136 @@ lemma lower_oscillation_bound (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
   push_cast
   linarith [calculation_14 (X := X) (n := n), calculation_15 thus]
 
-/-- The constant used in `correlation_distant_tree_parts`.
-Has value `2 ^ (541 * a ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 := 2 ^ (541 * (a : ℝ) ^ 3 - Z * n / (4 * a ^ 2 + 2 * a ^ 3))
+open Classical in
+lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
+    ‖∫ x, adjointCarlesonSum (t u₁) f₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)‖ₑ ≤
+    ∑ J ∈ 𝓙₅ t u₁ u₂, C2_0_5 a * volume (ball (c J) (8 * D ^ s J)) *
+      iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (2 * (8 * D ^ s J)) *
+      (1 + nndist_{c J, 8 * D ^ s J} (𝒬 u₂) (𝒬 u₁)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) := by
+  classical
+  have rearr : ∀ J x, t.χ u₁ u₂ J x *
+      (adjointCarlesonSum (t u₁) f₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)) =
+      exp (I * (𝒬 u₂ x - 𝒬 u₁ x)) * holderFunction t u₁ u₂ f₁ f₂ J x := fun J x ↦ by
+    unfold holderFunction
+    simp_rw [map_mul, ← mul_assoc]; congr 1
+    rw [← mul_rotate _ _ (adjointCarlesonSum _ _ _)]; congr 1
+    rw [← exp_conj, map_mul, conj_I, conj_ofReal, ← mul_assoc, ← mul_assoc, ← Complex.exp_add,
+      neg_mul, ← sub_eq_neg_add, ← mul_sub, sub_sub_cancel_left, ← mul_rotate, ← Complex.exp_add,
+      ← mul_add, add_neg_cancel, mul_zero, exp_zero, one_mul]
+  calc
+    _ = ‖∫ x in 𝓘 u₁, adjointCarlesonSum (t u₁) f₁ x *
+        conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)‖ₑ := by
+      congr 1; refine (setIntegral_eq_integral_of_forall_compl_eq_zero fun x nx ↦ ?_).symm
+      rw [adjoint_tile_support2_sum hu₁, indicator_of_not_mem nx, zero_mul]
+    _ = ‖∑ J ∈ 𝓙₅ t u₁ u₂, ∫ x, χ t u₁ u₂ J x * (adjointCarlesonSum (t u₁) f₁ x *
+        conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x))‖ₑ := by
+      rw [← integral_indicator coeGrid_measurable]
+      conv_lhs =>
+        enter [1, 2, x]
+        rw [indicator_eq_indicator_one_mul, show (1 : X → ℂ) = (↑) ∘ (1 : X → ℝ≥0) by rfl,
+          indicator_comp_of_zero (by simp), Function.comp_apply, ← sum_χ hu₁ hu₂ hu h2u x,
+          NNReal.coe_sum, ofReal_sum, Finset.sum_mul]
+      congr 1
+      refine integral_finset_sum _ fun J mJ ↦ ((BoundedCompactSupport.toComplex ?_).mul
+        (hf₁.adjointCarlesonSum.mul hf₂.adjointCarlesonSum.conj)).integrable
+      rw [mem_toFinset] at mJ; exact boundedCompactSupport_toReal_χ mJ
+    _ ≤ ∑ J ∈ 𝓙₅ t u₁ u₂, ‖∫ x, χ t u₁ u₂ J x * (adjointCarlesonSum (t u₁) f₁ x *
+        conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x))‖ₑ := enorm_sum_le _ _
+    _ = ∑ J ∈ 𝓙₅ t u₁ u₂,
+        ‖∫ x, exp (.I * (𝒬 u₂ x - 𝒬 u₁ x)) * holderFunction t u₁ u₂ f₁ f₂ J x‖ₑ := by
+      congr! 4 with J mJ x; exact rearr ..
+    _ ≤ _ := by
+      gcongr with J mJ; apply holder_van_der_corput; rw [support_subset_iff']; intro x nx
+      rw [mem_toFinset] at mJ
+      rw [holderFunction, χ_eq_zero_of_notMem_ball mJ nx, NNReal.coe_zero, ofReal_zero, zero_mul,
+        zero_mul]
+
+/-- The constant used in `correlation_distant_tree_parts`. -/
+irreducible_def C7_4_5 (a n : ℕ) : ℝ≥0 :=
+  2 ^ (533 * a ^ 3) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))
+
+lemma le_C7_4_5 (a4 : 4 ≤ a) :
+    C2_0_5 a * C7_5_4 a * 2 ^ (3 * a ^ 3 + 9 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) ≤
+    C7_4_5 a n := by
+  rw [C2_0_5, C7_5_4, C7_4_5]
+  conv_lhs => enter [1, 1, 1, 2]; norm_cast
+  conv_lhs => enter [1, 1, 2, 2]; norm_cast
+  simp_rw [NNReal.rpow_natCast, ← pow_add]; gcongr
+  · exact one_le_two
+  · calc
+      _ = 532 * a ^ 3 + 4 * 4 * a := by ring
+      _ ≤ 532 * a ^ 3 + a * a * a := by gcongr
+      _ = _ := by ring
 
 /-- Lemma 7.4.5 -/
 lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂)
-    (hf₁ : IsBounded (range f₁)) (h2f₁ : HasCompactSupport f₁)
-    (hf₂ : IsBounded (range f₂)) (h2f₂ : HasCompactSupport f₂) :
-    ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) g₂ x)‖ₑ ≤
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
+    ‖∫ x, adjointCarlesonSum (t u₁) f₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)‖ₑ ≤
     C7_4_5 a n *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
-    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
-  sorry
+    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ f₁) ·) 2 volume *
+    eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ f₂) ·) 2 volume := by
+  classical
+  calc
+    _ ≤ _ := cdtp_le_iHolENorm hu₁ hu₂ hu h2u hf₁ hf₂
+    _ ≤ ∑ J ∈ 𝓙₅ t u₁ u₂, C2_0_5 a * volume (ball (c J) (8 * D ^ s J)) *
+        (C7_5_4 a * P7_5_4 t u₁ u₂ f₁ f₂ J) * (1 + C7_5_11 a n) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) := by
+      gcongr ∑ _ ∈ _, _ * ?_ * ?_ with J mJ <;> rw [mem_toFinset] at mJ
+      · rw [← mul_assoc, show (2 : ℝ) * 8 = 16 by norm_num]
+        exact holder_correlation_tree hu₁ hu₂ hu h2u mJ hf₁ hf₂
+      · apply ENNReal.rpow_le_rpow_of_nonpos (by rw [Left.neg_nonpos_iff]; positivity)
+        gcongr; rw [nndist_comm, ← NNReal.coe_le_coe]
+        exact lower_oscillation_bound hu₁ hu₂ hu h2u mJ
+    _ = C2_0_5 a * C7_5_4 a * (1 + C7_5_11 a n) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) *
+        ∑ J ∈ 𝓙₅ t u₁ u₂, volume (ball (c J) (8 * D ^ s J)) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
+      rw [Finset.mul_sum]; congr! 1 with J mJ; ring
+    _ ≤ C2_0_5 a * C7_5_4 a *
+        (2 ^ (3 * a ^ 3 + 3 * a) * 2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3))) *
+        ∑ J ∈ 𝓙₅ t u₁ u₂,
+          2 ^ (6 * a) * volume (ball (c J) (8⁻¹ * D ^ s J)) * P7_5_4 t u₁ u₂ f₁ f₂ J := by
+      gcongr with J mJ
+      · exact C7_5_11_binomial_bound (four_le_a X)
+      · convert measure_ball_two_le_same_iterate (μ := volume) (c J) (8⁻¹ * D ^ s J) 6 using 2
+        · rw [← mul_assoc, show (2 : ℝ) ^ 6 * 8⁻¹ = 8 by norm_num]
+        · unfold defaultA; norm_cast; rw [← pow_mul, mul_comm]
+    _ = C2_0_5 a * C7_5_4 a * 2 ^ (3 * a ^ 3 + 9 * a) *
+        2 ^ (-(Z * n : ℝ) / (4 * a ^ 2 + 2 * a ^ 3)) *
+        ∑ J ∈ 𝓙₅ t u₁ u₂, ∫⁻ x in ball (c J) (8⁻¹ * D ^ s J), P7_5_4 t u₁ u₂ f₁ f₂ J := by
+      simp_rw [mul_assoc (_ ^ (6 * a)), ← Finset.mul_sum, ← mul_assoc]; congr 1
+      · ring
+      · congr! with J mJ; rw [setLIntegral_const, mul_comm]
+    _ ≤ C7_4_5 a n * ∑ J ∈ 𝓙₅ t u₁ u₂, ∫⁻ x in ball (c J) (8⁻¹ * D ^ s J),
+        adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by
+      gcongr ?_ * ∑ _ ∈ _, ?_ with J mJ
+      · rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl]
+        simp_rw [← ENNReal.coe_rpow_of_ne_zero two_ne_zero, ← ENNReal.coe_pow, ← ENNReal.coe_mul,
+          ENNReal.coe_le_coe]
+        exact le_C7_4_5 (four_le_a X)
+      · exact setLIntegral_mono' measurableSet_ball fun x mx ↦
+          P7_5_4_le_adjointBoundaryOperator_mul mx
+    _ ≤ C7_4_5 a n * ∑ J ∈ 𝓙₅ t u₁ u₂, ∫⁻ x in J,
+        adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by
+      gcongr with J mJ; refine lintegral_mono_set ((ball_subset_ball ?_).trans ball_subset_Grid)
+      change _ ≤ (D : ℝ) ^ s J / 4; rw [div_eq_inv_mul]; gcongr; norm_num
+    _ = C7_4_5 a n * ∫⁻ x in 𝓘 u₁,
+        adjointBoundaryOperator t u₁ f₁ x * adjointBoundaryOperator t u₂ f₂ x := by
+      simp_rw [← union_𝓙₅ hu₁ hu₂ hu h2u, ← mem_toFinset]
+      congr 1; refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ coeGrid_measurable) _).symm
+      rw [coe_toFinset]; exact pairwiseDisjoint_𝓙₅
+    _ = C7_4_5 a n * ∫⁻ x,
+        (𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ f₁) x *
+        (𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ f₂) x := by
+      conv_rhs => enter [2, 2, x]; rw [← inter_indicator_mul _ _ x, inter_self]
+      rw [lintegral_indicator coeGrid_measurable]
+    _ ≤ _ := by
+      rw [mul_assoc]; gcongr
+      apply ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance <;>
+        refine AEMeasurable.indicator ?_ coeGrid_measurable
+      · have af₁ := hf₁.aestronglyMeasurable
+        refine (af₁.adjointCarlesonSum.enorm.add ?_).add af₁.enorm
+        exact (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
+      · have af₂ := hf₂.aestronglyMeasurable
+        refine (af₂.adjointCarlesonSum.enorm.add ?_).add af₂.enorm
+        exact (AEStronglyMeasurable.maximalFunction 𝓑.to_countable).aemeasurable
 
 end TileStructure.Forest

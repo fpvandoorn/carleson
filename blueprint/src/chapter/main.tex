@@ -5210,7 +5210,7 @@ Now we are ready to state the main result of this subsection.
         \end{equation}
       \begin{equation}
             \label{eq-rhs-big-sep-tree}
-            \le 2^{541a^3} 2^{-Zn/(4a^2 + 2a^3)} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
+            \le 2^{533a^3} 2^{-Zn/(4a^2 + 2a^3)} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
         \end{equation}
     \end{lemma}
     \begin{lemma}[correlation near tree parts]
@@ -5830,6 +5830,7 @@ $$
 
     Now we are ready to prove \Cref{correlation-distant-tree-parts}.
     \begin{proof}[Proof of \Cref{correlation-distant-tree-parts}]
+    \leanok
     \proves{correlation-distant-tree-parts}
     We have
     $$
@@ -5837,16 +5838,16 @@ $$
     $$
     By \Cref{adjoint-tile-support}, the right hand side is supported in $\scI(\fu_1)$. Using \eqref{eq-pao-1} of \Cref{Lipschitz-partition-unity} and the definition \eqref{def-hj} of $h_J$, we thus have
     $$
-        \le \sum_{J \in \mathcal{J}'} \left|\int_{B(J)} e(\fcc(\fu_2)(y) - \fcc(\fu_1)(y)) h_J(y) \, \mathrm{d}\mu(y) \right|\,.
+        \le \sum_{J \in \mathcal{J}'} \left|\int_{X} e(\fcc(\fu_2)(y) - \fcc(\fu_1)(y)) h_J(y) \, \mathrm{d}\mu(y) \right|\,.
     $$
     Using \Cref{Holder-van-der-Corput} with the ball $B(J)$, we bound this by
     $$
-        \le 2^{8a} \sum_{J \in \mathcal{J}'} \mu(B(J)) \|h_J\|_{C^{\tau}(BB(J))} (1 + d_{B(J)}(\fcc(\fu_2), \fcc(\fu_1)))^{-1/(2a^2+a^3)}\,.
+        \le 2^{7a} \sum_{J \in \mathcal{J}'} \mu(B(J)) \|h_J\|_{C^{\tau}(BB(J))} (1 + d_{B(J)}(\fcc(\fu_2), \fcc(\fu_1)))^{-1/(2a^2+a^3)}\,.
     $$
     Using \Cref{Holder-correlation-tree}, \Cref{lower-oscillation-bound} and $a \ge 4$, we bound the above by
     \begin{multline}
         \label{eq-big-sep-1}
-        \le 2^{540a^3} 2^{-Zn/(4a^2 + 2a^3)} \sum_{J \in \mathcal{J}'} \mu(B(J)) \\
+        \le 2^{529a^3+7a+3a^3+3a} 2^{-Zn/(4a^2 + 2a^3)} \sum_{J \in \mathcal{J}'} \mu(B(J)) \\
         \times \prod_{j=1}^2 (\inf_{B^\circ{}(J)} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B},1} g_j)\,.
     \end{multline}
     By the doubling property \eqref{doublingx}
@@ -5865,7 +5866,7 @@ $$
     $$
     Summing over $J \in \mathcal{J}'$, we obtain
     $$
-        \eqref{eq-big-sep-1} \le 2^{541a^3} 2^{-Zn/(4a^2 + 2a^3)} \int_X \prod_{j=1}^2 ( |T_{\fT(\fu_j)}^* g_j|(x) + M_{\mathcal{B},1} g_j(x)) \, \mathrm{d}\mu(x)\,.
+        \eqref{eq-big-sep-1} \le 2^{533a^3} 2^{-Zn/(4a^2 + 2a^3)} \int_X \prod_{j=1}^2 ( |T_{\fT(\fu_j)}^* g_j|(x) + M_{\mathcal{B},1} g_j(x)) \, \mathrm{d}\mu(x)\,.
     $$
     Applying the Cauchy-Schwarz inequality, \Cref{correlation-distant-tree-parts} follows.
     \end{proof}
