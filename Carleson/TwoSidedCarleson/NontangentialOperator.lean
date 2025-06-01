@@ -852,19 +852,14 @@ lemma simpleNontangentialOperator_aestronglyMeasurable {g : X → ℂ} (hg : Bou
     AEStronglyMeasurable (simpleNontangentialOperator K r g) volume := by
   sorry
 
-/-- The constant used in `simple_nontangential_operator`. -/
+/-- The constant used in `simple_nontangential_operator`.
+It is not tight and can be improved by some `a` + `constant`. -/
 irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)
 
 --TODO move to ToMathlib / generalises eLpNorm_add_le to ENorm class
 theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α} {μ: Measure α} [TopologicalSpace E] [ENormedAddMonoid E]
   {p : ℝ≥0∞} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ := by
-  sorry
-
---TODO move to ToMathlib / generalises eLpNorm_const_smul to ENorm class
-theorem eLpNorm_const_smul' {α E 𝕜: Type*} [TopologicalSpace E] [ENormedAddCommMonoid E] [Semiring 𝕜] [ENorm 𝕜] [Module 𝕜 E]
-  {f : α → E} {m : MeasurableSpace α} (c : 𝕜) (p : ℝ≥0∞) (μ : Measure α):
-    eLpNorm (c • f) p μ = ‖c‖ₑ * eLpNorm f p μ := by
   sorry
 
 /-- Lemma 10.1.6. The formal statement includes the measurability of the operator.
@@ -914,8 +909,16 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   gcongr
   -- what remains is constant manipulation
   nth_rw 2 [mul_comm]; rw [← mul_assoc, ← add_mul]
-  have : C2_0_6' (defaultA a) 1 2 = 2 ^ (4 * a + 1) := by sorry -- not sure how this should be shown
-  rw [C10_1_6_def, this, C_Ts, C10_1_5, C10_1_2]
+  norm_cast
+  have : C2_0_6' (defaultA a) 1 2 ≤ 2 ^ (4 * a + 1) := by
+    rw [C2_0_6'_defaultA_one_two_eq, ← NNReal.rpow_natCast]
+    apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
+    trans 3 * a + 2
+    · linarith
+    norm_cast
+    linarith [ha]
+  apply le_trans <| mul_le_mul_left' this _
+  rw [C10_1_6_def, C_Ts, C10_1_5, C10_1_2]
   norm_cast
   rw [show a ^ 3 + 24 * a + 6 = (a ^ 3 + 20 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
   gcongr
