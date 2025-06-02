@@ -678,15 +678,15 @@ lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} 
 
 lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} (hp' : p' ≠ 0) {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
-    HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
+    HasWeakType (k • T) p p' μ ν (k * c) := by
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
-    _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
+    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _
+    _ ≤ k * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
-    _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
+    _ = (k * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
 -- TODO: do we want to unify this lemma with its unprimed version, perhaps using an
 -- `ENormedSemiring` class?

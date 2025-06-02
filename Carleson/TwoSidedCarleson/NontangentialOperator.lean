@@ -848,22 +848,91 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   push_cast
   gcongr <;> simp
 
-/-- The constant used in `simple_nontangential_operator`. -/
+-- c.f. discussion in https://github.com/fpvandoorn/carleson/pull/362
+lemma simpleNontangentialOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g):
+    AEStronglyMeasurable (simpleNontangentialOperator K r g) volume := by
+  sorry
+
+/-- The constant used in `simple_nontangential_operator`.
+It is not tight and can be improved by some `a` + `constant`. -/
 irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)
+
+--TODO move to ToMathlib / generalises eLpNorm_add_le to ENorm class
+theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α} {μ: Measure α} [TopologicalSpace E] [ENormedAddMonoid E]
+  {p : ℝ≥0∞} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
+    (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ := by
+  sorry
 
 /-- Lemma 10.1.6. The formal statement includes the measurability of the operator.
 See also `simple_nontangential_operator_le` -/
 theorem simple_nontangential_operator (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) :
+    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) (hr : 0 < r) :
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
-  sorry
+  intro g hg
+  constructor
+  · exact simpleNontangentialOperator_aestronglyMeasurable hg
+  let pointwise : X → ℝ≥0∞ :=
+    4 * globalMaximalFunction volume 1 (czOperator K r g) + C10_1_5 a • globalMaximalFunction volume 1 g +
+    C10_1_2 a • globalMaximalFunction volume 1 g
+  trans eLpNorm pointwise 2 volume
+  · apply eLpNorm_mono_enorm
+    simp_rw [enorm_eq_self, simpleNontangentialOperator, iSup_le_iff]
+    intro x R hR x' hx'
+    rw [mem_ball, dist_comm] at hx'
+    trans ‖czOperator K R g x‖ₑ + C10_1_2 a * globalMaximalFunction volume 1 g x
+    · calc ‖czOperator K R g x'‖ₑ
+        _ = ‖czOperator K R g x + (czOperator K R g x' - czOperator K R g x)‖ₑ := by congr; ring
+      apply le_trans <| enorm_add_le _ _
+      gcongr
+      rw [← edist_eq_enorm_sub, edist_comm]
+      exact estimate_x_shift ha hg (hr.trans hR.lt) hx'.le
+    apply add_le_add (cotlar_estimate ha hT hg ?hrR) (by rfl)
+    case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
+  unfold pointwise
+
+  have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) (by rfl) one_lt_two
+  norm_cast at hst_gmf
+  have hst_gmf_g := hst_gmf g (hg.memLp 2)
+  have aesm_gmf_g := hst_gmf_g.1 -- for fun_prop
+  have hst_gmf_czg := hst_gmf (czOperator K r g) ((hT r hr).memLp hg)
+  have aesm_gmf_czg := hst_gmf_czg.1 -- for fun_prop
+  rw [show 4 * globalMaximalFunction volume 1 (czOperator K r g) =
+      (4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g) by rfl]
+  apply le_trans <| eLpNorm_add_le'' (by fun_prop) (by fun_prop) one_le_two
+  apply le_trans <| add_le_add (eLpNorm_add_le'' (by fun_prop) (by fun_prop) one_le_two) (by rfl)
+  simp_rw [eLpNorm_const_smul' (f := globalMaximalFunction volume 1 g),
+      eLpNorm_const_smul' (f := globalMaximalFunction volume 1 (czOperator K r g)),
+      enorm_NNReal, add_assoc, ← add_mul]
+  apply le_trans <| add_le_add
+    (mul_le_mul_left' (hst_gmf_czg.2.trans <| mul_le_mul_left' (hT r hr g hg).2 _) _)
+    (mul_le_mul_left' hst_gmf_g.2 _)
+  nth_rw 3 [← mul_assoc]; nth_rw 2 [← mul_assoc]; rw [← mul_assoc, ← add_mul]
+  gcongr
+  -- what remains is constant manipulation
+  nth_rw 2 [mul_comm]; rw [← mul_assoc, ← add_mul]
+  norm_cast
+  have : C2_0_6' (defaultA a) 1 2 ≤ 2 ^ (4 * a + 1) := by
+    rw [C2_0_6'_defaultA_one_two_eq, ← NNReal.rpow_natCast]
+    apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
+    trans 3 * a + 2
+    · linarith
+    norm_cast
+    linarith [ha]
+  apply le_trans <| mul_le_mul_left' this _
+  rw [C10_1_6_def, C_Ts, C10_1_5, C10_1_2]
+  norm_cast
+  rw [show a ^ 3 + 24 * a + 6 = (a ^ 3 + 20 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
+  gcongr
+  nth_rw 6 [pow_succ]; rw [mul_two]
+  apply add_le_add
+  · ring_nf; gcongr <;> simp [Nat.one_le_pow]
+  nth_rw 5 [pow_succ]; rw [mul_two]
+  gcongr <;> simp
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
 theorem simple_nontangential_operator_le (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 ≤ r) :
+    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) (hr : 0 ≤ r) :
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
@@ -882,8 +951,7 @@ theorem small_annulus_left (ha : 4 ≤ a)
   sorry
 
 /-- Lemma 10.1.8. -/
-theorem nontangential_operator_boundary (ha : 4 ≤ a)
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) :
+theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
     ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
@@ -894,11 +962,9 @@ irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
 
 /-- Lemma 10.0.2. The formal statement includes the measurability of the operator. -/
 theorem nontangential_from_simple (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
-  have := simple_nontangential_operator_le ha hT hg le_rfl
+  have := simple_nontangential_operator_le ha hT le_rfl
   sorry
-
 
 end

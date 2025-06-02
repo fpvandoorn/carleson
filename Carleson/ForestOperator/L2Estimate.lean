@@ -132,15 +132,6 @@ private lemma annulus_integral_bound (x : X) (g : X → ℂ) {r₁ r₂ r₃ r�
           · exact Or.inl ⟨hr₁, le_of_not_gt hr₂⟩
         _ ≤ _ := lintegral_union_le _ _ _
 
-lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
-  suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
-      ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
-    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
-  rw [← NNReal.rpow_mul, show (3 / 2 : ℝ) = 1 + (1 / 2 : ℝ) by norm_num]
-  repeat rw [NNReal.rpow_add two_ne_zero]
-  norm_num
-  ring
-
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
