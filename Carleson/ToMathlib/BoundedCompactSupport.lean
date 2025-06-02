@@ -402,7 +402,7 @@ lemma BoundedCompactSupport.mul_bdd_right'' (hf : BoundedCompactSupport f ν) {e
       · exact hB.trans (le_max_right ..)
       refine hC _ ?_ |>.trans (le_max_right ..)
       exact mem_image_of_mem g hz
-    · simp only [image_eq_zero_of_nmem_tsupport hz, norm_zero, zero_mul,
+    · simp only [image_eq_zero_of_notMem_tsupport hz, norm_zero, zero_mul,
         mul_nonneg (le_max_left 0 B) (le_max_left 0 C)]
   hasCompactSupport := by
     refine IsCompact.of_isClosed_subset (hg1 _ hf.hasCompactSupport)

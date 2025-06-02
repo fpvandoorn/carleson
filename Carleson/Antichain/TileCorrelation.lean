@@ -826,27 +826,27 @@ lemma _root_.Set.indicator_one_le_one (x : X) : G.indicator (1 : X → ℝ) x �
   exact le_trans (ite_le_sup _ _ _) (by simp)
 
 omit [TileStructure Q D κ S o] in
-lemma enorm_eq_zero_of_not_mem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+lemma enorm_eq_zero_of_notMem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     {x : X} (hx : x ∉ (closedBall (cancelPt X) (defaultD a ^ defaultS X / 4))) :
     ‖g x‖ₑ = 0 := by
   rw [enorm_eq_zero, ← norm_eq_zero]
   apply le_antisymm _ (norm_nonneg _)
   apply le_trans (hg1 _)
-  rw [Set.indicator_of_not_mem (Set.not_mem_subset ProofData.G_subset
-    (Set.not_mem_subset ball_subset_closedBall hx))]
+  rw [Set.indicator_of_notMem (Set.notMem_subset ProofData.G_subset
+    (Set.notMem_subset ball_subset_closedBall hx))]
 
 /- omit [TileStructure Q D κ S o] in
-lemma nnnorm_eq_zero_of_not_mem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+lemma nnnorm_eq_zero_of_notMem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     {x : X} (hx : x ∉ (closedBall (cancelPt X) (defaultD a ^ defaultS X / 4))) :
     ‖g x‖₊ = 0 := by
-  rw [nnnorm_eq_zero, ← enorm_eq_zero, enorm_eq_zero_of_not_mem_closedBall hg1 hx]
+  rw [nnnorm_eq_zero, ← enorm_eq_zero, enorm_eq_zero_of_notMem_closedBall hg1 hx]
  -/
 
 omit [TileStructure Q D κ S o] in
-lemma eq_zero_of_not_mem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+lemma eq_zero_of_notMem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     {x : X} (hx : x ∉ (closedBall (cancelPt X) (defaultD a ^ defaultS X / 4))) :
     g x = 0 := by
-  simpa [coe_nnnorm, norm_eq_zero] using enorm_eq_zero_of_not_mem_closedBall hg1 hx
+  simpa [coe_nnnorm, norm_eq_zero] using enorm_eq_zero_of_notMem_closedBall hg1 hx
 
 omit [TileStructure Q D κ S o] in
 lemma boundedCompactSupport_g {g : X → ℂ} (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
@@ -859,7 +859,7 @@ lemma boundedCompactSupport_g {g : X → ℂ} (hg : Measurable g) (hg1 : ∀ x, 
           (fun x ↦ (le_trans (hg1 x) (indicator_one_le_one _)))
       exact lt_of_le_of_lt (eLpNorm_le_of_ae_nnnorm_bound hg1') (by simp)
   · exact exists_compact_iff_hasCompactSupport.mp ⟨(closedBall o (D ^ S / 4)),
-      ⟨isCompact_closedBall o ((D : ℝ) ^ S / 4), fun _ hx ↦ eq_zero_of_not_mem_closedBall hg1 hx⟩⟩
+      ⟨isCompact_closedBall o ((D : ℝ) ^ S / 4), fun _ hx ↦ eq_zero_of_notMem_closedBall hg1 hx⟩⟩
 
 lemma boundedCompactSupport_star_Ks_mul_g (p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
@@ -1056,9 +1056,9 @@ lemma boundedCompactSupport_aux_6_2_26 (p p' : 𝔓 X) {g : X → ℂ}
           _ ≤ dist x.2.1 x.1 := by
             rw [tsub_le_iff_right]
             exact dist_triangle_left _ _ _
-      · exact Or.inr (eq_zero_of_not_mem_closedBall hg1 hx2)
-    · exact Or.inl (Or.inr (eq_zero_of_not_mem_closedBall hg1 hx))
-    · exact Or.inr (Or.inr (eq_zero_of_not_mem_closedBall hg1 hx))
+      · exact Or.inr (eq_zero_of_notMem_closedBall hg1 hx2)
+    · exact Or.inl (Or.inr (eq_zero_of_notMem_closedBall hg1 hx))
+    · exact Or.inr (Or.inr (eq_zero_of_notMem_closedBall hg1 hx))
 
 lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
@@ -1116,9 +1116,9 @@ lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurab
     simp only [mem_prod, not_and_or] at hx
     rcases hx with (hx | hx)
     · convert zero_mul _
-      rw [norm_eq_zero, eq_zero_of_not_mem_closedBall hg1 hx]
+      rw [norm_eq_zero, eq_zero_of_notMem_closedBall hg1 hx]
     · convert mul_zero _
-      rw [norm_eq_zero, eq_zero_of_not_mem_closedBall hg1 hx]
+      rw [norm_eq_zero, eq_zero_of_notMem_closedBall hg1 hx]
 
 lemma integrableOn_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :

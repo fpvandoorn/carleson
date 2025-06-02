@@ -45,7 +45,7 @@ private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
   refine Finset.sum_eq_zero (fun p hp ↦ ?_)
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
-  rw [carlesonOn, Set._not_mem]
+  rw [carlesonOn, Set.indicator_of_notMem]
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
