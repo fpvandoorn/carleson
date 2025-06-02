@@ -1920,7 +1920,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     ‖∫ x, adjointCarlesonSum (t u₁) f₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)‖ₑ ≤
     ∑ J ∈ 𝓙₅ t u₁ u₂, C2_0_5 a * volume (ball (c J) (8 * D ^ s J)) *
       iHolENorm (holderFunction t u₁ u₂ f₁ f₂ J) (c J) (2 * (8 * D ^ s J)) *
-      (1 + nndist_{c J, 8 * D ^ s J} (𝒬 u₂) (𝒬 u₁)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) := by
+      (1 + edist_{c J, 8 * D ^ s J} (𝒬 u₂) (𝒬 u₁)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) := by
   classical
   have rearr : ∀ J x, t.χ u₁ u₂ J x *
       (adjointCarlesonSum (t u₁) f₁ x * conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)) =
@@ -1954,7 +1954,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
         ‖∫ x, exp (.I * (𝒬 u₂ x - 𝒬 u₁ x)) * holderFunction t u₁ u₂ f₁ f₂ J x‖ₑ := by
       congr! 4 with J mJ x; exact rearr ..
     _ ≤ _ := by
-      gcongr with J mJ; apply holder_van_der_corput; rw [support_subset_iff']; intro x nx
+      gcongr with J mJ; apply holder_van_der_corput (X := X); rw [support_subset_iff']; intro x nx
       rw [mem_toFinset] at mJ
       rw [holderFunction, χ_eq_zero_of_notMem_ball mJ nx, NNReal.coe_zero, ofReal_zero, zero_mul,
         zero_mul]
@@ -1992,7 +1992,7 @@ lemma correlation_distant_tree_parts (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (
       · rw [← mul_assoc, show (2 : ℝ) * 8 = 16 by norm_num]
         exact holder_correlation_tree hu₁ hu₂ hu h2u mJ hf₁ hf₂
       · apply ENNReal.rpow_le_rpow_of_nonpos (by rw [Left.neg_nonpos_iff]; positivity)
-        gcongr; rw [nndist_comm, ← NNReal.coe_le_coe]
+        gcongr; rw [edist_comm, edist_nndist, ENNReal.coe_le_coe]
         exact lower_oscillation_bound hu₁ hu₂ hu h2u mJ
     _ = C2_0_5 a * C7_5_4 a * (1 + C7_5_11 a n) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) *
         ∑ J ∈ 𝓙₅ t u₁ u₂, volume (ball (c J) (8 * D ^ s J)) * P7_5_4 t u₁ u₂ f₁ f₂ J := by

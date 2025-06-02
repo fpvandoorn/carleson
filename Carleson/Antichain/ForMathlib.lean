@@ -1,6 +1,7 @@
 import Mathlib.MeasureTheory.Integral.Prod
-import Mathlib.MeasureTheory.Integral.SetIntegral
-
+import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+import Mathlib.MeasureTheory.Integral.Bochner.FundThmCalculus
+import Mathlib.MeasureTheory.Integral.Bochner.Set
 
 namespace MeasureTheory
 
