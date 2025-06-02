@@ -848,6 +848,7 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   push_cast
   gcongr <;> simp
 
+-- c.f. discussion in https://github.com/fpvandoorn/carleson/pull/362
 lemma simpleNontangentialOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g):
     AEStronglyMeasurable (simpleNontangentialOperator K r g) volume := by
   sorry
