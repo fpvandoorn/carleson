@@ -20,7 +20,6 @@ weak.linter.flexible = true
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "v4.20.0-rc5"
 
 [[require]]
 name = "checkdecls"

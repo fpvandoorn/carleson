@@ -112,7 +112,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
     ContinuousWithinAt (distribution f · μ) (Ioi t₀) t₀ := by
   rcases (eq_top_or_lt_top t₀) with t₀top | t₀nottop
   · rw [t₀top]
-    apply continuousWithinAt_of_not_mem_closure
+    apply continuousWithinAt_of_notMem_closure
     simp
   · unfold ContinuousWithinAt
     rcases (eq_top_or_lt_top (distribution f t₀ μ)) with db_top | db_not_top
@@ -404,7 +404,7 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← wnorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
@@ -460,7 +460,7 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← eLpNorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
@@ -678,15 +678,15 @@ lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} 
 
 lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} (hp' : p' ≠ 0) {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
-    HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
+    HasWeakType (k • T) p p' μ ν (k * c) := by
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
-    _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
+    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _
+    _ ≤ k * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
-    _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
+    _ = (k * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
 -- TODO: do we want to unify this lemma with its unprimed version, perhaps using an
 -- `ENormedSemiring` class?

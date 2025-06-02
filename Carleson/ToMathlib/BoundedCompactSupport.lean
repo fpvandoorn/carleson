@@ -280,8 +280,8 @@ theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g
     simp only [uncurry_apply_pair, mul_eq_zero]
     simp only [mem_prod, not_and] at hxy
     by_cases hx : x ∈ tsupport f
-    · exact Or.inr (image_eq_zero_of_nmem_tsupport (hxy hx))
-    · exact Or.inl (image_eq_zero_of_nmem_tsupport hx)
+    · exact Or.inr (image_eq_zero_of_notMem_tsupport (hxy hx))
+    · exact Or.inl (image_eq_zero_of_notMem_tsupport hx)
 
 variable [R1Space X] in
 theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
@@ -290,7 +290,7 @@ theorem indicator_of_isCompact_closure {f : X → E} (hf : MemLp f ∞ μ)
   memLp_top := hf.indicator hs
   hasCompactSupport := by
     apply HasCompactSupport.intro h's
-    exact fun x hx ↦ by simp [not_mem_of_not_mem_closure hx]
+    exact fun x hx ↦ by simp [notMem_of_notMem_closure hx]
 
 protected theorem indicator {f : X → E} (hf : BoundedCompactSupport f μ) {s : Set X}
     (hs : MeasurableSet s) : BoundedCompactSupport (s.indicator f) μ where

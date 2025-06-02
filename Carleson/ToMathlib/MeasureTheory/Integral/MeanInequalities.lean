@@ -330,7 +330,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
   have q0 : 0 < q := lt_of_lt_of_le one_pos hq
   have r0 : 0 < r := lt_of_lt_of_le one_pos hr
   have hf' := hf.pow_const p
-  have hfg := hf'.snd.mul hg'
+  have hfg := hf'.comp_snd.mul hg'
   replace hg' := hg'.pow_const q
   rw [← ENNReal.rpow_le_rpow_iff r0]
   repeat rw [ENNReal.mul_rpow_of_nonneg _ _ r0.le]
@@ -497,7 +497,7 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
       rw [← eLpNorm_liftIoc T a]
       · apply AEStronglyMeasurable.sub
         · apply AEStronglyMeasurable.integral_prod_right' (f := fun z ↦ L (f z.2) (g (z.1 - z.2)))
-          apply L.aestronglyMeasurable_comp₂ hf.restrict.snd
+          apply L.aestronglyMeasurable_comp₂ hf.restrict.comp_snd
           exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub _ _)
         · have empty_interval := Set.Ioc_eq_empty_of_le ((le_add_iff_nonneg_right a).mpr hT.out.le)
           simpa [empty_interval] using aestronglyMeasurable_const

@@ -176,7 +176,7 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
     rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
       lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
       ← Order.succ_eq_add_one, ← Finset.insert_Ico_right_eq_Ico_succ h,
-      Finset.sum_insert Finset.right_not_mem_Ico,
+      Finset.sum_insert Finset.right_notMem_Ico,
       add_comm (lintegral ..), ih, Order.succ_eq_add_one]
 
 /-! ## Averaging -/
@@ -231,6 +231,11 @@ variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
 attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
   AEMeasurable.restrict AEStronglyMeasurable.restrict
+  AEStronglyMeasurable.const_smul AEStronglyMeasurable.const_smul'
+  AEStronglyMeasurable.smul_const
+  AEStronglyMeasurable.mul AEStronglyMeasurable.add
+  AEStronglyMeasurable.mul_const AEStronglyMeasurable.const_mul
+  AEStronglyMeasurable.inv AEStronglyMeasurable.div
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
 
@@ -326,13 +331,8 @@ theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toRe
 
 end MemLp
 
--- remove once the Mathlib-lemma is generalized
-theorem memLp_one_iff_integrable' {ε} [TopologicalSpace ε] [ENorm ε]
-  {f : α → ε} : MemLp f 1 μ ↔ Integrable f μ := by
-  simp_rw [Integrable, hasFiniteIntegral_iff_enorm, MemLp, eLpNorm_one_eq_lintegral_enorm]
-
 theorem Integrable.toReal {f : α → ℝ≥0∞} (hf : Integrable f μ) : Integrable (f · |>.toReal) μ := by
-  rw [← memLp_one_iff_integrable'] at hf ⊢; exact hf.toReal
+  rw [← memLp_one_iff_integrable] at hf ⊢; exact hf.toReal
 
 end MeasureTheory
 
@@ -582,7 +582,7 @@ variable [MeasureSpace X]
 -- must be in mathlib but can't find it
 theorem indicator_const {c : ℝ} {s: Set X}
     (hs: MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun _ ↦ c)) :=
-  (integrable_indicator_iff hs).mpr <| integrableOn_const.mpr <| Or.inr h2s
+  (integrable_indicator_iff hs).mpr <| integrableOn_const h2s.ne
 
 end Integrable
 
