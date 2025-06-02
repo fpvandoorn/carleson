@@ -36,7 +36,7 @@ lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport
   unfold f
   apply AEStronglyMeasurable.indicator
   · apply Continuous.comp_aestronglyMeasurable₂ (by fun_prop) aestronglyMeasurable_K
-    sorry -- proof was: exact AEStronglyMeasurable.snd (hg.aestronglyMeasurable)
+    exact hg.aestronglyMeasurable.comp_snd
   · conv => arg 1; change {x : (X × X) | x.2 ∈ (ball x.1 r)ᶜ}
     simp_rw [mem_compl_iff, mem_ball, not_lt]
     apply measurableSet_le <;> fun_prop

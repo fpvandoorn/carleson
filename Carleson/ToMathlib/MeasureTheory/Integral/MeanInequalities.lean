@@ -302,7 +302,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
   have q0 : 0 < q := lt_of_lt_of_le one_pos hq
   have r0 : 0 < r := lt_of_lt_of_le one_pos hr
   have hf' := hf.pow_const p
-  --have hfg := hf'.snd.mul hg'
+  have hfg := hf'.comp_snd.mul hg'
   replace hg' := hg'.pow_const q
   rw [← ENNReal.rpow_le_rpow_iff r0]
   repeat rw [ENNReal.mul_rpow_of_nonneg _ _ r0.le]
@@ -319,7 +319,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
       · field_simp
       · exact ENNReal.rpow_ne_top_of_nonneg r0.le ofReal_ne_top
       · apply AEMeasurable.const_mul
-        simpa [eLpNorm, eLpNorm', r0.not_le, r0.ne.symm, r0.le] using sorry -- was: hfg.lintegral_prod_right'
+        simpa [eLpNorm, eLpNorm', r0.not_le, r0.ne.symm, r0.le] using hfg.lintegral_prod_right'
     _ = _ := by
       have (a b : ℝ≥0∞) : a ^ r * b ^ r = (a ^ p * b ^ q) * (a ^ (r - p) * b ^ (r - q)) := calc
         _ = (a ^ p * a ^ (r - p)) * (b ^ q * b ^ (r - q)) := by
@@ -336,7 +336,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
         _ = ∫⁻ x, (∫⁻ y, (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ∂μ) ∂μ := by
           simp_rw [← ENNReal.rpow_mul, inv_mul_cancel₀ r0.ne.symm, ENNReal.rpow_one]
         _ = ∫⁻ y, (∫⁻ x, (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ∂μ) ∂μ :=
-          sorry -- was: lintegral_lintegral_swap hfg
+          lintegral_lintegral_swap hfg
         _ = (∫⁻ y, ‖f y‖ₑ ^ p ∂μ) * (∫⁻ x, ‖g x‖ₑ ^ q ∂μ) := by
           have {y : G} : ‖f y‖ₑ ^ p ≠ ∞ := ENNReal.rpow_ne_top_of_nonneg p0.le enorm_ne_top
           simp_rw [lintegral_const_mul' _ _ this, ← lintegral_mul_const'' _ hf',
@@ -469,9 +469,8 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
       rw [← eLpNorm_liftIoc T a]
       · apply AEStronglyMeasurable.sub
         · apply AEStronglyMeasurable.integral_prod_right' (f := fun z ↦ L (f z.2) (g (z.1 - z.2)))
-          sorry -- TODO: fix unification failure, proof was:
-          -- apply L.aestronglyMeasurable_comp₂ hf.restrict.snd
-          -- exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub _ _)
+          apply L.aestronglyMeasurable_comp₂ hf.restrict.comp_snd
+          exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub _ _)
         · have empty_interval := Set.Ioc_eq_empty_of_le ((le_add_iff_nonneg_right a).mpr hT.out.le)
           simpa [empty_interval] using aestronglyMeasurable_const
     _ = eLpNorm (liftIoc T a f ⋆[L] liftIoc T a g) r := by
