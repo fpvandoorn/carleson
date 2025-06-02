@@ -261,7 +261,7 @@ lemma χ_le_indicator (hJ : J ∈ 𝓙₅ t u₁ u₂) :
 lemma χ_eq_zero_of_notMem_ball (hJ : J ∈ 𝓙₅ t u₁ u₂) (nx : x ∉ ball (c J) (8 * D ^ s J)) :
     χ t u₁ u₂ J x = 0 := by
   have := χ_le_indicator hJ (x := x)
-  rwa [indicator_of_not_mem nx, le_zero_iff] at this
+  rwa [indicator_of_notMem nx, le_zero_iff] at this
 
 lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
     BoundedCompactSupport fun x ↦ (χ t u₁ u₂ J x : ℝ) := by
@@ -272,7 +272,7 @@ lemma boundedCompactSupport_toReal_χ (hJ : J ∈ 𝓙₅ t u₁ u₂) :
         (.of_forall fun x ↦ ?_)
       unfold indicator; split_ifs <;> simp
     · refine HasCompactSupport.intro (isCompact_closedBall (c J) (8 * D ^ s J)) fun x mx ↦ ?_
-      apply indicator_of_not_mem; contrapose! mx; exact ball_subset_closedBall mx
+      apply indicator_of_notMem; contrapose! mx; exact ball_subset_closedBall mx
   · exact stronglyMeasurable_χ.measurable.coe_nnreal_real.aestronglyMeasurable
   · simp_rw [show (1 : X → ℝ) = (↑) ∘ (1 : X → ℝ≥0) by rfl]
     rw [indicator_comp_of_zero (by simp), Function.comp_apply, Real.norm_eq_abs, NNReal.abs_eq,
@@ -1935,7 +1935,7 @@ lemma cdtp_le_iHolENorm (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠
     _ = ‖∫ x in 𝓘 u₁, adjointCarlesonSum (t u₁) f₁ x *
         conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)‖ₑ := by
       congr 1; refine (setIntegral_eq_integral_of_forall_compl_eq_zero fun x nx ↦ ?_).symm
-      rw [adjoint_tile_support2_sum hu₁, indicator_of_not_mem nx, zero_mul]
+      rw [adjoint_tile_support2_sum hu₁, indicator_of_notMem nx, zero_mul]
     _ = ‖∑ J ∈ 𝓙₅ t u₁ u₂, ∫ x, χ t u₁ u₂ J x * (adjointCarlesonSum (t u₁) f₁ x *
         conj (adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x))‖ₑ := by
       rw [← integral_indicator coeGrid_measurable]

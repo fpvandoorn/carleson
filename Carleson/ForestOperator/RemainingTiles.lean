@@ -551,7 +551,7 @@ lemma btp_integral_bound :
         have : y ∈ ball (c I) (2 ^ 3 * (D : ℝ) ^ s I) := by rwa [show (2 : ℝ) ^ 3 = 8 by norm_num]
         simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
         norm_num
-      · rw [indicator_of_not_mem my, zero_mul]; exact zero_le _
+      · rw [indicator_of_notMem my, zero_mul]; exact zero_le _
 
 open Classical in
 /-- Equation (7.6.4) of Lemma 7.6.2 (before applying Cauchy–Schwarz). -/
@@ -783,7 +783,7 @@ lemma cntp_approxOnCube_eq (hu₁ : u₁ ∈ t) :
         rw [show (0 : ℝ) = ⨍ y in (p : Set X), 0 by simp]
         refine setAverage_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
         suffices Disjoint (p : Set X) U by
-          rw [indicator_of_not_mem (this.not_mem_of_mem_left my), norm_zero]
+          rw [indicator_of_notMem (this.notMem_of_mem_left my), norm_zero]
         -- There has to be a cube `I ∈ 𝓙₆` (the one containing `c (𝓘 u₁)`)
         have cm : c (𝓘 u₁) ∈ (𝓘 u₁ : Set X) := Grid.c_mem_Grid
         rw [← union_𝓙₆ hu₁, mem_iUnion₂] at cm; obtain ⟨I, mI, hI⟩ := cm
