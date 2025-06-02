@@ -164,7 +164,7 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
   convert support_holderApprox_subset_aux hR hϕ ht using 2
   ring
 
-/-- Part of Lemma 8.0.1. -/
+/- unused
 lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
     tsupport (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
@@ -175,6 +175,7 @@ lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     (closure_mono A).trans closure_ball_subset_closedBall
   apply this.trans (closedBall_subset_ball ?_)
   linarith [R'_pos.2]
+-/
 
 open Filter
 
@@ -518,15 +519,15 @@ end DivisionMonoid
 --NOTE (MI) : there was a missing minus sign in the exponent.
 /-- Proposition 2.0.5. -/
 theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
-    (ϕ_tsupp : tsupport ϕ ⊆ ball z R) {f g : Θ X} :
+    (ϕ_supp : support ϕ ⊆ ball z R) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
     (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
       (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
   have : 4 ≤ a := four_le_a X
   have : (4 : ℝ) ≤ a := mod_cast four_le_a X
   rcases le_or_lt R 0 with hR | hR
-  · simp [ball_eq_empty.2 hR, subset_empty_iff, tsupport_eq_empty_iff] at ϕ_tsupp
-    simp [ϕ_tsupp]
+  · simp [ball_eq_empty.2 hR, subset_empty_iff, support_eq_empty_iff] at ϕ_supp
+    simp [ϕ_supp]
   rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h2ϕ | h2ϕ
   · apply le_top.trans_eq
     symm
@@ -540,18 +541,12 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     · simp only [le_add_iff_nonneg_right,  NNReal.zero_le_coe]
     · simp only [defaultτ, Left.neg_nonpos_iff]
       positivity
-  have ϕ_supp : support ϕ ⊆ ball z R := (subset_tsupport _).trans ϕ_tsupp
-  have ϕ_cont : Continuous ϕ := by
-    apply ContinuousOn.continuous_of_tsupport_subset
-      ((HolderOnWith.of_iHolENorm_ne_top h2ϕ).continuousOn (nnτ_pos X)) isOpen_ball
-    apply ϕ_tsupp.trans (ball_subset_ball (by linarith))
+  have ϕ_cont : Continuous ϕ := continuous_of_iHolENorm_ne_top' ϕ_supp h2ϕ
   have ϕ_comp : HasCompactSupport ϕ := by
     apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall z R)
     exact ϕ_supp.trans ball_subset_closedBall
   let ϕ' := holderApprox R t ϕ
   have ϕ'_supp : support ϕ' ⊆ ball z (2 * R) := support_holderApprox_subset hR ϕ_supp ⟨t_pos, t_one⟩
-  have ϕ'_tsupp : tsupport ϕ' ⊆ ball z (2 * R) :=
-    tsupport_holderApprox_subset hR ϕ_tsupp ⟨t_pos, t_one⟩
   have ϕ'_cont : Continuous ϕ' := by
     apply LipschitzWith.continuous
     apply lipschitzWith_holderApprox hR t_pos t_one ϕ_cont ϕ_supp
@@ -584,7 +579,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     _ ≤ 2 ^ a * volume (ball z (2 * R))
       * iLipENorm ϕ' z (2 * R) * (1 + edist_{z, 2 * R} f g) ^ (- τ) := by
       simpa only [defaultA, Nat.cast_pow, Nat.cast_ofNat, t] using
-        enorm_integral_exp_le (x := z) (r := 2 * R) (ϕ := ϕ') ϕ'_tsupp (f := f) (g := g)
+        enorm_integral_exp_le (x := z) (r := 2 * R) (ϕ := ϕ') ϕ'_supp (f := f) (g := g)
     _ ≤ 2 ^ a * (2 ^ a * volume (ball z R))
         * (2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R))
         * (1 + edist_{z, R} f g) ^ (- τ) := by
