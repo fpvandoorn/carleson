@@ -1015,20 +1015,17 @@ lemma boundedCompactSupport_aux_6_2_26 (p p' : 𝔓 X) {g : X → ℂ}
         exact (boundedCompactSupport_Ks_mul_star_g p hg hg1).memLp_top.eLpNorm_lt_top
       obtain ⟨B, hB⟩ := h1
       obtain ⟨C, hC⟩ := h2
-      use (max 0 B) * (max 0 C)
-      simp only [ nnnorm_mul, RCLike.nnnorm_conj, Filter.eventually_map] at hB hC ⊢
-      sorry
-      /- obtain ⟨B, hB⟩ := isBounded_range_iff_forall_norm_le.1
-      (boundedCompactSupport_star_Ks_mul_g p' hg hg1).isBounded
-      obtain ⟨C, hC⟩ := isBounded_range_iff_forall_norm_le.1
-        (boundedCompactSupport_Ks_mul_star_g p hg hg1).isBounded
-      rw [isBounded_range_iff_forall_norm_le]
-      use (max 0 B) * (max 0 C)
-      intro z
-      rw [norm_mul]
-      gcongr
-      · exact le_max_of_le_right (hB ⟨z.2.1, z.1⟩)
-      · exact le_max_of_le_right (hC ⟨z.2.2, z.1⟩) -/
+      use B * C
+      simp only [nnnorm_mul, RCLike.nnnorm_conj, Filter.eventually_map] at hB hC ⊢
+      have hp1 : Measure.QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.1, z.1)) volume volume := by
+        sorry
+        -- refine QuasiMeasurePreserving.prod_of_right (by fun_prop) <| .of_forall fun x ↦ ?_
+        -- simp
+        -- apply Measure.quasiMeasurePreserving_fst.comp ?_
+      have hp2 : Measure.QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.2, z.1)) volume volume :=
+        sorry
+      filter_upwards [hp1.ae hB, hp2.ae hC] with x h1x h2x
+      exact mul_le_mul h1x h2x (zero_le _) (zero_le _)
   · -- HasCompactSupport
     rw [← exists_compact_iff_hasCompactSupport]
     use (closedBall (cancelPt X) (defaultD a ^ defaultS X)) ×ˢ
