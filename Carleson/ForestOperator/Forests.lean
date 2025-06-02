@@ -1,13 +1,8 @@
 import Carleson.ForestOperator.LargeSeparation
 import Carleson.ForestOperator.RemainingTiles
-import Carleson.ToMathlib.Analysis.SpecialFunctions.Pow.Deriv
 import Carleson.ToMathlib.MeasureTheory.Function.L1Integrable
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.Order.Chain
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Mathlib.Data.Complex.ExponentialBounds
-import Mathlib.Tactic.NormNum.BigOperators
-import Mathlib.Tactic.NormNum.NatFactorial
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -31,121 +26,27 @@ irreducible_def C7_4_4 (a n : ℕ) : ℝ≥0 := 2 ^ (542 * (a : ℝ) ^ 3 - 4 * n
 
 section estimate
 
-lemma estimate_a1 {a : ℝ} (ha : 4 ≤ a) : 4 < ↑(2 ^ (12 * a)) / (4 * ↑a ^ 2 + 2 * ↑a ^ 3) := by
-  have : 4 * ↑a ^ 2 + 2 * ↑a ^ 3 ≤ 3 * ↑a ^ 3 := calc
-      _ ≤ (a : ℝ) * (a : ℝ) ^ 2 + 2 * a ^ 3 := by gcongr
-      _ = (a : ℝ) ^ 3 + 2 * a ^ 3 := by congr 1; ring
-      _ = 3 * (a : ℝ) ^ 3 := by ring
-  have : 2 ^ (12 * a) / (3 * a ^ 3) ≤ 2 ^ (12 * a) / (4 * a ^ 2 + 2 * a ^ 3) := by gcongr
-  calc
-    _ < 2 ^ (12 * a) / (3 * a ^ 3) := ?_
-    _ ≤ _ := this
-  let f : ℝ → ℝ := fun x ↦ 2 ^ (12 * x) / (3 * x ^ 3)
-  let f₁ : ℝ → ℝ := fun x ↦ (2 : ℝ) ^ ((12 : ℝ) * x)
-  let f₂ : ℝ → ℝ := fun x ↦ 3 * x ^ 3
-  have hf₁ : Differentiable ℝ f₁ := by
-    unfold f₁
-    apply Differentiable.comp ?_ (by fun_prop)
-    exact Differentiable.rpow (by fun_prop) (by fun_prop) (fun _ ↦ by norm_num)
-  have hf₂ : Differentiable ℝ f₂ := by fun_prop
-  have hf : DifferentiableOn ℝ f (Set.Ioi 0) := by
-    intro x hx
-    have : 0 < x := hx
-    exact DifferentiableAt.differentiableWithinAt <| (hf₁ x).mul <| (hf₂ x).inv (by positivity)
-  let f' : ℝ → ℝ := fun x ↦ ((12 * Real.log 2) - 3 * x⁻¹) * f x
-  have hf'₁ (x) : deriv f₁ x = (12 * Real.log 2) * f₁ x := by
-    let f₃ : ℝ → ℝ := fun x ↦ 12 * x
-    have hf₃ : HasDerivAt f₃ 12 x := by
-      convert (hasDerivAt_id' x).const_mul (c := 12)
-      rw [mul_one]
-    let f₄ : ℝ → ℝ := fun x ↦ 2 ^ x
-    have : f₁ = f₄ ∘ f₃ := by ext; simp [f₁, f₃, f₄]
-    rw [deriv_const_rpow (a := 2) hf₃ (by norm_num), this]
-    ring_nf
-    congr
-  have hf'₂ {x} (hx : x ≠ 0) : deriv f₂ x = 3 * x⁻¹ * f₂ x := by
-    symm
-    calc 3 * x⁻¹ * f₂ x
-      _ = 9 * x ^ 2 := by
-        unfold f₂
-        calc 3 * x⁻¹ * (3 * x ^ 3)
-          _ = 9 * x ^ 2 * x * x⁻¹ := by ring
-          _ = 9 * x ^ 2 := by rw [mul_assoc, CommGroupWithZero.mul_inv_cancel x hx, mul_one]
-      _ = 3 * (3 * x ^ 2) := by ring
-      _ = _ := by
-        unfold f₂; rw [HasDerivAt.deriv]
-        exact (hasDerivAt_pow 3 x).const_mul 3
-  have {x} (hx : 0 < x) : deriv f x = f' x := by
-    calc deriv f x
-      _ = deriv (fun x ↦ f₁ x / f₂ x) x := rfl
-      _ = (deriv f₁ x * f₂ x - f₁ x * deriv f₂ x) / (f₂ x) ^ 2 := by
-        apply deriv_div (hf₁ x) (hf₂ x)
-        positivity
-      _ = ((deriv f₁ x - f₁ x * 3 * x⁻¹) * f₂ x) / (f₂ x) ^ 2 := by rw [hf'₂ hx.ne']; ring
-      _ = (deriv f₁ x - f₁ x * 3 * x⁻¹) / (f₂ x) := by
-        have (a d : ℝ) (hd : d ≠ 0) : a * d / d ^ 2 = a / d := by
-          rw [← IsUnit.mul_div_mul_right hd.isUnit a d]
-          ring
-        rw [this]
-        positivity
-      _ = _ := by simp only [hf'₁, f']; ring
-  have : MonotoneOn f (Set.Ici 4) := by
-    apply monotoneOn_of_deriv_nonneg (convex_Ici 4)
-      (hf.continuousOn.mono <| Ici_subset_Ioi.mpr (by norm_num)) ?_
-    · intro x hx
-      rw [interior_Ici, mem_Ioi] at hx
-      rw [this (by positivity)]
-      unfold f'
-      apply mul_nonneg
-      · simp only [sub_nonneg]
-        trans 3 * 4⁻¹
-        · gcongr
-        · linarith [Real.log_two_gt_d9]
-      · unfold f
-        positivity
-    · rw [interior_Ici]
-      exact hf.mono <| Ioi_subset_Ioi (by norm_num)
-  calc 4
-    _ < f 4 := by norm_num
-    _ ≤ f a := this (by norm_num) (by norm_num; exact ha) ha
-
-lemma estimate_a2 {a : ℝ} (ha : 4 ≤ a) : 4 < ((2 ^ (12 * a) : ℝ)) * (2 ^ ((-10 : ℝ) * (a : ℝ))) := by
-  let f: ℝ → ℝ := fun x ↦ 2 ^ (12 * x) * (2 ^ ((-10 : ℝ) * x))
-  let g: ℝ → ℝ := fun x ↦ 4 ^ x
-  have : Monotone g := by
-    unfold g
-    exact Real.monotone_rpow_of_base_ge_one (by norm_num)
-  have : Monotone f := by
-    convert this
-    ext x
-    unfold f g
-    trans 2 ^ (2 * x)
-    · rw [← Real.rpow_add (by norm_num)]
-      congr; ring
-    · rw [Real.rpow_mul (by norm_num)]
-      congr; norm_num
-  calc 4
-    _ < f 4 := by norm_num
-    _ ≤ f a := this (a := 4) (b := a) ha
-
 -- We only have equality for n = 0.
 lemma estimate_C7_4_5 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
     C7_4_5 a n ≤ 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
-  simp only [C7_4_5, defaultZ]
-  gcongr; · norm_num
-  by_cases hn: n = 0
-  · simp [hn]
-  -- reorder to put `n` first, then use gcongr and `estimate_a1`
-  calc
-    _ = (n : ℝ) * 4 := by ring
-    _ ≤ (n : ℝ) * (2 ^ (12 * (a : ℝ))) / (4 * (a : ℝ) ^ 2 + 2 * (a : ℝ) ^ 3) := by
-      rw [mul_div_assoc]
-      gcongr
-      exact (estimate_a1 (Nat.ofNat_le_cast.mpr ha)).le
-    _ = _ := by
-      congr 1
-      rw [mul_comm _ (n : ℝ)]
-      norm_cast
+  rw [C7_4_5, NNReal.rpow_sub two_ne_zero, neg_div, NNReal.rpow_neg, ← div_eq_mul_inv]
+  conv_rhs => enter [1, 2]; norm_cast
+  rw [NNReal.rpow_natCast]
+  gcongr 2 ^ ?_ / 2 ^ ?_
+  · norm_cast; positivity
+  · exact one_le_two
+  · omega -- 533 ≤ 541
+  · exact one_le_two
+  · rw [mul_div_right_comm]; gcongr
+    rw [le_div_iff₀ (by positivity), defaultZ]; norm_cast
+    calc
+      _ = 8 * a * a * (a + 2) := by ring
+      _ ≤ 8 * a * a * (a + a) := by gcongr; omega
+      _ = 2 ^ 4 * a * a * a := by ring
+      _ ≤ 2 ^ a * 2 ^ a * 2 ^ a * 2 ^ a := by
+        gcongr; · exact one_le_two
+        all_goals exact Nat.lt_two_pow_self.le
+      _ ≤ _ := by simp_rw [← pow_add]; exact pow_le_pow_right' one_le_two (by linarith)
 
 lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
     C7_4_6 a n < 2 ^ (541 * (a : ℝ) ^ 3 - 4 * n) := by
@@ -164,7 +65,7 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
       _ < 254 * a ^ 3 + 2 * 4 * 4 * a + 2 * 1 * 1 * 4 := by gcongr <;> norm_num
       _ ≤ 254 * a ^ 3 + 2 * a * a * a + 2 * a * a * a := by gcongr <;> omega
       _ = 258 * a ^ 3 := by ring
-      _ < _ := by gcongr; norm_num
+      _ < _ := by gcongr; norm_num -- 258 ≤ 541
   · exact one_le_two
   · rw [← mul_rotate]; gcongr
     rw [← mul_assoc, ← mul_rotate, ← mul_div_assoc, le_div_iff₀ (by positivity),
@@ -232,8 +133,7 @@ lemma adjointCarlesonSum_union_of_disjoint {x : X} {g : X → ℂ} {s t : Set (�
   convert sum_union_dontuse hst (g := fun p ↦ adjointCarleson p g x)
 
 lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂)
-    (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
+    (h2u : 𝓘 u₁ ≤ 𝓘 u₂) (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
     C7_4_4 a n *
     eLpNorm
@@ -269,7 +169,7 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
       gcongr
-      · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hf₁ hf₂
+      · exact correlation_distant_tree_parts hu₁ hu₂ hu h2u hg₁ hg₂
       · exact correlation_near_tree_parts hu₁ hu₂ hu h2u hg₁ hg₂
     _ = (C7_4_5 a n + C7_4_6 a n) *
         eLpNorm ((𝓘 u₁ : Set X).indicator (adjointBoundaryOperator t u₁ g₁) ·) 2 volume *
@@ -301,8 +201,7 @@ lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu�
 
 /-- Lemma 7.4.4. -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
-    (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂)
-    (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
+    (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
     C7_4_4 a n *
     eLpNorm
@@ -310,7 +209,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
     eLpNorm
       ((𝓘 u₁ ∩ 𝓘 u₂ : Set X).indicator (adjointBoundaryOperator t u₂ g₂) ·) 2 volume := by
   by_cases h: 𝓘 u₁ ≤ 𝓘 u₂
-  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂ hf₁ hf₂
+  · exact correlation_separated_trees_of_subset hu₁ hu₂ hu h hg₁ hg₂
   by_cases h': 𝓘 u₂ ≤ 𝓘 u₁
   · have :
         ‖∫ (x : X), adjointCarlesonSum (t.𝔗 u₂) g₂ x * conj (adjointCarlesonSum (t.𝔗 u₁) g₁ x)‖₊ =
@@ -318,7 +217,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       rw [← RCLike.nnnorm_conj _, ← integral_conj]
       simp [mul_comm]
     rw [inter_comm, mul_right_comm, ← this]
-    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁ hf₂ hf₁
+    exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁
   push_neg at h h'
   simp [foo h h' hu₁ hu₂]
 
