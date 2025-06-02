@@ -285,33 +285,31 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         rw [enorm_eq_self, enorm_eq_self]
         exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
 
-lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
+lemma disjoint_of_not_le_not_le (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) : Disjoint (𝓘 u₁ : Set X) (𝓘 u₂ : Set X) := by
+  by_cases hs : s (𝓘 u₁) ≤ s (𝓘 u₂)
+  · -- Assume wlog that s u₁ ≤ s u₂.
+    -- If u₁ and u₂ were not disjoint, we'd have J u₁ ⊆ J u₂, contradicting h.
+    by_contra hndisjoint
+    have : 𝓘 u₁ ≤ 𝓘 u₂ := by
+      have := le_or_disjoint hs
+      simp_all [le_or_disjoint hs]
+    apply h this
+  · have hs' : s (𝓘 u₂) ≤ s (𝓘 u₁) := by push_neg at hs; exact hs.le
+    by_contra hdisjoint
+    apply h'
+    have := le_or_disjoint hs'
+    tauto
+
+lemma correlation_zero_of_disjoint (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁)
+    (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
     adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x) = 0 := by
-  have : Disjoint (𝓘 u₁ : Set X) (𝓘 u₂ : Set X) := by
-    by_cases hs : s (𝓘 u₁) ≤ s (𝓘 u₂)
-    · -- Assume wlog that s u₁ ≤ s u₂.
-      -- If u₁ and u₂ were not disjoint, we'd have J u₁ ⊆ J u₂, contradicting h.
-      by_contra hndisjoint
-      have : 𝓘 u₁ ≤ 𝓘 u₂ := by
-        have := le_or_disjoint hs
-        simp_all [le_or_disjoint hs]
-      apply h this
-    · have hs' : s (𝓘 u₂) ≤ s (𝓘 u₁) := by push_neg at hs; exact hs.le
-      by_contra hdisjoint
-      apply h'
-      have := le_or_disjoint hs'
-      tauto
-  have : (𝓘 u₁ : Set X) ∩ (𝓘 u₂) = ∅ := by rwa [← disjoint_iff_inter_eq_empty]
   rw [adjoint_tile_support2_sum hu₁, adjoint_tile_support2_sum hu₂, conj_indicator, mul_eq_zero]
   simp_rw [indicator_apply_eq_zero]
   by_cases hx : x ∈ 𝓘 u₁
-  · have : x ∉ 𝓘 u₂ := by
-      sorry -- easy: x in A, A and B disjoint => x ∉ B
-    simp_all
-  · have : x ∉ 𝓘 u₁ := sorry -- similar
-    simp_all
+  · simp [(disjoint_of_not_le_not_le h h').notMem_of_mem_left hx]
+  · tauto
 
-/-- Lemma 7.4.4. -/
+/-- Lemma 7.4.4 -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂)
     (hf₁ : BoundedCompactSupport f₁) (hf₂ : BoundedCompactSupport f₂) :
@@ -331,8 +329,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       simp [mul_comm]
     rw [inter_comm, mul_right_comm, ← this]
     exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁ hf₂ hf₁
-  push_neg at h h'
-  simp [foo h h' hu₁ hu₂]
+  simp [correlation_zero_of_disjoint h h' hu₁ hu₂]
 
 /-! ## Section 7.7 -/
 
