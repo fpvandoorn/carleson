@@ -1,6 +1,4 @@
-import Mathlib.Analysis.Normed.Field.Basic
-import Mathlib.Analysis.Normed.Group.Bounded
-import Mathlib.Analysis.Normed.Group.Uniform
+import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Order.CompletePartialOrder
 
 /-! ## `ENNReal` manipulation lemmas -/
@@ -81,6 +79,18 @@ lemma edist_sum_le_sum_edist {f g : α → E} : edist (∑ i ∈ t, f i) (∑ i 
     simp only [Finset.sum_cons]
     exact (edist_add_add_le _ _ _ _).trans (add_le_add_left ihs _)
 
+lemma enorm_sum_eq_sum_enorm {f : α → ℝ} (hf : ∀ i ∈ t, 0 ≤ f i) :
+    ‖∑ i ∈ t, f i‖ₑ = ∑ i ∈ t, ‖f i‖ₑ := by
+  induction t using Finset.cons_induction with
+  | empty => simp
+  | cons a t ha ihs =>
+    simp only [Finset.sum_cons]
+    simp only [Finset.mem_cons, forall_eq_or_imp] at hf
+    have n₁ := hf.1
+    have n₂ := Finset.sum_nonneg hf.2
+    rw [Real.enorm_of_nonneg (add_nonneg n₁ n₂), ENNReal.ofReal_add n₁ n₂,
+      ← Real.enorm_of_nonneg n₁, ← Real.enorm_of_nonneg n₂, ihs hf.2]
+
 /-- The reverse triangle inequality for `enorm`. -/
 -- TODO: does a seminormed abelian additive group also have an ENormedAddMonoid structure?
 lemma enorm_enorm_sub_enorm_le {E} [NormedAddCommGroup E] {x y : E} : ‖‖x‖ₑ - ‖y‖ₑ‖ₑ ≤ ‖x - y‖ₑ := by
@@ -120,6 +130,18 @@ lemma exists_enorm_sub_eps_le_biInf
   rw [eB, ← ENNReal.coe_add, coe_le_coe, ← NNReal.coe_le_coe, NNReal.coe_add,
     add_le_iff_nonpos_right] at key
   rw [← NNReal.coe_pos] at εpos; linarith only [εpos, key]
+
+lemma biInf_enorm_sub_le {f g : ι → E} :
+    ⨅ x ∈ s, ‖f x - g x‖ₑ ≤ (⨅ x ∈ s, ‖f x‖ₑ) + (⨆ x ∈ s, ‖g x‖ₑ) := by
+  rcases s.eq_empty_or_nonempty with rfl | hs; · simp
+  refine ENNReal.le_of_forall_pos_le_add fun ε εpos _ ↦ ?_
+  obtain ⟨x, mx, hx⟩ := exists_enorm_sub_eps_le_biInf (f := f) εpos hs
+  calc
+    _ ≤ ‖f x - g x‖ₑ := biInf_le (fun i ↦ ‖f i - g i‖ₑ) mx
+    _ ≤ ‖f x‖ₑ + ‖g x‖ₑ := enorm_sub_le
+    _ ≤ ε + (⨅ x ∈ s, ‖f x‖ₑ) + ⨆ x ∈ s, ‖g x‖ₑ :=
+      add_le_add (by rwa [← tsub_le_iff_left]) (le_biSup (‖g ·‖ₑ) mx)
+    _ = _ := by rw [add_rotate]
 
 end ENNReal
 

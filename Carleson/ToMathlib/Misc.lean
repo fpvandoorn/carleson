@@ -9,6 +9,7 @@ import Mathlib.Data.Set.Card
 import Mathlib.Data.Real.ENatENNReal
 import Mathlib.MeasureTheory.Measure.Real
 import Carleson.ToMathlib.ENorm
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 /-
 * This file can import all ToMathlib files.
@@ -17,6 +18,21 @@ import Carleson.ToMathlib.ENorm
 
 open Function Set
 open scoped ENNReal
+
+
+namespace Real
+-- to Mathlib.Analysis.SpecialFunctions.Log.Base
+lemma le_pow_natCeil_logb {b x : ℝ} (hb : 1 < b) (hx : 0 < x) :
+    x ≤ b ^ ⌈Real.logb b x⌉₊ := by
+  calc
+    x = b ^ Real.logb b x := by rw [Real.rpow_logb (by linarith) hb.ne' hx]
+    _ ≤ b ^ ⌈Real.logb b x⌉₊ := by
+      rw [← Real.rpow_natCast]
+      gcongr
+      · exact hb.le
+      apply Nat.le_ceil
+
+end Real
 
 section ENNReal
 
@@ -160,7 +176,7 @@ lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc
     rw [← Ioc_union_Ioc_eq_Ioc li (by gcongr; omega),
       lintegral_union measurableSet_Ioc (Ioc_disjoint_Ioc_of_le le_rfl),
       ← Order.succ_eq_add_one, ← Finset.insert_Ico_right_eq_Ico_succ h,
-      Finset.sum_insert Finset.right_not_mem_Ico,
+      Finset.sum_insert Finset.right_notMem_Ico,
       add_comm (lintegral ..), ih, Order.succ_eq_add_one]
 
 /-! ## Averaging -/
@@ -214,6 +230,12 @@ variable {α : Type*} {m : MeasurableSpace α} {μ : Measure α} {s : Set α}
 
 attribute [fun_prop] Continuous.comp_aestronglyMeasurable
   AEStronglyMeasurable.mul AEStronglyMeasurable.prodMk
+  AEMeasurable.restrict AEStronglyMeasurable.restrict
+  AEStronglyMeasurable.const_smul AEStronglyMeasurable.const_smul'
+  AEStronglyMeasurable.smul_const
+  AEStronglyMeasurable.mul AEStronglyMeasurable.add
+  AEStronglyMeasurable.mul_const AEStronglyMeasurable.const_mul
+  AEStronglyMeasurable.inv AEStronglyMeasurable.div
 attribute [gcongr] Measure.AbsolutelyContinuous.prod -- todo: also add one-sided versions for gcongr
 attribute [fun_prop] AEStronglyMeasurable.comp_measurable
 
@@ -309,13 +331,8 @@ theorem toReal {f : α → ℝ≥0∞} (hf : MemLp f p μ) : MemLp (f · |>.toRe
 
 end MemLp
 
--- remove once the Mathlib-lemma is generalized
-theorem memLp_one_iff_integrable' {ε} [TopologicalSpace ε] [ENorm ε]
-  {f : α → ε} : MemLp f 1 μ ↔ Integrable f μ := by
-  simp_rw [Integrable, hasFiniteIntegral_iff_enorm, MemLp, eLpNorm_one_eq_lintegral_enorm]
-
 theorem Integrable.toReal {f : α → ℝ≥0∞} (hf : Integrable f μ) : Integrable (f · |>.toReal) μ := by
-  rw [← memLp_one_iff_integrable'] at hf ⊢; exact hf.toReal
+  rw [← memLp_one_iff_integrable] at hf ⊢; exact hf.toReal
 
 end MeasureTheory
 
@@ -325,13 +342,13 @@ open MeasureTheory Bornology
 variable {E X : Type*} {p : ℝ≥0∞} [NormedAddCommGroup E] [TopologicalSpace X] [MeasurableSpace X]
   {μ : Measure X} [IsFiniteMeasureOnCompacts μ] {f : X → E}
 
----- now obsolete -> `BoundedCompactSupport.memℒp`
--- lemma _root_.HasCompactSupport.memℒp_of_isBounded (hf : HasCompactSupport f)
+---- now obsolete -> `BoundedCompactSupport.memLp`
+-- lemma _root_.HasCompactSupport.memLp_of_isBounded (hf : HasCompactSupport f)
 --     (h2f : IsBounded (range f))
---     (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : Memℒp f p μ := by
+--     (h3f : AEStronglyMeasurable f μ) {p : ℝ≥0∞} : MemLp f p μ := by
 --   obtain ⟨C, hC⟩ := h2f.exists_norm_le
 --   simp only [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
---   exact hf.memℒp_of_bound h3f C <| .of_forall hC
+--   exact hf.memLp_of_bound h3f C <| .of_forall hC
 
 end
 
@@ -436,7 +453,7 @@ namespace Set
 
 open ComplexConjugate
 
-lemma indicator_eq_indicator_one_mul {ι M:Type*} [MulZeroOneClass M]
+lemma indicator_eq_indicator_one_mul {ι M : Type*} [MulZeroOneClass M]
     (s : Set ι) (f : ι → M) (x : ι) : s.indicator f x = s.indicator 1 x * f x := by
   simp only [indicator]; split_ifs <;> simp
 
@@ -487,6 +504,51 @@ lemma enorm_exp_I_mul_ofReal_sub_one_le {x : ℝ} : ‖exp (I * x) - 1‖ₑ ≤
 
 end Norm
 
+section BddAbove
+-- move near BddAbove.range_add if that imports Finset.sum
+
+variable {ι ι' α M : Type*} [Preorder M]
+
+@[simp]
+theorem BddAbove.range_const {c : M} : BddAbove (range (fun _ : ι ↦ c)) :=
+  bddAbove_singleton.mono Set.range_const_subset
+
+variable [One M] in
+@[to_additive (attr := simp)]
+theorem BddAbove.range_one : BddAbove (range (1 : ι → M)) :=
+  .range_const
+
+variable [AddCommMonoid M] [AddLeftMono M] [AddRightMono M] in
+theorem BddAbove.range_finsetSum {s : Finset ι} {f : ι → ι' → M}
+    (hf : ∀ i ∈ s, BddAbove (range (f i))) :
+    BddAbove (range (fun x ↦ ∑ i ∈ s, f i x)) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp
+  | insert j s hjs IH =>
+    simp_rw [Finset.sum_insert hjs]
+    apply BddAbove.range_add
+    · exact hf _ (Finset.mem_insert_self j s)
+    · exact IH fun _ hi ↦ hf _ (Finset.mem_insert_of_mem hi)
+
+open Bornology
+@[to_additive isBounded_iff_bddAbove_norm]
+lemma isBounded_iff_bddAbove_norm' {E} [SeminormedCommGroup E] {s : Set E} :
+    IsBounded s ↔ BddAbove (Norm.norm '' s) := by
+  simp [isBounded_iff_forall_norm_le', bddAbove_def]
+
+@[to_additive isBounded_range_iff_bddAbove_norm]
+lemma isBounded_range_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} :
+    IsBounded (range f) ↔ BddAbove (range (‖f ·‖)) := by
+  rw [isBounded_iff_bddAbove_norm, ← range_comp, Function.comp_def]
+
+@[to_additive isBounded_image_iff_bddAbove_norm]
+lemma isBounded_image_iff_bddAbove_norm' {ι E} [SeminormedAddCommGroup E] {f : ι → E} {s : Set ι} :
+    IsBounded (f '' s) ↔ BddAbove ((‖f ·‖) '' s) := by
+  rw [isBounded_iff_bddAbove_norm, ← image_comp, Function.comp_def]
+
+end BddAbove
+
 namespace MeasureTheory
 
 open Metric Bornology
@@ -520,7 +582,7 @@ variable [MeasureSpace X]
 -- must be in mathlib but can't find it
 theorem indicator_const {c : ℝ} {s: Set X}
     (hs: MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun _ ↦ c)) :=
-  (integrable_indicator_iff hs).mpr <| integrableOn_const.mpr <| Or.inr h2s
+  (integrable_indicator_iff hs).mpr <| integrableOn_const h2s.ne
 
 end Integrable
 
@@ -614,6 +676,18 @@ theorem prod_attach_insert {α β : Type*} {s : Finset α} {a : α} [DecidableEq
     ext
     simpa using h
   · simp [ha]
+
+@[to_additive]
+lemma Finset.prod_finset_product_filter_right {α β γ : Type*} {s : Finset α} {t : Finset β}
+    {p : α → Prop} {q : α → β → Prop} [DecidablePred p] [DecidableRel q]
+    [DecidablePred fun r : α × β ↦ p r.1 ∧ q r.1 r.2] {f : α → β → γ} [CommMonoid γ] :
+    ∏ x ∈ s with p x, ∏ y ∈ t with q x y, f x y =
+    ∏ r ∈ s ×ˢ t with p r.1 ∧ q r.1 r.2, f r.1 r.2 := by
+  convert (prod_finset_product_right' ((t ×ˢ s).filter fun r ↦ p r.2 ∧ q r.2 r.1) _ _ _).symm
+  · refine Finset.prod_equiv (Equiv.prodComm α β) (fun r ↦ ?_) (by simp)
+    simp_rw [mem_filter, mem_product, Equiv.prodComm_apply, Prod.fst_swap, Prod.snd_swap]
+    tauto
+  · intro r; simp only [mem_filter, mem_product]; tauto
 
 namespace MeasureTheory
 

@@ -293,7 +293,7 @@ lemma lintegral_lintegral_pow_swap {α : Type u_1} {β : Type u_3} {p : ℝ} (hp
       _ = ∫⁻ x : α, (∫⁻ y : β, f x y * g x ∂ν) ∂μ := by
         apply lintegral_congr_ae
         filter_upwards [ae_meas₁] with a ha using (lintegral_mul_const'' _ ha).symm
-      _ = ∫⁻ y : β, (∫⁻ x : α, f x y * g x ∂μ) ∂ν := lintegral_lintegral_swap (hf.mul hg1.fst)
+      _ = ∫⁻ y : β, (∫⁻ x : α, f x y * g x ∂μ) ∂ν := lintegral_lintegral_swap (hf.mul hg1.comp_fst)
       _ ≤ ∫⁻ (y : β), (∫⁻ (x : α), f x y ^ p ∂μ) ^ p⁻¹ ∂ν := by
         apply lintegral_mono_ae
         filter_upwards [aemeasurability_prod₂ hf] with y hy
@@ -340,14 +340,14 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖₊ ≤ tc.ton s }
         ((volume.restrict (Ioi 0)).prod μ) :=
-  nullMeasurableSet_le hg.snd.norm (ton_aeMeasurable tc).fst
+  nullMeasurableSet_le hg.comp_snd.norm (ton_aeMeasurable tc).comp_fst
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | tc.ton s < ‖g x‖₊ }
         ((volume.restrict (Ioi 0)).prod μ) :=
-  nullMeasurableSet_lt (ton_aeMeasurable tc).fst hg.snd.norm
+  nullMeasurableSet_lt (ton_aeMeasurable tc).comp_fst hg.comp_snd.norm
 
 @[measurability]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
@@ -362,7 +362,7 @@ lemma AEMeasurable.trunc_ton {f : α → E₁}
     ext z; simp [trunc, indicator, A]
   rw [this]
   exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable hf.restrict _)).mpr
-    hf.restrict.snd.restrict
+    hf.restrict.comp_snd.restrict
 
 @[measurability]
 lemma AEMeasurable.truncCompl_ton {f : α → E₁}
@@ -375,8 +375,8 @@ lemma AEMeasurable.truncCompl_ton {f : α → E₁}
   have : (fun z : ℝ × α ↦ (truncCompl f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
     ext z; rw [truncCompl_eq]; simp [A, indicator]
   rw [this]
-  refine (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
-    hf.restrict.snd.restrict
+  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
+    hf.restrict.comp_snd.restrict
 
 lemma restrict_to_support {p : ℝ} (hp : 0 < p) [NormedAddCommGroup E₁] (f : α → E₁) :
     ∫⁻ x : α in Function.support f, ‖trunc f t x‖ₑ ^ p ∂ μ = ∫⁻ x : α, ‖trunc f t x‖ₑ ^ p ∂μ := by

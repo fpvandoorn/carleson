@@ -1,4 +1,5 @@
 import Carleson.ToMathlib.RealInterpolation.Minkowski
+import Carleson.ToMathlib.Lorentz
 
 /-!
 # The Marcinkiewisz real interpolation theorem
@@ -1370,6 +1371,21 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
     Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ hp₀.1 hp₁.1 ht hp' hT hf
   rw [coe_C_realInterpolation hp₀ hp₁ hq₀q₁] <;> try assumption
   apply exists_hasStrongType_real_interpolation_aux₄ <;> assumption
+
+
+/-- General Marcinkiewicz real interpolation theorem. -/
+theorem exists_hasLorentzType_real_interpolation {p₀ p₁ r₀ r₁ q₀ q₁ s₀ s₁ p q : ℝ≥0∞}
+    [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
+    [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
+    (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hr₀ : 1 ≤ r₀) (hr₁ : 1 ≤ r₁) (hq₀ : 1 ≤ q₀) (hq₁ : 1 ≤ q₁) (hs₀ : 1 ≤ s₀) (hs₁ : 1 ≤ s₁) -- TODO: find out which of these are actually necessary
+    (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
+    {C₀ C₁ t A : ℝ≥0} (hA : 0 < A) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
+    (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
+    (hmT : ∀ f, MemLorentz f p q μ → AEStronglyMeasurable (T f) ν)
+    (hT : AESubadditiveOn T (fun f ↦ MemLorentz f p₀ r₀ μ ∨ MemLorentz f p₁ r₁ μ) A ν)
+    (h₀T : HasLorentzType T p₀ r₀ q₀ s₀ μ ν C₀) (h₁T : HasLorentzType T p₁ r₁ q₁ s₁ μ ν C₁) :
+    --TODO: probably no longer the right constant
+      ∀ r, 0 < r → HasLorentzType T p r q r μ ν (C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) := sorry
 
 /- State and prove Remark 1.2.7 -/
 

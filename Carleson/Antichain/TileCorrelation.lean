@@ -99,7 +99,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a)^2 / ((volume (ball x₁ (D ^ s₁))) * (volume (ball x₂ (D ^ s₂)))):= by
     simp only [correlation, enorm_mul, RCLike.enorm_conj, pow_two,
-      ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _) (measure_ball_ne_top _ _)]
+      ENNReal.mul_div_mul_comm measure_ball_ne_top measure_ball_ne_top]
     exact mul_le_mul enorm_Ks_le enorm_Ks_le (zero_le _) (zero_le _)
   -- 6.2.6 + 6.2.7
   have hsimp : ∀ (y y' : X),
@@ -134,13 +134,13 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
           norm_cast
           ring
         rw [mul_comm, mul_add, h2, mul_comm (volume _)]
-        simp only [ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _)
-          (measure_ball_ne_top _ _), mul_assoc]
+        simp only [ENNReal.mul_div_mul_comm measure_ball_ne_top
+          measure_ball_ne_top, mul_assoc]
         apply add_le_add (aux_6_2_3 s₁ s₂ x₁ x₂ y y')
         rw [← neg_sub, enorm_neg]
         convert aux_6_2_3 s₂ s₁ x₂ x₁ y' y using 1
-        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm (measure_ball_ne_top _ _)
-          (measure_ball_ne_top _ _)]
+        simp only [← mul_assoc, ← ENNReal.mul_div_mul_comm measure_ball_ne_top
+          measure_ball_ne_top]
         rw [mul_comm (volume _), nndist_comm]
       _ ≤ 2 ^ (252 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) *
         (2 * (↑(nndist y y') ^ τ / ((D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ)) := by
@@ -169,8 +169,7 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
           exact absurd htop hnetop
         · simp only [ne_eq, ENNReal.div_eq_zero_iff, pow_eq_zero_iff', OfNat.ofNat_ne_zero,
           mul_eq_zero, not_false_eq_true, pow_eq_zero_iff, false_or, false_and]
-          exact ENNReal.mul_ne_top (measure_ball_ne_top x₁ (D ^ s₁))
-            (measure_ball_ne_top x₂ (D ^ s₂))
+          finiteness
         · simp only [ne_eq, ENNReal.div_eq_top,
           pow_eq_zero_iff', OfNat.ofNat_ne_zero, mul_eq_zero, not_false_eq_true, pow_eq_zero_iff,
           false_or, false_and, true_and, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, or_false,
@@ -489,9 +488,9 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
       ↑(C2_0_5 a) * (↑(C_6_2_1 a) / volume (ball (x2 : X) (↑D ^ 𝔰 p))) := by
       simp only [mul_assoc]
       congr 1
-      rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (Or.inr (measure_ball_ne_top _ _))
-        (Or.inl (measure_ball_ne_top _ _)), ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel
-        (ne_of_gt (measure_ball_pos volume _ hD')) (measure_ball_ne_top _ _), one_mul,
+      rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (Or.inr measure_ball_ne_top)
+        (Or.inl measure_ball_ne_top), ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel
+        (ne_of_gt (measure_ball_pos volume _ hD')) measure_ball_ne_top, one_mul,
         ENNReal.div_eq_inv_mul]
     apply le_trans hle
     rw [heq, mul_div]
@@ -607,13 +606,13 @@ lemma I12_nnreal_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g 
       ↑(C2_0_5 a) * (↑(C_6_2_1 a) / volume (ball (x2 : X) (↑D ^ 𝔰 p))) := by
       simp only [mul_assoc]
       congr 1
-      rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (Or.inr (measure_ball_ne_top _ _))
-        (Or.inl (measure_ball_ne_top _ _)), ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel
-        (ne_of_gt (measure_ball_pos volume _ hD')) (measure_ball_ne_top _ _), one_mul,
+      rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (Or.inr measure_ball_ne_top)
+        (Or.inl measure_ball_ne_top), ← mul_assoc, ← mul_assoc, ENNReal.mul_inv_cancel
+        (ne_of_gt (measure_ball_pos volume _ hD')) measure_ball_ne_top, one_mul,
         ENNReal.div_eq_inv_mul]
     apply le_trans hle
     rw [heq, ENNReal.coe_div (ne_of_gt (measure_ball_pos_nnreal _ _ hD)),
-      ENNReal.coe_toNNReal (measure_ball_ne_top _ _), mul_div]
+      ENNReal.coe_toNNReal measure_ball_ne_top, mul_div]
     apply ENNReal.div_le_div _ (le_refl _)
     simp only [C2_0_5, C_6_2_1, ENNReal.coe_pow, ENNReal.coe_ofNat]
     rw [pow_add, mul_comm]

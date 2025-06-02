@@ -11,6 +11,23 @@ variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 
 namespace ENNReal
 
+/-- **Minkowski inequality** for finite sums of `ENNReal`-valued functions. -/
+theorem Lp_add_le_sum
+    {ι κ : Type*} {s : Finset ι} {t : Finset κ} {f : ι → κ → ℝ≥0∞} {p : ℝ} (hp : 1 ≤ p) :
+    (∑ i ∈ s, (∑ j ∈ t, f i j) ^ p) ^ (1 / p) ≤ ∑ j ∈ t, (∑ i ∈ s, f i j ^ p) ^ (1 / p) := by
+  have ppos : 0 < p := by positivity
+  have pinvpos : 0 < 1 / p := by positivity
+  induction t using Finset.cons_induction with
+  | empty =>
+    simp_rw [sum_empty, ENNReal.zero_rpow_of_pos ppos, sum_const_zero, nonpos_iff_eq_zero,
+      ENNReal.zero_rpow_of_pos pinvpos]
+  | cons a t h ih =>
+    simp_rw [sum_cons]
+    calc
+      _ ≤ (∑ x ∈ s, f x a ^ p) ^ (1 / p) + (∑ i ∈ s, (∑ j ∈ t, f i j) ^ p) ^ (1 / p) :=
+        Lp_add_le _ _ _ hp
+      _ ≤ _ := by gcongr
+
 -- Add after `lintegral_prod_norm_pow_le`
 /-- A version of Hölder with multiple arguments, allowing `∞` as an exponent. -/
 theorem lintegral_prod_norm_pow_le' {α ι : Type*} [MeasurableSpace α] {μ : Measure α}
@@ -68,6 +85,17 @@ theorem lintegral_mul_le_eLpNorm_mul_eLqNorm {p q : ℝ≥0∞} (hpq : p.HolderC
   have hq : q ≠ 0 := HolderConjugate.ne_zero q p
   convert ENNReal.lintegral_mul_le_Lp_mul_Lq μ (hpq.toReal_of_ne_top pq_top.1 pq_top.2) hf hg
   all_goals simp [eLpNorm, eLpNorm', pq_top, hp, hq]
+
+/-- **Cauchy–Schwarz inequality** for functions `α → ℝ≥0∞` (Hölder's inequality squared). -/
+theorem sq_lintegral_mul_le_mul_lintegral_sq {f g : α → ℝ≥0∞}
+    (hf : AEMeasurable f μ) (hg : AEMeasurable g μ) :
+    (∫⁻ a, f a * g a ∂μ) ^ 2 ≤ (∫⁻ a, f a ^ 2 ∂μ) * ∫⁻ a, g a ^ 2 ∂μ := by
+  convert pow_le_pow_left₀ (zero_le _)
+    (lintegral_mul_le_Lp_mul_Lq μ Real.HolderConjugate.two_two hf hg) 2
+  rw [mul_pow, ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, ← ENNReal.rpow_natCast,
+    ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num, ENNReal.rpow_one,
+    ENNReal.rpow_one]
+  simp_rw [show (2 : ℝ) = (2 : ℕ) by rfl, ← ENNReal.rpow_natCast]
 
 end ENNReal
 
@@ -236,24 +264,22 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux {p q r 
       -- It remains to check ∑ (P i)⁻¹ = 1, which is trivial, aside from technicalities in `ℝ≥0∞`
       simp_rw [Fin.sum_univ_succ, Fin.succ_zero_eq_one, Fin.succ_one_eq_two,
         Finset.univ_eq_empty, Finset.sum_empty, add_zero, P, Matrix.cons_val_zero,
-        Matrix.cons_val_one, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
+        Matrix.cons_val_one, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons,
+        Matrix.cons_val_zero]
       repeat rw [ENNReal.inv_div]
       · rw [ofReal_sub r p0.le, ofReal_sub r q0.le, ofReal_mul p0.le, ofReal_mul q0.le]
         repeat rw [ENNReal.sub_div (by simp [p0, q0, r0])]
         nth_rewrite 2 5 [← one_mul (ENNReal.ofReal r)]
         nth_rewrite 2 [← mul_one (ENNReal.ofReal p), ← mul_one (ENNReal.ofReal q)]
-        -- adaptation note(2025-04-15): these two lines stopped applying at all
-        --repeat rw [ENNReal.mul_div_mul_right _ _ (by simp [r0]) (by simp), one_div]
-        --repeat rw [ENNReal.mul_div_mul_left _ _ (by simp [p0, q0]) (by simp), one_div]
+        repeat rw [ENNReal.mul_div_mul_right _ _ (by simp [r0]) (by simp), one_div]
+        repeat rw [ENNReal.mul_div_mul_left _ _ (by simp [p0, q0]) (by simp), one_div]
         rw [← ENNReal.ofReal_one, ← congr_arg ENNReal.ofReal (sub_eq_iff_eq_add'.mpr hpqr)]
         rw [ofReal_sub _ (inv_pos.mpr r0).le, ← add_assoc]
         rw [ofReal_add (inv_pos.mpr p0).le (inv_pos.mpr q0).le]
         have : AddLECancellable (ENNReal.ofReal r)⁻¹ := ENNReal.cancel_of_ne (by simp [r0])
-        -- adaptation note(2025-04-15): the following lines completed the proof
-        sorry /-
         rw [← this.add_tsub_assoc_of_le, ← this.add_tsub_assoc_of_le, this.add_tsub_cancel_left]
         · rw [ofReal_inv_of_pos p0, ofReal_inv_of_pos q0, ofReal_inv_of_pos r0]
-        all_goals exact ENNReal.inv_le_inv.mpr <| ofReal_le_ofReal (sub_nonneg.mp (by assumption)) -/
+        all_goals exact ENNReal.inv_le_inv.mpr <| ofReal_le_ofReal (sub_nonneg.mp (by assumption))
       all_goals simp [ENNReal.mul_pos, p0, q0, r0]
     _ = _ := by
       congr
@@ -304,7 +330,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
   have q0 : 0 < q := lt_of_lt_of_le one_pos hq
   have r0 : 0 < r := lt_of_lt_of_le one_pos hr
   have hf' := hf.pow_const p
-  have hfg := hf'.snd.mul hg'
+  have hfg := hf'.comp_snd.mul hg'
   replace hg' := hg'.pow_const q
   rw [← ENNReal.rpow_le_rpow_iff r0]
   repeat rw [ENNReal.mul_rpow_of_nonneg _ _ r0.le]
@@ -401,8 +427,8 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux {p q r : ℝ≥0∞}
 
 variable (L)
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ` is replaced with a bound for `L` restricted to the ranges
 of `f` and `g`; see `eLpNorm_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
 theorem eLpNorm_convolution_le_of_norm_le_mul [MeasurableSpace E] [OpensMeasurableSpace E]
@@ -416,8 +442,8 @@ theorem eLpNorm_convolution_le_of_norm_le_mul [MeasurableSpace E] [OpensMeasurab
   · intro x; exact eLpNorm_comp_measurePreserving' hg (μ.measurePreserving_sub_left x)
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ` is replaced with a bound for `L` restricted to the ranges
 of `f` and `g`; see `eLpNorm_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
 theorem eLpNorm_convolution_le_of_norm_le_mul' {p q r : ℝ≥0∞}
@@ -430,8 +456,8 @@ theorem eLpNorm_convolution_le_of_norm_le_mul' {p q r : ℝ≥0∞}
   · intro x; apply eLpNorm_comp_measurePreserving hg (μ.measurePreserving_sub_left x)
   · exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub μ μ) |>.enorm.pow_const _
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. -/
 theorem eLpNorm_convolution_le_enorm_mul [MeasurableSpace E] [OpensMeasurableSpace E]
     [MeasurableSpace E'] [OpensMeasurableSpace E'] {p q r : ℝ≥0∞}
@@ -442,8 +468,8 @@ theorem eLpNorm_convolution_le_enorm_mul [MeasurableSpace E] [OpensMeasurableSpa
   exact eLpNorm_convolution_le_of_norm_le_mul L hp hq hr hpqr hf hg ‖L‖ <| fun x y ↦
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
-/-- **Young's convolution inequality**: the `ℒr` seminorm of a convolution `(f ⋆[L, μ] g)` is
-bounded by `‖L‖ₑ` times the product of the `ℒp` and `ℒq` seminorms, where
+/-- **Young's convolution inequality**: the `L^r` seminorm of a convolution `(f ⋆[L, μ] g)` is
+bounded by `‖L‖ₑ` times the product of the `L^p` and `L^q` seminorms, where
 `1 / p + 1 / q = 1 / r + 1`. -/
 theorem eLpNorm_convolution_le_enorm_mul' {p q r : ℝ≥0∞}
     (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
@@ -454,9 +480,9 @@ theorem eLpNorm_convolution_le_enorm_mul' {p q r : ℝ≥0∞}
     ((L (f x)).le_opNorm (g y)).trans <| mul_le_mul_of_nonneg_right (L.le_opNorm _) (norm_nonneg _)
 
 open Set AddCircle in
-/-- **Young's convolution inequality** on (a, a + T]: the `ℒr` seminorm of the convolution
+/-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution
 of `T`-periodic functions over (a, a + T] is bounded by `‖L‖ₑ` times the product of
-the `ℒp` and `ℒq` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ`
+the `L^p` and `L^q` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. Here `‖L‖ₑ`
 is replaced with a  bound for `L` restricted to the ranges of `f` and `g`; see
 `eLpNorm_Ioc_convolution_le_enorm_mul` for a version using `‖L‖ₑ` explicitly. -/
 theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact (0 < T)]
@@ -471,7 +497,7 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
       rw [← eLpNorm_liftIoc T a]
       · apply AEStronglyMeasurable.sub
         · apply AEStronglyMeasurable.integral_prod_right' (f := fun z ↦ L (f z.2) (g (z.1 - z.2)))
-          apply L.aestronglyMeasurable_comp₂ hf.restrict.snd
+          apply L.aestronglyMeasurable_comp₂ hf.restrict.comp_snd
           exact hg.comp_quasiMeasurePreserving (quasiMeasurePreserving_sub _ _)
         · have empty_interval := Set.Ioc_eq_empty_of_le ((le_add_iff_nonneg_right a).mpr hT.out.le)
           simpa [empty_interval] using aestronglyMeasurable_const
@@ -484,9 +510,9 @@ theorem eLpNorm_Ioc_convolution_le_of_norm_le_mul (a : ℝ) {T : ℝ} [hT : Fact
       rw [← eLpNorm_liftIoc T a hf, ← eLpNorm_liftIoc T a hg]
 
 open Set in
-/-- **Young's convolution inequality** on (a, a + T]: the `ℒr` seminorm of the convolution
+/-- **Young's convolution inequality** on (a, a + T]: the `L^r` seminorm of the convolution
 of `T`-periodic functions over (a, a + T] is bounded by `‖L‖ₑ` times the product of
-the `ℒp` and `ℒq` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. -/
+the `L^p` and `L^q` seminorms on that interval, where `1 / p + 1 / q = 1 / r + 1`. -/
 theorem eLpNorm_Ioc_convolution_le_enorm_mul (a : ℝ) {T : ℝ} [hT : Fact (0 < T)]
     {p q r : ℝ≥0∞} (hp : 1 ≤ p) (hq : 1 ≤ q) (hr : 1 ≤ r) (hpqr : p⁻¹ + q⁻¹ = r⁻¹ + 1)
     {f : ℝ → E} {g : ℝ → E'} (hfT : f.Periodic T) (hgT : g.Periodic T)

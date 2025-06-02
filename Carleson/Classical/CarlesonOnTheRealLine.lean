@@ -385,7 +385,7 @@ instance compatibleFunctions_R : CompatibleFunctions ℝ ℝ (2 ^ 4) where
     · gcongr; norm_num
     · push_neg at r_nonneg
       rw [max_eq_right (by linarith), max_eq_right (by norm_num; linarith)]
-  ballsCoverBalls := by
+  allBallsCoverBalls := by
     intro x R R' f
     exact integer_ball_cover.mono_nat (by norm_num)
 

@@ -35,7 +35,8 @@ class GridStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMeasur
   ball_subset_Grid {i} : ball (c i) (D ^ s i / 4) ⊆ coeGrid i --2.0.10
   Grid_subset_ball {i} : coeGrid i ⊆ ball (c i) (4 * D ^ s i) --2.0.10
   small_boundary {i} {t : ℝ≥0} (ht : D ^ (- S - s i) ≤ t) :
-    volume.real { x ∈ coeGrid i | EMetric.infEdist x (coeGrid i)ᶜ ≤ t * (D ^ (s i):ℝ≥0∞)} ≤ 2 * t ^ κ * volume.real (coeGrid i)
+    volume.real { x ∈ coeGrid i | EMetric.infEdist x (coeGrid i)ᶜ ≤ t * (D ^ (s i):ℝ≥0∞)} ≤
+    2 * t ^ κ * volume.real (coeGrid i)
   coeGrid_measurable {i} : MeasurableSet (coeGrid i)
 
 export GridStructure (range_s_subset Grid_subset_biUnion ball_subset_Grid Grid_subset_ball small_boundary
@@ -102,11 +103,11 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
-lemma subset_of_nmem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
+lemma subset_of_notMem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
     (h : i ∉ Iic j)
     (notDisjoint : ¬ Disjoint (i : Set X) j) :
     (j : Set X) ⊆ i := by
-  rw [Iic, Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
+  rw [Iic, Set.notMem_setOf_iff, Grid.le_def, not_and_or] at h
   have h_le_cases := le_or_ge_or_disjoint (i := i) (j := j)
   rcases h_le_cases with i_le | j_le | disjoint
   · exact (h.neg_resolve_left i_le.1 i_le.2).elim
@@ -124,7 +125,7 @@ lemma volume_coeGrid_pos (hD : 0 < D) : 0 < volume (i : Set X) := by
 
 @[aesop (rule_sets := [finiteness]) safe apply]
 lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
-  measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
+  measure_lt_top_of_subset Grid_subset_ball measure_ball_ne_top
 
 /- lemma volumeNNReal_coeGrid_pos (hD : 0 < D) : 0 < volume.nnreal (i : Set X) := by
   rw [lt_iff_le_and_ne]
@@ -239,7 +240,8 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
   simp only [gt_iff_lt, Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
     rcases lt_or_le (s x) (s j) with c | c
-    · exact (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) (hj x mx)).symm.le
+    · refine (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) ?_).symm.le
+      exact not_lt_iff_le_imp_le.mpr (hj mx)
     · exact le_dyadic c mj.le mx.le
   use j, ⟨mj, hj⟩, fun k ⟨hk₁, hk₂⟩ ↦ le_antisymm (hk₂ j mj) (hj k hk₁)
 

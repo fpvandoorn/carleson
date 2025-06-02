@@ -236,7 +236,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
       subst h; exact Int.Icc_eq_pair a
     exact Icc_of_eq_add_one (add_eq_of_eq_sub endpts)
   set s₀ := ⌈logb D (4 * x)⌉
-  rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
+  rw [this, Finset.sum_insert ((Finset.notMem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
   have Ds₀x_lt := (mul_lt_mul_right hx).2 h
   rw [← div_div, div_mul_cancel₀ _ (ne_of_gt hx)] at Ds₀x_lt
@@ -320,12 +320,12 @@ open scoped ShortVariables
 
 section PseudoMetricSpace
 
-variable (X : Type*) {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable (X : Type*) {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X]
 variable {s : ℤ} {x y : X}
 
 section -- Again, we start by recording some trivial inequalities that will be needed repeatedly.
-include q K σ₁ σ₂ F G
+variable [KernelProofData a K]
+include K
 private lemma a0' : a > 0 := by linarith [four_le_a X]
 private lemma a0 : (a : ℝ) > 0 := by exact_mod_cast (a0' X)
 private lemma D1 : (D : ℝ) > 1 := by norm_cast; norm_num; exact (a0' X).ne.symm
@@ -334,11 +334,11 @@ private lemma D0'' : D > 0 := by exact_mod_cast (D0' X)
 private lemma Ds0 (s : ℤ) : (D : ℝ) ^ s > 0 := have := D0' X; by positivity
 end
 
-variable {X}
+variable {X} [KernelProofData a K]
 
 /-- K_s in the blueprint -/
 @[nolint unusedArguments]
-def Ks [ProofData a q K σ₁ σ₂ F G] (s : ℤ) (x y : X) : ℂ :=
+def Ks [KernelProofData a K] (s : ℤ) (x y : X) : ℂ :=
   K x y * ψ (D ^ (-s) * dist x y)
 
 lemma Ks_def (s : ℤ) (x y : X) : Ks s x y = K x y * ψ (D ^ (-s) * dist x y) := rfl
@@ -471,12 +471,12 @@ private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) 
 
 lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) :
     (volume (ball x r)).toNNReal > 0 :=
-  ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) (measure_ball_ne_top x _)
+  ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) measure_ball_ne_top
 
 lemma Metric.measure_ball_pos_real (x : X) (r : ℝ) (hr : r > 0) : volume.real (ball x r) > 0 :=
   measure_ball_pos_nnreal x r hr
 
-include a q K σ₁ σ₂ F G in
+include a in
 lemma K_eq_K_of_dist_eq_zero {x y y' : X} (hyy' : dist y y' = 0) :
     K x y = K x y' := by
   suffices ‖K x y - K x y'‖ₑ = 0 by rwa [enorm_eq_zero, sub_eq_zero] at this
@@ -488,7 +488,7 @@ lemma K_eq_K_of_dist_eq_zero {x y y' : X} (hyy' : dist y y' = 0) :
   have : 0 < a := by linarith [four_le_a X]
   simp [this]
 
-include a q K σ₁ σ₂ F G in
+include a in
 lemma K_eq_zero_of_dist_eq_zero {x y : X} (hxy : dist x y = 0) :
     K x y = 0 :=
   norm_le_zero_iff.1 <| by
@@ -505,7 +505,7 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
   have v0₃ := measure_ball_pos_real x _ (mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s))
   have ball_subset := ball_subset_ball (x := x) hxy
   apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
-    ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
+    ENNReal.toNNReal_mono measure_ball_ne_top (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
   rw [div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
@@ -535,12 +535,11 @@ lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 
 lemma enorm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
     ‖K x y‖ₑ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume (ball x (2 ^ n * D ^ s)) := by
   rw [← ENNReal.ofReal_ofNat 2, ENNReal.ofReal_rpow_of_pos two_pos,
-    ← ENNReal.ofReal_toReal (measure_ball_ne_top _ _),
+    ← ENNReal.ofReal_toReal measure_ball_ne_top,
     ← ENNReal.ofReal_div_of_pos, ← Measure.real, ← ofReal_norm]; swap
-  · apply ENNReal.toReal_pos
+  · apply ENNReal.toReal_pos ?_ measure_ball_ne_top
     · refine (measure_ball_pos volume x ?_).ne.symm
       exact mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s)
-    · exact measure_ball_ne_top x (2 ^ n * D ^ s)
   rw [ENNReal.ofReal_le_ofReal_iff (by positivity)]
   exact norm_K_le n hxy
 
@@ -605,7 +604,7 @@ lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx :
   calc
     _ ≤ C⁻¹ * volume.real (ball x (2*r₀)) := by
       gcongr
-      · exact measure_ball_ne_top x (2 * r₀)
+      · exact measure_ball_ne_top
       · exact ball_subset_ball_of_le (by linarith)
     _ ≤ C⁻¹ * (C * volume.real (ball x (D^s))) := by gcongr
     _ = _ := by field_simp
@@ -631,7 +630,7 @@ private lemma Ks_eq_Ks (x : X) {y y' : X} (hyy' : dist y y' = 0) :
   simp_rw [Ks, PseudoMetricSpace.dist_eq_of_dist_zero x hyy', K_eq_K_of_dist_eq_zero hyy']
 
 -- Needed to prove `norm_Ks_sub_Ks_le`
-include q K σ₁ σ₂ F G in
+include K in
 private lemma ψ_ineq {x y y' : X} :
     |ψ (D ^ (-s) * dist x y) - ψ (D ^ (-s) * dist x y')| ≤
     4 * D * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
@@ -662,7 +661,7 @@ private lemma D_pow_a_inv : (D : ℝ) ^ (a : ℝ)⁻¹ = 2 ^ (100 * a) :=
     _ = 2 ^ (100 * (a * a * (a : ℝ)⁻¹)) := by rw [mul_assoc, sq]
     _ = _ := by rw [mul_self_mul_inv]; norm_cast
 
-include q K σ₁ σ₂ F G in
+include K in
 private lemma four_D_rpow_a_inv : (4 * D : ℝ) ^ (a : ℝ)⁻¹ ≤ 2 ^ (1 + 100 * a) := by
   rw [pow_add, Real.mul_rpow four_pos.le (Nat.cast_nonneg D)]
   gcongr
@@ -922,7 +921,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       rw [Real.vol]
       gcongr
       · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
-      · exact measure_ball_ne_top x (dist x y)
+      · exact measure_ball_ne_top
       · exact le_of_not_le hy
 
 end PseudoMetricSpace

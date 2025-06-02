@@ -230,10 +230,10 @@ variable {α β : Type*} [MeasurableSpace α]
   [TopologicalSpace β] [OrderTopology β] [SecondCountableTopology β]
   [BorelSpace β]
 
-lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
-    (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
-    (h2f : ∀ i, Measurable (f i)) :
-    Measurable (⨆ i ∈ s, f i ·) := sorry
+-- lemma Measurable_iSup_gt {s : Set ι} [OrdConnected s]
+--     (h1f : ∀ x i, ContinuousWithinAt (f · x) s i)
+--     (h2f : ∀ i, Measurable (f i)) :
+--     Measurable (⨆ i ∈ s, f i ·) := sorry
   -- use SecondCountableTopology to rewrite the sup as a sup over the countable dense set (or similar)
   -- then use measurable_iSup
 -/
