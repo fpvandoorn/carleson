@@ -288,16 +288,16 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
 -- perhaps, with as many extra hypotheses as I need
 lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
     adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x) = 0 := by
-  simp_rw [adjointCarlesonSum]
-  -- commute sum and product
-  -- Basically, use this lemma for each summand. TODO: complete the sum manipulation
-  /- have {p} (hp : p ∈ t.𝔗 u₁) (hp' : p ∈ t.𝔗 u₂) :
-      adjointCarleson p g₁ x * conj (adjointCarleson p g₂ x) = 0 := by
-    -- rewrite by (7.4.1), using adjoint_tile_support2
-    rw [adjoint_tile_support2 hu₁ hp, adjoint_tile_support2 hu₂ hp']
-    -- observe these have disjoint support (for each summand), hence each summand is zero
-    sorry -/
-  sorry
+  rw [adjoint_tile_support2_sum hu₁, adjoint_tile_support2_sum hu₁]
+  simp_rw [indicator_indicator]
+  have : Disjoint (𝓘 u₁ : Set X) (𝓘 u₁ : Set X) := by
+    rw [Grid.le_def] at h h'
+    simp at h h'
+    sorry
+  have : (𝓘 u₁ : Set X) ∩ (𝓘 u₁) = ∅ := by rwa [← disjoint_iff_inter_eq_empty]
+  simp [this]
+
+#exit
 
 /-- Lemma 7.4.4. -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
