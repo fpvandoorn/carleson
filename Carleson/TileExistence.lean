@@ -33,7 +33,7 @@ lemma ball_bound {Y : Set X} (k : ℤ) (hk_lower : -S ≤ k)
     _ ⊆ ball y (8 * D ^ (2 * S:ℤ) * D ^ k:ℝ) := by
         apply ball_subset_ball
         rw [mul_assoc]
-        apply mul_le_mul_of_nonneg_left _ (by norm_num)
+        gcongr
         rw [← zpow_add₀ (defaultD_pos a).ne.symm]
         apply zpow_le_zpow_right₀ (one_le_realD X)
         linarith
@@ -65,8 +65,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
       apply measure_ball_pos volume o
       simp only [defaultD, gt_iff_lt, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
       exact zpow_pos (by positivity) S
-    have volume_finite : volume (ball o (4 * D^S)) < ⊤ := measure_ball_lt_top
-    rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm volume_finite.ne, mul_comm,mul_comm (volume _)]
+    rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm (by finiteness), mul_comm,mul_comm (volume _)]
     exact this
   have val_ne_zero : (As (2 ^ a) (2 ^ J' X):ℝ≥0∞) ≠ 0 := by
     exact_mod_cast (As_pos' (volume : Measure X) (2 ^J' X)).ne.symm
@@ -92,8 +91,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
         rw [mem_ball, dist_self]
         exact zpow_pos (defaultD_pos a) _
     _ ≤ (As (2 ^ a) (2 ^ J' X)) * volume (ball o (4 * D ^ S)) := by
-        rw [ENNReal.mul_le_mul_left val_ne_zero ENNReal.coe_ne_top]
-        apply volume.mono _
+        gcongr
         rw [iUnion₂_subset_iff]
         intro y hy z hz
         specialize hY hy
@@ -270,7 +268,7 @@ lemma Yk_finite {k:ℤ} (hk_lower : -S ≤ k): (Yk X k).Finite := by
   calc
     ((Yk X k).encard : ℝ≥0∞)
       ≤ C4_1_1 X := counting_balls hk_lower (Yk_subset k) (Yk_pairwise k)
-    _ < ⊤ := ENNReal.coe_lt_top
+    _ < ⊤ := by finiteness
 
 variable (X) in
 lemma Yk_countable (k:ℤ) : (Yk X k).Countable := by
@@ -299,6 +297,12 @@ local instance {k : ℤ} : SizeOf (Yk X k) where
 lemma I_induction_proof {k:ℤ} (hk:-S ≤ k) (hneq : ¬ k = -S) : -S ≤ k - 1 := by
   linarith [lt_of_le_of_ne hk fun a_1 ↦ hneq (id a_1.symm)]
 
+-- Auxiliary lemma used in subsequent mutual blocks.
+theorem aux {s k : ℤ} (h1 : 0 ≤ s + (k - 1)) :
+    (s + (k - 1)).toNat < (s + k).toNat := by
+  rw [Int.lt_toNat, Int.toNat_of_nonneg h1]
+  linarith
+
 mutual
   def I1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) : Set X :=
     if hk': k = -S then
@@ -306,9 +310,6 @@ mutual
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
       have h1 : 0 ≤ S + (k - 1) := by linarith
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat,Int.toNat_of_nonneg h1]
-        linarith
       ⋃ (y': Yk X (k-1)),
         ⋃ (_ : y' ∈ Yk X (k-1) ↓∩ ball (y:X) (D^k)), I3 (I_induction_proof hk hk') y'
   termination_by (3 * (S+k).toNat, sizeOf y)
@@ -317,10 +318,6 @@ mutual
     if hk': k = -S then
       ball y (2 * D^(-S:ℤ))
     else
-      let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk' (id a_1.symm)
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat,Int.toNat_of_nonneg (by linarith)]
-        linarith
       ⋃ (y':Yk X (k-1)),
         ⋃ (_ : y' ∈ Yk X (k-1) ↓∩ ball y (2 * D^k)), I3 (I_induction_proof hk hk') y'
   termination_by (3 * (S+k).toNat, sizeOf y)
@@ -334,7 +331,7 @@ mutual
 end
 
 lemma I3_apply {k:ℤ} (hk : -S ≤ k) (y : Yk X k) :
-  I3 hk y = I1 hk y ∪ (I2 hk y \ (Xk hk ∪ ⋃ (y' < y), I3 hk y')) := by
+    I3 hk y = I1 hk y ∪ (I2 hk y \ (Xk hk ∪ ⋃ (y' < y), I3 hk y')) := by
   rw [I3]
 
 lemma I1_subset_I3 {k : ℤ} (hk : -S ≤ k) (y:Yk X k) :
@@ -377,32 +374,26 @@ lemma I3_subset_I2 {k:ℤ} (hk : -S ≤ k) (y:Yk X k):
 mutual
   lemma I1_measurableSet {k:ℤ} (hk:-S ≤ k) (y: Yk X k) : MeasurableSet (I1 hk y) := by
     if hk_s : k = -S then
-      rw [I1,dif_pos hk_s]
+      rw [I1, dif_pos hk_s]
       exact measurableSet_ball
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
       have h1: 0 ≤ S + (k - 1) := by linarith
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat, Int.toNat_of_nonneg h1]
-        linarith
-      rw [I1,dif_neg hk_s]
-      letI := (Yk_countable X (k-1)).to_subtype
-      refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball (↑y) (D ^ k))) ?_
+      rw [I1, dif_neg hk_s]
+      letI := (Yk_countable X (k - 1)).to_subtype
+      refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball y (D ^ k))) ?_
       simp only [mem_preimage]
       exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
   termination_by (3 * (S+k).toNat, sizeOf y)
 
-  lemma I2_measurableSet {k:ℤ} (hk:-S ≤ k) (y: Yk X k) : MeasurableSet (I2 hk y) := by
+  lemma I2_measurableSet {k : ℤ} (hk : -S ≤ k) (y: Yk X k) : MeasurableSet (I2 hk y) := by
     if hk_s : k = -S then
-      rw [I2,dif_pos hk_s]
+      rw [I2, dif_pos hk_s]
       exact measurableSet_ball
     else
       let hk'' : -S < k := lt_of_le_of_ne hk fun a_1 ↦ hk_s (id a_1.symm)
-      have : (S + (k-1)).toNat < (S + k).toNat := by
-        rw [Int.lt_toNat,Int.toNat_of_nonneg (by linarith)]
-        linarith
-      rw [I2,dif_neg hk_s]
-      letI := (Yk_countable X (k-1)).to_subtype
+      rw [I2, dif_neg hk_s]
+      letI := (Yk_countable X (k - 1)).to_subtype
       refine MeasurableSet.biUnion (to_countable (Yk X (k - 1) ↓∩ ball (↑y) (2 * D ^ k))) ?_
       · simp only [mem_preimage]
         exact fun b _ ↦ I3_measurableSet (I_induction_proof hk hk_s) b
@@ -421,7 +412,7 @@ mutual
       (MeasurableSet.union (Xk_measurableSet hk) ?_)
     letI := (Yk_countable X k).to_subtype
     exact (MeasurableSet.iUnion fun b ↦ MeasurableSet.iUnion fun _ ↦ I3_measurableSet hk b)
-  termination_by (3 * (S+k).toNat+2, sizeOf y)
+  termination_by (3 * (S + k).toNat + 2, sizeOf y)
 end
 
 section basic_grid_structure
@@ -443,13 +434,12 @@ mutual
       have : ((2 * (S + (k - 1))).toNat : ℤ) + 1 < 2 * (S + k) := by
         rw [Int.toNat_of_nonneg (by linarith)]
         linarith
-
-      rw [dif_neg hk_s,dif_neg hk_s]
+      rw [dif_neg hk_s, dif_neg hk_s]
       intro hx
       simp only [mem_preimage, mem_inter_iff, mem_iUnion,
         exists_prop, exists_and_left] at hx
-      obtain ⟨⟨z1,hz1,hz1'⟩,⟨z2,hz2,hz2'⟩⟩ := hx
-      have hz_eq : z1 = z2 := I3_prop_1 (I_induction_proof hk hk_s) (And.intro hz1' hz2')
+      obtain ⟨⟨z1, hz1, hz1'⟩, ⟨z2, hz2, hz2'⟩⟩ := hx
+      have hz_eq : z1 = z2 := I3_prop_1 (I_induction_proof hk hk_s) ⟨hz1', hz2'⟩
       subst hz_eq
       ext
       apply (Yk_pairwise k).elim (y1.property) (y2.property)
@@ -497,9 +487,6 @@ lemma I3_prop_3_2 {k:ℤ} (hk : -S ≤ k) (y : Yk X k):
       exists_and_left] at this
     obtain ⟨y',hy',hyi3⟩ := this
     have : -S ≤ k - 1 := I_induction_proof hk hk_s
-    have : (S + (k - 1)).toNat < (S + k) := by
-      rw [Int.toNat_of_nonneg (by linarith)]
-      linarith
     have : x ∈ ball (y' : X) (4 * D^(k-1)) := I3_prop_3_2 _ y' hyi3
     rw [mem_ball] at this hy' ⊢
     calc
@@ -529,7 +516,7 @@ mutual
           ⊆ ball o (4 * D^S - D^(-S:ℤ)) := by
             apply ball_subset_ball
             rw [two_mul,tsub_le_iff_right,sub_add_add_cancel,le_add_iff_nonneg_right]
-            exact zpow_nonneg realD_nonneg _
+            positivity
         _ ⊆ ⋃ (i ∈ Yk X (-S)), ball i (2 * D^(-S:ℤ)) := cover_big_ball (-S:ℤ)
     else
       simp_rw [dif_neg hk_s]
@@ -547,7 +534,8 @@ mutual
               rw [sub_eq_add_neg,add_assoc]
               simp only [le_add_iff_nonneg_right, le_neg_add_iff_add_le, add_zero,
                 gt_iff_lt, Nat.ofNat_pos, mul_le_mul_left]
-              exact zpow_le_zpow_right₀ (one_le_realD X) (by linarith)
+              gcongr
+              exacts [one_le_realD X, by linarith]
           _ ⊆ ⋃ y, I3 _ y := I3_prop_2 _
       have hmem_i3 : x ∈ ⋃ y, I3 _ y := hsub1 hx
       simp only [mem_iUnion] at hmem_i3
@@ -649,10 +637,8 @@ lemma I3_prop_3_1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
                 rw [add_right_inj]
                 norm_num
             _ ≤ 2⁻¹ * (2 * D ^ k) := by
-              rw [mul_assoc,← left_distrib]
-              apply mul_le_mul_of_nonneg_left _ (by norm_num)
-              rw [two_mul]
-              apply add_le_add_left
+              rw [mul_assoc, ← left_distrib, two_mul]
+              gcongr
               nth_rw 2 [← add_sub_cancel 1 k]
               rw [zpow_add₀ (defaultD_pos a).ne.symm, zpow_one]
               gcongr; exact four_le_realD X
@@ -675,8 +661,7 @@ lemma I3_prop_3_1 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
         _ = 2⁻¹ * 8 * D^(k-1) + 2⁻¹ * D^k := by norm_num
         _ ≤ 2⁻¹ * (D^k + D^k) := by
           rw [mul_assoc, ← left_distrib]
-          apply mul_le_mul_of_nonneg_left _ (by norm_num)
-          simp only [Nat.cast_add, Nat.cast_one, add_le_add_iff_right]
+          gcongr
           nth_rw 2 [← add_sub_cancel 1 k,]
           rw [zpow_add₀ (defaultD_pos a).ne.symm,zpow_one]
           gcongr
@@ -881,19 +866,16 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
     rw [not_disjoint_iff]
     exact ⟨x, hx.left.right, hx.right⟩
   -- simp only [mem_inter_iff, mem_compl_iff] at hx' ⊢
-  have hx_4k2 : x ∈ ball (y2:X) (4 * D^k2) := I3_prop_3_2 hk2 y2 hx.left.right
-  have hx_4k2' : x ∈ ball (y1:X) (4 * D^k1) := I3_prop_3_2 hk1 y1 hx.left.left
-  have hd_nzero : (D:ℝ≥0∞) ≠ 0 := by
-    rw [ne_comm]
-    apply LT.lt.ne
-    rw [← ENNReal.ofReal_natCast,ENNReal.ofReal_pos]
+  have hx_4k2 : x ∈ ball (y2 : X) (4 * D ^ k2) := I3_prop_3_2 hk2 y2 hx.left.right
+  have hx_4k2' : x ∈ ball (y1 : X) (4 * D ^ k1) := I3_prop_3_2 hk1 y1 hx.left.left
+  have hd_nzero : (D : ℝ≥0∞) ≠ 0 := by
+    apply LT.lt.ne'
+    rw [← ENNReal.ofReal_natCast, ENNReal.ofReal_pos]
     exact defaultD_pos a
   have hdp_nzero : ∀ (z:ℤ),(D ^ z :ℝ≥0∞) ≠ 0 := by
     intro z
-    rw [ne_comm]
-    exact LT.lt.ne (ENNReal.zpow_pos hd_nzero (ENNReal.natCast_ne_top D) _)
-  have hdp_finit : ∀ (z:ℤ),(D ^z : ℝ≥0∞) ≠ ⊤ :=
-    fun z ↦ LT.lt.ne (ENNReal.zpow_lt_top (hd_nzero) (ENNReal.natCast_ne_top D) _)
+    exact (ENNReal.zpow_pos hd_nzero (by finiteness) _).ne'
+  have hdp_finit42 : (D ^ 42 : ℝ≥0∞) ≠ ⊤ := by finiteness
   refine ⟨⟨hi3_1_2, ?_⟩, ⟨hi3_2_3, ?_⟩⟩
   · apply lt_of_le_of_lt (EMetric.infEdist_anti _) hx'
     rw [compl_subset_compl]
@@ -919,12 +901,12 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
       _ < 6 * D^k1 + 4 * D^k1 + 4 * D^k2 := by
         rw [ENNReal.add_lt_add_iff_right]
         · apply ENNReal.add_lt_add hx' hx_4k2'
-        · exact ENNReal.mul_ne_top (by finiteness) (hdp_finit k2)
+        · finiteness
       _ ≤ 2 * D^k2 + 4 * D^k2 := by
         rw [← right_distrib 6 4 (D^k1:ℝ≥0∞)]
         have hz : (6 + 4 : ℝ≥0∞) = 2 * 5 := by norm_num
         rw [hz, ENNReal.add_le_add_iff_right, mul_assoc]
-        · apply mul_le_mul_of_nonneg_left _ (by norm_num)
+        · gcongr
           calc
             (5 * D ^ k1:ℝ≥0∞)
               ≤ D * D^k1 := by
@@ -935,14 +917,14 @@ lemma transitive_boundary' {k1 k2 k3 : ℤ} (hk1 : -S ≤ k1) (hk2 : -S ≤ k2) 
             _ ≤ D ^ k2 := by
               nth_rw 1 [← zpow_one (D:ℝ≥0∞)]
               simp_rw [← ENNReal.rpow_intCast]
-              rw [← ENNReal.rpow_add _ _ hd_nzero (ENNReal.natCast_ne_top D),← Int.cast_add]
+              rw [← ENNReal.rpow_add _ _ hd_nzero (by finiteness),← Int.cast_add]
               apply ENNReal.rpow_le_rpow_of_exponent_le
               · rw [← ENNReal.ofReal_one,← ENNReal.ofReal_natCast]
                 rw [ENNReal.ofReal_le_ofReal_iff realD_nonneg]
                 exact one_le_realD X
               simp only [Int.cast_le]
               linarith
-        · exact ENNReal.mul_ne_top ENNReal.ofNat_ne_top (hdp_finit k2)
+        · finiteness
       _ = 6 * D ^ k2 := by
         rw [← right_distrib]
         norm_num
@@ -1021,9 +1003,8 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     simp only [Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, ENNReal.coe_ofNat] at this
     rw [← ENNReal.mul_le_mul_left]
     · exact this
-    · exact Ne.symm (NeZero.ne' (2 ^ (4 * a)))
-    · simp only [ne_eq, ENNReal.pow_eq_top_iff, ENNReal.ofNat_ne_top, mul_eq_zero,
-      OfNat.ofNat_ne_zero, false_or, false_and, not_false_eq_true]
+    · exact (NeZero.ne (2 ^ (4 * a)))
+    · finiteness
   letI : Countable (Yk X (k-K')) := (Yk_countable X (k-K')).to_subtype
   calc
     K' * ∑' (z : ↑(Yk X (k - K'))), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), I3 hk_mK z)
@@ -1158,7 +1139,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
       exact measurableSet_ball
     _ ≤ C4_1_7 X * ∑' (k' : Ioc (k-K') k),
         volume (⋃ (z:Yk X k'),⋃ (_:clProp((le_s hk_mK k'),z|hk,y)),ball (z:X) (4⁻¹*D^(k':ℤ))) := by
-      apply mul_le_mul_of_nonneg_left _ (zero_le (C4_1_7 X : ℝ≥0∞))
+      gcongr
       exact ENNReal.sum_le_tsum Finset.univ
     _ = C4_1_7 X * volume (⋃ (k' : Ioc (k-K') k),
         ⋃ (z:Yk X k'),⋃ (_:clProp((le_s hk_mK k'),z|hk,y)),ball (z:X) (4⁻¹*D^(k':ℤ))) := by
@@ -1183,19 +1164,18 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
                 apply add_lt_add _ hx'.left
                 rw [dist_edist]
                 rw [← @ENNReal.toReal_ofReal (6 * D ^ (l':ℤ)), ← Real.rpow_intCast]
-                · rw [ENNReal.toReal_lt_toReal (edist_ne_top x ↑u') (ENNReal.ofReal_ne_top)]
-                  rw [ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat]
-                  rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.ofReal_natCast]
-                  rw [edist_comm, ENNReal.rpow_intCast]
+                · rw [ENNReal.toReal_lt_toReal (by finiteness) (by finiteness),
+                    ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat,
+                    ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a), ENNReal.ofReal_natCast,
+                    edist_comm, ENNReal.rpow_intCast]
                   exact hx.right
-                rw [mul_nonneg_iff_of_pos_left (by norm_num)]
-                exact zpow_nonneg (realD_nonneg) _
+                positivity
               _ = 4⁻¹ * 25 * D^(l':ℤ) + 4⁻¹ * D^(l:ℤ) := by
                 rw [← right_distrib]
                 norm_num
               _ ≤ 4⁻¹ * D^(l:ℤ) + 4⁻¹ * D^(l:ℤ) := by
-                rw [add_le_add_iff_right,mul_assoc]
-                apply mul_le_mul_of_nonneg_left _ (by norm_num)
+                rw [add_le_add_iff_right, mul_assoc]
+                gcongr
                 trans D * D^(l':ℤ)
                 · gcongr
                   exact twentyfive_le_realD X
@@ -1250,11 +1230,11 @@ lemma small_boundary (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
         rw [measure_empty]
     _ ≤ 2⁻¹ * volume (I3 hk y) := small_boundary' k hk hk_mK y
 
-lemma le_s_1' (n:ℕ) {k:ℤ} (hk_mn1K:-S ≤ k - (n+1:ℕ) * K') : (-S ≤ (k - K') - n * K') := by
+lemma le_s_1' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n + 1 : ℕ) * K') : (-S ≤ (k - K') - n * K') := by
   simp only [Nat.cast_add, Nat.cast_one] at hk_mn1K
   linarith
 
-lemma le_s_2' (n:ℕ) {k:ℤ} (hk_mn1K:-S ≤ k - (n+1:ℕ) * K') : (-S ≤ k - K') := by
+lemma le_s_2' (n : ℕ) {k : ℤ} (hk_mn1K : -S ≤ k - (n+1:ℕ) * K') : (-S ≤ k - K') := by
   simp only [Nat.cast_add, Nat.cast_one] at hk_mn1K
   rw [right_distrib] at hk_mn1K
   apply hk_mn1K.trans
@@ -1316,13 +1296,14 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       have hz : clProp(hk_mnK,y''|(le_s_2' n hk_mnK),y') ∧ clProp((le_s_2' n hk_mnK),y'|hk,y):= by
         apply transitive_boundary hk_mnK (le_s_2' n hk_mnK) hk _ (by linarith) y'' y' y x _ hy''
         · simp only [Nat.cast_add, Nat.cast_one, sub_lt_sub_iff_left]
-          rw [right_distrib,one_mul]
-          simp only [tsub_le_iff_right, sub_add_add_cancel, le_add_iff_nonneg_right]
-          rw [← Nat.cast_mul]
-          exact Int.ofNat_zero_le (n * const_K)
-        · simp only [mem_inter_iff,and_assoc]
+          rw [right_distrib, one_mul]
+          gcongr
+          trans 0 + ↑(@const_K a)
+          · rw [zero_add]
+          gcongr; positivity
+        · simp only [mem_inter_iff, and_assoc]
           use hx
-      use hz.right,y'',hz.left
+      use hz.right, y'', hz.left
     _ = ∑'(y':Yk X (k-K')),∑ᶠ (_:clProp(le_s_2' n hk_mnK,y'|hk,y)),
       volume (⋃ (y'':Yk X (k-(n+1:ℕ)*K')),⋃(_:clProp(hk_mnK,y''|le_s_2' n hk_mnK,y')),
         I3 hk_mnK y'') := by
@@ -1390,7 +1371,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       else
         simp_rw [if_neg h,mul_zero]
     _ ≤ 2⁻¹ ^n * (2⁻¹ * volume (I3 hk y)) := by
-      apply mul_le_mul_of_nonneg_left _ (by norm_num)
+      gcongr
       apply _root_.small_boundary
     _ = 2⁻¹ ^ (n + 1) * volume (I3 hk y) := by
       rw [pow_add,pow_one,mul_assoc]
@@ -1451,7 +1432,7 @@ lemma const_n_prop_3 (ht : t ∈ Ioo 0 1) :
   rw [← right_distrib]
   nth_rw 1 [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm ht.left]
   rw [← Real.rpow_neg (realD_nonneg)]
-  rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
+  rw [← Real.rpow_natCast, Real.rpow_le_rpow_left_iff (one_lt_realD X)]
   push_cast
   rw [← div_le_iff₀ (K_pos)]
   exact (Nat.lt_floor_add_one (-Real.logb (↑D) t / ↑const_K)).le
@@ -1512,9 +1493,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
     exact htD.trans (const_n_prop_2 X ht k)
   have hconst_n_k : k-const_n a ht * K' ≤ k := by
     simp only [tsub_le_iff_right, le_add_iff_nonneg_right]
-    rw [mul_nonneg_iff]
-    left
-    simp only [Nat.cast_nonneg, and_self]
+    positivity
   simp only [mem_Ioo] at ht
   calc
     volume ({x|x ∈ I3 hk y ∧ EMetric.infEdist x (I3 hk y)ᶜ ≤ (↑t * ↑D ^ k)})
@@ -1539,6 +1518,9 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
       rw [← emetric_ball, EMetric.mem_ball,ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_ofNat,
         ← Real.rpow_intCast, ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),
         ENNReal.ofReal_natCast,ENNReal.rpow_intCast,edist_comm] at hxy'
+      have : 0 < (Nat.cast D : ℝ≥0∞) := by
+        rw [← ENNReal.ofReal_natCast,ENNReal.ofReal_pos]
+        exact defaultD_pos a
       calc
         EMetric.infEdist (y':X) (I3 hk y)ᶜ
           ≤ EMetric.infEdist (x:X) (I3 hk y)ᶜ + edist (y':X) x:=
@@ -1547,55 +1529,37 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
           apply ENNReal.add_lt_add_of_le_of_lt _ hxb' hxy'
           apply LT.lt.ne
           apply lt_of_le_of_lt hxb'
-          apply ENNReal.mul_lt_top ENNReal.coe_lt_top
-          apply ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D) _
-          rw [ne_comm]
-          apply LT.lt.ne
-          rw [← ENNReal.ofReal_natCast, ENNReal.ofReal_pos]
-          exact defaultD_pos a
+          finiteness
           -- add_lt_add_of_le_of_lt hxb' hxy'
-        _ ≤ D^(k-const_n a ht * K') + 4 * D^(k-const_n a ht * K') := by
+        _ ≤ D ^ (k - const_n a ht * K') + 4 * D ^ (k - const_n a ht * K') := by
           rw [ENNReal.add_le_add_iff_right]
           · have := const_n_prop_2 X ht k
             simp only at this
             nth_rw 1 [NNReal.val_eq_coe] at this
             simp_rw [← Real.rpow_intCast] at this
-            rw [← ENNReal.ofReal_le_ofReal_iff (Real.rpow_nonneg (realD_nonneg) _),
+            rw [← ENNReal.ofReal_le_ofReal_iff (by positivity),
               ENNReal.ofReal_mul (by exact ht.left.le), ENNReal.ofReal_coe_nnreal,
               ← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),← ENNReal.ofReal_rpow_of_pos (defaultD_pos a),
               ENNReal.ofReal_natCast, ENNReal.rpow_intCast, ENNReal.rpow_intCast] at this
             exact this
-          apply ENNReal.mul_ne_top (by finiteness)
-          apply (ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D) _).ne
-          rw [ne_comm]
-          apply LT.lt.ne
-          rw [← ENNReal.ofReal_natCast, ENNReal.ofReal_pos]
-          exact defaultD_pos a
+          finiteness
         _ ≤ 6 * ↑D ^ (k - const_n a ht * ↑const_K) := by
-          nth_rw 1 [← one_mul (D^(k-const_n a ht * K'):ℝ≥0∞),← right_distrib]
-          have : 0 < (D:ℝ≥0∞) := by
-            rw [← ENNReal.ofReal_natCast,ENNReal.ofReal_pos]
-            exact defaultD_pos a
+          nth_rw 1 [← one_mul (D ^ (k - const_n a ht * K') : ℝ≥0∞), ← right_distrib]
           rw [ENNReal.mul_le_mul_right]
           · norm_num
-          · rw [ne_comm]
-            apply LT.lt.ne
+          · apply LT.lt.ne'
             rw [← ENNReal.rpow_intCast]
-            apply ENNReal.rpow_pos _ (ENNReal.natCast_ne_top D)
-            exact this
-          apply LT.lt.ne
-          apply ENNReal.zpow_lt_top _ (ENNReal.natCast_ne_top D)
-          exact this.ne.symm
-    _ = ∑' (y':Yk X (k-const_n a ht *K')),∑ᶠ(_:clProp(hconst_n,y'|hk,y)),
+            exact ENNReal.rpow_pos this (by finiteness)
+          finiteness
+    _ = ∑' (y' : Yk X (k - const_n a ht * K')), ∑ᶠ(_ :clProp(hconst_n, y'|hk, y)),
       volume (I3 hconst_n y') := by rw [boundary_sum_eq hk hconst_n y]
-    _ ≤ 2⁻¹^(const_n a ht) * volume (I3 hk y) := by
-      apply smaller_boundary
+    _ ≤ 2⁻¹^(const_n a ht) * volume (I3 hk y) := by apply smaller_boundary
     _ ≤ 2 * ↑t ^ κ * volume (I3 hk y) := by
       refine mul_le_mul' ?h₁ (le_refl _)
-      suffices hsuf: ((2⁻¹^(const_n a ht):ℝ≥0) : ℝ≥0∞) ≤ (2 * t ^ κ:ℝ≥0) by
+      suffices hsuf : ((2⁻¹ ^ (const_n a ht) : ℝ≥0) : ℝ≥0∞) ≤ (2 * t ^ κ : ℝ≥0) by
         push_cast at hsuf
         rw [ENNReal.coe_rpow_def]
-        have : ¬ (t = 0 ∧ κ < 0) := by
+        have : ¬(t = 0 ∧ κ < 0) := by
           push_neg
           intro h
           by_contra
@@ -1610,17 +1574,17 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
         _ = 2 ^ (-const_n a ht:ℝ) := by
           rw [Real.rpow_neg (by norm_num), ← Real.rpow_natCast,Real.inv_rpow (by norm_num)]
         _ = (D ^ ((Real.logb 2 D)⁻¹)) ^ (-const_n a ht:ℝ) := by
-          rw [Real.inv_logb, Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (by norm_num)]
+          rw [Real.inv_logb, Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne' (by norm_num)]
         _ = D ^ ((const_n a ht * K':ℝ) * -(Real.logb 2 D * K' :ℝ)⁻¹) := by
           rw [← Real.rpow_mul realD_nonneg]
           congr 1
           rw [mul_neg,mul_neg]
           congr 1
-          rw [mul_inv, mul_assoc, mul_comm (K' : ℝ), mul_assoc, inv_mul_cancel₀ K_pos.ne.symm,
-            mul_one,mul_comm]
-        _ = (D ^ (const_n a ht * K':ℝ):ℝ)⁻¹ ^ (Real.logb 2 D * K' : ℝ)⁻¹ := by
-          rw [Real.rpow_mul (realD_nonneg), Real.rpow_neg (Real.rpow_nonneg (realD_nonneg) _)]
-          rw [Real.inv_rpow (Real.rpow_nonneg (realD_nonneg) _)]
+          rw [mul_inv, mul_assoc, mul_comm (K' : ℝ), mul_assoc, inv_mul_cancel₀ K_pos.ne',
+            mul_one, mul_comm]
+        _ = (D ^ (const_n a ht * K' : ℝ) : ℝ)⁻¹ ^ (Real.logb 2 D * K' : ℝ)⁻¹ := by
+          rw [Real.rpow_mul (realD_nonneg), Real.rpow_neg (by positivity)]
+          rw [Real.inv_rpow (by positivity)]
         _ ≤ (t * D ^(K':ℝ)) ^ (Real.logb 2 D * K' :ℝ)⁻¹ := by
           rw [Real.rpow_le_rpow_iff]
           · rw [inv_le_comm₀]
@@ -1630,17 +1594,14 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
             · rw [mul_pos_iff_of_pos_right]
               · exact ht.left
               · exact Real.rpow_pos_of_pos (defaultD_pos a) _
-          · rw [inv_nonneg]
-            positivity
-          · rw [mul_nonneg_iff]
-            left
-            exact And.intro (ht.left.le) (Real.rpow_nonneg realD_nonneg _)
+          · positivity
+          · positivity
           · rw [inv_pos,mul_pos_iff_of_pos_right (K_pos)]
             exact Real.logb_pos (by norm_num) (one_lt_realD X)
         _ = 2 * t ^ (Real.logb 2 D * K':ℝ)⁻¹ := by
-          rw [Real.mul_rpow,mul_comm,← Real.rpow_mul (realD_nonneg),mul_comm (K':ℝ)]
-          · rw [mul_inv, mul_assoc, inv_mul_cancel₀ K_pos.ne.symm, mul_one, Real.inv_logb]
-            rw [Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (by norm_num)]
+          rw [Real.mul_rpow,mul_comm, ← Real.rpow_mul (realD_nonneg), mul_comm (K':ℝ)]
+          · rw [mul_inv, mul_assoc, inv_mul_cancel₀ K_pos.ne', mul_one, Real.inv_logb]
+            rw [Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne' (by norm_num)]
           · exact ht.left.le
           positivity
         _ ≤ (2 * t ^ κ:ℝ) := by
@@ -1661,17 +1622,14 @@ lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht
         rw [ENNReal.toReal_le_toReal]
         · exact boundary_measure hk y ht htD
         · apply LT.lt.ne
-          apply lt_of_le_of_lt
-          · apply volume.mono
-            exact inter_subset_left
+          apply lt_of_le_of_lt (volume.mono inter_subset_left)
           apply lt_of_le_of_lt
           · apply volume.mono (I3_prop_3_2 hk y)
           · simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
-            exact measure_ball_lt_top
+            finiteness
         apply ENNReal.mul_ne_top
-        · apply ENNReal.mul_ne_top
-          · finiteness
-          · apply ENNReal.rpow_ne_top_of_nonneg (κ_nonneg) (ENNReal.coe_ne_top)
+        · have : 0 ≤ κ := κ_nonneg
+          finiteness
         apply LT.lt.ne
         apply lt_of_le_of_lt
         · apply volume.mono (I3_prop_3_2 hk y)
@@ -1795,8 +1753,7 @@ def grid_existence : GridStructure X D κ S o where
       rw [zpow_sub₀, div_le_iff₀] at ht
       · exact ht
       · exact zpow_pos (defaultD_pos a) _
-      rw [ne_comm]
-      apply LT.lt.ne
+      apply LT.lt.ne'
       exact defaultD_pos a
     else
       trans volume.real i.coe
