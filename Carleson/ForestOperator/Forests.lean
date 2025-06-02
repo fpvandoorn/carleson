@@ -23,7 +23,7 @@ open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
 
-/-! ## Lemmas 7.4.4 -/
+/-! ## Lemma 7.4.4 -/
 
 /-- The constant used in `correlation_separated_trees`.
 Has value `2 ^ (550 * a ^ 3 - 3 * n)` in the blueprint. -/
@@ -285,19 +285,31 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         rw [enorm_eq_self, enorm_eq_self]
         exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
 
--- perhaps, with as many extra hypotheses as I need
 lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
     adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x) = 0 := by
-  rw [adjoint_tile_support2_sum hu₁, adjoint_tile_support2_sum hu₁]
-  simp_rw [indicator_indicator]
-  have : Disjoint (𝓘 u₁ : Set X) (𝓘 u₁ : Set X) := by
-    rw [Grid.le_def] at h h'
-    simp at h h'
-    sorry
-  have : (𝓘 u₁ : Set X) ∩ (𝓘 u₁) = ∅ := by rwa [← disjoint_iff_inter_eq_empty]
-  simp [this]
-
-#exit
+  have : Disjoint (𝓘 u₁ : Set X) (𝓘 u₂ : Set X) := by
+    by_cases hs : s (𝓘 u₁) ≤ s (𝓘 u₂)
+    · -- Assume wlog that s u₁ ≤ s u₂.
+      -- If u₁ and u₂ were not disjoint, we'd have J u₁ ⊆ J u₂, contradicting h.
+      by_contra hndisjoint
+      have : 𝓘 u₁ ≤ 𝓘 u₂ := by
+        have := le_or_disjoint hs
+        simp_all [le_or_disjoint hs]
+      apply h this
+    · have hs' : s (𝓘 u₂) ≤ s (𝓘 u₁) := by push_neg at hs; exact hs.le
+      by_contra hdisjoint
+      apply h'
+      have := le_or_disjoint hs'
+      tauto
+  have : (𝓘 u₁ : Set X) ∩ (𝓘 u₂) = ∅ := by rwa [← disjoint_iff_inter_eq_empty]
+  rw [adjoint_tile_support2_sum hu₁, adjoint_tile_support2_sum hu₂, conj_indicator, mul_eq_zero]
+  simp_rw [indicator_apply_eq_zero]
+  by_cases hx : x ∈ 𝓘 u₁
+  · have : x ∉ 𝓘 u₂ := by
+      sorry -- easy: x in A, A and B disjoint => x ∉ B
+    simp_all
+  · have : x ∉ 𝓘 u₁ := sorry -- similar
+    simp_all
 
 /-- Lemma 7.4.4. -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
