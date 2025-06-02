@@ -10,7 +10,7 @@ noncomputable section
 
 open scoped ComplexConjugate ENNReal NNReal ShortVariables
 
-open MeasureTheory Metric Set Complex
+open MeasureTheory Metric Set Complex Function Measure
 
 namespace Tile
 
@@ -50,7 +50,7 @@ lemma mem_ball_of_correlation_ne_zero {s₁ s₂ : ℤ} {x₁ x₂ y : X}
 lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
     (hy : y ∈ tsupport (correlation s₁ s₂ x₁ x₂)) : y ∈ (ball x₁ (↑D ^s₁)) := by
   have hKs : (x₁, y) ∈ tsupport fun x ↦ (Ks s₁ x.1 x.2) := by
-    simp only [tsupport, closure, Function.support_subset_iff, ne_eq, Prod.forall, mem_sInter,
+    simp only [tsupport, closure, support_subset_iff, ne_eq, Prod.forall, mem_sInter,
       mem_setOf_eq, and_imp] at hy ⊢
     intro C hC h
     let f : X → X × X := fun x ↦ (x₁, x)
@@ -193,7 +193,8 @@ lemma correlation_kernel_bound (ha : 1 < a) {s₁ s₂ : ℤ} (hs₁ : s₁ ∈ 
         nth_rewrite 2 [← pow_one 2]
         rw [← pow_add]
         gcongr --uses h12
-        all_goals {sorry} -- fix the proof earlier
+        exact τ_nonneg X
+        sorry -- todo: fix the calculation
       _ = 2 ^ (253 * a ^ 3) / (volume (ball x₁ (↑D ^ s₁)) * volume (ball x₂ (↑D ^ s₂))) /
         ((2 * D ^ s₁ : ℝ≥0) : ℝ≥0∞) ^ τ * ↑(nndist y y') ^ τ := by rw [← ENNReal.mul_comm_div]
     · left
@@ -452,8 +453,8 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
       (volume (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ := by
   have hD : 0 < (D : ℝ) ^ 𝔰 p := defaultD_pow_pos a (𝔰 p)
   have hD' : 0 < (D : ℝ) ^ 𝔰 p' := defaultD_pow_pos a (𝔰 p')
-  have hsupp : tsupport (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆
-      ball x1 (D ^ 𝔰 p') := fun _ hx ↦  mem_ball_of_mem_tsupport_correlation hx
+  have hsupp : support (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆ ball x1 (D ^ 𝔰 p') :=
+    (subset_tsupport _).trans <| fun _ hx ↦  mem_ball_of_mem_tsupport_correlation hx
   have hs : 𝔰 p' ∈ Icc (- (S : ℤ)) (𝔰 p) := ⟨scale_mem_Icc.1, hle⟩
   have hnrm : iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (2 * ↑D ^ 𝔰 p') < ⊤ :=
     lt_of_le_of_lt (correlation_kernel_bound ha hs) (ENNReal.mul_lt_top
@@ -573,8 +574,8 @@ lemma I12_nnreal_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g 
       (volume (ball (x2 : X) (↑D ^𝔰 p))).toNNReal * ‖g ↑x1‖₊ * ‖g ↑x2‖₊ := by
   have hD : 0 < (D : ℝ) ^ 𝔰 p := defaultD_pow_pos a (𝔰 p)
   have hD' : 0 < (D : ℝ) ^ 𝔰 p' := defaultD_pow_pos a (𝔰 p')
-  have hsupp : tsupport (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆
-      ball x1 (D ^ 𝔰 p') := fun _ hx ↦  mem_ball_of_mem_tsupport_correlation hx
+  have hsupp : support (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆ ball x1 (D ^ 𝔰 p') :=
+    (subset_tsupport _).trans <| fun _ hx ↦ (mem_ball_of_mem_tsupport_correlation hx)
   have hs : 𝔰 p' ∈ Icc (- (S : ℤ)) (𝔰 p) := ⟨scale_mem_Icc.1, hle⟩
   have heq : (2^(254 * a^3 + 8 * a)) *
       ((1 + nndist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x2) (Q x1))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
@@ -866,7 +867,7 @@ lemma boundedCompactSupport_star_Ks_mul_g (p' : 𝔓 X) {g : X → ℂ} (hg : Me
     BoundedCompactSupport (fun (x : X × X) ↦ ((starRingEnd ℂ) (Ks (𝔰 p') x.1 x.2) *  g x.1)) := by
   apply BoundedCompactSupport.mul_bdd_left' (boundedCompactSupport_g hg hg1) continuous_fst
     ?_ ?_ ?_ ?_
-  · exact MeasureTheory.Measure.quasiMeasurePreserving_fst
+  · exact quasiMeasurePreserving_fst
   · apply MeasureTheory.StronglyMeasurable.aestronglyMeasurable
     apply Measurable.stronglyMeasurable
     fun_prop
@@ -895,7 +896,7 @@ lemma boundedCompactSupport_star_Ks_mul_g (p' : 𝔓 X) {g : X → ℂ} (hg : Me
               simp only [tsupport]
               apply congr_arg
               ext z
-              simp only [Function.mem_support, ne_eq, map_eq_zero]
+              simp only [mem_support, ne_eq, map_eq_zero]
             exact (dist_mem_Icc_of_mem_tsupport_Ks hx').2
           · exact hC hx.1 hy.1
           · have hy' : y ∈ tsupport fun x ↦ (Ks (𝔰 p') x.1 x.2) := by
@@ -903,7 +904,7 @@ lemma boundedCompactSupport_star_Ks_mul_g (p' : 𝔓 X) {g : X → ℂ} (hg : Me
               simp only [tsupport]
               apply congr_arg
               ext z
-              simp only [Function.mem_support, ne_eq, map_eq_zero]
+              simp only [mem_support, ne_eq, map_eq_zero]
             exact (dist_mem_Icc_of_mem_tsupport_Ks hy').2
         _ = ↑D ^ 𝔰 p' + C := by ring
   · intros A hA
@@ -924,7 +925,7 @@ lemma boundedCompactSupport_Ks_mul_star_g (p : 𝔓 X)  {g : X → ℂ}
   refine BoundedCompactSupport.mul_bdd_left' (ν := volume) ?_ continuous_fst ?_ ?_ ?_ ?_
   · apply BoundedCompactSupport.comp_left_norm (boundedCompactSupport_g hg hg1) (by simp)
       (continuous_conj) (by simp)
-  · exact MeasureTheory.Measure.quasiMeasurePreserving_fst
+  · exact quasiMeasurePreserving_fst
   · apply StronglyMeasurable.aestronglyMeasurable
     apply Measurable.stronglyMeasurable
     fun_prop
@@ -1016,13 +1017,16 @@ lemma boundedCompactSupport_aux_6_2_26 (p p' : 𝔓 X) {g : X → ℂ}
       obtain ⟨C, hC⟩ := h2
       use B * C
       simp only [nnnorm_mul, RCLike.nnnorm_conj, Filter.eventually_map] at hB hC ⊢
-      have hp1 : Measure.QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.1, z.1)) volume volume := by
-        sorry
-        -- refine QuasiMeasurePreserving.prod_of_right (by fun_prop) <| .of_forall fun x ↦ ?_
-        -- simp
-        -- apply Measure.quasiMeasurePreserving_fst.comp ?_
-      have hp2 : Measure.QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.2, z.1)) volume volume :=
-        sorry
+      have hp1 : QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.1, z.1)) volume volume := by
+        suffices QuasiMeasurePreserving (Prod.map (id (α := X)) (Prod.fst (α := X) (β := X)))
+            volume volume from
+          measurePreserving_swap.quasiMeasurePreserving.comp this
+        fun_prop
+      have hp2 : QuasiMeasurePreserving (fun z : X × X × X ↦ (z.2.2, z.1)) volume volume := by
+        suffices QuasiMeasurePreserving (Prod.map (id (α := X)) (Prod.snd (α := X) (β := X)))
+            volume volume from
+          measurePreserving_swap.quasiMeasurePreserving.comp this
+        fun_prop
       filter_upwards [hp1.ae hB, hp2.ae hC] with x h1x h2x
       exact mul_le_mul h1x h2x (zero_le _) (zero_le _)
   · -- HasCompactSupport
@@ -1086,7 +1090,7 @@ lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurab
               congr
               norm_cast
               rw [ENNReal.toReal_add ENNReal.one_ne_top (by simp)]
-              simp only [ENNReal.toReal_one, add_right_inj, ENNReal.toReal_ofReal_eq_iff]
+              simp only [ENNReal.toReal_one, _root_.add_right_inj, ENNReal.toReal_ofReal_eq_iff]
               exact dist_nonneg
           _ = ↑(C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
               (volume (𝓘 p : Set X)).toNNReal * ↑‖g x.1‖ * ↑‖g x.2‖  := by
@@ -1175,7 +1179,7 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
         congr
         rw [edist_dist]
         rw [ENNReal.toNNReal_add (by finiteness) (by finiteness)]
-        simp only [ENNReal.toNNReal_one, NNReal.coe_add, NNReal.coe_one, add_right_inj]
+        simp only [ENNReal.toNNReal_one, NNReal.coe_add, NNReal.coe_one, _root_.add_right_inj]
         norm_cast
         rw [ENNReal.toReal_ofReal dist_nonneg]
       · simp only [f, if_neg hz, norm_zero]
@@ -1212,11 +1216,11 @@ lemma bound_6_2_26_aux (p p' : 𝔓 X)  (g : X → ℂ) :
       ring_nf
   have hx1 : ‖(exp (I * ↑((Q x.1) x.1)))‖  = 1 := by
     simp only [norm_exp, mul_re, I_re, ofReal_re, zero_mul, I_im, ofReal_im,
-      mul_zero, sub_self, Real.exp_zero]
+      mul_zero, _root_.sub_self, Real.exp_zero]
   have hx2 : ‖(exp (I * -↑((Q x.2) x.2)))‖ = 1 := by
     simp only [mul_neg, norm_exp, neg_re, mul_re, I_re, ofReal_re, zero_mul, I_im,
-      ofReal_im, mul_zero, sub_self, neg_zero, Real.exp_zero]
-  simp only [Measure.restrict_univ, Prod.swap_prod_mk, I12, enorm_mul, ENNReal.toReal_mul,
+      ofReal_im, mul_zero, _root_.sub_self, neg_zero, Real.exp_zero]
+  simp only [restrict_univ, Prod.swap_prod_mk, I12, enorm_mul, ENNReal.toReal_mul,
     toReal_enorm]
   simp_rw [heq, integral_mul_const, norm_mul, norm_conj, ← mul_assoc]
   rw [hx1, hx2]
@@ -1248,11 +1252,11 @@ lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g 
     ((volume.prod volume).prod volume) := hf.swap
   rw [← MeasureTheory.setIntegral_prod (f := f) hf, ← MeasureTheory.setIntegral_prod_swap,
     MeasureTheory.setIntegral_prod _ hf']
-  simp only [Measure.restrict_univ, Prod.swap_prod_mk, enorm_eq_nnnorm,
+  simp only [restrict_univ, Prod.swap_prod_mk, enorm_eq_nnnorm,
     ENNReal.coe_le_coe, ← NNReal.coe_le_coe, coe_nnnorm, ge_iff_le]
   calc
     _ = ‖∫ (x : X × X) in E p' ×ˢ E p, (∫ (y : X) in univ, f (x, y).swap) ∂volume.prod volume‖ := by
-      simp only [Measure.restrict_univ, Prod.swap_prod_mk]
+      simp only [restrict_univ, Prod.swap_prod_mk]
     _ ≤ ∫ (x : X × X) in E p' ×ˢ E p, ‖(∫ (y : X) in univ, f (x, y).swap)‖ ∂volume.prod volume :=
       norm_integral_le_integral_norm fun a_1 ↦ ∫ (y : X) in univ, f (a_1, y).swap
     _ = ∫ (z : X × X) in E p' ×ˢ E p, (I12 p p' g z.1 z.2).toReal := bound_6_2_26_aux p p' g
@@ -1339,7 +1343,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
       ((∫⁻  (y : X) in E p', ‖g y‖ₑ) * ∫⁻ (y : X) in E p, ‖g y‖ₑ) := by
     rw [← lintegral_prod_mul (by fun_prop) (by fun_prop), ← enorm_eq_nnnorm]
     convert (MeasureTheory.enorm_integral_le_lintegral_enorm _)
-    · rw [MeasureTheory.Measure.prod_restrict]; rfl
+    · rw [prod_restrict]; rfl
     · simp [enorm_mul, enorm_norm]
   rw [ENNReal.coe_mul]
   gcongr
