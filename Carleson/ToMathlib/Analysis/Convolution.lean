@@ -32,7 +32,7 @@ protected theorem AEStronglyMeasurable.convolution [NormedSpace ℝ F] [AddGroup
     (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
     AEStronglyMeasurable (f ⋆[L, μ] g) μ := by
   suffices AEStronglyMeasurable (fun ⟨x, t⟩ ↦ g (x - t)) (μ.prod μ) from
-    sorry -- was: (L.aestronglyMeasurable_comp₂ hf.snd this).integral_prod_right'
+    (L.aestronglyMeasurable_comp₂ hf.comp_snd this).integral_prod_right'
   refine hg.comp_quasiMeasurePreserving <| QuasiMeasurePreserving.prod_of_left measurable_sub ?_
   apply Filter.Eventually.of_forall (fun x ↦ ?_)
   exact ⟨measurable_sub_const x, by rw [map_sub_right_eq_self μ x]⟩
