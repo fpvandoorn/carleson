@@ -115,6 +115,22 @@ lemma subset_of_notMem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
     exact (GridStructure.fundamental_dyadic' j_le.2).resolve_right notDisjoint
   · exact (notDisjoint disjoint).elim
 
+lemma disjoint_of_not_le_not_le {i j : Grid X} (h : ¬i ≤ j) (h' : ¬j ≤ i) :
+    Disjoint (i : Set X) j := by
+  by_cases hs : s i ≤ s j
+  · -- Assume wlog that s u₁ ≤ s u₂.
+    -- If u₁ and u₂ were not disjoint, we'd have J u₁ ⊆ J u₂, contradicting h.
+    by_contra hndisjoint
+    have : i ≤ j := by
+      have := le_or_disjoint hs
+      simp_all [le_or_disjoint hs]
+    apply h this
+  · have hs' : s j ≤ s i := by push_neg at hs; exact hs.le
+    by_contra hdisjoint
+    apply h'
+    have := le_or_disjoint hs'
+    tauto
+
 lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
 
 lemma volume_coeGrid_pos (hD : 0 < D) : 0 < volume (i : Set X) := by
