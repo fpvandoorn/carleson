@@ -847,8 +847,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
       distribution_mono_right ineq
   _ = 0 := distribution_snormEssSup
 
-variable [MeasurableSpace E₁] [BorelSpace E₁]
-
+variable [MeasurableSpace E₁] [BorelSpace E₁] in
 lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p₀ q₀ : ℝ≥0∞}
     (hp₀ : 0 < p₀) (hq₀ : q₀ = ⊤) (hp₀p : p₀ < p) (hp : p ≠ ⊤) {f : α → E₁} (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} -- (hd : 0 < d)
@@ -897,19 +896,15 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
           ring
         · exact (sub_neg.mpr (toReal_strict_mono hp hp₀p)).ne
       _ = _ := by
-        sorry /- TODO! was rw [ofReal_rpow_of_pos ht]
-        nth_rw 3 [← one_mul (ENNReal.ofReal _)]
-        rw [hdeq]
-        rw [Real.rpow_inv_rpow] <;> try positivity
-        rw [ofReal_toReal term_ne_top, ENNReal.mul_inv_cancel (by positivity) term_ne_top]
-        exact toReal_ne_zero.mpr ⟨hp₀.ne', hp₀p.ne_top⟩ -/
+        nth_rw 2 [← one_mul (t ^ p₀.toReal)]
+        rw [hdeq, ENNReal.rpow_inv_rpow, ENNReal.mul_inv_cancel (by positivity) term_ne_top]
+        exact toReal_ne_zero.mpr ⟨hp₀.ne', by finiteness⟩
     apply nonpos_iff_eq_zero.mp
     calc
     _ ≤ distribution (T (truncCompl f a)) (eLpNormEssSup (T (truncCompl f a)) ν) ν :=
       distribution_mono_right snorm_est
     _ = _ := meas_eLpNormEssSup_lt
 
-omit [MeasurableSpace E₁] [BorelSpace E₁] in
 -- NB. The assumptions `hd` is necessary: if `t ≠ ∞` and `f` has eLpNorm 0, then `d = 0` as well
 -- (since p.toReal and p₁.toReal are positive), hence `a = ∞`
 -- and the statement becomes `distribution (T f) t ν = 0`, which is false in general.
