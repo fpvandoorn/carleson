@@ -19,7 +19,7 @@ variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a
 /-! ## Section 10.1 and Lemma 10.0.2 -/
 
 variable (K) in
-/-- The operator `T_*^r g(x)`, defined in (10.1.31), as part of Lemma 10.1.6. -/
+/-- The operator `T_*^r g(x)`, defined in (10.1.31), above Lemma 10.1.6. -/
 def simpleNontangentialOperator (r : ℝ) (g : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R > r) (x' ∈ ball x R), ‖czOperator K R g x'‖ₑ
 
@@ -848,10 +848,15 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   push_cast
   gcongr <;> simp
 
--- c.f. discussion in https://github.com/fpvandoorn/carleson/pull/362
-lemma simpleNontangentialOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g):
-    AEStronglyMeasurable (simpleNontangentialOperator K r g) volume := by
+
+/-- Part of Lemma 10.1.6. -/
+lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    LowerSemicontinuous (simpleNontangentialOperator K r g) := by
   sorry
+
+lemma aestronglyMeasurable_simpleNontangentialOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    AEStronglyMeasurable (simpleNontangentialOperator K r g) volume :=
+  lowerSemicontinuous_simpleNontangentialOperator hg |>.measurable.aestronglyMeasurable
 
 /-- The constant used in `simple_nontangential_operator`.
 It is not tight and can be improved by some `a` + `constant`. -/
@@ -870,7 +875,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   intro g hg
   constructor
-  · exact simpleNontangentialOperator_aestronglyMeasurable hg
+  · exact aestronglyMeasurable_simpleNontangentialOperator hg
   let pointwise : X → ℝ≥0∞ :=
     4 * globalMaximalFunction volume 1 (czOperator K r g) + C10_1_5 a • globalMaximalFunction volume 1 g +
     C10_1_2 a • globalMaximalFunction volume 1 g
