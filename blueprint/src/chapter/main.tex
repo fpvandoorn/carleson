@@ -6213,31 +6213,40 @@ as in \Cref{forest-row-decomposition}.
     By \Cref{correlation-separated-trees}, this is bounded by
     \begin{equation}
         \label{eq-S2uu'}
-         2^{550a^3-3n} \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} g_1\|_{L^2(\scI(\fu')\cap \scI(\fu)} \|S_{2, \fu'} g_2\|_{L^2(\scI(\fu')\cap\scI(\fu))}\,.
+         2^{550a^3-3n} \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu)} \|S_{2, \fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}\,.
     \end{equation}
     We apply the Cauchy-Schwarz inequality in the form
     \begin{equation*}
         \sum_{i \in M} a_i b_i \le (\sum_{i \in M} a_i^2 )^{1/2}(\sum_{i \in M} b_i^2 )^{1/2}
     \end{equation*} to the outer two sums:
     $$
-        \le 2^{550a^3-3n} \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} g_1\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2 \right)^{1/2}
+        \le 2^{550a^3-3n} \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2 \right)^{1/2}
     $$
     $$
-        \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu'} g_2\|_{L^2(\scI(\fu')\cap\scI(\fu))}^2 \right)^{1/2}\,.
+        \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}^2 \right)^{1/2}\,.
     $$
-    By pairwise disjointedness of the sets $\scI(\fu)$ for $\fu \in \fU_j$ and of the sets $\scI(\fu')$ for $\fu' \in \fU_{j'}$, we have
+    We can now estimate the factor involving $g_1$ as follows:
     $$
-        \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} g_1\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2
-        = \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \int_{\scI(\fu) \cap \scI(\fu')} |S_{2,\fu} g_1(y)|^2 \, \mathrm{d}\mu(y)
+        \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2
+        = \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \int_{\scI(\fu) \cap \scI(\fu')} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
+    $$
+    By pairwise disjointedness of the sets $\scI(\fu')$ for $\fu' \in \fU_{j'}$, we have
+    $$
+        \le \sum_{\fu \in \fU_j}\int_{\scI(\fu)} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
+        \le \sum_{\fu \in \fU_j}\int_{X} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
     $$
     $$
-        \le \int_X |S_{2,\fu}g_1(y)|^2 \, \mathrm{d}\mu(y) = \|S_{2,\fu} g_1\|_2^2\,.
+       = \sum_{\fu \in \fU_j}\|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_2^2
     $$
-    Arguing similar for $g_2$, we can estimate \eqref{eq-S2uu'} to be
+    By \Cref{adjoint-tree-control} we now estimate:
     $$
-        \le 2^{550a^3-3n} \|S_{2,\fu}g_1\|_2 \|S_{2,\fu'} g_2\|_2\,.
+        \le \sum_{\fu \in \fU_j}2^{156a^3} \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
     $$
-    The lemma now follows from \Cref{adjoint-tree-control}.
+    By pairwise disjointedness of the sets $\scI(\fu)$ for $\fu \in \fU_j$ (and writing out the definition of $L^2$-norms), we have
+    $$
+        \le 2^{156a^3} \|g_1\|_2^2
+    $$
+    Arguing similar for $g_2$, we obtain the desired inequality.
 \end{proof}
 
 Define for $1 \le j \le 2^n$
