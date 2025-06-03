@@ -325,7 +325,7 @@ lemma pairwiseDisjoint_rowDecomp :
 
 open scoped Classical in
 /-- The definition of `T_{ℜ_j}*f(x)`, defined above Lemma 7.7.2. -/
-def rowCarlesonSum (t : Forest X n) (j : ℕ) (f : X → ℂ) (x : X) : ℂ :=
+def adjointCarlesonRowSum (t : Forest X n) (j : ℕ) (f : X → ℂ) (x : X) : ℂ :=
   ∑ u with u ∈ rowDecomp t j, adjointCarlesonSum (t u) f x
 
 /-- The constant used in `row_bound`.
@@ -341,13 +341,13 @@ irreducible_def C7_7_2_2 (a n : ℕ) : ℝ≥0 := 2 ^ (257 * (a : ℝ) ^ 3 - n /
 /-- Part of Lemma 7.7.2. -/
 lemma row_bound (hj : j < 2 ^ n) (hf : BoundedCompactSupport f)
     (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
-    eLpNorm (rowCarlesonSum t j f) 2 volume ≤ C7_7_2_1 a n * eLpNorm f 2 volume := by
+    eLpNorm (adjointCarlesonRowSum t j f) 2 volume ≤ C7_7_2_1 a n * eLpNorm f 2 volume := by
   sorry
 
 /-- Part of Lemma 7.7.2. -/
 lemma indicator_row_bound (hj : j < 2 ^ n) (hf : BoundedCompactSupport f)
     (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
-    eLpNorm (F.indicator (rowCarlesonSum t j f)) 2 volume ≤
+    eLpNorm (F.indicator (adjointCarlesonRowSum t j f)) 2 volume ≤
     C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
   sorry
 
@@ -425,7 +425,7 @@ irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := C7_4_3 a ^ 2 * C7_4_4 a n
 lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
     (hf₁ : BoundedCompactSupport f₁) (nf₁ : ∀ x, ‖f₁ x‖ ≤ G.indicator 1 x)
     (hf₂ : BoundedCompactSupport f₂) (nf₂ : ∀ x, ‖f₂ x‖ ≤ G.indicator 1 x) :
-    ‖∫ x, rowCarlesonSum t j f₁ x * conj (rowCarlesonSum t j' f₂ x)‖ₑ ≤
+    ‖∫ x, adjointCarlesonRowSum t j f₁ x * conj (adjointCarlesonRowSum t j' f₂ x)‖ₑ ≤
     C7_7_3 a n * eLpNorm f₁ 2 volume * eLpNorm f₂ 2 volume := by
   classical
   let W := ({u | u ∈ t.rowDecomp j} : Finset _) ×ˢ ({u' | u' ∈ t.rowDecomp j'} : Finset _)
@@ -443,7 +443,7 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
   calc
     _ = ‖∫ x, ∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j',
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
-      congr! with x; unfold rowCarlesonSum
+      congr! with x; unfold adjointCarlesonRowSum
       rw [Finset.sum_mul]; congr! with u mu; rw [← Finset.mul_sum, map_sum]
     _ = ‖∑ u with u ∈ rowDecomp t j, ∫ x, ∑ u' with u' ∈ rowDecomp t j',
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
