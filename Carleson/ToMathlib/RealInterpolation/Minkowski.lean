@@ -340,17 +340,17 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖ₑ ≤ tc.ton (ENNReal.ofReal s) }
         ((volume.restrict (Ioi 0)).prod μ) := by
-  apply nullMeasurableSet_le
-  · sorry
+  apply nullMeasurableSet_le hg.snd.enorm
   have : AEMeasurable ENNReal.ofReal := by fun_prop
-  sorry -- proof was: nullMeasurableSet_le hg.snd.norm (ton_aeMeasurable tc).fst
+  sorry -- proof was: (ton_aeMeasurable tc).fst
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖g x‖ₑ }
-        ((volume.restrict (Ioi 0)).prod μ) :=
-  nullMeasurableSet_lt sorry /- was: (ton_aeMeasurable tc).fst -/ sorry -- was: hg.snd.norm
+        ((volume.restrict (Ioi 0)).prod μ) := by
+  refine nullMeasurableSet_lt ?_ hg.snd.enorm
+  sorry -- proof was: (ton_aeMeasurable tc).fst; same issue as above
 
 @[measurability]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
@@ -420,8 +420,12 @@ theorem AEMeasurable.trunc_restrict
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] {j : Bool}
     {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
-      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) :=
-  sorry -- was: j.rec (hf.truncCompl_ton _) (hf.trunc_ton _)
+      ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
+  by_cases hj: j
+  · simp only [hj, trnc]
+    sorry -- was: hf.trunc_ton _
+  · simp only [hj, trnc]
+    sorry -- was: hf.truncCompl_ton _
 
 lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [NormedAddCommGroup E₁]
@@ -540,8 +544,8 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       intro x hfx
       congr 2
       · apply value_lintegral_res₀
-        · sorry -- proof was: apply tc.ran_inv
-          -- exact norm_pos_iff.mpr hfx
+        · have : 0 < ‖f x‖ₑ := enorm_pos.mpr hfx
+          sorry -- proof was: apply tc.ran_inv
         · split_ifs with h
           · simp only [h, ↓reduceIte] at hpowers; linarith
           · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
@@ -917,7 +921,10 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
     (ha : a = (t / d) ^ (p₁.toReal / (p₁.toReal - p.toReal)))
     (hdeq : d = ((ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal) ^ p₁.toReal⁻¹) :
     distribution (T (trunc f a)) t ν = 0 := by
-  have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf sorry -- TODO: prove!
+  have ha' : a ≠ ⊤ := by
+    rw [ha]
+    sorry -- can `finiteness` prove this?
+  have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf ha'
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
   split_ifs at wt_est
