@@ -601,27 +601,23 @@ theorem hasStrongType_maximalFunction_aux
     [BorelSpace X] [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     {p₁ p₂ : ℝ≥0} (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) (hp₁ : 1 ≤ p₁) (hp₁₂ : p₁ < p₂) :
     HasStrongType (fun (u : X → E) (x : X) ↦ maximalFunction μ 𝓑 c r p₁ u x)
-      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := by
-  rw [← hasStrongType_toReal_iff sorry /- cleanup (task 117) -/]
-  intro v mlpv
-  dsimp only
-  constructor; · exact AEStronglyMeasurable.maximalFunction_toReal h𝓑
+      p₂ p₂ μ μ (C2_0_6 A p₁ p₂) := fun v mlpv ↦ by
+  refine ⟨AEStronglyMeasurable.maximalFunction h𝓑, ?_⟩; dsimp only
   have cp₁p : 0 < (p₁ : ℝ) := by positivity
   have p₁n : p₁ ≠ 0 := by exact_mod_cast cp₁p.ne'
   conv_lhs =>
     enter [1, x]
-    rw [maximalFunction_eq_MB (by exact zero_le_one.trans hp₁), ← ENNReal.toReal_rpow,
-      ← ENNReal.abs_toReal, ← Real.norm_eq_abs]
-  rw [eLpNorm_norm_rpow _ (by positivity), ENNReal.ofReal_inv_of_pos cp₁p,
+    rw [maximalFunction_eq_MB (by exact zero_le_one.trans hp₁), ← enorm_eq_self (MB ..)]
+  rw [eLpNorm_enorm_rpow _ (by positivity), ENNReal.ofReal_inv_of_pos cp₁p,
     ENNReal.ofReal_coe_nnreal, ← div_eq_mul_inv, ← ENNReal.coe_div p₁n]
   calc
     _ ≤ (CMB A (p₂ / p₁) * eLpNorm (fun y ↦ ‖v y‖ ^ (p₁ : ℝ)) (p₂ / p₁) μ) ^ p₁.toReal⁻¹ := by
       apply ENNReal.rpow_le_rpow _ (by positivity)
-      convert (hasStrongType_MB h𝓑 hR (μ := μ) _ |>.toReal (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
-      · exact (ENNReal.coe_div p₁n).symm
+      convert (hasStrongType_MB h𝓑 hR (μ := μ) _ (fun x ↦ ‖v x‖ ^ (p₁ : ℝ)) _).2
+      · rw [ENNReal.coe_div p₁n]
       · rwa [lt_div_iff₀, one_mul]; exact cp₁p
-      · rw [ENNReal.coe_div p₁n]; exact MemLp.norm_rpow_div mlpv p₁
-    _ ≤ _ := by
+      · rw [ENNReal.coe_div p₁n]; exact mlpv.norm_rpow_div p₁
+    _ = _ := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ (by positivity), eLpNorm_norm_rpow _ cp₁p,
         ENNReal.ofReal_coe_nnreal, ENNReal.div_mul_cancel (by positivity) (by simp),
         ENNReal.rpow_rpow_inv (by positivity), ← ENNReal.coe_rpow_of_nonneg _ (by positivity),

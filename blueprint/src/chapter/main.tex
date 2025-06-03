@@ -5681,7 +5681,7 @@ $$
         Let $\fC_1 = \fT(\fu_1)$ and $\fC_2 = \fT(\fu_2) \cap \mathfrak{S}$. Then for $i = 1,2$ and each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
             \label{TreeUB}
-            \sup_{B(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B'(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|
         \end{align}
         and for all $y,y' \in B'(J)$
         $$
@@ -5730,7 +5730,7 @@ $$
         \uses{global-tree-control-1, local-tree-control}
         We have for all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{151a^3+4a+4} \inf_{J} M_{\mathcal{B},1}|g|\,.
+            \sup_{B'(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{151a^3+4a+4} \inf_{J} M_{\mathcal{B},1}|g|\,.
         $$
     \end{lemma}
 
@@ -5738,7 +5738,7 @@ $$
         \leanok
         By \Cref{global-tree-control-1}
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B'(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|
         $$
         $$
             \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
