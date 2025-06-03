@@ -369,7 +369,7 @@ lemma forest_separation (hu : u ∈ 𝔘₃ k n j) (hu' : u' ∈ 𝔘₃ k n j) 
   specialize np'u p' mpt
   have 𝓘p'u : 𝓘 p' ≤ 𝓘 u := lp'.1.trans h
   simp_rw [TileLike.le_def, smul_fst, smul_snd, 𝓘p'u, true_and,
-    not_subset_iff_exists_mem_not_mem] at np'u
+    not_subset_iff_exists_mem_notMem] at np'u
   obtain ⟨(q : Θ X), mq, nq⟩ := np'u
   simp_rw [mem_ball, not_lt] at mq nq
   have d8 : 8 < dist_(p') (𝒬 p) (𝒬 u) :=
@@ -539,12 +539,10 @@ lemma forest_stacking (x : X) (hkn : k ≤ n) : stackSize (𝔘₃ (X := X) k n 
         have mvC' : 𝓘 v ∈ C' := by
           simp_rw [C', Finset.mem_image]; use v
           simp_rw [C, Finset.mem_filter, Finset.mem_univ, true_and, and_true]; exact mv
-        specialize li _ mvC'
+        specialize li mvC'
         have inc := (or_assoc.mpr (le_or_ge_or_disjoint (i := 𝓘 u) (j := 𝓘 v))).resolve_right
           (not_disjoint_iff.mpr ⟨_, mx, mv.2⟩)
-        simp_rw [le_iff_eq_or_lt] at inc
-        replace inc : 𝓘 u = 𝓘 v ∨ 𝓘 u < 𝓘 v := by tauto
-        rw [← le_iff_eq_or_lt] at inc
+        replace inc : 𝓘 u ≤ 𝓘 v := by tauto
         exact ⟨mv.1, inc.1 my⟩
       _ ≤ _ := stackSize_𝔘₃_le_𝔐 _
   refine absurd (disjoint_left.mpr fun v mv ↦ ?_) (𝔘₃_subset_𝔘₂ mu).2

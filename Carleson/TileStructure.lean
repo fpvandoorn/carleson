@@ -97,6 +97,32 @@ lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
     Disjoint (ball_(p) (𝒬 p) 5⁻¹) (ball_(p') (𝒬 p') 5⁻¹) :=
   disjoint_of_subset cball_subset cball_subset (disjoint_Ω h hp)
 
+/-- A bound used in both nontrivial cases of Lemma 7.5.5. -/
+lemma volume_xDsp_bound {x : X} (hx : x ∈ 𝓘 p) :
+    volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
+  apply ENNReal.div_le_of_le_mul'
+  have h : dist x (𝔠 p) + 4 * D ^ 𝔰 p ≤ 8 * D ^ 𝔰 p := by
+    calc
+      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 4 * ↑D ^ 𝔰 p := by
+        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
+      _ = _ := by rw [← add_mul]; norm_num
+  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
+  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
+  rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
+
+/-- A bound used in Lemma 7.6.2. -/
+lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
+    volume (ball (𝔠 p) (8 * D ^ 𝔰 p)) / 2 ^ (4 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
+  apply ENNReal.div_le_of_le_mul'
+  have h : dist x (𝔠 p) + 8 * D ^ 𝔰 p ≤ 16 * D ^ 𝔰 p := by
+    calc
+      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 8 * ↑D ^ 𝔰 p := by
+        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
+      _ ≤ _ := by rw [← add_mul]; gcongr; norm_num
+  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
+  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
+  rw [show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow]; norm_num
+
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
@@ -104,6 +130,11 @@ def E (p : 𝔓 X) : Set X :=
 lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
 
 lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
+
+lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (E p) (E p') := by
+  have := disjoint_Ω h hp; contrapose! this
+  rw [not_disjoint_iff] at this ⊢; obtain ⟨x, mx, mx'⟩ := this
+  use Q x, Q_mem_Ω mx, Q_mem_Ω mx'
 
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
@@ -169,7 +200,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X �
     apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
     · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
     · exact measurable_dist.const_mul _
-  · exact hf.snd
+  · exact hf.comp_snd
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
     {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=
@@ -188,7 +219,7 @@ lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
   intro x hx
   rw [mem_support] at hx
   contrapose! hx
-  refine Finset.sum_eq_zero (fun p hp ↦ nmem_support.mp (fun hxp ↦ hx ?_))
+  refine Finset.sum_eq_zero (fun p hp ↦ notMem_support.mp (fun hxp ↦ hx ?_))
   simp only [Finset.mem_filter] at hp
   exact Set.mem_biUnion hp.2 <| E_subset_𝓘 (support_carlesonOn_subset_E hxp)
 
@@ -342,7 +373,7 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   by_contra h2
   have : Disjoint (Ω p) (Ω p') := disjoint_Ω h2 h.1
   have : Ω p = ∅ := by simpa [← h.2]
-  exact not_mem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
+  exact notMem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
@@ -649,16 +680,17 @@ lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
   let M : Set (Set (𝔓 X)) := {B | B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧ B ⊆ A ∧ ∀ a ∈ A,
     (∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) ∨ (∀ b ∈ B, Disjoint (𝓘 a : Set X) (𝓘 b))}
   -- let `B` be a maximal such family. It satisfies the properties of the lemma.
-  obtain ⟨B, BM, hB⟩ : ∃ B ∈ M, ∀ B' ∈ M, B ⊆ B' → B = B' :=
-    Finite.exists_maximal_wrt id _ (toFinite M) ⟨∅, by simp [M]⟩
+  obtain ⟨B, BM, hB⟩ : ∃ B, MaximalFor (· ∈ M) id B :=
+    M.toFinite.exists_maximalFor id _ ⟨∅, by simp [M]⟩
   refine ⟨B, BM.1, BM.2.1, fun a ha ↦ ?_⟩
   rcases BM.2.2 a ha with h'a | h'a
   · exact h'a
   exfalso
   let F := {a' ∈ A | (𝓘 a : Set X) ⊆ 𝓘 a' ∧ ∀ b ∈ B, Disjoint (𝓘 a' : Set X) (𝓘 b)}
   obtain ⟨a', a'F, ha'⟩ : ∃ a' ∈ F, ∀ p ∈ F, (𝓘 a' : Set X) ⊆ 𝓘 p → (𝓘 a' : Set X) = 𝓘 p := by
-    apply Finite.exists_maximal_wrt _ _ (toFinite F)
-    exact ⟨a, by simpa [F, ha] using h'a⟩
+    obtain ⟨a₀, a₀F, ha₀⟩ :=
+      F.toFinite.exists_maximalFor (fun p ↦ (𝓘 p : Set X)) _ ⟨a, ⟨ha, subset_rfl, h'a⟩⟩
+    exact ⟨a₀, a₀F, fun p mp lp ↦ subset_antisymm lp (ha₀ mp lp)⟩
   have : insert a' B ∈ M := by
     refine ⟨?_, ?_, fun p hp ↦ ?_⟩
     · apply PairwiseDisjoint.insert BM.1 (fun b hb h'b ↦ a'F.2.2 b hb)
@@ -674,7 +706,7 @@ lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
     · have : p ∈ F := ⟨hp, a'F.2.1.trans (Grid.le_def.1 hij).1, h'p⟩
       rw [ha' p this (Grid.le_def.1 hij).1]
     · exact (Hp hij).elim
-  have : B = insert a' B := hB _ this (subset_insert a' B)
+  have : B = insert a' B := le_antisymm (subset_insert a' B) (hB this (subset_insert a' B))
   have : a' ∈ B := by rw [this]; exact mem_insert a' B
   have : Disjoint (𝓘 a' : Set X) (𝓘 a' : Set X) := a'F.2.2 _ this
   exact disjoint_left.1 this Grid.c_mem_Grid Grid.c_mem_Grid

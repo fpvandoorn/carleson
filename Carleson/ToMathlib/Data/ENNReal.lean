@@ -79,6 +79,18 @@ lemma edist_sum_le_sum_edist {f g : α → E} : edist (∑ i ∈ t, f i) (∑ i 
     simp only [Finset.sum_cons]
     exact (edist_add_add_le _ _ _ _).trans (add_le_add_left ihs _)
 
+lemma enorm_sum_eq_sum_enorm {f : α → ℝ} (hf : ∀ i ∈ t, 0 ≤ f i) :
+    ‖∑ i ∈ t, f i‖ₑ = ∑ i ∈ t, ‖f i‖ₑ := by
+  induction t using Finset.cons_induction with
+  | empty => simp
+  | cons a t ha ihs =>
+    simp only [Finset.sum_cons]
+    simp only [Finset.mem_cons, forall_eq_or_imp] at hf
+    have n₁ := hf.1
+    have n₂ := Finset.sum_nonneg hf.2
+    rw [Real.enorm_of_nonneg (add_nonneg n₁ n₂), ENNReal.ofReal_add n₁ n₂,
+      ← Real.enorm_of_nonneg n₁, ← Real.enorm_of_nonneg n₂, ihs hf.2]
+
 /-- The reverse triangle inequality for `enorm`. -/
 -- TODO: does a seminormed abelian additive group also have an ENormedAddMonoid structure?
 lemma enorm_enorm_sub_enorm_le {E} [NormedAddCommGroup E] {x y : E} : ‖‖x‖ₑ - ‖y‖ₑ‖ₑ ≤ ‖x - y‖ₑ := by
@@ -119,51 +131,21 @@ lemma exists_enorm_sub_eps_le_biInf
     add_le_iff_nonpos_right] at key
   rw [← NNReal.coe_pos] at εpos; linarith only [εpos, key]
 
+lemma biInf_enorm_sub_le {f g : ι → E} :
+    ⨅ x ∈ s, ‖f x - g x‖ₑ ≤ (⨅ x ∈ s, ‖f x‖ₑ) + (⨆ x ∈ s, ‖g x‖ₑ) := by
+  rcases s.eq_empty_or_nonempty with rfl | hs; · simp
+  refine ENNReal.le_of_forall_pos_le_add fun ε εpos _ ↦ ?_
+  obtain ⟨x, mx, hx⟩ := exists_enorm_sub_eps_le_biInf (f := f) εpos hs
+  calc
+    _ ≤ ‖f x - g x‖ₑ := biInf_le (fun i ↦ ‖f i - g i‖ₑ) mx
+    _ ≤ ‖f x‖ₑ + ‖g x‖ₑ := enorm_sub_le
+    _ ≤ ε + (⨅ x ∈ s, ‖f x‖ₑ) + ⨆ x ∈ s, ‖g x‖ₑ :=
+      add_le_add (by rwa [← tsub_le_iff_left]) (le_biSup (‖g ·‖ₑ) mx)
+    _ = _ := by rw [add_rotate]
+
 end ENNReal
 
 /-- Transfer an inequality over `ℝ` to one of `ENorm`s over `ℝ≥0∞`. -/
 lemma Real.enorm_le_enorm {x y : ℝ} (hx : 0 ≤ x) (hy : x ≤ y) : ‖x‖ₑ ≤ ‖y‖ₑ := by
   rw [Real.enorm_of_nonneg hx, Real.enorm_of_nonneg (hx.trans hy)]
   exact ENNReal.ofReal_le_ofReal hy
-
--- Additional lemmas for the finiteness tactic, PRed to mathlib in #25086
-section finiteness
-
-open ENNReal
-
--- Tag some additional lemmas for finiteness.
-attribute [aesop (rule_sets := [finiteness]) safe apply] ENNReal.pow_ne_top
-
-@[aesop (rule_sets := [finiteness]) safe apply]
-lemma ENNReal.zpow_ne_top {a : ℝ≥0∞} (ha : a ≠ 0) (h'a : a ≠ ∞) (n : ℤ) : a ^ n ≠ ∞ :=
-  (ENNReal.zpow_lt_top ha h'a n).ne
-
--- This is an unsafe rule since we want to try `rpow_pos` if x = 0.
-attribute [aesop (rule_sets := [finiteness]) unsafe apply] ENNReal.rpow_ne_top_of_nonneg
-
--- -- experimental
-lemma ENNReal.rpow_ne_top {x : ℝ≥0∞} {y : ℝ} : ¬(x = 0 ∧ y < 0 ∨ x = ⊤ ∧ 0 < y) → x ^ y ≠ ⊤ := by
-  contrapose
-  rw [← rpow_eq_top_iff (x := x) (y := y)]
-  simp
-
-@[aesop (rule_sets := [finiteness]) unsafe apply]
-lemma ENNReal.rpow_ne_top_of_pos {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0) (hx' : x ≠ ⊤) : x ^ y ≠ ⊤ := by
-  apply ENNReal.rpow_ne_top
-  simp [hx, hx']
-
--- move next to max_eq_top; proof can probably be golfed
-
-@[aesop (rule_sets := [finiteness]) safe apply]
-lemma max_ne_top {α : Type*} [LinearOrder α] [OrderTop α] {a b : α} (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
-    max a b ≠ ⊤ := by
-  by_contra h
-  obtain (h | h) := max_eq_top.mp h
-  all_goals simp_all
-
--- Just created for finiteness.
-@[aesop (rule_sets := [finiteness]) safe apply]
-theorem ENNReal.div_ne_top {x y : ℝ≥0∞} (h1 : x ≠ ∞) (h2 : y ≠ 0) : x / y ≠ ∞ :=
-  (ENNReal.div_lt_top h1 h2).ne
-
-end finiteness

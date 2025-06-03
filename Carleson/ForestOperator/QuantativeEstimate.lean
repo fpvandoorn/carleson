@@ -283,7 +283,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
     refine Finset.sum_nonneg (fun J hJ ↦ ?_)
     by_cases hx : x ∈ (J : Set X)
     · rw [indicator_of_mem hx]; exact integral_nonneg (fun _ ↦ by simp)
-    · rw [indicator_of_not_mem hx]
+    · rw [indicator_of_notMem hx]
   simp_rw [Real.enorm_eq_ofReal (this _)]
   calc
     _ = ∫⁻ x, (∑ J ∈ Finset.univ.filter (· ∈ C),
@@ -310,7 +310,7 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
             rw [Finset.sum_eq_single_of_mem _ hJ₀]
             intro J hJ J_ne_J₀
             have := disj_C (Finset.mem_filter.mp hJ).2 (Finset.mem_filter.mp hJ₀).2 J_ne_J₀
-            exact indicator_of_not_mem (disjoint_right.mp this hx) _
+            exact indicator_of_notMem (disjoint_right.mp this hx) _
           _ = (J₀ : Set X).indicator (fun _ ↦ ENNReal.ofReal (⨍ (y : X) in ↑J₀, ‖f y‖) ^ 2) x := by
             rw [indicator]
             split_ifs
@@ -319,10 +319,10 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
             rw [Finset.sum_eq_single_of_mem _ hJ₀]
             intro J hJ J_ne_J₀
             have := disj_C (Finset.mem_filter.mp hJ).2 (Finset.mem_filter.mp hJ₀).2 J_ne_J₀
-            apply indicator_of_not_mem (disjoint_right.mp this hx)
+            apply indicator_of_notMem (disjoint_right.mp this hx)
       · push_neg at ex
-        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_not_mem (ex J h) _, zero_pow two_pos.ne.symm]
-        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_not_mem (ex J h) _]
+        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _, zero_pow two_pos.ne.symm]
+        rw [Finset.sum_eq_zero fun J h ↦ indicator_of_notMem (ex J h) _]
     _ = ∑ J ∈ Finset.univ.filter (· ∈ C),
           ENNReal.ofReal (⨍ y in J, ‖f y‖) ^ 2 * volume (J : Set X) := by
       rw [lintegral_finset_sum _ (fun _ _ ↦ measurable_const.indicator coeGrid_measurable)]
@@ -372,6 +372,13 @@ private lemma eLpNorm_approxOnCube_two_le {C : Set (Grid X)}
       rw [← lintegral_biUnion_finset (hC ▸ disj_C.mono h) (fun _ _ ↦ coeGrid_measurable.inter hs)]
       exact mul_left_mono <| lintegral_mono_set (subset_univ _)
 
+lemma eLpNorm_approxOnCube_two_le_self (hf : BoundedCompactSupport f)
+    {C : Set (Grid X)} (pdC : C.PairwiseDisjoint (fun I ↦ (I : Set X))) :
+    eLpNorm (approxOnCube C (‖f ·‖)) 2 volume ≤ eLpNorm f 2 volume := by
+  have hv : ∀ L ∈ C, volume ((L : Set X) ∩ univ) ≤ 1 * volume (L : Set X) := by intros; simp
+  have key := eLpNorm_approxOnCube_two_le pdC .univ hv hf (by tauto)
+  rwa [ENNReal.one_rpow, one_mul] at key
+
 -- Generalization that implies both parts of Lemma 7.3.1
 private lemma density_tree_bound_aux
     (hf : BoundedCompactSupport f)
@@ -391,7 +398,7 @@ private lemma density_tree_bound_aux
       by_cases hx : x ∈ ℰ
       · rw [indicator_of_mem hx]
       suffices carlesonSum (t u) f x = 0 by simp [hx, this]
-      refine Finset.sum_eq_zero (fun p hp ↦ indicator_of_not_mem (fun hxp ↦ ?_) _)
+      refine Finset.sum_eq_zero (fun p hp ↦ indicator_of_notMem (fun hxp ↦ ?_) _)
       exact hx ⟨E p, ⟨p, by simp [Finset.mem_filter.mp hp]⟩, hxp⟩
     _ ≤ _ := tree_projection_estimate hf hgℰ hu
     _ ≤ (C7_2_1 a) * (c * eLpNorm f 2 volume) *
@@ -402,7 +409,7 @@ private lemma density_tree_bound_aux
         rw [mem_inter_iff] at hx
         push_neg at hx
         by_cases xG : x ∈ G
-        · apply indicator_of_not_mem (hx xG)
+        · apply indicator_of_notMem (hx xG)
         · have : g x = 0 := by rw [← norm_le_zero_iff]; simpa [xG] using h2g x
           exact indicator_apply_eq_zero.mpr (fun _ ↦ this)
       have hℰ : MeasurableSet (G ∩ ℰ) :=

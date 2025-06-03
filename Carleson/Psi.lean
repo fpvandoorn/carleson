@@ -236,7 +236,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
       subst h; exact Int.Icc_eq_pair a
     exact Icc_of_eq_add_one (add_eq_of_eq_sub endpts)
   set s₀ := ⌈logb D (4 * x)⌉
-  rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
+  rw [this, Finset.sum_insert ((Finset.notMem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
   have Ds₀x_lt := (mul_lt_mul_right hx).2 h
   rw [← div_div, div_mul_cancel₀ _ (ne_of_gt hx)] at Ds₀x_lt
@@ -418,7 +418,7 @@ private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) 
 
 lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) :
     (volume (ball x r)).toNNReal > 0 :=
-  ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) (measure_ball_ne_top x _)
+  ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) measure_ball_ne_top
 
 lemma Metric.measure_ball_pos_real (x : X) (r : ℝ) (hr : r > 0) : volume.real (ball x r) > 0 :=
   measure_ball_pos_nnreal x r hr
@@ -452,7 +452,7 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
   have v0₃ := measure_ball_pos_real x _ (mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s))
   have ball_subset := ball_subset_ball (x := x) hxy
   apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
-    ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
+    ENNReal.toNNReal_mono measure_ball_ne_top (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
   rw [div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
@@ -482,12 +482,11 @@ lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 
 lemma enorm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
     ‖K x y‖ₑ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume (ball x (2 ^ n * D ^ s)) := by
   rw [← ENNReal.ofReal_ofNat 2, ENNReal.ofReal_rpow_of_pos two_pos,
-    ← ENNReal.ofReal_toReal (measure_ball_ne_top _ _),
+    ← ENNReal.ofReal_toReal measure_ball_ne_top,
     ← ENNReal.ofReal_div_of_pos, ← Measure.real, ← ofReal_norm]; swap
-  · apply ENNReal.toReal_pos
+  · apply ENNReal.toReal_pos ?_ measure_ball_ne_top
     · refine (measure_ball_pos volume x ?_).ne.symm
       exact mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s)
-    · exact measure_ball_ne_top x (2 ^ n * D ^ s)
   rw [ENNReal.ofReal_le_ofReal_iff (by positivity)]
   exact norm_K_le n hxy
 
@@ -552,7 +551,7 @@ lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx :
   calc
     _ ≤ C⁻¹ * volume.real (ball x (2*r₀)) := by
       gcongr
-      · exact measure_ball_ne_top x (2 * r₀)
+      · exact measure_ball_ne_top
       · exact ball_subset_ball_of_le (by linarith)
     _ ≤ C⁻¹ * (C * volume.real (ball x (D^s))) := by gcongr
     _ = _ := by field_simp
@@ -869,5 +868,5 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       rw [Real.vol]
       gcongr
       · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
-      · exact measure_ball_ne_top x (dist x y)
+      · exact measure_ball_ne_top
       · exact le_of_not_le hy

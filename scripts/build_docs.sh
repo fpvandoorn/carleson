@@ -7,9 +7,11 @@ set -euo pipefail
 # Build HTML documentation for Carleson
 # The output will be located in docs/docs
 
+# Create a temporary docbuild folder
+mkdir -p docbuild
+
 # Template lakefile.toml
-template() {
-  cat <<EOF
+cat << EOF > docbuild/lakefile.toml
 name = "docbuild"
 reservoir = false
 version = "0.1.0"
@@ -22,24 +24,14 @@ path = "../"
 [[require]]
 scope = "leanprover"
 name = "doc-gen4"
-rev = "TOOLCHAIN"
+rev = "$(< lean-toolchain cut -f 2 -d: )"
 EOF
-}
-
-# Create a temporary docbuild folder
-mkdir -p docbuild
-
-# Equip docbuild with the template lakefile.toml
-template > docbuild/lakefile.toml
-
-# Substitute the toolchain from lean-toolchain into docbuild/lakefile.toml
-sed -i s/TOOLCHAIN/`grep -oP 'v4\..*' lean-toolchain`/ docbuild/lakefile.toml
 
 # Initialise docbuild as a Lean project
 cd docbuild
 
 # Disable an error message due to a non-blocking bug. See Zulip
-MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update carleson
+MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update
 
 # Build the docs
 ~/.elan/bin/lake build Carleson:docs
