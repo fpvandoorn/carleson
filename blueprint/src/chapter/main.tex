@@ -1072,7 +1072,7 @@ T_{s_1,s_2} f(x)=
     with
     \begin{equation}\label{middles1}
         {T}_{2,\sigma_1,\sigma_2}f(x)=\sum_{\sigma_1(x) \le s\le \sigma_2(x)}
-        \int K_s(x,y) f(y) e(\tQ(x)(y) - \tQ(x)(x)) \, \mathrm{d}\mu(y)\,.
+        \int K_s(x,y) f(y) e(\tQ(x)(y)) \, \mathrm{d}\mu(y)\,.
     \end{equation}
 \end{lemma}
 
@@ -1084,7 +1084,7 @@ a sequence of sets $G_n$ with $G_0=G$ and,
 for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
 \begin{equation*}
     \int \mathbf{1}_{G_{n}\setminus G_{n+1}}(x)
-    \left| {T}_{2,\sigma_1,\sigma_2, \tQ} f(x) \right|\, d\mu(x)
+    \left| {T}_{2,\sigma_1,\sigma_2} f(x) \right|\, d\mu(x)
 \end{equation*}
 \begin{equation}
     \le \frac{2^{440a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
@@ -1098,7 +1098,7 @@ Adding the first $n$ of these inequalities, we obtain by bounding a geometric se
 As the integrand is non-negative and non-decreasing in $n$, we obtain by the monotone convergence theorem
  \begin{equation} \label{Sqcut3}
     \int \mathbf{1}_{G}(x)
-\left| {T}_{2,\sigma_1,\sigma_2, \tQ}f(x) \right|\, d\mu(x)
+\left| {T}_{2,\sigma_1,\sigma_2}f(x) \right|\, d\mu(x)
 \le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 This completes the proof of \Cref{linearized-truncation}
