@@ -892,10 +892,9 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
         exact estimate_eLpNorm_truncCompl hp ⟨hp₀, hp₀p⟩ hf.1.aemeasurable a_pos
       _ = (↑C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal * (d ^ p₀.toReal)⁻¹ * (t ^ p₀.toReal) := by
         rw [ha, ← ENNReal.rpow_mul, div_mul_cancel₀]
-        · sorry /- was: rw [ENNReal.div_rpow] <;> try positivity
-          rw [ENNReal.ofReal_div_of_pos] <;> try positivity
-          rw [div_eq_mul_inv]
-          ring -/
+        · -- FIXME: can/should this be shared with the lemma below?
+          rw [ENNReal.div_rpow_of_nonneg, div_eq_mul_inv] <;> try positivity
+          ring
         · exact (sub_neg.mpr (toReal_strict_mono hp hp₀p)).ne
       _ = _ := by
         sorry /- TODO! was rw [ofReal_rpow_of_pos ht]
@@ -910,10 +909,10 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       distribution_mono_right snorm_est
     _ = _ := meas_eLpNormEssSup_lt
 
+omit [MeasurableSpace E₁] [BorelSpace E₁] in
 -- NB. The assumptions `hd` is necessary: if `t ≠ ∞` and `f` has eLpNorm 0, then `d = 0` as well
 -- (since p.toReal and p₁.toReal are positive), hence `a = ∞`
 -- and the statement becomes `distribution (T f) t ν = 0`, which is false in general.
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞}
     (hp : 0 < p)
     (hp₁ : p₁ < ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
@@ -967,14 +966,10 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         · exact toReal_nonneg
       _ = ↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal * (d ^ p₁.toReal)⁻¹ * (t ^ p₁.toReal) := by
         rw [ha, ← ENNReal.rpow_mul, div_mul_cancel₀]
-        · sorry /- proof was: rw [Real.div_rpow] <;> try positivity
-          rw [ENNReal.ofReal_div_of_pos] <;> try positivity
-          rw [div_eq_mul_inv]
-          ring -/
-          -- MR: can this be shared with the lemma above?
+        · rw [ENNReal.div_rpow_of_nonneg, div_eq_mul_inv] <;> try positivity
+          ring
         · exact (sub_pos.mpr (toReal_strict_mono hp₁.ne_top hp₁p)).ne'
       _ = _ := by
-        --rw [ofReal_rpow_of_pos ht]
         nth_rw 2 [← one_mul (t ^ p₁.toReal)]
         congr
         rw [hdeq, ENNReal.rpow_inv_rpow hp₁'  _, ENNReal.mul_inv_cancel term_pos.ne' term_ne_top]
