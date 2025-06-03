@@ -18,7 +18,7 @@ open scoped NNReal ENNReal ComplexConjugate
 
 namespace TileStructure.Forest
 
-/-! ## Lemmas 7.4.4 -/
+/-! ## Lemma 7.4.4 -/
 
 /-- The constant used in `correlation_separated_trees`.
 Has value `2 ^ (550 * a ^ 3 - 3 * n)` in the blueprint. -/
@@ -185,21 +185,16 @@ lemma correlation_separated_trees_of_subset (hu₁ : u₁ ∈ t) (hu₂ : u₂ �
         rw [enorm_eq_self, enorm_eq_self]
         exact Set.indicator_le_indicator_apply_of_subset this (by positivity)
 
--- perhaps, with as many extra hypotheses as I need
-lemma foo (h : ¬𝓘 u₁ ≤ 𝓘 u₂) (h' : ¬𝓘 u₂ ≤ 𝓘 u₁) (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
+lemma correlation_zero_of_disjoint (h : Disjoint (𝓘 u₁ : Set X) (𝓘 u₂))
+    (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (x : X) :
     adjointCarlesonSum (t.𝔗 u₁) g₁ x * conj (adjointCarlesonSum (t.𝔗 u₂) g₂ x) = 0 := by
-  simp_rw [adjointCarlesonSum]
-  -- commute sum and product
-  -- Basically, use this lemma for each summand. TODO: complete the sum manipulation
-  /- have {p} (hp : p ∈ t.𝔗 u₁) (hp' : p ∈ t.𝔗 u₂) :
-      adjointCarleson p g₁ x * conj (adjointCarleson p g₂ x) = 0 := by
-    -- rewrite by (7.4.1), using adjoint_tile_support2
-    rw [adjoint_tile_support2 hu₁ hp, adjoint_tile_support2 hu₂ hp']
-    -- observe these have disjoint support (for each summand), hence each summand is zero
-    sorry -/
-  sorry
+  rw [adjoint_tile_support2_sum hu₁, adjoint_tile_support2_sum hu₂, conj_indicator, mul_eq_zero]
+  simp_rw [indicator_apply_eq_zero]
+  by_cases hx : x ∈ 𝓘 u₁
+  · simp [h.notMem_of_mem_left hx]
+  · tauto
 
-/-- Lemma 7.4.4. -/
+/-- Lemma 7.4.4 -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖₊ ≤
@@ -218,8 +213,7 @@ lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu 
       simp [mul_comm]
     rw [inter_comm, mul_right_comm, ← this]
     exact correlation_separated_trees_of_subset hu₂ hu₁ hu.symm h' hg₂ hg₁
-  push_neg at h h'
-  simp [foo h h' hu₁ hu₂]
+  simp [correlation_zero_of_disjoint (disjoint_of_not_le_not_le h h') hu₁ hu₂]
 
 /-! ## Section 7.7 -/
 

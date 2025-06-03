@@ -103,17 +103,25 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
+lemma disjoint_of_not_le_not_le {i j : Grid X} (h : ¬i ≤ j) (h' : ¬j ≤ i) :
+    Disjoint (i : Set X) j := by
+  -- Assume wlog that s u₁ ≤ s u₂.
+  obtain (hs | hs) := le_total (s i) (s j)
+  · -- If u₁ and u₂ were not disjoint, we'd have J u₁ ⊆ J u₂, contradicting h.
+    by_contra hndisjoint
+    exact h <| (le_or_disjoint hs).resolve_right hndisjoint
+  · by_contra hdisjoint
+    exact h' <| (le_or_disjoint hs).resolve_right (fun a ↦ hdisjoint a.symm)
+
 lemma subset_of_notMem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
     (h : i ∉ Iic j)
     (notDisjoint : ¬ Disjoint (i : Set X) j) :
     (j : Set X) ⊆ i := by
-  rw [Iic, Set.notMem_setOf_iff, Grid.le_def, not_and_or] at h
-  have h_le_cases := le_or_ge_or_disjoint (i := i) (j := j)
-  rcases h_le_cases with i_le | j_le | disjoint
-  · exact (h.neg_resolve_left i_le.1 i_le.2).elim
-  · rw [disjoint_comm] at notDisjoint
-    exact (GridStructure.fundamental_dyadic' j_le.2).resolve_right notDisjoint
-  · exact (notDisjoint disjoint).elim
+  by_contra hdisj
+  have : ¬(j ≤ i) := by
+    rw [Grid.le_def]
+    exact not_and.mpr fun a a_1 ↦ hdisj a
+  exact notDisjoint (disjoint_of_not_le_not_le h this)
 
 lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
 
