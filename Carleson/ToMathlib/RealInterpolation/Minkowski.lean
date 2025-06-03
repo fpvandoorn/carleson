@@ -341,9 +341,21 @@ lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁] [NormedA
     NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖ₑ ≤ tc.ton (ENNReal.ofReal s) }
         ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.snd.enorm
-  have : AEMeasurable ENNReal.ofReal := by fun_prop
-  sorry -- this term was `(ton_aeMeasurable tc).comp`
-  --.comp_fst
+  -- have : AEMeasurable ENNReal.ofReal := by fun_prop
+  -- types just added for clarity
+  have old : AEMeasurable tc.ton (volume.restrict (Ioi (0 : ℝ≥0∞))) := (ton_aeMeasurable tc)
+  --
+  have : AEMeasurable (fun a ↦ tc.ton (ENNReal.ofReal a)) (volume.restrict (Ioi 0)) := by
+
+    apply old.congr
+    apply old.comp_aemeasurable
+    · apply AEMeasurable.comp_aemeasurable
+      apply old
+    apply this.comp old
+    #check AEMeasurable.comp_aemeasurable
+    sorry
+  exact AEMeasurable.fst this
+#exit
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁] [NormedAddCommGroup E₁]
