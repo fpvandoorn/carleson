@@ -924,7 +924,7 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
   by_cases ht' : t = ∞
   · simp [ht']
   have ha' : a ≠ ⊤ := by
-    have : eLpNorm f p μ < ∞ := sorry -- use hf
+    have := MemLp.eLpNorm_lt_top hf
     apply ha ▸ rpow_ne_top_of_ne_zero
     · exact ENNReal.div_ne_zero.mpr ⟨ht.ne', hdeq ▸ by finiteness⟩
     finiteness
