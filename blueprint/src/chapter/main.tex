@@ -7250,22 +7250,30 @@ by
 This proves the lemma.
 \end{proof}
 
-\begin{lemma}[simple nontangential operator]\label{simple-nontangential-operator}
-\leanok
-\lean{simple_nontangential_operator}
-\uses{Hardy-Littlewood,Cotlar-estimate}
-Assume that \eqref{two-sided-Hr-bound-assumption} holds.
-For every  $r>0$ and every bounded measurable function $g$ supported on a set of finite measure we have
-\begin{equation}\label{trzerobound}
-    \|T_{*}^rg\|_2\le 2^{a^3+24a+6}\|g\|_2,
-\end{equation}
-where
+For the next Lemma, we define the following operation.
 \begin{equation}\label{eq-simple--nontangential}
     T_{*}^r g(x):=\sup_{r<R}\sup_{x'\in B(x,R)} |T_R(g)(x')| \, .
 \end{equation}
+
+\begin{lemma}[simple nontangential operator]\label{simple-nontangential-operator}
+\leanok
+\lean{simple_nontangential_operator, lowerSemicontinuous_simpleNontangentialOperator}
+\uses{Hardy-Littlewood,Cotlar-estimate}
+Assume that \eqref{two-sided-Hr-bound-assumption} holds.
+For every $r>0$ and every bounded measurable function $g$ supported on a set of finite measure,
+the function $T_{*}^r g$ is lower-semicontinuous and we have
+\begin{equation}\label{trzerobound}
+    \|T_{*}^rg\|_2\le 2^{a^3+24a+6}\|g\|_2,
+\end{equation}
 \end{lemma}
 \begin{proof}
-With \Cref{estimate-x-shift} and the triangle inequality, we estimate for every $x\in X$
+For a fixed $\lambda$ we note that (rewriting $x'\in B(x,R)$ as $x\in B(x',R)$):
+\begin{equation}
+    \{x : T_{*}^r g(x) > \lambda\} = \bigcup_{r<R}\bigcup_{\{x':|T_R(g)(x')|>\lambda\}} B(x',R)
+\end{equation}
+The right-hand side is open, hence $T_{*}^r g$ is lower-semincontinuous by definition.
+
+For the second part, with \Cref{estimate-x-shift} and the triangle inequality, we estimate for every $x\in X$
 \begin{equation}
      T_{*}^r g(x)
      \le 2^{a^3 + 2a + 2} Mg(x)+\sup_{r<R} |T_R(g)(x)|\, .
@@ -7287,7 +7295,7 @@ Applying \eqref{two-sided-Hr-bound-assumption} gives
 \begin{equation}
       \|T_{*}^r g\|_2\le 2^{a^3+24a+5}\|g\|_2 + 2^{a^3+4a+3}\|g\|_2\, .
 \end{equation}
-This shows \eqref{trzerobound} and completes the proof of the lemma.
+This shows \eqref{trzerobound} and completes the proof of the inequality.
 \end{proof}
 %fixme: Change location of next argument?
 In order to pass from the one-sided truncation in $T_r$ and $T_{*}^r$ to the two-sided truncation in $T_*$, we show in the following two lemmas that the integral in \eqref{def-tang-unm-op} can be exchanged for an integral over the difference of two balls.
