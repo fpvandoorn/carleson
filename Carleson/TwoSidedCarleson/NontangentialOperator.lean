@@ -875,7 +875,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   intro g hg
   constructor
-  · exact simpleNontangentialOperator_aestronglyMeasurable hg
+  · exact aestronglyMeasurable_simpleNontangentialOperator hg
   let pointwise : X → ℝ≥0∞ :=
     4 * globalMaximalFunction volume 1 (czOperator K r g) + C10_1_5 a • globalMaximalFunction volume 1 g +
     C10_1_2 a • globalMaximalFunction volume 1 g
