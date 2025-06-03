@@ -352,17 +352,16 @@ lemma indicator_row_bound (hj : j < 2 ^ n) (hf : BoundedCompactSupport f)
   sorry
 
 open Classical in
-lemma row_correlation_aux (t : Forest X n) (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
-    (nf : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
     (∑ u with u ∈ t.rowDecomp j, ∑ u' with u' ∈ t.rowDecomp j',
     eLpNorm ((𝓘 u ∩ 𝓘 u' : Set X).indicator
-      (adjointBoundaryOperator t u f) ·) 2 volume ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤
+      (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f)) ·) 2 volume ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤
     C7_4_3 a * eLpNorm f 2 volume := by
   set U : Finset (𝔓 X) := {u | u ∈ t.rowDecomp j}
   set U' : Finset (𝔓 X) := {u' | u' ∈ t.rowDecomp j'}
   calc
-    _ = (∑ u ∈ U, ∑ u' ∈ U', ∫⁻ x in 𝓘 u',
-        (𝓘 u : Set X).indicator (adjointBoundaryOperator t u f · ^ 2) x) ^ (2 : ℝ)⁻¹ := by
+    _ = (∑ u ∈ U, ∑ u' ∈ U', ∫⁻ x in 𝓘 u', (𝓘 u : Set X).indicator
+        (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) · ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       congr! with u mu u' mu'
       rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
         ← ENNReal.rpow_mul, div_mul_cancel₀ _ two_ne_zero, ENNReal.rpow_one,
@@ -370,16 +369,54 @@ lemma row_correlation_aux (t : Forest X n) (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (
       simp_rw [ENNReal.rpow_natCast, enorm_eq_self]
       rw [← lintegral_indicator coeGrid_measurable]; congr with x
       simp_rw [sq, ← inter_indicator_mul, inter_self, indicator_indicator, inter_comm]
-    _ = (∑ u ∈ U, ∫⁻ x in ⋃ u' ∈ U', 𝓘 u',
-        (𝓘 u : Set X).indicator (adjointBoundaryOperator t u f · ^ 2) x) ^ (2 : ℝ)⁻¹ := by
+    _ = (∑ u ∈ U, ∫⁻ x in ⋃ u' ∈ U', 𝓘 u', (𝓘 u : Set X).indicator
+        (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) · ^ 2) x) ^ (2 : ℝ)⁻¹ := by
       congr! with u mu; refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ coeGrid_measurable) _).symm
       convert rowDecomp_𝔘_pairwiseDisjoint t j'
       simp_rw [U', Finset.coe_filter, Finset.mem_univ, true_and]; rfl
-    _ ≤ (∑ u ∈ U, ∫⁻ x in 𝓘 u, adjointBoundaryOperator t u f x ^ 2) ^ (2 : ℝ)⁻¹ := by
+    _ ≤ (∑ u ∈ U, ∫⁻ x in 𝓘 u,
+        adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f) x ^ 2) ^ (2 : ℝ)⁻¹ := by
       simp_rw [← lintegral_indicator coeGrid_measurable]
       gcongr with u mu; exact setLIntegral_le_lintegral _ _
+    _ ≤ (∑ u ∈ U, eLpNorm (adjointBoundaryOperator t u
+        ((𝓘 u : Set X).indicator f)) 2 volume ^ 2) ^ (2 : ℝ)⁻¹ := by
+      gcongr with u mu
+      rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
+        ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num,
+        ENNReal.rpow_one]
+      simp_rw [enorm_eq_self, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast]
+      exact setLIntegral_le_lintegral _ _
+    _ ≤ (∑ u ∈ U, (C7_4_3 a * eLpNorm ((𝓘 u : Set X).indicator f) 2 volume) ^ 2) ^ (2 : ℝ)⁻¹ := by
+      gcongr with u mu
+      simp_rw [U, Finset.mem_filter, Finset.mem_univ, true_and] at mu
+      apply adjoint_tree_control (mem_forest_of_mem mu) (hf.indicator coeGrid_measurable)
+      intro x; by_cases mx : x ∈ 𝓘 u
+      · rw [indicator_of_mem mx]; exact nf x
+      · rw [indicator_of_notMem mx, norm_zero]; simp [le_indicator_apply]
+    _ = C7_4_3 a * (∑ u ∈ U, ∫⁻ x in 𝓘 u, ‖f x‖ₑ ^ 2) ^ (2 : ℝ)⁻¹ := by
+      simp_rw [mul_pow]
+      rw [← Finset.mul_sum, ENNReal.mul_rpow_of_nonneg _ _ (by positivity), ← ENNReal.rpow_natCast,
+        ← ENNReal.rpow_mul, show (2 : ℕ) * (2 : ℝ)⁻¹ = 1 by norm_num, ENNReal.rpow_one]
+      congr! with u mu
+      rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
+        ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num,
+        ENNReal.rpow_one]
+      conv_lhs =>
+        enter [2, x]
+        rw [enorm_indicator_eq_indicator_enorm, show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast,
+          sq, ← inter_indicator_mul, inter_self]
+        enter [2, y]; rw [← sq]
+      rw [lintegral_indicator coeGrid_measurable]
+    _ = C7_4_3 a * (∫⁻ x in ⋃ u ∈ U, 𝓘 u, ‖f x‖ₑ ^ 2) ^ (2 : ℝ)⁻¹ := by
+      congr; refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ coeGrid_measurable) _).symm
+      convert rowDecomp_𝔘_pairwiseDisjoint t j
+      simp_rw [U, Finset.coe_filter, Finset.mem_univ, true_and]; rfl
     _ ≤ _ := by
-      sorry
+      rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
+        one_div]
+      gcongr _ * ?_ ^ _
+      simp_rw [show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast]
+      exact setLIntegral_le_lintegral _ _
 
 /-- The constant used in `row_correlation`. -/
 irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := C7_4_3 a ^ 2 * C7_4_4 a n
@@ -392,17 +429,17 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
     C7_7_3 a n * eLpNorm f₁ 2 volume * eLpNorm f₂ 2 volume := by
   classical
   let W := ({u | u ∈ t.rowDecomp j} : Finset _) ×ˢ ({u' | u' ∈ t.rowDecomp j'} : Finset _)
-  let N₁ (w : 𝔓 X × 𝔓 X) :=
-    eLpNorm ((𝓘 w.1 ∩ 𝓘 w.2 : Set X).indicator (adjointBoundaryOperator t w.1 f₁) ·) 2 volume
-  let N₂ (w : 𝔓 X × 𝔓 X) :=
-    eLpNorm ((𝓘 w.1 ∩ 𝓘 w.2 : Set X).indicator (adjointBoundaryOperator t w.2 f₂) ·) 2 volume
+  let N₁ (w : 𝔓 X × 𝔓 X) := eLpNorm ((𝓘 w.1 ∩ 𝓘 w.2 : Set X).indicator
+    (adjointBoundaryOperator t w.1 ((𝓘 w.1 : Set X).indicator f₁)) ·) 2 volume
+  let N₂ (w : 𝔓 X × 𝔓 X) := eLpNorm ((𝓘 w.1 ∩ 𝓘 w.2 : Set X).indicator
+    (adjointBoundaryOperator t w.2 ((𝓘 w.2 : Set X).indicator f₂)) ·) 2 volume
   have N₁_bound : (∑ w ∈ W, N₁ w ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤ C7_4_3 a * eLpNorm f₁ 2 volume := by
     unfold W N₁; rw [Finset.sum_product]
-    exact row_correlation_aux t lj lj' hn nf₁
+    exact row_correlation_aux hf₁ nf₁
   have N₂_bound : (∑ w ∈ W, N₂ w ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ ≤ C7_4_3 a * eLpNorm f₂ 2 volume := by
     unfold W N₂; rw [Finset.sum_product, Finset.sum_comm]; dsimp only
     conv_lhs => enter [1, 2, u', 2, u]; rw [inter_comm]
-    exact row_correlation_aux t lj' lj hn.symm nf₂
+    exact row_correlation_aux hf₂ nf₂
   calc
     _ = ‖∫ x, ∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j',
         adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
@@ -425,12 +462,22 @@ lemma row_correlation (lj : j < 2 ^ n) (lj' : j' < 2 ^ n) (hn : j ≠ j')
         ‖∫ x, adjointCarlesonSum (t u) f₁ x * conj (adjointCarlesonSum (t u') f₂ x)‖ₑ := by
       gcongr with u mu; exact enorm_sum_le _ _
     _ ≤ ∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j',
+        ‖∫ x, adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f₁) x *
+        conj (adjointCarlesonSum (t u') ((𝓘 u' : Set X).indicator f₂) x)‖ₑ := by
+      congr! 5 with u mu u' mu' x
+      simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu mu'
+      rw [adjoint_tile_support2_sum_partial (mem_forest_of_mem mu),
+        adjoint_tile_support2_sum_partial (mem_forest_of_mem mu')]
+    _ ≤ ∑ u with u ∈ rowDecomp t j, ∑ u' with u' ∈ rowDecomp t j',
         C7_4_4 a n *
-        eLpNorm ((𝓘 u ∩ 𝓘 u' : Set X).indicator (adjointBoundaryOperator t u f₁) ·) 2 volume *
-        eLpNorm ((𝓘 u ∩ 𝓘 u' : Set X).indicator (adjointBoundaryOperator t u' f₂) ·) 2 volume := by
+        eLpNorm ((𝓘 u ∩ 𝓘 u' : Set X).indicator
+          (adjointBoundaryOperator t u ((𝓘 u : Set X).indicator f₁)) ·) 2 volume *
+        eLpNorm ((𝓘 u ∩ 𝓘 u' : Set X).indicator
+          (adjointBoundaryOperator t u' ((𝓘 u' : Set X).indicator f₂)) ·) 2 volume := by
       gcongr with u mu u' mu'
       simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mu mu'
-      refine correlation_separated_trees (mem_forest_of_mem mu) (mem_forest_of_mem mu') ?_ hf₁ hf₂
+      refine correlation_separated_trees (mem_forest_of_mem mu) (mem_forest_of_mem mu') ?_
+        (hf₁.indicator coeGrid_measurable) (hf₂.indicator coeGrid_measurable)
       exact (pairwiseDisjoint_rowDecomp lj lj' hn).ne_of_mem mu mu'
     _ = C7_4_4 a n * ∑ w ∈ W, N₁ w * N₂ w := by
       rw [← Finset.sum_product', Finset.mul_sum]; congr! 1 with w mw; rw [mul_assoc]
