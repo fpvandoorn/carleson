@@ -173,8 +173,50 @@ def MemLorentz (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : Prop :=
 
 -- TODO: could maybe be strengthened to ↔
 lemma MemLorentz_nested {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
-  (h : r₁ ≤ r₂) (hf : MemLorentz f p r₁ μ) :
-    MemLorentz f p r₂ μ := sorry
+  (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) (hf : MemLorentz f p r₁ μ) :
+    MemLorentz f p r₂ μ := by
+  unfold MemLorentz at *
+  rcases hf with ⟨meas_f, norm_f⟩
+  use meas_f
+  unfold eLorentzNorm at *
+  split_ifs at * with h₀ h₁ h₂ h₃ h₄ h₅ h₆ h₇ h₈ h₉
+  --by_cases p_zero : p = 0
+  · exact ENNReal.zero_lt_top
+  · exact ENNReal.zero_lt_top
+  · exact ENNReal.zero_lt_top
+  · exact ENNReal.zero_lt_top
+  · exfalso
+    exact r₁_pos.ne h₆.symm
+  · exact norm_f
+  · rw [ENNReal.top_mul'] at norm_f
+    split_ifs at norm_f with h
+    · rwa [h]
+    · exfalso
+      exact (lt_self_iff_false ⊤).mp norm_f
+  · exfalso
+    exact r₁_pos.ne h₈.symm
+  · exfalso
+    rw [h₉, top_le_iff] at r₁_le_r₂
+    exact h₅ r₁_le_r₂
+  · exact norm_f
+  · --Now the only interesting case
+    unfold eLorentzNorm' at *
+    rw [ENNReal.mul_lt_top_iff] at *
+    rcases norm_f with ⟨_, hp⟩ | p_zero | norm_zero
+    · -- Main case
+      --apply ENNReal.mul_lt_top (ENNReal.rpow_lt_top_of_nonneg (by simp) h₁)
+      sorry
+    · exfalso
+      rw [ENNReal.rpow_eq_zero_iff] at p_zero
+      rcases p_zero with ⟨p_zero, _⟩ | ⟨p_top, _⟩
+      · exact h₀ p_zero
+      · exact h₁ p_top
+    · right; right
+      rw [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) r₁_pos.ne.symm] at norm_zero
+      rwa [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) (r₁_pos.trans_le r₁_le_r₂).ne.symm]
+
+
+
 
 
 variable {α' ε₁ ε₂ : Type*} {m : MeasurableSpace α'} [TopologicalSpace ε₁] [ContinuousENorm ε₁]
