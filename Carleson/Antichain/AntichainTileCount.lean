@@ -2,8 +2,6 @@ import Carleson.Antichain.Basic
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
-macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
-
 noncomputable section
 
 open scoped ENNReal NNReal ShortVariables

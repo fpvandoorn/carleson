@@ -236,7 +236,7 @@ private lemma sum_ψ₂ (hx : 0 < x)
       subst h; exact Int.Icc_eq_pair a
     exact Icc_of_eq_add_one (add_eq_of_eq_sub endpts)
   set s₀ := ⌈logb D (4 * x)⌉
-  rw [this, Finset.sum_insert ((Finset.not_mem_singleton).2 ne), Finset.sum_singleton]
+  rw [this, Finset.sum_insert ((Finset.notMem_singleton).2 ne), Finset.sum_singleton]
   -- Now calculate the sum
   have Ds₀x_lt := (mul_lt_mul_right hx).2 h
   rw [← div_div, div_mul_cancel₀ _ (ne_of_gt hx)] at Ds₀x_lt
@@ -317,6 +317,9 @@ end D
 open Complex
 
 open scoped ShortVariables
+
+section PseudoMetricSpace
+
 variable (X : Type*) {a : ℕ} {K : X → X → ℂ} [PseudoMetricSpace X]
 variable {s : ℤ} {x y : X}
 
@@ -367,6 +370,37 @@ lemma dist_mem_Icc_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
   Ioo_subset_Icc_self (dist_mem_Ioo_of_Ks_ne_zero h)
 
+lemma dist_mem_Icc_of_mem_tsupport_Ks {s : ℤ} {x : X × X}
+    (h : x ∈ tsupport fun x ↦ (Ks s x.1 x.2)) :
+    dist x.1 x.2 ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+  set C := support fun (x : X × X) ↦ Ks s x.1 x.2
+  have hcont : Continuous (fun (x : X × X) ↦ dist x.1 x.2) := by continuity
+  have hC : (fun (x : X × X) ↦ dist x.1 x.2) '' C ⊆ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+    intro r hr
+    simp only [mem_image, mem_support, C] at hr
+    obtain ⟨x, hx, rfl⟩ := hr
+    exact dist_mem_Icc_of_Ks_ne_zero hx
+  have hC' : (fun (x : X × X) ↦ dist x.1 x.2) '' (tsupport fun x ↦ Ks s x.1 x.2) ⊆
+      Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
+    subset_trans (image_closure_subset_closure_image hcont)
+      ((isClosed_Icc.closure_subset_iff).mpr hC)
+  exact hC' (mem_image_of_mem (fun x ↦ dist x.1 x.2) h)
+
+lemma dist_mem_Icc_of_mem_tsupport_Ks' {s : ℤ} {x y : X} (h : y ∈ tsupport fun z ↦ (Ks s x z)) :
+    dist x y ∈ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+  set C := support fun (z : X) ↦ Ks s x z
+  have hcont : Continuous (fun (z : X) ↦ dist x z) := continuous_const.dist continuous_id'
+  have hC : (fun (z : X) ↦ dist x z) '' C ⊆ Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
+    intro r hr
+    simp only [mem_image, mem_support, C] at hr
+    obtain ⟨x, hx, rfl⟩ := hr
+    exact dist_mem_Icc_of_Ks_ne_zero hx
+  have hC' : (fun z : X ↦ dist x z) '' (tsupport fun z ↦ Ks s x z) ⊆
+      Icc ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) :=
+   subset_trans (image_closure_subset_closure_image hcont)
+      ((isClosed_Icc.closure_subset_iff).mpr hC)
+  exact hC' (mem_image_of_mem (fun y ↦ dist x y) h)
+
 /-- The constant appearing in part 2 of Lemma 2.1.3. -/
 def C2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
 /-- The constant appearing in part 3 of Lemma 2.1.3. -/
@@ -399,7 +433,7 @@ lemma kernel_bound {s : ℤ} {x y : X} : ‖Ks s x y‖ₑ ≤ C_K a / vol x y :
 variable (s)
 
 /-- Apply `volume_ball_two_le_same` `n` times. -/
-lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
+lemma DoublingMeasure.volume_real_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
     volume.real (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume.real (ball x r) := by
   induction' n with d ih; · simp
   rw [add_comm, pow_add, pow_one, mul_assoc]
@@ -408,9 +442,28 @@ lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ)
   rwa [A_cast, pow_add, mul_assoc, pow_one, mul_le_mul_left (by positivity)]
 
 -- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
-private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) :
+private lemma DoublingMeasure.volume_real_ball_two_le_same_repeat' (x : X) (n : ℕ) :
     volume.real (ball x (2 ^ n * D ^ s)) ≤
     (defaultA a) ^ (2 + n + 100 * a ^ 2) * volume.real (ball x (D ^ (s - 1) / 4)) := by
+  convert volume_real_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 100 * a ^ 2) using 3
+  rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
+  field_simp
+  ring
+
+/-- Apply `volume_ball_two_le_same` `n` times. -/
+lemma DoublingMeasure.volume_ball_two_le_same_repeat (x : X) (r : ℝ) (n : ℕ) :
+    volume (ball x (2 ^ n * r)) ≤ (defaultA a) ^ n * volume (ball x r) := by
+  induction' n with d ih; · simp
+  rw [add_comm, pow_add, pow_one, mul_assoc]
+  apply (measure_ball_two_le_same x _).trans
+  have A_cast: ((defaultA a : ℝ≥0) : ℝ≥0∞) = (defaultA a : ℝ≥0∞) := rfl
+  rw [A_cast, pow_add, mul_assoc, pow_one]
+  gcongr
+
+-- Special case of `DoublingMeasure.volume_ball_two_le_same_repeat` used to prove `div_vol_le`
+private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) :
+    volume (ball x (2 ^ n * D ^ s)) ≤
+    (defaultA a) ^ (2 + n + 100 * a ^ 2) * volume (ball x (D ^ (s - 1) / 4)) := by
   convert volume_ball_two_le_same_repeat x (D ^ (s - 1) / 4) (2 + n + 100 * a ^ 2) using 3
   rw [defaultD, zpow_sub₀ (by positivity), pow_add, pow_add]
   field_simp
@@ -418,7 +471,7 @@ private lemma DoublingMeasure.volume_ball_two_le_same_repeat' (x : X) (n : ℕ) 
 
 lemma Metric.measure_ball_pos_nnreal (x : X) (r : ℝ) (hr : r > 0) :
     (volume (ball x r)).toNNReal > 0 :=
-  ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) (measure_ball_ne_top x _)
+  ENNReal.toNNReal_pos (ne_of_gt (measure_ball_pos volume x hr)) measure_ball_ne_top
 
 lemma Metric.measure_ball_pos_real (x : X) (r : ℝ) (hr : r > 0) : volume.real (ball x r) > 0 :=
   measure_ball_pos_nnreal x r hr
@@ -452,11 +505,11 @@ private lemma div_vol_le {x y : X} {c : ℝ} (hc : c > 0) (hxy : dist x y ≥ D 
   have v0₃ := measure_ball_pos_real x _ (mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s))
   have ball_subset := ball_subset_ball (x := x) hxy
   apply le_trans <| (div_le_div_iff_of_pos_left hc v0₁ v0₂).2 <|
-    ENNReal.toNNReal_mono (measure_ball_ne_top x _) (OuterMeasureClass.measure_mono _ ball_subset)
+    ENNReal.toNNReal_mono measure_ball_ne_top (OuterMeasureClass.measure_mono _ ball_subset)
   dsimp only
   rw [div_le_div_iff₀ (by exact_mod_cast v0₂) v0₃]
   apply le_of_le_of_eq <| (mul_le_mul_left hc).2 <|
-    DoublingMeasure.volume_ball_two_le_same_repeat' s x n
+    DoublingMeasure.volume_real_ball_two_le_same_repeat' s x n
   simp_rw [defaultA, ← mul_assoc, mul_comm c]
   rw_mod_cast [← pow_mul]
   congr
@@ -482,12 +535,11 @@ lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 
 lemma enorm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
     ‖K x y‖ₑ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume (ball x (2 ^ n * D ^ s)) := by
   rw [← ENNReal.ofReal_ofNat 2, ENNReal.ofReal_rpow_of_pos two_pos,
-    ← ENNReal.ofReal_toReal (measure_ball_ne_top _ _),
+    ← ENNReal.ofReal_toReal measure_ball_ne_top,
     ← ENNReal.ofReal_div_of_pos, ← Measure.real, ← ofReal_norm]; swap
-  · apply ENNReal.toReal_pos
+  · apply ENNReal.toReal_pos ?_ measure_ball_ne_top
     · refine (measure_ball_pos volume x ?_).ne.symm
       exact mul_pos (pow_pos two_pos n) (defaultD_pow_pos a s)
-    · exact measure_ball_ne_top x (2 ^ n * D ^ s)
   rw [ENNReal.ofReal_le_ofReal_iff (by positivity)]
   exact norm_K_le n hxy
 
@@ -552,7 +604,7 @@ lemma norm_Ks_le_of_dist_le {x y x₀ : X} {r₀ : ℝ} (hr₀ : 0 < r₀) (hx :
   calc
     _ ≤ C⁻¹ * volume.real (ball x (2*r₀)) := by
       gcongr
-      · exact measure_ball_ne_top x (2 * r₀)
+      · exact measure_ball_ne_top
       · exact ball_subset_ball_of_le (by linarith)
     _ ≤ C⁻¹ * (C * volume.real (ball x (D^s))) := by gcongr
     _ = _ := by field_simp
@@ -567,7 +619,6 @@ lemma _root_.Bornology.IsBounded.exists_bound_of_norm_Ks
   · intro x y hx
     convert norm_Ks_le_of_dist_le hr₀ (h hx) s
   · positivity
-
 
 -- Needed to prove `ψ_ineq`
 private lemma norm_ψ_sub_ψ_le_two {r s : ℝ} : ‖ψ r - ψ s‖ ≤ 2 :=
@@ -827,6 +878,7 @@ lemma stronglyMeasurable_Ks {s : ℤ} : StronglyMeasurable (fun x : X × X ↦ K
   apply Continuous.stronglyMeasurable
   fun_prop
 
+@[fun_prop]
 lemma measurable_Ks {s : ℤ} : Measurable (fun x : X × X ↦ Ks s x.1 x.2) := by
   unfold Ks _root_.ψ
   exact measurable_K.mul (by fun_prop)
@@ -869,5 +921,51 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       rw [Real.vol]
       gcongr
       · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
-      · exact measure_ball_ne_top x (dist x y)
+      · exact measure_ball_ne_top
       · exact le_of_not_le hy
+
+end PseudoMetricSpace
+
+section MetricSpace
+
+variable (X : Type*) {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+variable {s : ℤ} {x y : X}
+
+-- TODO: move to Psi.lean
+lemma Ks_eq_zero_of_dist_le {s : ℤ} {x y : X} (hxy : x ≠ y)
+    (h : dist x y ≤ defaultD a ^ (s - 1) / 4) :
+    Ks s x y = 0 := by
+  rw [Ks_def]
+  simp only [mul_eq_zero, ofReal_eq_zero]
+  right
+  rw [psi_eq_zero_iff (one_lt_D (X := X)) (dist_pos.mpr hxy),
+    mem_nonzeroS_iff (one_lt_D (X := X)) (dist_pos.mpr hxy)]
+  simp only [mem_Ioo, not_and_or, not_lt]
+  left
+  rw [mul_comm]
+  apply mul_le_of_le_mul_inv₀ (by positivity) (by positivity)
+  simp only [Nat.cast_pow, Nat.cast_ofNat, mul_inv_rev, zpow_neg, inv_inv]
+  have heq : (D : ℝ)⁻¹ * 4⁻¹ * ↑D ^ s = defaultD a ^ (s - 1) / 4 := by
+    ring_nf
+    rw [← zpow_neg_one, zpow_add₀ (by simp)]
+  exact heq ▸ h
+
+lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : (D : ℝ)^(s)/2 ≤ dist x y) :
+    Ks s x y = 0 := by
+  have hxy : x ≠ y := by
+    rw [← dist_pos]
+    apply lt_of_lt_of_le _ h
+    simp only [Nat.cast_pow, Nat.ofNat_pos, div_pos_iff_of_pos_right]
+    exact defaultD_pow_pos a s
+  rw [Ks_def]
+  simp only [mul_eq_zero, ofReal_eq_zero]
+  right
+  rw [psi_eq_zero_iff (one_lt_D (X := X)) (dist_pos.mpr hxy),
+    mem_nonzeroS_iff (one_lt_D (X := X)) (dist_pos.mpr hxy)]
+  simp only [mem_Ioo, not_and_or, not_lt]
+  right
+  rw [zpow_neg, le_inv_mul_iff₀ (defaultD_pow_pos a s)]
+  exact h
+
+end MetricSpace

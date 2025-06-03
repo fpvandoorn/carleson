@@ -7,12 +7,18 @@ noncomputable section
 
 open ENNReal NNReal Function Set
 
-variable {α α' E E₁ E₂ F : Type*} [ENorm F]
+variable {α α' E E₁ E₂ : Type*}
 
 @[simp] lemma enorm_toReal_le {x : ℝ≥0∞} : ‖x.toReal‖ₑ ≤ x := by simp [← ofReal_norm, ofReal_toReal_le]
 
 @[simp] lemma enorm_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) : ‖x.toReal‖ₑ = x := by
   simp [hx, ← ofReal_norm_eq_enorm]
+
+@[simp] lemma enorm_NNReal {x : ℝ≥0} : ‖x‖ₑ = x := by rfl
+
+-- TODO appropriate generality (ENormedDivisionSemiring?), for ℝ≥0 it is already there
+-- @[simp] lemma enorm_inv'' {a : ℝ≥0} (ha : a ≠ 0): ‖a⁻¹‖ₑ = ‖a‖ₑ⁻¹ := by
+--   simp_rw [enorm_NNReal, coe_inv ha]
 
 /-- An enormed monoid is an additive monoid endowed with a continuous enorm.
 Note: not sure if this is the "right" class to add to Mathlib. -/
@@ -91,13 +97,20 @@ instance : ContinuousConstSMul ℝ≥0 ℝ≥0∞ where
 
 open MeasureTheory
 
-variable {ε' : Type*} [TopologicalSpace ε'] [ENormedSpace ε']
-
 -- TODO: put next to MeasureTheory.eLpNorm_const_smul_le (which perhaps can stay)
 theorem eLpNorm_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
   {μ : Measure α} {c : ℝ≥0} {f : α → ε}: eLpNorm (c • f) p μ ≤ ‖c‖ₑ * eLpNorm f p μ := by
   apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul' (p := p) ?_
   filter_upwards with x using by simp [ENNReal.smul_def]
+
+-- TODO: put next to eLpNorm_const_smul
+theorem eLpNorm_const_smul' {α : Type*} {m0 : MeasurableSpace α} {p : ℝ≥0∞}
+  {μ : Measure α} {c : ℝ≥0} {f : α → ε}:
+    eLpNorm (c • f) p μ = ‖c‖ₑ * eLpNorm f p μ := by
+  obtain rfl | hc := eq_or_ne c 0
+  · simp
+  refine le_antisymm eLpNorm_const_smul_le' <| ENNReal.mul_le_of_le_div' ?_
+  simpa [ENNReal.div_eq_inv_mul, hc] using eLpNorm_const_smul_le' (c := c⁻¹) (f := c • f)
 
 -- TODO: put next to the unprimed version; perhaps both should stay
 lemma eLpNormEssSup_const_smul_le' {α : Type*} {m0 : MeasurableSpace α} {μ : Measure α}

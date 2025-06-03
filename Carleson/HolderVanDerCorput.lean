@@ -106,10 +106,8 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
       rfl
     _ ≤ ∫ y in (ball x (2⁻¹ * t * R)), cutoff R t x y := by
       apply setIntegral_mono_on
-      · apply integrableOn_const.2
-        right
-        exact measure_ball_lt_top
-      · apply (integrable_cutoff hR ht).integrableOn
+      · exact integrableOn_const (by finiteness)
+      · exact (integrable_cutoff hR ht).integrableOn
       · exact measurableSet_ball
       · intro y' hy'
         exact aux_8_0_5 hy' (hR := hR) (ht := ht)
@@ -120,8 +118,7 @@ lemma aux_8_0_6 (hR : 0 < R) (ht : 0 < t) :
 lemma integral_cutoff_pos {R t : ℝ} (hR : 0 < R) (ht : 0 < t) : 0 < ∫ y, cutoff R t x y := by
   apply lt_of_lt_of_le _ (aux_8_0_6 hR ht)
   apply mul_pos (by positivity)
-  apply measure_real_ball_pos
-  positivity
+  exact measure_real_ball_pos _ (by positivity)
 
 /-- The constant occurring in Lemma 8.0.1. -/
 def C8_0_1 (a : ℝ) (t : ℝ≥0) : ℝ≥0 := ⟨2 ^ (4 * a) * t ^ (- (a + 1)), by positivity⟩
@@ -167,7 +164,7 @@ lemma support_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
   convert support_holderApprox_subset_aux hR hϕ ht using 2
   ring
 
-/-- Part of Lemma 8.0.1. -/
+/- unused
 lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     {ϕ : X → ℂ} (hϕ : tsupport ϕ ⊆ ball z R) (ht : t ∈ Ioc (0 : ℝ) 1) :
     tsupport (holderApprox R t ϕ) ⊆ ball z (2 * R) := by
@@ -178,6 +175,7 @@ lemma tsupport_holderApprox_subset {z : X} {R t : ℝ} (hR : 0 < R)
     (closure_mono A).trans closure_ball_subset_closedBall
   apply this.trans (closedBall_subset_ball ?_)
   linarith [R'_pos.2]
+-/
 
 open Filter
 
@@ -222,14 +220,14 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
         have : dist x z ≤ dist x y + dist y z := dist_triangle _ _ _
         have xm : x ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
         have ym : y ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
-        simp only [nmem_support.mp xm, nmem_support.mp ym, sub_self, norm_zero, ge_iff_le]
+        simp only [notMem_support.mp xm, notMem_support.mp ym, sub_self, norm_zero, ge_iff_le]
         positivity
       rcases le_or_lt (2 * R) (dist y z) with hy | hy
       · have : dist x y ≤ R := by nlinarith
         have : dist y z ≤ dist x y + dist x z := dist_triangle_left y z x
         have xm : x ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
         have ym : y ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
-        simp only [nmem_support.mp xm, nmem_support.mp ym, sub_self, norm_zero, ge_iff_le]
+        simp only [notMem_support.mp xm, notMem_support.mp ym, sub_self, norm_zero, ge_iff_le]
         positivity
       rw [← dist_eq_norm]
       apply h2ϕ.dist_le_of_le hx hy hxy
@@ -346,7 +344,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
       simp [cutoff_eq_zero hR ht hy.1, cutoff_eq_zero hR ht hy.2]
     _ ≤ ∫ y in ball x (t * R) ∪ ball x' (t * R), dist x x' / (t * R) := by
       apply integral_mono_of_nonneg (Eventually.of_forall (fun y ↦ by positivity))
-      · apply integrableOn_const.2
+      · apply (integrableOn_const_iff).2
         simp [measure_union_lt_top_iff, measure_ball_lt_top]
       apply Eventually.of_forall (fun y ↦ ?_)
       simp only [cutoff_comm (y := y)]
@@ -518,17 +516,18 @@ theorem HasCompactMulSupport.div (hf : HasCompactMulSupport f) (hf' : HasCompact
 
 end DivisionMonoid
 
+--NOTE (MI) : there was a missing minus sign in the exponent.
 /-- Proposition 2.0.5. -/
 theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
-    (ϕ_tsupp : tsupport ϕ ⊆ ball z R) {f g : Θ X} :
+    (ϕ_supp : support ϕ ⊆ ball z R) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
     (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-      (1 + nndist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
+      (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
   have : 4 ≤ a := four_le_a X
   have : (4 : ℝ) ≤ a := mod_cast four_le_a X
   rcases le_or_lt R 0 with hR | hR
-  · simp [ball_eq_empty.2 hR, subset_empty_iff, tsupport_eq_empty_iff] at ϕ_tsupp
-    simp [ϕ_tsupp]
+  · simp [ball_eq_empty.2 hR, subset_empty_iff, support_eq_empty_iff] at ϕ_supp
+    simp [ϕ_supp]
   rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h2ϕ | h2ϕ
   · apply le_top.trans_eq
     symm
@@ -542,18 +541,12 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     · simp only [le_add_iff_nonneg_right,  NNReal.zero_le_coe]
     · simp only [defaultτ, Left.neg_nonpos_iff]
       positivity
-  have ϕ_supp : support ϕ ⊆ ball z R := (subset_tsupport _).trans ϕ_tsupp
-  have ϕ_cont : Continuous ϕ := by
-    apply ContinuousOn.continuous_of_tsupport_subset
-      ((HolderOnWith.of_iHolENorm_ne_top h2ϕ).continuousOn (nnτ_pos X)) isOpen_ball
-    apply ϕ_tsupp.trans (ball_subset_ball (by linarith))
+  have ϕ_cont : Continuous ϕ := continuous_of_iHolENorm_ne_top' ϕ_supp h2ϕ
   have ϕ_comp : HasCompactSupport ϕ := by
     apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall z R)
     exact ϕ_supp.trans ball_subset_closedBall
   let ϕ' := holderApprox R t ϕ
   have ϕ'_supp : support ϕ' ⊆ ball z (2 * R) := support_holderApprox_subset hR ϕ_supp ⟨t_pos, t_one⟩
-  have ϕ'_tsupp : tsupport ϕ' ⊆ ball z (2 * R) :=
-    tsupport_holderApprox_subset hR ϕ_tsupp ⟨t_pos, t_one⟩
   have ϕ'_cont : Continuous ϕ' := by
     apply LipschitzWith.continuous
     apply lipschitzWith_holderApprox hR t_pos t_one ϕ_cont ϕ_supp
@@ -566,9 +559,9 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     simp [defaultA]
   /- First step: control `‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ`, using that this function is
   Lipschitz and the cancellativity assumption for the integral against Lipschitz functions. -/
-  have : (ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + nndist_{z, R} f g) ^ (- τ) ≤
-      (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
-    simp only [defaultA, coe_nndist, defaultτ, coe_nnreal_ennreal_nndist, t]
+  have : (ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + edist_{z, R} f g) ^ (- τ) ≤
+      (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+    simp only [defaultA, coe_nndist, defaultτ, t]
     rw [← ENNReal.ofReal_rpow_of_pos (by positivity),
       ENNReal.ofReal_add zero_le_one (by positivity), ← edist_dist, ENNReal.ofReal_one]
     rw [← ENNReal.rpow_mul, ← ENNReal.rpow_add]; rotate_left
@@ -581,33 +574,33 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       rw [div_le_div_iff₀ (by positivity) (by positivity)]
       nlinarith
   have : ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ ≤ 2 ^ (6 * a) * volume (ball z R)
-        * iHolENorm ϕ z (2 * R) * (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
+        * iHolENorm ϕ z (2 * R) * (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
       ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ
     _ ≤ 2 ^ a * volume (ball z (2 * R))
-      * iLipENorm ϕ' z (2 * R) * (1 + nndist_{z, 2 * R} f g) ^ (- τ) := by
-      simpa only [defaultA, Nat.cast_pow, Nat.cast_ofNat] using enorm_integral_exp_le
-        (x := z) (r := 2 * R) (ϕ := ϕ') ϕ'_tsupp (f := f) (g := g)
+      * iLipENorm ϕ' z (2 * R) * (1 + edist_{z, 2 * R} f g) ^ (- τ) := by
+      simpa only [defaultA, Nat.cast_pow, Nat.cast_ofNat, t] using
+        enorm_integral_exp_le (x := z) (r := 2 * R) (ϕ := ϕ') ϕ'_supp (f := f) (g := g)
     _ ≤ 2 ^ a * (2 ^ a * volume (ball z R))
         * (2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R))
-        * (1 + nndist_{z, R} f g) ^ (- τ) := by
+        * (1 + edist_{z, R} f g) ^ (- τ) := by
       gcongr 2 ^ a * ?_ * ?_ * ?_
       · exact iLipENorm_holderApprox_le t_pos t_one ϕ_supp
       · apply ENNReal.rpow_le_rpow_of_nonpos
         · simp [τ_pos X]
         apply add_le_add_left
-        simp only [coe_nnreal_ennreal_nndist, edist_dist]
+        simp only [edist_dist]
         apply ENNReal.ofReal_le_ofReal
         apply CompatibleFunctions.cdist_mono
         apply ball_subset_ball (by linarith)
     _ = 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        ((ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + nndist_{z, R} f g) ^ (- τ)) := by
+        ((ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + edist_{z, R} f g) ^ (- τ)) := by
       rw [show 6 * a = 4 * a + a + a by ring, pow_add, pow_add]
       ring
     _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr;
   /- Second step: control `‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ` using that `‖ϕ x - ϕ' x‖`
   is controlled pointwise, and vanishes outside of `B (z, 2R)`. -/
-  have : ENNReal.ofReal (t/2) ^ τ ≤ (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+  have : ENNReal.ofReal (t/2) ^ τ ≤ (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
     have : 0 < τ := τ_pos X
     have : ENNReal.ofReal (t/2) ^ τ ≤ ENNReal.ofReal t ^ τ := by gcongr; linarith
     apply this.trans_eq
@@ -620,17 +613,17 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     ring
   have : ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ
     ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
       ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ
     _ = ‖∫ x in ball z (2 * R), exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ := by
       rw [setIntegral_eq_integral_of_forall_compl_eq_zero]
       intro x hx
       have A : ϕ x = 0 := by
-        apply nmem_support.1
+        apply notMem_support.1
         contrapose! hx
         apply (ϕ_supp.trans (ball_subset_ball (by linarith))) hx
       have A' : ϕ' x = 0 := by
-        apply nmem_support.1
+        apply notMem_support.1
         contrapose! hx
         apply ϕ'_supp hx
       simp [A, A']
@@ -646,7 +639,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       gcongr
     _ = 2 ^ a * volume (ball z R) * iHolENorm ϕ z (2 * R) * ENNReal.ofReal (t/2) ^ τ := by ring
     _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
       gcongr
       · exact one_le_two
       · linarith
@@ -666,18 +659,18 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
   _ ≤ ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ + ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ :=
     enorm_add_le _ _
   _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) +
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) +
       2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr;
   _ = 2 ^ (1 + 6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by rw [pow_add, pow_one]; ring
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by rw [pow_add, pow_one]; ring
   _ ≤ 2 ^ (7 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
     gcongr
     · exact one_le_two
     · linarith
   _ = (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-      (1 + nndist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
+      (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
     congr
     · simp only [C2_0_5]
       rw [ENNReal.coe_rpow_of_nonneg]

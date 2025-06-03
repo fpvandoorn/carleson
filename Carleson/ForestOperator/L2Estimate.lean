@@ -66,7 +66,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
   contrapose! hy
   refine Finset.sum_eq_zero (fun s hs ↦ ?_)
   rw [toFinset_Icc] at hs
-  suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, nmem_support.mp this, -defaultD]
+  suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, notMem_support.mp this, -defaultD]
   rw [support_ψ (one_lt_D (X := X)), mem_Ioo, not_and_or]
   by_cases h : (D : ℝ) ^ (b - 1) / 4 < dist x y
   · exact Or.inr <| not_lt_of_ge <| calc
@@ -131,15 +131,6 @@ private lemma annulus_integral_bound (x : X) (g : X → ℂ) {r₁ r₂ r₃ r�
           · exact Or.inr ⟨le_of_not_gt (hr₂₃ hr₂), hr₄⟩
           · exact Or.inl ⟨hr₁, le_of_not_gt hr₂⟩
         _ ≤ _ := lintegral_union_le _ _ _
-
-lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
-  suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
-      ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
-    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
-  rw [← NNReal.rpow_mul, show (3 / 2 : ℝ) = 1 + (1 / 2 : ℝ) by norm_num]
-  repeat rw [NNReal.rpow_add two_ne_zero]
-  norm_num
-  ring
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -246,8 +237,8 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       ext y
       by_cases hy : y ∈ Annulus.cc x' (D ^ (s I - 1) / 4) (D ^ s₂ / 2)
       · simp only [K', hy, indicator_of_mem]
-      · have K'_eq_zero := nmem_support.mp <| not_mem_subset (K'.support_subset (s I) s₂ x') hy
-        rw [← K', K'_eq_zero, zero_mul, indicator_of_not_mem hy]
+      · have K'_eq_zero := notMem_support.mp <| notMem_subset (K'.support_subset (s I) s₂ x') hy
+        rw [← K', K'_eq_zero, zero_mul, indicator_of_notMem hy]
     _ ≤ ‖∫ y in Annulus.oo x' (8 * D ^ s I) (D ^ (s₂ - 1) / 4), K' (s I) s₂ x' y * f y‖ₑ +
           ((∫⁻ y in Annulus.cc x' (D ^ (s I - 1) / 4) (8 * D ^ s I), ‖K' (s I) s₂ x' y * f y‖ₑ) +
           ∫⁻ y in Annulus.cc x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K' (s I) s₂ x' y * f y‖ₑ) := by
@@ -426,7 +417,7 @@ lemma boundary_overlap (I : Grid X) : (kissing I).card ≤ 2 ^ (9 * a) := by
       _ ≤ _ := by gcongr; exact iUnion₂_subset fun _ ↦ subset_of_kissing
   have vn0 : volume (ball (c I) (33 * D ^ s I)) ≠ 0 := by
     refine (measure_ball_pos volume _ ?_).ne'; simp only [defaultD]; positivity
-  rw [ENNReal.mul_le_mul_right vn0 (measure_ball_ne_top _ _)] at key; norm_cast at key
+  rw [ENNReal.mul_le_mul_right vn0 measure_ball_ne_top] at key; norm_cast at key
 
 lemma e728_push_toReal (hf : BoundedCompactSupport f) :
     (t.boundaryOperator u f x).toReal = ∑ I : Grid X,
@@ -582,7 +573,7 @@ lemma boundary_geometric_series :
           simp [this]
         · have : (Finset.Icc (s J) S).filter (· = s I) = ∅ := by
             ext k
-            simp_rw [Finset.mem_filter, Finset.mem_Icc, Finset.not_mem_empty, iff_false, not_and]
+            simp_rw [Finset.mem_filter, Finset.mem_Icc, Finset.notMem_empty, iff_false, not_and]
             intro; omega
           simp [this]
       · simp_rw [h, false_and, ite_false, Finset.sum_const_zero]
@@ -852,7 +843,7 @@ lemma tree_projection_estimate
       refine lintegral_congr (fun x ↦ ?_)
       by_cases hx : x ∈ ⋃ p ∈ t u, 𝓘 p
       · rw [indicator_of_mem hx]
-      · simp [indicator_of_not_mem hx, nmem_support.mp (hx <| support_carlesonSum_subset ·)]
+      · simp [indicator_of_notMem hx, notMem_support.mp (hx <| support_carlesonSum_subset ·)]
     _ ≤ ∫⁻ x in (⋃ L ∈ 𝓛 (t u), (L : Set X)), ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       rw [biUnion_𝓛]
       refine lintegral_mono_set (fun x hx ↦ ?_)

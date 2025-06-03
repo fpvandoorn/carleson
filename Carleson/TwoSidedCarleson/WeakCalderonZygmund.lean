@@ -171,7 +171,7 @@ lemma czApproximation_def_of_mem (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {h
   have : ∃ i, x ∈ czPartition ha hf hX i := ⟨i, hx⟩
   simp [czApproximation, hX, this, czPartition_pairwiseDisjoint' ha this.choose_spec hx]
 
-lemma czApproximation_def_of_nmem (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {x : X} (hX : GeneralCase f α)
+lemma czApproximation_def_of_notMem (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {x : X} (hX : GeneralCase f α)
     (hx : x ∉ globalMaximalFunction volume 1 f ⁻¹' Ioi α) :
     czApproximation ha hf α x = f x := by
   rw [← iUnion_czPartition ha (hf := hf) (hX := hX), mem_iUnion, not_exists] at hx

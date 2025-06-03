@@ -171,16 +171,16 @@ class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
   /- We register a definition with strong assumptions, which makes them easier to prove.
   However, `enorm_integral_exp_le` removes them for easier application. -/
   enorm_integral_exp_le' {x : X} {r : ℝ} {ϕ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm ϕ x r ≠ ∞)
-    (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
+    (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ)
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ)
 
 lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
-    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
+    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ) := by
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
   rcases le_or_lt r 0 with hr | hr
-  · simp only [ball_eq_empty.2 hr, subset_empty_iff, tsupport_eq_empty_iff] at h2
+  · simp only [ball_eq_empty.2 hr, subset_empty_iff, support_eq_empty_iff] at h2
     simp [h2]
   rcases eq_or_ne A 0 with rfl | hA
   · have : (volume : Measure X) = 0 := by
@@ -197,7 +197,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
 lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ X A]
     (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
-    (_h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X},
+    (_h2 : support ϕ ⊆ ball x r) {f g : Θ X},
       ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
       A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)) :
     IsCancellative X τ := by
@@ -208,15 +208,15 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     congr 1
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
     have : ϕ y = 0 := by
-      apply nmem_support.1
+      apply notMem_support.1
       contrapose! hy
-      exact (subset_tsupport _).trans h2 hy
+      exact h2 hy
     simp [this]
   · rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_mul (by positivity),
       ENNReal.ofReal_mul (by positivity)]
     congr
     · simp
-    · simp only [Measure.real, ofReal_toReal (measure_ball_ne_top _ _)]
+    · simp only [Measure.real, ofReal_toReal measure_ball_ne_top]
     · simp [iLipNNNorm, coe_toNNReal h1]
     · rw [← ENNReal.ofReal_rpow_of_pos (by positivity)]
       congr
@@ -319,6 +319,10 @@ lemma defaultD_pow_pos (a : ℕ) (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
 
 lemma mul_defaultD_pow_pos (a : ℕ) {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * (defaultD a : ℝ) ^ z :=
   mul_pos hr (defaultD_pow_pos a z)
+
+lemma one_le_defaultD (a : ℕ) : 1 ≤ (defaultD a : ℝ) := by
+  rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
+  exact pow_le_pow_right₀ (one_le_two) (by omega)
 
 section Kernel
 
@@ -906,7 +910,7 @@ lemma norm_le_iLipNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLi
   by_cases hx : x ∈ ball z R
   · apply norm_le_iLipNNNorm_of_mem hϕ hx
   · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [nmem_support.mp this]
+    simp [notMem_support.mp this]
 
 lemma LipschitzOnWith.of_iLipENorm_ne_top
     {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤) :
@@ -958,7 +962,7 @@ lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHo
   by_cases hx : x ∈ ball z R
   · apply norm_le_iHolNNNorm_of_mem hϕ hx
   · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [nmem_support.mp this]
+    simp [notMem_support.mp this]
 
 lemma HolderOnWith.of_iHolENorm_ne_top
     {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤) :

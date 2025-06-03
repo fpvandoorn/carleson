@@ -83,7 +83,7 @@ lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarleson (hf : StronglyMeas
     · exact Measurable.stronglyMeasurable (by fun_prop)
     · refine continuous_ofReal.comp_stronglyMeasurable ?_
       exact stronglyMeasurable_Q₂ (X := X) |>.prod_swap
-  · exact hf.snd
+  · exact hf.comp_snd
 
 lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
     AEStronglyMeasurable (adjointCarleson p f) := by
@@ -96,7 +96,7 @@ lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStrongly
     · exact Measurable.aestronglyMeasurable (by fun_prop)
     · refine continuous_ofReal.comp_aestronglyMeasurable ?_
       exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
-  · exact hf.snd
+  · exact hf.comp_snd
 
 lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)}
     (hf : StronglyMeasurable f) :
@@ -196,7 +196,7 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarleson
         _ ≤ _ := by convert this
     by_cases hy : y ∈ tsupport f
     · specialize hCKf y x hy; gcongr
-    · simp only [image_eq_zero_of_nmem_tsupport hy,
+    · simp only [image_eq_zero_of_notMem_tsupport hy,
         norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
 
 theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
@@ -287,17 +287,17 @@ lemma adjointCarleson_adjoint
           _ ≤ M₀ *  (‖g x‖ * ‖f y‖) := by gcongr; exact norm_MKD_le_norm_Ks.trans hM₀
           _ = M₀ *  ‖g x‖ * ‖f y‖ := by rw [mul_assoc]
       · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
-        unfold H; simp [image_eq_zero_of_nmem_tsupport h]
+        unfold H; simp [image_eq_zero_of_notMem_tsupport h]
     have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
       (hg.norm.const_mul _).integrable.mul_prod hf.norm.integrable
     refine this.mono ?_ ?_
-    · refine .mul ?_ <| .snd hf.aestronglyMeasurable
+    · refine .mul ?_ <| .comp_snd hf.aestronglyMeasurable
       refine .mul ?_ ?_
       · refine .mul ?_ ?_
-        · exact RCLike.continuous_conj.comp_aestronglyMeasurable hg.aestronglyMeasurable.fst
+        · exact RCLike.continuous_conj.comp_aestronglyMeasurable hg.aestronglyMeasurable.comp_fst
         · have : AEStronglyMeasurable (fun x:X ↦ (E p).indicator (1:X→ℂ) x) :=
             .indicator aestronglyMeasurable_const measurableSet_E
-          exact this.fst
+          exact this.comp_fst
       · unfold MKD
         simp_rw [mul_assoc, ← Ks_def]
         refine .mul ?_ aestronglyMeasurable_Ks
@@ -309,7 +309,7 @@ lemma adjointCarleson_adjoint
         · exact measurable_Q₂.comp this
     · apply ae_of_all
       intro z
-      refine trans (hHleH₀ z.1 z.2) ?_
+      refine _root_.trans (hHleH₀ z.1 z.2) ?_
       exact Real.le_norm_self _
   calc
     _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
@@ -405,50 +405,29 @@ irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
   C7_4_2 a + CMB (defaultA a) 2 + 1
 
 /-- Lemma 7.4.3. -/
-lemma adjoint_tree_control (hu : u ∈ t) (hf : BoundedCompactSupport f)
-    (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
-    eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤
-    C7_4_3 a * eLpNorm f 2 volume := by
-  rw [← eLpNorm_toReal_eq sorry] -- todo: fix this proof (task 117)
-  calc _ ≤ eLpNorm (adjointBoundaryOperator t u f · |>.toReal) 2 volume := by rfl
-  _ ≤ eLpNorm
-    ((‖adjointCarlesonSum (t u) f ·‖) + (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) + (‖f ·‖))
-    2 volume := by
-      refine MeasureTheory.eLpNorm_mono_real fun x ↦ ?_
-      simp_rw [Real.norm_eq_abs, ENNReal.abs_toReal, Pi.add_apply]
-      refine ENNReal.toReal_add_le.trans ?_
-      gcongr
-      · exact ENNReal.toReal_add_le
-      · rfl
-  _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖) 2 volume +
-    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) 2 volume +
-    eLpNorm (‖f ·‖) 2 volume := by
-      refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
-      · exact hf.aestronglyMeasurable.adjointCarlesonSum.norm.add
-          <| .maximalFunction_toReal 𝓑_finite.countable
-      · exact hf.aestronglyMeasurable.norm
-      gcongr
-      refine eLpNorm_add_le ?_ ?_ one_le_two |>.trans ?_
-      · exact hf.aestronglyMeasurable.adjointCarlesonSum.norm
-      · exact .maximalFunction_toReal 𝓑_finite.countable
-      rfl
-  _ ≤ eLpNorm (adjointCarlesonSum (t u) f) 2 volume +
-    eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f · |>.toReal) 2 volume +
-    eLpNorm f 2 volume := by simp_rw [eLpNorm_norm]; rfl
-  _ ≤ C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
-    CMB (defaultA a) 2 * eLpNorm f 2 volume +
-    eLpNorm f 2 volume := by
+lemma adjoint_tree_control
+    (hu : u ∈ t) (hf : BoundedCompactSupport f) (h2f : ∀ x, ‖f x‖ ≤ G.indicator 1 x) :
+    eLpNorm (adjointBoundaryOperator t u f ·) 2 volume ≤ C7_4_3 a * eLpNorm f 2 volume := by
+  have m₁ : AEStronglyMeasurable (‖adjointCarlesonSum (t u) f ·‖ₑ) :=
+    hf.aestronglyMeasurable.adjointCarlesonSum.enorm.aestronglyMeasurable
+  have m₂ : AEStronglyMeasurable (MB volume 𝓑 c𝓑 r𝓑 f ·) := .maximalFunction 𝓑.to_countable
+  have m₃ : AEStronglyMeasurable (‖f ·‖ₑ) := hf.aestronglyMeasurable.enorm.aestronglyMeasurable
+  calc
+    _ ≤ eLpNorm (fun x ↦ ‖adjointCarlesonSum (t u) f x‖ₑ + MB volume 𝓑 c𝓑 r𝓑 f x) 2 volume +
+        eLpNorm (‖f ·‖ₑ) 2 volume := eLpNorm_add_le (m₁.add m₂) m₃ one_le_two
+    _ ≤ eLpNorm (‖adjointCarlesonSum (t u) f ·‖ₑ) 2 volume +
+        eLpNorm (MB volume 𝓑 c𝓑 r𝓑 f ·) 2 volume + eLpNorm (‖f ·‖ₑ) 2 volume := by
+      gcongr; apply eLpNorm_add_le m₁ m₂ one_le_two
+    _ ≤ C7_4_2 a * dens₁ (t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume +
+        CMB (defaultA a) 2 * eLpNorm f 2 volume + eLpNorm f 2 volume := by
       gcongr
       · exact adjoint_tree_estimate hu hf h2f
-      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two).toReal _ (hf.memLp _) |>.2
-  _ ≤ (C7_4_2 a * (1 : ℝ≥0∞) ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
-    simp_rw [add_mul]
-    gcongr
-    · exact dens₁_le_one
-    · simp only [ENNReal.coe_one, one_mul, le_refl]
-  _ ≤ C7_4_3 a * eLpNorm f 2 volume := by
-    simp_rw [C7_4_3, ENNReal.coe_add, ENNReal.one_rpow, mul_one, ENNReal.coe_one]
-    with_reducible rfl
+      · exact (hasStrongType_MB_finite 𝓑_finite one_lt_two) _ (hf.memLp _) |>.2
+      · rfl
+    _ ≤ (C7_4_2 a * 1 ^ (2 : ℝ)⁻¹ + CMB (defaultA a) 2 + 1) * eLpNorm f 2 volume := by
+      simp_rw [add_mul, one_mul]; gcongr; exact dens₁_le_one
+    _ ≤ _ := by
+      rw [C7_4_3, ENNReal.coe_add, ENNReal.coe_add, ENNReal.one_rpow, mul_one, ENNReal.coe_one]
 
 /-- Part 1 of Lemma 7.4.7. -/
 lemma overlap_implies_distance (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)

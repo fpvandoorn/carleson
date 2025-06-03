@@ -1,7 +1,4 @@
---import Carleson.Antichain.AntichainTileCount
 import Carleson.Antichain.Basic
---import Carleson.Antichain.TileCorrelation
-
 
 noncomputable section
 
