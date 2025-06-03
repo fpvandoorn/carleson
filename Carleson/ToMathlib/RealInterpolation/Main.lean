@@ -685,7 +685,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
           exact hp₀p₁.ne
         · exact p_pos
         · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
-      · apply weaktype_estimate_trunc_top (p₁ := p₁) (p := p) (d := spf.d) hC₁ <;> try assumption
+      · apply weaktype_estimate_trunc_top (p₁ := p₁) (p := p) (hd := spf.hd) hC₁ <;> try assumption
         · unfold tc
           rw [hspf]
           dsimp only [spf_to_tc, spf_ch]

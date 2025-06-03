@@ -784,15 +784,6 @@ lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
   _ ≤ distribution (T f) (eLpNormEssSup (T f) ν) ν := distribution_mono_right (le_trans wt_est ht)
   _ = _ := meas_essSup_lt
 
--- TODO: generalise this lemma in Mathlib/.../LpSeminorm/Basic.lean
-theorem eLpNorm_eq_zero_iff_enorm {p : ℝ≥0∞} {μ : Measure α} [ENormedAddMonoid ε] {f : α → ε}
-    (hf : AEStronglyMeasurable f μ) (h0 : p ≠ 0) :
-    eLpNorm f p μ = 0 ↔ f =ᵐ[μ] 0 := by
-  by_cases h_top : p = ∞
-  · rw [h_top, eLpNorm_exponent_top, eLpNormEssSup_eq_zero_iff]
-  rw [eLpNorm_eq_eLpNorm' h0 h_top]
-  exact eLpNorm'_eq_zero_iff (ENNReal.toReal_pos h0 h_top) hf
-
 variable [ENormedAddMonoid ε₁] [ENormedAddMonoid ε₂] in
 /-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
     vanishes, then the `q`-norm of `T f` vanishes. -/
@@ -800,14 +791,14 @@ lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)
     {p₀ q₀ p q : ℝ≥0∞} (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp : 0 < p) (hq : 0 < q)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (hf : AEStronglyMeasurable f μ) (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
-  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff_enorm hf hp.ne').mp hF
-  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff_enorm hf hp₀.ne').mpr f_ae_0
+  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff hf hp.ne').mp hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff hf hp₀.ne').mpr f_ae_0
   have hf₁ : MemLp f p₀ μ := ⟨hf, by rw [hf₂]; exact zero_lt_top⟩
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
   have : (T f) =ᵐ[ν] 0 := (wnorm_eq_zero_iff hq₀.ne').mp wnorm_0
-  exact (eLpNorm_eq_zero_iff_enorm (h₀T _ hf₁).1 hq.ne').mpr this
+  exact (eLpNorm_eq_zero_iff (h₀T _ hf₁).1 hq.ne').mpr this
 
 -- for the remaining lemmas we use too much measure theory that is just for normed spaces
 -- try to generalize to ENorm-classes after Mathlib refactor
@@ -856,8 +847,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
       distribution_mono_right ineq
   _ = 0 := distribution_snormEssSup
 
-variable [MeasurableSpace E₁] [BorelSpace E₁]
-
+variable [MeasurableSpace E₁] [BorelSpace E₁] in
 lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p₀ q₀ : ℝ≥0∞}
     (hp₀ : 0 < p₀) (hq₀ : q₀ = ⊤) (hp₀p : p₀ < p) (hp : p ≠ ⊤) {f : α → E₁} (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} -- (hd : 0 < d)
@@ -901,39 +891,36 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
         exact estimate_eLpNorm_truncCompl hp ⟨hp₀, hp₀p⟩ hf.1.aemeasurable a_pos
       _ = (↑C₀) ^ p₀.toReal * eLpNorm f p μ ^ p.toReal * (d ^ p₀.toReal)⁻¹ * (t ^ p₀.toReal) := by
         rw [ha, ← ENNReal.rpow_mul, div_mul_cancel₀]
-        · sorry /- was: rw [ENNReal.div_rpow] <;> try positivity
-          rw [ENNReal.ofReal_div_of_pos] <;> try positivity
-          rw [div_eq_mul_inv]
-          ring -/
+        · -- FIXME: can/should this be shared with the lemma below?
+          rw [ENNReal.div_rpow_of_nonneg, div_eq_mul_inv] <;> try positivity
+          ring
         · exact (sub_neg.mpr (toReal_strict_mono hp hp₀p)).ne
       _ = _ := by
-        sorry /- TODO! was rw [ofReal_rpow_of_pos ht]
-        nth_rw 3 [← one_mul (ENNReal.ofReal _)]
-        rw [hdeq]
-        rw [Real.rpow_inv_rpow] <;> try positivity
-        rw [ofReal_toReal term_ne_top, ENNReal.mul_inv_cancel (by positivity) term_ne_top]
-        exact toReal_ne_zero.mpr ⟨hp₀.ne', hp₀p.ne_top⟩ -/
+        nth_rw 2 [← one_mul (t ^ p₀.toReal)]
+        rw [hdeq, ENNReal.rpow_inv_rpow, ENNReal.mul_inv_cancel (by positivity) term_ne_top]
+        exact toReal_ne_zero.mpr ⟨hp₀.ne', by finiteness⟩
     apply nonpos_iff_eq_zero.mp
     calc
     _ ≤ distribution (T (truncCompl f a)) (eLpNormEssSup (T (truncCompl f a)) ν) ν :=
       distribution_mono_right snorm_est
     _ = _ := meas_eLpNormEssSup_lt
 
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
+-- NB. The assumptions `hd` is necessary: if `t ≠ ∞` and `f` has eLpNorm 0, then `d = 0` as well
+-- (since p.toReal and p₁.toReal are positive), hence `a = ∞`
+-- and the statement becomes `distribution (T f) t ν = 0`, which is false in general.
 lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞}
     (hp : 0 < p)
     (hp₁ : p₁ < ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} -- (hd : 0 < d)
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} (hd : 0 < d)
     (ha : a = (t / d) ^ (p₁.toReal / (p₁.toReal - p.toReal)))
     (hdeq : d = ((ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal) ^ p₁.toReal⁻¹) :
     distribution (T (trunc f a)) t ν = 0 := by
   by_cases ht' : t = ∞
   · simp [ht']
   have ha' : a ≠ ⊤ := by
-    have : eLpNorm f p μ < ∞ := sorry -- use hf
+    have := MemLp.eLpNorm_lt_top hf
     apply ha ▸ rpow_ne_top_of_ne_zero
     · exact ENNReal.div_ne_zero.mpr ⟨ht.ne', hdeq ▸ by finiteness⟩
-    have : 0 < d := sorry -- re-use arguments below
     finiteness
   have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf ha'
   have wt_est := (h₁T (trunc f a) obs).2
@@ -960,13 +947,12 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         apply Ne.symm (ne_of_lt snorm_pos)
         apply eLpNormEssSup_eq_zero_iff.mpr
         exact (eLpNorm_eq_zero_iff hf.1 hp.ne').mp snorm_0
-      -- XXX: these lines are the same as above
+      -- XXX: these lines are the same as in the lemma above
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
         apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
       have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
         mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
-      have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
       calc
       _ ≤ ↑C₁ ^ p₁.toReal * (((a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg]
@@ -975,14 +961,10 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         · exact toReal_nonneg
       _ = ↑C₁ ^ p₁.toReal * eLpNorm f p μ ^ p.toReal * (d ^ p₁.toReal)⁻¹ * (t ^ p₁.toReal) := by
         rw [ha, ← ENNReal.rpow_mul, div_mul_cancel₀]
-        · sorry /- proof was: rw [Real.div_rpow] <;> try positivity
-          rw [ENNReal.ofReal_div_of_pos] <;> try positivity
-          rw [div_eq_mul_inv]
-          ring -/
-          -- MR: can this be shared with the lemma above?
+        · rw [ENNReal.div_rpow_of_nonneg, div_eq_mul_inv] <;> try positivity
+          ring
         · exact (sub_pos.mpr (toReal_strict_mono hp₁.ne_top hp₁p)).ne'
       _ = _ := by
-        --rw [ofReal_rpow_of_pos ht]
         nth_rw 2 [← one_mul (t ^ p₁.toReal)]
         congr
         rw [hdeq, ENNReal.rpow_inv_rpow hp₁'  _, ENNReal.mul_inv_cancel term_pos.ne' term_ne_top]

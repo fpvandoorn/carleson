@@ -622,10 +622,6 @@ lemma truncCompl_anti {f : α → E₁} {x : α} (hab : t ≤ s) (hf : ‖trunc 
     simp_rw [trunc_buildup_enorm]
   exact foo hf (trunc_mono hab) obs
 
--- generalise the mathlib lemma mutatis mutandis
-theorem eLpNorm_mono_enorm' {ε ε' : Type*} [ENorm ε] [ENorm ε'] {f : α → ε} {g : α → ε'} (h : ∀ᵐ x ∂μ, ‖f x‖ₑ ≤ ‖g x‖ₑ) :
-    eLpNorm f p μ ≤ eLpNorm g p μ := sorry
-
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
 lemma eLpNorm_truncCompl_anti {f : α → E₁} (hf : eLpNorm f 1 μ ≠ ⊤) :
     Antitone (fun s ↦ eLpNorm (truncCompl f s) p μ) := by
@@ -635,7 +631,7 @@ lemma eLpNorm_truncCompl_anti {f : α → E₁} (hf : eLpNorm f 1 μ ≠ ⊤) :
     refine this.mono fun x hx ↦ ?_
     rw [trunc]
     split_ifs; exacts [hx, by simp]
-  exact eLpNorm_mono_enorm' <| this.mono fun x hx ↦ truncCompl_anti hab hx
+  exact eLpNorm_mono_enorm_ae <| this.mono fun x hx ↦ truncCompl_anti hab hx
 
 /-- The norm of the truncation is meaurable in the truncation parameter -/
 @[measurability, fun_prop]
