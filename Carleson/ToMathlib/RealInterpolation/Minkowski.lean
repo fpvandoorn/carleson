@@ -577,7 +577,9 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       rw [lintegral_mul_const', lintegral_const_mul', ENNReal.mul_rpow_of_nonneg,
           ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ENNReal.rpow_inv_rpow] <;>
           try positivity
-      · exact rpow_ne_top_of_nonneg (by positivity) <| ENNReal.rpow_ne_top_of_pos spf.hd.ne' spf.hd'
+      · have := spf.hd.ne'
+        have := spf.hd'
+        refine rpow_ne_top_of_nonneg (by positivity) (by finiteness)
       · finiteness
     _ = (spf.d ^ (q - q₀)) *
         (∫⁻ (a : α) in Function.support f,
@@ -879,7 +881,7 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
         mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₀.ne') coe_ne_top)
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
     have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
-    have d_ne_top  : d ≠ ⊤ := hdeq ▸ ENNReal.rpow_ne_top_of_pos term_pos.ne' term_ne_top
+    have d_ne_top : d ≠ ⊤ := hdeq ▸ (by finiteness)
     have a_pos : 0 < a := ha ▸ ENNReal.rpow_pos (ENNReal.div_pos ht.ne' d_ne_top) (by finiteness)
     have obs : MemLp (truncCompl f a) p₀ μ := truncCompl_Lp_Lq_lower hp ⟨hp₀, hp₀p⟩ a_pos hf
     have wt_est := (h₀T (truncCompl f a) obs).2
@@ -921,10 +923,14 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
     (ha : a = (t / d) ^ (p₁.toReal / (p₁.toReal - p.toReal)))
     (hdeq : d = ((ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal) ^ p₁.toReal⁻¹) :
     distribution (T (trunc f a)) t ν = 0 := by
+  by_cases ht' : t = ∞
+  · simp [ht']
   have ha' : a ≠ ⊤ := by
-    rw [ha]
-    finiteness_nonterminal
-    sorry -- can `finiteness` prove this?
+    have : eLpNorm f p μ < ∞ := sorry -- use hf
+    apply ha ▸ rpow_ne_top_of_ne_zero
+    · exact ENNReal.div_ne_zero.mpr ⟨ht.ne', hdeq ▸ by finiteness⟩
+    have : 0 < d := sorry -- re-use arguments below
+    finiteness
   have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf ha'
   have wt_est := (h₁T (trunc f a) obs).2
   unfold wnorm at wt_est
