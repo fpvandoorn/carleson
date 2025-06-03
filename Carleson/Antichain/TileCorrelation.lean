@@ -1371,8 +1371,8 @@ lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {
   · exact correlation_le_of_empty_inter hinter
 
 -- Lemma 6.1.5 (part II)
-lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ)
-    (hpp' : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p)) :
+lemma correlation_zero_of_ne_subset (p p' : 𝔓 X) (g : X → ℂ)
+    (hp : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * ↑D ^𝔰 p)) :
     ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ = 0 := by
   simp only [enorm_eq_nnnorm, ENNReal.coe_eq_zero]
   have hD : 1 ≤ (D : ℝ) := one_le_defaultD _
@@ -1380,17 +1380,9 @@ lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) (
   have hsp : 𝔰 p = GridStructure.s (𝓘 p) := rfl
   by_contra h0
   simp only [nnnorm_eq_zero] at h0
-  apply hpp'
+  apply hp
   obtain ⟨y, hy⟩ := MeasureTheory.exists_ne_zero_of_integral_ne_zero h0 --6.2.33
   simp only [ne_eq, mul_eq_zero, map_eq_zero, not_or] at hy
-  -- 6.2.34
-  have hdist : dist (𝔠 p) (𝔠 p') < 10*D^(𝔰 p) :=
-    calc dist (𝔠 p) (𝔠 p')
-      _ ≤ dist (𝔠 p) y + dist y (𝔠 p') := dist_triangle _ _ _
-      _ = dist y (𝔠 p) + dist y (𝔠 p') := by rw [dist_comm]
-      _ < 5*D^(𝔰 p) + 5*D^(𝔰 p') := add_lt_add (range_support hy.2) (range_support hy.1)
-      _ ≤ 5*D^(𝔰 p) + 5*D^(𝔰 p) := add_le_add_left (by gcongr) _
-      _ = 10*D^(𝔰 p) := by ring
   -- 6.2.35
   rw [hsp]
   exact subset_trans Grid_subset_ball (ball_subset_ball (by gcongr))
