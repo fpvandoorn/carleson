@@ -5211,7 +5211,7 @@ Now we are ready to state the main result of this subsection.
         \end{equation}
       \begin{equation}
             \label{eq-rhs-big-sep-tree}
-            \le 2^{541a^3} 2^{-Zn/(4a^2 + 2a^3)} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
+            \le 2^{533a^3} 2^{-Zn/(4a^2 + 2a^3)} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1))}\,.
         \end{equation}
     \end{lemma}
     \begin{lemma}[correlation near tree parts]
@@ -5427,7 +5427,7 @@ $$
         We have for all $J \in \mathcal{J}'$ that
       \begin{equation}
             \label{hHolder}
-            \|h_J\|_{C^{\tau}(B(c(J), 8D^{s(J)}))} \le 2^{529a^3} \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
+            \|h_J\|_{C^{\tau}(B(c(J), 16D^{s(J)}))} \le 2^{529a^3} \prod_{j = 1,2} (\inf_{B(c(J), \frac{1}{8}D^{s(J)})} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B}, 1} |g_j|)\,.
         \end{equation}
     \end{lemma}
 
@@ -5557,6 +5557,9 @@ $$
     \end{equation*}
     We also denote
     \begin{equation*}
+     B'(J) := B(c(J), 16D^{s(J)}),
+    \end{equation*}
+    \begin{equation*}
      B^\circ{}(J) := B(c(J), \frac{1}{8}D^{s(J)})\, .
     \end{equation*}
 
@@ -5663,12 +5666,12 @@ $$
         \leanok
         \lean{TileStructure.Forest.scales_impacting_interval}
         \uses{overlap-implies-distance}
-        Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and $\fp \in \fC$ with $B(\scI(\fp)) \cap B(J) \neq \emptyset$, we have $\ps(\fp) \ge s(J)$.
+        Let $\fC = \fT(\fu_1)$ or $\fC = \fT(\fu_2) \cap \mathfrak{S}$. Then for each $J \in \mathcal{J}'$ and $\fp \in \fC$ with $B(\scI(\fp)) \cap B'(J) \neq \emptyset$, we have $\ps(\fp) \ge s(J)$.
     \end{lemma}
 
     \begin{proof}
         \leanok
-        By \Cref{overlap-implies-distance}, we have that in both cases, $\fC \subset \mathfrak{S}$. If $\fp \in \fC$ with $B(\scI(\fp)) \cap B(J) \neq \emptyset$ and $\ps(\fp) < s(J)$, then $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. Since $\fp \in \mathfrak{S}$, it follows from the definition of $\mathcal{J}'$ that $s(J) = -S$, which contradicts $\ps(\fp) < s(J)$.
+        By \Cref{overlap-implies-distance}, we have that in both cases, $\fC \subset \mathfrak{S}$. If $\fp \in \fC$ with $B(\scI(\fp)) \cap B'(J) \neq \emptyset$ and $\ps(\fp) < s(J)$, then $\scI(\fp) \subset B(c(J), 100 D^{s(J) + 1})$. Since $\fp \in \mathfrak{S}$, it follows from the definition of $\mathcal{J}'$ that $s(J) = -S$, which contradicts $\ps(\fp) < s(J)$.
     \end{proof}
 
     \begin{lemma}[global tree control 1]
@@ -5679,9 +5682,9 @@ $$
         Let $\fC_1 = \fT(\fu_1)$ and $\fC_2 = \fT(\fu_2) \cap \mathfrak{S}$. Then for $i = 1,2$ and each $J \in \mathcal{J}'$ and all bounded $g$ with bounded support, we have
         \begin{align}
             \label{TreeUB}
-            \sup_{B(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B'(J)} |T_{\fC_i}^*g| \leq \inf_{B^\circ{}(J)} |T^*_{\fC_i} g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|
         \end{align}
-        and for all $y,y' \in B(J)$
+        and for all $y,y' \in B'(J)$
         $$
             |e(\fcc(\fu_i)(y)) T_{\fC_i}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fC_i}^* g(y')|
         $$
@@ -5694,18 +5697,18 @@ $$
     \begin{proof}
         \leanok
         Note that \eqref{TreeUB} follows from \eqref{TreeHolder}, since for $y'\in B^\circ{}(J)$, by the triangle inequality,
-        $$\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}\le \Big(8 + \frac{1}8\Big)^{1/a}\le 2.$$
+        $$\left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a}\le \Big(16 + \frac{1}8\Big)^{1/a}\le 2^2.$$
 
-        By the triangle inequality, \Cref{adjoint-tile-support} and \Cref{Holder-correlation-tile}, we have for all $y, y' \in B(J)$
+        By the triangle inequality, \Cref{adjoint-tile-support} and \Cref{Holder-correlation-tile}, we have for all $y, y' \in B'(J)$
         \begin{equation}
             \label{eq-C-Lip}
             |e(\fcc(\fu_i)(y)) T_{\fC_i}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fC_i}^* g(y')|
         \end{equation}
         $$
-            \leq \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} |e(\fcc(\fu_i)(y)) T_{\fp}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fp}^* g(y')|
+            \le \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B'(J) \neq \emptyset}} |e(\fcc(\fu_i)(y)) T_{\fp}^* g(y) - e(\fcc(\fu_i)(y')) T_{\fp}^* g(y')|
         $$
         $$
-            \le 2^{151a^3}\rho(y,y')^{1/a} \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
+            \le 2^{151a^3}\rho(y,y')^{1/a} \sum_{\substack{\fp \in \fC_i\\ B(\scI(\fp)) \cap B'(J) \neq \emptyset}} \frac{D^{- \ps(\fp)/a}}{\mu(B(\pc(\fp), 4D^{\ps(\fp)}))} \int_{E(\fp)} |g| \, \mathrm{d}\mu\,.
         $$
         By \Cref{scales-impacting-interval}, we have $\ps(\fp) \ge s(J)$ for all $\fp$ occurring in the sum. Further, for each $s \ge s(J)$, the sets $E(\fp)$ for $\fp \in \fP$ with $\ps(\fp) = s$ are pairwise disjoint by \eqref{defineep} and \eqref{eq-dis-freq-cover}, and contained in $B(c(J), 32D^{s})$ by \eqref{eq-vol-sp-cube} and the triangle inequality. Using also the doubling estimate \eqref{doublingx}, we obtain that the expression in the last display can be estimated by
         $$
@@ -5728,7 +5731,7 @@ $$
         \uses{global-tree-control-1, local-tree-control}
         We have for all $J \in \mathcal{J}'$ and all bounded $g$ with bounded support
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B},1}|g|\,.
+            \sup_{B'(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T^*_{\fT(\fu_2)} g| + 2^{151a^3+4a+4} \inf_{J} M_{\mathcal{B},1}|g|\,.
         $$
     \end{lemma}
 
@@ -5736,14 +5739,14 @@ $$
         \leanok
         By \Cref{global-tree-control-1}
         $$
-            \sup_{B(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|
+            \sup_{B'(J)} |T^*_{\fT(\fu_2) \cap \mathfrak{S}} g| \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2) \cap \mathfrak{S}}^* g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|
         $$
         $$
-            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| + 2^{151a^3+4a+2} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
+            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + \sup_{B^\circ{}(J)} |T_{\fT(\fu_2) \setminus \mathfrak{S}}^* g| + 2^{151a^3+4a+3} \inf_{J} M_{\mathcal{B}, 1} |g|\,,
         $$
         and by \Cref{local-tree-control}
         $$
-            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + (2^{104a^3} + 2^{151a^3+4a+2}) \inf_{J} M_{\mathcal{B}, 1} |g|\,.
+            \le \inf_{B^\circ{}(J)} |T_{\fT(\fu_2)}^* g| + (2^{104a^3} + 2^{151a^3+4a+3}) \inf_{J} M_{\mathcal{B}, 1} |g|\,.
         $$
         This completes the proof.
     \end{proof}
@@ -5752,10 +5755,10 @@ $$
         \leanok
         \proves{Holder-correlation-tree}
         Let $P$ be the product on the right hand side of \eqref{hHolder}, and $h_J$ be as defined in \eqref{def-hj}.
-        By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B(J) \cap \scI(\fu_1)$.
-        By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have for all $y \in B(J)$:
+        By \eqref{eq-pao-2} and \Cref{adjoint-tile-support}, the function $h_J$ is supported in $B'(J) \cap \scI(\fu_1)$.
+        By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have for all $y \in B'(J)$:
         $$
-            |h_J(y)| \le 2^{302a^3+8a+5} P\,.
+            |h_J(y)| \le 2^{302a^3+8a+7} P\,.
         $$
         We have by the triangle inequality
         \begin{align}
@@ -5771,29 +5774,29 @@ $$
         As $h_J$ is supported in $\scI(\fu_1)$, we can assume without loss of generality that $y' \in \scI(\fu_1)$.
         If $y \notin \scI(\fu_1)$, then \eqref{eq-h-Lip-1} vanishes. If $y \in \scI(\fu_1)$ then we have by \eqref{eq-pao-3}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}
         % C7_5_2       C7_5_9s           C7_5_10
-        % 2^{226a^3} * 2^{151a^3+4a+2} * 2^{151a^3+4a+3}
-        % 2^{528a^3+8a+5}
+        % 2^{226a^3} * 2^{151a^3+4a+3} * 2^{151a^3+4a+4}
+        % 2^{528a^3+8a+7}
         $$
-            \eqref{eq-h-Lip-1} \le 2^{528a^3+8a+5} \frac{\rho(y,y')}{D^{s(J)}} P\,,
+            \eqref{eq-h-Lip-1} \le 2^{528a^3+8a+7} \frac{\rho(y,y')}{D^{s(J)}} P\,,
         $$
         where $P$ denotes the product on the right hand side of \eqref{hHolder}.
 
         By \eqref{eq-pao-2}, \Cref{global-tree-control-1} and \Cref{global-tree-control-2}, we have
         % C7_5_9d           C7_5_10
-        % 2^{151a^3+4a+1} * 2^{151a^3+4a+3}
-        % 2^{302a^3+8a+4}
+        % 2^{151a^3+4a+1} * 2^{151a^3+4a+4}
+        % 2^{302a^3+8a+5}
         $$
-            \eqref{eq-h-Lip-2} \le 2^{302a^3+8a+4} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
+            \eqref{eq-h-Lip-2} \le 2^{302a^3+8a+5} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
         $$
 
         By \eqref{eq-pao-2}, and twice \Cref{global-tree-control-1}, we have
         % C7_5_9s           C7_5_9d
-        % 2^{151a^3+4a+2} * 2^{151a^3+4a+1}
-        % 2^{302a^3+8a+3}
+        % 2^{151a^3+4a+3} * 2^{151a^3+4a+1}
+        % 2^{302a^3+8a+4}
         $$
-            \eqref{eq-h-Lip-3} \le 2^{302a^3+8a+3} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
+            \eqref{eq-h-Lip-3} \le 2^{302a^3+8a+4} \left(\frac{\rho(y,y')}{D^{s(J)}}\right)^{1/a} P\,.
         $$
-        Using that $\rho(y,y') \le 16D^{s(J)}$ and $a \ge 4$, the lemma follows.
+        Using that $\rho(y,y') \le 32D^{s(J)}$ and $a \ge 4$, the lemma follows.
     \end{proof}
 
 \subsection{The van der Corput estimate}
@@ -5828,6 +5831,7 @@ $$
 
     Now we are ready to prove \Cref{correlation-distant-tree-parts}.
     \begin{proof}[Proof of \Cref{correlation-distant-tree-parts}]
+    \leanok
     \proves{correlation-distant-tree-parts}
     We have
     $$
@@ -5835,16 +5839,16 @@ $$
     $$
     By \Cref{adjoint-tile-support}, the right hand side is supported in $\scI(\fu_1)$. Using \eqref{eq-pao-1} of \Cref{Lipschitz-partition-unity} and the definition \eqref{def-hj} of $h_J$, we thus have
     $$
-        \le \sum_{J \in \mathcal{J}'} \left|\int_{B(J)} e(\fcc(\fu_2)(y) - \fcc(\fu_1)(y)) h_J(y) \, \mathrm{d}\mu(y) \right|\,.
+        \le \sum_{J \in \mathcal{J}'} \left|\int_{X} e(\fcc(\fu_2)(y) - \fcc(\fu_1)(y)) h_J(y) \, \mathrm{d}\mu(y) \right|\,.
     $$
     Using \Cref{Holder-van-der-Corput} with the ball $B(J)$, we bound this by
     $$
-        \le 2^{8a} \sum_{J \in \mathcal{J}'} \mu(B(J)) \|h_J\|_{C^{\tau}(B(J))} (1 + d_{B(J)}(\fcc(\fu_1), \fcc(\fu_1)))^{-1/(2a^2+a^3)}\,.
+        \le 2^{7a} \sum_{J \in \mathcal{J}'} \mu(B(J)) \|h_J\|_{C^{\tau}(B'(J))} (1 + d_{B(J)}(\fcc(\fu_2), \fcc(\fu_1)))^{-1/(2a^2+a^3)}\,.
     $$
-    Using \Cref{Holder-correlation-tree}, \Cref{lower-oscillation-bound} and $a \ge 4$, we have that the above is bounded from above by
+    Using \Cref{Holder-correlation-tree}, \Cref{lower-oscillation-bound} and $a \ge 4$, we bound the above by
     \begin{multline}
         \label{eq-big-sep-1}
-        \le 2^{540a^3} 2^{-Zn/(4a^2 + 2a^3)} \sum_{J \in \mathcal{J}'} \mu(B(J)) \\
+        \le 2^{529a^3+7a+3a^3+3a} 2^{-Zn/(4a^2 + 2a^3)} \sum_{J \in \mathcal{J}'} \mu(B(J)) \\
         \times \prod_{j=1}^2 (\inf_{B^\circ{}(J)} |T_{\fT(\fu_j)}^* g_j| + \inf_J M_{\mathcal{B},1} g_j)\,.
     \end{multline}
     By the doubling property \eqref{doublingx}
@@ -5863,7 +5867,7 @@ $$
     $$
     Summing over $J \in \mathcal{J}'$, we obtain
     $$
-        \eqref{eq-big-sep-1} \le 2^{541a^3} 2^{-Zn/(4a^2 + 2a^3)} \int_X \prod_{j=1}^2 ( |T_{\fT(\fu_j)}^* g_j|(x) + M_{\mathcal{B},1} g_j(x)) \, \mathrm{d}\mu(x)\,.
+        \eqref{eq-big-sep-1} \le 2^{533a^3} 2^{-Zn/(4a^2 + 2a^3)} \int_X \prod_{j=1}^2 ( |T_{\fT(\fu_j)}^* g_j|(x) + M_{\mathcal{B},1} g_j(x)) \, \mathrm{d}\mu(x)\,.
     $$
     Applying the Cauchy-Schwarz inequality, \Cref{correlation-distant-tree-parts} follows.
     \end{proof}
@@ -6210,31 +6214,40 @@ as in \Cref{forest-row-decomposition}.
     By \Cref{correlation-separated-trees}, this is bounded by
     \begin{equation}
         \label{eq-S2uu'}
-         2^{550a^3-3n} \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} g_1\|_{L^2(\scI(\fu')\cap \scI(\fu)} \|S_{2, \fu'} g_2\|_{L^2(\scI(\fu')\cap\scI(\fu))}\,.
+         2^{550a^3-3n} \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu)} \|S_{2, \fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}\,.
     \end{equation}
     We apply the Cauchy-Schwarz inequality in the form
     \begin{equation*}
         \sum_{i \in M} a_i b_i \le (\sum_{i \in M} a_i^2 )^{1/2}(\sum_{i \in M} b_i^2 )^{1/2}
     \end{equation*} to the outer two sums:
     $$
-        \le 2^{550a^3-3n} \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} g_1\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2 \right)^{1/2}
+        \le 2^{550a^3-3n} \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2 \right)^{1/2}
     $$
     $$
-        \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu'} g_2\|_{L^2(\scI(\fu')\cap\scI(\fu))}^2 \right)^{1/2}\,.
+        \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}^2 \right)^{1/2}\,.
     $$
-    By pairwise disjointedness of the sets $\scI(\fu)$ for $\fu \in \fU_j$ and of the sets $\scI(\fu')$ for $\fu' \in \fU_{j'}$, we have
+    We can now estimate the factor involving $g_1$ as follows:
     $$
-        \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} g_1\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2
-        = \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \int_{\scI(\fu) \cap \scI(\fu')} |S_{2,\fu} g_1(y)|^2 \, \mathrm{d}\mu(y)
+        \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2
+        = \sum_{\fu \in \fU_j}\sum_{\fu' \in \fU_{j'}} \int_{\scI(\fu) \cap \scI(\fu')} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
+    $$
+    By pairwise disjointedness of the sets $\scI(\fu')$ for $\fu' \in \fU_{j'}$, we have
+    $$
+        \le \sum_{\fu \in \fU_j}\int_{\scI(\fu)} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
+        \le \sum_{\fu \in \fU_j}\int_{X} |S_{2,\fu} (\mathbf{1}_{\scI(\fu)}(y)g_1(y))|^2 \, \mathrm{d}\mu(y)
     $$
     $$
-        \le \int_X |S_{2,\fu}g_1(y)|^2 \, \mathrm{d}\mu(y) = \|S_{2,\fu} g_1\|_2^2\,.
+       = \sum_{\fu \in \fU_j}\|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_2^2
     $$
-    Arguing similar for $g_2$, we can estimate \eqref{eq-S2uu'} to be
+    By \Cref{adjoint-tree-control} we now estimate:
     $$
-        \le 2^{550a^3-3n} \|S_{2,\fu}g_1\|_2 \|S_{2,\fu'} g_2\|_2\,.
+        \le \sum_{\fu \in \fU_j}2^{156a^3} \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
     $$
-    The lemma now follows from \Cref{adjoint-tree-control}.
+    By pairwise disjointedness of the sets $\scI(\fu)$ for $\fu \in \fU_j$ (and writing out the definition of $L^2$-norms), we have
+    $$
+        \le 2^{156a^3} \|g_1\|_2^2
+    $$
+    Arguing similar for $g_2$, we obtain the desired inequality.
 \end{proof}
 
 Define for $1 \le j \le 2^n$
@@ -6328,7 +6341,7 @@ Recall that $\tau = 1/a$.
 \begin{lemma}[Lipschitz Holder approximation]
     \label{Lipschitz-Holder-approximation}
     \leanok
-    \lean{tsupport_holderApprox_subset, enorm_holderApprox_sub_le, iLipENorm_holderApprox_le}
+    \lean{support_holderApprox_subset, enorm_holderApprox_sub_le, iLipENorm_holderApprox_le}
     Let $z\in X$ and $R>0$. Let $\varphi: X \to \mathbb{C}$ be a function supported in the ball
     $B:=B(z,R)$ with finite norm $\|\varphi\|_{C^\tau(B(z, 2R))}$.
     Let $0<t \leq 1$. There exists a function $\tilde \varphi : X \to \mathbb{C}$, supported in $B(z,2R)$, such that for every $x\in X$
