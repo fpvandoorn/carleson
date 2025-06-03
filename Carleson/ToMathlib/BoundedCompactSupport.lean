@@ -143,6 +143,14 @@ theorem norm (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (‖f ·�
   memLp_top := hf.memLp_top.norm
   hasCompactSupport := hasCompactSupport_comp_left norm_eq_zero |>.mpr hf.hasCompactSupport
 
+theorem comp_left_norm {F} [NormedAddCommGroup F] {g : E → F} (hf : BoundedCompactSupport f μ)
+    (hg : g 0 = 0) (hg1 : Continuous g) (hg2 : (∀ (a : E), ‖g a‖ = ‖a‖)) :
+ BoundedCompactSupport (g ∘ f) μ := by
+  refine ⟨?_, hf.hasCompactSupport.comp_left hg⟩
+  rw [← memLp_norm_iff]
+  · simp_rw [Function.comp_apply, hg2, memLp_norm_iff hf.aestronglyMeasurable, hf.memLp_top]
+  exact hg1.comp_aestronglyMeasurable hf.aestronglyMeasurable
+
 protected theorem neg (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (- f) μ where
   memLp_top := hf.memLp_top.neg
   hasCompactSupport := hf.hasCompactSupport.neg'
@@ -360,3 +368,54 @@ end BoundedCompactSupport
 end Metric
 
 end MeasureTheory
+
+section
+
+open Bornology ENNReal MeasureTheory Set
+
+variable {X 𝕜 E F : Type*} [MeasurableSpace X] [MetricSpace X]
+variable [NormedAddCommGroup E]
+variable {Y W : Type*} [MeasurableSpace Y] [TopologicalSpace Y]
+variable [MeasurableSpace W] [TopologicalSpace W] {μ : Measure W}
+variable {f : X → 𝕜} {ν : Measure X} [RCLike 𝕜]
+
+lemma BoundedCompactSupport.mul_bdd_right'' (hf : BoundedCompactSupport f ν) {e : W → X}
+    {g : W → 𝕜} (he : Continuous e) (he1 : Measure.QuasiMeasurePreserving e μ ν)
+    (hg : AEStronglyMeasurable g μ)
+    (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
+    (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
+    BoundedCompactSupport (fun x ↦ f (e x) * g x) μ where
+  memLp_top := by
+    have := hf.memLp_top.ae_norm_le
+    set B := (eLpNorm f ⊤ ν).toReal
+    obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1
+      (hg2 (tsupport f) hf.hasCompactSupport.isBounded)
+    apply memLp_top_of_bound (C := max 0 B * max 0 C)
+    · exact (hf.mono_ac he1.absolutelyContinuous |>.aestronglyMeasurable.comp_measurable
+        he1.measurable).mul hg
+    filter_upwards [he1.ae this] with z hB
+    rw [norm_mul]
+    by_cases hz : z ∈ e ⁻¹' tsupport f
+    · gcongr
+      · exact hB.trans (le_max_right ..)
+      refine hC _ ?_ |>.trans (le_max_right ..)
+      exact mem_image_of_mem g hz
+    · simp only [image_eq_zero_of_notMem_tsupport hz, norm_zero, zero_mul,
+        mul_nonneg (le_max_left 0 B) (le_max_left 0 C)]
+  hasCompactSupport := by
+    refine IsCompact.of_isClosed_subset (hg1 _ hf.hasCompactSupport)
+      (isClosed_tsupport fun x ↦ f (e x) * g x) ?_
+    apply subset_inter ?_ tsupport_mul_subset_right
+    apply subset_trans (tsupport_mul_subset_left)
+    rw [tsupport, ((isClosed_tsupport f).preimage he ).closure_subset_iff]
+    exact fun _ hx ↦ subset_closure hx
+
+lemma BoundedCompactSupport.mul_bdd_left' (hf : BoundedCompactSupport f ν) {e : W → X} {g : W → 𝕜}
+    (he : Continuous e) (he1 : Measure.QuasiMeasurePreserving e μ ν)
+    (hg : AEStronglyMeasurable g μ)
+    (hg1 : ∀ K : Set X, IsCompact K -> IsCompact (e ⁻¹' K ∩ tsupport g))
+    (hg2 : ∀ (A : Set X) (_hA : IsBounded A), IsBounded (g '' (e ⁻¹' A))) :
+    BoundedCompactSupport (fun x ↦ g x * f (e x)) μ:= by
+  simp_rw [mul_comm]; exact mul_bdd_right'' hf he he1 hg hg1 hg2
+
+end

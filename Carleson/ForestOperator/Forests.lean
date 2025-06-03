@@ -115,7 +115,7 @@ lemma cst_disjoint (hd : Disjoint (𝓘 u₁ : Set X) (𝓘 u₂)) (hu₁ : u₁
     ← comp_apply (f := conj) (g := indicator _ _), ← indicator_comp_of_zero (by simp),
     ← inter_indicator_mul, hd, indicator_empty]
 
-/-- Lemma 7.4.4. -/
+/-- Lemma 7.4.4 -/
 lemma correlation_separated_trees (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂)
     (hg₁ : BoundedCompactSupport g₁) (hg₂ : BoundedCompactSupport g₂) :
     ‖∫ x, adjointCarlesonSum (t u₁) g₁ x * conj (adjointCarlesonSum (t u₂) g₂ x)‖ₑ ≤
