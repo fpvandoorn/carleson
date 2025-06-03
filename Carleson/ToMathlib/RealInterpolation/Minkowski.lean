@@ -784,15 +784,6 @@ lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
   _ ≤ distribution (T f) (eLpNormEssSup (T f) ν) ν := distribution_mono_right (le_trans wt_est ht)
   _ = _ := meas_essSup_lt
 
--- TODO: generalise this lemma in Mathlib/.../LpSeminorm/Basic.lean
-theorem eLpNorm_eq_zero_iff_enorm {p : ℝ≥0∞} {μ : Measure α} [ENormedAddMonoid ε] {f : α → ε}
-    (hf : AEStronglyMeasurable f μ) (h0 : p ≠ 0) :
-    eLpNorm f p μ = 0 ↔ f =ᵐ[μ] 0 := by
-  by_cases h_top : p = ∞
-  · rw [h_top, eLpNorm_exponent_top, eLpNormEssSup_eq_zero_iff]
-  rw [eLpNorm_eq_eLpNorm' h0 h_top]
-  exact eLpNorm'_eq_zero_iff (ENNReal.toReal_pos h0 h_top) hf
-
 variable [ENormedAddMonoid ε₁] [ENormedAddMonoid ε₂] in
 /-- If `T` has weaktype `p₀`-`p₁`, `f` is `AEStronglyMeasurable` and the `p`-norm of `f`
     vanishes, then the `q`-norm of `T f` vanishes. -/
@@ -800,14 +791,14 @@ lemma weaktype_aux₀ {f : α → ε₁} {T : (α → ε₁) → (α' → ε₂)
     {p₀ q₀ p q : ℝ≥0∞} (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp : 0 < p) (hq : 0 < q)
     {C₀ : ℝ≥0} (h₀T : HasWeakType T p₀ q₀ μ ν C₀)
     (hf : AEStronglyMeasurable f μ) (hF : eLpNorm f p μ = 0) : eLpNorm (T f) q ν = 0 := by
-  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff_enorm hf hp.ne').mp hF
-  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff_enorm hf hp₀.ne').mpr f_ae_0
+  have f_ae_0 : f =ᵐ[μ] 0 := (eLpNorm_eq_zero_iff hf hp.ne').mp hF
+  have hf₂ : eLpNorm f p₀ μ = 0 := (eLpNorm_eq_zero_iff hf hp₀.ne').mpr f_ae_0
   have hf₁ : MemLp f p₀ μ := ⟨hf, by rw [hf₂]; exact zero_lt_top⟩
   have := (h₀T f hf₁).2
   rw [hf₂, mul_zero] at this
   have wnorm_0 : wnorm (T f) q₀ ν = 0 := nonpos_iff_eq_zero.mp this
   have : (T f) =ᵐ[ν] 0 := (wnorm_eq_zero_iff hq₀.ne').mp wnorm_0
-  exact (eLpNorm_eq_zero_iff_enorm (h₀T _ hf₁).1 hq.ne').mpr this
+  exact (eLpNorm_eq_zero_iff (h₀T _ hf₁).1 hq.ne').mpr this
 
 -- for the remaining lemmas we use too much measure theory that is just for normed spaces
 -- try to generalize to ENorm-classes after Mathlib refactor
