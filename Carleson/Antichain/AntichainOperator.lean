@@ -9,6 +9,9 @@ open Set Complex MeasureTheory NNReal ENNReal
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
 
+/-- Constant appearing in Lemma 6.1.4. -/
+irreducible_def C6_1_4 (a : ℝ) : ℝ≥0 :=  2 ^ (150 * a ^ 3)
+
 /-- Lemma 6.1.4 -/
 lemma dens1_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)

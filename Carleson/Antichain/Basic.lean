@@ -107,7 +107,7 @@ private lemma ineq_6_1_7 (x : X) {𝔄 : Set (𝔓 X)} (p : 𝔄) :
           rw [← hD]
           ring_nf
           rw [mul_inv_cancel₀ (defaultD_pos _).ne', one_mul]
-        convert (DoublingMeasure.volume_ball_two_le_same_repeat x
+        convert (DoublingMeasure.volume_real_ball_two_le_same_repeat x
           ((1 / ((D : ℝ) * 32)) * (8 * D ^ 𝔰 p.1)) (100*a^2 + 5)) using 1
         · conv_lhs => rw [← heq, ← pow_add]
         · congr 1
@@ -137,7 +137,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
     exact div_le_div_of_nonneg_left (pow_nonneg zero_le_two _)
       (measure_ball_pos_real x _ (div_pos (zpow_pos (defaultD_pos _) _) zero_lt_four))
       (measureReal_mono (Metric.ball_subset_ball (dist_mem_Icc_of_Ks_ne_zero hy).1)
-        (measure_ball_ne_top x (dist x y)))
+        measure_ball_ne_top)
   apply le_trans h
   rw [zpow_sub₀ (by simp), zpow_one, div_div]
   apply le_trans (ineq_6_1_7' x p)
@@ -240,7 +240,7 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
       simp_rw [div_eq_mul_inv, coe_mul, enorm_eq_nnnorm]
       rw [lintegral_const_mul _ hfm.nnnorm.coe_nnreal_ennreal, ENNReal.coe_pow, coe_inv
         (ne_of_gt (measure_ball_pos_nnreal _ _ h8Dpow_pos)),
-        ENNReal.coe_toNNReal (measure_ball_ne_top _ _)]
+        ENNReal.coe_toNNReal measure_ball_ne_top]
       ring
     _ ≤ (C_6_1_2 a) * (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)).indicator (x := x)
         (fun _ ↦ ⨍⁻ y, ‖f y‖ₑ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
@@ -494,6 +494,3 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
                   ring_nf
           _ = 2 ^ (111 * a ^ 3) := by ring
       · norm_cast -- uses hq'_inv
-
-/-- Constant appearing in Lemma 6.1.4. -/
-irreducible_def C6_1_4 (a : ℝ) : ℝ≥0 :=  2 ^ (150 * a ^ 3)
