@@ -910,11 +910,14 @@ lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p�
       distribution_mono_right snorm_est
     _ = _ := meas_eLpNormEssSup_lt
 
+-- NB. The assumptions `hd` is necessary: if `t ≠ ∞` and `f` has eLpNorm 0, then `d = 0` as well
+-- (since p.toReal and p₁.toReal are positive), hence `a = ∞`
+-- and the statement becomes `distribution (T f) t ν = 0`, which is false in general.
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q₁ : ℝ≥0∞}
     (hp : 0 < p)
     (hp₁ : p₁ < ⊤) (hq₁ : q₁ = ⊤) (hp₁p : p < p₁) {f : α → E₁} (hf : MemLp f p μ)
-    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} -- (hd : 0 < d)
+    (h₁T : HasWeakType T p₁ q₁ μ ν C₁) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} (hd : 0 < d)
     (ha : a = (t / d) ^ (p₁.toReal / (p₁.toReal - p.toReal)))
     (hdeq : d = ((ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal) ^ p₁.toReal⁻¹) :
     distribution (T (trunc f a)) t ν = 0 := by
@@ -924,7 +927,6 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
     have : eLpNorm f p μ < ∞ := sorry -- use hf
     apply ha ▸ rpow_ne_top_of_ne_zero
     · exact ENNReal.div_ne_zero.mpr ⟨ht.ne', hdeq ▸ by finiteness⟩
-    have : 0 < d := sorry -- re-use arguments below
     finiteness
   have obs : MemLp (trunc f a) p₁ μ := trunc_Lp_Lq_higher ⟨hp, hp₁p⟩ hf ha'
   have wt_est := (h₁T (trunc f a) obs).2
@@ -951,13 +953,12 @@ lemma weaktype_estimate_trunc_top {C₁ : ℝ≥0} (hC₁ : 0 < C₁) {p p₁ q�
         apply Ne.symm (ne_of_lt snorm_pos)
         apply eLpNormEssSup_eq_zero_iff.mpr
         exact (eLpNorm_eq_zero_iff hf.1 hp.ne').mp snorm_0
-      -- XXX: these lines are the same as above
+      -- XXX: these lines are the same as in the lemma above
       have term_pos : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal > 0 := by
         apply ENNReal.mul_pos <;> exact (rpow_pos_of_nonneg (by positivity) (by positivity)).ne'
       have term_ne_top : (ENNReal.ofNNReal C₁) ^ p₁.toReal * eLpNorm f p μ ^ p.toReal ≠ ⊤ :=
         mul_ne_top (rpow_ne_top' (ENNReal.coe_ne_zero.mpr hC₁.ne') coe_ne_top)
           (rpow_ne_top' snorm_p_pos (MemLp.eLpNorm_ne_top hf))
-      have d_pos : 0 < d := hdeq ▸ ENNReal.rpow_pos term_pos term_ne_top
       calc
       _ ≤ ↑C₁ ^ p₁.toReal * (((a ^ (p₁.toReal - p.toReal))) * eLpNorm f p μ ^ p.toReal) := by
         rw [ENNReal.mul_rpow_of_nonneg]
