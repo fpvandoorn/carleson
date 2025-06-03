@@ -516,12 +516,13 @@ theorem HasCompactMulSupport.div (hf : HasCompactMulSupport f) (hf' : HasCompact
 
 end DivisionMonoid
 
+--NOTE (MI) : there was a missing minus sign in the exponent.
 /-- Proposition 2.0.5. -/
 theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     (ϕ_supp : support ϕ ⊆ ball z R) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
     (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-      (1 + nndist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
+      (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
   have : 4 ≤ a := four_le_a X
   have : (4 : ℝ) ≤ a := mod_cast four_le_a X
   rcases le_or_lt R 0 with hR | hR
@@ -558,9 +559,9 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     simp [defaultA]
   /- First step: control `‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ`, using that this function is
   Lipschitz and the cancellativity assumption for the integral against Lipschitz functions. -/
-  have : (ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + nndist_{z, R} f g) ^ (- τ) ≤
-      (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
-    simp only [defaultA, coe_nndist, defaultτ, coe_nnreal_ennreal_nndist, t]
+  have : (ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + edist_{z, R} f g) ^ (- τ) ≤
+      (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+    simp only [defaultA, coe_nndist, defaultτ, t]
     rw [← ENNReal.ofReal_rpow_of_pos (by positivity),
       ENNReal.ofReal_add zero_le_one (by positivity), ← edist_dist, ENNReal.ofReal_one]
     rw [← ENNReal.rpow_mul, ← ENNReal.rpow_add]; rotate_left
@@ -573,33 +574,33 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       rw [div_le_div_iff₀ (by positivity) (by positivity)]
       nlinarith
   have : ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ ≤ 2 ^ (6 * a) * volume (ball z R)
-        * iHolENorm ϕ z (2 * R) * (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
+        * iHolENorm ϕ z (2 * R) * (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
       ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ
     _ ≤ 2 ^ a * volume (ball z (2 * R))
-      * iLipENorm ϕ' z (2 * R) * (1 + nndist_{z, 2 * R} f g) ^ (- τ) := by
-      simpa only [defaultA, Nat.cast_pow, Nat.cast_ofNat] using enorm_integral_exp_le
-        (x := z) (r := 2 * R) (ϕ := ϕ') ϕ'_supp (f := f) (g := g)
+      * iLipENorm ϕ' z (2 * R) * (1 + edist_{z, 2 * R} f g) ^ (- τ) := by
+      simpa only [defaultA, Nat.cast_pow, Nat.cast_ofNat, t] using
+        enorm_integral_exp_le (x := z) (r := 2 * R) (ϕ := ϕ') ϕ'_supp (f := f) (g := g)
     _ ≤ 2 ^ a * (2 ^ a * volume (ball z R))
         * (2 ^ (4 * a) * (ENNReal.ofReal t) ^ (-1 - a : ℝ) * iHolENorm ϕ z (2 * R))
-        * (1 + nndist_{z, R} f g) ^ (- τ) := by
+        * (1 + edist_{z, R} f g) ^ (- τ) := by
       gcongr 2 ^ a * ?_ * ?_ * ?_
       · exact iLipENorm_holderApprox_le t_pos t_one ϕ_supp
       · apply ENNReal.rpow_le_rpow_of_nonpos
         · simp [τ_pos X]
         apply add_le_add_left
-        simp only [coe_nnreal_ennreal_nndist, edist_dist]
+        simp only [edist_dist]
         apply ENNReal.ofReal_le_ofReal
         apply CompatibleFunctions.cdist_mono
         apply ball_subset_ball (by linarith)
     _ = 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        ((ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + nndist_{z, R} f g) ^ (- τ)) := by
+        ((ENNReal.ofReal t) ^ (-1 - a : ℝ) * (1 + edist_{z, R} f g) ^ (- τ)) := by
       rw [show 6 * a = 4 * a + a + a by ring, pow_add, pow_add]
       ring
     _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr;
   /- Second step: control `‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ` using that `‖ϕ x - ϕ' x‖`
   is controlled pointwise, and vanishes outside of `B (z, 2R)`. -/
-  have : ENNReal.ofReal (t/2) ^ τ ≤ (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+  have : ENNReal.ofReal (t/2) ^ τ ≤ (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
     have : 0 < τ := τ_pos X
     have : ENNReal.ofReal (t/2) ^ τ ≤ ENNReal.ofReal t ^ τ := by gcongr; linarith
     apply this.trans_eq
@@ -612,7 +613,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     ring
   have : ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ
     ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := calc
       ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ
     _ = ‖∫ x in ball z (2 * R), exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ := by
       rw [setIntegral_eq_integral_of_forall_compl_eq_zero]
@@ -638,7 +639,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       gcongr
     _ = 2 ^ a * volume (ball z R) * iHolENorm ϕ z (2 * R) * ENNReal.ofReal (t/2) ^ τ := by ring
     _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
       gcongr
       · exact one_le_two
       · linarith
@@ -658,18 +659,18 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
   _ ≤ ‖∫ x, exp (I * (f x - g x)) * (ϕ x - ϕ' x)‖ₑ + ‖∫ x, exp (I * (f x - g x)) * ϕ' x‖ₑ :=
     enorm_add_le _ _
   _ ≤ 2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) +
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) +
       2 ^ (6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by gcongr;
   _ = 2 ^ (1 + 6 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by rw [pow_add, pow_one]; ring
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by rw [pow_add, pow_one]; ring
   _ ≤ 2 ^ (7 * a) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-        (1 + nndist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
+        (1 + edist_{z, R} f g) ^ (- τ ^ 2 / (2 + a)) := by
     gcongr
     · exact one_le_two
     · linarith
   _ = (C2_0_5 a : ℝ≥0∞) * volume (ball z R) * iHolENorm ϕ z (2 * R) *
-      (1 + nndist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
+      (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
     congr
     · simp only [C2_0_5]
       rw [ENNReal.coe_rpow_of_nonneg]

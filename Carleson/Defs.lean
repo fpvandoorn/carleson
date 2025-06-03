@@ -173,12 +173,12 @@ class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
   enorm_integral_exp_le' {x : X} {r : ℝ} {ϕ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm ϕ x r ≠ ∞)
     (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ)
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ)
 
 lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
     {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ) := by
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
   rcases le_or_lt r 0 with hr | hr
   · simp only [ball_eq_empty.2 hr, subset_empty_iff, support_eq_empty_iff] at h2
     simp [h2]
@@ -319,6 +319,10 @@ lemma defaultD_pow_pos (a : ℕ) (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
 
 lemma mul_defaultD_pow_pos (a : ℕ) {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * (defaultD a : ℝ) ^ z :=
   mul_pos hr (defaultD_pow_pos a z)
+
+lemma one_le_defaultD (a : ℕ) : 1 ≤ (defaultD a : ℝ) := by
+  rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
+  exact pow_le_pow_right₀ (one_le_two) (by omega)
 
 section Kernel
 
