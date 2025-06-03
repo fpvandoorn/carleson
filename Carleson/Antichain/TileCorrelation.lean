@@ -17,7 +17,7 @@ namespace Tile
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X} [MetricSpace X]
   [ProofData a q K σ₁ σ₂ F G]
 
--- Def 6.2.1 (Lemma 6.2.1)
+/-- Def 6.2.1 (Lemma 6.2.1). -/
 def correlation (s₁ s₂ : ℤ) (x₁ x₂ y : X) : ℂ := (conj (Ks s₁ x₁ y)) * (Ks s₂ x₂ y)
 
 section FunProp
@@ -68,6 +68,7 @@ lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
   exact lt_of_le_of_lt (dist_mem_Icc_of_mem_tsupport_Ks hKs).2
     (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
 
+/-- The constant from lemma 6.2.1. -/
 def C_6_2_1 (a : ℕ) : ℝ≥0 := 2^(254 * a^3)
 
 --TODO: PR to Mathlib
@@ -293,6 +294,7 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
       ring_nf
       gcongr -- uses hpos, hle.
 
+/-- The constant from lemma 6.2.3. -/
 def C_6_2_3 (a : ℕ) : ℝ≥0 := 2^(8 * a)
 
 lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p) < 1 :=
@@ -415,9 +417,11 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
 
 section lemma_6_1_5
 
+/-- The constant from lemma 6.1.5. -/
 def C_6_1_5 (a : ℕ) : ℝ≥0 := 2^(255 * a^3)
 
 -- TODO : 4 ≤ a in blueprint
+@[nolint unusedHavesSuffices] -- nlinarith does use h255.
 lemma C_6_1_5_bound (ha : 4 ≤ a) : 2 ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C_6_1_5 a := by
   have h255 : 255 * a ^ 3 = 254 * a ^ 3  + (a ^ 2 * a) := by
     have : a ^ 2 * a = a^3 := rfl
@@ -451,15 +455,10 @@ lemma I12_le' (ha : 1 < a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X →
     I12 p p' g x1 x2 ≤ (2^(254 * a^3 + 8 * a)) *
       ((1 + edist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
       (volume (ball (x2 : X) (↑D ^𝔰 p))) * ‖g ↑x1‖ₑ * ‖g ↑x2‖ₑ := by
-  have hD : 0 < (D : ℝ) ^ 𝔰 p := defaultD_pow_pos a (𝔰 p)
   have hD' : 0 < (D : ℝ) ^ 𝔰 p' := defaultD_pow_pos a (𝔰 p')
   have hsupp : support (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) ⊆ ball x1 (D ^ 𝔰 p') :=
     (subset_tsupport _).trans <| fun _ hx ↦  mem_ball_of_mem_tsupport_correlation hx
   have hs : 𝔰 p' ∈ Icc (- (S : ℤ)) (𝔰 p) := ⟨scale_mem_Icc.1, hle⟩
-  have hnrm : iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) x2) x1 (2 * ↑D ^ 𝔰 p') < ⊤ :=
-    lt_of_le_of_lt (correlation_kernel_bound ha hs) (ENNReal.mul_lt_top
-      ENNReal.coe_lt_top (ENNReal.inv_lt_top.mpr (ENNReal.mul_pos_iff.mpr
-        ⟨measure_ball_pos volume (x1 : X) hD', measure_ball_pos volume (x2 : X) hD⟩)))
   -- For compatibility with holder_van_der_corput
   have heq : (2^(254 * a^3 + 8 * a)) *
       ((1 + edist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q x1) (Q x2))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
@@ -543,20 +542,10 @@ lemma I12_le (ha : 4 ≤ a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X �
   rw [C_6_2_3, ENNReal.coe_pow, ENNReal.coe_ofNat] at h623
   have hneg : -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ < 0 :=
     neg_neg_iff_pos.mpr (inv_pos.mpr (by norm_cast; nlinarith))
-  have hpos : 0 < ((2 : ℝ) ^ (8 * a)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) :=
-    Real.rpow_pos_of_pos (pow_pos zero_lt_two _) _
   have hexp : 0 < ((8 * a  : ℕ) : ℝ) * -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ + 1 := exp_ineq ha
-  have h28a : (0 : ℝ) < 2 ^ (8 * a) := pow_pos zero_lt_two _
-  have hmul_pos : 0 < 2 ^ (8 * a) *
-      (1 + dist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q (x1 : X)) (Q (x2 : X))) :=
-    mul_pos h28a (add_pos_of_pos_of_nonneg zero_lt_one dist_nonneg)
-  have hdist : 0 < 1 + dist_(p') (𝒬 p') (𝒬 p) := add_pos_of_pos_of_nonneg zero_lt_one dist_nonneg
-  have h1dist : 0 ≤ 1 + dist_{(x1 : X), ((D : ℝ) ^ 𝔰 p')} (Q (x1 : X)) (Q (x2 : X)) :=
-    add_nonneg zero_le_one dist_nonneg
   rw [← ENNReal.rpow_le_rpow_iff_of_neg hneg] at h623
   have h0 : ((2 : ℝ≥0∞) ^ (8 * a)) ^ (-(2 * ↑a ^ 2 + (a : ℝ) ^ 3)⁻¹) ≠ 0 := by simp
-  have h210 : (2 : ℝ≥0∞) ^ (1 : ℝ) ≠ 0 := by
-    rw [ENNReal.rpow_one]; exact two_ne_zero
+  have h210 : (2 : ℝ≥0∞) ^ (1 : ℝ) ≠ 0 := by rw [ENNReal.rpow_one]; exact two_ne_zero
   rw [ENNReal.mul_rpow_of_ne_top (Ne.symm (not_eq_of_beq_eq_false rfl)) (by simp [edist_dist]),
     mul_comm, ← ENNReal.le_div_iff_mul_le (Or.inl h0) (Or.inr (by simp [edist_dist]))] at h623
   apply le_trans h623
@@ -734,8 +723,6 @@ lemma bound_6_2_29 (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 + 
         (volume (ball (x2 : X) (↑D ^𝔰 p))) ≤ (C_6_1_5 a) *
           ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
             (volume (coeGrid (𝓘 p))).toNNReal := by
-  have h1 : 0 < volume (𝓘 p : Set X) := volume_coeGrid_pos (defaultD_pos' a)
-  have h2 : (2 : ℝ) ≠ 0 := by norm_num
   have h4 : (2 : ℝ≥0∞) ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C_6_1_5 a :=
     ENNReal.coe_le_coe.mpr (C_6_1_5_bound ha)
   -- Inequality 6.2.32
@@ -747,8 +734,8 @@ lemma bound_6_2_29 (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 + 
     _ = 2^ (254 * a^3 + 1) * 2 ^ (11 * a) * 2 ^ (- (3 : ℤ) * a) *
         ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
           (volume (ball (x2 : X) (↑D ^𝔰 p))) := by
-      simp only [← zpow_natCast, ← zpow_add₀ h2]
-      simp only [← ENNReal.zpow_add two_ne_zero ENNReal.ofNat_ne_top, ]
+      simp only [← zpow_natCast, ← ENNReal.zpow_add two_ne_zero
+        ENNReal.ofNat_ne_top]
       congr
       push_cast
       ring_nf
@@ -1159,7 +1146,6 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
   have hf : IntegrableOn f (E p' ×ˢ E p) volume := by
     apply Integrable.integrableOn
     apply BoundedCompactSupport.integrable
-    have := boundedCompactSupport_bound p p' hg hg1
     apply BoundedCompactSupport.mono_norm (boundedCompactSupport_bound p p' hg hg1)
     · exact (StronglyMeasurable.ite (measurableSet_E.prod measurableSet_E)
         (stronglyMeasurable_I12'' p p' hg) stronglyMeasurable_const).aestronglyMeasurable
@@ -1167,8 +1153,6 @@ lemma integrableOn_I12 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p)
       by_cases hz : z ∈ (E p') ×ˢ (E p)
       · have ha1 : 1 < a := by omega
         simp only [f, if_pos hz, Real.norm_eq_abs, NNReal.abs_eq]
-
-        have := I12_nnreal_le ha1 p p' hle g hinter ⟨z.1, hz.1⟩ ⟨z.2, hz.2⟩
         apply le_trans (I12_nnreal_le ha1 p p' hle g hinter ⟨z.1, hz.1⟩ ⟨z.2, hz.2⟩)
         simp only [coe_nnnorm]
         gcongr ?_ *  ‖g ↑_‖ * ‖g ↑_‖
@@ -1261,9 +1245,6 @@ lemma bound_6_2_26 (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g 
       norm_integral_le_integral_norm fun a_1 ↦ ∫ (y : X) in univ, f (a_1, y).swap
     _ = ∫ (z : X × X) in E p' ×ˢ E p, (I12 p p' g z.1 z.2).toReal := bound_6_2_26_aux p p' g
     _ = ‖∫ (z : X × X) in E p' ×ˢ E p, ((I12 p p' g z.1 z.2).toReal : ℂ)‖ := by
-      have him : (∫ (z : X × X) in E p' ×ˢ E p, ((I12 p p' g z.1 z.2).toReal : ℂ)).im = 0 := by
-        rw [← RCLike.im_to_complex, ← integral_im (integrableOn_I12' ha hle hg hg1 hinter)]
-        simp [RCLike.im_to_complex, ofReal_im, integral_zero]
       conv_rhs => rw [← setIntegral_re_add_im (integrableOn_I12' ha hle hg hg1 hinter)]
       simp only [norm_real, NNReal.norm_eq, RCLike.re_to_complex,ofReal_re, coe_algebraMap,
         RCLike.im_to_complex, ofReal_im, integral_zero, ofReal_zero, RCLike.I_to_complex,
@@ -1315,7 +1296,6 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
     apply setIntegral_mono_on (integrableOn_I12 ha hle hg hg1 hinter)
       (integrableOn_bound p p' hg hg1) (measurableSet_E.prod measurableSet_E)
     intro z hz
-    have := hI12 ⟨z.1, hz.1⟩ ⟨z.2, hz.2⟩
     simp only [← coe_nnnorm, ← NNReal.coe_toRealHom, ← map_mul NNReal.toRealHom]
     simp only [NNReal.coe_toRealHom]
     rw [NNReal.coe_le_coe, ← ENNReal.coe_le_coe]

@@ -143,11 +143,9 @@ theorem norm (hf : BoundedCompactSupport f μ) : BoundedCompactSupport (‖f ·�
   memLp_top := hf.memLp_top.norm
   hasCompactSupport := hasCompactSupport_comp_left norm_eq_zero |>.mpr hf.hasCompactSupport
 
-theorem comp_left_norm {F} [MeasurableSpace E] [NormedAddCommGroup F] {g : E → F}
-    (hf : BoundedCompactSupport f μ) (hg : g 0 = 0)
-    (hg1 : Continuous g)
-    (hg2 : (∀ (a : E), ‖g a‖ = ‖a‖)) :
-    BoundedCompactSupport (g ∘ f) μ := by
+theorem comp_left_norm {F} [NormedAddCommGroup F] {g : E → F} (hf : BoundedCompactSupport f μ)
+    (hg : g 0 = 0) (hg1 : Continuous g) (hg2 : (∀ (a : E), ‖g a‖ = ‖a‖)) :
+ BoundedCompactSupport (g ∘ f) μ := by
   refine ⟨?_, hf.hasCompactSupport.comp_left hg⟩
   rw [← memLp_norm_iff]
   · simp_rw [Function.comp_apply, hg2, memLp_norm_iff hf.aestronglyMeasurable, hf.memLp_top]
