@@ -340,6 +340,7 @@ theorem ton_aeMeasurable_eLpNorm_trunc [NormedAddCommGroup E₁] (tc : ToneCoupl
   · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
     exact eLpNorm_trunc_mono.comp_antitoneOn tone.antitoneOn
 
+@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_norm_rpow_range_operator'
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [NormedAddCommGroup E₂]
@@ -829,7 +830,7 @@ lemma simplify_factor_aux₄ [NormedAddCommGroup E₁] (hq₀' : q₀ ≠ ⊤)
       exact ht.2.le
     rw [mul_comm, ← mul_add, ← toReal_add, this, mul_one]
     · finiteness
-    · have := ht.2; finiteness
+    · finiteness
   · exact hp' ▸ d_pos_aux₀ hF |>.ne'
   · exact hp' ▸ d_ne_top_aux₀ hF
 
@@ -921,6 +922,7 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
 
 -- TODO: the below lemmas were split because otherwise the lean server would crash
 -- (seems to be related to the linter?) (after the merge)
+@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁} [NormedAddCommGroup E₁]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ < q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
@@ -1122,8 +1124,9 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     _ = _ := by
       apply exists_hasStrongType_real_interpolation_aux₁ <;> assumption
 
-/-- The main estimate for the real interpolation theorem for `p₀ = p₁`, requiring
-    `q₀ ≠ q₁`, before taking roots. -/
+/-- The main estimate for the real interpolation theorem for `p₀ = p₁`, requiring `q₀ ≠ q₁`,
+before taking roots. -/
+@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     [NormedAddCommGroup E₁] [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -1148,7 +1151,8 @@ lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q :
       (ht := Ioo.one_sub_mem ht) (hp₀p₁ := hp₀p₁.symm) (hq₀q₁ := q₁lt_q₀) <;> try assumption -/
 
 /-- The main estimate for the real interpolation theorem, before taking roots, combining
-    the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
+the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
+@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁]
     [MeasurableSpace E₂] [NormedAddCommGroup E₂] [BorelSpace E₂] (hA : 0 < A)

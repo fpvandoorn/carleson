@@ -838,8 +838,8 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace E₁] [Bor
       rw [one_div, ENNReal.rpow_inv_rpow]
       exact (toReal_pos (lt_trans hpq.1 hpq.2).ne' hp).ne'
 
-lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
-    {p q : ℝ≥0∞} (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEStronglyMeasurable f μ) :
+lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
+    (hq : q ≠ ⊤) (hpq : p ∈ Ioo 0 q) (hf : AEStronglyMeasurable f μ) :
     eLpNorm (trunc f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   by_cases ht : t = ⊤
@@ -906,8 +906,7 @@ lemma estimate_eLpNorm_trunc [MeasurableSpace E₁] [BorelSpace E₁]
       · exact (toReal_pos hpq.1.ne' p_ne_top).ne'
 
 /-- If `f` is in `Lp`, the truncation is element of `Lq` for `q > p`. -/
-lemma trunc_Lp_Lq_higher [MeasurableSpace E₁] [BorelSpace E₁]
-    (hpq : p ∈ Ioo 0 q) (hf : MemLp f p μ) (ht : t ≠ ∞) :
+lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioo 0 q) (hf : MemLp f p μ) (ht : t ≠ ∞) :
     MemLp (trnc ⊤ f t) q μ := by
   refine ⟨aestronglyMeasurable_trnc hf.1, ?_⟩
   rcases (eq_or_ne q ⊤) with q_eq_top | q_ne_top
@@ -1169,6 +1168,7 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ}
     simp only [Bool.false_eq_true, ↓reduceIte]
     rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ] -/
 
+@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
@@ -1194,7 +1194,7 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneC
 lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) :
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
-  have := spf.hd
+  -- have := spf.hd
   unfold spf_to_tc
   dsimp only
   sorry
