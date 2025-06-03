@@ -324,7 +324,7 @@ lemma pairwiseDisjoint_rowDecomp :
 @[simp] lemma rowDecomp_apply : t.rowDecomp j u = t u := rfl
 
 open scoped Classical in
-/-- The definition of `T_{ℜ_j}*f(x)`, defined at the start of Proposition 2.0.4's proof. -/
+/-- The definition of `T_{ℜ_j}*f(x)`, defined above Lemma 7.7.2. -/
 def rowCarlesonSum (t : Forest X n) (j : ℕ) (f : X → ℂ) (x : X) : ℂ :=
   ∑ u with u ∈ rowDecomp t j, adjointCarlesonSum (t u) f x
 
