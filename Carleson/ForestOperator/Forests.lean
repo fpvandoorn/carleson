@@ -527,29 +527,39 @@ lemma pairwiseDisjoint_rowSupport : (Iio (2 ^ n)).PairwiseDisjoint (rowSupport t
 section FinalProp
 
 omit [TileStructure Q D κ S o] in
-lemma bcs_of_measurable_of_le_indicator (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+lemma bcs_of_measurable_of_le_indicator_f (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     BoundedCompactSupport f := by
   have : BoundedCompactSupport (F.indicator 1 : X → ℝ) :=
     BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
       isBounded_F.isCompact_closure measurableSet_F
   exact this.mono_norm hf.aestronglyMeasurable h2f
 
+omit [TileStructure Q D κ S o] in
+lemma bcs_of_measurable_of_le_indicator_g (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    BoundedCompactSupport g := by
+  have : BoundedCompactSupport (G.indicator 1 : X → ℝ) :=
+    BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
+      isBounded_G.isCompact_closure measurableSet_G
+  exact this.mono_norm hg.aestronglyMeasurable h2g
+
 open scoped Classical in
 lemma forest_operator_g_prelude
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : BoundedCompactSupport g) :
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x):
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
     eLpNorm f 2 * eLpNorm (∑ u with u ∈ t, adjointCarlesonSum (t u) g ·) 2 := by
-  have bcsf := bcs_of_measurable_of_le_indicator hf h2f
+  have bf := bcs_of_measurable_of_le_indicator_f hf h2f
+  have bg := bcs_of_measurable_of_le_indicator_g hg h2g
   calc
     _ = ‖∑ u with u ∈ t, ∫ x, conj (g x) * carlesonSum (t u) f x‖ₑ := by
       congr; rw [← integral_finset_sum]; swap
-      · exact fun _ _ ↦ (hg.conj.mul bcsf.carlesonSum).integrable
+      · exact fun _ _ ↦ (bg.conj.mul bf.carlesonSum).integrable
       simp_rw [Finset.mul_sum]
     _ = ‖∑ u with u ∈ t, ∫ x, conj (adjointCarlesonSum (t u) g x) * f x‖ₑ := by
-      congr! 2 with u mu; exact adjointCarlesonSum_adjoint bcsf hg _
+      congr! 2 with u mu; exact adjointCarlesonSum_adjoint bf bg _
     _ = ‖∫ x, f x * ∑ u with u ∈ t, conj (adjointCarlesonSum (t u) g x)‖ₑ := by
       congr; rw [← integral_finset_sum]; swap
-      · exact fun _ _ ↦ (hg.adjointCarlesonSum.conj.mul bcsf).integrable
+      · exact fun _ _ ↦ (bg.adjointCarlesonSum.conj.mul bf).integrable
       simp_rw [Finset.mul_sum, mul_comm (f _)]
     _ ≤ ∫⁻ x, ‖f x‖ₑ * ‖∑ u with u ∈ t, conj (adjointCarlesonSum (t u) g x)‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
@@ -557,9 +567,9 @@ lemma forest_operator_g_prelude
       simp_rw [← map_sum, RCLike.enorm_conj]
       conv_rhs => rw [← eLpNorm_enorm]; enter [2]; rw [← eLpNorm_enorm]
       exact ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
-        bcsf.enorm.aestronglyMeasurable.aemeasurable
+        bf.enorm.aestronglyMeasurable.aemeasurable
         (BoundedCompactSupport.finset_sum fun _ _ ↦
-          hg.adjointCarlesonSum).enorm.aestronglyMeasurable.aemeasurable
+          bg.adjointCarlesonSum).enorm.aestronglyMeasurable.aemeasurable
 
 lemma adjointCarlesonRowSum_rowSupport :
     adjointCarlesonRowSum t j f = adjointCarlesonRowSum t j ((rowSupport t j).indicator f) := by
@@ -610,12 +620,13 @@ lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2
       congr 2 <;> ring
 
 open Classical in
-lemma forest_operator_g_main (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     eLpNorm (∑ u with u ∈ t, adjointCarlesonSum (t u) g ·) 2 ^ 2 ≤
     (G2_0_4 a n * eLpNorm g 2) ^ 2 := by
+  have bg := bcs_of_measurable_of_le_indicator_g hg h2g
   let TR (j : ℕ) (x : X) := adjointCarlesonRowSum t j ((rowSupport t j).indicator g) x
   have bcsrsi (j : ℕ) : BoundedCompactSupport ((t.rowSupport j).indicator g) volume :=
-    hg.indicator measurableSet_rowSupport
+    bg.indicator measurableSet_rowSupport
   have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) :=
     BoundedCompactSupport.finset_sum fun _ _ ↦
       BoundedCompactSupport.finset_sum fun _ _ ↦ (bcsrsi j).adjointCarleson
@@ -682,12 +693,13 @@ lemma forest_operator_g_main (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x
 
 open Classical in
 /-- The `g` side of Proposition 2.0.4. -/
-lemma forest_operator_g (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+lemma forest_operator_g
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
     G2_0_4 a n * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   calc
-    _ ≤ _ := forest_operator_g_prelude hf h2f hg
+    _ ≤ _ := forest_operator_g_prelude hf h2f hg h2g
     _ ≤ _ := by
       rw [mul_comm _ (eLpNorm f 2 volume), mul_assoc]; gcongr
       rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
@@ -710,7 +722,7 @@ irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (-
 open scoped Classical in
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
@@ -720,16 +732,15 @@ open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/
 theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
-    (h'A : IsBounded A) (sA : A ⊆ G) :
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A) (sA : A ⊆ G) :
     ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * (volume A) ^ (1/2 : ℝ) := by
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  have bcsf := Forest.bcs_of_measurable_of_le_indicator hf h2f
+  have bf := Forest.bcs_of_measurable_of_le_indicator_f hf h2f
   rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
-  · exact (BoundedCompactSupport.finset_sum (fun i hi ↦ bcsf.carlesonSum.restrict)).integrable
+  · exact (BoundedCompactSupport.finset_sum (fun i hi ↦ bf.carlesonSum.restrict)).integrable
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
@@ -741,17 +752,10 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     · rw [hnorm]; norm_num
     · rw [div_self hnorm]
   apply (forest_operator 𝔉 hf h2f ?_ fun x ↦ ?_).trans; rotate_left
-  · have bcsAi : BoundedCompactSupport (A.indicator 1 : X → ℝ) :=
-      BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
-        h'A.isCompact_closure hA
-    refine bcsAi.mono_norm ?_ fun x ↦ ?_
-    · refine (AEStronglyMeasurable.indicator ?_ hA)
-      rw [aestronglyMeasurable_iff_aemeasurable]
-      have : BoundedCompactSupport (∑ u with u ∈ 𝔉, carlesonSum (𝔉.𝔗 u) f ·) :=
-        .finset_sum fun _ _ ↦ bcsf.carlesonSum
-      exact this.aestronglyMeasurable.aemeasurable.div
-        this.norm.toComplex.aestronglyMeasurable.aemeasurable
-    · exact bAi _
+  · refine Measurable.indicator ?_ hA
+    suffices Measurable (∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f ·) by
+      exact this.div (measurable_ofReal.comp this.norm)
+    exact Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonSum hf
   · exact (bAi _).trans (indicator_le_indicator_apply_of_subset sA (by simp))
   gcongr
   · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
@@ -777,12 +781,11 @@ open scoped Classical in
 the integral of the function multiplied by another function, and with the upper bound in terms
 of `volume F` and `volume G`. -/
 theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
-    (h'A : IsBounded A) (sA : A ⊆ G) :
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A) (sA : A ⊆ G) :
     ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume A) ^ (1/2 : ℝ) := by
-  apply (forest_operator' 𝔉 hf h2f hA h'A sA).trans
+  apply (forest_operator' 𝔉 hf h2f hA sA).trans
   gcongr
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
