@@ -724,6 +724,20 @@ lemma Finset.sum_range_mul_conj_sum_range {α : Type*} {s : Finset α} {f : α �
 
 namespace MeasureTheory
 
+lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
+    {α ι F : Type*} [MeasurableSpace α] [NormedAddCommGroup F] {μ : Measure α}
+    {s : Finset ι} {f : α → F} {t : ι → Set α} (meast : ∀ i, MeasurableSet (t i))
+    (hpd : s.toSet.PairwiseDisjoint t) :
+    ∑ i ∈ s, eLpNorm ((t i).indicator f) 2 μ ^ 2 ≤ eLpNorm f 2 μ ^ 2 := by
+  simp_rw [sq_eLpNorm_two]
+  conv_lhs =>
+    enter [2, i, 2, x]
+    rw [enorm_indicator_eq_indicator_enorm, sq, ← inter_indicator_mul, inter_self]
+    enter [2, y]; rw [← sq]
+  conv_lhs => enter [2, i]; rw [lintegral_indicator (meast i)]
+  rw [← lintegral_biUnion_finset hpd fun _ _ ↦ meast _]
+  exact setLIntegral_le_lintegral _ _
+
 theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
     [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :
     Measurable fun (a, r) ↦ μ (Metric.ball a r) := by

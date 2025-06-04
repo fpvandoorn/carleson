@@ -387,27 +387,17 @@ lemma row_correlation_aux (hf : BoundedCompactSupport f) (nf : ∀ x, ‖f x‖ 
       intro x; by_cases mx : x ∈ 𝓘 u
       · rw [indicator_of_mem mx]; exact nf x
       · rw [indicator_of_notMem mx, norm_zero]; simp [le_indicator_apply]
-    _ = C7_4_3 a * (∑ u ∈ U, ∫⁻ x in 𝓘 u, ‖f x‖ₑ ^ 2) ^ (2 : ℝ)⁻¹ := by
+    _ ≤ C7_4_3 a * (eLpNorm f 2 volume ^ 2) ^ (2 : ℝ)⁻¹ := by
       simp_rw [mul_pow]
       rw [← Finset.mul_sum, ENNReal.mul_rpow_of_nonneg _ _ (by positivity), ← ENNReal.rpow_natCast,
         ← ENNReal.rpow_mul, show (2 : ℕ) * (2 : ℝ)⁻¹ = 1 by norm_num, ENNReal.rpow_one]
-      congr! with u mu
-      rw [sq_eLpNorm_two]
-      conv_lhs =>
-        enter [2, x]
-        rw [enorm_indicator_eq_indicator_enorm, sq, ← inter_indicator_mul, inter_self]
-        enter [2, y]; rw [← sq]
-      rw [lintegral_indicator coeGrid_measurable]
-    _ = C7_4_3 a * (∫⁻ x in ⋃ u ∈ U, 𝓘 u, ‖f x‖ₑ ^ 2) ^ (2 : ℝ)⁻¹ := by
-      congr; refine (lintegral_biUnion_finset ?_ (fun _ _ ↦ coeGrid_measurable) _).symm
+      gcongr with u mu
+      apply sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint fun _ ↦ coeGrid_measurable
       convert rowDecomp_𝔘_pairwiseDisjoint t j
       simp_rw [U, Finset.coe_filter, Finset.mem_univ, true_and]; rfl
-    _ ≤ _ := by
-      rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
-        one_div]
-      gcongr _ * ?_ ^ _
-      simp_rw [show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast]
-      exact setLIntegral_le_lintegral _ _
+    _ = _ := by
+      rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, show (2 : ℕ) * (2 : ℝ)⁻¹ = 1 by norm_num,
+        ENNReal.rpow_one]
 
 /-- The constant used in `row_correlation`. -/
 irreducible_def C7_7_3 (a n : ℕ) : ℝ≥0 := C7_4_3 a ^ 2 * C7_4_4 a n
@@ -519,6 +509,10 @@ lemma disjoint_of_ne_of_mem {i j : ℕ} {u u' : 𝔓 X} (hne : u ≠ u') (hu : u
   have : ¬(Ω p' ⊆ Ω p) := (fun hx => this <| subset_cball <| hx 𝒬_mem_Ω)
   exact (relative_fundamental_dyadic 𝓘_p_le).resolve_right this
 
+lemma measurableSet_rowSupport : MeasurableSet (rowSupport t j) :=
+  (rowDecomp t j).𝔘.toFinite.measurableSet_biUnion fun v _ ↦
+    (t v).toFinite.measurableSet_biUnion fun _ _ ↦ measurableSet_E
+
 /-- Lemma 7.7.4 -/
 lemma pairwiseDisjoint_rowSupport : (Iio (2 ^ n)).PairwiseDisjoint (rowSupport t) := by
   intro i hi j hj hne
@@ -541,7 +535,7 @@ lemma bcs_of_measurable_of_le_indicator (hf : Measurable f) (h2f : ∀ x, ‖f x
   exact this.mono_norm hf.aestronglyMeasurable h2f
 
 open scoped Classical in
-lemma forest_operator_prelude
+lemma forest_operator_g_prelude
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : BoundedCompactSupport g) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
     eLpNorm f 2 * eLpNorm (∑ u with u ∈ t, adjointCarlesonSum (t u) g ·) 2 := by
@@ -575,14 +569,53 @@ lemma adjointCarlesonRowSum_rowSupport :
   congr; refine (indicator_of_mem ?_ _).symm
   simp_rw [rowSupport, mem_iUnion₂]; exact ⟨_, mu, _, mp, my⟩
 
+/-- The constant on the `g` side of Proposition 2.0.4. -/
+def G2_0_4 (a n : ℕ) : ℝ≥0 := 2 ^ (470 * a ^ 3) * 2 ^ (-(n / 2 : ℝ))
+
+lemma le_sq_G2_0_4 (a4 : 4 ≤ a) : C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n ≤ G2_0_4 a n ^ 2 :=
+  calc
+    _ ≤ 2 ^ (312 * (a : ℝ) ^ 3 - n) + (2 ^ (203 * a ^ 3)) ^ 2 * C7_4_4 a n * 2 ^ n := by
+      rw [C7_7_2_1, ← NNReal.rpow_natCast, ← NNReal.rpow_mul, C7_7_3,
+        show (156 * (a : ℝ) ^ 3 - n / 2) * (2 : ℕ) = 312 * a ^ 3 - n by ring]
+      gcongr; exact C7_4_3_le a4
+    _ ≤ 2 ^ (312 * a ^ 3) * 2 ^ (-n : ℝ) +
+        2 ^ (406 * a ^ 3) * (2 ^ (533 * a ^ 3 + 1) * 2 ^ (-(4 * n : ℝ))) * 2 ^ n := by
+      rw [sub_eq_add_neg, NNReal.rpow_add two_ne_zero]
+      conv_lhs => enter [1, 1, 2]; norm_cast
+      rw [NNReal.rpow_natCast, ← pow_mul, show 203 * a ^ 3 * 2 = 406 * a ^ 3 by ring, C7_4_4,
+        pow_succ _ (533 * a ^ 3), mul_two]
+      gcongr <;> norm_num
+    _ = 2 ^ (312 * a ^ 3) * 2 ^ (-n : ℝ) +
+        2 ^ (939 * a ^ 3 + 1) * 2 ^ (-(2 * n : ℝ)) * 2 ^ (-n : ℝ) := by
+      rw [← mul_assoc, ← pow_add, show 406 * a ^ 3 + (533 * a ^ 3 + 1) = 939 * a ^ 3 + 1 by ring,
+        mul_assoc, mul_assoc]; congr 2
+      rw [← NNReal.rpow_natCast, ← NNReal.rpow_add two_ne_zero, ← NNReal.rpow_add two_ne_zero]
+      congr 1; ring
+    _ ≤ 2 ^ (939 * a ^ 3 + 1) * 2 ^ (-n : ℝ) + 2 ^ (939 * a ^ 3 + 1) * 1 * 2 ^ (-n : ℝ) := by
+      gcongr
+      · exact one_le_two
+      · rw [show 939 * a ^ 3 + 1 = 312 * a ^ 3 + (627 * a ^ 3 + 1) by ring]
+        exact Nat.le_add_right ..
+      · exact NNReal.rpow_le_one_of_one_le_of_nonpos one_le_two (by simp)
+    _ ≤ 2 ^ (940 * a ^ 3) * 2 ^ (-n : ℝ) := by
+      rw [mul_one, ← two_mul, ← mul_assoc, ← pow_succ']; gcongr
+      · exact one_le_two
+      · rw [show 940 = 939 + 1 by norm_num, add_one_mul, add_assoc]; gcongr
+        calc
+          _ ≤ 4 * 1 * 1 := by norm_num
+          _ ≤ a * a * a := by gcongr <;> omega
+          _ = _ := by ring
+    _ = _ := by
+      rw [G2_0_4, mul_pow, ← pow_mul, ← NNReal.rpow_natCast _ 2, ← NNReal.rpow_mul]
+      congr 2 <;> ring
+
 open Classical in
-lemma forest_operator_adjoint_bound (hg : BoundedCompactSupport g) :
+lemma forest_operator_g_main (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     eLpNorm (∑ u with u ∈ t, adjointCarlesonSum (t u) g ·) 2 ^ 2 ≤
-    2 ^ (863 * a ^ 3) * 2 ^ (-n : ℝ) * eLpNorm g 2 ^ 2 := by
+    (G2_0_4 a n * eLpNorm g 2) ^ 2 := by
   let TR (j : ℕ) (x : X) := adjointCarlesonRowSum t j ((rowSupport t j).indicator g) x
-  have bcsrsi (j : ℕ) : BoundedCompactSupport ((t.rowSupport j).indicator g) volume := by
-    refine hg.indicator <| (rowDecomp t j).𝔘.toFinite.measurableSet_biUnion fun v _ ↦ ?_
-    exact (t v).toFinite.measurableSet_biUnion fun p mp ↦ measurableSet_E
+  have bcsrsi (j : ℕ) : BoundedCompactSupport ((t.rowSupport j).indicator g) volume :=
+    hg.indicator measurableSet_rowSupport
   have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) :=
     BoundedCompactSupport.finset_sum fun _ _ ↦
       BoundedCompactSupport.finset_sum fun _ _ ↦ (bcsrsi j).adjointCarleson
@@ -610,17 +643,56 @@ lemma forest_operator_adjoint_bound (hg : BoundedCompactSupport g) :
     _ ≤ ∑ j ∈ Finset.range (2 ^ n), (C7_7_2_1 a n * eLpNorm ((rowSupport t j).indicator g) 2) ^ 2 +
         ∑ j ∈ Finset.range (2 ^ n), ∑ j' ∈ Finset.range (2 ^ n) with j ≠ j',
           C7_7_3 a n * eLpNorm ((rowSupport t j).indicator g) 2 *
-          eLpNorm ((rowSupport t j').indicator g) 2 volume := by
+          eLpNorm ((rowSupport t j').indicator g) 2 := by
+      have nleg {j : ℕ} (x : X) : ‖(t.rowSupport j).indicator g x‖ ≤ G.indicator 1 x := by
+        by_cases mx : x ∈ t.rowSupport j
+        · rw [indicator_of_mem mx]; exact h2g x
+        · rw [indicator_of_notMem mx, norm_zero]; exact indicator_apply_nonneg fun _ ↦ by simp
       gcongr with j mj j mj j' mj'
       · simp_rw [Finset.mem_range] at mj
-        refine row_bound mj (bcsrsi j) ?_
-        sorry
+        exact row_bound mj (bcsrsi j) nleg
       · simp_rw [Finset.mem_filter, Finset.mem_range] at mj mj'
-        refine row_correlation mj mj'.1 mj'.2 (bcsrsi j) ?_ (bcsrsi j') ?_
-        · sorry
-        · sorry
+        exact row_correlation mj mj'.1 mj'.2 (bcsrsi j) nleg (bcsrsi j') nleg
+    _ ≤ C7_7_2_1 a n ^ 2 *
+        ∑ j ∈ Finset.range (2 ^ n), eLpNorm ((rowSupport t j).indicator g) 2 ^ 2 +
+        C7_7_3 a n * ∑ j ∈ Finset.range (2 ^ n), ∑ j' ∈ Finset.range (2 ^ n),
+          eLpNorm ((rowSupport t j).indicator g) 2 *
+          eLpNorm ((rowSupport t j').indicator g) 2 := by
+      simp_rw [Finset.mul_sum, ← mul_pow, mul_assoc]
+      gcongr with j mj; exact Finset.filter_subset ..
+    _ ≤ C7_7_2_1 a n ^ 2 *
+        ∑ j ∈ Finset.range (2 ^ n), eLpNorm ((rowSupport t j).indicator g) 2 ^ 2 +
+        C7_7_3 a n * 2 ^ n *
+        ∑ j ∈ Finset.range (2 ^ n), eLpNorm ((rowSupport t j).indicator g) 2 ^ 2 := by
+      conv_lhs => enter [2, 2, 2, j]; rw [← Finset.mul_sum]
+      rw [← Finset.sum_mul, ← sq, mul_assoc]; gcongr
+      have := ENNReal.rpow_sum_le_const_mul_sum_rpow (Finset.range (2 ^ n))
+        (fun j ↦ eLpNorm ((t.rowSupport j).indicator g) 2 volume) one_le_two
+      simp_rw [show (2 : ℝ) - 1 = 1 by norm_num, ENNReal.rpow_one, Finset.card_range,
+        show (2 : ℝ) = (2 : ℕ) by rfl, ENNReal.rpow_natCast, Nat.cast_pow, Nat.cast_ofNat] at this
+      exact this
+    _ ≤ (C7_7_2_1 a n ^ 2 + C7_7_3 a n * 2 ^ n) * eLpNorm g 2 ^ 2 := by
+      rw [← add_mul]; gcongr
+      apply sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint fun _ ↦ measurableSet_rowSupport
+      rw [Finset.coe_range]; exact pairwiseDisjoint_rowSupport
     _ ≤ _ := by
-      sorry
+      rw [mul_pow]; gcongr; norm_cast
+      rw [Nat.cast_pow, Nat.cast_ofNat]
+      exact le_sq_G2_0_4 (four_le_a X)
+
+open Classical in
+/-- The `g` side of Proposition 2.0.4. -/
+lemma forest_operator_g (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
+    G2_0_4 a n * eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  calc
+    _ ≤ _ := forest_operator_g_prelude hf h2f hg
+    _ ≤ _ := by
+      rw [mul_comm _ (eLpNorm f 2 volume), mul_assoc]; gcongr
+      rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
+        ENNReal.rpow_natCast, ENNReal.rpow_natCast]
+      exact forest_operator_g_main hg h2g
 
 end FinalProp
 
@@ -637,7 +709,8 @@ irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (-
 
 open scoped Classical in
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : BoundedCompactSupport g) :
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : BoundedCompactSupport g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
@@ -648,7 +721,7 @@ open scoped Classical in
 the integral of the function multiplied by another function. -/
 theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
-    (h'A : IsBounded A) :
+    (h'A : IsBounded A) (sA : A ⊆ G) :
     ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * (volume A) ^ (1/2 : ℝ) := by
@@ -660,7 +733,14 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
   rw [← integral_indicator hA]
   simp_rw [indicator_mul_left, ← comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
-  apply (forest_operator 𝔉 hf h2f ?_).trans; swap
+  have bAi (x : X) : ‖A.indicator (fun y ↦ (∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f y) /
+      ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f y‖) x‖ ≤ A.indicator 1 x := by
+    rw [norm_indicator_eq_indicator_norm]; apply indicator_le_indicator
+    rw [Complex.norm_div, norm_real, norm_norm, Pi.one_apply]
+    rcases eq_or_ne ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ 0 with hnorm | hnorm
+    · rw [hnorm]; norm_num
+    · rw [div_self hnorm]
+  apply (forest_operator 𝔉 hf h2f ?_ fun x ↦ ?_).trans; rotate_left
   · have bcsAi : BoundedCompactSupport (A.indicator 1 : X → ℝ) :=
       BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
         h'A.isCompact_closure hA
@@ -671,11 +751,8 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
         .finset_sum fun _ _ ↦ bcsf.carlesonSum
       exact this.aestronglyMeasurable.aemeasurable.div
         this.norm.toComplex.aestronglyMeasurable.aemeasurable
-    · rw [norm_indicator_eq_indicator_norm]; apply indicator_le_indicator
-      simp_rw [coe_algebraMap, Complex.norm_div, norm_real, norm_norm, Pi.one_apply]
-      rcases eq_or_ne ‖∑ u with u ∈ 𝔉, carlesonSum (𝔉.𝔗 u) f x‖ 0 with hnorm | hnorm
-      · rw [hnorm]; norm_num
-      · rw [div_self hnorm]
+    · exact bAi _
+  · exact (bAi _).trans (indicator_le_indicator_apply_of_subset sA (by simp))
   gcongr
   · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
     exact (q_mem_Ioc (X := X)).2
@@ -701,11 +778,11 @@ the integral of the function multiplied by another function, and with the upper 
 of `volume F` and `volume G`. -/
 theorem forest_operator_le_volume {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set X}
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : MeasurableSet A)
-    (h'A : IsBounded A) :
+    (h'A : IsBounded A) (sA : A ⊆ G) :
     ∫⁻ x in A, ‖∑ u ∈ { p | p ∈ 𝔉 }, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     (volume F) ^ (1/2 : ℝ) * (volume A) ^ (1/2 : ℝ) := by
-  apply (forest_operator' 𝔉 hf h2f hA h'A).trans
+  apply (forest_operator' 𝔉 hf h2f hA h'A sA).trans
   gcongr
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by

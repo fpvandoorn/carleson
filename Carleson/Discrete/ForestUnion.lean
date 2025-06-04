@@ -753,7 +753,7 @@ lemma lintegral_carlesonSum_forest
     exact Iff.rfl
   rw [this]
   have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
-    (isBounded_G.subset diff_subset)
+    (isBounded_G.subset diff_subset) diff_subset
   apply W.trans
   gcongr
   · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]

@@ -5130,7 +5130,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     \uses{densities-tree-bound}
     For all $g$ with $|g| \le \mathbf{1}_G$, we have that
     $$
-        \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
+        \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
     $$
 \end{lemma}
 
@@ -5142,7 +5142,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     $$
     \begin{equation}
         \label{eq-adjoint-bound}
-        \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2 \|f\|_2\,.
+        \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2 \|f\|_2\,.
     \end{equation}
     Let $f = \sum_{\fp \in \fT(\fu)} T_{\fp}^* g$. Since $|g| \le \mathbf{1}_G$, $f$ is bounded and has bounded support. In particular $\|f\|_2 < \infty$. Dividing \eqref{eq-adjoint-bound} by $\|f\|_2$ completes the proof.
 \end{proof}
@@ -5158,7 +5158,7 @@ $$
     \uses{adjoint-tree-estimate}
     We have for all $\fu \in \fU$ and $g$ with $|g| \le \mathbf{1}_G$
     $$
-        \|S_{2, \fu} g\|_2 \le 2^{156a^3} \|g\|_2\,.
+        \|S_{2, \fu} g\|_2 \le 2^{203a^3} \|g\|_2\,.
     $$
 \end{lemma}
 
@@ -6200,7 +6200,7 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     For all $1 \le j,j' \le 2^n$ with $j\ne j'$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
     $$
         \left| \int T_{\mathfrak{R}_j}^*g_1 \overline{T_{\mathfrak{R}_{j'}}^*g_2} \, \mathrm{d}\mu \right| \le
-        2^{845a^3+1-4n}\|g_1\|_2 \|g_2\|_2\,.
+        2^{939a^3+1-4n}\|g_1\|_2 \|g_2\|_2\,.
     $$
 \end{lemma}
 
@@ -6243,11 +6243,11 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     $$
     By \Cref{adjoint-tree-control} we now estimate:
     $$
-        \le \sum_{\fu \in \fU_j}(2^{156a^3})^2 \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
+        \le \sum_{\fu \in \fU_j}(2^{203a^3})^2 \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
     $$
     By pairwise disjointedness of the sets $\scI(\fu)$ for $\fu \in \fU_j$ (and writing out the definition of $L^2$-norms), we have
     $$
-        \le (2^{156a^3})^2 \|g_1\|_2^2
+        \le (2^{203a^3})^2 \|g_1\|_2^2
     $$
     Arguing similarly for $g_2$, we obtain the desired inequality.
 \end{proof}
@@ -6287,7 +6287,7 @@ Now we prove \Cref{forest-operator}.
     $$
         T_{\mathfrak{R}_j}^*g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* \mathbf{1}_{E_j} g = T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g\,.
     $$
-    Hence, by \Cref{forest-row-decomposition},
+    Hence, by \Cref{forest-row-decomposition} and the triangle inequality,
     $$
         \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T^*_{\fp} g\right\|_2^2 = \left\|\sum_{j = 1}^{2^n} T^*_{\mathfrak{R}_{j}} g\right\|_2^2 = \left\|\sum_{j=1}^{2^n} T^*_{\mathfrak{R}_{j}} \mathbf{1}_{E_j} g\right\|_2^2
     $$
@@ -6295,24 +6295,24 @@ Now we prove \Cref{forest-operator}.
         = \int_X \left|\sum_{j=1}^{2^n} T^*_{\mathfrak{R}_{j}} \mathbf{1}_{E_j} g\right|^2 \, \mathrm{d}\mu
     $$
     $$
-        = \sum_{j=1}^{2^n} \int_X |T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g|^2 + \sum_{j =1}^{2^n} \sum_{\substack{j' = 1\\j' \ne j}}^{2^n} \int_X \overline{ T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g} T_{\mathfrak{R}_{j'}}^* \mathbf{1}_{E_{j'}} g \, \mathrm{d}\mu\,.
+        \le \sum_{j=1}^{2^n} \|T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g\|_2^2 + \sum_{j =1}^{2^n} \sum_{\substack{j' = 1\\j' \ne j}}^{2^n} \left| \int_X \overline{ T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g} T_{\mathfrak{R}_{j'}}^* \mathbf{1}_{E_{j'}} g \right| \, \mathrm{d}\mu\,.
     $$
     We use \Cref{row-bound} to estimate each term in the first sum, and \Cref{row-correlation} to bound each term in the second sum:
     $$
-        \le 2^{312a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{862a^3-3 n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
+        \le 2^{312a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{939a^3+1-4n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
     $$
     By Cauchy-Schwarz in the second two sums, this is at most
     $$
-        2^{862a^3} (2^{-n} + 2^{n}2^{-3 n}) \sum_{j = 1}^n \|\mathbf{1}_{E_j} g\|_2^2\,,
+        2^{939a^3+1} (2^{-n} + 2^{n}2^{-4n}) \sum_{j = 1}^n \|\mathbf{1}_{E_j} g\|_2^2\,,
     $$
     and by disjointedness of the sets $E_j$, this is at most
     $$
-        2^{863a^3 - n} \|g\|_2^2\,.
+        2^{940a^3 - n} \|g\|_2^2\,.
     $$
-    Taking adjoints and square roots, it follows that for all $f$
+    Taking square roots, it follows that for all $g$
     \begin{equation}
         \label{eq-forest-bound-1}
-        \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2 \le 2^{432a^3-\frac{n}{2}} \|f\|_2\,.
+        \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{470a^3-\frac{n}{2}} \|g\|_2\,.
     \end{equation}
     On the other hand, we have by disjointedness of the sets $E_j$
     from \Cref{disjoint-row-support}
