@@ -263,7 +263,7 @@ theorem finset_sum
 
 open Classical ComplexConjugate in
 /-- Used in Proposition 2.0.4. -/
-lemma sq_eLpNorm_le_sums [MeasureSpace X] [IsFiniteMeasureOnCompacts μ] {f : ι → X → ℂ}
+lemma sq_eLpNorm_le_sums [IsFiniteMeasureOnCompacts μ] {f : ι → X → ℂ}
     (hf : ∀ i, BoundedCompactSupport (f i) μ) {s : Finset ι} :
     eLpNorm (∑ i ∈ s, f i ·) 2 μ ^ 2 ≤
     ∑ i ∈ s, eLpNorm (f i) 2 μ ^ 2 +
