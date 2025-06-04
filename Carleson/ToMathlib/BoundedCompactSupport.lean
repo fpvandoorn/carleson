@@ -261,6 +261,41 @@ theorem finset_sum
     · exact hF _ (Finset.mem_insert_self j s)
     · exact IH (fun i hi ↦ hF _ (Finset.mem_insert_of_mem hi))
 
+open Classical ComplexConjugate in
+/-- Used in Proposition 2.0.4. -/
+lemma sq_eLpNorm_le_sums [MeasureSpace X] [IsFiniteMeasureOnCompacts μ] {f : ι → X → ℂ}
+    (hf : ∀ i, BoundedCompactSupport (f i) μ) {s : Finset ι} :
+    eLpNorm (∑ i ∈ s, f i ·) 2 μ ^ 2 ≤
+    ∑ i ∈ s, eLpNorm (f i) 2 μ ^ 2 +
+    ∑ i ∈ s, ∑ j ∈ s with i ≠ j, ‖∫ x, f i x * conj (f j x) ∂μ‖ₑ := by
+  have l₁ {i : ι} : Integrable (fun x ↦ f i x * conj (f i x)) μ :=
+    ((hf i).mul (hf i).conj).integrable
+  have l₂ {i j : ι} : Integrable (fun x ↦ f i x * conj (f j x)) μ :=
+    ((hf i).mul (hf j).conj).integrable
+  calc
+    _ = ‖∫ x, (∑ i ∈ s, f i x) * conj (∑ j ∈ s, f j x) ∂μ‖ₑ :=
+      eLpNorm_two_eq_enorm_integral_mul_conj (memLp (finset_sum fun i _ ↦ hf i) 2)
+    _ = ‖∫ x, (∑ i ∈ s, f i x * conj (f i x) +
+        ∑ i ∈ s, ∑ j ∈ s with i ≠ j, f i x * conj (f j x)) ∂μ‖ₑ := by
+      congr! 3 with x; rw [Finset.sum_range_mul_conj_sum_range]
+    _ = ‖(∑ i ∈ s, ∫ x, f i x * conj (f i x) ∂μ) +
+        ∑ i ∈ s, ∑ j ∈ s with i ≠ j, ∫ x, f i x * conj (f j x) ∂μ‖ₑ := by
+      rw [integral_add]; rotate_left
+      · exact integrable_finset_sum _ fun i mi ↦ l₁
+      · refine integrable_finset_sum _ fun i mi ↦ integrable_finset_sum _ fun j mj ↦ l₂
+      congr
+      · exact integral_finset_sum _ fun i mi ↦ l₁
+      · rw [integral_finset_sum _ fun i mi ↦ integrable_finset_sum _ fun j mj ↦ l₂]
+        congr! with i mi; rw [integral_finset_sum _ fun j mj ↦ l₂]
+    _ ≤ ‖∑ i ∈ s, ∫ x, f i x * conj (f i x) ∂μ‖ₑ +
+        ‖∑ i ∈ s, ∑ j ∈ s with i ≠ j, ∫ x, f i x * conj (f j x) ∂μ‖ₑ := enorm_add_le _ _
+    _ ≤ ∑ i ∈ s, ‖∫ x, f i x * conj (f i x) ∂μ‖ₑ +
+        ∑ i ∈ s, ‖∑ j ∈ s with i ≠ j, ∫ x, f i x * conj (f j x) ∂μ‖ₑ := by
+      gcongr <;> exact enorm_sum_le _ _
+    _ ≤ _ := by
+      conv_rhs => enter [1, 2, i]; rw [eLpNorm_two_eq_enorm_integral_mul_conj ((hf i).memLp 2)]
+      gcongr; exact enorm_sum_le _ _
+
 end Sum
 
 section Prod
