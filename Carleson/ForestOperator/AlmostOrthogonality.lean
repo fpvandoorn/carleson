@@ -153,6 +153,14 @@ lemma adjoint_tile_support2_sum (hu : u ∈ t) :
       rw [adjoint_tile_support2 hu mp]
     _ = _ := by simp_rw [← Finset.indicator_sum, ← Finset.sum_apply]
 
+/-- A partially applied variant of `adjoint_tile_support2_sum`, used to prove Lemma 7.7.3. -/
+lemma adjoint_tile_support2_sum_partial (hu : u ∈ t) :
+    adjointCarlesonSum (t u) f = (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f)) := by
+  unfold adjointCarlesonSum
+  ext x; simp only [Finset.sum_apply]; congr! 1 with p mp
+  simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
+  rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu mp).1.1)]
+
 lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
     ‖adjointCarleson p f x‖ₑ ≤
     C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * (∫⁻ y in E p, ‖f y‖ₑ) *

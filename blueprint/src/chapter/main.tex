@@ -5182,7 +5182,7 @@ Now we are ready to state the main result of this subsection.
     \end{equation}
     \begin{equation}
         \label{eq-rhs-sep-tree}
-        \le 2^{542a^3-4n} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1) \cap \scI(\fu_2))}\,.
+        \le 2^{533a^3+1-4n} \prod_{j =1}^2 \| S_{2, \fu_j} g_j\|_{L^2(\scI(\fu_1) \cap \scI(\fu_2))}\,.
     \end{equation}
 \end{lemma}
 
@@ -6136,8 +6136,13 @@ We pick a decomposition of the forest $(\fU, \fT)$ into $2^n$ $n$-rows
 \begin{equation*}
 (\fU_j, \fT_j) := (\fU_j, \fT|_{\fU_j})
 \end{equation*}
-as in \Cref{forest-row-decomposition}.
-
+as in \Cref{forest-row-decomposition}. To save some space in the proofs of the remaining lemmas in this section we will write
+    $$
+        T_{\fC}^* = \sum_{\fp \in \fC} T_{\fp}^*,
+    $$
+    $$
+        T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} T_{\fT(\fu)}^*\,.
+    $$
 \begin{lemma}[row bound]
     \label{row-bound}
     \leanok
@@ -6147,12 +6152,12 @@ as in \Cref{forest-row-decomposition}.
     we have
     \begin{equation}
         \label{eq-row-bound-1}
-        \left\| \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
+        \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
     \end{equation}
     and
     \begin{equation}
         \label{eq-row-bound-2}
-        \left\| \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} \mathbf{1}_F T_{\fp}^* g\right\|_2 \le 2^{257a^3} 2^{-n/2} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/2} \|g\|_2\,.
+        \left\| \mathbf{1}_F T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{257a^3} 2^{-n/2} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/2} \|g\|_2\,.
     \end{equation}
 \end{lemma}
 
@@ -6192,21 +6197,18 @@ as in \Cref{forest-row-decomposition}.
     \leanok
     \lean{TileStructure.Forest.row_correlation}
     \uses{adjoint-tree-control,correlation-separated-trees}
-    For all $1 \le j < j' \le 2^n$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
+    For all $1 \le j,j' \le 2^n$ with $j\ne j'$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
     $$
-        \left| \int \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \sum_{\fp \in \fT_j(\fu)} \sum_{\fp' \in \fT_{j'}(\fu')} T^*_{\fp} g_1 \overline{T^*_{\fp'} g_2} \, \mathrm{d}\mu \right| \le
-        2^{862a^3-3n}\|g_1\|_2 \|g_2\|_2\,.
+        \left| \int T_{\mathfrak{R}_j}^*g_1 \overline{T_{\mathfrak{R}_{j'}}^*g_2} \, \mathrm{d}\mu \right| \le
+        2^{845a^3+1-4n}\|g_1\|_2 \|g_2\|_2\,.
     $$
 \end{lemma}
 
 \begin{proof}
-    To save some space we will write for subsets $\fC \subset \fP$
-    $$
-        T_{\fC}^* = \sum_{\fp \in \fC} T_{\fp}^*\,.
-    $$
+    \leanok
     We have by \Cref{adjoint-tile-support} and the triangle inequality that
     $$
-        \left| \int \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \sum_{\fp \in \fT_j(\fu)} \sum_{\fp' \in \fT_{j'}(\fu')} T^*_{\fp} g_1 \overline{T^*_{\fp'} g_2} \, \mathrm{d}\mu \right|
+        \left| \int T_{\mathfrak{R}_j}^*g_1 \overline{T_{\mathfrak{R}_{j'}}^*g_2} \, \mathrm{d}\mu \right|
     $$
     $$
         \le \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \left| \int T^*_{\fT_j(\fu)} (\mathbf{1}_{\scI(\fu)} g_1) \overline{T^*_{\fT_{j'}(\fu')} (\mathbf{1}_{\scI(\fu')} g_2)} \, \mathrm{d}\mu \right|\,.
@@ -6214,14 +6216,14 @@ as in \Cref{forest-row-decomposition}.
     By \Cref{correlation-separated-trees}, this is bounded by
     \begin{equation}
         \label{eq-S2uu'}
-         2^{550a^3-3n} \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu)} \|S_{2, \fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}\,.
+         2^{533a^3+1-4n} \sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu)} \|S_{2, \fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}\,.
     \end{equation}
     We apply the Cauchy-Schwarz inequality in the form
     \begin{equation*}
         \sum_{i \in M} a_i b_i \le (\sum_{i \in M} a_i^2 )^{1/2}(\sum_{i \in M} b_i^2 )^{1/2}
     \end{equation*} to the outer two sums:
     $$
-        \le 2^{550a^3-3n} \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2 \right)^{1/2}
+        \le 2^{533a^3+1-4n} \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu} (\mathbf{1}_{\scI(\fu)}g_1)\|_{L^2(\scI(\fu')\cap \scI(\fu))}^2 \right)^{1/2}
     $$
     $$
         \left(\sum_{\fu \in \fU_j} \sum_{\fu' \in \fU_{j'}} \|S_{2,\fu'} (\mathbf{1}_{\scI(\fu')}g_2)\|_{L^2(\scI(\fu')\cap\scI(\fu))}^2 \right)^{1/2}\,.
@@ -6241,13 +6243,13 @@ as in \Cref{forest-row-decomposition}.
     $$
     By \Cref{adjoint-tree-control} we now estimate:
     $$
-        \le \sum_{\fu \in \fU_j}2^{156a^3} \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
+        \le \sum_{\fu \in \fU_j}(2^{156a^3})^2 \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
     $$
     By pairwise disjointedness of the sets $\scI(\fu)$ for $\fu \in \fU_j$ (and writing out the definition of $L^2$-norms), we have
     $$
-        \le 2^{156a^3} \|g_1\|_2^2
+        \le (2^{156a^3})^2 \|g_1\|_2^2
     $$
-    Arguing similar for $g_2$, we obtain the desired inequality.
+    Arguing similarly for $g_2$, we obtain the desired inequality.
 \end{proof}
 
 Define for $1 \le j \le 2^n$
@@ -6281,10 +6283,6 @@ Now we prove \Cref{forest-operator}.
 
 \begin{proof}[Proof of \Cref{forest-operator}]
     \proves{forest-operator}
-    To save some space, we will write
-    $$
-        T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^*\,.
-    $$
     By \eqref{definetp*}, we have for each $j$
     $$
         T_{\mathfrak{R}_j}^*g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* \mathbf{1}_{E_j} g = T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g\,.
