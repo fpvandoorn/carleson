@@ -6138,26 +6138,25 @@ We pick a decomposition of the forest $(\fU, \fT)$ into $2^n$ $n$-rows
 \end{equation*}
 as in \Cref{forest-row-decomposition}. To save some space in the proofs of the remaining lemmas in this section we will write
     $$
-        T_{\fC}^* = \sum_{\fp \in \fC} T_{\fp}^*,
+        T_{\fC} = \sum_{\fp \in \fC} T_{\fp},\qquad T_{\fC}^* = \sum_{\fp \in \fC} T_{\fp}^*,
     $$
     $$
-        T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} T_{\fT(\fu)}^*\,.
+        T_{\mathfrak{R}_j} = \sum_{\fu \in \fU_j} T_{\fT(\fu)},\qquad T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} T_{\fT(\fu)}^*.
     $$
 \begin{lemma}[row bound]
     \label{row-bound}
     \leanok
     \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{densities-tree-bound,adjoint-tile-support}
-    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$,
-    we have
+    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$, we have
     \begin{equation}
         \label{eq-row-bound-1}
-        \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
+        \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2.
     \end{equation}
-    and
+    For each $1 \le j \le 2^n$ and each bounded $f$ with bounded support with $|f| \le \mathbf{1}_F$, we have
     \begin{equation}
         \label{eq-row-bound-2}
-        \left\| \mathbf{1}_F T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{257a^3} 2^{-n/2} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/2} \|g\|_2\,.
+        \left\| \mathbf{1}_F T_{\mathfrak{R}_j}f \right\|_2 \le 2^{257a^3} 2^{-n/2} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/2} \|f\|_2\,.
     \end{equation}
 \end{lemma}
 
@@ -6314,10 +6313,9 @@ Now we prove \Cref{forest-operator}.
         \label{eq-forest-bound-1}
         \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{470a^3-\frac{n}{2}} \|g\|_2\,.
     \end{equation}
-    On the other hand, we have by disjointedness of the sets $E_j$
-    from \Cref{disjoint-row-support}
+    On the other hand, we have by disjointedness of the sets $E_j$ from \Cref{disjoint-row-support} and the triangle inequality
     $$
-        \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2^2 = \left\|\sum_{j=1}^{2^n} \mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\right\|_2^2 = \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\|_2^2\,.
+        \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2^2 = \left\|\sum_{j=1}^{2^n} \mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\right\|_2^2 \le \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\|_2^2\,.
     $$
     If $|f| \le \mathbf{1}_F$ then we obtain from \Cref{row-bound} and taking square roots that
     $$
