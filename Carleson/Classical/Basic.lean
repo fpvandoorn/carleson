@@ -7,7 +7,7 @@ import Mathlib.Analysis.Convolution
 
 import Carleson.Classical.Helper
 import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Topology.Instances.AddCircle
+import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 
