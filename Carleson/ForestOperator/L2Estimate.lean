@@ -751,11 +751,12 @@ private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
 private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     C7_1_3 a * CMB (defaultA a) 2 + C7_1_3 a * C7_2_3 a + C7_2_2 a ≤ (C7_2_1 a : ℝ≥0∞) := calc
-  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3 + 12 * a) := by
+  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ (151 * a ^ 3 + 12 * a) := by
     rw [three'_nsmul]
     gcongr
-    · rw [C7_1_3_eq_C7_1_6 ha, C7_1_6_def, CMB_defaultA_two_eq, ← ENNReal.coe_mul,
-        ← NNReal.rpow_add two_ne_zero, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat]
+    · rw [C7_1_3_eq_C7_1_6 ha, C7_1_6_def, CMB_defaultA_two_eq, pow_add]
+      simp_rw [ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat]
+      gcongr; rw [← ENNReal.rpow_natCast, Nat.cast_mul]
       apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two ?_
       linarith [show 4 ≤ (a : ℝ) by exact_mod_cast ha]
     · rw [C7_1_3_eq_C7_1_6 ha, C7_2_3_def, C7_1_6_def]
@@ -764,12 +765,10 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     · rw [C7_2_2_def]
       norm_cast
       exact pow_right_mono₀ one_le_two <| (Nat.mul_le_mul_right _ (by norm_num)).trans le_self_add
-  _ = 3 * 2 ^ (12 * (a : ℝ)) * (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3) := by
-    rw [add_comm, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]; ring
-  _ ≤ (2 : ℝ≥0∞) ^ ((a : ℝ) ^ 3) * (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3) := by
-    apply mul_right_mono
-    norm_cast
-    calc 3 * 2 ^ (12 * a)
+  _ = 3 * 2 ^ (12 * a) * 2 ^ (151 * a ^ 3) := by rw [add_comm, pow_add]; ring
+  _ ≤ 2 ^ (a ^ 3) * 2 ^ (151 * a ^ 3) := by
+    apply mul_right_mono; norm_cast
+    calc
       _ ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num
       _ = 2 ^ (2 + 12 * a)     := by rw [pow_add]
       _ ≤ 2 ^ (a ^ 3)          := pow_le_pow_right₀ one_le_two <| calc 2 + 12 * a
@@ -777,10 +776,7 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
         _ = 13 * a     := by ring
         _ ≤ a ^ 2 * a  := by rw [mul_le_mul_right] <;> nlinarith
         _ = a ^ 3      := rfl
-  _ = _ := by
-    rw [C7_2_1_def, ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
-    norm_cast
-    ring
+  _ = _ := by rw [C7_2_1_def, ← pow_add]; norm_cast; ring
 
 -- Main estimate used in the proof of `tree_projection_estimate`
 private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤

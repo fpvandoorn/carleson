@@ -176,10 +176,6 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
     _ ≤ _ := by
       rw [← ENNReal.add_div]; refine ENNReal.div_le_div_right ?_ _
       rw [C2_1_3, C_6_2_1]; norm_cast
-      have hc : (2 ^ (102 * a ^ 3) : ℝ).toNNReal = ((2 ^ (102 * a ^ 3) : ℕ) : ℝ≥0) := by
-        rw [Real.toNNReal_eq_natCast (by positivity), Nat.cast_pow, Nat.cast_ofNat]
-      rw [show (2 : ℝ≥0) = Real.toNNReal 2 by simp, NNReal.rpow_natCast,
-        ← Real.toNNReal_pow zero_le_two, hc, ← Nat.cast_pow, ← Nat.cast_add, Nat.cast_le]
       calc
         _ ≤ 2 ^ (253 * a ^ 3) + 2 ^ (253 * a ^ 3) := by
           rw [← pow_mul, show 102 * a ^ 3 * 2 = 204 * a ^ 3 by ring]; gcongr <;> norm_num

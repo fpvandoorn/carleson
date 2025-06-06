@@ -402,9 +402,9 @@ lemma dist_mem_Icc_of_mem_tsupport_Ks' {s : ℤ} {x y : X} (h : y ∈ tsupport f
   exact hC' (mem_image_of_mem (fun y ↦ dist x y) h)
 
 /-- The constant appearing in part 2 of Lemma 2.1.3. -/
-def C2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
+def C2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (102 * a ^ 3)
 /-- The constant appearing in part 3 of Lemma 2.1.3. -/
-def D2_1_3 (a : ℝ≥0) : ℝ≥0 := 2 ^ (150 * (a : ℝ) ^ 3)
+def D2_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (150 * a ^ 3)
 
 /-- preferably use `kernel_bound` instead. -/
 lemma kernel_bound_old {s : ℤ} {x y : X} :
@@ -552,8 +552,9 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
   rw [Ks, norm_mul, norm_real, ← mul_one (_ / _)]
   gcongr
   · apply le_trans <| norm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
-    rw [pow_zero, one_mul]
-    suffices 2 * (a : ℝ) + 101 * a ^ 3 ≤ 102 * a ^ 3 by gcongr; simpa [C2_1_3] using this
+    rw [pow_zero, one_mul, Nat.cast_zero, add_zero]
+    suffices 2 * (a : ℝ) + 101 * a ^ 3 ≤ 102 * a ^ 3 by
+      gcongr; simpa [C2_1_3, ← Real.rpow_natCast] using this
     suffices 2 * (a : ℝ) ≤ a ^ 2 * a by linarith
     nlinarith [show 4 ≤ (a : ℝ) by exact_mod_cast four_le_a X]
   · exact abs_ψ_le_one D (D ^ (-s) * dist x y)
@@ -581,8 +582,7 @@ lemma enorm_Ks_le' {s : ℤ} {x y : X} :
   rw [Ks, enorm_mul]; nth_rw 2 [← enorm_norm]; rw [norm_real, enorm_norm]
   gcongr; apply le_trans <| enorm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
   rw [pow_zero, one_mul]; norm_cast; rw [add_zero, C2_1_3]; gcongr; norm_cast
-  rw [Nat.cast_pow, Nat.cast_ofNat, NNReal.rpow_natCast,
-    show 102 * a ^ 3 = a ^ 2 * a + 101 * a ^ 3 by ring]; gcongr
+  rw [show 102 * a ^ 3 = a ^ 2 * a + 101 * a ^ 3 by ring]; gcongr
   · exact one_le_two
   · nlinarith [four_le_a X]
 
@@ -754,18 +754,23 @@ private lemma norm_Ks_sub_Ks_le₀ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
   norm_cast
   have : 1 + 102 * a + 101 * a ^ 3 ≤ 2 + 2 * a + 100 * a ^ 2 + 101 * a ^ 3 := by
     nlinarith [four_le_a X]
-  apply le_trans <| Nat.add_le_add_right (pow_le_pow_right₀ one_lt_two.le this) _
-  rw [← two_mul]
-  nth_rewrite 1 [← pow_one 2]
-  rw [← pow_add]
-  gcongr
-  · exact NeZero.one_le
-  · nlinarith [four_le_a X]
+  apply (Nat.add_le_add_right (pow_le_pow_right₀ one_lt_two.le this) _).trans
+  rw [← two_mul, ← pow_succ']; gcongr
+  · exact one_le_two
+  · have a4 := four_le_a X
+    calc
+      _ = 101 * a ^ 3 + 25 * 4 * a ^ 2 + 2 * a + 3 := by ring
+      _ ≤ 101 * a ^ 3 + 25 * a * a ^ 2 + 2 * a + a := by gcongr; omega
+      _ = 126 * a ^ 3 + 3 * 1 * a := by ring
+      _ ≤ 126 * a ^ 3 + a * a * a := by gcongr <;> omega
+      _ = 127 * a ^ 3 := by ring
+      _ ≤ _ := by gcongr; norm_num
 
 -- Special case of `norm_Ks_sub_Ks_le`
 private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     (h : ¬ 2 * dist y y' ≤ dist x y) : ‖Ks s x y - Ks s x y'‖ ≤
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
+  have a4n := four_le_a X
   have a4 : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
   have a_ineq : 0 ≤ 47 * (a : ℝ) ^ 2 - 100 := by nlinarith
   have a_ineq' : 0 ≤ (a : ℝ) ^ 3 - 2 := by nlinarith
@@ -782,7 +787,7 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     div_lt_comm₀ (by positivity) dist_pos] at this
   have dist_div_Ds_gt := inv_strictAnti₀ (div_pos (Ds0 X s) dist_pos) this
   rw [inv_div] at dist_div_Ds_gt
-  have : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ > (2 : ℝ) ^ (- 100 * a + (-1 : ℤ)) := by
+  have key : (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ > (2 : ℝ) ^ (- 100 * a + (-1 : ℤ)) := by
     have := a0' X
     have a_inv_pos : (a : ℝ)⁻¹ > 0 := inv_pos.2 (by exact_mod_cast this)
     refine lt_of_le_of_lt ?_ <| Real.rpow_lt_rpow (by positivity) dist_div_Ds_gt a_inv_pos
@@ -802,17 +807,19 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
       rw [← Real.rpow_left_inj (by positivity) (by positivity) three_pos.ne.symm]
       norm_num
       simp
-  have hlt : 0 < (D2_1_3 a : ℝ) := rpow_pos zero_lt_two
-  have : D2_1_3 (a : ℝ≥0) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ ≥
-      D2_1_3 (a : ℝ≥0) * (2 : ℝ) ^ (- 100 * a + (-1 : ℝ)) := by
-    exact_mod_cast le_of_lt <| (mul_lt_mul_left hlt).2 this
+  have hlt : 0 < (D2_1_3 a : ℝ) := by simp [D2_1_3]
+  have : D2_1_3 a * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ ≥
+      D2_1_3 a * (2 : ℝ) ^ (-100 * a + (-1 : ℝ)) := mod_cast ((mul_lt_mul_left hlt).2 key).le
   refine le_trans ?_ this
-  unfold C2_1_3 D2_1_3
-  push_cast
-  rw [(by norm_cast : 2 ^ 1 = (2 : ℝ) ^ (1 : ℝ)), ← Real.rpow_add two_pos,
-    ← Real.rpow_add two_pos, Real.rpow_le_rpow_left_iff one_lt_two]
-  linarith [add_nonneg (mul_nonneg a_ineq a.cast_nonneg) a_ineq']
-
+  rw [neg_mul, ← neg_add, Real.rpow_neg zero_le_two, ← div_eq_mul_inv, le_div_iff₀ (by positivity)]
+  unfold C2_1_3 D2_1_3; norm_cast; rw [← pow_add, ← pow_add]; gcongr
+  · exact one_le_two
+  · calc
+      _ = 102 * a ^ 3 + 100 * a + 2 := by ring
+      _ ≤ 102 * a ^ 3 + 7 * 4 * 4 * a := by linarith
+      _ ≤ 102 * a ^ 3 + 7 * a * a * a := by gcongr
+      _ = 109 * a ^ 3 := by ring
+      _ ≤ _ := by gcongr; norm_num
 
 lemma norm_Ks_sub_Ks_le_of_nonzero {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0) :
     ‖Ks s x y - Ks s x y'‖ ≤

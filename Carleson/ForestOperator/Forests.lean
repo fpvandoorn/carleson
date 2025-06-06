@@ -42,7 +42,7 @@ lemma estimate_C7_4_6 {a : ℕ} (n : ℕ) (ha : 4 ≤ a) :
   simp_rw [C7_4_6, C7_2_1, C7_6_2, C2_1_3, ← mul_assoc]
   conv_lhs => enter [1, 1, 1, 2]; norm_cast
   conv_lhs => enter [1, 1, 2, 2]; norm_cast
-  rw [NNReal.rpow_natCast, NNReal.rpow_natCast, ← pow_add, ← pow_add,
+  rw [NNReal.rpow_natCast, ← pow_add, ← pow_add,
     show 152 * a ^ 3 + 102 * a ^ 3 + (21 * a + 5) = 254 * a ^ 3 + 21 * a + 5 by ring]
   simp_rw [NNReal.rpow_neg, ← div_eq_mul_inv]
   gcongr 2 ^ ?_ / 2 ^ ?_
