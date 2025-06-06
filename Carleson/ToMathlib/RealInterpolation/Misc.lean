@@ -940,6 +940,16 @@ lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [BorelSpace E₁]
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (lt_trans hpq.left hpq.right).ne' hp
 
+-- Lemma 6.10 in Folland
+lemma foosdfsdfsdf [MeasurableSpace E₁] [BorelSpace E₁]
+    {r t : ℝ≥0∞} (hp : 0 < p) (hr : r ≠ ∞) (ht : 0 < t) (ht' : t ≠ ∞) (hr' : q ∈ Ioo p r)
+    (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
+  have h : MemLp (trnc ⊤ f t) q μ := trunc_Lp_Lq_higher ⟨hp, hr'.1⟩ hf ht'
+  have h' : MemLp (trnc ⊥ f t) q μ := truncCompl_Lp_Lq_lower hr ⟨hp.trans hr'.1, hr'.2⟩ ht hf'
+  have : f = (trnc ⊤ f t) +  (trnc ⊥ f t) := (add_eq_of_eq_sub' rfl).symm
+  rw [this]
+  exact MemLp.add h h'
+
 end MeasureTheory
 
 end
