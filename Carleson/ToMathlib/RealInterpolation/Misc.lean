@@ -942,10 +942,14 @@ lemma truncCompl_Lp_Lq_lower [MeasurableSpace E₁] [BorelSpace E₁]
 
 -- Lemma 6.10 in Folland
 lemma foosdfsdfsdf [MeasurableSpace E₁] [BorelSpace E₁]
-    {r : ℝ≥0∞} (hp : 0 < p) (hr : r ≠ ∞) (hr' : q ∈ Ioo p r)
+    {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Ioo p r)
     (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
   have h : MemLp (trnc ⊤ f 1) q μ := trunc_Lp_Lq_higher ⟨hp, hr'.1⟩ hf (by norm_num)
-  have h' : MemLp (trnc ⊥ f 1) q μ := truncCompl_Lp_Lq_lower hr ⟨hp.trans hr'.1, hr'.2⟩ (by norm_num) hf'
+  have h' : MemLp (trnc ⊥ f 1) q μ := by
+    by_cases hr : r = ∞
+    · -- hf' is obviously true, since trnc ⊥ has norm at most 1
+      sorry
+    exact truncCompl_Lp_Lq_lower hr ⟨hp.trans hr'.1, hr'.2⟩ (by norm_num) hf'
   have : f = (trnc ⊤ f 1) +  (trnc ⊥ f 1) := (add_eq_of_eq_sub' rfl).symm
   rw [this]
   exact MemLp.add h h'
