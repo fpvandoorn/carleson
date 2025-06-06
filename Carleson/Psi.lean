@@ -772,8 +772,6 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
     D2_1_3 a / volume.real (ball x (D ^ s)) * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ := by
   have a4n := four_le_a X
   have a4 : 4 ≤ (a : ℝ) := by exact_mod_cast four_le_a X
-  have a_ineq : 0 ≤ 47 * (a : ℝ) ^ 2 - 100 := by nlinarith
-  have a_ineq' : 0 ≤ (a : ℝ) ^ 3 - 2 := by nlinarith
   have := D0' X
   apply le_trans <| norm_sub_le (Ks s x y) (Ks s x y')
   apply le_trans <| add_le_add norm_Ks_le norm_Ks_le
