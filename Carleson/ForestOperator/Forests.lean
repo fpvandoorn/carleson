@@ -698,7 +698,7 @@ lemma forest_operator_g_main (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.i
 
 open Classical in
 /-- The `g` side of Proposition 2.0.4. -/
-lemma forest_operator_g
+lemma forest_operator_g (t : Forest X n)
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
@@ -740,7 +740,7 @@ lemma forest_operator_f_prelude
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
     eLpNorm (∑ u with u ∈ t, carlesonSum (t u) f ·) 2 volume ^ 2 ≤
-    888 := by
+    (2 ^ (257 * a ^ 3) * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume) ^ 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
   let TR (j : ℕ) (x : X) := (rowSupport t j).indicator (carlesonRowSum t j f) x
   have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) :=
@@ -775,8 +775,34 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
       have : rowSupport t j ∩ rowSupport t j' = ∅ :=
         (pairwiseDisjoint_rowSupport mj mj'.1 mj'.2).inter_eq
       simp_rw [TR, conj_indicator, ← inter_indicator_mul, this, indicator_empty, Pi.zero_apply]
-    _ ≤ _ := by
+    _ ≤ ∑ j ∈ Finset.range (2 ^ n),
+        (C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume) ^ 2 := by
       sorry
+    _ = _ := by
+      rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat,
+        ← ENNReal.rpow_natCast, ← div_mul_cancel₀ (n : ℝ) (show ((2 : ℕ) : ℝ) ≠ 0 by norm_num),
+        ENNReal.rpow_mul, ENNReal.rpow_natCast, ← mul_pow]
+      congr 1; simp_rw [← mul_assoc]
+      rw [C7_7_2_2, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat,
+        ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, Nat.cast_ofNat, add_sub_cancel]
+      conv_lhs => enter [1, 1, 2]; norm_cast
+      rw [ENNReal.rpow_natCast]
+
+open Classical in
+/-- The `f` side of Proposition 2.0.4. -/
+lemma forest_operator_f (t : Forest X n)
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
+    2 ^ (257 * a ^ 3) * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ *
+    eLpNorm f 2 volume * eLpNorm g 2 volume := by
+  calc
+    _ ≤ _ := forest_operator_f_prelude hf h2f hg h2g
+    _ ≤ _ := by
+      rw [← mul_rotate, mul_assoc]; gcongr
+      rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
+        ENNReal.rpow_natCast, ENNReal.rpow_natCast]
+      exact forest_operator_f_main hf h2f
 
 end FinalProp
 
@@ -784,12 +810,11 @@ end TileStructure.Forest
 
 /-! ## Proposition 2.0.4 -/
 
-irreducible_def C2_0_4_base (a : ℝ) : ℝ≥0 := 2 ^ (432 * a ^ 3)
+irreducible_def C2_0_4_base (a : ℕ) : ℝ≥0 := 2 ^ (470 * a ^ 3)
 
 /-- The constant used in `forest_operator`.
-Has value `2 ^ (432 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
--- Todo: define this recursively in terms of previous constants
-irreducible_def C2_0_4 (a q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (- (q - 1) / q * n)
+Has value `2 ^ (470 * a ^ 3 - (q - 1) / q * n)` in the blueprint. -/
+irreducible_def C2_0_4 (a : ℕ) (q : ℝ) (n : ℕ) : ℝ≥0 := C2_0_4_base a * 2 ^ (-(q - 1) / q * n)
 
 open scoped Classical in
 theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
@@ -798,7 +823,38 @@ theorem forest_operator {n : ℕ} (𝔉 : Forest X n) {f g : X → ℂ}
     ‖∫ x, conj (g x) * ∑ u with u ∈ 𝔉, carlesonSum (𝔉 u) f x‖ₑ ≤
     C2_0_4 a q n * (dens₂ (⋃ u ∈ 𝔉, 𝔉 u)) ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  sorry
+  have g_part := 𝔉.forest_operator_g hf h2f hg h2g -- ^ (2 - 2 / q)
+  have f_part := 𝔉.forest_operator_f hf h2f hg h2g -- ^ (2 / q - 1)
+  rcases (q_le_two X).eq_or_lt with rfl | hq
+  · rw [sub_self, ENNReal.rpow_zero, mul_one, C2_0_4, C2_0_4_base]
+    rw [Forest.G2_0_4] at g_part; convert g_part using 6; ring
+  have egpos : 0 < 2 - 2 / q := by
+    rw [sub_pos]; nth_rw 2 [show 2 = (2 : ℝ) / 1 by norm_num]
+    exact div_lt_div_of_pos_left zero_lt_two zero_lt_one (one_lt_q X)
+  have efpos : 0 < 2 / q - 1 := by rwa [sub_pos, one_lt_div (zero_lt_one.trans (one_lt_q X))]
+  rw [← ENNReal.rpow_le_rpow_iff egpos] at g_part
+  rw [← ENNReal.rpow_le_rpow_iff efpos] at f_part
+  have key := mul_le_mul' g_part f_part
+  have esum : 2 - 2 / q + (2 / q - 1) = 1 := by ring
+  rw [← ENNReal.rpow_add_of_nonneg _ _ egpos.le efpos.le, esum, ENNReal.rpow_one, mul_assoc,
+    mul_assoc _ (eLpNorm f 2 volume), ENNReal.mul_rpow_of_nonneg _ _ egpos.le,
+    ENNReal.mul_rpow_of_nonneg _ _ efpos.le, mul_mul_mul_comm,
+    ← ENNReal.rpow_add_of_nonneg _ _ egpos.le efpos.le, esum, ENNReal.rpow_one, ← mul_assoc,
+    ENNReal.mul_rpow_of_nonneg _ _ efpos.le, ← mul_assoc, ← ENNReal.rpow_mul,
+    show 2⁻¹ * (2 / q - 1) = q⁻¹ - 2⁻¹ by ring] at key
+  apply key.trans; gcongr
+  calc
+    _ ≤ ((2 : ℝ≥0∞) ^ (470 * a ^ 3)) ^ (2 - 2 / q) * (2 ^ (-(n / 2 : ℝ))) ^ (2 - 2 / q) *
+        (2 ^ (470 * a ^ 3)) ^ (2 / q - 1) := by
+      rw [Forest.G2_0_4, ENNReal.coe_mul, ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero]
+      simp only [ENNReal.coe_ofNat]
+      rw [ENNReal.mul_rpow_of_nonneg _ _ egpos.le]; gcongr <;> norm_num
+    _ = _ := by
+      rw [← mul_rotate, ← ENNReal.rpow_add_of_nonneg _ _ efpos.le egpos.le, add_comm, esum,
+        ENNReal.rpow_one, ← ENNReal.rpow_mul, C2_0_4, C2_0_4_base, ENNReal.coe_mul, ENNReal.coe_pow,
+        ENNReal.coe_rpow_of_ne_zero two_ne_zero, neg_div,
+        show -(n / 2) * (2 - 2 / q) = -(1 - 1 / q) * n by ring]
+      congr; rw [sub_div, div_self (q_pos X).ne']
 
 open scoped Classical in
 /-- Version of the forest operator theorem, but controlling the integral of the norm instead of
