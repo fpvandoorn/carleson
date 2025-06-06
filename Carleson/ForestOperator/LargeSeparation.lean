@@ -553,8 +553,7 @@ lemma holder_correlation_tile_one
         ENNReal.mul_comm_div, ← mul_div_assoc, ← mul_assoc, mul_comm (2 ^ (3 * a))]
     _ ≤ _ := by
       gcongr; rw [C2_1_3, C7_5_5]; norm_cast
-      simp_rw [Nat.cast_pow, NNReal.rpow_natCast, Nat.cast_ofNat,
-        show (4 : ℝ≥0) = 2 ^ 2 by norm_num, ← pow_add]
+      simp_rw [show 4 = 2 ^ 2 by norm_num, ← pow_add]
       apply pow_le_pow_right' one_le_two
       calc
         _ = 102 * a ^ 3 + 3 * a * 1 * 1 + 2 * 1 * 1 * 1 := by norm_num
@@ -803,18 +802,17 @@ lemma holder_correlation_tile_two (hu : u ∈ t) (hp : p ∈ t u) (hf : BoundedC
       exact coe_nnreal_ennreal_nndist ..
     _ ≤ _ := by
       gcongr; rw [C2_1_3, D2_1_3, C7_5_5, Q7_5_5]; norm_cast
-      simp_rw [NNReal.rpow_natCast, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat]
       calc
-        _ ≤ (2 : ℝ≥0) ^ (3 * a) *
+        _ ≤ 2 ^ (3 * a) *
             (2 ^ (102 * a ^ 3) * (2 ^ 4 * 2 ^ (6 * a)) + 2 ^ (150 * a ^ 3)) := by gcongr; norm_num
-        _ ≤ (2 : ℝ≥0) ^ (3 * a) * (2 ^ (150 * a ^ 3) + 2 ^ (150 * a ^ 3)) := by
+        _ ≤ 2 ^ (3 * a) * (2 ^ (150 * a ^ 3) + 2 ^ (150 * a ^ 3)) := by
           gcongr; rw [← pow_add, ← pow_add]; apply pow_le_pow_right' one_le_two
           calc
             _ = 102 * a ^ 3 + 4 * 1 * 1 * 1 + 6 * a * 1 * 1 := by ring
             _ ≤ 102 * a ^ 3 + 4 * a * a * a + 6 * a * a * a := by gcongr <;> linarith [four_le_a X]
             _ = 112 * a ^ 3 := by ring
             _ ≤ _ := by gcongr; norm_num
-        _ = (2 : ℝ≥0) ^ (150 * a ^ 3 + (3 * a + 1)) := by
+        _ = 2 ^ (150 * a ^ 3 + (3 * a + 1)) := by
           rw [← two_mul, ← pow_succ', ← pow_add]; ring
         _ ≤ _ := by
           apply pow_le_pow_right' one_le_two
@@ -1059,7 +1057,7 @@ lemma local_tree_control_sup_bound {k : ℤ} (mk : k ∈ Finset.Icc (s J) (s J +
       rw [ENNReal.div_eq_inv_mul, ENNReal.inv_div (by left; norm_num) (by left; positivity),
         ← ENNReal.mul_div_right_comm, mp.1, ENNReal.div_eq_inv_mul, mul_comm]
       gcongr; unfold C2_1_3; norm_cast
-      simp_rw [NNReal.rpow_natCast, Nat.cast_pow, Nat.cast_ofNat, ← pow_add]
+      simp_rw [← pow_add]
       refine pow_le_pow_right' one_le_two ?_
       rw [show 103 * a ^ 3 = a * a * a + 102 * a ^ 3 by ring]; gcongr; nlinarith [four_le_a X]
 

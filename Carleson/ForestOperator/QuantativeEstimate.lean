@@ -20,7 +20,7 @@ namespace TileStructure.Forest
 /-- The constant used in `local_dens1_tree_bound`.
 Has value `2 ^ (101 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ (101 * (a : ℝ) ^ 3)
+irreducible_def C7_3_2 (a : ℕ) : ℝ≥0 := 2 ^ (101 * a ^ 3)
 
 /-- Part 1 of Lemma 7.3.2. -/
 lemma local_dens1_tree_bound_exists (hu : u ∈ t) (hL : L ∈ 𝓛 (t u))
@@ -420,20 +420,19 @@ private lemma density_tree_bound_aux
       rw [ENNReal.mul_rpow_of_nonneg _ _ (inv_nonneg_of_nonneg two_pos.le)]
       refine mul_le_mul' (mul_le_mul_right' ?_ _) ?_
       · rw [C7_3_2, ENNReal.rpow_ofNNReal (inv_nonneg_of_nonneg two_pos.le)]
-        rw [← NNReal.rpow_mul 2 (101 * a ^ 3) 2⁻¹, ← ENNReal.rpow_ofNNReal (by positivity)]
-        apply le_of_eq
-        congr 1
-        ring
+        rw [← NNReal.rpow_natCast]
+        rw [← NNReal.rpow_mul 2 _ 2⁻¹, ← ENNReal.rpow_ofNNReal (by positivity)]
+        apply le_of_eq; congr 1; push_cast; ring
       · refine eLpNorm_mono (fun x ↦ ?_)
         rw [indicator]
         split_ifs <;> simp
     _ = C7_2_1 a * 2 ^ ((50.5 : ℝ) * a ^ 3) * dens₁ ((fun x ↦ t.𝔗 x) u) ^ (2 : ℝ)⁻¹ * c *
           eLpNorm f 2 volume * eLpNorm g 2 volume := by ring
     _ = _ := by
-      rw [C7_2_1, C7_3_1_1]
+      rw [C7_2_1, C7_3_1_1, ENNReal.coe_pow, ← ENNReal.rpow_natCast]
       repeat rw [← ENNReal.rpow_ofNNReal (by positivity), ENNReal.coe_ofNat]
       rw [← ENNReal.rpow_add_of_nonneg _ _ (by positivity) (by positivity)]
-      ring_nf
+      congr; push_cast; ring
 
 /-- First part of Lemma 7.3.1. -/
 lemma density_tree_bound1
