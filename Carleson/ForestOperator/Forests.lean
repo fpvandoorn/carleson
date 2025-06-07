@@ -911,8 +911,15 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
         (C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2) ^ 2 := by
       gcongr with j mj; rw [Finset.mem_range] at mj
       exact forest_operator_f_inner mj hf h2f
-    _ ≤ _ := by
-      sorry
+    _ = _ := by
+      rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat,
+        ← ENNReal.rpow_natCast, ← div_mul_cancel₀ (n : ℝ) (show ((2 : ℕ) : ℝ) ≠ 0 by norm_num),
+        ENNReal.rpow_mul, ENNReal.rpow_natCast, ← mul_pow]
+      congr 1; simp_rw [← mul_assoc]
+      rw [C7_7_2_2, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat,
+        ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, Nat.cast_ofNat, add_sub_cancel]
+      conv_lhs => enter [1, 1, 2]; norm_cast
+      rw [ENNReal.rpow_natCast]
 
 open Classical in
 /-- The `f` side of Proposition 2.0.4. -/
