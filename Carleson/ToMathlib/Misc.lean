@@ -320,6 +320,25 @@ lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ �
   · exact eLpNormEssSup_toReal_eq hf
   · exact eLpNorm'_toReal_eq hf
 
+lemma sq_eLpNorm_two {ε : Type*} [ENorm ε] {f : α → ε} :
+    eLpNorm f 2 μ ^ 2 = ∫⁻ x, ‖f x‖ₑ ^ 2 ∂μ := by
+  rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
+    ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num,
+    ENNReal.rpow_one]
+  congr! with x; rw [← ENNReal.rpow_natCast]; rfl
+
+open ComplexConjugate in
+/-- One of the very few cases where a norm can be moved _out of_ an integral. -/
+lemma eLpNorm_two_eq_enorm_integral_mul_conj {f : α → ℂ} (lpf : MemLp f 2 μ) :
+    eLpNorm f 2 μ ^ 2 = ‖∫ x, f x * conj (f x) ∂μ‖ₑ := by
+  conv_rhs => enter [1, 2, x]; rw [RCLike.mul_conj, ← RCLike.ofReal_pow]
+  rw [integral_ofReal, integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ by simp)]; swap
+  · exact lpf.aestronglyMeasurable.norm.pow 2
+  conv_rhs => enter [1, 1, 1, 2, x]; rw [ENNReal.ofReal_pow (norm_nonneg _), ofReal_norm]
+  rw [← sq_eLpNorm_two, ← enorm_norm]
+  simp_rw [Complex.coe_algebraMap, Complex.norm_real, enorm_norm]
+  rw [toReal_pow, enorm_pow, enorm_toReal lpf.eLpNorm_ne_top]
+
 end eLpNorm
 
 namespace MemLp
@@ -689,7 +708,35 @@ lemma Finset.prod_finset_product_filter_right {α β γ : Type*} {s : Finset α}
     tauto
   · intro r; simp only [mem_filter, mem_product]; tauto
 
+open Classical ComplexConjugate in
+lemma Finset.sum_range_mul_conj_sum_range {α : Type*} {s : Finset α} {f : α → ℂ} :
+    ∑ j ∈ s, f j * conj (f j) + ∑ j ∈ s, ∑ j' ∈ s with j ≠ j', f j * conj (f j') =
+    (∑ j ∈ s, f j) * conj (∑ j' ∈ s, f j') := by
+  calc
+    _ = ∑ j ∈ s, ∑ j' ∈ s with j = j', f j * conj (f j') +
+        ∑ j ∈ s, ∑ j' ∈ s with j ≠ j', f j * conj (f j') := by
+      rw [add_left_inj]
+      congr! with j mj; simp_rw [filter_eq, mj, ite_true, sum_singleton]
+    _ = _ := by
+      conv_lhs =>
+        rw [← sum_add_distrib]; enter [2, j]; rw [sum_filter_add_sum_filter_not, ← mul_sum]
+      rw [sum_mul, map_sum]
+
 namespace MeasureTheory
+
+lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
+    {α ι F : Type*} [MeasurableSpace α] [NormedAddCommGroup F] {μ : Measure α}
+    {s : Finset ι} {f : α → F} {t : ι → Set α} (meast : ∀ i, MeasurableSet (t i))
+    (hpd : s.toSet.PairwiseDisjoint t) :
+    ∑ i ∈ s, eLpNorm ((t i).indicator f) 2 μ ^ 2 ≤ eLpNorm f 2 μ ^ 2 := by
+  simp_rw [sq_eLpNorm_two]
+  conv_lhs =>
+    enter [2, i, 2, x]
+    rw [enorm_indicator_eq_indicator_enorm, sq, ← inter_indicator_mul, inter_self]
+    enter [2, y]; rw [← sq]
+  conv_lhs => enter [2, i]; rw [lintegral_indicator (meast i)]
+  rw [← lintegral_biUnion_finset hpd fun _ _ ↦ meast _]
+  exact setLIntegral_le_lintegral _ _
 
 theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
     [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :
