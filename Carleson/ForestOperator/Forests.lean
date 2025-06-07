@@ -333,6 +333,24 @@ open scoped Classical in
 def adjointCarlesonRowSum (t : Forest X n) (j : ℕ) (f : X → ℂ) (x : X) : ℂ :=
   ∑ u with u ∈ rowDecomp t j, adjointCarlesonSum (t u) f x
 
+/-- `adjointCarlesonRowSum` is the adjoint of `carlesonRowSum`. -/
+lemma adjointCarlesonRowSum_adjoint
+    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (j : ℕ) :
+    ∫ x, conj (g x) * carlesonRowSum t j f x = ∫ x, conj (adjointCarlesonRowSum t j g x) * f x := by
+  classical calc
+    _ = ∫ x, ∑ u with u ∈ rowDecomp t j, conj (g x) * carlesonSum (t u) f x := by
+      unfold carlesonRowSum; simp_rw [Finset.mul_sum]
+    _ = ∑ u with u ∈ rowDecomp t j, ∫ x, conj (g x) * carlesonSum (t u) f x := by
+      apply integral_finset_sum; intro p _
+      exact hg.conj.mul hf.carlesonSum |>.integrable
+    _ = ∑ u with u ∈ rowDecomp t j, ∫ y, conj (adjointCarlesonSum (t u) g y) * f y := by
+      simp_rw [adjointCarlesonSum_adjoint hf hg]
+    _ = ∫ y, ∑ u with u ∈ rowDecomp t j, conj (adjointCarlesonSum (t u) g y) * f y := by
+      symm; apply integral_finset_sum; intro p _
+      refine BoundedCompactSupport.mul ?_ hf |>.integrable
+      exact hg.adjointCarlesonSum.conj
+    _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
+
 /-- The constant used in `row_bound`.
 Has value `2 ^ (156 * a ^ 3 - n / 2)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
@@ -350,10 +368,10 @@ lemma row_bound (hj : j < 2 ^ n) (hg : BoundedCompactSupport g)
   sorry
 
 /-- Part of Lemma 7.7.2. -/
-lemma indicator_row_bound (hj : j < 2 ^ n) (hf : BoundedCompactSupport f)
-    (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    eLpNorm (F.indicator (carlesonRowSum t j f)) 2 volume ≤
-    C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume := by
+lemma indicator_row_bound (hj : j < 2 ^ n) (hg : BoundedCompactSupport g)
+    (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    eLpNorm (F.indicator (adjointCarlesonRowSum t j g)) 2 volume ≤
+    C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm g 2 volume := by
   sorry
 
 open Classical in
@@ -724,31 +742,78 @@ lemma forest_operator_f_prelude
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
     (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x):
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
-    eLpNorm g 2 * eLpNorm (∑ u with u ∈ t, carlesonSum (t u) f ·) 2 := by
+    eLpNorm g 2 * eLpNorm (fun x ↦ G.indicator (∑ u with u ∈ t, carlesonSum (t u) f ·) x) 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
   have bg := bcs_of_measurable_of_le_indicator_g hg h2g
   calc
     _ ≤ ∫⁻ x, ‖g x‖ₑ * ‖∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ := by
       conv_rhs => enter [2, x]; rw [← RCLike.enorm_conj, ← enorm_mul]
       exact enorm_integral_le_lintegral_enorm _
+    _ = ∫⁻ x, ‖g x‖ₑ * ‖G.indicator (∑ u with u ∈ t, carlesonSum (t u) f ·) x‖ₑ := by
+      congr! 2 with x; rw [indicator_eq_indicator_one_mul, enorm_mul, ← mul_assoc]
+      nth_rw 2 [← enorm_mul]; congr 2
+      by_cases hx : x ∈ G
+      · simp [indicator_of_mem hx]
+      · specialize h2g x
+        rw [indicator_of_notMem hx, norm_le_zero_iff] at h2g
+        rw [h2g, zero_mul]
     _ ≤ _ :=
       ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
         bg.enorm.aestronglyMeasurable.aemeasurable
-        (BoundedCompactSupport.finset_sum fun _ _ ↦
-          bf.carlesonSum).enorm.aestronglyMeasurable.aemeasurable
+        ((BoundedCompactSupport.finset_sum fun _ _ ↦
+          bf.carlesonSum).indicator measurableSet_G).enorm.aestronglyMeasurable.aemeasurable
+
+/-- https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Problems.20in.20the.20forest.20operator.20proposition/near/522771057 -/
+lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    eLpNorm (G.indicator (carlesonRowSum t j f)) 2 ^ 2 ≤
+    888 := by
+  have bf := bcs_of_measurable_of_le_indicator_f hf h2f
+  let IGTf := G.indicator (carlesonRowSum t j f)
+  have bIGTf : BoundedCompactSupport IGTf :=
+    (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator measurableSet_G
+  calc
+    _ = ‖∫ x, conj (IGTf x) * carlesonRowSum t j f x‖ₑ := by
+      rw [eLpNorm_two_eq_enorm_integral_mul_conj (bIGTf.memLp _)]; congr! 3 with x
+      unfold IGTf
+      rw [indicator_eq_indicator_one_mul, map_mul, conj_indicator, map_one, mul_mul_mul_comm,
+        ← inter_indicator_mul, inter_self, mul_comm (carlesonRowSum ..), ← mul_assoc]
+      simp_rw [Pi.one_apply, mul_one]; rfl
+    _ = ‖∫ x, conj (F.indicator (adjointCarlesonRowSum t j IGTf) x) * f x‖ₑ := by
+      rw [adjointCarlesonRowSum_adjoint bf bIGTf]; congr! 3 with x
+      rw [indicator_eq_indicator_one_mul, map_mul, conj_indicator, map_one, mul_rotate, mul_assoc]
+      congr 1
+      by_cases hx : x ∈ F
+      · simp [indicator_of_mem hx]
+      · specialize h2f x
+        rw [indicator_of_notMem hx, norm_le_zero_iff] at h2f
+        rw [h2f, zero_mul]
+    _ ≤ ∫⁻ x, ‖F.indicator (adjointCarlesonRowSum t j IGTf) x‖ₑ * ‖f x‖ₑ := by
+      conv_rhs => enter [2, x]; rw [← RCLike.enorm_conj, ← enorm_mul]
+      exact enorm_integral_le_lintegral_enorm _
+    _ ≤ eLpNorm (F.indicator (adjointCarlesonRowSum t j IGTf)) 2 * eLpNorm f 2 := by
+      apply ENNReal.lintegral_mul_le_eLpNorm_mul_eLqNorm inferInstance
+      · exact ((BoundedCompactSupport.finset_sum fun _ _ ↦ bIGTf.adjointCarlesonSum).indicator
+          measurableSet_F).enorm.aestronglyMeasurable.aemeasurable
+      · exact bf.enorm.aestronglyMeasurable.aemeasurable
+    _ ≤ _ := by
+      sorry
 
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    eLpNorm (∑ u with u ∈ t, carlesonSum (t u) f ·) 2 volume ^ 2 ≤
+    eLpNorm (fun x ↦ G.indicator (∑ u with u ∈ t, carlesonSum (t u) f ·) x) 2 volume ^ 2 ≤
     (2 ^ (257 * a ^ 3) * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume) ^ 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
-  let TR (j : ℕ) (x : X) := (rowSupport t j).indicator (carlesonRowSum t j f) x
+  let TR (j : ℕ) (x : X) := G.indicator ((rowSupport t j).indicator (carlesonRowSum t j f)) x
   have bcsTR (j : ℕ) : BoundedCompactSupport (TR j) :=
-    (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator
-      measurableSet_rowSupport
+    ((BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator
+      measurableSet_rowSupport).indicator measurableSet_G
   calc
-    _ = eLpNorm (∑ j ∈ Finset.range (2 ^ n), carlesonRowSum t j f ·) 2 volume ^ 2 := by
-      congr; ext x
+    _ = eLpNorm (fun x ↦ G.indicator 1 x *
+        ∑ u with u ∈ t, carlesonSum (t u) f x) 2 volume ^ 2 := by
+      congr! 3 with x; rw [indicator_eq_indicator_one_mul]
+    _ = eLpNorm (fun x ↦ G.indicator 1 x *
+        ∑ j ∈ Finset.range (2 ^ n), carlesonRowSum t j f x) 2 volume ^ 2 := by
+      congr! with x
       have dc : ({u | u ∈ t} : Finset _) =
           (Finset.range (2 ^ n)).biUnion (fun j ↦ {u | u ∈ rowDecomp t j}) := by
         rw [← Finset.toFinset_coe ({u | u ∈ t} : Finset _),
@@ -761,8 +826,9 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
         simp_rw [← Finset.disjoint_coe, Finset.coe_filter, Finset.mem_univ, true_and]
         exact pairwiseDisjoint_rowDecomp mj mj' hn
       rfl
-    _ = eLpNorm (∑ j ∈ Finset.range (2 ^ n), TR j ·) 2 ^ 2 := by
-      congr! 4 with x j mj; unfold TR; nth_rw 1 [carlesonRowSum_rowSupport]
+    _ = eLpNorm (fun x ↦ ∑ j ∈ Finset.range (2 ^ n), TR j x) 2 ^ 2 := by
+      congr! 3 with x; rw [Finset.mul_sum]; congr! 2 with j mj
+      unfold TR; nth_rw 1 [carlesonRowSum_rowSupport, ← indicator_eq_indicator_one_mul]
     _ ≤ ∑ j ∈ Finset.range (2 ^ n), eLpNorm (TR j) 2 ^ 2 +
         ∑ j ∈ Finset.range (2 ^ n), ∑ j' ∈ Finset.range (2 ^ n) with j ≠ j',
         ‖∫ x, TR j x * conj (TR j' x)‖ₑ := by
@@ -774,19 +840,22 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
       simp only [Finset.mem_filter, Finset.mem_range] at mj mj'
       have : rowSupport t j ∩ rowSupport t j' = ∅ :=
         (pairwiseDisjoint_rowSupport mj mj'.1 mj'.2).inter_eq
-      simp_rw [TR, conj_indicator, ← inter_indicator_mul, this, indicator_empty, Pi.zero_apply]
-    _ ≤ ∑ j ∈ Finset.range (2 ^ n),
-        (C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 volume) ^ 2 := by
+      simp_rw [TR, indicator_indicator, conj_indicator, ← inter_indicator_mul]
+      rw [inter_inter_inter_comm, this, inter_empty, indicator_empty, Pi.zero_apply]
+    _ ≤ ∑ j ∈ Finset.range (2 ^ n), eLpNorm (G.indicator (carlesonRowSum t j f) ·) 2 ^ 2 := by
+      gcongr with j mj; refine eLpNorm_mono_enorm fun x ↦ ?_
+      unfold TR
+      rw [indicator_eq_indicator_one_mul, indicator_eq_indicator_one_mul (rowSupport t j),
+        ← mul_assoc, mul_comm (G.indicator 1 x), mul_assoc, ← indicator_eq_indicator_one_mul]
+      nth_rw 2 [← one_mul ‖_‖ₑ]; rw [enorm_mul]; gcongr
+      by_cases hx : x ∈ rowSupport t j
+      · simp [indicator_of_mem hx]
+      · simp [indicator_of_notMem hx]
+    _ = ∑ j ∈ Finset.range (2 ^ n),
+        ‖∫ x, conj (carlesonRowSum t j f x) * G.indicator (carlesonRowSum t j f) x‖ₑ := by
       sorry
-    _ = _ := by
-      rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat,
-        ← ENNReal.rpow_natCast, ← div_mul_cancel₀ (n : ℝ) (show ((2 : ℕ) : ℝ) ≠ 0 by norm_num),
-        ENNReal.rpow_mul, ENNReal.rpow_natCast, ← mul_pow]
-      congr 1; simp_rw [← mul_assoc]
-      rw [C7_7_2_2, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat,
-        ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, Nat.cast_ofNat, add_sub_cancel]
-      conv_lhs => enter [1, 1, 2]; norm_cast
-      rw [ENNReal.rpow_natCast]
+    _ ≤ _ := by
+      sorry
 
 open Classical in
 /-- The `f` side of Proposition 2.0.4. -/
