@@ -242,7 +242,6 @@ theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_carlesonOn
       simp [hc]
     obtain ⟨y, hy⟩ := this
     simp only [ne_eq, mul_eq_zero, exp_ne_zero, or_false, not_or] at hy
-    have := dist_mem_Icc_of_Ks_ne_zero hy.1
     apply (dist_triangle _ y _).trans
     unfold r₁
     gcongr

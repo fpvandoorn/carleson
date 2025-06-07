@@ -763,14 +763,67 @@ lemma forest_operator_f_prelude
         ((BoundedCompactSupport.finset_sum fun _ _ ↦
           bf.carlesonSum).indicator measurableSet_G).enorm.aestronglyMeasurable.aemeasurable
 
+section Scale
+
+omit [MetricSpace X] in
+/-- A function supported on `G` and uniformly bounded above can be scaled by a positive real number
+to meet the `h2g` requirement of `indicator_row_bound`. -/
+lemma exists_scale_factor_of_bddAbove_range
+    (sf : support f ⊆ G) (bf : BddAbove (range (‖f ·‖))) :
+    ∃ k : ℝ, k > 0 ∧ ∀ x, ‖(k • f) x‖ ≤ G.indicator 1 x := by
+  simp_rw [bddAbove_def, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at bf
+  obtain ⟨C, hC⟩ := bf
+  rcases le_or_gt C 1 with lC | lC
+  · refine ⟨1, by norm_num, fun x ↦ ?_⟩
+    rw [one_smul]; refine le_indicator_apply (fun hx ↦ (hC x).trans lC) (fun hx ↦ ?_)
+    simp [notMem_support.mp (notMem_subset sf hx)]
+  · refine ⟨C⁻¹, by positivity, fun x ↦ ?_⟩
+    refine le_indicator_apply (fun hx ↦ ?_) (fun hx ↦ ?_)
+    · rw [Pi.smul_apply, norm_smul, norm_inv, Real.norm_of_nonneg (by linarith)]
+      calc
+        _ ≤ C⁻¹ * C := by gcongr; exact hC x
+        _ = _ := inv_mul_cancel₀ (by positivity)
+    · simp [notMem_support.mp (notMem_subset sf hx)]
+
+/-- Lemma 7.7.2 generalised to uniformly bounded above functions (not necessarily by 1)
+supported on `G`. -/
+lemma indicator_row_bound' (hj : j < 2 ^ n) (hf : BoundedCompactSupport f)
+    (sf : support f ⊆ G) (bf : BddAbove (range (‖f ·‖))) :
+    eLpNorm (F.indicator (adjointCarlesonRowSum t j f)) 2 ≤
+    C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 := by
+  obtain ⟨k, kpos, h2f⟩ := exists_scale_factor_of_bddAbove_range sf bf
+  have key : eLpNorm (F.indicator (adjointCarlesonRowSum t j (k • f))) 2 ≤ _ :=
+    indicator_row_bound (t := t) hj (hf.const_mul k) h2f
+  have bubble_k : F.indicator (adjointCarlesonRowSum t j (k • f)) =
+      k • F.indicator (adjointCarlesonRowSum t j f) := by
+    ext x; rw [Pi.smul_apply, ← indicator_const_smul_apply]
+    apply indicator_eq_indicator Iff.rfl; unfold adjointCarlesonRowSum
+    rw [Finset.smul_sum]; congr! with u mu; unfold adjointCarlesonSum
+    rw [Finset.smul_sum]; congr! with p mp; unfold adjointCarleson
+    rw [← integral_smul]; congr with x
+    rw [← mul_smul_comm, Pi.smul_apply]
+  have ek_ne_zero : ‖k‖ₑ ≠ 0 := by rw [enorm_ne_zero]; exact kpos.ne'
+  rwa [bubble_k, eLpNorm_const_smul, eLpNorm_const_smul, mul_comm ‖k‖ₑ, mul_comm ‖k‖ₑ,
+    ← mul_assoc, ENNReal.mul_le_mul_right ek_ne_zero enorm_ne_top] at key
+
+end Scale
+
 /-- https://leanprover.zulipchat.com/#narrow/channel/442935-Carleson/topic/Problems.20in.20the.20forest.20operator.20proposition/near/522771057 -/
-lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    eLpNorm (G.indicator (carlesonRowSum t j f)) 2 ^ 2 ≤
-    888 := by
+lemma forest_operator_f_inner
+    (hj : j < 2 ^ n) (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
+    eLpNorm (G.indicator (carlesonRowSum t j f)) 2 ≤
+    C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
-  let IGTf := G.indicator (carlesonRowSum t j f)
+  set IGTf := G.indicator (carlesonRowSum t j f)
   have bIGTf : BoundedCompactSupport IGTf :=
     (BoundedCompactSupport.finset_sum fun _ _ ↦ bf.carlesonSum).indicator measurableSet_G
+  suffices eLpNorm IGTf 2 ^ 2 ≤
+      C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm IGTf 2 * eLpNorm f 2 by
+    rcases eq_or_ne (eLpNorm IGTf 2) 0 with he | he
+    · simp [he]
+    · have nt : eLpNorm IGTf 2 ≠ ⊤ := (bIGTf.memLp _).eLpNorm_ne_top
+      rwa [mul_assoc _ (eLpNorm IGTf 2 volume), mul_comm (eLpNorm IGTf 2 volume), ← mul_assoc, sq,
+        ENNReal.mul_le_mul_right he nt] at this
   calc
     _ = ‖∫ x, conj (IGTf x) * carlesonRowSum t j f x‖ₑ := by
       rw [eLpNorm_two_eq_enorm_integral_mul_conj (bIGTf.memLp _)]; congr! 3 with x
@@ -796,7 +849,10 @@ lemma forest_operator_f_inner (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.
           measurableSet_F).enorm.aestronglyMeasurable.aemeasurable
       · exact bf.enorm.aestronglyMeasurable.aemeasurable
     _ ≤ _ := by
-      sorry
+      refine mul_le_mul_right' (indicator_row_bound' hj bIGTf support_indicator_subset ?_) _
+      apply BddAbove.range_mono (‖carlesonRowSum t j f ·‖) fun _ ↦ norm_indicator_le_norm_self ..
+      apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
+      exact .range_finsetSum fun _ _ ↦ bf.bddAbove_norm_carlesonSum
 
 open Classical in
 lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
@@ -851,9 +907,10 @@ lemma forest_operator_f_main (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.i
       by_cases hx : x ∈ rowSupport t j
       · simp [indicator_of_mem hx]
       · simp [indicator_of_notMem hx]
-    _ = ∑ j ∈ Finset.range (2 ^ n),
-        ‖∫ x, conj (carlesonRowSum t j f x) * G.indicator (carlesonRowSum t j f) x‖ₑ := by
-      sorry
+    _ ≤ ∑ j ∈ Finset.range (2 ^ n),
+        (C7_7_2_2 a n * dens₂ (⋃ u ∈ t, t u) ^ (2 : ℝ)⁻¹ * eLpNorm f 2) ^ 2 := by
+      gcongr with j mj; rw [Finset.mem_range] at mj
+      exact forest_operator_f_inner mj hf h2f
     _ ≤ _ := by
       sorry
 
