@@ -336,7 +336,7 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
 /-- The constant used in `first_tree_pointwise`.
 Has value `10 * 2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (104 * (a : ℝ) ^ 3)
+irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (104 * a ^ 3)
 
 -- Used in the proof of `exp_sub_one_le`, which is used to prove Lemma 7.1.4
 private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) := by
@@ -601,9 +601,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     rw [← Finset.mul_sum]
     apply le_trans <| mul_le_mul_left' (L7_1_4_sum hσ) _
     rw [mul_comm _ 2, ← mul_assoc, ← mul_assoc, C7_1_4]
-    gcongr
-    · norm_num
-    · exact_mod_cast pow_le_pow_right₀ one_le_two (le_refl _)
+    gcongr; norm_num
   intro s hs
   have eq1 : ∫ (y : X), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖ =
       ∫ y in ball x (D ^ s / 2), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖ := by
@@ -737,7 +735,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
 /-- The constant used in `third_tree_pointwise`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
+irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * a ^ 3)
 
 -- Used in the proof of Lemmas 7.1.3 and 7.1.6 to translate between `∑ p` into `∑ s`
 open scoped Classical in
@@ -945,7 +943,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
           Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ s I))) * 2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
       let summand := fun (y : X) (i : ℤ) ↦
-          ((D2_1_3 (a : ℝ≥0)) / volume.real (ball x (D ^ i)) * 2 ^ (3 / (a : ℝ)) *
+          ((D2_1_3 a) / volume.real (ball x (D ^ i)) * 2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u y i, D ^ (((s J) - (i : ℝ)) / a) * ∫ y in J, ‖f y‖).toNNReal
       exact congrArg ENNReal.ofNNReal <| sum_p_eq_sum_I_sum_p t u x summand
     _ ≤ ENNReal.ofNNReal (∑ I : Grid X, ∑ p ∈ ps I, (E p).indicator 1 x *
@@ -1011,8 +1009,6 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       _ = (2 : ℝ) ^ (150 * a ^ 3 + 5 * a + 3 / a : ℝ) := by
         rw [Real.rpow_add two_pos, Real.rpow_add two_pos, mul_comm 5, Real.rpow_mul two_pos.le a 5]
         norm_cast
-        congr
-        norm_cast
       _ ≤ (2 : ℝ) ^ (151 * a ^ 3) := by
         have : ((151 * a ^ 3 : ℕ) : ℝ) = (151 : ℝ) * (a : ℝ) ^ 3 := by norm_cast
         rw [← Real.rpow_natCast 2, Real.rpow_le_rpow_left_iff one_lt_two, this]
@@ -1036,26 +1032,24 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
         ← Real.toNNReal_pow two_pos.le, ← Real.toNNReal_mul (by positivity), ← mul_assoc,
         div_eq_mul_one_div]
     _ = _ := by
+      rw [C7_1_6]; congr
+      simp_rw [← indicator_mul_const, Pi.one_apply, one_mul, ENNReal.coe_finset_sum,
+        ENNReal.coe_indicator]
+      apply Finset.sum_congr rfl (fun I _ ↦ ?_)
       congr
-      · rw [C7_1_6_def]; norm_cast
-      · simp_rw [← indicator_mul_const, Pi.one_apply, one_mul, ENNReal.coe_finset_sum,
-          ENNReal.coe_indicator]
-        apply Finset.sum_congr rfl (fun I _ ↦ ?_)
-        congr
-        ext
-        rw [Finset.mul_sum, ENNReal.ofNNReal_toNNReal]
-        rw [ENNReal.ofReal_sum_of_nonneg (fun _ _ ↦ by positivity)]
-        refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
-        repeat rw [ENNReal.ofReal_mul (by positivity)]
-        rw [ENNReal.ofReal_div_of_pos, ENNReal.ofReal_one, ← mul_assoc]; swap
-        · exact measure_real_ball_pos (c I) <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
-        rw [← ENNReal.mul_div_right_comm, one_mul]
-        congr
-        · rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a)]
-          norm_cast
-        · rw [Measure.real, ENNReal.ofReal_toReal measure_ball_ne_top]
-        · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
-
+      ext
+      rw [Finset.mul_sum, ENNReal.ofNNReal_toNNReal]
+      rw [ENNReal.ofReal_sum_of_nonneg (fun _ _ ↦ by positivity)]
+      refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
+      repeat rw [ENNReal.ofReal_mul (by positivity)]
+      rw [ENNReal.ofReal_div_of_pos, ENNReal.ofReal_one, ← mul_assoc]; swap
+      · exact measure_real_ball_pos (c I) <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
+      rw [← ENNReal.mul_div_right_comm, one_mul]
+      congr
+      · rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a)]
+        norm_cast
+      · rw [Measure.real, ENNReal.ofReal_toReal measure_ball_ne_top]
+      · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
 
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
@@ -1063,16 +1057,16 @@ irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := max (C7_1_4 a) (C7_1_6 a) --2 ^ (1
 
 lemma C7_1_3_eq_C7_1_6 {a : ℕ} (ha : 4 ≤ a) : C7_1_3 a = C7_1_6 a := by
   rw [C7_1_3_def, C7_1_6_def, sup_eq_right]
-  have : C7_1_4 a ≤ 2 ^ (4 : ℝ) * 2 ^ (104 * (a : ℝ) ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
+  have : C7_1_4 a ≤ 2 ^ 4 * 2 ^ (104 * a ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
   apply this.trans
-  rw [← NNReal.rpow_add two_ne_zero]
+  rw [← pow_add]
   gcongr
   · exact one_le_two
   · calc
-      4 + 104 * (a : ℝ) ^ 3 ≤ 4 ^ 3 + 104 * (a : ℝ) ^ 3 := by gcongr; norm_num
-      _                     ≤ a ^ 3 + 104 * (a : ℝ) ^ 3 := by gcongr; exact_mod_cast ha
-      _                     = 105 * (a : ℝ) ^ 3         := by ring
-      _                     ≤ _                         := by gcongr; norm_num
+      _ ≤ 4 ^ 3 + 104 * a ^ 3 := by gcongr; norm_num
+      _ ≤ a ^ 3 + 104 * a ^ 3 := by gcongr
+      _ = 105 * a ^ 3 := by ring
+      _ ≤ _ := by gcongr; norm_num
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)

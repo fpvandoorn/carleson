@@ -668,6 +668,8 @@ lemma a_pos : 0 < a := by linarith [four_le_a X]
 lemma cast_a_pos : 0 < (a : ℝ) := by norm_cast; exact a_pos X
 lemma τ_pos : 0 < defaultτ a := inv_pos.mpr (cast_a_pos X)
 lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
+lemma τ_le_one : defaultτ a ≤ 1 := by
+  rw [defaultτ, inv_le_one_iff₀]; right; norm_cast; linarith [four_le_a X]
 
 /-- `τ` as an element of `ℝ≥0`. -/
 def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
