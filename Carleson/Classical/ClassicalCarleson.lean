@@ -65,8 +65,6 @@ theorem exceptional_set_carleson {f : ℝ → ℂ}
     exact le_trans' (lt_C_control_approximation_effect εpos).le (by linarith [Real.two_le_pi])
   _ ≤ ε := by linarith
 
-
-
 theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :
     ∀ᵐ x ∂volume.restrict (Set.Icc 0 (2 * π)),
       Filter.Tendsto (S_ · f x) Filter.atTop (nhds (f x)) := by
@@ -162,8 +160,6 @@ theorem carleson_interval {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f 
   by_contra h
   exact hx.2 (hE x ⟨hx.1, h⟩)
 
-
-
 section
 open Pointwise
 
@@ -218,3 +214,5 @@ theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f
 /- Classical theorem of Carleson and Hunt asserting a.e. convergence of the partial Fourier sums for L^p functions for p>1. -/
 theorem carleson_hunt {T : ℝ} [hT : Fact (0 < T)] {f : AddCircle T → ℂ} {p : ENNReal} (hp : 1 < p) (hf : MemLp f p AddCircle.haarAddCircle) :
     ∀ᵐ x, Filter.Tendsto (partialFourierSum' · f x) Filter.atTop (nhds (f x)) := sorry
+
+end

@@ -277,3 +277,7 @@ lemma HasRestrictedWeakType.HasLorentzType {E : Type*} [MeasurableSpace E] [Norm
           gcongr
           exact ENNReal.div_self_le_one
         _ = c * eLorentzNorm f p 1 μ := by ring
+
+end Lorentz
+
+end MeasureTheory
