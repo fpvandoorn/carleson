@@ -1,6 +1,7 @@
-/- This file contains the proof of Lemma 11.1.4 (real Carleson), from section 11.7.
-   We need to verify the assumptions of the two-sided metric Carleson theorem.
-   All smaller ones are done but the estimate for the truncated Hilbert transform is still missing.
+/-
+This file contains the proof of Lemma 11.1.4 (real Carleson), from section 11.7.
+We need to verify the assumptions of the two-sided metric Carleson theorem.
+All smaller ones are done but the estimate for the truncated Hilbert transform is still missing.
 -/
 
 import Carleson.TwoSidedCarleson.MainTheorem
@@ -540,4 +541,4 @@ lemma rcarleson {F G : Set ℝ} (hF : MeasurableSet F) (hG : MeasurableSet G)
     norm_num
   exact rcarleson_general (by simp) conj_exponents hF hG f hmf hf
 
-end section
+end
