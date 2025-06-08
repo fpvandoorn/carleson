@@ -1,4 +1,4 @@
-import Mathlib.Topology.Instances.AddCircle
+import Mathlib.Topology.Instances.AddCircle.Defs
 import Mathlib.MeasureTheory.Function.StronglyMeasurable.AEStronglyMeasurable
 
 noncomputable section
