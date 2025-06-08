@@ -1071,31 +1071,21 @@ lemma C5_1_3_pos : 0 < C5_1_3 a nnq := by
   positivity
 
 omit [TileStructure Q D κ S o] in
-lemma C5_1_3_optimized_le_C5_1_3 :
-    C5_1_3_optimized a nnq ≤ C5_1_3 a nnq := by
-  have : (2 : ℝ≥0) ^ (150 * (a : ℝ) ^ 3) = 2 ^ (150 * a ^ 3) := by
-    rw [← NNReal.rpow_natCast]
-    congr
-    norm_cast
-  simp only [C5_1_3_optimized, C5_1_3, C2_0_3, this]
+lemma C5_1_3_optimized_le_C5_1_3 : C5_1_3_optimized a nnq ≤ C5_1_3 a nnq := by
+  simp only [C5_1_3_optimized, C5_1_3, C2_0_3]
   calc
-  2 ^ (150 * a ^ 3) / (nnq - 1) * 2 ^ (29 * a + 23) / (nnq - 1) ^ 4
-  _ ≤ 2 ^ (150 * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
-    gcongr
-    · exact one_le_two
-    zify
-    have : (4 : ℤ) ≤ a := mod_cast (four_le_a X)
-    calc
-    29 * (a : ℤ) + 23 ≤ 29 * a + 4 * (3 * 4 ^ 2 - 29) := by linarith
-    _ ≤ 29 * a + a * (3 * a ^ 2 - 29) := by gcongr
-    _ = 3 * a ^ 3 := by ring
-  _ = 2 ^ (150 * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
-    rw [pow_add, pow_add, div_mul_eq_div_div]
-    simp only [div_eq_inv_mul, pow_one]
-    ring
-  _ = 2 ^ (153 * a ^ 3) / (nnq - 1) ^ 5 := by
-    congr
-    ring
+    _ ≤ 2 ^ (150 * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
+      have := four_le_a X
+      gcongr; · exact one_le_two
+      calc
+        _ ≤ 3 * 4 * 4 * a := by omega
+        _ ≤ 3 * a * a * a := by gcongr
+        _ = _ := by ring
+    _ = 2 ^ (150 * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
+      rw [pow_add, pow_add, div_mul_eq_div_div]
+      simp only [div_eq_inv_mul, pow_one]
+      ring
+    _ = _ := by congr; ring
 
 lemma forest_complement_optimized
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
