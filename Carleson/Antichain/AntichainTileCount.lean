@@ -335,7 +335,7 @@ lemma local_antichain_density {𝔄 : Finset (𝔓 X)}
       simp only [inter_assoc, inter_subset_left]
 
 /-- The constant appearing in Lemma 6.3.4. -/
-def C_6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
+def C6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
 
 variable (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ)
 
@@ -415,7 +415,7 @@ lemma union_L'_eq_union_I_p : ⋃ (L ∈ 𝓛' 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 
 -- Ineq. 6.3.30
 lemma global_antichain_density_aux {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     ∑ (p ∈ 𝔄' 𝔄 ϑ N), volume (E p ∩ G ∩ L) ≤
-      (C_6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
+      (C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
   sorry
 
 private lemma volume_union_I_p_eq_sum :
@@ -466,10 +466,10 @@ private lemma lhs : ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) =
 -- Lemma 6.3.4
 lemma global_antichain_density :
     ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) ≤
-      (C_6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ (p ∈ 𝔄), (𝓘 p : Set X)) := by
+      (C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ (p ∈ 𝔄), (𝓘 p : Set X)) := by
   -- Reduce to ineq 6.3.30
-  have hle: ↑(C_6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) ≤
-      ↑(C_6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
+  have hle: ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) ≤
+      ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
     gcongr
     apply iUnion_subset_iUnion_const
     simp only [𝔄', 𝔄_aux, Finset.mem_filter]
@@ -483,14 +483,14 @@ lemma global_antichain_density :
 private def p (a : ℕ) := 4 * a^2
 
 /-- The constant appearing in Lemma 6.1.6. -/
-def C_6_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (104 * a)
+def C6_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (104 * a)
 
 -- Lemma 6.1.6
 -- Note: p' is introduced in the statement in the blueprint but not used. There may be a typo.
 lemma tile_count {𝔄 𝔄' : Finset (𝔓 X)} (h_le : 𝔄' ⊆ 𝔄) (ϑ : Θ X) :
     eLpNorm (∑ 𝔭 ∈ 𝔄', (1 + dist_(𝔭) (𝒬 𝔭) ϑ) ^ ((-1 : ℝ)/(2*a^2 + a^3)) •
       ((E 𝔭).indicator 1) *  (G.indicator (1 : X → ℝ))) (p a) volume ≤
-      (C_6_1_6 a) * dens₁ (𝔄 : Set (𝔓 X)) ^ ((1 : ℝ)/(p a)) *
+      (C6_1_6 a) * dens₁ (𝔄 : Set (𝔓 X)) ^ ((1 : ℝ)/(p a)) *
         (volume (⋃ (p ∈ 𝔄), (𝓘 p : Set X))) ^ ((1 : ℝ)/(p a)) := by
   sorry
 
