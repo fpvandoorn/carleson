@@ -322,10 +322,7 @@ lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ �
 
 lemma sq_eLpNorm_two {ε : Type*} [ENorm ε] {f : α → ε} :
     eLpNorm f 2 μ ^ 2 = ∫⁻ x, ‖f x‖ₑ ^ 2 ∂μ := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm two_ne_zero ENNReal.ofNat_ne_top, ENNReal.toReal_ofNat,
-    ← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, show (1 : ℝ) / 2 * (2 : ℕ) = 1 by norm_num,
-    ENNReal.rpow_one]
-  congr! with x; rw [← ENNReal.rpow_natCast]; rfl
+  simpa using eLpNorm_nnreal_pow_eq_lintegral (f := f) two_ne_zero
 
 open ComplexConjugate in
 /-- One of the very few cases where a norm can be moved _out of_ an integral. -/

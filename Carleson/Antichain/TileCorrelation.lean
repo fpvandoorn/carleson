@@ -66,7 +66,7 @@ lemma mem_ball_of_mem_tsupport_correlation {s₁ s₂ : ℤ} {x₁ x₂ y : X}
     (half_lt_self_iff.mpr (defaultD_pow_pos a s₁))
 
 /-- The constant from lemma 6.2.1. -/
-def C_6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (254 * a ^ 3)
+def C6_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (254 * a ^ 3)
 
 --TODO: PR to Mathlib
 lemma ENNReal.mul_div_mul_comm {a b c d : ℝ≥0∞} (hc : c ≠ ⊤) (hd : d ≠ ⊤) :
@@ -152,7 +152,7 @@ lemma e625 {s₁ s₂ : ℤ} {x₁ x₂ y y' : X} (hy' : y ≠ y') (hs : s₁ �
 -- Eq. 6.2.3 (Lemma 6.2.1)
 lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ s₂) :
     iHolENorm (correlation s₁ s₂ x₁ x₂) x₁ (2 * D ^ s₁) ≤
-    C_6_2_1 a / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))) := by
+    C6_2_1 a / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))) := by
   -- 6.2.4
   have hφ' (y : X) : ‖correlation s₁ s₂ x₁ x₂ y‖ₑ ≤
       (C2_1_3 a) ^ 2 / (volume (ball x₁ (D ^ s₁)) * volume (ball x₂ (D ^ s₂))):= by
@@ -172,7 +172,7 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
         ENNReal.rpow_intCast]
     _ ≤ _ := by
       rw [← ENNReal.add_div]; refine ENNReal.div_le_div_right ?_ _
-      rw [C2_1_3, C_6_2_1]; norm_cast
+      rw [C2_1_3, C6_2_1]; norm_cast
       calc
         _ ≤ 2 ^ (253 * a ^ 3) + 2 ^ (253 * a ^ 3) := by
           rw [← pow_mul, show 102 * a ^ 3 * 2 = 204 * a ^ 3 by ring]; gcongr <;> norm_num
@@ -221,7 +221,7 @@ lemma range_support {p : 𝔓 X} {g : X → ℂ} {y : X} (hpy : adjointCarleson 
       gcongr -- uses hpos, hle.
 
 /-- The constant from lemma 6.2.3. -/
-def C_6_2_3 (a : ℕ) : ℝ≥0 := 2^(8 * a)
+def C6_2_3 (a : ℕ) : ℝ≥0 := 2^(8 * a)
 
 lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p) < 1 :=
   subset_cball hx.2.1
@@ -230,7 +230,7 @@ lemma ineq_6_2_16 {p : 𝔓 X} {x : X} (hx : x ∈ E p) : dist_(p) (Q x) (𝒬 p
 lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
   (hinter : (ball (𝔠 p₁) (5 * D^𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D^𝔰 p₂)).Nonempty) {x₁ x₂ : X}
   (hx₁ : x₁ ∈ E p₁) (hx₂ : x₂ ∈ E p₂) :
-    1  + dist_(p₁) (𝒬 p₁) (𝒬 p₂) ≤ (C_6_2_3 a) * (1 + dist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
+    1  + dist_(p₁) (𝒬 p₁) (𝒬 p₂) ≤ (C6_2_3 a) * (1 + dist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
   -- Inequalities 6.2.16.
   have hp₁ : dist_(p₁) (𝒬 p₁) (Q x₁) < 1 := by rw [dist_comm]; exact ineq_6_2_16 hx₁
   have hp₂ := ineq_6_2_16 hx₂
@@ -310,7 +310,7 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
       have h3a : (2 : ℝ) ^ (3 * a) = (defaultA a)^ 3 := by simp; ring
       convert cdist_le_iterate hr (Q x₁) (Q x₂) 3 -- uses h8, h3a
     -- 6.2.15
-    _ ≤ (C_6_2_3 a) * (1 + dist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
+    _ ≤ (C6_2_3 a) * (1 + dist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
       have hpow : (2 : ℝ) + 2 ^ (6 * a) ≤ 2 ^ (a * 8) :=
         calc (2 : ℝ) + 2 ^ (6 * a)
           _ ≤ (2 : ℝ)^ (6 * a) + 2 ^ (6 * a)  := by
@@ -325,7 +325,7 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
             exact Nat.pow_le_pow_right zero_lt_two (by omega)
       have h38 : 3 ≤ 8 := by omega
       have h12 : (1 : ℝ) ≤ 2 := by linarith
-      rw [C_6_2_3]
+      rw [C6_2_3]
       conv_rhs => ring_nf
       push_cast
       rw [mul_comm 3]
@@ -335,8 +335,8 @@ lemma uncertainty (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 
 lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰 p₂)
     (hinter : (ball (𝔠 p₁) (5 * D^𝔰 p₁) ∩ ball (𝔠 p₂) (5 * D^𝔰 p₂)).Nonempty) {x₁ x₂ : X}
     (hx₁ : x₁ ∈ E p₁) (hx₂ : x₂ ∈ E p₂) :
-      1  + edist_(p₁) (𝒬 p₁) (𝒬 p₂) ≤ (C_6_2_3 a) * (1 + edist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
-  have hC : (C_6_2_3 a : ℝ≥0∞) = ENNReal.ofReal (C_6_2_3 a : ℝ) := by rw [ENNReal.ofReal_coe_nnreal]
+      1  + edist_(p₁) (𝒬 p₁) (𝒬 p₂) ≤ (C6_2_3 a) * (1 + edist_{x₁, D^𝔰 p₁} (Q x₁) (Q x₂)) := by
+  have hC : (C6_2_3 a : ℝ≥0∞) = ENNReal.ofReal (C6_2_3 a : ℝ) := by rw [ENNReal.ofReal_coe_nnreal]
   simp only [edist_dist, ← ENNReal.ofReal_one, hC, ← ENNReal.ofReal_add zero_le_one dist_nonneg,
     ← ENNReal.ofReal_add zero_le_one dist_nonneg, ← ENNReal.ofReal_mul NNReal.zero_le_coe]
   exact ENNReal.ofReal_le_ofReal (uncertainty ha hle hinter hx₁ hx₂)
@@ -344,16 +344,16 @@ lemma uncertainty' (ha : 1 ≤ a) {p₁ p₂ : 𝔓 X} (hle : 𝔰 p₁ ≤ 𝔰
 section lemma_6_1_5
 
 /-- The constant from lemma 6.1.5. -/
-def C_6_1_5 (a : ℕ) : ℝ≥0 := 2^(255 * a^3)
+def C6_1_5 (a : ℕ) : ℝ≥0 := 2^(255 * a^3)
 
 -- TODO : 4 ≤ a in blueprint
 @[nolint unusedHavesSuffices] -- nlinarith does use h255.
-lemma C_6_1_5_bound (ha : 4 ≤ a) : 2 ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C_6_1_5 a := by
+lemma C6_1_5_bound (ha : 4 ≤ a) : 2 ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C6_1_5 a := by
   have h255 : 255 * a ^ 3 = 254 * a ^ 3  + (a ^ 2 * a) := by
     have : a ^ 2 * a = a^3 := rfl
     rw [← one_mul (a ^ 2 * a), this, ← add_mul]
     rfl
-  rw [C_6_1_5, ← pow_add]
+  rw [C6_1_5, ← pow_add]
   exact pow_le_pow (le_refl _) one_le_two (by nlinarith)
 
 open GridStructure
@@ -404,13 +404,13 @@ lemma I12_le' (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ) (x1 : E
   · have hbdd := correlation_kernel_bound (a := a) (X := X) hle (x₁ := x1) (x₂ := x2)
     have hle : (C2_0_5 ↑a : ℝ≥0∞) * volume (ball (x1 : X) (D ^ 𝔰 p')) *
         iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) ↑x2) (↑x1) (2 * D ^ 𝔰 p') ≤
-        ↑(C2_0_5 ↑a) * volume (ball ((x1 : X)) (D ^ 𝔰 p')) * (↑(C_6_2_1 a) /
+        ↑(C2_0_5 ↑a) * volume (ball ((x1 : X)) (D ^ 𝔰 p')) * (↑(C6_2_1 a) /
           (volume (ball (x1 : X) (D ^ 𝔰 p')) * volume (ball (x2 : X) (D ^ 𝔰 p)))) := by
       gcongr
     -- simp, ring_nf, field_simp did not help.
     have heq : ↑(C2_0_5 a) * volume (ball (x1 : X) (D ^ 𝔰 p')) *
-      (↑(C_6_2_1 a) / (volume (ball (x1 : X) (D ^ 𝔰 p')) * volume (ball (x2 : X) (D ^ 𝔰 p)))) =
-      ↑(C2_0_5 a) * (↑(C_6_2_1 a) / volume (ball (x2 : X) (D ^ 𝔰 p))) := by
+      (↑(C6_2_1 a) / (volume (ball (x1 : X) (D ^ 𝔰 p')) * volume (ball (x2 : X) (D ^ 𝔰 p)))) =
+      ↑(C2_0_5 a) * (↑(C6_2_1 a) / volume (ball (x2 : X) (D ^ 𝔰 p))) := by
       simp only [mul_assoc]
       congr 1
       rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (Or.inr measure_ball_ne_top)
@@ -420,7 +420,7 @@ lemma I12_le' (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ) (x1 : E
     apply le_trans hle
     rw [heq, mul_div]
     apply ENNReal.div_le_div _ (le_refl _)
-    simp only [C2_0_5, C_6_2_1, ENNReal.coe_pow, ENNReal.coe_ofNat]
+    simp only [C2_0_5, C6_2_1, ENNReal.coe_pow, ENNReal.coe_ofNat]
     rw [pow_add, mul_comm]
     norm_cast
     gcongr
@@ -464,7 +464,7 @@ lemma I12_le (ha : 4 ≤ a) (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X �
   gcongr
   -- Now we need to use Lemma 6.2.3. to conclude this inequality.
   have h623 := uncertainty' (le_of_lt (by linarith)) hle hinter x1.2 x2.2
-  rw [C_6_2_3, ENNReal.coe_pow, ENNReal.coe_ofNat] at h623
+  rw [C6_2_3, ENNReal.coe_pow, ENNReal.coe_ofNat] at h623
   have hneg : -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ < 0 :=
     neg_neg_iff_pos.mpr (inv_pos.mpr (by norm_cast; nlinarith))
   have hexp : 0 < ((8 * a  : ℕ) : ℝ) * -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ + 1 := exp_ineq ha
@@ -511,13 +511,13 @@ lemma I12_nnreal_le' (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ) 
   · have hbdd := correlation_kernel_bound (a := a) (X := X) hle (x₁ := x1) (x₂ := x2)
     have hle : (C2_0_5 ↑a : ℝ≥0∞) * volume (ball (x1 : X) (D ^ 𝔰 p')) *
         iHolENorm (a := a) (correlation (𝔰 p') (𝔰 p) (x1 : X) ↑x2) (↑x1) (2 * D ^ 𝔰 p') ≤
-        ↑(C2_0_5 ↑a) * volume (ball ((x1 : X)) (D ^ 𝔰 p')) * (↑(C_6_2_1 a) /
+        ↑(C2_0_5 ↑a) * volume (ball ((x1 : X)) (D ^ 𝔰 p')) * (↑(C6_2_1 a) /
           (volume (ball (x1 : X) (D ^ 𝔰 p')) * volume (ball (x2 : X) (D ^ 𝔰 p)))) := by
       gcongr
     -- simp, ring_nf, field_simp did not help.
     have heq : ↑(C2_0_5 a) * volume (ball (x1 : X) (D ^ 𝔰 p')) *
-      (↑(C_6_2_1 a) / (volume (ball (x1 : X) (D ^ 𝔰 p')) * volume (ball (x2 : X) (D ^ 𝔰 p)))) =
-      ↑(C2_0_5 a) * (↑(C_6_2_1 a) / volume (ball (x2 : X) (D ^ 𝔰 p))) := by
+      (↑(C6_2_1 a) / (volume (ball (x1 : X) (D ^ 𝔰 p')) * volume (ball (x2 : X) (D ^ 𝔰 p)))) =
+      ↑(C2_0_5 a) * (↑(C6_2_1 a) / volume (ball (x2 : X) (D ^ 𝔰 p))) := by
       simp only [mul_assoc]
       congr 1
       rw [ENNReal.div_eq_inv_mul, ENNReal.mul_inv (Or.inr measure_ball_ne_top)
@@ -528,7 +528,7 @@ lemma I12_nnreal_le' (p p' : 𝔓 X) (hle : 𝔰 p' ≤ 𝔰 p) (g : X → ℂ) 
     rw [heq, ENNReal.coe_div (ne_of_gt (measure_ball_pos_nnreal _ _ hD)),
       ENNReal.coe_toNNReal measure_ball_ne_top, mul_div]
     apply ENNReal.div_le_div _ (le_refl _)
-    simp only [C2_0_5, C_6_2_1, ENNReal.coe_pow, ENNReal.coe_ofNat]
+    simp only [C2_0_5, C6_2_1, ENNReal.coe_pow, ENNReal.coe_ofNat]
     rw [pow_add, mul_comm]
     norm_cast
     gcongr
@@ -565,7 +565,7 @@ lemma I12_nnreal_le (ha : 1 < a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) (g :
   gcongr
   -- Now we need to use Lemma 6.2.3. to conclude this inequality.
   have h623 := uncertainty (le_of_lt ha) hle hinter x1.2 x2.2
-  rw [C_6_2_3, NNReal.coe_pow, NNReal.coe_ofNat] at h623
+  rw [C6_2_3, NNReal.coe_pow, NNReal.coe_ofNat] at h623
   have hneg : -(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹ < 0 :=
     neg_neg_iff_pos.mpr (inv_pos.mpr (by norm_cast; nlinarith))
   have hpos : 0 < ((2 : ℝ) ^ (8 * a)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) :=
@@ -644,11 +644,11 @@ lemma volume_coeGrid_le (p : 𝔓 X) (x2 : E p) :
 -- Bound 6.2.29 using 6.2.32 and `4 ≤ a`.
 lemma bound_6_2_29 (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 + 8 * a + 1) *
       ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-        (volume (ball (x2 : X) (D ^𝔰 p))) ≤ (C_6_1_5 a) *
+        (volume (ball (x2 : X) (D ^𝔰 p))) ≤ (C6_1_5 a) *
           ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
             (volume (coeGrid (𝓘 p))).toNNReal := by
-  have h4 : (2 : ℝ≥0∞) ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C_6_1_5 a :=
-    ENNReal.coe_le_coe.mpr (C_6_1_5_bound ha)
+  have h4 : (2 : ℝ≥0∞) ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C6_1_5 a :=
+    ENNReal.coe_le_coe.mpr (C6_1_5_bound ha)
   -- Inequality 6.2.32
   have hvol : ∀ (x2 : E p), volume (coeGrid (𝓘 p)) ≤
       2 ^ (3*a) * (volume (ball (x2 : X) (D ^𝔰 p))) := volume_coeGrid_le p
@@ -673,9 +673,9 @@ lemma bound_6_2_29 (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 + 
       ring_nf
       rw [ENNReal.zpow_neg two_ne_zero ENNReal.ofNat_ne_top]
       norm_cast
-    _ ≤ (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+    _ ≤ (C6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
           (2 ^ (3 * a) * volume (ball (x2 : X) (D ^𝔰 p))) := by gcongr
-    _ ≤ (C_6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+    _ ≤ (C6_1_5 a) * ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
           (volume (coeGrid (𝓘 p))).toNNReal := by
         gcongr;
         convert hvol x2
@@ -684,13 +684,13 @@ lemma bound_6_2_29 (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 + 
 -- Bound 6.2.29 using 6.2.32 and `4 ≤ a`.
 lemma bound_6_2_29' (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 + 8 * a + 1) *
       ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-        (volume (ball (x2 : X) (D ^𝔰 p))).toNNReal ≤ (C_6_1_5 a) *
+        (volume (ball (x2 : X) (D ^𝔰 p))).toNNReal ≤ (C6_1_5 a) *
           ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
             (volume (coeGrid (𝓘 p))).toNNReal := by
   have h1 : 0 < (volume (𝓘 p : Set X)).toNNReal :=
     ENNReal.toNNReal_pos (ne_of_gt (volume_coeGrid_pos (defaultD_pos' a))) (by finiteness)
   have h2 : (2 : ℝ) ≠ 0 := by norm_num
-  have h4 : 2 ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C_6_1_5 a := C_6_1_5_bound ha
+  have h4 : 2 ^ (254 * a ^ 3 + 1) * 2 ^ (11 * a) ≤ C6_1_5 a := C6_1_5_bound ha
   -- Inequality 6.2.32
   have hvol : ∀ (x2 : E p), (volume (coeGrid (𝓘 p))).toNNReal ≤
       2 ^ (3*a) * (volume (ball (x2 : X) (D ^𝔰 p))).toNNReal := by
@@ -715,7 +715,7 @@ lemma bound_6_2_29' (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 +
       congr
       rw [ENNReal.toNNReal_mul, NNReal.coe_mul]
       rfl
-    _ ≤ (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+    _ ≤ (C6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
           (2 ^ (3 * a) * (volume (ball (x2 : X) (D ^𝔰 p))).toNNReal) := by
           gcongr
           · simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.ofNat_pos, pow_pos,
@@ -728,7 +728,7 @@ lemma bound_6_2_29' (ha : 4 ≤ a) (p p' : 𝔓 X) (x2 : E p) : 2 ^ (254 * a^3 +
             NNReal.coe_pow]
             gcongr
             exact le_refl _
-    _ ≤ (C_6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
+    _ ≤ (C6_1_5 a) * ((1 + dist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
           (volume (coeGrid (𝓘 p))).toNNReal := by gcongr; exact hvol x2
 
 -- TODO: PR to Mathlib
@@ -977,21 +977,21 @@ lemma boundedCompactSupport_aux_6_2_26 (p p' : 𝔓 X) {g : X → ℂ}
 
 lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    BoundedCompactSupport (fun (x : X × X) ↦ (((C_6_1_5 a : ℝ≥0∞) *
+    BoundedCompactSupport (fun (x : X × X) ↦ (((C6_1_5 a : ℝ≥0∞) *
       (1 + (nndist_(p') (𝒬 p') (𝒬 p) : ℝ≥0∞)) ^ (-(2 * (a : ℝ) ^ 2 + (a : ℝ) ^ 3)⁻¹) /
         volume (𝓘 p : Set X)).toNNReal : ℝ) * ‖g x.1‖ * ‖g x.2‖) := by
   constructor
   · -- MemLp
     · refine ⟨(Measurable.stronglyMeasurable (by fun_prop)).aestronglyMeasurable, ?_⟩
       refine lt_of_le_of_lt (eLpNorm_le_of_ae_bound
-          (C := (C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^
+          (C := (C6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^
         (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) / (volume (𝓘 p : Set X)).toNNReal) ?_) ?_
       · apply Filter.Eventually.of_forall
         intro x
-        calc ‖(((C_6_1_5 a : ℝ≥0∞) * (1 + (nndist_(p') (𝒬 p') (𝒬 p))) ^
+        calc ‖(((C6_1_5 a : ℝ≥0∞) * (1 + (nndist_(p') (𝒬 p') (𝒬 p))) ^
                 (-(2 * (a : ℝ) ^ 2 + (a : ℝ) ^ 3)⁻¹) / volume (𝓘 p : Set X)).toNNReal : ℝ) *
                   ‖g x.1‖ * ‖g x.2‖‖
-          _ =  ‖(C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
+          _ =  ‖(C6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
               (volume (𝓘 p : Set X)).toNNReal * ‖g x.1‖ * ‖g x.2‖‖ := by
               congr
               simp only [coe_nnreal_ennreal_nndist, edist_dist, ENNReal.toNNReal_div,
@@ -1003,7 +1003,7 @@ lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurab
               rw [ENNReal.toReal_add ENNReal.one_ne_top (by simp)]
               simp only [ENNReal.toReal_one, _root_.add_right_inj, ENNReal.toReal_ofReal_eq_iff]
               exact dist_nonneg
-          _ = ↑(C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
+          _ = ↑(C6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
               (volume (𝓘 p : Set X)).toNNReal * ↑‖g x.1‖ * ↑‖g x.2‖  := by
             simp only [norm_mul, norm_mul, Real.norm_eq_abs, NNReal.abs_eq, coe_nnnorm,
               _root_.abs_of_nonneg (norm_nonneg _), _root_.abs_of_nonneg
@@ -1011,11 +1011,11 @@ lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurab
                 (Real.rpow_nonneg ( add_nonneg zero_le_one dist_nonneg) _)) NNReal.zero_le_coe)]
             simp only [coe_nndist, mul_eq_mul_right_iff, abs_eq_self, norm_eq_zero]
             exact Or.inl (Or.inl (by positivity))
-          _ ≤ ↑(C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
+          _ ≤ ↑(C6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
               (volume (𝓘 p : Set X)).toNNReal * 1 * 1 := by
             gcongr <;>
             exact le_trans (hg1 _) (indicator_one_le_one _)
-          _ = ↑(C_6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
+          _ = ↑(C6_1_5 a) * (1 + nndist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * (a : ℝ) ^ 2 + ↑a ^ 3)⁻¹) /
               (volume (𝓘 p : Set X)).toNNReal := by
             simp only [mul_one]
       · simp only [ENNReal.toReal_top, inv_zero, ENNReal.rpow_zero]
@@ -1037,7 +1037,7 @@ lemma boundedCompactSupport_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurab
 
 lemma integrableOn_bound (p p' : 𝔓 X) {g : X → ℂ} (hg : Measurable g)
     (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    IntegrableOn (fun x ↦ (((C_6_1_5 a : ℝ≥0∞) *
+    IntegrableOn (fun x ↦ (((C6_1_5 a : ℝ≥0∞) *
       (1 + (nndist_{𝔠 p', (D : ℝ) ^ 𝔰 p' / 4} (𝒬 p') (𝒬 p) : ℝ≥0∞)) ^
         (-(2 * (a : ℝ) ^ 2 + (a : ℝ) ^ 3)⁻¹) / volume (𝓘 p : Set X)).toNNReal : ℝ) * ‖g x.1‖ *
       ‖g x.2‖) (E p' ×ˢ E p) volume :=
@@ -1180,7 +1180,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     (hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
-      C_6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+      C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
         volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
   -- Definition 6.2.27
   set I12 := I12 p p' g
@@ -1192,7 +1192,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
   -- Bound 6.2.29 using 6.2.32 and `4 ≤ a`.
   have hle' : ∀ (x2 : E p), 2 ^ (254 * a^3 + 8 * a + 1) *
       ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
-        (volume (ball (x2 : X) (D ^𝔰 p))) ≤ (C_6_1_5 a) *
+        (volume (ball (x2 : X) (D ^𝔰 p))) ≤ (C6_1_5 a) *
           ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
             (volume (coeGrid (𝓘 p))).toNNReal := bound_6_2_29 ha p p'
   -- Estimate 6.2.24 -- 6.2.25 by 6.2.26
@@ -1210,7 +1210,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
       exact MeasureTheory.Integrable.re_im_iff.mp
         ⟨hre, by simp only [RCLike.im_to_complex, ofReal_im, integrable_zero]⟩
   have h : ‖∫ (z : X × X) in E p' ×ˢ E p, ((I12 z.1 z.2).toReal : ℂ)‖ₑ ≤
-      ‖∫ (z : X × X) in E p' ×ˢ E p, ((C_6_1_5 a) *
+      ‖∫ (z : X × X) in E p' ×ˢ E p, ((C6_1_5 a) *
           ((1 + nndist_(p') (𝒬 p') (𝒬 p))^(-(2 * a^2 + a^3 : ℝ)⁻¹)) /
             (volume (coeGrid (𝓘 p)))).toNNReal * ‖g z.1‖ * ‖g z.2‖ ‖ₑ := by
     rw [hcoe, enorm_le_iff_norm_le]
@@ -1263,7 +1263,7 @@ lemma correlation_le_of_nonempty_inter (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : �
 lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
     (hinter : ¬ (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty) :
     ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
-      C_6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+      C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
         volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
   calc ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ
       _ = 0 := by
@@ -1280,7 +1280,7 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
             by_contra hy
             exact hpy (range_support hy)
           simp [hp'0, map_zero, mul_zero, Pi.zero_apply]
-      _ ≤ C_6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+      _ ≤ C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
         volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
         positivity
 
@@ -1288,7 +1288,7 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
 lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
-      C_6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+      C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
         volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
   by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
   · exact correlation_le_of_nonempty_inter ha hle hg hg1 hinter

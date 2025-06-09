@@ -844,16 +844,15 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
 
 /-- Custom version of the antichain operator theorem, in the specific form we need to handle
 the various terms in the previous statement. -/
-lemma lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ
+lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
     {f : X → ℂ} {𝔄 : Set (𝔓 X)} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f)
     (hA : IsAntichain (· ≤ ·) 𝔄) (h'A : 𝔄 ⊆ ℭ k n) :
     ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) f x‖ₑ
-    ≤ C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
+    ≤ C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
       * 2 ^ (- ((q - 1) / (8 * a ^ 4) * n)) := by
   have I : 0 ≤ q - 1 := by linarith [one_lt_q X]
   have J : 0 ≤ q⁻¹ - 2⁻¹ := inv_q_sub_half_nonneg X
-  apply (antichain_operator_le_volume h'f hf diff_subset
-    (hA.subset inter_subset_right)).trans
+  apply (antichain_operator_le_volume (hA.subset inter_subset_right) h'f hf diff_subset).trans
   simp only [mul_assoc]
   apply mul_le_mul_left'
   have : dens₁ (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ 𝔄) ≤ 2 ^ (4 * a - n + 1 : ℝ) :=
@@ -1058,7 +1057,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
     rfl
 
 /-- An optimized constant for Lemma 5.1.3. -/
-def C5_1_3_optimized (a : ℕ) (q : ℝ≥0) := C_2_0_3 a q * 2 ^ (29 * a + 23) / (q - 1) ^ 4
+def C5_1_3_optimized (a : ℕ) (q : ℝ≥0) := C2_0_3 a q * 2 ^ (29 * a + 23) / (q - 1) ^ 4
 
 /-- The constant used in Lemma 5.1.3 in the blueprint,
 with value `2 ^ (153 * a ^ 3) / (q - 1) ^ 5` -/
@@ -1071,31 +1070,21 @@ lemma C5_1_3_pos : 0 < C5_1_3 a nnq := by
   positivity
 
 omit [TileStructure Q D κ S o] in
-lemma C5_1_3_optimized_le_C5_1_3 :
-    C5_1_3_optimized a nnq ≤ C5_1_3 a nnq := by
-  have : (2 : ℝ≥0) ^ (150 * (a : ℝ) ^ 3) = 2 ^ (150 * a ^ 3) := by
-    rw [← NNReal.rpow_natCast]
-    congr
-    norm_cast
-  simp only [C5_1_3_optimized, C5_1_3, C_2_0_3, this]
+lemma C5_1_3_optimized_le_C5_1_3 : C5_1_3_optimized a nnq ≤ C5_1_3 a nnq := by
+  simp only [C5_1_3_optimized, C5_1_3, C2_0_3]
   calc
-  2 ^ (150 * a ^ 3) / (nnq - 1) * 2 ^ (29 * a + 23) / (nnq - 1) ^ 4
-  _ ≤ 2 ^ (150 * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
-    gcongr
-    · exact one_le_two
-    zify
-    have : (4 : ℤ) ≤ a := mod_cast (four_le_a X)
-    calc
-    29 * (a : ℤ) + 23 ≤ 29 * a + 4 * (3 * 4 ^ 2 - 29) := by linarith
-    _ ≤ 29 * a + a * (3 * a ^ 2 - 29) := by gcongr
-    _ = 3 * a ^ 3 := by ring
-  _ = 2 ^ (150 * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
-    rw [pow_add, pow_add, div_mul_eq_div_div]
-    simp only [div_eq_inv_mul, pow_one]
-    ring
-  _ = 2 ^ (153 * a ^ 3) / (nnq - 1) ^ 5 := by
-    congr
-    ring
+    _ ≤ 2 ^ (150 * a ^ 3) / (nnq - 1) * 2 ^ (3 * a ^ 3) / (nnq - 1) ^ 4 := by
+      have := four_le_a X
+      gcongr; · exact one_le_two
+      calc
+        _ ≤ 3 * 4 * 4 * a := by omega
+        _ ≤ 3 * a * a * a := by gcongr
+        _ = _ := by ring
+    _ = 2 ^ (150 * a ^ 3 + 3 * a ^ 3) / (nnq - 1) ^ (4 + 1) := by
+      rw [pow_add, pow_add, div_mul_eq_div_div]
+      simp only [div_eq_inv_mul, pow_one]
+      ring
+    _ = _ := by congr; ring
 
 lemma forest_complement_optimized
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f) :
@@ -1111,27 +1100,27 @@ lemma forest_complement_optimized
           ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔏₃ k n j l) f x‖ₑ) :=
     lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral h'f
   _ ≤   (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ l < n,
-          C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
+          C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
           * 2 ^ (- ((q - 1) / (8 * a^4) * n)))
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
-          C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
+          C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
           * 2 ^ (- ((q - 1) / (8 * a^4) * n)))
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
-          C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
+          C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
           * 2 ^ (- ((q - 1) / (8 * a^4) * n)))
       + (∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∑ l ≤ Z * (n + 1),
-          C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
+          C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
           * 2 ^ (- ((q - 1) / (8 * a^4) * n))) := by
       gcongr
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L0'
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L0'
         exact minLayer_subset.trans 𝔏₀_subset_ℭ
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L1
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L1
         exact 𝔏₁_subset_ℭ
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L2
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L2
         exact 𝔏₂_subset_ℭ
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L3
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L3
         exact 𝔏₃_subset_ℭ
-  _ = C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
+  _ = C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
     ∑ x ≤ maxℭ X,
       (((↑x + 1) * ↑x + (↑x + 1) * (2 * ↑x + 3 + 1) * (↑Z * (↑x + 1) + 1)
       + (↑x + 1) * (2 * ↑x + 3 + 1)  + (↑x + 1) * (2 * ↑x + 3 + 1) * (↑Z * (↑x + 1) + 1))
@@ -1142,19 +1131,19 @@ lemma forest_complement_optimized
     simp only [← Finset.sum_add_distrib]
     congr with x
     ring
-  _ = C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
+  _ = C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
     ∑ x ≤ maxℭ X,
       (((12 + 8 * Z) + (19 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
         (2 : ℝ≥0∞) ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ))) := by
     congr with x
     ring
-  _ ≤ C_2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
+  _ ≤ C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
        (2 ^ (28 * a + 20) / (nnq - 1) ^ 4) := by
     gcongr
     apply lintegral_carlesonSum_𝔓₁_compl_le_sum_aux2
-  _ = (C_2_0_3 a nnq * (2 ^ (a + 3) * 2 ^ (28 * a + 20)) / (nnq - 1) ^ 4) *
+  _ = (C2_0_3 a nnq * (2 ^ (a + 3) * 2 ^ (28 * a + 20)) / (nnq - 1) ^ 4) *
       volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by simp only [ENNReal.div_eq_inv_mul]; ring
-  _ = (C_2_0_3 a nnq * 2 ^ (29 * a + 23) / (nnq - 1) ^ 4) *
+  _ = (C2_0_3 a nnq * 2 ^ (29 * a + 23) / (nnq - 1) ^ 4) *
       volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ := by
     rw [← pow_add]
     congr 4
