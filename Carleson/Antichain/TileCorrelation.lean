@@ -1,8 +1,5 @@
-import Carleson.ForestOperator.AlmostOrthogonality
 import Carleson.HolderVanDerCorput
-import Carleson.ToMathlib.HardyLittlewood
-import Carleson.Psi
-import Carleson.TileStructure
+import Carleson.Operators
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -187,8 +184,6 @@ lemma correlation_kernel_bound {s₁ s₂ : ℤ} {x₁ x₂ : X} (hs : s₁ ≤ 
           · linarith only [four_le_a X]
 
 variable [TileStructure Q D κ S o]
-
-open TileStructure.Forest
 
 -- TODO: PR both versions to Mathlib
 theorem MeasureTheory.exists_ne_zero_of_setIntegral_ne_zero {α E : Type*} [NormedAddCommGroup E]
