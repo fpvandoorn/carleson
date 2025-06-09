@@ -696,31 +696,19 @@ lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : 0 < t) (htγ : 
 
 -- Note: this lemma is false if t = γ = ∞ and a < 0 ≤ b, as then t ^ a = ∞ ^ a = 0 and
 -- the statement becomes ∞ ≤ 0 * ∞ = 0.
-lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} (ht : 0 < t) (htγ : t ≤ γ) (hab : a ≤ b) :
+-- Requiring `γ ≠ ∞` is fine in practice, as would be asking for the stronger condition `t ≠ ∞`.
+lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} (ht : 0 < t) (htγ : t ≤ γ)
+    (hγ: γ ≠ ∞) (hab : a ≤ b) :
     t ^ b ≤ (t ^ a) * (γ ^ (b - a)) := by
-  by_cases hγ' : γ = ∞
-  · rw [hγ']
-    simp_all only [le_top, top_rpow_def, ite_mul, sub_zero, one_mul, zero_mul]
-    split_ifs with hb ha --ha' hb'
-    · by_cases ht' : t = ∞
-      · rw [ht']
-        -- This is where the problem lies: if a < 0, t ^ a = 0 and the RHS is 0
-        sorry
-      rw [mul_top (ENNReal.rpow_pos ht ht' (p := a)).ne']
-      exact OrderTop.le_top (t ^ b)
-    · simp [show a = b by linarith]
-    · apply False.elim
-      have : b - a < 0 := by sorry -- three possible cases; ha and hb exclude the other two
-      linarith
   have γ_pos : 0 < γ := gt_of_ge_of_gt htγ ht
   rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
     ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
   · sorry -- power with negative expononent, so directions flip
   · positivity
-  · exact ne_top_of_le_ne_top hγ' htγ  -- future: can `order` do this?
-  · have : t ≠ ⊤ := ne_top_of_le_ne_top hγ' htγ
-    simpa [ne_eq, ENNReal.rpow_eq_zero_iff, hγ', this] using fun h ↦ (ht.ne h.symm).elim
-  · have : t ≠ ⊤ := ne_top_of_le_ne_top hγ' htγ
+  · exact ne_top_of_le_ne_top hγ htγ  -- future: can `order` do this?
+  · have : t ≠ ⊤ := ne_top_of_le_ne_top hγ htγ
+    simpa [ne_eq, ENNReal.rpow_eq_zero_iff, hγ, this] using fun h ↦ (ht.ne h.symm).elim
+  · have : t ≠ ⊤ := ne_top_of_le_ne_top hγ htγ
     finiteness
   · simp_all only [ne_eq, ENNReal.rpow_eq_zero_iff, sub_pos, sub_neg, not_or, not_and, not_lt,
       implies_true, and_true]
@@ -892,7 +880,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       · apply setLIntegral_mono_ae (AEMeasurable.restrict (by fun_prop))
         · filter_upwards with x hx
           rw [mul_comm]
-          exact rpow_le_rpow_of_exponent_le_base_le_enorm hx.1 hx.2 <| toReal_mono hq hpq.2.le
+          exact rpow_le_rpow_of_exponent_le_base_le_enorm hx.1 hx.2 ht <| toReal_mono hq hpq.2.le
       · simp_all [ht]
         exact fun _h ↦ hpq.2.le
     _ ≤ _ := by
