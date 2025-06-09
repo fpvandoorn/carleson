@@ -577,7 +577,7 @@ lemma support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
     (hg_int : ∫⁻ x, g x ∂μ < ⊤) :
     SigmaFinite (μ.restrict (Function.support g)) where
   out' := by
-    apply nonempty_of_exists
+    apply Exists.nonempty
     use (finite_spanning_sets_from_lintegrable hg hg_int)
 
 lemma support_sigma_finite_from_MemLp

@@ -105,3 +105,5 @@ theorem pairwise_disjoint_Ioc_monotone {f : ι → α} (hf : Monotone f) :
   contradiction
 
 end LinearOrder
+
+end Set

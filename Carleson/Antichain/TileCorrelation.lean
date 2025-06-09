@@ -1315,3 +1315,7 @@ lemma correlation_zero_of_ne_subset (p p' : 𝔓 X) (g : X → ℂ)
   -- 6.2.35
   rw [hsp]
   exact subset_trans Grid_subset_ball (ball_subset_ball (by gcongr))
+
+end lemma_6_1_5
+
+end Tile

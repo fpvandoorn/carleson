@@ -658,3 +658,5 @@ lemma control_approximation_effect {ε : ℝ} (εpos : 0 < ε) {δ : ℝ} (hδ :
         Real.inv_rpow (by positivity), ← Real.rpow_mul (by positivity),
         inv_mul_cancel₀ (by norm_num), Real.rpow_one, inv_div]
       ring
+
+end
