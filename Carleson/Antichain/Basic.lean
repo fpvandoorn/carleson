@@ -1,8 +1,5 @@
-import Carleson.TileStructure
+import Carleson.Operators
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.Psi
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-
 
 open scoped ShortVariables
 

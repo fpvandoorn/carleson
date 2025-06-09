@@ -752,8 +752,8 @@ lemma lintegral_carlesonSum_forest
       Finset.mem_univ, true_and, forest, Finset.mem_biUnion, 𝔉]
     exact Iff.rfl
   rw [this]
-  have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
-    (isBounded_G.subset diff_subset)
+  have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G')
+    (measurableSet_G.diff measurable_G') diff_subset
   apply W.trans
   gcongr
   · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
@@ -941,7 +941,7 @@ lemma forest_union_sum_aux2 (M : ℕ) (q : ℝ) (hq : 1 < q) (h'q : q ≤ 2) :
 
 /-- An optimized constant for the forest union theorem. The constant from the blueprint,
 defined as `C5_1_2` below, is slightly worse. -/
-def C5_1_2_optimized (a : ℝ) (q : ℝ≥0) : ℝ≥0 :=
+def C5_1_2_optimized (a : ℕ) (q : ℝ≥0) : ℝ≥0 :=
   C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * 13009 / (q - 1) ^ 4
 
 /-- Version of the forest union result with a better constant. -/
@@ -996,14 +996,14 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
     _ ≤ a + a * (a * a - 1) := by gcongr
     _ = a ^ 3 := by ring
 
-/-- The constant used in Lemma 5.1.2, with value `2 ^ (433 * a ^ 3) / (q - 1) ^ 4`.
+/-- The constant used in Lemma 5.1.2, with value `2 ^ (471 * a ^ 3) / (q - 1) ^ 4`.
 The best constant naturally given by this step is `C5_1_2_optimized` above. -/
-def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (433 * a ^ 3) / (q - 1) ^ 4
+def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3) / (q - 1) ^ 4
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
   simp only [C5_1_2]
-  apply div_pos (rpow_pos zero_lt_two)
+  apply div_pos (pow_pos zero_lt_two _)
   apply pow_pos
   simpa using one_lt_nnq X
 
@@ -1011,10 +1011,8 @@ omit [TileStructure Q D κ S o] in
 lemma C5_1_2_optimized_le : C5_1_2_optimized a nnq ≤ C5_1_2 a nnq := by
   apply (C5_1_2_optimized_le' (four_le_a X)).trans_eq
   simp only [C2_0_4_base, C5_1_2]
-  rw [← NNReal.rpow_natCast _ (a ^ 3), ← NNReal.rpow_add two_ne_zero]
+  rw [← NNReal.rpow_natCast _ (a ^ 3), NNReal.rpow_natCast, ← pow_add, ← add_one_mul]
   congr
-  simp only [Nat.cast_pow]
-  ring
 
 /-- Lemma 5.1.2 in the blueprint: the integral of the Carleson sum over the set which can
 naturally be decomposed as a union of forests can be controlled, thanks to the estimate for
