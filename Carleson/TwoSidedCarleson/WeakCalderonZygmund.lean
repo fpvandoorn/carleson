@@ -130,33 +130,77 @@ lemma cardinalMk_czBall3_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : G
 
 lemma mem_czBall3_finite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} {y : X}
     (hy : α < globalMaximalFunction volume 1 f y) :
-    { i | y ∈ czBall3 ha hf hX i}.Finite :=
-  sorry
+    { i | y ∈ czBall3 ha hf hX i}.Finite := by
+  rw [← Cardinal.lt_aleph0_iff_set_finite]
+  exact lt_of_le_of_lt (cardinalMk_czBall3_le ha hy) (Cardinal.nat_lt_aleph0 _)
 
 /-- `Q_i` in the proof of Lemma 10.2.5 (general case). -/
 def czPartition (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (hX : GeneralCase f α) (i : ℕ) : Set X :=
-  czBall3 ha hf hX i \ ((⋃ j < i, czPartition ha hf hX j) ∪ ⋃ j > i, czBall ha hf hX i)
+  czBall3 ha hf hX i \ ((⋃ j < i, czPartition ha hf hX j) ∪ ⋃ j > i, czBall ha hf hX j)
 
 lemma czBall_subset_czPartition (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} {i : ℕ} :
     czBall ha hf hX i ⊆ czPartition ha hf hX i := by
-  sorry
+  intro r hr
+  rw [czPartition]
+  refine mem_diff_of_mem ?_ ?_
+  · have : dist r (czCenter ha hf hX i) ≥ 0 := dist_nonneg
+    simp_all only [mem_ball]
+    linarith
+  · rw [mem_ball] at hr
+    simp only [mem_union, mem_iUnion, mem_ball, not_or, not_exists, not_lt]
+    constructor
+    · unfold czPartition
+      simp only [mem_diff, mem_ball, mem_union, mem_iUnion, not_or, not_and, not_forall, not_not]
+      exact fun _ _ _ _ ↦ by use i
+    · intro x hx
+      have := pairwiseDisjoint_iff.mp <| czBall_pairwiseDisjoint ha (hf := hf) (hX := hX)
+      simp only [mem_univ, forall_const] at this
+      have := (disjoint_or_nonempty_inter _ _).resolve_right <| (@this i x).mt (by omega)
+      exact le_of_not_ge <| mem_closedBall.mpr.mt <| disjoint_left.mp this hr.le
 
 lemma czPartition_subset_czBall3 (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} {i : ℕ} :
     czPartition ha hf hX i ⊆ czBall3 ha hf hX i := by
   rw [czPartition]; exact diff_subset
 
 lemma czPartition_pairwiseDisjoint (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} :
-    univ.PairwiseDisjoint fun i ↦ czPartition ha hf hX i :=
-  sorry
+    univ.PairwiseDisjoint fun i ↦ czPartition ha hf hX i := by
+  simp only [pairwiseDisjoint_iff, mem_univ, forall_const]
+  intro i k hik
+  have ⟨x, hxi, hxk⟩ := inter_nonempty.mp hik
+  have (t d) (hx : x ∈ czPartition ha hf hX t) (hd : t < d) : x ∉ czPartition ha hf hX d := by
+    have : czPartition ha hf hX t ⊆ ⋃ j < d, czPartition ha hf hX j := subset_biUnion_of_mem hd
+    rw [czPartition]
+    exact notMem_diff_of_mem <| mem_union_left _ (this hx)
+  have : _ ∧ _ := ⟨this i k hxi |>.mt (· hxk), this k i hxk |>.mt (· hxi)⟩
+  omega
 
 lemma czPartition_pairwiseDisjoint' (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α}
     {x : X} {i j : ℕ} (hi : x ∈ czPartition ha hf hX i) (hj : x ∈ czPartition ha hf hX j) :
-    i = j :=
-  sorry
+    i = j := by
+  have := czPartition_pairwiseDisjoint ha (hf := hf) (hX := hX)
+  apply pairwiseDisjoint_iff.mp this (mem_univ i) (mem_univ j)
+  exact inter_nonempty.mp <| .intro x ⟨hi, hj⟩
 
 lemma iUnion_czPartition (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} :
-    ⋃ i, czPartition ha hf hX i = globalMaximalFunction volume 1 f ⁻¹' Ioi α :=
-  sorry
+    ⋃ i, czPartition ha hf hX i = globalMaximalFunction volume 1 f ⁻¹' Ioi α := by
+  rw [← iUnion_czBall3 ha (hf := hf) (hX := hX)]
+  refine ext fun x ↦ ⟨fun hx ↦ ?_, fun hx ↦ ?_⟩
+  · have : ⋃ i, czPartition ha hf hX i ⊆ ⋃ i, czBall3 ha hf hX i := fun y hy ↦
+      have ⟨r, hr⟩ := mem_iUnion.mp hy
+      mem_iUnion_of_mem r (czPartition_subset_czBall3 ha hr)
+    exact this hx
+  · rw [mem_iUnion] at hx ⊢
+    by_contra! hp
+    obtain ⟨g, hg⟩ := hx
+    have ⟨t, ht⟩ : ∃ i, x ∈ (⋃ j < i, czPartition ha hf hX j) ∪ ⋃ j > i, czBall ha hf hX j := by
+      by_contra! hb
+      absurd hp g
+      rw [czPartition, mem_diff]
+      exact ⟨hg, hb g⟩
+    have : ⋃ j > t, czBall ha hf hX j ⊆ ⋃ j > t, czPartition ha hf hX j :=
+      iUnion₂_mono fun i j ↦ czBall_subset_czPartition ha (i := i)
+    have := (mem_or_mem_of_mem_union ht).imp_right (this ·)
+    simp_all
 
 open scoped Classical in
 /-- The function `g` in Lemma 10.2.5. (both cases) -/
