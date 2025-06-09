@@ -21,3 +21,5 @@ theorem _root_.HasCompactSupport.memLp_of_enorm_bound {f : X → E} (hf : HasCom
     ⟨h2f, eLpNormEssSup_le_of_ae_enorm_bound hfC |>.trans_lt hC.lt_top⟩
   exact this.mono_exponent_of_measure_support_ne_top
     (fun x ↦ image_eq_zero_of_notMem_tsupport) hf.measure_ne_top le_top
+
+end MeasureTheory
