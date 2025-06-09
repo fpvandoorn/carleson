@@ -844,7 +844,7 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_lintegral {f : X → ℂ} (h'f 
 
 /-- Custom version of the antichain operator theorem, in the specific form we need to handle
 the various terms in the previous statement. -/
-lemma lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ
+lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
     {f : X → ℂ} {𝔄 : Set (𝔓 X)} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (h'f : Measurable f)
     (hA : IsAntichain (· ≤ ·) 𝔄) (h'A : 𝔄 ⊆ ℭ k n) :
     ∫⁻ x in G \ G', ‖carlesonSum (𝔓pos ∩ 𝔓₁ᶜ ∩ 𝔄) f x‖ₑ
@@ -852,8 +852,7 @@ lemma lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ
       * 2 ^ (- ((q - 1) / (8 * a ^ 4) * n)) := by
   have I : 0 ≤ q - 1 := by linarith [one_lt_q X]
   have J : 0 ≤ q⁻¹ - 2⁻¹ := inv_q_sub_half_nonneg X
-  apply (antichain_operator_le_volume h'f hf diff_subset
-    (hA.subset inter_subset_right)).trans
+  apply (antichain_operator_le_volume (hA.subset inter_subset_right) h'f hf diff_subset).trans
   simp only [mul_assoc]
   apply mul_le_mul_left'
   have : dens₁ (𝔓pos (X := X) ∩ 𝔓₁ᶜ ∩ 𝔄) ≤ 2 ^ (4 * a - n + 1 : ℝ) :=
@@ -1113,13 +1112,13 @@ lemma forest_complement_optimized
           C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ (q⁻¹)
           * 2 ^ (- ((q - 1) / (8 * a^4) * n))) := by
       gcongr
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L0'
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L0'
         exact minLayer_subset.trans 𝔏₀_subset_ℭ
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L1
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L1
         exact 𝔏₁_subset_ℭ
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L2
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L2
         exact 𝔏₂_subset_ℭ
-      · apply lintegral_nnnorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L3
+      · apply lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ hf h'f antichain_L3
         exact 𝔏₃_subset_ℭ
   _ = C2_0_3 a nnq * 2 ^ (a + 3) * volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹ *
     ∑ x ≤ maxℭ X,

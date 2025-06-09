@@ -8,17 +8,16 @@ open Set Complex MeasureTheory NNReal ENNReal
 
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
+  {𝔄 : Set (𝔓 X)} {f g : X → ℂ}
 
 /-- Constant appearing in Lemma 6.1.4. -/
 irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (150 * a ^ 3)
 
 /-- Lemma 6.1.4 -/
-lemma dens1_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
-    {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
+    (hfm : Measurable f) (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
-    C6_1_4 a * (dens₁ (𝔄 : Set (𝔓 X))) ^ (8 * a ^ 4 : ℝ)⁻¹ *
-    eLpNorm f 2 volume * eLpNorm g 2 volume := by
+    C6_1_4 a * dens₁ 𝔄 ^ (8 * a ^ 4 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
   sorry
 
 /-- The constant appearing in Proposition 2.0.3.
@@ -59,12 +58,11 @@ private lemma ineq_aux_2_0_3 :
         sub_add_sub_cancel', h21, ENNReal.rpow_one]
 
 /-- Proposition 2.0.3 -/
-theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ} (hf : Measurable f)
-    (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
-    (h𝔄 : IsAntichain (· ≤ ·) 𝔄) :
+theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (hf : Measurable f)
+    (hf1 : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
-    C2_0_3 a nnq * (dens₁ (𝔄 : Set (𝔓 X))) ^ ((q - 1) / (8 * a ^ 4)) *
-    (dens₂ (𝔄 : Set (𝔓 X))) ^ (q⁻¹ - 2⁻¹) * eLpNorm f 2 volume * eLpNorm g 2 volume := by
+    C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
+    eLpNorm f 2 volume * eLpNorm g 2 volume := by
   have hq : (nnq : ℝ) = q := rfl
   have h21 : (2 : ℝ) - 1 = 1 := by norm_cast
   have h21' : (2 : ℝ≥0) - 1 = 1 := by norm_cast
@@ -81,7 +79,7 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ} (hf : Measura
   by_cases hq2 : q = 2
   · have hnnq2 : nnq = 2 := by simp only [← NNReal.coe_inj, NNReal.coe_ofNat, ← hq2]; rfl
     simp only [hq2, h21, one_div, sub_self, ENNReal.rpow_zero, mul_one]
-    convert (dens1_antichain h𝔄 hf1 hf hg1)
+    convert dens1_antichain h𝔄 hf hf1 hg1
     simp only [C2_0_3, hnnq2, h21', div_one, C6_1_4]
   · have hq2' : 0 < 2 - q :=
       sub_pos.mpr (lt_of_le_of_ne (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2) hq2)
@@ -90,14 +88,14 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ} (hf : Measura
     rw [← ENNReal.rpow_le_rpow_iff hq2'] at h2
     simp only [mul_assoc] at h2
     rw [ENNReal.mul_rpow_of_nonneg _ _ hq2'.le, ENNReal.mul_rpow_of_nonneg _ _ hq2'.le,
-      ← ENNReal.rpow_mul (dens₂ (𝔄 : Set (𝔓 X))), heq] at h2
+      ← ENNReal.rpow_mul (dens₂ 𝔄), heq] at h2
     -- Take and the (q-1)-th power of 6.1.22
-    have h1 := dens1_antichain h𝔄 hf1 hf hg1
+    have h1 := dens1_antichain h𝔄 hf hf1 hg1
     have h1q : 0 < q - 1 := sub_pos.mpr (NNReal.coe_lt_coe.mpr (nnq_mem_Ioc X).1)
     rw [← ENNReal.rpow_le_rpow_iff h1q] at h1
     simp only [mul_assoc] at h1
     rw [ENNReal.mul_rpow_of_nonneg _ _ h1q.le, ENNReal.mul_rpow_of_nonneg _ _ h1q.le,
-      ← ENNReal.rpow_mul (dens₁ (𝔄 : Set (𝔓 X)))] at h1
+      ← ENNReal.rpow_mul (dens₁ 𝔄)] at h1
     calc
       _ = ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ^ (q - 1) *
           ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ^ (2 - q) := by
@@ -129,12 +127,11 @@ theorem antichain_operator {𝔄 : Set (𝔓 X)} {f g : X → ℂ} (hf : Measura
 
 /-- Version of the antichain operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/
-theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
-    (h𝔄 : IsAntichain (·≤·) 𝔄) :
+theorem antichain_operator' {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
     ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
-    C2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
-    eLpNorm f 2 volume * (volume G) ^ (1/2 : ℝ) := by
+    C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
+    eLpNorm f 2 volume * volume G ^ (1/2 : ℝ) := by
   have I (x : ℝ) : x / x ≤ 1 := by
     rcases eq_or_ne x 0 with rfl | hx
     · simp
@@ -154,7 +151,7 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
   rw [← integral_indicator measurableSet_G]
   simp_rw [indicator_mul_left, ← Function.comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
-  apply (antichain_operator hf h2f ?_ h𝔄).trans; rotate_left
+  apply (antichain_operator h𝔄 hf h2f ?_).trans; rotate_left
   · intro x
     simp [indicator]
     split_ifs
@@ -178,13 +175,12 @@ theorem antichain_operator' {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
 /-- Version of the antichain operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function, and with the upper bound in terms
 of `volume F` and `volume G`. -/
-theorem antichain_operator_le_volume {𝔄 : Set (𝔓 X)} {f : X → ℂ} {A : Set X}
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G)
-    (h𝔄 : IsAntichain (·≤·) 𝔄) :
+theorem antichain_operator_le_volume {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
     ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
-    C2_0_3 a nnq * (dens₁ 𝔄) ^ ((q - 1) / (8 * a ^ 4)) * (dens₂ 𝔄) ^ (q⁻¹ - 2⁻¹) *
-    (volume F) ^ (1/2 : ℝ) * (volume G) ^ (1/2 : ℝ) := by
-  apply (antichain_operator' hf h2f hA h𝔄).trans
+    C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
+    volume F ^ (1/2 : ℝ) * volume G ^ (1/2 : ℝ) := by
+  apply (antichain_operator' h𝔄 hf h2f hA).trans
   gcongr
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
