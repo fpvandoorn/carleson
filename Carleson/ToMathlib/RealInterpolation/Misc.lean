@@ -697,6 +697,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : 0 < t) (htγ : 
 -- Note: this lemma is false if t = γ = ∞ and a < 0 ≤ b, as then t ^ a = ∞ ^ a = 0 and
 -- the statement becomes ∞ ≤ 0 * ∞ = 0.
 -- Requiring `γ ≠ ∞` is fine in practice, as would be asking for the stronger condition `t ≠ ∞`.
+-- If need be, this could be weakened to `t = ∞ → γ ≠ ∞`.
 lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} (ht : 0 < t) (htγ : t ≤ γ)
     (hγ: γ ≠ ∞) (hab : a ≤ b) :
     t ^ b ≤ (t ^ a) * (γ ^ (b - a)) := by
@@ -705,7 +706,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
     ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
   · sorry -- power with negative expononent, so directions flip
   · positivity
-  · exact ne_top_of_le_ne_top hγ htγ  -- future: can `order` do this?
+  · exact ne_top_of_le_ne_top hγ htγ -- future: can `order` do this?
   · have : t ≠ ⊤ := ne_top_of_le_ne_top hγ htγ
     simpa [ne_eq, ENNReal.rpow_eq_zero_iff, hγ, this] using fun h ↦ (ht.ne h.symm).elim
   · have : t ≠ ⊤ := ne_top_of_le_ne_top hγ htγ
