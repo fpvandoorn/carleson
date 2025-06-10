@@ -116,7 +116,7 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
 
 /-- Def 6.3.15. -/
 def 𝔄_aux (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Finset (𝔓 X) :=
-  {p ∈ 𝔄 | 1 + dist_(p) (𝒬 p) ϑ ∈ Icc (2^N) (2^(N+1))}
+  {p ∈ 𝔄 | 1 + dist_(p) (𝒬 p) ϑ ∈ Ico (2 ^ N) (2 ^ (N + 1))}
 
 open Metric
 
@@ -202,7 +202,7 @@ lemma stack_density (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) (L : Grid X) 
       have hp'_in : 𝒬 p' ∈ ball_(p) ϑ (2 ^ (N + 1)) := by
         rw [ball_eq_of_grid_eq (hI hp hp')]
         simp only [𝔄'_def, Finset.mem_filter, 𝔄_aux] at hp'
-        exact lt_of_lt_of_le (lt_one_add _) hp'.1.2.2
+        exact (lt_one_add _).trans hp'.1.2.2
       have hp'_in' := hΘ'_cover hp'_in
       simp only [mem_iUnion] at hp'_in'
       exact hp'_in'
@@ -281,7 +281,7 @@ lemma Ep_inter_G_inter_Ip'_subset_E2 {𝔄 : Finset (𝔓 X)} (ϑ : Θ X) (N : �
   -- 6.3.23
   have hϑin : dist_(p) (𝒬 p) ϑ < ((2 : ℝ)^(N + 1)) := by
     simp only [𝔄_aux, Finset.mem_filter] at hpin
-    exact lt_of_lt_of_le (lt_one_add (dist_(p) (𝒬 p) ϑ)) hpin.2.2
+    exact (lt_one_add (dist_(p) (𝒬 p) ϑ)).trans hpin.2.2
   -- 6.3.24
   have hsmul_le : smul (2 ^ (N + 3)) p' ≤ smul (2 ^ (N + 3)) p :=
     tile_reach (le_of_lt hϑin') (le_of_lt hϑin) hle hs
