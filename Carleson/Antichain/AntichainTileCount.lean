@@ -479,19 +479,98 @@ lemma global_antichain_density :
   -- Conclude by Ineq. 6.3.30
   exact Finset.sum_le_sum (fun _ hL ↦ global_antichain_density_aux 𝔄 ϑ N hL)
 
--- p in Lemma 6.1.6
-private def p (a : ℕ) := 4 * a^2
+/-- `p` in Lemma 6.1.6. We append a subscript `₆` to keep `p` available for tiles. -/
+def p₆ (a : ℕ) : ℝ := 4 * a ^ 4
+
+/-- `p'` in the proof of Lemma 6.1.4, the Hölder conjugate exponent of `p₆`. -/
+def q₆ (a : ℕ) : ℝ := (1 - (p₆ a)⁻¹)⁻¹
+
+lemma p₆_ge_1024 (a4 : 4 ≤ a) : 1024 ≤ p₆ a := by
+  unfold p₆; norm_cast
+  calc
+    _ = 4 * 4 ^ 4 := by norm_num
+    _ ≤ _ := by gcongr
+
+lemma one_lt_p₆ (a4 : 4 ≤ a) : 1 < p₆ a :=
+  lt_of_lt_of_le (by norm_num) (p₆_ge_1024 a4)
+
+lemma p₆_pos (a4 : 4 ≤ a) : 0 < p₆ a :=
+  lt_of_lt_of_le (by norm_num) (p₆_ge_1024 a4)
+
+lemma holderConjugate_p₆ (a4 : 4 ≤ a) : (p₆ a).HolderConjugate (q₆ a) := by
+  rw [Real.holderConjugate_iff_eq_conjExponent (one_lt_p₆ a4), q₆, inv_eq_iff_eq_inv, inv_div,
+    sub_div, one_div, div_self (zero_lt_one.trans (one_lt_p₆ a4)).ne']
+
+lemma q₆_le_superparticular (a4 : 4 ≤ a) : q₆ a ≤ 1024 / 1023 := by
+  have pil : (p₆ a)⁻¹ < 1 := by rw [inv_lt_one_iff₀]; exact .inr (one_lt_p₆ a4)
+  rw [q₆, show (1024 : ℝ) / 1023 = (1 - 1024⁻¹)⁻¹ by norm_num,
+    inv_le_inv₀ (by linarith) (by norm_num), sub_le_sub_iff_left,
+    inv_le_inv₀ (p₆_pos a4) (by norm_num)]
+  exact p₆_ge_1024 a4
+
+lemma one_lt_q₆ (a4 : 4 ≤ a) : 1 < q₆ a := by
+  have := (holderConjugate_p₆ a4).symm
+  rw [Real.holderConjugate_iff] at this; exact this.1
+
+lemma q₆_pos (a4 : 4 ≤ a) : 0 < q₆ a :=
+  zero_lt_one.trans (one_lt_q₆ a4)
+
+/-- A very involved bound needed for Lemma 6.1.4. -/
+lemma C2_0_6_q₆_le (a4 : 4 ≤ a) : C2_0_6 (defaultA a) (q₆ a).toNNReal 2 ≤ 2 ^ (a + 2) := by
+  rw [C2_0_6, Real.coe_toNNReal _ (q₆_pos a4).le]
+  nth_rw 1 [show (2 : ℝ≥0) = (2 : ℝ).toNNReal by simp]
+  rw [← Real.toNNReal_div zero_le_two, CMB, C_realInterpolation, C_realInterpolation_ENNReal]
+  simp_rw [ENNReal.top_ne_one, ENNReal.one_lt_top, lt_self_iff_false, ite_true, ite_false,
+    ENNReal.coe_one, ENNReal.one_rpow, zero_mul, add_zero, NNReal.coe_one, one_mul, mul_one,
+    ENNReal.toReal_inv, ENNReal.coe_toReal, ENNReal.toReal_one]
+  have dvg1 : 1 < 2 / q₆ a :=
+    (one_lt_div (q₆_pos a4)).mpr ((q₆_le_superparticular a4).trans_lt (by norm_num))
+  have dvpos : 0 < 2 / q₆ a := zero_lt_one.trans dvg1
+  have ipos : 0 < (2 / q₆ a - 1)⁻¹ := by rwa [inv_pos, sub_pos]
+  rw [Real.coe_toNNReal _ dvpos.le, abs_of_nonneg (by rw [sub_nonneg]; exact dvg1.le),
+    ENNReal.ofNNReal_toNNReal, ENNReal.ofReal_rpow_of_pos dvpos, ← ENNReal.ofReal_mul zero_le_two,
+    ENNReal.ofReal_rpow_of_pos (by rwa [inv_pos, sub_pos]),
+    ← ENNReal.ofReal_mul' (Real.rpow_nonneg ipos.le _)]
+  have Acast : ENNReal.ofNNReal (defaultA a ^ 2) = ENNReal.ofReal (2 ^ (a * 2)) := by
+    simp only [defaultA, Nat.cast_pow, Nat.cast_ofNat, ENNReal.coe_pow, ENNReal.coe_ofNat]
+    norm_cast; rw [pow_mul]
+  rw [Acast, ENNReal.ofReal_rpow_of_pos (by positivity), ← ENNReal.ofReal_mul' (by positivity),
+    mul_assoc, ← Real.mul_rpow ipos.le (by positivity), ← ENNReal.toNNReal_rpow,
+    mul_assoc, ← Real.mul_rpow dvpos.le (by positivity), ENNReal.ofReal_rpow_of_pos (by positivity)]
+  have RHScast : (2 : ℝ≥0) ^ (a + 2) = (ENNReal.ofReal (2 ^ (a + 2))).toNNReal := by
+    rw [ENNReal.ofReal_pow zero_le_two, ENNReal.toNNReal_pow]; norm_cast
+  rw [RHScast]; refine ENNReal.toNNReal_mono (by finiteness) (ENNReal.ofReal_le_ofReal ?_)
+  -- Now everything is in `ℝ`
+  calc
+    _ = (2 * (2 / (2 - q₆ a) * 2 ^ (a * 2)) ^ (2 / q₆ a)⁻¹) ^ (q₆ a)⁻¹ := by
+      rw [← mul_assoc]; congr 4
+      rw [← div_eq_mul_inv, div_div, mul_sub_one, mul_div_cancel₀ _ (q₆_pos a4).ne']
+    _ ≤ (2 * (2 ^ ((1 + a) * 2)) ^ (2 / q₆ a)⁻¹) ^ (q₆ a)⁻¹ := by
+      have : 0 < 2 / (2 - q₆ a) := by
+        apply div_pos zero_lt_two; rw [sub_pos]
+        exact (q₆_le_superparticular a4).trans_lt (by norm_num)
+      rw [one_add_mul, pow_add]; gcongr
+      · rw [inv_nonneg]; exact (q₆_pos a4).le
+      · rw [sq, ← div_inv_eq_mul]; apply div_le_div_of_nonneg_left (by norm_num) (by norm_num)
+        rw [le_sub_comm]; exact (q₆_le_superparticular a4).trans (by norm_num)
+    _ = 2 ^ (q₆ a)⁻¹ * 2 ^ (1 + a) := by
+      rw [Real.mul_rpow zero_le_two (by positivity), ← Real.rpow_mul (by positivity), inv_div,
+        ← div_eq_mul_inv, div_div_cancel_left' (q₆_pos a4).ne', pow_mul, ← Real.rpow_natCast,
+        ← Real.rpow_mul (by positivity), show (2 : ℕ) * 2⁻¹ = (1 : ℝ) by norm_num, Real.rpow_one]
+    _ ≤ _ := by
+      rw [pow_succ', add_comm]; gcongr
+      apply Real.rpow_le_self_of_one_le one_le_two
+      rw [inv_le_one_iff₀]; right; exact (one_lt_q₆ a4).le
 
 /-- The constant appearing in Lemma 6.1.6. -/
 def C6_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (104 * a)
 
--- Lemma 6.1.6
--- Note: p' is introduced in the statement in the blueprint but not used. There may be a typo.
-lemma tile_count {𝔄 𝔄' : Finset (𝔓 X)} (h_le : 𝔄' ⊆ 𝔄) (ϑ : Θ X) :
-    eLpNorm (∑ 𝔭 ∈ 𝔄', (1 + dist_(𝔭) (𝒬 𝔭) ϑ) ^ ((-1 : ℝ)/(2*a^2 + a^3)) •
-      ((E 𝔭).indicator 1) *  (G.indicator (1 : X → ℝ))) (p a) volume ≤
-      (C6_1_6 a) * dens₁ (𝔄 : Set (𝔓 X)) ^ ((1 : ℝ)/(p a)) *
-        (volume (⋃ (p ∈ 𝔄), (𝓘 p : Set X))) ^ ((1 : ℝ)/(p a)) := by
+open Classical in
+/-- Lemma 6.1.6 -/
+lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : Θ X) :
+    eLpNorm (fun x ↦ ∑ p with p ∈ 𝔄, (1 + edist_(p) (𝒬 p) ϑ) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+      (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume ≤
+    C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * (volume (⋃ p ∈ 𝔄, (𝓘 p : Set X))) ^ (p₆ a)⁻¹ := by
   sorry
 
 end Antichain

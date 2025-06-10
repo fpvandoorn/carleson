@@ -1284,32 +1284,33 @@ lemma correlation_le_of_empty_inter {p p' : 𝔓 X} {g : X → ℂ}
         volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
         positivity
 
--- Lemma 6.1.5 (part I)
-lemma correlation_le (ha : 4 ≤ a) {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
+/-- Lemma 6.1.5 (part I) -/
+lemma correlation_le {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
     (hg : Measurable g) (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ ≤
-      C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
-        volume (coeGrid (𝓘 p)) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
-  by_cases hinter : (ball (𝔠 p') (5 * D^𝔰 p') ∩ ball (𝔠 p) (5 * D^𝔰 p)).Nonempty
-  · exact correlation_le_of_nonempty_inter ha hle hg hg1 hinter
+    ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ ≤
+    C6_1_5 a * (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a^2 + a^3 : ℝ)⁻¹) /
+    volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ y in E p, ‖g y‖ₑ := by
+  by_cases hinter : (ball (𝔠 p') (5 * D ^ 𝔰 p') ∩ ball (𝔠 p) (5 * D ^ 𝔰 p)).Nonempty
+  · exact correlation_le_of_nonempty_inter (four_le_a X) hle hg hg1 hinter
   · exact correlation_le_of_empty_inter hinter
 
--- Lemma 6.1.5 (part II)
-lemma correlation_zero_of_ne_subset (p p' : 𝔓 X) (g : X → ℂ)
-    (hp : ¬ coeGrid (𝓘 p) ⊆ ball (𝔠 p) (15 * D ^𝔰 p)) :
-    ‖∫ y, (adjointCarleson p' g y) * conj (adjointCarleson p g y)‖ₑ = 0 := by
-  simp only [enorm_eq_nnnorm, ENNReal.coe_eq_zero]
-  have hD : 1 ≤ (D : ℝ) := one_le_defaultD _
-  have h415 : (4 : ℝ) ≤ 15 := by linarith
-  have hsp : 𝔰 p = GridStructure.s (𝓘 p) := rfl
-  by_contra h0
-  simp only [nnnorm_eq_zero] at h0
-  apply hp
-  obtain ⟨y, hy⟩ := MeasureTheory.exists_ne_zero_of_integral_ne_zero h0 --6.2.33
-  simp only [ne_eq, mul_eq_zero, map_eq_zero, not_or] at hy
-  -- 6.2.35
-  rw [hsp]
-  exact subset_trans Grid_subset_ball (ball_subset_ball (by gcongr))
+/-- Lemma 6.1.5 (part II) -/
+lemma correlation_zero_of_ne_subset {p p' : 𝔓 X} (hle : 𝔰 p' ≤ 𝔰 p) {g : X → ℂ}
+    (hp : ¬(𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p)) :
+    ‖∫ y, adjointCarleson p' g y * conj (adjointCarleson p g y)‖ₑ = 0 := by
+  contrapose! hp; rw [enorm_ne_zero] at hp
+  obtain ⟨y, hy⟩ := MeasureTheory.exists_ne_zero_of_integral_ne_zero hp
+  rw [mul_ne_zero_iff, map_ne_zero] at hy
+  refine Grid_subset_ball.trans fun x (mx : x ∈ ball (𝔠 p') (4 * D ^ 𝔰 p')) ↦ ?_
+  rw [mem_ball] at mx ⊢
+  calc
+    _ ≤ dist x (𝔠 p') + dist (𝔠 p') (𝔠 p) := dist_triangle ..
+    _ < 4 * D ^ 𝔰 p' + (5 * D ^ 𝔰 p' + 5 * D ^ 𝔰 p) := by
+      gcongr
+      exact dist_lt_of_not_disjoint_ball
+        (not_disjoint_iff.mpr ⟨_, range_support hy.1, range_support hy.2⟩)
+    _ ≤ 4 * D ^ 𝔰 p + (5 * D ^ 𝔰 p + 5 * D ^ 𝔰 p) := by gcongr <;> exact one_le_realD X
+    _ = _ := by ring
 
 end lemma_6_1_5
 

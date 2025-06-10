@@ -3476,11 +3476,9 @@ Set $p:=4a^4$. We have
 \end{equation}
 \end{lemma}
 
-
-
 \begin{proof}
-
- We write for the expression inside the absolute values on the left-hand side of \eqref{eqttt3}
+\leanok
+We write for the expression inside the absolute values on the left-hand side of \eqref{eqttt3}
 \begin{equation}
   \sum_{\fp \in \mathfrak{A}}\iint \overline{g(x)} \mathbf{1}_{E(\fp)}(x)
   {K_{\ps(\fp)}(x,y)}e(\tQ(x)(y) -
@@ -3495,12 +3493,7 @@ with the adjoint operator
     T_{\fp}^*g(y)=\int_{E(\fp)} \overline{K_{\ps(\fp)}(x,y)}e(-\tQ(x)(y)+
     \tQ(x)(x))g(x)\, d\mu(x)\, .
 \end{equation}
-
-
-
-
-
- We have by expanding the square
+We have by expanding the square
 \begin{equation}
     \int \Big|\sum_{\fp\in \mathfrak{A}}T^*_{\fp}g(y)\Big|^2\, d\mu(y)=
     \int \left(\sum_{\fp\in \mathfrak{A}} T^*_{\fp}g(y)\right)
@@ -3522,7 +3515,7 @@ by $\ps(\fp')\le \ps(\fp)$ in the second sum, we estimate \eqref{eqtts1} by
 
 Define for $\fp\in \fP$
 \begin{equation}
-    B(\fp):=B(\pc(\fp), 15D^{\ps(\fp)})
+    B(\fp):=B(\pc(\fp), 14D^{\ps(\fp)})
 \end{equation}
 and define
 \begin{equation}
@@ -3546,8 +3539,7 @@ with $h(\fp)$ defined as
     {(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-1/(2a^2+a^3)}}(\mathbf{1}_{E(\fp')}|g|)(y')\, d\mu(y')\,.
 \end{equation}
 
-
-Note that $p\geq 4$ since $a>4$.
+Note that $p>4$ since $a\ge 4$. Let $p'$ be the dual exponent of $p$, satisfying $1/p+1/p'=1$.
 We estimate $h(\fp)$ as defined in \eqref{def-hp} with H\"older using $|g|\le \mathbf{1}_G$ and $E(\fp')\subset B(\fp)$ by
 
 \begin{equation}
@@ -3576,35 +3568,25 @@ Hence we can estimate \eqref{eqttt5} by
     (M_{\mathcal{B}', p'}g(x))
    \dens_1(\mathfrak{A})^{\frac 1p}\, .
 \end{equation}
-With this estimate of $h(\fp)$,
-using $E(\fp)\subset B(\fp)$ by construction of $B(\fp)$, we estimate
-\eqref{eqtts3} by
+With this estimate of $h(\fp)$, using $E(\fp)\subset B(\fp)$ by construction of $B(\fp)$, we estimate \eqref{eqtts3} by
  \begin{equation}\label{eqtts4}
  \le 2^{255a^3+110a + 1} { \dens_1(\mathfrak{A})^{\frac 1p}}\sum_{\fp\in \mathfrak{A}}
  \int_{E(\fp)}|g|(y)M_{\mathcal{B}', p'}g(y) \, dy\,.
          \end{equation}
-Using \Cref{tile-disjointness},
-the last display is observed to be
+Using \Cref{tile-disjointness}, the last display is observed to be
 \begin{equation}\label{eqtts4a}
-= 2^{255a^3+110a + 1}
+\le 2^{255a^3+110a + 1}
  {\dens_1(\mathfrak{A})^{\frac 1p}} \int |g|(y)(M_{\mathcal{B}', p'}g)(y) \, dy\,.
          \end{equation}
-Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood} estimates the last display by
+Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood} and $1<p'<\frac 32$ estimates the last display by
 \begin{equation}
-    2^{255a^3+110a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
+    \le 2^{255a^3+110a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
     \|g\|_2 \|M_{\mathcal{B}', p'} g\|_2
 \end{equation}
 \begin{equation}
-    \le 2^{255a^3+110a + 3}\frac{2}{2-p'}
-    \dens_1(\mathfrak{A})^{\frac 1p}\|g\|_2 ^2\,.
+    \le 2^{255a^3+111a+3} \dens_1(\mathfrak{A})^{\frac 1p}\|g\|_2 ^2\,.
 \end{equation}
-Using $p>4$ and thus $1<p'<\frac 43$, we estimate the last display by
-\begin{equation}
-    \le 2^{255a^3+110a + 5} \dens_1(\mathfrak{A})^{\frac 1p}
-    \|g\|_2^2\,.
-\end{equation}
-Now \Cref{dens1-antichain} follows by applying Cauchy-Schwarz on the left-hand side and using
-$a\ge 4$.
+Now \Cref{dens1-antichain} follows by applying Cauchy-Schwarz on the left-hand side and using $a\ge 4$.
 \end{proof}
 The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
 \begin{lemma}[tile correlation]
@@ -3624,7 +3606,7 @@ The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
     \end{equation}
     Moreover, the term \eqref{eq-basic-TT*-est} vanishes unless
     \begin{equation}
-        \scI(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
+        \scI(\fp') \subset B(\pc(\fp), 14D^{\ps(\fp)})\, .
     \end{equation}
 \end{lemma}
 
@@ -3634,15 +3616,14 @@ The following lemma will be proved in \Cref{subsec-geolem}.
 \leanok
 \lean{Antichain.tile_count}
     \uses{global-antichain-density}
-    Set $p:=4a^4$ and let $p'$ be the dual exponent of $p$, that is $1/p+1/p'=1$.
-    For every $\mfa\in\Mf$ and every subset $\mathfrak{A}'$ of $\mathfrak{A}$ we have
+    Set $p:=4a^4$. For every $\mfa\in\Mf$ and every subset $\mathfrak{A}'$ of $\mathfrak{A}$ we have
     \begin{equation}
         \label{eq-antichain-Lp}
         \Big\|\sum_{\fp\in\mathfrak{A}'}(1+d_{\fp}(\fcc(\fp), \mfa))^{-1/(2a^2+a^3)}\mathbf{1}_{E(\fp)}\mathbf{1}_G\Big\|_{p}
     \end{equation}
     \begin{equation}
         \le
-        2^{104a}\dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}'}I_{\fp}\right)^{\frac 1p}\, .
+        2^{104a}\dens_1(\mathfrak{A}')^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}'}I_{\fp}\right)^{\frac 1p}\, .
     \end{equation}
 \end{lemma}
 
@@ -3903,7 +3884,7 @@ By the triangle inequality and \Cref{tile-range-support}, we conclude
 By the squeezing property \eqref{eq-vol-sp-cube} and the triangle inequality,
 we conclude
 \begin{equation}
-    \scI(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
+    \scI(\fp') \subset B(\pc(\fp), 14D^{\ps(\fp)})\, .
 \end{equation}
    This completes the proof of Lemma \ref{tile-correlation}.
 \end{proof}
@@ -4239,32 +4220,31 @@ We turn to the proof of \Cref{antichain-tile-count}.
 \begin{proof}[Proof of \Cref{antichain-tile-count}]
 \proves{antichain-tile-count}
 
-Using that $\mathfrak{A}$ is the union of the
-$\mathfrak{A}_{\mfa,N}$ with $N\ge 0$,
+Using that $\mathfrak{A}'$ is the union of the $\mathfrak{A}'_{\mfa,N}$ with $N\ge 0$,
 we estimate the left-hand side \eqref{eq-antichain-Lp}
 with the triangle inequality by
 \begin{equation}\label{eqanti23}
-\le \sum_{N\ge 0} \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}
+\le \sum_{N\ge 0} \left\|\sum_{\fp\in \mathfrak{A}'_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}
 \end{equation}
 We consider each individual term in this sum and estimate it's $p$-th power.
-   Using that for each $x\in X$ by \Cref{global-antichain-density} there is at most one $\fp\in \mathfrak{A}$ with $x\in E(\fp)$,
+   Using that for each $x\in X$ by \Cref{global-antichain-density} there is at most one $\fp\in \mathfrak{A}'$ with $x\in E(\fp)$,
  we have
  \begin{equation}
-     \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}^p
+     \left\|\sum_{\fp\in \mathfrak{A}'_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}^p
  \end{equation}
 \begin{equation}
-    =\int_G\Big(\sum_{\fp\in \mathfrak{A}_{\mfa,N}}2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)}(x)\Big)^p\, d\mu(x)
+    =\int_G\Big(\sum_{\fp\in \mathfrak{A}'_{\mfa,N}}2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)}(x)\Big)^p\, d\mu(x)
 \end{equation}
 \begin{equation}
-  = \int _G\sum_{\fp\in\mathfrak{A}_{\mfa,N}}2^{-pN/(2a^2+a^3)}\mathbf{1}_{E(\fp)}(x)\, d\mu(x)
+  = \int _G\sum_{\fp\in\mathfrak{A}'_{\mfa,N}}2^{-pN/(2a^2+a^3)}\mathbf{1}_{E(\fp)}(x)\, d\mu(x)
 \end{equation}
 \begin{equation}
-  = 2^{-pN/(2a^2+a^3)} \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G)
+  = 2^{-pN/(2a^2+a^3)} \sum_{\fp\in\mathfrak{A}'_{\mfa,N}}\mu(E(\fp)\cap G)
 \end{equation}
 
 Using \Cref{global-antichain-density}, we estimate the last display by
 \begin{equation}\label{eqanti21}
-    \le 2^{-pN/(2a^2+a^3)+101a^3+Na}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)
+    \le 2^{-pN/(2a^2+a^3)+101a^3+Na}\dens_1(\mathfrak{A}')\mu\left(\cup_{\fp\in\mathfrak{A}'}\scI(\fp)\right)
 \end{equation}
 Using that with $a\ge 4$ and since $p = 4a^4$, we have
 \begin{equation}
@@ -4273,17 +4253,17 @@ Using that with $a\ge 4$ and since $p = 4a^4$, we have
 \end{equation}
 Hence we have for \eqref{eqanti21} the upper bound
 \begin{equation}\label{eqanti22}
-\le 2^{101a^3-N}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)\, .
+\le 2^{101a^3-N}\dens_1(\mathfrak{A}')\mu\left(\cup_{\fp\in\mathfrak{A}'}\scI(\fp)\right)\, .
 \end{equation}
 Taking th $p$-th root and summing over $N\ge 0$ gives for \eqref{eqanti23} the upper bound
 
 \begin{equation}
-\le \left(\sum_{N\ge 0} 2^{-N/p}\right)2^{101a^3/p}\dens_1(\mathfrak{A})^{{\frac{1}{p}}}\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)^{{\frac{1}{p}}}
+\le \left(\sum_{N\ge 0} 2^{-N/p}\right)2^{101a^3/p}\dens_1(\mathfrak{A}')^{{\frac{1}{p}}}\mu\left(\cup_{\fp\in\mathfrak{A}'}\scI(\fp)\right)^{{\frac{1}{p}}}
 \end{equation}
 \begin{equation}
 \le \left(1-2^{-1/p}\right)^{-1}
 2^{101a^3/p}
-\dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)^{\frac 1p}\, .
+\dens_1(\mathfrak{A}')^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}'}\scI(\fp)\right)^{\frac 1p}\, .
 \end{equation}
 Using that $p = 4a^4$ and $a \ge 4$, this proves the lemma.
 \end{proof}

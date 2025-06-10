@@ -3,7 +3,7 @@ import Carleson.TileStructure
 import Carleson.ToMathlib.BoundedCompactSupport
 
 open Set MeasureTheory Metric Function Complex Bornology
-open scoped NNReal ENNReal ComplexConjugate
+open scoped ComplexConjugate
 noncomputable section
 
 open scoped ShortVariables
@@ -13,7 +13,23 @@ variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X 
 
 section Carleson
 
-variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o] {p p' : 𝔓 X}
+variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+
+lemma bcs_of_measurable_of_le_indicator_f {f : X → ℂ}
+    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) : BoundedCompactSupport f := by
+  have : BoundedCompactSupport (F.indicator 1 : X → ℝ) :=
+    BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
+      isBounded_F.isCompact_closure measurableSet_F
+  exact this.mono_norm hf.aestronglyMeasurable h2f
+
+lemma bcs_of_measurable_of_le_indicator_g {g : X → ℂ}
+    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) : BoundedCompactSupport g := by
+  have : BoundedCompactSupport (G.indicator 1 : X → ℝ) :=
+    BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
+      isBounded_G.isCompact_closure measurableSet_G
+  exact this.mono_norm hg.aestronglyMeasurable h2g
+
+variable [TileStructure Q D κ S o] {p p' : 𝔓 X}
 
 /-- The operator `T_𝔭` defined in Proposition 2.0.2. -/
 def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
@@ -41,7 +57,6 @@ We will use this in other places of the formalization as well. -/
 def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
   ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
 
--- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonSum`
 @[fun_prop]
 lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
     Measurable (carlesonSum ℭ f) :=
