@@ -339,7 +339,7 @@ irreducible_def c10_0_3 (a : ℕ) : ℝ≥0 := (2 ^ (a ^ 3 + 12 * a + 4))⁻¹
 
 open scoped Classical in
 /-- The set `Ω` introduced below Lemma 10.2.5. -/
-def Ω (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (α : ℝ≥0∞) : Set X :=
+def Ω (ha : 4 ≤ a) (α : ℝ≥0∞) : Set X :=
   if hX : GeneralCase f α then ⋃ i, czBall2 ha hX i else univ
 
 /-- The constant used in `estimate_good`. -/
@@ -363,7 +363,7 @@ def czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (hX : GeneralCa
 Note that `hx` implies `hX`, but we keep the superfluous hypothesis to shorten the statement. -/
 lemma estimate_bad_partial (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
-    (hx : x ∈ (Ω ha hf α)ᶜ) (hX : GeneralCase f α) :
+    (hx : x ∈ (Ω (f := f) ha α)ᶜ) (hX : GeneralCase f α) :
     ‖czOperator K r (czRemainder (f := f) ha α) x‖ₑ ≤ 3 * czOperatorBound ha hf hX x + α / 8 := by
   sorry
 
@@ -373,7 +373,7 @@ irreducible_def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 9 * a + 4)
 /-- Lemma 10.2.8 -/
 lemma distribution_czOperatorBound (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
-    volume ((Ω ha hf α)ᶜ ∩ czOperatorBound ha hf hX ⁻¹' Ioi (α / 8)) ≤
+    volume ((Ω (f := f) ha α)ᶜ ∩ czOperatorBound ha hf hX ⁻¹' Ioi (α / 8)) ≤
     C10_2_8 a / α * eLpNorm f 1 volume := by
   sorry
 
