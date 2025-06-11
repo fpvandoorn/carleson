@@ -263,7 +263,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       · intro p mp p' mp' hn; change Disjoint (E p) (E p')
         simp_rw [Finset.coe_filter, Finset.mem_univ, true_and, setOf_mem_eq] at mp mp'
         have := (E_disjoint h𝔄 mp mp').mt hn
-        rwa [not_nonempty_iff_eq_empty, ← disjoint_iff_inter_eq_empty] at this
+        rwa [not_not] at this
       · exact fun _ _ ↦ measurableSet_E
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
