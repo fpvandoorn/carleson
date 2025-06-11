@@ -505,7 +505,7 @@ For any antichain $\mathfrak{A} $ and for all $f:X\to \C$ with $|f|\le \mathbf{1
     |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|
 \end{equation}
 \begin{equation}
-    \le \frac{2^{131a^3}}{q-1} \dens_1(\mathfrak{A})^{\frac {q-1}{8a^4}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2 \|g\|_2\, .
+    \le \frac{2^{128a^3}}{q-1} \dens_1(\mathfrak{A})^{\frac {q-1}{8a^4}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2 \|g\|_2\, .
 \end{equation}
 \end{proposition}
 
@@ -2054,7 +2054,7 @@ the complement of the set of tiles in Lemma
     For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
     \begin{equation}
         \label{disclesssim2}
-        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu \le \frac{2^{134a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu \le \frac{2^{131a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
 
@@ -3269,11 +3269,11 @@ We now turn to the proof of \Cref{forest-complement}.
     Applying now the triangle inequality according to the decomposition in \Cref{antichain-decomposition}, and then applying \Cref{antichain-operator} to each term, we obtain the estimate
     \begin{multline*}
         \le \sum_{k \ge 0} \sum_{n \ge k} (n + (2n+4) + 2(2n+4) (1+Z(n+1))) \\
-        \times 2^{131a^3}(q-1)^{-1} (2^{4a+1-n})^{\frac{q-1}{8a^4}} (2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2\|\mathbf{1}_{G\setminus G'}\|_2\,.
+        \times 2^{128a^3}(q-1)^{-1} (2^{4a+1-n})^{\frac{q-1}{8a^4}} (2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2\|\mathbf{1}_{G\setminus G'}\|_2\,.
     \end{multline*}
     Because $|f| \le \mathbf{1}_F$, we have $\|f\|_2 \le \mu(F)^{1/2}$, and we have $\|\mathbf{1}_{G\setminus G'}\|_2 \le \mu(G)^{1/2}$. Using this and \eqref{defineZ}, we bound
     $$
-        \le 2^{132a^3} (q - 1)^{-1} \mu(F)^{\frac{1}{q}} \mu(G)^{\frac{1}{q'}} \sum_{k \ge 0} \sum_{n \ge k} n^2 2^{-n\frac{q-1}{8a^4}}\,.
+        \le 2^{129a^3} (q - 1)^{-1} \mu(F)^{\frac{1}{q}} \mu(G)^{\frac{1}{q'}} \sum_{k \ge 0} \sum_{n \ge k} n^2 2^{-n\frac{q-1}{8a^4}}\,.
     $$
     The last sum equals, by changing the order of summation,
     $$
@@ -3472,7 +3472,7 @@ proves the lemma.
 Set $p:=4a^4$. We have
     \begin{equation}\label{eqttt3}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
-   2^{131a^3}\dens_1(\mathfrak{A})^{\frac 1{2p}} \|f\|_2\|g\|_2\,.
+   2^{128a^3}\dens_1(\mathfrak{A})^{\frac 1{2p}} \|f\|_2\|g\|_2\,.
 \end{equation}
 \end{lemma}
 
@@ -3548,7 +3548,7 @@ We estimate $h(\fp)$ as defined in \eqref{def-hp} with H\"older using $|g|\le \m
 \end{equation}
 Then we apply \Cref{antichain-tile-count} to estimate this by
 \begin{equation}\label{eqttt5}
-    \le 2^{104a}
+    \le 2^{5a}
     \frac{\|g\mathbf{1}_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
     \dens_1(\mathfrak{A})^{\frac 1p}\mu(B(\fp))^{\frac 1p}\,.
 \end{equation}
@@ -3564,27 +3564,27 @@ Hence we can estimate \eqref{eqttt5} by
 \begin{equation}
 \label{eqttt5b}
     \le
-    2^{104a}
+    2^{5a}
     (M_{\mathcal{B}', p'}g(x))
    \dens_1(\mathfrak{A})^{\frac 1p}\, .
 \end{equation}
 With this estimate of $h(\fp)$, using $E(\fp)\subset B(\fp)$ by construction of $B(\fp)$, we estimate \eqref{eqtts3} by
  \begin{equation}\label{eqtts4}
- \le 2^{255a^3+110a + 1} { \dens_1(\mathfrak{A})^{\frac 1p}}\sum_{\fp\in \mathfrak{A}}
+ \le 2^{255a^3+11a + 1} { \dens_1(\mathfrak{A})^{\frac 1p}}\sum_{\fp\in \mathfrak{A}}
  \int_{E(\fp)}|g|(y)M_{\mathcal{B}', p'}g(y) \, dy\,.
          \end{equation}
 Using \Cref{tile-disjointness}, the last display is observed to be
 \begin{equation}\label{eqtts4a}
-\le 2^{255a^3+110a + 1}
+\le 2^{255a^3+11a + 1}
  {\dens_1(\mathfrak{A})^{\frac 1p}} \int |g|(y)(M_{\mathcal{B}', p'}g)(y) \, dy\,.
          \end{equation}
 Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood} and $1<p'<\frac 32$ estimates the last display by
 \begin{equation}
-    \le 2^{255a^3+110a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
+    \le 2^{255a^3+11a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
     \|g\|_2 \|M_{\mathcal{B}', p'} g\|_2
 \end{equation}
 \begin{equation}
-    \le 2^{255a^3+111a+3} \dens_1(\mathfrak{A})^{\frac 1p}\|g\|_2 ^2\,.
+    \le 2^{255a^3+12a+3} \dens_1(\mathfrak{A})^{\frac 1p}\|g\|_2 ^2\,.
 \end{equation}
 Now \Cref{dens1-antichain} follows by applying Cauchy-Schwarz on the left-hand side and using $a\ge 4$.
 \end{proof}
@@ -3641,7 +3641,7 @@ and estimating gives after simplification of some factors
     \Big|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\Big|
 \end{equation}
  \begin{equation}
-    \le 2^{131a^3}(q-1)^{-1} \dens_1(\mathfrak{A})^{\frac {q-1}{2p}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2\|g\|_2\, .
+    \le 2^{128a^3}(q-1)^{-1} \dens_1(\mathfrak{A})^{\frac {q-1}{2p}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2\|g\|_2\, .
 \end{equation}
 With the definition of $p$, this implies
 \Cref{antichain-operator}.

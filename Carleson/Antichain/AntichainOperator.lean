@@ -227,7 +227,7 @@ lemma M14_bound (hg : MemLp g 2 volume) :
   exact C2_0_6_q₆_le a4
 
 /-- Constant appearing in Lemma 6.1.4. -/
-irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (131 * a ^ 3)
+irreducible_def C6_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (128 * a ^ 3)
 
 lemma le_C6_1_4 (a4 : 4 ≤ a) :
     Tile.C6_1_5 a * 2 ^ (6 * a + 1) * Antichain.C6_1_6 a * 2 ^ (a + 2) ≤ C6_1_4 a ^ 2 := by
@@ -235,8 +235,8 @@ lemma le_C6_1_4 (a4 : 4 ≤ a) :
   simp_rw [← pow_add, ← pow_mul]; gcongr
   · exact one_le_two
   · calc
-      _ ≤ 255 * a ^ 3 + 7 * 4 * 4 * a := by linarith
-      _ ≤ 255 * a ^ 3 + 7 * a * a * a := by gcongr
+      _ ≤ 255 * a ^ 3 + 4 * 4 * a := by linarith
+      _ ≤ 255 * a ^ 3 + a * a * a := by gcongr
       _ = _ := by ring
 
 open Classical Antichain in
@@ -314,7 +314,7 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 
 /-- The constant appearing in Proposition 2.0.3. -/
 -- Todo: define this recursively in terms of previous constants
-def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (131 * a ^ 3) / (q - 1)
+def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (128 * a ^ 3) / (q - 1)
 
 --TODO: PR to Mathlib
 theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (h₁ : 1 ≤ x) (h₂ : y ≤ 1) :
@@ -325,18 +325,18 @@ theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (h₁ : 1 ≤ 
 variable (X) in
 omit [TileStructure Q D κ S o] in
 private lemma ineq_aux_2_0_3 :
-    ((2 ^ (131 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+    ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
     (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞) * (nnq - 1)⁻¹) ^ (2 - q) ≤
-    (2 ^ (131 * a ^ 3) / (nnq - 1) : ℝ≥0) := by
+    (2 ^ (128 * a ^ 3) / (nnq - 1) : ℝ≥0) := by
   have hq1 : 0 ≤ q - 1 := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).1.le)
   have hq2 : 0 ≤ 2 - q := sub_nonneg.mpr (NNReal.coe_le_coe.mpr (nnq_mem_Ioc X).2)
   have h21 : (2 : ℝ) - 1 = 1 := by norm_num
   calc
-    _ = ((2 ^ (131 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+    _ = ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
         (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q)  := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ hq2]; ring
-    _ ≤ ((2 ^ (131 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ (131 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
+    _ ≤ ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
+        (((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
       have h11 : (1 + 1 : ℝ≥0) = 2 := by norm_num
       gcongr
       · norm_num
