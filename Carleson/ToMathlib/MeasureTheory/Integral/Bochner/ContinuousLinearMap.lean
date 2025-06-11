@@ -34,6 +34,11 @@ lemma enorm_integral_starRingEnd_mul_eq_lintegral_enorm
   simp_rw [starRingEnd_div_mul_eq_norm, integral_ofReal, enorm_algebraMap',
     enorm_integral_norm_eq_integral_enorm hf]
 
+lemma enorm_integral_mul_starRingEnd_comm
+    {𝕜 : Type*} [RCLike 𝕜] {α : Type*} [MeasurableSpace α] {μ : Measure α} {f g : α → 𝕜} :
+    ‖∫ x, f x * starRingEnd 𝕜 (g x) ∂μ‖ₑ = ‖∫ x, g x * starRingEnd 𝕜 (f x) ∂μ‖ₑ := by
+  rw [← RCLike.enorm_conj, ← integral_conj]; congr! 3; simp [mul_comm]
+
 -- Like this it fits copy-paste next to setIntegral_union
 section SetIntegral_Union_2
 

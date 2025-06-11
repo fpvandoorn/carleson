@@ -265,21 +265,10 @@ lemma calculation_7_7_4 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] 
     omega
   exact Nat.mul_le_mul this (Nat.le_add_left 1 n)
 
-lemma calculation_convexity_bound [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-    {n : ℕ} {t : ℝ} (ht : t ∈ Set.Icc 0 1) :
-    ∑ k ∈ Finset.range n, ((D : ENNReal) ^ (-t)) ^ k ≤ 2 * (ENNReal.ofReal t)⁻¹ := by
+/-- A bound on the sum of a geometric series whose ratio is close to 1. -/
+lemma near_1_geometric_bound {t : ℝ} (ht : t ∈ Set.Icc 0 1) :
+    (1 - 2 ^ (-t))⁻¹ ≤ 2 * (ENNReal.ofReal t)⁻¹ := by
   obtain ⟨lb, ub⟩ := ht
-  have a4 := four_le_a X
-  suffices (1 - 2 ^ (-t))⁻¹ ≤ 2 * (ENNReal.ofReal t)⁻¹ by
-    refine le_trans ?_ this
-    calc
-      _ ≤ ∑ k ∈ Finset.range n, ((2 : ENNReal) ^ (-t)) ^ k := by
-        refine Finset.sum_le_sum fun k mk ↦ pow_le_pow_left' ?_ k
-        rw [ENNReal.rpow_neg, ENNReal.rpow_neg, ENNReal.inv_le_inv]
-        refine ENNReal.rpow_le_rpow ?_ lb
-        unfold defaultD; norm_cast; exact Nat.le_pow (by positivity)
-      _ ≤ ∑' k : ℕ, ((2 : ENNReal) ^ (-t)) ^ k := ENNReal.sum_le_tsum _
-      _ = _ := ENNReal.tsum_geometric _
   rw [ENNReal.inv_le_iff_inv_le, ENNReal.mul_inv (.inl two_ne_zero) (.inl ENNReal.ofNat_ne_top),
     inv_inv, ← ENNReal.div_eq_inv_mul, ← ENNReal.ofReal_ofNat 2, ← ENNReal.ofReal_one,
     ← ENNReal.ofReal_div_of_pos (by positivity), ENNReal.ofReal_rpow_of_pos (by positivity),
@@ -289,6 +278,20 @@ lemma calculation_convexity_bound [PseudoMetricSpace X] [ProofData a q K σ₁ �
   rw [show (1 : ℝ) + -1 / 2 = 2⁻¹ by norm_num, Real.inv_rpow zero_le_two,
     ← Real.rpow_neg zero_le_two] at bne
   linarith only [bne]
+
+lemma calculation_convexity_bound [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
+    {n : ℕ} {t : ℝ} (ht : t ∈ Set.Icc 0 1) :
+    ∑ k ∈ Finset.range n, ((D : ENNReal) ^ (-t)) ^ k ≤ 2 * (ENNReal.ofReal t)⁻¹ := by
+  have a4 := four_le_a X
+  refine le_trans ?_ (near_1_geometric_bound ht)
+  calc
+    _ ≤ ∑ k ∈ Finset.range n, ((2 : ENNReal) ^ (-t)) ^ k := by
+      refine Finset.sum_le_sum fun k mk ↦ pow_le_pow_left' ?_ k
+      rw [ENNReal.rpow_neg, ENNReal.rpow_neg, ENNReal.inv_le_inv]
+      refine ENNReal.rpow_le_rpow ?_ ht.1
+      unfold defaultD; norm_cast; exact Nat.le_pow (by positivity)
+    _ ≤ ∑' k : ℕ, ((2 : ENNReal) ^ (-t)) ^ k := ENNReal.sum_le_tsum _
+    _ = _ := ENNReal.tsum_geometric _
 
 lemma calculation_7_6_2 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] {n : ℕ} :
     ∑ k ∈ Finset.range n, ((D : ENNReal) ^ (-(κ / 2))) ^ k ≤ 2 ^ (10 * a + 2) :=
@@ -315,3 +318,19 @@ lemma calculation_150 [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] :
       _ ≤ 2 ^ (8 * 4) := by norm_num
       _ ≤ _ := by gcongr; exacts [one_le_two, four_le_a X]
   · exact Nat.lt_two_pow_self.le
+
+lemma sq_le_two_pow_of_four_le (a4 : 4 ≤ a) : a ^ 2 ≤ 2 ^ a := by
+  induction a, a4 using Nat.le_induction with
+  | base => omega
+  | succ a a4 ih =>
+    rw [pow_succ 2, mul_two, add_sq, one_pow, mul_one, add_assoc]; gcongr
+    calc
+      _ ≤ 3 * a := by omega
+      _ ≤ a * a := by gcongr; omega
+      _ ≤ _ := by rwa [← sq]
+
+lemma calculation_6_1_6 (a4 : 4 ≤ a) : 8 * a ^ 4 ≤ 2 ^ (2 * a + 3) := by
+  calc
+    _ = 2 ^ 3 * a ^ 2 * a ^ 2 := by ring
+    _ ≤ 2 ^ 3 * 2 ^ a * 2 ^ a := by gcongr _ * ?_ * ?_ <;> exact sq_le_two_pow_of_four_le a4
+    _ = _ := by ring

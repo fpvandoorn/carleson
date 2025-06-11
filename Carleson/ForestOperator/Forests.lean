@@ -549,26 +549,10 @@ lemma pairwiseDisjoint_rowSupport : (Iio (2 ^ n)).PairwiseDisjoint (rowSupport t
 
 section FinalProp
 
-omit [TileStructure Q D κ S o] in
-lemma bcs_of_measurable_of_le_indicator_f (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) :
-    BoundedCompactSupport f := by
-  have : BoundedCompactSupport (F.indicator 1 : X → ℝ) :=
-    BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
-      isBounded_F.isCompact_closure measurableSet_F
-  exact this.mono_norm hf.aestronglyMeasurable h2f
-
-omit [TileStructure Q D κ S o] in
-lemma bcs_of_measurable_of_le_indicator_g (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
-    BoundedCompactSupport g := by
-  have : BoundedCompactSupport (G.indicator 1 : X → ℝ) :=
-    BoundedCompactSupport.indicator_of_isCompact_closure (memLp_top_const _)
-      isBounded_G.isCompact_closure measurableSet_G
-  exact this.mono_norm hg.aestronglyMeasurable h2g
-
 open scoped Classical in
 lemma forest_operator_g_prelude
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x):
+    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
     eLpNorm f 2 * eLpNorm (∑ u with u ∈ t, adjointCarlesonSum (t u) g ·) 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
@@ -740,7 +724,7 @@ lemma carlesonRowSum_rowSupport :
 open Classical in
 lemma forest_operator_f_prelude
     (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x):
+    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * ∑ u with u ∈ t, carlesonSum (t u) f x‖ₑ ≤
     eLpNorm g 2 * eLpNorm (fun x ↦ G.indicator (∑ u with u ∈ t, carlesonSum (t u) f ·) x) 2 := by
   have bf := bcs_of_measurable_of_le_indicator_f hf h2f
@@ -999,7 +983,7 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     eLpNorm f 2 volume * (volume A) ^ (1/2 : ℝ) := by
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  have bf := Forest.bcs_of_measurable_of_le_indicator_f hf h2f
+  have bf := bcs_of_measurable_of_le_indicator_f hf h2f
   rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
   · exact (BoundedCompactSupport.finset_sum (fun i hi ↦ bf.carlesonSum.restrict)).integrable
   rw [← integral_indicator hA]
