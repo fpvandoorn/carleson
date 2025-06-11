@@ -355,7 +355,7 @@ lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x
 irreducible_def C10_2_7 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 1) * c10_0_3 a
 
 /-- The function `F` defined in Lemma 10.2.7. -/
-def czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (hX : GeneralCase f α) (x : X) : ℝ≥0∞ :=
+def czOperatorBound (ha : 4 ≤ a) (hX : GeneralCase f α) (x : X) : ℝ≥0∞ :=
   C10_2_7 a * α * ∑' i, ((czRadius ha hX i).toNNReal / nndist x (czCenter ha hX i)) ^ (a : ℝ)⁻¹ *
     volume (czBall3 ha hX i) / volume (ball x (dist x (czCenter ha hX i)))
 
@@ -364,7 +364,7 @@ Note that `hx` implies `hX`, but we keep the superfluous hypothesis to shorten t
 lemma estimate_bad_partial (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hx : x ∈ (Ω (f := f) ha α)ᶜ) (hX : GeneralCase f α) :
-    ‖czOperator K r (czRemainder (f := f) ha α) x‖ₑ ≤ 3 * czOperatorBound ha hf hX x + α / 8 := by
+    ‖czOperator K r (czRemainder (f := f) ha α) x‖ₑ ≤ 3 * czOperatorBound ha hX x + α / 8 := by
   sorry
 
 /-- The constant used in `distribution_czOperatorBound`. -/
@@ -373,7 +373,7 @@ irreducible_def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 9 * a + 4)
 /-- Lemma 10.2.8 -/
 lemma distribution_czOperatorBound (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
-    volume ((Ω (f := f) ha α)ᶜ ∩ czOperatorBound ha hf hX ⁻¹' Ioi (α / 8)) ≤
+    volume ((Ω (f := f) ha α)ᶜ ∩ czOperatorBound ha hX ⁻¹' Ioi (α / 8)) ≤
     C10_2_8 a / α * eLpNorm f 1 volume := by
   sorry
 
