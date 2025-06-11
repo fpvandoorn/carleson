@@ -691,7 +691,6 @@ lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (�
     eLpNorm (fun x ↦ ∑ p with p ∈ 𝔄, (1 + edist_(p) (𝒬 p) ϑ) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
       (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume ≤
     C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by
-  have p₆p := p₆_pos (four_le_a X)
   obtain ⟨N, 𝔄_decomp⟩ := biUnion_𝔄_aux (𝔄 := 𝔄.toFinset) (ϑ := ϑ)
   calc
     _ = eLpNorm (∑ n ∈ Finset.range N, fun x ↦ ∑ p ∈ 𝔄_aux 𝔄.toFinset ϑ n,
