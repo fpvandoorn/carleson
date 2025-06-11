@@ -50,21 +50,18 @@ open Set Complex MeasureTheory
 
 -- Lemma 6.1.1
 lemma E_disjoint {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
-     {p p' : 𝔓 X} (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : (E p ∩ E p').Nonempty) : p = p' := by
+     {p p' : 𝔓 X} (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : ¬Disjoint (E p) (E p')) : p = p' := by
   wlog h𝔰 : 𝔰 p ≤ 𝔰 p'
-  · have hE' : (E p' ∩ E p).Nonempty := by simp only [inter_comm, hE]
-    symm
-    apply this h𝔄 hp' hp hE' (le_of_lt (not_le.mp h𝔰))
-  set x := hE.some
-  have hx := hE.some_mem
-  simp only [E, mem_inter_iff, mem_setOf_eq] at hx
-  obtain ⟨⟨hx𝓓p, hxΩp, _⟩ , hx𝓓p', hxΩp', _⟩ := hx
+  · have hE' : ¬Disjoint (E p') (E p) := by rwa [disjoint_comm]
+    exact (this h𝔄 hp' hp hE' (not_le.mp h𝔰).le).symm
+  obtain ⟨x, hx, hx'⟩ := not_disjoint_iff.mp hE
+  obtain ⟨hx𝓓p, hxΩp, -⟩ := hx; obtain ⟨hx𝓓p', hxΩp', -⟩ := hx'
   have h𝓓 : 𝓘 p ≤ 𝓘 p' :=
     (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (le_or_disjoint h𝔰)
   have hΩ : Ω p' ≤ Ω p :=
     (or_iff_right (not_disjoint_iff.mpr ⟨Q x, hxΩp, hxΩp'⟩)).mp (relative_fundamental_dyadic h𝓓)
   have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
-  exact IsAntichain.eq h𝔄 hp hp' hle
+  exact h𝔄.eq hp hp' hle
 
 --variable (K) (σ₁ σ₂) (p : 𝔓 X)
 
@@ -175,7 +172,8 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
       intro p' hp' hpp'
       simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp'
       by_contra hp'x
-      exact hpp' (E_disjoint h𝔄 hp' p.2 ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
+      exact hpp' (E_disjoint h𝔄 hp' p.2 <|
+        not_disjoint_iff.mpr ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
     have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
         dist x y ∈ Icc ((D ^ ((𝔰 p.1) - 1) : ℝ) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦

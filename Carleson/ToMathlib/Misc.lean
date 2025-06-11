@@ -719,6 +719,18 @@ lemma Finset.sum_range_mul_conj_sum_range {α : Type*} {s : Finset α} {f : α �
         rw [← sum_add_distrib]; enter [2, j]; rw [sum_filter_add_sum_filter_not, ← mul_sum]
       rw [sum_mul, map_sum]
 
+lemma Finset.pow_sum_comm {ι R : Type*} [Semiring R] {s : Finset ι} {f : ι → R}
+    (hf : ∀ i ∈ s, ∀ j ∈ s, i ≠ j → f i * f j = 0) {n : ℕ} (hn : 1 ≤ n) :
+    (∑ i ∈ s, f i) ^ n = ∑ i ∈ s, f i ^ n := by
+  induction n, hn using Nat.le_induction with
+  | base => simp
+  | succ n hn ih =>
+    simp_rw [pow_succ, ih, sum_mul, mul_sum]
+    congr! 1 with x mx
+    refine Finset.sum_eq_single _ (fun y my hn ↦ ?_) (fun _ ↦ by contradiction)
+    rw [← Nat.sub_one_add_one (show n ≠ 0 by omega), pow_succ, mul_assoc, hf _ mx _ my hn.symm,
+      mul_zero]
+
 namespace MeasureTheory
 
 lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint

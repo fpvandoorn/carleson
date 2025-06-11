@@ -1,4 +1,5 @@
 import Carleson.Antichain.Basic
+import Carleson.Calculations
 
 macro_rules | `(tactic |gcongr_discharger) => `(tactic | with_reducible assumption)
 
@@ -117,6 +118,36 @@ lemma tile_reach {ϑ : Θ X} {N : ℕ} {p p' : 𝔓 X} (hp : dist_(p) (𝒬 p) �
 /-- Def 6.3.15. -/
 def 𝔄_aux (𝔄 : Finset (𝔓 X)) (ϑ : Θ X) (N : ℕ) : Finset (𝔓 X) :=
   {p ∈ 𝔄 | 1 + dist_(p) (𝒬 p) ϑ ∈ Ico (2 ^ N) (2 ^ (N + 1))}
+
+open Classical in
+lemma pairwiseDisjoint_𝔄_aux {𝔄 : Finset (𝔓 X)} {ϑ : Θ X} :
+    univ.PairwiseDisjoint (𝔄_aux 𝔄 ϑ ·) := fun i mi j mj hn ↦ by
+  change Disjoint (𝔄_aux _ _ _) (𝔄_aux _ _ _)
+  wlog hl : i < j generalizing i j
+  · exact (this _ mj _ mi hn.symm (by omega)).symm
+  simp_rw [Finset.disjoint_left, 𝔄_aux, Finset.mem_filter, not_and, and_imp]
+  refine fun p mp md _ ↦ ?_
+  rw [mem_Ico, not_and_or, not_le]; left
+  exact md.2.trans_le (pow_le_pow_right₀ one_le_two (by omega))
+
+open Classical in
+lemma biUnion_𝔄_aux {𝔄 : Finset (𝔓 X)} {ϑ : Θ X} :
+    ∃ N, (Finset.range N).biUnion (𝔄_aux 𝔄 ϑ ·) = 𝔄 := by
+  rcases 𝔄.eq_empty_or_nonempty with rfl | h𝔄
+  · use 0; simp
+  let f (p : 𝔓 X) := ⌊Real.logb 2 (1 + dist_(p) (𝒬 p) ϑ)⌋₊
+  obtain ⟨p₀, mp₀, hp₀⟩ := 𝔄.exists_max_image f h𝔄
+  use f p₀ + 1; ext p
+  simp_rw [𝔄_aux, Finset.mem_biUnion, Finset.mem_range, Finset.mem_filter]
+  constructor <;> intro hp
+  · exact hp.choose_spec.2.1
+  · simp only [hp, true_and]; use f p, Nat.lt_add_one_iff.mpr (hp₀ p hp)
+    have one_le_y : 1 ≤ 1 + dist_(p) (𝒬 p) ϑ := le_add_of_nonneg_right dist_nonneg
+    rw [← Real.rpow_logb zero_lt_two (by norm_num) (zero_lt_one.trans_le one_le_y)]
+    constructor <;> rw [← Real.rpow_natCast]
+    · exact Real.rpow_le_rpow_of_exponent_le one_le_two
+        (Nat.floor_le (Real.logb_nonneg one_lt_two one_le_y))
+    · exact Real.rpow_lt_rpow_of_exponent_lt one_lt_two (Nat.lt_succ_floor _)
 
 open Metric
 
@@ -322,17 +353,9 @@ lemma local_antichain_density {𝔄 : Finset (𝔓 X)}
   · simp only [Finset.coe_filter]
     intro q hq q' hq' hqq'
     simp only [𝔄_aux, Finset.mem_filter, mem_setOf_eq] at hq hq'
-    have hE : E q ∩ E q' = ⊥ := by
-      rw [bot_eq_empty]
-      contrapose! hqq'
-      exact E_disjoint h𝔄 hq.1.1 hq'.1.1  hqq'
-    simp only [disjoint_iff, eq_bot_iff]
-    rw [← hE]
-    simp only [inf_eq_inter, le_eq_subset, subset_inter_iff]
-    constructor
-    · simp only [inter_assoc, inter_subset_left]
-    · rw [inter_comm]
-      simp only [inter_assoc, inter_subset_left]
+    have hE : Disjoint (E q) (E q') := by simpa using (E_disjoint h𝔄 hq.1.1 hq'.1.1).mt hqq'
+    change Disjoint (_ ∩ _ ∩ _) (_ ∩ _ ∩ _)
+    rw [inter_assoc, inter_assoc]; exact (hE.inter_right _).inter_left _
 
 /-- The constant appearing in Lemma 6.3.4. -/
 def C6_3_4 (a N : ℕ) : ℝ≥0 := 2^(101*a^3 + N*a)
@@ -465,8 +488,8 @@ private lemma lhs : ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) =
 
 -- Lemma 6.3.4
 lemma global_antichain_density :
-    ∑ (p ∈ 𝔄_aux 𝔄 ϑ N), volume (E p ∩ G) ≤
-      (C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ (p ∈ 𝔄), (𝓘 p : Set X)) := by
+    ∑ p ∈ 𝔄_aux 𝔄 ϑ N, volume (E p ∩ G) ≤
+    C6_3_4 a N * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
   -- Reduce to ineq 6.3.30
   have hle: ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄' 𝔄 ϑ N, (𝓘 p : Set X)) ≤
       ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) := by
@@ -562,15 +585,156 @@ lemma C2_0_6_q₆_le (a4 : 4 ≤ a) : C2_0_6 (defaultA a) (q₆ a).toNNReal 2 �
       apply Real.rpow_le_self_of_one_le one_le_two
       rw [inv_le_one_iff₀]; right; exact (one_lt_q₆ a4).le
 
+open Classical in
+lemma tile_count_aux {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : Θ X) {n : ℕ} :
+    eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄.toFinset ϑ n, (2 : ℝ) ^ (-n * (2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+      (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume ≤
+    (2 ^ (101 * a ^ 3 - n : ℝ)) ^ (p₆ a)⁻¹ * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
+    volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by
+  have a4 := four_le_a X
+  have p₆p := p₆_pos a4
+  have p₆c : ENNReal.ofReal (p₆ a) = ↑(p₆ a).toNNReal := by norm_cast
+  rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (p₆ a).toNNReal by simpa), p₆c,
+    eLpNorm_nnreal_pow_eq_lintegral (by simpa), Real.coe_toNNReal _ p₆p.le,
+    ENNReal.mul_rpow_of_nonneg _ _ p₆p.le, ENNReal.mul_rpow_of_nonneg _ _ p₆p.le]
+  iterate 3 rw [← ENNReal.rpow_mul, inv_mul_cancel₀ p₆p.ne', ENNReal.rpow_one]
+  calc
+    _ = ∫⁻ x, ∑ p ∈ 𝔄_aux 𝔄.toFinset ϑ n,
+        ((2 : ℝ≥0∞) ^ (-n * (2 * a ^ 2 + a ^ 3 : ℝ)⁻¹)) ^ (4 * a ^ 4) *
+        (E p).indicator 1 x * G.indicator 1 x := by
+      congr! 2 with x; rw [← Real.enorm_rpow_of_nonneg _ p₆p.le, p₆]; swap
+      · refine Finset.sum_nonneg fun p mp ↦ mul_nonneg ?_ (indicator_nonneg (by simp) _)
+        exact mul_nonneg (Real.rpow_nonneg zero_le_two _) (indicator_nonneg (by simp) _)
+      conv_lhs => enter [1, 2]; norm_cast
+      have p₆p' : 1 ≤ 4 * a ^ 4 := by rw [p₆] at p₆p; norm_cast at p₆p
+      rw [Real.rpow_natCast, Finset.pow_sum_comm _ p₆p']; swap
+      · intro i mi j mj hn
+        rw [mul_assoc (2 ^ _), ← inter_indicator_mul, mul_assoc _ _ (G.indicator 1 x),
+          ← inter_indicator_mul, mul_mul_mul_comm, ← inter_indicator_mul, inter_inter_inter_comm]
+        simp_rw [𝔄_aux, mem_Ico, Finset.mem_filter, mem_toFinset] at mi mj
+        have key := (E_disjoint h𝔄 mi.1 mj.1).mt hn
+        rw [not_not, disjoint_iff_inter_eq_empty] at key; simp [key]
+      rw [ENNReal.enorm_sum_eq_sum_enorm]; swap
+      · refine fun p mp ↦ pow_nonneg (mul_nonneg ?_ (indicator_nonneg (by simp) _)) _
+        exact mul_nonneg (Real.rpow_nonneg zero_le_two _) (indicator_nonneg (by simp) _)
+      simp_rw [enorm_pow, enorm_mul, mul_pow]
+      have an0 : a ≠ 0 := by omega
+      congr! 3 with p mp
+      · rw [Real.rpow_mul zero_le_two, ENNReal.rpow_mul,
+          Real.enorm_rpow_of_nonneg (by positivity) (by positivity), Real.rpow_neg zero_le_two,
+          enorm_inv (by positivity), Real.enorm_rpow_of_nonneg zero_le_two n.cast_nonneg,
+          ENNReal.rpow_neg, Real.enorm_eq_ofReal zero_le_two, ENNReal.ofReal_ofNat]
+      · unfold indicator; split_ifs <;> simp [an0]
+      · unfold indicator; split_ifs <;> simp [an0]
+    _ = ((2 : ℝ≥0∞) ^ (-n * (2 * a ^ 2 + a ^ 3 : ℝ)⁻¹)) ^ (4 * a ^ 4) *
+        ∑ p ∈ 𝔄_aux 𝔄.toFinset ϑ n, volume (E p ∩ G) := by
+      have meg {p : 𝔓 X} : MeasurableSet (E p ∩ G) := measurableSet_E.inter measurableSet_G
+      conv_lhs =>
+        enter [2, x, 2, p]; rw [mul_assoc, ← inter_indicator_mul, ← indicator_const_mul]
+        simp only [Pi.one_apply, mul_one]
+      rw [lintegral_finset_sum _ fun _ _ ↦ Measurable.indicator (by simp) meg]
+      conv_lhs => enter [2, p]; rw [lintegral_indicator meg, setLIntegral_const]
+      rw [Finset.mul_sum]
+    _ ≤ (2 : ℝ≥0∞) ^ (-(n * a) - n : ℝ) * (C6_3_4 a n * dens₁ (𝔄.toFinset : Set (𝔓 X)) *
+        volume (⋃ p ∈ 𝔄.toFinset, (𝓘 p : Set X))) := by
+      rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]
+      gcongr
+      · exact one_le_two
+      · rw [neg_sub_left, ← mul_one_add, neg_mul, neg_mul, neg_le_neg_iff, mul_assoc]
+        gcongr; push_cast
+        calc
+          _ ≤ 3⁻¹ * (4 * a : ℝ) := by rw [le_inv_mul_iff₀ zero_lt_three]; norm_cast; omega
+          _ = (3 * a ^ 3 : ℝ)⁻¹ * (4 * a ^ 4) := by
+            rw [pow_succ' _ 3, ← mul_assoc 4, ← div_eq_inv_mul, ← div_eq_inv_mul,
+              mul_div_mul_right _ _ (by positivity)]
+          _ ≤ _ := by
+            rw [show (3 * a ^ 3 : ℝ) = 2 * a ^ 3 + a ^ 3 by ring]; gcongr
+            · norm_cast; omega
+            · norm_num
+      · apply global_antichain_density
+    _ = _ := by
+      simp_rw [coe_toFinset, mem_toFinset, ← mul_assoc, C6_3_4, ENNReal.coe_pow, ENNReal.coe_ofNat]
+      rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
+      congr 3; push_cast; ring
+
 /-- The constant appearing in Lemma 6.1.6. -/
-def C6_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (104 * a)
+def C6_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a)
+
+lemma le_C6_1_6 (a4 : 4 ≤ a) :
+    (2 : ℝ≥0∞) ^ (101 * a ^ 3 / p₆ a) * ∑ n ∈ Finset.range N, (2 ^ (-(p₆ a)⁻¹)) ^ n ≤ C6_1_6 a := by
+  have p₆p := p₆_pos a4
+  calc
+    _ ≤ (2 : ℝ≥0∞) ^ (101 * a ^ 3 / p₆ a) * (8 * a ^ 4) := by
+      gcongr
+      calc
+        _ ≤ _ := ENNReal.sum_le_tsum _
+        _ = _ := ENNReal.tsum_geometric _
+        _ ≤ 2 * (ENNReal.ofReal (p₆ a)⁻¹)⁻¹ := by
+          apply near_1_geometric_bound; constructor
+          · rw [inv_nonneg]; exact p₆p.le
+          · rw [inv_le_one₀ p₆p]; exact (one_lt_p₆ a4).le
+        _ = _ := by rw [ENNReal.ofReal_inv_of_pos p₆p, inv_inv, p₆]; norm_cast; ring
+    _ ≤ 2 ^ (7 : ℝ) * 2 ^ (2 * a + 3) := by
+      gcongr
+      · exact one_le_two
+      · rw [div_le_iff₀ p₆p, p₆]; norm_cast; rw [show 7 * (4 * a ^ 4) = 28 * a * a ^ 3 by ring]
+        gcongr; omega
+      · exact_mod_cast calculation_6_1_6 a4
+    _ ≤ _ := by
+      rw [C6_1_6]; norm_cast; rw [← pow_add]; gcongr
+      · exact one_le_two
+      · omega
 
 open Classical in
 /-- Lemma 6.1.6 -/
 lemma tile_count {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (· ≤ ·) 𝔄) (ϑ : Θ X) :
     eLpNorm (fun x ↦ ∑ p with p ∈ 𝔄, (1 + edist_(p) (𝒬 p) ϑ) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
       (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume ≤
-    C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * (volume (⋃ p ∈ 𝔄, (𝓘 p : Set X))) ^ (p₆ a)⁻¹ := by
-  sorry
+    C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by
+  have p₆p := p₆_pos (four_le_a X)
+  obtain ⟨N, 𝔄_decomp⟩ := biUnion_𝔄_aux (𝔄 := 𝔄.toFinset) (ϑ := ϑ)
+  calc
+    _ = eLpNorm (∑ n ∈ Finset.range N, fun x ↦ ∑ p ∈ 𝔄_aux 𝔄.toFinset ϑ n,
+        (1 + edist_(p) (𝒬 p) ϑ) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+        (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
+      congr! with x; rw [Finset.sum_apply]
+      nth_rw 1 [filter_mem_univ_eq_toFinset, ← 𝔄_decomp,
+        Finset.sum_biUnion (pairwiseDisjoint_𝔄_aux.subset (subset_univ _))]
+    _ ≤ ∑ n ∈ Finset.range N, eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄.toFinset ϑ n,
+        (1 + edist_(p) (𝒬 p) ϑ) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+        (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
+      refine eLpNorm_sum_le (fun p mp ↦ ?_) ?_
+      · refine Finset.aestronglyMeasurable_sum _ fun p mp ↦ ?_
+        simp_rw [mul_assoc, ← inter_indicator_mul]
+        exact ((AEMeasurable.indicator (by simp)
+          (measurableSet_E.inter measurableSet_G)).const_mul _).aestronglyMeasurable
+      · rw [ENNReal.one_le_ofReal]; exact (one_lt_p₆ (four_le_a X)).le
+    _ ≤ ∑ n ∈ Finset.range N, eLpNorm (fun x ↦ ∑ p ∈ 𝔄_aux 𝔄.toFinset ϑ n,
+        (2 : ℝ) ^ (-n * (2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
+        (E p).indicator 1 x * G.indicator 1 x) (ENNReal.ofReal (p₆ a)) volume := by
+      refine Finset.sum_le_sum fun n mn ↦ eLpNorm_mono_enorm fun x ↦ ?_
+      rw [enorm_eq_self, ENNReal.enorm_sum_eq_sum_enorm]; swap
+      · refine fun p mp ↦ mul_nonneg ?_ (indicator_nonneg (by simp) _)
+        exact mul_nonneg (Real.rpow_nonneg zero_le_two _) (indicator_nonneg (by simp) _)
+      refine Finset.sum_le_sum fun p mp ↦ ?_
+      simp_rw [enorm_mul, enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one]; gcongr
+      rw [Real.rpow_mul zero_le_two, Real.enorm_rpow_of_nonneg (by positivity) (by positivity),
+        ENNReal.rpow_neg, ← ENNReal.inv_rpow]; gcongr
+      rw [Real.rpow_neg zero_le_two, enorm_inv (by positivity), ENNReal.inv_le_inv, edist_dist,
+        ← ENNReal.ofReal_one, ← ENNReal.ofReal_add zero_le_one dist_nonneg, Real.rpow_natCast,
+        Real.enorm_eq_ofReal (by positivity)]
+      apply ENNReal.ofReal_le_ofReal
+      simp only [𝔄_aux, Finset.mem_filter, mem_toFinset] at mp
+      exact mp.2.1
+    _ ≤ ∑ n ∈ Finset.range N, (2 ^ (101 * a ^ 3 - n : ℝ)) ^ (p₆ a)⁻¹ * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
+        volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ :=
+      Finset.sum_le_sum fun _ _ ↦ tile_count_aux h𝔄 ϑ
+    _ = 2 ^ (101 * a ^ 3 / p₆ a) * (∑ n ∈ Finset.range N, (2 ^ (-(p₆ a)⁻¹)) ^ n) *
+        dens₁ 𝔄 ^ (p₆ a)⁻¹ * volume (⋃ p ∈ 𝔄, (𝓘 p : Set X)) ^ (p₆ a)⁻¹ := by
+      rw [← Finset.sum_mul, ← Finset.sum_mul, Finset.mul_sum]; congr! with n mn
+      rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_mul, ← ENNReal.rpow_mul, neg_mul, ← div_eq_inv_mul,
+        ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, ← sub_eq_add_neg, ← sub_div,
+        ← div_eq_mul_inv]
+    _ ≤ _ := by gcongr; exact le_C6_1_6 _ (four_le_a X)
 
 end Antichain
