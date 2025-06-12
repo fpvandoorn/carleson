@@ -289,12 +289,12 @@ lemma measurable_czApproximation (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} :
       | inl hx => simpa [czApproximation, hX, mem_setOf_eq ▸ mem_setOf_eq ▸ hx.1] using hx.2
       | inr hx => obtain ⟨b, ⟨⟨i, ⟨hiM, rfl⟩⟩, hxb⟩⟩ := hx; simpa [czApproximation_def_of_mem ha hxb]
   rw [this]
-  refine MeasurableSet.union ?_ ?_
+  apply MeasurableSet.union
   · have : Measurable f := by sorry
     have := Measurable.exists (MeasurableSet.czPartition ha hX · |>.mem)
     measurability
   · refine MeasurableSet.sUnion ((to_countable M).image _) ?_
-    rintro t ⟨i, ⟨hi, rfl⟩⟩
+    rintro _ ⟨i, ⟨_, rfl⟩⟩
     exact MeasurableSet.czPartition ha hX i
 
 /-- Part of Lemma 10.2.5, equation (10.2.16) (both cases).
