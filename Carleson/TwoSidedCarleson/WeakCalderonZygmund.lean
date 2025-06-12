@@ -269,30 +269,32 @@ def tsum_czRemainder' (ha : 4 ≤ a) (hX : GeneralCase f α) (x : X) :
   · simp only [czApproximation, hX, reduceDIte, hx, sub_self]
     exact finsum_eq_zero_of_forall_eq_zero fun i ↦ indicator_of_notMem (fun hi ↦ hx ⟨i, hi⟩) _
 
+open scoped Classical in
 /-- Part of Lemma 10.2.5 (both cases). -/
-lemma measurable_czApproximation (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} :
-    Measurable (czApproximation f ha α) := by
+lemma aemeasurable_czApproximation (ha : 4 ≤ a) {hf : AEMeasurable f} :
+    AEMeasurable (czApproximation f ha α) := by
   by_cases hX : GeneralCase f α; swap
   · unfold czApproximation; simp [hX]
-  intro T hT
-  let S := {x : X | ∃ i, x ∈ czPartition ha hX i}ᶜ ∩ f ⁻¹' T
-  let M := {i : ℕ | ⨍ (y : X) in czPartition ha hX i, f y ∈ T}
-  have : czApproximation f ha α ⁻¹' T = S ∪ ⋃₀ (czPartition ha hX '' M) := by
-    refine subset_antisymm (fun x hx ↦ ?_) (fun x hx ↦ ?_)
-    · by_cases hxi : ∃ i, x ∈ czPartition ha hX i
-      · have ⟨i, hi⟩ := hxi
-        refine Or.inr ⟨czPartition ha hX hxi.choose, ⟨mem_image_of_mem _ ?_, hxi.choose_spec⟩⟩
-        simpa [czApproximation, hX, hxi] using hx
-      · exact Or.inl ⟨hxi, by simpa [czApproximation, hxi, hX] using hx⟩
-    · cases hx with
-      | inl hx => simpa [czApproximation, hX, mem_setOf_eq ▸ mem_setOf_eq ▸ hx.1] using hx.2
-      | inr hx => obtain ⟨b, ⟨⟨i, ⟨hiM, rfl⟩⟩, hxb⟩⟩ := hx; simpa [czApproximation_def_of_mem ha hxb]
+  let czA (x : X) := -- Measurable version of `czApproximation f ha α`
+    if hx : ∃ j, x ∈ czPartition ha hX j then ⨍ y in czPartition ha hX hx.choose, f y else hf.mk f x
+  refine ⟨czA, fun T hT ↦ ?_, hf.ae_eq_mk.mono fun x h ↦ by simp [czApproximation, czA, hX, h]⟩
+  let S := {x : X | ∃ j, x ∈ czPartition ha hX j}ᶜ ∩ (hf.mk f) ⁻¹' T
+  have : czA ⁻¹' T = S ∪ ⋃₀ (czPartition ha hX '' {i | ⨍ y in czPartition ha hX i, f y ∈ T}) := by
+    refine subset_antisymm (fun x h ↦ ?_) (fun x h ↦ ?_)
+    · by_cases hx : ∃ j, x ∈ czPartition ha hX j
+      · refine Or.inr ⟨czPartition ha hX hx.choose, ⟨mem_image_of_mem _ ?_, hx.choose_spec⟩⟩
+        simpa [czA, hx] using h
+      · exact Or.inl ⟨hx, by simpa [czA, hx, hX] using h⟩
+    · cases h with
+      | inl h => simpa [czA, mem_setOf_eq ▸ mem_setOf_eq ▸ h.1] using h.2
+      | inr h => obtain ⟨_, ⟨⟨i, ⟨hi, rfl⟩⟩, hxi⟩⟩ := h
+                 have hx : ∃ j, x ∈ czPartition ha hX j := ⟨i, hxi⟩
+                 simpa [czA, hx, czPartition_pairwiseDisjoint' ha hx.choose_spec hxi] using hi
   rw [this]
   apply MeasurableSet.union
-  · have : Measurable f := by sorry
-    have := Measurable.exists (MeasurableSet.czPartition ha hX · |>.mem)
+  · have := Measurable.exists (MeasurableSet.czPartition ha hX · |>.mem)
     measurability
-  · refine MeasurableSet.sUnion ((to_countable M).image _) ?_
+  · refine MeasurableSet.sUnion ((to_countable _).image _) ?_
     rintro _ ⟨i, ⟨_, rfl⟩⟩
     exact MeasurableSet.czPartition ha hX i
 
