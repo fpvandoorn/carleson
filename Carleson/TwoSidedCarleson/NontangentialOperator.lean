@@ -958,9 +958,32 @@ theorem small_annulus_left (ha : 4 ≤ a)
 /-- Lemma 10.1.8. -/
 theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
-    ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
+    ⨆ (R₁ : ℝ) (_: 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
-  sorry
+  let sup : ℝ≥0∞ := ⨆ (R₁ : ℝ) (_: 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
+    ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ
+  unfold nontangentialOperator
+  apply le_antisymm
+  all_goals (
+    rw [iSup_le_iff]; intro R₁
+    rw [iSup_le_iff]; intro hR₁
+    rw [iSup_le_iff]; intro R₂
+    rw [iSup_le_iff]; intro hR₂
+    rw [iSup_le_iff]; intro x'
+    rw [iSup_le_iff]; intro hx'
+  )
+  · have : ∀ (R' : ℝ), R' ∈ Ioo R₁ R₂ → ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R₁ R', K x' y * f y‖ₑ + sup := by
+      sorry
+    unfold sup at this
+    --apply continuity in R'
+    sorry
+  · rw [← nontangentialOperator]
+    have : ∀ (R' : ℝ), R' ∈ Ioo 0 R₁ → ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
+      sorry
+    -- apply continuity in R'
+    sorry
 
 /-- The constant used in `nontangential_from_simple`. -/
 irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
