@@ -941,19 +941,96 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
+-- right ContinuousWithinAt (fun x ↦ ‖∫ (y : X) in Annulus.oo x' R₁ x, K x' y * f y‖ₑ) (Ioo R₁ R₂) R₁
+-- left  ContinuousWithinAt (fun x ↦ ‖∫ (y : X) in Annulus.oo x' x R₁, K x' y * f y‖ₑ) (Ioo (dist x x') R₁) R₁
+
 /-- Part of Lemma 10.1.7, reformulated. -/
 theorem small_annulus_right (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₁ : ℝ} :
-    Continuous (fun R₂ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
+    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₁ : ℝ} (hR₁ : R₁ > 0):
+    Continuous (fun R₂ ↦ ∫ y in Annulus.oo x R₁ R₂, K x y * f y) := by
   sorry
 
 /-- Part of Lemma 10.1.7, reformulated -/
 theorem small_annulus_left (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₂ : ℝ} :
-    Continuous (fun R₁ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
+    {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₂ : ℝ} :
+    ContinuousOn (fun R₁ ↦ ∫ y in Annulus.oo x R₁ R₂, K x y * g y) {R | 0 < R} := by
+  conv => arg 1; intro R1; rw [← integral_indicator (by measurability)]
+  apply continuousOn_of_dominated (s := {R | 0 < R})
+  · intro R hR
+    have : Measurable (K x) := measurable_K_right x
+    fun_prop (disch := measurability)
+  · sorry
+  · sorry
+  · apply Filter.Eventually.of_forall
+    intro y
+    apply continuousOn_of_forall_continuousAt
+    intro R hR
+    apply ContinuousOn.continuousAt_indicator
+    · sorry
+    sorry
   sorry
+  -- by_cases hR₂ : R₂ ≤ 0
+  -- · have : ∀ R₁, Annulus.oo x R₁ R₂ = ∅ := by
+  --     intro R₁; unfold Annulus.oo; ext y; simp [hR₂.trans dist_nonneg]
+  --   simp_rw [this, setIntegral_empty]
+  --   exact continuousOn_const
+  -- rw [not_le] at hR₂
+  -- simp_rw [Metric.continuousOn_iff]
+  -- intro R h2R ε hε
+  -- by_cases hR : R₂ < R
+  -- · use R - R₂; refine ⟨(by simp [hR]), ?_⟩
+  --   intro R' h2R' hR'
+  --   have : R₂ < R' := by
+  --     by_cases h : R < R'
+  --     · exact hR.trans h
+  --     rw [Real.dist_eq, abs_of_nonpos (by linarith [not_lt.mp h])] at hR'
+  --     linarith
+  --   rw [Annulus.oo_eq_empty this.le, Annulus.oo_eq_empty hR.le, setIntegral_empty]
+  --   simp [hε]
+  -- rw [not_lt] at hR
+  -- use 1; constructor
+  -- · sorry
+  -- intro R' h2R' hR'
+  -- wlog hle : R ≤ R'
+  -- · rw [dist_comm] at hR'; rw [not_le] at hle
+  --   simpa [dist_comm] using this ha hT hg hR₂ R' h2R' ε hε (hle.le.trans hR) R h2R hR' (hle.le)
+
+  -- have : True := by
+  --   sorry
+  --   --MeasureTheory.continuousOn_of_dominated
+
+  -- by_cases h2R' : R₂ ≤ R'
+  -- · rw [Annulus.oo_eq_empty h2R', setIntegral_empty, dist_zero,
+  --     ← integral_indicator (by measurability)]
+  --   rw [← Real.coe_toNNReal ε hε.le, --pass to ENNReal for lintegral
+  --     ← Real.coe_toNNReal _ (norm_nonneg _), NNReal.coe_lt_coe, norm_toNNReal, ← enorm_lt_coe]
+  --   apply lt_of_le_of_lt <| enorm_integral_le_lintegral_enorm _
+  --   simp_rw [enorm_indicator_eq_indicator_enorm]
+  --   apply lt_of_le_of_lt <| lintegral_mono <|
+  --     indicator_le_indicator_of_subset (Annulus.oo_subset_oo (by rfl) h2R') (by simp)
+  --   sorry
+  -- · rw [not_le] at h2R'
+  --   simp_rw [dist_eq_norm_sub, ← Annulus.oc_union_oo hle h2R']
+  --   rw [setIntegral_union_2 ?dj (by measurability) ?int, sub_add_cancel_right, norm_neg,
+  --       ← integral_indicator (by measurability)]
+  --   case dj =>
+  --     rw [Annulus.oo, Annulus.oc, Set.disjoint_iff]; intro y
+  --     simp_rw [mem_empty_iff_false, mem_inter_iff, mem_setOf, mem_Ioc, mem_Ioo]
+  --     exact fun h ↦ (not_lt.mpr h.1.2) h.2.1
+  --   case int =>
+  --     simp_rw [Annulus.oc_union_oo hle h2R']
+  --     apply IntegrableOn.mono_set <| czoperator_welldefined hg (r := R / 2) ?hr x
+  --     case hr => linarith [mem_setOf.mp h2R]
+  --     rw [← Annulus.ci_eq]
+  --     apply Annulus.oo_subset_ci
+  --     linarith [mem_setOf.mp h2R]
+  --   rw [← Real.coe_toNNReal ε hε.le, --pass to ENNReal for lintegral
+  --       ← Real.coe_toNNReal _ (norm_nonneg _), NNReal.coe_lt_coe, norm_toNNReal, ← enorm_lt_coe]
+  --   apply lt_of_le_of_lt <| enorm_integral_le_lintegral_enorm _
+  --   simp_rw [enorm_indicator_eq_indicator_enorm]
+  --   sorry
 
 /-- Lemma 10.1.8. -/
 theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : BoundedFiniteSupport f) :
