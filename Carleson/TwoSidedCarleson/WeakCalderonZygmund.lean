@@ -269,7 +269,6 @@ def tsum_czRemainder' (ha : 4 ≤ a) (hX : GeneralCase f α) (x : X) :
   · simp only [czApproximation, hX, reduceDIte, hx, sub_self]
     exact finsum_eq_zero_of_forall_eq_zero fun i ↦ indicator_of_notMem (fun hi ↦ hx ⟨i, hi⟩) _
 
-open Classical in
 /-- Part of Lemma 10.2.5 (both cases). -/
 lemma measurable_czApproximation (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} :
     Measurable (czApproximation f ha α) := by
