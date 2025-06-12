@@ -150,6 +150,13 @@ lemma mem_czBall3_finite (ha : 4 ≤ a) {hX : GeneralCase f α} {y : X}
 def czPartition (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : Set X :=
   czBall3 ha hX i \ ((⋃ j < i, czPartition ha hX j) ∪ ⋃ j > i, czBall ha hX j)
 
+lemma MeasurableSet.czPartition (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) :
+    MeasurableSet (czPartition ha hX i) := by
+  refine i.strong_induction_on (fun j hj ↦ ?_)
+  unfold _root_.czPartition
+  apply measurableSet_ball.diff ∘ (MeasurableSet.biUnion (to_countable _) hj).union
+  exact MeasurableSet.biUnion (to_countable _) (fun _ _ ↦ measurableSet_ball)
+
 lemma czBall_subset_czPartition (ha : 4 ≤ a) {hX : GeneralCase f α} {i : ℕ} :
     czBall ha hX i ⊆ czPartition ha hX i := by
   intro r hr
@@ -250,14 +257,45 @@ def czRemainder (ha : 4 ≤ a) (α : ℝ≥0∞) (x : X) : ℂ :=
   f x - czApproximation f ha α x
 
 /-- Part of Lemma 10.2.5, this is essentially (10.2.16) (both cases). -/
-def tsum_czRemainder' (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (hX : GeneralCase f α) (x : X) :
+def tsum_czRemainder' (ha : 4 ≤ a) (hX : GeneralCase f α) (x : X) :
     ∑ᶠ i, czRemainder' ha hX i x = czRemainder f ha α x := by
-  sorry
+  simp only [czRemainder', czRemainder]
+  by_cases hx : ∃ j, x ∈ czPartition ha hX j
+  · have ⟨j, hj⟩ := hx
+    rw [finsum_eq_single _ j, indicator_of_mem hj]
+    · rfl
+    · refine fun i hi ↦ indicator_of_notMem ?_ _
+      exact (czPartition_pairwiseDisjoint ha (mem_univ i) (mem_univ j) hi).notMem_of_mem_right hj
+  · simp only [czApproximation, hX, reduceDIte, hx, sub_self]
+    exact finsum_eq_zero_of_forall_eq_zero fun i ↦ indicator_of_notMem (fun hi ↦ hx ⟨i, hi⟩) _
 
+open Classical in
 /-- Part of Lemma 10.2.5 (both cases). -/
 lemma measurable_czApproximation (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} :
     Measurable (czApproximation f ha α) := by
-  sorry
+  by_cases hX : GeneralCase f α; swap
+  · unfold czApproximation; simp [hX]
+  intro T hT
+  let S := {x : X | ∃ i, x ∈ czPartition ha hX i}ᶜ ∩ f ⁻¹' T
+  let M := {i : ℕ | ⨍ (y : X) in czPartition ha hX i, f y ∈ T}
+  have : czApproximation f ha α ⁻¹' T = S ∪ ⋃₀ (czPartition ha hX '' M) := by
+    refine subset_antisymm (fun x hx ↦ ?_) (fun x hx ↦ ?_)
+    · by_cases hxi : ∃ i, x ∈ czPartition ha hX i
+      · have ⟨i, hi⟩ := hxi
+        refine Or.inr ⟨czPartition ha hX hxi.choose, ⟨mem_image_of_mem _ ?_, hxi.choose_spec⟩⟩
+        simpa [czApproximation, hX, hxi] using hx
+      · exact Or.inl ⟨hxi, by simpa [czApproximation, hxi, hX] using hx⟩
+    · cases hx with
+      | inl hx => simpa [czApproximation, hX, mem_setOf_eq ▸ mem_setOf_eq ▸ hx.1] using hx.2
+      | inr hx => obtain ⟨b, ⟨⟨i, ⟨hiM, rfl⟩⟩, hxb⟩⟩ := hx; simpa [czApproximation_def_of_mem ha hxb]
+  rw [this]
+  refine MeasurableSet.union ?_ ?_
+  · have : Measurable f := by sorry
+    have := Measurable.exists (MeasurableSet.czPartition ha hX · |>.mem)
+    measurability
+  · refine MeasurableSet.sUnion ((to_countable M).image _) ?_
+    rintro t ⟨i, ⟨hi, rfl⟩⟩
+    exact MeasurableSet.czPartition ha hX i
 
 /-- Part of Lemma 10.2.5, equation (10.2.16) (both cases).
 This is true by definition, the work lies in `tsum_czRemainder'` -/
