@@ -291,12 +291,9 @@ lemma aemeasurable_czApproximation (ha : 4 ≤ a) {hf : AEMeasurable f} :
                  have hx : ∃ j, x ∈ czPartition ha hX j := ⟨i, hxi⟩
                  simpa [czA, hx, czPartition_pairwiseDisjoint' ha hx.choose_spec hxi] using hi
   rw [this]
-  apply MeasurableSet.union
-  · have := Measurable.exists (MeasurableSet.czPartition ha hX · |>.mem)
-    measurability
-  · refine MeasurableSet.sUnion ((to_countable _).image _) ?_
-    rintro _ ⟨i, ⟨_, rfl⟩⟩
-    exact MeasurableSet.czPartition ha hX i
+  have := Measurable.exists (MeasurableSet.czPartition ha hX · |>.mem)
+  apply MeasurableSet.union (by measurability) ∘ MeasurableSet.sUnion ((to_countable _).image _)
+  simp [MeasurableSet.czPartition ha hX]
 
 /-- Part of Lemma 10.2.5, equation (10.2.16) (both cases).
 This is true by definition, the work lies in `tsum_czRemainder'` -/

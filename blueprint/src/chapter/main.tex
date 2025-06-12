@@ -7550,9 +7550,9 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
     \leanok
-    \lean{cardinalMk_czBall3_le, tsum_czRemainder', measurable_czApproximation, czApproximation_add_czRemainder, norm_czApproximation_le, norm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
+    \lean{cardinalMk_czBall3_le, tsum_czRemainder', aemeasurable_czApproximation, czApproximation_add_czRemainder, norm_czApproximation_le, norm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
-    Let $f$ be a bounded, measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
+    Let $f$ be a bounded, a.e. measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
     Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
     % Do we actually need this parenthetical?
     such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
