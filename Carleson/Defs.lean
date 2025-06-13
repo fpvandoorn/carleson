@@ -179,7 +179,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
     {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
     (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
-  rcases le_or_lt r 0 with hr | hr
+  rcases le_or_gt r 0 with hr | hr
   · simp only [ball_eq_empty.2 hr, subset_empty_iff, support_eq_empty_iff] at h2
     simp [h2]
   rcases eq_or_ne A 0 with rfl | hA
@@ -1005,7 +1005,7 @@ lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
 lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
     {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) ≠ ∞) :
     Continuous ϕ := by
-  rcases le_or_lt R 0 with hR | hR
+  rcases le_or_gt R 0 with hR | hR
   · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
     simp only [subset_empty_iff, support_eq_empty_iff] at this
     simp only [this]

@@ -1680,7 +1680,7 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ +
         C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
       gcongr
-      rcases le_or_lt (edist x x' / D ^ s J) 1 with h | h
+      rcases le_or_gt (edist x x' / D ^ s J) 1 with h | h
       · nth_rw 1 [← one_mul (_ / _), ← ENNReal.rpow_one (_ / _)]
         refine mul_le_mul' (by norm_num) (ENNReal.rpow_le_rpow_of_exponent_ge h ?_)
         rw [inv_le_one_iff₀]; right; exact_mod_cast a_pos X

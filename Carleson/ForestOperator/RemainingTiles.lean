@@ -125,7 +125,7 @@ lemma thin_scale_impact_prelims (hu₁ : u₁ ∈ t) (hJ : J ∈ 𝓙₆ t u₁)
   rw [Grid.lt_def] at Jlt; obtain ⟨J', lJ', sJ'⟩ := Grid.exists_scale_succ Jlt.2
   replace lJ' : J < J' := Grid.lt_def.mpr ⟨lJ'.1, by omega⟩
   have J'nm : J' ∉ 𝓙₀ (t u₁) := by
-    by_contra hh; apply absurd hJ.1.2; push_neg; use J', hh, lJ'.le, not_le_of_lt lJ'
+    by_contra hh; apply absurd hJ.1.2; push_neg; use J', hh, lJ'.le, not_le_of_gt lJ'
   rw [𝓙₀, mem_setOf] at J'nm; push_neg at J'nm; obtain ⟨p', mp', sp'⟩ := J'nm.2
   exact ⟨b1, ⟨J', lJ', sJ', ⟨p', mp', sp'⟩⟩⟩
 
@@ -278,7 +278,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       · simp only [Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, mul_neg,
         le_add_neg_iff_add_le, ← mul_add]
         refine (Int.mul_nonpos_of_nonneg_of_nonpos (by simp) ?_).trans (by norm_num)
-        rwa [ge_iff_le, ← sub_nonpos, sub_eq_neg_add, neg_add] at hs'
+        rwa [← sub_nonpos, sub_eq_neg_add, neg_add] at hs'
   have vsupp : volume supp ≤ ENNReal.ofReal (2 * (↑8 * ↑D ^ (-s')) ^ κ) * volume (J : Set X) := by
     apply ENNReal.ofReal_le_ofReal at vsupp
     rwa [Measure.real, Measure.real, ENNReal.ofReal_mul (by positivity),
