@@ -215,14 +215,14 @@ lemma dist_holderApprox_le {z : X} {R t : ℝ} (hR : 0 < R) {C : ℝ≥0} (ht : 
         _root_.abs_of_nonneg cutoff_nonneg]
       gcongr
       · exact cutoff_nonneg
-      rcases le_or_lt (2 * R) (dist x z) with hx | hx
+      rcases le_or_gt (2 * R) (dist x z) with hx | hx
       · have : dist x y ≤ R := by nlinarith
         have : dist x z ≤ dist x y + dist y z := dist_triangle _ _ _
         have xm : x ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
         have ym : y ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
         simp only [notMem_support.mp xm, notMem_support.mp ym, sub_self, norm_zero, ge_iff_le]
         positivity
-      rcases le_or_lt (2 * R) (dist y z) with hy | hy
+      rcases le_or_gt (2 * R) (dist y z) with hy | hy
       · have : dist x y ≤ R := by nlinarith
         have : dist y z ≤ dist x y + dist x z := dist_triangle_left y z x
         have xm : x ∉ support ϕ := fun h ↦ by linarith [mem_ball.1 (hϕ h)]
@@ -410,7 +410,7 @@ lemma norm_holderApprox_sub_le {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t) (h'
     (hC : ∀ x, ‖ϕ x‖ ≤ C) {x x' : X} :
     ‖holderApprox R t ϕ x - holderApprox R t ϕ x'‖ ≤
       2⁻¹ * 2 ^ (4 * a) * t ^ (-1 - a : ℝ) * C * dist x x' / (2 * R) := by
-  rcases lt_or_le (dist x x') R with hx | hx
+  rcases lt_or_ge (dist x x') R with hx | hx
   · rw [norm_sub_rev]
     exact norm_holderApprox_sub_le_aux hR ht h't hc hϕ hC hx
   calc
@@ -525,7 +525,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       (1 + edist_{z, R} f g) ^ (- (2 * a^2 + a^3 : ℝ)⁻¹) := by
   have : 4 ≤ a := four_le_a X
   have : (4 : ℝ) ≤ a := mod_cast four_le_a X
-  rcases le_or_lt R 0 with hR | hR
+  rcases le_or_gt R 0 with hR | hR
   · simp [ball_eq_empty.2 hR, subset_empty_iff, support_eq_empty_iff] at ϕ_supp
     simp [ϕ_supp]
   rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h2ϕ | h2ϕ

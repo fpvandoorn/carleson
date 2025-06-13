@@ -574,7 +574,7 @@ lemma aestronglyMeasurable_trnc {j : Bool} (hf : AEStronglyMeasurable f μ) :
 lemma trunc_le {f : α → E₁} (x : α) : ‖trunc f t x‖ₑ ≤ max 0 t := by
   unfold trunc
   split_ifs with h
-  · rcases (lt_or_le t 0) with t_lt_0 | _
+  · rcases (lt_or_ge t 0) with t_lt_0 | _
     · exact Trans.trans (Trans.trans h t_lt_0.le) (le_max_left 0 t)
     · exact Trans.trans h (le_max_right 0 t)
   · simp
@@ -611,7 +611,7 @@ lemma truncCompl_le_func {f : α → E₁} {x : α} :
   rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
 lemma foo {A B C D : ℝ≥0∞} (hA : A ≠ ∞) (h : A ≤ C) (h' : A + B = C + D) : D ≤ B := by
-  obtain (done | contra) := le_or_lt D B
+  obtain (done | contra) := le_or_gt D B
   · assumption
   · have : A + B < C + D := ENNReal.add_lt_add_of_le_of_lt hA h contra
     exact False.elim (by order)
@@ -701,7 +701,8 @@ lemma rpow_le_rpow_of_exponent_le_base_le {a b t γ : ℝ} (ht : 0 < t) (htγ : 
 lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} (ht : 0 < t) (htγ : t ≤ γ)
     (hγ: γ ≠ ∞) (hab : a ≤ b) :
     t ^ b ≤ (t ^ a) * (γ ^ (b - a)) := by
-  have γ_pos : 0 < γ := gt_of_ge_of_gt htγ ht
+  have γ_pos : 0 < γ := by
+    exact lt_of_le_of_lt' htγ ht
   rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
     ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
   · sorry -- power with negative expononent, so directions flip
@@ -720,7 +721,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
 lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
     ENNReal.ofReal (t ^ a) ≤ ENNReal.ofReal (t ^ b) * ENNReal.ofReal (γ ^ (a - b)) := by
   rw [mul_comm]
-  have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
   rw [Real.rpow_sub hγ]
   refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
   · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne'
@@ -751,7 +752,7 @@ lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
       simp_all
     · positivity
     · simp
-  have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
   rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
     ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
   · gcongr
@@ -882,7 +883,8 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · filter_upwards with x hx
           rw [mul_comm]
           exact rpow_le_rpow_of_exponent_le_base_le_enorm hx.1 hx.2 ht <| toReal_mono hq hpq.2.le
-      · simp_all [ht]
+      · simp_all only [ne_eq, mem_Ioo, not_false_eq_true, rpow_eq_top_iff, sub_neg,
+        toReal_lt_toReal, sub_pos, and_true, or_false, not_and, not_lt]
         exact fun _h ↦ hpq.2.le
     _ ≤ _ := by
       gcongr

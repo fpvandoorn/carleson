@@ -528,7 +528,7 @@ lemma disjoint_of_ne_of_mem {i j : ℕ} {u u' : 𝔓 X} (hne : u ≠ u') (hu : u
         abs_dist_sub_le (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)) _ _ _
   have : 𝒬 p' ∉ ball_(p) (𝒬 p) 1 := by
     rw [mem_ball (α := WithFunctionDistance (𝔠 p) (↑D ^ 𝔰 p / 4)),dist_comm]
-    exact not_lt_of_le <| le_trans (calculation_7_7_4 (X := X)) this.le
+    exact not_lt_of_ge <| le_trans (calculation_7_7_4 (X := X)) this.le
   have : ¬(Ω p' ⊆ Ω p) := (fun hx => this <| subset_cball <| hx 𝒬_mem_Ω)
   exact (relative_fundamental_dyadic 𝓘_p_le).resolve_right this
 

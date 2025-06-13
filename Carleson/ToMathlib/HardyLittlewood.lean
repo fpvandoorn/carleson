@@ -340,7 +340,7 @@ theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricS
   · refine ⟨t, .rfl, fun a ha b _ _ ↦ by
       simp only [Function.onFun, closedBall_eq_empty.2 (ht a ha), empty_disjoint],
       fun a ha => ⟨a, ha, by simp only [closedBall_eq_empty.2 (ht a ha), empty_subset],
-      fun u hut hu ↦ (ht u hut).not_le hu |>.elim⟩⟩
+      fun u hut hu ↦ (ht u hut).not_ge hu |>.elim⟩⟩
   push_neg at ht
   let t' := { a ∈ t | 0 ≤ r a }
   have h2τ : 1 < (τ - 1) / 2 := by linarith
@@ -356,7 +356,7 @@ theorem exists_disjoint_subfamily_covering_enlargement_closedBall' {α} [MetricS
     have : dist (x a) (x b) ≤ r a + r b := dist_le_add_of_nonempty_closedBall_inter_closedBall hb
     exact ⟨closedBall_subset_closedBall' <| by linarith, fun _ _ _ ↦ rb⟩
   refine ⟨u, ut'.trans fun a ha => ha.1, u_disj, fun a ha => ?_⟩
-  rcases le_or_lt 0 (r a) with (h'a | h'a)
+  rcases le_or_gt 0 (r a) with (h'a | h'a)
   · exact A a ⟨ha, h'a⟩
   · rcases ht with ⟨b, rb⟩
     rcases A b ⟨rb.1, rb.2⟩ with ⟨c, cu, _, hc⟩
@@ -377,7 +377,7 @@ theorem Vitali.exists_disjoint_subfamily_covering_enlargement_ball {α} [MetricS
   · exact (hux hi hj hij).mono ball_subset_closedBall ball_subset_closedBall
   obtain ⟨b, hbu, hb⟩ := hu a ha
   refine ⟨b, hbu, ?_⟩
-  obtain h2a|h2a := le_or_lt (r a) 0
+  obtain h2a|h2a := le_or_gt (r a) 0
   · simp_rw [ball_eq_empty.mpr h2a, empty_subset]
   refine ball_subset_closedBall.trans hb.1 |>.trans <| closedBall_subset_ball ?_
   gcongr
@@ -842,7 +842,7 @@ theorem hasWeakType_maximalFunction_equal_exponents
     simp only [enorm_eq_self, mem_setOf_eq, mem_iUnion]
     intro hx
     by_contra! h₀
-    refine (not_le_of_lt (gt_of_ge_of_gt ?_ hx)) (iSup_le h₀)
+    refine (not_le_of_gt (lt_of_le_of_lt' ?_ hx)) (iSup_le h₀)
     rw [maximalFunction_seq_eq _ hp]
     rfl
   let f (k : ℕ) := fun x ↦ maximalFunction μ (tr h𝓑 k) c r (↑p) v x

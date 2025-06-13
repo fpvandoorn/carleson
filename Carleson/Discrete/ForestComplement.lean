@@ -437,7 +437,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   classical
   refine iUnion_lt_minLayer_iff_bounded_series.mpr fun p ↦ ?_
   suffices ¬∃ s : LTSeries (𝔏₀ (X := X) k n), s.length = n by
-    rcases lt_or_le p.length n with c | c
+    rcases lt_or_ge p.length n with c | c
     · exact c
     · exact absurd ⟨p.take ⟨n, by omega⟩, by rw [RelSeries.take_length]⟩ this
   by_contra h; obtain ⟨s, hs⟩ := h; let sl := s.last; have dsl := sl.2.1.2.1
