@@ -52,7 +52,7 @@ private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
 lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset) :
     ∃ I : Grid X, GridStructure.s I = s ∧ x ∈ I := by
   have DS : (D : ℝ) ^ S = (D : ℝ) ^ (S : ℤ) := rfl
-  have : x ∈ ball o (D ^ S / 4) := ProofData.G_subset hx
+  have : x ∈ ball o (D ^ S / 4) := G_subset hx
   rw [← c_topCube (X := X), DS, ← s_topCube (X := X)] at this
   have x_mem_topCube := ball_subset_Grid this
   by_cases hS : s = S -- Handle separately b/c `Grid_subset_biUnion`, as stated, doesn't cover `s=S`
