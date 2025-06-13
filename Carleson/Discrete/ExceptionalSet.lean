@@ -65,15 +65,12 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
   -- Define constant `K` and prove 0 < K < ⊤
   let K := 2 ^ (2 * a + 5) * volume F / volume G
-  have vol_G_ne_top : volume G ≠ ⊤ :=
-    lt_of_le_of_lt (measure_mono (ProofData.G_subset)) measure_ball_lt_top |>.ne
   have K0 : K > 0 := by
-    refine ENNReal.div_pos (ne_of_gt ?_) vol_G_ne_top
+    refine ENNReal.div_pos (ne_of_gt ?_) volume_G_ne_top
     exact mul_pos_iff.2 ⟨ENNReal.pow_pos two_pos _, measure_pos_of_superset subset_rfl hF⟩
   have K_ne_top : K ≠ ⊤ := by
     simp only [K]
-    refine (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) ?_) hG).ne
-    exact (measure_mono (ProofData.F_subset)).trans_lt measure_ball_lt_top |>.ne
+    exact (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) volume_F_ne_top) hG).ne
   -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
       volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by
@@ -121,7 +118,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   · have h : (2 : ℝ≥0∞) ^ (2 * a + 5) = (2 : ℝ≥0∞) ^ (2 * a + 5 : ℤ) := by norm_cast
     rw [h, ← ENNReal.zpow_add (NeZero.ne 2) ofNat_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
     norm_cast
-  · exact ENNReal.inv_mul_cancel hG vol_G_ne_top |>.symm
+  · exact ENNReal.inv_mul_cancel hG volume_G_ne_top |>.symm
 
 lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := by
   calc volume G₁ ≤ 2 ^ (-5 : ℤ) * volume G := first_exception'

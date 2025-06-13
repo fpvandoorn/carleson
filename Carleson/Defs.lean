@@ -703,8 +703,8 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   /- The next two conditions are not in the blueprint, but will be useful in various steps.
   It is easy to prove finitary_carleson (or metric_carleson) separately when either of these
   fails. -/
-  volume_F_pos : 0 < volume F
-  volume_G_pos : 0 < volume G
+  -- volume_F_pos : 0 < volume F
+  -- volume_G_pos : 0 < volume G
 
 namespace ShortVariables
 -- open this section to get shorter 1-letter names for a bunch of variables
