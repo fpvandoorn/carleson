@@ -48,17 +48,71 @@ theorem lebesgue_differentiation
     ∀ i, x ∈ ball (c i) (r i) := by
   sorry
 
-
 /-! Lemma 10.2.3 is in Mathlib: `Pairwise.countable_of_isOpen_disjoint`. -/
+
+section Depth
+
+/-- `δ(x)` in the blueprint. The depth of a point `x` in a set `O` is the supremum of radii of
+balls centred on `x` that are subsets of `O`. -/
+def depth (O : Set X) (x : X) : ℝ≥0∞ :=
+  ⨆ r : ℝ≥0, ⨆ (_ : ball x r ⊆ O), r
+
+variable {O : Set X} {x : X}
+
+/-- A point's depth in an open set `O` is positive iff it lies in `O`. -/
+lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
+  constructor <;> intro h
+  · contrapose! h; simp_rw [le_zero_iff, depth, iSup_eq_zero]; intro d hd
+    by_contra! dpos; apply absurd _ h; rw [coe_ne_zero, ← zero_lt_iff] at dpos
+    exact hd (mem_ball_self dpos)
+  · obtain ⟨ε, εpos, hε⟩ := Metric.mem_nhds_iff.mp (hO.mem_nhds h)
+    lift ε to ℝ≥0 using εpos.le
+    calc
+      _ < ofNNReal ε := mod_cast εpos
+      _ ≤ _ := le_biSup _ hε
+
+/-- A point has finite depth in `O` iff `O` is not the whole space. -/
+lemma depth_lt_top_iff_ne_univ : depth O x < ⊤ ↔ O ≠ univ := by
+  constructor <;> intro h
+  · contrapose! h; simp_rw [top_le_iff, depth, iSup₂_eq_top, h, subset_univ, exists_const]
+    intro r rlt; lift r to ℝ≥0 using rlt.ne
+    use r + 1; exact coe_lt_coe_of_lt (lt_add_one r)
+  · obtain ⟨p, np⟩ := (ne_univ_iff_exists_notMem _).mp h
+    calc
+      _ ≤ edist x p := by
+        refine iSup₂_le fun r hr ↦ ?_
+        contrapose! hr; rw [not_subset]; use p, ?_, np
+        rw [coe_nnreal_eq, edist_dist, ofReal_lt_ofReal_iff_of_nonneg dist_nonneg] at hr
+        rwa [mem_ball']
+      _ < _ := edist_lt_top ..
+
+lemma not_disjoint_of_gt_depth {d : ℝ≥0} (hd : depth O x < d) : ¬Disjoint (ball x d) Oᶜ := by
+  simp_rw [depth, iSup_lt_iff, iSup_le_iff] at hd; obtain ⟨d', ld', hd'⟩ := hd
+  have ns := (hd' d).mt; rw [not_le] at ns; specialize ns ld'
+  rw [not_subset_iff_exists_mem_notMem] at ns; obtain ⟨y, my, ny⟩ := ns
+  exact not_disjoint_iff.mpr ⟨y, my, ny⟩
 
 /-- Lemma 10.2.4
 This is very similar to `Vitali.exists_disjoint_subfamily_covering_enlargement`.
 Can we use that (or adapt it so that we can use it)? -/
 theorem ball_covering (ha : 4 ≤ a) {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
     ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ closedBall (c i) (r i)) ∧
-      ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬ Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
+      ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
       ∀ x ∈ O, Cardinal.mk { i | x ∈ ball (c i) (3 * r i)} ≤ (2 ^ (6 * a) : ℕ) := by
+  let W : Set (Set X) := { U | U ⊆ O ∧ U.PairwiseDisjoint fun c ↦ ball c ((depth O c).toReal / 6) }
+  obtain ⟨U, maxU⟩ : ∃ U, Maximal (· ∈ W) U := by
+    refine zorn_subset _ fun U sU cU ↦ ⟨⋃₀ U, ?_, fun _ ↦ subset_sUnion_of_mem⟩
+    simp only [W, sUnion_subset_iff, mem_setOf_eq]
+    exact ⟨fun u hu ↦ (sU hu).1, (pairwiseDisjoint_sUnion cU.directedOn).2 fun u hu ↦ (sU hu).2⟩
+  have cU : U.Countable := by
+    rw [maximal_iff] at maxU
+    refine maxU.1.2.countable_of_isOpen (fun _ _ ↦ isOpen_ball) (fun u mu ↦ ?_)
+    rw [nonempty_ball]; refine div_pos (toReal_pos ?_ ?_) (by norm_num)
+    · rw [← zero_lt_iff, depth_pos_iff_mem hO.1]; exact maxU.1.1 mu
+    · rw [← lt_top_iff_ne_top, depth_lt_top_iff_ne_univ]; exact hO.2
   sorry
+
+end Depth
 
 /-! ### Lemma 10.2.5
 
