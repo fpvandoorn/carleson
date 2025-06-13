@@ -797,15 +797,19 @@ lemma lintegral_carlesonSum_forest'
     simp [add_mul, div_eq_mul_inv]
     ring
   _ = 2 ^ (a + 5/2 : ℝ) * (volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) := by
-    have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
-    have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
-      congr 1
-      simp only [sub_sub_eq_add_sub, sub_left_inj]
-      norm_num
-    rw [IF, IG, ENNReal.rpow_sub _ _ ProofData.volume_G_pos.ne' volume_G_ne_top,
-      ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
-      ENNReal.div_eq_inv_mul, ENNReal.inv_rpow]
-    ring
+    rcases eq_or_ne (volume G) 0 with vG | vG
+    · have : 0 < 1 - q⁻¹ := by rw [sub_pos, inv_lt_one_iff₀]; exact .inr (one_lt_q X)
+      rw [vG, ENNReal.zero_rpow_of_pos (by positivity), ENNReal.zero_rpow_of_pos this]
+      simp only [zero_mul, mul_zero]
+    · have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
+      have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
+        congr 1
+        simp only [sub_sub_eq_add_sub, sub_left_inj]
+        norm_num
+      rw [IF, IG, ENNReal.rpow_sub _ _ vG volume_G_ne_top,
+        ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
+        ENNReal.div_eq_inv_mul, ENNReal.inv_rpow]
+      ring
 
 /-- Putting all the above decompositions together, one obtains a control of the integral of the
 full Carleson sum over `𝔓₁`, as a sum over all the forests. -/
