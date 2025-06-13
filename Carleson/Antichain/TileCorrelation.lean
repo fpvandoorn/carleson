@@ -742,10 +742,8 @@ lemma enorm_eq_zero_of_notMem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖
     {x : X} (hx : x ∉ (closedBall (cancelPt X) (defaultD a ^ defaultS X / 4))) :
     ‖g x‖ₑ = 0 := by
   rw [enorm_eq_zero, ← norm_eq_zero]
-  apply le_antisymm _ (norm_nonneg _)
-  apply le_trans (hg1 _)
-  rw [Set.indicator_of_notMem (Set.notMem_subset ProofData.G_subset
-    (Set.notMem_subset ball_subset_closedBall hx))]
+  refine le_antisymm ((hg1 _).trans ?_) (norm_nonneg _)
+  rw [indicator_of_notMem (notMem_subset G_subset (notMem_subset ball_subset_closedBall hx))]
 
 omit [TileStructure Q D κ S o] in
 lemma eq_zero_of_notMem_closedBall {g : X → ℂ} (hg1 : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
