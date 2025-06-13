@@ -451,7 +451,7 @@ throughout this formalization. -/
 def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
 /-- Data common through most of chapters 2-7.
-These contain the minimal axioms `kernel-summand`'s proof and `hasBoundedStrongType_Tstar`.
+These contain the minimal axioms for `kernel-summand`'s proof and `hasBoundedStrongType_Tstar`.
 This is used in chapter 3 when we don't have all other fields from `ProofData`. -/
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -462,7 +462,7 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
   hasBoundedStrongType_Tstar :
     HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
 
-/-- Data common through most of chapters 2-7. -/
+/-- Data common through most of chapters 2-7 (except 3). -/
 class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
     KernelProofData a K where
@@ -471,6 +471,10 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
+  /-- `volume_F_pos` can probably be removed. -/
+  volume_F_pos : 0 < volume F
+  /-- `volume_G_pos` can probably be removed. -/
+  volume_G_pos : 0 < volume G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)
