@@ -1,5 +1,6 @@
 import Carleson.TwoSidedCarleson.Basic
 import Carleson.ToMathlib.HardyLittlewood
+import Carleson.ToMathlib.MeasureTheory.Integral.Average
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
 open scoped NNReal
@@ -134,6 +135,12 @@ lemma not_disjoint_czBall7 (ha : 4 ≤ a) {hX : GeneralCase f α} {i : ℕ} :
     ¬ Disjoint (czBall7 ha hX i) (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ :=
   ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.1 i
 
+private lemma czRadius_pos (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : czRadius ha hX i > 0 := by
+  suffices (ball (czCenter ha hX i) (7 * czRadius ha hX i)).Nonempty by
+    have := this.ne_empty; contrapose! this; exact Metric.ball_eq_empty.mpr (by linarith)
+  have ⟨x, hx⟩ := not_disjoint_iff.mp <| not_disjoint_czBall7 ha (hX := hX) (i := i)
+  exact ⟨x, hx.1⟩
+
 /-- Part of Lemma 10.2.5 (general case). -/
 lemma cardinalMk_czBall3_le (ha : 4 ≤ a) {hX : GeneralCase f α}
     {y : X} (hy : α < globalMaximalFunction volume 1 f y) :
@@ -221,6 +228,21 @@ lemma iUnion_czPartition (ha : 4 ≤ a) {hX : GeneralCase f α} :
     have := (mem_or_mem_of_mem_union ht).imp_right (this ·)
     simp_all
 
+private lemma volume_czBall7_le (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) :
+    volume (czBall7 ha hX i) ≤ 2 ^ (3 * a) * volume (czPartition ha hX i) := calc
+  _ ≤ volume (ball (czCenter ha hX i) (2 ^ 3 * czRadius ha hX i)) :=
+    measure_mono <| ball_subset_ball (by linarith [czRadius_pos ha hX i])
+  _ ≤ (defaultA a) ^ 3 * volume (ball (czCenter ha hX i) (czRadius ha hX i)) := by
+    apply measure_ball_two_le_same_iterate
+  _ ≤ _ := by rw [Nat.cast_pow, ← pow_mul, mul_comm a 3]; gcongr; exact czBall_subset_czPartition ha
+
+private lemma laverage_czBall7_le (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) :
+    ⨍⁻ x in czBall7 ha hX i, ‖f x‖ₑ ∂volume ≤ α := by
+  have ⟨y, hy7, hy⟩ := not_disjoint_iff.mp <| not_disjoint_czBall7 ha (hX := hX) (i := i)
+  simp only [mem_compl_iff, mem_preimage, Nat.cast_pow, Nat.cast_ofNat, mem_Ioi, not_lt] at hy
+  refine le_trans ?_ hy
+  simpa using laverage_le_globalMaximalFunction (μ := volume) hy7
+
 open scoped Classical in
 variable (f) in
 /-- The function `g` in Lemma 10.2.5. (both cases) -/
@@ -302,9 +324,37 @@ lemma czApproximation_add_czRemainder (ha : 4 ≤ a) {x : X} :
   simp [czApproximation, czRemainder]
 
 /-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
-lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
+lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
     ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
-  sorry
+  have α_le_mul_α : α ≤ 2 ^ (3 * a) * α := by
+    nth_rw 1 [← one_mul α]; gcongr; exact_mod_cast Nat.one_le_two_pow
+  by_cases hX : GeneralCase f α; swap
+  · simp only [czApproximation, hX, reduceDIte, eventually_const]
+    exact le_trans (enorm_integral_le_lintegral_enorm f) <| hα.trans α_le_mul_α
+  have h₁ : ∀ᵐ x, (∃ i, x ∈ czPartition ha hX i) → ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
+    Eventually.of_forall fun x ⟨i, hi⟩ ↦ calc ‖czApproximation f ha α x‖ₑ
+      _ = ‖⨍ x in czPartition ha hX i, f x‖ₑ := by rw [czApproximation_def_of_mem ha hi]
+      _ ≤ ⨍⁻ x in czPartition ha hX i, ‖f x‖ₑ ∂volume := enorm_integral_le_lintegral_enorm _
+      _ ≤ (volume (czPartition ha hX i))⁻¹ * ∫⁻ x in czPartition ha hX i, ‖f x‖ₑ := by
+        simp [laverage]
+      _ ≤ 2 ^ (3 * a) * (volume (czBall7 ha hX i))⁻¹ * ∫⁻ x in czPartition ha hX i, ‖f x‖ₑ := by
+        gcongr
+        have := (ENNReal.inv_mul_le_iff (by simp) (by simp)).mpr <| volume_czBall7_le ha hX i
+        rwa [← ENNReal.inv_le_inv, ENNReal.mul_inv (by simp) (by simp), inv_inv] at this
+      _ ≤ 2 ^ (3 * a) * (volume (czBall7 ha hX i))⁻¹ * ∫⁻ x in czBall7 ha hX i, ‖f x‖ₑ :=
+        mul_le_mul_left' (a := _) <| lintegral_mono_set <| (czPartition_subset_czBall3 ha).trans <|
+          ball_subset_ball <| by linarith [czRadius_pos ha hX i]
+      _ ≤ 2 ^ (3 * a) * α := by
+        rw [mul_assoc]; gcongr; simpa [laverage] using laverage_czBall7_le ha hX i
+  have h₂ : ∀ᵐ x, ¬(∃ i, x ∈ czPartition ha hX i) → ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
+    (lebesgue_differentiation hf).mono fun x ⟨c, r, lim, _, x_mem_ball⟩ hx ↦ by
+      have le_α := hx
+      rw [← mem_iUnion, iUnion_czPartition, mem_preimage, mem_Ioi, not_lt] at le_α
+      simp only [czApproximation, hX, reduceDIte, hx]
+      refine le_of_tendsto lim.enorm <| Eventually.of_forall fun i ↦ ?_
+      apply le_trans (enorm_integral_le_lintegral_enorm f)
+      exact le_trans (laverage_le_globalMaximalFunction (x_mem_ball i)) <| le_α.trans α_le_mul_α
+  simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨h₁, h₂⟩
 
 /-- Equation (10.2.17) specialized to the general case. -/
 lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
