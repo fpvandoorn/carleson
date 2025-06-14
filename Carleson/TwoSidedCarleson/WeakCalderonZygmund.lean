@@ -1,6 +1,5 @@
 import Carleson.TwoSidedCarleson.Basic
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Integral.Average
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
 open scoped NNReal
