@@ -1376,7 +1376,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
     _ = 2⁻¹ ^ (n + 1) * volume (I3 hk y) := by
       rw [pow_add,pow_one,mul_assoc]
 
-section PreProofData
+section ProofData
 include q K σ₁ σ₂ F G
 
 variable (X) in
@@ -1479,7 +1479,7 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
       simp_rw [← Real.rpow_add (by norm_num : 0 < (2:ℝ)),← right_distrib]
       norm_num
 
-end PreProofData
+end ProofData
 
 lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht : t ∈ Set.Ioo 0 1)
     (htD : (D^(-S:ℤ):ℝ) ≤ t * D^k):
