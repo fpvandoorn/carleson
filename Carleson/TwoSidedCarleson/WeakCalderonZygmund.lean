@@ -322,14 +322,19 @@ lemma czApproximation_add_czRemainder (ha : 4 ≤ a) {x : X} :
     czApproximation f ha α x + czRemainder f ha α x = f x := by
   simp [czApproximation, czRemainder]
 
-/-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
-lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
+private lemma α_le_mul_α : α ≤ 2 ^ (3 * a) * α := by
+  nth_rw 1 [← one_mul α]; gcongr; exact_mod_cast Nat.one_le_two_pow
+
+-- Equation (10.2.17), finite case
+private lemma norm_czApproximation_le_finite {ha : 4 ≤ a} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α)
+    (hX : ¬ GeneralCase f α) : ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
+  simp only [czApproximation, hX, reduceDIte, eventually_const]
+  exact le_trans (enorm_integral_le_lintegral_enorm f) <| hα.trans α_le_mul_α
+
+/-- Equation (10.2.17) specialized to the general case. -/
+lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
+    (hX : GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
-  have α_le_mul_α : α ≤ 2 ^ (3 * a) * α := by
-    nth_rw 1 [← one_mul α]; gcongr; exact_mod_cast Nat.one_le_two_pow
-  by_cases hX : GeneralCase f α; swap
-  · simp only [czApproximation, hX, reduceDIte, eventually_const]
-    exact le_trans (enorm_integral_le_lintegral_enorm f) <| hα.trans α_le_mul_α
   have h₁ : ∀ᵐ x, (∃ i, x ∈ czPartition ha hX i) → ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
     Eventually.of_forall fun x ⟨i, hi⟩ ↦ calc ‖czApproximation f ha α x‖ₑ
       _ = ‖⨍ x in czPartition ha hX i, f x‖ₑ := by rw [czApproximation_def_of_mem ha hi]
@@ -337,7 +342,7 @@ lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα 
       _ ≤ (volume (czPartition ha hX i))⁻¹ * ∫⁻ x in czPartition ha hX i, ‖f x‖ₑ := by
         simp [laverage]
       _ ≤ 2 ^ (3 * a) * (volume (czBall7 ha hX i))⁻¹ * ∫⁻ x in czPartition ha hX i, ‖f x‖ₑ := by
-        gcongr
+        apply mul_le_mul_right'
         have := (ENNReal.inv_mul_le_iff (by simp) (by simp)).mpr <| volume_czBall7_le ha hX i
         rwa [← ENNReal.inv_le_inv, ENNReal.mul_inv (by simp) (by simp), inv_inv] at this
       _ ≤ 2 ^ (3 * a) * (volume (czBall7 ha hX i))⁻¹ * ∫⁻ x in czBall7 ha hX i, ‖f x‖ₑ :=
@@ -355,11 +360,10 @@ lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα 
       exact le_trans (laverage_le_globalMaximalFunction (x_mem_ball i)) <| le_α.trans α_le_mul_α
   simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨h₁, h₂⟩
 
-/-- Equation (10.2.17) specialized to the general case. -/
-lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
-    (hX : GeneralCase f α) (hα : 0 < α) :
-    ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
-  sorry
+/-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
+lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
+    ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
+  by_cases (norm_czApproximation_le_infinite ha (hf := hf)) (norm_czApproximation_le_finite hα)
 
 /-- Part of Lemma 10.2.5, equation (10.2.18) (both cases). -/
 lemma eLpNorm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : 0 < α) :
