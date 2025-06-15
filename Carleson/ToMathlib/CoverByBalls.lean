@@ -117,7 +117,7 @@ lemma AllBallsCoverBalls.ballsCoverBalls_pow {a : ℝ} {k : ℕ} (h : AllBallsCo
 lemma AllBallsCoverBalls.ballsCoverBalls {a : ℝ} (h : AllBallsCoverBalls X a n)
     (h2 : 1 < a) (hr : 0 < r) :
     BallsCoverBalls X r' r (n ^ ⌈Real.logb a (r' / r)⌉₊) := by
-  obtain hr'|hr' := le_or_lt r' 0
+  obtain hr'|hr' := le_or_gt r' 0
   · exact .nonpos hr'
   refine h.pow _ |>.mono ?_
   calc
