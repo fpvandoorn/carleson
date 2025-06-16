@@ -36,8 +36,6 @@ theorem maximal_theorem [Nonempty X] :
   rw [this]
   apply hasWeakType_globalMaximalFunction (μ := volume) le_rfl le_rfl
 
-variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
-
 /-- Lemma 10.2.2.
 Should be an easy consequence of `VitaliFamily.ae_tendsto_average`. -/
 theorem lebesgue_differentiation
@@ -57,7 +55,27 @@ balls centred on `x` that are subsets of `O`. -/
 def depth (O : Set X) (x : X) : ℝ≥0∞ :=
   ⨆ r : ℝ≥0, ⨆ (_ : ball x r ⊆ O), r
 
-variable {O : Set X} {x : X}
+variable {O : Set X} {x y : X}
+
+lemma depth_lt_iff_not_disjoint {d : ℝ} :
+    depth O x < ENNReal.ofReal d ↔ ¬Disjoint (ball x d) Oᶜ where
+  mp hd := by
+    simp_rw [depth, iSup_lt_iff, iSup_le_iff] at hd; obtain ⟨d', ld', hd'⟩ := hd
+    have ns := (hd' d.toNNReal).mt; rw [not_le] at ns; specialize ns ld'
+    rw [not_subset_iff_exists_mem_notMem] at ns; obtain ⟨y, my, ny⟩ := ns
+    have pd := (zero_le _).trans_lt ld'
+    rw [ofReal_pos] at pd; replace pd := Real.coe_toNNReal d pd.le
+    rw [pd] at my; exact not_disjoint_iff.mpr ⟨y, my, ny⟩
+  mpr hd := by
+    obtain ⟨y, my₁, my₂⟩ := not_disjoint_iff.mp hd
+    simp_rw [depth, iSup_lt_iff, iSup_le_iff]; use edist x y
+    rw [mem_ball'] at my₁; simp_rw [edist_lt_ofReal, my₁, true_and]; intro d' sd; by_contra! h
+    rw [← ofReal_coe_nnreal, edist_lt_ofReal, ← mem_ball'] at h
+    exact my₂ (sd h)
+
+lemma le_depth_iff_subset {d : ℝ} : ENNReal.ofReal d ≤ depth O x ↔ ball x d ⊆ O := by
+  rw [← disjoint_compl_right_iff_subset, ← not_iff_not, not_le]
+  exact depth_lt_iff_not_disjoint
 
 /-- A point's depth in an open set `O` is positive iff it lies in `O`. -/
 lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
@@ -70,6 +88,10 @@ lemma depth_pos_iff_mem (hO : IsOpen O) : 0 < depth O x ↔ x ∈ O := by
     calc
       _ < ofNNReal ε := mod_cast εpos
       _ ≤ _ := le_biSup _ hε
+
+lemma depth_eq_zero_iff_notMem (hO : IsOpen O) : depth O x = 0 ↔ x ∉ O := by
+  have := (depth_pos_iff_mem hO (x := x)).not
+  rwa [not_lt, le_zero_iff] at this
 
 /-- A point has finite depth in `O` iff `O` is not the whole space. -/
 lemma depth_lt_top_iff_ne_univ : depth O x < ⊤ ↔ O ≠ univ := by
@@ -86,33 +108,178 @@ lemma depth_lt_top_iff_ne_univ : depth O x < ⊤ ↔ O ≠ univ := by
         rwa [mem_ball']
       _ < _ := edist_lt_top ..
 
-lemma not_disjoint_of_gt_depth {d : ℝ≥0} (hd : depth O x < d) : ¬Disjoint (ball x d) Oᶜ := by
-  simp_rw [depth, iSup_lt_iff, iSup_le_iff] at hd; obtain ⟨d', ld', hd'⟩ := hd
-  have ns := (hd' d).mt; rw [not_le] at ns; specialize ns ld'
-  rw [not_subset_iff_exists_mem_notMem] at ns; obtain ⟨y, my, ny⟩ := ns
-  exact not_disjoint_iff.mpr ⟨y, my, ny⟩
+/-- A "triangle inequality" for depths. -/
+lemma depth_le_edist_add_depth : depth O x ≤ edist x y + depth O y := by
+  refine iSup₂_le fun d sd ↦ ?_; contrapose! sd
+  rw [← lt_tsub_iff_left, coe_nnreal_eq, edist_dist, ← ENNReal.ofReal_sub _ dist_nonneg,
+    depth_lt_iff_not_disjoint, not_disjoint_iff] at sd
+  obtain ⟨z, mz₁, mz₂⟩ := sd
+  rw [mem_ball, lt_tsub_iff_left] at mz₁
+  replace mz₁ := mem_ball'.mpr <| (dist_triangle_right ..).trans_lt mz₁
+  exact fun w ↦ mz₂ (w mz₁)
 
-/-- Lemma 10.2.4
-This is very similar to `Vitali.exists_disjoint_subfamily_covering_enlargement`.
-Can we use that (or adapt it so that we can use it)? -/
-theorem ball_covering (ha : 4 ≤ a) {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
-    ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ closedBall (c i) (r i)) ∧
-      ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, ¬Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
-      ∀ x ∈ O, Cardinal.mk { i | x ∈ ball (c i) (3 * r i)} ≤ (2 ^ (6 * a) : ℕ) := by
-  let W : Set (Set X) := { U | U ⊆ O ∧ U.PairwiseDisjoint fun c ↦ ball c ((depth O c).toReal / 6) }
+lemma depth_bound_1 (hO : O ≠ univ)
+    (h : ¬Disjoint (ball x ((depth O x).toReal / 6)) (ball y ((depth O y).toReal / 6))) :
+    x ∈ ball y (3 * ((depth O y).toReal / 6)) := by
+  rw [mem_ball]
+  have dnt {z : X} : depth O z ≠ ⊤ := (depth_lt_top_iff_ne_univ.mpr hO).ne
+  have pre : depth O x / 6 + 5 * depth O x / 6 ≤ depth O x / 6 + 7 * depth O y / 6 := by
+    calc
+      _ = depth O x := by
+        rw [← ENNReal.add_div, ← one_add_mul, show (1 : ℝ≥0∞) + 5 = 6 by norm_num, mul_comm]
+        exact ENNReal.mul_div_cancel_right (by norm_num) (by norm_num)
+      _ ≤ edist x y + depth O y := depth_le_edist_add_depth
+      _ ≤ ENNReal.ofReal ((depth O x).toReal / 6 + (depth O y).toReal / 6) + depth O y := by
+        rw [edist_dist]
+        exact add_le_add_right (ofReal_le_ofReal (dist_lt_of_not_disjoint_ball h).le) _
+      _ ≤ depth O x / 6 + depth O y / 6 + depth O y := by
+        rw [ofReal_add (by positivity) (by positivity)]
+        iterate 2 rw [ofReal_div_of_pos (by norm_num), ofReal_ofNat, ofReal_toReal dnt]
+      _ = _ := by
+        rw [show (7 : ℝ≥0∞) = 1 + 6 by norm_num, one_add_mul, ENNReal.add_div, mul_comm,
+          ENNReal.mul_div_cancel_right (by norm_num) (by norm_num), add_assoc]
+  rw [ENNReal.add_le_add_iff_left (div_ne_top dnt (by norm_num)),
+    ENNReal.div_le_iff (by norm_num) (by norm_num),
+    ENNReal.div_mul_cancel (by norm_num) (by norm_num), mul_comm,
+    ← ENNReal.le_div_iff_mul_le (.inl (by norm_num)) (.inl (by norm_num)),
+    ENNReal.mul_div_right_comm] at pre
+  calc
+    _ < (depth O x).toReal / 6 + (depth O y).toReal / 6 := dist_lt_of_not_disjoint_ball h
+    _ ≤ (7 / 5 * depth O y).toReal / 6 + (depth O y).toReal / 6 := by
+      gcongr; exact mul_ne_top (by finiteness) dnt
+    _ ≤ 2 * (depth O y).toReal / 6 + (depth O y).toReal / 6 := by
+      nth_rw 3 [← toReal_ofNat]; rw [← toReal_mul]; gcongr
+      · exact mul_ne_top (by finiteness) dnt
+      · rw [ENNReal.div_le_iff_le_mul (.inl (by norm_num)) (.inl (by norm_num))]
+        norm_num
+    _ = _ := by rw [mul_div_assoc, ← add_one_mul, two_add_one_eq_three]
+
+lemma depth_bound_2 (hO : O ≠ univ) (h : x ∈ ball y (3 * ((depth O y).toReal / 6))) :
+    (depth O x).toReal / 6 + dist x y ≤ 8 * (depth O y).toReal / 6 := by
+  rw [mem_ball] at h
+  have ent : edist x y ≠ ⊤ := by finiteness
+  have dnt {z : X} : depth O z ≠ ⊤ := (depth_lt_top_iff_ne_univ.mpr hO).ne
+  calc
+    _ ≤ (edist x y + depth O y).toReal / 6 + dist x y := by
+      gcongr
+      · rw [ENNReal.add_ne_top]; exact ⟨ent, dnt⟩
+      · exact depth_le_edist_add_depth
+    _ = (depth O y).toReal / 6 + (7 / 6) * dist x y := by
+      rw [ENNReal.toReal_add ent dnt, ← dist_edist]; ring
+    _ ≤ (depth O y).toReal / 6 + (7 / 6) * (3 * ((depth O y).toReal / 6)) := by gcongr
+    _ = (9 / 2) * (depth O y).toReal / 6 := by ring
+    _ ≤ _ := by gcongr; norm_num
+
+lemma depth_bound_3 (hO : O ≠ univ) (h : x ∈ ball y (3 * ((depth O y).toReal / 6))) :
+    (depth O y).toReal / 6 + dist y x ≤ 8 * (depth O x).toReal / 6 := by
+  rw [mem_ball'] at h
+  have dnt {z : X} : depth O z ≠ ⊤ := (depth_lt_top_iff_ne_univ.mpr hO).ne
+  have dnt2 : depth O y / 2 ≠ ⊤ := ENNReal.div_ne_top dnt (by norm_num)
+  have hti : depth O y ≤ 2 * depth O x := by
+    rw [mul_comm, ← ENNReal.div_le_iff_le_mul (.inl (by norm_num)) (.inl (by norm_num)),
+      ← ENNReal.add_le_add_iff_left dnt2, ENNReal.add_halves]
+    calc
+      _ ≤ edist y x + depth O x := depth_le_edist_add_depth
+      _ ≤ _ := by
+        gcongr; rw [edist_dist]; apply ofReal_le_of_le_toReal
+        rw [toReal_div, toReal_ofNat]; linarith
+  calc
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((depth O y).toReal / 6) := by
+      gcongr; exact mul_ne_top ofNat_ne_top dnt
+    _ ≤ (2 * depth O x).toReal / 6 + 3 * ((2 * depth O x).toReal / 6) := by
+      gcongr; exact mul_ne_top ofNat_ne_top dnt
+    _ = _ := by rw [toReal_mul, toReal_ofNat]; ring
+
+lemma ball_covering_bounded_intersection
+    (hO : IsOpen O ∧ O ≠ univ) {U : Set X} (countU : U.Countable)
+    (pdU : U.PairwiseDisjoint fun c ↦ ball c ((depth O c).toReal / 6)) {x : X} (mx : x ∈ O) :
+    {c ∈ U | x ∈ ball c (3 * ((depth O c).toReal / 6))}.encard ≤ (2 ^ (6 * a) : ℕ) := by
+  set V := {c ∈ U | x ∈ ball c (3 * ((depth O c).toReal / 6))}
+  have vbpos : 0 < volume (ball x ((depth O x).toReal / 6)) := by
+    refine measure_ball_pos volume x (div_pos ?_ (by norm_num))
+    rw [toReal_pos_iff, depth_pos_iff_mem hO.1, depth_lt_top_iff_ne_univ]; exact ⟨mx, hO.2⟩
+  have vbnt : volume (ball x ((depth O x).toReal / 6)) ≠ ⊤ := by finiteness
+  rw [← ENat.toENNReal_le, Nat.cast_pow, Nat.cast_ofNat, ENat.toENNReal_pow, ENat.toENNReal_ofNat,
+    ← ENNReal.mul_le_mul_right vbpos.ne' vbnt]
+  have Aeq : (2 : ℝ≥0∞) ^ (3 * a) = defaultA a ^ 3 := by
+    rw [defaultA, Nat.cast_pow, Nat.cast_ofNat, ← pow_mul, mul_comm]
+  calc
+    _ = ∑' c : V, volume (ball x ((depth O x).toReal / 6)) := (ENNReal.tsum_set_const _ _).symm
+    _ ≤ ∑' c : V, volume (ball c.1 (8 * (depth O c.1).toReal / 6)) :=
+      ENNReal.tsum_le_tsum fun ⟨u, mu, xu⟩ ↦
+        measure_mono (ball_subset_ball' (depth_bound_2 hO.2 xu))
+    _ ≤ 2 ^ (3 * a) * ∑' v : V, volume (ball v.1 ((depth O v.1).toReal / 6)) := by
+      rw [← ENNReal.tsum_mul_left]; refine ENNReal.tsum_le_tsum fun ⟨u, mu, xu⟩ ↦ ?_
+      rw [mul_div_assoc, show (8 : ℝ) = 2 ^ 3 by norm_num, Aeq]
+      apply measure_ball_two_le_same_iterate
+    _ = 2 ^ (3 * a) * volume (⋃ v : V, ball v.1 ((depth O v.1).toReal / 6)) := by
+      have VsU : V ⊆ U := sep_subset ..
+      haveI : Countable V := by rw [countable_coe_iff]; exact countU.mono VsU
+      congr 1
+      refine (measure_iUnion (fun ⟨v₁, mv₁⟩ ⟨v₂, mv₂⟩ hn ↦ ?_) (fun _ ↦ measurableSet_ball)).symm
+      rw [ne_eq, Subtype.mk.injEq] at hn
+      exact pdU (VsU mv₁) (VsU mv₂) hn
+    _ ≤ 2 ^ (3 * a) * volume (ball x (8 * (depth O x).toReal / 6)) := by
+      gcongr; exact iUnion_subset fun ⟨u, mu, xu⟩ ↦ ball_subset_ball' (depth_bound_3 hO.2 xu)
+    _ ≤ _ := by
+      rw [show 6 * a = 3 * a + 3 * a by omega, pow_add, mul_assoc]; gcongr
+      rw [mul_div_assoc, show (8 : ℝ) = 2 ^ 3 by norm_num, Aeq]
+      apply measure_ball_two_le_same_iterate
+
+/-- Lemma 10.2.4, but following the blueprint exactly (with a countable set of centres rather than
+functions from `ℕ`). -/
+lemma ball_covering' (hO : IsOpen O ∧ O ≠ univ) :
+    ∃ (U : Set X) (r : X → ℝ), U.Countable ∧ (U.PairwiseDisjoint fun c ↦ ball c (r c)) ∧
+      ⋃ c ∈ U, ball c (3 * r c) = O ∧ (∀ c ∈ U, ¬Disjoint (ball c (7 * r c)) Oᶜ) ∧
+      ∀ x ∈ O, {c ∈ U | x ∈ ball c (3 * r c)}.encard ≤ (2 ^ (6 * a) : ℕ) := by
+  let W : Set (Set X) := {U | U ⊆ O ∧ U.PairwiseDisjoint fun c ↦ ball c ((depth O c).toReal / 6)}
   obtain ⟨U, maxU⟩ : ∃ U, Maximal (· ∈ W) U := by
     refine zorn_subset _ fun U sU cU ↦ ⟨⋃₀ U, ?_, fun _ ↦ subset_sUnion_of_mem⟩
     simp only [W, sUnion_subset_iff, mem_setOf_eq]
     exact ⟨fun u hu ↦ (sU hu).1, (pairwiseDisjoint_sUnion cU.directedOn).2 fun u hu ↦ (sU hu).2⟩
-  have cU : U.Countable := by
-    rw [maximal_iff] at maxU
+  have countU : U.Countable := by
     refine maxU.1.2.countable_of_isOpen (fun _ _ ↦ isOpen_ball) (fun u mu ↦ ?_)
     rw [nonempty_ball]; refine div_pos (toReal_pos ?_ ?_) (by norm_num)
     · rw [← zero_lt_iff, depth_pos_iff_mem hO.1]; exact maxU.1.1 mu
     · rw [← lt_top_iff_ne_top, depth_lt_top_iff_ne_univ]; exact hO.2
+  refine ⟨U, fun c ↦ (depth O c).toReal / 6, countU, maxU.1.2, ?_, fun c mc ↦ ?_, fun x mx ↦ ?_⟩
+  · refine subset_antisymm (fun x mx ↦ ?_) (fun x mx ↦ ?_)
+    · simp only [mem_iUnion₂] at mx; obtain ⟨c, mc, mx⟩ := mx
+      refine (le_depth_iff_subset.mp ?_) mx
+      rw [← mul_comm_div, ENNReal.ofReal_mul (by norm_num),
+        ENNReal.ofReal_toReal (depth_lt_top_iff_ne_univ.mpr hO.2).ne]
+      nth_rw 2 [← one_mul (depth O _)]; gcongr; norm_num
+    · rw [mem_iUnion₂]
+      by_cases mxU : x ∈ U
+      · refine ⟨x, mxU, mem_ball_self ?_⟩
+        simp only [Nat.ofNat_pos, mul_pos_iff_of_pos_left, div_pos_iff_of_pos_right, toReal_pos_iff]
+        rw [depth_pos_iff_mem hO.1, depth_lt_top_iff_ne_univ]; exact ⟨mx, hO.2⟩
+      obtain ⟨i, mi, hi⟩ : ∃ i ∈ U,
+          ¬Disjoint (ball x ((depth O x).toReal / 6)) (ball i ((depth O i).toReal / 6)) := by
+        by_contra! h; apply absurd maxU; simp_rw [not_maximal_iff maxU.1]
+        exact ⟨insert x U, ⟨insert_subset mx maxU.1.1, maxU.1.2.insert_of_notMem mxU h⟩,
+          ssubset_insert mxU⟩
+      use i, mi, depth_bound_1 hO.2 hi
+  · rw [← depth_lt_iff_not_disjoint, ← mul_comm_div, ENNReal.ofReal_mul (by norm_num),
+      ENNReal.ofReal_toReal (depth_lt_top_iff_ne_univ.mpr hO.2).ne]
+    nth_rw 1 [← one_mul (depth O _)]
+    have dpos := (depth_pos_iff_mem hO.1).mpr (maxU.1.1 mc)
+    have dlt := (depth_lt_top_iff_ne_univ (x := c)).mpr hO.2
+    exact ENNReal.mul_lt_mul_right' dpos.ne' dlt.ne (by norm_num)
+  · exact ball_covering_bounded_intersection hO countU maxU.1.2 mx
+
+/-- Lemma 10.2.4. -/
+theorem ball_covering (ha : 4 ≤ a) {O : Set X} (hO : IsOpen O ∧ O ≠ univ) :
+    ∃ (c : ℕ → X) (r : ℕ → ℝ), (univ.PairwiseDisjoint fun i ↦ ball (c i) (r i)) ∧
+      ⋃ i, ball (c i) (3 * r i) = O ∧ (∀ i, 0 < r i → ¬Disjoint (ball (c i) (7 * r i)) Oᶜ) ∧
+      ∀ x ∈ O, {i | x ∈ ball (c i) (3 * r i)}.encard ≤ (2 ^ (6 * a) : ℕ) := by
   sorry
 
+#exit
+
 end Depth
+
+variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
 
 /-! ### Lemma 10.2.5
 
@@ -177,28 +344,27 @@ abbrev czBall7 (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : Set X :=
   ball (czCenter ha hX i) (7 * czRadius ha hX i)
 
 lemma czBall_pairwiseDisjoint (ha : 4 ≤ a) {hX : GeneralCase f α} :
-    univ.PairwiseDisjoint fun i ↦ closedBall (czCenter ha hX i) (czRadius ha hX i) :=
+    univ.PairwiseDisjoint fun i ↦ ball (czCenter ha hX i) (czRadius ha hX i) :=
   ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.1
 
 lemma iUnion_czBall3 (ha : 4 ≤ a) {hX : GeneralCase f α} :
     ⋃ i, czBall3 ha hX i = globalMaximalFunction volume 1 f ⁻¹' Ioi α :=
   ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.1
 
-lemma not_disjoint_czBall7 (ha : 4 ≤ a) {hX : GeneralCase f α} {i : ℕ} :
-    ¬ Disjoint (czBall7 ha hX i) (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ :=
-  ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.1 i
+lemma not_disjoint_czBall7 (ha : 4 ≤ a) {hX : GeneralCase f α} {i : ℕ} (hi : 0 < czRadius ha hX i) :
+    ¬Disjoint (czBall7 ha hX i) (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ :=
+  ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.1 i hi
 
 /-- Part of Lemma 10.2.5 (general case). -/
-lemma cardinalMk_czBall3_le (ha : 4 ≤ a) {hX : GeneralCase f α}
+lemma encard_czBall3_le (ha : 4 ≤ a) {hX : GeneralCase f α}
     {y : X} (hy : α < globalMaximalFunction volume 1 f y) :
-    Cardinal.mk { i | y ∈ czBall3 ha hX i} ≤ (2 ^ (6 * a) : ℕ) :=
+    {i | y ∈ czBall3 ha hX i}.encard ≤ (2 ^ (6 * a) : ℕ) :=
   ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.2 y hy
 
 lemma mem_czBall3_finite (ha : 4 ≤ a) {hX : GeneralCase f α} {y : X}
     (hy : α < globalMaximalFunction volume 1 f y) :
-    { i | y ∈ czBall3 ha hX i}.Finite := by
-  rw [← Cardinal.lt_aleph0_iff_set_finite]
-  exact lt_of_le_of_lt (cardinalMk_czBall3_le ha hy) (Cardinal.nat_lt_aleph0 _)
+    {i | y ∈ czBall3 ha hX i}.Finite :=
+  finite_of_encard_le_coe (encard_czBall3_le ha hy)
 
 /-- `Q_i` in the proof of Lemma 10.2.5 (general case). -/
 def czPartition (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : Set X :=
@@ -229,7 +395,7 @@ lemma czBall_subset_czPartition (ha : 4 ≤ a) {hX : GeneralCase f α} {i : ℕ}
       have := pairwiseDisjoint_iff.mp <| czBall_pairwiseDisjoint ha (hX := hX)
       simp only [mem_univ, forall_const] at this
       have := (disjoint_or_nonempty_inter _ _).resolve_right <| (@this i x).mt (by omega)
-      exact le_of_not_ge <| mem_closedBall.mpr.mt <| disjoint_left.mp this hr.le
+      exact not_lt.mp <| mem_ball.mpr.mt <| disjoint_left.mp this hr
 
 lemma czPartition_subset_czBall3 (ha : 4 ≤ a) {hX : GeneralCase f α} {i : ℕ} :
     czPartition ha hX i ⊆ czBall3 ha hX i := by
