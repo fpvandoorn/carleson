@@ -1762,7 +1762,7 @@ def grid_existence : GridStructure X D κ S o where
         simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
         exact measure_ball_lt_top
       apply le_mul_of_one_le_left (measureReal_nonneg)
-      have : 1 ≤ (t:ℝ) ^κ := Real.one_le_rpow (le_of_not_lt ht') κ_nonneg
+      have : 1 ≤ (t:ℝ) ^κ := Real.one_le_rpow (le_of_not_gt ht') κ_nonneg
       linarith
   coeGrid_measurable {i} := I3_measurableSet i.hk i.y
 

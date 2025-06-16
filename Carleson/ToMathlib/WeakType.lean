@@ -260,7 +260,7 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) :
   by_cases hC_zero : C = 0
   · simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_neg'', C] at hC_zero
     specialize hC_zero 1
-    simp only [one_ne_zero, ENNReal.coe_one, toReal_nonneg.not_lt, and_false, or_false,
+    simp only [one_ne_zero, ENNReal.coe_one, toReal_nonneg.not_gt, and_false, or_false,
       false_or] at hC_zero
     exact measure_mono_null (setOf_subset_setOf.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
   by_contra h
@@ -283,7 +283,7 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) :
         ENNReal.inv_div (Or.inr ofNat_ne_top) (Or.inr (NeZero.ne' 2).symm)]
   have h6 : μ A = 0 := by
     convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top (rpow_ne_top_of_nonneg
-      toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_lt
+      toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_gt
     tauto
   exact h h6
 
@@ -306,7 +306,7 @@ lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ 
   refine rpow_le_rpow ?_ p0'
   refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm.pow_const p) (ofNNReal t ^ p)
   gcongr
-  exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
+  exact fun x ↦ le_of_lt x
 
 lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
     wnorm f p μ ≤ eLpNorm f p μ := by
@@ -775,7 +775,7 @@ lemma eLpNorm_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} 
         ENNReal.ofReal (t ^ (p - 1)) ) ^ p⁻¹ := by
   unfold eLpNorm
   split_ifs with sgn_p sz_p
-  · exact False.elim (not_le_of_lt hp (ofReal_eq_zero.mp sgn_p))
+  · exact False.elim (not_le_of_gt hp (ofReal_eq_zero.mp sgn_p))
   · exact False.elim (coe_ne_top sz_p)
   · unfold eLpNorm'
     rw [toReal_ofReal (le_of_lt hp), one_div]
