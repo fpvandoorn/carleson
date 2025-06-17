@@ -265,7 +265,7 @@ lemma van_der_Corput {a b : ℝ} (hab : a ≤ b) {n : ℤ} {ϕ : ℝ → ℂ} {B
             gcongr
             rwa [← div_le_iff₀' (Int.cast_pos.mpr n_pos)]
           _ = (b - a) * (2 * π) * n := by ring
-      · exact add_pos zero_lt_one (mul_pos (Int.cast_pos.mpr n_pos) (gt_of_ge_of_gt h pi_div_n_pos))
+      · exact add_pos zero_lt_one (mul_pos (Int.cast_pos.mpr n_pos) (lt_of_lt_of_le pi_div_n_pos h))
     _ = 2 * π * (b - a) * (B + K * (b - a) / 2) * (1 + |n| * (b - a))⁻¹ := by
       rw [_root_.abs_of_nonneg n_pos.le]
       ring

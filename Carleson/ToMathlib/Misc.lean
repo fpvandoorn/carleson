@@ -165,7 +165,7 @@ protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : Measurable
 lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc : 0 ≤ c) :
     ∫⁻ t in Ioc (a * c) (b * c), f t =
     ∑ l ∈ Finset.Ico a b, ∫⁻ t in Ioc (l * c) ((l + 1 : ℕ) * c), f t := by
-  rcases lt_or_le b a with h | h
+  rcases lt_or_ge b a with h | h
   · rw [Finset.Ico_eq_empty (by omega), Ioc_eq_empty (by rw [not_lt]; gcongr),
       setLIntegral_empty, Finset.sum_empty]
   induction b, h using Nat.le_induction with
@@ -458,7 +458,7 @@ lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
 end Set.Finite
 
 lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
-  rcases lt_or_le x 0 with h | h
+  rcases lt_or_ge x 0 with h | h
   · exact h.trans (rpow_pos_of_pos zero_lt_two x)
   · calc
       _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
