@@ -14,7 +14,7 @@ attribute [simp] ofReal_of_nonpos
 -- protect ENNReal.mul_le_mul_left
 
 theorem ofReal_inv_le {x : ℝ} : ENNReal.ofReal x⁻¹ ≤ (ENNReal.ofReal x)⁻¹ := by
-  obtain hx|hx := lt_or_le 0 x <;> simp [ofReal_inv_of_pos, hx]
+  obtain hx|hx := lt_or_ge 0 x <;> simp [ofReal_inv_of_pos, hx]
 
 theorem ofReal_div_le {x y : ℝ} (hy : 0 ≤ y) :
     ENNReal.ofReal (x / y) ≤ ENNReal.ofReal x / ENNReal.ofReal y := by

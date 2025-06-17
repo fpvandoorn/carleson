@@ -437,7 +437,7 @@ lemma iUnion_L0' : ⋃ (l < n), 𝔏₀' (X := X) k n l = 𝔏₀ k n := by
   classical
   refine iUnion_lt_minLayer_iff_bounded_series.mpr fun p ↦ ?_
   suffices ¬∃ s : LTSeries (𝔏₀ (X := X) k n), s.length = n by
-    rcases lt_or_le p.length n with c | c
+    rcases lt_or_ge p.length n with c | c
     · exact c
     · exact absurd ⟨p.take ⟨n, by omega⟩, by rw [RelSeries.take_length]⟩ this
   by_contra h; obtain ⟨s, hs⟩ := h; let sl := s.last; have dsl := sl.2.1.2.1
@@ -890,15 +890,20 @@ lemma lintegral_enorm_carlesonSum_le_of_isAntichain_subset_ℭ
     · simp
   _ = 2 ^ ((4 * a + 1) * (q - 1) / (8 * ↑a ^ 4)) * 2 ^ ((2 * a + 5) * (q⁻¹ - 2⁻¹)) *
       (volume G ^ (1 - q⁻¹) * (volume F ^ q⁻¹ * 2 ^ (- ((q - 1) / (8 * ↑a ^ 4) * n)))) := by
-    have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
-    have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
-      congr 1
-      simp only [sub_sub_eq_add_sub, sub_left_inj]
-      norm_num
-    rw [IF, IG, ENNReal.rpow_sub (2⁻¹) _ ProofData.volume_G_pos.ne' volume_G_ne_top,
-      ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
-      ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul]
-    ring_nf
+    rcases eq_or_ne (volume G) 0 with vG | vG
+    · have : 0 < 1 - q⁻¹ := by rw [sub_pos, inv_lt_one_iff₀]; exact .inr (one_lt_q X)
+      rw [vG, ENNReal.zero_rpow_of_pos (show 0 < (1 / 2 : ℝ) by positivity),
+        ENNReal.zero_rpow_of_pos this]
+      simp only [zero_mul, mul_zero]
+    · have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
+      have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
+        congr 1
+        simp only [sub_sub_eq_add_sub, sub_left_inj]
+        norm_num
+      rw [IF, IG, ENNReal.rpow_sub (2⁻¹) _ vG volume_G_ne_top,
+        ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
+        ENNReal.div_eq_inv_mul, ENNReal.div_eq_inv_mul]
+      ring_nf
   _ ≤ 2 ^ ((2 : ℝ)⁻¹ + (a + 5/2)) *
       (volume G ^ (1 - q⁻¹) * (volume F ^ q⁻¹ * 2 ^ (- ((q - 1) / (8 * ↑a ^ 4) * n)))) := by
     rw [← ENNReal.rpow_add _ _ (NeZero.ne 2) ENNReal.ofNat_ne_top]

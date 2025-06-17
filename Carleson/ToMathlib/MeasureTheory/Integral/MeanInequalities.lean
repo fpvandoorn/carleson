@@ -128,12 +128,12 @@ private lemma eLpNorm_eq_eLpNorm_rpow (h : G → E) {r e : ℝ} (r0 : 0 < r) (e0
     eLpNorm h (ENNReal.ofReal e) μ ^ ((r - e) / r) := by
   have er_pos : 0 < e * r := _root_.mul_pos e0 r0
   by_cases exp_zero : 0 = r - e
-  · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_le, eLpNormEssSup_const _ μ0]
+  · simp [eLpNorm, eLpNorm', ← exp_zero, er_pos.not_ge, eLpNormEssSup_const _ μ0]
   have r_sub_e_pos : 0 < r - e := lt_of_le_of_ne re0 exp_zero
   have lt_top : ENNReal.ofReal (e * r) / ENNReal.ofReal (r - e) < ∞ :=
-    div_lt_top ofReal_ne_top <| (not_iff_not.mpr ofReal_eq_zero).mpr r_sub_e_pos.not_le
+    div_lt_top ofReal_ne_top <| (not_iff_not.mpr ofReal_eq_zero).mpr r_sub_e_pos.not_ge
   simp only [eLpNorm, eLpNorm', reduceIte, div_eq_zero_iff, ofReal_eq_zero, ofReal_ne_top,
-    lt_top.ne, er_pos.not_le, e0.not_le, or_self, enorm_eq_self, ← rpow_mul]
+    lt_top.ne, er_pos.not_ge, e0.not_ge, or_self, enorm_eq_self, ← rpow_mul]
   congr
   · ext; congr; field_simp; ring
   · field_simp
@@ -347,7 +347,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
       · field_simp
       · exact ENNReal.rpow_ne_top_of_nonneg r0.le ofReal_ne_top
       · apply AEMeasurable.const_mul
-        simpa [eLpNorm, eLpNorm', r0.not_le, r0.ne.symm, r0.le] using hfg.lintegral_prod_right'
+        simpa [eLpNorm, eLpNorm', r0.not_ge, r0.ne.symm, r0.le] using hfg.lintegral_prod_right'
     _ = _ := by
       have (a b : ℝ≥0∞) : a ^ r * b ^ r = (a ^ p * b ^ q) * (a ^ (r - p) * b ^ (r - q)) := calc
         _ = (a ^ p * a ^ (r - p)) * (b ^ q * b ^ (r - q)) := by
@@ -360,7 +360,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
       congr
       calc
         _ = ∫⁻ x, ((∫⁻ y, ((‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ^ r⁻¹) ^ r ∂μ) ^ r⁻¹) ^ r ∂μ := by
-          simp [eLpNorm, eLpNorm', r0.not_le, ENNReal.toReal_ofReal r0.le]
+          simp [eLpNorm, eLpNorm', r0.not_ge, ENNReal.toReal_ofReal r0.le]
         _ = ∫⁻ x, (∫⁻ y, (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ∂μ) ∂μ := by
           simp_rw [← ENNReal.rpow_mul, inv_mul_cancel₀ r0.ne.symm, ENNReal.rpow_one]
         _ = ∫⁻ y, (∫⁻ x, (‖f y‖ₑ ^ p * ‖g (x - y)‖ₑ ^ q) ∂μ) ∂μ :=
@@ -371,7 +371,7 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
             lintegral_sub_right_eq_self (‖g ·‖ₑ ^ q) _]
         _ = eLpNorm f (ENNReal.ofReal p) μ ^ p * eLpNorm g (ENNReal.ofReal q) μ ^ q := by
           simp [eLpNorm, eLpNorm', ← ENNReal.rpow_mul, inv_mul_cancel₀,
-            p0.not_le, q0.not_le, p0.le, q0.le, p0.ne.symm, q0.ne.symm]
+            p0.not_ge, q0.not_ge, p0.le, q0.le, p0.ne.symm, q0.ne.symm]
 
 theorem eLpNorm_convolution_le_ofReal [MeasurableSpace E] [OpensMeasurableSpace E]
     [MeasurableSpace E'] [OpensMeasurableSpace E'] {p q r : ℝ}
@@ -422,7 +422,7 @@ private theorem eLpNorm_convolution_le_of_norm_le_mul_aux {p q r : ℝ≥0∞}
   refine eLpNorm_convolution_le_ofReal_aux ?_ ?_ ?_ ?_ hf hg hg'' c hL; rotate_right
   · simp_rw [← ENNReal.toReal_one, ← ENNReal.toReal_inv]
     rw [← ENNReal.toReal_add _ ENNReal.one_ne_top, ← ENNReal.toReal_add, hpqr]
-    all_goals exact ENNReal.inv_ne_top.mpr (fun h ↦ (h ▸ one_pos).not_le (by assumption))
+    all_goals exact ENNReal.inv_ne_top.mpr (fun h ↦ (h ▸ one_pos).not_ge (by assumption))
   all_goals rwa [← ENNReal.toReal_one, ENNReal.toReal_le_toReal ENNReal.one_ne_top (by assumption)]
 
 variable (L)
