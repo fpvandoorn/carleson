@@ -1040,6 +1040,20 @@ lemma value_lintegral_res₁ {t γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 
   rw [← ENNReal.ofReal_mul, ← mul_div_right_comm, Real.mul_rpow, mul_assoc, ← Real.rpow_mul,
       ← Real.rpow_add] <;> positivity
 
+-- Lemma 6.10 in Folland
+lemma MemLp_order_complete {E₁ : Type*} [ENorm E₁] [MeasurableSpace E₁] [TopologicalSpace E₁] [BorelSpace E₁]
+    {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Ioo p r) -- should be Ioo
+    (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
+  have h : MemLp (trnc ⊤ f 1) q μ := trunc_Lp_Lq_higher ⟨hp, hr'.1⟩ hf
+  have h' : MemLp (trnc ⊥ f 1) q μ := by
+    by_cases hr : r = ∞
+    · -- hf' is obviously true, since trnc ⊥ has norm at most 1
+      sorry
+    exact truncCompl_Lp_Lq_lower hr ⟨hp.trans hr'.1, hr'.2⟩ (by norm_num) hf'
+  have : f = (trnc ⊤ f 1) +  (trnc ⊥ f 1) := (add_eq_of_eq_sub' rfl).symm
+  rw [this]
+  exact MemLp.add h h'
+
 end MeasureTheory
 
 end

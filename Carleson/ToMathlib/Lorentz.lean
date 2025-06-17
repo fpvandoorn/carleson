@@ -3,10 +3,12 @@ import Mathlib.MeasureTheory.Integral.Layercake
 import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.Analysis.SpecialFunctions.Pow.Integral
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
+import Carleson.ToMathlib.RealInterpolation.Misc
 
 
 noncomputable section
@@ -171,8 +173,22 @@ variable [TopologicalSpace ε] [ContinuousENorm ε]
 def MemLorentz (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : Prop :=
   AEStronglyMeasurable f μ ∧ eLorentzNorm f p r μ < ∞
 
+
+lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} {m0 : MeasurableSpace α}
+  {p q : ENNReal} {μ : Measure α} [NormedAddCommGroup F] {f : α → F} {C : ℝ}
+  (hp : 0 < p) (p_le_q : p ≤ q) :
+    eLpNorm f q μ ≤ eLpNorm f p μ ^ 1 * eLpNormEssSup f μ ^ 1 := by
+  rw [eLpNorm_eq_lintegral_rpow_enorm sorry sorry]
+  /-calc _
+    _ = 1 := by
+      sorry
+  -/
+  sorry
+
+--instance ENNReal.normedAddCommGroup : NormedAddCommGroup ℝ≥0∞ := ⟨fun _r _y => rfl⟩
+
 -- TODO: could maybe be strengthened to ↔
-lemma MemLorentz_nested {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
+lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
   (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) (hf : MemLorentz f p r₁ μ) :
     MemLorentz f p r₂ μ := by
   unfold MemLorentz at *
@@ -202,18 +218,45 @@ lemma MemLorentz_nested {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure
   · --Now the only interesting case
     unfold eLorentzNorm' at *
     rw [ENNReal.mul_lt_top_iff] at *
-    rcases norm_f with ⟨_, hp⟩ | p_zero | norm_zero
+    rcases norm_f with ⟨_, norm_lt_top⟩ | p_zero | norm_zero
     · -- Main case
       --apply ENNReal.mul_lt_top (ENNReal.rpow_lt_top_of_nonneg (by simp) h₁)
+      left
+      use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
+      --  Idea: First prove that by norm_lt_top, this function is bounded; then this implies a nesting of Lp spaces in this way
+      have memLp_r₁: MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) r₁ (volume.withDensity fun t ↦ (↑t)⁻¹) := by
+        constructor
+        · sorry
+        exact norm_lt_top
+      have memLp_top : MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) ⊤ (volume.withDensity fun t ↦ (↑t)⁻¹) := by
+        constructor
+        · sorry
+        /-hardest part here-/
+        sorry
+      --TODO: Need this without NormedAddCommMonoid
+      --have := @MeasureTheory.MemLp_order_complete _ _ _ _ _ _ _ _ ENNReal.measurableSpace ENNReal.borelSpace _ r₁_pos _ memLp_r₁ memLp_top
+      --apply (MeasureTheory.MemLp_order_complete r₁_pos _ memLp_r₁ memLp_top).2
       sorry
+      /-
+      wlog r₂_top : r₂ = ∞ generalizing r₂
+      · have := this (@le_top _ _ _ r₁) rfl
+
+        sorry
+
+      rw [r₂_top]
+      -/
+
+
     · exfalso
       rw [ENNReal.rpow_eq_zero_iff] at p_zero
       rcases p_zero with ⟨p_zero, _⟩ | ⟨p_top, _⟩
       · exact h₀ p_zero
       · exact h₁ p_top
     · right; right
-      rw [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) r₁_pos.ne.symm] at norm_zero
-      rwa [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) (r₁_pos.trans_le r₁_le_r₂).ne.symm]
+      --TODO: comment in again
+      --rw [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) r₁_pos.ne.symm] at norm_zero
+      --rwa [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) (r₁_pos.trans_le r₁_le_r₂).ne.symm]
+      sorry
 
 
 
