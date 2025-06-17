@@ -970,9 +970,8 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
     rw [iSup_le_iff]; intro x'
     rw [iSup_le_iff]; intro hx'
   )
-  · have : ∀ (R' : ℝ), R' ∈ Ioo R₁ R₂ → ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
+  · have (R' : ℝ) (hR' : R' ∈ Ioo R₁ R₂) : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R', K x' y * f y‖ₑ + sup := by
-      intro R' hR'
       have : Annulus.oo x' R₁ R₂ = Annulus.oo x' R₁ R' ∪ Annulus.co x' R' R₂ := by
         exact Annulus.oo_union_co hR'.1 hR'.2.le |>.symm
       rw [this, setIntegral_union_2 ?dj (by measurability) ?int]
@@ -990,7 +989,7 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
       apply le_trans ?_ <| le_iSup _ (i := R₂)
       apply le_trans ?_ <| le_iSup _ (i := hR'.2)
       apply le_trans ?_ <| le_iSup _ (i := x')
-      apply le_trans (by rfl) <| le_iSup _ (i := hx'.trans hR'.1)
+      rw [iSup_pos <| hx'.trans hR'.1]
     -- apply continuity
     have le_R1 : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + sup := by
@@ -1000,9 +999,8 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
       · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
         exact small_annulus_right ha hf |>.continuousWithinAt.enorm
     simpa using le_R1
-  · have : ∀ (R' : ℝ), R' ∈ Ioo (dist x x') R₁ → ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
+  · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x x') R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
-      intro R' hR'
       have hR'pos : 0 < R' := by linarith [dist_nonneg (x := x) (y := x'), hR'.1]
       have : ∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y = (∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y) +
           (∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y) - ∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y := by
@@ -1017,7 +1015,7 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
         apply IntegrableOn.mono_set <| czoperator_welldefined hf hR'pos x'
         rw [← Annulus.ci_eq]
         apply Annulus.oo_subset_ci (by rfl)
-      apply le_trans <| enorm_sub_le
+      apply le_trans enorm_sub_le
       rw [add_comm]
       gcongr
       apply le_trans ?_ <| le_iSup _ (i := R')
@@ -1025,7 +1023,7 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
       apply le_trans ?_ <| le_iSup _ (i := R₂)
       apply le_trans ?_ <| le_iSup _ (i := hR'.2.trans hR₂)
       apply le_trans ?_ <| le_iSup _ (i := x')
-      apply le_trans (by rfl) <| le_iSup _ (i := hR'.1)
+      rw [iSup_pos hR'.1]
     -- apply continuity
     have le_R1 : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
