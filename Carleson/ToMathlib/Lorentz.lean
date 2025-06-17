@@ -90,7 +90,7 @@ lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Me
 -/
 
 @[simp]
-lemma eLorentzNorm_top_top {E : Type*} [NormedAddCommGroup E]
+lemma eLorentzNorm_top_top {E : Type*} [ENorm E] --[NormedAddCommGroup E]
     {μ : Measure α} {f : α → E} :
     eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
   unfold eLorentzNorm
@@ -151,7 +151,7 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] 
 
 
 
-lemma eLorentzNorm_eq_wnorm {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
+lemma eLorentzNorm_eq_wnorm {E : Type*} [ENorm E] --[NormedAddCommGroup E]
     {f : α → E} {p : ℝ≥0∞} (hp : p ≠ 0) {μ : Measure α} : eLorentzNorm f p ∞ μ = wnorm f p μ := by
   by_cases p_eq_top : p = ∞
   · rw [p_eq_top]
