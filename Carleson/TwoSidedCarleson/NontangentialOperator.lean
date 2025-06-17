@@ -943,16 +943,14 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
 
 /-- Part of Lemma 10.1.7, reformulated. -/
 theorem small_annulus_right (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₁ : ℝ} :
-    Continuous (fun R₂ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
+    Continuous (fun R₂ ↦ ∫ y in Annulus.oo x' R₁ R₂, K x' y * f y) := by
   sorry
 
 /-- Part of Lemma 10.1.7, reformulated -/
 theorem small_annulus_left (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
     {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₂ : ℝ} :
-    Continuous (fun R₁ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
+    Continuous (fun R₁ ↦ ∫ y in Annulus.oo x' R₁ R₂, K x' y * f y) := by
   sorry
 
 /-- Lemma 10.1.8. -/
@@ -975,15 +973,25 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
   · have : ∀ (R' : ℝ), R' ∈ Ioo R₁ R₂ → ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R', K x' y * f y‖ₑ + sup := by
       sorry
-    unfold sup at this
-    --apply continuity in R'
-    sorry
-  · rw [← nontangentialOperator]
-    have : ∀ (R' : ℝ), R' ∈ Ioo 0 R₁ → ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
+    have le_R1 : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + sup := by
+      refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
+      · simp [closure_Ioo hR₂.ne, hR₂.le]
+      · apply continuousWithinAt_const
+      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+        exact small_annulus_right ha hf |>.continuousWithinAt.enorm
+    simpa using le_R1
+  · have : ∀ (R' : ℝ), R' ∈ Ioo 0 R₁ → ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
       sorry
-    -- apply continuity in R'
-    sorry
+    have le_R1 : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
+      refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
+      · simp [closure_Ioo hR₁.ne, hR₁.le]
+      · apply continuousWithinAt_const
+      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+        exact small_annulus_left ha hf |>.continuousWithinAt.enorm
+    simpa using le_R1
 
 /-- The constant used in `nontangential_from_simple`. -/
 irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
