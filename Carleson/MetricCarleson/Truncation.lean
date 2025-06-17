@@ -36,23 +36,16 @@ theorem finitary_carleson_step (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q'
     ext y; symm; rw [ite_eq_left_iff]; intro ny
     specialize nf y; simp_rw [indicator_of_notMem ny, norm_le_zero_iff] at nf
     simp [nf]
-  rename_i msx kpd cancel
-  haveI PD : ProofData a q K σ₁ σ₂ F G :=
-    ⟨cancel, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, hq⟩
-  have : kpd = PD.toKernelProofData := by
-    sorry
+  letI PD : ProofData a q K σ₁ σ₂ F G :=
+    ⟨‹_›, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, hq⟩
   obtain ⟨G₁, mG₁, vG₁, hG₁⟩ := finitary_carleson X
-  refine ⟨G ∩ G₁, inter_subset_left, bG.subset inter_subset_left, mG.inter (by convert mG₁), ?_, ?_⟩
-  · refine le_trans ?_ (by convert vG₁); gcongr
-    convert measure_mono (μ := volume) (@inter_subset_right _ G G₁) <;> exact this.symm
+  refine ⟨G ∩ G₁, inter_subset_left, bG.subset inter_subset_left, mG.inter mG₁, ?_, ?_⟩
+  · refine le_trans ?_ vG₁; gcongr; exact inter_subset_right
   · simp_rw [diff_self_inter, T_lin]
-    specialize hG₁ f (by convert mf; exact this.symm) nf
+    specialize hG₁ f mf nf
     simp_rw [toFinset_Icc, show nnq = q by rfl] at hG₁
-    convert hG₁ using 1
-    · congr! with _ x s ms _ y
-      sorry -- ⇑(Q x) = ⇑(ProofData.Q x)
-    · congr; rw [eq_sub_iff_add_eq]; norm_cast
-      exact hqq'.symm.inv_add_inv_eq_one
+    convert hG₁ using 4; rw [eq_sub_iff_add_eq]; norm_cast
+    exact hqq'.symm.inv_add_inv_eq_one
 
 /-- The constant used in `linearized_truncation`.
 Has value `2 ^ (445 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
@@ -65,14 +58,6 @@ lemma linearized_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (rσ₁ : (range σ₁).Finite) (rσ₂ : (range σ₂).Finite) (lσ : σ₁ ≤ σ₂) :
     ∫⁻ x in G, ‖T_lin Q σ₁ σ₂ f x‖ₑ ≤
     C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
-  rcases eq_zero_or_pos (volume G) with vG | vG
-  · rw [setLIntegral_measure_zero _ _ vG]; exact zero_le _
-  rcases eq_zero_or_pos (volume F) with vF | vF
-  · sorry
-  haveI PD : ProofData a q K σ₁ σ₂ F G :=
-    ⟨‹_›, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, hq⟩
-  obtain ⟨G₁, mG₁, vG₁, hG₁⟩ := finitary_carleson X
-  specialize hG₁ f (by convert mf; sorry) nf -- PD.toKernelProofData = inst✝¹
   sorry
 
 /-- The operator T_{s₁, s₂} introduced in Lemma 3.0.3. -/
