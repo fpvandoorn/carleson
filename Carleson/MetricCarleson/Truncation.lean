@@ -49,7 +49,8 @@ theorem finitary_carleson_step (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q'
     specialize hG₁ f (by convert mf; exact this.symm) nf
     simp_rw [toFinset_Icc, show nnq = q by rfl] at hG₁
     convert hG₁ using 1
-    · rfl
+    · congr! with _ x s ms _ y
+      sorry -- ⇑(Q x) = ⇑(ProofData.Q x)
     · congr; rw [eq_sub_iff_add_eq]; norm_cast
       exact hqq'.symm.inv_add_inv_eq_one
 
