@@ -7588,7 +7588,7 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
     We have
     \begin{equation}
         \label{eq-bset-length-sum}
-        \sum_j \mu(B_j^*)\leq \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y)
+        \sum_j \mu(B_j^*)\leq \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y)
     \end{equation}
     and
     \begin{equation}
@@ -7598,6 +7598,7 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$.
 Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$. We apply \Cref{ball-covering} with $O=E_\alpha$ to obtain the family $B_j, j\in J,$. Without loss of generality, we can assume $J=\N$. Define inductively
 \begin{equation}
@@ -7651,7 +7652,7 @@ to obtain \eqref{eq-bj-L1}.
 Further, summing up \eqref{eq-bj-int} in $j$ yields \eqref{eq-b-L1}.
 At last, we estimate with \Cref{maximal-theorem}
 \begin{equation}
-    \sum_j \mu(B_j^*) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y),
+    \sum_j \mu(B_j^*) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y),
 \end{equation}
 proving \eqref{eq-bset-length-sum}.
 
