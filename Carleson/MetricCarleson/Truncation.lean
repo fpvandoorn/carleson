@@ -20,6 +20,8 @@ variable (q q' F f σ₁ σ₂) in
 /-- Convenience structure for the parameters that stay constant throughout the recursive calls to
 finitary Carleson in the proof of Lemma 3.0.4. -/
 structure CP304 where
+  /-- `Q` is the only non-`Prop` field of `CP304`. -/
+  Q : SimpleFunc X (Θ X)
   hq : q ∈ Ioc 1 2
   hqq' : q.HolderConjugate q'
   bF : IsBounded F
@@ -32,13 +34,12 @@ structure CP304 where
   rσ₂ : (range σ₂).Finite
   lσ : σ₁ ≤ σ₂
 
-variable (Q) in
 theorem finitary_carleson_step
     (CP : CP304 q q' F f σ₁ σ₂) (bG : IsBounded G) (mG : MeasurableSet G) :
     ∃ G' ⊆ G, IsBounded G' ∧ MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
-    ∫⁻ x in G \ G', ‖T_lin Q σ₁ σ₂ f x‖ₑ ≤
+    ∫⁻ x in G \ G', ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ ≤
     C2_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
-  obtain ⟨hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩ := CP
+  obtain ⟨Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩ := CP
   rcases eq_zero_or_pos (volume G) with vG | vG
   · use ∅, empty_subset _, isBounded_empty, MeasurableSet.empty
     simp only [measure_empty, mul_zero, zero_le, diff_empty, true_and]
@@ -65,39 +66,80 @@ theorem finitary_carleson_step
 variable (q q' F f σ₁ σ₂) in
 /-- All the parameters needed to apply the recursion of Lemma 3.0.4. -/
 structure P304 where
-  Q : SimpleFunc X (Θ X)
+  /-- `CP` holds all constant parameters. -/
   CP : CP304 q q' F f σ₁ σ₂
+  /-- `G` is the set being recursed on. -/
   G : Set X
   bG : IsBounded G
   mG : MeasurableSet G
 
-namespace P304
-
 /-- Construct `G_{n+1}` given `G_n`. -/
-def succ (P : P304 q q' F f σ₁ σ₂) : P304 q q' F f σ₁ σ₂ where
-  Q := P.Q
+def P304.succ (P : P304 q q' F f σ₁ σ₂) : P304 q q' F f σ₁ σ₂ where
   CP := P.CP
-  G := (finitary_carleson_step P.Q P.CP P.bG P.mG).choose
-  bG := (finitary_carleson_step P.Q P.CP P.bG P.mG).choose_spec.2.1
-  mG := (finitary_carleson_step P.Q P.CP P.bG P.mG).choose_spec.2.2.1
+  G := (finitary_carleson_step P.CP P.bG P.mG).choose
+  bG := (finitary_carleson_step P.CP P.bG P.mG).choose_spec.2.1
+  mG := (finitary_carleson_step P.CP P.bG P.mG).choose_spec.2.2.1
 
-variable (Q) (CP : CP304 q q' F f σ₁ σ₂) (bG : IsBounded G) (mG : MeasurableSet G)
+variable (CP : CP304 q q' F f σ₁ σ₂) (bG : IsBounded G) (mG : MeasurableSet G)
 
-def slice (n : ℕ) : P304 q q' F f σ₁ σ₂ := succ^[n] ⟨Q, CP, G, bG, mG⟩
+/-- `slice CP bG mG n` contains `G_n` and its associated data. -/
+def slice (n : ℕ) : P304 q q' F f σ₁ σ₂ := P304.succ^[n] ⟨CP, G, bG, mG⟩
 
-variable {Q CP bG mG n}
+variable {CP bG mG n}
 
-lemma slice_subset : (slice Q CP bG mG (n + 1)).G ⊆ (slice Q CP bG mG n).G := by
+@[simp]
+lemma slice_CP : (slice CP bG mG n).CP = CP := by
+  induction n with
+  | zero => simp [slice]
+  | succ n ih => rw [slice] at ih ⊢; rwa [Function.iterate_succ_apply']
+
+lemma slice_G_subset : (slice CP bG mG (n + 1)).G ⊆ (slice CP bG mG n).G := by
   rw [slice, Function.iterate_succ_apply']
-  set P := slice Q CP bG mG n
-  exact (finitary_carleson_step P.Q P.CP P.bG P.mG).choose_spec.1
+  set P := slice CP bG mG n
+  exact (finitary_carleson_step P.CP P.bG P.mG).choose_spec.1
 
-lemma slice_volume : 2 * volume (slice Q CP bG mG (n + 1)).G ≤ volume (slice Q CP bG mG n).G := by
+lemma antitone_slice_G : Antitone fun n ↦ (slice CP bG mG n).G :=
+  antitone_nat_of_succ_le fun _ ↦ slice_G_subset
+
+lemma volume_slice : 2 * volume (slice CP bG mG (n + 1)).G ≤ volume (slice CP bG mG n).G := by
   rw [slice, Function.iterate_succ_apply']
-  set P := slice Q CP bG mG n
-  exact (finitary_carleson_step P.Q P.CP P.bG P.mG).choose_spec.2.2.2.1
+  set P := slice CP bG mG n
+  exact (finitary_carleson_step P.CP P.bG P.mG).choose_spec.2.2.2.1
 
-end P304
+lemma volume_slice_le_inv_two_pow_mul : volume (slice CP bG mG n).G ≤ 2⁻¹ ^ n * volume G := by
+  induction n with
+  | zero => simp [slice]
+  | succ n ih =>
+    replace ih := volume_slice.trans ih
+    rwa [mul_le_iff_le_inv two_ne_zero ofNat_ne_top, ← mul_assoc, ← pow_succ'] at ih
+
+lemma slice_integral_bound :
+    ∫⁻ x in (slice CP bG mG n).G \ (slice CP bG mG (n + 1)).G, ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ ≤
+    C2_0_1 a q * volume (slice CP bG mG n).G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+  set P := slice CP bG mG n
+  convert (finitary_carleson_step P.CP P.bG P.mG).choose_spec.2.2.2.2
+  · rw [slice, Function.iterate_succ_apply']; rfl
+  · simp [P]
+
+/-- The slightly unusual way of writing the integrand is to facilitate applying the
+monotone convergence theorem. -/
+lemma slice_integral_bound_sum :
+    ∫⁻ x, (G \ (slice CP bG mG (n + 1)).G).indicator (‖T_lin CP.Q σ₁ σ₂ f ·‖ₑ) x ≤
+    C2_0_1 a q * (∑ i ∈ Finset.range (n + 1), (2⁻¹ ^ i) ^ (q' : ℝ)⁻¹) *
+    volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+  rw [lintegral_indicator (mG.diff (slice CP bG mG _).mG)]
+  induction n with
+  | zero =>
+    rw [zero_add, Finset.range_one, Finset.sum_singleton, pow_zero, one_rpow, mul_one]
+    convert slice_integral_bound; simp [slice]
+  | succ n ih =>
+    rw [← diff_union_diff_cancel _ slice_G_subset]; swap
+    · exact antitone_slice_G (zero_le _)
+    rw [lintegral_union ((slice CP bG mG _).mG.diff (slice CP bG mG _).mG)]; swap
+    · exact disjoint_of_subset_right diff_subset disjoint_sdiff_left
+    rw [Finset.sum_range_succ, mul_add, add_mul, add_mul]; gcongr
+    rw [mul_assoc _ _ (volume G ^ _), ← ENNReal.mul_rpow_of_nonneg _ _ (by positivity)]
+    apply slice_integral_bound.trans; gcongr; exact volume_slice_le_inv_two_pow_mul
 
 end Recursion
 
@@ -144,7 +186,6 @@ lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   apply div_pos
   · positivity
   · exact pow_pos (tsub_pos_of_lt hq) _
-
 
 lemma R_truncation
     (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
