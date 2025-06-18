@@ -1,5 +1,5 @@
 import Carleson.FinitaryCarleson
-import Carleson.MetricCarleson.Basic
+-- import Carleson.MetricCarleson.Basic
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Bornology Metric Complex
@@ -13,6 +13,32 @@ variable {f : X → ℂ} {s : ℤ} {σ₁ σ₂ : X → ℤ} [IsCancellative X (
 /-- The operator T_{2, σ₁, σ₂} introduced in Lemma 3.0.4. -/
 def T_lin (Q : SimpleFunc X (Θ X)) (σ₁ σ₂ : X → ℤ) (f : X → ℂ) (x : X) : ℂ :=
   ∑ s ∈ Finset.Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)
+
+lemma measurable_T_lin (mσ₁ : Measurable σ₁) (mσ₂ : Measurable σ₂)
+    (rσ₁ : (range σ₁).Finite) (rσ₂ : (range σ₂).Finite) :
+    Measurable (T_lin Q σ₁ σ₂ f ·) := by
+  obtain ⟨lb, hlb⟩ := bddBelow_def.mp rσ₁.bddBelow
+  obtain ⟨ub, hub⟩ := bddAbove_def.mp rσ₂.bddAbove
+  simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hlb hub
+  have rearr : T_lin Q σ₁ σ₂ f = fun x ↦ ∑ s ∈ Finset.Icc lb ub,
+      {x' | s ∈ Icc (σ₁ x') (σ₂ x')}.indicator
+        (fun z ↦ ∫ y, Ks s z y * f y * exp (I * Q z y)) x := by
+    ext x; unfold T_lin
+    calc
+      _ = ∑ s ∈ Finset.Icc (σ₁ x) (σ₂ x), {x' | s ∈ Icc (σ₁ x') (σ₂ x')}.indicator
+          (fun z ↦ ∫ y, Ks s z y * f y * exp (I * Q z y)) x := by
+        congr! with s ms; rw [indicator_of_mem]
+        simpa using ms
+      _ = _ := by
+        refine Finset.sum_subset (Finset.Icc_subset_Icc (hlb x) (hub x)) fun s ms ns ↦ ?_
+        apply indicator_of_notMem; rwa [mem_setOf_eq, mem_Icc, ← Finset.mem_Icc]
+  rw [rearr]
+  refine Finset.measurable_sum _ fun i mi ↦ Measurable.indicator ?_ ?_
+  · sorry
+  · rw [measurableSet_setOf]; apply (measurable_set_mem _).comp
+    apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
+    · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+    · exact mσ₁.prodMk mσ₂
 
 section Recursion
 
@@ -225,7 +251,7 @@ lemma linearized_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     _ = ⨆ n, ∫⁻ x, (G \ (slice CP bG mG (n + 1)).G).indicator (‖T_lin CP.Q σ₁ σ₂ f ·‖ₑ) x := by
       refine lintegral_iSup (fun n ↦ ?_) (fun i j hl ↦ ?_)
       · refine (Measurable.enorm ?_).indicator (mG.diff (slice CP bG mG (n + 1)).mG)
-        sorry
+        exact measurable_T_lin mσ₁ mσ₂ rσ₁ rσ₂
       · exact indicator_le_indicator_of_subset (sdiff_le_sdiff_left (antitone_slice_G (by omega)))
           (zero_le _)
     _ ≤ C2_0_1 a q * (2 ^ 2 / (q - 1) : ℝ≥0) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
