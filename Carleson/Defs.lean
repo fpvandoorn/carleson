@@ -545,7 +545,9 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hr : 0 < r) :
 
 end Iterate
 
-variable [ProofData a q K σ₁ σ₂ F G]
+section MeasQ
+
+variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)}
 
 @[fun_prop]
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
@@ -572,6 +574,10 @@ lemma measurable_Q₁ (x : X) : Measurable (Q x) :=
   let Q' : X → X → ℝ := fun x' y ↦ Q x' y
   have : (fun y ↦ Q' x y) = Q x := rfl
   this ▸ measurable_Q₂.of_uncurry_left
+
+end MeasQ
+
+variable [ProofData a q K σ₁ σ₂ F G]
 
 include a q K σ₁ σ₂ F G
 
