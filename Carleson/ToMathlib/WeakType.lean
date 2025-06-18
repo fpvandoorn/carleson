@@ -755,7 +755,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ)
     ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul', ← mul_assoc,
     ← ofReal_norm_eq_enorm, ofReal_mul, distribution, h2p] at this ⊢
   convert this using 1
-  refine setLIntegral_congr_fun measurableSet_Ioi (Eventually.of_forall fun x hx ↦ ?_)
+  refine setLIntegral_congr_fun measurableSet_Ioi fun x hx ↦ ?_
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
