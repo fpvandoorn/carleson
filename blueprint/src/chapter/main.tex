@@ -1061,13 +1061,12 @@ T_{s_1,s_2} f(x)=
     \leanok
     \lean{linearized_truncation}
     \uses{finitary-Carleson}
-    Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range
-    $[-S,S]$ and $\sigma_1\leq \sigma_2$.
+    Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and $\sigma_1\leq \sigma_2$.
     Then we have
     \begin{equation} \label{Sqlin}
         \int \mathbf{1}_{G}(x)
         \left| {T}_{2,\sigma_1,\sigma_2}f(x)\right|\, d\mu(x)
-        \le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+        \le \frac{2^{471a^3+3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     with
     \begin{equation}\label{middles1}
@@ -1077,29 +1076,25 @@ T_{s_1,s_2} f(x)=
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{linearized-truncation}]
-Fix $\sigma_1$, $\sigma_2$,
-and $\tQ$ as in the lemma.
-Applying \Cref{finitary-Carleson} recursively, we obtain
-a sequence of sets $G_n$ with $G_0=G$ and,
-for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
+Fix $\sigma_1$, $\sigma_2$ and $\tQ$ as in the lemma. Applying \Cref{finitary-Carleson} recursively, we obtain a sequence of sets $G_n$ with $G_0=G$ and, for each $n\ge 0$, $G_{n+1} \subset G_n$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
 \begin{equation*}
     \int \mathbf{1}_{G_{n}\setminus G_{n+1}}(x)
     \left| {T}_{2,\sigma_1,\sigma_2} f(x) \right|\, d\mu(x)
 \end{equation*}
 \begin{equation}
-    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \le \frac{2^{471a^3+1}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 Adding the first $n$ of these inequalities, we obtain by bounding a geometric series
     \begin{equation} \label{Sqcut2}
     \int \mathbf{1}_{G\setminus G_{n}}(x)
 \left| {T}_{2,\sigma_1,\sigma_2}f(x) \right|\, d\mu(x)
-\le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
+\le \frac{2^{471a^3+3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 As the integrand is non-negative and non-decreasing in $n$, we obtain by the monotone convergence theorem
  \begin{equation} \label{Sqcut3}
     \int \mathbf{1}_{G}(x)
 \left| {T}_{2,\sigma_1,\sigma_2}f(x) \right|\, d\mu(x)
-\le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
+\le \frac{2^{471a^3+3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 This completes the proof of \Cref{linearized-truncation}
 and thus \Cref{metric-space-Carleson}.

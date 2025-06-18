@@ -828,9 +828,9 @@ section PseudoMetricSpace
 
 variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma volume_F_lt_top : volume F < ⊤ := (measure_mono F_subset).trans_lt measure_ball_lt_top
+lemma volume_F_lt_top : volume F < ⊤ := isBounded_F.measure_lt_top
 lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
-lemma volume_G_lt_top : volume G < ⊤ := (measure_mono G_subset).trans_lt measure_ball_lt_top
+lemma volume_G_lt_top : volume G < ⊤ := isBounded_G.measure_lt_top
 lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? Defined in ℝ≥0∞ to

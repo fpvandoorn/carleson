@@ -113,6 +113,22 @@ lemma volume_slice_le_inv_two_pow_mul : volume (slice CP bG mG n).G ≤ 2⁻¹ ^
     replace ih := volume_slice.trans ih
     rwa [mul_le_iff_le_inv two_ne_zero ofNat_ne_top, ← mul_assoc, ← pow_succ'] at ih
 
+/-- The sets `G_n` become arbitrarily small. -/
+lemma exists_volume_slice_lt_eps {ε : ℝ≥0∞} (εpos : 0 < ε) :
+    ∃ n, volume (slice CP bG mG (n + 1)).G < ε := by
+  suffices ∃ n, 2⁻¹ ^ (n + 1) * volume G < ε by
+    obtain ⟨n, hn⟩ := this
+    exact ⟨n, volume_slice_le_inv_two_pow_mul.trans_lt hn⟩
+  rcases eq_zero_or_pos (volume G) with vG | vG; · simpa [vG]
+  have vGnt : volume G ≠ ⊤ := bG.measure_lt_top.ne
+  conv =>
+    enter [1, n]
+    rw [← ENNReal.lt_div_iff_mul_lt (.inl vG.ne') (.inl vGnt), pow_succ', ← ENNReal.div_eq_inv_mul,
+      ENNReal.div_lt_iff (.inl two_ne_zero) (.inl ofNat_ne_top)]
+  have εdvn0 : ε / volume G * 2 ≠ 0 :=
+    mul_ne_zero (ENNReal.div_ne_zero.mpr ⟨εpos.ne', vGnt⟩) two_ne_zero
+  exact exists_inv_two_pow_lt εdvn0
+
 lemma slice_integral_bound :
     ∫⁻ x in (slice CP bG mG n).G \ (slice CP bG mG (n + 1)).G, ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ ≤
     C2_0_1 a q * volume (slice CP bG mG n).G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
@@ -143,9 +159,43 @@ lemma slice_integral_bound_sum :
 
 end Recursion
 
-/-- The constant used in `linearized_truncation`.
-Has value `2 ^ (445 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
-def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (445 * a ^ 3) / (q - 1) ^ 6
+lemma sum_le_four_div_q_sub_one (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') {n : ℕ} :
+    ∑ i ∈ Finset.range n, ((2 : ℝ≥0∞)⁻¹ ^ i) ^ (q' : ℝ)⁻¹ ≤ (2 ^ 2 / (q - 1) : ℝ≥0) := by
+  have ltq' : 1 < q' := (NNReal.holderConjugate_iff.mp hqq'.symm).1
+  calc
+    _ = ∑ i ∈ Finset.range n, ((2 : ℝ≥0∞) ^ (-(q' : ℝ)⁻¹)) ^ i := by
+      congr! with i mi
+      simp_rw [← ENNReal.rpow_natCast, ENNReal.inv_rpow, ← ENNReal.rpow_neg, ← ENNReal.rpow_mul]
+      rw [mul_comm]
+    _ ≤ _ := ENNReal.sum_le_tsum _
+    _ = (1 - 2 ^ (-(q' : ℝ)⁻¹))⁻¹ := ENNReal.tsum_geometric _
+    _ ≤ 2 * (ENNReal.ofReal (q' : ℝ)⁻¹)⁻¹ := by
+      refine near_1_geometric_bound ⟨by positivity, ?_⟩
+      norm_cast; rw [inv_le_one_iff₀]; exact .inr ltq'.le
+    _ = ENNReal.ofNNReal (2 * q / (q - 1)) := by
+      rw [ENNReal.ofReal_inv_of_pos (by positivity), inv_inv, ofReal_coe_nnreal,
+        show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_mul]
+      rw [NNReal.holderConjugate_iff_eq_conjExponent hq.1] at hqq'
+      rw [hqq', mul_div_assoc]
+    _ ≤ _ := by rw [sq]; gcongr; exact hq.2
+
+/-- The constant used in `linearized_truncation`. -/
+def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 3) / (q - 1) ^ 6
+
+lemma le_C3_0_4 (hq : q ∈ Ioc 1 2) : C2_0_1 a q * (2 ^ 2 / (q - 1)) ≤ C3_0_4 a q :=
+  calc
+    _ = (2 ^ (471 * a ^ 3) * (q - 1) / (q - 1) ^ 5 + C5_1_3 a q) * (2 ^ 2 / (q - 1)) := by
+      rw [C2_0_1, C2_0_2]; congr; rw [C5_1_2, pow_succ _ 4, mul_div_mul_right]
+      rw [← zero_lt_iff, tsub_pos_iff_lt]; exact hq.1
+    _ ≤ (2 ^ (471 * a ^ 3) * 1 / (q - 1) ^ 5 + 2 ^ (471 * a ^ 3) / (q - 1) ^ 5) *
+        (2 ^ 2 / (q - 1)) := by
+      rw [C5_1_3]; gcongr
+      · rw [tsub_le_iff_left, one_add_one_eq_two]; exact hq.2
+      · exact one_le_two
+      · norm_num
+    _ = _ := by
+      rw [mul_one, ← two_mul, ← mul_div_assoc 2, ← pow_succ', div_mul_div_comm, ← pow_add,
+        ← pow_succ, C3_0_4]
 
 /-- Lemma 3.0.4. -/
 lemma linearized_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
@@ -154,7 +204,34 @@ lemma linearized_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (rσ₁ : (range σ₁).Finite) (rσ₂ : (range σ₂).Finite) (lσ : σ₁ ≤ σ₂) :
     ∫⁻ x in G, ‖T_lin Q σ₁ σ₂ f x‖ₑ ≤
     C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
-  sorry
+  let CP : CP304 q q' F f σ₁ σ₂ :=
+    ⟨Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩
+  calc
+    _ = ∫⁻ x in ⋃ n, G \ (slice CP bG mG (n + 1)).G, ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ := by
+      apply setLIntegral_congr; rw [← diff_iInter]; refine (diff_null_ae_eq_self ?_).symm
+      rw [Antitone.measure_iInter]; rotate_left
+      · exact fun _ _ _ ↦ antitone_slice_G (by omega)
+      · exact fun n ↦ (slice CP bG mG (n + 1)).mG.nullMeasurableSet
+      · use 0; rw [← lt_top_iff_ne_top]
+        exact (measure_mono slice_G_subset).trans_lt bG.measure_lt_top
+      rw [show (0 : ℝ≥0∞) = ⊥ by rfl, iInf_eq_bot]
+      exact fun _ ↦ exists_volume_slice_lt_eps
+    _ = ∫⁻ x, ⨆ n, (G \ (slice CP bG mG (n + 1)).G).indicator (‖T_lin CP.Q σ₁ σ₂ f ·‖ₑ) x := by
+      rw [← lintegral_indicator (MeasurableSet.iUnion fun n ↦ mG.diff (slice CP bG mG (n + 1)).mG)]
+      congr! with x
+      rw [← iSup_apply, iSup_indicator rfl monotone_const]; swap
+      · exact fun _ _ _ ↦ sdiff_le_sdiff_left (antitone_slice_G (by omega))
+      rw [iSup_const]
+    _ = ⨆ n, ∫⁻ x, (G \ (slice CP bG mG (n + 1)).G).indicator (‖T_lin CP.Q σ₁ σ₂ f ·‖ₑ) x := by
+      refine lintegral_iSup (fun n ↦ ?_) (fun i j hl ↦ ?_)
+      · refine (Measurable.enorm ?_).indicator (mG.diff (slice CP bG mG (n + 1)).mG)
+        sorry
+      · exact indicator_le_indicator_of_subset (sdiff_le_sdiff_left (antitone_slice_G (by omega)))
+          (zero_le _)
+    _ ≤ C2_0_1 a q * (2 ^ 2 / (q - 1) : ℝ≥0) * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+      refine iSup_le fun n ↦ slice_integral_bound_sum.trans ?_
+      gcongr; exact sum_le_four_div_q_sub_one hq hqq'
+    _ ≤ _ := by rw [← ENNReal.coe_mul]; gcongr; exact le_C3_0_4 hq
 
 /-- The operator T_{s₁, s₂} introduced in Lemma 3.0.3. -/
 def T_S (Q : SimpleFunc X (Θ X)) (s₁ s₂ : ℤ) (f : X → ℂ) (x : X) : ℂ :=
