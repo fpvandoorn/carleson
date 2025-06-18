@@ -27,8 +27,7 @@ lemma measurable_T_lin (mσ₁ : Measurable σ₁) (mσ₂ : Measurable σ₂)
     calc
       _ = ∑ s ∈ Finset.Icc (σ₁ x) (σ₂ x), {x' | s ∈ Icc (σ₁ x') (σ₂ x')}.indicator
           (fun z ↦ ∫ y, Ks s z y * f y * exp (I * Q z y)) x := by
-        congr! with s ms; rw [indicator_of_mem]
-        simpa using ms
+        congr! with s ms; rw [indicator_of_mem (by simpa using ms)]
       _ = _ := by
         refine Finset.sum_subset (Finset.Icc_subset_Icc (hlb x) (hub x)) fun s ms ns ↦ ?_
         apply indicator_of_notMem; rwa [mem_setOf_eq, mem_Icc, ← Finset.mem_Icc]
