@@ -624,7 +624,7 @@ irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10
 
 /-- Lemma 10.2.6 -/
 lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
-    (hr : r > 0) (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
+    (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     distribution (czOperator K r (czApproximation f ha ((c10_0_3 a) * α))) (α / 2) volume ≤
     C10_2_6 a / α * eLpNorm f 1 volume := by
   by_cases hα_top : α = ∞
@@ -650,7 +650,7 @@ lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x
       have half_pos : 0 < (2 : ℝ)⁻¹ := by norm_num
       refine mul_le_mul_left' (ENNReal.le_of_rpow_le half_pos ?_) (2 ^ 2 / α ^ 2)
       rw [ENNReal.mul_rpow_of_nonneg _ _ half_pos.le, ← ENNReal.rpow_natCast_mul]
-      convert hT r hr _ (BoundedFiniteSupport.czApproximation ha ((c10_0_3 a) * α) hα' hf) |>.2
+      convert hT _ (BoundedFiniteSupport.czApproximation ha ((c10_0_3 a) * α) hα' hf) |>.2
       all_goals simp [eLpNorm, eLpNorm']
     _ ≤ 2^2/α^2 * ((C_Ts a) ^ 2 * ∫⁻ y, 2^(3*a) * c10_0_3 a * α * ‖czApproximation f ha _ y‖ₑ) := by
       gcongr _ * (_ * ?_)
