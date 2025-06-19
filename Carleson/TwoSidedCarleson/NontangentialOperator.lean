@@ -978,8 +978,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
   · -- This is painful because we have to show continuity of the indicator
     -- which is needed to apply `dominated` because `R` is variable in the domain of the integral.
     -- This in turn meant proving continuity at `R₁`, which actually aligns with the blueprint.
-    filter_upwards
-    intro y
+    filter_upwards with y
     unfold ContinuousWithinAt
     have : nhdsWithin R₁ (Ioo R₁ R₂) |>.Eventually (fun r ↦ y ∉ Annulus.oo x R₁ r) := by
       by_cases hy : R₁ < dist x y
@@ -1037,8 +1036,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
   · -- This is painful because we have to show continuity of the indicator
     -- which is needed to apply `dominated` because `R` is variable in the domain of the integral.
     -- This in turn meant proving continuity at `R₂`, which actually aligns with the blueprint.
-    filter_upwards
-    intro y
+    filter_upwards with y
     unfold ContinuousWithinAt
     have : nhdsWithin R₂ (Ioo R₁ R₂) |>.Eventually (fun r ↦ y ∉ Annulus.oo x r R₂) := by
       by_cases hy : dist x y < R₂
