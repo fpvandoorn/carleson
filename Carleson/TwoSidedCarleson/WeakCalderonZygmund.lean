@@ -155,7 +155,7 @@ lemma not_disjoint_czBall7 (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) :
     ¬ Disjoint (czBall7 ha hX i) (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ :=
   ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.1 i
 
-private lemma czRadius_pos (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : czRadius ha hX i > 0 := by
+private lemma czRadius_pos (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : 0 < czRadius ha hX i := by
   suffices (ball (czCenter ha hX i) (7 * czRadius ha hX i)).Nonempty by
     have := this.ne_empty; contrapose! this; exact Metric.ball_eq_empty.mpr (by linarith)
   have ⟨x, hx⟩ := not_disjoint_iff.mp <| not_disjoint_czBall7 ha hX i
@@ -418,17 +418,18 @@ private lemma α_le_mul_α : α ≤ 2 ^ (3 * a) * α := by
   nth_rw 1 [← one_mul α]; gcongr; exact_mod_cast Nat.one_le_two_pow
 
 -- Equation (10.2.17), finite case
-private lemma norm_czApproximation_le_finite {ha : 4 ≤ a} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α)
+private lemma enorm_czApproximation_le_finite {ha : 4 ≤ a} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α)
     (hX : ¬ GeneralCase f α) : ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
   simp only [czApproximation, hX, reduceDIte, eventually_const]
   exact le_trans (enorm_integral_le_lintegral_enorm f) <| hα.trans α_le_mul_α
 
 /-- Equation (10.2.17) specialized to the general case. -/
-lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
+lemma enorm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     (hX : GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
-  have h₁ : ∀ᵐ x, (∃ i, x ∈ czPartition ha hX i) → ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
-    Eventually.of_forall fun x ⟨i, hi⟩ ↦ calc ‖czApproximation f ha α x‖ₑ
+  have h₁ (x : X) (hx : ∃ i, x ∈ czPartition ha hX i) : ‖czApproximation f ha α x‖ₑ ≤ 2^(3*a) * α :=
+    have ⟨i, hi⟩ := hx
+    calc ‖czApproximation f ha α x‖ₑ
       _ = ‖⨍ x in czPartition ha hX i, f x‖ₑ := by rw [czApproximation_def_of_mem ha hi]
       _ ≤ ⨍⁻ x in czPartition ha hX i, ‖f x‖ₑ ∂volume := enorm_integral_le_lintegral_enorm _
       _ ≤ (volume (czPartition ha hX i))⁻¹ * ∫⁻ x in czPartition ha hX i, ‖f x‖ₑ := by
@@ -449,12 +450,12 @@ lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport
       refine le_of_tendsto lim.enorm <| Eventually.of_forall fun i ↦ ?_
       apply le_trans (enorm_integral_le_lintegral_enorm f)
       exact le_trans (laverage_le_globalMaximalFunction (x_mem_ball i)) <| le_α.trans α_le_mul_α
-  simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨h₁, h₂⟩
+  simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨Eventually.of_forall h₁, h₂⟩
 
 /-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
-lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
+lemma enorm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
     ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
-  by_cases (norm_czApproximation_le_infinite ha (hf := hf)) (norm_czApproximation_le_finite hα)
+  by_cases (enorm_czApproximation_le_infinite ha (hf := hf)) (enorm_czApproximation_le_finite hα)
 
 -- Equation (10.2.18), finite case
 private lemma eLpNorm_czApproximation_le_finite {ha : 4 ≤ a} (hf : BoundedFiniteSupport f)
@@ -657,7 +658,7 @@ lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x
         apply lintegral_mono_ae ∘ this.mono; intros; rw [sq]; gcongr
       simp_rw [ENNReal.div_eq_inv_mul] at hα
       rw [← laverage_const_mul (inv_ne_top.mpr ne0), ← ENNReal.div_eq_inv_mul] at hα
-      refine mul_assoc _ _ α ▸ norm_czApproximation_le ha ?_ (hf := hf)
+      refine mul_assoc _ _ α ▸ enorm_czApproximation_le ha ?_ (hf := hf)
       exact mul_comm α _ ▸ (ENNReal.div_lt_iff (Or.inl ne0) (Or.inl coe_ne_top)).mp hα |>.le
     _ = 2^2/α^2 * ((C_Ts a)^2 * (2^(3*a) * c10_0_3 a * α * ∫⁻ y, ‖czApproximation f ha _ y‖ₑ)) := by
       have : 2 ^ (3*a) * (c10_0_3 a) * α ≠ ∞ := mul_ne_top (mul_ne_top coe_ne_top coe_ne_top) hα_top
