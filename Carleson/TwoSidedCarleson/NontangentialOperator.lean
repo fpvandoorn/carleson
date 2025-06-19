@@ -972,15 +972,14 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
   )
   · have (R' : ℝ) (hR' : R' ∈ Ioo R₁ R₂) : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R₁ R', K x' y * f y‖ₑ + sup := by
-      have : Annulus.oo x' R₁ R₂ = Annulus.oo x' R₁ R' ∪ Annulus.co x' R' R₂ := by
-        exact Annulus.oo_union_co hR'.1 hR'.2.le |>.symm
-      rw [this, setIntegral_union_2 ?dj (by measurability) ?int]
-      case dj => exact disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2
-      case int =>
-        simp_rw [← this]
+      have : Annulus.oo x' R₁ R₂ = Annulus.oo x' R₁ R' ∪ Annulus.co x' R' R₂ :=
+        Annulus.oo_union_co hR'.1 hR'.2.le |>.symm
+      rw [this, setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2)
+        (by measurability)]; swap
+      · simp_rw [← this]
         apply IntegrableOn.mono_set <| czoperator_welldefined hf hR₁ x'
         rw [← Annulus.ci_eq]
-        apply Annulus.oo_subset_ci (by rfl)
+        exact Annulus.oo_subset_ci (by rfl)
       apply le_trans <| enorm_add_le _ _
       gcongr
       rw [Annulus.co_eq, inter_comm, ← diff_eq_compl_inter]
@@ -1006,15 +1005,13 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
           (∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y) - ∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y := by
         simp
       rw [diff_eq_compl_inter, inter_comm, ← Annulus.co_eq, this]
-      have : Annulus.oo x' R' R₂ = Annulus.oo x' R' R₁ ∪ Annulus.co x' R₁ R₂ := by
-        exact Annulus.oo_union_co hR'.2 hR₂.le |>.symm
-      rw [← setIntegral_union_2 ?dj (by measurability) ?int, ← this]
-      case dj => exact disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2
-      case int =>
-        simp_rw [← this]
+      have : Annulus.oo x' R' R₂ = Annulus.oo x' R' R₁ ∪ Annulus.co x' R₁ R₂ :=
+        Annulus.oo_union_co hR'.2 hR₂.le |>.symm
+      rw [← setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2) (by measurability), ← this]; swap
+      · simp_rw [← this]
         apply IntegrableOn.mono_set <| czoperator_welldefined hf hR'pos x'
         rw [← Annulus.ci_eq]
-        apply Annulus.oo_subset_ci (by rfl)
+        exact Annulus.oo_subset_ci (by rfl)
       apply le_trans enorm_sub_le
       rw [add_comm]
       gcongr
