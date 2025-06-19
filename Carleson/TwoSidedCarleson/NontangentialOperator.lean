@@ -942,20 +942,125 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part of Lemma 10.1.7, reformulated. -/
-theorem small_annulus_right (ha : 4 ≤ a)
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₁ : ℝ} :
-    Continuous (fun R₂ ↦ ∫ y in Annulus.oo x' R₁ R₂, K x' y * f y) := by
-  sorry
+theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) :
+    ContinuousWithinAt (fun R₂ ↦ ∫ y in Annulus.oo x R₁ R₂, K x y * g y) (Ioo R₁ R₂) R₁ := by
+  by_cases hR1R2 : R₁ < R₂
+  case neg => rw [Ioo_eq_empty hR1R2, ContinuousWithinAt, nhdsWithin_empty]; exact Filter.tendsto_bot
+  conv => arg 1; intro R; rw [← integral_indicator (by measurability)]
+  obtain ⟨B, hB⟩ := czoperator_bound (K := K) (r := R₁) hg hR₁ x
+  rw [ae_restrict_iff' (by measurability), ← Annulus.ci_eq] at hB
+  let bound (y : X) : ℝ := (Annulus.oo x R₁ R₂).indicator (fun y ↦ B) y
+  apply continuousWithinAt_of_dominated (bound := bound)
+  · filter_upwards with R
+    have : Measurable (K x) := measurable_K_right x
+    fun_prop (disch := measurability)
+  · unfold bound
+    simp_rw [norm_indicator_eq_indicator_norm]
+    have : nhdsWithin R₁ (Ioo R₁ R₂) |>.Eventually (fun r ↦ r < R₂) := by
+      apply eventually_nhdsWithin_of_eventually_nhds
+      apply eventually_nhds_iff_ball.mpr
+      use R₂ - R₁
+      constructor
+      · simp [hR1R2]
+      · intro r hr
+        rw [mem_ball] at hr
+        linarith [Real.sub_le_dist r R₁]
+    filter_upwards [this] with r hr
+    filter_upwards [hB] with y hy
+    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo (by rfl) hr.le)
+      (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
+    exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
+  · unfold bound
+    rw [integrable_indicator_iff (by measurability), Annulus.oo_eq]
+    apply integrableOn_const (measure_ne_top_of_subset inter_subset_left (by finiteness)) (by simp)
+  · -- This is painful because we have to show continuity of the indicator
+    -- which is needed to apply `dominated` because `R` is variable in the domain of the integral.
+    -- This in turn meant proving continuity at `R₁`, which actually aligns with the blueprint.
+    filter_upwards with y
+    unfold ContinuousWithinAt
+    have : nhdsWithin R₁ (Ioo R₁ R₂) |>.Eventually (fun r ↦ y ∉ Annulus.oo x R₁ r) := by
+      by_cases hy : R₁ < dist x y
+      · have : nhdsWithin R₁ (Ioo R₁ R₂) |>.Eventually (fun r ↦ r < dist x y) := by
+          apply eventually_nhdsWithin_of_eventually_nhds
+          apply eventually_nhds_iff_ball.mpr
+          use (dist x y - R₁)
+          constructor
+          · simp [hy]
+          · intro r hr
+            rw [mem_ball] at hr
+            linarith [Real.sub_le_dist r R₁]
+        filter_upwards [this] with r hr
+        exact fun hy ↦ hr.not_gt hy.2
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.1
+    rw [Filter.tendsto_iff_forall_eventually_mem]
+    intro s hs
+    filter_upwards [this] with r hr
+    apply mem_of_mem_nhds
+    simpa [indicator_of_notMem hr] using hs
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part of Lemma 10.1.7, reformulated -/
-theorem small_annulus_left (ha : 4 ≤ a)
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₂ : ℝ} :
-    Continuous (fun R₁ ↦ ∫ y in Annulus.oo x' R₁ R₂, K x' y * f y) := by
-  sorry
+theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 ≤ R₁):
+    ContinuousWithinAt (fun R ↦ ∫ y in Annulus.oo x R R₂, K x y * g y) (Ioo R₁ R₂) R₂ := by
+  by_cases hR1R2 : R₁ < R₂
+  case neg => rw [Ioo_eq_empty hR1R2, ContinuousWithinAt, nhdsWithin_empty]; exact Filter.tendsto_bot
+  conv => arg 1; intro R; rw [← integral_indicator (by measurability)]
+  obtain ⟨B, hB⟩ := czoperator_bound (K := K) (r := R₂ / 2) hg (by linarith [hR₁.trans_lt hR1R2]) x
+  rw [ae_restrict_iff' (by measurability), ← Annulus.ci_eq] at hB
+  let bound (y : X) : ℝ := (Annulus.oo x (R₂ / 2) R₂).indicator (fun y ↦ B) y
+  apply continuousWithinAt_of_dominated (bound := bound)
+  · filter_upwards with R
+    have : Measurable (K x) := measurable_K_right x
+    fun_prop (disch := measurability)
+  · unfold bound
+    simp_rw [norm_indicator_eq_indicator_norm]
+    have : nhdsWithin R₂ (Ioo R₁ R₂) |>.Eventually (fun r ↦ R₂ / 2 < r) := by
+      apply eventually_nhdsWithin_of_eventually_nhds
+      apply eventually_nhds_iff_ball.mpr
+      use R₂ / 2
+      constructor
+      · simp [hR₁.trans_lt hR1R2]
+      · intro r hr
+        rw [mem_ball, dist_comm] at hr
+        linarith [Real.sub_le_dist R₂ r]
+    filter_upwards [this] with r hr
+    filter_upwards [hB] with y hy
+    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo hr.le (by rfl))
+      (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
+    exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
+  · unfold bound
+    rw [integrable_indicator_iff (by measurability), Annulus.oo_eq]
+    apply integrableOn_const (measure_ne_top_of_subset inter_subset_left (by finiteness)) (by simp)
+  · -- This is painful because we have to show continuity of the indicator
+    -- which is needed to apply `dominated` because `R` is variable in the domain of the integral.
+    -- This in turn meant proving continuity at `R₂`, which actually aligns with the blueprint.
+    filter_upwards with y
+    unfold ContinuousWithinAt
+    have : nhdsWithin R₂ (Ioo R₁ R₂) |>.Eventually (fun r ↦ y ∉ Annulus.oo x r R₂) := by
+      by_cases hy : dist x y < R₂
+      · have : nhdsWithin R₂ (Ioo R₁ R₂) |>.Eventually (fun r ↦ dist x y < r) := by
+          apply eventually_nhdsWithin_of_eventually_nhds
+          apply eventually_nhds_iff_ball.mpr
+          use (R₂ - dist x y)
+          constructor
+          · simp [hy]
+          · intro r hr
+            rw [mem_ball, dist_comm] at hr
+            linarith [Real.sub_le_dist R₂ r]
+        filter_upwards [this] with r hr
+        exact fun hy ↦ hr.not_gt hy.1
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.2
+    rw [Filter.tendsto_iff_forall_eventually_mem]
+    intro s hs
+    filter_upwards [this] with r hr
+    apply mem_of_mem_nhds
+    simpa [indicator_of_notMem hr] using hs
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Lemma 10.1.8. -/
-theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : BoundedFiniteSupport f) :
+theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
     ⨆ (R₁ : ℝ) (_: 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
@@ -997,7 +1102,7 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
       · simp [closure_Ioo hR₂.ne, hR₂.le]
       · apply continuousWithinAt_const
       · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
-        exact small_annulus_right ha hf |>.continuousWithinAt.enorm
+        exact small_annulus_right hf hR₁ |>.enorm
     simpa using le_R1
   · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x x') R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
         ‖∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
@@ -1029,7 +1134,7 @@ theorem nontangential_operator_boundary (ha : 4 ≤ a) {f : X → ℂ} (hf : Bou
       · simp [closure_Ioo hx'.ne, hx'.le]
       · apply continuousWithinAt_const
       · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
-        exact small_annulus_left ha hf |>.continuousWithinAt.enorm
+        exact small_annulus_left hf (dist_nonneg) |>.enorm
     simpa using le_R1
 
 /-- The constant used in `nontangential_from_simple`. -/
