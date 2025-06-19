@@ -249,15 +249,6 @@ theorem AEStronglyMeasurable.ennreal_toReal {u : α → ℝ≥0∞} (hu : AEStro
   refine aestronglyMeasurable_iff_aemeasurable.mpr ?_
   exact ENNReal.measurable_toReal.comp_aemeasurable hu.aemeasurable
 
-lemma laverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a, f a ∂μ ≤ ⨍⁻ a, g a ∂μ :=
-  lintegral_mono_ae <| h.filter_mono <| Measure.ae_mono' Measure.smul_absolutelyContinuous
-
-@[gcongr]
-lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤ g a) :
-    ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ :=
-  laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
-
 lemma setLaverage_const_le {c : ℝ≥0∞} : ⨍⁻ _x in s, c ∂μ ≤ c := by
   simp_rw [setLAverage_eq, lintegral_const, Measure.restrict_apply MeasurableSet.univ,
     univ_inter, div_eq_mul_inv, mul_assoc]

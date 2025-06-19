@@ -1,5 +1,6 @@
 import Carleson.TwoSidedCarleson.Basic
 import Carleson.ToMathlib.HardyLittlewood
+import Carleson.ToMathlib.MeasureTheory.Integral.Average
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
 open scoped NNReal
@@ -253,6 +254,22 @@ lemma iUnion_czPartition (ha : 4 ≤ a) {hX : GeneralCase f α} :
     have := (mem_or_mem_of_mem_union ht).imp_right (this ·)
     simp_all
 
+omit [IsCancellative X (defaultτ a)] in
+private lemma globalMaximalFunction_preimage_finite (hα : α > 0)
+    (hf : BoundedFiniteSupport f) : volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) < ∞ := by
+  have := hasStrongType_globalMaximalFunction (le_refl 1) one_lt_two f (hf.memLp 2) |>.2.trans_lt <|
+    mul_lt_top coe_lt_top (hf.memLp 2).eLpNorm_lt_top
+  contrapose! this
+  set s := (globalMaximalFunction volume 1 f ⁻¹' Ioi α)
+  calc ∞
+    _ = (∫⁻ x in s, α ^ 2) ^ (1 / 2 : ℝ) := by simp [top_le_iff.mp this, ENNReal.pow_ne_zero hα.ne']
+    _ ≤ (∫⁻ x, ‖globalMaximalFunction volume 1 f x‖ₑ ^ 2) ^ (1 / 2 : ℝ) := by
+      refine rpow_le_rpow ?_ (by norm_num)
+      refine le_trans (setLIntegral_mono_ae ?_ ?_) (setLIntegral_le_lintegral s _)
+      · exact AEStronglyMeasurable.globalMaximalFunction.aemeasurable.pow_const 2 |>.restrict
+      · exact Eventually.of_forall fun x hx ↦ pow_le_pow_left' (le_of_lt <| by simpa [s] using hx) 2
+    _ = eLpNorm (globalMaximalFunction volume 1 f) 2 volume := by simp [eLpNorm, eLpNorm']
+
 private lemma volume_czPartition_lt_top (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) :
     volume (czPartition ha hX i) < ∞ :=
   lt_of_le_of_lt (measure_mono <| czPartition_subset_czBall3 ha) measure_ball_lt_top
@@ -364,6 +381,32 @@ lemma aemeasurable_czApproximation (ha : 4 ≤ a) {hf : AEMeasurable f} :
   have := Measurable.exists (MeasurableSet.czPartition ha hX · |>.mem)
   apply MeasurableSet.union (by measurability) ∘ MeasurableSet.sUnion ((to_countable _).image _)
   simp [MeasurableSet.czPartition ha hX]
+
+private lemma BoundedFiniteSupport.czApproximation (ha : 4 ≤ a) (α : ℝ≥0∞) (hα : 0 < α)
+    (hf : BoundedFiniteSupport f) : BoundedFiniteSupport (czApproximation f ha α) where
+  memLp_top := by
+    use (aemeasurable_czApproximation ha (hf := aemeasurable hf)).aestronglyMeasurable
+    refine lt_of_le_of_lt ?_ (eLpNorm_lt_top hf)
+    apply essSup_le_of_ae_le _ <| (ENNReal.ae_le_essSup (‖f ·‖ₑ)).mono (fun x h ↦ ?_)
+    by_cases hX : GeneralCase f α
+    · by_cases hx : ∃ j, x ∈ czPartition ha hX j
+      · have ⟨j, hj⟩ := hx
+        rw [czApproximation_def_of_mem ha hj]
+        exact le_trans (enorm_integral_le_lintegral_enorm _) (setLAverage_le_essSup _)
+      · simp [_root_.czApproximation, eLpNormEssSup, hX, hx, h]
+    · simp only [_root_.czApproximation, hX, reduceDIte]
+      exact le_trans (enorm_integral_le_lintegral_enorm _) (laverage_le_essSup _)
+  measure_support_lt := by
+    by_cases hX : GeneralCase f α; swap
+    · exact lt_of_le_of_lt (measure_mono (subset_univ _)) <| volume_lt_of_not_GeneralCase hf hX hα
+    calc volume (support (_root_.czApproximation f ha α))
+      _ ≤ volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α ∪ support f) := by
+        refine measure_mono (fun x mem_supp ↦ ?_)
+        by_cases hx : ∃ j, x ∈ czPartition ha hX j
+        · left; rw [← iUnion_czPartition ha (hX := hX)]; exact (mem_iUnion.mpr hx)
+        · right; simpa [_root_.czApproximation, hX, hx] using mem_supp
+      _ ≤ volume _ + volume (support f) := measure_union_le _ _
+      _ < ∞ := add_lt_top.mpr ⟨globalMaximalFunction_preimage_finite hα hf, hf.measure_support_lt⟩
 
 /-- Part of Lemma 10.2.5, equation (10.2.16) (both cases).
 This is true by definition, the work lies in `tsum_czRemainder'` -/
@@ -579,10 +622,54 @@ def Ω (ha : 4 ≤ a) (α : ℝ≥0∞) : Set X :=
 irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10_0_3 a
 
 /-- Lemma 10.2.6 -/
-lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
-    distribution (czOperator K r (czApproximation f ha α)) (α / 2) volume ≤
+lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
+    (hr : r > 0) (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
+    distribution (czOperator K r (czApproximation f ha ((c10_0_3 a) * α))) (α / 2) volume ≤
     C10_2_6 a / α * eLpNorm f 1 volume := by
-  sorry
+  by_cases hα_top : α = ∞
+  · simp [hα_top, top_div_of_lt_top ENNReal.ofNat_lt_top]
+  have ne0 : (c10_0_3 a : ℝ≥0∞) ≠ 0 := by simp [c10_0_3]
+  have hα' : 0 < (c10_0_3 a) * α := ENNReal.mul_pos ne0 hα.pos.ne'
+  calc distribution ((czOperator K r (czApproximation f ha _))) (α / 2) volume
+    _ = distribution ((czOperator K r (czApproximation f ha _)) ^ 2) ((α / 2) ^ 2) volume :=
+      (distribution_pow _ _ _ _ two_pos.ne').symm
+    _ ≤ ((α / 2) ^ 2)⁻¹ * ∫⁻ y, ‖((czOperator K r (czApproximation f ha _)) ^ 2) y‖ₑ := by
+      apply distribution_le
+      · exact ENNReal.pow_ne_zero (ENNReal.div_ne_zero.mpr ⟨ne_zero_of_lt hα, ofNat_ne_top⟩) 2
+      · change AEMeasurable (czOperator K r (czApproximation f ha _) · ^ 2) volume
+        refine czOperator_aestronglyMeasurable' ?_ |>.aemeasurable.pow_const 2
+        exact aemeasurable_czApproximation ha (hf := hf.aemeasurable) |>.aestronglyMeasurable
+    _ = 2 ^ 2 / α ^ 2 * ∫⁻ y, ‖czOperator K r (czApproximation f ha ((c10_0_3 a) * α)) y‖ₑ ^ 2 := by
+      congr
+      · calc ((α / 2) ^ 2)⁻¹
+          _ = (α ^ 2 / 2 ^ 2)⁻¹ := by congr; exact_mod_cast α.div_rpow_of_nonneg 2 two_pos.le
+          _ = 2 ^ 2 / α ^ 2     := ENNReal.inv_div (Or.inl coe_ne_top) (Or.inl (by norm_num))
+      · simp
+    _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * ∫⁻ y, ‖czApproximation f ha ((c10_0_3 a) * α) y‖ₑ ^ 2) := by
+      have half_pos : 0 < (2 : ℝ)⁻¹ := by norm_num
+      refine mul_le_mul_left' (ENNReal.le_of_rpow_le half_pos ?_) (2 ^ 2 / α ^ 2)
+      rw [ENNReal.mul_rpow_of_nonneg _ _ half_pos.le, ← ENNReal.rpow_natCast_mul]
+      convert hT r hr _ (BoundedFiniteSupport.czApproximation ha ((c10_0_3 a) * α) hα' hf) |>.2
+      all_goals simp [eLpNorm, eLpNorm']
+    _ ≤ 2^2/α^2 * ((C_Ts a) ^ 2 * ∫⁻ y, 2^(3*a) * c10_0_3 a * α * ‖czApproximation f ha _ y‖ₑ) := by
+      gcongr _ * (_ * ?_)
+      suffices ∀ᵐ x, ‖czApproximation f ha ((c10_0_3 a) * α) x‖ₑ ≤ 2 ^ (3 * a) * (c10_0_3 a) * α by
+        apply lintegral_mono_ae ∘ this.mono; intros; rw [sq]; gcongr
+      simp_rw [ENNReal.div_eq_inv_mul] at hα
+      rw [← laverage_const_mul (inv_ne_top.mpr ne0), ← ENNReal.div_eq_inv_mul] at hα
+      refine mul_assoc _ _ α ▸ norm_czApproximation_le ha ?_ (hf := hf)
+      exact mul_comm α _ ▸ (ENNReal.div_lt_iff (Or.inl ne0) (Or.inl coe_ne_top)).mp hα |>.le
+    _ = 2^2/α^2 * ((C_Ts a)^2 * (2^(3*a) * c10_0_3 a * α * ∫⁻ y, ‖czApproximation f ha _ y‖ₑ)) := by
+      have : 2 ^ (3*a) * (c10_0_3 a) * α ≠ ∞ := mul_ne_top (mul_ne_top coe_ne_top coe_ne_top) hα_top
+      rw [lintegral_const_mul' _ _ this]
+    _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α * eLpNorm f 1 volume)) := by
+      gcongr; simpa [eLpNorm, eLpNorm'] using eLpNorm_czApproximation_le ha (hf := hf) hα'
+    _ = 2 ^ 2 / α^2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α)) * eLpNorm f 1 volume := by ring
+    _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * (c10_0_3 a) * α) / α ^ 2 * eLpNorm f 1 volume := by
+      rw [ENNReal.mul_comm_div, mul_div]; ring_nf
+    _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * (c10_0_3 a)) / α * eLpNorm f 1 volume := by
+      rw [sq α, ENNReal.mul_div_mul_right _ _ (ne_zero_of_lt hα) hα_top]
+    _ = (C10_2_6 a) / α * eLpNorm f 1 volume := by simp only [C_Ts, C10_2_6]; norm_cast; ring_nf
 
 /-- The constant used in `czOperatorBound`. -/
 irreducible_def C10_2_7 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 1) * c10_0_3 a

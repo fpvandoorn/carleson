@@ -166,6 +166,14 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
                 ≤ distribution f t₀ μ := distribution_mono_right (le_of_lt h.2)
               _ ≤ distribution f t₀ μ + ε := le_self_add
 
+lemma distribution_pow (ε : Type*) [SeminormedRing ε] [NormOneClass ε] [NormMulClass ε] (f : α → ε)
+    (t : ℝ≥0∞) (μ : Measure α) {n : ℕ} (hn : n ≠ 0) :
+    distribution (f ^ n) (t ^ n) μ = distribution f t μ := by
+  simp_rw [distribution, Pi.pow_apply]
+  refine congrArg μ <| ext fun x ↦ ⟨fun hx ↦ ?_, fun hx ↦ ?_⟩
+  · rw [mem_setOf_eq, enorm_pow (f x) n] at hx; simpa using lt_of_pow_lt_pow_left' n hx
+  · rw [mem_setOf_eq, enorm_pow (f x) n]; exact ENNReal.pow_right_strictMono hn hx
+
 /- The lemmas below are almost already in Mathlib, see
 `MeasureTheory.lintegral_rpow_eq_lintegral_meas_lt_mul`. -/
 
@@ -292,6 +300,19 @@ end ENorm
 section ContinuousENorm
 
 variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
+
+lemma distribution_le [MeasureSpace α] [MeasurableSpace ε] [OpensMeasurableSpace ε]
+    {c : ℝ≥0∞} (hc : c ≠ 0) {μ : Measure α} (hf : AEMeasurable f μ) :
+    distribution f c μ ≤ c⁻¹ * (∫⁻ y, ‖f y‖ₑ ∂μ) := by
+  by_cases hc_top : c = ⊤
+  · simp [hc_top]
+  apply (mul_le_iff_le_inv hc hc_top).mp
+  simp_rw [distribution, ← setLIntegral_one, ← lintegral_const_mul' _ _ hc_top, mul_one]
+  refine le_trans (lintegral_mono_ae ?_) (setLIntegral_le_lintegral _ _)
+  simp only [Filter.Eventually, ae, mem_ofCountableUnion]
+  rw [Measure.restrict_apply₀']
+  · convert measure_empty (μ := μ); ext; simpa using le_of_lt
+  · exact hf.enorm.nullMeasurableSet_preimage measurableSet_Ioi
 
 lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
     wnorm' f p μ ≤ eLpNorm' f p μ := by
