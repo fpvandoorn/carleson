@@ -233,8 +233,7 @@ lemma linearized_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (rσ₁ : (range σ₁).Finite) (rσ₂ : (range σ₂).Finite) (lσ : σ₁ ≤ σ₂) :
     ∫⁻ x in G, ‖T_lin Q σ₁ σ₂ f x‖ₑ ≤
     C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
-  let CP : CP304 q q' F f σ₁ σ₂ :=
-    ⟨Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩
+  let CP : CP304 q q' F f σ₁ σ₂ := ⟨Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩
   calc
     _ = ∫⁻ x in ⋃ n, G \ (slice CP bG mG (n + 1)).G, ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ := by
       apply setLIntegral_congr; rw [← diff_iInter]; refine (diff_null_ae_eq_self ?_).symm
@@ -262,8 +261,6 @@ lemma linearized_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       gcongr; exact sum_le_four_div_q_sub_one hq hqq'
     _ ≤ _ := by rw [← ENNReal.coe_mul]; gcongr; exact le_C3_0_4 hq
 
-variable {R₁ R₂ : ℝ}
-
 /-- The operator T_{s₁, s₂} introduced in Lemma 3.0.3. -/
 def T_S (Q : SimpleFunc X (Θ X)) (s₁ s₂ : ℤ) (f : X → ℂ) (x : X) : ℂ :=
   ∫ y, ∑ s ∈ Finset.Icc s₁ s₂, Ks s x y * f y * exp (I * Q x y)
@@ -272,12 +269,11 @@ def T_S (Q : SimpleFunc X (Θ X)) (s₁ s₂ : ℤ) (f : X → ℂ) (x : X) : �
 Has value `2 ^ (446 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
 def C3_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (446 * a ^ 3) / (q - 1) ^ 6
 
-/- `S'` is `S` in the blueprint. -/
-lemma S_truncation {S' : ℤ}
-    (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
-    (hF : IsBounded F) (hG : IsBounded G)
-    (hf : Measurable f) (h2f : (‖f ·‖) ≤ F.indicator 1) :
-    ∫⁻ x in G, ⨆ (s₁ : ℤ) (s₂ : ℤ) (_ : - S' < s₁) (_ : s₁ < s₂) (_ : s₂ < S'), ‖T_S Q s₁ s₂ f x‖ₑ ≤
+/-- Lemma 3.0.3. `S'` is the blueprint's `S`. -/
+lemma S_truncation {S' : ℤ} (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
+    (bF : IsBounded F) (bG : IsBounded G) (mF : MeasurableSet F) (mG : MeasurableSet G)
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1) :
+    ∫⁻ x in G, ⨆ (s₁ : ℤ) (s₂ : ℤ) (_ : -S' < s₁) (_ : s₁ < s₂) (_ : s₂ < S'), ‖T_S Q s₁ s₂ f x‖ₑ ≤
     C3_0_3 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   sorry
 
