@@ -15,8 +15,7 @@ lemma setLAverage_mono_ae {f g : α → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a ≤
     ⨍⁻ a in s, f a ∂μ ≤ ⨍⁻ a in s, g a ∂μ :=
   laverage_mono_ae <| h.filter_mono <| ae_mono Measure.restrict_le_self
 
-lemma setLAverage_le_essSup (f : α → ℝ≥0∞) :
-    ⨍⁻ x in s, f x ∂μ ≤ essSup f μ := by
+lemma setLAverage_le_essSup (f : α → ℝ≥0∞) : ⨍⁻ x in s, f x ∂μ ≤ essSup f μ := by
   by_cases hμ : IsFiniteMeasure (μ.restrict s); swap
   · simp [laverage, not_isFiniteMeasure_iff.mp hμ]
   by_cases hμ0 : μ s = 0
