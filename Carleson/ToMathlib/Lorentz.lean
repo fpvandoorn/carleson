@@ -117,9 +117,8 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] 
           simp only [Pi.mul_apply]
           rw [@integral_nnreal' (fun x ↦ x⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
           apply setLIntegral_congr_fun measurableSet_Ioi
-          apply ae_of_all
           intro t ht
-          rw [Set.mem_Ioi] at ht
+          simp only
           rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← mul_assoc, ← ENNReal.rpow_neg_one,
               ← ENNReal.rpow_add _ _ (by simpa) (by simp), mul_comm]
           congr 2
@@ -141,10 +140,8 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [NormedAddCommGroup E] 
         rw [ENNReal.toReal_inv]
         congr 2
         apply setLIntegral_congr_fun measurableSet_Ioi
-        apply ae_of_all
         intro t ht
-        congr
-        exact ENNReal.ofReal_rpow_of_pos ht
+        simp [Pi.mul_apply, ENNReal.ofReal_rpow_of_pos ht]
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
 

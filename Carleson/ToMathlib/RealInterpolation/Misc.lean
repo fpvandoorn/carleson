@@ -132,7 +132,7 @@ open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
     ComputationsChoiceExponent
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
   [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
@@ -294,7 +294,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'}
   {f : α → E₁} {t : ℝ≥0∞}
 
@@ -428,7 +428,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 
 variable {α α' ε ε₁ E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
   [NormedAddCommGroup E₁]
   [TopologicalSpace ε] [ENormedAddCommMonoid ε] [TopologicalSpace ε₁] [ENormedAddCommMonoid ε₁]
@@ -940,7 +940,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
   [NormedAddCommGroup E]
@@ -1142,7 +1142,7 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : 0 < t) :
   ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
     (tc.inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
-  sorry /-- proof was:
+  sorry /- proof was:
   rw [← lintegral_congr_ae (Filter.mp_mem (self_mem_ae_restrict measurableSet_res)
       (Filter.univ_mem'
       (fun s hs ↦ (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)).symm)))]

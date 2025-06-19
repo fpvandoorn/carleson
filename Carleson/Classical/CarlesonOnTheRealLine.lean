@@ -209,16 +209,16 @@ lemma frequency_ball_doubling {x₁ x₂ r : ℝ} {f g : Θ ℝ} :
     · simp
     all_goals linarith [r_nonneg]
 
-  theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} :
-      2 * dist_{x₁, r} f g ≤ dist_{x₂, 2 * r} f g := by
-    rw [dist_integer_linear_eq, dist_integer_linear_eq]
-    by_cases r_nonneg : r ≥ 0
-    · rw [max_eq_left, max_eq_left]
-      · ring_nf; rfl
-      all_goals linarith [r_nonneg]
-    · rw [max_eq_right, max_eq_right]
-      · simp
-      all_goals linarith [r_nonneg]
+theorem frequency_ball_growth {x₁ x₂ r : ℝ} {f g : Θ ℝ} :
+    2 * dist_{x₁, r} f g ≤ dist_{x₂, 2 * r} f g := by
+  rw [dist_integer_linear_eq, dist_integer_linear_eq]
+  by_cases r_nonneg : r ≥ 0
+  · rw [max_eq_left, max_eq_left]
+    · ring_nf; rfl
+    all_goals linarith [r_nonneg]
+  · rw [max_eq_right, max_eq_right]
+    · simp
+    all_goals linarith [r_nonneg]
 
 lemma integer_ball_cover {x : ℝ} {R R' : ℝ} {f : WithFunctionDistance x R}:
     CoveredByBalls (ball f (2 * R')) 3 R' := by
