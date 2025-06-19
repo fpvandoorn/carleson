@@ -399,8 +399,7 @@ lemma ζ_equality₁ (ht : t ∈ Ioo 0 1) :
   unfold ζ
   have aux : t.toReal ≠ 0 := toReal_ne_zero_of_Ioo ht
   rw [← mul_div_mul_right _ _ aux, mul_assoc _ _ t.toReal, mul_assoc _ _ t.toReal]
-  congr <;> ring
-  all_goals sorry -- TODO: proof used to be done now
+  congr <;> sorry -- proof was just `ring`
 
 lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
     ζ p₀ q₀ p₁ q₁ t.toReal =
@@ -816,8 +815,7 @@ lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
       _ = _ := by
         rw [preservation_interpolation ht hq₀ hq₁ hq]
         congr
-        ring
-        sorry
+        sorry -- proof was just `ring`
     rw [this, mul_div_assoc, mul_div_cancel_right₀]
     · ring
     exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
@@ -844,8 +842,7 @@ lemma eq_exponents₂ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
       _ = _ := by
         rw [preservation_interpolation ht hq₀ hq₁ hq]
         congr
-        ring
-        sorry
+        sorry -- proof was just `ring`
     rw [this, mul_div_assoc, mul_div_cancel_right₀]
     · ring
     · exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
@@ -867,8 +864,7 @@ lemma eq_exponents₁ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
     _ = q.toReal * (q₀⁻¹.toReal - q⁻¹.toReal) := by ring
     _ = _ := by
       rw [preservation_interpolation ht hq₀ hq₁ hq]
-      ring
-      sorry
+      sorry -- proof was just `ring`
   rw [this, mul_div_cancel_right₀]
   exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
@@ -891,8 +887,7 @@ lemma eq_exponents₃ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
     _ = p₁⁻¹.toReal * q.toReal * (q₀⁻¹.toReal - q⁻¹.toReal) := by ring
     _ = _ := by
       rw [preservation_interpolation ht hq₀ hq₁ hq]
-      ring
-      sorry
+      sorry -- proof was just `ring`
   rw [this, mul_div_cancel_right₀]
   exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
@@ -908,16 +903,14 @@ lemma eq_exponents₅ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
       = t.toReal * q.toReal := by
   rw [eq_exponents₄, neg_mul, neg_neg, eq_exponents₀ ht hq₁ hq₀ (Ne.symm hq₀q₁)
     (switch_exponents ht hq) hq₁']
-  ring
-  sorry
+  sorry -- proof was just `ring`
 
 lemma eq_exponents₆ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
     q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal) = (1 - t).toReal * q.toReal := by
   rw [← neg_neg (a := q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)), ← eq_exponents₄, neg_mul,
     eq_exponents₁ ht hq₁ hq₀ (Ne.symm hq₀q₁) (switch_exponents ht hq) hq₁']
-  ring
-  sorry
+  sorry -- proof was just `ring`
 
 lemma eq_exponents₇ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :

@@ -2,6 +2,7 @@ import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.Annulus
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
@@ -279,8 +280,8 @@ def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
-  ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
+  ⨆ (R₁ : ℝ) (_ : 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
+  ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
 
 /-- The integrand in the (linearized) Carleson operator.
 This is `G` in Lemma 3.0.1. -/
@@ -545,7 +546,9 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hr : 0 < r) :
 
 end Iterate
 
-variable [ProofData a q K σ₁ σ₂ F G]
+section MeasQ
+
+variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)}
 
 @[fun_prop]
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
@@ -572,6 +575,10 @@ lemma measurable_Q₁ (x : X) : Measurable (Q x) :=
   let Q' : X → X → ℝ := fun x' y ↦ Q x' y
   have : (fun y ↦ Q' x y) = Q x := rfl
   this ▸ measurable_Q₂.of_uncurry_left
+
+end MeasQ
+
+variable [ProofData a q K σ₁ σ₂ F G]
 
 include a q K σ₁ σ₂ F G
 
@@ -828,9 +835,9 @@ section PseudoMetricSpace
 
 variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma volume_F_lt_top : volume F < ⊤ := (measure_mono F_subset).trans_lt measure_ball_lt_top
+lemma volume_F_lt_top : volume F < ⊤ := isBounded_F.measure_lt_top
 lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
-lemma volume_G_lt_top : volume G < ⊤ := (measure_mono G_subset).trans_lt measure_ball_lt_top
+lemma volume_G_lt_top : volume G < ⊤ := isBounded_G.measure_lt_top
 lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? Defined in ℝ≥0∞ to

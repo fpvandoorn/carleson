@@ -1022,8 +1022,8 @@ lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux1 [ProofData a q K σ₁ σ�
     congr
     omega
 
- omit [TileStructure Q D κ S o] in
- lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux2 {N : ℕ} :
+omit [TileStructure Q D κ S o] in
+lemma lintegral_carlesonSum_𝔓₁_compl_le_sum_aux2 {N : ℕ} :
     ∑ x ≤ N, (((12 + 8 * Z) + (19 + 20 * Z) * x + (7 + 16 * Z) * x ^ 2 + (4 * Z) * x ^ 3) *
         (2 : ℝ≥0∞) ^ (-((q - 1) / (8 * ↑a ^ 4) * x : ℝ)))
     ≤ (2 : ℝ≥0∞) ^ (28 * a + 20) / (nnq - 1) ^ 4 := by

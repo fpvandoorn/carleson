@@ -140,7 +140,7 @@ end NNReal
 namespace MeasureTheory
 
 set_option linter.style.refine false in
-variable  {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
+variable {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
 @[measurability, fun_prop]
 protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (hs : MeasurableSet s)
@@ -150,7 +150,7 @@ protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (
   filter_upwards [hf.ae_eq_mk, hg.ae_eq_mk] with x hfx hgx
   simp_rw [Set.piecewise, ← hfx, ← hgx]
 
-variable  {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
+variable {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
 @[measurability, fun_prop]
 protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : MeasurableSet {a | p a})
@@ -568,10 +568,7 @@ end BddAbove
 namespace MeasureTheory
 
 open Metric Bornology
-variable {𝕜: Type*}
-variable [RCLike 𝕜]
-
-variable {X α: Type*}
+variable {𝕜 : Type*} [RCLike 𝕜] {X α : Type*}
 
 namespace HasCompactSupport
 
@@ -596,8 +593,8 @@ namespace Integrable
 variable [MeasureSpace X]
 
 -- must be in mathlib but can't find it
-theorem indicator_const {c : ℝ} {s: Set X}
-    (hs: MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun _ ↦ c)) :=
+theorem indicator_const {c : ℝ} {s : Set X}
+    (hs : MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun _ ↦ c)) :=
   (integrable_indicator_iff hs).mpr <| integrableOn_const h2s.ne
 
 end Integrable

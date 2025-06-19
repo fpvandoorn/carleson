@@ -277,9 +277,9 @@ lemma Yk_countable (k:ℤ) : (Yk X k).Countable := by
   exact fun y _ ↦ zpow_pos (defaultD_pos a) k
 
 variable (X) in
-def Yk_encodable (k:ℤ) : Encodable (Yk X k) := (Yk_countable X k).toEncodable
+def Yk_encodable (k : ℤ) : Encodable (Yk X k) := (Yk_countable X k).toEncodable
 
-def Encodable.linearOrder {α : Type*} (i:Encodable α) : LinearOrder α :=
+def Encodable.linearOrder {α : Type*} (i : Encodable α) : LinearOrder α :=
   LinearOrder.lift' (i.encode) (i.encode_injective)
 
 instance {k : ℤ}: LinearOrder (Yk X k) := (Yk_encodable X k).linearOrder
@@ -1659,10 +1659,10 @@ def max_𝓓 : 𝓓 X where
   y := ⟨o,o_mem_Yk_S⟩
   hsub := fun ⦃a_1⦄ a ↦ a
 
-def 𝓓.coe (z: 𝓓 X) : Set X := I3 z.hk z.y
+def 𝓓.coe (z : 𝓓 X) : Set X := I3 z.hk z.y
 
 variable (X) in
-def forget_map (x: 𝓓 X) : (k : Set.Icc (-S:ℤ) S) × (Yk X k) := ⟨⟨x.k,And.intro x.hk x.hk_max⟩,x.y⟩
+def forget_map (x : 𝓓 X) : (k : Set.Icc (-S:ℤ) S) × (Yk X k) := ⟨⟨x.k,And.intro x.hk x.hk_max⟩,x.y⟩
 
 lemma forget_map_inj : Function.Injective (forget_map X) := by
   intro x1 x2 h

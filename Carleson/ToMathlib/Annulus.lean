@@ -538,7 +538,7 @@ lemma co_union_ci {x : X} {r R : ℝ≥0∞} (h : r ≤ R) : co x r R ∪ ci x R
 variable [MeasurableSpace X] [OpensMeasurableSpace X]
 
 @[measurability]
- lemma measurableSet_oo {x : X} {r R : ℝ≥0∞} : MeasurableSet (oo x r R) := by
+lemma measurableSet_oo {x : X} {r R : ℝ≥0∞} : MeasurableSet (oo x r R) := by
   by_cases hr : r = ⊤
   · simp [hr]
   replace hr : r < ⊤ := Ne.lt_top hr
