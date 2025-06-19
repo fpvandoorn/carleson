@@ -829,7 +829,7 @@ lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 
   _ = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖ₑ := by
     congr! 3
     apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
-    exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
+    exact fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx]
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ := by
     gcongr with n hn k hk j hj

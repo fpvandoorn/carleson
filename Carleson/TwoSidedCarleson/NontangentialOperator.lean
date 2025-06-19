@@ -863,8 +863,9 @@ It is not tight and can be improved by some `a` + `constant`. -/
 irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)
 
 --TODO move to ToMathlib / generalises eLpNorm_add_le to ENorm class
-theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α} {μ: Measure α} [TopologicalSpace E] [ENormedAddMonoid E]
-  {p : ℝ≥0∞} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
+theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α}
+    {μ : Measure α} [TopologicalSpace E] [ENormedAddMonoid E]
+    {p : ℝ≥0∞} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
     (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ := by
   sorry
 

@@ -436,7 +436,7 @@ lemma e763 (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u₁ ≠ u₂) (h2u :
         ‖∑ p ∈ (t u₂ \ 𝔖₀ t u₁ u₂).toFinset with ¬Disjoint ↑J (ball (𝔠 p) (8 * D ^ 𝔰 p)),
           adjointCarleson p f y‖ₑ) ^ 2) ^ (2 : ℝ)⁻¹ := by
       congr! 4 with J mJ
-      refine setLIntegral_congr_fun coeGrid_measurable (.of_forall fun y my ↦ ?_)
+      refine setLIntegral_congr_fun coeGrid_measurable fun y my ↦ ?_
       unfold adjointCarlesonSum; congr 1
       rw [filter_mem_univ_eq_toFinset]; refine (Finset.sum_filter_of_ne fun p mp hd ↦ ?_).symm
       rw [adjoint_tile_support1] at hd

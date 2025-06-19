@@ -154,7 +154,7 @@ lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
   have vol_J_ne_zero := (volume_coeGrid_pos (X := X) (i := J) (defaultD_pos' a)).ne.symm
   have eq : ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ =
       ∫⁻ y in (J : Set X), ENNReal.ofReal (⨍ z in J, ‖f z‖) := by
-    refine setLIntegral_congr_fun coeGrid_measurable (Filter.Eventually.of_forall fun y hy ↦ ?_)
+    refine setLIntegral_congr_fun coeGrid_measurable fun y hy ↦ ?_
     rw [approxOnCube_apply hC _ hJ hy, ← ofReal_norm_eq_enorm]
     apply congrArg
     have : ‖⨍ y in J, (‖f y‖ : ℂ)‖ = ‖⨍ y in J, ‖f y‖‖ := by

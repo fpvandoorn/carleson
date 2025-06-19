@@ -428,7 +428,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 
 variable {α α' ε ε₁ E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
   [NormedAddCommGroup E₁]
   [TopologicalSpace ε] [ENormedAddCommMonoid ε] [TopologicalSpace ε₁] [ENormedAddCommMonoid ε₁]
@@ -940,7 +940,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
   [NormedAddCommGroup E]
