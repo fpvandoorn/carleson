@@ -154,7 +154,7 @@ lemma not_disjoint_czBall7 (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) :
     ¬ Disjoint (czBall7 ha hX i) (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ :=
   ball_covering ha (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.1 i
 
-private lemma czRadius_pos (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : czRadius ha hX i > 0 := by
+private lemma czRadius_pos (ha : 4 ≤ a) (hX : GeneralCase f α) (i : ℕ) : 0 < czRadius ha hX i := by
   suffices (ball (czCenter ha hX i) (7 * czRadius ha hX i)).Nonempty by
     have := this.ne_empty; contrapose! this; exact Metric.ball_eq_empty.mpr (by linarith)
   have ⟨x, hx⟩ := not_disjoint_iff.mp <| not_disjoint_czBall7 ha hX i
@@ -185,7 +185,8 @@ private lemma MeasurableSet.czPartition (ha : 4 ≤ a) (hX : GeneralCase f α) (
     MeasurableSet (czPartition ha hX i) := by
   refine i.strong_induction_on (fun j hj ↦ ?_)
   unfold _root_.czPartition
-  measurability
+  apply measurableSet_ball.diff ∘ (MeasurableSet.biUnion (to_countable _) hj).union
+  exact MeasurableSet.biUnion (to_countable _) (fun _ _ ↦ measurableSet_ball)
 
 lemma czBall_subset_czPartition (ha : 4 ≤ a) {hX : GeneralCase f α} {i : ℕ} :
     czBall ha hX i ⊆ czPartition ha hX i := by
@@ -384,8 +385,9 @@ private lemma norm_czApproximation_le_finite {ha : 4 ≤ a} (hα : ⨍⁻ x, ‖
 lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     (hX : GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
-  have h₁ : ∀ᵐ x, (∃ i, x ∈ czPartition ha hX i) → ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
-    Eventually.of_forall fun x ⟨i, hi⟩ ↦ calc ‖czApproximation f ha α x‖ₑ
+  have h₁ (x : X) (hx : ∃ i, x ∈ czPartition ha hX i) : ‖czApproximation f ha α x‖ₑ ≤ 2^(3*a) * α :=
+    have ⟨i, hi⟩ := hx
+    calc ‖czApproximation f ha α x‖ₑ
       _ = ‖⨍ x in czPartition ha hX i, f x‖ₑ := by rw [czApproximation_def_of_mem ha hi]
       _ ≤ ⨍⁻ x in czPartition ha hX i, ‖f x‖ₑ ∂volume := enorm_integral_le_lintegral_enorm _
       _ ≤ (volume (czPartition ha hX i))⁻¹ * ∫⁻ x in czPartition ha hX i, ‖f x‖ₑ := by
@@ -406,7 +408,7 @@ lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport
       refine le_of_tendsto lim.enorm <| Eventually.of_forall fun i ↦ ?_
       apply le_trans (enorm_integral_le_lintegral_enorm f)
       exact le_trans (laverage_le_globalMaximalFunction (x_mem_ball i)) <| le_α.trans α_le_mul_α
-  simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨h₁, h₂⟩
+  simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨Eventually.of_forall h₁, h₂⟩
 
 /-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
 lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
