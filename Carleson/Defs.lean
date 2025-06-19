@@ -2,6 +2,7 @@ import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.Annulus
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
@@ -279,8 +280,8 @@ def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
-  ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
+  ⨆ (R₁ : ℝ) (_ : 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
+  ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
 
 /-- The integrand in the (linearized) Carleson operator.
 This is `G` in Lemma 3.0.1. -/
