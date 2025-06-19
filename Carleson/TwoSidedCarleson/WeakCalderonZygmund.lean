@@ -376,13 +376,13 @@ private lemma α_le_mul_α : α ≤ 2 ^ (3 * a) * α := by
   nth_rw 1 [← one_mul α]; gcongr; exact_mod_cast Nat.one_le_two_pow
 
 -- Equation (10.2.17), finite case
-private lemma norm_czApproximation_le_finite {ha : 4 ≤ a} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α)
+private lemma enorm_czApproximation_le_finite {ha : 4 ≤ a} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α)
     (hX : ¬ GeneralCase f α) : ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
   simp only [czApproximation, hX, reduceDIte, eventually_const]
   exact le_trans (enorm_integral_le_lintegral_enorm f) <| hα.trans α_le_mul_α
 
 /-- Equation (10.2.17) specialized to the general case. -/
-lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
+lemma enorm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     (hX : GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α := by
   have h₁ (x : X) (hx : ∃ i, x ∈ czPartition ha hX i) : ‖czApproximation f ha α x‖ₑ ≤ 2^(3*a) * α :=
@@ -411,9 +411,9 @@ lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport
   simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨Eventually.of_forall h₁, h₂⟩
 
 /-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
-lemma norm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
+lemma enorm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
     ∀ᵐ x, ‖czApproximation f ha α x‖ₑ ≤ 2 ^ (3 * a) * α :=
-  by_cases (norm_czApproximation_le_infinite ha (hf := hf)) (norm_czApproximation_le_finite hα)
+  by_cases (enorm_czApproximation_le_infinite ha (hf := hf)) (enorm_czApproximation_le_finite hα)
 
 -- Equation (10.2.18), finite case
 private lemma eLpNorm_czApproximation_le_finite {ha : 4 ≤ a} (hf : BoundedFiniteSupport f)
