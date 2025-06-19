@@ -253,7 +253,7 @@ lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
 
 section
 
-variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
+variable {x x' : X} {r r' s d : ℝ} (hs : 0 < s)
 
 -- #check (@measure_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
 
