@@ -325,7 +325,7 @@ private lemma lintegral_czPartition_le (ha : 4 ≤ a) {hX : GeneralCase f α} (i
     ∫⁻ x in czPartition ha hX i, ‖czApproximation f ha α x‖ₑ ≤
     ∫⁻ x in czPartition ha hX i, ‖f x‖ₑ := calc
   _ = ∫⁻ x in czPartition ha hX i, ‖⨍ y in czPartition ha hX i, f y‖ₑ := by
-    apply setLIntegral_congr_fun (MeasurableSet.czPartition ha hX i)
+    apply setLIntegral_congr_fun_ae (MeasurableSet.czPartition ha hX i)
     exact Eventually.of_forall fun x hx ↦ by rw [czApproximation_def_of_mem ha hx]
   _ = ‖⨍ y in czPartition ha hX i, f y‖ₑ * volume (czPartition ha hX i) := setLIntegral_const _ _
   _ ≤ (⨍⁻ y in czPartition ha hX i, ‖f y‖ₑ ∂volume) * volume (czPartition ha hX i) :=
@@ -481,7 +481,7 @@ private lemma eLpNorm_czApproximation_le_infinite {ha : 4 ≤ a} (hX : GeneralCa
   gcongr tsum ?_ + ?_
   · apply lintegral_czPartition_le
   · simp only [union_diff_self, union_univ]
-    apply le_of_eq ∘ setLIntegral_congr_fun (by measurability)
+    apply le_of_eq ∘ setLIntegral_congr_fun_ae (by measurability)
     exact Eventually.of_forall (fun x hx ↦ by simp_all [czApproximation, hX])
 
 /-- Part of Lemma 10.2.5, equation (10.2.18) (both cases). -/
