@@ -1,7 +1,7 @@
+import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 import Carleson.ToMathlib.Data.ENNReal
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-
+import Carleson.ToMathlib.WeakType
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation
 theorem. There are the following sections:
@@ -819,49 +819,60 @@ lemma truncCompl_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) :
   unfold truncCompl
   split_ifs with is_fx_le_a <;> simp
 
+lemma eLpNorm_truncCompl_le {q : ℝ≥0∞} [MeasurableSpace ε] [BorelSpace ε]
+    (q_ne_zero : ¬ q = 0) (q_ne_top : q ≠ ⊤) :
+    eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
+    ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
+  unfold eLpNorm eLpNorm'
+  have q_toReal_pos : 0 < q.toReal := toReal_pos q_ne_zero q_ne_top
+  split_ifs
+  calc
+  _ = ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖(truncCompl f t) x‖ₑ ^ q.toReal ∂μ := by
+    rw [one_div, ENNReal.rpow_inv_rpow]
+    · apply (setLIntegral_eq_of_support_subset _).symm
+      unfold Function.support
+      intro x
+      rw [truncCompl_eq]
+      dsimp only [Pi.sub_apply, mem_setOf_eq]
+      split_ifs with is_a_lt_fx
+      · exact fun _ => is_a_lt_fx
+      · contrapose; intro _; simpa [enorm_eq_nnnorm]
+    · exact q_toReal_pos.ne.symm
+  _ ≤ ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
+    gcongr with x
+    exact trnc_le_func (j := ⊥)
+
 lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace ε] [BorelSpace ε]
-    (hp : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
+    (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
-  unfold eLpNorm eLpNorm'
-  have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top hp hpq.2
+
+  --unfold eLpNorm eLpNorm'
+  have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
   have q_ne_zero : q ≠ 0 := hpq.1.ne'
   have q_toReal_pos : 0 < q.toReal := exp_toReal_pos hpq.1 q_ne_top
-  split_ifs
-  · contradiction
-  · calc
-    _ = ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖(truncCompl f t) x‖ₑ ^ q.toReal ∂μ := by
-      rw [one_div, ENNReal.rpow_inv_rpow]
-      · apply (setLIntegral_eq_of_support_subset _).symm
-        unfold Function.support
-        intro x
-        rw [truncCompl_eq]
-        dsimp only [Pi.sub_apply, mem_setOf_eq]
-        split_ifs with is_a_lt_fx
-        · exact fun _ => is_a_lt_fx
-        · contrapose; intro _; simpa [enorm_eq_nnnorm]
-      · exact (toReal_pos hpq.1.ne' q_ne_top).ne'
-    _ ≤ ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
-      gcongr with x
-      exact trnc_le_func (j := ⊥)
+
+  apply le_trans (eLpNorm_truncCompl_le q_ne_zero q_ne_top)
+  calc
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | t < ‖f x‖ₑ},
         ‖f x‖ₑ ^ p.toReal ∂μ := by
       rw [← lintegral_const_mul']
       · apply setLIntegral_mono_ae (AEMeasurable.restrict (by fun_prop))
         filter_upwards with x hx
         rw [mul_comm]
-        exact rpow_le_rpow_of_exponent_le_base_ge_enorm ht hx.ne_top hx.le (toReal_mono hp hpq.2)
+        exact rpow_le_rpow_of_exponent_le_base_ge_enorm ht hx.ne_top hx.le (toReal_mono p_ne_top hpq.2)
       · by_cases ht' : t = ⊤
         · simp_all
         · finiteness
-    _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α,
-        ‖f x‖ₑ ^ p.toReal ∂μ := by
+    _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α, ‖f x‖ₑ ^ p.toReal ∂μ := by
       gcongr
       exact setLIntegral_le_lintegral _ _
     _ = _ := by
-      rw [one_div, ENNReal.rpow_inv_rpow]
-      exact (toReal_pos (hpq.1.trans_le hpq.2).ne' hp).ne'
+      congr
+      rw [eLpNorm_eq_lintegral_rpow_enorm p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
+      exact (toReal_pos (hpq.1.trans_le hpq.2).ne' p_ne_top).ne'
+
 
 lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
     (hq : q ≠ ⊤) (hpq : p ∈ Ioc 0 q) (hf : AEStronglyMeasurable f μ) :
@@ -959,10 +970,40 @@ lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) (hf : MemLp f p μ) (ht : t ≠ �
     · refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
       exact toReal_pos hpq.1.ne' p_ne_top
 
+lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f x‖ₑ} < ⊤) (ht : 0 < t) :
+    MemLp (trnc ⊥ f t) p μ := by
+  by_cases hp_top : p = ⊤
+  · rw [hp_top, trnc_false]
+    exact truncCompl_preserves_Lp hf
+  obtain ⟨hf_m, hf_lt_top⟩ := hf
+  by_cases hp0 : p = 0
+  · rw [hp0, memLp_zero_iff_aestronglyMeasurable]
+    exact aestronglyMeasurable_trnc hf_m
+  have hp_pos : 0 < p.toReal := ENNReal.toReal_pos hp0 hp_top
+  use aestronglyMeasurable_trnc hf_m
+  rw [trnc_false, truncCompl_eq_indicator, eLpNorm_indicator_eq_eLpNorm_restrict (by rw [compl_setOf]; simp; sorry)]
+  rw [eLpNorm_eq_eLpNorm' hp0 hp_top]
+  apply (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos).trans_lt
+  --rw [eLpNorm_exponent_top] at hf_lt_top
+  --refine lt_of_le_of_lt (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos) ?_
+  apply ENNReal.mul_lt_top
+  · rw [← eLpNorm_exponent_top]
+    exact (eLpNorm_restrict_le _ _ _ _).trans_lt hf_lt_top
+  apply ENNReal.rpow_lt_top_of_nonneg (by simp [hp_pos.le])
+  simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
+  rw [← lt_top_iff_ne_top, compl_setOf]
+  simpa
+
+
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q ≤ p`. -/
 lemma truncCompl_Lp_Lq_lower [MeasurableSpace ε] [BorelSpace ε]
-    (hp : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) (hf : MemLp f p μ) :
+    (hpq : q ∈ Ioc 0 p) (ht : 0 < t) (hf : MemLp f p μ) :
     MemLp (trnc ⊥ f t) q μ := by
+  by_cases hp : p = ⊤
+  · rw [hp] at hf
+    apply MemLp_truncCompl_of_MemLp_top hf _ ht
+    --apply distribution_
+    sorry
   have q_ne_top : q ≠ ∞ := ne_top_of_le_ne_top hp hpq.2
   by_cases ht' : t = ∞
   · simp [trnc, ht']
@@ -983,15 +1024,12 @@ lemma truncCompl_Lp_Lq_lower [MeasurableSpace ε] [BorelSpace ε]
 lemma MemLp_order_complete [ContinuousAdd ε] [MeasurableSpace ε] [BorelSpace ε] --not sure whether ContinuousAdd is necessary
     {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Icc p r)
     (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
-
-  have h : MemLp (trnc ⊤ f 1) q μ := trunc_Lp_Lq_higher ⟨hp, hr'.1⟩ hf (by norm_num)
-  have h' : MemLp (trnc ⊥ f 1) q μ := by
-    by_cases hr : r = ∞
-    · -- hf' is obviously true, since trnc ⊥ has norm at most 1
-      sorry
-    exact truncCompl_Lp_Lq_lower hr ⟨hp.trans_le hr'.1, hr'.2⟩ (by norm_num) hf'
+  set C := 1 --eLpNormEssSup f μ
+  have h : MemLp (trnc ⊤ f C) q μ := trunc_Lp_Lq_higher ⟨hp, hr'.1⟩ hf (by norm_num)
+  have h' : MemLp (trnc ⊥ f C) q μ := by
+    exact truncCompl_Lp_Lq_lower ⟨hp.trans_le hr'.1, hr'.2⟩ (by norm_num) hf'
   have := MemLp.add h h'
-  have : f = (trnc ⊤ f 1) +  (trnc ⊥ f 1) := trunc_add_truncCompl.symm
+  have : f = (trnc ⊤ f C) +  (trnc ⊥ f C) := trunc_add_truncCompl.symm
   rw [this]
   exact MemLp.add h h'
 
