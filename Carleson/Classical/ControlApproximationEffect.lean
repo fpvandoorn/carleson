@@ -26,8 +26,7 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
     intro x hx
     rw [Ef_def, Eg_def]
     simp only [Set.mem_union, Set.mem_inter_iff, Set.mem_preimage, Set.mem_Ici]
-    by_contra hx'
-    push_neg at hx'
+    by_contra! hx'
     absurd le_refl a
     push_neg
     calc a
@@ -40,8 +39,7 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
         ring_nf
         apply ENNReal.div_mul_cancel <;> norm_num
   have : μ E ≤ 2 * μ Ef ∨ μ E ≤ 2 * μ Eg := by
-    by_contra hEfg
-    push_neg at hEfg
+    by_contra! hEfg
     absurd le_refl (2 * μ E)
     push_neg
     calc 2 * μ E
@@ -57,27 +55,10 @@ lemma ENNReal.le_on_subset {X : Type} [MeasurableSpace X] (μ : Measure X) {f g 
       · exact hEfg.2
     _ = 2 * μ E := by ring
   rcases this with hEf | hEg
-  · use Ef
-    constructor
-    · exact Set.inter_subset_left
-    constructor
-    · apply MeasurableSet.inter hE
-      exact hf measurableSet_Ici
-    use hEf
-    left
-    rw [Ef_def]
-    simp
-  · use Eg
-    constructor
-    · exact Set.inter_subset_left
-    constructor
-    · apply MeasurableSet.inter hE
-      exact hg measurableSet_Ici
-    use hEg
-    right
-    rw [Eg_def]
-    simp
-
+  · refine ⟨Ef, Set.inter_subset_left, hE.inter (hf measurableSet_Ici), hEf, Or.inl ?_⟩
+    simp [Ef_def]
+  · refine ⟨Eg, Set.inter_subset_left, hE.inter (hg measurableSet_Ici), hEg, Or.inr ?_⟩
+    simp [Eg_def]
 
 open Complex ComplexConjugate
 
@@ -178,9 +159,7 @@ lemma intervalIntegrable_mul_dirichletKernel'_max {x : ℝ} (hx : x ∈ Set.Icc 
         (measurable_id.const_sub _)) _).max measurable_const)).aestronglyMeasurable _)
   use 1
   intro y
-  simp only [id_eq, Function.comp_apply, norm_real]
-  rw [Real.norm_of_nonneg (le_max_right _ _)]
-  simp
+  simp [Real.norm_of_nonneg (le_max_right _ _)]
 
 lemma intervalIntegrable_mul_dirichletKernel'_max' {x : ℝ} (hx : x ∈ Set.Icc 0 (2 * π)) {f : ℝ → ℂ}
     (hf : IntervalIntegrable f volume (-π) (3 * π)) {N : ℕ} :
@@ -355,15 +334,12 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
               on_goal 1 => apply Eventually.of_forall
               exact fun _ hy ↦ boundedness₁ hy.1.le
           · conv => pattern ((g _) * _); rw [mul_comm]
-            apply Integrable.bdd_mul' integrable₁
-            · -- xxx: can fun_prop prove this?
-              apply Measurable.aestronglyMeasurable
-              exact continuous_star.measurable.comp measurable₁
+            apply Integrable.bdd_mul' integrable₁ (by fun_prop)
             · rw [ae_restrict_iff' annulus_measurableSet]
-              on_goal 1 => apply Eventually.of_forall
-              on_goal 1 => intro y hy
-              on_goal 1 => rw [RCLike.norm_conj]
-              exact boundedness₁ hy.1.le
+              · apply Eventually.of_forall
+                intro y hy
+                rw [RCLike.norm_conj]
+                exact boundedness₁ hy.1.le
         _ ≤   ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊
             + ‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * conj (exp (I * (-n * x)) * K x y * exp (I * n * y))‖₊ := by
           apply nnnorm_add_le
