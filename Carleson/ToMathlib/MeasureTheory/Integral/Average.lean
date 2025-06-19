@@ -26,7 +26,7 @@ lemma setLAverage_le_essSup (f : α → ℝ≥0∞) :
   have : NeZero (μ.restrict s) :=
     have : NeZero (μ s) := { out := hμ0 }
     restrict.neZero
-  exact (laverage_const (μ.restrict s) _)
+  exact laverage_const (μ.restrict s) _
 
 lemma laverage_le_essSup (f : α → ℝ≥0∞) : ⨍⁻ x, f x ∂μ ≤ essSup f μ := by
   simpa using setLAverage_le_essSup (s := univ) f
