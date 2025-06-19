@@ -109,7 +109,10 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   --   have := (ENNReal.toReal_eq_zero_iff _).mp (hx i hi)
   --   tauto
   intro f g hf hg
-  simp_rw [AESubadditiveOn, Set.forall_in_swap, imp.swap, ← imp_forall_iff] at h hT'
+  simp_rw [AESubadditiveOn] at h
+  conv at hT' => enter [i]; rw [forall_swap]
+  rw [forall_swap] at hT'; rw [forall₂_swap] at h
+  simp_rw [imp.swap, ← imp_forall_iff] at h hT'
   specialize h f hf g hg
   simp_rw [enorm_eq_self] at h ⊢
   filter_upwards [hT f hf, hT g hg, (ae_ball_iff h𝓑).mpr h, (ae_ball_iff h𝓑).mpr (hT' f hf),
@@ -166,7 +169,8 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
     rw [ne_eq, eq_top_iff] at hx ⊢
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
   refine ⟨AESubadditiveOn.biSup h𝓑 hT h_add (fun i hi ↦ (h i hi).1), fun f c hf ↦ ?_⟩
-  simp_rw [Set.forall_in_swap, imp.swap, ← imp_forall_iff] at hT'
+  conv at hT' => enter [i]; rw [forall_swap]
+  rw [forall_swap] at hT'; simp_rw [imp.swap, ← imp_forall_iff] at hT'
   filter_upwards [(ae_ball_iff h𝓑).mpr (fun i hi ↦ (h i hi).2 f c hf),
     (ae_ball_iff h𝓑).mpr (hT' f hf), (ae_ball_iff h𝓑).mpr (hT' (c • f) (h_smul hf))] with x hx hT'fx hT'cfx
   simp_rw [Pi.smul_apply, ENNReal.smul_iSup]

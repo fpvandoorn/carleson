@@ -927,7 +927,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       gcongr
       · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
       · exact measure_ball_ne_top
-      · exact le_of_not_le hy
+      · exact le_of_not_ge hy
 
 end PseudoMetricSpace
 
