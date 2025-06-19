@@ -113,7 +113,7 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
         (ball (𝔠 p) (5 * D ^ 𝔰 p)).indicator 1 x := by
       conv_lhs => enter [2, z]; rw [← mul_one (_ * _ * _ * _)]
       rw [indicator_const_mul]; congr 2
-      refine setLIntegral_congr_fun measurableSet_E (.of_forall fun y my ↦ ?_)
+      refine setLIntegral_congr_fun measurableSet_E fun y my ↦ ?_
       rw [indicator_of_mem (E_subset_𝓘 my)]
     _ ≤ _ := by
       gcongr; refine indicator_le_indicator_apply_of_subset (ball_subset_ball ?_) (zero_le _)

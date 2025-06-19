@@ -110,7 +110,7 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
   clear g
   rcases discrete_carleson X with ⟨G', hG', h2G', hfG'⟩
   refine ⟨G', hG', h2G', fun f meas_f h2f ↦ le_of_eq_of_le ?_ (hfG' f meas_f h2f)⟩
-  refine setLIntegral_congr_fun (measurableSet_G.diff hG') (ae_of_all volume fun x hx ↦ ?_)
+  refine setLIntegral_congr_fun (measurableSet_G.diff hG') fun x hx ↦ ?_
   simp_rw [carlesonSum, mem_univ, Finset.filter_True, tile_sum_operator hx, mul_sub, exp_sub,
     mul_div, div_eq_mul_inv,
     ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]

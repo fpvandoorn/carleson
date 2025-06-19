@@ -17,7 +17,7 @@ open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 
 variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {ε ε₁ ε₂ : Type*} [TopologicalSpace ε] [TopologicalSpace ε₁] [TopologicalSpace ε₂]
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {f : α → E₁} {t : ℝ≥0∞}
 
@@ -496,8 +496,8 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     _ = ∫⁻ (s : ℝ) in Ioi 0,
         (ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹) ^ (p₀⁻¹ * q₀) *
         (∫⁻ (a : α) in Function.support f, ↑‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
-      apply setLIntegral_congr_fun measurableSet_Ioi
-      filter_upwards with s _
+      refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
+      dsimp
       rw [ENNReal.rpow_inv_rpow]
       · rw [one_div, ← ENNReal.rpow_mul, restrict_to_support_trnc hp₀]
       · positivity
@@ -505,8 +505,8 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
         (∫⁻ (a : α) in Function.support f,
         ENNReal.ofReal (s ^ (q - q₀ - 1)) ^ (p₀⁻¹ * q₀)⁻¹ *
         ‖trnc j f (tc.ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (p₀⁻¹ * q₀) := by
-      apply setLIntegral_congr_fun measurableSet_Ioi
-      filter_upwards with s _
+      refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
+      dsimp
       rw [lintegral_const_mul', ENNReal.mul_rpow_of_nonneg]
       · positivity
       · exact (ENNReal.rpow_lt_top_of_nonneg (by positivity) coe_ne_top).ne
@@ -524,8 +524,8 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       apply lintegral_congr_support hf
       intro x _
       congr 1
-      apply setLIntegral_congr_fun measurableSet_Ioi
-      filter_upwards with s _
+      refine setLIntegral_congr_fun measurableSet_Ioi fun s hs ↦ ?_
+      dsimp
       rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_inv_rpow, ← ENNReal.rpow_mul] <;> try positivity
       congr
       field_simp

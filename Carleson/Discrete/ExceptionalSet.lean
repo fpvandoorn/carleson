@@ -409,12 +409,12 @@ lemma lintegral_Ioc_layervol_one {l : ℕ} :
     ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n t = layervol (X := X) k n (l + 1) :=
   calc
     _ = ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n (l + 1) := by
-      refine setLIntegral_congr_fun measurableSet_Ioc (ae_of_all volume fun t mt ↦ ?_)
+      refine setLIntegral_congr_fun measurableSet_Ioc fun t ht ↦ ?_
       unfold layervol; congr with x; simp_rw [mem_setOf]; constructor <;> intro h
       · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
         rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
         rwa [Nat.ceil_eq_iff (by omega), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
-      · exact mt.2.trans h
+      · exact ht.2.trans h
     _ = layervol k n (l + 1) * volume (Ioc (l : ℝ) (l + 1)) := setLIntegral_const ..
     _ = _ := by rw [Real.volume_Ioc, add_sub_cancel_left, ENNReal.ofReal_one, mul_one]
 
@@ -459,7 +459,7 @@ lemma top_tiles_aux : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m 
       nth_rw 3 [← add_zero (lintegral ..)]; congr 1
       have cgr : ∫⁻ (t : ℝ) in Ioi (Mc * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t =
           ∫⁻ _ in Ioi (Mc * 2 ^ (n + 1) : ℝ), 0 := by
-        refine setLIntegral_congr_fun measurableSet_Ioi (ae_of_all volume fun t mt ↦
+        refine setLIntegral_congr_fun measurableSet_Ioi (fun t mt ↦
           layervol_eq_zero_of_lt (lt_of_le_of_lt ?_ mt))
         exact_mod_cast Nat.le_mul_of_pos_right Mc (by positivity)
       rw [cgr, lintegral_zero]
