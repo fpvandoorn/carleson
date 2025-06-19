@@ -26,7 +26,7 @@ class PreTileStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMea
 export PreTileStructure (𝒬 range_𝒬)
 
 variable {D : ℕ} {κ : ℝ} {S : ℕ} {o : X}
-variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
+variable [FunctionDistances 𝕜 X] {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
 
 variable (X) in
 def 𝔓 := PreTileStructure.𝔓 𝕜 X
