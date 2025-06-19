@@ -625,12 +625,12 @@ irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10
 /-- Lemma 10.2.6 -/
 lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
-    distribution (czOperator K r (czApproximation f ha ((c10_0_3 a) * α))) (α / 2) volume ≤
+    distribution (czOperator K r (czApproximation f ha (c10_0_3 a * α))) (α / 2) volume ≤
     C10_2_6 a / α * eLpNorm f 1 volume := by
   by_cases hα_top : α = ∞
   · simp [hα_top, top_div_of_lt_top ENNReal.ofNat_lt_top]
   have ne0 : (c10_0_3 a : ℝ≥0∞) ≠ 0 := by simp [c10_0_3]
-  have hα' : 0 < (c10_0_3 a) * α := ENNReal.mul_pos ne0 hα.pos.ne'
+  have hα' : 0 < c10_0_3 a * α := ENNReal.mul_pos ne0 hα.pos.ne'
   calc distribution ((czOperator K r (czApproximation f ha _))) (α / 2) volume
     _ = distribution ((czOperator K r (czApproximation f ha _)) ^ 2) ((α / 2) ^ 2) volume :=
       (distribution_pow _ _ _ _ two_pos.ne').symm
@@ -640,35 +640,35 @@ lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x
       · change AEMeasurable (czOperator K r (czApproximation f ha _) · ^ 2) volume
         refine czOperator_aestronglyMeasurable' ?_ |>.aemeasurable.pow_const 2
         exact aemeasurable_czApproximation ha (hf := hf.aemeasurable) |>.aestronglyMeasurable
-    _ = 2 ^ 2 / α ^ 2 * ∫⁻ y, ‖czOperator K r (czApproximation f ha ((c10_0_3 a) * α)) y‖ₑ ^ 2 := by
+    _ = 2 ^ 2 / α ^ 2 * ∫⁻ y, ‖czOperator K r (czApproximation f ha (c10_0_3 a * α)) y‖ₑ ^ 2 := by
       congr
       · calc ((α / 2) ^ 2)⁻¹
           _ = (α ^ 2 / 2 ^ 2)⁻¹ := by congr; exact_mod_cast α.div_rpow_of_nonneg 2 two_pos.le
           _ = 2 ^ 2 / α ^ 2     := ENNReal.inv_div (Or.inl coe_ne_top) (Or.inl (by norm_num))
       · simp
-    _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * ∫⁻ y, ‖czApproximation f ha ((c10_0_3 a) * α) y‖ₑ ^ 2) := by
+    _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * ∫⁻ y, ‖czApproximation f ha (c10_0_3 a * α) y‖ₑ ^ 2) := by
       have half_pos : 0 < (2 : ℝ)⁻¹ := by norm_num
       refine mul_le_mul_left' (ENNReal.le_of_rpow_le half_pos ?_) (2 ^ 2 / α ^ 2)
       rw [ENNReal.mul_rpow_of_nonneg _ _ half_pos.le, ← ENNReal.rpow_natCast_mul]
-      convert hT _ (BoundedFiniteSupport.czApproximation ha ((c10_0_3 a) * α) hα' hf) |>.2
+      convert hT _ (BoundedFiniteSupport.czApproximation ha (c10_0_3 a * α) hα' hf) |>.2
       all_goals simp [eLpNorm, eLpNorm']
     _ ≤ 2^2/α^2 * ((C_Ts a) ^ 2 * ∫⁻ y, 2^(3*a) * c10_0_3 a * α * ‖czApproximation f ha _ y‖ₑ) := by
       gcongr _ * (_ * ?_)
-      suffices ∀ᵐ x, ‖czApproximation f ha ((c10_0_3 a) * α) x‖ₑ ≤ 2 ^ (3 * a) * (c10_0_3 a) * α by
+      suffices ∀ᵐ x, ‖czApproximation f ha (c10_0_3 a * α) x‖ₑ ≤ 2 ^ (3 * a) * c10_0_3 a * α by
         apply lintegral_mono_ae ∘ this.mono; intros; rw [sq]; gcongr
       simp_rw [ENNReal.div_eq_inv_mul] at hα
       rw [← laverage_const_mul (inv_ne_top.mpr ne0), ← ENNReal.div_eq_inv_mul] at hα
       refine mul_assoc _ _ α ▸ enorm_czApproximation_le ha ?_ (hf := hf)
       exact mul_comm α _ ▸ (ENNReal.div_lt_iff (Or.inl ne0) (Or.inl coe_ne_top)).mp hα |>.le
     _ = 2^2/α^2 * ((C_Ts a)^2 * (2^(3*a) * c10_0_3 a * α * ∫⁻ y, ‖czApproximation f ha _ y‖ₑ)) := by
-      have : 2 ^ (3*a) * (c10_0_3 a) * α ≠ ∞ := mul_ne_top (mul_ne_top coe_ne_top coe_ne_top) hα_top
+      have : 2 ^ (3*a) * c10_0_3 a * α ≠ ∞ := mul_ne_top (mul_ne_top coe_ne_top coe_ne_top) hα_top
       rw [lintegral_const_mul' _ _ this]
     _ ≤ 2 ^ 2 / α ^ 2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α * eLpNorm f 1 volume)) := by
       gcongr; simpa [eLpNorm, eLpNorm'] using eLpNorm_czApproximation_le ha (hf := hf) hα'
     _ = 2 ^ 2 / α^2 * ((C_Ts a) ^ 2 * (2 ^ (3 * a) * c10_0_3 a * α)) * eLpNorm f 1 volume := by ring
-    _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * (c10_0_3 a) * α) / α ^ 2 * eLpNorm f 1 volume := by
+    _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a * α) / α ^ 2 * eLpNorm f 1 volume := by
       rw [ENNReal.mul_comm_div, mul_div]; ring_nf
-    _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * (c10_0_3 a)) / α * eLpNorm f 1 volume := by
+    _ = (2 ^ 2 * (C_Ts a) ^ 2 * 2 ^ (3 * a) * c10_0_3 a) / α * eLpNorm f 1 volume := by
       rw [sq α, ENNReal.mul_div_mul_right _ _ (ne_zero_of_lt hα) hα_top]
     _ = (C10_2_6 a) / α * eLpNorm f 1 volume := by simp only [C_Ts, C10_2_6]; norm_cast; ring_nf
 
