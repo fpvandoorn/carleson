@@ -78,7 +78,7 @@ lemma stronglyMeasurable_χ : StronglyMeasurable (χ t u₁ u₂ J) :=
 
 variable (t u₁ u₂) in
 /-- The definition of h_J, defined in the proof of Section 7.5.2 -/
-def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
+def holderFunction (f₁ f₂ : X → ℂ) (J : Grid X) (x : X) : ℂ :=
   χ t u₁ u₂ J x * (exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f₁ x) *
   conj (exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)
 

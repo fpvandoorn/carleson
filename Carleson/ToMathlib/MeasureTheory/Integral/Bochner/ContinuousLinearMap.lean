@@ -44,7 +44,7 @@ section SetIntegral_Union_2
 
 variable {X E : Type*} [MeasurableSpace X]
 variable [NormedAddCommGroup E] [NormedSpace ℝ E]
-variable {f : X → E } {s t : Set X} {μ : Measure X}
+variable {f : X → E} {s t : Set X} {μ : Measure X}
 
 theorem MeasureTheory.setIntegral_union_2 (hst : Disjoint s t) (ht : MeasurableSet t) (hfst : IntegrableOn f (s ∪ t) μ) :
     ∫ x in s ∪ t, f x ∂μ = ∫ x in s, f x ∂μ + ∫ x in t, f x ∂μ :=

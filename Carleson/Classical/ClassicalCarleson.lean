@@ -194,7 +194,7 @@ lemma Function.Periodic.ae_of_ae_restrict {T : ℝ} (hT : 0 < T) {a : ℝ} {P : 
   rw [ae_iff, ← hE]
   exact Emeasure
 
-end section
+end
 
 /- Carleson's theorem asserting a.e. convergence of the partial Fourier sums for continous functions. -/
 theorem classical_carleson {f : ℝ → ℂ} (cont_f : Continuous f) (periodic_f : f.Periodic (2 * π)) :

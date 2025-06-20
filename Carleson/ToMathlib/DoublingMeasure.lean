@@ -208,7 +208,7 @@ lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s *
 /-- Version of `measure_ball_le_same` without ceiling function. -/
 lemma measure_ball_le_same'' (x : X) {r t : ℝ} (ht : 0 < t) (h't : t ≤ 1) :
     μ.real (ball x r) ≤ A * t ^ (- Real.logb 2 A) * μ.real (ball x (t * r)) := by
-  rcases lt_or_le A 1 with hA | hA
+  rcases lt_or_ge A 1 with hA | hA
   · simp [eq_zero_of_isDoubling_lt_one μ hA]
   have : r = t⁻¹ * (t * r) := (eq_inv_mul_iff_mul_eq₀ ht.ne').mpr rfl
   apply (measure_ball_le_same x (inv_pos_of_pos ht) this.le).trans
@@ -253,7 +253,7 @@ lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
 
 section
 
-variable {x x': X} {r r' s d : ℝ} (hs : 0 < s)
+variable {x x' : X} {r r' s d : ℝ} (hs : 0 < s)
 
 -- #check (@measure_ball_le_of_dist_le X A _ _ x' x r (2 * r) s s hs hs)
 
