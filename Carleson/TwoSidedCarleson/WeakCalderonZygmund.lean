@@ -382,7 +382,8 @@ lemma aemeasurable_czApproximation (ha : 4 ≤ a) {hf : AEMeasurable f} :
   apply MeasurableSet.union (by measurability) ∘ MeasurableSet.sUnion ((to_countable _).image _)
   simp [MeasurableSet.czPartition ha hX]
 
-private lemma BoundedFiniteSupport.czApproximation (ha : 4 ≤ a) (α : ℝ≥0∞) (hα : 0 < α)
+/-- Part of Lemma 10.2.5 (both cases). -/
+lemma BoundedFiniteSupport.czApproximation (ha : 4 ≤ a) (α : ℝ≥0∞) (hα : 0 < α)
     (hf : BoundedFiniteSupport f) : BoundedFiniteSupport (czApproximation f ha α) where
   memLp_top := by
     use (aemeasurable_czApproximation ha (hf := aemeasurable hf)).aestronglyMeasurable
