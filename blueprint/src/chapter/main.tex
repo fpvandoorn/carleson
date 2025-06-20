@@ -7468,7 +7468,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
 \end{proof}
 
-The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
+The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1.
 \begin{lemma}[Ball covering]
     \label{ball-covering}
     \leanok
@@ -7492,6 +7492,7 @@ The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additiona
     and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{6a}$ of the $B_j^*$.
 \end{lemma}
 \begin{proof}
+\leanok
 Define for $x\in O$,
 \begin{equation}
     \delta(x):= \sup \{\delta\in\R : B(x,\delta)\subset O\}.
@@ -7547,7 +7548,7 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
     \leanok
-    \lean{cardinalMk_czBall3_le, tsum_czRemainder', aemeasurable_czApproximation, czApproximation_add_czRemainder, norm_czApproximation_le, norm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
+    \lean{encard_czBall3_le, tsum_czRemainder', aemeasurable_czApproximation, czApproximation_add_czRemainder, norm_czApproximation_le, norm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
     Let $f$ be a bounded, a.e. measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
     Then there exists an a.e. measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
