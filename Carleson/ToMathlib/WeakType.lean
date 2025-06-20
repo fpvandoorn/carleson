@@ -293,11 +293,10 @@ section ContinuousENorm
 
 variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
 
-lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
+lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p) :
     wnorm' f p μ ≤ eLpNorm' f p μ := by
   refine iSup_le (fun t ↦ ?_)
   simp_rw [distribution, eLpNorm']
-  have p0 : 0 < p := lt_of_lt_of_le one_pos hp
   have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
   have set_eq : {x | ofNNReal t < ‖f x‖ₑ} = {x | ofNNReal t ^ p < ‖f x‖ₑ ^ p} := by
     simp [ENNReal.rpow_lt_rpow_iff p0]
@@ -308,14 +307,37 @@ lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ 
   gcongr
   exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
 
-lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
+lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ ∞)
+    {t : ℝ≥0} (ht : 0 < t) :
+    distribution f t μ < ∞ := by
+  have := wnorm'_le_eLpNorm' hf.1 (toReal_pos p_pos.ne.symm p_ne_top)
+  rw [← eLpNorm_eq_eLpNorm' p_pos.ne.symm p_ne_top] at this
+  have := this.trans_lt hf.2
+  rw [wnorm'] at this
+  rw [iSup_lt_iff] at this
+  rcases this with ⟨b,b_lt_top, h⟩
+  have := (h t).trans_lt b_lt_top
+  rw [mul_lt_top_iff] at this
+  rcases this with ⟨t_lt_top, h⟩| (t_zero| h)
+  · rwa [rpow_lt_top_iff_of_pos] at h
+    simp only [inv_pos]
+    exact toReal_pos p_pos.ne.symm p_ne_top
+  · rw [ENNReal.coe_eq_zero] at t_zero
+    exfalso
+    exact ht.ne.symm t_zero
+  · rw [ENNReal.rpow_eq_zero_iff_of_pos (by simp only [inv_pos]; exact toReal_pos p_pos.ne.symm p_ne_top)] at h
+    rw [h]
+    simp only [zero_lt_top]
+
+
+lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
     wnorm f p μ ≤ eLpNorm f p μ := by
   by_cases h : p = ⊤
   · simp [h, wnorm, eLpNorm]
-  · have p0 : p ≠ 0 := (lt_of_lt_of_le one_pos hp).ne.symm
-    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_mono h hp)
+  · have p0 : p ≠ 0 := hp.ne.symm
+    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_pos p0 h)
 
-lemma MemLp.memWLp (hp : 1 ≤ p) (hf : MemLp f p μ) : MemWLp f p μ :=
+lemma MemLp.memWLp (hp : 0 < p) (hf : MemLp f p μ) : MemWLp f p μ :=
   ⟨hf.1, wnorm_le_eLpNorm hf.1 hp |>.trans_lt hf.2⟩
 
 end ContinuousENorm
@@ -448,7 +470,7 @@ lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁
     (hc : c < ⊤ := by finiteness) : MemLp (T f₁) p' ν :=
   ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
-lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
+lemma HasStrongType.hasWeakType (hp' : 0 < p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
   fun f hf ↦ ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
 
@@ -485,7 +507,7 @@ lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
   fun f hf ↦ h f (hf.memLp _)
 
-lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 1 ≤ p')
+lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
     (h : HasBoundedStrongType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
   fun f hf ↦
@@ -562,7 +584,7 @@ variable {f g : α → ε}
 
 section
 
-variable {ε ε' : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
+variable {ε ε' : Type*} [TopologicalSpace ε] [ENorm ε]
 variable [TopologicalSpace ε'] [ENormedSpace ε']
 
 -- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass

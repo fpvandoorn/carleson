@@ -984,8 +984,6 @@ lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
   rw [trnc_false, truncCompl_eq_indicator, eLpNorm_indicator_eq_eLpNorm_restrict (by rw [compl_setOf]; simp; sorry)]
   rw [eLpNorm_eq_eLpNorm' hp0 hp_top]
   apply (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos).trans_lt
-  --rw [eLpNorm_exponent_top] at hf_lt_top
-  --refine lt_of_le_of_lt (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos) ?_
   apply ENNReal.mul_lt_top
   · rw [← eLpNorm_exponent_top]
     exact (eLpNorm_restrict_le _ _ _ _).trans_lt hf_lt_top
@@ -997,13 +995,8 @@ lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q ≤ p`. -/
 lemma truncCompl_Lp_Lq_lower [MeasurableSpace ε] [BorelSpace ε]
-    (hpq : q ∈ Ioc 0 p) (ht : 0 < t) (hf : MemLp f p μ) :
+    (hp : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) (hf : MemLp f p μ) :
     MemLp (trnc ⊥ f t) q μ := by
-  by_cases hp : p = ⊤
-  · rw [hp] at hf
-    apply MemLp_truncCompl_of_MemLp_top hf _ ht
-    --apply distribution_
-    sorry
   have q_ne_top : q ≠ ∞ := ne_top_of_le_ne_top hp hpq.2
   by_cases ht' : t = ∞
   · simp [trnc, ht']
@@ -1018,20 +1011,32 @@ lemma truncCompl_Lp_Lq_lower [MeasurableSpace ε] [BorelSpace ε]
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (hpq.1.trans_le hpq.2).ne' hp
 
-#check add_sub
-
+--{ε : Type*}  [TopologicalSpace ε]
 -- Lemma 6.10 in Folland
+--set_option trace.Meta.synthInstance true in
 lemma MemLp_order_complete [ContinuousAdd ε] [MeasurableSpace ε] [BorelSpace ε] --not sure whether ContinuousAdd is necessary
     {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Icc p r)
     (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
-  set C := 1 --eLpNormEssSup f μ
+  by_cases p_ne_top : p = ⊤
+  · rw [p_ne_top] at hf
+    convert hf
+    rw [eq_top_iff]
+    convert hr'.1
+    exact p_ne_top.symm
+  set C := (1 : ℝ≥0∞)
   have h : MemLp (trnc ⊤ f C) q μ := trunc_Lp_Lq_higher ⟨hp, hr'.1⟩ hf (by norm_num)
   have h' : MemLp (trnc ⊥ f C) q μ := by
-    exact truncCompl_Lp_Lq_lower ⟨hp.trans_le hr'.1, hr'.2⟩ (by norm_num) hf'
+    by_cases hr : r = ⊤
+    · rw [hr] at hf'
+      apply MemLp_truncCompl_of_MemLp_top hf' _ (by norm_num)
+      rw [← distribution]
+      exact distribution_lt_top (ε := ε) hf hp p_ne_top (by norm_num)
+    exact truncCompl_Lp_Lq_lower hr ⟨hp.trans_le hr'.1, hr'.2⟩ (by norm_num) hf'
   have := MemLp.add h h'
   have : f = (trnc ⊤ f C) +  (trnc ⊥ f C) := trunc_add_truncCompl.symm
   rw [this]
   exact MemLp.add h h'
+
 
 end MeasureTheory
 
