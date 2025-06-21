@@ -693,8 +693,7 @@ private lemma enorm_czApproximation_le_finite [CompatibleFunctions ℝ X (defaul
   exact le_trans (enorm_integral_le_lintegral_enorm f) <| hα.trans α_le_mul_α
 
 /-- Equation (10.2.17) specialized to the general case. -/
-lemma enorm_czApproximation_le_infinite [CompatibleFunctions ℝ X (defaultA a)]
-    [IsCancellative X (defaultτ a)]{hf : BoundedFiniteSupport f} (hX : GeneralCase f α) :
+lemma enorm_czApproximation_le_infinite {hf : BoundedFiniteSupport f} (hX : GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α := by
   have h₁ (x : X) (hx : ∃ i, x ∈ czPartition hX i) : ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α :=
     have ⟨i, hi⟩ := hx
@@ -723,7 +722,7 @@ lemma enorm_czApproximation_le_infinite [CompatibleFunctions ℝ X (defaultA a)]
 
 /-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
 lemma enorm_czApproximation_le [CompatibleFunctions ℝ X (defaultA a)]
-    [IsCancellative X (defaultτ a)] {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
+    {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
     ∀ᵐ x, ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α :=
   by_cases (enorm_czApproximation_le_infinite (hf := hf)) (enorm_czApproximation_le_finite hα)
 
