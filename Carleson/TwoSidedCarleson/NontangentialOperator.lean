@@ -896,7 +896,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
   unfold pointwise
 
-  have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) (by rfl) one_lt_two
+  have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) zero_lt_one one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)
   have aesm_gmf_g := hst_gmf_g.1 -- for fun_prop
