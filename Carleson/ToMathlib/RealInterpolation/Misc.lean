@@ -955,19 +955,64 @@ lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
   by_cases hp0 : p = 0
   · rw [hp0, memLp_zero_iff_aestronglyMeasurable]
     exact aestronglyMeasurable_trnc hf_m
+
+  /-TODO: We currently need this annoying extra step because
+    we do not have `MeasurableSet {a | t < ‖f a‖ₑ}` in general
+    (since f is only aestronglymeasurable).
+  -/
+  rcases hf_m with ⟨g, ⟨wg1, wg2⟩⟩
+
   have hp_pos : 0 < p.toReal := ENNReal.toReal_pos hp0 hp_top
-  use aestronglyMeasurable_trnc hf_m
+  have ae_eq_trunc : (trnc ⊥ f t) =ᶠ[ae μ] (trnc ⊥ g t) := by
+    rw [trnc_false, truncCompl_eq_indicator, trnc_false, truncCompl_eq_indicator]
+    rw [Filter.eventuallyEq_iff_exists_mem] at wg2
+    rcases wg2 with ⟨s, hs, hfgs⟩
+    rw [Filter.eventuallyEq_iff_exists_mem]
+    use s, hs
+    rw [EqOn]
+    intro x hs
+    rw [indicator, indicator]
+    have : f x = g x := hfgs hs
+    split_ifs with hx hx' hx''
+    · exact this
+    · exfalso
+      simp only [mem_compl_iff, mem_setOf_eq, not_le, not_lt] at hx hx'
+      rw [this] at hx
+      order
+    · exfalso
+      simp only [mem_compl_iff, mem_setOf_eq, not_le, not_lt] at hx hx''
+      rw [this] at hx
+      order
+    · rfl
+
+  apply MemLp.ae_eq ae_eq_trunc.symm
+  use aestronglyMeasurable_trnc wg1.aestronglyMeasurable
   rw [trnc_false, truncCompl_eq_indicator,
-      eLpNorm_indicator_eq_eLpNorm_restrict (by rw [compl_setOf]; simp; sorry)]
+      eLpNorm_indicator_eq_eLpNorm_restrict
+        (by rw [compl_setOf]; simp only [not_le]; apply measurableSet_lt measurable_const (by measurability))]
   rw [eLpNorm_eq_eLpNorm' hp0 hp_top]
   apply (eLpNorm'_le_eLpNormEssSup_mul_rpow_measure_univ hp_pos).trans_lt
   apply ENNReal.mul_lt_top
   · rw [← eLpNorm_exponent_top]
-    exact (eLpNorm_restrict_le _ _ _ _).trans_lt hf_lt_top
+    apply (eLpNorm_restrict_le _ _ _ _).trans_lt
+    rwa [eLpNorm_congr_ae wg2.symm]
   apply ENNReal.rpow_lt_top_of_nonneg (by simp [hp_pos.le])
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
   rw [← lt_top_iff_ne_top, compl_setOf]
-  simpa
+  simp only [not_le]
+  calc
+  _ = μ {a | t < ‖f a‖ₑ} := by
+    apply measure_congr
+    rw [Filter.eventuallyEq_iff_exists_mem] at wg2
+    rcases wg2 with ⟨s, hs, hfgs⟩
+    rw [Filter.eventuallyEq_iff_exists_mem]
+    use s, hs
+    rw [EqOn]
+    intro a ha
+    rw [setOf, setOf]
+    congr
+    exact (EqOn.symm hfgs) ha
+  _ < ∞ := h
 
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q ≤ p`. -/
@@ -988,10 +1033,8 @@ lemma truncCompl_Lp_Lq_lower [MeasurableSpace ε] [BorelSpace ε]
   refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
   exact toReal_pos (hpq.1.trans_le hpq.2).ne' hp
 
---{ε : Type*}  [TopologicalSpace ε]
 -- Lemma 6.10 in Folland
---set_option trace.Meta.synthInstance true in
-lemma MemLp_order_complete [ContinuousAdd ε] [MeasurableSpace ε] [BorelSpace ε] --not sure whether ContinuousAdd is necessary
+lemma MemLp_of_MemLp_le_of_MemLp_ge [ContinuousAdd ε] [MeasurableSpace ε] [BorelSpace ε] --not sure whether ContinuousAdd is necessary
     {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Icc p r)
     (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
   by_cases p_ne_top : p = ⊤
