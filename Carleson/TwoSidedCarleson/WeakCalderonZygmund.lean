@@ -38,13 +38,43 @@ theorem maximal_theorem [Nonempty X] :
 
 /-- Lemma 10.2.2.
 Should be an easy consequence of `VitaliFamily.ae_tendsto_average`. -/
-theorem lebesgue_differentiation
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) :
+theorem lebesgue_differentiation {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     ∀ᵐ x ∂volume, ∃ (c : ℕ → X) (r : ℕ → ℝ),
-    Tendsto (fun i ↦ ⨍ y in ball (c i) (r i), f y ∂volume) atTop (𝓝 (f x)) ∧
+    Tendsto (fun i ↦ ⨍ y in closedBall (c i) (r i), f y ∂volume) atTop (𝓝 (f x)) ∧
     Tendsto r atTop (𝓝[>] 0) ∧
     ∀ i, x ∈ ball (c i) (r i) := by
-  sorry
+  have ineq (x : X) {r : ℝ} (hr : r > 0) : 
+      volume (closedBall x (3 * r)) ≤ (defaultA a) ^ 2 * volume (closedBall x r) := calc
+    _ ≤ volume (ball x (2 ^ 2 * (0.9 * r))) := measure_mono (closedBall_subset_ball (by linarith))
+    _ ≤ (defaultA a) ^ 2 * volume (closedBall x r) := by
+      apply le_trans (measure_ball_two_le_same_iterate _ _ 2)
+      gcongr
+      exact ball_subset_closedBall.trans <| closedBall_subset_closedBall <| by linarith
+  have h : ∀ (x : X), ∃ᶠ (r : ℝ) in 𝓝[>] 0,
+      volume (closedBall x (3 * r)) ≤ (defaultA a ^ 2) * volume (closedBall x r) := by
+    intro x
+    rw [frequently_nhdsWithin_iff, frequently_nhds_iff]
+    intro U hU0 hU
+    have ⟨r, hrU, hr0⟩ : ∃ r ∈ U, r > 0 := by
+      have ⟨l, u, hlu, hlu'⟩ := mem_nhds_iff_exists_Ioo_subset.mp (hU.mem_nhds hU0)
+      simp only [mem_Ioo] at hlu
+      exact ⟨u / 2, hlu' ⟨by linarith, by linarith⟩, by linarith⟩
+    refine ⟨r, hrU, ineq x hr0, hr0⟩
+  let v : VitaliFamily (volume : Measure X) := Vitali.vitaliFamily volume _ h
+  refine (v.ae_tendsto_average hf.integrable.locallyIntegrable).mono fun x hx ↦ ?_
+  have ⟨r₀, hr₀₁, hr₀₂⟩ := Filter.exists_seq_forall_of_frequently (h x)
+  have hr₀ := tendsto_nhdsWithin_iff.mp hr₀₁
+  have ⟨s, hs₁, hs₂⟩ := Filter.exists_seq_forall_of_frequently <| hr₀.2.frequently
+  use (fun _ ↦ x), r₀ ∘ s
+  refine ⟨?_, tendsto_nhdsWithin_iff.mpr ⟨hr₀.1.comp hs₁, Eventually.of_forall hs₂⟩,
+    (mem_ball_self <| hs₂ ·)⟩
+  suffices Tendsto (closedBall x) (𝓝[>] 0) (v.filterAt x) from hx.comp (this.comp (hr₀₁.comp hs₁))
+  rw [v.tendsto_filterAt_iff]
+  refine ⟨eventually_nhdsWithin_iff.mpr (Eventually.of_forall fun r hr ↦ ?_), fun ε hε ↦ ?_⟩
+  · exact ⟨isClosed_closedBall, ⟨x, mem_interior.mpr ⟨ball x r, ball_subset_closedBall, isOpen_ball, 
+      mem_ball_self hr⟩⟩, r, by tauto, ineq x hr⟩
+  · rw [eventually_nhdsWithin_iff, _root_.eventually_nhds_iff]
+    exact ⟨Iio ε, fun y hy _ ↦ closedBall_subset_closedBall hy.le, ⟨isOpen_Iio, hε⟩⟩
 
 /-! Lemma 10.2.3 is in Mathlib: `Pairwise.countable_of_isOpen_disjoint`. -/
 
