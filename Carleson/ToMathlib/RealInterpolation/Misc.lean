@@ -132,7 +132,7 @@ open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
     ComputationsChoiceExponent
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
   [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
@@ -294,7 +294,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0}
   {μ : Measure α} {ν : Measure α'}
   {f : α → E₁} {t : ℝ≥0∞}
 
@@ -427,11 +427,10 @@ noncomputable section
 
 open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 
-variable {α α' ε ε₁ E /-E₁-/ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
+variable {α α' ε E : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
-  --[ENorm E₁]--[NormedAddCommGroup E₁]
-  [TopologicalSpace ε] [ENormedAddCommMonoid ε] [TopologicalSpace ε₁] [ENormedAddCommMonoid ε₁]
+  [TopologicalSpace ε] [ENormedAddCommMonoid ε]
   {f : α → ε} {s t t' : ℝ≥0∞}
 
 /-! ## Results about truncations of a function
@@ -600,7 +599,7 @@ lemma aestronglyMeasurable_trnc {j : Bool} (hf : AEStronglyMeasurable f μ) :
 lemma trunc_le {f : α → ε} (x : α) : ‖trunc f t x‖ₑ ≤ max 0 t := by
   unfold trunc
   split_ifs with h
-  · rcases (lt_or_le t 0) with t_lt_0 | _
+  · rcases (lt_or_ge t 0) with t_lt_0 | _
     · exact Trans.trans (Trans.trans h t_lt_0.le) (le_max_left 0 t)
     · exact Trans.trans h (le_max_right 0 t)
   · simp
@@ -637,7 +636,7 @@ lemma truncCompl_le_func {x : α} :
   rw [truncCompl_eq]; dsimp only; split_ifs <;> simp
 
 lemma foo {A B C D : ℝ≥0∞} (hA : A ≠ ∞) (h : A ≤ C) (h' : A + B = C + D) : D ≤ B := by
-  obtain (done | contra) := le_or_lt D B
+  obtain (done | contra) := le_or_gt D B
   · assumption
   · have : A + B < C + D := ENNReal.add_lt_add_of_le_of_lt hA h contra
     exact False.elim (by order)
@@ -733,7 +732,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
 lemma rpow_le_rpow_of_exponent_le_base_ge {a b t γ : ℝ} (hγ : 0 < γ) (htγ : γ ≤ t) (hab : a ≤ b) :
     ENNReal.ofReal (t ^ a) ≤ ENNReal.ofReal (t ^ b) * ENNReal.ofReal (γ ^ (a - b)) := by
   rw [mul_comm]
-  have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
   rw [Real.rpow_sub hγ]
   refine (ENNReal.mul_le_mul_left (a := ENNReal.ofReal (γ ^ (-a) )) ?_ coe_ne_top).mp ?_
   · exact (ofReal_pos.mpr (Real.rpow_pos_of_pos hγ (-a))).ne'
@@ -764,7 +763,7 @@ lemma rpow_le_rpow_of_exponent_le_base_ge_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
       simp_all
     · positivity
     · simp
-  have t_pos : 0 < t := gt_of_ge_of_gt htγ hγ
+  have t_pos : 0 < t := lt_of_le_of_lt' htγ hγ
   rw [mul_comm, ← ENNReal.inv_mul_le_iff, ← ENNReal.rpow_neg, mul_comm, ENNReal.mul_le_iff_le_inv,
     ← ENNReal.rpow_neg, ← ENNReal.rpow_add, neg_sub, add_comm, sub_eq_add_neg]
   · gcongr
@@ -1067,7 +1066,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
   [NormedAddCommGroup E]
@@ -1269,7 +1268,7 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : 0 < t) :
   ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
     (tc.inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
-  sorry /-- proof was:
+  sorry /- proof was:
   rw [← lintegral_congr_ae (Filter.mp_mem (self_mem_ae_restrict measurableSet_res)
       (Filter.univ_mem'
       (fun s hs ↦ (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)).symm)))]

@@ -1,8 +1,5 @@
-import Carleson.TileStructure
+import Carleson.Operators
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.Psi
-import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-
 
 open scoped ShortVariables
 
@@ -53,21 +50,18 @@ open Set Complex MeasureTheory
 
 -- Lemma 6.1.1
 lemma E_disjoint {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) (𝔄 : Set (𝔓 X)))
-     {p p' : 𝔓 X} (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : (E p ∩ E p').Nonempty) : p = p' := by
+     {p p' : 𝔓 X} (hp : p ∈ 𝔄) (hp' : p' ∈ 𝔄) (hE : ¬Disjoint (E p) (E p')) : p = p' := by
   wlog h𝔰 : 𝔰 p ≤ 𝔰 p'
-  · have hE' : (E p' ∩ E p).Nonempty := by simp only [inter_comm, hE]
-    symm
-    apply this h𝔄 hp' hp hE' (le_of_lt (not_le.mp h𝔰))
-  set x := hE.some
-  have hx := hE.some_mem
-  simp only [E, mem_inter_iff, mem_setOf_eq] at hx
-  obtain ⟨⟨hx𝓓p, hxΩp, _⟩ , hx𝓓p', hxΩp', _⟩ := hx
+  · have hE' : ¬Disjoint (E p') (E p) := by rwa [disjoint_comm]
+    exact (this h𝔄 hp' hp hE' (not_le.mp h𝔰).le).symm
+  obtain ⟨x, hx, hx'⟩ := not_disjoint_iff.mp hE
+  obtain ⟨hx𝓓p, hxΩp, -⟩ := hx; obtain ⟨hx𝓓p', hxΩp', -⟩ := hx'
   have h𝓓 : 𝓘 p ≤ 𝓘 p' :=
     (or_iff_left (not_disjoint_iff.mpr ⟨x, hx𝓓p, hx𝓓p'⟩)).mp (le_or_disjoint h𝔰)
   have hΩ : Ω p' ≤ Ω p :=
     (or_iff_right (not_disjoint_iff.mpr ⟨Q x, hxΩp, hxΩp'⟩)).mp (relative_fundamental_dyadic h𝓓)
   have hle : p ≤ p' := ⟨h𝓓, hΩ⟩
-  exact IsAntichain.eq h𝔄 hp hp' hle
+  exact h𝔄.eq hp hp' hle
 
 --variable (K) (σ₁ σ₂) (p : 𝔓 X)
 
@@ -75,9 +69,9 @@ open MeasureTheory Metric
 open ENNReal NNReal Real
 
 /-- Constant appearing in Lemma 6.1.2. -/
-noncomputable def C_6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3)
+noncomputable def C6_1_2 (a : ℕ) : ℕ := 2 ^ (107 * a ^ 3)
 
-lemma C_6_1_2_ne_zero (a : ℕ) : (C_6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C_6_1_2]; positivity
+lemma C6_1_2_ne_zero (a : ℕ) : (C6_1_2 a : ℝ≥0∞) ≠ 0 := by rw [C6_1_2]; positivity
 
 open MeasureTheory Metric Bornology Set
 
@@ -167,7 +161,7 @@ lemma norm_Ks_le' {x y : X} {𝔄 : Set (𝔓 X)} (p : 𝔄) (hxE : x ∈ E ↑p
 -- lemma 6.1.2
 lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
     {f : X → ℂ} (hfm : Measurable f) (x : X) :
-    ‖carlesonSum 𝔄 f x‖ₑ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
+    ‖carlesonSum 𝔄 f x‖ₑ ≤ (C6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
   classical
   by_cases hx : ∃ (p : 𝔄), carlesonOn p f x ≠ 0
   · obtain ⟨p, hpx⟩ := hx
@@ -178,7 +172,8 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
       intro p' hp' hpp'
       simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp'
       by_contra hp'x
-      exact hpp' (E_disjoint h𝔄 hp' p.2 ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
+      exact hpp' (E_disjoint h𝔄 hp' p.2 <|
+        not_disjoint_iff.mpr ⟨x, mem_of_indicator_ne_zero hp'x, hxE⟩)
     have hdist_cp : dist x (𝔠 p) ≤ 4*D ^ 𝔰 p.1 := le_of_lt (mem_ball.mp (Grid_subset_ball hxE.1))
     have hdist_y : ∀ {y : X} (hy : Ks (𝔰 p.1) x y ≠ 0),
         dist x y ∈ Icc ((D ^ ((𝔰 p.1) - 1) : ℝ) / 4) (D ^ (𝔰 p.1) / 2) := fun hy ↦
@@ -242,12 +237,12 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
         (ne_of_gt (measure_ball_pos_nnreal _ _ h8Dpow_pos)),
         ENNReal.coe_toNNReal measure_ball_ne_top]
       ring
-    _ ≤ (C_6_1_2 a) * (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)).indicator (x := x)
+    _ ≤ (C6_1_2 a) * (ball (𝔠 p.1) (8*D ^ 𝔰 p.1)).indicator (x := x)
         (fun _ ↦ ⨍⁻ y, ‖f y‖ₑ ∂volume.restrict (ball (𝔠 p.1) (8*D ^ 𝔰 p.1))) := by
       simp only [coe_ofNat, indicator, mem_ball, mul_ite, mul_zero]
       rw [if_pos]
       · gcongr
-        rw [C_6_1_2, add_comm (5*a), add_assoc]; norm_cast
+        rw [C6_1_2, add_comm (5*a), add_assoc]; norm_cast
         apply pow_le_pow_right₀ one_le_two
         calc
         _ ≤ 101 * a ^ 3  + 6 * a ^ 3:= by
@@ -258,8 +253,8 @@ lemma MaximalBoundAntichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·)
         _ = 107 * a ^ 3 := by ring
       · exact lt_of_le_of_lt hdist_cp
           (mul_lt_mul_of_nonneg_of_pos (by linarith) (le_refl _) (by linarith) hDpow_pos)
-    _ ≤ (C_6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
-      rw [mul_le_mul_left (C_6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
+    _ ≤ (C6_1_2 a) * MB volume 𝔄 𝔠 (fun 𝔭 ↦ 8*D ^ 𝔰 𝔭) f x := by
+      rw [mul_le_mul_left (C6_1_2_ne_zero a) coe_ne_top, MB, maximalFunction,
         inv_one, ENNReal.rpow_one, le_iSup_iff]
       simp only [mem_image, Finset.mem_coe, iSup_exists, iSup_le_iff, and_imp,
         forall_apply_eq_imp_iff₂, ENNReal.rpow_one]
@@ -285,7 +280,7 @@ lemma _root_.Set.eq_indicator_one_mul {F : Set X} {f : X → ℂ} (hf : ∀ x, �
     exact le_antisymm hf (norm_nonneg _)
 
 /-- Constant appearing in Lemma 6.1.3. -/
-noncomputable def C_6_1_3 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2^(111*a^3)*(q-1)⁻¹
+noncomputable def C6_1_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (111 * a ^ 3) * (q - 1)⁻¹
 
 -- Inequality 6.1.16
 @[nolint unusedHavesSuffices]
@@ -357,7 +352,7 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
     {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hfm : Measurable f)
     {g : X → ℂ} (hg : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, ((starRingEnd ℂ) (g x)) * carlesonSum 𝔄 f x‖ₑ ≤
-      (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
+      (C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
   have ha : 4 ≤ a := four_le_a X
   have hf1 : f = (F.indicator 1) * f := eq_indicator_one_mul hf
@@ -447,7 +442,7 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
       · sorry
       sorry/- simp only [Pi.smul_apply, real_smul, nnnorm_mul, nnnorm_eq, nnnorm_mul,
          nnnorm_real, nnnorm_pow, nnnorm_two,
-        nnnorm_eq, coe_mul, C_6_1_2, ENNReal.coe_toNNReal MB_top]
+        nnnorm_eq, coe_mul, C6_1_2, ENNReal.coe_toNNReal MB_top]
         norm_cast -/ -/
     _ ≤ 2 ^ (107*a^3 + 2*a + 2) * (nnq' - 1)⁻¹ * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
@@ -458,14 +453,14 @@ lemma dens2_antichain {𝔄 : Set (𝔓 X)} (h𝔄 : IsAntichain (·≤·) 𝔄)
       apply mul_le_mul_of_nonneg_left _ (by norm_num)
       --apply le_trans hMB_le' hMBp₁_le
       sorry
-    _ ≤ (C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
+    _ ≤ (C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
         (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
       -- use 4 ≤ a, hq'_inv.
-      have h3 : 3 * ((C_6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
+      have h3 : 3 * ((C6_1_3 a nnq) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
           (eLpNorm f 2 volume) * (eLpNorm g 2 volume)) =
           (2 : ℝ≥0)^(111*a^3) * (3 * (nnq-1)⁻¹) * (dens₂ (𝔄 : Set (𝔓 X))) ^ ((nnq' : ℝ)⁻¹ - 2⁻¹) *
           (eLpNorm f 2 volume) * (eLpNorm g 2 volume) := by
-        conv_lhs => simp only [C_6_1_3, ENNReal.coe_mul, ← mul_assoc]
+        conv_lhs => simp only [C6_1_3, ENNReal.coe_mul, ← mul_assoc]
         rw [mul_comm 3, mul_assoc _ 3]
         norm_cast
       rw [← ENNReal.mul_le_mul_left (Ne.symm (NeZero.ne' 3)) ofNat_ne_top, h3]

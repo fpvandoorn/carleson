@@ -140,7 +140,7 @@ end NNReal
 namespace MeasureTheory
 
 set_option linter.style.refine false in
-variable  {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
+variable {α : Type*} {β : Type*} {s : Set α} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
 @[measurability, fun_prop]
 protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (hs : MeasurableSet s)
@@ -150,7 +150,7 @@ protected theorem _root_.AEMeasurable.piecewise {d : DecidablePred (· ∈ s)} (
   filter_upwards [hf.ae_eq_mk, hg.ae_eq_mk] with x hfx hgx
   simp_rw [Set.piecewise, ← hfx, ← hgx]
 
-variable  {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
+variable {α : Type*} {β : Type*} {p : α → Prop} {f g : α → β}
   {m : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α} in
 @[measurability, fun_prop]
 protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : MeasurableSet {a | p a})
@@ -165,7 +165,7 @@ protected theorem _root_.AEMeasurable.ite {d : DecidablePred p} (hp : Measurable
 lemma lintegral_Ioc_partition {a b : ℕ} {c : ℝ} {f : ℝ → ℝ≥0∞} (hc : 0 ≤ c) :
     ∫⁻ t in Ioc (a * c) (b * c), f t =
     ∑ l ∈ Finset.Ico a b, ∫⁻ t in Ioc (l * c) ((l + 1 : ℕ) * c), f t := by
-  rcases lt_or_le b a with h | h
+  rcases lt_or_ge b a with h | h
   · rw [Finset.Ico_eq_empty (by omega), Ioc_eq_empty (by rw [not_lt]; gcongr),
       setLIntegral_empty, Finset.sum_empty]
   induction b, h using Nat.le_induction with
@@ -320,6 +320,22 @@ lemma eLpNorm_toReal_eq {f : α → ℝ≥0∞} (hf : ∀ᵐ x ∂μ, f x ≠ �
   · exact eLpNormEssSup_toReal_eq hf
   · exact eLpNorm'_toReal_eq hf
 
+lemma sq_eLpNorm_two {ε : Type*} [ENorm ε] {f : α → ε} :
+    eLpNorm f 2 μ ^ 2 = ∫⁻ x, ‖f x‖ₑ ^ 2 ∂μ := by
+  simpa using eLpNorm_nnreal_pow_eq_lintegral (f := f) two_ne_zero
+
+open ComplexConjugate in
+/-- One of the very few cases where a norm can be moved _out of_ an integral. -/
+lemma eLpNorm_two_eq_enorm_integral_mul_conj {f : α → ℂ} (lpf : MemLp f 2 μ) :
+    eLpNorm f 2 μ ^ 2 = ‖∫ x, f x * conj (f x) ∂μ‖ₑ := by
+  conv_rhs => enter [1, 2, x]; rw [RCLike.mul_conj, ← RCLike.ofReal_pow]
+  rw [integral_ofReal, integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ by simp)]; swap
+  · exact lpf.aestronglyMeasurable.norm.pow 2
+  conv_rhs => enter [1, 1, 1, 2, x]; rw [ENNReal.ofReal_pow (norm_nonneg _), ofReal_norm]
+  rw [← sq_eLpNorm_two, ← enorm_norm]
+  simp_rw [Complex.coe_algebraMap, Complex.norm_real, enorm_norm]
+  rw [toReal_pow, enorm_pow, enorm_toReal lpf.eLpNorm_ne_top]
+
 end eLpNorm
 
 namespace MemLp
@@ -442,7 +458,7 @@ lemma biSup_eq {α : Type*} {ι : Type*} [CompleteLinearOrder α] {s : Set ι}
 end Set.Finite
 
 lemma Real.self_lt_two_rpow (x : ℝ) : x < 2 ^ x := by
-  rcases lt_or_le x 0 with h | h
+  rcases lt_or_ge x 0 with h | h
   · exact h.trans (rpow_pos_of_pos zero_lt_two x)
   · calc
       _ < (⌊x⌋₊.succ : ℝ) := Nat.lt_succ_floor x
@@ -552,10 +568,7 @@ end BddAbove
 namespace MeasureTheory
 
 open Metric Bornology
-variable {𝕜: Type*}
-variable [RCLike 𝕜]
-
-variable {X α: Type*}
+variable {𝕜 : Type*} [RCLike 𝕜] {X α : Type*}
 
 namespace HasCompactSupport
 
@@ -580,8 +593,8 @@ namespace Integrable
 variable [MeasureSpace X]
 
 -- must be in mathlib but can't find it
-theorem indicator_const {c : ℝ} {s: Set X}
-    (hs: MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun _ ↦ c)) :=
+theorem indicator_const {c : ℝ} {s : Set X}
+    (hs : MeasurableSet s) (h2s : volume s < ⊤) : Integrable (s.indicator (fun _ ↦ c)) :=
   (integrable_indicator_iff hs).mpr <| integrableOn_const h2s.ne
 
 end Integrable
@@ -689,7 +702,47 @@ lemma Finset.prod_finset_product_filter_right {α β γ : Type*} {s : Finset α}
     tauto
   · intro r; simp only [mem_filter, mem_product]; tauto
 
+open Classical ComplexConjugate in
+lemma Finset.sum_range_mul_conj_sum_range {α : Type*} {s : Finset α} {f : α → ℂ} :
+    ∑ j ∈ s, f j * conj (f j) + ∑ j ∈ s, ∑ j' ∈ s with j ≠ j', f j * conj (f j') =
+    (∑ j ∈ s, f j) * conj (∑ j' ∈ s, f j') := by
+  calc
+    _ = ∑ j ∈ s, ∑ j' ∈ s with j = j', f j * conj (f j') +
+        ∑ j ∈ s, ∑ j' ∈ s with j ≠ j', f j * conj (f j') := by
+      rw [add_left_inj]
+      congr! with j mj; simp_rw [filter_eq, mj, ite_true, sum_singleton]
+    _ = _ := by
+      conv_lhs =>
+        rw [← sum_add_distrib]; enter [2, j]; rw [sum_filter_add_sum_filter_not, ← mul_sum]
+      rw [sum_mul, map_sum]
+
+lemma Finset.pow_sum_comm {ι R : Type*} [Semiring R] {s : Finset ι} {f : ι → R}
+    (hf : ∀ i ∈ s, ∀ j ∈ s, i ≠ j → f i * f j = 0) {n : ℕ} (hn : 1 ≤ n) :
+    (∑ i ∈ s, f i) ^ n = ∑ i ∈ s, f i ^ n := by
+  induction n, hn using Nat.le_induction with
+  | base => simp
+  | succ n hn ih =>
+    simp_rw [pow_succ, ih, sum_mul, mul_sum]
+    congr! 1 with x mx
+    refine Finset.sum_eq_single _ (fun y my hn ↦ ?_) (fun _ ↦ by contradiction)
+    rw [← Nat.sub_one_add_one (show n ≠ 0 by omega), pow_succ, mul_assoc, hf _ mx _ my hn.symm,
+      mul_zero]
+
 namespace MeasureTheory
+
+lemma sum_sq_eLpNorm_indicator_le_of_pairwiseDisjoint
+    {α ι F : Type*} [MeasurableSpace α] [NormedAddCommGroup F] {μ : Measure α}
+    {s : Finset ι} {f : α → F} {t : ι → Set α} (meast : ∀ i, MeasurableSet (t i))
+    (hpd : s.toSet.PairwiseDisjoint t) :
+    ∑ i ∈ s, eLpNorm ((t i).indicator f) 2 μ ^ 2 ≤ eLpNorm f 2 μ ^ 2 := by
+  simp_rw [sq_eLpNorm_two]
+  conv_lhs =>
+    enter [2, i, 2, x]
+    rw [enorm_indicator_eq_indicator_enorm, sq, ← inter_indicator_mul, inter_self]
+    enter [2, y]; rw [← sq]
+  conv_lhs => enter [2, i]; rw [lintegral_indicator (meast i)]
+  rw [← lintegral_biUnion_finset hpd fun _ _ ↦ meast _]
+  exact setLIntegral_le_lintegral _ _
 
 theorem measurable_measure_ball {α : Type*} [PseudoMetricSpace α] [SecondCountableTopology α]
     [MeasurableSpace α] [OpensMeasurableSpace α] {μ : Measure α} [SFinite μ] :

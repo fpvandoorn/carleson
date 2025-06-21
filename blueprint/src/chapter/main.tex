@@ -304,8 +304,7 @@ for all Borel functions $f:X\to \C$ with $|f|\le \mathbf{1}_F$.
 \end{equation*}
 \begin{equation}
     \label{eq-linearized}
-    \le \frac{2^{434a^3}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}}
-     \mu(F)^{\frac 1 q}\,.
+    \le \frac{2^{471a^3+1}}{(q-1)^5} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac 1 q}\,.
 \end{equation}
 \end{proposition}
 Let measurable functions ${\sigma_1}\leq \sigma_2\colon X\to \mathbb{Z}$ with finite range be given.
@@ -505,7 +504,7 @@ For any antichain $\mathfrak{A} $ and for all $f:X\to \C$ with $|f|\le \mathbf{1
     |\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)|
 \end{equation}
 \begin{equation}
-    \le \frac{2^{150a^3}}{q-1} \dens_1(\mathfrak{A})^{\frac {q-1}{8a^4}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2 \|g\|_2\, .
+    \le \frac{2^{128a^3}}{q-1} \dens_1(\mathfrak{A})^{\frac {q-1}{8a^4}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2 \|g\|_2\, .
 \end{equation}
 \end{proposition}
 
@@ -556,13 +555,13 @@ The following proposition is proved in \Cref{treesection}.
 \leanok
 \lean{forest_operator}
 \uses{forest-row-decomposition,row-bound,row-correlation,disjoint-row-support}
-For any $n\ge 0$ and any $n$-forest $(\fU,\fT)$ we have for all $f: X \to \mathbb{C}$ with $|f| \le \mathbf{1}_F$ and all bounded $g$ with bounded support
+For any $n\ge 0$ and any $n$-forest $(\fU,\fT)$ we have for all $f,g: X \to \mathbb{C}$ with $|f| \le \mathbf{1}_F$ and $|g| \le \mathbf{1}_G$
 $$
     | \int \overline{g(x)} \sum_{\fu\in \fU} \sum_{\fp\in \fT(\fu)} T_{\fp} f(x) \, \mathrm{d}\mu(x)|
 $$
 $$
     \le
-    2^{432a^3}2^{-\frac{q-1}{q} n} \dens_2\left(\bigcup_{\fu\in \fU}\fT(\fu)\right)^{\frac{1}{q}-\frac{1}{2}} \|f\|_2 \|g\|_2 \,.
+    2^{470a^3}2^{-\frac{q-1}{q} n} \dens_2\left(\bigcup_{\fu\in \fU}\fT(\fu)\right)^{\frac{1}{q}-\frac{1}{2}} \|f\|_2 \|g\|_2 \,.
 $$
 \end{proposition}
 
@@ -1061,13 +1060,12 @@ T_{s_1,s_2} f(x)=
     \leanok
     \lean{linearized_truncation}
     \uses{finitary-Carleson}
-    Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range
-    $[-S,S]$ and $\sigma_1\leq \sigma_2$.
+    Let $\sigma_1,\sigma_2\colon X\to \mathbb{Z}$ be measurable functions with finite range and $\sigma_1\leq \sigma_2$.
     Then we have
     \begin{equation} \label{Sqlin}
         \int \mathbf{1}_{G}(x)
         \left| {T}_{2,\sigma_1,\sigma_2}f(x)\right|\, d\mu(x)
-        \le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+        \le \frac{2^{471a^3+3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     with
     \begin{equation}\label{middles1}
@@ -1077,29 +1075,26 @@ T_{s_1,s_2} f(x)=
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{linearized-truncation}]
-Fix $\sigma_1$, $\sigma_2$,
-and $\tQ$ as in the lemma.
-Applying \Cref{finitary-Carleson} recursively, we obtain
-a sequence of sets $G_n$ with $G_0=G$ and,
-for each $n\ge 0$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
+\leanok
+Fix $\sigma_1$, $\sigma_2$ and $\tQ$ as in the lemma. Applying \Cref{finitary-Carleson} recursively, we obtain a sequence of sets $G_n$ with $G_0=G$ and, for each $n\ge 0$, $G_{n+1} \subset G_n$, $\mu(G_{n})\le 2^{-n} \mu(G)$ and
 \begin{equation*}
     \int \mathbf{1}_{G_{n}\setminus G_{n+1}}(x)
     \left| {T}_{2,\sigma_1,\sigma_2} f(x) \right|\, d\mu(x)
 \end{equation*}
 \begin{equation}
-    \le \frac{2^{440a^3}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    \le \frac{2^{471a^3+1}}{(q-1)^5} \mu(G_n)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 Adding the first $n$ of these inequalities, we obtain by bounding a geometric series
     \begin{equation} \label{Sqcut2}
     \int \mathbf{1}_{G\setminus G_{n}}(x)
 \left| {T}_{2,\sigma_1,\sigma_2}f(x) \right|\, d\mu(x)
-\le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
+\le \frac{2^{471a^3+3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 As the integrand is non-negative and non-decreasing in $n$, we obtain by the monotone convergence theorem
  \begin{equation} \label{Sqcut3}
     \int \mathbf{1}_{G}(x)
 \left| {T}_{2,\sigma_1,\sigma_2}f(x) \right|\, d\mu(x)
-\le \frac{2^{445a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
+\le \frac{2^{471a^3+3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}.
 \end{equation}
 This completes the proof of \Cref{linearized-truncation}
 and thus \Cref{metric-space-Carleson}.
@@ -1197,7 +1192,7 @@ We now estimate with \Cref{tile-sum-operator} and \Cref{discrete-Carleson}
 \end{equation}
 \begin{equation}
  =\int_{G \setminus G'} \left|\sum_{\fp\in \fP}T_{\fp} f(x)\right| \mathrm{d}\mu(x)
- \le \frac{2^{434a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
+ \le \frac{2^{471a^3+1}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}} \,.
 \end{equation}
 This proves \eqref{eq-linearized} for the chosen set $G'$ and arbitrary $f$ and thus completes the proof of Proposition
 \ref{finitary-Carleson}.
@@ -2033,7 +2028,7 @@ In \Cref{subsecforest}, we identify each set $\fC_5(k,n,j)$ outside $G'$ as fore
     For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
     \begin{equation}
         \label{disclesssim1}
-        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{433a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_1} T_{\fp} f \right|\, \mathrm{d}\mu \le \frac{2^{471a^3}}{(q-1)^4} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
 
@@ -2054,7 +2049,7 @@ the complement of the set of tiles in Lemma
     For all $f:X\to \C$ with $|f|\le \mathbf{1}_F$ we have
     \begin{equation}
         \label{disclesssim2}
-        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu \le \frac{2^{153a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+        \int_{G \setminus G'} \left|\sum_{\fp \in \fP_2} T_{\fp} f\right| \, \mathrm{d}\mu \le \frac{2^{131a^3}}{(q-1)^5} \mu(G)^{1 - \frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
     \end{equation}
 \end{lemma}
 
@@ -3269,11 +3264,11 @@ We now turn to the proof of \Cref{forest-complement}.
     Applying now the triangle inequality according to the decomposition in \Cref{antichain-decomposition}, and then applying \Cref{antichain-operator} to each term, we obtain the estimate
     \begin{multline*}
         \le \sum_{k \ge 0} \sum_{n \ge k} (n + (2n+4) + 2(2n+4) (1+Z(n+1))) \\
-        \times 2^{150a^3}(q-1)^{-1} (2^{4a+1-n})^{\frac{q-1}{8a^4}} (2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2\|\mathbf{1}_{G\setminus G'}\|_2\,.
+        \times 2^{128a^3}(q-1)^{-1} (2^{4a+1-n})^{\frac{q-1}{8a^4}} (2^{2a+5} \frac{\mu(F)}{\mu(G)})^{\frac{1}{q} - \frac{1}{2}} \|f\|_2\|\mathbf{1}_{G\setminus G'}\|_2\,.
     \end{multline*}
     Because $|f| \le \mathbf{1}_F$, we have $\|f\|_2 \le \mu(F)^{1/2}$, and we have $\|\mathbf{1}_{G\setminus G'}\|_2 \le \mu(G)^{1/2}$. Using this and \eqref{defineZ}, we bound
     $$
-        \le 2^{151a^3} (q - 1)^{-1} \mu(F)^{\frac{1}{q}} \mu(G)^{\frac{1}{q'}} \sum_{k \ge 0} \sum_{n \ge k} n^2 2^{-n\frac{q-1}{8a^4}}\,.
+        \le 2^{129a^3} (q - 1)^{-1} \mu(F)^{\frac{1}{q}} \mu(G)^{\frac{1}{q'}} \sum_{k \ge 0} \sum_{n \ge k} n^2 2^{-n\frac{q-1}{8a^4}}\,.
     $$
     The last sum equals, by changing the order of summation,
     $$
@@ -3472,15 +3467,13 @@ proves the lemma.
 Set $p:=4a^4$. We have
     \begin{equation}\label{eqttt3}
   \left|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\right|\le
-   2^{150a^3}\dens_1(\mathfrak{A})^{\frac 1{2p}} \|f\|_2\|g\|_2\,.
+   2^{128a^3}\dens_1(\mathfrak{A})^{\frac 1{2p}} \|f\|_2\|g\|_2\,.
 \end{equation}
 \end{lemma}
 
-
-
 \begin{proof}
-
- We write for the expression inside the absolute values on the left-hand side of \eqref{eqttt3}
+\leanok
+We write for the expression inside the absolute values on the left-hand side of \eqref{eqttt3}
 \begin{equation}
   \sum_{\fp \in \mathfrak{A}}\iint \overline{g(x)} \mathbf{1}_{E(\fp)}(x)
   {K_{\ps(\fp)}(x,y)}e(\tQ(x)(y) -
@@ -3495,12 +3488,7 @@ with the adjoint operator
     T_{\fp}^*g(y)=\int_{E(\fp)} \overline{K_{\ps(\fp)}(x,y)}e(-\tQ(x)(y)+
     \tQ(x)(x))g(x)\, d\mu(x)\, .
 \end{equation}
-
-
-
-
-
- We have by expanding the square
+We have by expanding the square
 \begin{equation}
     \int \Big|\sum_{\fp\in \mathfrak{A}}T^*_{\fp}g(y)\Big|^2\, d\mu(y)=
     \int \left(\sum_{\fp\in \mathfrak{A}} T^*_{\fp}g(y)\right)
@@ -3522,7 +3510,7 @@ by $\ps(\fp')\le \ps(\fp)$ in the second sum, we estimate \eqref{eqtts1} by
 
 Define for $\fp\in \fP$
 \begin{equation}
-    B(\fp):=B(\pc(\fp), 15D^{\ps(\fp)})
+    B(\fp):=B(\pc(\fp), 14D^{\ps(\fp)})
 \end{equation}
 and define
 \begin{equation}
@@ -3546,8 +3534,7 @@ with $h(\fp)$ defined as
     {(1+d_{\fp'}(\fcc(\fp'), \fcc(\fp))^{-1/(2a^2+a^3)}}(\mathbf{1}_{E(\fp')}|g|)(y')\, d\mu(y')\,.
 \end{equation}
 
-
-Note that $p\geq 4$ since $a>4$.
+Note that $p>4$ since $a\ge 4$. Let $p'$ be the dual exponent of $p$, satisfying $1/p+1/p'=1$.
 We estimate $h(\fp)$ as defined in \eqref{def-hp} with H\"older using $|g|\le \mathbf{1}_G$ and $E(\fp')\subset B(\fp)$ by
 
 \begin{equation}
@@ -3556,7 +3543,7 @@ We estimate $h(\fp)$ as defined in \eqref{def-hp} with H\"older using $|g|\le \m
 \end{equation}
 Then we apply \Cref{antichain-tile-count} to estimate this by
 \begin{equation}\label{eqttt5}
-    \le 2^{104a}
+    \le 2^{5a}
     \frac{\|g\mathbf{1}_{B(\fp)}\|_{p'}}{\mu(B(\fp))}
     \dens_1(\mathfrak{A})^{\frac 1p}\mu(B(\fp))^{\frac 1p}\,.
 \end{equation}
@@ -3572,39 +3559,29 @@ Hence we can estimate \eqref{eqttt5} by
 \begin{equation}
 \label{eqttt5b}
     \le
-    2^{104a}
+    2^{5a}
     (M_{\mathcal{B}', p'}g(x))
    \dens_1(\mathfrak{A})^{\frac 1p}\, .
 \end{equation}
-With this estimate of $h(\fp)$,
-using $E(\fp)\subset B(\fp)$ by construction of $B(\fp)$, we estimate
-\eqref{eqtts3} by
+With this estimate of $h(\fp)$, using $E(\fp)\subset B(\fp)$ by construction of $B(\fp)$, we estimate \eqref{eqtts3} by
  \begin{equation}\label{eqtts4}
- \le 2^{255a^3+110a + 1} { \dens_1(\mathfrak{A})^{\frac 1p}}\sum_{\fp\in \mathfrak{A}}
+ \le 2^{255a^3+11a + 1} { \dens_1(\mathfrak{A})^{\frac 1p}}\sum_{\fp\in \mathfrak{A}}
  \int_{E(\fp)}|g|(y)M_{\mathcal{B}', p'}g(y) \, dy\,.
          \end{equation}
-Using \Cref{tile-disjointness},
-the last display is observed to be
+Using \Cref{tile-disjointness}, the last display is observed to be
 \begin{equation}\label{eqtts4a}
-= 2^{255a^3+110a + 1}
+\le 2^{255a^3+11a + 1}
  {\dens_1(\mathfrak{A})^{\frac 1p}} \int |g|(y)(M_{\mathcal{B}', p'}g)(y) \, dy\,.
          \end{equation}
-Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood} estimates the last display by
+Applying Cauchy-Schwarz and using \Cref{Hardy-Littlewood} and $1<p'<\frac 32$ estimates the last display by
 \begin{equation}
-    2^{255a^3+110a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
+    \le 2^{255a^3+11a + 1} \dens_1(\mathfrak{A})^{\frac 1p}
     \|g\|_2 \|M_{\mathcal{B}', p'} g\|_2
 \end{equation}
 \begin{equation}
-    \le 2^{255a^3+110a + 3}\frac{2}{2-p'}
-    \dens_1(\mathfrak{A})^{\frac 1p}\|g\|_2 ^2\,.
+    \le 2^{255a^3+12a+3} \dens_1(\mathfrak{A})^{\frac 1p}\|g\|_2 ^2\,.
 \end{equation}
-Using $p>4$ and thus $1<p'<\frac 43$, we estimate the last display by
-\begin{equation}
-    \le 2^{255a^3+110a + 5} \dens_1(\mathfrak{A})^{\frac 1p}
-    \|g\|_2^2\,.
-\end{equation}
-Now \Cref{dens1-antichain} follows by applying Cauchy-Schwarz on the left-hand side and using
-$a\ge 4$.
+Now \Cref{dens1-antichain} follows by applying Cauchy-Schwarz on the left-hand side and using $a\ge 4$.
 \end{proof}
 The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
 \begin{lemma}[tile correlation]
@@ -3624,7 +3601,7 @@ The following basic $TT^*$ estimate will be proved in \Cref{sec-tile-operator}.
     \end{equation}
     Moreover, the term \eqref{eq-basic-TT*-est} vanishes unless
     \begin{equation}
-        \scI(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
+        \scI(\fp') \subset B(\pc(\fp), 14D^{\ps(\fp)})\, .
     \end{equation}
 \end{lemma}
 
@@ -3634,15 +3611,14 @@ The following lemma will be proved in \Cref{subsec-geolem}.
 \leanok
 \lean{Antichain.tile_count}
     \uses{global-antichain-density}
-    Set $p:=4a^4$ and let $p'$ be the dual exponent of $p$, that is $1/p+1/p'=1$.
-    For every $\mfa\in\Mf$ and every subset $\mathfrak{A}'$ of $\mathfrak{A}$ we have
+    Set $p:=4a^4$. For every $\mfa\in\Mf$ and every antichain $\mathfrak{A}$ we have
     \begin{equation}
         \label{eq-antichain-Lp}
-        \Big\|\sum_{\fp\in\mathfrak{A}'}(1+d_{\fp}(\fcc(\fp), \mfa))^{-1/(2a^2+a^3)}\mathbf{1}_{E(\fp)}\mathbf{1}_G\Big\|_{p}
+        \Big\|\sum_{\fp\in\mathfrak{A}}(1+d_{\fp}(\fcc(\fp), \mfa))^{-1/(2a^2+a^3)}\mathbf{1}_{E(\fp)}\mathbf{1}_G\Big\|_{p}
     \end{equation}
     \begin{equation}
         \le
-        2^{104a}\dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}'}I_{\fp}\right)^{\frac 1p}\, .
+        2^{5a}\dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}}I_{\fp}\right)^{\frac 1p}\, .
     \end{equation}
 \end{lemma}
 
@@ -3652,7 +3628,7 @@ From these lemmas it is easy to prove \Cref{antichain-operator}.
 \leanok
 We have
 \begin{equation}
-    \left (\frac 1{\tilde{q}} -\frac 12\right) (2-q)= \frac 1q -\frac 12\,.
+    \left(\frac 1{\tilde{q}} -\frac 12\right) (2-q)= \frac 1q -\frac 12\,.
 \end{equation}
 Multiplying the $(2-q)$-th power of \eqref{eqttt9} and the $(q-1)$-th power of \eqref{eqttt3}
 and estimating gives after simplification of some factors
@@ -3660,7 +3636,7 @@ and estimating gives after simplification of some factors
     \Big|\int \overline{g(x)} \sum_{\fp \in \mathfrak{A}} T_{\fp} f(x)\, d\mu(x)\Big|
 \end{equation}
  \begin{equation}
-    \le 2^{150a^3}({q}-1)^{-1} \dens_1(\mathfrak{A})^{\frac {q-1}{2p}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2\|g\|_2\, .
+    \le 2^{128a^3}(q-1)^{-1} \dens_1(\mathfrak{A})^{\frac {q-1}{2p}}\dens_2(\mathfrak{A})^{\frac 1{q}-\frac 12} \|f\|_2\|g\|_2\, .
 \end{equation}
 With the definition of $p$, this implies
 \Cref{antichain-operator}.
@@ -3903,7 +3879,7 @@ By the triangle inequality and \Cref{tile-range-support}, we conclude
 By the squeezing property \eqref{eq-vol-sp-cube} and the triangle inequality,
 we conclude
 \begin{equation}
-    \scI(\fp') \subset B(\pc(\fp), 15D^{\ps(\fp)})\, .
+    \scI(\fp') \subset B(\pc(\fp), 14D^{\ps(\fp)})\, .
 \end{equation}
    This completes the proof of Lemma \ref{tile-correlation}.
 \end{proof}
@@ -3988,7 +3964,7 @@ This implies \eqref{lp'lp''} and completes the proof of the lemma.
 
 For $\mfa \in \Mf$ and $N\ge 0$ define
 \begin{equation}\label{eqantidefap}
-    \mathfrak{A}_{\mfa,N}:=\{\fp\in\mathfrak{A}: 2^{N}\le 1+d_{\fp}(\fcc(\fp), \mfa)\le 2^{N+1}\} \, .
+    \mathfrak{A}_{\mfa,N}:=\{\fp\in\mathfrak{A}: 2^{N}\le 1+d_{\fp}(\fcc(\fp), \mfa) < 2^{N+1}\} \, .
 \end{equation}
 
 
@@ -4237,54 +4213,49 @@ This completes the proof of the lemma.
 We turn to the proof of \Cref{antichain-tile-count}.
 
 \begin{proof}[Proof of \Cref{antichain-tile-count}]
+\leanok
 \proves{antichain-tile-count}
 
-Using that $\mathfrak{A}$ is the union of the
-$\mathfrak{A}_{\mfa,N}$ with $N\ge 0$,
+Using that $\mathfrak{A}$ is the disjoint union of the $\mathfrak{A}_{\mfa,N}$ with $N\ge 0$,
 we estimate the left-hand side \eqref{eq-antichain-Lp}
 with the triangle inequality by
 \begin{equation}\label{eqanti23}
 \le \sum_{N\ge 0} \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}
 \end{equation}
-We consider each individual term in this sum and estimate it's $p$-th power.
-   Using that for each $x\in X$ by \Cref{global-antichain-density} there is at most one $\fp\in \mathfrak{A}$ with $x\in E(\fp)$,
- we have
- \begin{equation}
-     \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}^p
- \end{equation}
+We consider each individual term in this sum and estimate its $p$-th power.
+Using that for each $x\in X$ by \Cref{tile-disjointness} there is at most one $\fp\in \mathfrak{A}$ with $x\in E(\fp)$, we have
 \begin{equation}
-    =\int_G\Big(\sum_{\fp\in \mathfrak{A}_{\mfa,N}}2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)}(x)\Big)^p\, d\mu(x)
+    \left\|\sum_{\fp\in \mathfrak{A}_{\mfa,N}} 2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)} \mathbf{1}_G\right\|_{p}^p
 \end{equation}
 \begin{equation}
-  = \int _G\sum_{\fp\in\mathfrak{A}_{\mfa,N}}2^{-pN/(2a^2+a^3)}\mathbf{1}_{E(\fp)}(x)\, d\mu(x)
+    =\int\Big(\sum_{\fp\in \mathfrak{A}_{\mfa,N}}2^{-N/(2a^2+a^3)}\mathbf{1}_{E(\fp)\cap G}(x)\Big)^p\, d\mu(x)
 \end{equation}
 \begin{equation}
-  = 2^{-pN/(2a^2+a^3)} \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G)
+    =\int\sum_{\fp\in\mathfrak{A}_{\mfa,N}}2^{-pN/(2a^2+a^3)}\mathbf{1}_{E(\fp)\cap G}(x)\, d\mu(x)
+\end{equation}
+\begin{equation}
+    = 2^{-pN/(2a^2+a^3)} \sum_{\fp\in\mathfrak{A}_{\mfa,N}}\mu(E(\fp)\cap G)
 \end{equation}
 
 Using \Cref{global-antichain-density}, we estimate the last display by
 \begin{equation}\label{eqanti21}
     \le 2^{-pN/(2a^2+a^3)+101a^3+Na}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)
 \end{equation}
-Using that with $a\ge 4$ and since $p = 4a^4$, we have
-\begin{equation}
-    pN/(2a^2+a^3)\ge
-    4a^4N/(3a^3) \ge Na+N\, .
-\end{equation}
+Using that $a\ge 4$ and since $p = 4a^4$, we have
+$$
+    pN/(2a^2+a^3)\ge 4a^4N/(3a^3) \ge Na+N\, .
+$$
 Hence we have for \eqref{eqanti21} the upper bound
-\begin{equation}\label{eqanti22}
-\le 2^{101a^3-N}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)\, .
-\end{equation}
-Taking th $p$-th root and summing over $N\ge 0$ gives for \eqref{eqanti23} the upper bound
-
-\begin{equation}
-\le \left(\sum_{N\ge 0} 2^{-N/p}\right)2^{101a^3/p}\dens_1(\mathfrak{A})^{{\frac{1}{p}}}\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)^{{\frac{1}{p}}}
-\end{equation}
-\begin{equation}
-\le \left(1-2^{-1/p}\right)^{-1}
-2^{101a^3/p}
-\dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)^{\frac 1p}\, .
-\end{equation}
+$$
+    \le 2^{101a^3-N}\dens_1(\mathfrak{A})\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)\, .
+$$
+Taking the $p$-th root and summing over $N\ge 0$ gives for \eqref{eqanti23} the upper bound
+$$
+    \le \left(\sum_{N\ge 0} 2^{-N/p}\right)2^{101a^3/p}\dens_1(\mathfrak{A})^{{\frac{1}{p}}}\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)^{{\frac{1}{p}}}
+$$
+$$
+    = \left(1-2^{-1/p}\right)^{-1} 2^{101a^3/p} \dens_1(\mathfrak{A})^{\frac 1p}\mu\left(\cup_{\fp\in\mathfrak{A}}\scI(\fp)\right)^{\frac 1p}\, .
+$$
 Using that $p = 4a^4$ and $a \ge 4$, this proves the lemma.
 \end{proof}
 
@@ -5132,7 +5103,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     \uses{densities-tree-bound}
     For all $g$ with $|g| \le \mathbf{1}_G$, we have that
     $$
-        \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
+        \left\| \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2\,.
     $$
 \end{lemma}
 
@@ -5144,7 +5115,7 @@ The adjoint of the operator $T_{\fp}$ defined in \eqref{definetp} is given by
     $$
     \begin{equation}
         \label{eq-adjoint-bound}
-        \le 2^{155a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2 \|f\|_2\,.
+        \le 2^{202.5a^3} \dens_1(\fT(\fu))^{1/2} \|g\|_2 \|f\|_2\,.
     \end{equation}
     Let $f = \sum_{\fp \in \fT(\fu)} T_{\fp}^* g$. Since $|g| \le \mathbf{1}_G$, $f$ is bounded and has bounded support. In particular $\|f\|_2 < \infty$. Dividing \eqref{eq-adjoint-bound} by $\|f\|_2$ completes the proof.
 \end{proof}
@@ -5160,7 +5131,7 @@ $$
     \uses{adjoint-tree-estimate}
     We have for all $\fu \in \fU$ and $g$ with $|g| \le \mathbf{1}_G$
     $$
-        \|S_{2, \fu} g\|_2 \le 2^{156a^3} \|g\|_2\,.
+        \|S_{2, \fu} g\|_2 \le 2^{203a^3} \|g\|_2\,.
     $$
 \end{lemma}
 
@@ -6140,18 +6111,17 @@ We pick a decomposition of the forest $(\fU, \fT)$ into $2^n$ $n$-rows
 \end{equation*}
 as in \Cref{forest-row-decomposition}. To save some space in the proofs of the remaining lemmas in this section we will write
     $$
-        T_{\fC}^* = \sum_{\fp \in \fC} T_{\fp}^*,
+        T_{\fC} = \sum_{\fp \in \fC} T_{\fp},\qquad T_{\fC}^* = \sum_{\fp \in \fC} T_{\fp}^*,
     $$
     $$
-        T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} T_{\fT(\fu)}^*\,.
+        T_{\mathfrak{R}_j} = \sum_{\fu \in \fU_j} T_{\fT(\fu)},\qquad T_{\mathfrak{R}_j}^* = \sum_{\fu \in \fU_j} T_{\fT(\fu)}^*.
     $$
 \begin{lemma}[row bound]
     \label{row-bound}
     \leanok
     \lean{TileStructure.Forest.row_bound, TileStructure.Forest.indicator_row_bound}
     \uses{densities-tree-bound,adjoint-tile-support}
-    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$,
-    we have
+    For each $1 \le j \le 2^n$ and each bounded $g$ with bounded support with $|g| \le \mathbf{1}_G$, we have
     \begin{equation}
         \label{eq-row-bound-1}
         \left\| T_{\mathfrak{R}_j}^*g \right\|_2 \le 2^{156a^3} 2^{-n/2} \|g\|_2
@@ -6194,6 +6164,8 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     The proof of \eqref{eq-row-bound-1} from \eqref{eq-explicit-tree-bound-1} is the same up to replacing $F$ by $X$.
 \end{proof}
 
+Because all involved operators are linear, \eqref{eq-row-bound-2} is also true for uniformly bounded functions $g$ supported on $G$. This generalization will be needed for \Cref{forest-operator}.
+
 \begin{lemma}[row correlation]
     \label{row-correlation}
     \leanok
@@ -6202,7 +6174,7 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     For all $1 \le j,j' \le 2^n$ with $j\ne j'$ and for all $g_1, g_2$ with $|g_i| \le \mathbf{1}_G$, it holds that
     $$
         \left| \int T_{\mathfrak{R}_j}^*g_1 \overline{T_{\mathfrak{R}_{j'}}^*g_2} \, \mathrm{d}\mu \right| \le
-        2^{845a^3+1-4n}\|g_1\|_2 \|g_2\|_2\,.
+        2^{939a^3+1-4n}\|g_1\|_2 \|g_2\|_2\,.
     $$
 \end{lemma}
 
@@ -6245,11 +6217,11 @@ as in \Cref{forest-row-decomposition}. To save some space in the proofs of the r
     $$
     By \Cref{adjoint-tree-control} we now estimate:
     $$
-        \le \sum_{\fu \in \fU_j}(2^{156a^3})^2 \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
+        \le \sum_{\fu \in \fU_j}(2^{203a^3})^2 \|\mathbf{1}_{\scI(\fu)}g_1\|_2^2
     $$
     By pairwise disjointedness of the sets $\scI(\fu)$ for $\fu \in \fU_j$ (and writing out the definition of $L^2$-norms), we have
     $$
-        \le (2^{156a^3})^2 \|g_1\|_2^2
+        \le (2^{203a^3})^2 \|g_1\|_2^2
     $$
     Arguing similarly for $g_2$, we obtain the desired inequality.
 \end{proof}
@@ -6284,12 +6256,13 @@ $$
 Now we prove \Cref{forest-operator}.
 
 \begin{proof}[Proof of \Cref{forest-operator}]
+    \leanok
     \proves{forest-operator}
     By \eqref{definetp*}, we have for each $j$
     $$
         T_{\mathfrak{R}_j}^*g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g = \sum_{\fu \in \fU_j} \sum_{\fp \in \fT(\fu)} T_{\fp}^* \mathbf{1}_{E_j} g = T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g\,.
     $$
-    Hence, by \Cref{forest-row-decomposition},
+    Hence, by \Cref{forest-row-decomposition} and the triangle inequality,
     $$
         \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T^*_{\fp} g\right\|_2^2 = \left\|\sum_{j = 1}^{2^n} T^*_{\mathfrak{R}_{j}} g\right\|_2^2 = \left\|\sum_{j=1}^{2^n} T^*_{\mathfrak{R}_{j}} \mathbf{1}_{E_j} g\right\|_2^2
     $$
@@ -6297,33 +6270,39 @@ Now we prove \Cref{forest-operator}.
         = \int_X \left|\sum_{j=1}^{2^n} T^*_{\mathfrak{R}_{j}} \mathbf{1}_{E_j} g\right|^2 \, \mathrm{d}\mu
     $$
     $$
-        = \sum_{j=1}^{2^n} \int_X |T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g|^2 + \sum_{j =1}^{2^n} \sum_{\substack{j' = 1\\j' \ne j}}^{2^n} \int_X \overline{ T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g} T_{\mathfrak{R}_{j'}}^* \mathbf{1}_{E_{j'}} g \, \mathrm{d}\mu\,.
+        \le \sum_{j=1}^{2^n} \|T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g\|_2^2 + \sum_{j =1}^{2^n} \sum_{\substack{j' = 1\\j' \ne j}}^{2^n} \left| \int_X \overline{ T_{\mathfrak{R}_j}^* \mathbf{1}_{E_j} g} T_{\mathfrak{R}_{j'}}^* \mathbf{1}_{E_{j'}} g \right| \, \mathrm{d}\mu\,.
     $$
     We use \Cref{row-bound} to estimate each term in the first sum, and \Cref{row-correlation} to bound each term in the second sum:
     $$
-        \le 2^{312a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{862a^3-3 n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
+        \le 2^{312a^3-n} \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2^2 + 2^{939a^3+1-4n}\sum_{j=1}^{2^n}\sum_{j' = 1}^{2^n} \|\mathbf{1}_{E_j} g\|_2 \|\mathbf{1}_{E_{j'}}g\|_2\,.
     $$
     By Cauchy-Schwarz in the second two sums, this is at most
     $$
-        2^{862a^3} (2^{-n} + 2^{n}2^{-3 n}) \sum_{j = 1}^n \|\mathbf{1}_{E_j} g\|_2^2\,,
+        2^{939a^3+1} (2^{-n} + 2^{n}2^{-4n}) \sum_{j = 1}^n \|\mathbf{1}_{E_j} g\|_2^2\,,
     $$
     and by disjointedness of the sets $E_j$, this is at most
     $$
-        2^{863a^3 - n} \|g\|_2^2\,.
+        2^{940a^3 - n} \|g\|_2^2\,.
     $$
-    Taking adjoints and square roots, it follows that for all $f$
+    Taking square roots, it follows that for all $g$
     \begin{equation}
         \label{eq-forest-bound-1}
-        \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2 \le 2^{432a^3-\frac{n}{2}} \|f\|_2\,.
+        \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp}^* g\right\|_2 \le 2^{470a^3-\frac{n}{2}} \|g\|_2\,.
     \end{equation}
-    On the other hand, we have by disjointedness of the sets $E_j$
-    from \Cref{disjoint-row-support}
+    On the other hand, we have by disjointedness of the sets $E_j$ from \Cref{disjoint-row-support} and the triangle inequality
     $$
-        \left\|\sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2^2 = \left\|\sum_{j=1}^{2^n} \mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\right\|_2^2 = \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} T_{\mathfrak{R}_{j}} f\|_2^2\,.
+        \left\|\mathbf{1}_G \sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2^2 = \left\|\sum_{j=1}^{2^n} \mathbf{1}_{E_j} \mathbf{1}_G T_{\mathfrak{R}_{j}} f\right\|_2^2 \le \sum_{j = 1}^{2^n} \|\mathbf{1}_{E_j} \mathbf{1}_G T_{\mathfrak{R}_{j}} f\|_2^2 \le \sum_{j = 1}^{2^n} \|\mathbf{1}_G T_{\mathfrak{R}_{j}} f\|_2^2\,.
     $$
-    If $|f| \le \mathbf{1}_F$ then we obtain from \Cref{row-bound} and taking square roots that
+    Now with $|f| \le \mathbf{1}_F$ and \Cref{row-bound} we obtain
     $$
-        \le 2^{257a^3} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{\frac{1}{2}} 2^{-\frac{n}{2}} (\sum_{j = 1}^{2^n} \|f\|_2^2)^{\frac{1}{2}}
+        \| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2^2 = \left| \int_X \overline{\mathbf{1}_G T_{\mathfrak{R}_j} f} T_{\mathfrak{R}_j} f \right| = \left| \int_X \overline{T_{\mathfrak{R}_j}^* \mathbf{1}_G T_{\mathfrak{R}_j} f} \mathbf{1}_F f \right|
+    $$
+    $$
+        \le \|f\|_2 \| \mathbf{1}_F T_{\mathfrak{R}_j}^* \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2 \le 2^{257a^3-n/2} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{1/2} \| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2 \|f\|_2.
+    $$
+    Dividing this last inequality by the finite $\| \mathbf{1}_G T_{\mathfrak{R}_j} f \|_2$, substituting back and taking square roots we get
+    $$
+        \left\|\mathbf{1}_G \sum_{\fu \in \fU} \sum_{\fp \in \fT(\fu)} T_{\fp} f\right\|_2 \le 2^{257a^3} \dens_2(\bigcup_{\fu\in \fU}\fT(\fu))^{\frac{1}{2}} 2^{-\frac{n}{2}} (\sum_{j = 1}^{2^n} \|f\|_2^2)^{\frac{1}{2}}
     $$
     \begin{equation}
         \label{eq-forest-bound-2}
@@ -7315,6 +7294,7 @@ In order to pass from the one-sided truncation in $T_r$ and $T_{*}^r$ to the two
     \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 We only prove the second inequality, the first one is analogous.
 Note that the integrand is bounded in $X\setminus B(x,\frac{R}{2})$. So for $0<\delta\le\frac{R}{2}$,
 \begin{align*}
@@ -7337,6 +7317,7 @@ By continuity from above of $\mu$, the right factor becomes arbitrarily small as
     \end{equation}
 \end{lemma}
 \begin{proof}
+\leanok
 We show two inequalities. Let $\epsilon>0$.
 Let $R_1<R_2$ and $x'\in B(x,R_1)$. Then for small enough $\delta>0$,
 \begin{alignat}{3}
@@ -7487,7 +7468,7 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
     and hence $|J_{q,Q}| \le 2^{a\log_2{\lceil\frac{2Q}{q}\rceil}}$.
 \end{proof}
 
-The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1 .
+The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1.
 \begin{lemma}[Ball covering]
     \label{ball-covering}
     \leanok
@@ -7511,6 +7492,7 @@ The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additiona
     and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{6a}$ of the $B_j^*$.
 \end{lemma}
 \begin{proof}
+\leanok
 Define for $x\in O$,
 \begin{equation}
     \delta(x):= \sup \{\delta\in\R : B(x,\delta)\subset O\}.
@@ -7566,12 +7548,12 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
 \begin{lemma}[Calderon Zygmund decomposition]
     \label{Calderon-Zygmund-decomposition}
     \leanok
-    \lean{cardinalMk_czBall3_le, tsum_czRemainder', measurable_czApproximation, czApproximation_add_czRemainder, norm_czApproximation_le, norm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
+    \lean{encard_czBall3_le, tsum_czRemainder', aemeasurable_czApproximation, czApproximation_add_czRemainder, enorm_czApproximation_le, enorm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
-    Let $f$ be a bounded, measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
-    Then there exists a measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
+    Let $f$ be a bounded, a.e. measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
+    Then there exists an a.e. measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
     % Do we actually need this parenthetical?
-    such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
+    such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of a.e. measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
        f(x)= g(x) + \sum_{j} b_j(x)
@@ -7604,7 +7586,7 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
     We have
     \begin{equation}
         \label{eq-bset-length-sum}
-        \sum_j \mu(B_j^*)\leq \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y)
+        \sum_j \mu(B_j^*)\leq \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y)
     \end{equation}
     and
     \begin{equation}
@@ -7614,6 +7596,7 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
 \end{lemma}
 
 \begin{proof}
+\leanok
 Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$.
 Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$. We apply \Cref{ball-covering} with $O=E_\alpha$ to obtain the family $B_j, j\in J,$. Without loss of generality, we can assume $J=\N$. Define inductively
 \begin{equation}
@@ -7667,7 +7650,7 @@ to obtain \eqref{eq-bj-L1}.
 Further, summing up \eqref{eq-bj-int} in $j$ yields \eqref{eq-b-L1}.
 At last, we estimate with \Cref{maximal-theorem}
 \begin{equation}
-    \sum_j \mu(B_j^*) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{4a}}{\alpha}\int |f(y)|\, d\mu(y),
+    \sum_j \mu(B_j^*) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y),
 \end{equation}
 proving \eqref{eq-bset-length-sum}.
 

@@ -78,7 +78,7 @@ lemma stronglyMeasurable_χ : StronglyMeasurable (χ t u₁ u₂ J) :=
 
 variable (t u₁ u₂) in
 /-- The definition of h_J, defined in the proof of Section 7.5.2 -/
-def holderFunction (f₁ f₂ : X → ℂ)  (J : Grid X) (x : X) : ℂ :=
+def holderFunction (f₁ f₂ : X → ℂ) (J : Grid X) (x : X) : ℂ :=
   χ t u₁ u₂ J x * (exp (.I * 𝒬 u₁ x) * adjointCarlesonSum (t u₁) f₁ x) *
   conj (exp (.I * 𝒬 u₂ x) * adjointCarlesonSum (t u₂ ∩ 𝔖₀ t u₁ u₂) f₂ x)
 
@@ -1680,7 +1680,7 @@ lemma edist_holderFunction_le (hu₁ : u₁ ∈ t) (hu₂ : u₂ ∈ t) (hu : u�
         C7_5_9d a * C7_5_10 a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ +
         C7_5_9s a * C7_5_9d a * P7_5_4 t u₁ u₂ f₁ f₂ J * (edist x x' / D ^ s J) ^ (a : ℝ)⁻¹ := by
       gcongr
-      rcases le_or_lt (edist x x' / D ^ s J) 1 with h | h
+      rcases le_or_gt (edist x x' / D ^ s J) 1 with h | h
       · nth_rw 1 [← one_mul (_ / _), ← ENNReal.rpow_one (_ / _)]
         refine mul_le_mul' (by norm_num) (ENNReal.rpow_le_rpow_of_exponent_ge h ?_)
         rw [inv_le_one_iff₀]; right; exact_mod_cast a_pos X

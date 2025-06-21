@@ -277,9 +277,9 @@ lemma Yk_countable (k:ℤ) : (Yk X k).Countable := by
   exact fun y _ ↦ zpow_pos (defaultD_pos a) k
 
 variable (X) in
-def Yk_encodable (k:ℤ) : Encodable (Yk X k) := (Yk_countable X k).toEncodable
+def Yk_encodable (k : ℤ) : Encodable (Yk X k) := (Yk_countable X k).toEncodable
 
-def Encodable.linearOrder {α : Type*} (i:Encodable α) : LinearOrder α :=
+def Encodable.linearOrder {α : Type*} (i : Encodable α) : LinearOrder α :=
   LinearOrder.lift' (i.encode) (i.encode_injective)
 
 instance {k : ℤ}: LinearOrder (Yk X k) := (Yk_encodable X k).linearOrder
@@ -1376,7 +1376,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
     _ = 2⁻¹ ^ (n + 1) * volume (I3 hk y) := by
       rw [pow_add,pow_one,mul_assoc]
 
-section PreProofData
+section ProofData
 include q K σ₁ σ₂ F G
 
 variable (X) in
@@ -1479,7 +1479,7 @@ lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
       simp_rw [← Real.rpow_add (by norm_num : 0 < (2:ℝ)),← right_distrib]
       norm_num
 
-end PreProofData
+end ProofData
 
 lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht : t ∈ Set.Ioo 0 1)
     (htD : (D^(-S:ℤ):ℝ) ≤ t * D^k):
@@ -1659,10 +1659,10 @@ def max_𝓓 : 𝓓 X where
   y := ⟨o,o_mem_Yk_S⟩
   hsub := fun ⦃a_1⦄ a ↦ a
 
-def 𝓓.coe (z: 𝓓 X) : Set X := I3 z.hk z.y
+def 𝓓.coe (z : 𝓓 X) : Set X := I3 z.hk z.y
 
 variable (X) in
-def forget_map (x: 𝓓 X) : (k : Set.Icc (-S:ℤ) S) × (Yk X k) := ⟨⟨x.k,And.intro x.hk x.hk_max⟩,x.y⟩
+def forget_map (x : 𝓓 X) : (k : Set.Icc (-S:ℤ) S) × (Yk X k) := ⟨⟨x.k,And.intro x.hk x.hk_max⟩,x.y⟩
 
 lemma forget_map_inj : Function.Injective (forget_map X) := by
   intro x1 x2 h
@@ -1762,7 +1762,7 @@ def grid_existence : GridStructure X D κ S o where
         simp only [OuterMeasure.measureOf_eq_coe, Measure.coe_toOuterMeasure]
         exact measure_ball_lt_top
       apply le_mul_of_one_le_left (measureReal_nonneg)
-      have : 1 ≤ (t:ℝ) ^κ := Real.one_le_rpow (le_of_not_lt ht') κ_nonneg
+      have : 1 ≤ (t:ℝ) ^κ := Real.one_le_rpow (le_of_not_gt ht') κ_nonneg
       linarith
   coeGrid_measurable {i} := I3_measurableSet i.hk i.y
 

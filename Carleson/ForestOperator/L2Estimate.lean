@@ -159,6 +159,7 @@ private lemma nontangential_integral_bound₁ {x x' : X} {r : ℝ} (R : ℝ) (hr
   by_cases r_lt_R : r < R; swap
   · simp [-defaultD, Annulus.oo_eq_empty (le_of_not_gt r_lt_R)]
   refine le_trans ?_ <| le_iSup _ r
+  refine le_trans ?_ <| le_iSup _ (dist_nonneg.trans_lt hr)
   refine le_trans ?_ <| le_iSup _ R
   rw [iSup_pos r_lt_R]
   refine le_of_eq_of_le ?_ <| le_iSup _ x'

@@ -193,7 +193,7 @@ lemma URel.eq (hu : u ∈ 𝔘₂ k n j) (hu' : u' ∈ 𝔘₂ k n j) (huu' : UR
   rw [disjoint_comm] at ndj
   have n₂ := (hu'.1.2 _ hu.1.1).mt ndj
   simp_rw [URel, e, false_or, 𝔗₁, mem_setOf] at huu'; obtain ⟨p, ⟨_, _, sl₁⟩, sl₂⟩ := huu'
-  rcases le_or_lt (𝔰 u) (𝔰 u') with h | h
+  rcases le_or_gt (𝔰 u) (𝔰 u') with h | h
   · exact eq_of_le_of_not_lt (Grid.le_dyadic h sl₁.1 sl₂.1) n₁
   · exact (eq_of_le_of_not_lt (Grid.le_dyadic h.le sl₂.1 sl₁.1) n₂).symm
 
@@ -489,7 +489,7 @@ lemma mf_injOn : InjOn (mf k n j) {u | x ∈ 𝓘 u.1} := fun u mu u' mu' e ↦ 
   have n𝓘 : 𝓘 u.1 ≠ 𝓘 u'.1 := by
     contrapose! nr; rw [disjoint_comm] at nd
     exact urel_of_not_disjoint (𝔘₃_subset_𝔘₂ u.2) nr.symm nd
-  rcases le_or_lt (s (𝓘 u.1)) (s (𝓘 u'.1)) with hs | hs
+  rcases le_or_gt (s (𝓘 u.1)) (s (𝓘 u'.1)) with hs | hs
   · have hu := lt_of_le_of_ne ((le_or_disjoint hs).resolve_right
       (not_disjoint_iff.mpr ⟨_, mu, mu'⟩)) n𝓘
     have u₁ := (𝔘₃_subset_𝔘₂.trans 𝔘₂_subset_𝔘₁) u.2
@@ -752,8 +752,8 @@ lemma lintegral_carlesonSum_forest
       Finset.mem_univ, true_and, forest, Finset.mem_biUnion, 𝔉]
     exact Iff.rfl
   rw [this]
-  have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G') (measurableSet_G.diff measurable_G')
-    (isBounded_G.subset diff_subset)
+  have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G')
+    (measurableSet_G.diff measurable_G') diff_subset
   apply W.trans
   gcongr
   · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
@@ -797,15 +797,19 @@ lemma lintegral_carlesonSum_forest'
     simp [add_mul, div_eq_mul_inv]
     ring
   _ = 2 ^ (a + 5/2 : ℝ) * (volume G ^ (1 - q⁻¹) * volume F ^ q⁻¹) := by
-    have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
-    have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
-      congr 1
-      simp only [sub_sub_eq_add_sub, sub_left_inj]
-      norm_num
-    rw [IF, IG, ENNReal.rpow_sub _ _ ProofData.volume_G_pos.ne' volume_G_ne_top,
-      ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
-      ENNReal.div_eq_inv_mul, ENNReal.inv_rpow]
-    ring
+    rcases eq_or_ne (volume G) 0 with vG | vG
+    · have : 0 < 1 - q⁻¹ := by rw [sub_pos, inv_lt_one_iff₀]; exact .inr (one_lt_q X)
+      rw [vG, ENNReal.zero_rpow_of_pos (by positivity), ENNReal.zero_rpow_of_pos this]
+      simp only [zero_mul, mul_zero]
+    · have IF : (volume F) ^ (q⁻¹) = (volume F) ^ ((q ⁻¹ - 2⁻¹) + 2⁻¹) := by congr; abel
+      have IG : (volume G) ^ (1 - q⁻¹) = (volume G) ^ (2⁻¹ - (q⁻¹ - 2⁻¹)) := by
+        congr 1
+        simp only [sub_sub_eq_add_sub, sub_left_inj]
+        norm_num
+      rw [IF, IG, ENNReal.rpow_sub _ _ vG volume_G_ne_top,
+        ENNReal.rpow_add_of_nonneg (x := volume F) _ _ (inv_q_sub_half_nonneg X) (by norm_num),
+        ENNReal.div_eq_inv_mul, ENNReal.inv_rpow]
+      ring
 
 /-- Putting all the above decompositions together, one obtains a control of the integral of the
 full Carleson sum over `𝔓₁`, as a sum over all the forests. -/
@@ -825,7 +829,7 @@ lemma forest_union_aux {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indicator 1 
   _ = ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3, ∫⁻ x in G \ G', ‖carlesonSum (ℭ₆ k n j) f x‖ₑ := by
     congr! 3
     apply setLIntegral_congr_fun (measurableSet_G.diff measurable_G')
-    exact Filter.Eventually.of_forall (fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx])
+    exact fun x hx ↦ by rw [carlesonSum_ℭ₅_eq_ℭ₆ hx]
   _ ≤ ∑ n ≤ maxℭ X, ∑ k ≤ n, ∑ j ≤ 2 * n + 3,
         ∑ l < 4 * n + 12, ∫⁻ x in G \ G', ‖carlesonSum (⋃ u ∈ 𝔘₄ k n j l, 𝔗₂ k n j u) f x‖ₑ := by
     gcongr with n hn k hk j hj
@@ -941,7 +945,7 @@ lemma forest_union_sum_aux2 (M : ℕ) (q : ℝ) (hq : 1 < q) (h'q : q ≤ 2) :
 
 /-- An optimized constant for the forest union theorem. The constant from the blueprint,
 defined as `C5_1_2` below, is slightly worse. -/
-def C5_1_2_optimized (a : ℝ) (q : ℝ≥0) : ℝ≥0 :=
+def C5_1_2_optimized (a : ℕ) (q : ℝ≥0) : ℝ≥0 :=
   C2_0_4_base a * 2 ^ (a + 5/2 : ℝ) * 13009 / (q - 1) ^ 4
 
 /-- Version of the forest union result with a better constant. -/
@@ -996,14 +1000,14 @@ lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :
     _ ≤ a + a * (a * a - 1) := by gcongr
     _ = a ^ 3 := by ring
 
-/-- The constant used in Lemma 5.1.2, with value `2 ^ (433 * a ^ 3) / (q - 1) ^ 4`.
+/-- The constant used in Lemma 5.1.2, with value `2 ^ (471 * a ^ 3) / (q - 1) ^ 4`.
 The best constant naturally given by this step is `C5_1_2_optimized` above. -/
-def C5_1_2 (a : ℝ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (433 * a ^ 3) / (q - 1) ^ 4
+def C5_1_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3) / (q - 1) ^ 4
 
 omit [TileStructure Q D κ S o] in
 lemma C5_1_2_pos : 0 < C5_1_2 a nnq := by
   simp only [C5_1_2]
-  apply div_pos (rpow_pos zero_lt_two)
+  apply div_pos (pow_pos zero_lt_two _)
   apply pow_pos
   simpa using one_lt_nnq X
 
@@ -1011,10 +1015,8 @@ omit [TileStructure Q D κ S o] in
 lemma C5_1_2_optimized_le : C5_1_2_optimized a nnq ≤ C5_1_2 a nnq := by
   apply (C5_1_2_optimized_le' (four_le_a X)).trans_eq
   simp only [C2_0_4_base, C5_1_2]
-  rw [← NNReal.rpow_natCast _ (a ^ 3), ← NNReal.rpow_add two_ne_zero]
+  rw [← NNReal.rpow_natCast _ (a ^ 3), NNReal.rpow_natCast, ← pow_add, ← add_one_mul]
   congr
-  simp only [Nat.cast_pow]
-  ring
 
 /-- Lemma 5.1.2 in the blueprint: the integral of the Carleson sum over the set which can
 naturally be decomposed as a union of forests can be controlled, thanks to the estimate for

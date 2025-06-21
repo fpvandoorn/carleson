@@ -17,52 +17,6 @@ namespace TileStructure.Forest
 
 /-! ## Section 7.4 except Lemmas 4-6 -/
 
-/-- The definition of `Tₚ*g(x)`, defined above Lemma 7.4.1 -/
-def adjointCarleson (p : 𝔓 X) (f : X → ℂ) (x : X) : ℂ :=
-  ∫ y in E p, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y
-  -- todo: consider changing to `(E p).indicator 1 y`
-
-lemma enorm_adjointCarleson_le {x : X} :
-    ‖adjointCarleson p f x‖ₑ ≤
-    C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * ∫⁻ y in E p, ‖f y‖ₑ := by
-  calc
-    _ ≤ ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y‖ₑ := by
-      apply enorm_integral_le_lintegral_enorm
-    _ = ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
-      congr! with y
-      rw [enorm_mul, enorm_mul, ← ofReal_sub, enorm_exp_I_mul_ofReal, RCLike.enorm_conj, mul_one]
-    _ ≤ C2_1_3 a * ∫⁻ y in E p, (volume (ball y (D ^ 𝔰 p)))⁻¹ * ‖f y‖ₑ := by
-      rw [← lintegral_const_mul' _ _ (by simp)]
-      refine lintegral_mono_fn fun y ↦ ?_
-      rw [← mul_assoc, mul_comm _ _⁻¹, ← ENNReal.div_eq_inv_mul]
-      exact mul_le_mul_right' enorm_Ks_le _
-    _ ≤ _ := by
-      rw [mul_assoc _ (_ ^ _), mul_comm (_ ^ _), ← ENNReal.div_eq_inv_mul,
-        ← ENNReal.inv_div (.inl (by simp)) (.inl (by simp)), mul_assoc, ← lintegral_const_mul' _⁻¹]
-      swap
-      · simp_rw [ne_eq, ENNReal.inv_eq_top, ENNReal.div_eq_zero_iff, ENNReal.pow_eq_top_iff,
-          ENNReal.ofNat_ne_top, false_and, or_false]
-        exact (measure_ball_pos _ _ (by unfold defaultD; positivity)).ne'
-      refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
-      exact mul_le_mul_right' (ENNReal.inv_le_inv' (volume_xDsp_bound_4 (E_subset_𝓘 my))) _
-
-open scoped Classical in
-/-- The definition of `T_ℭ*g(x)`, defined at the bottom of Section 7.4 -/
-def adjointCarlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
-  ∑ p ∈ {p | p ∈ ℭ}, adjointCarleson p f x
-
-/-- A helper lemma used in Lemma 7.5.10. -/
-lemma adjointCarlesonSum_inter {A B : Set (𝔓 X)} {f : X → ℂ} {x : X} :
-    adjointCarlesonSum (A ∩ B) f x = adjointCarlesonSum A f x - adjointCarlesonSum (A \ B) f x := by
-  unfold adjointCarlesonSum; symm
-  classical rw [sub_eq_iff_eq_add, ← Finset.sum_union]; swap
-  · simp only [Finset.disjoint_filter, mem_diff, not_and, not_not]
-    exact fun x _ ⟨xA, xB⟩ _ ↦ xB
-  congr; ext x
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and, mem_inter_iff, mem_diff,
-    Finset.mem_union]
-  tauto
-
 variable (t) in
 /-- The operator `S_{2,𝔲} f(x)`, given above Lemma 7.4.3. -/
 def adjointBoundaryOperator (u : 𝔓 X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
@@ -72,46 +26,6 @@ variable (t u₁ u₂) in
 /-- The set `𝔖` defined in the proof of Lemma 7.4.4.
 We append a subscript 0 to distinguish it from the section variable. -/
 def 𝔖₀ : Set (𝔓 X) := { p ∈ t u₁ ∪ t u₂ | 2 ^ ((Z : ℝ) * n / 2) ≤ dist_(p) (𝒬 u₁) (𝒬 u₂) }
-
-lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarleson (hf : StronglyMeasurable f) :
-    StronglyMeasurable (adjointCarleson p f) := by
-  refine .integral_prod_right'
-    (f := fun z ↦ conj (Ks (𝔰 p) z.2 z.1) * exp (Complex.I * (Q z.2 z.2 - Q z.2 z.1)) * f z.2) ?_
-  refine .mul (.mul ?_ ?_) ?_
-  · exact Complex.continuous_conj.comp_stronglyMeasurable (stronglyMeasurable_Ks.prod_swap)
-  · refine Complex.continuous_exp.comp_stronglyMeasurable (.const_mul (.sub ?_ ?_) _)
-    · exact Measurable.stronglyMeasurable (by fun_prop)
-    · refine continuous_ofReal.comp_stronglyMeasurable ?_
-      exact stronglyMeasurable_Q₂ (X := X) |>.prod_swap
-  · exact hf.comp_snd
-
-lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarleson (hf : AEStronglyMeasurable f) :
-    AEStronglyMeasurable (adjointCarleson p f) := by
-  refine .integral_prod_right'
-    (f := fun z ↦ conj (Ks (𝔰 p) z.2 z.1) * exp (Complex.I * (Q z.2 z.2 - Q z.2 z.1)) * f z.2) ?_
-  refine .mono_ac (.prod .rfl restrict_absolutelyContinuous) ?_
-  refine .mul (.mul ?_ ?_) ?_
-  · exact Complex.continuous_conj.comp_aestronglyMeasurable (aestronglyMeasurable_Ks.prod_swap)
-  · refine Complex.continuous_exp.comp_aestronglyMeasurable (.const_mul (.sub ?_ ?_) _)
-    · exact Measurable.aestronglyMeasurable (by fun_prop)
-    · refine continuous_ofReal.comp_aestronglyMeasurable ?_
-      exact aestronglyMeasurable_Q₂ (X := X) |>.prod_swap
-  · exact hf.comp_snd
-
-lemma _root_.MeasureTheory.StronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)}
-    (hf : StronglyMeasurable f) :
-    StronglyMeasurable (adjointCarlesonSum ℭ f) :=
-  Finset.stronglyMeasurable_sum _ fun _ _ ↦ hf.adjointCarleson
-
-lemma _root_.MeasureTheory.AEStronglyMeasurable.adjointCarlesonSum {ℭ : Set (𝔓 X)}
-    (hf : AEStronglyMeasurable f) :
-    AEStronglyMeasurable (adjointCarlesonSum ℭ f) :=
-  Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.adjointCarleson
-
-lemma adjoint_eq_adjoint_indicator (h : E p ⊆ 𝓘 u) :
-    adjointCarleson p f = adjointCarleson p ((𝓘 u : Set X).indicator f) := by
-  ext x; refine setIntegral_congr_fun measurableSet_E (fun y my ↦ ?_); congr
-  exact (indicator_of_mem (h my) f).symm
 
 /-- Part 1 of Lemma 7.4.1.
 Todo: update blueprint with precise properties needed on the function. -/
@@ -161,6 +75,30 @@ lemma adjoint_tile_support2_sum_partial (hu : u ∈ t) :
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
   rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu mp).1.1)]
 
+lemma enorm_adjointCarleson_le {x : X} :
+    ‖adjointCarleson p f x‖ₑ ≤
+    C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * ∫⁻ y in E p, ‖f y‖ₑ := by
+  calc
+    _ ≤ ∫⁻ y in E p, ‖conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y‖ₑ := by
+      apply enorm_integral_le_lintegral_enorm
+    _ = ∫⁻ y in E p, ‖Ks (𝔰 p) y x‖ₑ * ‖f y‖ₑ := by
+      congr! with y
+      rw [enorm_mul, enorm_mul, ← ofReal_sub, enorm_exp_I_mul_ofReal, RCLike.enorm_conj, mul_one]
+    _ ≤ C2_1_3 a * ∫⁻ y in E p, (volume (ball y (D ^ 𝔰 p)))⁻¹ * ‖f y‖ₑ := by
+      rw [← lintegral_const_mul' _ _ (by simp)]
+      refine lintegral_mono_fn fun y ↦ ?_
+      rw [← mul_assoc, mul_comm _ _⁻¹, ← ENNReal.div_eq_inv_mul]
+      exact mul_le_mul_right' enorm_Ks_le _
+    _ ≤ _ := by
+      rw [mul_assoc _ (_ ^ _), mul_comm (_ ^ _), ← ENNReal.div_eq_inv_mul,
+        ← ENNReal.inv_div (.inl (by simp)) (.inl (by simp)), mul_assoc, ← lintegral_const_mul' _⁻¹]
+      swap
+      · simp_rw [ne_eq, ENNReal.inv_eq_top, ENNReal.div_eq_zero_iff, ENNReal.pow_eq_top_iff,
+          ENNReal.ofNat_ne_top, false_and, or_false]
+        exact (measure_ball_pos _ _ (by unfold defaultD; positivity)).ne'
+      refine mul_le_mul_left' (setLIntegral_mono' measurableSet_E fun y my ↦ ?_) _
+      exact mul_le_mul_right' (ENNReal.inv_le_inv' (volume_xDsp_bound_4 (E_subset_𝓘 my))) _
+
 lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
     ‖adjointCarleson p f x‖ₑ ≤
     C2_1_3 a * 2 ^ (4 * a) * (volume (ball (𝔠 p) (8 * D ^ 𝔰 p)))⁻¹ * (∫⁻ y in E p, ‖f y‖ₑ) *
@@ -175,194 +113,11 @@ lemma enorm_adjointCarleson_le_mul_indicator {x : X} :
         (ball (𝔠 p) (5 * D ^ 𝔰 p)).indicator 1 x := by
       conv_lhs => enter [2, z]; rw [← mul_one (_ * _ * _ * _)]
       rw [indicator_const_mul]; congr 2
-      refine setLIntegral_congr_fun measurableSet_E (.of_forall fun y my ↦ ?_)
+      refine setLIntegral_congr_fun measurableSet_E fun y my ↦ ?_
       rw [indicator_of_mem (E_subset_𝓘 my)]
     _ ≤ _ := by
       gcongr; refine indicator_le_indicator_apply_of_subset (ball_subset_ball ?_) (zero_le _)
       gcongr; norm_num
-
-variable (p) in
-theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarleson
-    (hf : BoundedCompactSupport f) :
-    BddAbove (range (‖adjointCarleson p f ·‖)) := by
-  obtain ⟨CKf, hCKf, hCKf⟩ := hf.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
-  let C : ℝ := CKf * (eLpNorm f ⊤).toReal * volume.real (E p)
-  use C
-  simp only [mem_upperBounds, mem_range, forall_exists_index, forall_apply_eq_imp_iff]
-  intro x
-  refine norm_setIntegral_le_of_norm_le_const_ae ?_ ?_
-  · exact volume_E_lt_top
-  · apply ae_restrict_of_ae
-    filter_upwards [hf.memLp_top.ae_norm_le] with y hy
-    suffices ‖Ks (𝔰 p) y x‖ * ‖f y‖ ≤ ?C by
-      calc
-        _ ≤ ‖conj (Ks (𝔰 p) y x) * cexp (I * (↑((Q y) y) - ↑((Q y) x)))‖ * ‖f y‖ :=
-          norm_mul_le ..
-        _ ≤ ‖conj (Ks (𝔰 p) y x)‖ * 1 * ‖f y‖ := by
-          gcongr; convert norm_mul_le _ _; exact (norm_exp_I_mul_sub_ofReal ..).symm
-        _ = ‖Ks (𝔰 p) y x‖ * ‖f y‖ := by rw [mul_one, RCLike.norm_conj]
-        _ ≤ _ := by convert this
-    by_cases hy : y ∈ tsupport f
-    · specialize hCKf y x hy; gcongr
-    · simp only [image_eq_zero_of_notMem_tsupport hy,
-        norm_zero, mul_zero, eLpNorm_exponent_top]; positivity
-
-theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarleson
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarleson p f) where
-  memLp_top := by
-    obtain ⟨C, hC⟩ := hf.bddAbove_norm_adjointCarleson p
-    simp only [mem_upperBounds, mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hC
-    apply MeasureTheory.memLp_top_of_bound hf.aestronglyMeasurable.adjointCarleson C
-      (.of_forall hC)
-  hasCompactSupport := by
-    obtain x₀ : X := Classical.choice (by infer_instance)
-    obtain ⟨r₀, h⟩ := hf.isBoundedSupport.subset_ball x₀
-    let C : ℝ := (↑D ^ 𝔰 p / 2) + r₀
-    suffices support (TileStructure.Forest.adjointCarleson p f) ⊆ closedBall x₀ C from
-      HasCompactSupport.of_support_subset_closedBall this
-    intro x hx
-    apply mem_support.mp at hx
-    have : ∃ y, conj (Ks (𝔰 p) y x) * exp (.I * (Q y y - Q y x)) * f y ≠ 0 := by
-      -- mathlib lemma: if integral ne zero, then integrand ne zero at a point
-      by_contra hc
-      simp only [not_exists, ne_eq, not_not] at hc
-      exact hx <| setIntegral_eq_zero_of_forall_eq_zero fun x _ ↦ hc x
-    simp only [ne_eq, mul_eq_zero, map_eq_zero, exp_ne_zero, or_false, not_or] at this
-    obtain ⟨y, hKy, hfy⟩ := this
-    change _ ≤ C
-    apply (dist_triangle _ y _).trans
-    unfold C
-    gcongr
-    · rw [dist_comm]; exact (dist_mem_Icc_of_Ks_ne_zero hKy).2
-    · exact le_of_lt <| h hfy
-
--- XXX: this version is not used, and may not be useful in general
-lemma integrable_adjointCarlesonSum' (u : 𝔓 X) {f : X → ℂ} (hf : AEStronglyMeasurable f volume)
-    (hf' : IsBounded (range f)) (hf'' : HasCompactSupport f) :
-    Integrable (adjointCarlesonSum (t.𝔗 u) f ·) := by
-  obtain ⟨M, hM⟩ := hf'.exists_norm_le
-  have : BoundedCompactSupport f :=
-    ⟨memLp_top_of_bound hf M <| by filter_upwards with x using hM _ (mem_range_self x), hf''⟩
-  exact integrable_finset_sum _ fun i hi ↦ this.adjointCarleson (p := i).integrable
-
-lemma integrable_adjointCarlesonSum (s: Set (𝔓 X)) {f : X → ℂ} (hf : BoundedCompactSupport f) :
-    Integrable (adjointCarlesonSum s f ·) :=
-  integrable_finset_sum _ fun i _ ↦ hf.adjointCarleson (p := i).integrable
-
-variable (p) in
-theorem _root_.MeasureTheory.BoundedCompactSupport.bddAbove_norm_adjointCarlesonSum
-    {ℭ : Set (𝔓 X)} (hf : BoundedCompactSupport f) :
-    BddAbove (range (‖adjointCarlesonSum ℭ f ·‖)) := by
-  apply BddAbove.range_mono _ fun _ ↦ norm_sum_le ..
-  exact .range_finsetSum fun _ _ ↦ hf.bddAbove_norm_adjointCarleson _
-
-theorem _root_.MeasureTheory.BoundedCompactSupport.adjointCarlesonSum {ℭ : Set (𝔓 X)}
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (adjointCarlesonSum ℭ f) :=
-  BoundedCompactSupport.finset_sum fun _ _ ↦ hf.adjointCarleson
-
-/-- `MKD` is short for "modulated kernel times dilated bump". -/
-private abbrev MKD (s:ℤ) x y := exp (.I * (Q x y - Q x x)) * K x y * ψ (D ^ (-s) * dist x y)
-
-omit [TileStructure Q D κ S o] in
-private lemma norm_MKD_le_norm_Ks {s:ℤ} {x y : X} : ‖MKD s x y‖ ≤ ‖Ks s x y‖ := by
-  unfold MKD; rw [mul_assoc, ← Ks_def]
-  apply (norm_mul_le ..).trans
-  apply le_of_eq
-  rw [norm_exp_I_mul_sub_ofReal, one_mul]
-
-/-- `adjointCarleson` is the adjoint of `carlesonOn`. -/
-lemma adjointCarleson_adjoint
-    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (p : 𝔓 X) :
-    ∫ x, conj (g x) * carlesonOn p f x = ∫ y, conj (adjointCarleson p g y) * f y := by
-  let H := fun x ↦ fun y ↦ conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y * f y
-  have hH : Integrable (uncurry H) := by
-    let H₀ := fun x y ↦ ‖g x‖ * ‖f y‖
-    obtain ⟨M₀, hM₀nn, hM₀⟩ := hg.hasCompactSupport.isBounded.exists_bound_of_norm_Ks (𝔰 p)
-    have hHleH₀ x y : ‖H x y‖ ≤ M₀ * ‖g x‖ * ‖f y‖ := by
-      by_cases h : x ∈ tsupport g
-      · specialize hM₀ x y h
-        calc
-          _ ≤ ‖conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
-          _ ≤ ‖conj (g x) * (E p).indicator 1 x‖ * ‖MKD (𝔰 p) x y‖ * ‖f y‖ := by
-            gcongr; exact norm_mul_le ..
-          _ ≤ ‖conj (g x)‖ * ‖(E p).indicator 1 x‖ * ‖MKD (𝔰 p) x y‖ * ‖f y‖ := by
-            gcongr; exact norm_mul_le ..
-          _ ≤ ‖g x‖ * 1 * ‖MKD (𝔰 p) x y‖ * ‖f y‖ := by
-            gcongr
-            · exact le_of_eq <| RCLike.norm_conj _
-            · exact norm_indicator_one_le ..
-          _ = ‖MKD (𝔰 p) x y‖ * (‖g x‖ * ‖f y‖) := by rw [mul_one, mul_comm ‖g _‖, mul_assoc]
-          _ ≤ M₀ *  (‖g x‖ * ‖f y‖) := by gcongr; exact norm_MKD_le_norm_Ks.trans hM₀
-          _ = M₀ *  ‖g x‖ * ‖f y‖ := by rw [mul_assoc]
-      · suffices hz : H x y = 0 by rw [hz]; simp only [norm_zero, ge_iff_le]; positivity
-        unfold H; simp [image_eq_zero_of_notMem_tsupport h]
-    have : Integrable (fun z : X × X ↦ M₀ *  ‖g z.1‖ * ‖f z.2‖) :=
-      (hg.norm.const_mul _).integrable.mul_prod hf.norm.integrable
-    refine this.mono ?_ ?_
-    · refine .mul ?_ <| .comp_snd hf.aestronglyMeasurable
-      refine .mul ?_ ?_
-      · refine .mul ?_ ?_
-        · exact RCLike.continuous_conj.comp_aestronglyMeasurable hg.aestronglyMeasurable.comp_fst
-        · have : AEStronglyMeasurable (fun x:X ↦ (E p).indicator (1:X→ℂ) x) :=
-            .indicator aestronglyMeasurable_const measurableSet_E
-          exact this.comp_fst
-      · unfold MKD
-        simp_rw [mul_assoc, ← Ks_def]
-        refine .mul ?_ aestronglyMeasurable_Ks
-        apply Measurable.aestronglyMeasurable
-        have : Measurable fun (p : X × X) ↦ (p.1, p.1) :=
-          .prodMk (.fst measurable_id') (.fst measurable_id')
-        refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
-        · exact measurable_Q₂
-        · exact measurable_Q₂.comp this
-    · apply ae_of_all
-      intro z
-      refine _root_.trans (hHleH₀ z.1 z.2) ?_
-      exact Real.le_norm_self _
-  calc
-    _ = ∫ x, conj (g x) * ∫ y, (E p).indicator 1 x * MKD (𝔰 p) x y * f y := by
-      conv =>
-        enter [1, 2, x, 2]; unfold carlesonOn
-        rw [indicator_eq_indicator_one_mul, ← integral_const_mul]
-        enter [2, y]; rw [← mul_assoc]
-    _ = ∫ x, ∫ y, H x y := by unfold H; simp_rw [← integral_const_mul, mul_assoc]
-    _ = ∫ y, ∫ x, H x y := integral_integral_swap hH
-    _ = ∫ y, (∫ x, conj (g x) * (E p).indicator 1 x * MKD (𝔰 p) x y) * f y := by
-      simp_rw [H, integral_mul_const]
-    _ = ∫ y, conj (∫ x, g x * (E p).indicator 1 x * conj (MKD (𝔰 p) x y)) * f y := by
-      simp_rw [← integral_conj]; congrm (∫ _, (∫ _, ?_) * (f _))
-      rw [map_mul, conj_conj, map_mul, conj_indicator, map_one]
-    _ = _ := by
-      congr; funext y; congrm (conj ?_) * (f _)
-      calc
-        _ = ∫ x, (E p).indicator 1 x * g x * conj (MKD (𝔰 p) x y) := by
-          congr; funext x; rw [mul_comm (g x) _]
-        _ = ∫ x, (E p).indicator (fun x ↦ g x * conj (MKD (𝔰 p) x y)) x := by
-          congr; funext x; simp only [indicator]; split_ifs <;> simp
-        _ = ∫ x in E p, g x * conj (MKD (𝔰 p) x y) := integral_indicator measurableSet_E
-        _ = ∫ x in E p, conj (MKD (𝔰 p) x y) * g x := by congr; funext; rw [mul_comm]
-        _ = _ := by
-          unfold adjointCarleson MKD
-          congr; funext; rw [mul_assoc, ← Ks_def, map_mul, ← exp_conj, mul_comm (cexp _)]
-          congr; simp; ring
-
-/-- `adjointCarlesonSum` is the adjoint of `carlesonSum`. -/
-lemma adjointCarlesonSum_adjoint
-    (hf : BoundedCompactSupport f) (hg : BoundedCompactSupport g) (ℭ : Set (𝔓 X)) :
-    ∫ x, conj (g x) * carlesonSum ℭ f x = ∫ x, conj (adjointCarlesonSum ℭ g x) * f x := by
-  classical calc
-    _ = ∫ x, ∑ p ∈ {p | p ∈ ℭ}, conj (g x) * carlesonOn p f x := by
-      unfold carlesonSum; simp_rw [Finset.mul_sum]
-    _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ x, conj (g x) * carlesonOn p f x := by
-      apply integral_finset_sum; intro p _
-      refine hg.conj.mul hf.carlesonOn |>.integrable
-    _ = ∑ p ∈ {p | p ∈ ℭ}, ∫ y, conj (adjointCarleson p g y) * f y := by
-      simp_rw [adjointCarleson_adjoint hf hg]
-    _ = ∫ y, ∑ p ∈ {p | p ∈ ℭ}, conj (adjointCarleson p g y) * f y := by
-      symm; apply integral_finset_sum; intro p _
-      refine BoundedCompactSupport.mul ?_ hf |>.integrable
-      exact hg.adjointCarleson.conj
-    _ = _ := by congr!; rw [← Finset.sum_mul, ← map_sum]; rfl
 
 /-- The constant used in `adjoint_tree_estimate`.
 Has value `2 ^ (155 * a ^ 3)` in the blueprint. -/
@@ -408,9 +163,39 @@ lemma adjoint_tree_estimate (hu : u ∈ t) (hf : BoundedCompactSupport f)
     exact (hg.memLp 2).eLpNorm_ne_top
 
 /-- The constant used in `adjoint_tree_control`.
-Has value `2 ^ (156 * a ^ 3)` in the blueprint. -/
+Has value `2 ^ (203 * a ^ 3)` in the blueprint. -/
 irreducible_def C7_4_3 (a : ℕ) : ℝ≥0 :=
   C7_4_2 a + CMB (defaultA a) 2 + 1
+
+lemma C7_4_3_le (ha : 4 ≤ a) : C7_4_3 a ≤ 2 ^ (203 * a ^ 3) := by
+  rw [C7_4_3, C7_4_2, C7_3_1_1, CMB_defaultA_two_eq]
+  calc
+    _ ≤ (2 : ℝ≥0) ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ ((a : ℝ) + 3 / 2) + 2 ^ ((a : ℝ) + 3 / 2) := by
+      gcongr; exact NNReal.one_le_rpow one_le_two (by linarith)
+    _ = 2 ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ ((a : ℝ) + 5 / 2) := by
+      rw [add_assoc, ← two_mul, ← NNReal.rpow_one_add' (by positivity)]; congr 2; ring
+    _ ≤ 2 ^ (202.5 * (a : ℝ) ^ 3) + 2 ^ (202.5 * (a : ℝ) ^ 3) := by
+      gcongr
+      · exact one_le_two
+      · calc
+          _ ≤ 2 * (a : ℝ) := by
+            rw [two_mul]; gcongr; exact (show (5 : ℝ) / 2 ≤ 4 by norm_num).trans (mod_cast ha)
+          _ = 2 * a * 1 * 1 := by ring
+          _ ≤ 202.5 * a * a * a := by
+            gcongr
+            · norm_num
+            · norm_cast; omega
+            · norm_cast; omega
+          _ = _ := by ring
+    _ ≤ 2 ^ (202.5 * (a : ℝ) ^ 3 + 1) := by rw [← mul_two, ← NNReal.rpow_add_one' (by positivity)]
+    _ ≤ _ := by
+      rw [← NNReal.rpow_natCast]; gcongr
+      · exact one_le_two
+      · push_cast; rw [show 203 * (a : ℝ) ^ 3 = 202.5 * a ^ 3 + a ^ 3 / 2 by ring]; gcongr
+        rw [one_le_div₀ zero_lt_two]; norm_cast
+        calc
+          _ ≤ a ^ 1 := by linarith
+          _ ≤ _ := Nat.pow_le_pow_right (by positivity) (by norm_num)
 
 /-- Lemma 7.4.3. -/
 lemma adjoint_tree_control

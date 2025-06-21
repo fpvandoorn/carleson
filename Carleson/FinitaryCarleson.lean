@@ -52,7 +52,7 @@ private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
 lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset) :
     ∃ I : Grid X, GridStructure.s I = s ∧ x ∈ I := by
   have DS : (D : ℝ) ^ S = (D : ℝ) ^ (S : ℤ) := rfl
-  have : x ∈ ball o (D ^ S / 4) := ProofData.G_subset hx
+  have : x ∈ ball o (D ^ S / 4) := G_subset hx
   rw [← c_topCube (X := X), DS, ← s_topCube (X := X)] at this
   have x_mem_topCube := ball_subset_Grid this
   by_cases hS : s = S -- Handle separately b/c `Grid_subset_biUnion`, as stated, doesn't cover `s=S`
@@ -110,7 +110,7 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
   clear g
   rcases discrete_carleson X with ⟨G', hG', h2G', hfG'⟩
   refine ⟨G', hG', h2G', fun f meas_f h2f ↦ le_of_eq_of_le ?_ (hfG' f meas_f h2f)⟩
-  refine setLIntegral_congr_fun (measurableSet_G.diff hG') (ae_of_all volume fun x hx ↦ ?_)
+  refine setLIntegral_congr_fun (measurableSet_G.diff hG') fun x hx ↦ ?_
   simp_rw [carlesonSum, mem_univ, Finset.filter_True, tile_sum_operator hx, mul_sub, exp_sub,
     mul_div, div_eq_mul_inv,
     ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]

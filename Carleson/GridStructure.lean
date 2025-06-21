@@ -89,7 +89,7 @@ lemma le_or_disjoint (h : s i ≤ s j) : i ≤ j ∨ Disjoint (i : Set X) (j : S
   fundamental_dyadic h |>.imp (⟨·, h⟩) id
 
 lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : Set X) := by
-  rcases le_or_lt (s i) (s j) with h | h
+  rcases le_or_gt (s i) (s j) with h | h
   · have := le_or_disjoint h; tauto
   · have := le_or_disjoint h.le; tauto
 
@@ -247,9 +247,9 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
   obtain ⟨j, mj, hj⟩ := incs.exists_minimal ine
   simp only [gt_iff_lt, Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
-    rcases lt_or_le (s x) (s j) with c | c
+    rcases lt_or_ge (s x) (s j) with c | c
     · refine (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) ?_).symm.le
-      exact not_lt_iff_le_imp_le.mpr (hj mx)
+      exact not_lt_iff_le_imp_ge.mpr (hj mx)
     · exact le_dyadic c mj.le mx.le
   use j, ⟨mj, hj⟩, fun k ⟨hk₁, hk₂⟩ ↦ le_antisymm (hk₂ j mj) (hj k hk₁)
 

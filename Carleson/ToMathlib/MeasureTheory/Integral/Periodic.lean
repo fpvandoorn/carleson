@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 import Mathlib.Analysis.Convolution
-import Carleson.ToMathlib.Topology.Instances.AddCircle
+import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 
 open Set Function MeasureTheory MeasureTheory.Measure TopologicalSpace AddSubgroup intervalIntegral
 

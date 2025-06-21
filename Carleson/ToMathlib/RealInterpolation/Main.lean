@@ -35,7 +35,7 @@ noncomputable section
 open NNReal ENNReal MeasureTheory Set Pointwise
 
 variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   [NormedAddCommGroup E] [NormedAddCommGroup E₁] [NormedAddCommGroup E₂] [NormedAddCommGroup E₃]
   [MeasurableSpace E] [BorelSpace E]
@@ -109,7 +109,10 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
   --   have := (ENNReal.toReal_eq_zero_iff _).mp (hx i hi)
   --   tauto
   intro f g hf hg
-  simp_rw [AESubadditiveOn, Set.forall_in_swap, imp.swap, ← imp_forall_iff] at h hT'
+  simp_rw [AESubadditiveOn] at h
+  conv at hT' => enter [i]; rw [forall_swap]
+  rw [forall_swap] at hT'; rw [forall₂_swap] at h
+  simp_rw [imp.swap, ← imp_forall_iff] at h hT'
   specialize h f hf g hg
   simp_rw [enorm_eq_self] at h ⊢
   filter_upwards [hT f hf, hT g hg, (ae_ball_iff h𝓑).mpr h, (ae_ball_iff h𝓑).mpr (hT' f hf),
@@ -166,7 +169,8 @@ lemma biSup {ι : Type*} {𝓑 : Set ι} (h𝓑 : 𝓑.Countable) {T : ι → (�
     rw [ne_eq, eq_top_iff] at hx ⊢
     exact fun h ↦ hx <| h.trans (le_biSup (fun i ↦ T i f x) hi)
   refine ⟨AESubadditiveOn.biSup h𝓑 hT h_add (fun i hi ↦ (h i hi).1), fun f c hf ↦ ?_⟩
-  simp_rw [Set.forall_in_swap, imp.swap, ← imp_forall_iff] at hT'
+  conv at hT' => enter [i]; rw [forall_swap]
+  rw [forall_swap] at hT'; simp_rw [imp.swap, ← imp_forall_iff] at hT'
   filter_upwards [(ae_ball_iff h𝓑).mpr (fun i hi ↦ (h i hi).2 f c hf),
     (ae_ball_iff h𝓑).mpr (hT' f hf), (ae_ball_iff h𝓑).mpr (hT' (c • f) (h_smul hf))] with x hx hT'fx hT'cfx
   simp_rw [Pi.smul_apply, ENNReal.smul_iSup]
@@ -254,7 +258,7 @@ open NNReal ENNReal MeasureTheory Set ComputationsChoiceExponent
     ComputationsInterpolatedExponents ChoiceScale
 
 variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
-  {p p' q p₀ q₀ p₁ q₁: ℝ≥0∞}
+  {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {f : α → E₁} {t : ℝ≥0∞}
   {T : (α → E₁) → (α' → E₂)}
@@ -577,7 +581,7 @@ lemma support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
     (hg_int : ∫⁻ x, g x ∂μ < ⊤) :
     SigmaFinite (μ.restrict (Function.support g)) where
   out' := by
-    apply nonempty_of_exists
+    apply Exists.nonempty
     use (finite_spanning_sets_from_lintegrable hg hg_int)
 
 lemma support_sigma_finite_from_MemLp
@@ -1063,10 +1067,10 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
           · rw [p_eq_p₀]; exact h₀T -/
       · split_ifs with is_q₁_top
         · simp only [mul_zero, nonpos_iff_eq_zero]
-          have hf_0 : ∀ᵐ t : ℝ, t ∈ Ici M → distribution (T f) (ENNReal.ofReal t) ν *
-          ENNReal.ofReal (t ^ (q.toReal - 1)) = 0 := by
-            apply ae_of_all
-            intro t (ht : M ≤ t)
+          have hf_0 : EqOn (fun t ↦ distribution (T f) (ENNReal.ofReal t) ν *
+              ENNReal.ofReal (t ^ (q.toReal - 1))) (fun x ↦ 0) (Ici M) := by
+            intro t ht
+            dsimp only
             rw [weaktype_estimate_top] <;> try assumption
             · simp
             · rw [p_eq_p₀, hp₀p₁]; exact h₁T
@@ -1083,7 +1087,7 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
           rw [setLIntegral_congr_fun measurableSet_Ici hf_0, lintegral_zero]
         · rw [mul_one]
           apply setLIntegral_mono' measurableSet_Ici
-          intro t (ht : t ≥ M)
+          intro t ht
           gcongr
           sorry /- type mismatch, old proof was: apply weaktype_estimate <;> try assumption
           · exact Ne.lt_top is_q₁_top
@@ -1100,8 +1104,8 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
       congr
       · rw [← lintegral_const_mul]
         · apply setLIntegral_congr_fun measurableSet_Ioo
-          apply ae_of_all
           intro t ⟨(ht₁ : 0 < t), _⟩
+          dsimp
           rw [ENNReal.mul_rpow_of_nonneg] <;> try positivity
           rw [mul_assoc, ← ofReal_mul] <;> try positivity
           congr
@@ -1111,8 +1115,8 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
           exact Measurable.pow_const (fun ⦃t⦄ a ↦ a) (q.toReal - q₀.toReal - 1)
       · rw [← lintegral_const_mul]
         · apply setLIntegral_congr_fun measurableSet_Ici
-          apply ae_of_all
-          intro t (ht : M ≤ t)
+          intro t ht
+          dsimp only
           have t_pos : 0 < t := lt_of_lt_of_le M_pos ht
           rw [ENNReal.mul_rpow_of_nonneg] <;> try positivity
           rw [mul_assoc, ← ofReal_mul] <;> try positivity
@@ -1205,7 +1209,7 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
 
 /-- The definition of the constant in the real interpolation theorem, when viewed as
     an element of `ℝ≥0∞`. -/
-def C_realInterpolation_ENNReal (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁: ℝ≥0) (A : ℝ≥0) (t : ℝ≥0∞) :=
+def C_realInterpolation_ENNReal (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ : ℝ≥0) (A : ℝ≥0) (t : ℝ≥0∞) :=
     (if p₀ = p₁ then 1 else ENNReal.ofReal (2 * A)) * q ^ q⁻¹.toReal *
     (((if q₁ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ +
     (if q₀ < ⊤ then 1 else 0) * ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹)) ^ q⁻¹.toReal *
