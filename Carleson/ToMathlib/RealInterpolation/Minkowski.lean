@@ -418,7 +418,7 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ENo
 
 @[fun_prop]
 theorem AEMeasurable.trunc_restrict
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁] {j : Bool}
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] {j : Bool}
     {hμ : SigmaFinite (μ.restrict (Function.support f))} (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict (Function.support f))) := by
@@ -430,7 +430,7 @@ theorem AEMeasurable.trunc_restrict
 
 lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [BorelSpace E₁] {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
+    {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
     (hp₀ : 0 < p₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
     ∫⁻ (s : ℝ) in Ioi 0,
@@ -448,7 +448,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
     sorry -- TODO: was fun_prop
 
 lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (hgh : ∀ x ∈ Function.support f, g x = h x) :
     ∫⁻ x : α in Function.support f, g x ∂μ = ∫⁻ x : α in Function.support f, h x ∂μ := by
   refine lintegral_congr_ae (ae_iff.mpr ?_)
@@ -469,7 +469,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
     (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀) :

@@ -587,7 +587,7 @@ lemma support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
     use (finite_spanning_sets_from_lintegrable hg hg_int)
 
 lemma support_sigma_finite_from_MemLp
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hf : MemLp f p μ) (hp : p ≠ ⊤) (hp' : p ≠ 0) :
     SigmaFinite (μ.restrict (Function.support f)) := by
   let g : α → ℝ≥0∞ := fun x ↦ ‖f x‖ₑ ^ p.toReal

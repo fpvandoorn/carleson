@@ -470,10 +470,10 @@ def trnc (j : Bool) (f : α → ε) (t : ℝ≥0∞) : α → ε :=
   | true => trunc f t
 
 @[simp]
-lemma trnc_false : trnc ⊥ f t = truncCompl f t := rfl
+lemma trnc_false : trnc false f t = truncCompl f t := rfl
 
 @[simp]
-lemma trnc_true : trnc ⊤ f t = trunc f t := rfl
+lemma trnc_true : trnc true f t = trunc f t := rfl
 
 /-- A function is the complement if its truncation and the complement of the truncation. -/
 @[simp]
@@ -794,7 +794,7 @@ lemma truncCompl_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) :
   unfold truncCompl
   split_ifs with is_fx_le_a <;> simp
 
-lemma eLpNorm_truncCompl_le {q : ℝ≥0∞} [MeasurableSpace ε] [BorelSpace ε]
+lemma eLpNorm_truncCompl_le {q : ℝ≥0∞} [MeasurableSpace ε]
     (q_ne_zero : ¬ q = 0) (q_ne_top : q ≠ ⊤) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
@@ -817,16 +817,15 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞} [MeasurableSpace ε] [BorelSpace ε
     gcongr with x
     exact trnc_le_func (j := ⊥)
 
+--#lint unusedHavesSuffices in
 lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace ε] [BorelSpace ε]
     (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
 
-  --unfold eLpNorm eLpNorm'
   have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
   have q_ne_zero : q ≠ 0 := hpq.1.ne'
-  have q_toReal_pos : 0 < q.toReal := exp_toReal_pos hpq.1 q_ne_top
 
   apply le_trans (eLpNorm_truncCompl_le q_ne_zero q_ne_top)
   calc
@@ -945,10 +944,11 @@ lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) (hf : MemLp f p μ) (ht : t ≠ �
     · refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
       exact toReal_pos hpq.1.ne' p_ne_top
 
-lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f x‖ₑ} < ⊤) (ht : 0 < t) :
+lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f x‖ₑ} < ⊤) :
     MemLp (trnc ⊥ f t) p μ := by
   by_cases hp_top : p = ⊤
-  · rw [hp_top, trnc_false]
+  · rw [hp_top]
+    simp only [bot_eq_false, trnc_false]
     exact truncCompl_preserves_Lp hf
   obtain ⟨hf_m, hf_lt_top⟩ := hf
   by_cases hp0 : p = 0
@@ -963,7 +963,8 @@ lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
 
   have hp_pos : 0 < p.toReal := ENNReal.toReal_pos hp0 hp_top
   have ae_eq_trunc : (trnc ⊥ f t) =ᶠ[ae μ] (trnc ⊥ g t) := by
-    rw [trnc_false, truncCompl_eq_indicator, trnc_false, truncCompl_eq_indicator]
+    simp only [bot_eq_false, trnc_false]
+    rw [truncCompl_eq_indicator, truncCompl_eq_indicator]
     rw [Filter.eventuallyEq_iff_exists_mem] at wg2
     rcases wg2 with ⟨s, hs, hfgs⟩
     rw [Filter.eventuallyEq_iff_exists_mem]
@@ -986,7 +987,8 @@ lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
 
   apply MemLp.ae_eq ae_eq_trunc.symm
   use aestronglyMeasurable_trnc wg1.aestronglyMeasurable
-  rw [trnc_false, truncCompl_eq_indicator,
+  simp only [bot_eq_false, trnc_false]
+  rw [truncCompl_eq_indicator,
       eLpNorm_indicator_eq_eLpNorm_restrict
         (by rw [compl_setOf]; simp only [not_le]; apply measurableSet_lt measurable_const (by measurability))]
   rw [eLpNorm_eq_eLpNorm' hp0 hp_top]
@@ -1047,11 +1049,10 @@ lemma MemLp_of_MemLp_le_of_MemLp_ge [ContinuousAdd ε] [MeasurableSpace ε] [Bor
   have h' : MemLp (trnc ⊥ f C) q μ := by
     by_cases hr : r = ⊤
     · rw [hr] at hf'
-      apply MemLp_truncCompl_of_MemLp_top hf' _ (by norm_num)
+      apply MemLp_truncCompl_of_MemLp_top hf' _
       rw [← distribution]
       exact distribution_lt_top (ε := ε) hf hp p_ne_top (by norm_num)
     exact truncCompl_Lp_Lq_lower hr ⟨hp.trans_le hr'.1, hr'.2⟩ (by norm_num) hf'
-  have := MemLp.add h h'
   have : f = (trnc ⊤ f C) +  (trnc ⊥ f C) := trunc_add_truncCompl.symm
   rw [this]
   exact MemLp.add h h'
