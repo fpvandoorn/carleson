@@ -430,7 +430,7 @@ open NNReal ENNReal MeasureTheory Set ComputationsInterpolatedExponents
 variable {α α' ε E : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞} {c : ℝ≥0} {a : ℝ}
   {μ : Measure α} {ν : Measure α'}
-  [TopologicalSpace ε] [ENormedAddCommMonoid ε]
+  [TopologicalSpace ε] [ENormedAddMonoid ε]
   {f : α → ε} {s t t' : ℝ≥0∞}
 
 /-! ## Results about truncations of a function
