@@ -59,7 +59,7 @@ theorem lebesgue_differentiation {f : X → ℂ} (hf : BoundedFiniteSupport f) :
       have ⟨l, u, hlu, hlu'⟩ := mem_nhds_iff_exists_Ioo_subset.mp (hU.mem_nhds hU0)
       simp only [mem_Ioo] at hlu
       exact ⟨u / 2, hlu' ⟨by linarith, by linarith⟩, by linarith⟩
-    refine ⟨r, hrU, ineq x hr0, hr0⟩
+    exact ⟨r, hrU, ineq x hr0, hr0⟩
   let v : VitaliFamily (volume : Measure X) := Vitali.vitaliFamily volume _ h
   refine (v.ae_tendsto_average hf.integrable.locallyIntegrable).mono fun x hx ↦ ?_
   have ⟨r₀, hr₀₁, hr₀₂⟩ := Filter.exists_seq_forall_of_frequently (h x)
