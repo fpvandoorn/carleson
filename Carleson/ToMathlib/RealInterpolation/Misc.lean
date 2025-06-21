@@ -1065,13 +1065,13 @@ noncomputable section
 
 open NNReal ENNReal MeasureTheory Set
 
-variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
+variable {α α' E E₁ E₂ : Type*} {m : MeasurableSpace α} {m' : MeasurableSpace α'}
   {p p' q p₀ q₀ p₁ q₁ : ℝ≥0∞}
   {C₀ C₁ : ℝ≥0} {μ : Measure α} {ν : Measure α'}
   {a : ℝ≥0∞} -- truncation parameter
-  [NormedAddCommGroup E]
-  [NormedAddCommGroup E₁]
-  [NormedAddCommGroup E₂]
+  [TopologicalSpace E] [ENormedAddCommMonoid E]
+  [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+  [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
   [MeasurableSpace E] [BorelSpace E]
   {f : α → E₁} {t : ℝ≥0∞}
 
@@ -1235,13 +1235,13 @@ lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
           -- if p <= 0, does this become false? rw [zero_rpow_def]
           sorry -- linarith -/
 
-lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ}
+lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} (hg : AEMeasurable g) {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ}
     (hp : 0 < p) (hfx : 0 < ‖f x‖ₑ) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     (∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s)) * ‖f x‖ₑ ^ p := by
   rw [lintegral_trunc_mul₀ hp hfx, lintegral_trunc_mul₁, lintegral_trunc_mul₂ hfx,
-    lintegral_mul_const']
-  exact ((rpow_lt_top_iff_of_pos hp).mpr coe_lt_top).ne
+    lintegral_mul_const'']
+  exact hg.restrict
 
 
 /-! Extract expressions for the lower Lebesgue integral of power functions -/
