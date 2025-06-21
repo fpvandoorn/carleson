@@ -572,20 +572,19 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
     (h𝓑 : 𝓑.Countable) {R : ℝ} (hR : ∀ i ∈ 𝓑, r i ≤ R) {p : ℝ≥0} (hp : 1 < p) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) p p μ μ (CMB A p) := by
-  rw [← hasStrongType_toReal_iff sorry /- cleanup after RealInterpolation works for ENorm. -/]
   have h2p : 0 < p := by positivity
   rw [CMB]
   refine exists_hasStrongType_real_interpolation
-    (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x |>.toReal) (p := p) (q := p) (A := 1)
+    (T := fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x ) (p := p) (q := p) (A := 1) (t := (↑p)⁻¹)
     ⟨ENNReal.zero_lt_top, le_rfl⟩
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
     (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
-    (fun f _ ↦ AEStronglyMeasurable.maximalFunction_toReal h𝓑)
-    ?_ (HasStrongType.MB_top h𝓑 |>.toReal.hasWeakType zero_lt_top)
-    (HasWeakType.MB_one h𝓑 hR).toReal
+    (fun f _ ↦ AEStronglyMeasurable.maximalFunction h𝓑)
+    ?_ (HasStrongType.MB_top h𝓑 |>.hasWeakType zero_lt_top)
+    (HasWeakType.MB_one h𝓑 hR)
   · exact ⟨ENNReal.inv_pos.mpr coe_ne_top, ENNReal.inv_lt_one.mpr <| one_lt_coe_iff.mpr hp⟩
-  exact ((AESublinearOn.maximalFunction h𝓑 hR).toReal <| MB_ae_ne_top' h𝓑 hR).1
+  exact (AESublinearOn.maximalFunction h𝓑 hR).1
 
 lemma hasStrongType_MB_finite [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [BorelSpace E]
     [IsFiniteMeasureOnCompacts μ] [ProperSpace X] [Nonempty X] [μ.IsOpenPosMeasure]
