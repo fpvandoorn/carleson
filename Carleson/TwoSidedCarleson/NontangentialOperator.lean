@@ -719,7 +719,6 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   apply lintegral_ball_le_volume_globalMaximalFunction
   simp [(lt_of_lt_of_le hr hR)]
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part 2 of Lemma 10.1.4 about `F₂`. -/
 theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
@@ -797,7 +796,6 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
 /-- The constant used in `cotlar_estimate`. -/
 irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 3)
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Lemma 10.1.5 -/
 theorem cotlar_estimate (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
