@@ -558,7 +558,8 @@ private lemma MeasurableSet.czPartition (hX : GeneralCase f α) (i : ℕ) :
     MeasurableSet (czPartition hX i) := by
   refine i.strong_induction_on (fun j hj ↦ ?_)
   unfold _root_.czPartition
-  measurability
+  apply measurableSet_ball.diff ∘ (MeasurableSet.biUnion (to_countable _) hj).union
+  exact MeasurableSet.biUnion (to_countable _) (fun _ _ ↦ measurableSet_ball)
 
 lemma czBall_subset_czPartition {hX : GeneralCase f α} {i : ℕ} :
     czBall hX i ⊆ czPartition hX i := by
