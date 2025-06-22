@@ -34,7 +34,7 @@ theorem maximal_theorem [Nonempty X] :
         NNReal.coe_one, div_one, rpow_ofNat, pow_mul', ← npow_add,
         two_add_two_eq_four]; rfl
   rw [this]
-  apply hasWeakType_globalMaximalFunction (μ := volume) le_rfl le_rfl
+  apply hasWeakType_globalMaximalFunction (μ := volume) (p₁ := 1) (p₂ := 1) (by norm_num) le_rfl
 
 -- Lemma 10.2.1, as formulated in the blueprint
 variable (α) in
