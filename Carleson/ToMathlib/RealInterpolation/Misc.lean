@@ -794,7 +794,7 @@ lemma truncCompl_preserves_Lp {p : ℝ≥0∞} (hf : MemLp f p μ) :
   unfold truncCompl
   split_ifs with is_fx_le_a <;> simp
 
-lemma eLpNorm_truncCompl_le {q : ℝ≥0∞} [MeasurableSpace ε]
+lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     (q_ne_zero : ¬ q = 0) (q_ne_top : q ≠ ⊤) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
@@ -818,7 +818,7 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞} [MeasurableSpace ε]
     exact trnc_le_func (j := ⊥)
 
 --#lint unusedHavesSuffices in
-lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞} [MeasurableSpace ε] [BorelSpace ε]
+lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
     (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
@@ -1017,7 +1017,7 @@ lemma MemLp_truncCompl_of_MemLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f 
 
 
 /-- If `f` is in `Lp`, the complement of the truncation is in `Lq` for `q ≤ p`. -/
-lemma truncCompl_Lp_Lq_lower [MeasurableSpace ε] [BorelSpace ε]
+lemma truncCompl_Lp_Lq_lower
     (hp : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (ht : 0 < t) (hf : MemLp f p μ) :
     MemLp (trnc ⊥ f t) q μ := by
   have q_ne_top : q ≠ ∞ := ne_top_of_le_ne_top hp hpq.2

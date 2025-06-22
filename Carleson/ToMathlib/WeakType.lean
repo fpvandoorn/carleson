@@ -764,7 +764,7 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
 section BorelSpace
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
-  [MeasurableSpace E] [TopologicalSpace E] [ENormedAddMonoid E] [BorelSpace E]
+  [MeasurableSpace E] [TopologicalSpace E] [ENormedAddMonoid E]
 
 /-- The layer-cake theorem, or Cavalieri's principle for functions into an ENormedAddMonoid. -/
 lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :

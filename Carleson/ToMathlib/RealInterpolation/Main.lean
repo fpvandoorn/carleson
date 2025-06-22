@@ -292,7 +292,7 @@ lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {T : (α → ε
   exact h a ha
 
 lemma rewrite_norm_func {q : ℝ} {g : α' → E}
-    [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E] [BorelSpace E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
+    [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
     (hg : AEStronglyMeasurable g ν) :
     ∫⁻ x, ‖g x‖ₑ ^ q ∂ν =
     ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s in Ioi (0 : ℝ),
@@ -316,7 +316,7 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
 
 lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hq : 0 < q) (tc : ToneCouple) {A : ℝ≥0} (hA : 0 < A)
     (ht : Subadditive_trunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
@@ -347,7 +347,7 @@ theorem ton_aeMeasurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMo
 
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_norm_rpow_range_operator'
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hp₁p : p < p₁) (hp₀p : p₀ < p)
     (tc : ToneCouple)
@@ -587,7 +587,7 @@ lemma support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
     use (finite_spanning_sets_from_lintegrable hg hg_int)
 
 lemma support_sigma_finite_from_MemLp
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hf : MemLp f p μ) (hp : p ≠ ⊤) (hp' : p ≠ 0) :
     SigmaFinite (μ.restrict (Function.support f)) := by
   let g : α → ℝ≥0∞ := fun x ↦ ‖f x‖ₑ ^ p.toReal
@@ -620,8 +620,8 @@ lemma support_sigma_finite_from_MemLp
 --   exact instSFiniteOfSigmaFinite
 
 lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
-  [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-  [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+  [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] --[BorelSpace E₁]
+  [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] --[BorelSpace E₂]
   {spf : ScaledPowerFunction}
   (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
   (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -766,8 +766,8 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   _ = _ := by split_ifs <;> ring
 
 lemma combine_estimates₁ {A : ℝ≥0} (hA : 0 < A)
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     {spf : ScaledPowerFunction}
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
     (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -905,8 +905,8 @@ lemma exists_hasStrongType_real_interpolation_aux₀ {p₀ p₁ q₀ q₁ p q : 
 
 /-- The estimate for the real interpolation theorem in case `p₀ < p₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂] (hA : 0 < A)
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] (hA : 0 < A)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ < p₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1013,7 +1013,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     for the case `q₀ < q₁`. -/
 lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ < q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1140,7 +1140,7 @@ before taking roots. -/
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1166,8 +1166,8 @@ lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q :
 the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : ℝ≥0∞} {A : ℝ≥0} (hA : 0 < A)
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁)
@@ -1312,6 +1312,9 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
 def C_realInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ≥0∞) : ℝ≥0 :=
     C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t |>.toNNReal
 
+def C_LorentzInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ≥0∞) : ℝ≥0 :=
+    sorry
+
 lemma C_realInterpolation_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0} (hA : 0 < A)
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ : ℝ≥0} (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
@@ -1333,7 +1336,7 @@ lemma coe_C_realInterpolation {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : ℝ≥0}
   apply C_realInterpolation_ENNReal_ne_top (A := A) <;> assumption
 
 lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : 0 < p₀) (hp₁ : 0 < p₁)
     {A : ℝ≥0} (hA : 1 ≤ A) (ht : t ∈ Ioo 0 1)
@@ -1376,8 +1379,8 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
 
 /-- Marcinkiewicz real interpolation theorem. -/
 theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ A : ℝ≥0} (hA : 1 ≤ A) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
     (hp : p⁻¹ = (1 - t) / p₀ + t / p₁) (hq : q⁻¹ = (1 - t) / q₀ + t / q₁)
@@ -1396,10 +1399,12 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
   apply exists_hasStrongType_real_interpolation_aux₄ <;> assumption
 
 
+
+
 /-- General Marcinkiewicz real interpolation theorem. -/
 theorem exists_hasLorentzType_real_interpolation {p₀ p₁ r₀ r₁ q₀ q₁ s₀ s₁ p q : ℝ≥0∞}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] [BorelSpace E₂]
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hr₀ : 1 ≤ r₀) (hr₁ : 1 ≤ r₁) (hq₀ : 1 ≤ q₀) (hq₁ : 1 ≤ q₁) (hs₀ : 1 ≤ s₀) (hs₁ : 1 ≤ s₁) -- TODO: find out which of these are actually necessary
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
     {C₀ C₁ t A : ℝ≥0} (hA : 0 < A) (ht : t ∈ Ioo 0 1) (hC₀ : 0 < C₀) (hC₁ : 0 < C₁)
@@ -1408,7 +1413,7 @@ theorem exists_hasLorentzType_real_interpolation {p₀ p₁ r₀ r₁ q₀ q₁ 
     (hT : AESubadditiveOn T (fun f ↦ MemLorentz f p₀ r₀ μ ∨ MemLorentz f p₁ r₁ μ) A ν)
     (h₀T : HasLorentzType T p₀ r₀ q₀ s₀ μ ν C₀) (h₁T : HasLorentzType T p₁ r₁ q₁ s₁ μ ν C₁) :
     --TODO: probably no longer the right constant
-      ∀ r, 0 < r → HasLorentzType T p r q r μ ν (C_realInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) := sorry
+      ∀ r, 0 < r → HasLorentzType T p r q r μ ν (C_LorentzInterpolation p₀ p₁ q₀ q₁ q C₀ C₁ A t) := sorry
 
 /- State and prove Remark 1.2.7 -/
 

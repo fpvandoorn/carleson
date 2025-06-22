@@ -428,7 +428,7 @@ theorem AEMeasurable.trunc_restrict
   · simp only [hj, trnc]
     sorry -- was: hf.truncCompl_ton _
 
-lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
+lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     {j : Bool} {hμ : SigmaFinite (μ.restrict (Function.support f))}
     (hp₀ : 0 < p₀) (hp₀q₀ : p₀ ≤ q₀)
@@ -448,7 +448,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
     sorry -- TODO: was fun_prop
 
 lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hf : AEStronglyMeasurable f μ) (hgh : ∀ x ∈ Function.support f, g x = h x) :
     ∫⁻ x : α in Function.support f, g x ∂μ = ∫⁻ x : α in Function.support f, h x ∂μ := by
   refine lintegral_congr_ae (ae_iff.mpr ?_)
@@ -469,7 +469,7 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict (Function.support f)))
     (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀) :
@@ -602,7 +602,7 @@ def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | fal
     the particular choice of exponent, but not yet using the
     particular choice of scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁] (ht : t ∈ Ioo 0 1)
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (ht : t ∈ Ioo 0 1)
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤)  (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
@@ -849,7 +849,7 @@ lemma weaktype_estimate_trunc_top_top {a : ℝ≥0∞} {C₁ : ℝ≥0}
       distribution_mono_right ineq
   _ = 0 := distribution_snormEssSup
 
-variable [MeasurableSpace E₁] [BorelSpace E₁] in
+--variable [MeasurableSpace E₁] [BorelSpace E₁] in
 lemma weaktype_estimate_truncCompl_top {C₀ : ℝ≥0} (hC₀ : 0 < C₀) {p p₀ q₀ : ℝ≥0∞}
     (hp₀ : 0 < p₀) (hq₀ : q₀ = ⊤) (hp₀p : p₀ < p) (hp : p ≠ ⊤) {f : α → E₁} (hf : MemLp f p μ)
     (h₀T : HasWeakType T p₀ q₀ μ ν C₀) (ht : 0 < t) {a : ℝ≥0∞} {d : ℝ≥0∞} -- (hd : 0 < d)
