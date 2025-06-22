@@ -36,6 +36,26 @@ theorem maximal_theorem [Nonempty X] :
   rw [this]
   apply hasWeakType_globalMaximalFunction (μ := volume) le_rfl le_rfl
 
+-- Lemma 10.2.1, as formulated in the blueprint
+variable (α) in
+private theorem maximal_theorem' [Nonempty X] (hf : BoundedFiniteSupport f) :
+    α * volume {x | α < ‖globalMaximalFunction volume 1 f x‖ₑ} ≤
+    (C10_2_1 a) * eLpNorm f 1 volume := by
+  by_cases hα : α = ∞
+  · simp [hα]
+  have h := (maximal_theorem f hf).2
+  simp only [wnorm, one_ne_top, reduceIte, wnorm', toReal_one, inv_one, rpow_one, iSup_le_iff] at h
+  exact coe_toNNReal hα ▸ h α.toNNReal
+
+-- Alternate version of `maximal_theorem'`
+private theorem maximal_theorem'' [Nonempty X] (hα : α > 0) (hf : BoundedFiniteSupport f) :
+    volume {x | α < ‖globalMaximalFunction volume 1 f x‖ₑ} ≤
+    (C10_2_1 a) * eLpNorm f 1 volume / α := by
+  by_cases α_top : α = ∞
+  · simp [α_top]
+  apply ENNReal.le_div_iff_mul_le (Or.inl hα.ne') (Or.inl α_top) |>.mpr
+  exact mul_comm α _ ▸ maximal_theorem' α hf
+
 /-- Lemma 10.2.2. -/
 theorem lebesgue_differentiation {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     ∀ᵐ x ∂volume, ∃ (c : ℕ → X) (r : ℕ → ℝ),
@@ -458,21 +478,21 @@ lemma volume_lt_of_not_GeneralCase [CompatibleFunctions ℝ X (defaultA a)]
     (hf : BoundedFiniteSupport f) (h : ¬ GeneralCase f α) (hα : 0 < α) :
     volume (univ : Set X) < ∞ := by
   simp only [GeneralCase, not_exists, not_le] at h
-  have ne_top : α ≠ ⊤ := have ⟨x⟩ : Nonempty X := inferInstance; (h x).ne_top
-  have ineq := (maximal_theorem f hf).2
-  simp only [wnorm, one_ne_top, reduceIte, wnorm', distribution, toReal_one, inv_one, rpow_one,
-    iSup_le_iff] at ineq
-  rw [← eq_univ_iff_forall.mpr fun x ↦ (coe_toNNReal ne_top) ▸ h x]
-  refine lt_top_of_mul_ne_top_right ?_ (coe_ne_zero.mpr (toNNReal_ne_zero.mpr ⟨hα.ne.symm, ne_top⟩))
-  refine ((ineq α.toNNReal).trans_lt ?_).ne
-  exact mul_lt_top (by norm_num) <| (BoundedFiniteSupport.memLp hf 1).eLpNorm_lt_top
+  refine ENNReal.lt_top_of_mul_ne_top_right ?_ hα.ne'
+  refine lt_of_le_of_lt (eq_univ_iff_forall.mpr h ▸ maximal_theorem' α hf) ?_ |>.ne
+  exact mul_lt_top coe_lt_top (hf.memLp 1).eLpNorm_lt_top
+
+private lemma isFiniteMeasure_finite [CompatibleFunctions ℝ X (defaultA a)]
+    (hf : BoundedFiniteSupport f) (h : ¬ GeneralCase f α) (hα : 0 < α) :
+    IsFiniteMeasure (volume : Measure X) :=
+  (isFiniteMeasure_iff _).mpr <| volume_lt_of_not_GeneralCase hf h hα
 
 lemma isOpen_MB_preimage_Ioi (hX : GeneralCase f α) :
     IsOpen (globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α) ∧
     globalMaximalFunction (X := X) volume 1 f ⁻¹' Ioi α ≠ univ :=
   have ⟨x, hx⟩ := hX
   ⟨lowerSemiContinuous_globalMaximalFunction.isOpen_preimage _,
-    (Set.ne_univ_iff_exists_notMem _).mpr ⟨x, by simpa using hx⟩⟩
+    (ne_univ_iff_exists_notMem _).mpr ⟨x, by simpa using hx⟩⟩
 
 /-- The center of B_j in the proof of Lemma 10.2.5 (general case). -/
 def czCenter (hX : GeneralCase f α) (i : ℕ) : X :=
@@ -510,6 +530,13 @@ lemma not_disjoint_czBall7 {hX : GeneralCase f α} {i : ℕ} (hi : 0 < czRadius 
     ¬Disjoint (czBall7 hX i) (globalMaximalFunction volume 1 f ⁻¹' Ioi α)ᶜ :=
   ball_covering (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.1 i hi
 
+private lemma czBall_subset_czBall {hX : GeneralCase f α} {i : ℕ} {b c : ℝ}
+    (hb : 0 ≤ b := by norm_num) (hbc : b ≤ c := by norm_num) :
+    ball (czCenter hX i) (b * czRadius hX i) ⊆ ball (czCenter hX i) (c * czRadius hX i) := by
+  by_cases hr : czRadius hX i ≥ 0
+  · exact ball_subset_ball <| mul_le_mul_of_nonneg_right hbc hr
+  · simp [ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos hb (le_of_not_ge hr)]
+
 /-- Part of Lemma 10.2.5 (general case). -/
 lemma encard_czBall3_le {hX : GeneralCase f α}
     {y : X} (hy : α < globalMaximalFunction volume 1 f y) :
@@ -525,7 +552,8 @@ lemma mem_czBall3_finite {hX : GeneralCase f α} {y : X}
 def czPartition (hX : GeneralCase f α) (i : ℕ) : Set X :=
   czBall3 hX i \ ((⋃ j < i, czPartition hX j) ∪ ⋃ j > i, czBall hX j)
 
-lemma MeasurableSet.czPartition (hX : GeneralCase f α) (i : ℕ) :
+@[measurability]
+private lemma MeasurableSet.czPartition (hX : GeneralCase f α) (i : ℕ) :
     MeasurableSet (czPartition hX i) := by
   refine i.strong_induction_on (fun j hj ↦ ?_)
   unfold _root_.czPartition
@@ -535,26 +563,24 @@ lemma MeasurableSet.czPartition (hX : GeneralCase f α) (i : ℕ) :
 lemma czBall_subset_czPartition {hX : GeneralCase f α} {i : ℕ} :
     czBall hX i ⊆ czPartition hX i := by
   intro r hr
-  rw [czPartition]
+  rw [mem_ball] at hr
+  unfold czPartition
   refine mem_diff_of_mem ?_ ?_
-  · have : dist r (czCenter hX i) ≥ 0 := dist_nonneg
-    simp_all only [mem_ball]
-    linarith
-  · rw [mem_ball] at hr
-    simp only [mem_union, mem_iUnion, mem_ball, not_or, not_exists, not_lt]
-    constructor
-    · unfold czPartition
-      simp only [mem_diff, mem_ball, mem_union, mem_iUnion, not_or, not_and, not_forall, not_not]
-      exact fun _ _ _ _ ↦ by use i
-    · intro x hx
-      have := pairwiseDisjoint_iff.mp <| czBall_pairwiseDisjoint (hX := hX)
-      simp only [mem_univ, forall_const] at this
-      have := (disjoint_or_nonempty_inter _ _).resolve_right <| (@this i x).mt (by omega)
-      exact not_lt.mp <| mem_ball.mpr.mt <| disjoint_left.mp this hr
+  · rw [mem_ball]; linarith [lt_of_le_of_lt dist_nonneg hr]
+  simp only [mem_union, mem_iUnion, mem_ball, not_or, not_exists, not_lt]
+  refine ⟨?_, fun j hj ↦ by
+    refine le_of_not_gt (disjoint_left.mp (czBall_pairwiseDisjoint ?_ ?_ hj.ne) hr) <;> tauto⟩
+  unfold czPartition
+  simp only [mem_diff, mem_ball, mem_union, mem_iUnion, not_or, not_and, not_not]
+  exact fun _ _ _ _ ↦ by use i
 
 lemma czPartition_subset_czBall3 {hX : GeneralCase f α} {i : ℕ} :
     czPartition hX i ⊆ czBall3 hX i := by
   rw [czPartition]; exact diff_subset
+
+private lemma czPartition_subset_czBall7 {hX : GeneralCase f α} {i : ℕ} :
+    czPartition hX i ⊆ czBall7 hX i :=
+  le_trans czPartition_subset_czBall3 czBall_subset_czBall
 
 lemma czPartition_pairwiseDisjoint {hX : GeneralCase f α} :
     univ.PairwiseDisjoint fun i ↦ czPartition hX i := by
@@ -574,6 +600,10 @@ lemma czPartition_pairwiseDisjoint' {hX : GeneralCase f α}
   have := czPartition_pairwiseDisjoint (hX := hX)
   apply pairwiseDisjoint_iff.mp this (mem_univ i) (mem_univ j)
   exact inter_nonempty.mp <| .intro x ⟨hi, hj⟩
+
+private lemma czPartition_pairwise_disjoint_on {hX : GeneralCase f α} :
+    Pairwise (Disjoint on czPartition hX) :=
+  fun i j ↦ czPartition_pairwiseDisjoint (mem_univ i) (mem_univ j)
 
 lemma iUnion_czPartition {hX : GeneralCase f α} :
     ⋃ i, czPartition hX i = globalMaximalFunction volume 1 f ⁻¹' Ioi α := by
@@ -595,6 +625,33 @@ lemma iUnion_czPartition {hX : GeneralCase f α} :
       iUnion₂_mono fun i j ↦ czBall_subset_czPartition (i := i)
     have := (mem_or_mem_of_mem_union ht).imp_right (this ·)
     simp_all
+
+private lemma volume_czPartition_lt_top (hX : GeneralCase f α) (i : ℕ) :
+    volume (czPartition hX i) < ∞ :=
+  lt_of_le_of_lt (measure_mono czPartition_subset_czBall3) measure_ball_lt_top
+
+private lemma volume_czBall7_le (hX : GeneralCase f α) (i : ℕ) :
+    volume (czBall7 hX i) ≤ 2 ^ (3 * a) * volume (czPartition hX i) := calc
+  _ ≤ volume (ball (czCenter hX i) (2 ^ 3 * czRadius hX i)) := measure_mono czBall_subset_czBall
+  _ ≤ (defaultA a) ^ 3 * volume (ball (czCenter hX i) (czRadius hX i)) :=
+    measure_ball_two_le_same_iterate _ _ 3
+  _ ≤ _ := by rw [Nat.cast_pow, ← pow_mul, mul_comm a 3]; gcongr; exact czBall_subset_czPartition
+
+private lemma volume_czBall3_le (hX : GeneralCase f α) (i : ℕ) :
+    volume (czBall3 hX i) ≤ 2 ^ (2 * a) * volume (czBall hX i) := calc
+  _ ≤ volume (ball (czCenter hX i) (2 ^ 2 * czRadius hX i)) := measure_mono czBall_subset_czBall
+  _ ≤ 2 ^ (2 * a) * volume (czBall hX i) :=
+    le_of_le_of_eq (measure_ball_two_le_same_iterate _ _ 2) <| by simp [← pow_mul, mul_comm a 2]
+
+-- Inequality (10.2.30)
+private lemma laverage_czBall7_le (hX : GeneralCase f α) (i : ℕ) :
+    ⨍⁻ x in czBall7 hX i, ‖f x‖ₑ ∂volume ≤ α := by
+  by_cases hi : czRadius hX i ≤ 0
+  · simp [ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos (show 0 ≤ 7 by norm_num) hi]
+  have ⟨y, hy7, hy⟩ := not_disjoint_iff.mp <| not_disjoint_czBall7 (lt_of_not_ge hi)
+  simp only [mem_compl_iff, mem_preimage, Nat.cast_pow, Nat.cast_ofNat, mem_Ioi, not_lt] at hy
+  refine le_trans ?_ hy
+  simpa using laverage_le_globalMaximalFunction (μ := volume) hy7
 
 open scoped Classical in
 variable (f) in
@@ -620,9 +677,26 @@ lemma czApproximation_def_of_volume_lt {x : X}
     (hX : ¬ GeneralCase f α) : czApproximation f α x = ⨍ y, f y := by
   simp [czApproximation, hX]
 
+private lemma lintegral_czPartition_le {hX : GeneralCase f α} (i : ℕ) :
+    ∫⁻ x in czPartition hX i, ‖czApproximation f α x‖ₑ ≤
+    ∫⁻ x in czPartition hX i, ‖f x‖ₑ := calc
+  _ = ∫⁻ x in czPartition hX i, ‖⨍ y in czPartition hX i, f y‖ₑ := by
+    apply setLIntegral_congr_fun_ae (MeasurableSet.czPartition hX i)
+    exact Eventually.of_forall fun x hx ↦ by rw [czApproximation_def_of_mem hx]
+  _ = ‖⨍ y in czPartition hX i, f y‖ₑ * volume (czPartition hX i) := setLIntegral_const _ _
+  _ ≤ (⨍⁻ y in czPartition hX i, ‖f y‖ₑ ∂volume) * volume (czPartition hX i) :=
+    mul_le_mul_right' (enorm_integral_le_lintegral_enorm f) _
+  _ = _ := by rw [mul_comm, measure_mul_setLAverage _ (volume_czPartition_lt_top hX i).ne]
+
 /-- The function `b_i` in Lemma 10.2.5 (general case). -/
 def czRemainder' (hX : GeneralCase f α) (i : ℕ) (x : X) : ℂ :=
   (czPartition hX i).indicator (f - czApproximation f α) x
+
+private lemma czRemainder'_eq_zero (hX : GeneralCase f α) {i : ℕ} (hi : czRadius hX i ≤ 0) :
+    czRemainder' hX i = 0 := by
+  suffices czPartition hX i ⊆ ∅ by ext; simp [czRemainder', eq_empty_of_subset_empty this]
+  apply subset_of_subset_of_eq czPartition_subset_czBall7
+  exact ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos (by norm_num) hi
 
 variable (f) in
 /-- The function `b = ∑ⱼ bⱼ` introduced below Lemma 10.2.5.
@@ -640,7 +714,7 @@ def tsum_czRemainder' (hX : GeneralCase f α) (x : X) :
     rw [finsum_eq_single _ j, indicator_of_mem hj]
     · rfl
     · refine fun i hi ↦ indicator_of_notMem ?_ _
-      exact (czPartition_pairwiseDisjoint (mem_univ i) (mem_univ j) hi).notMem_of_mem_right hj
+      exact (czPartition_pairwise_disjoint_on hi).notMem_of_mem_right hj
   · simp only [czApproximation, hX, reduceDIte, hx, sub_self]
     exact finsum_eq_zero_of_forall_eq_zero fun i ↦ indicator_of_notMem (fun hi ↦ hx ⟨i, hi⟩) _
 
@@ -654,7 +728,7 @@ lemma aemeasurable_czApproximation {hf : AEMeasurable f} : AEMeasurable (czAppro
   refine ⟨czA, fun T hT ↦ ?_, hf.ae_eq_mk.mono fun x h ↦ by simp [czApproximation, czA, hX, h]⟩
   let S := {x : X | ∃ j, x ∈ czPartition hX j}ᶜ ∩ (hf.mk f) ⁻¹' T
   have : czA ⁻¹' T = S ∪ ⋃₀ (czPartition hX '' {i | ⨍ y in czPartition hX i, f y ∈ T}) := by
-    refine subset_antisymm (fun x h ↦ ?_) (fun x h ↦ ?_)
+    refine ext fun x ↦ ⟨fun h ↦ ?_, fun h ↦ ?_⟩
     · by_cases hx : ∃ j, x ∈ czPartition hX j
       · refine Or.inr ⟨czPartition hX hx.choose, ⟨mem_image_of_mem _ ?_, hx.choose_spec⟩⟩
         simpa [czA, hx] using h
@@ -675,74 +749,205 @@ lemma czApproximation_add_czRemainder {x : X} :
     czApproximation f α x + czRemainder f α x = f x := by
   simp [czApproximation, czRemainder]
 
-/-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
-lemma norm_czApproximation_le {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
+private lemma α_le_mul_α : α ≤ 2 ^ (3 * a) * α := by
+  nth_rw 1 [← one_mul α]; gcongr; exact_mod_cast Nat.one_le_two_pow
+
+-- Equation (10.2.17), finite case
+private lemma enorm_czApproximation_le_finite [CompatibleFunctions ℝ X (defaultA a)]
+    (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) (hX : ¬ GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α := by
-  sorry
+  simp only [czApproximation, hX, reduceDIte, eventually_const]
+  exact le_trans (enorm_integral_le_lintegral_enorm f) <| hα.trans α_le_mul_α
 
 /-- Equation (10.2.17) specialized to the general case. -/
-lemma norm_czApproximation_le_infinite (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
-    (hX : GeneralCase f α) (hα : 0 < α) :
+lemma enorm_czApproximation_le_infinite {hf : BoundedFiniteSupport f} (hX : GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α := by
-  sorry
+  have h₁ (x : X) (hx : ∃ i, x ∈ czPartition hX i) : ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α :=
+    have ⟨i, hi⟩ := hx
+    calc ‖czApproximation f α x‖ₑ
+      _ = ‖⨍ x in czPartition hX i, f x‖ₑ := by rw [czApproximation_def_of_mem hi]
+      _ ≤ ⨍⁻ x in czPartition hX i, ‖f x‖ₑ ∂volume := enorm_integral_le_lintegral_enorm _
+      _ ≤ (volume (czPartition hX i))⁻¹ * ∫⁻ x in czPartition hX i, ‖f x‖ₑ := by
+        simp [laverage]
+      _ ≤ 2 ^ (3 * a) * (volume (czBall7 hX i))⁻¹ * ∫⁻ x in czPartition hX i, ‖f x‖ₑ := by
+        apply mul_le_mul_right'
+        have := (ENNReal.inv_mul_le_iff (by simp) (by simp)).mpr <| volume_czBall7_le hX i
+        rwa [← ENNReal.inv_le_inv, ENNReal.mul_inv (by simp) (by simp), inv_inv] at this
+      _ ≤ 2 ^ (3 * a) * (volume (czBall7 hX i))⁻¹ * ∫⁻ x in czBall7 hX i, ‖f x‖ₑ :=
+        mul_le_mul_left' (lintegral_mono_set czPartition_subset_czBall7) _
+      _ ≤ 2 ^ (3 * a) * α := by
+        rw [mul_assoc]; gcongr; simpa [laverage] using laverage_czBall7_le hX i
+  have h₂ : ∀ᵐ x, ¬(∃ i, x ∈ czPartition hX i) → ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α :=
+    (lebesgue_differentiation hf).mono fun x ⟨c, r, lim, _, x_mem_ball⟩ hx ↦ by
+      have le_α := hx
+      rw [← mem_iUnion, iUnion_czPartition, mem_preimage, mem_Ioi, not_lt] at le_α
+      simp only [czApproximation, hX, reduceDIte, hx]
+      refine le_of_tendsto lim.enorm <| Eventually.of_forall fun i ↦ ?_
+      apply le_trans (enorm_integral_le_lintegral_enorm f)
+      exact le_trans (laverage_le_globalMaximalFunction (x_mem_ball i)) <| le_α.trans α_le_mul_α
+  simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨Eventually.of_forall h₁, h₂⟩
+
+/-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
+lemma enorm_czApproximation_le [CompatibleFunctions ℝ X (defaultA a)]
+    {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
+    ∀ᵐ x, ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α :=
+  by_cases (enorm_czApproximation_le_infinite (hf := hf)) (enorm_czApproximation_le_finite hα)
+
+-- Equation (10.2.18), finite case
+private lemma eLpNorm_czApproximation_le_finite [CompatibleFunctions ℝ X (defaultA a)]
+    (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : ¬ GeneralCase f α) :
+    eLpNorm (czApproximation f α) 1 volume ≤ eLpNorm f 1 volume := calc
+  _ = ‖⨍ x, f x‖ₑ * volume univ := by
+    unfold czApproximation; simp [hX, eLpNorm_const _ one_pos.ne' (NeZero.ne volume)]
+  _ ≤ (⨍⁻ x, ‖f x‖ₑ ∂volume) * volume (univ : Set X) :=
+    mul_le_mul_right' (enorm_integral_le_lintegral_enorm f) _
+  _ = eLpNorm f 1 volume := by
+    simp [mul_comm _ (volume univ), eLpNorm, eLpNorm', laverage, ← mul_assoc,
+      ENNReal.mul_inv_cancel (NeZero.ne (volume univ)) (volume_lt_of_not_GeneralCase hf hX hα).ne]
+
+-- Equation (10.2.18), infinite case
+private lemma eLpNorm_czApproximation_le_infinite (hX : GeneralCase f α) :
+    eLpNorm (czApproximation f α) 1 volume ≤ eLpNorm f 1 volume := by
+  simp only [eLpNorm, one_ne_zero, reduceIte, one_ne_top, eLpNorm', toReal_one, rpow_one,
+    ne_eq, not_false_eq_true, div_self]
+  have hmeas : MeasurableSet (univ \ ⋃ i, czPartition hX i) := by measurability
+  have := union_univ _ ▸ @union_diff_self X (⋃ i, czPartition hX i) univ
+  repeat rw [← setLIntegral_univ (μ := volume), ← this, lintegral_union hmeas disjoint_sdiff_right,
+    lintegral_iUnion (MeasurableSet.czPartition hX) <| czPartition_pairwise_disjoint_on]
+  gcongr tsum ?_ + ?_
+  · apply lintegral_czPartition_le
+  · simp only [union_diff_self, union_univ]
+    apply le_of_eq ∘ setLIntegral_congr_fun_ae (by measurability)
+    exact Eventually.of_forall (fun x hx ↦ by simp_all [czApproximation, hX])
 
 /-- Part of Lemma 10.2.5, equation (10.2.18) (both cases). -/
-lemma eLpNorm_czApproximation_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : 0 < α) :
-    eLpNorm (czApproximation f α) 1 volume ≤ eLpNorm f 1 volume := by
-  sorry
+lemma eLpNorm_czApproximation_le [CompatibleFunctions ℝ X (defaultA a)]
+    {hf : BoundedFiniteSupport f} (hα : 0 < α) :
+    eLpNorm (czApproximation f α) 1 volume ≤ eLpNorm f 1 volume :=
+  by_cases eLpNorm_czApproximation_le_infinite (eLpNorm_czApproximation_le_finite hf hα)
 
 /-- Part of Lemma 10.2.5, equation (10.2.19) (general case). -/
-lemma support_czRemainder'_subset (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} (hα : 0 < α)
-    {i : ℕ} :
+lemma support_czRemainder'_subset {hX : GeneralCase f α} {i : ℕ} :
     support (czRemainder' hX i) ⊆ czBall3 hX i := by
-  sorry
+  refine subset_trans (fun x hx ↦ ?_) czPartition_subset_czBall3
+  rw [mem_support, czRemainder', ne_eq, indicator_apply_eq_zero, Classical.not_imp] at hx
+  exact hx.1
 
 /-- Part of Lemma 10.2.5, equation (10.2.20) (general case). -/
-lemma integral_czRemainder' (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α} (hα : 0 < α)
-    {i : ℕ} :
+lemma integral_czRemainder' {hX : GeneralCase f α} {i : ℕ} :
     ∫ x, czRemainder' hX i x = 0 := by
-  sorry
+  unfold czRemainder'
+  rw [integral_indicator (MeasurableSet.czPartition hX i)]
+  rw [← setAverage_sub_setAverage (volume_czPartition_lt_top hX i).ne f]
+  refine setIntegral_congr_fun (MeasurableSet.czPartition hX i) <| fun x hx ↦ ?_
+  rw [Pi.sub_apply, czApproximation_def_of_mem hx]
 
 /-- Part of Lemma 10.2.5, equation (10.2.20) (finite case). -/
-lemma integral_czRemainder (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α) (hα : 0 < α) :
+lemma integral_czRemainder [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+    (hX : ¬ GeneralCase f α) (hα : 0 < α) :
     ∫ x, czRemainder f α x = 0 := by
-  sorry
+  have := isFiniteMeasure_finite hf hX hα
+  simpa [czRemainder, czApproximation, hX] using integral_sub_average volume f
+
+-- Inequality (10.2.32)
+private lemma ineq_10_2_32 (hf : BoundedFiniteSupport f) {hX : GeneralCase f α}
+    {i : ℕ} :
+    eLpNorm (czRemainder' hX i) 1 volume ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := calc
+  _ = ∫⁻ x in czPartition hX i, ‖f x - czApproximation f α x‖ₑ := by
+    simp [czRemainder', eLpNorm, eLpNorm', enorm_indicator_eq_indicator_enorm,
+      lintegral_indicator <| MeasurableSet.czPartition hX i]
+  _ ≤ ∫⁻ x in czPartition hX i, ‖f x‖ₑ + ‖czApproximation f α x‖ₑ :=
+    lintegral_mono_fn (fun x ↦ enorm_sub_le)
+  _ = (∫⁻ x in _, ‖f x‖ₑ) + ∫⁻ x in _, ‖_‖ₑ := lintegral_add_left' hf.aemeasurable.enorm.restrict _
+  _ ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := by
+    rw [two_mul]; exact add_le_add_left (lintegral_czPartition_le i) _
 
 /-- Part of Lemma 10.2.5, equation (10.2.21) (general case). -/
-lemma eLpNorm_czRemainder'_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} {hX : GeneralCase f α}
-    (hα : 0 < α) {i : ℕ} :
+lemma eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} {hX : GeneralCase f α}
+    {i : ℕ} :
     eLpNorm (czRemainder' hX i) 1 volume ≤ 2 ^ (2 * a + 1) * α * volume (czBall3 hX i) := by
-  sorry
+  by_cases hi : czRadius hX i ≤ 0
+  · simp [czRemainder'_eq_zero hX hi]
+  calc
+    _ ≤ 2 * (∫⁻ x in czPartition hX i, ‖f x‖ₑ) := ineq_10_2_32 hf
+    _ ≤ 2 * (volume (czBall7 hX i) * α) := by
+      apply mul_le_mul_left' ∘ (le_trans <| lintegral_mono_set czPartition_subset_czBall7)
+      have h : volume (czBall7 hX i) ≠ 0 :=
+        measure_ball_pos _ _ (mul_pos Nat.ofNat_pos (lt_of_not_ge hi)) |>.ne'
+      simpa [laverage, ENNReal.inv_mul_le_iff h measure_ball_ne_top] using laverage_czBall7_le hX i
+    _ ≤ 2 * ((volume (ball (czCenter hX i) (2 ^ 2 * (3 * czRadius hX i)))) * α) := by
+      gcongr; convert czBall_subset_czBall (b := 7) (c := 12) using 2; ring
+    _ ≤ 2 * (2 ^ (2 * a) * volume (czBall3 hX i) * α) := by
+      gcongr;
+      exact (measure_ball_two_le_same_iterate _ _ 2).trans_eq <| by simp [pow_mul, mul_comm 2]
+    _ = 2 ^ (2 * a + 1) * α * volume (czBall3 hX i) := by ring
+
+-- Used to prove `eLpNorm_czRemainder_le` and `tsum_eLpNorm_czRemainder_le`
+private lemma eLpNorm_czRemainder_le' [CompatibleFunctions ℝ X (defaultA a)]
+    (hf : BoundedFiniteSupport f) (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
+    eLpNorm (czRemainder f α) 1 volume ≤ 2 * ∫⁻ x, ‖f x‖ₑ :=
+  have := isFiniteMeasure_finite hf hX (lt_of_le_of_lt (zero_le _) hα)
+  calc
+    _ = ∫⁻ x, ‖f x - ⨍ y, f y‖ₑ := by simp [czRemainder, eLpNorm, eLpNorm', czApproximation, hX]
+    _ ≤ ∫⁻ x, (‖f x‖ₑ + ‖⨍ y, f y‖ₑ) := lintegral_mono (fun x ↦ enorm_sub_le)
+    _ = (∫⁻ x, ‖f x‖ₑ) + ∫⁻ (x : X), ‖⨍ y, f y‖ₑ := lintegral_add_right' _ aemeasurable_const
+    _ ≤ (∫⁻ x, ‖f x‖ₑ) + ∫⁻ (x : X), ⨍⁻ y, ‖f y‖ₑ := by
+      gcongr; apply enorm_integral_le_lintegral_enorm
+    _ = 2 * ∫⁻ x, ‖f x‖ₑ := by rw [two_mul, lintegral_laverage]
 
 /-- Part of Lemma 10.2.5, equation (10.2.21) (finite case). -/
-lemma eLpNorm_czRemainder_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α)
-    (hα : 0 < α) :
+lemma eLpNorm_czRemainder_le [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+    (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 ^ (2 * a + 1) * α * volume (univ : Set X) := by
-  sorry
+  have := isFiniteMeasure_finite hf hX (lt_of_le_of_lt (zero_le _) hα)
+  calc
+    _ ≤ 2 * ∫⁻ x, ‖f x‖ₑ := eLpNorm_czRemainder_le' hf hX hα
+    _ ≤ 2 * (α * volume (univ : Set X)) := by
+      rw [laverage_eq] at hα
+      exact mul_le_mul_left' (a := 2) <| ENNReal.div_lt_iff (Or.inl (NeZero.ne _))
+        (Or.inl this.measure_univ_lt_top.ne) |>.mp hα |>.le
+    _ ≤ 2 ^ (2 * a + 1) * α * volume (univ : Set X) := by
+      rw [← mul_assoc]; gcongr; simpa using pow_le_pow_right' one_le_two (Nat.le_add_left 1 (2 * a))
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (general case). -/
-lemma tsum_volume_czBall3_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : GeneralCase f α)
-    (hα : 0 < α) :
-    ∑' i, volume (czBall3 hX i) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
-  sorry
+lemma tsum_volume_czBall3_le [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+    (hX : GeneralCase f α) (hα : 0 < α) :
+    ∑' i, volume (czBall3 hX i) ≤ 2 ^ (6 * a) / α * eLpNorm f 1 volume := calc
+  _ ≤ ∑' i, 2 ^ (2 * a) * volume (czBall hX i) := ENNReal.tsum_le_tsum (volume_czBall3_le hX)
+  _ ≤ 2 ^ (2 * a) * volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) := by
+    simp_rw [← smul_eq_mul, ENNReal.tsum_const_smul]
+    gcongr
+    rw [← measure_iUnion ?_ (fun i ↦ measurableSet_ball), ← iUnion_czPartition]
+    · exact measure_mono <| iUnion_mono (fun i ↦ czBall_subset_czPartition)
+    · refine (pairwise_disjoint_on (czBall hX)).mpr fun i j h ↦ ?_
+      exact czBall_pairwiseDisjoint (mem_univ i) (mem_univ j) h.ne
+  _ ≤ 2 ^ (2 * a) * ((C10_2_1 a) * eLpNorm f 1 volume / α) :=
+    mul_le_mul_left' (maximal_theorem'' hα hf) _
+  _ = 2 ^ (6 * a) / α * eLpNorm f 1 volume := by
+    rw [C10_2_1_def, mul_div_assoc', mul_comm (_ / α), mul_div, ← mul_assoc]; norm_cast; ring_nf
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (finite case). -/
-lemma volume_univ_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α)
-    (hα : 0 < α) :
+lemma volume_univ_le [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+    (hX : ¬ GeneralCase f α) (hα : 0 < α) :
     volume (univ : Set X) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
-  sorry
+  convert maximal_theorem'' hα hf using 1
+  · simp_all [GeneralCase]
+  · rw [ENNReal.mul_div_right_comm, C10_2_1_def]; rfl
 
 /-- Part of Lemma 10.2.5, equation (10.2.23) (general case). -/
-lemma tsum_eLpNorm_czRemainder'_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : GeneralCase f α)
-    (hα : 0 < α) :
+lemma tsum_eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} (hX : GeneralCase f α) :
     ∑' i, eLpNorm (czRemainder' hX i) 1 volume ≤ 2 * eLpNorm f 1 volume := by
-  sorry
+  apply le_trans <| ENNReal.tsum_le_tsum (fun i ↦ ineq_10_2_32 hf)
+  simp_rw [← smul_eq_mul, ENNReal.tsum_const_smul]
+  gcongr
+  rw [← lintegral_iUnion (MeasurableSet.czPartition hX) czPartition_pairwise_disjoint_on]
+  simpa [eLpNorm, eLpNorm'] using (lintegral_mono_set (subset_univ _))
 
 /-- Part of Lemma 10.2.5, equation (10.2.23) (finite case). -/
-lemma tsum_eLpNorm_czRemainder_le (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α)
-    (hα : 0 < α) :
+lemma tsum_eLpNorm_czRemainder_le [CompatibleFunctions ℝ X (defaultA a)]
+    {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 * eLpNorm f 1 volume := by
-  sorry
+  simpa [eLpNorm, eLpNorm'] using (eLpNorm_czRemainder_le' hf hX hα)
 
 /- ### Lemmas 10.2.6 - 10.2.9 -/
 
@@ -758,8 +963,10 @@ def Ω (α : ℝ≥0∞) : Set X :=
 /-- The constant used in `estimate_good`. -/
 irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10_0_3 a
 
+variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
+
 /-- Lemma 10.2.6 -/
-lemma estimate_good (ha : 4 ≤ a) {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
+lemma estimate_good {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
     distribution (czOperator K r (czApproximation f α)) (α / 2) volume ≤
     C10_2_6 a / α * eLpNorm f 1 volume := by
   sorry
