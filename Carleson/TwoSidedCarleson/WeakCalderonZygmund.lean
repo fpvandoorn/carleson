@@ -475,7 +475,7 @@ def GeneralCase (f : X → ℂ) (α : ℝ≥0∞) : Prop :=
   ∃ x, α ≥ globalMaximalFunction (X := X) volume 1 f x
 
 /-- In the finite case, the volume of `X` is finite. -/
-lemma volume_lt_of_not_GeneralCase [CompatibleFunctions ℝ X (defaultA a)]
+lemma volume_lt_of_not_GeneralCase [Nonempty X]
     (hf : BoundedFiniteSupport f) (h : ¬ GeneralCase f α) (hα : 0 < α) :
     volume (univ : Set X) < ∞ := by
   simp only [GeneralCase, not_exists, not_le] at h
@@ -483,7 +483,7 @@ lemma volume_lt_of_not_GeneralCase [CompatibleFunctions ℝ X (defaultA a)]
   refine lt_of_le_of_lt (eq_univ_iff_forall.mpr h ▸ maximal_theorem' α hf) ?_ |>.ne
   exact mul_lt_top coe_lt_top (hf.memLp 1).eLpNorm_lt_top
 
-private lemma isFiniteMeasure_finite [CompatibleFunctions ℝ X (defaultA a)]
+private lemma isFiniteMeasure_finite [Nonempty X]
     (hf : BoundedFiniteSupport f) (h : ¬ GeneralCase f α) (hα : 0 < α) :
     IsFiniteMeasure (volume : Measure X) :=
   (isFiniteMeasure_iff _).mpr <| volume_lt_of_not_GeneralCase hf h hα
@@ -626,10 +626,10 @@ lemma iUnion_czPartition {hX : GeneralCase f α} :
     have := (mem_or_mem_of_mem_union ht).imp_right (this ·)
     simp_all
 
-private lemma globalMaximalFunction_preimage_finite [CompatibleFunctions ℝ X (defaultA a)]
+private lemma globalMaximalFunction_preimage_finite [Nonempty X]
     (hα : α > 0) (hf : BoundedFiniteSupport f) :
     volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) < ∞ := by
-  have := hasStrongType_globalMaximalFunction (le_refl 1) one_lt_two f (hf.memLp 2) |>.2.trans_lt <|
+  have := hasStrongType_globalMaximalFunction one_pos one_lt_two f (hf.memLp 2) |>.2.trans_lt <|
     mul_lt_top coe_lt_top (hf.memLp 2).eLpNorm_lt_top
   contrapose! this
   set s := (globalMaximalFunction volume 1 f ⁻¹' Ioi α)
@@ -760,7 +760,7 @@ lemma aemeasurable_czApproximation {hf : AEMeasurable f} : AEMeasurable (czAppro
   simp [MeasurableSet.czPartition hX]
 
 /-- Part of Lemma 10.2.5 (both cases). -/
-lemma BoundedFiniteSupport.czApproximation [CompatibleFunctions ℝ X (defaultA a)]
+lemma BoundedFiniteSupport.czApproximation [Nonempty X]
     (α : ℝ≥0∞) (hα : 0 < α) (hf : BoundedFiniteSupport f) :
     BoundedFiniteSupport (czApproximation f α) where
   memLp_top := by
@@ -797,7 +797,7 @@ private lemma α_le_mul_α : α ≤ 2 ^ (3 * a) * α := by
   nth_rw 1 [← one_mul α]; gcongr; exact_mod_cast Nat.one_le_two_pow
 
 -- Equation (10.2.17), finite case
-private lemma enorm_czApproximation_le_finite [CompatibleFunctions ℝ X (defaultA a)]
+private lemma enorm_czApproximation_le_finite [Nonempty X]
     (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) (hX : ¬ GeneralCase f α) :
     ∀ᵐ x, ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α := by
   simp only [czApproximation, hX, reduceDIte, eventually_const]
@@ -832,13 +832,13 @@ lemma enorm_czApproximation_le_infinite {hf : BoundedFiniteSupport f} (hX : Gene
   simpa only [← or_imp, em, forall_const] using eventually_and.mpr ⟨Eventually.of_forall h₁, h₂⟩
 
 /-- Part of Lemma 10.2.5, equation (10.2.17) (both cases). -/
-lemma enorm_czApproximation_le [CompatibleFunctions ℝ X (defaultA a)]
+lemma enorm_czApproximation_le [Nonempty X]
     {hf : BoundedFiniteSupport f} (hα : ⨍⁻ x, ‖f x‖ₑ ≤ α) :
     ∀ᵐ x, ‖czApproximation f α x‖ₑ ≤ 2 ^ (3 * a) * α :=
   by_cases (enorm_czApproximation_le_infinite (hf := hf)) (enorm_czApproximation_le_finite hα)
 
 -- Equation (10.2.18), finite case
-private lemma eLpNorm_czApproximation_le_finite [CompatibleFunctions ℝ X (defaultA a)]
+private lemma eLpNorm_czApproximation_le_finite [Nonempty X]
     (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : ¬ GeneralCase f α) :
     eLpNorm (czApproximation f α) 1 volume ≤ eLpNorm f 1 volume := calc
   _ = ‖⨍ x, f x‖ₑ * volume univ := by
@@ -865,7 +865,7 @@ private lemma eLpNorm_czApproximation_le_infinite (hX : GeneralCase f α) :
     exact Eventually.of_forall (fun x hx ↦ by simp_all [czApproximation, hX])
 
 /-- Part of Lemma 10.2.5, equation (10.2.18) (both cases). -/
-lemma eLpNorm_czApproximation_le [CompatibleFunctions ℝ X (defaultA a)]
+lemma eLpNorm_czApproximation_le [Nonempty X]
     {hf : BoundedFiniteSupport f} (hα : 0 < α) :
     eLpNorm (czApproximation f α) 1 volume ≤ eLpNorm f 1 volume :=
   by_cases eLpNorm_czApproximation_le_infinite (eLpNorm_czApproximation_le_finite hf hα)
@@ -887,7 +887,7 @@ lemma integral_czRemainder' {hX : GeneralCase f α} {i : ℕ} :
   rw [Pi.sub_apply, czApproximation_def_of_mem hx]
 
 /-- Part of Lemma 10.2.5, equation (10.2.20) (finite case). -/
-lemma integral_czRemainder [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+lemma integral_czRemainder [Nonempty X] {hf : BoundedFiniteSupport f}
     (hX : ¬ GeneralCase f α) (hα : 0 < α) :
     ∫ x, czRemainder f α x = 0 := by
   have := isFiniteMeasure_finite hf hX hα
@@ -927,7 +927,7 @@ lemma eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} {hX : GeneralCase f 
     _ = 2 ^ (2 * a + 1) * α * volume (czBall3 hX i) := by ring
 
 -- Used to prove `eLpNorm_czRemainder_le` and `tsum_eLpNorm_czRemainder_le`
-private lemma eLpNorm_czRemainder_le' [CompatibleFunctions ℝ X (defaultA a)]
+private lemma eLpNorm_czRemainder_le' [Nonempty X]
     (hf : BoundedFiniteSupport f) (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 * ∫⁻ x, ‖f x‖ₑ :=
   have := isFiniteMeasure_finite hf hX (lt_of_le_of_lt (zero_le _) hα)
@@ -940,7 +940,7 @@ private lemma eLpNorm_czRemainder_le' [CompatibleFunctions ℝ X (defaultA a)]
     _ = 2 * ∫⁻ x, ‖f x‖ₑ := by rw [two_mul, lintegral_laverage]
 
 /-- Part of Lemma 10.2.5, equation (10.2.21) (finite case). -/
-lemma eLpNorm_czRemainder_le [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+lemma eLpNorm_czRemainder_le [Nonempty X] {hf : BoundedFiniteSupport f}
     (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 ^ (2 * a + 1) * α * volume (univ : Set X) := by
   have := isFiniteMeasure_finite hf hX (lt_of_le_of_lt (zero_le _) hα)
@@ -954,7 +954,7 @@ lemma eLpNorm_czRemainder_le [CompatibleFunctions ℝ X (defaultA a)] {hf : Boun
       rw [← mul_assoc]; gcongr; simpa using pow_le_pow_right' one_le_two (Nat.le_add_left 1 (2 * a))
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (general case). -/
-lemma tsum_volume_czBall3_le [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+lemma tsum_volume_czBall3_le [Nonempty X] {hf : BoundedFiniteSupport f}
     (hX : GeneralCase f α) (hα : 0 < α) :
     ∑' i, volume (czBall3 hX i) ≤ 2 ^ (6 * a) / α * eLpNorm f 1 volume := calc
   _ ≤ ∑' i, 2 ^ (2 * a) * volume (czBall hX i) := ENNReal.tsum_le_tsum (volume_czBall3_le hX)
@@ -971,7 +971,7 @@ lemma tsum_volume_czBall3_le [CompatibleFunctions ℝ X (defaultA a)] {hf : Boun
     rw [C10_2_1_def, mul_div_assoc', mul_comm (_ / α), mul_div, ← mul_assoc]; norm_cast; ring_nf
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (finite case). -/
-lemma volume_univ_le [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+lemma volume_univ_le [Nonempty X] {hf : BoundedFiniteSupport f}
     (hX : ¬ GeneralCase f α) (hα : 0 < α) :
     volume (univ : Set X) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
   convert maximal_theorem'' hα hf using 1
@@ -988,7 +988,7 @@ lemma tsum_eLpNorm_czRemainder'_le {hf : BoundedFiniteSupport f} (hX : GeneralCa
   simpa [eLpNorm, eLpNorm'] using (lintegral_mono_set (subset_univ _))
 
 /-- Part of Lemma 10.2.5, equation (10.2.23) (finite case). -/
-lemma tsum_eLpNorm_czRemainder_le [CompatibleFunctions ℝ X (defaultA a)]
+lemma tsum_eLpNorm_czRemainder_le [Nonempty X]
     {hf : BoundedFiniteSupport f} (hX : ¬ GeneralCase f α) (hα : ⨍⁻ x, ‖f x‖ₑ < α) :
     eLpNorm (czRemainder f α) 1 volume ≤ 2 * eLpNorm f 1 volume := by
   simpa [eLpNorm, eLpNorm'] using (eLpNorm_czRemainder_le' hf hX hα)
@@ -1008,7 +1008,7 @@ def Ω (α : ℝ≥0∞) : Set X :=
 irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10_0_3 a
 
 /-- Lemma 10.2.6 -/
-lemma estimate_good [CompatibleFunctions ℝ X (defaultA a)] {hf : BoundedFiniteSupport f}
+lemma estimate_good [Nonempty X] {hf : BoundedFiniteSupport f}
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     distribution (czOperator K r (czApproximation f (c10_0_3 a * α))) (α / 2) volume ≤
