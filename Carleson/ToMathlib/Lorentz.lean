@@ -90,13 +90,12 @@ lemma eLorentzNorm_eq {f : α → ε} {p : ℝ≥0∞} {r : ℝ≥0∞} {μ : Me
 -/
 
 @[simp]
-lemma eLorentzNorm_top_top {E : Type*} [ENorm E] --[NormedAddCommGroup E]
-    {μ : Measure α} {f : α → E} :
+lemma eLorentzNorm_top_top {E : Type*} [ENorm E] {μ : Measure α} {f : α → E} :
     eLorentzNorm f ∞ ∞ μ = eLpNormEssSup f μ := by
   unfold eLorentzNorm
   simp
 
-lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E] [BorelSpace E]
+lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E]
     {μ : Measure α} {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞}  :
   eLorentzNorm f p p μ = eLpNorm f p μ := by
   unfold eLorentzNorm
@@ -207,7 +206,8 @@ def HasRestrictedWeakType (T : (α → 𝕂) → (α' → ε₂)) (p p' : ℝ≥
       eLpNorm (T (F.indicator (fun _ ↦ 1))) 1 (ν.restrict G)
         ≤ c * (μ F) ^ p⁻¹.toReal * (ν G) ^ p'⁻¹.toReal
 
-lemma HasRestrictedWeakType.HasLorentzType {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E]
+lemma HasRestrictedWeakType.HasLorentzType
+  {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E]
   [BorelSpace E] {T : (α → 𝕂) → (α' → E)} {p p' : ℝ≥0∞}
   {μ : Measure α} {ν : Measure α'} {c : ℝ≥0∞}
   (hT : HasRestrictedWeakType T p p' μ ν c) (hpp' : p.HolderConjugate p') :

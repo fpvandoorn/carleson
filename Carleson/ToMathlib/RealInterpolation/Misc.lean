@@ -1035,7 +1035,7 @@ lemma truncCompl_Lp_Lq_lower
   exact toReal_pos (hpq.1.trans_le hpq.2).ne' hp
 
 -- Lemma 6.10 in Folland
-lemma MemLp_of_MemLp_le_of_MemLp_ge [ContinuousAdd ε] [MeasurableSpace ε] [BorelSpace ε] --not sure whether ContinuousAdd is necessary
+lemma MemLp_of_MemLp_le_of_MemLp_ge [ContinuousAdd ε] --not sure whether ContinuousAdd is necessary
     {r : ℝ≥0∞} (hp : 0 < p) (hr' : q ∈ Icc p r)
     (hf : MemLp f p μ) (hf' : MemLp f r μ) : MemLp f q μ := by
   by_cases p_ne_top : p = ⊤
