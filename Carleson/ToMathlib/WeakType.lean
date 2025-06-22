@@ -578,8 +578,6 @@ lemma distribution_zero {ε} [TopologicalSpace ε] [ENormedAddMonoid ε] {f : α
 
 end distribution
 
-section NormedGroup
-
 variable {f g : α → ε}
 
 section
@@ -741,6 +739,8 @@ lemma HasWeakType.const_mul' {T : (α → ε) → (α' → 𝕜)} (hp' : p' ≠ 
 
 end
 
+section NormedGroup
+
 variable [NormedAddCommGroup E₁] [NormedSpace 𝕜 E₁] [NormedAddCommGroup E₂] [NormedSpace 𝕜 E₂]
   [NormedAddCommGroup E₃] [NormedSpace 𝕜 E₃]
 
@@ -761,21 +761,23 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
     _ ≤ μ ({x | t < ‖f x‖ₑ} ∪ {x | s < ‖g x‖ₑ}) := measure_mono h₀
     _ ≤ _ := measure_union_le _ _
 
-section BorelSpace
+end NormedGroup
+
+section Layercake
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
-  [MeasurableSpace E] [TopologicalSpace E] [ENormedAddMonoid E]
 
-/-- The layer-cake theorem, or Cavalieri's principle for functions into an ENormedAddMonoid. -/
-lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+/-- The layer-cake theorem, or Cavalieri's principle for functions into a space with a continuous
+enorm. -/
+lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖ₑ ^ p ∂μ =
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
-  have h2p : 0 ≤ p := hp.le
   have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ENNReal.toReal ‖f x‖ₑ)
     (Eventually.of_forall fun x ↦ ENNReal.toReal_nonneg) hf.enorm.ennreal_toReal hp
   simp only [← enorm_eq_nnnorm, norm_nonneg, ← ofReal_rpow_of_nonneg, mul_comm (μ _), ne_eq,
     ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul', ← mul_assoc,
-    ← ofReal_norm_eq_enorm, ofReal_mul, distribution, h2p] at this ⊢
+    ← ofReal_norm_eq_enorm, ofReal_mul, distribution, hp.le] at this ⊢
+  -- TODO: clean up this whole proof
   by_cases ae_finite : μ {x | ‖f x‖ₑ = ∞} = 0
   · -- main case
     convert this using 1
@@ -816,21 +818,18 @@ lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurab
       calc
       _ = ENNReal.ofReal p *
           (∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal (t ^ (p - 1))) * μ {x | ‖f x‖ₑ = ∞} := by
-        convert (top_mul ae_finite.ne.symm).symm
-        convert (mul_top (ENNReal.ofReal_pos.mpr hp).ne.symm)
-        sorry --TODO: This should be some lemma
+        convert (top_mul ae_finite.ne').symm
+        convert mul_top (ENNReal.ofReal_pos.mpr hp).ne'
+        sorry -- TODO: this should be some lemma
       _ = ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
             * μ {x | ‖f x‖ₑ = ∞} := by
-        rw [lintegral_mul_const, lintegral_const_mul]
-        · measurability
-        · measurability
+        rw [lintegral_mul_const, lintegral_const_mul] <;> fun_prop
       _ ≤ ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
             * μ {x | ENNReal.ofReal t < ‖f x‖ₑ} := by
         gcongr with t x
         intro hfx
-        rw [hfx]
-        exact ENNReal.ofReal_lt_top
-    · exact hf.enorm.pow_const _
+        simp [hfx]
+    · fun_prop
     · simp_rw [rpow_eq_top_iff_of_pos hp]
       exact ae_finite
 
@@ -841,7 +840,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurab
   -/
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
-lemma eLpNorm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
+lemma eLpNorm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
     eLpNorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 < (p : ℝ) := hp
@@ -851,7 +850,7 @@ lemma eLpNorm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
     taking powers. -/
-lemma eLpNorm_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+lemma eLpNorm_eq_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     eLpNorm f (.ofReal p) μ =
     (ENNReal.ofReal p  * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
         ENNReal.ofReal (t ^ (p - 1)) ) ^ p⁻¹ := by
@@ -860,14 +859,14 @@ lemma eLpNorm_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p
   · exact False.elim (not_le_of_gt hp (ofReal_eq_zero.mp sgn_p))
   · exact False.elim (coe_ne_top sz_p)
   · unfold eLpNorm'
-    rw [toReal_ofReal (le_of_lt hp), one_div]
+    rw [toReal_ofReal hp.le, one_div]
     congr 1
     rw [← lintegral_const_mul']
-    on_goal 2 => exact coe_ne_top
+    swap; · exact coe_ne_top
     rw [lintegral_norm_pow_eq_distribution hf hp]
     congr 1 with x; rw [ofReal_mul] <;> [ring; positivity]
 
-lemma lintegral_pow_mul_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : -1 < p) :
+lemma lintegral_pow_mul_distribution {f : α → ε} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
     ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖ₑ ^ (p + 1) ∂μ := by
   have h2p : 0 < p + 1 := by linarith
@@ -875,8 +874,6 @@ lemma lintegral_pow_mul_distribution {f : α → E} (hf : AEStronglyMeasurable f
   have h4p : p + 1 ≠ 0 := by linarith
   simp [*, lintegral_norm_pow_eq_distribution, ← lintegral_const_mul', ← ofReal_mul, ← mul_assoc]
 
-end BorelSpace
-
-end NormedGroup
+end Layercake
 
 end MeasureTheory
