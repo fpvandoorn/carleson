@@ -92,9 +92,9 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
     ext x
     rw [sup_eq_sup_dense_of_continuous Qᵣ isOpen_Ioo Qᵣ_dense]
     refine fun r ⟨hr, _⟩ ↦
-      ContinuousAt.continuousWithinAt (ContinuousAt.comp (Continuous.continuousAt
-        (EReal.continuous_coe_ennreal_iff.mp (EReal.continuous_coe_iff.mpr
-          (continuous_iff_le_induced.mpr fun U a ↦ a)))) (ContinuousAt.nnnorm ?_))
+      (((EReal.continuous_coe_ennreal_iff.mp (EReal.continuous_coe_iff.mpr
+          (continuous_iff_le_induced.mpr fun _ ↦ id))).continuousAt).comp (ContinuousAt.nnnorm ?_)
+        ).continuousWithinAt
     set S := Set.Ioo (r / 2) (2 * r) with Sdef
     set bound := fun y ↦ ‖F x (r / 2) y‖ with bound_def
     have h_bound : ∀ᶠ (s : ℝ) in nhds r, ∀ᵐ (a : ℝ), ‖F x s a‖ ≤ bound a := by
