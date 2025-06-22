@@ -896,7 +896,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
   unfold pointwise
 
-  have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) (by rfl) one_lt_two
+  have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) zero_lt_one one_lt_two
   norm_cast at hst_gmf
   have hst_gmf_g := hst_gmf g (hg.memLp 2)
   have aesm_gmf_g := hst_gmf_g.1 -- for fun_prop
@@ -1141,6 +1141,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
 irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
 
 /-- Lemma 10.0.2. The formal statement includes the measurability of the operator. -/
+@[nolint unusedHavesSuffices]
 theorem nontangential_from_simple (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
