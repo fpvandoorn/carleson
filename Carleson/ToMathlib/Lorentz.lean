@@ -168,7 +168,7 @@ variable [TopologicalSpace ε] [ContinuousENorm ε]
 def MemLorentz (f : α → ε) (p r : ℝ≥0∞) (μ : Measure α) : Prop :=
   AEStronglyMeasurable f μ ∧ eLorentzNorm f p r μ < ∞
 
-
+/-
 lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} {m0 : MeasurableSpace α}
   {p q : ENNReal} {μ : Measure α} [NormedAddCommGroup F] {f : α → F} {C : ℝ}
   (hp : 0 < p) (p_le_q : p ≤ q) :
@@ -179,11 +179,12 @@ lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} 
       sorry
   -/
   sorry
+-/
 
 --instance ENNReal.normedAddCommGroup : NormedAddCommGroup ℝ≥0∞ := ⟨fun _r _y => rfl⟩
 
 -- TODO: could maybe be strengthened to ↔
-lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
+lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
   (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) (hf : MemLorentz f p r₁ μ) :
     MemLorentz f p r₂ μ := by
   unfold MemLorentz at *
@@ -191,7 +192,6 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] {f : α �
   use meas_f
   unfold eLorentzNorm at *
   split_ifs at * with h₀ h₁ h₂ h₃ h₄ h₅ h₆ h₇ h₈ h₉
-  --by_cases p_zero : p = 0
   · exact ENNReal.zero_lt_top
   · exact ENNReal.zero_lt_top
   · exact ENNReal.zero_lt_top
@@ -211,43 +211,74 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] {f : α �
     exact h₅ r₁_le_r₂
   · exact norm_f
   · --Now the only interesting case
-    unfold eLorentzNorm' at *
-    rw [ENNReal.mul_lt_top_iff] at *
+    unfold eLorentzNorm' at norm_f
+    rw [ENNReal.mul_lt_top_iff] at norm_f
     rcases norm_f with ⟨_, norm_lt_top⟩ | p_zero | norm_zero
-    · -- Main case
-      --apply ENNReal.mul_lt_top (ENNReal.rpow_lt_top_of_nonneg (by simp) h₁)
-      left
-      use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
-      --  Idea: First prove that by norm_lt_top, this function is bounded; then this implies a nesting of Lp spaces in this way
-      have memLp_r₁: MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) r₁ (volume.withDensity fun t ↦ (↑t)⁻¹) := by
-        constructor
-        · sorry
-        exact norm_lt_top
-      have memLp_top : MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) ⊤ (volume.withDensity fun t ↦ (↑t)⁻¹) := by
-        constructor
-        · sorry
-        /-hardest part here-/
-        sorry
-      --TODO: Need this without NormedAddCommMonoid
-      --have := @MeasureTheory.MemLp_order_complete _ _ _ _ _ _ _ _ ENNReal.measurableSpace ENNReal.borelSpace _ r₁_pos _ memLp_r₁ memLp_top
-      --apply (MeasureTheory.MemLp_order_complete r₁_pos _ memLp_r₁ memLp_top).2
+    · wlog r₂_top : r₂ = ⊤ generalizing r₂
+      · --Main case
+        --apply ENNReal.mul_lt_top (ENNReal.rpow_lt_top_of_nonneg (by simp) h₁)
+        --  Idea: First prove that by norm_lt_top, this function is bounded; then this implies a nesting of Lp spaces in this way
+        have memLp_r₁: MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) r₁
+                        (volume.withDensity fun t ↦ (↑t)⁻¹) := by
+          constructor
+          · sorry
+          exact norm_lt_top
+        have memLp_top : MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) ⊤
+                          (volume.withDensity fun t ↦ (↑t)⁻¹) := by
+          constructor
+          · sorry
+          /-
+          by_cases r₁_top : r₁ = ⊤
+          · rw [r₁_top]  at memLp_r₁
+            exact memLp_r₁.2
+          -/
+
+          --rw [← eLorentzNorm']
+          have := this le_top rfl
+          unfold eLorentzNorm' at this
+          rw [ENNReal.mul_lt_top_iff] at this
+          rcases this with ⟨_, norm_lt_top⟩ | p_zero | norm_zero
+          · exact norm_lt_top
+          · --TODO: duplicate from below
+            exfalso
+            rw [ENNReal.rpow_eq_zero_iff] at p_zero
+            rcases p_zero with ⟨p_zero, _⟩ | ⟨p_top, _⟩
+            · exact h₀ p_zero
+            · exact h₁ p_top
+          · rw [norm_zero]
+            exact ENNReal.zero_lt_top
+
+          /-
+          have := memLp_r₁.2
+          rw [eLpNorm_eq_eLpNorm' r₁_pos.ne.symm r₁_top, eLpNorm'] at this
+          by_contra h
+          rw [lintegral_eq_top_of_measure_eq_top_ne_zero] at this
+          · rw [ENNReal.top_rpow_of_pos
+              (by rw [one_div, inv_pos]; exact ENNReal.toReal_pos r₁_pos.ne.symm r₁_top)] at this
+            contradiction
+          · sorry
+          · simp only [ENNReal.toReal_inv, eLpNorm_exponent_top, gt_iff_lt, not_lt, top_le_iff] at h
+            rw [eLpNormEssSup, essSup, le_limsup] at h
+          -/
+        unfold eLorentzNorm'
+        rw [ENNReal.mul_lt_top_iff]
+        left
+        use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
+        exact (MeasureTheory.MemLp_of_MemLp_le_of_MemLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
+      /-hardest part here;
+        TODO: Is this even true? Use: wnorm_le_eLpNorm, -/
+      rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀]
       sorry
-      /-
-      wlog r₂_top : r₂ = ∞ generalizing r₂
-      · have := this (@le_top _ _ _ r₁) rfl
-
-        sorry
-
-      rw [r₂_top]
-      -/
-
+      --have := (wnorm_le_eLpNorm meas_f _).trans_lt norm_lt_top
 
     · exfalso
       rw [ENNReal.rpow_eq_zero_iff] at p_zero
       rcases p_zero with ⟨p_zero, _⟩ | ⟨p_top, _⟩
       · exact h₀ p_zero
       · exact h₁ p_top
-    · right; right
+    · unfold eLorentzNorm'
+      rw [ENNReal.mul_lt_top_iff]
+      right; right
       --TODO: comment in again
       --rw [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) r₁_pos.ne.symm] at norm_zero
       --rwa [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) (r₁_pos.trans_le r₁_le_r₂).ne.symm]
