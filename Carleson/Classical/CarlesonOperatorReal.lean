@@ -60,7 +60,7 @@ private def Qᵣ : Set ℝ := Rat.cast '' Set.univ
 
 /-- Rationals are dense in reals. -/
 private lemma Qᵣ_dense : Dense Qᵣ :=
-  (IsDenseEmbedding.dense_image Rat.isDenseEmbedding_coe_real).mpr dense_univ
+  Rat.isDenseEmbedding_coe_real.dense_image.mpr dense_univ
 
 /-- Rationals are countable after conversion to reals, too. -/
 private lemma Qᵣ_countable : Countable Qᵣ :=
