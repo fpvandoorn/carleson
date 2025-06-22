@@ -66,7 +66,7 @@ private lemma support_subset (b : ℤ) (c : ℤ) (x : X) :
   contrapose! hy
   refine Finset.sum_eq_zero (fun s hs ↦ ?_)
   rw [toFinset_Icc] at hs
-  suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, nmem_support.mp this, -defaultD]
+  suffices ((D : ℝ) ^ s)⁻¹ * dist x y ∉ support ψ by simp [Ks, notMem_support.mp this, -defaultD]
   rw [support_ψ (one_lt_D (X := X)), mem_Ioo, not_and_or]
   by_cases h : (D : ℝ) ^ (b - 1) / 4 < dist x y
   · exact Or.inr <| not_lt_of_ge <| calc
@@ -132,15 +132,6 @@ private lemma annulus_integral_bound (x : X) (g : X → ℂ) {r₁ r₂ r₃ r�
           · exact Or.inl ⟨hr₁, le_of_not_gt hr₂⟩
         _ ≤ _ := lintegral_union_le _ _ _
 
-lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
-  suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
-      ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
-    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
-  rw [← NNReal.rpow_mul, show (3 / 2 : ℝ) = 1 + (1 / 2 : ℝ) by norm_num]
-  repeat rw [NNReal.rpow_add two_ne_zero]
-  norm_num
-  ring
-
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
   [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] [TileStructure Q D κ S o]
@@ -159,7 +150,7 @@ lemma eLpNorm_MB_le {𝕜 : Type*} [RCLike 𝕜] {f : X → 𝕜} (hf : BoundedC
 /-- The constant used in `nontangential_operator_bound`.
 Previously had value `2 ^ (103 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (102 * (a : ℝ) ^ 3)
+irreducible_def C7_2_2 (a : ℕ) : ℝ≥0 := 2 ^ (102 * a ^ 3)
 
 -- Bound for (7.2.3) in the proof of `nontangential_pointwise_bound`
 omit [TileStructure Q D κ S o] in
@@ -168,6 +159,7 @@ private lemma nontangential_integral_bound₁ {x x' : X} {r : ℝ} (R : ℝ) (hr
   by_cases r_lt_R : r < R; swap
   · simp [-defaultD, Annulus.oo_eq_empty (le_of_not_gt r_lt_R)]
   refine le_trans ?_ <| le_iSup _ r
+  refine le_trans ?_ <| le_iSup _ (dist_nonneg.trans_lt hr)
   refine le_trans ?_ <| le_iSup _ R
   rw [iSup_pos r_lt_R]
   refine le_of_eq_of_le ?_ <| le_iSup _ x'
@@ -214,15 +206,14 @@ private lemma nontangential_integral_bound₂ (hf : BoundedCompactSupport f) {x 
         _ < 16 * (D : ℝ) ^ s I := by linarith [defaultD_pow_pos a (s I)]
     _ = ⨍⁻ y in ball (c I) (16 * D ^ s I), ‖f y‖ₑ ∂volume := by rw [setLAverage_eq]
     _ ≤ MB volume 𝓑 c𝓑 r𝓑 f x := by
-      rw [MB, maximalFunction, inv_one, ENNReal.rpow_one]
+      rw [MB_def]
       have : (4, 0, I) ∈ 𝓑 := by simp [𝓑]
       refine le_of_eq_of_le ?_ (le_biSup _ this)
       have : x ∈ ball (c I) (2 ^ 4 * (D : ℝ) ^ s I) := by
         refine (ball_subset_ball ?_) (Grid_subset_ball hx)
         unfold s
         linarith [defaultD_pow_pos a (GridStructure.s I)]
-      simp_rw [c𝓑, r𝓑, ENNReal.rpow_one, Nat.cast_zero, add_zero, indicator_of_mem this,
-        enorm_eq_nnnorm]
+      simp_rw [c𝓑, r𝓑, Nat.cast_zero, add_zero, indicator_of_mem this, enorm_eq_nnnorm]
       norm_num
 
 -- Pointwise bound needed for Lemma 7.2.2
@@ -247,8 +238,8 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       ext y
       by_cases hy : y ∈ Annulus.cc x' (D ^ (s I - 1) / 4) (D ^ s₂ / 2)
       · simp only [K', hy, indicator_of_mem]
-      · have K'_eq_zero := nmem_support.mp <| not_mem_subset (K'.support_subset (s I) s₂ x') hy
-        rw [← K', K'_eq_zero, zero_mul, indicator_of_not_mem hy]
+      · have K'_eq_zero := notMem_support.mp <| notMem_subset (K'.support_subset (s I) s₂ x') hy
+        rw [← K', K'_eq_zero, zero_mul, indicator_of_notMem hy]
     _ ≤ ‖∫ y in Annulus.oo x' (8 * D ^ s I) (D ^ (s₂ - 1) / 4), K' (s I) s₂ x' y * f y‖ₑ +
           ((∫⁻ y in Annulus.cc x' (D ^ (s I - 1) / 4) (8 * D ^ s I), ‖K' (s I) s₂ x' y * f y‖ₑ) +
           ∫⁻ y in Annulus.cc x' (D ^ (s₂ - 1) / 4) (D ^ s₂ / 2), ‖K' (s I) s₂ x' y * f y‖ₑ) := by
@@ -356,10 +347,8 @@ lemma nontangential_operator_bound
         _ = (2 : ℝ≥0∞) ^ (101.6 * (a : ℝ) ^ 3 + 1) := by
           rw [← mul_two, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top, ENNReal.rpow_one]
         _ ≤ C7_2_2 a := by
-          have := ENNReal.coe_rpow_def 2 (102 * a ^ 3)
-          simp only [ENNReal.coe_ofNat, OfNat.ofNat_ne_zero, false_and, reduceIte] at this
-          rw [C7_2_2, ← this]
-          apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two
+          rw [C7_2_2, ENNReal.coe_pow, ← ENNReal.rpow_natCast]
+          apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two; push_cast
           linarith [show 0.4 * 4 ^ 3 ≤ (0.4 : ℝ) * a ^ 3 by gcongr]
 
 open scoped Classical in
@@ -427,7 +416,7 @@ lemma boundary_overlap (I : Grid X) : (kissing I).card ≤ 2 ^ (9 * a) := by
       _ ≤ _ := by gcongr; exact iUnion₂_subset fun _ ↦ subset_of_kissing
   have vn0 : volume (ball (c I) (33 * D ^ s I)) ≠ 0 := by
     refine (measure_ball_pos volume _ ?_).ne'; simp only [defaultD]; positivity
-  rw [ENNReal.mul_le_mul_right vn0 (measure_ball_ne_top _ _)] at key; norm_cast at key
+  rw [ENNReal.mul_le_mul_right vn0 measure_ball_ne_top] at key; norm_cast at key
 
 lemma e728_push_toReal (hf : BoundedCompactSupport f) :
     (t.boundaryOperator u f x).toReal = ∑ I : Grid X,
@@ -583,7 +572,7 @@ lemma boundary_geometric_series :
           simp [this]
         · have : (Finset.Icc (s J) S).filter (· = s I) = ∅ := by
             ext k
-            simp_rw [Finset.mem_filter, Finset.mem_Icc, Finset.not_mem_empty, iff_false, not_and]
+            simp_rw [Finset.mem_filter, Finset.mem_Icc, Finset.notMem_empty, iff_false, not_and]
             intro; omega
           simp [this]
       · simp_rw [h, false_and, ite_false, Finset.sum_const_zero]
@@ -732,7 +721,7 @@ lemma boundary_operator_bound (hf : BoundedCompactSupport f) :
 /-- The constant used in `tree_projection_estimate`.
 Originally had value `2 ^ (104 * a ^ 3)` in the blueprint, but that seems to be a mistake. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (152 * (a : ℝ) ^ 3)
+irreducible_def C7_2_1 (a : ℕ) : ℝ≥0 := 2 ^ (152 * a ^ 3)
 
 -- Auxiliary function used in the proof of Lemma 7.2.1
 private def eI𝒬u_mul (u : 𝔓 X) (f : X → ℂ) : X → ℂ := fun y ↦ exp (.I * 𝒬 u y) * f y
@@ -761,11 +750,12 @@ private lemma aeMeasurable_cS_bound : AEMeasurable (cS_bound t u f) := by
 -- The natural constant for Lemma 7.2.1 is ≤ the simpler constant `C7_2_1` we use instead.
 private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     C7_1_3 a * CMB (defaultA a) 2 + C7_1_3 a * C7_2_3 a + C7_2_2 a ≤ (C7_2_1 a : ℝ≥0∞) := calc
-  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3 + 12 * a) := by
+  _ ≤ (3 : ℕ) • (2 : ℝ≥0∞) ^ (151 * a ^ 3 + 12 * a) := by
     rw [three'_nsmul]
     gcongr
-    · rw [C7_1_3_eq_C7_1_6 ha, C7_1_6_def, CMB_defaultA_two_eq, ← ENNReal.coe_mul,
-        ← NNReal.rpow_add two_ne_zero, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat]
+    · rw [C7_1_3_eq_C7_1_6 ha, C7_1_6_def, CMB_defaultA_two_eq, pow_add]
+      simp_rw [ENNReal.coe_pow, ENNReal.coe_rpow_of_ne_zero two_ne_zero, ENNReal.coe_ofNat]
+      gcongr; rw [← ENNReal.rpow_natCast, Nat.cast_mul]
       apply ENNReal.rpow_le_rpow_of_exponent_le one_le_two ?_
       linarith [show 4 ≤ (a : ℝ) by exact_mod_cast ha]
     · rw [C7_1_3_eq_C7_1_6 ha, C7_2_3_def, C7_1_6_def]
@@ -774,12 +764,10 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
     · rw [C7_2_2_def]
       norm_cast
       exact pow_right_mono₀ one_le_two <| (Nat.mul_le_mul_right _ (by norm_num)).trans le_self_add
-  _ = 3 * 2 ^ (12 * (a : ℝ)) * (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3) := by
-    rw [add_comm, ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]; ring
-  _ ≤ (2 : ℝ≥0∞) ^ ((a : ℝ) ^ 3) * (2 : ℝ≥0∞) ^ (151 * (a : ℝ) ^ 3) := by
-    apply mul_right_mono
-    norm_cast
-    calc 3 * 2 ^ (12 * a)
+  _ = 3 * 2 ^ (12 * a) * 2 ^ (151 * a ^ 3) := by rw [add_comm, pow_add]; ring
+  _ ≤ 2 ^ (a ^ 3) * 2 ^ (151 * a ^ 3) := by
+    apply mul_right_mono; norm_cast
+    calc
       _ ≤ 2 ^ 2 * 2 ^ (12 * a) := by gcongr; norm_num
       _ = 2 ^ (2 + 12 * a)     := by rw [pow_add]
       _ ≤ 2 ^ (a ^ 3)          := pow_le_pow_right₀ one_le_two <| calc 2 + 12 * a
@@ -787,10 +775,7 @@ private lemma le_C7_2_1 {a : ℕ} (ha : 4 ≤ a) :
         _ = 13 * a     := by ring
         _ ≤ a ^ 2 * a  := by rw [mul_le_mul_right] <;> nlinarith
         _ = a ^ 3      := rfl
-  _ = _ := by
-    rw [C7_2_1_def, ← ENNReal.rpow_add _ _ two_ne_zero ENNReal.ofNat_ne_top]
-    norm_cast
-    ring
+  _ = _ := by rw [C7_2_1_def, ← pow_add]; norm_cast; ring
 
 -- Main estimate used in the proof of `tree_projection_estimate`
 private lemma eLpNorm_two_cS_bound_le : eLpNorm (cS_bound t u f) 2 volume ≤
@@ -853,7 +838,7 @@ lemma tree_projection_estimate
       refine lintegral_congr (fun x ↦ ?_)
       by_cases hx : x ∈ ⋃ p ∈ t u, 𝓘 p
       · rw [indicator_of_mem hx]
-      · simp [indicator_of_not_mem hx, nmem_support.mp (hx <| support_carlesonSum_subset ·)]
+      · simp [indicator_of_notMem hx, notMem_support.mp (hx <| support_carlesonSum_subset ·)]
     _ ≤ ∫⁻ x in (⋃ L ∈ 𝓛 (t u), (L : Set X)), ‖g x‖ₑ * ‖carlesonSum (t u) f x‖ₑ := by
       rw [biUnion_𝓛]
       refine lintegral_mono_set (fun x hx ↦ ?_)

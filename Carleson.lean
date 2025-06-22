@@ -1,5 +1,6 @@
 import Carleson.Antichain.AntichainOperator
 import Carleson.Antichain.AntichainTileCount
+import Carleson.Antichain.Basic
 import Carleson.Antichain.TileCorrelation
 import Carleson.Calculations
 import Carleson.Classical.Approximation
@@ -37,6 +38,7 @@ import Carleson.MetricCarleson.Linearized
 import Carleson.MetricCarleson.Main
 import Carleson.MetricCarleson.Truncation
 import Carleson.MinLayerTiles
+import Carleson.Operators
 import Carleson.Psi
 import Carleson.TileExistence
 import Carleson.TileStructure
@@ -76,7 +78,7 @@ import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 import Carleson.ToMathlib.RealInterpolation.Main
 import Carleson.ToMathlib.RealInterpolation.Minkowski
 import Carleson.ToMathlib.RealInterpolation.Misc
-import Carleson.ToMathlib.Topology.Instances.AddCircle
+import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Carleson.ToMathlib.WeakType
 import Carleson.TwoSidedCarleson.Basic
 import Carleson.TwoSidedCarleson.MainTheorem

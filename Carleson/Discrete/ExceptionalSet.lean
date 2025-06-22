@@ -65,15 +65,12 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   · exact (G₁_empty' hG ▸ OuterMeasureClass.measure_empty volume) ▸ zero_le _
   -- Define constant `K` and prove 0 < K < ⊤
   let K := 2 ^ (2 * a + 5) * volume F / volume G
-  have vol_G_ne_top : volume G ≠ ⊤ :=
-    lt_of_le_of_lt (measure_mono (ProofData.G_subset)) measure_ball_lt_top |>.ne
   have K0 : K > 0 := by
-    refine ENNReal.div_pos (ne_of_gt ?_) vol_G_ne_top
+    refine ENNReal.div_pos (ne_of_gt ?_) volume_G_ne_top
     exact mul_pos_iff.2 ⟨ENNReal.pow_pos two_pos _, measure_pos_of_superset subset_rfl hF⟩
   have K_ne_top : K ≠ ⊤ := by
     simp only [K]
-    refine (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) ?_) hG).ne
-    exact (measure_mono (ProofData.F_subset)).trans_lt measure_ball_lt_top |>.ne
+    exact (div_lt_top (mul_ne_top (pow_ne_top ofNat_ne_top) volume_F_ne_top) hG).ne
   -- Define function `r : 𝔓 X → ℝ`, with garbage value `0` for `p ∉ highDensityTiles`
   have : ∀ p ∈ highDensityTiles, ∃ r ≥ 4 * (D : ℝ) ^ 𝔰 p,
       volume (F ∩ (ball (𝔠 p) r)) ≥ K * volume (ball (𝔠 p) r) := by
@@ -81,7 +78,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
     simp_rw [highDensityTiles, mem_setOf_eq, dens₂, lt_iSup_iff, mem_singleton_iff] at hp
     rcases hp with ⟨p, rfl, r, hr, h⟩
     use r, hr
-    refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl (measure_ball_ne_top (𝔠 p) r)) |>.mp h |>.le
+    refine ENNReal.lt_div_iff_mul_lt ?_ (Or.inl measure_ball_ne_top) |>.mp h |>.le
     have r0 : r > 0 := lt_of_lt_of_le (by have := defaultD_pos a; positivity) hr
     exact Or.inl <| (measure_ball_pos volume (𝔠 p) r0).ne.symm
   let r (p : 𝔓 X) := dite (p ∈ highDensityTiles) (fun hp ↦ Classical.choose (this p hp)) (fun _ ↦ 0)
@@ -121,7 +118,7 @@ lemma first_exception' : volume (G₁ : Set X) ≤ 2 ^ (- 5 : ℤ) * volume G :=
   · have h : (2 : ℝ≥0∞) ^ (2 * a + 5) = (2 : ℝ≥0∞) ^ (2 * a + 5 : ℤ) := by norm_cast
     rw [h, ← ENNReal.zpow_add (NeZero.ne 2) ofNat_ne_top, add_neg_cancel_right, ← pow_mul, mul_comm 2]
     norm_cast
-  · exact ENNReal.inv_mul_cancel hG vol_G_ne_top |>.symm
+  · exact ENNReal.inv_mul_cancel hG volume_G_ne_top |>.symm
 
 lemma first_exception : volume (G₁ : Set X) ≤ 2 ^ (- 4 : ℤ) * volume G := by
   calc volume G₁ ≤ 2 ^ (-5 : ℤ) * volume G := first_exception'
@@ -228,7 +225,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
     by_cases h : IsMax L
     · rw [Grid.isMax_iff] at h
       have : Q₂ = ∅ := by
-        ext y; simp_rw [Q₂, mem_setOf_eq, Set.not_mem_empty, iff_false, not_and, h, Grid.lt_def,
+        ext y; simp_rw [Q₂, mem_setOf_eq, Set.notMem_empty, iff_false, not_and, h, Grid.lt_def,
           not_and_or, not_lt]
         exact fun _ ↦ Or.inr (Grid.le_topCube).2
       simp [stackSize, this]
@@ -239,7 +236,7 @@ lemma john_nirenberg_aux1 {L : Grid X} (mL : L ∈ Grid.maxCubes (MsetA l k n))
       apply absurd _ h
       exact Grid.max_of_le_succ
         (mL.2 L.succ (Finset.mem_filter.mpr ⟨Finset.mem_univ _, hs⟩) Grid.le_succ).symm.le
-    rw [not_subset_iff_exists_mem_not_mem] at Lout
+    rw [not_subset_iff_exists_mem_notMem] at Lout
     obtain ⟨x', mx', nx'⟩ := Lout
     calc
       _ = stackSize Q₂ x' := by
@@ -399,7 +396,7 @@ lemma indicator_sum_eq_natCast {s : Finset (𝔓 X)} :
 open scoped Classical in
 lemma layervol_eq_zero_of_lt {t : ℝ} (ht : (𝔐 (X := X) k n).toFinset.card < t) :
     layervol (X := X) k n t = 0 := by
-  rw [layervol, measure_zero_iff_ae_nmem]
+  rw [layervol, measure_zero_iff_ae_notMem]
   refine ae_of_all volume fun x ↦ ?_; rw [mem_setOf, not_le]
   calc
     _ ≤ ((𝔐 (X := X) k n).toFinset.card : ℝ) := by
@@ -412,12 +409,12 @@ lemma lintegral_Ioc_layervol_one {l : ℕ} :
     ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n t = layervol (X := X) k n (l + 1) :=
   calc
     _ = ∫⁻ t in Ioc (l : ℝ) (l + 1), layervol (X := X) k n (l + 1) := by
-      refine setLIntegral_congr_fun measurableSet_Ioc (ae_of_all volume fun t mt ↦ ?_)
+      refine setLIntegral_congr_fun measurableSet_Ioc fun t ht ↦ ?_
       unfold layervol; congr with x; simp_rw [mem_setOf]; constructor <;> intro h
       · rw [indicator_sum_eq_natCast, ← Nat.cast_one, ← Nat.cast_add, Nat.cast_le]
         rw [indicator_sum_eq_natCast, ← Nat.ceil_le] at h; convert h; symm
         rwa [Nat.ceil_eq_iff (by omega), add_tsub_cancel_right, Nat.cast_add, Nat.cast_one]
-      · exact mt.2.trans h
+      · exact ht.2.trans h
     _ = layervol k n (l + 1) * volume (Ioc (l : ℝ) (l + 1)) := setLIntegral_const ..
     _ = _ := by rw [Real.volume_Ioc, add_sub_cancel_left, ENNReal.ofReal_one, mul_one]
 
@@ -462,7 +459,7 @@ lemma top_tiles_aux : ∑ m ∈ { p | p ∈ 𝔐 (X := X) k n }, volume (𝓘 m 
       nth_rw 3 [← add_zero (lintegral ..)]; congr 1
       have cgr : ∫⁻ (t : ℝ) in Ioi (Mc * 2 ^ (n + 1) : ℝ), layervol (X := X) k n t =
           ∫⁻ _ in Ioi (Mc * 2 ^ (n + 1) : ℝ), 0 := by
-        refine setLIntegral_congr_fun measurableSet_Ioi (ae_of_all volume fun t mt ↦
+        refine setLIntegral_congr_fun measurableSet_Ioi (fun t mt ↦
           layervol_eq_zero_of_lt (lt_of_le_of_lt ?_ mt))
         exact_mod_cast Nat.le_mul_of_pos_right Mc (by positivity)
       rw [cgr, lintegral_zero]

@@ -45,7 +45,7 @@ lemma CoveredByBalls.zero_right : CoveredByBalls s n 0 ↔ s = ∅ := by
   refine ⟨fun ⟨_, _, hs⟩ ↦ ?_, fun hs ↦ ?_⟩
   · simpa using hs
   · have h22 : s ⊆ ⋃ x ∈ (∅ : Finset X), ball x 0 := by
-      simp only [not_mem_empty, ball_zero, Set.iUnion_of_empty, Set.iUnion_empty]
+      simp only [notMem_empty, ball_zero, Set.iUnion_of_empty, Set.iUnion_empty]
       exact Set.subset_empty_iff.mpr hs
     use ∅, tsub_add_cancel_iff_le.mp rfl, h22
 
@@ -117,7 +117,7 @@ lemma AllBallsCoverBalls.ballsCoverBalls_pow {a : ℝ} {k : ℕ} (h : AllBallsCo
 lemma AllBallsCoverBalls.ballsCoverBalls {a : ℝ} (h : AllBallsCoverBalls X a n)
     (h2 : 1 < a) (hr : 0 < r) :
     BallsCoverBalls X r' r (n ^ ⌈Real.logb a (r' / r)⌉₊) := by
-  obtain hr'|hr' := le_or_lt r' 0
+  obtain hr'|hr' := le_or_gt r' 0
   · exact .nonpos hr'
   refine h.pow _ |>.mono ?_
   calc

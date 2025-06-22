@@ -39,20 +39,20 @@ private lemma 𝔓_biUnion : @Finset.univ (𝔓 X) _ = (Icc (-S : ℤ) S).toFins
   rw [toFinset_Icc, Finset.mem_Icc]
   exact range_s_subset ⟨𝓘 p, rfl⟩
 
-private lemma sum_eq_zero_of_nmem_Icc {f : X → ℂ} {x : X} (s : ℤ)
+private lemma sum_eq_zero_of_notMem_Icc {f : X → ℂ} {x : X} (s : ℤ)
     (hs : s ∈ (Icc (-S : ℤ) S).toFinset.filter (fun t ↦ t ∉ Icc (σ₁ x) (σ₂ x))) :
     ∑ i ∈ Finset.univ.filter (fun p ↦ 𝔰 p = s), carlesonOn i f x = 0 := by
   refine Finset.sum_eq_zero (fun p hp ↦ ?_)
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp
   simp only [mem_Icc, not_and, not_le, toFinset_Icc, Finset.mem_filter, Finset.mem_Icc] at hs
-  rw [carlesonOn, Set.indicator_of_not_mem]
+  rw [carlesonOn, Set.indicator_of_notMem]
   simp only [E, Grid.mem_def, mem_Icc, sep_and, mem_inter_iff, mem_setOf_eq, not_and, not_le]
   exact fun _ ⟨_, h⟩ _ ↦ hp ▸ hs.2 (hp ▸ h)
 
 lemma exists_Grid {x : X} (hx : x ∈ G) {s : ℤ} (hs : s ∈ (Icc (σ₁ x) (σ₂ x)).toFinset) :
     ∃ I : Grid X, GridStructure.s I = s ∧ x ∈ I := by
   have DS : (D : ℝ) ^ S = (D : ℝ) ^ (S : ℤ) := rfl
-  have : x ∈ ball o (D ^ S / 4) := ProofData.G_subset hx
+  have : x ∈ ball o (D ^ S / 4) := G_subset hx
   rw [← c_topCube (X := X), DS, ← s_topCube (X := X)] at this
   have x_mem_topCube := ball_subset_Grid this
   by_cases hS : s = S -- Handle separately b/c `Grid_subset_biUnion`, as stated, doesn't cover `s=S`
@@ -70,7 +70,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
   rw [𝔓_biUnion, Finset.sum_biUnion]; swap
   · exact fun s _ s' _ hss' A hAs hAs' p pA ↦ False.elim <| hss' (𝔰_eq (hAs pA) ▸ 𝔰_eq (hAs' pA))
   rw [← (Icc (-S : ℤ) S).toFinset.sum_filter_add_sum_filter_not (fun s ↦ s ∈ Icc (σ₁ x) (σ₂ x))]
-  rw [Finset.sum_eq_zero sum_eq_zero_of_nmem_Icc, add_zero]
+  rw [Finset.sum_eq_zero sum_eq_zero_of_notMem_Icc, add_zero]
   refine Finset.sum_congr (Finset.ext fun s ↦ ⟨fun hs ↦ ?_, fun hs ↦ ?_⟩) (fun s hs ↦ ?_)
   · rw [Finset.mem_filter, ← mem_toFinset] at hs
     exact hs.2
@@ -82,7 +82,7 @@ theorem tile_sum_operator {G' : Set X} {f : X → ℂ}
     have p𝔓Xs : p ∈ 𝔓X_s s := by simpa [𝔰, 𝓘pI]
     have : ∀ p' ∈ 𝔓X_s s, p' ≠ p → carlesonOn p' f x = 0 := by
       intro p' p'𝔓Xs p'p
-      apply indicator_of_not_mem
+      apply indicator_of_notMem
       simp only [E, mem_setOf_eq, not_and]
       refine fun x_in_𝓘p' Qp' ↦ False.elim ?_
       have s_eq := 𝔰_eq p𝔓Xs ▸ 𝔰_eq p'𝔓Xs
@@ -110,7 +110,7 @@ theorem finitary_carleson : ∃ G', MeasurableSet G' ∧ 2 * volume G' ≤ volum
   clear g
   rcases discrete_carleson X with ⟨G', hG', h2G', hfG'⟩
   refine ⟨G', hG', h2G', fun f meas_f h2f ↦ le_of_eq_of_le ?_ (hfG' f meas_f h2f)⟩
-  refine setLIntegral_congr_fun (measurableSet_G.diff hG') (ae_of_all volume fun x hx ↦ ?_)
+  refine setLIntegral_congr_fun (measurableSet_G.diff hG') fun x hx ↦ ?_
   simp_rw [carlesonSum, mem_univ, Finset.filter_True, tile_sum_operator hx, mul_sub, exp_sub,
     mul_div, div_eq_mul_inv,
     ← smul_eq_mul, integral_smul_const, ← Finset.sum_smul, _root_.enorm_smul]

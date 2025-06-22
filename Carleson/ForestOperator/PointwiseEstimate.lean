@@ -1,8 +1,6 @@
 import Carleson.Forest
+import Carleson.Operators
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.BoundedCompactSupport
-import Carleson.ToMathlib.Misc
-import Carleson.Psi
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -131,7 +129,7 @@ lemma approxOnCube_apply {C : Set (Grid X)} (hC : C.PairwiseDisjoint (fun I ↦ 
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = 0 by simp [Finset.sum_congr rfl this]
     intro i hi
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi
-    apply indicator_of_not_mem <|
+    apply indicator_of_notMem <|
       Set.disjoint_left.mp ((hC.eq_or_disjoint hJ hi.1).resolve_left hi.2) xJ
   have eq_ave : ∑ i ∈ (Finset.univ.filter (· ∈ C)).filter (J = ·),
       (i : Set X).indicator (fun _ ↦ ⨍ y in i, f y) x = ⨍ y in J, f y := by
@@ -156,7 +154,7 @@ lemma integral_eq_lintegral_approxOnCube {C : Set (Grid X)}
   have vol_J_ne_zero := (volume_coeGrid_pos (X := X) (i := J) (defaultD_pos' a)).ne.symm
   have eq : ∫⁻ (y : X) in J, ‖approxOnCube C (fun x ↦ (‖f x‖ : ℂ)) y‖ₑ =
       ∫⁻ y in (J : Set X), ENNReal.ofReal (⨍ z in J, ‖f z‖) := by
-    refine setLIntegral_congr_fun coeGrid_measurable (Filter.Eventually.of_forall fun y hy ↦ ?_)
+    refine setLIntegral_congr_fun coeGrid_measurable fun y hy ↦ ?_
     rw [approxOnCube_apply hC _ hJ hy, ← ofReal_norm_eq_enorm]
     apply congrArg
     have : ‖⨍ y in J, (‖f y‖ : ℂ)‖ = ‖⨍ y in J, ‖f y‖‖ := by
@@ -178,7 +176,7 @@ lemma approxOnCube_ofReal (C : Set (Grid X)) (f : X → ℝ) (x : X) :
   refine Finset.sum_congr rfl (fun J _ ↦ ?_)
   by_cases hx : x ∈ (J : Set X)
   · simpa only [indicator_of_mem hx] using integral_ofReal
-  · simp only [indicator_of_not_mem hx, ofReal_zero]
+  · simp only [indicator_of_notMem hx, ofReal_zero]
 
 lemma norm_approxOnCube_le_approxOnCube_norm {C : Set (Grid X)} {f : X → E'} {x : X} :
     ‖approxOnCube C f x‖ ≤ approxOnCube C (‖f ·‖) x := by
@@ -336,7 +334,7 @@ lemma pairwiseDisjoint_𝓛 : (𝓛 𝔖).PairwiseDisjoint (fun I ↦ (I : Set X
 /-- The constant used in `first_tree_pointwise`.
 Has value `10 * 2 ^ (104 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (104 * (a : ℝ) ^ 3)
+irreducible_def C7_1_4 (a : ℕ) : ℝ≥0 := 10 * 2 ^ (104 * a ^ 3)
 
 -- Used in the proof of `exp_sub_one_le`, which is used to prove Lemma 7.1.4
 private lemma exp_Lipschitz : LipschitzWith 1 (fun (t : ℝ) ↦ exp (.I * t)) := by
@@ -601,9 +599,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     rw [← Finset.mul_sum]
     apply le_trans <| mul_le_mul_left' (L7_1_4_sum hσ) _
     rw [mul_comm _ 2, ← mul_assoc, ← mul_assoc, C7_1_4]
-    gcongr
-    · norm_num
-    · exact_mod_cast pow_le_pow_right₀ one_le_two (le_refl _)
+    gcongr; norm_num
   intro s hs
   have eq1 : ∫ (y : X), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖ =
       ∫ y in ball x (D ^ s / 2), ‖(cexp (I * (q y)) - 1) * Ks s x y * f y‖ := by
@@ -643,7 +639,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
     · exact div_pos (hb := pow_pos two_pos (5 * a)) <|
         measure_ball_pos_real (𝔠 pₛ) (16 * D ^ s) (mul_pos (by norm_num) <| defaultD_pow_pos a s)
     · apply (div_le_iff₀' (pow_pos two_pos (5 * a))).mpr
-      apply le_trans <| ENNReal.toReal_mono (measure_ball_ne_top x _) <|
+      apply le_trans <| ENNReal.toReal_mono measure_ball_ne_top <|
         OuterMeasureClass.measure_mono volume ball_subset
       apply le_of_le_of_eq <| measure_real_ball_two_le_same_iterate x (D ^ s) 5
       simp [mul_comm 5 a, pow_mul]
@@ -737,7 +733,7 @@ lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L
 /-- The constant used in `third_tree_pointwise`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
 -- Todo: define this recursively in terms of previous constants
-irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * (a : ℝ) ^ 3)
+irreducible_def C7_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (151 * a ^ 3)
 
 -- Used in the proof of Lemmas 7.1.3 and 7.1.6 to translate between `∑ p` into `∑ s`
 open scoped Classical in
@@ -751,7 +747,7 @@ private lemma p_sum_eq_s_sum {α : Type*} [AddCommMonoid α] (I : ℤ → X → 
     apply Finset.sum_subset (fun p hp ↦ by simp [(Finset.mem_filter.mp hp).2.1])
     intro p p𝔗 p𝔗'
     simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_and, 𝔗'] at p𝔗 p𝔗'
-    exact indicator_of_not_mem (p𝔗' p𝔗) (I (𝔰 p))
+    exact indicator_of_notMem (p𝔗' p𝔗) (I (𝔰 p))
   rw [← this]
   -- Now the relevant values of `p` and `s` are in bijection.
   apply Finset.sum_bij (fun p _ ↦ 𝔰 p)
@@ -784,7 +780,7 @@ private lemma L7_1_6_integral_eq {J : Grid X} (hJ : J ∈ 𝓙 (t.𝔗 u)) {i : 
     fun y hy ↦ by rw [approxOnCube_apply pairwiseDisjoint_𝓙 _ hJ hy]
   have eq2 : ∀ y ∈ (J : Set X), ⨍ z in (J : Set X), Ks i x y • f y - Ks i x z • f y =
       (⨍ z in (J : Set X), Ks i x y • f y) - ⨍ z in (J : Set X), Ks i x z • f y :=
-    fun y hy ↦ integral_sub (integrableOn_const.mpr (Or.inr volume_coeGrid_lt_top)).to_average
+    fun y hy ↦ integral_sub ((integrableOn_const_iff).mpr (Or.inr volume_coeGrid_lt_top)).to_average
       ((integrable_Ks_x (one_lt_D (X := X))).smul_const _).restrict.to_average
   have μJ_neq_0 : NeZero (volume.restrict (J : Set X)) :=
     NeZero.mk fun h ↦ (volume_coeGrid_pos (defaultD_pos' a) (i := J)).ne <|
@@ -940,12 +936,12 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       by_cases xJ : x ∈ E J
       · rw [indicator_of_mem xJ, Pi.one_apply, one_mul, one_mul]
         exact L7_1_6_I_le hu hf (Finset.mem_filter.mp hJ).2 xJ
-      · simp only [indicator_of_not_mem xJ, zero_mul, le_refl]
+      · simp only [indicator_of_notMem xJ, zero_mul, le_refl]
     _ = ENNReal.ofNNReal (∑ I : Grid X, ∑ p ∈ ps I, (E p).indicator 1 x *
           Real.toNNReal ((D2_1_3 a) / (volume.real (ball x (D ^ s I))) * 2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u (c I) (s I), D ^ ((s J - s I) / (a : ℝ)) * ∫ y in J, ‖f y‖)) := by
       let summand := fun (y : X) (i : ℤ) ↦
-          ((D2_1_3 (a : ℝ≥0)) / volume.real (ball x (D ^ i)) * 2 ^ (3 / (a : ℝ)) *
+          ((D2_1_3 a) / volume.real (ball x (D ^ i)) * 2 ^ (3 / (a : ℝ)) *
           ∑ J ∈ 𝓙' t u y i, D ^ (((s J) - (i : ℝ)) / a) * ∫ y in J, ‖f y‖).toNNReal
       exact congrArg ENNReal.ofNNReal <| sum_p_eq_sum_I_sum_p t u x summand
     _ ≤ ENNReal.ofNNReal (∑ I : Grid X, ∑ p ∈ ps I, (E p).indicator 1 x *
@@ -955,7 +951,7 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       apply ENNReal.coe_strictMono.monotone
       refine Finset.sum_le_sum (fun I _ ↦ Finset.sum_le_sum (fun p hp ↦ ?_))
       by_cases xEp : x ∈ E p; swap
-      · simp only [indicator_of_not_mem xEp, zero_mul, le_refl]
+      · simp only [indicator_of_notMem xEp, zero_mul, le_refl]
       rw [mul_le_mul_left (by simp [indicator_of_mem xEp])]
       apply Real.toNNReal_mono
       gcongr
@@ -987,11 +983,11 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
         · exact le_of_eq <| (indicator_eq_one_iff_mem ℝ≥0).mpr xEp
         · intro p' hp' p'_ne_p
           simp only [ps, Finset.mem_filter] at hp hp'
-          exact (indicator_eq_zero_iff_not_mem ℝ≥0).mpr fun xEp' ↦
+          exact (indicator_eq_zero_iff_notMem ℝ≥0).mpr fun xEp' ↦
             disjoint_left.mp (disjoint_Ω p'_ne_p (hp'.2.2.trans hp.2.2.symm)) xEp'.2.1 xEp.2.1
       · push_neg at ex
         suffices ∑ p ∈ ps I, (E p).indicator (1 : X → ℝ≥0) x = 0 by rw [this]; exact zero_le _
-        exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_not_mem (ex p hp) _)
+        exact Finset.sum_eq_zero (fun p hp ↦ indicator_of_notMem (ex p hp) _)
     _ = ENNReal.ofNNReal (∑ I : Grid X, ((I : Set X).indicator 1 x') *
           Real.toNNReal (((D2_1_3 a) * (defaultA a) ^ 5 * 2 ^ (3 / (a : ℝ))) /
           (volume.real (ball (c I) (16 * D ^ s I))) *
@@ -1010,8 +1006,6 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
       calc
       _ = (2 : ℝ) ^ (150 * a ^ 3 + 5 * a + 3 / a : ℝ) := by
         rw [Real.rpow_add two_pos, Real.rpow_add two_pos, mul_comm 5, Real.rpow_mul two_pos.le a 5]
-        norm_cast
-        congr
         norm_cast
       _ ≤ (2 : ℝ) ^ (151 * a ^ 3) := by
         have : ((151 * a ^ 3 : ℕ) : ℝ) = (151 : ℝ) * (a : ℝ) ^ 3 := by norm_cast
@@ -1036,26 +1030,24 @@ lemma third_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
         ← Real.toNNReal_pow two_pos.le, ← Real.toNNReal_mul (by positivity), ← mul_assoc,
         div_eq_mul_one_div]
     _ = _ := by
+      rw [C7_1_6]; congr
+      simp_rw [← indicator_mul_const, Pi.one_apply, one_mul, ENNReal.coe_finset_sum,
+        ENNReal.coe_indicator]
+      apply Finset.sum_congr rfl (fun I _ ↦ ?_)
       congr
-      · rw [C7_1_6_def]; norm_cast
-      · simp_rw [← indicator_mul_const, Pi.one_apply, one_mul, ENNReal.coe_finset_sum,
-          ENNReal.coe_indicator]
-        apply Finset.sum_congr rfl (fun I _ ↦ ?_)
-        congr
-        ext
-        rw [Finset.mul_sum, ENNReal.ofNNReal_toNNReal]
-        rw [ENNReal.ofReal_sum_of_nonneg (fun _ _ ↦ by positivity)]
-        refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
-        repeat rw [ENNReal.ofReal_mul (by positivity)]
-        rw [ENNReal.ofReal_div_of_pos, ENNReal.ofReal_one, ← mul_assoc]; swap
-        · exact measure_real_ball_pos (c I) <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
-        rw [← ENNReal.mul_div_right_comm, one_mul]
-        congr
-        · rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a)]
-          norm_cast
-        · rw [Measure.real, ENNReal.ofReal_toReal (measure_ball_ne_top (c I) _)]
-        · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
-
+      ext
+      rw [Finset.mul_sum, ENNReal.ofNNReal_toNNReal]
+      rw [ENNReal.ofReal_sum_of_nonneg (fun _ _ ↦ by positivity)]
+      refine Finset.sum_congr rfl (fun J hJ ↦ ?_)
+      repeat rw [ENNReal.ofReal_mul (by positivity)]
+      rw [ENNReal.ofReal_div_of_pos, ENNReal.ofReal_one, ← mul_assoc]; swap
+      · exact measure_real_ball_pos (c I) <| mul_pos (by norm_num) (defaultD_pow_pos a (s I))
+      rw [← ENNReal.mul_div_right_comm, one_mul]
+      congr
+      · rw [← ENNReal.ofReal_rpow_of_pos (defaultD_pos a)]
+        norm_cast
+      · rw [Measure.real, ENNReal.ofReal_toReal measure_ball_ne_top]
+      · exact integral_eq_lintegral_approxOnCube pairwiseDisjoint_𝓙 (mem_𝓙_of_mem_𝓙' hJ) hf
 
 /-- The constant used in `pointwise_tree_estimate`.
 Has value `2 ^ (151 * a ^ 3)` in the blueprint. -/
@@ -1063,16 +1055,16 @@ irreducible_def C7_1_3 (a : ℕ) : ℝ≥0 := max (C7_1_4 a) (C7_1_6 a) --2 ^ (1
 
 lemma C7_1_3_eq_C7_1_6 {a : ℕ} (ha : 4 ≤ a) : C7_1_3 a = C7_1_6 a := by
   rw [C7_1_3_def, C7_1_6_def, sup_eq_right]
-  have : C7_1_4 a ≤ 2 ^ (4 : ℝ) * 2 ^ (104 * (a : ℝ) ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
+  have : C7_1_4 a ≤ 2 ^ 4 * 2 ^ (104 * a ^ 3) := by rw [C7_1_4_def]; gcongr; norm_num
   apply this.trans
-  rw [← NNReal.rpow_add two_ne_zero]
+  rw [← pow_add]
   gcongr
   · exact one_le_two
   · calc
-      4 + 104 * (a : ℝ) ^ 3 ≤ 4 ^ 3 + 104 * (a : ℝ) ^ 3 := by gcongr; norm_num
-      _                     ≤ a ^ 3 + 104 * (a : ℝ) ^ 3 := by gcongr; exact_mod_cast ha
-      _                     = 105 * (a : ℝ) ^ 3         := by ring
-      _                     ≤ _                         := by gcongr; norm_num
+      _ ≤ 4 ^ 3 + 104 * a ^ 3 := by gcongr; norm_num
+      _ ≤ a ^ 3 + 104 * a ^ 3 := by gcongr
+      _ = 105 * a ^ 3 := by ring
+      _ ≤ _ := by gcongr; norm_num
 
 /-- Lemma 7.1.3. -/
 lemma pointwise_tree_estimate (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L)

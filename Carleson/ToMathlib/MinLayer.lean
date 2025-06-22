@@ -92,8 +92,9 @@ lemma exists_le_in_minLayer_of_le (ha : a ∈ A.minLayer n) (hm : m ≤ n) :
       disjoint_right.mp (disjoint_minLayer_of_ne (by omega)) ha
     rw [minLayer, mem_setOf, minimal_iff] at ha nma
     have al : a ∈ A \ ⋃ (l < n), A.minLayer l := by
-      refine (diff_subset_diff_right (biUnion_subset_biUnion_left fun k hk ↦ ?_)) ha.1
-      rw [mem_def, Nat.le_eq] at hk ⊢; omega
+      have : a ∈ A \ ⋃ (k < n + 1), A.minLayer k := ha.1
+      simp only [mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at this ⊢
+      exact ⟨this.1, fun l hl h => this.2 l (Nat.lt_succ_of_lt hl) h⟩
     simp_rw [al, true_and] at nma; push_neg at nma; obtain ⟨a', ha', la⟩ := nma
     have ma' : a' ∈ A.minLayer n := by
       by_contra h
@@ -194,9 +195,8 @@ lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n)
     ∃ c ∈ A.minLayer m, c ≤ a := by
   classical
   have ma : a ∈ A \ ⋃ (l' < n), A.minLayer l' := by
-    refine mem_of_mem_of_subset ha (diff_subset_diff_right ?_)
-    refine biUnion_subset_biUnion_left fun k hk ↦ ?_
-    rw [mem_def, Nat.le_eq] at hk ⊢; omega
+    simp only [layersAbove, mem_diff, mem_iUnion, exists_prop, not_exists, not_and] at ha ⊢
+    exact ⟨ha.1, fun l' hl' h ↦ ha.2 l' (le_of_lt hl') h⟩
   let C : Finset α :=
     (A.toFinset \ (Finset.range n).biUnion fun l ↦ (A.minLayer l).toFinset).filter (· ≤ a)
   have Cn : C.Nonempty := by
@@ -212,7 +212,7 @@ lemma exists_le_in_layersAbove_of_le (ha : a ∈ A.layersAbove n) (hm : m ≤ n)
   have ma'₁ : a' ∈ A.minLayer n := by
     rw [minLayer, mem_setOf, minimal_iff]
     simp_rw [mem_diff, mem_iUnion, exists_prop, not_exists, not_and]
-    exact ⟨ma'.1, fun y hy ly ↦ (eq_of_le_of_not_lt ly (mina' y hy (ly.trans ma'.2))).symm⟩
+    exact ⟨ma'.1, fun y hy ly ↦ le_antisymm (mina' hy (ly.trans ma'.2) ly) ly⟩
   obtain ⟨c, mc, lc⟩ := exists_le_in_minLayer_of_le ma'₁ hm
   use c, mc, lc.trans ma'.2
 

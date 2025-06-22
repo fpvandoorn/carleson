@@ -2,6 +2,7 @@ import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.Misc
+import Carleson.ToMathlib.Annulus
 import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
@@ -171,16 +172,16 @@ class IsCancellative (τ : ℝ) [CompatibleFunctions ℝ X A] : Prop where
   /- We register a definition with strong assumptions, which makes them easier to prove.
   However, `enorm_integral_exp_le` removes them for easier application. -/
   enorm_integral_exp_le' {x : X} {r : ℝ} {ϕ : X → ℂ} (hr : 0 < r) (h1 : iLipENorm ϕ x r ≠ ∞)
-    (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
+    (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ)
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ)
 
 lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancellative X τ]
-    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X} :
+    {x : X} {r : ℝ} {ϕ : X → ℂ} (h2 : support ϕ ⊆ ball x r) {f g : Θ X} :
     ‖∫ x, exp (I * (f x - g x)) * ϕ x‖ₑ ≤
-    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + nndist_{x, r} f g) ^ (- τ) := by
-  rcases le_or_lt r 0 with hr | hr
-  · simp only [ball_eq_empty.2 hr, subset_empty_iff, tsupport_eq_empty_iff] at h2
+    (A : ℝ≥0∞) * volume (ball x r) * iLipENorm ϕ x r * (1 + edist_{x, r} f g) ^ (- τ) := by
+  rcases le_or_gt r 0 with hr | hr
+  · simp only [ball_eq_empty.2 hr, subset_empty_iff, support_eq_empty_iff] at h2
     simp [h2]
   rcases eq_or_ne A 0 with rfl | hA
   · have : (volume : Measure X) = 0 := by
@@ -197,7 +198,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
 lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ X A]
     (h : ∀ {x : X} {r : ℝ} {ϕ : X → ℂ} (_hr : 0 < r) (_h1 : iLipENorm ϕ x r ≠ ∞)
-    (_h2 : tsupport ϕ ⊆ ball x r) {f g : Θ X},
+    (_h2 : support ϕ ⊆ ball x r) {f g : Θ X},
       ‖∫ x in ball x r, exp (I * (f x - g x)) * ϕ x‖ ≤
       A * volume.real (ball x r) * iLipNNNorm ϕ x r * (1 + dist_{x, r} f g) ^ (- τ)) :
     IsCancellative X τ := by
@@ -208,15 +209,15 @@ lemma isCancellative_of_norm_integral_exp_le (τ : ℝ) [CompatibleFunctions ℝ
     congr 1
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero (fun y hy ↦ ?_)]
     have : ϕ y = 0 := by
-      apply nmem_support.1
+      apply notMem_support.1
       contrapose! hy
-      exact (subset_tsupport _).trans h2 hy
+      exact h2 hy
     simp [this]
   · rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_mul (by positivity),
       ENNReal.ofReal_mul (by positivity)]
     congr
     · simp
-    · simp only [Measure.real, ofReal_toReal (measure_ball_ne_top _ _)]
+    · simp only [Measure.real, ofReal_toReal measure_ball_ne_top]
     · simp [iLipNNNorm, coe_toNNReal h1]
     · rw [← ENNReal.ofReal_rpow_of_pos (by positivity)]
       congr
@@ -279,8 +280,8 @@ def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (
 
 /-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
-  ‖∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y‖₊
+  ⨆ (R₁ : ℝ) (_ : 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
+  ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
 
 /-- The integrand in the (linearized) Carleson operator.
 This is `G` in Lemma 3.0.1. -/
@@ -319,6 +320,10 @@ lemma defaultD_pow_pos (a : ℕ) (z : ℤ) : 0 < (defaultD a : ℝ) ^ z :=
 
 lemma mul_defaultD_pow_pos (a : ℕ) {r : ℝ} (hr : 0 < r) (z : ℤ) : 0 < r * (defaultD a : ℝ) ^ z :=
   mul_pos hr (defaultD_pow_pos a z)
+
+lemma one_le_defaultD (a : ℕ) : 1 ≤ (defaultD a : ℝ) := by
+  rw [defaultD, Nat.cast_pow, Nat.cast_ofNat, ← pow_zero 2]
+  exact pow_le_pow_right₀ (one_le_two) (by omega)
 
 section Kernel
 
@@ -441,31 +446,36 @@ end Kernel
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
 
-
 /- A constant used on the boundedness of `T_*`. We generally assume
 `HasBoundedStrongType (nontangentialOperator K) volume volume 2 2 (C_Ts a)`
 throughout this formalization. -/
 def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
 
-
-/-- Data common through most of chapters 2-7. These contain the minimal axioms for the proof of
-`kernel-summand`. This is used in chapter 3 when we don't have all other fields from `ProofData` -/
+/-- Data common through most of chapters 2-7.
+These contain the minimal axioms for `kernel-summand`'s proof and `hasBoundedStrongType_Tstar`.
+This is used in chapter 3 when we don't have all other fields from `ProofData`. -/
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
   d : DoublingMeasure X (defaultA a)
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   hcz : IsOneSidedKernel a K
+  hasBoundedStrongType_Tstar :
+    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
 
-/-- Data common through most of chapters 2, 4-7. -/
-class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
+/-- Data common through most of chapters 2-7 (except 3). -/
+class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
     KernelProofData a K where
   c : IsCancellative X (defaultτ a)
-  hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
+  isBounded_F : IsBounded F
+  isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
   measurableSet_G : MeasurableSet G
+  /-- `volume_F_pos` can probably be removed. -/
+  volume_F_pos : 0 < volume F
+  /-- `volume_G_pos` can probably be removed. -/
+  volume_G_pos : 0 < volume G
   measurable_σ₁ : Measurable σ₁
   measurable_σ₂ : Measurable σ₂
   finite_range_σ₁ : Finite (range σ₁)
@@ -474,10 +484,10 @@ class PreProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outPar
   Q : SimpleFunc X (Θ X)
   q_mem_Ioc : q ∈ Ioc 1 2
 
-export KernelProofData (four_le_a)
-export PreProofData (hasBoundedStrongType_Tstar measurableSet_F measurableSet_G
+export KernelProofData (four_le_a hasBoundedStrongType_Tstar)
+export ProofData (isBounded_F isBounded_G measurableSet_F measurableSet_G
   measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] KernelProofData.d KernelProofData.cf PreProofData.c KernelProofData.hcz
+attribute [instance] KernelProofData.d KernelProofData.cf ProofData.c KernelProofData.hcz
 
 section ProofData
 
@@ -536,7 +546,9 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hr : 0 < r) :
 
 end Iterate
 
-variable [PreProofData a q K σ₁ σ₂ F G]
+section MeasQ
+
+variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)}
 
 @[fun_prop]
 lemma measurable_Q₂ : Measurable fun p : X × X ↦ Q p.1 p.2 := fun s meass ↦ by
@@ -564,18 +576,65 @@ lemma measurable_Q₁ (x : X) : Measurable (Q x) :=
   have : (fun y ↦ Q' x y) = Q x := rfl
   this ▸ measurable_Q₂.of_uncurry_left
 
+end MeasQ
+
+variable [ProofData a q K σ₁ σ₂ F G]
+
 include a q K σ₁ σ₂ F G
 
 variable (X) in
-lemma S_spec : ∃ n : ℕ, ∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n := by
-  have h1 : (range σ₁).Finite := finite_range_σ₁
-  have h2 : (range σ₂).Finite := finite_range_σ₂
-  have h1' := bddBelow_def.mp h1.bddBelow
-  have h2' := bddAbove_def.mp h2.bddAbove
-  refine ⟨(max (-h1'.choose) h2'.choose).toNat, fun x ↦ ?_⟩
-  simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
-  exact ⟨Or.inl (Or.inl (h1'.choose_spec _ (mem_range_self x))),
-    Or.inl (Or.inr (h2'.choose_spec _ (mem_range_self x)))⟩
+lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
+    F ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧
+    G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) := by
+  obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
+  obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
+  simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
+  have one_lt_D : (1 : ℝ) < defaultD a := by
+    unfold defaultD; norm_cast; apply Nat.one_lt_two_pow
+    have := four_le_a X; positivity
+  obtain ⟨rF, rFpos, hrF⟩ : ∃ r > 0, F ⊆ ball (cancelPt X) r := by
+    obtain ⟨r, hr⟩ := isBounded_F.subset_ball (cancelPt X)
+    rcases lt_or_ge 0 r with lr | lr
+    · use r
+    · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
+  let nF := ⌈Real.logb (defaultD a) (4 * rF)⌉
+  obtain ⟨rG, rGpos, hrG⟩ : ∃ r > 0, G ⊆ ball (cancelPt X) r := by
+    obtain ⟨r, hr⟩ := isBounded_G.subset_ball (cancelPt X)
+    rcases lt_or_ge 0 r with lr | lr
+    · use r
+    · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
+  let nG := ⌈Real.logb (defaultD a) (4 * rG)⌉
+  refine ⟨(max (max (-l₁) u₂) (max nF nG)).toNat, ⟨fun x ↦ ?_, ?_, ?_⟩⟩
+  · simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
+    exact ⟨.inl (.inl (.inl (hl₁ x))), .inl (.inl (.inr (hu₂ x)))⟩
+  · refine hrF.trans (ball_subset_ball ?_)
+    calc
+      _ ≤ (defaultD a : ℝ) ^ nF / 4 := by
+        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+          ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
+        exact Int.le_ceil _
+      _ ≤ (defaultD a : ℝ) ^ nF.toNat / 4 := by
+        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
+        · exact one_lt_D.le
+        · exact_mod_cast Int.self_le_toNat nF
+      _ ≤ _ := by
+        gcongr
+        · exact one_lt_D.le
+        · exact Int.toNat_le_toNat ((le_max_left ..).trans (le_max_right ..))
+  · refine hrG.trans (ball_subset_ball ?_)
+    calc
+      _ ≤ (defaultD a : ℝ) ^ nG / 4 := by
+        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+          ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
+        exact Int.le_ceil _
+      _ ≤ (defaultD a : ℝ) ^ nG.toNat / 4 := by
+        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
+        · exact one_lt_D.le
+        · exact_mod_cast Int.self_le_toNat nG
+      _ ≤ _ := by
+        gcongr
+        · exact one_lt_D.le
+        · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
 
 section DBounds
 
@@ -620,19 +679,28 @@ def defaultS : ℕ := Nat.find (S_spec X)
 
 end DBounds
 
-lemma range_σ₁_subset : range σ₁ ⊆ Icc (- defaultS X) (defaultS X) := by
+lemma range_σ₁_subset : range σ₁ ⊆ Icc (-defaultS X) (defaultS X) := by
   classical
   rw [range_subset_iff]
-  exact fun x ↦ ⟨(Nat.find_spec (S_spec X) x).1, (σ₁_le_σ₂ x).trans (Nat.find_spec (S_spec X) x).2⟩
+  have := (Nat.find_spec (S_spec X)).1
+  exact fun x ↦ ⟨(this x).1, (σ₁_le_σ₂ x).trans (this x).2⟩
 
-lemma range_σ₂_subset : range σ₂ ⊆ Icc (- defaultS X) (defaultS X) := by
+lemma range_σ₂_subset : range σ₂ ⊆ Icc (-defaultS X) (defaultS X) := by
   classical
   rw [range_subset_iff]
-  exact fun x ↦ ⟨(Nat.find_spec (S_spec X) x).1.trans (σ₁_le_σ₂ x), (Nat.find_spec (S_spec X) x).2⟩
+  have := (Nat.find_spec (S_spec X)).1
+  exact fun x ↦ ⟨(this x).1.trans (σ₁_le_σ₂ x), (this x).2⟩
 
-lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (- defaultS X) (defaultS X) :=
+lemma F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
+  classical exact (Nat.find_spec (S_spec X)).2.1
+
+lemma G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
+  classical exact (Nat.find_spec (S_spec X)).2.2
+
+lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (-defaultS X) (defaultS X) :=
   fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
 
+/- unused
 lemma neg_S_mem_or_S_mem [Nonempty X] :
     (- defaultS X : ℤ) ∈ range σ₁ ∨ (defaultS X : ℤ) ∈ range σ₂ := by
   by_cases h₀ : defaultS X = 0
@@ -656,7 +724,7 @@ lemma neg_S_mem_or_S_mem [Nonempty X] :
     simp only [tsub_lt_self_iff, zero_lt_one, and_true, n]
     exact Nat.zero_lt_of_ne_zero h₀
   classical
-  exact Nat.find_min (S_spec X) hn fun x ↦ ⟨h1 x, h2 x⟩
+  exact Nat.find_min (S_spec X) hn fun x ↦ ⟨h1 x, h2 x⟩ -/
 
 variable (X)
 
@@ -664,6 +732,8 @@ lemma a_pos : 0 < a := by linarith [four_le_a X]
 lemma cast_a_pos : 0 < (a : ℝ) := by norm_cast; exact a_pos X
 lemma τ_pos : 0 < defaultτ a := inv_pos.mpr (cast_a_pos X)
 lemma τ_nonneg : 0 ≤ defaultτ a := (τ_pos X).le
+lemma τ_le_one : defaultτ a ≤ 1 := by
+  rw [defaultτ, inv_le_one_iff₀]; right; norm_cast; linarith [four_le_a X]
 
 /-- `τ` as an element of `ℝ≥0`. -/
 def nnτ : ℝ≥0 := ⟨defaultτ a, τ_nonneg X⟩
@@ -687,18 +757,6 @@ lemma nnq_mem_Ioc : nnq X ∈ Ioc 1 2 :=
   ⟨NNReal.coe_lt_coe.mp (q_mem_Ioc X).1, NNReal.coe_le_coe.mp (q_mem_Ioc X).2⟩
 
 end ProofData
-
-/-- The hypotheses common in chapters 4-7. -/
-class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
-    (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X]
-    extends PreProofData a q K σ₁ σ₂ F G where
-  F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4)
-  G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4)
-  /- The next two conditions are not in the blueprint, but will be useful in various steps.
-  It is easy to prove finitary_carleson (or metric_carleson) separately when either of these
-  fails. -/
-  volume_F_pos : 0 < volume F
-  volume_G_pos : 0 < volume G
 
 namespace ShortVariables
 -- open this section to get shorter 1-letter names for a bunch of variables
@@ -727,9 +785,11 @@ lemma one_le_D : 1 ≤ (D : ℝ) := by
 
 lemma D_nonneg : 0 ≤ (D : ℝ) := zero_le_one.trans one_le_D
 
-lemma κ_nonneg : 0 ≤ κ := by
-  rw [defaultκ]
-  exact Real.rpow_nonneg (by norm_num) _
+lemma κ_nonneg : 0 ≤ κ :=
+  Real.rpow_nonneg (by norm_num) _
+
+lemma κ_le_one : κ ≤ 1 :=
+  Real.rpow_le_one_of_one_le_of_nonpos one_le_two (by linarith)
 
 /-- Used in `third_exception` (Lemma 5.2.10). -/
 lemma two_le_κZ [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 2 ≤ κ * Z := by
@@ -773,23 +833,12 @@ end ShortVariables
 
 section PseudoMetricSpace
 
-variable [PseudoMetricSpace X] [h : ProofData a q K σ₁ σ₂ F G]
+variable [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G]
 
-lemma volume_F_lt_top : volume F < ⊤ :=
-  lt_of_le_of_lt (measure_mono ProofData.F_subset) measure_ball_lt_top
-
+lemma volume_F_lt_top : volume F < ⊤ := isBounded_F.measure_lt_top
 lemma volume_F_ne_top : volume F ≠ ⊤ := volume_F_lt_top.ne
-
-lemma volume_G_lt_top : volume G < ⊤ :=
-  lt_of_le_of_lt (measure_mono ProofData.G_subset) measure_ball_lt_top
-
+lemma volume_G_lt_top : volume G < ⊤ := isBounded_G.measure_lt_top
 lemma volume_G_ne_top : volume G ≠ ⊤ := volume_G_lt_top.ne
-
-include h in
-lemma isBounded_F : IsBounded F := IsBounded.subset isBounded_ball ProofData.F_subset
-
-include h in
-lemma isBounded_G : IsBounded G := IsBounded.subset isBounded_ball ProofData.G_subset
 
 /-- the L^∞-normalized τ-Hölder norm. Do we use this for other values of τ? Defined in ℝ≥0∞ to
 avoid sup-related issues. -/
@@ -904,7 +953,7 @@ lemma norm_le_iLipNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLi
   by_cases hx : x ∈ ball z R
   · apply norm_le_iLipNNNorm_of_mem hϕ hx
   · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [nmem_support.mp this]
+    simp [notMem_support.mp this]
 
 lemma LipschitzOnWith.of_iLipENorm_ne_top
     {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iLipENorm ϕ z R ≠ ⊤) :
@@ -956,7 +1005,7 @@ lemma norm_le_iHolNNNorm_of_subset {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHo
   by_cases hx : x ∈ ball z R
   · apply norm_le_iHolNNNorm_of_mem hϕ hx
   · have : x ∉ support ϕ := fun a ↦ hx (h a)
-    simp [nmem_support.mp this]
+    simp [notMem_support.mp this]
 
 lemma HolderOnWith.of_iHolENorm_ne_top
     {z : X} {R : ℝ} {ϕ : X → ℂ} (hϕ : iHolENorm ϕ z R ≠ ⊤) :
@@ -997,7 +1046,7 @@ lemma continuous_of_iHolENorm_ne_top {z : X} {R : ℝ}
 lemma continuous_of_iHolENorm_ne_top' {z : X} {R : ℝ}
     {ϕ : X → ℂ} (hϕ : support ϕ ⊆ ball z R) (h'ϕ : iHolENorm ϕ z (2 * R) ≠ ∞) :
     Continuous ϕ := by
-  rcases le_or_lt R 0 with hR | hR
+  rcases le_or_gt R 0 with hR | hR
   · have : support ϕ ⊆ ∅ := by rwa [ball_eq_empty.2 hR] at hϕ
     simp only [subset_empty_iff, support_eq_empty_iff] at this
     simp only [this]

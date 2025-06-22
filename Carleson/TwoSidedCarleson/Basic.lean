@@ -26,6 +26,43 @@ lemma memLp_top_K_on_ball_complement (hr : 0 < r) {x : X}:
       · intro y hy
         apply enorm_K_le_ball_complement' hr hy
 
+lemma czoperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X) :
+    ∃ (M : ℝ≥0), ∀ᵐ y ∂(volume.restrict (ball x r)ᶜ), ‖K x y * g y‖ ≤ M := by
+  let M0 := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
+  use M0
+  rw [ae_iff, Measure.restrict_apply₀']
+  · let M1 := (C_K a / volume (ball x r)).toNNReal
+    let M2 := (eLpNorm g ∞).toNNReal
+    have : { y | ¬‖K x y * g y‖ ≤ M0} ⊆ { y | ¬‖K x y‖ ≤ M1 ∨ ¬‖g y‖ ≤ M2} := by
+      rw [setOf_subset_setOf]
+      intro y
+      contrapose!
+      intro hy
+      rw [norm_mul]
+      trans M1 * M2
+      · apply mul_le_mul hy.left hy.right
+        case b0 | c0 => simp only [norm_nonneg, NNReal.zero_le_coe]
+
+      apply le_of_eq
+      norm_cast
+      rw [← toNNReal_mul]
+    rw [← Measure.restrict_apply₀']
+    · apply measure_mono_null_ae this.eventuallyLE
+      rw [setOf_or]
+      apply measure_union_null
+      · rw [← ae_iff]
+        apply ae_restrict_of_forall_mem measurableSet_ball.compl
+        intro y hy
+        simp_rw [M1, ← ENNReal.toReal.eq_1, ← toReal_enorm]
+        apply (ENNReal.toReal_le_toReal enorm_lt_top.ne ?_).mpr
+        · apply enorm_K_le_ball_complement hy
+        · exact (div_lt_top coe_ne_top ((measure_ball_pos volume x hr).ne.symm)).ne
+      · simp_rw [← ae_iff, M2, ← ENNReal.toReal.eq_1, ← toReal_enorm,
+          (ENNReal.toReal_le_toReal enorm_lt_top.ne (hg.eLpNorm_lt_top).ne), eLpNorm_exponent_top]
+        apply ae_restrict_of_ae ae_le_eLpNormEssSup
+    · exact measurableSet_ball.compl.nullMeasurableSet
+  · exact measurableSet_ball.compl.nullMeasurableSet
+
 @[fun_prop]
 lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     AEStronglyMeasurable (fun x ↦ czOperator K r g x) := by
@@ -36,7 +73,7 @@ lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport
   unfold f
   apply AEStronglyMeasurable.indicator
   · apply Continuous.comp_aestronglyMeasurable₂ (by fun_prop) aestronglyMeasurable_K
-    exact AEStronglyMeasurable.snd (hg.aestronglyMeasurable)
+    exact hg.aestronglyMeasurable.comp_snd
   · conv => arg 1; change {x : (X × X) | x.2 ∈ (ball x.1 r)ᶜ}
     simp_rw [mem_compl_iff, mem_ball, not_lt]
     apply measurableSet_le <;> fun_prop
@@ -51,14 +88,14 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
   have tmp_Kxg {M : ℝ≥0} : ∀ y, ¬‖Kxg y‖ ≤ M → y ∈ support Kxg := by
     intro y
     contrapose!
-    rw [nmem_support]
+    rw [notMem_support]
     intro hy
     rw [hy, norm_zero]
     simp only [NNReal.zero_le_coe]
 
   have bdd_Kxg : ∃ (M : ℝ), ∀ᵐ y ∂(volume.restrict ((ball x r)ᶜ ∩ support Kxg)), ‖Kxg y‖ ≤ M := by
-    let M0 := (C_K a / volume (ball x r) * eLpNorm g ∞).toNNReal
-    use M0
+    obtain ⟨M, hM⟩ := czoperator_bound (K := K) hg hr x
+    use M
     rw [ae_iff, Measure.restrict_apply₀']
     · conv =>
         arg 1; arg 2;
@@ -67,37 +104,8 @@ lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr :
         · apply inter_subset_left.trans
           apply setOf_subset.mpr
           apply tmp_Kxg
-
-      let M1 := (C_K a / volume (ball x r)).toNNReal
-      let M2 := (eLpNorm g ∞).toNNReal
-      have : { y | ¬‖Kxg y‖ ≤ M0} ⊆ { y | ¬‖K x y‖ ≤ M1 ∨ ¬‖g y‖ ≤ M2} := by
-        rw [setOf_subset_setOf]
-        intro y
-        contrapose!
-        intro hy
-        rw [norm_mul]
-        trans M1 * M2
-        · apply mul_le_mul hy.left hy.right
-          case b0 | c0 => simp only [norm_nonneg, NNReal.zero_le_coe]
-
-        apply le_of_eq
-        norm_cast
-        rw [← toNNReal_mul]
-      rw [← Measure.restrict_apply₀']
-      · apply measure_mono_null_ae this.eventuallyLE
-        rw [setOf_or]
-        apply measure_union_null
-        · rw [← ae_iff]
-          apply ae_restrict_of_forall_mem measurableSet_ball.compl
-          intro y hy
-          simp_rw [M1, ← ENNReal.toReal.eq_1, ← toReal_enorm]
-          apply (ENNReal.toReal_le_toReal enorm_lt_top.ne ?_).mpr
-          · apply enorm_K_le_ball_complement hy
-          · exact (div_lt_top coe_ne_top ((measure_ball_pos volume x hr).ne.symm)).ne
-        · simp_rw [← ae_iff, M2, ← ENNReal.toReal.eq_1, ← toReal_enorm,
-            (ENNReal.toReal_le_toReal enorm_lt_top.ne (hg.eLpNorm_lt_top).ne), eLpNorm_exponent_top]
-          apply ae_restrict_of_ae ae_le_eLpNormEssSup
-      · exact measurableSet_ball.compl.nullMeasurableSet
+      rw [← Measure.restrict_apply₀' (by measurability), ← ae_iff]
+      exact hM
     · apply NullMeasurableSet.inter
       · exact measurableSet_ball.compl.nullMeasurableSet
       · exact mKxg.nullMeasurableSet_support

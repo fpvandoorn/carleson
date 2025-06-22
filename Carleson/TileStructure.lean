@@ -1,6 +1,4 @@
 import Carleson.GridStructure
-import Carleson.Psi
-import Carleson.ToMathlib.BoundedCompactSupport
 
 open Set MeasureTheory Metric Function Complex Bornology
 open scoped NNReal ENNReal ComplexConjugate
@@ -28,7 +26,7 @@ class PreTileStructure {A : outParam ℝ≥0} [PseudoMetricSpace X] [DoublingMea
 export PreTileStructure (𝒬 range_𝒬)
 
 variable {D : ℕ} {κ : ℝ} {S : ℕ} {o : X}
-variable [FunctionDistances 𝕜 X]  {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
+variable [FunctionDistances 𝕜 X] {Q : SimpleFunc X (Θ X)} [PreTileStructure Q D κ S o]
 
 variable (X) in
 def 𝔓 := PreTileStructure.𝔓 𝕜 X
@@ -97,6 +95,32 @@ lemma cball_disjoint {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') :
     Disjoint (ball_(p) (𝒬 p) 5⁻¹) (ball_(p') (𝒬 p') 5⁻¹) :=
   disjoint_of_subset cball_subset cball_subset (disjoint_Ω h hp)
 
+/-- A bound used in both nontrivial cases of Lemma 7.5.5. -/
+lemma volume_xDsp_bound {x : X} (hx : x ∈ 𝓘 p) :
+    volume (ball (𝔠 p) (4 * D ^ 𝔰 p)) / 2 ^ (3 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
+  apply ENNReal.div_le_of_le_mul'
+  have h : dist x (𝔠 p) + 4 * D ^ 𝔰 p ≤ 8 * D ^ 𝔰 p := by
+    calc
+      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 4 * ↑D ^ 𝔰 p := by
+        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
+      _ = _ := by rw [← add_mul]; norm_num
+  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
+  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
+  rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.clog_pow]; norm_num
+
+/-- A bound used in Lemma 7.6.2. -/
+lemma volume_xDsp_bound_4 {x : X} (hx : x ∈ 𝓘 p) :
+    volume (ball (𝔠 p) (8 * D ^ 𝔰 p)) / 2 ^ (4 * a) ≤ volume (ball x (D ^ 𝔰 p)) := by
+  apply ENNReal.div_le_of_le_mul'
+  have h : dist x (𝔠 p) + 8 * D ^ 𝔰 p ≤ 16 * D ^ 𝔰 p := by
+    calc
+      _ ≤ 4 * (D : ℝ) ^ 𝔰 p + 8 * ↑D ^ 𝔰 p := by
+        gcongr; exact (mem_ball.mp (Grid_subset_ball hx)).le
+      _ ≤ _ := by rw [← add_mul]; gcongr; norm_num
+  convert measure_ball_le_of_dist_le' (μ := volume) (by norm_num) h
+  unfold As defaultA; norm_cast; rw [← pow_mul']; congr 2
+  rw [show (16 : ℕ) = 2 ^ 4 by norm_num, Nat.clog_pow]; norm_num
+
 /-- The set `E` defined in Proposition 2.0.2. -/
 def E (p : 𝔓 X) : Set X :=
   { x ∈ 𝓘 p | Q x ∈ Ω p ∧ 𝔰 p ∈ Icc (σ₁ x) (σ₂ x) }
@@ -104,6 +128,11 @@ def E (p : 𝔓 X) : Set X :=
 lemma E_subset_𝓘 {p : 𝔓 X} : E p ⊆ 𝓘 p := fun _ ↦ mem_of_mem_inter_left
 
 lemma Q_mem_Ω {p : 𝔓 X} {x : X} (hp : x ∈ E p) : Q x ∈ Ω p := hp.right.left
+
+lemma disjoint_E {p p' : 𝔓 X} (h : p ≠ p') (hp : 𝓘 p = 𝓘 p') : Disjoint (E p) (E p') := by
+  have := disjoint_Ω h hp; contrapose! this
+  rw [not_disjoint_iff] at this ⊢; obtain ⟨x, mx, mx'⟩ := this
+  use Q x, Q_mem_Ω mx, Q_mem_Ω mx'
 
 lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
   refine (Measurable.and ?_ (Measurable.and ?_ ?_)).setOf
@@ -115,184 +144,6 @@ lemma measurableSet_E {p : 𝔓 X} : MeasurableSet (E p) := by
     · exact measurable_σ₁.prodMk measurable_σ₂
 
 lemma volume_E_lt_top : volume (E p) < ⊤ := trans (measure_mono E_subset_𝓘) volume_coeGrid_lt_top
-
-section T
-
-/-- The operator `T_𝔭` defined in Proposition 2.0.2, considered on the set `F`.
-It is the map `T ∘ (1_F * ·) : f ↦ T (1_F * f)`, also denoted `T1_F`
-The operator `T` in Proposition 2.0.2 is therefore applied to `(F := Set.univ)`. -/
-def carlesonOn (p : 𝔓 X) (f : X → ℂ) : X → ℂ :=
-  indicator (E p)
-    fun x ↦ ∫ y, exp (I * (Q x y - Q x x)) * K x y * ψ (D ^ (- 𝔰 p) * dist x y) * f y
-
--- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonOn`
-lemma measurable_carlesonOn {p : 𝔓 X} {f : X → ℂ} (measf : Measurable f) :
-    Measurable (carlesonOn p f) := by
-  refine (StronglyMeasurable.integral_prod_right ?_).measurable.indicator measurableSet_E
-  refine (((Measurable.mul ?_ measurable_K).mul ?_).mul ?_).stronglyMeasurable
-  · have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
-    refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
-    · exact measurable_Q₂
-    · exact measurable_Q₂.comp this
-  · apply measurable_ofReal.comp
-    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
-    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
-    · exact measurable_dist.const_mul _
-  · exact measf.comp measurable_snd
-
-open Classical in
-/-- The operator `T_ℭ f` defined at the bottom of Section 7.4.
-We will use this in other places of the formalization as well. -/
-def carlesonSum (ℭ : Set (𝔓 X)) (f : X → ℂ) (x : X) : ℂ :=
-  ∑ p ∈ {p | p ∈ ℭ}, carlesonOn p f x
-
--- not used anywhere and deprecated for `AEStronglyMeasurable.carlesonSum`
-@[fun_prop]
-lemma measurable_carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ} (measf : Measurable f) :
-    Measurable (carlesonSum ℭ f) :=
-  Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonOn measf
-
-lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonOn {p : 𝔓 X} {f : X → ℂ}
-    (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonOn p f) := by
-  refine .indicator ?_ measurableSet_E
-  refine .integral_prod_right'
-    (f := fun z ↦ exp (Complex.I * (Q z.1 z.2 - Q z.1 z.1)) * K z.1 z.2 *
-      ψ (D ^ (- 𝔰 p) * dist z.1 z.2) * f z.2) ?_
-  refine (((AEStronglyMeasurable.mul ?_ aestronglyMeasurable_K).mul ?_).mul ?_)
-  · apply Measurable.aestronglyMeasurable
-    have : Measurable fun (p : X × X) ↦ (p.1, p.1) := by fun_prop
-    refine ((Measurable.sub ?_ ?_).const_mul I).cexp <;> apply measurable_ofReal.comp
-    · exact measurable_Q₂
-    · exact measurable_Q₂.comp this
-  · apply Measurable.aestronglyMeasurable
-    apply measurable_ofReal.comp
-    apply Measurable.comp (f := fun x : X × X ↦ D ^ (-𝔰 p) * dist x.1 x.2) (g := ψ)
-    · exact measurable_const.max (measurable_const.min (Measurable.min (by fun_prop) (by fun_prop)))
-    · exact measurable_dist.const_mul _
-  · exact hf.snd
-
-lemma _root_.MeasureTheory.AEStronglyMeasurable.carlesonSum {ℭ : Set (𝔓 X)}
-    {f : X → ℂ} (hf : AEStronglyMeasurable f) : AEStronglyMeasurable (carlesonSum ℭ f) :=
-  Finset.aestronglyMeasurable_sum _ fun _ _ ↦ hf.carlesonOn
-
-lemma carlesonOn_def' (p : 𝔓 X) (f : X → ℂ) : carlesonOn p f =
-    indicator (E p) fun x ↦ ∫ y, Ks (𝔰 p) x y * f y * exp (I * (Q x y - Q x x)) := by
-  unfold carlesonOn Ks
-  exact congr_arg _ (funext fun x ↦ (congr_arg _ (funext fun y ↦ by ring)))
-
-lemma support_carlesonOn_subset_E {f : X → ℂ} : support (carlesonOn p f) ⊆ E p :=
-  fun _ hx ↦ mem_of_indicator_ne_zero hx
-
-lemma support_carlesonSum_subset {ℭ : Set (𝔓 X)} {f : X → ℂ} :
-    support (carlesonSum ℭ f) ⊆ (⋃ p ∈ ℭ, 𝓘 p) := by
-  intro x hx
-  rw [mem_support] at hx
-  contrapose! hx
-  refine Finset.sum_eq_zero (fun p hp ↦ nmem_support.mp (fun hxp ↦ hx ?_))
-  simp only [Finset.mem_filter] at hp
-  exact Set.mem_biUnion hp.2 <| E_subset_𝓘 (support_carlesonOn_subset_E hxp)
-
-theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonOn {f : X → ℂ}
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonOn p f) where
-  memLp_top := by
-    let x₀ : X := Classical.choice inferInstance
-    obtain ⟨r₀, hr₀, hfr₀⟩ := hf.hasCompactSupport.isBounded.subset_closedBall_lt 0 x₀
-    let r₁ := (↑D ^ 𝔰 p / 2) + r₀
-    have hcf : support (_root_.carlesonOn p f) ⊆ closedBall x₀ r₁ := by
-      simp_rw [carlesonOn_def']
-      intro x hx
-      simp only [mem_support] at hx
-      apply indicator_apply_ne_zero.mp at hx
-      replace hx := hx.2
-      simp only [mem_support] at hx
-      have : ∃ y, Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x))) ≠ 0 := by
-        -- mathlib lemma: if integral ne zero, then integrand ne zero at a point
-        by_contra hc
-        push_neg at hc
-        apply hx
-        simp [hc]
-      obtain ⟨y, hy⟩ := this
-      simp only [ne_eq, mul_eq_zero, exp_ne_zero, or_false, not_or] at hy
-      have := dist_mem_Icc_of_Ks_ne_zero hy.1
-      apply (dist_triangle _ y _).trans
-      unfold r₁
-      gcongr
-      · exact (dist_mem_Icc_of_Ks_ne_zero hy.1).2
-      · exact hfr₀ (subset_tsupport _ hy.2)
-    obtain ⟨CK, hCK, hCK⟩ :=
-      IsBounded.exists_bound_of_norm_Ks (Metric.isBounded_closedBall (x := x₀) (r := r₁)) (𝔰 p)
-    let C := volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤).toReal)
-    apply memLp_top_of_bound hf.aestronglyMeasurable.carlesonOn C
-      (.of_forall fun x ↦ ?_)
-    by_cases hx : x ∈ support (_root_.carlesonOn p f); swap
-    · simp only [mem_support, ne_eq, not_not] at hx
-      rw [hx, norm_zero]
-      positivity
-    · simp_rw [carlesonOn_def']
-      refine (norm_indicator_le_norm_self _ _).trans ?_
-      let g := (closedBall x₀ r₀).indicator (fun _ ↦ CK * (eLpNorm f ⊤).toReal)
-      have hK : ∀ᵐ y, ‖Ks (𝔰 p) x y * f y * cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ ≤ g y := by
-        filter_upwards [hf.memLp_top.ae_norm_le] with y hy
-        by_cases hy' : y ∈ support f
-        · have := hfr₀ (subset_tsupport _ hy')
-          calc
-            _ ≤ ‖Ks (𝔰 p) x y * f y‖ * ‖cexp (I * (↑((Q x) y) - ↑((Q x) x)))‖ := norm_mul_le ..
-            _ = ‖Ks (𝔰 p) x y * f y‖ := by rw [norm_exp_I_mul_sub_ofReal, mul_one]
-            _ ≤ ‖Ks (𝔰 p) x y‖ * ‖f y‖ := norm_mul_le ..
-            _ ≤ CK * (eLpNorm f ⊤).toReal := by gcongr; exact hCK x y (hcf hx)
-            _ = g y := by simp_all only [indicator_of_mem, g]
-        · simp only [mem_support, ne_eq, not_not] at hy'
-          rw [hy']
-          simp only [mul_zero, zero_mul, norm_zero, g]
-          unfold indicator
-          split_ifs <;> positivity
-      calc
-        _ ≤ ∫ y, g y := by
-          refine norm_integral_le_of_norm_le ?_ hK
-          exact Integrable.indicator_const measurableSet_closedBall measure_closedBall_lt_top
-        _ = volume.real (closedBall x₀ r₀) * (CK * (eLpNorm f ⊤ volume).toReal) :=
-          integral_indicator_const _ measurableSet_closedBall
-  hasCompactSupport := by
-    suffices support (_root_.carlesonOn p f) ⊆ 𝓘 p by
-      refine HasCompactSupport.of_support_subset_isBounded ?_ this
-      exact Metric.isBounded_ball.subset Grid_subset_ball
-    exact Trans.trans support_carlesonOn_subset_E E_subset_𝓘
-
-theorem _root_.MeasureTheory.BoundedCompactSupport.carlesonSum {ℭ : Set (𝔓 X)} {f : X → ℂ}
-    (hf : BoundedCompactSupport f) : BoundedCompactSupport (carlesonSum ℭ f) :=
-  .finset_sum (fun _ _ ↦ hf.carlesonOn)
-
-lemma carlesonSum_inter_add_inter_compl {f : X → ℂ} {x : X} (A B : Set (𝔓 X)) :
-    carlesonSum (A ∩ B) f x + carlesonSum (A ∩ Bᶜ) f x = carlesonSum A f x := by
-  classical
-  simp only [carlesonSum]
-  conv_rhs => rw [← Finset.sum_filter_add_sum_filter_not _ (fun p ↦ p ∈ B)]
-  congr 2
-  · ext; simp
-  · ext; simp
-
-lemma sum_carlesonSum_of_pairwiseDisjoint {ι : Type*} {f : X → ℂ} {x : X} {A : ι → Set (𝔓 X)}
-    {s : Finset ι} (hs : (s : Set ι).PairwiseDisjoint A) :
-    ∑ i ∈ s, carlesonSum (A i) f x = carlesonSum (⋃ i ∈ s, A i) f x := by
-  classical
-  simp only [carlesonSum]
-  rw [← Finset.sum_biUnion]
-  · congr
-    ext p
-    simp
-  · convert hs
-    refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-    · intro i hi j hj hij
-      convert Finset.disjoint_coe.2 (h hi hj hij)
-      · ext; simp
-      · ext; simp
-    · intro i hi j hj hij
-      apply Finset.disjoint_coe.1
-      convert h hi hj hij
-      · ext; simp
-      · ext; simp
-
-end T
 
 variable (X) in
 def TileLike : Type _ := Grid X × OrderDual (Set (Θ X))
@@ -342,7 +193,7 @@ lemma toTileLike_injective : Injective (fun p : 𝔓 X ↦ toTileLike p) := by
   by_contra h2
   have : Disjoint (Ω p) (Ω p') := disjoint_Ω h2 h.1
   have : Ω p = ∅ := by simpa [← h.2]
-  exact not_mem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
+  exact notMem_empty _ (by rw [← this]; exact 𝒬_mem_Ω)
 
 instance : PartialOrder (𝔓 X) := PartialOrder.lift toTileLike toTileLike_injective
 
@@ -649,16 +500,17 @@ lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
   let M : Set (Set (𝔓 X)) := {B | B.PairwiseDisjoint (fun p ↦ (𝓘 p : Set X)) ∧ B ⊆ A ∧ ∀ a ∈ A,
     (∃ b ∈ B, (𝓘 a : Set X) ⊆ 𝓘 b) ∨ (∀ b ∈ B, Disjoint (𝓘 a : Set X) (𝓘 b))}
   -- let `B` be a maximal such family. It satisfies the properties of the lemma.
-  obtain ⟨B, BM, hB⟩ : ∃ B ∈ M, ∀ B' ∈ M, B ⊆ B' → B = B' :=
-    Finite.exists_maximal_wrt id _ (toFinite M) ⟨∅, by simp [M]⟩
+  obtain ⟨B, BM, hB⟩ : ∃ B, MaximalFor (· ∈ M) id B :=
+    M.toFinite.exists_maximalFor id _ ⟨∅, by simp [M]⟩
   refine ⟨B, BM.1, BM.2.1, fun a ha ↦ ?_⟩
   rcases BM.2.2 a ha with h'a | h'a
   · exact h'a
   exfalso
   let F := {a' ∈ A | (𝓘 a : Set X) ⊆ 𝓘 a' ∧ ∀ b ∈ B, Disjoint (𝓘 a' : Set X) (𝓘 b)}
   obtain ⟨a', a'F, ha'⟩ : ∃ a' ∈ F, ∀ p ∈ F, (𝓘 a' : Set X) ⊆ 𝓘 p → (𝓘 a' : Set X) = 𝓘 p := by
-    apply Finite.exists_maximal_wrt _ _ (toFinite F)
-    exact ⟨a, by simpa [F, ha] using h'a⟩
+    obtain ⟨a₀, a₀F, ha₀⟩ :=
+      F.toFinite.exists_maximalFor (fun p ↦ (𝓘 p : Set X)) _ ⟨a, ⟨ha, subset_rfl, h'a⟩⟩
+    exact ⟨a₀, a₀F, fun p mp lp ↦ subset_antisymm lp (ha₀ mp lp)⟩
   have : insert a' B ∈ M := by
     refine ⟨?_, ?_, fun p hp ↦ ?_⟩
     · apply PairwiseDisjoint.insert BM.1 (fun b hb h'b ↦ a'F.2.2 b hb)
@@ -674,7 +526,7 @@ lemma exists_maximal_disjoint_covering_subfamily (A : Set (𝔓 X)) :
     · have : p ∈ F := ⟨hp, a'F.2.1.trans (Grid.le_def.1 hij).1, h'p⟩
       rw [ha' p this (Grid.le_def.1 hij).1]
     · exact (Hp hij).elim
-  have : B = insert a' B := hB _ this (subset_insert a' B)
+  have : B = insert a' B := le_antisymm (subset_insert a' B) (hB this (subset_insert a' B))
   have : a' ∈ B := by rw [this]; exact mem_insert a' B
   have : Disjoint (𝓘 a' : Set X) (𝓘 a' : Set X) := a'F.2.2 _ this
   exact disjoint_left.1 this Grid.c_mem_Grid Grid.c_mem_Grid

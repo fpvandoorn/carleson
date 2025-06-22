@@ -19,7 +19,7 @@ variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a
 /-! ## Section 10.1 and Lemma 10.0.2 -/
 
 variable (K) in
-/-- The operator `T_*^r g(x)`, defined in (10.1.31), as part of Lemma 10.1.6. -/
+/-- The operator `T_*^r g(x)`, defined in (10.1.31), above Lemma 10.1.6. -/
 def simpleNontangentialOperator (r : ℝ) (g : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R > r) (x' ∈ ball x R), ‖czOperator K R g x'‖ₑ
 
@@ -688,7 +688,7 @@ theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : Bounde
   let MTrgx := globalMaximalFunction volume 1 (czOperator K r g) x
   by_cases hMzero : MTrgx = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_nmem]
+    rw [measure_zero_iff_ae_notMem]
     have czzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 4) (by simp [lt_of_lt_of_le hr hR]) (by fun_prop) hMzero
     filter_upwards [czzero] with x' hx'
     simp [hx']
@@ -729,7 +729,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
     volume (ball x (R / 4)) / 4 := by
   by_cases hMzero : globalMaximalFunction volume 1 g x = 0
   · apply le_of_eq_of_le _ (zero_le _)
-    rw [measure_zero_iff_ae_nmem]
+    rw [measure_zero_iff_ae_notMem]
     have gzero := globalMaximalFunction_zero_enorm_ae_zero (R := R / 2)
         (by simp [lt_of_lt_of_le hr hR]) hg.aestronglyMeasurable hMzero
     have czzero : ∀ᵐ x' ∂(volume.restrict (ball x (R / 4))), ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ = 0 := by
@@ -834,71 +834,318 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   rw [indicator_compl, czoperator_sub hg (hg.indicator measurableSet_ball) hr.1, Pi.sub_apply]
   have h1x' : ‖czOperator K r g x'‖ₑ ≤ 4 * globalMaximalFunction volume 1 (czOperator K r g) x := by
     suffices x' ∉ F1 by
-      rw [nmem_setOf_iff, not_lt] at this
+      rw [notMem_setOf_iff, not_lt] at this
       exact this
-    exact not_mem_subset subset_union_left ((mem_compl_iff _ _).mp hx'.1)
+    exact notMem_subset subset_union_left ((mem_compl_iff _ _).mp hx'.1)
   have h2x' : ‖czOperator K r ((ball x (R / 2)).indicator g) x'‖ₑ ≤ C10_1_4 a * globalMaximalFunction volume 1 g x := by
     suffices x' ∉ F2 by
-      rw [nmem_setOf_iff, not_lt] at this
+      rw [notMem_setOf_iff, not_lt] at this
       exact this
-    exact not_mem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
+    exact notMem_subset subset_union_right ((mem_compl_iff _ _).mp hx'.1)
   apply add_le_add (add_le_add h1x' h2x' |> enorm_sub_le.trans) (by rfl) |> le_trans
   rw [add_assoc, C10_1_3_def, C10_1_4_def, C10_1_5_def, ← add_mul]
   conv_rhs => rw [pow_succ, mul_two]
   push_cast
   gcongr <;> simp
 
-/-- The constant used in `simple_nontangential_operator`. -/
+
+/-- Part of Lemma 10.1.6. -/
+lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    LowerSemicontinuous (simpleNontangentialOperator K r g) := by
+  sorry
+
+lemma aestronglyMeasurable_simpleNontangentialOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    AEStronglyMeasurable (simpleNontangentialOperator K r g) volume :=
+  lowerSemicontinuous_simpleNontangentialOperator hg |>.measurable.aestronglyMeasurable
+
+/-- The constant used in `simple_nontangential_operator`.
+It is not tight and can be improved by some `a` + `constant`. -/
 irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)
+
+--TODO move to ToMathlib / generalises eLpNorm_add_le to ENorm class
+theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α}
+    {μ : Measure α} [TopologicalSpace E] [ENormedAddMonoid E]
+    {p : ℝ≥0∞} (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ)
+    (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ := by
+  sorry
 
 /-- Lemma 10.1.6. The formal statement includes the measurability of the operator.
 See also `simple_nontangential_operator_le` -/
 theorem simple_nontangential_operator (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) :
+    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) (hr : 0 < r) :
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
-  sorry
+  intro g hg
+  constructor
+  · exact aestronglyMeasurable_simpleNontangentialOperator hg
+  let pointwise : X → ℝ≥0∞ :=
+    4 * globalMaximalFunction volume 1 (czOperator K r g) + C10_1_5 a • globalMaximalFunction volume 1 g +
+    C10_1_2 a • globalMaximalFunction volume 1 g
+  trans eLpNorm pointwise 2 volume
+  · apply eLpNorm_mono_enorm
+    simp_rw [enorm_eq_self, simpleNontangentialOperator, iSup_le_iff]
+    intro x R hR x' hx'
+    rw [mem_ball, dist_comm] at hx'
+    trans ‖czOperator K R g x‖ₑ + C10_1_2 a * globalMaximalFunction volume 1 g x
+    · calc ‖czOperator K R g x'‖ₑ
+        _ = ‖czOperator K R g x + (czOperator K R g x' - czOperator K R g x)‖ₑ := by congr; ring
+      apply le_trans <| enorm_add_le _ _
+      gcongr
+      rw [← edist_eq_enorm_sub, edist_comm]
+      exact estimate_x_shift ha hg (hr.trans hR.lt) hx'.le
+    apply add_le_add (cotlar_estimate ha hT hg ?hrR) (by rfl)
+    case hrR => rw [mem_Ioc]; exact ⟨hr, hR.le⟩
+  unfold pointwise
+
+  have hst_gmf := hasStrongType_globalMaximalFunction (p₁ := 1) (p₂ := 2) (X := X) (E := ℂ) (μ := volume) zero_lt_one one_lt_two
+  norm_cast at hst_gmf
+  have hst_gmf_g := hst_gmf g (hg.memLp 2)
+  have aesm_gmf_g := hst_gmf_g.1 -- for fun_prop
+  have hst_gmf_czg := hst_gmf (czOperator K r g) ((hT r hr).memLp hg)
+  have aesm_gmf_czg := hst_gmf_czg.1 -- for fun_prop
+  rw [show 4 * globalMaximalFunction volume 1 (czOperator K r g) =
+      (4 : ℝ≥0) • globalMaximalFunction volume 1 (czOperator K r g) by rfl]
+  apply le_trans <| eLpNorm_add_le'' (by fun_prop) (by fun_prop) one_le_two
+  apply le_trans <| add_le_add (eLpNorm_add_le'' (by fun_prop) (by fun_prop) one_le_two) (by rfl)
+  simp_rw [eLpNorm_const_smul' (f := globalMaximalFunction volume 1 g),
+      eLpNorm_const_smul' (f := globalMaximalFunction volume 1 (czOperator K r g)),
+      enorm_NNReal, add_assoc, ← add_mul]
+  apply le_trans <| add_le_add
+    (mul_le_mul_left' (hst_gmf_czg.2.trans <| mul_le_mul_left' (hT r hr g hg).2 _) _)
+    (mul_le_mul_left' hst_gmf_g.2 _)
+  nth_rw 3 [← mul_assoc]; nth_rw 2 [← mul_assoc]; rw [← mul_assoc, ← add_mul]
+  gcongr
+  -- what remains is constant manipulation
+  nth_rw 2 [mul_comm]; rw [← mul_assoc, ← add_mul]
+  norm_cast
+  have : C2_0_6' (defaultA a) 1 2 ≤ 2 ^ (4 * a + 1) := by
+    rw [C2_0_6'_defaultA_one_two_eq, ← NNReal.rpow_natCast]
+    apply NNReal.rpow_le_rpow_of_exponent_le one_le_two
+    trans 3 * a + 2
+    · linarith
+    norm_cast
+    linarith [ha]
+  apply le_trans <| mul_le_mul_left' this _
+  rw [C10_1_6_def, C_Ts, C10_1_5, C10_1_2]
+  norm_cast
+  rw [show a ^ 3 + 24 * a + 6 = (a ^ 3 + 20 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
+  gcongr
+  nth_rw 6 [pow_succ]; rw [mul_two]
+  apply add_le_add
+  · ring_nf; gcongr <;> simp [Nat.one_le_pow]
+  nth_rw 5 [pow_succ]; rw [mul_two]
+  gcongr <;> simp
 
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
 theorem simple_nontangential_operator_le (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 ≤ r) :
+    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) (hr : 0 ≤ r) :
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   sorry
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part of Lemma 10.1.7, reformulated. -/
-theorem small_annulus_right (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₁ : ℝ} :
-    Continuous (fun R₂ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
-  sorry
+theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) :
+    ContinuousWithinAt (fun R₂ ↦ ∫ y in Annulus.oo x R₁ R₂, K x y * g y) (Ioo R₁ R₂) R₁ := by
+  by_cases hR1R2 : R₁ < R₂
+  case neg => rw [Ioo_eq_empty hR1R2, ContinuousWithinAt, nhdsWithin_empty]; exact Filter.tendsto_bot
+  conv => arg 1; intro R; rw [← integral_indicator (by measurability)]
+  obtain ⟨B, hB⟩ := czoperator_bound (K := K) (r := R₁) hg hR₁ x
+  rw [ae_restrict_iff' (by measurability), ← Annulus.ci_eq] at hB
+  let bound (y : X) : ℝ := (Annulus.oo x R₁ R₂).indicator (fun y ↦ B) y
+  apply continuousWithinAt_of_dominated (bound := bound)
+  · filter_upwards with R
+    have : Measurable (K x) := measurable_K_right x
+    fun_prop (disch := measurability)
+  · unfold bound
+    simp_rw [norm_indicator_eq_indicator_norm]
+    have : nhdsWithin R₁ (Ioo R₁ R₂) |>.Eventually (fun r ↦ r < R₂) := by
+      apply eventually_nhdsWithin_of_eventually_nhds
+      apply eventually_nhds_iff_ball.mpr
+      use R₂ - R₁
+      constructor
+      · simp [hR1R2]
+      · intro r hr
+        rw [mem_ball] at hr
+        linarith [Real.sub_le_dist r R₁]
+    filter_upwards [this] with r hr
+    filter_upwards [hB] with y hy
+    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo (by rfl) hr.le)
+      (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
+    exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
+  · unfold bound
+    rw [integrable_indicator_iff (by measurability), Annulus.oo_eq]
+    apply integrableOn_const (measure_ne_top_of_subset inter_subset_left (by finiteness)) (by simp)
+  · -- This is painful because we have to show continuity of the indicator
+    -- which is needed to apply `dominated` because `R` is variable in the domain of the integral.
+    -- This in turn meant proving continuity at `R₁`, which actually aligns with the blueprint.
+    filter_upwards with y
+    unfold ContinuousWithinAt
+    have : nhdsWithin R₁ (Ioo R₁ R₂) |>.Eventually (fun r ↦ y ∉ Annulus.oo x R₁ r) := by
+      by_cases hy : R₁ < dist x y
+      · have : nhdsWithin R₁ (Ioo R₁ R₂) |>.Eventually (fun r ↦ r < dist x y) := by
+          apply eventually_nhdsWithin_of_eventually_nhds
+          apply eventually_nhds_iff_ball.mpr
+          use (dist x y - R₁)
+          constructor
+          · simp [hy]
+          · intro r hr
+            rw [mem_ball] at hr
+            linarith [Real.sub_le_dist r R₁]
+        filter_upwards [this] with r hr
+        exact fun hy ↦ hr.not_gt hy.2
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.1
+    rw [Filter.tendsto_iff_forall_eventually_mem]
+    intro s hs
+    filter_upwards [this] with r hr
+    apply mem_of_mem_nhds
+    simpa [indicator_of_notMem hr] using hs
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part of Lemma 10.1.7, reformulated -/
-theorem small_annulus_left (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) {R₂ : ℝ} :
-    Continuous (fun R₁ ↦ ∫ y in {y | dist x' y ∈ Ioo R₁ R₂}, K x' y * f y) := by
-  sorry
+theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 ≤ R₁):
+    ContinuousWithinAt (fun R ↦ ∫ y in Annulus.oo x R R₂, K x y * g y) (Ioo R₁ R₂) R₂ := by
+  by_cases hR1R2 : R₁ < R₂
+  case neg => rw [Ioo_eq_empty hR1R2, ContinuousWithinAt, nhdsWithin_empty]; exact Filter.tendsto_bot
+  conv => arg 1; intro R; rw [← integral_indicator (by measurability)]
+  obtain ⟨B, hB⟩ := czoperator_bound (K := K) (r := R₂ / 2) hg (by linarith [hR₁.trans_lt hR1R2]) x
+  rw [ae_restrict_iff' (by measurability), ← Annulus.ci_eq] at hB
+  let bound (y : X) : ℝ := (Annulus.oo x (R₂ / 2) R₂).indicator (fun y ↦ B) y
+  apply continuousWithinAt_of_dominated (bound := bound)
+  · filter_upwards with R
+    have : Measurable (K x) := measurable_K_right x
+    fun_prop (disch := measurability)
+  · unfold bound
+    simp_rw [norm_indicator_eq_indicator_norm]
+    have : nhdsWithin R₂ (Ioo R₁ R₂) |>.Eventually (fun r ↦ R₂ / 2 < r) := by
+      apply eventually_nhdsWithin_of_eventually_nhds
+      apply eventually_nhds_iff_ball.mpr
+      use R₂ / 2
+      constructor
+      · simp [hR₁.trans_lt hR1R2]
+      · intro r hr
+        rw [mem_ball, dist_comm] at hr
+        linarith [Real.sub_le_dist R₂ r]
+    filter_upwards [this] with r hr
+    filter_upwards [hB] with y hy
+    refine indicator_le_indicator_of_subset (Annulus.oo_subset_oo hr.le (by rfl))
+      (fun a ↦ by positivity) _ |>.trans <| indicator_le_indicator' ?_
+    exact fun h2y ↦ hy <| Annulus.oo_subset_ci (by rfl) h2y
+  · unfold bound
+    rw [integrable_indicator_iff (by measurability), Annulus.oo_eq]
+    apply integrableOn_const (measure_ne_top_of_subset inter_subset_left (by finiteness)) (by simp)
+  · -- This is painful because we have to show continuity of the indicator
+    -- which is needed to apply `dominated` because `R` is variable in the domain of the integral.
+    -- This in turn meant proving continuity at `R₂`, which actually aligns with the blueprint.
+    filter_upwards with y
+    unfold ContinuousWithinAt
+    have : nhdsWithin R₂ (Ioo R₁ R₂) |>.Eventually (fun r ↦ y ∉ Annulus.oo x r R₂) := by
+      by_cases hy : dist x y < R₂
+      · have : nhdsWithin R₂ (Ioo R₁ R₂) |>.Eventually (fun r ↦ dist x y < r) := by
+          apply eventually_nhdsWithin_of_eventually_nhds
+          apply eventually_nhds_iff_ball.mpr
+          use (R₂ - dist x y)
+          constructor
+          · simp [hy]
+          · intro r hr
+            rw [mem_ball, dist_comm] at hr
+            linarith [Real.sub_le_dist R₂ r]
+        filter_upwards [this] with r hr
+        exact fun hy ↦ hr.not_gt hy.1
+      · filter_upwards with r; unfold Annulus.oo; rw [notMem_setOf_iff]; exact fun hy2 ↦ hy hy2.2
+    rw [Filter.tendsto_iff_forall_eventually_mem]
+    intro s hs
+    filter_upwards [this] with r hr
+    apply mem_of_mem_nhds
+    simpa [indicator_of_notMem hr] using hs
 
+omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Lemma 10.1.8. -/
-theorem nontangential_operator_boundary (ha : 4 ≤ a)
-    {f : X → ℂ} (hf : BoundedFiniteSupport f) :
+theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
-    ⨆ (R₁ : ℝ) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' ≤ R₁),
+    ⨆ (R₁ : ℝ) (_: 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
     ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ := by
-  sorry
+  let sup : ℝ≥0∞ := ⨆ (R₁ : ℝ) (_: 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
+    ‖∫ y in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ
+  unfold nontangentialOperator
+  apply le_antisymm
+  all_goals (
+    rw [iSup_le_iff]; intro R₁
+    rw [iSup_le_iff]; intro hR₁
+    rw [iSup_le_iff]; intro R₂
+    rw [iSup_le_iff]; intro hR₂
+    rw [iSup_le_iff]; intro x'
+    rw [iSup_le_iff]; intro hx'
+  )
+  · have (R' : ℝ) (hR' : R' ∈ Ioo R₁ R₂) : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R₁ R', K x' y * f y‖ₑ + sup := by
+      have : Annulus.oo x' R₁ R₂ = Annulus.oo x' R₁ R' ∪ Annulus.co x' R' R₂ :=
+        Annulus.oo_union_co hR'.1 hR'.2.le |>.symm
+      rw [this, setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2)
+        (by measurability)]; swap
+      · simp_rw [← this]
+        apply IntegrableOn.mono_set <| czoperator_welldefined hf hR₁ x'
+        rw [← Annulus.ci_eq]
+        exact Annulus.oo_subset_ci (by rfl)
+      apply le_trans <| enorm_add_le _ _
+      gcongr
+      rw [Annulus.co_eq, inter_comm, ← diff_eq_compl_inter]
+      apply le_trans ?_ <| le_iSup _ (i := R')
+      apply le_trans ?_ <| le_iSup _ (i := hR₁.trans hR'.1)
+      apply le_trans ?_ <| le_iSup _ (i := R₂)
+      apply le_trans ?_ <| le_iSup _ (i := hR'.2)
+      apply le_trans ?_ <| le_iSup _ (i := x')
+      rw [iSup_pos <| hx'.trans hR'.1]
+    -- apply continuity
+    have le_R1 : ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + sup := by
+      refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
+      · simp [closure_Ioo hR₂.ne, hR₂.le]
+      · apply continuousWithinAt_const
+      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+        exact small_annulus_right hf hR₁ |>.enorm
+    simpa using le_R1
+  · have (R' : ℝ) (hR' : R' ∈ Ioo (dist x x') R₁) : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
+      have hR'pos : 0 < R' := by linarith [dist_nonneg (x := x) (y := x'), hR'.1]
+      have : ∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y = (∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y) +
+          (∫ (y : X) in Annulus.co x' R₁ R₂, K x' y * f y) - ∫ (y : X) in Annulus.oo x' R' R₁, K x' y * f y := by
+        simp
+      rw [diff_eq_compl_inter, inter_comm, ← Annulus.co_eq, this]
+      have : Annulus.oo x' R' R₂ = Annulus.oo x' R' R₁ ∪ Annulus.co x' R₁ R₂ :=
+        Annulus.oo_union_co hR'.2 hR₂.le |>.symm
+      rw [← setIntegral_union_2 (disjoint_left.mpr <| fun x hx hx2 ↦ not_lt.mpr hx2.1 hx.2) (by measurability), ← this]; swap
+      · simp_rw [← this]
+        apply IntegrableOn.mono_set <| czoperator_welldefined hf hR'pos x'
+        rw [← Annulus.ci_eq]
+        exact Annulus.oo_subset_ci (by rfl)
+      apply le_trans enorm_sub_le
+      rw [add_comm]
+      gcongr
+      apply le_trans ?_ <| le_iSup _ (i := R')
+      apply le_trans ?_ <| le_iSup _ (i := hR'pos)
+      apply le_trans ?_ <| le_iSup _ (i := R₂)
+      apply le_trans ?_ <| le_iSup _ (i := hR'.2.trans hR₂)
+      apply le_trans ?_ <| le_iSup _ (i := x')
+      rw [iSup_pos hR'.1]
+    -- apply continuity
+    have le_R1 : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * f y‖ₑ ≤
+        ‖∫ (y : X) in Annulus.oo x' R₁ R₁, K x' y * f y‖ₑ + nontangentialOperator K f x := by
+      refine ContinuousWithinAt.closure_le ?_ ?_ ?_ this
+      · simp [closure_Ioo hx'.ne, hx'.le]
+      · apply continuousWithinAt_const
+      · apply ContinuousWithinAt.add ?_ continuousWithinAt_const
+        exact small_annulus_left hf (dist_nonneg) |>.enorm
+    simpa using le_R1
 
 /-- The constant used in `nontangential_from_simple`. -/
 irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
 
 /-- Lemma 10.0.2. The formal statement includes the measurability of the operator. -/
+@[nolint unusedHavesSuffices]
 theorem nontangential_from_simple (ha : 4 ≤ a)
-    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a))
-    {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
-  have := simple_nontangential_operator_le ha hT hg le_rfl
+  have := simple_nontangential_operator_le ha hT le_rfl
   sorry
-
 
 end

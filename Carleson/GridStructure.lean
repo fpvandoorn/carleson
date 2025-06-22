@@ -89,7 +89,7 @@ lemma le_or_disjoint (h : s i ≤ s j) : i ≤ j ∨ Disjoint (i : Set X) (j : S
   fundamental_dyadic h |>.imp (⟨·, h⟩) id
 
 lemma le_or_ge_or_disjoint : i ≤ j ∨ j ≤ i ∨ Disjoint (i : Set X) (j : Set X) := by
-  rcases le_or_lt (s i) (s j) with h | h
+  rcases le_or_gt (s i) (s j) with h | h
   · have := le_or_disjoint h; tauto
   · have := le_or_disjoint h.le; tauto
 
@@ -103,17 +103,25 @@ lemma eq_or_disjoint (hs : s i = s j) : i = j ∨ Disjoint (i : Set X) (j : Set 
   Or.elim (le_or_disjoint hs.le) (fun ij ↦ Or.elim (le_or_disjoint hs.ge)
      (fun ji ↦ Or.inl (le_antisymm ij ji)) (fun h ↦ Or.inr h.symm)) (fun h ↦ Or.inr h)
 
-lemma subset_of_nmem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
+lemma disjoint_of_not_le_not_le {i j : Grid X} (h : ¬i ≤ j) (h' : ¬j ≤ i) :
+    Disjoint (i : Set X) j := by
+  -- Assume wlog that s u₁ ≤ s u₂.
+  obtain (hs | hs) := le_total (s i) (s j)
+  · -- If u₁ and u₂ were not disjoint, we'd have J u₁ ⊆ J u₂, contradicting h.
+    by_contra hndisjoint
+    exact h <| (le_or_disjoint hs).resolve_right hndisjoint
+  · by_contra hdisjoint
+    exact h' <| (le_or_disjoint hs).resolve_right (fun a ↦ hdisjoint a.symm)
+
+lemma subset_of_notMem_Iic_of_not_disjoint (i : Grid X) (j : Grid X)
     (h : i ∉ Iic j)
     (notDisjoint : ¬ Disjoint (i : Set X) j) :
     (j : Set X) ⊆ i := by
-  rw [Iic, Set.nmem_setOf_iff, Grid.le_def, not_and_or] at h
-  have h_le_cases := le_or_ge_or_disjoint (i := i) (j := j)
-  rcases h_le_cases with i_le | j_le | disjoint
-  · exact (h.neg_resolve_left i_le.1 i_le.2).elim
-  · rw [disjoint_comm] at notDisjoint
-    exact (GridStructure.fundamental_dyadic' j_le.2).resolve_right notDisjoint
-  · exact (notDisjoint disjoint).elim
+  by_contra hdisj
+  have : ¬(j ≤ i) := by
+    rw [Grid.le_def]
+    exact not_and.mpr fun a a_1 ↦ hdisj a
+  exact notDisjoint (disjoint_of_not_le_not_le h this)
 
 lemma scale_mem_Icc : s i ∈ Icc (-S : ℤ) S := mem_Icc.mp (range_s_subset ⟨i, rfl⟩)
 
@@ -125,7 +133,13 @@ lemma volume_coeGrid_pos (hD : 0 < D) : 0 < volume (i : Set X) := by
 
 @[aesop (rule_sets := [finiteness]) safe apply]
 lemma volume_coeGrid_lt_top : volume (i : Set X) < ⊤ :=
-  measure_lt_top_of_subset Grid_subset_ball (measure_ball_ne_top _ _)
+  measure_lt_top_of_subset Grid_subset_ball measure_ball_ne_top
+
+/- lemma volumeNNReal_coeGrid_pos (hD : 0 < D) : 0 < volume.nnreal (i : Set X) := by
+  rw [lt_iff_le_and_ne]
+  refine ⟨zero_le _, ?_⟩
+  rw [ne_eq, eq_comm, measureNNReal_eq_zero_iff]
+  exact ne_of_gt (volume_coeGrid_pos hD) -/
 
 namespace Grid
 
@@ -233,8 +247,9 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
   obtain ⟨j, mj, hj⟩ := incs.exists_minimal ine
   simp only [gt_iff_lt, Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
-    rcases lt_or_le (s x) (s j) with c | c
-    · exact (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) (hj x mx)).symm.le
+    rcases lt_or_ge (s x) (s j) with c | c
+    · refine (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) ?_).symm.le
+      exact not_lt_iff_le_imp_ge.mpr (hj mx)
     · exact le_dyadic c mj.le mx.le
   use j, ⟨mj, hj⟩, fun k ⟨hk₁, hk₂⟩ ↦ le_antisymm (hk₂ j mj) (hj k hk₁)
 

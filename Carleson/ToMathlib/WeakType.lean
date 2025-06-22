@@ -32,6 +32,9 @@ Todo: rename to something more Mathlib-appropriate. -/
 def distribution (f : α → ε) (t : ℝ≥0∞) (μ : Measure α) : ℝ≥0∞ :=
   μ { x | t < ‖f x‖ₑ }
 
+@[simp]
+lemma distibution_top (f : α → ε) (μ : Measure α) : distribution f ∞ μ = 0 := by simp [distribution]
+
 @[gcongr]
 lemma distribution_mono_right (h : t ≤ s) : distribution f s μ ≤ distribution f t μ :=
   measure_mono fun _ a ↦ lt_of_le_of_lt h a
@@ -112,7 +115,7 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
     ContinuousWithinAt (distribution f · μ) (Ioi t₀) t₀ := by
   rcases (eq_top_or_lt_top t₀) with t₀top | t₀nottop
   · rw [t₀top]
-    apply continuousWithinAt_of_not_mem_closure
+    apply continuousWithinAt_of_notMem_closure
     simp
   · unfold ContinuousWithinAt
     rcases (eq_top_or_lt_top (distribution f t₀ μ)) with db_top | db_not_top
@@ -257,7 +260,7 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) :
   by_cases hC_zero : C = 0
   · simp only [ENNReal.iSup_eq_zero, mul_eq_zero, ENNReal.rpow_eq_zero_iff, inv_neg'', C] at hC_zero
     specialize hC_zero 1
-    simp only [one_ne_zero, ENNReal.coe_one, toReal_nonneg.not_lt, and_false, or_false,
+    simp only [one_ne_zero, ENNReal.coe_one, toReal_nonneg.not_gt, and_false, or_false,
       false_or] at hC_zero
     exact measure_mono_null (setOf_subset_setOf.mpr fun x hx => hx ▸ one_lt_top) hC_zero.1
   by_contra h
@@ -280,7 +283,7 @@ theorem MemWLp.ae_ne_top [TopologicalSpace ε] (hf : MemWLp f p μ) :
         ENNReal.inv_div (Or.inr ofNat_ne_top) (Or.inr (NeZero.ne' 2).symm)]
   have h6 : μ A = 0 := by
     convert (fun hh ↦ ENNReal.half_lt_self hh (ne_top_of_le_ne_top (rpow_ne_top_of_nonneg
-      toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_lt
+      toReal_nonneg ((div_one C).symm ▸ h2.ne_top)) (h4 1))).mt h5.not_gt
     tauto
   exact h h6
 
@@ -290,11 +293,10 @@ section ContinuousENorm
 
 variable [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε}
 
-lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ p) :
+lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (p0 : 0 < p) :
     wnorm' f p μ ≤ eLpNorm' f p μ := by
   refine iSup_le (fun t ↦ ?_)
   simp_rw [distribution, eLpNorm']
-  have p0 : 0 < p := lt_of_lt_of_le one_pos hp
   have p0' : 0 ≤ 1 / p := (div_pos one_pos p0).le
   have set_eq : {x | ofNNReal t < ‖f x‖ₑ} = {x | ofNNReal t ^ p < ‖f x‖ₑ ^ p} := by
     simp [ENNReal.rpow_lt_rpow_iff p0]
@@ -303,16 +305,39 @@ lemma wnorm'_le_eLpNorm' (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 1 ≤ 
   refine rpow_le_rpow ?_ p0'
   refine le_trans ?_ <| mul_meas_ge_le_lintegral₀ (hf.enorm.pow_const p) (ofNNReal t ^ p)
   gcongr
-  exact setOf_subset_setOf.mpr (fun _ h ↦ h.le)
+  exact fun x ↦ le_of_lt x
 
-lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 1 ≤ p) :
+lemma distribution_lt_top (hf : MemLp f p μ) (p_pos : 0 < p) (p_ne_top : p ≠ ∞)
+    {t : ℝ≥0} (ht : 0 < t) :
+    distribution f t μ < ∞ := by
+  have := wnorm'_le_eLpNorm' hf.1 (toReal_pos p_pos.ne.symm p_ne_top)
+  rw [← eLpNorm_eq_eLpNorm' p_pos.ne.symm p_ne_top] at this
+  have := this.trans_lt hf.2
+  rw [wnorm'] at this
+  rw [iSup_lt_iff] at this
+  rcases this with ⟨b,b_lt_top, h⟩
+  have := (h t).trans_lt b_lt_top
+  rw [mul_lt_top_iff] at this
+  rcases this with ⟨t_lt_top, h⟩| (t_zero| h)
+  · rwa [rpow_lt_top_iff_of_pos] at h
+    simp only [inv_pos]
+    exact toReal_pos p_pos.ne.symm p_ne_top
+  · rw [ENNReal.coe_eq_zero] at t_zero
+    exfalso
+    exact ht.ne.symm t_zero
+  · rw [ENNReal.rpow_eq_zero_iff_of_pos (by simp only [inv_pos]; exact toReal_pos p_pos.ne.symm p_ne_top)] at h
+    rw [h]
+    simp only [zero_lt_top]
+
+
+lemma wnorm_le_eLpNorm (hf : AEStronglyMeasurable f μ) {p : ℝ≥0∞} (hp : 0 < p) :
     wnorm f p μ ≤ eLpNorm f p μ := by
   by_cases h : p = ⊤
   · simp [h, wnorm, eLpNorm]
-  · have p0 : p ≠ 0 := (lt_of_lt_of_le one_pos hp).ne.symm
-    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_mono h hp)
+  · have p0 : p ≠ 0 := hp.ne.symm
+    simpa [h, wnorm, eLpNorm, p0] using wnorm'_le_eLpNorm' hf (toReal_pos p0 h)
 
-lemma MemLp.memWLp (hp : 1 ≤ p) (hf : MemLp f p μ) : MemWLp f p μ :=
+lemma MemLp.memWLp (hp : 0 < p) (hf : MemLp f p μ) : MemWLp f p μ :=
   ⟨hf.1, wnorm_le_eLpNorm hf.1 hp |>.trans_lt hf.2⟩
 
 end ContinuousENorm
@@ -404,7 +429,7 @@ lemma hasWeakType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← wnorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
@@ -445,7 +470,7 @@ lemma HasStrongType.memLp (h : HasStrongType T p p' μ ν c) (hf₁ : MemLp f₁
     (hc : c < ⊤ := by finiteness) : MemLp (T f₁) p' ν :=
   ⟨(h f₁ hf₁).1, h f₁ hf₁ |>.2.trans_lt <| mul_lt_top hc hf₁.2⟩
 
-lemma HasStrongType.hasWeakType (hp' : 1 ≤ p')
+lemma HasStrongType.hasWeakType (hp' : 0 < p')
     (h : HasStrongType T p p' μ ν c) : HasWeakType T p p' μ ν c :=
   fun f hf ↦ ⟨(h f hf).1, wnorm_le_eLpNorm (h f hf).1 hp' |>.trans (h f hf).2⟩
 
@@ -460,7 +485,7 @@ lemma hasStrongType_toReal_iff {T : (α → ε₁) → (α' → ℝ≥0∞)}
   obtain ⟨h1, h2⟩ := h f hf
   refine ⟨?_, by rwa [← eLpNorm_toReal_eq (hT f hf)]⟩
   rwa [← aestronglyMeasurable_ennreal_toReal_iff]
-  refine .of_null <| measure_zero_iff_ae_nmem.mpr ?_
+  refine .of_null <| measure_zero_iff_ae_notMem.mpr ?_
   filter_upwards [hT f hf] with x hx
   simp [hx]
 
@@ -482,7 +507,7 @@ lemma HasStrongType.hasBoundedStrongType (h : HasStrongType T p p' μ ν c) :
     HasBoundedStrongType T p p' μ ν c :=
   fun f hf ↦ h f (hf.memLp _)
 
-lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 1 ≤ p')
+lemma HasBoundedStrongType.hasBoundedWeakType (hp' : 0 < p')
     (h : HasBoundedStrongType T p p' μ ν c) :
     HasBoundedWeakType T p p' μ ν c :=
   fun f hf ↦
@@ -559,7 +584,7 @@ variable {f g : α → ε}
 
 section
 
-variable {ε ε' : Type*} [TopologicalSpace ε] [ContinuousENorm ε]
+variable {ε ε' : Type*} [TopologicalSpace ε] [ENorm ε]
 variable [TopologicalSpace ε'] [ENormedSpace ε']
 
 -- TODO: this lemma and its primed version could be unified using a `NormedSemifield` typeclass
@@ -678,15 +703,15 @@ lemma wnorm_const_smul_le' [IsBoundedSMul 𝕜 E] (hp : p ≠ 0) {f : α → E} 
 
 lemma HasWeakType.const_smul [ContinuousConstSMul ℝ≥0 ε']
     {T : (α → ε) → (α' → ε')} (hp' : p' ≠ 0) {c : ℝ≥0∞} (h : HasWeakType T p p' μ ν c) (k : ℝ≥0) :
-    HasWeakType (k • T) p p' μ ν (‖k‖ₑ * c) := by
+    HasWeakType (k • T) p p' μ ν (k * c) := by
   intro f hf
   refine ⟨(h f hf).1.const_smul k, ?_⟩
   calc wnorm ((k • T) f) p' ν
-    _ ≤ ‖k‖ₑ * wnorm (T f) p' ν := by simp [wnorm_const_smul_le hp']
-    _ ≤ ‖k‖ₑ * (c * eLpNorm f p μ) := by
+    _ ≤ k * wnorm (T f) p' ν := by simpa using wnorm_const_smul_le hp' _
+    _ ≤ k * (c * eLpNorm f p μ) := by
       gcongr
       apply (h f hf).2
-    _ = (‖k‖ₑ * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
+    _ = (k * c) * eLpNorm f p μ := by simp [coe_mul, mul_assoc]
 
 -- TODO: do we want to unify this lemma with its unprimed version, perhaps using an
 -- `ENormedSemiring` class?
@@ -739,24 +764,84 @@ lemma _root_.ContinuousLinearMap.distribution_le {f : α → E₁} {g : α → E
 section BorelSpace
 
 variable [TopologicalSpace ε] [ContinuousENorm ε]
-  [MeasurableSpace E] [NormedAddCommGroup E] [BorelSpace E]
+  [MeasurableSpace E] [TopologicalSpace E] [ENormedAddMonoid E]
 
-/-- The layer-cake theorem, or Cavalieri's principle for functions into a normed group. -/
-lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+/-- The layer-cake theorem, or Cavalieri's principle for functions into an ENormedAddMonoid. -/
+lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     ∫⁻ x, ‖f x‖ₑ ^ p ∂μ =
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (p * t ^ (p - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 ≤ p := hp.le
-  have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ‖f x‖)
-    (Eventually.of_forall fun x ↦ norm_nonneg _) hf.norm hp
+  have := lintegral_rpow_eq_lintegral_meas_lt_mul μ (f := fun x ↦ ENNReal.toReal ‖f x‖ₑ)
+    (Eventually.of_forall fun x ↦ ENNReal.toReal_nonneg) hf.enorm.ennreal_toReal hp
   simp only [← enorm_eq_nnnorm, norm_nonneg, ← ofReal_rpow_of_nonneg, mul_comm (μ _), ne_eq,
     ofReal_ne_top, not_false_eq_true, ← lintegral_const_mul', ← mul_assoc,
     ← ofReal_norm_eq_enorm, ofReal_mul, distribution, h2p] at this ⊢
+  by_cases ae_finite : μ {x | ‖f x‖ₑ = ∞} = 0
+  · -- main case
+    convert this using 1
+    · apply lintegral_congr_ae
+      rw [Filter.eventuallyEq_iff_exists_mem]
+      use {x | ‖f x‖ₑ ≠ ∞}
+      rw [mem_ae_iff, compl_setOf]
+      simp only [ne_eq, Decidable.not_not]
+      use ae_finite
+      intro x hx
+      dsimp only
+      rw [toReal_rpow, ofReal_toReal (rpow_ne_top_of_nonneg hp.le hx)]
+    apply setLIntegral_congr_fun measurableSet_Ioi
+    intro t ht
+    dsimp only
+    congr 1
+    symm
+    apply measure_eq_measure_of_null_diff
+    · intro x hx
+      simp only [mem_setOf_eq] at *
+      rwa [ofReal_lt_iff_lt_toReal ht.le]
+      by_contra hfx
+      rw [hfx] at hx
+      simp only [toReal_top] at hx
+      linarith [hx, mem_Ioi.mp ht]
+    dsimp [sdiff, Set.diff]
+    apply measure_mono_null _ ae_finite
+    intro x hx
+    dsimp only [mem_setOf_eq] at *
+    by_contra hf_top
+    rw [ofReal_lt_iff_lt_toReal ht.le hf_top] at hx
+    exact hx.2 hx.1
+  · rw [lintegral_eq_top_of_measure_eq_top_ne_zero]
+    · symm
+      push_neg at ae_finite
+      rw [← zero_lt_iff] at ae_finite
+      rw [eq_top_iff]
+      calc
+      _ = ENNReal.ofReal p *
+          (∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal (t ^ (p - 1))) * μ {x | ‖f x‖ₑ = ∞} := by
+        convert (top_mul ae_finite.ne.symm).symm
+        convert (mul_top (ENNReal.ofReal_pos.mpr hp).ne.symm)
+        sorry --TODO: This should be some lemma
+      _ = ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
+            * μ {x | ‖f x‖ₑ = ∞} := by
+        rw [lintegral_mul_const, lintegral_const_mul]
+        · measurability
+        · measurability
+      _ ≤ ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
+            * μ {x | ENNReal.ofReal t < ‖f x‖ₑ} := by
+        gcongr with t x
+        intro hfx
+        rw [hfx]
+        exact ENNReal.ofReal_lt_top
+    · exact hf.enorm.pow_const _
+    · simp_rw [rpow_eq_top_iff_of_pos hp]
+      exact ae_finite
+
+  /-
   convert this using 1
-  refine setLIntegral_congr_fun measurableSet_Ioi (Eventually.of_forall fun x hx ↦ ?_)
+  refine setLIntegral_congr_fun measurableSet_Ioi fun x hx ↦ ?_
   simp_rw [ENNReal.ofReal_lt_ofReal_iff_of_nonneg (le_of_lt hx)]
+  -/
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`. -/
-lemma eLpNorm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
+lemma eLpNorm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ≥0} (hp : 0 < p) :
     eLpNorm f p μ ^ (p : ℝ) =
     ∫⁻ t in Ioi (0 : ℝ), p * ENNReal.ofReal (t ^ ((p : ℝ) - 1)) * distribution f (.ofReal t) μ := by
   have h2p : 0 < (p : ℝ) := hp
@@ -766,13 +851,13 @@ lemma eLpNorm_pow_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : �
 
 /-- The layer-cake theorem, or Cavalieri's principle, written using `eLpNorm`, without
     taking powers. -/
-lemma eLpNorm_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : 0 < p) :
+lemma eLpNorm_eq_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : 0 < p) :
     eLpNorm f (.ofReal p) μ =
     (ENNReal.ofReal p  * ∫⁻ t in Ioi (0 : ℝ), distribution f (.ofReal t) μ *
         ENNReal.ofReal (t ^ (p - 1)) ) ^ p⁻¹ := by
   unfold eLpNorm
   split_ifs with sgn_p sz_p
-  · exact False.elim (not_le_of_lt hp (ofReal_eq_zero.mp sgn_p))
+  · exact False.elim (not_le_of_gt hp (ofReal_eq_zero.mp sgn_p))
   · exact False.elim (coe_ne_top sz_p)
   · unfold eLpNorm'
     rw [toReal_ofReal (le_of_lt hp), one_div]
@@ -782,7 +867,7 @@ lemma eLpNorm_eq_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} 
     rw [lintegral_norm_pow_eq_distribution hf hp]
     congr 1 with x; rw [ofReal_mul] <;> [ring; positivity]
 
-lemma lintegral_pow_mul_distribution {f : α → E} (hf : AEMeasurable f μ) {p : ℝ} (hp : -1 < p) :
+lemma lintegral_pow_mul_distribution {f : α → E} (hf : AEStronglyMeasurable f μ) {p : ℝ} (hp : -1 < p) :
     ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ p) * distribution f (.ofReal t) μ =
     ENNReal.ofReal (p + 1)⁻¹ * ∫⁻ x, ‖f x‖ₑ ^ (p + 1) ∂μ := by
   have h2p : 0 < p + 1 := by linarith
