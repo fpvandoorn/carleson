@@ -123,6 +123,7 @@ lemma exists_enorm_sub_eps_le_biInf
   by_contra! h
   specialize glb (A + ε)
   have key : A + ε ∈ lowerBounds ((‖f ·‖ₑ) '' s) := fun i mi ↦ by
+
     rw [mem_image] at mi; obtain ⟨x, mx, hx⟩ := mi
     specialize h x mx; rw [hx] at h; exact (lt_tsub_iff_right.mp h).le
   rw [← glb] at key
