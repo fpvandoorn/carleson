@@ -1307,11 +1307,12 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
     · exact (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC₀) coe_ne_top).ne'
   · exact (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC₁) coe_ne_top).ne'
 
-/-- The constant occurring in the real interpolation theorem. -/
+/-- The constant occurring in the real interpolation theorem -/
 -- todo: check order of arguments
 def C_realInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ≥0∞) : ℝ≥0 :=
     C_realInterpolation_ENNReal p₀ p₁ q₀ q₁ q C₀ C₁ A t |>.toNNReal
 
+/-- The constant occurring in the general real interpolation theorem (for Lorentz spaces) -/
 def C_LorentzInterpolation (p₀ p₁ q₀ q₁ q : ℝ≥0∞) (C₀ C₁ A : ℝ≥0) (t : ℝ≥0∞) : ℝ≥0 :=
     sorry
 
@@ -1377,7 +1378,7 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
       · exact interp_exp_ne_top p₁lt_p₀.ne ht (switch_exponents ht hp)
       · exact ⟨hp₁, (interp_exp_between hp₁ hp₀ p₁lt_p₀ ht (switch_exponents ht hp)).1.le⟩
 
-/-- Marcinkiewicz real interpolation theorem. -/
+/-- Marcinkiewicz real interpolation theorem -/
 theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
@@ -1398,10 +1399,7 @@ theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ�
   have : 0 < A := lt_of_lt_of_le (by norm_num) hA
   apply exists_hasStrongType_real_interpolation_aux₄ <;> assumption
 
-
-
-
-/-- General Marcinkiewicz real interpolation theorem. -/
+/-- General Marcinkiewicz real interpolation theorem -/
 theorem exists_hasLorentzType_real_interpolation {p₀ p₁ r₀ r₁ q₀ q₁ s₀ s₁ p q : ℝ≥0∞}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
