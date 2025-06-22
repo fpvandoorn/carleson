@@ -1235,9 +1235,7 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
   · apply mul_ne_top
     · apply mul_ne_top
       · apply mul_ne_top
-        · split_ifs
-          · exact top_ne_one.symm
-          · exact coe_ne_top
+        · split_ifs <;> finiteness
         · apply rpow_ne_top'
           · exact interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq |>.ne'
           · exact interp_exp_ne_top hq₀q₁ ht hq
@@ -1248,14 +1246,9 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
             apply add_pos'
             · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
             · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
-          · rw [one_mul, zero_mul, add_zero]
-            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
-          · rw [zero_mul, one_mul, zero_add]
-            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq |>.ne'
-          · have q₀top : q₀ = ⊤ := not_lt_top.mp (by assumption)
-            have q₁top : q₁ = ⊤ := not_lt_top.mp (by assumption)
-            rw [q₀top, q₁top] at hq₀q₁
-            simp only [ne_eq, not_true_eq_false] at hq₀q₁
+          · simp [ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq |>.ne']
+          · simp [ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq |>.ne']
+          · simp_all [not_lt_top]
         · split_ifs <;> exact (ne_of_beq_false rfl).symm
     · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₀).ne' coe_ne_top
   · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₁).ne' coe_ne_top
@@ -1272,10 +1265,7 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
   · apply mul_ne_zero
     · apply mul_ne_zero
       · apply mul_ne_zero
-        · split_ifs
-          · exact one_ne_zero
-          · rw [← ofReal_zero]
-            exact ((ofReal_lt_ofReal_iff_of_nonneg le_rfl).mpr (_root_.mul_pos zero_lt_two hA)).ne'
+        · split_ifs <;> positivity
         · apply ne_of_gt
           apply ENNReal.rpow_pos
           · exact interpolated_pos' q₀pos q₁pos (ne_top_of_Ioo ht) hq
@@ -1287,25 +1277,16 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
             apply add_pos'
             · exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
             · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
-          · rw [one_mul, zero_mul, add_zero]
-            exact ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq
-          · rw [zero_mul, one_mul, zero_add]
-            exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
-          · have q₀top : q₀ = ⊤ := not_lt_top.mp (by assumption)
-            have q₁top : q₁ = ⊤ := not_lt_top.mp (by assumption)
-            rw [q₀top, q₁top] at hq₀q₁
-            simp only [ne_eq, not_true_eq_false] at hq₀q₁
+          · simp [ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq]
+          · simp [ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq]
+          · simp_all [not_lt_top]
         · refine add_ne_top.mpr ⟨?_, ?_⟩
           · apply mul_ne_top ?_ coe_ne_top
-            split_ifs
-            · exact top_ne_one.symm
-            · exact top_ne_zero.symm
+            split_ifs <;> finiteness
           · apply mul_ne_top ?_ coe_ne_top
-            split_ifs
-            · exact top_ne_one.symm
-            · exact top_ne_zero.symm
-    · exact (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC₀) coe_ne_top).ne'
-  · exact (ENNReal.rpow_pos (ENNReal.coe_pos.mpr hC₁) coe_ne_top).ne'
+            split_ifs <;> finiteness
+    · exact (ENNReal.rpow_pos (by positivity) coe_ne_top).ne'
+  · exact (ENNReal.rpow_pos (by positivity) coe_ne_top).ne'
 
 /-- The constant occurring in the real interpolation theorem -/
 -- todo: check order of arguments

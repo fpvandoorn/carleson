@@ -722,7 +722,7 @@ lemma rpow_le_rpow_of_exponent_le_base_le_enorm {a b : ℝ} {t γ : ℝ≥0∞} 
     t ^ b ≤ t ^ a * γ ^ (b - a) := by
   calc
   _ = t ^ (a + (b - a)) := by ring_nf
-  _ = t ^ a * t ^ (b - a) := by rw [ENNReal.rpow_add _ _ ht.ne.symm ht']
+  _ = t ^ a * t ^ (b - a) := by rw [ENNReal.rpow_add _ _ ht.ne' ht']
   _ ≤ t ^ a * γ ^ (b - a) := by gcongr; linarith
 
 -- TODO: there is a lot of overlap between above proof and below
@@ -809,7 +809,7 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
       split_ifs with is_a_lt_fx
       · exact fun _ => is_a_lt_fx
       · contrapose; intro _; simpa [enorm_eq_nnnorm]
-    · exact q_toReal_pos.ne.symm
+    · exact q_toReal_pos.ne'
   _ ≤ ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
     gcongr with x
     exact trnc_le_func (j := ⊥)
@@ -856,8 +856,8 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
     · have : f =ᵐ[μ] 0 := by
         rw [← eLpNorm_eq_zero_iff hf]
-        · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos hpq.1.ne.symm p_ne_top)]
-        exact hpq.1.ne.symm
+        · rwa [← ENNReal.rpow_eq_zero_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)]
+        exact hpq.1.ne'
       -- Thus, the left hand side vanishes and conclusion is trivially true.
       refine le_of_eq_of_le ?_ (zero_le _)
       rw [rpow_eq_zero_iff_of_pos]
@@ -881,7 +881,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
   have : p ≠ 0 := hpq.1.ne'
   split_ifs with h
   · exfalso
-    exact hq'.ne.symm h
+    exact hq'.ne' h
   · calc
     _ = ∫⁻ (x : α) in {x | 0 < ‖f x‖ₑ ∧ ‖f x‖ₑ ≤ t}, ‖trunc f t x‖ₑ ^ q.toReal ∂μ := by
       rw [one_div, ENNReal.rpow_inv_rpow]
@@ -896,8 +896,8 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
           refine ⟨?_, is_fx_le_a⟩
           contrapose! fx_rpow_ne_zero
           have : ‖f x‖ₑ = 0 := nonpos_iff_eq_zero.mp fx_rpow_ne_zero
-          simpa [this] using toReal_pos hq'.ne.symm hq
-        · contrapose; intro _; simpa using toReal_pos hq'.ne.symm hq
+          simpa [this] using toReal_pos hq'.ne' hq
+        · contrapose; intro _; simpa using toReal_pos hq'.ne' hq
       · exact (toReal_pos (hpq.1.trans_le hpq.2).ne' hq).ne'
     _ ≤ ∫⁻ (x : α) in {x | 0 < ‖f x‖ₑ ∧ ‖f x‖ₑ ≤ t}, ‖f x‖ₑ ^ q.toReal ∂ μ := by
       gcongr with x
