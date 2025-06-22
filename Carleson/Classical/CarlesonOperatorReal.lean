@@ -214,7 +214,7 @@ lemma carlesonOperatorReal_measurable {f : ℝ → ℂ} (f_measurable : Measurab
     · exact Filter.Eventually.of_forall fun r ↦ ((Measurable.of_uncurry_left
         (measurable_mul_kernel f_measurable)).indicator annulus_measurableSet).aestronglyMeasurable
   rw [hGr]
-  refine Measurable.biSup _ (Set.Countable.mono Set.inter_subset_right Qᵣ_countable) (fun r _ ↦ ?_)
+  refine Measurable.biSup _ (Qᵣ_countable.mono Set.inter_subset_right) (fun r _ ↦ ?_)
   apply measurable_coe_nnreal_ennreal.comp (measurable_nnnorm.comp _)
   rw [← stronglyMeasurable_iff_measurable]
   apply StronglyMeasurable.integral_prod_right
