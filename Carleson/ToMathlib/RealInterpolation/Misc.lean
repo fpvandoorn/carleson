@@ -222,10 +222,8 @@ lemma d_eq_top₀ (hp₀ : 0 < p₀) (hq₁ : 0 < q₁) (hp₀' : p₀ ≠ ⊤) 
     div_one]
   rw [mul_div_cancel_right₀]
   · rw [div_eq_mul_inv, mul_inv_cancel₀, ENNReal.rpow_one]
-    · rw [ENNReal.mul_rpow_of_nonneg]
-      · rw [ENNReal.rpow_rpow_inv, toReal_inv]
-        exact (exp_toReal_pos hp₀ hp₀').ne'
-      · positivity
+    · rw [ENNReal.mul_rpow_of_nonneg (hz := by positivity), ENNReal.rpow_rpow_inv, toReal_inv]
+      exact (exp_toReal_pos hp₀ hp₀').ne'
     · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
   · exact (inv_toReal_pos_of_ne_top hq₁ ((hq₀' ▸ hq₀q₁).symm)).ne'
 
@@ -448,8 +446,7 @@ def truncCompl (f : α → ε) (t : ℝ≥0∞) (x : α) : ε := if ‖f x‖ₑ
 
 lemma truncCompl_eq_indicator : truncCompl f t = {x | ‖f x‖ₑ ≤ t}ᶜ.indicator f := by
   ext x
-  unfold truncCompl Set.indicator
-  simp only [mem_compl_iff, mem_setOf_eq, ite_not]
+  simp only [truncCompl, Set.indicator, mem_compl_iff, mem_setOf_eq, ite_not]
 
 @[simp]
 lemma truncCompl_top : truncCompl f ∞ = (fun _ ↦ 0) := by simp [truncCompl_eq_indicator]
@@ -457,8 +454,8 @@ lemma truncCompl_top : truncCompl f ∞ = (fun _ ↦ 0) := by simp [truncCompl_e
 lemma truncCompl_eq {f : α → ε} :
     truncCompl f t = fun x ↦ if t < ‖f x‖ₑ then f x else 0 := by
   ext x
-  rw [←ite_not, truncCompl]
-  simp only [not_lt]
+  rw [← ite_not]
+  simp [truncCompl]
 
 /-- A function to deal with truncations and complement of truncations in one go. -/
 def trnc (j : Bool) (f : α → ε) (t : ℝ≥0∞) : α → ε :=
@@ -804,27 +801,23 @@ lemma eLpNorm_truncCompl_le {q : ℝ≥0∞}
     · apply (setLIntegral_eq_of_support_subset _).symm
       unfold Function.support
       intro x
-      rw [truncCompl_eq]
-      dsimp only [Pi.sub_apply, mem_setOf_eq]
+      rw [truncCompl_eq, mem_setOf_eq]
+      dsimp only [Pi.sub_apply]
       split_ifs with is_a_lt_fx
-      · exact fun _ => is_a_lt_fx
+      · exact fun _ ↦ is_a_lt_fx
       · contrapose; intro _; simpa [enorm_eq_nnnorm]
     · exact q_toReal_pos.ne'
   _ ≤ ∫⁻ x : α in {x | t < ‖f x‖ₑ}, ‖f x‖ₑ ^ q.toReal ∂μ := by
     gcongr with x
     exact trnc_le_func (j := ⊥)
 
---#lint unusedHavesSuffices in
 lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
     (p_ne_top : p ≠ ⊤) (hpq : q ∈ Ioc 0 p) (hf : AEStronglyMeasurable f μ) (ht : 0 < t) :
     eLpNorm (truncCompl f t) q μ ^ q.toReal ≤
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
-
   have q_ne_top: q ≠ ⊤ := ne_top_of_le_ne_top p_ne_top hpq.2
   have p_ne_zero : p ≠ 0 := (hpq.1.trans_le hpq.2).ne'
-  have q_ne_zero : q ≠ 0 := hpq.1.ne'
-
-  apply le_trans (eLpNorm_truncCompl_le q_ne_zero q_ne_top)
+  apply le_trans (eLpNorm_truncCompl_le hpq.1.ne' (ne_top_of_le_ne_top p_ne_top hpq.2))
   calc
     _ ≤ (t ^ (q.toReal - p.toReal)) * ∫⁻ x : α in {x | t < ‖f x‖ₑ},
         ‖f x‖ₑ ^ p.toReal ∂μ := by
@@ -842,8 +835,7 @@ lemma estimate_eLpNorm_truncCompl {p q : ℝ≥0∞}
     _ = _ := by
       congr
       rw [eLpNorm_eq_lintegral_rpow_enorm p_ne_zero p_ne_top, one_div, ENNReal.rpow_inv_rpow]
-      exact (toReal_pos (hpq.1.trans_le hpq.2).ne' p_ne_top).ne'
-
+      exact (toReal_pos p_ne_zero p_ne_top).ne'
 
 lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
     (hq : q ≠ ⊤) (hpq : p ∈ Ioc 0 q) (hf : AEStronglyMeasurable f μ) :
@@ -851,7 +843,6 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
     (t ^ (q.toReal - p.toReal)) * eLpNorm f p μ ^ p.toReal := by
   have hq' : 0 < q := hpq.1.trans_le hpq.2
   have p_ne_top : p ≠ ∞ := (hpq.2.trans_lt (lt_top_iff_ne_top.mpr hq)).ne
-
   by_cases ht : t = ⊤
   · by_cases hf' : eLpNorm f p μ ^ p.toReal = 0
     · have : f =ᵐ[μ] 0 := by
@@ -865,7 +856,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · -- missing API lemma
           rw [trunc_eq_indicator]
           exact Filter.EventuallyEq.indicator_zero this
-        · --fun_prop
+        · -- TODO: fun_prop cannot solve this any more
           measurability
       · rw [toReal_pos_iff]
         exact ⟨hq', hq.lt_top⟩
@@ -876,7 +867,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
       rw [top_rpow_of_pos, top_mul hf']
       · apply le_top
       rw [sub_pos, toReal_lt_toReal p_ne_top hq]
-      exact (lt_of_le_of_ne hpq.2 p_eq_q)
+      exact lt_of_le_of_ne hpq.2 p_eq_q
   unfold eLpNorm eLpNorm'
   have : p ≠ 0 := hpq.1.ne'
   split_ifs with h
@@ -932,14 +923,12 @@ lemma trunc_Lp_Lq_higher (hpq : p ∈ Ioc 0 q) (hf : MemLp f p μ) (ht : t ≠ �
     apply mul_lt_top ?_ ?_
     · by_cases ht'' : t = 0
       · rw [ht'']
-        apply ENNReal.rpow_lt_top_of_nonneg
-        · simp only [sub_nonneg]
-          rw [toReal_le_toReal p_ne_top q_ne_top]
-          exact hpq.2
-        · finiteness
+        apply ENNReal.rpow_lt_top_of_nonneg (h := by finiteness)
+        simp only [sub_nonneg]
+        rw [toReal_le_toReal p_ne_top q_ne_top]
+        exact hpq.2
       · finiteness
-    · refine (rpow_lt_top_iff_of_pos ?_).mpr hf.2
-      exact toReal_pos hpq.1.ne' p_ne_top
+    · exact (rpow_lt_top_iff_of_pos (toReal_pos hpq.1.ne' p_ne_top)).mpr hf.2
 
 lemma memLp_truncCompl_of_memLp_top (hf : MemLp f ⊤ μ) (h : μ {x | t < ‖f x‖ₑ} < ⊤) :
     MemLp (trnc ⊥ f t) p μ := by
