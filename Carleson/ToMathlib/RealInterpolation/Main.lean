@@ -292,7 +292,7 @@ lemma estimate_distribution_Subadditive_trunc {f : α → ε₁} {T : (α → ε
   exact h a ha
 
 lemma rewrite_norm_func {q : ℝ} {g : α' → E}
-    [MeasurableSpace E] [TopologicalSpace E] [ENormedAddCommMonoid E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
+    [TopologicalSpace E] [ENormedAddCommMonoid E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
     (hg : AEStronglyMeasurable g ν) :
     ∫⁻ x, ‖g x‖ₑ ^ q ∂ν =
     ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s in Ioi (0 : ℝ),
@@ -681,7 +681,6 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
         rw [hspf]
         dsimp only [spf_ch]
         exact ζ_equality₇ ht one_le_p₀ q₀pos one_le_p1 q₁pos hp₀p₁.ne hq₀q₁ hp hq hp₀p₁.ne_top q₀top
-
     · intro q₁top s (hs : 0 < s)
       rcases (eq_or_ne p₁ ⊤) with p₁eq_top | p₁ne_top
       · apply weaktype_estimate_trunc_top_top hC₁ _ p₁eq_top q₁top _ hf h₁T
