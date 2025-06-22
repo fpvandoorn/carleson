@@ -166,6 +166,8 @@ lemma continuousWithinAt_distribution (t₀ : ℝ≥0∞) :
                 ≤ distribution f t₀ μ := distribution_mono_right (le_of_lt h.2)
               _ ≤ distribution f t₀ μ + ε := le_self_add
 
+-- TODO: investigate generalising this to enorm classes
+-- This requires adding enorm versions of NormOneClass and NormMulClass
 lemma distribution_pow (ε : Type*) [SeminormedRing ε] [NormOneClass ε] [NormMulClass ε] (f : α → ε)
     (t : ℝ≥0∞) (μ : Measure α) {n : ℕ} (hn : n ≠ 0) :
     distribution (f ^ n) (t ^ n) μ = distribution f t μ := by

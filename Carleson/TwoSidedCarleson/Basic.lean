@@ -79,7 +79,8 @@ lemma czOperator_aestronglyMeasurable' {g : X → ℂ} (hg : AEStronglyMeasurabl
     apply measurableSet_le <;> fun_prop
 
 @[fun_prop]
-lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+-- TODO: remove in favour of `czOperator_aestronglyMeasurable` (and unprime that one)
+@[fun_prop]
     AEStronglyMeasurable (fun x ↦ czOperator K r g x) :=
   czOperator_aestronglyMeasurable' hg.aestronglyMeasurable
 
