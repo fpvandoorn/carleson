@@ -59,9 +59,7 @@ lemma tsum_one_eq' {α : Type*} (s : Set α) : ∑' (_:s), (1 : ℝ≥0∞) = s.
       ext
       exact heq
     · intro a ha
-      use ⟨a,by
-        simp only [Finite.mem_toFinset] at ha
-        exact ha⟩
+      use ⟨a, by simpa [Finite.mem_toFinset] using ha⟩
       simp only [Finite.mem_toFinset, mem_support, ne_eq, one_ne_zero, not_false_eq_true,
         exists_const]
   else
