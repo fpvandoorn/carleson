@@ -934,10 +934,8 @@ end PseudoMetricSpace
 section MetricSpace
 
 variable (X : Type*) {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
-  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G]
-variable {s : ℤ} {x y : X}
+  [MetricSpace X] [ProofData a q K σ₁ σ₂ F G] {s : ℤ} {x y : X}
 
--- TODO: move to Psi.lean
 lemma Ks_eq_zero_of_dist_le {s : ℤ} {x y : X} (hxy : x ≠ y)
     (h : dist x y ≤ defaultD a ^ (s - 1) / 4) :
     Ks s x y = 0 := by
