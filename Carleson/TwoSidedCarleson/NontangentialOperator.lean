@@ -849,14 +849,25 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   gcongr <;> simp
 
 
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part of Lemma 10.1.6. -/
-lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (simpleNontangentialOperator K r g) := by
-  sorry
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi]
+  intro y
+  unfold simpleNontangentialOperator
+  simp_rw [lt_iSup_iff, ← iUnion_setOf, mem_ball_comm]
+  apply isOpen_iUnion; intro R
+  apply isOpen_iUnion; intro hR
+  apply isOpen_iUnion; intro x'
+  by_cases hx' : y < ‖czOperator K R g x'‖ₑ
+  · simp_rw [hx', exists_prop, and_true, setOf_mem_eq, isOpen_ball]
+  · simp [hx']
 
-lemma aestronglyMeasurable_simpleNontangentialOperator {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+lemma aestronglyMeasurable_simpleNontangentialOperator {g : X → ℂ} :
     AEStronglyMeasurable (simpleNontangentialOperator K r g) volume :=
-  lowerSemicontinuous_simpleNontangentialOperator hg |>.measurable.aestronglyMeasurable
+  lowerSemicontinuous_simpleNontangentialOperator |>.measurable.aestronglyMeasurable
 
 /-- The constant used in `simple_nontangential_operator`.
 It is not tight and can be improved by some `a` + `constant`. -/
@@ -869,6 +880,7 @@ theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α
     (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ := by
   sorry
 
+omit [IsCancellative X (defaultτ a)] in
 /-- Lemma 10.1.6. The formal statement includes the measurability of the operator.
 See also `simple_nontangential_operator_le` -/
 theorem simple_nontangential_operator (ha : 4 ≤ a)
@@ -876,7 +888,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
   intro g hg
   constructor
-  · exact aestronglyMeasurable_simpleNontangentialOperator hg
+  · exact aestronglyMeasurable_simpleNontangentialOperator
   let pointwise : X → ℝ≥0∞ :=
     4 * globalMaximalFunction volume 1 (czOperator K r g) + C10_1_5 a • globalMaximalFunction volume 1 g +
     C10_1_2 a • globalMaximalFunction volume 1 g
