@@ -795,6 +795,13 @@ lemma ζ_le_zero_iff_of_lt₁ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0
   rw [← exp_lt_exp_gt_iff ht hq₀ hq₁ hq₀q₁ hq]
   exact ζ_le_zero_iff_of_lt₀ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁'
 
+private lemma one_sub_ioo_toReal {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) :
+    (1 - t).toReal = 1 - t.toReal := by
+  have ht1 : t ≤ 1 := ht.2.le
+  cases t
+  · trivial
+  · field_simp
+
 lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₀' : q₀ ≠ ⊤) :
     (q₀.toReal + q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) *
@@ -815,7 +822,8 @@ lemma eq_exponents₀ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
       _ = _ := by
         rw [preservation_interpolation ht hq₀ hq₁ hq]
         congr
-        sorry -- proof was just `ring`
+        rw [one_sub_ioo_toReal ht]
+        ring
     rw [this, mul_div_assoc, mul_div_cancel_right₀]
     · ring
     exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
@@ -842,7 +850,8 @@ lemma eq_exponents₂ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
       _ = _ := by
         rw [preservation_interpolation ht hq₀ hq₁ hq]
         congr
-        sorry -- proof was just `ring`
+        rw [one_sub_ioo_toReal ht]
+        ring
     rw [this, mul_div_assoc, mul_div_cancel_right₀]
     · ring
     · exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
@@ -863,8 +872,8 @@ lemma eq_exponents₁ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
       exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
     _ = q.toReal * (q₀⁻¹.toReal - q⁻¹.toReal) := by ring
     _ = _ := by
-      rw [preservation_interpolation ht hq₀ hq₁ hq]
-      sorry -- proof was just `ring`
+      rw [preservation_interpolation ht hq₀ hq₁ hq, one_sub_ioo_toReal ht]
+      ring
   rw [this, mul_div_cancel_right₀]
   exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
@@ -886,8 +895,8 @@ lemma eq_exponents₃ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
       exact (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq).ne'
     _ = p₁⁻¹.toReal * q.toReal * (q₀⁻¹.toReal - q⁻¹.toReal) := by ring
     _ = _ := by
-      rw [preservation_interpolation ht hq₀ hq₁ hq]
-      sorry -- proof was just `ring`
+      rw [preservation_interpolation ht hq₀ hq₁ hq, one_sub_ioo_toReal ht]
+      ring
   rw [this, mul_div_cancel_right₀]
   exact ne_sub_toReal_exp hq₀ hq₁ hq₀q₁
 
