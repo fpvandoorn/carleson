@@ -110,17 +110,34 @@ example : volume (Set.Icc (3 : ℝ≥0∞) 42) = 39 := by
   rw [toReal_ofNat, Real.volume_Icc, ofReal_eq_ofNat]
   norm_num
 
-lemma integral_nnreal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ici (0 : ℝ), f x.toNNReal := by
+lemma lintegral_nnreal_eq_lintegral_Ici_ofReal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ici (0 : ℝ), f x.toNNReal := by
   change ∫⁻ (x : ℝ≥0), f x = ∫⁻ (x : ℝ) in Ici 0, (f ∘ Real.toNNReal) x
   rw [← lintegral_subtype_comap measurableSet_Ici]
   simp
   rfl
 
-lemma integral_nnreal' {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := sorry
+lemma lintegral_nnreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := by
+  rw [lintegral_nnreal_eq_lintegral_Ici_ofReal]
+  exact setLIntegral_congr Ioi_ae_eq_Ici.symm
 
--- TODO: prove these integral lemmas and name them properly
-lemma todo' (f : ℝ≥0 → ℝ≥0∞) : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (Real.toNNReal x) := sorry
+-- TODO: are there better names?
+lemma lintegral_nnreal_eq_lintegral_toNNReal_Ioi (f : ℝ≥0 → ℝ≥0∞) :
+    ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f x.toNNReal := by
+  rw [lintegral_nnreal_eq_lintegral_Ici_ofReal]
+  exact setLIntegral_congr Ioi_ae_eq_Ici.symm
 
-lemma todo'' (f : ℝ → ℝ≥0∞) : ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ioi (0 : ℝ), f x := sorry
+-- TODO: do we actually use this?
+lemma lintegral_nnreal_toReal_eq_lintegral_Ioi (f : ℝ → ℝ≥0∞) :
+    ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ioi (0 : ℝ), f x := by
+  rw [lintegral_nnreal_eq_lintegral_toNNReal_Ioi]
+  refine setLIntegral_congr_fun_ae measurableSet_Ioi ?_
+  filter_upwards with x hx
+  have : max x 0 = x := max_eq_left_of_lt hx
+  simp [this]
+
+lemma lintegral_nnreal_toReal_eq_lintegral_Ici (f : ℝ → ℝ≥0∞) :
+    ∫⁻ x : ℝ≥0, f (x.toReal) = ∫⁻ x in Ici (0 : ℝ), f x := by
+  rw [lintegral_nnreal_toReal_eq_lintegral_Ioi]
+  exact setLIntegral_congr Ioi_ae_eq_Ici
 
 -- TODO: lemmas about interaction with the Bochner integral

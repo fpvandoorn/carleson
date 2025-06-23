@@ -176,7 +176,7 @@ lemma measure_ball_le_same' (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s 
     have hr' : r' < 0 := by
       calc r' ≤ s * r := hs
       _ < 0 := mul_neg_of_pos_of_neg hsp hr
-    rw [ball_eq_empty.mpr hr.le,ball_eq_empty.mpr hr'.le]
+    rw [ball_eq_empty.mpr hr.le, ball_eq_empty.mpr hr'.le]
     simp only [measure_empty, mul_zero, le_refl]
   else
   push_neg at hr
@@ -197,7 +197,7 @@ lemma measure_ball_le_same (x : X) {r s r' : ℝ} (hsp : 0 < s) (hs : r' ≤ s *
   have hbr': μ (ball x r') ≠ ⊤ := measure_ball_ne_top
   have hbr: μ (ball x r) ≠ ⊤ := measure_ball_ne_top
   have hAs : (As A s: ℝ≥0∞) ≠ ⊤ := coe_ne_top
-  rw [← ENNReal.ofReal_toReal hbr,← ENNReal.ofReal_toReal hbr',
+  rw [← ENNReal.ofReal_toReal hbr, ← ENNReal.ofReal_toReal hbr',
     ← ENNReal.ofReal_toReal hAs, ← ENNReal.ofReal_mul] at hz
   · simp only [coe_toReal] at hz
     rw [← ENNReal.ofReal_le_ofReal_iff]
@@ -323,7 +323,7 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
       have cball_eq : closedBall x (2 * r) = closedBall x r:= by
         if hr' : r < 0 then
           have : 2 * r < 0 := by linarith
-          rw [closedBall_eq_empty.mpr hr',closedBall_eq_empty.mpr this]
+          rw [closedBall_eq_empty.mpr hr', closedBall_eq_empty.mpr this]
         else
           push_neg at hr'
           have : r = 0 := le_antisymm hr hr'
@@ -342,7 +342,7 @@ instance : IsUnifLocDoublingMeasure (μ : Measure X) where
       _ ≤ A * μ (ball x (2 * r)) := measure_ball_two_le_same x (2 * r)
       _ ≤ A * (A * μ (ball x r)) := mul_le_mul_of_nonneg_left
         (measure_ball_two_le_same x r) (zero_le _)
-      _ = ↑(A ^ 2) * μ (ball x r) := by simp only [pow_two, coe_mul,mul_assoc]
+      _ = ↑(A ^ 2) * μ (ball x r) := by simp only [pow_two, coe_mul, mul_assoc]
       _ ≤ ↑(A ^ 2) * μ (closedBall x r) := mul_le_mul_of_nonneg_left
         (μ.mono ball_subset_closedBall) (zero_le ((A ^ 2 : ℝ≥0) : ℝ≥0∞))
 end Metric

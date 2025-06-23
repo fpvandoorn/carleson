@@ -106,14 +106,16 @@ lemma eLorentzNorm_eq_Lp {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
         · simp only [ENNReal.toReal_inv, enorm_eq_self, one_div]
           congr 2
           simp only [Pi.mul_apply]
-          rw [@integral_nnreal' (fun x ↦ x⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
+          rw [lintegral_nnreal_eq_lintegral_Ioi_ofReal
+            (f := fun x ↦ x⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
           apply setLIntegral_congr_fun measurableSet_Ioi
           intro t ht
           simp only
           rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← mul_assoc, ← ENNReal.rpow_neg_one,
               ← ENNReal.rpow_add _ _ (by simpa) (by simp), mul_comm]
           congr 2
-          · rw [← ENNReal.rpow_mul, inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨p_zero,p_eq_top⟩), ENNReal.rpow_one]
+          · rw [← ENNReal.rpow_mul, inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨p_zero, p_eq_top⟩),
+              ENNReal.rpow_one]
           · exact neg_add_eq_sub 1 p.toReal
         · exact Measurable.inv measurable_coe_nnreal_ennreal
         · rw[Filter.eventually_iff_exists_mem]

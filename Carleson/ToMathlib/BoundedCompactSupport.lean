@@ -319,7 +319,7 @@ theorem prod_mul (hf : BoundedCompactSupport f μ) (hg : BoundedCompactSupport g
   hasCompactSupport := by
     -- todo: separate out as lemmas
     apply HasCompactSupport.intro <| hf.hasCompactSupport.prod hg.hasCompactSupport
-    intro ⟨x,y⟩ hxy
+    intro ⟨x, y⟩ hxy
     simp only [uncurry_apply_pair, mul_eq_zero]
     simp only [mem_prod, not_and] at hxy
     by_cases hx : x ∈ tsupport f
