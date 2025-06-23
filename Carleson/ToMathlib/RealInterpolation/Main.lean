@@ -1349,14 +1349,16 @@ lemma Subadditive_trunc_from_SubadditiveOn_Lp₀p₁ {p₀ p₁ p : ℝ≥0∞}
     · exact Or.inl <| interp_exp_eq p₀eq_p₁ ht hp ▸ trunc_preserves_Lp hf
     · refine Or.inl (trunc_Lp_Lq_higher (p := p) ?_ hf ha)
       exact ⟨interpolated_pos' hp₀ hp₁ (ne_top_of_Ioo ht) hp,
-        (interp_exp_between hp₁ hp₀ p₁lt_p₀ ht (switch_exponents ht hp)).2.le⟩
+        (interp_exp_between hp₁ hp₀ p₁lt_p₀ (mem_sub_Ioo one_ne_top ht)
+          (switch_exponents ht hp)).2.le⟩
   · rcases lt_trichotomy p₀ p₁ with p₀lt_p₁ | (p₀eq_p₁ | p₁lt_p₀)
     · refine Or.inl (truncCompl_Lp_Lq_lower (p := p) (interp_exp_ne_top p₀lt_p₁.ne ht hp)
         ⟨hp₀, (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1.le⟩ a_pos hf)
     · exact Or.inl <| interp_exp_eq p₀eq_p₁ ht hp ▸ truncCompl_preserves_Lp hf
     · refine Or.inr <| truncCompl_Lp_Lq_lower (p := p) ?_ ?_ a_pos hf
-      · exact interp_exp_ne_top p₁lt_p₀.ne ht (switch_exponents ht hp)
-      · exact ⟨hp₁, (interp_exp_between hp₁ hp₀ p₁lt_p₀ ht (switch_exponents ht hp)).1.le⟩
+      · exact interp_exp_ne_top p₁lt_p₀.ne (mem_sub_Ioo one_ne_top ht) (switch_exponents ht hp)
+      · exact ⟨hp₁, (interp_exp_between hp₁ hp₀ p₁lt_p₀ (mem_sub_Ioo one_ne_top ht)
+          (switch_exponents ht hp)).1.le⟩
 
 /-- Marcinkiewicz real interpolation theorem -/
 theorem exists_hasStrongType_real_interpolation {p₀ p₁ q₀ q₁ p q : ℝ≥0∞}
