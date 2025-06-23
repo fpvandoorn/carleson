@@ -64,7 +64,7 @@ lemma czoperator_bound {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r
   · exact measurableSet_ball.compl.nullMeasurableSet
 
 @[fun_prop]
-lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+lemma czOperator_aestronglyMeasurable' {g : X → ℂ} (hg : AEStronglyMeasurable g) :
     AEStronglyMeasurable (fun x ↦ czOperator K r g x) := by
   unfold czOperator
   conv => arg 1; intro x; rw [← integral_indicator (by measurability)]
@@ -73,10 +73,16 @@ lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport
   unfold f
   apply AEStronglyMeasurable.indicator
   · apply Continuous.comp_aestronglyMeasurable₂ (by fun_prop) aestronglyMeasurable_K
-    exact hg.aestronglyMeasurable.comp_snd
+    exact hg.comp_snd
   · conv => arg 1; change {x : (X × X) | x.2 ∈ (ball x.1 r)ᶜ}
     simp_rw [mem_compl_iff, mem_ball, not_lt]
     apply measurableSet_le <;> fun_prop
+
+@[fun_prop]
+-- TODO: remove in favour of `czOperator_aestronglyMeasurable'` (and unprime that one)
+lemma czOperator_aestronglyMeasurable {g : X → ℂ} (hg : BoundedFiniteSupport g) :
+    AEStronglyMeasurable (fun x ↦ czOperator K r g x) :=
+  czOperator_aestronglyMeasurable' hg.aestronglyMeasurable
 
 lemma czoperator_welldefined {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (x : X):
     IntegrableOn (fun y => K x y * g y) (ball x r)ᶜ volume := by

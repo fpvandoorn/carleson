@@ -7551,7 +7551,7 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
     \lean{encard_czBall3_le, tsum_czRemainder', aemeasurable_czApproximation, czApproximation_add_czRemainder, enorm_czApproximation_le, enorm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
     Let $f$ be a bounded, a.e. measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
-    Then there exists an a.e. measurable function $g$, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
+    Then there exists a bounded a.e. measurable function $g$ supported on a set of finite measure, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
     % Do we actually need this parenthetical?
     such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of a.e. measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
@@ -7616,6 +7616,10 @@ and, for each $j$,
     b_j(x):= \mathbf{1}_{Q_j}(x) \left(f(x)-\frac{1}{\mu(Q_j)}\int_{Q_j} f(y)\, d\mu(y) \right).
 \end{equation}
 Then \eqref{eq-gb-dec}, \eqref{eq-supp-bj} and \eqref{eq-bad-mean-zero} are true by construction.
+Boundedness of $g$ is immediate from the definition, as is the fact that $\supp g$ is contained within
+$\supp f \cup \bigcup_j Q_j$. Now the fact that $\supp g$ has finite measure follows from
+$\bigcup_j Q_j = E_\alpha$ and \eqref{eq-hlm-2}.
+
 For \eqref{eq-g-max}, we first do the case $x\in X\setminus E_\alpha$. By definition of $Mf$,
 \begin{equation}
     \frac{1}{\mu(B)}\int_B |f(y)|\,d\mu(y) \le \alpha
@@ -7728,6 +7732,7 @@ We deal with $T_rg$ and $T_rb$ separately in the following lemmas.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     We estimate using monotonicity of the integral
 \begin{equation*}
      \mu\left(\{x\in X: |T_r g(x)|>{\alpha}/2\}\right)\leq \frac{4}{\alpha^2} \int |T_r g(y)|^2\, d\mu(y).
