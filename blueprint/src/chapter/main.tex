@@ -8581,6 +8581,7 @@ Then
 \end{lemma}
 
 \begin{proof}
+\leanok
 From monotonicity of the integral and \eqref{ebump1},
 \begin{equation}
     \|g\|_{L^1[-\pi, \pi]} \le \int_{-\pi}^{\pi}k_r(x)\, dx\,.
@@ -8595,7 +8596,7 @@ is equal to
     \le 2\int_0^{r} \frac 1r \, dx+2\int_r^{\pi}1+\frac {64r}{x^2}\, dx
 \end{equation*}
 \begin{equation}
-    \le 2+2\pi + 2\left(\frac {64r}r-\frac {64r}{\pi}\right)
+    \le 2+2\pi + 2\left(\frac {4r}r-\frac {4r}{\pi}\right)
     \le 2^{5}\, .
 \end{equation}
     Together with \Cref{Young-convolution}, this proves the lemma.
