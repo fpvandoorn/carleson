@@ -106,7 +106,7 @@ lemma eLorentzNorm_eq_Lp {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
         · simp only [ENNReal.toReal_inv, enorm_eq_self, one_div]
           congr 2
           simp only [Pi.mul_apply]
-          rw [integral_nnreal_eq_integral_Ioi_ofReal
+          rw [lintegral_nnreal_eq_lintegral_Ioi_ofReal
             (f := fun x ↦ x⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
           apply setLIntegral_congr_fun measurableSet_Ioi
           intro t ht
