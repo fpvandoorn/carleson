@@ -880,7 +880,6 @@ theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α
     (hp1 : 1 ≤ p) : eLpNorm (f + g) p μ ≤ eLpNorm f p μ + eLpNorm g p μ := by
   sorry
 
-omit [IsCancellative X (defaultτ a)] in
 /-- Lemma 10.1.6. The formal statement includes the measurability of the operator.
 See also `simple_nontangential_operator_le` -/
 theorem simple_nontangential_operator (ha : 4 ≤ a)
