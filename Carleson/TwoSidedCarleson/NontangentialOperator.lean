@@ -853,15 +853,15 @@ omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancella
 /-- Part of Lemma 10.1.6. -/
 lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (simpleNontangentialOperator K r g) := by
-  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi]
-  intro y
   unfold simpleNontangentialOperator
-  simp_rw [lt_iSup_iff, ← iUnion_setOf, mem_ball_comm]
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+    mem_ball_comm, exists_prop]
+  intro y
   apply isOpen_iUnion; intro R
   apply isOpen_iUnion; intro hR
   apply isOpen_iUnion; intro x'
   by_cases hx' : y < ‖czOperator K R g x'‖ₑ
-  · simp_rw [hx', exists_prop, and_true, setOf_mem_eq, isOpen_ball]
+  · simp_rw [hx', and_true, setOf_mem_eq, isOpen_ball]
   · simp [hx']
 
 omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
