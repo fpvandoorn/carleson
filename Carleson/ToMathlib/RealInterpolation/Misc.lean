@@ -109,21 +109,23 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
   inv_pf := by
     split <;> rename_i sgn_σ
     · simp only [↓reduceIte, mem_Ioi]
+      have : 0 < spf.σ⁻¹ := by simpa
       refine fun s hs t ht => ⟨?_, ?_⟩
-      · sorry -- rw [← Real.lt_rpow_inv_iff_of_pos (div_nonneg hs.le spf.hd.le) ht.le sgn_σ,
-        -- ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-      · sorry -- rw [← Real.rpow_inv_lt_iff_of_pos ht.le (div_nonneg hs.le spf.hd.le)
-        --  sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
+      · rw [← ENNReal.rpow_lt_rpow_iff this, ENNReal.rpow_rpow_inv sgn_σ.ne',
+          ENNReal.div_lt_iff (.inr hs.ne') (.inl spf.hd'), mul_comm]
+      · rw [← ENNReal.rpow_lt_rpow_iff this, ENNReal.rpow_rpow_inv sgn_σ.ne',
+          ENNReal.lt_div_iff_mul_lt (.inl spf.hd.ne') (.inl spf.hd'), mul_comm]
     · simp only [↓reduceIte, mem_Ioi]
       intro s hs t ht
       rcases spf.hσ with σ_pos | σ_neg
       · contradiction
-      · constructor
-        · sorry -- rw [← Real.rpow_inv_lt_iff_of_neg ht (div_pos hs spf.hd) σ_neg,
-          --  ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-        · sorry -- rw [← Real.lt_rpow_inv_iff_of_neg (div_pos hs spf.hd) ht σ_neg,
-            -- ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-
+      · have : 0 < (-spf.σ)⁻¹ := by simpa
+        constructor
+        all_goals rw [← ENNReal.inv_lt_inv, ← ENNReal.rpow_neg, ← ENNReal.rpow_lt_rpow_iff this,
+          ENNReal.rpow_rpow_inv (by simpa using σ_neg.ne)]
+        on_goal 1 => rw [ENNReal.lt_div_iff_mul_lt (.inl spf.hd.ne') (.inl spf.hd')]
+        on_goal 2 => rw [ENNReal.div_lt_iff (.inr hs.ne') (.inl spf.hd')]
+        all_goals rw [mul_comm, ENNReal.inv_rpow, inv_neg, ENNReal.rpow_neg, inv_inv]
 end
 
 noncomputable section
@@ -642,10 +644,13 @@ lemma truncCompl_anti {x : α} (hab : t ≤ s) (hf : ‖trunc f t x‖ₑ ≠ �
   exact foo hf (trunc_mono hab) obs
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
-lemma eLpNorm_truncCompl_anti (hf : eLpNorm f 1 μ ≠ ⊤) :
+-- XXX: the conditions `hf` and `mf` may need to be tweaked
+lemma eLpNorm_truncCompl_anti (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
     Antitone (fun s ↦ eLpNorm (truncCompl f s) p μ) := by
   intro a _b hab
-  have : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ⊤ := sorry
+  have : ∀ᵐ x ∂μ, ‖f x‖ₑ ≠ ⊤ := by
+    rw [eLpNorm_one_eq_lintegral_enorm] at hf
+    simp_rw [ae_iff, not_ne_iff]; exact measure_eq_top_of_lintegral_ne_top mf.enorm hf
   have : ∀ᵐ x ∂μ, ‖trunc f a x‖ₑ ≠ ⊤ := by
     refine this.mono fun x hx ↦ ?_
     rw [trunc]
@@ -660,9 +665,9 @@ lemma eLpNorm_trunc_measurable :
 
 /-- The norm of the complement of the truncation is measurable in the truncation parameter -/
 @[measurability, fun_prop]
-lemma eLpNorm_truncCompl_measurable (hf : eLpNorm f 1 μ ≠ ⊤) :
+lemma eLpNorm_truncCompl_measurable (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
     Measurable (fun s ↦ eLpNorm (truncCompl f s) p μ) :=
-  eLpNorm_truncCompl_anti hf|>.measurable
+  eLpNorm_truncCompl_anti hf mf |>.measurable
 
 lemma trnc_le_func {j : Bool} {a : ℝ≥0∞} {x : α} :
     ‖trnc j f a x‖ₑ ≤ ‖f x‖ₑ := by

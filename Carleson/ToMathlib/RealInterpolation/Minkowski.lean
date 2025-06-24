@@ -335,15 +335,16 @@ theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restric
   · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi mono_or_anti.monotoneOn
   · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
 
-@[measurability, nolint unusedHavesSuffices] -- TODO: remove nolint once the sorries are fixed
+@[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
     NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖ₑ ≤ tc.ton (ENNReal.ofReal s) }
         ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.comp_snd.enorm
-  have : AEMeasurable ENNReal.ofReal := by fun_prop
-  sorry -- proof was: (ton_aeMeasurable tc).comp_fst
+  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton (ENNReal.ofReal a))
+  refine AEMeasurable.comp_aemeasurable ?_ (by fun_prop)
+  rw [map_restrict_Ioi_eq_restrict_Ioi]; exact ton_aeMeasurable tc
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
@@ -352,7 +353,9 @@ lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
     NullMeasurableSet {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖g x‖ₑ }
         ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_lt ?_ hg.comp_snd.enorm
-  sorry -- proof was: (ton_aeMeasurable tc).comp_fst; same issue as above
+  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton (ENNReal.ofReal a))
+  refine AEMeasurable.comp_aemeasurable ?_ (by fun_prop)
+  rw [map_restrict_Ioi_eq_restrict_Ioi]; exact ton_aeMeasurable tc
 
 @[measurability]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
