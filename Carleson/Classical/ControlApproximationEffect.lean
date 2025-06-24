@@ -280,7 +280,8 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       apply iSup_le
       intro n
       apply le_iSup_of_le (1 / (n + 2 : ℝ))
-      apply le_iSup₂_of_le (by simp; linarith) (by rw [div_lt_iff₀] <;> linarith)
+      apply le_iSup₂_of_le (by simp only [one_div, inv_pos]; linarith)
+        (by rw [div_lt_iff₀] <;> linarith)
       rfl
     _ = ⨆ (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * N * y) + conj (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * (Int.ofNat N) * y)))‖₊ := by
       gcongr
