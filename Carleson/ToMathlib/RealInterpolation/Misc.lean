@@ -109,21 +109,23 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
   inv_pf := by
     split <;> rename_i sgn_σ
     · simp only [↓reduceIte, mem_Ioi]
+      have : 0 < spf.σ⁻¹ := by simpa
       refine fun s hs t ht => ⟨?_, ?_⟩
-      · sorry -- rw [← Real.lt_rpow_inv_iff_of_pos (div_nonneg hs.le spf.hd.le) ht.le sgn_σ,
-        -- ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-      · sorry -- rw [← Real.rpow_inv_lt_iff_of_pos ht.le (div_nonneg hs.le spf.hd.le)
-        --  sgn_σ, ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
+      · rw [← ENNReal.rpow_lt_rpow_iff this, ENNReal.rpow_rpow_inv sgn_σ.ne',
+          ENNReal.div_lt_iff (.inr hs.ne') (.inl spf.hd'), mul_comm]
+      · rw [← ENNReal.rpow_lt_rpow_iff this, ENNReal.rpow_rpow_inv sgn_σ.ne',
+          ENNReal.lt_div_iff_mul_lt (.inl spf.hd.ne') (.inl spf.hd'), mul_comm]
     · simp only [↓reduceIte, mem_Ioi]
       intro s hs t ht
       rcases spf.hσ with σ_pos | σ_neg
       · contradiction
-      · constructor
-        · sorry -- rw [← Real.rpow_inv_lt_iff_of_neg ht (div_pos hs spf.hd) σ_neg,
-          --  ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-        · sorry -- rw [← Real.lt_rpow_inv_iff_of_neg (div_pos hs spf.hd) ht σ_neg,
-            -- ← _root_.mul_lt_mul_left spf.hd, mul_div_cancel₀ _ spf.hd.ne']
-
+      · have : 0 < (-spf.σ)⁻¹ := by simpa
+        constructor
+        all_goals rw [← ENNReal.inv_lt_inv, ← ENNReal.rpow_neg, ← ENNReal.rpow_lt_rpow_iff this,
+          ENNReal.rpow_rpow_inv (by simpa using σ_neg.ne)]
+        on_goal 1 => rw [ENNReal.lt_div_iff_mul_lt (.inl spf.hd.ne') (.inl spf.hd')]
+        on_goal 2 => rw [ENNReal.div_lt_iff (.inr hs.ne') (.inl spf.hd')]
+        all_goals rw [mul_comm, ENNReal.inv_rpow, inv_neg, ENNReal.rpow_neg, inv_inv]
 end
 
 noncomputable section

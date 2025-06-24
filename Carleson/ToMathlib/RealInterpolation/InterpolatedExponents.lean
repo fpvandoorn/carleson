@@ -396,8 +396,9 @@ lemma ζ_equality₁ (ht : t ∈ Ioo 0 1) :
     ((1 - t).toReal * p₀⁻¹.toReal + t.toReal * p₁⁻¹.toReal - p₀⁻¹.toReal)) := by
   unfold ζ
   have aux : t.toReal ≠ 0 := toReal_ne_zero_of_Ioo ht
-  rw [← mul_div_mul_right _ _ aux, mul_assoc _ _ t.toReal, mul_assoc _ _ t.toReal]
-  congr <;> sorry -- proof was just `ring`
+  rw [← mul_div_mul_right _ _ aux, mul_assoc _ _ t.toReal, mul_assoc _ _ t.toReal,
+    ← sub_toReal_of_le ht.2.le]
+  congr <;> ring
 
 lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
     ζ p₀ q₀ p₁ q₁ t.toReal =
@@ -406,19 +407,20 @@ lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
     (((1 - t).toReal * q₀⁻¹.toReal + t.toReal * q₁⁻¹.toReal) *
     ((1 - t).toReal * p₀⁻¹.toReal + t.toReal * p₁⁻¹.toReal - p₁⁻¹.toReal)) := by
   unfold ζ
-  sorry /- proof was
-  have : - (1 - t) < 0 := neg_neg_iff_pos.mpr (sub_pos.mpr ht.2)
-  rw [← mul_div_mul_right _ _ this.ne, mul_assoc _ _ (-(1 - t)), mul_assoc _ _ (-(1 - t))]
-  congr <;> ring -/
+  have : -(1 - t.toReal) < 0 := by
+    rw [neg_neg_iff_pos, sub_pos, ← toReal_one]
+    exact toReal_strict_mono one_ne_top ht.2
+  rw [← mul_div_mul_right _ _ this.ne, mul_assoc _ _ (-(1 - t.toReal)),
+    mul_assoc _ _ (-(1 - t.toReal)), ← sub_toReal_of_le ht.2.le]
+  congr <;> ring
 
 lemma ζ_symm (ht : t ∈ Ioo 0 1) : ζ p₀ q₀ p₁ q₁ t.toReal = ζ p₁ q₁ p₀ q₀ (1 - t).toReal := by
   unfold ζ
   rw [← mul_div_mul_right (c := - 1), mul_assoc _ _ (-1), mul_assoc _ _ (-1)]; on_goal 2 => positivity
   simp only [mul_neg, mul_one, neg_sub, _root_.sub_sub_cancel]
   nth_rewrite 1 [add_comm]; nth_rw 2 [add_comm]
-  rw [sub_toReal_of_le, sub_sub_toReal_of_le ht.2.le,
+  rw [sub_toReal_of_le ht.2.le, sub_sub_toReal_of_le ht.2.le,
     sub_sub_toReal_of_le (mem_sub_Ioo (by finiteness) ht).2.le]
-  exact ht.2.le
 
 set_option linter.style.multiGoal false in
 set_option linter.flexible false in

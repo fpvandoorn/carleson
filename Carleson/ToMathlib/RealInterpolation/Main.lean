@@ -871,10 +871,8 @@ lemma simplify_factor₅ {D : ℝ≥0∞} [TopologicalSpace E₁] [ENormedAddCom
     C₀ ^ ((1 - t).toReal * q.toReal) * C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal := by
   have p₁pos : 0 < p₁ := hp₁.1
   have p₁ne_top : p₁ ≠ ⊤ := ne_top_of_le_ne_top hq₁' hp₁.2
-  have := switch_exponents ht hp
-  rw [← simplify_factor₃ (ht := ht), simplify_factor₁ (ht := ht) (hD := hD)]
-      <;> try assumption
-  rw [hp₀p₁]
+  rw [← simplify_factor₃ p₁pos p₁ne_top (mem_sub_Ioo one_ne_top ht) (switch_exponents ht hp) hp₀p₁.symm,
+    simplify_factor₁ hq₁' hp₀ hp₁ ht hq₀q₁ hp hq hC₀ hC₁ hF hD]
 
 /-- The trivial case for the estimate in the real interpolation theorem
     when the function `Lp` norm of `f` vanishes. -/
