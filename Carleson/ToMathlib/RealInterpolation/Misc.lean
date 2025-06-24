@@ -644,6 +644,7 @@ lemma truncCompl_anti {x : α} (hab : t ≤ s) (hf : ‖trunc f t x‖ₑ ≠ �
   exact foo hf (trunc_mono hab) obs
 
 /-- The norm of the complement of the truncation is antitone in the truncation parameter -/
+-- XXX: the conditions `hf` and `mf` may need to be tweaked
 lemma eLpNorm_truncCompl_anti (hf : eLpNorm f 1 μ ≠ ⊤) (mf : AEStronglyMeasurable f μ) :
     Antitone (fun s ↦ eLpNorm (truncCompl f s) p μ) := by
   intro a _b hab
