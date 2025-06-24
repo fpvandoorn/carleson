@@ -73,57 +73,47 @@ theorem lebesgue_differentiation {f : X → ℂ} (hf : BoundedFiniteSupport f) :
   let v : VitaliFamily volume := Vitali.vitaliFamily volume _
     (fun x ↦ eventually_nhdsWithin_of_forall (s := Ioi 0) (fun r ↦ ineq x) |>.frequently)
   refine (v.ae_tendsto_average hf.integrable.locallyIntegrable).mono (fun x hx ↦ ?_)
-  have : Tendsto (closedBall x) (𝓝[>] 0) (v.filterAt x) := by
+  have tendsto_closedBall : Tendsto (closedBall x) (𝓝[>] 0) (v.filterAt x) := by
     rw [v.tendsto_filterAt_iff]
     refine ⟨eventually_nhdsWithin_iff.mpr (Eventually.of_forall fun r hr ↦ ?_), fun ε hε ↦ ?_⟩
     · exact ⟨isClosed_closedBall, ⟨x, mem_interior.mpr ⟨ball x r, ball_subset_closedBall,
         isOpen_ball, mem_ball_self hr⟩⟩, r, by tauto, ineq x hr⟩
     · rw [eventually_nhdsWithin_iff, _root_.eventually_nhds_iff]
       exact ⟨Iio ε, fun y hy _ ↦ closedBall_subset_closedBall hy.le, ⟨isOpen_Iio, hε⟩⟩
-  have closedBall_version := hx.comp this
   -- We prove a stronger result: we can use any balls centered at x with radii decreasing to 0
   have ⟨r, _, hr0, hr⟩ := exists_seq_strictAnti_tendsto_nhdsWithin (0 : ℝ)
   refine ⟨fun _ ↦ x, r, ?_, hr, (mem_ball_self <| hr0 ·)⟩
   suffices Tendsto (⨍ y in ball x ·, f y) (𝓝[>] 0) (𝓝 (f x)) from this.comp hr
   -- Now we translate the known result about closed balls to the desired result about open balls,
   -- by approximating the average over the open ball by an average over a closed ball within it.
-  rw [Metric.tendsto_nhds] at closedBall_version ⊢
-  intro ε hε
-  specialize closedBall_version (ε / 2) (half_pos hε)
-  rw [eventually_nhdsWithin_iff, Metric.eventually_nhds_iff] at closedBall_version ⊢
-  have ⟨δ, δ0, hδ⟩ := closedBall_version
+  refine Metric.tendsto_nhds.mpr (fun ε hε ↦ ?_)
+  have := Metric.tendsto_nhds.mp (hx.comp tendsto_closedBall) (ε / 2) (half_pos hε)
+  rw [eventually_nhdsWithin_iff, Metric.eventually_nhds_iff] at this ⊢
+  have ⟨δ, δ0, hδ⟩ := this
   refine ⟨δ, δ0, fun r hr hr0 ↦ ?_⟩
-  let ρ (n : ℕ) : ℝ := r - (n + 1 : ℝ)⁻¹
+  have ⟨ρ, ρ_mono, ρ_lt_r, tendsto_ρ_r⟩ := exists_seq_strictMono_tendsto r
   let cB (n : ℕ) := closedBall x (ρ n)
-  let d : ℂ → ℝ := dist (⨍ y in ball x r, f y)
-  suffices ∀ᶠ n in atTop, ρ n > 0 ∧ d (⨍ y in cB n, f y) < ε / 2 by
+  suffices ∀ᶠ n in atTop, ρ n > 0 ∧ dist (⨍ y in ball x r, f y) (⨍ y in cB n, f y) < ε / 2 by
     have ⟨n, hn0, hn⟩ := this.exists
-    apply lt_of_le_of_lt <| dist_triangle _ (⨍ y in closedBall x (ρ n), f y) (f x)
+    apply lt_of_le_of_lt <| dist_triangle (⨍ y in ball x r, f y) (⨍ y in cB n, f y) (f x)
     rw [← add_halves ε]
     refine add_lt_add hn (hδ ?_ hn0)
     have r_lt_δ : r < δ := by simpa [abs_eq_self.mpr (mem_Ioi.mp hr0).le] using hr
-    have h : (n + 1 : ℝ)⁻¹ < δ := sub_zero r ▸ lt_sub_comm.mp hn0 |>.trans r_lt_δ
-    exact dist_zero_right (ρ n) ▸ abs_sub_lt_of_nonneg_of_lt hr0.le r_lt_δ Nat.inv_pos_of_nat.le h
-  apply Eventually.and <| eventually_atTop.mpr ⟨Nat.ceil r⁻¹, fun n hn ↦
-    sub_pos.mpr <| inv_lt_of_inv_lt₀ hr0 <| lt_of_le_of_lt (Nat.ceil_le.mp hn) (lt_add_one _)⟩
+    rw [dist_zero_right, Real.norm_eq_abs, abs_lt]
+    exact ⟨lt_trans (neg_neg_iff_pos.mpr δ0) hn0, lt_trans (ρ_lt_r n) r_lt_δ⟩
+  apply Eventually.and (tendsto_ρ_r.eventually_const_lt hr0)
   -- It remains to confirm that `⨍ y in cB n, f y` estimates `⨍ y in ball x r, f y` for large `n`:
   suffices Tendsto (⨍ y in cB ·, f y) atTop (𝓝 (⨍ y in ball x r, f y)) by
     have := (continuous_dist.uncurry_left (⨍ y in ball x r, f y)).continuousAt.tendsto.comp this
     simpa using Filter.eventually_atTop.mpr (Metric.tendsto_atTop.mp this (ε / 2) (half_pos hε))
   -- We first check that `∫ y in cB n, f y` estimates `∫ y in ball x r, f y`:
   have hsm (n : ℕ) : MeasurableSet (cB n) := measurableSet_closedBall
-  have h_mono : Monotone cB := by
-    refine fun m n hm ↦ closedBall_subset_closedBall (sub_le_sub_left ?_ r)
-    apply (inv_le_inv₀ n.cast_add_one_pos m.cast_add_one_pos).mpr
-    exact_mod_cast add_le_add_right hm 1
+  have h_mono : Monotone cB := fun m n hmn ↦ closedBall_subset_closedBall (ρ_mono.le_iff_le.mpr hmn)
   have := MeasureTheory.tendsto_setIntegral_of_monotone hsm h_mono hf.integrable.integrableOn
   have iUnion_cB : ⋃ n, cB n = ball x r := by
-    refine subset_antisymm ?_ (fun y hy ↦ ?_)
-    · apply iUnion_subset (fun n ↦ closedBall_subset_ball ?_)
-      exact sub_lt_self r <| inv_pos.mpr <| add_pos_of_nonneg_of_pos n.cast_nonneg one_pos
-    · have ⟨n, hn⟩ := exists_nat_one_div_lt (sub_pos.mpr (mem_ball.mp hy))
-      have := mem_closedBall.mpr (lt_sub_comm.mp hn).le
-      use closedBall x (r - 1 / (n + 1)), ⟨n, by rw [one_div]⟩
+    refine subset_antisymm (iUnion_subset (closedBall_subset_ball <| ρ_lt_r ·)) (fun y hy ↦ ?_)
+    have ⟨n, hn⟩ := (tendsto_ρ_r.eventually_const_lt hy).exists
+    use closedBall x (ρ n), ⟨n, rfl⟩, hn.le
   -- Finally, we check that this estimate works for averages as well as integrals.
   simp_rw [average, integral_smul_measure]
   refine Tendsto.smul ?_ (iUnion_cB ▸ this)
