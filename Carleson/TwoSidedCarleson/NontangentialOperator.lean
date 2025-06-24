@@ -946,7 +946,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   nth_rw 5 [pow_succ]; rw [mul_two]
   gcongr <;> simp
 
-/-- Monotone convergence applied to eLpNorms. AEMeasurable variant. -/
+/-- Monotone convergence applied to eLpNorms. AEMeasurable variant. Possibly imperfect hypotheses. -/
 theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
     {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
     ⨆ n, eLpNorm (f n) p μ = eLpNorm (⨆ n, f n) p μ := by
@@ -967,9 +967,27 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
   · exact aestronglyMeasurable_simpleNontangentialOperator
   let f (n : ℕ) := simpleNontangentialOperator K (n + 1 : ℝ)⁻¹ g
   have f_mon (x : X): Monotone fun n ↦ f n x := by
-    sorry
+    intro m n hmn; simp only
+    unfold f simpleNontangentialOperator
+    gcongr with R
+    simp_rw [gt_iff_lt]
+    apply iSup_const_mono (lt_of_le_of_lt _)
+    rw [inv_le_inv₀ (by positivity) (by positivity)]
+    simp [hmn]
   have snt0 : ⨆ (n : ℕ), f n = simpleNontangentialOperator K 0 g := by
-    sorry
+    ext x
+    unfold f simpleNontangentialOperator
+    simp_rw [gt_iff_lt]
+    rw [iSup_apply, iSup_comm]
+    congr with R
+    apply le_antisymm
+    · exact iSup_le <| fun n ↦ iSup_const_mono (lt_trans (by positivity))
+    · apply iSup_le; intro hR
+      have : ∃ (n : ℕ), n + 1 < R := by
+        sorry
+      obtain ⟨n, hn⟩ := this
+      -- rw [le_iSup n hn]
+      sorry
   have mct := eLpNorm_iSup' (p := 2) (f := f) (μ := volume)
     (fun n ↦ aestronglyMeasurable_simpleNontangentialOperator.aemeasurable)
     (by filter_upwards; exact f_mon)
