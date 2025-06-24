@@ -212,7 +212,7 @@ lemma lower_secant_bound_aux {η : ℝ} (ηpos : 0 < η) {x : ℝ} (le_abs_x : �
     _ ≤ 1 - (Real.cos ((1 - (2 / π) * (x - π / 2)) * (π / 2) + (((2 / π) * (x - π / 2)) * (π)))) := by
       gcongr
       apply (strictConvexOn_cos_Icc.convexOn).2 (by simp [pi_nonneg])
-      · simp
+      · simp only [Set.mem_Icc, half_le_self_iff, le_add_iff_nonneg_right]
         constructor <;> linarith [pi_nonneg]
       · rw [sub_nonneg, mul_comm]
         exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)
@@ -258,7 +258,7 @@ lemma lower_secant_bound' {η : ℝ}  {x : ℝ} (le_abs_x : η ≤ |x|) (abs_x_l
     _ = (1 - (2 / π) * x) * Real.sin 0 + ((2 / π) * x) * Real.sin (π / 2) := by simp
     _ ≤ Real.sin ((1 - (2 / π) * x) * 0 + ((2 / π) * x) * (π / 2)) := by
       apply (strictConcaveOn_sin_Icc.concaveOn).2 (by simp [pi_nonneg])
-      · simp
+      · simp only [Set.mem_Icc, half_le_self_iff]
         constructor <;> linarith [pi_nonneg]
       · rw [sub_nonneg, mul_comm]
         exact mul_le_of_le_div₀ (by norm_num) (div_nonneg (by norm_num) pi_nonneg) (by simpa)

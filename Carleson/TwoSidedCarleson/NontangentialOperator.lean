@@ -500,9 +500,11 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
         mul_eq_zero]
         intro h
         exfalso
-        simp at yx'r yx'R hy
+        simp only [mem_compl_iff, mem_ball, not_lt, not_le, mem_diff, mem_union, not_or,
+          not_and] at yx'r yx'R hy
         linarith [hy yx'R yx'r]
-      · simp at yx'r yx'R hy
+      · simp only [mem_compl_iff, mem_ball, not_lt, not_le, mem_diff, mem_union,
+        not_or] at yx'r yx'R hy
         linarith
       · simp only [mem_compl_iff, mem_ball, not_lt, mul_ite, mul_zero, zero_sub, neg_eq_zero,
         ite_eq_right_iff, mul_eq_zero]

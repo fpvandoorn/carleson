@@ -465,7 +465,7 @@ mutual
       exact hx_mem_Xk _
     rw [iff_false_intro (hx_notMem_i1 y1), iff_false_intro (hx_notMem_i1 y2)] at hx
     rw [false_or,false_or,iff_true_intro hx_mem_Xk,true_and,true_and] at hx
-    apply Linarith.eq_of_not_lt_of_not_gt
+    apply Mathlib.Tactic.Linarith.eq_of_not_lt_of_not_gt
     · exact fun h ↦ hx.right.right y1 h hl
     exact fun h ↦ hx.left.right y2 h hr
   termination_by (2 * (S + k)).toNat + 1
