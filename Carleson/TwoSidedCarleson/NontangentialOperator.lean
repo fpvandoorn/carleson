@@ -946,12 +946,37 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   nth_rw 5 [pow_succ]; rw [mul_two]
   gcongr <;> simp
 
+/-- Monotone convergence applied to eLpNorms. AEMeasurable variant. -/
+theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
+    {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
+    ⨆ n, eLpNorm (f n) p μ = eLpNorm (⨆ n, f n) p μ := by
+  -- lintegral_iSup'
+  sorry
+
 /-- This is the first step of the proof of Lemma 10.0.2, and should follow from 10.1.6 +
 monotone convergence theorem. (measurability should be proven without any restriction on `r`.) -/
 theorem simple_nontangential_operator_le (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) (hr : 0 ≤ r) :
     HasBoundedStrongType (simpleNontangentialOperator K r) 2 2 volume volume (C10_1_6 a) := by
-  sorry
+  by_cases h : 0 < r
+  · exact simple_nontangential_operator ha hT h
+  have : r = 0 := by linarith
+  rw [this]
+  intro g hg
+  constructor
+  · exact aestronglyMeasurable_simpleNontangentialOperator
+  let f (n : ℕ) := simpleNontangentialOperator K (n + 1 : ℝ)⁻¹ g
+  have f_mon (x : X): Monotone fun n ↦ f n x := by
+    sorry
+  have snt0 : ⨆ (n : ℕ), f n = simpleNontangentialOperator K 0 g := by
+    sorry
+  have mct := eLpNorm_iSup' (p := 2) (f := f) (μ := volume)
+    (fun n ↦ aestronglyMeasurable_simpleNontangentialOperator.aemeasurable)
+    (by filter_upwards; exact f_mon)
+  rw [← snt0, ← mct]
+  apply iSup_le
+  intro n; unfold f
+  apply simple_nontangential_operator ha hT (by positivity) g hg |>.2
 
 omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 /-- Part of Lemma 10.1.7, reformulated. -/
