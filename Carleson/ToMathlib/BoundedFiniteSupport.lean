@@ -18,7 +18,7 @@ open MeasureTheory Function ENNReal TopologicalSpace
 
 noncomputable section
 
-variable {X E : Type*} [MeasurableSpace X] {f : X → E} {μ : Measure X}
+variable {X E : Type*} [MeasurableSpace X] {f g : X → E} {μ : Measure X}
 
 variable [TopologicalSpace E] [ENorm E] [Zero E] in
 /-- Definition to avoid repeating ourselves.
