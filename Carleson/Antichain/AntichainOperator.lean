@@ -5,8 +5,7 @@ import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 noncomputable section
 
-open scoped ShortVariables
-open scoped ComplexConjugate GridStructure
+open scoped ShortVariables ComplexConjugate GridStructure
 open Set Complex MeasureTheory Metric NNReal ENNReal
 
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -68,10 +67,10 @@ def dach (𝔄 : Set (𝔓 X)) (p : 𝔓 X) (g : X → ℂ) : ℝ≥0∞ :=
     (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) * (E p').indicator (‖g ·‖ₑ) x
 
 open Classical in
-lemma dens1_antichain_dach (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+lemma dens1_antichain_dach (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointCarlesonSum 𝔄 g) 2 ^ 2 ≤
     Tile.C6_1_5 a * 2 ^ (6 * a + 1) * ∑ p with p ∈ 𝔄, dach 𝔄 p g * ∫⁻ y in E p, ‖g y‖ₑ := by
-  have bg := bcs_of_measurable_of_le_indicator_g hg h2g
+  have bg := bcs_of_measurable_of_le_indicator_g hg hgG
   calc
     _ ≤ _ := dens1_antichain_rearrange bg
     _ = 2 * ∑ p with p ∈ 𝔄,
@@ -87,7 +86,7 @@ lemma dens1_antichain_dach (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.ind
         volume (𝓘 p : Set X) * (∫⁻ y in E p', ‖g y‖ₑ) * ∫⁻ x in E p, ‖g x‖ₑ := by
       gcongr with p mp p' mp'
       simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp'
-      exact Tile.correlation_le mp'.1.2 hg h2g
+      exact Tile.correlation_le mp'.1.2 hg hgG
     _ = 2 * Tile.C6_1_5 a * ∑ p with p ∈ 𝔄, (∫⁻ x in E p, ‖g x‖ₑ) * (volume (𝓘 p : Set X))⁻¹ *
         ∑ p' with (p' ∈ 𝔄 ∧ 𝔰 p' ≤ 𝔰 p) ∧ (𝓘 p' : Set X) ⊆ ball (𝔠 p) (14 * D ^ 𝔰 p),
         ∫⁻ y, (1 + edist_(p') (𝒬 p') (𝒬 p)) ^ (-(2 * a ^ 2 + a ^ 3 : ℝ)⁻¹) *
@@ -151,7 +150,7 @@ lemma eLpNorm_le_M14 {p : 𝔓 X} (mp : p ∈ 𝔄)
 open Antichain in
 /-- Equations (6.1.34) to (6.1.37) in Lemma 6.1.4. -/
 lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈ 𝔄)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
+    (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x)
     {x₀ : X} (hx : x₀ ∈ ball (𝔠 p) (14 * D ^ 𝔰 p)) :
     dach 𝔄 p g ≤ C6_1_6 a * dens₁ 𝔄 ^ (p₆ a : ℝ)⁻¹ * M14 𝔄 (q₆ a) g x₀ := by
   classical
@@ -176,9 +175,9 @@ lemma dach_bound (h𝔄 : IsAntichain (· ≤ ·) 𝔄) {p : 𝔓 X} (mp : p ∈
       rw [inter_eq]
       by_cases hx : x ∈ G
       · rw [indicator_of_mem hx, Pi.one_apply, mul_one]
-      · specialize h2g x; rw [indicator_of_notMem hx, norm_le_zero_iff] at h2g
+      · specialize hgG x; rw [indicator_of_notMem hx, norm_le_zero_iff] at hgG
         have : (E p').indicator (‖g ·‖ₑ) x = 0 := by
-          rw [indicator_apply_eq_zero, h2g, enorm_zero]; exact fun _ ↦ rfl
+          rw [indicator_apply_eq_zero, hgG, enorm_zero]; exact fun _ ↦ rfl
         rw [this, zero_mul]
     _ ≤ (volume B)⁻¹ * eLpNorm (B.indicator (‖g ·‖ₑ)) (ENNReal.ofReal (q₆ a)) *
         eLpNorm (fun x ↦ ∑ p' with p' ∈ A,
@@ -215,14 +214,14 @@ open Antichain in
 lemma M14_bound (hg : MemLp g 2 volume) :
     eLpNorm (M14 𝔄 (q₆ a) g) 2 ≤ 2 ^ (a + 2) * eLpNorm g 2 := by
   have a4 := four_le_a X
-  have : HasStrongType (M14 𝔄 (q₆ a).toNNReal) 2 2 volume volume
+  have ha22 : HasStrongType (M14 𝔄 (q₆ a).toNNReal) 2 2 volume volume
       (C2_0_6 (defaultA a) (q₆ a).toNNReal 2) := by
     apply hasStrongType_maximalFunction 𝔄.to_countable
     · exact Real.toNNReal_pos.mpr <| zero_lt_one.trans (one_lt_q₆ a4)
     · simp only [Nat.cast_ofNat, Real.toNNReal_lt_ofNat]
       exact (q₆_le_superparticular a4).trans_lt (by norm_num)
-  rw [Real.coe_toNNReal _ (q₆_pos (four_le_a X)).le] at this
-  apply (this g hg).2.trans; gcongr
+  rw [Real.coe_toNNReal _ (q₆_pos (four_le_a X)).le] at ha22
+  apply (ha22 g hg).2.trans; gcongr
   rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← ENNReal.coe_pow, ENNReal.coe_le_coe]
   exact C2_0_6_q₆_le a4
 
@@ -241,17 +240,17 @@ lemma le_C6_1_4 (a4 : 4 ≤ a) :
 
 open Classical Antichain in
 lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     eLpNorm (adjointCarlesonSum 𝔄 g) 2 ^ 2 ≤
     (C6_1_4 a * dens₁ 𝔄 ^ (8 * a ^ 4 : ℝ)⁻¹ * eLpNorm g 2 volume) ^ 2 := by
   calc
-    _ ≤ _ := dens1_antichain_dach hg h2g
+    _ ≤ _ := dens1_antichain_dach hg hgG
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * ∑ p with p ∈ 𝔄,
         ∫⁻ y in E p, C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ * M14 𝔄 (q₆ a) g y * ‖g y‖ₑ := by
       gcongr with p mp; rw [← lintegral_const_mul _ hg.enorm]
       refine setLIntegral_mono' measurableSet_E fun x mx ↦ mul_le_mul_right' ?_ _
       simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
-      refine dach_bound h𝔄 mp hg h2g <|
+      refine dach_bound h𝔄 mp hg hgG <|
         ((E_subset_𝓘.trans Grid_subset_ball).trans (ball_subset_ball ?_)) mx
       change (4 : ℝ) * D ^ 𝔰 p ≤ _; gcongr; norm_num
     _ = Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
@@ -277,7 +276,7 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
     _ ≤ Tile.C6_1_5 a * 2 ^ (6 * a + 1) * C6_1_6 a * dens₁ 𝔄 ^ (p₆ a)⁻¹ *
         (2 ^ (a + 2) * eLpNorm g 2 ^ 2) := by
       rw [sq, ← mul_assoc (_ ^ _)]; gcongr
-      have bg := bcs_of_measurable_of_le_indicator_g hg h2g
+      have bg := bcs_of_measurable_of_le_indicator_g hg hgG
       exact M14_bound (bg.memLp _)
     _ ≤ _ := by
       rw [mul_pow, mul_pow]; nth_rw 5 [← ENNReal.rpow_natCast]
@@ -290,12 +289,12 @@ lemma dens1_antichain_sq (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 
 /-- Lemma 6.1.4 -/
 lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
-    (hg : Measurable g) (h2g : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
+    (hf : Measurable f) (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x)
+    (hg : Measurable g) (hgG : ∀ x, ‖g x‖ ≤ G.indicator 1 x) :
     ‖∫ x, conj (g x) * carlesonSum 𝔄 f x‖ₑ ≤
     C6_1_4 a * dens₁ 𝔄 ^ (8 * a ^ 4 : ℝ)⁻¹ * eLpNorm f 2 volume * eLpNorm g 2 volume := by
-  have bf := bcs_of_measurable_of_le_indicator_f hf h2f
-  have bg := bcs_of_measurable_of_le_indicator_g hg h2g
+  have bf := bcs_of_measurable_of_le_indicator_f hf hfF
+  have bg := bcs_of_measurable_of_le_indicator_g hg hgG
   calc
     _ ≤ ∫⁻ x, ‖adjointCarlesonSum 𝔄 g x‖ₑ * ‖f x‖ₑ := by
       rw [adjointCarlesonSum_adjoint bf bg]
@@ -310,17 +309,17 @@ lemma dens1_antichain (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
       rw [← mul_rotate, mul_comm (eLpNorm g 2 volume)]; gcongr
       rw [← ENNReal.rpow_le_rpow_iff (show (0 : ℝ) < (2 : ℕ) by norm_num),
         ENNReal.rpow_natCast, ENNReal.rpow_natCast]
-      exact dens1_antichain_sq h𝔄 hg h2g
+      exact dens1_antichain_sq h𝔄 hg hgG
 
 /-- The constant appearing in Proposition 2.0.3. -/
 -- Todo: define this recursively in terms of previous constants
 def C2_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (128 * a ^ 3) / (q - 1)
 
 --TODO: PR to Mathlib
-theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (h₁ : 1 ≤ x) (h₂ : y ≤ 1) :
+theorem ENNReal.rpow_le_self_of_one_le {x : ℝ≥0∞} {y : ℝ} (hx : 1 ≤ x) (hy : y ≤ 1) :
     x ^ y ≤ x := by
   nth_rw 2 [← ENNReal.rpow_one x]
-  exact ENNReal.rpow_le_rpow_of_exponent_le h₁ h₂
+  exact ENNReal.rpow_le_rpow_of_exponent_le hx hy
 
 variable (X) in
 omit [TileStructure Q D κ S o] in
@@ -333,7 +332,7 @@ private lemma ineq_aux_2_0_3 :
   have h21 : (2 : ℝ) - 1 = 1 := by norm_num
   calc
     _ = ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
-        (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q)  := by
+        (((2 ^ (111 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ ^ (2 - q) := by
       rw [ENNReal.mul_rpow_of_nonneg _ _ hq2]; ring
     _ ≤ ((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞) ^ (q - 1) *
         (((2 ^ (128 * a ^ 3) : ℝ≥0) : ℝ≥0∞)) ^ (2 - q) * (nnq - 1)⁻¹ := by
@@ -420,7 +419,7 @@ theorem antichain_operator (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 /-- Version of the antichain operator theorem, but controlling the integral of the norm instead of
 the integral of the function multiplied by another function. -/
 theorem antichain_operator' {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
+    (hf : Measurable f) (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
     ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
     eLpNorm f 2 volume * volume G ^ (1/2 : ℝ) := by
@@ -431,16 +430,16 @@ theorem antichain_operator' {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
   apply (lintegral_mono_set hA).trans
   /- This follows from the other version by taking for the test function `g` the argument of
   the sum to be controlled. -/
-  have bf := bcs_of_measurable_of_le_indicator_f hf h2f
-  rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm]; swap
-  · exact bf.carlesonSum.restrict.integrable
+  have bf := bcs_of_measurable_of_le_indicator_f hf hfF
+  rw [← enorm_integral_starRingEnd_mul_eq_lintegral_enorm bf.carlesonSum.restrict.integrable]
   rw [← integral_indicator measurableSet_G]
   simp_rw [indicator_mul_left, ← Function.comp_def,
     Set.indicator_comp_of_zero (g := starRingEnd ℂ) (by simp)]
-  apply (antichain_operator h𝔄 hf h2f ?_ ?_).trans; rotate_left
-  · refine Measurable.indicator ?_ measurableSet_G
-    suffices Measurable (carlesonSum 𝔄 f ·) by exact this.div (measurable_ofReal.comp this.norm)
-    exact measurable_carlesonSum hf
+  apply (antichain_operator h𝔄 hf hfF
+    (((measurable_carlesonSum hf).div (measurable_ofReal.comp (measurable_carlesonSum hf).norm)
+      ).indicator measurableSet_G)
+    ?_).trans
+  swap
   · intro x
     simp [indicator]
     split_ifs
@@ -465,16 +464,16 @@ theorem antichain_operator' {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
 the integral of the function multiplied by another function, and with the upper bound in terms
 of `volume F` and `volume G`. -/
 theorem antichain_operator_le_volume {A : Set X} (h𝔄 : IsAntichain (· ≤ ·) 𝔄)
-    (hf : Measurable f) (h2f : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
+    (hf : Measurable f) (hfF : ∀ x, ‖f x‖ ≤ F.indicator 1 x) (hA : A ⊆ G) :
     ∫⁻ x in A, ‖carlesonSum 𝔄 f x‖ₑ ≤
     C2_0_3 a nnq * dens₁ 𝔄 ^ ((q - 1) / (8 * a ^ 4)) * dens₂ 𝔄 ^ (q⁻¹ - 2⁻¹) *
     volume F ^ (1/2 : ℝ) * volume G ^ (1/2 : ℝ) := by
-  apply (antichain_operator' h𝔄 hf h2f hA).trans
+  apply (antichain_operator' h𝔄 hf hfF hA).trans
   gcongr
   calc
   _ ≤ eLpNorm (F.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    apply (h2f x).trans (le_abs_self _)
+    apply (hfF x).trans (le_abs_self _)
   _ ≤ _ := by
     rw [eLpNorm_indicator_const]
     · simp
