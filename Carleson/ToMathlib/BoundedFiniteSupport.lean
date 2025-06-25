@@ -88,6 +88,19 @@ theorem indicator (bfs : BoundedFiniteSupport f μ) {s : Set X} (hs : Measurable
     rw [← lt_top_iff_ne_top]
     exact bfs.measure_support_lt
 
+protected theorem neg (hf : BoundedFiniteSupport f μ) : BoundedFiniteSupport (-f) μ :=
+  ⟨memLp_neg_iff.mpr hf.memLp_top, support_neg' f ▸ hf.measure_support_lt⟩
+
+protected theorem add (hf : BoundedFiniteSupport f μ) (hg : BoundedFiniteSupport g μ) :
+    BoundedFiniteSupport (f + g) μ :=
+  ⟨hf.memLp_top.add hg.memLp_top,
+    (measure_mono (support_add f g)).trans_lt <| (measure_union_le (support f) (support g)).trans_lt
+      (add_lt_top.mpr ⟨hf.measure_support_lt, hg.measure_support_lt⟩)⟩
+
+protected theorem sub (hf : BoundedFiniteSupport f μ) (hg : BoundedFiniteSupport g μ) :
+    BoundedFiniteSupport (f - g) μ :=
+  sub_eq_add_neg f g ▸ hf.add hg.neg
+
 end NormedAddCommGroup
 
 end BoundedFiniteSupport
