@@ -50,13 +50,12 @@ variable {α α' ε E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Mea
 ## Definitions -/
 namespace MeasureTheory
 
-variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁]
+  [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
 
 def Subadditive [ENorm ε] (T : (α → ε₁) → α' → ε) : Prop :=
   ∃ A ≠ ⊤, ∀ (f g : α → ε₁) (x : α'), ‖T (f + g) x‖ₑ ≤ A * (‖T f x‖ₑ + ‖T g x‖ₑ)
 
--- TODO: generalise `trunc` and `truncCompl` take allow an ENormedAddMonoid as codomain,
--- then generalise this definition also
 def Subadditive_trunc [ENorm ε] (T : (α → ε₁) → α' → ε) (A : ℝ≥0∞) (f : α → ε₁) (ν : Measure α') :
     Prop :=
   ∀ a : ℝ≥0∞, 0 < a → ∀ᵐ y ∂ν,
@@ -273,7 +272,8 @@ variable {α α' E E₁ E₂ E₃ : Type*} {m : MeasurableSpace α} {m' : Measur
 -/
 namespace MeasureTheory
 
-variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁] [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
+variable {ε₁ ε₂ : Type*} [TopologicalSpace ε₁] [ENormedAddMonoid ε₁]
+  [TopologicalSpace ε₂] [ENormedAddMonoid ε₂]
 
 /-- Proposition that expresses that the map `T` map between function spaces preserves
     AE strong measurability on L^p. -/
@@ -345,6 +345,9 @@ theorem ton_aeMeasurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMo
   · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
     exact eLpNorm_trunc_mono.comp_antitoneOn tone.antitoneOn
 
+lemma lintegral_Ioi_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) :=
+  sorry
+
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_norm_rpow_range_operator'
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
@@ -374,8 +377,31 @@ lemma estimate_norm_rpow_range_operator'
   simp_rw [← mul_assoc]
   split_ifs with is_q₁top is_q₀top
   · rw [one_mul, one_mul, ← lintegral_add_left']
-    · apply setLIntegral_mono' measurableSet_Ioi
-      intro s (s_pos : 0 < s)
+    have foo : ∫⁻ (s : ℝ) in Ioi 0, distribution (T (trunc f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν * ENNReal.ofReal (s ^ (q.toReal - 1)) +
+      distribution (T (truncCompl f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
+        ENNReal.ofReal (s ^ (q.toReal - 1))
+        = ∫⁻ s, distribution (T (trunc f (tc.ton s))) s ν * (s ^ (q.toReal - 1)) +
+          distribution (T (truncCompl f (tc.ton s))) s ν * (s ^ (q.toReal - 1)) := by
+      rw [lintegral_Ioi_eq_lintegral_Ioi_ofReal]
+      congr
+      ext x
+      congr
+      sorry
+      sorry
+    have bar : ∫⁻ (a : ℝ) in Ioi 0,
+      C₁ ^ q₁.toReal * eLpNorm (trunc f (tc.ton (ENNReal.ofReal a))) p₁ μ ^ q₁.toReal * ENNReal.ofReal (a ^ (-q₁.toReal)) *
+        ENNReal.ofReal (a ^ (q.toReal - 1)) +
+      C₀ ^ q₀.toReal * eLpNorm (truncCompl f (tc.ton (ENNReal.ofReal a))) p₀ μ ^ q₀.toReal *
+          ENNReal.ofReal (a ^ (-q₀.toReal)) *
+        ENNReal.ofReal (a ^ (q.toReal - 1)) =
+        ∫⁻ a,
+          C₁ ^ q₁.toReal * eLpNorm (trunc f (tc.ton a)) p₁ μ ^ q₁.toReal * (a ^ (-q₁.toReal)) * (a ^ (q.toReal - 1)) +
+          C₀ ^ q₀.toReal * eLpNorm (truncCompl f (tc.ton a)) p₀ μ ^ q₀.toReal * (a ^ (-q₀.toReal)) * (a ^ (q.toReal - 1)) :=
+        sorry
+    · simp_rw [foo, bar]
+      -- does not work any more...sorry -- apply setLIntegral_mono' measurableSet_Ioi
+      sorry
+      intro s --(s_pos : 0 < s)
       gcongr
       -- type mismatch ahead: weaktype_estimate_trunc expects a truncation parameter in ENNReal,
       -- while the integral takes s in ℝ
@@ -414,6 +440,8 @@ lemma estimate_norm_rpow_range_operator'
     sorry /- same type mismatch as above; proof was: simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
     simp only [is_q₁top, mem_Ioi, false_or] at hq₁'
     rw [hq₀' (not_lt_top.mp is_q₀top) s s_pos, hq₁' (not_lt_top.mp is_q₁top) s s_pos, zero_mul, add_zero] -/
+
+#exit
 
 lemma simplify_factor_rw_aux₀ (a b c d e f : ℝ≥0∞) :
     a * b * c * d * e * f = a * c * e * (b * d * f) := by ring
