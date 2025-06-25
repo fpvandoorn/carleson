@@ -378,7 +378,7 @@ lemma S_truncation {B : ℕ} (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
 
 /-- The operator T_{R₁, R₂, R} introduced in Lemma 3.0.2. -/
 def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f : X → ℂ) (x : X) : ℂ :=
-  (ball o R).indicator (carlesonOperatorIntegrand K (Q x) R₁ R₂ f ·) x
+  (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
 /-- The constant used in `metric_carleson` and `R_truncation`.
 Has value `2 ^ (450 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
