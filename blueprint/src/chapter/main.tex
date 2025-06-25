@@ -1011,48 +1011,35 @@ Summing the contributions from the summands in \eqref{middles} and \eqref{bounda
     \leanok
     \lean{S_truncation}
     \uses{Hardy-Littlewood, linearized-truncation}
-
-
     Let $F$, $G$ be bounded Borel sets in $X$.
-    Let $f:X\to \C$ be a Borel function with
-$|f|\le 1_F$. Then for all $s\in \Z$ we have
-
-        \begin{equation} \label{Scut}
-       \int \mathbf{1}_{G}(x)
-        \sup_{-S<s_1<s_2<S}
-        \left|  T_{s_1,s_2} f(x) \right|\, d\mu(x)
-        \leq \frac{2^{446a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+    Let $f:X\to \C$ be a Borel function with $|f|\le 1_F$. Then for all $S\in\Z$ we have
+    \begin{equation} \label{Scut}
+        \int \mathbf{1}_G(x) \sup_{-S\le s_1\le s_2\le S} |T_{s_1,s_2} f(x)|\, d\mu(x)
+        \le \frac{2^{471a^3+3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     where
     \begin{equation}\label{Tss}
-T_{s_1,s_2} f(x)=
-        \int_{X} \sum_{s_1\le s \le s_2} K_s(x,y) f(y) e(Q(x)(y)) \, \mathrm{d}\mu(y) .
+        T_{s_1,s_2} f(x) = \sum_{s_1\le s \le s_2} \int_X K_s(x,y) f(y) e(Q(x)(y)) \, \mathrm{d}\mu(y).
     \end{equation}
 \end{lemma}
 
 \begin{proof}[Proof of \Cref{S-truncation}]
+    \leanok
     We reduce \Cref{S-truncation} to \Cref{linearized-truncation}. For each $x$, let $\sigma_1(x)$ be the
     minimal element $s'\in [-S,S]$ such that
-    \[\max_{s'\leq s_2<S}
-    | T_{1, s',s_2} f(x)|
-    =
-    \max_{-S<s_1\le s_2<S}
-    | {T}_{1, s_1,s_2} f(x)|:={T}_{1, x}.
+    \[
+    \max_{s'\le s_2\le S} |T_{s',s_2} f(x)| = \max_{-S\le s_1\le s_2\le S} |T_{s_1,s_2} f(x)| =: T_{1,x}.
     \]
-    Similarly, let ${\sigma}_2(x)$ be the
-    minimal element $s''\in [-S,S]$ such that
-    \[\max_{\mfa\in\tilde{\Mf}}
-    | {T}_{1, {\sigma}_1(x), s''} f(x)|
-    =
-    {T}_{1,x}\,.
+    Similarly, let ${\sigma}_2(x)$ be the minimal element $s''\in [-S,S]$ such that
+    \[
+    |T_{\sigma_2(x), s''} f(x)| = T_{1,x}\,.
     \]
     With these choices, and noting that with the definition of $T_{2, \sigma_1, \sigma_2}$ from \eqref{middles1}
     \begin{equation*}
-    {T}_{{\sigma}_1(x),{\sigma}_2(x)} f(x)={T}_{2, {\sigma}_1,{\sigma}_2} f(x),
+    T_{\sigma_1(x),\sigma_2(x)} f(x)=T_{2,\sigma_1,\sigma_2} f(x),
     \end{equation*}
-    we conclude that the left-hand side of \eqref{Scut}
-    and \eqref{Sqlin} are equal. Thus, \Cref{S-truncation}
-    follows from \Cref{linearized-truncation}.
+    we conclude that the left-hand side of \eqref{Scut} and \eqref{Sqlin} are equal.
+    Thus, \Cref{S-truncation} follows from \Cref{linearized-truncation}.
 \end{proof}
 
 \begin{lemma}[linearized truncation]
