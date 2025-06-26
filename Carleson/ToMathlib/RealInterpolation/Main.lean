@@ -533,7 +533,7 @@ lemma simplify_factor₁ {D : ℝ≥0∞}
 
 def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasurable g μ)
     (hg_int : ∫⁻ x, g x ∂μ < ⊤) : Measure.FiniteSpanningSetsIn
-      (μ.restrict (Function.support g)) (Set.univ) where
+      (μ.restrict g.support) Set.univ where
   set := fun n ↦ if n = 0 then {x | g x = 0} else { x | 1 / (n + 1) ≤ g x }
   set_mem := fun _ ↦ trivial
   finite := by
@@ -549,7 +549,7 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
         rw [one_div]
         exact ENNReal.inv_pos.mpr (add_ne_top.mpr ⟨coe_ne_top, one_ne_top⟩)
       calc
-      _ ≤ (∫⁻ x : α in (Function.support g), g x ∂μ) / (1 / (n + 1)) := by
+      _ ≤ (∫⁻ x : α in g.support, g x ∂μ) / (1 / (n + 1)) := by
         apply meas_ge_le_lintegral_div hg.restrict one_div_ne_zero
         · rw [one_div]
           apply inv_ne_top.mpr
@@ -581,7 +581,7 @@ def finite_spanning_sets_from_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
 
 lemma support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasurable g μ)
     (hg_int : ∫⁻ x, g x ∂μ < ⊤) :
-    SigmaFinite (μ.restrict (Function.support g)) where
+    SigmaFinite (μ.restrict g.support) where
   out' := by
     apply Exists.nonempty
     use (finite_spanning_sets_from_lintegrable hg hg_int)
@@ -589,9 +589,9 @@ lemma support_sigma_finite_of_lintegrable {g : α → ℝ≥0∞} (hg : AEMeasur
 lemma support_sigma_finite_from_MemLp
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hf : MemLp f p μ) (hp : p ≠ ⊤) (hp' : p ≠ 0) :
-    SigmaFinite (μ.restrict (Function.support f)) := by
+    SigmaFinite (μ.restrict f.support) := by
   let g : α → ℝ≥0∞ := fun x ↦ ‖f x‖ₑ ^ p.toReal
-  have : Function.support g = Function.support f := by
+  have : g.support = f.support := by
     unfold Function.support g
     ext x
     simp only [ne_eq, ENNReal.rpow_eq_zero_iff, enorm_eq_zero, not_or, not_and, not_lt,
@@ -615,8 +615,8 @@ lemma support_sigma_finite_from_MemLp
 -- lemma support_sfinite_from_MemLp
 --     [MeasurableSpace E₁] [NormedAddCommGroup E₁] [BorelSpace E₁] (hf : MemLp f p μ)
 --     (hp : p ≠ ⊤) (hp' : p ≠ 0) :
---     SFinite (μ.restrict (Function.support f)) := by
---   have : SigmaFinite (μ.restrict (Function.support f)) := support_sigma_finite_from_MemLp hf hp hp'
+--     SFinite (μ.restrict f.support) := by
+--   have : SigmaFinite (μ.restrict f.support) := support_sigma_finite_from_MemLp hf hp hp'
 --   exact instSFiniteOfSigmaFinite
 
 lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
@@ -647,7 +647,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   have p₁pos : 0 < p₁ := hp₁.1
   have q₁pos : 0 < q₁ := lt_of_lt_of_le hp₁.1 hp₁.2
   have p_pos : 0 < p := interpolated_pos' one_le_p₀ one_le_p1 (ne_top_of_Ioo ht) hp
-  have : SigmaFinite (μ.restrict (Function.support f)) :=
+  have : SigmaFinite (μ.restrict f.support) :=
     support_sigma_finite_from_MemLp hf (interp_exp_ne_top hp₀p₁.ne ht hp) p_pos.ne'
   let tc := spf_to_tc spf
   calc
