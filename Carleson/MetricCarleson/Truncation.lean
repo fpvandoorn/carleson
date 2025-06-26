@@ -456,10 +456,9 @@ lemma exists_uniform_annulus_bound {R : ℝ} (hR : 0 < R) :
     have h₄ : U302 a R₂ ≤ U302 a R := monotoneOn_U302 (X := X) R₂pos hR mR₂.2.le
     omega
 
-lemma enorm_setIntegral_oo_le
-    {x : X} {R₁ R₂ : ℝ} {s : ℤ} {ES : Set ℤ} (hs : s ∈ ES) (nf : (‖f ·‖) ≤ F.indicator 1) :
+lemma enorm_setIntegral_annulus_le {x : X} {R₁ R₂ : ℝ} {s : ℤ} (nf : (‖f ·‖) ≤ F.indicator 1) :
     ‖∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ ≤
-    C2_1_3 a * MB volume ES (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
+    C2_1_3 a * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
   calc
     _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ‖Ks s x y‖ₑ * ‖f y‖ₑ * ‖exp (I * Q x y)‖ₑ := by
       simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
@@ -475,23 +474,18 @@ lemma enorm_setIntegral_oo_le
       rw [mem_diff, not_and_or, not_not]; right
       rw [mem_Ioo, ← mem_ball'] at my; exact (ball_subset_ball (half_le_self (by positivity))) my.2
     _ ≤ ∫⁻ y in ball x (D ^ s), ‖Ks s x y‖ₑ * ‖f y‖ₑ := lintegral_mono_set inter_subset_right
-    _ ≤ ∫⁻ y in ball x (D ^ s), C2_1_3 a / volume (ball x (D ^ s)) * F.indicator 1 y := by
+    _ ≤ ∫⁻ y in ball x (D ^ s),
+        C2_1_3 a / volume (ball x (D ^ s)) * ‖F.indicator (1 : X → ℝ) y‖ₑ := by
       gcongr with y
       · exact enorm_Ks_le
-      · calc
-          _ ≤ ‖F.indicator (1 : X → ℝ) y‖ₑ := by
-           simp_rw [enorm_le_iff_norm_le, norm_indicator_eq_indicator_norm, Pi.one_apply, norm_one]
-           exact nf y
-          _ = _ := by simp_rw [enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one]; rfl
-    _ = C2_1_3 a * ⨍⁻ y in ball x (D ^ s), F.indicator 1 y ∂volume := by
+      · simp_rw [enorm_le_iff_norm_le, norm_indicator_eq_indicator_norm, Pi.one_apply, norm_one]
+        exact nf y
+    _ = C2_1_3 a * ⨍⁻ y in ball x (D ^ s), ‖F.indicator (1 : X → ℝ) y‖ₑ ∂volume := by
       rw [lintegral_const_mul']; swap
       · exact div_ne_top coe_ne_top (measure_ball_pos _ x (defaultD_pow_pos a _)).ne'
       rw [setLAverage_eq, div_eq_mul_inv, ENNReal.div_eq_inv_mul, mul_assoc]
-    _ = C2_1_3 a * (ball x (D ^ s)).indicator
-        (fun _ ↦ ⨍⁻ (y : X) in ball x (D ^ s), ‖F.indicator (1 : X → ℝ) y‖ₑ ∂volume) x := by
-      simp_rw [indicator_of_mem (mem_ball_self (defaultD_pow_pos a _)),
-        enorm_indicator_eq_indicator_enorm, Pi.one_apply, enorm_one]; rfl
-    _ ≤ _ := by rw [MB_def]; gcongr; apply le_biSup _ hs
+    _ ≤ _ := by
+      gcongr; exact laverage_le_globalMaximalFunction (by rw [dist_self, defaultD]; positivity)
 
 /-- The fringes of the scale interval in Lemma 3.0.2's proof that require separate handling. -/
 def edgeScales (a : ℕ) (R₁ R₂ : ℝ) : Finset ℤ :=
@@ -507,8 +501,8 @@ lemma diff_subset_edgeScales {a : ℕ} {R₁ R₂ : ℝ} :
 lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1) {x : X} :
     ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ ≤
-    ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ + 4 * C2_1_3 a *
-      MB volume (edgeScales a R₁ R₂).toSet (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
+    ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
+    4 * C2_1_3 a * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
   have Dg1 := one_lt_realD X
   let BR := Finset.Icc (L302 a R₁ - 2) (U302 a R₂ + 2) -- big range
   let SR := Finset.Icc (L302 a R₁) (U302 a R₂) -- small range
@@ -552,28 +546,25 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) (h
     _ ≤ ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ + ∑ s ∈ edgeScales a R₁ R₂,
         ‖∫ y in Annulus.oo x R₁ R₂, Ks s x y * f y * exp (I * Q x y)‖ₑ := by
       gcongr; exact diff_subset_edgeScales
-    _ ≤ ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
-        ∑ s ∈ edgeScales a R₁ R₂, C2_1_3 a *
-          MB volume (edgeScales a R₁ R₂).toSet (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
-      gcongr with s ms; rw [← Finset.mem_coe] at ms; exact enorm_setIntegral_oo_le ms nf
+    _ ≤ ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ + ∑ s ∈ edgeScales a R₁ R₂,
+        C2_1_3 a * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
+      gcongr with s ms; rw [← Finset.mem_coe] at ms; exact enorm_setIntegral_annulus_le nf
     _ ≤ _ := by
       rw [Finset.sum_const, nsmul_eq_mul, ← mul_assoc]; gcongr; exact_mod_cast Finset.card_le_four
 
-lemma lintegral_MB_annulus_le {B₁ B₂ : ℤ} (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
+lemma lintegral_globalMaximalFunction_annulus_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (mF : MeasurableSet F) (mG : MeasurableSet G) :
-    ∫⁻ x in G, MB volume (Icc B₁ B₂) (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x ≤
+    ∫⁻ x in G, globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x ≤
     C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
-  let M1F (x : X) := MB volume (Icc B₁ B₂) (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x
-  change ∫⁻ x in G, M1F x ≤ _
   calc
-    _ = ∫⁻ x, G.indicator 1 x * M1F x := by
+    _ = ∫⁻ x, G.indicator 1 x * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       simp_rw [← indicator_eq_indicator_one_mul]; rw [lintegral_indicator mG]
-    _ ≤ eLpNorm (G.indicator (1 : X → ℝ≥0∞)) q' * eLpNorm M1F q := by
+    _ ≤ eLpNorm (G.indicator (1 : X → ℝ≥0∞)) q' *
+        eLpNorm (globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ))) q := by
       apply lintegral_mul_le_eLpNorm_mul_eLqNorm
       · rw [holderConjugate_coe_iff]; exact hqq'.symm
       · exact aemeasurable_const.indicator mG
-      · simp_rw [M1F, MB_def]
-        sorry
+      · exact AEStronglyMeasurable.globalMaximalFunction.aemeasurable
     _ ≤ _ := by
       sorry
 
@@ -607,26 +598,24 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       refine setLIntegral_congr_fun mG fun x mx ↦ ?_
       unfold T_R; congr! 7 with R₁ mR₁ R₂ mR₂; rw [indicator_of_mem (sG mx)]
     _ ≤ ∫⁻ x in G, ⨆ R₁ ∈ Ioo R⁻¹ R, ⨆ R₂ ∈ Ioo R₁ R,
-        ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ + 4 * C2_1_3 a *
-        MB volume (edgeScales a R₁ R₂).toSet (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
+        ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
+        4 * C2_1_3 a * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       gcongr with x R₁ mR₁ R₂ mR₂
       exact enorm_carlesonOperatorIntegrand_le (iRpos.trans mR₁.1) mR₂.1 mf nf
     _ ≤ ∫⁻ x in G, ⨆ R₁ ∈ Ioo R⁻¹ R, (⨆ R₂ ∈ Ioo R₁ R, ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ) +
         ⨆ R₂ ∈ Ioo R₁ R, 4 * C2_1_3 a *
-        MB volume (edgeScales a R₁ R₂).toSet (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
+          globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       gcongr with x R₁ mR₁; exact biSup_add_le_add_biSup
     _ ≤ ∫⁻ x in G, (⨆ R₁ ∈ Ioo R⁻¹ R, ⨆ R₂ ∈ Ioo R₁ R, ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ) +
         ⨆ R₁ ∈ Ioo R⁻¹ R, ⨆ R₂ ∈ Ioo R₁ R, 4 * C2_1_3 a *
-        MB volume (edgeScales a R₁ R₂).toSet (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
+          globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       gcongr with x; exact biSup_add_le_add_biSup
     _ ≤ ∫⁻ x in G, (⨆ s₁ ∈ Finset.Icc (-B : ℤ) B, ⨆ s₂ ∈ Finset.Icc s₁ B, ‖T_S Q s₁ s₂ f x‖ₑ) +
-        4 * C2_1_3 a *
-        MB volume (Icc (-B - 2 : ℤ) (B + 2)) (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
+        4 * C2_1_3 a * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       gcongr with x
-      all_goals
-        refine iSup₂_le fun R₁ mR₁ ↦ iSup₂_le fun R₂ mR₂ ↦ ?_
-        specialize hB R₁ mR₁ R₂ mR₂
-      · rcases lt_or_ge (U302 a R₂) (L302 a R₁) with hul | hul
+      all_goals refine iSup₂_le fun R₁ mR₁ ↦ iSup₂_le fun R₂ mR₂ ↦ ?_
+      · specialize hB R₁ mR₁ R₂ mR₂
+        rcases lt_or_ge (U302 a R₂) (L302 a R₁) with hul | hul
         · rw [T_S, Finset.Icc_eq_empty (not_le.mpr hul), Finset.sum_empty, enorm_zero]
           exact zero_le _
         · trans ⨆ s₂ ∈ Finset.Icc (L302 a R₁) B, ‖T_S Q (L302 a R₁) s₂ f x‖ₑ
@@ -634,14 +623,9 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
               Finset.mem_Icc.mpr ⟨hul, (Finset.mem_Icc.mp hB.2).2⟩
             exact le_biSup (α := ℝ≥0∞) _ this
           · exact le_biSup (α := ℝ≥0∞) _ hB.1
-      · gcongr; simp_rw [MB_def]; refine biSup_mono fun s ms ↦ ?_
-        rw [mem_Icc]; simp_rw [Finset.mem_Icc] at hB
-        simp only [edgeScales, Finset.coe_insert, Finset.coe_singleton, mem_insert_iff,
-          mem_singleton_iff] at ms
-        rcases ms with rfl | rfl | rfl | rfl <;> omega
+      · rfl
     _ = (∫⁻ x in G, ⨆ s₁ ∈ Finset.Icc (-B : ℤ) B, ⨆ s₂ ∈ Finset.Icc s₁ B, ‖T_S Q s₁ s₂ f x‖ₑ) +
-        4 * C2_1_3 a * ∫⁻ x in G,
-        MB volume (Icc (-B - 2 : ℤ) (B + 2)) (fun _ ↦ x) (D ^ ·) (F.indicator (1 : X → ℝ)) x := by
+        4 * C2_1_3 a * ∫⁻ x in G, globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       rw [← lintegral_const_mul' _ _ (by finiteness)]; apply lintegral_add_left
       simp_rw [← Finset.mem_coe]
       refine Measurable.biSup _ (Finset.countable_toSet _) fun s₁ ms₁ ↦ ?_
