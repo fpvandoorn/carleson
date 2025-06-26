@@ -9,9 +9,24 @@ noncomputable section
 variable {X : Type*} {a : ℕ} [MetricSpace X] {q q' : ℝ≥0} {F G : Set X} {K : X → X → ℂ}
 variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)} {f : X → ℂ} {σ₁ σ₂ : X → ℤ}
 
+/-- The operator T_{s₁, s₂} introduced in Lemma 3.0.3. -/
+def T_S (Q : SimpleFunc X (Θ X)) (s₁ s₂ : ℤ) (f : X → ℂ) (x : X) : ℂ :=
+  ∑ s ∈ Finset.Icc s₁ s₂, ∫ y, Ks s x y * f y * exp (I * Q x y)
+
+lemma measurable_T_inner_integral {s : ℤ} (mf : Measurable f) :
+    Measurable fun x ↦ ∫ y, Ks s x y * f y * exp (I * Q x y) := by
+  rw [← stronglyMeasurable_iff_measurable]
+  apply StronglyMeasurable.integral_prod_right
+  rw [stronglyMeasurable_iff_measurable]
+  apply (measurable_Ks.mul (mf.comp measurable_snd)).mul
+  refine ((Complex.measurable_ofReal.comp measurable_Q₂).const_mul I).cexp
+
+lemma measurable_T_S {s₁ s₂} (mf : Measurable f) : Measurable (T_S Q s₁ s₂ f ·) :=
+  Finset.measurable_sum _ fun _ _ ↦ measurable_T_inner_integral mf
+
 /-- The operator T_{2, σ₁, σ₂} introduced in Lemma 3.0.4. -/
 def T_lin (Q : SimpleFunc X (Θ X)) (σ₁ σ₂ : X → ℤ) (f : X → ℂ) (x : X) : ℂ :=
-  ∑ s ∈ Finset.Icc (σ₁ x) (σ₂ x), ∫ y, Ks s x y * f y * exp (I * Q x y)
+  T_S Q (σ₁ x) (σ₂ x) f x
 
 lemma measurable_T_lin (mf : Measurable f) (mσ₁ : Measurable σ₁) (mσ₂ : Measurable σ₂)
     (rσ₁ : (range σ₁).Finite) (rσ₂ : (range σ₂).Finite) : Measurable (T_lin Q σ₁ σ₂ f ·) := by
@@ -21,7 +36,7 @@ lemma measurable_T_lin (mf : Measurable f) (mσ₁ : Measurable σ₁) (mσ₂ :
   have rearr : T_lin Q σ₁ σ₂ f = fun x ↦ ∑ s ∈ Finset.Icc lb ub,
       {x' | s ∈ Icc (σ₁ x') (σ₂ x')}.indicator
         (fun z ↦ ∫ y, Ks s z y * f y * exp (I * Q z y)) x := by
-    ext x; unfold T_lin
+    ext x; unfold T_lin T_S
     calc
       _ = ∑ s ∈ Finset.Icc (σ₁ x) (σ₂ x), {x' | s ∈ Icc (σ₁ x') (σ₂ x')}.indicator
           (fun z ↦ ∫ y, Ks s z y * f y * exp (I * Q z y)) x := by
@@ -30,16 +45,11 @@ lemma measurable_T_lin (mf : Measurable f) (mσ₁ : Measurable σ₁) (mσ₂ :
         refine Finset.sum_subset (Finset.Icc_subset_Icc (hlb x) (hub x)) fun s ms ns ↦ ?_
         apply indicator_of_notMem; rwa [mem_setOf_eq, mem_Icc, ← Finset.mem_Icc]
   rw [rearr]
-  refine Finset.measurable_sum _ fun i mi ↦ Measurable.indicator ?_ ?_
-  · rw [← stronglyMeasurable_iff_measurable]
-    apply StronglyMeasurable.integral_prod_right
-    rw [stronglyMeasurable_iff_measurable]
-    apply (measurable_Ks.mul (mf.comp measurable_snd)).mul
-    refine ((Complex.measurable_ofReal.comp measurable_Q₂).const_mul I).cexp
-  · rw [measurableSet_setOf]; apply (measurable_set_mem _).comp
-    apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
-    · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
-    · exact mσ₁.prodMk mσ₂
+  refine Finset.measurable_sum _ fun _ _ ↦ (measurable_T_inner_integral mf).indicator ?_
+  rw [measurableSet_setOf]; apply (measurable_set_mem _).comp
+  apply Measurable.comp (f := fun x ↦ (σ₁ x, σ₂ x)) (g := fun p ↦ Icc p.1 p.2)
+  · exact measurable_from_prod_countable fun _ _ _ ↦ trivial
+  · exact mσ₁.prodMk mσ₂
 
 variable [IsCancellative X (defaultτ a)]
 
@@ -78,7 +88,8 @@ theorem finitary_carleson_step
     simp only [measure_empty, mul_zero, zero_le, diff_empty, true_and]
     suffices ∀ x, ‖T_lin Q σ₁ σ₂ f x‖ₑ = 0 by
       rw [lintegral_congr this, lintegral_zero]; exact zero_le _
-    intro x; rw [enorm_eq_zero]; refine Finset.sum_eq_zero fun s ms ↦ integral_eq_zero_of_ae ?_
+    intro x; rw [enorm_eq_zero, T_lin]
+    refine Finset.sum_eq_zero fun s ms ↦ integral_eq_zero_of_ae ?_
     classical
     convert ite_ae_eq_of_measure_zero (fun y ↦ Ks s x y * f y * exp (I * Q x y)) 0 F vF using 1
     ext y; symm; rw [ite_eq_left_iff]; intro ny
@@ -208,7 +219,7 @@ lemma sum_le_four_div_q_sub_one (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q
       rw [hqq', mul_div_assoc]
     _ ≤ _ := by rw [sq]; gcongr; exact hq.2
 
-/-- The constant used in `linearized_truncation`. -/
+/-- The constant used in `linearized_truncation` and `S_truncation`. -/
 def C3_0_4 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 3) / (q - 1) ^ 6
 
 lemma le_C3_0_4 (hq : q ∈ Ioc 1 2) : C2_0_1 a q * (2 ^ 2 / (q - 1)) ≤ C3_0_4 a q :=
@@ -261,21 +272,109 @@ lemma linearized_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       gcongr; exact sum_le_four_div_q_sub_one hq hqq'
     _ ≤ _ := by rw [← ENNReal.coe_mul]; gcongr; exact le_C3_0_4 hq
 
-/-- The operator T_{s₁, s₂} introduced in Lemma 3.0.3. -/
-def T_S (Q : SimpleFunc X (Θ X)) (s₁ s₂ : ℤ) (f : X → ℂ) (x : X) : ℂ :=
-  ∫ y, ∑ s ∈ Finset.Icc s₁ s₂, Ks s x y * f y * exp (I * Q x y)
-
-/-- The constant used in `S_truncation`.
-Has value `2 ^ (446 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
-def C3_0_3 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (446 * a ^ 3) / (q - 1) ^ 6
-
-/-- Lemma 3.0.3. `S'` is the blueprint's `S`. -/
-lemma S_truncation {S' : ℤ} (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
+/-- Lemma 3.0.3. `B` is the blueprint's `S`. -/
+lemma S_truncation {B : ℕ} (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (bF : IsBounded F) (bG : IsBounded G) (mF : MeasurableSet F) (mG : MeasurableSet G)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1) :
-    ∫⁻ x in G, ⨆ (s₁ : ℤ) (s₂ : ℤ) (_ : -S' < s₁) (_ : s₁ < s₂) (_ : s₂ < S'), ‖T_S Q s₁ s₂ f x‖ₑ ≤
-    C3_0_3 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
-  sorry
+    ∫⁻ x in G, ⨆ s₁ ∈ Finset.Icc (-B : ℤ) B, ⨆ s₂ ∈ Finset.Icc s₁ B, ‖T_S Q s₁ s₂ f x‖ₑ ≤
+    C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+  -- Define `T1'` and `T1` and prove their measurability
+  let T1' (x : X) (s' : ℤ) := ⨆ s₂ ∈ Finset.Icc s' B, ‖T_S Q s' s₂ f x‖ₑ
+  have mT1' {n : ℤ} : Measurable (T1' · n) :=
+    Measurable.iSup fun _ ↦ Measurable.iSup fun _ ↦ (measurable_T_S mf).enorm
+  let T1 (x : X) := ⨆ s₁ ∈ Finset.Icc (-B : ℤ) B, T1' x s₁
+  have mT1 : Measurable T1 := Measurable.iSup fun _ ↦ Measurable.iSup fun _ ↦ mT1'
+  -- For each `x` define a candidate set of values for `σ₁ x`;
+  -- the final value is the minimum in this set. Also prove measurability of membership
+  let candσ₁ (x : X) := (Finset.Icc (-B : ℤ) B).filter (T1 x = T1' x ·)
+  have necσ₁ (x : X) : (candσ₁ x).Nonempty := by
+    rw [Finset.filter_nonempty_iff]
+    obtain ⟨s', ms', hs'⟩ := (Finset.Icc (-B : ℤ) B).exists_max_image (T1' x) ⟨0, by simp⟩
+    use s', ms'; apply le_antisymm
+    · exact iSup₂_le hs'
+    · apply le_biSup _ ms'
+  have scσ₁ (x : X) : candσ₁ x ⊆ Finset.Icc (-B) B := by simp [candσ₁]
+  have mcσ₁ {n : ℤ} : Measurable (n ∈ candσ₁ ·) := by
+    simp_rw [candσ₁, Finset.mem_filter, Finset.mem_Icc]
+    apply measurable_const.and; rw [← measurableSet_setOf]; exact measurableSet_eq_fun' mT1 mT1'
+  -- Define `σ₁` and prove its measurability and finite range
+  let σ₁ (x : X) := (candσ₁ x).min' (necσ₁ x)
+  have eσ₁ (x : X) : σ₁ x ∈ candσ₁ x := (candσ₁ x).min'_mem (necσ₁ x)
+  have minσ₁ (x : X) {n : ℤ} (hn : n ∈ candσ₁ x) : σ₁ x ≤ n := (candσ₁ x).min'_le _ hn
+  have mσ₁ : Measurable σ₁ := by
+    classical
+    refine measurable_to_countable' fun n ↦ ?_
+    have eqv : σ₁ ⁻¹' {n} =
+        candσ₁ ⁻¹' ((Finset.Icc (-B : ℤ) B).powerset.filter fun c ↦ n ∈ c ∧ ∀ m ∈ c, n ≤ m) := by
+      ext x
+      simp_rw [mem_preimage, mem_singleton_iff, Finset.coe_filter, Finset.mem_powerset,
+        mem_setOf_eq, scσ₁, true_and]
+      constructor <;> intro h
+      · rw [← h]; exact ⟨eσ₁ x, fun m ↦ minσ₁ x⟩
+      · rw [← (candσ₁ x).le_min'_iff (necσ₁ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₁ x⟩ := h
+        exact le_antisymm ((candσ₁ x).min'_le _ h₁) h₂
+    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOf]
+    refine Measurable.and ?_ (mcσ₁.and (Measurable.forall fun m ↦ mcσ₁.imp measurable_const))
+    simp [scσ₁]
+  have rσ₁ : (range σ₁).Finite := by
+    suffices range σ₁ ⊆ Set.Icc (-B) B by exact (finite_Icc (-B : ℤ) B).subset this
+    simp_rw [range_subset_iff, mem_Icc, ← Finset.mem_Icc]; exact fun x ↦ scσ₁ x (eσ₁ x)
+  -- Incorporate `σ₁` into the main integral
+  simp_rw [candσ₁, Finset.mem_filter, Finset.mem_Icc] at eσ₁
+  change ∫⁻ x in G, T1 x ≤ _
+  conv_lhs => enter [2, x]; rw [(eσ₁ x).2]
+  -- Work analogously to define `σ₂`
+  let candσ₂ (x : X) :=
+    (Finset.Icc (σ₁ x) B).filter (fun s'' : ℤ ↦ T1' x (σ₁ x) = ‖T_S Q (σ₁ x) s'' f x‖ₑ)
+  have necσ₂ (x : X) : (candσ₂ x).Nonempty := by
+    rw [Finset.filter_nonempty_iff]
+    obtain ⟨s', ms', hs'⟩ := (Finset.Icc (σ₁ x) B).exists_max_image
+      (‖T_S Q (σ₁ x) · f x‖ₑ) ⟨σ₁ x, by simpa using (eσ₁ x).1.2⟩
+    use s', ms'; apply le_antisymm
+    · exact iSup₂_le hs'
+    · apply le_biSup _ ms'
+  have scσ₂ (x : X) : candσ₂ x ⊆ Finset.Icc (-B : ℤ) B :=
+    subset_trans (by simp [candσ₂]) (Finset.Icc_subset_Icc_left (eσ₁ x).1.1)
+  have mcσ₂ {n : ℤ} : Measurable (n ∈ candσ₂ ·) := by
+    simp_rw [candσ₂, Finset.mem_filter, Finset.mem_Icc]
+    apply Measurable.and
+    · apply Measurable.and ?_ measurable_const
+      rw [← measurableSet_setOf]; exact measurableSet_le mσ₁ measurable_const
+    · rw [← measurableSet_setOf]; apply measurableSet_eq_fun'
+      · apply Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T1' p.1 p.2)
+        · exact measurable_from_prod_countable fun _ ↦ mT1'
+        · exact measurable_id.prodMk mσ₁
+      · apply Measurable.enorm
+        apply (Measurable.comp (f := fun x ↦ (x, σ₁ x)) (g := fun p ↦ T_S Q p.2 n f p.1))
+        · exact measurable_from_prod_countable fun _ ↦ measurable_T_S mf
+        · exact measurable_id.prodMk mσ₁
+  -- Work analogously to prove `σ₂`'s properties
+  let σ₂ (x : X) := (candσ₂ x).min' (necσ₂ x)
+  have eσ₂ (x : X) : σ₂ x ∈ candσ₂ x := (candσ₂ x).min'_mem (necσ₂ x)
+  have minσ₂ (x : X) {n : ℤ} (hn : n ∈ candσ₂ x) : σ₂ x ≤ n := (candσ₂ x).min'_le _ hn
+  have mσ₂ : Measurable σ₂ := by
+    classical
+    refine measurable_to_countable' fun n ↦ ?_
+    have eqv : σ₂ ⁻¹' {n} =
+        candσ₂ ⁻¹' ((Finset.Icc (-B : ℤ) B).powerset.filter fun c ↦ n ∈ c ∧ ∀ m ∈ c, n ≤ m) := by
+      ext x
+      simp_rw [mem_preimage, mem_singleton_iff, Finset.coe_filter, Finset.mem_powerset,
+        mem_setOf_eq, scσ₂, true_and]
+      constructor <;> intro h
+      · rw [← h]; exact ⟨eσ₂ x, fun m ↦ minσ₂ x⟩
+      · rw [← (candσ₂ x).le_min'_iff (necσ₂ x)] at h; obtain ⟨h₁, h₂ : n ≤ σ₂ x⟩ := h
+        exact le_antisymm ((candσ₂ x).min'_le _ h₁) h₂
+    simp_rw [eqv, Finset.coe_filter, Finset.mem_powerset, preimage_setOf_eq, measurableSet_setOf]
+    refine Measurable.and ?_ (mcσ₂.and (Measurable.forall fun m ↦ mcσ₂.imp measurable_const))
+    simp [scσ₂]
+  have rσ₂ : (range σ₂).Finite := by
+    suffices range σ₂ ⊆ Set.Icc (-B) B by exact (finite_Icc (-B : ℤ) B).subset this
+    simp_rw [range_subset_iff, mem_Icc, ← Finset.mem_Icc]; exact fun x ↦ scσ₂ x (eσ₂ x)
+  simp_rw [candσ₂, Finset.mem_filter, Finset.mem_Icc] at eσ₂
+  have lσ : σ₁ ≤ σ₂ := by intro x; exact (eσ₂ x).1.1
+  -- Complete the reduction
+  conv_lhs => enter [2, x]; rw [(eσ₂ x).2]
+  exact linearized_truncation hq hqq' bF bG mF mG mf nf mσ₁ mσ₂ rσ₁ rσ₂ lσ
 
 /-- The operator T_{R₁, R₂, R} introduced in Lemma 3.0.2. -/
 def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f : X → ℂ) (x : X) : ℂ :=
