@@ -678,6 +678,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     _ ≤ _ := by
       simp_rw [← mul_assoc, ← add_mul]; gcongr; norm_cast; exact le_C1_0_2 (four_le_a X) hq
 
+/-- Lemma 3.0.2. -/
 lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
     {n : ℕ} {R : ℝ} (hR : R = 2 ^ n) :
