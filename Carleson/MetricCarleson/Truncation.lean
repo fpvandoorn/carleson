@@ -581,9 +581,8 @@ lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderCo
 def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
 
-/-- The constant used in `metric_carleson` and `R_truncation`.
-Has value `2 ^ (450 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
-def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (450 * a ^ 3) / (q - 1) ^ 6
+/-- The constant used in `metric_carleson` and `R_truncation`. -/
+def C1_0_2 (a : ℕ) (q : ℝ≥0) : ℝ≥0 := 2 ^ (471 * a ^ 3 + 4) / (q - 1) ^ 6
 
 lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   rw [C1_0_2]
@@ -591,9 +590,35 @@ lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   · positivity
   · exact pow_pos (tsub_pos_of_lt hq) _
 
-lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : 1 < q) :
+lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : q ∈ Ioc 1 2) :
     C3_0_4 a q + 4 * C2_1_3 a * C2_0_6' (defaultA a) 1 q ≤ C1_0_2 a q := by
-  sorry
+  calc
+    _ ≤ C3_0_4 a q + 4 * C2_1_3 a * (2 ^ (4 * a + 1) * (q / (q - 1))) := by
+      gcongr; exact C2_0_6'_defaultA_one_le hq.1
+    _ = C3_0_4 a q + 2 ^ (102 * a ^ 3 + 4 * a + 3) * q * (q - 1) ^ 5 / (q - 1) ^ 6 := by
+      rw [pow_succ' _ 5, mul_div_mul_right]; swap
+      · apply pow_ne_zero; rw [← zero_lt_iff, tsub_pos_iff_lt]; exact hq.1
+      congr 1
+      rw [C2_1_3, show (4 : ℝ≥0) = 2 ^ 2 by norm_num, ← pow_add, ← mul_assoc, ← pow_add,
+        mul_div_assoc]
+      congr 2; ring
+    _ ≤ C3_0_4 a q + 2 ^ (102 * a ^ 3 + 4 * a + 3) * 2 * 1 ^ 5 / (q - 1) ^ 6 := by
+      gcongr
+      · exact hq.2
+      · rw [tsub_le_iff_left, one_add_one_eq_two]; exact hq.2
+    _ = C3_0_4 a q + 2 ^ (102 * a ^ 3 + 4 * a + 4) / (q - 1) ^ 6 := by
+      rw [one_pow, mul_one, ← pow_succ]
+    _ ≤ C3_0_4 a q + 2 ^ (471 * a ^ 3 + 3) / (q - 1) ^ 6 := by
+      gcongr _ + 2 ^ ?_ / _
+      · exact one_le_two
+      · calc
+          _ ≤ 102 * a ^ 3 + 4 * a + a := by gcongr
+          _ = 102 * a ^ 3 + 5 * a * 1 * 1 := by ring
+          _ ≤ 102 * a ^ 3 + 5 * a * a * a := by gcongr <;> omega
+          _ = 107 * a ^ 3 := by ring
+          _ ≤ 471 * a ^ 3 := by gcongr; norm_num
+          _ ≤ _ := Nat.le_add_right ..
+    _ = _ := by rw [C3_0_4, ← two_mul, ← mul_div_assoc, ← pow_succ', C1_0_2]
 
 variable [IsCancellative X (defaultτ a)]
 
@@ -651,7 +676,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       · exact S_truncation hq hqq' bF bG mF mG mf nf
       · exact lintegral_globalMaximalFunction_le hq hqq' bF mF mG
     _ ≤ _ := by
-      simp_rw [← mul_assoc, ← add_mul]; gcongr; norm_cast; exact le_C1_0_2 (four_le_a X) hq.1
+      simp_rw [← mul_assoc, ← add_mul]; gcongr; norm_cast; exact le_C1_0_2 (four_le_a X) hq
 
 lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
