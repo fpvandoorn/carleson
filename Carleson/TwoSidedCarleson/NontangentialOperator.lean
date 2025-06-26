@@ -1191,15 +1191,90 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
         exact small_annulus_left hf (dist_nonneg) |>.enorm
     simpa using le_R1
 
+
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+/-- Part of Lemma 10.1.6. -/
+lemma lowerSemicontinuous_nontangentialOperator {g : X → ℂ} :
+    LowerSemicontinuous (nontangentialOperator K g) := by
+  unfold nontangentialOperator
+  simp_rw [lowerSemicontinuous_iff_isOpen_preimage, preimage, mem_Ioi, lt_iSup_iff, ← iUnion_setOf,
+    exists_prop]
+  intro M
+  apply isOpen_iUnion; intro R₁
+  apply isOpen_iUnion; intro hR₁
+  apply isOpen_iUnion; intro R₂
+  apply isOpen_iUnion; intro hR₂
+  apply isOpen_iUnion; intro x'
+  by_cases hx' : M < ‖∫ (y : X) in Annulus.oo x' R₁ R₂, K x' y * g y‖ₑ
+  · simp_rw [hx', and_true, ← mem_ball, setOf_mem_eq, isOpen_ball]
+  · simp [hx']
+
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+lemma aestronglyMeasurable_nontangentialOperator {g : X → ℂ} :
+    AEStronglyMeasurable (nontangentialOperator K g) volume :=
+  lowerSemicontinuous_nontangentialOperator |>.measurable.aestronglyMeasurable
+
 /-- The constant used in `nontangential_from_simple`. -/
-irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (3 * a ^ 3)
+irreducible_def C10_0_2 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a ^ 3)
 
 /-- Lemma 10.0.2. The formal statement includes the measurability of the operator. -/
-@[nolint unusedHavesSuffices]
 theorem nontangential_from_simple (ha : 4 ≤ a)
     (hT : ∀ r > 0, HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedStrongType (nontangentialOperator K) 2 2 volume volume (C10_0_2 a) := by
-  have := simple_nontangential_operator_le ha hT le_rfl
-  sorry
+  intro g hg
+  have eLpNorm_sno_le := simple_nontangential_operator_le ha hT le_rfl g hg |>.2
+  constructor
+  · exact aestronglyMeasurable_nontangentialOperator
+  trans ENNReal.ofNNReal (2 * C10_1_6 a) * eLpNorm g 2 volume
+  · push_cast; rw [two_mul, add_mul]
+    apply le_trans _ <| add_le_add eLpNorm_sno_le eLpNorm_sno_le
+    rw [← two_mul]
+    apply eLpNorm_le_nnreal_smul_eLpNorm_of_ae_le_mul'
+    simp_rw [nontangential_operator_boundary hg, enorm_eq_self]
+    filter_upwards with x
+    have {R₁ R₂ : ℝ} (hR1 : 0 < R₁) (hR1R2 : R₁ < R₂) {x' : X} : ‖∫ (y : X) in ball x' R₂ \ ball x' R₁, K x' y * g y‖ₑ ≤
+        ‖∫ (y : X) in (ball x' R₁)ᶜ, K x' y * g y‖ₑ +
+        ‖∫ (y : X) in (ball x' R₂)ᶜ, K x' y * g y‖ₑ := by
+      apply le_trans _ enorm_sub_le
+      have : (ball x' R₁)ᶜ = (ball x' R₂)ᶜ ∪ (ball x' R₂ \ ball x' R₁) := by
+        rw [compl_eq_univ_diff, ← union_compl_self <| ball x' R₂, union_diff_distrib, union_comm]
+        congr
+        rw [diff_eq_compl_inter, inter_eq_right, compl_subset_compl]
+        exact ball_subset_ball hR1R2.le
+      rw [this, setIntegral_union_2 (disjoint_compl_left_iff_subset.mpr diff_subset) (by measurability)
+        (by rw [← this]; exact czoperator_welldefined (K := K) hg hR1 x')]
+      simp
+    trans ⨆ R₁, ⨆ (_ : 0 < R₁), ⨆ R₂, ⨆ (_ : R₁ < R₂), ⨆ x', ⨆ (_ : dist x x' < R₁),
+        ‖∫ (y : X) in (ball x' R₁)ᶜ, K x' y * g y‖ₑ + ‖∫ (y : X) in (ball x' R₂)ᶜ, K x' y * g y‖ₑ
+    · gcongr with R1 hR1 R2 hR1R2
+      exact this hR1 hR1R2
+    have {R : ℝ} (hR : 0 < R) {x' : X} (hx' : dist x x' <  R) :
+        ‖∫ (y : X) in (ball x' R)ᶜ, K x' y * g y‖ₑ ≤ simpleNontangentialOperator K 0 g x := by
+      unfold simpleNontangentialOperator czOperator
+      apply le_trans _ <| le_iSup _ R; rw [iSup_pos hR]
+      apply le_trans _ <| le_iSup _ x'; rw [← mem_ball, mem_ball_comm] at hx'; rw [iSup_pos hx']
+    rw [iSup_le_iff]; intro R₁
+    rw [iSup_le_iff]; intro hR₁
+    rw [iSup_le_iff]; intro R₂
+    rw [iSup_le_iff]; intro hR₂
+    rw [iSup_le_iff]; intro x'
+    rw [iSup_le_iff]; intro hx'
+    norm_cast; rw [two_mul]
+    exact add_le_add (this hR₁ hx') (this (hR₁.trans hR₂) (hx'.trans hR₂))
+  · gcongr; norm_cast
+    rw [C10_1_6_def, C10_0_2_def] --constant manipulation makes me cry
+    rw [mul_comm, ← pow_succ]
+    gcongr
+    · exact one_le_two
+    ring_nf
+    conv_rhs => rw [show 5 = 4 + 1 by simp, mul_add_one]
+    gcongr
+    trans a * 26
+    · linarith
+    · trans a * 4^2 * 4
+      · linarith
+      · conv_rhs => rw [show 3 = 1 + 2 by simp, Nat.pow_add, Nat.pow_one]
+        have := pow_le_pow_left' ha 2
+        gcongr
 
 end
