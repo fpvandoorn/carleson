@@ -552,10 +552,10 @@ lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) (h
     _ ≤ _ := by
       rw [Finset.sum_const, nsmul_eq_mul, ← mul_assoc]; gcongr; exact_mod_cast Finset.card_le_four
 
-lemma lintegral_globalMaximalFunction_annulus_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
-    (mF : MeasurableSet F) (mG : MeasurableSet G) :
+lemma lintegral_globalMaximalFunction_le (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
+    (bF : IsBounded F) (mF : MeasurableSet F) (mG : MeasurableSet G) :
     ∫⁻ x in G, globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x ≤
-    C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+    C2_0_6' (defaultA a) 1 q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   calc
     _ = ∫⁻ x, G.indicator 1 x * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       simp_rw [← indicator_eq_indicator_one_mul]; rw [lintegral_indicator mG]
@@ -565,14 +565,21 @@ lemma lintegral_globalMaximalFunction_annulus_le (hq : q ∈ Ioc 1 2) (hqq' : q.
       · rw [holderConjugate_coe_iff]; exact hqq'.symm
       · exact aemeasurable_const.indicator mG
       · exact AEStronglyMeasurable.globalMaximalFunction.aemeasurable
+    _ ≤ volume G ^ (q' : ℝ)⁻¹ *
+        (C2_0_6' (defaultA a) 1 q * eLpNorm (F.indicator (1 : X → ℝ)) q) := by
+      gcongr
+      · rw [Pi.one_def]; convert eLpNorm_indicator_const_le (1 : ℝ≥0∞) q'
+        rw [enorm_eq_self, coe_toReal, one_div, one_mul]
+      · refine (hasStrongType_globalMaximalFunction zero_lt_one hq.1 _ ?_).2
+        rw [Pi.one_def]; exact memLp_indicator_const _ mF _ (.inr bF.measure_lt_top.ne)
     _ ≤ _ := by
-      sorry
+      rw [← mul_assoc, mul_comm (_ ^ _)]; gcongr
+      rw [Pi.one_def]; convert eLpNorm_indicator_const_le (1 : ℝ) q
+      rw [enorm_one, coe_toReal, one_div, one_mul]
 
 /-- The operator T_{R₁, R₂, R} introduced in Lemma 3.0.2. -/
 def T_R (K : X → X → ℂ) (Q : SimpleFunc X (Θ X)) (R₁ R₂ R : ℝ) (f : X → ℂ) (x : X) : ℂ :=
   (ball o R).indicator (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) x
-
-variable [IsCancellative X (defaultτ a)]
 
 /-- The constant used in `metric_carleson` and `R_truncation`.
 Has value `2 ^ (450 * a ^ 3) / (q - 1) ^ 6` in the blueprint. -/
@@ -583,6 +590,12 @@ lemma C1_0_2_pos {a : ℕ} {q : ℝ≥0} (hq : 1 < q) : 0 < C1_0_2 a q := by
   apply div_pos
   · positivity
   · exact pow_pos (tsub_pos_of_lt hq) _
+
+lemma le_C1_0_2 (a4 : 4 ≤ a) (hq : 1 < q) :
+    C3_0_4 a q + 4 * C2_1_3 a * C2_0_6' (defaultA a) 1 q ≤ C1_0_2 a q := by
+  sorry
+
+variable [IsCancellative X (defaultτ a)]
 
 lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
@@ -630,13 +643,15 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       simp_rw [← Finset.mem_coe]
       refine Measurable.biSup _ (Finset.countable_toSet _) fun s₁ ms₁ ↦ ?_
       exact Measurable.biSup _ (Finset.countable_toSet _) fun s₂ ms₂ ↦ (measurable_T_S mf).enorm
-    _ ≤ C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ +
-        4 * C2_1_3 a * 777 := by
+    _ ≤ C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ + 4 * C2_1_3 a *
+        (C2_0_6' (defaultA a) 1 q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹) := by
+      have bF := isBounded_ball.subset sF
+      have bG := isBounded_ball.subset sG
       gcongr
-      · exact S_truncation hq hqq' (isBounded_ball.subset sF) (isBounded_ball.subset sG) mF mG mf nf
-      · sorry
+      · exact S_truncation hq hqq' bF bG mF mG mf nf
+      · exact lintegral_globalMaximalFunction_le hq hqq' bF mF mG
     _ ≤ _ := by
-      sorry
+      simp_rw [← mul_assoc, ← add_mul]; gcongr; norm_cast; exact le_C1_0_2 (four_le_a X) hq.1
 
 lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
