@@ -18,7 +18,7 @@ open MeasureTheory Function ENNReal TopologicalSpace
 
 noncomputable section
 
-variable {X E : Type*} [MeasurableSpace X] {f : X → E} {μ : Measure X}
+variable {X E : Type*} [MeasurableSpace X] {f g : X → E} {μ : Measure X}
 
 variable [TopologicalSpace E] [ENorm E] [Zero E] in
 /-- Definition to avoid repeating ourselves.
@@ -87,6 +87,19 @@ theorem indicator (bfs : BoundedFiniteSupport f μ) {s : Set X} (hs : Measurable
     apply measure_inter_lt_top_of_right_ne_top
     rw [← lt_top_iff_ne_top]
     exact bfs.measure_support_lt
+
+protected theorem neg (hf : BoundedFiniteSupport f μ) : BoundedFiniteSupport (-f) μ :=
+  ⟨memLp_neg_iff.mpr hf.memLp_top, support_neg' f ▸ hf.measure_support_lt⟩
+
+protected theorem add (hf : BoundedFiniteSupport f μ) (hg : BoundedFiniteSupport g μ) :
+    BoundedFiniteSupport (f + g) μ :=
+  ⟨hf.memLp_top.add hg.memLp_top,
+    (measure_mono (support_add f g)).trans_lt <| (measure_union_le (support f) (support g)).trans_lt
+      (add_lt_top.mpr ⟨hf.measure_support_lt, hg.measure_support_lt⟩)⟩
+
+protected theorem sub (hf : BoundedFiniteSupport f μ) (hg : BoundedFiniteSupport g μ) :
+    BoundedFiniteSupport (f - g) μ :=
+  sub_eq_add_neg f g ▸ hf.add hg.neg
 
 end NormedAddCommGroup
 
