@@ -946,7 +946,8 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   nth_rw 5 [pow_succ]; rw [mul_two]
   gcongr <;> simp
 
-/-- Monotone convergence applied to eLpNorms. AEMeasurable variant. Possibly imperfect hypotheses. -/
+/-- Monotone convergence applied to eLpNorms. AEMeasurable variant.
+  Possibly imperfect hypotheses, particularly on `p`. -/
 theorem eLpNorm_iSup' {α : Type*} [MeasurableSpace α] {μ : Measure α} {p : ℝ≥0∞}
     {f : ℕ → α → ℝ≥0∞} (hf : ∀ n, AEMeasurable (f n) μ) (h_mono : ∀ᵐ x ∂μ, Monotone fun n => f n x) :
     ⨆ n, eLpNorm (f n) p μ = eLpNorm (⨆ n, f n) p μ := by
@@ -977,17 +978,16 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
   have snt0 : ⨆ (n : ℕ), f n = simpleNontangentialOperator K 0 g := by
     ext x
     unfold f simpleNontangentialOperator
-    simp_rw [gt_iff_lt]
-    rw [iSup_apply, iSup_comm]
+    simp_rw [gt_iff_lt, iSup_apply]; rw [iSup_comm]
     congr with R
-    apply le_antisymm
-    · exact iSup_le <| fun n ↦ iSup_const_mono (lt_trans (by positivity))
-    · apply iSup_le; intro hR
-      have : ∃ (n : ℕ), n + 1 < R := by
-        sorry
-      obtain ⟨n, hn⟩ := this
-      -- rw [le_iSup n hn]
-      sorry
+    apply le_antisymm (iSup_le <| fun n ↦ iSup_const_mono (lt_trans (by positivity))) (iSup_le _)
+    intro hR
+    let n := Nat.ceil R⁻¹
+    have hn : (n + 1 : ℝ)⁻¹ < R := inv_lt_of_inv_lt₀ hR <| Nat.le_ceil R⁻¹ |>.trans_lt (by linarith)
+    let seq (n : ℕ) := ⨆ (_ : (n + 1 : ℝ)⁻¹ < R), ⨆ x' ∈ ball x R, ‖czOperator K R g x'‖ₑ
+    have : ⨆ x' ∈ ball x R, ‖czOperator K R g x'‖ₑ = seq n := by unfold seq; rw [iSup_pos hn]
+    nth_rw 1 [this]
+    exact le_iSup seq n
   have mct := eLpNorm_iSup' (p := 2) (f := f) (μ := volume)
     (fun n ↦ aestronglyMeasurable_simpleNontangentialOperator.aemeasurable)
     (by filter_upwards; exact f_mon)
