@@ -1235,22 +1235,53 @@ lemma lintegral_Ioi_rpow_of_lt_abs {β σ : ℝ} (hβ : 0 < β) (hσ : σ < -1):
   · filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
     exact fun s hs ↦ Real.rpow_nonneg (lt_trans hβ hs).le σ
 
+lemma lintegral_rpow_Ioi_top {γ : ℝ} :
+    ∫⁻ s : ℝ in Ioi 0, .ofReal (s ^ γ) = ∞ := by
+  by_contra h
+  apply (not_integrableOn_Ioi_rpow γ)
+  refine ⟨by fun_prop, ?_⟩
+  calc
+  _ = ∫⁻ (a : ℝ) in Ioi 0, .ofReal (a ^ γ) ∂volume := by
+    apply lintegral_congr_ae
+    filter_upwards [self_mem_ae_restrict measurableSet_Ioi]
+    exact fun _ ha ↦ enorm_of_nonneg (rpow_nonneg ha.le γ)
+  _ < ⊤ := Ne.lt_top' fun a ↦ h (Eq.symm a)
+
 lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ}
     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : 0 < t) :
   ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
     (tc.inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
-  sorry /- proof was:
-  rw [← lintegral_congr_ae (Filter.mp_mem (self_mem_ae_restrict measurableSet_res)
-      (Filter.univ_mem'
-      (fun s hs ↦ (ofReal_rpow_of_pos (res_subset_Ioi (tc.ran_inv t ht) hs)).symm)))]
-  unfold res
-  split at hγ <;> rename_i xor_split
-  · rw [xor_split]
-    simp only [↓reduceIte]
-    rw [lintegral_rpow_of_gt_abs (tc.ran_inv t ht) hγ]
-  · rw [eq_false_of_ne_true xor_split]
-    simp only [Bool.false_eq_true, ↓reduceIte]
-    rw [lintegral_Ioi_rpow_of_lt_abs (tc.ran_inv t ht) hγ] -/
+  trans ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal (s ^ γ)
+  · apply lintegral_congr_ae
+    filter_upwards [self_mem_ae_restrict measurableSet_res]
+    exact fun a Ha ↦ ofReal_rpow_of_pos (res_subset_Ioi Ha)
+  · unfold res
+    split at hγ <;> rename_i xor_split
+    · rw [xor_split]
+      simp only [↓reduceIte]
+      split_ifs with htop
+      · rw [htop, top_rpow_def]
+        split_ifs
+        · simp [lintegral_rpow_Ioi_top, top_div_of_lt_top]
+        · linarith
+        · linarith
+      · by_cases hzero : (tc.inv t) = 0
+        · rw [hzero, ENNReal.zero_rpow_of_pos (by linarith)]; simp
+        · have htcinv : 0 < (tc.inv t).toReal := toReal_pos hzero htop
+          rw [lintegral_rpow_of_gt_abs htcinv hγ, ENNReal.ofReal_div_of_pos
+              (by rw [abs_pos]; linarith), ← ENNReal.ofReal_rpow_of_pos htcinv,
+              ofReal_toReal_eq_iff.mpr htop]
+    · simp only [eq_false_of_ne_true xor_split, Bool.false_eq_true, ↓reduceIte]
+      split_ifs with htop
+      · rw [htop, top_rpow_of_neg (by linarith)]; simp
+      · by_cases hzero : (tc.inv t) = 0
+        · rw [hzero, toReal_zero, lintegral_rpow_Ioi_top, zero_rpow_of_neg (by linarith),
+              top_div_of_lt_top]
+          exact coe_lt_top
+        · have htcinv : 0 < (tc.inv t).toReal := toReal_pos hzero htop
+          rw [lintegral_Ioi_rpow_of_lt_abs htcinv hγ, ofReal_div_of_pos
+              (by rw [abs_pos]; linarith), ← ofReal_rpow_of_pos htcinv,
+              ofReal_toReal_eq_iff.mpr htop]
 
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
@@ -1263,8 +1294,8 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneC
     split_ifs at hγ with h
     · have : 0 < γ + 1 := by linarith
       have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
-      simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2]
-      sorry -- easy computation
+      simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2,
+            lintegral_rpow_Ioi_top]
     · have : γ + 1 < 0 := by linarith
       have h1 : ¬(0 < γ + 1) := by order
       have h2 : ¬(γ + 1 = 0) := by order
