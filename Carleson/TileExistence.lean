@@ -1379,10 +1379,6 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
 section ProofData
 include q K σ₁ σ₂ F G
 
-variable (X) in
-lemma one_lt_realD : 1 < (D : ℝ) := by
-  linarith [four_le_realD X]
-
 variable (a) in
 def const_n {t : ℝ} (_ht : t ∈ Ioo 0 1): ℕ := ⌊-Real.logb D t / K'⌋₊
 

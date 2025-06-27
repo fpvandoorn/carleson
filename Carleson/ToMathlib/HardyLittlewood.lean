@@ -557,6 +557,20 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
 irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹
 
+lemma CMB_eq_of_one_lt_q {b q : ℝ≥0} (hq : 1 < q) :
+    CMB b q = 2 * (q / (q - 1) * b ^ 2) ^ (q : ℝ)⁻¹ := by
+  suffices ENNReal.toNNReal 2 * q ^ (q : ℝ)⁻¹ *
+      (ENNReal.ofReal |q - 1|⁻¹).toNNReal ^ (q : ℝ)⁻¹ *
+      (b ^ 2) ^ (q : ℝ)⁻¹ = 2 * (q / (q - 1) * b ^ 2) ^ (q : ℝ)⁻¹ by
+    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
+  norm_cast
+  have e₁ : (ENNReal.ofReal |q - 1|⁻¹).toNNReal = (q - 1)⁻¹ := by
+    rw [ofReal_inv_of_pos]; swap
+    · rw [abs_sub_pos, NNReal.coe_ne_one]; exact hq.ne'
+    rw [toNNReal_inv, inv_inj, ← NNReal.coe_one, ← NNReal.coe_sub hq.le, NNReal.abs_eq,
+      ofReal_coe_nnreal, toNNReal_coe]
+  rw [e₁, mul_assoc, ← NNReal.mul_rpow, mul_assoc, ← NNReal.mul_rpow, ← mul_assoc, div_eq_mul_inv]
+
 lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
   suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
       ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
@@ -927,7 +941,7 @@ protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
 /-- Equation (2.0.45) -/
 theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
     {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
-    ⨍⁻ y, ‖u y‖ₑ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
+    ⨍⁻ y in ball z r, ‖u y‖ₑ ∂μ ≤ globalMaximalFunction μ 1 u x := by
   rw [globalMaximalFunction, maximalFunction]
   simp only [gt_iff_lt, mem_prod, mem_univ, and_true, ENNReal.rpow_one, inv_one]
   have hr : 0 < r := lt_of_le_of_lt dist_nonneg h
@@ -970,6 +984,20 @@ lemma C2_0_6'_defaultA_one_two_eq {a : ℕ}: C2_0_6' (defaultA a) 1 2 = 2 ^ (3 *
   congr 1
   field_simp
   ring
+
+lemma C2_0_6'_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :
+    C2_0_6' (defaultA a) 1 q ≤ 2 ^ (4 * a + 1) * (q / (q - 1)) := by
+  rw [C2_0_6', C2_0_6, div_one, defaultA, Nat.cast_pow, Nat.cast_ofNat, NNReal.coe_one,
+    inv_one, NNReal.rpow_one, CMB_eq_of_one_lt_q hq]
+  calc
+    _ ≤ (2 ^ a) ^ 2 * (2 * (q / (q - 1) * (2 ^ a) ^ 2)) := by
+      conv_rhs => enter [2, 2]; rw [← NNReal.rpow_one (_ * _)]
+      gcongr
+      · nth_rw 1 [← mul_one 1]; gcongr
+        · exact (one_le_div (tsub_pos_of_lt hq)).mpr tsub_le_self
+        · norm_cast; rw [← pow_mul]; exact Nat.one_le_two_pow
+      · rw [inv_le_one_iff₀]; right; exact_mod_cast hq.le
+    _ = _ := by ring
 
 /-- Equation (2.0.46). Easy from `hasStrongType_maximalFunction` -/
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]

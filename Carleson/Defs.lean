@@ -287,7 +287,7 @@ def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥
 This is `G` in Lemma 3.0.1. -/
 def carlesonOperatorIntegrand [FunctionDistances ℝ X] (K : X → X → ℂ)
     (θ : Θ X) (R₁ R₂ : ℝ) (f : X → ℂ) (x : X) : ℂ :=
-  ∫ y in {y | dist x y ∈ Ioo R₁ R₂}, K x y * f y * exp (I * θ y)
+  ∫ y in Annulus.oo x R₁ R₂, K x y * f y * exp (I * θ y)
 
 /-- The linearized generalized Carleson operator `T_Q`, taking values in `ℝ≥0∞`.
 Use `ENNReal.toReal` to get the corresponding real number. -/
@@ -546,6 +546,49 @@ lemma ballsCoverBalls_iterate {x : X} {d R r : ℝ} (hr : 0 < r) :
 
 end Iterate
 
+section DBounds
+
+variable (X)
+
+-- used in 7.5.6 (`limited_scale_impact`)
+lemma hundred_lt_realD [KernelProofData a K] : (100 : ℝ) < defaultD a := by
+  simp only [defaultD]
+  norm_cast
+  calc 100
+    _ < 128 := by
+      linarith
+    _ = 2 ^ 7 := by
+      rfl
+    _ < 2 ^ (100 * a ^ 2) := by
+      have : 4 ≤ a := four_le_a X
+      gcongr
+      · linarith
+      · nlinarith
+
+-- used in 4.1.7 (`small_boundary`)
+lemma twentyfive_le_realD [KernelProofData a K] : (25 : ℝ) ≤ defaultD a := by
+  linarith [hundred_lt_realD X]
+
+-- used in 4.1.3 (`I3_prop_3_1`)
+lemma eight_le_realD [KernelProofData a K] : (8 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+-- used in 4.1.6 (`transitive_boundary`)
+lemma five_le_realD [KernelProofData a K] : (5 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+-- used in various places in `Carleson.TileExistence`
+lemma four_le_realD [KernelProofData a K] : (4 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+lemma one_le_realD [KernelProofData a K] : (1 : ℝ) ≤ defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+lemma one_lt_realD [KernelProofData a K] : (1 : ℝ) < defaultD a := by
+  linarith [twentyfive_le_realD X]
+
+end DBounds
+
 section MeasQ
 
 variable [KernelProofData a K] {Q : SimpleFunc X (Θ X)}
@@ -636,48 +679,9 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
         · exact one_lt_D.le
         · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
 
-section DBounds
-
-variable (X)
-
--- used in 7.5.6 (`limited_scale_impact`)
-lemma hundred_lt_realD : (100 : ℝ) < defaultD a := by
-  simp only [defaultD]
-  norm_cast
-  calc 100
-    _ < 128 := by
-      linarith
-    _ = 2 ^ 7 := by
-      rfl
-    _ < 2 ^ (100 * a ^ 2) := by
-      have : 4 ≤ a := four_le_a X
-      gcongr
-      · linarith
-      · nlinarith
-
--- used in 4.1.7 (`small_boundary`)
-lemma twentyfive_le_realD : (25 : ℝ) ≤ defaultD a := by
-  linarith [hundred_lt_realD X]
-
--- used in 4.1.3 (`I3_prop_3_1`)
-lemma eight_le_realD : (8 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
--- used in 4.1.6 (`transitive_boundary`)
-lemma five_le_realD : (5 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
--- used in various places in `Carleson.TileExistence`
-lemma four_le_realD : (4 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
-lemma one_le_realD : (1 : ℝ) ≤ defaultD a := by
-  linarith [twentyfive_le_realD X]
-
+variable (X) in
 open Classical in
 def defaultS : ℕ := Nat.find (S_spec X)
-
-end DBounds
 
 lemma range_σ₁_subset : range σ₁ ⊆ Icc (-defaultS X) (defaultS X) := by
   classical
