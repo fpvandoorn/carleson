@@ -1148,8 +1148,7 @@ private lemma 𝒥₁_bound {r : ℝ} (hr : 0 < r) (hα : 0 < α) {x : X} (hx : 
       simp only [mem_setOf_eq, mem_ball, 𝒥₁] at hj hy hy'
       linarith [dist_triangle_left x (czCenter hX j) y]
     · exact (hf.czRemainder' (α'_pos hα) hX j).integrable.restrict.const_mul (K x _)
-  _ ≤ ∫⁻ y in czBall3 hX j, ‖(K x y - K x (czCenter hX j)) * czRemainder' hX j y‖ₑ :=
-    enorm_integral_le_lintegral_enorm _
+  _ ≤ _ := enorm_integral_le_lintegral_enorm _
   _ = ∫⁻ y in czBall3 hX j, ‖K x y - K x (czCenter hX j)‖ₑ * ‖czRemainder' hX j y‖ₑ := by simp
   _ ≤ ∫⁻ y in czBall3 hX j, (edist (czCenter hX j) y / edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
         (C_K a / vol x (czCenter hX j)) * ‖czRemainder' hX j y‖ₑ := by
@@ -1164,8 +1163,7 @@ private lemma 𝒥₁_bound {r : ℝ} (hr : 0 < r) (hα : 0 < α) {x : X} (hx : 
     refine setLIntegral_mono' measurableSet_ball fun y hy ↦ mul_le_mul_right' ?_ _
     gcongr
     exact edist_dist (czCenter hX j) y ▸ ENNReal.ofReal_le_ofReal (mem_ball'.mp hy).le
-  _ = _ * ∫⁻ y in czBall3 hX j, ‖czRemainder' hX j y‖ₑ :=
-    lintegral_const_mul'' _ (hf.aemeasurable.czRemainder' hX j).enorm.restrict
+  _ = _ := lintegral_const_mul'' _ (hf.aemeasurable.czRemainder' hX j).enorm.restrict
   _ ≤ (.ofReal (3 * czRadius hX j) / edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
         (C_K a / vol x (czCenter hX j)) * (2 ^ (2 * a + 1) * (α' a α) * volume (czBall3 hX j)) := by
     refine mul_left_mono <| le_trans (setLIntegral_le_lintegral _ _) ?_
