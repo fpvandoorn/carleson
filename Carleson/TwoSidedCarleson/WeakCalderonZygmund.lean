@@ -960,9 +960,29 @@ lemma tsum_volume_czBall3_le [Nonempty X] (hf : BoundedFiniteSupport f)
   _ = 2 ^ (6 * a) / α * eLpNorm f 1 volume := by
     rw [C10_2_1_def, mul_div_assoc', mul_comm (_ / α), mul_div, ← mul_assoc]; norm_cast; ring_nf
 
+lemma tsum_volume_czBall2_le [Nonempty X] (hf : BoundedFiniteSupport f)
+    (hX : GeneralCase f α) (hα : 0 < α) :
+    ∑' i, volume (czBall2 hX i) ≤ 2 ^ (5 * a) / α * eLpNorm f 1 volume := by
+  calc
+  _ ≤ ∑' i, 2 ^ a * volume (czBall hX i) := by
+    gcongr with i; unfold czBall2 czBall
+    convert measure_ball_two_le_same (μ := volume) (czCenter hX i) (czRadius hX i)
+    unfold defaultA; norm_cast
+  _ ≤ 2 ^ a * volume (globalMaximalFunction volume 1 f ⁻¹' Ioi α) := by
+    simp_rw [← smul_eq_mul, ENNReal.tsum_const_smul]
+    gcongr
+    rw [← measure_iUnion ?_ (fun i ↦ measurableSet_ball), ← iUnion_czPartition]
+    · exact measure_mono <| iUnion_mono (fun i ↦ czBall_subset_czPartition)
+    · refine (pairwise_disjoint_on (czBall hX)).mpr fun i j h ↦ ?_
+      exact czBall_pairwiseDisjoint (mem_univ i) (mem_univ j) h.ne
+  _ ≤ 2 ^ a * ((C10_2_1 a) * eLpNorm f 1 volume / α) :=
+    mul_le_mul_left' (maximal_theorem'' hα hf) _
+  _ = _ := by
+    rw [C10_2_1_def, mul_div_assoc', mul_comm (_ / α), mul_div, ← mul_assoc]; norm_cast; ring_nf
+
 /-- Part of Lemma 10.2.5, equation (10.2.22) (finite case). -/
-lemma volume_univ_le [Nonempty X] {hf : BoundedFiniteSupport f}
-    (hX : ¬ GeneralCase f α) (hα : 0 < α) :
+lemma volume_univ_le [Nonempty X] (hf : BoundedFiniteSupport f)
+    (hX : ¬GeneralCase f α) (hα : 0 < α) :
     volume (univ : Set X) ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := by
   convert maximal_theorem'' hα hf using 1
   · simp_all [GeneralCase]
@@ -1201,38 +1221,53 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
         c10_0_3, show a ^ 3 + 12 * a + 4 = a ^ 3 + 11 * a + 4 + a by ring, pow_add _ _ a,
         mul_inv, ← mul_assoc, mul_inv_cancel₀ (by positivity), one_mul]
 
-variable [IsCancellative X (defaultτ a)]
-
 /-- The constant used in `estimate_bad`. -/
-irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a) / c10_0_3 a + 2 ^ (a ^ 3 + 9 * a + 4)
+irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a) + (2 ^ a)⁻¹
 
--- In the proof, case on `GeneralCase f α`, noting in the finite case that `Ω = univ`
 /-- Lemma 10.2.9 -/
-lemma estimate_bad (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
-    (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
+lemma estimate_bad
+    (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
     distribution (czOperator K r (czRemainder f α)) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
-  calc
-    _ ≤ volume (Ω f α ∪ {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ}) := by
-      refine measure_mono fun x mx ↦ ?_
-      rw [mem_setOf_eq] at mx
-      simp_rw [mem_union, mem_setOf_eq, mx, and_true, mem_compl_iff]; tauto
-    _ ≤ volume (Ω f α) + volume {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ} :=
-      measure_union_le _ _
-    _ ≤ ∑' i, volume (czBall2 hX i) +
-        volume ((Ω f α)ᶜ ∩ czOperatorBound hX ⁻¹' Ioi (α / 8)) := by
-      gcongr
-      · simp_rw [Ω, hX, dite_true]; exact measure_iUnion_le _
-      · intro x mx; simp_rw [mem_setOf_eq, mem_inter_iff, mem_preimage, mem_Ioi] at mx ⊢
-        obtain ⟨mx₁, mx₂⟩ := mx; refine ⟨mx₁, ?_⟩; contrapose! mx₂
+  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
+  by_cases hX : GeneralCase f α
+  · calc
+      _ ≤ volume (Ω f α ∪ {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ}) := by
+        refine measure_mono fun x mx ↦ ?_
+        rw [mem_setOf_eq] at mx
+        simp_rw [mem_union, mem_setOf_eq, mx, and_true, mem_compl_iff]; tauto
+      _ ≤ volume (Ω f α) + volume {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ} :=
+        measure_union_le _ _
+      _ ≤ ∑' i, volume (czBall2 hX i) +
+          volume ((Ω f α)ᶜ ∩ czOperatorBound hX ⁻¹' Ioi (α / 8)) := by
+        gcongr
+        · simp_rw [Ω, hX, dite_true]; exact measure_iUnion_le _
+        · intro x mx; simp_rw [mem_setOf_eq, mem_inter_iff, mem_preimage, mem_Ioi] at mx ⊢
+          obtain ⟨mx₁, mx₂⟩ := mx; refine ⟨mx₁, ?_⟩; contrapose! mx₂
+          calc
+            _ ≤ 3 * czOperatorBound hX x + α / 8 := estimate_bad_partial ha hf hα mx₁ hX
+            _ ≤ 3 * (α / 8) + α / 8 := by gcongr
+            _ = _ := by
+              rw [← add_one_mul, show (3 : ℝ≥0∞) + 1 = 4 by norm_num,
+                show (8 : ℝ≥0∞) = 4 * 2 by norm_num, ← mul_div_assoc,
+                ENNReal.mul_div_mul_left _ _ (by norm_num) (by norm_num)]
+      _ ≤ 2 ^ (5 * a) / α * eLpNorm f 1 volume + (2 ^ a)⁻¹ / α * eLpNorm f 1 volume := by
+        gcongr with i
+        · exact tsum_volume_czBall2_le hf hX αpos
+        · exact distribution_czOperatorBound ha hf hα hX
+      _ = _ := by
+        rw [← add_mul, ← ENNReal.add_div, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← coe_pow, ← coe_pow,
+          ← coe_inv (by positivity), ← coe_add, C10_2_9]
+  · calc
+      _ ≤ volume (univ : Set X) := measure_mono (subset_univ _)
+      _ ≤ 2 ^ (4 * a) / α * eLpNorm f 1 volume := volume_univ_le hf hX αpos
+      _ ≤ _ := by
+        rw [show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← coe_pow, C10_2_9]; gcongr
         calc
-          _ ≤ 3 * czOperatorBound hX x + α / 8 := estimate_bad_partial ha hf hα mx₁ hX
-          _ ≤ 3 * (α / 8) + α / 8 := by gcongr
-          _ = _ := by
-            rw [← add_one_mul, show (3 : ℝ≥0∞) + 1 = 4 by norm_num,
-              show (8 : ℝ≥0∞) = 4 * 2 by norm_num, ← mul_div_assoc,
-              ENNReal.mul_div_mul_left _ _ (by norm_num) (by norm_num)]
-    _ ≤ _ := sorry
+          _ ≤ (2 : ℝ≥0) ^ (5 * a) := by gcongr <;> norm_num
+          _ ≤ _ := le_self_add
+
+variable [IsCancellative X (defaultτ a)]
 
 /- ### Lemmas 10.0.3 -/
 
@@ -1248,6 +1283,5 @@ theorem czoperator_weak_1_1 (ha : 4 ≤ a) (hr : 0 < r)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedWeakType (czOperator K r) 1 1 volume volume (C10_0_3 a) := by
   sorry
-
 
 end

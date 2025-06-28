@@ -7889,7 +7889,6 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \end{equation*}
 \end{proof}
 
-
 \begin{lemma}[Estimate bad]
     \label{estimate-bad}
     \leanok
@@ -7897,11 +7896,12 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \uses{Calderon-Zygmund-decomposition,estimate-bad-partial,estimate-F-set}
     We have
     \begin{equation*}
-        \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le  \frac{\frac{2^{5a}}{c} + 2^{-a}}{\alpha} \int |f(y)|\,d\mu(y) \,.
+        \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le \frac{2^{5a} + 2^{-a}}{\alpha} \int |f(y)|\,d\mu(y) \,.
     \end{equation*}
 \end{lemma}
 
 \begin{proof}
+    \leanok
     We estimate
     \begin{equation*}
         \mu\left(\{x\in X: |T_r b(x)|>\alpha/2\}\right)
@@ -7913,8 +7913,8 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
     \begin{equation}
         \label{eq-omega-bd}
-        \mu(\Omega) \le \sum_{j} \mu (B_j')
-        \le 2^{a} \sum_{j} \mu(B_j) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
+        \mu(\Omega) \le \sum_j \mu (B_j')
+        \le 2^a \sum_j \mu(B_j) \le \frac{2^{5a}}{\alpha} \int |f(y)|\, d\mu(y)\,.
     \end{equation}
     It follows from \Cref{estimate-bad-partial} and the triangle inequality that
     \begin{equation}
