@@ -415,8 +415,8 @@ lemma integrableOn_K_mul [IsOpenPosMeasure (volume : Measure X)]
   use (measurable_K_right x).aestronglyMeasurable.mul hf.aestronglyMeasurable |>.restrict
   exact (hasFiniteIntegral_def _ _).mpr <| calc
     _ = ∫⁻ y in (ball x r)ᶜ, ‖K x y‖ₑ * ‖f y‖ₑ := by simp
-    _ ≤ ∫⁻ y in (ball x r)ᶜ, C_K a / volume (ball x r) * ‖f y‖ₑ := by
-      exact setLIntegral_mono_ae (hf.aemeasurable.enorm.const_mul _).restrict <|
+    _ ≤ ∫⁻ y in (ball x r)ᶜ, C_K a / volume (ball x r) * ‖f y‖ₑ :=
+      setLIntegral_mono_ae (hf.aemeasurable.enorm.const_mul _).restrict <|
         Filter.Eventually.of_forall fun y hy ↦ mul_le_mul_right' (enorm_K_le_ball_complement hy) _
     _ = _ * ∫⁻ y in (ball x r)ᶜ, ‖f y‖ₑ := lintegral_const_mul'' _ hf.aemeasurable.enorm.restrict
     _ ≤ _ * ∫⁻ y, ‖f y‖ₑ := mul_le_mul_left' (setLIntegral_le_lintegral _ _) _
