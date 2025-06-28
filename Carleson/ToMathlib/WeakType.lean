@@ -818,7 +818,7 @@ lemma lintegral_norm_pow_eq_distribution {f : α → E} (hf : AEStronglyMeasurab
           (∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal (t ^ (p - 1))) * μ {x | ‖f x‖ₑ = ∞} := by
         convert (top_mul ae_finite.ne.symm).symm
         convert (mul_top (ENNReal.ofReal_pos.mpr hp).ne.symm)
-        sorry --TODO: This should be some lemma
+        sorry --TODO: use integral_rpow, then use monotone convergence -> state this for set integrals
       _ = ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
             * μ {x | ‖f x‖ₑ = ∞} := by
         rw [lintegral_mul_const, lintegral_const_mul]

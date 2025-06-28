@@ -210,7 +210,11 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
     rw [h₉, top_le_iff] at r₁_le_r₂
     exact h₅ r₁_le_r₂
   · exact norm_f
-  · --Now the only interesting case
+  · by_cases r₁_top : r₁ = ∞
+    · convert norm_f
+      rw [r₁_top, top_le_iff] at r₁_le_r₂
+      rw [r₁_top, r₁_le_r₂]
+    --Now the only interesting case
     unfold eLorentzNorm' at norm_f
     rw [ENNReal.mul_lt_top_iff] at norm_f
     rcases norm_f with ⟨_, norm_lt_top⟩ | p_zero | norm_zero
@@ -267,9 +271,36 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
         exact (MeasureTheory.MemLp_of_MemLp_le_of_MemLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
       /-hardest part here;
         TODO: Is this even true? Use: wnorm_le_eLpNorm, -/
-      rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀]
-      sorry
+      rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne.symm r₁_top,
+          lintegral_withDensity_eq_lintegral_mul₀ sorry sorry, integral_nnreal'] at norm_lt_top
+      --,ENNReal.rpow_lt_top_iff_of_pos (by rw [one_div, inv_pos]; exact ENNReal.toReal_pos r₁_pos.ne.symm r₁_top)
+      simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
+      rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀, wnorm_ne_top h₁, wnorm']
+      rw [iSup_lt_iff]
+
+      exists _, norm_lt_top
+      intro s
+      calc _
+        _ = (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, (↑x.toNNReal)⁻¹ *
+              (↑x.toNNReal * distribution f s μ ^ p.toReal⁻¹) ^ r₁.toReal) ^ r₁.toReal⁻¹ := by
+          --TODO: simplify this and integrate monomial to get this.
+          sorry
+        _ ≤ (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, (↑x.toNNReal)⁻¹ *
+              (↑x.toNNReal * distribution f (↑x.toNNReal) μ ^ p.toReal⁻¹) ^ r₁.toReal) ^ r₁.toReal⁻¹ := by
+          apply ENNReal.rpow_le_rpow _ (by simp only [inv_nonneg, ENNReal.toReal_nonneg])
+          apply setLIntegral_mono' measurableSet_Ioo
+          intro t ht
+          gcongr
+          exact Real.toNNReal_le_iff_le_coe.mpr ht.2.le
+        _ ≤ (∫⁻ (x : ℝ) in Set.Ioi 0, (↑x.toNNReal)⁻¹ * (↑x.toNNReal * distribution f (↑x.toNNReal) μ ^ p.toReal⁻¹) ^ r₁.toReal) ^
+            r₁.toReal⁻¹ := by
+          gcongr
+          --apply setLIntegral_mono_set
+          sorry
+      --use  norm_lt_top
+      --sorry
       --have := (wnorm_le_eLpNorm meas_f _).trans_lt norm_lt_top
+
 
     · exfalso
       rw [ENNReal.rpow_eq_zero_iff] at p_zero

@@ -116,7 +116,12 @@ lemma integral_nnreal {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = �
   simp
   rfl
 
-lemma integral_nnreal' {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := sorry
+lemma integral_nnreal' {f : ℝ≥0 → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f x.toNNReal := by
+  rw [integral_nnreal]
+  apply setLIntegral_congr
+  exact Filter.EventuallyEq.symm Ioi_ae_eq_Ici
+
+lemma integral_ennreal {f : ℝ≥0∞ → ℝ≥0∞} : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) := sorry
 
 -- TODO: prove these integral lemmas and name them properly
 lemma todo' (f : ℝ≥0 → ℝ≥0∞) : ∫⁻ x : ℝ≥0, f x = ∫⁻ x in Ioi (0 : ℝ), f (Real.toNNReal x) := sorry
