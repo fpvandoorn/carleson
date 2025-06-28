@@ -1175,5 +1175,3 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
         gcongr
 
 end
-
-#min_imports

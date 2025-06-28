@@ -1058,7 +1058,7 @@ def czOperatorBound (hX : GeneralCase f α) (x : X) : ℝ≥0∞ :=
 
 /-- Lemma 10.2.7.
 Note that `hx` implies `hX`, but we keep the superfluous hypothesis to shorten the statement. -/
-lemma estimate_bad_partial (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
+lemma estimate_bad_partial (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hx : x ∈ (Ω f α)ᶜ) (hX : GeneralCase f α) :
     ‖czOperator K r (czRemainder f α) x‖ₑ ≤ 3 * czOperatorBound hX x + α / 8 := by
@@ -1206,13 +1206,33 @@ variable [IsCancellative X (defaultτ a)]
 /-- The constant used in `estimate_bad`. -/
 irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a) / c10_0_3 a + 2 ^ (a ^ 3 + 9 * a + 4)
 
-/-- Lemma 10.2.9 -/
 -- In the proof, case on `GeneralCase f α`, noting in the finite case that `Ω = univ`
+/-- Lemma 10.2.9 -/
 lemma estimate_bad (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
-    (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
+    (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
     distribution (czOperator K r (czRemainder f α)) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
-  sorry
+  calc
+    _ ≤ volume (Ω f α ∪ {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ}) := by
+      refine measure_mono fun x mx ↦ ?_
+      rw [mem_setOf_eq] at mx
+      simp_rw [mem_union, mem_setOf_eq, mx, and_true, mem_compl_iff]; tauto
+    _ ≤ volume (Ω f α) + volume {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ} :=
+      measure_union_le _ _
+    _ ≤ ∑' i, volume (czBall2 hX i) +
+        volume ((Ω f α)ᶜ ∩ czOperatorBound hX ⁻¹' Ioi (α / 8)) := by
+      gcongr
+      · simp_rw [Ω, hX, dite_true]; exact measure_iUnion_le _
+      · intro x mx; simp_rw [mem_setOf_eq, mem_inter_iff, mem_preimage, mem_Ioi] at mx ⊢
+        obtain ⟨mx₁, mx₂⟩ := mx; refine ⟨mx₁, ?_⟩; contrapose! mx₂
+        calc
+          _ ≤ 3 * czOperatorBound hX x + α / 8 := estimate_bad_partial ha hf hα mx₁ hX
+          _ ≤ 3 * (α / 8) + α / 8 := by gcongr
+          _ = _ := by
+            rw [← add_one_mul, show (3 : ℝ≥0∞) + 1 = 4 by norm_num,
+              show (8 : ℝ≥0∞) = 4 * 2 by norm_num, ← mul_div_assoc,
+              ENNReal.mul_div_mul_left _ _ (by norm_num) (by norm_num)]
+    _ ≤ _ := sorry
 
 /- ### Lemmas 10.0.3 -/
 

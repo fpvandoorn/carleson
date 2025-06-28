@@ -7897,7 +7897,7 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \uses{Calderon-Zygmund-decomposition,estimate-bad-partial,estimate-F-set}
     We have
     \begin{equation*}
-        \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le  \frac{\frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y) \,.
+        \mu\left({\{x\in X: |T_r b(x)|>\alpha/2\}}\right) \le  \frac{\frac{2^{5a}}{c} + 2^{-a}}{\alpha} \int |f(y)|\,d\mu(y) \,.
     \end{equation*}
 \end{lemma}
 
@@ -7936,8 +7936,8 @@ It follows by the triangle inequality and subadditivity of $\mu$ that
 \end{equation*}
 Using \Cref{estimate-good}, \Cref{estimate-bad} and the definition \eqref{weak-1-1-proof-cz-const} of $c$, we get
 \begin{align*}
-    \le& \frac{2^{2a^3+3a+2}c + \frac{2^{5a}}{c} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y) \\
-    =& \frac{2^{a^3-9a-2} + 2^{a^3+17a+4} + 2^{a^3+9a+4}}{\alpha} \int |f(y)|\, d\mu(y) \\
+    \le& \frac{2^{2a^3+3a+2}c + \frac{2^{5a}}{c} + 2^{-a}}{\alpha} \int |f(y)|\, d\mu(y) \\
+    =& \frac{2^{a^3-9a-2} + 2^{a^3+17a+4} + 2^{-a}}{\alpha} \int |f(y)|\, d\mu(y) \\
     \le& \frac{2^{a^3 + 19a}}{\alpha} \int |f(y)|\, d\mu(y).
 \end{align*}
 %fixme: Check constants.
