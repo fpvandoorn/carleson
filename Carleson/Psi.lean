@@ -893,19 +893,14 @@ lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X �
 
 /-- The function `y ↦ Ks s x y` is integrable. -/
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by
-  /- Define a measurable, bounded function `K₀` that is equal to `K x` on the support of
-  `y ↦ ψ (D ^ (-s) * dist x y)`, so that `Ks s x y = K₀ y * ψ (D ^ (-s) * dist x y)`. -/
-  let _ : PosMulReflectLE ℝ := inferInstance -- perf: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/performance.20example.20with.20type-class.20inference
-  let K₀ (y : X) : ℂ := ite (dist x y ≤ D ^ s / (4 * D)) 0 (K x y)
-  have : Ks s x = fun y ↦ K₀ y * (ψ (D ^ (-s) * dist x y) : ℂ) := by
-    ext y
-    by_cases hy : dist x y ≤ D ^ s / (4 * D)
-    · suffices D ^ (-s) * dist x y ≤ 1 / (4 * D) by simp [-defaultD, -zpow_neg, Ks, ψ_formula₀ this]
-      apply le_of_le_of_eq <| (mul_le_mul_left (zpow_pos (one_pos.trans (D1 X)) (-s))).2 hy
-      field_simp
-    · simp [-defaultD, Ks, K₀, hy]
-  rw [this]
-  refine Integrable.bdd_mul ?_ (Measurable.aestronglyMeasurable ?_) ?_
+  let r := D ^ s * ((D : ℝ)⁻¹ * (4 : ℝ)⁻¹)
+  have hr : 0 < r := by positivity
+  refine (integrableOn_iff_integrable_of_support_subset ?_).mp (integrableOn_K_mul ?_ x hr)
+  · intro y hy
+    rw [mem_compl_iff, mem_ball', not_lt]
+    have : «ψ» D (((D : ℝ) ^ s)⁻¹ * dist x y) ≠ 0 := by simp_all [Ks]
+    rw [← Function.mem_support, support_ψ hD, mul_inv_rev] at this
+    exact le_inv_mul_iff₀ (defaultD_pow_pos a s) |>.mp this.1.le
   · apply Continuous.integrable_of_hasCompactSupport
     · exact continuous_ofReal.comp <| continuous_ψ.comp <| (by fun_prop)
     · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
@@ -914,20 +909,6 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       replace hy := hy.2.le
       rw [zpow_neg, mul_comm, ← div_eq_mul_inv, div_le_iff₀ (Ds0 X s)] at hy
       rwa [mem_closedBall, dist_comm, div_eq_mul_inv, mul_comm]
-  · refine Measurable.ite ?_ measurable_const measurable_K.of_uncurry_left
-    convert measurableSet_closedBall (x := x) (ε := D ^ s / (4 * D))
-    simp_rw [dist_comm x _, closedBall]
-  · refine ⟨C_K a / volume.real (ball x (D ^ s / (4 * D))), fun y ↦ ?_⟩
-    by_cases hy : dist x y ≤ D ^ s / (4 * D)
-    · simp only [hy, reduceIte, norm_zero, C_K, K₀]
-      positivity
-    · simp only [hy, reduceIte, K₀]
-      apply (norm_K_le_vol_inv x y).trans
-      rw [Real.vol]
-      gcongr
-      · exact measure_ball_pos_real x _ (div_pos (Ds0 X s) (fourD0 hD))
-      · exact measure_ball_ne_top
-      · exact le_of_not_ge hy
 
 end PseudoMetricSpace
 
