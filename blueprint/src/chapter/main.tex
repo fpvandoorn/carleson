@@ -7856,11 +7856,12 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     For $F$ as defined in \Cref{estimate-bad-partial}, we have
     \begin{equation}
         \label{eq-F-X-minus-Omega}
-        \mu(\{x\in X\setminus\Omega: F(x)>\alpha/8\}) \le \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
+        \mu(\{x\in X\setminus\Omega: F(x)>\alpha/8\}) \le \frac{2^{-a}}{\alpha} \int |f(y)|\,d\mu(y)\,.
     \end{equation}
 \end{lemma}
 
 \begin{proof}
+    \leanok
     We estimate
     \begin{align}
         \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\})
@@ -7882,9 +7883,9 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
         \le&2^{3a},
     \end{align*}
     where we used \Cref{geometric-series-estimate} in the last step.
-    Plugging this into \eqref{eq-F-est-1} and using \eqref{eq-bset-length-sum}, we conclude that
+    Plugging this into \eqref{eq-F-est-1} and using \eqref{eq-bset-length-sum} and \eqref{weak-1-1-proof-cz-const}, we conclude that
     \begin{equation*}
-        \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}) \le \frac{2^{a^3+9a+4}}{\alpha} \int |f(y)|\,d\mu(y)\,.
+        \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\}) \le \frac{2^{-a}}{\alpha} \int |f(y)|\,d\mu(y)\,.
     \end{equation*}
 \end{proof}
 

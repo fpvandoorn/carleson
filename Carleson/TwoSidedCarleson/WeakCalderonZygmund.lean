@@ -1,6 +1,5 @@
-import Carleson.TwoSidedCarleson.Basic
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Integral.Average
+import Carleson.TwoSidedCarleson.Basic
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
 open scoped NNReal
@@ -945,7 +944,7 @@ lemma eLpNorm_czRemainder_le [Nonempty X] {hf : BoundedFiniteSupport f}
       rw [← mul_assoc]; gcongr; simpa using pow_le_pow_right' one_le_two (Nat.le_add_left 1 (2 * a))
 
 /-- Part of Lemma 10.2.5, equation (10.2.22) (general case). -/
-lemma tsum_volume_czBall3_le [Nonempty X] {hf : BoundedFiniteSupport f}
+lemma tsum_volume_czBall3_le [Nonempty X] (hf : BoundedFiniteSupport f)
     (hX : GeneralCase f α) (hα : 0 < α) :
     ∑' i, volume (czBall3 hX i) ≤ 2 ^ (6 * a) / α * eLpNorm f 1 volume := calc
   _ ≤ ∑' i, 2 ^ (2 * a) * volume (czBall hX i) := ENNReal.tsum_le_tsum (volume_czBall3_le hX)
@@ -1057,8 +1056,6 @@ def czOperatorBound (hX : GeneralCase f α) (x : X) : ℝ≥0∞ :=
   C10_2_7 a * α * ∑' i, ((czRadius hX i).toNNReal / nndist x (czCenter hX i)) ^ (a : ℝ)⁻¹ *
     volume (czBall3 hX i) / volume (ball x (dist x (czCenter hX i)))
 
-variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
-
 /-- Lemma 10.2.7.
 Note that `hx` implies `hX`, but we keep the superfluous hypothesis to shorten the statement. -/
 lemma estimate_bad_partial (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
@@ -1067,27 +1064,155 @@ lemma estimate_bad_partial (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
     ‖czOperator K r (czRemainder f α) x‖ₑ ≤ 3 * czOperatorBound hX x + α / 8 := by
   sorry
 
-/-- The constant used in `distribution_czOperatorBound`. -/
-irreducible_def C10_2_8 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 9 * a + 4)
+lemma aemeasurable_V {y : X} :
+    AEMeasurable (fun x ↦ volume (ball x (dist x y))) volume := by
+  sorry
+
+lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f α) {i : ℕ} :
+    ∫⁻ x in (Ω f α)ᶜ, ((czRadius hX i).toNNReal / edist x (czCenter hX i)) ^ (a : ℝ)⁻¹ /
+      volume (ball x (dist x (czCenter hX i))) ≤ 2 ^ (3 * a) := by
+  set r := czRadius hX i
+  set c := czCenter hX i
+  rcases le_or_gt r 0 with hr | hr
+  · simp_rw [Real.toNNReal_of_nonpos hr, coe_zero, ENNReal.zero_div]
+    rw [ENNReal.zero_rpow_of_pos (by rw [inv_pos, Nat.cast_pos]; exact zero_lt_four.trans_le ha)]
+    simp_rw [ENNReal.zero_div, lintegral_zero]; exact zero_le _
+  calc
+    _ ≤ ∫⁻ x in (czBall2 hX i)ᶜ,
+        (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / volume (ball x (dist x c)) := by
+      apply lintegral_mono_set; simp_rw [compl_subset_compl, Ω, hX, dite_true]
+      exact subset_iUnion ..
+    _ ≤ ∫⁻ x in (czBall2 hX i)ᶜ,
+        (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / (volume (ball c (dist x c)) / 2 ^ a) := by
+      gcongr with x; apply div_le_of_le_mul
+      calc
+        _ ≤ volume (ball x (2 * dist x c)) :=
+          measure_mono (ball_subset_ball' (by rw [dist_comm, two_mul]))
+        _ ≤ _ := by
+          rw [mul_comm _ (2 ^ a)]
+          convert measure_ball_two_le_same (μ := volume) x (dist x c)
+          unfold defaultA; norm_cast
+    _ = 2 ^ a * ∫⁻ x in (czBall2 hX i)ᶜ,
+        (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / volume (ball c (dist x c)) := by
+      rw [← lintegral_const_mul' _ _ (by finiteness)]; congr! 2 with x
+      rw [ENNReal.div_eq_inv_mul, ENNReal.inv_div (.inl (by finiteness)) (.inl (by positivity)),
+        ENNReal.mul_comm_div]
+    _ ≤ 2 ^ a * ∫⁻ x in ⋃ n, ball c (2 ^ (n + 1) * r) \ ball c (2 ^ n * r),
+        (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / volume (ball c (dist x c)) := by
+      gcongr; refine lintegral_mono_set fun x mx ↦ ?_
+      rw [czBall2, mem_compl_iff, mem_ball, not_lt] at mx; change 2 * r ≤ dist x c at mx
+      rw [mem_iUnion]; use ⌊Real.logb 2 (dist x c / r)⌋₊; simp_rw [mem_diff, mem_ball, not_lt]
+      have dxcpos : 0 < dist x c := lt_of_lt_of_le (by positivity) mx
+      have dxceq : dist x c = 2 ^ (Real.logb 2 (dist x c / r)) * r := by
+        rw [Real.rpow_logb zero_lt_two (by norm_num) (by positivity), div_mul_cancel₀ _ hr.ne']
+      constructor
+      · nth_rw 1 [dxceq, ← Real.rpow_natCast]; push_cast; gcongr
+        exact Real.rpow_lt_rpow_of_exponent_lt one_lt_two (Nat.lt_floor_add_one _)
+      · nth_rw 2 [dxceq]; rw [← Real.rpow_natCast]; gcongr
+        · exact one_le_two
+        · refine Nat.floor_le (Real.logb_nonneg one_lt_two ((one_le_div₀ hr).mpr ?_))
+          linarith only [hr, mx]
+    _ ≤ 2 ^ a * ∑' n, ∫⁻ x in ball c (2 ^ (n + 1) * r) \ ball c (2 ^ n * r),
+        (r.toNNReal / edist x c) ^ (a : ℝ)⁻¹ / volume (ball c (dist x c)) := by
+      gcongr; exact lintegral_iUnion_le _ _
+    _ ≤ 2 ^ a * ∑' n, ∫⁻ x in ball c (2 ^ (n + 1) * r) \ ball c (2 ^ n * r),
+        (2 ^ n)⁻¹ ^ (a : ℝ)⁻¹ / volume (ball c (2 ^ n * r)) := by
+      gcongr 2 ^ a * ∑' n, ?_ with n
+      refine setLIntegral_mono' (measurableSet_ball.diff measurableSet_ball) fun x mx ↦ ?_
+      simp_rw [mem_diff, mem_ball, not_lt] at mx
+      gcongr
+      · change ENNReal.ofReal r / _ ≤ _
+        have dxcpos : 0 < dist x c := lt_of_lt_of_le (by positivity) mx.2
+        rw [le_inv_iff_mul_le, mul_comm, ← mul_div_assoc, show 2 = ENNReal.ofReal 2 by simp,
+          ← ofReal_pow zero_le_two, ← ofReal_mul (by positivity), edist_dist,
+          ← ofReal_div_of_pos dxcpos, ← ofReal_one]
+        apply ofReal_le_ofReal; rw [div_le_one dxcpos]; exact mx.2
+      · exact mx.2
+    _ = 2 ^ a * ∑' n : ℕ, 2 ^ (-n / a : ℝ) *
+        (volume (ball c (2 ^ (n + 1) * r) \ ball c (2 ^ n * r)) / volume (ball c (2 ^ n * r))) := by
+      congr! 3 with n; rw [setLIntegral_const, ← ENNReal.mul_div_right_comm, ← mul_div_assoc]
+      congr 2; rw [← rpow_natCast, ← rpow_neg, ← rpow_mul, ← div_eq_mul_inv]
+    _ ≤ 2 ^ a * ∑' n : ℕ, 2 ^ (-n / a : ℝ) * 2 ^ a := by
+      gcongr with n; apply div_le_of_le_mul
+      calc
+        _ ≤ volume (ball c (2 * (2 ^ n * r))) := by
+          rw [← mul_assoc, ← pow_succ']; exact measure_mono diff_subset
+        _ ≤ _ := by
+          convert measure_ball_two_le_same (μ := volume) c (2 ^ n * r)
+          unfold defaultA; norm_cast
+    _ ≤ 2 ^ a * 2 ^ a * 2 ^ a := by
+      rw [ENNReal.tsum_mul_right, ← mul_assoc]; gcongr
+      rw [← rpow_natCast]; exact geometric_series_estimate (by norm_cast; omega)
+    _ = _ := by norm_cast; ring
+
+variable [CompatibleFunctions ℝ X (defaultA a)]
 
 /-- Lemma 10.2.8 -/
-lemma distribution_czOperatorBound (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
+lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
     volume ((Ω f α)ᶜ ∩ czOperatorBound hX ⁻¹' Ioi (α / 8)) ≤
-    C10_2_8 a / α * eLpNorm f 1 volume := by
-  sorry
+    (2 ^ a)⁻¹ / α * eLpNorm f 1 volume := by
+  rcases eq_zero_or_pos α with rfl | αpos; · simp at hα
+  rcases eq_top_or_lt_top α with rfl | αlt
+  · have : czOperatorBound hX ⁻¹' Ioi (⊤ / 8) = ∅ := by
+      rw [top_div_of_ne_top (by norm_num), isMax_top.Ioi_eq, preimage_empty]
+    rw [this, inter_empty, measure_empty]; exact zero_le _
+  calc
+    _ ≤ (volume.restrict (Ω f α)ᶜ) {x | α / 8 ≤ czOperatorBound hX x} := by
+      rw [inter_comm, ← Measure.restrict_apply']; swap
+      · apply MeasurableSet.compl; simp_rw [Ω, hX, dite_true]
+        exact MeasurableSet.iUnion fun _ ↦ measurableSet_ball
+      gcongr; intro x mx; simp only [mem_preimage, mem_Ioi, mem_setOf_eq] at mx ⊢; exact mx.le
+    _ ≤ (∫⁻ x in (Ω f α)ᶜ, czOperatorBound hX x) / (α / 8) := by
+      apply meas_ge_le_lintegral_div
+      · refine ((AEMeasurable.ennreal_tsum fun i ↦ ?_).const_mul _).restrict
+        refine AEMeasurable.div ?_ aemeasurable_V
+        refine ((AEMeasurable.const_div ?_ _).pow_const _).mul_const _
+        simp only [coe_nnreal_ennreal_nndist]
+        exact aemeasurable_id'.edist aemeasurable_const
+      · simp [αpos.ne']
+      · exact ENNReal.div_ne_top αlt.ne (by norm_num)
+    _ ≤ 8 * C10_2_7 a * ∑' i, volume (czBall3 hX i) * ∫⁻ x in (Ω f α)ᶜ,
+        ((czRadius hX i).toNNReal / edist x (czCenter hX i)) ^ (a : ℝ)⁻¹ /
+        volume (ball x (dist x (czCenter hX i))) := by
+      unfold czOperatorBound
+      rw [lintegral_const_mul' _ _ (by finiteness), ENNReal.div_eq_inv_mul,
+        ENNReal.inv_div (.inr αlt.ne) (.inr αpos.ne'), ← mul_assoc, ← mul_assoc,
+        ← ENNReal.mul_div_right_comm, ENNReal.div_mul_cancel αpos.ne' αlt.ne]
+      simp only [coe_nnreal_ennreal_nndist]
+      rw [lintegral_tsum]; swap
+      · refine fun i ↦ (AEMeasurable.div ?_ aemeasurable_V).restrict
+        refine ((AEMeasurable.const_div ?_ _).pow_const _).mul_const _
+        exact aemeasurable_id'.edist aemeasurable_const
+      congr! 3 with i
+      rw [← lintegral_const_mul' _ _ (by finiteness)]; congr 2 with x
+      rw [← ENNReal.mul_comm_div, mul_div_assoc, mul_comm]
+    _ ≤ 8 * C10_2_7 a * ∑' i, volume (czBall3 hX i) * 2 ^ (3 * a) := by
+      gcongr with i; exact czOperatorBound_inner_le ha hX
+    _ ≤ 8 * C10_2_7 a * 2 ^ (3 * a) * (2 ^ (6 * a) / α * eLpNorm f 1 volume) := by
+      rw [ENNReal.tsum_mul_right, mul_comm _ (2 ^ _), ← mul_assoc]; gcongr
+      exact tsum_volume_czBall3_le hf hX αpos
+    _ = _ := by
+      rw [← mul_assoc, ← mul_div_assoc, show (8 : ℝ≥0∞) = 2 ^ 3 by norm_num,
+        show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl]
+      simp_rw [← coe_pow, ← coe_mul]; rw [← coe_inv (by positivity)]; congr
+      rw [C10_2_7, ← mul_assoc, ← pow_add, mul_rotate, ← pow_add, ← mul_assoc,
+        ← pow_add, show 3 * a + 6 * a + (3 + (a ^ 3 + 2 * a + 1)) = a ^ 3 + 11 * a + 4 by ring,
+        c10_0_3, show a ^ 3 + 12 * a + 4 = a ^ 3 + 11 * a + 4 + a by ring, pow_add _ _ a,
+        mul_inv, ← mul_assoc, mul_inv_cancel₀ (by positivity), one_mul]
+
+variable [IsCancellative X (defaultτ a)]
 
 /-- The constant used in `estimate_bad`. -/
 irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a) / c10_0_3 a + 2 ^ (a ^ 3 + 9 * a + 4)
 
 /-- Lemma 10.2.9 -/
 -- In the proof, case on `GeneralCase f α`, noting in the finite case that `Ω = univ`
-lemma estimate_bad (ha : 4 ≤ a) {hf : BoundedFiniteSupport f}
-    (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) (hX : GeneralCase f α) :
+lemma estimate_bad (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
+    (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
     distribution (czOperator K r (czRemainder f α)) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
   sorry
-
 
 /- ### Lemmas 10.0.3 -/
 

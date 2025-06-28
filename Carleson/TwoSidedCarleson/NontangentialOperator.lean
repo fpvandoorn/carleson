@@ -1,6 +1,4 @@
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
-import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
@@ -22,107 +20,6 @@ variable (K) in
 /-- The operator `T_*^r g(x)`, defined in (10.1.31), above Lemma 10.1.6. -/
 def simpleNontangentialOperator (r : ℝ) (g : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R > r) (x' ∈ ball x R), ‖czOperator K R g x'‖ₑ
-
-theorem Real.two_mul_lt_two_pow (x : ℝ) (hx : 2 ≤ x) :
-    (2 : ℝ) * x ≤ 2 ^ x := by
-  calc
-    _ ≤ (1 + (x - 1) * 1) * 2 := by linarith
-    _ ≤ (1 + 1 : ℝ) ^ (x - 1) * 2 := by
-      gcongr
-      apply one_add_mul_self_le_rpow_one_add (by norm_num) (by linarith)
-    _ ≤ (2 : ℝ) ^ (x - 1) * (2 : ℝ) ^ (1 : ℝ) := by norm_num
-    _ ≤ _ := by
-      rw [← rpow_add (by positivity)]
-      norm_num
-
-lemma geom_estimate_constant_le_two :
-    (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ ≤ (2 : ℝ) := by
-  have : (2 : ℝ) ^ (-1 / 4 : ℝ) ≤ 7 / 8 := by
-    rw [neg_div, one_div, neg_eq_neg_one_mul, mul_comm, Real.rpow_mul (by norm_num),
-      Real.rpow_neg_one, inv_le_comm₀ (by positivity) (by norm_num)]
-    apply le_of_pow_le_pow_left₀ (n := 4) (by norm_num) (by positivity)
-    conv_rhs => rw [← Real.rpow_natCast (n := 4), ← Real.rpow_mul (by norm_num)]
-    norm_num
-  calc
-    _ ≤ ((4 : ℝ) * (1 - 7 / 8))⁻¹ := by gcongr
-    _ ≤ _ := by norm_num
-
-lemma hasSum_geometric_series {x : ℝ} (hx : 4 ≤ x) :
-    HasSum (fun (n : ℕ) ↦ (2 : ℝ≥0) ^ (-n / x)) (1 - 2 ^ (-x⁻¹))⁻¹ := by
-  have h2x : (2 : ℝ≥0) ^ (-x⁻¹) < 1 := by
-    apply Real.rpow_lt_one_of_one_lt_of_neg
-    · norm_num
-    · simp_rw [Left.neg_neg_iff]
-      positivity
-
-  -- Bring it to the form of hasSum_geometric_of_lt_one
-  simp_rw [← NNReal.hasSum_coe, NNReal.coe_rpow, NNReal.coe_ofNat, neg_div,
-    div_eq_inv_mul (b := x), ← neg_mul, Real.rpow_mul_natCast zero_le_two]
-  push_cast [h2x.le]
-  exact hasSum_geometric_of_lt_one (by positivity) h2x
-
-/-- Lemma 10.1.1 -/
-theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
-    tsum (fun (n : ℕ) ↦ (2 : ℝ≥0∞) ^ (-n / x)) ≤ 2 ^ x := by
-  simp_rw [← ENNReal.coe_ofNat, ← ENNReal.coe_rpow_of_ne_zero two_ne_zero,
-    ← ENNReal.coe_tsum (hasSum_geometric_series hx).summable, coe_le_coe,
-    (hasSum_geometric_series hx).tsum_eq]
-
-  -- TODO the rest of this proof can surely be optimized
-  -- Floris suggests using `trans 2`
-  suffices (1 - (2 : ℝ) ^ (-x⁻¹))⁻¹ ≤ 2 ^ x by
-    rw [← NNReal.coe_le_coe, NNReal.coe_inv, NNReal.coe_rpow, NNReal.coe_ofNat, NNReal.coe_sub]
-    swap
-    · apply NNReal.rpow_le_one_of_one_le_of_nonpos
-      · exact Nat.one_le_ofNat
-      · simp_rw [Left.neg_nonpos_iff]
-        positivity
-    apply this
-
-  have zero_le_one_sub_four_div_x : 0 ≤ 1 - 4 / x := by
-    simp only [sub_nonneg]
-    rw [div_le_iff₀]
-    · simp only [one_mul]
-      exact hx
-    · positivity
-
-  have one_sub_two_pow_neg_one_div_four_pos : 0 < 1 - (2 : ℝ) ^ (-1 / 4 : ℝ) := by
-    norm_num
-    apply Real.rpow_lt_one_of_one_lt_of_neg
-    · exact one_lt_two
-    · norm_num
-
-  -- By convexity, for all 0 ≤ λ ≤ 1, we have ...
-  have two_pow_convex := (ConvexOn_rpow_left (2 : ℝ) (by linarith only)).2
-  have two_pow_neg_one_div_bound := two_pow_convex
-               (x := (-1/4 : ℝ)) (by simp)
-               (y := 0) (by simp)
-               (a := 4/x)
-               (b := 1 - 4/x)
-               (by positivity)
-               (zero_le_one_sub_four_div_x)
-               (by ring)
-  simp only [smul_eq_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, div_mul_div_cancel₀',
-    mul_zero, add_zero, Real.rpow_zero, mul_one] at two_pow_neg_one_div_bound
-
-  calc
-    _ ≤ (4 / x * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ := by
-      rw [inv_le_inv₀]
-      · simp_rw [inv_eq_one_div, ← neg_div]
-        linarith only [two_pow_neg_one_div_bound]
-      · rw [sub_pos]
-        apply Real.rpow_lt_one_of_one_lt_of_neg
-        · simp only [NNReal.coe_ofNat, Nat.one_lt_ofNat]
-        · simp only [Left.neg_neg_iff, inv_pos]
-          positivity
-      · apply _root_.mul_pos
-        · positivity
-        · exact one_sub_two_pow_neg_one_div_four_pos
-    _ ≤ (4 * (1 - 2 ^ (-1 / 4 : ℝ)))⁻¹ * x := by field_simp
-    _ ≤ 2 * x := mul_le_mul_of_nonneg_right geom_estimate_constant_le_two (by linarith only [hx])
-    _ ≤ 2 ^ x := by
-      apply Real.two_mul_lt_two_pow
-      linarith only [hx]
 
 /-- The constant used in `estimate_x_shift`. -/
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
@@ -314,10 +211,8 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
     apply rpow_le_rpow_of_exponent_le Nat.one_le_ofNat
     rw [neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right (by positivity)]
     simp only [le_add_iff_nonneg_right, zero_le_one]
-
   rw [← rpow_natCast]
-  apply geometric_series_estimate
-  · simp only [Nat.ofNat_le_cast, ha]
+  exact geometric_series_estimate (by norm_cast; omega)
 
 omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
 lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
@@ -1280,3 +1175,5 @@ theorem nontangential_from_simple (ha : 4 ≤ a)
         gcongr
 
 end
+
+#min_imports
