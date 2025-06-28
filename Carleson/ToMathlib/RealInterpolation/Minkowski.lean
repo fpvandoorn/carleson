@@ -332,8 +332,10 @@ theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restric
   -- ton is either increasing or decreasing
   have mono_or_anti := tc.ton_is_ton
   split_ifs at mono_or_anti
-  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi mono_or_anti.monotoneOn
-  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi mono_or_anti.antitoneOn
+  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
+      (StrictMonoOn.monotoneOn (StrictMono.strictMonoOn mono_or_anti _))
+  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
+      (StrictAntiOn.antitoneOn (StrictAnti.strictAntiOn mono_or_anti _))
 
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
