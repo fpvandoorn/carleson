@@ -408,6 +408,20 @@ lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measur
         apply ofReal_div_le (by positivity)
       · exact ofReal_div_le measureReal_nonneg
 
+lemma integrableOn_K_mul [IsOpenPosMeasure (volume : Measure X)]
+    [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
+    [IsOneSidedKernel a K] {f : X → ℂ} (hf : Integrable f) (x : X) {r : ℝ} (hr : 0 < r) :
+    IntegrableOn (K x * f) (ball x r)ᶜ := by
+  use (measurable_K_right x).aestronglyMeasurable.mul hf.aestronglyMeasurable |>.restrict
+  exact (hasFiniteIntegral_def _ _).mpr <| calc
+    _ = ∫⁻ y in (ball x r)ᶜ, ‖K x y‖ₑ * ‖f y‖ₑ := by simp
+    _ ≤ ∫⁻ y in (ball x r)ᶜ, C_K a / volume (ball x r) * ‖f y‖ₑ := by
+      exact setLIntegral_mono_ae (hf.aemeasurable.enorm.const_mul _).restrict <|
+        Filter.Eventually.of_forall fun y hy ↦ mul_le_mul_right' (enorm_K_le_ball_complement hy) _
+    _ = _ * ∫⁻ y in (ball x r)ᶜ, ‖f y‖ₑ := lintegral_const_mul'' _ hf.aemeasurable.enorm.restrict
+    _ ≤ _ * ∫⁻ y, ‖f y‖ₑ := mul_le_mul_left' (setLIntegral_le_lintegral _ _) _
+    _ < ∞ := ENNReal.mul_lt_top (ENNReal.div_lt_top coe_ne_top (measure_ball_pos _ x hr).ne') hf.2
+
 lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
     [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
