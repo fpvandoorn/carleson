@@ -1134,56 +1134,55 @@ lemma res'subset_Ici {j : Bool} {β : ℝ≥0∞} : res' j β ⊆ Ici 0 := by
   · exact Trans.trans inter_subset_left Ioi_subset_Ici_self
 
 lemma lintegral_trunc_mul₀ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ} (hp : 0 < p)
-    (hfx : 0 < ‖f x‖ₑ) :
+    :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
-    ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p := by
-  -- rw [← lintegral_inter_add_diff (B := res' (xor j tc.mon) (tc.inv ‖f x‖ₑ)) _ _ measurableSet_res']
-
-  -- trans ∫⁻ s : ℝ in Ici 0, (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p
-  -- · exact setLIntegral_congr Ioi_ae_eq_Ici
+    ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) *
+        ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p := by
   rw [lintegral_double_restrict_set (B := res' (xor j tc.mon) (tc.inv ‖f x‖ₑ))
       measurableSet_Ioi measurableSet_res', inter_eq_self_of_subset_right res'subset_Ioi]
   filter_upwards
   rw [res'comp]
-  · intro s
-    unfold res trnc trunc
-    have mon_pf := tc.inv_pf
-    split_ifs at mon_pf with mon
-    · rw [mon]
-      rcases j
-      · simp only [Bool.bne_true, Bool.not_false, not_true_eq_false, decide_false,
-        Bool.false_eq_true, ↓reduceIte, Pi.sub_apply]
-        -- intro (hs : s > tc.inv ‖f x‖ₑ)
-        split_ifs with h
-        · simp [hp]
-        · -- have := (mon_pf s (lt_trans (tc.ran_inv ‖f x‖ₑ hfx) hs) (‖f x‖ₑ) hfx).2.mpr hs
-          intro (hs : (tc.inv ‖f x‖ₑ).toReal < s)
-
-          contrapose! h -- ; linarith
-
-      · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_true]
-        intro hs
-        split_ifs with h
-        · have := (mon_pf s hs.1 (‖f x‖ₑ) hfx).1.mpr hs.2
-          linarith
-        · simp [hp]
-    · rw [Bool.not_eq_true] at mon
-      rw [mon]
-      rcases j
-      · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_true,
-        ↓reduceIte, Pi.sub_apply]
-        intro hs
-        split_ifs with h
-        · simp [hp]
-        · have := (mon_pf s hs.1 (‖f x‖ₑ) hfx).2.mpr hs.2
-          linarith
-      · simp only [Bool.bne_false, not_true_eq_false, decide_false, Bool.false_eq_true, ↓reduceIte]
-        intro (hs : tc.inv ‖f x‖ₑ < s)
-        have := (mon_pf s (lt_trans (tc.ran_inv ‖f x‖ₑ hfx) hs) (‖f x‖ₑ) hfx).1.mpr hs
-        split_ifs with h
-        · linarith
-        · simp [hp]
-  · sorry -- TODO: same fix as above! exact tc.ran_inv ‖f x‖ₑ hfx -/
+  intro s
+  unfold res trnc trunc truncCompl
+  have mon_pf := tc.inv_pf
+  split_ifs at mon_pf with mon
+  · rw [mon]
+    rcases j
+    · simp only [Bool.bne_true, Bool.not_false, not_true_eq_false, decide_false,
+      Bool.false_eq_true, ↓reduceIte, Pi.sub_apply]
+      split_ifs with h <;> intro hs
+      · simp [hp]
+      · simp at hs
+      · simp [hp]
+      · have := (mon_pf (ENNReal.ofReal s) ‖f x‖ₑ).2.mpr ((lt_ofReal_iff_toReal_lt h).mpr hs)
+        order
+    · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_true]
+      split_ifs with h <;> intro hs
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).1.mpr (by rw [h]; exact coe_lt_top)
+        order
+      · simp [hp]
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).1.mpr <| (ofReal_lt_iff_lt_toReal hs.1.le h).mpr hs.2
+        order
+      · simp [hp]
+  · rw [Bool.not_eq_true] at mon
+    rw [mon]
+    rcases j
+    · simp only [bne_self_eq_false, Bool.false_eq_true, not_false_eq_true, decide_true,
+      ↓reduceIte, Pi.sub_apply]
+      split_ifs with h <;> intro hs
+      · simp [hp]
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).2.mpr (by rw [h]; exact coe_lt_top)
+        order
+      · simp [hp]
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).2.mpr <| (ofReal_lt_iff_lt_toReal hs.1.le h).mpr hs.2
+        order
+    · simp only [Bool.bne_false, not_true_eq_false, decide_false, Bool.false_eq_true, ↓reduceIte]
+      split_ifs with h <;> intro hs
+      · simp at hs
+      · simp [hp]
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).1.mpr <| (lt_ofReal_iff_toReal_lt h).mpr hs
+        order
+      · simp [hp]
 
 lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple} :
     ∫⁻ s : ℝ in res' (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
@@ -1194,58 +1193,62 @@ lemma lintegral_trunc_mul₁ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : �
   · simp
   · simp
   · exact Ioo_ae_eq_Ioc.symm
-  · exact Ioi_ae_eq_Ici.symm
+  · by_cases h : (tc.inv ‖f x‖ₑ).toReal = 0; · rw [h, inter_eq_left.mpr Ioi_subset_Ici_self]
+    rw [inter_eq_right.mpr]
+    · exact Ioi_ae_eq_Ici.symm
+    · refine Ici_subset_Ioi.mpr <| toReal_pos ?_ (by assumption)
+      exact Ne.symm (ne_of_apply_ne ENNReal.toReal fun a ↦ h (id (Eq.symm a)))
 
-lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple}
-    (hfx : 0 < ‖f x‖ₑ) :
+lemma lintegral_trunc_mul₂ {g : ℝ → ℝ≥0∞} {j : Bool} {x : α} {p : ℝ} {tc : ToneCouple} :
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s) * ‖f x‖ₑ ^ p := by
-  sorry /-
   apply setLIntegral_congr_fun measurableSet_res
-  · apply ae_of_all
-    unfold res trnc trunc
-    have mon_pf := tc.inv_pf
-    split_ifs at mon_pf with mon
-    · rw [mon]
-      rcases j
-      · simp only [Bool.bne_true, Bool.not_false, ↓reduceIte, Pi.sub_apply]
-        intro s hs
-        split_ifs with h
-        · have := (mon_pf s hs.1 (‖f x‖ₑ) hfx).1.mpr hs.2
-          contrapose! h; linarith
-        · simp
-      · simp only [bne_self_eq_false, Bool.false_eq_true, ↓reduceIte]
-        intro s (hs : s > tc.inv ‖f x‖ₑ)
-        split_ifs with h
-        · rfl
-        · have := (mon_pf s (lt_trans (tc.ran_inv ‖f x‖ hfx) hs) (‖f x‖) hfx).2.mpr hs
-          contrapose! h; linarith
-    · rw [Bool.not_eq_true] at mon
-      rw [mon]
-      rcases j
-      · simp only [bne_self_eq_false, Bool.false_eq_true, ↓reduceIte, Pi.sub_apply]
-        intro s (hs : tc.inv ‖f x‖ₑ < s)
-        have := (mon_pf s (lt_trans (tc.ran_inv ‖f x‖ hfx) hs) (‖f x‖) hfx).1.mpr hs
-        split_ifs with h
-        · linarith
-        · simp
-      · simp only [Bool.bne_false, ↓reduceIte]
-        intro s hs
-        have := (mon_pf s hs.1 (‖f x‖ₑ) hfx).2.mpr hs.2
-        split_ifs with h
-        · rfl
-        · simp only [enorm_zero]
-          -- if p <= 0, does this become false? rw [zero_rpow_def]
-          sorry -- linarith -/
+  unfold res trnc trunc truncCompl
+  have mon_pf := tc.inv_pf
+  split_ifs at mon_pf with mon
+  -- intro s hs
+  · rw [mon]
+    rcases j <;> intro s
+    · simp only [Bool.bne_true, Bool.not_false, ↓reduceIte]
+      split_ifs with h <;> intro hs
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).1.mpr (by rw [h]; exact coe_lt_top)
+        order
+      · simp
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).1.mpr <| (ofReal_lt_iff_lt_toReal hs.1.le h).mpr hs.2
+        order
+      · rfl
+    · simp only [bne_self_eq_false, Bool.false_eq_true, ↓reduceIte]
+      split_ifs with h <;> intro hs
+      · rfl
+      · simp at hs
+      · rfl
+      · have := (mon_pf (ENNReal.ofReal s) ‖f x‖ₑ).2.mpr ((lt_ofReal_iff_toReal_lt h).mpr hs)
+        order
+  · rw [Bool.not_eq_true] at mon
+    rw [mon]
+    rcases j <;> intro s
+    · simp only [bne_self_eq_false, Bool.false_eq_true, ↓reduceIte, Pi.sub_apply]
+      split_ifs with h <;> intro hs
+      · simp at hs
+      · simp at hs
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).1.mpr <| (lt_ofReal_iff_toReal_lt h).mpr hs
+        order
+      · rfl
+    · simp only [Bool.bne_false, ↓reduceIte]
+      split_ifs with h <;> intro hs
+      · rfl
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).2.mpr (by rw [h]; exact coe_lt_top)
+        order
+      · rfl
+      · have := (mon_pf (.ofReal s) ‖f x‖ₑ).2.mpr <| (ofReal_lt_iff_lt_toReal hs.1.le h).mpr hs.2
+        order
 
 lemma lintegral_trunc_mul {g : ℝ → ℝ≥0∞} (hg : AEMeasurable g) {j : Bool} {x : α} {tc : ToneCouple} {p : ℝ}
-    (hp : 0 < p) (hfx : 0 < ‖f x‖ₑ) :
+    (hp : 0 < p) :
     ∫⁻ s : ℝ in Ioi 0, (g s) * ‖trnc j f (tc.ton (ENNReal.ofReal s)) x‖ₑ ^ p =
     (∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv ‖f x‖ₑ), (g s)) * ‖f x‖ₑ ^ p := by
-  rw [lintegral_trunc_mul₀ hp hfx, lintegral_trunc_mul₁, lintegral_trunc_mul₂ hfx,
-    lintegral_mul_const'']
+  rw [lintegral_trunc_mul₀ hp, lintegral_trunc_mul₁, lintegral_trunc_mul₂, lintegral_mul_const'']
   exact hg.restrict
-
 
 /-! Extract expressions for the lower Lebesgue integral of power functions -/
 
@@ -1279,14 +1282,12 @@ lemma lintegral_rpow_Ioi_top {γ : ℝ} :
     exact fun _ ha ↦ enorm_of_nonneg (rpow_nonneg ha.le γ)
   _ < ⊤ := Ne.lt_top' fun a ↦ h (Eq.symm a)
 
-lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ}
-    (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) (ht : 0 < t) :
-  ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal s ^ γ =
-    (tc.inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
-  trans ∫⁻ s : ℝ in res (xor j tc.mon) (tc.inv t), ENNReal.ofReal (s ^ γ)
-  · apply lintegral_congr_ae
-    filter_upwards [self_mem_ae_restrict measurableSet_res]
-    exact fun a Ha ↦ ofReal_rpow_of_pos (res_subset_Ioi Ha)
+lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j then γ > -1 else γ < -1 ) :
+  ∫⁻ s : ℝ in res j β, ENNReal.ofReal (s ^ γ) = β ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
+  -- trans ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ)
+  -- · apply lintegral_congr_ae
+  --   filter_upwards [self_mem_ae_restrict measurableSet_res]
+  --   exact fun a Ha ↦ ofReal_rpow_of_pos (res_subset_Ioi Ha)
   · unfold res
     split at hγ <;> rename_i xor_split
     · rw [xor_split]
@@ -1297,56 +1298,79 @@ lemma lintegral_rpow_abs {j : Bool} {tc : ToneCouple} {γ : ℝ}
         · simp [lintegral_rpow_Ioi_top, top_div_of_lt_top]
         · linarith
         · linarith
-      · by_cases hzero : (tc.inv t) = 0
+      · by_cases hzero : β = 0
         · rw [hzero, ENNReal.zero_rpow_of_pos (by linarith)]; simp
-        · have htcinv : 0 < (tc.inv t).toReal := toReal_pos hzero htop
+        · have htcinv : 0 < β.toReal := toReal_pos hzero htop
           rw [lintegral_rpow_of_gt_abs htcinv hγ, ENNReal.ofReal_div_of_pos
               (by rw [abs_pos]; linarith), ← ENNReal.ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
     · simp only [eq_false_of_ne_true xor_split, Bool.false_eq_true, ↓reduceIte]
       split_ifs with htop
       · rw [htop, top_rpow_of_neg (by linarith)]; simp
-      · by_cases hzero : (tc.inv t) = 0
+      · by_cases hzero : β = 0
         · rw [hzero, toReal_zero, lintegral_rpow_Ioi_top, zero_rpow_of_neg (by linarith),
               top_div_of_lt_top]
           exact coe_lt_top
-        · have htcinv : 0 < (tc.inv t).toReal := toReal_pos hzero htop
+        · have htcinv : 0 < β.toReal := toReal_pos hzero htop
           rw [lintegral_Ioi_rpow_of_lt_abs htcinv hγ, ofReal_div_of_pos
               (by rw [abs_pos]; linarith), ← ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
 
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
-lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
-    (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
-    ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
-    β ^ (γ + 1) / ENNReal.ofReal (|γ + 1|) := by
-  unfold res
-  by_cases hβ' : β = ⊤
-  · rw [hβ', ENNReal.top_rpow_def]
-    split_ifs at hγ with h
-    · have : 0 < γ + 1 := by linarith
-      have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
-      simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2,
-            lintegral_rpow_Ioi_top]
-    · have : γ + 1 < 0 := by linarith
-      have h1 : ¬(0 < γ + 1) := by order
-      have h2 : ¬(γ + 1 = 0) := by order
-      simp [res, h, h1, h2]
-  split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ']
-  · have : 0 < β.toReal := ComputationsInterpolatedExponents.exp_toReal_pos hβ hβ'
-    rw [lintegral_rpow_of_gt_abs this hγ]
-    sorry -- sth coercions
-  · sorry -- should be a standard result, except for the ofReal
+-- @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
+-- lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
+--     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
+--     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
+--     β ^ (γ + 1) / ENNReal.ofReal (|γ + 1|) := by
+--   unfold res
+--   by_cases hβ' : β = ⊤
+--   · rw [hβ', ENNReal.top_rpow_def]
+--     split_ifs at hγ with h
+--     · have : 0 < γ + 1 := by linarith
+--       have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
+--       simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2,
+--             lintegral_rpow_Ioi_top]
+--     · have : γ + 1 < 0 := by linarith
+--       have h1 : ¬(0 < γ + 1) := by order
+--       have h2 : ¬(γ + 1 = 0) := by order
+--       simp [res, h, h1, h2]
+--   have : 0 < β.toReal := ComputationsInterpolatedExponents.exp_toReal_pos hβ hβ'
+--   split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ']
+--   on_goal 1 => rw [lintegral_rpow_of_gt_abs this hγ]
+--   on_goal 2 => rw [lintegral_Ioi_rpow_of_lt_abs this hγ]
+--   all_goals rw [ENNReal.ofReal_div_of_pos (by rw [abs_pos]; linarith),
+--       ← ENNReal.ofReal_rpow_of_pos this, ofReal_toReal hβ']
 
-lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) :
+lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞):
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
-  -- have := spf.hd
+  have := spf.hd
   unfold spf_to_tc
   dsimp only
-  sorry
-  -- rw [← ENNReal.ofReal_mul, ← mul_div_right_comm, Real.mul_rpow, mul_assoc, ← Real.rpow_mul,
-  --     ← Real.rpow_add] <;> positivity
+  rw [← ENNReal.mul_div_right_comm, ENNReal.mul_rpow_of_ne_zero, mul_assoc, ← ENNReal.rpow_mul,
+      ← ENNReal.rpow_add]
+  · positivity
+  · finiteness
+  · positivity
+  · exact (ENNReal.rpow_pos ht ht').ne'
+
+lemma value_lintegral_res₂ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t)
+    (hσp' : 0 < spf.σ⁻¹ * (γ + 1) + p') :
+    (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') ≤
+    (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
+  have := spf.hd
+  unfold spf_to_tc
+  dsimp only
+  by_cases ht' : t = ∞
+  · rw [ht', top_rpow_of_pos hσp', mul_top, top_div_of_lt_top]
+    · simp
+    · exact coe_lt_top
+    · exact (ENNReal.rpow_pos this spf.hd').ne'
+  · rw [← ENNReal.mul_div_right_comm, ENNReal.mul_rpow_of_ne_zero, mul_assoc, ← ENNReal.rpow_mul,
+        ← ENNReal.rpow_add]
+    · positivity
+    · finiteness
+    · positivity
+    · exact (ENNReal.rpow_pos ht ht').ne'
 
 end MeasureTheory
 

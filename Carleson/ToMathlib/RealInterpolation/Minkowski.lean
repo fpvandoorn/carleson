@@ -477,7 +477,8 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict f.support))
-    (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀) :
+    (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀)
+    (hpow_pos : 0 < q₀ + spf.σ⁻¹ * (q - q₀)) :
     ∫⁻ s : ℝ in Ioi 0,
     eLpNorm (trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s))) (ENNReal.ofReal p₀) μ ^ q₀ *
     ENNReal.ofReal (s ^ (q - q₀ - 1)) ≤
@@ -495,7 +496,6 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     calc
     _ = ∫⁻ s : ℝ in Ioi 0, ENNReal.ofReal (s ^ (q - q₀ - 1)) *
     ((∫⁻ (a : α), ↑‖trnc j f ((spf_to_tc spf).ton (ENNReal.ofReal s)) a‖ₑ ^ p₀ ∂μ) ^ (1 / p₀)) ^ q₀ := by
-      --simp only [enorm_eq_nnnorm]
       congr 1
       ext x
       rw [mul_comm]
@@ -542,7 +542,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       apply lintegral_congr_support hf
       intro x hfx
       congr 1
-      apply lintegral_trunc_mul _ hq₀ (enorm_pos.mpr hfx)
+      apply lintegral_trunc_mul _ hq₀
       measurability
     _ = (∫⁻ a : α in f.support,
         (((tc.inv ‖f a‖ₑ ^ (q - q₀ - 1 + 1) / ENNReal.ofReal |q - q₀ - 1 + 1|)) *
@@ -551,21 +551,23 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       apply lintegral_congr_support hf
       intro x hfx
       congr 2
-      · apply value_lintegral_res₀
-        · have : 0 < ‖f x‖ₑ := enorm_pos.mpr hfx
-          sorry -- proof was: apply tc.ran_inv
-        · split_ifs with h
-          · simp only [h, ↓reduceIte] at hpowers; linarith
-          · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
-    _ = (∫⁻ a : α in f.support,
+      apply value_lintegral_res₀
+      split_ifs with h
+      · simp only [h, ↓reduceIte] at hpowers; linarith
+      · simp only [h, Bool.false_eq_true, ↓reduceIte] at hpowers; linarith
+    _ ≤ (∫⁻ a : α in f.support,
         ((
         (spf.d ^ (q - q₀ - 1 + 1) * ‖f a‖ₑ ^ (spf.σ⁻¹ * (q - q₀ - 1 + 1) + q₀) /
         ENNReal.ofReal |q - q₀ - 1 + 1|))) ^ (p₀⁻¹ * q₀)⁻¹ ∂μ) ^ (p₀⁻¹ * q₀) := by
-      congr 1
-      apply lintegral_congr_support hf
-      intro x hfx
-      congr 1
-      exact value_lintegral_res₁ (enorm_pos.mpr hfx)
+      gcongr (?_) ^ (p₀⁻¹ * q₀)
+      apply setLIntegral_mono_ae
+      · fun_prop
+      · filter_upwards
+        intro x hfx
+        gcongr (?_) ^ (p₀⁻¹ * q₀)⁻¹
+        apply value_lintegral_res₂
+        · exact enorm_pos.mpr hfx
+        · simp only [sub_add_cancel]; linarith
     _ = (∫⁻ a : α in f.support,
         (((spf.d ^ (q - q₀)) ^ (p₀⁻¹ * q₀)⁻¹ *
         (‖f a‖ₑ ^ ((spf.σ⁻¹ * (q - q₀) + q₀) * (p₀⁻¹ * q₀)⁻¹)) *
@@ -603,6 +605,10 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
 
 def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | false => p₀
 
+lemma test (a b : ℝ) (hb : 0 ≠ b) :
+    b * a / b = a := by
+  exact mul_div_cancel_left₀ a (id (Ne.symm hb))
+
 /-- One of the key estimates for the real interpolation theorem, now using
     the particular choice of exponent, but not yet using the
     particular choice of scale in the `ScaledPowerFunction`. -/
@@ -622,6 +628,26 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     ((eLpNorm f p μ) ^ p.toReal) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
   have p_toReal_pos : 0 < p.toReal :=
     interp_exp_toReal_pos' ht hp₀ hp₁ hp (Or.inl hp₀p₁.ne_top)
+  have simpl_exp : (sel j p₀ p₁).toReal + spf.σ⁻¹ * (q.toReal - (sel j q₀ q₁).toReal) *
+      ((sel j p₀ p₁).toReal / (sel j q₀ q₁).toReal) =
+    p.toReal := by
+    rcases j
+    · dsimp only [sel]
+      rw [hspf]
+      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> assumption
+    · dsimp only [sel]
+      rw [hspf]
+      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> assumption
+  have : 0 < (sel j q₀ q₁).toReal := by
+    apply toReal_pos _ hq'
+    rcases j
+    · exact hq₀.ne'
+    · exact hq₁.ne'
+  have : 0 < (sel j p₀ p₁).toReal := by
+    apply toReal_pos _ hp'
+    rcases j
+    · exact hp₀.ne'
+    · exact hp₁.ne'
   calc
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
@@ -670,6 +696,9 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
           · exact interp_exp_ne_top hq₀q₁ ht hq
           · exact (ζ_le_zero_iff_of_lt₁ ht hp₀ hq₀ hp₁ hq₁ hq₀q₁ hp hq hp₀p₁).mp
                 (le_of_not_gt is_ζ_pos)
+    · have : 0 < (sel j p₀ p₁).toReal / (sel j q₀ q₁).toReal := by positivity
+      refine (pos_iff_pos_of_mul_pos ?_).mpr this
+      rw [add_mul, ← mul_div_assoc, mul_div_cancel_left₀, simpl_exp] <;> positivity
   _ = (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
         ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
         (∫⁻ (a : α) in f.support,
@@ -677,13 +706,6 @@ lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
     congr
     ext x
     congr
-    rcases j
-    · dsimp only [sel]
-      rw [hspf]
-      apply ζ_equality₅ (hp₀p₁ := hp₀p₁.ne) <;> assumption
-    · dsimp only [sel]
-      rw [hspf]
-      apply ζ_equality₆ (hp₀p₁ := hp₀p₁.ne) <;> assumption
   _ ≤ (spf.d ^ (q.toReal - (sel j q₀ q₁).toReal)) *
       ENNReal.ofReal |q.toReal - (sel j q₀ q₁).toReal|⁻¹ *
       (∫⁻ (a : α), ‖f a‖ₑ ^ p.toReal ∂μ) ^ ((sel j p₀ p₁).toReal ⁻¹ * (sel j q₀ q₁).toReal) := by
