@@ -1181,21 +1181,16 @@ private lemma 𝒥₁_bound {r : ℝ} (hr : 0 < r) (hα : 0 < α) {x : X} (hx : 
 
 private lemma tsum_𝒥₁ (hf : BoundedFiniteSupport f) {r : ℝ} (hr : 0 < r) (hα : 0 < α)
     (hX : GeneralCase f (α' a α)) {x : X} (hx : x ∈ (Ω f (α' a α))ᶜ) :
-    ∑' (j : ↑(𝒥₁ r x hX)), ‖czOperator K r (czRemainder' hX ↑j) x‖ₑ ≤ czOperatorBound hX x := calc
-  _ ≤ ∑' (j : ↑(𝒥₁ r x hX)), C10_2_7 a * α * (((3 * czRadius hX j).toNNReal /
-        nndist x (czCenter hX j)) ^ (a : ℝ)⁻¹ * volume (czBall3 hX j)) /
-        volume (ball x (dist x (czCenter hX j))) :=
-    ENNReal.tsum_le_tsum (𝒥₁_bound hr hα hx hX hf <| Subtype.coe_prop ·)
-  _ = C10_2_7 a * α * ∑' (j : ↑(𝒥₁ r x hX)),
-        ((3 * czRadius hX j).toNNReal / nndist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
-        volume (czBall3 hX j) / volume (ball x (dist x (czCenter hX j))) := by
-    simp_rw [← ENNReal.tsum_mul_left, mul_div]
-  _ ≤ _ := by
-    refine mul_le_mul_left' ?_ _
-    nth_rw 2 [← tsum_univ]
-    exact ENNReal.tsum_mono_subtype (fun j ↦ ((3 * czRadius hX j).toNNReal /
-        nndist x (czCenter hX j)) ^ (a : ℝ)⁻¹ * volume (czBall3 hX j) /
-        volume (ball x (dist x (czCenter hX j)))) (subset_univ _)
+    ∑' (j : ↑(𝒥₁ r x hX)), ‖czOperator K r (czRemainder' hX ↑j) x‖ₑ ≤ czOperatorBound hX x :=
+  let f (j : ℕ) := ((3 * czRadius hX j).toNNReal / nndist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
+    volume (czBall3 hX j) / volume (ball x (dist x (czCenter hX j)))
+  calc
+    _ ≤ _ := ENNReal.tsum_le_tsum (𝒥₁_bound hr hα hx hX hf <| Subtype.coe_prop ·)
+    _ = C10_2_7 a * α * ∑' (j : 𝒥₁ r x hX), f j := by simp_rw [← ENNReal.tsum_mul_left, f, mul_div]
+    _ ≤ _ := by
+      apply mul_le_mul_left'
+      nth_rw 2 [← tsum_univ]
+      exact ENNReal.tsum_mono_subtype f (subset_univ _)
 
 private lemma tsum_𝒥₂ (r : ℝ) (hX : GeneralCase f (α' a α)) {x : X} (hx : x ∈ (Ω f (α' a α))ᶜ) :
     ∑' (j : ↑(𝒥₂ r x hX)), ‖czOperator K r (czRemainder' hX ↑j) x‖ₑ ≤
