@@ -898,7 +898,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
   refine (integrableOn_iff_integrable_of_support_subset ?_).mp (integrableOn_K_mul ?_ x hr)
   · intro y hy
     rw [mem_compl_iff, mem_ball', not_lt]
-    have : «ψ» D (((D : ℝ) ^ s)⁻¹ * dist x y) ≠ 0 := by simp_all [Ks]
+    have : ψ (((D : ℝ) ^ s)⁻¹ * dist x y) ≠ 0 := by simp_all [Ks]
     rw [← Function.mem_support, support_ψ hD, mul_inv_rev] at this
     exact le_inv_mul_iff₀ (defaultD_pow_pos a s) |>.mp this.1.le
   · apply Continuous.integrable_of_hasCompactSupport
