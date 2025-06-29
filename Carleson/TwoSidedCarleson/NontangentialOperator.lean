@@ -12,7 +12,7 @@ variable {X : Type*} {a : ℕ} [MetricSpace X] [DoublingMeasure X (defaultA a : 
 variable {τ C r R : ℝ} {q q' : ℝ≥0}
 variable {F G : Set X}
 variable {K : X → X → ℂ} {x x' : X} [IsTwoSidedKernel a K]
-variable [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)]
+variable [CompatibleFunctions ℝ X (defaultA a)]
 
 /-! ## Section 10.1 and Lemma 10.0.2 -/
 
@@ -25,7 +25,7 @@ def simpleNontangentialOperator (r : ℝ) (g : X → ℂ) (x : X) : ℝ≥0∞ :
 irreducible_def C10_1_2 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 2)
 -- exact estimate from proof: C_K * (defaultA + 2 * defaultA²) ≤ C10_1_2
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 lemma _laverage_mul_measure_ball {g : X → ℂ} {x₀ : X} {n : ℝ} :
     ∫⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ = (⨍⁻ (a : X) in ball x₀ (n * r), ‖g a‖ₑ ∂volume) * volume (ball x₀ (n * r)) := by
   have : IsFiniteMeasure (volume.restrict (ball x₀ (n * r))) :=
@@ -33,7 +33,7 @@ lemma _laverage_mul_measure_ball {g : X → ℂ} {x₀ : X} {n : ℝ} :
   rw [← measure_mul_laverage]
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter, mul_comm]
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) :
     (∫⁻ (y : X) in (ball x r)ᶜ ∩ ball x (2*r), ‖K x y * g y‖ₑ) ≤
     2 ^ (a ^ 3 + a) * globalMaximalFunction volume 1 g x := by
@@ -74,7 +74,7 @@ lemma estimate_10_1_2 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   norm_cast
   ring
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     ‖∫ (y : X) in (ball x (2*r))ᶜ, K x y * g y - K x' y * g y‖ₑ ≤
     2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
@@ -214,7 +214,7 @@ lemma estimate_10_1_3 (ha : 4 ≤ a) {g : X → ℂ} (hg : BoundedFiniteSupport 
   rw [← rpow_natCast]
   exact geometric_series_estimate (by norm_cast; omega)
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
     (∫⁻ (y : X) in (ball x' r)ᶜ ∩ ball x (2*r), ‖K x' y * g y‖ₑ) ≤
     2 ^ (a ^ 3 + 2 * a) * globalMaximalFunction volume 1 g x := by
@@ -256,7 +256,7 @@ lemma estimate_10_1_4 {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r)
   norm_cast
   ring
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Lemma 10.1.2 -/
 theorem estimate_x_shift (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : 0 < r) (hx : dist x x' ≤ r) :
@@ -358,7 +358,7 @@ theorem estimate_x_shift (ha : 4 ≤ a)
 /-- The constant used in `cotlar_control`. -/
 irreducible_def C10_1_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 4 * a + 1)
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
   (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
     ‖czOperator K r ((ball x (R / 2))ᶜ.indicator g) x' - czOperator K R ((ball x (R / 2))ᶜ.indicator g) x'‖ₑ ≤
@@ -489,8 +489,7 @@ lemma radius_change {g : X → ℂ} (hg : BoundedFiniteSupport g volume)
       · simp
       · simp
 
-omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
-
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] in
 lemma cut_out_ball {g : X → ℂ}
   (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
     czOperator K R g x' = czOperator K R ((ball x (R / 2))ᶜ.indicator g) x' := by
@@ -512,7 +511,7 @@ lemma cut_out_ball {g : X → ℂ}
   · measurability
   · measurability
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Lemma 10.1.3 -/
 theorem cotlar_control (ha : 4 ≤ a)
     {g : X → ℂ} (hg : BoundedFiniteSupport g) (hr : r ∈ Ioc 0 R) (hx : dist x x' ≤ R / 4) :
@@ -562,9 +561,9 @@ theorem cotlar_control (ha : 4 ≤ a)
 
 
 /-- The constant used in `cotlar_set_F₂`. -/
-irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 2)
+irreducible_def C10_1_4 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 13 * a + 6)
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 lemma globalMaximalFunction_zero_enorm_ae_zero (hR : 0 < R) {f : X → ℂ} (hf : AEStronglyMeasurable f)
     (hMzero : globalMaximalFunction volume 1 f x = 0) :
     ∀ᵐ x' ∂(volume.restrict (ball x R)), ‖f x'‖ₑ = 0 := by
@@ -576,7 +575,7 @@ lemma globalMaximalFunction_zero_enorm_ae_zero (hR : 0 < R) {f : X → ℂ} (hf 
     simp
   · simp [hR]
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Part 1 of Lemma 10.1.4 about `F₁`. -/
 theorem cotlar_set_F₁ (hr : 0 < r) (hR : r ≤ R) {g : X → ℂ} (hg : BoundedFiniteSupport g) :
     volume.restrict (ball x (R / 4))
@@ -691,7 +690,7 @@ theorem cotlar_set_F₂ (ha : 4 ≤ a) (hr : 0 < r) (hR : r ≤ R)
   rw [mul_comm, ← mul_assoc, ENNReal.mul_inv_cancel (by simp) (by simp), one_mul]
 
 /-- The constant used in `cotlar_estimate`. -/
-irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 20 * a + 3)
+irreducible_def C10_1_5 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 13 * a + 7)
 
 /-- Lemma 10.1.5 -/
 theorem cotlar_estimate (ha : 4 ≤ a)
@@ -746,7 +745,7 @@ theorem cotlar_estimate (ha : 4 ≤ a)
   gcongr <;> simp
 
 
-omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Part of Lemma 10.1.6. -/
 lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (simpleNontangentialOperator K r g) := by
@@ -761,14 +760,14 @@ lemma lowerSemicontinuous_simpleNontangentialOperator {g : X → ℂ} :
   · simp_rw [hx', and_true, setOf_mem_eq, isOpen_ball]
   · simp [hx']
 
-omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] in
 lemma aestronglyMeasurable_simpleNontangentialOperator {g : X → ℂ} :
     AEStronglyMeasurable (simpleNontangentialOperator K r g) volume :=
   lowerSemicontinuous_simpleNontangentialOperator |>.measurable.aestronglyMeasurable
 
 /-- The constant used in `simple_nontangential_operator`.
 It is not tight and can be improved by some `a` + `constant`. -/
-irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 24 * a + 6)
+irreducible_def C10_1_6 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 17 * a + 10)
 
 --TODO move to ToMathlib / generalises eLpNorm_add_le to ENorm class
 theorem eLpNorm_add_le'' {α E : Type*} {f g : α → E} {m : MeasurableSpace α}
@@ -835,7 +834,7 @@ theorem simple_nontangential_operator (ha : 4 ≤ a)
   apply le_trans <| mul_le_mul_left' this _
   rw [C10_1_6_def, C_Ts, C10_1_5, C10_1_2]
   norm_cast
-  rw [show a ^ 3 + 24 * a + 6 = (a ^ 3 + 20 * a + 5) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
+  rw [show a ^ 3 + 17 * a + 10 = (a ^ 3 + 13 * a + 9) + (4 * a + 1) by ring]; nth_rw 4 [pow_add]
   gcongr
   nth_rw 6 [pow_succ]; rw [mul_two]
   apply add_le_add
@@ -893,7 +892,7 @@ theorem simple_nontangential_operator_le (ha : 4 ≤ a)
   intro n; unfold f
   apply simple_nontangential_operator ha hT (by positivity) g hg |>.2
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Part of Lemma 10.1.7, reformulated. -/
 theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) :
     ContinuousWithinAt (fun R₂ ↦ ∫ y in Annulus.oo x R₁ R₂, K x y * g y) (Ioo R₁ R₂) R₁ := by
@@ -951,7 +950,7 @@ theorem small_annulus_right {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ 
     apply mem_of_mem_nhds
     simpa [indicator_of_notMem hr] using hs
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Part of Lemma 10.1.7, reformulated -/
 theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R₂ : ℝ} (hR₁ : 0 ≤ R₁):
     ContinuousWithinAt (fun R ↦ ∫ y in Annulus.oo x R R₂, K x y * g y) (Ioo R₁ R₂) R₂ := by
@@ -1009,7 +1008,7 @@ theorem small_annulus_left {g : X → ℂ} (hg : BoundedFiniteSupport g) {R₁ R
     apply mem_of_mem_nhds
     simpa [indicator_of_notMem hr] using hs
 
-omit [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Lemma 10.1.8. -/
 theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSupport f) :
     nontangentialOperator K f x =
@@ -1089,7 +1088,7 @@ theorem nontangential_operator_boundary {f : X → ℂ} (hf : BoundedFiniteSuppo
     simpa using le_R1
 
 
-omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] in
 /-- Part of Lemma 10.1.6. -/
 lemma lowerSemicontinuous_nontangentialOperator {g : X → ℂ} :
     LowerSemicontinuous (nontangentialOperator K g) := by
@@ -1106,7 +1105,7 @@ lemma lowerSemicontinuous_nontangentialOperator {g : X → ℂ} :
   · simp_rw [hx', and_true, ← mem_ball, setOf_mem_eq, isOpen_ball]
   · simp [hx']
 
-omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] [IsCancellative X (defaultτ a)] in
+omit [IsTwoSidedKernel a K] [CompatibleFunctions ℝ X (defaultA a)] in
 lemma aestronglyMeasurable_nontangentialOperator {g : X → ℂ} :
     AEStronglyMeasurable (nontangentialOperator K g) volume :=
   lowerSemicontinuous_nontangentialOperator |>.measurable.aestronglyMeasurable

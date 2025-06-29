@@ -1018,7 +1018,7 @@ def Ω (α : ℝ≥0∞) : Set X :=
 irreducible_def C10_2_6 (a : ℕ) : ℝ≥0 := 2 ^ (2 * a ^ 3 + 3 * a + 2) * c10_0_3 a
 
 /-- Lemma 10.2.6 -/
-lemma estimate_good [Nonempty X] {hf : BoundedFiniteSupport f}
+lemma estimate_good [Nonempty X] (hf : BoundedFiniteSupport f)
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     distribution (czOperator K r (czApproximation f (c10_0_3 a * α))) (α / 2) volume ≤
@@ -1081,7 +1081,7 @@ Note that `hx` implies `hX`, but we keep the superfluous hypothesis to shorten t
 lemma estimate_bad_partial (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hx : x ∈ (Ω f α)ᶜ) (hX : GeneralCase f α) :
-    ‖czOperator K r (czRemainder f α) x‖ₑ ≤ 3 * czOperatorBound hX x + α / 8 := by
+    ‖czOperator K r (czRemainder f (c10_0_3 a * α)) x‖ₑ ≤ 3 * czOperatorBound hX x + α / 8 := by
   sorry
 
 lemma aemeasurable_V {y : X} :
@@ -1227,16 +1227,18 @@ irreducible_def C10_2_9 (a : ℕ) : ℝ≥0 := 2 ^ (5 * a) + (2 ^ a)⁻¹
 /-- Lemma 10.2.9 -/
 lemma estimate_bad
     (ha : 4 ≤ a) (hf : BoundedFiniteSupport f) (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α) :
-    distribution (czOperator K r (czRemainder f α)) (α / 2) volume ≤
+    distribution (czOperator K r (czRemainder f (c10_0_3 a * α))) (α / 2) volume ≤
     C10_2_9 a / α * eLpNorm f 1 volume := by
   rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
   by_cases hX : GeneralCase f α
   · calc
-      _ ≤ volume (Ω f α ∪ {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ}) := by
+      _ ≤ volume (Ω f α ∪
+          {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f (c10_0_3 a * α)) x‖ₑ}) := by
         refine measure_mono fun x mx ↦ ?_
         rw [mem_setOf_eq] at mx
         simp_rw [mem_union, mem_setOf_eq, mx, and_true, mem_compl_iff]; tauto
-      _ ≤ volume (Ω f α) + volume {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f α) x‖ₑ} :=
+      _ ≤ volume (Ω f α) +
+          volume {x ∈ (Ω f α)ᶜ | α / 2 < ‖czOperator K r (czRemainder f (c10_0_3 a * α)) x‖ₑ} :=
         measure_union_le _ _
       _ ≤ ∑' i, volume (czBall2 hX i) +
           volume ((Ω f α)ᶜ ∩ czOperatorBound hX ⁻¹' Ioi (α / 8)) := by
@@ -1267,21 +1269,84 @@ lemma estimate_bad
           _ ≤ (2 : ℝ≥0) ^ (5 * a) := by gcongr <;> norm_num
           _ ≤ _ := le_self_add
 
-variable [IsCancellative X (defaultτ a)]
-
 /- ### Lemmas 10.0.3 -/
 
 /-- The constant used in `czoperator_weak_1_1`. -/
-irreducible_def C10_0_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 19 * a)
+irreducible_def C10_0_3 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 12 * a + 4)
 
-/-- Lemma 10.0.3, formulated differently.
-The blueprint version is basically this after unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`.
--/
--- in proof: do cases on `α ≤ ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a`.
--- If true, use the argument directly below (10.2.37)
+/-- Lemma 10.0.3, blueprint form. -/
+lemma estimate_czoperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport f)
+    (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
+    distribution (czOperator K r f) α volume ≤ C10_0_3 a / α * eLpNorm f 1 volume := by
+  rcases le_or_gt α (⨍⁻ x, ‖f x‖ₑ / c10_0_3 a) with hα | hα
+  · rw [laverage_eq] at hα
+    rcases eq_zero_or_pos (eLpNorm f 1) with hf₂ | hf₂
+    · rw [eLpNorm_eq_zero_iff hf.aestronglyMeasurable one_ne_zero] at hf₂
+      have op0 : czOperator K r f = 0 := by
+        ext x; rw [czOperator, integral_eq_zero_of_ae]; swap
+        · have := (EventuallyEq.rfl (f := (K x ·))).mul hf₂
+          simp only [Pi.zero_apply, mul_zero] at this; exact this.restrict
+        simp
+      simp_rw [op0, distribution, Pi.zero_apply, enorm_zero, not_lt_zero', setOf_false,
+        measure_empty, zero_le]
+    conv_rhs at hα =>
+      enter [1, 2, x]
+      rw [div_eq_mul_inv, c10_0_3, coe_inv (by positivity), inv_inv, ← C10_0_3]
+    have C10_0_3_pos : 0 < C10_0_3 a := by rw [C10_0_3]; positivity
+    have C10_0_3_lt_top : (C10_0_3 a : ℝ≥0∞) < ⊤ := by rw [C10_0_3]; finiteness
+    rw [lintegral_mul_const' _ _ (by unfold C10_0_3; finiteness),
+      ← eLpNorm_one_eq_lintegral_enorm] at hα
+    replace hα := mul_le_of_le_div' hα
+    rw [← ENNReal.le_div_iff_mul_le] at hα; rotate_left
+    · right; positivity
+    · have hf₃ := (hf.memLp 1).eLpNorm_lt_top
+      right; finiteness
+    rw [mul_comm, ENNReal.mul_div_right_comm] at hα
+    exact (measure_mono (subset_univ _)).trans hα
+  rcases eq_zero_or_pos α with rfl | αpos; · simp only [not_lt_zero'] at hα
+  have α'pos : 0 < c10_0_3 a * α := by rw [c10_0_3]; positivity
+  calc
+    _ ≤ distribution (czOperator K r (czApproximation f (c10_0_3 a * α))) (α / 2) volume +
+        distribution (czOperator K r (czRemainder f (c10_0_3 a * α))) (α / 2) volume := by
+      refine le_trans (measure_mono fun x mx ↦ ?_) (measure_union_le _ _)
+      simp only [mem_union, mem_setOf_eq] at mx ⊢; contrapose! mx
+      calc
+        _ = ‖czOperator K r (czApproximation f (c10_0_3 a * α)) x +
+            czOperator K r (czRemainder f (c10_0_3 a * α)) x‖ₑ := by
+          congr 1; rw [← sub_eq_iff_eq_add']
+          have key := congrFun (czoperator_sub (K := K) hf (hf.czApproximation _ α'pos) hr) x
+          rw [Pi.sub_apply] at key; exact key.symm
+        _ ≤ _ := enorm_add_le _ _
+        _ ≤ _ := add_le_add mx.1 mx.2
+        _ = _ := ENNReal.add_halves α
+    _ ≤ C10_2_6 a / α * eLpNorm f 1 volume + C10_2_9 a / α * eLpNorm f 1 volume :=
+      add_le_add (estimate_good hf hα hT) (estimate_bad ha hf hα)
+    _ ≤ _ := by
+      rw [← add_mul, ← ENNReal.add_div, ← coe_add]; gcongr
+      calc
+        _ = 2 ^ (a ^ 3 - 9 * a - 2 : ℤ) + C10_2_9 a := by
+          rw [C10_2_6, c10_0_3, ← zpow_natCast, ← zpow_natCast, ← zpow_neg, ← zpow_add₀ two_ne_zero]
+          congr 2; push_cast; ring
+        _ ≤ 2 ^ (a ^ 3) + 2 ^ (5 * a + 1) := by
+          rw [pow_succ 2, mul_two, C10_2_9]; gcongr
+          · rw [← zpow_natCast, Nat.cast_pow]
+            exact zpow_le_zpow_right₀ one_le_two (by omega)
+          · rw [← zpow_natCast, ← zpow_natCast, ← zpow_neg]
+            exact zpow_le_zpow_right₀ one_le_two (by omega)
+        _ ≤ 2 ^ (a ^ 3 + (5 * a + 1) + 1) := by
+          conv_rhs => rw [pow_succ, mul_two]
+          exact add_le_add (pow_le_pow_right' one_le_two (Nat.le_add_right ..))
+            (pow_le_pow_right' one_le_two (Nat.le_add_left ..))
+        _ ≤ _ := by rw [C10_0_3]; exact pow_le_pow_right' one_le_two (by omega)
+
+/-- Lemma 10.0.3, formulated differently. The blueprint version is basically this after
+unfolding `HasBoundedWeakType`, `wnorm` and `wnorm'`. -/
 theorem czoperator_weak_1_1 (ha : 4 ≤ a) (hr : 0 < r)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
-    HasBoundedWeakType (czOperator K r) 1 1 volume volume (C10_0_3 a) := by
-  sorry
+    HasBoundedWeakType (czOperator K r) 1 1 volume volume (C10_0_3 a) := fun f hf ↦ by
+  refine ⟨czOperator_aestronglyMeasurable hf, ?_⟩
+  simp_rw [wnorm, one_ne_top, ite_false, wnorm', toReal_one, inv_one, rpow_one, iSup_le_iff]
+  intro α; apply mul_le_of_le_div'; rw [ENNReal.mul_div_right_comm]
+  exact estimate_czoperator ha hr hf hT
 
 end
