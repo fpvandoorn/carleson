@@ -712,7 +712,7 @@ def czRemainder (α : ℝ≥0∞) (x : X) : ℂ :=
   f x - czApproximation f α x
 
 /-- Part of Lemma 10.2.5, this is essentially (10.2.16) (both cases). -/
-def tsum_czRemainder' (hX : GeneralCase f α) (x : X) :
+lemma tsum_czRemainder' (hX : GeneralCase f α) (x : X) :
     ∑ᶠ i, czRemainder' hX i x = czRemainder f α x := by
   simp only [czRemainder', czRemainder]
   by_cases hx : ∃ j, x ∈ czPartition hX j
@@ -1300,7 +1300,6 @@ lemma estimate_czoperator (ha : 4 ≤ a) (hr : 0 < r) (hf : BoundedFiniteSupport
       enter [1, 2, x]
       rw [div_eq_mul_inv, c10_0_3, coe_inv (by positivity), inv_inv, ← C10_0_3]
     have C10_0_3_pos : 0 < C10_0_3 a := by rw [C10_0_3]; positivity
-    have C10_0_3_lt_top : (C10_0_3 a : ℝ≥0∞) < ⊤ := by rw [C10_0_3]; finiteness
     rw [lintegral_mul_const' _ _ (by unfold C10_0_3; finiteness),
       ← eLpNorm_one_eq_lintegral_enorm] at hα
     replace hα := mul_le_of_le_div' hα
