@@ -1284,10 +1284,6 @@ lemma lintegral_rpow_Ioi_top {γ : ℝ} :
 
 lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j then γ > -1 else γ < -1 ) :
   ∫⁻ s : ℝ in res j β, ENNReal.ofReal (s ^ γ) = β ^ (γ + 1) / ENNReal.ofReal |γ + 1| := by
-  -- trans ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ)
-  -- · apply lintegral_congr_ae
-  --   filter_upwards [self_mem_ae_restrict measurableSet_res]
-  --   exact fun a Ha ↦ ofReal_rpow_of_pos (res_subset_Ioi Ha)
   · unfold res
     split at hγ <;> rename_i xor_split
     · rw [xor_split]
@@ -1340,6 +1336,9 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
 --   all_goals rw [ENNReal.ofReal_div_of_pos (by rw [abs_pos]; linarith),
 --       ← ENNReal.ofReal_rpow_of_pos this, ofReal_toReal hβ']
 
+-- TODO: This is the more natural/precise statement, but when t = ∞, we can only prove
+-- the inequality, see next lemma. As a consequence, this lemma is now actually not used.
+-- Shall we remove it?
 lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞):
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by

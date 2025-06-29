@@ -562,8 +562,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
       gcongr (?_) ^ (p₀⁻¹ * q₀)
       apply setLIntegral_mono_ae
       · fun_prop
-      · filter_upwards
-        intro x hfx
+      · filter_upwards with x hfx
         gcongr (?_) ^ (p₀⁻¹ * q₀)⁻¹
         apply value_lintegral_res₂
         · exact enorm_pos.mpr hfx
@@ -604,10 +603,6 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     _ = _ := by ring
 
 def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | false => p₀
-
-lemma test (a b : ℝ) (hb : 0 ≠ b) :
-    b * a / b = a := by
-  exact mul_div_cancel_left₀ a (id (Ne.symm hb))
 
 /-- One of the key estimates for the real interpolation theorem, now using
     the particular choice of exponent, but not yet using the
