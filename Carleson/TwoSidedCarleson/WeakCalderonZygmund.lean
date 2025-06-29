@@ -1084,9 +1084,16 @@ lemma estimate_bad_partial (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
     ‖czOperator K r (czRemainder f (c10_0_3 a * α)) x‖ₑ ≤ 3 * czOperatorBound hX x + α / 8 := by
   sorry
 
-lemma aemeasurable_V {y : X} :
-    AEMeasurable (fun x ↦ volume (ball x (dist x y))) volume := by
-  sorry
+-- The following two proofs are by David Ledvinka, https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/A.20silly.20question/near/526202844
+lemma measurable_volume_of_balls : Measurable (fun x : X × ℝ ↦ volume (ball x.1 x.2)) := by
+  conv => enter [1, x]; rw [← lintegral_indicator_one measurableSet_ball]
+  apply Measurable.lintegral_prod_left
+  apply Measurable.indicator (by fun_prop)
+  exact measurableSet_lt (by fun_prop) (by fun_prop)
+
+lemma measurable_V {y : X} : Measurable (fun x ↦ volume (ball x (dist x y))) := by
+  conv => enter [1]; change (fun x : X × ℝ ↦ volume (ball x.1 x.2)) ∘ (fun x ↦ (x, dist x y))
+  exact measurable_volume_of_balls.comp (by fun_prop)
 
 lemma czOperatorBound_inner_le (ha : 4 ≤ a) (hX : GeneralCase f α) {i : ℕ} :
     ∫⁻ x in (Ω f α)ᶜ, ((czRadius hX i).toNNReal / edist x (czCenter hX i)) ^ (a : ℝ)⁻¹ /
@@ -1186,7 +1193,7 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
     _ ≤ (∫⁻ x in (Ω f α)ᶜ, czOperatorBound hX x) / (α / 8) := by
       apply meas_ge_le_lintegral_div
       · refine ((AEMeasurable.ennreal_tsum fun i ↦ ?_).const_mul _).restrict
-        refine AEMeasurable.div ?_ aemeasurable_V
+        refine AEMeasurable.div ?_ measurable_V.aemeasurable
         refine ((AEMeasurable.const_div ?_ _).pow_const _).mul_const _
         simp only [coe_nnreal_ennreal_nndist]
         exact aemeasurable_id'.edist aemeasurable_const
@@ -1201,7 +1208,7 @@ lemma distribution_czOperatorBound (ha : 4 ≤ a) (hf : BoundedFiniteSupport f)
         ← ENNReal.mul_div_right_comm, ENNReal.div_mul_cancel αpos.ne' αlt.ne]
       simp only [coe_nnreal_ennreal_nndist]
       rw [lintegral_tsum]; swap
-      · refine fun i ↦ (AEMeasurable.div ?_ aemeasurable_V).restrict
+      · refine fun i ↦ (AEMeasurable.div ?_ measurable_V.aemeasurable).restrict
         refine ((AEMeasurable.const_div ?_ _).pow_const _).mul_const _
         exact aemeasurable_id'.edist aemeasurable_const
       congr! 3 with i
