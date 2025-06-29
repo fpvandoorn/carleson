@@ -410,7 +410,7 @@ lemma enorm_K_sub_le [ProperSpace X] [IsFiniteMeasureOnCompacts (volume : Measur
 
 lemma integrableOn_K_mul [IsOpenPosMeasure (volume : Measure X)]
     [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X] [IsOneSidedKernel a K]
-    {f : X → ℂ} (s : Set X) (hf : IntegrableOn f s) (x : X) {r : ℝ} (hr : 0 < r)
+    {f : X → ℂ} {s : Set X} (hf : IntegrableOn f s) (x : X) {r : ℝ} (hr : 0 < r)
     (hs : s ⊆ (ball x r)ᶜ) : IntegrableOn (K x * f) s := by
   use (measurable_K_right x).aemeasurable.restrict.mul hf.aemeasurable |>.aestronglyMeasurable
   exact (hasFiniteIntegral_def _ _).mpr <| calc
@@ -426,9 +426,9 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
     IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
   rw [← mul_one (K x)]
-  refine integrableOn_K_mul _ ?_ x hr ?_
+  refine integrableOn_K_mul ?_ x hr ?_
   · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by intro y; simp [dist_comm y x]
-    exact integrableOn_const <| lt_of_le_of_lt (measure_mono this) measure_closedBall_lt_top |>.ne
+    exact integrableOn_const ((measure_mono this).trans_lt measure_closedBall_lt_top).ne
   · intro y hy; simp [hy.1, dist_comm y x]
 
 /-- `K` is a two-sided Calderon-Zygmund kernel
