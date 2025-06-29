@@ -896,7 +896,7 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
   let r := D ^ s * ((D : ℝ)⁻¹ * (4 : ℝ)⁻¹)
   have hr : 0 < r := by positivity
   rw [← integrableOn_iff_integrable_of_support_subset (s := (ball x r)ᶜ)]
-  · refine integrableOn_K_mul (ball x r)ᶜ ?_ x hr (subset_refl _)
+  · refine integrableOn_K_mul ?_ x hr (subset_refl _)
     apply Continuous.integrable_of_hasCompactSupport
     · exact continuous_ofReal.comp <| continuous_ψ.comp <| (by fun_prop)
     · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
