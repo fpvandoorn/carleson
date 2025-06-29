@@ -895,13 +895,9 @@ lemma aestronglyMeasurable_Ks {s : ℤ} : AEStronglyMeasurable (fun x : X × X �
 lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s x) := by
   let r := D ^ s * ((D : ℝ)⁻¹ * (4 : ℝ)⁻¹)
   have hr : 0 < r := by positivity
-  refine (integrableOn_iff_integrable_of_support_subset ?_).mp (integrableOn_K_mul ?_ x hr)
-  · intro y hy
-    rw [mem_compl_iff, mem_ball', not_lt]
-    have : ψ (((D : ℝ) ^ s)⁻¹ * dist x y) ≠ 0 := by simp_all [Ks]
-    rw [← Function.mem_support, support_ψ hD, mul_inv_rev] at this
-    exact le_inv_mul_iff₀ (defaultD_pow_pos a s) |>.mp this.1.le
-  · apply Continuous.integrable_of_hasCompactSupport
+  rw [← integrableOn_iff_integrable_of_support_subset (s := (ball x r)ᶜ)]
+  · refine integrableOn_K_mul (ball x r)ᶜ ?_ x hr (subset_refl _)
+    apply Continuous.integrable_of_hasCompactSupport
     · exact continuous_ofReal.comp <| continuous_ψ.comp <| (by fun_prop)
     · apply HasCompactSupport.of_support_subset_isCompact (isCompact_closedBall x (D ^ s / 2))
       intro y hy
@@ -909,6 +905,11 @@ lemma integrable_Ks_x {s : ℤ} {x : X} (hD : 1 < (D : ℝ)) : Integrable (Ks s 
       replace hy := hy.2.le
       rw [zpow_neg, mul_comm, ← div_eq_mul_inv, div_le_iff₀ (Ds0 X s)] at hy
       rwa [mem_closedBall, dist_comm, div_eq_mul_inv, mul_comm]
+  · intro y hy
+    rw [mem_compl_iff, mem_ball', not_lt]
+    have : «ψ» D (((D : ℝ) ^ s)⁻¹ * dist x y) ≠ 0 := by simp_all [Ks]
+    rw [← Function.mem_support, support_ψ hD, mul_inv_rev] at this
+    exact le_inv_mul_iff₀ (defaultD_pow_pos a s) |>.mp this.1.le
 
 end PseudoMetricSpace
 
