@@ -425,24 +425,11 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     [IsFiniteMeasureOnCompacts (volume : Measure X)] [ProperSpace X]
     [IsOneSidedKernel a K] {x : X} {r R : ℝ} (hr : r > 0) :
     IntegrableOn (K x) {y | dist x y ∈ Icc r R} volume := by
-  use Measurable.aestronglyMeasurable (measurable_K_right x)
-  rw [hasFiniteIntegral_def]
-  calc ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, ‖K x y‖ₑ
-    _ ≤ ∫⁻ (y : X) in {y | dist x y ∈ Icc r R}, C_K a / volume (ball x r) := by
-      refine setLIntegral_mono measurable_const (fun y hy ↦ ?_)
-      refine (enorm_K_le_vol_inv x y).trans ?_
-      rw [vol]
-      gcongr
-      exact hy.1
-    _ < _ := by
-      rw [setLIntegral_const]
-      apply ENNReal.mul_lt_top (ENNReal.div_lt_top ENNReal.coe_ne_top _); swap
-      · simp_rw [← pos_iff_ne_zero, measure_ball_pos _ _ hr]
-      refine (Ne.lt_top fun h ↦ ?_)
-      have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by
-        intro y ⟨_, hy⟩
-        exact mem_closedBall_comm.mp hy
-      exact measure_closedBall_lt_top.ne (measure_mono_top this h)
+  rw [← mul_one (K x)]
+  refine integrableOn_K_mul _ ?_ x hr ?_
+  · have : {y | dist x y ∈ Icc r R} ⊆ closedBall x R := by intro y; simp [dist_comm y x]
+    exact integrableOn_const <| lt_of_le_of_lt (measure_mono this) measure_closedBall_lt_top |>.ne
+  · intro y hy; simp [hy.1, dist_comm y x]
 
 /-- `K` is a two-sided Calderon-Zygmund kernel
 In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
