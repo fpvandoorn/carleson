@@ -435,11 +435,40 @@ lemma union_L'_eq_union_I_p : ⋃ (L ∈ 𝓛' 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 
   simp only [𝓛', Finset.mem_filter, Finset.mem_univ, true_and]
   exact maxM
 
+/-- The finset `{p : 𝔓 X | 𝓘 p = L}`. -/
+private def aux_t (L : Grid X) : Finset (𝔓 X) := by
+  classical
+  exact {p : 𝔓 X | 𝓘 p = L}
+
+-- Ineq. 6.3.30
+private lemma ineq_6_3_32 [DecidableEq (𝔓 X)] {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
+    ∑ (p ∈ (𝔄' 𝔄 ϑ N \ (aux_t L))), volume (E p ∩ G ∩ L) ≤
+      volume (E₂ (2 ^ (N + 3)) p') := by
+
+
+  sorry
+
 -- Ineq. 6.3.30
 lemma global_antichain_density_aux {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     ∑ (p ∈ 𝔄' 𝔄 ϑ N), volume (E p ∩ G ∩ L) ≤
       (C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
-  sorry
+  classical
+  let t : Finset (𝔓 X) := {p : 𝔓 X | 𝓘 p = L}
+  calc ∑ p ∈ 𝔄' 𝔄 ϑ N, volume (E p ∩ G ∩ ↑L)
+    -- Express LHS as 6.3.31 + 6.3.32.
+    _ = ∑ p ∈ (𝔄' 𝔄 ϑ N ∩ t), volume (E p ∩ G ∩ ↑L) +
+      ∑ p ∈ (𝔄' 𝔄 ϑ N \ t), volume (E p ∩ G ∩ ↑L) := by rw [Finset.sum_inter_add_sum_diff]
+    -- Apply ineq. 6.3.33 : Estimate 6.3.31 with Lemma 6.3.2.
+    _ ≤ ∑ p ∈ (𝔄' 𝔄 ϑ N ∩ t), volume (E p ∩ G ∩ ↑L) +
+      ∑ p ∈ (𝔄' 𝔄 ϑ N \ t), volume (E p ∩ G ∩ ↑L) := by sorry
+
+    _ ≤ ∑ p ∈ (𝔄' 𝔄 ϑ N ∩ t), volume (E p ∩ G ∩ ↑L) +
+      ∑ p ∈ (𝔄' 𝔄 ϑ N \ t), volume (E p ∩ G ∩ ↑L) := by sorry
+    _ ≤ ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X)  := by sorry
+
+
+
+
 
 private lemma volume_union_I_p_eq_sum :
     volume (⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 p : Set X)) = ∑ (L ∈ 𝓛' 𝔄 ϑ N), volume (L : Set X) := by
