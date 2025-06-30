@@ -518,6 +518,43 @@ private lemma ineq_6_3_32 (hS0 : S ≠ 0) {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ
 private lemma volume_L'_le (hS0 : S ≠ 0) {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     volume (L' hS0 hL : Set X) ≤ 2 ^ (100*a^3 + 4*a) * volume (L : Set X) := sorry
 
+private lemma le_C6_3_4 (ha : 4 ≤ a) :
+    (((2 : ℝ≥0∞)^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 4*a)) ≤ ↑(C6_3_4 a N) := by
+  calc ((2 : ℝ≥0∞) ^ (a * (N + 5)) + 2 ^ (a * N + a * 3)) * 2 ^ (100 * a ^ 3 + 4 * a)
+    _ ≤ (2^(a * N + a * 5) + 2^(a * N + a * 5)) * 2 ^ (100*a^3 + 4*a) := by
+      have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
+      have h35 : 3 ≤ 5 := by omega
+      gcongr
+      apply le_of_eq; ring
+    _ = 2 * 2^(a * N + a * 5) * 2 ^ (100*a^3 + 4*a) := by rw [two_mul]
+    _ = 2^(100*a^3 + a * N + a * 9  + 1) := by
+      nth_rewrite 1 [← pow_one 2]
+      rw [← pow_add, ← pow_add]
+      congr 1
+      ring
+    _ ≤ ↑(C6_3_4 a N) := by
+      have h101 : 101 * a ^ 3 = 100 * a ^ 3 +  a ^ 3 := by ring
+      have ha3 : a ^ 3 = a * (a^2 - 1) + a := by
+        simp only [mul_tsub, mul_one]
+        rw [tsub_add_cancel_of_le]
+        · ring
+        · nth_rewrite 1 [← mul_one a]
+          have ha' : 1 ≤ a^1 := by linarith
+          gcongr
+          apply le_trans ha' (Nat.pow_le_pow_right (by linarith) one_le_two)
+      rw [C6_3_4]
+      norm_cast
+      apply pow_le_pow (le_refl _) one_le_two
+      rw [add_assoc, add_assoc, add_comm (a * N), ← add_assoc, ← add_assoc, mul_comm N]
+      gcongr
+      rw [add_assoc, h101]
+      nth_rewrite 3 [ha3]
+      gcongr
+      · calc 9
+        _ ≤ 4^2 - 1 := by norm_num
+        _ ≤ a ^ 2 - 1 := by gcongr
+      · linarith
+
 -- Ineq. 6.3.30
 lemma global_antichain_density_aux (hS0 : S ≠ 0) {L : Grid X} (hL : L ∈ 𝓛' 𝔄 ϑ N) :
     ∑ (p ∈ 𝔄' 𝔄 ϑ N), volume (E p ∩ G ∩ L) ≤
@@ -552,17 +589,8 @@ lemma global_antichain_density_aux (hS0 : S ≠ 0) {L : Grid X} (hL : L ∈ 𝓛
         2 ^ (100*a^3 + 4*a) * volume (L : Set X) := by sorry
     _ = ((2^(a * (N + 5)) + 2^(a * N + a * 3)) * 2 ^ (100*a^3 + 4*a)) * dens₁ (𝔄 : Set (𝔓 X)) *
         volume (L : Set X) := by ring
-    _ ≤ ((2^(a * N + a * 5) + 2^(a * N + a * 5)) * 2 ^ (100*a^3 + 4*a)) * dens₁ (𝔄 : Set (𝔓 X)) *
-        volume (L : Set X) := by
-        have h12 : (1 : ℝ≥0∞) ≤ 2 := one_le_two
-        have h35 : 3 ≤ 5 := by omega
-        gcongr
-        apply le_of_eq; ring
     _ ≤ ↑(C6_3_4 a N) * dens₁ (𝔄 : Set (𝔓 X)) * volume (L : Set X) := by
-      gcongr
-      simp only [C6_3_4]
-      norm_cast
-      sorry
+      grw [le_C6_3_4 (four_le_a X)]
 
 variable (𝔄 ϑ N)
 
