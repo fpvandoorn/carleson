@@ -713,21 +713,8 @@ We choose a more convenient definition, but prove in `tsum_czRemainder'` that th
 def czRemainder (α : ℝ≥0∞) (x : X) : ℂ :=
   f x - czApproximation f α x
 
--- TODO: Delete one of the following after determining which is more useful.
 /-- Part of Lemma 10.2.5, this is essentially (10.2.16) (both cases). -/
-def finsum_czRemainder' (hX : GeneralCase f α) (x : X) :
-    ∑ᶠ i, czRemainder' hX i x = czRemainder f α x := by
-  simp only [czRemainder', czRemainder]
-  by_cases hx : ∃ j, x ∈ czPartition hX j
-  · have ⟨j, hj⟩ := hx
-    rw [finsum_eq_single _ j, indicator_of_mem hj]
-    · rfl
-    · refine fun i hi ↦ indicator_of_notMem ?_ _
-      exact (czPartition_pairwise_disjoint_on hi).notMem_of_mem_right hj
-  · simp only [czApproximation, hX, reduceDIte, hx, sub_self]
-    exact finsum_eq_zero_of_forall_eq_zero fun i ↦ indicator_of_notMem (fun hi ↦ hx ⟨i, hi⟩) _
-/-- Part of Lemma 10.2.5, this is essentially (10.2.16) (both cases). -/
-def tsum_czRemainder' (hX : GeneralCase f α) (x : X) :
+lemma tsum_czRemainder' (hX : GeneralCase f α) (x : X) :
     ∑' i, czRemainder' hX i x = czRemainder f α x := by
   simp only [czRemainder', czRemainder]
   by_cases hx : ∃ j, x ∈ czPartition hX j
