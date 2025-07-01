@@ -1118,22 +1118,6 @@ lemma estimate_good {hf : BoundedFiniteSupport f}
       rw [sq α, ENNReal.mul_div_mul_right _ _ (ne_zero_of_lt hα) hα_top]
     _ = (C10_2_6 a) / α * eLpNorm f 1 volume := by simp only [C_Ts, C10_2_6]; norm_cast; ring_nf
 
--- The following three proofs are by David Ledvinka,
--- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/A.20silly.20question/near/526202844
-lemma measurable_volume_of_balls : Measurable (fun x : X × ℝ ↦ volume (ball x.1 x.2)) := by
-  conv => enter [1, x]; rw [← lintegral_indicator_one measurableSet_ball]
-  apply Measurable.lintegral_prod_left
-  apply Measurable.indicator (by fun_prop)
-  exact measurableSet_lt (by fun_prop) (by fun_prop)
-
-lemma measurable_V {y : X} : Measurable (fun x ↦ volume (ball x (dist x y))) := by
-  conv => enter [1]; change (fun x : X × ℝ ↦ volume (ball x.1 x.2)) ∘ (fun x ↦ (x, dist x y))
-  exact measurable_volume_of_balls.comp (by fun_prop)
-
-lemma measurable_V' {x : X} : Measurable (fun y ↦ volume (ball x (dist x y))) := by
-  conv => enter [1]; change (fun x : X × ℝ ↦ volume (ball x.1 x.2)) ∘ (fun y ↦ (x, dist x y))
-  exact measurable_volume_of_balls.comp (by fun_prop)
-
 /-- The constant used in `czOperatorBound`. -/
 irreducible_def C10_2_7 (a : ℕ) : ℝ≥0 := 2 ^ (a ^ 3 + 2 * a + 1) * c10_0_3 a
 
@@ -1404,18 +1388,27 @@ private lemma tsum_Integral_K_le (hX : GeneralCase f (α' a α)) (hx : x ∈ (Ω
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r), ‖K x y‖ₑ :=
     mul_le_mul_left' (lintegral_mono_set (A_subset hX hx)) _
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r),
-        2 ^ (a ^ 3) / volume (ball x (dist x y)) := by
-    refine mul_le_mul_left' (setLIntegral_mono (measurable_const.div measurable_V') fun y hy ↦ ?_) _
-    have : IsOneSidedKernel a K := by infer_instance
-    have := enorm_K_le_vol_inv (K := K) x y
-    unfold C_K at this
-    exact_mod_cast this
-  _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r),
         2 ^ (a ^ 3) / volume (ball x (r / 3)) := by
-    apply mul_le_mul_left'
-    sorry
-  _ ≤ _ := by
-    sorry
+    refine mul_le_mul_left' (setLIntegral_mono' Annulus.measurableSet_co (fun y hy ↦ ?_)) _
+    trans 2 ^ (a ^ 3) / volume (ball x (dist x y))
+    · have := enorm_K_le_vol_inv (K := K) x y; unfold C_K at this; exact_mod_cast this
+    · gcongr; exact hy.1
+  _ = 2 ^ (6*a) * (2 ^ (a^3) / volume (ball x (r/3)) * volume (Annulus.co x (r/3) (3*r))) := by
+    simp [lintegral_const]
+  _ ≤ 2 ^ (6*a) * (2 ^ (a^3) / volume (ball x (r/3)) * (2 ^ (4*a) * volume (ball x (r/3)))) := by
+    gcongr
+    apply le_trans (measure_mono Annulus.co_subset_ball)
+    trans volume (ball x (2 ^ 4 * (r / 3)))
+    · by_cases hr : r ≤ 0
+      · simp [ball_eq_empty.mpr (mul_nonpos_of_nonneg_of_nonpos three_pos.le hr)]
+      exact measure_mono <| ball_subset_ball (by linarith)
+    · rw [mul_comm 4, pow_mul]
+      exact_mod_cast measure_ball_two_le_same_iterate x (r / 3) 4 (μ := volume)
+  _ = 2 ^ a ^ 3 * 2 ^ (6 * a) * 2 ^ (4 * a) *
+        ((volume (ball x (r / 3)))⁻¹ * volume (ball x (r / 3))) := by
+    rw [div_eq_mul_inv]; ring
+  _ ≤ 2 ^ a ^ 3 * 2 ^ (6 * a) * 2 ^ (4 * a) * 1 := by gcongr; apply ENNReal.inv_mul_le_one
+  _ = 2 ^ (a ^3 + 10 * a) := by rw [mul_one, ← pow_add, ← pow_add]; ring_nf
 
 private lemma tsum_𝒥₂ (hf : BoundedFiniteSupport f) (r : ℝ) (hα : 0 < α)
     (hX : GeneralCase f (α' a α))  {x : X} (hx : x ∈ (Ω f (α' a α))ᶜ) :
