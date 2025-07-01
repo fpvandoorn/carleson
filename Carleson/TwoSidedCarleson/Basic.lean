@@ -1,5 +1,4 @@
-import Carleson.Defs
-import Carleson.ToMathlib.BoundedFiniteSupport
+import Carleson.Calculations
 
 open MeasureTheory Set Metric Function Topology NNReal ENNReal
 
@@ -136,3 +135,24 @@ lemma czoperator_sub {f g : X → ℂ} (hf : BoundedFiniteSupport f) (hg : Bound
   unfold czOperator
   simp_rw [Pi.sub_apply, mul_sub_left_distrib,
     integral_sub (czoperator_welldefined hf hr x) (czoperator_welldefined hg hr x)]
+
+/-- Lemma 10.1.1 -/
+lemma geometric_series_estimate {x : ℝ} (hx : 2 ≤ x) :
+    ∑' (n : ℕ), (2 : ℝ≥0∞) ^ (-n / x) ≤ 2 ^ x := by
+  calc
+    _ = ∑' (n : ℕ), ((2 : ℝ≥0∞) ^ (-x⁻¹)) ^ n := by
+      congr! 2 with n
+      rw [div_eq_mul_inv, neg_mul_comm, mul_comm, ENNReal.rpow_mul, ENNReal.rpow_natCast]
+    _ = (1 - 2 ^ (-x⁻¹))⁻¹ := ENNReal.tsum_geometric _
+    _ ≤ 2 * (ENNReal.ofReal x⁻¹)⁻¹ := by
+      apply near_1_geometric_bound; rw [mem_Icc, inv_nonneg, inv_le_one_iff₀]
+      exact ⟨by linarith, .inr (by linarith)⟩
+    _ = ENNReal.ofReal (2 * x) := by
+      rw [ofReal_inv_of_pos (by linarith), inv_inv, ofReal_mul zero_le_two, ofReal_ofNat]
+    _ ≤ ENNReal.ofReal (2 ^ x) := by
+      gcongr
+      have key := @one_add_mul_self_le_rpow_one_add 1 (by norm_num) (x - 1) (by linarith)
+      rw [mul_one, add_sub_cancel, one_add_one_eq_two] at key
+      replace key := mul_le_mul_of_nonneg_left key zero_le_two
+      rwa [← Real.rpow_one_add' (by linarith) (by linarith), add_sub_cancel] at key
+    _ = _ := by rw [← ofReal_rpow_of_pos zero_lt_two, ofReal_ofNat]
