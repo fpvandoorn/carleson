@@ -430,9 +430,9 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     exact integrableOn_const ((measure_mono this).trans_lt measure_closedBall_lt_top).ne
   · intro y hy; simp [hy.1, dist_comm y x]
 
-/-- `K` is a two-sided Calderon-Zygmund kernel
-In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
+/-- `K` is a two-sided Calderon-Zygmund kernel.
+In the formalization `K x y` is defined everywhere, even for `x = y`.
+The assumptions on `K` show that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
   enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
     ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
@@ -445,7 +445,7 @@ end Kernel
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
 
-/- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
+/-- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
 `HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)`
 throughout this formalization. -/
 def C_Ts (a : ℕ) : ℝ≥0 := 2 ^ a ^ 3
@@ -465,6 +465,7 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
     KernelProofData a K where
   c : IsCancellative X (defaultτ a)
+  q_mem_Ioc : q ∈ Ioc 1 2
   isBounded_F : IsBounded F
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
@@ -479,7 +480,6 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   finite_range_σ₂ : Finite (range σ₂)
   σ₁_le_σ₂ : σ₁ ≤ σ₂
   Q : SimpleFunc X (Θ X)
-  q_mem_Ioc : q ∈ Ioc 1 2
   BST_T_Q (θ : Θ X) : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
     2 2 volume volume (C_Ts a)
 

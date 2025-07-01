@@ -96,7 +96,7 @@ theorem finitary_carleson_step
     ext y; symm; rw [ite_eq_left_iff]; intro ny
     specialize nf y; simp_rw [indicator_of_notMem ny, norm_le_zero_iff] at nf; simp [nf]
   let PD : ProofData a q K σ₁ σ₂ F G :=
-    ⟨‹_›, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, hq, BST_T_Q⟩
+    ⟨‹_›, hq, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, BST_T_Q⟩
   obtain ⟨G₁, mG₁, vG₁, hG₁⟩ := finitary_carleson X
   refine ⟨G ∩ G₁, inter_subset_left, bG.subset inter_subset_left, mG.inter mG₁, ?_, ?_⟩
   · refine le_trans ?_ vG₁; gcongr; exact inter_subset_right
