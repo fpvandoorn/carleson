@@ -1375,9 +1375,9 @@ private lemma sum_volume_restrict_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : Gen
 -- Long calculation toward the end of Lemma 10.2.7
 private lemma tsum_integral_K_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
     ∑' (j : 𝒥₂ r x hX), ∫⁻ y in czBall3 hX j, ‖K x y‖ₑ ≤ 2 ^ (a ^ 3 + 10 * a) := calc
-  _ = _ := by rw [← lintegral_sum_measure]
-  _ ≤ ∫⁻ (a : X), ‖K x a‖ₑ ∂(2 ^ (6 * a) • volume.restrict (A r x hX)) :=
-    lintegral_mono' (sum_volume_restrict_le hx hX) (le_refl _)
+  _ ≤ ∫⁻ (a : X), ‖K x a‖ₑ ∂(2 ^ (6 * a) • volume.restrict (A r x hX)) := by
+    rw [← lintegral_sum_measure]
+    exact lintegral_mono' (sum_volume_restrict_le hx hX) (le_refl _)
   _ = 2 ^ (6 * a) * ∫⁻ y in A r x hX, ‖K x y‖ₑ := by
     simp only [lintegral_smul_measure, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat]
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r), ‖K x y‖ₑ :=
