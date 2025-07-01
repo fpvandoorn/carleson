@@ -1054,7 +1054,7 @@ private lemma czBall3_subset_of_mem_Ω (hX : GeneralCase f α) (hx : x ∈ (Ω f
   simp only [czBall3, mem_ball, mem_compl_iff, not_lt] at hx hy ⊢
   linarith [dist_triangle_left x (czCenter hX j) y, hx j]
 
-private lemma six_mul_czRadius_le_of_mem_Ω (hX : GeneralCase f α) (hx : x ∈ (Ω f α)ᶜ) (j : ℕ) :
+private lemma six_mul_czRadius_le_of_mem_Ω (hx : x ∈ (Ω f α)ᶜ) (hX : GeneralCase f α) (j : ℕ) :
     6 * czRadius hX j ≤ dist x (czCenter hX j) := by
   revert j; simpa [Ω, hX] using hx
 
@@ -1130,14 +1130,16 @@ def czOperatorBound (hX : GeneralCase f (α' a α)) (x : X) : ℝ≥0∞ :=
   C10_2_7 a * α * ∑' i, ((3 * czRadius hX i).toNNReal / nndist x (czCenter hX i)) ^ (a : ℝ)⁻¹ *
     volume (czBall3 hX i) / volume (ball x (dist x (czCenter hX i)))
 
-lemma czOperatorBound_eq (hX : GeneralCase f (α' a α)) (x : X) :
+private lemma czOperatorBound_eq (hX : GeneralCase f (α' a α)) (x : X) :
     czOperatorBound hX x = ∑' i, czOperatorBoundSummand hX i x := by
   simp_rw [czOperatorBound, czOperatorBoundSummand, ← ENNReal.tsum_mul_left, mul_div]
 
 private def 𝒥₁ (r : ℝ) (x : X) (hX : GeneralCase f (α' a α)) : Set ℕ :=
   {j | r + 3 * czRadius hX j ≤ dist x (czCenter hX j) }
+
 private def 𝒥₂ (r : ℝ) (x : X) (hX : GeneralCase f (α' a α)) : Set ℕ :=
   {j | r - 3*czRadius hX j ≤ dist x (czCenter hX j) ∧ dist x (czCenter hX j) < r + 3*czRadius hX j }
+
 private def 𝒥₃ (r : ℝ) (x : X) (hX : GeneralCase f (α' a α)) : Set ℕ :=
   {j | dist x (czCenter hX j) < r - 3*czRadius hX j }
 
@@ -1162,7 +1164,7 @@ private lemma lemma_10_2_7_bound' (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : Genera
     rw [enorm_sub_rev]
     exact enorm_K_sub_le <| calc 2 * dist (czCenter hX j) y
       _ ≤ 2 * (3 * czRadius hX j) := (mul_le_mul_iff_of_pos_left two_pos).mpr (mem_ball'.mp hy).le
-      _ ≤ dist x (czCenter hX j)  := le_of_eq_of_le (by ring) (six_mul_czRadius_le_of_mem_Ω hX hx j)
+      _ ≤ dist x (czCenter hX j)  := le_of_eq_of_le (by ring) (six_mul_czRadius_le_of_mem_Ω hx hX j)
   _ ≤ ∫⁻ y in czBall3 hX j, (.ofReal (3 * czRadius hX j) / edist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
         (C_K a / vol x (czCenter hX j)) * ‖g y‖ₑ := by
     refine setLIntegral_mono' measurableSet_ball fun y hy ↦ mul_le_mul_right' ?_ _
@@ -1180,7 +1182,7 @@ private lemma lemma_10_2_7_bound' (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : Genera
     rw [C_K, show ENNReal.ofNNReal (2 ^ (a : ℝ) ^ 3) = 2 ^ (a ^ 3) by norm_cast]; ring_nf
   _ = _ := by rw [czOperatorBoundSummand, C10_2_7_def, add_assoc, ← pow_add]; norm_cast
 
--- Bound used repeatedly in the proof of Lemma 10.2.7
+-- Bound used twice in the proof of Lemma 10.2.7
 private lemma lemma_10_2_7_bound (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) (j : ℕ)
     {g : X → ℂ} (g_int : IntegrableOn g (czBall3 hX j)) (hg0 : ∫ y in czBall3 hX j, g y = 0)
     (hg : ∫⁻ y in czBall3 hX j, ‖g y‖ₑ ≤ 2 ^ (2 * a + 1) * (α' a α) * volume (czBall3 hX j)) :
@@ -1199,8 +1201,8 @@ private lemma lemma_10_2_7_bound (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : General
     _ ≤ ∫⁻ y in czBall3 hX j, ‖K x y - K x (czCenter hX j)‖ₑ * ‖g y‖ₑ := by simp
     _ ≤ _ := lemma_10_2_7_bound' hx hX j g_int.aemeasurable hg
 
-private lemma 𝒥₁_bound {r : ℝ} (hα : 0 < α) {x : X} (hx : x ∈ (Ω f (α' a α))ᶜ)
-    (hX : GeneralCase f (α' a α)) (hf : BoundedFiniteSupport f) {j : ℕ} (hj : j ∈ 𝒥₁ r x hX) :
+private lemma 𝒥₁_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x ∈ (Ω f (α' a α))ᶜ)
+    (hX : GeneralCase f (α' a α)) {j : ℕ} (hj : j ∈ 𝒥₁ r x hX) :
     ‖czOperator K r (czRemainder' hX j) x‖ₑ ≤ czOperatorBoundSummand hX j x := calc
   _ = ‖∫ y in czBall3 hX j, K x y * (czRemainder' hX j y)‖ₑ := by
     apply congrArg
@@ -1217,18 +1219,12 @@ private lemma 𝒥₁_bound {r : ℝ} (hα : 0 < α) {x : X} (hx : x ∈ (Ω f (
       exact notMem_support.mp <| notMem_subset support_czRemainder'_subset hy
     · exact eLpNorm_restrict_czRemainder'_le (hf := hf)
 
-private lemma tsum_𝒥₁ (hf : BoundedFiniteSupport f) {r : ℝ} (hα : 0 < α)
-    (hX : GeneralCase f (α' a α)) {x : X} (hx : x ∈ (Ω f (α' a α))ᶜ) :
-    ∑' (j : ↑(𝒥₁ r x hX)), ‖czOperator K r (czRemainder' hX ↑j) x‖ₑ ≤ czOperatorBound hX x :=
-  let f (j : ℕ) := ((3 * czRadius hX j).toNNReal / nndist x (czCenter hX j)) ^ (a : ℝ)⁻¹ *
-    volume (czBall3 hX j) / volume (ball x (dist x (czCenter hX j)))
-  calc
-    _ ≤ _ := ENNReal.tsum_le_tsum (𝒥₁_bound hα hx hX hf <| Subtype.coe_prop ·)
-    _ = C10_2_7 a * α * ∑' (j : 𝒥₁ r x hX), f j := by simp_rw [← ENNReal.tsum_mul_left, f, mul_div]
-    _ ≤ _ := by
-      apply mul_le_mul_left'
-      nth_rw 2 [← tsum_univ]
-      exact ENNReal.tsum_mono_subtype f (subset_univ _)
+private lemma tsum_𝒥₁ (hf : BoundedFiniteSupport f) (hα : 0 < α)
+    (hX : GeneralCase f (α' a α)) (hx : x ∈ (Ω f (α' a α))ᶜ) :
+    ∑' (j : ↑(𝒥₁ r x hX)), ‖czOperator K r (czRemainder' hX ↑j) x‖ₑ ≤ czOperatorBound hX x := by
+  apply le_trans <| ENNReal.tsum_le_tsum (𝒥₁_bound hf hα hx hX <| Subtype.coe_prop ·)
+  apply le_of_le_of_eq <| ENNReal.tsum_mono_subtype (czOperatorBoundSummand hX · x) (subset_univ _)
+  rw [czOperatorBound_eq, tsum_univ (czOperatorBoundSummand hX · x)]
 
 -- The value dⱼ defined below inequality (10.2.48)
 variable (r) (x) in
@@ -1240,7 +1236,7 @@ private lemma integrableOn_d (hX : GeneralCase f (α' a α)) (j : ℕ) :
   suffices IsFiniteMeasure (volume.restrict (czBall3 hX j)) by apply integrable_const
   exact isFiniteMeasure_restrict.mpr measure_ball_ne_top
 
-private lemma enorm_d_le (hX : GeneralCase f (α' a α)) (hf : BoundedFiniteSupport f) (j : ℕ) :
+private lemma enorm_d_le (hf : BoundedFiniteSupport f) (hX : GeneralCase f (α' a α)) (j : ℕ) :
     ‖d r x hX j‖ₑ ≤ 2 ^ (2 * a + 1) * α' a α := by
   by_cases hr : czRadius hX j ≤ 0
   · simp [d, Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hr]
@@ -1260,7 +1256,7 @@ private lemma enorm_d_le (hX : GeneralCase f (α' a α)) (hf : BoundedFiniteSupp
         isOpen_ball.measure_ne_zero volume (nonempty_ball.mpr (mul_pos three_pos hr))
       simp [ENNReal.mul_inv_cancel this measure_ball_ne_top]
 
--- Integrands involved in the 𝒥₂ section of the proof of Lemma 10.2.7
+-- The next two functions are Integrands involved in the 𝒥₂ section of the proof of Lemma 10.2.7
 variable (r) (x) in
 private abbrev g₀ (hX : GeneralCase f (α' a α)) (j : ℕ) (y : X) :=
   (ball x r)ᶜ.indicator (czRemainder' hX j) y
@@ -1269,7 +1265,7 @@ variable (r) (x) in
 private abbrev g (hX : GeneralCase f (α' a α)) (j : ℕ) (y : X) :=
   g₀ r x hX j y - d r x hX j
 
-private lemma integrableOn_g₀ (hα : 0 < α) (hf : BoundedFiniteSupport f)
+private lemma integrableOn_g₀ (hf : BoundedFiniteSupport f) (hα : 0 < α)
     (hX : GeneralCase f (α' a α)) (j : ℕ) : IntegrableOn (g₀ r x hX j) (czBall3 hX j) :=
   (hf.czRemainder' (α'_pos hα) hX j).integrable.restrict.indicator measurableSet_ball.compl
 
@@ -1283,20 +1279,20 @@ private lemma lintegral_enorm_g₀_le (hf : BoundedFiniteSupport f)
 variable (r) (x) in
 private lemma integrableOn_g (hα : 0 < α) (hf : BoundedFiniteSupport f)
     (hX : GeneralCase f (α' a α)) (j : ℕ) : IntegrableOn (g r x hX j) (czBall3 hX j) :=
-  (integrableOn_g₀ hα hf hX j).sub (integrableOn_d hX j)
+  (integrableOn_g₀ hf hα hX j).sub (integrableOn_d hX j)
 
 private lemma integral_g (hα : 0 < α) (hX : GeneralCase f (α' a α)) (hf : BoundedFiniteSupport f)
     (j : ℕ) : ∫ y in czBall3 hX j, g r x hX j y = 0 := by
   by_cases hr : czRadius hX j ≤ 0
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hr]
   push_neg at hr
-  rw [integral_sub (integrableOn_g₀ hα hf hX j) (integrableOn_d hX j)]
+  rw [integral_sub (integrableOn_g₀ hf hα hX j) (integrableOn_d hX j)]
   suffices (volume.real (czBall3 hX j) : ℂ) * ((volume.real (czBall3 hX j)) : ℂ)⁻¹ = 1 by
     simp [d, this, setAverage_eq, ← mul_assoc]
   exact_mod_cast mul_inv_cancel₀ (measure_real_ball_pos (czCenter hX j) (mul_pos three_pos hr)).ne'
 
-private lemma lintegral_enorm_half_g (hα : 0 < α) (hX : GeneralCase f (α' a α))
-    (hf : BoundedFiniteSupport f) (j : ℕ) :
+private lemma lintegral_enorm_half_g (hf : BoundedFiniteSupport f) (hα : 0 < α)
+    (hX : GeneralCase f (α' a α)) (j : ℕ) :
     ∫⁻ y in czBall3 hX j, ‖2⁻¹ * g r x hX j y‖ₑ ≤
     2 ^ (2 * a + 1) * α' a α * volume (czBall3 hX j) := calc
   _ = 2⁻¹ * ∫⁻ y in czBall3 hX j, ‖g r x hX j y‖ₑ := by
@@ -1304,18 +1300,18 @@ private lemma lintegral_enorm_half_g (hα : 0 < α) (hX : GeneralCase f (α' a �
     rw [lintegral_const_mul' _ _ enorm_ne_top, enorm_inv (NeZero.ne 2), ← ofReal_norm_eq_enorm]
     simp
   _ ≤ 2⁻¹ * ∫⁻ y in czBall3 hX j, ‖g₀ r x hX j y‖ₑ + ‖d r x hX j‖ₑ := by gcongr; exact enorm_sub_le
-  _ = _ := by rw [lintegral_add_left' (integrableOn_g₀ hα hf hX j).aemeasurable.enorm]
+  _ = _ := by rw [lintegral_add_left' (integrableOn_g₀ hf hα hX j).aemeasurable.enorm]
   _ ≤ 2 ^ (2 * a + 1) * α' a α * volume (czBall3 hX j) := by
     rw [← one_mul (_ * _ * _), ← ENNReal.inv_mul_cancel two_pos.ne' ENNReal.ofNat_ne_top,
       mul_assoc, two_mul, lintegral_const, Measure.restrict_apply MeasurableSet.univ, univ_inter]
     gcongr 2⁻¹ * (?_ + ?_ * volume (czBall3 hX j))
     · exact lintegral_enorm_g₀_le hf hX j
-    · exact enorm_d_le hX hf j
+    · exact enorm_d_le hf hX j
 
 -- The bounds on `‖czOperator K r (czRemainder' hX j) x‖ₑ` used for the `𝒥₂` estimate (even
 -- though this part of the estimate doesn't require j ∈ 𝒥₂).
-private lemma 𝒥₂_bound {r : ℝ} (hα : 0 < α) {x : X} (hx : x ∈ (Ω f (α' a α))ᶜ)
-    (hX : GeneralCase f (α' a α)) (hf : BoundedFiniteSupport f) {j : ℕ} :
+private lemma 𝒥₂_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x ∈ (Ω f (α' a α))ᶜ)
+    (hX : GeneralCase f (α' a α)) {j : ℕ} :
     ‖czOperator K r (czRemainder' hX j) x‖ₑ ≤
     2 * czOperatorBoundSummand hX j x +
     2 ^ (2 * a + 1) * (α' a α) * ∫⁻ y in czBall3 hX j, ‖K x y‖ₑ := calc
@@ -1351,42 +1347,42 @@ private lemma 𝒥₂_bound {r : ℝ} (hα : 0 < α) {x : X} (hx : x ∈ (Ω f (
     · simp [← ofReal_norm_eq_enorm]
     · apply lemma_10_2_7_bound hx hX j ((integrableOn_g r x hα hf hX j).const_mul 2⁻¹)
       · rw [integral_const_mul, integral_g hα hX hf, mul_zero]
-      · apply lintegral_enorm_half_g hα hX hf
+      · apply lintegral_enorm_half_g hf hα hX
     · apply le_trans (enorm_integral_le_lintegral_enorm _)
       simp_rw [enorm_mul, lintegral_mul_const _ (measurable_K_right x).enorm, ← mul_comm ‖_‖ₑ]
-      exact mul_le_mul_right' (enorm_d_le hX hf j) _
+      exact mul_le_mul_right' (enorm_d_le hf hX j) _
 
 -- The set `A` defined between (10.2.51) and (10.2.52)
 variable (r) (x) in
 private def A (hX : GeneralCase f (α' a α)) : Set X := ⋃ (j : ↑(𝒥₂ r x hX)), czBall3 hX j
 
 -- (10.2.52)
-private lemma A_subset (hX : GeneralCase f (α' a α)) (hx : x ∈ (Ω f (α' a α))ᶜ) :
+private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
     A r x hX ⊆ Annulus.co x (r / 3) (3 * r) := by
   refine iUnion_subset (fun j y hy ↦ ?_)
   rw [mem_ball'] at hy
-  have : 6 * czRadius hX j ≤ dist x (czCenter hX j) := six_mul_czRadius_le_of_mem_Ω hX hx j
+  have : 6 * czRadius hX j ≤ dist x (czCenter hX j) := six_mul_czRadius_le_of_mem_Ω hx hX j
   have hj := Subtype.coe_prop j
   simp only [𝒥₂, tsub_le_iff_right, mem_setOf_eq] at hj
   constructor
   · linarith [dist_triangle_right x (czCenter hX j) y]
   · linarith [dist_triangle x (czCenter hX j) y]
 
-private lemma sum_measure_le (hX : GeneralCase f (α' a α)) (hx : x ∈ (Ω f (α' a α))ᶜ) :
-    Measure.sum (fun (j : ↑(𝒥₂ r x hX)) ↦ volume.restrict (czBall3 hX j)) ≤
+private lemma sum_measure_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
+    Measure.sum (fun (j : 𝒥₂ r x hX) ↦ volume.restrict (czBall3 hX j)) ≤
     2 ^ (6 * a) • volume.restrict (A r x hX) := by
   sorry
 
 -- Long calculation toward the end of Lemma 10.2.7
-private lemma tsum_Integral_K_le (hX : GeneralCase f (α' a α)) (hx : x ∈ (Ω f (α' a α))ᶜ) :
+private lemma tsum_integral_K_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
     ∑' (j : ↑(𝒥₂ r x hX)), ∫⁻ y in czBall3 hX j, ‖K x y‖ₑ ≤ 2 ^ (a ^ 3 + 10 * a) := calc
   _ = _ := by rw [← lintegral_sum_measure]
   _ ≤ ∫⁻ (a : X), ‖K x a‖ₑ ∂(2 ^ (6 * a) • volume.restrict (A r x hX)) :=
-    lintegral_mono' (sum_measure_le hX hx) (le_refl _)
+    lintegral_mono' (sum_measure_le hx hX) (le_refl _)
   _ = 2 ^ (6 * a) * ∫⁻ y in A r x hX, ‖K x y‖ₑ := by
     simp only [lintegral_smul_measure, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat]
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r), ‖K x y‖ₑ :=
-    mul_le_mul_left' (lintegral_mono_set (A_subset hX hx)) _
+    mul_le_mul_left' (lintegral_mono_set (A_subset hx hX)) _
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r),
         2 ^ (a ^ 3) / volume (ball x (r / 3)) := by
     refine mul_le_mul_left' (setLIntegral_mono' Annulus.measurableSet_co (fun y hy ↦ ?_)) _
@@ -1410,22 +1406,22 @@ private lemma tsum_Integral_K_le (hX : GeneralCase f (α' a α)) (hx : x ∈ (Ω
   _ ≤ 2 ^ a ^ 3 * 2 ^ (6 * a) * 2 ^ (4 * a) * 1 := by gcongr; apply ENNReal.inv_mul_le_one
   _ = 2 ^ (a ^3 + 10 * a) := by rw [mul_one, ← pow_add, ← pow_add]; ring_nf
 
-private lemma tsum_𝒥₂ (hf : BoundedFiniteSupport f) (r : ℝ) (hα : 0 < α)
-    (hX : GeneralCase f (α' a α))  {x : X} (hx : x ∈ (Ω f (α' a α))ᶜ) :
-    ∑' (j : ↑(𝒥₂ r x hX)), ‖czOperator K r (czRemainder' hX ↑j) x‖ₑ ≤
+private lemma tsum_𝒥₂ (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x ∈ (Ω f (α' a α))ᶜ)
+    (hX : GeneralCase f (α' a α)) :
+    ∑' (j : 𝒥₂ r x hX), ‖czOperator K r (czRemainder' hX j) x‖ₑ ≤
     2 * czOperatorBound hX x + α / 8 := calc
-  _ ≤ ∑' (j : ↑(𝒥₂ r x hX)), (2 * (czOperatorBoundSummand hX j x) +
+  _ ≤ ∑' (j : 𝒥₂ r x hX), (2 * (czOperatorBoundSummand hX j x) +
         2 ^ (2 * a + 1) * (α' a α) * ∫⁻ y in czBall3 hX j, ‖K x y‖ₑ) :=
-    ENNReal.tsum_le_tsum (fun j ↦ 𝒥₂_bound hα hx hX hf)
-  _ = ∑' (j : ↑(𝒥₂ r x hX)), _ + ∑' (j : ↑(𝒥₂ r x hX)), _ := ENNReal.tsum_add
+    ENNReal.tsum_le_tsum (fun j ↦ 𝒥₂_bound hf hα hx hX)
+  _ = ∑' (j : 𝒥₂ r x hX), _ + ∑' (j : 𝒥₂ r x hX), _ := ENNReal.tsum_add
   _ ≤ _ := by
     refine add_le_add ?_ ?_
     · rw [ENNReal.tsum_mul_left, czOperatorBound_eq, ← tsum_univ (β := ℕ)]
       apply mul_le_mul_left'
       exact ENNReal.tsum_mono_subtype (czOperatorBoundSummand hX · x) (subset_univ _)
     · calc
-        _ = _ * ∑' (j : ↑(𝒥₂ r x hX)), _ := by rw [ENNReal.tsum_mul_left]
-        _ ≤ _ * 2 ^ (a^3 + 10*a) := mul_le_mul_left' (tsum_Integral_K_le hX hx) _
+        _ = _ * ∑' (j : 𝒥₂ r x hX), _ := by rw [ENNReal.tsum_mul_left]
+        _ ≤ _ * 2 ^ (a^3 + 10*a) := mul_le_mul_left' (tsum_integral_K_le hx hX) _
         _ = 2 ^ (2*a + 1 : ℝ) * ((2 ^ (a^3 + 12*a + 4 : ℝ))⁻¹ * α) * 2 ^ (a^3 + 10*a : ℝ) := by
           simp only [α', c10_0_3]; rw [coe_inv (by norm_num)]; norm_cast
         _ = 2 ^ (2*a + 1 : ℝ) * 2 ^ (- (a^3 + 12*a + 4 : ℝ)) * 2 ^ (a^3 + 10*a : ℝ) * α := by
@@ -1435,7 +1431,7 @@ private lemma tsum_𝒥₂ (hf : BoundedFiniteSupport f) (r : ℝ) (hα : 0 < α
         _ = α / 8 := by ring_nf; rw [rpow_neg, ← ENNReal.div_eq_inv_mul]; norm_num
 
 omit [IsTwoSidedKernel a K] in
-private lemma tsum_𝒥₃ (r : ℝ) (x : X) (hX : GeneralCase f (α' a α)) :
+private lemma tsum_𝒥₃ (hX : GeneralCase f (α' a α)) :
     ∑' (j : ↑(𝒥₃ r x hX)), ‖czOperator K r (czRemainder' hX ↑j) x‖ₑ = 0 := by
   refine ENNReal.tsum_eq_zero.mpr (fun j ↦ ?_)
   have hj := Subtype.coe_prop j
@@ -1445,7 +1441,7 @@ private lemma tsum_𝒥₃ (r : ℝ) (x : X) (hX : GeneralCase f (α' a α)) :
   exact notMem_subset (support_czRemainder'_subset.trans (ball_subset_ball' hj.le)) hy
 
 omit [IsTwoSidedKernel a K] in
-private lemma czOperator_czRemainder' (hX : GeneralCase f α) (x : X) (i : ℕ) :
+private lemma czOperator_czRemainder' (hX : GeneralCase f α) (i : ℕ) :
     czOperator K r (czRemainder' hX i) x =
     ∫ y in (ball x r)ᶜ ∩ czPartition hX i, K x y * czRemainder f α y := by
   unfold czOperator czRemainder'
@@ -1454,8 +1450,8 @@ private lemma czOperator_czRemainder' (hX : GeneralCase f α) (x : X) (i : ℕ) 
   intro y hy
   simp [czRemainder]
 
-private lemma czOperator_czRemainder (hr : 0 < r) (hα : 0 < α) (hX : GeneralCase f α)
-    (hf : BoundedFiniteSupport f) (x : X) :
+private lemma czOperator_czRemainder (hf : BoundedFiniteSupport f) (hr : 0 < r) (hα : 0 < α)
+    (hX : GeneralCase f α) :
     czOperator K r (czRemainder f α) x = ∑' i, czOperator K r (czRemainder' hX i) x := by
   simp_rw [czOperator_czRemainder', czOperator]
   rw [← integral_iUnion, ← inter_iUnion, ← setIntegral_indicator]
@@ -1482,13 +1478,13 @@ lemma estimate_bad_partial {hf : BoundedFiniteSupport f} (hr : 0 < r)
     (hα : ⨍⁻ x, ‖f x‖ₑ / c10_0_3 a < α)
     (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
     ‖czOperator K r (czRemainder f (α' a α)) x‖ₑ ≤ 3 * czOperatorBound hX x + α / 8 := calc
-  _ = ‖∑' j, czOperator K r _ x‖ₑ := by rw [czOperator_czRemainder hr (α'_pos (pos_of_gt hα)) hX hf]
+  _ = ‖∑' j, czOperator K r _ x‖ₑ := by rw [czOperator_czRemainder hf hr (α'_pos (pos_of_gt hα)) hX]
   _ ≤ ∑' j, ‖czOperator K r (czRemainder' hX j) x‖ₑ := enorm_tsum_le_tsum_enorm
   _ = ∑' (j : ↑(𝒥₁ r x hX ∪ 𝒥₂ r x hX ∪ 𝒥₃ r x hX)), _ := by rw [← tsum_univ, ← union_𝒥 r x hX]
   _ ≤ _ + _ := ENNReal.tsum_union_le (fun i ↦ ‖czOperator K r (czRemainder' hX i) x‖ₑ) _ _
   _ = ∑' (j : ↑(𝒥₁ r x hX ∪ 𝒥₂ r x hX)), _ := by rw [tsum_𝒥₃, add_zero]
   _ ≤ _ + _ := (ENNReal.tsum_union_le (fun i ↦ ‖czOperator K r (czRemainder' hX i) x‖ₑ) _ _)
-  _ ≤ _ + _ := add_le_add (tsum_𝒥₁ hf (pos_of_gt hα) hX hx) (tsum_𝒥₂ hf r (pos_of_gt hα) hX hx)
+  _ ≤ _ + _ := add_le_add (tsum_𝒥₁ hf (pos_of_gt hα) hX hx) (tsum_𝒥₂ hf (pos_of_gt hα) hx hX)
   _ = 3 * czOperatorBound hX x + α / 8 := by ring
 
 /-- The constant used in `distribution_czOperatorBound`. -/
