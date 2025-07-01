@@ -271,14 +271,13 @@ lemma le_upperRadius [FunctionDistances ℝ X] {Q : X → Θ X} {θ : Θ X} {x :
     (hr : dist_{x, r} θ (Q x) < 1) : ENNReal.ofReal r ≤ upperRadius Q θ x := by
   apply le_iSup₂ (f := fun r _ ↦ ENNReal.ofReal r) r hr
 
-/-- The linearized maximally truncated nontangential Calderon Zygmund operator `T_Q^θ` -/
+/-- The linearized maximally truncated nontangential Calderon–Zygmund operator `T_Q^θ`. -/
 def linearizedNontangentialOperator [FunctionDistances ℝ X] (Q : X → Θ X) (θ : Θ X)
     (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
-  ⨆ (R₁ : ℝ) (x' : X) (_ : dist x x' ≤ R₁),
-  ‖∫ y in {y | ENNReal.ofReal (dist x' y) ∈ Ioo (ENNReal.ofReal R₁) (upperRadius Q θ x')},
-    K x' y * f y‖₊
+  ⨆ (x' : X) (R₁ ∈ Ioi (dist x x')),
+  ‖∫ y in EAnnulus.oo x' (ENNReal.ofReal R₁) (upperRadius Q θ x'), K x' y * f y‖ₑ
 
-/-- The maximally truncated nontangential Calderon Zygmund operator `T_*` -/
+/-- The maximally truncated nontangential Calderon–Zygmund operator `T_*`. -/
 def nontangentialOperator (K : X → X → ℂ) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (R₁ : ℝ) (_ : 0 < R₁) (R₂ : ℝ) (_ : R₁ < R₂) (x' : X) (_ : dist x x' < R₁),
   ‖∫ y in Annulus.oo x' R₁ R₂, K x' y * f y‖ₑ
@@ -431,9 +430,9 @@ lemma integrableOn_K_Icc [IsOpenPosMeasure (volume : Measure X)]
     exact integrableOn_const ((measure_mono this).trans_lt measure_closedBall_lt_top).ne
   · intro y hy; simp [hy.1, dist_comm y x]
 
-/-- `K` is a two-sided Calderon-Zygmund kernel
-In the formalization `K x y` is defined everywhere, even for `x = y`. The assumptions on `K` show
-that `K x x = 0`. -/
+/-- `K` is a two-sided Calderon-Zygmund kernel.
+In the formalization `K x y` is defined everywhere, even for `x = y`.
+The assumptions on `K` show that `K x x = 0`. -/
 class IsTwoSidedKernel (a : outParam ℕ) (K : X → X → ℂ) extends IsOneSidedKernel a K where
   enorm_K_sub_le' {x x' y : X} (h : 2 * dist x x' ≤ dist x y) :
     ‖K x y - K x' y‖ₑ ≤ (edist x x' / edist x y) ^ (a : ℝ)⁻¹ * (C_K a / vol x y)
@@ -446,13 +445,13 @@ end Kernel
 
 -- to show: K is locally bounded and hence integrable outside the diagonal
 
-/- A constant used on the boundedness of `T_*`. We generally assume
-`HasBoundedStrongType (nontangentialOperator K) volume volume 2 2 (C_Ts a)`
+/-- A constant used on the boundedness of `T_Q^θ` and `T_*`. We generally assume
+`HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·) 2 2 volume volume (C_Ts a)`
 throughout this formalization. -/
-def C_Ts (a : ℝ) : ℝ≥0 := 2 ^ a ^ 3
+def C_Ts (a : ℕ) : ℝ≥0 := 2 ^ a ^ 3
 
 /-- Data common through most of chapters 2-7.
-These contain the minimal axioms for `kernel-summand`'s proof and `hasBoundedStrongType_Tstar`.
+These contain the minimal axioms for `kernel-summand`'s proof.
 This is used in chapter 3 when we don't have all other fields from `ProofData`. -/
 class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → ℂ))
     [PseudoMetricSpace X] where
@@ -460,14 +459,13 @@ class KernelProofData {X : Type*} (a : outParam ℕ) (K : outParam (X → X → 
   four_le_a : 4 ≤ a
   cf : CompatibleFunctions ℝ X (defaultA a)
   hcz : IsOneSidedKernel a K
-  hasBoundedStrongType_Tstar :
-    HasBoundedStrongType (nontangentialOperator K · ·) 2 2 volume volume (C_Ts a)
 
 /-- Data common through most of chapters 2-7 (except 3). -/
 class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam (X → X → ℂ))
   (σ₁ σ₂ : outParam (X → ℤ)) (F G : outParam (Set X)) [PseudoMetricSpace X] extends
     KernelProofData a K where
   c : IsCancellative X (defaultτ a)
+  q_mem_Ioc : q ∈ Ioc 1 2
   isBounded_F : IsBounded F
   isBounded_G : IsBounded G
   measurableSet_F : MeasurableSet F
@@ -482,12 +480,13 @@ class ProofData {X : Type*} (a : outParam ℕ) (q : outParam ℝ) (K : outParam 
   finite_range_σ₂ : Finite (range σ₂)
   σ₁_le_σ₂ : σ₁ ≤ σ₂
   Q : SimpleFunc X (Θ X)
-  q_mem_Ioc : q ∈ Ioc 1 2
+  BST_T_Q (θ : Θ X) : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+    2 2 volume volume (C_Ts a)
 
-export KernelProofData (four_le_a hasBoundedStrongType_Tstar)
-export ProofData (isBounded_F isBounded_G measurableSet_F measurableSet_G
-  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q q_mem_Ioc)
-attribute [instance] KernelProofData.d KernelProofData.cf ProofData.c KernelProofData.hcz
+export KernelProofData (four_le_a)
+export ProofData (q_mem_Ioc isBounded_F isBounded_G measurableSet_F measurableSet_G
+  measurable_σ₁ measurable_σ₂ finite_range_σ₁ finite_range_σ₂ σ₁_le_σ₂ Q BST_T_Q)
+attribute [instance] KernelProofData.d KernelProofData.cf KernelProofData.hcz ProofData.c
 
 section ProofData
 

@@ -60,6 +60,8 @@ finitary Carleson in the proof of Lemma 3.0.4. -/
 structure CP304 where
   /-- `Q` is the only non-`Prop` field of `CP304`. -/
   Q : SimpleFunc X (Θ X)
+  BST_T_Q (θ : Θ X) : HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+    2 2 volume volume (C_Ts a)
   hq : q ∈ Ioc 1 2
   hqq' : q.HolderConjugate q'
   bF : IsBounded F
@@ -77,7 +79,7 @@ theorem finitary_carleson_step
     ∃ G' ⊆ G, IsBounded G' ∧ MeasurableSet G' ∧ 2 * volume G' ≤ volume G ∧
     ∫⁻ x in G \ G', ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ ≤
     C2_0_1 a q * (volume G) ^ (q' : ℝ)⁻¹ * (volume F) ^ (q : ℝ)⁻¹ := by
-  obtain ⟨Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩ := CP
+  obtain ⟨Q, BST_T_Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩ := CP
   rcases eq_zero_or_pos (volume G) with vG | vG
   · use ∅, empty_subset _, isBounded_empty, MeasurableSet.empty
     simp only [measure_empty, mul_zero, zero_le, diff_empty, true_and]
@@ -94,7 +96,7 @@ theorem finitary_carleson_step
     ext y; symm; rw [ite_eq_left_iff]; intro ny
     specialize nf y; simp_rw [indicator_of_notMem ny, norm_le_zero_iff] at nf; simp [nf]
   let PD : ProofData a q K σ₁ σ₂ F G :=
-    ⟨‹_›, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, hq⟩
+    ⟨‹_›, hq, bF, bG, mF, mG, vF, vG, mσ₁, mσ₂, rσ₁, rσ₂, lσ, Q, BST_T_Q⟩
   obtain ⟨G₁, mG₁, vG₁, hG₁⟩ := finitary_carleson X
   refine ⟨G ∩ G₁, inter_subset_left, bG.subset inter_subset_left, mG.inter mG₁, ?_, ?_⟩
   · refine le_trans ?_ vG₁; gcongr; exact inter_subset_right
@@ -241,10 +243,12 @@ lemma linearized_truncation
     [IsCancellative X (defaultτ a)] (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (bF : IsBounded F) (bG : IsBounded G) (mF : MeasurableSet F) (mG : MeasurableSet G)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1) (mσ₁ : Measurable σ₁) (mσ₂ : Measurable σ₂)
-    (rσ₁ : (range σ₁).Finite) (rσ₂ : (range σ₂).Finite) (lσ : σ₁ ≤ σ₂) :
+    (rσ₁ : (range σ₁).Finite) (rσ₂ : (range σ₂).Finite) (lσ : σ₁ ≤ σ₂)
+    (BST_T_Q : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+      2 2 volume volume (C_Ts a)) :
     ∫⁻ x in G, ‖T_lin Q σ₁ σ₂ f x‖ₑ ≤
     C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
-  let CP : CP304 q q' F f σ₁ σ₂ := ⟨Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩
+  let CP : CP304 q q' F f σ₁ σ₂ := ⟨Q, BST_T_Q, hq, hqq', bF, mF, mf, nf, mσ₁, mσ₂, rσ₁, rσ₂, lσ⟩
   calc
     _ = ∫⁻ x in ⋃ n, G \ (slice CP bG mG (n + 1)).G, ‖T_lin CP.Q σ₁ σ₂ f x‖ₑ := by
       apply setLIntegral_congr; rw [← diff_iInter]; refine (diff_null_ae_eq_self ?_).symm
@@ -276,7 +280,9 @@ lemma linearized_truncation
 lemma S_truncation
     [IsCancellative X (defaultτ a)] {B : ℕ} (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (bF : IsBounded F) (bG : IsBounded G) (mF : MeasurableSet F) (mG : MeasurableSet G)
-    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1) :
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
+    (BST_T_Q : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+      2 2 volume volume (C_Ts a)) :
     ∫⁻ x in G, ⨆ s₁ ∈ Finset.Icc (-B : ℤ) B, ⨆ s₂ ∈ Finset.Icc s₁ B, ‖T_S Q s₁ s₂ f x‖ₑ ≤
     C3_0_4 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   -- Define `T1'` and `T1` and prove their measurability
@@ -375,7 +381,7 @@ lemma S_truncation
   have lσ : σ₁ ≤ σ₂ := by intro x; exact (eσ₂ x).1.1
   -- Complete the reduction
   conv_lhs => enter [2, x]; rw [(eσ₂ x).2]
-  exact linearized_truncation hq hqq' bF bG mF mG mf nf mσ₁ mσ₂ rσ₁ rσ₂ lσ
+  exact linearized_truncation hq hqq' bF bG mF mG mf nf mσ₁ mσ₂ rσ₁ rσ₂ lσ BST_T_Q
 
 section RTruncation
 
@@ -623,7 +629,9 @@ variable [IsCancellative X (defaultτ a)]
 
 lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
-    {n : ℕ} {R : ℝ} (hR : R = 2 ^ n) (sF : F ⊆ ball o (2 * R)) (sG : G ⊆ ball o R) :
+    {n : ℕ} {R : ℝ} (hR : R = 2 ^ n) (sF : F ⊆ ball o (2 * R)) (sG : G ⊆ ball o R)
+    (BST_T_Q : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+      2 2 volume volume (C_Ts a)) :
     ∫⁻ x in G, ⨆ R₁ ∈ Ioo R⁻¹ R, ⨆ R₂ ∈ Ioo R₁ R, ‖T_R K Q R₁ R₂ R f x‖ₑ ≤
     C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   have Rpos : 0 < R := by rw [hR]; positivity
@@ -672,7 +680,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       have bF := isBounded_ball.subset sF
       have bG := isBounded_ball.subset sG
       gcongr
-      · exact S_truncation hq hqq' bF bG mF mG mf nf
+      · exact S_truncation hq hqq' bF bG mF mG mf nf BST_T_Q
       · exact lintegral_globalMaximalFunction_le hq hqq' bF mF mG
     _ ≤ _ := by
       simp_rw [← mul_assoc, ← add_mul]; gcongr; norm_cast; exact le_C1_0_2 (four_le_a X) hq
@@ -680,7 +688,9 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
 /-- Lemma 3.0.2. -/
 lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
     (mF : MeasurableSet F) (mG : MeasurableSet G) (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
-    {n : ℕ} {R : ℝ} (hR : R = 2 ^ n) :
+    {n : ℕ} {R : ℝ} (hR : R = 2 ^ n)
+    (BST_T_Q : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
+      2 2 volume volume (C_Ts a)) :
     ∫⁻ x in G, ⨆ R₁ ∈ Ioo R⁻¹ R, ⨆ R₂ ∈ Ioo R₁ R, ‖T_R K Q R₁ R₂ R f x‖ₑ ≤
     C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
   wlog sG : G ⊆ ball o R generalizing G
@@ -713,6 +723,6 @@ lemma R_truncation (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
       _ ≤ _ :=
         this (mF.inter measurableSet_ball) (mf.indicator measurableSet_ball) nf' inter_subset_right
       _ ≤ _ := by gcongr; exact inter_subset_left
-  exact R_truncation' hq hqq' mF mG mf nf hR sF sG
+  exact R_truncation' hq hqq' mF mG mf nf hR sF sG BST_T_Q
 
 end RTruncation

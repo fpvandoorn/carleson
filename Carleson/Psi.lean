@@ -523,7 +523,7 @@ private lemma div_vol_le₀ {x y : X} {c : ℝ} (hc : c > 0) (hK : Ks s x y ≠ 
 
 -- preferably use `enorm_K_le`
 lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
-    ‖K x y‖ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume.real (ball x (2 ^ n * D ^ s)) := by
+    ‖K x y‖ ≤ 2 ^ ((2 + n) * a + 101 * a ^ 3) / volume.real (ball x (2 ^ n * D ^ s)) := by
   by_cases h : dist x y = 0
   · rw [K_eq_zero_of_dist_eq_zero h, norm_zero]; positivity
   apply (norm_K_le_vol_inv x y).trans
@@ -533,8 +533,8 @@ lemma norm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 
   exact_mod_cast le_of_eq (by ring)
 
 lemma enorm_K_le {s : ℤ} {x y : X} (n : ℕ) (hxy : dist x y ≥ D ^ (s - 1) / 4) :
-    ‖K x y‖ₑ ≤ 2 ^ ((2 + n) * (a : ℝ) + 101 * a ^ 3) / volume (ball x (2 ^ n * D ^ s)) := by
-  rw [← ENNReal.ofReal_ofNat 2, ENNReal.ofReal_rpow_of_pos two_pos,
+    ‖K x y‖ₑ ≤ 2 ^ ((2 + n) * a + 101 * a ^ 3) / volume (ball x (2 ^ n * D ^ s)) := by
+  rw [← ENNReal.ofReal_ofNat 2, ← ENNReal.ofReal_pow (by norm_num),
     ← ENNReal.ofReal_toReal measure_ball_ne_top,
     ← ENNReal.ofReal_div_of_pos, ← Measure.real, ← ofReal_norm]; swap
   · apply ENNReal.toReal_pos ?_ measure_ball_ne_top
@@ -552,7 +552,7 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
   rw [Ks, norm_mul, norm_real, ← mul_one (_ / _)]
   gcongr
   · apply le_trans <| norm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
-    rw [pow_zero, one_mul, Nat.cast_zero, add_zero]
+    rw [pow_zero, one_mul, add_zero]
     suffices 2 * (a : ℝ) + 101 * a ^ 3 ≤ 102 * a ^ 3 by
       gcongr; simpa [C2_1_3, ← Real.rpow_natCast, -Real.rpow_ofNat] using this
     suffices 2 * (a : ℝ) ≤ a ^ 2 * a by linarith

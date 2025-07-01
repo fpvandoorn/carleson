@@ -4619,7 +4619,8 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 Now we prove the two auxiliary lemmas. We begin with the nontangential maximal operator $T_{\mathcal{N}}$.
 
 \begin{proof}[Proof of \Cref{nontangential-operator-bound}]
-    \proves{nontangential-operator-bound}\leanok
+    \leanok
+    \proves{nontangential-operator-bound}
     Fix $s_1, s_2$. By \eqref{eq-psisum} we have for all $x \in (0, \infty)$
     $$
         \sum_{s = s_1}^{s_2} \psi(D^{-s}x) = 1 - \sum_{s < s_1} \psi(D^{-s}x) - \sum_{s > s_1} \psi(D^{-s}x)\,.
@@ -4645,7 +4646,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
     \begin{equation}
         \label{eq-sharp-trunc-term}
-        \le \Bigg| \int_{8D^{s_1} < \rho(x',y) < \frac{1}{4}D^{s_2-1}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
+        \le \Bigg| \int_{8D^{s_1} < \rho(x',y) \le \frac{1}{4}D^{s_2-1}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
     \end{equation}
     \begin{equation}
         \label{eq-lower-bound-term}
@@ -4655,10 +4656,20 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
         \label{eq-upper-bound-term}
         + \int_{\frac{1}{4}D^{s_2-1} \le \rho(x',y) \le \frac{1}{2}D^{s_2}} |K(x', y)| |f(y)| \, \mathrm{d}\mu(y)\,.
     \end{equation}
-    The first term \eqref{eq-sharp-trunc-term} is at most $T_*f(x)$. The other two terms will be
-    estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
-    For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that
-    for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
+
+    The first term \eqref{eq-sharp-trunc-term} is at most $2T_{\tQ}^\mfa f(x)$, using with $R_1 := 8D^{s_1}$, $R_2 := \frac{1}{4}D^{s_2-1}$ and $R_1 < R_2 < R_{\tQ}(\mfa,x')$ the triangle inequality in the form
+    \begin{equation}
+        \left|\int_{R_1 < \rho(x',y) \le R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+    \begin{equation}
+        \le \left|\int_{R_1 < \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+    \begin{equation}
+        + \left|\int_{R_2 < \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
+    \end{equation}
+
+    The other two terms will be estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
+    For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
     $$
         |K(x', y)| \le \frac{2^{a^3}}{\mu(B(x', \frac{1}{4}D^{s_1 - 1}))}\,.
     $$
