@@ -205,7 +205,7 @@ This is `0` if `x` doesn't lie in a cube. -/
 def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S)
   (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
-  ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖₊
+  ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖ₑ
 
 protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ X} {f : X → ℂ} :
     Measurable (nontangentialMaximalFunction θ f) := by
@@ -657,7 +657,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
 
 /-- Lemma 7.1.5 -/
 lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
-    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖ₑ ≤
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
   let s₁ := Finset.min' (t.σ u x) hne
