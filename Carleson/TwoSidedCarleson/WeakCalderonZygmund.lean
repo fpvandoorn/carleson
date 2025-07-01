@@ -1256,7 +1256,7 @@ private lemma enorm_d_le (hf : BoundedFiniteSupport f) (hX : GeneralCase f (α' 
         isOpen_ball.measure_ne_zero volume (nonempty_ball.mpr (mul_pos three_pos hr))
       simp [ENNReal.mul_inv_cancel this measure_ball_ne_top]
 
--- The next two functions are Integrands involved in the 𝒥₂ section of the proof of Lemma 10.2.7
+-- The next two functions are integrands involved in the 𝒥₂ section of the proof of Lemma 10.2.7
 variable (r) (x) in
 private abbrev g₀ (hX : GeneralCase f (α' a α)) (j : ℕ) (y : X) :=
   (ball x r)ᶜ.indicator (czRemainder' hX j) y
@@ -1281,7 +1281,7 @@ private lemma integrableOn_g (hα : 0 < α) (hf : BoundedFiniteSupport f)
     (hX : GeneralCase f (α' a α)) (j : ℕ) : IntegrableOn (g r x hX j) (czBall3 hX j) :=
   (integrableOn_g₀ hf hα hX j).sub (integrableOn_d hX j)
 
-private lemma integral_g (hα : 0 < α) (hX : GeneralCase f (α' a α)) (hf : BoundedFiniteSupport f)
+private lemma integral_g (hf : BoundedFiniteSupport f) (hα : 0 < α) (hX : GeneralCase f (α' a α))
     (j : ℕ) : ∫ y in czBall3 hX j, g r x hX j y = 0 := by
   by_cases hr : czRadius hX j ≤ 0
   · simp [Metric.ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos three_pos.le hr]
@@ -1312,9 +1312,8 @@ private lemma lintegral_enorm_half_g (hf : BoundedFiniteSupport f) (hα : 0 < α
 -- though this part of the estimate doesn't require j ∈ 𝒥₂).
 private lemma 𝒥₂_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x ∈ (Ω f (α' a α))ᶜ)
     (hX : GeneralCase f (α' a α)) {j : ℕ} :
-    ‖czOperator K r (czRemainder' hX j) x‖ₑ ≤
-    2 * czOperatorBoundSummand hX j x +
-    2 ^ (2 * a + 1) * (α' a α) * ∫⁻ y in czBall3 hX j, ‖K x y‖ₑ := calc
+    ‖czOperator K r (czRemainder' hX j) x‖ₑ ≤ 2 * czOperatorBoundSummand hX j x +
+      2 ^ (2 * a + 1) * (α' a α) * ∫⁻ y in czBall3 hX j, ‖K x y‖ₑ := calc
   _ = ‖∫ y, K x y * (ball x r)ᶜ.indicator (czRemainder' hX j) y‖ₑ := by
     simp_rw [czOperator, ← integral_indicator measurableSet_ball.compl, indicator_mul_right]
   _ = ‖∫ y in czBall3 hX j, K x y * ((ball x r)ᶜ.indicator (czRemainder' hX j) y)‖ₑ := by
@@ -1346,7 +1345,7 @@ private lemma 𝒥₂_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x
     gcongr
     · simp [← ofReal_norm_eq_enorm]
     · apply lemma_10_2_7_bound hx hX j ((integrableOn_g r x hα hf hX j).const_mul 2⁻¹)
-      · rw [integral_const_mul, integral_g hα hX hf, mul_zero]
+      · rw [integral_const_mul, integral_g hf hα hX, mul_zero]
       · apply lintegral_enorm_half_g hf hα hX
     · apply le_trans (enorm_integral_le_lintegral_enorm _)
       simp_rw [enorm_mul, lintegral_mul_const _ (measurable_K_right x).enorm, ← mul_comm ‖_‖ₑ]
