@@ -554,7 +554,7 @@ lemma norm_Ks_le {s : ℤ} {x y : X} :
   · apply le_trans <| norm_K_le 0 (mem_Icc.1 (dist_mem_Icc_of_Ks_ne_zero hK)).1
     rw [pow_zero, one_mul, Nat.cast_zero, add_zero]
     suffices 2 * (a : ℝ) + 101 * a ^ 3 ≤ 102 * a ^ 3 by
-      gcongr; simpa [C2_1_3, ← Real.rpow_natCast] using this
+      gcongr; simpa [C2_1_3, ← Real.rpow_natCast, -Real.rpow_ofNat] using this
     suffices 2 * (a : ℝ) ≤ a ^ 2 * a by linarith
     nlinarith [show 4 ≤ (a : ℝ) by exact_mod_cast four_le_a X]
   · exact abs_ψ_le_one D (D ^ (-s) * dist x y)
@@ -803,8 +803,8 @@ private lemma norm_Ks_sub_Ks_le₁ {s : ℤ} {x y y' : X} (hK : Ks s x y ≠ 0)
       refine le_of_eq_of_le ?_ <|
         (Real.strictAnti_rpow_of_base_lt_one (by norm_num) (by norm_num)).antitone a_inv_le
       rw [← Real.rpow_left_inj (by positivity) (by positivity) three_pos.ne.symm]
+      rw [← Real.rpow_mul (by norm_num)]
       norm_num
-      simp
   have hlt : 0 < (D2_1_3 a : ℝ) := by simp [D2_1_3]
   have : D2_1_3 a * (dist y y' / D ^ s) ^ (a : ℝ)⁻¹ ≥
       D2_1_3 a * (2 : ℝ) ^ (-100 * a + (-1 : ℝ)) := mod_cast ((mul_lt_mul_left hlt).2 key).le
