@@ -339,39 +339,39 @@ theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restric
 
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | ‖g x‖ₑ ≤ tc.ton (ENNReal.ofReal s) }
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
+    [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
+    NullMeasurableSet {(s, x) : ℝ≥0∞ × α | ‖g x‖ₑ ≤ tc.ton s }
         ((volume.restrict (Ioi 0)).prod μ) := by
   apply nullMeasurableSet_le hg.comp_snd.enorm
-  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton (ENNReal.ofReal a))
-  refine AEMeasurable.comp_aemeasurable ?_ (by fun_prop)
-  rw [map_restrict_Ioi_eq_restrict_Ioi]; exact ton_aeMeasurable tc
+  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton a)
+  refine AEMeasurable.comp_aemeasurable ?_ aemeasurable_id'
+  simp only [Measure.map_id', ton_aeMeasurable]
 
 @[measurability]
 lemma indicator_ton_measurable_lt {g : α → E₁} [MeasurableSpace E₁]
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [BorelSpace E₁] [SigmaFinite μ] (hg : AEMeasurable g μ) (tc : ToneCouple) :
-    NullMeasurableSet {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖g x‖ₑ }
+    NullMeasurableSet {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖g x‖ₑ }
         ((volume.restrict (Ioi 0)).prod μ) := by
   refine nullMeasurableSet_lt ?_ hg.comp_snd.enorm
-  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton (ENNReal.ofReal a))
-  refine AEMeasurable.comp_aemeasurable ?_ (by fun_prop)
-  rw [map_restrict_Ioi_eq_restrict_Ioi]; exact ton_aeMeasurable tc
+  apply AEMeasurable.comp_fst (f := fun a ↦ tc.ton a)
+  refine AEMeasurable.comp_aemeasurable ?_ aemeasurable_id'
+  simp only [Measure.map_id', ton_aeMeasurable]
 
 @[measurability]
 lemma AEMeasurable.trunc_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
     [SigmaFinite (μ.restrict f.support)] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
-    AEMeasurable (fun a : ℝ × α ↦ (trunc f (tc.ton (ENNReal.ofReal a.1))) a.2)
+    AEMeasurable (fun a : ℝ≥0∞ × α ↦ (trunc f (tc.ton a.1)) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
-  let A := {(s, x) : ℝ × α | ‖f x‖ₑ ≤ tc.ton (ENNReal.ofReal s)}
-  have : (fun z : ℝ × α ↦ (trunc f (tc.ton (ENNReal.ofReal z.1))) z.2) =
-      Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
+  let A := {(s, x) : ℝ≥0∞ × α | ‖f x‖ₑ ≤ tc.ton s}
+  have : (fun z : ℝ≥0∞ × α ↦ (trunc f (tc.ton z.1)) z.2) =
+      Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
     ext z; simp [trunc, indicator, A]
   rw [this]
-  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable hf.restrict _)).mpr
+  exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable (AEMeasurable.restrict hf) _)).mpr
     hf.restrict.comp_snd.restrict
 
 @[measurability]
@@ -379,10 +379,10 @@ lemma AEMeasurable.truncCompl_ton {f : α → E₁}
     [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁]
     [SigmaFinite (μ.restrict f.support)] -- TODO: TypeClass or implicit variable?
     (hf : AEMeasurable f μ) (tc : ToneCouple) :
-    AEMeasurable (fun a : ℝ × α ↦ ((truncCompl f (tc.ton (ENNReal.ofReal a.1)))) a.2)
+    AEMeasurable (fun a : ℝ≥0∞ × α ↦ ((truncCompl f (tc.ton a.1))) a.2)
     ((volume.restrict (Ioi 0)).prod (μ.restrict f.support )) := by
-  let A := {(s, x) : ℝ × α | tc.ton (ENNReal.ofReal s) < ‖f x‖ₑ}
-  have : (fun z : ℝ × α ↦ (truncCompl f (tc.ton (ENNReal.ofReal z.1))) z.2) = Set.indicator A (fun z : ℝ × α ↦ f z.2) := by
+  let A := {(s, x) : ℝ≥0∞ × α | tc.ton s < ‖f x‖ₑ}
+  have : (fun z : ℝ≥0∞ × α ↦ (truncCompl f (tc.ton z.1)) z.2) = Set.indicator A (fun z : ℝ≥0∞ × α ↦ f z.2) := by
     ext z; rw [truncCompl_eq]; simp [A, indicator]
   rw [this]
   exact (aemeasurable_indicator_iff₀ (indicator_ton_measurable_lt hf.restrict _)).mpr
@@ -423,18 +423,19 @@ lemma restrict_to_support_trnc {p : ℝ} {j : Bool} [TopologicalSpace E₁] [ENo
 
 @[fun_prop]
 theorem AEMeasurable.trunc_restrict
-    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] {j : Bool}
+    [MeasurableSpace E₁] [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [BorelSpace E₁] {j : Bool}
     {hμ : SigmaFinite (μ.restrict f.support)} (hf : AEMeasurable f μ) (tc : ToneCouple) :
     AEMeasurable (fun a ↦ trnc j f (tc.ton a.1) a.2)
       ((volume.restrict (Ioi 0)).prod (μ.restrict f.support)) := by
   by_cases hj: j
   · simp only [hj, trnc]
-    sorry -- was: hf.trunc_ton _
+    exact hf.trunc_ton _
   · simp only [hj, trnc]
-    sorry -- was: hf.truncCompl_ton _
+    exact hf.truncCompl_ton _
 
-lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpace E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [TopologicalSpace.PseudoMetrizableSpace E₁]
+    [BorelSpace E₁] -- TODO: I needed to add these, is that acceptable?
     {j : Bool} {hμ : SigmaFinite (μ.restrict f.support)}
     (hp₀ : 0 < p₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (tc : ToneCouple) :
@@ -450,7 +451,27 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
     field_simp [hp₀q₀]
   · unfold Function.uncurry
     simp only [Pi.sub_apply]
-    sorry -- TODO: was fun_prop
+    -- TODO: this is quite some effort, somehow the infrastructure may need to be better
+    apply AEMeasurable.mul'
+    · fun_prop
+    · have : (fun a ↦ ‖trnc j f (tc.ton (ENNReal.ofReal a.1)) a.2‖ₑ ^ p₀) =
+          (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀ ) ∘
+          (Prod.map (fun a ↦ ENNReal.ofReal a) (fun a ↦ a)) := by rfl
+      rw [this]
+      apply AEMeasurable.comp_aemeasurable
+      · rw [← Measure.map_prod_map]
+        · simp only [Measure.map_id']
+          have : Measure.map (fun a ↦ ENNReal.ofReal a) (volume.restrict (Ioi 0)) = volume.restrict (Ioi 0) := by
+            simp [map_restrict_Ioi_eq_restrict_Ioi]
+          rw [this]
+          have : (fun a ↦ ‖trnc j f (tc.ton a.1) a.2‖ₑ ^ p₀) = (fun z : E₁ ↦ ‖ z ‖ₑ ^ p₀) ∘ (fun a : ℝ≥0∞ × α ↦ trnc j f (tc.ton a.1) a.2) := rfl
+          rw [this]
+          apply AEMeasurable.comp_aemeasurable
+          · fun_prop
+          · exact AEMeasurable.trunc_restrict (hμ := hμ)  (AEStronglyMeasurable.aemeasurable hf) _
+        · fun_prop
+        · fun_prop
+      · fun_prop
 
 lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
@@ -474,7 +495,8 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
     the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁] [BorelSpace E₁]
+    [TopologicalSpace.PseudoMetrizableSpace E₁]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀q₀ : p₀ ≤ q₀)
     (hf : AEStronglyMeasurable f μ) (hf₂ : SigmaFinite (μ.restrict f.support))
     (hpowers : if xor j (spf_to_tc spf).mon = true then q₀ < q else q < q₀)
@@ -608,7 +630,8 @@ def sel (j : Bool) (p₀ p₁ : ℝ≥0∞) := match j with | true => p₁ | fal
     the particular choice of exponent, but not yet using the
     particular choice of scale in the `ScaledPowerFunction`. -/
 lemma estimate_trnc₁ {spf : ScaledPowerFunction} {j : Bool}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (ht : t ∈ Ioo 0 1)
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁]
+    [BorelSpace E₁] [TopologicalSpace.PseudoMetrizableSpace E₁] (ht : t ∈ Ioo 0 1)
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hpq : sel j p₀ p₁ ≤ sel j q₀ q₁)
     (hp' : sel j p₀ p₁ ≠ ⊤) (hq' : sel j q₀ q₁ ≠ ⊤)  (hp₀p₁ : p₀ < p₁)
     (hq₀q₁ : q₀ ≠ q₁) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹)
