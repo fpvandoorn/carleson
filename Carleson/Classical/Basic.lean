@@ -2,10 +2,7 @@ import Carleson.Classical.Helper
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
 import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Data.Real.StarOrdered
 
 /- This file contains basic definitions and lemmas. -/
 
