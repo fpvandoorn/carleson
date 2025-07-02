@@ -82,7 +82,7 @@ lemma 𝓛_subset_𝓛₀ {𝔖 : Set (𝔓 X)} : 𝓛 𝔖 ⊆ 𝓛₀ 𝔖 := 
 
 private lemma s_le_s_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖)
     {p : 𝔓 X} (hp : p ∈ 𝔖) (hpL : ¬ Disjoint (𝓘 p : Set X) (L : Set X)) : s L ≤ s (𝓘 p) := by
-  simp only [𝓛, 𝓛₀, Grid.le_def, not_and, not_le, and_imp] at hL
+  simp only [𝓛, 𝓛₀, Grid.le_def, not_and, not_le] at hL
   rcases hL.1 with h | h
   · exact h ▸ (range_s_subset ⟨𝓘 p, rfl⟩).1
   · by_contra!
@@ -205,7 +205,7 @@ This is `0` if `x` doesn't lie in a cube. -/
 def nontangentialMaximalFunction (θ : Θ X) (f : X → ℂ) (x : X) : ℝ≥0∞ :=
   ⨆ (I : Grid X) (_ : x ∈ I) (x' ∈ I) (s₂ ∈ Icc (s I) S)
   (_ : ENNReal.ofReal (D ^ (s₂ - 1)) ≤ upperRadius Q θ x'),
-  ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖₊
+  ‖∑ i ∈ Icc (s I) s₂, ∫ y, Ks i x' y * f y‖ₑ
 
 protected theorem MeasureTheory.Measurable.nontangentialMaximalFunction {θ : Θ X} {f : X → ℂ} :
     Measurable (nontangentialMaximalFunction θ f) := by
@@ -657,7 +657,7 @@ lemma first_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L)
 
 /-- Lemma 7.1.5 -/
 lemma second_tree_pointwise (hu : u ∈ t) (hL : L ∈ 𝓛 (t u)) (hx : x ∈ L) (hx' : x' ∈ L) :
-    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖₊ ≤
+    ‖∑ i ∈ t.σ u x, ∫ y, Ks i x y * approxOnCube (𝓙 (t u)) f y‖ₑ ≤
     nontangentialMaximalFunction (𝒬 u) (approxOnCube (𝓙 (t u)) f) x' := by
   rcases (t.σ u x).eq_empty_or_nonempty with hne | hne; · simp [hne]
   let s₁ := Finset.min' (t.σ u x) hne

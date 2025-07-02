@@ -1,7 +1,8 @@
 import Carleson.Discrete.Defs
-import Carleson.ForestOperator.Forests
 import Carleson.Discrete.SumEstimates
-import Carleson.ToMathlib.Analysis.Normed.Group.Basic
+import Carleson.ForestOperator.Forests
+import Carleson.MinLayerTiles
+import Mathlib.Data.Complex.ExponentialBounds
 
 open MeasureTheory Measure NNReal Metric Complex Set
 open scoped ENNReal
@@ -294,7 +295,7 @@ lemma forest_disjoint : (𝔘₃ k n j).PairwiseDisjoint (fun u ↦ 𝔗₂ (X :
   intro u hu u' hu' huu'
   simp only [Function.onFun]
   apply disjoint_left.2 (fun p pu pu' ↦ huu' ?_)
-  simp only [𝔗₂, mem_inter_iff, mem_iUnion, exists_prop, exists_and_left] at pu pu'
+  simp only [𝔗₂, mem_inter_iff, mem_iUnion, exists_prop] at pu pu'
   rcases pu.2 with ⟨v, v_mem, v_rel, pv⟩
   rcases pu'.2 with ⟨v', v'_mem, v'_rel, pv'⟩
   have E : URel k n j v v' :=
@@ -655,7 +656,7 @@ def forest : Forest X n where
   ordConnected' {u} hu := forest_convex
   𝓘_ne_𝓘' {u} hu p hp := by
     have := hp.2
-    simp only [mem_iUnion, exists_prop, exists_and_left] at this
+    simp only [mem_iUnion, exists_prop] at this
     rcases this with ⟨u', hu', u'rel, hu'I⟩
     rw [URel.eq (𝔘₃_subset_𝔘₂ (𝔘₄_subset_𝔘₃ hu)) hu' u'rel]
     exact (𝓘_lt_of_mem_𝔗₁ hu'I).ne
@@ -673,7 +674,7 @@ lemma carlesonSum_𝔓₁_eq_sum {f : X → ℂ} {x : X} :
   rw [sum_carlesonSum_of_pairwiseDisjoint]; swap
   · rintro ⟨n, k, j⟩ - ⟨n', k', j'⟩ - h
     simp only [ne_eq, Sigma.mk.inj_iff, heq_eq_eq] at h
-    simp only [Function.onFun, Finset.disjoint_filter, Finset.mem_univ, forall_const]
+    simp only [Function.onFun]
     have W := pairwiseDisjoint_ℭ₅ (X := X) (mem_univ ⟨k, n, j⟩) (mem_univ ⟨k', n', j'⟩)
       (by simp [-not_and]; tauto)
     simpa [Function.onFun, disjoint_left] using W
@@ -696,11 +697,10 @@ lemma carlesonSum_ℭ₅_eq_ℭ₆ {f : X → ℂ} {x : X} (hx : x ∈ G \ G') {
   symm
   apply Finset.sum_subset
   · intro p hp
-    simp only [mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
     exact ℭ₆_subset_ℭ₅ hp
   · intro p hp h'p
-    simp only [mem_iUnion, exists_prop, Finset.mem_filter,
-      Finset.mem_univ, true_and, not_exists, not_and] at hp h'p
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp h'p
     have : x ∉ 𝓘 p := by
       simp only [ℭ₆, mem_setOf_eq, not_and, Decidable.not_not] at h'p
       intro h'x
@@ -748,15 +748,14 @@ lemma lintegral_carlesonSum_forest
       have := forest_disjoint (X := X) (𝔘₄_subset_𝔘₃ ha) (𝔘₄_subset_𝔘₃ hb) hab
       exact disjoint_iff_forall_ne.1 this hx hy
     congr with p
-    simp only [mem_iUnion, exists_prop, Finset.mem_filter,
-      Finset.mem_univ, true_and, forest, Finset.mem_biUnion, 𝔉]
+    simp only [mem_iUnion, exists_prop, Finset.mem_filter, Finset.mem_univ, true_and, forest, 𝔉]
     exact Iff.rfl
   rw [this]
   have W := forest_operator_le_volume 𝔉 hf h2f (A := G \ G')
     (measurableSet_G.diff measurable_G') diff_subset
   apply W.trans
   gcongr
-  · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
+  · simp only [sub_nonneg, inv_le_inv₀ zero_lt_two (q_pos X)]
     exact (q_mem_Ioc (X := X)).2
   · rw [dens₂_eq_biSup_dens₂]
     simp only [mem_iUnion, exists_prop, iSup_exists, iSup_le_iff, and_imp]
@@ -974,8 +973,7 @@ lemma forest_union_optimized {f : X → ℂ} (hf : ∀ x, ‖f x‖ ≤ F.indica
     · have : 0 < nnq - 1 := tsub_pos_of_lt (one_lt_nnq X)
       apply ne_of_gt
       positivity
-    simp only [ENNReal.coe_inv, ENNReal.coe_rpow_of_ne_zero two_ne_zero,
-      ENNReal.coe_pow, ENNReal.coe_sub, ENNReal.coe_one, ENNReal.coe_ofNat]
+    simp only [ENNReal.coe_pow, ENNReal.coe_sub, ENNReal.coe_one, ENNReal.coe_ofNat]
     ring
 
 lemma C5_1_2_optimized_le' {a : ℕ} {q : ℝ≥0} (ha : 4 ≤ a) :

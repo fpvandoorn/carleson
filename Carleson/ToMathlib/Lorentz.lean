@@ -1,13 +1,5 @@
-import Mathlib.MeasureTheory.Integral.MeanInequalities
-import Mathlib.MeasureTheory.Integral.Layercake
-import Mathlib.MeasureTheory.Integral.Lebesgue.Basic
-import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-import Mathlib.Analysis.SpecialFunctions.Pow.Integral
-import Carleson.ToMathlib.ENorm
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-
+import Carleson.ToMathlib.WeakType
 
 noncomputable section
 
@@ -134,7 +126,7 @@ lemma eLorentzNorm_eq_Lp {f : α → ε'} (hf : AEStronglyMeasurable f μ) :
         congr 2
         apply setLIntegral_congr_fun measurableSet_Ioi
         intro t ht
-        simp [Pi.mul_apply, ENNReal.ofReal_rpow_of_pos ht]
+        simp [ENNReal.ofReal_rpow_of_pos ht]
     _ = eLpNorm f (.ofReal p.toReal) μ := (eLpNorm_eq_distribution hf (ENNReal.toReal_pos p_zero p_eq_top)).symm
     _ = eLpNorm f p μ := by congr; exact p_eq.symm
 
@@ -244,8 +236,7 @@ lemma HasRestrictedWeakType.hasLorentzType /- [MeasurableSpace ε'] [BorelSpace 
               gcongr
               intro x hx
               unfold G at hx
-              simp only [coe_lt_enorm, Set.mem_setOf_eq] at hx
-              simp only [coe_le_enorm, Set.mem_setOf_eq, hx.le]
+              rw [Set.mem_setOf_eq] at hx ⊢; exact hx.le
           apply mul_meas_ge_le_lintegral₀
           sorry
         _ = eLpNorm (T f) 1 (ν.restrict G) / ν G ^ p'⁻¹.toReal := by

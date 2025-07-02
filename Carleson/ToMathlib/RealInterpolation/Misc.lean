@@ -1,7 +1,7 @@
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
-import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.WeakType
+import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation
 theorem. There are the following sections:
@@ -99,9 +99,9 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
       · exact (sgn_σ σ_pos).elim
       · by_cases ht' : t = ⊤
         · beta_reduce; rw [ht', top_div]
-          simp only [spf.hd', ↓reduceIte, gt_iff_lt, top_rpow_of_neg σ_neg]
+          simp only [spf.hd', ↓reduceIte, top_rpow_of_neg σ_neg]
           by_cases hs' : s = ⊤
-          · simp_all [spf.hd']
+          · simp_all
           exact rpow_pos (ENNReal.div_pos hs.ne' spf.hd') (div_ne_top hs' spf.hd.ne')
         apply rpow_lt_rpow_iff_neg ?_ ?_ ((ENNReal.div_lt_div spf.hd spf.hd').mpr hst) σ_neg
         · exact ENNReal.div_ne_zero.mpr ⟨hs.ne', spf.hd'⟩
@@ -115,7 +115,7 @@ def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
           ENNReal.div_lt_iff (.inr hs.ne') (.inl spf.hd'), mul_comm]
       · rw [← ENNReal.rpow_lt_rpow_iff this, ENNReal.rpow_rpow_inv sgn_σ.ne',
           ENNReal.lt_div_iff_mul_lt (.inl spf.hd.ne') (.inl spf.hd'), mul_comm]
-    · simp only [↓reduceIte, mem_Ioi]
+    · simp only [mem_Ioi]
       intro s hs t ht
       rcases spf.hσ with σ_pos | σ_neg
       · contradiction
@@ -622,7 +622,7 @@ lemma eLpNorm_trunc_mono :
 
 lemma trunc_buildup_enorm {x : α} :
     ‖trunc f t x‖ₑ + ‖truncCompl f t x‖ₑ = ‖f x‖ₑ := by
-  simp only [trunc, truncCompl, Pi.sub_apply]; split_ifs with h <;> simp
+  simp only [trunc, truncCompl]; split_ifs with h <;> simp
 
 lemma trunc_le_func {x : α} : ‖trunc f t x‖ₑ ≤ ‖f x‖ₑ := by
   unfold trunc; split_ifs <;> simp
@@ -905,7 +905,7 @@ lemma estimate_eLpNorm_trunc {p q : ℝ≥0∞}
         · filter_upwards with x hx
           rw [mul_comm]
           exact rpow_le_rpow_of_exponent_le_base_le_enorm hx.1 (ne_top_of_le_ne_top ht hx.2) hx.2 <| toReal_mono hq hpq.2
-      · simp_all [ht]
+      · simp_all
     _ ≤ _ := by
       gcongr
       rw [one_div, ENNReal.rpow_inv_rpow]
@@ -1068,7 +1068,7 @@ lemma res_subset_Ioi {j : Bool} {β : ℝ≥0∞} : res j β ⊆ Ioi 0 := by
   split_ifs
   · exact fun ⦃a⦄ a ↦ a
   · simp
-  · simp only [Ioi, setOf_subset_setOf]
+  · simp only [Ioi]
     intro s hs
     rw [mem_setOf]
     exact hs.1
@@ -1263,12 +1263,12 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneC
     split_ifs at hγ with h
     · have : 0 < γ + 1 := by linarith
       have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
-      simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2]
+      simp [reduceIte, h, this, ↓reduceIte, top_div]
       sorry -- easy computation
     · have : γ + 1 < 0 := by linarith
       have h1 : ¬(0 < γ + 1) := by order
       have h2 : ¬(γ + 1 = 0) := by order
-      simp [res, h, h1, h2]
+      simp [h, h1, h2]
   split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ']
   · have : 0 < β.toReal := ComputationsInterpolatedExponents.exp_toReal_pos hβ hβ'
     rw [lintegral_rpow_of_gt_abs this hγ]

@@ -1,5 +1,4 @@
 import Carleson.ForestOperator.QuantativeEstimate
-import Carleson.ToMathlib.BoundedCompactSupport
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -71,7 +70,7 @@ lemma adjoint_tile_support2_sum (hu : u ∈ t) :
 lemma adjoint_tile_support2_sum_partial (hu : u ∈ t) :
     adjointCarlesonSum (t u) f = (adjointCarlesonSum (t u) ((𝓘 u : Set X).indicator f)) := by
   unfold adjointCarlesonSum
-  ext x; simp only [Finset.sum_apply]; congr! 1 with p mp
+  ext x; congr! 1 with p mp
   simp_rw [Finset.mem_filter, Finset.mem_univ, true_and] at mp
   rw [← adjoint_eq_adjoint_indicator (E_subset_𝓘.trans (t.smul_four_le hu mp).1.1)]
 

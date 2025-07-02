@@ -1,8 +1,4 @@
 import Carleson.TileStructure
-import Carleson.ToMathlib.DoublingMeasure
-import Mathlib.Data.Set.Card
-import Mathlib.Data.Real.ENatENNReal
-import Mathlib.Data.Set.Subset
 
 open Set MeasureTheory Metric Function Complex Bornology Notation
 open scoped NNReal ENNReal ComplexConjugate
@@ -63,7 +59,7 @@ lemma counting_balls {k : ℤ} (hk_lower : -S ≤ k) {Y : Set X}
   suffices (Set.encard Y).toENNReal * volume (ball o (4 * D^S)) ≤ (As (2 ^ a) (2 ^ J' X)) * volume (ball o (4 * D^S)) by
     have volume_pos : 0 < volume (ball o (4 * D^S)) := by
       apply measure_ball_pos volume o
-      simp only [defaultD, gt_iff_lt, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
+      simp only [defaultD, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
       exact zpow_pos (by positivity) S
     rw [← ENNReal.mul_le_mul_left volume_pos.ne.symm (by finiteness), mul_comm,mul_comm (volume _)]
     exact this
@@ -353,7 +349,7 @@ lemma I1_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     norm_num
   · simp only [iUnion_subset_iff]
     intro y' hy' z hz
-    simp only [mem_iUnion, exists_prop, exists_and_left]
+    simp only [mem_iUnion, exists_prop]
     use y'
     rw [and_iff_left hz]
     apply ball_subset_ball _ hy'
@@ -436,8 +432,7 @@ mutual
         linarith
       rw [dif_neg hk_s, dif_neg hk_s]
       intro hx
-      simp only [mem_preimage, mem_inter_iff, mem_iUnion,
-        exists_prop, exists_and_left] at hx
+      simp only [mem_preimage, mem_inter_iff, mem_iUnion, exists_prop] at hx
       obtain ⟨⟨z1, hz1, hz1'⟩, ⟨z2, hz2, hz2'⟩⟩ := hx
       have hz_eq : z1 = z2 := I3_prop_1 (I_induction_proof hk hk_s) ⟨hz1', hz2'⟩
       subst hz_eq
@@ -483,8 +478,7 @@ lemma I3_prop_3_2 {k:ℤ} (hk : -S ≤ k) (y : Yk X k):
     apply ball_subset_ball (by gcongr; norm_num)
   else
     rw [dif_neg hk_s] at this
-    simp only [mem_preimage, mem_iUnion, exists_prop,
-      exists_and_left] at this
+    simp only [mem_preimage, mem_iUnion, exists_prop] at this
     obtain ⟨y',hy',hyi3⟩ := this
     have : -S ≤ k - 1 := I_induction_proof hk hk_s
     have : x ∈ ball (y' : X) (4 * D^(k-1)) := I3_prop_3_2 _ y' hyi3
@@ -532,8 +526,8 @@ mutual
               apply ball_subset_ball
               simp only [tsub_le_iff_right]
               rw [sub_eq_add_neg,add_assoc]
-              simp only [le_add_iff_nonneg_right, le_neg_add_iff_add_le, add_zero,
-                gt_iff_lt, Nat.ofNat_pos, mul_le_mul_left]
+              simp only [le_add_iff_nonneg_right, le_neg_add_iff_add_le, add_zero, Nat.ofNat_pos,
+                mul_le_mul_left]
               gcongr
               exacts [one_le_realD X, by linarith]
           _ ⊆ ⋃ y, I3 _ y := I3_prop_2 _
@@ -559,7 +553,7 @@ mutual
           _ ≤ 4 * D ^ S - D ^ k := by linarith
       have hyfin' : (y' : X) ∈ ⋃ (y'' ∈ Yk X k), ball (y'') (2 * D^k) := cover_big_ball k hyfin
       rw [← iUnion_coe_set (Yk X k) (fun z ↦ ball (z : X) (2 * D^k))] at hyfin'
-      simp only [mem_iUnion, exists_prop] at hyfin'
+      simp only [mem_iUnion] at hyfin'
       obtain ⟨y2,hy2'⟩ := hyfin'
       simp only [mem_iUnion, exists_prop, exists_and_left]
       use y2, y2.property, y', hy2', y'.property
@@ -678,7 +672,7 @@ lemma I3_nonempty {k:ℤ} (hk : -S ≤ k) (y:Yk X k) :
   (I3 hk y).Nonempty := by
   refine ⟨y, I3_prop_3_1 hk y ?_⟩
   rw [mem_ball,dist_self]
-  simp only [gt_iff_lt, inv_pos, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
+  simp only [inv_pos, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
   exact zpow_pos (defaultD_pos a) k
 
 -- the additional argument `hk` to get decent equality theorems
@@ -694,8 +688,7 @@ lemma cover_by_cubes {l : ℤ} (hl :-S ≤ l):
   have h : -S < k + 1 := by linarith
   have : x ∈ I2 hk1 y := I3_subset_I2 hk1 y hx
   rw [I2,dif_neg h.ne.symm] at this
-  simp only [mem_preimage, mem_iUnion,
-    exists_prop, exists_and_left] at this
+  simp only [mem_preimage, mem_iUnion, exists_prop] at this
   obtain ⟨z,_,hz'⟩ := this
   specialize hind (I_induction_proof hk1 h.ne.symm) z hz'
   exact hind
@@ -740,7 +733,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
 
       rw [I1] at hx_i1
       rw [dif_neg hk_not_neg_s] at hx_i1
-      simp only [mem_preimage, mem_iUnion, exists_prop, exists_and_left] at hx_i1
+      simp only [mem_preimage, mem_iUnion, exists_prop] at hx_i1
       obtain ⟨u,hu,hu'⟩ := hx_i1
       have hxy'' : x ∈ I3 _ y'' := this hxl
       have : y'' = u := by
@@ -750,7 +743,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
       apply Subset.trans _ (I1_subset_I3 _ _)
       rw [I1,dif_neg hk_not_neg_s]
       intro x' hx'
-      simp only [mem_preimage, mem_iUnion, exists_prop, exists_and_left]
+      simp only [mem_preimage, mem_iUnion, exists_prop]
       use y''
     else
       have hx_notMem_i1 (y_1 : Yk X k) : x ∉ I1 hk y_1 := by
@@ -770,8 +763,8 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
         intro u hu
         specialize hx_notMem_i3_u u hu
         rw [I3] at hx_notMem_i3_u
-        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-          not_and, not_forall, Classical.not_imp, not_not] at hx_notMem_i3_u
+        simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists, not_and,
+          not_forall, not_not] at hx_notMem_i3_u
         rw [iff_true_intro (hx_notMem_i1 u),iff_true_intro hx_mem_Xk] at hx_notMem_i3_u
         rw [true_and,true_implies] at hx_notMem_i3_u
         intro h
@@ -780,8 +773,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
         exact hx_mem_i2_and.right v (hv.trans hu) hv'
 
       rw [I2, dif_neg hk_not_neg_s] at hx_mem_i2
-      simp only [mem_preimage, mem_iUnion, exists_prop,
-        exists_and_left] at hx_mem_i2
+      simp only [mem_preimage, mem_iUnion, exists_prop] at hx_mem_i2
       obtain ⟨u,hu,hxu⟩ := hx_mem_i2
       obtain rfl : y'' = u := by
         apply I3_prop_1 (I_induction_proof hk hk_not_neg_s)
@@ -796,8 +788,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
         obtain ⟨u,hu⟩ := hx_xk'
         use u
         rw [I1,dif_neg hk_not_neg_s] at hu ⊢
-        simp only [mem_preimage, mem_iUnion, exists_prop,
-          exists_and_left] at hu ⊢
+        simp only [mem_preimage, mem_iUnion, exists_prop] at hu ⊢
         obtain ⟨u',hu',hu''⟩ := hu
         use u',hu'
         obtain rfl : u' = y'' := I3_prop_1 (I_induction_proof hk hk_not_neg_s) (And.intro hu'' hx_i3')
@@ -815,8 +806,7 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
       right
       constructor
       · rw [I2, dif_neg hk_not_neg_s]
-        simp only [mem_preimage, mem_iUnion, exists_prop,
-          exists_and_left]
+        simp only [mem_preimage, mem_iUnion, exists_prop]
         use y''
       intro u hu
       have hx_not_i1' : x' ∉ I1 hk u := by
@@ -826,8 +816,8 @@ lemma dyadic_property {l:ℤ} (hl : -S ≤ l) {k:ℤ} (hl_k : l ≤ k) :
         simp only [mem_iUnion]
         use u
       rw [I3]
-      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists,
-        not_and, not_forall, Classical.not_imp, Decidable.not_not]
+      simp only [mem_union, mem_diff, mem_iUnion, exists_prop, not_or, not_exists, not_and,
+        not_forall]
       rw [iff_true_intro hx_not_xk,iff_true_intro hx_not_i1',true_and,true_implies]
       intro hx_i2'
       by_contra
@@ -959,7 +949,7 @@ end ShortVariables
 
 lemma K_pos : 0 < (K':ℝ) := by
   rw [const_K]
-  simp only [Nat.cast_pow, Nat.cast_ofNat, gt_iff_lt, Nat.ofNat_pos, pow_pos]
+  simp only [Nat.cast_pow, Nat.cast_ofNat, Nat.ofNat_pos, pow_pos]
 
 variable (X) in
 def C4_1_7 [ProofData a q K σ₁ σ₂ F G]: ℝ≥0 := As (defaultA a) (2^4)
@@ -1041,7 +1031,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     _ ≤ ∑ (k':Ioc (k-K') k), volume (
         ⋃ (z ∈ {z':Yk X k'|clProp((le_s hk_mK k'),z'|hk,y)}), I3 (le_s hk_mK k') z) := by
       apply Finset.sum_le_sum
-      simp only [Finset.mem_univ, mem_setOf_eq, true_implies, mem_Ioc]
+      simp only [Finset.mem_univ, mem_setOf_eq, true_implies]
       intro k'
       apply volume.mono
       simp only [iUnion_subset_iff]
@@ -1064,7 +1054,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
         volume (⋃ (_ : clProp((le_s hk_mK k'),z|hk,y)), I3 (le_s hk_mK k') z) := by
       apply Finset.sum_congr (rfl)
       intro k'
-      simp only [Finset.mem_univ, true_implies, ge_iff_le]
+      simp only [Finset.mem_univ, true_implies]
       letI := (Yk_countable X k').to_subtype
       refine measure_iUnion ?_ ?_
       · intro i i' hneq
@@ -1204,7 +1194,7 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
       exact measurableSet_ball
     _ ≤ C4_1_7 X * volume (I3 hk y) := by
       gcongr
-      simp only [mem_Ioc, iUnion_subset_iff]
+      simp only [iUnion_subset_iff]
       intro k' y' hy' x
       apply Subset.trans _ hy'.I3_subset
       apply Subset.trans _ (I3_prop_3_1 _ _)
@@ -1282,11 +1272,9 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       ≤ volume (⋃ (y':Yk X (k-K')),⋃(_:clProp(le_s_2' n hk_mnK,y'|hk,y)),
         ⋃ (y'':Yk X (k-(n+1:ℕ)*K')),⋃(_:clProp(hk_mnK,y''|le_s_2' n hk_mnK,y')), I3 hk_mnK y'') := by
       apply volume.mono
-      simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int,
-        iUnion_subset_iff]
+      simp only [iUnion_subset_iff]
       intro y'' hy'' x hx
-      simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int, mem_iUnion,
-        exists_prop]
+      simp only [mem_iUnion, exists_prop]
       have hx_y: x ∈ I3 hk y := hy''.I3_subset hx
       have : x ∈ ⋃ (y':Yk X (k-K')),I3 (le_s_2' n hk_mnK) y' :=
         cover_by_cubes (le_s_2' n hk_mnK) (by linarith) hk y hx_y
@@ -1295,7 +1283,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
       use y'
       have hz : clProp(hk_mnK,y''|(le_s_2' n hk_mnK),y') ∧ clProp((le_s_2' n hk_mnK),y'|hk,y):= by
         apply transitive_boundary hk_mnK (le_s_2' n hk_mnK) hk _ (by linarith) y'' y' y x _ hy''
-        · simp only [Nat.cast_add, Nat.cast_one, sub_lt_sub_iff_left]
+        · simp only [Nat.cast_add, Nat.cast_one]
           rw [right_distrib, one_mul]
           gcongr
           trans 0 + ↑(@const_K a)
@@ -1318,8 +1306,7 @@ lemma smaller_boundary :∀ (n:ℕ),∀ {k:ℤ}, (hk : -S ≤ k) → (hk_mnK : -
         else
           simp_rw [if_neg h,measure_empty]
       · intro i i' hneq
-        simp only [Nat.cast_add, Nat.cast_one, Int.cast_ofNat_Int,
-          disjoint_iUnion_right, disjoint_iUnion_left]
+        simp only [disjoint_iUnion_right, disjoint_iUnion_left]
         intro _ y1 hy1i _ y2 hy2i'
         apply Disjoint.mono_left hy2i'.I3_subset
         apply Disjoint.mono_right hy1i.I3_subset
@@ -1396,7 +1383,7 @@ lemma const_n_prop_1 (ht : t ∈ Ioo 0 1) : D^(const_n a ht * K') ≤ t⁻¹ := 
   simp only [mem_Ioo] at ht
   rw [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (inv_pos.mpr ht.left)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
-  simp only [Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Real.logb_inv]
+  simp only [Nat.cast_mul, Real.logb_inv]
   rw [← le_div_iff₀ (K_pos)]
   rw [const_n]
   exact Nat.floor_le (prefloor_nonneg X ht)
@@ -1414,7 +1401,7 @@ lemma const_n_is_max (ht : t ∈ Ioo 0 1) (n:ℕ) : D^(n * K') ≤ t⁻¹ → n 
   simp only [mem_Ioo] at ht
   rw [← Real.rpow_logb (defaultD_pos a) (one_lt_realD X).ne.symm (inv_pos.mpr ht.left)]
   rw [← Real.rpow_natCast,Real.rpow_le_rpow_left_iff (one_lt_realD X)]
-  simp only [Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat, Real.logb_inv]
+  simp only [Nat.cast_mul, Real.logb_inv]
   rw [← le_div_iff₀ (K_pos), const_n]
   intro h
   exact Nat.le_floor h
@@ -1436,7 +1423,7 @@ lemma const_n_prop_3 (ht : t ∈ Ioo 0 1) :
 variable (X) in
 lemma const_n_nonneg (ht : t ∈ Ioo 0 1) : 0 ≤ const_n a ht := by
   apply const_n_is_max X ht 0
-  simp only [Nat.cast_pow, Nat.cast_ofNat, zero_mul, pow_zero]
+  simp only [zero_mul, pow_zero]
   rw [one_le_inv_iff₀]
   use ht.left, ht.right.le
 
@@ -1447,7 +1434,7 @@ variable (X) in
 lemma kappa_le_log2D_inv_mul_K_inv : κ ≤ (Real.logb 2 D * K')⁻¹ := by
   have : 2 ≤ a := two_le_a X
   rw [defaultD]
-  simp only [neg_mul, Nat.cast_pow, Nat.cast_ofNat, mul_inv_rev]
+  simp only [Nat.cast_pow, Nat.cast_ofNat, mul_inv_rev]
   rw [← Real.rpow_natCast,Real.logb_rpow (by norm_num) (by norm_num)]
   rw [defaultκ, const_K, neg_mul, Real.rpow_neg (by positivity),
     ← mul_inv, inv_le_inv₀ (by positivity) (by positivity)]
@@ -1497,8 +1484,7 @@ lemma boundary_measure {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht 
         I3 hconst_n y') := by
       apply volume.mono
       intro x
-      simp only [mem_compl_iff, Nat.cast_pow, Nat.cast_ofNat, mem_setOf_eq,
-        exists_prop, NNReal.val_eq_coe, and_imp, forall_exists_index]
+      simp only [mem_setOf_eq, NNReal.val_eq_coe, and_imp]
       intro hxi3 hxb'
       have : x ∈ ⋃(y':Yk X (k-const_n a ht * K')),I3 hconst_n y' :=
         cover_by_cubes hconst_n hconst_n_k hk y hxi3
@@ -1633,8 +1619,7 @@ lemma boundary_measure' {k : ℤ} (hk : -S ≤ k) (y : Yk X k) {t : ℝ≥0} (ht
     _ = 2 * t ^ κ * (volume (I3 hk y)).toReal := by
       congr
       rw [ENNReal.toReal_mul]
-      simp only [ENNReal.toReal_ofNat, neg_mul, mul_eq_mul_left_iff, OfNat.ofNat_ne_zero,
-        or_false]
+      simp only [ENNReal.toReal_ofNat, mul_eq_mul_left_iff, OfNat.ofNat_ne_zero, or_false]
       rw [← ENNReal.toReal_rpow]
       simp only [ENNReal.coe_toReal]
 
@@ -1693,7 +1678,7 @@ def grid_existence : GridStructure X D κ S o where
     rw [hl']
     simp only [inter_self]
     apply I3_prop_3_1
-    simp only [mem_ball, dist_self, gt_iff_lt, inv_pos, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
+    simp only [mem_ball, dist_self, inv_pos, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
     exact zpow_pos (defaultD_pos a) _
   range_s_subset := by
     intro i
@@ -1944,7 +1929,7 @@ lemma Ω_subset_cball {p : 𝔓 X} : Ω p ⊆ ball_(p) (𝒬 p) 1 := by
     rw [Ω]; simp only [maxI, dite_true]
     exact (Ω₁_subset_ball p).trans (ball_subset_ball (by norm_num))
   | ind p nmaxI ih =>
-    rw [Ω]; simp only [nmaxI, dite_false, mem_union]
+    rw [Ω]; simp only [nmaxI, dite_false]
     intro ϑ mϑ
     rcases mϑ with c | c; · exact mem_of_mem_of_subset c (ball_subset_ball (by norm_num))
     obtain ⟨I, ⟨y, my⟩⟩ := p
@@ -2100,5 +2085,3 @@ def tile_existence : TileStructure Q D κ S o where
       exact this.trans (Construction.ball_subset_Ω₁ p)
     · simp
   subset_cball {p} := Construction.Ω_subset_cball
-
-set_option linter.style.longFile 2300

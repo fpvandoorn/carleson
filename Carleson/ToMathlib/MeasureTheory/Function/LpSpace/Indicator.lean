@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Function.LpSpace.Indicator
+import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 
 noncomputable section
 
