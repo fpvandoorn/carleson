@@ -806,17 +806,12 @@ lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : 
   have q_pos : 0 < q.toReal := toReal_pos hq.ne' hq'.ne_top
   have tq_pos : 0 < t ^ q.toReal := ENNReal.rpow_pos_of_nonneg ht q_pos.le
   have tq_ne_top : t ^ q.toReal ≠ ⊤ := by finiteness
-  -- have hq₁ : q.toReal = q := by exact toReal_ofReal q_nonneg
   simp only [wnorm, wnorm', hq'.ne_top, ↓reduceIte, iSup_le_iff] at wt_est
   have wt_est_t := wt_est t.toNNReal -- this is the weaktype estimate applied to t
-  sorry /- rw [← ENNReal.mul_le_mul_right (c := t ^ q.toReal) _ tq_ne_top,
-      mul_assoc _ _ (t ^ q.toReal), ← ofReal_mul',
-      ← Real.rpow_add, neg_add_cancel, Real.rpow_zero, ofReal_one, mul_one, mul_comm,
-      ← ENNReal.mul_rpow_of_nonneg] <;> try positivity
-  refine (ENNReal.rpow_inv_le_iff q_pos).mp ?_
-  rw [ENNReal.mul_rpow_of_nonneg, ENNReal.ofReal_rpow_of_pos,
-      Real.rpow_rpow_inv] <;> try positivity
-  rwa [← coe_coe_eq_ofReal] -/
+  have : ofNNReal t.toNNReal = t := coe_toNNReal ht'
+  rw [this, mul_le_iff_le_inv ht.ne' ht', mul_comm, ENNReal.rpow_inv_le_iff q_pos,
+      ENNReal.mul_rpow_of_nonneg _ _ q_pos.le, ENNReal.mul_rpow_of_nonneg _ _ q_pos.le,
+      ← ENNReal.rpow_neg_one, ← ENNReal.rpow_mul, neg_one_mul] at wt_est_t; exact wt_est_t
 
 variable [ContinuousENorm ε₁] [ContinuousENorm ε₂] {T : (α → ε₁) → (α' → ε₂)} in
 lemma weaktype_estimate_top {C : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞}
