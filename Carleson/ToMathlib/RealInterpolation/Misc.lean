@@ -1336,9 +1336,6 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
 --   all_goals rw [ENNReal.ofReal_div_of_pos (by rw [abs_pos]; linarith),
 --       ← ENNReal.ofReal_rpow_of_pos this, ofReal_toReal hβ']
 
--- TODO: This is the more natural/precise statement, but when t = ∞, we can only prove
--- the inequality, see next lemma. As a consequence, this lemma is now actually not used.
--- Shall we remove it?
 lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞):
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
@@ -1356,20 +1353,13 @@ lemma value_lintegral_res₂ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < 
     (hσp' : 0 < spf.σ⁻¹ * (γ + 1) + p') :
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') ≤
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
+  by_cases ht' : t = ∞; swap; · rw [value_lintegral_res₁ ht ht']
   have := spf.hd
   unfold spf_to_tc
   dsimp only
-  by_cases ht' : t = ∞
-  · rw [ht', top_rpow_of_pos hσp', mul_top, top_div_of_lt_top]
-    · simp
-    · exact coe_lt_top
-    · exact (ENNReal.rpow_pos this spf.hd').ne'
-  · rw [← ENNReal.mul_div_right_comm, ENNReal.mul_rpow_of_ne_zero, mul_assoc, ← ENNReal.rpow_mul,
-        ← ENNReal.rpow_add]
-    · positivity
-    · finiteness
-    · positivity
-    · exact (ENNReal.rpow_pos ht ht').ne'
+  simp [ht', top_rpow_of_pos hσp', mul_top (ENNReal.rpow_pos this spf.hd').ne',
+      top_div_of_lt_top ofReal_lt_top]
+
 
 end MeasureTheory
 
