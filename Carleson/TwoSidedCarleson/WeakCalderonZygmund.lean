@@ -530,15 +530,16 @@ private lemma czBall_subset_czBall {hX : GeneralCase f α} {i : ℕ} {b c : ℝ}
   · simp [ball_eq_empty.mpr <| mul_nonpos_of_nonneg_of_nonpos hb (le_of_not_ge hr)]
 
 /-- Part of Lemma 10.2.5 (general case). -/
-lemma encard_czBall3_le {hX : GeneralCase f α}
-    {y : X} (hy : α < globalMaximalFunction volume 1 f y) :
-    {i | y ∈ czBall3 hX i}.encard ≤ (2 ^ (6 * a) : ℕ) :=
-  ball_covering (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.2 y hy
+lemma encard_czBall3_le {hX : GeneralCase f α} {y : X} :
+    {i | y ∈ czBall3 hX i}.encard ≤ (2 ^ (6 * a) : ℕ) := by
+  by_cases hy : α < globalMaximalFunction volume 1 f y
+  · exact ball_covering (isOpen_MB_preimage_Ioi hX) |>.choose_spec.choose_spec.2.2.2 y hy
+  · suffices ∀ i, i ∉ {i | y ∈ czBall3 hX i} by simp [eq_empty_of_forall_notMem this, -mem_ball]
+    simpa [← not_exists, ← mem_iUnion, iUnion_czBall3, -mem_ball] using hy
 
-lemma mem_czBall3_finite {hX : GeneralCase f α} {y : X}
-    (hy : α < globalMaximalFunction volume 1 f y) :
+lemma mem_czBall3_finite {hX : GeneralCase f α} {y : X} :
     {i | y ∈ czBall3 hX i}.Finite :=
-  finite_of_encard_le_coe (encard_czBall3_le hy)
+  finite_of_encard_le_coe encard_czBall3_le
 
 /-- `Q_i` in the proof of Lemma 10.2.5 (general case). -/
 def czPartition (hX : GeneralCase f α) (i : ℕ) : Set X :=
@@ -1354,17 +1355,34 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
   · linarith [dist_triangle_right x (czCenter hX j) y]
   · linarith [dist_triangle x (czCenter hX j) y]
 
-private lemma sum_volume_restrict_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
+--TODO: Move the following two lemmas to appropriate ToMathlib files
+lemma Set.encard_subtype_le {ι : Type*} (p : ι → Prop) (s : Set ι) :
+    ({i | p ↑i} : Set s).encard ≤ ({i | p i} : Set ι).encard :=
+  Function.Embedding.encard_le ⟨fun ⟨⟨i, _⟩, hi⟩ ↦ ⟨i, hi⟩,
+    fun _ _ h ↦ by simpa [Subtype.coe_inj] using h⟩
+
+lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {ι : Type*}
+    {μ : Measure α} (s : ι → Set α) {M : ℕ} (hs_meas : ∀ i, MeasurableSet (s i))
+    (hs : ∀ y, {i | y ∈ s i}.encard ≤ M) :
+    Measure.sum (fun i ↦ μ.restrict (s i)) ≤ M • μ.restrict (⋃ i, s i) := by
+  refine Measure.le_iff.mpr (fun s hs ↦ ?_)
+  rw [MeasureTheory.Measure.sum_apply _ hs]
+  apply ENNReal.summable.tsum_le_of_sum_le
+  sorry
+
+private lemma sum_volume_restrict_le (hX : GeneralCase f (α' a α)) :
     Measure.sum (fun (j : 𝒥₂ r x hX) ↦ volume.restrict (czBall3 hX j)) ≤
     2 ^ (6 * a) • volume.restrict (A r x hX) := by
-  sorry
+  refine Measure.sum_restrict_le _ (fun _ ↦ measurableSet_ball) (fun y ↦ ?_)
+  apply le_trans <| Set.encard_subtype_le (fun i ↦ y ∈ ball (czCenter hX i) (3 * czRadius hX i)) _
+  exact encard_czBall3_le
 
 -- Long calculation toward the end of Lemma 10.2.7
 private lemma tsum_integral_K_le (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α' a α)) :
     ∑' (j : 𝒥₂ r x hX), ∫⁻ y in czBall3 hX j, ‖K x y‖ₑ ≤ 2 ^ (a ^ 3 + 10 * a) := calc
   _ ≤ ∫⁻ (a : X), ‖K x a‖ₑ ∂(2 ^ (6 * a) • volume.restrict (A r x hX)) := by
     rw [← lintegral_sum_measure]
-    exact lintegral_mono' (sum_volume_restrict_le hx hX) (le_refl _)
+    exact lintegral_mono' (sum_volume_restrict_le hX) (le_refl _)
   _ = 2 ^ (6 * a) * ∫⁻ y in A r x hX, ‖K x y‖ₑ := by
     simp only [lintegral_smul_measure, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat]
   _ ≤ 2 ^ (6 * a) * ∫⁻ y in Annulus.co x (r / 3) (3 * r), ‖K x y‖ₑ :=
