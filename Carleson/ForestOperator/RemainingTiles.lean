@@ -1,6 +1,5 @@
 import Carleson.Calculations
 import Carleson.ForestOperator.AlmostOrthogonality
-import Carleson.ToMathlib.Analysis.Normed.Group.Basic
 
 open ShortVariables TileStructure
 variable {X : Type*} {a : ℕ} {q : ℝ} {K : X → X → ℂ} {σ₁ σ₂ : X → ℤ} {F G : Set X}
@@ -40,7 +39,6 @@ lemma union_𝓙₆ (hu₁ : u₁ ∈ t) :
     simp only [mem_iUnion, exists_prop]
     have notDisjoint := Set.not_disjoint_iff.mpr ⟨x, xInCube, hx⟩
     have cubeIn𝓙₀ : cube ∈ 𝓙₀ (t u₁) := mem_of_mem_inter_left cube_in_𝓙
-    simp only [mem_setOf_eq] at cubeIn𝓙₀
     cases cubeIn𝓙₀ with
     | inl west =>
       refine ⟨cube, ?_, xInCube⟩
@@ -243,8 +241,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
         ¬Disjoint (J : Set X) (ball (c I) (8 * D ^ s I)) } : Finset (Grid X)) = ∅ by
       rw [this]
       simp
-    simp only [Nat.cast_pow, Nat.cast_ofNat, Finset.filter_eq_empty_iff, Finset.mem_univ,
-      not_and, Decidable.not_not, true_implies]
+    simp only [Finset.filter_eq_empty_iff, Finset.mem_univ, not_and, Decidable.not_not,
+      true_implies]
     intros I hI
     have : -S ≤ s I := (range_s_subset ⟨I, rfl⟩).1
     linarith
@@ -267,8 +265,8 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       rw [ENNReal.coe_zpow (by simp)]
       norm_num
     · rw [show (8 : ℝ≥0) = 2 ^ 3 by norm_num]
-      simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA,
-        ← zpow_neg, ← zpow_natCast, ← zpow_mul, ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
+      simp only [defaultD, Nat.cast_pow, Nat.cast_ofNat, defaultA, ← zpow_natCast, ← zpow_mul,
+        ← zpow_add₀ (show (2 : ℝ≥0) ≠ 0 by norm_num)]
       -- #adaptation note(2024-11-02): this line was `gcongr`
       -- This was probably broken by mathlib4#19626 and friends, see
       -- https://leanprover.zulipchat.com/#narrow/channel/428973-nightly-testing/topic/.2319314.20adaptations.20for.20nightly-2024-11-20
@@ -328,8 +326,7 @@ lemma square_function_count (hJ : J ∈ 𝓙₆ t u₁) {s' : ℤ} :
       refine le_trans ?_ (est₁ (s J - s') x)
       gcongr
       intro I
-      simp only [Nat.cast_pow, Nat.cast_ofNat, mem_ball, Finset.mem_filter,
-        Finset.mem_univ, true_and, mem_toFinset, 𝒟]
+      simp only [mem_ball, Finset.mem_filter, Finset.mem_univ, true_and, mem_toFinset, 𝒟]
       exact fun H ↦ ⟨H.2, H.1.1⟩
     · have (I : Grid X) : ball (c I) (8 * D ^ s I) = EMetric.ball (c I) (8 * D ^ s I) := by
         trans EMetric.ball (c I) (show ℝ≥0 from ⟨8 * D ^ s I, by positivity⟩)

@@ -1,8 +1,7 @@
-import Carleson.ToMathlib.DoublingMeasure
+import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
 import Mathlib.MeasureTheory.Covering.Vitali
-import Carleson.Defs
 
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter ENNReal Pointwise
 open scoped NNReal
@@ -282,7 +281,7 @@ lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts �
   have hx_pos : 0 < x.2 := by simp only [mem_prod, mem_univ, mem_Ioi, true_and] at hx; exact hx
   have : (fun x : X × ℝ ↦ ⨍⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) =
     fun x : X × ℝ ↦ (μ (ball x.1 x.2))⁻¹ * ∫⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ
-     := by ext x; simp [Pi.div_apply, laverage]
+     := by ext x; simp [laverage]
   rw [this]
   apply ENNReal.Tendsto.mul
   · apply Tendsto.inv
@@ -312,7 +311,7 @@ lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
 private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [ProperSpace X]
     (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
-  simp only [T, Pi.add_apply, enorm_eq_self, ← enorm_eq_nnnorm]
+  simp only [T, Pi.add_apply, enorm_eq_self]
   rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.enorm]
   exact laverage_mono (fun x ↦ enorm_add_le (f x) (g x))
 
@@ -462,7 +461,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) ⊤ ⊤ μ μ 1 := by
   intro f _
   use AEStronglyMeasurable.maximalFunction h𝓑
-  simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
+  simp only [one_mul, eLpNorm_exponent_top]
   exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ MB_le_eLpNormEssSup)
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
@@ -472,9 +471,8 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
   intro f _
   use AEStronglyMeasurable.maximalFunction h𝓑
   let Bₗ (ℓ : ℝ≥0∞) := { i ∈ 𝓑 | ∫⁻ y in (ball (c i) (r i)), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball (c i) (r i)) }
-  simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte,
-    ENNReal.coe_pow, eLpNorm, one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self,
-    iSup_le_iff]
+  simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
+    one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self, iSup_le_iff]
   intro t
   by_cases ht : t = 0
   · simp [ht]
@@ -594,7 +592,7 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     ⟨ENNReal.zero_lt_top, le_rfl⟩
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
-    (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
+    (by simp) (by simp)
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction h𝓑)
     ?_ (HasStrongType.MB_top h𝓑 |>.hasWeakType zero_lt_top)
     (HasWeakType.MB_one h𝓑 hR)
@@ -785,7 +783,7 @@ lemma lowerSemiContinuous_MB :
       ⋃ i ∈ 𝓑, (ball (c i) (r i)).indicator
       (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖f y‖ₑ ∂μ) ⁻¹' Ioi y := by
     ext x
-    simp only [pow_one, mem_preimage, mem_Ioi, mem_iUnion, exists_prop]
+    simp only [mem_preimage, mem_Ioi, mem_iUnion, exists_prop]
     constructor
     · intro h
       by_contra h₀
@@ -1040,7 +1038,7 @@ lemma lowerSemiContinuous_globalMaximalFunction :
       (fun x : X ↦ MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ)) (fun x ↦ x.1)
       (fun x ↦ 2 ^ x.2) (fun x ↦ ‖f x‖ ) x)⁻¹' Ioi (y / A ^ 2) := by
     ext x
-    simp only [gt_iff_lt, Real.rpow_one, mem_preimage, mem_Ioi]
+    simp only [gt_iff_lt, mem_preimage, mem_Ioi]
     refine ⟨fun h₀ ↦ div_lt_of_lt_mul' h₀, fun h₀ ↦ ?_⟩; rw [mul_comm]; exact
         (ENNReal.div_lt_iff (Or.inl (ENNReal.pow_ne_zero (coe_ne_zero.mpr h) 2)) (Or.inr hy)).mp h₀
   rw [this]

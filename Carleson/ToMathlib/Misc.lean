@@ -1,15 +1,8 @@
-import Mathlib.Analysis.Convex.PartitionOfUnity
-import Mathlib.Analysis.Calculus.ContDiff.Basic
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
-import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.MeasureTheory.Integral.Bochner.Basic
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-import Mathlib.Topology.MetricSpace.Holder
-import Mathlib.Data.Set.Card
-import Mathlib.Data.Real.ENatENNReal
-import Mathlib.MeasureTheory.Measure.Real
 import Carleson.ToMathlib.ENorm
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
+import Mathlib.MeasureTheory.Integral.Average
+import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 
 /-
 * This file can import all ToMathlib files.
@@ -630,7 +623,7 @@ theorem setIntegral_biUnion_le_sum_setIntegral {X : Type*} {ι : Type*} [Measura
       ext T hT
       simp only [Measure.sum_apply (hs := hT), Measure.coe_finset_sum, s.sum_apply, μ₀]
       rw [tsum_eq_sum (s := s) (fun b hb ↦ by simp [hb])]
-      exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi, res_res])
+      exact Finset.sum_congr rfl (fun i hi ↦ by simp [hi])
     rw [Filter.EventuallyLE, this, Measure.ae_sum_iff' (by exact meas)]
     intro i
     by_cases hi : i ∈ s

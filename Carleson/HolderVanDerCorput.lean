@@ -1,5 +1,4 @@
 import Carleson.TileStructure
-import Mathlib.Topology.MetricSpace.ProperSpace.Lemmas
 
 /-! This should roughly contain the contents of chapter 8. -/
 
@@ -29,7 +28,7 @@ lemma cutoff_Lipschitz (hR : 0 < R) (ht : 0 < t) :
   apply LipschitzWith.const_max
   apply LipschitzWith.of_le_add_mul
   intro a b
-  simp only [one_div, NNReal.coe_mk, tsub_le_iff_right, div_eq_inv_mul, mul_one]
+  simp only [NNReal.coe_mk, tsub_le_iff_right, div_eq_inv_mul, mul_one]
   have : (t * R) ⁻¹ * dist x b ≤ (t * R)⁻¹ * (dist x a + dist a b) := by
     gcongr
     exact dist_triangle _ _ _
@@ -310,7 +309,7 @@ lemma norm_holderApprox_sub_le_aux {z : X} {R t : ℝ} (hR : 0 < R) (ht : 0 < t)
       exact norm_add_le _ _
     _ = ‖∫ y, cutoff R t x y - cutoff R t x' y‖ * ‖holderApprox R t ϕ x'‖ +
           ‖(∫ y, cutoff R t x' y * ϕ y) - (∫ y, cutoff R t x y * ϕ y)‖ := by
-      simp [norm_mul, integral_mul_holderApprox hR ht]
+      simp [integral_mul_holderApprox hR ht]
     _ ≤ (∫ y, ‖cutoff R t x y - cutoff R t x' y‖) * C +
           ‖(∫ y, (cutoff R t x' y - cutoff R t x y) * ϕ y)‖ := by
       gcongr
@@ -489,7 +488,7 @@ lemma iLipENorm_holderApprox_le {z : X} {R t : ℝ} (ht : 0 < t) (h't : t ≤ 1)
   rcases eq_or_ne (iHolENorm ϕ z (2 * R)) ∞ with h'ϕ | h'ϕ
   · apply le_top.trans_eq
     rw [eq_comm]
-    simp [h'ϕ, ENNReal.mul_eq_top, ht]
+    simp [h'ϕ, ht]
   rw [← ENNReal.coe_toNNReal h'ϕ]
   apply iLipENorm_holderApprox' ht h't
   · apply continuous_of_iHolENorm_ne_top' hϕ h'ϕ
@@ -532,8 +531,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
   · apply le_top.trans_eq
     symm
     have : (0 : ℝ) < 2 * a ^ 2 + a ^ 3 := by positivity
-    simp [h2ϕ, ENNReal.mul_eq_top, C2_0_5, (measure_ball_pos volume z hR).ne', this, this.le,
-      edist_ne_top]
+    simp [h2ϕ, C2_0_5, (measure_ball_pos volume z hR).ne', this, edist_ne_top]
   let t : ℝ := (1 + nndist_{z, R} f g) ^ (- (τ / (2 + a)))
   have t_pos : 0 < t := Real.rpow_pos_of_pos (by positivity) _
   have t_one : t ≤ 1 := by
@@ -586,7 +584,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
       gcongr 2 ^ a * ?_ * ?_ * ?_
       · exact iLipENorm_holderApprox_le t_pos t_one ϕ_supp
       · apply ENNReal.rpow_le_rpow_of_nonpos
-        · simp [τ_pos X]
+        · simp
         apply add_le_add_left
         simp only [edist_dist]
         apply ENNReal.ofReal_le_ofReal
@@ -606,7 +604,7 @@ theorem holder_van_der_corput {z : X} {R : ℝ} {ϕ : X → ℂ}
     apply this.trans_eq
     rw [show - τ ^ 2 / (2 + a) = (-τ / (2 + a)) * τ by ring, ENNReal.rpow_mul]
     congr 1
-    simp only [defaultA, coe_nndist, defaultτ, coe_nnreal_ennreal_nndist, t]
+    simp only [defaultA, coe_nndist, defaultτ, t]
     rw [← ENNReal.ofReal_rpow_of_pos (by positivity),
       ENNReal.ofReal_add zero_le_one (by positivity), ← edist_dist, ENNReal.ofReal_one]
     congr
