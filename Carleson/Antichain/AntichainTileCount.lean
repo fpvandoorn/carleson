@@ -381,26 +381,26 @@ lemma I_p_subset_union_L (p : 𝔄' 𝔄 ϑ N) : (𝓘 (p : 𝔓 X) : Set X) ⊆
       intro x hx
       -- Apply 2.0.7
       obtain ⟨I, hI, hxI⟩ := Grid.exists_containing_subcube (i := 𝓘 (p : 𝔓 X)) (-S)
-        (by simp [mem_Icc, le_refl, true_and, scale_mem_Icc.1]) hx
+        (by simp [mem_Icc, le_refl, scale_mem_Icc.1]) hx
       have hsI : s I ≤ s (𝓘 (p : 𝔓 X)) := hI ▸ scale_mem_Icc.1
       simp only [Grid.le_def, mem_setOf_eq, mem_iUnion, exists_prop]
       exact ⟨I, ⟨hI, Or.resolve_right (GridStructure.fundamental_dyadic' hsI)
             (not_disjoint_iff.mpr ⟨x, hxI, hx⟩), hsI⟩, hxI⟩
     _ ⊆ ⋃ (L ∈ 𝓛 𝔄 ϑ N), L := by
       intro x hx
-      simp only [Subtype.exists, mem_iUnion] at hx ⊢
+      simp only [mem_iUnion] at hx ⊢
       obtain ⟨I, ⟨hsI, hI⟩, hxI⟩ := hx
-      simp only [ 𝓛, Subtype.exists, exists_and_left, exists_prop, and_imp, Subtype.forall,
-        Finset.mem_filter, Finset.mem_univ,true_and]
+      simp only [𝓛, Subtype.exists, exists_prop, Subtype.forall, Finset.mem_filter, Finset.mem_univ,
+        true_and]
       exact ⟨I, ⟨⟨p, p.2, hI⟩, fun _ _ hqI ↦ le_antisymm (hsI ▸ hqI.2) scale_mem_Icc.1⟩, hxI⟩
 
 -- Ineq 6.3.28
 lemma union_L_eq_union_I_p : ⋃ (L ∈ 𝓛 𝔄 ϑ N), L = ⋃ (p ∈ 𝔄' 𝔄 ϑ N), (𝓘 (p : 𝔓 X) : Set X) := by
   apply le_antisymm
   · intro _ hx
-    simp only [iUnion_coe_set, mem_iUnion, exists_prop] at hx ⊢
+    simp only [mem_iUnion, exists_prop] at hx ⊢
     obtain ⟨L, hL, hLx⟩ := hx
-    simp only [𝓛, and_imp, Subtype.forall, Finset.mem_filter, Finset.mem_univ, true_and] at hL
+    simp only [𝓛, Subtype.forall, Finset.mem_filter, Finset.mem_univ, true_and] at hL
     obtain ⟨q, hqL⟩ := hL.1
     exact ⟨q, q.2, hqL.1 hLx⟩
   · intro x hx

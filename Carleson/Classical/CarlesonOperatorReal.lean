@@ -1,7 +1,8 @@
+import Carleson.Classical.HilbertKernel
+import Mathlib.MeasureTheory.Integral.Prod
+
 /- This file contains the definition and basic properties of the Carleson operator on the real line.
 -/
-
-import Carleson.Classical.HilbertKernel
 
 noncomputable section
 

@@ -257,8 +257,7 @@ lemma remainder_stackSize_le (t : Forest X n) (j : ℕ) :
         refine ⟨?_,hz⟩
         apply (t.rowDecomp_𝔘_def j).mem_of_prop_insert
         rw [mem_rowDecomp_zornset_iff]
-        simp only [mem_insert_iff, mem_diff,
-          mem_𝔘, mem_iUnion, not_and, forall_eq_or_imp]
+        simp only [mem_insert_iff, forall_eq_or_imp]
         constructor
         · rw [insert_subset_iff]
           simp_rw [rowDecomp_𝔘_eq] at hu
@@ -1003,13 +1002,13 @@ theorem forest_operator' {n : ℕ} (𝔉 : Forest X n) {f : X → ℂ} {A : Set 
     exact Finset.measurable_sum _ fun _ _ ↦ measurable_carlesonSum hf
   · exact (bAi _).trans (indicator_le_indicator_apply_of_subset sA (by simp))
   gcongr
-  · simp only [sub_nonneg, ge_iff_le, inv_le_inv₀ zero_lt_two (q_pos X)]
+  · simp only [sub_nonneg, inv_le_inv₀ zero_lt_two (q_pos X)]
     exact (q_mem_Ioc (X := X)).2
   · exact le_rfl
   calc
   _ ≤ eLpNorm (A.indicator (fun x ↦ 1) : X → ℝ) 2 volume := by
     apply eLpNorm_mono (fun x ↦ ?_)
-    simp only [indicator, coe_algebraMap, Pi.one_apply, Real.norm_eq_abs]
+    simp only [indicator, coe_algebraMap, Real.norm_eq_abs]
     split_ifs
     · have A (x : ℝ) : x / x ≤ 1 := by
         rcases eq_or_ne x 0 with rfl | hx

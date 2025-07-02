@@ -82,7 +82,7 @@ lemma 𝓛_subset_𝓛₀ {𝔖 : Set (𝔓 X)} : 𝓛 𝔖 ⊆ 𝓛₀ 𝔖 := 
 
 private lemma s_le_s_of_mem_𝓛 {𝔖 : Set (𝔓 X)} {L : Grid X} (hL : L ∈ 𝓛 𝔖)
     {p : 𝔓 X} (hp : p ∈ 𝔖) (hpL : ¬ Disjoint (𝓘 p : Set X) (L : Set X)) : s L ≤ s (𝓘 p) := by
-  simp only [𝓛, 𝓛₀, Grid.le_def, not_and, not_le, and_imp] at hL
+  simp only [𝓛, 𝓛₀, Grid.le_def, not_and, not_le] at hL
   rcases hL.1 with h | h
   · exact h ▸ (range_s_subset ⟨𝓘 p, rfl⟩).1
   · by_contra!

@@ -1,4 +1,6 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
+import Mathlib.Analysis.Normed.Group.Bounded
+import Mathlib.Analysis.Normed.Group.Uniform
+import Mathlib.Analysis.Normed.Ring.Basic
 import Mathlib.Order.CompletePartialOrder
 
 /-! ## `ENNReal` manipulation lemmas -/

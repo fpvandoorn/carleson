@@ -1,12 +1,11 @@
+import Carleson.ToMathlib.Annulus
+import Carleson.ToMathlib.CoverByBalls
+import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.WeakType
-import Carleson.ToMathlib.Data.ENNReal
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Annulus
-import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Data.Int.Star
-import Mathlib.Topology.Algebra.Support
+import Mathlib.Topology.MetricSpace.Holder
 
 open MeasureTheory Measure Metric Complex Set TopologicalSpace Bornology Function ENNReal
 open scoped NNReal
@@ -192,7 +191,7 @@ lemma enorm_integral_exp_le [CompatibleFunctions ℝ X A] {τ : ℝ} [IsCancella
   rcases eq_or_ne (iLipENorm ϕ x r) ∞ with h1 | h1
   · apply le_top.trans_eq
     symm
-    simp [h1, ENNReal.mul_eq_top, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
+    simp [h1, edist_ne_top, hA, (measure_ball_pos volume x hr).ne']
   exact IsCancellative.enorm_integral_exp_le' hr h1 h2
 
 /-- Constructor of `IsCancellative` in terms of real norms instead of extended reals. -/
@@ -825,7 +824,7 @@ lemma four_le_Z [PseudoMetricSpace X] [ProofData a q K σ₁ σ₂ F G] : 4 ≤ 
 
 variable (a) in
 /-- `D` as an element of `ℝ≥0`. -/
-def nnD : ℝ≥0 := ⟨D, by simp [D_nonneg]⟩
+def nnD : ℝ≥0 := ⟨D, by simp⟩
 
 namespace ShortVariables
 

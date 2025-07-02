@@ -1,6 +1,4 @@
 import Carleson.Defs
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Topology.EMetricSpace.Paracompact
 
 open MeasureTheory Measure NNReal Metric Set TopologicalSpace Function DoublingMeasure Bornology
 open scoped ENNReal
@@ -286,7 +284,7 @@ lemma support_ψS_subset_Icc {b c : ℤ} {x : ℝ}
   intro i hi
   have hx : x > 0 := lt_of_lt_of_le (by positivity) h.1
   simp only [support_ψS hD hx, nonzeroS, Finset.coe_Icc, mem_Icc] at hi
-  simp only [toFinset_Icc, Finset.coe_Icc, mem_Icc]
+  simp only [mem_Icc]
   refine ⟨le_trans ?_ hi.1, le_trans hi.2 ?_⟩
   · rw [← Nat.cast_one, Int.floor_natCast_add, Nat.cast_one, ← sub_le_iff_le_add', Int.le_floor,
       Real.le_logb_iff_rpow_le hD (mul_pos two_pos hx), mul_comm]
@@ -360,7 +358,7 @@ lemma sum_Ks {t : Finset ℤ} (hs : nonzeroS D (dist x y) ⊆ t) (hD : 1 < (D : 
 
 lemma dist_mem_Ioo_of_Ks_ne_zero {s : ℤ} {x y : X} (h : Ks s x y ≠ 0) :
     dist x y ∈ Ioo ((D ^ (s - 1) : ℝ) / 4) (D ^ s / 2) := by
-  simp only [Ks, Nat.cast_pow, Nat.cast_ofNat, zpow_neg, ne_eq, mul_eq_zero, ofReal_eq_zero] at h
+  simp only [Ks, zpow_neg, ne_eq, mul_eq_zero, ofReal_eq_zero] at h
   have dist_mem_Ioo := support_ψ (D1 X) ▸ mem_support.2 (not_or.1 h).2
   rwa [mem_Ioo, ← div_eq_inv_mul, lt_div_iff₀ (D_pow0' (D1 X) s),
     div_lt_iff₀ (D_pow0' (D1 X) s), mul_inv, mul_assoc, inv_mul_eq_div (4 : ℝ), ← zpow_neg_one,
@@ -564,14 +562,14 @@ lemma enorm_Ks_le {s : ℤ} {x y : X} :
     ‖Ks s x y‖ₑ ≤ C2_1_3 a / volume (ball x (D ^ s)) := by
   rw [enorm_eq_nnnorm]
   have h := norm_Ks_le (s := s) (x := x) (y := y)
-  simp only [measureReal_def, ← ENNReal.toReal_mul, ← coe_nnnorm] at h
+  simp only [measureReal_def, ← coe_nnnorm] at h
   have : (0 : ℝ) ≤ ↑(C2_1_3 a) := by simp only [zero_le_coe]
   rw [← ENNReal.toReal_ofReal (r := ‖Ks s x y‖₊) (by positivity),
     ← ENNReal.toReal_ofReal this, ← ENNReal.toReal_div,
     ENNReal.toReal_le_toReal ENNReal.ofReal_ne_top] at h
   · rwa [ENNReal.coe_nnreal_eq, ENNReal.coe_nnreal_eq]
-  · simp only [NNReal.coe_pow, ne_eq, ENNReal.div_eq_top, ENNReal.ofReal_eq_zero, not_le,
-      mul_eq_zero, ENNReal.ofReal_ne_top, false_and, or_false, not_and, not_or]
+  · simp only [ne_eq, ENNReal.div_eq_top, ENNReal.ofReal_eq_zero, not_le, ENNReal.ofReal_ne_top,
+      false_and, or_false, not_and]
     exact fun _ ↦ ne_of_gt (measure_ball_pos volume x (defaultD_pow_pos a s))
 
 /-- Needed for Lemma 7.5.5. -/
@@ -854,8 +852,7 @@ lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
     rw [ENNReal.toNNReal_div]
     congr
     rw [← ENNReal.coe_zpow (by simp), ENNReal.toNNReal_coe]
-  simp only [measureReal_def, ← ENNReal.toReal_mul, ← coe_nnnorm, ← coe_nndist, ← NNReal.coe_div,
-    ← NNReal.coe_pow, haux] at h
+  simp only [measureReal_def, ← coe_nnnorm, ← coe_nndist, haux] at h
   rw [← ENNReal.toReal_ofReal (r := ‖Ks s x y - Ks s x y'‖₊) (by positivity),
     ENNReal.toReal_le_toReal ENNReal.ofReal_ne_top] at h
   · rwa [ENNReal.coe_nnreal_eq]
@@ -868,9 +865,7 @@ lemma nnnorm_Ks_sub_Ks_le {s : ℤ} {x y y' : X} :
         implies_true, true_and]
       intro htop
       have hnetop : (nndist y y' : ℝ≥0∞) / ↑(D : ℝ≥0) ^ s ≠ ⊤ :=  by
-        simp only [Nat.cast_pow, Nat.cast_ofNat,
-          ENNReal.coe_pow, ENNReal.coe_ofNat, ne_eq, ENNReal.div_eq_top, not_or, not_and',
-          Decidable.not_not]
+        simp only [ne_eq, ENNReal.div_eq_top, not_or, not_and', not_not]
         have h' : ((D : ℝ≥0) : ℝ≥0∞) ^ s ≠ 0 := by
             rw [← ENNReal.coe_zpow (by simp)]
             exact ENNReal.coe_ne_zero.mpr (ne_of_gt (defaultD_pow_pos a s))
@@ -930,7 +925,7 @@ lemma Ks_eq_zero_of_dist_le {s : ℤ} {x y : X} (hxy : x ≠ y)
   left
   rw [mul_comm]
   apply mul_le_of_le_mul_inv₀ (by positivity) (by positivity)
-  simp only [Nat.cast_pow, Nat.cast_ofNat, mul_inv_rev, zpow_neg, inv_inv]
+  simp only [mul_inv_rev, zpow_neg, inv_inv]
   have heq : (D : ℝ)⁻¹ * 4⁻¹ * ↑D ^ s = defaultD a ^ (s - 1) / 4 := by
     ring_nf
     rw [← zpow_neg_one, zpow_add₀ (by simp)]
@@ -941,7 +936,7 @@ lemma Ks_eq_zero_of_le_dist {s : ℤ} {x y : X} (h : (D : ℝ)^(s)/2 ≤ dist x 
   have hxy : x ≠ y := by
     rw [← dist_pos]
     apply lt_of_lt_of_le _ h
-    simp only [Nat.cast_pow, Nat.ofNat_pos, div_pos_iff_of_pos_right]
+    simp only [Nat.ofNat_pos, div_pos_iff_of_pos_right]
     exact defaultD_pow_pos a s
   rw [Ks_def]
   simp only [mul_eq_zero, ofReal_eq_zero]

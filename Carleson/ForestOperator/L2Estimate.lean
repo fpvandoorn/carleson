@@ -1,7 +1,4 @@
 import Carleson.ForestOperator.PointwiseEstimate
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.ENorm
-import Carleson.ToMathlib.Annulus
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 
 noncomputable section
@@ -285,7 +282,6 @@ private lemma nontangential_pointwise_bound (hf : BoundedCompactSupport f) (θ :
       gcongr
       · refine (congrArg (‖·‖ₑ) <| setIntegral_congr_fun Annulus.measurableSet_oc fun y hy ↦ ?_).le
         apply mul_eq_mul_right_iff.mpr ∘ Or.inl ∘ K'.eq_K (s I) s₂ x' y
-        simp only [Annulus.oo, mem_Ioo, mem_setOf_eq] at hy
         refine mem_Icc.mpr ⟨(lt_trans (ineq two_pos) hy.1).le, hy.2.trans ?_⟩
         rw [zpow_sub₀ (defaultD_pos a).ne.symm, div_div, zpow_one]
         have : (D : ℝ) * 4 > 0 := mul_pos (defaultD_pos a) four_pos

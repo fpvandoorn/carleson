@@ -1,5 +1,4 @@
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.RealInterpolation.Misc
 
 /-!
@@ -447,7 +446,7 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ}
   · apply le_of_mul_le_mul_left _ hp₀
     field_simp [hp₀q₀]
   · unfold Function.uncurry
-    simp only [Pi.sub_apply]
+    simp only
     sorry -- TODO: was fun_prop
 
 lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}

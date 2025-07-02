@@ -1,6 +1,4 @@
 import Carleson.ToMathlib.Analysis.Convex.SpecificFunctions.Basic
-import Carleson.ToMathlib.Annulus
-import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Carleson.ToMathlib.MeasureTheory.Integral.Lebesgue
 import Carleson.TwoSidedCarleson.WeakCalderonZygmund
@@ -112,7 +110,7 @@ theorem geometric_series_estimate {x : ℝ} (hx : 4 ≤ x) :
         linarith only [two_pow_neg_one_div_bound]
       · rw [sub_pos]
         apply Real.rpow_lt_one_of_one_lt_of_neg
-        · simp only [NNReal.coe_ofNat, Nat.one_lt_ofNat]
+        · simp only [Nat.one_lt_ofNat]
         · simp only [Left.neg_neg_iff, inv_pos]
           positivity
       · apply _root_.mul_pos

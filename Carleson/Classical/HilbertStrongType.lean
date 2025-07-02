@@ -1,6 +1,7 @@
-import Carleson.Classical.HilbertKernel
 import Carleson.Classical.DirichletKernel
+import Carleson.Classical.HilbertKernel
 import Carleson.Classical.SpectralProjectionBound
+import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Mathlib.Data.Real.Pi.Bounds
 
@@ -259,7 +260,7 @@ lemma integrable_bump_convolution {f g : ℝ → ℂ}
     _ ≤ 2 + (2 * π + 8 * r * (r⁻¹ - π⁻¹)) := by
       gcongr
       · simp [mul_inv_le_one]
-      have (x) : 4 * r / x ^ 2 = (4 * r) * (x ^ (-2 : ℤ)) := rfl
+      have (x : ℝ) : 4 * r / x ^ 2 = (4 * r) * (x ^ (-2 : ℤ)) := rfl
       simp_rw [intervalIntegral.integral_add intervalIntegrable_const hbound_integrable,
         intervalIntegral.integral_const, this, intervalIntegral.integral_const_mul, ge_iff_le,
         smul_eq_mul, mul_one, mul_add, ← mul_assoc, show 2 * 4 * r = 8 * r by group]

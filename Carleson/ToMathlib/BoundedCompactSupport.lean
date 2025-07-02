@@ -3,8 +3,8 @@ Copyright (c) 2024 Joris Roos. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joris Roos, Sébastien Gouëzel
 -/
-
 import Carleson.ToMathlib.BoundedFiniteSupport
+import Carleson.ToMathlib.Misc
 
 /-!
 
@@ -219,8 +219,7 @@ theorem mono {g : X → ℝ≥0∞} (hg : BoundedCompactSupport g μ) (hf : AESt
   hasCompactSupport := by
     refine hg.hasCompactSupport.mono ?_
     by_contra h
-    simp only [support_subset_iff, ne_eq, mem_support, not_forall, Classical.not_imp,
-      Decidable.not_not] at h
+    simp only [support_subset_iff, ne_eq, mem_support, not_forall, Decidable.not_not] at h
     obtain ⟨x, hfx, hgx⟩ := h
     specialize hfg x
     simp_rw [hgx, nonpos_iff_eq_zero, enorm_eq_zero, hfx] at hfg
@@ -232,8 +231,7 @@ theorem mono_norm {g : X → ℝ} (hg : BoundedCompactSupport g μ) (hf : AEStro
   hasCompactSupport := by
     refine hg.hasCompactSupport.mono ?_
     by_contra h
-    simp only [support_subset_iff, ne_eq, mem_support, not_forall, Classical.not_imp,
-      Decidable.not_not] at h
+    simp only [support_subset_iff, ne_eq, mem_support, not_forall, Decidable.not_not] at h
     obtain ⟨x, hfx, hgx⟩ := h
     specialize hfg x
     simp_rw [hgx, norm_le_zero_iff, hfx] at hfg
