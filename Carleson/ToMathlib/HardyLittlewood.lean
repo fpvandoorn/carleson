@@ -1,8 +1,7 @@
-import Carleson.ToMathlib.DoublingMeasure
+import Carleson.Defs
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.RealInterpolation.Main
 import Mathlib.MeasureTheory.Covering.Vitali
-import Carleson.Defs
 
 open MeasureTheory Metric Bornology Set TopologicalSpace Vitali Filter ENNReal Pointwise
 open scoped NNReal
@@ -282,7 +281,7 @@ lemma continuous_average_ball [μ.IsOpenPosMeasure] [IsFiniteMeasureOnCompacts �
   have hx_pos : 0 < x.2 := by simp only [mem_prod, mem_univ, mem_Ioi, true_and] at hx; exact hx
   have : (fun x : X × ℝ ↦ ⨍⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ) =
     fun x : X × ℝ ↦ (μ (ball x.1 x.2))⁻¹ * ∫⁻ y in ball x.1 x.2, ‖f y‖ₑ ∂μ
-     := by ext x; simp [Pi.div_apply, laverage]
+     := by ext x; simp [laverage]
   rw [this]
   apply ENNReal.Tendsto.mul
   · apply Tendsto.inv
@@ -312,7 +311,7 @@ lemma MeasureTheory.LocallyIntegrable.laverage_ball_lt_top [ProperSpace X]
 private lemma T.add_le [MeasurableSpace E] [BorelSpace E] [BorelSpace X] [ProperSpace X]
     (i : ι) {f g : X → E} (hf : LocallyIntegrable f μ) :
     ‖T μ c r i (f + g)‖ₑ ≤ ‖T μ c r i f‖ₑ + ‖T μ c r i g‖ₑ := by
-  simp only [T, Pi.add_apply, enorm_eq_self, ← enorm_eq_nnnorm]
+  simp only [T, Pi.add_apply, enorm_eq_self]
   rw [← laverage_add_left hf.integrableOn_ball.aemeasurable.enorm]
   exact laverage_mono (fun x ↦ enorm_add_le (f x) (g x))
 
@@ -462,7 +461,7 @@ protected theorem HasStrongType.MB_top [BorelSpace X] (h𝓑 : 𝓑.Countable) :
     HasStrongType (fun (u : X → E) (x : X) ↦ MB μ 𝓑 c r u x) ⊤ ⊤ μ μ 1 := by
   intro f _
   use AEStronglyMeasurable.maximalFunction h𝓑
-  simp only [ENNReal.coe_one, one_mul, eLpNorm_exponent_top]
+  simp only [one_mul, eLpNorm_exponent_top]
   exact essSup_le_of_ae_le _ (Eventually.of_forall fun x ↦ MB_le_eLpNormEssSup)
 
 /- The proof is roughly between (9.0.12)-(9.0.22). -/
@@ -472,9 +471,8 @@ protected theorem HasWeakType.MB_one [BorelSpace X] (h𝓑 : 𝓑.Countable)
   intro f _
   use AEStronglyMeasurable.maximalFunction h𝓑
   let Bₗ (ℓ : ℝ≥0∞) := { i ∈ 𝓑 | ∫⁻ y in (ball (c i) (r i)), ‖f y‖ₑ ∂μ ≥ ℓ * μ (ball (c i) (r i)) }
-  simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte,
-    ENNReal.coe_pow, eLpNorm, one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self,
-    iSup_le_iff]
+  simp only [wnorm, one_ne_top, wnorm', toReal_one, inv_one, ENNReal.rpow_one, reduceIte, eLpNorm,
+    one_ne_zero, eLpNorm', ne_eq, not_false_eq_true, div_self, iSup_le_iff]
   intro t
   by_cases ht : t = 0
   · simp [ht]
@@ -557,6 +555,20 @@ protected theorem MeasureTheory.AESublinearOn.maximalFunction
 /-- The constant factor in the statement that `M_𝓑` has strong type. -/
 irreducible_def CMB (A p : ℝ≥0) : ℝ≥0 := C_realInterpolation ⊤ 1 ⊤ 1 p 1 (A ^ 2) 1 p⁻¹
 
+lemma CMB_eq_of_one_lt_q {b q : ℝ≥0} (hq : 1 < q) :
+    CMB b q = 2 * (q / (q - 1) * b ^ 2) ^ (q : ℝ)⁻¹ := by
+  suffices ENNReal.toNNReal 2 * q ^ (q : ℝ)⁻¹ *
+      (ENNReal.ofReal |q - 1|⁻¹).toNNReal ^ (q : ℝ)⁻¹ *
+      (b ^ 2) ^ (q : ℝ)⁻¹ = 2 * (q / (q - 1) * b ^ 2) ^ (q : ℝ)⁻¹ by
+    simpa [CMB, C_realInterpolation, C_realInterpolation_ENNReal]
+  norm_cast
+  have e₁ : (ENNReal.ofReal |q - 1|⁻¹).toNNReal = (q - 1)⁻¹ := by
+    rw [ofReal_inv_of_pos]; swap
+    · rw [abs_sub_pos, NNReal.coe_ne_one]; exact hq.ne'
+    rw [toNNReal_inv, inv_inj, ← NNReal.coe_one, ← NNReal.coe_sub hq.le, NNReal.abs_eq,
+      ofReal_coe_nnreal, toNNReal_coe]
+  rw [e₁, mul_assoc, ← NNReal.mul_rpow, mul_assoc, ← NNReal.mul_rpow, ← mul_assoc, div_eq_mul_inv]
+
 lemma CMB_defaultA_two_eq {a : ℕ} : CMB (defaultA a) 2 = 2 ^ (a + (3 / 2 : ℝ)) := by
   suffices (2 : ℝ≥0) * 2 ^ (2 : ℝ)⁻¹ * (ENNReal.ofReal |2 - 1|⁻¹).toNNReal ^ (2 : ℝ)⁻¹ *
       ((2 ^ a) ^ (2 : ℝ)) ^ (2 : ℝ)⁻¹ = 2 ^ (a + 3 / (2 : ℝ)) by
@@ -580,7 +592,7 @@ lemma hasStrongType_MB [BorelSpace X] [NormedSpace ℝ E] [MeasurableSpace E] [B
     ⟨ENNReal.zero_lt_top, le_rfl⟩
     ⟨zero_lt_one, le_rfl⟩ (by norm_num) le_rfl ?_
     zero_lt_one (pow_pos (A_pos μ) 2)
-    (by simp [ENNReal.coe_inv h2p.ne']) (by simp [ENNReal.coe_inv h2p.ne'])
+    (by simp) (by simp)
     (fun f _ ↦ AEStronglyMeasurable.maximalFunction h𝓑)
     ?_ (HasStrongType.MB_top h𝓑 |>.hasWeakType zero_lt_top)
     (HasWeakType.MB_one h𝓑 hR)
@@ -773,7 +785,7 @@ lemma lowerSemiContinuous_MB :
       ⋃ i ∈ 𝓑, (ball (c i) (r i)).indicator
       (fun x ↦ ⨍⁻ (y : X) in ball (c i) (r i), ‖f y‖ₑ ∂μ) ⁻¹' Ioi y := by
     ext x
-    simp only [pow_one, mem_preimage, mem_Ioi, mem_iUnion, exists_prop]
+    simp only [mem_preimage, mem_Ioi, mem_iUnion, exists_prop]
     constructor
     · intro h
       by_contra h₀
@@ -929,7 +941,7 @@ protected theorem MeasureTheory.AEStronglyMeasurable.globalMaximalFunction
 /-- Equation (2.0.45) -/
 theorem laverage_le_globalMaximalFunction [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]
     {u : X → E} {z x : X} {r : ℝ} (h : dist x z < r) :
-    ⨍⁻ y, ‖u y‖ₑ ∂μ.restrict (ball z r) ≤ globalMaximalFunction μ 1 u x := by
+    ⨍⁻ y in ball z r, ‖u y‖ₑ ∂μ ≤ globalMaximalFunction μ 1 u x := by
   rw [globalMaximalFunction, maximalFunction]
   simp only [gt_iff_lt, mem_prod, mem_univ, and_true, ENNReal.rpow_one, inv_one]
   have hr : 0 < r := lt_of_le_of_lt dist_nonneg h
@@ -973,6 +985,20 @@ lemma C2_0_6'_defaultA_one_two_eq {a : ℕ}: C2_0_6' (defaultA a) 1 2 = 2 ^ (3 *
   field_simp
   ring
 
+lemma C2_0_6'_defaultA_one_le {a : ℕ} {q : ℝ≥0} (hq : 1 < q) :
+    C2_0_6' (defaultA a) 1 q ≤ 2 ^ (4 * a + 1) * (q / (q - 1)) := by
+  rw [C2_0_6', C2_0_6, div_one, defaultA, Nat.cast_pow, Nat.cast_ofNat, NNReal.coe_one,
+    inv_one, NNReal.rpow_one, CMB_eq_of_one_lt_q hq]
+  calc
+    _ ≤ (2 ^ a) ^ 2 * (2 * (q / (q - 1) * (2 ^ a) ^ 2)) := by
+      conv_rhs => enter [2, 2]; rw [← NNReal.rpow_one (_ * _)]
+      gcongr
+      · nth_rw 1 [← mul_one 1]; gcongr
+        · exact (one_le_div (tsub_pos_of_lt hq)).mpr tsub_le_self
+        · norm_cast; rw [← pow_mul]; exact Nat.one_le_two_pow
+      · rw [inv_le_one_iff₀]; right; exact_mod_cast hq.le
+    _ = _ := by ring
+
 /-- Equation (2.0.46). Easy from `hasStrongType_maximalFunction` -/
 theorem hasStrongType_globalMaximalFunction [BorelSpace X] [IsFiniteMeasureOnCompacts μ]
     [μ.IsOpenPosMeasure] {p₁ p₂ : ℝ≥0} (hp₁ : 0 < p₁) (hp₁₂ : p₁ < p₂) :
@@ -1014,7 +1040,7 @@ lemma lowerSemiContinuous_globalMaximalFunction :
       (fun x : X ↦ MB μ ((covering_separable_space X).choose ×ˢ (univ : Set ℤ)) (fun x ↦ x.1)
       (fun x ↦ 2 ^ x.2) (fun x ↦ ‖f x‖ ) x)⁻¹' Ioi (y / A ^ 2) := by
     ext x
-    simp only [gt_iff_lt, Real.rpow_one, mem_preimage, mem_Ioi]
+    simp only [gt_iff_lt, mem_preimage, mem_Ioi]
     refine ⟨fun h₀ ↦ div_lt_of_lt_mul' h₀, fun h₀ ↦ ?_⟩; rw [mul_comm]; exact
         (ENNReal.div_lt_iff (Or.inl (ENNReal.pow_ne_zero (coe_ne_zero.mpr h) 2)) (Or.inr hy)).mp h₀
   rw [this]

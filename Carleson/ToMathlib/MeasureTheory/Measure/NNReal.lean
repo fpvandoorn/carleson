@@ -53,7 +53,7 @@ lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} (h : �
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal' {s : Set ℝ≥0∞} (h : ∞ ∈ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) ∪ {0}:= by
   ext x
-  simp only [mem_image, mem_preimage]
+  simp only [mem_image]
   constructor
   · rintro ⟨y, hys, hyx⟩
     by_cases hy : y = ∞
@@ -77,7 +77,6 @@ lemma ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} :
     apply insert_ae_eq_self
   rw [ENNReal.map_toReal_eq_map_toReal_comap_ofReal h]
 
-
 lemma ENNReal.volume_val {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
     volume s = volume (ENNReal.toReal '' s) := by
   calc volume s
@@ -85,6 +84,24 @@ lemma ENNReal.volume_val {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
       MeasureTheory.Measure.map_apply_of_aemeasurable (by fun_prop) hs
     _ = volume (NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s)) := NNReal.volume_val
     _ = volume (ENNReal.toReal '' s) := Eq.symm (measure_congr ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal)
+
+lemma ENNReal.volume_eq_volume_preimage {s : Set ℝ≥0∞} (hs : MeasurableSet s) :
+    volume s = volume (ENNReal.ofReal ⁻¹' s ∩ Ici 0) := by
+  rw [ENNReal.volume_val hs, measure_congr ENNReal.map_toReal_ae_eq_map_toReal_comap_ofReal]
+  congr; ext x; simp only [mem_image, mem_preimage, mem_inter_iff, mem_Ici]
+  constructor <;> intro h
+  · obtain ⟨x', hx', rfl⟩ := h; simpa
+  · lift x to ℝ≥0 using h.2; rw [ofReal_coe_nnreal] at h; use x, h.1
+
+lemma map_restrict_Ioi_eq_restrict_Ioi :
+    (volume.restrict (Ioi 0)).map ENNReal.ofReal = volume.restrict (Ioi 0) := by
+  ext s hs
+  rw [Measure.map_apply measurable_ofReal hs]
+  simp only [measurableSet_Ioi, Measure.restrict_apply']
+  rw [ENNReal.volume_eq_volume_preimage (by measurability)]
+  congr 1
+  ext x
+  simp +contextual [LT.lt.le]
 
 --TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
