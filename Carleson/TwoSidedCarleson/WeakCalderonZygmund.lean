@@ -1359,8 +1359,7 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
 --TODO: Move the following two lemmas to appropriate ToMathlib files
 lemma Set.encard_subtype_le {ι : Type*} (p : ι → Prop) (s : Set ι) :
     ({i | p ↑i} : Set s).encard ≤ ({i | p i} : Set ι).encard :=
-  Function.Embedding.encard_le ⟨fun ⟨⟨i, _⟩, hi⟩ ↦ ⟨i, hi⟩,
-    fun _ _ h ↦ by simpa [Subtype.coe_inj] using h⟩
+  Embedding.encard_le ⟨fun ⟨⟨i, _⟩, hi⟩ ↦ ⟨i, hi⟩, fun _ _ h ↦ by simpa [Subtype.coe_inj] using h⟩
 
 open Classical Finset MeasurableSet in
 lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {ι : Type*}
@@ -1372,14 +1371,17 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
   refine ENNReal.summable.tsum_le_of_sum_le (fun F ↦ ?_)
   have : Fintype (𝒫 (F : Set ι)) := F.finite_toSet.powerset.fintype
   let G (i : ι) := { C | C ∈ 𝒫 F ∧ i ∈ C }
+  -- `P` is a partition of `⋃ i ∈ F, s i` indexed by `C ∈ Cs`.
+  -- When restricted to `C ∈ G i`, `P` partitions `s i`.
   let P (C : Set ι) := (⋂ i ∈ C, s i) ∩ (⋂ i ∈ ((F : Set ι) \ C), (s i)ᶜ)
+  let Cs := (𝒫 (F : Set ι) \ {∅}).toFinset
   have P_cover (i : ι) (hi : i ∈ F) : s i ⊆ ⋃ C ∈ G i, P C :=
-    fun x hx ↦ mem_biUnion (x := ({i ∈ F | x ∈ s i} : Set ι)) ⟨sep_subset _ _, ⟨hi, hx⟩⟩
-      (by simp [P]; tauto)
-  have iUnion_P : ⋃ C ∈ (𝒫 F \ {∅}).toFinset, P C ⊆ ⋃ i, s i := by
+    fun x hx ↦ mem_biUnion ⟨sep_subset _ _, ⟨hi, hx⟩⟩ (by simp [P]; tauto)
+  have iUnion_P : ⋃ C ∈ Cs, P C ⊆ ⋃ i, s i := by
     intro x hx
-    simp_rw [toFinset_diff, toFinset_singleton, mem_sdiff, Finset.mem_singleton, mem_iUnion] at hx
-    have ⟨C, ⟨hCF, C_nonempty⟩, hxC⟩ := hx
+    simp_rw [Cs, toFinset_diff, toFinset_singleton, mem_sdiff, Finset.mem_singleton,
+      mem_iUnion] at hx
+    have ⟨C, ⟨_, C_nonempty⟩, hxC⟩ := hx
     have ⟨i, hi⟩ := Set.nonempty_iff_ne_empty.mpr C_nonempty
     exact ⟨s i, ⟨i, rfl⟩, hxC.1 (s i) ⟨i, by simp_rw [hi, iInter_true]⟩⟩
   have P_subset_s {i : ι} (hi : i ∈ F) {C : Set ι} (hC : i ∈ C) : P C ⊆ s i := by
@@ -1388,6 +1390,14 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
     simp only [mem_diff, mem_coe, mem_inter_iff, mem_iInter, mem_compl_iff, and_imp, P] at hx
     by_contra h
     exact hx.2 i hi h hx'
+  have C_subset_C {C₁ : Cs} {C₂ : Cs} {x : α} (hx : x ∈ P C₁ ∩ P C₂) :
+      (C₁ : Set ι) ⊆ (C₂ : Set ι) := by
+    have hC₁ : (C₁ : Set ι) ∈ Cs := Subtype.coe_prop C₁
+    have hC₂ : (C₂ : Set ι) ∈ Cs := Subtype.coe_prop C₂
+    have hC₁F : (C₁ : Set ι) ⊆ F := by apply And.left; simpa [Cs] using hC₁
+    have hC₂F : (C₂ : Set ι) ⊆ F := by apply And.left; simpa [Cs] using hC₂
+    intro i hi
+    exact mem_C (hC₁F hi) hx.2 <| P_subset_s (hC₁F hi) hi hx.1
   calc
     _ ≤ ∑ i ∈ F, Measure.sum (fun (C : G i) ↦ μ.restrict (P C)) t := by
       refine F.sum_le_sum fun i hi ↦ ?_
@@ -1403,9 +1413,9 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
       rw [sum_eq_tsum_indicator, coe_toFinset]
     _ = ∑ C ∈ 𝒫 F, {a ∈ F | a ∈ C}.card • μ.restrict (P C) t := by
       simp_rw [indicator, ← sum_filter, sum_const]
-    _ = ∑ C ∈ (𝒫 F \ {∅}).toFinset, {a ∈ F | a ∈ C}.card • μ.restrict (P C) t :=
-      sum_subset (by simp) (by intros; simp_all) |>.symm
-    _ ≤ ∑ C ∈ (𝒫 F \ {∅}).toFinset, M • μ.restrict (P C) t := by
+    _ = ∑ C ∈ Cs, {a ∈ F | a ∈ C}.card • μ.restrict (P C) t :=
+      sum_subset (by simp [Cs]) (by intros; simp_all [Cs]) |>.symm
+    _ ≤ ∑ C ∈ Cs, M • μ.restrict (P C) t := by
       gcongr ∑ _, ?_ with C hC
       by_cases hPC : P C = ∅
       · simp [hPC]
@@ -1420,28 +1430,19 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
         _ = C.ncard                := ncard_eq_toFinset_card C C_finite |>.symm
         _ ≤ M                      := ENat.toNat_le_of_le_coe hCM
     _ = _ := by rw [← smul_sum]
-    _ = M • (μ.restrict (⋃ C ∈ (𝒫 F \ {∅}).toFinset, (P C)) t) := by
-      congr
-      have : μ.restrict (⋃ C ∈ (𝒫 F \ {∅}).toFinset, P C) =
-          μ.restrict (⋃ (C : (𝒫 (F : Set ι) \ {∅}).toFinset), P C) := by
+    _ = M • (μ.restrict (⋃ C ∈ Cs, (P C)) t) := by
+      have : μ.restrict (⋃ C ∈ Cs, P C) = μ.restrict (⋃ (C : Cs), P C) := by
         apply congrArg; convert Set.biUnion_eq_iUnion _ _
       rw [this, μ.restrict_iUnion]
       · rw [Measure.sum_apply _ ht, Finset.tsum_subtype (f := fun i ↦ (μ.restrict (P i)) t)]
       · intro C₁ C₂ hC
-        change Disjoint (P C₁) (P C₂)
-        have hC₁ : (C₁ : Set ι) ∈ (𝒫 F \ {∅}).toFinset := Subtype.coe_prop C₁
-        have hC₂ : (C₂ : Set ι) ∈ (𝒫 F \ {∅}).toFinset := Subtype.coe_prop C₂
-        have hC₁F : (C₁ : Set ι) ⊆ F := by apply And.left; simpa using hC₁
-        have hC₂F : (C₂ : Set ι) ⊆ F := by apply And.left; simpa using hC₂
-        rw [Set.disjoint_iff]
-        intro x hx
-        refine hC <| Subtype.eq <| subset_antisymm (fun i hi ↦ ?_) (fun i hi ↦ ?_)
-        · exact mem_C (hC₁F hi) hx.2 <| P_subset_s (hC₁F hi) hi hx.1
-        · exact mem_C (hC₂F hi) hx.1 <| P_subset_s (hC₂F hi) hi hx.2
+        refine Set.disjoint_iff.mpr (fun x hx ↦ hC (Subtype.eq ?_))
+        exact subset_antisymm (C_subset_C hx) (C_subset_C (inter_comm _ _ ▸ hx))
       · intro C
         apply MeasurableSet.inter
-        · have : (C : Set ι) ∈ (𝒫 ↑F \ {∅}).toFinset := Subtype.coe_prop C
-          simp only [mem_toFinset, mem_diff, mem_powerset_iff] at this
+        · have : (C : Set ι) ∈ Cs := Subtype.coe_prop C
+          simp only [toFinset_diff, toFinset_singleton, mem_sdiff, mem_toFinset, mem_powerset_iff,
+            Finset.mem_singleton, Cs] at this
           exact biInter ((countable_toSet F).mono this.1) (fun i _ ↦ hs_meas i)
         · exact biInter ((countable_toSet F).mono diff_subset) (fun i _ ↦ (hs_meas i).compl)
     _ ≤ (M • μ.restrict (⋃ i, s i)) t := by
