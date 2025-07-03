@@ -1,6 +1,4 @@
-import Carleson.ToMathlib.ENorm
-import Mathlib.Tactic.Finiteness
-import Carleson.ToMathlib.Data.ENNReal
+import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 
 /-!
 # Results about working with (interpolated) exponents
@@ -11,7 +9,7 @@ of the real interpolation theorem.
 -/
 noncomputable section
 
-open ENNReal Real Set MeasureTheory
+open ENNReal Real Set
 
 variable {p₀ q₀ p₁ q₁ p q t : ℝ≥0∞}
 
@@ -23,12 +21,14 @@ theorem mem_sub_Ioo {q r : ℝ≥0∞} (hr : r ≠ ⊤) (hq : q ∈ Ioo 0 r) : r
   · apply False.elim (by simp at hq)
   exact ⟨tsub_pos_of_lt hq.2, (ENNReal.sub_lt_self_iff hr).mpr ⟨hr', hq.1⟩⟩
 
-lemma sub_toReal_of_le {t : ℝ≥0∞} (ht : t ≤ 1) : 1 - t.toReal = (1 - t).toReal := sorry
+lemma sub_toReal_of_le {t : ℝ≥0∞} (ht : t ≤ 1) : 1 - t.toReal = (1 - t).toReal := by
+  rw [← toReal_one, toReal_sub_of_le ht one_ne_top]
 
 lemma sub_sub_toReal_of_le {t : ℝ≥0∞} (ht : t ≤ 1) : t.toReal = 1 - (1 - t).toReal := by
   rw [← sub_toReal_of_le ht, _root_.sub_sub_cancel]
 
-lemma bar {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) : 1 - (1 - t) = t := sorry
+lemma one_sub_one_sub_eq {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) : 1 - (1 - t) = t :=
+  sub_sub_cancel one_ne_top ht.2.le
 
 lemma one_le_toReal {a : ℝ≥0∞} (ha₁ : 1 ≤ a) (ha₂ : a < ⊤) : 1 ≤ a.toReal :=
   toReal_mono ha₂.ne_top ha₁
@@ -180,20 +180,16 @@ lemma one_le_interp_exp_aux (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁) (hp₀p₁
   hp₀.trans_lt
     (interp_exp_between (zero_lt_one.trans_le hp₀) (zero_lt_one.trans_le hp₁) hp₀p₁ ht hp).1 |>.le
 
-lemma switch_exponents (ht : t ∈ Ioo 0 1)
-    (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
-    p⁻¹ = (1 - t) * p₁⁻¹ + t * p₀⁻¹ := by
-  rw [add_comm]
-  sorry /- proof was: rw [← ofReal_one, ← ofReal_sub, _root_.sub_sub_cancel, ofReal_sub _ ht.1.le, ofReal_one]
-  · exact hp
-  · exact (Ioo.one_sub_mem ht).1.le -/
+lemma switch_exponents (ht : t ∈ Ioo 0 1) (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
+    p⁻¹ = (1 - (1 - t)) * p₁⁻¹ + (1 - t) * p₀⁻¹ := by
+  rwa [add_comm, one_sub_one_sub_eq ht]
 
 lemma one_le_interp (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) : 1 ≤ p := by
   rcases (lt_or_gt_of_ne hp₀p₁) with p₀lt_p₁ | p₁lt_p₀
   · exact one_le_interp_exp_aux hp₀ hp₁ p₀lt_p₁ ht hp
-  · exact one_le_interp_exp_aux hp₁ hp₀ p₁lt_p₀ ht (switch_exponents ht hp)
+  · exact one_le_interp_exp_aux hp₁ hp₀ p₁lt_p₀ (mem_sub_Ioo one_ne_top ht) (switch_exponents ht hp)
 
 lemma one_le_interp_toReal (hp₀ : 1 ≤ p₀) (hp₁ : 1 ≤ p₁)
     (hp₀p₁ : p₀ ≠ p₁) (ht : t ∈ Ioo 0 1)
@@ -311,7 +307,7 @@ lemma ne_toReal_exp_interp_exp (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 
 lemma ne_toReal_exp_interp_exp₁ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
     p.toReal ≠ p₁.toReal :=
-  (ne_toReal_exp_interp_exp ht hp₁ hp₀ (Ne.symm hp₀p₁) (switch_exponents ht hp)).symm
+  (ne_toReal_exp_interp_exp (mem_sub_Ioo one_ne_top ht) hp₁ hp₀ hp₀p₁.symm (switch_exponents ht hp)).symm
 
 lemma ofReal_inv_interp_sub_exp_pos₁ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
     (hq₀q₁ : q₀ ≠ q₁)
@@ -322,8 +318,8 @@ lemma ofReal_inv_interp_sub_exp_pos₁ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (
 lemma ofReal_inv_interp_sub_exp_pos₀ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
     (hq₀q₁ : q₀ ≠ q₁) (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) :
     ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ > 0 :=
-  ofReal_pos.mpr (inv_pos_of_pos (abs_sub_pos.mpr (Ne.symm
-    (ne_toReal_exp_interp_exp ht hq₀ hq₁ hq₀q₁ hq))))
+  ofReal_pos.mpr (inv_pos_of_pos (abs_sub_pos.mpr
+    (ne_toReal_exp_interp_exp ht hq₀ hq₁ hq₀q₁ hq).symm))
 
 lemma exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
@@ -332,7 +328,7 @@ lemma exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp�
   · exact ⟨fun h ↦ (not_le_of_gt h (le_of_lt (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1)).elim,
       fun h ↦ (not_le_of_gt h p₀lt_p₁.le).elim⟩
   · exact ⟨fun _ ↦ p₁lt_p₀,
-      fun _ ↦ (interp_exp_between hp₁ hp₀ p₁lt_p₀ ht (switch_exponents ht hp)).2⟩
+      fun _ ↦ (interp_exp_between hp₁ hp₀ p₁lt_p₀ (mem_sub_Ioo one_ne_top ht) (switch_exponents ht hp)).2⟩
 
 lemma exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
@@ -340,19 +336,19 @@ lemma exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp�
   rcases lt_or_gt_of_ne hp₀p₁ with p₀lt_p₁ | p₁lt_p₀
   · exact ⟨fun _ ↦ p₀lt_p₁, fun _ ↦ (interp_exp_between hp₀ hp₁ p₀lt_p₁ ht hp).1⟩
   · exact ⟨fun h ↦ (not_le_of_gt h (interp_exp_between hp₁ hp₀ p₁lt_p₀
-      ht (switch_exponents ht hp)).2.le).elim,
+      (mem_sub_Ioo one_ne_top ht) (switch_exponents ht hp)).2.le).elim,
       fun h ↦ (not_le_of_gt h p₁lt_p₀.le).elim⟩
 
 lemma exp_lt_exp_gt_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
     p < p₀ ↔ p₁ < p := by
-  rw [exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_gt_iff ht hp₁ hp₀ (Ne.symm hp₀p₁)
+  rw [exp_lt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_gt_iff (mem_sub_Ioo one_ne_top ht) hp₁ hp₀ hp₀p₁.symm
     (switch_exponents ht hp)]
 
 lemma exp_gt_exp_lt_iff (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
     (hp : p⁻¹ = (1 - t) * p₀⁻¹ + t * p₁⁻¹) :
     p₀ < p ↔ p < p₁ := by
-  rw [exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_lt_iff ht hp₁ hp₀ (Ne.symm hp₀p₁)
+  rw [exp_gt_iff ht hp₀ hp₁ hp₀p₁ hp, ← exp_lt_iff (mem_sub_Ioo one_ne_top ht) hp₁ hp₀ hp₀p₁.symm
     (switch_exponents ht hp)]
 
 lemma exp_lt_iff₁ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hp₁ : 0 < p₁) (hp₀p₁ : p₀ ≠ p₁)
@@ -398,8 +394,9 @@ lemma ζ_equality₁ (ht : t ∈ Ioo 0 1) :
     ((1 - t).toReal * p₀⁻¹.toReal + t.toReal * p₁⁻¹.toReal - p₀⁻¹.toReal)) := by
   unfold ζ
   have aux : t.toReal ≠ 0 := toReal_ne_zero_of_Ioo ht
-  rw [← mul_div_mul_right _ _ aux, mul_assoc _ _ t.toReal, mul_assoc _ _ t.toReal]
-  congr <;> sorry -- proof was just `ring`
+  rw [← mul_div_mul_right _ _ aux, mul_assoc _ _ t.toReal, mul_assoc _ _ t.toReal,
+    ← sub_toReal_of_le ht.2.le]
+  congr <;> ring
 
 lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
     ζ p₀ q₀ p₁ q₁ t.toReal =
@@ -408,19 +405,20 @@ lemma ζ_equality₂ (ht : t ∈ Ioo 0 1) :
     (((1 - t).toReal * q₀⁻¹.toReal + t.toReal * q₁⁻¹.toReal) *
     ((1 - t).toReal * p₀⁻¹.toReal + t.toReal * p₁⁻¹.toReal - p₁⁻¹.toReal)) := by
   unfold ζ
-  sorry /- proof was
-  have : - (1 - t) < 0 := neg_neg_iff_pos.mpr (sub_pos.mpr ht.2)
-  rw [← mul_div_mul_right _ _ this.ne, mul_assoc _ _ (-(1 - t)), mul_assoc _ _ (-(1 - t))]
-  congr <;> ring -/
+  have : -(1 - t.toReal) < 0 := by
+    rw [neg_neg_iff_pos, sub_pos, ← toReal_one]
+    exact toReal_strict_mono one_ne_top ht.2
+  rw [← mul_div_mul_right _ _ this.ne, mul_assoc _ _ (-(1 - t.toReal)),
+    mul_assoc _ _ (-(1 - t.toReal)), ← sub_toReal_of_le ht.2.le]
+  congr <;> ring
 
 lemma ζ_symm (ht : t ∈ Ioo 0 1) : ζ p₀ q₀ p₁ q₁ t.toReal = ζ p₁ q₁ p₀ q₀ (1 - t).toReal := by
   unfold ζ
   rw [← mul_div_mul_right (c := - 1), mul_assoc _ _ (-1), mul_assoc _ _ (-1)]; on_goal 2 => positivity
-  simp only [mul_neg, mul_one, neg_sub, _root_.sub_sub_cancel]
+  simp only [mul_neg, mul_one, neg_sub]
   nth_rewrite 1 [add_comm]; nth_rw 2 [add_comm]
-  rw [sub_toReal_of_le, sub_sub_toReal_of_le ht.2.le,
+  rw [sub_toReal_of_le ht.2.le, sub_sub_toReal_of_le ht.2.le,
     sub_sub_toReal_of_le (mem_sub_Ioo (by finiteness) ht).2.le]
-  exact ht.2.le
 
 set_option linter.style.multiGoal false in
 set_option linter.flexible false in
@@ -462,7 +460,7 @@ lemma ζ_equality₄ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
     (hq₁' : q₁ ≠ ⊤) :
     ζ p₀ q₀ p₁ q₁ t.toReal =
     (p₁.toReal * (q₁.toReal - q.toReal)) / (q₁.toReal * (p₁.toReal - p.toReal)) := by
-  rw [ζ_symm, ζ_equality₃ (ENNReal.mem_sub_Ioo one_ne_top ht)] <;> try assumption
+  rw [ζ_symm, ζ_equality₃ (mem_sub_Ioo one_ne_top ht)] <;> try assumption
   · exact hp₀p₁.symm
   · exact hq₀q₁.symm
   · rw [hp, add_comm, ENNReal.sub_sub_cancel one_ne_top ht.2.le]
@@ -495,8 +493,8 @@ lemma ζ_equality₆ {t : ℝ≥0∞} (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (h
     p₁.toReal + (ζ p₀ q₀ p₁ q₁ t.toReal)⁻¹ * (q.toReal - q₁.toReal) * (p₁.toReal / q₁.toReal) = p.toReal := by
   rw [ζ_symm ht]
   apply ζ_equality₅ (mem_sub_Ioo one_ne_top ht) hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm _ _ hp₁' hq₁'
-  · rw [add_comm, bar ht]; apply hp
-  · rw [add_comm, bar ht]; exact hq
+  · rw [add_comm, one_sub_one_sub_eq ht]; apply hp
+  · rw [add_comm, one_sub_one_sub_eq ht]; exact hq
 
 lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₁ : 0 < p₁) (hq₁ : 0 < q₁)
     (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -506,7 +504,7 @@ lemma ζ_equality₇ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
     ζ p₀ q₀ p₁ q₁ t.toReal = p₀.toReal / (p₀.toReal - p.toReal) := by
   rw [ζ_equality₁ ht, ← preservation_interpolation ht hp₀ hp₁ hp,
     ← preservation_interpolation ht hq₀ hq₁ hq, hq₀']
-  simp only [inv_top, toReal_zero, sub_zero, mul_zero, zero_add]
+  simp only [inv_top, toReal_zero, sub_zero]
   have obs : 0 < p₀.toReal * p.toReal * q.toReal :=
     mul_pos (mul_pos (toReal_pos hp₀.ne' hp₀') (interp_exp_toReal_pos ht hp₀ hp₁ hp₀p₁ hp))
       (interp_exp_toReal_pos ht hq₀ hq₁ hq₀q₁ hq)
@@ -540,8 +538,8 @@ lemma ζ_equality₈ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) 
     rw [ζ_symm ht]
     refine ζ_equality₇ (ENNReal.mem_sub_Ioo one_ne_top ht) hp₁ hq₁ hp₀ hq₀ hp₀p₁.symm hq₀q₁.symm
       ?_ ?_ hp₁' hq₁' (q₀ := q₁) (p := p) (q := q)
-    · rw [bar ht, add_comm]; exact hp
-    · rw [bar ht, add_comm]; exact hq
+    · rw [one_sub_one_sub_eq ht, add_comm]; exact hp
+    · rw [one_sub_one_sub_eq ht, add_comm]; exact hq
 
 lemma ζ_eq_top_top (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q₀)
     (hp₁ : 0 < p₁) (hq₁ : 0 < q₁) (hp₀p₁ : p₀ ≠ p₁) (hq₀q₁ : q₀ ≠ q₁)
@@ -564,7 +562,7 @@ lemma ζ_pos_iff_aux (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀' : p₀ ≠ �
       neg_mul_eq_mul_neg]
   rw [mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left,
       mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, neg_sub, neg_sub]
-  · simp only [sub_pos, sub_neg]
+  · simp only [sub_pos]
   · exact exp_toReal_pos hq₀ hq₀'
   · exact exp_toReal_pos hp₀ hp₀'
   · exact exp_toReal_pos hq₀ hq₀'
@@ -623,7 +621,7 @@ lemma ζ_pos_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q�
   rw [_root_.div_pos_iff, ← Left.neg_pos_iff, ← Left.neg_pos_iff, neg_mul_eq_mul_neg,
       neg_mul_eq_mul_neg, mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left,
       mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, neg_sub, neg_sub]
-  · simp only [sub_pos, sub_neg]
+  · simp only [sub_pos]
   · exact preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁
   · exact preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁
   · exact preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁
@@ -678,7 +676,7 @@ lemma ζ_neg_iff_aux₀ (ht : t ∈ Ioo 0 1) (hp₀ : 0 < p₀) (hq₀ : 0 < q�
   rw [div_neg_iff, ← Left.neg_pos_iff, ← Left.neg_pos_iff, neg_mul_eq_mul_neg, neg_mul_eq_mul_neg]
   rw [mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left,
       mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, neg_sub, neg_sub]
-  · simp only [sub_pos, sub_neg]
+  · simp only [sub_pos]
   · exact preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁
   · exact preservation_positivity_inv_toReal ht hp₀ hp₁ hp₀p₁
   · exact preservation_positivity_inv_toReal ht hq₀ hq₁ hq₀q₁
@@ -725,7 +723,7 @@ lemma ζ_neg_iff_aux (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hp₀' : p₀ ≠ �
   rw [div_neg_iff, ← Left.neg_pos_iff, ← Left.neg_pos_iff, neg_mul_eq_mul_neg, neg_mul_eq_mul_neg,
     mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left,
     mul_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, neg_sub, neg_sub]
-  · simp only [sub_pos, sub_neg]
+  · simp only [sub_pos]
   · exact exp_toReal_pos hq₀ hq₀'
   · exact exp_toReal_pos hp₀ hp₀'
   · exact exp_toReal_pos hq₀ hq₀'
@@ -910,16 +908,15 @@ lemma eq_exponents₅ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
     (q₁.toReal + -(q₀⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal)))
       = t.toReal * q.toReal := by
-  rw [eq_exponents₄, neg_mul, neg_neg, eq_exponents₀ ht hq₁ hq₀ (Ne.symm hq₀q₁)
-    (switch_exponents ht hq) hq₁']
-  sorry -- proof was just `ring`
+  rw [eq_exponents₄, neg_mul, neg_neg, eq_exponents₀ (mem_sub_Ioo one_ne_top ht) hq₁ hq₀ hq₀q₁.symm
+    (switch_exponents ht hq) hq₁', one_sub_one_sub_eq ht]
 
 lemma eq_exponents₆ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :
     q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal) * (q.toReal - q₁.toReal) = (1 - t).toReal * q.toReal := by
   rw [← neg_neg (a := q₁⁻¹.toReal / (q₁⁻¹.toReal - q₀⁻¹.toReal)), ← eq_exponents₄, neg_mul,
-    eq_exponents₁ ht hq₁ hq₀ (Ne.symm hq₀q₁) (switch_exponents ht hq) hq₁']
-  sorry -- proof was just `ring`
+    eq_exponents₁ (mem_sub_Ioo one_ne_top ht) hq₁ hq₀ hq₀q₁.symm (switch_exponents ht hq) hq₁',
+    neg_mul, neg_neg]
 
 lemma eq_exponents₇ (ht : t ∈ Ioo 0 1) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hq₀q₁ : q₀ ≠ q₁)
     (hq : q⁻¹ = (1 - t) * q₀⁻¹ + t * q₁⁻¹) (hq₁' : q₁ ≠ ⊤) :

@@ -1,9 +1,7 @@
-import Mathlib.MeasureTheory.Integral.MeanInequalities
 import Carleson.ToMathlib.Data.Real.ConjExponents
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
-import Carleson.ToMathlib.MeasureTheory.Measure.Prod
 
 open NNReal ENNReal MeasureTheory Finset
 
@@ -280,7 +278,7 @@ private theorem enorm_convolution_le_eLpNorm_mul_eLpNorm_mul_eLpNorm_aux {p q r 
         rw [← this.add_tsub_assoc_of_le, ← this.add_tsub_assoc_of_le, this.add_tsub_cancel_left]
         · rw [ofReal_inv_of_pos p0, ofReal_inv_of_pos q0, ofReal_inv_of_pos r0]
         all_goals exact ENNReal.inv_le_inv.mpr <| ofReal_le_ofReal (sub_nonneg.mp (by assumption))
-      all_goals simp [ENNReal.mul_pos, p0, q0, r0]
+      all_goals simp [p0, q0, r0]
     _ = _ := by
       congr
       · exact eLpNorm_eq_eLpNorm_rpow f r0 p0 rp0 μ0
@@ -370,8 +368,8 @@ private theorem eLpNorm_convolution_le_ofReal_aux {p q r : ℝ}
           simp_rw [lintegral_const_mul' _ _ this, ← lintegral_mul_const'' _ hf',
             lintegral_sub_right_eq_self (‖g ·‖ₑ ^ q) _]
         _ = eLpNorm f (ENNReal.ofReal p) μ ^ p * eLpNorm g (ENNReal.ofReal q) μ ^ q := by
-          simp [eLpNorm, eLpNorm', ← ENNReal.rpow_mul, inv_mul_cancel₀,
-            p0.not_ge, q0.not_ge, p0.le, q0.le, p0.ne.symm, q0.ne.symm]
+          simp [eLpNorm, eLpNorm', ← ENNReal.rpow_mul, p0.not_ge, q0.not_ge, p0.le, q0.le,
+            p0.ne.symm, q0.ne.symm]
 
 theorem eLpNorm_convolution_le_ofReal [MeasurableSpace E] [OpensMeasurableSpace E]
     [MeasurableSpace E'] [OpensMeasurableSpace E'] {p q r : ℝ}

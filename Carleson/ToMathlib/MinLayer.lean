@@ -151,7 +151,7 @@ lemma minLayer_eq_setOf_height : A.minLayer n = {x | ∃ hx : x ∈ A, height (�
     wlog hys : y ∈ A
     · simp [hys]
     simp only [mem_diff, hys, mem_iUnion, exists_prop, not_exists, not_and, true_and, mem_setOf_eq,
-      exists_and_left, exists_true_left]
+      exists_true_left]
     cases height (⟨y, hys⟩ : A)
     · simp
     · simp only [Nat.cast_inj, Nat.cast_le]

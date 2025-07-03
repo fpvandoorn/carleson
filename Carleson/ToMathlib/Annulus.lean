@@ -237,7 +237,7 @@ theorem iUnion_oc_eq_oi {x : X} {f : ℕ → ℝ} (hf : ∀ n, f 0 ≤ f n) (h2f
     ⋃ (i : Nat), oc x (f i) (f (i+1)) = oi x (f 0) := by
   unfold oc oi
   rw [iUnion_setOf, ← iUnion_Ioc_eq_Ioi hf h2f]
-  simp only [mem_Ico, mem_iUnion]
+  simp only [mem_iUnion]
 
 variable {ι : Type*} [LinearOrder ι] [SuccOrder ι]
 

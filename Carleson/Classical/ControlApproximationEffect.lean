@@ -1,8 +1,8 @@
+import Carleson.Classical.CarlesonOnTheRealLine
+
 /- This file contains most of Section 11.6 (The error bound) from the blueprint.
    The main result is control_approximation_effect.
 -/
-import Carleson.Classical.CarlesonOnTheRealLine
-import Carleson.Classical.DirichletKernel
 
 noncomputable section
 
@@ -65,8 +65,8 @@ open Complex ComplexConjugate
 lemma Dirichlet_Hilbert_eq {N : ℕ} {x : ℝ} :
     (max (1 - |x|) 0) * dirichletKernel' N (x) =
       exp (I * (-N * x)) * k x + conj (exp (I * (-N * x)) * k x) := by
-  simp [dirichletKernel', K, k, conj_ofReal, ←exp_conj, mul_comm, ←mul_assoc, ←exp_add]
-  ring_nf
+  simp [dirichletKernel', k, conj_ofReal, ← exp_conj, mul_comm, ← mul_assoc]
+  ring
 
 lemma Dirichlet_Hilbert_diff {N : ℕ} {x : ℝ} (hx : x ∈ Set.Icc (-π) π) :
     ‖dirichletKernel' N (x) - (exp (I * (-N * x)) * k x + conj (exp (I * (-N * x)) * k x))‖ ≤ π := by
@@ -280,7 +280,8 @@ lemma le_CarlesonOperatorReal {g : ℝ → ℂ} (hg : IntervalIntegrable g volum
       apply iSup_le
       intro n
       apply le_iSup_of_le (1 / (n + 2 : ℝ))
-      apply le_iSup₂_of_le (by simp; linarith) (by rw [div_lt_iff₀] <;> linarith)
+      apply le_iSup₂_of_le (by simp only [one_div, inv_pos]; linarith)
+        (by rw [div_lt_iff₀] <;> linarith)
       rfl
     _ = ⨆ (r : ℝ) (_ : 0 < r) (_ : r < 1), ↑‖∫ y in {y | dist x y ∈ Set.Ioo r 1}, g y * (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * N * y) + conj (exp (I * (-(Int.ofNat N) * x)) * K x y * exp (I * (Int.ofNat N) * y)))‖₊ := by
       gcongr

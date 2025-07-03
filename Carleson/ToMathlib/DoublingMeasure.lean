@@ -1,4 +1,4 @@
-import Carleson.ToMathlib.CoverByBalls
+import Carleson.ToMathlib.Misc
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
 import Mathlib.Order.CompletePartialOrder
@@ -247,8 +247,7 @@ lemma measure_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
 lemma measureNNReal_ball_le_of_dist_le' {x x' : X} {r r' s : ℝ} (hs : 0 < s)
     (h : dist x x' + r' ≤ s * r) :
     (μ (ball x' r')).toNNReal ≤ As A s * (μ (ball x r)).toNNReal := by
-  simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal measure_ball_ne_top,
-    ENNReal.coe_toNNReal measure_ball_ne_top]
+  simp only [← ENNReal.coe_le_coe, coe_mul, ENNReal.coe_toNNReal measure_ball_ne_top]
   exact measure_ball_le_of_dist_le' hs h
 
 section
