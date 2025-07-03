@@ -376,13 +376,16 @@ lemma estimate_norm_rpow_range_operator'
   · rw [one_mul, one_mul, ← lintegral_add_left']
     · apply setLIntegral_mono' measurableSet_Ioi
       intro s (s_pos : 0 < s)
-      gcongr
+      have : 0 < ENNReal.ofReal s := by positivity
+      gcongr <;> rw [← ENNReal.ofReal_rpow_of_pos s_pos]
       -- type mismatch ahead: weaktype_estimate_trunc expects a truncation parameter in ENNReal,
       -- while the integral takes s in ℝ
-      · sorry -- apply weaktype_estimate_trunc p_pos hq₁ <;> assumption
-      · sorry /- proof was: apply weaktype_estimate_truncCompl (p₀ := p₀) hp₀ <;> try assumption
-        · exact hp₁p.ne_top
-        · exact tc.ran_ton s s_pos -/
+      · have : tc.ton (ENNReal.ofReal s) ≠ ⊤ := sorry
+        apply weaktype_estimate_trunc p_pos hq₁ _ hp₁p.le <;> assumption
+      · have := hp₁p.ne_top
+        have := hp₀p.le
+        have : 0 < tc.ton (ENNReal.ofReal s) := sorry
+        apply weaktype_estimate_truncCompl (p₀ := p₀) hp₀ <;> assumption
     sorry -- proof was: exact ((((ton_aeMeasurable_eLpNorm_trunc tc).pow_const _).const_mul _).mul
     --   (by fun_prop)).mul (by fun_prop)
   · rw [one_mul, zero_mul, add_zero]
