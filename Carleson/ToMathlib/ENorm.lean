@@ -1,7 +1,4 @@
-import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
-import Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
-import Mathlib.MeasureTheory.Function.StronglyMeasurable.AEStronglyMeasurable
 
 noncomputable section
 
@@ -53,7 +50,7 @@ instance : ENormedSpace ℝ≥0∞ where
 instance : ENormedSpace ℝ≥0 where
   enorm := ofNNReal
   add_smul r s x := by
-    simp only [id_eq, smul_eq_mul]
+    simp only [smul_eq_mul]
     ring
   zero_smul := by simp
   enorm_eq_zero := by simp

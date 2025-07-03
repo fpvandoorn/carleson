@@ -702,13 +702,13 @@ lemma boundary_exception {u : 𝔓 X} :
                 exact ENNReal.ofReal_le_ofReal ipt_bpt_triangle_ineq
               _ ≤ ENNReal.ofNNReal (12 * D ^ s i) := le_of_eq <|
                 congr_arg (ENNReal.ofNNReal) <| NNReal.coe_injective <| by
-                    simpa using zpow_nonneg (by simp [one_le_D]) (s i)
+                    simpa using zpow_nonneg (by simp) (s i)
               _ ≤ 12 * (D ^ (s i : ℤ) :  ℝ≥0∞) := by
                   push_cast
                   rw [ENNReal.coe_zpow]
                   · push_cast
                     rfl
-                  · simp [one_le_D]
+                  · simp
 
           rw [show ⋃ i ∈ 𝓛 (X := X) n u, (i : Set X) = ⋃ i : 𝓛 (X := X) n u, (i : Set X) by simp]
           exact measure_mono <| Set.iUnion_subset_iff.mpr <| by simp [i_subset_X_u]

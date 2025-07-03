@@ -1,21 +1,14 @@
-/- This file contains basic definitions and lemmas. -/
-
-import Carleson.MetricCarleson.Main
-import Mathlib.Analysis.Fourier.AddCircle
-import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
-import Mathlib.Analysis.Convolution
-
 import Carleson.Classical.Helper
-import Carleson.ToMathlib.Misc
-import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
 import Carleson.ToMathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 import Carleson.ToMathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+import Carleson.ToMathlib.Topology.Instances.AddCircle.Defs
+import Mathlib.Analysis.Fourier.AddCircle
 
+/- This file contains basic definitions and lemmas. -/
 
 open Finset Real MeasureTheory AddCircle
 
 noncomputable section
-
 
 --TODO: I think the measurability assumptions might be unnecessary
 theorem fourierCoeff_eq_fourierCoeff_of_aeeq {T : ℝ} [hT : Fact (0 < T)] {n : ℤ} {f g : AddCircle T → ℂ}

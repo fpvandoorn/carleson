@@ -245,7 +245,7 @@ lemma exists_unique_succ (i : Grid X) (h : ¬IsMax i) :
     use topCube; simp only [incs, Finset.mem_filter, Finset.mem_univ, true_and]
     exact lt_of_le_of_ne le_topCube (isMax_iff.not.mp h)
   obtain ⟨j, mj, hj⟩ := incs.exists_minimal ine
-  simp only [gt_iff_lt, Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and, incs] at mj hj
   replace hj : ∀ (x : Grid X), i < x → j ≤ x := fun x mx ↦ by
     rcases lt_or_ge (s x) (s j) with c | c
     · refine (eq_of_le_of_not_lt (le_dyadic c.le mx.le mj.le) ?_).symm.le
@@ -364,7 +364,7 @@ lemma exists_maximal_supercube {s : Finset (Grid X)} (hi : i ∈ s) : ∃ j ∈ 
 
 lemma maxCubes_pairwiseDisjoint {s : Finset (Grid X)} :
     (maxCubes s).toSet.PairwiseDisjoint fun i ↦ (i : Set X) := fun i mi j mj hn ↦ by
-  simp only [maxCubes, and_imp, Finset.coe_filter, mem_setOf_eq] at mi mj
+  simp only [maxCubes, Finset.coe_filter, mem_setOf_eq] at mi mj
   exact le_or_ge_or_disjoint.resolve_left ((mi.2 j mj.1).mt hn)
     |>.resolve_left ((mj.2 i mi.1).mt hn.symm)
 

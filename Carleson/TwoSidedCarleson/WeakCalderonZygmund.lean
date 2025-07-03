@@ -1,6 +1,5 @@
-import Carleson.TwoSidedCarleson.Basic
 import Carleson.ToMathlib.HardyLittlewood
-import Carleson.ToMathlib.MeasureTheory.Integral.Average
+import Carleson.TwoSidedCarleson.Basic
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
 open scoped NNReal
@@ -853,7 +852,7 @@ private lemma eLpNorm_czApproximation_le_infinite (hX : GeneralCase f α) :
   · apply lintegral_czPartition_le
   · simp only [union_diff_self, union_univ]
     apply le_of_eq ∘ setLIntegral_congr_fun_ae (by measurability)
-    exact Eventually.of_forall (fun x hx ↦ by simp_all [czApproximation, hX])
+    exact Eventually.of_forall (fun x hx ↦ by simp_all [czApproximation])
 
 /-- Part of Lemma 10.2.5, equation (10.2.18) (both cases). -/
 lemma eLpNorm_czApproximation_le [Nonempty X]
@@ -1103,6 +1102,5 @@ theorem czoperator_weak_1_1 (ha : 4 ≤ a) (hr : 0 < r)
     (hT : HasBoundedStrongType (czOperator K r) 2 2 volume volume (C_Ts a)) :
     HasBoundedWeakType (czOperator K r) 1 1 volume volume (C10_0_3 a) := by
   sorry
-
 
 end

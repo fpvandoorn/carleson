@@ -53,7 +53,7 @@ lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal {s : Set ℝ≥0∞} (h : �
 lemma ENNReal.map_toReal_eq_map_toReal_comap_ofReal' {s : Set ℝ≥0∞} (h : ∞ ∈ s) :
     ENNReal.toReal '' s = NNReal.toReal '' (ENNReal.ofNNReal ⁻¹' s) ∪ {0}:= by
   ext x
-  simp only [mem_image, mem_preimage]
+  simp only [mem_image]
   constructor
   · rintro ⟨y, hys, hyx⟩
     by_cases hy : y = ∞

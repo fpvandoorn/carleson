@@ -1,5 +1,5 @@
-import Carleson.ToMathlib.RealInterpolation.Minkowski
 import Carleson.ToMathlib.Lorentz
+import Carleson.ToMathlib.RealInterpolation.Minkowski
 
 /-!
 # The Marcinkiewisz real interpolation theorem
@@ -1251,7 +1251,7 @@ lemma C_realInterpolation_ENNReal_ne_top {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A
             · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
           · simp [ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq |>.ne']
           · simp [ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq |>.ne']
-          · simp_all [not_lt_top]
+          · simp_all
         · split_ifs <;> exact (ne_of_beq_false rfl).symm
     · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₀).ne' coe_ne_top
   · exact rpow_ne_top' (ENNReal.coe_pos.mpr hC₁).ne' coe_ne_top
@@ -1282,7 +1282,7 @@ lemma C_realInterpolation_ENNReal_pos {p₀ p₁ q₀ q₁ q : ℝ≥0∞} {A : 
             · exact ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq
           · simp [ofReal_inv_interp_sub_exp_pos₁ ht q₀pos q₁pos hq₀q₁ hq]
           · simp [ofReal_inv_interp_sub_exp_pos₀ ht q₀pos q₁pos hq₀q₁ hq]
-          · simp_all [not_lt_top]
+          · simp_all
         · refine add_ne_top.mpr ⟨?_, ?_⟩
           · apply mul_ne_top ?_ coe_ne_top
             split_ifs <;> finiteness

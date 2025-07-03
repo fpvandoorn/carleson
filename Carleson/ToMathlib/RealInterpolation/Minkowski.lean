@@ -1,5 +1,4 @@
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
-import Carleson.ToMathlib.WeakType
 import Carleson.ToMathlib.RealInterpolation.Misc
 
 /-!
@@ -450,7 +449,6 @@ lemma lintegral_lintegral_pow_swap_truncCompl {q q₀ p₀ : ℝ} [MeasurableSpa
   · apply le_of_mul_le_mul_left _ hp₀
     field_simp [hp₀q₀]
   · unfold Function.uncurry
-    simp only [Pi.sub_apply]
     -- TODO: this is quite some effort, somehow the infrastructure may need to be better
     apply AEMeasurable.mul'
     · fun_prop

@@ -925,59 +925,39 @@ For each $x$ and all $f$, the functions $\sup_{2^{-n} < R_1 < R_2 < 2^n} T_{R_1,
     \lean{R_truncation}
     \uses{S-truncation}
 
-    Let $F$, $G$ be Borel sets in $X$ with finite measure.
-    Let $f:X\to \C$ be a Borel function with
-$|f|\le 1_F$. Then for all $R\in 2^\Z$ we have
+    Let $F$, $G$ be Borel sets in $X$. Let $f:X\to \C$ be a Borel function with $|f|\le 1_F$. Then for all $R\in 2^\N$ we have
     $$
-        \int \mathbf{1}_{G}
-        \sup_{1/R<R_1<R_2<R}
-        \left| T_{R_1,R_2,R} f(x) \right|\, d\mu(x)
+        \int \mathbf{1}_G \sup_{1/R<R_1<R_2<R} |T_{R_1,R_2,R} f(x)|\, d\mu(x)
     $$
     \begin{equation} \label{Rcut}
-        \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
+        \le \frac{2^{471a^3+4}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}},
     \end{equation}
     where
     \begin{equation}\label{TRR}
-        T_{R_1,R_2,R} f(x)= 1_{B(o,R)}(x)
+        T_{R_1,R_2,R} f(x)= \mathbf{1}_{B(o,R)}(x)
         \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(Q(x)(y)) \, \mathrm{d}\mu(y) .
     \end{equation}
 \end{lemma}
 
-
-
 \begin{proof}
-Let $F,G, f$ as in the lemma be given.
- Let $R\in 2^\Z$ be given.
- By replacing $G$ with $G\cap B(o,R)$ if necessary, a replacement that does not change the conclusion of
- the Lemma \ref{R-truncation}, it suffices to show \eqref{Rcut} under the assumption that $G$ is contained in $B(o,R)$ and thus bounded. We make this assumption. For every $x\in G$ an $R_2 < R$, the domain of integration in \eqref{TRR} is contained in $B(o,2R)$. By replacing $F$ with $F\cap B(o,2R)$ if necessary, and correspondingly restricting $f$ to $B(o, 2R)$, it suffices to show \eqref{Rcut} under the assumption that $F$ is contained in $B(o,2R)$ and thus bounded. We make this assumption.
+\leanok
+Let $F,G,f$ as in the lemma be given. Let $R\in 2^\N$ be given.
+By replacing $G$ with $G\cap B(o,R)$ if necessary, a replacement that does not change the conclusion of the Lemma \ref{R-truncation}, it suffices to show \eqref{Rcut} under the assumption that $G$ is contained in $B(o,R)$ and thus bounded. We make this assumption. For every $x\in G$ and $R_2 < R$, the domain of integration in \eqref{TRR} is contained in $B(o,2R)$. By replacing $F$ with $F\cap B(o,2R)$ if necessary, and correspondingly restricting $f$ to $B(o, 2R)$, it suffices to show \eqref{Rcut} under the assumption that $F$ is contained in $B(o,2R)$ and thus bounded. We make this assumption.
 
 Using the definition \eqref{defks} of $K_s$ and the partition of unity \eqref{eq-psisum},
 we observe that
 for fixed $R_1<R_2$ we have
 \begin{equation}
     \label{KKs}
-K(x,y)1_{R_1<\rho(x,y)<R_2}=\sum_{s=s_1-2}^{s_2+2} K_s(x,y)
-1_{R_1<\rho(x,y)<R_2},
+    K(x,y)\mathbf{1}_{R_1<\rho(x,y)<R_2}=\sum_{s=s_1-2}^{s_2+2} K_s(x,y) \mathbf{1}_{R_1<\rho(x,y)<R_2},
 \end{equation}
-where $s_1$ is the smallest integer such that $D^{s_1-2}R_2>\frac 1{4D}$ and $s_2$ is the largest integer such that $D^{s_2+2}R_1<\frac 12$.
-To obtain the identity \eqref{KKs}, we have used that on
-the set where $R_1<\rho(x,y)<R_2$
-the kernels $K_s$ vanish unless $s$
-is inside the interval of summation in \eqref{KKs}.
-Similarly, we observe
+where $s_1=\lfloor\log_D 2R_1\rfloor+3$ and $s_2=\lceil\log_D 4R_2\rceil-2$.
+To obtain the identity \eqref{KKs}, we have used that on the set where $R_1<\rho(x,y)<R_2$ the kernels $K_s$ vanish unless $s$ is inside the interval of summation in \eqref{KKs}. Similarly, we observe
 \begin{equation}
     \label{KsrhoKs}
-\sum_{s=s_1}^{s_2} K_s(x,y)
-1_{R_1<\rho(x,y)<R_2}=
-\sum_{s=s_1}^{s_2} K_s(x,y)
-,
+    \sum_{s=s_1}^{s_2} K_s(x,y) \mathbf{1}_{R_1<\rho(x,y)<R_2} = \sum_{s=s_1}^{s_2} K_s(x,y),
 \end{equation}
-because on the support of
-$K_s$ with $s_1\le s\le s_2$ we have
-necessarily
-$R_1<\rho(x,y)<R_2$.
-We thus
-we express \eqref{TRR} as the sum of
+because on the support of $K_s$ with $s_1\le s\le s_2$ we have necessarily $R_1<\rho(x,y)<R_2$. We thus express \eqref{TRR} as the sum of
 \begin{equation}\label{middles}
 T_{s_1,s_2}f(x):=\sum_{s_1 \le s\le s_2}
 \int K_s(x,y) f(y) e(Q(x)(y)) \, \mathrm{d}\mu(y)
@@ -989,7 +969,8 @@ and
  \mathrm{d}\mu(y),
 \end{equation}
 
-We apply the triangle inequality and estimate \eqref{Rcut} separately with $T_{R_1,R_2}$ replaced by \eqref{middles} and by each summand of \eqref{boundarys}. To handle the case \eqref{middles}, we employ \Cref{S-truncation}. Here, we utilize the fact that if $\frac 1R\le R_1\le R_2\le R$, then $s_1$ and $s_2$ as in \eqref{middles} are in an interval $[-S,S]$ for some sufficiently large $S$ depending on $R$.
+We apply the triangle inequality and estimate \eqref{Rcut} separately with $T_{R_1,R_2,R}$ replaced by \eqref{middles} and by \eqref{boundarys}.
+To handle the case \eqref{middles}, we employ \Cref{S-truncation}. Here, we utilize the fact that if $\frac 1R\le R_1\le R_2\le R$, then $s_1$ and $s_2$ as in \eqref{middles} are in an interval $[-S,S]$ for some sufficiently large $S$ depending on $R$.
 To handle the case \eqref{boundarys}, we use the triangle inequality and the properties \eqref{supp-Ks}, \eqref{eq-Ks-size} of $K_s$  and $|f| \le \mathbf{1}_F$ to obtain for arbitrary $s$ the inequality
 \begin{multline}
 \left|\int_{R_1 < \rho(x,y) < R_2} K_s(x,y) f(y) e(Q(x)(y)) \, \mathrm{d}\mu(y)\right|\\
@@ -998,12 +979,12 @@ To handle the case \eqref{boundarys}, we use the triangle inequality and the pro
 \leq 2^{102 a^3} M\mathbf{1}_F(x),
 \end{multline}
 where $M\mathbf{1}_F$ is as defined in \Cref{Hardy-Littlewood}.
-Now, the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,\mfa}$ replaced by a summand of \eqref{boundarys}, can be estimated using H\"older's inequality and \Cref{Hardy-Littlewood} by
+Now the left-hand side of \eqref{Rcut}, with $T_{R_1,R_2,R}$ replaced by \eqref{boundarys}, can be estimated using H\"older's inequality and \Cref{Hardy-Littlewood} by
 $$
-    2^{102 a^3}\int \mathbf{1}_{G}(x) M\mathbf{1}_F(x)\, d\mu(x)
-    \leq \frac{2^{102 a^3+4a}q}{q-1}\mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
+    2^{102a^3+2}\int \mathbf{1}_{G}(x) M\mathbf{1}_F(x)\, d\mu(x)
+    \le \frac{2^{102a^3+4a+3}q}{q-1}\mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\,.
 $$
-Summing the contributions from the summands in \eqref{middles} and \eqref{boundarys} completes the proof.
+Summing the contributions from \eqref{middles} and \eqref{boundarys} completes the proof.
 \end{proof}
 
 \begin{lemma}[S truncation]
@@ -4638,7 +4619,8 @@ Below, we deduce \Cref{tree-projection-estimate} from \Cref{pointwise-tree-estim
 Now we prove the two auxiliary lemmas. We begin with the nontangential maximal operator $T_{\mathcal{N}}$.
 
 \begin{proof}[Proof of \Cref{nontangential-operator-bound}]
-    \proves{nontangential-operator-bound}\leanok
+    \leanok
+    \proves{nontangential-operator-bound}
     Fix $s_1, s_2$. By \eqref{eq-psisum} we have for all $x \in (0, \infty)$
     $$
         \sum_{s = s_1}^{s_2} \psi(D^{-s}x) = 1 - \sum_{s < s_1} \psi(D^{-s}x) - \sum_{s > s_1} \psi(D^{-s}x)\,.
@@ -4664,7 +4646,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
     \begin{equation}
         \label{eq-sharp-trunc-term}
-        \le \Bigg| \int_{8D^{s_1} < \rho(x',y) < \frac{1}{4}D^{s_2-1}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
+        \le \Bigg| \int_{8D^{s_1} < \rho(x',y) \le \frac{1}{4}D^{s_2-1}} K(x',y) f(y) \, \mathrm{d}\mu(y) \Bigg|
     \end{equation}
     \begin{equation}
         \label{eq-lower-bound-term}
@@ -4674,10 +4656,20 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
         \label{eq-upper-bound-term}
         + \int_{\frac{1}{4}D^{s_2-1} \le \rho(x',y) \le \frac{1}{2}D^{s_2}} |K(x', y)| |f(y)| \, \mathrm{d}\mu(y)\,.
     \end{equation}
-    The first term \eqref{eq-sharp-trunc-term} is at most $T_*f(x)$. The other two terms will be
-    estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
-    For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that
-    for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
+
+    The first term \eqref{eq-sharp-trunc-term} is at most $2T_{\tQ}^\mfa f(x)$, using with $R_1 := 8D^{s_1}$, $R_2 := \frac{1}{4}D^{s_2-1}$ and $R_1 < R_2 < R_{\tQ}(\mfa,x')$ the triangle inequality in the form
+    \begin{equation}
+        \left|\int_{R_1 < \rho(x',y) \le R_2} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+    \begin{equation}
+        \le \left|\int_{R_1 < \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|
+    \end{equation}
+    \begin{equation}
+        + \left|\int_{R_2 < \rho(x',y) < R_{\tQ}(\mfa,x')} K(x',y) f(y) \, \mathrm{d}\mu(y) \right|.
+    \end{equation}
+
+    The other two terms will be estimated by the finitary maximal function from \Cref{Hardy-Littlewood}.
+    For the second term \eqref{eq-lower-bound-term} we use \eqref{eqkernel-size} which implies that for all $y$ with $\rho(x', y) \ge \frac{1}{4}D^{s_1 - 1}$, we have
     $$
         |K(x', y)| \le \frac{2^{a^3}}{\mu(B(x', \frac{1}{4}D^{s_1 - 1}))}\,.
     $$
@@ -4720,7 +4712,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
     $$
         T_{\mathcal{N}} f(x) \le T_*f(x) + 2^{102a^3} M_{\mathcal{B},1} f(x)\,.
     $$
-    The lemma now follows from assumption \eqref{nontanbound}, \Cref{Hardy-Littlewood} and $a \ge 4$.
+    The lemma now follows from assumption \eqref{linnontanbound}, \Cref{Hardy-Littlewood} and $a \ge 4$.
 \end{proof}
 
 We need the following lemma to prepare the $L^2$-estimate for the auxiliary operators $S_{1, \fu}$.
