@@ -1,6 +1,7 @@
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
+import Carleson.ToMathlib.MeasureTheory.Measure.Restrict
 import Carleson.TwoSidedCarleson.Basic
 
 open MeasureTheory Set Bornology Function ENNReal Metric Filter Topology
@@ -1354,13 +1355,6 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
   constructor
   · linarith [dist_triangle_right x (czCenter hX j) y]
   · linarith [dist_triangle x (czCenter hX j) y]
-
--- TODO: Move to ToMathlib.MeasureTheory.Measure.Restrict
-theorem MeasureTheory.Measure.restrict_biUnion_le {α ι : Type*} {m0 : MeasurableSpace α}
-    {μ : Measure α} {s : ι → Set α} (T : Set ι) [hT : Countable T] :
-    μ.restrict (⋃ i ∈ T, s i) ≤ sum fun (i : T) => μ.restrict (s i) :=
-  le_iff.2 fun t ht ↦ by
-    simpa [ht, inter_iUnion] using measure_biUnion_le μ hT (t ∩ s ·)
 
 --TODO: Move the following two lemmas to appropriate ToMathlib files
 lemma Set.encard_subtype_le {ι : Type*} (p : ι → Prop) (s : Set ι) :
