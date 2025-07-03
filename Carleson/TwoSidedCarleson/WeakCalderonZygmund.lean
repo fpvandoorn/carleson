@@ -1378,7 +1378,6 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
   refine ENNReal.summable.tsum_le_of_sum_le (fun F ↦ ?_)
   have : Fintype (𝒫 (F : Set ι)) := F.finite_toSet.powerset.fintype
   have : Fintype ((𝒫 (F : Set ι) \ {∅} : Set (Set ι))) := (𝒫 (F : Set ι)).fintypeDiff {∅}
-  have nonempties := (𝒫 (F : Set ι) \ {∅}).toFinset
   let G (i : ι) := {C | C ∈ 𝒫 F ∧ i ∈ C }
   have countable_G (i : ι) : Countable (G i) :=
     Finite.Set.subset (𝒫 F) (by simp [G, -mem_powerset_iff]) |>.to_countable
