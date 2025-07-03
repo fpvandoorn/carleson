@@ -6,17 +6,12 @@ open MeasureTheory Set ENNReal Filter Topology ShortVariables Metric Complex
 
 noncomputable section
 
-variable {X : Type*} {a : ℕ} [MetricSpace X]
-variable {C : ℝ}
-variable {F G : Set X}
-variable {K : X → X → ℂ}
-variable {f : X → ℂ}
-
-variable [CompatibleFunctions ℝ X (defaultA a)]
-  (ha : 4 ≤ a)
-  {x : X} {θ : Θ X} {R₁ R₂ : ℝ}
+variable {X : Type*} {a : ℕ} [MetricSpace X] {K : X → X → ℂ}
 
 namespace MetricΘ
+
+variable [CompatibleFunctions ℝ X (defaultA a)]
+
 /-- We choose as metric space instance on `Θ` one given by an arbitrary ball.
 The metric given by all other balls are equivalent. -/
 scoped instance : PseudoMetricSpace (Θ X) :=
@@ -44,34 +39,37 @@ end MetricΘ
 
 open MetricΘ
 
-variable
-  [DoublingMeasure X (defaultA a : ℕ)]
-  [IsCancellative X (defaultτ a)]
-  [IsOneSidedKernel a K]
+variable [KernelProofData a K] {θ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f : X → ℂ} {x : X}
+-- [IsCancellative X (defaultτ a)]
 
+lemma measurable_carlesonOperatorIntegrand (mf : Measurable f) :
+    Measurable (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) := by
+  unfold carlesonOperatorIntegrand
+  rw [← stronglyMeasurable_iff_measurable]
+  conv => enter [1, x]; rw [← integral_indicator Annulus.measurableSet_oo]
+  apply StronglyMeasurable.integral_prod_right
+  rw [stronglyMeasurable_iff_measurable]
+  refine Measurable.indicator ?_ (measurable_dist.comp measurable_id measurableSet_Ioo)
+  apply (measurable_K.mul (mf.comp measurable_snd)).mul
+  exact ((Complex.measurable_ofReal.comp measurable_Q₂).const_mul I).cexp
 
-lemma continuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
-    Continuous (carlesonOperatorIntegrand K · R₁ R₂ f x) := by
-  sorry
-
-lemma rightContinuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
+lemma rightContinuous_carlesonOperatorIntegrand (mf : Measurable f) :
     ContinuousWithinAt (carlesonOperatorIntegrand K θ · R₂ f x) (Ici R₁) R₁ := by
   sorry
 
-lemma leftContinuous_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
+lemma leftContinuous_carlesonOperatorIntegrand (mf : Measurable f) :
     ContinuousWithinAt (carlesonOperatorIntegrand K θ R₁ · f x) (Iic R₂) R₂ := by
   sorry
 
-lemma measurable_carlesonOperatorIntegrand (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
-    Measurable (carlesonOperatorIntegrand K θ R₁ R₂ f) := by
+lemma continuous_carlesonOperatorIntegrand (nf : (‖f ·‖) ≤ 1) :
+    Continuous (carlesonOperatorIntegrand K · R₁ R₂ f x) := by
   sorry
 
 /-- The constant used in the proof of `int-continuous`. -/
 irreducible_def C3_0_1 (a : ℕ) (R₁ R₂ : ℝ≥0) : ℝ≥0 :=
-  2 ^ ((a : ℝ) ^ 3) * (2 * R₂ / R₁) ^ a
+  2 ^ (a ^ 3) * (2 * R₂ / R₁) ^ a
 
 -- not sure if this is the best phrasing
-lemma isBounded_carlesonOperatorIntegrand {R₁ R₂ : ℝ≥0}
-    (hf : ∀ x, ‖f x‖ₑ ≤ 1) :
-    ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
+lemma isBounded_carlesonOperatorIntegrand {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖) ≤ 1) :
+    ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
   sorry
