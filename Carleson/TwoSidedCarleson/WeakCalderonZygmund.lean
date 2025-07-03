@@ -1384,7 +1384,7 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
   let P (C : Set ι) := (⋂ i ∈ C, s i) ∩ (⋂ i ∈ ((F : Set ι) \ C), (s i)ᶜ)
   have P_cover (i : ι) (hi : i ∈ F) : s i ⊆ ⋃ C ∈ G i, P C :=
     fun x hx ↦ mem_biUnion (x := ({i ∈ F | x ∈ s i} : Set ι)) ⟨sep_subset _ _, ⟨hi, hx⟩⟩
-      (by simp [hi, P]; tauto)
+      (by simp [P]; tauto)
   have iUnion_P : ⋃ C ∈ (𝒫 (F : Set ι) \ {∅}).toFinset, (P C) ⊆ ⋃ i, s i := by
     intro x hx
     simp_rw [toFinset_diff, toFinset_singleton, mem_sdiff, Finset.mem_singleton, mem_iUnion] at hx
@@ -1452,7 +1452,7 @@ lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {�
         unfold P
         apply MeasurableSet.inter
         · have : (C : Set ι) ∈ (𝒫 ↑F \ {∅}).toFinset := Subtype.coe_prop C
-          simp only [mem_toFinset, mem_diff, mem_powerset_iff, P] at this
+          simp only [mem_toFinset, mem_diff, mem_powerset_iff] at this
           exact MeasurableSet.biInter ((countable_toSet F).mono this.1) (fun b _ ↦ hs_meas b)
         · exact MeasurableSet.biInter ((countable_toSet F).mono diff_subset)
             (fun b _ ↦ (hs_meas b).compl)
