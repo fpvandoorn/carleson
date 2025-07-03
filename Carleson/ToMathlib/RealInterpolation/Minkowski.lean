@@ -329,12 +329,10 @@ lemma lintegral_lintegral_pow_swap_rpow {α : Type u_1} {β : Type u_3} {p : ℝ
 @[measurability, fun_prop]
 theorem ton_aeMeasurable (tc : ToneCouple) : AEMeasurable tc.ton (volume.restrict (Ioi 0)) := by
   -- ton is either increasing or decreasing
-  have mono_or_anti := tc.ton_is_ton
-  split_ifs at mono_or_anti
-  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-      (StrictMonoOn.monotoneOn (StrictMono.strictMonoOn mono_or_anti _))
-  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-      (StrictAntiOn.antitoneOn (StrictAnti.strictAntiOn mono_or_anti _))
+  have tone := tc.ton_is_ton
+  split_ifs at tone
+  · exact aemeasurable_restrict_of_monotoneOn measurableSet_Ioi (tone.strictMonoOn _).monotoneOn
+  · exact aemeasurable_restrict_of_antitoneOn measurableSet_Ioi (tone.strictAntiOn _).antitoneOn
 
 @[measurability]
 lemma indicator_ton_measurable {g : α → E₁} [MeasurableSpace E₁]

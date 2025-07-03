@@ -341,11 +341,9 @@ theorem ton_aeMeasurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMo
   have tone := tc.ton_is_ton
   split_ifs at tone
   · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-    exact eLpNorm_trunc_mono.comp_monotoneOn
-        (StrictMonoOn.monotoneOn (StrictMono.strictMonoOn tone _))
+    exact eLpNorm_trunc_mono.comp_monotoneOn (tone.strictMonoOn _).monotoneOn
   · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
     exact eLpNorm_trunc_mono.comp_antitoneOn (tone.strictAntiOn  _).antitoneOn
-        (StrictAntiOn.antitoneOn (StrictAnti.strictAntiOn tone _))
 
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_norm_rpow_range_operator'
