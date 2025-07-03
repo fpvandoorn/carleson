@@ -344,7 +344,7 @@ theorem ton_aeMeasurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMo
     exact eLpNorm_trunc_mono.comp_monotoneOn
         (StrictMonoOn.monotoneOn (StrictMono.strictMonoOn tone _))
   · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-    exact eLpNorm_trunc_mono.comp_antitoneOn
+    exact eLpNorm_trunc_mono.comp_antitoneOn (tone.strictAntiOn  _).antitoneOn
         (StrictAntiOn.antitoneOn (StrictAnti.strictAntiOn tone _))
 
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
@@ -623,7 +623,7 @@ lemma support_sigma_finite_from_MemLp
 
 lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁] [BorelSpace E₁]
-  [TopologicalSpace.PseudoMetrizableSpace E₁] --[BorelSpace E₁]
+  [TopologicalSpace.PseudoMetrizableSpace E₁]
   [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂] --[BorelSpace E₂]
   {spf : ScaledPowerFunction}
   (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (ht : t ∈ Ioo 0 1)
