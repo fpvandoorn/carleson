@@ -1308,7 +1308,7 @@ private lemma 𝒥₂_bound (hf : BoundedFiniteSupport f) (hα : 0 < α) (hx : x
     rw [setIntegral_eq_integral_of_forall_compl_eq_zero]
     intro y hy
     refine mul_eq_zero_of_right _ <| indicator_apply_eq_zero.mpr fun _ ↦ ?_
-    exact notMem_support.mp <| Set.notMem_subset support_czRemainder'_subset hy
+    exact notMem_support.mp <| notMem_subset support_czRemainder'_subset hy
   _ = ‖∫ y in czBall3 hX j, K x y * (g r x hX j y + d r x hX j)‖ₑ := by simp
   _ = ‖(∫ y in czBall3 hX j, K x y * (g r x hX j y)) +
         ∫ y in czBall3 hX j, K x y * d r x hX j‖ₑ := by
@@ -1355,26 +1355,116 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
   · linarith [dist_triangle_right x (czCenter hX j) y]
   · linarith [dist_triangle x (czCenter hX j) y]
 
+-- TODO: Move to ToMathlib.MeasureTheory.Measure.Restrict
+theorem MeasureTheory.Measure.restrict_biUnion_le {α ι : Type*} {m0 : MeasurableSpace α}
+    {μ : Measure α} {s : ι → Set α} (T : Set ι) [hT : Countable T] :
+    μ.restrict (⋃ i ∈ T, s i) ≤ sum fun (i : T) => μ.restrict (s i) :=
+  le_iff.2 fun t ht ↦ by
+    simpa [ht, inter_iUnion] using measure_biUnion_le μ hT (t ∩ s ·)
+
 --TODO: Move the following two lemmas to appropriate ToMathlib files
 lemma Set.encard_subtype_le {ι : Type*} (p : ι → Prop) (s : Set ι) :
     ({i | p ↑i} : Set s).encard ≤ ({i | p i} : Set ι).encard :=
   Function.Embedding.encard_le ⟨fun ⟨⟨i, _⟩, hi⟩ ↦ ⟨i, hi⟩,
     fun _ _ h ↦ by simpa [Subtype.coe_inj] using h⟩
 
+open Classical Finset in
 lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {ι : Type*}
     {μ : Measure α} (s : ι → Set α) {M : ℕ} (hs_meas : ∀ i, MeasurableSet (s i))
     (hs : ∀ y, {i | y ∈ s i}.encard ≤ M) :
     Measure.sum (fun i ↦ μ.restrict (s i)) ≤ M • μ.restrict (⋃ i, s i) := by
-  refine Measure.le_iff.mpr (fun s hs ↦ ?_)
-  rw [MeasureTheory.Measure.sum_apply _ hs]
-  apply ENNReal.summable.tsum_le_of_sum_le
-  sorry
+  refine Measure.le_iff.mpr (fun t ht ↦ ?_)
+  rw [Measure.sum_apply _ ht]
+  refine ENNReal.summable.tsum_le_of_sum_le (fun F ↦ ?_)
+  have : Fintype (𝒫 (F : Set ι)) := F.finite_toSet.powerset.fintype
+  have : Fintype ((𝒫 (F : Set ι) \ {∅} : Set (Set ι))) := (𝒫 (F : Set ι)).fintypeDiff {∅}
+  have nonempties := (𝒫 (F : Set ι) \ {∅}).toFinset
+  let G (i : ι) := {C | C ∈ 𝒫 F ∧ i ∈ C }
+  have countable_G (i : ι) : Countable (G i) :=
+    Finite.Set.subset (𝒫 F) (by simp [G, -mem_powerset_iff]) |>.to_countable
+  let P (C : Set ι) := (⋂ i ∈ C, s i) ∩ (⋂ i ∈ ((F : Set ι) \ C), (s i)ᶜ)
+  have P_cover (i : ι) (hi : i ∈ F) : s i ⊆ ⋃ C ∈ G i, P C :=
+    fun x hx ↦ mem_biUnion (x := ({i ∈ F | x ∈ s i} : Set ι)) ⟨sep_subset _ _, ⟨hi, hx⟩⟩
+      (by simp [hi, P]; tauto)
+  have iUnion_P : ⋃ C ∈ (𝒫 (F : Set ι) \ {∅}).toFinset, (P C) ⊆ ⋃ i, s i := by
+    intro x hx
+    simp_rw [toFinset_diff, toFinset_singleton, mem_sdiff, Finset.mem_singleton, mem_iUnion] at hx
+    have ⟨C, ⟨hCF, C_nonempty⟩, hxC⟩ := hx
+    have ⟨i, hi⟩ := Set.nonempty_iff_ne_empty.mpr C_nonempty
+    exact ⟨s i, ⟨i, rfl⟩, hxC.1 (s i) ⟨i, by simp_rw [hi, iInter_true]⟩⟩
+  have P_subset_s {i : ι} (hi : i ∈ F) {C : Set ι} (hC : i ∈ C) : P C ⊆ s i := by
+    intro x hx; simp only [mem_inter_iff, mem_iInter, P] at hx; exact hx.1 i hC
+  have mem_C {i : ι} (hi : i ∈ F) {C : Set ι} {x : α} (hx : x ∈ P C) (hx' : x ∈ s i) : i ∈ C := by
+    simp only [mem_diff, mem_coe, mem_inter_iff, mem_iInter, mem_compl_iff, and_imp, P] at hx
+    by_contra h
+    exact hx.2 i hi h hx'
+  calc
+    _ ≤ ∑ i ∈ F, Measure.sum (fun (C : G i) ↦ μ.restrict (P C)) t := by
+      refine F.sum_le_sum fun i hi ↦ ?_
+      exact le_trans (restrict_mono_set μ (P_cover i hi) t) (Measure.restrict_biUnion_le (G i) t)
+    _ = ∑ i ∈ F, ∑' (C : G i), μ.restrict (P C) t := by simp_rw [Measure.sum_apply _ ht]
+    _ = ∑ i ∈ F, ∑' (C : Set ι), (G i).indicator (fun C ↦ μ.restrict (P C) t) C := by
+      congr with i; convert tsum_subtype (G i) _; rfl
+    _ = ∑' (C : Set ι), ∑ i ∈ F, (G i).indicator (fun C ↦ μ.restrict (P C) t) C := by
+      rw [Summable.tsum_finsetSum (fun _ _ ↦ ENNReal.summable)]
+    _ = ∑' (C : Set ι), (𝒫 F).indicator (fun C ↦
+          ∑ i ∈ F, C.indicator (fun _ ↦ μ.restrict (P C) t) i) C := by
+      congr with C; by_cases hC : C ∈ 𝒫 F <;> simp [G, hC, indicator, -mem_powerset_iff]
+    _ = ∑ C ∈ 𝒫 F, ∑ i ∈ F, C.indicator (fun _ ↦ μ.restrict (P C) t) i := by
+      rw [sum_eq_tsum_indicator, coe_toFinset]
+    _ = ∑ C ∈ 𝒫 F, {a ∈ F | a ∈ C}.card • μ.restrict (P C) t := by
+      simp_rw [indicator, ← sum_filter, sum_const]
+    _ = ∑ C ∈ (𝒫 (F : Set ι) \ {∅}).toFinset, {a ∈ F | a ∈ C}.card • μ.restrict (P C) t :=
+      sum_subset (by simp) (by intros; simp_all) |>.symm
+    _ ≤ ∑ C ∈ (𝒫 (F : Set ι) \ {∅}).toFinset, M • μ.restrict (P C) t := by
+      gcongr ∑ _, ?_ with C hC
+      by_cases hPC : P C = ∅
+      · simp [hPC]
+      have hCM : C.encard ≤ M := by
+        have ⟨x, hx⟩ := Set.nonempty_iff_ne_empty.mpr hPC
+        refine le_trans (encard_mono fun i hi ↦ ?_) (hs x)
+        simp only [mem_inter_iff, mem_iInter, P] at hx
+        exact hx.1 i hi
+      have C_finite : C.Finite := finite_of_encard_le_coe hCM
+      exact nsmul_le_nsmul_left (zero_le _) <| calc {a ∈ F | a ∈ C}.card
+        _ ≤ C_finite.toFinset.card := card_mono <| by simp [and_comm (a := _ ∈ F)]
+        _ = C.ncard                := ncard_eq_toFinset_card C C_finite |>.symm
+        _ ≤ M                      := ENat.toNat_le_of_le_coe hCM
+    _ = _ := by rw [← smul_sum]
+    _ = M • (μ.restrict (⋃ C ∈ (𝒫 (F : Set ι) \ {∅}).toFinset, (P C)) t) := by
+      congr
+      have : μ.restrict (⋃ C ∈ (𝒫 (F : Set ι) \ {∅}).toFinset, P C) =
+          μ.restrict (⋃ (C : (𝒫 (F : Set ι) \ {∅}).toFinset), P C) := by
+        apply congrArg; convert Set.biUnion_eq_iUnion _ _
+      rw [this, μ.restrict_iUnion]
+      · rw [Measure.sum_apply _ ht, Finset.tsum_subtype (f := fun i ↦ (μ.restrict (P i)) t)]
+      · intro C₁ C₂ hC
+        change Disjoint (P C₁) (P C₂)
+        have hC₁ : (C₁ : Set ι) ∈ (𝒫 ↑F \ {∅}).toFinset := Subtype.coe_prop C₁
+        have hC₂ : (C₂ : Set ι) ∈ (𝒫 ↑F \ {∅}).toFinset := Subtype.coe_prop C₂
+        have hC₁F : (C₁ : Set ι) ⊆ F := by apply And.left; simpa using hC₁
+        have hC₂F : (C₂ : Set ι) ⊆ F := by apply And.left; simpa using hC₂
+        rw [Set.disjoint_iff]
+        intro x hx
+        refine hC <| Subtype.eq <| subset_antisymm (fun i hi ↦ ?_) (fun i hi ↦ ?_)
+        · exact mem_C (hC₁F hi) hx.2 <| P_subset_s (hC₁F hi) hi hx.1
+        · exact mem_C (hC₂F hi) hx.1 <| P_subset_s (hC₂F hi) hi hx.2
+      · intro C
+        unfold P
+        apply MeasurableSet.inter
+        · have : (C : Set ι) ∈ (𝒫 ↑F \ {∅}).toFinset := Subtype.coe_prop C
+          simp only [mem_toFinset, mem_diff, mem_powerset_iff, P] at this
+          exact MeasurableSet.biInter ((countable_toSet F).mono this.1) (fun b _ ↦ hs_meas b)
+        · exact MeasurableSet.biInter ((countable_toSet F).mono diff_subset)
+            (fun b _ ↦ (hs_meas b).compl)
+    _ ≤ (M • μ.restrict (⋃ i, s i)) t := by
+      rw [Measure.smul_apply]; exact nsmul_le_nsmul_right (μ.restrict_mono_set iUnion_P t) M
 
 private lemma sum_volume_restrict_le (hX : GeneralCase f (α' a α)) :
     Measure.sum (fun (j : 𝒥₂ r x hX) ↦ volume.restrict (czBall3 hX j)) ≤
     2 ^ (6 * a) • volume.restrict (A r x hX) := by
   refine Measure.sum_restrict_le _ (fun _ ↦ measurableSet_ball) (fun y ↦ ?_)
-  apply le_trans <| Set.encard_subtype_le (fun i ↦ y ∈ ball (czCenter hX i) (3 * czRadius hX i)) _
+  apply le_trans <| encard_subtype_le (fun i ↦ y ∈ ball (czCenter hX i) (3 * czRadius hX i)) _
   exact encard_czBall3_le
 
 -- Long calculation toward the end of Lemma 10.2.7
