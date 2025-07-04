@@ -626,7 +626,7 @@ variable [ProofData a q K σ₁ σ₂ F G]
 include a q K σ₁ σ₂ F G
 
 variable (X) in
-lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
+/- lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
     F ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧
     G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) := by
   obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
@@ -677,7 +677,63 @@ lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
       _ ≤ _ := by
         gcongr
         · exact one_lt_D.le
+        · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..)) -/
+
+lemma S_spec : ∃ n : ℕ, (∀ x, -n ≤ σ₁ x ∧ σ₂ x ≤ n) ∧
+    F ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧
+    G ⊆ ball (cancelPt X) (defaultD a ^ n / 4) ∧ 0 < n := by
+  obtain ⟨l₁, hl₁⟩ := bddBelow_def.mp (Finite.bddBelow (finite_range_σ₁ (X := X)))
+  obtain ⟨u₂, hu₂⟩ := bddAbove_def.mp (Finite.bddAbove (finite_range_σ₂ (X := X)))
+  simp_rw [mem_range, forall_exists_index, forall_apply_eq_imp_iff] at hl₁ hu₂
+  have one_lt_D : (1 : ℝ) < defaultD a := by
+    unfold defaultD; norm_cast; apply Nat.one_lt_two_pow
+    have := four_le_a X; positivity
+  obtain ⟨rF, rFpos, hrF⟩ : ∃ r > 0, F ⊆ ball (cancelPt X) r := by
+    obtain ⟨r, hr⟩ := isBounded_F.subset_ball (cancelPt X)
+    rcases lt_or_ge 0 r with lr | lr
+    · use r
+    · use 1, zero_lt_one, hr.trans (ball_subset_ball (lr.trans zero_le_one))
+  let nF := ⌈Real.logb (defaultD a) (4 * rF)⌉
+  obtain ⟨rG, rGpos, hrG⟩ : ∃ r > 1, G ⊆ ball (cancelPt X) r := by
+    obtain ⟨r, hr⟩ := isBounded_G.subset_ball (cancelPt X)
+    rcases lt_or_ge 0 r with lr | lr
+    · use r + 1, by linarith, subset_trans hr (ball_subset_ball (by simp))
+    · use 2, one_lt_two, hr.trans (ball_subset_ball (lr.trans zero_le_two))
+  let nG := ⌈Real.logb (defaultD a) (4 * rG)⌉
+  refine ⟨(max (max (-l₁) u₂) (max nF nG)).toNat, ⟨fun x ↦ ?_, ?_, ?_, ?_⟩⟩
+  · simp only [Int.ofNat_toNat, ← min_neg_neg, neg_neg, min_le_iff, le_max_iff]
+    exact ⟨.inl (.inl (.inl (hl₁ x))), .inl (.inl (.inr (hu₂ x)))⟩
+  · refine hrF.trans (ball_subset_ball ?_)
+    calc
+      _ ≤ (defaultD a : ℝ) ^ nF / 4 := by
+        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+          ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
+        exact Int.le_ceil _
+      _ ≤ (defaultD a : ℝ) ^ nF.toNat / 4 := by
+        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
+        · exact one_lt_D.le
+        · exact_mod_cast Int.self_le_toNat nF
+      _ ≤ _ := by
+        gcongr
+        · exact one_lt_D.le
+        · exact Int.toNat_le_toNat ((le_max_left ..).trans (le_max_right ..))
+  · refine hrG.trans (ball_subset_ball ?_)
+    calc
+      _ ≤ (defaultD a : ℝ) ^ nG / 4 := by
+        rw [le_div_iff₀' zero_lt_four, ← Real.rpow_intCast,
+          ← Real.logb_le_iff_le_rpow one_lt_D (by positivity)]
+        exact Int.le_ceil _
+      _ ≤ (defaultD a : ℝ) ^ nG.toNat / 4 := by
+        rw [← Real.rpow_natCast, ← Real.rpow_intCast]; gcongr
+        · exact one_lt_D.le
+        · exact_mod_cast Int.self_le_toNat nG
+      _ ≤ _ := by
+        gcongr
+        · exact one_lt_D.le
         · exact Int.toNat_le_toNat ((le_max_right ..).trans (le_max_right ..))
+  · exact Int.pos_iff_toNat_pos.mp (lt_of_lt_of_le
+      (lt_of_lt_of_le (Int.ceil_pos.mpr (Real.logb_pos one_lt_D (by linarith))) (le_max_right _ _))
+      (le_max_right _ _))
 
 variable (X) in
 open Classical in
@@ -699,7 +755,10 @@ lemma F_subset : F ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
   classical exact (Nat.find_spec (S_spec X)).2.1
 
 lemma G_subset : G ⊆ ball (cancelPt X) (defaultD a ^ defaultS X / 4) := by
-  classical exact (Nat.find_spec (S_spec X)).2.2
+  classical exact (Nat.find_spec (S_spec X)).2.2.1
+
+lemma defaultS_pos : 0 < defaultS X := by
+  classical exact (Nat.find_spec (S_spec X)).2.2.2
 
 lemma Icc_σ_subset_Icc_S {x : X} : Icc (σ₁ x) (σ₂ x) ⊆ Icc (-defaultS X) (defaultS X) :=
   fun _ h ↦ ⟨(range_σ₁_subset ⟨x, rfl⟩).1.trans h.1, h.2.trans (range_σ₂_subset ⟨x, rfl⟩).2⟩
