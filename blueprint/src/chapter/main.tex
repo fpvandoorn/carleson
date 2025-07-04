@@ -7450,6 +7450,10 @@ The following lemma is Theorem 3.1(b) in \cite{stein-book}. The proof uses \Cref
 \end{proof}
 
 The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additional proof of the bounded intersection property taken from the proof of Proposition 7.1.
+It uses the following notation, which will be used throughout the rest of this section: whenever $B_j$ denotes a ball $B_j = B(x_j, r_j)$, define
+\begin{equation*}
+    B_{n,j} = B(x_j, nr_j).
+\end{equation*}
 \begin{lemma}[Ball covering]
     \label{ball-covering}
     \leanok
@@ -7458,19 +7462,19 @@ The following lemma corresponds to Lemma 3.2 in \cite{stein-book} with additiona
     Given an open set $O\ne X$, there exists a countable family of balls $B_j = B(x_j, r_j)$ such that
     \begin{equation}
         \label{balls-disjoint}
-        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j'
+        B_j \cap B_{j'} = \emptyset \quad \text{ for } j \ne j',
     \end{equation}
-    and for $B_j^* := B(x_j, 3r_j)$,
+    and
     \begin{equation}
         \label{balls-covering}
-        \bigcup_j B_j^* = O
+        \bigcup_j B_{3,j} = O,
     \end{equation}
-    and for $B_j^{**} := B(x_j, 7r_j)$,
+    and
     \begin{equation}
         \label{enlarged-balls-intersect-complement}
-        B_j^{**} \cap (X \setminus O) \ne \emptyset \quad \text{ for all } j
+        B_{7,j} \cap (X \setminus O) \ne \emptyset \quad \text{ for all } j
     \end{equation}
-    and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{6a}$ of the $B_j^*$.
+    and we have the bounded intersection property that each $x\in O$ is contained in at most $2^{6a}$ of the $B_{3,j}$.
 \end{lemma}
 \begin{proof}
 \leanok
@@ -7483,7 +7487,7 @@ Since $O$ is open, and $O\ne X$, we have
     0 < \delta(x) < \infty \,.
 \end{equation}
 Using Zorn's Lemma, we select a maximal disjoint subfamily of $\{B(x,\frac{\delta(x)}{6}) : x \in O\}$.
-We obtain a (by \Cref{disjoint-family-countable} countable) family of balls $B_j = B(x_j, \frac{\delta(x_j)}{6}), j \in J$ such that \eqref{balls-disjoint}. \eqref{enlarged-balls-intersect-complement} and $\bigcup_j B_j^* \subset O$ are also immediate. For the other inclusion, first observe that for $x,y\in X$,  if $B(x,\frac{\delta(x)}{6}) \cap B(y,\frac{\delta(y)}{6}) \ne \emptyset$, then
+We obtain a (by \Cref{disjoint-family-countable} countable) family of balls $B_j = B(x_j, \frac{\delta(x_j)}{6}), j \in J$ such that \eqref{balls-disjoint}, \eqref{enlarged-balls-intersect-complement}, and $\bigcup_j B_{3,j} \subset O$ are also immediate. For the other inclusion, first observe that for $x,y\in X$,  if $B(x,\frac{\delta(x)}{6}) \cap B(y,\frac{\delta(y)}{6}) \ne \emptyset$, then
 \begin{equation*}
     \delta(x) \le \rho(x,y) + \delta(y) \le (\frac{\delta(x)}{6} + \frac{\delta(y)}{6}) + \delta(y) = \frac{\delta(x)}{6} + \frac{7\delta(y)}{6},
 \end{equation*}
@@ -7492,15 +7496,15 @@ so
     \label{control-distance-growth}
     \delta(x) \le 2 \delta(y).
 \end{equation}
-Now let $z\in X$. By maximality, there exists some $j\in J$ with $B(z,\frac{\delta(z)}{6}) \cap B_j \ne \emptyset$. By \eqref{control-distance-growth},
+Now let $z\in O$. By maximality, there exists some $j\in J$ with $B(z,\frac{\delta(z)}{6}) \cap B_j \ne \emptyset$. By \eqref{control-distance-growth},
 \begin{equation*}
     \rho(z,x_j)< \frac{\delta(z)}{6} + \frac{\delta(x_j)}{6} \le \frac{3\delta(x_j)}{6} = 3r_j
 \end{equation*}
-and thus $z\in B_j^*$.
+and thus $z\in B_{3,j}$.
 
 We now turn to the bounded intersection property. Assume that for some $j_1,\dots,j_N$,
 \begin{equation}
-    z\in \bigcap_{k=1}^N B_{j_k}^*.
+    z\in \bigcap_{k=1}^N B_{3,j_k}.
 \end{equation}
 Similarly as above, observe for $1\le k \le N$,
 \begin{equation}
@@ -7532,9 +7536,9 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
     \lean{encard_czBall3_le, tsum_czRemainder', aemeasurable_czApproximation, czApproximation_add_czRemainder, enorm_czApproximation_le, enorm_czApproximation_le_infinite, eLpNorm_czApproximation_le, support_czRemainder'_subset, integral_czRemainder', integral_czRemainder, eLpNorm_czRemainder'_le, eLpNorm_czRemainder_le, tsum_volume_czBall3_le, volume_univ_le, tsum_eLpNorm_czRemainder'_le, tsum_eLpNorm_czRemainder_le}
     \uses{ball-covering,Lebesgue-differentiation,maximal-theorem}
     Let $f$ be a bounded, a.e. measurable function supported on a set of finite measure and let $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu$.
-    Then there exists a bounded a.e. measurable function $g$ supported on a set of finite measure, a countable family of balls $B_j^*$ (where we allow $B_1^* = X$ in the special case that $\mu(X)<\infty$)
+    Then there exists a bounded a.e. measurable function $g$ supported on a set of finite measure, a countable family of balls $B_{3,j}$ (where we allow $B_{3,1} = X$ in the special case that $\mu(X)<\infty$)
     % Do we actually need this parenthetical?
-    such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_j^*$, and a countable family of a.e. measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
+    such that each $x\in X$ is contained in at most $2^{6a}$ of the $B_{3,j}$, and a countable family of a.e. measurable functions $\{b_j\}_{j\in J}$ such that for all $x \in X$
     \begin{equation}
        \label{eq-gb-dec}
        f(x)= g(x) + \sum_{j} b_j(x)
@@ -7552,27 +7556,27 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
     For every $j$
     \begin{equation}
         \label{eq-supp-bj}
-        \operatorname{supp} b_j \subset B_j^*\,.
+        \operatorname{supp} b_j \subset B_{3,j}\,.
     \end{equation}
     For every $j$
     \begin{equation}
         \label{eq-bad-mean-zero}
-        \int_{B_j^*} b_j(x)\, d\mu(x)=0,
+        \int_{B_{3,j}} b_j(x)\, d\mu(x)=0,
     \end{equation}
     and
      \begin{equation}
         \label{eq-bj-L1}
-        \int_{B_j^*} |b_j(x)|\, d\mu(x) \leq 2^{2a+1} \alpha \mu(B_j^*).
+        \int_{B_{3,j}} |b_j(x)|\, d\mu(x) \leq 2^{2a+1} \alpha \mu(B_{3,j}).
     \end{equation}
     We have
     \begin{equation}
         \label{eq-bset-length-sum}
-        \sum_j \mu(B_j^*)\leq \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y)
+        \sum_j \mu(B_{3,j})\leq \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y)
     \end{equation}
     and
     \begin{equation}
     \label{eq-b-L1}
-    \sum_{j}\int_{B_j^*} |b_j(y)|\, d\mu(y)\leq 2 \int |f(y)|\, d\mu(y)\,.
+    \sum_{j}\int_{B_{3,j}} |b_j(y)|\, d\mu(y)\leq 2 \int |f(y)|\, d\mu(y)\,.
     \end{equation}
 \end{lemma}
 
@@ -7581,9 +7585,9 @@ Most of the next lemma and its proof is taken from Theorem 4.2 in \cite{stein-bo
 Let $E_\alpha:=\{x\in X: Mf(x)>\alpha\}$.
 Then $E_\alpha$ is open. Assume first that $E_\alpha \ne X$. We apply \Cref{ball-covering} with $O=E_\alpha$ to obtain the family $B_j, j\in J,$. Without loss of generality, we can assume $J=\N$. Define inductively
 \begin{equation}
-    Q_j := B_j^* \setminus \left(\bigcup_{i<j} Q_i \cup \bigcup_{i>j} B_i \right).
+    Q_j := B_{3,j} \setminus \left(\bigcup_{i<j} Q_i \cup \bigcup_{i>j} B_i \right).
 \end{equation}
-Then $B_j\subset Q_j\subset B_j^*$, the $Q_j$ are pairwise disjoint and $\bigcup_j Q_j = E_\alpha$.
+Then $B_j\subset Q_j\subset B_{3,j}$, the $Q_j$ are pairwise disjoint and $\bigcup_j Q_j = E_\alpha$.
 Define
 \begin{equation}
     \label{eq-g-def}
@@ -7609,11 +7613,11 @@ for every ball $B\subset X$ with $x\in B$. It follows by \Cref{Lebesgue-differen
 In the case $x\in E_\alpha$, there exists some $j\in J$ with $x\in Q_j$ and we have that
 \begin{equation}
     \label{large-ball-estimate}
-    \frac{1}{\mu(B_j^{**})} \int_{B_j^{**}} |f(y)| \,d\mu(y) \le \alpha
+    \frac{1}{\mu(B_{7,j})} \int_{B_{7,j}} |f(y)| \,d\mu(y) \le \alpha
 \end{equation}
-because $B_j^{**}\cap (X\setminus E_\alpha) \ne \emptyset$. We get
+because $B_{7,j}\cap (X\setminus E_\alpha) \ne \emptyset$. We get
 \begin{equation}
-    |g(x)| \le \frac{1}{\mu(Q_j)}\int_{Q_j} |f(y)|\, d\mu(y) \le \frac{1}{\mu(B_j)}\int_{B_j^{**}} |f(y)| \, d\mu(y) \le 2^{3a}\alpha .
+    |g(x)| \le \frac{1}{\mu(Q_j)}\int_{Q_j} |f(y)|\, d\mu(y) \le \frac{1}{\mu(B_j)}\int_{B_{7,j}} |f(y)| \, d\mu(y) \le 2^{3a}\alpha .
 \end{equation}
 
 To prove \eqref{eq-g-L1-norm}, we estimate
@@ -7624,18 +7628,18 @@ To prove \eqref{eq-g-L1-norm}, we estimate
 Using the triangle inequality, we have that
 \begin{align}
     \label{eq-bj-int}
-    \int_{B_j^*} |b_j(y)|\, dy &\le \int_{Q_j} |f(y)|\, d\mu(y) + \int_{Q_j} \frac{1}{\mu(Q_j)}\int_{Q_j} |f(x)|\, d\mu(x)\, d\mu(y) \\
+    \int_{B_{3,j}} |b_j(y)|\, dy &\le \int_{Q_j} |f(y)|\, d\mu(y) + \int_{Q_j} \frac{1}{\mu(Q_j)}\int_{Q_j} |f(x)|\, d\mu(x)\, d\mu(y) \\
     &= 2 \int_{Q_j} |f(y)|\, dy.
 \end{align}
 With \eqref{large-ball-estimate}, we estimate further
 \begin{equation}
-    \le 2 \int_{B_j^{**}} |f(y)|\, dy \le 2\mu(B_j^{**})\alpha \le 2^{2a+1} \alpha \mu(B_j^*)
+    \le 2 \int_{B_{7,j}} |f(y)|\, dy \le 2\mu(B_{7,j})\alpha \le 2^{2a+1} \alpha \mu(B_{3,j})
 \end{equation}
 to obtain \eqref{eq-bj-L1}.
 Further, summing up \eqref{eq-bj-int} in $j$ yields \eqref{eq-b-L1}.
 At last, we estimate with \Cref{maximal-theorem}
 \begin{equation}
-    \sum_j \mu(B_j^*) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y),
+    \sum_j \mu(B_{3,j}) \le 2^{2a} \sum_j \mu(B_j) \le 2^{2a} \mu(E_\alpha) \le \frac{2^{6a}}{\alpha}\int |f(y)|\, d\mu(y),
 \end{equation}
 proving \eqref{eq-bset-length-sum}.
 
@@ -7648,7 +7652,7 @@ and
 \begin{equation*}
     b_1 := f - g.
 \end{equation*}
-Then $f = g + b_1$ and $\supp b_1 \subset B_1^*:=X$ and \eqref{eq-gb-dec}, \eqref{eq-g-L1-norm}, \eqref{eq-supp-bj}, \eqref{eq-bad-mean-zero} all hold immediately. By assumption, $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu = g$, so \eqref{eq-g-max} holds.
+Then $f = g + b_1$ and $\supp b_1 \subset B_{3,1}:=X$ and \eqref{eq-gb-dec}, \eqref{eq-g-L1-norm}, \eqref{eq-supp-bj}, \eqref{eq-bad-mean-zero} all hold immediately. By assumption, $\alpha>\frac{1}{\mu(X)}\int |f|\,d\mu = g$, so \eqref{eq-g-max} holds.
 We also have, using the definitions and the same assumption,
 \begin{equation}
     \int |b_1(y)|\, d\mu(y) \le 2 \int |f(y)|\,d\mu(y) \le 2\alpha\mu(X),
@@ -7661,7 +7665,7 @@ Finally, by \Cref{maximal-theorem},
 which shows \eqref{eq-bset-length-sum}.
 \end{proof}
 
-We use \Cref{Calderon-Zygmund-decomposition} to prove \Cref{calderon-zygmund-weak-1-1}. For the remainder of this section, let $f:X\to\C$, $r>0$ and $\alpha>0$ as in the lemma.
+We use \Cref{Calderon-Zygmund-decomposition} to prove \Cref{calderon-zygmund-weak-1-1}. For the remainder of this section, let $f:X\to\C$, $r>0$ and $\alpha>0$ as in \Cref{calderon-zygmund-weak-1-1}.
 We define the constant
 \begin{equation} \label{weak-1-1-proof-cz-const}
     c:= 2^{-a^3-12a-4}
@@ -7677,26 +7681,25 @@ Using \Cref{Calderon-Zygmund-decomposition} for $f$ and $\alpha'$, we obtain the
 \begin{equation*}
     f=g+b=g+\sum_j b_j
 \end{equation*}
-such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied (with $\alpha'$ replacing $\alpha$). We rename $B_j^*$ to $B_j$ and let
+such that the properties \eqref{eq-gb-dec}-\eqref{eq-b-L1} are satisfied (with $\alpha'$ replacing $\alpha$). Let
 \begin{equation}
     \label{eq-Ij-cj}
-    B_j=B(x_j, r_j).
+    B_{3,j}=B(x_j, 3r_j)
 \end{equation}
-Define
+as in the lemma. Then
 \begin{equation}
     \label{eq-Ij*}
-    B_j':=B(x_j, 2r_j).
+    B_{6,j}=B(x_j, 6r_j)
 \end{equation}
-(In the special case $B_j=X$, we define $B_j':=X$.)
-Then $B_j'$ is a ball with the same center as $B_j$ but with
+is a ball with the same center as $B_{3,j}$ but with
 \begin{equation}
     \label{eq-Ij*-dim}
-    \mu(B_j')\le 2^{a} \mu(B_j).
+    \mu(B_{6,j})\le 2^{a} \mu(B_{3,j}).
 \end{equation}
 Let
 \begin{equation}
     \label{eq-omega}
-    \Omega:=\bigcup_j B_j'.
+    \Omega:=\bigcup_j B_{6,j}.
 \end{equation}
 We deal with $T_rg$ and $T_rb$ separately in the following lemmas.
 
@@ -7736,16 +7739,16 @@ Using \eqref{eq-strong-2-2-assumption} followed by \eqref{eq-g-max} and \eqref{e
     \end{equation*}
     where
     \begin{equation*}
-        F(x) := 2^{a^3+2a+1} c\alpha \sum_{j\in J} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_j)}{V(x,x_j)}.
+        F(x) := 2^{a^3+2a+1} c\alpha \sum_{j\in J} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_{3,j})}{V(x,x_j)}.
     \end{equation*}
 \end{lemma}
 
 \begin{proof}
 We decompose the index set $J$ into the following disjoint sets:
 \begin{align*}
-    \mathcal{J}_1(x)&:=\{j\,: r+r_j \le \rho(x,x_j) \},\\
-    \mathcal{J}_2(x)&:=\{j\,: r-r_j \le \rho(x,x_j) < r+r_j\},\\
-    \mathcal{J}_3(x)&:=\{j\,: \rho(x,x_j) < r-r_j\}.
+    \mathcal{J}_1(x)&:=\{j\,: r+3r_j \le \rho(x,x_j) \},\\
+    \mathcal{J}_2(x)&:=\{j\,: r-3r_j \le \rho(x,x_j) < r+3r_j\},\\
+    \mathcal{J}_3(x)&:=\{j\,: \rho(x,x_j) < r-3r_j\}.
 \end{align*}
 Then
 \begin{alignat}{3}
@@ -7756,37 +7759,37 @@ Then
     \label{eq-b-dec-3}
                 &+&&\sum_{j\in \mathcal{J}_3(x)} |T_rb_j(x)|.
 \end{alignat}
-For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_j\subset B(x,r)$, and thus $T_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
+For all $j\in \mathcal{J}_3(x)$, $\supp b_j\subset B_{3,j}\subset B(x,r)$, and thus $T_rb_j(x)=0$, so $\eqref{eq-b-dec-3} = 0$.
 
-Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_j\subset X \setminus B(x,r)$, and we have
+Next, for $j\in \mathcal{J}_1(x)$, $\supp b_j\subset B_{3,j}\subset X \setminus B(x,r)$, and we have
 \begin{equation*}
-    T_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_j} K(x,y) b_j(y)\,d\mu(y)\,.
+    T_rb_j(x)=\int_{X\setminus B(x,r)} K(x,y) b_j(y)\,d\mu(y)=\int_{B_{3,j}} K(x,y) b_j(y)\,d\mu(y)\,.
 \end{equation*}
 
 Using \eqref{eq-bad-mean-zero}, the above is equal to
 \begin{equation*}
-    \int_{B_j} (K(x,y)-K(x,x_j)) b_j(y)\,d\mu(y)\,.
+    \int_{{3,j}} (K(x,y)-K(x,x_j)) b_j(y)\,d\mu(y)\,.
 \end{equation*}
-Since $x\in X\setminus\Omega$, we have for each $y\in B_j$ that
+Since $x\in X\setminus\Omega$, we have for each $y\in B_{3,j}$ that
 \begin{equation}
     \label{eq-Om-cj}
-    \rho(x,x_j)\ge 2r_j > 2\rho(x_j,y),
+    \rho(x,x_j)\ge 6r_j > 2\rho(x_j,y),
 \end{equation}
 so we can apply \eqref{eqkernel-y-smooth} to estimate
 \begin{equation*}
-    \eqref{eq-b-dec-1} \le \sum_{j\in \mathcal{J}_1(x)}\int_{B_j}\left(\frac{\rho(x_j,y)}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,x_j)} |b_j(y)|\, d\mu(y)
+    \eqref{eq-b-dec-1} \le \sum_{j\in \mathcal{J}_1(x)}\int_{B_{3,j}}\left(\frac{\rho(x_j,y)}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{2^{a^3}}{V(x,x_j)} |b_j(y)|\, d\mu(y)
 \end{equation*}
 \begin{equation}
-    \le 2^{a^3} \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\int_{B_j} |b_j(y)|\, dy
+    \le 2^{a^3} \sum_{j} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\int_{B_{3,j}} |b_j(y)|\, dy
 \end{equation}
 and by \eqref{eq-bj-L1},
 \begin{equation}
     \label{eq-J1-diff-est}
-    \le 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_j)}{V(x,x_j)} = F(x).
+    \le 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_{3,j})}{V(x,x_j)} = F(x).
 \end{equation}
 Next, we estimate \eqref{eq-b-dec-2}. For each $j\in \mathcal{J}_2(x)$, set
 \begin{equation*}
-    d_j:=\frac{1}{\mu(B_j)}\int_{B_j} \mathbf{1}_{X\setminus B(x,r)}(y) b_j(y)\, dy.
+    d_j:=\frac{1}{\mu(B_{3,j})}\int_{B_{3,j}} \mathbf{1}_{X\setminus B(x,r)}(y) b_j(y)\, dy.
 \end{equation*}
 Then by \eqref{eq-bj-L1}
 \begin{equation}
@@ -7795,8 +7798,8 @@ Then by \eqref{eq-bj-L1}
 \end{equation}
 For each $j\in \mathcal{J}_2(x)$, we have
 \begin{align*}
-    T_r b_j(x)&=\int_{B_j} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy \\
-    &= \int_{B_j} (K(x,y)-K(x,x_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_j} d_j K(x,y) \, dy.
+    T_r b_j(x)&=\int_{B_{3,j}} K(x,y) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_{3,j}} d_j K(x,y) \, dy \\
+    &= \int_{B_{3,j}} (K(x,y)-K(x,x_j)) (\mathbf{1}_{X\setminus B(x,r)}(y)b_j(y)-d_j)\, dy + \int_{B_{3,j}} d_j K(x,y) \, dy.
 \end{align*}
 Thus, using the triangle inequality, the equation above and \eqref{eq-dj-est}, we obtain
 \begin{equation*}
@@ -7804,43 +7807,43 @@ Thus, using the triangle inequality, the equation above and \eqref{eq-dj-est}, w
 \end{equation*}
 \begin{equation}
     \label{eq-J2-diff-est}
-    \int_{B_j} |K(x,y)-K(x,x_j)| \left(|b_j(y)|+2^{2a+1} c\alpha\right)\, dy +2^{2a+1} c\alpha \int_{B_j}  |K(x,y)| \, dy.
+    \int_{B_{3,j}} |K(x,y)-K(x,x_j)| \left(|b_j(y)|+2^{2a+1} c\alpha\right)\, dy +2^{2a+1} c\alpha \int_{B_{3,j}}  |K(x,y)| \, dy.
 \end{equation}
 By \eqref{eq-Om-cj}, we can apply \eqref{eqkernel-y-smooth} and arguing as in \eqref{eq-J1-diff-est}, we get that
 \begin{equation}
     \label{eq-J2-diff-est-2}
-    \eqref{eq-b-dec-2} \le 2F(x) + 2^{2a+1}c\alpha \sum_{j\in\mathcal{J}_2(x)} \int_{B_j}  |K(x,y)|\,d\mu(y),
+    \eqref{eq-b-dec-2} \le 2F(x) + 2^{2a+1}c\alpha \sum_{j\in\mathcal{J}_2(x)} \int_{B_{3,j}}  |K(x,y)|\,d\mu(y),
 \end{equation}
 with $F$ as in \eqref{eq-J1-diff-est}.
 Define
 \begin{equation*}
-    A := \bigcup_{j \in \mathcal{J}_2(x)} B_j.
+    A := \bigcup_{j \in \mathcal{J}_2(x)} B_{3,j}.
 \end{equation*}
 We claim that
 \begin{equation}
     \label{eq-J2-union-subset}
     A\subset B(x,3r) \setminus B(x,\frac{r}{3}).
 \end{equation}
-Indeed, for each $j\in \mathcal{J}_2(x)$ and $y\in B_j$, using again \eqref{eq-Om-cj},
+Indeed, for each $j\in \mathcal{J}_2(x)$ and $y\in B_{3,j}$, using again \eqref{eq-Om-cj},
 \begin{equation*}
-    \rho(x,x_j) < r+r_j \le r + \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) < 2r
+    \rho(x,x_j) < r+r_{3,j} \le r + \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) < 2r
 \end{equation*}
 and hence
 \begin{equation*}
-    \rho(x,y) \le \rho(x,x_j) + \rho(x_j,y) < 2r + r_j \le 2r + \frac{1}{2}\rho(x,x_j) < 3r.
+    \rho(x,y) \le \rho(x,x_j) + \rho(x_j,y) < 2r + 3r_j \le 2r + \frac{1}{2}\rho(x,x_j) < 3r.
 \end{equation*}
 For the lower bound, we observe
 \begin{equation*}
-    \rho(x,x_j) \ge r-r_j \ge r - \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) \ge \frac{2}{3}r,
+    \rho(x,x_j) \ge r-3r_j \ge r - \frac{1}{2} \rho(x,x_j) \implies \rho(x,x_j) \ge \frac{2}{3}r,
 \end{equation*}
 and conclude
 \begin{equation*}
-    \rho(x,y) \ge \rho(x,x_j) - \rho(y,x_j) \ge \rho(x,x_j) - r_j \ge \rho(x,x_j) - \frac{1}{2}\rho(x,x_j) \ge \frac{1}{3} r.
+    \rho(x,y) \ge \rho(x,x_j) - \rho(y,x_j) \ge \rho(x,x_j) - 3r_j \ge \rho(x,x_j) - \frac{1}{2}\rho(x,x_j) \ge \frac{1}{3} r.
 \end{equation*}
 
-Using the bounded intersection property of the $B_j$, \eqref{eq-J2-union-subset} and \eqref{eqkernel-size}, we get
+Using the bounded intersection property of the $B_{3,j}$, \eqref{eq-J2-union-subset} and \eqref{eqkernel-size}, we get
 \begin{align}
-    \sum_{j\in\mathcal{J}_2(x)} \int_{B_j}  |K(x,y)|\,d\mu(y) &\le 2^{6a} \int_{A}  |K(x,y)|\,d\mu(y) \\
+    \sum_{j\in\mathcal{J}_2(x)} \int_{B_{3,j}}  |K(x,y)|\,d\mu(y) &\le 2^{6a} \int_{A}  |K(x,y)|\,d\mu(y) \\
     &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})}  |K(x,y)|\,d\mu(y) \\
     &\le 2^{6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{2^{a^3}}{V(x,y)} \,d\mu(y) \\
     &\le 2^{a^3+6a} \int_{B(x,3r) \setminus B(x,\frac{r}{3})} \frac{1}{\mu(B(x,\frac{r}{3}))} \,d\mu(y) \\
@@ -7876,9 +7879,9 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \begin{align}
         \mu(\{x\in X\setminus\Omega: F(x)> \alpha/8\})
         &\le \frac{8}{\alpha} \int_{X\setminus \Omega} F(x)\,d\mu(x) \\
-        &\le \frac{8}{\alpha} \int_{X\setminus \Omega} 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_j)}{V(x,x_j)}\,d\mu(x) \\
+        &\le \frac{8}{\alpha} \int_{X\setminus \Omega} 2^{a^3+2a+1} c\alpha \sum_{j} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{\mu(B_{3,j})}{V(x,x_j)}\,d\mu(x) \\
         \label{eq-F-est-1}
-        &\le 2^{a^3+2a+4} c \sum_{j} \mu(B_j) \int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x)
+        &\le 2^{a^3+2a+4} c \sum_{j} \mu(B_{3,j}) \int_{X\setminus B_{6,j}} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x)
     \end{align}
     Using
     \begin{equation*}
@@ -7886,10 +7889,10 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     \end{equation*}
     we have for all $j\in J$,
     \begin{align*}
-        &\int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x) \\
-        \le& 2^a \int_{X\setminus B_j'} \left(\frac{r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,\rho(x_j,x)))}\,d\mu(x) \\
-        \le&2^a \sum_{n=1}^\infty \int_{B(x_j,2^{n+1}r_j)\setminus B(x_j,2^n r_j)} \left(\frac{r_j}{2^n r_j}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,2^n r_j))}\,d\mu(x) \\
-        \le&2^a \sum_{n=1}^\infty 2^{-\frac{n}{a}} \frac{\mu(B(x_j,2^{n+1}r_j))}{\mu(B(x_j,2^n r_j))} \\
+        &\int_{X\setminus B_{6,j}} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{V(x,x_j)}\,d\mu(x) \\
+        \le& 2^a \int_{X\setminus B_{6,j}} \left(\frac{3r_j}{\rho(x,x_j)}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,\rho(x_j,x)))}\,d\mu(x) \\
+        \le&2^a \sum_{n=1}^\infty \int_{B(x_j,2^{n+1}\cdot3r_j)\setminus B(x_j,2^n\cdot3r_j)} \left(\frac{3r_j}{2^n \cdot3r_j}\right)^{\frac{1}{a}}\frac{1}{\mu(B(x_j,2^n \cdot3r_j))}\,d\mu(x) \\
+        \le&2^a \sum_{n=1}^\infty 2^{-\frac{n}{a}} \frac{\mu(B(x_j,2^{n+1}\cdot3r_j))}{\mu(B(x_j,2^n \cdot3r_j))} \\
         \le&2^{3a},
     \end{align*}
     where we used \Cref{geometric-series-estimate} in the last step.
@@ -7923,8 +7926,8 @@ By the definition \eqref{weak-1-1-proof-cz-const} of $c$, this equals
     Using \eqref{eq-Ij*-dim} and \eqref{eq-bset-length-sum}, we conclude that
     \begin{equation}
         \label{eq-omega-bd}
-        \mu(\Omega) \le \sum_{j} \mu (B_j')
-        \le 2^{a} \sum_{j} \mu(B_j) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
+        \mu(\Omega) \le \sum_{j} \mu (B_{6,j})
+        \le 2^{a} \sum_{j} \mu(B_{3,j}) \le \frac{2^{5a}}{c\alpha} \int |f(y)|\, d\mu(y)\,.
     \end{equation}
     It follows from \Cref{estimate-bad-partial} and the triangle inequality that
     \begin{equation}
