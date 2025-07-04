@@ -1,3 +1,4 @@
+import Carleson.ToMathlib.Data.Set.Card
 import Carleson.ToMathlib.HardyLittlewood
 import Carleson.ToMathlib.MeasureTheory.Integral.Average
 import Carleson.ToMathlib.Analysis.Normed.Group.Basic
@@ -1356,11 +1357,7 @@ private lemma A_subset (hx : x ∈ (Ω f (α' a α))ᶜ) (hX : GeneralCase f (α
   · linarith [dist_triangle_right x (czCenter hX j) y]
   · linarith [dist_triangle x (czCenter hX j) y]
 
---TODO: Move the following two lemmas to appropriate ToMathlib files
-lemma Set.encard_subtype_le {ι : Type*} (p : ι → Prop) (s : Set ι) :
-    ({i | p ↑i} : Set s).encard ≤ ({i | p i} : Set ι).encard :=
-  Embedding.encard_le ⟨fun ⟨⟨i, _⟩, hi⟩ ↦ ⟨i, hi⟩, fun _ _ h ↦ by simpa [Subtype.coe_inj] using h⟩
-
+-- TODO: Move to appropriate ToMathlib file
 open Classical Finset MeasurableSet in
 lemma MeasureTheory.Measure.sum_restrict_le {α : Type*} [MeasurableSpace α] {ι : Type*}
     {μ : Measure α} (s : ι → Set α) {M : ℕ} (hs_meas : ∀ i, MeasurableSet (s i))
@@ -1434,7 +1431,7 @@ private lemma sum_volume_restrict_le (hX : GeneralCase f (α' a α)) :
     Measure.sum (fun (j : 𝒥₂ r x hX) ↦ volume.restrict (czBall3 hX j)) ≤
     2 ^ (6 * a) • volume.restrict (A r x hX) := by
   refine Measure.sum_restrict_le _ (fun _ ↦ measurableSet_ball) (fun y ↦ ?_)
-  apply le_trans <| encard_subtype_le (fun i ↦ y ∈ ball (czCenter hX i) (3 * czRadius hX i)) _
+  apply le_trans <| encard_subtype_le _ (fun i ↦ y ∈ ball (czCenter hX i) (3 * czRadius hX i))
   exact encard_czBall3_le
 
 -- Long calculation toward the end of Lemma 10.2.7
