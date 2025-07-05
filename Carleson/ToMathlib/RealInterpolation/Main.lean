@@ -320,103 +320,97 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
     (hq : 0 < q) (tc : ToneCouple) {A : ℝ≥0} (hA : 0 < A)
     (ht : Subadditive_trunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
-  ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s in Ioi (0 : ℝ), distribution (T (trunc f (tc.ton (ENNReal.ofReal s))))
-      (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) +
-  distribution (T (truncCompl f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν * ENNReal.ofReal (s^(q - 1)) := by
+  ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s, distribution (T (trunc f (tc.ton s)))
+      s ν * s^(q - 1) +
+  distribution (T (truncCompl f (tc.ton s))) s ν * s^(q - 1) := by
   rw [rewrite_norm_func hq hA hTf]
   apply mul_le_mul' (le_refl _)
-  apply setLIntegral_mono' measurableSet_Ioi
-  intro s s_pos
-  rw [← add_mul]
-  apply mul_le_mul' ?_ (le_refl _)
   sorry
+  -- apply setLIntegral_mono' measurableSet_Ioi
+  -- intro s s_pos
+  -- rw [← add_mul]
+  -- apply mul_le_mul' ?_ (le_refl _)
+  -- sorry
   -- proof was: convert estimate_distribution_Subadditive_trunc (tc.ran_ton s s_pos) ht
   -- simp [ofReal_mul, ENNReal.ofNNReal_toNNReal]
+
+@[measurability, fun_prop]
+theorem ton_Measurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (tc : ToneCouple) :
+    Measurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) := by
+  change Measurable ((fun t : ℝ≥0∞ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton))
+  have tone := tc.ton_is_ton
+  split_ifs at tone
+  · exact (eLpNorm_trunc_mono.comp tone.monotone).measurable
+  · exact (eLpNorm_trunc_mono.comp_antitone tone.antitone).measurable
 
 -- XXX: can this be golfed or unified with `ton_aeMeasurable`?
 @[measurability, fun_prop]
 theorem ton_aeMeasurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (tc : ToneCouple) :
-    AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) (volume.restrict (Ioi 0)) := by
-  change AEMeasurable ((fun t : ℝ≥0∞ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton)) (volume.restrict (Ioi 0))
-  have tone := tc.ton_is_ton
-  split_ifs at tone
-  · apply aemeasurable_restrict_of_monotoneOn measurableSet_Ioi
-    exact eLpNorm_trunc_mono.comp_monotoneOn (tone.strictMonoOn _).monotoneOn
-  · apply aemeasurable_restrict_of_antitoneOn measurableSet_Ioi
-    exact eLpNorm_trunc_mono.comp_antitoneOn (tone.strictAntiOn  _).antitoneOn
+    AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) volume := by
+  exact (ton_Measurable_eLpNorm_trunc _).aemeasurable
 
 @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_norm_rpow_range_operator'
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hp₀ : 0 < p₀) (hq₀ : 0 < q₀) (hq₁ : 0 < q₁) (hp₁p : p < p₁) (hp₀p : p₀ < p)
-    (tc : ToneCouple)
+    (tc : StrictRangeToneCouple)
     (hq₀' : q₀ = ⊤ → ∀ s > 0, distribution (T (truncCompl f (tc.ton s))) s ν = 0)
     (hq₁' : q₁ = ⊤ → ∀ s > 0, distribution (T (trunc f (tc.ton s))) s ν = 0)
     (hf : MemLp f p μ) (hT₁ : HasWeakType T p₁ q₁ μ ν C₁) (hT₀ : HasWeakType T p₀ q₀ μ ν C₀) :
-    ∫⁻ s in Ioi (0 : ℝ), distribution (T (trunc f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
-    ENNReal.ofReal (s ^ (q.toReal - 1)) +
-    distribution (T (truncCompl f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
-    ENNReal.ofReal (s ^ (q.toReal - 1)) ≤
-    (if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
-        eLpNorm (trunc f (tc.ton (ENNReal.ofReal s))) p₁ μ ^ q₁.toReal *
-        ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
-    (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
-        eLpNorm (truncCompl f (tc.ton (ENNReal.ofReal s))) (p₀) μ ^ q₀.toReal *
-        ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1))) := by
+    ∫⁻ s : ℝ≥0∞, distribution (T (trunc f (tc.ton s))) s ν *
+    s ^ (q.toReal - 1) +
+    distribution (T (truncCompl f (tc.ton s))) s ν *
+    s ^ (q.toReal - 1) ≤
+    (if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s : ℝ≥0∞,
+        eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
+        s ^ (q.toReal - q₁.toReal - 1))) +
+    (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s : ℝ≥0∞,
+        eLpNorm (truncCompl f (tc.ton s)) (p₀) μ ^ q₀.toReal *
+        s ^ (q.toReal - q₀.toReal - 1)) := by
   have : ∀ q' q : ℝ, -q' + (q - 1) = q - q' - 1 := by intro q' q; group
   repeat rw [← this]
+  have := hp₁p.le
+  have := hp₀p.le
+  have := hp₁p.ne_top
   have p_pos : 0 < p := lt_trans hp₀ hp₀p
-  -- TODO: is there a way to use lintegral_rw₂ conveniently?
-  rw [lintegral_rw_aux power_aux_2, lintegral_rw_aux power_aux_2]
+  repeat rw [lintegral_rw₂ (Filter.EventuallyEq.refl _ _) power_aux_3]
   nth_rw 2 [← lintegral_const_mul']; swap; · finiteness
   nth_rw 1 [← lintegral_const_mul']; swap; · finiteness
   simp_rw [← mul_assoc]
   split_ifs with is_q₁top is_q₀top
   · rw [one_mul, one_mul, ← lintegral_add_left']
-    · apply setLIntegral_mono' measurableSet_Ioi
-      intro s (s_pos : 0 < s)
-      have : 0 < ENNReal.ofReal s := by positivity
-      gcongr <;> rw [← ENNReal.ofReal_rpow_of_pos s_pos]
-      -- type mismatch ahead: weaktype_estimate_trunc expects a truncation parameter in ENNReal,
-      -- while the integral takes s in ℝ
-      · have : tc.ton (ENNReal.ofReal s) ≠ ⊤ := sorry
+    · apply lintegral_mono_ae
+      filter_upwards [ae_in_Ioo_zero_top] with s ⟨s_pos, s_lt_top⟩
+      gcongr
+      · have : tc.ton s ≠ ⊤ := (tc.ran_ton s ⟨s_pos, s_lt_top⟩).2.ne
         apply weaktype_estimate_trunc p_pos hq₁ _ hp₁p.le <;> assumption
-      · have := hp₁p.ne_top
-        have := hp₀p.le
-        have : 0 < tc.ton (ENNReal.ofReal s) := sorry
+      · have : 0 < tc.ton s := (tc.ran_ton s ⟨s_pos, s_lt_top⟩).1
         apply weaktype_estimate_truncCompl (p₀ := p₀) hp₀ <;> assumption
-    sorry -- proof was: exact ((((ton_aeMeasurable_eLpNorm_trunc tc).pow_const _).const_mul _).mul
-    --   (by fun_prop)).mul (by fun_prop)
+    · fun_prop
   · rw [one_mul, zero_mul, add_zero]
-    apply setLIntegral_mono' measurableSet_Ioi
-    -- type mismatch: was s in ℝ≥0∞, but get a real number
-    sorry /- proof was: intro s (s_pos : 0 < s)
-    simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
+    apply lintegral_mono_ae
+    filter_upwards [ae_in_Ioo_zero_top] with s ⟨s_pos, s_lt_top⟩
     have : q₀ = ⊤ := not_lt_top.mp is_q₀top
     rw [hq₀' this s s_pos, zero_mul, add_zero]
     gcongr
-    apply weaktype_estimate_trunc p_pos <;> try assumption -/
+    have : tc.ton s ≠ ⊤ := (tc.ran_ton s ⟨s_pos, s_lt_top⟩).2.ne
+    apply weaktype_estimate_trunc p_pos <;> assumption
   · rw [one_mul, zero_mul, zero_add]
-    apply setLIntegral_mono' measurableSet_Ioi
-    sorry /- type mismatch: was s in ℝ≥0∞, but get a real number/
-    intro s (s_pos : 0 < s)
-    simp only [is_q₁top, mem_Ioi, false_or] at hq₁'
+    apply lintegral_mono_ae
+    filter_upwards [ae_in_Ioo_zero_top] with s ⟨s_pos, s_lt_top⟩
     have : q₁ = ⊤ := not_lt_top.mp is_q₁top
     rw [hq₁' this s s_pos, zero_mul, zero_add]
+    have : 0 < tc.ton s := (tc.ran_ton s ⟨s_pos, s_lt_top⟩).1
     gcongr
-    apply weaktype_estimate_truncCompl (p₀ := p₀) <;> try assumption
-    · exact hp₁p.ne_top
-    · exact tc.ran_ton s s_pos -/
+    apply weaktype_estimate_truncCompl (p₀ := p₀) _ hp₁p.ne_top <;> assumption
   · simp only [zero_mul, add_zero, nonpos_iff_eq_zero]
-    have : ∫⁻ (_ : ℝ) in Ioi 0, 0 = 0 := lintegral_zero
+    have : ∫⁻ _ : ℝ≥0∞, 0 = 0 := lintegral_zero
     rw [← this]
     apply lintegral_congr_ae
-    filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (s_pos)
+    filter_upwards [ae_in_Ioo_zero_top] with s ⟨s_pos, s_lt_top⟩
     have is_q₀top : ¬ q₀ < ⊤ := by assumption
-    sorry /- same type mismatch as above; proof was: simp only [is_q₀top, mem_Ioi, false_or] at hq₀'
-    simp only [is_q₁top, mem_Ioi, false_or] at hq₁'
-    rw [hq₀' (not_lt_top.mp is_q₀top) s s_pos, hq₁' (not_lt_top.mp is_q₁top) s s_pos, zero_mul, add_zero] -/
+    rw [hq₀' (not_lt_top.mp is_q₀top) s s_pos, hq₁' (not_lt_top.mp is_q₁top) s s_pos, zero_mul, add_zero]
 
 lemma simplify_factor_rw_aux₀ (a b c d e f : ℝ≥0∞) :
     a * b * c * d * e * f = a * c * e * (b * d * f) := by ring
@@ -656,22 +650,22 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
   let tc := spf_to_tc spf
   calc
   ∫⁻ x , ‖T f x‖ₑ ^ q.toReal ∂ν
-    ≤ ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) * ∫⁻ s in Ioi (0 : ℝ),
-      distribution (T (trunc f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
-      ENNReal.ofReal (s^(q.toReal - 1)) +
-      distribution (T (truncCompl f (tc.ton (ENNReal.ofReal s)))) (ENNReal.ofReal s) ν *
-      ENNReal.ofReal (s^(q.toReal - 1)) :=
+    ≤ ENNReal.ofReal ((2 * A) ^ q.toReal * q.toReal) * ∫⁻ s,
+      distribution (T (trunc f (tc.ton s))) s ν *
+      s^(q.toReal - 1) +
+      distribution (T (truncCompl f (tc.ton s))) s ν *
+      s^(q.toReal - 1) :=
     estimate_norm_rpow_range_operator
       (interp_exp_toReal_pos ht q₀pos q₁pos hq₀q₁ hq) _ hA hT (h₂T hf)
   _ ≤ ENNReal.ofReal ((2 * A)^q.toReal * q.toReal) *
-      ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s in Ioi (0 : ℝ),
-        eLpNorm (trunc f (tc.ton (ENNReal.ofReal s))) p₁ μ ^ q₁.toReal *
-        ENNReal.ofReal (s ^ (q.toReal - q₁.toReal - 1)))) +
-      (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s in Ioi (0 : ℝ),
-        eLpNorm (truncCompl f (tc.ton (ENNReal.ofReal s))) p₀ μ ^ q₀.toReal *
-        ENNReal.ofReal (s ^ (q.toReal - q₀.toReal - 1)))) := by
+      ((if q₁ < ⊤ then 1 else 0) * (C₁ ^ q₁.toReal * (∫⁻ s,
+        eLpNorm (trunc f (tc.ton s)) p₁ μ ^ q₁.toReal *
+        s ^ (q.toReal - q₁.toReal - 1))) +
+      (if q₀ < ⊤ then 1 else 0) * (C₀ ^ q₀.toReal * ∫⁻ s,
+        eLpNorm (truncCompl f (tc.ton s)) p₀ μ ^ q₀.toReal *
+        s ^ (q.toReal - q₀.toReal - 1))) := by
     gcongr
-    apply estimate_norm_rpow_range_operator' (p := p) p₀pos q₀pos q₁pos <;> try assumption
+    apply estimate_norm_rpow_range_operator' (p := p) (tc := tc) p₀pos q₀pos q₁pos <;> try assumption
     · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).2
     · exact (interp_exp_between p₀pos p₁pos hp₀p₁ ht hp).1
     · intro q₀top s (hs : 0 < s)
@@ -719,6 +713,8 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       apply add_le_add
       · split_ifs with is_q₁top
         · gcongr
+          rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal]
+          rw [← lintegral_rw_aux power_aux_4]
           apply estimate_trnc₁ (j := ⊤) ht <;> try assumption
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
@@ -728,6 +724,8 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
         · simp
       · split_ifs with is_q₀top
         · gcongr
+          rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal]
+          rw [← lintegral_rw_aux power_aux_4]
           apply estimate_trnc₁ (j := ⊥) ht <;> try assumption
           · exact hp₀.2
           · exact ne_top_of_Ioc hp₀ is_q₀top
