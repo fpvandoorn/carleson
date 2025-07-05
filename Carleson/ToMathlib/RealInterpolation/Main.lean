@@ -937,7 +937,6 @@ lemma exists_hasStrongType_real_interpolation_aux {p₀ p₁ q₀ q₁ p q : ℝ
 
 -- TODO: the below lemmas were split because otherwise the lean server would crash
 -- (seems to be related to the linter?) (after the merge)
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     (hp₀ : p₀ ∈ Ioc 0 q₀) (hp₁ : p₁ ∈ Ioc 0 q₁) (hp₀p₁ : p₀ = p₁) (hq₀q₁ : q₀ < q₁)
@@ -967,53 +966,58 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     -- lemma below proves the same, but for M.toReal
     have M_pos : 0 < M := by
       apply d_pos <;> try assumption
+    have M_lt_top : M < ∞ := by
+      apply lt_top_iff_ne_top.mpr
+      apply d_ne_top <;> assumption
+    let M' := M.toReal
+    have : 0 < M.toReal := toReal_pos M_pos.ne' M_lt_top.ne
+    have : ENNReal.ofReal M.toReal = M := by rw [ofReal_toReal M_lt_top.ne]
     have coe_q : ENNReal.ofReal q.toReal = q :=
     ofReal_toReal_eq_iff.mpr (interp_exp_ne_top hq₀q₁.ne ht hq)
     -- type mismatches, ℝ vs ℝ≥0∞
-    sorry /- have eq :
+    have eq :
         (ENNReal.ofReal q.toReal *
-        ((((↑C₀ * eLpNorm f p μ) ^ q₀.toReal * ∫⁻ (t : ℝ) in Ioo 0 M,
+        ((((↑C₀ * eLpNorm f p μ) ^ q₀.toReal * ∫⁻ (t : ℝ) in Ioo 0 M.toReal,
             ENNReal.ofReal (t ^ (q.toReal - q₀.toReal - 1))) *
             if q₀ = ⊤ then 0 else 1) +
-          ((↑C₁ * eLpNorm f p μ) ^ q₁.toReal * ∫⁻ (t : ℝ) in Ici M,
+          ((↑C₁ * eLpNorm f p μ) ^ q₁.toReal * ∫⁻ (t : ℝ) in Ici M.toReal,
             ENNReal.ofReal (t ^ (q.toReal - q₁.toReal - 1))) *
             if q₁ = ⊤ then 0 else 1)) ^
         q.toReal⁻¹ = (ENNReal.ofReal q.toReal *
-            (↑C₀ ^ ((1 - t) * q.toReal) * ↑C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal *
+            (↑C₀ ^ ((1 - t).toReal * q.toReal) * ↑C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal *
               ENNReal.ofReal |q.toReal - q₀.toReal|⁻¹ * (if q₀ = ⊤ then 0 else 1) +
-            ↑C₀ ^ ((1 - t) * q.toReal) * ↑C₁ ^ (t * q.toReal) * eLpNorm f p μ ^ q.toReal *
+            ↑C₀ ^ ((1 - t).toReal * q.toReal) * ↑C₁ ^ (t.toReal * q.toReal) * eLpNorm f p μ ^ q.toReal *
                 ENNReal.ofReal |q.toReal - q₁.toReal|⁻¹ * if q₁ = ⊤ then 0 else 1)) ^
             q.toReal⁻¹ := by
       congr 3
-      · sorry /- proof was: rw [lintegral_rpow_of_gt_abs, sub_add_cancel, ENNReal.ofReal_div_of_pos,
-            div_eq_mul_inv, ← ofReal_inv_of_pos] <;> try positivity
-        rw [← mul_assoc, simplify_factor₄ (ht := ht) (hC₁ := hC₁) (hD := rfl) (hq₀' := hq₀q₁.ne_top)]
+      · rw [lintegral_rpow_of_gt_abs, sub_add_cancel, ENNReal.ofReal_div_of_pos,
+            div_eq_mul_inv, ← ofReal_inv_of_pos, ← ENNReal.ofReal_rpow_of_pos] <;> try positivity
+        rw [← mul_assoc, simplify_factor₄ (ht := ht) (hC₁ := hC₁) (hq₀' := hq₀q₁.ne_top)]
             <;> try assumption
         · rw [abs_of_pos] <;> linarith
         · rw [abs_of_pos] <;> linarith
-        · linarith -/
+        · linarith
       · split_ifs with is_q₁top
         · rw [mul_zero, mul_zero]
         · have q_lt_q₁toReal : q.toReal < q₁.toReal :=
             preservation_inequality_of_lt₁ ht q₀pos q₁pos hq hq₀q₁ is_q₁top
-          sorry /- proof was: rw [mul_one, mul_one, setLIntegral_congr (Filter.EventuallyEq.symm Ioi_ae_eq_Ici),
+          rw [mul_one, mul_one, setLIntegral_congr (Filter.EventuallyEq.symm Ioi_ae_eq_Ici),
           lintegral_Ioi_rpow_of_lt_abs, sub_add_cancel, ENNReal.ofReal_div_of_pos,
-            div_eq_mul_inv, ← ofReal_inv_of_pos] <;> try positivity
+            div_eq_mul_inv, ← ofReal_inv_of_pos, ← ENNReal.ofReal_rpow_of_pos] <;> try positivity
           rw [← mul_assoc, simplify_factor₅ (hC₀ := hC₀) (ht := ht) (q₀ := q₀) (q₁ := q₁) (p₀ := p₀)
-              (p₁ := p₁) (hD := rfl)] <;> try assumption
+              (p₁ := p₁)] <;> try assumption
           · rw [abs_of_neg] <;> linarith
           · rw [abs_of_neg] <;> linarith
-          · linarith -/ -/
-    -- proof was the following
-    -- rw [eq, coe_q]
-    -- nth_rw 1 [mul_assoc]
-    -- nth_rw 3 [mul_assoc]
-    -- rw [← mul_add]
-    -- have obs : q.toReal⁻¹ ≥ 0 := by positivity
-    -- repeat rw [ENNReal.mul_rpow_of_nonneg _ _ obs]
-    -- rw [ENNReal.rpow_rpow_inv, ← ENNReal.rpow_mul, ← ENNReal.rpow_mul, mul_assoc (1 - t),
-    --     mul_inv_cancel₀, mul_assoc t, mul_inv_cancel₀, mul_one, mul_one] <;> try positivity
-    -- ring
+          · linarith
+    rw [eq, coe_q]
+    nth_rw 1 [mul_assoc]
+    nth_rw 3 [mul_assoc]
+    rw [← mul_add]
+    have obs : q.toReal⁻¹ ≥ 0 := by positivity
+    repeat rw [ENNReal.mul_rpow_of_nonneg _ _ obs]
+    rw [ENNReal.rpow_rpow_inv, ← ENNReal.rpow_mul, ← ENNReal.rpow_mul, mul_assoc (1 - t).toReal,
+        mul_inv_cancel₀, mul_assoc t.toReal, mul_inv_cancel₀, mul_one, mul_one] <;> try positivity
+    ring
 
 /-- The main estimate in the real interpolation theorem for `p₀ = p₁`, before taking roots,
     for the case `q₀ < q₁`. -/
