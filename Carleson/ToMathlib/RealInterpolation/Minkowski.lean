@@ -505,7 +505,7 @@ lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     ‖f a‖ₑ ^ (p₀ + spf.σ⁻¹ * (q - q₀) * (p₀ / q₀)) ∂μ) ^ (p₀⁻¹ * q₀) := by
   have := spf.hd
   unfold eLpNorm eLpNorm'
-  set tc := spf_to_tc spf
+  set tc := (spf_to_tc spf).toToneCouple
   split_ifs with is_p₀pos is_p₀top
   · have : p₀ ≤ 0 := ofReal_eq_zero.mp is_p₀pos
     contrapose! this; exact hp₀
