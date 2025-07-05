@@ -1079,9 +1079,11 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
           apply setLIntegral_mono' measurableSet_Ioo
           intro t ⟨(ht₁ : 0 < t), _⟩
           gcongr
-          sorry /- type mismatch; old proof was apply weaktype_estimate <;> try assumption
+          rw [← ofReal_rpow_of_pos ht₁]
+          apply weaktype_estimate <;> try assumption
           · exact (hq₀q₁.ne_top).lt_top
-          · rw [p_eq_p₀]; exact h₀T -/
+          · rw [p_eq_p₀]; exact h₀T
+          · exact ofReal_pos.mpr ht₁
       · split_ifs with is_q₁_top
         · simp only [mul_zero, nonpos_iff_eq_zero]
           have hf_0 : EqOn (fun t ↦ distribution (T f) (ENNReal.ofReal t) ν *
@@ -1105,11 +1107,13 @@ lemma exists_hasStrongType_real_interpolation_aux₂ {f : α → E₁}
         · rw [mul_one]
           apply setLIntegral_mono' measurableSet_Ici
           intro t ht
+          have ht' := lt_of_lt_of_le M_pos ht
           gcongr
-          sorry /- type mismatch, old proof was: apply weaktype_estimate <;> try assumption
+          rw [← ofReal_rpow_of_pos ht']
+          apply weaktype_estimate <;> try assumption
           · exact Ne.lt_top is_q₁_top
           · rw [p_eq_p₀, hp₀p₁]; exact h₁T
-          · exact lt_of_lt_of_le M_pos ht -/
+          · positivity
     _ = (ENNReal.ofReal q.toReal *
         ((C₀ * eLpNorm f p μ )^ q₀.toReal *
         (∫⁻ (t : ℝ) in Ioo 0 M, ENNReal.ofReal (t ^ (q.toReal - q₀.toReal - 1))) *
@@ -1168,9 +1172,9 @@ lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q :
     rw [this, add_comm]
     have hp' := switch_exponents ht hp
     have hq' := switch_exponents ht hq
-    sorry /- proof was: nth_rw 1 [← sub_sub_self 1 t]
+    nth_rw 1 [← sub_sub_self 1 t]
     apply exists_hasStrongType_real_interpolation_aux₂
-      (ht := Ioo.one_sub_mem ht) (hp₀p₁ := hp₀p₁.symm) (hq₀q₁ := q₁lt_q₀) <;> try assumption -/
+      (ht := Ioo.one_sub_mem ht) (hp₀p₁ := hp₀p₁.symm) (hq₀q₁ := q₁lt_q₀) <;> try assumption
 
 /-- The main estimate for the real interpolation theorem, before taking roots, combining
 the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
