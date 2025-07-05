@@ -53,6 +53,8 @@ structure ToneCouple where
       then ∀ s t, (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
       else ∀ s t, (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
 
+/-- A StrictRangeToneCouple is a tonecouple for which the functions in the couple, when
+    restricted to `Ioo 0 ∞`, map to `Ioo 0 ∞`. -/
 structure StrictRangeToneCouple extends ToneCouple where
   ran_ton : ∀ t ∈ Ioo 0 ∞, ton t ∈ Ioo 0 ∞
   ran_inv : ∀ t ∈ Ioo 0 ∞, inv t ∈ Ioo 0 ∞
