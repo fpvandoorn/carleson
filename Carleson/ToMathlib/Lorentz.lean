@@ -115,14 +115,15 @@ lemma eLorentzNorm_eq_Lp {E : Type*} [MeasurableSpace E] [TopologicalSpace E] [E
         · simp only [ENNReal.toReal_inv, enorm_eq_self, one_div]
           congr 2
           simp only [Pi.mul_apply]
-          rw [@integral_nnreal' (fun x ↦ x⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
+          rw [@integral_nnreal' (fun x ↦ (↑x)⁻¹ * (x * distribution f x μ ^ p.toReal⁻¹)^ p.toReal)]
           apply setLIntegral_congr_fun measurableSet_Ioi
           intro t ht
           simp only
           rw [ENNReal.mul_rpow_of_nonneg _ _ (by simp), ← mul_assoc, ← ENNReal.rpow_neg_one,
               ← ENNReal.rpow_add _ _ (by simpa) (by simp), mul_comm]
           congr 2
-          · rw [← ENNReal.rpow_mul, inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨p_zero,p_eq_top⟩), ENNReal.rpow_one]
+          · rw [← ENNReal.rpow_mul, inv_mul_cancel₀ (ENNReal.toReal_ne_zero.mpr ⟨p_zero,p_eq_top⟩),
+                ENNReal.rpow_one, ENNReal.ofNNReal_toNNReal]
           · exact neg_add_eq_sub 1 p.toReal
         · exact Measurable.inv measurable_coe_nnreal_ennreal
         · rw[Filter.eventually_iff_exists_mem]
@@ -231,13 +232,6 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
                           (volume.withDensity fun t ↦ (↑t)⁻¹) := by
           constructor
           · sorry
-          /-
-          by_cases r₁_top : r₁ = ⊤
-          · rw [r₁_top]  at memLp_r₁
-            exact memLp_r₁.2
-          -/
-
-          --rw [← eLorentzNorm']
           have := this le_top rfl
           unfold eLorentzNorm' at this
           rw [ENNReal.mul_lt_top_iff] at this
@@ -251,26 +245,13 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
             · exact h₁ p_top
           · rw [norm_zero]
             exact ENNReal.zero_lt_top
-
-          /-
-          have := memLp_r₁.2
-          rw [eLpNorm_eq_eLpNorm' r₁_pos.ne.symm r₁_top, eLpNorm'] at this
-          by_contra h
-          rw [lintegral_eq_top_of_measure_eq_top_ne_zero] at this
-          · rw [ENNReal.top_rpow_of_pos
-              (by rw [one_div, inv_pos]; exact ENNReal.toReal_pos r₁_pos.ne.symm r₁_top)] at this
-            contradiction
-          · sorry
-          · simp only [ENNReal.toReal_inv, eLpNorm_exponent_top, gt_iff_lt, not_lt, top_le_iff] at h
-            rw [eLpNormEssSup, essSup, le_limsup] at h
-          -/
         unfold eLorentzNorm'
         rw [ENNReal.mul_lt_top_iff]
         left
         use ENNReal.rpow_lt_top_of_nonneg (by simp) h₁
         exact (MeasureTheory.MemLp_of_MemLp_le_of_MemLp_ge r₁_pos ⟨r₁_le_r₂, le_top⟩ memLp_r₁ memLp_top).2
-      /-hardest part here;
-        TODO: Is this even true? Use: wnorm_le_eLpNorm, -/
+
+      /- Hardest part -/
       rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne.symm r₁_top,
           lintegral_withDensity_eq_lintegral_mul₀ sorry sorry, integral_nnreal'] at norm_lt_top
       --,ENNReal.rpow_lt_top_iff_of_pos (by rw [one_div, inv_pos]; exact ENNReal.toReal_pos r₁_pos.ne.symm r₁_top)
@@ -278,13 +259,53 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
       rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀, wnorm_ne_top h₁, wnorm']
       rw [iSup_lt_iff]
 
-      exists _, norm_lt_top
+      have toReal_r₁_pos := ENNReal.toReal_pos r₁_pos.ne.symm r₁_top
+      have : r₁ ^ r₁.toReal⁻¹ < ∞ := ENNReal.rpow_lt_top_of_nonneg (by simp) r₁_top
+      have norm_lt_top' := ENNReal.mul_lt_top norm_lt_top this --(lt_top_iff_ne_top.mpr r₁_top)
+      --rw [div_lt_top] at norm_lt_top
+      exists _, norm_lt_top'
       intro s
+      by_cases s_pos : ¬ 0 < NNReal.toReal s
+      · simp only [NNReal.coe_pos, not_lt, nonpos_iff_eq_zero] at s_pos
+        rw [s_pos]
+        simp
+      push_neg at s_pos
+      rw [← ENNReal.div_le_iff_le_mul (by left; apply (ENNReal.rpow_pos r₁_pos r₁_top).ne.symm) (by left; exact this.ne)] --TODO: improve this
       calc _
+        _ = distribution f (↑s) μ ^ p.toReal⁻¹ * (↑s / r₁ ^ r₁.toReal⁻¹) := by
+          rw [mul_comm, mul_div_assoc]
+        _ = distribution f (↑s) μ ^ p.toReal⁻¹ * (s ^ r₁.toReal / r₁) ^ r₁.toReal⁻¹ := by
+          rw [ENNReal.div_rpow_of_nonneg,
+              ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨r₁_pos.ne.symm, r₁_top⟩)]
+          simp only [inv_nonneg, ENNReal.toReal_nonneg]
+        _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ * (s ^ r₁.toReal / r₁) ^ r₁.toReal⁻¹ := by
+          congr 1
+          · rw [ENNReal.rpow_mul, ENNReal.rpow_rpow_inv (ENNReal.toReal_ne_zero.mpr ⟨r₁_pos.ne.symm, r₁_top⟩)]
+          --·
+        _ = (distribution f (↑s) μ ^ (p.toReal⁻¹ * r₁.toReal)) ^ r₁.toReal⁻¹ * (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, ENNReal.ofReal (x ^ (r₁.toReal - 1))) ^ r₁.toReal⁻¹:= by
+          congr
+          rw [lintegral_rpow_of_gt s_pos (by linarith), ENNReal.ofReal_div_of_pos (by simpa),
+              ← ENNReal.ofReal_rpow_of_nonneg NNReal.zero_le_coe (by linarith)]
+          ring_nf
+          rw [ENNReal.ofReal_toReal r₁_top, ENNReal.ofReal, Real.toNNReal_coe]
+        _ = (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, (↑x.toNNReal)⁻¹ *
+              (↑x.toNNReal ^ r₁.toReal * distribution f s μ ^ (p.toReal⁻¹ * r₁.toReal))) ^ r₁.toReal⁻¹ := by
+          rw [← ENNReal.mul_rpow_of_nonneg, ← lintegral_const_mul]
+          · congr 1
+            apply setLIntegral_congr_fun measurableSet_Ioo
+            intro x hx
+            simp only
+            rw [mul_comm, ← mul_assoc]
+            congr 1
+            rw [← ENNReal.ofReal_rpow_of_pos hx.1, ← ENNReal.rpow_neg_one, ← ENNReal.rpow_add _ _ (by simp [hx.1]) (by simp), neg_add_eq_sub]
+            congr
+          · measurability
+          · simp only [inv_nonneg, ENNReal.toReal_nonneg]
         _ = (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, (↑x.toNNReal)⁻¹ *
               (↑x.toNNReal * distribution f s μ ^ p.toReal⁻¹) ^ r₁.toReal) ^ r₁.toReal⁻¹ := by
-          --TODO: simplify this and integrate monomial to get this.
-          sorry
+          congr with x
+          rw [ENNReal.mul_rpow_of_nonneg, ENNReal.rpow_mul]
+          exact ENNReal.toReal_nonneg
         _ ≤ (∫⁻ (x : ℝ) in Set.Ioo 0 s.toReal, (↑x.toNNReal)⁻¹ *
               (↑x.toNNReal * distribution f (↑x.toNNReal) μ ^ p.toReal⁻¹) ^ r₁.toReal) ^ r₁.toReal⁻¹ := by
           apply ENNReal.rpow_le_rpow _ (by simp only [inv_nonneg, ENNReal.toReal_nonneg])
@@ -295,13 +316,7 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
         _ ≤ (∫⁻ (x : ℝ) in Set.Ioi 0, (↑x.toNNReal)⁻¹ * (↑x.toNNReal * distribution f (↑x.toNNReal) μ ^ p.toReal⁻¹) ^ r₁.toReal) ^
             r₁.toReal⁻¹ := by
           gcongr
-          --apply setLIntegral_mono_set
-          sorry
-      --use  norm_lt_top
-      --sorry
-      --have := (wnorm_le_eLpNorm meas_f _).trans_lt norm_lt_top
-
-
+          exact lintegral_mono_set Set.Ioo_subset_Ioi_self
     · exfalso
       rw [ENNReal.rpow_eq_zero_iff] at p_zero
       rcases p_zero with ⟨p_zero, _⟩ | ⟨p_top, _⟩
