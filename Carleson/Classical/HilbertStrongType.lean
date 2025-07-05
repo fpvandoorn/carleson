@@ -2,6 +2,7 @@ import Carleson.Classical.DirichletKernel
 import Carleson.Classical.HilbertKernel
 import Carleson.Classical.SpectralProjectionBound
 import Carleson.Defs
+import Carleson.ToMathlib.Algebra.BigOperators.Pi
 import Carleson.ToMathlib.MeasureTheory.Integral.MeanInequalities
 import Mathlib.Data.Real.Pi.Bounds
 
@@ -27,6 +28,10 @@ end
 /-- The modulation operator `M_n g`, defined in (11.3.1) -/
 def modulationOperator (n : ℤ) (g : ℝ → ℂ) (x : ℝ) : ℂ :=
   g x * Complex.exp (.I * n * x)
+
+lemma Measurable.modulationOperator (n : ℤ) {g : ℝ → ℂ} (hg : Measurable g) :
+    Measurable (modulationOperator n g) :=
+  hg.mul (measurable_const.mul measurable_ofReal).cexp
 
 /-- The approximate Hilbert transform `L_N g`, defined in (11.3.2).
 defined slightly differently. -/
@@ -179,15 +184,45 @@ lemma spectral_projection_bound {f : ℝ → ℂ} {n : ℕ} (hmf : Measurable f)
   rw [← eLpNorm_congr_ae ae_eq_right, ← eLpNorm_congr_ae ae_eq_left]
   exact lp_version
 
+private lemma norm_modulationOperator (g : ℝ → ℂ) (n : ℤ) (x : ℝ) :
+    ‖modulationOperator n g x‖ = ‖g x‖ := by
+  rw [modulationOperator, norm_mul, mul_assoc, mul_comm I, ← ofReal_intCast, ← ofReal_mul,
+    norm_exp_ofReal_mul_I, mul_one]
+
+private lemma indicator_modulationOperator (g : ℝ → ℂ) (n : ℤ) (s : Set ℝ) :
+    s.indicator (modulationOperator n g) = modulationOperator n (s.indicator g) := by
+  ext x; simp [modulationOperator, indicator]
+
+private lemma eLpNorm_modulationOperator (g : ℝ → ℂ) (n : ℤ) (p : ℝ≥0∞) :
+    eLpNorm (modulationOperator n g) p = eLpNorm g p :=
+  eLpNorm_congr_norm_ae (Filter.Eventually.of_forall <| (norm_modulationOperator _ n ·))
+
+private lemma eLpNorm_indicator_modulationOperator (g : ℝ → ℂ) (n : ℤ) (p : ℝ≥0∞) (s : Set ℝ) :
+    eLpNorm (s.indicator (modulationOperator n g)) p = eLpNorm (s.indicator g) p :=
+  indicator_modulationOperator g n s ▸ eLpNorm_modulationOperator (s.indicator g) n p
 
 /-- Lemma 11.3.1.
 The blueprint states this on `[-π, π]`, but I think we can consistently change this to `(0, 2π]`.
 -/
-lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ}
-    (hmg : Measurable g) (hg : MemLp g ∞ volume) (periodic_g : g.Periodic (2 * π)) :
-    eLpNorm ((Ioc 0 (2 * π)).indicator (approxHilbertTransform n g)) ≤
-    eLpNorm ((Ioc 0 (2 * π)).indicator g) := by
-  sorry
+lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : Measurable g) :
+    eLpNorm ((Ioc 0 (2 * π)).indicator (approxHilbertTransform n g)) 2 ≤
+    eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 := by
+  unfold approxHilbertTransform
+  by_cases hn : n = 0
+  · simp [hn]
+  rw [funext (indicator_const_mul _ _ _)]
+  change eLpNorm ((n : ℂ)⁻¹ • _) _ _ ≤ _
+  rw [eLpNorm_const_smul _ _ _ _, ← Finset.sum_fn, ← sum_indicator_eq_indicator_sum,
+    enorm_inv (Nat.cast_ne_zero.mpr hn), ← one_mul (eLpNorm (indicator _ _) _ _),
+    ← ENNReal.inv_mul_cancel (by simp [hn]) (enorm_ne_top (x := (n : ℂ))), mul_assoc]
+  refine mul_le_mul_left' (le_trans (eLpNorm_sum_le ?_ one_le_two) ?_) _
+  · refine fun i _ ↦ Measurable.indicator ?_ measurableSet_Ioc |>.aestronglyMeasurable
+    exact partialFourierSum_uniformContinuous.continuous.measurable.modulationOperator _
+  trans ∑ i ∈ Finset.Ico n (2 * n), eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 volume; swap
+  · simp [← ofReal_norm_eq_enorm, Nat.sub_eq_of_eq_add (two_mul n)]
+  refine Finset.sum_le_sum (fun i _ ↦ ?_)
+  rw [eLpNorm_indicator_modulationOperator _ _ 2 _, ← eLpNorm_indicator_modulationOperator g i 2 _]
+  exact spectral_projection_bound (hmg.modulationOperator _)
 
 /- Lemma 11.3.2 `periodic-domain-shift` is in Mathlib. -/
 
