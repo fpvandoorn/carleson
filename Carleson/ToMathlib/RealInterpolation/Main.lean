@@ -324,8 +324,7 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
     rw [ENNReal.ofReal_rpow_of_pos ha, ENNReal.ofReal_mul (by positivity)]
 
 lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
-    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
-    [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
+    [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
     (hq : 0 < q) (tc : StrictRangeToneCouple) {A : ℝ≥0} (hA : 0 < A)
     (ht : Subadditive_trunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
@@ -354,7 +353,6 @@ theorem ton_aeMeasurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMo
     AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) volume := by
   exact (ton_Measurable_eLpNorm_trunc _).aemeasurable
 
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_norm_rpow_range_operator'
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
@@ -1172,9 +1170,9 @@ lemma exists_hasStrongType_real_interpolation_aux₃  {p₀ p₁ q₀ q₁ p q :
     rw [this, add_comm]
     have hp' := switch_exponents ht hp
     have hq' := switch_exponents ht hq
-    nth_rw 1 [← sub_sub_self 1 t]
-    apply exists_hasStrongType_real_interpolation_aux₂
-      (ht := Ioo.one_sub_mem ht) (hp₀p₁ := hp₀p₁.symm) (hq₀q₁ := q₁lt_q₀) <;> try assumption
+    nth_rw 1 [← one_sub_one_sub_eq ht]
+    apply exists_hasStrongType_real_interpolation_aux₂ (ht := mem_sub_Ioo one_ne_top ht)
+        (hp₀p₁ := hp₀p₁.symm) (hq₀q₁ := q₁lt_q₀) <;> assumption
 
 /-- The main estimate for the real interpolation theorem, before taking roots, combining
 the cases `p₀ ≠ p₁` and `p₀ = p₁`. -/
@@ -1226,9 +1224,9 @@ lemma exists_hasStrongType_real_interpolation_aux₄ {p₀ p₁ q₀ q₁ p q : 
       rw [hM, this, add_comm]
       have hp' := switch_exponents ht hp
       have hq' := switch_exponents ht hq
-      sorry /- proof was nth_rw 1 [← sub_sub_self 1 t]
-      apply exists_hasStrongType_real_interpolation_aux
-        (ht := Ioo.one_sub_mem ht) (hq₀q₁ := hq₀q₁.symm) <;> assumption -/
+      nth_rw 1 [← one_sub_one_sub_eq ht]
+      apply exists_hasStrongType_real_interpolation_aux (ht := mem_sub_Ioo one_ne_top ht)
+          (hq₀q₁ := hq₀q₁.symm) <;> assumption
 
 /-- The definition of the constant in the real interpolation theorem, when viewed as
     an element of `ℝ≥0∞`. -/
