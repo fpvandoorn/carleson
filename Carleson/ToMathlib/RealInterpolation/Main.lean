@@ -295,44 +295,49 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
     [TopologicalSpace E] [ENormedAddCommMonoid E] (hq : 0 < q) {A : ℝ≥0} (hA : 0 < A)
     (hg : AEStronglyMeasurable g ν) :
     ∫⁻ x, ‖g x‖ₑ ^ q ∂ν =
-    ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s in Ioi (0 : ℝ),
-    distribution g ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) := by
-  have : 0 < (A : ℝ) := hA
-  rw [lintegral_norm_pow_eq_distribution hg (by linarith)]
-  nth_rewrite 1 [← lintegral_scale_constant_halfspace' (a := (2*A)) (by linarith)]
-  rw [← lintegral_const_mul']; swap; · exact coe_ne_top
-  rw [← lintegral_const_mul']; swap; · exact coe_ne_top
-  apply lintegral_congr_ae
-  filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with t (zero_lt_t : 0 < t)
-  nth_rw 12 [mul_comm]
-  rw [Real.mul_rpow, ← mul_assoc, ← ofReal_mul', ← mul_assoc, ← mul_assoc, ← mul_assoc,
-      ← ofReal_mul']
-      <;> try positivity
-  congr 3
-  rw [mul_assoc, mul_comm q, ← mul_assoc]
-  congr 1
-  rw [abs_of_nonneg] <;> try positivity
-  nth_rw 1 [← Real.rpow_one (2 * A), ← Real.rpow_add (by linarith), add_sub_cancel]
+    ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s,
+    distribution g ((ENNReal.ofReal (2 * A) * s))  ν * s^(q - 1) := by
+  calc
+  _ = ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s in Ioi (0 : ℝ),
+      distribution g ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) := by
+    have : 0 < (A : ℝ) := hA
+    rw [lintegral_norm_pow_eq_distribution hg (by linarith)]
+    nth_rewrite 1 [← lintegral_scale_constant_halfspace' (a := (2*A)) (by linarith)]
+    rw [← lintegral_const_mul']; swap; · exact coe_ne_top
+    rw [← lintegral_const_mul']; swap; · exact coe_ne_top
+    apply lintegral_congr_ae
+    filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with t (zero_lt_t : 0 < t)
+    nth_rw 12 [mul_comm]
+    rw [Real.mul_rpow, ← mul_assoc, ← ofReal_mul', ← mul_assoc, ← mul_assoc, ← mul_assoc,
+        ← ofReal_mul']
+        <;> try positivity
+    congr 3
+    rw [mul_assoc, mul_comm q, ← mul_assoc]
+    congr 1
+    rw [abs_of_nonneg] <;> try positivity
+    nth_rw 1 [← Real.rpow_one (2 * A), ← Real.rpow_add (by linarith), add_sub_cancel]
+  _ = _ := by
+    congr 1
+    rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal]
+    apply lintegral_congr_ae
+    filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with a ha
+    rw [ENNReal.ofReal_rpow_of_pos ha, ENNReal.ofReal_mul (by positivity)]
 
 lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
     [MeasurableSpace E₂] [TopologicalSpace E₂] [ENormedAddCommMonoid E₂]
-    (hq : 0 < q) (tc : ToneCouple) {A : ℝ≥0} (hA : 0 < A)
+    (hq : 0 < q) (tc : StrictRangeToneCouple) {A : ℝ≥0} (hA : 0 < A)
     (ht : Subadditive_trunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
   ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s, distribution (T (trunc f (tc.ton s)))
       s ν * s^(q - 1) +
   distribution (T (truncCompl f (tc.ton s))) s ν * s^(q - 1) := by
   rw [rewrite_norm_func hq hA hTf]
-  apply mul_le_mul' (le_refl _)
-  sorry
-  -- apply setLIntegral_mono' measurableSet_Ioi
-  -- intro s s_pos
-  -- rw [← add_mul]
-  -- apply mul_le_mul' ?_ (le_refl _)
-  -- sorry
-  -- proof was: convert estimate_distribution_Subadditive_trunc (tc.ran_ton s s_pos) ht
-  -- simp [ofReal_mul, ENNReal.ofNNReal_toNNReal]
+  refine mul_le_mul' (le_refl _) (lintegral_mono_ae ?_)
+  filter_upwards [ae_in_Ioo_zero_top] with a ha
+  rw [ENNReal.ofReal_mul (by simp), ← add_mul]
+  gcongr ?_ * _
+  convert estimate_distribution_Subadditive_trunc (tc.ran_ton a ha).1 ht <;> simp
 
 @[measurability, fun_prop]
 theorem ton_Measurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (tc : ToneCouple) :
