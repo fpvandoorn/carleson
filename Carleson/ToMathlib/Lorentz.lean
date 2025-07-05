@@ -184,8 +184,33 @@ lemma MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_top {α : Type*} {F : Type*} 
 
 --instance ENNReal.normedAddCommGroup : NormedAddCommGroup ℝ≥0∞ := ⟨fun _r _y => rfl⟩
 
+--TODO: generalize this?
+lemma aeMeasurable_withDensity_inv {f : ℝ≥0 → ℝ≥0∞} (hf : AEMeasurable f) :
+    AEMeasurable f (volume.withDensity (fun t ↦ t⁻¹)) := by
+  have : AEMeasurable f (volume.withDensity (fun t ↦ ENNReal.ofNNReal t⁻¹)) := by
+    rw [aemeasurable_withDensity_ennreal_iff measurable_inv]
+    apply AEMeasurable.mul _ hf
+    exact measurable_inv.aemeasurable.coe_nnreal_ennreal
+  convert this using 1
+  have : SigmaFinite (@volume ℝ≥0 NNReal.MeasureSpace : Measure ℝ≥0) := sorry --TODO: should be infered
+  have : NoAtoms (@volume ℝ≥0 NNReal.MeasureSpace : Measure ℝ≥0) := sorry --TODO: should be infered
+  rw [withDensity_eq_iff_of_sigmaFinite]
+  · rw [Filter.eventuallyEq_iff_exists_mem]
+    use {x | x ≠ 0}
+    constructor
+    · rw [mem_ae_iff]
+      simp only [ne_eq, Set.compl_ne_eq_singleton]
+      apply measure_singleton
+    · intro x hx
+      simp only [ne_eq, Set.mem_setOf_eq] at *
+      exact Eq.symm (ENNReal.coe_inv hx)
+  · apply Measurable.aemeasurable
+    measurability
+  · exact measurable_inv.aemeasurable.coe_nnreal_ennreal
+
+
 -- TODO: could maybe be strengthened to ↔
-lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
+lemma MemLorentz_of_MemLorentz_ge {ε : Type*} [ENorm ε] [TopologicalSpace ε] [ContinuousENorm ε] {f : α → ε} {p r₁ r₂ : ℝ≥0∞} {μ : Measure α}
   (r₁_pos : 0 < r₁) (r₁_le_r₂ : r₁ ≤ r₂) (hf : MemLorentz f p r₁ μ) :
     MemLorentz f p r₂ μ := by
   unfold MemLorentz at *
@@ -216,22 +241,20 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
       rw [r₁_top, top_le_iff] at r₁_le_r₂
       rw [r₁_top, r₁_le_r₂]
     --Now the only interesting case
+    have measurable_mul_distribution_rpow : Measurable fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal := by measurability
     unfold eLorentzNorm' at norm_f
     rw [ENNReal.mul_lt_top_iff] at norm_f
     rcases norm_f with ⟨_, norm_lt_top⟩ | p_zero | norm_zero
     · wlog r₂_top : r₂ = ⊤ generalizing r₂
-      · --Main case
-        --apply ENNReal.mul_lt_top (ENNReal.rpow_lt_top_of_nonneg (by simp) h₁)
-        --  Idea: First prove that by norm_lt_top, this function is bounded; then this implies a nesting of Lp spaces in this way
-        have memLp_r₁: MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) r₁
+      · have memLp_r₁: MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) r₁
                         (volume.withDensity fun t ↦ (↑t)⁻¹) := by
           constructor
-          · sorry
+          · exact (aeMeasurable_withDensity_inv measurable_mul_distribution_rpow.aemeasurable).aestronglyMeasurable
           exact norm_lt_top
         have memLp_top : MemLp (fun (t : ℝ≥0) ↦ ↑t * distribution f (↑t) μ ^ p⁻¹.toReal) ⊤
                           (volume.withDensity fun t ↦ (↑t)⁻¹) := by
           constructor
-          · sorry
+          · exact (aeMeasurable_withDensity_inv measurable_mul_distribution_rpow.aemeasurable).aestronglyMeasurable
           have := this le_top rfl
           unfold eLorentzNorm' at this
           rw [ENNReal.mul_lt_top_iff] at this
@@ -253,16 +276,14 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
 
       /- Hardest part -/
       rw [eLpNorm_eq_lintegral_rpow_enorm r₁_pos.ne.symm r₁_top,
-          lintegral_withDensity_eq_lintegral_mul₀ sorry sorry, integral_nnreal'] at norm_lt_top
-      --,ENNReal.rpow_lt_top_iff_of_pos (by rw [one_div, inv_pos]; exact ENNReal.toReal_pos r₁_pos.ne.symm r₁_top)
+          lintegral_withDensity_eq_lintegral_mul₀ (by measurability) (measurable_mul_distribution_rpow.aestronglyMeasurable.enorm.pow_const r₁.toReal), integral_nnreal'] at norm_lt_top
       simp only [ENNReal.toReal_inv, enorm_eq_self, Pi.mul_apply, one_div] at norm_lt_top
       rw [r₂_top, ← eLorentzNorm_eq_eLorentzNorm' h₀ h₁, eLorentzNorm_eq_wnorm h₀, wnorm_ne_top h₁, wnorm']
       rw [iSup_lt_iff]
 
       have toReal_r₁_pos := ENNReal.toReal_pos r₁_pos.ne.symm r₁_top
       have : r₁ ^ r₁.toReal⁻¹ < ∞ := ENNReal.rpow_lt_top_of_nonneg (by simp) r₁_top
-      have norm_lt_top' := ENNReal.mul_lt_top norm_lt_top this --(lt_top_iff_ne_top.mpr r₁_top)
-      --rw [div_lt_top] at norm_lt_top
+      have norm_lt_top' := ENNReal.mul_lt_top norm_lt_top this
       exists _, norm_lt_top'
       intro s
       by_cases s_pos : ¬ 0 < NNReal.toReal s
@@ -325,10 +346,8 @@ lemma MemLorentz_nested {ε : Type*} [ENorm ε] [TopologicalSpace ε] [Continuou
     · unfold eLorentzNorm'
       rw [ENNReal.mul_lt_top_iff]
       right; right
-      --TODO: comment in again
-      --rw [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) r₁_pos.ne.symm] at norm_zero
-      --rwa [eLpNorm_eq_zero_iff (by apply Measurable.aestronglyMeasurable; measurability) (r₁_pos.trans_le r₁_le_r₂).ne.symm]
-      sorry
+      rw [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable r₁_pos.ne.symm] at norm_zero
+      rwa [eLpNorm_eq_zero_iff measurable_mul_distribution_rpow.aestronglyMeasurable (r₁_pos.trans_le r₁_le_r₂).ne.symm]
 
 
 
