@@ -137,73 +137,28 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       rw [oc, mem_setOf, mem_Ioc] at my; rw [mem_closedBall']; exact my.2
     _ < _ := measure_closedBall_lt_top
 
-#exit
-
 lemma rightContinuous_carlesonOperatorIntegrand
-    (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (mθ : Measurable θ) (hR₁ : 0 < R₁) :
-    ContinuousWithinAt (carlesonOperatorIntegrand K θ · R₂ f x) (Ici R₁) R₁ := by
-  simp_rw [carlesonOperatorIntegrand, continuousWithinAt_iff, mem_Ici]; intro ε εpos
-  rcases le_or_gt R₂ R₁ with hR₂ | hR₂
-  · use 1, zero_lt_one; intro R' hR' _
-    rw [Annulus.oo_eq_empty (hR₂.trans hR'), Annulus.oo_eq_empty hR₂, setIntegral_empty, dist_self]
-    exact εpos
-  obtain ⟨u, sau, mu, ttu⟩ := exists_seq_strictAnti_tendsto' hR₂
-  -- R₁ < ... < u (n + 1) < u n < ... < u 1 < u 0 < R₂
-  let s (n : ℕ) := Annulus.oc x (u (n + 1)) (u n)
-  have union_s : ⋃ i, s i = Annulus.oc x R₁ (u 0) := by
-    ext y; simp_rw [mem_iUnion, s, Annulus.oc, mem_setOf, mem_Ioc]; constructor <;> intro h
-    · obtain ⟨n, hn₁, hn₂⟩ := h
-      exact ⟨(mu (n + 1)).1.trans hn₁, hn₂.trans (sau.antitone (zero_le n))⟩
-    · let T : Set ℕ := {n | u n < dist x y}
-      have neT : T.Nonempty := by
-        rw [Metric.tendsto_atTop] at ttu
-        specialize ttu (dist x y - R₁) (by linarith only [h.1]); obtain ⟨N, hN⟩ := ttu
-        specialize hN N le_rfl
-        rw [dist_eq_norm, Real.norm_of_nonneg (by linarith only [(mu N).1]),
-          sub_lt_sub_iff_right] at hN; use N, hN
-      have wfT : T.IsWF := IsWF.of_wellFoundedLT T
-      use wfT.min neT - 1
-      have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
-      have minT_pos : wfT.min neT ≠ 0 := by
-        by_contra! h'; rw [h'] at minT_mem; exact absurd h.2 (not_le.mpr minT_mem)
-      rw [Nat.sub_one_add_one minT_pos, ← not_lt]; refine ⟨minT_mem, ?_⟩
-      change wfT.min neT - 1 ∉ T; contrapose! minT_pos
-      replace minT_pos := wfT.min_le neT minT_pos; omega
-  have disjoint_s : Pairwise (Function.onFun Disjoint s) := fun i j hn ↦ by
-    change Disjoint (s i) (s j)
-    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by omega)).symm
-    simp_rw [s, disjoint_left, Annulus.oc, mem_setOf, mem_Ioc]; intro y my
-    rw [not_and_or, not_le]; right
-    exact (sau.antitone (show i + 1 ≤ j by omega)).trans_lt my.1
-  let f' (y : X) := K x y * f y * cexp (I * θ y)
-  have integrableOn_f' : IntegrableOn f' (⋃ i, s i) := by
-    simp_rw [union_s, f', mul_assoc]
-    refine integrableOn_K_mul ?_ _ hR₁ fun y my ↦ ?_
-    · refine Integrable.bdd_mul ?_ mf.aestronglyMeasurable.restrict ⟨_, nf⟩
-      apply Measure.integrableOn_of_bounded (M := 1)
-      · rw [← lt_top_iff_ne_top]
-        calc
-          _ ≤ volume (ball x R₂) := by
-            refine measure_mono fun y my ↦ ?_
-            rw [Annulus.oc, mem_setOf, mem_Ioc] at my; rw [mem_ball']; exact my.2.trans_lt (mu 0).2
-          _ < _ := measure_ball_lt_top
-      · exact ((Complex.measurable_ofReal.comp mθ).const_mul I).cexp.aestronglyMeasurable
-      · refine Eventually.of_forall fun y ↦ ?_
-        rw [mul_comm, norm_exp_ofReal_mul_I]
-    · rw [Annulus.oc, mem_setOf, mem_Ioc] at my
-      rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
-  have hsiu := hasSum_integral_iUnion (fun _ ↦ Annulus.measurableSet_oc) disjoint_s integrableOn_f'
-  have pstt := hsiu.summable.tendsto_sum_tsum_nat
-  rw [hsiu.tsum_eq, union_s, Metric.tendsto_atTop] at pstt
-  sorry
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    ContinuousWithinAt (carlesonOperatorIntegrand K (Q x) · R₂ f x) (Ici R₁) R₁ := by
+  apply rightContinuous_integral_annulus
+  simp_rw [mul_assoc]; refine integrableOn_K_mul ?_ _ hR₁ fun y my ↦ ?_
+  · refine Integrable.bdd_mul ?_ mf.aestronglyMeasurable.restrict ⟨_, nf⟩
+    apply Measure.integrableOn_of_bounded (M := 1)
+    · rw [← lt_top_iff_ne_top]
+      calc
+        _ ≤ volume (ball x R₂) := by
+          refine measure_mono fun y my ↦ ?_
+          rw [Annulus.oo, mem_setOf, mem_Ioo] at my; rw [mem_ball']; exact my.2
+        _ < _ := measure_ball_lt_top
+    · exact ((Complex.measurable_ofReal.comp
+        (measurable_Q₁ x)).const_mul I).cexp.aestronglyMeasurable
+    · refine Eventually.of_forall fun y ↦ ?_
+      rw [mul_comm, norm_exp_ofReal_mul_I]
+  · rw [Annulus.oo, mem_setOf, mem_Ioo] at my
+    rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
 
-lemma leftContinuous_carlesonOperatorIntegrand (mf : Measurable f) (hR₁ : 0 < R₁) :
+lemma leftContinuous_carlesonOperatorIntegrand (mf : Measurable f) :
     ContinuousWithinAt (carlesonOperatorIntegrand K θ R₁ · f x) (Iic R₂) R₂ := by
-  simp_rw [carlesonOperatorIntegrand, continuousWithinAt_iff, mem_Iic, Real.dist_eq]; intro ε εpos
-  rcases le_or_gt R₂ R₁ with hR₂ | hR₂
-  · use 1, zero_lt_one; intro R' hR'₁ hR'₂
-    rw [Annulus.oo_eq_empty (hR'₁.trans hR₂), Annulus.oo_eq_empty hR₂, setIntegral_empty, dist_self]
-    exact εpos
   sorry
 
 lemma continuous_carlesonOperatorIntegrand (nf : (‖f ·‖) ≤ 1) :

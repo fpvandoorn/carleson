@@ -63,7 +63,7 @@ lemma iSup_lcoConvergent : ⨆ n, lcoConvergent K Q f n = linearizedCarlesonOper
     · exact ((le_max_right ..).trans_lt hn₂).trans_le
         (pow_le_pow_right₀ one_le_two (le_max_right ..))
 
-lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) :
+lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) :
     Measurable (lcoConvergent K Q f n) := by
   refine measurable_of_Ioi fun c ↦ ?_
   let J : Set (ℚ × ℚ) := {p | (2 ^ n)⁻¹ < p.1 ∧ p.1 < p.2 ∧ p.2 < 2 ^ n}
@@ -90,7 +90,8 @@ lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) :
     have εpos : 0 < ε := by linarith only [hR]
     -- Move `R₁` right (+ve) by a small amount to a rational number
     have lR₁ : R₁ < R₂ := mR₂.1
-    have rcon := @rightContinuous_carlesonOperatorIntegrand _ _ _ _ _ (Q x) R₁ R₂ _ x mf
+    have R₁pos : 0 < R₁ := lt_of_le_of_lt (by positivity) mR₁.1
+    have rcon := @rightContinuous_carlesonOperatorIntegrand _ _ _ _ _ Q R₁ R₂ _ x mf nf R₁pos
     rw [Metric.continuousWithinAt_iff] at rcon; specialize rcon _ (half_pos εpos)
     obtain ⟨δ₁, δ₁pos, hq₁⟩ := rcon
     have lt₁ : R₁ < min (R₁ + δ₁) R₂ := by rw [lt_min_iff]; constructor <;> linarith
@@ -130,13 +131,14 @@ theorem linearized_metric_carleson
       2 2 volume volume (C_Ts a)) :
     ∫⁻ x in G, linearizedCarlesonOperator Q K f x ≤
     C1_0_2 a q * volume G ^ (q' : ℝ)⁻¹ * volume F ^ (q : ℝ)⁻¹ := by
+  have nf' : (‖f ·‖) ≤ 1 := nf.trans (indicator_le_self' (by simp))
   calc
     _ = ∫⁻ x, ⨆ n, G.indicator (lcoConvergent K Q f n) x := by
       rw [← lintegral_indicator mG]; congr! 2 with x
       rw [← iSup_apply, iSup_indicator rfl monotone_lcoConvergent monotone_const, iUnion_const,
         iSup_lcoConvergent]
     _ = ⨆ n, ∫⁻ x, G.indicator (lcoConvergent K Q f n) x :=
-      lintegral_iSup (fun _ ↦ (measurable_lcoConvergent mf).indicator mG)
+      lintegral_iSup (fun _ ↦ (measurable_lcoConvergent mf nf').indicator mG)
         (fun _ _ hl ↦ indicator_mono (monotone_lcoConvergent hl))
     _ ≤ _ := by
       refine iSup_le fun n ↦ ?_
