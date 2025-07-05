@@ -190,8 +190,7 @@ where again $e(r)=e^{ir}$.
 \uses{R-truncation,int-continuous}
 \leanok
 \lean{linearized_metric_carleson}
-    For all integers $a \ge 4$ and real numbers $1<q\le 2$
-    the following holds.
+    For all integers $a \ge 4$ and real numbers $1<q\le 2$ the following holds.
     Let $(X,\rho,\mu,a)$ be a doubling metric measure space. Let $\Mf$ be a
     cancellative compatible collection of functions.
     Let $\tQ:X\to \Mf$ be a Borel function with finite range.
@@ -200,12 +199,11 @@ where again $e(r)=e^{ir}$.
         \|T_{\tQ}^\mfa g\|_{2} \leq 2^{a^3} \|g\|_2\,,
     \end{equation}
     where $T_{\tQ}^\mfa$ is defined in \eqref{def-lin-star-op}.
-    Then for all bounded Borel sets $F$ and $G$ in $X$ and
-    all Borel functions $f:X\to \C$ with
+    Then for all Borel sets $F$ and $G$ in $X$ and all Borel functions $f:X\to \C$ with
     $|f|\le \mathbf{1}_F$, we have, with $T_\tQ$ defined in \eqref{def-lin-main-op},
     \begin{equation}
         \label{linresweak}
-        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \leq \frac{2^{450a^3}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
+        \left|\int_{G} T_\tQ f \, \mathrm{d}\mu\right| \le \frac{2^{471a^3+4}}{(q-1)^6} \mu(G)^{1-\frac{1}{q}} \mu(F)^{\frac{1}{q}}\, .
     \end{equation}
 \end{theorem}
 
@@ -906,6 +904,7 @@ We continue with the proof of Theorem \ref{linearised-metric-Carleson}, via a se
 Let a measurable function $Q$ with finite range be given.
 
 \begin{proof}[Proof of \Cref{linearised-metric-Carleson}]
+\leanok
 \proves{linearised-metric-Carleson}
 Let Borel sets $F$, $G$ in $X$ with finite measure be given. Let a Borel function $f: X \to \mathbb{C}$ with $f \le \mathbf{1}_F$ be given.
 
@@ -4710,7 +4709,7 @@ Now we prove the two auxiliary lemmas. We begin with the nontangential maximal o
 
     Using $a \ge 4$, taking a supremum over all $x' \in I_{s_1}(x)$ and then a supremum over all $-S \le s_1 < s_2 \le S$, we obtain
     $$
-        T_{\mathcal{N}} f(x) \le T_*f(x) + 2^{102a^3} M_{\mathcal{B},1} f(x)\,.
+        T_{\mathcal{N}} f(x) \le 2T_{\tQ}^\mfa f(x) + 2^{102a^3} M_{\mathcal{B},1} f(x)\,.
     $$
     The lemma now follows from assumption \eqref{linnontanbound}, \Cref{Hardy-Littlewood} and $a \ge 4$.
 \end{proof}

@@ -73,7 +73,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     specialize key _ εpos; obtain ⟨δ, δpos, nb⟩ := key
     use min δ (R₂ - R₁), lt_min_iff.mpr ⟨δpos, sub_pos.mpr hR₂⟩; intro y ly dy
     rw [lt_min_iff] at dy; specialize nb ly dy.1
-    rw [Real.dist_eq, abs_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_right] at dy
+    rw [dist_eq_norm, Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_right] at dy
     rw [dist_eq_norm, sub_zero, inter_eq_self_of_subset_right (oc_subset_oo le_rfl dy.2),
       integral_indicator measurableSet_oc] at nb
     rw [dist_eq_norm']; convert nb
@@ -93,7 +93,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
     rw [ENNReal.tendsto_atTop_zero] at this
     specialize this _ εpos; obtain ⟨n, hn⟩ := this; specialize hn _ le_rfl
     use u n - R₁, sub_pos.mpr (mu n).1; intro y dy ly
-    rw [Real.dist_eq, abs_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_right] at dy
+    rw [dist_eq_norm, Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_right] at dy
     rw [Function.comp_apply, Measure.restrict_apply measurableSet_oc,
       inter_eq_self_of_subset_left (oc_subset_oo le_rfl (dy.trans (mu n).2))]
     exact (measure_mono (oc_subset_oc le_rfl dy.le)).trans hn
@@ -137,10 +137,93 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
       rw [oc, mem_setOf, mem_Ioc] at my; rw [mem_closedBall']; exact my.2
     _ < _ := measure_closedBall_lt_top
 
-lemma rightContinuous_carlesonOperatorIntegrand
-    (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
-    ContinuousWithinAt (carlesonOperatorIntegrand K (Q x) · R₂ f x) (Ici R₁) R₁ := by
-  apply rightContinuous_integral_annulus
+open Annulus in
+/-- Let `f` be integrable over an annulus with fixed radii `R₁, R₂`.
+Then `fun R ↦ ∫ y in oo x R₁ R, f y` is left-continuous at `R₂`. -/
+lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
+    ContinuousWithinAt (fun R ↦ ∫ y in oo x R₁ R, f y) (Iic R₂) R₂ := by
+  -- If `R₁ ≥ R₂` the proof is easy
+  rcases le_or_gt R₂ R₁ with hR₂ | hR₂
+  · simp_rw [continuousWithinAt_iff, mem_Iic]; intro ε εpos
+    use 1, zero_lt_one; intro R' hR' _
+    rw [oo_eq_empty (hR'.trans hR₂), oo_eq_empty hR₂, setIntegral_empty, dist_self]
+    exact εpos
+  -- Reduce to showing that the volumes of annuli `co x R R₂` can be arbitrarily small
+  suffices Tendsto (volume.restrict (oo x R₁ R₂) ∘ (co x · R₂)) (𝓝[≤] R₂) (nhds 0) by
+    simp_rw [continuousWithinAt_iff, mem_Iic]; intro ε εpos
+    have key := iof.tendsto_setIntegral_nhds_zero this
+    simp_rw [← integral_indicator measurableSet_co, ← integral_indicator measurableSet_oo,
+      indicator_indicator, tendsto_nhdsWithin_nhds, mem_Iic] at key
+    specialize key _ εpos; obtain ⟨δ, δpos, nb⟩ := key
+    use min δ (R₂ - R₁), lt_min_iff.mpr ⟨δpos, sub_pos.mpr hR₂⟩; intro y ly dy
+    rw [lt_min_iff] at dy; specialize nb ly dy.1
+    rw [dist_eq_norm', Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_left] at dy
+    rw [dist_eq_norm, sub_zero, inter_eq_self_of_subset_right (co_subset_oo dy.2 le_rfl),
+      integral_indicator measurableSet_co] at nb
+    rw [dist_eq_norm']; convert nb
+    rw [sub_eq_iff_eq_add', ← setIntegral_union _ measurableSet_co]; rotate_left
+    · exact iof.mono_set (oo_subset_oo le_rfl ly)
+    · exact iof.mono_set (co_subset_oo dy.2 le_rfl)
+    · simp_rw [disjoint_left, co, oo, mem_setOf, mem_Ico, mem_Ioo, not_and_or, not_le]
+      exact fun z mz ↦ .inl mz.2
+    rw [oo_union_co dy.2 ly]
+  -- Obtain a strictly monotone sequence of numbers greater than `R₁` and converging to `R₂`.
+  -- By monotone convergence we reduce to showing that the volumes of annuli `co x R R₂`
+  -- along this sequence can be arbitrarily small
+  obtain ⟨u, smu, mu, ttu⟩ := exists_seq_strictMono_tendsto' hR₂
+  suffices Tendsto (fun n ↦ volume (co x (u n) R₂)) atTop (nhds 0) by
+    rw [ENNReal.tendsto_nhds_zero]; intro ε εpos
+    rw [eventually_nhdsWithin_iff, Metric.eventually_nhds_iff]
+    rw [ENNReal.tendsto_atTop_zero] at this
+    specialize this _ εpos; obtain ⟨n, hn⟩ := this; specialize hn _ le_rfl
+    use R₂ - u n, sub_pos.mpr (mu n).2; intro y dy ly
+    rw [dist_eq_norm', Real.norm_of_nonneg (sub_nonneg.mpr ly), sub_lt_sub_iff_left] at dy
+    rw [Function.comp_apply, Measure.restrict_apply measurableSet_co,
+      inter_eq_self_of_subset_left (co_subset_oo ((mu n).1.trans dy) le_rfl)]
+    exact (measure_mono (co_subset_co dy.le le_rfl)).trans hn
+  -- Split the annulus along the `u n`...
+  let s (n : ℕ) := co x (u n) (u (n + 1))
+  have us (k : ℕ) : ⋃ n, s (k + n) = co x (u k) R₂ := by
+    ext y; simp_rw [mem_iUnion, s, co, mem_setOf, mem_Ico]; constructor <;> intro h
+    · obtain ⟨n, hn₁, hn₂⟩ := h
+      exact ⟨(smu.monotone (Nat.le_add_right ..)).trans hn₁, hn₂.trans (mu (k + n + 1)).2⟩
+    · let T : Set ℕ := {n | dist x y < u (k + n)}
+      have neT : T.Nonempty := by
+        rw [Metric.tendsto_atTop] at ttu
+        specialize ttu (R₂ - dist x y) (by linarith only [h.2]); obtain ⟨N, hN⟩ := ttu
+        specialize hN (k + N) (Nat.le_add_left ..)
+        rw [dist_eq_norm', Real.norm_of_nonneg (by linarith only [(mu (k + N)).2]),
+          sub_lt_sub_iff_left] at hN; use N, hN
+      have wfT : T.IsWF := IsWF.of_wellFoundedLT T
+      use wfT.min neT - 1
+      have minT_mem := wfT.min_mem neT; simp_rw [T, mem_setOf] at minT_mem
+      have minT_pos : wfT.min neT ≠ 0 := by
+        by_contra! h'; rw [h'] at minT_mem; exact absurd h.1 (not_le.mpr minT_mem)
+      nth_rw 2 [← Nat.add_sub_assoc (by omega)]; rw [Nat.sub_add_cancel (by omega), ← not_lt]
+      refine ⟨?_, minT_mem⟩; change wfT.min neT - 1 ∉ T; contrapose! minT_pos
+      replace minT_pos := wfT.min_le neT minT_pos; omega
+  have ds (k : ℕ) : Pairwise (Function.onFun Disjoint fun n ↦ s (k + n)) := fun i j hn ↦ by
+    change Disjoint (s (k + i)) (s (k + j))
+    wlog hl : i < j generalizing i j; · exact (this j i hn.symm (by omega)).symm
+    simp_rw [s, disjoint_left, co, mem_setOf, mem_Ico]; intro y my
+    rw [not_and_or, not_le]; left
+    exact my.2.trans_le (smu.monotone (show k + i + 1 ≤ k + j by omega))
+  -- ...and appeal to `ENNReal.tendsto_sum_nat_add`
+  conv =>
+    enter [1, n]; rw [← us, measure_iUnion (ds n) (fun _ ↦ measurableSet_co)]
+    enter [1, k]; rw [add_comm]
+  specialize us 0; specialize ds 0; simp_rw [zero_add] at us ds
+  apply tendsto_sum_nat_add fun n ↦ volume (s n)
+  rw [← measure_iUnion ds (fun _ ↦ measurableSet_co), us, ← lt_top_iff_ne_top]
+  calc
+    _ ≤ volume (ball x R₂) := by
+      refine measure_mono fun y my ↦ ?_
+      rw [co, mem_setOf, mem_Ico] at my; rw [mem_ball']; exact my.2
+    _ < _ := measure_ball_lt_top
+
+/-- The integrand of `carlesonOperatorIntegrand` is integrable over the `R₁, R₂` annulus. -/
+lemma integrableOn_coi_inner_annulus (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    IntegrableOn (fun y ↦ K x y * f y * exp (I * Q x y)) (Annulus.oo x R₁ R₂) := by
   simp_rw [mul_assoc]; refine integrableOn_K_mul ?_ _ hR₁ fun y my ↦ ?_
   · refine Integrable.bdd_mul ?_ mf.aestronglyMeasurable.restrict ⟨_, nf⟩
     apply Measure.integrableOn_of_bounded (M := 1)
@@ -157,9 +240,15 @@ lemma rightContinuous_carlesonOperatorIntegrand
   · rw [Annulus.oo, mem_setOf, mem_Ioo] at my
     rw [mem_compl_iff, mem_ball', not_lt]; exact my.1.le
 
-lemma leftContinuous_carlesonOperatorIntegrand (mf : Measurable f) :
-    ContinuousWithinAt (carlesonOperatorIntegrand K θ R₁ · f x) (Iic R₂) R₂ := by
-  sorry
+lemma rightContinuous_carlesonOperatorIntegrand
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    ContinuousWithinAt (carlesonOperatorIntegrand K (Q x) · R₂ f x) (Ici R₁) R₁ :=
+  rightContinuous_integral_annulus (integrableOn_coi_inner_annulus mf nf hR₁)
+
+lemma leftContinuous_carlesonOperatorIntegrand
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    ContinuousWithinAt (carlesonOperatorIntegrand K (Q x) R₁ · f x) (Iic R₂) R₂ :=
+  leftContinuous_integral_annulus (integrableOn_coi_inner_annulus mf nf hR₁)
 
 lemma continuous_carlesonOperatorIntegrand (nf : (‖f ·‖) ≤ 1) :
     Continuous (carlesonOperatorIntegrand K · R₁ R₂ f x) := by
