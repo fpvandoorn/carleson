@@ -221,7 +221,7 @@ lemma modulated_averaged_projection {g : ℝ → ℂ} {n : ℕ} (hmg : Measurabl
   trans ∑ i ∈ Finset.Ico n (2 * n), eLpNorm ((Ioc 0 (2 * π)).indicator g) 2 volume; swap
   · simp [← ofReal_norm_eq_enorm, Nat.sub_eq_of_eq_add (two_mul n)]
   refine Finset.sum_le_sum (fun i _ ↦ ?_)
-  rw [eLpNorm_indicator_modulationOperator _ _ 2 _, ← eLpNorm_indicator_modulationOperator g i 2 _]
+  rw [eLpNorm_indicator_modulationOperator, ← eLpNorm_indicator_modulationOperator g]
   exact spectral_projection_bound (hmg.modulationOperator _)
 
 /- Lemma 11.3.2 `periodic-domain-shift` is in Mathlib. -/
