@@ -39,7 +39,7 @@ end MetricΘ
 
 open MetricΘ
 
-variable [KernelProofData a K] {θ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f : X → ℂ} {x : X}
+variable [KernelProofData a K] {θ ϑ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f : X → ℂ} {x : X}
 -- [IsCancellative X (defaultτ a)]
 
 lemma measurable_carlesonOperatorIntegrand (mf : Measurable f) :
@@ -133,8 +133,7 @@ lemma rightContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
   rw [← measure_iUnion ds (fun _ ↦ measurableSet_oc), us, ← lt_top_iff_ne_top]
   calc
     _ ≤ volume (closedBall x (u 0)) := by
-      refine measure_mono fun y my ↦ ?_
-      rw [oc, mem_setOf, mem_Ioc] at my; rw [mem_closedBall']; exact my.2
+      refine measure_mono fun y my ↦ ?_; rw [oc_eq] at my; exact my.1
     _ < _ := measure_closedBall_lt_top
 
 open Annulus in
@@ -217,13 +216,12 @@ lemma leftContinuous_integral_annulus (iof : IntegrableOn f (oo x R₁ R₂)) :
   rw [← measure_iUnion ds (fun _ ↦ measurableSet_co), us, ← lt_top_iff_ne_top]
   calc
     _ ≤ volume (ball x R₂) := by
-      refine measure_mono fun y my ↦ ?_
-      rw [co, mem_setOf, mem_Ico] at my; rw [mem_ball']; exact my.2
+      refine measure_mono fun y my ↦ ?_; rw [co_eq] at my; exact my.1
     _ < _ := measure_ball_lt_top
 
 /-- The integrand of `carlesonOperatorIntegrand` is integrable over the `R₁, R₂` annulus. -/
 lemma integrableOn_coi_inner_annulus (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
-    IntegrableOn (fun y ↦ K x y * f y * exp (I * Q x y)) (Annulus.oo x R₁ R₂) := by
+    IntegrableOn (fun y ↦ K x y * f y * exp (I * θ y)) (Annulus.oo x R₁ R₂) := by
   simp_rw [mul_assoc]; refine integrableOn_K_mul ?_ _ hR₁ fun y my ↦ ?_
   · refine Integrable.bdd_mul ?_ mf.aestronglyMeasurable.restrict ⟨_, nf⟩
     apply Measure.integrableOn_of_bounded (M := 1)
@@ -233,8 +231,7 @@ lemma integrableOn_coi_inner_annulus (mf : Measurable f) (nf : (‖f ·‖) ≤ 
           refine measure_mono fun y my ↦ ?_
           rw [Annulus.oo, mem_setOf, mem_Ioo] at my; rw [mem_ball']; exact my.2
         _ < _ := measure_ball_lt_top
-    · exact ((Complex.measurable_ofReal.comp
-        (measurable_Q₁ x)).const_mul I).cexp.aestronglyMeasurable
+    · exact ((Complex.measurable_ofReal.comp (by fun_prop)).const_mul I).cexp.aestronglyMeasurable
     · refine Eventually.of_forall fun y ↦ ?_
       rw [mul_comm, norm_exp_ofReal_mul_I]
   · rw [Annulus.oo, mem_setOf, mem_Ioo] at my
@@ -242,23 +239,118 @@ lemma integrableOn_coi_inner_annulus (mf : Measurable f) (nf : (‖f ·‖) ≤ 
 
 lemma rightContinuous_carlesonOperatorIntegrand
     (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
-    ContinuousWithinAt (carlesonOperatorIntegrand K (Q x) · R₂ f x) (Ici R₁) R₁ :=
+    ContinuousWithinAt (carlesonOperatorIntegrand K θ · R₂ f x) (Ici R₁) R₁ :=
   rightContinuous_integral_annulus (integrableOn_coi_inner_annulus mf nf hR₁)
 
 lemma leftContinuous_carlesonOperatorIntegrand
     (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
-    ContinuousWithinAt (carlesonOperatorIntegrand K (Q x) R₁ · f x) (Iic R₂) R₂ :=
+    ContinuousWithinAt (carlesonOperatorIntegrand K θ R₁ · f x) (Iic R₂) R₂ :=
   leftContinuous_integral_annulus (integrableOn_coi_inner_annulus mf nf hR₁)
-
-lemma continuous_carlesonOperatorIntegrand (nf : (‖f ·‖) ≤ 1) :
-    Continuous (carlesonOperatorIntegrand K · R₁ R₂ f x) := by
-  sorry
 
 /-- The constant used in the proof of `int-continuous`. -/
 irreducible_def C3_0_1 (a : ℕ) (R₁ R₂ : ℝ≥0) : ℝ≥0 :=
   2 ^ (a ^ 3) * (2 * R₂ / R₁) ^ a
 
+lemma lintegral_inv_vol_le {R₁ R₂ : ℝ≥0} (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂) :
+    ∫⁻ y in Annulus.oo x R₁ R₂, (vol x y)⁻¹ ≤ ↑((2 * R₂ / R₁) ^ a) := by
+  -- rw [coe_pow, coe_div hR₁.ne', coe_mul, coe_ofNat]
+  suffices ∀ y ∈ Annulus.oo x R₁ R₂, volume (ball x R₂) / ↑((2 * R₂ / R₁) ^ a) ≤ vol x y by
+    calc
+      _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ↑((2 * R₂ / R₁) ^ a) / volume (ball x R₂) := by
+        refine setLIntegral_mono' Annulus.measurableSet_oo fun y my ↦ ?_
+        rw [← ENNReal.inv_div (.inr measure_ball_ne_top)]; swap
+        · exact .inr (measure_ball_pos _ _ (hR₁.trans hR₂)).ne'
+        rw [ENNReal.inv_le_inv]; exact this y my
+      _ ≤ ↑((2 * R₂ / R₁) ^ a) / volume (ball x R₂) * volume (ball x R₂) := by
+        rw [setLIntegral_const]; gcongr; intro y my; rw [Annulus.oo_eq] at my; exact my.1
+      _ = _ :=
+        ENNReal.div_mul_cancel (measure_ball_pos _ _ (hR₁.trans hR₂)).ne' measure_ball_ne_top
+  intro y my
+  obtain ⟨n, _, _⟩ : ∃ n, R₂ ≤ 2 ^ n * dist x y ∧ 2 ^ n ≤ 2 * R₂ / R₁ := by
+    have : 1 ≤ R₂ / R₁ := by rw [one_le_div hR₁]; exact hR₂.le
+    obtain ⟨n, hn₁, hn₂⟩ := exists_nat_pow_near this one_lt_two; use n + 1; constructor
+    · rw [div_lt_iff₀ hR₁, ← NNReal.coe_lt_coe, NNReal.coe_mul, NNReal.coe_pow,
+        NNReal.coe_ofNat] at hn₂
+      rw [Annulus.oo, mem_setOf, mem_Ioo] at my; apply hn₂.le.trans; gcongr; exact my.1.le
+    · rw [pow_succ', mul_div_assoc]; gcongr
+  calc
+    _ ≤ volume (ball x (2 ^ n * dist x y)) / (2 ^ a) ^ n := by
+      rw [← pow_mul, show (2 : ℝ≥0∞) = (2 : ℝ≥0) by rfl, ← coe_pow, mul_comm a, pow_mul]; gcongr
+    _ ≤ _ := by
+      apply ENNReal.div_le_of_le_mul'
+      convert measure_ball_two_le_same_iterate (μ := volume) x (dist x y) n; norm_cast
+
+lemma edist_carlesonOperatorIntegrand_le
+    {R₁ R₂ : ℝ≥0} (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    edist (carlesonOperatorIntegrand K θ R₁ R₂ f x) (carlesonOperatorIntegrand K ϑ R₁ R₂ f x) ≤
+    C3_0_1 a R₁ R₂ * edist_{x, dist o x + R₂} θ ϑ := by
+  rcases le_or_gt R₂ R₁ with hR₂ | hR₂
+  · iterate 2 rw [carlesonOperatorIntegrand, Annulus.oo_eq_empty (by simp [hR₂]), setIntegral_empty]
+    rw [edist_self]; exact zero_le _
+  calc
+    _ = ‖∫ y in Annulus.oo x R₁ R₂, K x y * f y * (exp (I * θ y) - exp (I * ϑ y))‖ₑ := by
+      rw [edist_eq_enorm_sub, carlesonOperatorIntegrand, carlesonOperatorIntegrand, ← integral_sub]
+      rotate_left
+      · exact integrableOn_coi_inner_annulus mf nf hR₁
+      · exact integrableOn_coi_inner_annulus mf nf hR₁
+      congr! 3 with y; rw [mul_sub]
+    _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ‖K x y‖ₑ * ‖f y‖ₑ * ‖exp (I * θ y) - exp (I * ϑ y)‖ₑ := by
+      simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
+    _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, C_K a / vol x y * edist_{x, dist o x + R₂} θ ϑ := by
+      refine setLIntegral_mono' Annulus.measurableSet_oo fun y my ↦ ?_
+      rw [mul_assoc]; refine mul_le_mul' (enorm_K_le_vol_inv _ _) ?_
+      rw [← one_mul (edist_{x, dist o x + R₂} θ ϑ)]; gcongr
+      · rw [← enorm_norm, ← enorm_one (G := ℝ)]; exact Real.enorm_le_enorm (norm_nonneg _) (nf y)
+      · rw [edist_dist, le_ofReal_iff_toReal_le (by finiteness) dist_nonneg, toReal_enorm]
+        calc
+          _ = ‖exp (I * (θ y - ϑ y - θ o + ϑ o : ℝ)) - 1‖ := by
+            rw [cancelPt_eq_zero, sub_zero, cancelPt_eq_zero, add_zero, Complex.ofReal_sub,
+              ← mul_one ‖_ - 1‖, ← norm_exp_I_mul_ofReal (ϑ y), ← norm_mul, sub_one_mul,
+              ← Complex.exp_add, ← mul_add, sub_add_cancel]
+          _ ≤ ‖θ y - ϑ y - θ o + ϑ o‖ := norm_exp_I_mul_ofReal_sub_one_le
+          _ ≤ _ := by
+            rw [Annulus.oo, mem_setOf, mem_Ioo] at my
+            apply oscillation_le_cdist
+            · rw [mem_ball']; exact my.2.trans_le (le_add_of_nonneg_left dist_nonneg)
+            · rw [mem_ball, lt_add_iff_pos_right]; exact hR₁.trans hR₂
+    _ = C_K a * edist_{x, dist o x + R₂} θ ϑ * ∫⁻ y in Annulus.oo x R₁ R₂, (vol x y)⁻¹ := by
+      simp_rw [ENNReal.div_eq_inv_mul]
+      iterate 2 rw [lintegral_mul_const' _ _ (by finiteness)]
+      rw [mul_rotate]
+    _ ≤ C_K a * edist_{x, dist o x + R₂} θ ϑ * ↑((2 * R₂ / R₁) ^ a) := by
+      gcongr; exact lintegral_inv_vol_le hR₁ hR₂
+    _ = _ := by
+      rw [← mul_rotate, ← coe_mul, mul_comm (_ ^ _), C3_0_1, C_K, ← Nat.cast_pow,
+        NNReal.rpow_natCast]
+
+lemma dist_carlesonOperatorIntegrand_le
+    {R₁ R₂ : ℝ≥0} (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    dist (carlesonOperatorIntegrand K θ R₁ R₂ f x) (carlesonOperatorIntegrand K ϑ R₁ R₂ f x) ≤
+    C3_0_1 a R₁ R₂ * dist_{x, dist o x + R₂} θ ϑ := by
+  rw [← ofReal_le_ofReal_iff (by positivity), ← edist_dist, ENNReal.ofReal_mul NNReal.zero_le_coe,
+    ofReal_coe_nnreal, ← edist_dist]
+  exact edist_carlesonOperatorIntegrand_le mf nf hR₁
+
+lemma continuous_carlesonOperatorIntegrand (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
+    Continuous (carlesonOperatorIntegrand K · R₁ R₂ f x) := by
+  rcases le_or_gt R₂ R₁ with hR₂ | hR₂
+  · unfold carlesonOperatorIntegrand; rw [Annulus.oo_eq_empty (by simp [hR₂])]
+    simp_rw [setIntegral_empty]; exact continuous_const
+  lift R₁ to ℝ≥0 using hR₁.le
+  lift R₂ to ℝ≥0 using (hR₁.trans hR₂).le
+  rw [NNReal.coe_pos] at hR₁; rw [NNReal.coe_lt_coe] at hR₂
+  have R₂pos := hR₁.trans hR₂
+  rw [continuous_iff]; intro ϑ ε εpos
+  let C₁ := As (defaultA a) (dist o x + R₂ + dist o x)
+  have C₁pos : 0 < C₁ := by unfold C₁ As; norm_cast; positivity
+  have C₂pos : 0 < C3_0_1 a R₁ R₂ := by rw [C3_0_1]; positivity
+  refine ⟨ε / (C₁ * C3_0_1 a R₁ R₂), by positivity, fun θ db ↦ ?_⟩
+  calc
+    _ ≤ _ := dist_carlesonOperatorIntegrand_le mf nf hR₁
+    _ ≤ C3_0_1 a R₁ R₂ * C₁ * dist θ ϑ := by rw [mul_assoc]; gcongr; apply cdist_le_dist; positivity
+    _ < _ := by rwa [← lt_div_iff₀' (by positivity), mul_comm]
+
 -- not sure if this is the best phrasing
 lemma isBounded_carlesonOperatorIntegrand {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖) ≤ 1) :
-    ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
+    ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
   sorry

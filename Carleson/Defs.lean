@@ -88,11 +88,11 @@ instance [d : FunctionDistances 𝕜 X] : PseudoMetricSpace (WithFunctionDistanc
 
 end FunctionDistances
 
-notation3 "dist_{" x " ," r "}" => @dist (WithFunctionDistance x r) _
+notation3 "dist_{" x ", " r "}" => @dist (WithFunctionDistance x r) _
 /-- preferably use `edist` -/
-notation3 "nndist_{" x " ," r "}" => @nndist (WithFunctionDistance x r) _
-notation3 "edist_{" x " ," r "}" => @edist (WithFunctionDistance x r) _
-notation3 "ball_{" x " ," r "}" => @ball (WithFunctionDistance x r) _ in
+notation3 "nndist_{" x ", " r "}" => @nndist (WithFunctionDistance x r) _
+notation3 "edist_{" x ", " r "}" => @edist (WithFunctionDistance x r) _
+notation3 "ball_{" x ", " r "}" => @ball (WithFunctionDistance x r) _ in
 
 /-- A set `Θ` of (continuous) functions is compatible. `A` will usually be `2 ^ a`. -/
 class CompatibleFunctions (𝕜 : outParam Type*) (X : Type u) (A : outParam ℕ)

@@ -91,7 +91,7 @@ lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) (nf : (‖f ·‖) 
     -- Move `R₁` right (+ve) by a small amount to a rational number
     have lR₁ : R₁ < R₂ := mR₂.1
     have R₁pos : 0 < R₁ := lt_of_le_of_lt (by positivity) mR₁.1
-    have rcon := @rightContinuous_carlesonOperatorIntegrand _ _ _ _ _ Q R₁ R₂ _ x mf nf R₁pos
+    have rcon := @rightContinuous_carlesonOperatorIntegrand _ _ _ _ _ (Q x) R₁ R₂ _ x mf nf R₁pos
     rw [Metric.continuousWithinAt_iff] at rcon; specialize rcon _ (half_pos εpos)
     obtain ⟨δ₁, δ₁pos, hq₁⟩ := rcon
     have lt₁ : R₁ < min (R₁ + δ₁) R₂ := by rw [lt_min_iff]; constructor <;> linarith
@@ -101,7 +101,7 @@ lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) (nf : (‖f ·‖) 
     specialize hq₁ lbq₁.le dq₁
     -- Move `R₂` left (-ve) by a small amount to a rational number
     have q₁pos : (0 : ℝ) < q₁ := R₁pos.trans lbq₁
-    have lcon := @leftContinuous_carlesonOperatorIntegrand _ _ _ _ _ Q q₁ R₂ _ x mf nf q₁pos
+    have lcon := @leftContinuous_carlesonOperatorIntegrand _ _ _ _ _ (Q x) q₁ R₂ _ x mf nf q₁pos
     rw [Metric.continuousWithinAt_iff] at lcon; specialize lcon _ (half_pos εpos)
     obtain ⟨δ₂, δ₂pos, hq₂⟩ := lcon
     have lt₂ : max (R₂ - δ₂) q₁ < R₂ := by rw [max_lt_iff]; constructor <;> linarith

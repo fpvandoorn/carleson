@@ -817,9 +817,9 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
         G: X \times \Theta \times (0,\infty) \times (0, \infty) \to [0, \infty)
     \]
     \[
-        G(x, \mfa, R_1, R_2) := \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y) \right|
+        G(x, \mfa, R_1, R_2) := \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y)
     \]
-    is continuous in $\mfa$ for fixed $x, R_1, R_2$, it is right-continuous in $R_1$ for fixed $x, \vartheta, R_2$ and left-continuous in $R_2$ for fixed $x, \vartheta, R_1$. Finally, it is measurable in $x$ and bounded, for fixed $\vartheta, R_1, R_2$.
+    is continuous in $\mfa$ for fixed $x, R_1, R_2$, right-continuous in $R_1$ for fixed $x, \vartheta, R_2$, left-continuous in $R_2$ for fixed $x, \vartheta, R_1$ and measurable in $x$ and bounded for fixed $\vartheta, R_1, R_2$.
 \end{lemma}
 
 \begin{proof}
@@ -836,25 +836,25 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
         |G(x, \mfa, R_1, R_2) - G(x, \mfa', R_1, R_2)|
     \]
     \[
-        = \left| \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y) - \mfa(x)) \, \mathrm{d}\mu(y) \right| \right.
+        = \left| \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y) - \mfa(o)) \, \mathrm{d}\mu(y) \right| \right.
     \]
     \[
-        - \left.\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa'(y) - \mfa'(x)) \, \mathrm{d}\mu(y) \right| \right|
+        - \left.\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa'(y) - \mfa'(o)) \, \mathrm{d}\mu(y) \right| \right|
     \]
     \[
-        \le \int_{R_1 < \rho(x,y) < R_2} |K(x,y)| |f(y)| |e(\mfa(y) - \mfa'(y) - \mfa(x) + \mfa'(x)) - 1| \, \mathrm{d}\mu(y).
+        \le \int_{R_1 < \rho(x,y) < R_2} |K(x,y)| |f(y)| |e(\mfa(y) - \mfa'(y) - \mfa(o) + \mfa'(o)) - 1| \, \mathrm{d}\mu(y).
     \]
     By $1$-Lipschitz continuity of $e^{ix}$, the property \eqref{osccontrol} of the metrics $d$, the kernel upper bound \eqref{eqkernel-size} and $|f| \le 1$ this is
     \[
-        \le \mu(B(x, R_2)) \sup_{R_1 < \rho(x,y) < R_2} \frac{2^{a^3}}{V(x,y)} d_{B(x,R_2)}(\vartheta, \vartheta').
+        \le \mu(B(x, R_2)) \sup_{R_1 < \rho(x,y) < R_2} \frac{2^{a^3}}{V(x,y)} d_{B(x,\rho(o,x)+R_2)}(\vartheta, \vartheta').
     \]
     If $R_1 < \rho(x,y) < R_2$ then there exists $n$ with $B(x,R_2) \subset B(x, 2^n \rho(x,y))$ and $2^n \le 2 R_2/R_1$. Hence, by the doubling property \eqref{doublingx},
     \[
-        V(x,y) = \mu(B(x, \rho(x,y))) \ge 2^{-an} \mu(B(x, R_2)) \ge (2R_2 / R_1)^{-a}.
+        V(x,y) = \mu(B(x, \rho(x,y))) \ge 2^{-an} \mu(B(x, R_2)) \ge (2R_2 / R_1)^{-a} \mu(B(x, R_2)).
     \]
     Hence
     \[
-        |G(x, \mfa, R_1, R_2) - G(x, \mfa', R_1, R_2)| \le 2^{a^3} \Big(\frac{2R_2}{R_1}\Big)^a d_{B(x, R_2)}(\mfa, \mfa').
+        |G(x, \mfa, R_1, R_2) - G(x, \mfa', R_1, R_2)| \le 2^{a^3} \Big(\frac{2R_2}{R_1}\Big)^a d_{B(x, \rho(o,x)+R_2)}(\mfa, \mfa').
     \]
     Since the topology on $\Mf$ is the one induced by any of the metrics $d_B$, continuity follows.
 
