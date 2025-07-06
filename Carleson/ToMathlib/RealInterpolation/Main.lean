@@ -958,7 +958,6 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
     have M_lt_top : M < ∞ := by
       apply lt_top_iff_ne_top.mpr
       apply d_ne_top <;> assumption
-    let M' := M.toReal
     have : 0 < M.toReal := toReal_pos M_pos.ne' M_lt_top.ne
     have : ENNReal.ofReal M.toReal = M := by rw [ofReal_toReal M_lt_top.ne]
     have coe_q : ENNReal.ofReal q.toReal = q :=
