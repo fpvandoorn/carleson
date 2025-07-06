@@ -53,7 +53,8 @@ structure ToneCouple where
       then ∀ s t, (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
       else ∀ s t, (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
 
-/-- A StrictRangeToneCouple is a tonecouple for which the functions in the couple, when
+-- A StrictRangeToneCouple is a `ToneCouple` for which the functions in the couple, when
+restricted to `Ioo 0 ∞`, map to `Ioo 0 ∞`. -/
     restricted to `Ioo 0 ∞`, map to `Ioo 0 ∞`. -/
 structure StrictRangeToneCouple extends ToneCouple where
   ran_ton : ∀ t ∈ Ioo 0 ∞, ton t ∈ Ioo 0 ∞
@@ -88,17 +89,12 @@ lemma ENNReal.rpow_lt_top_of_neg {x : ℝ≥0∞} {y : ℝ} (hx : 0 < x) (hy : y
   simp only [inv_top, ENNReal.inv_pos, ne_eq, rpow_eq_top_iff, not_or, not_and, not_lt]
   tauto
 
-
-
-
 lemma ENNReal.rpow_lt_top_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0)
     (hx' : x ≠ ⊤) (hy : y ≠ 0) :
     x ^ y < ⊤ := by
   rcases lt_or_gt_of_ne hy with y_pos | y_neg
   · exact rpow_lt_top_of_neg (hx.bot_lt) y_pos
   · exact rpow_lt_top_of_nonneg (y_neg.le) hx'
-
-
 
 lemma ENNReal.rpow_pos_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0)
     (hx' : x ≠ ⊤) (hy : y ≠ 0) :

@@ -121,7 +121,7 @@ lemma map_restrict_Ioi_eq_volume :
     (volume.restrict (Ioi 0)).map ENNReal.ofReal = volume := by
   refine Eq.trans map_restrict_Ioi_eq_restrict_Ioi ?_
   refine Measure.restrict_eq_self_of_ae_mem ?_
-  filter_upwards [ae_in_Ioo_zero_top] with a ha; exact ha.1
+  filter_upwards [ae_in_Ioo_zero_top] with a ha using ha.1
 
 --TODO: move somewhere else and add more lemmas for Ioo, Ico etc. ?
 lemma ENNReal.toReal_Icc_eq_Icc {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
@@ -159,8 +159,8 @@ lemma lintegral_nnreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} :
 
 lemma lintegral_ennreal_eq_lintegral_of_nnreal {f : ℝ≥0∞ → ℝ≥0∞} :
     ∫⁻ x : ℝ≥0∞, f x = ∫⁻ x : ℝ≥0, f x := by
-  refine Eq.symm (MeasurePreserving.lintegral_comp_emb ⟨by fun_prop, rfl⟩ ?_ f)
-  refine Topology.IsEmbedding.measurableEmbedding isEmbedding_coe ?_
+  refine (MeasurePreserving.lintegral_comp_emb ⟨by fun_prop, rfl⟩ ?_ f).symm
+  refine isEmbedding_coe.measurableEmbedding ?_
   rw [range_coe']; exact measurableSet_Iio
 
 lemma lintegral_ennreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} :
