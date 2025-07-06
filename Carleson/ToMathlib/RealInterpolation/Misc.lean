@@ -35,7 +35,7 @@ structure ScaledPowerFunction where
   hd' : d ≠ ⊤
   hσ : (0 < σ) ∨ (σ < 0)
 
-/-- A ToneCouple is an couple of two monotone functions that are practically inverses of each
+/-- A `ToneCouple` is a couple of two monotone functions that are practically inverses of each
     other. It is used in the proof of the real interpolation theorem.
 
     Note: originally it seemed useful to make the possible choice of this function general
@@ -53,8 +53,7 @@ structure ToneCouple where
       then ∀ s t, (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
       else ∀ s t, (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
 
--- A StrictRangeToneCouple is a `ToneCouple` for which the functions in the couple, when
-restricted to `Ioo 0 ∞`, map to `Ioo 0 ∞`. -/
+/-- A StrictRangeToneCouple is a `ToneCouple` for which the functions in the couple, when
     restricted to `Ioo 0 ∞`, map to `Ioo 0 ∞`. -/
 structure StrictRangeToneCouple extends ToneCouple where
   ran_ton : ∀ t ∈ Ioo 0 ∞, ton t ∈ Ioo 0 ∞

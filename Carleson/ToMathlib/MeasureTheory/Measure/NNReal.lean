@@ -165,7 +165,7 @@ lemma lintegral_ennreal_eq_lintegral_of_nnreal {f : ℝ≥0∞ → ℝ≥0∞} :
 
 lemma lintegral_ennreal_eq_lintegral_Ioi_ofReal {f : ℝ≥0∞ → ℝ≥0∞} :
     ∫⁻ x : ℝ≥0∞, f x = ∫⁻ x in Ioi (0 : ℝ), f (.ofReal x) :=
-  Eq.trans lintegral_ennreal_eq_lintegral_of_nnreal lintegral_nnreal_eq_lintegral_Ioi_ofReal
+  lintegral_ennreal_eq_lintegral_of_nnreal.trans lintegral_nnreal_eq_lintegral_Ioi_ofReal
 
 -- TODO: are there better names?
 lemma lintegral_nnreal_eq_lintegral_toNNReal_Ioi (f : ℝ≥0 → ℝ≥0∞) :

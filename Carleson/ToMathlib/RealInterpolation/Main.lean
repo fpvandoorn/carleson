@@ -296,15 +296,14 @@ lemma rewrite_norm_func {q : ℝ} {g : α' → E}
     (hg : AEStronglyMeasurable g ν) :
     ∫⁻ x, ‖g x‖ₑ ^ q ∂ν =
     ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s,
-    distribution g ((ENNReal.ofReal (2 * A) * s))  ν * s^(q - 1) := by
+    distribution g ((ENNReal.ofReal (2 * A) * s))  ν * s ^ (q - 1) := by
   calc
   _ = ENNReal.ofReal ((2 * A) ^ q * q) * ∫⁻ s in Ioi (0 : ℝ),
-      distribution g ((ENNReal.ofReal (2 * A * s)))  ν * (ENNReal.ofReal (s^(q - 1))) := by
+      distribution g ((ENNReal.ofReal (2 * A * s)))  ν * ENNReal.ofReal (s ^ (q - 1)) := by
     have : 0 < (A : ℝ) := hA
     rw [lintegral_norm_pow_eq_distribution hg (by linarith)]
-    nth_rewrite 1 [← lintegral_scale_constant_halfspace' (a := (2*A)) (by linarith)]
-    rw [← lintegral_const_mul']; swap; · exact coe_ne_top
-    rw [← lintegral_const_mul']; swap; · exact coe_ne_top
+    nth_rewrite 1 [← lintegral_scale_constant_halfspace' (a := (2 * A)) (by linarith)]
+    rw [← lintegral_const_mul' _ _ (by finiteness), ← lintegral_const_mul' _ _ (by finiteness)]
     apply lintegral_congr_ae
     filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with t (zero_lt_t : 0 < t)
     nth_rw 12 [mul_comm]
@@ -328,9 +327,8 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
     (hq : 0 < q) (tc : StrictRangeToneCouple) {A : ℝ≥0} (hA : 0 < A)
     (ht : Subadditive_trunc T A f ν) (hTf : AEStronglyMeasurable (T f) ν) :
   ∫⁻ x : α', ‖T f x‖ₑ ^ q ∂ν ≤
-  ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s, distribution (T (trunc f (tc.ton s)))
-      s ν * s^(q - 1) +
-  distribution (T (truncCompl f (tc.ton s))) s ν * s^(q - 1) := by
+  ENNReal.ofReal ((2 * A)^q * q) * ∫⁻ s, distribution (T (trunc f (tc.ton s))) s ν * s^(q - 1) +
+  distribution (T (truncCompl f (tc.ton s))) s ν * s ^ (q - 1) := by
   rw [rewrite_norm_func hq hA hTf]
   refine mul_le_mul' (le_refl _) (lintegral_mono_ae ?_)
   filter_upwards [ae_in_Ioo_zero_top] with a ha
@@ -338,20 +336,15 @@ lemma estimate_norm_rpow_range_operator {q : ℝ} {f : α → E₁}
   gcongr ?_ * _
   convert estimate_distribution_Subadditive_trunc (tc.ran_ton a ha).1 ht <;> simp
 
+-- TODO: the infrastructure can perhaps be improved here
 @[measurability, fun_prop]
-theorem ton_Measurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (tc : ToneCouple) :
+theorem ton_measurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (tc : ToneCouple) :
     Measurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) := by
   change Measurable ((fun t : ℝ≥0∞ ↦ eLpNorm (trunc f t) p₁ μ) ∘ (tc.ton))
   have tone := tc.ton_is_ton
   split_ifs at tone
   · exact (eLpNorm_trunc_mono.comp tone.monotone).measurable
   · exact (eLpNorm_trunc_mono.comp_antitone tone.antitone).measurable
-
--- XXX: can this be golfed or unified with `ton_aeMeasurable`?
-@[measurability, fun_prop]
-theorem ton_aeMeasurable_eLpNorm_trunc [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] (tc : ToneCouple) :
-    AEMeasurable (fun x ↦ eLpNorm (trunc f (tc.ton x)) p₁ μ) volume := by
-  exact (ton_Measurable_eLpNorm_trunc _).aemeasurable
 
 lemma estimate_norm_rpow_range_operator'
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁]
@@ -716,8 +709,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
       apply add_le_add
       · split_ifs with is_q₁top
         · gcongr
-          rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal]
-          rw [← lintegral_rw_aux power_aux_4]
+          rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal, ← lintegral_rw_aux power_aux_4]
           apply estimate_trnc₁ (j := ⊤) ht <;> try assumption
           · exact hp₁.2
           · exact ne_top_of_Ioc hp₁ is_q₁top
@@ -727,8 +719,7 @@ lemma combine_estimates₀ {A : ℝ≥0} (hA : 0 < A)
         · simp
       · split_ifs with is_q₀top
         · gcongr
-          rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal]
-          rw [← lintegral_rw_aux power_aux_4]
+          rw [lintegral_ennreal_eq_lintegral_Ioi_ofReal, ← lintegral_rw_aux power_aux_4]
           apply estimate_trnc₁ (j := ⊥) ht <;> try assumption
           · exact hp₀.2
           · exact ne_top_of_Ioc hp₀ is_q₀top
@@ -963,7 +954,7 @@ lemma exists_hasStrongType_real_interpolation_aux₁ {f : α → E₁}
       (interp_exp_toReal_pos' ht q₀pos q₁pos hq (Or.inl hq₀q₁.ne_top)).ne'
     -- lemma below proves the same, but for M.toReal
     have M_pos : 0 < M := by
-      apply d_pos <;> try assumption
+      apply d_pos <;> assumption
     have M_lt_top : M < ∞ := by
       apply lt_top_iff_ne_top.mpr
       apply d_ne_top <;> assumption
