@@ -1,6 +1,7 @@
 import Carleson.ToMathlib.RealInterpolation.InterpolatedExponents
 import Carleson.ToMathlib.WeakType
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 
 /-!
 This file contains some miscellaneous prerequisites for proving the Marcinkiewisz real interpolation
@@ -34,7 +35,7 @@ structure ScaledPowerFunction where
   hd' : d ≠ ⊤
   hσ : (0 < σ) ∨ (σ < 0)
 
-/-- A ToneCouple is an couple of two monotone functions that are practically inverses of each
+/-- A `ToneCouple` is a couple of two monotone functions that are practically inverses of each
     other. It is used in the proof of the real interpolation theorem.
 
     Note: originally it seemed useful to make the possible choice of this function general
@@ -51,6 +52,12 @@ structure ToneCouple where
   inv_pf : if mon
       then ∀ s t, (ton s < t ↔ s < inv t) ∧ (t < ton s ↔ inv t < s)
       else ∀ s t, (ton s < t ↔ inv t < s) ∧ (t < ton s ↔ s < inv t)
+
+/-- A StrictRangeToneCouple is a `ToneCouple` for which the functions in the couple, when
+    restricted to `Ioo 0 ∞`, map to `Ioo 0 ∞`. -/
+structure StrictRangeToneCouple extends ToneCouple where
+  ran_ton : ∀ t ∈ Ioo 0 ∞, ton t ∈ Ioo 0 ∞
+  ran_inv : ∀ t ∈ Ioo 0 ∞, inv t ∈ Ioo 0 ∞
 
 open scoped NNReal
 
@@ -73,13 +80,42 @@ lemma ENNReal.rpow_lt_rpow_iff_neg {x y : ℝ≥0∞} (hx : x ≠ 0) (hy : y ≠
 lemma ENNReal.div_lt_div {a b c : ℝ≥0∞} (hc : 0 < c) (hc' : c ≠ ∞) : a / c < b / c ↔ a < b := by
   rw [ENNReal.div_lt_iff (Or.inl hc.ne') (Or.inl hc'), ENNReal.div_mul_cancel hc.ne' hc']
 
+lemma ENNReal.rpow_lt_top_of_neg {x : ℝ≥0∞} {y : ℝ} (hx : 0 < x) (hy : y < 0) :
+    x ^ y < ⊤ := by
+  refine ENNReal.inv_lt_inv.mp ?_
+  have := hx.ne'
+  have := hy.le
+  simp only [inv_top, ENNReal.inv_pos, ne_eq, rpow_eq_top_iff, not_or, not_and, not_lt]
+  tauto
+
+lemma ENNReal.rpow_lt_top_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0)
+    (hx' : x ≠ ⊤) (hy : y ≠ 0) :
+    x ^ y < ⊤ := by
+  rcases lt_or_gt_of_ne hy with y_pos | y_neg
+  · exact rpow_lt_top_of_neg (hx.bot_lt) y_pos
+  · exact rpow_lt_top_of_nonneg (y_neg.le) hx'
+
+lemma ENNReal.rpow_pos_of_pos_ne_top_ne_zero {x : ℝ≥0∞} {y : ℝ} (hx : x ≠ 0)
+    (hx' : x ≠ ⊤) (hy : y ≠ 0) :
+    0 < x ^ y := by
+  refine ENNReal.inv_lt_inv.mp ?_
+  rw [← rpow_neg, inv_zero]
+  exact rpow_lt_top_of_pos_ne_top_ne_zero hx hx' (neg_ne_zero.mpr hy)
+
 /-- A scaled power function gives rise to a ToneCouple. -/
-def spf_to_tc (spf : ScaledPowerFunction) : ToneCouple where
+def spf_to_tc (spf : ScaledPowerFunction) : StrictRangeToneCouple where
   ton s := (s / spf.d) ^ spf.σ
   inv t := spf.d * t ^ spf.σ⁻¹
   mon := if 0 < spf.σ then true else false
-  --ran_ton := fun t ht ↦ rpow_pos_of_pos (div_pos ht spf.hd) _
-  --ran_inv := fun t ht ↦ mul_pos spf.hd (rpow_pos_of_pos ht spf.σ⁻¹)
+  ran_ton := fun t ht ↦
+      ⟨rpow_pos (ENNReal.div_pos ht.1.ne' spf.hd') ((div_lt_top ht.2.ne) spf.hd.ne').ne,
+      rpow_lt_top_of_pos_ne_top_ne_zero (ENNReal.div_pos ht.1.ne' spf.hd').ne'
+      ((div_lt_top ht.2.ne) spf.hd.ne').ne (by rcases spf.hσ <;> order)⟩
+  ran_inv := fun t ht ↦
+    ⟨ENNReal.mul_pos spf.hd.ne' (rpow_pos_of_pos_ne_top_ne_zero ht.1.ne' ht.2.ne
+    (inv_ne_zero (by rcases spf.hσ <;> order))).ne',
+    ENNReal.mul_lt_top spf.hd'.lt_top (rpow_lt_top_of_pos_ne_top_ne_zero ht.1.ne' ht.2.ne
+    (inv_ne_zero (by rcases spf.hσ <;> order)))⟩
   ton_is_ton := by
     have := spf.hd
     have := spf.hd'
@@ -391,6 +427,20 @@ lemma power_aux_2 {p q : ℝ} :
     (fun s ↦ ENNReal.ofReal (s ^ p) * ENNReal.ofReal (s ^ q) ) := by
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (hs : 0 < s)
   rw [← ofReal_mul (by positivity), ← Real.rpow_add hs]
+
+lemma power_aux_3 {p q : ℝ} :
+    (fun s : ℝ≥0∞ ↦ s ^ (p + q)) =ᶠ[ae volume] (fun s ↦ s ^ p * s ^ q ) := by
+  filter_upwards [Ioo_zero_top_ae_eq_univ] with a ha
+  unfold Ioo at ha
+  refine ENNReal.rpow_add p q ?_ ?_
+  · simp [pos_iff_ne_zero] at ha; by_contra; have := (ha.mpr trivial).1; tauto
+  · simp [lt_top_iff_ne_top] at ha; by_contra; have := (ha.mpr trivial).2; tauto
+
+lemma power_aux_4 {p : ℝ} :
+    (fun s ↦ ENNReal.ofReal (s ^ p)) =ᶠ[ae (volume.restrict (Ioi (0 : ℝ)))]
+    (fun s ↦ ENNReal.ofReal s ^ p) := by
+  filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with s (hs : 0 < s)
+  rw [← ofReal_rpow_of_pos (by positivity)]
 
 lemma ofReal_rpow_of_pos_aux {p : ℝ} :
     (fun s ↦ ENNReal.ofReal s ^ p) =ᶠ[ae (volume.restrict (Ioi (0 : ℝ)))]
@@ -1310,30 +1360,6 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
           rw [lintegral_Ioi_rpow_of_lt_abs htcinv hγ, ofReal_div_of_pos
               (by rw [abs_pos]; linarith), ← ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
-
--- @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
--- lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
---     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
---     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
---     β ^ (γ + 1) / ENNReal.ofReal (|γ + 1|) := by
---   unfold res
---   by_cases hβ' : β = ⊤
---   · rw [hβ', ENNReal.top_rpow_def]
---     split_ifs at hγ with h
---     · have : 0 < γ + 1 := by linarith
---       have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
---       simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2,
---             lintegral_rpow_Ioi_top]
---     · have : γ + 1 < 0 := by linarith
---       have h1 : ¬(0 < γ + 1) := by order
---       have h2 : ¬(γ + 1 = 0) := by order
---       simp [res, h, h1, h2]
---   have : 0 < β.toReal := ComputationsInterpolatedExponents.exp_toReal_pos hβ hβ'
---   split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ']
---   on_goal 1 => rw [lintegral_rpow_of_gt_abs this hγ]
---   on_goal 2 => rw [lintegral_Ioi_rpow_of_lt_abs this hγ]
---   all_goals rw [ENNReal.ofReal_div_of_pos (by rw [abs_pos]; linarith),
---       ← ENNReal.ofReal_rpow_of_pos this, ofReal_toReal hβ']
 
 lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞):
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
