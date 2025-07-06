@@ -489,7 +489,6 @@ lemma lintegral_congr_support {f : α → E₁} {g h: α → ENNReal}
 
 /-- One of the key estimates for the real interpolation theorem, not yet using
     the particular choice of exponent and scale in the `ScaledPowerFunction`. -/
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
 lemma estimate_trnc {p₀ q₀ q : ℝ} {spf : ScaledPowerFunction} {j : Bool}
     [TopologicalSpace E₁] [ENormedAddCommMonoid E₁] [MeasurableSpace E₁] [BorelSpace E₁]
     [TopologicalSpace.PseudoMetrizableSpace E₁]
@@ -790,7 +789,7 @@ lemma eLpNorm_trnc_est {f : α → E₁} {j : Bool} :
     eLpNorm (trnc j f t) p μ ≤ eLpNorm f p μ := eLpNorm_mono_enorm fun _x ↦ trnc_le_func
 
 variable [ContinuousENorm ε₁] [ContinuousENorm ε₂] {T : (α → ε₁) → (α' → ε₂)} in
-@[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
+
 lemma weaktype_estimate {C₀ : ℝ≥0} {p : ℝ≥0∞} {q : ℝ≥0∞} {f : α → ε₁}
       (hq : 0 < q) (hq' : q < ⊤) (hf : MemLp f p μ)
     (h₀T : HasWeakType T p q μ ν C₀) (ht : 0 < t) :

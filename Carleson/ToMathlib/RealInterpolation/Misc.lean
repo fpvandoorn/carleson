@@ -1366,30 +1366,6 @@ lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} (hγ : if j
               (by rw [abs_pos]; linarith), ← ofReal_rpow_of_pos htcinv,
               ofReal_toReal_eq_iff.mpr htop]
 
--- @[nolint unusedHavesSuffices] -- TODO: remove once the sorries are fixed
--- lemma value_lintegral_res₀ {j : Bool} {β : ℝ≥0∞} {γ : ℝ} {tc : ToneCouple} (hβ : 0 < β)
---     (hγ : if xor j tc.mon then γ > -1 else γ < -1 ) :
---     ∫⁻ s : ℝ in res (xor j tc.mon) β, ENNReal.ofReal (s ^ γ) =
---     β ^ (γ + 1) / ENNReal.ofReal (|γ + 1|) := by
---   unfold res
---   by_cases hβ' : β = ⊤
---   · rw [hβ', ENNReal.top_rpow_def]
---     split_ifs at hγ with h
---     · have : 0 < γ + 1 := by linarith
---       have h2 : ENNReal.ofReal |γ + 1| < ⊤ := by finiteness
---       simp [res, reduceIte, h, ENNReal.top_rpow_def, this, ↓reduceIte, top_div, h2,
---             lintegral_rpow_Ioi_top]
---     · have : γ + 1 < 0 := by linarith
---       have h1 : ¬(0 < γ + 1) := by order
---       have h2 : ¬(γ + 1 = 0) := by order
---       simp [res, h, h1, h2]
---   have : 0 < β.toReal := ComputationsInterpolatedExponents.exp_toReal_pos hβ hβ'
---   split_ifs at hγ with h <;> simp only [h, reduceIte, Bool.false_eq_true, hβ']
---   on_goal 1 => rw [lintegral_rpow_of_gt_abs this hγ]
---   on_goal 2 => rw [lintegral_Ioi_rpow_of_lt_abs this hγ]
---   all_goals rw [ENNReal.ofReal_div_of_pos (by rw [abs_pos]; linarith),
---       ← ENNReal.ofReal_rpow_of_pos this, ofReal_toReal hβ']
-
 lemma value_lintegral_res₁ {γ p': ℝ} {spf : ScaledPowerFunction} (ht : 0 < t) (ht' : t ≠ ∞):
     (((spf_to_tc spf).inv t) ^ (γ + 1) / ENNReal.ofReal |γ + 1| ) * (t ^ p') =
     (spf.d ^ (γ + 1) * t ^ (spf.σ⁻¹ * (γ + 1) + p') / ENNReal.ofReal |γ + 1|) := by
