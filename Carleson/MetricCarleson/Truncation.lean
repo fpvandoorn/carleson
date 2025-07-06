@@ -503,7 +503,7 @@ lemma diff_subset_edgeScales {a : ℕ} {R₁ R₂ : ℝ} :
   simp only [edgeScales, Finset.mem_insert, Finset.mem_singleton]
   omega
 
-lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂)
+lemma enorm_carlesonOperatorIntegrand_le_T_S {R₁ R₂ : ℝ} (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1) {x : X} :
     ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ₑ ≤
     ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
@@ -646,7 +646,7 @@ lemma R_truncation' (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q')
         ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ +
         4 * C2_1_3 a * globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by
       gcongr with x R₁ mR₁ R₂ mR₂
-      exact enorm_carlesonOperatorIntegrand_le (iRpos.trans mR₁.1) mR₂.1 mf nf
+      exact enorm_carlesonOperatorIntegrand_le_T_S (iRpos.trans mR₁.1) mR₂.1 mf nf
     _ ≤ ∫⁻ x in G, ⨆ R₁ ∈ Ioo R⁻¹ R, (⨆ R₂ ∈ Ioo R₁ R, ‖T_S Q (L302 a R₁) (U302 a R₂) f x‖ₑ) +
         ⨆ R₂ ∈ Ioo R₁ R, 4 * C2_1_3 a *
           globalMaximalFunction volume 1 (F.indicator (1 : X → ℝ)) x := by

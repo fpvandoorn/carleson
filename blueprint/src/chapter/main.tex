@@ -811,7 +811,7 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
 \begin{lemma}[int continuous]
     \label{int-continuous}
     \leanok
-    \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, isBounded_carlesonOperatorIntegrand}
+    \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, enorm_carlesonOperatorIntegrand_le}
      Let $f$ be a measurable function with $|f| \le 1$. Then the function
     \[
         G: X \times \Theta \times (0,\infty) \times (0, \infty) \to [0, \infty)
@@ -823,6 +823,7 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
 \end{lemma}
 
 \begin{proof}
+    \leanok
     Measurability in $x$ follows from joint measurability of
     \[
         K(x,y) \mathbf{1}_{B(x,R_2) \setminus B(x,R_1)}(y)

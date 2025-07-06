@@ -1,5 +1,4 @@
 import Carleson.Defs
-import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 
 open scoped NNReal
 open MeasureTheory Set ENNReal Filter Topology ShortVariables Metric Complex
@@ -351,6 +350,19 @@ lemma continuous_carlesonOperatorIntegrand (mf : Measurable f) (nf : (‖f ·‖
     _ < _ := by rwa [← lt_div_iff₀' (by positivity), mul_comm]
 
 -- not sure if this is the best phrasing
-lemma isBounded_carlesonOperatorIntegrand {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖) ≤ 1) :
+lemma enorm_carlesonOperatorIntegrand_le {R₁ R₂ : ℝ≥0} (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
     ‖carlesonOperatorIntegrand K θ R₁ R₂ f x‖ₑ ≤ C3_0_1 a R₁ R₂ := by
-  sorry
+  rcases le_or_gt R₂ R₁ with hR₂ | hR₂
+  · unfold carlesonOperatorIntegrand; rw [Annulus.oo_eq_empty (by simp [hR₂])]
+    rw [setIntegral_empty, enorm_zero]; exact zero_le _
+  calc
+    _ ≤ ∫⁻ y in Annulus.oo x R₁ R₂, ‖K x y‖ₑ * ‖f y‖ₑ * ‖exp (I * θ y)‖ₑ := by
+      simp_rw [← enorm_mul]; exact enorm_integral_le_lintegral_enorm _
+    _ ≤ C_K a * ∫⁻ y in Annulus.oo x R₁ R₂, (vol x y)⁻¹ := by
+      rw [← lintegral_const_mul' _ _ (by finiteness)]; simp_rw [← div_eq_mul_inv]
+      refine setLIntegral_mono' Annulus.measurableSet_oo fun y my ↦ ?_
+      rw [enorm_exp_I_mul_ofReal, mul_one, ← mul_one (_ / _)]
+      apply mul_le_mul' (enorm_K_le_vol_inv _ _)
+      rw [← enorm_norm, ← enorm_one (G := ℝ)]; exact Real.enorm_le_enorm (norm_nonneg _) (nf y)
+    _ ≤ C_K a * ↑((2 * R₂ / R₁) ^ a) := by gcongr; exact lintegral_inv_vol_le hR₁ hR₂
+    _ = _ := by rw [← coe_mul, C3_0_1, C_K, ← Nat.cast_pow, NNReal.rpow_natCast]
