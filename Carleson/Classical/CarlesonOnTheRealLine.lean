@@ -142,9 +142,6 @@ instance instFunctionDistancesReal : FunctionDistances ℝ ℝ where
         rw [← mul_add]
         gcongr
         apply abs_sub_le
-      --next field will get default in mathlib and is left out here
-      --TODO: remove when that is the case
-      edist_dist := fun _ _ ↦ rfl
   }
 
 
