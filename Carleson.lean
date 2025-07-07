@@ -53,6 +53,7 @@ import Carleson.ToMathlib.CoverByBalls
 import Carleson.ToMathlib.Data.ENNReal
 import Carleson.ToMathlib.Data.NNReal
 import Carleson.ToMathlib.Data.Real.ConjExponents
+import Carleson.ToMathlib.Data.Set.Card
 import Carleson.ToMathlib.DoublingMeasure
 import Carleson.ToMathlib.ENorm
 import Carleson.ToMathlib.HardyLittlewood
@@ -72,6 +73,7 @@ import Carleson.ToMathlib.MeasureTheory.Integral.Periodic
 import Carleson.ToMathlib.MeasureTheory.Measure.Haar.Unique
 import Carleson.ToMathlib.MeasureTheory.Measure.NNReal
 import Carleson.ToMathlib.MeasureTheory.Measure.Prod
+import Carleson.ToMathlib.MeasureTheory.Measure.Restrict
 import Carleson.ToMathlib.MinLayer
 import Carleson.ToMathlib.Misc
 import Carleson.ToMathlib.Order.Chain
