@@ -812,14 +812,14 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
     \label{int-continuous}
     \leanok
     \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, enorm_carlesonOperatorIntegrand_le}
-     Let $f$ be a measurable function with $|f| \le 1$. Then the function
+    Let $f$ be a measurable function with $|f| \le 1$. Then the function
     \[
         G: X \times \Theta \times (0,\infty) \times (0, \infty) \to [0, \infty)
     \]
     \[
         G(x, \mfa, R_1, R_2) := \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y)
     \]
-    is continuous in $\mfa$ for fixed $x, R_1, R_2$, right-continuous in $R_1$ for fixed $x, \vartheta, R_2$, left-continuous in $R_2$ for fixed $x, \vartheta, R_1$ and measurable in $x$ and bounded for fixed $\vartheta, R_1, R_2$.
+    is continuous in $\mfa$ for fixed $x, R_1, R_2$. It is right-continuous in $R_1$ for fixed $x, \vartheta, R_2$ and left-continuous in $R_2$ for fixed $x, \vartheta, R_1$. Finally, it is measurable in $x$ and bounded for fixed $\vartheta, R_1, R_2$.
 \end{lemma}
 
 \begin{proof}
@@ -837,10 +837,7 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
         |G(x, \mfa, R_1, R_2) - G(x, \mfa', R_1, R_2)|
     \]
     \[
-        = \left| \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y) - \mfa(o)) \, \mathrm{d}\mu(y) \right| \right.
-    \]
-    \[
-        - \left.\left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa'(y) - \mfa'(o)) \, \mathrm{d}\mu(y) \right| \right|
+        = \left| \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) (e(\mfa(y)) - e(\mfa'(y))) \, \mathrm{d}\mu(y) \right|
     \]
     \[
         \le \int_{R_1 < \rho(x,y) < R_2} |K(x,y)| |f(y)| |e(\mfa(y) - \mfa'(y) - \mfa(o) + \mfa'(o)) - 1| \, \mathrm{d}\mu(y).
