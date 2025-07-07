@@ -337,7 +337,6 @@ lemma I1_subset_I3 {k : ℤ} (hk : -S ≤ k) (y:Yk X k) :
   left
   exact hi
 
-@[nolint unusedHavesSuffices]
 lemma I1_subset_I2 {k : ℤ} (hk : -S ≤ k) (y : Yk X k) :
     I1 hk y ⊆ I2 hk y := by
   rw [I1, I2]
@@ -1000,7 +999,6 @@ lemma small_boundary' (k:ℤ) (hk:-S ≤ k) (hk_mK : -S ≤ k - K') (y:Yk X k):
     K' * ∑' (z : ↑(Yk X (k - K'))), volume (⋃ (_ : clProp(hk_mK,z|hk,y)), I3 hk_mK z)
       = ∑ (_:Ioc (k-K') k),
         ∑'(z:Yk X (k-K')),volume (⋃ (_ : clProp(hk_mK,z|hk,y)), I3 hk_mK z) := by
-        -- have : K' = (Ioc (k-K') k).card := by sorry
         rw [Finset.sum_const]
         simp only [Finset.card_univ, Fintype.card_ofFinset, Int.card_Ioc, sub_sub_cancel,
           Int.toNat_natCast, nsmul_eq_mul]

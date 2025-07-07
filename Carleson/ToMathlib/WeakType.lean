@@ -1,5 +1,6 @@
 import Carleson.ToMathlib.BoundedFiniteSupport
 import Carleson.ToMathlib.Misc
+import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 
 noncomputable section
@@ -838,7 +839,11 @@ lemma lintegral_norm_pow_eq_distribution {f : α → ε} (hf : AEStronglyMeasura
           (∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal (t ^ (p - 1))) * μ {x | ‖f x‖ₑ = ∞} := by
         convert (top_mul ae_finite.ne').symm
         convert mul_top (ENNReal.ofReal_pos.mpr hp).ne'
-        sorry -- TODO: this should be some lemma
+        rw [← not_ne_iff, lintegral_ofReal_ne_top_iff_integrable]; rotate_left
+        · exact (measurable_id.pow_const (p - 1)).aestronglyMeasurable.restrict
+        · refine ae_restrict_of_forall_mem measurableSet_Ioi fun x mx ↦ ?_
+          simp_rw [Pi.zero_apply]; rw [mem_Ioi] at mx; positivity
+        exact not_integrableOn_Ioi_rpow (p - 1)
       _ = ∫⁻ (t : ℝ) in Ioi 0, ENNReal.ofReal p * ENNReal.ofReal (t ^ (p - 1))
             * μ {x | ‖f x‖ₑ = ∞} := by
         rw [lintegral_mul_const, lintegral_const_mul] <;> fun_prop
