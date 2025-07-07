@@ -2,6 +2,15 @@ import Mathlib.Analysis.Normed.Group.Basic
 
 open scoped ENNReal
 
+section Enorm
+
+@[to_additive]
+lemma enorm_div_rev {E : Type*} [SeminormedGroup E] (a b : E) : ‖a / b‖ₑ = ‖b / a‖ₑ := by
+  rw [← edist_eq_enorm_div, edist_comm, edist_eq_enorm_div]
+
+end Enorm
+
+
 section ENormedMonoid
 
 variable {ι E : Type*} [TopologicalSpace E]
