@@ -122,10 +122,8 @@ lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) (nf : (‖f ·‖) 
     simp_rw [add_halves, ε, lt_sub_comm, dist_eq_norm'] at final_bound; apply final_bound.trans_le
     rw [sub_le_comm]; exact norm_sub_norm_le ..
 
-variable [IsCancellative X (defaultτ a)]
-
 /-- Theorem 1.0.3 -/
-theorem linearized_metric_carleson
+theorem linearized_metric_carleson [IsCancellative X (defaultτ a)]
     (hq : q ∈ Ioc 1 2) (hqq' : q.HolderConjugate q') (mF : MeasurableSet F) (mG : MeasurableSet G)
     (mf : Measurable f) (nf : (‖f ·‖) ≤ F.indicator 1)
     (hT : ∀ θ : Θ X, HasBoundedStrongType (linearizedNontangentialOperator Q θ K · ·)
