@@ -16,8 +16,6 @@ The metric given by all other balls are equivalent. -/
 instance : PseudoMetricSpace (Θ X) :=
   inferInstanceAs <| PseudoMetricSpace <| WithFunctionDistance o 1
 
-instance : TopologicalSpace (Θ X) := inferInstance
-
 lemma dist_eq_cdist {f g : Θ X} : dist f g = dist_{o, 1} f g := rfl
 
 /-!
