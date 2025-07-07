@@ -814,7 +814,7 @@ We begin by proving some continuity properties of the integrand in \eqref{def-ma
     \lean{continuous_carlesonOperatorIntegrand, rightContinuous_carlesonOperatorIntegrand, leftContinuous_carlesonOperatorIntegrand, measurable_carlesonOperatorIntegrand, enorm_carlesonOperatorIntegrand_le}
     Let $f$ be a measurable function with $|f| \le 1$. Then the function
     \[
-        G: X \times \Theta \times (0,\infty) \times (0, \infty) \to [0, \infty)
+        G: X \times \Theta \times (0,\infty) \times (0, \infty) \to \mathbb{C}
     \]
     \[
         G(x, \mfa, R_1, R_2) := \int_{R_1 < \rho(x,y) < R_2} K(x,y) f(y) e(\mfa(y)) \, \mathrm{d}\mu(y)

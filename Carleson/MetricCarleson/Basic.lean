@@ -13,8 +13,10 @@ variable [CompatibleFunctions ℝ X (defaultA a)]
 
 /-- We choose as metric space instance on `Θ` one given by an arbitrary ball.
 The metric given by all other balls are equivalent. -/
-scoped instance : PseudoMetricSpace (Θ X) :=
+instance : PseudoMetricSpace (Θ X) :=
   inferInstanceAs <| PseudoMetricSpace <| WithFunctionDistance o 1
+
+instance : TopologicalSpace (Θ X) := inferInstance
 
 lemma dist_eq_cdist {f g : Θ X} : dist f g = dist_{o, 1} f g := rfl
 
@@ -39,7 +41,6 @@ end MetricΘ
 open MetricΘ
 
 variable [KernelProofData a K] {θ ϑ : Θ X} {Q : SimpleFunc X (Θ X)} {R₁ R₂ : ℝ} {f : X → ℂ} {x : X}
--- [IsCancellative X (defaultτ a)]
 
 lemma measurable_carlesonOperatorIntegrand (mf : Measurable f) :
     Measurable (fun x ↦ carlesonOperatorIntegrand K (Q x) R₁ R₂ f x) := by
@@ -245,6 +246,39 @@ lemma leftContinuous_carlesonOperatorIntegrand
     (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) :
     ContinuousWithinAt (carlesonOperatorIntegrand K θ R₁ · f x) (Iic R₂) R₂ :=
   leftContinuous_integral_annulus (integrableOn_coi_inner_annulus mf nf hR₁)
+
+variable (θ x) in
+/-- Given `0 < R₁ < R₂`, move `(R₁, R₂)` to rational `(q₁, q₂)` where `R₁ < q₁ < q₂ < R₂`
+and the norm of `carlesonOperatorIntegrand` changes by at most `ε`. -/
+lemma exists_rat_near_carlesonOperatorIntegrand
+    (mf : Measurable f) (nf : (‖f ·‖) ≤ 1) (hR₁ : 0 < R₁) (hR₂ : R₁ < R₂) {ε : ℝ} (εpos : 0 < ε) :
+    ∃ q₁ q₂ : ℚ, R₁ < q₁ ∧ q₁ < q₂ ∧ q₂ < R₂ ∧
+    dist (carlesonOperatorIntegrand K θ q₁ q₂ f x)
+    (carlesonOperatorIntegrand K θ R₁ R₂ f x) < ε := by
+  -- Shift `R₁` to a larger rational with error less than `ε / 2`
+  have rcon := @rightContinuous_carlesonOperatorIntegrand _ _ _ _ _ θ R₁ R₂ _ x mf nf hR₁
+  rw [Metric.continuousWithinAt_iff] at rcon; specialize rcon _ (half_pos εpos)
+  obtain ⟨δ₁, δ₁pos, hq₁⟩ := rcon
+  have lt₁ : R₁ < min (R₁ + δ₁) R₂ := by rw [lt_min_iff]; constructor <;> linarith
+  obtain ⟨q₁, lbq₁, ubq₁⟩ := exists_rat_btwn lt₁
+  rw [lt_min_iff, ← sub_lt_iff_lt_add'] at ubq₁; obtain ⟨ubq₁, lR₂⟩ := ubq₁
+  have dq₁ : dist ↑q₁ R₁ < δ₁ := by rwa [Real.dist_eq, abs_of_nonneg (sub_nonneg.mpr lbq₁.le)]
+  specialize hq₁ lbq₁.le dq₁
+  -- Shift `R₂` to a smaller rational with error less than `ε / 2`
+  have q₁pos : (0 : ℝ) < q₁ := hR₁.trans lbq₁
+  have lcon := @leftContinuous_carlesonOperatorIntegrand _ _ _ _ _ θ q₁ R₂ _ x mf nf q₁pos
+  rw [Metric.continuousWithinAt_iff] at lcon; specialize lcon _ (half_pos εpos)
+  obtain ⟨δ₂, δ₂pos, hq₂⟩ := lcon
+  have lt₂ : max (R₂ - δ₂) q₁ < R₂ := by rw [max_lt_iff]; constructor <;> linarith
+  obtain ⟨q₂, lbq₂, ubq₂⟩ := exists_rat_btwn lt₂
+  rw [max_lt_iff, sub_lt_comm] at lbq₂; obtain ⟨lbq₂, lq⟩ := lbq₂
+  have dq₂ : dist ↑q₂ R₂ < δ₂ := by
+    rwa [Real.dist_eq, abs_sub_comm, abs_of_nonneg (sub_nonneg.mpr ubq₂.le)]
+  specialize hq₂ ubq₂.le dq₂
+  -- The rest is just the triangle inequality
+  use q₁, q₂, lbq₁, Rat.cast_lt.mp lq, ubq₂
+  have final_bound := (dist_triangle ..).trans_lt (add_lt_add hq₂ hq₁)
+  rwa [add_halves] at final_bound
 
 /-- The constant used in the proof of `int-continuous`. -/
 irreducible_def C3_0_1 (a : ℕ) (R₁ R₂ : ℝ≥0) : ℝ≥0 :=

@@ -74,53 +74,31 @@ lemma measurable_lcoConvergent {n : ℕ} (mf : Measurable f) (nf : (‖f ·‖) 
   ext x
   simp_rw [mem_preimage, mem_Ioi, lcoConvergent, lt_biSup_iff, mem_iUnion₂, mem_setOf_eq,
     exists_prop]
-  symm; constructor <;> intro h
-  · obtain ⟨⟨R₁, R₂⟩, ⟨bR₁, bR₂, bR₃⟩, hR⟩ := h; dsimp only at hR
-    simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_inv, Rat.cast_pow, Rat.cast_ofNat] at bR₁ bR₂ bR₃
-    use R₁, ⟨bR₁, bR₂.trans bR₃⟩, R₂, ⟨bR₂, bR₃⟩
+  constructor <;> intro h
   · obtain ⟨R₁, mR₁, R₂, mR₂, hR⟩ := h; unfold T_R at hR ⊢
-    -- Get rid of the indicator surrounding `carlesonOperatorIntegrand`
     by_cases mx : x ∈ Metric.ball (cancelPt X) (2 ^ n); swap
     · simp [indicator_of_notMem mx] at hR
     simp_rw [indicator_of_mem mx] at hR ⊢
-    -- Define our ε
     lift c to ℝ≥0 using hR.ne_top
     simp_rw [coe_lt_enorm, ← NNReal.coe_lt_coe, coe_nnnorm] at hR ⊢
     let ε := ‖carlesonOperatorIntegrand K (Q x) R₁ R₂ f x‖ - c
     have εpos : 0 < ε := by linarith only [hR]
-    -- Move `R₁` right (+ve) by a small amount to a rational number
-    have lR₁ : R₁ < R₂ := mR₂.1
-    have R₁pos : 0 < R₁ := lt_of_le_of_lt (by positivity) mR₁.1
-    have rcon := @rightContinuous_carlesonOperatorIntegrand _ _ _ _ _ (Q x) R₁ R₂ _ x mf nf R₁pos
-    rw [Metric.continuousWithinAt_iff] at rcon; specialize rcon _ (half_pos εpos)
-    obtain ⟨δ₁, δ₁pos, hq₁⟩ := rcon
-    have lt₁ : R₁ < min (R₁ + δ₁) R₂ := by rw [lt_min_iff]; constructor <;> linarith
-    obtain ⟨q₁, lbq₁, ubq₁⟩ := exists_rat_btwn lt₁
-    rw [lt_min_iff, ← sub_lt_iff_lt_add'] at ubq₁; obtain ⟨ubq₁, lR₂⟩ := ubq₁
-    have dq₁ : dist ↑q₁ R₁ < δ₁ := by rwa [Real.dist_eq, abs_of_nonneg (sub_nonneg.mpr lbq₁.le)]
-    specialize hq₁ lbq₁.le dq₁
-    -- Move `R₂` left (-ve) by a small amount to a rational number
-    have q₁pos : (0 : ℝ) < q₁ := R₁pos.trans lbq₁
-    have lcon := @leftContinuous_carlesonOperatorIntegrand _ _ _ _ _ (Q x) q₁ R₂ _ x mf nf q₁pos
-    rw [Metric.continuousWithinAt_iff] at lcon; specialize lcon _ (half_pos εpos)
-    obtain ⟨δ₂, δ₂pos, hq₂⟩ := lcon
-    have lt₂ : max (R₂ - δ₂) q₁ < R₂ := by rw [max_lt_iff]; constructor <;> linarith
-    obtain ⟨q₂, lbq₂, ubq₂⟩ := exists_rat_btwn lt₂
-    rw [max_lt_iff, sub_lt_comm] at lbq₂; obtain ⟨lbq₂, lq⟩ := lbq₂
-    have dq₂ : dist ↑q₂ R₂ < δ₂ := by
-      rwa [Real.dist_eq, abs_sub_comm, abs_of_nonneg (sub_nonneg.mpr ubq₂.le)]
-    specialize hq₂ ubq₂.le dq₂
-    -- Combine `hq₁` and `hq₂` to get the required bound
+    have hR₁ : 0 < R₁ := lt_of_le_of_lt (by positivity) mR₁.1
+    have hR₂ : R₁ < R₂ := mR₂.1
+    obtain ⟨q₁, q₂, lq₁, lq, lq₂, dq⟩ :=
+      exists_rat_near_carlesonOperatorIntegrand (Q x) x mf nf hR₁ hR₂ εpos
     have qmJ : (q₁, q₂) ∈ J := by
       refine ⟨?_, Rat.cast_lt.mp lq, ?_⟩
       · simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_inv, Rat.cast_pow, Rat.cast_ofNat]
-        exact mR₁.1.trans lbq₁
+        exact mR₁.1.trans lq₁
       · simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_pow, Rat.cast_ofNat]
-        exact ubq₂.trans mR₂.2
+        exact lq₂.trans mR₂.2
     use (q₁, q₂), qmJ
-    have final_bound := (dist_triangle ..).trans_lt (add_lt_add hq₂ hq₁)
-    simp_rw [add_halves, ε, lt_sub_comm, dist_eq_norm'] at final_bound; apply final_bound.trans_le
+    simp_rw [ε, lt_sub_comm, dist_eq_norm'] at dq; apply dq.trans_le
     rw [sub_le_comm]; exact norm_sub_norm_le ..
+  · obtain ⟨⟨R₁, R₂⟩, ⟨bR₁, bR₂, bR₃⟩, hR⟩ := h; dsimp only at hR
+    simp_rw [← Rat.cast_lt (K := ℝ), Rat.cast_inv, Rat.cast_pow, Rat.cast_ofNat] at bR₁ bR₂ bR₃
+    use R₁, ⟨bR₁, bR₂.trans bR₃⟩, R₂, ⟨bR₂, bR₃⟩
 
 /-- Theorem 1.0.3 -/
 theorem linearized_metric_carleson [IsCancellative X (defaultτ a)]
